@@ -5,11 +5,13 @@ module jt74161(
 	input clk,
 	input cl_b,
 	input [3:0] d,
-	output [3:0] q,
+	output reg [3:0] q,
 	output ca
  );
 
 	assign ca = &{q, cet};
+
+	initial q=4'd0;
 
 	always @(posedge clk or negedge cl_b) 
 		if( !cl_b )
@@ -26,13 +28,15 @@ module jt7474(
 	input pr_b,
 	input cl_b,
 	input clk,
-	output q,
+	output reg q,
 	output q_b
 );
 
 	assign q_b = ~q;
 
-	if( posedge clk or negedge cl_b or negedge pr_b )
+	initial q=1'b0;
+
+	always @( posedge clk or negedge cl_b or negedge pr_b )
 		if( !pr_b ) q <= 1'b1;
 		else if(!cl_b) q <= 1'b0;
 		else if( clk ) q <= d;
@@ -48,25 +52,27 @@ module jt74138(
 );
 
 	always @(*)
-		if( !e1_b && !e2_b && e3 )
+		if( e1_b || e2_b || !e3 )
 			y_b <= 8'hff;
 		else y_b = ~ ( 8'b1 << a );
 
 endmodule
 
 module jt74112(
-	input pr_b,
-	input cl_b,
-	input clk_b,
-	input j,
-	input k
-	output q,
+	input  pr_b,
+	input  cl_b,
+	input  clk_b,
+	input  j,
+	input  k,
+	output reg q,
 	output q_b
 );
 
 	assign q_b = ~q;
 
-	if( negedge clk_b or negedge pr_b or negedge cl_b )
+	initial q=1'b0;
+
+	always @( negedge clk_b or negedge pr_b or negedge cl_b )
 		if( !pr_b ) q <= 1'b1;
 		else if( !cl_b ) q <= 1'b0;
 		else if( !clk_b )
