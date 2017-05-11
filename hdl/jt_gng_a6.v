@@ -26,7 +26,7 @@ module jt_gng_a6(
 	input	CHARCS_b,	// from A-2/8
 	input	OH,			// from A-5/8
 	input	N4H,		// from A-5/8
-	output [3:0] CC,	// to   A-8/8
+	output [3:0] CC,	// to   A-8/8 ... character palette
 	output	CHHFLIP,	// to   A-7/8
 	output	CHHFLIPq,	// to   A-7/8
 	output	CHVFLIP,	// to	A-7/8
@@ -37,17 +37,18 @@ module jt_gng_a6(
 );
 
 reg [10:0] ram_addr;
-reg	ram_wr_b;
+reg	ram_we_b;
 
+// MRDY is like wait cycles in modern CPUs
 assign MRDY_b = MRDY2_b & (CHARCS_b | (H2&H4));
 
 always @(*)
 	if( ~H4 ) begin
 		ram_addr = AB;
-		ram_wr_b = CHARCS_b | ~RDB_b;
+		ram_we_b = CHARCS_b | ~RDB_b;
 	end else begin
 		ram_addr = { H2, {10{FLIP}}^{V128,V64,V32,V16,V8,H128,H64,H32,H16,H8}};
-		ram_wr_b = 1'b1;
+		ram_we_b = 1'b1;
 	end
 
 wire [7:0] DC;
@@ -77,6 +78,13 @@ jt74273 u9F( .clk(G4H), .d(aux), .q(AC), .cl_b(1'b1) );
 jt74273 u8H( .clk(G4H), .d(DC), .q(aux2), .cl_b(1'b1) );
 jt74174 u8F( .clk(OH), .d(aux2[5:0]), .q(aux3), .cl_b(1'b1) );
 
+M58725 ram(
+	.addr( ram_addr ),
+	.d(DC),
+	.oe_b	( 1'b0	),
+	.ce_b	( 1'b0	),
+	.we_b	( ram_we_b )
+);
 
 endmodule
 
