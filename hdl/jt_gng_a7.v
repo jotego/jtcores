@@ -34,12 +34,15 @@ wire hflip = ~CHHFLIP ^ FLIP;
 
 wire [3:0] addr = { {3{vflip}} ^ {VV4,VV2,VV1}, hflip^H4 };
 
-reg [7:0] mem_11e[16383:0];
+reg [7:0] mem_11e[0:16383];
 
-//initial $readmemh("../rom/mm11.3e.hex");
+initial begin
+	$readmemh("../../rom/mm11.3e.hex", mem_11e);
+	$display("Mem[0]=%X\n", mem_11e[0]);
+end
 reg [7:0] data;
 
-always @(*)
+always @(AC,addr)
 	data <= mem_11e[ {AC,addr} ];
 
 wire [1:0] S;

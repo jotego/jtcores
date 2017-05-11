@@ -21,14 +21,14 @@ initial begin
 	for(i=0; i<2048;i=i+1)
 		mem[i] = 8'd0;
 
-	// mem[0]=8'd72; // H
-	// mem[1]=8'd79; // O
-	// mem[2]=8'd76; // L
-	// mem[3]=8'd65; // A
-	mem[0]=8'd01; // H
-	mem[1]=8'd02; // O
-	mem[2]=8'd04; // L
-	mem[3]=8'd08; // A
+	mem[0]=8'd72; // H
+	mem[1]=8'd79; // O
+	mem[2]=8'd76; // L
+	mem[3]=8'd65; // A
+	// mem[0]=8'd01; // H
+	// mem[1]=8'd02; // O
+	// mem[2]=8'd04; // L
+	// mem[3]=8'd08; // A
 
 	// attributes
 	mem[1024]=8'h10;
