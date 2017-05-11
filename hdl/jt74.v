@@ -84,6 +84,47 @@ module jt74112(
 
 endmodule
 
+// Octal bus transceiver; 3-state
+module jt74245(
+	inout [7:0] a,
+	inout [7:0] b,
+	input dir,
+	input en_b
+);
+
+	assign a = enb || dir  ? 8'hzz : b;
+	assign b = enb || !dir ? 8'hzz : a;
+
+endmodule
+
+// Octal D-type flip-flop with reset; positive-edge trigger
+module jt74233(
+	input [7:0] d,
+	output reg [7:0] q,
+	input cl_b, // CLEAR, reset
+	input clk
+);
+
+	always @(posedge clk or negedge cl_b)
+		if( !cl_b ) q<=8'h0;
+		else q<= d;
+
+endmodule
+
+// Hex D-type flip-flop with reset; positive-edge trigger
+module jt74174(
+	input [5:0] d,
+	output reg [5:0] q,
+	input cl_b, // CLEAR, reset
+	input clk
+);
+
+	always @(posedge clk or negedge cl_b)
+		if( !cl_b ) q<=6'h0;
+		else q<= d;
+
+endmodule
+
 module jt74367(
 	input [5:0] A,
 	output [5:0] Y,
