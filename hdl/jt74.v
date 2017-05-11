@@ -92,8 +92,8 @@ module jt74245(
 	input en_b
 );
 
-	assign a = enb || dir  ? 8'hzz : b;
-	assign b = enb || !dir ? 8'hzz : a;
+	assign a = en_b || dir  ? 8'hzz : b;
+	assign b = en_b || !dir ? 8'hzz : a;
 
 endmodule
 
@@ -134,5 +134,55 @@ module jt74367(
 
 assign Y[3:0] = !en4_b ? A[3:0] : 4'hz;
 assign Y[5:4] = !en6_b ? A[5:4] : 2'hz;
+
+endmodule
+
+module jt74194(
+	input [3:0] D,
+	input [1:0] S,
+	input clk,
+	input cl_b,
+	input R, 	// right
+	input L,  	// left
+	output reg [3:0] Q
+);
+
+	always @(posedge clk)
+		if( !cl_b )
+			Q <= 4'd0;
+		else case( S )
+			2'b10: Q <= { L, Q[3:1] };
+			2'b01: Q <= { Q[2:0], R };
+			2'b11: Q <= D;
+		endcase
+
+
+endmodule
+
+module jt74157(
+	input	sel,
+	input	st_l,
+	input	[3:0] A,
+	input	[3:0] B,
+	output	reg [3:0] Y
+);
+
+	always @(*)
+		if( st_l ) Y = 4'd0;
+		else Y = sel ? B : A;
+
+endmodule
+
+module jt74273(
+	input	[7:0] d,
+	input	clk,
+	input	cl_b,
+	output	reg [7:0] q
+);
+
+	always @(posedge clk or negedge cl_b)
+		if(!cl_b)
+			q <= 8'd0;
+		else if(clk) q<=d;
 
 endmodule
