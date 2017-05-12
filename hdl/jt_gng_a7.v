@@ -30,7 +30,7 @@ assign CH6M = G6M;
 
 always @(posedge G4H) {VV4,VV2,VV1} <= {V4,V2,V1};
 wire vflip =  CHVFLIP ^ FLIP;
-wire hflip = ~CHHFLIP ^ FLIP;
+wire hflip = ~CHHFLIP ^ ~FLIP;
 
 wire [3:0] addr = { {3{vflip}} ^ {VV4,VV2,VV1}, hflip^H4 };
 

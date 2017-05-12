@@ -146,6 +146,9 @@ module jt74194(
 	input L,  	// left
 	output reg [3:0] Q
 );
+	// reg clk2;
+	// always @(clk)
+	// 	clk2 = #1 clk;
 
 	always @(posedge clk)
 		if( !cl_b )

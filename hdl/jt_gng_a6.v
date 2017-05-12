@@ -68,11 +68,11 @@ jt74245 u10H(
 wire [7:0] aux, aux2;
 wire [5:0] aux3;
 
-assign CC = aux3[3:0];
 assign AC[9:8] = aux2[7:6];
 assign CHVFLIP = aux2[5];
 assign CHHFLIP = aux2[4];
 assign CHHFLIPq = aux3[4];
+assign CC = aux3[3:0];
 
 jt74273 u9H( .clk(keep_clk), .d(DC), .q(aux), .cl_b(1'b1) );
 jt74273 u9F( .clk(G4H), .d(aux), .q(AC[7:0]), .cl_b(1'b1) );

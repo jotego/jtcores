@@ -6,7 +6,7 @@ module char_tb;
 		$dumpfile("test.lxt");
 		$dumpvars;
 		$dumpon;
-		#(30*1000*1000) $finish;
+		#(100*1000*1000) $finish;
 	end
 
 	wire Phi8;

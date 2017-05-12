@@ -20,7 +20,15 @@ integer i;
 initial begin
 	for(i=0; i<1024;i=i+1) begin
 		mem[i] = i;
-		mem[i+1024] = (i>>8) & 8'b11;
+		mem[i+1024] = 8'h10 | ( (i>>8) & 8'b11);
+		// if( i%2==0 ) begin
+		// 	mem[i] = 8'd3;
+		// 	mem[i+1024] = 8'h10;
+		// end
+		// else begin
+		// 	mem[i] = 8'd2;
+		// 	mem[i+1024] = 8'h10;
+		// end
 	end
 /*
 	mem[0]=8'd72; // H
