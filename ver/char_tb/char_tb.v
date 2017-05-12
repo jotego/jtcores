@@ -6,7 +6,7 @@ module char_tb;
 		$dumpfile("test.lxt");
 		$dumpvars;
 		$dumpon;
-		#(60*1000*1000) $finish;
+		#(30*1000*1000) $finish;
 	end
 
 	wire Phi8;
@@ -135,6 +135,18 @@ jt_gng_a7 i_jt_gng_a7 (
 	.CHARY   (CHARY   )
 );
 
+reg lastIRQ;
 
+always @(posedge G6M) begin
+	lastIRQ <= HINIT_b;
+	if( !HINIT_b && lastIRQ) $write("\n");
+	else
+	case( ~{CHARY, CHARZ} )
+		2'b00: $write(" ");
+		2'b01: $write("·");
+		2'b10: $write("+");
+		2'b11: $write("#");
+	endcase // {CHARY, CHARZ}
+end
 
 endmodule // char_tb

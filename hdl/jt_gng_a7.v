@@ -37,7 +37,7 @@ wire [3:0] addr = { {3{vflip}} ^ {VV4,VV2,VV1}, hflip^H4 };
 reg [7:0] mem_11e[0:16383];
 
 initial begin
-	$readmemh("../../rom/mm11.3e.hex", mem_11e);
+	$readmemh("../../rom/mm01.11e.hex", mem_11e);
 	$display("Mem[0]=%X\n", mem_11e[0]);
 end
 reg [7:0] data;
@@ -70,7 +70,7 @@ jt74194 u_11D(
 
 jt74157 u_10C(
 	.A	( {1'b1, G4_3H, QZ[0], QY[0]} ),
-	.B	( {G4_3H, 1'b1, QZ[1], QY[1]} ),
+	.B	( {G4_3H, 1'b1, QZ[3], QY[3]} ),
 	.sel( CHHFLIPq ^ FLIP ),
 	.st_l( 1'b0 ),
 	.Y	( {S, CHARZ, CHARY} )
