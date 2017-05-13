@@ -15,37 +15,22 @@ reg [7:0] dread;
 always @(addr)
 	dread = mem[addr];
 
-integer i;
-
+`ifdef CHAR_TEST
+integer i,j,k,c=0;
 initial begin
-	for(i=0; i<1024;i=i+1) begin
-		mem[i] = i;
-		mem[i+1024] = 8'h10 | ( (i>>8) & 8'b11);
-		// if( i%2==0 ) begin
-		// 	mem[i] = 8'd3;
-		// 	mem[i+1024] = 8'h10;
-		// end
-		// else begin
-		// 	mem[i] = 8'd2;
-		// 	mem[i+1024] = 8'h10;
-		// end
+	for(j=0;j<32;j=j+1)
+	for(i=0; i<32;i=i+1) begin
+		k = i+(j<<5);
+		c = (i&32'hf)+(j<<4);
+		mem[k] = c;
+		mem[k+1024] = 8'h10 | ( (c>>8) & 8'b11);
 	end
-/*
-	mem[0]=8'd72; // H
-	mem[1]=8'd79; // O
-	mem[2]=8'd76; // L
-	mem[3]=8'd65; // A
-	// mem[0]=8'd01; // H
-	// mem[1]=8'd02; // O
-	// mem[2]=8'd04; // L
-	// mem[3]=8'd08; // A
-
-	// attributes
-	mem[1024]=8'h10;
-	mem[1025]=8'h20;
-	mem[1026]=8'h40;
-	mem[1027]=8'h80;*/
 end
+`else 
+integer j;
+initial 
+	for(j=0;j<1024*2;j=j+1) mem[j]=0;
+`endif
 
 assign d = !ce_b && !oe_b ? dread : 8'hzz;
 
