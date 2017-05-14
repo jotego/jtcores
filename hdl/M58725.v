@@ -29,7 +29,10 @@ end
 `else 
 integer j;
 initial 
-	for(j=0;j<1024*2;j=j+1) mem[j]=0;
+	for(j=0;j<1024;j=j+1) begin
+		mem[j]=j;
+		mem[j+1024]=8'b11;
+	end
 `endif
 
 assign d = !ce_b && !oe_b ? dread : 8'hzz;

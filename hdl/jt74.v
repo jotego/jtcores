@@ -23,6 +23,7 @@ module jt74161(
 
 endmodule // jt74161
 
+// Dual D-type flip-flop with set and reset; positive edge-trigger
 module jt7474(
 	input d,
 	input pr_b,
@@ -43,6 +44,7 @@ module jt7474(
 
 endmodule
 
+// 3-to-8 line decoder/demultiplexer; inverting
 module jt74138(
 	input e1_b,
 	input e2_b,
@@ -131,12 +133,11 @@ module jt74367(
 	input en4_b,
 	input en6_b
 );
-
-assign Y[3:0] = !en4_b ? A[3:0] : 4'hz;
-assign Y[5:4] = !en6_b ? A[5:4] : 2'hz;
-
+	assign Y[3:0] = !en4_b ? A[3:0] : 4'hz;
+	assign Y[5:4] = !en6_b ? A[5:4] : 2'hz;
 endmodule
 
+// 4-bit bidirectional universal shift register
 module jt74194(
 	input [3:0] D,
 	input [1:0] S,
@@ -158,8 +159,6 @@ module jt74194(
 			2'b01: Q <= { Q[2:0], R };
 			2'b11: Q <= D;
 		endcase
-
-
 endmodule
 
 module jt74157(
@@ -176,6 +175,7 @@ module jt74157(
 
 endmodule
 
+// Octal D-type flip-flop with reset; positive-edge trigger
 module jt74273(
 	input	[7:0] d,
 	input	clk,
@@ -187,5 +187,18 @@ module jt74273(
 		if(!cl_b)
 			q <= 8'd0;
 		else if(clk) q<=d;
+
+endmodule
+
+// 4-bit binary full adder with fast carry
+module jt74283(
+	input [3:0] a,
+	input [3:0] b,
+	input 		cin,
+	output reg [3:0] s,
+	output reg	cout
+);
+
+	always @(a,b,cin) {cout,s} <= a+b+cin;
 
 endmodule
