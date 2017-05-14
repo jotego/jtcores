@@ -74,28 +74,27 @@ jt7474 u_14A(
 	.q		( hscroll[8]	)
 );
 
-reg [8:0] HF, SH;
-reg [2:0] SH_aux;
+reg [8:0] HF, SHx;
 reg Haux;
 
 always @(*) begin
 	// 14B, 14C
-	HF[6:0] = {7{FLIP}}^{H64,H32,H16,H8,H4,H2,H1};
+	HF[6:0] = {8{FLIP}}^{H64,H32,H16,H8,H4,H2,H1};
 	// 13C
 	Haux  = ~FLIP ^ HF[6]; // Haux = ~HF[6] ??
 	// 13D 13C
-	HF[7] = (HF[8]&Haux)^(FLIP&H128);
 	HF[8] = ~H256;
+	HF[7] = (~H256&~HF[6])^(FLIP&H128);
 	// 13B 12B 12C
-	{ SH[8:3], SH_aux } = hscroll + HF;
+	SHx = hscroll + HF;
 end
 
-assign SH256 = SH[8];
-assign SH128 = SH[7];
-assign  SH64 = SH[6];
-assign  SH32 = SH[5];
-assign  SH16 = SH[4];
-assign   SH8 = SH[3];
+assign SH256 = SHx[8];
+assign SH128 = SHx[7];
+assign  SH64 = SHx[6];
+assign  SH32 = SHx[5];
+assign  SH16 = SHx[4];
+assign   SH8 = SHx[3];
 
 wire [7:0] SHdecod;
 
@@ -103,7 +102,7 @@ jt74138 u_10C(
 	.e1_b	( 1'b0		),
 	.e2_b	( 1'b0		),
 	.e3		( 1'b1		),
-	.a		( {3{FLIP}}^SH_aux	),
+	.a		( {3{FLIP}}^SHx[2:0]	),
 	.y_b	( SHdecod	)
 );
 
@@ -117,7 +116,7 @@ always @(posedge G6M) begin
 	S2H 	 = ~SHdecod[1];
 end
 
-assign SH2 = SH_aux[1];
+assign SH2 = SHx[1];
 
 wire [1:0] mrdyq;
 

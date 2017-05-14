@@ -29,7 +29,7 @@ module jt_gng_b8(
 	input			SH16,
 	input			SH2,
 	input			S2H,
-	input			SOH,
+	input			S0H,
 	input			S4H,
 
 	input [10:0]	AB,		// from 1/9
@@ -97,8 +97,8 @@ M58725 ram(
 always @(posedge S2H) AS[7:0] <= DF;
 // 6A
 reg [3:0] aux;
-always @(posedge S4H) {AS[9:8], SVFLIP, SCRWIN, aux} <= DF;
+always @(posedge S4H) {AS[9:8], SVFLIP, SHFLIP, aux} <= DF;
 // 6B
-always @(posedge SOH) {SHFLIP_q, SCRWIN, SCO } <= aux;
+always @(posedge S0H) {SHFLIP_q, SCRWIN, SCO } <= aux;
 
 endmodule // jt_gng_b8

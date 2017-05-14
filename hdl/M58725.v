@@ -20,13 +20,24 @@ integer i,j,k,c=0;
 initial begin
 	for(j=0;j<32;j=j+1)
 	for(i=0; i<32;i=i+1) begin
-		k = i+(j<<5);
-		c = (i&32'hf)+(j<<4);
-		mem[k] = c;
-		mem[k+1024] = 8'h10 | ( (c>>8) & 8'b11);
+		k = i;
+		mem[k] = k;
+		mem[k+1024] = { k[9:8], 2'b00, 4'b0 };
 	end
 end
-`else 
+`endif
+`ifdef SCR_TEST
+integer j,k;
+initial begin
+	$display("Scroll test");
+	for(j=0;j<1024;j=j+1) begin
+		k=j+16;
+		mem[j]=k;
+		mem[j+1024]={k[9:8],2'b11,4'b0};
+	end
+end
+`endif
+`ifdef INIT_RAM
 integer j;
 initial 
 	for(j=0;j<1024;j=j+1) begin

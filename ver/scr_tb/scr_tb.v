@@ -2,12 +2,15 @@
 
 module scr_tb;
 
+	`ifdef DUMP
 	initial begin
 		$dumpfile("test.lxt");
 		$dumpvars;
 		$dumpon;
-		#(5*1000*1000) $finish;
 	end
+	`endif
+
+	initial #(17*1000*1000) $finish;
 
 	wire Phi8;
 	wire H4;
@@ -135,7 +138,27 @@ jt_gng_a7 i_jt_gng_a7 (
 	.CHARY   (CHARY   )
 );
 */
+wire V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F;
 
+jt_gng_b1 i_jt_gng_b1 (
+	.V1   (V1   ),
+	.V2   (V2   ),
+	.V4   (V4   ),
+	.V8   (V8   ),
+	.V16  (V16  ),
+	.V32  (V32  ),
+	.V64  (V64  ),
+	.V128 (V128 ),
+	.FLIP (FLIP ),
+	.V1F  (V1F  ),
+	.V2F  (V2F  ),
+	.V4F  (V4F  ),
+	.V8F  (V8F  ),
+	.V16F (V16F ),
+	.V32F (V32F ),
+	.V64F (V64F ),
+	.V128F(V128F)
+);
 
 	wire CBCS_b=1'b1;
 	wire SH2;
@@ -191,14 +214,7 @@ jt_gng_b7 i_jt_gng_b7 (
 );
 
 
-reg V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F;
-always @(*)
-	{V128F,V64F,V32F,V16F,V8F,V4F,V2F,V1F} <= 
-	{V128,V64,V32,V16,V8,V4,V2,V1}^{8{FLIP}};
-
-
 wire WR_b=1'b1;
-wire SOH;
 wire [9:0] AS;
 wire V256S;
 wire V128S;
@@ -238,7 +254,7 @@ jt_gng_b8 i_jt_gng_b8 (
 	.SH16    (SH16    ),
 	.SH2	 (SH2	  ),
 	.S2H     (S2H     ),
-	.SOH     (SOH     ),
+	.S0H     (S0H     ),
 	.S4H     (S4H     ),
 	.AB      (AB      ),
 	.AS      (AS      ),
@@ -289,7 +305,7 @@ always @(posedge G6M) begin
 	lastIRQ <= HINIT_b;
 	if( !HINIT_b && lastIRQ) $write("\n");
 	else
-	case( ~{SCRX, SCRY, SCRZ} )
+	case( {SCRX, SCRY, SCRZ} )
 		3'd0: $write(" ");
 		3'd1: $write("·");
 		3'd2: $write("-");
