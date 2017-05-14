@@ -69,8 +69,8 @@ reg ram_we_b;
 jt74245 u_10A(
 	.a		( DF      ),
 	.b		( DB      ),
-	.dir	( WR_b 	  ),
-	.en_b	( SCREN_b )
+	.dir	( SCREN_b ),
+	.en_b	( WR_b	  )
 );
 
 // 9A, 9B, 9C
@@ -87,7 +87,7 @@ always @(*)
 
 M58725 ram(
 	.addr	( ram_a 	),
-	.d		( DB		),
+	.d		( DF		),
 	.oe_b	( 1'b0		),
 	.ce_b	( 1'b0		),
 	.we_b	( ram_we_b	)

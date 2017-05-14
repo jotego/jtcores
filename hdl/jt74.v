@@ -106,7 +106,7 @@ module jt74233(
 	input cl_b, // CLEAR, reset
 	input clk
 );
-
+	initial q=8'd0;
 	always @(posedge clk or negedge cl_b)
 		if( !cl_b ) q<=8'h0;
 		else q<= d;
@@ -120,7 +120,7 @@ module jt74174(
 	input cl_b, // CLEAR, reset
 	input clk
 );
-
+	initial q=6'd0;
 	always @(posedge clk or negedge cl_b)
 		if( !cl_b ) q<=6'h0;
 		else q<= d;

@@ -6,7 +6,7 @@ module scr_tb;
 		$dumpfile("test.lxt");
 		$dumpvars;
 		$dumpon;
-		#(20*1000*1000) $finish;
+		#(5*1000*1000) $finish;
 	end
 
 	wire Phi8;
@@ -78,7 +78,7 @@ jt_gng_a5 i_jt_gng_a5 (
 	wire CHHFLIPq;
 	wire CHVFLIP;
 	wire [9:0] AC;
-	wire [7:0] DB;
+	wire [7:0] DB = 8'd0;
 	wire RDB_b = 1'b1;
 	wire [10:0] AB = 11'b0;
 /*
@@ -137,7 +137,7 @@ jt_gng_a7 i_jt_gng_a7 (
 */
 
 
-	wire CBCS_b;
+	wire CBCS_b=1'b1;
 	wire SH2;
 	wire SH8;
 	wire SH16;

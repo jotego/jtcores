@@ -90,6 +90,13 @@ always @(*) begin
 	{ SH[8:3], SH_aux } = hscroll + HF;
 end
 
+assign SH256 = SH[8];
+assign SH128 = SH[7];
+assign  SH64 = SH[6];
+assign  SH32 = SH[5];
+assign  SH16 = SH[4];
+assign   SH8 = SH[3];
+
 wire [7:0] SHdecod;
 
 jt74138 u_10C(
