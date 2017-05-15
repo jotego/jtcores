@@ -36,10 +36,16 @@ module jt_gng_b1(
 	input		OVER96_b,
 	input		phi_BB,
 	output		BLEN,
+	output		MATCH_b,
 );
 
+// 12K, 13K
 assign {V1F,V2F,V4F,V8F,V16F,V32F,V64F,V128F} 
 	= {8{FLIP}} ^ { V1,V2,V4,V8,V16,V32,V64,V128};
+wire [7:0] VF = {V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F};
+wire [7:0] Vaux = ~VF + ~{ {6{FLIP}}, 1'b0, FLIP};
+wire [7:0] comp = DE + Vaux;
+assign MATCH_b = ~&comp[7:4];
 
 assign BLCNTEN_b = ~BLEN;
 
