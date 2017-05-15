@@ -30,7 +30,8 @@ assign CH6M = G6M;
 
 always @(posedge G4H) {VV4,VV2,VV1} <= {V4,V2,V1};
 wire vflip =  CHVFLIP ^ FLIP;
-wire hflip = ~CHHFLIP ^ ~FLIP;
+wire flip_9D = FLIP;
+wire hflip = ~CHHFLIP ^ flip_9D;
 
 wire [3:0] addr = { {3{vflip}} ^ {VV4,VV2,VV1}, hflip^H4 };
 
@@ -71,7 +72,8 @@ jt74194 u_11D(
 jt74157 u_10C(
 	.A	( {1'b1, G4_3H, QZ[0], QY[0]} ),
 	.B	( {G4_3H, 1'b1, QZ[3], QY[3]} ),
-	.sel( CHHFLIPq ^ FLIP ),
+	.sel( CHHFLIPq ^ ~flip_9D ), // according to schematic CHHFLIPq ^ flip_9D
+	// but the output is corrupted unless I take ~flip_9D
 	.st_l( 1'b0 ),
 	.Y	( {S, CHARZ, CHARY} )
 );

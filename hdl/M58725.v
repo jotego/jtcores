@@ -8,7 +8,7 @@ module M58725(
 	input we_b
 );
 
-reg [7:0] mem [2047:0];
+reg [7:0] mem [0:2047];
 
 reg [7:0] dread;
 
@@ -16,6 +16,7 @@ always @(addr)
 	dread = mem[addr];
 
 `ifdef CHAR_TEST
+/*
 integer i,j,k,c=0;
 initial begin
 	for(j=0;j<32;j=j+1)
@@ -24,7 +25,8 @@ initial begin
 		mem[k] = k;
 		mem[k+1024] = { k[9:8], 2'b00, 4'b0 };
 	end
-end
+end*/
+initial $readmemh("../../sta/char.hex",mem);
 `endif
 `ifdef SCR_TEST
 integer j,k;
