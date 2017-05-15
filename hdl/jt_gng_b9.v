@@ -76,11 +76,14 @@ reg [4:0] addr_lsb;
 always @(*)
 	addr_lsb = { SHFLIP^SH8, {4{SVFLIP}}^{V8S,V4S,V2S,V1S} };
 
-wire [13:0] addr = { AS, addr_lsb };
+reg [13:0] addr;
+
+always @(*)
+	addr = { AS, addr_lsb };
 
 reg [7:0] X,Y,Z;
 
-always @(addr)
+always @(addr,AS[9])
 	if( AS[9] ) begin
 		X = mem_3b[addr];
 		Y = mem_3c[addr];

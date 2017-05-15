@@ -37,7 +37,7 @@ initial begin
 end*/
 initial begin
 	$display("Scroll test");
-	$readmemh("../../sta/char.hex",mem);
+	$readmemh("../../sta/scroll.hex",mem);
 end
 `elsif  INIT_RAM
 integer j;
