@@ -80,7 +80,7 @@ wire [13:0] addr = { AS, addr_lsb };
 
 reg [7:0] X,Y,Z;
 
-always @(*)
+always @(addr)
 	if( AS[9] ) begin
 		X = mem_3b[addr];
 		Y = mem_3c[addr];

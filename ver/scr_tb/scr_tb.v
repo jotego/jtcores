@@ -10,7 +10,7 @@ module scr_tb;
 	end
 	`endif
 
-	initial #(10*1000) $finish;
+	initial #(20*1000*1000) $finish;
 
 	wire Phi8;
 	wire H4;
@@ -300,7 +300,7 @@ jt_gng_b8 i_jt_gng_b8 (
 	.SCO     (SCO     )
 );
 
-/*
+
 	wire SCRX;
 	wire SCRY;
 	wire SCRZ;
@@ -342,5 +342,5 @@ always @(posedge G6M) begin
 		3'd7: $write("@");
 	endcase 
 end
-*/
+
 endmodule // char_tb

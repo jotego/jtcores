@@ -52,8 +52,9 @@ initial
 assign d = !ce_b && !oe_b && we_b ? dread : 8'hzz;
 
 
-always @(*) 
+always @(addr) 
 	dread = mem[addr];
+
 always @(*) begin
 	if(!ce_b && we_b) mem[addr] = d;
 end
