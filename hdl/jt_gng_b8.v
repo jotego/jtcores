@@ -60,9 +60,10 @@ always @(posedge OH) Vq <= {V128F,V64F,V32F,V16F,V8F,V4F,V2F,V1F};
 
 // 10D, 10B, 11B
 always @(*)
-	{V256S,V128S,V64S,V32S,V16S,V8S,V4S,V2S,V1S} <= Vq+dbq;
+	{V256S,V128S,V64S,V32S,V16S,V8S,V4S,V2S,V1S} = Vq+dbq;
 
-wire [7:0] DB, DF;
+wire [7:0] DB;
+wire [7:0] DF;
 reg  [10:0] ram_a;
 reg ram_we_b;
 

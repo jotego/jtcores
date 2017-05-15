@@ -24,9 +24,9 @@ module jt_gng_b1(
 	output		V32F,
 	output		V64F,
 	output		V128F,
-	input [12:0] AB,
-	inout [8:0]  OB,
-	output [7:0] DB,
+	output [12:0] AB,
+	input [8:0]  OB,
+	inout [7:0] DB,
 	output 		BLCNTEN_b,
 
 	input		OKOUT_b,
@@ -53,7 +53,8 @@ wire [7:0] DE;
 
 // unnamed instances in the original
 jt74245 u0 (.a(AB[7:0]), .b(OB[7:0]), .dir(1'b0), .en_b(BLCNTEN_b));
-jt74245 u1 (.a(AB[8]), .b(OB[8]), .dir(1'b0), .en_b(BLCNTEN_b));
+wire [5:0] pull_res = 6'h1f;
+jt74245 u1 (.a({RDB_b, WRB_b, AB[12:8]}), .b( { pull_res, OB[8]} ), .dir(1'b0), .en_b(BLCNTEN_b));
 jt74245 u2 (.a(DB), .b(DE), .dir(1'b1), .en_b(BLCNTEN_b));
 
 wire ROB;

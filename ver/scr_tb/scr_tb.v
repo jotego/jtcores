@@ -10,7 +10,7 @@ module scr_tb;
 	end
 	`endif
 
-	initial #(17*1000*1000) $finish;
+	initial #(10*1000) $finish;
 
 	wire Phi8;
 	wire H4;
@@ -83,7 +83,7 @@ jt_gng_a5 i_jt_gng_a5 (
 	wire [9:0] AC;
 	wire [7:0] DB = 8'd0;
 	wire RDB_b = 1'b1;
-	wire [10:0] AB = 11'b0;
+	wire [12:0] AB = 13'b0;
 /*
 jt_gng_a6 i_jt_gng_a6 (
 	.H2      (H2      ),
@@ -138,27 +138,53 @@ jt_gng_a7 i_jt_gng_a7 (
 	.CHARY   (CHARY   )
 );
 */
+
 wire V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F;
+wire AKB_b=1'b1;
+wire [8:0] OB =8'd0;
+
+
+wire BLCNTEN_b;
+wire OKOUT_b=1'b1;
+wire ROB_b;
+wire ACL2_b;
+wire OVER96_b=1'b1;
+wire phi_BB=~H1;
+wire BLEN;
+wire MATCH_b;
 
 jt_gng_b1 i_jt_gng_b1 (
-	.V1   (V1   ),
-	.V2   (V2   ),
-	.V4   (V4   ),
-	.V8   (V8   ),
-	.V16  (V16  ),
-	.V32  (V32  ),
-	.V64  (V64  ),
-	.V128 (V128 ),
-	.FLIP (FLIP ),
-	.V1F  (V1F  ),
-	.V2F  (V2F  ),
-	.V4F  (V4F  ),
-	.V8F  (V8F  ),
-	.V16F (V16F ),
-	.V32F (V32F ),
-	.V64F (V64F ),
-	.V128F(V128F)
+	.V1       (V1       ),
+	.V2       (V2       ),
+	.V4       (V4       ),
+	.V8       (V8       ),
+	.V16      (V16      ),
+	.V32      (V32      ),
+	.V64      (V64      ),
+	.V128     (V128     ),
+	.FLIP     (FLIP     ),
+	.V1F      (V1F      ),
+	.V2F      (V2F      ),
+	.V4F      (V4F      ),
+	.V8F      (V8F      ),
+	.V16F     (V16F     ),
+	.V32F     (V32F     ),
+	.V64F     (V64F     ),
+	.V128F    (V128F    ),
+	.AB       (AB       ), // TODO: Check connection ! Signal/port not matching : Expecting logic [12:0]  -- Found logic [10:0] 
+	.OB       (OB       ),
+	.DB       (DB       ),
+	.BLCNTEN_b(BLCNTEN_b),
+	.OKOUT_b  (OKOUT_b  ),
+	.ROB_b    (ROB_b    ),
+	.ACL2_b   (ACL2_b   ),
+	.AKB_b    (AKB_b    ),
+	.OVER96_b (OVER96_b ),
+	.phi_BB   (phi_BB   ),
+	.BLEN     (BLEN     ),
+	.MATCH_b  (MATCH_b  )
 );
+
 
 	wire CBCS_b=1'b1;
 	wire SH2;
@@ -256,7 +282,7 @@ jt_gng_b8 i_jt_gng_b8 (
 	.S2H     (S2H     ),
 	.S0H     (S0H     ),
 	.S4H     (S4H     ),
-	.AB      (AB      ),
+	.AB      (AB[10:0]),
 	.AS      (AS      ),
 	.V256S   (V256S   ),
 	.V128S   (V128S   ),
@@ -274,7 +300,7 @@ jt_gng_b8 i_jt_gng_b8 (
 	.SCO     (SCO     )
 );
 
-
+/*
 	wire SCRX;
 	wire SCRY;
 	wire SCRZ;
@@ -316,5 +342,5 @@ always @(posedge G6M) begin
 		3'd7: $write("@");
 	endcase 
 end
-
+*/
 endmodule // char_tb

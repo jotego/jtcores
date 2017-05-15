@@ -14,4 +14,4 @@ iverilog scr_tb.v \
 	../../hdl/{jt_gng_a5.v,jt_gng_b7.v,jt_gng_b8.v,jt_gng_b9.v} \
 	../../hdl/{jt74.v,M58725.v,jt_gng_b1.v,M2114x2.v} -s scr_tb -DSCR_TEST -D$DUMP -o sim \
 && sim -lxt
-# | less -S
+# | tee s | less -S

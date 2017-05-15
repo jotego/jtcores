@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 
 module M58725(
 	input [10:0] addr,
@@ -12,13 +12,10 @@ reg [7:0] mem [0:2047];
 
 reg [7:0] dread;
 
-always @(addr)
-	dread = mem[addr];
-
 `ifdef CHAR_TEST
-/*
-integer i,j,k,c=0;
+/*integer i,j,k,c=0;
 initial begin
+	$display("Char test");
 	for(j=0;j<32;j=j+1)
 	for(i=0; i<32;i=i+1) begin
 		k = i;
@@ -27,8 +24,7 @@ initial begin
 	end
 end*/
 initial $readmemh("../../sta/char.hex",mem);
-`endif
-`ifdef SCR_TEST
+`elsif SCR_TEST
 /*
 integer j,k;
 initial begin
@@ -39,20 +35,27 @@ initial begin
 		mem[j+1024]={k[9:8],2'b11,4'b0};
 	end
 end*/
-initial $readmemh("../../sta/scroll.hex",mem);
-`endif
-`ifdef INIT_RAM
+initial begin
+	$display("Scroll test");
+	$readmemh("../../sta/char.hex",mem);
+end
+`elsif  INIT_RAM
 integer j;
-initial 
+initial
+	$display("INIT RAM"); 
 	for(j=0;j<1024;j=j+1) begin
 		mem[j]=j;
 		mem[j+1024]=8'b11;
 	end
 `endif
 
-assign d = !ce_b && !oe_b ? dread : 8'hzz;
+assign d = !ce_b && !oe_b && we_b ? dread : 8'hzz;
 
-always @(*)
+
+always @(*) 
+	dread = mem[addr];
+always @(*) begin
 	if(!ce_b && we_b) mem[addr] = d;
+end
 
 endmodule // M58725
