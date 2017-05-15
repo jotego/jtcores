@@ -36,7 +36,7 @@ module jt_gng_b1(
 	input		OVER96_b,
 	input		phi_BB,
 	output		BLEN,
-	output		MATCH_b,
+	output		MATCH_b
 );
 
 // 12K, 13K
@@ -68,7 +68,7 @@ jt7474 u14D_b (.d(AKB_b), .pr_b(ROB), .cl_b(1'b1),
 
 wire mem_WE_b = phi_BB | BLCNTEN_b;
 
-M2114x2 m
+M2114x2 ram(
 	.addr	( {1'b0, OB} ),
 	.d		( DE		 ),
 	.ce_b	( 1'b0		 ),

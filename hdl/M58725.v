@@ -29,6 +29,7 @@ end*/
 initial $readmemh("../../sta/char.hex",mem);
 `endif
 `ifdef SCR_TEST
+/*
 integer j,k;
 initial begin
 	$display("Scroll test");
@@ -37,7 +38,8 @@ initial begin
 		mem[j]=k;
 		mem[j+1024]={k[9:8],2'b11,4'b0};
 	end
-end
+end*/
+initial $readmemh("../../sta/scroll.hex",mem);
 `endif
 `ifdef INIT_RAM
 integer j;
