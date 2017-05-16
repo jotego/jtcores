@@ -77,8 +77,11 @@ wire nNMI  = 1'b1;
 wire EXTAL=G6M;
 wire XTAL=1'b0;
 wire nDMABREQ=1'b1;
+wire E, Q;
 
 mc6809 i_mc6809 (
+	.Q		 (Q		  ),
+	.E		 (E		  ),
 	.D       (D       ),
 	.DOut    (DOut    ),
 	.ADDR    (ADDR    ),
@@ -96,6 +99,10 @@ mc6809 i_mc6809 (
 	.nDMABREQ(nDMABREQ),
 );
 
+// ROMs
+reg [7:0] rom_8n[ 0:32767];
+reg [7:0] rom_10n[0:32767];
+reg [7:0] rom_13n[0:32767];
 
 
 endmodule // jt_gng_a1
