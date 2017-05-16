@@ -60,6 +60,19 @@ module jt74138(
 
 endmodule
 
+// Dual 2-to-4 line decoder/demultiplexer
+module jt74139(
+	input 	en1_b,
+	input	a1[1:0],
+	output	y1_b[3:0],
+	input 	en2_b,
+	input	a2[1:0],
+	output	y2_b[3:0]
+);
+	always @(*) y1_b = en1_b ? 4'hf : ~( (4'b1)<<a1 );
+	always @(*) y2_b = en2_b ? 4'hf : ~( (4'b1)<<a2 );
+endmodule
+
 module jt74112(
 	input  pr_b,
 	input  cl_b,
