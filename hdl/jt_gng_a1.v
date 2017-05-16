@@ -18,6 +18,17 @@ module jt_gng_a1(
 
 reg rst;
 
+wire [7:0] D;
+wire [7:0] DOut;
+wire [15:0] ADDR;
+wire RnW;
+wire CLK4;
+wire AVMA;
+wire BUSY;
+wire LIC;
+wire nRESET;
+wire nHALT;
+
 initial begin
 	rst = 0;
 	#500 rst = 1;
@@ -26,6 +37,7 @@ end
 // 8J
 assign ALC2_b = ~rst;
 assign ALC1_b = ~rst;
+assign nRESET = ~rst;
 
 wire	IRQI, irq_clb;
 
@@ -34,7 +46,7 @@ jt7474 u_9J (
 	.pr_b	(1'b1), 
 	.cl_b	(irq_clb), 
 	.clk	(IRQI), 
-	.q_b	(IRQ_b)
+	.q_b	(nIRQ)
 );
 
 wire BA,BS;
@@ -58,6 +70,32 @@ jt74367 i_jt74367 (
 	.en4_b	(1'b0), 
 	.en6_b	(1'b0)
 );
+
+wire nIRQ;
+wire nFIRQ = 1'b1;
+wire nNMI  = 1'b1;
+wire EXTAL=G6M;
+wire XTAL=1'b0;
+wire nDMABREQ=1'b1;
+
+mc6809 i_mc6809 (
+	.D       (D       ),
+	.DOut    (DOut    ),
+	.ADDR    (ADDR    ),
+	.RnW     (RnW     ),
+	.BS      (BS      ),
+	.BA      (BA      ),
+	.nIRQ    (nIRQ    ),
+	.nFIRQ   (nFIRQ   ),
+	.nNMI    (nNMI    ),
+	.EXTAL   (EXTAL   ),
+	.XTAL    (XTAL    ),
+	.nHALT   (nHALT   ),
+	.nRESET  (nRESET  ),
+	.MRDY    (MRDY_b  ),
+	.nDMABREQ(nDMABREQ),
+);
+
 
 
 endmodule // jt_gng_a1
