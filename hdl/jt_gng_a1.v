@@ -18,9 +18,11 @@ module jt_gng_a1(
 	output		EXTEN_b,
 	input		BLCNTEN_b, // B23
 	inout	[7:0] DB,	// to pins A8:A1
-	output	[12:0] AB,	// to pins A25:A13
+	inout	[12:0] AB,	// to pins A25:A13
 	output		RDB_b,	// to pin B25
-	output		WRD_b   // to pin B24
+	output		WRD_b,   // to pin B24
+	input	[2:0] bank,	// from 2/8
+	output		ECLK
 );
 
 reg rst;
@@ -85,6 +87,8 @@ wire EXTAL=G6M;
 wire XTAL=1'b0;
 wire nDMABREQ=1'b1;
 wire E, Q;
+
+assign ECLK = E;
 
 mc6809 i_mc6809 (
 	.Q		 (Q		  ),
@@ -161,6 +165,7 @@ always @(ce8n_b, ce10n_b, ce13n_b)
 
 wire bus_rd_b = ~(E &  RnW);
 wire bus_wr_b = ~(E & ~RnW);
+wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
 
 jt74245 u_5N (
 	.a		({ bus_rd_b, bus_wr_b, A[12:8]}), 
@@ -168,6 +173,21 @@ jt74245 u_5N (
 	.dir	(1'b1), 
 	.en_b	(drive_bus_b)
 );
+
+jt74245 u_6N (
+	.a		( A[7:0]), 
+	.b		(AB[7:0]), 
+	.dir	(1'b1), 
+	.en_b	(drive_bus_b)
+);
+
+jt74245 u_11H (
+	.a		(D[7:0]), 
+	.b		(DB[7:0]), 
+	.dir	(1'b1), 
+	.en_b	(drive_bus_b)
+);
+
 
 
 endmodule // jt_gng_a1 
