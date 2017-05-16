@@ -215,3 +215,21 @@ module jt74283(
 	always @(a,b,cin) {cout,s} <= a+b+cin;
 
 endmodule
+
+// 8-bit addressable latch
+module jt74259(
+	input		D,
+	input [7:0]	Q,
+	input [2:0] A,
+	input		LE_b,
+	input		MR_b
+);
+
+reg [7:0] Q;
+initial Q=8'd0;
+
+always @(*)
+	if(!MR_b) Q=8'd0;
+		else if(!LE_b) Q[A] <= D;
+
+endmodule
