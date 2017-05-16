@@ -25,19 +25,20 @@ initial begin
 end*/
 initial $readmemh("../../sta/char.hex",mem);
 `elsif SCR_TEST
-/*
+
 integer j,k;
 initial begin
 	$display("Scroll test");
 	for(j=0;j<1024;j=j+1) begin
-		k=j+16;
+		//k=j[0]? 10: 0;
+		k=j;
 		mem[j]=k;
 		mem[j+1024]={k[9:8],2'b11,4'b0};
 	end
-end*/
+end
 initial begin
 	$display("Scroll test");
-	$readmemh("../../sta/scroll.hex",mem);
+	//$readmemh("../../sta/scroll.hex",mem);
 end
 `elsif  INIT_RAM
 integer j;
