@@ -69,6 +69,8 @@ jt74139 u_9K (
 	//.y2_b	(y2_b)
 );
 
+assign irq_clb = BABS[2];
+
 wire HALT_b, cpuMRDY_b, cpuE;
 
 jt74367 u_10J (
@@ -161,6 +163,7 @@ wire bus_rd_b = ~(E &  RnW);
 wire bus_wr_b = ~(E & ~RnW);
 assign EXTEN_b = decod_bank_b[1];
 wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
+assign WRAM_b = decod_ce_b[0] & BLCNTEN_b;
 
 jt74245 u_5N (
 	.a		({ bus_rd_b, bus_wr_b, A[12:8]}), 

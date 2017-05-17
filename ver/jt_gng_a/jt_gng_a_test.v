@@ -38,7 +38,7 @@ module jt_gng_a_test;
 	wire WRB_b;
 	wire RDB_b;
 	wire AKB_b;
-	wire ROB_b;
+	wire ROB_b = 1'b1;
 	wire ALC1_b;
 
 jt_gng_a UUT (
