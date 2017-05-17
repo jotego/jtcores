@@ -25,7 +25,6 @@ module jt_gng_a1(
 	output		ECLK
 );
 
-reg rst;
 
 wire [7:0] D;
 wire [7:0] DOut;
@@ -35,18 +34,17 @@ wire CLK4;
 wire AVMA;
 wire BUSY;
 wire LIC;
-wire nRESET;
+reg nRESET;
 wire nHALT;
 
 initial begin
-	rst = 0;
-	#500 rst = 1;
+	nRESET = 0;
+	#500 nRESET = 1;
 end
 
 // 8J
-assign ALC2_b = ~rst;
-assign ALC1_b = ~rst;
-assign nRESET = ~rst;
+assign ALC2_b = ~nRESET;
+assign ALC1_b = ~nRESET;
 
 wire	IRQ1, irq_clb;
 
@@ -161,6 +159,7 @@ assign D = &{ce8n_b, ce10n_b, ce13n_b}==1'b0 ? rom_data : 8'hzz;
 
 wire bus_rd_b = ~(E &  RnW);
 wire bus_wr_b = ~(E & ~RnW);
+assign EXTEN_b = decod_bank_b[1];
 wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
 
 jt74245 u_5N (
