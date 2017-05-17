@@ -13,7 +13,7 @@ module jt_gng_a_test;
 		$dumpon;
 	end
 
-	initial #(20*1000*1000) $finish;
+	initial #(40*1000*1000) $finish;
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;

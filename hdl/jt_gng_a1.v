@@ -48,13 +48,13 @@ assign ALC2_b = ~rst;
 assign ALC1_b = ~rst;
 assign nRESET = ~rst;
 
-wire	IRQI, irq_clb;
+wire	IRQ1, irq_clb;
 
 jt7474 u_9J (
 	.d		(1'b1), 
 	.pr_b	(1'b1), 
 	.cl_b	(irq_clb), 
-	.clk	(IRQI), 
+	.clk	(IRQ1), 
 	.q_b	(nIRQ)
 );
 

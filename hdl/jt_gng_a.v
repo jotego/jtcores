@@ -100,7 +100,7 @@ jt_gng_a2 A2 (
 
 jt_gng_a3 A3 (
 	.INCS_b  (INCS_b  ),
-	.AB      (AB      ), // TODO: Check connection ! Signal/port not matching : Expecting logic [2:0]  -- Found logic [12:0] 
+	.AB      (AB[2:0] ),
 	.DB      (DB      ),
 	.UP      (UP      ),
 	.DOWN    (DOWN    ),
