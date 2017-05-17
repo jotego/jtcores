@@ -2,7 +2,7 @@
 
 /*
 
-	Schematic sheet: 85606-B-2-8/9 Scroll video RAM
+	Schematic sheet: 85606-B-2-1/9 Objects Data RAM
 
 */
 

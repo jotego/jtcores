@@ -20,7 +20,7 @@ module jt_gng_a1(
 	inout	[7:0] DB,	// to pins A8:A1
 	inout	[12:0] AB,	// to pins A25:A13
 	output		RDB_b,	// to pin B25
-	output		WRD_b,   // to pin B24
+	output		WRB_b,   // to pin B24
 	input	[2:0] bank,	// from 2/8
 	output		ECLK
 );
@@ -67,20 +67,19 @@ jt74139 u_9K (
 	.y1_b	(BABS), 
 	// unused:
 	.en2_b	(1'b1), 
-	.a2		(4'd0)
+	.a2		(2'd0)
 	//.y2_b	(y2_b)
 );
 
 wire HALT_b, cpuMRDY_b, cpuE;
 
-jt74367 i_jt74367 (
-	.A		( {BABS[3], ROB_b, MRDY_b, G6M}	), 
-	.Y		( {AKB_b, HALT_b, cpuMRDY_b, cpuE}	), 
+jt74367 u_10J (
+	.A		( { BABS[3], ROB_b, MRDY_b, G6M}	), 
+	.Y		( { AKB_b, HALT_b, cpuMRDY_b, cpuE}	), 
 	.en4_b	(1'b0), 
 	.en6_b	(1'b0)
 );
 
-wire nIRQ;
 wire nFIRQ = 1'b1;
 wire nNMI  = 1'b1;
 wire EXTAL=G6M;
@@ -107,7 +106,7 @@ mc6809 i_mc6809 (
 	.nHALT   (nHALT   ),
 	.nRESET  (nRESET  ),
 	.MRDY    (MRDY_b  ),
-	.nDMABREQ(nDMABREQ),
+	.nDMABREQ(nDMABREQ)
 );
 
 // ROMs
@@ -158,10 +157,7 @@ always @(A, ce8n_b, ce10n_b, ce13n_b )
 		default: rom_data = 8'hzz;
 	endcase // {ce8n_b, ce10n_b, ce13n_b}
 
-always @(ce8n_b, ce10n_b, ce13n_b)
-	if( &{ce8n_b, ce10n_b, ce13n_b}==1'b0 )
-		D = rom_data;
-	else D = 8'hzz;
+assign D = &{ce8n_b, ce10n_b, ce13n_b}==1'b0 ? rom_data : 8'hzz;
 
 wire bus_rd_b = ~(E &  RnW);
 wire bus_wr_b = ~(E & ~RnW);
@@ -169,7 +165,7 @@ wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
 
 jt74245 u_5N (
 	.a		({ bus_rd_b, bus_wr_b, A[12:8]}), 
-	.b		({ RDB_b, WRD_b, AB[12:8]}), 
+	.b		({ RDB_b, WRB_b, AB[12:8]}), 
 	.dir	(1'b1), 
 	.en_b	(drive_bus_b)
 );

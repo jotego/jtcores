@@ -33,16 +33,18 @@ jt74367 u_4A (
 
 jt74367 u_5A ( 
 	.A( { SHOT2[1], SHOT1[1], UP[1], DOWN[1], LEFT[1], RIGHT[1] }  ),
-	.Y(DB[5:0]), .en4_b(IN[2]), .en6_b(IN[2])
+	.Y		(DB[5:0]	), 
+	.en4_b	(IN[2]		), 
+	.en6_b	(IN[2]		)
 );
 
 jt74367 u_2B ( 
-	.A( {DIPSW_B  ),
+	.A( DIPSW_B  ),
 	.Y(DB[7:0]), .en4_b(IN[4]), .en6_b(IN[4])
 );
 
 jt74367 u_1B ( 
-	.A( {DIPSW_A  ),
+	.A( DIPSW_A  ),
 	.Y(DB[7:0]), .en4_b(IN[3]), .en6_b(IN[3])
 );
 

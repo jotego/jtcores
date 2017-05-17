@@ -63,11 +63,11 @@ endmodule
 // Dual 2-to-4 line decoder/demultiplexer
 module jt74139(
 	input 	en1_b,
-	input	a1[1:0],
-	output	y1_b[3:0],
+	input 		[1:0] 		a1,
+	output reg 	[3:0] 		y1_b,
 	input 	en2_b,
-	input	a2[1:0],
-	output	y2_b[3:0]
+	input 		[1:0] 		a2,
+	output reg 	[3:0] 		y2_b
 );
 	always @(*) y1_b = en1_b ? 4'hf : ~( (4'b1)<<a1 );
 	always @(*) y2_b = en2_b ? 4'hf : ~( (4'b1)<<a2 );
@@ -219,13 +219,12 @@ endmodule
 // 8-bit addressable latch
 module jt74259(
 	input		D,
-	input [7:0]	Q,
 	input [2:0] A,
 	input		LE_b,
-	input		MR_b
+	input		MR_b,
+	output reg [7:0]	Q
 );
 
-reg [7:0] Q;
 initial Q=8'd0;
 
 always @(*)

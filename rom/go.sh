@@ -11,3 +11,7 @@ $OD mm08.1c > 1c.hex
 $OD mm10.1e > 1e.hex
 $OD mm12.1l > 1l.hex
 $OD mm14.4l > 4l.hex
+
+$OD mmt03d.8n  > 8n.hex
+$OD mmt04d.10n > 10n.hex
+$OD mmt05d.13n > 13n.hex

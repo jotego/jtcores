@@ -34,7 +34,7 @@ module jt_gng_a6(
 	output	[9:0] AC,	// to	A-7/8
 	inout	[7:0] DB,	// from A-1/8
 	input	RDB_b,		// from A-1/8
-	input	[10:0] AB	// from A-1/8
+	inout	[10:0] AB	// from A-1/8
 );
 
 reg [10:0] ram_addr;

@@ -7,7 +7,7 @@
 */
 
 module jt_gng_a2(
-	input	[12:0]	AB,
+	inout	[12:0]	AB,
 	input			WRAM_b,
 	input			WRB_b,
 	input			RDB_b,
@@ -16,7 +16,7 @@ module jt_gng_a2(
 	output	[1:0]	counter,
 	output			SRES_b,
 	output			FLIP,
-	input			ACLI_b,
+	input			ALC1_b,
 	output			RGCS_b,
 	output			BCS_b,
 	output			SOUND,
@@ -34,7 +34,7 @@ reg [7:0] dread;
 wire [7:0] D = WRB_b && !RDB_b ? dread : 8'hzz;
 
 always @(AB) begin
-	dread=ram[addr];
+	dread=ram[AB];
 end
 
 
@@ -50,7 +50,7 @@ jt74138 u_3D (.e1_b(GRCS[3]), .e2_b(GRCS[3]), .e3(ECLK), .a(AB[10:8]), .y_b(ext_
 
 
 wire [7:0] other;
-jt74259 u_9B (.D(OB[0]), .A(AB[2:0]), .Q(other), .LE_b(ext_decoded[5]), .MR_b(ACLI_b));
+jt74259 u_9B (.D(DB[0]), .A(AB[2:0]), .Q(other), .LE_b(ext_decoded[5]), .MR_b(ALC1_b));
 
 assign counter = other[3:2];
 assign SRES_b = other[1];
@@ -62,6 +62,6 @@ assign SOUND   = ext_decoded[2];
 assign SCRPO_b = ext_decoded[3];
 assign OKOUT_b = ext_decoded[4];
 
-jt74174 u_3C (.d(DB[2:0]), .q(bank[2:0]), .cl_b(ACLI_b), .clk(ext_decoded[6]));
+jt74174 u_3C (.d(DB[2:0]), .q(bank[2:0]), .cl_b(ALC1_b), .clk(ext_decoded[6]));
 
 endmodule // jt_gng_a2
