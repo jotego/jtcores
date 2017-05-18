@@ -29,16 +29,11 @@ module jt_gng_a2(
 	output			INCS_b
 );
 
-reg [7:0] ram[0:8191];
-reg [7:0] dread;
-wire [7:0] D = WRB_b && !RDB_b ? dread : 8'hzz;
-
-always @(AB) begin
-	dread=ram[AB];
-end
+jt_gng_genram #(.addrw(12)) u_2C (
+	.A(AB), .D(D), .cs_b(WRAM_b), .rd_b(RDB_b), .wr_b(WRB_b));
 
 
-jt74245 u_3B (.a(DB), .b(RDB_b), .dir(RDB_b), .en_b(WRAM_b));
+jt74245 u_3B (.a(DB), .b(D), .dir(RDB_b), .en_b(WRAM_b));
 wire [3:0] GRCS;
 jt74139 u_9K (.en1_b(EXTEN_b), .a1(AB[12:11]), .y1_b(GRCS), .en2_b(1'b1), .a2(2'b0) );
 assign CHARCS_b = GRCS[0];

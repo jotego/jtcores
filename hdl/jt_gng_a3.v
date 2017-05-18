@@ -16,8 +16,8 @@ module jt_gng_a3(
 	input	[1:0]	RIGHT,
 	input	[1:0]	SHOT2,
 	input	[1:0]	SHOT1,
-	input	[7:0]	DIPSW_B,
-	input	[7:0]	DIPSW_A,
+	inout	[7:0]	DIPSW_B,
+	inout	[7:0]	DIPSW_A,
 	input	[1:0]	COIN,
 	input	[1:0]	START,
 	input	[1:0]	RESERVED
@@ -38,19 +38,20 @@ jt74367 u_5A (
 	.en6_b	(IN[2]		)
 );
 
-jt74367 u_2B ( 
-	.A( DIPSW_B  ),
-	.Y(DB[7:0]), .en4_b(IN[4]), .en6_b(IN[4])
+jt74245 u_2B ( 
+	.a( DIPSW_B  ),
+	.b(DB[7:0]), .dir(IN[4]), .en_b(IN[4])
 );
 
-jt74367 u_1B ( 
-	.A( DIPSW_A  ),
-	.Y(DB[7:0]), .en4_b(IN[3]), .en6_b(IN[3])
+
+jt74245 u_1B ( 
+	.a( DIPSW_A  ),
+	.b(DB[7:0]), .dir(1'b0), .en_b(IN[3])
 );
 
 jt74367 u_8A ( 
-	.A( {COIN[1:0], RESERVED, 2'b0, START}  ),
-	.Y(DB[7:0]), .en4_b(IN[0]), .en6_b(IN[0])
+	.A( {COIN[1:0], RESERVED, START}  ),
+	.Y( {DB[7:4],DB[1:0]} ), .en4_b(IN[0]), .en6_b(IN[0])
 );
 
 

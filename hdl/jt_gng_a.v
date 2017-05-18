@@ -16,8 +16,8 @@ module jt_gng_a(
 	input	[1:0]	SHOT1,
 	output	[1:0]	COUNTER,
 	output			SYNC,
-	input	[7:0]	DIPSW_B,
-	input	[7:0]	DIPSW_A,
+	inout	[7:0]	DIPSW_B,
+	inout	[7:0]	DIPSW_A,
 	input	[1:0]	COIN,
 	input	[1:0]	START,
 	input	[1:0]	RESERVED,
@@ -29,8 +29,8 @@ module jt_gng_a(
 	output			SCRCS_b,
 	input			MRDY2_b,
 	input			BLCNTEN_b,	// B23
-	output			WRB_b,		// B24
-	output			RDB_b,		// B25
+	inout			WRB_b,		// B24
+	inout			RDB_b,		// B25
 	output			AKB_b,		// B21
 	input			ROB_b,		// B22
 	output			ALC1_b		// B19

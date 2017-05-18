@@ -9,11 +9,13 @@
 module jt_gng_a_test;
 	initial begin
 		$dumpfile("test.lxt");
-		$dumpvars;
+		$dumpvars(1,UUT.A1);
+		$dumpvars(1,UUT.A2);
+		$dumpvars(1,UUT.A6);
 		$dumpon;
 	end
 
-	initial #(40*1000*1000) $finish;
+	initial #(400*1000*1000) $finish;
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;
