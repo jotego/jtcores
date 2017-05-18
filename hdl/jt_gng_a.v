@@ -65,6 +65,8 @@ jt_gng_a1 A1 (
 	.ECLK     (ECLK     )
 );
 
+pullup pu_bus(RDB_b, WRB_b);
+
 
 wire SRES_b;
 wire FLIP;
@@ -231,5 +233,19 @@ jt_gng_a7 A7 (
 	.CHARY   (CHARY   )
 );
 
+
+reg lastIRQ;
+
+always @(posedge G6M) begin
+	lastIRQ <= HINIT_b;
+	if( !HINIT_b && lastIRQ) $write("\n\n\n\n\n");
+	else
+	case( ~{CHARY, CHARZ} )
+		2'b00: $write(" ");
+		2'b01: $write("·");
+		2'b10: $write("+");
+		2'b11: $write("#");
+	endcase // {CHARY, CHARZ}
+end
 
 endmodule // jt_gng_a

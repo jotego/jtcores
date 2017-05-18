@@ -7,15 +7,19 @@
 */
 
 module jt_gng_a_test;
+	`ifdef DUMP
 	initial begin
 		$dumpfile("test.lxt");
-		$dumpvars(1,UUT.A1);
+		$dumpvars(0,UUT.A1);
 		$dumpvars(1,UUT.A2);
+		//$dumpvars(1,UUT.A2.u_2C);
+		$dumpvars(1,UUT.A3);
 		$dumpvars(1,UUT.A6);
 		$dumpon;
 	end
+	`endif
 
-	initial #(400*1000*1000) $finish;
+	initial #(10*1000*1000*1000) $finish;
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;
@@ -70,6 +74,5 @@ jt_gng_a UUT (
 	.ROB_b    (ROB_b    ),
 	.ALC1_b   (ALC1_b   )
 );
-
 
 endmodule // jt_gng_a_test

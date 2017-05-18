@@ -30,7 +30,7 @@ module jt_gng_a2(
 );
 
 jt_gng_genram #(.addrw(12)) u_2C (
-	.A(AB), .D(D), .cs_b(WRAM_b), .rd_b(RDB_b), .wr_b(WRB_b));
+	.A(AB), .D(DB), .cs_b(WRAM_b), .rd_b(RDB_b), .wr_b(WRB_b));
 
 
 jt74245 u_3B (.a(DB), .b(D), .dir(RDB_b), .en_b(WRAM_b));

@@ -16,6 +16,8 @@ module jt_gng_b1(
 	input		V64,
 	input		V128,
 	input		FLIP,
+	input		RDB_b,	// B25
+	input		WRB_b,	// B24
 	output		V1F,
 	output		V2F,
 	output		V4F,

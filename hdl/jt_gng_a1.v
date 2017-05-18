@@ -27,7 +27,7 @@ module jt_gng_a1(
 
 
 wire [7:0] D;
-wire [7:0] DOut;
+wire [7:0] Dinout, DOut;
 wire [15:0] A;
 wire RnW;
 wire CLK4;
@@ -35,11 +35,11 @@ wire AVMA;
 wire BUSY;
 wire LIC;
 reg nRESET;
-wire nHALT;
+wire HALT_b;
 
 initial begin
 	nRESET = 0;
-	#500 nRESET = 1;
+	#2500 nRESET = 1;
 end
 
 // 8J
@@ -71,7 +71,7 @@ jt74139 u_9K (
 
 assign irq_clb = BABS[2];
 
-wire HALT_b, cpuMRDY_b, cpuE;
+wire cpuMRDY_b, cpuE;
 
 jt74367 u_10J (
 	.A		( { BABS[3], ROB_b, MRDY_b, G6M}	), 
@@ -80,33 +80,31 @@ jt74367 u_10J (
 	.en6_b	(1'b0)
 );
 
-wire nFIRQ = 1'b1;
-wire nNMI  = 1'b1;
 wire EXTAL=G6M;
 wire XTAL=1'b0;
-wire nDMABREQ=1'b1;
 wire E, Q;
 
 assign ECLK = E;
 
+
 mc6809 i_mc6809 (
 	.Q		 (Q		  ),
 	.E		 (E		  ),
-	.D       (D       ),
+	.D       (Dinout  ),
 	.DOut    (DOut    ),
 	.ADDR    (A		  ),
 	.RnW     (RnW     ),
 	.BS      (BS      ),
 	.BA      (BA      ),
 	.nIRQ    (nIRQ    ),
-	.nFIRQ   (nFIRQ   ),
-	.nNMI    (nNMI    ),
+	.nFIRQ   (1'b1    ),
+	.nNMI    (1'b1    ),
 	.EXTAL   (EXTAL   ),
 	.XTAL    (XTAL    ),
-	.nHALT   (nHALT   ),
+	.nHALT   (HALT_b  ),
 	.nRESET  (nRESET  ),
 	.MRDY    (MRDY_b  ),
-	.nDMABREQ(nDMABREQ)
+	.nDMABREQ(1'b1    )
 );
 
 // ROMs
@@ -134,6 +132,7 @@ jt74138 u_7L (
 	.e1_b	(decod_ce_b[2]), 
 	.e2_b	(decod_ce_b[2]), 
 	.e3		( 1'b1 ), 
+	//.a		( {bank[0],bank[1], bank[2]} ), 
 	.a		( bank[2:0] ), 
 	.y_b	(decod_bank_b)
 );
@@ -158,31 +157,32 @@ always @(A, ce8n_b, ce10n_b, ce13n_b )
 	endcase // {ce8n_b, ce10n_b, ce13n_b}
 
 assign D = &{ce8n_b, ce10n_b, ce13n_b}==1'b0 ? rom_data : 8'hzz;
+assign Dinout = &{BA,BS} ? 8'hzz : (!RnW ? DOut : D);
 
 wire bus_rd_b = ~(E &  RnW);
 wire bus_wr_b = ~(E & ~RnW);
-assign EXTEN_b = decod_bank_b[1];
+assign EXTEN_b = decod_ce_b[1];
 wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
 assign WRAM_b = decod_ce_b[0] & BLCNTEN_b;
 
 jt74245 u_5N (
-	.a		({ bus_rd_b, bus_wr_b, A[12:8]}), 
-	.b		({ RDB_b, WRB_b, AB[12:8]}), 
-	.dir	(1'b1), 
-	.en_b	(drive_bus_b)
+	.a		({ bus_rd_b, bus_wr_b, A[12:8]}	), 
+	.b		({ RDB_b, WRB_b, AB[12:8]}		), 
+	.dir	(1'b1							), 
+	.en_b	(drive_bus_b					)
 );
 
 jt74245 u_6N (
-	.a		( A[7:0]), 
-	.b		(AB[7:0]), 
-	.dir	(1'b1), 
+	.a		( A[7:0]	), 
+	.b		(AB[7:0]	), 
+	.dir	(1'b1		), 
 	.en_b	(drive_bus_b)
 );
 
 jt74245 u_11H (
-	.a		(D[7:0]), 
-	.b		(DB[7:0]), 
-	.dir	(1'b1), 
+	.a		(Dinout		), 
+	.b		(DB[7:0]	), 
+	.dir	(1'b1		), 
 	.en_b	(drive_bus_b)
 );
 
