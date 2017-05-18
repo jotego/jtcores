@@ -19,7 +19,7 @@ module jt_gng_b8(
 	input			OH,		// from 4/9
 	input			POS3,	// from 1/9
 	input			POS2,
-	input			WR_b,
+	input			WRB_b,
 	input			SCREN_b,// from 7/9
 	input			SCRCS_b,
 	input			SH256,
@@ -71,7 +71,7 @@ jt74245 u_10A(
 	.a		( DF      ),
 	.b		( DB      ),
 	.dir	( SCREN_b ),
-	.en_b	( WR_b	  )
+	.en_b	( WRB_b	  )
 );
 
 // 9A, 9B, 9C
@@ -83,7 +83,7 @@ always @(*)
 		ram_we_b = 1'b1;
 	end else begin
 		ram_a  = AB;
-		ram_we_b = SCRCS_b | WR_b;
+		ram_we_b = SCRCS_b | WRB_b;
 	end
 
 M58725 ram(

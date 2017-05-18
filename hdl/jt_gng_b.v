@@ -9,8 +9,8 @@
 module jt_gng_b(
 	input			RDB_b,		// B25
 	input			WRB_b,		// B24
-	input [12:0] 	AB,			// A25-A13
-	input [7:0] 	DB,			// A8-A1
+	inout [12:0] 	AB,			// A25-A13
+	inout [7:0] 	DB,			// A8-A1
 	input			BLCNTEN_b,	// B23
 	output			ROB_b,		// B22
 	input			ACL2_b,		// B19
@@ -25,7 +25,24 @@ module jt_gng_b(
 	input			V64,		// C13
 	input			V128,		// D13
 	input			FLIP,		// D2
+	input			CBCS_b,		// B13
+	output			SCRCS_b,	// B14
+	output			MRDY2_b,	// B15
+
+	input			G6M,		// C3
+	input			H256,		// C9
+	input			H128,		// D8
+	input			H64,		// C8
+	input			H32,		// D7
+	input			H16,		// C17
+	input			H8,			// D6
+	input			H4,			// C6
+	input			H2,			// D5
+	input			H1,			// C5
+	output	[7:0]	OBJ,		// C14-D17
 	
+	output			SCRWIN,		// B12
+	output	[2:0] 	SCO,		// B18-16
 );
 
 
@@ -42,7 +59,7 @@ module jt_gng_b(
 	wire phi_BB;
 	wire BLEN;
 	wire MATCH_b;
-jt_gng_b1 i_jt_gng_b1 (
+jt_gng_b1 B1 (
 	.RDB_b	  (RDB_b	),
 	.WRB_b	  (WRB_b	),
 	.V1       (V1       ),
@@ -75,6 +92,108 @@ jt_gng_b1 i_jt_gng_b1 (
 	.BLEN     (BLEN     ),
 	.MATCH_b  (MATCH_b  )
 );
+
+
+	wire SH2;
+	wire SH8;
+	wire SH16;
+	wire SH32;
+	wire SH64;
+	wire SH128;
+	wire SH256;
+	wire SCREN_b;
+	wire POS2;
+	wire POS3;
+	reg S0H;
+	reg S2H;
+	reg S4H;
+	wire FLIPbuf;
+	wire S7H_b;
+	wire S6M;
+jt_gng_b7 B7 (
+	.DB     (DB     ),
+	.AB     (AB     ), // TODO: Check connection ! Signal/port not matching : Expecting logic [3:0]  -- Found logic [12:0] 
+	.CBCS_b (CBCS_b ),
+	.G6M    (G6M    ),
+	.FLIP   (FLIP   ),
+	.H256   (H256   ),
+	.H128   (H128   ),
+	.H64    (H64    ),
+	.H32    (H32    ),
+	.H16    (H16    ),
+	.H8     (H8     ),
+	.H4     (H4     ),
+	.H2     (H2     ),
+	.H1     (H1     ),
+	.SH2    (SH2    ),
+	.SH8    (SH8    ),
+	.SH16   (SH16   ),
+	.SH32   (SH32   ),
+	.SH64   (SH64   ),
+	.SH128  (SH128  ),
+	.SH256  (SH256  ),
+	.SCRCS_b(SCRCS_b),
+	.MRDY2_b(MRDY2_b),
+	.SCREN_b(SCREN_b),
+	.POS2   (POS2   ),
+	.POS3   (POS3   ),
+	.S0H    (S0H    ),
+	.S2H    (S2H    ),
+	.S4H    (S4H    ),
+	.FLIPbuf(FLIPbuf),
+	.S7H_b  (S7H_b  ),
+	.S6M    (S6M    )
+);
+
+
+	wire OH;
+	reg [9:0] AS;
+	reg SVFLIP;
+	reg SHFLIP;
+	reg SHFLIP_q;
+jt_gng_b8 B8 (
+	.DB      (DB      ),
+	.V128F   (V128F   ),
+	.V64F    (V64F    ),
+	.V32F    (V32F    ),
+	.V16F    (V16F    ),
+	.V8F     (V8F     ),
+	.V4F     (V4F     ),
+	.V2F     (V2F     ),
+	.V1F     (V1F     ),
+	.OH      (OH      ),
+	.POS3    (POS3    ),
+	.POS2    (POS2    ),
+	.WRB_b   (WRB_b   ),
+	.SCREN_b (SCREN_b ),
+	.SCRCS_b (SCRCS_b ),
+	.SH256   (SH256   ),
+	.SH128   (SH128   ),
+	.SH64    (SH64    ),
+	.SH32    (SH32    ),
+	.SH16    (SH16    ),
+	.SH2     (SH2     ),
+	.S2H     (S2H     ),
+	.S0H     (S0H     ),
+	.S4H     (S4H     ),
+	.AB      (AB      ), 
+	.AS      (AS      ),
+	.V256S   (V256S   ),
+	.V128S   (V128S   ),
+	.V64S    (V64S    ),
+	.V32S    (V32S    ),
+	.V16S    (V16S    ),
+	.V8S     (V8S     ),
+	.V4S     (V4S     ),
+	.V2S     (V2S     ),
+	.V1S     (V1S     ),
+	.SVFLIP  (SVFLIP  ),
+	.SHFLIP  (SHFLIP  ),
+	.SHFLIP_q(SHFLIP_q),
+	.SCRWIN  (SCRWIN  ),
+	.SCO     (SCO     )
+);
+
 
 
 endmodule // jt_gng_b
