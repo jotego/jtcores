@@ -94,7 +94,33 @@ jt74161 u_6D (
 	.ca		(ca_6D		)
 );
 
-// 5H, 4H...
+wire Y_3H3 = HINIT_b & TM2496;
+
+
+jt74161 u_5H (
+	.cet	( ca_6E	), 
+	.cep	( ca_6E	), 
+	.ld_b	( Y_3H3	), 
+	.clk	( phiBB ), 
+	.cl_b	( 1'b1  ), 
+	.d		( 4'h8  ), 
+	.q		( OBA[3:0]	), 
+	.ca		( ca_5H	)
+);
+
+wire OVER24;
+assign OVER24_b = ~OVER24; // 5E
+
+jt74161 u_4H (
+	.cet	( ca_5H	), 
+	.cep	( ca_5H	), 
+	.ld_b	( Y_3H3	), 
+	.clk	( phiBB	), 
+	.cl_b	( 1'b1  ), 
+	.d		( 4'd0  ), 
+	.q		( { OVER24, OBA[4] } )
+);
+
 
 
 endmodule // jt_gng_b2
