@@ -30,6 +30,7 @@ module jt_gng_b(
 	output			MRDY2_b,	// B15
 
 	input			G6M,		// C3
+	input			HINIT_b,	// C18
 	input			H256,		// C9
 	input			H128,		// D8
 	input			H64,		// C8
@@ -43,6 +44,11 @@ module jt_gng_b(
 	
 	output			SCRWIN,		// B12
 	output	[2:0] 	SCO,		// B18-16
+
+	output			SCRX,		// C1
+	output			SCRY,		// D1
+	output			SCRZ,		// C2
+
 );
 
 
@@ -56,7 +62,7 @@ module jt_gng_b(
 	wire V128F;
 	wire [8:0] OB;
 	wire OVER96_b;
-	wire phi_BB;
+	wire phiBB;
 	wire BLEN;
 	wire MATCH_b;
 jt_gng_b1 B1 (
@@ -88,9 +94,37 @@ jt_gng_b1 B1 (
 	.ACL2_b   (ACL2_b   ),
 	.AKB_b    (AKB_b    ),
 	.OVER96_b (OVER96_b ),
-	.phi_BB   (phi_BB   ),
+	.phiBB    (phiBB    ),
 	.BLEN     (BLEN     ),
-	.MATCH_b  (MATCH_b  )
+	.MATCH_b  (MATCH_b  ),
+	.OBASEL_b (OBASEL_b ),
+	.OBBSEL_b (OBBSEL_b )
+);
+
+	wire [4:0] OBA;
+	wire BLTIMING;
+	wire TM2496_b;
+	wire LVI;
+	wire ;
+	wire OBBSEL_b;
+	wire OBJABWR_b;
+jt_gng_b2 i_jt_gng_b2 (
+	.HINIT_b  (HINIT_b  ),
+	.H1       (H1       ),
+	.H256     (H256     ),
+	.phiBB    (phiBB    ),
+	.MATCH_b  (MATCH_b  ),
+	.AKB_b    (AKB_b    ),
+	.BLEN     (BLEN     ),
+	.OB       (OB       ),
+	.OBA      (OBA      ),
+	.BLTIMING (BLTIMING ),
+	.TM2496_b (TM2496_b ),
+	.LVI      (LVI      ),
+	.OBASEL_b (OBASEL_b ),
+	.OBBSEL_b (OBBSEL_b ),
+	.OBJABWR_b(OBJABWR_b),
+	.OVER96_b (OVER96_b )
 );
 
 
@@ -192,6 +226,27 @@ jt_gng_b8 B8 (
 	.SHFLIP_q(SHFLIP_q),
 	.SCRWIN  (SCRWIN  ),
 	.SCO     (SCO     )
+);
+
+
+	wire FLIP_buf;
+
+jt_gng_b9 B9 (
+	.AS      (AS      ),
+	.SH8     (SH8     ),
+	.SHFLIP  (SHFLIP  ),
+	.SHFLIP_q(SHFLIP_q),
+	.V8S     (V8S     ),
+	.V4S     (V4S     ),
+	.V2S     (V2S     ),
+	.V1S     (V1S     ),
+	.SVFLIP  (SVFLIP  ),
+	.S6M     (S6M     ),
+	.FLIP_buf(FLIP_buf),
+	.SCRX    (SCRX    ),
+	.SCRY    (SCRY    ),
+	.SCRZ    (SCRZ    ),
+	.S7H_b   (S7H_b   )
 );
 
 
