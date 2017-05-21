@@ -48,7 +48,7 @@ module jt_gng_b8(
 	output	reg		SHFLIP,
 	output	reg		SHFLIP_q,
 	output	reg		SCRWIN,
-	output  reg [2:0]	SCO
+	output  reg [2:0]	SCD
 );
 
 reg [8:0] dbq;
@@ -100,6 +100,6 @@ always @(posedge S2H) AS[7:0] <= DF;
 reg [3:0] aux;
 always @(posedge S4H) {AS[9:8], SVFLIP, SHFLIP, aux} <= DF;
 // 6B
-always @(posedge S0H) {SHFLIP_q, SCRWIN, SCO } <= aux;
+always @(posedge S0H) {SHFLIP_q, SCRWIN, SCD } <= aux;
 
 endmodule // jt_gng_b8

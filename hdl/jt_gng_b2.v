@@ -51,7 +51,7 @@ wire Y_5F6  = ~&{Y_5F11, HINIT_b }; // 5F
 wire [3:0] q_6E;
 wire Y_13D3  = OB[1] & ~q_6E[3]; // 12D, 13D
 wire Y_2H6  = MATCH_b | ~Y_13D3; // 2H, 5E
-wire Y_6F6  = ~&{AKB, Y_5F6, Y_2H6 }; // 6F 
+wire Y_6F6  = ~&{AKB_b, Y_5F6, Y_2H6 }; // 6F 
 
 wire BLEN_2496 = BLEN | TM2496; // 2H
 wire load_b = (TM2496_b | HINIT_b) & BLEN_2496; // 2H, 3H

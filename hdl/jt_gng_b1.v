@@ -31,15 +31,15 @@ module jt_gng_b1(
 	inout [7:0] DB,
 	output 		BLCNTEN_b,
 	
-	input		OBASEL,
-	input		OBBSEL,
+	input		OBASEL_b,
+	input		OBBSEL_b,
 	output	[7:0] DEA,
 	output	[7:0] DEB,
 
 
 	input		OKOUT_b,
-	output		ROB_b,
-	input		ACL2_b,
+	output		RQB_b,
+	input		ALC2_b,
 	input		AKB_b,
 	input		OVER96_b,
 	input		phiBB,
@@ -67,10 +67,10 @@ jt74245 u2 (.a(DB), .b(DE), .dir(1'b1), .en_b(BLCNTEN_b));
 
 wire ROB;
 // 11D, 13D
-wire pr3_b = ACL2_b & ( ROB_b | OVER96_b );
+wire pr3_b = ALC2_b & ( RQB_b | OVER96_b );
 
 jt7474 u14D_a (.d(1'b0), .pr_b(pr3_b), .cl_b(1'b1), 
-	.clk(OKOUT_b), .q(ROB_b), .q_b(ROB));
+	.clk(OKOUT_b), .q(RQB_b), .q_b(ROB));
 
 jt7474 u14D_b (.d(AKB_b), .pr_b(ROB), .cl_b(1'b1), 
 	.clk(phiBB), .q_b(BLEN));
@@ -86,8 +86,8 @@ M2114x2 ram(
 	.we_b	( mem_WE_b	 )
 	);
 
-wire oba_en = OVER96 | OBASEL; // 11D
-wire obb_en = OVER96 | OBBSEL; // 11D
+wire oba_en = OVER96 | OBASEL_b; // 11D
+wire obb_en = OVER96 | OBBSEL_b; // 11D
 
 jt74245 u_11F (
 	.a		(DE		), 

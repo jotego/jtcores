@@ -22,25 +22,53 @@ module jt_gng_a(
 	input	[1:0]	START,
 	input	[1:0]	RESERVED,
 	// board-to-board connector 1
-	inout	[ 7:0]	DB,			// A8-A1
-	inout	[12:0]	AB,			// A25-A13
-	output			SCRWIN,
-	output			SCRPO_b,
-	output			SCRCS_b,
-	input			MRDY2_b,
-	input			BLCNTEN_b,	// B23
-	inout			WRB_b,		// B24
-	inout			RDB_b,		// B25
+	inout [7:0] 	DB,			// A8-A1
+	inout [12:0] 	AB,			// A25-A13
+	input			SCRWIN,		// B12
+	output			CBCS_b,		// B13
+	input			SCRCS_b,	// B14
+	input			MRDY2_b,	// B15
+	input	[2:0] 	SCD,		// B18-16
+	output			ALC2_b,		// B19
+	output			OKOUT_b,	// B20
 	output			AKB_b,		// B21
-	input			ROB_b,		// B22
-	output			ALC1_b		// B19
+	input			RQB_b,		// B22
+	input			BLCNTEN_b,	// B23
+	output			WRB_b,		// B24
+	output			RDB_b,		// B25
+
+	input			SCRX,		// C1
+	input			SCRZ,		// C2
+	output			G6M,		// C3
+	output			H1,			// C5
+	output			H4,			// C6
+	output			H16,		// C17
+	output			H64,		// C8
+	output			H256,		// C9
+	output			V1,			// C10
+	output			V4,			// C11
+	output			V16,		// C12
+	output			V64,		// C13
+	input	[7:0]	OBJ,		// C14-D17
+	output			HINIT_b,	// C18
+
+	input			SCRY,		// D1
+	output			FLIP,		// D2
+	output			OH,			// D3
+	output			H2,			// D5
+	output			H8,			// D6
+	output			H32,		// D7
+	output			H128,		// D8
+	output			V2,			// D10
+	output			V8,			// D11
+	output			V32,		// D12
+	output			V128		// D13
 );
 
 
 wire IRQ1;
 wire ALC1_b;
 wire MRDY_b;
-wire G6M;
 wire WRAM_b;
 wire EXTEN_b;
 wire [2:0] bank;
@@ -50,7 +78,7 @@ jt_gng_a1 A1 (
 	.IRQ1     (IRQ1     ),
 	.ALC1_b   (ALC1_b   ),
 	.ALC2_b   (ALC2_b   ),
-	.ROB_b    (ROB_b    ),
+	.RQB_b    (RQB_b    ),
 	.MRDY_b   (MRDY_b   ),
 	.G6M      (G6M      ),
 	.AKB_b    (AKB_b    ),
@@ -69,13 +97,13 @@ pullup pu_bus(RDB_b, WRB_b);
 
 
 wire SRES_b;
-wire FLIP;
 wire RGCS_b;
 wire BCS_b;
 wire SOUND;
-wire OKOUT_b;
 wire CHARCS_b;
 wire INCS_b;
+wire SCRPO_b;
+assign CBCS_b = SCRPO_b;
 jt_gng_a2 A2 (
 	.AB      (AB      ), 
 	.WRAM_b  (WRAM_b  ),
@@ -233,7 +261,7 @@ jt_gng_a7 A7 (
 	.CHARY   (CHARY   )
 );
 
-
+`ifdef CHR_DUMP
 reg lastIRQ;
 
 always @(posedge G6M) begin
@@ -247,5 +275,5 @@ always @(posedge G6M) begin
 		2'b11: $write("#");
 	endcase // {CHARY, CHARZ}
 end
-
+`endif
 endmodule // jt_gng_a

@@ -29,7 +29,7 @@ module jt_gng_a2(
 	output			INCS_b
 );
 
-jt_gng_genram #(.addrw(12)) u_2C (
+jt_gng_genram #(.addrw(13)) u_2C (
 	.A(AB), .D(DB), .cs_b(WRAM_b), .rd_b(RDB_b), .wr_b(WRB_b));
 
 

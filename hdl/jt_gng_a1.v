@@ -10,7 +10,7 @@ module jt_gng_a1(
 	input		IRQ1,	// from 5/8
 	output		ALC1_b, // to 2/8
 	output		ALC2_b, // to B19
-	input		ROB_b,	// from B22
+	input		RQB_b,	// from B22
 	input		MRDY_b,	// from 6/8
 	input		G6M,	// from 5/8
 	output		AKB_b,	// to B21
@@ -74,7 +74,7 @@ assign irq_clb = BABS[2];
 wire cpuMRDY_b, cpuE;
 
 jt74367 u_10J (
-	.A		( { BABS[3], ROB_b, MRDY_b, G6M}	), 
+	.A		( { BABS[3], RQB_b, MRDY_b, G6M}	), 
 	.Y		( { AKB_b, HALT_b, cpuMRDY_b, cpuE}	), 
 	.en4_b	(1'b0), 
 	.en6_b	(1'b0)
