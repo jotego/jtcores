@@ -87,7 +87,7 @@ wire E, Q;
 assign ECLK = E;
 
 
-mc6809 i_mc6809 (
+mc6809 main (
 	.Q		 (Q		  ),
 	.E		 (E		  ),
 	.D       (Dinout  ),

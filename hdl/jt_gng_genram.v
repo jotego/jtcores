@@ -30,7 +30,7 @@ always @(A) begin
 	dread=ram[A];
 end
 
-always @(WRITE,A)
+always @(WRITE,A,D)
 	if(WRITE) begin
 		$display("RAM write %X into %X",D, A);
 		ram[A]=D;

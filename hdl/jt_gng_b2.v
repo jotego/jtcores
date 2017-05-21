@@ -18,7 +18,7 @@ module jt_gng_b2(
 	output	[4:0]	OBA,
 	input			BLTIMING,
 	output			TM2496_b,
-	input			LVI,
+	input			LV1,
 	output			OBASEL_b,
 	output			OBBSEL_b,
 	output			OBJABWR_b,
@@ -39,9 +39,9 @@ jt7474 u_2J (
 	.q_b	(TM2496)
 );
 
-assign OBBSEL_b = TM2496_b | LVI; // 1J
-wire	LVI_b   = ~LVI; // 5F
-assign OBASEL_b = TM2496_b | LVI_b; // 1J
+assign OBBSEL_b = TM2496_b | LV1; // 1J
+wire	LV1_b   = ~LV1; // 5F
+assign OBASEL_b = TM2496_b | LV1_b; // 1J
 
 wire ca_6D, ca_6E;
 assign OVER96_b = ~&OB[8:7];	// 5F

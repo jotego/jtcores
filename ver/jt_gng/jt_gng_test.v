@@ -10,17 +10,15 @@ module jt_gng_a_test;
 	`ifdef DUMP
 	initial begin
 		$dumpfile("test.lxt");
-		$dumpvars(0,UUT.boardA.A1);
-		$dumpvars(1,UUT.boardA.A2);
-		//$dumpvars(1,UUT.boardA.A2.u_2C);
-		$dumpvars(1,UUT.boardA.A3);
-		$dumpvars(1,UUT.boardA.A6);
+		$dumpvars(2,UUT.boardA);
+		$dumpvars(1,UUT.boardA.A1.main);
 		$dumpvars(2,UUT.boardB);
+		$dumpvars(2,UUT.boardB.B1);
 		$dumpon;
 	end
 	`endif
 
-	initial #(100*1000*1000) $finish;
+	initial #(5*100*1000*1000) $finish;
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;

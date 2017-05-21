@@ -15,3 +15,5 @@ $OD mm14.4l > 4l.hex
 $OD mmt03d.8n  > 8n.hex
 $OD mmt04d.10n > 10n.hex
 $OD mmt05d.13n > 13n.hex
+
+$OD tbp24s10.14k > 14k.hex

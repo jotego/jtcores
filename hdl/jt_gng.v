@@ -14,7 +14,7 @@ module jt_gng(
 	input [1:0] RESERVED
 );
 
-wire [7:0]	DB;
+wire [7:0]	DB, OBJ;
 wire [12:0] AB;
 wire [2:0]	SCD;
 wire SCRWIN;

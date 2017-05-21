@@ -111,7 +111,7 @@ jt_gng_b1 B1 (
 	wire [4:0] OBA;
 	wire BLTIMING;
 	wire TM2496_b;
-	wire LVI;
+	wire LV1;
 	wire OBJABWR_b;
 jt_gng_b2 B2 (
 	.HINIT_b  (HINIT_b  ),
@@ -125,7 +125,7 @@ jt_gng_b2 B2 (
 	.OBA      (OBA      ),
 	.BLTIMING (BLTIMING ),
 	.TM2496_b (TM2496_b ),
-	.LVI      (LVI      ),
+	.LV1      (LV1      ),
 	.OBASEL_b (OBASEL_b ),
 	.OBBSEL_b (OBBSEL_b ),
 	.OBJABWR_b(OBJABWR_b),
@@ -161,7 +161,7 @@ jt_gng_b3 B3 (
 	.H64      (H64      ),
 	.H128     (H128     ),
 	.H256     (H256     ),
-	.LVI      (LVI      ),
+	.LV1      (LV1      ),
 	.TM2496_b (TM2496_b ),
 	.TR3_b    (TR3_b    ),
 	.OBHFLIP_q(OBHFLIP_q),
@@ -183,6 +183,28 @@ jt_gng_b3 B3 (
 	.V2F      (V2F      ),
 	.V1F      (V1F      ),
 	.FLIP     (FLIP     )
+);
+
+	wire LV1_bq;
+	wire OBFLIP1;
+	wire OBFLIP2;
+jt_gng_b4 i_jt_gng_b4 (
+	.V1      (V1      ),
+	.V2      (V2      ),
+	.V4      (V4      ),
+	.V8      (V8      ),
+	.V16     (V16     ),
+	.V32     (V32     ),
+	.V64     (V64     ),
+	.V128    (V128    ),
+	.OH      (OH      ),
+	.VINZONE (VINZONE ),
+	.FLIP    (FLIP    ),
+	.BLTIMING(BLTIMING),
+	.LV1     (LV1     ),
+	.LV1_bq  (LV1_bq  ),
+	.OBFLIP1 (OBFLIP1 ),
+	.OBFLIP2 (OBFLIP2 )
 );
 
 

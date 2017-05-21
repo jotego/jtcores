@@ -25,7 +25,7 @@ module jt_gng_b3(
 	input				H64,
 	input				H128,
 	input				H256,
-	input				LVI,
+	input				LV1,
 	input				TM2496_b,
 	output				TR3_b,
 	output	reg			OBHFLIP_q,
@@ -78,7 +78,7 @@ end
 // 9H, 9J
 always @(*)
 	if( !TM2496_b )
-		DF = LVI ? DEB : DEA;
+		DF = LV1 ? DEB : DEA;
 	else
 		DF = 8'h00;
 
