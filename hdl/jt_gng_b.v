@@ -143,7 +143,7 @@ jt_gng_b2 B2 (
 	wire VINZONE;
 	wire [9:0] AD;
 	wire [7:0] DF;
-jt_gng_b3 i_jt_gng_b3 (
+jt_gng_b3 B3 (
 	.OB       (OB[1:0]  ),
 	.OBA      (OBA      ),
 	.DEA      (DEA      ),
