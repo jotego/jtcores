@@ -51,6 +51,8 @@ module jt_gng_b(
 );
 
 
+	wire [7:0] DEA;
+	wire [7:0] DEB;
 	wire V1F;
 	wire V2F;
 	wire V4F;
@@ -64,10 +66,10 @@ module jt_gng_b(
 	wire phiBB;
 	wire BLEN;
 	wire MATCH_b;
+	wire OBASEL_b;
+	wire OBBSEL_b;
 
 jt_gng_b1 B1 (
-	.RDB_b	  (RDB_b	),
-	.WRB_b	  (WRB_b	),
 	.V1       (V1       ),
 	.V2       (V2       ),
 	.V4       (V4       ),
@@ -77,6 +79,8 @@ jt_gng_b1 B1 (
 	.V64      (V64      ),
 	.V128     (V128     ),
 	.FLIP     (FLIP     ),
+	.RDB_b    (RDB_b    ),
+	.WRB_b    (WRB_b    ),
 	.V1F      (V1F      ),
 	.V2F      (V2F      ),
 	.V4F      (V4F      ),
@@ -85,10 +89,14 @@ jt_gng_b1 B1 (
 	.V32F     (V32F     ),
 	.V64F     (V64F     ),
 	.V128F    (V128F    ),
-	.AB       (AB       ),
+	.AB       (AB       ), // TODO: Check connection ! Incompatible port direction not an inout
 	.OB       (OB       ),
 	.DB       (DB       ),
 	.BLCNTEN_b(BLCNTEN_b),
+	.OBASEL_b (OBASEL_b ),
+	.OBBSEL_b (OBBSEL_b ),
+	.DEA      (DEA      ),
+	.DEB      (DEB      ),
 	.OKOUT_b  (OKOUT_b  ),
 	.RQB_b    (RQB_b    ),
 	.ALC2_b   (ALC2_b   ),
@@ -96,10 +104,9 @@ jt_gng_b1 B1 (
 	.OVER96_b (OVER96_b ),
 	.phiBB    (phiBB    ),
 	.BLEN     (BLEN     ),
-	.MATCH_b  (MATCH_b  ),
-	.OBASEL_b (OBASEL_b ),
-	.OBBSEL_b (OBBSEL_b )
+	.MATCH_b  (MATCH_b  )
 );
+
 
 	wire [4:0] OBA;
 	wire BLTIMING;
@@ -123,6 +130,59 @@ jt_gng_b2 B2 (
 	.OBBSEL_b (OBBSEL_b ),
 	.OBJABWR_b(OBJABWR_b),
 	.OVER96_b (OVER96_b )
+);
+
+	wire TR3_b;
+	wire OBHFLIP_q;
+	wire COL4;
+	wire COL5;
+	wire OBH4;
+	wire OBH8;
+	wire HOVER;
+	wire [3:0] VB;
+	wire VINZONE;
+	wire [9:0] AD;
+	wire [7:0] DF;
+jt_gng_b3 i_jt_gng_b3 (
+	.OB       (OB[1:0]  ),
+	.OBA      (OBA      ),
+	.DEA      (DEA      ),
+	.DEB      (DEB      ),
+	.OBASEL_b (OBASEL_b ),
+	.OBBSEL_b (OBBSEL_b ),
+	.OBJABWR_b(OBJABWR_b),
+	.OH       (OH       ),
+	.H1       (H1       ),
+	.H2       (H2       ),
+	.H4       (H4       ),
+	.H8       (H8       ),
+	.H16      (H16      ),
+	.H32      (H32      ),
+	.H64      (H64      ),
+	.H128     (H128     ),
+	.H256     (H256     ),
+	.LVI      (LVI      ),
+	.TM2496_b (TM2496_b ),
+	.TR3_b    (TR3_b    ),
+	.OBHFLIP_q(OBHFLIP_q),
+	.COL4     (COL4     ),
+	.COL5     (COL5     ),
+	.OBH4     (OBH4     ),
+	.OBH8     (OBH8     ),
+	.HOVER    (HOVER    ),
+	.VB       (VB       ),
+	.VINZONE  (VINZONE  ),
+	.AD       (AD       ),
+	.DF       (DF       ),
+	.V128F    (V128F    ),
+	.V64F     (V64F     ),
+	.V32F     (V32F     ),
+	.V16F     (V16F     ),
+	.V8F      (V8F      ),
+	.V4F      (V4F      ),
+	.V2F      (V2F      ),
+	.V1F      (V1F      ),
+	.FLIP     (FLIP     )
 );
 
 
