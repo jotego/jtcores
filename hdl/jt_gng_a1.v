@@ -43,8 +43,8 @@ initial begin
 end
 
 // 8J
-assign ALC2_b = ~nRESET;
-assign ALC1_b = ~nRESET;
+assign ALC2_b = nRESET;
+assign ALC1_b = nRESET;
 
 wire	IRQ1, irq_clb;
 

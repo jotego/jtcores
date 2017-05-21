@@ -70,8 +70,8 @@ reg ram_we_b;
 jt74245 u_10A(
 	.a		( DF      ),
 	.b		( DB      ),
-	.dir	( SCREN_b ),
-	.en_b	( WRB_b	  )
+	.en_b	( SCREN_b ),
+	.dir	( WRB_b	  )
 );
 
 // 9A, 9B, 9C

@@ -14,19 +14,20 @@ module jt_gng(
 	input [1:0] RESERVED
 );
 
-	wire [7:0] DB;
-	wire [12:0] AB;
-	wire SCRWIN;
-	wire SCRPO_b;
-	wire SCRCS_b;
-	wire MRDY2_b;
-	wire BLCNTEN_b;
-	wire WRB_b;
-	wire RDB_b;
-	wire AKB_b;
-	wire RQB_b;
-	wire ALC2_b;
-	wire OKOUT_b;
+wire [7:0]	DB;
+wire [12:0] AB;
+wire [2:0]	SCD;
+wire SCRWIN;
+wire SCRPO_b;
+wire SCRCS_b;
+wire MRDY2_b;
+wire BLCNTEN_b;
+wire WRB_b;
+wire RDB_b;
+wire AKB_b;
+wire RQB_b;
+wire ALC2_b;
+wire OKOUT_b;
 
 jt_gng_a boardA (
 	.UP       (UP       ),

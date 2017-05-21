@@ -26,7 +26,7 @@ module jt_gng_a(
 	inout [12:0] 	AB,			// A25-A13
 	input			SCRWIN,		// B12
 	output			CBCS_b,		// B13
-	input			SCRCS_b,	// B14
+	output			SCRCS_b,	// B14
 	input			MRDY2_b,	// B15
 	input	[2:0] 	SCD,		// B18-16
 	output			ALC2_b,		// B19

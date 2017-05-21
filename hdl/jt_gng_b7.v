@@ -58,16 +58,21 @@ jt74138 u_13A(
 );
 
 wire [8:0] hscroll;
+reg [7:0] DBdly;
+
+// Real board uses DB but due to ideal signal delays
+// on simulation, DB's gets latched as ZZ by u_12A/u_14A
+always @(posedge H1) DBdly <= DB;
 
 jt74273 u_12A(
-	.d		( DB			),
+	.d		( DBdly			),
 	.q		( hscroll[7:0]	),
 	.cl_b	( 1'b1			),
 	.clk	( POS[0]		)
 );
 
 jt7474 u_14A(
-	.d		( DB[0]			),
+	.d		( DBdly[0]		),
 	.pr_b	( 1'b1			),
 	.cl_b	( 1'b1			),
 	.clk	( POS[1]		),

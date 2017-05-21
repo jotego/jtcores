@@ -11,7 +11,7 @@ module jt_gng_b(
 	inout [12:0] 	AB,			// A25-A13
 	output			SCRWIN,		// B12
 	input			CBCS_b,		// B13
-	output			SCRCS_b,	// B14
+	input			SCRCS_b,	// B14
 	output			MRDY2_b,	// B15
 	output	[2:0] 	SCD,		// B18-16
 	input			ALC2_b,		// B19
@@ -106,7 +106,7 @@ jt_gng_b1 B1 (
 	wire TM2496_b;
 	wire LVI;
 	wire OBJABWR_b;
-jt_gng_b2 i_jt_gng_b2 (
+jt_gng_b2 B2 (
 	.HINIT_b  (HINIT_b  ),
 	.H1       (H1       ),
 	.H256     (H256     ),

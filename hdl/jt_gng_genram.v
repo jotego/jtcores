@@ -22,9 +22,9 @@ wire WRITE= !cs_b && !wr_b;
 
 assign D= READ ? dread : 8'hzz;
 
-// always @(READ)
-// 	if(READ)
-// 		$display("RAM read %X from %X",dread, A);
+always @(READ)
+	if(READ)
+		$display("RAM read %X from %X",dread, A);
 
 always @(A) begin
 	dread=ram[A];
@@ -32,7 +32,7 @@ end
 
 always @(WRITE,A)
 	if(WRITE) begin
-		//$display("RAM write %X into %X",D, A);
+		$display("RAM write %X into %X",D, A);
 		ram[A]=D;
 	end
 

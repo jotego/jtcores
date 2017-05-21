@@ -55,7 +55,7 @@ always @(*)
 
 wire [7:0] DC;
 
-wire CPU_access_ok = ~( H4 & CHARCS_b);
+wire CPU_access_ok = ~H4 | CHARCS_b;
 wire keep_clk = H2 & ~H4;
 
 jt74245 u10H(
