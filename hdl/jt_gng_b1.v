@@ -44,7 +44,7 @@ module jt_gng_b1(
 	input		OVER96_b,
 	input		phiBB,
 	output		BLEN,
-	output		MATCH_b
+	output	reg MATCH_b
 );
 
 // 12K, 13K
@@ -53,7 +53,14 @@ assign {V1F,V2F,V4F,V8F,V16F,V32F,V64F,V128F}
 wire [7:0] VF = {V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F};
 wire [7:0] Vaux = ~VF + ~{ {6{FLIP}}, 1'b0, FLIP};
 wire [7:0] comp = DE + Vaux;
-assign MATCH_b = ~&comp[7:4];
+//assign MATCH_b = ~&comp[7:4];
+
+always @(comp)
+	casex(comp[7:4]) // avoid X
+		4'b1111: MATCH_b = 1'b0;
+		default: MATCH_b = 1'b1;
+		4'bxxxx: MATCH_b = 1'b1;
+	endcase
 
 assign BLCNTEN_b = ~BLEN;
 

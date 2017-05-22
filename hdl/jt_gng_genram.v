@@ -30,6 +30,9 @@ always @(A) begin
 	dread=ram[A];
 end
 
+integer i;
+initial for(i=0;i<(2**addrw-1);i=i+1) ram[i]=0;
+
 always @(WRITE,A,D)
 	if(WRITE) begin
 		$display("RAM write %X into %X",D, A);

@@ -6,7 +6,7 @@
 
 */
 
-module jt_gng_a_test;
+module jt_gng_test;
 	`ifdef DUMP
 	initial begin
 		$dumpfile("test.lxt");
