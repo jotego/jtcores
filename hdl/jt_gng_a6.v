@@ -80,12 +80,13 @@ jt74273 u9F( .clk(G4H), .d(aux), .q(AC[7:0]), .cl_b(1'b1) );
 jt74273 u8H( .clk(G4H), .d(DC), .q(aux2), .cl_b(1'b1) );
 jt74174 u8F( .clk(OH), .d(aux2[5:0]), .q(aux3), .cl_b(1'b1) );
 
-M58725 ram(
-	.addr	( ram_addr 	),
-	.d		( DC		),
-	.oe_b	( 1'b0		),
-	.ce_b	( 1'b0		),
-	.we_b	( ram_we_b	)
+
+jt_gng_genram #(.addrw(11),.id(3)) u_7H (
+	.A		(ram_addr	), 
+	.D		(DC			), 
+	.cs_b	(1'b0		), 
+	.rd_b	(1'b0		), 
+	.wr_b	(ram_we_b	)
 );
 
 endmodule

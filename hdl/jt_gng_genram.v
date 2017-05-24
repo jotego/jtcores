@@ -6,7 +6,7 @@
 
 */
 
-module jt_gng_genram #(parameter addrw=12, dataw=8)(
+module jt_gng_genram #(parameter addrw=12, dataw=8, id=0)(
 	input [addrw-1:0] A,
 	inout [dataw-1:0] D,
 	input cs_b,
@@ -22,9 +22,11 @@ wire WRITE= !cs_b && !wr_b;
 
 assign D= READ ? dread : 8'hzz;
 
-//always @(READ)
-//	if(READ)
-//		$display("RAM read %X from %X",dread, A);
+`ifdef RAM_INFO
+always @(READ)
+	if(READ)
+		$display("RAM #%d read %X from %X",id,dread, A);
+`endif
 
 always @(A) begin
 	dread=ram[A];
@@ -35,7 +37,9 @@ initial for(i=0;i<(2**addrw-1);i=i+1) ram[i]=0;
 
 always @(WRITE,A,D)
 	if(WRITE) begin
-		// $display("RAM write %X into %X",D, A);
+		`ifdef RAM_INFO
+		$display("RAM #%d write %X into %X",id,D, A);
+		`endif
 		ram[A]=D;
 	end
 

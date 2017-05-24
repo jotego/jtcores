@@ -86,12 +86,12 @@ always @(*)
 		ram_we_b = SCRCS_b | WRB_b;
 	end
 
-M58725 ram(
-	.addr	( ram_a 	),
-	.d		( DF		),
-	.oe_b	( 1'b0		),
-	.ce_b	( 1'b0		),
-	.we_b	( ram_we_b	)
+jt_gng_genram #(.addrw(10),.id(8)) u_7A (
+	.A		(ram_a		), 
+	.D		(DF			), 
+	.cs_b	(1'b0		), 
+	.rd_b	(1'b0		), 
+	.wr_b	(ram_we_b	)
 );
 
 // 5A

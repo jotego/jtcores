@@ -87,7 +87,7 @@ wire mem_WE_b = phiBB | BLCNTEN_b;
 wire OVER96 = ~OVER96_b; // 12D
 
 
-jt_gng_genram #(.addrw(9)) u_12E (.A(OB), .D(DE), .cs_b(1'b0), .rd_b(~mem_WE_b), .wr_b(mem_WE_b));
+jt_gng_genram #(.addrw(9),.id(4)) u_12E (.A(OB), .D(DE), .cs_b(1'b0), .rd_b(~mem_WE_b), .wr_b(mem_WE_b));
 
 wire oba_en = OVER96 | OBASEL_b; // 11D
 wire obb_en = OVER96 | OBBSEL_b; // 11D

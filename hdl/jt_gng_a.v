@@ -266,7 +266,7 @@ reg lastIRQ;
 
 always @(posedge G6M) begin
 	lastIRQ <= HINIT_b;
-	if( !HINIT_b && lastIRQ) $write("\n\n\n\n\n");
+	if( !HINIT_b && lastIRQ) $write("\n");
 	else
 	case( ~{CHARY, CHARZ} )
 		2'b00: $write(" ");

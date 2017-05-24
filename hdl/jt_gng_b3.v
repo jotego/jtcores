@@ -56,9 +56,9 @@ reg  [6:0] AdrA, AdrB;
 wire [7:0] DEA, DEB;
 reg  rnwA, rnwB;
 // 11H, 12H
-jt_gng_genram #(.addrw(7)) OBJRAM_A (.A(AdrA), .D(DEA), .cs_b(1'b0), .rd_b(rnwA), .wr_b(rnwA));
+jt_gng_genram #(.addrw(7),.id(5)) OBJRAM_A (.A(AdrA), .D(DEA), .cs_b(1'b0), .rd_b(rnwA), .wr_b(rnwA));
 // 11H, 12H
-jt_gng_genram #(.addrw(7)) OBJRAM_B (.A(AdrB), .D(DEB), .cs_b(1'b0), .rd_b(rnwB), .wr_b(rnwB));
+jt_gng_genram #(.addrw(7),.id(6)) OBJRAM_B (.A(AdrB), .D(DEB), .cs_b(1'b0), .rd_b(rnwB), .wr_b(rnwB));
 
 pullup( DEA[7], DEA[6], DEA[5], DEA[4], DEA[3], DEA[2], DEA[1], DEA[0]);
 pullup( DEB[7], DEB[6], DEB[5], DEB[4], DEB[3], DEB[2], DEB[1], DEB[0]);
