@@ -86,6 +86,7 @@ wire E, Q;
 
 assign ECLK = E;
 
+wire [111:0] RegData;
 
 mc6809 main (
 	.Q		 (Q		  ),
@@ -104,8 +105,21 @@ mc6809 main (
 	.nHALT   (HALT_b  ),
 	.nRESET  (nRESET  ),
 	.MRDY    (MRDY_b  ),
-	.nDMABREQ(1'b1    )
+	.nDMABREQ(1'b1    ),
+	.RegData (RegData )
 );
+
+wire [7:0] main_a   = RegData[7:0];
+wire [7:0] main_b   = RegData[15:8];
+wire [15:0] main_x   = RegData[31:16];
+wire [15:0] main_y   = RegData[47:32];
+wire [15:0] main_s   = RegData[63:48];
+wire [15:0] main_u   = RegData[79:64];
+wire [7:0] main_cc  = RegData[87:80];
+wire [7:0] main_dp  = RegData[95:88];
+wire [15:0] main_pc  = RegData[111:96];
+
+pullup( D[7],D[6],D[5],D[4],D[3],D[2],D[1],D[0]	);
 
 // ROMs
 reg [7:0] rom_8n[ 0:32767];
@@ -138,26 +152,34 @@ jt74138 u_7L (
 );
 
 
-wire ce8n_b = &decod_ce_b[7:6];
-wire ce9n_b = &decod_ce_b[5:4];
-wire ce10n_b = decod_ce_b[3] & decod_bank_b[4];
-wire ce12n_b = &decod_bank_b[3:2];
-wire ce13n_b = &decod_bank_b[1:0];
+wire ce8n_b = &decod_ce_b[7:6]; // 8L
+wire ce9n_b = &decod_ce_b[5:4]; // 9L
+wire ce10n_b = decod_ce_b[3] & decod_bank_b[4]; // 7K
+wire ce12n_b = &decod_bank_b[3:2]; // 8L
+wire ce13n_b = &decod_bank_b[1:0]; // 8L
 
 reg [7:0] rom_data;
 wire [13:0] A_10n = {decod_bank_b[4], A[12:0]};
 wire [14:0] A_13n = {bank[1:0], A[12:0]};
 
-always @(A, ce8n_b, ce10n_b, ce13n_b ) 
-	case( {ce8n_b, ce10n_b, ce13n_b} )
+wire ce12_13n_b = ce12n_b & ce13n_b;
+
+always @(A, A_13n, A_10n, ce8n_b, ce10n_b, ce12_13n_b ) 
+//always @(*)
+	case( {ce8n_b, ce10n_b, ce12_13n_b} )
 		3'b011: rom_data = rom_8n[A[14:0]];
 		3'b101: rom_data = rom_10n[A_10n];
-		3'b110: rom_data = rom_13n[A_13n];
+		3'b110: begin
+				rom_data = rom_13n[A_13n];
+				//$display("13N Read. rom_13n[%X] = %X",
+				//	A_13n, rom_13n[A_13n]);
+			end
 		default: rom_data = 8'hzz;
 	endcase // {ce8n_b, ce10n_b, ce13n_b}
 
-assign D = &{ce8n_b, ce10n_b, ce13n_b}==1'b0 ? rom_data : 8'hzz;
-assign Dinout = &{BA,BS} ? 8'hzz : (!RnW ? DOut : D);
+assign D = &{ce8n_b, ce10n_b, ce12_13n_b}==1'b0 ? rom_data : 8'hzz;
+assign Dinout = &{BA,BS}==1'b1 || !RDB_b ? 
+	8'hzz : (!RnW ? DOut : D);
 
 wire bus_rd_b = ~(E &  RnW);
 wire bus_wr_b = ~(E & ~RnW);
@@ -182,10 +204,8 @@ jt74245 u_6N (
 jt74245 u_11H (
 	.a		(Dinout		), 
 	.b		(DB[7:0]	), 
-	.dir	(1'b1		), 
+	.dir	(~RnW		),  // 5F
 	.en_b	(drive_bus_b)
 );
-
-
 
 endmodule // jt_gng_a1 

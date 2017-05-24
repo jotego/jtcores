@@ -59,4 +59,7 @@ assign OKOUT_b = ext_decoded[4];
 
 jt74174 u_3C (.d(DB[2:0]), .q(bank[2:0]), .cl_b(ALC1_b), .clk(ext_decoded[6]));
 
+always @(posedge ext_decoded[6])
+	$display("Bank set to %d",DB[2:0]);
+
 endmodule // jt_gng_a2
