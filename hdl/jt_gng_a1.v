@@ -126,11 +126,20 @@ reg [7:0] rom_8n[ 0:32767];
 reg [7:0] rom_10n[0:16383];
 reg [7:0] rom_13n[0:32767];
 
+`ifdef LOCALROM
+initial begin
+	$display("Using local ROM files");
+	$readmemh("8n.hex",rom_8n);
+	$readmemh("10n.hex",rom_10n);
+	$readmemh("13n.hex",rom_13n);
+end
+`else
 initial begin
 	$readmemh("../../rom/8n.hex",rom_8n);
 	$readmemh("../../rom/10n.hex",rom_10n);
 	$readmemh("../../rom/13n.hex",rom_13n);
 end
+`endif
 
 wire [7:0] decod_ce_b, decod_bank_b;
 

@@ -25,7 +25,7 @@ assign D= READ ? dread : 8'hzz;
 `ifdef RAM_INFO
 always @(READ)
 	if(READ)
-		$display("RAM #%d read %X from %X",id,dread, A);
+		$display("RAM #%1D read %X from %X",id,dread, A);
 `endif
 
 always @(A) begin
@@ -38,7 +38,7 @@ initial for(i=0;i<(2**addrw-1);i=i+1) ram[i]=0;
 always @(WRITE,A,D)
 	if(WRITE) begin
 		`ifdef RAM_INFO
-		$display("RAM #%d write %X into %X",id,D, A);
+		$display("RAM #%1D write %X into %X",id,D, A);
 		`endif
 		ram[A]=D;
 	end
