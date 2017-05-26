@@ -5,7 +5,7 @@
 	ORG $E000
 RESET: 
 	ORCC #$10
-	LDX #0
+	LDX #$1F00
 	LDA #$55
 	LDU #0
 @LOOP:	
@@ -15,7 +15,7 @@ RESET:
 	CMPX #$2000
 	BNE @LOOP
 
-	; Character RAM
+	; Character RAM test, 30ms
 	LDA #$AA
 	LDX #$2000
 @LOOP:

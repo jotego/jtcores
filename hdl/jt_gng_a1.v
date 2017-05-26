@@ -143,10 +143,12 @@ end
 
 wire [7:0] decod_ce_b, decod_bank_b;
 
+wire G1_8K = E | Q; // or E | Q ??
+
 jt74138 u_8K (
 	.e1_b(1'b0), 
 	.e2_b(1'b0), 
-	.e3( Q | E ), 
+	.e3( G1_8K ), 
 	.a(A[15:13]), 
 	.y_b(decod_ce_b)
 );
@@ -173,7 +175,7 @@ wire [14:0] A_13n = {bank[1:0], A[12:0]};
 
 wire ce12_13n_b = ce12n_b & ce13n_b;
 
-always @(A, A_13n, A_10n, ce8n_b, ce10n_b, ce12_13n_b ) 
+always @(Q, A, A_13n, A_10n, ce8n_b, ce10n_b, ce12_13n_b ) 
 //always @(*)
 	case( {ce8n_b, ce10n_b, ce12_13n_b} )
 		3'b011: rom_data = rom_8n[A[14:0]];

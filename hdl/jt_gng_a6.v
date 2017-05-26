@@ -45,12 +45,13 @@ assign MRDY_b = MRDY2_b & (CHARCS_b | (H2&H4));
 
 wire sel = ~H4;
 always @(*)
+//always @(sel)
 	if( !sel ) begin
 		ram_addr = AB;
 		ram_we_b = CHARCS_b | ~RDB_b;
 	end else begin
+		ram_we_b = 1'b1; // line order is important here
 		ram_addr = { H2, {10{FLIP}}^{V128,V64,V32,V16,V8,H128,H64,H32,H16,H8}};
-		ram_we_b = 1'b1;
 	end
 
 wire [7:0] DC;
