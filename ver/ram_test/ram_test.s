@@ -5,9 +5,28 @@
 	ORG $E000
 RESET: 
 	ORCC #$10
-	LDX #$1F00
-	LDA #$55
 	LDU #0
+
+	; Horizontal Scroll
+	CLR	$3B08
+	CLR $3B09
+
+	; Scroll RAM test, 30ms
+	LDA #$AA
+	LDX #$2800
+@LOOP:
+	STA ,X
+	CMPA ,X+
+	BNE ERROR_CHRAM
+	CMPX #$3000
+	BNE @LOOP
+
+	BRA NO_ERROR
+
+	
+	; Main RAM test, 105ms
+	LDX #$0000
+	LDA #$55
 @LOOP:	
 	STA ,X
 	CMPA ,X+
@@ -24,8 +43,6 @@ RESET:
 	BNE ERROR_CHRAM
 	CMPX #$2800
 	BNE @LOOP
-	BRA NO_ERROR
-
 
 
 NO_ERROR:
