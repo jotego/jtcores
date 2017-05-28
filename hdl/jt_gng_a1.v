@@ -174,10 +174,11 @@ wire [13:0] A_10n = {decod_bank_b[4], A[12:0]};
 wire [14:0] A_13n = {bank[1:0], A[12:0]};
 
 wire ce12_13n_b = ce12n_b & ce13n_b;
+wire ce8_9n_b = ce8n_b & ce9n_b;
 
 always @(Q, A, A_13n, A_10n, ce8n_b, ce10n_b, ce12_13n_b ) 
 //always @(*)
-	case( {ce8n_b, ce10n_b, ce12_13n_b} )
+	case( {ce8_9n_b, ce10n_b, ce12_13n_b} )
 		3'b011: rom_data = rom_8n[A[14:0]];
 		3'b101: rom_data = rom_10n[A_10n];
 		3'b110: begin
@@ -188,7 +189,7 @@ always @(Q, A, A_13n, A_10n, ce8n_b, ce10n_b, ce12_13n_b )
 		default: rom_data = 8'hzz;
 	endcase // {ce8n_b, ce10n_b, ce13n_b}
 
-assign D = &{ce8n_b, ce10n_b, ce12_13n_b}==1'b0 ? rom_data : 8'hzz;
+assign D = &{ce8_9n_b, ce10n_b, ce12_13n_b}==1'b0 ? rom_data : 8'hzz;
 assign Dinout = &{BA,BS}==1'b1 || !RDB_b ? 
 	8'hzz : (!RnW ? DOut : D);
 

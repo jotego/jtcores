@@ -261,12 +261,43 @@ jt_gng_a7 A7 (
 	.CHARY   (CHARY   )
 );
 
+
+wire [3:0] RR, GG, BB;
+
+jt_gng_a8 A8 (
+	.AB    (AB[7:0]),
+	.WRB_b (WRB_b ),
+	.RDB_b (RDB_b ),
+	.DB    (DB    ),
+	.CC    (CC    ),
+	.CHARY (CHARY ),
+	.CHARZ (CHARZ ),
+	.OBJ   (OBJ[5:0]),
+	.SCRWIN(SCRWIN),
+	.SCD   (SCD   ),
+	.SCRX  (SCRX  ),
+	.SCRY  (SCRY  ),
+	.SCRZ  (SCRZ  ),
+	.CH6M  (CH6M  ),
+	.LVBL  (LVBL  ),
+	.LHBL  (LHBL  ),
+	.BCS_b (BCS_b ),
+	.RGCS_b(RGCS_b),
+	.RR    (RR    ),
+	.GG    (GG    ),
+	.BB    (BB    )
+);
+
 `ifdef CHR_DUMP
-reg lastIRQ;
+reg lastHINIT, lastIRQ;
 
 always @(posedge G6M) begin
-	lastIRQ <= HINIT_b;
-	if( !HINIT_b && lastIRQ) $write("\n");
+	lastHINIT <= HINIT_b;
+	lastIRQ   <= IRQ1;
+	if( IRQ1 && !lastIRQ ) 
+		$write("-----------------------------------------------\n");
+	else
+	if( !HINIT_b && lastHINIT) $write("\n");
 	else
 	case( ~{CHARY, CHARZ} )
 		2'b00: $write(" ");

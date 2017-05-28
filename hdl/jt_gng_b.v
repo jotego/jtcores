@@ -188,7 +188,7 @@ jt_gng_b3 B3 (
 	wire LV1_bq;
 	wire OBFLIP1;
 	wire OBFLIP2;
-jt_gng_b4 i_jt_gng_b4 (
+jt_gng_b4 B4 (
 	.V1      (V1      ),
 	.V2      (V2      ),
 	.V4      (V4      ),

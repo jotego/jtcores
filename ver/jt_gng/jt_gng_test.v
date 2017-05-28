@@ -9,7 +9,6 @@
 module jt_gng_test;
 	`ifdef DUMP
 	initial begin
-		#(200*100*1000*1000);
 		$display("DUMP ON");
 		$dumpfile("test.lxt");
 		$dumpvars(2,UUT.boardA);
@@ -23,7 +22,13 @@ module jt_gng_test;
 	end
 	`endif
 
-	initial #(300*100*1000*1000) $finish;
+	// initial #(300*100*1000*1000) $finish; // 1 hour run time
+	integer reps;
+	initial begin
+		for( reps=0; reps<`REPS; reps=reps+1)
+			#(100*1000*1000);
+		$finish; 
+	end
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;

@@ -17,7 +17,7 @@ module jt_gng(
 wire [7:0]	DB, OBJ;
 wire [12:0] AB;
 wire [2:0]	SCD;
-wire SCRWIN;
+wire SCRWIN, OH;
 wire SCRPO_b;
 wire SCRCS_b;
 wire MRDY2_b;
@@ -62,6 +62,7 @@ jt_gng_a boardA (
 	.V64      (V64      ),
 	.V128     (V128     ),
 	.FLIP     (FLIP     ),
+	.OH		  (OH		),
 	.CBCS_b   (CBCS_b   ),
 	.SCRCS_b  (SCRCS_b  ),
 	.MRDY2_b  (MRDY2_b  ),
@@ -103,6 +104,7 @@ jt_gng_b boardB (
 	.V64      (V64      ),
 	.V128     (V128     ),
 	.FLIP     (FLIP     ),
+	.OH		  (OH		),
 	.CBCS_b   (CBCS_b   ),
 	.SCRCS_b  (SCRCS_b  ),
 	.MRDY2_b  (MRDY2_b  ),

@@ -51,16 +51,18 @@ module jt_gng_b8(
 	output  reg [2:0]	SCD
 );
 
-reg [8:0] dbq;
+reg [8:0] vscroll;
 reg [7:0] Vq;
 
-always @(posedge POS2) dbq[7:0] <= DB;
-always @(posedge POS3) dbq[ 8 ] <= DB[0];
+// posedge in the original, changed to negedge 
+// to cope with simulation timings more easily
+always @(negedge POS2) vscroll[7:0] <= DB;
+always @(negedge POS3) vscroll[ 8 ] <= DB[0];
 always @(posedge OH) Vq <= {V128F,V64F,V32F,V16F,V8F,V4F,V2F,V1F};
 
 // 10D, 10B, 11B
 always @(*)
-	{V256S,V128S,V64S,V32S,V16S,V8S,V4S,V2S,V1S} = Vq+dbq;
+	{V256S,V128S,V64S,V32S,V16S,V8S,V4S,V2S,V1S} = Vq+vscroll;
 
 wire [7:0] DB;
 wire [7:0] DF;
@@ -86,7 +88,7 @@ always @(*)
 		ram_we_b = SCRCS_b | WRB_b;
 	end
 
-jt_gng_genram #(.addrw(10),.id(8)) u_7A (
+jt_gng_genram #(.addrw(11),.id(8)) u_7A (
 	.A		(ram_a		), 
 	.D		(DF			), 
 	.cs_b	(1'b0		), 

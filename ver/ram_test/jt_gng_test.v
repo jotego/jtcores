@@ -23,7 +23,7 @@ module jt_gng_test;
 	end
 	`endif
 
-	initial #(50*1000*1000) $finish;
+	initial #(5*1000*1000) $finish;
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;
@@ -33,7 +33,7 @@ module jt_gng_test;
 	wire [1:0] SHOT1	= 2'd0;
 	wire [1:0] COUNTER	= 2'd0;
 	wire SYNC;
-	wire [7:0] DIPSW_B	= 8'd0;
+	wire [7:0] DIPSW_B	= 8'h80; // FLIP OFF
 	wire [7:0] DIPSW_A	= 8'd0;
 	wire [1:0] COIN		= 2'd0;
 	wire [1:0] START	= 2'd0;

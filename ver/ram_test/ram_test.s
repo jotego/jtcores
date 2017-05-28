@@ -11,6 +11,10 @@ RESET:
 	CLR	$3B08
 	CLR $3B09
 
+	; Vertical Scroll
+	CLR	$3B0A
+	CLR $3B0B
+
 	; Scroll RAM test, 30ms
 	LDA #$AA
 	LDX #$2800
@@ -23,7 +27,7 @@ RESET:
 
 	BRA NO_ERROR
 
-	
+
 	; Main RAM test, 105ms
 	LDX #$0000
 	LDA #$55

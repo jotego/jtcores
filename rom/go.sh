@@ -17,3 +17,4 @@ $OD mmt04d.10n > 10n.hex
 $OD mmt05d.13n > 13n.hex
 
 $OD tbp24s10.14k > 14k.hex
+$OD m-01.2e --read-bytes 64 > 2e.hex
