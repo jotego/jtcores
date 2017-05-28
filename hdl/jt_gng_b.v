@@ -44,6 +44,7 @@ module jt_gng_b(
 	input			H8,			// D6
 	input			H32,		// D7
 	input			H128,		// D8
+	input			LHBL,		// D9
 	input			V2,			// D10
 	input			V8,			// D11
 	input			V32,		// D12
@@ -134,8 +135,6 @@ jt_gng_b2 B2 (
 
 	wire TR3_b;
 	wire OBHFLIP_q;
-	wire COL4;
-	wire COL5;
 	wire OBH4;
 	wire OBH8;
 	wire HOVER;
@@ -143,6 +142,8 @@ jt_gng_b2 B2 (
 	wire VINZONE;
 	wire [9:0] AD;
 	wire [7:0] DF;
+
+	wire [7:0] COL;
 jt_gng_b3 B3 (
 	.OB       (OB[1:0]  ),
 	.OBA      (OBA      ),
@@ -165,8 +166,8 @@ jt_gng_b3 B3 (
 	.TM2496_b (TM2496_b ),
 	.TR3_b    (TR3_b    ),
 	.OBHFLIP_q(OBHFLIP_q),
-	.COL4     (COL4     ),
-	.COL5     (COL5     ),
+	.COL4     (COL[4]   ),
+	.COL5     (COL[5]   ),
 	.OBH4     (OBH4     ),
 	.OBH8     (OBH8     ),
 	.HOVER    (HOVER    ),
@@ -185,26 +186,104 @@ jt_gng_b3 B3 (
 	.FLIP     (FLIP     )
 );
 
+pullup( COL[7],
+		COL[6],
+		COL[5],
+		COL[4],
+		COL[3],
+		COL[2],
+		COL[1],
+		COL[0] );
+
+	wire [3:0] Vbeta;
+	wire OBHFLIPq;
+	wire G4_3H;
 	wire LV1_bq;
 	wire OBFLIP1;
 	wire OBFLIP2;
+	wire DISPIM_bq;
+	wire L6MB;
+	wire OB6M;
+	wire ST1_b;
+	wire CL1_b;
+	wire WR1_b;
+	wire LOAD1_b;
+	wire ST2_b;
+	wire CL2_b;
+	wire WR2_b;
+	wire LOAD2_b;
 jt_gng_b4 B4 (
-	.V1      (V1      ),
-	.V2      (V2      ),
-	.V4      (V4      ),
-	.V8      (V8      ),
-	.V16     (V16     ),
-	.V32     (V32     ),
-	.V64     (V64     ),
-	.V128    (V128    ),
-	.OH      (OH      ),
-	.VINZONE (VINZONE ),
-	.FLIP    (FLIP    ),
-	.BLTIMING(BLTIMING),
-	.LV1     (LV1     ),
-	.LV1_bq  (LV1_bq  ),
-	.OBFLIP1 (OBFLIP1 ),
-	.OBFLIP2 (OBFLIP2 )
+	.AD       (AD       ),
+	.Vbeta    (Vbeta    ),
+	.OBH4     (OBH4     ),
+	.OBH8     (OBH8     ),
+	.V1       (V1       ),
+	.V2       (V2       ),
+	.V4       (V4       ),
+	.V8       (V8       ),
+	.V16      (V16      ),
+	.V32      (V32      ),
+	.V64      (V64      ),
+	.V128     (V128     ),
+	.OH       (OH       ),
+	.VINZONE  (VINZONE  ),
+	.FLIP     (FLIP     ),
+	.OBHFLIPq (OBHFLIPq ),
+	.G4_3H    (G4_3H    ),
+	.BLTIMING (BLTIMING ),
+	.LV1      (LV1      ),
+	.LV1_bq   (LV1_bq   ),
+	.OBFLIP1  (OBFLIP1  ),
+	.OBFLIP2  (OBFLIP2  ),
+	.DISPIM_bq(DISPIM_bq),
+	.COL      (COL[3:0] ),
+	.G6M      (G6M      ),
+	.L6MB     (L6MB     ),
+	.OB6M     (OB6M     ),
+	.TR3_b    (TR3_b    ),
+	.LHBL     (LHBL     ),
+	.ST1_b    (ST1_b    ),
+	.CL1_b    (CL1_b    ),
+	.WR1_b    (WR1_b    ),
+	.LOAD1_b  (LOAD1_b  ),
+	.ST2_b    (ST2_b    ),
+	.CL2_b    (CL2_b    ),
+	.WR2_b    (WR2_b    ),
+	.LOAD2_b  (LOAD2_b  )
+);
+
+
+	wire [7:0] OBJ2;
+jt_gng_b5 B5 (
+	.OBJ2     (OBJ2     ),
+	.COL      (COL      ),
+	.ST_b     (ST1_b    ),
+	.OBFLIP   (OBFLIP1  ),
+	.OB6M     (OB6M     ),
+	.DF       (DF       ),
+	.LOAD_b   (LOAD1_b  ),
+	.HOVER    (HOVER    ),
+	.CL_b     (CL1_b    ),
+	.WR_b     (WR1_b    ),
+	.L6MB     (L6MB     ),
+	.DISPIM_bq(DISPIM_bq),
+	.LV1_bq   (LV1_bq   ),
+	.OBJ      (OBJ      )
+);
+
+
+jt_gng_b6 B6 (
+	.OBJ   (OBJ2  ),
+	.COL   (COL   ),
+	.ST_b  (ST2_b ),
+	.OBFLIP(OBFLIP2),
+	.OB6M  (OB6M  ),
+	.DF    (DF    ),
+	.LOAD_b(LOAD2_b),
+	.HOVER (HOVER ),
+	.CL_b  (CL2_b ),
+	.WR_b  (WR2_b ),
+	.L6MB  (L6MB  )
 );
 
 
@@ -221,7 +300,7 @@ jt_gng_b4 B4 (
 	wire S0H;
 	wire S2H;
 	wire S4H;
-	wire FLIPbuf;
+	wire FLIP_buf;
 	wire S7H_b;
 	wire S6M;
 jt_gng_b7 B7 (
@@ -254,7 +333,7 @@ jt_gng_b7 B7 (
 	.S0H    (S0H    ),
 	.S2H    (S2H    ),
 	.S4H    (S4H    ),
-	.FLIPbuf(FLIPbuf),
+	.FLIP_buf(FLIP_buf),
 	.S7H_b  (S7H_b  ),
 	.S6M    (S6M    )
 );
@@ -307,9 +386,6 @@ jt_gng_b8 B8 (
 	.SCRWIN  (SCRWIN  ),
 	.SCD     (SCD     )
 );
-
-
-	wire FLIP_buf;
 
 jt_gng_b9 B9 (
 	.AS      (AS      ),

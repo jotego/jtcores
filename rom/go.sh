@@ -18,3 +18,13 @@ $OD mmt05d.13n > 13n.hex
 
 $OD tbp24s10.14k > 14k.hex
 $OD m-01.2e --read-bytes 64 > 2e.hex
+
+# OBJ ROMs
+$OD mm15.1n > 1n.hex
+$OD mm16.3n > 3n.hex
+
+$OD mm12.1l > 1l.hex
+$OD mm13.3l > 3l.hex
+
+$OD zeros > 2n.hex
+$OD zeros > 2l.hex

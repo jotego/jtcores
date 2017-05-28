@@ -36,7 +36,7 @@ module jt_gng_b7(
 	output	reg		S0H,
 	output	reg		S2H,
 	output	reg		S4H,
-	output			FLIPbuf,	// to 9/9
+	output			FLIP_buf,	// to 9/9
 	output			S7H_b,
 	output			S6M
 
@@ -46,7 +46,7 @@ wire [7:0] POS;
 assign POS2=POS[2];
 assign POS3=POS[3];
 
-assign FLIPbuf = FLIP;
+assign FLIP_buf = FLIP;
 assign S6M = G6M;
 
 jt74138 u_13A(

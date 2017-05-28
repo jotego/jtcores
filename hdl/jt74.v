@@ -1,3 +1,5 @@
+
+// synchronous presettable 4-bit binary counter, asynchronous clear
 module jt74161(
 	input cet,
 	input cep,
@@ -22,6 +24,32 @@ module jt74161(
 		end
 
 endmodule // jt74161
+
+// synchronous presettable 4-bit binary counter, synchronous clear
+module jt74163(
+	input cet,
+	input cep,
+	input ld_b,
+	input clk,
+	input cl_b,
+	input [3:0] d,
+	output reg [3:0] q,
+	output ca
+ );
+
+	assign ca = &{q, cet};
+
+	initial q=4'd0;
+
+	always @(posedge clk) 
+		if( !cl_b )
+			q <= 4'd0;
+		else begin
+			if(!ld_b) q <= d;
+			else if( cep&&cet ) q <= q+4'd1;
+		end
+
+endmodule // jt74163
 
 // Dual D-type flip-flop with set and reset; positive edge-trigger
 module jt7474(
@@ -213,6 +241,23 @@ module jt74283(
 );
 
 	always @(a,b,cin) {cout,s} <= a+b+cin;
+
+endmodule
+
+// Quad 2-input multiplexer; 3-state
+module jt74257(
+	input sel,
+	input en_b,
+	input [3:0] a,
+	input [3:0] b,
+	output reg [3:0] y
+);
+
+always @(*)
+	if( !en_b )
+		y = sel ? b : a;
+	else
+		y = 4'hz;
 
 endmodule
 

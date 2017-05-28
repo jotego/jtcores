@@ -24,6 +24,12 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi
+	if [ "$1" = "-reps" ]; then
+		shift
+		REPS=$1
+		shift
+		continue
+	fi
 	echo "Unknown option $1"
 	exit 1
 done
