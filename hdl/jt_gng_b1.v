@@ -51,7 +51,8 @@ module jt_gng_b1(
 assign {V1F,V2F,V4F,V8F,V16F,V32F,V64F,V128F} 
 	= {8{FLIP}} ^ { V1,V2,V4,V8,V16,V32,V64,V128};
 wire [7:0] VF = {V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F};
-wire [7:0] Vaux = ~VF + ~{ {6{FLIP}}, 1'b0, FLIP};
+wire FLIP_b = ~FLIP;
+wire [7:0] Vaux = ~VF + { {6{FLIP_b}}, 2'b10}; // 9E 9F
 wire [7:0] comp = DE + Vaux;
 //assign MATCH_b = ~&comp[7:4];
 
@@ -72,14 +73,13 @@ wire [5:0] pull_res = 6'h1f;
 jt74245 u1 (.a({RDB_b, WRB_b, AB[12:8]}), .b( { pull_res, OB[8]} ), .dir(1'b0), .en_b(BLCNTEN_b));
 jt74245 u2 (.a(DB), .b(DE), .dir(1'b1), .en_b(BLCNTEN_b));
 
-wire ROB;
 // 11D, 13D
 wire pr3_b = ALC2_b & ( RQB_b | OVER96_b );
 
 jt7474 u14D_a (.d(1'b0), .pr_b(pr3_b), .cl_b(1'b1), 
-	.clk(OKOUT_b), .q(RQB_b), .q_b(ROB));
+	.clk(OKOUT_b), .q(RQB_b), .q_b(RQB));
 
-jt7474 u14D_b (.d(AKB_b), .pr_b(ROB), .cl_b(1'b1), 
+jt7474 u14D_b (.d(AKB_b), .pr_b(RQB), .cl_b(1'b1), 
 	.clk(phiBB), .q_b(BLEN));
 
 wire mem_WE_b = phiBB | BLCNTEN_b;
