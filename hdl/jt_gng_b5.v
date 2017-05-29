@@ -26,6 +26,16 @@ module jt_gng_b5(
 
 wire [7:0]	OBJ1;
 
+// These pullups are on B6 in the original
+pullup( COL[7],
+		COL[6],
+		COL[5],
+		COL[4],
+		COL[3],
+		COL[2],
+		COL[1],
+		COL[0]);
+
 jt_gng_b6 buffer (
 	.OBJ   (OBJ1  ),
 	.COL   (COL   ),
