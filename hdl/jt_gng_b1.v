@@ -35,8 +35,8 @@ wire [7:0] DE;
 assign BLCNTEN_b = !BLEN;
 wire mem_WE_b = BLCNTEN_b | phiBB;
 
-assign AB = !BLCNTEN_b ? {4'hf, OB} : 13'hzzz;
-assign { WRB_b, RDB_b } = !BLCNTEN_b ? 2'b10 : 2'bzz;
+assign #2 AB = !BLCNTEN_b ? {4'hf, OB} : 13'hzzz;
+assign #2 { WRB_b, RDB_b } = !BLCNTEN_b ? 2'b10 : 2'bzz;
 
 jt_gng_genram_alt #(.addrw(9),.id(104)) u_12E (
 	.A(OB), .din(DB), .dout(DE),.cs_b(1'b0), .rd_b(~mem_WE_b), .wr_b(mem_WE_b)
@@ -46,14 +46,17 @@ wire OBASEL = !OBASEL_b;
 wire OBBSEL = !OBBSEL_b;
 wire OVER96 = !OVER96_b;
 
-assign DEA = !OVER96 && OBASEL ? DE : 8'hff;
-assign DEB = !OVER96 && OBBSEL ? DE : 8'hff;
-assign VF  = {8{FLIP}} ^ V;
+assign #2 DEA = !OVER96 && OBASEL ? DE : 8'hff;
+assign #2 DEB = !OVER96 && OBBSEL ? DE : 8'hff;
+assign #2 VF  = {8{FLIP}} ^ V;
 
 wire [7:0] Vaux = ~VF + { {6{~FLIP}}, 2'b10};
 wire [7:0] sumData = !BLCNTEN_b? DB:DE;
 wire [7:0] sum  = sumData + Vaux;
-wire MATCH = &sum[7:4];
+
+// 10H
+wire MATCH;
+assign #2 MATCH = &sum[7:4];
 assign MATCH_b = ~MATCH;
 
 wire OKOUT = !OKOUT_b;
@@ -61,7 +64,9 @@ reg okout_latch;
 
 wire ALC2 = !ALC2_b;
 
-wire rst  = (OVER96&&okout_latch) || ALC2;
+// 13D, 11D
+wire rst;
+assign #2 rst  = (OVER96&&okout_latch) || ALC2;
 wire rstb = ~rst;
 
 always @(negedge OKOUT or negedge rstb )

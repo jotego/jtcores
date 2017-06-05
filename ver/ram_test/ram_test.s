@@ -28,7 +28,7 @@ RESET:
 	STA ,X+
 	STB	,X+	; Y POS
 	STB ,X+	; X POS
-	ADDB #2
+	DECB #2
 	CMPX #$2000
 	BNE @LOOP
 

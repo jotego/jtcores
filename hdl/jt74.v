@@ -78,27 +78,27 @@ module jt74138(
 	input e2_b,
 	input e3,
 	input [2:0] a,
-	output reg [7:0] y_b 
+	output [7:0] y_b 
 );
-
+	reg [7:0] yb_nodly;
 	always @(*)
 		if( e1_b || e2_b || !e3 )
-			y_b <= 8'hff;
-		else y_b = ~ ( 8'b1 << a );
-
+			yb_nodly <= 8'hff;
+		else yb_nodly = ~ ( 8'b1 << a );
+	assign #2 y_b = yb_nodly;
 endmodule
 
 // Dual 2-to-4 line decoder/demultiplexer
 module jt74139(
 	input 	en1_b,
 	input 		[1:0] 		a1,
-	output reg 	[3:0] 		y1_b,
+	output  	[3:0] 		y1_b,
 	input 	en2_b,
 	input 		[1:0] 		a2,
-	output reg 	[3:0] 		y2_b
+	output  	[3:0] 		y2_b
 );
-	always @(*) y1_b = en1_b ? 4'hf : ~( (4'b1)<<a1 );
-	always @(*) y2_b = en2_b ? 4'hf : ~( (4'b1)<<a2 );
+	assign #2 y1_b = en1_b ? 4'hf : ~( (4'b1)<<a1 );
+	assign #2 y2_b = en2_b ? 4'hf : ~( (4'b1)<<a2 );
 endmodule
 
 module jt74112(
@@ -135,8 +135,8 @@ module jt74245(
 	input en_b
 );
 
-	assign a = en_b || dir  ? 8'hzz : b;
-	assign b = en_b || !dir ? 8'hzz : a;
+	assign #2 a = en_b || dir  ? 8'hzz : b;
+	assign #2 b = en_b || !dir ? 8'hzz : a;
 
 endmodule
 
@@ -174,8 +174,8 @@ module jt74367(
 	input en4_b,
 	input en6_b
 );
-	assign Y[3:0] = !en4_b ? A[3:0] : 4'hz;
-	assign Y[5:4] = !en6_b ? A[5:4] : 2'hz;
+	assign #2 Y[3:0] = !en4_b ? A[3:0] : 4'hz;
+	assign #2 Y[5:4] = !en6_b ? A[5:4] : 2'hz;
 endmodule
 
 // 4-bit bidirectional universal shift register
@@ -207,12 +207,13 @@ module jt74157(
 	input	st_l,
 	input	[3:0] A,
 	input	[3:0] B,
-	output	reg [3:0] Y
+	output	[3:0] Y
 );
-
+	reg [3:0] y_nodly;
+	assign #2 Y = y_nodly;
 	always @(*)
-		if( st_l ) Y = 4'd0;
-		else Y = sel ? B : A;
+		if( st_l ) y_nodly = 4'd0;
+		else y_nodly = sel ? B : A;
 
 endmodule
 
@@ -236,11 +237,10 @@ module jt74283(
 	input [3:0] a,
 	input [3:0] b,
 	input 		cin,
-	output reg [3:0] s,
-	output reg	cout
+	output  [3:0] s,
+	output 	cout
 );
-
-	always @(a,b,cin) {cout,s} <= a+b+cin;
+	assign #2 {cout,s} = a+b+cin;
 
 endmodule
 
@@ -250,14 +250,17 @@ module jt74257(
 	input en_b,
 	input [3:0] a,
 	input [3:0] b,
-	output reg [3:0] y
+	output [3:0] y
 );
+
+reg [3:0] y_nodly;
+assign #2 y = y_nodly;
 
 always @(*)
 	if( !en_b )
-		y = sel ? b : a;
+		y_nodly = sel ? b : a;
 	else
-		y = 4'hz;
+		y_nodly = 4'hz;
 
 endmodule
 

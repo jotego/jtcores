@@ -42,7 +42,8 @@ module jt_gng_a5(
 	wire L6M, X6M;
 	wire sh5_1k_ca, sh5_2k_ca;
 
-	wire HINIT_b = ~sh5_1k_ca;
+	wire HINIT_b;
+	assign #2 HINIT_b = ~sh5_1k_ca; // 5K
 	wire VCLK;
 
 	reg X12M;

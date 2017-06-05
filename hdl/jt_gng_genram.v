@@ -58,10 +58,12 @@ module jt_gng_genram_alt #(parameter addrw=12, dataw=8, id=0)(
 reg [dataw-1:0] ram [0:(2**addrw-1)];
 reg [dataw-1:0] dread;
 
-wire READ = !cs_b && !rd_b && wr_b;
-wire WRITE= !cs_b && !wr_b;
+wire READ, WRITE;
 
-assign dout= READ ? dread : 8'h00;
+assign #2 READ = !cs_b && !rd_b && wr_b;
+assign #2 WRITE= !cs_b && !wr_b;
+
+assign #2 dout= READ ? dread : 8'h00;
 
 `ifdef RAM_INFO
 always @(READ)
