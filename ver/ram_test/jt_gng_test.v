@@ -23,7 +23,7 @@ module jt_gng_test;
 	end
 	`endif
 
-	initial #(60*1000*1000) $finish;
+	initial #(100*1000*1000) $finish;
 
 	wire [1:0] UP		= 2'd0;
 	wire [1:0] DOWN		= 2'd0;

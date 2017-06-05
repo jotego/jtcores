@@ -5,6 +5,8 @@
 	ORG $E000
 RESET: 
 	ORCC #$10
+	LDS	#$2000-1
+	ANDCC #$EF
 	LDU #0
 
 	; Horizontal Scroll
@@ -15,18 +17,33 @@ RESET:
 	CLR	$3B0A
 	CLR $3B0B
 
-	; Sprite update
+	; Sprite data
 	CLRA
 	LDX #$1E00
+	CLRB
 @LOOP:
+	LDA #0
 	STA ,X+
-	INCA
+	LDA #4	; H FLIP
+	STA ,X+
+	STB	,X+	; Y POS
+	STB ,X+	; X POS
+	ADDB #2
 	CMPX #$2000
 	BNE @LOOP
+
+@LOOP:
 	STA	$3C00	; OKOUT	
+	LDX #1000
+	LDY #0
+@LOOP2:
+	LEAX ,-X
+	CMPX #0
+	BNE @LOOP2
 	STA	$3C00	; OKOUT	
-	STA	$3C00	; OKOUT	
-	STA	$3C00	; OKOUT	
+	LEAY ,Y+
+	BRA @LOOP
+
 
 	; Red, Green Test
 	LDA #$A5
@@ -35,6 +52,7 @@ RESET:
 	STA ,X+
 	CMPX #$3900
 	BNE @LOOP
+	STA	$3C00	; OKOUT	
 
 	; Blue Test
 	LDA #$A0
@@ -43,8 +61,7 @@ RESET:
 	STA ,X+
 	CMPX #$3A00
 	BNE @LOOP
-
-	BRA NO_ERROR
+	STA	$3C00	; OKOUT	
 
 	; Scroll RAM test, 30ms
 	LDA #$AA
@@ -55,16 +72,7 @@ RESET:
 	BNE ERROR_CHRAM
 	CMPX #$3000
 	BNE @LOOP
-
-	; Main RAM test, 105ms
-	LDX #$0000
-	LDA #$55
-@LOOP:	
-	STA ,X
-	CMPA ,X+
-	BNE ERROR_RAM
-	CMPX #$2000
-	BNE @LOOP
+	STA	$3C00	; OKOUT	
 
 	; Character RAM test, 30ms
 	LDA #$AA
@@ -75,6 +83,18 @@ RESET:
 	BNE ERROR_CHRAM
 	CMPX #$2800
 	BNE @LOOP
+	STA	$3C00	; OKOUT	
+
+	; Main RAM test, 105ms
+	LDX #$0000
+	LDA #$55
+@LOOP:	
+	STA ,X
+	CMPA ,X+
+	BNE ERROR_RAM
+	CMPX #$2000
+	BNE @LOOP
+	STA	$3C00	; OKOUT	
 
 
 NO_ERROR:
@@ -89,7 +109,13 @@ ERROR_CHRAM:
 	LDU #2
 	BRA ERROR_CHRAM
 
+IRQSERVICE:
+	; Sprite update
+	STA	$3C00	; OKOUT	
+	RTI
 
+	FILL $FF,$FFF8-*
+	.WORD IRQSERVICE
 	FILL $FF,$FFFE-*
 
 	.WORD RESET

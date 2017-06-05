@@ -6,6 +6,130 @@
 
 */
 
+module jt_gng_b2_alt(
+	input			HINIT_b,
+	input			H1,
+	input			H256,
+	input			MATCH_b,
+	input			AKB_b,
+	input			BLEN,
+	input			BLTIMING,
+	input			LV1,
+
+	output			phiBB,
+	output	[8:0]	OB,
+	output	[4:0]	OBA,
+	output			TM2496_b,
+	output			OBASEL_b,
+	output			OBBSEL_b,
+	output			OBJABWR_b,
+	output			OVER96_b
+);
+
+reg blanking;
+assign phiBB = ~H1;
+
+// 2J
+always @(negedge H256) begin
+	blanking <= BLTIMING;
+end
+
+assign TM2496_b = blanking;
+
+reg [1:0] base_cnt;
+reg mode;
+reg count_both;
+//(TM2496_b | HINIT_b) & (BLEN|TM2496) )
+reg OVER24;
+
+initial base_cnt = 2'd0;
+initial mode=0;
+
+wire cnt2 = base_cnt>=2'd2 && !mode;
+wire load_bus;
+assign #1 load_bus = blanking ? !BLEN : HINIT;
+
+wire load_base = load_bus || count_both || cnt2;
+wire AKB = ~AKB_b;
+wire next_mode;
+
+always @(*) count_both = &{ mode, base_cnt };
+
+always @(posedge phiBB or posedge OVER24) begin
+	if( OVER24 )
+		{ mode, base_cnt } <= 3'd0;
+	else if( load_base )
+		{ mode, base_cnt } <= { next_mode, ~next_mode, 1'b0 };
+	else 
+		{ mode, base_cnt } <= { mode, base_cnt } + 1'b1;
+end
+
+// bus drive counter
+reg [6:0] bus_cnt;
+assign OB = { bus_cnt, base_cnt };
+wire HINIT = !HINIT_b;
+wire OVER96 = bus_cnt >= 7'd96;
+assign OVER96_b = ~OVER96;
+wire OVER95 = bus_cnt >= 7'd95;
+wire MATCH = ~MATCH_b;
+wire matched = cnt2 && ~MATCH_b;
+
+// MATCH is only used when cnt2 is active because that marks 
+// byte #2 of the 4-byte sprite structure
+
+assign next_mode = AKB || (OVER95 && !HINIT) || matched;
+
+initial bus_cnt = 7'd0;
+
+always @(posedge phiBB) begin
+	if( load_bus )
+		bus_cnt <= 7'd0;
+	else if( count_both || ( !matched && cnt2 ) )
+		bus_cnt <= bus_cnt + 1'd1;	
+end
+
+// data buffer counter
+reg [4:0] data_cnt;
+assign OBA = data_cnt;
+
+initial data_cnt = 5'd0;
+
+wire load_data = HINIT || blanking;
+
+always @(posedge phiBB) begin
+	if( load_data ) begin
+		data_cnt <= 7'd8;
+		OVER24 <= 1'b0;
+	end
+	else if( count_both )
+		{OVER24, data_cnt } <= data_cnt + 1'd1;
+end
+
+reg OBASEL, OBBSEL, OBJABWR;
+
+always @(*) begin
+	if( blanking ) begin
+		OBJABWR = 1'b0;
+		OBASEL  = 1'b0;
+		OBBSEL  = 1'b0;
+	end		
+	else begin
+		OBJABWR = &{ mode, ~OVER24, H1 }; // H1 is the clock for this operation
+		OBASEL  =  LV1;
+		OBBSEL  = !LV1;
+	end
+end
+
+assign OBJABWR_b = !OBJABWR;
+assign OBASEL_b = !OBASEL;
+assign OBBSEL_b = !OBBSEL;
+
+
+endmodule
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 module jt_gng_b2(
 	input			HINIT_b,
 	input			H1,
@@ -19,8 +143,8 @@ module jt_gng_b2(
 	input			BLTIMING,
 	output			TM2496_b,
 	input			LV1,
-	output			OBASEL_b,
-	output			OBBSEL_b,
+	output	reg		OBASEL_b,
+	output	reg		OBBSEL_b,
 	output			OBJABWR_b,
 	output			OVER96_b
 );
@@ -39,9 +163,14 @@ jt7474 u_2J (
 	.q_b	(TM2496)
 );
 
-assign OBBSEL_b = TM2496_b | LV1; // 1J
-wire	LV1_b   = ~LV1; // 5F
-assign OBASEL_b = TM2496_b | LV1_b; // 1J
+reg LV1_b;
+
+always @(*) begin
+	OBBSEL_b = TM2496_b | LV1; // 1J
+	LV1_b    = ~LV1; // 5F
+	OBASEL_b = TM2496_b | LV1_b; // 1J
+end
+
 
 wire ca_6D, ca_6E;
 assign OVER96_b = ~&OB[8:7];	// 5F
@@ -121,6 +250,37 @@ jt74161 u_4H (
 	.q		( { OVER24, OBA[4] } )
 );
 
+assign OBJABWR_b = ~&{ TM2496, q_6E[3], OVER24_b, H1 };
 
+wire [8:0] OB_alt;
+wire [4:0] OBA_alt;
+
+jt_gng_b2_alt alt (
+	.HINIT_b  (HINIT_b  ),
+	.H1       (H1       ),
+	.H256     (H256     ),
+	.MATCH_b  (MATCH_b  ),
+	.AKB_b    (AKB_b    ),
+	.BLEN     (BLEN     ),
+	.BLTIMING (BLTIMING ),
+	.LV1      (LV1      ),
+	.phiBB	  (phiBB_alt),
+	.OB		  (OB_alt	),
+	.OBA	  (OBA_alt  ),
+	.TM2496_b (TM2496_b_alt),
+	.OBASEL_b (OBASEL_b_alt),
+	.OBBSEL_b (OBBSEL_b_alt),
+	.OBJABWR_b(OBJABWR_b_alt),
+	.OVER96_b (OVER96_b_alt )
+);
+
+wire phiBB_error    = phiBB ^ phiBB_alt;
+wire OB_error       = OB  ^ OB_alt;
+wire OBA_error      = OBA ^ OBA_alt;
+wire TM2496_b_error = TM2496_b ^ TM2496_b_alt;
+wire OBASEL_b_error = OBASEL_b ^ OBASEL_b_alt;
+wire OBBSEL_b_error = OBBSEL_b ^ OBBSEL_b_alt;
+wire OBJABWR_b_error= OBJABWR_b ^ OBJABWR_b_alt;
+wire OVER96_b_error = OVER96_b ^ OVER96_b_alt;
 
 endmodule // jt_gng_b2
