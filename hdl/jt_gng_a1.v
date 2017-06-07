@@ -143,7 +143,8 @@ end
 
 wire [7:0] decod_ce_b, decod_bank_b;
 
-wire G1_8K = E | Q; // or E | Q ??
+wire G1_8K;
+assign #2 G1_8K = E | Q; // or E | Q ??
 
 jt74138 u_8K (
 	.e1_b(1'b0), 
@@ -193,8 +194,9 @@ assign D = &{ce8_9n_b, ce10n_b, ce12_13n_b}==1'b0 ? rom_data : 8'hzz;
 assign Dinout = &{BA,BS}==1'b1 || !RDB_b ? 
 	8'hzz : (!RnW ? DOut : D);
 
-wire bus_rd_b = ~(E &  RnW);
-wire bus_wr_b = ~(E & ~RnW);
+wire bus_rd_b, bus_wr_b;
+assign #2 bus_rd_b = ~(E &  RnW);
+assign #2 bus_wr_b = ~(E & ~RnW);
 assign EXTEN_b = decod_ce_b[1];
 wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
 assign WRAM_b = decod_ce_b[0] & BLCNTEN_b;

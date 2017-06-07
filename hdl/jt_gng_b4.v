@@ -154,13 +154,13 @@ jt74257 u_5K (
 	.y		( COL )
 );
 
-assign S[1] = ~OBHFLIPq | G4_3H;
-assign S[0] =  OBHFLIPq | G4_3H;
+assign #2 S[1] = ~OBHFLIPq | G4_3H; // 8K
+assign #2 S[0] =  OBHFLIPq | G4_3H; // 6K
 
 // timing
 
-assign L6MB = ~G6M;  // 8K
-assign OB7M = ~L6MB; // 8K
+assign #2 L6MB = ~G6M;  // 8K
+assign #2 OB7M = ~L6MB; // 8K
 
 reg [2:0] gal_14k[0:255];
 wire [7:0] VV = {V128,V64,V32,V16,V8,V4,V2,V1};
@@ -175,16 +175,16 @@ always @(VV)
 
 assign BLTIMING = vgal[2];
 
-assign LV1 = ~V1; // 8K
+assign #2 LV1 = ~V1; // 8K
 
 reg [3:0] timings;
 always @(posedge OH) // 11K
 	timings <= { V1, vgal[0], vgal[1], VINZONE };
 
 assign DISPIM_bq = timings[1]; // vgal[1]
-assign LV1_bq = ~timings[3]; // 8K
-assign OBFLIP2 = timings[3] & FLIP; // 7K
-assign OBFLIP1 = LV1_bq & FLIP; // 7K
+assign #2 LV1_bq = ~timings[3]; // 8K
+assign #2 OBFLIP2 = timings[3] & FLIP; // 7K
+assign #2 OBFLIP1 = LV1_bq & FLIP; // 7K
 
 wire [5:0] NoConn;
 
@@ -209,8 +209,8 @@ jt74139 u_10K (
 	.y2_b	({CL2_b, CL1_b, NoConn[5:4]}	)	
 );
 
-assign WR2_b = ~&{ CL2_b, L6MB };
-assign WR1_b = ~&{ CL1_b, L6MB };
+assign #2 WR2_b = ~&{ CL2_b, L6MB };
+assign #2 WR1_b = ~&{ CL1_b, L6MB };
 
 
 

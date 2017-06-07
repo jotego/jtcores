@@ -33,7 +33,8 @@ wire vflip =  CHVFLIP ^ FLIP;
 wire flip_9D = FLIP;
 wire hflip = ~CHHFLIP ^ flip_9D;
 
-wire [3:0] addr = { {3{vflip}} ^ {VV4,VV2,VV1}, hflip^H4 };
+wire [3:0] addr;
+assign #2 addr = { {3{vflip}} ^ {VV4,VV2,VV1}, hflip^H4 };
 
 reg [7:0] mem_11e[0:16383];
 

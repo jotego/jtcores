@@ -44,7 +44,8 @@ always @(posedge CH6M) begin
 end
 
 // 7F, 1F
-wire [5:0] pal_addr = { ~CHARB|~CHARA,
+wire [5:0] pal_addr;
+assign #2 pal_addr = { ~CHARB|~CHARA,
 	~OBJD|~OBJC|~OBJB|~OBJB|~OBJA,
 	SCRG, // scrwin
 	SCRC,
@@ -86,7 +87,7 @@ wire [7:0] rgb_addr;
 
 jt74245 u_5C (.a(AB), .b(rgb_addr), .dir(1'b1), .en_b(ABen));
 // 4C
-assign rgb_addr = !ABen ? 8'hzz : pixel_raw;
+assign #2 rgb_addr = !ABen ? 8'hzz : pixel_raw;
 
 wire [3:0] R,G,B;
 

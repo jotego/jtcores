@@ -97,7 +97,9 @@ module jt_gng_a5(
 	wire [8:0] hcnt = {H256, H128, H64, H32, H16, H8, XH4, XH2, H1 };
 
 
-	wire H1_2_4 = ~&{ H1, XH2, XH4 };
+	wire H1_2_4;
+	assign #2 H1_2_4 = ~&{ H1, XH2, XH4 };
+	
 	wire C4, D3, D4;
 	assign G4_3H = C4;
 	assign OH = D3;
@@ -136,8 +138,9 @@ module jt_gng_a5(
 	);	
 
 	wire LHBL;
-	wire sh5_5m_j = ~H1_2_4 & ~H256;
-	wire sh5_5m_k = ~H1_2_4 &  H256;
+	wire sh5_5m_j, sh5_5m_k;
+	assign #2 sh5_5m_j = ~H1_2_4 & ~H256;
+	assign #2 sh5_5m_k = ~H1_2_4 &  H256;
 
 	jt74112 sh5_5m(
 		.clk_b	( L6M	),
@@ -216,7 +219,8 @@ module jt_gng_a5(
 	);	
 
 	wire [7:0] sh5_2m_y_b, sh5_4k_y_b;
-	wire CMP_SYNC = &{ sh5_4k_y_b[4], sh5_4k_y_b[3], sh5_2m_y_b[3] };
+	wire CMP_SYNC;
+	assign #2 CMP_SYNC = &{ sh5_4k_y_b[4], sh5_4k_y_b[3], sh5_2m_y_b[3] };
 
 	jt74138 sh5_4k(
 		.e1_b	( 1'b0 ),
@@ -237,10 +241,10 @@ module jt_gng_a5(
 	// Z-buffered outputs
 	wire [5:0] sh5_1j_y;
 
-	assign Phi8 = sh5_1j_y[3]; // 48
-	assign   H4 = sh5_1j_y[2]; // H4
-	assign   H2 = sh5_1j_y[1]; // H2
-	assign	G6M = sh5_1j_y[0]; // 6M
+	assign #2 Phi8 = sh5_1j_y[3]; // 48
+	assign #2   H4 = sh5_1j_y[2]; // H4
+	assign #2   H2 = sh5_1j_y[1]; // H2
+	assign #2	G6M = sh5_1j_y[0]; // 6M
 
 	jt74367 sh5_1j(
 		.A		( {2'b0, H1_b, XH4, XH2, X6M } ),
