@@ -5,7 +5,7 @@
 	ORG $E000
 RESET: 
 	ORCC #$10
-	LDS	#$2000-1
+	LDS	#$1E00-1
 	ANDCC #$EF
 	LDU #0
 
@@ -18,20 +18,89 @@ RESET:
 	CLR $3B0B
 
 	; Sprite data
+	BSR	CLEAR_SPR
+
+	; Single Sprite
+	LDX #$1E00
+	LDA #$DE
+	STA ,X+
+	CLRA
+	STA ,X+
+	LDA #$80	; Y
+	STA ,X+
+	LDA #$40	; X
+	STA ,X+
+	STA	$3C00	; OKOUT	
+
+
+	; Red, Green Test
+	LDA #$A5
+	LDX #$3800
+@LOOP:
+	STA ,X+
+	CMPX #$3900
+	BNE @LOOP
+	;STA	$3C00	; OKOUT	
+
+	; Blue Test
+	LDA #$A0
+	LDX #$3900
+@LOOP:
+	STA ,X+
+	CMPX #$3A00
+	BNE @LOOP
+	;STA	$3C00	; OKOUT	
+
+	; Scroll RAM test, 30ms
+	LDA #$AA
+	LDX #$2800
+@LOOP:
+	STA ,X
+	CMPA ,X+
+	BNE ERROR_CHRAM
+	CMPX #$3000
+	BNE @LOOP
+	;STA	$3C00	; OKOUT	
+
+	; Character RAM test, 30ms
+	LDA #$AA
+	LDX #$2000
+@LOOP:
+	STA ,X
+	CMPA ,X+
+	BNE ERROR_CHRAM
+	CMPX #$2800
+	BNE @LOOP
+	;STA	$3C00	; OKOUT	
+
+	; Main RAM test, 105ms
+	LDX #$0000
+	LDA #$55
+@LOOP:	
+	STA ,X
+	CMPA ,X+
+	BNE ERROR_RAM
+	CMPX #$2000
+	BNE @LOOP
+	;STA	$3C00	; OKOUT	
+
+NO_ERROR:
+	LDU #0
+	BRA NO_ERROR
+
+;--------------------------------------------------------------
+CLEAR_SPR:
 	CLRA
 	LDX #$1E00
 	CLRB
 @LOOP:
-	LDA #0
-	STA ,X+
-	LDA #4	; H FLIP
-	STA ,X+
-	STB	,X+	; Y POS
-	STB ,X+	; X POS
-	DECB #2
+	STD ,X++
+	STD ,X++
 	CMPX #$2000
 	BNE @LOOP
+	RTS
 
+UPD_SPR_LOOP:
 @LOOP:
 	STA	$3C00	; OKOUT	
 	LDX #1000
@@ -43,63 +112,8 @@ RESET:
 	STA	$3C00	; OKOUT	
 	LEAY ,Y+
 	BRA @LOOP
+	RTS
 
-
-	; Red, Green Test
-	LDA #$A5
-	LDX #$3800
-@LOOP:
-	STA ,X+
-	CMPX #$3900
-	BNE @LOOP
-	STA	$3C00	; OKOUT	
-
-	; Blue Test
-	LDA #$A0
-	LDX #$3900
-@LOOP:
-	STA ,X+
-	CMPX #$3A00
-	BNE @LOOP
-	STA	$3C00	; OKOUT	
-
-	; Scroll RAM test, 30ms
-	LDA #$AA
-	LDX #$2800
-@LOOP:
-	STA ,X
-	CMPA ,X+
-	BNE ERROR_CHRAM
-	CMPX #$3000
-	BNE @LOOP
-	STA	$3C00	; OKOUT	
-
-	; Character RAM test, 30ms
-	LDA #$AA
-	LDX #$2000
-@LOOP:
-	STA ,X
-	CMPA ,X+
-	BNE ERROR_CHRAM
-	CMPX #$2800
-	BNE @LOOP
-	STA	$3C00	; OKOUT	
-
-	; Main RAM test, 105ms
-	LDX #$0000
-	LDA #$55
-@LOOP:	
-	STA ,X
-	CMPA ,X+
-	BNE ERROR_RAM
-	CMPX #$2000
-	BNE @LOOP
-	STA	$3C00	; OKOUT	
-
-
-NO_ERROR:
-	LDU #0
-	BRA NO_ERROR
 
 ERROR_RAM:
 	LDU #1

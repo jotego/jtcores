@@ -55,6 +55,7 @@ module jt_gng_a(
 	input			SCRY,		// D1
 	output			FLIP,		// D2
 	output			OH,			// D3
+	output			G4H,		// D4
 	output			H2,			// D5
 	output			H8,			// D6
 	output			H32,		// D7
@@ -152,7 +153,6 @@ jt_gng_a3 A3 (
 	wire LHBL;
 	wire G4_3H;
 	wire OH;
-	wire G4H;
 	wire H1;
 	wire H8;
 	wire H16;

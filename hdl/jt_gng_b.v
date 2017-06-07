@@ -40,6 +40,7 @@ module jt_gng_b(
 	output			SCRY,		// D1
 	input			FLIP,		// D2
 	input			OH,			// D3
+	input			G4H,		// D4
 	input			H2,			// D5
 	input			H8,			// D6
 	input			H32,		// D7
@@ -162,6 +163,7 @@ jt_gng_b3 B3 (
 	.H64      (H64      ),
 	.H128     (H128     ),
 	.H256     (H256     ),
+	.G4H	  (G4H		),
 	.LV1      (LV1      ),
 	.TM2496_b (TM2496_b ),
 	.TR3_b    (TR3_b    ),

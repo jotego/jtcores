@@ -17,10 +17,11 @@ module jt_gng_genram #(parameter addrw=12, dataw=8, id=0)(
 reg [dataw-1:0] ram [0:(2**addrw-1)];
 reg [dataw-1:0] dread;
 
-wire READ = !cs_b && !rd_b && wr_b;
-wire WRITE= !cs_b && !wr_b;
+wire READ, WRITE;
+assign #2 READ = !cs_b && !rd_b && wr_b;
+assign WRITE= !cs_b && !wr_b;
 
-assign D= READ ? dread : 8'hzz;
+assign #2 D= READ ? dread : 8'hzz;
 
 `ifdef RAM_INFO
 always @(READ)

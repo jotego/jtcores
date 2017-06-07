@@ -28,6 +28,7 @@ wire AKB_b;
 wire RQB_b;
 wire ALC2_b;
 wire OKOUT_b;
+wire G4H;
 
 jt_gng_a boardA (
 	.UP       (UP       ),
@@ -67,6 +68,7 @@ jt_gng_a boardA (
 	.SCRCS_b  (SCRCS_b  ),
 	.MRDY2_b  (MRDY2_b  ),
 	.G6M      (G6M      ),
+	.G4H	  (G4H		),
 	.HINIT_b  (HINIT_b  ),
 	.H256     (H256     ),
 	.H128     (H128     ),
@@ -109,6 +111,7 @@ jt_gng_b boardB (
 	.SCRCS_b  (SCRCS_b  ),
 	.MRDY2_b  (MRDY2_b  ),
 	.G6M      (G6M      ),
+	.G4H	  (G4H		),
 	.HINIT_b  (HINIT_b  ),
 	.H256     (H256     ),
 	.H128     (H128     ),

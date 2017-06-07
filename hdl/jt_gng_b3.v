@@ -119,10 +119,11 @@ always @(posedge ~TR2_b) // 7J
 always @(posedge G4H) // 8E, 7E
 	VFq <= Vin;
 
-wire [7:0] FLIPsum = {{7{FLIP}},1'b1};
-wire [7:0] VinFLIP = VFq + FLIPsum;
-wire [7:0] Vsum = VinFLIP + Vq;
-assign VINZONE = ~&Vsum[7:4] + Vin;
-assign VB = {4{~OBVFLIP_b}} ^ Vsum[3:0];
+wire [7:0] FLIPsum, VinFLIP, Vsum;
+assign #2 FLIPsum = {{7{FLIP}},1'b1};
+assign #2 VinFLIP = VFq + FLIPsum;
+assign #2 Vsum = VinFLIP + Vq;
+assign #2 VINZONE = ~&Vsum[7:4] + Vin;
+assign #2 VB = {4{~OBVFLIP_b}} ^ Vsum[3:0];
 
 endmodule // jt_gng_b3
