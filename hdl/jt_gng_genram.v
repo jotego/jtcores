@@ -18,10 +18,10 @@ reg [dataw-1:0] ram [0:(2**addrw-1)];
 reg [dataw-1:0] dread;
 
 wire READ, WRITE;
-assign #2 READ = !cs_b && !rd_b && wr_b;
+assign READ = !cs_b && !rd_b && wr_b;
 assign WRITE= !cs_b && !wr_b;
 
-assign #2 D= READ ? dread : 8'hzz;
+assign D= READ ? dread : 8'hzz;
 
 `ifdef RAM_INFO
 always @(READ)

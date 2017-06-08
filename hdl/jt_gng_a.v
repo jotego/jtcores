@@ -60,6 +60,7 @@ module jt_gng_a(
 	output			H8,			// D6
 	output			H32,		// D7
 	output			H128,		// D8
+	output			LHBL,		// D9
 	output			V2,			// D10
 	output			V8,			// D11
 	output			V32,		// D12
@@ -150,7 +151,6 @@ jt_gng_a3 A3 (
 	wire Phi8;
 	wire H4;
 	wire H2;
-	wire LHBL;
 	wire G4_3H;
 	wire OH;
 	wire H1;

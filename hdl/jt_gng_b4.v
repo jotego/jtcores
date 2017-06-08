@@ -160,6 +160,7 @@ assign #2 S[0] =  OBHFLIPq | G4_3H; // 6K
 // timing
 
 assign #2 L6MB = ~G6M;  // 8K
+assign #2 OB6M = L6MB;  // 8K
 assign #2 OB7M = ~L6MB; // 8K
 
 reg [2:0] gal_14k[0:255];
