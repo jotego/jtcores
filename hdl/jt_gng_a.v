@@ -40,9 +40,10 @@ module jt_gng_a(
 	input			SCRX,		// C1
 	input			SCRZ,		// C2
 	output			G6M,		// C3
+	output			G4_3H,		// C4
 	output			H1,			// C5
 	output			H4,			// C6
-	output			H16,		// C17
+	output			H16,		// C7
 	output			H64,		// C8
 	output			H256,		// C9
 	output			V1,			// C10
@@ -151,7 +152,6 @@ jt_gng_a3 A3 (
 	wire Phi8;
 	wire H4;
 	wire H2;
-	wire G4_3H;
 	wire OH;
 	wire H1;
 	wire H8;

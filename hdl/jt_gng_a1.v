@@ -72,10 +72,11 @@ jt74139 u_9K (
 assign irq_clb = BABS[2];
 
 wire cpuMRDY_b, cpuE;
+wire [1:0] noConn;
 
 jt74367 u_10J (
-	.A		( { BABS[3], RQB_b, MRDY_b, G6M}	), 
-	.Y		( { AKB_b, HALT_b, cpuMRDY_b, cpuE}	), 
+	.A		( { 2'bzz, BABS[3], RQB_b, MRDY_b, G6M }	), 
+	.Y		( { noConn, AKB_b, HALT_b, cpuMRDY_b, cpuE}	), 
 	.en4_b	(1'b0), 
 	.en6_b	(1'b0)
 );
@@ -201,9 +202,11 @@ assign EXTEN_b = decod_ce_b[1];
 wire drive_bus_b = ~BLCNTEN_b | (EXTEN_b&decod_ce_b[0]);
 assign WRAM_b = decod_ce_b[0] & BLCNTEN_b;
 
+wire [1:0] noConn_5N; // just to avoid simulation warnings
+
 jt74245 u_5N (
-	.a		({ bus_rd_b, bus_wr_b, A[12:8]}	), 
-	.b		({ RDB_b, WRB_b, AB[12:8]}		), 
+	.a		({ noConn_5N[0], bus_rd_b, bus_wr_b, A[12:8]}	), 
+	.b		({ noConn_5N[1], RDB_b, WRB_b, AB[12:8]}		), 
 	.dir	(1'b1							), 
 	.en_b	(drive_bus_b					)
 );

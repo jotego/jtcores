@@ -29,11 +29,13 @@ module jt_gng_a2(
 	output			INCS_b
 );
 
+wire [7:0] Dram;
+
 jt_gng_genram #(.addrw(13),.id(0)) u_2C (
-	.A(AB), .D(DB), .cs_b(WRAM_b), .rd_b(RDB_b), .wr_b(WRB_b));
+	.A(AB), .D(Dram), .cs_b(WRAM_b), .rd_b(RDB_b), .wr_b(WRB_b));
 
 
-jt74245 u_3B (.a(DB), .b(D), .dir(RDB_b), .en_b(WRAM_b));
+jt74245 u_3B (.a(DB), .b(Dram), .dir(RDB_b), .en_b(WRAM_b));
 wire [3:0] GRCS;
 jt74139 u_9K (.en1_b(EXTEN_b), .a1(AB[12:11]), .y1_b(GRCS), .en2_b(1'b1), .a2(2'b0) );
 assign CHARCS_b = GRCS[0];
@@ -57,7 +59,10 @@ assign SOUND   = ext_decoded[2];
 assign SCRPO_b = ext_decoded[3];
 assign OKOUT_b = ext_decoded[4];
 
-jt74174 u_3C (.d(DB[2:0]), .q(bank[2:0]), .cl_b(ALC1_b), .clk(ext_decoded[6]));
+wire [2:0] noConnIn_3C = 3'b111;
+wire [2:0] noConnOut_3C;
+
+jt74174 u_3C (.d({noConnIn_3C,DB[2:0]}), .q({noConnOut_3C,bank[2:0]}), .cl_b(ALC1_b), .clk(ext_decoded[6]));
 
 `ifdef RAM_INFO
 always @(posedge ext_decoded[6])

@@ -8,7 +8,7 @@
 
 module jt_gng_b5(
 	input	[7:0]	OBJ2,	// OBJ2
-	input	[7:0]	COL,
+	inout	[7:0]	COL,
 	input			ST_b,
 	input			OBFLIP,
 	input			OB6M,

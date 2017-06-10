@@ -25,6 +25,7 @@ module jt_gng_b(
 	output			SCRX,		// C1
 	output			SCRZ,		// C2
 	input			G6M,		// C3
+	input			G4_3H,		// C4
 	input			H1,			// C5
 	input			H4,			// C6
 	input			H16,		// C17
@@ -135,11 +136,11 @@ jt_gng_b2 B2 (
 );
 
 	wire TR3_b;
-	wire OBHFLIP_q;
+	wire OBHFLIPq;
 	wire OBH4;
 	wire OBH8;
 	wire HOVER;
-	wire [3:0] VB;
+	wire [3:0] Vbeta;
 	wire VINZONE;
 	wire [9:0] AD;
 	wire [7:0] DF;
@@ -167,13 +168,13 @@ jt_gng_b3 B3 (
 	.LV1      (LV1      ),
 	.TM2496_b (TM2496_b ),
 	.TR3_b    (TR3_b    ),
-	.OBHFLIP_q(OBHFLIP_q),
+	.OBHFLIPq (OBHFLIPq ),
 	.COL4     (COL[4]   ),
 	.COL5     (COL[5]   ),
 	.OBH4     (OBH4     ),
 	.OBH8     (OBH8     ),
 	.HOVER    (HOVER    ),
-	.VB       (VB       ),
+	.Vbeta    (Vbeta    ),
 	.VINZONE  (VINZONE  ),
 	.AD       (AD       ),
 	.DF       (DF       ),
@@ -197,9 +198,6 @@ pullup( COL[7],
 		COL[1],
 		COL[0] );
 
-	wire [3:0] Vbeta;
-	wire OBHFLIPq;
-	wire G4_3H;
 	wire LV1_bq;
 	wire OBFLIP1;
 	wire OBFLIP2;

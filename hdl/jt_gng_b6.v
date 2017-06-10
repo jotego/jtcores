@@ -8,7 +8,7 @@
 
 module jt_gng_b6(
 	output	[7:0]	OBJ,	// OBJ2
-	input	[7:0]	COL,
+	inout	[7:0]	COL,
 	input			ST_b,
 	input			OBFLIP,
 	input			OB6M,
@@ -22,10 +22,12 @@ module jt_gng_b6(
 
 reg [7:0] dmux;
 pullup( D[7], D[6], D[5], D[4], D[3], D[2], D[1], D[0] );
-
+pullup( COL[7], COL[6], COL[5], COL[4], COL[3], COL[2], COL[1], COL[0] );
 // 6L, 7L (74257)
 wire [7:0] D = !ST_b ? dmux : 8'hzz;
-wire sel = |(~OBJ[3:0]); 
+wire sel;
+// assign #2 sel = |(~OBJ[3:0]); 
+assign #2 sel = &(OBJ[3:0]); 
 always @(*)
 	dmux = sel ? COL : OBJ;
 
@@ -74,7 +76,7 @@ jt_gng_genram #(.addrw(8), .id(20)) LINE_BUF (
 	.A		(A		), 
 	.D		(D		), 
 	.cs_b	(cnt[7]	), 
-	.rd_b	(~WR_b	), 
+	.rd_b	(1'b0	), 
 	.wr_b	(WR_b	)
 );
 

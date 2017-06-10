@@ -83,20 +83,20 @@ end
 reg [7:0] DN, DL;
 
 always @(addr,ROM_ce) begin
-	case( ROM_ce )
-		2'd0: begin
+	case( ROM_ce[2:0] )
+		3'b110: begin
 			DN <= mem_3n[addr];
 			DL <= mem_3l[addr];
 		end
-		2'd1: begin
+		3'b101: begin
 			DN <= mem_2n[addr];
 			DL <= mem_2l[addr];
 		end
-		2'd2: begin
+		3'b011: begin
 			DN <= mem_1n[addr];
 			DL <= mem_1l[addr];
 		end
-		2'd3: begin
+		default: begin
 			DN <= 8'hZZ;
 			DL <= 8'hZZ;
 		end
@@ -160,8 +160,7 @@ assign #2 S[0] =  OBHFLIPq | G4_3H; // 6K
 // timing
 
 assign #2 L6MB = ~G6M;  // 8K
-assign #2 OB6M = L6MB;  // 8K
-assign #2 OB7M = ~L6MB; // 8K
+assign #2 OB6M = ~L6MB;  // 8K
 
 reg [2:0] gal_14k[0:255];
 wire [7:0] VV = {V128,V64,V32,V16,V8,V4,V2,V1};

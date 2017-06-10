@@ -8,7 +8,7 @@ RESET:
 	LDS	#$1E00-1
 	ANDCC #$EF
 	LDU #0
-
+	
 	; Horizontal Scroll
 	CLR	$3B08
 	CLR $3B09
@@ -73,7 +73,7 @@ RESET:
 	BNE @LOOP
 	;STA	$3C00	; OKOUT	
 
-	; Main RAM test, 105ms
+MAINRAM_TEST:	; 105ms
 	LDX #$0000
 	LDA #$55
 @LOOP:	
@@ -89,6 +89,7 @@ NO_ERROR:
 	BRA NO_ERROR
 
 ;--------------------------------------------------------------
+
 CLEAR_SPR:
 	CLRA
 	LDX #$1E00
