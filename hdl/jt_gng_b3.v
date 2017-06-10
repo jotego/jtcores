@@ -37,7 +37,7 @@ module jt_gng_b3(
 	output	[3:0]		Vbeta,
 	output				VINZONE,
 	output	reg [9:0]	AD,
-	output	reg	[7:0]	DF,
+	output		[7:0]	DF,
 	input				V128F,
 	input				V64F,
 	input				V32F,
@@ -76,17 +76,15 @@ always @(*) begin
 end
 
 // 9H, 9J
-always @(*)
-	if( !TM2496_b )
-		DF = LV1 ? DEB : DEA;
-	else
-		DF = 8'h00;
+assign #4 DF = !TM2496_b ? (LV1 ? DEB : DEA) : 8'h00;
 
 wire [3:0] pixel_cnt;
 jt74139 u_9K (.en1_b(H8), .a1({H4,H2}), .y1_b(pixel_cnt), .en2_b(1'b1), .a2(2'b0));
 
 assign TR2_b = pixel_cnt[2];
-assign TR3_b = ~(H1 &~pixel_cnt[3]);
+wire TR2;
+assign #2 TR2 = ~TR2_b; // 6H
+assign #2 TR3_b = ~(H1 &~pixel_cnt[3]);
 
 reg [7:0] ADaux;
 
@@ -113,7 +111,7 @@ assign OBH8 = OBH4 ^ H8; // 5D
 
 reg [7:0] Vq, VFq;
 
-always @(posedge ~TR2_b) // 7J
+always @(posedge TR2) // 7J
 	Vq <= DF;
 
 always @(posedge G4H) // 8E, 7E

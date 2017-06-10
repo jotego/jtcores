@@ -22,7 +22,7 @@ RESET:
 
 	; Single Sprite
 	LDX #$1E00
-	LDA #$DE
+	LDA #$1E
 	STA ,X+
 	CLRA
 	STA ,X+

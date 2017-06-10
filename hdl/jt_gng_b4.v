@@ -106,10 +106,13 @@ end
 // shift registers
 wire [1:0] S;
 wire [3:0] QZ,QY,QX,QW;
+wire G6M_buf;
+assign #5 G6M_buf = G6M; // 6K
+
 jt74194 u_1K (
 	.D		(DN[7:4]),   // Z
 	.S		(S		), 
-	.clk	(G6M	), 
+	.clk	(G6M_buf), 
 	.cl_b	(1'b1	), 
 	.R		(1'b0	), 
 	.L		(1'b0	), 
@@ -119,7 +122,7 @@ jt74194 u_1K (
 jt74194 u_2K (
 	.D		(DN[3:0]),   // Y
 	.S		(S		), 
-	.clk	(G6M	), 
+	.clk	(G6M_buf), 
 	.cl_b	(1'b1	), 
 	.R		(1'b0	), 
 	.L		(1'b0	), 
@@ -129,7 +132,7 @@ jt74194 u_2K (
 jt74194 u_3K (
 	.D		(DL[7:4]),   // X
 	.S		(S		), 
-	.clk	(G6M	), 
+	.clk	(G6M_buf), 
 	.cl_b	(1'b1	), 
 	.R		(1'b0	), 
 	.L		(1'b0	), 
@@ -139,7 +142,7 @@ jt74194 u_3K (
 jt74194 u_4K (
 	.D		(DL[3:0]),   // W
 	.S		(S		), 
-	.clk	(G6M	), 
+	.clk	(G6M_buf), 
 	.cl_b	(1'b1	), 
 	.R		(1'b0	), 
 	.L		(1'b0	), 
