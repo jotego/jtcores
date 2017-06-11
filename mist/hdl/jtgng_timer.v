@@ -7,7 +7,10 @@ module jtgng_timer(
 	output	reg [8:0]	H,
 	output	reg			Hinit,
 	output	reg			LHBL,
-	output	reg			LVBL
+	output	reg			LVBL,
+	output	reg			G4_3H,	// high on 3/4 H transition
+	output	reg			G4H, // high on 4H transition
+	output	reg			OH   // high on 0H transition
 );
 
 // H/V counters
@@ -33,5 +36,14 @@ always @(negedge clk) begin
 	if( V==9'd272 ) LVBL <= 1'b1;
 end
 
+// H indicators
+always @(negedge clk) begin
+	G4H <= &H[1:0];
+	OH  <= &H[2:0];
+end
+
+always @(posedge clk) begin
+	G4_3H <= &H[1:0];
+end
 
 endmodule // jtgng_timer
