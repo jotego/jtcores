@@ -8,7 +8,7 @@
 */
 
 module jt_gng_a5(
-	output	Phi8,		// to A-4/8
+	output	phiB,		// to A-4/8
 	output	H4,			// to A-7/8 and C6
 	output	H2,			// to A-6/8 and D5
 	output	G6M,		// 6M on schematic. To A-7/8 and C3
@@ -241,7 +241,7 @@ module jt_gng_a5(
 	// Z-buffered outputs
 	wire [5:0] sh5_1j_y;
 
-	assign #2 Phi8 = sh5_1j_y[3]; // 48
+	assign #2 phiB = sh5_1j_y[3]; // 48
 	assign #2   H4 = sh5_1j_y[2]; // H4
 	assign #2   H2 = sh5_1j_y[1]; // H2
 	assign #2	G6M = sh5_1j_y[0]; // 6M

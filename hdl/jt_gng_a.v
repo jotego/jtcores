@@ -149,7 +149,7 @@ jt_gng_a3 A3 (
 );
 
 
-	wire Phi8;
+	wire phiB;
 	wire H4;
 	wire H2;
 	wire OH;
@@ -172,7 +172,7 @@ jt_gng_a3 A3 (
 	wire V128;
 	wire HINIT_b;
 jt_gng_a5 A5 (
-	.Phi8    (Phi8    ),
+	.phiB    (phiB    ),
 	.H4      (H4      ),
 	.H2      (H2      ),
 	.G6M     (G6M     ),
