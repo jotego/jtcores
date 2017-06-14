@@ -2,18 +2,21 @@
 
 module jtgng_char(
 	input		clk,	// 6 MHz
-	input		[10:0]	AB,
-	input		[7:0] V128, // V128-V1
-	input		[7:0] H128, // H128-H1
+	input	[10:0]	AB,
+	input	[ 7:0] V128, // V128-V1
+	input	[ 7:0] H128, // H128-H1
 	input		char_cs,
 	input		flip,
-	input		[7:0] din,
-	output		[7:0] dout,
+	input	[7:0] din,
+	output	[7:0] dout,
 	input		rd,
 	input		flip,
 	output		MRDY_b,
 
-	output [13:0] char_addr
+	// ROM
+	output [13:0] char_addr,
+	input  [ 7:0] char_data,
+	output reg [ 1:0] char_col
 );
 
 reg [10:0]	addr;
@@ -63,6 +66,21 @@ always @(negedge clk)
 	endcase
 
 assign char_addr = { AC, vert_addr, half_addr };
-// ROM
+
+reg [7:0] chd;
+
+always @(negedge clk)
+	if( H[2:0]==3'd4 )
+		chd <= char_data;
+	if( char_hflip_prev ) begin
+		char_col <= { chd[7], chd[3] };
+		chd[7:5] <= chd[6:4];
+		chd[3:1] <= chd[2:0];
+	end
+	else  begin
+		char_col <= { chd[7], chd[3] };
+		chd[7:5] <= chd[6:4];
+		chd[3:1] <= chd[2:0];
+	end
 
 endmodule // jtgng_char
