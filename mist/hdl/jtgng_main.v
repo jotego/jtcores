@@ -7,12 +7,13 @@ module jtgng_main(
 	input	[7:0] char_dout,
 	input	LVBL,	// vertical blanking when 0
 	output	[7:0] cpu_dout,
-	output	reg char_cs,
+	output	char_cs,
 	// BUS sharing
 	output		bus_ack,
-	input		bus_req
+	input		bus_req,
+	output	[12:0]	cpu_AB,
 	// ROM access
-	output	[17:0] rom_addr,
+	output	reg [17:0] rom_addr,
 	input	[ 7:0] rom_dout
 );
 
@@ -20,9 +21,8 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy;
 wire nRESET = ~rst;
 
-wire [2:0] map_cs;
+reg [3:0] map_cs;
 assign { ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
-
 
 always @(A[15:8])
 	case(A[15:8])
@@ -30,23 +30,31 @@ always @(A[15:8])
 		8'b0010_0xxx: map_cs = 4'b0100; // 2000-27FF
 		8'b0011_1110: map_cs = 4'b0010; // 3E00-3EFF
 		8'b10xx_xxxx: map_cs = 4'b0001; // 8000-BFFF, ROM 9N
+		8'b1111_1111: map_cs = startup ? 4'b0 : 4'b0001; // FF00-FFFF reset vector
 	endcase
 
 wire RnW;
 
 // bank
+reg	startup;
 reg [2:0] bank;
 always @(negedge clk)
-	if( bank_cs && !RnW ) bank <= cpu_dout[2:0];
+	if( rst )
+		startup <= 1'b1;
+	else
+	if( bank_cs && !RnW ) begin
+		bank <= cpu_dout[2:0];
+		if( cpu_dout[7] ) startup <= 1'b0; // write 0x80 to bank clears out startup latch
+	end
 
 // RAM, 8kB
 wire [7:0] ram_dout;
 wire ram_we = ram_cs && !RnW;
-wire [12:0] AB = A[12:0];
+assign cpu_AB = A[12:0];
 
 jtgng_m9k #(.addrw(13)) RAM(
 	.clk ( clk       ),
-	.addr( AB[12:0]  ),
+	.addr( cpu_AB[12:0]  ),
 	.din ( cpu_dout  ),
 	.dout( ram_dout  ),
 	.we  ( ram_we    )
@@ -55,7 +63,7 @@ jtgng_m9k #(.addrw(13)) RAM(
 wire E,Q;
 wire [7:0] cpu_din =({8{ram_cs}}  & ram_dout )	| 
 					({8{char_cs}} & char_dout)	|
-					({8{rom_cs}}  & rom_dout )	|;
+					({8{rom_cs}}  & rom_dout );
 
 
 always @(A,bank) begin

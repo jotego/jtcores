@@ -10,7 +10,6 @@ module jtgng_char(
 	input	[7:0] din,
 	output	[7:0] dout,
 	input		rd,
-	input		flip,
 	output		MRDY_b,
 
 	// ROM
@@ -69,7 +68,7 @@ assign char_addr = { AC, vert_addr, half_addr };
 
 reg [7:0] chd;
 
-always @(negedge clk)
+always @(negedge clk) begin
 	if( H[2:0]==3'd4 )
 		chd <= char_data;
 	if( char_hflip_prev ) begin
@@ -82,5 +81,6 @@ always @(negedge clk)
 		chd[7:5] <= chd[6:4];
 		chd[3:1] <= chd[2:0];
 	end
+end
 
 endmodule // jtgng_char
