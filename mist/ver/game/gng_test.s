@@ -1,0 +1,13 @@
+	ORG $0
+
+RESET: 
+	ORCC #$10
+	LDS	#$1E00-1
+	;ANDCC #$EF
+	CLRA
+	STA	$3E00
+@L:	BRA @L
+
+IRQSERVICE:
+	; Sprite update
+	RTI
