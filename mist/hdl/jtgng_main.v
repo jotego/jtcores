@@ -26,12 +26,18 @@ assign { ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
 
 reg [7:0] AH;
 wire E,Q;
+reg VMA;
+
+//always @(posedge Q)
+//	VMA <= AVMA;
 
 always @(*)
+	// if(!VMA) map_cs = 4'h0;
+	// else
 	casex(A[15:8])
 		8'b000x_xxxx: map_cs = 4'b1000; // 0000-1FFF
 		8'b0010_0xxx: map_cs = 4'b0100; // 2000-27FF
-		8'b0011_1110: map_cs = 4'b0010; // 3E00-3EFF
+		8'b0011_1110: map_cs = 4'b0010; // 3E00-3EFF bank
 		8'b10xx_xxxx: map_cs = 4'b0001; // 8000-BFFF, ROM 9N
 		8'b1111_1111: map_cs = startup ? 4'b0 : 4'b0001; // FF00-FFFF reset vector
 		default: map_cs = 4'h0;
@@ -56,7 +62,7 @@ wire [7:0] ram_dout;
 wire ram_we = ram_cs && !RnW;
 assign cpu_AB = A[12:0];
 
-jtgng_m9k #(.addrw(13)) RAM(
+jtgng_m9k #(.addrw(13),.id(10)) RAM(
 	.clk ( clk       ),
 	.addr( cpu_AB[12:0]  ),
 	.din ( cpu_dout  ),

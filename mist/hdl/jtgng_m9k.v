@@ -11,6 +11,17 @@ module jtgng_m9k #(parameter addrw=12, id=0)(
 reg [addrw-1:0] addr_latch;
 reg [7:0] mem[0:(2**addrw-1)];
 
+`ifdef SIMULATION
+initial begin
+	case(id)
+		10: begin
+				$display("ram.hex loaded");
+				$readmemh("ram.hex",mem);
+			end
+	endcase
+end
+`endif
+
 always @(posedge clk) begin
 	addr_latch <= addr;
 	if( we )
