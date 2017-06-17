@@ -19,7 +19,7 @@ module jtgng_game(
 	wire char_mrdy;
 	wire [13:0] char_addr;
 	wire [7:0] char_data = 8'h00;
-	reg [1:0] char_col;
+	wire [1:0] char_col;
 
 jtgng_timer timers (.clk(clk), .rst(rst), .V(V), .H(H), .Hinit(Hinit), .LHBL(LHBL), .LVBL(LVBL));
 

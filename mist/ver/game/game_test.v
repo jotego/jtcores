@@ -12,7 +12,9 @@ module game_test;
 		// #(200*100*1000*1000);
 		$display("DUMP ON");
 		$dumpfile("test.lxt");
-		$dumpvars(0,UUT);
+		//$dumpvars(0,UUT);
+		$dumpvars(0,game_test);
+		$dumpvars(0,UUT.chargen);
 		$dumpon;
 	end
 	`endif
@@ -34,7 +36,7 @@ initial begin
 end
 
 
-jtgng_main UUT (
+jtgng_game UUT (
 	.rst		( rst		),
 	.clk		( clk		)
 );
