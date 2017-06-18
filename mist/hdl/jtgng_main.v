@@ -8,10 +8,13 @@ module jtgng_main(
 	input	LVBL,	// vertical blanking when 0
 	output	[7:0] cpu_dout,
 	output	char_cs,
+	output	reg flip,
+	output	reg sres_b,
 	// BUS sharing
 	output		bus_ack,
 	input		bus_req,
 	output	[12:0]	cpu_AB,
+	output		RnW,
 	// ROM access
 	output	reg [17:0] rom_addr,
 	input	[ 7:0] rom_dout
@@ -21,8 +24,8 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy;
 wire nRESET = ~rst;
 
-reg [3:0] map_cs;
-assign { ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
+reg [4:0] map_cs;
+assign { flip_cs, ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
 
 reg [7:0] AH;
 wire E,Q;
@@ -35,17 +38,20 @@ always @(*)
 	// if(!VMA) map_cs = 4'h0;
 	// else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 4'b1000; // 0000-1FFF
-		8'b0010_0xxx: map_cs = 4'b0100; // 2000-27FF
-		8'b0011_1110: map_cs = 4'b0010; // 3E00-3EFF bank
-		8'b10xx_xxxx: map_cs = 4'b0001; // 8000-BFFF, ROM 9N
-		8'b1111_1111: map_cs = startup ? 4'b0 : 4'b0001; // FF00-FFFF reset vector
-		default: map_cs = 4'h0;
+		8'b000x_xxxx: map_cs = 5'h8; // 0000-1FFF
+		// EXTEN
+		8'b0010_0xxx: map_cs = 5'h4; // 2000-27FF
+		8'b0011_1101: map_cs = 5'h10; // 3Dxx flip
+
+		8'b0011_1110: map_cs = 5'h2; // 3E00-3EFF bank
+		8'b10xx_xxxx: map_cs = 5'h1; // 8000-BFFF, ROM 9N
+		8'b1111_1111: map_cs = startup ? 5'b0 : 5'h1; // FF00-FFFF reset vector
+		default: map_cs = 5'h0;
 	endcase
 
 wire RnW;
 
-// bank
+// special registers
 reg	startup;
 reg [2:0] bank;
 always @(negedge clk)
@@ -56,6 +62,23 @@ always @(negedge clk)
 		bank <= cpu_dout[2:0];
 		if( cpu_dout[7] ) startup <= 1'b0; // write 0x80 to bank clears out startup latch
 	end
+
+localparam coinw = 4;
+reg [coinw-1:0] coin_cnt1, coin_cnt2;
+
+always @(negedge clk)
+	if( rst ) begin
+		coin_cnt1 <= {coinw{1'b0}};
+		coin_cnt2 <= {coinw{1'b0}};
+		end
+	else
+	if( flip_cs ) 
+		case(A[2:0])
+			3'd0: flip <= cpu_dout[0];
+			3'd1: sres_b <= cpu_dout[0];
+			3'd2: coin_cnt1 <= coin_cnt1+cpu_dout[0];
+			3'd3: coin_cnt2 <= coin_cnt2+cpu_dout[0];
+		endcase
 
 // RAM, 8kB
 wire [7:0] ram_dout;
@@ -108,7 +131,7 @@ end
 
 wire [111:0] RegData;
 
-mc6809 main (
+mc6809 cpu (
 	.Q		 (Q		  ),
 	.E		 (E		  ),
 	.D       (cpu_din ),

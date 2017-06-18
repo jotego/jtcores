@@ -19,8 +19,8 @@ module game_test;
 	end
 	`endif
 
-	initial #(60*1000*1000) $finish;
-	//initial #(120*1000*1000) $finish;
+	//initial #(60*1000*1000) $finish;
+	initial #(120*1000*1000) $finish;
 
 reg rst, clk;
 

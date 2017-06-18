@@ -5,8 +5,24 @@ RESET:
 	LDS	#$1E00-1
 	;ANDCC #$EF
 	CLRA
-	STA	$3E00
+	STA	$3E00	; BANK
+	STA $3D00	; FLIP
+
+	; CHAR mem test
+	LDU #0
+	LDX #$2000
+	LDA #$55	
+@L:	STA ,X
+	CMPA ,X+
+	BNE MAL
+	INCA
+	CMPX #$2800
+	BNE @L
+
 @L:	BRA @L
+
+MAL: LDU #1
+	BRA MAL
 
 IRQSERVICE:
 	; Sprite update

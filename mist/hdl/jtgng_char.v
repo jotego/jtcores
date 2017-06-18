@@ -19,7 +19,7 @@ module jtgng_char(
 );
 
 reg [10:0]	addr;
-wire sel = H128[2];
+wire sel = ~H128[2];
 reg	we;
 
 always @(*)
