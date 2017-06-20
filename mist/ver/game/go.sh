@@ -9,17 +9,15 @@ function zero_file {
 	done;
 }
 
-if ! lwasm ram_test.s --output=ram_test.bin --list=ram_test.lst --format=raw; then
+if ! lwasm gng_test.s --output=gng_test.bin --list=gng_test.lst --format=raw; then
 	exit 1
 fi
 
 OD="od -t x1 -A none -v -w1"
 
-$OD ram_test.bin > 8n.hex
+$OD gng_test.bin > ram.hex
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))
-
-# Simulation
 
 DUMP=NODUMP
 CHR_DUMP=NOCHR_DUMP
@@ -48,9 +46,9 @@ while [ $# -gt 0 ]; do
 	exit 1
 done
 
-iverilog jt_gng_test.v \
+iverilog game_test.v \
 	../../hdl/*.v \
-	../../modules/mc6809/{mc6809.v,mc6809i.v} \
-	-s jt_gng_test -o sim \
-	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DLOCALROM \
+	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
+	-s game_test -o sim \
+	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION\
 && sim -lxt
