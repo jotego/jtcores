@@ -1,10 +1,11 @@
 `timescale 1ns/1ps
 
-module jtgng_roms(
-	input			clk,	// 72MHz
-	input			clk6,	// 6MHz
-	input	[17:0]	rom_addr,
-	input	[13:0]	char_addr
+module jtgng_rom(
+	input	clk72,	// 72MHz clock
+	input	[13:0]	char_addr,
+	input	[17:0]	main_addr,
+	input	[ 7:0]	din,
+	output	[ 7:0]	dout
 );
 
 
@@ -36,7 +37,7 @@ localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT_PRECHARGE=4'd2, ACTIVATE=4'd3,
 
 reg [2:0] precharge_cnt;
 
-always @(posedge clk)
+always @(posedge clk72)
 	if( rst ) begin
 		state <= INITIALIZE;
 		{ cs_n, ras_n, cas_n, we_n } <= CMD_INHIBIT;
@@ -144,7 +145,7 @@ always @(posedge clk)
 		end		
 	endcase // state
 
-wire clk_sdram = clk_B;
+wire clk_sdram = clk72;
 
 mt48lc16m16a2 mist_sdram (
 	.Dq		( Dq		),
@@ -160,4 +161,4 @@ mt48lc16m16a2 mist_sdram (
 );
 
 
-endmodule // jtgng_roms
+endmodule // jtgng_rom
