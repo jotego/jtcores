@@ -1,22 +1,69 @@
 `timescale 1ns/1ps
 
 module jtgng_rom(
-	input	clk72,	// 72MHz clock
+	input			clk,	
+	input			rst,
 	input	[13:0]	char_addr,
 	input	[17:0]	main_addr,
-	input	[ 7:0]	din,
-	output	[ 7:0]	dout
-);
+	input	[14:0]	snd_addr,
+	input	[14:0]	obj_addr,
+	input	[15:0]	scr_addr,
+	//input	[ 7:0]	din,
 
+	output	reg	[ 7:0]	char_dout,
+	output	reg	[ 7:0]	main_dout,
+	output	reg	[ 7:0]	snd_dout,
+	output	reg	[15:0]	obj_dout,
+	output	reg	[23:0]	scr_dout
+);
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
+localparam false=1'b0, true=1'b1;
 
 wire [data_w-1:0] 	Dq;
-reg  [addr_w-1:0] 	addr;
+reg  [addr_w-1:0] 	addr, row_addr;
+reg  [col_w-1:0] col_cnt, col_addr;
+
+reg [3:0] rd_state;
+reg	read_done, autorefresh;
+
+always @(posedge clk)
+	if( rst ) begin
+		rd_state <= 0;
+		autorefresh <= false;
+	end
+	else if( read_done ) begin
+		// state 10 (autorefresh) lasts twice as long as the others
+		// Get data from current read
+		case(rd_state)
+			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= Dq[7:0];
+			4'd1, 4'd7: snd_dout <= Dq[7:0];
+			4'd2: char_dout <= Dq[7:0];
+			4'd4: scr_dout[15:0] <= Dq;
+			4'd5: scr_dout[23:0] <= Dq[7:0];
+			4'd8: obj_dout <= Dq;
+		endcase
+		// Set ADDR for next read
+		case(rd_state)
+			4'd10, 4'd2, 4'd5, 4'd8: 
+						{row_addr, col_addr} <= { 8'b110, snd_addr };
+			4'd0, 4'd6: {row_addr, col_addr} <= { 4'd0, main_addr };
+			4'd1: 		{row_addr, col_addr} <= { 8'b0100_0000, char_addr };
+			4'd3: 		{row_addr, col_addr} <= { 6'b0110, scr_addr };
+			4'd4: 		{row_addr, col_addr} <= { 6'b0111, scr_addr };
+			4'd7: 		{row_addr, col_addr} <= { 7'b0101, obj_addr };
+		endcase	
+		// auto refresh request
+		case(rd_state)	
+			4'd8: autorefresh <= true;
+			default: autorefresh <= false;
+		endcase
+		rd_state <= rd_state==4'd10 ? 4'd0: rd_state+4'b1;
+	end
+
 reg cs_n, ras_n, cas_n, we_n;
 
-reg  [col_w-1:0] col_cnt;
 reg  [1:0] cl_cnt;
 
 localparam	CMD_LOAD_MODE	= 4'b0000,
@@ -28,130 +75,102 @@ localparam	CMD_LOAD_MODE	= 4'b0000,
 			CMD_NOP			= 4'b0111,
 			CMD_INHIBIT	 	= 4'b1000;
 
-reg [3:0] state, next;
+reg [3:0] state, next, init_state;
 
-localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT_PRECHARGE=4'd2, ACTIVATE=4'd3,
-			READ=4'd4, WAIT_CL=4'd5, READ_PAGE=4'd6, AUTO_REFRESH1=4'd7,
-			AUTO_REFRESH2=4'd8, LOAD_MODE=4'd9, WAIT_AUTOREFRESH=4'd10,
-			AUTO_REFRESH3=4'd11;
+localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT=4'd2, ACTIVATE=4'd3,
+			READ=4'd4, WAIT_CL=4'd5, SET_READ=4'd6, AUTO_REFRESH1=4'd7,
+			SET_PRECHARGE = 4'd8;
 
-reg [2:0] precharge_cnt;
+reg [3:0] wait_cnt;
+localparam PRECHARGE_WAIT = 4'd3, ACTIVATE_WAIT=4'd3, CL_WAIT=4'd3;
 
-always @(posedge clk72)
+always @(posedge clk)
 	if( rst ) begin
 		state <= INITIALIZE;
+		init_state <= 4'd0;
 		{ cs_n, ras_n, cas_n, we_n } <= CMD_INHIBIT;
-		{ precharge_cnt, addr } <= {2'b0,{1+addr_w{1'b1}}};
-		halt  <= 1'b1;
-		ready <= 1'b0;
+		{ wait_cnt, addr } <= 8400;
+		read_done <= false;
 	end else 
 	case( state )
+		default: state <= SET_PRECHARGE;
 		INITIALIZE: begin
-			{ precharge_cnt, addr } <= { precharge_cnt, addr }-1'b1;
-			if( !{ precharge_cnt, addr } ) begin
+			case(init_state)
+				4'd0: begin	// wait for 100us
+					{ cs_n, ras_n, cas_n, we_n } <= CMD_NOP;
+					{ wait_cnt, addr } <= { wait_cnt, addr }-1'b1;
+					if( !{ wait_cnt, addr } ) 
+						init_state <= init_state+4'd1;
+					end
+				4'd1: begin
 					{ cs_n, ras_n, cas_n, we_n } <= CMD_PRECHARGE;
 					addr[10]=1'b1; // all banks
-					precharge_cnt <= 3'b111;
-					state <= WAIT_PRECHARGE;
-					next <= AUTO_REFRESH1;
-				end
-		end
-		AUTO_REFRESH1: begin 
-			addr[3:0]=4'hf; // counter for auto refresh
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_AUTOREFRESH;
-			next <= AUTO_REFRESH2;
-			state <= WAIT_AUTOREFRESH;
-		end
-		AUTO_REFRESH2: begin 
-			addr[3:0]=4'hf; // counter for auto refresh
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_AUTOREFRESH;
-			next <= LOAD_MODE;
-			state <= WAIT_AUTOREFRESH;
-		end
-		WAIT_AUTOREFRESH: begin
-			addr[3:0] <= addr[3:0]-1'b1;
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_NOP;
-			if( !addr[3:0] ) state <= next;
-		end
-		LOAD_MODE: begin 
-			addr <= 13'b11_0_111; // CAS=3, Sequential, Full page burst
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_LOAD_MODE;
-			precharge_cnt <= 3'b111;
-			next  <= IDLE;
-			state <= WAIT_PRECHARGE;
-		end
-		IDLE: begin
-			if( start ) begin
-				col_cnt <= {col_w{1'b1}};
-				{ cs_n, ras_n, cas_n, we_n } <= CMD_PRECHARGE;
-				precharge_cnt <= 3'b111;
-				next  <= ACTIVATE;
-				state <= WAIT_PRECHARGE;
-				addr[10] <= 1'b0;
-				ready <= 1'b0;
+					wait_cnt <= PRECHARGE_WAIT;
+					state <= WAIT;
+					next <= INITIALIZE;
+					init_state <= init_state+4'd1;
+					end
+				4'd2,4'd3: begin
+					{ cs_n, ras_n, cas_n, we_n } <= CMD_AUTOREFRESH;
+					wait_cnt <= 4'd10;
+					state <= WAIT;
+					next <= INITIALIZE;
+					init_state <= init_state+4'd1;
+					end
+				4'd4: begin
+					{ cs_n, ras_n, cas_n, we_n } <= CMD_LOAD_MODE;
+					addr <= 12'b00_1_00_011_0_000;
+					wait_cnt <= 4'd2;
+					state <= WAIT;
+					next <= SET_PRECHARGE;
+					init_state <= 0;
+					end
+			endcase
 			end
-			else begin
-				{ cs_n, ras_n, cas_n, we_n } <= CMD_INHIBIT;
-				ready <= 1'b1;
+		SET_PRECHARGE: begin
+			{ cs_n, ras_n, cas_n, we_n } <= CMD_PRECHARGE;
+			addr[10]=1'b1; // all banks
+			wait_cnt <= PRECHARGE_WAIT;
+			state <= WAIT;
+			next <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;		
+			read_done <= false;
 			end
-			halt <= 1'b1;			
-		end
-		WAIT_PRECHARGE: begin
+		WAIT: begin
 			{ cs_n, ras_n, cas_n, we_n } <= CMD_NOP;
-			if( !precharge_cnt ) state<=next;
-			precharge_cnt <= precharge_cnt-2'b1;
-		end
+			if( !wait_cnt ) state<=next;
+			wait_cnt <= wait_cnt-2'b1;
+			end
 		ACTIVATE: begin 
 			{ cs_n, ras_n, cas_n, we_n } <= CMD_ACTIVATE;
-			addr <= row;
-			precharge_cnt <= 3'b011;
+			addr <= row_addr;
+			wait_cnt <= ACTIVATE_WAIT;
 			next  <= READ;
-			state <= WAIT_PRECHARGE;
-		end
-		READ:begin
+			state <= WAIT;
+			end		
+		SET_READ:begin
 			{ cs_n, ras_n, cas_n, we_n } <= CMD_READ;
-			cl_cnt <= 2'd3;
-			state <= WAIT_CL;
-			addr <= {addr_w{1'b0}};
+			wait_cnt <= CL_WAIT;
+			state <= WAIT;
+			next  <= READ;
+			addr <= col_addr;
+			end		
+		READ: begin
+			read_done <= true;
+			state <=  SET_PRECHARGE;
 			end
-		WAIT_CL: begin
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_NOP;
-			cl_cnt <= cl_cnt-1'b1;
-			if(!cl_cnt) begin
-					state<=READ_PAGE;
-					halt<=1'b0; // Data is not ready yet, but this allows the
-					// cache to advance the address register. This is useful
-					// because Altera memories always latch the address so
-					// we need to provide the address one-clock in advance
-				end
-		end
-		READ_PAGE: begin
-			//halt <= 1'b0;
-			dout <= Dq[7:0];
-			col_cnt <= col_cnt-1'b1;
-			if( !col_cnt ) begin
-				{ cs_n, ras_n, cas_n, we_n }  <= CMD_PRECHARGE;
-				precharge_cnt <= 3'b111;
-				addr[10]=1'b1; // all banks
-				state <= WAIT_PRECHARGE;
-				next  <= AUTO_REFRESH3;
+		AUTO_REFRESH1: begin
+			{ cs_n, ras_n, cas_n, we_n } <=	CMD_AUTOREFRESH;
+			wait_cnt <= 4'd12;
+			state <= WAIT;
+			next <= READ; // just to generate the read_done
 			end
-		end
-		AUTO_REFRESH3: begin 
-			addr[3:0]=4'hf; // counter for auto refresh
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_AUTOREFRESH;
-			next <= IDLE;
-			state <= WAIT_AUTOREFRESH;
-		end		
 	endcase // state
-
-wire clk_sdram = clk72;
 
 mt48lc16m16a2 mist_sdram (
 	.Dq		( Dq		),
 	.Addr   ( addr  	),
 	.Ba		( 2'd0  	),
-	.Clk	( clk_sdram	),
+	.Clk	( clk		),
 	.Cke	( 1'b1  	),
 	.Cs_n   ( cs_n  	),
 	.Ras_n  ( ras_n 	),
