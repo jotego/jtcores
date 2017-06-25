@@ -26,7 +26,7 @@ reg rst, clk;
 
 initial begin
 	clk=1'b0;
-	forever clk = #167 ~clk;
+	forever clk = #83.334 ~clk;
 end
 
 initial begin
