@@ -63,7 +63,16 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     reg       [data_bits - 1 : 0] Bank3 [0 : mem_sizes];
 
     initial begin
-        $readmemh("../../rom/contra_code.hex",  Bank0);
+        `ifdef BLOCKID
+        Bank0[{4'd0, 4'd0, 12'd0}] = 16'h0; // Main ROM
+        Bank0[{4'd3, 4'd0, 12'd0}] = 16'h3; // sound ROM
+        Bank0[{4'd4, 4'd0, 12'd0}] = 16'h4; // char ROM
+        Bank0[{4'd5, 4'd0, 12'd0}] = 16'h5; // obj ROM
+        Bank0[{4'd6, 4'd0, 12'd0}] = 16'h6; // scr0 ROM
+        Bank0[{4'd7, 4'd0, 12'd0}] = 16'h7; // scr1 ROM
+        `else
+        $readmemh("../../../rom/gng.hex",  Bank0);
+        `endif
     end
 
     reg                   [1 : 0] Bank_addr [0 : 3];                // Bank Address Pipeline

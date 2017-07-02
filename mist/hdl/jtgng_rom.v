@@ -28,17 +28,21 @@ reg  [col_w-1:0] col_cnt, col_addr;
 reg [3:0] rd_state;
 reg	read_done, autorefresh;
 
+wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
+wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
+
 always @(posedge clk)
 	if( rst ) begin
 		rd_state <= 0;
 		autorefresh <= false;
+		{row_addr, col_addr} <= { 8'b110, snd_addr };
 	end
 	else if( read_done ) begin
 		// state 10 (autorefresh) lasts twice as long as the others
 		// Get data from current read
 		case(rd_state)
 			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= Dq[7:0];
-			4'd1, 4'd7: snd_dout <= Dq[7:0];
+			4'd1, 4'd7: main_dout <= Dq[7:0];
 			4'd2: char_dout <= Dq[7:0];
 			4'd4: scr_dout[15:0] <= Dq;
 			4'd5: scr_dout[23:0] <= Dq[7:0];
@@ -47,12 +51,12 @@ always @(posedge clk)
 		// Set ADDR for next read
 		case(rd_state)
 			4'd10, 4'd2, 4'd5, 4'd8: 
-						{row_addr, col_addr} <= { 8'b110, snd_addr };
-			4'd0, 4'd6: {row_addr, col_addr} <= { 4'd0, main_addr };
-			4'd1: 		{row_addr, col_addr} <= { 8'b0100_0000, char_addr };
-			4'd3: 		{row_addr, col_addr} <= { 6'b0110, scr_addr };
-			4'd4: 		{row_addr, col_addr} <= { 6'b0111, scr_addr };
-			4'd7: 		{row_addr, col_addr} <= { 7'b0101, obj_addr };
+						{row_addr, col_addr} <= { 4'b00, 3'b110,  snd_addr }; // 14:0
+			4'd0, 4'd6: {row_addr, col_addr} <= { 4'b00,         main_addr }; // 17:0
+			4'd7: 		{row_addr, col_addr} <= { 4'b01, 3'b010,  obj_addr }; // 14:0
+			4'd1: 		{row_addr, col_addr} <= { 4'b10, 3'b000, char_addr }; //13:0
+			4'd3: 		{row_addr, col_addr} <= { 4'b01, 2'b10,   scr_addr }; // 15:0 B/C ROMs
+			4'd4: 		{row_addr, col_addr} <= { 4'b01, 2'b11,   scr_addr }; // 15:0 E ROMs
 		endcase	
 		// auto refresh request
 		case(rd_state)	
@@ -82,7 +86,9 @@ localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT=4'd2, ACTIVATE=4'd3,
 			SET_PRECHARGE = 4'd8;
 
 reg [3:0] wait_cnt;
-localparam PRECHARGE_WAIT = 4'd3, ACTIVATE_WAIT=4'd3, CL_WAIT=4'd3;
+localparam PRECHARGE_WAIT = 4'd1, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
+
+wire [3:0] mem_cmd = { cs_n, ras_n, cas_n, we_n };
 
 always @(posedge clk)
 	if( rst ) begin
@@ -144,7 +150,7 @@ always @(posedge clk)
 			{ cs_n, ras_n, cas_n, we_n } <= CMD_ACTIVATE;
 			addr <= row_addr;
 			wait_cnt <= ACTIVATE_WAIT;
-			next  <= READ;
+			next  <= SET_READ;
 			state <= WAIT;
 			end		
 		SET_READ:begin
@@ -152,7 +158,7 @@ always @(posedge clk)
 			wait_cnt <= CL_WAIT;
 			state <= WAIT;
 			next  <= READ;
-			addr <= col_addr;
+			addr <= { {(addr_w-col_w){1'b0}}, col_addr};
 			end		
 		READ: begin
 			read_done <= true;
