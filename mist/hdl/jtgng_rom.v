@@ -14,7 +14,8 @@ module jtgng_rom(
 	output	reg	[ 7:0]	main_dout,
 	output	reg	[ 7:0]	snd_dout,
 	output	reg	[15:0]	obj_dout,
-	output	reg	[23:0]	scr_dout
+	output	reg	[23:0]	scr_dout,
+	output	reg			ready
 );
 
 localparam col_w = 9, row_w = 13;
@@ -97,6 +98,7 @@ always @(posedge clk)
 		{ cs_n, ras_n, cas_n, we_n } <= CMD_INHIBIT;
 		{ wait_cnt, addr } <= 8400;
 		read_done <= false;
+		ready <= false;
 	end else 
 	case( state )
 		default: state <= SET_PRECHARGE;
@@ -130,6 +132,7 @@ always @(posedge clk)
 					state <= WAIT;
 					next <= SET_PRECHARGE;
 					init_state <= 0;
+					ready <= true;
 					end
 			endcase
 			end

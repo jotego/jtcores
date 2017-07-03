@@ -2,7 +2,8 @@
 
 module jtgng_game(
 	input			rst,
-	input			clk	// 6MHz
+	input			clk_rom, //  81   MHz
+	input			clk  	 //   6   MHz
 );
 
 	wire [8:0] V;
@@ -20,6 +21,18 @@ module jtgng_game(
 	wire [13:0] char_addr;
 	wire [7:0] char_data = 8'h00;
 	wire [1:0] char_col;
+	wire rom_ready;
+
+reg rst_game;
+reg rst_aux;
+
+always @(posedge clk or posedge rst)
+	if( rst || !rom_ready ) begin
+		{rst_game,rst_aux} <= 2'b11;
+	end
+	else begin
+		{rst_game,rst_aux} <= {1'b0, rst_game};
+	end
 
 jtgng_timer timers (.clk(clk), .rst(rst), .V(V), .H(H), .Hinit(Hinit), .LHBL(LHBL), .LVBL(LVBL));
 
@@ -42,11 +55,11 @@ jtgng_char chargen (
 );
 
 	wire bus_ack, bus_req;
-	wire [17:0] rom_addr;
-	wire [7:0] rom_dout;
+	wire [17:0] main_addr;
+	wire [7:0] main_dout;
 jtgng_main main (
 	.clk      	( clk      	),
-	.rst      	( rst      	),
+	.rst      	( rst_game 	),
 	.ch_mrdy  	( char_mrdy	),
 	.char_dout	( char_dout	),
 	.LVBL     	( LVBL     	),
@@ -56,8 +69,31 @@ jtgng_main main (
 	.bus_ack 	( bus_ack  	),
 	.cpu_AB	 	( cpu_AB	),
 	.RnW	 	( RnW		),
-	.rom_addr	( rom_addr 	),
-	.rom_dout	( rom_dout 	)
+	.rom_addr	( main_addr ),
+	.rom_dout	( main_dout )
+);
+
+
+	wire [14:0] snd_addr=0;
+	wire [14:0] obj_addr=0;
+	wire [15:0] scr_addr=0;
+	wire [7:0] snd_dout;
+	wire [15:0] obj_dout;
+	wire [23:0] scr_dout;
+jtgng_rom rom (
+	.clk      (clk_rom  ),
+	.rst      (rst      ),
+	.char_addr(char_addr),
+	.main_addr(main_addr),
+	.snd_addr (snd_addr ),
+	.obj_addr (obj_addr ),
+	.scr_addr (scr_addr ),
+	.char_dout(char_dout),
+	.main_dout(main_dout),
+	.snd_dout (snd_dout ),
+	.obj_dout (obj_dout ),
+	.scr_dout (scr_dout ),
+	.ready	  (rom_ready)
 );
 
 

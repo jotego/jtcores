@@ -22,7 +22,7 @@ module jtgng_main(
 
 wire [15:0] A;
 wire MRDY_b = ch_mrdy;
-wire nRESET = ~rst;
+reg nRESET;
 
 reg [4:0] map_cs;
 assign { flip_cs, ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
@@ -55,12 +55,20 @@ wire RnW;
 reg	startup;
 reg [2:0] bank;
 always @(negedge clk)
-	if( rst )
+	if( rst ) begin
 		startup <= 1'b1;
-	else
-	if( bank_cs && !RnW ) begin
-		bank <= cpu_dout[2:0];
-		if( cpu_dout[7] ) startup <= 1'b0; // write 0x80 to bank clears out startup latch
+		nRESET <= 1'b0;
+	end
+	else begin
+		if( bank_cs && !RnW ) begin
+			bank <= cpu_dout[2:0];
+			if( cpu_dout[7] )  begin
+				// write 0x80 to bank clears out startup latch				
+				startup <= 1'b0; 
+				nRESET <= 1'b0; // Resets CPU
+			end
+		end
+		else nRESET <= ~rst;
 	end
 
 localparam coinw = 4;
