@@ -1,0 +1,740 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"H",
+				"Hinit"
+			],
+			[
+				"G",
+				"G4H"
+			],
+			[
+				"ram_",
+				"ram_we_b"
+			],
+			[
+				"ra",
+				"ram_addr"
+			],
+			[
+				"A",
+				"A_13n"
+			],
+			[
+				"rom_",
+				"rom_13n"
+			],
+			[
+				"A_",
+				"A_10n"
+			],
+			[
+				"ce12",
+				"ce12n_b"
+			],
+			[
+				"FLI",
+				"FLIPsum"
+			],
+			[
+				"OBH",
+				"OBHFLIP"
+			],
+			[
+				"OBJ",
+				"OBJABWR_b"
+			],
+			[
+				"CSC",
+				"CBCS_b"
+			],
+			[
+				"Y",
+				"Y_11D8"
+			],
+			[
+				"OB",
+				"OBASEL"
+			],
+			[
+				"OV",
+				"OVER96"
+			],
+			[
+				"OBA",
+				"OBA"
+			],
+			[
+				"ca_",
+				"ca_5H"
+			],
+			[
+				"Y_",
+				"Y_1J3"
+			],
+			[
+				"OVER",
+				"OVER24_b"
+			],
+			[
+				"q_",
+				"q_6E"
+			],
+			[
+				"ca",
+				"ca_6D"
+			],
+			[
+				"BL",
+				"BLEN_2496"
+			],
+			[
+				"TM",
+				"TM2496_b"
+			],
+			[
+				"H1",
+				"H1_b"
+			],
+			[
+				"LV",
+				"LVI_b"
+			],
+			[
+				"H2",
+				"H256_b"
+			],
+			[
+				"WR",
+				"WRB_b"
+			],
+			[
+				"data",
+				"dataw-1"
+			],
+			[
+				"jt_gng",
+				"jt_gng_a_test"
+			],
+			[
+				"SCR",
+				"SCRPO_b"
+			],
+			[
+				"dec",
+				"decod_ce_b"
+			],
+			[
+				"EXT",
+				"EXTEN_b"
+			],
+			[
+				"bus",
+				"bus_wr_b"
+			],
+			[
+				"R",
+				"RnW"
+			],
+			[
+				"ce1",
+				"ce10n_b"
+			],
+			[
+				"c",
+				"ce13n_b"
+			],
+			[
+				"ce",
+				"ce8n_b"
+			],
+			[
+				"decod",
+				"decod_bank_b"
+			],
+			[
+				"readmem",
+				"readmemh\t$readmemh()"
+			],
+			[
+				"I",
+				"IRQ_b"
+			],
+			[
+				"n",
+				"nRESET"
+			],
+			[
+				"RO",
+				"ROB"
+			],
+			[
+				"S",
+				"SH256"
+			],
+			[
+				"CH",
+				"CHARZ"
+			],
+			[
+				"MR",
+				"MRDY2_b"
+			],
+			[
+				"SD",
+				"SDRAM_row_w"
+			],
+			[
+				"add",
+				"addr_bulk_B"
+			],
+			[
+				"ro",
+				"row"
+			],
+			[
+				"ad",
+				"addr_w"
+			],
+			[
+				"CMD_",
+				"CMD_INHIBIT"
+			],
+			[
+				"addr",
+				"addr"
+			],
+			[
+				"RE",
+				"READ_PAGE"
+			],
+			[
+				"cl",
+				"cl_cnt"
+			],
+			[
+				"cas",
+				"cas_n"
+			],
+			[
+				"row",
+				"row_w"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "ver/game/go.sh",
+			"settings":
+			{
+				"buffer_size": 954,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "hdl/jtgng_main.v",
+			"settings":
+			{
+				"buffer_size": 3618,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "hdl/jtgng_rom.v",
+			"settings":
+			{
+				"buffer_size": 4883,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "hdl/jtgng_game.v",
+			"settings":
+			{
+				"buffer_size": 1243,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "veri",
+		"selected_items":
+		[
+			[
+				"veri",
+				"Verilog: Instantiate Module"
+			],
+			[
+				"pac",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 174.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'df21e130d211cfc94d9b0905775a7c0f' + '1e3d39e33b79698005270310898eea76'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/jtejada/github/jt_gng/hdl/jt74.v",
+		"/home/jtejada/github/jt_gng/ver/scr_tb/scr_tb.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b9.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b2.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b8.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a3.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a6.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a7.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_genram.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b6.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a2.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a1.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b3.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b5.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b7.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_b1.v",
+		"/home/jtejada/github/jt_gng/mist/ver/game/go.sh",
+		"/home/jtejada/github/jt_gng/mist/hdl/jtgng_game.v",
+		"/home/jtejada/github/jt_gng/mist/hdl/jtgng_timer.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng_a5.v",
+		"/home/jtejada/github/jt12/ver/jt12_tb/go",
+		"/home/jtejada/github/jt_gng/ver/jt_gng/go.sh",
+		"/home/jtejada/github/jt_gng/ver/ram_test/jt_gng_test.v",
+		"/home/jtejada/github/jt_gng/ver/ram_test/ram_test.lst",
+		"/home/jtejada/github/jt_gng/ver/ram_test/ram_test.s",
+		"/home/jtejada/github/jt_gng/hdl/jt_gng.v",
+		"/home/jtejada/github/jt_gng/ver/jt_gng/jt_gng_test.v",
+		"/home/jtejada/.gtkwaverc",
+		"/home/jtejada/github/jt_gng/ver/char_tb/char_tb.v",
+		"/home/jtejada/github/jt_gng/modules/mc6809/mc6809s.v",
+		"/home/jtejada/github/jt_gng/modules/mc6809/mc6809i.v",
+		"/home/jtejada/github/jt_gng/rom/go.sh",
+		"/home/jtejada/github/jt_gng/ver/jt_gng_a/jt_gng_a_test.v",
+		"/home/jtejada/github/jt_gng/hdl/jt_rams.v",
+		"/home/jtejada/github/jt_gng/modules/mc6809/mc6809.v",
+		"/home/jtejada/github/jt12/ver/common/dump.vh",
+		"/home/jtejada/github/jt_gng/ver/jt_gng_a/go.sh",
+		"/home/jtejada/github/jt_gng/ver/scr_tb/go.sh",
+		"/home/jtejada/github/jt_gng/hdl/M58725.v",
+		"/home/jtejada/github/jt_gng/hdl/M2114x2.v",
+		"/home/jtejada/github/jt_gng/hdl/mc6809s.v",
+		"/home/jtejada/github/jt_gng/hdl/mc6809i.v",
+		"/home/jtejada/github/jt_gng/ver/char_tb/go.sh",
+		"/home/jtejada/github/jt_gng/ver/char_tb/s",
+		"/home/jtejada/github/jt_gng/hdl/jt7461.v",
+		"/home/jtejada/src/verilog-10.1.1/Makefile",
+		"/home/jtejada/github/grytra/hdl/contra_rom.v",
+		"/home/jtejada/github/grytra/ver/sdram_model/go",
+		"/home/jtejada/github/jt51/ver/jt51_mmr/go",
+		"/home/jtejada/github/jt51/ver/jt51_mmr/obj_dir/jt51_mmr.cc",
+		"/home/jtejada/.dosbox/dosbox-0.74.conf",
+		"/home/jtejada/.bashrc"
+	],
+	"find":
+	{
+		"height": 36.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"posedge",
+			"Phi8",
+			"G4H",
+			"VINZONE",
+			"CLEAR_SPR",
+			",",
+			"pullup",
+			")",
+			"(",
+			".",
+			")",
+			"(",
+			".",
+			"ram",
+			"M58",
+			"7H",
+			"Dinout",
+			"] ",
+			"]",
+			"assign   ",
+			"RegData",
+			"pc",
+			"rom_data",
+			"D",
+			"pull",
+			"rom_8n",
+			"pullup",
+			"pull",
+			"MATC",
+			"MA%",
+			"DEA",
+			"),",
+			"DEA",
+			",",
+			"J",
+			"A",
+			"SCRPO",
+			"CBCS_b",
+			"hscroll",
+			"FLIP",
+			"xxx",
+			"input",
+			"output",
+			"FLIP",
+			"clk_mrdy",
+			"MRDY2_b",
+			"ALC2_b",
+			"ALC1_b",
+			"ACL2",
+			"OKOUT_b",
+			"BLCNTEN_b",
+			"AKB",
+			"input",
+			"reg",
+			"OBASEL",
+			"SCO",
+			"UUT.",
+			";",
+			"CBCS_b",
+			"ROB_b",
+			"RQB_b",
+			"ROB_b",
+			"RQB_b",
+			"ROB_b",
+			"RQB_b",
+			"ROB_b",
+			"SCRP",
+			"SCD",
+			"SCO",
+			"A",
+			"OVER96",
+			")",
+			"(",
+			".",
+			"OBASEL",
+			"phi_BB",
+			"8D",
+			")",
+			"(",
+			".",
+			"H1_b",
+			")",
+			"(",
+			".",
+			"Y_3D3",
+			"74161",
+			"HINIT",
+			"(",
+			".",
+			"(",
+			".",
+			"wire",
+			"WR_b",
+			";",
+			"reg",
+			"wire",
+			"input",
+			"RDB_b",
+			"input",
+			"\t",
+			"input",
+			"RDB_b",
+			"output",
+			"RDB_b",
+			"irq_c",
+			"WRAM_b",
+			"ROB",
+			"EXTEN_b",
+			"CHARCS_b",
+			"MRDY_b",
+			"rst",
+			"nRESET",
+			"IRQI",
+			"IRQ1",
+			"8",
+			"[",
+			")",
+			"(",
+			".",
+			";",
+			"wire",
+			"ACLI_b",
+			"WRD_b",
+			"wire",
+			"(",
+			".",
+			"(",
+			"."
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"phiB",
+			"ALC2",
+			"wire",
+			"SCD",
+			"RQB_b",
+			"SCD",
+			"phiBB",
+			"HINIT_b",
+			"WRB_b",
+			"nRESET",
+			"IRQ1",
+			"ALC1_b",
+			"ram_we_b",
+			"col_cnt",
+			"addr_w",
+			"data_w"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "ver/game/go.sh",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 954,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								169,
+								169
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "hdl/jtgng_main.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3618,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "hdl/jtgng_rom.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4883,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "hdl/jtgng_game.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1243,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": -0.0,
+						"translation.y": 600.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 36.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.SystemVerilog":
+	{
+		"height": 124.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "",
+	"replace":
+	{
+		"height": 66.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
