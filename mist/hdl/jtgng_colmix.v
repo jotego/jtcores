@@ -12,19 +12,18 @@ module jtgng_colmix(
 	input			LVBL,
 	input			LHBL,
 
-	output 	[3:0]	red,
-	output 	[3:0]	green,
-	output 	[3:0]	blue
+	output 	reg [3:0]	red,
+	output 	reg [3:0]	green,
+	output 	reg [3:0]	blue
 );
 
 reg addr_top;
 reg aux, we;
 reg [7:0] addr_bot;
 wire [8:0] addr = { addr_top, addr_bot };
-wire [7:0] pixel_mux = 8'd0;
 wire [7:0] dout;
 
-wire [5:0] pixel_mux = { 2'b11, cc, char };
+wire [7:0] pixel_mux = { 2'b11, cc, char };
 
 always @(posedge clk_rgb)
 	if( rst ) begin

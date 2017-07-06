@@ -4,7 +4,10 @@ module jtgng_game(
 	input			rst,
 	input			clk_rom, 	//  81   MHz
 	input			clk,  	 	//   6   MHz
-	input			clk_rgb		// 6*6 = 36MHz
+	input			clk_rgb,	// 6*6 = 36MHz
+	output	 [3:0] 	red,
+	output	 [3:0] 	green,
+	output	 [3:0] 	blue
 );
 
 	wire [8:0] V;
@@ -61,9 +64,6 @@ jtgng_char chargen (
 	wire [3:0] cc;
 	wire blue_cs;
 	wire redgreen_cs;
-	wire [3:0] red;
-	wire [3:0] green;
-	wire [3:0] blue;
 jtgng_colmix i_jtgng_colmix (
 	.rst        ( rst        	),
 	.clk_rgb    ( clk_rgb    	),

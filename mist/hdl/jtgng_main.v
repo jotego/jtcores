@@ -26,8 +26,9 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy;
 reg nRESET;
 
-reg [4:0] map_cs;
-assign { flip_cs, ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
+reg [6:0] map_cs;
+assign { blue_cs, redgreen_cs, flip_cs, 
+	ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
 
 reg [7:0] AH;
 wire E,Q;
@@ -40,15 +41,17 @@ always @(*)
 	// if(!VMA) map_cs = 4'h0;
 	// else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 5'h8; // 0000-1FFF
+		8'b000x_xxxx: map_cs = 7'h8; // 0000-1FFF
 		// EXTEN
-		8'b0010_0xxx: map_cs = 5'h4; // 2000-27FF
-		8'b0011_1101: map_cs = 5'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 7'h4; // 2000-27FF
+		8'b0011_1000: map_cs = 7'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 7'h40; // 3900-39FF, blue
+		8'b0011_1101: map_cs = 7'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 5'h2; // 3E00-3EFF bank
-		8'b10xx_xxxx: map_cs = 5'h1; // 8000-BFFF, ROM 9N
-		8'b1111_1111: map_cs = startup ? 5'b0 : 5'h1; // FF00-FFFF reset vector
-		default: map_cs = 5'h0;
+		8'b0011_1110: map_cs = 7'h2; // 3E00-3EFF bank
+		8'b10xx_xxxx: map_cs = 7'h1; // 8000-BFFF, ROM 9N
+		8'b1111_1111: map_cs = startup ? 7'b0 : 7'h1; // FF00-FFFF reset vector
+		default: map_cs = 7'h0;
 	endcase
 
 wire RnW;
