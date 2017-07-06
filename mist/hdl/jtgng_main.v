@@ -8,6 +8,8 @@ module jtgng_main(
 	input	LVBL,	// vertical blanking when 0
 	output	[7:0] cpu_dout,
 	output	char_cs,
+	output	blue_cs,
+	output	redgreen_cs,	
 	output	reg flip,
 	output	reg sres_b,
 	// BUS sharing

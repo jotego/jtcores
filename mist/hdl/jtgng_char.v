@@ -15,6 +15,7 @@ module jtgng_char(
 	// ROM
 	output [13:0] char_addr,
 	input  [ 7:0] char_data,
+	output reg [3:0] char_pal,
 	output reg [ 1:0] char_col
 );
 
@@ -46,7 +47,6 @@ reg [7:0] aux;
 reg [5:0] aux2;
 reg [9:0] AC; // ADDRESS - CHARACTER
 reg char_hflip_prev;
-reg [3:0] char_pal;
 
 reg [3:0] vert_addr;
 reg half_addr;

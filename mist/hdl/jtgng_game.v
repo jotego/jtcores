@@ -2,8 +2,9 @@
 
 module jtgng_game(
 	input			rst,
-	input			clk_rom, //  81   MHz
-	input			clk  	 //   6   MHz
+	input			clk_rom, 	//  81   MHz
+	input			clk,  	 	//   6   MHz
+	input			clk_rgb		// 6*6 = 36MHz
 );
 
 	wire [8:0] V;
@@ -37,40 +38,68 @@ always @(posedge clk or posedge rst)
 jtgng_timer timers (.clk(clk), .rst(rst), .V(V), .H(H), .Hinit(Hinit), .LHBL(LHBL), .LVBL(LVBL));
 
 	wire RnW;
+	wire [3:0] char_pal;
 
 jtgng_char chargen (
-	.clk      ( clk      	),
-	.AB       ( cpu_AB[10:0]),
-	.V128     ( V[7:0]   	),
-	.H128     ( H[7:0]   	),
-	.char_cs  ( char_cs  	),
-	.flip     ( flip     	),
-	.din      ( cpu_dout 	),
-	.dout     ( char_dout	),
-	.rd       ( RnW      	),
-	.MRDY_b   ( char_mrdy	),
-	.char_addr( char_addr	),
-	.char_data( char_data	),
-	.char_col ( char_col 	)
+	.clk        ( clk      		),
+	.AB         ( cpu_AB[10:0]	),
+	.V128       ( V[7:0]   		),
+	.H128       ( H[7:0]   		),
+	.char_cs    ( char_cs  		),
+	.flip       ( flip     		),
+	.din        ( cpu_dout 		),
+	.dout       ( char_dout		),
+	.rd         ( RnW      		),
+	.MRDY_b     ( char_mrdy		),
+	.char_addr  ( char_addr		),
+	.char_data  ( char_data		),
+	.char_col   ( char_col 		),
+	.char_pal   ( char_pal    	)
 );
+
+
+	wire [3:0] cc;
+	wire blue_cs;
+	wire redgreen_cs;
+	wire [3:0] red;
+	wire [3:0] green;
+	wire [3:0] blue;
+jtgng_colmix i_jtgng_colmix (
+	.rst        ( rst        	),
+	.clk_rgb    ( clk_rgb    	),
+	.char       ( char_col   	),
+	.cc         ( char_pal   	),
+	.AB         ( cpu_AB[7:0]	),
+	.blue_cs    ( blue_cs    	),
+	.redgreen_cs( redgreen_cs	),
+	.DB         ( cpu_dout   	),
+	.LVBL       ( LVBL       	),
+	.LHBL       ( LHBL       	),
+	.red        ( red        	),
+	.green      ( green      	),
+	.blue       ( blue       	)
+);
+
 
 	wire bus_ack, bus_req;
 	wire [17:0] main_addr;
 	wire [7:0] main_dout;
 jtgng_main main (
-	.clk      	( clk      	),
-	.rst      	( rst_game 	),
-	.ch_mrdy  	( char_mrdy	),
-	.char_dout	( char_dout	),
-	.LVBL     	( LVBL     	),
-	.cpu_dout 	( cpu_dout 	),
-	.char_cs  	( char_cs  	),
-	.flip		( flip		),
-	.bus_ack 	( bus_ack  	),
-	.cpu_AB	 	( cpu_AB	),
-	.RnW	 	( RnW		),
-	.rom_addr	( main_addr ),
-	.rom_dout	( main_dout )
+	.clk      	( clk      		),
+	.rst      	( rst_game 		),
+	.ch_mrdy  	( char_mrdy		),
+	.char_dout	( char_dout		),
+	.LVBL     	( LVBL     		),
+	.cpu_dout 	( cpu_dout 		),
+	.char_cs  	( char_cs  		),
+	.blue_cs    (blue_cs    	),
+	.redgreen_cs(redgreen_cs	),
+	.flip		( flip			),
+	.bus_ack 	( bus_ack  		),
+	.cpu_AB	 	( cpu_AB		),
+	.RnW	 	( RnW			),
+	.rom_addr	( main_addr 	),
+	.rom_dout	( main_dout 	)
 );
 
 
@@ -81,19 +110,19 @@ jtgng_main main (
 	wire [15:0] obj_dout;
 	wire [23:0] scr_dout;
 jtgng_rom rom (
-	.clk      (clk_rom  ),
-	.rst      (rst      ),
-	.char_addr(char_addr),
-	.main_addr(main_addr),
-	.snd_addr (snd_addr ),
-	.obj_addr (obj_addr ),
-	.scr_addr (scr_addr ),
-	.char_dout(char_dout),
-	.main_dout(main_dout),
-	.snd_dout (snd_dout ),
-	.obj_dout (obj_dout ),
-	.scr_dout (scr_dout ),
-	.ready	  (rom_ready)
+	.clk      	( clk_rom  		),
+	.rst      	( rst      		),
+	.char_addr	( char_addr		),
+	.main_addr	( main_addr		),
+	.snd_addr 	( snd_addr 		),
+	.obj_addr 	( obj_addr 		),
+	.scr_addr 	( scr_addr 		),
+	.char_dout	( char_dout		),
+	.main_dout	( main_dout		),
+	.snd_dout 	( snd_dout 		),
+	.obj_dout 	( obj_dout 		),
+	.scr_dout 	( scr_dout 		),
+	.ready	  	( rom_ready		)
 );
 
 

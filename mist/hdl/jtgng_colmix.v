@@ -18,11 +18,13 @@ module jtgng_colmix(
 );
 
 reg addr_top;
-reg aux;
+reg aux, we;
 reg [7:0] addr_bot;
 wire [8:0] addr = { addr_top, addr_bot };
 wire [7:0] pixel_mux = 8'd0;
 wire [7:0] dout;
+
+wire [5:0] pixel_mux = { 2'b11, cc, char };
 
 always @(posedge clk_rgb)
 	if( rst ) begin
@@ -30,6 +32,12 @@ always @(posedge clk_rgb)
 	end else begin
 		{addr_top,aux}={addr_top,aux}+2'b1;
 		addr_bot <= LVBL ? AB : pixel_mux;
+		casex( {addr_top,aux} )
+			2'b00: we <= redgreen_cs;
+			2'b10: we <= blue_cs;
+			default: we <= 1'b0;
+		endcase
+		// assign current pixel colour
 		if( !LVBL && !LHBL )
 			case( {addr_top,aux} )
 				2'b01: begin
