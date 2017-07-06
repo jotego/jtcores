@@ -17,7 +17,6 @@ module jtgng_timer(
 always @(negedge clk) begin
 	if( rst ) begin
 		{ Hinit, H } <= 10'd0;
-		LHBL <= 1'd0;
 		V <= 9'd250;
 	end
 	else if(Hinit) begin
