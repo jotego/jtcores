@@ -64,7 +64,7 @@ jtgng_char chargen (
 	wire [3:0] cc;
 	wire blue_cs;
 	wire redgreen_cs;
-jtgng_colmix i_jtgng_colmix (
+jtgng_colmix colmix (
 	.rst        ( rst        	),
 	.clk_rgb    ( clk_rgb    	),
 	.char       ( char_col   	),

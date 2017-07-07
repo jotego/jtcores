@@ -8,6 +8,18 @@ RESET:
 	STA	$3E00	; BANK
 	STA $3D00	; FLIP
 
+	; RG mem test
+	LDU #0
+	LDX #$3800
+	LDY #$3900
+	LDA #$55
+	CLRB	
+@L:	STA ,X+
+	STA ,Y+
+	INCA
+	DECB
+	BNE @L
+
 	; CHAR mem test
 	LDU #0
 	LDX #$2000
