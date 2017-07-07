@@ -14,7 +14,7 @@ module jtgng_char(
 
 	// ROM
 	output [13:0] char_addr,
-	input  [ 7:0] char_data,
+	input  [ 7:0] chrom_data,
 	output reg [3:0] char_pal,
 	output reg [ 1:0] char_col
 );
@@ -72,7 +72,7 @@ reg [7:0] chd;
 
 always @(negedge clk) begin
 	if( H128[2:0]==3'd4 )
-		chd <= char_data;
+		chd <= chrom_data;
 	if( char_hflip_prev ) begin
 		char_col <= { chd[7], chd[3] };
 		chd[7:5] <= chd[6:4];

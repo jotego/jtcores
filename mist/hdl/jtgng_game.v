@@ -23,7 +23,7 @@ module jtgng_game(
 	wire rd;
 	wire char_mrdy;
 	wire [13:0] char_addr;
-	wire [7:0] char_data = 8'h00;
+	wire [7:0]  chram_dout, chrom_data;
 	wire [1:0] char_col;
 	wire rom_ready;
 
@@ -51,11 +51,11 @@ jtgng_char chargen (
 	.char_cs    ( char_cs  		),
 	.flip       ( flip     		),
 	.din        ( cpu_dout 		),
-	.dout       ( char_dout		),
+	.dout       ( chram_dout	),
 	.rd         ( RnW      		),
 	.MRDY_b     ( char_mrdy		),
 	.char_addr  ( char_addr		),
-	.char_data  ( char_data		),
+	.chrom_data ( chrom_data	),
 	.char_col   ( char_col 		),
 	.char_pal   ( char_pal    	)
 );
@@ -88,7 +88,7 @@ jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
 	.ch_mrdy  	( char_mrdy		),
-	.char_dout	( char_dout		),
+	.char_dout	( chram_dout	),
 	.LVBL     	( LVBL     		),
 	.cpu_dout 	( cpu_dout 		),
 	.char_cs  	( char_cs  		),
@@ -117,7 +117,7 @@ jtgng_rom rom (
 	.snd_addr 	( snd_addr 		),
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),
-	.char_dout	( char_dout		),
+	.char_dout	( chrom_data	),
 	.main_dout	( main_dout		),
 	.snd_dout 	( snd_dout 		),
 	.obj_dout 	( obj_dout 		),

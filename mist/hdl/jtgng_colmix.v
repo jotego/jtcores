@@ -30,7 +30,7 @@ always @(posedge clk_rgb)
 		{ addr_top, aux } <= 2'b00;
 	end else begin
 		{addr_top,aux}={addr_top,aux}+2'b1;
-		addr_bot <= LVBL ? AB : pixel_mux;
+		addr_bot <= LVBL ? pixel_mux : AB;
 		casex( {addr_top,aux} )
 			2'b00: we <= redgreen_cs;
 			2'b10: we <= blue_cs;

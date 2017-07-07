@@ -19,14 +19,24 @@ module game_test;
 	end
 	`endif
 
-	initial #(5*1000*1000) $finish;
+	initial #(50*1000*1000) $finish;
 	//initial #(120*1000*1000) $finish;
 
-reg rst, clk, clk_rom;
+reg rst, clk_pxl, clk_rgb, clk_rom;
 
 initial begin
 	clk_rom=1'b0;
-	forever clk_rom = #6.173 ~clk_rom;
+	forever clk_rom = #6 ~clk_rom;
+end
+
+initial begin
+	clk_pxl =1'b0;
+	forever clk_pxl  = #84 ~clk_pxl ;
+end
+
+initial begin
+	clk_rgb =1'b0;
+	forever clk_rgb  = #21 ~clk_rgb ;
 end
 
 
@@ -37,7 +47,7 @@ initial begin
 	#500 rst_base = 1'b1;
 	#2500 rst_base=1'b0;
 end
-
+/*
 integer clk_cnt;
 
 always @(posedge clk_rom or posedge rst_base) begin
@@ -49,10 +59,10 @@ always @(posedge clk_rom or posedge rst_base) begin
 		if( clk_cnt==0 ) clk <= ~clk;
 	end
 end
-
+*/
 integer rst_cnt;
 
-always @(negedge clk or posedge rst_base)
+always @(negedge clk_pxl or posedge rst_base)
 	if( rst_base ) begin
 		rst <= 1'b1; 
 		rst_cnt <= 2;
@@ -64,8 +74,9 @@ always @(negedge clk or posedge rst_base)
 
 jtgng_game UUT (
 	.rst		( rst		),
-	.clk		( clk		),
-	.clk_rom	( clk_rom	)
+	.clk		( clk_pxl	),
+	.clk_rom	( clk_rom	),
+	.clk_rgb    ( clk_rgb   )
 );
 
 

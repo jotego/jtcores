@@ -12,11 +12,10 @@ RESET:
 	LDU #0
 	LDX #$3800
 	LDY #$3900
-	LDA #$55
+	CLRA
 	CLRB	
 @L:	STA ,X+
-	STA ,Y+
-	INCA
+	STA ,Y+	
 	DECB
 	BNE @L
 
