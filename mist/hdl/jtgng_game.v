@@ -7,14 +7,14 @@ module jtgng_game(
 	input			clk_rgb,	// 6*6 = 36MHz
 	output	 [3:0] 	red,
 	output	 [3:0] 	green,
-	output	 [3:0] 	blue
+	output	 [3:0] 	blue,
+	output			LHBL,
+	output			LVBL
 );
 
 	wire [8:0] V;
 	wire [8:0] H;
 	wire Hinit;
-	wire LHBL;
-	wire LVBL;
 
 	wire [12:0] cpu_AB;
 	wire char_cs;

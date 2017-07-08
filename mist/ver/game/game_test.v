@@ -19,6 +19,7 @@ module game_test;
 	end
 	`endif
 
+	//initial #(200*1000) $finish;
 	initial #(50*1000*1000) $finish;
 	//initial #(120*1000*1000) $finish;
 
@@ -71,13 +72,34 @@ always @(negedge clk_pxl or posedge rst_base)
 		else rst<=rst_base;
 	end
 
+wire [3:0] red, green, blue;
+wire LHBL, LVBL;
 
 jtgng_game UUT (
 	.rst		( rst		),
 	.clk		( clk_pxl	),
 	.clk_rom	( clk_rom	),
-	.clk_rgb    ( clk_rgb   )
+	.clk_rgb    ( clk_rgb   ),
+	.red		( red		),
+	.green		( green		),
+	.blue		( blue		),
+	.LHBL		( LHBL 		),
+	.LVBL		( LVBL 		)
 );
 
+`ifdef CHR_DUMP
+reg enter_bl;
+always @(posedge clk_pxl) begin
+	if( rst )
+		enter_bl <= 1'b0;
+	else begin
+		enter_bl <= LHBL;
+		if( enter_bl != LHBL && !LHBL)
+			$write("\n");
+		else
+			if( LHBL ) $write("%d,%d,%d;",red,green,blue);
+	end
+end
+`endif
 
 endmodule // jt_gng_a_test

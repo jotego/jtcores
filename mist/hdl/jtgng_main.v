@@ -50,7 +50,7 @@ always @(*)
 
 		8'b0011_1110: map_cs = 7'h2; // 3E00-3EFF bank
 		8'b10xx_xxxx: map_cs = 7'h1; // 8000-BFFF, ROM 9N
-		8'b1111_1111: map_cs = startup ? 7'b0 : 7'h1; // FF00-FFFF reset vector
+		8'b1111_1111: map_cs = startup ? 7'h8 : 7'h1; // FF00-FFFF reset vector
 		default: map_cs = 7'h0;
 	endcase
 

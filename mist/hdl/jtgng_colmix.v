@@ -37,7 +37,7 @@ always @(posedge clk_rgb)
 			default: we <= 1'b0;
 		endcase
 		// assign current pixel colour
-		if( !LVBL && !LHBL )
+		if( LVBL && LHBL )
 			case( {addr_top,aux} )
 				2'b01: begin
 					red   <= dout[7:4];
