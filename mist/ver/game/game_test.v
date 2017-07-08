@@ -20,8 +20,8 @@ module game_test;
 	`endif
 
 	//initial #(200*1000) $finish;
-	initial #(50*1000*1000) $finish;
-	//initial #(120*1000*1000) $finish;
+	//initial #(50*1000*1000) $finish;
+	initial #(120*1000*1000) $finish;
 
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
@@ -88,13 +88,16 @@ jtgng_game UUT (
 );
 
 `ifdef CHR_DUMP
-reg enter_bl;
+reg enter_hbl, enter_vbl;
 always @(posedge clk_pxl) begin
-	if( rst )
-		enter_bl <= 1'b0;
-	else begin
-		enter_bl <= LHBL;
-		if( enter_bl != LHBL && !LHBL)
+	if( rst ) begin
+		enter_hbl <= 1'b0;
+		enter_vbl <= 1'b0;
+	end else begin
+		enter_hbl <= LHBL;
+		enter_vbl <= LVBL;
+		if( enter_vbl != LVBL && !LVBL) $write("\nNEW FRAME\n");
+		if( enter_hbl != LHBL && !LHBL)
 			$write("\n");
 		else
 			if( LHBL ) $write("%d,%d,%d;",red,green,blue);
