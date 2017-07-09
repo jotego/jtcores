@@ -13,7 +13,7 @@ module jtgng_char(
 	output		MRDY_b,
 
 	// ROM
-	output [13:0] char_addr,
+	output reg [13:0] char_addr,
 	input  [ 7:0] chrom_data,
 	output reg [3:0] char_pal,
 	output reg [ 1:0] char_col
@@ -48,40 +48,43 @@ reg [5:0] aux2;
 reg [9:0] AC; // ADDRESS - CHARACTER
 reg char_hflip_prev;
 
-reg [3:0] vert_addr;
+reg [2:0] vert_addr;
+
+reg char_vflip;
+reg char_hflip;
 reg half_addr;
 
-wire char_vflip = dout[5] ^ flip;
-wire char_hflip = dout[4] ^ flip;
-
-always @(negedge clk)
+always @(posedge clk) begin
 	case( H128[2:0] )
-		3'd0: {char_hflip_prev, char_pal } <= aux2;
-		3'd2: aux <= dout;
-		3'd3, 3'd7: half_addr <= char_hflip ^ H128[2];
-		3'd4: begin
-			AC      <= {dout[7:6], aux};
-			aux2    <= dout[3:0];
+		3'd1: aux <= dout;
+		3'd3: begin
+			AC       <= {dout[7:6], aux};
+			char_hflip <= dout[4] ^ flip;
+			char_vflip <= dout[5] ^ flip;
+			char_hflip_prev <= char_hflip;
+			char_pal <= dout[3:0];			
 			vert_addr <= {3{char_vflip}}^V128[2:0];
 		end
 	endcase
+	char_addr = { AC, vert_addr, char_hflip ^ H128[2] };
+end
 
-assign char_addr = { AC, vert_addr, half_addr };
 
 reg [7:0] chd;
 
 always @(negedge clk) begin
-	if( H128[2:0]==3'd4 )
+	char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
+	if( H128[1:0]==2'd0 )
 		chd <= chrom_data;
-	if( char_hflip_prev ) begin
-		char_col <= { chd[7], chd[3] };
-		chd[7:5] <= chd[6:4];
-		chd[3:1] <= chd[2:0];
-	end
-	else  begin
-		char_col <= { chd[7], chd[3] };
-		chd[7:5] <= chd[6:4];
-		chd[3:1] <= chd[2:0];
+	else begin
+		if( char_hflip_prev ) begin
+			chd[7:4] <= {1'b0, chd[7:5]};
+			chd[3:0] <= {1'b0, chd[3:1]};
+		end
+		else  begin
+			chd[7:4] <= {chd[6:4], 1'b0};
+			chd[3:0] <= {chd[2:0], 1'b0};
+		end
 	end
 end
 

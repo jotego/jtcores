@@ -11,6 +11,7 @@ module jtgng_m9k #(parameter addrw=12, id=0)(
 reg [addrw-1:0] addr_latch;
 reg [7:0] mem[0:(2**addrw-1)];
 reg [7:0] data_latch;
+reg we_latch;
 
 `ifdef SIMULATION
 initial begin
@@ -26,7 +27,8 @@ end
 always @(posedge clk) begin
 	addr_latch <= addr;
 	data_latch <= din;
-	if( we )
+	we_latch <= we;
+	if( we_latch )
 		mem[addr_latch] <= data_latch;	
 end
 
