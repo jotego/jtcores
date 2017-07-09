@@ -32,12 +32,12 @@ end
 
 initial begin
 	clk_pxl =1'b0;
-	forever clk_pxl  = #84 ~clk_pxl ;
+	forever clk_pxl  = #81 ~clk_pxl ;
 end
 
 initial begin
 	clk_rgb =1'b0;
-	forever clk_rgb  = #21 ~clk_rgb ;
+	forever clk_rgb  = #20.25 ~clk_rgb ;
 end
 
 

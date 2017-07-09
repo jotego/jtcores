@@ -43,7 +43,7 @@ MAL: LDU #1
 	BRA MAL
 
 HELLO:
-	.STRZ "H O L A"
+	.STRZ "HELLO WORLD. FROM Ghost N Goblins in MiST."
 
 IRQSERVICE:
 	; ORCC #$10

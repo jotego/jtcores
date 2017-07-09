@@ -19,12 +19,17 @@ always @(negedge clk) begin
 		{ Hinit, H } <= 10'd0;
 		V <= 9'd250;
 	end
-	else if(Hinit) begin
-		{ Hinit, H } <= 10'h80;
-		V <= &V ? 9'd250 : V + 1'd1;
+	else begin
+		if( H == 9'd511 ) begin
+			Hinit <= 1'b1;
+			H <= 9'd128;
+			V <= &V ? 9'd250 : V + 1'd1;
+		end
+		else begin
+			Hinit <= 1'b0;
+			H <= H + 1'b1;
+		end
 	end
-	else 
-		{ Hinit, H } <= H + 1'b1;
 end
 
 // L Horizontal/Vertical Blanking
