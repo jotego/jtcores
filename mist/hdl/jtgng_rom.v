@@ -3,14 +3,14 @@
 module jtgng_rom(
 	input			clk,	
 	input			rst,
-	input	[13:0]	char_addr,
+	input	[12:0]	char_addr,
 	input	[17:0]	main_addr,
 	input	[14:0]	snd_addr,
 	input	[14:0]	obj_addr,
 	input	[15:0]	scr_addr,
 	//input	[ 7:0]	din,
 
-	output	reg	[ 7:0]	char_dout,
+	output	reg	[15:0]	char_dout,
 	output	reg	[ 7:0]	main_dout,
 	output	reg	[ 7:0]	snd_dout,
 	output	reg	[15:0]	obj_dout,
@@ -44,7 +44,7 @@ always @(posedge clk)
 		case(rd_state)
 			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= Dq[7:0];
 			4'd1, 4'd7: main_dout <= Dq[7:0];
-			4'd2: char_dout <= Dq[7:0];
+			4'd2: char_dout <= Dq;
 			4'd4: scr_dout[15:0] <= Dq;
 			4'd5: scr_dout[23:0] <= Dq[7:0];
 			4'd8: obj_dout <= Dq;
@@ -55,7 +55,7 @@ always @(posedge clk)
 						{row_addr, col_addr} <= { 4'b00, 3'b110,  snd_addr }; // 14:0
 			4'd0, 4'd6: {row_addr, col_addr} <= { 4'b00,         main_addr }; // 17:0
 			4'd7: 		{row_addr, col_addr} <= { 4'b01, 3'b010,  obj_addr }; // 14:0
-			4'd1: 		{row_addr, col_addr} <= { 4'b10, 3'b000, char_addr }; //13:0
+			4'd1: 		{row_addr, col_addr} <= { 4'b10, 4'b000, char_addr }; // 12:0
 			4'd3: 		{row_addr, col_addr} <= { 4'b01, 2'b10,   scr_addr }; // 15:0 B/C ROMs
 			4'd4: 		{row_addr, col_addr} <= { 4'b01, 2'b11,   scr_addr }; // 15:0 E ROMs
 		endcase	

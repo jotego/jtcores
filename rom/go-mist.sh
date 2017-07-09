@@ -27,7 +27,7 @@ $OD mm02.14h >> gng.hex
 ## Character ROM, 16kB
 echo "// Character ROM " >> gng.hex
 echo "@40000" >> gng.hex
-$OD mm01.11e >> gng.hex 
+$ODx2 mm01.11e >> gng.hex 
 
 ## Object ROM, 16kBx4 = 64kB
 ../cc/bytemerge mm{16.3n,13.3l} 3nl

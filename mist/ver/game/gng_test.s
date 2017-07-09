@@ -43,7 +43,7 @@ MAL: LDU #1
 	BRA MAL
 
 HELLO:
-	.STRZ "0"
+	.STRZ "H O L A"
 
 IRQSERVICE:
 	; ORCC #$10

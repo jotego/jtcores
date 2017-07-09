@@ -22,8 +22,9 @@ module jtgng_game(
 	wire [7:0] cpu_dout, char_dout;
 	wire rd;
 	wire char_mrdy;
-	wire [13:0] char_addr;
-	wire [7:0]  chram_dout, chrom_data;
+	wire [12:0] char_addr;
+	wire [7:0]  chram_dout;
+	wire [15:0] chrom_data;
 	wire [1:0] char_col;
 	wire rom_ready;
 

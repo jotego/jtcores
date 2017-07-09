@@ -13,8 +13,8 @@ module jtgng_char(
 	output		MRDY_b,
 
 	// ROM
-	output reg [13:0] char_addr,
-	input  [ 7:0] chrom_data,
+	output reg [12:0] char_addr,
+	input  [15:0] chrom_data,
 	output reg [3:0] char_pal,
 	output reg [ 1:0] char_col
 );
@@ -66,7 +66,7 @@ always @(posedge clk) begin
 			vert_addr <= {3{char_vflip}}^V128[2:0];
 		end
 	endcase
-	char_addr = { AC, vert_addr, char_hflip ^ H128[2] };
+	char_addr = { AC, vert_addr };
 end
 
 
@@ -75,7 +75,7 @@ reg [7:0] chd;
 always @(negedge clk) begin
 	char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
 	if( H128[1:0]==2'd0 )
-		chd <= chrom_data;
+		chd <= (H128[2] ^ char_hflip) ? chrom_data[7:0] : chrom_data[15:8];
 	else begin
 		if( char_hflip_prev ) begin
 			chd[7:4] <= {1'b0, chd[7:5]};
