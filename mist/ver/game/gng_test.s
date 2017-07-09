@@ -21,20 +21,24 @@ RESET:
 	LDA #' '
 	CLRB
 @L:	
+	;STA ,X+
 	STB ,Y+
-	STA ,X+
-	CMPX #$2400
+	CMPY #$2800
 	BNE @L
 
 	; Hello world
-	LDX #$2100
+	LDX #$2000
 	LDY #HELLO
 @L: LDA ,Y+
-	BEQ @L2
-	STA ,X+
-	BRA @L
+	BNE @L2
+	LDY #HELLO
+	LDA ,Y+
 @L2:
-	NOP
+	STA ,X+
+	CMPX #$2400
+	BEQ @L3
+	BRA @L
+@L3:
 
 
 @L:	BRA @L
@@ -43,7 +47,7 @@ MAL: LDU #1
 	BRA MAL
 
 HELLO:
-	.STRZ "HELLO WORLD. FROM Ghost N Goblins in MiST."
+	.STRZ "0123456789ABCDEF"
 
 IRQSERVICE:
 	; ORCC #$10

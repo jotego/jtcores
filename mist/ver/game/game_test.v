@@ -20,7 +20,7 @@ module game_test;
 	`endif
 
 	//initial #(200*1000) $finish;
-	initial #(53*1000*1000) $finish;
+	initial #(67*1000*1000) $finish;
 	//initial #(120*1000*1000) $finish;
 
 reg rst, clk_pxl, clk_rgb, clk_rom;
