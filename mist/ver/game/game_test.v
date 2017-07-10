@@ -20,8 +20,15 @@ module game_test;
 	`endif
 
 	//initial #(200*1000) $finish;
-	initial #(67*1000*1000) $finish;
+	//initial #(67*1000*1000) $finish;
 	//initial #(120*1000*1000) $finish;
+
+	integer fincnt;
+	initial begin
+		for( fincnt=0; fincnt<50; fincnt=fincnt+1 )
+			#(100*1000*1000);
+		$finish;
+	end
 
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
@@ -101,7 +108,6 @@ always @(posedge clk_pxl) begin
 		if( enter_vbl != LVBL && !LVBL) begin
 			$write(")]\n# New frame\nframe_%d=[(\n", frame_cnt);
 			frame_cnt <= frame_cnt + 1;
-			if(frame_cnt==6) $finish;
 		end
 		else
 		if( enter_hbl != LHBL && !LHBL)
