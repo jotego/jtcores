@@ -46,18 +46,23 @@ jtgng_vgabuf buf_b (
 	);
 `endif
 
+reg last_LHBL;
+
 always @(posedge clk_gng)
 	if( rst ) begin
 		wr_addr <= 8'd0;
 		sel <= 1'b0;		
-	end else 
-	if( !LHBL ) begin
-		wr_addr <= 8'd0;
-		sel <= ~sel;
-	end else
-		wr_addr <= wr_addr + 1'b1;
+	end else  begin
+		last_LHBL <= LHBL;	
+		if( !LHBL ) begin
+			wr_addr <= 8'd0;
+			if( last_LHBL!=LHBL ) sel <= ~sel;
+		end else
+			wr_addr <= wr_addr + 1'b1;
+	end
 
 reg lhbl, last_lhbl;
+reg wait_hsync;
 
 always @(posedge clk_vga) begin
 	lhbl <= LHBL;
@@ -66,7 +71,7 @@ end
 
 reg [6:0] cnt;
 reg [1:0] state;
-reg finish,double;
+reg centre_done, finish,double;
 
 localparam SYNC=2'd0, FRONT=2'd1, LINE=2'd2, BACK=2'd3;
 
@@ -75,6 +80,8 @@ always @(posedge clk_vga) begin
 		rd_addr <= 8'd0;
 		state <= SYNC;
 		cnt <= 7'd96;
+		centre_done <= 1'b0;
+		wait_hsync <= 1'b0;
 	end
 	else 
 	case( state )
@@ -82,9 +89,11 @@ always @(posedge clk_vga) begin
 			rd_addr <= 8'd0;
 			vga_hsync <= 1'b0;
 			cnt <= cnt - 1'b1;
-			if( !cnt ) begin
+			if( wait_hsync && (lhbl && !last_lhbl) ||
+			   !wait_hsync && !cnt ) begin
 				state<=FRONT;
 				cnt  <=7'd16;
+				wait_hsync <= ~wait_hsync;
 			end
 		end
 		FRONT: begin
@@ -95,15 +104,27 @@ always @(posedge clk_vga) begin
 				state<=LINE;
 				double<=1'b0;
 				finish<=1'b0;
+				cnt   <=7'd63;
+				centre_done <= 1'b0;
 			end
 		end
 		LINE: begin
-			if(finish) begin
-				state <= BACK;
-				cnt   <= 7'd48;
-			end
-			{finish,rd_addr,double}<={rd_addr,double}+1'b1;
-		end
+			case( {finish, centre_done})
+				2'b00:
+					if(cnt) 
+						cnt<=cnt-1'b1; // blank space on left
+					else 
+						{centre_done,rd_addr,double}<={rd_addr,double}+1'b1;
+				2'b01: begin
+					finish <= cnt==7'd60;
+					cnt <= cnt+1'b1;
+				end
+				2'b11: begin
+					state <= BACK;
+					cnt   <= 7'd48;
+				end
+			endcase
+		end				
 		BACK: begin			
 			if( !cnt ) begin
 				state<=SYNC;
