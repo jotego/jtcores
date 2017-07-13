@@ -8,6 +8,7 @@ module jtgng_vga(
 	input	[3:0]		green,
 	input	[3:0]		blue,
 	input				Hinit,
+	input				Vinit,
 	input				LHBL,
 	input				LVBL,
 	output	[3:0]		vga_red,
@@ -62,16 +63,24 @@ always @(posedge clk_gng)
 	end
 
 reg lhbl, last_lhbl;
+reg lvbl, last_lvbl;
+reg vsync_req;
 reg wait_hsync;
 
 always @(posedge clk_vga) begin
 	lhbl <= LHBL;
 	last_lhbl <= lhbl;
+
+	lvbl <= LVBL;
+	last_lvbl <= lvbl;
+
+	vsync_req <= !vga_vsync ? 1'b0 : vsync_req || (!lvbl && last_lvbl);
 end
 
 reg [6:0] cnt;
 reg [1:0] state;
 reg centre_done, finish,double;
+reg vsync_cnt;
 
 localparam SYNC=2'd0, FRONT=2'd1, LINE=2'd2, BACK=2'd3;
 
@@ -82,12 +91,19 @@ always @(posedge clk_vga) begin
 		cnt <= 7'd96;
 		centre_done <= 1'b0;
 		wait_hsync <= 1'b0;
+		vsync_cnt  <= 1'b0;
+		vga_vsync  <= 1'b1;
+		vga_hsync  <= 1'b1;
 	end
 	else 
 	case( state )
 		SYNC: begin
 			rd_addr <= 8'd0;
 			vga_hsync <= 1'b0;
+			if( vsync_req ) begin
+				vga_vsync <= 1'b0;
+				vsync_cnt <= 1'b0;		
+			end			
 			cnt <= cnt - 1'b1;
 			if( wait_hsync && (lhbl && !last_lhbl) ||
 			   !wait_hsync && !cnt ) begin
@@ -129,6 +145,7 @@ always @(posedge clk_vga) begin
 			if( !cnt ) begin
 				state<=SYNC;
 				cnt <= 7'd96;
+				{vga_vsync, vsync_cnt} <= {vsync_cnt, 1'b1};
 			end
 			else cnt <= cnt - 1'b1;
 		end

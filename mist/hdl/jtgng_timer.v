@@ -6,6 +6,7 @@ module jtgng_timer(
 	output	reg [8:0]	V,
 	output	reg [8:0]	H,
 	output	reg			Hinit,
+	output	reg			Vinit,
 	output	reg			LHBL,
 	output	reg			LVBL,
 	output	reg			G4_3H,	// high on 3/4 H transition
@@ -23,6 +24,7 @@ always @(negedge clk) begin
 		if( H == 9'd511 ) begin
 			Hinit <= 1'b1;
 			H <= 9'd128;
+			Vinit <= &V;
 			V <= &V ? 9'd250 : V + 1'd1;
 		end
 		else begin
