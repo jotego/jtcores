@@ -26,15 +26,19 @@ end
 
 initial begin
 	clk_gng = 1'b0;
-	forever #83.333 clk_gng = ~clk_gng; // 25MHz
+	forever #83.333 clk_gng = ~clk_gng; // 6MHz
 end
 
-wire [3:0] red		=4'd0;
-wire [3:0] green	=4'd0;
-wire [3:0] blue		=4'd0;
+reg [3:0] red, green, blue;
 wire [3:0] vga_red;
 wire [3:0] vga_green;
 wire [3:0] vga_blue;
+
+always @(posedge clk_gng) begin
+	red   <= $random%16;
+	green <= $random%16;
+	blue  <= $random%16;
+end
 
 `define SIM_SYNCONLY
 

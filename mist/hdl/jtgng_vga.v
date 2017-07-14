@@ -21,7 +21,7 @@ module jtgng_vga(
 reg [7:0] wr_addr, rd_addr;
 reg sel;
 
-`ifndef SIM_SYNCONLY
+//`ifndef SIM_SYNCONLY
 jtgng_vgabuf buf_rg (
 	.address_a ( { sel, 1'b0, wr_addr} ),
 	.address_b ( {~sel, 1'b0, rd_addr} ),
@@ -45,7 +45,7 @@ jtgng_vgabuf buf_b (
 	.wren_b ( 1'b0 ),
 	.q_b ( vga_blue )
 	);
-`endif
+//`endif
 
 reg last_LHBL;
 

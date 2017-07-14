@@ -21,15 +21,15 @@ module game_test;
 
 	//initial #(200*1000) $finish;
 	//initial #(67*1000*1000) $finish;
-	//initial #(120*1000*1000) $finish;
-
+	initial #(120*1000*1000) $finish;
+/*
 	integer fincnt;
 	initial begin
 		for( fincnt=0; fincnt<50; fincnt=fincnt+1 )
 			#(100*1000*1000);
 		$finish;
 	end
-
+*/
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
 initial begin

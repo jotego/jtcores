@@ -33,12 +33,21 @@ always @(*)
 	end
 
 // RAM
+/*
 jtgng_m9k #(.addrw(11)) RAM(
 	.clk ( clk  ),
 	.addr( addr ),
 	.din ( din  ),
 	.dout( dout ),
 	.we  ( we   )
+);*/
+
+jtgng_chram	RAM(
+	.address( addr 	),
+	.clock	( clk 	),
+	.data	( din	),
+	.wren	( we	),
+	.q		( dout	)
 );
 
 assign MRDY_b = !( char_cs && ( &H128[2:1]==1'b0 ) );
