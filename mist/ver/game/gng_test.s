@@ -14,17 +14,8 @@ RESET:
 	CMPA #1
 	BEQ @L
 
-	; CHAR filling
-	LDU #0
-	LDX #$2000
-	LDY #$2400
-	LDA #' '
-	CLRB
-@L:	
-	;STA ,X+
-	STB ,Y+
-	CMPY #$2800
-	BNE @L
+	; BSR CLRCHAR
+	BSR CHKCHAR
 
 	; Hello world
 	LDX #$2000
@@ -45,6 +36,41 @@ RESET:
 
 MAL: LDU #1
 	BRA MAL
+
+; *****************************************
+; Write BLANK character over all screen
+; with 0 attributes
+CLRCHAR:
+	; CHAR filling
+	LDX #$2000
+	LDY #$2400
+	LDA #' '
+	CLRB
+@L:	
+	STA ,X+
+	STB ,Y+
+	CMPY #$2800
+	BNE @L
+	RTS
+
+; *****************************************
+; Verify R/W on character memory
+CHKCHAR:
+	LDU #$BABE
+	LDX #$2000
+	LDY #$5555
+@L:	
+	TFR Y,D
+	STD ,X	
+	SUBD ,X++
+	BNE @MAL
+	CMPX #$2800
+	BNE @L
+	LDU #$FACE
+	RTS
+@MAL:
+	LDU #$DEAD
+	RTS
 
 HELLO:
 	.STRZ "0123456789ABCDEF"

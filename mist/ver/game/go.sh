@@ -49,9 +49,29 @@ if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; the
 	exit 1
 fi
 
+echo -e "DEPTH = 8192;\nWIDTH = 8;\nADDRESS_RADIX = HEX;DATA_RADIX = HEX;" > jtgng_firmware.mif
+echo -e "CONTENT\nBEGIN" >> jtgng_firmware.mif
+
 OD="od -t x1 -A none -v -w1"
 
 $OD gng_test.bin > ram.hex
+
+python <<XXX
+import string
+
+infile=open("ram.hex","r")
+file=open("jtgng_firmware.mif","a")
+#file.write("[0000..1FFF]:")
+addr=0;
+for line in infile:
+	line=string.replace(line,'\n','')
+	file.write( '{0:X} : {1};\n'.format(addr,line) )
+	addr=addr+1
+file.write("END;")
+XXX
+
+#exit 0
+
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))
 

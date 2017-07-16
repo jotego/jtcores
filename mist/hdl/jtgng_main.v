@@ -98,12 +98,21 @@ wire [7:0] ram_dout;
 wire ram_we = ram_cs && !RnW;
 assign cpu_AB = A[12:0];
 
+/*
 jtgng_m9k #(.addrw(13),.id(10)) RAM(
 	.clk ( clk       ),
 	.addr( cpu_AB[12:0]  ),
 	.din ( cpu_dout  ),
 	.dout( ram_dout  ),
 	.we  ( ram_we    )
+);*/
+
+jtgng_mainram RAM(
+	.address	( cpu_AB[12:0]	),
+	.clock		( clk			),
+	.data		( cpu_dout		),
+	.wren		( ram_we		),
+	.q			( ram_dout		)
 );
 
 wire [7:0] cpu_din =({8{ram_cs}}  & ram_dout )	| 
