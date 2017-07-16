@@ -7,8 +7,6 @@ module jtgng_vga(
 	input	[3:0]		red,
 	input	[3:0]		green,
 	input	[3:0]		blue,
-	input				Hinit,
-	input				Vinit,
 	input				LHBL,
 	input				LVBL,
 	output	[3:0]		vga_red,

@@ -9,7 +9,19 @@ module jtgng_game(
 	output	 [3:0] 	green,
 	output	 [3:0] 	blue,
 	output			LHBL,
-	output			LVBL
+	output			LVBL,
+	// SDRAM interface
+	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
+	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
+	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
+	output        	SDRAM_DQMH, 	// SDRAM High-byte Data Mask
+	output  reg    	SDRAM_nWE, 		// SDRAM Write Enable
+	output  reg    	SDRAM_nCAS, 	// SDRAM Column Address Strobe
+	output  reg    	SDRAM_nRAS, 	// SDRAM Row Address Strobe
+	output  reg    	SDRAM_nCS, 		// SDRAM Chip Select
+	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
+	output 			SDRAM_CLK, 		// SDRAM Clock
+	output        	SDRAM_CKE 		// SDRAM Clock Enable	
 );
 
 	wire [8:0] V;

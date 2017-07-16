@@ -15,15 +15,34 @@ module jtgng_rom(
 	output	reg	[ 7:0]	snd_dout,
 	output	reg	[15:0]	obj_dout,
 	output	reg	[23:0]	scr_dout,
-	output	reg			ready
+	output	reg			ready,
+
+	// SDRAM interface
+	// SDRAM interface
+	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
+	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
+	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
+	output        	SDRAM_DQMH, 	// SDRAM High-byte Data Mask
+	output  reg    	SDRAM_nWE, 		// SDRAM Write Enable
+	output  reg    	SDRAM_nCAS, 	// SDRAM Column Address Strobe
+	output  reg    	SDRAM_nRAS, 	// SDRAM Row Address Strobe
+	output  reg    	SDRAM_nCS, 		// SDRAM Chip Select
+	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
+	output 			SDRAM_CLK, 		// SDRAM Clock
+	output        	SDRAM_CKE 		// SDRAM Clock Enable	
 );
+
+assign SDRAM_DQMH = 1'b0;
+assign SDRAM_DQML = 1'b0;
+assign SDRAM_BA   = 2'b0;
+assign SDRAM_CKE  = 1'b1;
+assign SDRAM_CLK  = clk;
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 localparam false=1'b0, true=1'b1;
 
-wire [data_w-1:0] 	Dq;
-reg  [addr_w-1:0] 	addr, row_addr;
+reg  [addr_w-1:0] 	row_addr;
 reg  [col_w-1:0] col_cnt, col_addr;
 
 reg [3:0] rd_state;
@@ -42,12 +61,12 @@ always @(posedge clk)
 		// state 10 (autorefresh) lasts twice as long as the others
 		// Get data from current read
 		case(rd_state)
-			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= Dq[7:0];
-			4'd1, 4'd7: main_dout <= Dq[7:0];
-			4'd2: char_dout <= Dq;
-			4'd4: scr_dout[15:0] <= Dq;
-			4'd5: scr_dout[23:0] <= Dq[7:0];
-			4'd8: obj_dout <= Dq;
+			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= SRAM_DQ[7:0];
+			4'd1, 4'd7: main_dout <= SRAM_DQ[7:0];
+			4'd2: char_dout <= SRAM_DQ;
+			4'd4: scr_dout[15:0] <= SRAM_DQ;
+			4'd5: scr_dout[23:0] <= SRAM_DQ[7:0];
+			4'd8: obj_dout <= SRAM_DQ;
 		endcase
 		// Set ADDR for next read
 		case(rd_state)
@@ -66,8 +85,6 @@ always @(posedge clk)
 		endcase
 		rd_state <= rd_state==4'd10 ? 4'd0: rd_state+4'b1;
 	end
-
-reg cs_n, ras_n, cas_n, we_n;
 
 reg  [1:0] cl_cnt;
 
@@ -89,14 +106,14 @@ localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT=4'd2, ACTIVATE=4'd3,
 reg [3:0] wait_cnt;
 localparam PRECHARGE_WAIT = 4'd1, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
 
-wire [3:0] mem_cmd = { cs_n, ras_n, cas_n, we_n };
+wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
 
 always @(posedge clk)
 	if( rst ) begin
 		state <= INITIALIZE;
 		init_state <= 4'd0;
-		{ cs_n, ras_n, cas_n, we_n } <= CMD_INHIBIT;
-		{ wait_cnt, addr } <= 8400;
+		{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_INHIBIT;
+		{ wait_cnt, SRAM_A } <= 8400;
 		read_done <= false;
 		ready <= false;
 	end else 
@@ -105,29 +122,29 @@ always @(posedge clk)
 		INITIALIZE: begin
 			case(init_state)
 				4'd0: begin	// wait for 100us
-					{ cs_n, ras_n, cas_n, we_n } <= CMD_NOP;
-					{ wait_cnt, addr } <= { wait_cnt, addr }-1'b1;
-					if( !{ wait_cnt, addr } ) 
+					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
+					{ wait_cnt, SRAM_A } <= { wait_cnt, SRAM_A }-1'b1;
+					if( !{ wait_cnt, SRAM_A } ) 
 						init_state <= init_state+4'd1;
 					end
 				4'd1: begin
-					{ cs_n, ras_n, cas_n, we_n } <= CMD_PRECHARGE;
-					addr[10]=1'b1; // all banks
+					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
+					SRAM_A[10]=1'b1; // all banks
 					wait_cnt <= PRECHARGE_WAIT;
 					state <= WAIT;
 					next <= INITIALIZE;
 					init_state <= init_state+4'd1;
 					end
 				4'd2,4'd3: begin
-					{ cs_n, ras_n, cas_n, we_n } <= CMD_AUTOREFRESH;
+					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_AUTOREFRESH;
 					wait_cnt <= 4'd10;
 					state <= WAIT;
 					next <= INITIALIZE;
 					init_state <= init_state+4'd1;
 					end
 				4'd4: begin
-					{ cs_n, ras_n, cas_n, we_n } <= CMD_LOAD_MODE;
-					addr <= 12'b00_1_00_011_0_000;
+					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_LOAD_MODE;
+					SRAM_A <= 12'b00_1_00_011_0_000;
 					wait_cnt <= 4'd2;
 					state <= WAIT;
 					next <= SET_PRECHARGE;
@@ -137,56 +154,56 @@ always @(posedge clk)
 			endcase
 			end
 		SET_PRECHARGE: begin
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_PRECHARGE;
-			addr[10]=1'b1; // all banks
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
+			SRAM_A[10]=1'b1; // all banks
 			wait_cnt <= PRECHARGE_WAIT;
 			state <= WAIT;
 			next <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;		
 			read_done <= false;
 			end
 		WAIT: begin
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_NOP;
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
 			if( !wait_cnt ) state<=next;
 			wait_cnt <= wait_cnt-2'b1;
 			end
 		ACTIVATE: begin 
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_ACTIVATE;
-			addr <= row_addr;
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
+			SRAM_A <= row_addr;
 			wait_cnt <= ACTIVATE_WAIT;
 			next  <= SET_READ;
 			state <= WAIT;
 			end		
 		SET_READ:begin
-			{ cs_n, ras_n, cas_n, we_n } <= CMD_READ;
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_READ;
 			wait_cnt <= CL_WAIT;
 			state <= WAIT;
 			next  <= READ;
-			addr <= { {(addr_w-col_w){1'b0}}, col_addr};
+			SRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
 			end		
 		READ: begin
 			read_done <= true;
 			state <=  SET_PRECHARGE;
 			end
 		AUTO_REFRESH1: begin
-			{ cs_n, ras_n, cas_n, we_n } <=	CMD_AUTOREFRESH;
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <=	CMD_AUTOREFRESH;
 			wait_cnt <= 4'd12;
 			state <= WAIT;
 			next <= READ; // just to generate the read_done
 			end
 	endcase // state
-
+/*
 mt48lc16m16a2 mist_sdram (
-	.Dq		( Dq		),
-	.Addr   ( addr  	),
+	.SRAM_DQ		( SRAM_DQ		),
+	.Addr   ( SRAM_A  	),
 	.Ba		( 2'd0  	),
 	.Clk	( clk		),
 	.Cke	( 1'b1  	),
-	.Cs_n   ( cs_n  	),
-	.Ras_n  ( ras_n 	),
-	.Cas_n  ( cas_n 	),
-	.We_n   ( we_n  	),
-	.Dqm	( 2'b00 	)
+	.Cs_n   ( SDRAM_nCS  	),
+	.Ras_n  ( SDRAM_nRAS 	),
+	.Cas_n  ( SDRAM_nCAS 	),
+	.We_n   ( SDRAM_nWE  	),
+	.SRAM_DQm	( 2'b00 	)
 );
-
+*/
 
 endmodule // jtgng_rom
