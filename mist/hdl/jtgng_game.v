@@ -15,10 +15,10 @@ module jtgng_game(
 	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
 	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
 	output        	SDRAM_DQMH, 	// SDRAM High-byte Data Mask
-	output  reg    	SDRAM_nWE, 		// SDRAM Write Enable
-	output  reg    	SDRAM_nCAS, 	// SDRAM Column Address Strobe
-	output  reg    	SDRAM_nRAS, 	// SDRAM Row Address Strobe
-	output  reg    	SDRAM_nCS, 		// SDRAM Chip Select
+	output      	SDRAM_nWE, 		// SDRAM Write Enable
+	output      	SDRAM_nCAS, 	// SDRAM Column Address Strobe
+	output      	SDRAM_nRAS, 	// SDRAM Row Address Strobe
+	output      	SDRAM_nCS, 		// SDRAM Chip Select
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
 	output 			SDRAM_CLK, 		// SDRAM Clock
 	output        	SDRAM_CKE 		// SDRAM Clock Enable	
@@ -135,7 +135,19 @@ jtgng_rom rom (
 	.snd_dout 	( snd_dout 		),
 	.obj_dout 	( obj_dout 		),
 	.scr_dout 	( scr_dout 		),
-	.ready	  	( rom_ready		)
+	.ready	  	( rom_ready		),
+	// SDRAM interface
+	.SDRAM_DQ	( SDRAM_DQ		),
+	.SDRAM_A	( SDRAM_A		),
+	.SDRAM_DQML	( SDRAM_DQML	),
+	.SDRAM_DQMH	( SDRAM_DQMH	),
+	.SDRAM_nWE	( SDRAM_nWE		),
+	.SDRAM_nCAS	( SDRAM_nCAS	),
+	.SDRAM_nRAS	( SDRAM_nRAS	),
+	.SDRAM_nCS	( SDRAM_nCS		),
+	.SDRAM_BA	( SDRAM_BA		),
+	.SDRAM_CLK	( SDRAM_CLK		),
+	.SDRAM_CKE	( SDRAM_CKE		)
 );
 
 

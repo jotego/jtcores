@@ -20,7 +20,7 @@ module jtgng_rom(
 	// SDRAM interface
 	// SDRAM interface
 	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
-	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
+	output reg [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
 	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
 	output        	SDRAM_DQMH, 	// SDRAM High-byte Data Mask
 	output  reg    	SDRAM_nWE, 		// SDRAM Write Enable
@@ -61,12 +61,12 @@ always @(posedge clk)
 		// state 10 (autorefresh) lasts twice as long as the others
 		// Get data from current read
 		case(rd_state)
-			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= SRAM_DQ[7:0];
-			4'd1, 4'd7: main_dout <= SRAM_DQ[7:0];
-			4'd2: char_dout <= SRAM_DQ;
-			4'd4: scr_dout[15:0] <= SRAM_DQ;
-			4'd5: scr_dout[23:0] <= SRAM_DQ[7:0];
-			4'd8: obj_dout <= SRAM_DQ;
+			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= SDRAM_DQ[7:0];
+			4'd1, 4'd7: main_dout <= SDRAM_DQ[7:0];
+			4'd2: char_dout <= SDRAM_DQ;
+			4'd4: scr_dout[15:0] <= SDRAM_DQ;
+			4'd5: scr_dout[23:0] <= SDRAM_DQ[7:0];
+			4'd8: obj_dout <= SDRAM_DQ;
 		endcase
 		// Set ADDR for next read
 		case(rd_state)
@@ -113,7 +113,7 @@ always @(posedge clk)
 		state <= INITIALIZE;
 		init_state <= 4'd0;
 		{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_INHIBIT;
-		{ wait_cnt, SRAM_A } <= 8400;
+		{ wait_cnt, SDRAM_A } <= 8400;
 		read_done <= false;
 		ready <= false;
 	end else 
@@ -123,13 +123,13 @@ always @(posedge clk)
 			case(init_state)
 				4'd0: begin	// wait for 100us
 					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
-					{ wait_cnt, SRAM_A } <= { wait_cnt, SRAM_A }-1'b1;
-					if( !{ wait_cnt, SRAM_A } ) 
+					{ wait_cnt, SDRAM_A } <= { wait_cnt, SDRAM_A }-1'b1;
+					if( !{ wait_cnt, SDRAM_A } ) 
 						init_state <= init_state+4'd1;
 					end
 				4'd1: begin
 					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
-					SRAM_A[10]=1'b1; // all banks
+					SDRAM_A[10]=1'b1; // all banks
 					wait_cnt <= PRECHARGE_WAIT;
 					state <= WAIT;
 					next <= INITIALIZE;
@@ -144,7 +144,7 @@ always @(posedge clk)
 					end
 				4'd4: begin
 					{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_LOAD_MODE;
-					SRAM_A <= 12'b00_1_00_011_0_000;
+					SDRAM_A <= 12'b00_1_00_011_0_000;
 					wait_cnt <= 4'd2;
 					state <= WAIT;
 					next <= SET_PRECHARGE;
@@ -155,7 +155,7 @@ always @(posedge clk)
 			end
 		SET_PRECHARGE: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
-			SRAM_A[10]=1'b1; // all banks
+			SDRAM_A[10]=1'b1; // all banks
 			wait_cnt <= PRECHARGE_WAIT;
 			state <= WAIT;
 			next <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;		
@@ -168,7 +168,7 @@ always @(posedge clk)
 			end
 		ACTIVATE: begin 
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
-			SRAM_A <= row_addr;
+			SDRAM_A <= row_addr;
 			wait_cnt <= ACTIVATE_WAIT;
 			next  <= SET_READ;
 			state <= WAIT;
@@ -178,7 +178,7 @@ always @(posedge clk)
 			wait_cnt <= CL_WAIT;
 			state <= WAIT;
 			next  <= READ;
-			SRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
+			SDRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
 			end		
 		READ: begin
 			read_done <= true;
@@ -193,8 +193,8 @@ always @(posedge clk)
 	endcase // state
 /*
 mt48lc16m16a2 mist_sdram (
-	.SRAM_DQ		( SRAM_DQ		),
-	.Addr   ( SRAM_A  	),
+	.SDRAM_DQ		( SDRAM_DQ		),
+	.Addr   ( SDRAM_A  	),
 	.Ba		( 2'd0  	),
 	.Clk	( clk		),
 	.Cke	( 1'b1  	),
@@ -202,7 +202,7 @@ mt48lc16m16a2 mist_sdram (
 	.Ras_n  ( SDRAM_nRAS 	),
 	.Cas_n  ( SDRAM_nCAS 	),
 	.We_n   ( SDRAM_nWE  	),
-	.SRAM_DQm	( 2'b00 	)
+	.SDRAM_DQm	( 2'b00 	)
 );
 */
 

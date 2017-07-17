@@ -82,6 +82,10 @@ always @(negedge clk_pxl or posedge rst_base)
 wire [3:0] red, green, blue;
 wire LHBL, LVBL;
 
+wire [15:0] SDRAM_DQ;
+wire [12:0] SDRAM_A;
+wire [ 1:0] SDRAM_BA;
+
 jtgng_game UUT (
 	.rst		( rst		),
 	.clk		( clk_pxl	),
@@ -91,7 +95,32 @@ jtgng_game UUT (
 	.green		( green		),
 	.blue		( blue		),
 	.LHBL		( LHBL 		),
-	.LVBL		( LVBL 		)
+	.LVBL		( LVBL 		),
+
+	.SDRAM_DQ	( SDRAM_DQ 	),
+	.SDRAM_A	( SDRAM_A 	),
+	.SDRAM_DQML	( SDRAM_DQML),
+	.SDRAM_DQMH	( SDRAM_DQMH),
+	.SDRAM_nWE	( SDRAM_nWE ),
+	.SDRAM_nCAS	( SDRAM_nCAS),
+	.SDRAM_nRAS	( SDRAM_nRAS),
+	.SDRAM_nCS	( SDRAM_nCS ),
+	.SDRAM_BA	( SDRAM_BA 	),
+	.SDRAM_CLK	( SDRAM_CLK ),
+	.SDRAM_CKE	( SDRAM_CKE )	
+);
+
+mt48lc16m16a2 mist_sdram (
+	.Dq			( SDRAM_DQ		),
+	.Addr   	( SDRAM_A  		),
+	.Ba			( SDRAM_BA 		),
+	.Clk		( SDRAM_CLK		),
+	.Cke		( SDRAM_CKE		),
+	.Cs_n   	( SDRAM_nCS  	),
+	.Ras_n  	( SDRAM_nRAS 	),
+	.Cas_n  	( SDRAM_nCAS 	),
+	.We_n   	( SDRAM_nWE  	),
+	.Dqm		( {SDRAM_DQMH,SDRAM_DQML} 	)
 );
 
 `ifdef CHR_DUMP

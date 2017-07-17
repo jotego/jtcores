@@ -75,19 +75,31 @@ jtgng_game game (
 );
 
 jtgng_vga vga_conv (
-	.clk_gng  ( clk_gng		), //  6 MHz
-	.clk_vga  ( clk_vga		), // 25 MHz
-	.rst      ( rst			),
-	.red      ( red			),
-	.green    ( green		),
-	.blue     ( blue		),
-	.LHBL     ( LHBL		),
-	.LVBL     ( LVBL		),
-	.vga_red  ( VGA_R[5:2]	),
-	.vga_green( VGA_G[5:2]	),
-	.vga_blue ( VGA_B[5:2]	),
-	.vga_hsync( VGA_HS		),
-	.vga_vsync( VGA_VS		)
+	.clk_gng  	( clk_gng		), //  6 MHz
+	.clk_vga  	( clk_vga		), // 25 MHz
+	.rst      	( rst			),
+	.red      	( red			),
+	.green    	( green			),
+	.blue     	( blue			),
+	.LHBL     	( LHBL			),
+	.LVBL     	( LVBL			),
+	.vga_red  	( VGA_R[5:2]	),
+	.vga_green	( VGA_G[5:2]	),
+	.vga_blue 	( VGA_B[5:2]	),
+	.vga_hsync	( VGA_HS		),
+	.vga_vsync	( VGA_VS		),
+	// SDRAM interface
+	.SDRAM_DQ	( SDRAM_DQ		),
+	.SDRAM_A	( SDRAM_A		),
+	.SDRAM_DQML	( SDRAM_DQML	),
+	.SDRAM_DQMH	( SDRAM_DQMH	),
+	.SDRAM_nWE	( SDRAM_nWE		),
+	.SDRAM_nCAS	( SDRAM_nCAS	),
+	.SDRAM_nRAS	( SDRAM_nRAS	),
+	.SDRAM_nCS	( SDRAM_nCS		),
+	.SDRAM_BA	( SDRAM_BA		),
+	.SDRAM_CLK	( SDRAM_CLK		),
+	.SDRAM_CKE	( SDRAM_CKE		)	
 );
 
 
