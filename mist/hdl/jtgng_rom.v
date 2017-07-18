@@ -191,19 +191,5 @@ always @(posedge clk)
 			next <= READ; // just to generate the read_done
 			end
 	endcase // state
-/*
-mt48lc16m16a2 mist_sdram (
-	.SDRAM_DQ		( SDRAM_DQ		),
-	.Addr   ( SDRAM_A  	),
-	.Ba		( 2'd0  	),
-	.Clk	( clk		),
-	.Cke	( 1'b1  	),
-	.Cs_n   ( SDRAM_nCS  	),
-	.Ras_n  ( SDRAM_nRAS 	),
-	.Cas_n  ( SDRAM_nCAS 	),
-	.We_n   ( SDRAM_nWE  	),
-	.SDRAM_DQm	( 2'b00 	)
-);
-*/
 
 endmodule // jtgng_rom
