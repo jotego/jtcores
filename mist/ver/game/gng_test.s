@@ -3,36 +3,34 @@
 RESET: 
 	ORCC #$10
 	LDS	#$1E00-1
-	ANDCC #$EF
 	CLRA
 	STA	$3E00	; BANK
 	STA $3D00	; FLIP
 
 	LDA #1
 	STA $1000	; FLAG
+	ANDCC #$EF
 @L:	LDA $1000
 	CMPA #1
 	BEQ @L
 
-	; BSR CLRCHAR
-	BSR CHKCHAR
+	BSR CLRCHAR
+	; BRA FIN
+	; BSR CHKCHAR
 
+	LDU #0
 	; Hello world
-	LDX #$2000
+	LDX #$2140
 	LDY #HELLO
 @L: LDA ,Y+
-	BNE @L2
-	LDY #HELLO
-	LDA ,Y+
-@L2:
-	STA ,X+
-	CMPX #$2400
 	BEQ @L3
+	STA ,X+
 	BRA @L
 @L3:
+	LDU #$BABE
 
 
-@L:	BRA @L
+FIN:BRA FIN
 
 MAL: LDU #1
 	BRA MAL
@@ -72,13 +70,38 @@ CHKCHAR:
 	LDU #$DEAD
 	RTS
 
-HELLO:
+;********************************************
+; Fills all screen with hex numbers
+FILLCHAR:
+	LDX #$2000
+	LDY #HEXSTR
+@L: LDA ,Y+
+	BNE @L2
+	LDY #HEXSTR
+	LDA ,Y+
+@L2:
+	STA ,X+
+	CMPX #$2400
+	BEQ @L3
+	BRA @L
+@L3:
+	LDU #$BABE
+
+HEXSTR:
 	.STRZ "0123456789ABCDEF"
+
+HELLO:
+	.STRZ "      hola mundo"
 
 IRQSERVICE:
 	; ORCC #$10
 	; fill palette
 	; RG mem test
+	CLRA	; Is the palette already filled?
+	CMPA $1000
+	BNE @DOWORK
+	RTI		
+@DOWORK:
 	LDX #$3800
 	LDY #$3900
 	CLRA

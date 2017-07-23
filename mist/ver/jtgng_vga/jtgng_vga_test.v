@@ -4,31 +4,63 @@ module jtgng_vga_test;
 
 initial begin
 	$dumpfile("test.lxt");
+	`ifndef SIMPLL
 	$dumpvars;
+	`else 
+	//$dumpvars;
+	$dumpvars(0,UUT);
+	$dumpvars(0,timer);
+	$dumpvars(0,clk_rom);
+	$dumpvars(0,clk_rgb);
+	`endif
 	$dumpon;
-	#(50*1000*1000) $finish;
+	#(50*1000*1000) $finish;	
 end
 
-reg clk_gng;
-reg clk_vga;
 reg rst;
 
 initial begin
 	rst = 0;
 	#10 rst=1;
-	#200 rst = 0;
+	#800 rst = 0;
 end
+
+`ifndef SIMPLL
+reg clk_gng;
+reg clk_vga;
 
 initial begin
 	clk_vga = 1'b0;
-	forever #20 clk_vga = ~clk_vga; // 25MHz
+	//forever #20 clk_vga = ~clk_vga; // 25MHz
+	forever #20.063 clk_vga = ~clk_vga; // 25MHz
 end
 
 initial begin
 	clk_gng = 1'b0;
-	forever #83.333 clk_gng = ~clk_gng; // 6MHz
+	forever #83.340 clk_gng = ~clk_gng; // 6MHz
+end
+`else
+reg clk27;
+wire clk_rom; // 81
+wire clk_gng; //  6
+wire clk_rgb; // 36
+wire clk_vga; // 25
+wire locked;
+
+initial begin
+	clk27 = 1'b0;
+	forever #18.52 clk27 = ~clk27; // 27MHz
 end
 
+jtgng_pll0 clk_gen (
+	.inclk0	( clk27 	),
+	.c0		( clk_gng	), //  6
+	.c1		( clk_rgb	), // 36
+	.c2		( clk_rom	), // 81
+	.c3		( clk_vga	), // 24.923, would prefer 25.0!!
+	.locked	( locked	)
+);
+`endif
 reg [3:0] red, green, blue;
 wire [3:0] vga_red;
 wire [3:0] vga_green;
@@ -67,7 +99,6 @@ jtgng_vga UUT (
 	.red      (red      ),
 	.green    (green    ),
 	.blue     (blue     ),
-	.Hinit    (Hinit    ),
 	.LHBL     (LHBL     ),
 	.LVBL     (LVBL     ),
 	.vga_red  (vga_red  ),

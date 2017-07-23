@@ -13,6 +13,7 @@ DUMP=NODUMP
 CHR_DUMP=NOCHR_DUMP
 RAM_INFO=NORAM_INFO
 FIRMWARE=gng_test.s
+VGACONV=NOVGACONV
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -39,6 +40,12 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi
+	if [ "$1" = "-vga" ]; then
+		VGACONV=VGACONV
+		echo VGA conversion enabled
+		shift
+		continue
+	fi
 	echo "Unknown option $1"
 	exit 1
 done
@@ -51,6 +58,7 @@ fi
 
 echo -e "DEPTH = 8192;\nWIDTH = 8;\nADDRESS_RADIX = HEX;DATA_RADIX = HEX;" > jtgng_firmware.mif
 echo -e "CONTENT\nBEGIN" >> jtgng_firmware.mif
+
 
 OD="od -t x1 -A none -v -w1"
 
@@ -69,6 +77,7 @@ for line in infile:
 	addr=addr+1
 file.write("END;")
 XXX
+cp jtgng_firmware.mif ../../quartus 
 
 #exit 0
 
@@ -80,5 +89,5 @@ iverilog game_test.v \
 	../common/{mt48lc16m16a2.v,altera_mf.v} \
 	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 	-s game_test -o sim \
-	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION\
+	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV\
 && sim -lxt

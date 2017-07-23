@@ -65,8 +65,8 @@ reg half_addr;
 
 always @(posedge clk) begin
 	case( H128[2:0] )
-		3'd1: aux <= dout;
-		3'd3: begin
+		3'd2: aux <= dout;
+		3'd4: begin
 			AC       <= {dout[7:6], aux};
 			char_hflip <= dout[4] ^ flip;
 			char_vflip <= dout[5] ^ flip;

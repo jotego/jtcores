@@ -32,6 +32,8 @@ jtgng_vgabuf buf_rg (
 	.q_b ( {vga_red, vga_green} )
 	);
 
+wire [3:0] nc;
+
 jtgng_vgabuf buf_b (
 	.address_a ( { sel, 1'b1, wr_addr} ),
 	.address_b ( {~sel, 1'b1, rd_addr} ),
@@ -41,7 +43,7 @@ jtgng_vgabuf buf_b (
 	.data_b ( {4'b0, blue} ), // unused
 	.wren_a ( 1'b1 ),
 	.wren_b ( 1'b0 ),
-	.q_b ( vga_blue )
+	.q_b ( {nc,vga_blue} )
 	);
 //`endif
 

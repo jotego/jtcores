@@ -54,8 +54,6 @@ always @(*)
 		default: map_cs = 7'h0;
 	endcase
 
-wire RnW;
-
 // special registers
 reg	startup;
 reg [2:0] bank;

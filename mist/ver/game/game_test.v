@@ -20,8 +20,8 @@ module game_test;
 	`endif
 
 	//initial #(200*1000) $finish;
-	initial #(50*1000*1000) $finish;
-	// initial #(120*1000*1000) $finish;
+	// initial #(50*1000*1000) $finish;
+	initial #(120*1000*1000) $finish;
 /*
 	integer fincnt;
 	initial begin
@@ -34,19 +34,18 @@ reg rst, clk_pxl, clk_rgb, clk_rom;
 
 initial begin
 	clk_rom=1'b0;
-	forever clk_rom = #6 ~clk_rom;
+	forever clk_rom = #6.173 ~clk_rom; //6.000
 end
 
 initial begin
 	clk_pxl =1'b0;
-	forever clk_pxl  = #81 ~clk_pxl ;
+	forever clk_pxl  = #83.340 ~clk_pxl ; //81
 end
 
 initial begin
 	clk_rgb =1'b0;
-	forever clk_rgb  = #20.25 ~clk_rgb ;
+	forever clk_rgb  = #20.835 ~clk_rgb ; //20.25
 end
-
 
 reg rst_base;
 
@@ -123,7 +122,56 @@ mt48lc16m16a2 mist_sdram (
 	.Dqm		( {SDRAM_DQMH,SDRAM_DQML} 	)
 );
 
+`ifdef VGACONV
+reg clk_vga;
+wire [3:0] VGA_R, VGA_G, VGA_B;
+wire VGA_HS, VGA_VS;
+
+initial begin
+	clk_vga =1'b0;
+	forever clk_vga  = #20.063 ~clk_vga ; //20
+end
+
+jtgng_vga vga_conv (
+	.clk_gng  	( clk_pxl		), //  6 MHz
+	.clk_vga  	( clk_vga		), // 25 MHz
+	.rst      	( rst			),
+	.red      	( red			),
+	.green    	( green			),
+	.blue     	( blue			),
+	.LHBL     	( LHBL			),
+	.LVBL     	( LVBL			),
+	.vga_red  	( VGA_R			),
+	.vga_green	( VGA_G			),
+	.vga_blue 	( VGA_B			),
+	.vga_hsync	( VGA_HS		),
+	.vga_vsync	( VGA_VS		)
+);
 `ifdef CHR_DUMP
+integer frame_cnt;
+reg enter_hbl, enter_vbl;
+always @(posedge clk_vga) begin
+	if( rst ) begin
+		enter_hbl <= 1'b0;
+		enter_vbl <= 1'b0;
+		frame_cnt <= 0;
+	end else begin
+		enter_hbl <= VGA_HS;
+		enter_vbl <= VGA_VS;
+		if( enter_vbl != VGA_VS && !VGA_VS) begin
+			$write(")]\n# New frame\nframe_%d=[(\n", frame_cnt);
+			frame_cnt <= frame_cnt + 1;
+		end
+		else
+		if( enter_hbl != VGA_HS && !VGA_HS)
+			$write("),\n(");
+		else
+			if( VGA_HS ) $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+	end
+end
+`endif
+
+`elsif CHR_DUMP
 integer frame_cnt;
 reg enter_hbl, enter_vbl;
 always @(posedge clk_pxl) begin
@@ -145,6 +193,8 @@ always @(posedge clk_pxl) begin
 			if( LHBL ) $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
 	end
 end
+
 `endif
+
 
 endmodule // jt_gng_a_test

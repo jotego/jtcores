@@ -2,7 +2,7 @@
 
 module jtgng_colmix(
 	input			rst,
-	input			clk_rgb,	// 6*6=36 MHz
+	input			clk_rgb,	// 6MHz*4=24 MHz
 	input [1:0]		char,
 	input [3:0]		cc,		// character color code
 	input [7:0]		AB,
@@ -19,8 +19,6 @@ module jtgng_colmix(
 
 reg addr_top;
 reg aux, we;
-reg [7:0] addr_bot;
-wire [8:0] addr = { addr_top, addr_bot };
 wire [7:0] dout;
 
 wire [7:0] pixel_mux = { 2'b11, cc, char };
@@ -30,10 +28,9 @@ always @(posedge clk_rgb)
 		{ addr_top, aux } <= 2'b00;
 	end else begin
 		{addr_top,aux}={addr_top,aux}+2'b1;
-		addr_bot <= LVBL ? pixel_mux : AB;
 		casex( {addr_top,aux} )
-			2'b00: we <= redgreen_cs;
-			2'b10: we <= blue_cs;
+			2'b00: we <= redgreen_cs && !LVBL;
+			2'b10: we <= blue_cs && !LVBL;
 			default: we <= 1'b0;
 		endcase
 		// assign current pixel colour
@@ -51,16 +48,17 @@ always @(posedge clk_rgb)
 			{red, green, blue } <= 12'd0; 
 	end
 
-
+wire [8:0] rdaddress = {addr_top, pixel_mux};
+wire [8:0] wraddress = {addr_top, AB };
 
 // RAM
-jtgng_m9k #(.addrw(9)) RAM(
-	.clk ( clk_rgb  ),
-	.addr( addr     ),
-	.din ( DB       ),
-	.dout( dout     ),
-	.we  ( we       )
+jtgng_rgbram RAM(
+	.clock		( clk_rgb	),
+	.data		( DB		),
+	.rdaddress	( rdaddress	),
+	.wraddress	( wraddress	),
+	.wren		( we		),
+	.q			( dout		)
 );
-
 
 endmodule // jtgng_colmix

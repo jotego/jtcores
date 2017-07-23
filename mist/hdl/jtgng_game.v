@@ -4,14 +4,14 @@ module jtgng_game(
 	input			rst,
 	input			clk_rom, 	//  81   MHz
 	input			clk,  	 	//   6   MHz
-	input			clk_rgb,	// 6*6 = 36MHz
+	input			clk_rgb,	// 6*4 = 24MHz
 	output	 [3:0] 	red,
 	output	 [3:0] 	green,
 	output	 [3:0] 	blue,
 	output			LHBL,
 	output			LVBL,
 	// SDRAM interface
-	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
+	inout  [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
 	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
 	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
 	output        	SDRAM_DQMH, 	// SDRAM High-byte Data Mask
@@ -35,7 +35,7 @@ module jtgng_game(
 	wire rd;
 	wire char_mrdy;
 	wire [12:0] char_addr;
-	wire [7:0]  chram_dout;
+	wire [ 7:0] chram_dout;
 	wire [15:0] chrom_data;
 	wire [1:0] char_col;
 	wire rom_ready;
@@ -43,7 +43,7 @@ module jtgng_game(
 reg rst_game;
 reg rst_aux;
 
-always @(posedge clk or posedge rst)
+always @(posedge clk or posedge rst or negedge rom_ready)
 	if( rst || !rom_ready ) begin
 		{rst_game,rst_aux} <= 2'b11;
 	end

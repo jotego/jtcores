@@ -43,7 +43,12 @@ assign VGA_G[1:0] = VGA_G[5:4];
 assign VGA_B[1:0] = VGA_B[5:4];
 
 
-	wire rst;
+reg rst=1'b1;
+reg [2:0] rst_aux=3'b111;
+
+always @(posedge clk_gng)
+	if(rst)
+		{rst, rst_aux} <= {rst_aux,1'b0};
 
 	wire [3:0] red;
 	wire [3:0] green;
@@ -87,19 +92,7 @@ jtgng_vga vga_conv (
 	.vga_green	( VGA_G[5:2]	),
 	.vga_blue 	( VGA_B[5:2]	),
 	.vga_hsync	( VGA_HS		),
-	.vga_vsync	( VGA_VS		),
-	// SDRAM interface
-	.SDRAM_DQ	( SDRAM_DQ		),
-	.SDRAM_A	( SDRAM_A		),
-	.SDRAM_DQML	( SDRAM_DQML	),
-	.SDRAM_DQMH	( SDRAM_DQMH	),
-	.SDRAM_nWE	( SDRAM_nWE		),
-	.SDRAM_nCAS	( SDRAM_nCAS	),
-	.SDRAM_nRAS	( SDRAM_nRAS	),
-	.SDRAM_nCS	( SDRAM_nCS		),
-	.SDRAM_BA	( SDRAM_BA		),
-	.SDRAM_CLK	( SDRAM_CLK		),
-	.SDRAM_CKE	( SDRAM_CKE		)	
+	.vga_vsync	( VGA_VS		)
 );
 
 
