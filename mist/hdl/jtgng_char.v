@@ -84,7 +84,7 @@ reg [7:0] chd;
 always @(negedge clk) begin
 	char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
 	if( H128[1:0]==2'd0 )
-		chd <= (H128[2] ^ char_hflip) ? chrom_data[7:0] : chrom_data[15:8];
+		chd <= (H128[2] ^ char_hflip) ? chrom_data[15:8] : chrom_data[7:0];
 	else begin
 		if( char_hflip_prev ) begin
 			chd[7:4] <= {1'b0, chd[7:5]};

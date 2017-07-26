@@ -8,7 +8,12 @@ module jtgng_rom(
 	input	[14:0]	snd_addr,
 	input	[14:0]	obj_addr,
 	input	[15:0]	scr_addr,
-	//input	[ 7:0]	din,
+
+	// write interface
+	input	[15:0]	din,
+	input	[12:0]  wr_row,
+	input	[ 8:0]	wr_col,
+	input			we,
 
 	output	reg	[15:0]	char_dout,
 	output	reg	[ 7:0]	main_dout,
@@ -51,6 +56,9 @@ reg	read_done, autorefresh;
 wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
+wire SDRAM_WRITE = we && state==SET_WRITE;
+assign SDRAM_DQ =  SDRAM_WRITE ? din : 16'hzz;
+
 always @(posedge clk)
 	if( rst ) begin
 		rd_state <= 0;
@@ -92,6 +100,7 @@ localparam	CMD_LOAD_MODE	= 4'b0000,
 			CMD_AUTOREFRESH	= 4'b0001,
 			CMD_PRECHARGE   = 4'b0010,
 			CMD_ACTIVATE	= 4'b0011,
+			CMD_WRITE		= 4'b0100,
 			CMD_READ		= 4'b0101,
 			CMD_STOP		= 4'b0110,
 			CMD_NOP			= 4'b0111,
@@ -101,7 +110,8 @@ reg [3:0] state, next, init_state;
 
 localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT=4'd2, ACTIVATE=4'd3,
 			READ=4'd4, WAIT_CL=4'd5, SET_READ=4'd6, AUTO_REFRESH1=4'd7,
-			SET_PRECHARGE = 4'd8;
+			SET_PRECHARGE = 4'd8, SET_PRECHARGE_WR = 4'd9, ACTIVATE_WR=4'd10,
+			SET_WRITE=4'd11;
 
 reg [3:0] wait_cnt;
 localparam PRECHARGE_WAIT = 4'd1, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
@@ -182,7 +192,7 @@ always @(posedge clk)
 			end		
 		READ: begin
 			read_done <= true;
-			state <=  SET_PRECHARGE;
+			state <=  we ? SET_PRECHARGE_WR : SET_PRECHARGE;
 			end
 		AUTO_REFRESH1: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <=	CMD_AUTOREFRESH;
@@ -190,6 +200,29 @@ always @(posedge clk)
 			state <= WAIT;
 			next <= READ; // just to generate the read_done
 			end
+		// Write states
+		SET_PRECHARGE_WR: begin
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
+			SDRAM_A[10]=1'b1; // all banks
+			wait_cnt <= PRECHARGE_WAIT;
+			state <= WAIT;
+			next <= ACTIVATE_WR;
+			read_done <= false;
+			end
+		ACTIVATE_WR: begin 
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
+			SDRAM_A <= wr_row;
+			wait_cnt <= ACTIVATE_WAIT;
+			next  <= SET_WRITE;
+			state <= WAIT;
+			end		
+		SET_WRITE:begin
+			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_WRITE;
+			wait_cnt <= CL_WAIT;
+			state <= WAIT;
+			next  <= SET_PRECHARGE;
+			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, wr_col};
+			end		
 	endcase // state
 
 endmodule // jtgng_rom

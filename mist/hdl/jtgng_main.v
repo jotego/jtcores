@@ -12,6 +12,11 @@ module jtgng_main(
 	output	redgreen_cs,	
 	output	reg flip,
 	output	reg sres_b,
+	// SDRAM programming
+	output	reg	[15:0]	sdram_din,
+	output	reg	[12:0]  wr_row,
+	output	reg	[ 8:0]	wr_col,
+	output	reg			sdram_we,	
 	// BUS sharing
 	output		bus_ack,
 	input		bus_req,
@@ -26,9 +31,10 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy;
 reg nRESET;
 
-reg [6:0] map_cs;
-assign { blue_cs, redgreen_cs, flip_cs, 
-	ram_cs, char_cs, bank_cs, rom_cs } = map_cs;
+reg [7:0] map_cs;
+assign { 
+	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
+	ram_cs, 	char_cs, bank_cs, 		rom_cs 		} = map_cs;
 
 reg [7:0] AH;
 wire E,Q;
@@ -41,17 +47,17 @@ always @(*)
 	// if(!VMA) map_cs = 4'h0;
 	// else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 7'h8; // 0000-1FFF
+		8'b000x_xxxx: map_cs = 8'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 7'h4; // 2000-27FF
-		8'b0011_1000: map_cs = 7'h20; // 3800-38FF, Red, green
-		8'b0011_1001: map_cs = 7'h40; // 3900-39FF, blue
-		8'b0011_1101: map_cs = 7'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 8'h4; // 2000-27FF
+		8'b0011_1000: map_cs = 8'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 8'h40; // 3900-39FF, blue
+		8'b0011_1101: map_cs = 8'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 7'h2; // 3E00-3EFF bank
-		8'b10xx_xxxx: map_cs = 7'h1; // 8000-BFFF, ROM 9N
-		8'b1111_1111: map_cs = startup ? 7'h8 : 7'h1; // FF00-FFFF reset vector
-		default: map_cs = 7'h0;
+		8'b0011_1110: map_cs = 8'h2; // 3E00-3EFF bank
+		8'b0011_1111: map_cs = 8'h80; // 3F00-3FFF SDRAM programming
+		8'b1xxx_xxxx: map_cs = startup ? 8'h8 : 8'h1; // 8000-BFFF, ROM 9N
+		default: map_cs = 8'h0;
 	endcase
 
 // special registers
@@ -65,7 +71,7 @@ always @(negedge clk)
 	else begin
 		if( bank_cs && !RnW ) begin
 			bank <= cpu_dout[2:0];
-			if( cpu_dout[7] )  begin
+			if( cpu_dout[7] && startup )  begin
 				// write 0x80 to bank clears out startup latch				
 				startup <= 1'b0; 
 				nRESET <= 1'b0; // Resets CPU
@@ -73,6 +79,24 @@ always @(negedge clk)
 		end
 		else nRESET <= ~rst;
 	end
+
+// SDRAM programming
+always @(negedge clk)
+	if( rst )
+		sdram_we <= 1'b0;
+	else if( sdram_prog && startup && !RnW ) begin
+		case( A[3:0] )
+			4'd0: sdram_din[15:8] <= cpu_dout;
+			4'd1: sdram_din[ 7:0] <= cpu_dout;
+			4'd2: wr_row[ 12:8]	  <= cpu_dout[4:0];
+			4'd3: wr_row[  7:0]	  <= cpu_dout;
+			4'd4: wr_col[    8]	  <= cpu_dout[0];
+			4'd5: wr_col[  7:0]	  <= cpu_dout;
+			4'd7: sdram_we <= 1'b1;
+		endcase
+	end
+	else sdram_we <= 1'b0;
+
 
 localparam coinw = 4;
 reg [coinw-1:0] coin_cnt1, coin_cnt2;

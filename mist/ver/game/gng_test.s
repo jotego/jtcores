@@ -35,6 +35,45 @@ FIN:BRA FIN
 MAL: LDU #1
 	BRA MAL
 
+WRITECHARMEM:
+	; Write to char memory
+	LDA #$01
+	STA $3F02 ; Row address
+	CLRA
+	STA $3F03
+	; Col address
+	CLRA
+	STA $3F04	
+	LDA #$20
+	STA $3F05
+	; Values
+	LDY #$3F00
+	LDX #$3F07
+	LDA #$81
+	LDB #$42
+	STD ,Y
+	CLR ,X
+	INC $3F05
+
+	LDA #$24
+	LDB #$18
+	STD ,Y
+	CLR ,X
+	INC $3F05
+
+	LDA #$18
+	LDB #$24
+	STD ,Y
+	CLR ,X
+	INC $3F05
+
+	LDA #$42
+	LDB #$81
+	STD ,Y
+	CLR ,X
+	INC $3F05
+	RTS
+
 ; *****************************************
 ; Write BLANK character over all screen
 ; with 0 attributes
@@ -86,6 +125,7 @@ FILLCHAR:
 	BRA @L
 @L3:
 	LDU #$BABE
+	RTS
 
 HEXSTR:
 	.STRZ "0123456789ABCDEF"

@@ -97,6 +97,9 @@ jtgng_colmix colmix (
 	wire bus_ack, bus_req;
 	wire [17:0] main_addr;
 	wire [7:0] main_dout;
+	wire [15:0]	sdram_din;
+	wire [12:0] wr_row;
+	wire [ 8:0]	wr_col;	
 jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
@@ -112,7 +115,12 @@ jtgng_main main (
 	.cpu_AB	 	( cpu_AB		),
 	.RnW	 	( RnW			),
 	.rom_addr	( main_addr 	),
-	.rom_dout	( main_dout 	)
+	.rom_dout	( main_dout 	),
+	// SDRAM programming
+	.sdram_din	( sdram_din		),
+	.wr_row		( wr_row		),
+	.wr_col		( wr_col		),
+	.sdram_we	( sdram_we		)
 );
 
 
@@ -136,6 +144,11 @@ jtgng_rom rom (
 	.obj_dout 	( obj_dout 		),
 	.scr_dout 	( scr_dout 		),
 	.ready	  	( rom_ready		),
+	// SDRAM programming
+	.din		( sdram_din		),
+	.wr_row		( wr_row		),
+	.wr_col		( wr_col		),
+	.we			( sdram_we		),	
 	// SDRAM interface
 	.SDRAM_DQ	( SDRAM_DQ		),
 	.SDRAM_A	( SDRAM_A		),
