@@ -34,7 +34,13 @@ module jtgng_rom(
 	output  reg    	SDRAM_nCS, 		// SDRAM Chip Select
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
 	output 			SDRAM_CLK, 		// SDRAM Clock
-	output        	SDRAM_CKE 		// SDRAM Clock Enable	
+	output        	SDRAM_CKE, 		// SDRAM Clock Enable	
+	// ROM load
+	input			downloading,
+	input	[24:0]	romload_addr,
+	input	[ 7:0]	romload_data,
+	input	[ 7:0]	romload_data_prev,
+	input			romload_wr	
 );
 
 assign SDRAM_DQMH = 1'b0;
@@ -43,12 +49,14 @@ assign SDRAM_BA   = 2'b0;
 assign SDRAM_CKE  = 1'b1;
 assign SDRAM_CLK  = clk;
 
+reg romload_wr16;
+
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 localparam false=1'b0, true=1'b1;
 
-reg  [addr_w-1:0] 	row_addr;
-reg  [col_w-1:0] col_cnt, col_addr;
+reg  [addr_w-1:0] 	row_addr, romload_row;
+reg  [col_w-1:0] col_cnt, col_addr, romload_col;
 
 reg [3:0] rd_state;
 reg	read_done, autorefresh;
@@ -56,8 +64,12 @@ reg	read_done, autorefresh;
 wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
+assign { romload_row, romload_col } = romload_addr[24:1];
+
 wire SDRAM_WRITE = we && state==SET_WRITE;
-assign SDRAM_DQ =  SDRAM_WRITE ? din : 16'hzz;
+assign SDRAM_DQ =  SDRAM_WRITE ? 
+	( romload_wr16 ? {romload_data, romload_data_prev} : din ) : 
+	16'hzz;
 
 always @(posedge clk)
 	if( rst ) begin
@@ -126,7 +138,8 @@ always @(posedge clk)
 		{ wait_cnt, SDRAM_A } <= 8400;
 		read_done <= false;
 		ready <= false;
-	end else 
+	end else  begin
+	if( romload_wr & romload_addr[0] ) romload_wr16 <= 1'b1;
 	case( state )
 		default: state <= SET_PRECHARGE;
 		INITIALIZE: begin
@@ -192,7 +205,7 @@ always @(posedge clk)
 			end		
 		READ: begin
 			read_done <= true;
-			state <=  we ? SET_PRECHARGE_WR : SET_PRECHARGE;
+			state <=  (we||romload_wr16) ? SET_PRECHARGE_WR : SET_PRECHARGE;
 			end
 		AUTO_REFRESH1: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <=	CMD_AUTOREFRESH;
@@ -211,7 +224,7 @@ always @(posedge clk)
 			end
 		ACTIVATE_WR: begin 
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
-			SDRAM_A <= wr_row;
+			SDRAM_A <= romload_wr16 ? romload_row : wr_row;
 			wait_cnt <= ACTIVATE_WAIT;
 			next  <= SET_WRITE;
 			state <= WAIT;
@@ -221,8 +234,10 @@ always @(posedge clk)
 			wait_cnt <= CL_WAIT;
 			state <= WAIT;
 			next  <= SET_PRECHARGE;
-			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, wr_col};
+			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_row : wr_col};
+			romload_wr16 <= 1'b0;
 			end		
 	endcase // state
+	end
 
 endmodule // jtgng_rom

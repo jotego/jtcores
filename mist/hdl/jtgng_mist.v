@@ -59,6 +59,20 @@ data_io datain (
 	.data       (romload_data )
 );
 
+wire [7:0] joystick_0, joystick_1, joystick;
+
+assign joystick = joystick_0; // | joystick_1;
+
+user_io userio #(STRLEN=CONF_STR_LEN) (
+	.conf_str	( CONF_STR		),
+	.SPI_CLK	( SPI_SCK		),
+	.SPI_SS_IO	( CONF_DATA0	),
+	.SPI_MISO	( SPI_DO		),
+	.SPI_MOSI	( SPI_DI		),
+	.joystick_0	( joystick_0	),
+	.joystick_1	( joystick_1	)
+);
+
 
 jtgng_pll0 clk_gen (
 	.inclk0	( CLOCK_27[0] ),
@@ -109,7 +123,12 @@ jtgng_game game (
 	.SDRAM_nCS	( SDRAM_nCS ),
 	.SDRAM_BA	( SDRAM_BA 	),
 	.SDRAM_CLK	( SDRAM_CLK ),
-	.SDRAM_CKE	( SDRAM_CKE )		
+	.SDRAM_CKE	( SDRAM_CKE ),
+	// ROM load
+	.downloading( downloading ),
+	.romload_addr( romload_addr ),
+	.romload_data( romload_data ),
+	.romload_wr	( romload_wr	)
 );
 
 jtgng_vga vga_conv (

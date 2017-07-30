@@ -21,7 +21,12 @@ module jtgng_game(
 	output      	SDRAM_nCS, 		// SDRAM Chip Select
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
 	output 			SDRAM_CLK, 		// SDRAM Clock
-	output        	SDRAM_CKE 		// SDRAM Clock Enable	
+	output        	SDRAM_CKE, 		// SDRAM Clock Enable
+	// ROM load
+	input			downloading,
+	input	[24:0]	romload_addr,
+	input	[ 7:0]	romload_data,
+	input			romload_wr
 );
 
 	wire [8:0] V;
@@ -48,7 +53,7 @@ always @(posedge clk or posedge rst or negedge rom_ready)
 		{rst_game,rst_aux} <= 2'b11;
 	end
 	else begin
-		{rst_game,rst_aux} <= {1'b0, rst_game};
+		{rst_game,rst_aux} <= {rst_aux, downloading };
 	end
 
 jtgng_timer timers (.clk(clk), .rst(rst), .V(V), .H(H), .Hinit(Hinit), .LHBL(LHBL), .LVBL(LVBL));
@@ -160,7 +165,12 @@ jtgng_rom rom (
 	.SDRAM_nCS	( SDRAM_nCS		),
 	.SDRAM_BA	( SDRAM_BA		),
 	.SDRAM_CLK	( SDRAM_CLK		),
-	.SDRAM_CKE	( SDRAM_CKE		)
+	.SDRAM_CKE	( SDRAM_CKE		),
+	// ROM load
+	.downloading( downloading ),
+	.romload_addr( romload_addr ),
+	.romload_data( romload_data ),
+	.romload_wr	( romload_wr	)	
 );
 
 

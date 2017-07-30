@@ -35,7 +35,8 @@ module data_io (
 	input 			   clk,
 	output reg        wr,
 	output reg [24:0] addr,
-	output reg [7:0]  data
+	output reg [7:0]  data,
+	output reg [7:0]  data_prev,
 );
 
 // *********************************************************************************
@@ -93,6 +94,7 @@ always@(posedge sck, posedge ss) begin
 		// command 0x54: UIO_FILE_TX
 		if((cmd == UIO_FILE_TX_DAT) && (cnt == 15)) begin
 			data <= {sbuf, sdi};
+			data_prev <= data;
 			rclk <= 1'b1;
 		end
 		
