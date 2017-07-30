@@ -19,6 +19,14 @@ module jtgng_mist(
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
 	output 			SDRAM_CLK, 		// SDRAM Clock
 	output        	SDRAM_CKE 		// SDRAM Clock Enable	
+   // SPI interface to arm io controller
+	output			SPI_DO,
+	input			SPI_DI,
+	input			SPI_SCK,
+	input			SPI_SS2,
+	input			SPI_SS3,
+	input			SPI_SS4,
+	input			CONF_DATA0, 
 );
 
 wire clk_rom; // 81
@@ -26,6 +34,31 @@ wire clk_gng; //  6
 wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
+
+
+parameter CONF_STR = {
+        "JTGNG;;"
+};
+
+parameter CONF_STR_LEN = 7;
+
+wire downloading;
+// wire [4:0] index;
+wire romload_wr;
+wire [24:0] romload_addr;
+wire [7:0] romload_data;
+data_io datain (
+	.sck        (SPI_SCK      ),
+	.ss         (SPI_SS2      ),
+	.sdi        (SPI_DI       ),
+	.downloading(downloading  ),
+	// .index      (index        ),
+	.clk        (SDRAM_CLK    ),
+	.wr         (romload_wr   ),
+	.addr       (romload_addr ),
+	.data       (romload_data )
+);
+
 
 jtgng_pll0 clk_gen (
 	.inclk0	( CLOCK_27[0] ),
