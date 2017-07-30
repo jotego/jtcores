@@ -85,6 +85,14 @@ wire [15:0] SDRAM_DQ;
 wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
 
+wire	SPI_DO;
+reg		SPI_DI;
+reg		SPI_SCK;
+reg		SPI_SS2;
+reg		SPI_SS3;
+reg		SPI_SS4;
+reg		CONF_DATA0;
+
 jtgng_game UUT (
 	.rst		( rst		),
 	.clk		( clk_pxl	),
@@ -106,7 +114,15 @@ jtgng_game UUT (
 	.SDRAM_nCS	( SDRAM_nCS ),
 	.SDRAM_BA	( SDRAM_BA 	),
 	.SDRAM_CLK	( SDRAM_CLK ),
-	.SDRAM_CKE	( SDRAM_CKE )	
+	.SDRAM_CKE	( SDRAM_CKE ),
+
+	.SPI_DO		( SPI_DO	),
+	.SPI_DI		( SPI_DI	),
+	.SPI_SCK	( SPI_SCK	),
+	.SPI_SS2	( SPI_SS2	),
+	.SPI_SS3	( SPI_SS3	),
+	.SPI_SS4	( SPI_SS4	),
+	.CONF_DATA0	( CONF_DATA0),
 );
 
 mt48lc16m16a2 mist_sdram (
@@ -196,5 +212,46 @@ end
 
 `endif
 
+`ifdef LOADROM
+integer file;
+
+localparam UIO_FILE_TX      = 8'h53;
+localparam UIO_FILE_TX_DAT  = 8'h54;
+localparam UIO_FILE_INDEX   = 8'h55;
+localparam TX_LEN			= 32'd794633
+
+reg [7:0] rom_buffer[0:TX_LEN-1];
+
+initial begin
+	file=$fopen("JTGNG.rom","rb");
+	$fread( rom_buffer, file );
+	$fclose(file);
+end
+
+integer tx_cnt, spi_st;
+
+localparam SPI_INIT=0, SPI_TX=1;
+
+always @(posedge clk_rgb or posedge rst) begin
+	if( rst ) begin 
+		tx_cnt <= 0;
+		spi_st <= 0;
+	end
+	else
+	case( spi_st )
+		0: 
+	endcase
+end
+
+`else 
+initial begin
+	SPI_DI = 1'b0;
+	SPI_SCK = 1'b0;
+	SPI_SS2 = 1'b0;
+	SPI_SS3 = 1'b0;
+	SPI_SS4 = 1'b0;
+	CONF_DATA0 = 1'b0;
+end
+`endif
 
 endmodule // jt_gng_a_test
