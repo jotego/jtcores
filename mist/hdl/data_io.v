@@ -36,7 +36,7 @@ module data_io (
 	output reg        wr,
 	output reg [24:0] addr,
 	output reg [7:0]  data,
-	output reg [7:0]  data_prev,
+	output reg [7:0]  data_prev
 );
 
 // *********************************************************************************

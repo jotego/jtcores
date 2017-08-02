@@ -19,9 +19,9 @@ module game_test;
 	end
 	`endif
 
-	//initial #(200*1000) $finish;
+	initial #(200*1000) $finish;
 	// initial #(60*1000*1000) $finish;
-	initial #(120*1000*1000) $finish;
+	// initial #(120*1000*1000) $finish;
 /*
 	integer fincnt;
 	initial begin
@@ -85,13 +85,11 @@ wire [15:0] SDRAM_DQ;
 wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
 
-wire	SPI_DO;
-reg		SPI_DI;
-reg		SPI_SCK;
-reg		SPI_SS2;
-reg		SPI_SS3;
-reg		SPI_SS4;
-reg		CONF_DATA0;
+wire			downloading;
+wire	[24:0]	romload_addr;
+wire	[ 7:0]	romload_data;
+wire			romload_wr;
+
 
 jtgng_game UUT (
 	.rst		( rst		),
@@ -116,13 +114,10 @@ jtgng_game UUT (
 	.SDRAM_CLK	( SDRAM_CLK ),
 	.SDRAM_CKE	( SDRAM_CKE ),
 
-	.SPI_DO		( SPI_DO	),
-	.SPI_DI		( SPI_DI	),
-	.SPI_SCK	( SPI_SCK	),
-	.SPI_SS2	( SPI_SS2	),
-	.SPI_SS3	( SPI_SS3	),
-	.SPI_SS4	( SPI_SS4	),
-	.CONF_DATA0	( CONF_DATA0),
+	.downloading( downloading ),
+	.romload_addr( romload_addr ),
+	.romload_data( romload_data ),
+	.romload_wr	( romload_wr	)
 );
 
 mt48lc16m16a2 mist_sdram (
@@ -214,44 +209,99 @@ end
 
 `ifdef LOADROM
 integer file;
+wire	SPI_DO;
+reg		SPI_DI;
+wire	SPI_SCK;
+wire	SPI_SS2;
+wire	SPI_SS3=1'b0;
+wire	SPI_SS4=1'b0;
+reg		CONF_DATA0;
 
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 32'd794633
+localparam TX_LEN			= 32'd794633;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
 initial begin
 	file=$fopen("JTGNG.rom","rb");
-	$fread( rom_buffer, file );
+	tx_cnt=$fread( rom_buffer, file );
 	$fclose(file);
 end
 
-integer tx_cnt, spi_st;
+assign SPI_SS2 = rst;
 
-localparam SPI_INIT=0, SPI_TX=1;
+integer tx_cnt, spi_st, next, buff_cnt;
+reg spi_clkgate;
+
+localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3;
+assign SPI_SCK = clk_rgb & spi_clkgate;
+reg [15:0] spi_buffer;
+
+localparam FILE_LEN = 794633;
 
 always @(posedge clk_rgb or posedge rst) begin
 	if( rst ) begin 
-		tx_cnt <= 0;
+		tx_cnt <= 256;
 		spi_st <= 0;
+		spi_buffer <= 16'd0;
+		spi_clkgate <= 1'b0;
 	end
 	else
 	case( spi_st )
-		0: 
+		SPI_INIT: begin
+			if(!tx_cnt) 
+				spi_st <= SPI_SET;
+			else
+				tx_cnt <= tx_cnt - 1;
+			spi_buffer <= { UIO_FILE_TX, 8'hff };
+		end
+		SPI_SET: begin
+			if(tx_cnt==FILE_LEN) begin
+				spi_buffer <= { UIO_FILE_TX, 8'h0 };
+				next <= SPI_END;
+			end
+			else begin
+				spi_buffer <= { UIO_FILE_TX_DAT, rom_buffer[tx_cnt]};
+				next <= SPI_SET;
+			end
+			spi_st <= SPI_TX;
+			buff_cnt <= 15;
+		end
+		SPI_TX: begin
+			SPI_DI <= spi_buffer[buff_cnt];
+			if( buff_cnt ) begin
+				spi_clkgate <= 1'b1;
+				buff_cnt <= buff_cnt-1;
+			end
+			else begin
+				spi_clkgate <= 1'b0;
+				spi_st <= next;
+				tx_cnt <= tx_cnt + 1;
+			end
+		end
+		SPI_END: spi_clkgate <= 1'b0;
 	endcase
 end
 
+data_io datain (
+	.sck        (SPI_SCK      ),
+	.ss         (SPI_SS2      ),
+	.sdi        (SPI_DI       ),
+	.downloading(downloading  ),
+	// .index      (index        ),
+	.clk        (SDRAM_CLK    ),
+	.wr         (romload_wr   ),
+	.addr       (romload_addr ),
+	.data       (romload_data )
+);
+
 `else 
-initial begin
-	SPI_DI = 1'b0;
-	SPI_SCK = 1'b0;
-	SPI_SS2 = 1'b0;
-	SPI_SS3 = 1'b0;
-	SPI_SS4 = 1'b0;
-	CONF_DATA0 = 1'b0;
-end
+assign downloading = 0;
+assign romload_addr = 0;
+assign romload_data = 0;
+assign romload_wr = 0;
 `endif
 
 endmodule // jt_gng_a_test

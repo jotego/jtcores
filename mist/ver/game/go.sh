@@ -14,6 +14,7 @@ CHR_DUMP=NOCHR_DUMP
 RAM_INFO=NORAM_INFO
 FIRMWARE=gng_test.s
 VGACONV=NOVGACONV
+LOADROM=NOLOADROM
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -43,6 +44,16 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "-vga" ]; then
 		VGACONV=VGACONV
 		echo VGA conversion enabled
+		shift
+		continue
+	fi
+	if [ "$1" = "-load" ]; then
+		LOADROM=LOADROM
+		echo ROM load through SPI enabled
+		if [ ! -e JTGNG.rom ]; then
+			echo Missing file JTGNG.rom
+			exit 1
+		fi
 		shift
 		continue
 	fi
@@ -89,5 +100,5 @@ iverilog game_test.v \
 	../common/{mt48lc16m16a2.v,altera_mf.v} \
 	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 	-s game_test -o sim \
-	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV\
+	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
 && sim -lxt

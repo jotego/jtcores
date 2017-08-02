@@ -55,8 +55,10 @@ localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 localparam false=1'b0, true=1'b1;
 
-reg  [addr_w-1:0] 	row_addr, romload_row;
-reg  [col_w-1:0] col_cnt, col_addr, romload_col;
+reg  [addr_w-1:0] 	row_addr;
+reg  [col_w-1:0] col_cnt, col_addr;
+wire [addr_w-1:0] romload_row;
+wire [col_w-1:0]  romload_col;
 
 reg [3:0] rd_state;
 reg	read_done, autorefresh;

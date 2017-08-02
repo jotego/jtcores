@@ -18,7 +18,7 @@ module jtgng_mist(
 	output        	SDRAM_nCS, 		// SDRAM Chip Select
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
 	output 			SDRAM_CLK, 		// SDRAM Clock
-	output        	SDRAM_CKE 		// SDRAM Clock Enable	
+	output        	SDRAM_CKE, 		// SDRAM Clock Enable	
    // SPI interface to arm io controller
 	output			SPI_DO,
 	input			SPI_DI,
@@ -26,7 +26,7 @@ module jtgng_mist(
 	input			SPI_SS2,
 	input			SPI_SS3,
 	input			SPI_SS4,
-	input			CONF_DATA0, 
+	input			CONF_DATA0
 );
 
 wire clk_rom; // 81
@@ -63,7 +63,7 @@ wire [7:0] joystick_0, joystick_1, joystick;
 
 assign joystick = joystick_0; // | joystick_1;
 
-user_io userio #(STRLEN=CONF_STR_LEN) (
+user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.conf_str	( CONF_STR		),
 	.SPI_CLK	( SPI_SCK		),
 	.SPI_SS_IO	( CONF_DATA0	),
