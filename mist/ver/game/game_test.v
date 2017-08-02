@@ -212,7 +212,7 @@ integer file;
 wire	SPI_DO;
 reg		SPI_DI;
 wire	SPI_SCK;
-wire	SPI_SS2;
+reg		SPI_SS2;
 wire	SPI_SS3=1'b0;
 wire	SPI_SS4=1'b0;
 reg		CONF_DATA0;
@@ -230,8 +230,6 @@ initial begin
 	$fclose(file);
 end
 
-assign SPI_SS2 = rst;
-
 integer tx_cnt, spi_st, next, buff_cnt;
 reg spi_clkgate;
 
@@ -243,42 +241,48 @@ localparam FILE_LEN = 794633;
 
 always @(posedge clk_rgb or posedge rst) begin
 	if( rst ) begin 
-		tx_cnt <= 256;
+		tx_cnt <= 0;
 		spi_st <= 0;
-		spi_buffer <= 16'd0;
-		spi_clkgate <= 1'b0;
+		spi_buffer <= { UIO_FILE_TX, 8'hff };
+		spi_clkgate <= 1'b1;
+		SPI_SS2 <= 1'b1;
+		buff_cnt <= 15;
 	end
 	else
 	case( spi_st )
 		SPI_INIT: begin
-			if(!tx_cnt) 
+			SPI_SS2 <= 1'b0;
+			SPI_DI <= spi_buffer[buff_cnt];
+			if( buff_cnt==0 ) begin
 				spi_st <= SPI_SET;
+			end
 			else
-				tx_cnt <= tx_cnt - 1;
-			spi_buffer <= { UIO_FILE_TX, 8'hff };
+				buff_cnt <= buff_cnt-1;
 		end
 		SPI_SET: begin
-			if(tx_cnt==FILE_LEN) begin
-				spi_buffer <= { UIO_FILE_TX, 8'h0 };
-				next <= SPI_END;
-			end
-			else begin
-				spi_buffer <= { UIO_FILE_TX_DAT, rom_buffer[tx_cnt]};
-				next <= SPI_SET;
-			end
+			SPI_SS2 <= 1'b1;
+			spi_buffer[7:0] <= UIO_FILE_TX_DAT;
 			spi_st <= SPI_TX;
-			buff_cnt <= 15;
+			buff_cnt <= 7;
 		end
 		SPI_TX: begin
+			SPI_SS2 <= 1'b0;
 			SPI_DI <= spi_buffer[buff_cnt];
 			if( buff_cnt ) begin
 				spi_clkgate <= 1'b1;
 				buff_cnt <= buff_cnt-1;
 			end
 			else begin
-				spi_clkgate <= 1'b0;
-				spi_st <= next;
 				tx_cnt <= tx_cnt + 1;
+				if(tx_cnt==FILE_LEN) begin
+					spi_buffer <= {UIO_FILE_TX, 8'd0};
+					buff_cnt <= 15;
+				end
+				else begin
+					buff_cnt <= 7;
+					spi_buffer[7:0] <= rom_buffer[tx_cnt];
+				end
+				if(tx_cnt>FILE_LEN) spi_st <= SPI_END;
 			end
 		end
 		SPI_END: spi_clkgate <= 1'b0;
