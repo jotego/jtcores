@@ -26,6 +26,7 @@ module jtgng_game(
 	input			downloading,
 	input	[24:0]	romload_addr,
 	input	[ 7:0]	romload_data,
+	input	[ 7:0]	romload_data_prev,
 	input			romload_wr
 );
 
@@ -170,6 +171,7 @@ jtgng_rom rom (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
+	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	)	
 );
 

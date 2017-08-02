@@ -71,7 +71,9 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         Bank0[{4'd6, 4'd0, 12'd0}] = 16'h6; // scr0 ROM
         Bank0[{4'd7, 4'd0, 12'd0}] = 16'h7; // scr1 ROM
         `else
-        $readmemh("../../../rom/gng.hex",  Bank0);
+        	`ifndef LOADROM
+        		$readmemh("../../../rom/gng.hex",  Bank0);
+        	`endif
         `endif
     end
 

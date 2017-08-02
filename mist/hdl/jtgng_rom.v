@@ -68,7 +68,7 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
 assign { romload_row, romload_col } = romload_addr[24:1];
 
-wire SDRAM_WRITE = we && state==SET_WRITE;
+wire SDRAM_WRITE = (we || romload_wr16) && state==SET_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
 	( romload_wr16 ? {romload_data, romload_data_prev} : din ) : 
 	16'hzz;

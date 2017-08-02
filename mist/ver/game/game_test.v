@@ -87,7 +87,7 @@ wire [ 1:0] SDRAM_BA;
 
 wire			downloading;
 wire	[24:0]	romload_addr;
-wire	[ 7:0]	romload_data;
+wire	[ 7:0]	romload_data, romload_data_prev;
 wire			romload_wr;
 
 
@@ -117,6 +117,7 @@ jtgng_game UUT (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
+	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	)
 );
 
@@ -241,7 +242,7 @@ localparam FILE_LEN = 794633;
 
 always @(posedge clk_rgb or posedge rst) begin
 	if( rst ) begin 
-		tx_cnt <= 0;
+		tx_cnt <= 2500;
 		spi_st <= 0;
 		spi_buffer <= { UIO_FILE_TX, 8'hff };
 		spi_clkgate <= 1'b1;
@@ -250,7 +251,9 @@ always @(posedge clk_rgb or posedge rst) begin
 	end
 	else
 	case( spi_st )
-		SPI_INIT: begin
+		SPI_INIT: 
+		if( tx_cnt ) tx_cnt <= tx_cnt-1; // wait for SDRAM to be ready
+		else begin
 			SPI_SS2 <= 1'b0;
 			SPI_DI <= spi_buffer[buff_cnt];
 			if( buff_cnt==0 ) begin
@@ -298,7 +301,8 @@ data_io datain (
 	.clk        (SDRAM_CLK    ),
 	.wr         (romload_wr   ),
 	.addr       (romload_addr ),
-	.data       (romload_data )
+	.data       (romload_data ),
+	.data_prev       (romload_data_prev )
 );
 
 `else 

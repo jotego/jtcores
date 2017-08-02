@@ -59,8 +59,9 @@ reg downloading_reg = 1'b0;
 
 // data_io has its own SPI interface to the io controller
 always@(posedge sck, posedge ss) begin
-	if(ss == 1'b1)
+	if(ss == 1'b1) begin
 		cnt <= 5'd0;
+	end
 	else begin
 		rclk <= 1'b0;
 

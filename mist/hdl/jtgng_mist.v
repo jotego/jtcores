@@ -46,7 +46,7 @@ wire downloading;
 // wire [4:0] index;
 wire romload_wr;
 wire [24:0] romload_addr;
-wire [7:0] romload_data;
+wire [7:0] romload_data, romload_data_prev;
 data_io datain (
 	.sck        (SPI_SCK      ),
 	.ss         (SPI_SS2      ),
@@ -56,7 +56,8 @@ data_io datain (
 	.clk        (SDRAM_CLK    ),
 	.wr         (romload_wr   ),
 	.addr       (romload_addr ),
-	.data       (romload_data )
+	.data       (romload_data ),
+	.data_prev  (romload_data_prev )
 );
 
 wire [7:0] joystick_0, joystick_1, joystick;
@@ -128,6 +129,7 @@ jtgng_game game (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
+	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	)
 );
 
