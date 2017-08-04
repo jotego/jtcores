@@ -12,24 +12,38 @@ module game_test;
 		// #(200*100*1000*1000);
 		$display("DUMP ON");
 		$dumpfile("test.lxt");
-		//$dumpvars(0,UUT);
-		$dumpvars(0,game_test);
-		//$dumpvars(0,UUT.chargen);
+		`ifdef LOADROM
+			$dumpvars(1,game_test);
+			$dumpvars(1,game_test.UUT.rom);
+		`else
+			//$dumpvars(0,UUT);
+			$dumpvars(0,game_test);
+			//$dumpvars(0,UUT.chargen);
+		`endif
 		$dumpon;
 	end
 	`endif
 
-	initial #(200*1000) $finish;
+	// initial #(200*1000) $finish;
 	// initial #(60*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
-/*
+
+	initial begin
+		#(1*1000*1000);
+		forever begin
+			#(100*1000);
+			if(!downloading) #(100*1000) $finish;
+		end
+	end
+
 	integer fincnt;
 	initial begin
-		for( fincnt=0; fincnt<50; fincnt=fincnt+1 )
-			#(100*1000*1000);
+		for( fincnt=0; fincnt<1000; fincnt=fincnt+1 ) begin
+			#(1000*1000); // ms
+		end
 		$finish;
 	end
-*/
+
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
 initial begin
@@ -187,14 +201,14 @@ end
 integer frame_cnt;
 reg enter_hbl, enter_vbl;
 always @(posedge clk_pxl) begin
-	if( rst ) begin
+	if( rst || downloading ) begin
 		enter_hbl <= 1'b0;
 		enter_vbl <= 1'b0;
 		frame_cnt <= 0;
 	end else begin
 		enter_hbl <= LHBL;
 		enter_vbl <= LVBL;
-		if( enter_vbl != LVBL && !LVBL) begin
+		if( enter_vbl != LVBL && !LVBL ) begin
 			$write(")]\n# New frame\nframe_%d=[(\n", frame_cnt);
 			frame_cnt <= frame_cnt + 1;
 		end
@@ -221,7 +235,7 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 32'd794633;
+localparam TX_LEN			= 100; // 32'd794633;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
@@ -234,11 +248,9 @@ end
 integer tx_cnt, spi_st, next, buff_cnt;
 reg spi_clkgate;
 
-localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3;
+localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3, SPI_UNSET=4;
 assign SPI_SCK = clk_rgb & spi_clkgate;
 reg [15:0] spi_buffer;
-
-localparam FILE_LEN = 794633;
 
 always @(posedge clk_rgb or posedge rst) begin
 	if( rst ) begin 
@@ -277,18 +289,23 @@ always @(posedge clk_rgb or posedge rst) begin
 			end
 			else begin
 				tx_cnt <= tx_cnt + 1;
-				if(tx_cnt==FILE_LEN) begin
-					spi_buffer <= {UIO_FILE_TX, 8'd0};
-					buff_cnt <= 15;
+				if(tx_cnt==TX_LEN) begin
+					SPI_SS2 <= 1'b1;
+					spi_st <= SPI_UNSET;
 				end
 				else begin
 					buff_cnt <= 7;
 					spi_buffer[7:0] <= rom_buffer[tx_cnt];
 				end
-				if(tx_cnt>FILE_LEN) spi_st <= SPI_END;
+				if(tx_cnt>TX_LEN) spi_st <= SPI_END;
 			end
 		end
 		SPI_END: spi_clkgate <= 1'b0;
+		SPI_UNSET: begin
+			spi_buffer <= {UIO_FILE_TX, 8'd0};
+			buff_cnt <= 15;
+			spi_st <= SPI_TX;
+		end
 	endcase
 end
 
@@ -302,7 +319,7 @@ data_io datain (
 	.wr         (romload_wr   ),
 	.addr       (romload_addr ),
 	.data       (romload_data ),
-	.data_prev       (romload_data_prev )
+	.data_prev  (romload_data_prev )
 );
 
 `else 

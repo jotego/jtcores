@@ -68,7 +68,7 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
 assign { romload_row, romload_col } = romload_addr[24:1];
 
-wire SDRAM_WRITE = (we || romload_wr16) && state==SET_WRITE;
+reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
 	( romload_wr16 ? {romload_data, romload_data_prev} : din ) : 
 	16'hzz;
@@ -185,6 +185,9 @@ always @(posedge clk)
 			state <= WAIT;
 			next <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;		
 			read_done <= false;
+			// Clear WRITE state:
+			SDRAM_WRITE <= 1'b0;
+			romload_wr16 <= 1'b0;			
 			end
 		WAIT: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
@@ -233,11 +236,11 @@ always @(posedge clk)
 			end		
 		SET_WRITE:begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_WRITE;
+			SDRAM_WRITE <= 1'b1;
 			wait_cnt <= CL_WAIT;
 			state <= WAIT;
 			next  <= SET_PRECHARGE;
 			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_row : wr_col};
-			romload_wr16 <= 1'b0;
 			end		
 	endcase // state
 	end
