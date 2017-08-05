@@ -12,6 +12,9 @@ module jtgng_main(
 	output	redgreen_cs,	
 	output	reg flip,
 	output	reg sres_b,
+	// cabinet I/O
+	input	[7:0]	joystick1,
+	input	[7:0]	joystick2,
 	// SDRAM programming
 	output	reg	[15:0]	sdram_din,
 	output	reg	[12:0]  wr_row,
@@ -30,9 +33,11 @@ module jtgng_main(
 wire [15:0] A;
 wire MRDY_b = ch_mrdy;
 reg nRESET;
+wire in_cs;
 
-reg [7:0] map_cs;
+reg [8:0] map_cs;
 assign { 
+	in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
 	ram_cs, 	char_cs, bank_cs, 		rom_cs 		} = map_cs;
 
@@ -47,17 +52,18 @@ always @(*)
 	// if(!VMA) map_cs = 4'h0;
 	// else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 8'h8; // 0000-1FFF, RAM
+		8'b000x_xxxx: map_cs = 9'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 8'h4; // 2000-27FF
-		8'b0011_1000: map_cs = 8'h20; // 3800-38FF, Red, green
-		8'b0011_1001: map_cs = 8'h40; // 3900-39FF, blue
-		8'b0011_1101: map_cs = 8'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 9'h4; // 2000-27FF
+		8'b0011_0xxx: map_cs = 9'h100; // 3000-37FF input
+		8'b0011_1000: map_cs = 9'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 9'h40; // 3900-39FF, blue
+		8'b0011_1101: map_cs = 9'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 8'h2; // 3E00-3EFF bank
-		8'b0011_1111: map_cs = 8'h80; // 3F00-3FFF SDRAM programming
-		8'b1xxx_xxxx: map_cs = startup ? 8'h8 : 8'h1; // 8000-BFFF, ROM 9N
-		default: map_cs = 8'h0;
+		8'b0011_1110: map_cs = 9'h2; // 3E00-3EFF bank
+		8'b0011_1111: map_cs = 9'h80; // 3F00-3FFF SDRAM programming
+		8'b1xxx_xxxx: map_cs = startup ? 9'h8 : 9'h1; // 8000-BFFF, ROM 9N
+		default: map_cs = 9'h0;
 	endcase
 
 // special registers
@@ -115,6 +121,20 @@ always @(negedge clk)
 			3'd3: coin_cnt2 <= coin_cnt2+cpu_dout[0];
 		endcase
 
+reg [7:0] cabinet_input;
+localparam dipsw_a = 8'd0, dipsw_b = 8'd0;
+
+@always @(joystick1,joystick2)
+	case( cpu_AB[2:0])
+		3'd0: cabinet_input = { 1'b1, joystick1[7] | joystick2[7], 4'1f, joystick2[6], joystick1[6] };
+		3'd1: cabinet_input = { 2'b11, joystick1[5:0] };
+		3'd2: cabinet_input = { 2'b11, joystick2[5:0] };
+		3'd3: cabinet_input = dipsw_a;
+		3'd4: cabinet_input = dipsw_b;
+		default: cabinet_input = 8'hff;
+	endcase
+
+
 // RAM, 8kB
 wire [7:0] ram_dout;
 wire ram_we = ram_cs && !RnW;
@@ -130,6 +150,7 @@ jtgng_mainram RAM(
 
 wire [7:0] cpu_din =({8{ram_cs}}  & ram_dout )	| 
 					({8{char_cs}} & char_dout)	|
+					({8{in_cs}} & cabinet_input)| 
 					({8{rom_cs}}  & rom_dout );
 
 

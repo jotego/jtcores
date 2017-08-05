@@ -114,6 +114,9 @@ jtgng_game game (
 	.LHBL   	( LHBL   	),
 	.LVBL   	( LVBL   	),
 
+	.joystick_0	( joystick_0),
+	.joystick_1	( joystick_1),
+
 	.SDRAM_DQ	( SDRAM_DQ 	),
 	.SDRAM_A	( SDRAM_A 	),
 	.SDRAM_DQML	( SDRAM_DQML),
