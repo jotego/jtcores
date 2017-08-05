@@ -10,24 +10,31 @@ module game_test;
 	`ifdef DUMP
 	initial begin
 		// #(200*100*1000*1000);
-		$display("DUMP ON");
+		$display("DUMP enabled");
 		$dumpfile("test.lxt");
 		`ifdef LOADROM
-			$dumpvars(1,game_test);
-			$dumpvars(1,game_test.UUT.rom);
+			//$dumpvars(1,game_test);
+			//$dumpvars(1,game_test.UUT.rom);
+			$dumpvars(0,game_test);
+			$dumpoff;
 		`else
 			//$dumpvars(0,UUT);
 			$dumpvars(0,game_test);
 			//$dumpvars(0,UUT.chargen);
+			$display("OOHHH!");
+			$dumpon;
 		`endif
-		$dumpon;
 	end
+
 	`endif
+
+
+
 
 	// initial #(200*1000) $finish;
 	// initial #(60*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
-
+/*
 	initial begin
 		#(1*1000*1000);
 		forever begin
@@ -35,7 +42,8 @@ module game_test;
 			if(!downloading) #(100*1000) $finish;
 		end
 	end
-
+*/
+/*
 	integer fincnt;
 	initial begin
 		for( fincnt=0; fincnt<1000; fincnt=fincnt+1 ) begin
@@ -43,7 +51,7 @@ module game_test;
 		end
 		$finish;
 	end
-
+*/
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
 initial begin
@@ -205,7 +213,7 @@ always @(posedge clk_pxl) begin
 		enter_hbl <= 1'b0;
 		enter_vbl <= 1'b0;
 		frame_cnt <= 0;
-	end else begin
+	end else if(!downloading) begin
 		enter_hbl <= LHBL;
 		enter_vbl <= LVBL;
 		if( enter_vbl != LVBL && !LVBL ) begin
@@ -235,7 +243,7 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 100; // 32'd794633;
+localparam TX_LEN			= 32'd794633;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
@@ -246,7 +254,7 @@ initial begin
 end
 
 integer tx_cnt, spi_st, next, buff_cnt;
-reg spi_clkgate;
+reg spi_clkgate, spi_done;
 
 localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3, SPI_UNSET=4;
 assign SPI_SCK = clk_rgb & spi_clkgate;
@@ -260,19 +268,22 @@ always @(posedge clk_rgb or posedge rst) begin
 		spi_clkgate <= 1'b1;
 		SPI_SS2 <= 1'b1;
 		buff_cnt <= 15;
+		spi_done <= 1'b0;		
 	end
 	else
 	case( spi_st )
-		SPI_INIT: 
-		if( tx_cnt ) tx_cnt <= tx_cnt-1; // wait for SDRAM to be ready
+		SPI_INIT: begin
+			if( tx_cnt ) tx_cnt <= tx_cnt-1; // wait for SDRAM to be ready
 		else begin
 			SPI_SS2 <= 1'b0;
 			SPI_DI <= spi_buffer[buff_cnt];
 			if( buff_cnt==0 ) begin
+				$display("SPI transfer begings");
 				spi_st <= SPI_SET;
 			end
 			else
 				buff_cnt <= buff_cnt-1;
+			end
 		end
 		SPI_SET: begin
 			SPI_SS2 <= 1'b1;
@@ -300,7 +311,10 @@ always @(posedge clk_rgb or posedge rst) begin
 				if(tx_cnt>TX_LEN) spi_st <= SPI_END;
 			end
 		end
-		SPI_END: spi_clkgate <= 1'b0;
+		SPI_END: begin
+			spi_done <= 1'b1;
+			spi_clkgate <= 1'b0;
+		end
 		SPI_UNSET: begin
 			spi_buffer <= {UIO_FILE_TX, 8'd0};
 			buff_cnt <= 15;
@@ -308,6 +322,15 @@ always @(posedge clk_rgb or posedge rst) begin
 		end
 	endcase
 end
+
+always @(spi_done)
+	if(spi_done) begin
+		$display("ROM loading completed");
+		`ifdef DUMP
+		$dumpon;
+		`endif
+		#(20*1000*1000) $finish;
+	end
 
 data_io datain (
 	.sck        (SPI_SCK      ),

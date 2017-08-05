@@ -101,11 +101,15 @@ always @(posedge clk)
 			4'd4: 		{row_addr, col_addr} <= { 4'b01, 2'b11,   scr_addr }; // 15:0 E ROMs
 		endcase	
 		// auto refresh request
-		case(rd_state)	
-			4'd8: autorefresh <= true;
-			default: autorefresh <= false;
-		endcase
-		rd_state <= rd_state==4'd10 ? 4'd0: rd_state+4'b1;
+		if( downloading )
+			autorefresh <= true;
+		else begin
+			case(rd_state)	
+				4'd8: autorefresh <= true;
+				default: autorefresh <= false;
+			endcase
+			rd_state <= rd_state==4'd10 ? 4'd0: rd_state+4'b1;
+		end
 	end
 
 reg  [1:0] cl_cnt;
@@ -128,9 +132,14 @@ localparam INITIALIZE = 4'd0, IDLE=4'd1, WAIT=4'd2, ACTIVATE=4'd3,
 			SET_WRITE=4'd11;
 
 reg [3:0] wait_cnt;
+reg write_done;
 localparam PRECHARGE_WAIT = 4'd1, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
 
 wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
+
+`ifdef SIMULATION
+integer sdram_writes = 0;
+`endif
 
 always @(posedge clk)
 	if( rst ) begin
@@ -140,6 +149,7 @@ always @(posedge clk)
 		{ wait_cnt, SDRAM_A } <= 8400;
 		read_done <= false;
 		ready <= false;
+		write_done <= 1'b0;
 	end else  begin
 	if( romload_wr & romload_addr[0] ) romload_wr16 <= 1'b1;
 	case( state )
@@ -187,7 +197,10 @@ always @(posedge clk)
 			read_done <= false;
 			// Clear WRITE state:
 			SDRAM_WRITE <= 1'b0;
-			romload_wr16 <= 1'b0;			
+			if( write_done ) begin
+				romload_wr16 <= 1'b0;			
+				write_done <= false;
+			end
 			end
 		WAIT: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
@@ -210,7 +223,10 @@ always @(posedge clk)
 			end		
 		READ: begin
 			read_done <= true;
-			state <=  (we||romload_wr16) ? SET_PRECHARGE_WR : SET_PRECHARGE;
+			if( downloading && romload_wr16 )
+				state <=  SET_PRECHARGE_WR; // it stays on READ state until romload_wr16 asserted
+			else if( !downloading )
+				state <=  we ? SET_PRECHARGE_WR : SET_PRECHARGE;
 			end
 		AUTO_REFRESH1: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <=	CMD_AUTOREFRESH;
@@ -241,6 +257,10 @@ always @(posedge clk)
 			state <= WAIT;
 			next  <= SET_PRECHARGE;
 			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_row : wr_col};
+			write_done <= true;
+			`ifdef SIMULATION
+				sdram_writes = sdram_writes + 2;
+			`endif
 			end		
 	endcase // state
 	end
