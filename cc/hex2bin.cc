@@ -27,21 +27,18 @@ int main() {
 			string aux(&line[1]);
 			stringstream xt(aux);
 			xt >> hex >> next;
-		}
-		else next=-1;
-		if( next==-1 || addr==next ) {
-			write( line, of );
-			addr++;
-		}
-		else {
-			cout << "Avanza hasta " << hex << next << endl;
+			cout << "Avanza hasta " << hex << next << " desde " << addr << endl;
 			while( addr < next ) {
-				char zero=0;
-				of.write( &zero,1 );
+				int zero=0;
+				of.write( (char*) &zero, 2 );
 				addr++;
 			}
 		}
-		// cout << addr << endl;
+		else {
+			write( line, of );
+			addr++;
+		}
 	}
+	cout << "Final: " << hex << addr << endl;
 	return 0;
 }

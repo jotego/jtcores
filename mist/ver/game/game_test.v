@@ -16,24 +16,22 @@ module game_test;
 			//$dumpvars(1,game_test);
 			//$dumpvars(1,game_test.UUT.rom);
 			$dumpvars(0,game_test);
-			$dumpoff;
+			$dumpon;
 		`else
 			//$dumpvars(0,UUT);
 			$dumpvars(0,game_test);
 			//$dumpvars(0,UUT.chargen);
-			$display("OOHHH!");
 			$dumpon;
 		`endif
 	end
 
 	`endif
 
-
-
-
+`ifndef LOADROM
 	// initial #(200*1000) $finish;
-	// initial #(60*1000*1000) $finish;
+	initial #(120*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
+`endif
 /*
 	initial begin
 		#(1*1000*1000);
@@ -243,7 +241,7 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 32'd794633;
+localparam TX_LEN			= 32'hF0000; // 32'd983042;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
@@ -300,6 +298,7 @@ always @(posedge clk_rgb or posedge rst) begin
 			end
 			else begin
 				tx_cnt <= tx_cnt + 1;
+				$display("tx_cnt %X",tx_cnt);
 				if(tx_cnt==TX_LEN) begin
 					SPI_SS2 <= 1'b1;
 					spi_st <= SPI_UNSET;
@@ -329,7 +328,7 @@ always @(spi_done)
 		`ifdef DUMP
 		$dumpon;
 		`endif
-		#(20*1000*1000) $finish;
+		#(120*1000*1000) $finish;
 	end
 
 data_io datain (

@@ -940,6 +940,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             end
 
             // Write to memory
+            // $display("WRITE: Bank %d, Row %X, Col %x, Value %x ", Bank, Row, Col, Dq_dqm);
             case (Bank)
                 2'b00 : Bank0 [{Row, Col}] = Dq_dqm;
                 2'b01 : Bank1 [{Row, Col}] = Dq_dqm;

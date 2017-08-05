@@ -57,16 +57,14 @@ localparam false=1'b0, true=1'b1;
 
 reg  [addr_w-1:0] 	row_addr;
 reg  [col_w-1:0] col_cnt, col_addr;
-wire [addr_w-1:0] romload_row;
-wire [col_w-1:0]  romload_col;
+reg [addr_w-1:0] romload_row;
+reg [col_w-1:0]  romload_col;
 
 reg [3:0] rd_state;
 reg	read_done, autorefresh;
 
 wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
-
-assign { romload_row, romload_col } = romload_addr[24:1];
 
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
@@ -150,8 +148,12 @@ always @(posedge clk)
 		read_done <= false;
 		ready <= false;
 		write_done <= 1'b0;
+		romload_wr16 <= false;
 	end else  begin
-	if( romload_wr & romload_addr[0] ) romload_wr16 <= 1'b1;
+	if( romload_wr & romload_addr[0] ) begin
+		romload_wr16 <= 1'b1;
+		{ romload_row, romload_col } = romload_addr[24:1];
+	end
 	case( state )
 		default: state <= SET_PRECHARGE;
 		INITIALIZE: begin
@@ -256,7 +258,7 @@ always @(posedge clk)
 			wait_cnt <= CL_WAIT;
 			state <= WAIT;
 			next  <= SET_PRECHARGE;
-			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_row : wr_col};
+			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_col : wr_col};
 			write_done <= true;
 			`ifdef SIMULATION
 				sdram_writes = sdram_writes + 2;
