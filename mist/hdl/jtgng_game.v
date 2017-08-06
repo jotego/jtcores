@@ -10,6 +10,9 @@ module jtgng_game(
 	output	 [3:0] 	blue,
 	output			LHBL,
 	output			LVBL,
+	// cabinet I/O
+	input	[7:0]	joystick1,
+	input	[7:0]	joystick2,	
 	// SDRAM interface
 	inout  [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
 	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
@@ -122,6 +125,8 @@ jtgng_main main (
 	.RnW	 	( RnW			),
 	.rom_addr	( main_addr 	),
 	.rom_dout	( main_dout 	),
+	.joystick1	( joystick1		),
+	.joystick2	( joystick2		),	
 	// SDRAM programming
 	.sdram_din	( sdram_din		),
 	.wr_row		( wr_row		),

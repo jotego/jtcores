@@ -60,9 +60,9 @@ data_io datain (
 	.data_prev  (romload_data_prev )
 );
 
-wire [7:0] joystick_0, joystick_1, joystick;
+wire [7:0] joystick1, joystick2; //, joystick;
 
-assign joystick = joystick_0; // | joystick_1;
+// assign joystick = joystick_0; // | joystick_1;
 
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.conf_str	( CONF_STR		),
@@ -70,8 +70,8 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.SPI_SS_IO	( CONF_DATA0	),
 	.SPI_MISO	( SPI_DO		),
 	.SPI_MOSI	( SPI_DI		),
-	.joystick_0	( joystick_0	),
-	.joystick_1	( joystick_1	)
+	.joystick_0	( joystick1		),
+	.joystick_1	( joystick2		)
 );
 
 
@@ -114,8 +114,8 @@ jtgng_game game (
 	.LHBL   	( LHBL   	),
 	.LVBL   	( LVBL   	),
 
-	.joystick_0	( joystick_0),
-	.joystick_1	( joystick_1),
+	.joystick1	( joystick_0),
+	.joystick2	( joystick_1),
 
 	.SDRAM_DQ	( SDRAM_DQ 	),
 	.SDRAM_A	( SDRAM_A 	),
