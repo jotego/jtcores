@@ -62,6 +62,7 @@ always @(*)
 
 		8'b0011_1110: map_cs = 9'h2; // 3E00-3EFF bank
 		8'b0011_1111: map_cs = 9'h80; // 3F00-3FFF SDRAM programming
+		8'b01xx_xxxx: map_cs = 9'h1; // ROMs
 		8'b1xxx_xxxx: map_cs = startup ? 9'h8 : 9'h1; // 8000-BFFF, ROM 9N
 		default: map_cs = 9'h0;
 	endcase
@@ -82,6 +83,7 @@ always @(negedge clk)
 				startup <= 1'b0; 
 				nRESET <= 1'b0; // Resets CPU
 			end
+			if( cpu_dout[6] && startup ) startup <= 1'b0; // clear startup without reset
 		end
 		else nRESET <= ~rst;
 	end
@@ -122,7 +124,7 @@ always @(negedge clk)
 		endcase
 
 reg [7:0] cabinet_input;
-localparam dipsw_a = 8'd0, dipsw_b = 8'd0;
+localparam dipsw_a = 8'h80, dipsw_b = 8'h00;
 /*
 reg [7:0] joystick1_sync, joystick2_sync;
 

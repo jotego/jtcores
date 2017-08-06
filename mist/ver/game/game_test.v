@@ -29,7 +29,7 @@ module game_test;
 
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(500*1000*1000) $finish;
+	initial #(2*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
 `endif
 /*
