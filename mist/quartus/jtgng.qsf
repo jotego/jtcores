@@ -149,6 +149,7 @@ set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
+set_global_assignment -name VERILOG_FILE ../hdl/osd.v
 set_global_assignment -name VERILOG_FILE ../hdl/user_io.v
 set_global_assignment -name VERILOG_FILE ../hdl/data_io.v
 set_global_assignment -name SDC_FILE jtgng.sdc

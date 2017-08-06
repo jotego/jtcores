@@ -8,25 +8,6 @@ RESET:
 	STA $3D00	; FLIP
 
 	; BRA FIN
-	LDA #$40
-	STA $3E00	; Clears start up signal
-	CLRB
-	LDX #$4001
-@L:		
-	LDA ,X
-	INCB
-	CMPB #5
-	BEQ @L2
-	STB $3E00
-	BRA @L
-@L2:
-	LDX #$6001
-	LDA ,X
-	LDX #$8001
-	LDA ,X
-	LDX #$C001
-	LDA ,X
-
 	LDA #1
 	STA $1000	; FLAG
 	ANDCC #$EF

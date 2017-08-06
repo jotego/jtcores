@@ -3,6 +3,7 @@
 module jtgng_main(
 	input	clk,	// 6MHz
 	input	rst,
+	input	soft_rst,
 	input	ch_mrdy,
 	input	[7:0] char_dout,
 	input	LVBL,	// vertical blanking when 0
@@ -27,7 +28,12 @@ module jtgng_main(
 	output		RnW,
 	// ROM access
 	output	reg [17:0] rom_addr,
-	input	[ 7:0] rom_dout
+	input	[ 7:0] rom_dout,
+	// DIP switches
+	input	dip_noflip,
+	input	dip_game_mode,
+	input	dip_attract_snd,
+	input	dip_upright
 );
 
 wire [15:0] A;
@@ -85,7 +91,7 @@ always @(negedge clk)
 			end
 			if( cpu_dout[6] && startup ) startup <= 1'b0; // clear startup without reset
 		end
-		else nRESET <= ~rst;
+		else nRESET <= ~(rst | soft_rst);
 	end
 
 // SDRAM programming
@@ -124,10 +130,6 @@ always @(negedge clk)
 		endcase
 
 reg [7:0] cabinet_input;
-wire dip_noflip		= 1'b1;
-wire dip_game_mode	= 1'b1; // 0 for test
-wire dip_attract_snd= 1'b1;
-wire dip_upright	= 1'b1;
 wire [7:0] dipsw_a = { dip_noflip, dip_game_mode, dip_attract_snd, 5'b0 };
 wire [7:0] dipsw_b = { 5'd0, dip_upright, 2'd0 };
 /*

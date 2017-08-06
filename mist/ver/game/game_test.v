@@ -29,7 +29,7 @@ module game_test;
 
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(2*1000*1000) $finish;
+	initial #(120*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
 `endif
 /*
@@ -64,7 +64,7 @@ end
 
 initial begin
 	clk_rgb =1'b0;
-	forever clk_rgb  = #20.835 ~clk_rgb ; //20.25
+	forever clk_rgb  = #20.835 ~clk_rgb ; //24
 end
 
 reg rst_base;

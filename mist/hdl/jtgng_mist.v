@@ -37,10 +37,18 @@ wire locked;
 
 
 parameter CONF_STR = {
-        "JTGNG;JTGNG;"
+	//	 000000000111111111122222222222
+	//   123456789012345678901234567890
+        "JTGNG;;",
+        "O1,Test mode,ON,OFF;",
+        "O2,Cabinet mode,OFF,ON;",
+        "O3,Flip,OFF,ON;",
+        "O4,Attract sound,ON,OFF;",
+        "T5,Reset;",
+        "V,v0.1;"
 };
 
-parameter CONF_STR_LEN = 12;
+parameter CONF_STR_LEN = 7+20+23+15+24+9+7;
 
 wire downloading;
 // wire [4:0] index;
@@ -60,7 +68,7 @@ data_io datain (
 	.data_prev  (romload_data_prev )
 );
 
-wire [7:0] joystick1, joystick2; //, joystick;
+wire [7:0] status, joystick1, joystick2; //, joystick;
 
 // assign joystick = joystick_0; // | joystick_1;
 
@@ -72,6 +80,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.SPI_DI		( SPI_DI	),
 	.joystick_0	( joystick1	),
 	.joystick_1	( joystick2	),
+	.status		( status	),
 	// unused ports:
 	.ps2_clk	( 1'b0		),
 	.serial_strobe( 1'b0	),
@@ -100,19 +109,16 @@ jtgng_pll1 clk_gen2 (
 	.c0		( clk_vga	) // 25
 );
 
-// convert 4-bit colour to 6-bit colour
-// 1 LSB error on codes 3 and 12, rest are exact
-assign VGA_R[1:0] = VGA_R[5:4];
-assign VGA_G[1:0] = VGA_G[5:4];
-assign VGA_B[1:0] = VGA_B[5:4];
-
 
 reg rst=1'b1;
 reg [2:0] rst_aux=3'b111;
 
 always @(posedge clk_gng)
-	if(rst)
-		{rst, rst_aux} <= {rst_aux,1'b0};
+	/*if( status[5]) begin
+		rst		<= 1'b1;
+		rst_aux <= 3'b111;
+	end
+	else*/ {rst, rst_aux} <= {rst_aux,1'b0};
 
 	wire [3:0] red;
 	wire [3:0] green;
@@ -121,6 +127,7 @@ always @(posedge clk_gng)
 	wire LVBL;
 jtgng_game game (
 	.rst    	( rst    	),
+	.soft_rst	( status[5]	),
 	.clk_rom	( clk_rom	),  // 81 MHz
 	.clk    	( clk_gng	),  //  6 MHz
 	.clk_rgb	( clk_rgb	),	// 36 MHz
@@ -130,8 +137,8 @@ jtgng_game game (
 	.LHBL   	( LHBL   	),
 	.LVBL   	( LVBL   	),
 
-	.joystick1	(~joystick_0),
-	.joystick2	(~joystick_1),
+	.joystick1	(~joystick1	),
+	.joystick2	(~joystick2	),
 
 	.SDRAM_DQ	( SDRAM_DQ 	),
 	.SDRAM_A	( SDRAM_A 	),
@@ -149,8 +156,23 @@ jtgng_game game (
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
 	.romload_data_prev( romload_data_prev ),
-	.romload_wr	( romload_wr	)
+	.romload_wr	( romload_wr	),
+	// DIP switches
+	.dip_game_mode	( status[1]	),
+	.dip_upright	( status[2]	),
+	.dip_noflip		( ~status[3]),
+	.dip_attract_snd( status[4]	)
 );
+
+wire [5:0] GNG_R, GNG_G, GNG_B;
+
+// convert 4-bit colour to 6-bit colour
+// 1 LSB error on codes 3 and 12, rest are exact
+assign GNG_R[1:0] = GNG_R[5:4];
+assign GNG_G[1:0] = GNG_G[5:4];
+assign GNG_B[1:0] = GNG_B[5:4];
+
+wire vga_hsync, vga_vsync;
 
 jtgng_vga vga_conv (
 	.clk_gng  	( clk_gng		), //  6 MHz
@@ -161,12 +183,33 @@ jtgng_vga vga_conv (
 	.blue     	( blue			),
 	.LHBL     	( LHBL			),
 	.LVBL     	( LVBL			),
-	.vga_red  	( VGA_R[5:2]	),
-	.vga_green	( VGA_G[5:2]	),
-	.vga_blue 	( VGA_B[5:2]	),
-	.vga_hsync	( VGA_HS		),
-	.vga_vsync	( VGA_VS		)
+	.vga_red  	( GNG_R[5:2]	),
+	.vga_green	( GNG_G[5:2]	),
+	.vga_blue 	( GNG_B[5:2]	),
+	.vga_hsync	( vga_hsync		),
+	.vga_vsync	( vga_vsync		)
 );
 
+// include the on screen display
+osd #(0,0,4) osd (
+   .pclk       ( clk_vga	  ),
+
+   // spi for OSD
+   .sdi        ( SPI_DI       ),
+   .sck        ( SPI_SCK      ),
+   .ss         ( SPI_SS3      ),
+
+   .red_in     ( GNG_R		),
+   .green_in   ( GNG_G		),
+   .blue_in    ( GNG_B		),
+   .hs_in      ( vga_hsync	),
+   .vs_in      ( vga_vsync	),
+
+   .red_out    ( VGA_R        ),
+   .green_out  ( VGA_G        ),
+   .blue_out   ( VGA_B        ),
+   .hs_out     ( VGA_HS       ),
+   .vs_out     ( VGA_VS       )
+);
 
 endmodule // jtgng_mist

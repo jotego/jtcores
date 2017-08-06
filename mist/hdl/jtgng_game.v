@@ -2,6 +2,7 @@
 
 module jtgng_game(
 	input			rst,
+	input			soft_rst,
 	input			clk_rom, 	//  81   MHz
 	input			clk,  	 	//   6   MHz
 	input			clk_rgb,	// 6*4 = 24MHz
@@ -30,7 +31,12 @@ module jtgng_game(
 	input	[24:0]	romload_addr,
 	input	[ 7:0]	romload_data,
 	input	[ 7:0]	romload_data_prev,
-	input			romload_wr
+	input			romload_wr,
+	// DIP switches
+	input			dip_noflip,
+	input			dip_game_mode,
+	input			dip_attract_snd,
+	input			dip_upright	
 );
 
 	wire [8:0] V;
@@ -112,6 +118,7 @@ jtgng_colmix colmix (
 jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
+	.soft_rst	( soft_rst		),
 	.ch_mrdy  	( char_mrdy		),
 	.char_dout	( chram_dout	),
 	.LVBL     	( LVBL     		),
@@ -131,7 +138,12 @@ jtgng_main main (
 	.sdram_din	( sdram_din		),
 	.wr_row		( wr_row		),
 	.wr_col		( wr_col		),
-	.sdram_we	( sdram_we		)
+	.sdram_we	( sdram_we		),
+	// DIP switches
+	.dip_noflip		( dip_noflip		),
+	.dip_game_mode	( dip_game_mode		),
+	.dip_attract_snd( dip_attract_snd	),
+	.dip_upright	( dip_upright		)
 );
 
 
