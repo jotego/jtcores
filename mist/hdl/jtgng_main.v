@@ -123,8 +123,16 @@ always @(negedge clk)
 
 reg [7:0] cabinet_input;
 localparam dipsw_a = 8'd0, dipsw_b = 8'd0;
+/*
+reg [7:0] joystick1_sync, joystick2_sync;
 
-always @(joystick1,joystick2)
+// 1 FF synchronizer
+always @(posedge clk) begin
+	joystick1_sync <= joystick1;
+	joystick2_sync <= joystick2;
+end
+*/
+always @(*)
 	case( cpu_AB[2:0])
 		3'd0: cabinet_input = { 1'b1, joystick1[7] | joystick2[7], 4'hf, joystick2[6], joystick1[6] };
 		3'd1: cabinet_input = { 2'b11, joystick1[5:0] };
@@ -148,11 +156,13 @@ jtgng_mainram RAM(
 	.q			( ram_dout		)
 );
 
-wire [7:0] cpu_din =({8{ram_cs}}  & ram_dout )	| 
-					({8{char_cs}} & char_dout)	|
-					({8{in_cs}} & cabinet_input)| 
-					({8{rom_cs}}  & rom_dout );
+reg [7:0] cpu_din;
 
+always @(posedge clk)
+ 	cpu_din <=  ({8{ram_cs}}  & ram_dout )	| 
+				({8{char_cs}} & char_dout)	|
+				({8{in_cs}} & cabinet_input)| 
+				({8{rom_cs}}  & rom_dout );
 
 always @(A,bank) begin
 	rom_addr[12:0] = A[12:0];

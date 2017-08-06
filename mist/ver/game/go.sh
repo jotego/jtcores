@@ -15,11 +15,18 @@ RAM_INFO=NORAM_INFO
 FIRMWARE=gng_test.s
 VGACONV=NOVGACONV
 LOADROM=NOLOADROM
+FIRMONLY=NOFIRMONLY
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
 		DUMP=DUMP
 		echo Signal dump enabled
+		shift
+		continue
+	fi
+	if [ "$1" = "-firm" ]; then
+		FIRMONLY=FIRMONLY
+		echo Firmware dump only
 		shift
 		continue
 	fi
@@ -90,7 +97,7 @@ file.write("END;")
 XXX
 cp jtgng_firmware.mif ../../quartus 
 
-#exit 0
+if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))

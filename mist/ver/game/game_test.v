@@ -29,7 +29,7 @@ module game_test;
 
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(120*1000*1000) $finish;
+	initial #(500*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
 `endif
 /*
@@ -133,8 +133,8 @@ jtgng_game UUT (
 	.SDRAM_BA	( SDRAM_BA 	),
 	.SDRAM_CLK	( SDRAM_CLK ),
 	.SDRAM_CKE	( SDRAM_CKE ),
-	.joystick1	( 8'hff		),
-	.joystick2	( 8'hff		),
+	.joystick1	( 8'h55		),
+	.joystick2	( 8'haa		),
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),

@@ -39,6 +39,8 @@ set_time_format -unit ns -decimal_places 3
 #**************************************************************
 
 create_clock -name {CLOCK_27[0]} -period 37.037 -waveform { 0.000 18.518 } [get_ports {CLOCK_27[0]}]
+# Is this the right frequency? (32MHz)
+create_clock -name {SPI_SCK} -period 31.25
 
 
 #**************************************************************

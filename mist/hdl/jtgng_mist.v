@@ -37,10 +37,10 @@ wire locked;
 
 
 parameter CONF_STR = {
-        "JTGNG;;"
+        "JTGNG;JTGNG;"
 };
 
-parameter CONF_STR_LEN = 7;
+parameter CONF_STR_LEN = 12;
 
 wire downloading;
 // wire [4:0] index;
@@ -65,13 +65,23 @@ wire [7:0] joystick1, joystick2; //, joystick;
 // assign joystick = joystick_0; // | joystick_1;
 
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
-	.conf_str	( CONF_STR		),
-	.SPI_CLK	( SPI_SCK		),
-	.SPI_SS_IO	( CONF_DATA0	),
-	.SPI_MISO	( SPI_DO		),
-	.SPI_MOSI	( SPI_DI		),
-	.joystick_0	( joystick1		),
-	.joystick_1	( joystick2		)
+	.conf_str	( CONF_STR	),
+	.SPI_SCK	( SPI_SCK	),
+	.CONF_DATA0	( CONF_DATA0),
+	.SPI_DO		( SPI_DO	),
+	.SPI_DI		( SPI_DI	),
+	.joystick_0	( joystick1	),
+	.joystick_1	( joystick2	),
+	// unused ports:
+	.ps2_clk	( 1'b0		),
+	.serial_strobe( 1'b0	),
+	.serial_data( 8'd0		),
+	.sd_lba		( 32'd0		),
+	.sd_rd		( 1'b0		),
+	.sd_wr		( 1'b0		),
+	.sd_conf	( 1'b0		),
+	.sd_sdhc	( 1'b0		),
+	.sd_din		( 8'd0		)
 );
 
 
