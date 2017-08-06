@@ -84,14 +84,20 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.sd_din		( 8'd0		)
 );
 
+wire clk24;
 
 jtgng_pll0 clk_gen (
 	.inclk0	( CLOCK_27[0] ),
 	.c0		( clk_gng	), //  6
 	.c1		( clk_rgb	), // 36
 	.c2		( clk_rom	), // 81
-	.c3		( clk_vga	), // 24.923, would prefer 25.0!!
+	.c3		( clk24		), // 24
 	.locked	( locked	)
+);
+
+jtgng_pll1 clk_gen2 (
+	.inclk0	( clk24 	),
+	.c0		( clk_vga	) // 25
 );
 
 // convert 4-bit colour to 6-bit colour
