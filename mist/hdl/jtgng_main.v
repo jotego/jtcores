@@ -124,7 +124,12 @@ always @(negedge clk)
 		endcase
 
 reg [7:0] cabinet_input;
-localparam dipsw_a = 8'h80, dipsw_b = 8'h00;
+wire dip_noflip		= 1'b1;
+wire dip_game_mode	= 1'b1; // 0 for test
+wire dip_attract_snd= 1'b1;
+wire dip_upright	= 1'b1;
+wire [7:0] dipsw_a = { dip_noflip, dip_game_mode, dip_attract_snd, 5'b0 };
+wire [7:0] dipsw_b = { 5'd0, dip_upright, 2'd0 };
 /*
 reg [7:0] joystick1_sync, joystick2_sync;
 
