@@ -13,6 +13,10 @@ module jtgng_main(
 	output	redgreen_cs,	
 	output	reg flip,
 	output	reg sres_b,
+	// scroll
+	input			scr_mrdy,
+	input	[7:0]	scr_dout,
+	output			scr_cs,
 	// cabinet I/O
 	input	[7:0]	joystick1,
 	input	[7:0]	joystick2,
@@ -37,13 +41,13 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire MRDY_b = ch_mrdy;
+wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
 
 reg [8:0] map_cs;
 assign { 
-	in_cs,
+	scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
 	ram_cs, 	char_cs, bank_cs, 		rom_cs 		} = map_cs;
 
@@ -58,19 +62,20 @@ always @(*)
 	// if(!VMA) map_cs = 4'h0;
 	// else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 9'h8; // 0000-1FFF, RAM
+		8'b000x_xxxx: map_cs = 10'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 9'h4; // 2000-27FF
-		8'b0011_0xxx: map_cs = 9'h100; // 3000-37FF input
-		8'b0011_1000: map_cs = 9'h20; // 3800-38FF, Red, green
-		8'b0011_1001: map_cs = 9'h40; // 3900-39FF, blue
-		8'b0011_1101: map_cs = 9'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 10'h4; 	// 2000-27FF	Char
+		8'b0010_1xxx: map_cs = 10'h200; // 2800-2FFF	Scroll
+		8'b0011_0xxx: map_cs = 10'h100; // 3000-37FF input
+		8'b0011_1000: map_cs = 10'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 10'h40; // 3900-39FF, blue
+		8'b0011_1101: map_cs = 10'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 9'h2; // 3E00-3EFF bank
-		8'b0011_1111: map_cs = 9'h80; // 3F00-3FFF SDRAM programming
-		8'b01xx_xxxx: map_cs = 9'h1; // ROMs
-		8'b1xxx_xxxx: map_cs = startup ? 9'h8 : 9'h1; // 8000-BFFF, ROM 9N
-		default: map_cs = 9'h0;
+		8'b0011_1110: map_cs = 10'h2; // 3E00-3EFF bank
+		8'b0011_1111: map_cs = 10'h80; // 3F00-3FFF SDRAM programming
+		8'b01xx_xxxx: map_cs = 10'h1; // ROMs
+		8'b1xxx_xxxx: map_cs = startup ? 10'h8 : 10'h1; // 8000-BFFF, ROM 9N
+		default: map_cs = 10'h0;
 	endcase
 
 // special registers
@@ -170,6 +175,7 @@ reg [7:0] cpu_din;
 always @(posedge clk)
  	cpu_din <=  ({8{ram_cs}}  & ram_dout )	| 
 				({8{char_cs}} & char_dout)	|
+				({8{scr_cs}} & scr_dout)	|
 				({8{in_cs}} & cabinet_input)| 
 				({8{rom_cs}}  & rom_dout );
 

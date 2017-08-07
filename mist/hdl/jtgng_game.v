@@ -50,7 +50,7 @@ module jtgng_game(
 	wire rd;
 	wire char_mrdy;
 	wire [12:0] char_addr;
-	wire [ 7:0] chram_dout;
+	wire [ 7:0] chram_dout,scram_dout;
 	wire [15:0] chrom_data;
 	wire [1:0] char_col;
 	wire rom_ready;
@@ -88,6 +88,25 @@ jtgng_char chargen (
 	.char_pal   ( char_pal    	)
 );
 
+wire scr_mrdy;
+
+jtgng_scroll scrollgen (
+	.clk        ( clk      		),
+	.AB         ( cpu_AB[10:0]	),
+	.V128       ( V[7:0]   		),
+	.H128       ( H[7:0]   		),
+	.scr_cs  	( scr_cs 		),
+	.flip       ( flip     		),
+	.din        ( cpu_dout 		),
+	.dout       ( scram_dout	),
+	.rd         ( RnW      		),
+	.MRDY_b     ( scr_mrdy		)/*,
+	.char_addr  ( char_addr		),
+	.chrom_data ( chrom_data	),
+	.char_col   ( char_col 		),
+	.char_pal   ( char_pal    	)*/
+);
+
 
 	wire [3:0] cc;
 	wire blue_cs;
@@ -120,12 +139,15 @@ jtgng_main main (
 	.rst      	( rst_game 		),
 	.soft_rst	( soft_rst		),
 	.ch_mrdy  	( char_mrdy		),
+	.scr_mrdy  	( scr_mrdy		),
 	.char_dout	( chram_dout	),
+	.scr_dout   ( scram_dout	),
 	.LVBL     	( LVBL     		),
 	.cpu_dout 	( cpu_dout 		),
 	.char_cs  	( char_cs  		),
-	.blue_cs    (blue_cs    	),
-	.redgreen_cs(redgreen_cs	),
+	.scr_cs  	( scr_cs  		),
+	.blue_cs    ( blue_cs    	),
+	.redgreen_cs( redgreen_cs	),
 	.flip		( flip			),
 	.bus_ack 	( bus_ack  		),
 	.cpu_AB	 	( cpu_AB		),

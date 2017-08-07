@@ -65,7 +65,7 @@ reg half_addr;
 
 always @(posedge clk) begin
 	case( H128[2:0] )
-		3'd1: char_pal <= aux2[3:0];
+		// 3'd1: char_pal <= aux2[3:0];
 		3'd2: aux <= dout;
 		3'd4: begin
 			AC       <= {dout[7:6], aux};
@@ -83,9 +83,12 @@ end
 reg [7:0] chd;
 
 always @(negedge clk) begin
-	char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
-	if( H128[1:0]==2'd0 )
+	//char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
+	char_col <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
+	if( H128[2:0]==3'd1 ) char_pal <= aux2[3:0];
+	if( H128[1:0]==2'd0 ) begin
 		chd <= (H128[2] ^ char_hflip) ? chrom_data[15:8] : chrom_data[7:0];
+	end
 	else begin
 		if( char_hflip_prev ) begin
 			chd[7:4] <= {1'b0, chd[7:5]};
