@@ -29,7 +29,7 @@ module game_test;
 
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(120*1000*1000) $finish;
+	initial #(40*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
 `endif
 /*
@@ -113,6 +113,7 @@ wire			romload_wr;
 
 jtgng_game UUT (
 	.rst		( rst		),
+	.soft_rst	( 1'b0		),
 	.clk		( clk_pxl	),
 	.clk_rom	( clk_rom	),
 	.clk_rgb    ( clk_rgb   ),

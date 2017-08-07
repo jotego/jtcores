@@ -19,13 +19,16 @@ RESET:
 	; BRA FIN
 	; BSR CHKCHAR
 
-	LDU #0
+	LDU #$DEAD
 	; Hello world
 	LDX #$2140
-	LDY #HELLO
+	LDU #$2540
+	LDY	#HELLO
 @L: LDA ,Y+
 	BEQ @L3
 	STA ,X+
+	ANDA #1
+	STA ,U+
 	BRA @L
 @L3:
 	LDU #$BABE
@@ -178,13 +181,43 @@ IRQSERVICE:
 	LDX #$38C0	
 	LDY #$39C0
 	CLRA
-	LDB #4
-@L:
-	STA ,Y+
+	; CC=0, RG
+	LDA #$09
 	STA ,X+
-	ADDA #$11
-	DECB
-	BNE @L
+	LDA #$18
+	STA ,X+
+	LDA #$27
+	STA ,X+
+	LDA #$36
+	STA ,X+
+	; CC=0, B
+	LDA #$A0
+	STA ,Y+
+	LDA #$B0
+	STA ,Y+
+	LDA #$C0
+	STA ,Y+
+	LDA #$D0
+	STA ,Y+	
+	; CC=1, RG
+	LDA #$AB
+	STA ,X+
+	LDA #$BC
+	STA ,X+
+	LDA #$CD
+	STA ,X+
+	LDA #$DE
+	STA ,X+
+	; CC=0, B
+	LDA #$10
+	STA ,Y+
+	LDA #$20
+	STA ,Y+
+	LDA #$30
+	STA ,Y+
+	LDA #$40
+	STA ,Y+
+
 	CLR $1000
 	RTI
 

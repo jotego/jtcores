@@ -35,7 +35,7 @@ always @(posedge clk_rgb)
 		endcase
 		// assign current pixel colour
 		if( LVBL && LHBL )
-			case( {addr_top,aux} )
+			case( {~addr_top,aux} )
 				2'b01: begin
 					red   <= dout[7:4];
 					green <= dout[3:0];

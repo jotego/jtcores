@@ -78,8 +78,8 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.CONF_DATA0	( CONF_DATA0),
 	.SPI_DO		( SPI_DO	),
 	.SPI_DI		( SPI_DI	),
-	.joystick_0	( joystick1	),
-	.joystick_1	( joystick2	),
+	.joystick_0	( joystick2	),
+	.joystick_1	( joystick1	),
 	.status		( status	),
 	// unused ports:
 	.ps2_clk	( 1'b0		),

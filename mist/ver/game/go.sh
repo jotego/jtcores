@@ -16,6 +16,7 @@ FIRMWARE=gng_test.s
 VGACONV=NOVGACONV
 LOADROM=NOLOADROM
 FIRMONLY=NOFIRMONLY
+NOFIRM=FIRM
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -30,6 +31,12 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi
+	if [ "$1" = "-nofirm" ]; then
+		NOFIRM=NOFIRM
+		echo Firmware dump will be skipped
+		shift
+		continue
+	fi	
 	if [ "$1" = "-g" ]; then
 		FIRMWARE=rungame.s
 		echo Running game directly
@@ -95,7 +102,10 @@ for line in infile:
 	addr=addr+1
 file.write("END;")
 XXX
-cp jtgng_firmware.mif ../../quartus 
+if [ $NOFIRM != NOFIRM ]; then
+	echo Quartus firmware file overwritten
+	cp jtgng_firmware.mif ../../quartus 
+fi
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 
