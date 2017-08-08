@@ -3,7 +3,6 @@
 module jtgng_game(
 	input			rst,
 	input			soft_rst,
-	input			clk_rom, 	//  81   MHz
 	input			clk,  	 	//   6   MHz
 	input			clk_rgb,	// 6*4 = 24MHz
 	output	 [3:0] 	red,
@@ -15,6 +14,7 @@ module jtgng_game(
 	input	[7:0]	joystick1,
 	input	[7:0]	joystick2,	
 	// SDRAM interface
+	input 			SDRAM_CLK, 		// SDRAM Clock 81 MHz
 	inout  [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
 	output [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
 	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
@@ -24,7 +24,6 @@ module jtgng_game(
 	output      	SDRAM_nRAS, 	// SDRAM Row Address Strobe
 	output      	SDRAM_nCS, 		// SDRAM Chip Select
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
-	output 			SDRAM_CLK, 		// SDRAM Clock
 	output        	SDRAM_CKE, 		// SDRAM Clock Enable
 	// ROM load
 	input			downloading,
@@ -176,7 +175,7 @@ jtgng_main main (
 	wire [15:0] obj_dout;
 	wire [23:0] scr_dout;
 jtgng_rom rom (
-	.clk      	( clk_rom  		),
+	.clk      	( SDRAM_CLK		),
 	.rst      	( rst      		),
 	.char_addr	( char_addr		),
 	.main_addr	( main_addr		),
@@ -204,7 +203,6 @@ jtgng_rom rom (
 	.SDRAM_nRAS	( SDRAM_nRAS	),
 	.SDRAM_nCS	( SDRAM_nCS		),
 	.SDRAM_BA	( SDRAM_BA		),
-	.SDRAM_CLK	( SDRAM_CLK		),
 	.SDRAM_CKE	( SDRAM_CKE		),
 	// ROM load
 	.downloading( downloading ),

@@ -50,11 +50,11 @@ module game_test;
 		$finish;
 	end
 */
-reg rst, clk_pxl, clk_rgb, clk_rom;
+reg rst, clk_pxl, clk_rgb, SDRAM_CLK;
 
 initial begin
-	clk_rom=1'b0;
-	forever clk_rom = #6.173 ~clk_rom; //6.000
+	SDRAM_CLK=1'b0;
+	forever SDRAM_CLK = #6.173 ~SDRAM_CLK; //6.000
 end
 
 initial begin
@@ -77,7 +77,7 @@ end
 /*
 integer clk_cnt;
 
-always @(posedge clk_rom or posedge rst_base) begin
+always @(posedge SDRAM_CLK or posedge rst_base) begin
 	if(rst_base) begin
 		clk_cnt <= 0;
 		clk <= 1'b1;
@@ -115,7 +115,7 @@ jtgng_game UUT (
 	.rst		( rst		),
 	.soft_rst	( 1'b0		),
 	.clk		( clk_pxl	),
-	.clk_rom	( clk_rom	),
+	.SDRAM_CLK	( SDRAM_CLK	),
 	.clk_rgb    ( clk_rgb   ),
 	.red		( red		),
 	.green		( green		),
@@ -132,7 +132,6 @@ jtgng_game UUT (
 	.SDRAM_nRAS	( SDRAM_nRAS),
 	.SDRAM_nCS	( SDRAM_nCS ),
 	.SDRAM_BA	( SDRAM_BA 	),
-	.SDRAM_CLK	( SDRAM_CLK ),
 	.SDRAM_CKE	( SDRAM_CKE ),
 	.joystick1	( 8'h55		),
 	.joystick2	( 8'haa		),

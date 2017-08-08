@@ -33,7 +33,6 @@ module jtgng_rom(
 	output  reg    	SDRAM_nRAS, 	// SDRAM Row Address Strobe
 	output  reg    	SDRAM_nCS, 		// SDRAM Chip Select
 	output [1:0]  	SDRAM_BA, 		// SDRAM Bank Address
-	output 			SDRAM_CLK, 		// SDRAM Clock
 	output        	SDRAM_CKE, 		// SDRAM Clock Enable	
 	// ROM load
 	input			downloading,
@@ -47,7 +46,6 @@ assign SDRAM_DQMH = 1'b0;
 assign SDRAM_DQML = 1'b0;
 assign SDRAM_BA   = 2'b0;
 assign SDRAM_CKE  = 1'b1;
-assign SDRAM_CLK  = clk;
 
 reg romload_wr16;
 

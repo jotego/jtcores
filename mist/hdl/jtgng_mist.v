@@ -29,7 +29,6 @@ module jtgng_mist(
 	input			CONF_DATA0
 );
 
-wire clk_rom; // 81
 wire clk_gng; //  6
 wire clk_rgb; // 36
 wire clk_vga; // 25
@@ -40,7 +39,7 @@ parameter CONF_STR = {
 	//	 000000000111111111122222222222
 	//   123456789012345678901234567890
         "JTGNG;;",
-        "O1,Test mode,ON,OFF;",
+        "O1,Test mode,OFF,ON;",
         "O2,Cabinet mode,OFF,ON;",
         "O3,Flip,OFF,ON;",
         "O4,Attract sound,ON,OFF;",
@@ -99,7 +98,7 @@ jtgng_pll0 clk_gen (
 	.inclk0	( CLOCK_27[0] ),
 	.c0		( clk_gng	), //  6
 	.c1		( clk_rgb	), // 36
-	.c2		( clk_rom	), // 81
+	.c2		( SDRAM_CLK	), // 81
 	.c3		( clk24		), // 24
 	.locked	( locked	)
 );
@@ -128,7 +127,7 @@ always @(posedge clk_gng)
 jtgng_game game (
 	.rst    	( rst    	),
 	.soft_rst	( status[5]	),
-	.clk_rom	( clk_rom	),  // 81 MHz
+	.SDRAM_CLK	( SDRAM_CLK	),  // 81 MHz
 	.clk    	( clk_gng	),  //  6 MHz
 	.clk_rgb	( clk_rgb	),	// 36 MHz
 	.red    	( red    	),
@@ -149,7 +148,6 @@ jtgng_game game (
 	.SDRAM_nRAS	( SDRAM_nRAS),
 	.SDRAM_nCS	( SDRAM_nCS ),
 	.SDRAM_BA	( SDRAM_BA 	),
-	.SDRAM_CLK	( SDRAM_CLK ),
 	.SDRAM_CKE	( SDRAM_CKE ),
 	// ROM load
 	.downloading( downloading ),
@@ -158,10 +156,10 @@ jtgng_game game (
 	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	),
 	// DIP switches
-	.dip_game_mode	( status[1]	),
-	.dip_upright	( status[2]	),
-	.dip_noflip		( ~status[3]),
-	.dip_attract_snd( status[4]	)
+	.dip_game_mode	( ~status[1]	),
+	.dip_upright	(  status[2]	),
+	.dip_noflip		(  status[3]	),
+	.dip_attract_snd(  status[4]	)
 );
 
 wire [5:0] GNG_R, GNG_G, GNG_B;
