@@ -25,6 +25,7 @@ module jtgng_main(
 	output	reg	[12:0]  wr_row,
 	output	reg	[ 8:0]	wr_col,
 	output	reg			sdram_we,	
+	input	[31:0]		crc,  // 627A_4660
 	// BUS sharing
 	output		bus_ack,
 	input		bus_req,
@@ -45,7 +46,7 @@ wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
 
-reg [8:0] map_cs;
+reg [9:0] map_cs;
 assign { 
 	scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
@@ -147,12 +148,16 @@ always @(posedge clk) begin
 end
 */
 always @(*)
-	case( cpu_AB[2:0])
-		3'd0: cabinet_input = { {2{joystick1[7:6]}}, {2{joystick2[7:6]}} };
-		3'd1: cabinet_input = { 2'b11, joystick1[5:0] };
-		3'd2: cabinet_input = { 2'b11, joystick2[5:0] };
-		3'd3: cabinet_input = dipsw_a;
-		3'd4: cabinet_input = dipsw_b;
+	case( cpu_AB[3:0])
+		4'd0: cabinet_input = { {2{joystick1[7:6]}}, {2{joystick2[7:6]}} };
+		4'd1: cabinet_input = { 2'b11, joystick1[5:0] };
+		4'd2: cabinet_input = { 2'b11, joystick2[5:0] };
+		4'd3: cabinet_input = dipsw_a;
+		4'd4: cabinet_input = dipsw_b;
+		4'd5: cabinet_input = crc[31:24];
+		4'd6: cabinet_input = crc[23:16];
+		4'd7: cabinet_input = crc[15: 8];
+		4'd8: cabinet_input = crc[ 7: 0];
 		default: cabinet_input = 8'hff;
 	endcase
 

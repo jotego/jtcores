@@ -199,9 +199,9 @@ set_output_delay -clock SDRAM_clk -min -0.8 [get_ports SDRAM_*]
 # Set False Path
 #**************************************************************
 
-set_false_path  -from  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]  -to  [get_clocks SDRAM_clk]
-set_false_path  -from  [get_clocks SDRAM_clk]  -to  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]
-
+#set_false_path  -from  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]  -to  [get_clocks SDRAM_clk]
+#set_false_path  -from  [get_clocks SDRAM_clk]  -to  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]
+set_false_path  -from  [get_clocks {SPI_SCK}]  -to  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]
 
 #**************************************************************
 # Set Multicycle Path

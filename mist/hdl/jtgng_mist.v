@@ -119,6 +119,7 @@ always @(posedge clk_gng)
 	end
 	else*/ {rst, rst_aux} <= {rst_aux,1'b0};
 
+
 	wire [3:0] red;
 	wire [3:0] green;
 	wire [3:0] blue;

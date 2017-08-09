@@ -13,9 +13,9 @@ module game_test;
 		$display("DUMP enabled");
 		$dumpfile("test.lxt");
 		`ifdef LOADROM
-			//$dumpvars(1,game_test);
-			//$dumpvars(1,game_test.UUT.rom);
-			$dumpvars(0,game_test);
+			$dumpvars(1,game_test);
+			$dumpvars(1,game_test.UUT.rom);
+			//$dumpvars(0,game_test);
 			$dumpon;
 		`else
 			//$dumpvars(0,UUT);
@@ -29,10 +29,9 @@ module game_test;
 
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(40*1000*1000) $finish;
+	initial #(20*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
-`endif
-/*
+`else 
 	initial begin
 		#(1*1000*1000);
 		forever begin
@@ -40,7 +39,9 @@ module game_test;
 			if(!downloading) #(100*1000) $finish;
 		end
 	end
-*/
+`endif
+
+
 /*
 	integer fincnt;
 	initial begin
@@ -299,7 +300,7 @@ always @(posedge clk_rgb or posedge rst) begin
 			end
 			else begin
 				tx_cnt <= tx_cnt + 1;
-				$display("tx_cnt %X",tx_cnt);
+				// $display("tx_cnt %X",tx_cnt);
 				if(tx_cnt==TX_LEN) begin
 					SPI_SS2 <= 1'b1;
 					spi_st <= SPI_UNSET;

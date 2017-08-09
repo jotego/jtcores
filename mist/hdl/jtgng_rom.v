@@ -39,7 +39,8 @@ module jtgng_rom(
 	input	[24:0]	romload_addr,
 	input	[ 7:0]	romload_data,
 	input	[ 7:0]	romload_data_prev,
-	input			romload_wr	
+	input			romload_wr,	
+	output	[31:0]	crc_out
 );
 
 assign SDRAM_DQMH = 1'b0;
@@ -48,6 +49,8 @@ assign SDRAM_BA   = 2'b0;
 assign SDRAM_CKE  = 1'b1;
 
 reg romload_wr16;
+
+reg [15:0] romload_data_sync;
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
@@ -66,7 +69,7 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
-	( romload_wr16 ? {romload_data, romload_data_prev} : din ) : 
+	( romload_wr16 ? romload_data_sync : din ) : 
 	16'hzz;
 
 always @(posedge clk)
@@ -137,6 +140,11 @@ wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
 integer sdram_writes = 0;
 `endif
 
+reg crc_en;
+
+crc32 crc32_chk (.data_in({romload_data, romload_data_prev}), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
+
+
 always @(posedge clk)
 	if( rst ) begin
 		state <= INITIALIZE;
@@ -147,6 +155,7 @@ always @(posedge clk)
 		ready <= false;
 		write_done <= 1'b0;
 		romload_wr16 <= false;
+		crc_en <= 1'b0;
 	end else  begin
 	if( romload_wr & romload_addr[0] ) begin
 		romload_wr16 <= 1'b1;
@@ -206,6 +215,7 @@ always @(posedge clk)
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
 			if( !wait_cnt ) state<=next;
 			wait_cnt <= wait_cnt-2'b1;
+			crc_en <= 1'b0;
 			end
 		ACTIVATE: begin 
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
@@ -246,6 +256,7 @@ always @(posedge clk)
 		ACTIVATE_WR: begin 
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
 			SDRAM_A <= romload_wr16 ? romload_row : wr_row;
+			romload_data_sync <= {romload_data, romload_data_prev};
 			wait_cnt <= ACTIVATE_WAIT;
 			next  <= SET_WRITE;
 			state <= WAIT;
@@ -257,6 +268,7 @@ always @(posedge clk)
 			state <= WAIT;
 			next  <= SET_PRECHARGE;
 			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_col : wr_col};
+			crc_en <= 1'b1;
 			write_done <= true;
 			`ifdef SIMULATION
 				sdram_writes = sdram_writes + 2;

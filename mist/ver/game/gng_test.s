@@ -7,6 +7,8 @@ RESET:
 	STA	$3E00	; BANK
 	STA $3D00	; FLIP
 
+
+	LBSR CLRSCR
 	; BRA FIN
 	LDA #1
 	STA $1000	; FLAG
@@ -33,15 +35,53 @@ RESET:
 @L3:
 	LDU #$BABE
 
+	; Read CRC
+	LDA	$3005
+	LDX #$2120
+	BSR	HEX2CHAR
+	LDA	$3006
+	BSR	HEX2CHAR
+	LDA	$3007
+	BSR	HEX2CHAR
+	LDA	$3008
+	BSR	HEX2CHAR
 
 FIN:
 	LDA	$3001
+	BITA #$20
+	BEQ	JUEGO
 	LDX	#$2042
 	BSR	SHOW_JOY
 	LDA	$3002
 	LDX	#$2062
-	BSR	SHOW_JOY
+	BSR	SHOW_JOY	
 	BRA FIN
+JUEGO:
+	ORCC #$10
+	LDA	#$80
+	STA	$3E00	; BANK, clears start-up bank. This will cause a reset
+
+HEX2CHAR:
+	TFR A,B
+	LSRA
+	LSRA
+	LSRA
+	LSRA
+	BSR HEX4CHAR
+	TFR B,A
+	ANDA #15
+	BRA HEX4CHAR
+
+HEX4CHAR:
+	CMPA #10
+	BLT	@L
+	ADDA #55
+	STA	,X+
+	RTS
+@L:
+	ADDA #48
+	STA	,X+
+	RTS
 
 SHOW_JOY:
 	LDY #6
@@ -113,6 +153,20 @@ CLRCHAR:
 	STA ,X+
 	STB ,Y+
 	CMPY #$2800
+	BNE @L
+	RTS
+
+; *****************************************
+; Write BLANK scroll tiles over all screen
+; with 0 attributes
+CLRSCR:
+	LDX #$2800
+	LDY #$2C00
+	CLRB
+@L:	
+	STB ,X+
+	STB ,Y+
+	CMPX #$2C00
 	BNE @L
 	RTS
 

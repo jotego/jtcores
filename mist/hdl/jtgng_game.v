@@ -54,6 +54,8 @@ module jtgng_game(
 	wire [1:0] char_col;
 	wire rom_ready;
 
+wire [31:0] crc;
+
 reg rst_game;
 reg rst_aux;
 
@@ -160,6 +162,7 @@ jtgng_main main (
 	.wr_row		( wr_row		),
 	.wr_col		( wr_col		),
 	.sdram_we	( sdram_we		),
+	.crc		( crc			),
 	// DIP switches
 	.dip_noflip		( dip_noflip		),
 	.dip_game_mode	( dip_game_mode		),
@@ -209,7 +212,8 @@ jtgng_rom rom (
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
 	.romload_data_prev( romload_data_prev ),
-	.romload_wr	( romload_wr	)	
+	.romload_wr	( romload_wr	),
+	.crc_out	( crc			)
 );
 
 
