@@ -21,9 +21,9 @@ RESET:
 
 	LDU #$DEAD
 	; Hello world
-	LDX #$2140
-	LDU #$2540
-	LDY	#HELLO
+	LDX #$2000
+	LDU #$2400
+	LDY	#LONGSTR
 @L: LDA ,Y+
 	BEQ @L3
 	STA ,X+
@@ -31,6 +31,11 @@ RESET:
 	STA ,U+
 	BRA @L
 @L3:
+	CMPX #$2400
+	BGT @L4
+	LDY #LONGSTR
+	BRA @L
+@L4:
 	LDU #$BABE
 
 	; Read CRC
@@ -193,6 +198,9 @@ FILLCHAR:
 
 HEXSTR:
 	.STRZ "0123456789ABCDEF"
+
+LONGSTR:
+	.STRZ "0 12 34 56 78 9A B C D E F G H I J K L M N O P Q R S T U V X Y Z"
 
 HELLO:
 	.STRZ "      hola mundo"
