@@ -50,22 +50,24 @@ parameter CONF_STR = {
 
 parameter CONF_STR_LEN = 7+20+23+15+24+9+7;
 
+reg rst = 1'b1;
+
 wire downloading;
 // wire [4:0] index;
 wire romload_wr;
 wire [24:0] romload_addr;
-wire [7:0] romload_data, romload_data_prev;
+wire [15:0] romload_data;
 data_io datain (
-	.sck        (SPI_SCK      ),
-	.ss         (SPI_SS2      ),
-	.sdi        (SPI_DI       ),
-	.downloading(downloading  ),
+	.sck        		( SPI_SCK      ),
+	.ss         		( SPI_SS2      ),
+	.sdi        		( SPI_DI       ),
 	// .index      (index        ),
-	.clk        (SDRAM_CLK    ),
-	.wr         (romload_wr   ),
-	.addr       (romload_addr ),
-	.data       (romload_data ),
-	.data_prev  (romload_data_prev )
+	.rst				( rst		   ),
+	.clk_sdram  		( SDRAM_CLK    ),
+	.downloading_sdram	( downloading  ),
+	.wr_sdram   		( romload_wr   ),
+	.addr_sdram 		( romload_addr ),
+	.data_sdram 		( romload_data )
 );
 
 wire [7:0] status, joystick1, joystick2; //, joystick;
@@ -109,8 +111,6 @@ jtgng_pll1 clk_gen2 (
 	.c0		( clk_vga	) // 25
 );
 
-
-reg rst=1'b1;
 reg [2:0] rst_aux=3'b111;
 
 always @(posedge clk_gng)
@@ -155,7 +155,6 @@ jtgng_game game (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
-	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	),
 	// DIP switches
 	.dip_game_mode	( status[1]	),

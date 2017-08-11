@@ -107,7 +107,7 @@ wire [ 1:0] SDRAM_BA;
 
 wire			downloading;
 wire	[24:0]	romload_addr;
-wire	[ 7:0]	romload_data, romload_data_prev;
+wire	[15:0]	romload_data;
 wire			romload_wr;
 
 
@@ -139,7 +139,6 @@ jtgng_game UUT (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
-	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	)
 );
 
@@ -342,8 +341,7 @@ data_io datain (
 	.clk        (SDRAM_CLK    ),
 	.wr         (romload_wr   ),
 	.addr       (romload_addr ),
-	.data       (romload_data ),
-	.data_prev  (romload_data_prev )
+	.data       (romload_data )
 );
 
 `else 

@@ -29,8 +29,7 @@ module jtgng_game(
 	// ROM load
 	input			downloading,
 	input	[24:0]	romload_addr,
-	input	[ 7:0]	romload_data,
-	input	[ 7:0]	romload_data_prev,
+	input	[15:0]	romload_data,
 	input			romload_wr,
 	// DIP switches
 	input			dip_noflip,
@@ -161,6 +160,7 @@ jtgng_main main (
 	.wr_row		( wr_row		),
 	.wr_col		( wr_col		),
 	.sdram_we	( sdram_we		),
+	.crc		( crc			),	
 	// DIP switches
 	.dip_noflip		( dip_noflip		),
 	.dip_game_mode	( dip_game_mode		),
@@ -210,8 +210,8 @@ jtgng_rom rom (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
-	.romload_data_prev( romload_data_prev ),
-	.romload_wr	( romload_wr	)	
+	.romload_wr	( romload_wr	),
+	.crc_out	( crc			)
 );
 
 

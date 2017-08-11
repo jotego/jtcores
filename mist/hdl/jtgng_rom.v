@@ -38,9 +38,9 @@ module jtgng_rom(
 	// ROM load
 	input			downloading,
 	input	[24:0]	romload_addr,
-	input	[ 7:0]	romload_data,
-	input	[ 7:0]	romload_data_prev,
-	input			romload_wr	
+	input	[15:0]	romload_data,
+	input			romload_wr,
+	output	[31:0]	crc_out	
 );
 
 assign SDRAM_DQMH = 1'b0;
@@ -68,8 +68,13 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
-	( romload_wr16 ? {romload_data, romload_data_prev} : din ) : 
+	( romload_wr16 ? romload_data : din ) : 
 	16'hzz;
+
+reg crc_en;
+
+crc32 crc32_chk (.data_in(romload_data), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
+
 
 always @(posedge clk)
 	if( rst ) begin
@@ -149,6 +154,7 @@ always @(posedge clk)
 		ready <= false;
 		write_done <= 1'b0;
 		romload_wr16 <= false;
+		crc_en <= 1'b0;
 	end else  begin
 	if( romload_wr & romload_addr[0] ) begin
 		romload_wr16 <= 1'b1;
@@ -208,6 +214,7 @@ always @(posedge clk)
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
 			if( !wait_cnt ) state<=next;
 			wait_cnt <= wait_cnt-2'b1;
+			crc_en <= 1'b0;
 			end
 		ACTIVATE: begin 
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
@@ -259,6 +266,7 @@ always @(posedge clk)
 			state <= WAIT;
 			next  <= SET_PRECHARGE;
 			SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_col : wr_col};
+			crc_en <= 1'b1;
 			write_done <= true;
 			`ifdef SIMULATION
 				sdram_writes = sdram_writes + 2;
