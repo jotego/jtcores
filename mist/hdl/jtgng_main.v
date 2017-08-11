@@ -46,7 +46,7 @@ wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
 
-reg [8:0] map_cs;
+reg [9:0] map_cs;
 assign { 
 	scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
