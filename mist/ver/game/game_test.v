@@ -15,7 +15,7 @@ module game_test;
 		`ifdef LOADROM
 			$dumpvars(1,game_test);
 			$dumpvars(1,game_test.UUT.rom);
-			//$dumpvars(0,game_test);
+			$dumpvars(0,game_test);
 			$dumpon;
 		`else
 			//$dumpvars(0,UUT);
@@ -29,7 +29,7 @@ module game_test;
 
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(20*1000*1000) $finish;
+	initial #(14*1000*1000) $finish;
 	// initial #(120*1000*1000) $finish;
 `else 
 	initial begin
@@ -55,7 +55,9 @@ reg rst, clk_pxl, clk_rgb, SDRAM_CLK;
 
 initial begin
 	SDRAM_CLK=1'b0;
-	forever SDRAM_CLK = #6.173 ~SDRAM_CLK; //6.000
+	//forever SDRAM_CLK = #6.173 ~SDRAM_CLK; //81MHz
+	//forever SDRAM_CLK = #5.952 ~SDRAM_CLK; //84MHz
+	forever SDRAM_CLK = #5.555 ~SDRAM_CLK; //90MHz
 end
 
 initial begin
@@ -108,7 +110,7 @@ wire [ 1:0] SDRAM_BA;
 
 wire			downloading;
 wire	[24:0]	romload_addr;
-wire	[ 7:0]	romload_data, romload_data_prev;
+wire	[15:0]	romload_data;
 wire			romload_wr;
 
 
@@ -243,7 +245,8 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 32'hF0000; // 32'd983042;
+//localparam TX_LEN			= 32'hF0000;
+localparam TX_LEN			= 32'h00100;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
@@ -255,9 +258,15 @@ end
 
 integer tx_cnt, spi_st, next, buff_cnt;
 reg spi_clkgate, spi_done;
+reg clk_24;
+
+initial begin
+	clk_24 = 0;
+	forever #20.833 clk_24 = ~clk_24;
+end
 
 localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3, SPI_UNSET=4;
-assign SPI_SCK = clk_rgb & spi_clkgate;
+assign SPI_SCK = clk_24 & spi_clkgate;
 reg [15:0] spi_buffer;
 
 always @(posedge clk_rgb or posedge rst) begin
@@ -339,11 +348,11 @@ data_io datain (
 	.sdi        (SPI_DI       ),
 	.downloading(downloading  ),
 	// .index      (index        ),
-	.clk        (SDRAM_CLK    ),
-	.wr         (romload_wr   ),
-	.addr       (romload_addr ),
-	.data       (romload_data ),
-	.data_prev  (romload_data_prev )
+	.rst		( rst		  ),
+	.clk_sdram  (SDRAM_CLK    ),
+	.wr_sdram   (romload_wr   ),
+	.addr_sdram (romload_addr ),
+	.data_sdram (romload_data )
 );
 
 `else 

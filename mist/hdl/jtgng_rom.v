@@ -1,7 +1,8 @@
 `timescale 1ns/1ps
 
 module jtgng_rom(
-	input			clk,	
+	input			clk,
+	input			clk_pxl,	
 	input			rst,
 	input	[12:0]	char_addr,
 	input	[17:0]	main_addr,
@@ -37,8 +38,7 @@ module jtgng_rom(
 	// ROM load
 	input			downloading,
 	input	[24:0]	romload_addr,
-	input	[ 7:0]	romload_data,
-	input	[ 7:0]	romload_data_prev,
+	input	[15:0]	romload_data,
 	input			romload_wr,	
 	output	[31:0]	crc_out
 );
@@ -49,8 +49,6 @@ assign SDRAM_BA   = 2'b0;
 assign SDRAM_CKE  = 1'b1;
 
 reg romload_wr16;
-
-reg [15:0] romload_data_sync;
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
@@ -69,7 +67,7 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
-	( romload_wr16 ? romload_data_sync : din ) : 
+	( romload_wr16 ? romload_data : din ) : 
 	16'hzz;
 
 always @(posedge clk)
@@ -142,7 +140,14 @@ integer sdram_writes = 0;
 
 reg crc_en;
 
-crc32 crc32_chk (.data_in({romload_data, romload_data_prev}), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
+crc32 crc32_chk (.data_in(romload_data), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
+
+reg [1:0] pxl_sh;
+wire pxl_rise = !pxl_sh[1] && pxl_sh[0];
+
+always @(negedge clk) begin
+	pxl_sh <= { pxl_sh[0], clk_pxl };
+end
 
 
 always @(posedge clk)
@@ -231,7 +236,7 @@ always @(posedge clk)
 			next  <= READ;
 			SDRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
 			end		
-		READ: begin
+		READ: if( rd_state!=4'hA || pxl_rise || downloading )  begin
 			read_done <= true;
 			if( downloading && romload_wr16 )
 				state <=  SET_PRECHARGE_WR; // it stays on READ state until romload_wr16 asserted
@@ -256,7 +261,6 @@ always @(posedge clk)
 		ACTIVATE_WR: begin 
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
 			SDRAM_A <= romload_wr16 ? romload_row : wr_row;
-			romload_data_sync <= {romload_data, romload_data_prev};
 			wait_cnt <= ACTIVATE_WAIT;
 			next  <= SET_WRITE;
 			state <= WAIT;

@@ -179,6 +179,7 @@ jtgng_main main (
 	wire [23:0] scr_dout;
 jtgng_rom rom (
 	.clk      	( SDRAM_CLK		),
+	.clk_pxl	( clk			),
 	.rst      	( rst      		),
 	.char_addr	( char_addr		),
 	.main_addr	( main_addr		),
@@ -211,7 +212,6 @@ jtgng_rom rom (
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
-	.romload_data_prev( romload_data_prev ),
 	.romload_wr	( romload_wr	),
 	.crc_out	( crc			)
 );

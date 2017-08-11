@@ -32,11 +32,11 @@ module data_io (
    output reg [4:0]  index,     // menu index used to upload the file
 	 
 	// external ram interface
-	input 			   clk,
-	output reg        wr,
-	output reg [24:0] addr,
-	output reg [7:0]  data,
-	output reg [7:0]  data_prev
+	input 			  	clk_sdram,
+	input				rst,
+	output reg        	wr_sdram,
+	output reg [24:0] 	addr_sdram,
+	output reg [15:0]  	data_sdram
 );
 
 // *********************************************************************************
@@ -49,6 +49,7 @@ reg [6:0]      sbuf;
 reg [7:0]      cmd;
 reg [4:0]      cnt;
 reg rclk;
+reg	[7:0]		data;
 
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
@@ -70,10 +71,6 @@ always@(posedge sck, posedge ss) begin
 		if(cnt != 15)
 			sbuf <= { sbuf[5:0], sdi};
 
-		// increase target address after write
-		if(rclk)
-			addr <= addr + 1;
-	 
 		// count 0-7 8-15 8-15 ... 
 		if(cnt < 15) 	cnt <= cnt + 4'd1;
 		else				cnt <= 4'd8;
@@ -86,7 +83,7 @@ always@(posedge sck, posedge ss) begin
 		if((cmd == UIO_FILE_TX) && (cnt == 15)) begin
 			// prepare 
 			if(sdi) begin
-				addr <= 25'd0;
+				// addr <= 25'd0;
 				downloading_reg <= 1'b1; 
 			end else
 				downloading_reg <= 1'b0; 
@@ -95,7 +92,6 @@ always@(posedge sck, posedge ss) begin
 		// command 0x54: UIO_FILE_TX
 		if((cmd == UIO_FILE_TX_DAT) && (cnt == 15)) begin
 			data <= {sbuf, sdi};
-			data_prev <= data;
 			rclk <= 1'b1;
 		end
 		
@@ -106,12 +102,21 @@ always@(posedge sck, posedge ss) begin
 end
 
 reg rclkD, rclkD2;
-always@(posedge clk) begin
-	// bring rclk from spi clock domain into c64 clock domain
-	rclkD <= rclk;
-	rclkD2 <= rclkD;
-	
-	wr <= rclkD && !rclkD2;
-end
+always@(posedge clk_sdram or posedge rst) 
+	if ( rst ) begin
+		addr_sdram <= 25'd0;
+	end
+	else begin
+		// bring rclk from spi clock domain into c64 clock domain
+		rclkD <= rclk;
+		rclkD2 <= rclkD;
+		
+		if( rclkD && !rclkD2 ) begin
+			wr_sdram <= 1'b1;
+			data_sdram <= { data_sdram[7:0], data };
+			addr_sdram <= addr_sdram + 1;
+		end else
+			wr_sdram <= 1'b0;
+	end
 
 endmodule
