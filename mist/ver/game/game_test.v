@@ -33,6 +33,8 @@ reg frame_done=1'b1, can_finish=1'b0;
 	// initial #(200*1000) $finish;
 	// initial #(40*1000*1000) $finish;
 	initial begin
+		// #(400*1000*1000);
+		// #(400*1000*1000);
 		#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
 		#(20*1000*1000) $finish; // hard stop
@@ -63,7 +65,7 @@ always @(posedge clk_rgb)
 
 initial begin
 	clk_rom=1'b0;
-	forever clk_rom = #6.173 ~clk_rom; // 6.173ns -> 81
+	forever clk_rom = #6.2 ~clk_rom; // 6.173ns -> 81
 end
 
 initial begin
@@ -230,7 +232,7 @@ always @(posedge clk_pxl) begin
 		enter_vbl <= LVBL;
 		if( enter_vbl != LVBL && !LVBL ) begin
 			if( frame_cnt>0) $fclose(fout);
-			$display("New frame");
+			$display("New frame (%d)", frame_cnt);
 			fout = $fopen("frame_00"+frame_cnt,"wb");
 			frame_cnt <= frame_cnt + 1;
 			skip <= 1'b1;

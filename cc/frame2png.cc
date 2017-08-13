@@ -21,8 +21,9 @@ int main(int argc,char *argv[]) {
 		}
 		else {
 			for( int k=0; k<2; k++ ) {
-				image[line+k][x] = png::rgb_pixel( rgbi[0], rgbi[1], rgbi[2] );
-				image[line+k][x+1] = png::rgb_pixel( rgbi[0], rgbi[1], rgbi[2] );
+				png::rgb_pixel px = png::rgb_pixel( rgbi[2], rgbi[1], rgbi[0] );
+				image[line+k][x] = px;
+				image[line+k][x+1] = px;
 			}
 			x+=2;
 		}
