@@ -119,3 +119,14 @@ iverilog game_test.v \
 	-s game_test -o sim \
 	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
 && sim -lxt
+
+if [ $CHR_DUMP = CHR_DUMP ]; then
+	for i in frame_*; do
+		name=$(basename "$i")
+		extension="${name##*.}"
+		if [ $extension == png ]; then continue; fi
+		../../../cc/frame2png $i
+		mv output.png $i.png
+		mv $i old/$i
+	done
+fi

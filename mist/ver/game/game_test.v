@@ -27,10 +27,16 @@ module game_test;
 
 	`endif
 
+reg frame_done=1'b1, can_finish=1'b0;
+
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(40*1000*1000) $finish;
-	// initial #(120*1000*1000) $finish;
+	// initial #(40*1000*1000) $finish;
+	initial begin
+		#(400*1000*1000) can_finish=1'b1;
+		$display("Waiting to finish the last frame");
+		#(20*1000*1000) $finish; // hard stop
+	end
 `endif
 /*
 	initial begin
@@ -52,14 +58,17 @@ module game_test;
 */
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
+always @(posedge clk_rgb)
+	if( frame_done && can_finish ) $finish;
+
 initial begin
 	clk_rom=1'b0;
-	forever clk_rom = #6.173 ~clk_rom; //6.000
+	forever clk_rom = #6.173 ~clk_rom; // 6.173ns -> 81
 end
 
 initial begin
 	clk_pxl =1'b0;
-	forever clk_pxl  = #83.340 ~clk_pxl ; //81
+	forever clk_pxl  = #83.340 ~clk_pxl ; // 6
 end
 
 initial begin
@@ -199,31 +208,44 @@ always @(posedge clk_vga) begin
 		if( enter_hbl != VGA_HS && !VGA_HS)
 			$write("),\n(");
 		else
-			if( VGA_HS ) $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+			if( VGA_HS ) $write("%d,%d,%d,",red,red, green, green, blue, blue);
 	end
 end
 `endif
 
 `elsif CHR_DUMP
 integer frame_cnt;
+integer fout;
+reg skip;
+
 reg enter_hbl, enter_vbl;
 always @(posedge clk_pxl) begin
 	if( rst || downloading ) begin
 		enter_hbl <= 1'b0;
 		enter_vbl <= 1'b0;
 		frame_cnt <= 0;
+		skip <= 1'b1;
 	end else if(!downloading) begin
 		enter_hbl <= LHBL;
 		enter_vbl <= LVBL;
 		if( enter_vbl != LVBL && !LVBL ) begin
-			$write(")]\n# New frame\nframe_%d=[(\n", frame_cnt);
+			if( frame_cnt>0) $fclose(fout);
+			$display("New frame");
+			fout = $fopen("frame_00"+frame_cnt,"wb");
 			frame_cnt <= frame_cnt + 1;
+			skip <= 1'b1;
+			frame_done <= 1'b1;
 		end
-		else
-		if( enter_hbl != LHBL && !LHBL)
-			$write("),\n(");
-		else
-			if( LHBL ) $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+		else begin
+			if( enter_hbl != LHBL && !LHBL) begin
+				skip <= 1'b0; // skip first line;
+				frame_done <= 1'b0;
+				$fwrite(fout,"%u",32'hFFFFFFFF); // new line marker
+			end
+			if( !skip && LHBL ) 
+				$fwrite(fout,"%u", {8'd0, red, 4'd0, green, 4'd0, blue, 4'd0});
+				// $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+		end
 	end
 end
 
