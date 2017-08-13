@@ -30,7 +30,7 @@ module game_test;
 reg frame_done=1'b1, can_finish=1'b0;
 
 `ifndef LOADROM
-	// initial #(200*1000) $finish;
+	initial #(200*1000) $finish;
 	// initial #(40*1000*1000) $finish;
 	initial begin
 		// #(400*1000*1000);
@@ -65,7 +65,7 @@ always @(posedge clk_rgb)
 
 initial begin
 	clk_rom=1'b0;
-	forever clk_rom = #6.2 ~clk_rom; // 6.173ns -> 81
+	forever clk_rom = #6.172 ~clk_rom; // 6.173ns -> 81
 end
 
 initial begin
@@ -237,6 +237,7 @@ always @(posedge clk_pxl) begin
 			frame_cnt <= frame_cnt + 1;
 			skip <= 1'b1;
 			frame_done <= 1'b1;
+			if( frame_cnt == 5 ) $finish;
 		end
 		else begin
 			if( enter_hbl != LHBL && !LHBL) begin
