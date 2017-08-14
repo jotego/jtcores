@@ -17,12 +17,22 @@ VGACONV=NOVGACONV
 LOADROM=NOLOADROM
 FIRMONLY=NOFIRMONLY
 NOFIRM=FIRM
+MAXFRAME=
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
 		DUMP=DUMP
 		echo Signal dump enabled
 		shift
+		continue
+	fi
+	if [ "$1" = "-frames" ]; then
+		shift
+		MAXFRAME="-DMAXFRAME=$1"
+		echo Simulate up to $1 frames
+		shift
+		CHR_DUMP=CHR_DUMP
+		echo Character dump enabled		
 		continue
 	fi
 	if [ "$1" = "-firm" ]; then
@@ -118,13 +128,14 @@ iverilog game_test.v \
 	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 	-s game_test -o sim \
 	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
-&& sim -lxt
+	$MAXFRAME \
+&& sim
 
 if [ $CHR_DUMP = CHR_DUMP ]; then
 	for i in frame_*; do
 		name=$(basename "$i")
 		extension="${name##*.}"
-		if [ $extension == png ]; then continue; fi
+		if [ "$extension" == png ]; then continue; fi
 		../../../cc/frame2png "$i"
 		mv output.png "$i.png"
 		mv "$i" old/"$i"

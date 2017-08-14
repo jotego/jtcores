@@ -57,6 +57,8 @@ module jtgng_game(
 reg rst_game;
 reg rst_aux;
 
+wire [31:0] crc;
+
 always @(posedge clk or posedge rst or negedge rom_ready)
 	if( rst || !rom_ready ) begin
 		{rst_game,rst_aux} <= 2'b11;
@@ -183,6 +185,8 @@ jtgng_rom rom (
 	.snd_addr 	( snd_addr 		),
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),
+	.H2			( H[2]			),
+
 	.char_dout	( chrom_data	),
 	.main_dout	( main_dout		),
 	.snd_dout 	( snd_dout 		),

@@ -30,14 +30,15 @@ module game_test;
 reg frame_done=1'b1, can_finish=1'b0;
 
 `ifndef LOADROM
-	initial #(200*1000) $finish;
+	// initial #(200*1000) $finish;
 	// initial #(40*1000*1000) $finish;
 	initial begin
-		// #(400*1000*1000);
-		// #(400*1000*1000);
+		//#(400*1000*1000);
+		`ifndef MAXFRAME
 		#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
-		#(20*1000*1000) $finish; // hard stop
+		 #(20*1000*1000) $finish; // hard stop
+		 `endif
 	end
 `endif
 /*
@@ -65,7 +66,7 @@ always @(posedge clk_rgb)
 
 initial begin
 	clk_rom=1'b0;
-	forever clk_rom = #6.172 ~clk_rom; // 6.173ns -> 81
+	forever clk_rom = #(10.417/2) ~clk_rom; // 96 MHz
 end
 
 initial begin
@@ -145,12 +146,17 @@ jtgng_game UUT (
 	.SDRAM_BA	( SDRAM_BA 	),
 	.SDRAM_CLK	( SDRAM_CLK ),
 	.SDRAM_CKE	( SDRAM_CKE ),
-	.joystick1	( 8'h55		),
-	.joystick2	( 8'haa		),
+	.joystick1	( 8'haa		),
+	.joystick2	( 8'h55		),
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
-	.romload_wr	( romload_wr	)
+	.romload_wr	( romload_wr	),
+	// DIP switches
+	.dip_noflip		(	1'b1	),
+	.dip_game_mode	(	1'b0	),
+	.dip_attract_snd(	1'b0	),
+	.dip_upright	(	1'b1	)
 );
 
 mt48lc16m16a2 mist_sdram (
@@ -233,11 +239,13 @@ always @(posedge clk_pxl) begin
 		if( enter_vbl != LVBL && !LVBL ) begin
 			if( frame_cnt>0) $fclose(fout);
 			$display("New frame (%d)", frame_cnt);
-			fout = $fopen("frame_00"+frame_cnt,"wb");
+			fout = $fopen("frame_0"+(frame_cnt&32'h1f),"wb");
 			frame_cnt <= frame_cnt + 1;
 			skip <= 1'b1;
 			frame_done <= 1'b1;
-			if( frame_cnt == 5 ) $finish;
+			`ifdef MAXFRAME
+			if( frame_cnt == `MAXFRAME ) $finish;
+			`endif
 		end
 		else begin
 			if( enter_hbl != LHBL && !LHBL) begin

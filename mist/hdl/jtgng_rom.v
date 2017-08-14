@@ -8,6 +8,7 @@ module jtgng_rom(
 	input	[14:0]	snd_addr,
 	input	[14:0]	obj_addr,
 	input	[15:0]	scr_addr,
+	input			H2,
 
 	// write interface
 	input	[15:0]	din,
@@ -22,7 +23,6 @@ module jtgng_rom(
 	output	reg	[23:0]	scr_dout,
 	output	reg			ready,
 
-	// SDRAM interface
 	// SDRAM interface
 	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
 	output reg [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
@@ -144,6 +144,14 @@ wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
 integer sdram_writes = 0;
 `endif
 
+reg H2edge;
+reg [1:0] H2s;
+
+always @(posedge clk) begin
+	H2s <= { H2s[0], H2};
+	H2edge <= H2s[1] && !H2s[0];
+end
+
 always @(posedge clk)
 	if( rst ) begin
 		state <= INITIALIZE;
@@ -230,7 +238,8 @@ always @(posedge clk)
 			next  <= READ;
 			SDRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
 			end		
-		READ: begin
+		READ: if( rd_state!=4'hA || H2edge ) 
+			begin
 			read_done <= true;
 			if( downloading && romload_wr16 )
 				state <=  SET_PRECHARGE_WR; // it stays on READ state until romload_wr16 asserted
