@@ -6,6 +6,7 @@ module jtgng_scroll(
 	input	[ 7:0] V128, // V128-V1
 	input	[ 7:0] H128, // H128-H1
 	input		scr_cs,
+	input		scrpos_cs,
 	input		flip,
 	input	[7:0] din,
 	output	[7:0] dout,
@@ -32,6 +33,17 @@ always @(*)
 		we	 = 1'b0; // line order is important here
 		addr = { H128[1], {10{flip}}^{V128[7:3],H128[7:3]}};
 	end
+
+reg [8:0] hpos, vpos;
+
+always @(posedge clk)
+	if( scrpos_cs && AB[3]) 
+	case(AB[2:0])
+		3'd0: hpos[7:0] <= din;
+		3'd1: hpos[8]	<= din[0];
+		3'd2: vpos[7:0] <= din;
+		3'd3: vpos[8]	<= din[0];
+	endcase // AB[3:0]
 
 jtgng_chram	RAM(
 	.address( addr 	),

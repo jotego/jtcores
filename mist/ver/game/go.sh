@@ -129,7 +129,7 @@ iverilog game_test.v \
 	-s game_test -o sim \
 	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
 	$MAXFRAME \
-&& sim
+&& sim -lxt
 
 if [ $CHR_DUMP = CHR_DUMP ]; then
 	for i in frame_*; do
