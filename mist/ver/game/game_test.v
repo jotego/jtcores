@@ -4,6 +4,9 @@
 
 	Game test
 
+	~0.95 frames/minute on DELL laptop
+	at least 900 frames to see SERVICE screen
+
 */
 
 module game_test;
@@ -33,7 +36,7 @@ reg frame_done=1'b1, can_finish=1'b0;
 	// initial #(200*1000) $finish;
 	// initial #(40*1000*1000) $finish;
 	initial begin
-		#(1000*1000) $finish;
+		// #(20*1000*1000) $finish;
 		`ifndef MAXFRAME
 		//#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
@@ -153,7 +156,7 @@ jtgng_game UUT (
 	.romload_data( romload_data ),
 	.romload_wr	( romload_wr	),
 	// DIP switches
-	.dip_noflip		(	1'b1	),
+	.dip_flip		(	1'b0	),
 	.dip_game_mode	(	1'b0	),
 	.dip_attract_snd(	1'b0	),
 	.dip_upright	(	1'b1	)

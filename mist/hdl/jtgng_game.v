@@ -32,7 +32,7 @@ module jtgng_game(
 	input	[15:0]	romload_data,
 	input			romload_wr,
 	// DIP switches
-	input			dip_noflip,
+	input			dip_flip,
 	input			dip_game_mode,
 	input			dip_attract_snd,
 	input			dip_upright	
@@ -166,7 +166,7 @@ jtgng_main main (
 	.sdram_we	( sdram_we		),
 	.crc		( crc			),	
 	// DIP switches
-	.dip_noflip		( dip_noflip		),
+	.dip_flip		( dip_flip		),
 	.dip_game_mode	( dip_game_mode		),
 	.dip_attract_snd( dip_attract_snd	),
 	.dip_upright	( dip_upright		)

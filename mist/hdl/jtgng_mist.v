@@ -159,7 +159,7 @@ jtgng_game game (
 	// DIP switches
 	.dip_game_mode	( status[1]	),
 	.dip_upright	( status[2]	),
-	.dip_noflip		( ~status[3]),
+	.dip_flip		( ~status[3]),
 	.dip_attract_snd( status[4]	)
 );
 

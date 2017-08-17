@@ -23,13 +23,15 @@ reg [10:0]	addr;
 wire sel = ~H128[2];
 reg	we;
 
+wire [9:0] scan = { {10{flip}}^{V128[7:3],H128[7:3]}};
+
 always @(*)
 	if( !sel ) begin
 		addr = AB;
 		we   = char_cs && !rd;
 	end else begin
 		we	 = 1'b0; // line order is important here
-		addr = { H128[1], {10{flip}}^{V128[7:3],H128[7:3]}};
+		addr = { H128[1], scan };
 	end
 
 // RAM

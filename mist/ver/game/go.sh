@@ -132,6 +132,7 @@ iverilog game_test.v \
 && sim -lxt
 
 if [ $CHR_DUMP = CHR_DUMP ]; then
+	rm frame*png
 	for i in frame_*; do
 		name=$(basename "$i")
 		extension="${name##*.}"

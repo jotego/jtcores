@@ -35,12 +35,16 @@ always @(negedge clk) begin
 end
 
 // L Horizontal/Vertical Blanking
-always @(negedge clk) begin
-	if( &H[2:0] )
-		LHBL <= H[8];
-	if( V==9'd496 ) LVBL <= 1'b0;
-	if( V==9'd272 ) LVBL <= 1'b1;
-end
+always @(negedge clk) 
+	if( rst ) LVBL <= 1'b0;
+	else begin
+		if( &H[2:0] ) begin
+			LHBL <= H[8];
+		// LHBL <= H>=256;
+			if( V==9'd496 ) LVBL <= 1'b0;
+			if( V==9'd271 ) LVBL <= 1'b1;
+		end
+	end
 
 // H indicators
 always @(negedge clk) begin

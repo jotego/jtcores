@@ -36,7 +36,7 @@ module jtgng_main(
 	output	reg [17:0] rom_addr,
 	input	[ 7:0] rom_dout,
 	// DIP switches
-	input	dip_noflip,
+	input	dip_flip,
 	input	dip_game_mode,
 	input	dip_attract_snd,
 	input	dip_upright
@@ -138,7 +138,7 @@ always @(negedge clk)
 		endcase
 
 reg [7:0] cabinet_input;
-wire [7:0] dipsw_a = { dip_noflip, dip_game_mode, dip_attract_snd, 5'b0 };
+wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'b0 };
 wire [7:0] dipsw_b = { 5'd0, dip_upright, 2'd0 };
 /*
 reg [7:0] joystick1_sync, joystick2_sync;

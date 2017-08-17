@@ -4,13 +4,18 @@ HPOS_LOW	EQU $3B08
 HPOS_HIGH	EQU $3B09
 VPOS_LOW	EQU $3B0A
 VPOS_HIGH	EQU $3B0B
+BANK		EQU $3E00
+FLIP		EQU $3D00
+JOY1		EQU $3001
+JOY2		EQU $3002
+CRC			EQU $3005
 
 RESET: 
 	ORCC #$10
 	LDS	#$1E00-1
 	CLRA
-	STA	$3E00	; BANK
-	STA $3D00	; FLIP
+	STA	BANK
+	STA FLIP
 	CLRA
 	STA HPOS_LOW
 	STA HPOS_HIGH
@@ -32,18 +37,19 @@ RESET:
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
 	LBSR FILL_HEXSTR
+;	LBSR FILL_CORNERS
 	BSR APPLY_ATTR
 	LDU #$BABE
 
 ;	BSR SHOW_CRC
 
 FIN:
-	LDA	$3001
+	LDA	JOY1
 	BITA #$20
 	BEQ	JUEGO
 ;	LDX	#$2042
 ;	BSR	SHOW_JOY
-;	LDA	$3002
+;	LDA	JOY2
 ;	LDX	#$2062
 ;	BSR	SHOW_JOY	
 	BRA FIN
@@ -54,6 +60,36 @@ JUEGO:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+FILL_CORNERS: ; Simulates in 2 frames use -frames 1
+	; External corners
+	LDA #'A'
+	STA $2000
+	LDA #'B'
+	STA $201F
+	LDA #'C'
+	STA $23D0
+	LDA #'D'
+	STA $23FF
+	; Internal corners
+	LDA #'A'
+	STA $2104
+	LDA #'B'
+	STA $210C
+	LDA #'C'
+	STA $22D4
+	LDA #'D'
+	STA $22FC
+	; Central corners
+	LDA #'A'
+	STA $2146
+	LDA #'B'
+	STA $214A
+	LDA #'C'
+	STA $2156
+	LDA #'D'
+	STA $215A
+	RTS
+
 
 APPLY_ATTR:
 	LDX #$2400
@@ -93,14 +129,14 @@ FILL_LONGSTR:
 
 SHOW_CRC:
 	; Read CRC
-	LDA	$3005
+	LDA	CRC
 	LDX #$2120
 	BSR	HEX2CHAR
-	LDA	$3006
+	LDA	CRC+1
 	BSR	HEX2CHAR
-	LDA	$3007
+	LDA	CRC+2
 	BSR	HEX2CHAR
-	LDA	$3008
+	LDA	CRC+3
 	BSR	HEX2CHAR
 	RTS
 
