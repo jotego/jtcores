@@ -90,23 +90,26 @@ jtgng_char chargen (
 );
 
 wire scr_mrdy;
+wire [14:0] scr_addr;
+wire [ 2:0] scr_col;
+wire [ 2:0] scr_pal;
 
 jtgng_scroll scrollgen (
 	.clk        ( clk      		),
 	.AB         ( cpu_AB[10:0]	),
 	.V128       ( V[7:0]   		),
-	.H128       ( H[7:0]   		),
+	.H	        ( H		   		),
 	.scr_cs  	( scr_cs 		),
 	.scrpos_cs	( scrpos_cs		),
 	.flip       ( flip     		),
 	.din        ( cpu_dout 		),
 	.dout       ( scram_dout	),
 	.rd         ( RnW      		),
-	.MRDY_b     ( scr_mrdy		)/*,
-	.char_addr  ( char_addr		),
+	.MRDY_b     ( scr_mrdy		),
+	.scr_addr   ( scr_addr		),
+	.scr_col    ( scr_col 		),
+	.scr_pal    ( scr_pal    	)
 	.chrom_data ( chrom_data	),
-	.char_col   ( char_col 		),
-	.char_pal   ( char_pal    	)*/
 );
 
 
