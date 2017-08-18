@@ -28,11 +28,10 @@ module jtgng_game(
 	// ROM load
 	input			downloading,
 	input	[24:0]	romload_addr,
-	input	[ 7:0]	romload_data,
-	input	[ 7:0]	romload_data_prev,
+	input	[15:0]	romload_data,
 	input			romload_wr,
 	// DIP switches
-	input			dip_noflip,
+	input			dip_flip,
 	input			dip_game_mode,
 	input			dip_attract_snd,
 	input			dip_upright	
@@ -90,22 +89,27 @@ jtgng_char chargen (
 );
 
 wire scr_mrdy;
+wire [14:0] scr_addr;
+wire [23:0] scr_dout;
+wire [ 2:0] scr_col;
+wire [ 2:0] scr_pal;
 
 jtgng_scroll scrollgen (
 	.clk        ( clk      		),
 	.AB         ( cpu_AB[10:0]	),
 	.V128       ( V[7:0]   		),
-	.H128       ( H[7:0]   		),
+	.H	        ( H		   		),
 	.scr_cs  	( scr_cs 		),
+	.scrpos_cs	( scrpos_cs		),
 	.flip       ( flip     		),
 	.din        ( cpu_dout 		),
 	.dout       ( scram_dout	),
 	.rd         ( RnW      		),
-	.MRDY_b     ( scr_mrdy		)/*,
-	.char_addr  ( char_addr		),
-	.chrom_data ( chrom_data	),
-	.char_col   ( char_col 		),
-	.char_pal   ( char_pal    	)*/
+	.MRDY_b     ( scr_mrdy		),
+	.scr_addr   ( scr_addr		),
+	.scr_col    ( scr_col 		),
+	.scr_pal    ( scr_pal    	),
+	.scrom_data ( scr_dout		)
 );
 
 
@@ -115,8 +119,13 @@ jtgng_scroll scrollgen (
 jtgng_colmix colmix (
 	.rst        ( rst        	),
 	.clk_rgb    ( clk_rgb    	),
+	// characters
 	.char       ( char_col   	),
 	.cc         ( char_pal   	),
+	// scroll
+	.scr_col	( scr_col		),
+	.scr_pal	( scr_pal		),
+	// CPU interface
 	.AB         ( cpu_AB[7:0]	),
 	.blue_cs    ( blue_cs    	),
 	.redgreen_cs( redgreen_cs	),
@@ -147,6 +156,7 @@ jtgng_main main (
 	.cpu_dout 	( cpu_dout 		),
 	.char_cs  	( char_cs  		),
 	.scr_cs  	( scr_cs  		),
+	.scrpos_cs	( scrpos_cs		),
 	.blue_cs    ( blue_cs    	),
 	.redgreen_cs( redgreen_cs	),
 	.flip		( flip			),
@@ -162,9 +172,9 @@ jtgng_main main (
 	.wr_row		( wr_row		),
 	.wr_col		( wr_col		),
 	.sdram_we	( sdram_we		),
-	.crc		( crc			),
+	.crc		( crc			),	
 	// DIP switches
-	.dip_noflip		( dip_noflip		),
+	.dip_flip		( dip_flip		),
 	.dip_game_mode	( dip_game_mode		),
 	.dip_attract_snd( dip_attract_snd	),
 	.dip_upright	( dip_upright		)
@@ -173,10 +183,8 @@ jtgng_main main (
 
 	wire [14:0] snd_addr=0;
 	wire [14:0] obj_addr=0;
-	wire [15:0] scr_addr=0;
 	wire [7:0] snd_dout;
 	wire [15:0] obj_dout;
-	wire [23:0] scr_dout;
 jtgng_rom rom (
 	.clk      	( SDRAM_CLK		),
 	.clk_pxl	( clk			),
@@ -186,6 +194,8 @@ jtgng_rom rom (
 	.snd_addr 	( snd_addr 		),
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),
+	.H2			( H[2]			),
+
 	.char_dout	( chrom_data	),
 	.main_dout	( main_dout		),
 	.snd_dout 	( snd_dout 		),

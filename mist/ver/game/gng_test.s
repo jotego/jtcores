@@ -1,15 +1,32 @@
 	ORG $0
 
+HPOS_LOW	EQU $3B08
+HPOS_HIGH	EQU $3B09
+VPOS_LOW	EQU $3B0A
+VPOS_HIGH	EQU $3B0B
+BANK		EQU $3E00
+FLIP		EQU $3D00
+JOY1		EQU $3001
+JOY2		EQU $3002
+CRC			EQU $3005
+
+SCR			EQU $2800
+SCR_ATT		EQU $2C00
+
 RESET: 
 	ORCC #$10
 	LDS	#$1E00-1
 	CLRA
-	STA	$3E00	; BANK
-	STA $3D00	; FLIP
+	STA	BANK
+	STA FLIP
+	CLRA
+	STA HPOS_LOW
+	STA HPOS_HIGH
+	STA VPOS_LOW
+	STA VPOS_HIGH
 
 
-	LBSR CLRSCR
-	; BRA FIN
+	; primero la paleta
 	LDA #1
 	STA $1000	; FLAG
 	ANDCC #$EF
@@ -17,15 +34,90 @@ RESET:
 	CMPA #1
 	BEQ @L
 
+	LBSR FILLSCR
 	LBSR CLRCHAR
 	; BRA FIN
 	; BSR CHKCHAR
 
 	LDU #$DEAD
-	; Hello world
-	LDX #$2140
-	LDU #$2540
-	LDY	#HELLO
+;	BSR FILL_LONGSTR
+	LBSR FILL_HEXSTR
+;	LBSR FILL_CORNERS
+	BSR APPLY_ATTR
+	LDU #$BABE
+
+;	BSR SHOW_CRC
+
+FIN:
+	LDA	JOY1
+	BITA #$20
+	BEQ	JUEGO
+;	LDX	#$2042
+;	BSR	SHOW_JOY
+;	LDA	JOY2
+;	LDX	#$2062
+;	BSR	SHOW_JOY	
+	BRA FIN
+JUEGO:
+	ORCC #$10
+	LDA	#$80
+	STA	$3E00	; BANK, clears start-up bank. This will cause a reset
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+FILL_CORNERS: ; Simulates in 2 frames use -frames 1
+	; External corners
+	LDA #'A'
+	STA $2000
+	LDA #'B'
+	STA $201F
+	LDA #'C'
+	STA $23D0
+	LDA #'D'
+	STA $23FF
+	; Internal corners
+	LDA #'A'
+	STA $2104
+	LDA #'B'
+	STA $210C
+	LDA #'C'
+	STA $22D4
+	LDA #'D'
+	STA $22FC
+	; Central corners
+	LDA #'A'
+	STA $2146
+	LDA #'B'
+	STA $214A
+	LDA #'C'
+	STA $2156
+	LDA #'D'
+	STA $215A
+	RTS
+
+
+APPLY_ATTR:
+	LDX #$2400
+	CLRA
+	CLRB
+@L:	CMPA #3
+	BLE	@L2
+	CLRA
+@L2:STA ,X+
+	INCB
+	CMPB #$10
+	BNE @L2
+	CLRB
+	INCA
+	CMPX #$2800
+	BLE @L
+	RTS
+
+; Fills the screen using the LONGSTR data
+FILL_LONGSTR:
+	LDX #$2000
+	LDU #$2400
+	LDY	#LONGSTR
 @L: LDA ,Y+
 	BEQ @L3
 	STA ,X+
@@ -33,33 +125,25 @@ RESET:
 	STA ,U+
 	BRA @L
 @L3:
-	LDU #$BABE
+	CMPX #$2400
+	BGT @L4
+	LDY #LONGSTR
+	BRA @L
+@L4:
+	RTS
 
+SHOW_CRC:
 	; Read CRC
-	LDA	$3005
+	LDA	CRC
 	LDX #$2120
 	BSR	HEX2CHAR
-	LDA	$3006
+	LDA	CRC+1
 	BSR	HEX2CHAR
-	LDA	$3007
+	LDA	CRC+2
 	BSR	HEX2CHAR
-	LDA	$3008
+	LDA	CRC+3
 	BSR	HEX2CHAR
-
-FIN:
-	LDA	$3001
-	BITA #$20
-	BEQ	JUEGO
-	LDX	#$2042
-	BSR	SHOW_JOY
-	LDA	$3002
-	LDX	#$2062
-	BSR	SHOW_JOY	
-	BRA FIN
-JUEGO:
-	ORCC #$10
-	LDA	#$80
-	STA	$3E00	; BANK, clears start-up bank. This will cause a reset
+	RTS
 
 HEX2CHAR:
 	TFR A,B
@@ -160,13 +244,29 @@ CLRCHAR:
 ; Write BLANK scroll tiles over all screen
 ; with 0 attributes
 CLRSCR:
-	LDX #$2800
-	LDY #$2C00
+	LDX #SCR
+	LDY #SCR_ATT
 	CLRB
 @L:	
 	STB ,X+
 	STB ,Y+
-	CMPX #$2C00
+	CMPX #SCR_ATT
+	BNE @L
+	RTS
+
+; *****************************************
+; Fills scroll tiles over all screen
+; with 0 attributes
+FILLSCR:
+	LDX #SCR
+	LDY #SCR_ATT
+	CLRB
+	CLRA
+@L:	
+	STA ,X+
+	INCA
+	STB ,Y+
+	CMPX #SCR_ATT
 	BNE @L
 	RTS
 
@@ -191,7 +291,7 @@ CHKCHAR:
 
 ;********************************************
 ; Fills all screen with hex numbers
-FILLCHAR:
+FILL_HEXSTR:
 	LDX #$2000
 	LDY #HEXSTR
 @L: LDA ,Y+
@@ -209,6 +309,9 @@ FILLCHAR:
 
 HEXSTR:
 	.STRZ "0123456789ABCDEF"
+
+LONGSTR:
+	.STRZ "0 12 34 56 78 9A B C D E F G H I J K L M N O P Q R S T U V X Y Z"
 
 HELLO:
 	.STRZ "      hola mundo"
@@ -228,6 +331,8 @@ IRQSERVICE:
 	CLRB	
 @L:	STD ,X++
 	STD ,Y++
+	ADDA #$11
+	ADDB #$11
 	CMPX #$3900
 	BNE @L
 
@@ -235,42 +340,85 @@ IRQSERVICE:
 	LDX #$38C0	
 	LDY #$39C0
 	CLRA
-	; CC=0, RG
-	LDA #$09
+	; CC=0 red tones, RG
+	LDA #$00
 	STA ,X+
-	LDA #$18
+	LDA #$50
 	STA ,X+
-	LDA #$27
-	STA ,X+
-	LDA #$36
-	STA ,X+
-	; CC=0, B
 	LDA #$A0
-	STA ,Y+
-	LDA #$B0
-	STA ,Y+
-	LDA #$C0
-	STA ,Y+
-	LDA #$D0
-	STA ,Y+	
-	; CC=1, RG
-	LDA #$AB
 	STA ,X+
-	LDA #$BC
-	STA ,X+
-	LDA #$CD
-	STA ,X+
-	LDA #$DE
+	LDA #$F0
 	STA ,X+
 	; CC=0, B
-	LDA #$10
+	CLRA
 	STA ,Y+
-	LDA #$20
+	STA ,Y+	
+	STA ,Y+	
+	STA ,Y+	
+	; CC=1 green tones, RG
+	LDA #$00
+	STA ,X+
+	LDA #$05
+	STA ,X+
+	LDA #$0A
+	STA ,X+
+	LDA #$0F
+	STA ,X+
+	; CC=1, B
+	CLRA
 	STA ,Y+
-	LDA #$30
 	STA ,Y+
-	LDA #$40
 	STA ,Y+
+	STA ,Y+
+
+	; CC=2 blue tones, RG
+	CLRA
+	STA ,X+
+	STA ,X+
+	STA ,X+
+	STA ,X+
+	; CC=2, B
+	LDA #$00
+	STA ,Y+
+	LDA #$55
+	STA ,Y+
+	LDA #$AA
+	STA ,Y+
+	LDA #$FF
+	STA ,Y+
+
+	; CC=3 gray tones, RG
+	LDA #$00
+	STA ,X+
+	STA ,Y+
+	LDA #$55
+	STA ,X+
+	STA ,Y+
+	LDA #$AA
+	STA ,X+
+	STA ,Y+
+	LDA #$FF
+	STA ,X+
+	STA ,Y+
+
+	; CC=4 mixed colours, RG
+	LDA #$00
+	STA ,X+
+	LDA #$0A
+	STA ,X+
+	LDA #$A0
+	STA ,X+
+	LDA #$FF
+	STA ,X+
+	; CC=1, B
+	LDA #$00
+	STA ,Y+
+	LDA #$AA
+	STA ,Y+
+	LDA #$AA
+	STA ,Y+
+	LDA #$FF
+	STA ,Y+	
 
 	CLR $1000
 	RTI

@@ -23,13 +23,15 @@ reg [10:0]	addr;
 wire sel = ~H128[2];
 reg	we;
 
+wire [9:0] scan = { {10{flip}}^{V128[7:3],H128[7:3]}};
+
 always @(*)
 	if( !sel ) begin
 		addr = AB;
 		we   = char_cs && !rd;
 	end else begin
 		we	 = 1'b0; // line order is important here
-		addr = { H128[1], {10{flip}}^{V128[7:3],H128[7:3]}};
+		addr = { H128[1], scan };
 	end
 
 // RAM
@@ -63,6 +65,7 @@ reg char_vflip;
 reg char_hflip;
 reg half_addr;
 
+// Set input for ROM reading
 always @(posedge clk) begin
 	case( H128[2:0] )
 		// 3'd1: char_pal <= aux2[3:0];
@@ -79,17 +82,23 @@ always @(posedge clk) begin
 	char_addr = { AC, vert_addr };
 end
 
+// Draw pixel on screen
+reg [15:0] chd;
 
-reg [7:0] chd;
-
-always @(negedge clk) begin
+always @(posedge clk) begin
 	//char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
 	char_col <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
 	if( H128[2:0]==3'd1 ) char_pal <= aux2[3:0];
+	case( H128[2:0] )
+		3'd0: chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+		3'd4: chd[7:0] <= chd[15:8];
+	/*
 	if( H128[1:0]==2'd0 ) begin
 		chd <= (H128[2] ^ char_hflip) ? chrom_data[15:8] : chrom_data[7:0];
 	end
-	else begin
+	else */
+		default:
+	begin
 		if( char_hflip_prev ) begin
 			chd[7:4] <= {1'b0, chd[7:5]};
 			chd[3:0] <= {1'b0, chd[3:1]};
@@ -99,6 +108,7 @@ always @(negedge clk) begin
 			chd[3:0] <= {chd[2:0], 1'b0};
 		end
 	end
+	endcase
 end
 
 endmodule // jtgng_char

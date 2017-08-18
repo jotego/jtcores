@@ -17,6 +17,7 @@ module jtgng_main(
 	input			scr_mrdy,
 	input	[7:0]	scr_dout,
 	output			scr_cs,
+	output			scrpos_cs,
 	// cabinet I/O
 	input	[7:0]	joystick1,
 	input	[7:0]	joystick2,
@@ -25,7 +26,7 @@ module jtgng_main(
 	output	reg	[12:0]  wr_row,
 	output	reg	[ 8:0]	wr_col,
 	output	reg			sdram_we,	
-	input	[31:0]		crc,  // 627A_4660
+	input	[31:0]		crc,  // 627A_4660	
 	// BUS sharing
 	output		bus_ack,
 	input		bus_req,
@@ -35,7 +36,7 @@ module jtgng_main(
 	output	reg [17:0] rom_addr,
 	input	[ 7:0] rom_dout,
 	// DIP switches
-	input	dip_noflip,
+	input	dip_flip,
 	input	dip_game_mode,
 	input	dip_attract_snd,
 	input	dip_upright
@@ -46,9 +47,10 @@ wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
 
-reg [9:0] map_cs;
+reg [10:0] map_cs;
+
 assign { 
-	scr_cs, in_cs,
+	scrpos_cs, scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
 	ram_cs, 	char_cs, bank_cs, 		rom_cs 		} = map_cs;
 
@@ -63,20 +65,21 @@ always @(*)
 	// if(!VMA) map_cs = 4'h0;
 	// else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 10'h8; // 0000-1FFF, RAM
+		8'b000x_xxxx: map_cs = 11'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 10'h4; 	// 2000-27FF	Char
-		8'b0010_1xxx: map_cs = 10'h200; // 2800-2FFF	Scroll
-		8'b0011_0xxx: map_cs = 10'h100; // 3000-37FF input
-		8'b0011_1000: map_cs = 10'h20; // 3800-38FF, Red, green
-		8'b0011_1001: map_cs = 10'h40; // 3900-39FF, blue
-		8'b0011_1101: map_cs = 10'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 11'h4; 	// 2000-27FF	Char
+		8'b0010_1xxx: map_cs = 11'h200; // 2800-2FFF	Scroll
+		8'b0011_0xxx: map_cs = 11'h100; // 3000-37FF input
+		8'b0011_1000: map_cs = 11'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 11'h40; // 3900-39FF, blue
+		8'b0011_1011: map_cs = 11'h400;// 3B00-3BFF Scroll position
+		8'b0011_1101: map_cs = 11'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 10'h2; // 3E00-3EFF bank
-		8'b0011_1111: map_cs = 10'h80; // 3F00-3FFF SDRAM programming
-		8'b01xx_xxxx: map_cs = 10'h1; // ROMs
-		8'b1xxx_xxxx: map_cs = startup ? 10'h8 : 10'h1; // 8000-BFFF, ROM 9N
-		default: map_cs = 10'h0;
+		8'b0011_1110: map_cs = 11'h2; // 3E00-3EFF bank
+		8'b0011_1111: map_cs = 11'h80; // 3F00-3FFF SDRAM programming
+		8'b01xx_xxxx: map_cs = 11'h1; // ROMs
+		8'b1xxx_xxxx: map_cs = startup ? 11'h8 : 11'h1; // 8000-BFFF, ROM 9N
+		default: map_cs = 11'h0;
 	endcase
 
 // special registers
@@ -136,7 +139,7 @@ always @(negedge clk)
 		endcase
 
 reg [7:0] cabinet_input;
-wire [7:0] dipsw_a = { dip_noflip, dip_game_mode, dip_attract_snd, 5'b0 };
+wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'b0 };
 wire [7:0] dipsw_b = { 5'd0, dip_upright, 2'd0 };
 /*
 reg [7:0] joystick1_sync, joystick2_sync;

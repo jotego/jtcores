@@ -4,16 +4,116 @@
 		"selected_items":
 		[
 			[
+				"SHOW",
+				"SHOW_JOY_LOOP"
+			],
+			[
+				"dis",
+				"dipsw_b"
+			],
+			[
+				"joy",
+				"joystick1"
+			],
+			[
+				"cabi",
+				"cabinet_input"
+			],
+			[
+				"joys",
+				"joystick1"
+			],
+			[
+				"Dq",
+				"Dq_dqm"
+			],
+			[
+				"do",
+				"downloading"
+			],
+			[
+				"done",
+				"write_done"
+			],
+			[
+				"spi",
+				"spi_done"
+			],
+			[
+				"SDR",
+				"SDRAM_WRITE"
+			],
+			[
+				"ROM",
+				"rom"
+			],
+			[
+				"spi_",
+				"spi_st"
+			],
+			[
+				"SP",
+				"SPI_UNSET"
+			],
+			[
+				"rom",
+				"romload_data_prev"
+			],
+			[
+				"buf",
+				"buff_cnt"
+			],
+			[
+				"UIO_",
+				"UIO_FILE_TX_DAT"
+			],
+			[
+				"SPI",
+				"SPI_DI"
+			],
+			[
+				"spi_d",
+				"SPI_DO"
+			],
+			[
+				"UIO",
+				"UIO_FILE_TX"
+			],
+			[
+				"beg",
+				"beg\tbegin .. end"
+			],
+			[
+				"clk_r",
+				"clk_rgb"
+			],
+			[
+				"romload",
+				"romload_data"
+			],
+			[
+				"romlo",
+				"romload_wr16"
+			],
+			[
+				"string",
+				"stringstream"
+			],
+			[
+				"ROMLO",
+				"romload_addr"
+			],
+			[
+				"CONF",
+				"CONF_DATA0"
+			],
+			[
 				"SD",
 				"SDRAM_BA"
 			],
 			[
 				"S",
 				"SDRAM_CKE"
-			],
-			[
-				"SDR",
-				"SDRAM_CLK"
 			],
 			[
 				"H",
@@ -235,7 +335,7 @@
 			"file": "ver/game/go.sh",
 			"settings":
 			{
-				"buffer_size": 1558,
+				"buffer_size": 2733,
 				"line_ending": "Unix"
 			}
 		},
@@ -243,8 +343,16 @@
 			"file": "hdl/jtgng_mist.v",
 			"settings":
 			{
-				"buffer_size": 2615,
+				"buffer_size": 4919,
 				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "ver/game/gng_test.s",
+			"settings":
+			{
+				"buffer_size": 4937,
 				"line_ending": "Unix"
 			}
 		},
@@ -252,16 +360,16 @@
 			"file": "hdl/jtgng_game.v",
 			"settings":
 			{
-				"buffer_size": 3697,
+				"buffer_size": 5470,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "hdl/jtgng_rom.v",
+			"file": "hdl/jtgng_scroll.v",
 			"settings":
 			{
-				"buffer_size": 5969,
+				"buffer_size": 2250,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -270,7 +378,24 @@
 			"file": "ver/game/game_test.v",
 			"settings":
 			{
-				"buffer_size": 2702,
+				"buffer_size": 7917,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "hdl/jtgng_main.v",
+			"settings":
+			{
+				"buffer_size": 6047,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "hdl/jtgng_rom.v",
+			"settings":
+			{
+				"buffer_size": 7914,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -279,20 +404,26 @@
 			"file": "ver/common/mt48lc16m16a2.v",
 			"settings":
 			{
-				"buffer_size": 47041,
+				"buffer_size": 47221,
 				"encoding": "Western (Windows 1252)",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "Package Control Messages\n========================\n\nSystemVerilog\n-------------\n\n  SystemVerilog 2.15.0 Changelog:\n  \n  ## Fix ###\n   - Fix leading comma in sublime-settings\n\n  SystemVerilog 2.15.0 Changelog:\n  \n  ## Improvement ##\n   - Better autoconnect: When looking for non-perfect name match, now check type is at least matching\n  \n  ## Fix ###\n   - Reconnect: prevent adding extra blank line in some conditions\n   - Autocompletion: Remove some debug print\n   - Parsing: Properly ignore attribute definition (i.e. (* do_not_optimize * ) ) when parsing a file\n   - Alignment: works for module parameter with complex expression\n",
+			"file": "/home/jtejada/github/jt_gng/rom/go-mist.sh",
 			"settings":
 			{
-				"buffer_size": 630,
-				"line_ending": "Unix",
-				"name": "Package Control Messages",
-				"read_only": true,
-				"scratch": true
+				"buffer_size": 1163,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/jtejada/github/jt_gng/cc/hex2bin.cc",
+			"settings":
+			{
+				"buffer_size": 859,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -303,7 +434,7 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 392.0,
+		"height": 371.0,
 		"last_filter": "veri",
 		"selected_items":
 		[
@@ -316,7 +447,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 449.0
+		"width": 400.0
 	},
 	"console":
 	{
@@ -337,6 +468,11 @@
 	},
 	"file_history":
 	[
+		"/home/jtejada/github/jt_gng/mist/ver/game/s2",
+		"/home/jtejada/github/jt_gng/mist/ver/game/topng.py",
+		"/home/jtejada/github/jt_gng/cc/hex2bin.cc",
+		"/home/jtejada/github/jt_gng/mist/ver/common/mt48lc16m16a2.v",
+		"/home/jtejada/github/jt_gng/mist/hdl/jtgng_mist.v",
 		"/home/jtejada/github/jt_gng/mist/hdl/jtgng_rom.v",
 		"/home/jtejada/github/jt_gng/mist/hdl/jtgng_colmix.v",
 		"/home/jtejada/github/jt_gng/mist/ver/game/game_test.v",
@@ -398,7 +534,7 @@
 	],
 	"find":
 	{
-		"height": 36.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -412,6 +548,31 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"scr_",
+			"scroll",
+			"joystick_0",
+			"8'",
+			"= 8'",
+			"8'",
+			"frame",
+			"romload_wr16",
+			"$display",
+			"Bank0",
+			"write",
+			"autorefresh",
+			"write_done",
+			"romload_wr16",
+			"FILE_LEN",
+			"romload_wr16",
+			"ta",
+			"data",
+			"SDRAM_nWE",
+			"romload_w",
+			";",
+			"romload_data_prev",
+			"data",
+			"addr",
+			"clk",
 			"SRAM_DQ",
 			"SRAM_A",
 			",",
@@ -514,32 +675,7 @@
 			"input",
 			"RDB_b",
 			"input",
-			"\t",
-			"input",
-			"RDB_b",
-			"output",
-			"RDB_b",
-			"irq_c",
-			"WRAM_b",
-			"ROB",
-			"EXTEN_b",
-			"CHARCS_b",
-			"MRDY_b",
-			"rst",
-			"nRESET",
-			"IRQI",
-			"IRQ1",
-			"8",
-			"[",
-			")",
-			"(",
-			".",
-			";",
-			"wire",
-			"ACLI_b",
-			"WRD_b",
-			"wire",
-			"("
+			"\t"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -547,6 +683,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"TX_LEN",
 			"SDRAM_DQ",
 			"SDRAM_A",
 			"phiB",
@@ -575,7 +712,7 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 4,
 			"sheets":
 			[
 				{
@@ -584,7 +721,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1558,
+						"buffer_size": 2733,
 						"regions":
 						{
 						},
@@ -600,10 +737,10 @@
 							"syntax": "Packages/ShellScript/Shell-Unix-Generic.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1140.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -612,23 +749,24 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2615,
+						"buffer_size": 4919,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1592,
-								1592
+								0,
+								0
 							]
 						],
 						"settings":
 						{
+							"history_list_is_closing": true,
 							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 459.0,
+						"translation.y": 912.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -636,27 +774,27 @@
 				},
 				{
 					"buffer": 2,
-					"file": "hdl/jtgng_game.v",
+					"file": "ver/game/gng_test.s",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3697,
+						"buffer_size": 4937,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3351,
-								3351
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+							"syntax": "Packages/R/R.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 1734.0,
+						"translation.y": 228.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
@@ -664,75 +802,47 @@
 				},
 				{
 					"buffer": 3,
-					"file": "hdl/jtgng_rom.v",
+					"file": "hdl/jtgng_game.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5969,
+						"buffer_size": 5470,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								486,
-								486
+								1822,
+								1793
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
 						},
-						"translation.x": 0.0,
-						"translation.y": 134.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "ver/game/game_test.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2702,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2128,
-								2128
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1581.0,
+						"translation.x": -0.0,
+						"translation.y": 1197.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "ver/common/mt48lc16m16a2.v",
+					"buffer": 4,
+					"file": "hdl/jtgng_scroll.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 47041,
+						"buffer_size": 2250,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								34072,
-								34072
+								308,
+								308
 							]
 						],
 						"settings":
@@ -740,40 +850,178 @@
 							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 12983.0,
+						"translation.y": 1368.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 5,
+					"file": "ver/game/game_test.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 630,
+						"buffer_size": 7917,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								630,
-								630
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"auto_indent": false,
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_width": 2,
-							"word_wrap": true
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 2223.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "hdl/jtgng_main.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6047,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								912,
+								912
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 30.0,
+						"translation.y": 428.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "hdl/jtgng_rom.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7914,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 2280.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "ver/common/mt48lc16m16a2.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 47221,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 17418.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/home/jtejada/github/jt_gng/rom/go-mist.sh",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1163,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								612,
+								612
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/home/jtejada/github/jt_gng/cc/hex2bin.cc",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 859,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								833,
+								833
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
 					"type": "text"
 				}
 			]
@@ -781,7 +1029,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 28.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -822,7 +1070,7 @@
 	"project": "",
 	"replace":
 	{
-		"height": 62.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":

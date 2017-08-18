@@ -3,8 +3,13 @@
 module jtgng_colmix(
 	input			rst,
 	input			clk_rgb,	// 6MHz*4=24 MHz
+	// characters
 	input [1:0]		char,
 	input [3:0]		cc,		// character color code
+	// scroll
+	input [2:0]		scr_col,
+	input [2:0]		scr_pal,
+	// CPU inteface
 	input [7:0]		AB,
 	input			blue_cs,
 	input			redgreen_cs,
@@ -21,7 +26,15 @@ reg addr_top;
 reg aux, we;
 wire [7:0] dout;
 
-wire [7:0] pixel_mux = { 2'b11, cc, char };
+//wire [7:0] pixel_mux = { 2'b11, cc, char };
+reg [7:0] pixel_mux;
+
+always @(*) begin
+	if( char==2'b11 )
+		pixel_mux = {2'b00, scr_pal, scr_col };
+	else
+		pixel_mux = { 2'b11, cc, char };
+end
 
 always @(posedge clk_rgb)
 	if( rst ) begin

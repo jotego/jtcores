@@ -8,7 +8,8 @@ module jtgng_rom(
 	input	[17:0]	main_addr,
 	input	[14:0]	snd_addr,
 	input	[14:0]	obj_addr,
-	input	[15:0]	scr_addr,
+	input	[14:0]	scr_addr,
+	input			H2,
 
 	// write interface
 	input	[15:0]	din,
@@ -24,7 +25,6 @@ module jtgng_rom(
 	output	reg			ready,
 
 	// SDRAM interface
-	// SDRAM interface
 	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
 	output reg [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
 	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
@@ -39,8 +39,8 @@ module jtgng_rom(
 	input			downloading,
 	input	[24:0]	romload_addr,
 	input	[15:0]	romload_data,
-	input			romload_wr,	
-	output	[31:0]	crc_out
+	input			romload_wr,
+	output	[31:0]	crc_out	
 );
 
 assign SDRAM_DQMH = 1'b0;
@@ -70,6 +70,11 @@ assign SDRAM_DQ =  SDRAM_WRITE ?
 	( romload_wr16 ? romload_data : din ) : 
 	16'hzz;
 
+reg crc_en;
+
+crc32 crc32_chk (.data_in(romload_data), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
+
+
 always @(posedge clk)
 	if( rst ) begin
 		rd_state <= 0;
@@ -94,8 +99,8 @@ always @(posedge clk)
 			4'd0, 4'd6: {row_addr, col_addr} <= { 4'b00,         main_addr }; // 17:0
 			4'd7: 		{row_addr, col_addr} <= { 4'b01, 3'b010,  obj_addr }; // 14:0
 			4'd1: 		{row_addr, col_addr} <= { 4'b10, 4'b000, char_addr }; // 12:0
-			4'd3: 		{row_addr, col_addr} <= { 4'b01, 2'b10,   scr_addr }; // 15:0 B/C ROMs
-			4'd4: 		{row_addr, col_addr} <= { 4'b01, 2'b11,   scr_addr }; // 15:0 E ROMs
+			4'd3: 		{row_addr, col_addr} <= { 4'b01, 3'b100,  scr_addr }; // 14:0 B/C ROMs
+			4'd4: 		{row_addr, col_addr} <= { 4'b01, 3'b110,  scr_addr }; // 14:0 E ROMs
 		endcase	
 		// auto refresh request
 		if( downloading )
@@ -138,17 +143,14 @@ wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
 integer sdram_writes = 0;
 `endif
 
-reg crc_en;
 
-crc32 crc32_chk (.data_in(romload_data), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
+reg H2edge;
+reg [1:0] H2s;
 
-reg [1:0] pxl_sh;
-wire pxl_rise = !pxl_sh[1] && pxl_sh[0];
-
-always @(negedge clk) begin
-	pxl_sh <= { pxl_sh[0], clk_pxl };
+always @(posedge clk) begin
+	H2s <= { H2s[0], H2};
+	H2edge <= H2s[1] && !H2s[0];
 end
-
 
 always @(posedge clk)
 	if( rst ) begin
@@ -236,7 +238,8 @@ always @(posedge clk)
 			next  <= READ;
 			SDRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
 			end		
-		READ: if( rd_state!=4'hA || pxl_rise || downloading )  begin
+		READ: if( rd_state!=4'hA || H2edge ) 
+			begin
 			read_done <= true;
 			if( downloading && romload_wr16 )
 				state <=  SET_PRECHARGE_WR; // it stays on READ state until romload_wr16 asserted

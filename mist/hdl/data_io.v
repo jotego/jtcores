@@ -28,12 +28,12 @@ module data_io (
 	input         ss,
 	input         sdi,
 
-	output        downloading,   // signal indicating an active download
-   output reg [4:0]  index,     // menu index used to upload the file
+    output reg [4:0]  index,     // menu index used to upload the file
 	 
 	// external ram interface
 	input 			  	clk_sdram,
 	input				rst,
+	output reg     		downloading_sdram,   // signal indicating an active download
 	output reg        	wr_sdram,
 	output reg [24:0] 	addr_sdram,
 	output reg [15:0]  	data_sdram
@@ -55,7 +55,6 @@ localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
 
-assign downloading = downloading_reg;
 reg downloading_reg = 1'b0;
 
 // data_io has its own SPI interface to the io controller
@@ -102,11 +101,14 @@ always@(posedge sck, posedge ss) begin
 end
 
 reg rclkD, rclkD2;
+reg sync_aux;
+
 always@(posedge clk_sdram or posedge rst) 
 	if ( rst ) begin
 		addr_sdram <= 25'd0;
 	end
 	else begin
+		{ downloading_sdram, sync_aux } <= { sync_aux, downloading_reg };
 		// bring rclk from spi clock domain into c64 clock domain
 		rclkD <= rclk;
 		rclkD2 <= rclkD;

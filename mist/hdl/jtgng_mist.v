@@ -49,7 +49,7 @@ parameter CONF_STR = {
 
 parameter CONF_STR_LEN = 7+20+23+15+24+9+7;
 
-reg rst=1'b1;
+reg rst = 1'b1;
 
 wire downloading;
 // wire [4:0] index;
@@ -57,16 +57,16 @@ wire romload_wr;
 wire [24:0] romload_addr;
 wire [15:0] romload_data;
 data_io datain (
-	.sck        (SPI_SCK      ),
-	.ss         (SPI_SS2      ),
-	.sdi        (SPI_DI       ),
-	.downloading(downloading  ),
+	.sck        		( SPI_SCK      ),
+	.ss         		( SPI_SS2      ),
+	.sdi        		( SPI_DI       ),
 	// .index      (index        ),
-	.rst      	( rst      	  ),
-	.clk_sdram  (SDRAM_CLK    ),
-	.wr_sdram   (romload_wr   ),
-	.addr_sdram (romload_addr ),
-	.data_sdram (romload_data )
+	.rst				( rst		   ),
+	.clk_sdram  		( SDRAM_CLK    ),
+	.downloading_sdram	( downloading  ),
+	.wr_sdram   		( romload_wr   ),
+	.addr_sdram 		( romload_addr ),
+	.data_sdram 		( romload_data )
 );
 
 wire [7:0] status, joystick1, joystick2; //, joystick;
@@ -109,7 +109,6 @@ jtgng_pll1 clk_gen2 (
 	.inclk0	( clk24 	),
 	.c0		( clk_vga	) // 25
 );
-
 
 reg [2:0] rst_aux=3'b111;
 
@@ -157,10 +156,10 @@ jtgng_game game (
 	.romload_data( romload_data ),
 	.romload_wr	( romload_wr	),
 	// DIP switches
-	.dip_game_mode	( ~status[1]	),
-	.dip_upright	(  status[2]	),
-	.dip_noflip		(  status[3]	),
-	.dip_attract_snd(  status[4]	)
+	.dip_game_mode	( status[1]	),
+	.dip_upright	( status[2]	),
+	.dip_flip		( ~status[3]),
+	.dip_attract_snd( status[4]	)
 );
 
 wire [5:0] GNG_R, GNG_G, GNG_B;

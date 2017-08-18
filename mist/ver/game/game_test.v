@@ -4,6 +4,9 @@
 
 	Game test
 
+	~0.95 frames/minute on DELL laptop
+	at least 900 frames to see SERVICE screen
+
 */
 
 module game_test;
@@ -27,11 +30,21 @@ module game_test;
 
 	`endif
 
+reg frame_done=1'b1, can_finish=1'b0;
+
 `ifndef LOADROM
 	// initial #(200*1000) $finish;
-	initial #(14*1000*1000) $finish;
-	// initial #(120*1000*1000) $finish;
-`else 
+	// initial #(40*1000*1000) $finish;
+	initial begin
+		// #(20*1000*1000) $finish;
+		`ifndef MAXFRAME
+		//#(400*1000*1000) can_finish=1'b1;
+		$display("Waiting to finish the last frame");
+		#(20*1000*1000) $finish; // hard stop
+		`endif
+	end
+`endif
+/*
 	initial begin
 		#(1*1000*1000);
 		forever begin
@@ -51,18 +64,21 @@ module game_test;
 		$finish;
 	end
 */
-reg rst, clk_pxl, clk_rgb, SDRAM_CLK;
+reg rst, clk_pxl, clk_rgb, clk_rom;
+
+always @(posedge clk_rgb)
+	if( frame_done && can_finish ) $finish;
+
+wire SDRAM_CLK = clk_rom;
 
 initial begin
-	SDRAM_CLK=1'b0;
-	//forever SDRAM_CLK = #6.173 ~SDRAM_CLK; //81MHz
-	//forever SDRAM_CLK = #5.952 ~SDRAM_CLK; //84MHz
-	forever SDRAM_CLK = #5.555 ~SDRAM_CLK; //90MHz
+	clk_rom=1'b0;
+	forever clk_rom = #(10.417/2) ~clk_rom; // 96 MHz
 end
 
 initial begin
 	clk_pxl =1'b0;
-	forever clk_pxl  = #83.340 ~clk_pxl ; //81
+	forever clk_pxl  = #83.340 ~clk_pxl ; // 6
 end
 
 initial begin
@@ -136,13 +152,17 @@ jtgng_game UUT (
 	.SDRAM_nCS	( SDRAM_nCS ),
 	.SDRAM_BA	( SDRAM_BA 	),
 	.SDRAM_CKE	( SDRAM_CKE ),
-	.joystick1	( 8'h55		),
-	.joystick2	( 8'haa		),
+	.joystick1	( 8'haa		),
+	.joystick2	( 8'h55		),
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
-	.romload_data_prev( romload_data_prev ),
-	.romload_wr	( romload_wr	)
+	.romload_wr	( romload_wr	),
+	// DIP switches
+	.dip_flip		(	1'b0	),
+	.dip_game_mode	(	1'b0	),
+	.dip_attract_snd(	1'b0	),
+	.dip_upright	(	1'b1	)
 );
 
 mt48lc16m16a2 mist_sdram (
@@ -202,31 +222,47 @@ always @(posedge clk_vga) begin
 		if( enter_hbl != VGA_HS && !VGA_HS)
 			$write("),\n(");
 		else
-			if( VGA_HS ) $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+			if( VGA_HS ) $write("%d,%d,%d,",red,red, green, green, blue, blue);
 	end
 end
 `endif
 
 `elsif CHR_DUMP
 integer frame_cnt;
+integer fout;
+reg skip;
+
 reg enter_hbl, enter_vbl;
 always @(posedge clk_pxl) begin
 	if( rst || downloading ) begin
 		enter_hbl <= 1'b0;
 		enter_vbl <= 1'b0;
 		frame_cnt <= 0;
+		skip <= 1'b1;
 	end else if(!downloading) begin
 		enter_hbl <= LHBL;
 		enter_vbl <= LVBL;
 		if( enter_vbl != LVBL && !LVBL ) begin
-			$write(")]\n# New frame\nframe_%d=[(\n", frame_cnt);
+			if( frame_cnt>0) $fclose(fout);
+			$display("New frame (%d)", frame_cnt);
+			fout = $fopen("frame_0"+(frame_cnt&32'h1f),"wb");
 			frame_cnt <= frame_cnt + 1;
+			skip <= 1'b1;
+			frame_done <= 1'b1;
+			`ifdef MAXFRAME
+			if( frame_cnt == `MAXFRAME ) $finish;
+			`endif
 		end
-		else
-		if( enter_hbl != LHBL && !LHBL)
-			$write("),\n(");
-		else
-			if( LHBL ) $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+		else begin
+			if( enter_hbl != LHBL && !LHBL) begin
+				skip <= 1'b0; // skip first line;
+				frame_done <= 1'b0;
+				$fwrite(fout,"%u",32'hFFFFFFFF); // new line marker
+			end
+			if( !skip && LHBL ) 
+				$fwrite(fout,"%u", {8'd0, red, 4'd0, green, 4'd0, blue, 4'd0});
+				// $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+		end
 	end
 end
 
@@ -348,11 +384,10 @@ data_io datain (
 	.sdi        (SPI_DI       ),
 	.downloading(downloading  ),
 	// .index      (index        ),
-	.rst		( rst		  ),
-	.clk_sdram  (SDRAM_CLK    ),
-	.wr_sdram   (romload_wr   ),
-	.addr_sdram (romload_addr ),
-	.data_sdram (romload_data )
+	.clk        (SDRAM_CLK    ),
+	.wr         (romload_wr   ),
+	.addr       (romload_addr ),
+	.data       (romload_data )
 );
 
 `else 

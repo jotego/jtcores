@@ -149,6 +149,10 @@ set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
+<<<<<<< HEAD
+=======
+set_global_assignment -name SEED 2
+>>>>>>> ba233eb145d47306b2c76ac395651577b385fc9c
 set_global_assignment -name VERILOG_FILE ../hdl/crc32.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_scroll.v
 set_global_assignment -name VERILOG_FILE ../hdl/osd.v
