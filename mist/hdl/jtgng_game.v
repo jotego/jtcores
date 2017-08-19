@@ -119,9 +119,11 @@ jtgng_scroll scrollgen (
 jtgng_colmix colmix (
 	.rst        ( rst        	),
 	.clk_rgb    ( clk_rgb    	),
+	// .clk_pxl	( clk			),
+	// .H			( H[2:0]		),
 	// characters
-	.char       ( char_col   	),
-	.cc         ( char_pal   	),
+	.chr_col    ( char_col   	),
+	.chr_pal    ( char_pal   	),
 	// scroll
 	.scr_col	( scr_col		),
 	.scr_pal	( scr_pal		),

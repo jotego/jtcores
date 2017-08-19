@@ -16,8 +16,8 @@ module jtgng_scroll(
 	// ROM
 	output reg 	[14:0] scr_addr,
 	input  		[23:0] scrom_data,
-	output reg 	[ 2:0] scr_pal,
-	output reg 	[ 2:0] scr_col
+	output  	[ 2:0] scr_pal,
+	output  	[ 2:0] scr_col
 );
 
 reg [10:0]	addr;
@@ -107,7 +107,6 @@ always @(negedge clk) begin
 		end
 		3'd7: begin
 			scr_hflip_prev <= scr_hflip^flip;
-			scr_pal <= aux2;
 		end
 	endcase
 	scr_addr = { AS, HS[3]^scr_hflip, vert_addr };
@@ -116,10 +115,19 @@ end
 // Draw pixel on screen
 reg [7:0] x,y,z;
 
+reg [2:0] pxl_aux, pal_aux;
+// delays pixel data so it comes out on a multiple of 8
+jtgng_sh #(.width(6),.stages(4)) pixel_sh (
+	.clk	( clk					), 
+	.din	( {pal_aux,pxl_aux}		), 
+	.drop	( {scr_pal, scr_col}	)
+);
+
 always @(negedge clk) begin
-	scr_col <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-	case( H[2:0] )
+	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+	case( HS[2:0] )
 		3'd0: { z,y,x } <= scrom_data;
+		3'd1: pal_aux <= aux2;
 		default:
 			begin
 				if( scr_hflip_prev ) begin

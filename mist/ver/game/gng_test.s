@@ -12,8 +12,12 @@ JOY1		EQU $3001
 JOY2		EQU $3002
 CRC			EQU $3005
 
+CHR			EQU $2000
+CHR_ATT		EQU $2400
 SCR			EQU $2800
 SCR_ATT		EQU $2C00
+
+FLIPVAR		EQU $1010
 
 RESET: 
 	ORCC #$10
@@ -21,6 +25,7 @@ RESET:
 	CLRA
 	STA	BANK
 	STA FLIP
+	STA FLIPVAR
 	CLRA
 	STA HPOS_LOW
 	STA HPOS_HIGH
@@ -38,9 +43,11 @@ RESET:
 
 	;LBSR CHKSCR
 	;LBSR CHKCHAR
-	LBSR FILLSCR
-	LBSR CLRCHAR
-	;LBSR CLRSCR
+
+	LBSR TEST_CHARPAL
+	;LBSR CLRCHAR
+	;LBSR FILLSCR
+	LBSR CLRSCR
 
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
@@ -55,11 +62,20 @@ FIN:
 	LDA	JOY1
 	BITA #$20
 	BEQ	JUEGO
+	BITA #$10
+	BEQ TOGGLE_FLIP
 ;	LDX	#$2042
 ;	BSR	SHOW_JOY
 ;	LDA	JOY2
 ;	LDX	#$2062
 ;	BSR	SHOW_JOY	
+	BRA FIN
+TOGGLE_FLIP:
+	LDA FLIPVAR
+	INCA
+	STA FLIP
+	STA FLIPVAR
+	BRA FIN
 	BRA FIN
 JUEGO:
 	ORCC #$10
@@ -282,7 +298,7 @@ FILLSCR:
 	INCA
 	CMPX #(SCR_ATT+$400)
 	BLT @L2
-	
+
 	RTS
 
 ; *****************************************
@@ -334,6 +350,32 @@ CHKSCR:
 	BEQ @MAL
 	STA ,X+
 	BRA @L2
+
+;********************************************
+; Test character colour assignment
+TEST_CHARPAL:
+	LDX #CHR
+	LDY #RGBSTR
+@L4:
+	LDA ,Y
+	BNE @L3
+	CMPX #(CHR+$400)
+	BGE @L5
+	LDY #RGBSTR
+	LDA ,Y
+@L3:
+	STA ,X
+	LDA 5,Y
+	STA $400,X
+	LEAX 1,X
+	LEAY 1,Y
+	BRA @L4
+@L5:
+	RTS
+
+RGBSTR:
+	.STRZ "RGBW"
+	FCB 0,1,2,3
 
 ;********************************************
 ; Fills all screen with hex numbers
@@ -413,8 +455,8 @@ IRQSERVICE:
 	LDX #CHR_PALRAM
 	LDY #CHAR_PALETTE	
 @L:	LDD ,Y++
-	STB ,X
-	STA $100,X
+	STA ,X
+	STB $100,X
 	LEAX 1,X
 	CMPY #SCROLL_PALETTE
 	BNE @L

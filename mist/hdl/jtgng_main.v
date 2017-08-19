@@ -128,6 +128,7 @@ always @(negedge clk)
 	if( rst ) begin
 		coin_cnt1 <= {coinw{1'b0}};
 		coin_cnt2 <= {coinw{1'b0}};
+		flip <= 1'b0;
 		end
 	else
 	if( flip_cs ) 

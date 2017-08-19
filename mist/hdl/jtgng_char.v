@@ -15,8 +15,8 @@ module jtgng_char(
 	// ROM
 	output reg [12:0] char_addr,
 	input  [15:0] chrom_data,
-	output reg [3:0] char_pal,
-	output reg [ 1:0] char_col
+	output [ 3:0] char_pal,
+	output [ 1:0] char_col
 );
 
 reg [10:0]	addr;
@@ -84,30 +84,36 @@ end
 
 // Draw pixel on screen
 reg [15:0] chd;
+reg [3:0] pal_aux;
+reg [1:0] pxl_aux;
+
+// delays pixel data so it comes out on a multiple of 8
+jtgng_sh #(.width(6),.stages(4)) pixel_sh (
+	.clk	( clk					), 
+	.din	( {pal_aux,pxl_aux}		), 
+	.drop	( {char_pal, char_col}	)
+);
 
 always @(negedge clk) begin
-	//char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
-	char_col <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
-	if( H128[2:0]==3'd1 ) char_pal <= aux2[3:0];
+	pxl_aux <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
 	case( H128[2:0] )
-		3'd0: chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
-		3'd4: chd[7:0] <= chd[15:8];
-	/*
-	if( H128[1:0]==2'd0 ) begin
-		chd <= (H128[2] ^ char_hflip) ? chrom_data[15:8] : chrom_data[7:0];
-	end
-	else */
+		3'd2:
+			chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+		3'd3: 
+			pal_aux <= aux2[3:0]; // new pixel data comes out on 3
+		3'd6: 
+			chd[7:0] <= chd[15:8];
 		default:
-	begin
-		if( char_hflip_prev ) begin
-			chd[7:4] <= {1'b0, chd[7:5]};
-			chd[3:0] <= {1'b0, chd[3:1]};
-		end
-		else  begin
-			chd[7:4] <= {chd[6:4], 1'b0};
-			chd[3:0] <= {chd[2:0], 1'b0};
-		end
-	end
+			begin
+				if( char_hflip_prev ) begin
+					chd[7:4] <= {1'b0, chd[7:5]};
+					chd[3:0] <= {1'b0, chd[3:1]};
+				end
+				else  begin
+					chd[7:4] <= {chd[6:4], 1'b0};
+					chd[3:0] <= {chd[2:0], 1'b0};
+				end
+			end
 	endcase
 end
 
