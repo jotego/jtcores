@@ -40,7 +40,7 @@ reg frame_done=1'b1, can_finish=1'b0;
 		`ifndef MAXFRAME
 		//#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
-		#(20*1000*1000) $finish; // hard stop
+		#(40*1000*1000) $finish; // hard stop
 		`endif
 	end
 `endif

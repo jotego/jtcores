@@ -149,10 +149,7 @@ set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
-<<<<<<< HEAD
-=======
 set_global_assignment -name SEED 2
->>>>>>> ba233eb145d47306b2c76ac395651577b385fc9c
 set_global_assignment -name VERILOG_FILE ../hdl/crc32.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_scroll.v
 set_global_assignment -name VERILOG_FILE ../hdl/osd.v
@@ -181,7 +178,4 @@ set_global_assignment -name QIP_FILE ../hdl/jtgng_mainram.qip
 set_global_assignment -name QIP_FILE jtgng_pll0.qip
 set_global_assignment -name QIP_FILE ../hdl/jtgng_rgbram.qip
 set_global_assignment -name QIP_FILE ../hdl/jtgng_pll1.qip
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
-set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
-set_global_assignment -name SEED 2
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

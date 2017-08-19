@@ -66,7 +66,7 @@ reg char_hflip;
 reg half_addr;
 
 // Set input for ROM reading
-always @(posedge clk) begin
+always @(negedge clk) begin
 	case( H128[2:0] )
 		// 3'd1: char_pal <= aux2[3:0];
 		3'd2: aux <= dout;
@@ -85,7 +85,7 @@ end
 // Draw pixel on screen
 reg [15:0] chd;
 
-always @(posedge clk) begin
+always @(negedge clk) begin
 	//char_col <= char_hflip_prev ? { chd[4], chd[0] } : { chd[7], chd[3] };
 	char_col <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
 	if( H128[2:0]==3'd1 ) char_pal <= aux2[3:0];

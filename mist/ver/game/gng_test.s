@@ -1,5 +1,7 @@
 	ORG $0
 
+SCR_PALRAM	EQU $3800
+CHR_PALRAM	EQU $38C0
 HPOS_LOW	EQU $3B08
 HPOS_HIGH	EQU $3B09
 VPOS_LOW	EQU $3B0A
@@ -34,16 +36,17 @@ RESET:
 	CMPA #1
 	BEQ @L
 
+	;LBSR CHKSCR
+	;LBSR CHKCHAR
 	LBSR FILLSCR
 	LBSR CLRCHAR
-	; BRA FIN
-	; BSR CHKCHAR
+	;LBSR CLRSCR
 
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
-	LBSR FILL_HEXSTR
+;	LBSR FILL_HEXSTR
 ;	LBSR FILL_CORNERS
-	BSR APPLY_ATTR
+;	BSR APPLY_ATTR
 	LDU #$BABE
 
 ;	BSR SHOW_CRC
@@ -268,6 +271,18 @@ FILLSCR:
 	STB ,Y+
 	CMPX #SCR_ATT
 	BNE @L
+
+	CLRB
+	CLRA
+@L2:
+	STA ,X+
+	INCB
+	CMPB #$10
+	BNE @L2
+	INCA
+	CMPX #(SCR_ATT+$400)
+	BLT @L2
+	
 	RTS
 
 ; *****************************************
@@ -287,7 +302,38 @@ CHKCHAR:
 	RTS
 @MAL:
 	LDU #$DEAD
+	LDX #$2120
+	LDY #CHAR_MAL
+@L2:	
+	LDA ,Y+
+	BEQ @MAL
+	STA ,X+
+	BRA @L2
+
+; *****************************************
+; Verify R/W on character memory
+CHKSCR:
+	LDU #$BABE
+	LDX #SCR
+	CLRA
+@L:	
+	STA ,X
+	CMPA ,X+
+	BNE @MAL
+	ADDA #$11
+	CMPX #(SCR+$800)
+	BNE @L
+	LDU #$FACE
 	RTS
+@MAL:
+	LDU #$DEAD
+	LDX #$2120
+	LDY #SCR_MAL
+@L2:	
+	LDA ,Y+
+	BEQ @MAL
+	STA ,X+
+	BRA @L2
 
 ;********************************************
 ; Fills all screen with hex numbers
@@ -315,6 +361,45 @@ LONGSTR:
 
 HELLO:
 	.STRZ "      hola mundo"
+CHAR_MAL:
+	.STRZ "     bad char RAM"
+SCR_MAL:
+	.STRZ "     bad scroll RAM"
+
+CHAR_PALETTE:
+	; Characters. 16 palettes
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+; Scroll. 8 palettes
+SCROLL_PALETTE:
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+OBJECT_PALETTE:
 
 IRQSERVICE:
 	; ORCC #$10
@@ -325,100 +410,24 @@ IRQSERVICE:
 	BNE @DOWORK
 	RTI		
 @DOWORK:
-	LDX #$3800
-	LDY #$3900
-	CLRA
-	CLRB	
-@L:	STD ,X++
-	STD ,Y++
-	ADDA #$11
-	ADDB #$11
-	CMPX #$3900
+	LDX #CHR_PALRAM
+	LDY #CHAR_PALETTE	
+@L:	LDD ,Y++
+	STB ,X
+	STA $100,X
+	LEAX 1,X
+	CMPY #SCROLL_PALETTE
 	BNE @L
 
-	; Character colours
-	LDX #$38C0	
-	LDY #$39C0
-	CLRA
-	; CC=0 red tones, RG
-	LDA #$00
-	STA ,X+
-	LDA #$50
-	STA ,X+
-	LDA #$A0
-	STA ,X+
-	LDA #$F0
-	STA ,X+
-	; CC=0, B
-	CLRA
-	STA ,Y+
-	STA ,Y+	
-	STA ,Y+	
-	STA ,Y+	
-	; CC=1 green tones, RG
-	LDA #$00
-	STA ,X+
-	LDA #$05
-	STA ,X+
-	LDA #$0A
-	STA ,X+
-	LDA #$0F
-	STA ,X+
-	; CC=1, B
-	CLRA
-	STA ,Y+
-	STA ,Y+
-	STA ,Y+
-	STA ,Y+
-
-	; CC=2 blue tones, RG
-	CLRA
-	STA ,X+
-	STA ,X+
-	STA ,X+
-	STA ,X+
-	; CC=2, B
-	LDA #$00
-	STA ,Y+
-	LDA #$55
-	STA ,Y+
-	LDA #$AA
-	STA ,Y+
-	LDA #$FF
-	STA ,Y+
-
-	; CC=3 gray tones, RG
-	LDA #$00
-	STA ,X+
-	STA ,Y+
-	LDA #$55
-	STA ,X+
-	STA ,Y+
-	LDA #$AA
-	STA ,X+
-	STA ,Y+
-	LDA #$FF
-	STA ,X+
-	STA ,Y+
-
-	; CC=4 mixed colours, RG
-	LDA #$00
-	STA ,X+
-	LDA #$0A
-	STA ,X+
-	LDA #$A0
-	STA ,X+
-	LDA #$FF
-	STA ,X+
-	; CC=1, B
-	LDA #$00
-	STA ,Y+
-	LDA #$AA
-	STA ,Y+
-	LDA #$AA
-	STA ,Y+
-	LDA #$FF
-	STA ,Y+	
+	LDX #SCR_PALRAM
+	LDY #SCROLL_PALETTE	
+@L2:
+	LDD ,Y++
+	STA ,X
+	STB $100,X
+	LEAX 1,X
+	CMPY #OBJECT_PALETTE
+	BNE @L2
 
 	CLR $1000
 	RTI

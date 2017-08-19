@@ -28,18 +28,23 @@ reg [8:0] hpos, vpos;
 
 wire H7 = (~H[8] & (~flip ^ HF[6])) ^HF[7];
 
+reg [2:0] HSaux;
+
 always @(*) begin
 	VS = vpos + {1'b0, VF};
-	HS = hpos + { ~H[8], H7, H[6:0]};
+	{ HS[8:3], HSaux } = hpos + { ~H[8], H7, H[6:0]};
+	HS[2:0] = HSaux ^ {3{flip}};
 end
 
-wire sel = ~H[2];
-reg	we;
+reg S0H, S4H, S2H, S7H_b;
+
+reg	we, scren_b;
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 
+
 always @(*)
-	if( !sel ) begin
+	if( !scren_b ) begin
 		addr = AB;
 		we   = scr_cs && !rd;
 	end else begin
@@ -48,7 +53,7 @@ always @(*)
 	end
 
 
-always @(posedge clk)
+always @(negedge clk)
 	if( scrpos_cs && AB[3]) 
 	case(AB[2:0])
 		3'd0: hpos[7:0] <= din;
@@ -66,8 +71,23 @@ jtgng_chram	RAM(
 );
 
 reg [9:0] AS;
+reg pre_rdy;
 
-assign MRDY_b = !( scr_cs && ( &H[2:1]==1'b0 ) );
+always @(negedge clk) begin
+	S0H <= HS[2:0]==3'd7;
+	S4H <= HS[2:0]==3'd3;
+	S2H <= HS[2:0]==3'd1;
+	if( HS[2:0]==3'd3 ) begin
+		scren_b <= !scr_cs;
+	end
+	if( HS[2:0]==3'd5 ) pre_rdy <= 1'b1;
+	if( HS[2:0]==3'd7 ) begin
+		pre_rdy <= 1'b0;
+		scren_b <= 1'b1;	
+	end
+end
+
+assign MRDY_b = !scr_cs || pre_rdy;
 reg scr_hflip, scr_vflip;
 reg scr_hflip_prev;
 reg [2:0] aux2;
@@ -75,17 +95,19 @@ reg [3:0] vert_addr;
 reg [7:0] aux;
 
 // Set input for ROM reading
-always @(posedge clk) begin
-	case( H[2:0] )
-		// 3'd1: char_pal <= aux2[3:0];
-		3'd2: aux <= dout;
-		3'd4: begin
+always @(negedge clk) begin
+	case( HS[2:0] )
+		3'd1: aux <= dout;
+		3'd3: begin
 			AS        <= {dout[7:6], aux};
 			scr_vflip <= dout[5] ^ flip;
-			scr_hflip <= dout[4] ^ flip;
-			scr_hflip_prev <= scr_hflip;
+			scr_hflip <= ~dout[4] ^ flip;
 			aux2 <= dout[2:0];			
-			vert_addr <= {4{dout[5]^flip}}^V128[3:0];
+			vert_addr <= {4{dout[5]^scr_vflip}}^VS[3:0];
+		end
+		3'd7: begin
+			scr_hflip_prev <= scr_hflip^flip;
+			scr_pal <= aux2;
 		end
 	endcase
 	scr_addr = { AS, HS[3]^scr_hflip, vert_addr };
@@ -94,9 +116,8 @@ end
 // Draw pixel on screen
 reg [7:0] x,y,z;
 
-always @(posedge clk) begin
+always @(negedge clk) begin
 	scr_col <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-	if( H[2:0]==3'd1 ) scr_pal <= aux2[2:0];
 	case( H[2:0] )
 		3'd0: { z,y,x } <= scrom_data;
 		default:

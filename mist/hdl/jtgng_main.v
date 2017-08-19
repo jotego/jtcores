@@ -58,7 +58,7 @@ reg [7:0] AH;
 wire E,Q;
 reg VMA;
 
-//always @(posedge Q)
+//always @(negedge Q)
 //	VMA <= AVMA;
 
 always @(*)
@@ -145,7 +145,7 @@ wire [7:0] dipsw_b = { 5'd0, dip_upright, 2'd0 };
 reg [7:0] joystick1_sync, joystick2_sync;
 
 // 1 FF synchronizer
-always @(posedge clk) begin
+always @(negedge clk) begin
 	joystick1_sync <= joystick1;
 	joystick2_sync <= joystick2;
 end
@@ -180,7 +180,7 @@ jtgng_mainram RAM(
 
 reg [7:0] cpu_din;
 
-always @(posedge clk)
+always @(negedge clk)
  	cpu_din <=  ({8{ram_cs}}  & ram_dout )	| 
 				({8{char_cs}} & char_dout)	|
 				({8{scr_cs}} & scr_dout)	|

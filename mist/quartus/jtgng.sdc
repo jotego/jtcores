@@ -48,15 +48,7 @@ create_generated_clock -name {clk_Q} -source [get_nets {game|main|cpu|rE}] -phas
 #**************************************************************
 # Create Generated Clock
 #**************************************************************
-<<<<<<< HEAD
 
-create_generated_clock -name clk_pxl -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 2 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] 
-create_generated_clock -name clk_rgb -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[1]}] -duty_cycle 50.000 -multiply_by 8 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] 
-create_generated_clock -name clk_sdram -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[2]}] -duty_cycle 50.000 -multiply_by 10 -divide_by 3 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] 
-create_generated_clock -name clk24 -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[3]}] -duty_cycle 50.000 -multiply_by 8 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] 
-create_generated_clock -name clk_vga -source [get_pins {clk_gen2|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 25 -divide_by 24 -master_clock {clk24} [get_pins {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] 
-create_generated_clock -name sdclk_pin -source [get_clocks clk_sdram] [get_ports {SDRAM_CLK}]
-=======
 derive_pll_clocks -create_base_clocks
 create_generated_clock -name {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[0]}] -divide_by 4 -phase 270.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}] 
 create_generated_clock -name {jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[0]}] -divide_by 4 -phase 90.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers {jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ}] 
@@ -69,7 +61,6 @@ create_generated_clock -name {jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ} -so
 #create_generated_clock -name {clk_vga} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] -multiply_by 25 -divide_by 24 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[3]} [get_pins {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] 
 
 create_generated_clock -name sdclk_pin -source [get_pins {clock|altpll_component|auto_generated|pll1|clk[2]}] [get_ports {SDRAM_CLK}]
->>>>>>> ba233eb145d47306b2c76ac395651577b385fc9c
 
 #**************************************************************
 # Set Clock Latency
@@ -107,10 +98,6 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]***
 #**************************************************************
 # Set False Path
 #**************************************************************
-<<<<<<< HEAD
-set_false_path -from [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -to [get_keepers {jtgng_game:game|jtgng_rom:rom|pxl_sh[0]}]
-
-=======
 
 set_false_path  -from  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]  -to  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]
 set_false_path  -from  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]
@@ -118,7 +105,6 @@ set_false_path -from [get_keepers {user_io:userio|joystick_0[*]}] -to [get_keepe
 set_false_path -from [get_keepers {user_io:userio|joystick_1[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
 set_false_path -from [get_keepers {user_io:userio|status[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
 set_false_path -from [get_keepers {user_io:userio|status[5]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|nRESET}]
->>>>>>> ba233eb145d47306b2c76ac395651577b385fc9c
 
 #**************************************************************
 # Set Multicycle Path

@@ -88,8 +88,8 @@ always @(posedge clk)
 			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= SDRAM_DQ[7:0];
 			4'd1, 4'd7: main_dout <= SDRAM_DQ[7:0];
 			4'd2: char_dout <= SDRAM_DQ;
-			4'd4: scr_dout[15:0] <= SDRAM_DQ;
-			4'd5: scr_dout[23:0] <= SDRAM_DQ[7:0];
+			4'd4: scr_dout[15: 0] <= SDRAM_DQ;
+			4'd5: scr_dout[23:16] <= SDRAM_DQ[7:0];
 			4'd8: obj_dout <= SDRAM_DQ;
 		endcase
 		// Set ADDR for next read

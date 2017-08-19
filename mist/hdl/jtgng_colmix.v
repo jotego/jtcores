@@ -29,14 +29,20 @@ wire [7:0] dout;
 //wire [7:0] pixel_mux = { 2'b11, cc, char };
 reg [7:0] pixel_mux;
 
+reg char_win, scr_win;
+
 always @(*) begin
-	if( char==2'b11 )
+	if( char==2'b11 ) begin
 		pixel_mux = {2'b00, scr_pal, scr_col };
-	else
+		{ char_win, scr_win } = 2'b01;
+	end
+	else begin
 		pixel_mux = { 2'b11, cc, char };
+		{ char_win, scr_win } = 2'b10;
+	end
 end
 
-always @(posedge clk_rgb)
+always @(negedge clk_rgb)
 	if( rst ) begin
 		{ addr_top, aux } <= 2'b00;
 	end else begin
@@ -48,7 +54,7 @@ always @(posedge clk_rgb)
 		endcase
 		// assign current pixel colour
 		if( LVBL && LHBL )
-			case( {~addr_top,aux} )
+			case( {addr_top,aux} )
 				2'b01: begin
 					red   <= dout[7:4];
 					green <= dout[3:0];
