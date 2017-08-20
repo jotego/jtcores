@@ -40,7 +40,7 @@ reg frame_done=1'b1, can_finish=1'b0;
 		`ifndef MAXFRAME
 		//#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
-		#(40*1000*1000) $finish; // hard stop
+		#(7*1000*1000) $finish; // hard stop
 		`endif
 	end
 `endif
@@ -152,8 +152,8 @@ jtgng_game UUT (
 	.SDRAM_nCS	( SDRAM_nCS ),
 	.SDRAM_BA	( SDRAM_BA 	),
 	.SDRAM_CKE	( SDRAM_CKE ),
-	.joystick1	( 8'haa		),
-	.joystick2	( 8'h55		),
+	.joystick1	( 8'hff		),
+	.joystick2	( 8'hff		),
 	.downloading( downloading ),
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),

@@ -32,6 +32,24 @@ RESET:
 	STA VPOS_LOW
 	STA VPOS_HIGH
 
+	LDA #$1
+	LDX #(SCR+$240)
+	STA ,X
+	LDA #$3F
+	STA $400,X
+
+	LDA #$50
+	LDX #(SCR+$242)
+	STA ,X
+	LDA #$B9
+	STA $400,X
+
+	LDA #$0
+	LDX #(SCR+$244)
+	STA ,X
+	LDA #$C2
+	STA $400,X
+	BRA FIN
 
 	; primero la paleta
 	LDA #1
@@ -44,10 +62,11 @@ RESET:
 	;LBSR CHKSCR
 	;LBSR CHKCHAR
 
-	LBSR TEST_CHARPAL
+	;LBSR TEST_CHARPAL
 	;LBSR CLRCHAR
 	;LBSR FILLSCR
-	LBSR CLRSCR
+	;LBSR CLRSCR
+	;LBSR TEST_SCRPAL
 
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
@@ -360,6 +379,28 @@ TEST_CHARPAL:
 	LDA ,Y
 	BNE @L3
 	CMPX #(CHR+$400)
+	BGE @L5
+	LDY #RGBSTR
+	LDA ,Y
+@L3:
+	STA ,X
+	LDA 5,Y
+	STA $400,X
+	LEAX 1,X
+	LEAY 1,Y
+	BRA @L4
+@L5:
+	RTS
+
+;********************************************
+; Test scroll colour assignment
+TEST_SCRPAL:
+	LDX #SCR
+	LDY #RGBSTR
+@L4:
+	LDA ,Y
+	BNE @L3
+	CMPX #(SCR+$400)
 	BGE @L5
 	LDY #RGBSTR
 	LDA ,Y

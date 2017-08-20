@@ -214,7 +214,7 @@ assign bus_ack = BA && BS;
 always @(negedge clk) begin
 	last_LVBL <= LVBL;
 	if( {BS,BA}==2'b10 )
-		nIRQ = 1'b1;
+		nIRQ <= 1'b1;
 	else 
 		if(last_LVBL && !LVBL ) nIRQ<=1'b0; // when LVBL goes low
 end

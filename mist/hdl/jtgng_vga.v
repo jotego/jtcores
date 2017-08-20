@@ -62,19 +62,19 @@ always @(posedge clk_gng)
 			wr_addr <= wr_addr + 1'b1;
 	end
 
-reg lhbl, last_lhbl;
-reg lvbl, last_lvbl;
+reg LHBL_vga, last_LHBL_vga;
+reg LVBL_vga, last_LVBL_vga;
 reg vsync_req;
 reg wait_hsync;
 
 always @(posedge clk_vga) begin
-	lhbl <= LHBL;
-	last_lhbl <= lhbl;
+	LHBL_vga <= LHBL;
+	last_LHBL_vga <= LHBL_vga;
 
-	lvbl <= LVBL;
-	last_lvbl <= lvbl;
+	LVBL_vga <= LVBL;
+	last_LVBL_vga <= LVBL_vga;
 
-	vsync_req <= !vga_vsync ? 1'b0 : vsync_req || (!lvbl && last_lvbl);
+	vsync_req <= !vga_vsync ? 1'b0 : vsync_req || (!LVBL_vga && last_LVBL_vga);
 end
 
 reg [6:0] cnt;
@@ -105,7 +105,7 @@ always @(posedge clk_vga) begin
 				vsync_cnt <= 1'b0;		
 			end			
 			cnt <= cnt - 1'b1;
-			if( wait_hsync && (lhbl && !last_lhbl) ||
+			if( wait_hsync && (LHBL_vga && !last_LHBL_vga) ||
 			   !wait_hsync && !cnt ) begin
 				state<=FRONT;
 				cnt  <=7'd16;

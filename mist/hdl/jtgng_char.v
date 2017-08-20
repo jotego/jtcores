@@ -79,7 +79,7 @@ always @(negedge clk) begin
 			vert_addr <= {3{char_vflip}}^V128[2:0];
 		end
 	endcase
-	char_addr = { AC, vert_addr };
+	char_addr <= { AC, vert_addr };
 end
 
 // Draw pixel on screen

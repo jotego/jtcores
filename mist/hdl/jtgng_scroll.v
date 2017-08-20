@@ -23,8 +23,8 @@ module jtgng_scroll(
 reg [10:0]	addr;
 reg [8:0] HS, VS;
 wire [7:0] VF = {8{flip}}^V128;
-wire [7:0] HF = {8{flip}}^H;
-reg [8:0] hpos, vpos;
+wire [7:0] HF = {8{flip}}^H[7:0];
+reg [8:0] hpos=9'd0, vpos=9'd0;
 
 wire H7 = (~H[8] & (~flip ^ HF[6])) ^HF[7];
 
@@ -32,7 +32,7 @@ reg [2:0] HSaux;
 
 always @(*) begin
 	VS = vpos + {1'b0, VF};
-	{ HS[8:3], HSaux } = hpos + { ~H[8], H7, H[6:0]};
+	{ HS[8:3], HSaux } = hpos + { ~H[8], H7, HF[6:0]};
 	HS[2:0] = HSaux ^ {3{flip}};
 end
 
@@ -49,11 +49,11 @@ always @(*)
 		we   = scr_cs && !rd;
 	end else begin
 		we	 = 1'b0; // line order is important here
-		addr = { HS[1], scan };
+		addr = { HS[0], scan }; 
 	end
 
-
-always @(negedge clk)
+/*
+always @(negedge clk) 
 	if( scrpos_cs && AB[3]) 
 	case(AB[2:0])
 		3'd0: hpos[7:0] <= din;
@@ -61,6 +61,7 @@ always @(negedge clk)
 		3'd2: vpos[7:0] <= din;
 		3'd3: vpos[8]	<= din[0];
 	endcase // AB[3:0]
+*/
 
 jtgng_chram	RAM(
 	.address( addr 	),
@@ -88,28 +89,30 @@ always @(negedge clk) begin
 end
 
 assign MRDY_b = !scr_cs || pre_rdy;
-reg scr_hflip, scr_vflip;
+reg scr_hflip;
 reg scr_hflip_prev;
-reg [2:0] aux2;
+reg [2:0] pal_in;
 reg [3:0] vert_addr;
-reg [7:0] aux;
+reg [7:0] ASlow;
+
+wire scr_vflip = dout[5];
 
 // Set input for ROM reading
 always @(negedge clk) begin
 	case( HS[2:0] )
-		3'd1: aux <= dout;
-		3'd3: begin
-			AS        <= {dout[7:6], aux};
-			scr_vflip <= dout[5] ^ flip;
-			scr_hflip <= ~dout[4] ^ flip;
-			aux2 <= dout[2:0];			
-			vert_addr <= {4{dout[5]^scr_vflip}}^VS[3:0];
+		3'd5: ASlow <= dout;
+		3'd6: begin
+			AS        	<= {dout[7:6], ASlow};
+			scr_hflip 	<= dout[4];
+			pal_in 		<= dout[2:0];			
+			vert_addr 	<= {4{scr_vflip}}^VS[3:0];
 		end
-		3'd7: begin
-			scr_hflip_prev <= scr_hflip^flip;
+		3'd0: begin
+			scr_addr <= { 	AS, 
+							HS[3]^scr_hflip, 
+							vert_addr };
 		end
 	endcase
-	scr_addr = { AS, HS[3]^scr_hflip, vert_addr };
 end
 
 // Draw pixel on screen
@@ -122,15 +125,27 @@ jtgng_sh #(.width(6),.stages(4)) pixel_sh (
 	.din	( {pal_aux,pxl_aux}		), 
 	.drop	( {scr_pal, scr_col}	)
 );
+/*
+wire block_hflip;
+wire [2:0] block_pal;
 
+jtgng_sh #(.width(4),.stages(9)) block_sh (
+	.clk	( clk					), 
+	.din	( {scr_hflip, pal_in }		), 
+	.drop	( {block_hflip, block_pal}	)
+);
+*/
 always @(negedge clk) begin
-	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+	pxl_aux <= !scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 	case( HS[2:0] )
-		3'd0: { z,y,x } <= scrom_data;
-		3'd1: pal_aux <= aux2;
+		3'd3: begin
+			{ z,y,x } <= scrom_data;
+			scr_hflip_prev <= scr_hflip^flip;			
+		end
+		3'd4: pal_aux <= pal_in;
 		default:
 			begin
-				if( scr_hflip_prev ) begin
+				if( !scr_hflip_prev ) begin
 					x <= {1'b0, x[7:1]};
 					y <= {1'b0, y[7:1]};
 					z <= {1'b0, z[7:1]};

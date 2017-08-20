@@ -68,12 +68,12 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
 	( romload_wr16 ? romload_data : din ) : 
-	16'hzz;
+	16'hzzzz;
 
 reg crc_en;
 
 crc32 crc32_chk (.data_in(romload_data), .crc_en(crc_en), .crc_out(crc_out), .rst(rst), .clk(clk));
-
+reg [15:0] scr_aux;
 
 always @(posedge clk)
 	if( rst ) begin
@@ -88,8 +88,8 @@ always @(posedge clk)
 			4'd0, 4'd3, 4'd6, 4'd9: snd_dout <= SDRAM_DQ[7:0];
 			4'd1, 4'd7: main_dout <= SDRAM_DQ[7:0];
 			4'd2: char_dout <= SDRAM_DQ;
-			4'd4: scr_dout[15: 0] <= SDRAM_DQ;
-			4'd5: scr_dout[23:16] <= SDRAM_DQ[7:0];
+			4'd4: scr_aux  <=   SDRAM_DQ;
+			4'd5: scr_dout <= { SDRAM_DQ[7:0], scr_aux };
 			4'd8: obj_dout <= SDRAM_DQ;
 		endcase
 		// Set ADDR for next read
@@ -166,7 +166,7 @@ always @(posedge clk)
 	end else  begin
 	if( romload_wr & romload_addr[0] ) begin
 		romload_wr16 <= 1'b1;
-		{ romload_row, romload_col } = romload_addr[24:1];
+		{ romload_row, romload_col } <= romload_addr[24:1];
 	end
 	case( state )
 		default: state <= SET_PRECHARGE;
@@ -206,7 +206,7 @@ always @(posedge clk)
 			end
 		SET_PRECHARGE: begin
 			{ SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
-			SDRAM_A[10]=1'b1; // all banks
+			SDRAM_A[10]<=1'b1; // all banks
 			wait_cnt <= PRECHARGE_WAIT;
 			state <= WAIT;
 			next <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;		
