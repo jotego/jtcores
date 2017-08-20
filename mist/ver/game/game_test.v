@@ -43,6 +43,10 @@ reg frame_done=1'b1, can_finish=1'b0;
 		#(7*1000*1000) $finish; // hard stop
 		`endif
 	end
+`else
+initial begin
+	#(1*1000*1000) $finish; // hard stop
+end
 `endif
 /*
 	initial begin
@@ -382,12 +386,13 @@ data_io datain (
 	.sck        (SPI_SCK      ),
 	.ss         (SPI_SS2      ),
 	.sdi        (SPI_DI       ),
-	.downloading(downloading  ),
+	.downloading_sdram(downloading  ),
 	// .index      (index        ),
-	.clk        (SDRAM_CLK    ),
-	.wr         (romload_wr   ),
-	.addr       (romload_addr ),
-	.data       (romload_data )
+	.rst		( rst	  	  ),
+	.clk_sdram  (SDRAM_CLK    ),
+	.wr_sdram   (romload_wr   ),
+	.addr_sdram (romload_addr ),
+	.data_sdram (romload_data )
 );
 
 `else 

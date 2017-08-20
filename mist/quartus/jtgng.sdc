@@ -39,10 +39,8 @@ set_time_format -unit ns -decimal_places 3
 #**************************************************************
 
 create_clock -name {CLOCK_27[0]} -period 37.037 -waveform { 0.000 18.518 } [get_ports {CLOCK_27[0]}]
-#create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 1.000 -waveform { 0.000 0.500 } [get_registers {jtgng_vga:vga_conv|vga_hsync}]
 create_clock -name {SPI_SCK} -period 41.666 -waveform { 0.000 0.500 } [get_ports {SPI_SCK}]
-create_generated_clock -name {clk_E} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[0]}] -divide_by 4 -phase 180.000 -master_clock {clk_pxl} [get_keepers {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}] 
-create_generated_clock -name {clk_Q} -source [get_nets {game|main|cpu|rE}] -phase 270.000 -master_clock {clk_E} [get_nets {game|main|cpu|rQ}] 
+create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 31777.000 -waveform { 0.000 15888.500 } 
 
 
 #**************************************************************
@@ -50,17 +48,11 @@ create_generated_clock -name {clk_Q} -source [get_nets {game|main|cpu|rE}] -phas
 #**************************************************************
 
 derive_pll_clocks -create_base_clocks
-create_generated_clock -name {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[0]}] -divide_by 4 -phase 270.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}] 
-create_generated_clock -name {jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[0]}] -divide_by 4 -phase 90.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers {jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ}] 
+create_generated_clock -name {rE} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -divide_by 4 -phase 135.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers { jtgng_game:game|jtgng_main:main|mc6809:cpu|rE }] 
+create_generated_clock -name {rQ} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -divide_by 4 -phase 45.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers { jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ }] 
+create_generated_clock -name {sdclk_pin} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
 
-#create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[0]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 2 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] 
-#create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[1]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 8 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] 
-#create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[2]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 3 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] 
-#create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[3]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 8 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] 
 
-#create_generated_clock -name {clk_vga} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] -multiply_by 25 -divide_by 24 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[3]} [get_pins {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] 
-
-create_generated_clock -name sdclk_pin -source [get_pins {clock|altpll_component|auto_generated|pll1|clk[2]}] [get_ports {SDRAM_CLK}]
 
 #**************************************************************
 # Set Clock Latency
@@ -99,8 +91,8 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
 # Set False Path
 #**************************************************************
 
-set_false_path  -from  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]  -to  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]
-set_false_path  -from  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {jtgng_game:game|jtgng_main:main|mc6809:cpu|rE}]
+# set_false_path  -from  [get_clocks {clk_E}]  -to  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]
+set_false_path  -from  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {rE}]
 set_false_path -from [get_keepers {user_io:userio|joystick_0[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
 set_false_path -from [get_keepers {user_io:userio|joystick_1[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
 set_false_path -from [get_keepers {user_io:userio|status[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
@@ -110,7 +102,7 @@ set_false_path -from [get_keepers {user_io:userio|status[5]}] -to [get_keepers {
 # Set Multicycle Path
 #**************************************************************
 
-set_multicycle_path -from [get_clocks {sdclk_pin}] -to [get_clocks clk_sdram] -setup -end 2
+# set_multicycle_path -from [get_clocks {sdclk_pin}] -to [get_clocks clk_sdram] -setup -end 2
 
 
 #**************************************************************

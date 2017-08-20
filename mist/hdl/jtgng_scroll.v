@@ -52,16 +52,16 @@ always @(*)
 		addr = { HS[0], scan }; 
 	end
 
-/*
+
 always @(negedge clk) 
 	if( scrpos_cs && AB[3]) 
 	case(AB[2:0])
-		3'd0: hpos[7:0] <= din;
-		3'd1: hpos[8]	<= din[0];
+		//3'd0: hpos[7:0] <= din;
+		//3'd1: hpos[8]	<= din[0];
 		3'd2: vpos[7:0] <= din;
 		3'd3: vpos[8]	<= din[0];
 	endcase // AB[3:0]
-*/
+
 
 jtgng_chram	RAM(
 	.address( addr 	),

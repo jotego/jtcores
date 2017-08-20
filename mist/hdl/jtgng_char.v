@@ -95,7 +95,6 @@ jtgng_sh #(.width(6),.stages(4)) pixel_sh (
 );
 
 always @(negedge clk) begin
-	pxl_aux <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
 	case( H128[2:0] )
 		3'd2:
 			chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
@@ -115,6 +114,7 @@ always @(negedge clk) begin
 				end
 			end
 	endcase
+	pxl_aux <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
 end
 
 endmodule // jtgng_char

@@ -24,32 +24,15 @@ RESET:
 	LDS	#$1E00-1
 	CLRA
 	STA	BANK
+	LDA #1
 	STA FLIP
+	CLRA
 	STA FLIPVAR
 	CLRA
 	STA HPOS_LOW
 	STA HPOS_HIGH
 	STA VPOS_LOW
 	STA VPOS_HIGH
-
-	LDA #$1
-	LDX #(SCR+$240)
-	STA ,X
-	LDA #$3F
-	STA $400,X
-
-	LDA #$50
-	LDX #(SCR+$242)
-	STA ,X
-	LDA #$B9
-	STA $400,X
-
-	LDA #$0
-	LDX #(SCR+$244)
-	STA ,X
-	LDA #$C2
-	STA $400,X
-	BRA FIN
 
 	; primero la paleta
 	LDA #1
@@ -65,7 +48,8 @@ RESET:
 	;LBSR TEST_CHARPAL
 	;LBSR CLRCHAR
 	;LBSR FILLSCR
-	;LBSR CLRSCR
+	LBSR FILL_ALLCHAR
+	LBSR CLRSCR
 	;LBSR TEST_SCRPAL
 
 	LDU #$DEAD
@@ -132,6 +116,26 @@ FILL_CORNERS: ; Simulates in 2 frames use -frames 1
 	LDA #'D'
 	STA $215A
 	RTS
+
+;*************************************************
+; FILLS WITH ALL Characters
+FILL_ALLCHAR:
+	CLRA
+	LDB #3
+	LDX #CHR
+@L:
+	STA ,X
+	ADDA #1
+	BCC @L2
+	ADDB #$40
+@L2:
+	STB $400,X
+	LEAX 1,X
+	CMPX #(CHR+$400)
+	BLT @L
+	RTS
+
+
 
 
 APPLY_ATTR:
@@ -417,6 +421,28 @@ TEST_SCRPAL:
 RGBSTR:
 	.STRZ "RGBW"
 	FCB 0,1,2,3
+
+;********************************************
+; Fills in 3 scroll entries to verify data transfer
+TEST_SCR_TFR:
+	LDA #$1
+	LDX #(SCR+$240)
+	STA ,X
+	LDA #$3F
+	STA $400,X
+
+	LDA #$50
+	LDX #(SCR+$242)
+	STA ,X
+	LDA #$B9
+	STA $400,X
+
+	LDA #$0
+	LDX #(SCR+$244)
+	STA ,X
+	LDA #$C2
+	STA $400,X
+	RTS
 
 ;********************************************
 ; Fills all screen with hex numbers
