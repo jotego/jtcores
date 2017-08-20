@@ -120,7 +120,7 @@ reg [7:0] x,y,z;
 
 reg [2:0] pxl_aux, pal_aux;
 // delays pixel data so it comes out on a multiple of 8
-jtgng_sh #(.width(6),.stages(4)) pixel_sh (
+jtgng_sh #(.width(6),.stages(3)) pixel_sh (
 	.clk	( clk					), 
 	.din	( {pal_aux,pxl_aux}		), 
 	.drop	( {scr_pal, scr_col}	)
@@ -138,11 +138,11 @@ jtgng_sh #(.width(4),.stages(9)) block_sh (
 always @(negedge clk) begin
 	pxl_aux <= !scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 	case( HS[2:0] )
-		3'd3: begin
+		3'd4: begin
 			{ z,y,x } <= scrom_data;
 			scr_hflip_prev <= scr_hflip^flip;			
+			pal_aux <= pal_in;
 		end
-		3'd4: pal_aux <= pal_in;
 		default:
 			begin
 				if( !scr_hflip_prev ) begin
