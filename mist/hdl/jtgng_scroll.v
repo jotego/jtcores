@@ -109,7 +109,7 @@ always @(negedge clk) begin
 		end
 		3'd0: begin
 			scr_addr <= { 	AS, 
-							HS[3]^scr_hflip, 
+							~(HS[3]^scr_hflip), 
 							vert_addr };
 		end
 	endcase
@@ -136,7 +136,7 @@ jtgng_sh #(.width(4),.stages(9)) block_sh (
 );
 */
 always @(negedge clk) begin
-	pxl_aux <= !scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 	case( HS[2:0] )
 		3'd4: begin
 			{ z,y,x } <= scrom_data;
@@ -145,7 +145,7 @@ always @(negedge clk) begin
 		end
 		default:
 			begin
-				if( !scr_hflip_prev ) begin
+				if( scr_hflip_prev ) begin
 					x <= {1'b0, x[7:1]};
 					y <= {1'b0, y[7:1]};
 					z <= {1'b0, z[7:1]};
