@@ -16,7 +16,7 @@ FIRMWARE=gng_test.s
 VGACONV=NOVGACONV
 LOADROM=NOLOADROM
 FIRMONLY=NOFIRMONLY
-NOFIRM=FIRM
+NOFIRM=NOFIRM
 MAXFRAME=
 
 while [ $# -gt 0 ]; do
@@ -35,15 +35,15 @@ while [ $# -gt 0 ]; do
 		echo Character dump enabled		
 		continue
 	fi
-	if [ "$1" = "-firm" ]; then
+	if [ "$1" = "-firmonly" ]; then
 		FIRMONLY=FIRMONLY
 		echo Firmware dump only
 		shift
 		continue
 	fi
-	if [ "$1" = "-nofirm" ]; then
-		NOFIRM=NOFIRM
-		echo Firmware dump will be skipped
+	if [ "$1" = "-firm" ]; then
+		NOFIRM=FIRM
+		echo Will copy firmware to Quartus folder
 		shift
 		continue
 	fi	
