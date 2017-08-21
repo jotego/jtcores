@@ -109,7 +109,8 @@ jtgng_scroll scrollgen (
 	.scr_addr   ( scr_addr		),
 	.scr_col    ( scr_col 		),
 	.scr_pal    ( scr_pal    	),
-	.scrom_data ( scr_dout		)
+	.scrom_data ( scr_dout		),
+	.joy		( joystick1[5:0])
 );
 
 

@@ -12,6 +12,7 @@ module jtgng_scroll(
 	output	[7:0] dout,
 	input		rd,
 	output		MRDY_b,
+	input	[5:0] joy,
 
 	// ROM
 	output reg 	[14:0] scr_addr,
@@ -57,7 +58,8 @@ always @(negedge clk)
 	if( scrpos_cs && AB[3]) 
 	case(AB[2:0])
 		//3'd0: hpos[7:0] <= din;
-		//3'd1: hpos[8]	<= din[0];
+		3'd0: hpos[7:3] <= din[7:3];
+		3'd1: hpos[8]	<= din[0];
 		3'd2: vpos[7:0] <= din;
 		3'd3: vpos[8]	<= din[0];
 	endcase // AB[3:0]
@@ -139,7 +141,15 @@ always @(negedge clk) begin
 	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 	case( HS[2:0] )
 		3'd4: begin
-			{ z,y,x } <= scrom_data;
+			casex(joy)
+			6'b0x_xxxx:	{ z,y,x } <= scrom_data;
+			6'b10_xxxx:	{ z,x,y } <= scrom_data;
+			6'b11_0xxx:	{ x,y,z } <= scrom_data;
+			6'b11_10xx:	{ y,x,z } <= scrom_data;
+			6'b11_110x:	{ x,z,y } <= scrom_data;
+			6'b11_1110:	{ y,z,x } <= scrom_data;
+			default:{ z,y,x } <= scrom_data;
+			endcase
 			scr_hflip_prev <= scr_hflip^flip;			
 			pal_aux <= pal_in;
 		end

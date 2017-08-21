@@ -164,9 +164,9 @@ always @(posedge clk)
 		romload_wr16 <= false;
 		crc_en <= 1'b0;
 	end else  begin
-	if( romload_wr & romload_addr[0] ) begin
+	if( romload_wr ) begin
 		romload_wr16 <= 1'b1;
-		{ romload_row, romload_col } <= romload_addr[24:1];
+		{ romload_row, romload_col } <= romload_addr[24:1]-1'b1;
 	end
 	case( state )
 		default: state <= SET_PRECHARGE;
