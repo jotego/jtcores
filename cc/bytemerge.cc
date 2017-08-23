@@ -18,17 +18,17 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	ofstream of(argv[3], ios::out | ios::binary );
-	char *buf[2];
-	buf[0] = new char[1024];
-	buf[1] = new char[1024];
-	int16_t *mix = new int16_t[1024];
+	unsigned char *buf[2];
+	buf[0] = new unsigned char[1024];
+	buf[1] = new unsigned char[1024];
+	uint16_t *mix = new uint16_t[1024];
 	//int k=0;
 	do{
 		//cout << "K=" << k++ << endl;
 		streamsize sz=1024;
 		for (int i = 0; i < 2; ++i)
 		{
-			files[i].read( buf[i], sz);
+			files[i].read( (char*)buf[i], sz);
 			if( !files[i] && files[i].gcount()!=1024 ) {				
 				if( files[i].gcount()==0 ) goto done;
 				cerr << "File size is not multiple of 1024 bytes";

@@ -439,6 +439,13 @@ TEST_SCR_TFR:
 	LDA #$B9
 	STA $400,X
 
+	LDA #$61
+	LDX #(SCR+$262)
+	STA ,X
+	LDA #$BA
+	STA $400,X
+
+
 	LDA #$0
 	LDX #(SCR+$244)
 	STA ,X

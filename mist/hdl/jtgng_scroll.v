@@ -122,10 +122,16 @@ reg [7:0] x,y,z;
 
 reg [2:0] pxl_aux, pal_aux;
 // delays pixel data so it comes out on a multiple of 8
-jtgng_sh #(.width(6),.stages(3)) pixel_sh (
-	.clk	( clk					), 
-	.din	( {pal_aux,pxl_aux}		), 
-	.drop	( {scr_pal, scr_col}	)
+jtgng_sh #(.width(3),.stages(3)) pixel_sh (
+	.clk	( clk		), 
+	.din	( pxl_aux	), 
+	.drop	( scr_col	)
+);
+
+jtgng_sh #(.width(3),.stages(4)) pal_sh (
+	.clk	( clk		), 
+	.din	( pal_aux	), 
+	.drop	( scr_pal	)
 );
 /*
 wire block_hflip;
@@ -139,8 +145,19 @@ jtgng_sh #(.width(4),.stages(9)) block_sh (
 */
 always @(negedge clk) begin
 	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-	case( HS[2:0] )
-		3'd4: begin
+	if( HS[2:0]==3'd4 ) begin
+	//		{ z,y,x } <= scrom_data;
+			casex(joy)
+			//6'b0x_xxxx:	{ z,y,x } <= ~scrom_data;
+			//6'b10_xxxx:	{ z,y,x } <= { scrom_data[23:16], scrom_data[15:8], ~scrom_data[7:0]};
+			6'b11_0xxx:	{ z,y,x } <= { scrom_data[23:16], ~scrom_data[15:8], scrom_data[7:0]};
+			//abajo 6'b11_10xx:	{ z,y,x } <= { ~scrom_data[23:16], scrom_data[15:8], scrom_data[7:0]};
+			// izquierda 6'b11_110x:	{ z,y,x } <= { scrom_data[23:16], ~scrom_data[15:8], ~scrom_data[7:0]};
+			//6'b11_1110:	{ z,y,x } <= { ~scrom_data[23:16], scrom_data[15:8], ~scrom_data[7:0]};
+			default:{ z,y,x } <= scrom_data;
+			endcase
+
+			/*
 			casex(joy)
 			6'b0x_xxxx:	{ z,y,x } <= scrom_data;
 			6'b10_xxxx:	{ z,x,y } <= scrom_data;
@@ -150,23 +167,23 @@ always @(negedge clk) begin
 			6'b11_1110:	{ y,z,x } <= scrom_data;
 			default:{ z,y,x } <= scrom_data;
 			endcase
-			scr_hflip_prev <= scr_hflip^flip;			
+			*/
+			scr_hflip_prev <= scr_hflip^flip;
 			pal_aux <= pal_in;
 		end
-		default:
-			begin
-				if( scr_hflip_prev ) begin
-					x <= {1'b0, x[7:1]};
-					y <= {1'b0, y[7:1]};
-					z <= {1'b0, z[7:1]};
-				end
-				else  begin
-					x <= {x[6:0], 1'b0};
-					y <= {y[6:0], 1'b0};
-					z <= {z[6:0], 1'b0};
-				end
+	else
+		begin
+			if( scr_hflip_prev ) begin
+				x <= {1'b0, x[7:1]};
+				y <= {1'b0, y[7:1]};
+				z <= {1'b0, z[7:1]};
 			end
-	endcase
+			else  begin
+				x <= {x[6:0], 1'b0};
+				y <= {y[6:0], 1'b0};
+				z <= {z[6:0], 1'b0};
+			end
+		end
 end
 
 endmodule // jtgng_scroll

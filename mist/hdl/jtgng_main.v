@@ -153,7 +153,7 @@ end
 */
 always @(*)
 	case( cpu_AB[3:0])
-		4'd0: cabinet_input = { {2{joystick1[7:6]}}, {2{joystick2[7:6]}} };
+		4'd0: cabinet_input = { {2{joystick2[7:6]}}, {2{joystick1[7:6]}} };
 		4'd1: cabinet_input = { 2'b11, joystick1[5:0] };
 		4'd2: cabinet_input = { 2'b11, joystick2[5:0] };
 		4'd3: cabinet_input = dipsw_a;

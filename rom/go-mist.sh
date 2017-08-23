@@ -50,3 +50,5 @@ echo "// Scroll ROM " >> gng.hex
 echo "@70000" >> gng.hex
 $OD *3e >> gng.hex 
 $OD *.1e >> gng.hex 
+
+../cc/hex2bin
