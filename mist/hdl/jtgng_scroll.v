@@ -12,7 +12,6 @@ module jtgng_scroll(
 	output	[7:0] dout,
 	input		rd,
 	output		MRDY_b,
-	input	[5:0] joy,
 
 	// ROM
 	output reg 	[14:0] scr_addr,
@@ -37,27 +36,24 @@ always @(*) begin
 	HS[2:0] = HSaux ^ {3{flip}};
 end
 
-reg S0H, S4H, S2H, S7H_b;
-
 reg	we, scren_b;
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 
 
 always @(*)
-	if( !scren_b ) begin
-		addr = AB;
-		we   = scr_cs && !rd;
-	end else begin
+	if( scren_b ) begin
 		we	 = 1'b0; // line order is important here
 		addr = { HS[0], scan }; 
+	end else begin
+		addr = AB;
+		we   = scr_cs && !rd;
 	end
 
 
 always @(negedge clk) 
 	if( scrpos_cs && AB[3]) 
 	case(AB[2:0])
-		//3'd0: hpos[7:0] <= din;
 		3'd0: hpos[7:3] <= din[7:3];
 		3'd1: hpos[8]	<= din[0];
 		3'd2: vpos[7:0] <= din;
@@ -77,9 +73,6 @@ reg [9:0] AS;
 reg pre_rdy;
 
 always @(negedge clk) begin
-	S0H <= HS[2:0]==3'd7;
-	S4H <= HS[2:0]==3'd3;
-	S2H <= HS[2:0]==3'd1;
 	if( HS[2:0]==3'd3 ) begin
 		scren_b <= !scr_cs;
 	end
@@ -146,28 +139,7 @@ jtgng_sh #(.width(4),.stages(9)) block_sh (
 always @(negedge clk) begin
 	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 	if( HS[2:0]==3'd4 ) begin
-	//		{ z,y,x } <= scrom_data;
-			casex(joy)
-			//6'b0x_xxxx:	{ z,y,x } <= ~scrom_data;
-			//6'b10_xxxx:	{ z,y,x } <= { scrom_data[23:16], scrom_data[15:8], ~scrom_data[7:0]};
-			6'b11_0xxx:	{ z,y,x } <= { scrom_data[23:16], ~scrom_data[15:8], scrom_data[7:0]};
-			//abajo 6'b11_10xx:	{ z,y,x } <= { ~scrom_data[23:16], scrom_data[15:8], scrom_data[7:0]};
-			// izquierda 6'b11_110x:	{ z,y,x } <= { scrom_data[23:16], ~scrom_data[15:8], ~scrom_data[7:0]};
-			//6'b11_1110:	{ z,y,x } <= { ~scrom_data[23:16], scrom_data[15:8], ~scrom_data[7:0]};
-			default:{ z,y,x } <= scrom_data;
-			endcase
-
-			/*
-			casex(joy)
-			6'b0x_xxxx:	{ z,y,x } <= scrom_data;
-			6'b10_xxxx:	{ z,x,y } <= scrom_data;
-			6'b11_0xxx:	{ x,y,z } <= scrom_data;
-			6'b11_10xx:	{ y,x,z } <= scrom_data;
-			6'b11_110x:	{ x,z,y } <= scrom_data;
-			6'b11_1110:	{ y,z,x } <= scrom_data;
-			default:{ z,y,x } <= scrom_data;
-			endcase
-			*/
+			{ z,y,x } <= scrom_data;
 			scr_hflip_prev <= scr_hflip^flip;
 			pal_aux <= pal_in;
 		end

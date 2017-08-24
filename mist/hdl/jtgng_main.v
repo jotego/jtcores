@@ -140,8 +140,10 @@ always @(negedge clk)
 		endcase
 
 reg [7:0] cabinet_input;
-wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'b0 };
-wire [7:0] dipsw_b = { 5'd0, dip_upright, 2'd0 };
+wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };
+wire [7:0] dipsw_b = { 3'd3, /* normal game */
+	2'd3, /* bonus at 20k and every 70k */
+	dip_upright, 2'd3 /* 3 lifes */ };
 /*
 reg [7:0] joystick1_sync, joystick2_sync;
 
@@ -153,7 +155,9 @@ end
 */
 always @(*)
 	case( cpu_AB[3:0])
-		4'd0: cabinet_input = { {2{joystick2[7:6]}}, {2{joystick1[7:6]}} };
+		4'd0: cabinet_input = { joystick2[7],joystick1[7], // COINS
+					 4'hf, // undocumented. The game start screen has background when set to 0!
+					 joystick2[6], joystick1[6] }; // START
 		4'd1: cabinet_input = { 2'b11, joystick1[5:0] };
 		4'd2: cabinet_input = { 2'b11, joystick2[5:0] };
 		4'd3: cabinet_input = dipsw_a;

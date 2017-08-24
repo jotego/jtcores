@@ -100,7 +100,7 @@ always @(posedge clk)
 			4'd7: 		{row_addr, col_addr} <= { 4'b01, 3'b010,  obj_addr }; // 14:0
 			4'd1: 		{row_addr, col_addr} <= { 4'b10, 4'b000, char_addr }; // 12:0
 			4'd3: 		{row_addr, col_addr} <= { 4'b01, 3'b100,  scr_addr }; // 14:0 B/C ROMs
-			4'd4: 		{row_addr, col_addr} <= { 4'b01, 3'b110,  scr_addr }; // 14:0 E ROMs
+			4'd4: 		row_addr[7]<=1'b1; // scr_addr E ROMs
 		endcase	
 		// auto refresh request
 		if( downloading )
