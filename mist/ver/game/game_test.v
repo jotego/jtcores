@@ -43,9 +43,9 @@ reg frame_done=1'b1, can_finish=1'b0;
 		#(7*1000*1000) $finish; // hard stop
 		`endif
 	end
-`else
+`else // LOADROM:
 initial begin
-	#(160*1000*1000) $finish; // hard stop
+	#(34*1000*1000) $finish; // 33ms to get ROM and CHAR
 end
 `endif
 /*
@@ -285,7 +285,7 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 32'hE0000;
+localparam TX_LEN			= 32'h18000;
 //localparam TX_LEN			= 32'h00100;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
@@ -306,10 +306,10 @@ initial begin
 end
 
 localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3, SPI_UNSET=4;
-assign SPI_SCK = clk_24 & spi_clkgate;
+assign SPI_SCK = clk_24 /*& spi_clkgate*/;
 reg [15:0] spi_buffer;
 
-always @(posedge clk_rgb or posedge rst) begin
+always @(posedge SPI_SCK or posedge rst) begin
 	if( rst ) begin 
 		tx_cnt <= 2500;
 		spi_st <= 0;

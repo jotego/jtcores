@@ -141,7 +141,7 @@ jtgng_colmix colmix (
 
 
 	wire bus_ack, bus_req;
-	wire [17:0] main_addr;
+	wire [16:0] main_addr;
 	wire [7:0] main_dout;
 	wire [15:0]	sdram_din;
 	wire [12:0] wr_row;

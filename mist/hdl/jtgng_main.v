@@ -34,7 +34,7 @@ module jtgng_main(
 	output	[12:0]	cpu_AB,
 	output		RnW,
 	// ROM access
-	output	reg [17:0] rom_addr,
+	output	reg [16:0] rom_addr,
 	input	[ 7:0] rom_dout,
 	// DIP switches
 	input	dip_flip,
@@ -196,17 +196,17 @@ always @(negedge clk)
 always @(A,bank) begin
 	rom_addr[12:0] = A[12:0];
 	case( A[15:13] )
-		3'd6, 3'd7: rom_addr[17:13] = { 3'b000, A[14:13] }; // 8N
-		3'd5, 3'd4: rom_addr[17:13] = { 3'b001, A[14:13] }; // 9N
-		3'd3      : rom_addr[17:13] = { 3'b010, 2'b01 }; // 10N
+		3'd6, 3'd7: rom_addr[16:13] = { 2'h0, A[14:13] }; // 8N
+		3'd5, 3'd4: rom_addr[16:13] = { 2'h0, A[14:13] }; // 9N
+		3'd3      : rom_addr[16:13] = 4'd5; // 10N
 		3'd2      : 
-			case( bank )
-				3'd4      : rom_addr[17:13] = { 3'b010, 2'b00 }; // 10N
-				3'd3, 3'd2: rom_addr[17:13] = { 3'b100, bank[1:0] }; // 12N
-				3'd1, 3'd0: rom_addr[17:13] = { 3'b101, bank[1:0] }; // 13N
-				default: rom_addr[17:13] = 5'hxx;
+			casex( bank )
+				3'd4: rom_addr[16:13] = 4'h4; // 10N
+				//3'd3, 3'd2: rom_addr[16:13] = { 3'b100, bank[1:0] }; // 12N
+				3'b0xx: rom_addr[16:13] =  {2'd0,bank[1:0]}+4'd6; // 13N
+				default:rom_addr[16:13] = 4'hx;
 			endcase
-		default: rom_addr[17:13] = 5'hxx;
+		default: rom_addr[16:12] = 4'hxx;
 	endcase
 end
 

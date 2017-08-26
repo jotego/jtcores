@@ -115,8 +115,8 @@ always@(posedge clk_sdram or posedge rst)
 		
 		if( rclkD && !rclkD2 ) begin
 			wr_sdram <= addr_sdram[0];
-			//data_sdram <= { data, data_sdram[15:8] };
-			data_sdram <= { data_sdram[7:0], data };
+			data_sdram <= { data, data_sdram[15:8] };
+			//data_sdram <= { data_sdram[7:0], data };
 			addr_sdram <= addr_sdram + 1;
 		end else
 			wr_sdram <= 1'b0;

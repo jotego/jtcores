@@ -5,7 +5,7 @@ module jtgng_rom2(
 	input			clk_pxl,	
 	input			rst,
 	input	[12:0]	char_addr,
-	input	[17:0]	main_addr,
+	input	[16:0]	main_addr,
 	input	[14:0]	snd_addr,
 	input	[14:0]	obj_addr,
 	input	[14:0]	scr_addr,
@@ -83,7 +83,7 @@ reg [12:0]	char_addr_last;
 reg [14:0]	obj_addr_last;
 reg [14:0]	scr_addr_last;
 // do not keep LSB:
-reg [16:0]	main_addr_last;
+reg [15:0]	main_addr_last;
 reg [13:0]	snd_addr_last;
 
 reg [15:0]	snd_cache, main_cache;
@@ -105,13 +105,13 @@ always @(posedge clk)
 		rq_autorefresh <= false;
 		{row_addr, col_addr} <= { 8'b110, snd_addr };
 		char_addr_last	<= ~13'd0;
-		main_addr_last	<= ~18'd0;
+		main_addr_last	<= ~15'd0;
 		snd_addr_last	<= ~15'd0;
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
 	end
 	else 
-	if( read_done && !rd_req ) begin
+	if( !downloading && read_done && !rd_req ) begin
 		if( rd_collect ) begin // collects data
 			case( rd_state )
 				ST_MAIN: begin
@@ -153,7 +153,7 @@ always @(posedge clk)
 		case( rd_state )
 			ST_SND: rd_state <= ST_MAIN; // No audio for now
 			ST_MAIN: if( main_cs ) begin
-				if( main_addr[17:1]==main_addr_last ) begin
+				if( main_addr[16:1]==main_addr_last ) begin
 					main_dout <= main_addr[0] ? main_cache[15:8] : main_cache[7:0];
 					if( !LHBL ) begin
 						rq_autorefresh <= 1'b1;
@@ -165,8 +165,8 @@ always @(posedge clk)
 				else begin
 					rd_req <= 1'b1;
 					rd_len <= 1'b0;			
-					{row_addr, col_addr} <= { 4'b00, 1'b0, main_addr[17:1] }; // 17:0		
-					main_addr_last <= main_addr[17:1];
+					{row_addr, col_addr} <= main_addr[16:1]; 
+					main_addr_last <= main_addr>>1;
 				end
 			end
 			else begin
@@ -192,7 +192,7 @@ always @(posedge clk)
 					else begin
 						rd_req <= 1'b1;
 						rd_len <= 1'b0;
-						{row_addr, col_addr} <= { 4'b10, 4'b000, char_addr }; // 12:0
+						{row_addr, col_addr} <= { 9'b1010_0, char_addr }; // 12:0
 						char_addr_last <= char_addr;					
 					end
 				end
@@ -224,7 +224,7 @@ always @(posedge clk)
 		endcase // rd_state
 	end else begin
 		rd_req <= 1'b0;
-		rd_collect <= 1'b1;
+		if(!downloading) rd_collect <= 1'b1; else rd_collect<=1'b0;
 		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };
 	end
 
