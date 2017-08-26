@@ -150,6 +150,7 @@ set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULA
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
 set_global_assignment -name SEED 2
+set_global_assignment -name VERILOG_FILE ../hdl/jtgng_rom2.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sh.v
 set_global_assignment -name VERILOG_FILE ../hdl/crc32.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_scroll.v
@@ -166,7 +167,6 @@ set_global_assignment -name VERILOG_FILE ../hdl/jtgng_chram.v
 set_global_assignment -name QIP_FILE ../hdl/jtgng_chram.qip
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_vga.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_timer.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_rom.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_main.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_m9k.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_game.v

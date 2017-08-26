@@ -45,7 +45,7 @@ reg frame_done=1'b1, can_finish=1'b0;
 	end
 `else
 initial begin
-	#(1*1000*1000) $finish; // hard stop
+	#(160*1000*1000) $finish; // hard stop
 end
 `endif
 /*
@@ -285,8 +285,8 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-//localparam TX_LEN			= 32'hF0000;
-localparam TX_LEN			= 32'h00100;
+localparam TX_LEN			= 32'hE0000;
+//localparam TX_LEN			= 32'h00100;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 

@@ -8,6 +8,7 @@ module jtgng_main(
 	input	[7:0] char_dout,
 	input	LVBL,	// vertical blanking when 0
 	output	[7:0] cpu_dout,
+	output	main_cs,
 	output	char_cs,
 	output	blue_cs,
 	output	redgreen_cs,	
@@ -52,18 +53,18 @@ reg [10:0] map_cs;
 assign { 
 	scrpos_cs, scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
-	ram_cs, 	char_cs, bank_cs, 		rom_cs 		} = map_cs;
+	ram_cs, 	char_cs, bank_cs, 		main_cs 		} = map_cs;
 
 reg [7:0] AH;
-wire E,Q;
+wire E,Q, AVMA;
 reg VMA;
 
-//always @(negedge Q)
-//	VMA <= AVMA;
+always @(negedge E)
+	VMA <= AVMA;
 
 always @(*)
-	// if(!VMA) map_cs = 4'h0;
-	// else
+	if(!VMA) map_cs = 0;
+	else
 	casex(A[15:8])
 		8'b000x_xxxx: map_cs = 11'h8; // 0000-1FFF, RAM
 		// EXTEN
@@ -190,7 +191,7 @@ always @(negedge clk)
 				({8{char_cs}} & char_dout)	|
 				({8{scr_cs}} & scr_dout)	|
 				({8{in_cs}} & cabinet_input)| 
-				({8{rom_cs}}  & rom_dout );
+				({8{main_cs}}  & rom_dout );
 
 always @(A,bank) begin
 	rom_addr[12:0] = A[12:0];
@@ -243,7 +244,8 @@ mc6809 cpu (
 	.nRESET  (nRESET  ),
 	.MRDY    (MRDY_b  ),
 	.nDMABREQ(1'b1    ),
-	.RegData (RegData )
+	.RegData (RegData ),
+	.AVMA	 ( AVMA   )
 );
 
 `ifdef SIMULATION

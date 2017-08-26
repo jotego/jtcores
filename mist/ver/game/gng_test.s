@@ -22,9 +22,11 @@ FLIPVAR		EQU $1010
 RESET: 
 	ORCC #$10
 	LDS	#$1E00-1
+	LDA #$18
+	TFR A,DP
 	CLRA
 	STA	BANK
-	LDA #1
+	LDA #0
 	STA FLIP
 	CLRA
 	STA FLIPVAR
@@ -34,6 +36,8 @@ RESET:
 	STA VPOS_LOW
 	STA VPOS_HIGH
 
+	;LBSR CHK_SDRAM
+
 	; primero la paleta
 	LDA #1
 	STA $1000	; FLAG
@@ -42,15 +46,15 @@ RESET:
 	CMPA #1
 	BEQ @L
 
-	LBSR TEST_SCR_TFR
+	;LBSR TEST_SCR_TFR
 
 	;LBSR CHKSCR
 	;LBSR CHKCHAR
 
 	;LBSR TEST_CHARPAL
 	;LBSR CLRCHAR
-	;LBSR FILLSCR
-	;LBSR FILL_ALLCHAR
+	LBSR FILLSCR
+	LBSR FILL_ALLCHAR
 	;LBSR CLRSCR
 	;LBSR TEST_SCRPAL
 
@@ -58,7 +62,7 @@ RESET:
 ;	BSR FILL_LONGSTR
 ;	LBSR FILL_HEXSTR
 ;	LBSR FILL_CORNERS
-;	BSR APPLY_ATTR
+	LBSR APPLY_ATTR
 	LDU #$BABE
 
 ;	BSR SHOW_CRC
@@ -86,6 +90,51 @@ JUEGO:
 	ORCC #$10
 	LDA	#$80
 	STA	$3E00	; BANK, clears start-up bank. This will cause a reset
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+CHK_SDRAM:
+	LDA #$40
+	STA BANK
+	LDX $FFFE
+	LDY #$6000
+	LDB #16
+@L:
+	LDA ,Y+
+	DECB
+	BNE @L
+
+	LDY #$8000
+	LDB #16
+@L2:
+	LDA ,Y+
+	DECB
+	BNE @L2
+
+	LDY #$C000
+	LDB #16
+@L:
+	LDA ,Y+
+	DECB
+	BNE @L
+
+	CLRA
+	STA >0
+@BANKTEST:
+	LDY #$4000
+	LDB #16
+@L:
+	LDA ,Y+
+	DECB
+	BNE @L
+	LDA >0
+	INCA
+	CMPA #5
+	BNE @NEXT
+	RTS
+@NEXT:
+	STA >0
+	STA BANK
+	BRA @BANKTEST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

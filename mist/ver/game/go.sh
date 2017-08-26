@@ -37,6 +37,7 @@ while [ $# -gt 0 ]; do
 	fi
 	if [ "$1" = "-firmonly" ]; then
 		FIRMONLY=FIRMONLY
+		NOFIRM=FIRM
 		echo Firmware dump only
 		shift
 		continue

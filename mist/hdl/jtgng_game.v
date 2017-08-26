@@ -146,6 +146,7 @@ jtgng_colmix colmix (
 	wire [15:0]	sdram_din;
 	wire [12:0] wr_row;
 	wire [ 8:0]	wr_col;	
+	wire		main_cs;
 jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
@@ -155,6 +156,7 @@ jtgng_main main (
 	.char_dout	( chram_dout	),
 	.scr_dout   ( scram_dout	),
 	.LVBL     	( LVBL     		),
+	.main_cs	( main_cs		),
 	.cpu_dout 	( cpu_dout 		),
 	.char_cs  	( char_cs  		),
 	.scr_cs  	( scr_cs  		),
@@ -176,7 +178,7 @@ jtgng_main main (
 	.sdram_we	( sdram_we		),
 	.crc		( crc			),	
 	// DIP switches
-	.dip_flip		( dip_flip		),
+	.dip_flip		( 1'b0		),
 	.dip_game_mode	( dip_game_mode		),
 	.dip_attract_snd( dip_attract_snd	),
 	.dip_upright	( dip_upright		)
@@ -187,7 +189,7 @@ jtgng_main main (
 	wire [14:0] obj_addr=0;
 	wire [7:0] snd_dout;
 	wire [15:0] obj_dout;
-jtgng_rom rom (
+jtgng_rom2 rom (
 	.clk      	( SDRAM_CLK		),
 	.clk_pxl	( clk			),
 	.rst      	( rst      		),
@@ -196,7 +198,9 @@ jtgng_rom rom (
 	.snd_addr 	( snd_addr 		),
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),
-	.H2			( H[2]			),
+	.main_cs	( main_cs		),
+	.snd_cs		( 1'b0			),
+	.LHBL		( LHBL			),
 
 	.char_dout	( chrom_data	),
 	.main_dout	( main_dout		),
