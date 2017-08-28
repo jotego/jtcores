@@ -8,6 +8,7 @@ module jtgng_timer(
 	output	reg			Hinit,
 	output	reg			Vinit,
 	output	reg			LHBL,
+	output	reg			LHBL_short,
 	output	reg			LVBL,
 	output	reg			G4_3H,	// high on 3/4 H transition
 	output	reg			G4H, // high on 4H transition
@@ -44,6 +45,8 @@ always @(negedge clk)
 			if( V==9'd496 ) LVBL <= 1'b0;
 			if( V==9'd271 ) LVBL <= 1'b1;
 		end
+		if (H==9'd136) LHBL_short <= 1'b0;
+		if (H==9'd248) LHBL_short <= 1'b1;
 	end
 
 // H indicators

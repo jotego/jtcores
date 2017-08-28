@@ -41,7 +41,7 @@ reg frame_done=1'b1, can_finish=1'b0;
 		`ifndef MAXFRAME
 		//#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
-		#(1*1000*1000) $finish; // hard stop
+		#(1000*1000) $finish; // hard stop
 		`endif
 	end
 `else // LOADROM:
@@ -155,8 +155,10 @@ jtgng_game UUT (
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
 	.romload_wr	( romload_wr	),
+	// Debug
+	.enable_char( 1'b1			),
 	// DIP switches
-	.dip_flip		(	1'b0	),
+	//.dip_flip		(	1'b0	),
 	.dip_game_mode	(	1'b0	),
 	.dip_attract_snd(	1'b0	),
 	.dip_upright	(	1'b1	)

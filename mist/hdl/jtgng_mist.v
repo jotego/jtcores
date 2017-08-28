@@ -41,7 +41,7 @@ parameter CONF_STR = {
         "JTGNG;;",
         "O1,Test mode,OFF,ON;",
         "O2,Cabinet mode,OFF,ON;",
-        "O3,Flip,OFF,ON;",
+        "O3,CHAR,ON,OFF;",
         "O4,Attract sound,ON,OFF;",
         "T5,Reset;",
         "V,v0.1;"
@@ -155,10 +155,12 @@ jtgng_game game (
 	.romload_addr( romload_addr ),
 	.romload_data( romload_data ),
 	.romload_wr	( romload_wr	),
+	// DEBUG
+	.enable_char( ~status[3]		),
 	// DIP switches
-	.dip_game_mode	( status[1]	),
+	.dip_game_mode	( ~status[1]	),
 	.dip_upright	( status[2]	),
-	.dip_flip		( ~status[3]),
+	//.dip_flip		( ~status[3]),
 	.dip_attract_snd( status[4]	)
 );
 

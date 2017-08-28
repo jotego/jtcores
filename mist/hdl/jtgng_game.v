@@ -30,8 +30,9 @@ module jtgng_game(
 	input	[24:0]	romload_addr,
 	input	[15:0]	romload_data,
 	input			romload_wr,
+	// DEBUG
+	input			enable_char,
 	// DIP switches
-	input			dip_flip,
 	input			dip_game_mode,
 	input			dip_attract_snd,
 	input			dip_upright	
@@ -66,7 +67,15 @@ always @(posedge clk or posedge rst or negedge rom_ready)
 		{rst_game,rst_aux} <= {rst_aux, downloading };
 	end
 
-jtgng_timer timers (.clk(clk), .rst(rst), .V(V), .H(H), .Hinit(Hinit), .LHBL(LHBL), .LVBL(LVBL));
+jtgng_timer timers (.clk(clk),
+ .rst(rst),
+ .V(V),
+ .H(H),
+ .Hinit(Hinit),
+ .LHBL(LHBL),
+ .LVBL(LVBL),
+ .LHBL_short(LHBL_short)
+);
 
 	wire RnW;
 	wire [3:0] char_pal;
@@ -127,6 +136,8 @@ jtgng_colmix colmix (
 	// scroll
 	.scr_col	( scr_col		),
 	.scr_pal	( scr_pal		),
+	// DEBUG
+	.enable_char( enable_char	),
 	// CPU interface
 	.AB         ( cpu_AB[7:0]	),
 	.blue_cs    ( blue_cs    	),
@@ -200,13 +211,13 @@ jtgng_rom2 rom (
 	.scr_addr 	( scr_addr 		),
 	.main_cs	( main_cs		),
 	.snd_cs		( 1'b0			),
-	.LHBL		( LHBL			),
+	.LHBL		( LHBL_short	),
 
 	.char_dout	( chrom_data	),
 	.main_dout	( main_dout		),
 	.snd_dout 	( snd_dout 		),
 	.obj_dout 	( obj_dout 		),
-	.scr_dout 	( scr_dout 		),
+	.scr_dout_pxl( scr_dout 	),
 	.ready	  	( rom_ready		),
 	// SDRAM programming
 	.din		( sdram_din		),

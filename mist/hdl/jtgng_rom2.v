@@ -24,7 +24,7 @@ module jtgng_rom2(
 	output	reg	[ 7:0]	main_dout,
 	output	reg	[ 7:0]	snd_dout,
 	output	reg	[15:0]	obj_dout,
-	output	reg	[23:0]	scr_dout,
+	output	reg	[23:0]	scr_dout_pxl,
 	output	reg			ready,
 
 	// SDRAM interface
@@ -105,6 +105,7 @@ reg	[16:0]	main_addr_sync;
 //reg	[14:0]	obj_addr_sync,
 reg	[14:0]	scr_addr_sync;
 reg main_cs_sync;
+reg	[23:0]	scr_dout;
 
 always @(posedge clk) begin 
 	clk_pxl_aux <= { clk_pxl_aux[0], clk_pxl };
@@ -115,6 +116,7 @@ always @(posedge clk) begin
 		scr_addr_sync <= scr_addr;
 		char_addr_sync <= char_addr;
 		// bank_sw_sync <= bank_sw;
+		scr_dout_pxl <= scr_dout;
 	end
 end
 
@@ -201,7 +203,15 @@ always @(posedge clk)
 					end
 					else rd_state  <= ST_GRAPH; // Graphics
 			end
-			ST_REFRESH: rd_state <= ST_SND;
+			ST_REFRESH: begin
+				// Char output is set to spaces during blanking
+				char_addr_last <= 10'h20 << 3;
+				char_dout <= 16'hFFFF;
+				// and SCR to 0
+				scr_addr_last <= 0;
+				scr_dout <= 24'd0;
+				rd_state <= ST_SND;
+			end
 			ST_GRAPH: case( gra_state )
 				ST_CHAR: begin
 					if( char_addr_sync == char_addr_last ) begin

@@ -12,6 +12,8 @@ module jtgng_colmix(
 	// scroll
 	input [2:0]		scr_col,
 	input [2:0]		scr_pal,
+	// Debug
+	input			enable_char,
 	// CPU inteface
 	input [7:0]		AB,
 	input			blue_cs,
@@ -34,8 +36,8 @@ reg [7:0] pixel_mux;
 
 reg char_win, scr_win;
 
-always @(*) begin
-	if( chr_col==2'b11 ) begin
+always @(*) begin	
+	if( chr_col==2'b11 || !enable_char ) begin
 		pixel_mux = {2'b00, scr_pal, scr_col };
 		{ char_win, scr_win } = 2'b01;
 	end
