@@ -99,7 +99,11 @@ localparam ST_CHAR=2'd0, ST_SCR=2'b10, ST_SCRHI=2'b11, ST_OBJ=2'b01;
 reg clk_pxl_edge;
 reg [1:0] clk_pxl_aux;
 
-reg [16:0] main_addr_sync;
+reg	[12:0]	char_addr_sync;
+reg	[16:0]	main_addr_sync;
+//reg	[14:0]	snd_addr_sync,
+//reg	[14:0]	obj_addr_sync,
+reg	[14:0]	scr_addr_sync;
 reg main_cs_sync;
 
 always @(posedge clk) begin 
@@ -108,6 +112,8 @@ always @(posedge clk) begin
 	if( clk_pxl_edge ) begin
 		main_cs_sync <= main_cs;
 		main_addr_sync <= main_addr;
+		scr_addr_sync <= scr_addr;
+		char_addr_sync <= char_addr;
 		// bank_sw_sync <= bank_sw;
 	end
 end
@@ -198,39 +204,39 @@ always @(posedge clk)
 			ST_REFRESH: rd_state <= ST_SND;
 			ST_GRAPH: case( gra_state )
 				ST_CHAR: begin
-					if( char_addr == char_addr_last ) begin
+					if( char_addr_sync == char_addr_last ) begin
 						gra_state <= ST_SCR;
 						rd_state <= ST_SND;
 					end
 					else 
-					if( char_addr[12:3]==10'h20 ) begin // SPACE
+					if( char_addr_sync[12:3]==10'h20 ) begin // SPACE
 						char_dout <= 16'hFFFF;
-						char_addr_last <= char_addr;
+						char_addr_last <= char_addr_sync;
 						gra_state <= ST_SCR;
 						rd_state <= ST_SND;
 					end
 					else begin
 						rd_req <= 1'b1;
-						{row_addr, col_addr} <= 16'hA000 + char_addr; // 12:0
-						char_addr_last <= char_addr;
+						{row_addr, col_addr} <= 16'hA000 + char_addr_sync; // 12:0
+						char_addr_last <= char_addr_sync;
 					end
 				end
 				ST_SCR: begin
-					if( char_addr == char_addr_last ) begin
+					if( scr_addr_sync == scr_addr_last ) begin
 						gra_state <= ST_OBJ;
 						rd_state <= ST_SND;
 					end					
 					else 
-					if( scr_addr[14:5]==10'h00 ) begin // blank
+					if( scr_addr_sync[14:5]==10'h00 ) begin // blank
 						scr_dout <= 24'd0;
 						gra_state <= ST_OBJ;
 						rd_state <= ST_SND;
-						scr_addr_last <= scr_addr;					
+						scr_addr_last <= scr_addr_sync;					
 					end
 					else begin
 						rd_req <= 1'b1;
-						{row_addr, col_addr} <= 16'hc000 + { scr_addr, 1'b0 }; // 14:0 BC/E ROMs
-						scr_addr_last <= scr_addr;					
+						{row_addr, col_addr} <= 16'hc000 + { scr_addr_sync, 1'b0 }; // 14:0 BC/E ROMs
+						scr_addr_last <= scr_addr_sync;					
 					end
 				end
 				ST_OBJ:	begin
