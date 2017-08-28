@@ -10,6 +10,7 @@ module jtgng_rom2(
 	input	[14:0]	obj_addr,
 	input	[14:0]	scr_addr,
 	input			main_cs,
+	// input			bank_sw,
 	input			snd_cs,
 	input			LHBL,
 
@@ -87,14 +88,29 @@ reg [15:0]	main_addr_last;
 reg [13:0]	snd_addr_last;
 
 reg [15:0]	snd_cache, main_cache;
-reg rd_req, // read request
-	rd_len; // 0 == 1 word, 1 == words
+reg rd_req; // read request
 
 reg [1:0] gra_state;
-reg rd_collect;
+reg rd_collect, main_valid;
 localparam ST_SND=2'd0, ST_MAIN=2'd1, ST_GRAPH=2'd2, ST_REFRESH=2'd3;
 localparam ST_CHAR=2'd0, ST_SCR=2'b10, ST_SCRHI=2'b11, ST_OBJ=2'b01;
 
+// reg bank_sw_sync;
+reg clk_pxl_edge;
+reg [1:0] clk_pxl_aux;
+
+reg [16:0] main_addr_sync;
+reg main_cs_sync;
+
+always @(posedge clk) begin 
+	clk_pxl_aux <= { clk_pxl_aux[0], clk_pxl };
+	clk_pxl_edge <= clk_pxl_aux[1] && !clk_pxl_aux[0];
+	if( clk_pxl_edge ) begin
+		main_cs_sync <= main_cs;
+		main_addr_sync <= main_addr;
+		// bank_sw_sync <= bank_sw;
+	end
+end
 
 
 always @(posedge clk)
@@ -105,17 +121,20 @@ always @(posedge clk)
 		rq_autorefresh <= false;
 		{row_addr, col_addr} <= { 8'b110, snd_addr };
 		char_addr_last	<= ~13'd0;
-		main_addr_last	<= ~15'd0;
-		snd_addr_last	<= ~15'd0;
+		// main_addr_last	<= 15'd0;
+		snd_addr_last	<= 15'd0;
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
+		main_valid <= false;
 	end
-	else 
+	else begin
+	// if( bank_sw_sync ) main_valid <= false;
 	if( !downloading && read_done && !rd_req ) begin
 		if( rd_collect ) begin // collects data
 			case( rd_state )
 				ST_MAIN: begin
 					main_cache <= SDRAM_DQ;	
+					main_valid <= true;
 					rd_collect <= 1'b0;
 				end
 				ST_GRAPH: begin
@@ -152,9 +171,9 @@ always @(posedge clk)
 		end else			
 		case( rd_state )
 			ST_SND: rd_state <= ST_MAIN; // No audio for now
-			ST_MAIN: if( main_cs ) begin
-				if( main_addr[16:1]==main_addr_last ) begin
-					main_dout <= main_addr[0] ? main_cache[15:8] : main_cache[7:0];
+			ST_MAIN: if( main_cs_sync ) begin
+				if( (main_addr_sync>>1)==main_addr_last && main_valid ) begin
+					main_dout <= main_addr_sync[0] ? main_cache[15:8] : main_cache[7:0];
 					if( !LHBL ) begin
 						rq_autorefresh <= 1'b1;
 						rq_autorefresh_aux <= 1'b1;
@@ -164,9 +183,8 @@ always @(posedge clk)
 				end
 				else begin
 					rd_req <= 1'b1;
-					rd_len <= 1'b0;			
-					{row_addr, col_addr} <= main_addr[16:1]; 
-					main_addr_last <= main_addr>>1;
+					{row_addr, col_addr} <= main_addr_sync>>1; 
+					main_addr_last <= main_addr_sync>>1;					
 				end
 			end
 			else begin
@@ -180,53 +198,61 @@ always @(posedge clk)
 			ST_REFRESH: rd_state <= ST_SND;
 			ST_GRAPH: case( gra_state )
 				ST_CHAR: begin
-					if( char_addr[12:3]==10'h20 ) begin // SPACE
-						char_dout <= 16'hFFFF;
+					if( char_addr == char_addr_last ) begin
 						gra_state <= ST_SCR;
 						rd_state <= ST_SND;
 					end
-					else if( char_addr == char_addr_last ) begin
+					else 
+					if( char_addr[12:3]==10'h20 ) begin // SPACE
+						char_dout <= 16'hFFFF;
+						char_addr_last <= char_addr;
 						gra_state <= ST_SCR;
 						rd_state <= ST_SND;
 					end
 					else begin
 						rd_req <= 1'b1;
-						rd_len <= 1'b0;
-						{row_addr, col_addr} <= { 9'b1010_0, char_addr }; // 12:0
-						char_addr_last <= char_addr;					
+						{row_addr, col_addr} <= 16'hA000 + char_addr; // 12:0
+						char_addr_last <= char_addr;
 					end
 				end
 				ST_SCR: begin
+					if( char_addr == char_addr_last ) begin
+						gra_state <= ST_OBJ;
+						rd_state <= ST_SND;
+					end					
+					else 
 					if( scr_addr[14:5]==10'h00 ) begin // blank
 						scr_dout <= 24'd0;
 						gra_state <= ST_OBJ;
 						rd_state <= ST_SND;
-					end
-					else if( char_addr == char_addr_last ) begin
-						gra_state <= ST_OBJ;
-						rd_state <= ST_SND;
+						scr_addr_last <= scr_addr;					
 					end
 					else begin
 						rd_req <= 1'b1;
-						rd_len <= 1'b0;
-						{row_addr, col_addr} <= { 4'b01, 2'b10,  scr_addr, 1'b0 }; // 14:0 BC/E ROMs
+						{row_addr, col_addr} <= 16'hc000 + { scr_addr, 1'b0 }; // 14:0 BC/E ROMs
 						scr_addr_last <= scr_addr;					
 					end
 				end
 				ST_OBJ:	begin
 						rd_req <= 1'b1;
-						rd_len <= 1'b0;
 						{row_addr, col_addr} <= { 4'b01, 3'b010,  obj_addr }; // 14:0
-						scr_addr_last <= scr_addr;					
+						obj_addr_last <= obj_addr;					
 					end
 				default: gra_state <= ST_CHAR;
 				endcase
 		endcase // rd_state
 	end else begin
 		rd_req <= 1'b0;
-		if(!downloading) rd_collect <= 1'b1; else rd_collect<=1'b0;
+		if(!downloading) 
+			rd_collect <= 1'b1; 
+		else begin
+			rd_collect<=1'b0;
+			main_addr_last <= 0;
+			snd_addr_last <= 0; // these must not interfere with CPU reset!!
+		end
 		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };
 	end
+end
 
 reg  [1:0] cl_cnt;
 

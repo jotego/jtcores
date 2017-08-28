@@ -36,31 +36,33 @@ RESET:
 	STA VPOS_LOW
 	STA VPOS_HIGH
 
-	LBSR CHK_SDRAM
+	; LDA #$40
+	; STA BANK
+	; LDU $8000
+	; LDA $8001
+	; LDB $8002
+	; LDU $8001
+	; LDD $8000
 
-	; primero la paleta
-	LDA #1
-	STA $1000	; FLAG
-	ANDCC #$EF
-@L:	LDA $1000
-	CMPA #1
-	BEQ @L
+	BSR SETUP_PAL
+	; LBSR CHK_SDRAM
 
 	;LBSR TEST_SCR_TFR
 
 	;LBSR CHKSCR
 	;LBSR CHKCHAR
+	;BSR FINISH
 
 	;LBSR TEST_CHARPAL
+	;LBSR FILLSCR
 	;LBSR CLRCHAR
-	LBSR FILLSCR
-	LBSR FILL_ALLCHAR
+	;LBSR FILL_ALLCHAR
 	;LBSR CLRSCR
 	;LBSR TEST_SCRPAL
 
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
-;	LBSR FILL_HEXSTR
+	LBSR FILL_HEXSTR
 ;	LBSR FILL_CORNERS
 	LBSR APPLY_ATTR
 	LDU #$BABE
@@ -91,46 +93,94 @@ JUEGO:
 	LDA	#$80
 	STA	$3E00	; BANK, clears start-up bank. This will cause a reset
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+FINISH:
+	LDA #$10
+	STA BANK
+	BRA FINISH
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+SETUP_PAL:
+	; primero la paleta
+	LDA #1
+	STA $1000	; FLAG
+	ANDCC #$EF
+@PAL:
+	LDA $1000
+	CMPA #1
+	BEQ @PAL
+	RTS
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; check SDRAM, takes < 60ms to simulate
+CHK_Y16:
+	LDA #10
+	STA <1
+@L:
+	LDA ,Y+
+	LBSR HEX2CHAR
+	LDA #$20
+	STA ,X+
+	DEC <1
+	BNE @L
+	RTS
+
 CHK_SDRAM:
+	LDA #1
+	STA $1000	; FLAG
+	ANDCC #$EF
+	LBSR CLRCHAR
+	LDX #CHR_ATT
+	LDA #3
+@L:	STA ,X+
+	CMPX #SCR
+	BNE @L
+@PAL:
+	LDA $1000
+	CMPA #1
+	BEQ @PAL
+
+CHK_SDRAM_NOPAL:
+	ORCC #$10	; DISABLE FURTHER INTERRUPTS
 	LDA #$40
 	STA BANK
-	LDX $FFFE
+	LDX #$2080
 	LDY #$6000
-	LDB #16
-@L:
-	LDA ,Y+
-	DECB
-	BNE @L
+	BSR CHK_Y16
 
+	LDX #$20A0
 	LDY #$8000
-	LDB #16
-@L2:
-	LDA ,Y+
-	DECB
-	BNE @L2
+	BSR CHK_Y16
 
+	LDX #$20C0
 	LDY #$C000
-	LDB #16
-@L:
-	LDA ,Y+
-	DECB
-	BNE @L
+	BSR CHK_Y16
 
 	CLRA
 	STA >0
 @BANKTEST:
 	LDY #$4000
-	LDB #16
-@L:
-	LDA ,Y+
-	DECB
-	BNE @L
+	LDX #$20C0
+	LDA >0
+@ADDX:
+	LEAX $40,X
+	DECA
+	CMPA #$FF
+	BGT @ADDX
+@GO:
+	BSR CHK_Y16
 	LDA >0
 	INCA
 	CMPA #5
 	BNE @NEXT
-CHK_SDRAM_END: BRA CHK_SDRAM_END
+	LBSR CLRSCR
+	LDX	SCR_ATT
+	LDA #3
+@L:
+	STA ,X+
+	CMPX #(SCR_ATT+$400)
+	BNE @L
+	BRA CHK_SDRAM_NOPAL
 @NEXT:
 	STA >0
 	STA BANK
@@ -252,11 +302,11 @@ HEX2CHAR:
 HEX4CHAR:
 	CMPA #10
 	BLT	@L
-	ADDA #55
+	;ADDA #55
 	STA	,X+
 	RTS
 @L:
-	ADDA #48
+	;ADDA #48
 	STA	,X+
 	RTS
 

@@ -94,12 +94,17 @@ always @(negedge clk)
 	else begin
 		if( bank_cs && !RnW ) begin
 			bank <= cpu_dout[2:0];
-			if( cpu_dout[7] && startup )  begin
-				// write 0x80 to bank clears out startup latch				
-				startup <= 1'b0; 
-				nRESET <= 1'b0; // Resets CPU
+			if(startup ) begin
+				if( cpu_dout[7] )  begin
+					// write 0x80 to bank clears out startup latch				
+					startup <= 1'b0; 
+					nRESET <= 1'b0; // Resets CPU
+				end
+				if( cpu_dout[6] ) startup <= 1'b0; // clear startup without reset
+				`ifdef SIMULATION
+				if( cpu_dout[4] ) $finish;
+				`endif
 			end
-			if( cpu_dout[6] && startup ) startup <= 1'b0; // clear startup without reset
 		end
 		else nRESET <= ~(rst | soft_rst);
 	end

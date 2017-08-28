@@ -16,9 +16,10 @@ module game_test;
 		$display("DUMP enabled");
 		$dumpfile("test.lxt");
 		`ifdef LOADROM
-			$dumpvars(1,game_test);
+			$dumpvars(1,game_test.UUT.main);
+			$dumpvars(2,game_test.UUT.main.cpu);
 			$dumpvars(1,game_test.UUT.rom);
-			$dumpvars(0,game_test);
+			//$dumpvars(0,game_test);
 			$dumpon;
 		`else
 			//$dumpvars(0,UUT);
@@ -40,34 +41,26 @@ reg frame_done=1'b1, can_finish=1'b0;
 		`ifndef MAXFRAME
 		//#(400*1000*1000) can_finish=1'b1;
 		$display("Waiting to finish the last frame");
-		#(7*1000*1000) $finish; // hard stop
+		#(1*1000*1000) $finish; // hard stop
 		`endif
 	end
 `else // LOADROM:
-initial begin
-	#(34*1000*1000) $finish; // 33ms to get ROM and CHAR
-end
-`endif
-/*
-	initial begin
-		#(1*1000*1000);
-		forever begin
-			#(100*1000);
-			if(!downloading) #(100*1000) $finish;
-		end
-	end
-`endif
-
-
-/*
 	integer fincnt;
-	initial begin
-		for( fincnt=0; fincnt<1000; fincnt=fincnt+1 ) begin
-			#(1000*1000); // ms
-		end
-		$finish;
+//initial begin
+//#(12*2000*1000*1000) $finish; // 33ms to get ROM and CHAR
+//end
+
+initial begin
+	for( fincnt=0; fincnt<1000; fincnt=fincnt+1 ) begin
+		#(1000*1000); // ms
 	end
-*/
+	$finish;
+end
+
+`endif
+
+
+
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
 always @(posedge clk_rgb)
@@ -249,13 +242,16 @@ always @(posedge clk_pxl) begin
 		if( enter_vbl != LVBL && !LVBL ) begin
 			if( frame_cnt>0) $fclose(fout);
 			$display("New frame (%d)", frame_cnt);
-			fout = $fopen("frame_0"+(frame_cnt&32'h1f),"wb");
+			`ifdef MAXFRAME
+			if( frame_cnt == `MAXFRAME-1 ) $finish;
+			else
+			`endif
+			fout = $fopen("frame_0"+(frame_cnt&32'h1f),"wb"); // do not move this line
+			// works with the `ifdef above
+
 			frame_cnt <= frame_cnt + 1;
 			skip <= 1'b1;
 			frame_done <= 1'b1;
-			`ifdef MAXFRAME
-			if( frame_cnt == `MAXFRAME ) $finish;
-			`endif
 		end
 		else begin
 			if( enter_hbl != LHBL && !LHBL) begin
@@ -285,7 +281,8 @@ reg		CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN			= 32'h18000;
+// localparam TX_LEN			= 32'ha000*2; // only program ROM
+localparam TX_LEN			= 32'hC000*2; // only program ROM+CHARs
 //localparam TX_LEN			= 32'h00100;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
@@ -379,7 +376,7 @@ always @(spi_done)
 		`ifdef DUMP
 		$dumpon;
 		`endif
-		#(120*1000*1000) $finish;
+		#(60*1000*1000) $finish;
 	end
 
 data_io datain (
