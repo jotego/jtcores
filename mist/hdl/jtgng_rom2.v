@@ -157,10 +157,10 @@ always @(posedge clk)
 				ST_GRAPH: begin
 					case( gra_state )
 						ST_CHAR: begin
-							rd_state <= ST_SND;
+							// rd_state <= ST_SND;
 							char_dout <= SDRAM_DQ;
 							rd_collect <= 1'b0;
-							gra_state <= ST_OBJ;
+							gra_state <= ST_SCR;
 						end
 						ST_SCR: begin
 							scr_aux <= SDRAM_DQ;
@@ -225,14 +225,12 @@ always @(posedge clk)
 				ST_CHAR: begin
 					if( char_addr_sync == char_addr_last ) begin
 						gra_state <= ST_SCR;
-						rd_state <= ST_SND;
 					end
 					else 
 					if( char_addr_sync[12:3]==10'h20 ) begin // SPACE
 						char_dout <= 16'hFFFF;
 						char_addr_last <= char_addr_sync;
 						gra_state <= ST_SCR;
-						rd_state <= ST_SND;
 					end
 					else begin
 						rd_req <= 1'b1;
@@ -243,13 +241,11 @@ always @(posedge clk)
 				ST_SCR: begin
 					if( scr_addr_sync == scr_addr_last ) begin
 						gra_state <= ST_OBJ;
-						rd_state <= ST_SND;
 					end					
 					else 
 					if( scr_addr_sync[14:5]==10'h00 ) begin // blank
 						scr_dout <= 24'd0;
 						gra_state <= ST_OBJ;
-						rd_state <= ST_SND;
 						scr_addr_last <= scr_addr_sync;					
 					end
 					else begin
