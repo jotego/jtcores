@@ -130,7 +130,7 @@ jtgng_sh #(.width(3),.stages(7-SDRAM_stage)) pixel_sh (
 
 //assign scr_col=pxl_aux;
 
-jtgng_sh #(.width(3),.stages(7-SDRAM_stage)) pal_sh (
+jtgng_sh #(.width(3),.stages(8-SDRAM_stage)) pal_sh (
 	.clk	( clk		), 
 	.din	( pal_aux	), 
 	.drop	( scr_pal	)
