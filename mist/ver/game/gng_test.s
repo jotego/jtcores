@@ -45,7 +45,7 @@ RESET:
 	; LDD $8000
 
 	; BSR SETUP_PAL
-	LBSR CHK_SDRAM
+	;LBSR CHK_SDRAM
 
 	;LBSR TEST_SCR_TFR
 
@@ -55,10 +55,10 @@ RESET:
 
 	;LBSR TEST_CHARPAL
 	;LBSR FILLSCR
+	LBSR TEST_SCRPAL
 	;LBSR CLRCHAR
 	;LBSR FILL_ALLCHAR
 	;LBSR CLRSCR
-	;LBSR TEST_SCRPAL
 
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
@@ -501,17 +501,17 @@ TEST_CHARPAL:
 ; Test scroll colour assignment
 TEST_SCRPAL:
 	LDX #SCR
-	LDY #RGBSTR
+	LDY #SCRSTR
 @L4:
 	LDA ,Y
 	BNE @L3
 	CMPX #(SCR+$400)
 	BGE @L5
-	LDY #RGBSTR
+	LDY #SCRSTR
 	LDA ,Y
 @L3:
 	STA ,X
-	LDA 5,Y
+	LDA 8,Y
 	STA $400,X
 	LEAX 1,X
 	LEAY 1,Y
@@ -522,6 +522,9 @@ TEST_SCRPAL:
 RGBSTR:
 	.STRZ "RGBW"
 	FCB 0,1,2,3
+SCRSTR:
+	FCB $77,$11,$22,$33,$10,$20,$30,0
+	FCB   7,1,2,3,$11,$12,$13
 
 ;********************************************
 ; Fills in 3 scroll entries to verify data transfer

@@ -102,12 +102,14 @@ wire [14:0] scr_addr;
 wire [23:0] scr_dout;
 wire [ 2:0] scr_col;
 wire [ 2:0] scr_pal;
+wire [ 2:0] HS;
 
 jtgng_scroll scrollgen (
 	.clk        ( clk      		),
 	.AB         ( cpu_AB[10:0]	),
 	.V128       ( V[7:0]   		),
 	.H	        ( H		   		),
+	.HSlow      ( HS	   		),
 	.scr_cs  	( scr_cs 		),
 	.scrpos_cs	( scrpos_cs		),
 	.flip       ( flip     		),
@@ -212,6 +214,7 @@ jtgng_rom2 rom (
 	.main_cs	( main_cs		),
 	.snd_cs		( 1'b0			),
 	.LHBL		( LHBL_short	),
+	.HS			( HS			),
 
 	.char_dout	( chrom_data	),
 	.main_dout	( main_dout		),

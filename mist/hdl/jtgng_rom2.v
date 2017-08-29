@@ -13,6 +13,7 @@ module jtgng_rom2(
 	// input			bank_sw,
 	input			snd_cs,
 	input			LHBL,
+	input	[2:0]	HS,
 
 	// write interface
 	input	[15:0]	din,
@@ -107,15 +108,21 @@ reg	[14:0]	scr_addr_sync;
 reg main_cs_sync;
 reg	[23:0]	scr_dout;
 
+localparam	scr_addr_stage = 3'd3,
+			scr_dout_stage = 3'd5;
+
 always @(posedge clk) begin 
 	clk_pxl_aux <= { clk_pxl_aux[0], clk_pxl };
 	clk_pxl_edge <= clk_pxl_aux[1] && !clk_pxl_aux[0];
-	if( clk_pxl_edge ) begin
+	if( clk_pxl_edge ) begin // negedge
 		main_cs_sync <= main_cs;
 		main_addr_sync <= main_addr;
-		scr_addr_sync <= scr_addr;
 		char_addr_sync <= char_addr;
 		// bank_sw_sync <= bank_sw;
+		case( HS[2:0] )
+			scr_addr_stage: scr_addr_sync <= scr_addr;
+			//scr_dout_stage:	scr_dout_pxl <= scr_dout;
+		endcase
 		scr_dout_pxl <= scr_dout;
 	end
 end
