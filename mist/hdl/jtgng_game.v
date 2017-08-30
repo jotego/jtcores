@@ -160,6 +160,11 @@ jtgng_colmix colmix (
 	wire [12:0] wr_row;
 	wire [ 8:0]	wr_col;	
 	wire		main_cs;
+// OBJ	
+	wire [ 8:0] obj_AB;
+	wire OKOUT;
+	wire [7:0] main_ram;
+	wire blcnten;
 jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
@@ -168,6 +173,13 @@ jtgng_main main (
 	.scr_mrdy  	( scr_mrdy		),
 	.char_dout	( chram_dout	),
 	.scr_dout   ( scram_dout	),
+	// bus sharing
+	.ram_dout	( main_ram		),
+	.obj_AB		( obj_AB		),
+	.OKOUT		( OKOUT			),
+	.blcnten	( blcnten		),
+	.bus_req	( bus_req		),
+	
 	.LVBL     	( LVBL     		),
 	.main_cs	( main_cs		),
 	.cpu_dout 	( cpu_dout 		),
@@ -196,6 +208,19 @@ jtgng_main main (
 	.dip_attract_snd( dip_attract_snd	),
 	.dip_upright	( dip_upright		)
 );
+
+
+jtgng_obj obj (
+	.clk     (clk     ),
+	.rst     (rst     ),
+	.AB      (obj_AB  ),
+	.DB      (main_ram),
+	.OKOUT   (OKOUT   ),
+	.bus_req (bus_req ),
+	.bus_ack (bus_ack ),
+	.blen    (blcnten )
+);
+
 
 
 	wire [14:0] snd_addr=0;

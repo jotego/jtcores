@@ -31,8 +31,12 @@ module jtgng_main(
 	// BUS sharing
 	output		bus_ack,
 	input		bus_req,
+	input		blcnten,
+	input	[ 8:0]	obj_AB,
 	output	[12:0]	cpu_AB,
 	output		RnW,
+	output		OKOUT,
+	output	[7:0]	ram_dout,
 	// ROM access
 	output	reg [16:0] rom_addr,
 	input	[ 7:0] rom_dout,
@@ -48,10 +52,10 @@ wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
 
-reg [10:0] map_cs;
+reg [11:0] map_cs;
 
 assign { 
-	scrpos_cs, scr_cs, in_cs,
+	OKOUT, scrpos_cs, scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
 	ram_cs, 	char_cs, bank_cs, 		main_cs 		} = map_cs;
 
@@ -66,21 +70,22 @@ always @(*)
 	if(!VMA) map_cs = 0;
 	else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 11'h8; // 0000-1FFF, RAM
+		8'b000x_xxxx: map_cs = 12'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 11'h4; 	// 2000-27FF	Char
-		8'b0010_1xxx: map_cs = 11'h200; // 2800-2FFF	Scroll
-		8'b0011_0xxx: map_cs = 11'h100; // 3000-37FF input
-		8'b0011_1000: map_cs = 11'h20; // 3800-38FF, Red, green
-		8'b0011_1001: map_cs = 11'h40; // 3900-39FF, blue
-		8'b0011_1011: map_cs = 11'h400;// 3B00-3BFF Scroll position
-		8'b0011_1101: map_cs = 11'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 12'h4; 	// 2000-27FF	Char
+		8'b0010_1xxx: map_cs = 12'h200; // 2800-2FFF	Scroll
+		8'b0011_0xxx: map_cs = 12'h100; // 3000-37FF input
+		8'b0011_1000: map_cs = 12'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 12'h40; // 3900-39FF, blue
+		8'b0011_1011: map_cs = 12'h400;// 3B00-3BFF Scroll position
+		8'b0011_1100: map_cs = 12'h800;// OKOUT 
+		8'b0011_1101: map_cs = 12'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 11'h2; // 3E00-3EFF bank
-		8'b0011_1111: map_cs = 11'h80; // 3F00-3FFF SDRAM programming
-		8'b01xx_xxxx: map_cs = 11'h1; // ROMs
-		8'b1xxx_xxxx: map_cs = startup ? 11'h8 : 11'h1; // 8000-BFFF, ROM 9N
-		default: map_cs = 11'h0;
+		8'b0011_1110: map_cs = 12'h2; // 3E00-3EFF bank
+		8'b0011_1111: map_cs = 12'h80; // 3F00-3FFF SDRAM programming
+		8'b01xx_xxxx: map_cs = 12'h1; // ROMs
+		8'b1xxx_xxxx: map_cs = startup ? 12'h8 : 12'h1; // 8000-BFFF, ROM 9N
+		default: map_cs = 12'h0;
 	endcase
 
 // special registers
@@ -177,16 +182,18 @@ always @(*)
 
 
 // RAM, 8kB
-wire [7:0] ram_dout;
-wire ram_we = ram_cs && !RnW;
+wire cpu_ram_we = ram_cs && !RnW;
 assign cpu_AB = A[12:0];
 
+wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
+wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
+
 jtgng_mainram RAM(
-	.address	( cpu_AB[12:0]	),
-	.clock		( clk			),
-	.data		( cpu_dout		),
-	.wren		( ram_we		),
-	.q			( ram_dout		)
+	.address	( RAM_addr	),
+	.clock		( clk		),
+	.data		( cpu_dout	),
+	.wren		( RAM_we	),
+	.q			( ram_dout	)
 );
 
 reg [7:0] cpu_din;
@@ -211,7 +218,7 @@ always @(A,bank) begin
 				3'b0xx: rom_addr[16:13] =  {2'd0,bank[1:0]}+4'd6; // 13N
 				default:rom_addr[16:13] = 4'hx;
 			endcase
-		default: rom_addr[16:12] = 4'hxx;
+		default: rom_addr[16:12] = 5'hxx;
 	endcase
 end
 
