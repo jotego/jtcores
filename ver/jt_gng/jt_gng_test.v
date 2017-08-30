@@ -26,7 +26,7 @@ module jt_gng_test;
 	integer reps;
 	initial begin
 		for( reps=0; reps<`REPS; reps=reps+1)
-			#(100*1000*1000);
+			#(50*1000*1000);
 		$finish; 
 	end
 

@@ -211,14 +211,18 @@ jtgng_main main (
 
 
 jtgng_obj obj (
-	.clk     (clk     ),
-	.rst     (rst     ),
-	.AB      (obj_AB  ),
-	.DB      (main_ram),
+	.clk	 (clk     ),
+	.rst	 (rst     ),
+	.AB 	 (obj_AB  ),
+	.DB 	 (main_ram),
 	.OKOUT   (OKOUT   ),
 	.bus_req (bus_req ),
 	.bus_ack (bus_ack ),
-	.blen    (blcnten )
+	.blen	 (blcnten ),
+	.LVBL	 ( LVBL	  ),
+	.HINIT	 ( Hinit  ),
+	.flip	 ( flip	  ),
+	.V		 ( V[7:0] )
 );
 
 

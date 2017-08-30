@@ -22,14 +22,15 @@ always @(negedge clk) begin
 		V <= 9'd250;
 	end
 	else begin
+		Hinit <= H == 9'h86;
 		if( H == 9'd511 ) begin
-			Hinit <= 1'b1;
+			//Hinit <= 1'b1;
 			H <= 9'd128;
 			Vinit <= &V;
 			V <= &V ? 9'd250 : V + 1'd1;
 		end
 		else begin
-			Hinit <= 1'b0;
+			//Hinit <= 1'b0;
 			H <= H + 1'b1;
 		end
 	end

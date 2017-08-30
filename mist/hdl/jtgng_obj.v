@@ -3,6 +3,12 @@
 module jtgng_obj(
 	input			clk,	// 6 MHz
 	input			rst,
+	// screen
+	input			HINIT,
+	input			LVBL,
+	input	[ 7:0]	V,
+	input			flip,
+	// shared bus
 	output	reg	[8:0]	AB,
 	input	[ 7:0]	DB,
 	input			OKOUT,
@@ -31,7 +37,7 @@ always @(negedge clk)
 					bus_req <= 1'b0;
 					blen <= 1'b0;
 				end
-			ST_WAIT: if( bus_ack && mem_sel == MEM_PREBUF ) begin
+			ST_WAIT: if( bus_ack && mem_sel == MEM_PREBUF && !LVBL ) begin
 				blen <= 1'b1;
 				bus_state <= ST_BUSY;
 			end
@@ -74,6 +80,125 @@ jtgng_objram objram (
 	.wraddress 	( wr_addr		),
 	.wren 		( ram_we 		),
 	.q 			( ram_dout 		)
+);
+
+reg line;
+localparam lineA=1'b0, lineB=1'b1;
+reg [8:0] pre_scan;
+reg [4:0] post_scan;
+reg fill;
+reg line_obj_we;
+reg [1:0] trf_state, trf_next;
+
+wire [7:0] VF = {8{flip}} ^ V;
+wire [7:0] VFx = {8{flip}} ^ (V+8'd8);
+
+localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;
+
+always @(negedge clk) 
+	if( rst )
+		line <= lineA;
+	else if( HINIT ) line <= ~line;
+
+
+always @(negedge clk) 
+	if( rst ) begin
+		trf_state <= SEARCH;
+		line_obj_we <= 1'b0;
+	end
+	else begin
+		case( trf_state )
+			SEARCH: begin
+				if( !LVBL ) begin
+					pre_scan <= 9'd2;
+					post_scan<= 5'd8;
+					fill <= 1'd0;
+				end
+				else begin
+					line_obj_we <= 1'b0;
+					if( ram_dout[7:5] == VFx[7:5] ) begin
+						pre_scan[1:0] <= 2'd0;
+						trf_next  <= TRANSFER;
+						trf_state <= WAIT;
+					end
+					else begin
+						if( pre_scan==9'h17E ) begin
+							trf_next  <= FILL;
+							trf_state <= WAIT;
+							pre_scan <= 9'h180;
+							fill <= 1'b1;
+						end else begin
+							pre_scan <= pre_scan + 3'd4;
+							trf_state <= WAIT;
+							trf_next  <= SEARCH;
+						end
+					end
+				end
+			end
+			WAIT: begin
+				trf_state <= trf_next;
+				if( trf_next==TRANSFER || trf_next==FILL ) line_obj_we <= 1'b1;
+			end
+			TRANSFER: begin
+				line_obj_we <= 1'b0;
+				post_scan <= post_scan+1'b1;
+				if( pre_scan[1:0]==2'b11 ) begin
+					pre_scan <= pre_scan + 2'd3;
+					trf_state <= SEARCH;
+				end
+				else pre_scan[1:0] <= pre_scan[1:0]+1'b1;
+			end
+			FILL: begin
+				pre_scan <= pre_scan + 1'b1;
+				if( pre_scan[1:0]==2'b11 ) post_scan <= post_scan + 1'b1;
+				trf_next <= FILL;
+				if( &{ post_scan, pre_scan[1:0] } ) begin
+					pre_scan <= 9'd2;
+					post_scan<= 5'd8;
+					fill <= 1'd0;
+					trf_state <= WAIT;
+					trf_next <= SEARCH;
+					line_obj_we <= 1'b0;
+				end
+				else begin
+					line_obj_we <= 1'b0;
+					trf_state <= WAIT;
+				end
+			end
+		endcase
+	end
+
+reg [9:0] address_a, address_b;
+reg we_a, we_b;
+wire [7:0] q_a, q_b;
+reg [7:0] data_a, data_b;
+
+always @(*)
+	if( line == lineA ) begin
+		address_a = { post_scan, pre_scan[1:0] };
+		we_a = line_obj_we;
+		we_b = 1'b0;
+		data_a = ram_dout;
+		data_b = 8'hff;
+	end
+	else begin
+		address_b = { post_scan, pre_scan[1:0] };
+		we_a = 1'b0;
+		we_b = line_obj_we;
+		data_a = 8'hff;
+		data_b = ram_dout;
+	end
+
+jtgng_objbuf linebuf(
+	.address_a	( address_a ),
+	.address_b	( address_b ),
+	.clock		( clk	 	),
+	.data_a		( data_a 	),
+	.data_b		( data_b 	),
+	.wren_a		( we_a	 	),
+	.wren_b		( we_b	 	),
+	.q_a		( q_a 		),
+	.q_b		( q_b 		)
 );
 
 endmodule // jtgng_char
