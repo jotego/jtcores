@@ -18,12 +18,20 @@ LOADROM=NOLOADROM
 FIRMONLY=NOFIRMONLY
 NOFIRM=NOFIRM
 MAXFRAME=
+OBJTEST=
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
 		DUMP=DUMP
 		echo Signal dump enabled
 		shift
+		continue
+	fi
+	if [ "$1" = "-obj" ]; then
+		shift
+		echo "Object test: will used special firmware on ROM space"
+		OBJTEST="-DOBJTEST"	
+		FIRMWARE="obj_test.s"	
 		continue
 	fi
 	if [ "$1" = "-frames" ]; then
@@ -87,18 +95,23 @@ while [ $# -gt 0 ]; do
 done
 
 #Prepare firmware
+if [[ "$OBJTEST" = "-DOBJTEST" && "$NOFIRM" != "NOFIRM" ]]; then
+	echo "Cannot specify -obj and -firm together"
+	exit 1
+fi
 
 if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; then
 	exit 1
 fi
 
-echo -e "DEPTH = 8192;\nWIDTH = 8;\nADDRESS_RADIX = HEX;DATA_RADIX = HEX;" > jtgng_firmware.mif
-echo -e "CONTENT\nBEGIN" >> jtgng_firmware.mif
+if [ $NOFIRM != NOFIRM ]; then
+	echo -e "DEPTH = 8192;\nWIDTH = 8;\nADDRESS_RADIX = HEX;DATA_RADIX = HEX;" > jtgng_firmware.mif
+	echo -e "CONTENT\nBEGIN" >> jtgng_firmware.mif
 
 
-OD="od -t x1 -A none -v -w1"
+	OD="od -t x1 -A none -v -w1"
 
-$OD gng_test.bin > ram.hex
+	$OD gng_test.bin > ram.hex
 
 python <<XXX
 import string
@@ -113,12 +126,17 @@ for line in infile:
 	addr=addr+1
 file.write("END;")
 XXX
-if [ $NOFIRM != NOFIRM ]; then
+
 	echo Quartus firmware file overwritten
 	cp jtgng_firmware.mif ../../quartus 
 fi
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
+
+if [ $OBJTEST = "-DOBJTEST" ]; then
+	ODx2="od -t x2 -A none -v -w2"
+	$ODx2 --endian little gng_test.bin > ram.hex	
+fi
 
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))
@@ -129,7 +147,7 @@ iverilog game_test.v \
 	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 	-s game_test -o sim \
 	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
-	$MAXFRAME \
+	$MAXFRAME $OBJTEST\
 && sim -lxt
 
 if [ $CHR_DUMP = CHR_DUMP ]; then

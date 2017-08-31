@@ -222,7 +222,8 @@ jtgng_obj obj (
 	.LVBL	 ( LVBL	  ),
 	.HINIT	 ( Hinit  ),
 	.flip	 ( flip	  ),
-	.V		 ( V[7:0] )
+	.V		 ( V[7:0] ),
+	.H		 ( H	  )
 );
 
 

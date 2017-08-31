@@ -7,6 +7,7 @@ module jtgng_obj(
 	input			HINIT,
 	input			LVBL,
 	input	[ 7:0]	V,
+	input	[ 8:0]	H,
 	input			flip,
 	// shared bus
 	output	reg	[8:0]	AB,
@@ -168,20 +169,42 @@ always @(negedge clk)
 		endcase
 	end
 
+
+wire [6:0] hscan = { H[8:4], H[2:1] };
+wire [7:0] q_a, q_b;
+wire [7:0] objbuf_data = line==lineA ? q_b : q_a;
+
+reg [7:0] ADlow;
+reg [9:0] objaddr;
+reg [1:0] objpal;
+reg [7:0] objy, objx;
+
+always @(negedge clk)
+	case( H[2:1] )
+		2'd0: ADlow <= objbuf_data;
+		2'd1: begin
+			objaddr <= { objbuf_data[7:6], ADlow };
+			objpal  <= objbuf_data[5:4];
+		end
+		2'd2: objy <= objbuf_data;
+		2'd3: objx <= objbuf_data;
+	endcase
+
 reg [9:0] address_a, address_b;
 reg we_a, we_b;
-wire [7:0] q_a, q_b;
 reg [7:0] data_a, data_b;
 
 always @(*)
 	if( line == lineA ) begin
 		address_a = { post_scan, pre_scan[1:0] };
+		address_b = hscan;
 		we_a = line_obj_we;
 		we_b = 1'b0;
 		data_a = ram_dout;
 		data_b = 8'hff;
 	end
 	else begin
+		address_a = hscan;
 		address_b = { post_scan, pre_scan[1:0] };
 		we_a = 1'b0;
 		we_b = line_obj_we;
@@ -189,7 +212,7 @@ always @(*)
 		data_b = ram_dout;
 	end
 
-jtgng_objbuf linebuf(
+jtgng_objbuf objbuf(
 	.address_a	( address_a ),
 	.address_b	( address_b ),
 	.clock		( clk	 	),

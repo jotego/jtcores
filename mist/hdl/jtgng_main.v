@@ -93,7 +93,11 @@ reg	startup;
 reg [2:0] bank;
 always @(negedge clk)
 	if( rst ) begin
+		`ifdef OBJTEST
+		startup <= 1'b0;
+		`else
 		startup <= 1'b1;
+		`endif
 		nRESET <= 1'b0;
 	end
 	else begin
