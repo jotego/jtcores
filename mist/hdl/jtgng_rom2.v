@@ -7,7 +7,7 @@ module jtgng_rom2(
 	input	[12:0]	char_addr,
 	input	[16:0]	main_addr,
 	input	[14:0]	snd_addr,
-	input	[13:0]	obj_addr,
+	input	[14:0]	obj_addr,
 	input	[14:0]	scr_addr,
 	input			main_cs,
 	// input			bank_sw,
@@ -24,7 +24,7 @@ module jtgng_rom2(
 	output	reg	[15:0]	char_dout,
 	output	reg	[ 7:0]	main_dout,
 	output	reg	[ 7:0]	snd_dout,
-	output	reg	[15:0]	obj_dout,
+	output	reg	[31:0]	obj_dout,
 	output	reg	[23:0]	scr_dout_pxl,
 	output	reg			ready,
 
@@ -91,10 +91,10 @@ reg [13:0]	snd_addr_last;
 reg [15:0]	snd_cache, main_cache;
 reg rd_req; // read request
 
-reg [1:0] gra_state;
+reg [2:0] gra_state;
 reg rd_collect, main_valid;
 localparam ST_SND=2'd0, ST_MAIN=2'd1, ST_GRAPH=2'd2, ST_REFRESH=2'd3;
-localparam ST_CHAR=2'd0, ST_SCR=2'b10, ST_SCRHI=2'b11, ST_OBJ=2'b01;
+localparam ST_CHAR=3'd0, ST_SCR=3'b010, ST_SCRHI=3'b110, ST_OBJ=3'b001, ST_OBJHI=3'b101;
 
 // reg bank_sw_sync;
 reg clk_pxl_edge;
@@ -103,7 +103,7 @@ reg [1:0] clk_pxl_aux;
 reg	[12:0]	char_addr_sync;
 reg	[16:0]	main_addr_sync;
 //reg	[14:0]	snd_addr_sync,
-reg	[13:0]	obj_addr_sync;
+reg	[14:0]	obj_addr_sync;
 reg	[14:0]	scr_addr_sync;
 reg main_cs_sync;
 reg	[23:0]	scr_dout;
@@ -168,15 +168,19 @@ always @(posedge clk)
 						end
 						ST_SCRHI: begin
 							rd_state <= ST_SND;
-							scr_dout <= { SDRAM_DQ[7:0], scr_aux };
 							rd_collect <= 1'b0;
+							scr_dout <= { SDRAM_DQ[7:0], scr_aux };
 							gra_state <= ST_OBJ;
 						end
 						ST_OBJ: begin
+							gra_state <= ST_OBJHI;
+							scr_aux <= SDRAM_DQ;
+						end
+						ST_OBJHI: begin
 							rd_state <= ST_SND;
-							obj_dout <= SDRAM_DQ;
 							rd_collect <= 1'b0;
-							gra_state <= ST_CHAR;
+							if( LHBL ) gra_state <= ST_CHAR; else gra_state <= ST_OBJ;
+							obj_dout <= { SDRAM_DQ, scr_aux };
 						end
 					endcase
 				end
@@ -191,12 +195,8 @@ always @(posedge clk)
 			ST_MAIN: if( main_cs_sync ) begin
 				if( (main_addr_sync>>1)==main_addr_last && main_valid ) begin
 					main_dout <= main_addr_sync[0] ? main_cache[15:8] : main_cache[7:0];
-					if( !LHBL ) begin
-						rq_autorefresh <= 1'b1;
-						rq_autorefresh_aux <= 1'b1;
-						rd_state <= ST_REFRESH;
-					end
-					else rd_state  <= ST_GRAPH; // Graphics
+					rd_state  <= ST_GRAPH; // Graphics
+					if( !LHBL ) gra_state <= ST_OBJ;
 				end
 				else begin
 					rd_req <= 1'b1;
@@ -255,12 +255,30 @@ always @(posedge clk)
 					end
 				end
 				ST_OBJ:	
+					if( obj_addr_sync[14:5]==10'd0 ) begin
+						if( LHBL ) begin
+							rd_state <= ST_SND;
+							gra_state <= ST_CHAR;
+						end else begin
+							rq_autorefresh <= 1'b1;
+							rq_autorefresh_aux <= 1'b1;
+							rd_state <= ST_REFRESH;
+						end							
+						obj_dout = ~32'd0;
+					end
+					else
 					if( obj_addr_last == obj_addr_sync) begin
-						rd_state <= ST_SND;
-						gra_state <= ST_CHAR;
+						if( LHBL ) begin
+							rd_state <= ST_SND;
+							gra_state <= ST_CHAR;
+						end	else begin
+							rq_autorefresh <= 1'b1;
+							rq_autorefresh_aux <= 1'b1;
+							rd_state <= ST_REFRESH;
+						end								
 					end else begin
 						rd_req <= 1'b1;
-						{row_addr, col_addr} <= { 4'b01, 3'b010,  obj_addr_sync }; // 14:0
+						{row_addr, col_addr} <= 17'h1C000 + obj_addr_sync;
 						obj_addr_last <= obj_addr_sync;					
 					end
 				default: gra_state <= ST_CHAR;

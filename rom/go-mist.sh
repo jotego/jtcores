@@ -28,16 +28,14 @@ paste 1c.hex 1b.hex -d "" | tr -d ' ' > 1bc.hex
 $OD mm10.1e > 1e.hex
 paste 1bc.hex 1e.hex -d "\n" >> gng.hex
 
-echo "Scroll tiles end at " $(curpos)
+echo "Object starts at " $(curpos)
 
 ## Object ROM, 16kBx4 = 64kB
-$ODx2 
-../cc/bytemerge mm{16.3n,13.3l} 3nl
-../cc/bytemerge mm{15.1n,12.1l} 1nl
-echo "// Object ROM " >> gng.hex
-echo "@50000" >> gng.hex
-$ODx2 3nl >> gng.hex 
-$ODx2 1nl >> gng.hex 
+$OD mm{16.3n,15.1n} > n31.hex
+$OD mm{13.3l,12.1l} > l31.hex
+paste n31.hex l31.hex -d "" | tr -d ' ' > obj.hex
+cat obj.hex >> gng.hex
+echo "Object ends end at " $(curpos)
 
 ## Sound ROM, 32kB
 ##echo "// Sound ROM " >> gng.hex

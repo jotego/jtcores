@@ -150,6 +150,13 @@ if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 if [ $OBJTEST = "-DOBJTEST" ]; then
 	ODx2="od -t x2 -A none -v -w2"
 	$ODx2 --endian little gng_test.bin > ram.hex	
+	echo "@1C000" >> ram.hex
+	if [ ! -e ../../../rom/obj.hex ]; then
+		echo "Missing the object hex dump"
+		echo "use go-mist.sh to generate it at the ROM folder"
+		exit 1
+	fi
+	cat ../../../rom/obj.hex >> ram.hex
 fi
 
 zero_file 10n.hex 16384

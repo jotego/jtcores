@@ -17,7 +17,7 @@ module jtgng_obj(
 	input			bus_ack,	// bus acknowledge
 	output	reg		blen,	// bus line counter enable
 	// SDRAM interface
-	output	reg [13:0] obj_addr,
+	output	reg [14:0] obj_addr,
 	input		[31:0] objrom_data
 );
 
@@ -181,18 +181,25 @@ wire [7:0] objbuf_data = line==lineA ? q_b : q_a;
 
 reg [7:0] ADlow;
 reg [1:0] objpal;
+reg [1:0] ADhigh;
 reg [7:0] objy, objx;
-wire [3:0] VB=4'd0;
+reg [7:0] VB;
 
 always @(negedge clk)
 	case( H[2:1] )
 		2'd0: ADlow <= objbuf_data;
 		2'd1: begin
-			obj_addr <= { objbuf_data[7:6], ADlow, H[3], VB };
+			ADhigh <= objbuf_data[7:6];
 			objpal  <= objbuf_data[5:4];
 		end
-		2'd2: objy <= objbuf_data;
-		2'd3: objx <= objbuf_data;
+		2'd2: begin
+			objy <= objbuf_data;
+			VB <= objbuf_data + ~VF;
+		end
+		2'd3: begin
+			obj_addr <= { ADhigh, ADlow, H[3], VB[3:0] };
+			objx <= objbuf_data;
+		end
 	endcase
 
 reg [9:0] address_a, address_b;
@@ -205,7 +212,7 @@ always @(*)
 		address_b = hscan;
 		we_a = line_obj_we;
 		we_b = 1'b0;
-		data_a = fill ? 8'hff : ram_dout;
+		data_a = fill ? 8'h00 : ram_dout;
 		data_b = 8'hff;
 	end
 	else begin
@@ -214,7 +221,7 @@ always @(*)
 		we_a = 1'b0;
 		we_b = line_obj_we;
 		data_a = 8'hff;
-		data_b = fill ? 8'hff : ram_dout;
+		data_b = fill ? 8'h00 : ram_dout;
 	end
 
 jtgng_objbuf objbuf(

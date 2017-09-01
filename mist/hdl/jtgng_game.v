@@ -209,6 +209,8 @@ jtgng_main main (
 	.dip_upright	( dip_upright		)
 );
 
+wire [14:0] obj_addr;
+wire [31:0] obj_dout;
 
 jtgng_obj obj (
 	.clk	 (clk     ),
@@ -223,15 +225,16 @@ jtgng_obj obj (
 	.HINIT	 ( Hinit  ),
 	.flip	 ( flip	  ),
 	.V		 ( V[7:0] ),
-	.H		 ( H	  )
+	.H		 ( H	  ),
+	// SDRAM interface
+	.obj_addr( obj_addr ),
+	.objrom_data( obj_dout )
 );
 
 
 
 	wire [14:0] snd_addr=0;
-	wire [14:0] obj_addr=0;
 	wire [7:0] snd_dout;
-	wire [15:0] obj_dout;
 jtgng_rom2 rom (
 	.clk      	( SDRAM_CLK		),
 	.clk_pxl	( clk			),
