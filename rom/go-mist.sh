@@ -30,16 +30,17 @@ paste 1bc.hex 1e.hex -d "\n" >> gng.hex
 
 echo "Scroll tiles end at " $(curpos)
 
+## Object ROM, 16kBx4 = 64kB
+$ODx2 
+../cc/bytemerge mm{16.3n,13.3l} 3nl
+../cc/bytemerge mm{15.1n,12.1l} 1nl
+echo "// Object ROM " >> gng.hex
+echo "@50000" >> gng.hex
+$ODx2 3nl >> gng.hex 
+$ODx2 1nl >> gng.hex 
+
 ## Sound ROM, 32kB
 ##echo "// Sound ROM " >> gng.hex
 ##echo "@30000" >> gng.hex
 ##$ODx2 mm02.14h >> gng.hex 
-#### Object ROM, 16kBx4 = 64kB
-##../cc/bytemerge mm{16.3n,13.3l} 3nl
-##../cc/bytemerge mm{15.1n,12.1l} 1nl
-##echo "// Object ROM " >> gng.hex
-##echo "@50000" >> gng.hex
-##$ODx2 3nl >> gng.hex 
-##$ODx2 1nl >> gng.hex 
-
 ../cc/hex2bin

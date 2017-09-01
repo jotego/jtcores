@@ -15,7 +15,10 @@ module jtgng_obj(
 	input			OKOUT,
 	output	reg		bus_req,		// Request bus
 	input			bus_ack,	// bus acknowledge
-	output	reg		blen	// bus line counter enable
+	output	reg		blen,	// bus line counter enable
+	// SDRAM interface
+	output	reg [13:0] obj_addr,
+	input		[31:0] objrom_data
 );
 
 reg [1:0] bus_state;
@@ -177,15 +180,15 @@ wire [7:0] q_a, q_b;
 wire [7:0] objbuf_data = line==lineA ? q_b : q_a;
 
 reg [7:0] ADlow;
-reg [9:0] objaddr;
 reg [1:0] objpal;
 reg [7:0] objy, objx;
+wire [3:0] VB=4'd0;
 
 always @(negedge clk)
 	case( H[2:1] )
 		2'd0: ADlow <= objbuf_data;
 		2'd1: begin
-			objaddr <= { objbuf_data[7:6], ADlow };
+			obj_addr <= { objbuf_data[7:6], ADlow, H[3], VB };
 			objpal  <= objbuf_data[5:4];
 		end
 		2'd2: objy <= objbuf_data;
@@ -202,7 +205,7 @@ always @(*)
 		address_b = hscan;
 		we_a = line_obj_we;
 		we_b = 1'b0;
-		data_a = ram_dout;
+		data_a = fill ? 8'hff : ram_dout;
 		data_b = 8'hff;
 	end
 	else begin
@@ -211,7 +214,7 @@ always @(*)
 		we_a = 1'b0;
 		we_b = line_obj_we;
 		data_a = 8'hff;
-		data_b = ram_dout;
+		data_b = fill ? 8'hff : ram_dout;
 	end
 
 jtgng_objbuf objbuf(

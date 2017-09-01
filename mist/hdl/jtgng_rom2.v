@@ -7,7 +7,7 @@ module jtgng_rom2(
 	input	[12:0]	char_addr,
 	input	[16:0]	main_addr,
 	input	[14:0]	snd_addr,
-	input	[14:0]	obj_addr,
+	input	[13:0]	obj_addr,
 	input	[14:0]	scr_addr,
 	input			main_cs,
 	// input			bank_sw,
@@ -103,7 +103,7 @@ reg [1:0] clk_pxl_aux;
 reg	[12:0]	char_addr_sync;
 reg	[16:0]	main_addr_sync;
 //reg	[14:0]	snd_addr_sync,
-reg	[14:0]	obj_addr_sync;
+reg	[13:0]	obj_addr_sync;
 reg	[14:0]	scr_addr_sync;
 reg main_cs_sync;
 reg	[23:0]	scr_dout;
