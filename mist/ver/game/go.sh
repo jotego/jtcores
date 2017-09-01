@@ -19,6 +19,7 @@ FIRMONLY=NOFIRMONLY
 NOFIRM=NOFIRM
 MAXFRAME=
 OBJTEST=
+SIM_MS=1
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -36,13 +37,26 @@ while [ $# -gt 0 ]; do
 	fi
 	if [ "$1" = "-frames" ]; then
 		shift
+		if [ "$1" = "" ]; then
+			echo "Must specify number of frames to simulate"
+			exit 1
+		fi
 		MAXFRAME="-DMAXFRAME=$1"
 		echo Simulate up to $1 frames
 		shift
-		CHR_DUMP=CHR_DUMP
-		echo Character dump enabled		
 		continue
 	fi
+	if [ "$1" = "-time" ]; then
+		shift
+		if [ "$1" = "" ]; then
+			echo "Must specify number of milliseconds to simulate"
+			exit 1
+		fi
+		SIM_MS="$1"
+		echo Simulate $1 ms
+		shift
+		continue
+	fi	
 	if [ "$1" = "-firmonly" ]; then
 		FIRMONLY=FIRMONLY
 		NOFIRM=FIRM
@@ -147,7 +161,7 @@ iverilog game_test.v \
 	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 	-s game_test -o sim \
 	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
-	$MAXFRAME $OBJTEST\
+	$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS\
 && sim -lxt
 
 if [ $CHR_DUMP = CHR_DUMP ]; then

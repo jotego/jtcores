@@ -31,40 +31,25 @@ module game_test;
 
 	`endif
 
-reg frame_done=1'b1, can_finish=1'b0;
-
-`ifndef LOADROM
-	// initial #(200*1000) $finish;
-	// initial #(40*1000*1000) $finish;
-	initial begin
-		`ifndef MAXFRAME
-		//#(400*1000*1000) can_finish=1'b1;
-		$display("Waiting to finish the last frame");
-		//#(5*1000*1000) $finish;
-		#(1000*1000) $finish; // hard stop
-		`endif
-	end
-`else // LOADROM:
-	integer fincnt;
-//initial begin
-//#(12*2000*1000*1000) $finish; // 33ms to get ROM and CHAR
-//end
+reg frame_done=1'b1, can_finish=1'b0, spi_done=1'b1, max_frames_done=1'b0;
+integer fincnt;
 
 initial begin
-	for( fincnt=0; fincnt<1000; fincnt=fincnt+1 ) begin
+	for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
 		#(1000*1000); // ms
 	end
-	$finish;
+	can_finish = 1'b1;
 end
-
-`endif
-
-
 
 reg rst, clk_pxl, clk_rgb, clk_rom;
 
 always @(posedge clk_rgb)
-	if( frame_done && can_finish ) $finish;
+	if( spi_done && frame_done && can_finish && max_frames_done ) begin
+		for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
+			#(1000*1000); // ms
+		end
+		$finish;
+	end
 
 wire SDRAM_CLK = clk_rom;
 
@@ -226,9 +211,9 @@ always @(posedge clk_vga) begin
 end
 `endif
 
-`elsif CHR_DUMP
-integer frame_cnt;
-integer fout;
+`endif
+
+integer fout, frame_cnt;
 reg skip;
 
 reg enter_hbl, enter_vbl;
@@ -242,13 +227,16 @@ always @(posedge clk_pxl) begin
 		enter_hbl <= LHBL;
 		enter_vbl <= LVBL;
 		if( enter_vbl != LVBL && !LVBL ) begin
+			`ifdef CHR_DUMP
 			if( frame_cnt>0) $fclose(fout);
+			`endif
 			$display("New frame (%d)", frame_cnt);
 			`ifdef MAXFRAME
-			if( frame_cnt == `MAXFRAME-1 ) $finish;
-			else
+			if( frame_cnt == `MAXFRAME-1 ) max_frames_done<=1'b1;
 			`endif
+			`ifdef CHR_DUMP
 			fout = $fopen("frame_0"+(frame_cnt&32'h1f),"wb"); // do not move this line
+			`endif
 			// works with the `ifdef above
 
 			frame_cnt <= frame_cnt + 1;
@@ -259,16 +247,21 @@ always @(posedge clk_pxl) begin
 			if( enter_hbl != LHBL && !LHBL) begin
 				skip <= 1'b0; // skip first line;
 				frame_done <= 1'b0;
+				`ifdef CHR_DUMP
 				$fwrite(fout,"%u",32'hFFFFFFFF); // new line marker
+				`endif
 			end
+			`ifdef CHR_DUMP
 			if( !skip && LHBL ) 
 				$fwrite(fout,"%u", {8'd0, red, 4'd0, green, 4'd0, blue, 4'd0});
 				// $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
+			`endif
 		end
 	end
 end
 
-`endif
+
+
 
 `ifdef LOADROM
 integer file;
@@ -296,7 +289,7 @@ initial begin
 end
 
 integer tx_cnt, spi_st, next, buff_cnt;
-reg spi_clkgate, spi_done;
+reg spi_clkgate;
 reg clk_24;
 
 initial begin

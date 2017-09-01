@@ -117,7 +117,7 @@ IRQSERVICE:
 	; RG mem test
 	CLRA	; Is the palette already filled?
 	CMPA >PAL_DONE
-	BNE @DOWORK
+	;BNE @DOWORK
 	CLR OKOUT
 	RTI
 @DOWORK:

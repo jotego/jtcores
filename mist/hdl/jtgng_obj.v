@@ -69,7 +69,7 @@ always @(negedge clk)
 
 
 wire [9:0] 	wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 9'd0; 
-wire [9:0]	rd_addr = 9'd0;
+reg  [8:0]	pre_scan;
 wire [7:0] 	ram_din = mem_sel==MEM_PREBUF ? DB : 8'd0;
 wire [7:0]	ram_dout;
 wire 		ram_we	= mem_sel==MEM_PREBUF ? blen : 1'b0;
@@ -77,7 +77,7 @@ wire 		ram_we	= mem_sel==MEM_PREBUF ? blen : 1'b0;
 jtgng_objram objram (
 	.clock 		( clk		 	),
 	.data 		( ram_din 		),
-	.rdaddress 	( rd_addr		),
+	.rdaddress 	( pre_scan		),
 	.wraddress 	( wr_addr		),
 	.wren 		( ram_we 		),
 	.q 			( ram_dout 		)
@@ -85,7 +85,6 @@ jtgng_objram objram (
 
 reg line;
 localparam lineA=1'b0, lineB=1'b1;
-reg [8:0] pre_scan;
 reg [4:0] post_scan;
 reg fill;
 reg line_obj_we;
@@ -123,7 +122,7 @@ always @(negedge clk)
 						trf_state <= WAIT;
 					end
 					else begin
-						if( pre_scan==9'h17E ) begin
+						if( pre_scan>=9'h17E ) begin
 							trf_next  <= FILL;
 							trf_state <= WAIT;
 							pre_scan <= 9'h180;
@@ -142,12 +141,15 @@ always @(negedge clk)
 			end
 			TRANSFER: begin
 				line_obj_we <= 1'b0;
-				post_scan <= post_scan+1'b1;
 				if( pre_scan[1:0]==2'b11 ) begin
+					post_scan <= post_scan+1'b1;
 					pre_scan <= pre_scan + 2'd3;
 					trf_state <= SEARCH;
 				end
-				else pre_scan[1:0] <= pre_scan[1:0]+1'b1;
+				else begin
+					pre_scan[1:0] <= pre_scan[1:0]+1'b1;
+					trf_state <= WAIT;
+				end
 			end
 			FILL: begin
 				pre_scan <= pre_scan + 1'b1;
