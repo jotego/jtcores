@@ -124,9 +124,11 @@ jtgng_scroll scrollgen (
 );
 
 
-	wire [3:0] cc;
-	wire blue_cs;
-	wire redgreen_cs;
+wire [3:0] cc;
+wire blue_cs;
+wire redgreen_cs;
+wire [ 5:0] obj_pxl;
+
 jtgng_colmix colmix (
 	.rst        ( rst        	),
 	.clk_rgb    ( clk_rgb    	),
@@ -138,6 +140,8 @@ jtgng_colmix colmix (
 	// scroll
 	.scr_col	( scr_col		),
 	.scr_pal	( scr_pal		),
+	// objects
+	.obj_pxl	( obj_pxl		),
 	// DEBUG
 	.enable_char( enable_char	),
 	// CPU interface
@@ -228,7 +232,9 @@ jtgng_obj obj (
 	.H		 ( H	  ),
 	// SDRAM interface
 	.obj_addr( obj_addr ),
-	.objrom_data( obj_dout )
+	.objrom_data( obj_dout ),
+	// pixel data
+	.obj_pxl ( obj_pxl )
 );
 
 

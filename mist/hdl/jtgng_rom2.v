@@ -85,14 +85,15 @@ reg [12:0]	char_addr_last;
 reg [14:0]	obj_addr_last;
 reg [14:0]	scr_addr_last;
 // do not keep LSB:
-reg [15:0]	main_addr_last;
+reg [14:0]	main_addr_last;
 reg [13:0]	snd_addr_last;
 
-reg [15:0]	snd_cache, main_cache;
+reg [15:0]	snd_cache, main_cache0, main_cache1;
 reg rd_req; // read request
 
 reg [2:0] gra_state;
 reg rd_collect, main_valid;
+reg collect_msb;
 localparam ST_SND=2'd0, ST_MAIN=2'd1, ST_GRAPH=2'd2, ST_REFRESH=2'd3;
 localparam ST_CHAR=3'd0, ST_SCR=3'b010, ST_SCRHI=3'b110, ST_OBJ=3'b001, ST_OBJHI=3'b101;
 
@@ -142,15 +143,19 @@ always @(posedge clk)
 		snd_addr_last	<= 15'd0;
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
-		main_valid <= false;
+		main_valid <= false;		
 	end
 	else begin
 	// if( bank_sw_sync ) main_valid <= false;
 	if( !downloading && read_done && !rd_req ) begin
 		if( rd_collect ) begin // collects data
 			case( rd_state )
-				ST_MAIN: begin
-					main_cache <= SDRAM_DQ;	
+				ST_MAIN: if(!collect_msb) begin					
+					main_cache0 <= SDRAM_DQ;	
+					collect_msb <= 1'b1;
+				end else begin
+					main_cache1 <= SDRAM_DQ;
+					collect_msb <= 1'b0;
 					main_valid <= true;
 					rd_collect <= 1'b0;
 				end
@@ -193,15 +198,21 @@ always @(posedge clk)
 		case( rd_state )
 			ST_SND: rd_state <= ST_MAIN; // No audio for now
 			ST_MAIN: if( main_cs_sync ) begin
-				if( (main_addr_sync>>1)==main_addr_last && main_valid ) begin
-					main_dout <= main_addr_sync[0] ? main_cache[15:8] : main_cache[7:0];
+				if( (main_addr_sync>>2)==main_addr_last && main_valid ) begin
+					case( main_addr_sync[1:0] )
+						2'd0: main_dout <= main_cache0[ 7:0];
+						2'd1: main_dout <= main_cache0[15:8];
+						2'd2: main_dout <= main_cache1[ 7:0];
+						2'd3: main_dout <= main_cache1[15:8];
+					endcase
 					rd_state  <= ST_GRAPH; // Graphics
 					if( !LHBL ) gra_state <= ST_OBJ;
 				end
 				else begin
 					rd_req <= 1'b1;
-					{row_addr, col_addr} <= main_addr_sync>>1; 
-					main_addr_last <= main_addr_sync>>1;					
+					collect_msb <= 1'b0;
+					{row_addr, col_addr} <= {main_addr_sync[16:2],1'b0}; 
+					main_addr_last <= main_addr_sync>>2;					
 				end
 			end
 			else begin
@@ -238,7 +249,11 @@ always @(posedge clk)
 						char_addr_last <= char_addr_sync;
 					end
 				end
-				ST_SCR: begin
+				ST_SCR:  /*begin
+					rd_state <= ST_SND;
+					gra_state <= ST_CHAR;
+				end*/
+				begin
 					if( scr_addr_sync == scr_addr_last ) begin
 						gra_state <= ST_OBJ;
 					end					

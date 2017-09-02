@@ -18,7 +18,9 @@ module jtgng_obj(
 	output	reg		blen,	// bus line counter enable
 	// SDRAM interface
 	output	reg [14:0] obj_addr,
-	input		[31:0] objrom_data
+	input		[31:0] objrom_data,
+	// pixel output
+	output	reg [ 5:0] obj_pxl
 );
 
 reg [1:0] bus_state;
@@ -184,6 +186,7 @@ reg [1:0] objpal;
 reg [1:0] ADhigh;
 reg [7:0] objy, objx;
 reg [7:0] VB;
+reg obj_vflip, obj_hflip, hover;
 
 always @(negedge clk)
 	case( H[2:1] )
@@ -191,13 +194,17 @@ always @(negedge clk)
 		2'd1: begin
 			ADhigh <= objbuf_data[7:6];
 			objpal  <= objbuf_data[5:4];
+			obj_vflip <= objbuf_data[3];
+			obj_hflip <= objbuf_data[2];
+			hover	<= objbuf_data[0];
 		end
 		2'd2: begin
 			objy <= objbuf_data;
 			VB <= objbuf_data + ~VF;
 		end
 		2'd3: begin
-			obj_addr <= { ADhigh, ADlow, H[3], VB[3:0] };
+			// H[3] may be wrong here:
+			obj_addr <= hover ? 0 : { ADhigh, ADlow, H[3]^obj_hflip, VB[3:0]^obj_vflip };
 			objx <= objbuf_data;
 		end
 	endcase
@@ -221,7 +228,7 @@ always @(*)
 		we_a = 1'b0;
 		we_b = line_obj_we;
 		data_a = 8'hff;
-		data_b = fill ? 8'h00 : ram_dout;
+		data_b = fill ? 8'hf8 : ram_dout;
 	end
 
 jtgng_objbuf objbuf(
@@ -234,6 +241,104 @@ jtgng_objbuf objbuf(
 	.wren_b		( we_b	 	),
 	.q_a		( q_a 		),
 	.q_b		( q_b 		)
+);
+
+// ROM data depacking
+
+reg [3:0] z,y,x,w;
+reg [3:0] new_pxl;
+
+always @(negedge clk) begin
+	new_pxl <= obj_hflip ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
+	case( H[2:0] )
+		3'd0: {z,y,x,w} <= objrom_data[15:0];
+		default:
+			if( obj_hflip ) begin
+				z <= z >> 1;
+				y <= y >> 1;
+				x <= x >> 1;
+				w <= w >> 1;
+			end else begin
+				z <= z << 1;
+				y <= y << 1;
+				x <= x << 1;
+				w <= w << 1;
+			end
+		3'd4: {z,y,x,w} <= objrom_data[31:16];
+	endcase
+end
+
+// Line colour buffer
+
+reg [7:0] lineA_address_a, lineA_address_b;
+reg [7:0] lineB_address_a, lineB_address_b;
+reg [7:0] Hcnt;
+
+wire [7:0] lineA_q_a, lineA_q_b;
+wire [7:0] lineB_q_a, lineB_q_b;
+wire [7:0] lineX_data = { 2'b11, objpal, new_pxl };
+
+reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
+
+always @(negedge clk)
+	if( HINIT ) Hcnt <= 8'd0;
+	else Hcnt <= Hcnt+1'd1;
+
+always @(*)
+	if( line == lineA ) begin 
+		// lineA readout
+		lineA_address_a = Hcnt;
+		lineA_we_a = 1'b0;
+		obj_pxl = lineA_q_a[5:0];
+		// lineB writein
+		lineB_address_a = objx;
+		lineB_we_a = ~hover;
+	end else begin
+		// lineA writein
+		lineA_address_a = objx;
+		lineA_we_a = ~hover;
+		// lineB readout
+		lineB_address_a = Hcnt;
+		lineB_we_a = 1'b0;
+		obj_pxl = lineB_q_a[5:0];
+	end
+
+always @(negedge clk)
+	if( line == lineA ) begin
+		// lineA clear after each pixel is readout
+		lineA_address_b <= lineA_address_a;
+		lineA_we_b <= 1'b0;
+		// lineB port B unused
+		lineB_we_b <= 1'b1;
+	end
+	else begin
+		// lineA port A unused
+		lineA_we_b <= 1'b1;
+		// lineB clear after each pixel is readout
+		lineB_address_b <= lineB_address_a;
+		lineB_we_b <= 1'b0;
+	end
+
+jtgng_linebuf lineA_buf(
+	.address_a	( lineA_address_a ),
+	.address_b	( lineA_address_b ),
+	.clock		( clk	 			),
+	.data_a		( lineX_data 		),
+	.data_b		( 8'hFF			 	),
+	.wren_a		( lineA_we_a	 	),
+	.wren_b		( lineA_we_b	 	),
+	.q_a		( lineA_q_a 		)
+);
+
+jtgng_linebuf lineB_buf(
+	.address_a	( lineB_address_a ),
+	.address_b	( lineB_address_b ),
+	.clock		( clk	 			),
+	.data_a		( lineX_data 		),
+	.data_b		( 8'hFF			 	), // delete only
+	.wren_a		( lineB_we_a	 	),
+	.wren_b		( lineB_we_b	 	),
+	.q_a		( lineB_q_a 		)
 );
 
 endmodule // jtgng_char

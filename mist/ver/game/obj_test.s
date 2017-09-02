@@ -40,29 +40,55 @@ RESET:
 	STA VPOS_HIGH
 
 	LDX #$1E00
-	LDA #$FF
-	LDB #$FF
+	LDA #$F8
+	LDB #$F8
 @L:
 	STD ,X++
 	CMPX #$2000
 	BLT @L
 
-	LDA #$A0
-	LDX #$1E00
+	LDY #OBJ_SAMPLE
+	LDX #$1E3C
+@L2:
+	LDA ,Y+
+	CMPA #$FF
+	BEQ @LFIN
 	STA ,X+
-	LDA #$B0
-	STA ,X+
-	LDD #$C0D0
-	STD ,X++
-	LDD #$A7B7
-	LDX #$1F7C
-	STD ,X++
-	LDD #$C7D7
-	STD ,X++
+	BRA @L2
+@LFIN:
 
-	BSR SETUP_PAL
+	LBSR SETUP_PAL
 FIN:
 	BRA FIN
+
+OBJ_SAMPLE:
+	FDB $68,$90,$C2,$C5
+	FDB $55,$04,$B1,$4F
+	FDB $54,$04,$B1,$5F
+	FDB $55,$04,$B1,$21
+	FDB $54,$04,$B1,$31
+	FDB $BE,$30,$C2,$75
+	FDB $BF,$30,$C2,$85
+	FDB $30,$00,$C2,$18
+	FDB $7E,$70,$C2,$C2
+	FDB $76,$70,$B2,$C2
+	FDB $7F,$70,$C2,$D2
+	FDB $77,$70,$B2,$D2
+	FDB $7A,$70,$C2,$52
+	FDB $72,$70,$B2,$52
+	FDB $7B,$70,$C2,$62
+	FDB $73,$70,$B2,$62
+	FDB $2B,$04,$C2,$70
+	FDB $23,$04,$B2,$70
+	FDB $2A,$04,$C2,$80
+	FDB $22,$04,$B2,$80
+	FDB $21,$04,$F8,$70
+	FDB $28,$04,$F8,$80
+	FDB $20,$04,$F8,$80
+	FDB $22,$00,$F8,$70
+	FDB $2B,$00,$F8,$80
+	FDB $23,$00,$F8,$80
+	FDB $FF
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SETUP_PAL:
