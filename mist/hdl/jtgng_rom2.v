@@ -218,12 +218,7 @@ always @(posedge clk)
 				end
 			end
 			else begin
-					if( !LHBL ) begin
-						rq_autorefresh <= 1'b1;
-						rq_autorefresh_aux <= 1'b1;
-						rd_state <= ST_REFRESH;
-					end
-					else rd_state  <= ST_GRAPH; // Graphics
+					rd_state  <= ST_GRAPH; // Graphics
 			end
 			ST_REFRESH: begin
 				// Char output is set to spaces during blanking
@@ -270,11 +265,7 @@ always @(posedge clk)
 						scr_addr_last <= scr_addr_sync;					
 					end
 				end
-				ST_OBJ:	begin
-					rd_state <= ST_SND;
-					gra_state <= ST_CHAR;
-				end
-					/*
+				ST_OBJ:	
 					if( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8} ) begin
 						if( LHBL ) begin
 							rd_state <= ST_SND;
@@ -302,7 +293,7 @@ always @(posedge clk)
 						rd_req <= 1'b1;
 						{row_addr, col_addr} <= 17'h1C000 + obj_addr_sync;
 						obj_addr_last <= obj_addr_sync;					
-					end*/
+					end
 				default: gra_state <= ST_CHAR;
 				endcase
 		endcase // rd_state
