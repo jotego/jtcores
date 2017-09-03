@@ -42,12 +42,13 @@ parameter CONF_STR = {
         "O1,Test mode,OFF,ON;",
         "O2,Cabinet mode,OFF,ON;",
         "O3,CHAR,ON,OFF;",
-        "O4,Attract sound,ON,OFF;",
-        "T5,Reset;",
+        "O4,OBJ ,ON,OFF;",
+        "O5,Attract sound,ON,OFF;",
+        "T6,Reset;",
         "V,v0.1;"
 };
 
-parameter CONF_STR_LEN = 7+20+23+15+24+9+7;
+parameter CONF_STR_LEN = 7+20+23+15+15+24+9+7;
 
 reg rst = 1'b1;
 
@@ -127,7 +128,7 @@ always @(posedge clk_gng)
 	wire LVBL;
 jtgng_game game (
 	.rst    	( rst    	),
-	.soft_rst	( status[5]	),
+	.soft_rst	( status[6]	),
 	.SDRAM_CLK	( SDRAM_CLK	),  // 81 MHz
 	.clk    	( clk_gng	),  //  6 MHz
 	.clk_rgb	( clk_rgb	),	// 36 MHz
@@ -157,11 +158,12 @@ jtgng_game game (
 	.romload_wr	( romload_wr	),
 	// DEBUG
 	.enable_char( ~status[3]		),
+	.enable_obj ( ~status[4]		),
 	// DIP switches
 	.dip_game_mode	( ~status[1]	),
 	.dip_upright	( status[2]	),
 	//.dip_flip		( ~status[3]),
-	.dip_attract_snd( status[4]	)
+	.dip_attract_snd( status[5]	)
 );
 
 wire [5:0] GNG_R, GNG_G, GNG_B;

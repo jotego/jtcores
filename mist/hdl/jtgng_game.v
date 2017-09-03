@@ -32,6 +32,7 @@ module jtgng_game(
 	input			romload_wr,
 	// DEBUG
 	input			enable_char,
+	input			enable_obj,
 	// DIP switches
 	input			dip_game_mode,
 	input			dip_attract_snd,
@@ -144,6 +145,7 @@ jtgng_colmix colmix (
 	.obj_pxl	( obj_pxl		),
 	// DEBUG
 	.enable_char( enable_char	),
+	.enable_obj ( enable_obj	),
 	// CPU interface
 	.AB         ( cpu_AB[7:0]	),
 	.blue_cs    ( blue_cs    	),

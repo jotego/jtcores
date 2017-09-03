@@ -82,7 +82,7 @@ wire 		ram_we	= mem_sel==MEM_PREBUF ? blen : 1'b0;
 jtgng_objram objram (
 	.clock 		( clk		 	),
 	.data 		( ram_din 		),
-	.rdaddress 	( pre_scan		),
+	.rdaddress 	( {1'b0, pre_scan }	),
 	.wraddress 	( wr_addr		),
 	.wren 		( ram_we 		),
 	.q 			( ram_dout 		)
@@ -146,6 +146,15 @@ always @(negedge clk)
 			end
 			TRANSFER: begin
 				line_obj_we <= 1'b0;
+				if( post_scan == 5'h1f ) begin // Transfer done before the end of the line
+					if( HINIT ) begin
+						trf_state <= SEARCH;
+						pre_scan <= 9'd2;
+						post_scan <= 5'd8;
+						fill <= 1'd0;
+					end
+				end
+				else
 				if( pre_scan[1:0]==2'b11 ) begin
 					post_scan <= post_scan+1'b1;
 					pre_scan <= pre_scan + 2'd3;
@@ -188,48 +197,49 @@ reg [7:0] objy, objx;
 reg [7:0] VB;
 reg obj_vflip, obj_hflip, hover;
 
-always @(negedge clk)
-	case( H[2:1] )
-		2'd0: ADlow <= objbuf_data;
-		2'd1: begin
+always @(negedge clk) begin
+	objx <= objx + 1'b1;
+	case( H[2:0] )
+		3'd0: ADlow <= objbuf_data;
+		3'd2: begin
 			ADhigh <= objbuf_data[7:6];
 			objpal  <= objbuf_data[5:4];
 			obj_vflip <= objbuf_data[3];
 			obj_hflip <= objbuf_data[2];
 			hover	<= objbuf_data[0];
 		end
-		2'd2: begin
+		3'd4: begin
 			objy <= objbuf_data;
 			VB <= objbuf_data + ~VF;
 		end
-		2'd3: begin
+		3'd6: begin
 			// H[3] may be wrong here:
 			obj_addr <= hover ? 0 : { ADhigh, ADlow, H[3]^obj_hflip, VB[3:0]^obj_vflip };
 			objx <= objbuf_data;
 		end
 	endcase
+end
 
 reg [9:0] address_a, address_b;
 reg we_a, we_b;
 reg [7:0] data_a, data_b;
 
-always @(*)
+always @(*) begin
+	data_a = fill ? 8'hf8 : ram_dout;
+	data_b = fill ? 8'hf8 : ram_dout;
 	if( line == lineA ) begin
 		address_a = { post_scan, pre_scan[1:0] };
 		address_b = hscan;
 		we_a = line_obj_we;
 		we_b = 1'b0;
-		data_a = fill ? 8'h00 : ram_dout;
-		data_b = 8'hff;
 	end
 	else begin
 		address_a = hscan;
 		address_b = { post_scan, pre_scan[1:0] };
 		we_a = 1'b0;
 		we_b = line_obj_we;
-		data_a = 8'hff;
-		data_b = fill ? 8'hf8 : ram_dout;
 	end
+end
 
 jtgng_objbuf objbuf(
 	.address_a	( address_a ),
@@ -291,11 +301,11 @@ always @(*)
 		lineA_we_a = 1'b0;
 		obj_pxl = lineA_q_a[5:0];
 		// lineB writein
-		lineB_address_a = objx;
+		lineB_address_a = {8{flip}} ^ objx;
 		lineB_we_a = ~hover;
 	end else begin
 		// lineA writein
-		lineA_address_a = objx;
+		lineA_address_a = {8{flip}} ^ objx;
 		lineA_we_a = ~hover;
 		// lineB readout
 		lineB_address_a = Hcnt;
@@ -307,16 +317,16 @@ always @(negedge clk)
 	if( line == lineA ) begin
 		// lineA clear after each pixel is readout
 		lineA_address_b <= lineA_address_a;
-		lineA_we_b <= 1'b0;
+		lineA_we_b <= 1'b1;
 		// lineB port B unused
-		lineB_we_b <= 1'b1;
+		lineB_we_b <= 1'b0;
 	end
 	else begin
 		// lineA port A unused
-		lineA_we_b <= 1'b1;
+		lineA_we_b <= 1'b0;
 		// lineB clear after each pixel is readout
 		lineB_address_b <= lineB_address_a;
-		lineB_we_b <= 1'b0;
+		lineB_we_b <= 1'b1;
 	end
 
 jtgng_linebuf lineA_buf(

@@ -130,6 +130,7 @@ always @(posedge clk) begin
 	end
 end
 
+reg skip_refresh;
 
 always @(posedge clk)
 	if( rst ) begin
@@ -143,7 +144,8 @@ always @(posedge clk)
 		snd_addr_last	<= 15'd0;
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
-		main_valid <= false;		
+		main_valid <= false;
+		skip_refresh <= false;		
 	end
 	else begin
 	// if( bank_sw_sync ) main_valid <= false;
@@ -152,7 +154,7 @@ always @(posedge clk)
 			case( rd_state )
 				ST_MAIN: if(!collect_msb) begin					
 					main_cache0 <= SDRAM_DQ;	
-					collect_msb <= 1'b1;
+					collect_msb <= 1'b1;		
 				end else begin
 					main_cache1 <= SDRAM_DQ;
 					collect_msb <= 1'b0;
@@ -172,9 +174,9 @@ always @(posedge clk)
 							gra_state <= ST_SCRHI;
 						end
 						ST_SCRHI: begin
-							rd_state <= ST_SND;
 							rd_collect <= 1'b0;
 							scr_dout <= { SDRAM_DQ[7:0], scr_aux };
+							rd_state <= ST_SND;
 							gra_state <= ST_OBJ;
 						end
 						ST_OBJ: begin
@@ -249,17 +251,16 @@ always @(posedge clk)
 						char_addr_last <= char_addr_sync;
 					end
 				end
-				ST_SCR:  /*begin
-					rd_state <= ST_SND;
-					gra_state <= ST_CHAR;
-				end*/
+				ST_SCR:
 				begin
 					if( scr_addr_sync == scr_addr_last ) begin
+						rd_state <= ST_SND;						
 						gra_state <= ST_OBJ;
 					end					
 					else 
 					if( scr_addr_sync[14:5]==10'h00 ) begin // blank
 						scr_dout <= 24'd0;
+						rd_state <= ST_SND;
 						gra_state <= ST_OBJ;
 						scr_addr_last <= scr_addr_sync;					
 					end
@@ -269,11 +270,16 @@ always @(posedge clk)
 						scr_addr_last <= scr_addr_sync;					
 					end
 				end
-				ST_OBJ:	
-					if( obj_addr_sync[14:5]==10'd0 ) begin
+				ST_OBJ:	begin
+					rd_state <= ST_SND;
+					gra_state <= ST_CHAR;
+				end
+					/*
+					if( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8} ) begin
 						if( LHBL ) begin
 							rd_state <= ST_SND;
 							gra_state <= ST_CHAR;
+							//skip_refresh <= false;
 						end else begin
 							rq_autorefresh <= 1'b1;
 							rq_autorefresh_aux <= 1'b1;
@@ -283,9 +289,10 @@ always @(posedge clk)
 					end
 					else
 					if( obj_addr_last == obj_addr_sync) begin
-						if( LHBL ) begin
+						if( LHBL  ) begin
 							rd_state <= ST_SND;
 							gra_state <= ST_CHAR;
+							//skip_refresh <= false;
 						end	else begin
 							rq_autorefresh <= 1'b1;
 							rq_autorefresh_aux <= 1'b1;
@@ -295,7 +302,7 @@ always @(posedge clk)
 						rd_req <= 1'b1;
 						{row_addr, col_addr} <= 17'h1C000 + obj_addr_sync;
 						obj_addr_last <= obj_addr_sync;					
-					end
+					end*/
 				default: gra_state <= ST_CHAR;
 				endcase
 		endcase // rd_state
