@@ -228,6 +228,7 @@ jtgng_obj obj (
 	.bus_ack (bus_ack ),
 	.blen	 (blcnten ),
 	.LVBL	 ( LVBL	  ),
+	.LHBL	 ( LHBL	  ),
 	.HINIT	 ( Hinit  ),
 	.flip	 ( flip	  ),
 	.V		 ( V[7:0] ),

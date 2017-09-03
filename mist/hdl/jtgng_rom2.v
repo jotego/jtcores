@@ -228,6 +228,11 @@ always @(posedge clk)
 				scr_addr_last <= 0;
 				scr_dout <= 24'd0;
 				rd_state <= ST_SND;
+				/* To do:
+
+				Dar datos en cache mientras dure el refresco 
+
+				*/
 			end
 			ST_GRAPH: case( gra_state )
 				ST_CHAR: begin

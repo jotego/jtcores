@@ -6,6 +6,7 @@ module jtgng_obj(
 	// screen
 	input			HINIT,
 	input			LVBL,
+	input			LHBL,
 	input	[ 7:0]	V,
 	input	[ 8:0]	H,
 	input			flip,
@@ -198,26 +199,26 @@ reg [7:0] VB;
 reg obj_vflip, obj_hflip, hover;
 
 always @(negedge clk) begin
-	objx <= objx + 1'b1;
-	case( H[2:0] )
-		3'd0: ADlow <= objbuf_data;
-		3'd2: begin
+	case( H[3:0] )
+		4'd0: ADlow <= objbuf_data;
+		4'd2: begin
 			ADhigh <= objbuf_data[7:6];
 			objpal  <= objbuf_data[5:4];
 			obj_vflip <= objbuf_data[3];
 			obj_hflip <= objbuf_data[2];
 			hover	<= objbuf_data[0];
 		end
-		3'd4: begin
+		4'd4: begin
 			objy <= objbuf_data;
 			VB <= objbuf_data + ~VF;
 		end
-		3'd6: begin
-			// H[3] may be wrong here:
-			obj_addr <= hover ? 0 : { ADhigh, ADlow, H[3]^obj_hflip, VB[3:0]^obj_vflip };
+		4'd6: begin
 			objx <= objbuf_data;
 		end
 	endcase
+	if( H[2:0]==3'd6 ) begin	// H[3] may be wrong here:
+		obj_addr <= hover ? 0 : { ADhigh, ADlow, H[3]^obj_hflip, VB[3:0]^obj_vflip };
+	end
 end
 
 reg [9:0] address_a, address_b;
@@ -257,12 +258,15 @@ jtgng_objbuf objbuf(
 
 reg [3:0] z,y,x,w;
 reg [3:0] new_pxl;
+reg [7:0] posx;
+
 
 always @(negedge clk) begin
-	new_pxl <= obj_hflip ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
+	new_pxl <= obj_hflip ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
+	posx = H[3:0]==4'h7 ? objx : posx + 1'b1;
 	case( H[2:0] )
 		3'd0: {z,y,x,w} <= objrom_data[15:0];
-		default:
+		default: 
 			if( obj_hflip ) begin
 				z <= z >> 1;
 				y <= y >> 1;
@@ -291,7 +295,7 @@ wire [7:0] lineX_data = { 2'b11, objpal, new_pxl };
 reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
 
 always @(negedge clk)
-	if( HINIT ) Hcnt <= 8'd0;
+	if( !LHBL ) Hcnt <= 8'd0;
 	else Hcnt <= Hcnt+1'd1;
 
 always @(*)
@@ -301,11 +305,11 @@ always @(*)
 		lineA_we_a = 1'b0;
 		obj_pxl = lineA_q_a[5:0];
 		// lineB writein
-		lineB_address_a = {8{flip}} ^ objx;
+		lineB_address_a = {8{flip}} ^ posx;
 		lineB_we_a = ~hover;
 	end else begin
 		// lineA writein
-		lineA_address_a = {8{flip}} ^ objx;
+		lineA_address_a = {8{flip}} ^ posx;
 		lineA_we_a = ~hover;
 		// lineB readout
 		lineB_address_a = Hcnt;

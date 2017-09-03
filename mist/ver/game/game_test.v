@@ -142,6 +142,7 @@ jtgng_game UUT (
 	.romload_wr	( romload_wr	),
 	// Debug
 	.enable_char( 1'b1			),
+	.enable_obj ( 1'b1			),
 	// DIP switches
 	//.dip_flip		(	1'b0	),
 	.dip_game_mode	(	1'b0	),
