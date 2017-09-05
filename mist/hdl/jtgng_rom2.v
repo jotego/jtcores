@@ -132,6 +132,16 @@ end
 
 reg skip_refresh;
 
+always @(posedge clk) begin
+	if( main_cs_sync && (main_addr_sync>>2)==main_addr_last && main_valid )
+		case( main_addr_sync[1:0] )
+			2'd0: main_dout <= main_cache0[ 7:0];
+			2'd1: main_dout <= main_cache0[15:8];
+			2'd2: main_dout <= main_cache1[ 7:0];
+			2'd3: main_dout <= main_cache1[15:8];
+		endcase
+end
+
 always @(posedge clk)
 	if( rst ) begin
 		rd_state <= ST_SND;
@@ -201,12 +211,6 @@ always @(posedge clk)
 			ST_SND: rd_state <= ST_MAIN; // No audio for now
 			ST_MAIN: if( main_cs_sync ) begin
 				if( (main_addr_sync>>2)==main_addr_last && main_valid ) begin
-					case( main_addr_sync[1:0] )
-						2'd0: main_dout <= main_cache0[ 7:0];
-						2'd1: main_dout <= main_cache0[15:8];
-						2'd2: main_dout <= main_cache1[ 7:0];
-						2'd3: main_dout <= main_cache1[15:8];
-					endcase
 					rd_state  <= ST_GRAPH; // Graphics
 					if( !LHBL ) gra_state <= ST_OBJ;
 				end
@@ -214,7 +218,8 @@ always @(posedge clk)
 					rd_req <= 1'b1;
 					collect_msb <= 1'b0;
 					{row_addr, col_addr} <= {main_addr_sync[16:2],1'b0}; 
-					main_addr_last <= main_addr_sync>>2;					
+					main_addr_last <= main_addr_sync>>2;
+					main_valid <= 1'b0;
 				end
 			end
 			else begin
@@ -228,11 +233,6 @@ always @(posedge clk)
 				scr_addr_last <= 0;
 				scr_dout <= 24'd0;
 				rd_state <= ST_SND;
-				/* To do:
-
-				Dar datos en cache mientras dure el refresco 
-
-				*/
 			end
 			ST_GRAPH: case( gra_state )
 				ST_CHAR: begin
@@ -296,7 +296,7 @@ always @(posedge clk)
 						end								
 					end else begin
 						rd_req <= 1'b1;
-						{row_addr, col_addr} <= 17'h1C000 + obj_addr_sync;
+						{row_addr, col_addr} <= 17'h1C000 + (obj_addr_sync<<1);
 						obj_addr_last <= obj_addr_sync;					
 					end
 				default: gra_state <= ST_CHAR;

@@ -97,7 +97,7 @@ reg line_obj_we;
 reg [1:0] trf_state, trf_next;
 
 wire [7:0] VF = {8{flip}} ^ V;
-wire [7:0] VFx = {8{flip}} ^ (V+8'd8);
+//wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
 localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;
 
@@ -122,7 +122,8 @@ always @(negedge clk)
 				end
 				else begin
 					line_obj_we <= 1'b0;
-					if( ram_dout[7:5] == VFx[7:5] ) begin
+					//if( ram_dout[7:5] == VFx[7:5] ) begin
+					if( (ram_dout-8'd2)<VF && (ram_dout+8'd18)>VF  ) begin
 						pre_scan[1:0] <= 2'd0;
 						trf_next  <= TRANSFER;
 						trf_state <= WAIT;
@@ -187,7 +188,6 @@ always @(negedge clk)
 	end
 
 
-wire [6:0] hscan = { H[8:4], H[2:1] };
 wire [7:0] q_a, q_b;
 wire [7:0] objbuf_data = line==lineA ? q_b : q_a;
 
@@ -196,28 +196,53 @@ reg [1:0] objpal;
 reg [1:0] ADhigh;
 reg [7:0] objy, objx;
 reg [7:0] VB;
+wire [7:0] posy;
 reg obj_vflip, obj_hflip, hover;
+wire posvflip, poshflip;
+wire [1:0] pospal;
+reg vinzone;
+
+jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .din(objy), .drop(posy));
+//jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .din(obj_vflip), .drop(posvflip));
+jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
+jtgng_sh #(.width(2), .stages(6)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
+
+always @(*) begin
+	//VB = posy + ( ~VF + {{7{~flip}},1'b1});
+	// vinzone = &VB[7:4];
+	VB = VF-objy;
+	vinzone = (VF>=objy) && (VF<(objy+8'd16));
+end
+
+reg [4:0] objcnt;
+reg [3:0] pxlcnt;
+//wire [6:0] hscan = { H[8:4], H[1:0] };
+wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 always @(negedge clk) begin
-	case( H[3:0] )
+	if( HINIT ) { objcnt, pxlcnt } <= 10'd0;
+	else if( objcnt != 5'd23 ) { objcnt, pxlcnt } <= { objcnt, pxlcnt }+1'd1;
+end
+
+always @(negedge clk) begin
+	case( pxlcnt[3:0] )
 		4'd0: ADlow <= objbuf_data;
-		4'd2: begin
+		4'd1: begin
 			ADhigh <= objbuf_data[7:6];
 			objpal  <= objbuf_data[5:4];
 			obj_vflip <= objbuf_data[3];
 			obj_hflip <= objbuf_data[2];
 			hover	<= objbuf_data[0];
 		end
-		4'd4: begin
+		4'd2: begin
 			objy <= objbuf_data;
-			VB <= objbuf_data + ~VF;
 		end
-		4'd6: begin
+		4'd3: begin
 			objx <= objbuf_data;
 		end
 	endcase
-	if( H[2:0]==3'd6 ) begin	// H[3] may be wrong here:
-		obj_addr <= hover ? 0 : { ADhigh, ADlow, H[3]^obj_hflip, VB[3:0]^obj_vflip };
+	if( pxlcnt[2:0]==3'd3 ) begin	
+		obj_addr <= (hover || !vinzone) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
 	end
 end
 
@@ -262,12 +287,12 @@ reg [7:0] posx;
 
 
 always @(negedge clk) begin
-	new_pxl <= obj_hflip ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
-	posx = H[3:0]==4'h7 ? objx : posx + 1'b1;
-	case( H[2:0] )
-		3'd0: {z,y,x,w} <= objrom_data[15:0];
+	new_pxl <= poshflip ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
+	posx = pxlcnt[3:0]==4'h6 ? objx : posx + 1'b1;
+	case( pxlcnt[3:0] )
+		4'd6,4'd14: {z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
 		default: 
-			if( obj_hflip ) begin
+			if( poshflip ) begin
 				z <= z >> 1;
 				y <= y >> 1;
 				x <= x >> 1;
@@ -278,7 +303,7 @@ always @(negedge clk) begin
 				x <= x << 1;
 				w <= w << 1;
 			end
-		3'd4: {z,y,x,w} <= objrom_data[31:16];
+		4'd10,4'd2: {z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
 	endcase
 end
 
@@ -290,7 +315,7 @@ reg [7:0] Hcnt;
 
 wire [7:0] lineA_q_a, lineA_q_b;
 wire [7:0] lineB_q_a, lineB_q_b;
-wire [7:0] lineX_data = { 2'b11, objpal, new_pxl };
+wire [7:0] lineX_data = { 2'b11, pospal, new_pxl };
 
 reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
 
