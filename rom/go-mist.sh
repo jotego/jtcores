@@ -31,8 +31,8 @@ paste 1bc.hex 1e.hex -d "\n" >> gng.hex
 echo "Object starts at " $(curpos)
 
 ## Object ROM, 16kBx4 = 64kB
-$OD mm{16.3n,15.1n} > n31.hex
-$OD mm{13.3l,12.1l} > l31.hex
+$OD mm{17.4n,16.3n,15.1n} > n31.hex
+$OD mm{14.4l,13.3l,12.1l} > l31.hex
 paste n31.hex l31.hex -d "" | tr -d ' ' > obj.hex
 cat obj.hex >> gng.hex
 echo "Object ends end at " $(curpos)
