@@ -204,7 +204,10 @@ reg vinzone;
 
 jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .din(objy), .drop(posy));
 //jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .din(obj_vflip), .drop(posvflip));
-jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
+jtgng_sh #(.width(1), .stages(4)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
+reg poshflip2;
+always @(negedge clk) poshflip2 <= poshflip;
+
 jtgng_sh #(.width(2), .stages(6)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
 
 always @(*) begin
@@ -220,8 +223,11 @@ reg [3:0] pxlcnt;
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 always @(negedge clk) begin
-	if( HINIT ) { objcnt, pxlcnt } <= 10'd0;
-	else if( objcnt != 5'd23 ) { objcnt, pxlcnt } <= { objcnt, pxlcnt }+1'd1;
+	if( HINIT ) { objcnt, pxlcnt } <= {5'd23,4'd0};
+	else if( objcnt != 5'd31 ) begin
+		pxlcnt <= pxlcnt+1'd1;
+		if( &pxlcnt ) objcnt <= objcnt-1'd1;
+	end
 end
 
 always @(negedge clk) begin
@@ -242,7 +248,7 @@ always @(negedge clk) begin
 		end
 	endcase
 	if( pxlcnt[2:0]==3'd3 ) begin	
-		obj_addr <= (hover || !vinzone) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
+		obj_addr <= (hover || !vinzone || objcnt==5'd31) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
 	end
 end
 
@@ -287,10 +293,11 @@ reg [7:0] posx;
 
 
 always @(negedge clk) begin
-	new_pxl <= poshflip ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
+	new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
 	posx = pxlcnt[3:0]==4'h6 ? objx : posx + 1'b1;
 	case( pxlcnt[3:0] )
 		4'd6,4'd14: {z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
+		4'd10,4'd2: {z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
 		default: 
 			if( poshflip ) begin
 				z <= z >> 1;
@@ -303,7 +310,6 @@ always @(negedge clk) begin
 				x <= x << 1;
 				w <= w << 1;
 			end
-		4'd10,4'd2: {z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
 	endcase
 end
 
@@ -331,11 +337,11 @@ always @(*)
 		obj_pxl = lineA_q_a[5:0];
 		// lineB writein
 		lineB_address_a = {8{flip}} ^ posx;
-		lineB_we_a = ~hover;
+		lineB_we_a = ~hover && (lineX_data[3:0]!=4'hf);
 	end else begin
 		// lineA writein
 		lineA_address_a = {8{flip}} ^ posx;
-		lineA_we_a = ~hover;
+		lineA_we_a = ~hover && (lineX_data[3:0]!=4'hf);
 		// lineB readout
 		lineB_address_a = Hcnt;
 		lineB_we_a = 1'b0;

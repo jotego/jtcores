@@ -48,14 +48,15 @@ RESET:
 	CMPX #$2000
 	BLT @L
 
-	LDX #$1E3C
-	LDY #(OBJ_SAMPLE2)
-	LDB #4
-@L:
-	LDA ,Y+
-	STA ,X+
-	DECB
-	BNE @L
+;	LDX #$1E3C
+;	LDY #(OBJ_SAMPLE+4)
+;	LDB #4
+;@L:
+;	LDA ,Y+
+;	STA ,X+
+;	DECB
+;	BNE @L
+	BSR DRAW_OBJ_SAMPLE
 
 	LBSR SETUP_PAL
 FIN:
