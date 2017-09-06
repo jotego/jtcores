@@ -19,7 +19,7 @@ module jtgng_obj(
 	output	reg		blen,	// bus line counter enable
 	// SDRAM interface
 	output	reg [14:0] obj_addr,
-	output	reg		obj_hflip,
+	output	reg		obj_addr_flip,
 	input		[31:0] objrom_data,
 	// pixel output
 	output	reg [ 5:0] obj_pxl
@@ -198,18 +198,18 @@ reg [1:0] ADhigh;
 reg [7:0] objy, objx;
 reg [7:0] VB;
 wire [7:0] posy;
-reg obj_vflip, hover;
+reg obj_vflip, obj_hflip, hover;
 wire posvflip, poshflip;
 wire [1:0] pospal;
 reg vinzone;
 
 jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .din(objy), .drop(posy));
 //jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .din(obj_vflip), .drop(posvflip));
-jtgng_sh #(.width(1), .stages(4)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
+jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
 reg poshflip2;
 always @(negedge clk) poshflip2 <= poshflip;
 
-jtgng_sh #(.width(2), .stages(6)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
+jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
 
 always @(*) begin
 	//VB = posy + ( ~VF + {{7{~flip}},1'b1});
@@ -249,6 +249,7 @@ always @(negedge clk) begin
 	endcase
 	if( pxlcnt[2:0]==3'd3 ) begin	
 		obj_addr <= (hover || !vinzone || objcnt==5'd0) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
+		obj_addr_flip <= obj_hflip;		
 	end
 end
 
@@ -294,13 +295,13 @@ reg [8:0] posx;
 
 always @(negedge clk) begin
 	new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
-	posx = pxlcnt[3:0]==4'h6 ? objx : posx + 1'b1;
+	posx = pxlcnt[3:0]==4'h7 ? objx : posx + 1'b1;
 	case( pxlcnt[3:0] )
-		4'd6,4'd14: if( poshflip )
+		4'd7,4'd15: if( poshflip )
 			{z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
 		else
 			{z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
-		4'd10,4'd2: if( obj_hflip )
+		4'd11,4'd3: if( poshflip )
 			{z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
 		else
 			{z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
