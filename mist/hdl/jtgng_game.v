@@ -98,7 +98,7 @@ jtgng_char chargen (
 	.char_pal   ( char_pal    	)
 );
 
-wire scr_mrdy;
+wire scr_mrdy, scrwin;
 wire [14:0] scr_addr;
 wire [23:0] scr_dout;
 wire [ 2:0] scr_col;
@@ -121,7 +121,8 @@ jtgng_scroll scrollgen (
 	.scr_addr   ( scr_addr		),
 	.scr_col    ( scr_col 		),
 	.scr_pal    ( scr_pal    	),
-	.scrom_data ( scr_dout		)
+	.scrom_data ( scr_dout		),
+	.scrwin		( scrwin		)
 );
 
 
@@ -141,6 +142,7 @@ jtgng_colmix colmix (
 	// scroll
 	.scr_col	( scr_col		),
 	.scr_pal	( scr_pal		),
+	.scrwin		( scrwin		),
 	// objects
 	.obj_pxl	( obj_pxl		),
 	// DEBUG

@@ -15,10 +15,11 @@ module jtgng_scroll(
 	output	[2:0] HSlow,
 
 	// ROM
-	output reg 	[14:0] scr_addr,
-	input  		[23:0] scrom_data,
-	output  	[ 2:0] scr_pal,
-	output  	[ 2:0] scr_col
+	output reg 	[14:0]	scr_addr,
+	input  		[23:0]	scrom_data,
+	output  	[ 2:0]	scr_pal,
+	output  	[ 2:0]	scr_col,
+	output				scrwin
 );
 
 reg [10:0]	addr;
@@ -92,12 +93,14 @@ reg scr_hflip_prev;
 reg [2:0] pal_in;
 reg [3:0] vert_addr;
 reg [7:0] ASlow;
+reg scrwin_in;
 
 wire scr_vflip = dout[5];
 
 localparam 	SDRAM_stage = 3'd6,
 			ASlo_stage	= 3'd1,
 			AShi_stage	= 3'd2;
+
 
 // Set input for ROM reading
 always @(negedge clk) begin
@@ -106,7 +109,8 @@ always @(negedge clk) begin
 		AShi_stage: begin
 			AS        	<= {dout[7:6], ASlow};
 			scr_hflip 	<= dout[4];
-			pal_in 		<= dout[2:0];			
+			pal_in 		<= dout[2:0];
+			scrwin_in	<= dout[3];
 			vert_addr 	<= {4{scr_vflip}}^VS[3:0];
 			scr_addr <= { 	{dout[7:6], ASlow}, // AS
 							HS[3]^dout[4] /*scr_hflip*/, 
@@ -129,6 +133,8 @@ jtgng_sh #(.width(3),.stages(7-SDRAM_stage)) pixel_sh (
 );
 
 //assign scr_col=pxl_aux;
+jtgng_sh #(.width(1), .stages(8-SDRAM_stage)) scrwin_sh 
+	(.clk(clk), .din(scrwin_in), .drop(scrwin));
 
 jtgng_sh #(.width(3),.stages(8-SDRAM_stage)) pal_sh (
 	.clk	( clk		), 

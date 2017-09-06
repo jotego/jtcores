@@ -223,11 +223,10 @@ reg [3:0] pxlcnt;
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 always @(negedge clk) begin
-	if( HINIT ) { objcnt, pxlcnt } <= {5'd23,4'd0};
-	else if( objcnt != 5'd31 ) begin
-		pxlcnt <= pxlcnt+1'd1;
-		if( &pxlcnt ) objcnt <= objcnt-1'd1;
-	end
+	if( HINIT ) 
+		{ objcnt, pxlcnt } <= {5'd8,4'd0};
+	else 
+		if( objcnt != 5'd0 )  { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 1'd1;
 end
 
 always @(negedge clk) begin
@@ -248,7 +247,7 @@ always @(negedge clk) begin
 		end
 	endcase
 	if( pxlcnt[2:0]==3'd3 ) begin	
-		obj_addr <= (hover || !vinzone || objcnt==5'd31) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
+		obj_addr <= (hover || !vinzone || objcnt==5'd0) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
 	end
 end
 
