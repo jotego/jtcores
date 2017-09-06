@@ -288,7 +288,7 @@ jtgng_objbuf objbuf(
 
 reg [3:0] z,y,x,w;
 reg [3:0] new_pxl;
-reg [7:0] posx;
+reg [8:0] posx;
 
 
 always @(negedge clk) begin
@@ -335,12 +335,12 @@ always @(*)
 		lineA_we_a = 1'b0;
 		obj_pxl = lineA_q_a[5:0];
 		// lineB writein
-		lineB_address_a = {8{flip}} ^ posx;
-		lineB_we_a = ~hover && (lineX_data[3:0]!=4'hf);
+		lineB_address_a = {8{flip}} ^ posx[7:0];
+		lineB_we_a = !posx[8] && !hover && (lineX_data[3:0]!=4'hf);
 	end else begin
 		// lineA writein
-		lineA_address_a = {8{flip}} ^ posx;
-		lineA_we_a = ~hover && (lineX_data[3:0]!=4'hf);
+		lineA_address_a = {8{flip}} ^ posx[7:0];
+		lineA_we_a = !posx[8] && !hover && (lineX_data[3:0]!=4'hf);
 		// lineB readout
 		lineB_address_a = Hcnt;
 		lineB_we_a = 1'b0;

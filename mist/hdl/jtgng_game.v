@@ -33,6 +33,7 @@ module jtgng_game(
 	// DEBUG
 	input			enable_char,
 	input			enable_obj,
+	input			enable_scr,
 	// DIP switches
 	input			dip_game_mode,
 	input			dip_attract_snd,
@@ -148,6 +149,7 @@ jtgng_colmix colmix (
 	// DEBUG
 	.enable_char( enable_char	),
 	.enable_obj ( enable_obj	),
+	.enable_scr ( enable_scr	),
 	// CPU interface
 	.AB         ( cpu_AB[7:0]	),
 	.blue_cs    ( blue_cs    	),

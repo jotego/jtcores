@@ -18,6 +18,7 @@ module jtgng_colmix(
 	// Debug
 	input			enable_char,
 	input			enable_obj,
+	input			enable_scr,
 	// CPU inteface
 	input [7:0]		AB,
 	input			blue_cs,
@@ -45,7 +46,7 @@ reg [7:0] pixel_mux;
 always @(*) begin	
 	if( chr_col==2'b11 || !enable_char ) begin
 		// Object or scroll
-		if( &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=2'd3) ) 
+		if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=2'd0) ) 
 			pixel_mux = {2'b00, scr_pal, scr_col }; // scroll wins
 		else
 			pixel_mux = {2'b01, obj_pxl }; // object wins
