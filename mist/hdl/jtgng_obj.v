@@ -19,6 +19,7 @@ module jtgng_obj(
 	output	reg		blen,	// bus line counter enable
 	// SDRAM interface
 	output	reg [14:0] obj_addr,
+	output	reg		obj_hflip,
 	input		[31:0] objrom_data,
 	// pixel output
 	output	reg [ 5:0] obj_pxl
@@ -197,7 +198,7 @@ reg [1:0] ADhigh;
 reg [7:0] objy, objx;
 reg [7:0] VB;
 wire [7:0] posy;
-reg obj_vflip, obj_hflip, hover;
+reg obj_vflip, hover;
 wire posvflip, poshflip;
 wire [1:0] pospal;
 reg vinzone;
@@ -295,8 +296,14 @@ always @(negedge clk) begin
 	new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
 	posx = pxlcnt[3:0]==4'h6 ? objx : posx + 1'b1;
 	case( pxlcnt[3:0] )
-		4'd6,4'd14: {z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
-		4'd10,4'd2: {z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
+		4'd6,4'd14: if( poshflip )
+			{z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
+		else
+			{z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
+		4'd10,4'd2: if( obj_hflip )
+			{z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
+		else
+			{z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
 		default: 
 			if( poshflip ) begin
 				z <= z >> 1;
