@@ -256,7 +256,6 @@ jtgng_rom2 rom (
 	.main_addr	( main_addr		),
 	.snd_addr 	( snd_addr 		),
 	.obj_addr 	( obj_addr 		),
-	.obj_hflip	( 1'b0			),
 	.scr_addr 	( scr_addr 		),
 	.main_cs	( main_cs		),
 	.snd_cs		( 1'b0			),

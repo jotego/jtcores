@@ -63,11 +63,12 @@ FIN:
 	BRA FIN
 
 DRAW_OBJ_SAMPLE:
-	LDY #OBJ_SAMPLE
+	;LDY #OBJ_SAMPLE
+	LDY #OBJ_LEFT
 	LDX #$1E3C
 @L2:
 	LDA ,Y+
-	CMPA #$FF
+	CMPA #$FA
 	BEQ @LFIN
 	STA ,X+
 	BRA @L2
@@ -103,7 +104,39 @@ OBJ_SAMPLE:
 	FCB $22,$00,$F8,$70
 	FCB $2B,$00,$F8,$80
 	FCB $23,$00,$F8,$80
-	FCB $FF
+	FCB $FA
+
+; 1E3C onwards
+OBJ_LEFT: 
+	FCB $7C,$70,$C2,$F0
+	FCB $74,$70,$B2,$F0
+	FCB $7D,$71,$C2,$00	;hover
+	FCB $75,$71,$B2,$00	;hover
+	FCB $7A,$79,$C2,$20
+	FCB $72,$70,$B2,$20
+	FCB $7B,$70,$C2,$30
+	FCB $73,$70,$B2,$30
+	FCB $18,$01,$C2,$FF	;hover
+	FCB $10,$01,$B2,$FF	;hover
+	FCB $19,$00,$C2,$0F
+	FCB $11,$00,$B2,$0F
+	FCB $11,$00,$F8,$0F
+	FCB $2F,$00,$F8,$0F
+	FCB $27,$00,$F8,$0F
+	FCB $2E,$01,$F8,$FF	;hover
+	FCB $26,$01,$F8,$FF	;hover
+	FCB $2F,$00,$F8,$0F
+	FCB $27,$00,$F8,$0F
+	FCB $25,$00,$F8,$0F
+	FCB $17,$00,$F8,$0F
+	FCB $10,$04,$F8,$0C
+	FCB $2B,$00,$F8,$11
+	FCB $23,$00,$F8,$11
+	FCB $28,$00,$F8,$01
+	FCB $20,$00,$F8,$01
+	FCB $28,$00,$F8,$11
+	FCB $21,$00,$F8,$11
+	FCB $FA
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SETUP_PAL:

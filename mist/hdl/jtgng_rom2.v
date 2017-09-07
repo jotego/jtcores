@@ -8,7 +8,6 @@ module jtgng_rom2(
 	input	[16:0]	main_addr,
 	input	[14:0]	snd_addr,
 	input	[14:0]	obj_addr,
-	input			obj_hflip,
 	input	[14:0]	scr_addr,
 	input			main_cs,
 	// input			bank_sw,
@@ -198,10 +197,7 @@ always @(posedge clk)
 							rd_state <= ST_SND;
 							rd_collect <= 1'b0;
 							if( LHBL ) gra_state <= ST_CHAR; else gra_state <= ST_OBJ;
-							if( obj_hflip )
-								obj_dout <= { scr_aux, SDRAM_DQ };
-							else
-								obj_dout <= { SDRAM_DQ, scr_aux };
+							obj_dout <= { SDRAM_DQ, scr_aux };
 						end
 					endcase
 				end

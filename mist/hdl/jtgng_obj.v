@@ -198,18 +198,22 @@ reg [1:0] ADhigh;
 reg [7:0] objy, objx;
 reg [7:0] VB;
 wire [7:0] posy;
+wire [8:0] objx2;
 reg obj_vflip, obj_hflip, hover;
 wire posvflip, poshflip;
 wire [1:0] pospal;
 reg vinzone;
+wire vinzone2;
 
 jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .din(objy), .drop(posy));
+jtgng_sh #(.width(9), .stages(3)) sh_objx (.clk(clk), .din({hover,objx}), .drop(objx2));
 //jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .din(obj_vflip), .drop(posvflip));
 jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
 reg poshflip2;
 always @(negedge clk) poshflip2 <= poshflip;
 
 jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
+jtgng_sh #(.width(2), .stages(4)) sh_objz (.clk(clk), .din(vinzone), .drop(vinzone2));
 
 always @(*) begin
 	//VB = posy + ( ~VF + {{7{~flip}},1'b1});
@@ -248,7 +252,7 @@ always @(negedge clk) begin
 		end
 	endcase
 	if( pxlcnt[2:0]==3'd3 ) begin	
-		obj_addr <= (hover || !vinzone || objcnt==5'd0) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^obj_vflip };
+		obj_addr <= (!vinzone || objcnt==5'd0) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}} };
 		obj_addr_flip <= obj_hflip;		
 	end
 end
@@ -295,16 +299,16 @@ reg [8:0] posx;
 
 always @(negedge clk) begin
 	new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};	
-	posx = pxlcnt[3:0]==4'h7 ? objx : posx + 1'b1;
+	posx = pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
 	case( pxlcnt[3:0] )
-		4'd7,4'd15: if( poshflip )
-			{z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
+		4'd7,4'd15: if( poshflip )	// new data
+			{z,y,x,w} <= vinzone2 ? objrom_data[31:16] : 16'hffff;
 		else
-			{z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
-		4'd11,4'd3: if( poshflip )
-			{z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
+			{z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
+		4'd11,4'd3: if( poshflip )	// get the second half
+			{z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
 		else
-			{z,y,x,w} <= vinzone ? objrom_data[31:16] : 16'hffff;
+			{z,y,x,w} <= vinzone2 ? objrom_data[31:16] : 16'hffff;
 		default: 
 			if( poshflip ) begin
 				z <= z >> 1;
@@ -344,11 +348,11 @@ always @(*)
 		obj_pxl = lineA_q_a[5:0];
 		// lineB writein
 		lineB_address_a = {8{flip}} ^ posx[7:0];
-		lineB_we_a = !posx[8] && !hover && (lineX_data[3:0]!=4'hf);
+		lineB_we_a = !posx[8] && (lineX_data[3:0]!=4'hf);
 	end else begin
 		// lineA writein
 		lineA_address_a = {8{flip}} ^ posx[7:0];
-		lineA_we_a = !posx[8] && !hover && (lineX_data[3:0]!=4'hf);
+		lineA_we_a = !posx[8] && (lineX_data[3:0]!=4'hf);
 		// lineB readout
 		lineB_address_a = Hcnt;
 		lineB_we_a = 1'b0;
