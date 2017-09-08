@@ -118,15 +118,21 @@ if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; the
 	exit 1
 fi
 
-if [ $NOFIRM != NOFIRM ]; then
+if [ "$OBJTEST" = "-DOBJTEST" ]; then
+	ODx2="od -t x2 -A none -v -w2"
+	$ODx2 --endian little gng_test.bin > ram.hex	
+	echo "@1C000" >> ram.hex
+	if [ ! -e ../../../rom/obj.hex ]; then
+		echo "Missing the object hex dump"
+		echo "use go-mist.sh to generate it at the ROM folder"
+		exit 1
+	fi
+	cat ../../../rom/obj.hex >> ram.hex
+else
 	echo -e "DEPTH = 8192;\nWIDTH = 8;\nADDRESS_RADIX = HEX;DATA_RADIX = HEX;" > jtgng_firmware.mif
 	echo -e "CONTENT\nBEGIN" >> jtgng_firmware.mif
-
-
 	OD="od -t x1 -A none -v -w1"
-
 	$OD gng_test.bin > ram.hex
-
 python <<XXX
 import string
 
@@ -141,23 +147,16 @@ for line in infile:
 file.write("END;")
 XXX
 
+fi
+
+if [ $NOFIRM != NOFIRM ]; then
 	echo Quartus firmware file overwritten
 	cp jtgng_firmware.mif ../../quartus 
 fi
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 
-if [ $OBJTEST = "-DOBJTEST" ]; then
-	ODx2="od -t x2 -A none -v -w2"
-	$ODx2 --endian little gng_test.bin > ram.hex	
-	echo "@1C000" >> ram.hex
-	if [ ! -e ../../../rom/obj.hex ]; then
-		echo "Missing the object hex dump"
-		echo "use go-mist.sh to generate it at the ROM folder"
-		exit 1
-	fi
-	cat ../../../rom/obj.hex >> ram.hex
-fi
+
 
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))

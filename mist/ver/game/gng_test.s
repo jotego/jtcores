@@ -37,35 +37,7 @@ RESET:
 	STA VPOS_LOW
 	STA VPOS_HIGH
 
-	; LDA #$40
-	; STA BANK
-	; LDU $8000
-	; LDA $8001
-	; LDB $8002
-	; LDU $8001
-	; LDD $8000
-	LDX #$1E00
-	LDA #$FF
-	LDB #$FF
-@L:
-	STD ,X++
-	CMPX #$2000
-	BLT @L
-
-	LDA #$A0
-	LDX #$1E00
-	STA ,X+
-	LDA #$B0
-	STA ,X+
-	LDD #$C0D0
-	STD ,X++
-	LDD #$A7B7
-	LDX #$1F7C
-	STD ,X++
-	LDD #$C7D7
-	STD ,X++
-
-	BSR SETUP_PAL
+	LBSR SETUP_PAL
 
 	;LBSR SCR_FLICKER
 	;LBSR CHK_SDRAM
@@ -79,9 +51,10 @@ RESET:
 	;LBSR TEST_CHARPAL
 	;LBSR FILLSCR
 	;LBSR TEST_SCRPAL
-	;LBSR CLRCHAR
+	LBSR CLRCHAR
+	LBSR SHOW_TAITO
 	;LBSR FILL_ALLCHAR
-	;LBSR CLRSCR
+	LBSR CLRSCR
 
 	LDU #$DEAD
 ;	BSR FILL_LONGSTR
@@ -121,6 +94,18 @@ FINISH:
 	LDA #$10
 	STA BANK
 	BRA FINISH
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+SHOW_TAITO:
+	LDX #$2360
+	LDY #TAITO_CHR
+	LDB #$40
+@L:
+	LDA ,Y+
+	STA ,X+
+	DECB
+	BNE @L
+	RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SCR_FLICKER:
@@ -638,6 +623,19 @@ CHAR_MAL:
 SCR_MAL:
 	.STRZ "     bad scroll RAM"
 
+; TAITO screen, load from $2360, 16*4=$40 BYTES
+TAITO_CHR:
+	FCB $20,$20,$10,$20,$31,$39,$38,$35,$20,$54,$41,$49,$54,$4f,$20,$41
+	FCB $4D,$45,$52,$49,$43,$41,$20,$43,$4F,$52,$50,$2E,$20,$20,$20,$20
+	FCB $20,$20,$4C,$49,$43,$45,$4E,$53,$45,$44,$20,$46,$52,$4F,$4D,$20
+	FCB $43,$41,$50,$43,$4F,$4D,$20,$43,$4F,$2E,$2C,$20,$4C,$54,$44,$2E
+TAITO_CHR_ATT: ; LOAD FROM $2760, FOR $40 BYTES
+	FCB 0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5
+	FCB 5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0
+	FCB 0,0,9,9,9,9,9,9,9,9,9,9,9,9,9,9
+	FCB 9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9
+	
+
 CHAR_PALETTE:
 	; Characters. 16 palettes
 	FDB $F000,$A000,$5000,$0000	; Red   tones
@@ -680,7 +678,6 @@ IRQSERVICE:
 	CLRA	; Is the palette already filled?
 	CMPA $1000
 	BNE @DOWORK
-	CLR OKOUT
 	RTI
 @DOWORK:
 	LDX #CHR_PALRAM
