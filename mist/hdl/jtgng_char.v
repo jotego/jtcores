@@ -31,7 +31,7 @@ always @(*)
 		we   = char_cs && !rd;
 	end else begin
 		we	 = 1'b0; // line order is important here
-		addr = { H128[1], scan };
+		addr = { H128[0], scan };
 	end
 
 // RAM
@@ -68,8 +68,8 @@ reg [3:0] pal_aux;
 // Set input for ROM reading
 always @(negedge clk) begin
 	case( H128[2:0] )
-		3'd2: aux <= dout;
-		3'd4: begin
+		3'd1: aux <= dout;
+		3'd2: begin
 			AC       <= {dout[7:6], aux};
 			char_hflip <= dout[4] ^ flip;
 			char_vflip <= dout[5] ^ flip;
@@ -86,7 +86,7 @@ reg [15:0] chd;
 reg [1:0] pxl_aux;
 
 // delays pixel data so it comes out on a multiple of 8
-jtgng_sh #(.width(4),.stages(3)) pal_sh(.clk(clk),.din(pal_aux),.drop(char_pal));
+jtgng_sh #(.width(4),.stages(5)) pal_sh(.clk(clk),.din(pal_aux),.drop(char_pal));
 //jtgng_sh #(.width(2),.stages(3)) pxl_sh(.clk(clk),.din(pxl_aux),.drop(char_col));
 assign char_col = pxl_aux;
 
