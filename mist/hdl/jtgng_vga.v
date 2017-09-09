@@ -17,12 +17,12 @@ module jtgng_vga(
 );
 
 reg [7:0] wr_addr, rd_addr;
-reg sel;
+reg wr_sel, rd_sel;
 
 //`ifndef SIM_SYNCONLY
 jtgng_vgabuf buf_rg (
-	.address_a ( { sel, 1'b0, wr_addr} ),
-	.address_b ( {~sel, 1'b0, rd_addr} ),
+	.address_a ( {wr_sel, 1'b0, wr_addr} ),
+	.address_b ( {rd_sel, 1'b0, rd_addr} ),
 	.clock_a ( clk_gng ),
 	.clock_b ( clk_vga ),
 	.data_a ( {red,green} ),
@@ -35,8 +35,8 @@ jtgng_vgabuf buf_rg (
 wire [3:0] nc;
 
 jtgng_vgabuf buf_b (
-	.address_a ( { sel, 1'b1, wr_addr} ),
-	.address_b ( {~sel, 1'b1, rd_addr} ),
+	.address_a ( {wr_sel, 1'b1, wr_addr} ),
+	.address_b ( {rd_sel, 1'b1, rd_addr} ),
 	.clock_a ( clk_gng ),
 	.clock_b ( clk_vga ),
 	.data_a ( {4'b0, blue} ),
@@ -52,12 +52,12 @@ reg last_LHBL;
 always @(posedge clk_gng)
 	if( rst ) begin
 		wr_addr <= 8'd0;
-		sel <= 1'b0;		
+		wr_sel <= 1'b0;		
 	end else  begin
 		last_LHBL <= LHBL;	
 		if( !LHBL ) begin
 			wr_addr <= 8'd0;
-			if( last_LHBL!=LHBL ) sel <= ~sel;
+			if( last_LHBL!=LHBL ) wr_sel <= ~wr_sel;
 		end else
 			wr_addr <= wr_addr + 1'b1;
 	end
@@ -82,6 +82,8 @@ reg [1:0] state;
 reg centre_done, finish,double;
 reg vsync_cnt;
 
+reg rd_sel_aux;
+
 localparam SYNC=2'd0, FRONT=2'd1, LINE=2'd2, BACK=2'd3;
 
 always @(posedge clk_vga) begin
@@ -94,6 +96,8 @@ always @(posedge clk_vga) begin
 		vsync_cnt  <= 1'b0;
 		vga_vsync  <= 1'b1;
 		vga_hsync  <= 1'b1;
+		rd_sel_aux <= 1'b0;
+		rd_sel <= 1'b0;		
 	end
 	else 
 	case( state )
@@ -110,6 +114,8 @@ always @(posedge clk_vga) begin
 				state<=FRONT;
 				cnt  <=7'd16;
 				wait_hsync <= ~wait_hsync;
+				rd_sel_aux <= ~rd_sel_aux;
+				if( rd_sel_aux ) rd_sel <= ~rd_sel;
 			end
 		end
 		FRONT: begin
