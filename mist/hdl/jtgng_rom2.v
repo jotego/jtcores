@@ -23,6 +23,7 @@ module jtgng_rom2(
 
 	output	reg	[15:0]	char_dout,
 	output	reg	[ 7:0]	main_dout,
+	output	reg			mrdy,
 	output	reg	[ 7:0]	snd_dout,
 	output	reg	[31:0]	obj_dout,
 	output	reg	[23:0]	scr_dout_pxl,
@@ -155,7 +156,8 @@ always @(posedge clk)
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
 		main_valid <= false;
-		skip_refresh <= false;		
+		skip_refresh <= false;
+		mrdy <= true;
 	end
 	else begin
 	// if( bank_sw_sync ) main_valid <= false;
@@ -213,9 +215,11 @@ always @(posedge clk)
 				if( (main_addr_sync>>2)==main_addr_last && main_valid ) begin
 					rd_state  <= ST_GRAPH; // Graphics
 					if( !LHBL ) gra_state <= ST_OBJ;
+					mrdy <= true;
 				end
 				else begin
 					rd_req <= 1'b1;
+					mrdy <= false;
 					collect_msb <= 1'b0;
 					{row_addr, col_addr} <= {main_addr_sync[16:2],1'b0}; 
 					main_addr_last <= main_addr_sync>>2;
@@ -223,6 +227,7 @@ always @(posedge clk)
 				end
 			end
 			else begin
+					mrdy <= true;
 					rd_state  <= ST_GRAPH; // Graphics
 			end
 			ST_REFRESH: begin

@@ -174,7 +174,7 @@ jtgng_colmix colmix (
 	wire [ 8:0] obj_AB;
 	wire OKOUT;
 	wire [7:0] main_ram;
-	wire blcnten;
+	wire blcnten, rom_mrdy;
 jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
@@ -212,6 +212,7 @@ jtgng_main main (
 	.wr_col		( wr_col		),
 	.sdram_we	( sdram_we		),
 	.crc		( crc			),	
+	.rom_mrdy	( rom_mrdy		),
 	// DIP switches
 	.dip_flip		( 1'b0		),
 	.dip_game_mode	( dip_game_mode		),
@@ -254,6 +255,7 @@ jtgng_rom2 rom (
 	.rst      	( rst      		),
 	.char_addr	( char_addr		),
 	.main_addr	( main_addr		),
+	.mrdy		( rom_mrdy		),
 	.snd_addr 	( snd_addr 		),
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),

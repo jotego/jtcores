@@ -124,7 +124,7 @@ always @(negedge clk)
 				else begin
 					line_obj_we <= 1'b0;
 					//if( ram_dout[7:5] == VFx[7:5] ) begin
-					if( (ram_dout-8'd2)<VF && (ram_dout+8'd18)>VF  ) begin
+					if( (ram_dout-8'd4)<VF && (ram_dout+8'd16)>VF  ) begin
 						pre_scan[1:0] <= 2'd0;
 						trf_next  <= TRANSFER;
 						trf_state <= WAIT;
@@ -245,7 +245,7 @@ always @(negedge clk) begin
 			hover	<= objbuf_data[0];
 		end
 		4'd2: begin
-			objy <= objbuf_data;
+			objy <= (objbuf_data-8'd2);
 		end
 		4'd3: begin
 			objx <= objbuf_data;

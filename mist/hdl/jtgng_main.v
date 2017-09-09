@@ -28,6 +28,7 @@ module jtgng_main(
 	output	reg	[ 8:0]	wr_col,
 	output	reg			sdram_we,	
 	input	[31:0]		crc,  // 627A_4660	
+	input			rom_mrdy,
 	// BUS sharing
 	output		bus_ack,
 	input		bus_req,
@@ -48,7 +49,7 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire MRDY_b = ch_mrdy & scr_mrdy;
+wire MRDY_b = ch_mrdy & scr_mrdy & rom_mrdy;
 reg nRESET;
 wire in_cs;
 
