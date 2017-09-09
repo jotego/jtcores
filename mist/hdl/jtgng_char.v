@@ -55,7 +55,6 @@ jtgng_chram	RAM(
 assign MRDY_b = !( char_cs && ( &H128[2:1]==1'b0 ) );
 
 reg [7:0] aux;
-reg [5:0] aux2;
 reg [9:0] AC; // ADDRESS - CHARACTER
 reg char_hflip_prev;
 
@@ -64,43 +63,41 @@ reg [2:0] vert_addr;
 reg char_vflip;
 reg char_hflip;
 reg half_addr;
+reg [3:0] pal_aux;
 
 // Set input for ROM reading
 always @(negedge clk) begin
 	case( H128[2:0] )
-		// 3'd1: char_pal <= aux2[3:0];
 		3'd2: aux <= dout;
 		3'd4: begin
 			AC       <= {dout[7:6], aux};
 			char_hflip <= dout[4] ^ flip;
 			char_vflip <= dout[5] ^ flip;
-			char_hflip_prev <= char_hflip;
-			aux2 <= dout[3:0];			
+			pal_aux <= dout[3:0];			
 			vert_addr <= {3{char_vflip}}^V128[2:0];
+			char_addr <= { {dout[7:6], aux}, {3{dout[5] ^ flip}}^V128[2:0] };
 		end
 	endcase
-	char_addr <= { AC, vert_addr };
+	//char_addr <= { AC, vert_addr };
 end
 
 // Draw pixel on screen
 reg [15:0] chd;
-reg [3:0] pal_aux;
 reg [1:0] pxl_aux;
 
 // delays pixel data so it comes out on a multiple of 8
-jtgng_sh #(.width(6),.stages(4)) pixel_sh (
-	.clk	( clk					), 
-	.din	( {pal_aux,pxl_aux}		), 
-	.drop	( {char_pal, char_col}	)
-);
+jtgng_sh #(.width(4),.stages(3)) pal_sh(.clk(clk),.din(pal_aux),.drop(char_pal));
+//jtgng_sh #(.width(2),.stages(3)) pxl_sh(.clk(clk),.din(pxl_aux),.drop(char_col));
+assign char_col = pxl_aux;
+
 
 always @(negedge clk) begin
 	case( H128[2:0] )
-		3'd2:
+		3'd6: begin
 			chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
-		3'd3: 
-			pal_aux <= aux2[3:0]; // new pixel data comes out on 3
-		3'd6: 
+			char_hflip_prev <= char_hflip;
+		end
+		3'd2: 
 			chd[7:0] <= chd[15:8];
 		default:
 			begin

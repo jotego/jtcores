@@ -141,16 +141,7 @@ jtgng_sh #(.width(3),.stages(8-SDRAM_stage)) pal_sh (
 	.din	( pal_aux	), 
 	.drop	( scr_pal	)
 );
-/*
-wire block_hflip;
-wire [2:0] block_pal;
 
-jtgng_sh #(.width(4),.stages(9)) block_sh (
-	.clk	( clk					), 
-	.din	( {scr_hflip, pal_in }		), 
-	.drop	( {block_hflip, block_pal}	)
-);
-*/
 always @(negedge clk) begin
 	pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 	if( HS[2:0]==SDRAM_stage ) begin
