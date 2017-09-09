@@ -9,15 +9,35 @@ module jtgng_vga(
 	input	[3:0]		blue,
 	input				LHBL,
 	input				LVBL,
-	output	[3:0]		vga_red,
-	output	[3:0]		vga_green,
-	output	[3:0]		vga_blue,
+	input				en_mixing,
+	output	reg [4:0]	vga_red,
+	output	reg [4:0]	vga_green,
+	output	reg [4:0]	vga_blue,
 	output	reg			vga_hsync,
 	output	reg			vga_vsync
 );
 
 reg [7:0] wr_addr, rd_addr;
 reg wr_sel, rd_sel;
+reg double;
+
+wire [3:0] buf_red, buf_green, buf_blue;
+
+wire [5:0] mix_red   = vga_red   + {buf_red,   buf_red[3]  };
+wire [5:0] mix_blue  = vga_blue  + {buf_blue,  buf_blue[3] };
+wire [5:0] mix_green = vga_green + {buf_green, buf_green[3]};
+
+always @(posedge clk_vga) 
+	if( double || !en_mixing ) begin
+		vga_blue <= {buf_blue, buf_blue[3]};
+		vga_red  <= {buf_red, buf_red[3]};
+		vga_green<= {buf_green, buf_green[3]};
+	end
+	else begin
+		vga_blue <= mix_blue[5:1];
+		vga_red  <= mix_red[5:1];
+		vga_green<= mix_green[5:1];
+	end
 
 //`ifndef SIM_SYNCONLY
 jtgng_vgabuf buf_rg (
@@ -29,7 +49,7 @@ jtgng_vgabuf buf_rg (
 	.data_b ( {red,green} ), // unused
 	.wren_a ( 1'b1 ),
 	.wren_b ( 1'b0 ),
-	.q_b ( {vga_red, vga_green} )
+	.q_b ( {buf_red, buf_green} )
 	);
 
 wire [3:0] nc;
@@ -43,7 +63,7 @@ jtgng_vgabuf buf_b (
 	.data_b ( {4'b0, blue} ), // unused
 	.wren_a ( 1'b1 ),
 	.wren_b ( 1'b0 ),
-	.q_b ( {nc,vga_blue} )
+	.q_b ( {nc,buf_blue} )
 	);
 //`endif
 
@@ -79,7 +99,7 @@ end
 
 reg [6:0] cnt;
 reg [1:0] state;
-reg centre_done, finish,double;
+reg centre_done, finish;
 reg vsync_cnt;
 
 reg rd_sel_aux;

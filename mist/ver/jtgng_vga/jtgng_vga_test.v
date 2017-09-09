@@ -14,7 +14,8 @@ initial begin
 	$dumpvars(0,clk_rgb);
 	`endif
 	$dumpon;
-	#(50*1000*1000) $finish;	
+	//#(50*1000*1000) $finish;	
+	#(4*1000*1000) $finish;	
 end
 
 reg rst;
@@ -62,9 +63,9 @@ jtgng_pll0 clk_gen (
 );
 `endif
 reg [3:0] red, green, blue;
-wire [3:0] vga_red;
-wire [3:0] vga_green;
-wire [3:0] vga_blue;
+wire [4:0] vga_red;
+wire [4:0] vga_green;
+wire [4:0] vga_blue;
 
 always @(posedge clk_gng) begin
 	red   <= $random%16;

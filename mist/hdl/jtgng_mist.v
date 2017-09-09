@@ -43,7 +43,7 @@ parameter CONF_STR = {
         "O2,Cabinet mode,OFF,ON;",
         "O3, SCR,ON,OFF;",
         "O4,OBJ ,ON,OFF;",
-        "O5,Attract sound,ON,OFF;",
+        "O5,Screen filter,ON,OFF;",
         "T6,Reset;",
         "V,v0.1;"
 };
@@ -164,16 +164,15 @@ jtgng_game game (
 	.dip_game_mode	( ~status[1]	),
 	.dip_upright	( status[2]	),
 	//.dip_flip		( ~status[3]),
-	.dip_attract_snd( status[5]	)
+	.dip_attract_snd( 1'b1			)
 );
 
 wire [5:0] GNG_R, GNG_G, GNG_B;
 
-// convert 4-bit colour to 6-bit colour
-// 1 LSB error on codes 3 and 12, rest are exact
-assign GNG_R[1:0] = GNG_R[5:4];
-assign GNG_G[1:0] = GNG_G[5:4];
-assign GNG_B[1:0] = GNG_B[5:4];
+// convert 5-bit colour to 6-bit colour
+assign GNG_R[0] = GNG_R[5];
+assign GNG_G[0] = GNG_G[5];
+assign GNG_B[0] = GNG_B[5];
 
 wire vga_hsync, vga_vsync;
 
@@ -186,9 +185,10 @@ jtgng_vga vga_conv (
 	.blue     	( blue			),
 	.LHBL     	( LHBL			),
 	.LVBL     	( LVBL			),
-	.vga_red  	( GNG_R[5:2]	),
-	.vga_green	( GNG_G[5:2]	),
-	.vga_blue 	( GNG_B[5:2]	),
+	.en_mixing	( status[5]		),
+	.vga_red  	( GNG_R[5:1]	),
+	.vga_green	( GNG_G[5:1]	),
+	.vga_blue 	( GNG_B[5:1]	),
 	.vga_hsync	( vga_hsync		),
 	.vga_vsync	( vga_vsync		)
 );
