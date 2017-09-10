@@ -175,9 +175,9 @@ always @(posedge clk) begin
 		scr_dout <= 24'd0;
 	else if( scr_valid ) scr_dout <= scr_cache;	
 	// OBJ
-	if( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8} || !obj_valid) // blank
+	/*if( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8} || !obj_valid) // blank
 		obj_dout <= ~32'd0;
-	else obj_dout <= obj_cache;
+	else obj_dout <= obj_cache;*/
 end
 
 always @(posedge clk)
@@ -244,7 +244,8 @@ always @(posedge clk)
 				end
 				else begin
 					rd_collect <= 1'b0;
-					obj_cache[31:16] <= SDRAM_DQ;
+					//obj_cache[31:16] <= SDRAM_DQ;
+					obj_dout <= { SDRAM_DQ, obj_cache[15:0] };
 					obj_addr_last <= obj_addr_sync;
 					obj_valid <= true;
 				end
