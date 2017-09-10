@@ -13,7 +13,9 @@ module jtgng_main(
 	output	blue_cs,
 	output	redgreen_cs,	
 	output	reg flip,
-	output	reg sres_b,
+	// Sound
+	output	reg sres_b,	// Z80 reset
+	output	reg	[7:0] snd_latch,
 	// scroll
 	input			scr_mrdy,
 	input	[7:0]	scr_dout,
@@ -52,11 +54,12 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy & scr_mrdy & rom_mrdy;
 reg nRESET;
 wire in_cs;
+wire sound_cs;
 
-reg [11:0] map_cs;
+reg [12:0] map_cs;
 
 assign { 
-	OKOUT, scrpos_cs, scr_cs, in_cs,
+	sound_cs, OKOUT, scrpos_cs, scr_cs, in_cs,
 	sdram_prog, blue_cs, redgreen_cs, 	flip_cs, 
 	ram_cs, 	char_cs, bank_cs, 		main_cs 		} = map_cs;
 
@@ -71,22 +74,23 @@ always @(*)
 	if(!VMA) map_cs = 0;
 	else
 	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 12'h8; // 0000-1FFF, RAM
+		8'b000x_xxxx: map_cs = 13'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 12'h4; 	// 2000-27FF	Char
-		8'b0010_1xxx: map_cs = 12'h200; // 2800-2FFF	Scroll
-		8'b0011_0xxx: map_cs = 12'h100; // 3000-37FF input
-		8'b0011_1000: map_cs = 12'h20; // 3800-38FF, Red, green
-		8'b0011_1001: map_cs = 12'h40; // 3900-39FF, blue
-		8'b0011_1011: map_cs = 12'h400;// 3B00-3BFF Scroll position
-		8'b0011_1100: map_cs = 12'h800;// OKOUT 
-		8'b0011_1101: map_cs = 12'h10; // 3Dxx flip
+		8'b0010_0xxx: map_cs = 13'h4; 	// 2000-27FF	Char
+		8'b0010_1xxx: map_cs = 13'h200; // 2800-2FFF	Scroll
+		8'b0011_0xxx: map_cs = 13'h100; // 3000-37FF input
+		8'b0011_1000: map_cs = 13'h20; // 3800-38FF, Red, green
+		8'b0011_1001: map_cs = 13'h40; // 3900-39FF, blue
+		8'b0011_1010: map_cs = 13'h1000; // 3A00-3AFF, sound
+		8'b0011_1011: map_cs = 13'h400;// 3B00-3BFF Scroll position
+		8'b0011_1100: map_cs = 13'h800;// OKOUT 
+		8'b0011_1101: map_cs = 13'h10; // 3Dxx flip
 
-		8'b0011_1110: map_cs = 12'h2; // 3E00-3EFF bank
-		8'b0011_1111: map_cs = 12'h80; // 3F00-3FFF SDRAM programming
-		8'b01xx_xxxx: map_cs = 12'h1; // ROMs
-		8'b1xxx_xxxx: map_cs = startup ? 12'h8 : 12'h1; // 8000-BFFF, ROM 9N
-		default: map_cs = 12'h0;
+		8'b0011_1110: map_cs = 13'h2; // 3E00-3EFF bank
+		8'b0011_1111: map_cs = 13'h80; // 3F00-3FFF SDRAM programming
+		8'b01xx_xxxx: map_cs = 13'h1; // ROMs
+		8'b1xxx_xxxx: map_cs = startup ? 13'h8 : 13'h1; // 8000-BFFF, ROM 9N
+		default: map_cs = 13'h0;
 	endcase
 
 // special registers
@@ -145,6 +149,7 @@ always @(negedge clk)
 		coin_cnt1 <= {coinw{1'b0}};
 		coin_cnt2 <= {coinw{1'b0}};
 		flip <= 1'b0;
+		sres_b <= 1'b0;
 		end
 	else
 	if( flip_cs ) 
@@ -154,6 +159,9 @@ always @(negedge clk)
 			3'd2: coin_cnt1 <= coin_cnt1+cpu_dout[0];
 			3'd3: coin_cnt2 <= coin_cnt2+cpu_dout[0];
 		endcase
+
+always @(negedge clk)
+	if( sound_cs ) snd_latch <= cpu_dout;
 
 reg [7:0] cabinet_input;
 wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };

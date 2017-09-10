@@ -35,10 +35,10 @@ $OD mm{17.4n,16.3n,15.1n} > n31.hex
 $OD mm{14.4l,13.3l,12.1l} > l31.hex
 paste n31.hex l31.hex -d "" | tr -d ' ' > obj.hex
 cat obj.hex >> gng.hex
-echo "Object ends end at " $(curpos)
 
 ## Sound ROM, 32kB
-##echo "// Sound ROM " >> gng.hex
-##echo "@30000" >> gng.hex
-##$ODx2 mm02.14h >> gng.hex 
+echo "Sound starts at " $(curpos)
+$ODx2 mm02.14h >> gng.hex 
+echo "Sound ends at " $(curpos)
+
 ../cc/hex2bin

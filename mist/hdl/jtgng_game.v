@@ -175,6 +175,9 @@ jtgng_colmix colmix (
 	wire OKOUT;
 	wire [7:0] main_ram;
 	wire blcnten, rom_mrdy;
+// sound
+	wire sres_b;
+	wire [7:0] snd_latch;
 jtgng_main main (
 	.clk      	( clk      		),
 	.rst      	( rst_game 		),
@@ -189,6 +192,9 @@ jtgng_main main (
 	.OKOUT		( OKOUT			),
 	.blcnten	( blcnten		),
 	.bus_req	( bus_req		),
+	// sound
+	.sres_b		( sres_b		),
+	.snd_latch	( snd_latch		),
 	
 	.LVBL     	( LVBL     		),
 	.main_cs	( main_cs		),
@@ -246,9 +252,23 @@ jtgng_obj obj (
 );
 
 
+	wire [14:0] snd_addr=15'd0;
+	wire [7:0] rom_dout;
+	wire		snd_cs = 1'b0;
+/*
+jtgng_sound i_jtgng_sound (
+	.clk      (clk      ),
+	.rst      (rst      ),
+	.soft_rst (soft_rst ),
+	.sres_b   (sres_b   ),
+	.snd_latch(snd_latch),
+	.V32      (V[5]     ),
+	.rom_addr (snd_addr ),
+	.rom_dout (rom_dout ),
+	.rom_cs	  (snd_cs   )
+);
+*/
 
-	wire [14:0] snd_addr=0;
-	wire [7:0] snd_dout;
 jtgng_rom2 rom (
 	.clk      	( SDRAM_CLK		),
 	.clk_pxl	( clk			),
@@ -260,7 +280,7 @@ jtgng_rom2 rom (
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),
 	.main_cs	( main_cs		),
-	.snd_cs		( 1'b0			),
+	.snd_cs		( snd_cs		),
 	.LHBL		( LHBL_short	),
 	.HS			( HS			),
 
