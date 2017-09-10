@@ -37,8 +37,13 @@ integer fincnt;
 initial begin
 	for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
 		#(1000*1000); // ms
+		$display("%d ms",fincnt+1);
 	end
-	can_finish = 1'b1;
+	`ifdef MAXFRAME
+		can_finish = 1'b1;
+	`else 
+		$finish;
+	`endif
 end
 
 reg rst, clk_pxl, clk_rgb, clk_rom;

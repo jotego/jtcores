@@ -19,7 +19,6 @@ module jtgng_obj(
 	output	reg		blen,	// bus line counter enable
 	// SDRAM interface
 	output	reg [14:0] obj_addr,
-	output	reg		obj_addr_flip,
 	input		[31:0] objrom_data,
 	// pixel output
 	output	reg [ 5:0] obj_pxl
@@ -253,7 +252,6 @@ always @(negedge clk) begin
 	endcase
 	if( pxlcnt[2:0]==3'd3 ) begin	
 		obj_addr <= (!vinzone || objcnt==5'd0) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}} };
-		obj_addr_flip <= obj_hflip;		
 	end
 end
 

@@ -185,7 +185,7 @@ jtgng_vga vga_conv (
 	.blue     	( blue			),
 	.LHBL     	( LHBL			),
 	.LVBL     	( LVBL			),
-	.en_mixing	( status[5]		),
+	.en_mixing	( ~status[5]	),
 	.vga_red  	( GNG_R[5:1]	),
 	.vga_green	( GNG_G[5:1]	),
 	.vga_blue 	( GNG_B[5:1]	),

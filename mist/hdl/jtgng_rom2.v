@@ -64,7 +64,7 @@ reg  [col_w-1:0] col_cnt, col_addr;
 reg [addr_w-1:0] romload_row;
 reg [col_w-1:0]  romload_col;
 
-reg [1:0] rd_state;
+reg [2:0] rd_state;
 reg	read_done;
 reg rq_autorefresh, rq_autorefresh_aux;
 
@@ -89,14 +89,18 @@ reg [14:0]	scr_addr_last;
 reg [14:0]	main_addr_last;
 reg [13:0]	snd_addr_last;
 
-reg [15:0]	snd_cache, main_cache0, main_cache1;
+reg [15:0]	snd_cache0, snd_cache1, main_cache0, main_cache1;
 reg rd_req; // read request
 
-reg [2:0] gra_state;
 reg rd_collect, main_valid;
 reg collect_msb;
-localparam ST_SND=2'd0, ST_MAIN=2'd1, ST_GRAPH=2'd2, ST_REFRESH=2'd3;
-localparam ST_CHAR=3'd0, ST_SCR=3'b010, ST_SCRHI=3'b110, ST_OBJ=3'b001, ST_OBJHI=3'b101;
+localparam 	ST_SND =3'd0, ST_MAIN=3'd1, 
+			ST_CHAR=3'd2, ST_SCR =3'd3, ST_OBJ=3'd4, ST_REFRESH=3'd5;
+localparam  CHAR_REQ=5'b1xx_xx,
+			SCR_REQ =5'b01x_xx,
+			OBJ_REQ =5'b001_xx,
+			MAIN_REQ=5'b000_1x,
+			SND_REQ =5'b000_01;
 
 // reg bank_sw_sync;
 reg clk_pxl_edge;
@@ -104,10 +108,8 @@ reg [1:0] clk_pxl_aux;
 
 reg	[12:0]	char_addr_sync;
 reg	[16:0]	main_addr_sync;
-//reg	[14:0]	snd_addr_sync,
-reg	[14:0]	obj_addr_sync;
-reg	[14:0]	scr_addr_sync;
-reg main_cs_sync;
+reg	[14:0]	snd_addr_sync, obj_addr_sync, scr_addr_sync;
+reg main_cs_sync, snd_cs_sync;
 reg	[23:0]	scr_dout;
 
 localparam	scr_addr_stage = 3'd3,
@@ -118,14 +120,11 @@ always @(posedge clk) begin
 	clk_pxl_edge <= clk_pxl_aux[1] && !clk_pxl_aux[0];
 	if( clk_pxl_edge ) begin // negedge
 		main_cs_sync <= main_cs;
+		snd_cs_sync  <= snd_cs;
 		main_addr_sync <= main_addr;
 		char_addr_sync <= char_addr;
 		obj_addr_sync <= obj_addr;
-		// bank_sw_sync <= bank_sw;
-		//case( HS[2:0] )
-		//	scr_addr_stage: scr_addr_sync <= scr_addr;
-		//	//scr_dout_stage:	scr_dout_pxl <= scr_dout;
-		//endcase
+		snd_addr_sync <= snd_addr;
 		scr_addr_sync <= scr_addr;
 		scr_dout_pxl <= scr_dout;
 	end
@@ -133,7 +132,25 @@ end
 
 reg skip_refresh;
 
+reg obj_req, scr_req, char_req, main_req, snd_req;
+
+always @(*) begin
+	main_req <= !rd_collect && ( main_cs_sync && !((main_addr_sync>>2)==main_addr_last && main_valid));
+	snd_req  <= !rd_collect && ( snd_cs_sync && !((snd_addr_sync>>2)==snd_addr_last ));
+	obj_req  <= !rd_collect && !( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8}
+				|| obj_addr_last == obj_addr_sync );
+	char_req <= !rd_collect && !( char_addr_sync == char_addr_last || char_addr_sync[12:3]==10'h20 );
+	scr_req  <= !rd_collect && !( scr_addr_sync == scr_addr_last || scr_addr_sync[14:5]==10'h00 );
+end
+
+reg [15:0] char_cache;
+reg [31:0] obj_cache;
+reg [23:0] scr_cache;
+reg snd_valid, scr_valid, char_valid, obj_valid;
+
+// CPU  Data dispatching
 always @(posedge clk) begin
+	// MAIN
 	if( main_cs_sync && (main_addr_sync>>2)==main_addr_last && main_valid )
 		case( main_addr_sync[1:0] )
 			2'd0: main_dout <= main_cache0[ 7:0];
@@ -141,13 +158,31 @@ always @(posedge clk) begin
 			2'd2: main_dout <= main_cache1[ 7:0];
 			2'd3: main_dout <= main_cache1[15:8];
 		endcase
+	// SOUND
+	if( snd_cs_sync && (snd_addr_sync>>2)==snd_addr_last && snd_valid )
+		case( snd_addr_sync[1:0] )
+			2'd0: snd_dout <= snd_cache0[ 7:0];
+			2'd1: snd_dout <= snd_cache0[15:8];
+			2'd2: snd_dout <= snd_cache1[ 7:0];
+			2'd3: snd_dout <= snd_cache1[15:8];
+		endcase
+	// CHAR
+	if( char_addr_sync[12:3]==10'h20 ) // SPACE
+		char_dout <= 16'hFFFF;
+	else if( char_valid ) char_dout <= char_cache;
+	// SCR
+	if( scr_addr_sync[14:5]==10'h00 ) // blank
+		scr_dout <= 24'd0;
+	else if( scr_valid ) scr_dout <= scr_cache;	
+	// OBJ
+	if( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8} || !obj_valid) // blank
+		obj_dout <= ~32'd0;
+	else obj_dout <= obj_cache;
 end
 
 always @(posedge clk)
 	if( rst ) begin
-		rd_state <= ST_SND;
 		rd_collect <= 1'b0;
-		gra_state <= ST_CHAR;
 		rq_autorefresh <= false;
 		{row_addr, col_addr} <= { 8'b110, snd_addr };
 		char_addr_last	<= ~13'd0;
@@ -155,168 +190,122 @@ always @(posedge clk)
 		snd_addr_last	<= 15'd0;
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
-		main_valid <= false;
+		{main_valid, snd_valid, char_valid, scr_valid} <= 4'd0;
 		skip_refresh <= false;
 		mrdy <= true;
 	end
 	else begin
-	// if( bank_sw_sync ) main_valid <= false;
-	if( !downloading && read_done && !rd_req ) begin
+	if( rd_state == ST_REFRESH ) begin
+		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };		
+		if( main_req ) mrdy <= false;
+		if( read_done && !rq_autorefresh ) rd_state = ST_MAIN;
+	end
+	else
+	if( !downloading && read_done && !rd_req  ) begin
 		if( rd_collect ) begin // collects data
 			case( rd_state )
 				ST_MAIN: if(!collect_msb) begin					
 					main_cache0 <= SDRAM_DQ;	
-					collect_msb <= 1'b1;		
+					collect_msb <= 1'b1;
+					mrdy <= true; // MAIN clock can start moving again
 				end else begin
 					main_cache1 <= SDRAM_DQ;
-					collect_msb <= 1'b0;
 					main_valid <= true;
 					rd_collect <= 1'b0;
+					main_addr_last <= main_addr_sync>>2;					
 				end
-				ST_GRAPH: begin
-					case( gra_state )
-						ST_CHAR: begin
-							// rd_state <= ST_SND;
-							char_dout <= SDRAM_DQ;
-							rd_collect <= 1'b0;
-							gra_state <= ST_SCR;
-						end
-						ST_SCR: begin
-							scr_aux <= SDRAM_DQ;
-							gra_state <= ST_SCRHI;
-						end
-						ST_SCRHI: begin
-							rd_collect <= 1'b0;
-							scr_dout <= { SDRAM_DQ[7:0], scr_aux };
-							rd_state <= ST_SND;
-							gra_state <= ST_OBJ;
-						end
-						ST_OBJ: begin
-							gra_state <= ST_OBJHI;
-							scr_aux <= SDRAM_DQ;
-						end
-						ST_OBJHI: begin
-							rd_state <= ST_SND;
-							rd_collect <= 1'b0;
-							if( LHBL ) gra_state <= ST_CHAR; else gra_state <= ST_OBJ;
-							obj_dout <= { SDRAM_DQ, scr_aux };
-						end
-					endcase
-				end
-				default: begin
+				ST_SND: if(!collect_msb) begin					
+					snd_cache0 <= SDRAM_DQ;	
+					collect_msb <= 1'b1;		
+				end else begin
+					snd_cache1 <= SDRAM_DQ;
+					snd_valid <= true;
 					rd_collect <= 1'b0;
-					rd_state <= ST_MAIN;
 				end
-			endcase
-		end else			
-		case( rd_state )
-			ST_SND: rd_state <= ST_MAIN; // No audio for now
-			ST_MAIN: if( main_cs_sync ) begin
-				if( (main_addr_sync>>2)==main_addr_last && main_valid ) begin
-					rd_state  <= ST_GRAPH; // Graphics
-					if( !LHBL ) gra_state <= ST_OBJ;
-					mrdy <= true;
+				ST_CHAR: begin
+					char_valid <= true;
+					char_cache <= SDRAM_DQ;
+					rd_collect <= 1'b0;
+					char_addr_last <= char_addr_sync;							
+				end
+				ST_SCR: if(!collect_msb) begin
+					scr_cache[15:0] <= SDRAM_DQ;
+					collect_msb <= true;
 				end
 				else begin
+					rd_collect <= 1'b0;
+					scr_cache[23:16] <= SDRAM_DQ[7:0];
+					scr_addr_last <= scr_addr_sync;
+					scr_valid <= true;
+				end
+				ST_OBJ: if(!collect_msb) begin
+					obj_cache[15:0] <= SDRAM_DQ;
+					collect_msb <= true;
+				end
+				else begin
+					rd_collect <= 1'b0;
+					obj_cache[31:16] <= SDRAM_DQ;
+					obj_addr_last <= obj_addr_sync;
+					obj_valid <= true;
+				end
+				ST_REFRESH: rd_collect <= 1'b0; // autorefresh
+				default: rd_collect <= 1'b0; 
+			endcase
+		end else begin	
+			casex( { char_req&LHBL, scr_req&LHBL, obj_req, main_req, snd_req } )
+				CHAR_REQ: begin
 					rd_req <= 1'b1;
-					mrdy <= false;
-					collect_msb <= 1'b0;
+					rd_state <= ST_CHAR;
+					char_valid <= false;
+					{row_addr, col_addr} <= 16'hA000 + char_addr_sync; // 12:0
+				end
+				SCR_REQ: begin
+					rd_req <= 1'b1;
+					rd_state <= ST_SCR;
+					scr_valid <= false;
+					collect_msb <= false;
+					{row_addr, col_addr} <= 16'hc000 + { scr_addr_sync, 1'b0 }; // 14:0 BC/E ROMs
+				end
+				OBJ_REQ: begin
+					rd_req <= 1'b1;
+					rd_state <= ST_OBJ;
+					collect_msb <= false;
+					obj_valid <= false;
+					{row_addr, col_addr} <= 17'h1C000 + (obj_addr_sync<<1);
+				end
+				MAIN_REQ: begin
+					rd_req <= 1'b1;
+					rd_state <= ST_MAIN;
+					collect_msb <= false;
 					{row_addr, col_addr} <= {main_addr_sync[16:2],1'b0}; 
-					main_addr_last <= main_addr_sync>>2;
-					main_valid <= 1'b0;
+					main_valid <= false;
 				end
-			end
-			else begin
-					mrdy <= true;
-					rd_state  <= ST_GRAPH; // Graphics
-			end
-			ST_REFRESH: begin
-				// Char output is set to spaces during blanking
-				char_addr_last <= 10'h20 << 3;
-				char_dout <= 16'hFFFF;
-				// and SCR to 0
-				scr_addr_last <= 0;
-				scr_dout <= 24'd0;
-				rd_state <= ST_SND;
-			end
-			ST_GRAPH: case( gra_state )
-				ST_CHAR: begin
-					if( char_addr_sync == char_addr_last ) begin
-						gra_state <= ST_SCR;
-					end
-					else 
-					if( char_addr_sync[12:3]==10'h20 ) begin // SPACE
-						char_dout <= 16'hFFFF;
-						char_addr_last <= char_addr_sync;
-						gra_state <= ST_SCR;
-					end
-					else begin
-						rd_req <= 1'b1;
-						{row_addr, col_addr} <= 16'hA000 + char_addr_sync; // 12:0
-						char_addr_last <= char_addr_sync;
-					end
+				SND_REQ: begin
+					rd_req <= 1'b1;
+					rd_state <= ST_SND;
+					collect_msb <= false;
+					{row_addr, col_addr} <= 18'h2C000 + {snd_addr_sync[14:2],1'b0}; 
+					main_valid <= false;
 				end
-				ST_SCR:
-				begin
-					if( scr_addr_sync == scr_addr_last ) begin
-						rd_state <= ST_SND;						
-						gra_state <= ST_OBJ;
-					end					
-					else 
-					if( scr_addr_sync[14:5]==10'h00 ) begin // blank
-						scr_dout <= 24'd0;
-						rd_state <= ST_SND;
-						gra_state <= ST_OBJ;
-						scr_addr_last <= scr_addr_sync;					
-					end
-					else begin
-						rd_req <= 1'b1;
-						{row_addr, col_addr} <= 16'hc000 + { scr_addr_sync, 1'b0 }; // 14:0 BC/E ROMs
-						scr_addr_last <= scr_addr_sync;					
-					end
+				default: if( !LHBL ) begin
+					rq_autorefresh <= 1'b1;
+					rq_autorefresh_aux <= 1'b1;
+					rd_collect <= 1'b0;
+					rd_state <= ST_REFRESH;
+					rd_req <= 1'b0;
 				end
-				ST_OBJ:	
-					if( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8} ) begin
-						if( LHBL ) begin
-							rd_state <= ST_SND;
-							gra_state <= ST_CHAR;
-							//skip_refresh <= false;
-						end else begin
-							rq_autorefresh <= 1'b1;
-							rq_autorefresh_aux <= 1'b1;
-							rd_state <= ST_REFRESH;
-						end							
-						obj_dout = ~32'd0;
-					end
-					else
-					if( obj_addr_last == obj_addr_sync) begin
-						if( LHBL  ) begin
-							rd_state <= ST_SND;
-							gra_state <= ST_CHAR;
-							//skip_refresh <= false;
-						end	else begin
-							rq_autorefresh <= 1'b1;
-							rq_autorefresh_aux <= 1'b1;
-							rd_state <= ST_REFRESH;
-						end								
-					end else begin
-						rd_req <= 1'b1;
-						{row_addr, col_addr} <= 17'h1C000 + (obj_addr_sync<<1);
-						obj_addr_last <= obj_addr_sync;					
-					end
-				default: gra_state <= ST_CHAR;
-				endcase
-		endcase // rd_state
+			endcase
+			if( main_req & |{char_req,obj_req,scr_req}) mrdy <= false;
+		end
 	end else begin
 		rd_req <= 1'b0;
-		if(!downloading) 
+		if(!downloading && !rq_autorefresh) 
 			rd_collect <= 1'b1; 
 		else begin
 			rd_collect<=1'b0;
 			main_addr_last <= 0;
 			snd_addr_last <= 0; // these must not interfere with CPU reset!!
-		end
-		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };
+		end		
 	end
 end
 
@@ -438,8 +427,9 @@ always @(posedge clk)
 			end		
 		READ: begin
 			read_done <= true;
-			if( downloading && romload_wr16 )
+			if( downloading && romload_wr16 ) begin
 				state <=  SET_PRECHARGE_WR; // it stays on READ state until romload_wr16 asserted
+			end
 			else if( !downloading )
 				if( we )
 					state <= SET_PRECHARGE_WR;
