@@ -7,38 +7,85 @@ function curpos() {
 	printf "%X" $(cat gng.hex | wc -l)
 }
 
+GAME=makaimur
+
+case $GAME in
+	makaimur)
+		rom8n=gngroms/8n.rom
+		rom10n=gngroms/10n.rom
+		rom12n=gngroms/12n.rom
+		rom_char=gngroms/gg1.bin
+		audio=gngroms/gg2.bin
+		romx9=gngroms/gg9.bin
+		romx7=gngroms/gg7.bin
+		romx11=gngroms/gg11.bin
+		romx8=gngroms/gg8.bin
+		romx6=gngroms/gg6.bin
+		romx10=gngroms/gg10.bin
+
+		romx17=gngroms/gng13.n4
+		romx16=gngroms/gg16.bin
+		romx15=gngroms/gg15.bin
+
+		romx14=gngroms/gng16.l4
+		romx13=gngroms/gg13.bin
+		romx12=gngroms/gg12.bin
+		;;
+	gngt)
+		rom8n=mmt03d.8n
+		rom10n=mmt04d.10n
+		rom12n=mmt05d.13n
+		rom_char=mm01.11e
+		audio=mm02.14h
+		romx9=mm09.3c
+		romx7=mm07.3b
+		romx11=mm11.3e
+		romx8=mm08.1c
+		romx6=mm06.1b
+		romx10=mm10.1e
+
+		romx17=mm17.4n
+		romx16=mm16.3n
+		romx15=mm15.1n
+
+		romx14=mm14.4l
+		romx13=mm13.3l
+		romx12=mm12.1l
+		;;
+esac
+echo "ROMs for $GAME"
 ## Game ROM
-$ODx2 mmt03d.8n --endian little > gng.hex 
+$ODx2 $rom8n --endian little > gng.hex 
 echo "10N starts at " $(curpos)
-$ODx2 mmt04d.10n --endian little >> gng.hex 
+$ODx2 $rom10n --endian little >> gng.hex 
 echo "13N starts at " $( curpos )
-$ODx2 mmt05d.13n --endian little >> gng.hex 
+$ODx2 $rom12n --endian little >> gng.hex 
 echo "Characters start at " $(curpos)
-$ODx2 mm01.11e >> gng.hex 
+$ODx2 $rom_char >> gng.hex 
 echo "Scroll tiles start at " $(curpos)
-$OD mm09.3c > 3c.hex
-$OD mm07.3b > 3b.hex
+$OD $romx9 > 3c.hex
+$OD $romx7 > 3b.hex
 paste 3c.hex 3b.hex -d "" | tr -d ' ' > 3bc.hex
-$OD mm11.3e > 3e.hex
+$OD $romx11 > 3e.hex
 paste 3bc.hex 3e.hex -d "\n" >> gng.hex
 
-$OD mm08.1c > 1c.hex
-$OD mm06.1b > 1b.hex
+$OD $romx8 > 1c.hex
+$OD $romx6 > 1b.hex
 paste 1c.hex 1b.hex -d "" | tr -d ' ' > 1bc.hex
-$OD mm10.1e > 1e.hex
+$OD $romx10 > 1e.hex
 paste 1bc.hex 1e.hex -d "\n" >> gng.hex
 
 echo "Object starts at " $(curpos)
 
 ## Object ROM, 16kBx4 = 64kB
-$OD mm{17.4n,16.3n,15.1n} > n31.hex
-$OD mm{14.4l,13.3l,12.1l} > l31.hex
+$OD $romx17 $romx16 $romx15 > n31.hex
+$OD $romx14 $romx13 $romx12 > l31.hex
 paste n31.hex l31.hex -d "" | tr -d ' ' > obj.hex
 cat obj.hex >> gng.hex
 
 ## Sound ROM, 32kB
 echo "Sound starts at " $(curpos)
-$ODx2 mm02.14h >> gng.hex 
+$ODx2 $audio >> gng.hex 
 echo "Sound ends at " $(curpos)
 
 ../cc/hex2bin

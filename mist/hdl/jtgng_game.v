@@ -282,6 +282,7 @@ jtgng_rom2 rom (
 	.main_cs	( main_cs		),
 	.snd_cs		( snd_cs		),
 	.LHBL		( LHBL_short	),
+	.LVBL		( LVBL			),
 	.HS			( HS			),
 
 	.char_dout	( chrom_data	),

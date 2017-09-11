@@ -13,6 +13,7 @@ module jtgng_rom2(
 	// input			bank_sw,
 	input			snd_cs,
 	input			LHBL,
+	input			LVBL,
 	input	[2:0]	HS,
 
 	// write interface
@@ -137,8 +138,8 @@ reg obj_req, scr_req, char_req, main_req, snd_req;
 always @(*) begin
 	main_req <= !rd_collect && ( main_cs_sync && !((main_addr_sync>>2)==main_addr_last && main_valid));
 	snd_req  <= !rd_collect && ( snd_cs_sync && !((snd_addr_sync>>2)==snd_addr_last ));
-	obj_req  <= !rd_collect && !( obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8}
-				|| obj_addr_last == obj_addr_sync );
+	obj_req  <= !rd_collect && !( /*obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8}
+				||*/ obj_addr_last == obj_addr_sync );
 	char_req <= !rd_collect && !( char_addr_sync == char_addr_last || char_addr_sync[12:3]==10'h20 );
 	scr_req  <= !rd_collect && !( scr_addr_sync == scr_addr_last || scr_addr_sync[14:5]==10'h00 );
 end
@@ -253,7 +254,7 @@ always @(posedge clk)
 				default: rd_collect <= 1'b0; 
 			endcase
 		end else begin	
-			casex( { char_req&LHBL, scr_req&LHBL, obj_req, main_req, snd_req } )
+			casex( { char_req&LHBL&LVBL, scr_req&LHBL&LVBL, obj_req&LVBL, main_req, snd_req } )
 				CHAR_REQ: begin
 					rd_req <= 1'b1;
 					rd_state <= ST_CHAR;
@@ -288,7 +289,7 @@ always @(posedge clk)
 					{row_addr, col_addr} <= 18'h2C000 + {snd_addr_sync[14:2],1'b0}; 
 					main_valid <= false;
 				end
-				default: if( !LHBL ) begin
+				default: if( !LVBL ) begin
 					rq_autorefresh <= 1'b1;
 					rq_autorefresh_aux <= 1'b1;
 					rd_collect <= 1'b0;
