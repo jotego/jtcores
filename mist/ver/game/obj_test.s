@@ -64,7 +64,7 @@ FIN:
 
 DRAW_OBJ_SAMPLE:
 	;LDY #OBJ_SAMPLE
-	LDY #OBJ_BRIDGE
+	LDY #OBJ_ZOMBIES
 	LDX #$1E3C
 @L2:
 	LDA ,Y+
@@ -136,6 +136,55 @@ OBJ_LEFT:
 	FCB $20,$00,$F8,$01
 	FCB $28,$00,$F8,$11
 	FCB $21,$00,$F8,$11
+	FCB $FA
+
+; 1E3C onwards
+OBJ_INTRO:
+	FCB $6E,$80,$C0,$50
+	FCB $66,$80,$B0,$50
+	FCB $6F,$80,$C0,$60
+	FCB $67,$80,$B0,$60
+	FCB $3B,$A0,$C0,$68
+	FCB $33,$A0,$B0,$68
+	FCB $B0,$A0,$68,$AD
+	FCB $A8,$A0,$58,$AD
+	FCB $A0,$A0,$48,$AD
+	FCB $B1,$A0,$68,$BD
+	FCB $A9,$A0,$58,$BD 
+	FCB $A1,$A0,$48,$BD 
+	FCB $B2,$A0,$68,$CD
+	FCB $AA,$A0,$58,$CD
+	FCB $A2,$A0,$48,$CD 
+	FCB $3D,$40,$C0,$48 
+	FCB $34,$40,$B8,$48
+	FCB $FA
+
+; 1E3C onwards
+OBJ_ZOMBIES:
+	FCB $BA,$30,$C2,$84
+	FCB $B2,$30,$B2,$84 
+	FCB $BB,$30,$C2,$94 
+	FCB $B3,$30,$B2,$94 
+	FCB $B8,$30,$CA,$C0
+	FCB $B0,$30,$BA,$C0 
+	FCB $B9,$30,$CA,$D0 
+	FCB $B1,$30,$BA,$D0 
+	FCB $B8,$30,$C2,$60
+	FCB $B0,$30,$B2,$60 
+	FCB $B9,$30,$C2,$70 
+	FCB $B1,$30,$B2,$70 
+	FCB $7C,$70,$C2,$F0
+	FCB $74,$70,$B2,$F0 
+	FCB $7D,$71,$C2,$00 
+	FCB $75,$71,$B2,$00 
+	FCB $7A,$70,$C2,$20
+	FCB $72,$70,$B2,$20 
+	FCB $7B,$70,$C2,$30 
+	FCB $73,$70,$B2,$30 
+	FCB $18,$00,$C2,$50
+	FCB $10,$00,$B2,$50 
+	FCB $19,$00,$C2,$60 
+	FCB $11,$00,$B2,$60
 	FCB $FA
 
 ; 1E3C onwards
@@ -221,11 +270,26 @@ SCROLL_PALETTE:
 	FDB $0F00,$0A00,$0500,$0000	; Green tones
 	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
 	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
-OBJECT_PALETTE:
-	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
-	FDB $F000,$A000,$5000,$0000	; Red   tones
-	FDB $0F00,$0A00,$0500,$0000	; Green tones
-	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+OBJECT_PALETTE: ; 4 paletas de 16 colores
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
 
 IRQSERVICE:
 	; ORCC #$10
@@ -243,7 +307,7 @@ IRQSERVICE:
 	STA ,X
 	STB $100,X
 	LEAX 1,X
-	CMPY #(OBJECT_PALETTE+4*8)
+	CMPY #(OBJECT_PALETTE+4*8*4)
 	BNE @L
 
 	CLR >PAL_DONE

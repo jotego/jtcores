@@ -117,7 +117,9 @@ always @(negedge clk)
 			SEARCH: begin
 				if( !LVBL ) begin
 					pre_scan <= 9'd2;
-					post_scan<= 5'd8;
+					post_scan<= 5'd31; // store obj data in reverse order
+					// so we can print them in straight order while taking
+					// advantage of horizontal blanking to avoid graphich clash
 					fill <= 1'd0;
 				end
 				else begin
@@ -148,19 +150,20 @@ always @(negedge clk)
 			end
 			TRANSFER: begin
 				line_obj_we <= 1'b0;
-				if( post_scan == 5'h1f ) begin // Transfer done before the end of the line
+				if( post_scan == 5'h07 ) begin // Transfer done before the end of the line
 					if( HINIT ) begin
 						trf_state <= SEARCH;
 						pre_scan <= 9'd2;
-						post_scan <= 5'd8;
+						post_scan <= 5'd31;
 						fill <= 1'd0;
 					end
 				end
 				else
 				if( pre_scan[1:0]==2'b11 ) begin
-					post_scan <= post_scan+1'b1;
+					post_scan <= post_scan-1'b1;
 					pre_scan <= pre_scan + 2'd3;
-					trf_state <= SEARCH;
+					trf_state <= WAIT;
+					trf_next  <= SEARCH;
 				end
 				else begin
 					pre_scan[1:0] <= pre_scan[1:0]+1'b1;
@@ -169,11 +172,11 @@ always @(negedge clk)
 			end
 			FILL: begin
 				pre_scan <= pre_scan + 1'b1;
-				if( pre_scan[1:0]==2'b11 ) post_scan <= post_scan + 1'b1;
+				if( pre_scan[1:0]==2'b11 ) post_scan <= post_scan - 1'b1;
 				trf_next <= FILL;
-				if( &{ post_scan, pre_scan[1:0] } ) begin
+				if( &pre_scan[1:0] && post_scan==5'd8 ) begin
 					pre_scan <= 9'd2;
-					post_scan<= 5'd8;
+					post_scan<= 5'd31;
 					fill <= 1'd0;
 					trf_state <= WAIT;
 					trf_next <= SEARCH;
@@ -255,7 +258,7 @@ always @(negedge clk) begin
 	end
 end
 
-reg [9:0] address_a, address_b;
+reg [6:0] address_a, address_b;
 reg we_a, we_b;
 reg [7:0] data_a, data_b;
 
@@ -277,8 +280,8 @@ always @(*) begin
 end
 
 jtgng_objbuf objbuf(
-	.address_a	( address_a ),
-	.address_b	( address_b ),
+	.address_a	( { 3'b000, address_a } ),
+	.address_b	( { 3'b100, address_b } ),
 	.clock		( clk	 	),
 	.data_a		( data_a 	),
 	.data_b		( data_b 	),
