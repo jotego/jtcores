@@ -96,7 +96,10 @@ reg fill;
 reg line_obj_we;
 reg [1:0] trf_state, trf_next;
 
-wire [7:0] VF = {8{flip}} ^ V;
+reg [7:0] VF;
+always @(negedge clk)
+	if( !LHBL ) VF <= {8{flip}} ^ V;
+	
 //wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
 localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;
@@ -343,12 +346,20 @@ wire [7:0] lineX_data = { 2'b11, pospal, new_pxl };
 
 reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
 
+reg pxlbuf_line;
+
+always @(negedge clk)
+	if( rst )
+		pxlbuf_line = lineA;
+	else
+		if( pxlcnt== 4'hf ) pxlbuf_line<=line; // to account for latency drawing the object
+
 always @(negedge clk)
 	if( !LHBL ) Hcnt <= 8'd0;
 	else Hcnt <= Hcnt+1'd1;
 
 always @(*)
-	if( line == lineA ) begin 
+	if( pxlbuf_line == lineA ) begin 
 		// lineA readout
 		lineA_address_a = Hcnt;
 		lineA_we_a = 1'b0;
@@ -367,7 +378,7 @@ always @(*)
 	end
 
 always @(negedge clk)
-	if( line == lineA ) begin
+	if( pxlbuf_line == lineA ) begin
 		// lineA clear after each pixel is readout
 		lineA_address_b <= lineA_address_a;
 		lineA_we_b <= 1'b1;
