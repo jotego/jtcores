@@ -98,8 +98,8 @@ reg [1:0] trf_state, trf_next;
 
 reg [7:0] VF;
 always @(negedge clk)
-	if( !LHBL ) VF <= {8{flip}} ^ V;
-	
+	if( HINIT ) VF <= {8{flip}} ^ V;
+
 //wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
 localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;

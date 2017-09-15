@@ -7,7 +7,7 @@ function curpos() {
 	printf "%X" $(cat gng.hex | wc -l)
 }
 
-GAME=makaimur
+GAME=gngt
 
 case $GAME in
 	makaimur)
@@ -31,6 +31,48 @@ case $GAME in
 		romx13=gngroms/gg13.bin
 		romx12=gngroms/gg12.bin
 		;;
+	makaimurg)
+		rom10n=gngroms/mj04g.bin
+		rom8n=gngroms/mj03g.bin
+		rom12n=gngroms/mj05g.bin
+		rom_char=gngroms/gg1.bin
+		audio=gngroms/gg2.bin
+		romx9=gngroms/gg9.bin
+		romx7=gngroms/gg7.bin
+		romx11=gngroms/gg11.bin
+		romx8=gngroms/gg8.bin
+		romx6=gngroms/gg6.bin
+		romx10=gngroms/gg10.bin
+
+		romx17=gngroms/gng13.n4
+		romx16=gngroms/gg16.bin
+		romx15=gngroms/gg15.bin
+
+		romx14=gngroms/gng16.l4
+		romx13=gngroms/gg13.bin
+		romx12=gngroms/gg12.bin
+		;;		
+	gngc)
+		rom10n=gngroms/mm_c_04
+		rom8n=gngroms/mm_c_03
+		rom12n=gngroms/mm_c_05
+		rom_char=gngroms/gg1.bin
+		audio=gngroms/gg2.bin
+		romx9=gngroms/gg9.bin
+		romx7=gngroms/gg7.bin
+		romx11=gngroms/gg11.bin
+		romx8=gngroms/gg8.bin
+		romx6=gngroms/gg6.bin
+		romx10=gngroms/gg10.bin
+
+		romx17=gngroms/gng13.n4
+		romx16=gngroms/gg16.bin
+		romx15=gngroms/gg15.bin
+
+		romx14=gngroms/gng16.l4
+		romx13=gngroms/gg13.bin
+		romx12=gngroms/gg12.bin
+		;;		
 	gngt)
 		rom8n=mmt03d.8n
 		rom10n=mmt04d.10n
@@ -89,3 +131,4 @@ $ODx2 $audio >> gng.hex
 echo "Sound ends at " $(curpos)
 
 ../cc/hex2bin
+cp JTGNG.rom $GAME.rom
