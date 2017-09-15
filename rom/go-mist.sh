@@ -7,7 +7,7 @@ function curpos() {
 	printf "%X" $(cat gng.hex | wc -l)
 }
 
-GAME=gngt
+GAME=makaimurg
 
 case $GAME in
 	makaimur)
