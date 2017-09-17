@@ -46,7 +46,7 @@ initial begin
 	`endif
 end
 
-reg rst, clk_pxl, clk_rgb, clk_rom;
+reg rst, clk_pxl, clk_rgb, clk_rom, clk_snd;
 
 always @(posedge clk_rgb)
 	if( spi_done && frame_done && can_finish && max_frames_done ) begin
@@ -66,6 +66,11 @@ end
 initial begin
 	clk_pxl =1'b0;
 	forever clk_pxl  = #83.340 ~clk_pxl ; // 6
+end
+
+initial begin
+	clk_snd =1'b0;
+	forever clk_snd  = #166.68 ~clk_snd ; // 3
 end
 
 initial begin
@@ -123,6 +128,7 @@ jtgng_game UUT (
 	.clk		( clk_pxl	),
 	.SDRAM_CLK	( SDRAM_CLK	),
 	.clk_rgb    ( clk_rgb   ),
+	.clk_snd	( clk_snd	),
 	.red		( red		),
 	.green		( green		),
 	.blue		( blue		),
@@ -148,6 +154,7 @@ jtgng_game UUT (
 	// Debug
 	.enable_char( 1'b1			),
 	.enable_obj ( 1'b1			),
+	.enable_scr ( 1'b1          ),
 	// DIP switches
 	//.dip_flip		(	1'b0	),
 	.dip_game_mode	(	1'b0	),

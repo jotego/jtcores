@@ -9,12 +9,15 @@ module jtgng_sound(
 	input	[7:0]	snd_latch,
 	input			V32,	
 	// ROM access
-	output	reg [14:0] 	rom_addr,
-	output				rom_cs,
-	input		[ 7:0] 	rom_dout
+	output	 [14:0] rom_addr,
+	output			rom_cs,
+	input	[ 7:0] 	rom_dout,
+	input			snd_wait
 );
 
 wire [15:0] A;
+assign rom_addr = A[14:0];
+
 reg reset_n;
 
 always @(negedge clk)
@@ -38,8 +41,11 @@ always @(*)
 
 
 // RAM, 8kB
-wire RAM_we = ram_cs && !RnW;
-wire [7:0] ram_dout;
+wire rd_n;
+wire wr_n;
+
+wire RAM_we = ram_cs && !wr_n;
+wire [7:0] ram_dout, cpu_dout;
 
 jtgng_chram RAM(	// 2 kB, just like CHARs
 	.address	( A[10:0]	),
@@ -56,20 +62,17 @@ always @(negedge clk)
 				({8{  rom_cs}} & rom_dout  ) |
 				({8{latch_cs}} & snd_latch ) ;
 
-	wire wait_n = 1'b1;
 	wire int_n = V32;
 	wire m1_n;
-	reg mreq_n;
-	reg iorq_n;
-	reg rd_n;
-	reg wr_n;
+	wire mreq_n;
+	wire iorq_n;
 	wire rfsh_n;
 	wire halt_n;
 	wire busak_n;
 tv80s Z80 (
 	.reset_n(reset_n ),
 	.clk    (clk     ),
-	.wait_n (wait_n  ),
+	.wait_n (snd_wait),
 	.int_n  (int_n   ),
 	.nmi_n  (1'b1    ),
 	.busrq_n(1'b1    ),
@@ -83,7 +86,7 @@ tv80s Z80 (
 	.busak_n(busak_n ),
 	.A      (A       ),
 	.di     (cpu_din ),
-	.dout   (ram_dout)
+	.dout   (cpu_dout)
 );
 
 

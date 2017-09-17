@@ -5,6 +5,7 @@ module jtgng_game(
 	input			soft_rst,
 	input			clk,  	 	//   6   MHz
 	input			clk_rgb,	// 6*4 = 24MHz
+	input			clk_snd,	// 3 MHz
 	output	 [3:0] 	red,
 	output	 [3:0] 	green,
 	output	 [3:0] 	blue,
@@ -252,22 +253,22 @@ jtgng_obj obj (
 );
 
 
-	wire [14:0] snd_addr=15'd0;
-	wire [7:0] rom_dout;
-	wire		snd_cs = 1'b0;
-/*
-jtgng_sound i_jtgng_sound (
-	.clk      (clk      ),
-	.rst      (rst      ),
+	wire [14:0] snd_addr;
+	wire [ 7:0] snd_dout;
+	wire		snd_cs;
+jtgng_sound sound (
+	.clk      (clk_snd  ),
+	.rst      (rst_game ),
 	.soft_rst (soft_rst ),
 	.sres_b   (sres_b   ),
 	.snd_latch(snd_latch),
 	.V32      (V[5]     ),
 	.rom_addr (snd_addr ),
-	.rom_dout (rom_dout ),
-	.rom_cs	  (snd_cs   )
+	.rom_dout (snd_dout ),
+	.rom_cs	  (snd_cs   ),
+	.snd_wait (snd_wait )
 );
-*/
+
 
 jtgng_rom2 rom (
 	.clk      	( SDRAM_CLK		),
@@ -277,6 +278,7 @@ jtgng_rom2 rom (
 	.main_addr	( main_addr		),
 	.mrdy		( rom_mrdy		),
 	.snd_addr 	( snd_addr 		),
+	.snd_wait	( snd_wait		),
 	.obj_addr 	( obj_addr 		),
 	.scr_addr 	( scr_addr 		),
 	.main_cs	( main_cs		),

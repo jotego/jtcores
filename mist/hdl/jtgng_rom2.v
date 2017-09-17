@@ -26,6 +26,7 @@ module jtgng_rom2(
 	output	reg	[ 7:0]	main_dout,
 	output	reg			mrdy,
 	output	reg	[ 7:0]	snd_dout,
+	output	reg			snd_wait,
 	output	reg	[31:0]	obj_dout,
 	output	reg	[23:0]	scr_dout_pxl,
 	output	reg			ready,
@@ -88,7 +89,7 @@ reg [14:0]	obj_addr_last;
 reg [14:0]	scr_addr_last;
 // do not keep LSB:
 reg [14:0]	main_addr_last;
-reg [13:0]	snd_addr_last;
+reg [12:0]	snd_addr_last;
 
 reg [15:0]	snd_cache0, snd_cache1, main_cache0, main_cache1;
 reg rd_req; // read request
@@ -137,7 +138,7 @@ reg obj_req, scr_req, char_req, main_req, snd_req;
 
 always @(*) begin
 	main_req <= !rd_collect && ( main_cs_sync && !((main_addr_sync>>2)==main_addr_last && main_valid));
-	snd_req  <= !rd_collect && ( snd_cs_sync && !((snd_addr_sync>>2)==snd_addr_last ));
+	snd_req  <= !rd_collect && ( snd_cs_sync && !((snd_addr_sync>>2)==snd_addr_last && snd_valid ));
 	obj_req  <= !rd_collect && !( /*obj_addr_sync[14:5]==10'd0 || obj_addr_sync[14:5]=={2'b11,8'hf8}
 				||*/ obj_addr_last == obj_addr_sync );
 	char_req <= !rd_collect && !( char_addr_sync == char_addr_last || char_addr_sync[12:3]==10'h20 );
@@ -188,17 +189,20 @@ always @(posedge clk)
 		{row_addr, col_addr} <= { 8'b110, snd_addr };
 		char_addr_last	<= ~13'd0;
 		// main_addr_last	<= 15'd0;
-		snd_addr_last	<= 15'd0;
+		snd_addr_last	<= ~15'd0;
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
 		{main_valid, snd_valid, char_valid, scr_valid} <= 4'd0;
 		skip_refresh <= false;
 		mrdy <= true;
+		snd_wait <= 1'b1;
+		rd_state <= ST_CHAR;
 	end
 	else begin
 	if( rd_state == ST_REFRESH ) begin
 		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };		
-		if( main_req ) mrdy <= false;
+		if( main_req )     mrdy <= false;
+		if(  snd_req ) snd_wait <= 1'b0;
 		if( read_done && !rq_autorefresh ) rd_state = ST_MAIN;
 	end
 	else
@@ -218,10 +222,12 @@ always @(posedge clk)
 				ST_SND: if(!collect_msb) begin					
 					snd_cache0 <= SDRAM_DQ;	
 					collect_msb <= 1'b1;		
+					snd_wait <= 1'b1; 
 				end else begin
 					snd_cache1 <= SDRAM_DQ;
 					snd_valid <= true;
 					rd_collect <= 1'b0;
+					snd_addr_last <= snd_addr_sync>>2;
 				end
 				ST_CHAR: begin
 					char_valid <= true;
@@ -286,8 +292,8 @@ always @(posedge clk)
 					rd_req <= 1'b1;
 					rd_state <= ST_SND;
 					collect_msb <= false;
-					{row_addr, col_addr} <= 18'h2C000 + {snd_addr_sync[14:2],1'b0}; 
-					main_valid <= false;
+					{row_addr, col_addr} <= 18'h28000 + {snd_addr_sync[14:2],1'b0}; 
+					snd_valid <= false;
 				end
 				default: if( !LVBL ) begin
 					rq_autorefresh <= 1'b1;

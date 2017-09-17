@@ -149,7 +149,7 @@ always @(negedge clk)
 		coin_cnt1 <= {coinw{1'b0}};
 		coin_cnt2 <= {coinw{1'b0}};
 		flip <= 1'b0;
-		sres_b <= 1'b0;
+		sres_b <= 1'b1;
 		end
 	else
 	if( flip_cs ) 
