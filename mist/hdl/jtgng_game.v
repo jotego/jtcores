@@ -6,6 +6,7 @@ module jtgng_game(
 	input			clk,  	 	//   6   MHz
 	input			clk_rgb,	// 6*4 = 24MHz
 	input			clk_snd,	// 3 MHz
+	input			clk_ym,		// 1.5 MHz
 	output	 [3:0] 	red,
 	output	 [3:0] 	green,
 	output	 [3:0] 	blue,
@@ -38,7 +39,11 @@ module jtgng_game(
 	// DIP switches
 	input			dip_game_mode,
 	input			dip_attract_snd,
-	input			dip_upright	
+	input			dip_upright,
+	// Sound output
+	output 	signed [8:0] ym_mux_right,
+	output 	signed [8:0] ym_mux_left,
+	output 	ym_mux_sample	
 );
 
 	wire [8:0] V;
@@ -257,7 +262,9 @@ jtgng_obj obj (
 	wire [ 7:0] snd_dout;
 	wire		snd_cs;
 jtgng_sound sound (
+	.clk6	  (clk		),
 	.clk      (clk_snd  ),
+	.clk_ym	  (clk_ym	),
 	.rst      (rst_game ),
 	.soft_rst (soft_rst ),
 	.sres_b   (sres_b   ),
@@ -266,7 +273,10 @@ jtgng_sound sound (
 	.rom_addr (snd_addr ),
 	.rom_dout (snd_dout ),
 	.rom_cs	  (snd_cs   ),
-	.snd_wait (snd_wait )
+	.snd_wait (snd_wait ),
+	.ym_mux_right	( ym_mux_right	),	
+	.ym_mux_left	( ym_mux_left	),
+	.ym_mux_sample	( ym_mux_sample)	
 );
 
 

@@ -26,7 +26,10 @@ module jtgng_mist(
 	input			SPI_SS2,
 	input			SPI_SS3,
 	input			SPI_SS4,
-	input			CONF_DATA0
+	input			CONF_DATA0,
+	// sound
+	output			AUDIO_L,
+	output			AUDIO_R
 );
 
 wire clk_gng; //  6
@@ -111,6 +114,14 @@ jtgng_pll1 clk_gen2 (
 	.c0		( clk_vga	) // 25
 );
 
+wire clk_snd, clk_ym;
+
+jtgng_pllsnd clk_gen3 (
+	.inclk0	( clk_gng 	),
+	.c0		( clk_snd	), // 3
+	.c1		( clk_ym	) // 1.5
+);
+
 reg [2:0] rst_aux=3'b111;
 
 always @(posedge clk_gng)
@@ -126,12 +137,16 @@ always @(posedge clk_gng)
 	wire [3:0] blue;
 	wire LHBL;
 	wire LVBL;
+	wire signed [8:0] ym_mux_right, ym_mux_left;
+	wire ym_mux_sample;
 jtgng_game game (
 	.rst    	( rst    	),
 	.soft_rst	( status[6]	),
-	.SDRAM_CLK	( SDRAM_CLK	),  // 81 MHz
-	.clk    	( clk_gng	),  //  6 MHz
-	.clk_rgb	( clk_rgb	),	// 36 MHz
+	.SDRAM_CLK	( SDRAM_CLK	),  // 81   MHz
+	.clk    	( clk_gng	),  //  6   MHz
+	.clk_rgb	( clk_rgb	),	// 36   MHz
+	.clk_snd	( clk_snd	),	//  3   MHz
+	.clk_ym		( clk_ym	),	//  1.5 MHz
 	.red    	( red    	),
 	.green  	( green  	),
 	.blue   	( blue   	),
@@ -164,8 +179,17 @@ jtgng_game game (
 	.dip_game_mode	( ~status[1]	),
 	.dip_upright	( status[2]	),
 	//.dip_flip		( ~status[3]),
-	.dip_attract_snd( 1'b1			)
+	.dip_attract_snd( 1'b1			),
+	// sound
+	.ym_mux_right	( ym_mux_right	),	
+	.ym_mux_left	( ym_mux_left	),
+	.ym_mux_sample	( ym_mux_sample)	
 );
+
+
+jt12_dac2 #(.width(9)) dac2_left (.clk(clk_vga), .rst(rst), .din(ym_mux_left), .dout(AUDIO_L));
+jt12_dac2 #(.width(9)) dac2_right (.clk(clk_vga), .rst(rst), .din(ym_mux_right), .dout(AUDIO_R));
+
 
 wire [5:0] GNG_R, GNG_G, GNG_B;
 

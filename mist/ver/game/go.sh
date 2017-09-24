@@ -162,10 +162,13 @@ zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))
 
 iverilog game_test.v \
+	-I../../../modules/jt12/hdl/ \
 	../../hdl/*.v \
 	../common/{mt48lc16m16a2.v,altera_mf.v} \
 	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 	../../../modules/tv80/*.v \
+	../../../modules/jt12/hdl/*.v \
+	../../../modules/jt12/ver/common/sep24.v \
 	-s game_test -o sim \
 	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
 	$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS\

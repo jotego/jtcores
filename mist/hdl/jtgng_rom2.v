@@ -70,8 +70,10 @@ reg [2:0] rd_state;
 reg	read_done;
 reg rq_autorefresh, rq_autorefresh_aux;
 
+`ifdef SIMULATION
 wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
+`endif
 
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? 
@@ -132,8 +134,6 @@ always @(posedge clk) begin
 	end
 end
 
-reg skip_refresh;
-
 reg obj_req, scr_req, char_req, main_req, snd_req;
 
 always @(*) begin
@@ -193,7 +193,6 @@ always @(posedge clk)
 		obj_addr_last	<= ~15'd0;
 		scr_addr_last	<= ~15'd0;
 		{main_valid, snd_valid, char_valid, scr_valid} <= 4'd0;
-		skip_refresh <= false;
 		mrdy <= true;
 		snd_wait <= 1'b1;
 		rd_state <= ST_CHAR;

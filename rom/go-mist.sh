@@ -127,7 +127,21 @@ cat obj.hex >> gng.hex
 
 ## Sound ROM, 32kB
 echo "Sound starts at " $(curpos)
-$ODx2 $audio >> gng.hex 
+sound_type=fast
+case $sound_type in
+	fast)
+		echo "Using audio ROM with fast start"
+		# audio_skip.hex skips the initial long wait
+		# and the RAM set to zero procedure
+		cat audio_skip.hex >> gng.hex
+		;;
+	test)
+		echo "Using test code for z80"
+		$ODx2 z80test.bin >> gng.hex
+		;;
+	normal)
+		$ODx2 $audio >> gng.hex
+esac
 echo "Sound ends at " $(curpos)
 
 ../cc/hex2bin

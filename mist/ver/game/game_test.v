@@ -24,6 +24,7 @@ module game_test;
 		`else
 			//$dumpvars(0,UUT);
 			$dumpvars(0,game_test);
+			//$dumpvars(1,game_test.UUT.sound);
 			//$dumpvars(0,UUT.chargen);
 			$dumpon;
 		`endif
@@ -46,7 +47,7 @@ initial begin
 	`endif
 end
 
-reg rst, clk_pxl, clk_rgb, clk_rom, clk_snd;
+reg rst, clk_pxl, clk_rgb, clk_rom, clk_snd, clk_ym;
 
 always @(posedge clk_rgb)
 	if( spi_done && frame_done && can_finish && max_frames_done ) begin
@@ -71,6 +72,11 @@ end
 initial begin
 	clk_snd =1'b0;
 	forever clk_snd  = #166.68 ~clk_snd ; // 3
+end
+
+initial begin
+	clk_ym =1'b0;
+	forever clk_ym  = #333.36 ~clk_ym ; // 1.5
 end
 
 initial begin
@@ -129,6 +135,7 @@ jtgng_game UUT (
 	.SDRAM_CLK	( SDRAM_CLK	),
 	.clk_rgb    ( clk_rgb   ),
 	.clk_snd	( clk_snd	),
+	.clk_ym		( clk_ym	),
 	.red		( red		),
 	.green		( green		),
 	.blue		( blue		),
