@@ -16,12 +16,12 @@ end
 
 initial begin
 	clk_ym =1'b0;
-	forever clk_ym  = #333.36 ~clk_ym ; // 1.5
+	forever clk_ym  = #666.72 ~clk_ym ; // .75
 end
 
 initial begin
 	V32 =1'b0;
-	forever V32  = #1400000 ~V32 ; 
+	forever V32  = #4096000 ~V32 ; 
 end
 
 initial begin
@@ -45,11 +45,11 @@ integer fincnt;
 always @(fincnt) begin
 	case( fincnt )
 		   0: snd_latch = 8'h0;
-		   1: snd_latch = 8'h10;
-		 500: snd_latch = 8'h1;
-		1000: snd_latch = 8'h2;
-		1500: snd_latch = 8'h3;
-		2500: snd_latch = 8'h4;
+		  10: snd_latch = 8'h2B;
+//		 500: snd_latch = 8'h1;
+//		1000: snd_latch = 8'h2;
+//		1500: snd_latch = 8'h3;
+//		2500: snd_latch = 8'h4;
 	endcase
 end
 
@@ -82,7 +82,7 @@ jtgng_sound uut(
 initial begin
 	for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
 		#(1000*1000); // ms
-		$display("%d ms",fincnt+1);
+		if( fincnt%5==0 ) $display("%d ms",fincnt+1);
 	end
 	$finish;
 end
@@ -90,7 +90,10 @@ end
 initial begin
 	$display("DUMP enabled");
 	$dumpfile("test.lxt");
-	$dumpvars;
+	$dumpvars(1,jtgng_sound_tb.uut);
+	$dumpvars(1,jtgng_sound_tb.uut.fm0.u_syn.u_mmr);
+	$dumpvars(1,jtgng_sound_tb.uut.fm1.u_syn.u_mmr);
+	$dumpvars(2,jtgng_sound_tb.uut.Z80);
 	$dumpon;
 end	
 

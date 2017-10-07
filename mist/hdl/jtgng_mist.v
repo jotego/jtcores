@@ -186,9 +186,10 @@ jtgng_game game (
 	.ym_mux_sample	( ym_mux_sample)	
 );
 
+wire clk_dac = SDRAM_CLK;
 
-jt12_dac2 #(.width(9)) dac2_left (.clk(clk_vga), .rst(rst), .din(ym_mux_left), .dout(AUDIO_L));
-jt12_dac2 #(.width(9)) dac2_right (.clk(clk_vga), .rst(rst), .din(ym_mux_right), .dout(AUDIO_R));
+jt12_dac2 #(.width(9)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_mux_left), .dout(AUDIO_L));
+jt12_dac2 #(.width(9)) dac2_right (.clk(clk_dac), .rst(rst), .din(ym_mux_right), .dout(AUDIO_R));
 
 
 wire [5:0] GNG_R, GNG_G, GNG_B;
