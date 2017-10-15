@@ -1,0 +1,274 @@
+	ORG $8000
+
+SCR_PALRAM	EQU $3800
+OBJ_PALRAM	EQU $3840
+CHR_PALRAM	EQU $38C0
+HPOS_LOW	EQU $3B08
+HPOS_HIGH	EQU $3B09
+VPOS_LOW	EQU $3B0A
+VPOS_HIGH	EQU $3B0B
+OKOUT		EQU $3C00
+BANK		EQU $3E00
+FLIP		EQU $3D00
+JOY1		EQU $3001
+JOY2		EQU $3002
+CRC			EQU $3005
+
+CHR			EQU $2000
+CHR_ATT		EQU $2400
+SCR			EQU $2800
+SCR_ATT		EQU $2C00
+
+FLIPVAR		EQU $1010
+
+PAL_STATUS	EQU $0
+FRAME_CNT	EQU $2
+SCR_CNT		EQU $4
+CNT_DONE	EQU $6
+
+RESET: 
+	ORCC #$10
+	LDS	#$1E00-1
+	LDA #$18
+	TFR A,DP
+	CLRA
+	STA	BANK
+	LDA #1
+	STA FLIP
+	CLRA
+	STA FLIPVAR
+	CLRA
+	STA HPOS_LOW
+	STA HPOS_HIGH
+	STA VPOS_LOW
+	STA VPOS_HIGH
+	STA CNT_DONE
+
+	LDX #$1E00
+	LDA #$F8
+	LDB #$F8
+@L:
+	STD ,X++
+	CMPX #$2000
+	BLT @L
+
+	CLRA
+	CLRB
+	STD >FRAME_CNT
+	STD >SCR_CNT
+
+	LDX #CHR
+	LDA #' '
+@CHR_CLR:
+	STA ,X+
+	;INCA
+	CMPX #(CHR+$400)
+	BNE @CHR_CLR
+
+
+	LBSR SETUP_PAL
+PINTA:
+	BSR CLR_SCR_CNT
+	
+	LDX #(CHR+$aa)
+	LDA >FRAME_CNT
+	BSR HEX2CHAR
+	LDA >(FRAME_CNT+1)
+	BSR HEX2CHAR
+
+	LDX #(CHR+$ba)
+	LDA >SCR_CNT
+	BSR HEX2CHAR
+	LDA >(SCR_CNT+1)
+	BSR HEX2CHAR
+
+	LDD >FRAME_CNT
+	CMPD #2000
+	BNE PINTA
+	LDA #1
+	STA >CNT_DONE
+
+FIN:
+	BRA FIN
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+HEX2CHAR:
+	TFR A,B
+	LSRA
+	LSRA
+	LSRA
+	LSRA
+	BSR HEX4CHAR
+	TFR B,A
+	ANDA #15
+	BRA HEX4CHAR
+
+HEX4CHAR:
+	CMPA #10
+	BLT	@L
+	;ADDA #55
+	STA	,X+
+	RTS
+@L:
+	;ADDA #48
+	STA	,X+
+	RTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+CLR_SCR_CNT:
+	LDX #SCR
+	LDD >SCR_CNT
+@L2:
+	STD ,X++
+	CMPX #(SCR+$400)
+	BNE @L2
+	ADDD #1
+	STD >SCR_CNT
+	RTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+SETUP_PAL:
+	; primero la paleta
+	LDA #0
+	STA >PAL_STATUS
+	ANDCC #$EF
+	; DELETE SCROLL attributes
+	LDX #SCR_ATT
+	CLRA
+	CLRB
+@L3:	
+	STD ,X++
+	CMPX #(SCR_ATT+$400)
+	BNE @L3
+@PAL:
+	CLRA
+	LDB >PAL_STATUS
+	CMPB #3
+	BLO @PAL
+	RTS
+
+CHAR_PALETTE:
+	; Characters. 16 palettes
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+; Scroll. 8 palettes
+SCROLL_PALETTE:
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+
+	FDB $F000,$A000,$5000,$0000	; Red   tones
+	FDB $0F00,$0A00,$0500,$0000	; Green tones
+	FDB $00F0,$00A0,$0050,$0000	; Blue  tones
+	FDB $FFF0,$AAA0,$5550,$0000	; Gray  tones
+OBJECT_PALETTE: ; 4 paletas de 16 colores
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+	FDB $FFF0,$EEE0,$DDD0,$CCC0	; Gray  tones
+	FDB $BBB0,$AAA0,$9990,$8880	; Gray  tones
+	FDB $7770,$6660,$5550,$4440	; Gray  tones
+	FDB $3330,$2220,$1110,$0000	; Gray  tones
+
+
+IRQSERVICE:
+	; ORCC #$10
+	; fill palette
+	; RG mem test
+	CLRA 
+	CMPA >PAL_STATUS
+	BEQ DO_CHARPAL
+	INCA
+	CMPA >PAL_STATUS
+	BEQ DO_SCRPAL
+	INCA
+	CMPA >PAL_STATUS
+	BEQ DO_OBJPAL
+	; palette is done
+	LDA #10
+	STA >PAL_STATUS
+	CLR OKOUT
+
+	LDA >CNT_DONE	
+	BEQ INC_FRAME
+	RTI
+INC_FRAME:
+	LDD >FRAME_CNT
+	ADDD #1
+	STD >FRAME_CNT
+	RTI
+DO_CHARPAL:
+	LDX #CHR_PALRAM
+	LDY #CHAR_PALETTE	
+@L:	LDD ,Y++
+	STA ,X
+	STB $100,X
+	LEAX 1,X
+	CMPY #SCROLL_PALETTE
+	BNE @L
+	LDA #1
+	STA >PAL_STATUS
+	RTI
+
+DO_SCRPAL:
+	LDX #SCR_PALRAM
+	LDY #SCROLL_PALETTE	
+@L2:
+	LDD ,Y++
+	STA ,X
+	STB $100,X
+	LEAX 1,X
+	CMPY #OBJECT_PALETTE
+	BNE @L2
+	LDA #2
+	STA >PAL_STATUS
+	RTI
+
+DO_OBJPAL:
+	LDX #OBJ_PALRAM
+	LDY #OBJECT_PALETTE	
+@L:	LDD ,Y++
+	STA ,X
+	STB $100,X
+	LEAX 1,X
+	CMPY #(OBJECT_PALETTE+4*8*4)
+	BNE @L	
+	LDA #3
+	STA >PAL_STATUS
+	RTI	
+
+	FILL $FF,$FFF8-*
+
+	ORG $FFF8
+	.DW IRQSERVICE
+	FILL $FF,$FFFE-*
+	ORG $FFFE
+	.DW	RESET	; Reset vector

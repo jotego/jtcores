@@ -7,7 +7,12 @@ function curpos() {
 	printf "%X" $(cat gng.hex | wc -l)
 }
 
-GAME=makaimurg
+if [ $# == 1 ]; then
+	GAME=$1
+	echo "Generating ROMs for " $1
+else
+	GAME=makaimurg
+fi
 
 case $GAME in
 	makaimur)
@@ -73,6 +78,27 @@ case $GAME in
 		romx13=gngroms/gg13.bin
 		romx12=gngroms/gg12.bin
 		;;		
+	speed_test)
+		rom10n=gngroms/mm_c_04
+		rom8n=../mist/ver/game/speed_test.bin
+		rom12n=gngroms/mm_c_05
+		rom_char=gngroms/gg1.bin
+		audio=gngroms/gg2.bin
+		romx9=gngroms/gg9.bin
+		romx7=gngroms/gg7.bin
+		romx11=gngroms/gg11.bin
+		romx8=gngroms/gg8.bin
+		romx6=gngroms/gg6.bin
+		romx10=gngroms/gg10.bin
+
+		romx17=gngroms/gng13.n4
+		romx16=gngroms/gg16.bin
+		romx15=gngroms/gg15.bin
+
+		romx14=gngroms/gng16.l4
+		romx13=gngroms/gg13.bin
+		romx12=gngroms/gg12.bin
+		;;			
 	gngt)
 		rom8n=mmt03d.8n
 		rom10n=mmt04d.10n
