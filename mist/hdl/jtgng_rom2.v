@@ -61,10 +61,10 @@ localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 localparam false=1'b0, true=1'b1;
 
-reg  [addr_w-1:0] 	row_addr;
-reg  [col_w-1:0] col_cnt, col_addr;
-reg [addr_w-1:0] romload_row;
-reg [col_w-1:0]  romload_col;
+reg [addr_w-1:0] 	row_addr;
+reg [ col_w-1:0]	col_cnt, col_addr;
+reg [addr_w-1:0]	romload_row;
+reg [ col_w-1:0]	romload_col;
 
 reg [2:0] rd_state;
 reg	read_done;
@@ -100,10 +100,10 @@ reg rd_collect, main_valid;
 reg collect_msb;
 localparam 	ST_SND =3'd0, ST_MAIN=3'd1, 
 			ST_CHAR=3'd2, ST_SCR =3'd3, ST_OBJ=3'd4, ST_REFRESH=3'd5;
-localparam  CHAR_REQ=5'b1xx_xx,
-			SCR_REQ =5'b01x_xx,
-			OBJ_REQ =5'b001_xx,
-			MAIN_REQ=5'b000_1x,
+localparam  CHAR_REQ=5'b1??_??,
+			SCR_REQ =5'b01?_??,
+			OBJ_REQ =5'b001_??,
+			MAIN_REQ=5'b000_1?,
 			SND_REQ =5'b000_01;
 
 // reg bank_sw_sync;
@@ -259,7 +259,7 @@ always @(posedge clk)
 				default: rd_collect <= 1'b0; 
 			endcase
 		end else begin	
-			casex( { char_req&LHBL&LVBL, scr_req&LHBL&LVBL, obj_req&LVBL, main_req, snd_req } )
+			casez( { char_req&LHBL&LVBL, scr_req&LHBL&LVBL, obj_req&LVBL, main_req, snd_req } )
 				CHAR_REQ: begin
 					rd_req <= 1'b1;
 					rd_state <= ST_CHAR;

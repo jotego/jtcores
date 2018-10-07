@@ -3,7 +3,6 @@
 module jtgng_sound(
 	input	clk6,	// 6   MHz
 	input	clk,	// 3   MHz
-	input	clk_ym, // 1.5 MHz
 	input	rst,
 	input	soft_rst,
 	// Interface with main CPU
@@ -23,6 +22,7 @@ module jtgng_sound(
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
+assign ym_mux_sample = ym_mux0_sample;
 
 reg reset_n;
 
@@ -37,8 +37,8 @@ assign { rom_cs, ym1_cs, ym0_cs, latch_cs, ram_cs } = map_cs;
 reg [7:0] AH;
 
 always @(*)
-	casex(A[15:11])
-		8'b0xxx_x: map_cs = 5'h10; // 0000-7FFF, ROM
+	casez(A[15:11])
+		8'b0???_?: map_cs = 5'h10; // 0000-7FFF, ROM
 		8'b1100_0: map_cs = 5'h1; // C000-C7FF, RAM
 		8'b1100_1: map_cs = 5'h2; // C800-C8FF, Sound latch
 		8'b1110_0: 
@@ -53,20 +53,20 @@ wire rd_n;
 wire wr_n;
 
 wire RAM_we = ram_cs && !wr_n;
-wire [7:0] ram_dout, cpu_dout;
+wire [7:0] ram_dout, dout;
 
 jtgng_chram RAM(	// 2 kB, just like CHARs
 	.address	( A[10:0]	),
 	.clock		( clk6		),
-	.data		( cpu_dout	),
+	.data		( dout		),
 	.wren		( RAM_we	),
 	.q			( ram_dout	)
 );
 
-reg [7:0] cpu_din;
+reg [7:0] din;
 
 always @(*)
- 	cpu_din <=  ({8{  ram_cs}} & ram_dout  ) | 
+ 	din <=  ({8{  ram_cs}} & ram_dout  ) | 
 				({8{  rom_cs}} & rom_dout  ) |
 				({8{latch_cs}} & snd_latch ) ;
 
@@ -115,8 +115,8 @@ tv80s Z80 (
 	.halt_n (halt_n  ),
 	.busak_n(busak_n ),
 	.A      (A       ),
-	.di     (cpu_din ),
-	.dout   (cpu_dout)
+	.di     (din ),
+	.dout   (dout)
 );
 
 wire [6:0] nc0, nc1;
@@ -125,53 +125,64 @@ wire [8:0] ym_mux1_left, ym_mux0_left, ym_mux1_right, ym_mux0_right;
 assign ym_mux_right = (ym_mux0_right+ym_mux1_right)>>>1;
 assign ym_mux_left  = ( ym_mux0_left+ym_mux1_left )>>>1;
 
+/*
+reg ym_clken;
 
+// clock enable must use negedge relative to JT12 core
+always @(posedge clk) begin : proc_ym_clken
+	if(rst) begin
+		ym_clken <= 1'b1;
+	end else begin
+		ym_clken <= ~ym_clken;
+	end
+end
+*/
 jt12 fm0(
-	.rst		( ~reset_n	),
+	.rst	( ~reset_n	),
 	// CPU interface
-	.cpu_clk	( ~clk		),
-	.cpu_din	( cpu_dout	),
-	.cpu_addr	( {1'b0,A[0]}	),
-	.cpu_cs_n	( ~ym0_cs	),
-	.cpu_wr_n	( wr_n		),
-	.cpu_limiter_en( 1'b1	),
+	.clk	( ~clk		),
+	// .cen	( ym_clken	),
+	.cen	( 1'b1		),
+	.din	( dout		),
+	.addr	( {1'b0,A[0]}	),
+	.cs_n	( ~ym0_cs	),
+	.wr_n	( wr_n		),
+	.limiter_en( 1'b1	),
 
-	.cpu_dout	( { busy_bus[0], nc0 } ),
-	//output			cpu_irq_n,
-	// Synthesizer clock domain
-	.syn_clk	( clk_ym	),
+	.dout	( { busy_bus[0], nc0 } ),
+	//output			irq_n,
 	// combined output
-	// output	signed	[11:0]	syn_snd_right,
-	// output	signed	[11:0]	syn_snd_left,
-	// output			syn_snd_sample,
+	// output	signed	[11:0]	snd_right,
+	// output	signed	[11:0]	snd_left,
+	// output			snd_sample,
 	// multiplexed output
-	.syn_mux_right	( ym_mux0_right	),	
-	.syn_mux_left	( ym_mux0_left	),
-	.syn_mux_sample	( ym_mux0_sample)
+	.mux_right	( ym_mux0_right	),	
+	.mux_left	( ym_mux0_left	),
+	.mux_sample	( ym_mux0_sample)
 );
 
 jt12 fm1(
-	.rst		( ~reset_n	),
+	.rst	( ~reset_n	),
 	// CPU interface
-	.cpu_clk	( ~clk		),
-	.cpu_din	( cpu_dout	),
-	.cpu_addr	( {1'b0,A[0]}	),
-	.cpu_cs_n	( ~ym1_cs	),
-	.cpu_wr_n	( wr_n		),
-	.cpu_limiter_en( 1'b1	),
+	.clk	( ~clk		),
+	//.cen	( ym_clken	),
+	.cen	( 1'b1		),
+	.din	( dout	),
+	.addr	( {1'b0,A[0]}	),
+	.cs_n	( ~ym1_cs	),
+	.wr_n	( wr_n		),
+	.limiter_en( 1'b1	),
 
-	.cpu_dout	( { busy_bus[1], nc1 } ),
-	//output			cpu_irq_n,
-	// Synthesizer clock domain
-	.syn_clk	( clk_ym	),
+	.dout	( { busy_bus[1], nc1 } ),
+	//output			irq_n,
 	// combined output
-	// output	signed	[11:0]	syn_snd_right,
-	// output	signed	[11:0]	syn_snd_left,
-	// output			syn_snd_sample,
+	// output	signed	[11:0]	snd_right,
+	// output	signed	[11:0]	snd_left,
+	// output			snd_sample,
 	// multiplexed output
-	.syn_mux_right	( ym_mux1_right	),	
-	.syn_mux_left	( ym_mux1_left	),
-	.syn_mux_sample	( ym_mux1_sample)
+	.mux_right	( ym_mux1_right	),	
+	.mux_left	( ym_mux1_left	),
+	.mux_sample	( ym_mux1_sample)
 );
 
 

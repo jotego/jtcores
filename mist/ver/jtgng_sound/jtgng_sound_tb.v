@@ -61,7 +61,6 @@ always @(*)
 jtgng_sound uut(
 	.clk6	( clk_pxl	),	// 6   MHz
 	.clk	( clk_snd	),	// 3   MHz
-	.clk_ym	( clk_ym	), // 1.5 MHz
 	.rst	( rst		),
 	.soft_rst( 1'b0		),
 	// Interface with main CPU
@@ -91,9 +90,10 @@ initial begin
 	$display("DUMP enabled");
 	$dumpfile("test.lxt");
 	$dumpvars(1,jtgng_sound_tb.uut);
-	$dumpvars(1,jtgng_sound_tb.uut.fm0.u_syn.u_mmr);
-	$dumpvars(1,jtgng_sound_tb.uut.fm1.u_syn.u_mmr);
+	$dumpvars(1,jtgng_sound_tb.uut.fm0.u_mmr);
+	$dumpvars(1,jtgng_sound_tb.uut.fm1.u_mmr);
 	$dumpvars(2,jtgng_sound_tb.uut.Z80);
+	$dumpvars;
 	$dumpon;
 end	
 

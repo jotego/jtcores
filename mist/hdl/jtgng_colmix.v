@@ -66,7 +66,7 @@ always @(negedge clk_rgb)
 		{ addr_top, aux } <= 2'b00;
 	end else begin
 		{addr_top,aux}<={addr_top,aux}+2'b1;
-		casex( {addr_top,aux} )
+		case( {addr_top,aux} )
 			2'b00: we <= redgreen_cs && !LVBL;
 			2'b10: we <= blue_cs && !LVBL;
 			default: we <= 1'b0;

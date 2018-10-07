@@ -34,4 +34,4 @@ iverilog jtgng_sound_tb.v \
 	../../../modules/jt12/ver/common/sep24.v \
 	-s jtgng_sound_tb -o sim \
 	-D$DUMP -DSIM_MS=$SIM_MS\
-&& sim -lxt
+&& vvp sim -lxt

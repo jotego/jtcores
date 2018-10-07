@@ -73,23 +73,23 @@ always @(negedge E)
 always @(*)
 	if(!VMA) map_cs = 0;
 	else
-	casex(A[15:8])
-		8'b000x_xxxx: map_cs = 13'h8; // 0000-1FFF, RAM
+	casez(A[15:8])
+		8'b000?_????: map_cs = 13'h8; // 0000-1FFF, RAM
 		// EXTEN
-		8'b0010_0xxx: map_cs = 13'h4; 	// 2000-27FF	Char
-		8'b0010_1xxx: map_cs = 13'h200; // 2800-2FFF	Scroll
-		8'b0011_0xxx: map_cs = 13'h100; // 3000-37FF input
+		8'b0010_0???: map_cs = 13'h4; 	// 2000-27FF	Char
+		8'b0010_1???: map_cs = 13'h200; // 2800-2FFF	Scroll
+		8'b0011_0???: map_cs = 13'h100; // 3000-37FF input
 		8'b0011_1000: map_cs = 13'h20; // 3800-38FF, Red, green
 		8'b0011_1001: map_cs = 13'h40; // 3900-39FF, blue
 		8'b0011_1010: map_cs = 13'h1000; // 3A00-3AFF, sound
 		8'b0011_1011: map_cs = 13'h400;// 3B00-3BFF Scroll position
 		8'b0011_1100: map_cs = 13'h800;// OKOUT 
-		8'b0011_1101: map_cs = 13'h10; // 3Dxx flip
+		8'b0011_1101: map_cs = 13'h10; // 3D?? flip
 
 		8'b0011_1110: map_cs = 13'h2; // 3E00-3EFF bank
 		8'b0011_1111: map_cs = 13'h80; // 3F00-3FFF SDRAM programming
-		8'b01xx_xxxx: map_cs = 13'h1; // ROMs
-		8'b1xxx_xxxx: map_cs = startup ? 13'h8 : 13'h1; // 8000-BFFF, ROM 9N
+		8'b01??_????: map_cs = 13'h1; // ROMs
+		8'b1???_????: map_cs = startup ? 13'h8 : 13'h1; // 8000-BFFF, ROM 9N
 		default: map_cs = 13'h0;
 	endcase
 
@@ -225,10 +225,10 @@ always @(A,bank) begin
 		3'd5, 3'd4: rom_addr[16:13] = { 2'h0, A[14:13] }; // 9N
 		3'd3      : rom_addr[16:13] = 4'd5; // 10N
 		3'd2      : 
-			casex( bank )
+			casez( bank )
 				3'd4: rom_addr[16:13] = 4'h4; // 10N
 				//3'd3, 3'd2: rom_addr[16:13] = { 3'b100, bank[1:0] }; // 12N
-				3'b0xx: rom_addr[16:13] =  {2'd0,bank[1:0]}+4'd6; // 13N
+				3'b0??: rom_addr[16:13] =  {2'd0,bank[1:0]}+4'd6; // 13N
 				default:rom_addr[16:13] = 4'hx;
 			endcase
 		default: rom_addr[16:12] = 5'hxx;
