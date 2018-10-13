@@ -33,7 +33,7 @@ module jtgng_rom2(
 
 	// SDRAM interface
 	inout [15:0]  	SDRAM_DQ, 		// SDRAM Data bus 16 Bits
-	output reg [12:0] 	SDRAM_A, 		// SDRAM Address bus 13 Bits
+	output reg [12:0] 	SDRAM_A, 	// SDRAM Address bus 13 Bits
 	output        	SDRAM_DQML, 	// SDRAM Low-byte Data Mask
 	output        	SDRAM_DQMH, 	// SDRAM High-byte Data Mask
 	output  reg    	SDRAM_nWE, 		// SDRAM Write Enable
@@ -216,7 +216,7 @@ always @(posedge clk)
 					main_cache1 <= SDRAM_DQ;
 					main_valid <= true;
 					rd_collect <= 1'b0;
-					main_addr_last <= main_addr_sync>>2;					
+					main_addr_last <= main_addr_sync[16:2];					
 				end
 				ST_SND: if(!collect_msb) begin					
 					snd_cache0 <= SDRAM_DQ;	
@@ -226,7 +226,7 @@ always @(posedge clk)
 					snd_cache1 <= SDRAM_DQ;
 					snd_valid <= true;
 					rd_collect <= 1'b0;
-					snd_addr_last <= snd_addr_sync>>2;
+					snd_addr_last <= snd_addr_sync[14:2];
 				end
 				ST_CHAR: begin
 					char_valid <= true;

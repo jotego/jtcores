@@ -114,13 +114,6 @@ jtgng_pll1 clk_gen2 (
 	.c0		( clk_vga	) // 25
 );
 
-wire clk_snd;
-
-jtgng_pllsnd clk_gen3 (
-	.inclk0	( clk_gng 	),
-	.c0		( clk_snd	) // 3
-);
-
 reg [2:0] rst_aux=3'b111;
 
 always @(posedge clk_gng)
@@ -144,7 +137,6 @@ jtgng_game game (
 	.SDRAM_CLK	( SDRAM_CLK	),  // 81   MHz
 	.clk    	( clk_gng	),  //  6   MHz
 	.clk_rgb	( clk_rgb	),	// 36   MHz
-	.clk_snd	( clk_snd	),	//  3   MHz
 	.red    	( red    	),
 	.green  	( green  	),
 	.blue   	( blue   	),

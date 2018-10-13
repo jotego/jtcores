@@ -218,7 +218,7 @@ reg poshflip2;
 always @(negedge clk) poshflip2 <= poshflip;
 
 jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
-jtgng_sh #(.width(2), .stages(4)) sh_objz (.clk(clk), .din(vinzone), .drop(vinzone2));
+jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .din(vinzone), .drop(vinzone2));
 
 always @(*) begin
 	//VB = posy + ( ~VF + {{7{~flip}},1'b1});
@@ -257,7 +257,7 @@ always @(negedge clk) begin
 		end
 	endcase
 	if( pxlcnt[2:0]==3'd3 ) begin	
-		obj_addr <= (!vinzone || objcnt==5'd0) ? 0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}} };
+		obj_addr <= (!vinzone || objcnt==5'd0) ? 15'd0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}} };
 	end
 end
 

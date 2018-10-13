@@ -5,7 +5,6 @@ module jtgng_game(
 	input			soft_rst,
 	input			clk,  	 	//   6   MHz
 	input			clk_rgb,	// 6*4 = 24MHz
-	input			clk_snd,	// 3 MHz
 	output	 [3:0] 	red,
 	output	 [3:0] 	green,
 	output	 [3:0] 	blue,
@@ -262,8 +261,7 @@ jtgng_obj obj (
 	wire		snd_cs;
 	wire		snd_wait;
 jtgng_sound sound (
-	.clk6	  (clk		),
-	.clk      (clk_snd  ),
+	.clk	  (clk		),
 	.rst      (rst_game ),
 	.soft_rst (soft_rst ),
 	.sres_b   (sres_b   ),

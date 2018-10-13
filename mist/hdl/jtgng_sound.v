@@ -1,8 +1,7 @@
 `timescale 1ns/1ps
 
 module jtgng_sound(
-	input	clk6,	// 6   MHz
-	input	clk,	// 3   MHz
+	input	clk,	// 6   MHz
 	input	rst,
 	input	soft_rst,
 	// Interface with main CPU
@@ -22,12 +21,21 @@ module jtgng_sound(
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
+wire ym_mux0_sample;
 assign ym_mux_sample = ym_mux0_sample;
 
 reg reset_n;
 
 always @(negedge clk)
 	reset_n <= ~( rst | soft_rst /*| ~sres_b*/ );
+
+reg clk_en;
+
+always @(negedge clk)
+	if( rst ) 
+		clk_en <= 1'b1;
+	else
+		clk_en <= ~clk_en;
 
 wire ym1_cs,ym0_cs, latch_cs, ram_cs;
 reg [4:0] map_cs;
@@ -57,7 +65,7 @@ wire [7:0] ram_dout, dout;
 
 jtgng_chram RAM(	// 2 kB, just like CHARs
 	.address	( A[10:0]	),
-	.clock		( clk6		),
+	.clock		( clk		),	// 6 MHz
 	.data		( dout		),
 	.wren		( RAM_we	),
 	.q			( ram_dout	)
@@ -101,7 +109,8 @@ end
 
 tv80s Z80 (
 	.reset_n(reset_n ),
-	.clk    (clk     ),
+	.clk    (clk	 ), // 3 MHz, clock gated
+	.cen	(clk_en	 ),
 	.wait_n (wait_n	 ),
 	.int_n  (int_n   ),
 	.nmi_n  (1'b1    ),
@@ -125,24 +134,11 @@ wire [8:0] ym_mux1_left, ym_mux0_left, ym_mux1_right, ym_mux0_right;
 assign ym_mux_right = (ym_mux0_right+ym_mux1_right)>>>1;
 assign ym_mux_left  = ( ym_mux0_left+ym_mux1_left )>>>1;
 
-/*
-reg ym_clken;
-
-// clock enable must use negedge relative to JT12 core
-always @(posedge clk) begin : proc_ym_clken
-	if(rst) begin
-		ym_clken <= 1'b1;
-	end else begin
-		ym_clken <= ~ym_clken;
-	end
-end
-*/
 jt12 fm0(
 	.rst	( ~reset_n	),
 	// CPU interface
-	.clk	( ~clk		),
-	// .cen	( ym_clken	),
-	.cen	( 1'b1		),
+	.clk	( clk		),
+	.cen	( clk_en	),
 	.din	( dout		),
 	.addr	( {1'b0,A[0]}	),
 	.cs_n	( ~ym0_cs	),
@@ -164,10 +160,9 @@ jt12 fm0(
 jt12 fm1(
 	.rst	( ~reset_n	),
 	// CPU interface
-	.clk	( ~clk		),
-	//.cen	( ym_clken	),
-	.cen	( 1'b1		),
-	.din	( dout	),
+	.clk	( clk		),
+	.cen	( clk_en	),
+	.din	( dout	)	,
 	.addr	( {1'b0,A[0]}	),
 	.cs_n	( ~ym1_cs	),
 	.wr_n	( wr_n		),
@@ -182,7 +177,7 @@ jt12 fm1(
 	// multiplexed output
 	.mux_right	( ym_mux1_right	),	
 	.mux_left	( ym_mux1_left	),
-	.mux_sample	( ym_mux1_sample)
+	.mux_sample	()
 );
 
 

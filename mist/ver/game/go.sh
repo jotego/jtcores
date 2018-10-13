@@ -20,6 +20,7 @@ NOFIRM=NOFIRM
 MAXFRAME=
 OBJTEST=
 SIM_MS=1
+SIMULATOR=iverilog
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -104,6 +105,11 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi
+	if [ $1 = "-verilator" ]; then
+		SIMULATOR=verilator
+		shift
+		continue
+	fi
 	echo "Unknown option $1"
 	exit 1
 done
@@ -161,18 +167,31 @@ if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))
 
-iverilog game_test.v \
-	-I../../../modules/jt12/hdl/ \
-	../../hdl/*.v \
-	../common/{mt48lc16m16a2.v,altera_mf.v} \
-	../../../modules/mc6809/{mc6809.v,mc6809i.v} \
-	../../../modules/tv80/*.v \
-	../../../modules/jt12/hdl/*.v \
-	../../../modules/jt12/ver/common/sep24.v \
-	-s game_test -o sim \
-	-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
-	$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS\
-&& sim -lxt
+if [ $SIMULATOR = iverilog ]; then
+	iverilog game_test.v \
+		-I../../../modules/jt12/hdl/ \
+		../../hdl/*.v \
+		../common/{mt48lc16m16a2.v,altera_mf.v} \
+		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
+		../../../modules/tv80/*.v \
+		../../../modules/jt12/hdl/*.v \
+		../../../modules/jt12/ver/common/sep24.v \
+		-s game_test -o sim \
+		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
+		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS\
+	&& sim -lxt
+else
+	verilator game_test.v \
+		-I../../../modules/jt12/hdl/ \
+		../../hdl/*.v \
+		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
+		../../../modules/tv80/*.v \
+		../../../modules/jt12/hdl/*.v \
+		../../../modules/jt12/ver/common/sep24.v \
+		--top-module game_test -o sim \
+		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
+		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only
+fi
 
 if [ $CHR_DUMP = CHR_DUMP ]; then
 	rm frame*png

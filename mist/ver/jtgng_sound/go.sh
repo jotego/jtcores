@@ -21,6 +21,18 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi	
+	if [ "$1" = -lint ]; then
+		verilator jtgng_sound_tb.v \
+			-I../../../modules/jt12/hdl/ \
+			../../hdl/*.v \
+			../common/{mt48lc16m16a2.v,altera_mf.v} \
+			../../../modules/tv80/*.v \
+			../../../modules/jt12/hdl/*.v \
+			../../../modules/jt12/ver/common/sep24.v \
+		--lint-only -I../../hdl --top-module jtgng_sound_tb -DSIM_MS=$SIM_MS \
+		--error-limit 500
+		exit $?
+	fi	
 	echo "Unknown option $1"
 	exit 1
 done
