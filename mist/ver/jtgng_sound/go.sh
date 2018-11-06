@@ -1,10 +1,11 @@
 #!/bin/bash
 
-DUMP=
+EXTRA=
+GATHER=gather_dummy.f
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
-		DUMP=-trace
+		EXTRA="$EXTRA -trace"
 		echo Signal dump enabled
 		shift
 		continue
@@ -28,8 +29,14 @@ while [ $# -gt 0 ]; do
 	exit 1
 done
 
-verilator --cc -f gather.f --top-module jtgng_sound --trace --exe test.cpp
+verilator --cc -f $GATHER --top-module jtgng_sound --trace --exe test.cpp \
+	-DFASTDIV -DNOLFO -DNOTIMER --trace-depth 1
 
 if ! make -j -C obj_dir -f Vjtgng_sound.mk Vjtgng_sound; then
 	exit $?
+fi
+
+obj_dir/Vjtgng_sound $EXTRA
+if [ -e test.vcd ]; then
+	vcd2fst -v test.vcd -f test.fst && rm test.vcd
 fi

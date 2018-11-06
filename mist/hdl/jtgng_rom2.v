@@ -26,7 +26,7 @@ module jtgng_rom2(
 	output	reg	[ 7:0]	main_dout,
 	output	reg			mrdy,
 	output	reg	[ 7:0]	snd_dout,
-	output	reg			snd_wait,
+	output	reg			snd_wait_n,
 	output	reg	[31:0]	obj_dout,
 	output	reg	[23:0]	scr_dout_pxl,
 	output	reg			ready,
@@ -194,14 +194,14 @@ always @(posedge clk)
 		scr_addr_last	<= ~15'd0;
 		{main_valid, snd_valid, char_valid, scr_valid} <= 4'd0;
 		mrdy <= true;
-		snd_wait <= 1'b1;
+		snd_wait_n <= 1'b1;
 		rd_state <= ST_CHAR;
 	end
 	else begin
 	if( rd_state == ST_REFRESH ) begin
 		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };		
 		if( main_req )     mrdy <= false;
-		if(  snd_req ) snd_wait <= 1'b0;
+		// if(  snd_req ) snd_wait_n <= 1'b0;
 		if( read_done && !rq_autorefresh ) rd_state = ST_MAIN;
 	end
 	else
@@ -221,9 +221,9 @@ always @(posedge clk)
 				ST_SND: if(!collect_msb) begin					
 					snd_cache0 <= SDRAM_DQ;	
 					collect_msb <= 1'b1;		
-					snd_wait <= 1'b1; 
 				end else begin
 					snd_cache1 <= SDRAM_DQ;
+					// snd_wait_n <= 1'b1; 
 					snd_valid <= true;
 					rd_collect <= 1'b0;
 					snd_addr_last <= snd_addr_sync[14:2];

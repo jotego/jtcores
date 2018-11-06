@@ -12,7 +12,7 @@ module jtgng_sound(
     output  [14:0]  rom_addr,
     output          rom_cs,
     input   [ 7:0]  rom_dout,
-    input           snd_wait,
+    input           snd_wait_n,
     // Sound output
     output  signed [8:0] ym_mux_right,
     output  signed [8:0] ym_mux_left,
@@ -91,7 +91,7 @@ always @(*)
     wire [1:0] busy_bus;
     wire busy = |busy_bus;
     // wire wait_n = !( busy || !snd_wait);
-    wire wait_n = snd_wait;
+    wire wait_n = snd_wait_n;
 
 reg lastV32;
 reg [4:0] int_n2;
