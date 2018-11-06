@@ -1,11 +1,10 @@
 #!/bin/bash
 
-DUMP=DUMP
-SIM_MS=1
+DUMP=
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
-		DUMP=DUMP
+		DUMP=-trace
 		echo Signal dump enabled
 		shift
 		continue
@@ -22,28 +21,15 @@ while [ $# -gt 0 ]; do
 		continue
 	fi	
 	if [ "$1" = -lint ]; then
-		verilator jtgng_sound_tb.v \
-			-I../../../modules/jt12/hdl/ \
-			../../hdl/*.v \
-			../common/{mt48lc16m16a2.v,altera_mf.v} \
-			../../../modules/tv80/*.v \
-			../../../modules/jt12/hdl/*.v \
-			../../../modules/jt12/ver/common/sep24.v \
-		--lint-only -I../../hdl --top-module jtgng_sound_tb -DSIM_MS=$SIM_MS \
-		--error-limit 500
+		verilator -f gather.f --lint-only --top-module jtgng_sound --error-limit 500
 		exit $?
 	fi	
 	echo "Unknown option $1"
 	exit 1
 done
 
-iverilog jtgng_sound_tb.v \
-	-I../../../modules/jt12/hdl/ \
-	../../hdl/*.v \
-	../common/{mt48lc16m16a2.v,altera_mf.v} \
-	../../../modules/tv80/*.v \
-	../../../modules/jt12/hdl/*.v \
-	../../../modules/jt12/ver/common/sep24.v \
-	-s jtgng_sound_tb -o sim \
-	-D$DUMP -DSIM_MS=$SIM_MS\
-&& vvp sim -lxt
+verilator --cc -f gather.f --top-module jtgng_sound --trace --exe test.cpp
+
+if ! make -j -C obj_dir -f Vjtgng_sound.mk Vjtgng_sound; then
+	exit $?
+fi
