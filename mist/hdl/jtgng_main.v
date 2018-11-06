@@ -54,7 +54,7 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy & scr_mrdy & rom_mrdy;
 reg nRESET;
 wire in_cs;
-wire sound_cs, ram_cs, bank_cs, scr_cs, screpos_cs, sdram_we, flip_cs;
+wire sound_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
 
 reg [12:0] map_cs;
 

@@ -155,30 +155,8 @@ set_global_assignment -name SEED 4
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
-set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/dac/jt12_dac2.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_top.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_timers.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_syn.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_sumch.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_sh_rst.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_sh24.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_sh.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_reg.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_phrom.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_pg.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_opram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_op.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_mod.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_mmr.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_mixer.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_limitamp.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_lfo.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_kon.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_exprom.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_eg.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_clksync.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_acc.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12.v
+set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/dac/jt12_dac2.v
+set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt12.qip
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sound.v
 set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80s.v
 set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80n.v
