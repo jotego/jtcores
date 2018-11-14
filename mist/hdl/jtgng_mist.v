@@ -81,20 +81,20 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
 	.conf_str	( CONF_STR	),
 	.SPI_SCK	( SPI_SCK	),
 	.CONF_DATA0	( CONF_DATA0),
-	.SPI_DO		( SPI_DO	),
-	.SPI_DI		( SPI_DI	),
+	.SPI_DO		( SPI_DO		),
+	.SPI_DI		( SPI_DI		),
 	.joystick_0	( joystick2	),
 	.joystick_1	( joystick1	),
-	.status		( status	),
+	.status		( status		),
 	// unused ports:
-	.ps2_clk	( 1'b0		),
+	.ps2_clk		( 1'b0		),
 	.serial_strobe( 1'b0	),
 	.serial_data( 8'd0		),
 	.sd_lba		( 32'd0		),
 	.sd_rd		( 1'b0		),
 	.sd_wr		( 1'b0		),
-	.sd_conf	( 1'b0		),
-	.sd_sdhc	( 1'b0		),
+	.sd_conf		( 1'b0		),
+	.sd_sdhc		( 1'b0		),
 	.sd_din		( 8'd0		)
 );
 
@@ -106,11 +106,11 @@ jtgng_pll0 clk_gen (
 	.c1		( clk_rgb	), // 36
 	.c2		( SDRAM_CLK	), // 81
 	.c3		( clk24		), // 24
-	.locked	( locked	)
+	.locked	( locked		)
 );
 
 jtgng_pll1 clk_gen2 (
-	.inclk0	( clk24 	),
+	.inclk0	( clk24 		),
 	.c0		( clk_vga	) // 25
 );
 
@@ -129,7 +129,7 @@ always @(posedge clk_gng)
 	wire [3:0] blue;
 	wire LHBL;
 	wire LVBL;
-	wire signed [8:0] ym_mux_right, ym_mux_left;
+	wire signed [11:0] ym_snd;
 	wire ym_mux_sample;
 jtgng_game game (
 	.rst    	( rst    	),
@@ -171,15 +171,13 @@ jtgng_game game (
 	//.dip_flip		( ~status[3]),
 	.dip_attract_snd( 1'b1			),
 	// sound
-	.ym_mux_right	( ym_mux_right	),	
-	.ym_mux_left	( ym_mux_left	),
-	.ym_mux_sample	( ym_mux_sample)	
+	.ym_snd		( ym_snd		)
 );
 
 wire clk_dac = SDRAM_CLK;
+assign AUDIO_R = AUDIO_L;
 
-jt12_dac2 #(.width(9)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_mux_left), .dout(AUDIO_L));
-jt12_dac2 #(.width(9)) dac2_right (.clk(clk_dac), .rst(rst), .din(ym_mux_right), .dout(AUDIO_R));
+jt12_dac2 #(.width(12)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 
 
 wire [5:0] GNG_R, GNG_G, GNG_B;

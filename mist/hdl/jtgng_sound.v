@@ -14,11 +14,7 @@ module jtgng_sound(
     input   [ 7:0]  rom_dout,
     input           snd_wait_n,
     // Sound output
-    output  signed [8:0] ym_mux_right,
-    output  signed [8:0] ym_mux_left,
-    output  signed [11:0] fm_right,
-    output  signed [11:0] fm_left,
-    output  ym_mux_sample
+    output  signed [11:0] ym_snd
 );
 
 wire [15:0] A;
@@ -67,7 +63,7 @@ wire [7:0] ram_dout, dout;
 
 jtgng_chram RAM(    // 2 kB, just like CHARs
     .address    ( A[10:0]   ),
-    .clock      ( clk       ),  // 6 MHz
+    .clock      ( clk & clk_en       ),  // 6 MHz
     .data       ( dout      ),
     .wren       ( RAM_we    ),
     .q          ( ram_dout  )
@@ -76,9 +72,12 @@ jtgng_chram RAM(    // 2 kB, just like CHARs
 reg [7:0] din;
 
 always @(*)
-    din =  ({8{  ram_cs}} & ram_dout  ) | 
-                ({8{  rom_cs}} & rom_dout  ) |
-                ({8{latch_cs}} & snd_latch ) ;
+    case( {latch_cs,rom_cs,ram_cs})
+        3'b001:  din = ram_dout;
+        3'b010:  din = rom_dout;
+        3'b100:  din = snd_latch;
+        default: din = 8'd0;
+    endcase // {latch_cs,rom_cs,ram_cs}
 
     reg int_n;
     wire m1_n;
@@ -131,20 +130,10 @@ tv80s Z80 (
 );
 
 wire [6:0] nc0, nc1;
-wire [8:0] ym_mux1_left, ym_mux0_left, ym_mux1_right, ym_mux0_right;
+wire signed [11:0] fm0_snd, fm1_snd;
+assign ym_snd = fm0_snd + fm1_snd;
 
-wire signed [11:0] fm0_snd_right,fm1_snd_right;
-wire signed [11:0] fm0_snd_left,fm1_snd_left;
-
-
-assign ym_mux_right = (ym_mux0_right+ym_mux1_right)>>>1;
-assign ym_mux_left  = ( ym_mux0_left+ym_mux1_left )>>>1;
-assign fm_right = fm0_snd_right+fm1_snd_right;
-assign fm_left  = fm0_snd_left+fm1_snd_left;
-
-
-
-jt12 fm0(
+jt03 fm0(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk       ),
@@ -158,17 +147,17 @@ jt12 fm0(
     .dout   ( { busy_bus[0], nc0 } ),
     //output            irq_n,
     // combined output
-    .snd_right  ( fm0_snd_right ),
-    .snd_left   ( fm0_snd_left  ),
-    .snd_sample (),
+    .snd_right  ( fm0_snd ),
+    .snd_left   ( ),
+    .snd_sample ( ),
     // multiplexed output
-    .mux_right  ( ym_mux0_right ),  
-    .mux_left   ( ym_mux0_left  ),
-    .mux_sample ( ym_mux0_sample),
+    .mux_right  ( ),  
+    .mux_left   ( ),
+    .mux_sample ( ),
     .irq_n()
 );
 
-jt12 fm1(
+jt03 fm1(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk       ),
@@ -182,14 +171,14 @@ jt12 fm1(
     .dout   ( { busy_bus[1], nc1 } ),
     //output            irq_n,
     // combined output
-    .snd_right  ( fm1_snd_right ),
-    .snd_left   ( fm1_snd_left  ),
-    .snd_sample (),
+    .snd_right  ( fm1_snd ),
+    .snd_left   ( ),
+    .snd_sample ( ),
     // multiplexed output
-    .mux_right  ( ym_mux1_right ),  
-    .mux_left   ( ym_mux1_left  ),
-    .mux_sample (),
-    .irq_n()    
+    .mux_right  ( ),  
+    .mux_left   ( ),
+    .mux_sample ( ),
+    .irq_n() 
 );
 
 

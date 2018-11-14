@@ -39,9 +39,7 @@ module jtgng_game(
     input           dip_attract_snd,
     input           dip_upright,
     // Sound output
-    output  signed [8:0] ym_mux_right,
-    output  signed [8:0] ym_mux_left,
-    output  ym_mux_sample   
+    output  signed [11:0] ym_snd
 );
 
     wire [8:0] V;
@@ -271,9 +269,7 @@ jtgng_sound sound (
     .rom_dout       ( snd_dout      ),
     .rom_cs         ( snd_cs        ),
     .snd_wait_n     ( snd_wait_n    ),
-    .ym_mux_right   ( ym_mux_right  ),  
-    .ym_mux_left    ( ym_mux_left   ),
-    .ym_mux_sample  ( ym_mux_sample )    
+    .ym_snd         ( ym_snd        )  
 );
 
 

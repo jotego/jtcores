@@ -51,10 +51,10 @@ int main(int argc, char *argv[]) {try{
     Sim sim(trace);
     sim.reset(512);
     bool zeros=true;
-    vluint64_t sim_time = ms2ns(500);
+    vluint64_t sim_time = ms2ns(2500);
     vluint64_t aux_time;
 
-    aux_time = main_time + ms2ns(500);
+    aux_time = main_time + ms2ns(2500);
     cout << "Start up after reset (" << aux_time << ")\n";
     while( main_time < aux_time ) sim.next();
     cout << "Send latch info\n";
