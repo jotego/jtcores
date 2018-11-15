@@ -129,7 +129,7 @@ always @(posedge clk_gng)
 	wire [3:0] blue;
 	wire LHBL;
 	wire LVBL;
-	wire signed [11:0] ym_snd;
+	wire signed [15:0] ym_snd;
 	wire ym_mux_sample;
 jtgng_game game (
 	.rst    	( rst    	),
@@ -177,7 +177,7 @@ jtgng_game game (
 wire clk_dac = SDRAM_CLK;
 assign AUDIO_R = AUDIO_L;
 
-jt12_dac2 #(.width(12)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
+jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 
 
 wire [5:0] GNG_R, GNG_G, GNG_B;

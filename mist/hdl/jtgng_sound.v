@@ -14,7 +14,7 @@ module jtgng_sound(
     input   [ 7:0]  rom_dout,
     input           snd_wait_n,
     // Sound output
-    output  signed [11:0] ym_snd
+    output  signed [15:0] ym_snd
 );
 
 wire [15:0] A;
@@ -130,7 +130,7 @@ tv80s Z80 (
 );
 
 wire [6:0] nc0, nc1;
-wire signed [11:0] fm0_snd, fm1_snd;
+wire signed [15:0] fm0_snd, fm1_snd;
 assign ym_snd = fm0_snd + fm1_snd;
 
 jt03 fm0(
@@ -142,18 +142,10 @@ jt03 fm0(
     .addr   ( {1'b0,A[0]}   ),
     .cs_n   ( ~ym0_cs   ),
     .wr_n   ( wr_n      ),
-    .limiter_en( 1'b1   ),
-
     .dout   ( { busy_bus[0], nc0 } ),
     //output            irq_n,
     // combined output
-    .snd_right  ( fm0_snd ),
-    .snd_left   ( ),
-    .snd_sample ( ),
-    // multiplexed output
-    .mux_right  ( ),  
-    .mux_left   ( ),
-    .mux_sample ( ),
+    .snd    ( fm0_snd   ),
     .irq_n()
 );
 
@@ -166,18 +158,10 @@ jt03 fm1(
     .addr   ( {1'b0,A[0]}   ),
     .cs_n   ( ~ym1_cs   ),
     .wr_n   ( wr_n      ),
-    .limiter_en( 1'b1   ),
-
     .dout   ( { busy_bus[1], nc1 } ),
     //output            irq_n,
     // combined output
-    .snd_right  ( fm1_snd ),
-    .snd_left   ( ),
-    .snd_sample ( ),
-    // multiplexed output
-    .mux_right  ( ),  
-    .mux_left   ( ),
-    .mux_sample ( ),
+    .snd    ( fm1_snd   ),
     .irq_n() 
 );
 

@@ -201,7 +201,7 @@ always @(posedge clk)
 	if( rd_state == ST_REFRESH ) begin
 		{ rq_autorefresh, rq_autorefresh_aux } <= { rq_autorefresh_aux, 1'b0 };		
 		if( main_req )     mrdy <= false;
-		// if(  snd_req ) snd_wait_n <= 1'b0;
+		if(  snd_req ) snd_wait_n <= 1'b0;
 		if( read_done && !rq_autorefresh ) rd_state = ST_MAIN;
 	end
 	else
@@ -223,7 +223,7 @@ always @(posedge clk)
 					collect_msb <= 1'b1;		
 				end else begin
 					snd_cache1 <= SDRAM_DQ;
-					// snd_wait_n <= 1'b1; 
+					snd_wait_n <= 1'b1; 
 					snd_valid <= true;
 					rd_collect <= 1'b0;
 					snd_addr_last <= snd_addr_sync[14:2];

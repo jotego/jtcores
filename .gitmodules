@@ -4,3 +4,9 @@
 [submodule "modules/jt12"]
 	path = modules/jt12
 	url = https://github.com/jotego/jt12.git
+[submodule "ZX-Spectrum_MISTer"]
+	path = ZX-Spectrum_MISTer
+	url = git@github.com:MiSTer-devel/ZX-Spectrum_MISTer.git
+[submodule "modules/ZX-Spectrum_MISTer"]
+	path = modules/ZX-Spectrum_MISTer
+	url = git@github.com:MiSTer-devel/ZX-Spectrum_MISTer.git

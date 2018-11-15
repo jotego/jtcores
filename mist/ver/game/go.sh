@@ -73,6 +73,10 @@ while [ $# -gt 0 ]; do
 	fi	
 	if [ "$1" = "-g" ]; then
 		FIRMWARE=rungame.s
+		if [ ! -e ../../../rom/gng.hex ]; then
+			echo "Cannot find ROM file: ../../../rom/gng.hex"
+			exit 1
+		fi
 		echo Running game directly
 		shift
 		continue
@@ -174,18 +178,17 @@ if [ $SIMULATOR = iverilog ]; then
 		../common/{mt48lc16m16a2.v,altera_mf.v} \
 		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 		../../../modules/tv80/*.v \
-		../../../modules/jt12/hdl/*.v \
-		../../../modules/jt12/ver/common/sep24.v \
-		-s game_test -o sim \
-		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
-		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS\
+		-f gather.f \
+		-s game_test -o sim -DSIM_MS=$SIM_MS \
+		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM \
+		$MAXFRAME $OBJTEST \
 	&& sim -lxt
 else
 	verilator game_test.v \
 		-I../../../modules/jt12/hdl/ \
 		../../hdl/*.v \
 		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
-		../../../modules/tv80/*.v \
+		../../../modules/ZX-Spectrum_MISTer/*.v \
 		../../../modules/jt12/hdl/*.v \
 		../../../modules/jt12/ver/common/sep24.v \
 		--top-module game_test -o sim \

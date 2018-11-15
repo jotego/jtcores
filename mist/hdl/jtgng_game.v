@@ -39,7 +39,7 @@ module jtgng_game(
     input           dip_attract_snd,
     input           dip_upright,
     // Sound output
-    output  signed [11:0] ym_snd
+    output  signed [15:0] ym_snd
 );
 
     wire [8:0] V;

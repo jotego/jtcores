@@ -11,7 +11,7 @@ if [ $# == 1 ]; then
 	GAME=$1
 	echo "Generating ROMs for " $1
 else
-	GAME=makaimurg
+	GAME=gngt
 fi
 
 case $GAME in
