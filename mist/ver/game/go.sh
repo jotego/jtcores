@@ -184,11 +184,12 @@ if [ $SIMULATOR = iverilog ]; then
 		$MAXFRAME $OBJTEST \
 	&& sim -lxt
 else
+		#../../../modules/ZX-Spectrum_MISTer/*.v \
 	verilator game_test.v \
 		-I../../../modules/jt12/hdl/ \
 		../../hdl/*.v \
 		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
-		../../../modules/ZX-Spectrum_MISTer/*.v \
+		../../../modules/tv80/*.v \
 		../../../modules/jt12/hdl/*.v \
 		../../../modules/jt12/ver/common/sep24.v \
 		--top-module game_test -o sim \

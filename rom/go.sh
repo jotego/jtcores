@@ -28,3 +28,6 @@ $OD mm13.3l > 3l.hex
 
 $OD zeros > 2n.hex
 $OD zeros > 2l.hex
+
+# SND ROM
+$OD mm02.14h > 14h.hex

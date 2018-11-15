@@ -161,7 +161,8 @@ always @(negedge clk)
 		endcase
 
 always @(negedge clk)
-	if( sound_cs ) snd_latch <= cpu_dout;
+	if( rst ) snd_latch <= 8'd0;
+	else if( sound_cs ) snd_latch <= cpu_dout;
 
 reg [7:0] cabinet_input;
 wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };

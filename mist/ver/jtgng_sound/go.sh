@@ -29,8 +29,10 @@ while [ $# -gt 0 ]; do
 	exit 1
 done
 
-verilator --cc -f $GATHER --top-module jtgng_sound --trace --exe test.cpp \
-	-DFASTDIV -DNOLFO -DNOTIMER --trace-depth 1
+if ! verilator --cc -f $GATHER --top-module jtgng_sound --trace --exe test.cpp \
+	-DFASTDIV -DNOLFO -DNOTIMER --trace-depth 1; then
+	exit $?
+fi
 
 if ! make -j -C obj_dir -f Vjtgng_sound.mk Vjtgng_sound; then
 	exit $?

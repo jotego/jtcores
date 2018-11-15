@@ -19,26 +19,27 @@ module jtgng_sound(
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
-wire ym_mux0_sample;
-assign ym_mux_sample = ym_mux0_sample;
 
 reg reset_n;
 
 always @(negedge clk)
     reset_n <= ~( rst | soft_rst /*| ~sres_b*/ );
 
-reg clk_en;
+reg clk_en, cen_z80;
 
 always @(negedge clk)
-    if( rst ) 
-        clk_en <= 1'b1;
-    else
-        clk_en <= ~clk_en;
+    if( rst ) begin
+        clk_en  <= 1'b1;
+        cen_z80 <= 1'b1;
+    end else begin
+        clk_en  <= ~clk_en;
+        cen_z80 <= snd_wait_n & ~clk_en;
+    end
 
-wire ym1_cs,ym0_cs, latch_cs, ram_cs;
+wire fm1_cs,fm0_cs, latch_cs, ram_cs;
 reg [4:0] map_cs;
 
-assign { rom_cs, ym1_cs, ym0_cs, latch_cs, ram_cs } = map_cs;
+assign { rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs } = map_cs;
 
 reg [7:0] AH;
 
@@ -63,7 +64,7 @@ wire [7:0] ram_dout, dout;
 
 jtgng_chram RAM(    // 2 kB, just like CHARs
     .address    ( A[10:0]   ),
-    .clock      ( clk & clk_en       ),  // 6 MHz
+    .clock      ( clk       ),  // 6 MHz
     .data       ( dout      ),
     .wren       ( RAM_we    ),
     .q          ( ram_dout  )
@@ -72,10 +73,12 @@ jtgng_chram RAM(    // 2 kB, just like CHARs
 reg [7:0] din;
 
 always @(*)
-    case( {latch_cs,rom_cs,ram_cs})
-        3'b001:  din = ram_dout;
-        3'b010:  din = rom_dout;
-        3'b100:  din = snd_latch;
+    case( {latch_cs, rom_cs,ram_cs, fm1_cs,fm0_cs} )
+        5'b1_00_00:  din = snd_latch;
+        5'b0_10_00:  din = rom_dout;
+        5'b0_01_00:  din = ram_dout;
+        // 5'b0_00_10:  din = fm1_dout;
+        // 5'b0_00_01:  din = fm0_dout;
         default: din = 8'd0;
     endcase // {latch_cs,rom_cs,ram_cs}
 
@@ -87,9 +90,6 @@ always @(*)
     wire halt_n;
     wire busak_n;
 
-    wire [1:0] busy_bus;
-    wire busy = |busy_bus;
-    // wire wait_n = !( busy || !snd_wait);
     wire wait_n = snd_wait_n;
 
 reg lastV32;
@@ -111,8 +111,8 @@ end
 tv80s Z80 (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (clk_en  ),
-    .wait_n (wait_n  ),
+    .cen    (cen_z80 ),
+    .wait_n (1'b1    ),
     .int_n  (int_n   ),
     .nmi_n  (1'b1    ),
     .busrq_n(1'b1    ),
@@ -129,7 +129,7 @@ tv80s Z80 (
     .dout   (dout    )
 );
 
-wire [6:0] nc0, nc1;
+wire [7:0] fm0_dout, fm1_dout;
 wire signed [15:0] fm0_snd, fm1_snd;
 assign ym_snd = fm0_snd + fm1_snd;
 
@@ -139,10 +139,10 @@ jt03 fm0(
     .clk    ( clk       ),
     .cen    ( clk_en    ),
     .din    ( dout      ),
-    .addr   ( {1'b0,A[0]}   ),
-    .cs_n   ( ~ym0_cs   ),
+    .addr   ( A[0]      ),
+    .cs_n   ( ~fm0_cs   ),
     .wr_n   ( wr_n      ),
-    .dout   ( { busy_bus[0], nc0 } ),
+    .dout   ( fm0_dout  ),
     //output            irq_n,
     // combined output
     .snd    ( fm0_snd   ),
@@ -154,16 +154,15 @@ jt03 fm1(
     // CPU interface
     .clk    ( clk       ),
     .cen    ( clk_en    ),
-    .din    ( dout  )   ,
-    .addr   ( {1'b0,A[0]}   ),
-    .cs_n   ( ~ym1_cs   ),
+    .din    ( dout      ),
+    .addr   ( A[0]      ),
+    .cs_n   ( ~fm1_cs   ),
     .wr_n   ( wr_n      ),
-    .dout   ( { busy_bus[1], nc1 } ),
+    .dout   ( fm1_dout  ),
     //output            irq_n,
     // combined output
     .snd    ( fm1_snd   ),
     .irq_n() 
 );
-
 
 endmodule // jtgng_sound
