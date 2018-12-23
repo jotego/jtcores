@@ -171,20 +171,26 @@ if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 zero_file 10n.hex 16384
 zero_file 13n.hex $((2*16384))
 
+function add_dir {
+	for i in $(cat $1/$2); do
+		echo $1/$i
+	done
+}
+
 if [ $SIMULATOR = iverilog ]; then
 	iverilog game_test.v \
-		-I../../../modules/jt12/hdl/ \
+	    ../../../modules/jt12/hdl/{jt03,jt03_acc}.v \
+		$(add_dir ../../../modules/jt12/hdl jt12.f) \
+		$(add_dir ../../../modules/jt12/jt49/hdl jt49.f) \
 		../../hdl/*.v \
 		../common/{mt48lc16m16a2.v,altera_mf.v} \
 		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
 		../../../modules/tv80/*.v \
-		-f gather.f \
 		-s game_test -o sim -DSIM_MS=$SIM_MS \
 		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM \
 		$MAXFRAME $OBJTEST \
 	&& sim -lxt
 else
-		#../../../modules/ZX-Spectrum_MISTer/*.v \
 	verilator game_test.v \
 		-I../../../modules/jt12/hdl/ \
 		../../hdl/*.v \

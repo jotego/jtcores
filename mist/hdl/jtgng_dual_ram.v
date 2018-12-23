@@ -14,26 +14,23 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-10-2017 */
+    Date: 23-12-2018 */
 
-module jtgng_sh #(parameter width=5, stages=24 )
-(
-    input                           clk,
-	input 							clk_en,
-	input		[width-1:0]			din,
-   	output		[width-1:0]			drop
+module jtgng_dual_ram #(parameter dw=8, aw=10)(
+    input   clk,
+    input   clk_en,
+    input   [dw-1:0] data,
+    input   [aw-1:0] rd_addr,
+    input   [aw-1:0] wr_addr,
+    input   we,
+    output reg [dw-1:0] q
 );
 
-reg [stages-1:0] bits[width-1:0];
+reg [dw-1:0] mem[0:(2**aw)-1];
 
-generate
-	genvar i;
-    for (i=0; i < width; i=i+1) begin: bit_shifter
-        always @(posedge clk) if(clk_en) begin
-                bits[i] <= {bits[i][stages-2:0], din[i]};
-            end
-        assign drop[i] = bits[i][stages-1];
-    end
-endgenerate
+always @(posedge clk) if(clk_en) begin
+    q <= mem[rd_addr];
+    if(we) mem[wr_addr] <= data;
+end
 
-endmodule
+endmodule // jtgng_ram

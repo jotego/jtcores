@@ -16,10 +16,9 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-`timescale 1ns/1ps
-
 module jtgng_sound(
-    input   clk,    // 6   MHz
+    input   clk,    // 24 MHz
+    input   clk_en, // 3 MHz
     input   rst,
     input   soft_rst,
     // Interface with main CPU
@@ -30,7 +29,6 @@ module jtgng_sound(
     output  [14:0]  rom_addr,
     output          rom_cs,
     input   [ 7:0]  rom_dout,
-    input           snd_wait_n,
     // Sound output
     output  signed [15:0] ym_snd
 );
@@ -40,19 +38,8 @@ assign rom_addr = A[14:0];
 
 reg reset_n;
 
-always @(negedge clk)
+always @(posedge clk)
     reset_n <= ~( rst | soft_rst /*| ~sres_b*/ );
-
-reg clk_en, cen_z80;
-
-always @(negedge clk)
-    if( rst ) begin
-        clk_en  <= 1'b1;
-        cen_z80 <= 1'b1;
-    end else begin
-        clk_en  <= ~clk_en;
-        cen_z80 <= snd_wait_n & ~clk_en;
-    end
 
 wire fm1_cs,fm0_cs, latch_cs, ram_cs;
 reg [4:0] map_cs;
@@ -73,19 +60,19 @@ always @(*)
     endcase
 
 
-// RAM, 8kB
 wire rd_n;
 wire wr_n;
 
 wire RAM_we = ram_cs && !wr_n;
 wire [7:0] ram_dout, dout;
 
-jtgng_chram RAM(    // 2 kB, just like CHARs
-    .address    ( A[10:0]   ),
-    .clock      ( clk       ),  // 6 MHz
-    .data       ( dout      ),
-    .wren       ( RAM_we    ),
-    .q          ( ram_dout  )
+jtgng_ram #(.aw(11)) u_ram(
+    .clk    ( clk      ),
+    .clk_en ( clk_en   ),
+    .data   ( dout     ),
+    .addr   ( A[10:0]  ),
+    .we     ( RAM_we   ),
+    .q      ( ram_dout )
 );
 
 reg [7:0] din;
@@ -108,8 +95,6 @@ always @(*)
     wire halt_n;
     wire busak_n;
 
-    wire wait_n = snd_wait_n;
-
 reg lastV32;
 reg [4:0] int_n2;
 
@@ -129,7 +114,7 @@ end
 tv80s Z80 (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (cen_z80 ),
+    .cen    (clk_en  ),
     .wait_n (1'b1    ),
     .int_n  (int_n   ),
     .nmi_n  (1'b1    ),

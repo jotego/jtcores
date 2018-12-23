@@ -75,7 +75,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 `ifdef OBJTEST
                 $readmemh("ram.hex",  Bank0);
                 `else
-        		$readmemh("../../../rom/gng.hex",  Bank0);
+        		$readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
                 `endif
         	`endif
         `endif

@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-`timescale 1ns/1ps
-
 module jtgng_scroll(
 	input		clk,	// 6 MHz
 	input	[10:0]	AB,
@@ -82,13 +80,13 @@ always @(negedge clk)
 		3'd3: vpos[8]	<= din[0];
 	endcase // AB[3:0]
 
-
-jtgng_chram	RAM(
-	.address( addr 	),
-	.clock	( clk 	),
-	.data	( din	),
-	.wren	( we	),
-	.q		( dout	)
+jtgng_ram #(.aw(11)) u_ram(
+    .clk    ( clk      ),
+    .clk_en ( clk_en   ),
+    .data   ( din      ),
+    .addr   ( addr     ),
+    .we     ( we       ),
+    .q      ( dout     )
 );
 
 reg [9:0] AS;

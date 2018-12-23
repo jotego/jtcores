@@ -21,8 +21,7 @@
 module jtgng_game(
     input           rst,
     input           soft_rst,
-    input           clk,        //   6   MHz
-    input           clk_rgb,    // 6*4 = 24MHz
+    input           clk,        // 24 MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -89,14 +88,29 @@ always @(posedge clk or posedge rst or negedge rom_ready)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
-jtgng_timer timers (.clk(clk),
- .rst(rst),
- .V(V),
- .H(H),
- .Hinit(Hinit),
- .LHBL(LHBL),
- .LVBL(LVBL),
- .LHBL_short(LHBL_short)
+reg cen_6;
+
+reg [1:0] cen_cnt;
+always @(posedge clk)
+    if( rst )
+        cen_cnt <= 2'b0;
+    else
+        cen_cnt <= cen_cnt+2'b1;
+
+always @(negedge clk)
+    cen_6 <= cen_cnt==2'b0; // 6MHz clock divider
+
+
+jtgng_timer timers (
+    .clk       ( clk      ),
+    .clk_en    ( cen_6    ),
+    .rst       ( rst      ),
+    .V         ( V        ),
+    .H         ( H        ),
+    .Hinit     ( Hinit    ),
+    .LHBL      ( LHBL     ),
+    .LVBL      ( LVBL     ),
+    .LHBL_short(LHBL_short)
 );
 
     wire RnW;
@@ -104,6 +118,7 @@ jtgng_timer timers (.clk(clk),
 
 jtgng_char chargen (
     .clk        ( clk           ),
+    .clk_en     ( cen_6         ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H128       ( H[7:0]        ),
@@ -154,8 +169,7 @@ wire [ 5:0] obj_pxl;
 
 jtgng_colmix colmix (
     .rst        ( rst           ),
-    .clk_rgb    ( clk_rgb       ),
-    // .clk_pxl ( clk           ),
+    .clk        ( clk           ),
     // .H           ( H[2:0]        ),
     // characters
     .chr_col    ( char_col      ),
@@ -278,6 +292,7 @@ jtgng_obj obj (
     wire        snd_wait_n;
 jtgng_sound sound (
     .clk            ( clk           ),
+    .clk_en         ( cen_6         ),
     .rst            ( rst_game      ),
     .soft_rst       ( soft_rst      ),
     .sres_b         ( sres_b        ),
@@ -286,27 +301,18 @@ jtgng_sound sound (
     .rom_addr       ( snd_addr      ),
     .rom_dout       ( snd_dout      ),
     .rom_cs         ( snd_cs        ),
-    .snd_wait_n     ( snd_wait_n    ),
     .ym_snd         ( ym_snd        )  
 );
 
 
-jtgng_rom2 rom (
+jtgng_rom rom (
     .clk        ( SDRAM_CLK     ),
-    .clk_pxl    ( clk           ),
     .rst        ( rst           ),
     .char_addr  ( char_addr     ),
     .main_addr  ( main_addr     ),
-    .mrdy       ( rom_mrdy      ),
     .snd_addr   ( snd_addr      ),
-    .snd_wait_n ( snd_wait_n    ),
     .obj_addr   ( obj_addr      ),
     .scr_addr   ( scr_addr      ),
-    .main_cs    ( main_cs       ),
-    .snd_cs     ( snd_cs        ),
-    .LHBL       ( LHBL_short    ),
-    .LVBL       ( LVBL          ),
-    .HS         ( HS            ),
 
     .char_dout  ( chrom_data    ),
     .main_dout  ( main_dout     ),

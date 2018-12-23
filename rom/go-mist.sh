@@ -4,7 +4,8 @@ OD="od -t x1 -A none -v -w1"
 ODx2="od -t x2 -A none -v -w2"
 
 function curpos() {
-	printf "%X" $(cat gng.hex | wc -l)
+	cnt=$(cat gng.hex | wc -l)
+	printf "0x%X = %d" $cnt $cnt 
 }
 
 if [ $# == 1 ]; then

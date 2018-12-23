@@ -1,0 +1,57 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Sun Dec 23 16:40:13 2018
+[*]
+[dumpfile] "/home/jtejada/github/jt_gng/mist/ver/rom_test/test.lxt"
+[dumpfile_mtime] "Sun Dec 23 16:28:53 2018"
+[dumpfile_size] 151194
+[savefile] "/home/jtejada/github/jt_gng/mist/ver/rom_test/test.gtkw"
+[timestart] 102529000
+[size] 1280 995
+[pos] -1 -1
+*-18.200851 102689800 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] rom_test.
+[sst_width] 196
+[signals_width] 192
+[sst_expanded] 1
+[sst_vpaned_height] 294
+@28
+rom_test.uut.clk[0]
+@8022
+rom_test.uut.rd_state[3:0]
+@24
+rom_test.uut.rdcnt[2:0]
+@200
+-
+@28
+rom_test.uut.autorefresh[0]
+@22
+[color] 2
+rom_test.uut.state[3:0]
+@24
+rom_test.uut.SDRAM_A[12:0]
+@22
+rom_test.uut.col_addr[8:0]
+rom_test.uut.wait_cnt[3:0]
+@200
+-
+@22
+rom_test.snd_addr[14:0]
+rom_test.main_addr[17:0]
+rom_test.char_addr[12:0]
+rom_test.obj_addr[14:0]
+rom_test.scr_addr[14:0]
+@200
+-
+@22
+rom_test.uut.snd_dout[7:0]
+rom_test.uut.main_dout[7:0]
+rom_test.uut.char_dout[15:0]
+rom_test.uut.obj_dout[15:0]
+rom_test.uut.scr_dout[23:0]
+@200
+-SDRAM
+@22
+rom_test.SDRAM_DQ[15:0]
+[pattern_trace] 1
+[pattern_trace] 0
