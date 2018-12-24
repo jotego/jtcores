@@ -21,7 +21,10 @@
 module jtgng_game(
     input           rst,
     input           soft_rst,
-    input           clk,        // 24 MHz
+    input           clk,        // 24   MHz
+    input           cen6,       //  6   MHz
+    input           cen3,       //  3   MHz
+    input           cen1p5,     //  1.5 MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -88,22 +91,9 @@ always @(posedge clk or posedge rst or negedge rom_ready)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
-reg cen_6;
-
-reg [1:0] cen_cnt;
-always @(posedge clk)
-    if( rst )
-        cen_cnt <= 2'b0;
-    else
-        cen_cnt <= cen_cnt+2'b1;
-
-always @(negedge clk)
-    cen_6 <= cen_cnt==2'b0; // 6MHz clock divider
-
-
 jtgng_timer timers (
     .clk       ( clk      ),
-    .clk_en    ( cen_6    ),
+    .clk_en    ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
@@ -118,7 +108,7 @@ jtgng_timer timers (
 
 jtgng_char chargen (
     .clk        ( clk           ),
-    .clk_en     ( cen_6         ),
+    .clk_en     ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H128       ( H[7:0]        ),
@@ -208,12 +198,13 @@ jtgng_colmix colmix (
     wire [ 8:0] obj_AB;
     wire OKOUT;
     wire [7:0] main_ram;
-    wire blcnten, rom_mrdy;
+    wire blcnten;
 // sound
     wire sres_b;
     wire [7:0] snd_latch;
 jtgng_main main (
     .clk        ( clk           ),
+    .cen6       ( cen6          ),
     .rst        ( rst_game      ),
     .soft_rst   ( soft_rst      ),
     .ch_mrdy    ( char_mrdy     ),
@@ -245,14 +236,7 @@ jtgng_main main (
     .rom_addr   ( main_addr     ),
     .rom_dout   ( main_dout     ),
     .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),  
-    // SDRAM programming
-    .sdram_din  ( sdram_din     ),
-    .wr_row     ( wr_row        ),
-    .wr_col     ( wr_col        ),
-    .sdram_we   ( sdram_we      ),
-    .crc        ( crc           ),  
-    .rom_mrdy   ( rom_mrdy      ),
+    .joystick2  ( joystick2     ),   
     // DIP switches
     .dip_flip       ( 1'b0      ),
     .dip_game_mode  ( dip_game_mode     ),
@@ -291,19 +275,19 @@ jtgng_obj obj (
     wire        snd_cs;
     wire        snd_wait_n;
 jtgng_sound sound (
-    .clk            ( clk           ),
-    .clk_en         ( cen_6         ),
-    .rst            ( rst_game      ),
-    .soft_rst       ( soft_rst      ),
-    .sres_b         ( sres_b        ),
-    .snd_latch      ( snd_latch     ),
-    .V32            ( V[5]          ),
-    .rom_addr       ( snd_addr      ),
-    .rom_dout       ( snd_dout      ),
-    .rom_cs         ( snd_cs        ),
-    .ym_snd         ( ym_snd        )  
+    .clk            ( clk        ),
+    .cen3           ( cen3       ),
+    .cen1p5         ( cen1p5     ),
+    .rst            ( rst_game   ),
+    .soft_rst       ( soft_rst   ),
+    .sres_b         ( sres_b     ),
+    .snd_latch      ( snd_latch  ),
+    .V32            ( V[5]       ),
+    .rom_addr       ( snd_addr   ),
+    .rom_dout       ( snd_dout   ),
+    .rom_cs         ( snd_cs     ),
+    .ym_snd         ( ym_snd     )  
 );
-
 
 jtgng_rom rom (
     .clk        ( SDRAM_CLK     ),
@@ -318,13 +302,7 @@ jtgng_rom rom (
     .main_dout  ( main_dout     ),
     .snd_dout   ( snd_dout      ),
     .obj_dout   ( obj_dout      ),
-    .scr_dout_pxl( scr_dout     ),
     .ready      ( rom_ready     ),
-    // SDRAM programming
-    .din        ( sdram_din     ),
-    .wr_row     ( wr_row        ),
-    .wr_col     ( wr_col        ),
-    .we         ( sdram_we      ),  
     // SDRAM interface
     .SDRAM_DQ   ( SDRAM_DQ      ),
     .SDRAM_A    ( SDRAM_A       ),
@@ -340,8 +318,7 @@ jtgng_rom rom (
     .downloading( downloading ),
     .romload_addr( romload_addr ),
     .romload_data( romload_data ),
-    .romload_wr ( romload_wr    ),
-    .crc_out    ( crc           )
+    .romload_wr ( romload_wr    )
 );
 
 

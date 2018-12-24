@@ -184,7 +184,7 @@ if [ $SIMULATOR = iverilog ]; then
 		$(add_dir ../../../modules/jt12/jt49/hdl jt49.f) \
 		../../hdl/*.v \
 		../common/{mt48lc16m16a2.v,altera_mf.v} \
-		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
+		../../../modules/mc6809/{mc6809_cen.v,mc6809i.v} \
 		../../../modules/tv80/*.v \
 		-s game_test -o sim -DSIM_MS=$SIM_MS \
 		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM \

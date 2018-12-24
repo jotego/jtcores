@@ -1,5 +1,52 @@
 #!/bin/bash
 
+sound_type=normal
+
+function show_usage {
+	echo Usage: go-mist.sh "[rom-set] [-snd test|normal|fast]"
+	echo -e "\trom-set is one of: makaimur makaimurg gngc speed_test gngt"
+	exit 1
+}
+
+function valid_string {
+	str=$1
+	shift
+	for i in $*; do
+		if [ "$str" = "$i" ]; then
+			return
+		fi
+	done
+	echo "ERROR: \"$str\" must be one of" $*
+	show_usage
+}
+
+while [ $# -gt 0 ]; do
+	if [ "$1" = -snd ]; then
+		shift
+		sound_type=$1
+		shift
+		valid_string $sound_type test normal fast
+		continue
+	fi
+	if [ "$GAME" = "" ]; then
+		GAME=$1
+		valid_string $GAME makaimur makaimurg gngc speed_test gngt
+		shift
+		continue
+	fi
+	# unknown parameter
+	if [ "$GAME" != "" ]; then
+		echo Unexpected argument $1. Game set was already specified to be $GAME
+		show_usage
+	fi
+	echo Unknown argument $1
+	show_usage
+done
+
+if [ "$GAME" = "" ]; then
+	GAME=gngt
+fi
+
 OD="od -t x1 -A none -v -w1"
 ODx2="od -t x2 -A none -v -w2"
 
@@ -7,13 +54,6 @@ function curpos() {
 	cnt=$(cat gng.hex | wc -l)
 	printf "0x%X = %d" $cnt $cnt 
 }
-
-if [ $# == 1 ]; then
-	GAME=$1
-	echo "Generating ROMs for " $1
-else
-	GAME=gngt
-fi
 
 case $GAME in
 	makaimur)
@@ -154,7 +194,6 @@ cat obj.hex >> gng.hex
 
 ## Sound ROM, 32kB
 echo "Sound starts at " $(curpos)
-sound_type=fast
 case $sound_type in
 	fast)
 		echo "Using audio ROM with fast start"

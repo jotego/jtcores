@@ -141,6 +141,18 @@ always @(posedge clk_gng)
 	end
 	else*/ {rst, rst_aux} <= {rst_aux,1'b0};
 
+reg cen6;
+
+reg [1:0] cen_cnt;
+always @(posedge clk)
+    if( rst )
+        cen_cnt <= 2'b0;
+    else
+        cen_cnt <= cen_cnt+2'b1;
+
+always @(negedge clk)
+    cen6  <= cen_cnt==2'b0; // 6MHz clock divider
+
 
 	wire [3:0] red;
 	wire [3:0] green;
@@ -154,7 +166,7 @@ jtgng_game game (
 	.soft_rst	( status[6]	),
 	.SDRAM_CLK	( SDRAM_CLK	),  // 81   MHz
 	.clk    	( clk_gng	),  //  6   MHz
-	.clk_rgb	( clk_rgb	),	// 36   MHz
+    .cen6       ( cen6      ),
 	.red    	( red    	),
 	.green  	( green  	),
 	.blue   	( blue   	),

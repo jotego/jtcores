@@ -19,7 +19,8 @@
 `timescale 1ns/1ps
 
 module jtgng_main(
-    input   clk,    // 6MHz
+    input   clk, 
+    input   cen6,   // 6MHz
     input   rst,
     input   soft_rst,
     input   ch_mrdy,
@@ -42,13 +43,6 @@ module jtgng_main(
     // cabinet I/O
     input   [7:0]   joystick1,
     input   [7:0]   joystick2,
-    // SDRAM programming
-    output  reg [15:0]  sdram_din,
-    output  reg [12:0]  wr_row,
-    output  reg [ 8:0]  wr_col,
-    output  reg         sdram_we,   
-    input   [31:0]      crc,  // 627A_4660  
-    input           rom_mrdy,
     // BUS sharing
     output      bus_ack,
     input       bus_req,
@@ -69,7 +63,7 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire MRDY_b = ch_mrdy & scr_mrdy & rom_mrdy;
+wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
 wire sound_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
@@ -82,15 +76,8 @@ assign {
     ram_cs,     char_cs, bank_cs,       main_cs         } = map_cs;
 
 reg [7:0] AH;
-wire E,Q, AVMA;
-reg VMA;
-
-always @(negedge E)
-    VMA <= AVMA;
 
 always @(*)
-    if(!VMA) map_cs = 0;
-    else
     casez(A[15:8])
         8'b000?_????: map_cs = 13'h8; // 0000-1FFF, RAM
         // EXTEN
@@ -106,81 +93,49 @@ always @(*)
 
         8'b0011_1110: map_cs = 13'h2; // 3E00-3EFF bank
         8'b0011_1111: map_cs = 13'h80; // 3F00-3FFF SDRAM programming
-        8'b01??_????: map_cs = 13'h1; // ROMs
-        8'b1???_????: map_cs = startup ? 13'h8 : 13'h1; // 8000-BFFF, ROM 9N
+        8'b1???_????: map_cs = 13'h1; // ROMs
         default: map_cs = 13'h0;
     endcase
 
 // special registers
-reg startup;
 reg [2:0] bank;
-always @(negedge clk)
+always @(posedge clk)
     if( rst ) begin
-        `ifdef OBJTEST
-        startup <= 1'b0;
-        `else
-        startup <= 1'b1;
-        `endif
         nRESET <= 1'b0;
     end
-    else begin
+    else if(cen6) begin
         if( bank_cs && !RnW ) begin
             bank <= cpu_dout[2:0];
-            if(startup ) begin
-                if( cpu_dout[7] )  begin
-                    // write 0x80 to bank clears out startup latch              
-                    startup <= 1'b0; 
-                    nRESET <= 1'b0; // Resets CPU
-                end
-                if( cpu_dout[6] ) startup <= 1'b0; // clear startup without reset
-                `ifdef SIMULATION
-                if( cpu_dout[4] ) $finish;
-                `endif
-            end
         end
         else nRESET <= ~(rst | soft_rst);
     end
 
-// SDRAM programming
-always @(negedge clk)
-    if( rst )
-        sdram_we <= 1'b0;
-    else if( sdram_prog && startup && !RnW ) begin
-        case( A[3:0] )
-            4'd0: sdram_din[15:8] <= cpu_dout;
-            4'd1: sdram_din[ 7:0] <= cpu_dout;
-            4'd2: wr_row[ 12:8]   <= cpu_dout[4:0];
-            4'd3: wr_row[  7:0]   <= cpu_dout;
-            4'd4: wr_col[    8]   <= cpu_dout[0];
-            4'd5: wr_col[  7:0]   <= cpu_dout;
-            4'd7: sdram_we <= 1'b1;
-        endcase
-    end
-    else sdram_we <= 1'b0;
-
-
 localparam coinw = 4;
 reg [coinw-1:0] coin_cnt1, coin_cnt2;
 
-always @(negedge clk)
+always @(posedge clk)
     if( rst ) begin
         coin_cnt1 <= {coinw{1'b0}};
         coin_cnt2 <= {coinw{1'b0}};
         flip <= 1'b0;
         sres_b <= 1'b1;
         end
-    else
-    if( flip_cs ) 
-        case(A[2:0])
-            3'd0: flip <= cpu_dout[0];
-            3'd1: sres_b <= cpu_dout[0];
-            3'd2: coin_cnt1 <= coin_cnt1+cpu_dout[0];
-            3'd3: coin_cnt2 <= coin_cnt2+cpu_dout[0];
-        endcase
+    else if(cen6) begin
+        if( flip_cs ) 
+            case(A[2:0])
+                3'd0: flip <= cpu_dout[0];
+                3'd1: sres_b <= cpu_dout[0];
+                3'd2: coin_cnt1 <= coin_cnt1+cpu_dout[0];
+                3'd3: coin_cnt2 <= coin_cnt2+cpu_dout[0];
+            endcase
+    end
 
-always @(negedge clk)
-    if( rst ) snd_latch <= 8'd0;
-    else if( sound_cs ) snd_latch <= cpu_dout;
+always @(posedge clk)
+    if( rst ) 
+        snd_latch <= 8'd0;
+    else if(cen6) begin
+        if( sound_cs ) snd_latch <= cpu_dout;
+    end
 
 reg [7:0] cabinet_input;
 wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };
@@ -205,10 +160,6 @@ always @(*)
         4'd2: cabinet_input = { 2'b11, joystick2[5:0] };
         4'd3: cabinet_input = dipsw_a;
         4'd4: cabinet_input = dipsw_b;
-        4'd5: cabinet_input = crc[31:24];
-        4'd6: cabinet_input = crc[23:16];
-        4'd7: cabinet_input = crc[15: 8];
-        4'd8: cabinet_input = crc[ 7: 0];
         default: cabinet_input = 8'hff;
     endcase
 
@@ -222,7 +173,7 @@ wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13)) RAM(
     .clk        ( clk       ),
-    .clk_en     ( clk_en    ),
+    .clk_en     ( cen6      ),
     .addr       ( RAM_addr  ),
     .data       ( cpu_dout  ),
     .we         ( RAM_we    ),
@@ -231,12 +182,15 @@ jtgng_ram #(.aw(13)) RAM(
 
 reg [7:0] cpu_din;
 
-always @(negedge clk)
-    cpu_din <=  ({8{ram_cs}}  & ram_dout )  | 
-                ({8{char_cs}} & char_dout)  |
-                ({8{scr_cs}} & scr_dout)    |
-                ({8{in_cs}} & cabinet_input)| 
-                ({8{main_cs}}  & rom_dout );
+always @(posedge clk)
+    case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
+        5'b10_000: cpu_din <=  ram_dout;
+        5'b01_000: cpu_din <= char_dout;
+        5'b00_100: cpu_din <=  scr_dout;
+        5'b00_010: cpu_din <=  rom_dout;
+        5'b00_001: cpu_din <=  cabinet_input;
+        default: cpu_din <= 8'd0;
+    endcase
 
 always @(A,bank) begin
     rom_addr[12:0] = A[12:0];
@@ -261,7 +215,7 @@ wire BS,BA;
 
 assign bus_ack = BA && BS;
 
-always @(negedge clk) begin
+always @(posedge clk) if(cen6) begin
     last_LVBL <= LVBL;
     if( {BS,BA}==2'b10 )
         nIRQ <= 1'b1;
@@ -271,38 +225,22 @@ end
 
 wire [111:0] RegData;
 
-mc6809 cpu (
-    .Q       (Q       ),
-    .E       (E       ),
-    .D       (cpu_din ),
-    .DOut    (cpu_dout),
-    .ADDR    (A       ),
-    .RnW     (RnW     ),
-    .BS      (BS      ),
-    .BA      (BA      ),
-    .nIRQ    (nIRQ    ),
-    .nFIRQ   (1'b1    ),
-    .nNMI    (1'b1    ),
-    .EXTAL   (clk     ),
-    .XTAL    (1'b0    ),
-    .nHALT   (~bus_req),
-    .nRESET  (nRESET  ),
-    .MRDY    (MRDY_b  ),
-    .nDMABREQ(1'b1    ),
-    .RegData (RegData ),
-    .AVMA    ( AVMA   )
+mc6809_cen cpu (
+    .clk     ( clk     ),
+    .clk_en  ( cen6    ),
+    .D       ( cpu_din ),
+    .DOut    ( cpu_dout),
+    .ADDR    ( A       ),
+    .RnW     ( RnW     ),
+    .BS      ( BS      ),
+    .BA      ( BA      ),
+    .nIRQ    ( nIRQ    ),
+    .nFIRQ   ( 1'b1    ),
+    .nNMI    ( 1'b1    ),
+    .nHALT   ( ~bus_req),
+    .nRESET  ( nRESET  ),
+    .MRDY    ( MRDY_b  ),
+    .nDMABREQ( 1'b1    )
 );
-
-`ifdef SIMULATION
-wire [7:0] main_a   = RegData[7:0];
-wire [7:0] main_b   = RegData[15:8];
-wire [15:0] main_x   = RegData[31:16];
-wire [15:0] main_y   = RegData[47:32];
-wire [15:0] main_s   = RegData[63:48];
-wire [15:0] main_u   = RegData[79:64];
-wire [7:0] main_cc  = RegData[87:80];
-wire [7:0] main_dp  = RegData[95:88];
-wire [15:0] main_pc  = RegData[111:96];
-`endif
 
 endmodule // jtgng_main

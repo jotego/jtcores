@@ -1,0 +1,43 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Mon Dec 24 13:34:02 2018
+[*]
+[dumpfile] "/home/jtejada/github/jt_gng/mist/ver/game/test.lxt"
+[dumpfile_mtime] "Mon Dec 24 13:33:42 2018"
+[dumpfile_size] 585477
+[savefile] "/home/jtejada/github/jt_gng/mist/ver/game/main.gtkw"
+[timestart] 13800000
+[size] 1280 995
+[pos] -1 -1
+*-25.380224 62400000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] game_test.
+[treeopen] game_test.UUT.
+[treeopen] game_test.UUT.main.
+[treeopen] game_test.UUT.main.cpu.
+[sst_width] 196
+[signals_width] 190
+[sst_expanded] 1
+[sst_vpaned_height] 294
+@28
+game_test.UUT.main.cpu.cpucore.clk[0]
+game_test.UUT.main.cpu.cpucore.cen_E[0]
+game_test.UUT.main.cpu.cpucore.cen_Q[0]
+@22
+game_test.UUT.main.cpu.ADDR[15:0]
+@28
+game_test.UUT.main.cpu.nRESET[0]
+@22
+game_test.UUT.main.rom_dout[7:0]
+game_test.UUT.main.cpu.D[7:0]
+@29
+game_test.UUT.main.startup[0]
+@200
+-SDRAM
+@22
+game_test.UUT.rom.main_addr[17:0]
+game_test.UUT.rom.data_read[15:0]
+game_test.UUT.rom.main_dout[7:0]
+@24
+game_test.UUT.rom.rdcnt[2:0]
+[pattern_trace] 1
+[pattern_trace] 0

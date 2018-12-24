@@ -1,4 +1,9 @@
 *.hex
 *.lxt
 *.rpt
+*.rom
 sim
+mist/quartus/db
+mist/quartus/incremental_db
+*.smsg
+*.summary

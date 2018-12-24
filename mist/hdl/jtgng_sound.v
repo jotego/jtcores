@@ -17,8 +17,9 @@
     Date: 27-10-2017 */
 
 module jtgng_sound(
-    input   clk,    // 24 MHz
-    input   clk_en, // 3 MHz
+    input   clk,    // 24   MHz
+    input   cen3,   //  3   MHz
+    input   cen1p5, //  1.5 MHz
     input   rst,
     input   soft_rst,
     // Interface with main CPU
@@ -53,9 +54,7 @@ always @(*)
         5'b0???_?: map_cs = 5'h10; // 0000-7FFF, ROM
         5'b1100_0: map_cs = 5'h1; // C000-C7FF, RAM
         5'b1100_1: map_cs = 5'h2; // C800-C8FF, Sound latch
-        5'b1110_0: 
-            if( !A[1] ) map_cs = 5'h4; // E000-E0FF, Yamaha
-                else    map_cs = 5'h8;
+        5'b1110_0: map_cs = A[1] ? 5'h8 : 5'h4; // E000-E0FF, Yamaha
         default: map_cs = 5'h0;
     endcase
 
@@ -68,7 +67,7 @@ wire [7:0] ram_dout, dout;
 
 jtgng_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
-    .clk_en ( clk_en   ),
+    .clk_en ( cen3     ),
     .data   ( dout     ),
     .addr   ( A[10:0]  ),
     .we     ( RAM_we   ),
@@ -114,7 +113,7 @@ end
 tv80s Z80 (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (clk_en  ),
+    .cen    (cen3    ),
     .wait_n (1'b1    ),
     .int_n  (int_n   ),
     .nmi_n  (1'b1    ),
@@ -132,7 +131,6 @@ tv80s Z80 (
     .dout   (dout    )
 );
 
-wire [7:0] fm0_dout, fm1_dout;
 wire signed [15:0] fm0_snd, fm1_snd;
 assign ym_snd = fm0_snd + fm1_snd;
 
@@ -140,32 +138,28 @@ jt03 fm0(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk       ),
-    .cen    ( clk_en    ),
+    .cen    ( cen1p5    ),
     .din    ( dout      ),
     .addr   ( A[0]      ),
     .cs_n   ( ~fm0_cs   ),
     .wr_n   ( wr_n      ),
-    .dout   ( fm0_dout  ),
-    //output            irq_n,
-    // combined output
     .snd    ( fm0_snd   ),
-    .irq_n()
+    .dout   (           ),
+    .irq_n  (           )
 );
 
 jt03 fm1(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk       ),
-    .cen    ( clk_en    ),
+    .cen    ( cen1p5    ),
     .din    ( dout      ),
     .addr   ( A[0]      ),
     .cs_n   ( ~fm1_cs   ),
     .wr_n   ( wr_n      ),
-    .dout   ( fm1_dout  ),
-    //output            irq_n,
-    // combined output
     .snd    ( fm1_snd   ),
-    .irq_n() 
+    .dout   (           ),
+    .irq_n  (           ) 
 );
 
 endmodule // jtgng_sound

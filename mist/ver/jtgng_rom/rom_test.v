@@ -104,7 +104,6 @@ jtgng_rom uut (
     .obj_dout   (obj_dout ),
     .scr_dout   (scr_dout ),
     .downloading(    1'b0 ),
-    .we         (    1'b0 ),
     // SDRAM interface
     .SDRAM_DQ   ( SDRAM_DQ   ),   // SDRAM Data bus 16 Bits
     .SDRAM_A    ( SDRAM_A    ),   // SDRAM Address bus 13 Bits

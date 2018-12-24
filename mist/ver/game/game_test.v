@@ -19,7 +19,8 @@ module game_test;
             $dumpvars(1,game_test.UUT.main);
             $dumpvars(2,game_test.UUT.main.cpu);
             $dumpvars(1,game_test.UUT.rom);
-            //$dumpvars(0,game_test);
+            $dumpvars(1,game_test);
+            // $dumpvars(0,game_test);
             $dumpon;
         `else
             //$dumpvars(0,UUT);
@@ -32,7 +33,13 @@ module game_test;
 
     `endif
 
-reg frame_done=1'b1, can_finish=1'b0, spi_done=1'b1, max_frames_done=1'b0;
+`ifdef MAXFRAME
+reg frame_done=1'b1, max_frames_done=1'b0;
+`else 
+reg frame_done=1'b1, max_frames_done=1'b1;
+`endif
+
+reg can_finish=1'b0, spi_done=1'b1;
 integer fincnt;
 
 initial begin
@@ -40,22 +47,20 @@ initial begin
         #(1000*1000); // ms
         $display("%d ms",fincnt+1);
     end
-    `ifdef MAXFRAME
-        can_finish = 1'b1;
-    `else 
-        $finish;
-    `endif
+    can_finish = 1'b1;
 end
 
-reg rst, clk_pxl, clk_rgb, clk_rom;
+reg rst, clk, clk_rom;
 
-always @(posedge clk_rgb)
+always @(posedge clk)
     if( spi_done && frame_done && can_finish && max_frames_done ) begin
         for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
             #(1000*1000); // ms
         end
         $finish;
     end
+
+
 
 wire SDRAM_CLK = clk_rom;
 
@@ -64,10 +69,13 @@ initial begin
     forever clk_rom = #(10.417/2) ~clk_rom; // 96 MHz
 end
 
-initial begin
-    clk_rgb =1'b0;
-    forever clk_rgb  = #20.835 ~clk_rgb ; //24
+reg [2:0] clk_cnt=3'd0;
+
+always @(posedge clk_rom) begin
+    clk_cnt <= clk_cnt + 3'd1;
 end
+
+always @(*) clk <= clk_cnt[2];
 
 reg rst_base;
 
@@ -76,26 +84,14 @@ initial begin
     #500 rst_base = 1'b1;
     #2500 rst_base=1'b0;
 end
-/*
-integer clk_cnt;
 
-always @(posedge SDRAM_CLK or posedge rst_base) begin
-    if(rst_base) begin
-        clk_cnt <= 0;
-        clk <= 1'b1;
-    end else begin
-        clk_cnt <= clk_cnt!=13 ? clk_cnt+1 : 0;
-        if( clk_cnt==0 ) clk <= ~clk;
-    end
-end
-*/
 integer rst_cnt;
 
-always @(negedge clk_pxl or posedge rst_base)
+always @(negedge clk or posedge rst_base)
     if( rst_base ) begin
         rst <= 1'b1; 
         rst_cnt <= 2;
-    end else begin
+    end else if(cen6) begin
         if(rst_cnt) rst_cnt<=rst_cnt-1;
         else rst<=rst_base;
     end
@@ -112,11 +108,22 @@ wire    [24:0]  romload_addr;
 wire    [15:0]  romload_data;
 wire            romload_wr;
 
+wire cen6, cen3, cen1p5;
+
+jtgng_cen u_cen(
+    .clk    ( clk    ),    // 24 MHz
+    .cen6   ( cen6   ),
+    .cen3   ( cen3   ),
+    .cen1p5 ( cen1p5 )
+);
 
 jtgng_game UUT (
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
-    .clk        ( clk_rgb   ),
+    .clk        ( clk       ),
+    .cen6       ( cen6      ),
+    .cen3       ( cen3      ),
+    .cen1p5     ( cen1p5    ),
     .SDRAM_CLK  ( SDRAM_CLK ),
     .red        ( red       ),
     .green      ( green     ),
@@ -163,7 +170,7 @@ mt48lc16m16a2 mist_sdram (
     .We_n       ( SDRAM_nWE     ),
     .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
 );
-
+/*
 `ifdef VGACONV
 reg clk_vga;
 wire [3:0] VGA_R, VGA_G, VGA_B;
@@ -214,12 +221,13 @@ end
 `endif
 
 `endif
-
+*/
+/*
 integer fout, frame_cnt;
 reg skip;
 
 reg enter_hbl, enter_vbl;
-always @(posedge clk_pxl) begin
+always @(posedge clk ) if(cen6) begin
     if( rst || downloading ) begin
         enter_hbl <= 1'b0;
         enter_vbl <= 1'b0;
@@ -261,7 +269,7 @@ always @(posedge clk_pxl) begin
         end
     end
 end
-
+*/
 
 
 
@@ -321,7 +329,7 @@ always @(posedge SPI_SCK or posedge rst) begin
             SPI_SS2 <= 1'b0;
             SPI_DI <= spi_buffer[buff_cnt];
             if( buff_cnt==0 ) begin
-                $display("SPI transfer begings");
+                $display("SPI transfer begins");
                 spi_st <= SPI_SET;
             end
             else

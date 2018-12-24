@@ -26,12 +26,6 @@ module jtgng_rom(
     input   [14:0]  scr_addr,
     input           H2,
 
-    // write interface
-    input   [15:0]  din,
-    input   [12:0]  wr_row,
-    input   [ 8:0]  wr_col,
-    input           we,
-
     output  reg [15:0]  char_dout,
     output  reg [ 7:0]  main_dout,
     output  reg [ 7:0]  snd_dout,
@@ -54,16 +48,13 @@ module jtgng_rom(
     input           downloading,
     input   [24:0]  romload_addr,
     input   [15:0]  romload_data,
-    input           romload_wr,
-    output  [31:0]  crc_out 
+    input           romload_wr
 );
 
 assign SDRAM_DQMH = 1'b0;
 assign SDRAM_DQML = 1'b0;
 assign SDRAM_BA   = 2'b0;
 assign SDRAM_CKE  = 1'b1;
-
-reg romload_wr16;
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
@@ -81,27 +72,18 @@ wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 
 reg SDRAM_WRITE;
-assign SDRAM_DQ =  SDRAM_WRITE ? 
-    ( romload_wr16 ? romload_data : din ) : 
-    16'hzzzz;
-
-reg crc_en;
-crc32 crc32_chk (
-    .data_in( romload_data  ), 
-    .crc_en ( crc_en        ), 
-    .crc_out( crc_out       ), 
-    .rst    ( rst           ), 
-    .clk    ( clk           )
-);
+assign SDRAM_DQ =  SDRAM_WRITE ? romload_data : 16'hzzzz;
 
 reg [15:0] data_read, scr_aux;
 
-reg [2:0] rdcnt;
+reg [2:0] rdcnt; // Each read cycle takes 8 counts 
 always @(posedge clk)
     if(rst) rdcnt<=3'd0;
     else rdcnt<=rdcnt+3'd1;
 
 wire rdzero = rdcnt==3'd7;
+
+reg main_lsb, snd_lsb;
 
 always @(posedge clk)
     if( rst ) begin
@@ -112,8 +94,8 @@ always @(posedge clk)
         if( rdcnt==3'd0 ) begin
             // Get data from current read
             casez(rd_state)
-                4'b??01: snd_dout  <= snd_addr[0]  ? data_read[15:8] : data_read[7:0];
-                4'b?010: main_dout <= main_addr[0] ? data_read[15:8] : data_read[7:0];
+                4'b??01: snd_dout  <= snd_lsb  ? data_read[15:8] : data_read[ 7:0];
+                4'b??10: main_dout <= main_lsb ? data_read[ 7:0] : data_read[15:8]; // endian-ness
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
                 4'd6:    scr_aux   <= data_read;
@@ -123,22 +105,28 @@ always @(posedge clk)
         end
         if( rdcnt==3'd1 ) begin // latch address before ACTIVATE state
             casez(rd_state)
-                4'b??00: {row_addr, col_addr} <= 22'h28000 + { 9'b0,  snd_addr[14:1] }; // 14:0
-                4'b?001: {row_addr, col_addr} <= { 6'd0, main_addr[17:1] }; // 17:0
+                4'b??00: begin
+                    {row_addr, col_addr} <= 22'h28000 + { 9'b0,  snd_addr[14:1] }; // 14:0
+                    snd_lsb <= snd_addr[0];
+                end
+                4'b??01: begin
+                    {row_addr, col_addr} <= { 6'd0, main_addr[17:1] }; // 17:0
+                    main_lsb <= main_addr[0];
+                end
                 4'd2:    {row_addr, col_addr} <= 22'h0A000 + { 9'b0, char_addr }; // 12:0
                 4'd3:    {row_addr, col_addr} <= 22'h1C000 + { 6'b0,  obj_addr }; // 14:0
-                4'd5:    {row_addr, col_addr} <= 22'h0C000 + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
-                4'd6:    row_addr[7]<=1'b1; // scr_addr E ROMs
+                4'd6:    {row_addr, col_addr} <= 22'h0C000 + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
+                4'd7:    row_addr[7]<=1'b1; // scr_addr E ROMs
                 default:;
             endcase 
         end            
         if( rdcnt==3'd7 ) begin
             // auto refresh request
             if( downloading ) begin
-                autorefresh <= true;
+                autorefresh <= false;
                 rd_state    <= 4'd0;
             end else begin
-                autorefresh <= rd_state==4'd12;
+                autorefresh <= rd_state==4'd13;
                 rd_state <= rd_state+4'b1;
             end
         end
@@ -166,7 +154,8 @@ localparam  INITIALIZE    = 4'd15,
             AUTO_REFRESH1 = 4'd5,
             SET_PRECHARGE_WR = 4'd8, 
             ACTIVATE_WR   = 4'd9,
-            SET_WRITE     = 4'd10;
+            SET_WRITE     = 4'd10,
+            SYNC_START    = 4'd6;
 
 reg [3:0] wait_cnt;
 reg write_done;
@@ -195,11 +184,8 @@ always @(posedge clk)
         { wait_cnt, SDRAM_A } <= 16'd9800;
         ready <= false;
         write_done <= 1'b0;
-        romload_wr16 <= false;
-        crc_en <= 1'b0;
     end else  begin
     if( romload_wr ) begin
-        romload_wr16 <= 1'b1;
         { romload_row, romload_col } <= romload_addr[24:1]-1'b1;
     end
     case( state )
@@ -253,7 +239,6 @@ always @(posedge clk)
             // Clear WRITE state:
             SDRAM_WRITE <= 1'b0;
             if( write_done ) begin
-                romload_wr16 <= 1'b0;           
                 write_done <= false;
                 end
             end
@@ -261,7 +246,6 @@ always @(posedge clk)
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
             if( !wait_cnt ) state<=next;
             wait_cnt <= wait_cnt-2'b1;
-            crc_en <= 1'b0;
             end
         ACTIVATE: begin 
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
@@ -278,21 +262,20 @@ always @(posedge clk)
             SDRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
             end     
         READ: begin
-            if( downloading && romload_wr16 )
-                state <=  SET_PRECHARGE_WR; // it stays on READ state until romload_wr16 asserted
-            else if( !downloading ) begin
-                state     <=  we ? SET_PRECHARGE_WR : SET_PRECHARGE;
+            if( downloading )
+                state <=  SET_PRECHARGE_WR;
+            else begin
+                state     <= SET_PRECHARGE;
                 data_read <= SDRAM_DQ;
             end
             end
+        SYNC_START:
+            if( rdzero ) state <= SET_PRECHARGE;
         AUTO_REFRESH1: begin
-            if(rd_state==4'd15 && rdzero) state <= SET_PRECHARGE;
-            else begin
                 { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_AUTOREFRESH;
                 wait_cnt <= 4'd5;
                 state    <= WAIT;
-                next     <= AUTO_REFRESH1;
-            end
+                next     <= SYNC_START;
             end
         // Write states
         SET_PRECHARGE_WR: begin
@@ -304,7 +287,7 @@ always @(posedge clk)
             end
         ACTIVATE_WR: begin 
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
-            SDRAM_A <= romload_wr16 ? romload_row : wr_row;
+            SDRAM_A <= romload_row;
             wait_cnt <= ACTIVATE_WAIT;
             next  <= SET_WRITE;
             state <= WAIT;
@@ -314,9 +297,8 @@ always @(posedge clk)
             SDRAM_WRITE <= 1'b1;
             wait_cnt <= CL_WAIT;
             state <= WAIT;
-            next  <= SET_PRECHARGE;
-            SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_wr16 ? romload_col : wr_col};
-            crc_en <= 1'b1;
+            next  <= downloading ? SET_PRECHARGE_WR : SYNC_START;
+            SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_col };
             write_done <= true;
             `ifdef SIMULATION
                 sdram_writes = sdram_writes + 2;

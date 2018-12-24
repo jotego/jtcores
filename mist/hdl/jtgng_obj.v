@@ -419,8 +419,8 @@ always @(negedge clk)
     end
 
 jtgng_linebuf lineA_buf(
-    .address_a  ( lineA_address_a ),
-    .address_b  ( lineA_address_b ),
+    .address_a  ( lineA_address_a   ),
+    .address_b  ( lineA_address_b   ),
     .clock      ( clk               ),
     .data_a     ( lineX_data        ),
     .data_b     ( 8'hFF             ),
@@ -430,8 +430,8 @@ jtgng_linebuf lineA_buf(
 );
 
 jtgng_linebuf lineB_buf(
-    .address_a  ( lineB_address_a ),
-    .address_b  ( lineB_address_b ),
+    .address_a  ( lineB_address_a   ),
+    .address_b  ( lineB_address_b   ),
     .clock      ( clk               ),
     .data_a     ( lineX_data        ),
     .data_b     ( 8'hFF             ), // delete only
