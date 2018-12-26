@@ -18,16 +18,18 @@ double sc_time_stamp () {      // Called by $time in Verilog
 class Sim {
     Vjtgng_sound *top;
     VerilatedVcdC* vcd;
-    int rom_addr, rom_cs, rom_dout, snd_wait_n;
+    int rom_addr, rom_cs, rom_dout;
     void apply();
     void get();
     char *rom;
     bool trace, toggle;
     vluint64_t main_next;
-    int verbose_ticks;
+    int frame_vh; // 0xffff0000 -> frame count
+                  // 0x0000ff00 -> Vertical count
+                  // 0x000000ff -> Horizontal count
 public:
     int clk, rst, soft_rst, sres_b, snd_latch, V32;
-    int fm_right, fm_left;
+    int cen3, cen1p5, ym_snd;
 
     Sim(bool _trace);
     ~Sim();
@@ -38,23 +40,29 @@ public:
     bool next_quarter();
 };
 
-vluint64_t ms2ns(vluint64_t val) { val*=1000'0000; return val; }
+vluint64_t ms2ns(vluint64_t val) { val*=1000'000; return val; }
 
 /////////////////////////////////////////////
 int main(int argc, char *argv[]) {try{
+    vluint64_t sim_time = ms2ns(2500);
     bool trace=false;
     for( int k=1; k<argc; k++) {
         if( strcmp(argv[k], "-trace")==0 ) { trace=true; continue; }
+        if( strcmp(argv[k], "-time")==0 ) {
+            int ms;
+            sscanf( argv[++k], "%d", &ms );
+            sim_time = ms2ns(ms);
+            continue; 
+        }
         cout << "Unknown argument: " << argv[k] << '\n';
         return 1;
     }
     Sim sim(trace);
     sim.reset(512);
     bool zeros=true;
-    vluint64_t sim_time = ms2ns(2500);
     vluint64_t aux_time;
 
-    aux_time = main_time + ms2ns(2500);
+    aux_time = main_time + ms2ns(1);
     cout << "Start up after reset (" << aux_time << ")\n";
     while( main_time < aux_time ) sim.next();
     cout << "Send latch info\n";
@@ -63,13 +71,8 @@ int main(int argc, char *argv[]) {try{
     sim_time += main_time;
 
     Vjtgng_sound* top = sim.Top();
-    int last = top->clk;
     while( main_time < sim_time ) {
         sim.next();
-        // if( last != top->clk ) {
-        //     if( top->ym0_cs1==1 && top )
-        // }
-        last = top->clk;
     }
 
     return 0;
@@ -97,7 +100,10 @@ Sim::Sim(bool _trace=false) : trace(_trace) {
         top->trace(vcd,99);
         vcd->open("test.vcd"); 
     }  
-    toggle = false; main_next=0; verbose_ticks = 48000*24/2;
+    toggle = false; main_next=0;
+    cen1p5 = 1;
+    cen3   = 1;
+    frame_vh = 0;
 }
 
 Sim::~Sim() {
@@ -110,8 +116,9 @@ void Sim::apply() {
     top->snd_latch  = snd_latch;
     top->V32        = V32;
     top->rom_dout   = rom_cs ? rom[rom_addr&0x7fff] : 0;
-    top->snd_wait_n = snd_wait_n;
     top->clk        = clk;
+    top->cen3       = cen3;
+    top->cen1p5     = cen1p5;
     // reset signals
     top->sres_b     = sres_b;
     top->rst        = rst;
@@ -119,10 +126,9 @@ void Sim::apply() {
 }
 
 void Sim::get() {
-    fm_left     = top->fm_left;
-    fm_right    = top->fm_right;
-    rom_cs      = top->rom_cs;
-    rom_addr    = top->rom_addr;
+    ym_snd    = top->ym_snd;
+    rom_cs    = top->rom_cs;
+    rom_addr  = top->rom_addr;
 }
 
 bool Sim::next() {
@@ -131,7 +137,14 @@ bool Sim::next() {
     get();
     if(trace) vcd->dump( get_time() );
     bool toggle = next_quarter();
-    if( toggle ) clk = 1-clk;
+    if( toggle ) {
+        clk = 1-clk;
+        if( !clk ) {
+            cen1p5 = 1-cen1p5;
+        }
+        frame_vh++;
+    }
+    V32 = (frame_vh&0xff00)==0x2000;
     return toggle;
 }
 
@@ -141,7 +154,6 @@ void Sim::reset(int cnt) {
     rst         = 1;
     clk         = 0;
     V32         = 1;
-    snd_wait_n  = 1;
     while( cnt-- ) next();
     rst = 0;
     next();
@@ -156,10 +168,8 @@ bool Sim::next_quarter() {
     }
     else {
         main_time = main_next;
-        if( --verbose_ticks <= 0 ) {
-            // cerr << "Current time " << dec << (int)(main_time/1000000) << " ms\n";               
+        if( (frame_vh & 0x3ffff) == 0 ) { // A dot per every 4 frames
             cerr << '.';
-            verbose_ticks = 48000*24/2;
         }
         toggle=false;
         return true; // do not toggle clock

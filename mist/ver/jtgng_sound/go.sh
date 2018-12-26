@@ -2,6 +2,7 @@
 
 EXTRA=
 GATHER=gather_dummy.f
+DEPTH="--trace-depth 1"
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -16,11 +17,23 @@ while [ $# -gt 0 ]; do
 			echo "Must specify number of milliseconds to simulate"
 			exit 1
 		fi
-		SIM_MS="$1"
+		EXTRA="$EXTRA -time $1"
 		echo Simulate $1 ms
 		shift
 		continue
 	fi	
+	if [ "$1" = "-snd" ]; then
+		echo Simulate with full jt03
+		GATHER=gather.f
+		shift
+		continue
+	fi
+	if [ "$1" = "-deep" ]; then
+		echo Deep trace.
+		DEPTH=
+		shift
+		continue
+	fi
 	if [ "$1" = -lint ]; then
 		verilator -f gather.f --lint-only --top-module jtgng_sound --error-limit 500
 		exit $?
@@ -30,7 +43,7 @@ while [ $# -gt 0 ]; do
 done
 
 if ! verilator --cc -f $GATHER --top-module jtgng_sound --trace --exe test.cpp \
-	-DFASTDIV -DNOLFO -DNOTIMER --trace-depth 1; then
+	-DFASTDIV -DNOLFO -DNOTIMER $DEPTH; then
 	exit $?
 fi
 

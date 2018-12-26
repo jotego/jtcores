@@ -1,3 +1,4 @@
+jt03_dummy.v
 ../../hdl/jtgng_sound.v
 ../../hdl/jtgng_ram.v
 ../../../modules/tv80/tv80_alu.v
@@ -6,5 +7,3 @@
 ../../../modules/tv80/tv80n.v
 ../../../modules/tv80/tv80_reg.v
 ../../../modules/tv80/tv80s.v
--F ../../../modules/jt12/hdl/jt03.f
--F ../../../modules/jt12/jt49/hdl/jt49.f

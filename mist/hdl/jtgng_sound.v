@@ -77,13 +77,11 @@ jtgng_ram #(.aw(11)) u_ram(
 reg [7:0] din;
 
 always @(*)
-    case( {latch_cs, rom_cs,ram_cs, fm1_cs,fm0_cs} )
-        5'b1_00_00:  din = snd_latch;
-        5'b0_10_00:  din = rom_dout;
-        5'b0_01_00:  din = ram_dout;
-        // 5'b0_00_10:  din = fm1_dout;
-        // 5'b0_00_01:  din = fm0_dout;
-        default: din = 8'd0;
+    case( {latch_cs, rom_cs,ram_cs } )
+        3'b1_00:  din = snd_latch;
+        3'b0_10:  din = rom_dout;
+        3'b0_01:  din = ram_dout;
+        default:  din = 8'd0;
     endcase // {latch_cs,rom_cs,ram_cs}
 
     reg int_n;
@@ -110,7 +108,7 @@ always @(posedge clk) begin
     end
 end
 
-tv80s Z80 (
+tv80s #(.Mode(0)) Z80 (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
     .cen    (cen3    ),
@@ -145,7 +143,8 @@ jt03 fm0(
     .wr_n   ( wr_n      ),
     .snd    ( fm0_snd   ),
     .dout   (           ),
-    .irq_n  (           )
+    .irq_n  (           ),
+    .snd_sample (       )
 );
 
 jt03 fm1(
@@ -159,7 +158,8 @@ jt03 fm1(
     .wr_n   ( wr_n      ),
     .snd    ( fm1_snd   ),
     .dout   (           ),
-    .irq_n  (           ) 
+    .irq_n  (           ), 
+    .snd_sample (       )
 );
 
 endmodule // jtgng_sound

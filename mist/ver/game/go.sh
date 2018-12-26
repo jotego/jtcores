@@ -103,8 +103,12 @@ while [ $# -gt 0 ]; do
 		LOADROM=LOADROM
 		echo ROM load through SPI enabled
 		if [ ! -e JTGNG.rom ]; then
-			echo Missing file JTGNG.rom
-			exit 1
+			echo "Missing file JTGNG.rom, looking into rom folder"
+			if ! cp ../../../rom/JTGNG.rom . -v; then
+				echo "Cannot find file JTGNG.rom in . or in ../../../rom"
+				echo "Run go-mist.sh in rom folder to generate it."
+				exit 1
+			fi
 		fi
 		shift
 		continue
