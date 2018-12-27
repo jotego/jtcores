@@ -21,11 +21,16 @@ assign snd_sample=1'b0;
 reg last_wr_n;
 reg [7:0] selection;
 
+
 always @(posedge clk) if(cen) begin
     last_wr_n <= wr_n;
     if( !wr_n && last_wr_n && !cs_n ) begin
         if( !addr ) selection <= din;
-        if(  addr && selection>=8'h20 ) $display("%X, %X", selection, din );
+        `ifdef DUMMY_PRINTALL
+            if(  addr ) $display("%X, %X", selection, din );
+        `else    
+            if(  addr && selection>=8'h20) $display("%X, %X", selection, din );
+        `endif
     end
 end
 

@@ -31,7 +31,8 @@ module jtgng_sound(
     output          rom_cs,
     input   [ 7:0]  rom_dout,
     // Sound output
-    output  signed [15:0] ym_snd
+    output  signed [15:0] ym_snd,
+    output  sample
 );
 
 wire [15:0] A;
@@ -130,21 +131,27 @@ tv80s #(.Mode(0)) Z80 (
 );
 
 wire signed [15:0] fm0_snd, fm1_snd;
-assign ym_snd = fm0_snd + fm1_snd;
+wire signed [16:0] fm_sum = fm0_snd + fm1_snd;
+
+wire [15:0] plus_inf  = { 1'b0, ~15'd0 }; // maximum positive value
+wire [15:0] minus_inf = { 1'b1,  15'd0 }; // minimum negative value
+wire overflow = fm_sum[16] != fm_sum[15];
+
+assign ym_snd = !overflow ? fm_sum[15:0] : (fm_sum[16] ? minus_inf : plus_inf);
 
 jt03 fm0(
     .rst    ( ~reset_n  ),
     // CPU interface
-    .clk    ( clk       ),
-    .cen    ( cen1p5    ),
-    .din    ( dout      ),
-    .addr   ( A[0]      ),
-    .cs_n   ( ~fm0_cs   ),
-    .wr_n   ( wr_n      ),
-    .snd    ( fm0_snd   ),
-    .dout   (           ),
-    .irq_n  (           ),
-    .snd_sample (       )
+    .clk    ( clk        ),
+    .cen    ( cen1p5     ),
+    .din    ( dout       ),
+    .addr   ( A[0]       ),
+    .cs_n   ( ~fm0_cs    ),
+    .wr_n   ( wr_n       ),
+    .snd    ( fm0_snd    ),
+    .dout   (            ),
+    .irq_n  (            ),
+    .snd_sample ( sample )
 );
 
 jt03 fm1(
