@@ -19,22 +19,23 @@
 `timescale 1ns/1ps
 
 module jtgng_obj(
-    input           clk,    // 6 MHz
-    input           rst,
+    input              rst,
+    input              clk,     // 24 MHz
+    input              cen6,    //  6 MHz
     // screen
-    input           HINIT,
-    input           LVBL,
-    input           LHBL,
-    input   [ 7:0]  V,
-    input   [ 8:0]  H,
-    input           flip,
+    input              HINIT,
+    input              LVBL,
+    input              LHBL,
+    input   [ 7:0]     V,
+    input   [ 8:0]     H,
+    input              flip,
     // shared bus
-    output  reg [8:0]   AB,
-    input   [ 7:0]  DB,
-    input           OKOUT,
-    output  reg     bus_req,        // Request bus
-    input           bus_ack,    // bus acknowledge
-    output  reg     blen,   // bus line counter enable
+    output  reg [ 8:0] AB,
+    input       [ 7:0] DB,
+    input              OKOUT,
+    output  reg        bus_req,        // Request bus
+    input              bus_ack,    // bus acknowledge
+    output  reg        blen,   // bus line counter enable
     // SDRAM interface
     output  reg [14:0] obj_addr,
     input       [31:0] objrom_data,
@@ -48,11 +49,11 @@ reg over96;
 localparam ST_IDLE=2'd0, ST_WAIT=2'd1,ST_BUSY=2'd2;
 localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 
-always @(negedge clk) 
+always @(posedge clk) 
     if( rst ) begin
         blen <= 1'b0;
         bus_state <= ST_IDLE;
-    end else begin
+    end else if(cen6) begin
         case( bus_state )
             ST_IDLE: if( OKOUT ) begin
                     bus_req <= 1'b1;
@@ -76,23 +77,24 @@ always @(negedge clk)
     end
 
 reg ABslow;
-always @(negedge clk)
+always @(posedge clk) if(cen6) begin
     if( !blen )
-        {AB, ABslow} <= 9'd0;
+        {AB, ABslow} <= 10'd0;
     else begin
         {AB, ABslow} <= {AB, ABslow} + 1'b1;
     end
+end
 
 reg mem_sel;
-always @(negedge clk)
+always @(posedge clk)
     if(rst)
         mem_sel <= MEM_PREBUF;
-    else begin
+    else if(cen6) begin
         mem_sel <= ~mem_sel;
     end
 
 
-wire [9:0]  wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 9'd0; 
+wire [9:0]  wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 10'd0; 
 reg  [8:0]  pre_scan;
 wire [7:0]  ram_din = mem_sel==MEM_PREBUF ? DB : 8'd0;
 wire [7:0]  ram_dout;
@@ -100,7 +102,7 @@ wire        ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
 jtgng_dual_ram #(.aw(10)) objram (
     .clk        ( clk               ),
-    .clk_en     ( clk_en            ),
+    .clk_en     ( cen6              ),
     .data       ( ram_din           ),
     .rd_addr    ( {1'b0, pre_scan } ),
     .wr_addr    ( wr_addr           ),
@@ -116,25 +118,27 @@ reg line_obj_we;
 reg [1:0] trf_state, trf_next;
 
 reg [7:0] VF;
-always @(negedge clk)
+always @(posedge clk) if(cen6) begin
     if( HINIT ) VF <= {8{flip}} ^ V;
-
+end
 //wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
 localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;
 
-always @(negedge clk) 
+always @(posedge clk) 
     if( rst )
         line <= lineA;
-    else if( HINIT ) line <= ~line;
+    else if(cen6) begin
+        if( HINIT ) line <= ~line;
+    end
 
 
-always @(negedge clk) 
+always @(posedge clk) 
     if( rst ) begin
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;
     end
-    else begin
+    else if(cen6) begin
         case( trf_state )
             SEARCH: begin
                 if( !LVBL ) begin
@@ -159,7 +163,7 @@ always @(negedge clk)
                             pre_scan <= 9'h180;
                             fill <= 1'b1;
                         end else begin
-                            pre_scan <= pre_scan + 3'd4;
+                            pre_scan <= pre_scan + 9'd4;
                             trf_state <= WAIT;
                             trf_next  <= SEARCH;
                         end
@@ -183,7 +187,7 @@ always @(negedge clk)
                 else
                 if( pre_scan[1:0]==2'b11 ) begin
                     post_scan <= post_scan-1'b1;
-                    pre_scan <= pre_scan + 2'd3;
+                    pre_scan <= pre_scan + 9'd3;
                     trf_state <= WAIT;
                     trf_next  <= SEARCH;
                 end
@@ -229,15 +233,18 @@ wire [1:0] pospal;
 reg vinzone;
 wire vinzone2;
 
-jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .din(objy), .drop(posy));
-jtgng_sh #(.width(9), .stages(3)) sh_objx (.clk(clk), .din({hover,objx}), .drop(objx2));
-//jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .din(obj_vflip), .drop(posvflip));
-jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .din(obj_hflip), .drop(poshflip));
-reg poshflip2;
-always @(negedge clk) poshflip2 <= poshflip;
+jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .clk_en(cen6), .din(objy), .drop(posy));
+jtgng_sh #(.width(9), .stages(3)) sh_objx (.clk(clk), .clk_en(cen6), .din({hover,objx}), .drop(objx2));
+//jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .clk_en(cen6), .din(obj_vflip), .drop(posvflip));
+jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .clk_en(cen6), .din(obj_hflip), .drop(poshflip));
 
-jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .din(objpal), .drop(pospal));
-jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .din(vinzone), .drop(vinzone2));
+reg poshflip2;
+always @(posedge clk) if(cen6) begin
+    poshflip2 <= poshflip;
+end
+
+jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .clk_en(cen6), .din(objpal), .drop(pospal));
+jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .clk_en(cen6), .din(vinzone), .drop(vinzone2));
 
 always @(*) begin
     //VB = posy + ( ~VF + {{7{~flip}},1'b1});
@@ -251,14 +258,14 @@ reg [3:0] pxlcnt;
 //wire [6:0] hscan = { H[8:4], H[1:0] };
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
-always @(negedge clk) begin
+always @(posedge clk) if(cen6) begin
     if( HINIT ) 
         { objcnt, pxlcnt } <= {5'd8,4'd0};
     else 
         if( objcnt != 5'd0 )  { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 1'd1;
 end
 
-always @(negedge clk) begin
+always @(posedge clk) if(cen6) begin
     case( pxlcnt[3:0] )
         4'd0: ADlow <= objbuf_data;
         4'd1: begin
@@ -274,6 +281,7 @@ always @(negedge clk) begin
         4'd3: begin
             objx <= objbuf_data;
         end
+        default:;
     endcase
     if( pxlcnt[2:0]==3'd3 ) begin   
         obj_addr <= (!vinzone || objcnt==5'd0) ? 15'd0 : { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}} };
@@ -303,7 +311,7 @@ end
 
 jtgng_ram #(.aw(7)) objbuf_a(
     .clk   ( clk       ),
-    .clk_en( clk_en    ),
+    .clk_en( cen6      ),
     .addr  ( address_a ),
     .data  ( data_a    ),
     .we    ( we_a      ),
@@ -312,7 +320,7 @@ jtgng_ram #(.aw(7)) objbuf_a(
 
 jtgng_ram #(.aw(7)) objbuf_b(
     .clk   ( clk       ),
-    .clk_en( clk_en    ),
+    .clk_en( cen6      ),
     .addr  ( address_b ),
     .data  ( data_b    ),
     .we    ( we_b      ),
@@ -328,7 +336,7 @@ reg [8:0] posx;
 reg [15:0] other_half;
 
 
-always @(negedge clk) begin
+always @(posedge clk) if(cen6) begin
     new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};   
     posx = pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
     case( pxlcnt[3:0] )
@@ -373,15 +381,17 @@ reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
 
 reg pxlbuf_line;
 
-always @(negedge clk)
+always @(posedge clk)
     if( rst )
-        pxlbuf_line = lineA;
-    else
+        pxlbuf_line <= lineA;
+    else if(cen6) begin
         if( pxlcnt== 4'hf ) pxlbuf_line<=line; // to account for latency drawing the object
+    end
 
-always @(negedge clk)
+always @(posedge clk) if(cen6) begin
     if( !LHBL ) Hcnt <= 8'd0;
     else Hcnt <= Hcnt+1'd1;
+end
 
 always @(*)
     if( pxlbuf_line == lineA ) begin 
@@ -402,7 +412,7 @@ always @(*)
         obj_pxl = lineB_q_a[5:0];
     end
 
-always @(negedge clk)
+always @(posedge clk) if(cen6) begin
     if( pxlbuf_line == lineA ) begin
         // lineA clear after each pixel is readout
         lineA_address_b <= lineA_address_a;
@@ -417,27 +427,32 @@ always @(negedge clk)
         lineB_address_b <= lineB_address_a;
         lineB_we_b <= 1'b1;
     end
+end
 
-jtgng_linebuf lineA_buf(
-    .address_a  ( lineA_address_a   ),
-    .address_b  ( lineA_address_b   ),
-    .clock      ( clk               ),
-    .data_a     ( lineX_data        ),
-    .data_b     ( 8'hFF             ),
-    .wren_a     ( lineA_we_a        ),
-    .wren_b     ( lineA_we_b        ),
-    .q_a        ( lineA_q_a         )
+jtgng_true_dual_ram #(.aw(8)) lineA_buf(
+    .clk     ( clk             ),
+    .clk_en  ( cen6            ),
+    .addr_a  ( lineA_address_a ),
+    .addr_b  ( lineA_address_b ),
+    .data_a  ( lineX_data      ),
+    .data_b  ( 8'hFF           ), // delete only
+    .we_a    ( lineA_we_a      ),
+    .we_b    ( lineA_we_b      ),
+    .q_a     ( lineA_q_a       ),
+    .q_b     (                 )
 );
 
-jtgng_linebuf lineB_buf(
-    .address_a  ( lineB_address_a   ),
-    .address_b  ( lineB_address_b   ),
-    .clock      ( clk               ),
-    .data_a     ( lineX_data        ),
-    .data_b     ( 8'hFF             ), // delete only
-    .wren_a     ( lineB_we_a        ),
-    .wren_b     ( lineB_we_b        ),
-    .q_a        ( lineB_q_a         )
+jtgng_true_dual_ram #(.aw(8)) lineB_buf(
+    .clk     ( clk             ),
+    .clk_en  ( cen6            ),
+    .addr_a  ( lineB_address_a ),
+    .addr_b  ( lineB_address_b ),
+    .data_a  ( lineX_data      ),
+    .data_b  ( 8'hFF           ), // delete only
+    .we_a    ( lineB_we_a      ),
+    .we_b    ( lineB_we_b      ),
+    .q_a     ( lineB_q_a       ),
+    .q_b     (                 )
 );
 
 endmodule // jtgng_char

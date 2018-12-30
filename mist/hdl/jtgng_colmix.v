@@ -63,7 +63,7 @@ reg [7:0] pixel_mux;
 always @(*) begin   
     if( chr_col==2'b11 || !enable_char ) begin
         // Object or scroll
-        if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=2'd0) ) 
+        if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=3'd0) ) 
             pixel_mux = {2'b00, scr_pal, scr_col }; // scroll wins
         else
             pixel_mux = {2'b01, obj_pxl }; // object wins
@@ -78,7 +78,7 @@ end
 
 reg [3:0] aux_red, aux_green, aux_blue;
 
-always @(negedge clk)
+always @(posedge clk)
     if( rst ) begin
         { addr_top, aux } <= 2'b00;
     end else begin
@@ -98,6 +98,7 @@ always @(negedge clk)
                 2'b11: begin
                     blue  <= dout[7:4];
                     end
+                default:;
             endcase // {addr_top,aux}
         else
             {red, green, blue } <= 12'd0; 
@@ -109,7 +110,7 @@ wire [8:0] wraddress = {addr_top, AB };
 // RAM
 jtgng_dual_ram #(.aw(9)) RAM(
     .clk        ( clk       ),
-    .clk_en     ( clk_en    ),
+    .clk_en     ( 1'b1      ),
     .data       ( DB        ),
     .rd_addr    ( rdaddress ),
     .wr_addr    ( wraddress ),

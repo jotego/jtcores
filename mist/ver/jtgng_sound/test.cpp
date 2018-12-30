@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int PERIOD = 1e9/6e6; // cen3 set to 1
+const int PERIOD = 1e9/3e6; // cen3 set to 1
 const int SEMIPERIOD = PERIOD/2;
 const int CLKSTEP = PERIOD/4;
 
@@ -22,7 +22,7 @@ class Sim {
     void apply();
     void get();
     char *rom;
-    bool trace, toggle;
+    bool trace, toggle, quiet;
     vluint64_t main_next;
     int cen_cnt, cen_ym;
     int frame_vh; // 0xffff0000 -> frame count
@@ -37,6 +37,7 @@ public:
     Vjtgng_sound* Top() { return top; }
     bool next();
     void set_cen_ym(int _cen_ym ) { cen_ym = _cen_ym; }
+    void set_quiet( bool q ) { quiet=q; }
     int get_sample() { return sample; }
     int get_frame() { return frame_vh>>16; };
     void reset(int cnt);
@@ -49,10 +50,9 @@ vluint64_t ms2ns(vluint64_t val) { val*=1000'000; return val; }
 class WaveWritter {
     ofstream fsnd, fhex;
     bool dump_hex;
-    int skip, cnt;
 public:
     WaveWritter(const char *filename, int sample_rate, bool hex );
-    void set_skip( int _skip ) { skip=_skip; }
+    void set_rate(int32_t rate);
     void write( int16_t snd );
     ~WaveWritter();
 };
@@ -61,22 +61,16 @@ public:
 /////////////////////////////////////////////
 int main(int argc, char *argv[]) {try{
     vluint64_t sim_time = ms2ns(2500);
-    bool trace=false;
-    int sample_skip=0, cen_ym=1, code=0x30;
+    bool trace=false, quiet=false;
+    int cen_ym=1, code=0x30;
     char wavname[128]="test.wav";
     for( int k=1; k<argc; k++) {
         if( strcmp(argv[k], "-trace")==0 ) { trace=true; continue; }
+        if( strcmp(argv[k], "-quiet")==0 ) { quiet=true; continue; }
         if( strcmp(argv[k], "-time")==0 ) {
             int ms;
             sscanf( argv[++k], "%d", &ms );
             sim_time = ms2ns(ms);
-            continue; 
-        }
-        if( strcmp(argv[k], "-skip")==0 ) {
-            if( sscanf( argv[++k], "%d", &sample_skip ) != 1 ) {
-                cerr << "ERROR: use -skip n, to skip n samples and write the n+1.\n";
-                return 1;
-            }
             continue; 
         }
         if( strcmp(argv[k], "-code")==0 ) {
@@ -101,10 +95,10 @@ int main(int argc, char *argv[]) {try{
     Sim sim(trace);
     sim.reset(512);
     sim.set_cen_ym( cen_ym );
+    sim.set_quiet( quiet );
     bool zeros=true;
     vluint64_t aux_time;
     WaveWritter wav(wavname,41834,false);
-    wav.set_skip(sample_skip);
 
     aux_time = main_time + ms2ns(1)/2;
     //cerr << "Start up after reset (" << aux_time << ")\n";
@@ -129,14 +123,14 @@ int main(int argc, char *argv[]) {try{
         if( sim.get_frame()==30 && sim.snd_latch==0 ) {
             sim.snd_latch=code;
             //cerr << "\nSnd latch set to 0x" << hex << sim.snd_latch << '\n';
-            cerr << '|';
+            if (!quiet) cerr << '|';
         }
         if( sim.snd_latch!=0 && (main_time-last_nonzero)>=500'000'000 ) {
-            cerr << "Stopping after 0.5s without sound\n";
+            if(!quiet) cerr << "Stopping after 0.5s without sound\n";
             break;
         }
     }
-    cerr <<'\n';
+    if(!quiet) cerr <<'\n';
     if( skip_zeros )
         cerr << "WARNING: Output wave file is empty. No sound output was produced.\n";
     else {
@@ -144,7 +138,8 @@ int main(int argc, char *argv[]) {try{
         if( sample_period != 0 ) {
             double sample_period_ns = sample_period * 1e-9;
             double sample_freq = 1.0/sample_period_ns;
-            cerr << "Sample frequency = " << sample_freq << "Hz";
+            if(!quiet) cerr << "Sample frequency = " << sample_freq << "Hz";
+            wav.set_rate(sample_freq);
         }
     }
     return 0;
@@ -224,7 +219,7 @@ bool Sim::next() {
                 cen_cnt = 0;
             }
         }
-        frame_vh++;
+        frame_vh+=2;
     }
     V32 = (frame_vh&0xff00)==0x2000;
     return toggle;
@@ -250,7 +245,7 @@ bool Sim::next_quarter() {
     }
     else {
         main_time = main_next;
-        if( (frame_vh & 0x3ffff) == 0 ) { // A dot per every 4 frames
+        if( (frame_vh & 0x3ffff) == 0 && !quiet ) { // A dot per every 4 frames
             cerr << '.';
         }
         toggle=false;
@@ -260,23 +255,17 @@ bool Sim::next_quarter() {
 
 
 void WaveWritter::write( int16_t snd ) {
-    if(cnt>=skip) {
-        int16_t g[2];
-        g[0] = snd;
-        g[1] = snd;
-        fsnd.write( (char*)&g, sizeof(int16_t)*2 );
-        if( dump_hex ) {
-            fhex << hex << g[0] << '\n';
-            fhex << hex << g[1] << '\n';
-        }
-        cnt=0;
+    int16_t g[2];
+    g[0] = snd;
+    g[1] = snd;
+    fsnd.write( (char*)&g, sizeof(int16_t)*2 );
+    if( dump_hex ) {
+        fhex << hex << g[0] << '\n';
+        fhex << hex << g[1] << '\n';
     }
-    else cnt++;
 }
 
 WaveWritter::WaveWritter( const char *filename, int sample_rate, bool hex ) {
-    cnt = 0;
-    skip = 0;
     fsnd.open(filename, ios_base::binary);
     dump_hex = hex;
     if( dump_hex ) {
@@ -311,6 +300,12 @@ WaveWritter::WaveWritter( const char *filename, int sample_rate, bool hex ) {
     fsnd.write( (char*) &number16, 2);
     fsnd.write( "data", 4 );
     fsnd.seekp(44); 
+}
+
+void WaveWritter::set_rate(int32_t rate) {
+    fsnd.seekp(0x18);
+    fsnd.write( (char*)&rate, sizeof(rate) );
+    fsnd.seekp(0,ios_base::end);
 }
 
 WaveWritter::~WaveWritter() {

@@ -6,15 +6,28 @@ DEPTH="--trace-depth 1"
 EXTRA_VERI=
 VCD2FST=FALSE
 SKIPMAKE=FALSE
+QUIET=FALSE
+
+function quiet_echo() {
+    if [ $QUIET = FALSE ]; then
+        echo "$*"
+    fi
+}
 
 while [ $# -gt 0 ]; do
     if [ "$1" = "-w" ]; then
         EXTRA="$EXTRA -trace"
         VCD2FST=TRUE
-        echo Signal dump enabled
+        quiet_echo Signal dump enabled
         shift
         continue
     fi
+    if [ "$1" = "-q" ]; then
+        EXTRA="$EXTRA -quiet"
+        QUIET=TRUE
+        shift
+        continue
+    fi    
     if [ "$1" = "-time" ]; then
         shift
         if [ "$1" = "" ]; then
@@ -22,18 +35,18 @@ while [ $# -gt 0 ]; do
             exit 1
         fi
         EXTRA="$EXTRA -time $1"
-        echo Simulate $1 ms
+        quiet_echo Simulate $1 ms
         shift
         continue
     fi  
     if [ "$1" = "-runonly" ]; then
-        echo Skipping Verilator and make steps
+        quiet_echo Skipping Verilator and make steps
         SKIPMAKE=TRUE
         shift
         continue
     fi    
     if [ "$1" = "-snd" ]; then
-        echo Simulate with full jt03
+        quiet_echo Simulate with full jt03
         GATHER=gather.f
         shift
         continue
@@ -44,12 +57,6 @@ while [ $# -gt 0 ]; do
         shift
         continue
     fi    
-    if [ "$1" = "-skip" ]; then
-        EXTRA="$EXTRA $1 $2"
-        shift
-        shift
-        continue
-    fi  
     if [ "$1" = "-cen" ]; then
         EXTRA="$EXTRA $1 $2"
         shift
@@ -57,13 +64,13 @@ while [ $# -gt 0 ]; do
         continue
     fi      
     if [ "$1" = "-psg_mmr" ]; then
-        echo PSG Register Dump Enabled
+        quiet_echo PSG Register Dump Enabled
         EXTRA_VERI="$EXTRA_VERI -DDUMMY_PRINTALL"
         shift
         continue
     fi  
     if [ "$1" = "-deep" ]; then
-        echo Deep trace.
+        quiet_echo Deep trace.
         DEPTH=
         EXTRA="$EXTRA -trace"       
         VCD2FST=TRUE
@@ -71,7 +78,6 @@ while [ $# -gt 0 ]; do
         continue
     fi
     if [ "$1" = "-threads" ]; then
-        echo Deep trace.
         DEPTH=
         EXTRA_VERI="$EXTRA_VERI --threads 1"
         shift

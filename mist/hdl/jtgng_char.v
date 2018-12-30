@@ -83,6 +83,7 @@ always @(posedge clk) if(clk_en) begin
             vert_addr <= {3{char_vflip}}^V128[2:0];
             char_addr <= { {dout[7:6], aux}, {3{dout[5] ^ flip}}^V128[2:0] };
         end
+        default:;
     endcase
     //char_addr <= { AC, vert_addr };
 end
