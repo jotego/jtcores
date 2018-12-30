@@ -17,17 +17,17 @@
     Date: 27-10-2017 */
     
 module jtgng_char(
-    input       clk,    // 24 MHz
-    input       clk_en, //  6 MHz
-    input   [10:0]  AB,
-    input   [ 7:0] V128, // V128-V1
-    input   [ 7:0] H128, // H128-H1
-    input       char_cs,
-    input       flip,
-    input   [7:0] din,
+    input            clk,    // 24 MHz
+    input            cen6,   //  6 MHz
+    input   [10:0]   AB,
+    input   [ 7:0]   V128, // V128-V1
+    input   [ 7:0]   H128, // H128-H1
+    input            char_cs,
+    input            flip,
+    input   [ 7:0]   din,
     output reg [7:0] dout,
-    input       rd,
-    output      MRDY_b,
+    input            rd,
+    output           MRDY_b,
 
     // ROM
     output reg [12:0] char_addr,
@@ -53,7 +53,7 @@ always @(*)
     end
 
 // RAM
-always @(posedge clk) if(clk_en) begin
+always @(posedge clk) if(cen6) begin
     dout <= ram[addr];
     if( we ) ram[addr] <= din;
 end
@@ -72,7 +72,7 @@ reg half_addr;
 reg [3:0] pal_aux;
 
 // Set input for ROM reading
-always @(posedge clk) if(clk_en) begin
+always @(posedge clk) if(cen6) begin
     case( H128[2:0] )
         3'd1: aux <= dout;
         3'd2: begin
@@ -93,12 +93,12 @@ reg [15:0] chd;
 reg [1:0] pxl_aux;
 
 // delays pixel data so it comes out on a multiple of 8
-jtgng_sh #(.width(4),.stages(5)) pal_sh(.clk(clk),.clk_en(clk_en),.din(pal_aux),.drop(char_pal));
+jtgng_sh #(.width(4),.stages(5)) pal_sh(.clk(clk),.clk_en(cen6),.din(pal_aux),.drop(char_pal));
 //jtgng_sh #(.width(2),.stages(3)) pxl_sh(.clk(clk),.din(pxl_aux),.drop(char_col));
 assign char_col = pxl_aux;
 
 
-always @(posedge clk) if(clk_en) begin
+always @(posedge clk) if(cen6) begin
     case( H128[2:0] )
         3'd6: begin
             chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;

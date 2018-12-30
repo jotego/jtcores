@@ -22,23 +22,33 @@ module jtgng_video(
     input               cen6,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
-    input       [ 7:0]  H,
+    input       [ 8:0]  H,
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
-
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
-    output              MRDY_b,
-    output reg  [12:0]  char_addr,
+    output              char_mrdy,
+    output      [12:0]  char_addr,
     input       [15:0]  chrom_data,
     // SCROLL - ROM
     input               scr_cs,
     input               scrpos_cs,    
-    output      [ 7:0]  scr_dout,    
-    output reg  [14:0]  scr_addr,
+    output      [ 7:0]  scr_dout,
+    output      [ 7:0]  scram_dout,    
+    output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,    
+    // OBJ
+    input               HINIT,    
+    output      [ 8:0]  obj_AB,    
+    input       [ 7:0]  main_ram,
+    input               OKOUT,
+    output              bus_req, // Request bus
+    input               bus_ack, // bus acknowledge
+    output              blcnten,    // bus line counter enable
+    output      [14:0]  obj_addr,
+    input       [31:0]  objrom_data,    
     // Color Mix
     input               LVBL,
     input               LHBL,       
@@ -47,17 +57,25 @@ module jtgng_video(
     input               enable_char,
     input               enable_obj,
     input               enable_scr,    
-    output  reg [3:0]   red,
-    output  reg [3:0]   green,
-    output  reg [3:0]   blue    
+    output      [3:0]   red,
+    output      [3:0]   green,
+    output      [3:0]   blue    
 );
 
-wire [ 3:0] chr_pal;
-wire [ 1:0] chr_col;
+wire [3:0] chr_pal;
+wire [1:0] chr_col;
+wire [5:0] obj_pxl;
+wire scr_mrdy, scrwin;
+wire [2:0] scr_col;
+wire [2:0] scr_pal;
+wire [2:0] HS;
+wire [3:0] cc;
+wire blue_cs;
+wire redgreen_cs;
 
 jtgng_char u_char (
     .clk        ( clk           ),
-    .clk_en     ( cen6          ),
+    .cen6       ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H128       ( H[7:0]        ),
@@ -73,13 +91,9 @@ jtgng_char u_char (
     .char_pal   ( chr_pal       )
 );
 
-wire scr_mrdy, scrwin;
-wire [ 2:0] scr_col;
-wire [ 2:0] scr_pal;
-wire [ 2:0] HS;
-
 jtgng_scroll u_scroll (
     .clk        ( clk           ),
+    .cen6       ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H          ( H             ),
@@ -94,14 +108,9 @@ jtgng_scroll u_scroll (
     .scr_addr   ( scr_addr      ),
     .scr_col    ( scr_col       ),
     .scr_pal    ( scr_pal       ),
-    .scrom_data ( scr_dout      ),
+    .scrom_data ( scrom_data    ),
     .scrwin     ( scrwin        )
 );
-
-wire [3:0] cc;
-wire blue_cs;
-wire redgreen_cs;
-wire [ 5:0] obj_pxl;
 
 jtgng_colmix u_colmix (
     .rst        ( rst           ),
@@ -132,29 +141,27 @@ jtgng_colmix u_colmix (
     .blue       ( blue          )
 );
 
-wire [14:0] obj_addr;
-wire [31:0] obj_dout;
-
-jtgng_obj u_obj (
-    .clk     (clk     ),
-    .rst     (rst     ),
-    .AB      (obj_AB  ),
-    .DB      (main_ram),
-    .OKOUT   (OKOUT   ),
-    .bus_req (bus_req ),
-    .bus_ack (bus_ack ),
-    .blen    (blcnten ),
-    .LVBL    ( LVBL   ),
-    .LHBL    ( LHBL   ),
-    .HINIT   ( Hinit  ),
-    .flip    ( flip   ),
-    .V       ( V[7:0] ),
-    .H       ( H      ),
+jtgng_obj u_obj (   
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .cen6       ( cen6        ),    
+    .AB         ( obj_AB      ),
+    .DB         ( main_ram    ),
+    .OKOUT      ( OKOUT       ),
+    .bus_req    ( bus_req     ),
+    .bus_ack    ( bus_ack     ),
+    .blen       ( blcnten     ),
+    .LVBL       ( LVBL        ),
+    .LHBL       ( LHBL        ),
+    .HINIT      ( HINIT       ),
+    .flip       ( flip        ),
+    .V          ( V[7:0]      ),
+    .H          ( H           ),
     // SDRAM interface
-    .obj_addr( obj_addr ),
-    .objrom_data( obj_dout ),
+    .obj_addr   ( obj_addr    ),
+    .objrom_data( objrom_data ),
     // pixel data
-    .obj_pxl ( obj_pxl )
+    .obj_pxl    ( obj_pxl     )
 );
 
 endmodule // jtgng_video
