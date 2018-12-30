@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {try{
     vluint64_t sim_time = ms2ns(2500);
     bool trace=false;
     int sample_skip=0, cen_ym=1, code=0x30;
+    char wavname[128]="test.wav";
     for( int k=1; k<argc; k++) {
         if( strcmp(argv[k], "-trace")==0 ) { trace=true; continue; }
         if( strcmp(argv[k], "-time")==0 ) {
@@ -79,10 +80,12 @@ int main(int argc, char *argv[]) {try{
             continue; 
         }
         if( strcmp(argv[k], "-code")==0 ) {
-            if( sscanf( argv[++k], "%d", &code ) != 1 ) {
+            if( sscanf( argv[++k], "%x", &code ) != 1 ) {
                 cerr << "ERROR: use -code n, to play sound code n.\n";
                 return 1;
             }
+            code &= 0xff;
+            sprintf(wavname,"%2X.wav", code);
             continue; 
         }        
         if( strcmp(argv[k], "-cen")==0 ) {
@@ -100,11 +103,11 @@ int main(int argc, char *argv[]) {try{
     sim.set_cen_ym( cen_ym );
     bool zeros=true;
     vluint64_t aux_time;
-    WaveWritter wav("test.wav",41834*2,false);
+    WaveWritter wav(wavname,41834,false);
     wav.set_skip(sample_skip);
 
-    aux_time = main_time + ms2ns(1);
-    cerr << "Start up after reset (" << aux_time << ")\n";
+    aux_time = main_time + ms2ns(1)/2;
+    //cerr << "Start up after reset (" << aux_time << ")\n";
     while( main_time < aux_time ) sim.next();
     sim.V32 = 0;
     sim_time += main_time;
@@ -112,19 +115,25 @@ int main(int argc, char *argv[]) {try{
     Vjtgng_sound* top = sim.Top();
     bool skip_zeros=true;
     int last_sample;
-    vluint64_t sample_t0=0, sample_t1=0;
+    vluint64_t sample_t0=0, sample_t1=0, last_nonzero=0;
     while( main_time < sim_time ) {
         sim.next();
         if( !last_sample && sim.get_sample() && !(sim.ym_snd==0 && skip_zeros)) {
             skip_zeros = false;
+            if( sim.ym_snd ) last_nonzero = main_time;
             wav.write( sim.ym_snd );
             sample_t0 = sample_t1;
             sample_t1 = main_time;
         }
         last_sample = sim.get_sample();
-        if( sim.get_frame()==60 && sim.snd_latch==0 ) {
+        if( sim.get_frame()==30 && sim.snd_latch==0 ) {
             sim.snd_latch=code;
-            cerr << "\nSnd latch set to " << hex << sim.snd_latch << '\n';
+            //cerr << "\nSnd latch set to 0x" << hex << sim.snd_latch << '\n';
+            cerr << '|';
+        }
+        if( sim.snd_latch!=0 && (main_time-last_nonzero)>=500'000'000 ) {
+            cerr << "Stopping after 0.5s without sound\n";
+            break;
         }
     }
     cerr <<'\n';

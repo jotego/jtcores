@@ -149,9 +149,15 @@ jt03 fm0(
     .cs_n   ( ~fm0_cs    ),
     .wr_n   ( wr_n       ),
     .snd    ( fm0_snd    ),
-    .dout   (            ),
-    .irq_n  (            ),
-    .snd_sample ( sample )
+    .snd_sample ( sample ),
+    // unused outputs
+    .dout   (),
+    .irq_n  (),
+    .psg_A  (),
+    .psg_B  (),
+    .psg_C  (),
+    .psg_snd(),
+    .fm_snd ()
 );
 
 jt03 fm1(
@@ -164,9 +170,15 @@ jt03 fm1(
     .cs_n   ( ~fm1_cs   ),
     .wr_n   ( wr_n      ),
     .snd    ( fm1_snd   ),
-    .dout   (           ),
-    .irq_n  (           ), 
-    .snd_sample (       )
+    // unused outputs
+    .dout   (),
+    .irq_n  (),
+    .psg_A  (),
+    .psg_B  (),
+    .psg_C  (),
+    .psg_snd(),    
+    .fm_snd (),
+    .snd_sample()
 );
 
 endmodule // jtgng_sound

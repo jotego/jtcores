@@ -9,7 +9,13 @@ module jt03 (
     
     output  [7:0]   dout,
     output          irq_n,
+    // Separated output
+    output          [ 7:0] psg_A,
+    output          [ 7:0] psg_B,
+    output          [ 7:0] psg_C,
+    output  signed  [15:0] fm_snd,    
     // combined output
+    output          [ 9:0] psg_snd,        
     output  signed  [15:0]  snd,
     output          snd_sample
 );

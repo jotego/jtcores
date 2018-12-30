@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 27-10-2017 */
     
-`timescale 1ns/1ps
-
 module jtgng_game(
     input           rst,
     input           soft_rst,
@@ -106,23 +104,7 @@ jtgng_timer timers (
     wire RnW;
     wire [3:0] char_pal;
 
-jtgng_char chargen (
-    .clk        ( clk           ),
-    .clk_en     ( cen6          ),
-    .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H128       ( H[7:0]        ),
-    .char_cs    ( char_cs       ),
-    .flip       ( flip          ),
-    .din        ( cpu_dout      ),
-    .dout       ( chram_dout    ),
-    .rd         ( RnW           ),
-    .MRDY_b     ( char_mrdy     ),
-    .char_addr  ( char_addr     ),
-    .chrom_data ( chrom_data    ),
-    .char_col   ( char_col      ),
-    .char_pal   ( char_pal      )
-);
+
 
 wire scr_mrdy, scrwin;
 wire [14:0] scr_addr;
@@ -131,61 +113,10 @@ wire [ 2:0] scr_col;
 wire [ 2:0] scr_pal;
 wire [ 2:0] HS;
 
-jtgng_scroll scrollgen (
-    .clk        ( clk           ),
-    .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H          ( H             ),
-    .HSlow      ( HS            ),
-    .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
-    .flip       ( flip          ),
-    .din        ( cpu_dout      ),
-    .dout       ( scram_dout    ),
-    .rd         ( RnW           ),
-    .MRDY_b     ( scr_mrdy      ),
-    .scr_addr   ( scr_addr      ),
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( scr_pal       ),
-    .scrom_data ( scr_dout      ),
-    .scrwin     ( scrwin        )
-);
-
-
 wire [3:0] cc;
 wire blue_cs;
 wire redgreen_cs;
 wire [ 5:0] obj_pxl;
-
-jtgng_colmix colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    // .H           ( H[2:0]        ),
-    // characters
-    .chr_col    ( char_col      ),
-    .chr_pal    ( char_pal      ),
-    // scroll
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( scr_pal       ),
-    .scrwin     ( scrwin        ),
-    // objects
-    .obj_pxl    ( obj_pxl       ),
-    // DEBUG
-    .enable_char( enable_char   ),
-    .enable_obj ( enable_obj    ),
-    .enable_scr ( enable_scr    ),
-    // CPU interface
-    .AB         ( cpu_AB[7:0]   ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
-    .DB         ( cpu_dout      ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
-);
-
 
     wire bus_ack, bus_req;
     wire [16:0] main_addr;
@@ -247,33 +178,10 @@ jtgng_main main (
 wire [14:0] obj_addr;
 wire [31:0] obj_dout;
 
-jtgng_obj obj (
-    .clk     (clk     ),
-    .rst     (rst     ),
-    .AB      (obj_AB  ),
-    .DB      (main_ram),
-    .OKOUT   (OKOUT   ),
-    .bus_req (bus_req ),
-    .bus_ack (bus_ack ),
-    .blen    (blcnten ),
-    .LVBL    ( LVBL   ),
-    .LHBL    ( LHBL   ),
-    .HINIT   ( Hinit  ),
-    .flip    ( flip   ),
-    .V       ( V[7:0] ),
-    .H       ( H      ),
-    // SDRAM interface
-    .obj_addr( obj_addr ),
-    .objrom_data( obj_dout ),
-    // pixel data
-    .obj_pxl ( obj_pxl )
-);
-
-
-    wire [14:0] snd_addr;
-    wire [ 7:0] snd_dout;
-    wire        snd_cs;
-    wire        snd_wait_n;
+wire [14:0] snd_addr;
+wire [ 7:0] snd_dout;
+wire        snd_cs;
+wire        snd_wait_n;
 jtgng_sound sound (
     .clk            ( clk        ),
     .cen3           ( cen3       ),
@@ -320,6 +228,5 @@ jtgng_rom rom (
     .romload_data( romload_data ),
     .romload_wr ( romload_wr    )
 );
-
 
 endmodule // jtgng

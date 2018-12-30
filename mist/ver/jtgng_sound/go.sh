@@ -5,6 +5,7 @@ GATHER=gather_dummy.f
 DEPTH="--trace-depth 1"
 EXTRA_VERI=
 VCD2FST=FALSE
+SKIPMAKE=FALSE
 
 while [ $# -gt 0 ]; do
     if [ "$1" = "-w" ]; then
@@ -25,6 +26,12 @@ while [ $# -gt 0 ]; do
         shift
         continue
     fi  
+    if [ "$1" = "-runonly" ]; then
+        echo Skipping Verilator and make steps
+        SKIPMAKE=TRUE
+        shift
+        continue
+    fi    
     if [ "$1" = "-snd" ]; then
         echo Simulate with full jt03
         GATHER=gather.f
@@ -74,17 +81,19 @@ while [ $# -gt 0 ]; do
         verilator -f gather.f --lint-only --top-module jtgng_sound --error-limit 500
         exit $?
     fi  
-    echo "Unknown option $1"
+    echo "go.sh: Unknown option $1"
     exit 1
 done
 
-if ! verilator --cc -f $GATHER --top-module jtgng_sound --trace --exe test.cpp \
-    -DNOLFO -DNOTIMER $DEPTH $EXTRA_VERI; then
-    exit $?
-fi
+if [ $SKIPMAKE = FALSE ]; then
+    if ! verilator --cc -f $GATHER --top-module jtgng_sound --trace --exe test.cpp \
+        -DNOLFO -DNOTIMER $DEPTH $EXTRA_VERI; then
+        exit $?
+    fi
 
-if ! make -j -C obj_dir -f Vjtgng_sound.mk Vjtgng_sound; then
-    exit $?
+    if ! make -j -C obj_dir -f Vjtgng_sound.mk Vjtgng_sound; then
+        exit $?
+    fi
 fi
 
 if [ $VCD2FST = TRUE ]; then

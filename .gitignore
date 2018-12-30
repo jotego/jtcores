@@ -2,6 +2,8 @@
 *.lxt
 *.rpt
 *.rom
+*.wav
+*.fst
 sim
 mist/quartus/db
 mist/quartus/incremental_db
