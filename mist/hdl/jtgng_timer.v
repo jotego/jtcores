@@ -25,18 +25,20 @@ module jtgng_timer(
     output  reg         Hinit,
     output  reg         Vinit,
     output  reg         LHBL,
-    output  reg         LHBL_short,
-    output  reg         LVBL,
-    output  reg         G4_3H,  // high on 3/4 H transition
-    output  reg         G4H, // high on 4H transition
-    output  reg         OH   // high on 0H transition
+    output  reg         LVBL
 );
 
+//reg LHBL_short;
+//reg G4_3H;  // high on 3/4 H transition
+//reg G4H;    // high on 4H transition
+//reg OH;     // high on 0H transition
+ 
 // H/V counters
 always @(posedge clk) begin
     if( rst ) begin
         { Hinit, H } <= 10'd0;
-        V <= 9'd250;
+        V     <= 9'd250;
+        Vinit <= 1'b1;
     end else if(clk_en) begin
         Hinit <= H == 9'h86;
         if( H == 9'd511 ) begin
@@ -62,18 +64,18 @@ always @(posedge clk)
             if( V==9'd496 ) LVBL <= 1'b0;
             if( V==9'd271 ) LVBL <= 1'b1;
         end
-        if (H==9'd136) LHBL_short <= 1'b0;
-        if (H==9'd248) LHBL_short <= 1'b1;
+        // if (H==9'd136) LHBL_short <= 1'b0;
+        // if (H==9'd248) LHBL_short <= 1'b1;
     end
 
 // H indicators
-always @(posedge clk) begin
-    G4H <= &H[1:0];
-    OH  <= &H[2:0];
-end
-
-always @(posedge clk) begin
-    G4_3H <= &H[1:0];
-end
+// always @(posedge clk) begin
+//     G4H <= &H[1:0];
+//     OH  <= &H[2:0];
+// end
+// 
+// always @(posedge clk) begin
+//     G4_3H <= &H[1:0];
+// end
 
 endmodule // jtgng_timer

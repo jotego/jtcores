@@ -52,6 +52,10 @@ always @(*)
         addr = { H128[0], scan };
     end
 
+`ifdef SIMULATION
+initial $readmemh("char_ram.hex",ram);
+`endif
+
 // RAM
 always @(posedge clk) if(cen6) begin
     dout <= ram[addr];

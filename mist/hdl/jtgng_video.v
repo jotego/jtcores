@@ -35,7 +35,6 @@ module jtgng_video(
     // SCROLL - ROM
     input               scr_cs,
     input               scrpos_cs,    
-    output      [ 7:0]  scr_dout,
     output      [ 7:0]  scram_dout,    
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,    
@@ -48,7 +47,7 @@ module jtgng_video(
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
     output      [14:0]  obj_addr,
-    input       [31:0]  objrom_data,    
+    input       [15:0]  objrom_data,    
     // Color Mix
     input               LVBL,
     input               LHBL,       
@@ -151,8 +150,8 @@ jtgng_obj u_obj (
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LVBL       ( LVBL        ),
     .LHBL       ( LHBL        ),
+    .LVBL       ( LVBL        ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
     .V          ( V[7:0]      ),

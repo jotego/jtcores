@@ -54,12 +54,12 @@ module jtgng_main(
     output  [7:0]   ram_dout,
     // ROM access
     output  reg [16:0] rom_addr,
-    input   [ 7:0] rom_dout,
+    input       [ 7:0] rom_dout,
     // DIP switches
-    input   dip_flip,
-    input   dip_game_mode,
-    input   dip_attract_snd,
-    input   dip_upright
+    input              dip_flip,
+    input              dip_game_mode,
+    input              dip_attract_snd,
+    input              dip_upright
 );
 
 wire [15:0] A;
@@ -72,29 +72,28 @@ reg [12:0] map_cs;
 
 assign { 
     sound_cs, OKOUT, scrpos_cs, scr_cs, in_cs,
-    sdram_prog, blue_cs, redgreen_cs,   flip_cs, 
+    /*sdram_prog, */blue_cs, redgreen_cs,   flip_cs, 
     ram_cs,     char_cs, bank_cs,       main_cs         } = map_cs;
 
 reg [7:0] AH;
 
 always @(*)
     casez(A[15:8])
-        8'b000?_????: map_cs = 13'h8; // 0000-1FFF, RAM
+        8'b000?_????: map_cs = 12'h008; // 0000-1FFF, RAM
         // EXTEN
-        8'b0010_0???: map_cs = 13'h4;   // 2000-27FF    Char
-        8'b0010_1???: map_cs = 13'h200; // 2800-2FFF    Scroll
-        8'b0011_0???: map_cs = 13'h100; // 3000-37FF input
-        8'b0011_1000: map_cs = 13'h20; // 3800-38FF, Red, green
-        8'b0011_1001: map_cs = 13'h40; // 3900-39FF, blue
-        8'b0011_1010: map_cs = 13'h1000; // 3A00-3AFF, sound
-        8'b0011_1011: map_cs = 13'h400;// 3B00-3BFF Scroll position
-        8'b0011_1100: map_cs = 13'h800;// OKOUT 
-        8'b0011_1101: map_cs = 13'h10; // 3D?? flip
+        8'b0010_0???: map_cs = 12'h004;   // 2000-27FF    Char
+        8'b0010_1???: map_cs = 12'h100; // 2800-2FFF    Scroll
+        8'b0011_0???: map_cs = 12'h080; // 3000-37FF input
+        8'b0011_1000: map_cs = 12'h020; // 3800-38FF, Red, green
+        8'b0011_1001: map_cs = 12'h040; // 3900-39FF, blue
+        8'b0011_1010: map_cs = 12'h800; // 3A00-3AFF, sound
+        8'b0011_1011: map_cs = 12'h200;// 3B00-3BFF Scroll position
+        8'b0011_1100: map_cs = 12'h400;// OKOUT 
+        8'b0011_1101: map_cs = 12'h010; // 3D?? flip
 
-        8'b0011_1110: map_cs = 13'h2; // 3E00-3EFF bank
-        8'b0011_1111: map_cs = 13'h80; // 3F00-3FFF SDRAM programming
-        8'b1???_????: map_cs = 13'h1; // ROMs
-        default: map_cs = 13'h0;
+        8'b0011_1110: map_cs = 12'h002; // 3E00-3EFF bank
+        8'b1???_????: map_cs = 12'h001; // ROMs
+        default:      map_cs = 12'h000;
     endcase
 
 // special registers
@@ -194,18 +193,17 @@ always @(posedge clk)
 
 always @(A,bank) begin
     rom_addr[12:0] = A[12:0];
-    case( A[15:13] )
-        3'd6, 3'd7: rom_addr[16:13] = { 2'h0, A[14:13] }; // 8N
-        3'd5, 3'd4: rom_addr[16:13] = { 2'h0, A[14:13] }; // 9N
-        3'd3      : rom_addr[16:13] = 4'd5; // 10N
-        3'd2      : 
+    casez( A[15:13] )
+        3'b1??:     rom_addr[16:13] = { 2'h0, A[14:13] }; // 8N, 9N
+        3'b011:     rom_addr[16:13] = 4'b01_01; // 10N
+        3'b010: 
             casez( bank )
                 3'd4: rom_addr[16:13] = 4'h4; // 10N
                 //3'd3, 3'd2: rom_addr[16:13] = { 3'b100, bank[1:0] }; // 12N
                 3'b0??: rom_addr[16:13] =  {2'd0,bank[1:0]}+4'd6; // 13N
-                default:rom_addr[16:13] = 4'hx;
+                default:rom_addr[16:13] = 4'h0;
             endcase
-        default: rom_addr[16:12] = 5'hxx;
+        default: rom_addr[16:12] = 5'h00;
     endcase
 end
 

@@ -17,14 +17,14 @@
     Date: 27-10-2017 */
 
 module jtgng_rom(
-    input           clk, // 96MHz = 32 * 6 MHz -> CL=2
-    input           rst,
-    input   [12:0]  char_addr,
-    input   [17:0]  main_addr,
-    input   [14:0]  snd_addr,
-    input   [14:0]  obj_addr,
-    input   [14:0]  scr_addr,
-    input           H2,
+    input               clk, // 96MHz = 32 * 6 MHz -> CL=2
+    input               rst,
+    input       [12:0]  char_addr,
+    input       [16:0]  main_addr,
+    input       [14:0]  snd_addr,
+    input       [14:0]  obj_addr,
+    input       [14:0]  scr_addr,
+    // input           H2,
 
     output  reg [15:0]  char_dout,
     output  reg [ 7:0]  main_dout,
@@ -34,21 +34,21 @@ module jtgng_rom(
     output  reg         ready,
 
     // SDRAM interface
-    inout [15:0]    SDRAM_DQ,       // SDRAM Data bus 16 Bits
-    output reg [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
-    output          SDRAM_DQML,     // SDRAM Low-byte Data Mask
-    output          SDRAM_DQMH,     // SDRAM High-byte Data Mask
-    output  reg     SDRAM_nWE,      // SDRAM Write Enable
-    output  reg     SDRAM_nCAS,     // SDRAM Column Address Strobe
-    output  reg     SDRAM_nRAS,     // SDRAM Row Address Strobe
-    output  reg     SDRAM_nCS,      // SDRAM Chip Select
-    output [1:0]    SDRAM_BA,       // SDRAM Bank Address
-    output          SDRAM_CKE,      // SDRAM Clock Enable   
-    // ROM load
-    input           downloading,
-    input   [24:0]  romload_addr,
-    input   [15:0]  romload_data,
-    input           romload_wr
+    inout       [15:0]  SDRAM_DQ,       // SDRAM Data bus 16 Bits
+    output reg  [12:0]  SDRAM_A,        // SDRAM Address bus 13 Bits
+    output              SDRAM_DQML,     // SDRAM Low-byte Data Mask
+    output              SDRAM_DQMH,     // SDRAM High-byte Data Mask
+    output  reg         SDRAM_nWE,      // SDRAM Write Enable
+    output  reg         SDRAM_nCAS,     // SDRAM Column Address Strobe
+    output  reg         SDRAM_nRAS,     // SDRAM Row Address Strobe
+    output  reg         SDRAM_nCS,      // SDRAM Chip Select
+    output      [ 1:0]  SDRAM_BA,       // SDRAM Bank Address
+    output              SDRAM_CKE,      // SDRAM Clock Enable   
+    // ROM load 
+    input               downloading,
+    input       [24:0]  romload_addr,
+    input       [15:0]  romload_data,
+    input               romload_wr
 );
 
 assign SDRAM_DQMH = 1'b0;
@@ -110,7 +110,7 @@ always @(posedge clk)
                     snd_lsb <= snd_addr[0];
                 end
                 4'b??01: begin
-                    {row_addr, col_addr} <= { 6'd0, main_addr[17:1] }; // 17:0
+                    {row_addr, col_addr} <= { 7'd0, main_addr[16:1] }; // 16:0
                     main_lsb <= main_addr[0];
                 end
                 4'd2:    {row_addr, col_addr} <= 22'h0A000 + { 9'b0, char_addr }; // 12:0
@@ -168,13 +168,13 @@ integer sdram_writes = 0;
 `endif
 
 
-reg H2edge;
-reg [1:0] H2s;
-
-always @(posedge clk) begin
-    H2s <= { H2s[0], H2};
-    H2edge <= H2s[1] && !H2s[0];
-end
+// reg H2edge;
+// reg [1:0] H2s;
+// 
+// always @(posedge clk) begin
+//     H2s <= { H2s[0], H2};
+//     H2edge <= H2s[1] && !H2s[0];
+// end
 
 always @(posedge clk)
     if( rst ) begin

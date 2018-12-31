@@ -24,8 +24,8 @@ module jtgng_obj(
     input              cen6,    //  6 MHz
     // screen
     input              HINIT,
-    input              LVBL,
     input              LHBL,
+    input              LVBL,
     input   [ 7:0]     V,
     input   [ 8:0]     H,
     input              flip,
@@ -38,7 +38,7 @@ module jtgng_obj(
     output  reg        blen,   // bus line counter enable
     // SDRAM interface
     output  reg [14:0] obj_addr,
-    input       [31:0] objrom_data,
+    input       [15:0] objrom_data,
     // pixel output
     output  reg [ 5:0] obj_pxl
 );

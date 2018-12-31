@@ -60,21 +60,20 @@ module jtgng_game(
     output  signed [15:0] ym_snd
 );
 
-    wire [8:0] V;
-    wire [8:0] H;
-    wire Hinit;
+wire [8:0] V;
+wire [8:0] H;
+wire Hinit;
 
-    wire [12:0] cpu_AB;
-    wire char_cs;
-    wire flip;
-    wire [7:0] cpu_dout, char_dout;
-    wire rd;
-    wire char_mrdy;
-    wire [12:0] char_addr;
-    wire [ 7:0] chram_dout,scram_dout;
-    wire [15:0] chrom_data;
-    wire [1:0] char_col;
-    wire rom_ready;
+wire [12:0] cpu_AB;
+wire char_cs;
+wire flip;
+wire [7:0] cpu_dout, char_dout;
+wire rd;
+wire char_mrdy;
+wire [12:0] char_addr;
+wire [ 7:0] chram_dout,scram_dout;
+wire [15:0] chrom_data;
+wire rom_ready;
 
 wire [31:0] crc;
 
@@ -89,7 +88,7 @@ always @(posedge clk or posedge rst or negedge rom_ready)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
-jtgng_timer timers (
+jtgng_timer timers(
     .clk       ( clk      ),
     .clk_en    ( cen6     ),
     .rst       ( rst      ),
@@ -97,42 +96,37 @@ jtgng_timer timers (
     .H         ( H        ),
     .Hinit     ( Hinit    ),
     .LHBL      ( LHBL     ),
-    .LVBL      ( LVBL     ),
-    .LHBL_short(LHBL_short)
+    .LVBL      ( LVBL     )
 );
 
-    wire RnW;
-    wire [3:0] char_pal;
+wire RnW;
+wire [3:0] char_pal;
 
-
-
-wire scr_mrdy, scrwin;
+wire scr_mrdy;
 wire [14:0] scr_addr;
 wire [23:0] scr_dout;
-wire [ 2:0] scr_col;
-wire [ 2:0] scr_pal;
-wire [ 2:0] HS;
 
 wire [3:0] cc;
 wire blue_cs;
 wire redgreen_cs;
 wire [ 5:0] obj_pxl;
 
-    wire bus_ack, bus_req;
-    wire [16:0] main_addr;
-    wire [7:0] main_dout;
-    wire [15:0] sdram_din;
-    wire [12:0] wr_row;
-    wire [ 8:0] wr_col; 
-    wire        main_cs;
+wire bus_ack, bus_req;
+wire [16:0] main_addr;
+wire [ 7:0] main_dout;
+wire [15:0] sdram_din;
+wire [12:0] wr_row;
+wire [ 8:0] wr_col; 
+wire        main_cs;
 // OBJ  
-    wire [ 8:0] obj_AB;
-    wire OKOUT;
-    wire [7:0] main_ram;
-    wire blcnten;
+wire [ 8:0] obj_AB;
+wire OKOUT;
+wire [7:0] main_ram;
+wire blcnten;
 // sound
-    wire sres_b;
-    wire [7:0] snd_latch;
+wire sres_b;
+wire [7:0] snd_latch;
+
 jtgng_main main (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -176,7 +170,7 @@ jtgng_main main (
 );
 
 wire [14:0] obj_addr;
-wire [31:0] obj_dout;
+wire [15:0] obj_dout;
 
 wire [14:0] snd_addr;
 wire [ 7:0] snd_dout;
@@ -197,8 +191,53 @@ jtgng_sound sound (
     .ym_snd         ( ym_snd     )  
 );
 
+jtgng_video u_video(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen6       ( cen6          ),
+    .cpu_AB     ( cpu_AB[10:0]  ),
+    .V          ( V[7:0]        ),
+    .H          ( H             ),
+    .RnW        ( RnW           ),
+    .flip       ( flip          ),
+    .cpu_dout   ( cpu_dout      ),
+    // CHAR
+    .char_cs    ( char_cs       ),
+    .chram_dout ( chram_dout    ),
+    .char_mrdy  ( char_mrdy     ),
+    .char_addr  ( char_addr     ),
+    .chrom_data ( chrom_data    ),
+    // SCROLL - ROM
+    .scr_cs     ( scr_cs        ),
+    .scrpos_cs  ( scrpos_cs     ),    
+    .scram_dout ( scram_dout    ),    
+    .scr_addr   ( scr_addr      ),
+    .scrom_data ( scr_dout      ),    
+    // OBJ
+    .HINIT      ( HINIT         ),    
+    .obj_AB     ( obj_AB        ),    
+    .main_ram   ( main_ram      ),
+    .OKOUT      ( OKOUT         ),
+    .bus_req    ( bus_req       ), // Request bus
+    .bus_ack    ( bus_ack       ), // bus acknowledge
+    .blcnten    ( blcnten       ), // bus line counter enable
+    .obj_addr   ( obj_addr      ),
+    .objrom_data( objrom_data   ),    
+    // Color Mix
+    .LHBL       ( LHBL          ),       
+    .LVBL       ( LVBL          ),
+    .blue_cs    ( blue_cs       ),
+    .redgreen_cs( redgreen_cs   ),    
+    .enable_char( enable_char   ),
+    .enable_obj ( enable_obj    ),
+    .enable_scr ( enable_scr    ),    
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          )    
+);
+
 jtgng_rom rom (
-    .clk        ( SDRAM_CLK     ),
+    .clk        ( SDRAM_CLK     ), // 96MHz = 32 * 6 MHz -> CL=2
     .rst        ( rst           ),
     .char_addr  ( char_addr     ),
     .main_addr  ( main_addr     ),
@@ -210,6 +249,7 @@ jtgng_rom rom (
     .main_dout  ( main_dout     ),
     .snd_dout   ( snd_dout      ),
     .obj_dout   ( obj_dout      ),
+    .scr_dout   ( scr_dout      ),
     .ready      ( rom_ready     ),
     // SDRAM interface
     .SDRAM_DQ   ( SDRAM_DQ      ),
@@ -223,10 +263,10 @@ jtgng_rom rom (
     .SDRAM_BA   ( SDRAM_BA      ),
     .SDRAM_CKE  ( SDRAM_CKE     ),
     // ROM load
-    .downloading( downloading ),
+    .downloading ( downloading  ),
     .romload_addr( romload_addr ),
     .romload_data( romload_data ),
-    .romload_wr ( romload_wr    )
+    .romload_wr  ( romload_wr   )
 );
 
 endmodule // jtgng
