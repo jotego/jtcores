@@ -69,8 +69,6 @@ wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [2:0] HS;
 wire [3:0] cc;
-wire blue_cs;
-wire redgreen_cs;
 
 jtgng_char u_char (
     .clk        ( clk           ),

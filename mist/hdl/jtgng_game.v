@@ -191,6 +191,9 @@ jtgng_sound sound (
     .ym_snd         ( ym_snd     )  
 );
 
+wire scr_cs, scrpos_cs, HINIT;
+wire [15:0] objrom_data;
+
 jtgng_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),

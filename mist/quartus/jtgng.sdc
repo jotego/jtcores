@@ -48,8 +48,6 @@ create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 31777.000 -waveform { 
 #**************************************************************
 
 derive_pll_clocks -create_base_clocks
-create_generated_clock -name {rE} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -divide_by 4 -phase 135.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers { jtgng_game:game|jtgng_main:main|mc6809:cpu|rE }] 
-create_generated_clock -name {rQ} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -divide_by 4 -phase 45.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers { jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ }] 
 create_generated_clock -name {sdclk_pin} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
 
 
@@ -92,7 +90,7 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
 #**************************************************************
 
 # set_false_path  -from  [get_clocks {clk_E}]  -to  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]
-set_false_path  -from  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {rE}]
+# set_false_path  -from  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {rE}]
 set_false_path -from [get_keepers {user_io:userio|joystick_0[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
 set_false_path -from [get_keepers {user_io:userio|joystick_1[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
 set_false_path -from [get_keepers {user_io:userio|status[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]

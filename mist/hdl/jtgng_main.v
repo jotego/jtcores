@@ -68,7 +68,7 @@ reg nRESET;
 wire in_cs;
 wire sound_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
 
-reg [12:0] map_cs;
+reg [11:0] map_cs;
 
 assign { 
     sound_cs, OKOUT, scrpos_cs, scr_cs, in_cs,

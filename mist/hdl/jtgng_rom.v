@@ -68,8 +68,10 @@ reg [col_w-1:0]  romload_col;
 reg [3:0] rd_state;
 reg autorefresh;
 
+`ifdef SIMULATION
 wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
+`endif
 
 reg SDRAM_WRITE;
 assign SDRAM_DQ =  SDRAM_WRITE ? romload_data : 16'hzzzz;
@@ -112,11 +114,11 @@ always @(posedge clk)
         if( rdcnt==3'd1 ) begin // latch address before ACTIVATE state
             casez(rd_state)
                 4'b??00: begin
-                    {row_addr, col_addr} <= 22'h28000 + { 9'b0,  snd_addr[14:1] }; // 14:0
+                    {row_addr, col_addr} <= 22'h28000 + { 8'b0,  snd_addr[14:1] }; // 14:0
                     snd_lsb <= snd_addr[0];
                 end
                 4'b??01: begin
-                    {row_addr, col_addr} <= { 7'd0, main_addr[16:1] }; // 16:0
+                    {row_addr, col_addr} <= { 6'd0, main_addr[16:1] }; // 16:0
                     main_lsb <= main_addr[0];
                 end
                 4'd2:    {row_addr, col_addr} <= 22'h0A000 + { 9'b0, char_addr }; // 12:0
@@ -167,10 +169,9 @@ reg [3:0] wait_cnt;
 reg write_done;
 localparam PRECHARGE_WAIT = 4'd0, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
 
-wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
-
 `ifdef SIMULATION
 integer sdram_writes = 0;
+wire [3:0] mem_cmd = { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE };
 `endif
 
 
@@ -194,7 +195,7 @@ always @(posedge clk)
         SDRAM_WRITE<= 1'b0;
     end else  begin
     if( romload_wr ) begin
-        { romload_row, romload_col } <= romload_addr[24:1]-1'b1;
+        { romload_row, romload_col } <= romload_addr[22:1]-1'b1;
     end
     case( state )
         default: state <= SET_PRECHARGE;
