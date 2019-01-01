@@ -62,7 +62,7 @@ module jtgng_game(
 
 wire [8:0] V;
 wire [8:0] H;
-wire Hinit;
+wire HINIT;
 
 wire [12:0] cpu_AB;
 wire char_cs;
@@ -94,7 +94,7 @@ jtgng_timer timers(
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
-    .Hinit     ( Hinit    ),
+    .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LVBL      ( LVBL     )
 );
@@ -191,7 +191,6 @@ jtgng_sound sound (
     .ym_snd         ( ym_snd     )  
 );
 
-wire scr_cs, scrpos_cs, HINIT;
 wire [15:0] objrom_data;
 
 jtgng_video u_video(

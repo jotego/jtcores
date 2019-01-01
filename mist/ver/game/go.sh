@@ -183,9 +183,7 @@ function add_dir {
 
 if [ $SIMULATOR = iverilog ]; then
 	iverilog game_test.v \
-	    ../../../modules/jt12/hdl/{jt03,jt03_acc}.v \
-		$(add_dir ../../../modules/jt12/hdl jt12.f) \
-		$(add_dir ../../../modules/jt12/jt49/hdl jt49.f) \
+		$(add_dir ../../../modules/jt12/hdl jt03.f) \
 		../../hdl/*.v \
 		../common/{mt48lc16m16a2.v,altera_mf.v} \
 		../../../modules/mc6809/{mc6809_cen.v,mc6809i.v} \
