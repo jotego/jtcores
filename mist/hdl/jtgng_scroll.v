@@ -82,7 +82,7 @@ always @(posedge clk) if(cen6) begin
     endcase 
 end
 
-jtgng_ram #(.aw(11)) u_ram(
+jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
     .data   ( din      ),

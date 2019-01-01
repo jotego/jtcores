@@ -38,7 +38,6 @@ wire [15:0] objrom_data;
 wire [23:0] scr_dout;
 wire [14:0] scr_addr;
 
-
 jtgng_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -98,7 +97,7 @@ wire        SDRAM_CKE;      // SDRAM Clock Enable
 
 
 wire [1:0] Dqm = { SDRAM_DQMH, SDRAM_DQML };
-
+/*
 mt48lc16m16a2 SDRAM(
     .Dq     ( SDRAM_DQ   ), 
     .Addr   ( SDRAM_A    ), 
@@ -111,6 +110,22 @@ mt48lc16m16a2 SDRAM(
     .We_n   ( SDRAM_nWE  ),
     .Dqm    ( Dqm        )
 );
+*/
+
+// Quick model for SDRAM
+reg  [15:0] sdram_mem[0:2**18-1];
+reg  [12:0] sdram_row;
+//reg  [10:0] sdram_col;
+reg  [15:0] sdram_data;
+reg  [17:0] sdram_compound;
+assign SDRAM_DQ = sdram_data;
+initial $readmemh("../../../rom/gng.hex",  sdram_mem, 0, 180223);
+always @(posedge SDRAM_CLK) begin
+    if( !SDRAM_nCS && !SDRAM_nRAS &&  SDRAM_nCAS && SDRAM_nWE && SDRAM_CKE ) sdram_row <= SDRAM_A;
+    if( !SDRAM_nCS &&  SDRAM_nRAS && !SDRAM_nCAS && SDRAM_nWE && SDRAM_CKE ) sdram_compound <= {sdram_row[8:0], SDRAM_A[8:0]};
+    sdram_data <= sdram_mem[ sdram_compound ];
+end
+
 
 jtgng_rom rom (
     .clk        ( SDRAM_CLK     ), // 96MHz = 32 * 6 MHz -> CL=2

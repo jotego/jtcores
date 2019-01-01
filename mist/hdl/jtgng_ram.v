@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_ram #(parameter dw=8, aw=10)(
+module jtgng_ram #(parameter dw=8, aw=10, simfile="ram.hex")(
     input   clk,
     input   clk_en,
     input   [dw-1:0] data,
@@ -26,6 +26,10 @@ module jtgng_ram #(parameter dw=8, aw=10)(
 );
 
 reg [dw-1:0] mem[0:(2**aw)-1];
+
+`ifdef SIMULATION
+initial $readmemh(simfile, mem );
+`endif
 
 always @(posedge clk) if(clk_en) begin
     q <= mem[addr];

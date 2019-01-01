@@ -9,9 +9,9 @@ module stim(
     output          rom_ready
 );
 
-initial begin
-    #150_000 $finish;
-end
+// initial begin
+//     #240_000 $finish;
+// end
 
 reg SDRAM_CLK,  // 96   MHz
     clk=1'b0,        // 24   MHz
@@ -19,10 +19,14 @@ reg SDRAM_CLK,  // 96   MHz
     rst;
 wire flip = 1'b0;
 
-initial begin
-    rst = 1'b1;
-    #1000 rst = 1'b0;
-end
+integer rst_cnt=0;
+
+always @(negedge SDRAM_CLK)
+    if(rst_cnt<10) begin
+        rst <= 1'b1;
+        rst_cnt <= rst_cnt+1;
+    end
+    else rst <= 1'b0;
 
 initial begin
     SDRAM_CLK = 1'b0;
@@ -42,6 +46,13 @@ always @(negedge clk) begin
         cen6 <= cnt6==2'd3;
     end
 
+integer lines=0;
+always @(posedge LHBL) begin
+    lines <= lines+1;
+    if( lines == 256 )
+        $finish;
+end
+
 test uut(
     .rst        ( rst       ),    
     .SDRAM_CLK  ( SDRAM_CLK ),
@@ -58,7 +69,11 @@ test uut(
 
 initial begin
     $dumpfile("test.lxt");
-    $dumpvars;
+    $dumpvars(1,uut);
+    $dumpvars(1,uut.u_video);
+    $dumpvars(1,uut.u_video.u_char);
+    $dumpvars(1,uut.u_video.u_colmix);
+    //$dumpvars;
     $dumpon;
 end
 

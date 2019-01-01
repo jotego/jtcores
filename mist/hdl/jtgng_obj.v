@@ -309,7 +309,7 @@ always @(*) begin
     end
 end
 
-jtgng_ram #(.aw(7)) objbuf_a(
+jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
     .clk   ( clk       ),
     .clk_en( cen6      ),
     .addr  ( address_a ),
@@ -318,7 +318,7 @@ jtgng_ram #(.aw(7)) objbuf_a(
     .q     ( q_a       )
 );
 
-jtgng_ram #(.aw(7)) objbuf_b(
+jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_b(
     .clk   ( clk       ),
     .clk_en( cen6      ),
     .addr  ( address_b ),

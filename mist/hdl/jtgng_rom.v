@@ -76,9 +76,10 @@ assign SDRAM_DQ =  SDRAM_WRITE ? romload_data : 16'hzzzz;
 
 reg [15:0] data_read, scr_aux;
 
-reg [2:0] rdcnt; // Each read cycle takes 8 counts 
+reg [2:0] rdcnt; // Each read cycle takes 8 counts
+reg loop_rst;
 always @(posedge clk)
-    if(rst) rdcnt<=3'd0;
+    if(loop_rst) rdcnt<=3'd0;
     else rdcnt<=rdcnt+3'd1;
 
 wire rdzero = rdcnt==3'd7;
@@ -86,10 +87,15 @@ wire rdzero = rdcnt==3'd7;
 reg main_lsb, snd_lsb;
 
 always @(posedge clk)
-    if( rst ) begin
+    if( loop_rst ) begin
         rd_state    <= 4'd0;
         autorefresh <= false;
-        {row_addr, col_addr} <= { 8'b110, snd_addr };
+        {row_addr, col_addr} <= {(addr_w+col_w){1'b0}};
+        snd_dout  <=  8'd0;
+        main_dout <=  8'd0;
+        char_dout <= 16'd0;
+        obj_dout  <= 16'd0;
+        scr_dout  <= 24'd0;
     end else begin
         if( rdcnt==3'd0 ) begin
             // Get data from current read
@@ -98,8 +104,8 @@ always @(posedge clk)
                 4'b??10: main_dout <= main_lsb ? data_read[ 7:0] : data_read[15:8]; // endian-ness
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
-                4'd6:    scr_aux   <= data_read;
-                4'd7:    scr_dout  <= { data_read[7:0], scr_aux };
+                4'd7:    scr_aux   <= data_read;
+                4'd8:    scr_dout  <= { data_read[7:0], scr_aux };
                 default:;
             endcase
         end
@@ -133,15 +139,15 @@ always @(posedge clk)
     end
 reg  [1:0] cl_cnt;
 
-localparam  CMD_LOAD_MODE   = 4'b0000,
-            CMD_AUTOREFRESH = 4'b0001,
-            CMD_PRECHARGE   = 4'b0010,
-            CMD_ACTIVATE    = 4'b0011,
-            CMD_WRITE       = 4'b0100,
-            CMD_READ        = 4'b0101,
-            CMD_STOP        = 4'b0110,
-            CMD_NOP         = 4'b0111,
-            CMD_INHIBIT     = 4'b1000;
+localparam  CMD_LOAD_MODE   = 4'b0000, // 0 
+            CMD_AUTOREFRESH = 4'b0001, // 1 
+            CMD_PRECHARGE   = 4'b0010, // 2
+            CMD_ACTIVATE    = 4'b0011, // 3 
+            CMD_WRITE       = 4'b0100, // 4
+            CMD_READ        = 4'b0101, // 5
+            CMD_STOP        = 4'b0110, // 6
+            CMD_NOP         = 4'b0111, // 7
+            CMD_INHIBIT     = 4'b1000; // 8
 
 reg [3:0] state, next, init_state;
 
@@ -184,6 +190,8 @@ always @(posedge clk)
         { wait_cnt, SDRAM_A } <= 16'd9800;
         ready <= false;
         write_done <= 1'b0;
+        loop_rst   <= 1'b1;
+        SDRAM_WRITE<= 1'b0;
     end else  begin
     if( romload_wr ) begin
         { romload_row, romload_col } <= romload_addr[24:1]-1'b1;
@@ -219,8 +227,11 @@ always @(posedge clk)
                     // SDRAM_A <= 12'b00_1_00_011_0_000; // CAS Latency = 3
                     wait_cnt <= 4'd2;
                     state <= WAIT;
-                    next <= INITIALIZE;
-                    init_state <= init_state+4'd1;
+                    next  <= SET_PRECHARGE;
+                    ready <= true;
+                    loop_rst <= 1'b0;
+                    // next <= INITIALIZE;
+                    // init_state <= init_state+4'd1;
                     end
                 4'd5: begin // wait to rd_state zero
                     if( rd_state==4'd15 && rdzero ) begin

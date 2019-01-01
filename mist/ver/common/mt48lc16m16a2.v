@@ -75,6 +75,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 `ifdef OBJTEST
                 $readmemh("ram.hex",  Bank0);
                 `else
+                $display("gng.hex read into SDRAM");
         		$readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
                 `endif
         	`endif
@@ -138,7 +139,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     // Write Burst Mode
     wire      Write_burst_mode = Mode_reg[9];
 
-    wire      Debug            = 1'b0;                          // Debug messages : 1 = On
+    wire      Debug            = 1'b1;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
     
     assign    Dq               = Dq_reg;                        // DQ buffer
@@ -587,7 +588,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end
         
         // Burst terminate
-        if (Burst_term === 1'b1) begin
+        if ( /*Burst_term === 1'b1*/ ~Cs_n &  Ras_n &  Cas_n & ~We_n ) begin
             // Terminate a Write Immediately
             if (Data_in_enable == 1'b1) begin
                 Data_in_enable = 1'b0;
@@ -602,6 +603,8 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
             // Display debug message
             if (Debug) begin
+                $display("Burst_term = %d", Burst_term);
+                $display(" ~Cs_n &  Ras_n &  Cas_n & ~We_n -> %d%d%d%d", Cs_n, Ras_n, Cas_n, We_n);
                 $display ("%m : at time %t BST  : Burst Terminate",$time);
             end
         end
