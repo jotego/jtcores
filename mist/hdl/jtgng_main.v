@@ -19,39 +19,39 @@
 `timescale 1ns/1ps
 
 module jtgng_main(
-    input   clk, 
-    input   cen6,   // 6MHz
-    input   rst,
-    input   soft_rst,
-    input   ch_mrdy,
-    input   [7:0] char_dout,
-    input   LVBL,   // vertical blanking when 0
-    output  [7:0] cpu_dout,
-    output  main_cs,
-    output  char_cs,
-    output  blue_cs,
-    output  redgreen_cs,    
-    output  reg flip,
+    input              clk, 
+    input              cen6,   // 6MHz
+    input              rst,
+    input              soft_rst,
+    input              ch_mrdy,
+    input              [7:0] char_dout,
+    input              LVBL,   // vertical blanking when 0
+    output             [7:0] cpu_dout,
+    output             main_cs,
+    output             char_cs,
+    output             blue_cs,
+    output             redgreen_cs,    
+    output  reg        flip,
     // Sound
-    output  reg sres_b, // Z80 reset
-    output  reg [7:0] snd_latch,
+    output  reg        sres_b, // Z80 reset
+    output  reg [7:0]  snd_latch,
     // scroll
-    input           scr_mrdy,
-    input   [7:0]   scr_dout,
-    output          scr_cs,
-    output          scrpos_cs,
+    input              scr_mrdy,
+    input   [7:0]      scr_dout,
+    output             scr_cs,
+    output             scrpos_cs,
     // cabinet I/O
-    input   [7:0]   joystick1,
-    input   [7:0]   joystick2,
+    input   [7:0]      joystick1,
+    input   [7:0]      joystick2,
     // BUS sharing
-    output      bus_ack,
-    input       bus_req,
-    input       blcnten,
-    input   [ 8:0]  obj_AB,
-    output  [12:0]  cpu_AB,
-    output      RnW,
-    output      OKOUT,
-    output  [7:0]   ram_dout,
+    output             bus_ack,
+    input              bus_req,
+    input              blcnten,
+    input   [ 8:0]     obj_AB,
+    output  [12:0]     cpu_AB,
+    output             RnW,
+    output             OKOUT,
+    output  [7:0]      ram_dout,
     // ROM access
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_dout,

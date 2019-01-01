@@ -38,6 +38,7 @@ module jtgng_video(
     output      [ 7:0]  scram_dout,    
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,    
+    output              scr_mrdy,
     // OBJ
     input               HINIT,    
     output      [ 8:0]  obj_AB,    
@@ -64,7 +65,7 @@ module jtgng_video(
 wire [3:0] chr_pal;
 wire [1:0] chr_col;
 wire [5:0] obj_pxl;
-wire scr_mrdy, scrwin;
+wire scrwin;
 wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [2:0] HS;

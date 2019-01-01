@@ -69,7 +69,7 @@ wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout;
 wire rd;
-wire char_mrdy;
+wire char_mrdy, scr_mrdy;
 wire [12:0] char_addr;
 wire [ 7:0] chram_dout,scram_dout;
 wire [15:0] chrom_data;
@@ -102,7 +102,6 @@ jtgng_timer timers(
 wire RnW;
 wire [3:0] char_pal;
 
-wire scr_mrdy;
 wire [14:0] scr_addr;
 wire [23:0] scr_dout;
 
@@ -214,7 +213,8 @@ jtgng_video u_video(
     .scrpos_cs  ( scrpos_cs     ),    
     .scram_dout ( scram_dout    ),    
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_dout      ),    
+    .scrom_data ( scr_dout      ),   
+    .scr_mrdy   ( scr_mrdy      ), 
     // OBJ
     .HINIT      ( HINIT         ),    
     .obj_AB     ( obj_AB        ),    
