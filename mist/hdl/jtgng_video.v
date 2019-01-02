@@ -71,6 +71,7 @@ wire [2:0] scr_pal;
 wire [2:0] HS;
 wire [3:0] cc;
 
+`ifndef NOCHAR
 jtgng_char u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -88,7 +89,11 @@ jtgng_char u_char (
     .char_col   ( chr_col       ),
     .char_pal   ( chr_pal       )
 );
+`else 
+assign char_mrdy = 1'b1;
+`endif
 
+`ifndef NOSCR
 jtgng_scroll u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -109,7 +114,11 @@ jtgng_scroll u_scroll (
     .scrom_data ( scrom_data    ),
     .scrwin     ( scrwin        )
 );
+`else 
+assign scr_mrdy = 1'b1;
+`endif
 
+`ifndef NOCOLMIX
 jtgng_colmix u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -138,6 +147,12 @@ jtgng_colmix u_colmix (
     .green      ( green         ),
     .blue       ( blue          )
 );
+`else
+assign  red = 4'd0;
+assign blue = 4'd0;
+assign green= 4'd0;
+`endif
+
 
 jtgng_obj u_obj (   
     .rst        ( rst         ),

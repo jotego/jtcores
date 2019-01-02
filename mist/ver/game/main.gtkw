@@ -1,43 +1,112 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Mon Dec 24 13:34:02 2018
+[*] Tue Jan  1 20:11:52 2019
 [*]
 [dumpfile] "/home/jtejada/github/jt_gng/mist/ver/game/test.lxt"
-[dumpfile_mtime] "Mon Dec 24 13:33:42 2018"
-[dumpfile_size] 585477
+[dumpfile_mtime] "Tue Jan  1 20:03:56 2019"
+[dumpfile_size] 22174995
 [savefile] "/home/jtejada/github/jt_gng/mist/ver/game/main.gtkw"
-[timestart] 13800000
-[size] 1280 995
+[timestart] 102248000
+[size] 1920 1026
 [pos] -1 -1
-*-25.380224 62400000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-20.586655 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] game_test.
 [treeopen] game_test.UUT.
 [treeopen] game_test.UUT.main.
 [treeopen] game_test.UUT.main.cpu.
+[treeopen] game_test.UUT.sound.
+[treeopen] game_test.UUT.u_video.
 [sst_width] 196
-[signals_width] 190
+[signals_width] 222
 [sst_expanded] 1
-[sst_vpaned_height] 294
+[sst_vpaned_height] 305
 @28
-game_test.UUT.main.cpu.cpucore.clk[0]
-game_test.UUT.main.cpu.cpucore.cen_E[0]
-game_test.UUT.main.cpu.cpucore.cen_Q[0]
+game_test.UUT.main.main_cs[0]
+@22
+game_test.UUT.rom.main_addr[15:0]
+@28
+game_test.UUT.main.bank[2:0]
+@201
+-
 @22
 game_test.UUT.main.cpu.ADDR[15:0]
-@28
-game_test.UUT.main.cpu.nRESET[0]
+game_test.UUT.main.map_cs[11:0]
+@200
+-ROM
 @22
-game_test.UUT.main.rom_dout[7:0]
-game_test.UUT.main.cpu.D[7:0]
-@29
-game_test.UUT.main.startup[0]
+game_test.UUT.rom.state[3:0]
+@24
+game_test.UUT.rom.rdcnt[2:0]
+@22
+game_test.UUT.rom.rd_state[3:0]
+@200
+-
+@22
+[color] 2
+game_test.UUT.rom.main_dout[7:0]
+game_test.UUT.rom.row_addr[12:0]
+game_test.UUT.rom.col_addr[8:0]
+@c00022
+game_test.UUT.rom.main_addr[15:0]
+@28
+(0)game_test.UUT.rom.main_addr[15:0]
+(1)game_test.UUT.rom.main_addr[15:0]
+(2)game_test.UUT.rom.main_addr[15:0]
+(3)game_test.UUT.rom.main_addr[15:0]
+(4)game_test.UUT.rom.main_addr[15:0]
+(5)game_test.UUT.rom.main_addr[15:0]
+(6)game_test.UUT.rom.main_addr[15:0]
+(7)game_test.UUT.rom.main_addr[15:0]
+(8)game_test.UUT.rom.main_addr[15:0]
+(9)game_test.UUT.rom.main_addr[15:0]
+(10)game_test.UUT.rom.main_addr[15:0]
+(11)game_test.UUT.rom.main_addr[15:0]
+(12)game_test.UUT.rom.main_addr[15:0]
+(13)game_test.UUT.rom.main_addr[15:0]
+(14)game_test.UUT.rom.main_addr[15:0]
+(15)game_test.UUT.rom.main_addr[15:0]
+@1401200
+-group_end
+@c00022
+[color] 3
+game_test.UUT.rom.full_addr[21:0]
+@28
+(0)game_test.UUT.rom.full_addr[21:0]
+(1)game_test.UUT.rom.full_addr[21:0]
+(2)game_test.UUT.rom.full_addr[21:0]
+(3)game_test.UUT.rom.full_addr[21:0]
+(4)game_test.UUT.rom.full_addr[21:0]
+(5)game_test.UUT.rom.full_addr[21:0]
+(6)game_test.UUT.rom.full_addr[21:0]
+(7)game_test.UUT.rom.full_addr[21:0]
+(8)game_test.UUT.rom.full_addr[21:0]
+(9)game_test.UUT.rom.full_addr[21:0]
+(10)game_test.UUT.rom.full_addr[21:0]
+(11)game_test.UUT.rom.full_addr[21:0]
+(12)game_test.UUT.rom.full_addr[21:0]
+(13)game_test.UUT.rom.full_addr[21:0]
+(14)game_test.UUT.rom.full_addr[21:0]
+(15)game_test.UUT.rom.full_addr[21:0]
+(16)game_test.UUT.rom.full_addr[21:0]
+(17)game_test.UUT.rom.full_addr[21:0]
+(18)game_test.UUT.rom.full_addr[21:0]
+(19)game_test.UUT.rom.full_addr[21:0]
+(20)game_test.UUT.rom.full_addr[21:0]
+(21)game_test.UUT.rom.full_addr[21:0]
+@1401200
+-group_end
+@22
+game_test.UUT.rom.data_read[15:0]
+game_test.UUT.rom.mem_cmd[3:0]
+@200
+-
+@22
+game_test.UUT.rom.SDRAM_A[12:0]
 @200
 -SDRAM
 @22
-game_test.UUT.rom.main_addr[17:0]
-game_test.UUT.rom.data_read[15:0]
-game_test.UUT.rom.main_dout[7:0]
-@24
-game_test.UUT.rom.rdcnt[2:0]
+game_test.mist_sdram.B0_row_addr[12:0]
+game_test.mist_sdram.Col[8:0]
+game_test.UUT.rom.SDRAM_DQ[15:0]
 [pattern_trace] 1
 [pattern_trace] 0

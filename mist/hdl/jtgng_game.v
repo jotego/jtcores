@@ -57,7 +57,8 @@ module jtgng_game(
     input           dip_attract_snd,
     input           dip_upright,
     // Sound output
-    output  signed [15:0] ym_snd
+    output  signed [15:0] ym_snd,
+    output          sample
 );
 
 wire [8:0] V;
@@ -96,7 +97,8 @@ jtgng_timer timers(
     .H         ( H        ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
-    .LVBL      ( LVBL     )
+    .LVBL      ( LVBL     ),
+    .Vinit     (          )
 );
 
 wire RnW;
@@ -126,7 +128,9 @@ wire blcnten;
 wire sres_b;
 wire [7:0] snd_latch;
 
-jtgng_main main (
+wire scr_cs, scrpos_cs;
+
+jtgng_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .rst        ( rst_game      ),
@@ -174,8 +178,8 @@ wire [15:0] obj_dout;
 wire [14:0] snd_addr;
 wire [ 7:0] snd_dout;
 wire        snd_cs;
-wire        snd_wait_n;
-jtgng_sound sound (
+`ifndef NOSOUND
+jtgng_sound u_sound (
     .clk            ( clk        ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),
@@ -187,8 +191,12 @@ jtgng_sound sound (
     .rom_addr       ( snd_addr   ),
     .rom_dout       ( snd_dout   ),
     .rom_cs         ( snd_cs     ),
-    .ym_snd         ( ym_snd     )  
+    .ym_snd         ( ym_snd     ),
+    .sample         ( sample     ) 
 );
+`else 
+assign snd_addr = 15'd0;
+`endif
 
 wire [15:0] objrom_data;
 
@@ -238,7 +246,7 @@ jtgng_video u_video(
     .blue       ( blue          )    
 );
 
-jtgng_rom rom (
+jtgng_rom u_rom (
     .clk        ( SDRAM_CLK     ), // 96MHz = 32 * 6 MHz -> CL=2
     .rst        ( rst           ),
     .char_addr  ( char_addr     ),

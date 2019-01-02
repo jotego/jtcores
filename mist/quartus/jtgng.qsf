@@ -155,10 +155,10 @@ set_global_assignment -name SEED 0
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809_cen.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_rom.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_video.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809i.v
-set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809_cen.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_cen.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_ram.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_true_dual_ram.v

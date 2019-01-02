@@ -70,7 +70,8 @@ jtgng_dual_clk_ram buf_rg (
     .data_b  ( {red,green}             ), // unused
     .we_a    ( 1'b1                    ),
     .we_b    ( 1'b0                    ),
-    .q_b     ( {buf_red, buf_green}    )
+    .q_b     ( {buf_red, buf_green}    ),
+    .q_a     (                         )
 );
 
 wire [3:0] nc;
@@ -86,7 +87,8 @@ jtgng_dual_clk_ram buf_b (
     .data_b  ( {4'b0, blue}            ), // unused
     .we_a    ( 1'b1                    ),
     .we_b    ( 1'b0                    ),
-    .q_b     ( {nc,buf_blue}           )
+    .q_b     ( {nc,buf_blue}           ),
+    .q_a     (                         )    
 );
 //`endif
 
@@ -153,7 +155,7 @@ always @(posedge clk_vga) begin
             end         
             cnt <= cnt - 1'b1;
             if( wait_hsync && (LHBL_vga && !last_LHBL_vga) ||
-               !wait_hsync && !cnt ) begin
+               !wait_hsync && cnt==7'd0 ) begin
                 state<=FRONT;
                 cnt  <=7'd16;
                 wait_hsync <= ~wait_hsync;
@@ -165,7 +167,7 @@ always @(posedge clk_vga) begin
             rd_addr <= 8'd0;
             vga_hsync <= 1'b1;
             cnt <= cnt - 1'b1;
-            if( !cnt ) begin
+            if( cnt==7'd0 ) begin
                 state<=LINE;
                 double<=1'b0;
                 finish<=1'b0;
@@ -176,7 +178,7 @@ always @(posedge clk_vga) begin
         LINE: begin
             case( {finish, centre_done})
                 2'b00:
-                    if(cnt) 
+                    if(cnt!=7'd0) 
                         cnt<=cnt-1'b1; // blank space on left
                     else 
                         {centre_done,rd_addr,double}<={rd_addr,double}+1'b1;
@@ -188,10 +190,11 @@ always @(posedge clk_vga) begin
                     state <= BACK;
                     cnt   <= 7'd48;
                 end
+                default:;
             endcase
         end             
         BACK: begin         
-            if( !cnt ) begin
+            if( cnt==7'd0 ) begin
                 state<=SYNC;
                 cnt <= 7'd96;
                 {vga_vsync, vsync_cnt} <= {vsync_cnt, 1'b1};

@@ -21,6 +21,8 @@ MAXFRAME=
 OBJTEST=
 SIM_MS=1
 SIMULATOR=iverilog
+#FASTSIM="-DNOCHAR -DNOCOLMIX -DNOSCR -DNOSOUND"
+FASTSIM="-DNOSOUND"
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
@@ -113,7 +115,7 @@ while [ $# -gt 0 ]; do
 		shift
 		continue
 	fi
-	if [ $1 = "-verilator" ]; then
+	if [ $1 = "-lint" ]; then
 		SIMULATOR=verilator
 		shift
 		continue
@@ -181,27 +183,41 @@ function add_dir {
 	done
 }
 
+# HEX files with initial contents for some of the RAMs
+function clear_hex_file {
+	cnt=0
+	rm -f $1.hex
+	while [ $cnt -lt $2 ]; do 
+		echo 0 >> $1.hex
+		cnt=$((cnt+1))
+	done	
+}
+
+clear_hex_file char_ram 2048
+clear_hex_file scr_ram  2048
+clear_hex_file obj_buf  128
+
 if [ $SIMULATOR = iverilog ]; then
 	iverilog game_test.v \
 		$(add_dir ../../../modules/jt12/hdl jt03.f) \
 		../../hdl/*.v \
-		../common/{mt48lc16m16a2.v,altera_mf.v} \
-		../../../modules/mc6809/{mc6809_cen.v,mc6809i.v} \
+		../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
+		../../../modules/mc6809/mc6809{_cen,i}.v \
 		../../../modules/tv80/*.v \
-		-s game_test -o sim -DSIM_MS=$SIM_MS \
-		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM \
+		-s game_test -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
+		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM $FASTSIM \
 		$MAXFRAME $OBJTEST \
 	&& sim -lxt
 else
-	verilator game_test.v \
-		-I../../../modules/jt12/hdl/ \
-		../../hdl/*.v \
-		../../../modules/mc6809/{mc6809.v,mc6809i.v} \
+	verilator -I../../hdl \
+		../../hdl/jtgng_game.v \
+		../../../modules/mc6809/mc6809{_cen,i}.v \
 		../../../modules/tv80/*.v \
-		../../../modules/jt12/hdl/*.v \
-		../../../modules/jt12/ver/common/sep24.v \
-		--top-module game_test -o sim \
-		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -DSIMULATION -D$VGACONV -D$LOADROM \
+		../common/quick_sdram.v \
+		-F ../../../modules/jt12/hdl/jt03.f \
+		--top-module jtgng_game -o sim \
+		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM -DFASTSDRAM \
+		-DVERILATOR_LINT \
 		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only
 fi
 

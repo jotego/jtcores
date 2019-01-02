@@ -9,6 +9,8 @@
 
 */
 
+/* verilator lint_off STMTDLY */
+
 module game_test;
     `ifdef DUMP
     initial begin
@@ -23,11 +25,16 @@ module game_test;
             // $dumpvars(0,game_test);
             $dumpon;
         `else
-            //$dumpvars(0,UUT);
-            $dumpvars(0,game_test);
-            //$dumpvars(1,game_test.UUT.sound);
+            //$dumpvars(0,game_test);
+            //$display("DUMP starts");
+            $dumpvars(1,game_test.UUT.u_main);
+            //$dumpvars(1,game_test.UUT.u_rom);
+            $dumpoff;
+            $dumpvars(1,game_test.UUT.u_video);
+            $dumpvars(1,game_test.UUT.u_video.u_char);
             //$dumpvars(0,UUT.chargen);
-            $dumpon;
+            //#30_000_000;
+            // $dumpon;
         `endif
     end
 
@@ -75,7 +82,7 @@ always @(posedge clk_rom) begin
     clk_cnt <= clk_cnt + 3'd1;
 end
 
-always @(*) clk <= clk_cnt[2];
+always @(*) clk = clk_cnt[2];
 
 reg rst_base;
 
@@ -102,6 +109,7 @@ wire LHBL, LVBL;
 wire [15:0] SDRAM_DQ;
 wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
+wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS, SDRAM_CKE;
 
 wire            downloading;
 wire    [24:0]  romload_addr;
@@ -116,6 +124,7 @@ jtgng_cen u_cen(
     .cen3   ( cen3   ),
     .cen1p5 ( cen1p5 )
 );
+
 
 jtgng_game UUT (
     .rst        ( rst       ),
@@ -155,9 +164,22 @@ jtgng_game UUT (
     //.dip_flip     (   1'b0    ),
     .dip_game_mode  (   1'b0    ),
     .dip_attract_snd(   1'b0    ),
-    .dip_upright    (   1'b1    )
+    .dip_upright    (   1'b1    ),
+    .ym_snd         (           ),
+    .sample         (           )
 );
 
+`ifdef FASTSDRAM
+quick_sdram mist_sdram(
+    .SDRAM_DQ   ( SDRAM_DQ      ),
+    .SDRAM_A    ( SDRAM_A       ),
+    .SDRAM_CLK  ( SDRAM_CLK     ),
+    .SDRAM_nCS  ( SDRAM_nCS     ),
+    .SDRAM_nRAS ( SDRAM_nRAS    ),
+    .SDRAM_nCAS ( SDRAM_nCAS    ),
+    .SDRAM_nWE  ( SDRAM_nWE     )
+);
+`else
 mt48lc16m16a2 mist_sdram (
     .Dq         ( SDRAM_DQ      ),
     .Addr       ( SDRAM_A       ),
@@ -170,6 +192,7 @@ mt48lc16m16a2 mist_sdram (
     .We_n       ( SDRAM_nWE     ),
     .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
 );
+`endif
 /*
 `ifdef VGACONV
 reg clk_vga;

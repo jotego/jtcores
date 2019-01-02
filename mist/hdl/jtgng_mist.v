@@ -65,7 +65,7 @@ parameter CONF_STR = {
         "O4,OBJ ,ON,OFF;",
         "O5,Screen filter,ON,OFF;",
         "T6,Reset;",
-        "V,v0.1;"
+        "V,v0.2;"
 };
 
 parameter CONF_STR_LEN = 7+20+23+15+15+24+9+7;
@@ -95,31 +95,31 @@ wire [7:0] status, joystick1, joystick2; //, joystick;
 // assign joystick = joystick_0; // | joystick_1;
 
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
-    .conf_str   ( CONF_STR  ),
-    .SPI_SCK    ( SPI_SCK   ),
-    .CONF_DATA0 ( CONF_DATA0),
-    .SPI_DO     ( SPI_DO        ),
-    .SPI_DI     ( SPI_DI        ),
-    .joystick_0 ( joystick2 ),
-    .joystick_1 ( joystick1 ),
-    .status     ( status        ),
+    .conf_str       ( CONF_STR  ),
+    .SPI_SCK        ( SPI_SCK   ),
+    .CONF_DATA0     ( CONF_DATA0),
+    .SPI_DO         ( SPI_DO    ),
+    .SPI_DI         ( SPI_DI    ),
+    .joystick_0     ( joystick2 ),
+    .joystick_1     ( joystick1 ),
+    .status         ( status    ),
     // unused ports:
     .ps2_clk        ( 1'b0      ),
-    .serial_strobe( 1'b0    ),
-    .serial_data( 8'd0      ),
-    .sd_lba     ( 32'd0     ),
-    .sd_rd      ( 1'b0      ),
-    .sd_wr      ( 1'b0      ),
+    .serial_strobe  ( 1'b0      ),
+    .serial_data    ( 8'd0      ),
+    .sd_lba         ( 32'd0     ),
+    .sd_rd          ( 1'b0      ),
+    .sd_wr          ( 1'b0      ),
     .sd_conf        ( 1'b0      ),
     .sd_sdhc        ( 1'b0      ),
-    .sd_din     ( 8'd0      )
+    .sd_din         ( 8'd0      )
 );
 
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rgb   ), // 24
-    .c2     ( SDRAM_CLK ), // 96
-    .locked ( locked    )
+    .c1     ( clk_rgb     ), // 24
+    .c2     ( SDRAM_CLK   ), // 96
+    .locked ( locked      )
 );
 
 jtgng_pll1 clk_gen2 (
@@ -140,8 +140,6 @@ jtgng_cen u_cen(
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
-
-
 
     wire [3:0] red;
     wire [3:0] green;
@@ -237,11 +235,11 @@ osd #(0,0,4) osd (
    .sck        ( SPI_SCK      ),
    .ss         ( SPI_SS3      ),
 
-   .red_in     ( GNG_R      ),
-   .green_in   ( GNG_G      ),
-   .blue_in    ( GNG_B      ),
-   .hs_in      ( vga_hsync  ),
-   .vs_in      ( vga_vsync  ),
+   .red_in     ( GNG_R        ),
+   .green_in   ( GNG_G        ),
+   .blue_in    ( GNG_B        ),
+   .hs_in      ( vga_hsync    ),
+   .vs_in      ( vga_vsync    ),
 
    .red_out    ( VGA_R        ),
    .green_out  ( VGA_G        ),

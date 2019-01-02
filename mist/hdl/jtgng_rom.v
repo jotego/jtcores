@@ -79,7 +79,7 @@ assign SDRAM_DQ =  SDRAM_WRITE ? romload_data : 16'hzzzz;
 reg [15:0] data_read, scr_aux;
 
 reg [2:0] rdcnt; // Each read cycle takes 8 counts
-reg loop_rst;
+reg loop_rst, pre_loop_rst;
 always @(posedge clk)
     if(loop_rst) rdcnt<=3'd0;
     else rdcnt<=rdcnt+3'd1;
@@ -103,7 +103,7 @@ always @(posedge clk)
             // Get data from current read
             casez(rd_state)
                 4'b??01: snd_dout  <= snd_lsb  ? data_read[15:8] : data_read[ 7:0];
-                4'b??10: main_dout <= main_lsb ? data_read[ 7:0] : data_read[15:8]; // endian-ness
+                4'b??10: main_dout <= main_lsb ? data_read[15:8] : data_read[ 7:0]; // endian-ness
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
                 4'd7:    scr_aux   <= data_read;
@@ -188,10 +188,11 @@ always @(posedge clk)
         state <= INITIALIZE;
         init_state <= 4'd0;
         { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_INHIBIT;
-        { wait_cnt, SDRAM_A } <= 16'd9800;
+        { wait_cnt, SDRAM_A } <= 17'd9800;
         ready <= false;
         write_done <= 1'b0;
         loop_rst   <= 1'b1;
+        pre_loop_rst <= 1'b1;
         SDRAM_WRITE<= 1'b0;
     end else  begin
     if( romload_wr ) begin
@@ -204,50 +205,51 @@ always @(posedge clk)
                 4'd0: begin // wait for 100us
                     { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
                     { wait_cnt, SDRAM_A } <= { wait_cnt, SDRAM_A }-1'b1;
-                    if( !{ wait_cnt, SDRAM_A } ) 
+                    if( !|{ wait_cnt, SDRAM_A } ) 
                         init_state <= init_state+4'd1;
                     end
                 4'd1: begin
                     { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
-                    SDRAM_A[10]=1'b1; // all banks
-                    wait_cnt <= PRECHARGE_WAIT;
-                    state <= WAIT;
-                    next <= INITIALIZE;
+                    SDRAM_A[10]<=1'b1; // all banks
+                    wait_cnt   <= PRECHARGE_WAIT;
+                    state      <= WAIT;
+                    next       <= INITIALIZE;
                     init_state <= init_state+4'd1;
                     end
                 4'd2,4'd3: begin
                     { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_AUTOREFRESH;
-                    wait_cnt <= 4'd10;
-                    state <= WAIT;
-                    next <= INITIALIZE;
+                    wait_cnt   <= 4'd10;
+                    state      <= WAIT;
+                    next       <= INITIALIZE;
                     init_state <= init_state+4'd1;
                     end
                 4'd4: begin
                     { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_LOAD_MODE;
-                    SDRAM_A <= 12'b00_1_00_010_0_000; // CAS Latency = 2
+                    SDRAM_A      <= 13'b00_1_00_010_0_000; // CAS Latency = 2
                     // SDRAM_A <= 12'b00_1_00_011_0_000; // CAS Latency = 3
-                    wait_cnt <= 4'd2;
-                    state <= WAIT;
-                    next  <= SET_PRECHARGE;
-                    ready <= true;
-                    loop_rst <= 1'b0;
+                    wait_cnt     <= 4'd2;
+                    state        <= WAIT;
+                    next         <= SET_PRECHARGE;
+                    ready        <= true;
+                    pre_loop_rst <= 1'b0;
                     // next <= INITIALIZE;
                     // init_state <= init_state+4'd1;
                     end
                 4'd5: begin // wait to rd_state zero
                     if( rd_state==4'd15 && rdzero ) begin
-                        state<=SET_PRECHARGE;
+                        state <=SET_PRECHARGE;
                         ready <= true;
                         end
                     end
+                default: init_state<=4'd0;
             endcase
             end
         SET_PRECHARGE: begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
             SDRAM_A[10]<=1'b1; // all banks
             wait_cnt <= PRECHARGE_WAIT;
-            state <= WAIT;
-            next <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;     
+            state    <= WAIT;
+            next     <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;     
             // Clear WRITE state:
             SDRAM_WRITE <= 1'b0;
             if( write_done ) begin
@@ -256,22 +258,25 @@ always @(posedge clk)
             end
         WAIT: begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
-            if( !wait_cnt ) state<=next;
-            wait_cnt <= wait_cnt-2'b1;
+            if( wait_cnt==4'd0 ) begin
+                state    <= next;
+                loop_rst <= pre_loop_rst; 
+            end
+            wait_cnt <= wait_cnt-4'b1;
             end
         ACTIVATE: begin 
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
-            SDRAM_A <= row_addr;
+            SDRAM_A  <= row_addr;
             wait_cnt <= ACTIVATE_WAIT;
-            next  <= SET_READ;
-            state <= WAIT;
+            next     <= SET_READ;
+            state    <= WAIT;
             end     
         SET_READ:begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_READ;
             wait_cnt <= CL_WAIT;
-            state <= WAIT;
-            next  <= READ;
-            SDRAM_A <= { {(addr_w-col_w){1'b0}}, col_addr};
+            state    <= WAIT;
+            next     <= READ;
+            SDRAM_A  <= { {(addr_w-col_w){1'b0}}, col_addr};
             end     
         READ: begin
             if( downloading )
@@ -292,7 +297,7 @@ always @(posedge clk)
         // Write states
         SET_PRECHARGE_WR: begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
-            SDRAM_A[10]=1'b1; // all banks
+            SDRAM_A[10]<=1'b1; // all banks
             wait_cnt <= PRECHARGE_WAIT;
             state <= WAIT;
             next <= ACTIVATE_WR;

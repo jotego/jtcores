@@ -51,25 +51,25 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 
 always @(posedge clk) 
     if( rst ) begin
-        blen <= 1'b0;
+        blen      <= 1'b0;
         bus_state <= ST_IDLE;
     end else if(cen6) begin
         case( bus_state )
             ST_IDLE: if( OKOUT ) begin
-                    bus_req <= 1'b1;
+                    bus_req   <= 1'b1;
                     bus_state <= ST_WAIT;
                 end
                 else begin
                     bus_req <= 1'b0;
-                    blen <= 1'b0;
+                    blen    <= 1'b0;
                 end
             ST_WAIT: if( bus_ack && mem_sel == MEM_PREBUF && !LVBL ) begin
-                blen <= 1'b1;
+                blen      <= 1'b1;
                 bus_state <= ST_BUSY;
             end
             ST_BUSY: if( AB==9'h180 ) begin
-                blen <= 1'b0;
                 bus_req <= 1'b0;
+                blen    <= 1'b0;
                 bus_state <= ST_IDLE;
             end
             default: bus_state <= ST_IDLE;
