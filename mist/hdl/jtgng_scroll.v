@@ -84,7 +84,6 @@ end
 
 jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
     .clk    ( clk      ),
-    .clk_en ( cen6     ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we       ),

@@ -307,6 +307,6 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL jtgng_pll1.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL jtgng_pll1.bsf FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL jtgng_pll1_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL jtgng_pll1_bb.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL jtgng_pll1_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf
 // Retrieval info: CBX_MODULE_PREFIX: ON

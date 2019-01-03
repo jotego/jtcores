@@ -175,7 +175,6 @@ set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80_core.v
 set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80_alu.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_obj.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sh.v
-set_global_assignment -name VERILOG_FILE ../hdl/crc32.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_scroll.v
 set_global_assignment -name VERILOG_FILE ../hdl/osd.v
 set_global_assignment -name VERILOG_FILE ../hdl/user_io.v

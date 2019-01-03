@@ -57,7 +57,8 @@ initial $readmemh("char_ram.hex",ram);
 `endif
 
 // RAM
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) //if(cen6) 
+begin
     dout <= ram[addr];
     if( we ) ram[addr] <= din;
 end

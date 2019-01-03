@@ -16,7 +16,7 @@ module game_test;
     initial begin
         // #(200*100*1000*1000);
         $display("DUMP enabled");
-        $dumpfile("test.lxt");
+        $dumpfile("/varios/pub/game_test.lxt");
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.main);
             $dumpvars(2,game_test.UUT.main.cpu);
@@ -25,16 +25,16 @@ module game_test;
             // $dumpvars(0,game_test);
             $dumpon;
         `else
-            //$dumpvars(0,game_test);
+            $dumpvars(0,game_test);
             //$display("DUMP starts");
             $dumpvars(1,game_test.UUT.u_main);
             //$dumpvars(1,game_test.UUT.u_rom);
             $dumpoff;
             $dumpvars(1,game_test.UUT.u_video);
-            $dumpvars(1,game_test.UUT.u_video.u_char);
+            //$dumpvars(1,game_test.UUT.u_video.u_char);
             //$dumpvars(0,UUT.chargen);
             //#30_000_000;
-            // $dumpon;
+            $dumpon;
         `endif
     end
 

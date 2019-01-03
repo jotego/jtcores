@@ -22,7 +22,8 @@ OBJTEST=
 SIM_MS=1
 SIMULATOR=iverilog
 #FASTSIM="-DNOCHAR -DNOCOLMIX -DNOSCR -DNOSOUND"
-FASTSIM="-DNOSOUND"
+#FASTSIM="-DNOSOUND"
+FASTSIM=
 
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then

@@ -68,7 +68,6 @@ wire [7:0] ram_dout, dout;
 
 jtgng_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
-    .clk_en ( cen3     ),
     .data   ( dout     ),
     .addr   ( A[10:0]  ),
     .we     ( RAM_we   ),

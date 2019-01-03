@@ -74,16 +74,18 @@ reg rst = 1'b1;
 
 wire downloading;
 // wire [4:0] index;
+wire clk_rom;
 wire romload_wr;
 wire [24:0] romload_addr;
 wire [15:0] romload_data;
+
 data_io datain (
     .sck                ( SPI_SCK      ),
     .ss                 ( SPI_SS2      ),
     .sdi                ( SPI_DI       ),
     // .index      (index        ),
     .rst                ( rst          ),
-    .clk_sdram          ( SDRAM_CLK    ),
+    .clk_sdram          ( clk_rom      ),
     .downloading_sdram  ( downloading  ),
     .wr_sdram           ( romload_wr   ),
     .addr_sdram         ( romload_addr ),
@@ -115,10 +117,12 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .sd_din         ( 8'd0      )
 );
 
+
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
     .c1     ( clk_rgb     ), // 24
-    .c2     ( SDRAM_CLK   ), // 96
+    .c2     ( clk_rom     ), // 96
+    .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
 );
 
@@ -151,7 +155,7 @@ jtgng_cen u_cen(
 jtgng_game game(
     .rst         ( rst           ),
     .soft_rst    ( status[6]     ),
-    .SDRAM_CLK   ( SDRAM_CLK     ),  // 81   MHz
+    .SDRAM_CLK   ( clk_rom       ),  // 96   MHz
     .clk         ( clk_rgb       ),  //  6   MHz
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
@@ -193,7 +197,7 @@ jtgng_game game(
     .ym_snd      ( ym_snd        )
 );
 
-wire clk_dac = SDRAM_CLK;
+wire clk_dac = clk_rgb;
 assign AUDIO_R = AUDIO_L;
 
 jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));

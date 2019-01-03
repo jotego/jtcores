@@ -205,7 +205,7 @@ always @(posedge clk)
                 4'd0: begin // wait for 100us
                     { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
                     { wait_cnt, SDRAM_A } <= { wait_cnt, SDRAM_A }-1'b1;
-                    if( !|{ wait_cnt, SDRAM_A } ) 
+                    if( |{ wait_cnt, SDRAM_A }==1'b0 ) 
                         init_state <= init_state+4'd1;
                     end
                 4'd1: begin

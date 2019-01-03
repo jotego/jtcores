@@ -177,7 +177,6 @@ wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13)) RAM(
     .clk        ( clk       ),
-    .clk_en     ( cen6      ),
     .addr       ( RAM_addr  ),
     .data       ( cpu_dout  ),
     .we         ( RAM_we    ),
