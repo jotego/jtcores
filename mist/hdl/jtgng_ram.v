@@ -18,6 +18,7 @@
 
 module jtgng_ram #(parameter dw=8, aw=10, simfile="ram.hex")(
     input   clk,
+    input   cen,
     input   [dw-1:0] data,
     input   [aw-1:0] addr,
     input   we,
@@ -30,9 +31,19 @@ reg [dw-1:0] mem[0:(2**aw)-1];
 initial $readmemh(simfile, mem );
 `endif
 
+reg [dw-1:0] D;
+reg [aw-1:0] A;
+reg WE;
+
+always @(posedge clk) if(cen) begin
+    A  <= addr;
+    D  <= data;
+    WE <= we;
+end
+
 always @(posedge clk) begin
-    q <= mem[addr];
-    if(we) mem[addr] <= data;
+    q <= mem[A];
+    if(WE) mem[A] <= D;
 end
 
 endmodule // jtgng_ram

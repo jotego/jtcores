@@ -25,6 +25,11 @@ SIMULATOR=iverilog
 #FASTSIM="-DNOSOUND"
 FASTSIM=
 
+if ! g++ init_ram.cc -o init_ram; then
+	exit 1;
+fi
+init_ram
+
 while [ $# -gt 0 ]; do
 	if [ "$1" = "-w" ]; then
 		DUMP=DUMP

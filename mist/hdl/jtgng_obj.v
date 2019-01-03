@@ -311,6 +311,7 @@ end
 
 jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
     .clk   ( clk       ),
+    .cen   ( cen6      ),
     .addr  ( address_a ),
     .data  ( data_a    ),
     .we    ( we_a      ),
@@ -319,6 +320,7 @@ jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
 
 jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_b(
     .clk   ( clk       ),
+    .cen   ( cen6      ),    
     .addr  ( address_b ),
     .data  ( data_b    ),
     .we    ( we_b      ),

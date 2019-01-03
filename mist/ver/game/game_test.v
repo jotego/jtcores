@@ -16,7 +16,7 @@ module game_test;
     initial begin
         // #(200*100*1000*1000);
         $display("DUMP enabled");
-        $dumpfile("game_test.lxt");
+        $dumpfile("test.lxt");
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.main);
             $dumpvars(2,game_test.UUT.main.cpu);

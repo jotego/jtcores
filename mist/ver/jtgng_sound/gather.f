@@ -7,4 +7,3 @@
 ../../../modules/tv80/tv80_reg.v
 ../../../modules/tv80/tv80s.v
 -F ../../../modules/jt12/hdl/jt03.f
--F ../../../modules/jt12/jt49/hdl/jt49.f
