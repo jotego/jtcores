@@ -25,15 +25,18 @@ module game_test;
             // $dumpvars(0,game_test);
             $dumpon;
         `else
-            $dumpvars(0,game_test);
-            //$display("DUMP starts");
-            $dumpvars(1,game_test.UUT.u_main);
-            //$dumpvars(1,game_test.UUT.u_rom);
-            $dumpoff;
-            $dumpvars(1,game_test.UUT.u_video);
-            //$dumpvars(1,game_test.UUT.u_video.u_char);
-            //$dumpvars(0,UUT.chargen);
-            //#30_000_000;
+            `ifdef DEEPDUMP
+                $dumpvars(0,game_test);
+            `else
+                //$display("DUMP starts");
+                $dumpvars(1,game_test.UUT.u_main);
+                //$dumpvars(1,game_test.UUT.u_rom);
+                $dumpoff;
+                $dumpvars(1,game_test.UUT.u_video);
+                //$dumpvars(1,game_test.UUT.u_video.u_char);
+                //$dumpvars(0,UUT.chargen);
+                //#30_000_000;
+            `endif
             $dumpon;
         `endif
     end

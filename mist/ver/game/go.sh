@@ -9,7 +9,7 @@ function zero_file {
 	done;
 }
 
-DUMP=NODUMP
+DUMP=
 CHR_DUMP=NOCHR_DUMP
 RAM_INFO=NORAM_INFO
 FIRMWARE=gng_test.s
@@ -31,20 +31,18 @@ fi
 init_ram
 
 while [ $# -gt 0 ]; do
-	if [ "$1" = "-w" ]; then
-		DUMP=DUMP
+case "$1" in
+	"-w" | "-deep")
+		DUMP=-DDUMP
 		echo Signal dump enabled
-		shift
-		continue
-	fi
-	if [ "$1" = "-obj" ]; then
-		shift
+		if [ $1 = "-deep" ]; then DUMP="$DUMP -DDEEPDUMP"; fi
+		;;
+	"-obj")
 		echo "Object test: will used special firmware on ROM space"
 		OBJTEST="-DOBJTEST"	
 		FIRMWARE="obj_test.s"	
-		continue
-	fi
-	if [ "$1" = "-frames" ]; then
+		;;
+	"-frames")
 		shift
 		if [ "$1" = "" ]; then
 			echo "Must specify number of frames to simulate"
@@ -52,10 +50,8 @@ while [ $# -gt 0 ]; do
 		fi
 		MAXFRAME="-DMAXFRAME=$1"
 		echo Simulate up to $1 frames
-		shift
-		continue
-	fi
-	if [ "$1" = "-time" ]; then
+		;;
+	"-time")
 		shift
 		if [ "$1" = "" ]; then
 			echo "Must specify number of milliseconds to simulate"
@@ -63,51 +59,37 @@ while [ $# -gt 0 ]; do
 		fi
 		SIM_MS="$1"
 		echo Simulate $1 ms
-		shift
-		continue
-	fi	
-	if [ "$1" = "-firmonly" ]; then
+		;;
+	"-firmonly")
 		FIRMONLY=FIRMONLY
 		NOFIRM=FIRM
 		echo Firmware dump only
-		shift
-		continue
-	fi
-	if [ "$1" = "-firm" ]; then
+		;;
+	"-firm")
 		NOFIRM=FIRM
 		echo Will copy firmware to Quartus folder
-		shift
-		continue
-	fi	
-	if [ "$1" = "-g" ]; then
+		;;
+	"-g")
 		FIRMWARE=rungame.s
 		if [ ! -e ../../../rom/gng.hex ]; then
 			echo "Cannot find ROM file: ../../../rom/gng.hex"
 			exit 1
 		fi
 		echo Running game directly
-		shift
-		continue
-	fi
-	if [ "$1" = "-ch" ]; then
+		;;
+	"-ch")
 		CHR_DUMP=CHR_DUMP
 		echo Character dump enabled
-		shift
-		continue
-	fi
-	if [ "$1" = "-info" ]; then
+		;;
+	"-info")
 		RAM_INFO=RAM_INFO
 		echo RAM information enabled
-		shift
-		continue
-	fi
-	if [ "$1" = "-vga" ]; then
+		;;
+	"-vga")
 		VGACONV=VGACONV
 		echo VGA conversion enabled
-		shift
-		continue
-	fi
-	if [ "$1" = "-load" ]; then
+		;;
+	"-load")
 		LOADROM=LOADROM
 		echo ROM load through SPI enabled
 		if [ ! -e JTGNG.rom ]; then
@@ -118,16 +100,13 @@ while [ $# -gt 0 ]; do
 				exit 1
 			fi
 		fi
-		shift
-		continue
-	fi
-	if [ $1 = "-lint" ]; then
+		;;
+	"-lint")
 		SIMULATOR=verilator
-		shift
-		continue
-	fi
-	echo "Unknown option $1"
-	exit 1
+		;;
+	*) echo "Unknown option $1"; exit 1;;
+esac
+	shift
 done
 
 #Prepare firmware
@@ -211,7 +190,7 @@ if [ $SIMULATOR = iverilog ]; then
 		../../../modules/mc6809/mc6809{_cen,i}.v \
 		../../../modules/tv80/*.v \
 		-s game_test -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
-		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM $FASTSIM \
+		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM $FASTSIM \
 		$MAXFRAME $OBJTEST \
 	&& sim -lxt
 else
@@ -222,7 +201,7 @@ else
 		../common/quick_sdram.v \
 		-F ../../../modules/jt12/hdl/jt03.f \
 		--top-module jtgng_game -o sim \
-		-D$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM -DFASTSDRAM \
+		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM -DFASTSDRAM \
 		-DVERILATOR_LINT \
 		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only
 fi

@@ -9,4 +9,4 @@ fi
 (while [ $code -lt 64 ];do
     printf "%x\n" $code
     code=$((code+1))
-done) | parallel --eta go.sh -q -runonly -snd -time 30000 -code
+done) | parallel --eta go.sh -q -runonly -snd -time 30000 -slow -code
