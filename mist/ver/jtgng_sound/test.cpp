@@ -5,9 +5,6 @@
 
 using namespace std;
 
-const int PERIOD = 1e9/3e6; // cen3 set to 1
-const int SEMIPERIOD = PERIOD/2;
-const int CLKSTEP = PERIOD/4;
 
 vluint64_t main_time = 0;
 
@@ -16,13 +13,14 @@ double sc_time_stamp () {      // Called by $time in Verilog
 }
 
 class Sim {
+    int PERIOD, SEMIPERIOD, CLKSTEP;
     Vjtgng_sound *top;
     VerilatedVcdC* vcd;
     int rom_addr, rom_cs, rom_dout, sample;
     void apply();
     void get();
     char *rom;
-    bool trace, toggle, quiet;
+    bool trace, toggle, quiet, slow;
     vluint64_t main_next;
     int cen_cnt, cen_ym;
     int frame_vh; // 0xffff0000 -> frame count
@@ -32,7 +30,7 @@ public:
     int clk, rst, soft_rst, sres_b, snd_latch, V32;
     int cen3, cen1p5, ym_snd;
 
-    Sim(bool _trace);
+    Sim(bool _trace, bool ram_test, bool _slow);
     ~Sim();
     Vjtgng_sound* Top() { return top; }
     bool next();
@@ -61,12 +59,14 @@ public:
 /////////////////////////////////////////////
 int main(int argc, char *argv[]) {try{
     vluint64_t sim_time = ms2ns(2500);
-    bool trace=false, quiet=false;
+    bool trace=false, quiet=false, ram_test=false, slow=false;
     int cen_ym=1, code=0x30;
     char wavname[128]="test.wav";
     for( int k=1; k<argc; k++) {
-        if( strcmp(argv[k], "-trace")==0 ) { trace=true; continue; }
-        if( strcmp(argv[k], "-quiet")==0 ) { quiet=true; continue; }
+        if( strcmp(argv[k], "-trace")==0 ) { trace=true;    continue; }
+        if( strcmp(argv[k], "-quiet")==0 ) { quiet=true;    continue; }
+        if( strcmp(argv[k], "-slow")==0  ) { slow=true;     continue; }
+        if( strcmp(argv[k], "-ram")==0   ) { ram_test=true; continue; }
         if( strcmp(argv[k], "-time")==0 ) {
             int ms;
             sscanf( argv[++k], "%d", &ms );
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {try{
                 return 1;
             }
             code &= 0xff;
-            sprintf(wavname,"%2X.wav", code);
+            sprintf(wavname,"%02X.wav", code);
             continue; 
         }        
         if( strcmp(argv[k], "-cen")==0 ) {
@@ -92,10 +92,10 @@ int main(int argc, char *argv[]) {try{
         cerr << "Unknown argument: " << argv[k] << '\n';
         return 1;
     }
-    Sim sim(trace);
-    sim.reset(512);
+    Sim sim(trace, ram_test, slow);
     sim.set_cen_ym( cen_ym );
     sim.set_quiet( quiet );
+    sim.reset(512);
     bool zeros=true;
     vluint64_t aux_time;
     WaveWritter wav(wavname,41834,false);
@@ -148,18 +148,28 @@ int main(int argc, char *argv[]) {try{
 
 //////////////////////////////////////////////
 
-Sim::Sim(bool _trace=false) : trace(_trace) {
-    ifstream f("../../../rom/mm02.14h", ios_base::binary);
+Sim::Sim(bool _trace, bool ramtest, bool _slow ) : trace(_trace), slow(_slow) {
+    ifstream f;
+    const char real_rom[] = "../../../rom/mm02.14h";
+    const char test_rom[] = "ram_test.bin";
+    const char *filename = ramtest ? test_rom : real_rom;
+    f.open( filename, ios_base::binary);
     if( !f.good() ) {
-        cerr << "Cannot find file mm02.14h\n";
+        cerr << "Cannot find file " << filename << "\n";
         throw 1;
     }
     top = new Vjtgng_sound;
     rom = new char[32*1024];
     f.read(rom, 32*1024 );
     if( f.gcount()!=32*1024 ) {
-        cerr << "File mm02.14h does not have the expected size.\n";
-        throw 1;
+        if( ramtest ) {
+            for( int k=f.gcount(); k<32*1024; k++ )
+                rom[k] = 0;
+        }
+        else {
+            cerr << "File mm02.14h does not have the expected size.\n";
+            throw 1;
+        }
     }
     vcd = new VerilatedVcdC;
     if( trace ) {
@@ -167,6 +177,10 @@ Sim::Sim(bool _trace=false) : trace(_trace) {
         top->trace(vcd,99);
         vcd->open("/dev/stdout"); 
     }  
+    // clock period
+    PERIOD = 1e9/(slow ? 6e6 : 3e6);
+    SEMIPERIOD = PERIOD/2;
+    CLKSTEP = PERIOD/4;
     toggle = false; main_next=0;
     cen1p5 = 1;
     cen3   = 1;
@@ -213,13 +227,17 @@ bool Sim::next() {
     if( toggle ) {
         clk = 1-clk;
         if( !clk ) {
-            cen_cnt++;
-            if(cen_cnt>=cen_ym) {
-                cen1p5 = 1-cen1p5;
+            if( slow ) {
+                cen3 = 1-cen3;
+            }
+            if( cen3 ) cen_cnt++;
+            if(cen_cnt>cen_ym) {
+                cen1p5  = 1;
                 cen_cnt = 0;
             }
+            else cen1p5=0;
         }
-        frame_vh+=2;
+        frame_vh = frame_vh + (slow?1:2);
     }
     V32 = (frame_vh&0xff00)==0x2000;
     return toggle;
@@ -231,6 +249,7 @@ void Sim::reset(int cnt) {
     rst         = 1;
     clk         = 0;
     V32         = 1;
+    if( slow ) cnt<<=1;
     while( cnt-- ) next();
     rst = 0;
     next();

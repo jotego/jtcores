@@ -374,35 +374,35 @@ module tv80_core (/*AUTOARG*/
     begin
       if (reset_n == 1'b0 ) 
         begin
-          PC <= #1 0;  // Program Counter
-          A <= #1 0;
-          TmpAddr <= #1 0;
-          IR <= #1 8'b00000000;
-          ISet <= #1 2'b00;
-          XY_State <= #1 2'b00;
-          IStatus <= #1 2'b00;
-          mcycles <= #1 3'b000;
-          dout <= #1 8'b00000000;
+          PC <= 0;  // Program Counter
+          A <= 0;
+          TmpAddr <= 0;
+          IR <= 8'b00000000;
+          ISet <= 2'b00;
+          XY_State <= 2'b00;
+          IStatus <= 2'b00;
+          mcycles <= 3'b000;
+          dout <= 8'b00000000;
 
-          ACC <= #1 8'hFF;
-          F <= #1 8'hFF;
-          Ap <= #1 8'hFF;
-          Fp <= #1 8'hFF;
-          I <= #1 0;
+          ACC <= 8'hFF;
+          F <= 8'hFF;
+          Ap <= 8'hFF;
+          Fp <= 8'hFF;
+          I <= 0;
           `ifdef TV80_REFRESH
-          R <= #1 0;
+          R <= 0;
           `endif
-          SP <= #1 16'hFFFF;
-          Alternate <= #1 1'b0;
+          SP <= 16'hFFFF;
+          Alternate <= 1'b0;
 
-          Read_To_Reg_r <= #1 5'b00000;
-          Arith16_r <= #1 1'b0;
-          BTR_r <= #1 1'b0;
-          Z16_r <= #1 1'b0;
-          ALU_Op_r <= #1 4'b0000;
-          Save_ALU_r <= #1 1'b0;
-          PreserveC_r <= #1 1'b0;
-          XY_Ind <= #1 1'b0;
+          Read_To_Reg_r <= 5'b00000;
+          Arith16_r <= 1'b0;
+          BTR_r <= 1'b0;
+          Z16_r <= 1'b0;
+          ALU_Op_r <= 4'b0000;
+          Save_ALU_r <= 1'b0;
+          PreserveC_r <= 1'b0;
+          XY_Ind <= 1'b0;
         end 
       else 
         begin
@@ -410,26 +410,26 @@ module tv80_core (/*AUTOARG*/
           if (ClkEn == 1'b1 ) 
             begin
 
-              ALU_Op_r <= #1 4'b0000;
-              Save_ALU_r <= #1 1'b0;
-              Read_To_Reg_r <= #1 5'b00000;
+              ALU_Op_r <= 4'b0000;
+              Save_ALU_r <= 1'b0;
+              Read_To_Reg_r <= 5'b00000;
 
-              mcycles <= #1 mcycles_d;
+              mcycles <= mcycles_d;
 
               if (IMode != 2'b11 ) 
                 begin
-                  IStatus <= #1 IMode;
+                  IStatus <= IMode;
                 end
 
-              Arith16_r <= #1 Arith16;
-              PreserveC_r <= #1 PreserveC;
+              Arith16_r <= Arith16;
+              PreserveC_r <= PreserveC;
               if (ISet == 2'b10 && ALU_Op[2] == 1'b0 && ALU_Op[0] == 1'b1 && mcycle[2] ) 
                 begin
-                  Z16_r <= #1 1'b1;
+                  Z16_r <= 1'b1;
                 end 
               else 
                 begin
-                  Z16_r <= #1 1'b0;
+                  Z16_r <= 1'b0;
                 end
 
               if (mcycle[0] && (tstate[1] | tstate[2] | tstate[3] )) 
@@ -440,58 +440,58 @@ module tv80_core (/*AUTOARG*/
                       `ifdef TV80_REFRESH
                       if (Mode < 2 ) 
                         begin
-                          A[7:0] <= #1 R;
-                          A[15:8] <= #1 I;
-                          R[6:0] <= #1 R[6:0] + 1;
+                          A[7:0] <= R;
+                          A[15:8] <= I;
+                          R[6:0] <= R[6:0] + 1;
                         end
                       `endif
                       if (Jump == 1'b0 && Call == 1'b0 && NMICycle == 1'b0 && IntCycle == 1'b0 && ~ (Halt_FF == 1'b1 || Halt == 1'b1) ) 
                         begin
-                          PC <= #1 PC16;
+                          PC <= PC16;
                         end
 
                       if (IntCycle == 1'b1 && IStatus == 2'b01 ) 
                         begin
-                          IR <= #1 8'b11111111;
+                          IR <= 8'b11111111;
                         end 
                       else if (Halt_FF == 1'b1 || (IntCycle == 1'b1 && IStatus == 2'b10) || NMICycle == 1'b1 ) 
                         begin
-                          IR <= #1 8'b00000000;
-			  TmpAddr[7:0] <= #1 dinst; // Special M1 vector fetch
+                          IR <= 8'b00000000;
+			  TmpAddr[7:0] <= dinst; // Special M1 vector fetch
                         end 
                       else 
                         begin
-                          IR <= #1 dinst;
+                          IR <= dinst;
                         end
 
-                      ISet <= #1 2'b00;
+                      ISet <= 2'b00;
                       if (Prefix != 2'b00 ) 
                         begin
                           if (Prefix == 2'b11 ) 
                             begin
                               if (IR[5] == 1'b1 ) 
                                 begin
-                                  XY_State <= #1 2'b10;
+                                  XY_State <= 2'b10;
                                 end 
                               else 
                                 begin
-                                  XY_State <= #1 2'b01;
+                                  XY_State <= 2'b01;
                                 end
                             end 
                           else 
                             begin
                               if (Prefix == 2'b10 ) 
                                 begin
-                                  XY_State <= #1 2'b00;
-                                  XY_Ind <= #1 1'b0;
+                                  XY_State <= 2'b00;
+                                  XY_Ind <= 1'b0;
                                 end
-                              ISet <= #1 Prefix;
+                              ISet <= Prefix;
                             end
                         end 
                       else 
                         begin
-                          XY_State <= #1 2'b00;
-                          XY_Ind <= #1 1'b0;
+                          XY_State <= 2'b00;
+                          XY_Ind <= 1'b0;
                         end
                     end // if (tstate == 2 && wait_n == 1'b1 )
                   
@@ -503,43 +503,43 @@ module tv80_core (/*AUTOARG*/
 
                   if (mcycle[5] ) 
                     begin
-                      XY_Ind <= #1 1'b1;
+                      XY_Ind <= 1'b1;
                       if (Prefix == 2'b01 ) 
                         begin
-                          ISet <= #1 2'b01;
+                          ISet <= 2'b01;
                         end
                     end
                   
                   if (T_Res == 1'b1 ) 
                     begin
-                      BTR_r <= #1 (I_BT || I_BC || I_BTR) && ~ No_BTR;
+                      BTR_r <= (I_BT || I_BC || I_BTR) && ~ No_BTR;
                       if (Jump == 1'b1 ) 
                         begin
-                          A[15:8] <= #1 DI_Reg;
-                          A[7:0] <= #1 TmpAddr[7:0];
-                          PC[15:8] <= #1 DI_Reg;
-                          PC[7:0] <= #1 TmpAddr[7:0];
+                          A[15:8] <= DI_Reg;
+                          A[7:0] <= TmpAddr[7:0];
+                          PC[15:8] <= DI_Reg;
+                          PC[7:0] <= TmpAddr[7:0];
                         end 
                       else if (JumpXY == 1'b1 ) 
                         begin
-                          A <= #1 RegBusC;
-                          PC <= #1 RegBusC;
+                          A <= RegBusC;
+                          PC <= RegBusC;
                         end else if (Call == 1'b1 || RstP == 1'b1 ) 
                           begin
-                            A <= #1 TmpAddr;
-                            PC <= #1 TmpAddr;
+                            A <= TmpAddr;
+                            PC <= TmpAddr;
                           end 
                         else if (last_mcycle && NMICycle == 1'b1 ) 
                           begin
-                            A <= #1 16'b0000000001100110;
-                            PC <= #1 16'b0000000001100110;
+                            A <= 16'b0000000001100110;
+                            PC <= 16'b0000000001100110;
                           end 
                         else if (mcycle[2] && IntCycle == 1'b1 && IStatus == 2'b10 ) 
                           begin
-                            A[15:8] <= #1 I;
-                            A[7:0] <= #1 TmpAddr[7:0];
-                            PC[15:8] <= #1 I;
-                            PC[7:0] <= #1 TmpAddr[7:0];
+                            A[15:8] <= I;
+                            A[7:0] <= TmpAddr[7:0];
+                            PC[15:8] <= I;
+                            PC[7:0] <= TmpAddr[7:0];
                           end 
                         else 
                           begin
@@ -548,17 +548,17 @@ module tv80_core (/*AUTOARG*/
                                 begin
                                   if (XY_State == 2'b00 ) 
                                     begin
-                                      A <= #1 RegBusC;
+                                      A <= RegBusC;
                                     end 
                                   else 
                                     begin
                                       if (NextIs_XY_Fetch == 1'b1 )
                                         begin
-                                          A <= #1 PC;
+                                          A <= PC;
                                         end 
                                       else 
                                         begin
-                                          A <= #1 TmpAddr;
+                                          A <= TmpAddr;
                                         end
                                     end // else: !if(XY_State == 2'b00 )
                                 end // case: aXY
@@ -568,24 +568,24 @@ module tv80_core (/*AUTOARG*/
                                   if (Mode == 3 ) 
                                     begin
                                       // Memory map I/O on GBZ80
-                                      A[15:8] <= #1 8'hFF;
+                                      A[15:8] <= 8'hFF;
                                     end 
                                   else if (Mode == 2 ) 
                                     begin
                                       // Duplicate I/O address on 8080
-                                      A[15:8] <= #1 DI_Reg;
+                                      A[15:8] <= DI_Reg;
                                     end 
                                   else 
                                     begin
-                                      A[15:8] <= #1 ACC;
+                                      A[15:8] <= ACC;
                                     end
-                                  A[7:0] <= #1 DI_Reg;
+                                  A[7:0] <= DI_Reg;
                                 end // case: aIOA
 
                               
                               aSP :
                                 begin
-                                  A <= #1 SP;
+                                  A <= SP;
                                 end
                               
                               aBC :
@@ -593,71 +593,71 @@ module tv80_core (/*AUTOARG*/
                                   if (Mode == 3 && iorq_i == 1'b1 ) 
                                     begin
                                       // Memory map I/O on GBZ80
-                                      A[15:8] <= #1 8'hFF;
-                                      A[7:0] <= #1 RegBusC[7:0];
+                                      A[15:8] <= 8'hFF;
+                                      A[7:0] <= RegBusC[7:0];
                                     end 
                                   else 
                                     begin
-                                      A <= #1 RegBusC;
+                                      A <= RegBusC;
                                     end
                                 end // case: aBC
                               
                               aDE :
                                 begin
-                                  A <= #1 RegBusC;
+                                  A <= RegBusC;
                                 end
                               
                               aZI :
                                 begin                                  
                                   if (Inc_WZ == 1'b1 ) 
                                     begin
-                                      A <= #1 TmpAddr + 1;
+                                      A <= TmpAddr + 1;
                                     end 
                                   else 
                                     begin
-                                      A[15:8] <= #1 DI_Reg;
-                                      A[7:0] <= #1 TmpAddr[7:0];
+                                      A[15:8] <= DI_Reg;
+                                      A[7:0] <= TmpAddr[7:0];
                                     end
                                 end // case: aZI
                               
                               default   :
                                 begin                                    
-                                  A <= #1 PC;
+                                  A <= PC;
                                 end
                             endcase // case(Set_Addr_To)
                             
                           end // else: !if(mcycle[2] && IntCycle == 1'b1 && IStatus == 2'b10 )
                       
 
-                      Save_ALU_r <= #1 Save_ALU;
-                      ALU_Op_r <= #1 ALU_Op;
+                      Save_ALU_r <= Save_ALU;
+                      ALU_Op_r <= ALU_Op;
                       
                       if (I_CPL == 1'b1 ) 
                         begin
                           // CPL
-                          ACC <= #1 ~ ACC;
-                          F[Flag_Y] <= #1 ~ ACC[5];
-                          F[Flag_H] <= #1 1'b1;
-                          F[Flag_X] <= #1 ~ ACC[3];
-                          F[Flag_N] <= #1 1'b1;
+                          ACC <= ~ ACC;
+                          F[Flag_Y] <= ~ ACC[5];
+                          F[Flag_H] <= 1'b1;
+                          F[Flag_X] <= ~ ACC[3];
+                          F[Flag_N] <= 1'b1;
                         end
                       if (I_CCF == 1'b1 ) 
                         begin
                           // CCF
-                          F[Flag_C] <= #1 ~ F[Flag_C];
-                          F[Flag_Y] <= #1 ACC[5];
-                          F[Flag_H] <= #1 F[Flag_C];
-                          F[Flag_X] <= #1 ACC[3];
-                          F[Flag_N] <= #1 1'b0;
+                          F[Flag_C] <= ~ F[Flag_C];
+                          F[Flag_Y] <= ACC[5];
+                          F[Flag_H] <= F[Flag_C];
+                          F[Flag_X] <= ACC[3];
+                          F[Flag_N] <= 1'b0;
                         end
                       if (I_SCF == 1'b1 ) 
                         begin
                           // SCF
-                          F[Flag_C] <= #1 1'b1;
-                          F[Flag_Y] <= #1 ACC[5];
-                          F[Flag_H] <= #1 1'b0;
-                          F[Flag_X] <= #1 ACC[3];
-                          F[Flag_N] <= #1 1'b0;
+                          F[Flag_C] <= 1'b1;
+                          F[Flag_Y] <= ACC[5];
+                          F[Flag_H] <= 1'b0;
+                          F[Flag_X] <= ACC[3];
+                          F[Flag_N] <= 1'b0;
                         end
                     end // if (T_Res == 1'b1 )
                   
@@ -666,56 +666,56 @@ module tv80_core (/*AUTOARG*/
                     begin
                       if (ISet == 2'b01 && mcycle[6] ) 
                         begin
-                          IR <= #1 dinst;
+                          IR <= dinst;
                         end
                       if (JumpE == 1'b1 ) 
                         begin
-                          PC <= #1 PC16;
+                          PC <= PC16;
                         end 
                       else if (Inc_PC == 1'b1 ) 
                         begin
-                          //PC <= #1 PC + 1;
-                          PC <= #1 PC16;
+                          //PC <= PC + 1;
+                          PC <= PC16;
                         end
                       if (BTR_r == 1'b1 ) 
                         begin
-                          //PC <= #1 PC - 2;
-                          PC <= #1 PC16;
+                          //PC <= PC - 2;
+                          PC <= PC16;
                         end
                       if (RstP == 1'b1 ) 
                         begin
-                          TmpAddr <= #1 { 10'h0, IR[5:3], 3'h0 };
-                          //TmpAddr <= #1 (others =>1'b0);
-                          //TmpAddr[5:3] <= #1 IR[5:3];
+                          TmpAddr <= { 10'h0, IR[5:3], 3'h0 };
+                          //TmpAddr <= (others =>1'b0);
+                          //TmpAddr[5:3] <= IR[5:3];
                         end
                     end
                   if (tstate[3] && mcycle[5] ) 
                     begin
-                      TmpAddr <= #1 SP16;
+                      TmpAddr <= SP16;
                     end
 
                   if ((tstate[2] && wait_n == 1'b1) || (tstate[4] && mcycle[0]) ) 
                     begin
                       if (IncDec_16[2:0] == 3'b111 ) 
                         begin
-                          SP <= #1 SP16;
+                          SP <= SP16;
                         end
                     end
 
                   if (LDSPHL == 1'b1 ) 
                     begin
-                      SP <= #1 RegBusC;
+                      SP <= RegBusC;
                     end
                   if (ExchangeAF == 1'b1 ) 
                     begin
-                      Ap <= #1 ACC;
-                      ACC <= #1 Ap;
-                      Fp <= #1 F;
-                      F <= #1 Fp;
+                      Ap <= ACC;
+                      ACC <= Ap;
+                      Fp <= F;
+                      F <= Fp;
                     end
                   if (ExchangeRS == 1'b1 ) 
                     begin
-                      Alternate <= #1 ~ Alternate;
+                      Alternate <= ~ Alternate;
                     end
                 end // else: !if(mcycle  == 3'b001 && tstate(2) == 1'b0 )
               
@@ -724,11 +724,11 @@ module tv80_core (/*AUTOARG*/
                 begin
                   if (LDZ == 1'b1 ) 
                     begin
-                      TmpAddr[7:0] <= #1 DI_Reg;
+                      TmpAddr[7:0] <= DI_Reg;
                     end
                   if (LDW == 1'b1 ) 
                     begin
-                      TmpAddr[15:8] <= #1 DI_Reg;
+                      TmpAddr[15:8] <= DI_Reg;
                     end
 
                   if (Special_LD[2] == 1'b1 ) 
@@ -736,8 +736,8 @@ module tv80_core (/*AUTOARG*/
                       case (Special_LD[1:0])
                         2'b00 :
                           begin
-                            ACC <= #1 I;
-                            F[Flag_P] <= #1 IntE_FF2;
+                            ACC <= I;
+                            F[Flag_P] <= IntE_FF2;
 			    F[Flag_Z] <= (I == 0);
 			    F[Flag_S] <= I[7];
 			    F[Flag_H] <= 0;
@@ -747,11 +747,11 @@ module tv80_core (/*AUTOARG*/
                         2'b01 :
                           begin
                             `ifdef TV80_REFRESH
-                            ACC <= #1 R;
+                            ACC <= R;
                             `else
-                            ACC <= #1 0;
+                            ACC <= 0;
                             `endif
-                            F[Flag_P] <= #1 IntE_FF2;
+                            F[Flag_P] <= IntE_FF2;
 			    F[Flag_Z] <= (I == 0);
 			    F[Flag_S] <= I[7];
 			    F[Flag_H] <= 0;
@@ -759,11 +759,11 @@ module tv80_core (/*AUTOARG*/
                           end
                         
                         2'b10 :
-                          I <= #1 ACC;
+                          I <= ACC;
 
                         `ifdef TV80_REFRESH                        
                         default :
-                          R <= #1 ACC;
+                          R <= ACC;
                         `else
                         default : ;
                         `endif                        
@@ -776,77 +776,77 @@ module tv80_core (/*AUTOARG*/
                 begin
                   if (Mode == 3 ) 
                     begin
-                      F[6] <= #1 F_Out[6];
-                      F[5] <= #1 F_Out[5];
-                      F[7] <= #1 F_Out[7];
+                      F[6] <= F_Out[6];
+                      F[5] <= F_Out[5];
+                      F[7] <= F_Out[7];
                       if (PreserveC_r == 1'b0 ) 
                         begin
-                          F[4] <= #1 F_Out[4];
+                          F[4] <= F_Out[4];
                         end
                     end 
                   else 
                     begin
-                      F[7:1] <= #1 F_Out[7:1];
+                      F[7:1] <= F_Out[7:1];
                       if (PreserveC_r == 1'b0 ) 
                         begin
-                          F[Flag_C] <= #1 F_Out[0];
+                          F[Flag_C] <= F_Out[0];
                         end
                     end
                 end // if ((I_DJNZ == 1'b0 && Save_ALU_r == 1'b1) || ALU_Op_r == 4'b1001 )
               
               if (T_Res == 1'b1 && I_INRC == 1'b1 ) 
                 begin
-                  F[Flag_H] <= #1 1'b0;
-                  F[Flag_N] <= #1 1'b0;
+                  F[Flag_H] <= 1'b0;
+                  F[Flag_N] <= 1'b0;
                   if (DI_Reg[7:0] == 8'b00000000 ) 
                     begin
-                      F[Flag_Z] <= #1 1'b1;
+                      F[Flag_Z] <= 1'b1;
                     end 
                   else 
                     begin
-                      F[Flag_Z] <= #1 1'b0;
+                      F[Flag_Z] <= 1'b0;
                     end
-                  F[Flag_S] <= #1 DI_Reg[7];
-                  F[Flag_P] <= #1 ~ (^DI_Reg[7:0]);
+                  F[Flag_S] <= DI_Reg[7];
+                  F[Flag_P] <= ~ (^DI_Reg[7:0]);
                 end // if (T_Res == 1'b1 && I_INRC == 1'b1 )
               
 
               if (tstate[1] && Auto_Wait_t1 == 1'b0 ) 
                 begin
-                  dout <= #1 BusB;
+                  dout <= BusB;
                   if (I_RLD == 1'b1 ) 
                     begin
-                      dout[3:0] <= #1 BusA[3:0];
-                      dout[7:4] <= #1 BusB[3:0];
+                      dout[3:0] <= BusA[3:0];
+                      dout[7:4] <= BusB[3:0];
                     end
                   if (I_RRD == 1'b1 ) 
                     begin
-                      dout[3:0] <= #1 BusB[7:4];
-                      dout[7:4] <= #1 BusA[3:0];
+                      dout[3:0] <= BusB[7:4];
+                      dout[7:4] <= BusA[3:0];
                     end
                 end
 
               if (T_Res == 1'b1 ) 
                 begin
-                  Read_To_Reg_r[3:0] <= #1 Set_BusA_To;
-                  Read_To_Reg_r[4] <= #1 Read_To_Reg;
+                  Read_To_Reg_r[3:0] <= Set_BusA_To;
+                  Read_To_Reg_r[4] <= Read_To_Reg;
                   if (Read_To_Acc == 1'b1 ) 
                     begin
-                      Read_To_Reg_r[3:0] <= #1 4'b0111;
-                      Read_To_Reg_r[4] <= #1 1'b1;
+                      Read_To_Reg_r[3:0] <= 4'b0111;
+                      Read_To_Reg_r[4] <= 1'b1;
                     end
                 end
 
               if (tstate[1] && I_BT == 1'b1 ) 
                 begin
-                  F[Flag_X] <= #1 ALU_Q[3];
-                  F[Flag_Y] <= #1 ALU_Q[1];
-                  F[Flag_H] <= #1 1'b0;
-                  F[Flag_N] <= #1 1'b0;
+                  F[Flag_X] <= ALU_Q[3];
+                  F[Flag_Y] <= ALU_Q[1];
+                  F[Flag_H] <= 1'b0;
+                  F[Flag_N] <= 1'b0;
                 end
               if (I_BC == 1'b1 || I_BT == 1'b1 ) 
                 begin
-                  F[Flag_P] <= #1 IncDecZ;
+                  F[Flag_P] <= IncDecZ;
                 end
 
               if ((tstate[1] && Save_ALU_r == 1'b0 && Auto_Wait_t1 == 1'b0) ||
@@ -854,15 +854,15 @@ module tv80_core (/*AUTOARG*/
                 begin
                   case (Read_To_Reg_r)
                     5'b10111 :
-                      ACC <= #1 Save_Mux;
+                      ACC <= Save_Mux;
                     5'b10110 :
-                      dout <= #1 Save_Mux;
+                      dout <= Save_Mux;
                     5'b11000 :
-                      SP[7:0] <= #1 Save_Mux;
+                      SP[7:0] <= Save_Mux;
                     5'b11001 :
-                      SP[15:8] <= #1 Save_Mux;
+                      SP[15:8] <= Save_Mux;
                     5'b11011 :
-                      F <= #1 Save_Mux;
+                      F <= Save_Mux;
                     default : ;
                   endcase
                 end // if ((tstate == 1 && Save_ALU_r == 1'b0 && Auto_Wait_t1 == 1'b0) ||...              
@@ -881,48 +881,48 @@ module tv80_core (/*AUTOARG*/
       if (ClkEn == 1'b1 ) 
         begin
           // Bus A / Write
-          RegAddrA_r <= #1  { Alternate, Set_BusA_To[2:1] };
+          RegAddrA_r <=  { Alternate, Set_BusA_To[2:1] };
           if (XY_Ind == 1'b0 && XY_State != 2'b00 && Set_BusA_To[2:1] == 2'b10 ) 
             begin
-              RegAddrA_r <= #1 { XY_State[1],  2'b11 };
+              RegAddrA_r <= { XY_State[1],  2'b11 };
             end
 
           // Bus B
-          RegAddrB_r <= #1 { Alternate, Set_BusB_To[2:1] };
+          RegAddrB_r <= { Alternate, Set_BusB_To[2:1] };
           if (XY_Ind == 1'b0 && XY_State != 2'b00 && Set_BusB_To[2:1] == 2'b10 ) 
             begin
-              RegAddrB_r <= #1 { XY_State[1],  2'b11 };
+              RegAddrB_r <= { XY_State[1],  2'b11 };
             end
 
           // Address from register
-          RegAddrC <= #1 { Alternate,  Set_Addr_To[1:0] };
+          RegAddrC <= { Alternate,  Set_Addr_To[1:0] };
           // Jump (HL), LD SP,HL
           if ((JumpXY == 1'b1 || LDSPHL == 1'b1) ) 
             begin
-              RegAddrC <= #1 { Alternate, 2'b10 };
+              RegAddrC <= { Alternate, 2'b10 };
             end
           if (((JumpXY == 1'b1 || LDSPHL == 1'b1) && XY_State != 2'b00) || (mcycle[5]) ) 
             begin
-              RegAddrC <= #1 { XY_State[1],  2'b11 };
+              RegAddrC <= { XY_State[1],  2'b11 };
             end
 
           if (I_DJNZ == 1'b1 && Save_ALU_r == 1'b1 && Mode < 2 ) 
             begin
-              IncDecZ <= #1 F_Out[Flag_Z];
+              IncDecZ <= F_Out[Flag_Z];
             end
           if ((tstate[2] || (tstate[3] && mcycle[0])) && IncDec_16[2:0] == 3'b100 ) 
             begin
               if (ID16 == 0 ) 
                 begin
-                  IncDecZ <= #1 1'b0;
+                  IncDecZ <= 1'b0;
                 end 
               else 
                 begin
-                  IncDecZ <= #1 1'b1;
+                  IncDecZ <= 1'b1;
                 end
             end
           
-          RegBusA_r <= #1 RegBusA;
+          RegBusA_r <= RegBusA;
         end
       
     end // always @ (posedge clk)
@@ -1044,62 +1044,62 @@ module tv80_core (/*AUTOARG*/
         begin
           case (Set_BusB_To)
             4'b0111 :
-              BusB <= #1 ACC;
+              BusB <= ACC;
             4'b0000 , 4'b0001 , 4'b0010 , 4'b0011 , 4'b0100 , 4'b0101 :
               begin
                 if (Set_BusB_To[0] == 1'b1 ) 
                   begin
-                    BusB <= #1 RegBusB[7:0];
+                    BusB <= RegBusB[7:0];
                   end 
                 else 
                   begin
-                    BusB <= #1 RegBusB[15:8];
+                    BusB <= RegBusB[15:8];
                   end
               end
             4'b0110 :
-              BusB <= #1 DI_Reg;
+              BusB <= DI_Reg;
             4'b1000 :
-              BusB <= #1 SP[7:0];
+              BusB <= SP[7:0];
             4'b1001 :
-              BusB <= #1 SP[15:8];
+              BusB <= SP[15:8];
             4'b1010 :
-              BusB <= #1 8'b00000001;
+              BusB <= 8'b00000001;
             4'b1011 :
-              BusB <= #1 F;
+              BusB <= F;
             4'b1100 :
-              BusB <= #1 PC[7:0];
+              BusB <= PC[7:0];
             4'b1101 :
-              BusB <= #1 PC[15:8];
+              BusB <= PC[15:8];
             4'b1110 :
-              BusB <= #1 8'b00000000;
+              BusB <= 8'b00000000;
             default :
-              BusB <= #1 8'h0;
+              BusB <= 8'h0;
           endcase
 
           case (Set_BusA_To)
             4'b0111 :
-              BusA <= #1 ACC;
+              BusA <= ACC;
             4'b0000 , 4'b0001 , 4'b0010 , 4'b0011 , 4'b0100 , 4'b0101 :
               begin
                 if (Set_BusA_To[0] == 1'b1 )
                   begin
-                    BusA <= #1 RegBusA[7:0];
+                    BusA <= RegBusA[7:0];
                   end 
                 else 
                   begin
-                    BusA <= #1 RegBusA[15:8];
+                    BusA <= RegBusA[15:8];
                   end
               end
             4'b0110 :
-              BusA <= #1 DI_Reg;
+              BusA <= DI_Reg;
             4'b1000 :
-              BusA <= #1 SP[7:0];
+              BusA <= SP[7:0];
             4'b1001 :
-              BusA <= #1 SP[15:8];
+              BusA <= SP[15:8];
             4'b1010 :
-              BusA <= #1 8'b00000000;
+              BusA <= 8'b00000000;
             default :
-              BusA <= #1  8'h0;
+              BusA <=  8'h0;
           endcase
         end
     end
@@ -1114,7 +1114,7 @@ module tv80_core (/*AUTOARG*/
     begin
       if (reset_n == 1'b0 ) 
         begin
-          rfsh_n <= #1 1'b1;
+          rfsh_n <= 1'b1;
         end 
       else
         begin
@@ -1122,11 +1122,11 @@ module tv80_core (/*AUTOARG*/
             begin
               if (mcycle[0] && ((tstate[2]  && wait_n == 1'b1) || tstate[3]) ) 
                 begin
-                  rfsh_n <= #1 1'b0;
+                  rfsh_n <= 1'b0;
                 end 
               else 
                 begin
-                  rfsh_n <= #1 1'b1;
+                  rfsh_n <= 1'b1;
                 end
             end
         end
@@ -1159,26 +1159,26 @@ module tv80_core (/*AUTOARG*/
     begin : sync_inputs
       if (~reset_n) 
         begin
-          BusReq_s <= #1 1'b0;
-          INT_s <= #1 1'b0;
-          NMI_s <= #1 1'b0;
-          Oldnmi_n <= #1 1'b0;
+          BusReq_s <= 1'b0;
+          INT_s <= 1'b0;
+          NMI_s <= 1'b0;
+          Oldnmi_n <= 1'b0;
         end 
       else
         begin
           if (cen == 1'b1 ) 
             begin
-              BusReq_s <= #1 ~ busrq_n;
-              INT_s <= #1 ~ int_n;
+              BusReq_s <= ~ busrq_n;
+              INT_s <= ~ int_n;
               if (NMICycle == 1'b1 ) 
                 begin
-                  NMI_s <= #1 1'b0;
+                  NMI_s <= 1'b0;
                 end 
               else if (nmi_n == 1'b0 && Oldnmi_n == 1'b1 ) 
                 begin
-                  NMI_s <= #1 1'b1;
+                  NMI_s <= 1'b1;
                 end
-              Oldnmi_n <= #1 nmi_n;
+              Oldnmi_n <= nmi_n;
             end
         end
     end
@@ -1193,19 +1193,19 @@ module tv80_core (/*AUTOARG*/
     begin
       if (reset_n == 1'b0 ) 
         begin
-          mcycle <= #1 7'b0000001;
-          tstate <= #1 7'b0000001;
-          Pre_XY_F_M <= #1 3'b000;
-          Halt_FF <= #1 1'b0;
-          BusAck <= #1 1'b0;
-          NMICycle <= #1 1'b0;
-          IntCycle <= #1 1'b0;
-          IntE_FF1 <= #1 1'b0;
-          IntE_FF2 <= #1 1'b0;
-          No_BTR <= #1 1'b0;
-          Auto_Wait_t1 <= #1 1'b0;
-          Auto_Wait_t2 <= #1 1'b0;
-          m1_n <= #1 1'b1;
+          mcycle <= 7'b0000001;
+          tstate <= 7'b0000001;
+          Pre_XY_F_M <= 3'b000;
+          Halt_FF <= 1'b0;
+          BusAck <= 1'b0;
+          NMICycle <= 1'b0;
+          IntCycle <= 1'b0;
+          IntE_FF1 <= 1'b0;
+          IntE_FF2 <= 1'b0;
+          No_BTR <= 1'b0;
+          Auto_Wait_t1 <= 1'b0;
+          Auto_Wait_t2 <= 1'b0;
+          m1_n <= 1'b1;
         end 
       else
         begin
@@ -1213,14 +1213,14 @@ module tv80_core (/*AUTOARG*/
             begin
               if (T_Res == 1'b1 ) 
                 begin
-                  Auto_Wait_t1 <= #1 1'b0;
+                  Auto_Wait_t1 <= 1'b0;
                 end 
               else 
                 begin
-		  Auto_Wait_t1 <= #1 Auto_Wait || (iorq_i & ~Auto_Wait_t2);
+		  Auto_Wait_t1 <= Auto_Wait || (iorq_i & ~Auto_Wait_t2);
                 end
-              Auto_Wait_t2 <= #1 Auto_Wait_t1 & !T_Res;
-              No_BTR <= #1 (I_BT && (~ IR[4] || ~ F[Flag_P])) ||
+              Auto_Wait_t2 <= Auto_Wait_t1 & !T_Res;
+              No_BTR <= (I_BT && (~ IR[4] || ~ F[Flag_P])) ||
                         (I_BC && (~ IR[4] || F[Flag_Z] || ~ F[Flag_P])) ||
                         (I_BTR && (~ IR[4] || F[Flag_Z]));
               if (tstate[2] ) 
@@ -1228,36 +1228,36 @@ module tv80_core (/*AUTOARG*/
                   if (SetEI == 1'b1 ) 
                     begin
                       if (!NMICycle)
-                        IntE_FF1 <= #1 1'b1;
-                      IntE_FF2 <= #1 1'b1;
+                        IntE_FF1 <= 1'b1;
+                      IntE_FF2 <= 1'b1;
                     end
                   if (I_RETN == 1'b1 ) 
                     begin
-                      IntE_FF1 <= #1 IntE_FF2;
+                      IntE_FF1 <= IntE_FF2;
                     end
                 end
               if (tstate[3] ) 
                 begin
                   if (SetDI == 1'b1 ) 
                     begin
-                      IntE_FF1 <= #1 1'b0;
-                      IntE_FF2 <= #1 1'b0;
+                      IntE_FF1 <= 1'b0;
+                      IntE_FF2 <= 1'b0;
                     end
                 end
               if (IntCycle == 1'b1 || NMICycle == 1'b1 ) 
                 begin
-                  Halt_FF <= #1 1'b0;
+                  Halt_FF <= 1'b0;
                 end
               if (mcycle[0] && tstate[2] && wait_n == 1'b1 ) 
                 begin
-                  m1_n <= #1 1'b1;
+                  m1_n <= 1'b1;
                 end
               if (BusReq_s == 1'b1 && BusAck == 1'b1 ) 
                 begin
                 end 
               else 
                 begin
-                  BusAck <= #1 1'b0;
+                  BusAck <= 1'b0;
                   if (tstate[2] && wait_n == 1'b0 ) 
                     begin
                     end 
@@ -1265,51 +1265,51 @@ module tv80_core (/*AUTOARG*/
                     begin
                       if (Halt == 1'b1 ) 
                         begin
-                          Halt_FF <= #1 1'b1;
+                          Halt_FF <= 1'b1;
                         end
                       if (BusReq_s == 1'b1 ) 
                         begin
-                          BusAck <= #1 1'b1;
+                          BusAck <= 1'b1;
                         end 
                       else 
                         begin
-                          tstate <= #1 7'b0000010;
+                          tstate <= 7'b0000010;
                           if (NextIs_XY_Fetch == 1'b1 ) 
                             begin
-                              mcycle <= #1 7'b0100000;
-                              Pre_XY_F_M <= #1 mcyc_to_number(mcycle);
+                              mcycle <= 7'b0100000;
+                              Pre_XY_F_M <= mcyc_to_number(mcycle);
                               if (IR == 8'b00110110 && Mode == 0 ) 
                                 begin
-                                  Pre_XY_F_M <= #1 3'b010;
+                                  Pre_XY_F_M <= 3'b010;
                                 end
                             end 
                           else if ((mcycle[6]) || (mcycle[5] && Mode == 1 && ISet != 2'b01) ) 
                             begin
-                              mcycle <= #1 number_to_bitvec(Pre_XY_F_M + 1);
+                              mcycle <= number_to_bitvec(Pre_XY_F_M + 1);
                             end 
                           else if ((last_mcycle) ||
                                    No_BTR == 1'b1 ||
                                    (mcycle[1] && I_DJNZ == 1'b1 && IncDecZ == 1'b1) ) 
                             begin
-                              m1_n <= #1 1'b0;
-                              mcycle <= #1 7'b0000001;
-                              IntCycle <= #1 1'b0;
-                              NMICycle <= #1 1'b0;
+                              m1_n <= 1'b0;
+                              mcycle <= 7'b0000001;
+                              IntCycle <= 1'b0;
+                              NMICycle <= 1'b0;
                               if (NMI_s == 1'b1 && Prefix == 2'b00 ) 
                                 begin
-                                  NMICycle <= #1 1'b1;
-                                  IntE_FF1 <= #1 1'b0;
+                                  NMICycle <= 1'b1;
+                                  IntE_FF1 <= 1'b0;
                                 end 
                               else if ((IntE_FF1 == 1'b1 && INT_s == 1'b1) && Prefix == 2'b00 && SetEI == 1'b0 ) 
                                 begin
-                                  IntCycle <= #1 1'b1;
-                                  IntE_FF1 <= #1 1'b0;
-                                  IntE_FF2 <= #1 1'b0;
+                                  IntCycle <= 1'b1;
+                                  IntE_FF1 <= 1'b0;
+                                  IntE_FF2 <= 1'b0;
                                 end
                             end 
                           else 
                             begin
-                              mcycle <= #1 { mcycle[5:0], mcycle[6] };
+                              mcycle <= { mcycle[5:0], mcycle[6] };
                             end
                         end
                     end 
@@ -1318,13 +1318,13 @@ module tv80_core (/*AUTOARG*/
                       if ( ~(Auto_Wait == 1'b1 && Auto_Wait_t2 == 1'b0) &&
                            ~(IOWait == 1 && iorq_i == 1'b1 && Auto_Wait_t1 == 1'b0) ) 
                         begin
-                          tstate <= #1 { tstate[5:0], tstate[6] };
+                          tstate <= { tstate[5:0], tstate[6] };
                         end
                     end
                 end
               if (tstate[0]) 
                 begin
-                  m1_n <= #1 1'b0;
+                  m1_n <= 1'b0;
                 end
             end
         end

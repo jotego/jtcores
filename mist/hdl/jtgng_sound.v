@@ -68,7 +68,7 @@ wire [7:0] ram_dout, dout;
 
 jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
     .clk    ( clk      ),
-    .cen    ( cen3     ),
+    .cen    ( 1'b1     ),
     .data   ( dout     ),
     .addr   ( A[10:0]  ),
     .we     ( RAM_we   ),

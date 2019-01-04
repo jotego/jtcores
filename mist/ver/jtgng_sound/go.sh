@@ -7,6 +7,7 @@ EXTRA_VERI=
 VCD2FST=FALSE
 SKIPMAKE=FALSE
 QUIET=FALSE
+FST_NAME=test
 
 function quiet_echo() {
     if [ $QUIET = FALSE ]; then
@@ -19,6 +20,12 @@ while [ $# -gt 0 ]; do
         EXTRA="$EXTRA -trace"
         VCD2FST=TRUE
         quiet_echo Signal dump enabled
+        shift
+        continue
+    fi
+    if [ "$1" = "-fst" ]; then
+        shift
+        FST_NAME=$1
         shift
         continue
     fi
@@ -48,6 +55,21 @@ while [ $# -gt 0 ]; do
     if [ "$1" = "-snd" ]; then
         quiet_echo Simulate with full jt03
         GATHER=gather.f
+        shift
+        continue
+    fi
+    if [ "$1" = "-ram" ]; then
+        quiet_echo Simulate with ram_test.s code in the ROM
+        if ! z80asm ram_test.s -o ram_test.bin; then
+            exit 1
+        fi
+        EXTRA="$EXTRA -ram"
+        shift
+        continue
+    fi
+    if [ "$1" = "-slow" ]; then
+        quiet_echo Setting input clock to 6MHz and using cen3
+        EXTRA="$EXTRA -slow"
         shift
         continue
     fi
@@ -103,7 +125,7 @@ if [ $SKIPMAKE = FALSE ]; then
 fi
 
 if [ $VCD2FST = TRUE ]; then
-    obj_dir/Vjtgng_sound $EXTRA | vcd2fst -v - -f test.fst
+    obj_dir/Vjtgng_sound $EXTRA | vcd2fst -v - -f $FST_NAME.fst
 else
     obj_dir/Vjtgng_sound $EXTRA
 fi
