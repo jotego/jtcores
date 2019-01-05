@@ -20,7 +20,7 @@
 
 module jtgng_main(
     input              clk, 
-    input              cen6,   // 6MHz
+    input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
     input              rst,
     input              soft_rst,
     input              ch_mrdy,
@@ -222,8 +222,8 @@ always @(posedge clk) if(cen6) begin
 end
 
 
-/*
-wire EXTAL = ~(clk & cen6);
+
+wire EXTAL = ~clk;
 mc6809 cpu (
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),
@@ -240,7 +240,7 @@ mc6809 cpu (
     .MRDY    ( MRDY_b  ),
     .nDMABREQ( 1'b1    )
 );
-*/
+/*
 `ifndef VERILATOR_LINT
 wire VMA;
 mc6809_cen cpu (
@@ -262,4 +262,5 @@ mc6809_cen cpu (
     .VMA     ( VMA     )
 );
 `endif
+*/
 endmodule // jtgng_main

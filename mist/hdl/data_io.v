@@ -102,10 +102,14 @@ end
 
 reg rclkD, rclkD2;
 reg sync_aux;
+reg even;
+
+reg [7:0] half;
 
 always@(posedge clk_sdram or posedge rst) 
 	if ( rst ) begin
-		addr_sdram <= 25'd0;
+		addr_sdram <= ~25'd0;
+		even <= 1'b0;
 	end
 	else begin
 		{ downloading_sdram, sync_aux } <= { sync_aux, downloading_reg };
@@ -114,10 +118,15 @@ always@(posedge clk_sdram or posedge rst)
 		rclkD2 <= rclkD;
 		
 		if( rclkD && !rclkD2 ) begin
-			wr_sdram <= addr_sdram[0];
-			data_sdram <= { data, data_sdram[15:8] };
-			//data_sdram <= { data_sdram[7:0], data };
-			addr_sdram <= addr_sdram + 1;
+			half <= data;
+			even <= ~even;
+			if( even ) begin
+				data_sdram <= { half, data };
+				wr_sdram <= 1'b1;
+				//data_sdram <= { data_sdram[7:0], data };
+				addr_sdram <= addr_sdram + 1;
+			end
+			else wr_sdram <= 1'b0;
 		end else
 			wr_sdram <= 1'b0;
 	end

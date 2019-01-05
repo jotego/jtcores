@@ -74,7 +74,8 @@ wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
 `endif
 
 reg SDRAM_WRITE;
-assign SDRAM_DQ =  SDRAM_WRITE ? romload_data : 16'hzzzz;
+reg [15:0] write_data;
+assign SDRAM_DQ =  SDRAM_WRITE ? write_data : 16'hzzzz;
 
 reg [15:0] data_read, scr_aux;
 
@@ -166,7 +167,6 @@ localparam  INITIALIZE    = 4'd15,
             SYNC_START    = 4'd6;
 
 reg [3:0] wait_cnt;
-reg write_done;
 localparam PRECHARGE_WAIT = 4'd0, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
 
 `ifdef SIMULATION
@@ -190,14 +190,10 @@ always @(posedge clk)
         { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_INHIBIT;
         { wait_cnt, SDRAM_A } <= 17'd9800;
         ready <= false;
-        write_done <= 1'b0;
         loop_rst   <= 1'b1;
         pre_loop_rst <= 1'b1;
         SDRAM_WRITE<= 1'b0;
     end else  begin
-    if( romload_wr ) begin
-        { romload_row, romload_col } <= romload_addr[22:1]-1'b1;
-    end
     case( state )
         default: state <= SET_PRECHARGE;
         INITIALIZE: begin
@@ -252,9 +248,6 @@ always @(posedge clk)
             next     <= autorefresh ? AUTO_REFRESH1 : ACTIVATE;     
             // Clear WRITE state:
             SDRAM_WRITE <= 1'b0;
-            if( write_done ) begin
-                write_done <= false;
-                end
             end
         WAIT: begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_NOP;
@@ -304,23 +297,28 @@ always @(posedge clk)
             end
         ACTIVATE_WR: begin 
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_ACTIVATE;
-            SDRAM_A <= romload_row;
+            // Address and data are captured at this stage
+            { SDRAM_A, romload_col } <= romload_addr[21:0];
+            write_data <= romload_data;         
             wait_cnt <= ACTIVATE_WAIT;
             next  <= SET_WRITE;
             state <= WAIT;
             end     
-        SET_WRITE:begin
+        SET_WRITE: if( downloading) begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_WRITE;
             SDRAM_WRITE <= 1'b1;
             wait_cnt <= CL_WAIT;
             state <= WAIT;
-            next  <= downloading ? SET_PRECHARGE_WR : SYNC_START;
+            next  <= SET_PRECHARGE_WR;
             SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_col };
-            write_done <= true;
             `ifdef SIMULATION
                 sdram_writes = sdram_writes + 2;
             `endif
             end     
+            else begin
+                state <= WAIT;
+                next  <= SYNC_START;
+            end
     endcase // state
     end
 

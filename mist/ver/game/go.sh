@@ -14,16 +14,14 @@ CHR_DUMP=NOCHR_DUMP
 RAM_INFO=NORAM_INFO
 FIRMWARE=gng_test.s
 VGACONV=NOVGACONV
-LOADROM=NOLOADROM
+LOADROM=
 FIRMONLY=NOFIRMONLY
-NOFIRM=NOFIRM
 MAXFRAME=
-OBJTEST=
 SIM_MS=1
 SIMULATOR=iverilog
 #FASTSIM="-DNOCHAR -DNOCOLMIX -DNOSCR -DNOSOUND"
-#FASTSIM="-DNOSOUND"
-FASTSIM=
+FASTSIM="-DNOSOUND"
+#FASTSIM=
 
 if ! g++ init_ram.cc -o init_ram; then
 	exit 1;
@@ -36,11 +34,6 @@ case "$1" in
 		DUMP=-DDUMP
 		echo Signal dump enabled
 		if [ $1 = "-deep" ]; then DUMP="$DUMP -DDEEPDUMP"; fi
-		;;
-	"-obj")
-		echo "Object test: will used special firmware on ROM space"
-		OBJTEST="-DOBJTEST"	
-		FIRMWARE="obj_test.s"	
 		;;
 	"-frames")
 		shift
@@ -62,19 +55,11 @@ case "$1" in
 		;;
 	"-firmonly")
 		FIRMONLY=FIRMONLY
-		NOFIRM=FIRM
 		echo Firmware dump only
 		;;
-	"-firm")
-		NOFIRM=FIRM
-		echo Will copy firmware to Quartus folder
-		;;
-	"-g")
-		FIRMWARE=rungame.s
-		if [ ! -e ../../../rom/gng.hex ]; then
-			echo "Cannot find ROM file: ../../../rom/gng.hex"
-			exit 1
-		fi
+	"-t")
+		FIRMWARE=gng_test.s
+		LOADROM=-DGNGTEST
 		echo Running game directly
 		;;
 	"-ch")
@@ -90,7 +75,7 @@ case "$1" in
 		echo VGA conversion enabled
 		;;
 	"-load")
-		LOADROM=LOADROM
+		LOADROM=-DLOADROM
 		echo ROM load through SPI enabled
 		if [ ! -e JTGNG.rom ]; then
 			echo "Missing file JTGNG.rom, looking into rom folder"
@@ -109,58 +94,15 @@ esac
 	shift
 done
 
-#Prepare firmware
-if [[ "$OBJTEST" = "-DOBJTEST" && "$NOFIRM" != "NOFIRM" ]]; then
-	echo "Cannot specify -obj and -firm together"
-	exit 1
-fi
 
 if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; then
 	exit 1
 fi
 
-if [ "$OBJTEST" = "-DOBJTEST" ]; then
-	ODx2="od -t x2 -A none -v -w2"
-	$ODx2 --endian little gng_test.bin > ram.hex	
-	echo "@1C000" >> ram.hex
-	if [ ! -e ../../../rom/obj.hex ]; then
-		echo "Missing the object hex dump"
-		echo "use go-mist.sh to generate it at the ROM folder"
-		exit 1
-	fi
-	cat ../../../rom/obj.hex >> ram.hex
-else
-	echo -e "DEPTH = 8192;\nWIDTH = 8;\nADDRESS_RADIX = HEX;DATA_RADIX = HEX;" > jtgng_firmware.mif
-	echo -e "CONTENT\nBEGIN" >> jtgng_firmware.mif
-	OD="od -t x1 -A none -v -w1"
-	$OD gng_test.bin > ram.hex
-python <<XXX
-import string
-
-infile=open("ram.hex","r")
-file=open("jtgng_firmware.mif","a")
-#file.write("[0000..1FFF]:")
-addr=0;
-for line in infile:
-	line=string.replace(line,'\n','')
-	file.write( '{0:X} : {1};\n'.format(addr,line) )
-	addr=addr+1
-file.write("END;")
-XXX
-
-fi
-
-if [ $NOFIRM != NOFIRM ]; then
-	echo Quartus firmware file overwritten
-	cp jtgng_firmware.mif ../../quartus 
-fi
+ODx2="od -t x2 -A none -v -w2"
+$ODx2 --endian little gng_test.bin > gng_test.hex	
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
-
-
-
-zero_file 10n.hex 16384
-zero_file 13n.hex $((2*16384))
 
 function add_dir {
 	for i in $(cat $1/$2); do
@@ -187,10 +129,10 @@ if [ $SIMULATOR = iverilog ]; then
 		$(add_dir ../../../modules/jt12/hdl jt03.f) \
 		../../hdl/*.v \
 		../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
-		../../../modules/mc6809/mc6809{_cen,i}.v \
+		../../../modules/mc6809/mc6809{,i}.v \
 		../../../modules/tv80/*.v \
 		-s game_test -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
-		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM $FASTSIM \
+		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
 		$MAXFRAME $OBJTEST \
 	&& sim -lxt
 else
@@ -201,7 +143,7 @@ else
 		../common/quick_sdram.v \
 		-F ../../../modules/jt12/hdl/jt03.f \
 		--top-module jtgng_game -o sim \
-		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV -D$LOADROM -DFASTSDRAM \
+		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
 		-DVERILATOR_LINT \
 		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only
 fi

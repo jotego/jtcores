@@ -18,7 +18,7 @@
 
 module jtgng_scroll(
     input              clk,     // 24 MHz
-    input              cen6,    //  6 MHz
+    input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
     input       [10:0] AB,
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
@@ -57,18 +57,19 @@ end
 
 assign HSlow = HS[2:0];
 
-reg we, scren_b;
+reg we;
+wire sel = ~HS[2];
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 
 
 always @(*)
-    if( scren_b ) begin
-        we   = 1'b0; // line order is important here
-        addr = { HS[0], scan }; 
-    end else begin
+    if( !sel ) begin
         addr = AB;
         we   = scr_cs && !rd;
+    end else begin
+        we   = 1'b0; // line order is important here
+        addr = { HS[0], scan }; 
     end
 
 
@@ -92,20 +93,9 @@ jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
 );
 
 reg [9:0] AS;
-reg pre_rdy;
 
-always @(posedge clk) if(cen6) begin
-    if( HS[2:0]==3'd3 ) begin
-        scren_b <= !scr_cs;
-    end
-    if( HS[2:0]==3'd5 ) pre_rdy <= 1'b1;
-    if( HS[2:0]==3'd7 ) begin
-        pre_rdy <= 1'b0;
-        scren_b <= 1'b1;    
-    end
-end
-
-assign MRDY_b = !scr_cs || pre_rdy;
+assign MRDY_b = !( scr_cs && ( &HS[2:1]==2'b0 ) );
+// assign MRDY_b = !scr_cs || pre_rdy;
 reg scr_hflip;
 reg scr_hflip_prev;
 reg [2:0] pal_in;

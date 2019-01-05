@@ -18,10 +18,11 @@ module game_test;
         $display("DUMP enabled");
         $dumpfile("test.lxt");
         `ifdef LOADROM
-            $dumpvars(1,game_test.UUT.main);
-            $dumpvars(2,game_test.UUT.main.cpu);
-            $dumpvars(1,game_test.UUT.rom);
+            $dumpvars(1,game_test.UUT.u_main);
+            //$dumpvars(2,game_test.UUT.main.cpu);
+            $dumpvars(1,game_test.UUT.u_rom);
             $dumpvars(1,game_test);
+            $dumpvars(1,game_test.datain);
             // $dumpvars(0,game_test);
             $dumpon;
         `else
@@ -407,7 +408,6 @@ always @(spi_done)
         `ifdef DUMP
         $dumpon;
         `endif
-        #(60*1000*1000) $finish;
     end
 
 data_io datain (

@@ -18,7 +18,7 @@
     
 module jtgng_char(
     input            clk,    // 24 MHz
-    input            cen6,   //  6 MHz
+    input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
     input   [10:0]   AB,
     input   [ 7:0]   V128, // V128-V1
     input   [ 7:0]   H128, // H128-H1
@@ -63,7 +63,7 @@ begin
     if( we ) ram[addr] <= din;
 end
 
-assign MRDY_b = !( char_cs && ( &H128[2:1]==1'b0 ) );
+assign MRDY_b = !( char_cs && ( &H128[2:1]==2'b0 ) );
 
 reg [7:0] aux;
 reg [9:0] AC; // ADDRESS - CHARACTER

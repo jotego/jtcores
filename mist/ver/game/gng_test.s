@@ -1,4 +1,5 @@
-	ORG $0
+	; load in last 8kB of ROM
+	ORG $8000
 
 SCR_PALRAM	EQU $3800
 OBJ_PALRAM	EQU $3840
@@ -34,11 +35,12 @@ RESET:
 	STA FLIP
 	CLRA
 	STA FLIPVAR
-	CLRA
+	LDA #$BC
+	LDB #$1
 	STA HPOS_LOW
-	STA HPOS_HIGH
+	STB HPOS_HIGH
 	STA VPOS_LOW
-	STA VPOS_HIGH
+	STB VPOS_HIGH
 
 	LDA #$10
 	STA SND_LATCH
@@ -50,9 +52,9 @@ RESET:
 
 	;LBSR TEST_SCR_TFR
 
-	;LBSR CHKSCR
+	LBSR CHKSCR
 	LBSR CHKCHAR
-	;BSR FINISH
+	BSR FINISH
 
 	;LBSR TEST_CHARPAL
 	;LBSR FILLSCR
@@ -92,11 +94,9 @@ TOGGLE_FLIP:
 	BRA FIN
 JUEGO:
 	ORCC #$10
-	
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 FINISH:
-	LDA #$10
-	STA BANK
 	BRA FINISH
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 LEFT_OBJ_TEST:
@@ -546,7 +546,7 @@ CHKCHAR:
 	BRA @L2
 
 ; *****************************************
-; Verify R/W on character memory
+; Verify R/W on background memory
 CHKSCR:
 	LDU #$BABE
 	LDX #SCR
@@ -861,11 +861,11 @@ DO_OBJPAL:
 	STA >PAL_STATUS
 	RTI
 
-	FILL $FF,$1DFF-*
-	FILL $F8,$1FF8-*
+	;FILL $FF,$FDFF-*
+	FILL $F8,$FFF8-*
 
-	ORG $1FF8
+	ORG $FFF8
 	.DW IRQSERVICE
-	FILL $FF,$1FFE-*
-	ORG $1FFE
-	.DW	0000	; Reset vector
+	FILL $FF,$FFFE-*
+	ORG $FFFE
+	.DW	$8000	; Reset vector
