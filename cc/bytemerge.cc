@@ -1,3 +1,7 @@
+// Merge two files byte by byte
+// bytemerge file1 file2 output
+// Files must be a multiple of 1024 in size.
+
 #include <fstream>
 #include <iostream>
 
@@ -17,7 +21,7 @@ int main(int argc, char *argv[]) {
 			return 2;
 		}
 	}
-	ofstream of(argv[3], ios::out | ios::binary );
+	ofstream of(argv[3], ios::out | ios::binary | ios::app ); // append data to the output file
 	unsigned char *buf[2];
 	buf[0] = new unsigned char[1024];
 	buf[1] = new unsigned char[1024];

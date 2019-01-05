@@ -89,6 +89,11 @@ wire rdzero = rdcnt==3'd7;
 
 reg main_lsb, snd_lsb;
 
+localparam  snd_offset = 22'h0A000;
+localparam char_offset = 22'h0E000;
+localparam  scr_offset = 22'h10000;
+localparam  obj_offset = 22'h20000;
+
 always @(posedge clk)
     if( loop_rst ) begin
         rd_state    <= 4'd0;
@@ -103,8 +108,8 @@ always @(posedge clk)
         if( rdcnt==3'd0 ) begin
             // Get data from current read
             casez(rd_state)
-                4'b??01: snd_dout  <= !snd_lsb ? data_read[15:8] : data_read[ 7:0];
-                4'b??10: main_dout <= main_lsb ? data_read[15:8] : data_read[ 7:0]; // endian-ness
+                4'b??01: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
+                4'b??10: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
                 4'd7:    scr_aux   <= data_read;
@@ -115,16 +120,16 @@ always @(posedge clk)
         if( rdcnt==3'd1 ) begin // latch address before ACTIVATE state
             casez(rd_state)
                 4'b??00: begin
-                    {row_addr, col_addr} <= 22'h28000 + { 8'b0,  snd_addr[14:1] }; // 14:0
+                    {row_addr, col_addr} <= snd_offset + { 8'b0,  snd_addr[14:1] }; // 14:0
                     snd_lsb <= snd_addr[0];
                 end
                 4'b??01: begin
                     {row_addr, col_addr} <= { 6'd0, main_addr[16:1] }; // 16:0
                     main_lsb <= main_addr[0];
                 end
-                4'd2:    {row_addr, col_addr} <= 22'h0A000 + { 9'b0, char_addr }; // 12:0
-                4'd3:    {row_addr, col_addr} <= 22'h1C000 + { 6'b0,  obj_addr }; // 14:0
-                4'd6:    {row_addr, col_addr} <= 22'h0C000 + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
+                4'd2:    {row_addr, col_addr} <= char_offset + { 9'b0, char_addr }; // 12:0
+                4'd3:    {row_addr, col_addr} <=  obj_offset + { 6'b0,  obj_addr }; // 14:0
+                4'd6:    {row_addr, col_addr} <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
                 4'd7:    row_addr[7]<=1'b1; // scr_addr E ROMs
                 default:;
             endcase 

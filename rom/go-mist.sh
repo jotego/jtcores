@@ -21,13 +21,6 @@ function valid_string {
 }
 
 while [ $# -gt 0 ]; do
-	if [ "$1" = -snd ]; then
-		shift
-		sound_type=$1
-		shift
-		valid_string $sound_type test normal fast
-		continue
-	fi
 	if [ "$GAME" = "" ]; then
 		GAME=$1
 		valid_string $GAME makaimur makaimurg gngc speed_test gngt
@@ -47,12 +40,11 @@ if [ "$GAME" = "" ]; then
 	GAME=gngt
 fi
 
-OD="od -t x1 -A none -v -w1"
-ODx2="od -t x2 -A none -v -w2"
-
 function curpos() {
-	cnt=$(cat gng.hex | wc -l)
-	printf "0x%X = %d" $cnt $cnt 
+	cnt=$(cat JTGNG.rom | wc -c)
+	# each ROM location has two bytes:
+	cnt=$((cnt/2))
+	printf "0x%05X = %d" $cnt $cnt 
 }
 
 case $GAME in
@@ -162,53 +154,34 @@ case $GAME in
 		romx12=mm12.1l
 		;;
 esac
+if ! g++ ../cc/bytemerge.cc -o bytemerge; then
+	echo ERROR: Cannot compile bytemerge utility.
+	exit 1
+fi
 echo "ROMs for $GAME"
 ## Game ROM
-$ODx2 $rom8n --endian little > gng.hex 
-echo "10N starts at " $(curpos)
-$ODx2 $rom10n --endian little >> gng.hex 
-echo "13N starts at " $( curpos )
-$ODx2 $rom12n --endian little >> gng.hex 
-echo "Characters start at " $(curpos)
-$ODx2 $rom_char >> gng.hex 
-echo "Scroll tiles start at " $(curpos)
-$OD $romx9 > 3c.hex
-$OD $romx7 > 3b.hex
-paste 3c.hex 3b.hex -d "" | tr -d ' ' > 3bc.hex
-$OD $romx11 > 3e.hex
-paste 3bc.hex 3e.hex -d "\n" >> gng.hex
+cat $rom8n $rom10n $rom12n > JTGNG.rom
 
-$OD $romx8 > 1c.hex
-$OD $romx6 > 1b.hex
-paste 1c.hex 1b.hex -d "" | tr -d ' ' > 1bc.hex
-$OD $romx10 > 1e.hex
-paste 1bc.hex 1e.hex -d "\n" >> gng.hex
+echo "Sound  starts at " $(curpos)
+# Sound ROM
+cat $audio >> JTGNG.rom
+
+echo "Char   starts at " $(curpos)
+cat $rom_char >> JTGNG.rom
+
+echo "Scroll starts at " $(curpos)
+# Scroll tiles, merge one byte from each ROM
+bytemerge $romx9    $romx7  JTGNG.rom
+# Scroll tiles, rest of bytes:
+bytemerge /dev/zero $romx11 JTGNG.rom
+# Scroll tiles, merge one byte from each ROM
+bytemerge $romx8    $romx6  JTGNG.rom
+# Scroll tiles, rest of bytes:
+bytemerge /dev/zero $romx10 JTGNG.rom
 
 echo "Object starts at " $(curpos)
-
-## Object ROM, 16kBx4 = 64kB
-$OD $romx17 $romx16 $romx15 > n31.hex
-$OD $romx14 $romx13 $romx12 > l31.hex
-paste n31.hex l31.hex -d "" | tr -d ' ' > obj.hex
-cat obj.hex >> gng.hex
-
-## Sound ROM, 32kB
-echo "Sound starts at " $(curpos)
-case $sound_type in
-	fast)
-		echo "Using audio ROM with fast start"
-		# audio_skip.hex skips the initial long wait
-		# and the RAM set to zero procedure
-		cat audio_skip.hex >> gng.hex
-		;;
-	test)
-		echo "Using test code for z80"
-		$ODx2 z80test.bin >> gng.hex
-		;;
-	normal)
-		$ODx2 $audio >> gng.hex
-esac
-echo "Sound ends at " $(curpos)
-
-../cc/hex2bin
-cp JTGNG.rom $GAME.rom
+#Objects
+cat $romx17 $romx16 $romx15 > n31.bin
+cat $romx14 $romx13 $romx12 > l31.bin
+bytemerge n31.bin l31.bin JTGNG.rom
+echo "File length " $(curpos) " 16-bit words"

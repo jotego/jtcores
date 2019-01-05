@@ -313,14 +313,12 @@ reg     CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-// localparam TX_LEN            = 32'ha000*2; // only program ROM
-localparam TX_LEN           = 32'h2C000*2; 
-//localparam TX_LEN         = 32'h00100;
+localparam TX_LEN           = 32'he000*2; // Only code for both CPUs
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
 initial begin
-    file=$fopen("JTGNG.rom","rb");
+    file=$fopen("../../../rom/JTGNG.rom","rb");
     tx_cnt=$fread( rom_buffer, file );
     $fclose(file);
 end
