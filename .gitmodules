@@ -1,6 +1,3 @@
-[submodule "modules/mc6809"]
-	path = modules/mc6809
-	url = git@github.com:cavnex/mc6809.git
 [submodule "modules/jt12"]
 	path = modules/jt12
 	url = https://github.com/jotego/jt12.git
