@@ -80,8 +80,10 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 $fclose(file);
                 // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
                 `ifdef GNGTEST
-                $display("gng_test.hex read into first 32kB of SDRAM");
-                $readmemh("gng_test.hex",  Bank0, 0, 32*1024-1);
+                $display("gng_test.bin read into first 32kB of SDRAM");
+                file=$fopen("gng_test.bin", "rb");
+                romfilecnt=$fread( Bank0, file, 0, 32*1024-1 );
+                $fclose(file);
                 `endif
         	`endif
         `endif

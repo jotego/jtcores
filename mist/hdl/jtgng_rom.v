@@ -47,8 +47,7 @@ module jtgng_rom(
     // ROM load 
     input               downloading,
     input       [24:0]  romload_addr,
-    input       [15:0]  romload_data,
-    input               romload_wr
+    input       [15:0]  romload_data
 );
 
 assign SDRAM_DQMH = 1'b0;

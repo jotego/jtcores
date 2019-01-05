@@ -118,7 +118,6 @@ wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS, SDRAM
 wire            downloading;
 wire    [24:0]  romload_addr;
 wire    [15:0]  romload_data;
-wire            romload_wr;
 
 wire cen6, cen3, cen1p5;
 
@@ -159,7 +158,6 @@ jtgng_game UUT (
     .downloading( downloading ),
     .romload_addr( romload_addr ),
     .romload_data( romload_data ),
-    .romload_wr ( romload_wr    ),
     // Debug
     .enable_char( 1'b1          ),
     .enable_obj ( 1'b1          ),
@@ -416,7 +414,6 @@ data_io datain (
     // .index      (index        ),
     .rst        ( rst         ),
     .clk_sdram  (SDRAM_CLK    ),
-    .wr_sdram   (romload_wr   ),
     .addr_sdram (romload_addr ),
     .data_sdram (romload_data )
 );
@@ -425,7 +422,6 @@ data_io datain (
 assign downloading = 0;
 assign romload_addr = 0;
 assign romload_data = 0;
-assign romload_wr = 0;
 `endif
 
 endmodule // jt_gng_a_test

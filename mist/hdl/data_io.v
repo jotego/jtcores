@@ -34,7 +34,6 @@ module data_io (
 	input 			  	clk_sdram,
 	input				rst,
 	output reg     		downloading_sdram,   // signal indicating an active download
-	output reg        	wr_sdram,
 	output reg [24:0] 	addr_sdram,
 	output reg [15:0]  	data_sdram
 );
@@ -122,13 +121,10 @@ always@(posedge clk_sdram or posedge rst)
 			even <= ~even;
 			if( even ) begin
 				data_sdram <= { half, data };
-				wr_sdram <= 1'b1;
 				//data_sdram <= { data_sdram[7:0], data };
 				addr_sdram <= addr_sdram + 1;
 			end
-			else wr_sdram <= 1'b0;
-		end else
-			wr_sdram <= 1'b0;
+		end
 	end
 
 endmodule

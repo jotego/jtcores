@@ -19,8 +19,6 @@ FIRMONLY=NOFIRMONLY
 MAXFRAME=
 SIM_MS=1
 SIMULATOR=iverilog
-#FASTSIM="-DNOCHAR -DNOCOLMIX -DNOSCR -DNOSOUND"
-#FASTSIM="-DNOSOUND"
 FASTSIM=
 
 if ! g++ init_ram.cc -o init_ram; then
@@ -43,6 +41,18 @@ case "$1" in
 		fi
 		MAXFRAME="-DMAXFRAME=$1"
 		echo Simulate up to $1 frames
+		;;
+	"-nosnd")
+		FASTSIM="$FASTSIM -DNOSUND"
+		;;
+	"-nocolmix")
+		FASTSIM="$FASTSIM -DNOCOLMIX"
+		;;
+	"-noscr")
+		FASTSIM="$FASTSIM -DNOSCR"
+		;;
+	"-nochar")
+		FASTSIM="$FASTSIM -DNOCHAR"
 		;;
 	"-time")
 		shift
@@ -95,9 +105,6 @@ done
 if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; then
 	exit 1
 fi
-
-ODx2="od -t x2 -A none -v -w2"
-$ODx2 --endian little gng_test.bin > gng_test.hex	
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 

@@ -47,7 +47,6 @@ module jtgng_game(
     input           downloading,
     input   [24:0]  romload_addr,
     input   [15:0]  romload_data,
-    input           romload_wr,
     // DEBUG
     input           enable_char,
     input           enable_obj,
@@ -275,8 +274,7 @@ jtgng_rom u_rom (
     // ROM load
     .downloading ( downloading  ),
     .romload_addr( romload_addr ),
-    .romload_data( romload_data ),
-    .romload_wr  ( romload_wr   )
+    .romload_data( romload_data )
 );
 
 endmodule // jtgng
