@@ -19,7 +19,7 @@ module game_test;
         $dumpfile("test.lxt");
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.u_main);
-            //$dumpvars(2,game_test.UUT.main.cpu);
+            $dumpvars(1,game_test.UUT.u_sound);
             $dumpvars(1,game_test.UUT.u_rom);
             $dumpvars(1,game_test);
             $dumpvars(1,game_test.datain);
@@ -314,7 +314,7 @@ localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
 // localparam TX_LEN            = 32'ha000*2; // only program ROM
-localparam TX_LEN           = 32'hC000*2; // only program ROM+CHARs
+localparam TX_LEN           = 32'h2C000*2; 
 //localparam TX_LEN         = 32'h00100;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];

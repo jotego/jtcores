@@ -103,7 +103,7 @@ always @(posedge clk)
         if( rdcnt==3'd0 ) begin
             // Get data from current read
             casez(rd_state)
-                4'b??01: snd_dout  <= snd_lsb  ? data_read[15:8] : data_read[ 7:0];
+                4'b??01: snd_dout  <= !snd_lsb ? data_read[15:8] : data_read[ 7:0];
                 4'b??10: main_dout <= main_lsb ? data_read[15:8] : data_read[ 7:0]; // endian-ness
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
@@ -307,10 +307,11 @@ always @(posedge clk)
         SET_WRITE: if( downloading) begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_WRITE;
             SDRAM_WRITE <= 1'b1;
-            wait_cnt <= CL_WAIT;
+            wait_cnt <= PRECHARGE_WAIT + CL_WAIT +2;
             state <= WAIT;
-            next  <= SET_PRECHARGE_WR;
-            SDRAM_A  <= { {(addr_w-col_w){1'b0}}, romload_col };
+            next  <= ACTIVATE_WR;
+            SDRAM_A[8:0] <= romload_col;
+            SDRAM_A[12:9] <= 2'b10; // auto precharge;
             `ifdef SIMULATION
                 sdram_writes = sdram_writes + 2;
             `endif

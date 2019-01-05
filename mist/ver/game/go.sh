@@ -20,8 +20,8 @@ MAXFRAME=
 SIM_MS=1
 SIMULATOR=iverilog
 #FASTSIM="-DNOCHAR -DNOCOLMIX -DNOSCR -DNOSOUND"
-FASTSIM="-DNOSOUND"
-#FASTSIM=
+#FASTSIM="-DNOSOUND"
+FASTSIM=
 
 if ! g++ init_ram.cc -o init_ram; then
 	exit 1;

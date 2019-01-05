@@ -89,7 +89,7 @@ always @(posedge clk or posedge rst or negedge rom_ready)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
-jtgng_timer timers(
+jtgng_timer u_timer(
     .clk       ( clk      ),
     .clk_en    ( cen6     ),
     .rst       ( rst      ),
