@@ -70,6 +70,8 @@ module user_io #(parameter STRLEN=0) (
 `ifdef SIMULATION
 initial begin
 	status = 8'd0;
+	joystick_0 <= 8'd0;
+	joystick_1 <= 8'd0;
 end
 `endif
 

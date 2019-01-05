@@ -223,7 +223,7 @@ end
 
 
 
-wire EXTAL = ~clk;
+wire EXTAL = ~(clk &cen6);
 mc6809 cpu (
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),

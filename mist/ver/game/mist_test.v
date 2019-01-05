@@ -55,8 +55,8 @@ integer fincnt;
 
 initial begin
     for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
-        #(1000*1000); // ms
-        $display("%d ms",fincnt+1);
+        #(300*1000); // 0.3ms
+        $display("step %d",fincnt+1);
     end
     can_finish = 1'b1;
 end

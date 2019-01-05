@@ -63,7 +63,7 @@ case "$1" in
 			exit 1
 		fi
 		SIM_MS="$1"
-		echo Simulate $1 ms
+		echo Simulate $1 ms or "(1/3th of that if top level is MiST)"
 		;;
 	"-firmonly")
 		FIRMONLY=FIRMONLY
