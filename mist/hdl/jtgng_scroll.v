@@ -34,9 +34,9 @@ module jtgng_scroll(
     // ROM
     output reg  [14:0] scr_addr,
     input       [23:0] scrom_data,
-    output      [ 2:0] scr_pal,
-    output      [ 2:0] scr_col,
-    output             scrwin
+    output reg  [ 2:0] scr_pal,
+    output reg  [ 2:0] scr_col,
+    output reg         scrwin
 );
 
 reg  [10:0]  addr;
@@ -92,30 +92,27 @@ jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
     .q      ( dout     )
 );
 
-reg [9:0] AS;
+// reg [9:0] AS;
 
 assign MRDY_b = !( scr_cs && ( &HS[2:1]==2'b0 ) );
 // assign MRDY_b = !scr_cs || pre_rdy;
 reg scr_hflip;
-reg scr_hflip_prev;
+reg scr_hflip_cur;
 reg [2:0] pal_in;
 reg [3:0] vert_addr;
 reg [7:0] ASlow;
 reg scrwin_in;
 
 wire scr_vflip = dout[5];
-
-localparam  SDRAM_stage = 3'd6,
-            ASlo_stage  = 3'd1,
-            AShi_stage  = 3'd2;
-
+reg [2:0] pal_aux;
+reg scrwin_aux, scr_hflip_aux;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     case( HS[2:0] )
-        ASlo_stage: ASlow <= dout;
-        AShi_stage: begin
-            AS          <= {dout[7:6], ASlow};
+        3'd0: ASlow <= dout;
+        3'd1: begin
+            // AS          <= {dout[7:6], ASlow};
             scr_hflip   <= dout[4];
             pal_in      <= dout[2:0];
             scrwin_in   <= dout[3];
@@ -124,6 +121,11 @@ always @(posedge clk) if(cen6) begin
                             HS[3]^dout[4] /*scr_hflip*/, 
                             {4{scr_vflip}}^VS[3:0] /*vert_addr*/ };
         end
+        3'd2: begin
+            pal_aux       <= pal_in;
+            scrwin_aux    <= scrwin_in;
+            scr_hflip_aux <= scr_hflip;
+        end
         default:;
     endcase
 end
@@ -131,42 +133,17 @@ end
 // Draw pixel on screen
 reg [7:0] x,y,z;
 
-reg [2:0] pxl_aux, pal_aux;
-
-// delays pixel data so it comes out on a multiple of 8
-
-// jtgng_sh #(.width(3),.stages(7-SDRAM_stage)) pixel_sh (
-//     .clk    ( clk       ), 
-//     .clk_en ( cen6      ),
-//     .din    ( pxl_aux   ), 
-//     .drop   ( scr_col   )
-// );
-
-assign scr_col=pxl_aux;
-jtgng_sh #(.width(1), .stages(8-SDRAM_stage)) scrwin_sh  (
-    .clk    ( clk       ),
-    .clk_en ( cen6      ),    
-    .din    ( scrwin_in ),
-    .drop   ( scrwin    )
-);
-
-jtgng_sh #(.width(3),.stages(8-SDRAM_stage)) pal_sh (
-    .clk    ( clk       ), 
-    .clk_en ( cen6      ),    
-    .din    ( pal_aux   ), 
-    .drop   ( scr_pal   )
-);
-
 always @(posedge clk) if(cen6) begin
-    pxl_aux <= scr_hflip_prev ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-    if( HS[2:0]==SDRAM_stage ) begin
+    scr_col <= scr_hflip_cur ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    if( HS[2:0]==3'd1 ) begin
             { z,y,x } <= scrom_data;
-            scr_hflip_prev <= scr_hflip^flip;
-            pal_aux <= pal_in;
+            scr_hflip_cur <= scr_hflip^flip;
+            scr_pal <= pal_in;
+            scrwin  <= scrwin_in;
         end
     else
         begin
-            if( scr_hflip_prev ) begin
+            if( scr_hflip_cur ) begin
                 x <= {1'b0, x[7:1]};
                 y <= {1'b0, y[7:1]};
                 z <= {1'b0, z[7:1]};

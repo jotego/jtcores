@@ -32,8 +32,8 @@ module jtgng_char(
     // ROM
     output reg [12:0] char_addr,
     input  [15:0] chrom_data,
-    output [ 3:0] char_pal,
-    output [ 1:0] char_col
+    output reg [ 3:0] char_pal,
+    output reg [ 1:0] char_col
 );
 
 reg [10:0]  addr;
@@ -66,54 +66,45 @@ end
 assign MRDY_b = !( char_cs && ( &H128[2:1]==2'b0 ) );
 
 reg [7:0] aux;
-reg [9:0] AC; // ADDRESS - CHARACTER
-reg char_hflip_prev;
+// reg [9:0] AC; // ADDRESS - CHARACTER
+reg char_hflip_cur;
 
 reg [2:0] vert_addr;
 
 reg char_vflip;
 reg char_hflip;
 reg half_addr;
-reg [3:0] pal_aux;
+reg [3:0] pal_aux, pal_aux2;
+
+// Draw pixel on screen
+reg [15:0] chd;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     case( H128[2:0] )
-        3'd1: aux <= dout;
-        3'd2: begin
-            AC       <= {dout[7:6], aux};
+        3'd0: aux <= dout;
+        3'd1: begin
             char_hflip <= dout[4] ^ flip;
             char_vflip <= dout[5] ^ flip;
-            pal_aux <= dout[3:0];           
-            vert_addr <= {3{char_vflip}}^V128[2:0];
-            char_addr <= { {dout[7:6], aux}, {3{dout[5] ^ flip}}^V128[2:0] };
+            pal_aux    <= dout[3:0];           
+            vert_addr  <= {3{char_vflip}}^V128[2:0];
+            char_addr  <= { {dout[7:6], aux}, {3{dout[5] ^ flip}}^V128[2:0] };
         end
-        default:;
     endcase
-    //char_addr <= { AC, vert_addr };
-end
-
-// Draw pixel on screen
-reg [15:0] chd;
-reg [1:0] pxl_aux;
-
-// delays pixel data so it comes out on a multiple of 8
-jtgng_sh #(.width(4),.stages(5)) pal_sh(.clk(clk),.clk_en(cen6),.din(pal_aux),.drop(char_pal));
-//jtgng_sh #(.width(2),.stages(3)) pxl_sh(.clk(clk),.din(pxl_aux),.drop(char_col));
-assign char_col = pxl_aux;
-
-
-always @(posedge clk) if(cen6) begin
+    // The two case-statements cannot be joined because of the default statement
+    // which needs to apply in all cases except the two outlined before it.
     case( H128[2:0] )
-        3'd6: begin
-            chd <= char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
-            char_hflip_prev <= char_hflip;
+        3'd1: begin
+            chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+            //pal_aux2 <= pal_aux;
+            char_pal <= pal_aux;            
+            char_hflip_cur <= char_hflip;
         end
-        3'd2: 
+        3'd5: 
             chd[7:0] <= chd[15:8];
         default:
             begin
-                if( char_hflip_prev ) begin
+                if( char_hflip_cur ) begin
                     chd[7:4] <= {1'b0, chd[7:5]};
                     chd[3:0] <= {1'b0, chd[3:1]};
                 end
@@ -123,7 +114,8 @@ always @(posedge clk) if(cen6) begin
                 end
             end
     endcase
-    pxl_aux <= char_hflip_prev ? { chd[0], chd[4] } : { chd[3], chd[7] };
+    // 1-pixel delay in order to latch signals:
+    char_col <= char_hflip_cur ? { chd[0], chd[4] } : { chd[3], chd[7] };
 end
 
 endmodule // jtgng_char

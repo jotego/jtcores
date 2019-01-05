@@ -171,12 +171,16 @@ cat $rom_char >> JTGNG.rom
 
 echo "Scroll starts at " $(curpos)
 # Scroll tiles, merge one byte from each ROM
+# roms 9-7-11 belong to the same tile
+# roms 8-6-10 belong to the same tile
 bytemerge $romx9    $romx7  JTGNG.rom
-# Scroll tiles, rest of bytes:
-bytemerge /dev/zero $romx11 JTGNG.rom
-# Scroll tiles, merge one byte from each ROM
 bytemerge $romx8    $romx6  JTGNG.rom
+#bytemerge $romx11    $romx7  JTGNG.rom
+#bytemerge $romx10    $romx6  JTGNG.rom
+
 # Scroll tiles, rest of bytes:
+echo "Scroll upper 8 bits at " $(curpos)
+bytemerge /dev/zero $romx11 JTGNG.rom
 bytemerge /dev/zero $romx10 JTGNG.rom
 
 echo "Object starts at " $(curpos)

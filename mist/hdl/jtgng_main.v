@@ -71,9 +71,9 @@ wire sound_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
 reg [11:0] map_cs;
 
 assign { 
-    sound_cs, OKOUT, scrpos_cs, scr_cs, in_cs,
-    blue_cs, redgreen_cs,   flip_cs, 
-    ram_cs,     char_cs, bank_cs,       main_cs         } = map_cs;
+    sound_cs, OKOUT, scrpos_cs,   scr_cs, 
+    in_cs,  blue_cs, redgreen_cs, flip_cs, 
+    ram_cs, char_cs, bank_cs,     main_cs } = map_cs;
 
 reg [7:0] AH;
 

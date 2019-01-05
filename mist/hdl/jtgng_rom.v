@@ -111,8 +111,8 @@ always @(posedge clk)
                 4'b??10: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
-                4'd7:    scr_aux   <= data_read;
-                4'd8:    scr_dout  <= { data_read[7:0], scr_aux };
+                4'd7:    scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
+                4'd8:    scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
                 default:;
             endcase
         end
@@ -127,7 +127,7 @@ always @(posedge clk)
                     main_lsb <= main_addr[0];
                 end
                 4'd2:    {row_addr, col_addr} <= char_offset + { 9'b0, char_addr }; // 12:0
-                4'd3:    {row_addr, col_addr} <=  obj_offset + { 6'b0,  obj_addr }; // 14:0
+                4'd3:    {row_addr, col_addr} <=  obj_offset + { 7'b0,  obj_addr }; // 14:0
                 4'd6:    {row_addr, col_addr} <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
                 4'd7:    row_addr[7]<=1'b1; // scr_addr E ROMs
                 default:;
