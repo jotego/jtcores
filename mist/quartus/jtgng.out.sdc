@@ -19,7 +19,7 @@
 ## PROGRAM "Quartus II"
 ## VERSION "Version 13.1.0 Build 162 10/23/2013 SJ Web Edition"
 
-## DATE    "Sun Aug 20 22:12:57 2017"
+## DATE    "Sat Jan  5 15:52:16 2019"
 
 ##
 ## DEVICE  "EP3C25E144C8"
@@ -47,14 +47,13 @@ create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 31777.000 -waveform { 
 # Create Generated Clock
 #**************************************************************
 
-create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[0]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 2 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] 
 create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[1]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 8 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] 
-create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[2]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 10 -divide_by 3 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] 
-create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[3]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 8 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] 
-create_generated_clock -name {clk_gen2|altpll_component|auto_generated|pll1|clk[0]} -source [get_pins {clk_gen2|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 25 -divide_by 24 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[3]} [get_pins {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] 
-create_generated_clock -name {rE} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -divide_by 4 -phase 135.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers { jtgng_game:game|jtgng_main:main|mc6809:cpu|rE }] 
-create_generated_clock -name {rQ} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -divide_by 4 -phase 45.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[0]} [get_registers { jtgng_game:game|jtgng_main:main|mc6809:cpu|rQ }] 
+create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[2]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 32 -divide_by 9 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] 
+create_generated_clock -name {clk_gen|altpll_component|auto_generated|pll1|clk[3]} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 32 -divide_by 9 -phase -247.500 -master_clock {CLOCK_27[0]} [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] 
+create_generated_clock -name {clk_gen2|altpll_component|auto_generated|pll1|clk[0]} -source [get_pins {clk_gen2|altpll_component|auto_generated|pll1|inclk[0]}] -duty_cycle 50.000 -multiply_by 25 -divide_by 24 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} [get_pins {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] 
 create_generated_clock -name {sdclk_pin} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
+create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:cpu|rE} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
+create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:cpu|rQ} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
 
 
 #**************************************************************
@@ -67,122 +66,196 @@ create_generated_clock -name {sdclk_pin} -source [get_pins {clk_gen|altpll_compo
 # Set Clock Uncertainty
 #**************************************************************
 
-set_clock_uncertainty -rise_from [get_clocks {rE}] -rise_to [get_clocks {rE}]  0.030  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -fall_to [get_clocks {rE}]  0.030  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rE}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -rise_to [get_clocks {rE}]  0.030  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -fall_to [get_clocks {rE}]  0.030  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rE}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {sdclk_pin}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {sdclk_pin}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {sdclk_pin}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {sdclk_pin}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
 set_clock_uncertainty -rise_from [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
 set_clock_uncertainty -rise_from [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
 set_clock_uncertainty -fall_from [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
 set_clock_uncertainty -fall_from [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rQ}] -rise_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rQ}] -fall_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rQ}] -rise_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rQ}] -fall_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rQ}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {rQ}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rQ}] -rise_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rQ}] -fall_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rQ}] -rise_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rQ}] -fall_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rQ}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {rQ}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] -rise_to [get_clocks {sdclk_pin}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] -fall_to [get_clocks {sdclk_pin}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] -rise_to [get_clocks {sdclk_pin}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[3]}] -fall_to [get_clocks {sdclk_pin}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {sdclk_pin}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {sdclk_pin}]  0.020  
 set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
 set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {sdclk_pin}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {sdclk_pin}]  0.020  
 set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
 set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.090  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.120  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.090  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.120  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {SPI_SCK}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {SPI_SCK}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
-set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.090  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.120  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.090  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.120  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {SPI_SCK}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {SPI_SCK}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
-set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {rE}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {rQ}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
 set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
 set_clock_uncertainty -rise_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.130  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.150  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[0]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.090  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.120  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  0.020  
 set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
 set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.110  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.140  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.110  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.140  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.080  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.110  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.080  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.110  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -setup 0.080  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -hold 0.110  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -setup 0.080  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -hold 0.110  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {SPI_SCK}]  0.020  
+set_clock_uncertainty -rise_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {SPI_SCK}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.110  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.140  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -setup 0.110  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}] -hold 0.140  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.080  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.110  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -setup 0.080  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -hold 0.110  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -setup 0.080  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -hold 0.110  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -setup 0.080  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -hold 0.110  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -rise_to [get_clocks {SPI_SCK}]  0.020  
+set_clock_uncertainty -fall_from [get_clocks {SPI_SCK}] -fall_to [get_clocks {SPI_SCK}]  0.020  
 
 
 #**************************************************************
 # Set Input Delay
 #**************************************************************
 
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[0]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[0]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[1]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[1]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[2]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[2]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[3]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[3]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[4]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[4]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[5]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[5]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[6]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[6]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[7]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[7]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[8]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[8]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[9]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[9]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[10]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[10]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[11]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[11]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[12]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[12]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[13]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[13]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[14]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[14]}]
+set_input_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  6.400 [get_ports {SDRAM_DQ[15]}]
+set_input_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  3.200 [get_ports {SDRAM_DQ[15]}]
 
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
 
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[0]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[0]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[1]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[1]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[2]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[2]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[3]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[3]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[4]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[4]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[5]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[5]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[6]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[6]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[7]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[7]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[8]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[8]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[9]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[9]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[10]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[10]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[11]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[11]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_A[12]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_A[12]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_BA[0]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_BA[0]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_BA[1]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_BA[1]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_CKE}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_CKE}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_CLK}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_CLK}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQMH}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQMH}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQML}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQML}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[0]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[0]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[1]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[1]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[2]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[2]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[3]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[3]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[4]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[4]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[5]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[5]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[6]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[6]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[7]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[7]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[8]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[8]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[9]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[9]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[10]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[10]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[11]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[11]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[12]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[12]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[13]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[13]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[14]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[14]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_DQ[15]}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_DQ[15]}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_nCAS}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_nCAS}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_nCS}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_nCS}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_nRAS}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_nRAS}]
+set_output_delay -add_delay -max -clock [get_clocks {sdclk_pin}]  1.500 [get_ports {SDRAM_nWE}]
+set_output_delay -add_delay -min -clock [get_clocks {sdclk_pin}]  -0.800 [get_ports {SDRAM_nWE}]
 
 
 #**************************************************************
@@ -195,10 +268,6 @@ set_clock_uncertainty -fall_from [get_clocks {clk_gen|altpll_component|auto_gene
 # Set False Path
 #**************************************************************
 
-set_false_path -from [get_keepers {user_io:userio|joystick_0[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
-set_false_path -from [get_keepers {user_io:userio|joystick_1[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
-set_false_path -from [get_keepers {user_io:userio|status[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
-set_false_path -from [get_keepers {user_io:userio|status[5]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|nRESET}]
 
 
 #**************************************************************

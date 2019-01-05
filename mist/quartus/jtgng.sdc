@@ -49,6 +49,8 @@ create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 31777.000 -waveform { 
 
 derive_pll_clocks -create_base_clocks
 create_generated_clock -name {sdclk_pin} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
+create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:cpu|rE} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -phase 135.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
+create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:cpu|rQ} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -phase 45.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
 
 
 

@@ -108,7 +108,7 @@ always @(posedge clk)
             // Get data from current read
             casez(rd_state)
                 4'b??01: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
-                4'b??10: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
+                4'b??10: main_dout <= main_lsb ? data_read[15:8] : data_read[ 7:0];
                 4'd3:    char_dout <= data_read;
                 4'd4:    obj_dout  <= data_read;
                 4'd7:    scr_aux   <= data_read;
@@ -225,13 +225,16 @@ always @(posedge clk)
                     end
                 4'd4: begin
                     { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_LOAD_MODE;
-                    SDRAM_A      <= 13'b00_1_00_010_0_000; // CAS Latency = 2
-                    // SDRAM_A <= 12'b00_1_00_011_0_000; // CAS Latency = 3
+                    // SDRAM_A      <= 13'b00_1_00_010_0_000; // CAS Latency = 2
+                    SDRAM_A <= 12'b00_1_00_011_0_000; // CAS Latency = 3
                     wait_cnt     <= 4'd2;
                     state        <= WAIT;
                     next         <= SET_PRECHARGE;
                     ready        <= true;
                     pre_loop_rst <= 1'b0;
+                    `ifdef SIMULATION
+                    $display("SDRAM initialization ready");
+                    `endif
                     // next <= INITIALIZE;
                     // init_state <= init_state+4'd1;
                     end

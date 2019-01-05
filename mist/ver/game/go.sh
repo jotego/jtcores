@@ -20,6 +20,8 @@ MAXFRAME=
 SIM_MS=1
 SIMULATOR=iverilog
 FASTSIM=
+TOP=game_test
+MIST=
 
 if ! g++ init_ram.cc -o init_ram; then
 	exit 1;
@@ -42,18 +44,18 @@ case "$1" in
 		MAXFRAME="-DMAXFRAME=$1"
 		echo Simulate up to $1 frames
 		;;
+	"-mist")
+		TOP=mist_test
+		MIST=../../../modules/jt12/hdl/dac/jt12_dac2.v
+		;;
 	"-nosnd")
-		FASTSIM="$FASTSIM -DNOSUND"
-		;;
+		FASTSIM="$FASTSIM -DNOSUND";;
 	"-nocolmix")
-		FASTSIM="$FASTSIM -DNOCOLMIX"
-		;;
+		FASTSIM="$FASTSIM -DNOCOLMIX";;
 	"-noscr")
-		FASTSIM="$FASTSIM -DNOSCR"
-		;;
+		FASTSIM="$FASTSIM -DNOSCR";;
 	"-nochar")
-		FASTSIM="$FASTSIM -DNOCHAR"
-		;;
+		FASTSIM="$FASTSIM -DNOCHAR";;
 	"-time")
 		shift
 		if [ "$1" = "" ]; then
@@ -129,13 +131,13 @@ clear_hex_file scr_ram  2048
 clear_hex_file obj_buf  128
 
 if [ $SIMULATOR = iverilog ]; then
-	iverilog game_test.v \
+	iverilog ${TOP}.v \
 		$(add_dir ../../../modules/jt12/hdl jt03.f) \
 		../../hdl/*.v \
 		../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
 		../../../modules/mc6809/mc6809{,i}.v \
-		../../../modules/tv80/*.v \
-		-s game_test -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
+		../../../modules/tv80/*.v $MIST \
+		-s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
 		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
 		$MAXFRAME $OBJTEST \
 	&& sim -lxt

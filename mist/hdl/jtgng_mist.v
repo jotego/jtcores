@@ -75,7 +75,6 @@ reg rst = 1'b1;
 wire downloading;
 // wire [4:0] index;
 wire clk_rom;
-wire romload_wr;
 wire [24:0] romload_addr;
 wire [15:0] romload_data;
 
@@ -87,7 +86,6 @@ data_io datain (
     .rst                ( rst          ),
     .clk_sdram          ( clk_rom      ),
     .downloading_sdram  ( downloading  ),
-    .wr_sdram           ( romload_wr   ),
     .addr_sdram         ( romload_addr ),
     .data_sdram         ( romload_data )
 );
@@ -131,10 +129,13 @@ jtgng_pll1 clk_gen2 (
     .c0     ( clk_vga   ) // 25
 );
 
-reg [2:0] rst_aux=3'b111;
+reg [7:0] rst_cnt=8'd0;
 
 always @(posedge clk_rgb) // if(cen6)
-    {rst, rst_aux} <= {rst_aux,1'b0};
+    if( rst_cnt != ~8'b0 ) begin
+        rst <= 1'b1;
+        rst_cnt <= rst_cnt + 8'd1;
+    end else rst <= 1'b0;
 
 wire cen6, cen3, cen1p5;
 
@@ -183,7 +184,6 @@ jtgng_game game(
     .downloading ( downloading   ),
     .romload_addr( romload_addr  ),
     .romload_data( romload_data  ),
-    .romload_wr  ( romload_wr    ),
     // DEBUG
     .enable_char ( ~status[3]    ),
     .enable_scr  ( ~status[3]    ),

@@ -67,6 +67,12 @@ module user_io #(parameter STRLEN=0) (
 	input				   serial_strobe
 );
 
+`ifdef SIMULATION
+initial begin
+	status = 8'd0;
+end
+`endif
+
 reg [6:0] sbuf;
 reg [7:0] cmd;
 reg [2:0] bit_cnt;    // counts bits 0-7 0-7 ...
@@ -123,7 +129,7 @@ always@(negedge SPI_SCK or posedge CONF_DATA0) begin
 				if(byte_cnt == 1)
 					SPI_DO <= sd_cmd[~bit_cnt];
 				else if((byte_cnt >= 2) && (byte_cnt < 6))
-					SPI_DO <= sd_lba[{5-byte_cnt, ~bit_cnt}];
+					SPI_DO <= sd_lba[{8'd5-byte_cnt, ~bit_cnt}];
 				else
 					SPI_DO <= 1'b0;
 			end
