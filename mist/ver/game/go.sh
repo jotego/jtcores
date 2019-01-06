@@ -46,7 +46,7 @@ case "$1" in
 		;;
 	"-mist")
 		TOP=mist_test
-		MIST=../../../modules/jt12/hdl/dac/jt12_dac2.v
+		MIST=../../../modules/jt12/hdl/dac/jt12_dac.v
 		;;
 	"-nosnd")
 		FASTSIM="$FASTSIM -DNOSUND";;

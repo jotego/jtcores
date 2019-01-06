@@ -175,8 +175,6 @@ echo "Scroll starts at " $(curpos)
 # roms 8-6-10 belong to the same tile
 bytemerge $romx9    $romx7  JTGNG.rom
 bytemerge $romx8    $romx6  JTGNG.rom
-#bytemerge $romx11    $romx7  JTGNG.rom
-#bytemerge $romx10    $romx6  JTGNG.rom
 
 # Scroll tiles, rest of bytes:
 echo "Scroll upper 8 bits at " $(curpos)

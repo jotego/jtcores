@@ -18,6 +18,8 @@
 
 module jtgng_rom(
     input               clk, // 96MHz = 32 * 6 MHz -> CL=2
+    input               clk24,
+    input       [ 2:0]  H,
     input               rst,
     input       [12:0]  char_addr,
     input       [16:0]  main_addr,
@@ -67,6 +69,20 @@ reg [col_w-1:0]  romload_col;
 reg [3:0] rd_state;
 reg autorefresh;
 
+// H is used to align with the pixel transfers
+// the SDRAM-read state machine will start at roughly pixel 0 (of each 8-pixel tuple)
+// the difference in time is less than 1/2 clk24 cycle
+// this avoids data coming at unexpected time.
+
+// capture H
+reg [1:0] last_clk24;
+reg [2:0] Hsync;
+always @(posedge clk) begin
+    last_clk24 <= { last_clk24[0], clk24 };
+    if( last_clk24[1] && !last_clk24[0] ) // rising edge
+        Hsync <= H;
+end
+
 `ifdef SIMULATION
 wire [(row_w+col_w-1):0] full_addr = {row_addr,col_addr};
 wire [(row_w+col_w-1-12):0] top_addr = full_addr>>12;
@@ -95,7 +111,7 @@ localparam  obj_offset = 22'h20000;
 
 always @(posedge clk)
     if( loop_rst ) begin
-        rd_state    <= 4'd0;
+        rd_state    <= { Hsync, 1'd1};
         autorefresh <= false;
         {row_addr, col_addr} <= {(addr_w+col_w){1'b0}};
         snd_dout  <=  8'd0;

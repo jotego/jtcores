@@ -25,7 +25,7 @@ module jtgng_char(
     input            char_cs,
     input            flip,
     input   [ 7:0]   din,
-    output reg [7:0] dout,
+    output  [ 7:0]   dout,
     input            rd,
     output           MRDY_b,
 
@@ -37,7 +37,6 @@ module jtgng_char(
 );
 
 reg [10:0]  addr;
-reg [7:0] ram[0:2047];
 wire sel = ~H128[2];
 reg we;
 
@@ -52,18 +51,17 @@ always @(*)
         addr = { H128[0], scan };
     end
 
-`ifdef SIMULATION
-initial $readmemh("char_ram.hex",ram);
-`endif
+jtgng_ram #(.aw(11),.simfile("char_ram.hex")) u_ram(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .data   ( din      ),
+    .addr   ( addr     ),
+    .we     ( we       ),
+    .q      ( dout     )
+);
 
-// RAM
-always @(posedge clk) //if(cen6) 
-begin
-    dout <= ram[addr];
-    if( we ) ram[addr] <= din;
-end
 
-assign MRDY_b = !( char_cs && ( &H128[2:1]==2'b0 ) );
+assign MRDY_b = !( char_cs && H128[2:1]!=2'b11 ); // CPU can write when HS[2:1] is 2'b11
 
 reg [7:0] aux;
 // reg [9:0] AC; // ADDRESS - CHARACTER
@@ -81,7 +79,7 @@ reg [15:0] chd;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
-    case( H128[2:0] )
+    case( H128[2:0] ) // read data from memory when the CPU is forbidden to write on it
         3'd0: aux <= dout;
         3'd1: begin
             char_hflip <= dout[4] ^ flip;
@@ -94,13 +92,13 @@ always @(posedge clk) if(cen6) begin
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
     case( H128[2:0] )
-        3'd1: begin
+        3'd2: begin
             chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
             //pal_aux2 <= pal_aux;
             char_pal <= pal_aux;            
             char_hflip_cur <= char_hflip;
         end
-        3'd5: 
+        3'd7: 
             chd[7:0] <= chd[15:8];
         default:
             begin

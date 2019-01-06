@@ -247,6 +247,8 @@ jtgng_video u_video(
 
 jtgng_rom u_rom (
     .clk        ( SDRAM_CLK     ), // 96MHz = 32 * 6 MHz -> CL=2
+    .clk24      ( clk           ),
+    .H          ( H[2:0]        ),
     .rst        ( rst           ),
     .char_addr  ( char_addr     ),
     .main_addr  ( main_addr     ),

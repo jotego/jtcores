@@ -58,7 +58,7 @@ end
 assign HSlow = HS[2:0];
 
 reg we;
-wire sel = ~HS[2];
+wire sel = HS[2];
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 
@@ -69,7 +69,7 @@ always @(*)
         we   = scr_cs && !rd;
     end else begin
         we   = 1'b0; // line order is important here
-        addr = { HS[0], scan }; 
+        addr = { ~HS[0], scan }; 
     end
 
 
@@ -92,10 +92,8 @@ jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
     .q      ( dout     )
 );
 
-// reg [9:0] AS;
+assign MRDY_b = !( scr_cs && HS[2:1]!=2'b11 ); // CPU can write when HS[2:1] is 2'b11
 
-assign MRDY_b = !( scr_cs && ( &HS[2:1]==2'b0 ) );
-// assign MRDY_b = !scr_cs || pre_rdy;
 reg scr_hflip;
 reg scr_hflip_cur;
 reg [2:0] pal_in;
@@ -121,11 +119,6 @@ always @(posedge clk) if(cen6) begin
                             HS[3]^dout[4] /*scr_hflip*/, 
                             {4{scr_vflip}}^VS[3:0] /*vert_addr*/ };
         end
-        3'd2: begin
-            pal_aux       <= pal_in;
-            scrwin_aux    <= scrwin_in;
-            scr_hflip_aux <= scr_hflip;
-        end
         default:;
     endcase
 end
@@ -135,7 +128,7 @@ reg [7:0] x,y,z;
 
 always @(posedge clk) if(cen6) begin
     scr_col <= scr_hflip_cur ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-    if( HS[2:0]==3'd1 ) begin
+    if( HS[2:0]==3'd2 ) begin
             { z,y,x } <= scrom_data;
             scr_hflip_cur <= scr_hflip^flip;
             scr_pal <= pal_in;

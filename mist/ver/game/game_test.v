@@ -31,10 +31,9 @@ module game_test;
             `else
                 //$display("DUMP starts");
                 $dumpvars(1,game_test.UUT.u_main);
-                //$dumpvars(1,game_test.UUT.u_rom);
-                $dumpoff;
+                $dumpvars(1,game_test.UUT.u_rom);
                 $dumpvars(1,game_test.UUT.u_video);
-                //$dumpvars(1,game_test.UUT.u_video.u_char);
+                $dumpvars(1,game_test.UUT.u_video.u_char);
                 //$dumpvars(0,UUT.chargen);
                 //#30_000_000;
             `endif
@@ -86,7 +85,7 @@ always @(posedge clk_rom) begin
     clk_cnt <= clk_cnt + 3'd1;
 end
 
-always @(*) clk = clk_cnt[2];
+always @(*) clk = clk_cnt[1];
 
 reg rst_base;
 
@@ -248,6 +247,7 @@ end
 `endif
 */
 
+`ifdef MAXFRAME
 integer fout, frame_cnt;
 reg skip;
 
@@ -285,6 +285,7 @@ always @(posedge clk ) if(cen6) begin
         end
     end
 end
+`endif
 
 
 `ifdef LOADROM
