@@ -118,12 +118,12 @@ end
 reg [7:0] x,y,z;
 
 always @(posedge clk) if(cen6) begin
-    scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    // new tile starts 8+4=12 pixels off
+    // 8 pixels from delay in ROM reading
+    // 4 pixels from processing the x,y,z and attr info.
     if( HS[2:0]==3'd2 ) begin
-            { z,y,x } <= scrom_data;
-            scr_hflip <= dout[4] ^ flip;
-            scr_pal   <= dout[2:0];
-            scrwin    <= dout[3];            
+            { z,y,x } <= scrom_data;     
+            scr_hflip <= scr_attr[1][4] ^ flip; // must be ready when z,y,x are.
         end
     else
         begin
@@ -138,6 +138,12 @@ always @(posedge clk) if(cen6) begin
                 z <= {z[6:0], 1'b0};
             end
         end
+    if( HS[2:0]==3'd3 ) begin // 1 pixel after new z,y,x is loaded from ROM
+        // because output to scr_col takes one more pixel
+        scr_pal   <= scr_attr[1][2:0];
+        scrwin    <= scr_attr[1][3]; 
+    end
+    scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 end
 
 endmodule // jtgng_scroll

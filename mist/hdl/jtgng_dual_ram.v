@@ -18,7 +18,7 @@
 
 module jtgng_dual_ram #(parameter dw=8, aw=10)(
     input   clk,
-    input   clk_en,
+    input   clk_en /* synthesis direct_enable = 1 */,
     input   [dw-1:0] data,
     input   [aw-1:0] rd_addr,
     input   [aw-1:0] wr_addr,
@@ -28,9 +28,12 @@ module jtgng_dual_ram #(parameter dw=8, aw=10)(
 
 reg [dw-1:0] mem[0:(2**aw)-1];
 
-always @(posedge clk) if(clk_en) begin
+always @(posedge clk) begin
     q <= mem[rd_addr];
-    if(we) mem[wr_addr] <= data;
+end
+
+always @(posedge clk) if( clk_en ) begin
+    if( we) mem[wr_addr] <= data;
 end
 
 endmodule // jtgng_ram

@@ -66,22 +66,25 @@ assign MRDY_b = !( char_cs && H128[2:1]!=2'b11 ); // CPU can write when HS[2:1] 
 reg [7:0] addr_lsb;
 // reg [9:0] AC; // ADDRESS - CHARACTER
 
-reg char_vflip;
 reg char_hflip;
 reg half_addr;
 
 // Draw pixel on screen
 reg [15:0] chd;
-reg [5:0] char_attr[0:1];
+reg [4:0] char_attr[0:1];
 
-// Set input for ROM reading
 always @(posedge clk) if(cen6) begin
+    // new tile starts 8+4=12 pixels off
+    // 8 pixels from delay in ROM reading
+    // 4 pixels from processing the x,y,z and attr info.    
     case( H128[2:0] ) // read data from memory when the CPU is forbidden to write on it
+        // Set input for ROM reading
         3'd0: addr_lsb <= dout;
         3'd1: begin
             char_attr[1] <= char_attr[0];
-            char_attr[0] <= dout[5:0];
-            char_addr  <= { {dout[7:6], addr_lsb}, {3{dout[5] ^ flip}}^V128[2:0] };
+            char_attr[0] <= dout[4:0];
+            char_addr  <= { {dout[7:6], addr_lsb}, 
+                {3{dout[5] /*vflip*/ ^ flip}}^V128[2:0] };
         end
     endcase
     // The two case-statements cannot be joined because of the default statement
@@ -90,8 +93,6 @@ always @(posedge clk) if(cen6) begin
         3'd2: begin
             chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
             char_hflip <= char_attr[1][4] ^ flip;
-            char_vflip <= char_attr[1][5] ^ flip;
-            char_pal   <= char_attr[1][3:0];        
         end
         3'd6: 
             chd[7:0] <= chd[15:8];
@@ -107,6 +108,7 @@ always @(posedge clk) if(cen6) begin
                 end
             end
     endcase
+    if( H128[2:0]==3'd3 ) char_pal   <= char_attr[1][3:0]; 
     // 1-pixel delay in order to latch signals:
     char_col <= char_hflip ? { chd[0], chd[4] } : { chd[3], chd[7] };
 end
