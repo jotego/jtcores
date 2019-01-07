@@ -63,30 +63,25 @@ jtgng_ram #(.aw(11),.simfile("char_ram.hex")) u_ram(
 
 assign MRDY_b = !( char_cs && H128[2:1]!=2'b11 ); // CPU can write when HS[2:1] is 2'b11
 
-reg [7:0] aux;
+reg [7:0] addr_lsb;
 // reg [9:0] AC; // ADDRESS - CHARACTER
-reg char_hflip_cur;
-
-reg [2:0] vert_addr;
 
 reg char_vflip;
 reg char_hflip;
 reg half_addr;
-reg [3:0] pal_aux, pal_aux2;
 
 // Draw pixel on screen
 reg [15:0] chd;
+reg [5:0] char_attr[0:1];
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     case( H128[2:0] ) // read data from memory when the CPU is forbidden to write on it
-        3'd0: aux <= dout;
+        3'd0: addr_lsb <= dout;
         3'd1: begin
-            char_hflip <= dout[4] ^ flip;
-            char_vflip <= dout[5] ^ flip;
-            pal_aux    <= dout[3:0];           
-            vert_addr  <= {3{char_vflip}}^V128[2:0];
-            char_addr  <= { {dout[7:6], aux}, {3{dout[5] ^ flip}}^V128[2:0] };
+            char_attr[1] <= char_attr[0];
+            char_attr[0] <= dout[5:0];
+            char_addr  <= { {dout[7:6], addr_lsb}, {3{dout[5] ^ flip}}^V128[2:0] };
         end
     endcase
     // The two case-statements cannot be joined because of the default statement
@@ -94,15 +89,15 @@ always @(posedge clk) if(cen6) begin
     case( H128[2:0] )
         3'd2: begin
             chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
-            //pal_aux2 <= pal_aux;
-            char_pal <= pal_aux;            
-            char_hflip_cur <= char_hflip;
+            char_hflip <= char_attr[1][4] ^ flip;
+            char_vflip <= char_attr[1][5] ^ flip;
+            char_pal   <= char_attr[1][3:0];        
         end
-        3'd7: 
+        3'd6: 
             chd[7:0] <= chd[15:8];
         default:
             begin
-                if( char_hflip_cur ) begin
+                if( char_hflip ) begin
                     chd[7:4] <= {1'b0, chd[7:5]};
                     chd[3:0] <= {1'b0, chd[3:1]};
                 end
@@ -113,7 +108,7 @@ always @(posedge clk) if(cen6) begin
             end
     endcase
     // 1-pixel delay in order to latch signals:
-    char_col <= char_hflip_cur ? { chd[0], chd[4] } : { chd[3], chd[7] };
+    char_col <= char_hflip ? { chd[0], chd[4] } : { chd[3], chd[7] };
 end
 
 endmodule // jtgng_char

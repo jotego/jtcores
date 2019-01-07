@@ -19,6 +19,7 @@
 module jtgng_rom(
     input               clk, // 96MHz = 32 * 6 MHz -> CL=2
     input               clk24,
+    input               cen6,
     input       [ 2:0]  H,
     input               rst,
     input       [12:0]  char_addr,
@@ -76,11 +77,12 @@ reg autorefresh;
 
 // capture H
 reg [1:0] last_clk24;
+reg [1:0] cen6_sync;
 reg [2:0] Hsync;
 always @(posedge clk) begin
     last_clk24 <= { last_clk24[0], clk24 };
-    if( last_clk24[1] && !last_clk24[0] ) // rising edge
-        Hsync <= H;
+    cen6_sync  <= { cen6_sync[0] , cen6  };
+    Hsync <= H;
 end
 
 `ifdef SIMULATION
@@ -95,9 +97,9 @@ assign SDRAM_DQ =  SDRAM_WRITE ? write_data : 16'hzzzz;
 reg [15:0] data_read, scr_aux;
 
 reg [2:0] rdcnt; // Each read cycle takes 8 counts
-reg loop_rst, pre_loop_rst;
+reg loop_rst, pre_loop_rst, sync_withH;
 always @(posedge clk)
-    if(loop_rst) rdcnt<=3'd0;
+    if(loop_rst | sync_withH) rdcnt<=3'd4;
     else rdcnt<=rdcnt+3'd1;
 
 wire rdzero = rdcnt==3'd7;
@@ -111,7 +113,7 @@ localparam  obj_offset = 22'h20000;
 
 always @(posedge clk)
     if( loop_rst ) begin
-        rd_state    <= { Hsync, 1'd1};
+        rd_state    <= 4'd0;
         autorefresh <= false;
         {row_addr, col_addr} <= {(addr_w+col_w){1'b0}};
         snd_dout  <=  8'd0;
@@ -119,7 +121,15 @@ always @(posedge clk)
         char_dout <= 16'd0;
         obj_dout  <= 16'd0;
         scr_dout  <= 24'd0;
-    end else begin
+        ready <= false;
+        sync_withH<= 1'b1;
+    end else if ( sync_withH ) begin // synchronize with H signal
+        if( last_clk24[1] && !last_clk24[0] && cen6_sync[1] && Hsync==3'd0 ) begin // rising edge
+            rd_state    <= 4'd0;
+            sync_withH <= 1'b0; // start the normal loop
+        end
+    end else
+    begin
         if( rdcnt==3'd0 ) begin
             // Get data from current read
             casez(rd_state)
@@ -133,6 +143,7 @@ always @(posedge clk)
             endcase
         end
         if( rdcnt==3'd1 ) begin // latch address before ACTIVATE state
+            ready <= 1'b1;
             casez(rd_state)
                 4'b??00: begin
                     {row_addr, col_addr} <= snd_offset + { 8'b0,  snd_addr[14:1] }; // 14:0
@@ -208,8 +219,8 @@ always @(posedge clk)
         state <= INITIALIZE;
         init_state <= 4'd0;
         { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_INHIBIT;
-        { wait_cnt, SDRAM_A } <= 17'd9800;
-        ready <= false;
+        // { wait_cnt, SDRAM_A } <= 17'd9800;
+        { wait_cnt, SDRAM_A } <= 17'd9743;
         loop_rst   <= 1'b1;
         pre_loop_rst <= 1'b1;
         SDRAM_WRITE<= 1'b0;
@@ -246,7 +257,6 @@ always @(posedge clk)
                     wait_cnt     <= 4'd2;
                     state        <= WAIT;
                     next         <= SET_PRECHARGE;
-                    ready        <= true;
                     pre_loop_rst <= 1'b0;
                     `ifdef SIMULATION
                     $display("SDRAM initialization ready");
@@ -257,7 +267,6 @@ always @(posedge clk)
                 4'd5: begin // wait to rd_state zero
                     if( rd_state==4'd15 && rdzero ) begin
                         state <=SET_PRECHARGE;
-                        ready <= true;
                         end
                     end
                 default: init_state<=4'd0;

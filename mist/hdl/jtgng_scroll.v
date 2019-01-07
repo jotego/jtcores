@@ -95,29 +95,20 @@ jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
 assign MRDY_b = !( scr_cs && HS[2:1]!=2'b11 ); // CPU can write when HS[2:1] is 2'b11
 
 reg scr_hflip;
-reg scr_hflip_cur;
-reg [2:0] pal_in;
-reg [3:0] vert_addr;
-reg [7:0] ASlow;
-reg scrwin_in;
+reg [7:0] addr_lsb;
 
-wire scr_vflip = dout[5];
-reg [2:0] pal_aux;
-reg scrwin_aux, scr_hflip_aux;
+reg [4:0] scr_attr[0:1];
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     case( HS[2:0] )
-        3'd0: ASlow <= dout;
+        3'd0: addr_lsb <= dout;
         3'd1: begin
-            // AS          <= {dout[7:6], ASlow};
-            scr_hflip   <= dout[4];
-            pal_in      <= dout[2:0];
-            scrwin_in   <= dout[3];
-            vert_addr   <= {4{scr_vflip}}^VS[3:0];
-            scr_addr <= {   {dout[7:6], ASlow}, // AS
+            scr_attr[1] <= scr_attr[0];
+            scr_attr[0] <= dout[4:0];
+            scr_addr <= {   dout[7:6], addr_lsb, // AS
                             HS[3]^dout[4] /*scr_hflip*/, 
-                            {4{scr_vflip}}^VS[3:0] /*vert_addr*/ };
+                            {4{dout[5] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
         end
         default:;
     endcase
@@ -127,16 +118,16 @@ end
 reg [7:0] x,y,z;
 
 always @(posedge clk) if(cen6) begin
-    scr_col <= scr_hflip_cur ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
     if( HS[2:0]==3'd2 ) begin
             { z,y,x } <= scrom_data;
-            scr_hflip_cur <= scr_hflip^flip;
-            scr_pal <= pal_in;
-            scrwin  <= scrwin_in;
+            scr_hflip <= dout[4] ^ flip;
+            scr_pal   <= dout[2:0];
+            scrwin    <= dout[3];            
         end
     else
         begin
-            if( scr_hflip_cur ) begin
+            if( scr_hflip ) begin
                 x <= {1'b0, x[7:1]};
                 y <= {1'b0, y[7:1]};
                 z <= {1'b0, z[7:1]};
