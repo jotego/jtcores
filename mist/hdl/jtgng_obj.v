@@ -267,13 +267,13 @@ end
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt[3:0] )
-        4'd0: ADlow <= objbuf_data;
+        4'd0: ADlow   <= objbuf_data;
         4'd1: begin
-            ADhigh <= objbuf_data[7:6];
-            objpal  <= objbuf_data[5:4];
+            ADhigh    <= objbuf_data[7:6];
+            objpal    <= objbuf_data[5:4];
             obj_vflip <= objbuf_data[3];
             obj_hflip <= objbuf_data[2];
-            hover   <= objbuf_data[0];
+            hover     <= objbuf_data[0];
         end
         4'd2: begin
             objy <= (objbuf_data-8'd2);
@@ -338,18 +338,18 @@ reg [15:0] other_half;
 
 always @(posedge clk) if(cen6) begin
     new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};   
-    posx = pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
+    posx    <= pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
     case( pxlcnt[3:0] )
         4'd7,4'd15: if( poshflip )  begin // new data
             //{z,y,x,w} <= vinzone2 ? objrom_data[31:16] : 16'hffff;
 				{z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
-            other_half <= objrom_data[15:0];
-        end
-        else begin
-            {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
-            //other_half <= objrom_data[31:16];
-				other_half <= objrom_data[15:0];
-        end
+                other_half <= objrom_data[15:0];
+            end
+            else begin
+                {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
+                //other_half <= objrom_data[31:16];
+    				other_half <= objrom_data[15:0];
+            end
         4'd11,4'd3: if( poshflip )  // get the second half
             {z,y,x,w} <= vinzone2 ? other_half : 16'hffff;
         else

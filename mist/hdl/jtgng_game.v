@@ -176,7 +176,6 @@ wire [15:0] obj_dout;
 
 wire [14:0] snd_addr;
 wire [ 7:0] snd_dout;
-wire        snd_cs;
 `ifndef NOSOUND
 jtgng_sound u_sound (
     .clk            ( clk        ),
@@ -189,15 +188,13 @@ jtgng_sound u_sound (
     .V32            ( V[5]       ),
     .rom_addr       ( snd_addr   ),
     .rom_dout       ( snd_dout   ),
-    .rom_cs         ( snd_cs     ),
+    .rom_cs         (            ),
     .ym_snd         ( ym_snd     ),
     .sample         ( sample     ) 
 );
 `else 
 assign snd_addr = 15'd0;
 `endif
-
-wire [15:0] objrom_data;
 
 jtgng_video u_video(
     .rst        ( rst           ),
@@ -231,7 +228,7 @@ jtgng_video u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .obj_addr   ( obj_addr      ),
-    .objrom_data( objrom_data   ),    
+    .objrom_data( obj_dout      ),    
     // Color Mix
     .LHBL       ( LHBL          ),       
     .LVBL       ( LVBL          ),
