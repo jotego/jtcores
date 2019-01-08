@@ -58,23 +58,19 @@ reg rdtop=1'b0;
 reg we;
 wire [7:0] dout;
 
-`ifndef OBJTEST
 reg [7:0] pixel_mux;
-always @(*) begin   
+always @(posedge clk) if(cen6) begin   
     if( chr_col==2'b11 || !enable_char ) begin
         // Object or scroll
         if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=3'd0) ) 
-            pixel_mux = {2'b00, scr_pal, scr_col }; // scroll wins
+            pixel_mux <= {2'b00, scr_pal, scr_col }; // scroll wins
         else
-            pixel_mux = {2'b01, obj_pxl }; // object wins
+            pixel_mux <= {2'b01, obj_pxl }; // object wins
     end
     else begin // characters
-        pixel_mux = { 2'b11, chr_pal, chr_col };
+        pixel_mux <= { 2'b11, chr_pal, chr_col };
     end
 end
-`else
-    wire [7:0] pixel_mux = {2'b01,obj_pxl};
-`endif
 
 reg [3:0] rbuf,gbuf,bbuf;
 
@@ -98,7 +94,7 @@ wire [8:0] rdaddress = {   rdtop, pixel_mux };
 wire [8:0] wraddress = { blue_cs, AB        };
 
 // RAM
-jtgng_dual_ram #(.aw(9)) RAM(
+jtgng_dual_ram #(.aw(9),.simfile("palram.hex")) RAM(
     .clk        ( clk       ),
     .clk_en     ( cen6      ), // clock enable only applies to write operation
     .data       ( DB        ),
