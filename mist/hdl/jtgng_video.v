@@ -72,7 +72,7 @@ wire [2:0] HS;
 wire [3:0] cc;
 
 `ifndef NOCHAR
-jtgng_char u_char (
+jtgng_char #(.Hoffset(5)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
@@ -94,7 +94,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll u_scroll (
+jtgng_scroll #(.Hoffset(5)) u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
@@ -122,7 +122,7 @@ assign scr_mrdy = 1'b1;
 jtgng_colmix u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
-    // .H           ( H[2:0]        ),
+    .cen6       ( cen6          ),
     // characters
     .chr_col    ( chr_col       ),
     .chr_pal    ( chr_pal       ),

@@ -29,6 +29,7 @@ always @(posedge clk)
     cencnt <= cencnt+4'd1;
 
 always @(negedge clk) begin
+    // cen12  <= cencnt[  0] == 1'd0;
     cen6   <= cencnt[1:0] == 2'd0;
     cen3   <= cencnt[2:0] == 3'd0;
     cen1p5 <= cencnt[3:0] == 4'd0;

@@ -16,11 +16,16 @@
     Version: 1.0
     Date: 27-10-2017 */
     
-`timescale 1ns/1ps
+// This module introduces 1-pixel delay
+// clock operates at 4*cen6 because colour data requires
+// two memory reads per pixel
+// It could be done at 2*cen6, but this solutions is neat
+// and 24MHz is not a tough requirement for modern FPGAs
 
 module jtgng_colmix(
     input           rst,
     input           clk,    // 24 MHz
+    input           cen6 /* synthesis direct_enable = 1 */,
     // Synchronization
     //input [2:0]       H,
     // characters
@@ -49,16 +54,11 @@ module jtgng_colmix(
     output  reg [3:0]   blue
 );
 
-reg addr_top;
-reg aux, we;
+reg rdtop=1'b0;
+reg we;
 wire [7:0] dout;
 
-//wire [7:0] pixel_mux = { 2'b11, chr_pal, chr_col };
-
-//reg char_win, scr_win, obj_win;
-`ifdef OBJTEST
-wire [7:0] pixel_mux = {2'b01,obj_pxl};
-`else
+`ifndef OBJTEST
 reg [7:0] pixel_mux;
 always @(*) begin   
     if( chr_col==2'b11 || !enable_char ) begin
@@ -67,50 +67,40 @@ always @(*) begin
             pixel_mux = {2'b00, scr_pal, scr_col }; // scroll wins
         else
             pixel_mux = {2'b01, obj_pxl }; // object wins
-        //{ char_win, scr_win, obj_win } = 3'b010;
     end
     else begin // characters
         pixel_mux = { 2'b11, chr_pal, chr_col };
-        //{ char_win, scr_win } = 2'b10;
     end
 end
+`else
+    wire [7:0] pixel_mux = {2'b01,obj_pxl};
 `endif
 
-reg [3:0] aux_red, aux_green, aux_blue;
+reg [3:0] rbuf,gbuf,bbuf;
 
-always @(posedge clk)
-    if( rst ) begin
-        { addr_top, aux } <= 2'b00;
-    end else begin
-        {addr_top,aux}<={addr_top,aux}+2'b1;
-        case( {addr_top,aux} )
-            2'b00: we <= redgreen_cs && !LVBL;
-            2'b10: we <= blue_cs && !LVBL;
-            default: we <= 1'b0;
-        endcase
-        // assign current pixel colour
-        if( LVBL && LHBL )
-            case( {addr_top,aux} )
-                2'b01: begin
-                    red   <= dout[7:4];
-                    green <= dout[3:0];
-                    end
-                2'b11: begin
-                    blue  <= dout[7:4];
-                    end
-                default:;
-            endcase // {addr_top,aux}
-        else
-            {red, green, blue } <= 12'd0; 
-    end
 
-wire [8:0] rdaddress = {addr_top, pixel_mux};
-wire [8:0] wraddress = {addr_top, AB };
+always @(*) 
+    we = !LVBL && ( redgreen_cs || blue_cs );
+
+always @(posedge clk) begin
+    rdtop <= ~rdtop;
+    // assign current pixel colour
+    if ( rdtop ) // if rdtop is high, dout corresponds to low data
+        { rbuf, gbuf } <= dout;
+    else
+        bbuf <= dout[7:4]; // blue is on top half of memory
+end
+
+always @(posedge clk) if (cen6)
+    {red, green, blue } <= (LVBL&&LHBL)? {rbuf,gbuf,bbuf} : 12'd0; 
+
+wire [8:0] rdaddress = {   rdtop, pixel_mux };
+wire [8:0] wraddress = { blue_cs, AB        };
 
 // RAM
 jtgng_dual_ram #(.aw(9)) RAM(
     .clk        ( clk       ),
-    .clk_en     ( 1'b1      ),
+    .clk_en     ( cen6      ), // clock enable only applies to write operation
     .data       ( DB        ),
     .rd_addr    ( rdaddress ),
     .wr_addr    ( wraddress ),

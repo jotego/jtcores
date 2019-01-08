@@ -90,6 +90,7 @@ always @(posedge clk) if(cen6) begin
             char_addr  <= { {dout[7:6], addr_lsb}, 
                 {3{dout[5] /*vflip*/ ^ flip}}^V128[2:0] };
         end
+        default:;
     endcase
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
