@@ -104,10 +104,6 @@ always @(posedge clk)
     end
     else if(cen6) begin
         if( bank_cs && !RnW ) begin
-            `ifdef  SIMULATION
-            $display("Bank write. Dump enabled");
-            $dumpon;
-            `endif
             bank <= cpu_dout[2:0];
         end
         else nRESET <= ~(rst | soft_rst);

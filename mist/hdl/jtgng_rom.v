@@ -138,7 +138,7 @@ always @(posedge clk)
                     main_lsb <= main_addr[0];
                 end
                 4'd2: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
-                4'd3: sdram_addr <=  obj_offset + { 7'b0,  obj_addr }; // 14:0
+                4'd3, 4'd10: sdram_addr <=  obj_offset + { 7'b0,  obj_addr }; // 14:0
                 4'd6: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
                 4'd7: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
                 default:;

@@ -49,23 +49,16 @@ reg frame_done=1'b1, max_frames_done=1'b0;
 reg frame_done=1'b1, max_frames_done=1'b1;
 `endif
 
-reg can_finish=1'b0, spi_done=1'b1;
+reg spi_done=1'b1;
 integer fincnt;
-
-initial begin
-    for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
-        #(1000*1000); // ms
-        $display("%d ms",fincnt+1);
-    end
-    can_finish = 1'b1;
-end
 
 reg rst, clk, clk_rom;
 
 always @(posedge clk)
-    if( spi_done && frame_done && can_finish && max_frames_done ) begin
+    if( spi_done && frame_done && max_frames_done ) begin
         for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
             #(1000*1000); // ms
+            $display("%d ms",fincnt+1);
         end
         $finish;
     end

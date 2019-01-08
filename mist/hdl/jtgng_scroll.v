@@ -39,32 +39,35 @@ module jtgng_scroll(
     output reg         scrwin
 );
 
+parameter Hoffset=9'd5;
+
 reg  [10:0]  addr;
 reg  [ 8:0] HS, VS;
 wire [ 7:0] VF = {8{flip}}^V128;
-wire [ 7:0] HF = {8{flip}}^H[7:0];
+wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
 reg  [ 8:0] hpos=9'd0, vpos=9'd0;
 
-wire H7 = (~H[8] & (~flip ^ HF[6])) ^HF[7];
+wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
+wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
 
 always @(*) begin
     VS = vpos + {1'b0, VF};
-    { HS[8:3], HSaux } = hpos + { ~H[8], H7, HF[6:0]};
+    { HS[8:3], HSaux } = hpos + { ~Hfix[8], H7, HF[6:0]};
     HS[2:0] = HSaux ^ {3{flip}};
 end
 
 assign HSlow = HS[2:0];
 
 reg we;
-wire sel = HS[2];
+wire sel_scan = ~HS[2];
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 
 
 always @(*)
-    if( !sel ) begin
+    if( !sel_scan ) begin
         addr = AB;
         we   = scr_cs && !rd;
     end else begin
@@ -92,20 +95,20 @@ jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
     .q      ( dout     )
 );
 
-assign MRDY_b = !( scr_cs && HS[2:1]!=2'b11 ); // CPU can write when HS[2:1] is 2'b11
+assign MRDY_b = !( scr_cs && sel_scan ); // halt CPU
 
 reg scr_hflip;
 reg [7:0] addr_lsb;
 
-reg [4:0] scr_attr[0:1];
+reg [4:0] scr_attr0, scr_attr1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     case( HS[2:0] )
-        3'd0: addr_lsb <= dout;
-        3'd1: begin
-            scr_attr[1] <= scr_attr[0];
-            scr_attr[0] <= dout[4:0];
+        3'd1: addr_lsb <= dout;
+        3'd2: begin
+            scr_attr1 <= scr_attr0;
+            scr_attr0 <= dout[4:0];
             scr_addr <= {   dout[7:6], addr_lsb, // AS
                             HS[3]^dout[4] /*scr_hflip*/, 
                             {4{dout[5] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
@@ -118,12 +121,12 @@ end
 reg [7:0] x,y,z;
 
 always @(posedge clk) if(cen6) begin
-    // new tile starts 8+4=12 pixels off
+    // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( HS[2:0]==3'd2 ) begin
+    if( HS[2:0]==3'd3 ) begin
             { z,y,x } <= scrom_data;     
-            scr_hflip <= scr_attr[1][4] ^ flip; // must be ready when z,y,x are.
+            scr_hflip <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
         end
     else
         begin
@@ -138,10 +141,10 @@ always @(posedge clk) if(cen6) begin
                 z <= {z[6:0], 1'b0};
             end
         end
-    if( HS[2:0]==3'd3 ) begin // 1 pixel after new z,y,x is loaded from ROM
+    if( HS[2:0]==3'd4 ) begin // 1 pixel after new z,y,x is loaded from ROM
         // because output to scr_col takes one more pixel
-        scr_pal   <= scr_attr[1][2:0];
-        scrwin    <= scr_attr[1][3]; 
+        scr_pal   <= scr_attr1[2:0];
+        scrwin    <= scr_attr1[3]; 
     end
     scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
 end

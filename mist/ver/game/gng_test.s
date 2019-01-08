@@ -45,7 +45,8 @@ RESET:
 	LDA #$10
 	STA SND_LATCH
 
-	LBSR CHAR_ATTR
+	;LBSR CHK_CHR_ATTR
+	;LBSR CHK_SCR_ATTR
 	;LBSR SETUP_PAL
 	;LBSR LEFT_OBJ_TEST
 	;LBSR SCR_FLICKER
@@ -54,8 +55,8 @@ RESET:
 	;LBSR TEST_SCR_TFR
 
 	;LBSR SHOW_TAITO
-	;LBSR CHKSCR
-	;LBSR CHKCHAR
+	LBSR CHKCHAR
+	LBSR CHKSCR
 	BSR FINISH
 
 	;LBSR TEST_CHARPAL
@@ -334,20 +335,35 @@ FILL_ALLCHAR:
 
 ; Write two characters and two attributes to check that
 ; it is read in correct order
-CHAR_ATTR:
+CHK_CHR_ATTR:
 	LDX #CHR
 	LDA #1
 	LDB #$81
-CHAR_ATTR_LOOP:
+CHK_CHR_ATTR_LOOP:
 	STA ,X
 	STB $400,X
 	LEAX $1,X
 	INCA
 	INCB
 	CMPA #0
-	BNE CHAR_ATTR_LOOP
+	BNE CHK_CHR_ATTR_LOOP
 	RTS
 
+; Write two characters and two attributes to check that
+; it is read in correct order
+CHK_SCR_ATTR:
+	LDX #SCR
+	LDA #1
+	LDB #$81
+CHK_SCR_ATTR_LOOP:
+	STA ,X
+	STB $400,X
+	LEAX $1,X
+	INCA
+	INCB
+	CMPA #0
+	BNE CHK_SCR_ATTR_LOOP
+	RTS
 
 APPLY_ATTR:
 	LDX #$2400
@@ -540,12 +556,19 @@ FILLSCR:
 CHKCHAR:
 	LDU #$BABE
 	LDX #$2000
-	LDY #$5555
+	LDD #$1001
 @L:	
-	TFR Y,D
-	STD ,X	
-	SUBD ,X++
+	STA  ,X	
+	STB $400,X
+	CMPA ,X
 	BNE @MAL
+	CMPB $400,X
+	BNE @MAL
+	LEAX 1,X
+	ADDA #1
+	ANDA #$F
+	ADDB #$10
+	ANDB #$F0
 	CMPX #$2800
 	BNE @L
 	LDU #$FACE

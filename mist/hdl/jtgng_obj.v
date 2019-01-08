@@ -333,27 +333,12 @@ reg [3:0] z,y,x,w;
 reg [3:0] new_pxl;
 reg [8:0] posx;
 
-reg [15:0] other_half;
-
-
 always @(posedge clk) if(cen6) begin
     new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};   
     posx    <= pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
     case( pxlcnt[3:0] )
-        4'd7,4'd15: if( poshflip )  begin // new data
-            //{z,y,x,w} <= vinzone2 ? objrom_data[31:16] : 16'hffff;
+        4'd3,4'd7,4'd11,4'd15:  // new data
 				{z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
-                other_half <= objrom_data[15:0];
-            end
-            else begin
-                {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
-                //other_half <= objrom_data[31:16];
-    				other_half <= objrom_data[15:0];
-            end
-        4'd11,4'd3: if( poshflip )  // get the second half
-            {z,y,x,w} <= vinzone2 ? other_half : 16'hffff;
-        else
-            {z,y,x,w} <= vinzone2 ? other_half : 16'hffff;
         default: 
             if( poshflip ) begin
                 z <= z >> 1;
