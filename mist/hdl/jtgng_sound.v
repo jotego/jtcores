@@ -38,7 +38,7 @@ module jtgng_sound(
 wire [15:0] A;
 assign rom_addr = A[14:0];
 
-reg reset_n;
+reg reset_n=1'b0;
 
 always @(posedge clk)
     reset_n <= ~( rst | soft_rst | ~sres_b );

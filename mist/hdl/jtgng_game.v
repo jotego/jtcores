@@ -75,10 +75,10 @@ wire [ 7:0] chram_dout,scram_dout;
 wire [15:0] chrom_data;
 wire rom_ready;
 
-reg rst_game;
+reg rst_game=1'b1;
 reg rst_aux;
 
-always @(posedge clk or posedge rst or negedge rom_ready)
+always @(posedge clk)
     if( rst || !rom_ready ) begin
         {rst_game,rst_aux} <= 2'b11;
     end

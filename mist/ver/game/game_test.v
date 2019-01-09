@@ -46,7 +46,8 @@ module game_test;
     initial begin
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
-        $shm_probe("AS");
+        $shm_probe(UUT.u_main,"A");
+        $shm_probe(UUT.u_sound,"A");
     end
 `endif
 
@@ -59,7 +60,7 @@ reg frame_done=1'b1, max_frames_done=1'b1;
 reg spi_done=1'b1;
 integer fincnt;
 
-reg rst, clk, clk_rom;
+reg rst=1'b1, clk, clk_rom;
 
 always @(posedge clk)
     if( spi_done && frame_done && max_frames_done ) begin
@@ -87,11 +88,12 @@ end
 
 always @(*) clk = clk_cnt[1];
 
-reg rst_base;
+reg rst_base=1'b1;
 
 initial begin
-    rst_base = 1'b0;
-    #500 rst_base = 1'b1;
+    rst_base = 1'b1;
+    #100 rst_base = 1'b0;
+    #150 rst_base = 1'b1;
     #2500 rst_base=1'b0;
 end
 
