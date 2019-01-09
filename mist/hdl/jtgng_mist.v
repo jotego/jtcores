@@ -194,13 +194,13 @@ jtgng_game game(
     .dip_game_mode  ( ~status[1] ),
     .dip_upright    ( status[2]  ),
     //.dip_flip     ( ~status[3] ),
-    .dip_attract_snd( 1'b1       ),
+    .dip_attract_snd( 1'b0       ),
     // sound
     .ym_snd      ( ym_snd        ),
     .sample      (               )
 );
 
-wire clk_dac = clk_rgb;
+wire clk_dac = clk_rom;
 assign AUDIO_R = AUDIO_L;
 
 jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));

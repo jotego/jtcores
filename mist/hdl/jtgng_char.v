@@ -41,17 +41,30 @@ parameter Hoffset=8'd5;
 wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
 
 wire sel_scan = ~Hfix[2];
-wire [ 9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
-wire [10:0] addr = sel_scan ? { ~Hfix[0], scan } : AB;
+wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
+wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && char_cs && !rd;
+wire we_low  = we && !AB[10];
+wire we_high = we &&  AB[10];
+wire [7:0] dout_low, dout_high;
+assign dout = AB[10] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(11),.simfile("char_ram.hex")) u_ram(
+jtgng_ram #(.aw(10),.simfile("char_ram.hex")) u_ram_low(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),
     .addr   ( addr     ),
-    .we     ( we       ),
-    .q      ( dout     )
+    .we     ( we_low   ),
+    .q      ( dout_low )
+);
+
+jtgng_ram #(.aw(10),.simfile("char_ram.hex")) u_ram_high(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .data   ( din      ),
+    .addr   ( addr     ),
+    .we     ( we_high  ),
+    .q      ( dout_high)
 );
 
 assign MRDY_b = !( char_cs && sel_scan ); // hold CPU
@@ -62,29 +75,24 @@ reg half_addr;
 
 // Draw pixel on screen
 reg [15:0] chd;
-reg [4:0] char_attr0, char_attr1;
+reg [4:0] char_attr;
 
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.    
-    case( Hfix[2:0] ) // read data from memory when the CPU is forbidden to write on it
+    if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
-        3'd1: addr_lsb <= dout;
-        3'd2: begin
-            char_attr1 <= char_attr0;
-            char_attr0 <= dout[4:0];
-            char_addr  <= { {dout[7:6], addr_lsb}, 
-                {3{dout[5] /*vflip*/ ^ flip}}^V128[2:0] };
-        end
-        default:;
-    endcase
+        char_attr <= dout_high[4:0];
+        char_addr <= { {dout_high[7:6], dout_low}, 
+            {3{dout_high[5] /*vflip*/ ^ flip}}^V128[2:0] };
+    end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
         3'd3: begin
             chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
-            char_hflip <= char_attr1[4] ^ flip;
+            char_hflip <= char_attr[4] ^ flip;
         end
         3'd7: 
             chd[7:0] <= chd[15:8];
@@ -100,7 +108,7 @@ always @(posedge clk) if(cen6) begin
                 end
             end
     endcase
-    if( Hfix[2:0]==3'd4 ) char_pal   <= char_attr1[3:0]; 
+    if( Hfix[2:0]==3'd4 ) char_pal   <= char_attr[3:0]; 
     // 1-pixel delay in order to latch signals:
     char_col <= char_hflip ? { chd[0], chd[4] } : { chd[3], chd[7] };
 end

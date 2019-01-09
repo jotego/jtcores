@@ -29,7 +29,6 @@ module jtgng_scroll(
     output      [ 7:0] dout,
     input              rd,
     output             MRDY_b,
-    output      [ 2:0] HSlow,
 
     // ROM
     output reg  [14:0] scr_addr,
@@ -57,12 +56,12 @@ always @(*) begin
     HS[2:0] = HSaux ^ {3{flip}};
 end
 
-assign HSlow = HS[2:0];
-
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 wire sel_scan = ~HS[2];
-wire [10:0]  addr = sel_scan ?  { ~HS[0], scan } : AB;
+wire [9:0]  addr = sel_scan ?  { ~HS[0], scan } : AB[9:0];
 wire we = !sel_scan && scr_cs && !rd;
+wire we_low  = we && !AB[10];
+wire we_high = we &&  AB[10];
 
 always @(posedge clk) if(cen6) begin
     if( scrpos_cs && AB[3]) 
@@ -74,13 +73,25 @@ always @(posedge clk) if(cen6) begin
     endcase 
 end
 
-jtgng_ram #(.aw(11),.simfile("scr_ram.hex")) u_ram(
+wire [7:0] dout_low, dout_high;
+assign dout = AB[10] ? dout_high : dout_low;
+
+jtgng_ram #(.aw(10),.simfile("scr_ram.hex")) u_ram_low(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),
     .addr   ( addr     ),
-    .we     ( we       ),
-    .q      ( dout     )
+    .we     ( we_low   ),
+    .q      ( dout_low )
+);
+
+jtgng_ram #(.aw(10),.simfile("scr_att.hex")) u_ram_high(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .data   ( din      ),
+    .addr   ( addr     ),
+    .we     ( we_high  ),
+    .q      ( dout_high)
 );
 
 assign MRDY_b = !( scr_cs && sel_scan ); // halt CPU
@@ -92,17 +103,13 @@ reg [4:0] scr_attr0, scr_attr1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
-    case( HS[2:0] )
-        3'd1: addr_lsb <= dout;
-        3'd2: begin
-            scr_attr1 <= scr_attr0;
-            scr_attr0 <= dout[4:0];
-            scr_addr <= {   dout[7:6], addr_lsb, // AS
-                            HS[3]^dout[4] /*scr_hflip*/, 
-                            {4{dout[5] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
-        end
-        default:;
-    endcase
+    if( HS[2:0]==3'd0 ) begin
+        scr_attr1 <= scr_attr0;
+        scr_attr0 <= dout_high[4:0];
+        scr_addr  <= {   dout_high[7:6], dout_low, // AS
+                        HS[3]^dout_high[4] /*scr_hflip*/, 
+                        {4{dout_high[5] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
+    end
 end
 
 // Draw pixel on screen
@@ -112,7 +119,7 @@ always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( HS[2:0]==3'd3 ) begin
+    if( HS[2:0]==3'd1 ) begin
             { z,y,x } <= scrom_data;     
             scr_hflip <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
         end
@@ -129,7 +136,7 @@ always @(posedge clk) if(cen6) begin
                 z <= {z[6:0], 1'b0};
             end
         end
-    if( HS[2:0]==3'd4 ) begin // 1 pixel after new z,y,x is loaded from ROM
+    if( HS[2:0]==3'd2 ) begin // 1 pixel after new z,y,x is loaded from ROM
         // because output to scr_col takes one more pixel
         scr_pal   <= scr_attr1[2:0];
         scrwin    <= scr_attr1[3]; 

@@ -68,7 +68,6 @@ wire [5:0] obj_pxl;
 wire scrwin;
 wire [2:0] scr_col;
 wire [2:0] scr_pal;
-wire [2:0] HS;
 wire [3:0] cc;
 
 `ifndef NOCHAR
@@ -100,7 +99,6 @@ jtgng_scroll #(.Hoffset(5)) u_scroll (
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H          ( H             ),
-    .HSlow      ( HS            ),
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
     .flip       ( flip          ),
