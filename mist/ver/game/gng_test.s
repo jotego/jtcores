@@ -42,19 +42,7 @@ RESET:
 	STA VPOS_LOW
 	STB VPOS_HIGH
 
-    LDX #$1000
-    LDY #17
-LONGWAIT:
-    LEAX -1,X
-    CMPX #0
-    BNE LONGWAIT
-    LDX #$1000
-    LEAY -1,Y
-    CMPY #0
-    BNE LONGWAIT
-
-	LDA #$10
-	STA SND_LATCH
+    LBSR SEND_SNDCODE
 
 	;LBSR CHK_CHR_ATTR
 	;LBSR CHK_SCR_ATTR
@@ -698,6 +686,22 @@ TEST_SCR_TFR:
 	LDA #$C2
 	STA $400,X
 	RTS
+
+SEND_SNDCODE:
+    LDX #$1000
+    LDY #17
+LONGWAIT:
+    LEAX -1,X
+    CMPX #0
+    BNE LONGWAIT
+    LDX #$1000
+    LEAY -1,Y
+    CMPY #0
+    BNE LONGWAIT
+
+    LDA #$28
+    STA SND_LATCH
+    RTS
 
 ;********************************************
 ; Fills all screen with hex numbers

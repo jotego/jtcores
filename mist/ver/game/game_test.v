@@ -48,6 +48,8 @@ module game_test;
         $shm_open("test.shm");
         $shm_probe(UUT.u_main,"A");
         $shm_probe(UUT.u_sound,"A");
+        // #280_000_000
+        // $shm_probe(UUT.u_sound.u_cpu,"AS");
     end
 `endif
 

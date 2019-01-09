@@ -40,7 +40,7 @@ assign rom_addr = A[14:0];
 
 reg reset_n=1'b0;
 
-always @(posedge clk)
+always @(posedge clk) if(cen3)
     reset_n <= ~( rst | soft_rst | ~sres_b );
 
 wire fm1_cs,fm0_cs, latch_cs, ram_cs;
@@ -96,7 +96,7 @@ always @(*)
 reg lastV32;
 reg [4:0] int_n2;
 
-always @(posedge clk) begin
+always @(posedge clk) if(cen3) begin
     lastV32 <= V32;
     if ( !V32 && lastV32 ) begin
         { int_n, int_n2 } <= 6'b0;
@@ -109,7 +109,7 @@ always @(posedge clk) begin
     end
 end
 
-tv80s #(.Mode(0)) Z80 (
+tv80s #(.Mode(0)) u_cpu (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
     .cen    (cen3    ),

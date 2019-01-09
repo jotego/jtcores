@@ -153,11 +153,13 @@ ncverilog)
         -F ../../../modules/jt12/hdl/jt03.f \
         -f game.f \
         ../common/mt48lc16m16a2.v \
-        ../../../modules/mc6809/mc6809{,i}.v \
+        -vhdlext vhdl93 \
         ../../../modules/tv80/*.v $MIST \
+        ../../../modules/mc6809/mc6809{,i}.v \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME $OBJTEST;;
+        # ../../../modules/t80/{T80_ALU,T80_MCode,T80_Pack,T80pa,T80_Reg,T80}.vhd \
 verilator)
 	verilator -I../../hdl \
 		../../hdl/jtgng_game.v \
