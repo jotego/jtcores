@@ -12,6 +12,7 @@
 /* verilator lint_off STMTDLY */
 
 module game_test;
+`ifndef NCVERILOG
     `ifdef DUMP
     initial begin
         // #(200*100*1000*1000);
@@ -40,8 +41,14 @@ module game_test;
             $dumpon;
         `endif
     end
-
     `endif
+`else
+    initial begin
+        $display("NC Verilog: will dump all signals");
+        $shm_open("test.shm");
+        $shm_probe("AS");
+    end
+`endif
 
 `ifdef MAXFRAME
 reg frame_done=1'b1, max_frames_done=1'b0;
@@ -89,6 +96,7 @@ initial begin
 end
 
 integer rst_cnt;
+wire cen6, cen3, cen1p5;
 
 always @(negedge clk or posedge rst_base)
     if( rst_base ) begin
@@ -111,7 +119,6 @@ wire            downloading;
 wire    [24:0]  romload_addr;
 wire    [15:0]  romload_data;
 
-wire cen6, cen3, cen1p5;
 
 jtgng_cen u_cen(
     .clk    ( clk    ),    // 24 MHz

@@ -75,6 +75,7 @@ initial begin
 end
 `endif
 
+reg [7:0] serial_out_status, serial_out_byte;
 reg [6:0] sbuf;
 reg [7:0] cmd;
 reg [2:0] bit_cnt;    // counts bits 0-7 0-7 ...
@@ -290,8 +291,8 @@ reg [SERIAL_OUT_FIFO_BITS-1:0] serial_out_wptr;
 reg [SERIAL_OUT_FIFO_BITS-1:0] serial_out_rptr;
  
 wire serial_out_data_available = serial_out_wptr != serial_out_rptr;
-wire [7:0] serial_out_byte = serial_out_fifo[serial_out_rptr] /* synthesis keep */;
-wire [7:0] serial_out_status = { 7'b1000000, serial_out_data_available};
+always @(*) serial_out_byte = serial_out_fifo[serial_out_rptr] /* synthesis keep */;
+always @(*) serial_out_status = { 7'b1000000, serial_out_data_available};
 
 // status[0] is reset signal from io controller and is thus used to flush
 // the fifo

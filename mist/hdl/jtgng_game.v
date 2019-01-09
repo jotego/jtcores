@@ -75,8 +75,6 @@ wire [ 7:0] chram_dout,scram_dout;
 wire [15:0] chrom_data;
 wire rom_ready;
 
-wire [31:0] crc;
-
 reg rst_game;
 reg rst_aux;
 

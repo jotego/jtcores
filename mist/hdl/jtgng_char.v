@@ -40,20 +40,10 @@ parameter Hoffset=8'd5;
 
 wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
 
-reg [10:0]  addr;
 wire sel_scan = ~Hfix[2];
-reg we;
-
-wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
-
-always @(*)
-    if( !sel_scan ) begin
-        addr = AB;
-        we   = char_cs && !rd;
-    end else begin
-        we   = 1'b0; // line order is important here
-        addr = { ~Hfix[0], scan };
-    end
+wire [ 9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
+wire [10:0] addr = sel_scan ? { ~Hfix[0], scan } : AB;
+wire we = !sel_scan && char_cs && !rd;
 
 jtgng_ram #(.aw(11),.simfile("char_ram.hex")) u_ram(
     .clk    ( clk      ),
@@ -64,12 +54,9 @@ jtgng_ram #(.aw(11),.simfile("char_ram.hex")) u_ram(
     .q      ( dout     )
 );
 
-
 assign MRDY_b = !( char_cs && sel_scan ); // hold CPU
 
 reg [7:0] addr_lsb;
-// reg [9:0] AC; // ADDRESS - CHARACTER
-
 reg char_hflip;
 reg half_addr;
 

@@ -54,9 +54,8 @@ module jtgng_colmix(
     output  reg [3:0]   blue
 );
 
-reg rdtop=1'b0;
-reg we;
-wire [7:0] dout;
+wire [7:0] dout_rg;
+wire [3:0] dout_b;
 
 reg [7:0] pixel_mux;
 always @(posedge clk) if(cen6) begin   
@@ -72,36 +71,32 @@ always @(posedge clk) if(cen6) begin
     end
 end
 
-reg [3:0] rbuf,gbuf,bbuf;
+wire we_rg = !LVBL && redgreen_cs;
+wire we_b  = !LVBL && blue_cs;
 
-
-always @(*) 
-    we = !LVBL && ( redgreen_cs || blue_cs );
-
-always @(posedge clk) begin
-    rdtop <= ~rdtop;
-    // assign current pixel colour
-    if ( rdtop ) // if rdtop is high, dout corresponds to low data
-        { rbuf, gbuf } <= dout;
-    else
-        bbuf <= dout[7:4]; // blue is on top half of memory
-end
 
 always @(posedge clk) if (cen6)
-    {red, green, blue } <= (LVBL&&LHBL)? {rbuf,gbuf,bbuf} : 12'd0; 
-
-wire [8:0] rdaddress = {   rdtop, pixel_mux };
-wire [8:0] wraddress = { blue_cs, AB        };
+    {red, green, blue } <= (LVBL&&LHBL)? { dout_rg, dout_b } : 12'd0; 
 
 // RAM
-jtgng_dual_ram #(.aw(9),.simfile("palram.hex")) RAM(
-    .clk        ( clk       ),
-    .clk_en     ( cen6      ), // clock enable only applies to write operation
-    .data       ( DB        ),
-    .rd_addr    ( rdaddress ),
-    .wr_addr    ( wraddress ),
-    .we         ( we        ),
-    .q          ( dout      )
+jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
+    .clk        ( clk         ),
+    .clk_en     ( cen6        ), // clock enable only applies to write operation
+    .data       ( DB          ),
+    .rd_addr    ( pixel_mux   ),
+    .wr_addr    ( AB          ),
+    .we         ( we_rg       ),
+    .q          ( dout_rg     )
+);
+
+jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
+    .clk        ( clk         ),
+    .clk_en     ( cen6        ), // clock enable only applies to write operation
+    .data       ( DB[7:4]     ),
+    .rd_addr    ( pixel_mux   ),
+    .wr_addr    ( AB          ),
+    .we         ( we_b        ),
+    .q          ( dout_b      )
 );
 
 endmodule // jtgng_colmix

@@ -22,18 +22,20 @@ SIMULATOR=iverilog
 FASTSIM=
 TOP=game_test
 MIST=
+MACROPREFIX=-D
 
 if ! g++ init_ram.cc -o init_ram; then
 	exit 1;
 fi
 init_ram
 
+ARGNUMBER=1
 while [ $# -gt 0 ]; do
 case "$1" in
 	"-w" | "-deep")
-		DUMP=-DDUMP
+		DUMP=${MACROPREFIX}DUMP
 		echo Signal dump enabled
-		if [ $1 = "-deep" ]; then DUMP="$DUMP -DDEEPDUMP"; fi
+		if [ $1 = "-deep" ]; then DUMP="$DUMP ${MACROPREFIX}DEEPDUMP"; fi
 		;;
 	"-frames")
 		shift
@@ -41,7 +43,7 @@ case "$1" in
 			echo "Must specify number of frames to simulate"
 			exit 1
 		fi
-		MAXFRAME="-DMAXFRAME=$1"
+		MAXFRAME="${MACROPREFIX}MAXFRAME=$1"
 		echo Simulate up to $1 frames
 		;;
 	"-mist")
@@ -49,13 +51,13 @@ case "$1" in
 		MIST=../../../modules/jt12/hdl/dac/jt12_dac.v
 		;;
 	"-nosnd")
-		FASTSIM="$FASTSIM -DNOSUND";;
+		FASTSIM="$FASTSIM ${MACROPREFIX}NOSUND";;
 	"-nocolmix")
-		FASTSIM="$FASTSIM -DNOCOLMIX";;
+		FASTSIM="$FASTSIM ${MACROPREFIX}NOCOLMIX";;
 	"-noscr")
-		FASTSIM="$FASTSIM -DNOSCR";;
+		FASTSIM="$FASTSIM ${MACROPREFIX}NOSCR";;
 	"-nochar")
-		FASTSIM="$FASTSIM -DNOCHAR";;
+		FASTSIM="$FASTSIM ${MACROPREFIX}NOCHAR";;
 	"-time")
 		shift
 		if [ "$1" = "" ]; then
@@ -71,8 +73,10 @@ case "$1" in
 		;;
 	"-t")
 		FIRMWARE=gng_test.s
-		LOADROM=-DGNGTEST
-		echo Running game directly
+		LOADROM=${MACROPREFIX}GNGTEST
+        if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; then
+            exit 1
+        fi        
 		;;
 	"-ch")
 		CHR_DUMP=CHR_DUMP
@@ -87,7 +91,7 @@ case "$1" in
 		echo VGA conversion enabled
 		;;
 	"-load")
-		LOADROM=-DLOADROM
+		LOADROM=${MACROPREFIX}LOADROM
 		echo ROM load through SPI enabled
 		if [ ! -e ../../../rom/JTGNG.rom ]; then
 			echo "Missing file JTGNG.rom in rom folder"
@@ -96,17 +100,20 @@ case "$1" in
 		fi
 		;;
 	"-lint")
-		SIMULATOR=verilator
-		;;
+		SIMULATOR=verilator;;
+    "-nc")
+        SIMULATOR=ncverilog        
+        MACROPREFIX="+define+"
+        if [ $ARGNUMBER != 1 ]; then
+            echo "ERROR: -nc must be the first argument so macros get defined correctly"
+            exit 1
+        fi
+        ;;
 	*) echo "Unknown option $1"; exit 1;;
 esac
 	shift
+    ARGNUMBER=$((ARGNUMBER+1))
 done
-
-
-if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; then
-	exit 1
-fi
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 
@@ -126,12 +133,12 @@ function clear_hex_file {
 	done	
 }
 
-clear_hex_file char_ram 2048
-clear_hex_file scr_ram  2048
 clear_hex_file obj_buf  128
 
-if [ $SIMULATOR = iverilog ]; then
-	iverilog ${TOP}.v \
+python char_msg.py
+
+case $SIMULATOR in
+iverilog)	iverilog ${TOP}.v \
 		$(add_dir ../../../modules/jt12/hdl jt03.f) \
 		../../hdl/*.v \
 		../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
@@ -140,8 +147,18 @@ if [ $SIMULATOR = iverilog ]; then
 		-s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
 		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
 		$MAXFRAME $OBJTEST \
-	&& sim -lxt
-else
+	&& sim -lxt;;
+ncverilog)
+    ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
+        -F ../../../modules/jt12/hdl/jt03.f \
+        -f game.f \
+        ../common/mt48lc16m16a2.v \
+        ../../../modules/mc6809/mc6809{,i}.v \
+        ../../../modules/tv80/*.v $MIST \
+        +define+SIM_MS=$SIM_MS +define+SIMULATION \
+        $DUMP $LOADROM $FASTSIM \
+        $MAXFRAME $OBJTEST;;
+verilator)
 	verilator -I../../hdl \
 		../../hdl/jtgng_game.v \
 		../../../modules/mc6809/mc6809{_cen,i}.v \
@@ -151,8 +168,8 @@ else
 		--top-module jtgng_game -o sim \
 		$DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
 		-DVERILATOR_LINT \
-		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only
-fi
+		$MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only;;
+esac
 
 if [ $CHR_DUMP = CHR_DUMP ]; then
 	rm frame*png

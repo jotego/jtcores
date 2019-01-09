@@ -165,9 +165,9 @@ wire osd_de = osd_enable && h_osd_active && v_osd_active;
 wire [7:0] osd_hcnt = h_cnt - h_osd_start + 7'd1;  // one pixel offset for osd_byte register
 wire [6:0] osd_vcnt = v_cnt - v_osd_start;
 
+reg [7:0] osd_byte; 
 wire osd_pixel = osd_byte[osd_vcnt[3:1]];
 
-reg [7:0] osd_byte; 
 always @(posedge pclk)
   osd_byte <= osd_buffer[{osd_vcnt[6:4], osd_hcnt}];
 

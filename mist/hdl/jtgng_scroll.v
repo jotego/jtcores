@@ -41,13 +41,12 @@ module jtgng_scroll(
 
 parameter Hoffset=9'd5;
 
-reg  [10:0]  addr;
+wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
 reg  [ 8:0] HS, VS;
 wire [ 7:0] VF = {8{flip}}^V128;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
 reg  [ 8:0] hpos=9'd0, vpos=9'd0;
 
-wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
@@ -60,21 +59,10 @@ end
 
 assign HSlow = HS[2:0];
 
-reg we;
-wire sel_scan = ~HS[2];
-
 wire [9:0] scan = { HS[8:4], VS[8:4] };
-
-
-always @(*)
-    if( !sel_scan ) begin
-        addr = AB;
-        we   = scr_cs && !rd;
-    end else begin
-        we   = 1'b0; // line order is important here
-        addr = { ~HS[0], scan }; 
-    end
-
+wire sel_scan = ~HS[2];
+wire [10:0]  addr = sel_scan ?  { ~HS[0], scan } : AB;
+wire we = !sel_scan && scr_cs && !rd;
 
 always @(posedge clk) if(cen6) begin
     if( scrpos_cs && AB[3]) 

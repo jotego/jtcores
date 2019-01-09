@@ -234,7 +234,13 @@ mc6809 cpu (
     .nHALT   ( ~bus_req),
     .nRESET  ( nRESET  ),
     .MRDY    ( MRDY_b  ),
-    .nDMABREQ( 1'b1    )
+    .nDMABREQ( 1'b1    ),
+    // unused:
+    .XTAL    ( 1'b0    ),
+    .E(),
+    .Q(),
+    .RegData(),
+    .AVMA()
 );
 /*
 `ifndef VERILATOR_LINT
