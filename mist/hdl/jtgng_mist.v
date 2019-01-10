@@ -187,14 +187,14 @@ jtgng_game game(
     .romload_addr( romload_addr  ),
     .romload_data( romload_data  ),
     // DEBUG
-    .enable_char ( ~status[3]    ),
+    .enable_char ( ~status[5]    ),
     .enable_scr  ( ~status[3]    ),
     .enable_obj  ( ~status[4]    ),
     // DIP switches
     .dip_game_mode  ( ~status[1] ),
     .dip_upright    ( status[2]  ),
     //.dip_flip     ( ~status[3] ),
-    .dip_attract_snd( 1'b0       ),
+    .dip_attract_snd( 1'b1       ), // 0 for sound
     // sound
     .ym_snd      ( ym_snd        ),
     .sample      (               )
@@ -225,7 +225,7 @@ jtgng_vga vga_conv (
     .blue       ( blue          ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[5]    ),
+    .en_mixing  ( 1'b0 ), //~status[5]    ),
     .vga_red    ( GNG_R[5:1]    ),
     .vga_green  ( GNG_G[5:1]    ),
     .vga_blue   ( GNG_B[5:1]    ),

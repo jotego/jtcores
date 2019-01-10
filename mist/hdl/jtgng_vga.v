@@ -98,13 +98,13 @@ always @(posedge clk_rgb)
     if( rst ) begin
         wr_addr <= 8'd0;
         wr_sel <= 1'b0;     
-    end else if(cen6) begin
+    end else /*if(cen6)*/ begin
         last_LHBL <= LHBL;  
         if( !LHBL ) begin
             wr_addr <= 8'd0;
             if( last_LHBL!=LHBL ) wr_sel <= ~wr_sel;
         end else
-            wr_addr <= wr_addr + 1'b1;
+            if(cen6) wr_addr <= wr_addr + 1'b1;
     end
 
 reg LHBL_vga, last_LHBL_vga;
