@@ -58,7 +58,7 @@ end
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
 wire sel_scan = ~HS[2];
-wire [9:0]  addr = sel_scan ?  { ~HS[0], scan } : AB[9:0];
+wire [9:0]  addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && scr_cs && !rd;
 wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];
@@ -103,7 +103,8 @@ reg [4:0] scr_attr0, scr_attr1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
-    if( HS[2:0]==3'd0 ) begin
+    if( HS[2:0]==3'd1 ) begin // dout_high/low data corresponds to this tile
+            // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr1 <= scr_attr0;
         scr_attr0 <= dout_high[4:0];
         scr_addr  <= {   dout_high[7:6], dout_low, // AS
@@ -114,14 +115,16 @@ end
 
 // Draw pixel on screen
 reg [7:0] x,y,z;
+reg [3:0] scr_attr2;
 
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( HS[2:0]==3'd1 ) begin
+    if( HS[2:0]==3'd2 ) begin
             { z,y,x } <= scrom_data;     
             scr_hflip <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
+            scr_attr2 <= scr_attr1[3:0];
         end
     else
         begin
@@ -136,12 +139,9 @@ always @(posedge clk) if(cen6) begin
                 z <= {z[6:0], 1'b0};
             end
         end
-    if( HS[2:0]==3'd2 ) begin // 1 pixel after new z,y,x is loaded from ROM
-        // because output to scr_col takes one more pixel
-        scr_pal   <= scr_attr1[2:0];
-        scrwin    <= scr_attr1[3]; 
-    end
     scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    scr_pal   <= scr_attr2[2:0];
+    scrwin    <= scr_attr2[3]; 
 end
 
 endmodule // jtgng_scroll

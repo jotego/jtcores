@@ -116,13 +116,18 @@ always @(posedge clk)
     begin
         if( rdcnt==3'd0 ) begin
             // Get data from current read
-            casez(rd_state)
-                4'b??01: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
-                4'b??10: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
-                4'd3:    char_dout <= data_read;
-                4'd4:    obj_dout  <= data_read;
-                4'd7:    scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
-                4'd8:    scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
+            casez(rd_state-4'd1) // I hope the -4'd1 gets re-encoded in the
+                // case list, rather than getting implemented as an actual adder
+                // but it depends on how good the synthesis tool is.
+                // Anyway, the idea is that we get the data for the last address
+                // requested but rd_state has already gone up by 1, that's why
+                // we need this
+                4'b??00:    snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
+                4'b??01:    main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
+                4'd2:       char_dout <= data_read;
+                4'd3,4'd10: obj_dout  <= data_read;
+                4'd6:       scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
+                4'd7:       scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
                 default:;
             endcase
         end

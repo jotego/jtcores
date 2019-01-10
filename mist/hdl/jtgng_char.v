@@ -49,7 +49,7 @@ wire we_high = we &&  AB[10];
 wire [7:0] dout_low, dout_high;
 assign dout = AB[10] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(10),.simfile("char_ram.hex")) u_ram_low(
+jtgng_ram #(.aw(10),.simfile("char_low.hex")) u_ram_low(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),
@@ -58,7 +58,7 @@ jtgng_ram #(.aw(10),.simfile("char_ram.hex")) u_ram_low(
     .q      ( dout_low )
 );
 
-jtgng_ram #(.aw(10),.simfile("char_ram.hex")) u_ram_high(
+jtgng_ram #(.aw(10),.simfile("char_high.hex")) u_ram_high(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),
@@ -75,7 +75,8 @@ reg half_addr;
 
 // Draw pixel on screen
 reg [15:0] chd;
-reg [4:0] char_attr;
+reg [4:0] char_attr0, char_attr1;
+reg [3:0] char_attr2;
 
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
@@ -83,8 +84,9 @@ always @(posedge clk) if(cen6) begin
     // 4 pixels from processing the x,y,z and attr info.    
     if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
-        char_attr <= dout_high[4:0];
-        char_addr <= { {dout_high[7:6], dout_low}, 
+        char_attr1 <= char_attr0;
+        char_attr0 <= dout_high[4:0];
+        char_addr  <= { {dout_high[7:6], dout_low}, 
             {3{dout_high[5] /*vflip*/ ^ flip}}^V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
@@ -92,7 +94,8 @@ always @(posedge clk) if(cen6) begin
     case( Hfix[2:0] )
         3'd3: begin
             chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
-            char_hflip <= char_attr[4] ^ flip;
+            char_hflip <= char_attr1[4] ^ flip;
+            char_attr2 <= char_attr1[3:0];
         end
         3'd7: 
             chd[7:0] <= chd[15:8];
@@ -108,9 +111,9 @@ always @(posedge clk) if(cen6) begin
                 end
             end
     endcase
-    if( Hfix[2:0]==3'd4 ) char_pal   <= char_attr[3:0]; 
     // 1-pixel delay in order to latch signals:
     char_col <= char_hflip ? { chd[0], chd[4] } : { chd[3], chd[7] };
+    char_pal <= char_attr2; 
 end
 
 endmodule // jtgng_char
