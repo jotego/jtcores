@@ -7,6 +7,10 @@
 ../../hdl/jtgng_m9k.v
 ../../hdl/jtgng_main.v
 ../../hdl/jtgng_obj.v
+../../hdl/jtgng_objdma.v
+../../hdl/jtgng_objbuf.v
+../../hdl/jtgng_objdraw.v
+../../hdl/jtgng_objpxl.v
 ../../hdl/jtgng_ram.v
 ../../hdl/jtgng_rom.v
 ../../hdl/jtgng_scroll.v

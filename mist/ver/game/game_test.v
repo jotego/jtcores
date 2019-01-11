@@ -33,6 +33,7 @@ module game_test;
                 //$display("DUMP starts");
                 $dumpvars(1,game_test.UUT.u_main);
                 $dumpvars(1,game_test.UUT.u_video.u_colmix);
+                //$dumpvars(1,game_test.UUT.u_rom);
                 $dumpvars(1,game_test.UUT.u_video);
                 $dumpvars(1,game_test.UUT.u_video.u_char);
                 //$dumpvars(0,UUT.chargen);
@@ -47,7 +48,11 @@ module game_test;
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
         $shm_probe(UUT.u_main,"A");
-        $shm_probe(UUT.u_sound,"A");
+        $shm_probe(UUT.u_rom,"A");
+        //$shm_probe(UUT.u_sound,"A");
+        $shm_probe(UUT.u_video,"A");
+        $shm_probe(UUT.u_video.u_obj,"AS");
+        // #280_000_000
         // #280_000_000
         // $shm_probe(UUT.u_sound.u_cpu,"AS");
     end

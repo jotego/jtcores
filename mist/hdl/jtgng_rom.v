@@ -25,7 +25,7 @@ module jtgng_rom(
     input       [12:0]  char_addr,
     input       [16:0]  main_addr,
     input       [14:0]  snd_addr,
-    input       [14:0]  obj_addr,
+    input       [15:0]  obj_addr,
     input       [14:0]  scr_addr,
 
     output  reg [15:0]  char_dout,
@@ -125,7 +125,7 @@ always @(posedge clk)
                 4'b??00:    snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
                 4'b??01:    main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
                 4'd2:       char_dout <= data_read;
-                4'd3,4'd10: obj_dout  <= data_read;
+                4'd3,4'd11: obj_dout  <= data_read;
                 4'd6:       scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
                 4'd7:       scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
                 default:;
@@ -143,7 +143,7 @@ always @(posedge clk)
                     main_lsb <= main_addr[0];
                 end
                 4'd2: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
-                4'd3, 4'd10: sdram_addr <=  obj_offset + { 7'b0,  obj_addr }; // 14:0
+                4'd3, 4'd11: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
                 4'd6: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
                 4'd7: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
                 default:;

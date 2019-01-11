@@ -47,7 +47,7 @@ module jtgng_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [14:0]  obj_addr,
+    output      [15:0]  obj_addr,
     input       [15:0]  objrom_data,    
     // Color Mix
     input               LVBL,

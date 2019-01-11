@@ -7,5 +7,7 @@
 sim
 mist/quartus/db
 mist/quartus/incremental_db
+mist/ver/game/.simvision
+mist/ver/game/ncverilog.*
 *.smsg
 *.summary

@@ -169,7 +169,7 @@ jtgng_main u_main(
     .dip_upright    ( dip_upright       )
 );
 
-wire [14:0] obj_addr;
+wire [15:0] obj_addr;
 wire [15:0] obj_dout;
 
 wire [14:0] snd_addr;
