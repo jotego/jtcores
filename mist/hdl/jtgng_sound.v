@@ -130,16 +130,27 @@ tv80s #(.Mode(0)) u_cpu (
     .dout   (dout    )
 );
 
-wire signed [15:0] fm0_snd, fm1_snd;
-wire signed [16:0] fm_sum = fm0_snd + fm1_snd;
+wire signed [15:0] fm0_snd,  fm1_snd;
+wire        [ 9:0] psg0_snd, psg1_snd;
+wire signed [13:0] 
+    psg0_signed = {1'b0, psg0_snd, 2'b0 },
+    psg1_signed = {1'b0, psg1_snd, 2'b0 };
 
-wire [15:0] plus_inf  = { 1'b0, ~15'd0 }; // maximum positive value
-wire [15:0] minus_inf = { 1'b1,  15'd0 }; // minimum negative value
-wire overflow = fm_sum[16] != fm_sum[15];
+jt12_mixer #(.w0(16),.w1(16),.w2(14),.w3(14),.wout(16)) u_mixer(
+    .clk    ( clk          ),
+    .cen    ( cen1p5       ),
+    .ch0    ( fm0_snd      ),
+    .ch1    ( fm1_snd      ),
+    .ch2    ( psg0_signed  ),
+    .ch3    ( psg1_signed  ),
+    .gain0  ( 8'h10        ), // unity gain for FM
+    .gain1  ( 8'h10        ),
+    .gain2  ( 8'h30        ), // larger gain for PSG
+    .gain3  ( 8'h30        ),
+    .mixed  ( ym_snd       )
+);
 
-assign ym_snd = !overflow ? fm_sum[15:0] : (fm_sum[16] ? minus_inf : plus_inf);
-
-jt03 fm0(
+jt03 u_fm0(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk        ),
@@ -148,7 +159,8 @@ jt03 fm0(
     .addr   ( A[0]       ),
     .cs_n   ( ~fm0_cs    ),
     .wr_n   ( wr_n       ),
-    .snd    ( fm0_snd    ),
+    .psg_snd( psg0_snd   ),
+    .fm_snd ( fm0_snd    ),
     .snd_sample ( sample ),
     // unused outputs
     .dout   (),
@@ -156,11 +168,10 @@ jt03 fm0(
     .psg_A  (),
     .psg_B  (),
     .psg_C  (),
-    .psg_snd(),
-    .fm_snd ()
+    .snd    ()
 );
 
-jt03 fm1(
+jt03 u_fm1(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk       ),
@@ -169,15 +180,15 @@ jt03 fm1(
     .addr   ( A[0]      ),
     .cs_n   ( ~fm1_cs   ),
     .wr_n   ( wr_n      ),
-    .snd    ( fm1_snd   ),
+    .psg_snd( psg1_snd  ),
+    .fm_snd ( fm1_snd   ),
     // unused outputs
     .dout   (),
     .irq_n  (),
     .psg_A  (),
     .psg_B  (),
     .psg_C  (),
-    .psg_snd(),    
-    .fm_snd (),
+    .snd    (),
     .snd_sample()
 );
 

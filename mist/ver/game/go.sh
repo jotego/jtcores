@@ -73,7 +73,7 @@ case "$1" in
         ;;
     "-t")
         # is there a file name?
-        if [ "${x:0:1}" != "-" ]; then
+        if [ "${1:0:1}" != "-" ]; then
             shift
             FIRMWARE=$1
             echo "Using firmware $1"
@@ -158,6 +158,7 @@ iverilog)   iverilog ${TOP}.v \
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
         -F ../../../modules/jt12/hdl/jt03.f \
+        ../../../modules/jt12/hdl/mixer/jt12_mixer.v \
         -f game.f \
         ../common/mt48lc16m16a2.v \
         -vhdlext vhdl93 \

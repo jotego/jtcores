@@ -169,6 +169,7 @@ set_global_assignment -name VERILOG_FILE ../hdl/jtgng_dual_ram.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_dual_clk_ram.v
 set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/dac/jt12_dac2.v
+set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sound.v
 set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80s.v
 set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80n.v
