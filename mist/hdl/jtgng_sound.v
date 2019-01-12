@@ -86,12 +86,6 @@ always @(*)
     endcase // {latch_cs,rom_cs,ram_cs}
 
     reg int_n;
-    wire m1_n;
-    wire mreq_n;
-    wire iorq_n;
-    wire rfsh_n;
-    wire halt_n;
-    wire busak_n;
 
 reg lastV32;
 reg [4:0] int_n2;
@@ -109,6 +103,7 @@ always @(posedge clk) if(cen3) begin
     end
 end
 
+`ifdef SIMULATION
 tv80s #(.Mode(0)) u_cpu (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
@@ -117,34 +112,67 @@ tv80s #(.Mode(0)) u_cpu (
     .int_n  (int_n   ),
     .nmi_n  (1'b1    ),
     .busrq_n(1'b1    ),
-    .m1_n   (m1_n    ),
-    .mreq_n (mreq_n  ),
-    .iorq_n (iorq_n  ),
     .rd_n   (rd_n    ),
     .wr_n   (wr_n    ),
-    .rfsh_n (rfsh_n  ),
-    .halt_n (halt_n  ),
-    .busak_n(busak_n ),
     .A      (A       ),
     .di     (din     ),
-    .dout   (dout    )
+    .dout   (dout    ),
+    // unused
+    .iorq_n (),
+    .mreq_n (),
+    .m1_n   (),
+    .busak_n(),
+    .halt_n (),
+    .rfsh_n ()
 );
+`else
+T80pa u_cpu(
+    .RESET_n    ( reset_n ),
+    .CLK        ( clk     ),
+    .CEN_p      ( cen3    ),
+    .CEN_n      ( 1'b1    ),
+    .WAIT_n     ( 1'b1    ),
+    .INT_n      ( int_n   ),
+    .NMI_n      ( 1'b1    ),
+    .BUSRQ_n    ( 1'b1    ),
+    .RD_n       ( rd_n    ),
+    .WR_n       ( wr_n    ),
+    .A          ( A       ),
+    .DI         ( din     ),
+    .DO         ( dout    ),
+    // unused
+    .REG        (),
+    .RFSH_n     (),
+    .IORQ       (),
+    .M1_n       (),
+    .BUSAK_n    (),
+    .HALT_n     (),
+    .MREQ_n     (),
+    .MC         (),
+    .TS         (),
+    .IntCycle_n (),
+    .IntE       (),
+    .Stop       (),
+    .REG        ()
+);
+`endif
+
 
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;
-wire signed [13:0] 
-    psg0_signed = {1'b0, psg0_snd, 2'b0 },
-    psg1_signed = {1'b0, psg1_snd, 2'b0 };
+wire signed [15:0] 
+    psg0_signed = {1'b0, psg0_snd, 4'b0 },
+    psg1_signed = {1'b0, psg1_snd, 4'b0 };
 
-jt12_mixer #(.w0(16),.w1(16),.w2(14),.w3(14),.wout(16)) u_mixer(
+jt12_mixer #(.w0(16),.w1(16),.w2(16),.w3(16),.wout(16)) u_mixer(
     .clk    ( clk          ),
     .cen    ( cen1p5       ),
     .ch0    ( fm0_snd      ),
     .ch1    ( fm1_snd      ),
     .ch2    ( psg0_signed  ),
     .ch3    ( psg1_signed  ),
-    .gain0  ( 8'h10        ), // unity gain for FM
-    .gain1  ( 8'h10        ),
+    .gain0  ( 8'h06        ), // unity gain for FM
+    .gain1  ( 8'h06        ),
     .gain2  ( 8'h30        ), // larger gain for PSG
     .gain3  ( 8'h30        ),
     .mixed  ( ym_snd       )

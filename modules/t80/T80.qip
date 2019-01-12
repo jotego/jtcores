@@ -1,0 +1,5 @@
+set_global_assignment -name VHDL_FILE T80pa.vhd
+set_global_assignment -name VHDL_FILE T80_Reg.vhd
+set_global_assignment -name VHDL_FILE T80_MCode.vhd
+set_global_assignment -name VHDL_FILE T80_ALU.vhd
+set_global_assignment -name VHDL_FILE T80.vhd

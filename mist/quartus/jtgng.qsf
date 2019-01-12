@@ -155,6 +155,11 @@ set_global_assignment -name SEED 0
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name VHDL_FILE ../../modules/t80/T80pa.vhd
+set_global_assignment -name VHDL_FILE ../../modules/t80/T80_Reg.vhd
+set_global_assignment -name VHDL_FILE ../../modules/t80/T80_MCode.vhd
+set_global_assignment -name VHDL_FILE ../../modules/t80/T80_ALU.vhd
+set_global_assignment -name VHDL_FILE ../../modules/t80/T80.vhd
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sdram.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/dac/jt12_dac.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809.v
@@ -171,12 +176,6 @@ set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/dac/jt12_dac2.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sound.v
-set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80s.v
-set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80n.v
-set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80_reg.v
-set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80_mcode.v
-set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80_core.v
-set_global_assignment -name VERILOG_FILE ../../modules/tv80/tv80_alu.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_obj.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_objbuf.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_objdma.v
