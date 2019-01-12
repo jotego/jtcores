@@ -218,9 +218,10 @@ always @(posedge clk) if(cen6) begin
 end
 
 
-
+`ifndef ALT6809
+// cycle accurate core
 wire EXTAL = ~(clk &cen6);
-mc6809 cpu (
+mc6809 u_cpu (
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),
     .ADDR    ( A       ),
@@ -242,6 +243,31 @@ mc6809 cpu (
     .RegData(),
     .AVMA()
 );
+`else 
+// This is cpu09I_128a.vhd core
+// but it doesn't seem to work with the
+// system timings I have. This core is not cycle accurate
+cpu09 u_cpu(
+    .clk     ( clk       ),
+    .ce      ( cen6      ),
+    .rst     ( rst       ),
+    .ba      ( BA        ),
+    .bs      ( BS        ),
+    .addr    (  A        ),
+    .rw      ( RnW       ),
+    .data_out( cpu_dout  ),
+    .data_in ( cpu_din   ),
+    .irq     ( ~nIRQ     ),
+    .firq    ( 1'b0      ),
+    .nmi     ( 1'b0      ),
+    .halt    ( bus_req   ),
+    // unused outputs
+    .vma     (           ),
+    .lic_out (           ),
+    .ifetch  (           ),
+    .opfetch (           )
+);
+`endif
 /*
 `ifndef VERILATOR_LINT
 wire VMA;

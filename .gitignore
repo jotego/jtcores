@@ -4,6 +4,7 @@
 *.rom
 *.wav
 *.fst
+*.bak
 sim
 mist/quartus/db
 mist/quartus/incremental_db
