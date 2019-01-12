@@ -56,6 +56,8 @@ module jtgng_game(
     input           dip_attract_snd,
     input           dip_upright,
     // Sound output
+    input           enable_psg,
+    input           enable_fm,
     output  signed [15:0] ym_snd,
     output          sample
 );
@@ -86,6 +88,8 @@ always @(posedge clk)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
+wire LHBL_obj;
+
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .clk_en    ( cen6     ),
@@ -94,6 +98,7 @@ jtgng_timer u_timer(
     .H         ( H        ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
+    .LHBL_obj  ( LHBL_obj ),
     .LVBL      ( LVBL     ),
     .Vinit     (          )
 );
@@ -187,6 +192,8 @@ jtgng_sound u_sound (
     .rom_addr       ( snd_addr   ),
     .rom_dout       ( snd_dout   ),
     .rom_cs         (            ),
+    .enable_psg     ( enable_psg ),
+    .enable_fm      ( enable_fm  ),
     .ym_snd         ( ym_snd     ),
     .sample         ( sample     ) 
 );
@@ -229,6 +236,7 @@ jtgng_video u_video(
     .objrom_data( obj_dout      ),    
     // Color Mix
     .LHBL       ( LHBL          ),       
+    .LHBL_obj   ( LHBL_obj      ),       
     .LVBL       ( LVBL          ),
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),    

@@ -155,13 +155,13 @@ set_global_assignment -name SEED 0
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name VERILOG_FILE ../../modules/hybrid_pwm_sd.v
 set_global_assignment -name VHDL_FILE ../../modules/t80/T80pa.vhd
 set_global_assignment -name VHDL_FILE ../../modules/t80/T80_Reg.vhd
 set_global_assignment -name VHDL_FILE ../../modules/t80/T80_MCode.vhd
 set_global_assignment -name VHDL_FILE ../../modules/t80/T80_ALU.vhd
 set_global_assignment -name VHDL_FILE ../../modules/t80/T80.vhd
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sdram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/dac/jt12_dac.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809_cen.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_rom.v
@@ -173,7 +173,6 @@ set_global_assignment -name VERILOG_FILE ../hdl/jtgng_true_dual_ram.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_dual_ram.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_dual_clk_ram.v
 set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/dac/jt12_dac2.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sound.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_obj.v

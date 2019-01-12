@@ -31,6 +31,8 @@ module jtgng_sound(
     output          rom_cs,
     input   [ 7:0]  rom_dout,
     // Sound output
+    input   enable_psg,
+    input   enable_fm,
     output  signed [15:0] ym_snd,
     output  sample
 );
@@ -164,6 +166,9 @@ wire signed [15:0]
     psg0_signed = {1'b0, psg0_snd, 4'b0 },
     psg1_signed = {1'b0, psg1_snd, 4'b0 };
 
+wire signed [7:0] psg_gain = enable_psg ? 8'h30 : 8'h0;
+wire signed [7:0]  fm_gain = enable_fm  ? 8'h06 : 8'h0;
+
 jt12_mixer #(.w0(16),.w1(16),.w2(16),.w3(16),.wout(16)) u_mixer(
     .clk    ( clk          ),
     .cen    ( cen1p5       ),
@@ -171,10 +176,10 @@ jt12_mixer #(.w0(16),.w1(16),.w2(16),.w3(16),.wout(16)) u_mixer(
     .ch1    ( fm1_snd      ),
     .ch2    ( psg0_signed  ),
     .ch3    ( psg1_signed  ),
-    .gain0  ( 8'h06        ), // unity gain for FM
-    .gain1  ( 8'h06        ),
-    .gain2  ( 8'h30        ), // larger gain for PSG
-    .gain3  ( 8'h30        ),
+    .gain0  ( fm_gain      ), // unity gain for FM
+    .gain1  ( fm_gain      ),
+    .gain2  ( psg_gain     ), // larger gain for PSG
+    .gain3  ( psg_gain     ),
     .mixed  ( ym_snd       )
 );
 

@@ -61,8 +61,8 @@ parameter CONF_STR = {
         "JTGNG;;",
         "O1,Test mode,OFF,ON;",
         "O2,Cabinet mode,OFF,ON;",
-        "O3, SCR,ON,OFF;",
-        "O4,OBJ ,ON,OFF;",
+        "O3,PSG ,ON,OFF;",
+        "O4,FM  ,ON,OFF;",
         "O5,Screen filter,ON,OFF;",
         "T6,Reset;",
         "V,v0.2;"
@@ -187,15 +187,17 @@ jtgng_game game(
     .romload_addr( romload_addr  ),
     .romload_data( romload_data  ),
     // DEBUG
-    .enable_char ( ~status[3]    ),
-    .enable_scr  ( ~status[3]    ),
-    .enable_obj  ( ~status[4]    ),
+    .enable_char ( 1'b1          ),
+    .enable_scr  ( 1'b1          ),
+    .enable_obj  ( 1'b1          ),
     // DIP switches
     .dip_game_mode  ( ~status[1] ),
     .dip_upright    ( status[2]  ),
     //.dip_flip     ( ~status[3] ),
     .dip_attract_snd( 1'b1       ), // 0 for sound
     // sound
+    .enable_psg  ( ~status[3]    ),
+    .enable_fm   ( ~status[4]    ),
     .ym_snd      ( ym_snd        ),
     .sample      (               )
 );
@@ -203,8 +205,15 @@ jtgng_game game(
 wire clk_dac = clk_rom;
 assign AUDIO_R = AUDIO_L;
 
-jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
-
+// jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
+//jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
+hybrid_pwm_sd u_dac
+(
+    .clk    ( clk_dac   ),
+    .n_reset( ~rst      ),
+    .din    ( {~ym_snd[15], ym_snd[14:0]}    ),
+    .dout   ( AUDIO_L   )
+);
 
 wire [5:0] GNG_R, GNG_G, GNG_B;
 

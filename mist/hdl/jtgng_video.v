@@ -52,6 +52,7 @@ module jtgng_video(
     // Color Mix
     input               LVBL,
     input               LHBL,       
+    input               LHBL_obj,       
     input               blue_cs,
     input               redgreen_cs,    
     input               enable_char,
@@ -70,8 +71,10 @@ wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
 
+localparam scrchr_off = 5;
+
 `ifndef NOCHAR
-jtgng_char #(.Hoffset(5)) u_char (
+jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
@@ -93,7 +96,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.Hoffset(5)) u_scroll (
+jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
@@ -162,7 +165,7 @@ jtgng_obj u_obj (
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LHBL       ( LHBL        ),
+    .LHBL       ( LHBL_obj    ),
     .LVBL       ( LVBL        ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),

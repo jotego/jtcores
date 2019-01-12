@@ -25,8 +25,11 @@ module jtgng_timer(
     output  reg         Hinit,
     output  reg         Vinit,
     output  reg         LHBL,
+    output  reg         LHBL_obj,
     output  reg         LVBL
 );
+
+parameter obj_offset=10'd3;
 
 //reg LHBL_short;
 //reg G4_3H;  // high on 3/4 H transition
@@ -54,10 +57,15 @@ always @(posedge clk) begin
     end
 end
 
+wire [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd135-obj_offset+10'd512-10'd128;
+wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
+
 // L Horizontal/Vertical Blanking
 always @(posedge clk) 
     if( rst ) LVBL <= 1'b0;
     else if(clk_en) begin
+        if( H==LHBL_obj1 ) LHBL_obj<=1'b1;
+        if( H==LHBL_obj0 ) LHBL_obj<=1'b0;
         if( &H[2:0] ) begin
             LHBL <= H[8];
         // LHBL <= H>=256;

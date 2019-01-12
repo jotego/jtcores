@@ -127,20 +127,19 @@ always @(posedge clk)
                 end
             end
             FILL: begin
-                pre_scan <= pre_scan + 1'b1;
-                if( pre_scan[1:0]==2'b11 ) post_scan <= post_scan - 1'b1;
-                trf_next <= FILL;
+                trf_state <= WAIT;
                 if( &pre_scan[1:0] && post_scan==5'd8 ) begin
-                    pre_scan <= 9'd2;
                     post_scan<= 5'd31;
-                    fill <= 1'd0;
-                    trf_state <= WAIT;
+                    pre_scan <= 9'd2;
                     trf_next <= SEARCH;
                     line_obj_we <= 1'b0;
+                    fill <= 1'd0;
                 end
                 else begin
+                    if( pre_scan[1:0]==2'b11 ) post_scan <= post_scan - 1'b1;
+                    pre_scan <= pre_scan + 1'b1;
+                    trf_next <= FILL;
                     line_obj_we <= 1'b0;
-                    trf_state <= WAIT;
                 end
             end
         endcase

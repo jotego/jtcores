@@ -145,9 +145,9 @@ clear_hex_file obj_buf  128
 python char_msg.py
 
 case $SIMULATOR in
-iverilog)   iverilog ${TOP}.v \
+iverilog)   iverilog -g2005-sv ${TOP}.v \
         $(add_dir ../../../modules/jt12/hdl jt03.f) \
-        ../../hdl/*.v \
+        -f game.f \
         ../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
         ../../../modules/mc6809/mc6809{,i}.v \
         ../../../modules/tv80/*.v $MIST \

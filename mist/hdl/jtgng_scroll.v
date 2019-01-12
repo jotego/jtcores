@@ -33,10 +33,26 @@ module jtgng_scroll(
     // ROM
     output reg  [14:0] scr_addr,
     input       [23:0] scrom_data,
-    output reg  [ 2:0] scr_pal,
-    output reg  [ 2:0] scr_col,
-    output reg         scrwin
+    output      [ 2:0] scr_pal,
+    output      [ 2:0] scr_col,
+    output             scrwin
 );
+
+reg [2:0] scr_pal0, scr_col0;
+reg scrwin0;
+
+assign scr_pal = scr_pal0;
+assign scr_col = scr_col0;
+assign scrwin  = scrwin0;
+
+// align with sprites
+// jtgng_sh #(.width(7), .stages(4)) u_sh (
+//     .clk    ( clk    ), 
+//     .clk_en ( cen6   ), 
+//     .din    ( {scrwin0, scr_pal0, scr_col0} ), 
+//     .drop   ( {scrwin,  scr_pal,  scr_col } )   
+// );
+
 
 parameter Hoffset=9'd5;
 
@@ -139,9 +155,9 @@ always @(posedge clk) if(cen6) begin
                 z <= {z[6:0], 1'b0};
             end
         end
-    scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-    scr_pal   <= scr_attr2[2:0];
-    scrwin    <= scr_attr2[3]; 
+    scr_col0  <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    scr_pal0  <= scr_attr2[2:0];
+    scrwin0   <= scr_attr2[3]; 
 end
 
 endmodule // jtgng_scroll
