@@ -98,7 +98,7 @@ always @(posedge clk_rgb)
     if( rst ) begin
         wr_addr <= 8'd0;
         wr_sel <= 1'b0;     
-    end else /*if(cen6)*/ begin
+    end else begin
         last_LHBL <= LHBL;  
         if( !LHBL ) begin
             wr_addr <= 8'd0;
