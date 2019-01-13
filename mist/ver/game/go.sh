@@ -72,8 +72,8 @@ case "$1" in
         echo Firmware dump only
         ;;
     "-t")
-        # is there a file name?
-        if [ "${1:0:1}" != "-" ]; then
+        # is there a file name?        
+        if [ "${2:0:1}" != "-" ]; then
             shift
             FIRMWARE=$1
             echo "Using firmware $1"
