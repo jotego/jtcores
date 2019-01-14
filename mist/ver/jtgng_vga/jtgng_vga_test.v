@@ -20,7 +20,7 @@ module jtgng_vga_test;
     initial begin
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
-        $shm_probe(UUT,"AS");
+        $shm_probe(jtgng_vga_test,"AS");
     end
 `endif
 
@@ -91,11 +91,12 @@ reg [3:0] red=4'd0, green=4'd0, blue=4'd0;
 wire [4:0] vga_red;
 wire [4:0] vga_green;
 wire [4:0] vga_blue;
+wire LHBL, LVBL;
 
 always @(posedge clk_rgb) if(cen6) begin
-    red   <= red   + ($random%2);
-    green <= green + ($random%2);
-    blue  <= blue  + ($random%2);
+    red   <= LHBL&&LVBL ? (red   + (($random%4)==3 ? 1 : 0)) : 0;
+    green <= LHBL&&LVBL ? (green + (($random%4)==3 ? 1 : 0)) : 0;
+    blue  <= LHBL&&LVBL ? (blue  + (($random%4)==3 ? 1 : 0)) : 0;
 end
 
 `define SIM_SYNCONLY

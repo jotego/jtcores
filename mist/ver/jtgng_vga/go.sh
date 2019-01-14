@@ -30,7 +30,7 @@ case $SIMULATOR in
             && sim -lxt;;
     NCVERILOG)
         ncverilog +access+r +nc64bit +define+NCVERILOG \
-            jtgng_vga_test.v ../../hdl/jtgng_{vga,timer,cen,pll0,dual_clk_ram}.v \
+            jtgng_vga_test.v ../../hdl/jtgng_{vga,vgapxl,timer,cen,pll0,dual_clk_ram}.v \
             ../common/altera_mf.v \
             +define+SIMULATION;;
     *)

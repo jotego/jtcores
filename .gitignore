@@ -5,6 +5,7 @@
 *.wav
 *.fst
 *.bak
+*.lst
 sim
 mist/quartus/db
 mist/quartus/incremental_db
@@ -12,3 +13,5 @@ mist/ver/game/.simvision
 mist/ver/game/ncverilog.*
 *.smsg
 *.summary
+INCA_libs
+test.shm
