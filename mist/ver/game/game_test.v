@@ -20,10 +20,10 @@ module game_test;
         $dumpfile("test.lxt");
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.u_main);
-            $dumpvars(1,game_test.UUT.u_sound);
-            $dumpvars(1,game_test.UUT.u_rom);
-            $dumpvars(1,game_test);
-            $dumpvars(1,game_test.datain);
+            $dumpvars(1,game_test.UUT.u_video.u_obj);
+            //$dumpvars(1,game_test.UUT.u_rom);
+            //$dumpvars(1,game_test);
+            //$dumpvars(1,game_test.datain);
             // $dumpvars(0,game_test);
             $dumpon;
         `else
@@ -171,6 +171,8 @@ jtgng_game UUT (
     .enable_char( 1'b1          ),
     .enable_obj ( 1'b1          ),
     .enable_scr ( 1'b1          ),
+    .enable_psg ( 1'b1          ),
+    .enable_fm  ( 1'b1          ),
     // DIP switches
     //.dip_flip     (   1'b0    ),
     .dip_game_mode  (   1'b0    ),
