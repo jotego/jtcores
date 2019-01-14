@@ -2,75 +2,100 @@
 
 module jtgng_vga_test;
 
+`ifndef NCVERILOG
+    initial begin
+        $dumpfile("test.lxt");
+        `ifndef SIMPLL
+        $dumpvars;
+        `else 
+        //$dumpvars;
+        $dumpvars(0,UUT);
+        $dumpvars(0,timer);
+        $dumpvars(0,clk_rom);
+        $dumpvars(0,clk_rgb);
+        `endif
+        $dumpon;
+    end
+`else
+    initial begin
+        $display("NC Verilog: will dump all signals");
+        $shm_open("test.shm");
+        $shm_probe(UUT,"AS");
+    end
+`endif
+
 initial begin
-	$dumpfile("test.lxt");
-	`ifndef SIMPLL
-	$dumpvars;
-	`else 
-	//$dumpvars;
-	$dumpvars(0,UUT);
-	$dumpvars(0,timer);
-	$dumpvars(0,clk_rom);
-	$dumpvars(0,clk_rgb);
-	`endif
-	$dumpon;
-	//#(50*1000*1000) $finish;	
-	#(4*1000*1000) $finish;	
+    #(4*1000*1000) $finish; 
 end
 
 reg rst;
 
 initial begin
-	rst = 0;
-	#10 rst=1;
-	#800 rst = 0;
+    rst = 0;
+    #10 rst=1;
+    #800 rst = 0;
 end
 
 `ifndef SIMPLL
-reg clk_gng;
+reg clk_rgb;
 reg clk_vga;
 
 initial begin
-	clk_vga = 1'b0;
-	//forever #20 clk_vga = ~clk_vga; // 25MHz
-	forever #20.063 clk_vga = ~clk_vga; // 25MHz
+    clk_vga = 1'b0;
+    forever #20.063 clk_vga = ~clk_vga; // 25MHz
 end
 
 initial begin
-	clk_gng = 1'b0;
-	forever #83.340 clk_gng = ~clk_gng; // 6MHz
+    clk_rgb = 1'b0;
+    forever #20.833 clk_rgb = ~clk_rgb; // 24 MHz
 end
 `else
 reg clk27;
 wire clk_rom; // 81
-wire clk_gng; //  6
 wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
 
 initial begin
-	clk27 = 1'b0;
-	forever #18.52 clk27 = ~clk27; // 27MHz
+    clk27 = 1'b0;
+    forever #18.52 clk27 = ~clk27; // 27MHz
 end
 
 jtgng_pll0 clk_gen (
-	.inclk0	( clk27 	),
-	.c0		( clk_gng	), //  6
-	.c1		( clk_rgb	), // 36
-	.c2		( clk_rom	), // 81
-	.c3		( clk_vga	), // 24.923, would prefer 25.0!!
-	.locked	( locked	)
+    .inclk0 ( clk27     ),
+    .c1     ( clk_rgb   ), //  6
+    .c2     ( clk_rom   ), // 36
+    .locked ( locked    )
 );
+
+
+jtgng_pll1 clk_gen2 (
+    .inclk0 ( clk_rgb   ),
+    .c0     ( clk_vga   ) // 25
+);
+
 `endif
-reg [3:0] red, green, blue;
+
+
+wire cen6, cen3, cen1p5;
+
+jtgng_cen u_cen(
+    .clk    ( clk_rgb   ),    // 24 MHz
+    .cen6   ( cen6      ),
+    .cen3   ( cen3      ),
+    .cen1p5 ( cen1p5    )
+);
+
+
+reg [3:0] red=4'd0, green=4'd0, blue=4'd0;
 wire [4:0] vga_red;
 wire [4:0] vga_green;
 wire [4:0] vga_blue;
 
-always @(posedge clk_gng) begin
-	red   <= $random%16;
-	green <= $random%16;
-	blue  <= $random%16;
+always @(posedge clk_rgb) if(cen6) begin
+    red   <= red   + ($random%2);
+    green <= green + ($random%2);
+    blue  <= blue  + ($random%2);
 end
 
 `define SIM_SYNCONLY
@@ -80,33 +105,35 @@ wire [8:0] V;
 wire [8:0] H;
 
 jtgng_timer timer (
-	.clk  (clk_gng),
-	.rst  (rst    ),
-	.V    (V      ),
-	.H    (H      ),
-	.Hinit(Hinit  ),
-	.LHBL (LHBL   ),
-	.LVBL (LVBL   ),
-	.G4_3H(G4_3H  ),
-	.G4H  (G4H    ),
-	.OH   (OH     )
+    .clk      (clk_rgb),
+    .clk_en   (cen6   ),
+    .rst      (rst    ),
+    .V        (V      ),
+    .H        (H      ),
+    .Hinit    (Hinit  ),
+    .LHBL     (LHBL   ),
+    .LVBL     (LVBL   ),
+    .LHBL_obj (),
+    .Vinit    ()    
 );
 
 
 jtgng_vga UUT (
-	.clk_gng  (clk_gng  ),
-	.clk_vga  (clk_vga  ),
-	.rst      (rst      ),
-	.red      (red      ),
-	.green    (green    ),
-	.blue     (blue     ),
-	.LHBL     (LHBL     ),
-	.LVBL     (LVBL     ),
-	.vga_red  (vga_red  ),
-	.vga_green(vga_green),
-	.vga_blue (vga_blue ),
-	.vga_hsync(vga_hsync),
-	.vga_vsync(vga_vsync)
+    .clk_rgb  (clk_rgb  ),
+    .cen6     (cen6     ),
+    .clk_vga  (clk_vga  ),
+    .en_mixing( 1'b1    ),
+    .rst      (rst      ),
+    .red      (red      ),
+    .green    (green    ),
+    .blue     (blue     ),
+    .LHBL     (LHBL     ),
+    .LVBL     (LVBL     ),
+    .vga_red  (vga_red  ),
+    .vga_green(vga_green),
+    .vga_blue (vga_blue ),
+    .vga_hsync(vga_hsync),
+    .vga_vsync(vga_vsync)
 );
 
 

@@ -40,26 +40,49 @@ reg [7:0] wr_addr, rd_addr;
 reg wr_sel, rd_sel;
 reg double;
 
-wire [3:0] buf_red, buf_green, buf_blue;
+wire [3:0] buf_r, buf_g, buf_b;
 
-wire [5:0] mix_red   = vga_red   + {buf_red,   buf_red[3]  };
-wire [5:0] mix_blue  = vga_blue  + {buf_blue,  buf_blue[3] };
-wire [5:0] mix_green = vga_green + {buf_green, buf_green[3]};
 
-always @(posedge clk_vga) 
-    if( double || !en_mixing ) begin
-        vga_blue <= {buf_blue, buf_blue[3]};
-        vga_red  <= {buf_red, buf_red[3]};
-        vga_green<= {buf_green, buf_green[3]};
+reg [4:0] prescan_b, prescan_r, prescan_g;
+reg scanline;
+reg [3:0] last_r, last_g, last_b;
+
+function [4:0] ext; // extends by duplicating MSB
+    input [3:0] a;
+    ext = { a, a[3] };
+endfunction
+
+wire [5:0] mix_r = ext(last_r) + ext(buf_r);
+wire [5:0] mix_g = ext(last_g) + ext(buf_g);
+wire [5:0] mix_b = ext(last_b) + ext(buf_b);
+
+always @(posedge clk_vga) begin
+    {last_r, last_g, last_b} <= { buf_r, buf_g, buf_b };
+    // pixel mixing
+    if( !double || !en_mixing ) begin
+        prescan_r <= ext(buf_r);
+        prescan_g <= ext(buf_g);
+        prescan_b <= ext(buf_b);
     end
     else begin
-        vga_blue <= mix_blue[5:1];
-        vga_red  <= mix_red[5:1];
-        vga_green<= mix_green[5:1];
+        prescan_r <= mix_r[5:1];
+        prescan_g <= mix_g[5:1];
+        prescan_b <= mix_b[5:1];
     end
+    // 25% less bright scan lines = scale by 3/4
+    vga_red   <= prescan_r;
+    vga_green <= prescan_g;
+    vga_blue  <= prescan_b;
+    // vga_red   <= scanline ? 
+    //     ({1'b0,prescan_r,1'b0} + {2'b0, prescan_r}) >> 2 : prescan_r;
+    // vga_green <= scanline ? 
+    //     ({1'b0,prescan_g,1'b0} + {2'b0, prescan_g}) >> 2 : prescan_g;
+    // vga_blue  <= scanline ? 
+    //     ({1'b0,prescan_b,1'b0} + {2'b0, prescan_b}) >> 2 : prescan_b;
+end
 
 //`ifndef SIM_SYNCONLY
-jtgng_dual_clk_ram buf_rg (
+jtgng_dual_clk_ram ram_rg (
     .addr_a  ( {wr_sel, 1'b0, wr_addr} ),
     .addr_b  ( {rd_sel, 1'b0, rd_addr} ),
     .clka    ( clk_rgb                 ),
@@ -70,13 +93,13 @@ jtgng_dual_clk_ram buf_rg (
     .data_b  ( {red,green}             ), // unused
     .we_a    ( 1'b1                    ),
     .we_b    ( 1'b0                    ),
-    .q_b     ( {buf_red, buf_green}    ),
+    .q_b     ( {buf_r, buf_g}          ),
     .q_a     (                         )
 );
 
 wire [3:0] nc;
 
-jtgng_dual_clk_ram buf_b (
+jtgng_dual_clk_ram ram_b (
     .addr_a  ( {wr_sel, 1'b1, wr_addr} ),
     .addr_b  ( {rd_sel, 1'b1, rd_addr} ),
     .clka    ( clk_rgb                 ),
@@ -87,7 +110,7 @@ jtgng_dual_clk_ram buf_b (
     .data_b  ( {4'b0, blue}            ), // unused
     .we_a    ( 1'b1                    ),
     .we_b    ( 1'b0                    ),
-    .q_b     ( {nc,buf_blue}           ),
+    .q_b     ( {nc,buf_b}              ),
     .q_a     (                         )    
 );
 //`endif
@@ -137,12 +160,13 @@ always @(posedge clk_vga) begin
         state <= SYNC;
         cnt <= 7'd96;
         centre_done <= 1'b0;
-        wait_hsync <= 1'b0;
-        vsync_cnt  <= 1'b0;
-        vga_vsync  <= 1'b1;
-        vga_hsync  <= 1'b1;
-        rd_sel_aux <= 1'b0;
-        rd_sel <= 1'b0;     
+        wait_hsync  <= 1'b0;
+        vsync_cnt   <= 1'b0;
+        vga_vsync   <= 1'b1;
+        vga_hsync   <= 1'b1;
+        rd_sel_aux  <= 1'b0;
+        rd_sel      <= 1'b0;   
+        scanline    <= 1'b0; 
     end
     else 
     case( state )
@@ -168,11 +192,12 @@ always @(posedge clk_vga) begin
             vga_hsync <= 1'b1;
             cnt <= cnt - 1'b1;
             if( cnt==7'd0 ) begin
-                state<=LINE;
-                double<=1'b0;
-                finish<=1'b0;
-                cnt   <=7'd63;
+                state       <=LINE;
+                double      <=1'b0;
+                finish      <=1'b0;
+                cnt         <=7'd63;
                 centre_done <= 1'b0;
+                scanline    <= ~scanline;
             end
         end
         LINE: begin
