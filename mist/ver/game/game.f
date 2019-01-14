@@ -20,6 +20,7 @@
 ../../hdl/jtgng_timer.v
 ../../hdl/jtgng_true_dual_ram.v
 ../../hdl/jtgng_vga.v
+../../hdl/jtgng_vgapxl.v
 ../../hdl/jtgng_video.v
 ../../hdl/data_io.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v

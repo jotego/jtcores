@@ -191,6 +191,7 @@ set_global_assignment -name VERILOG_FILE ../hdl/jtgng_pll0.v
 set_global_assignment -name QIP_FILE ../hdl/jtgng_pll0.qip
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_mist.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_vga.v
+set_global_assignment -name VERILOG_FILE ../hdl/jtgng_vgapxl.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_timer.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_main.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_m9k.v
