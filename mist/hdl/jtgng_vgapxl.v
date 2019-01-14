@@ -21,7 +21,7 @@ module jtgng_vgapxl(
     input         double, 
     input         en_mix, 
     input  [11:0] rgb_in, 
-    input  [14:0] rgb_out
+    output  [14:0] rgb_out
 );
 
 function [4:0] ext; // extends by duplicating MSB
