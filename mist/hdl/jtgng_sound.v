@@ -162,24 +162,35 @@ T80pa u_cpu(
 
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;
-wire signed [15:0] 
-    psg0_signed = {1'b0, psg0_snd, 4'b0 },
-    psg1_signed = {1'b0, psg1_snd, 4'b0 };
+wire        [10:0] psg01 = psg0_snd + psg1_snd;
+// wire signed [15:0] 
+//     psg0_signed = {1'b0, psg0_snd, 4'b0 },
+//     psg1_signed = {1'b0, psg1_snd, 4'b0 };
 
-wire signed [7:0] psg_gain = enable_psg ? 8'h30 : 8'h0;
+wire signed [10:0] psg2x; // DC-removed version of psg01
+
+jt49_dcrm2 #(.sw(11)) u_dcrm (
+    .clk    (  clk    ),
+    .cen    (  cen1p5 ),
+    .rst    (  rst    ),
+    .din    (  psg01  ),
+    .dout   (  psg2x  )
+);
+
+wire signed [7:0] psg_gain = enable_psg ? 8'hd0 : 8'h0;
 wire signed [7:0]  fm_gain = enable_fm  ? 8'h06 : 8'h0;
 
-jt12_mixer #(.w0(16),.w1(16),.w2(16),.w3(16),.wout(16)) u_mixer(
+jt12_mixer #(.w0(16),.w1(16),.w2(13),.w3(8),.wout(16)) u_mixer(
     .clk    ( clk          ),
     .cen    ( cen1p5       ),
     .ch0    ( fm0_snd      ),
     .ch1    ( fm1_snd      ),
-    .ch2    ( psg0_signed  ),
-    .ch3    ( psg1_signed  ),
+    .ch2    ( {psg2x, 2'b0}),
+    .ch3    ( 8'd0         ),
     .gain0  ( fm_gain      ), // unity gain for FM
     .gain1  ( fm_gain      ),
     .gain2  ( psg_gain     ), // larger gain for PSG
-    .gain3  ( psg_gain     ),
+    .gain3  ( 8'd0         ),
     .mixed  ( ym_snd       )
 );
 
