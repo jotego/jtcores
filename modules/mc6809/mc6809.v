@@ -38,7 +38,6 @@ module mc6809(
     input   nDMABREQ
     
     , output  [111:0] RegData
-    , output AVMA
 
     );
 
@@ -49,7 +48,7 @@ assign CLK=EXTAL;
 
 wire   LIC;
 wire   BUSY;
-// wire   AVMA;
+wire   AVMA;
 reg    rE;
 reg    rQ;
 assign E = rE;

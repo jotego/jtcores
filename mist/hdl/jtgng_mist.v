@@ -202,8 +202,24 @@ jtgng_game game(
     .sample      (               )
 );
 
-wire clk_dac = clk_rom;
+wire clk_dac = status[2] ? clk_rom : clk_rgb;
 assign AUDIO_R = AUDIO_L;
+wire signed [15:0] ym_predac;
+
+jt12_interpol #(
+    .n(2),    // number of stages
+    .m(2),    // depth of comb filter
+    .rate(2)  // it will stuff with as many as (rate-1) zeros
+) u_interpol(
+    .rst    ( rst       ),
+    .clk    ( clk_rgb   ),
+    .cen_in ( cen3      ),
+    .cen_out( 1'b1      ),
+    .snd_in ( ym_snd    ),
+    .snd_out( ym_predac )
+);
+
+wire signed [15:0] dacmux = ~status[5] ? ym_predac : ym_snd;
 
 // jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 //jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
@@ -211,7 +227,7 @@ hybrid_pwm_sd u_dac
 (
     .clk    ( clk_dac   ),
     .n_reset( ~rst      ),
-    .din    ( {~ym_snd[15], ym_snd[14:0]}    ),
+    .din    ( {~dacmux[15], dacmux[14:0]}    ),
     .dout   ( AUDIO_L   )
 );
 

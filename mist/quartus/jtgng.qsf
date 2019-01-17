@@ -155,6 +155,8 @@ set_global_assignment -name SEED 0
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_comb.v
+set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_interpol.v
 set_global_assignment -name VERILOG_FILE ../../../jt12/jt49/hdl/filter/jt49_dcrm2.v
 set_global_assignment -name VHDL_FILE ../../modules/cpu09l_128a.vhd
 set_global_assignment -name VERILOG_FILE ../../modules/hybrid_pwm_sd.v

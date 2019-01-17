@@ -1918,7 +1918,12 @@ begin
                         else
                             tmp_nxt[3:0] = 4'H0;
                             
-                        {cc_nxt[CC_C_BIT], a_nxt} = {1'b0, a} + tmp_nxt[7:0];
+                        // DAA handles carry in the weirdest way.  
+                        // If it's already set, it remains set, even if carry-out is 0.
+                        // If it wasn't set, but the output of the operation is set, carry-out gets set.
+                        {tmp_nxt[8], a_nxt} = {1'b0, a} + tmp_nxt[7:0];
+                        
+                        cc_nxt[CC_C_BIT] = cc_nxt[CC_C_BIT] | tmp_nxt[8];
 
                         cc_nxt[CC_N_BIT] = a_nxt[7];
                         cc_nxt[CC_Z_BIT] = (a_nxt == 8'H00);
