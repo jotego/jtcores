@@ -56,7 +56,7 @@ wire locked;
 
 
 parameter CONF_STR = {
-    //   000000000111111111122222222222
+    //   000000000111111111122222222223
     //   123456789012345678901234567890
         "JTGNG;;",
         "O1,Test mode,OFF,ON;",
@@ -65,10 +65,10 @@ parameter CONF_STR = {
         "O4,FM  ,ON,OFF;",
         "O5,Screen filter,ON,OFF;",
         "T6,Reset;",
-        "V,v0.2;"
+        "V,http://patreon.com/topapate;"
 };
 
-parameter CONF_STR_LEN = 7+20+23+15+15+24+9+7;
+parameter CONF_STR_LEN = 7+20+23+15+15+24+9+30;
 
 reg rst = 1'b1;
 
@@ -91,6 +91,11 @@ data_io datain (
 );
 
 wire [7:0] status, joystick1, joystick2; //, joystick;
+reg [7:0] joy1_sync, joy2_sync;
+always @(posedge clk_rgb) begin
+    joy1_sync <= ~joystick1;
+    joy2_sync <= ~joystick2;
+end
 
 // assign joystick = joystick_0; // | joystick_1;
 
@@ -169,8 +174,8 @@ jtgng_game game(
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
 
-    .joystick1   ( ~joystick1    ),
-    .joystick2   ( ~joystick2    ),
+    .joystick1   ( joy1_sync     ),
+    .joystick2   ( joy2_sync     ),
 
     .SDRAM_DQ    ( SDRAM_DQ      ),
     .SDRAM_A     ( SDRAM_A       ),
@@ -202,24 +207,10 @@ jtgng_game game(
     .sample      (               )
 );
 
+// more resolution for sound when screen is filtered too
+// not really important...
 wire clk_dac = status[2] ? clk_rom : clk_rgb;
 assign AUDIO_R = AUDIO_L;
-wire signed [15:0] ym_predac;
-
-jt12_interpol #(
-    .n(2),    // number of stages
-    .m(2),    // depth of comb filter
-    .rate(2)  // it will stuff with as many as (rate-1) zeros
-) u_interpol(
-    .rst    ( rst       ),
-    .clk    ( clk_rgb   ),
-    .cen_in ( cen3      ),
-    .cen_out( 1'b1      ),
-    .snd_in ( ym_snd    ),
-    .snd_out( ym_predac )
-);
-
-wire signed [15:0] dacmux = ~status[5] ? ym_predac : ym_snd;
 
 // jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 //jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
@@ -227,7 +218,7 @@ hybrid_pwm_sd u_dac
 (
     .clk    ( clk_dac   ),
     .n_reset( ~rst      ),
-    .din    ( {~dacmux[15], dacmux[14:0]}    ),
+    .din    ( {~ym_snd[15], ym_snd[14:0]}    ),
     .dout   ( AUDIO_L   )
 );
 

@@ -11,20 +11,12 @@ if len(sys.argv) > 1:
 else:
     game="gngt"
 
-fo = open('jtgng.rom','wb')
+fo = open('JTGNG.rom','wb')
 
 def append_file( file_list ):
     for fname in file_list:
         with open(fname,'rb') as f:
             fo.write( f.read() )
-
-def read_all( file_list ):
-    bufall=[]
-    for fname in file_list:
-        with open(fname,'rb') as f:
-            buf = f.read()
-            bufall.append(buf)
-    return bufall
 
 def byte_merge( file_list ):    
     with open(file_list[0],'rb') as flsb:
@@ -32,13 +24,8 @@ def byte_merge( file_list ):
     with open(file_list[1],'rb') as fmsb:
         bmsb = fmsb.read()
     for k in range(len(blsb)):
-        fo.write( bmsb[k] )
         fo.write( blsb[k] )
-
-def byte_merge_buf( lsb, msb ):
-    for k in range(len(lsb)):
-        fo.write(msb[k])
-        fo.write(lsb[k])
+        fo.write( bmsb[k] )
 
 def append_dup( filename ):
     with open(filename,'rb') as f:
@@ -125,18 +112,17 @@ elif game == "gngt":
         'romx12'    :'mm12.1l' }
 
 append_file( [roms['rom8n'], roms['rom10n'], roms['rom12n']] )
-print "Sound starts at "
+# print "Sound starts at "
 append_file( [roms['audio']] )
-print "Char starts at "
+# print "Char starts at "
 append_file( [roms['rom_char']] )
-print "Scroll starts at "
+# print "Scroll starts at "
 byte_merge( [roms['romx9'], roms['romx7']])
 byte_merge( [roms['romx8'], roms['romx6']])
-print "Scroll upper 8 bits at "
+# print "Scroll upper 8 bits at "
 append_dup( roms['romx11'])
 append_dup( roms['romx10'])
-print "Object starts at "
-n31 = read_all( [roms['romx17'], roms['romx16'], roms['romx15']] )
-l31 = read_all( [roms['romx14'], roms['romx13'], roms['romx12']] )
-byte_merge_buf( n31, l31 )
-print "File length"
+# print "Object starts at "
+byte_merge( [roms['romx17'], roms['romx14']])
+byte_merge( [roms['romx16'], roms['romx13']])
+byte_merge( [roms['romx15'], roms['romx12']])
