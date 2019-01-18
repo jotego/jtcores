@@ -1,6 +1,10 @@
 JT_GNG FPGA Clone of Ghosts'n Goblins by Jose Tejada (@topapate)
 ================================================================
 
+You can show your appreciation through
+    * Patreon: https://patreon.com/topapate
+    * Paypal: https://paypal.me/topapate
+
 Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST is here to the rescue.
 
 What you get with this is an extremely accurate (allegedly 100% accurate) clone of the original hardware. You will notice differences from MAME if you compare. Try resetting it and compare those screens for a start! Original hardware handled sound and graphics in a different way from the emulator. There were delays in CPU bus access and other details that will make the experience different from an emulator. Of course, no pause. Just like the real thing!
@@ -64,6 +68,12 @@ Extras
 ======
 
 You can press F12 to bring the OSD menu up. You can turn off music, or sound effects with it. By default, a screen filter makes the screen look closer to an old tube monitor. If you turn it off you will get sharp pixels. Note that if you switch from sharp to soft pixels you will need a couple of seconds to get your eyes used as the brain initially perceives this as an out of focus image compared to the old one.
+
+Sound
+=======
+Original filter for sound:
+    -high pass filter with cut-off freq. at 1.6Hz
+    -low pass filter with cut-off freq. at 32.3kHz
 
 Credits
 =======
