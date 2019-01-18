@@ -47,10 +47,16 @@ module game_test;
     initial begin
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
-        $shm_probe(UUT.u_main,"A");
-        $shm_probe(UUT.u_rom,"A");
-        $shm_probe(UUT.u_sound,"A");
-        $shm_probe(UUT.u_sound.u_mixer,"A");
+        `ifdef DEEPDUMP
+            $shm_probe(game_test,"AS");
+        `else        
+            $shm_probe(UUT.u_main,"A");
+            $shm_probe(UUT.u_rom,"A");
+            `ifndef NOSOUND
+            $shm_probe(UUT.u_sound,"A");
+            $shm_probe(UUT.u_sound.u_mixer,"A");
+            `endif
+        `endif
         // $shm_probe(UUT.u_video,"A");
         // $shm_probe(UUT.u_video.u_obj,"AS");
         // #280_000_000

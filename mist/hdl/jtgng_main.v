@@ -221,6 +221,8 @@ end
 `ifndef ALT6809
 // cycle accurate core
 wire EXTAL = ~(clk &cen6);
+wire [111:0] RegData;
+wire E;
 mc6809 u_cpu (
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),
@@ -238,11 +240,40 @@ mc6809 u_cpu (
     .nDMABREQ( 1'b1    ),
     // unused:
     .XTAL    ( 1'b0    ),
-    .E(),
+    .E       ( E       ),
     .Q(),
-    .RegData(),
-    .AVMA()
+    .RegData ( RegData )
+    //.AVMA()
 );
+`ifdef SIMULATION
+wire [ 7:0] reg_a  = RegData[7:0];
+wire [ 7:0] reg_b  = RegData[15:8];
+wire [15:0] reg_x  = RegData[31:16];
+wire [15:0] reg_y  = RegData[47:32];
+wire [15:0] reg_s  = RegData[63:48];
+wire [15:0] reg_u  = RegData[79:64];
+wire [ 7:0] reg_cc = RegData[87:80];
+wire [ 7:0] reg_dp = RegData[95:88];
+wire [15:0] reg_pc = RegData[111:96];
+reg [95:0] last_regdata;
+
+integer fout;
+integer ticks=0, last_ticks=0;
+initial begin
+    fout = $fopen("m6809.log","w");    
+end
+always @(negedge E) begin
+    last_regdata <= RegData[95:0];
+    ticks <= ticks+1;
+    if( last_regdata != RegData[95:0] ) begin
+        $fwrite(fout,"%d,%X, %X,%X,%X,%X,%X,%X,%X,%X,%X\n", 
+            ticks-last_ticks, nIRQ,
+            reg_pc, reg_cc, reg_dp, reg_x, reg_y, reg_s, reg_u,
+            reg_a, reg_b);
+        last_ticks <= ticks;
+    end
+end
+`endif
 `else 
 // This is cpu09I_128a.vhd core
 // but it doesn't seem to work with the

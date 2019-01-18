@@ -51,7 +51,7 @@ case "$1" in
         MIST=../../../modules/jt12/hdl/dac/jt12_dac.v
         ;;
     "-nosnd")
-        FASTSIM="$FASTSIM ${MACROPREFIX}NOSUND";;
+        FASTSIM="$FASTSIM ${MACROPREFIX}NOSOUND";;
     "-nocolmix")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOCOLMIX";;
     "-noscr")
