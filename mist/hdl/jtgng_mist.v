@@ -47,13 +47,16 @@ module jtgng_mist(
     input           CONF_DATA0,
     // sound
     output          AUDIO_L,
-    output          AUDIO_R
+    output          AUDIO_R,
+    // user LED
+    output          LED
 );
 
 wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
 
+assign LED = ~downloading;
 
 parameter CONF_STR = {
     //   000000000111111111122222222223
@@ -83,7 +86,6 @@ data_io datain (
     .ss                 ( SPI_SS2      ),
     .sdi                ( SPI_DI       ),
     // .index      (index        ),
-    .rst                ( rst          ),
     .clk_sdram          ( clk_rom      ),
     .downloading_sdram  ( downloading  ),
     .addr_sdram         ( romload_addr ),
