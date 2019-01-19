@@ -86,6 +86,7 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
 #**************************************************************
 
 set_clock_groups -asynchronous -group [get_clocks {SPI_SCK}] -group [get_clocks {*|altpll_component|auto_generated|pll1|clk[*]}]
+set_clock_groups -asynchronous -group [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -group [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]
 
 #**************************************************************
 # Set False Path
