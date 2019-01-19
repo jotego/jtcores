@@ -100,16 +100,16 @@ end
 // assign joystick = joystick_0; // | joystick_1;
 
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
+    .clk_sys        ( clk_rgb   ),
     .conf_str       ( CONF_STR  ),
-    .SPI_SCK        ( SPI_SCK   ),
-    .CONF_DATA0     ( CONF_DATA0),
-    .SPI_DO         ( SPI_DO    ),
-    .SPI_DI         ( SPI_DI    ),
+    .SPI_CLK        ( SPI_SCK   ),
+    .SPI_SS_IO      ( CONF_DATA0),
+    .SPI_MISO       ( SPI_DO    ),
+    .SPI_MOSI       ( SPI_DI    ),
     .joystick_0     ( joystick2 ),
     .joystick_1     ( joystick1 ),
     .status         ( status    ),
     // unused ports:
-    .ps2_clk        ( 1'b0      ),
     .serial_strobe  ( 1'b0      ),
     .serial_data    ( 8'd0      ),
     .sd_lba         ( 32'd0     ),

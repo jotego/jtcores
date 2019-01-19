@@ -39,7 +39,7 @@ set_time_format -unit ns -decimal_places 3
 #**************************************************************
 
 create_clock -name {CLOCK_27[0]} -period 37.037 -waveform { 0.000 18.518 } [get_ports {CLOCK_27[0]}]
-create_clock -name {SPI_SCK} -period 41.666 -waveform { 0.000 0.500 } [get_ports {SPI_SCK}]
+create_clock -name {SPI_SCK}  -period 41.666 -waveform { 20.8 41.666 } [get_ports {SPI_SCK}]
 create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 31777.000 -waveform { 0.000 15888.500 } 
 
 
@@ -69,8 +69,8 @@ derive_clock_uncertainty
 # Set Input Delay
 #**************************************************************
 
-set_input_delay -clock sdclk_pin -max 6.4 [get_ports SDRAM_DQ*]
-set_input_delay -clock sdclk_pin -min 3.2 [get_ports SDRAM_DQ*]
+set_input_delay -clock sdclk_pin -max 6.4 [get_ports SDRAM_DQ[*]]
+set_input_delay -clock sdclk_pin -min 3.2 [get_ports SDRAM_DQ[*]]
 
 #**************************************************************
 # Set Output Delay
@@ -85,7 +85,7 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
 # Set Clock Groups
 #**************************************************************
 
-
+set_clock_groups -asynchronous -group [get_clocks {SPI_SCK}] -group [get_clocks {*|altpll_component|auto_generated|pll1|clk[*]}]
 
 #**************************************************************
 # Set False Path
@@ -93,10 +93,6 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
 
 # set_false_path  -from  [get_clocks {clk_E}]  -to  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]
 # set_false_path  -from  [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {rE}]
-set_false_path -from [get_keepers {user_io:userio|joystick_0[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
-set_false_path -from [get_keepers {user_io:userio|joystick_1[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
-set_false_path -from [get_keepers {user_io:userio|status[*]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|cpu_din[*]}]
-set_false_path -from [get_keepers {user_io:userio|status[5]}] -to [get_keepers {jtgng_game:game|jtgng_main:main|nRESET}]
 
 #**************************************************************
 # Set Multicycle Path
