@@ -135,6 +135,8 @@ wire scr_cs, scrpos_cs;
 jtgng_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
+    .cen1p5     ( cen1p5        ),
     .rst        ( rst_game      ),
     .soft_rst   ( soft_rst      ),
     .ch_mrdy    ( char_mrdy     ),

@@ -21,6 +21,8 @@
 module jtgng_main(
     input              clk, 
     input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
+    input              cen3  /* synthesis direct_enable = 1 */,   // 3MHz
+    input              cen1p5  /* synthesis direct_enable = 1 */,   // 1.5MHz
     input              rst,
     input              soft_rst,
     input              ch_mrdy,
@@ -276,11 +278,10 @@ end
 `endif
 `else 
 // This is cpu09I_128a.vhd core
-// but it doesn't seem to work with the
-// system timings I have. This core is not cycle accurate
+// but it doesn't seem to work fine
 cpu09 u_cpu(
     .clk     ( clk       ),
-    .ce      ( cen6      ),
+    .ce      ( cen1p5    ),
     .rst     ( rst       ),
     .ba      ( BA        ),
     .bs      ( BS        ),

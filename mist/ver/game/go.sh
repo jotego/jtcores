@@ -23,6 +23,7 @@ FASTSIM=
 TOP=game_test
 MIST=
 MACROPREFIX=-D
+M6809_FILES=$(ls ../../../modules/mc6809/mc6809{,i}.v)
 
 if ! g++ init_ram.cc -o init_ram; then
     exit 1;
@@ -58,6 +59,9 @@ case "$1" in
         FASTSIM="$FASTSIM ${MACROPREFIX}NOSCR";;
     "-nochar")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOCHAR";;
+    "-altcpu")
+        FASTSIM="$FASTSIM ${MACROPREFIX}ALT6809";;
+        M6809_FILES=$(ls ../../../modules/cpu09l_128a.vhd)
     "-time")
         shift
         if [ "$1" = "" ]; then
@@ -149,7 +153,7 @@ iverilog)   iverilog -g2005-sv ${TOP}.v \
         $(add_dir ../../../modules/jt12/hdl jt03.f) \
         -f game.f \
         ../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
-        ../../../modules/mc6809/mc6809{,i}.v \
+        $M6809_FILES \
         ../../../modules/tv80/*.v $MIST \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
@@ -163,7 +167,7 @@ ncverilog)
         ../common/mt48lc16m16a2.v \
         -vhdlext vhdl93 \
         ../../../modules/tv80/*.v $MIST \
-        ../../../modules/mc6809/mc6809{,i}.v \
+        $M6809_FILES \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME $OBJTEST;;
@@ -171,7 +175,7 @@ ncverilog)
 verilator)
     verilator -I../../hdl \
         ../../hdl/jtgng_game.v \
-        ../../../modules/mc6809/mc6809{_cen,i}.v \
+        $M6809_FILES \
         ../../../modules/tv80/*.v \
         ../common/quick_sdram.v \
         -F ../../../modules/jt12/hdl/jt03.f \
