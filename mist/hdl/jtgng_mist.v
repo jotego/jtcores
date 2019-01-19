@@ -101,6 +101,8 @@ end
 
 // assign joystick = joystick_0; // | joystick_1;
 
+wire ypbpr;
+
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .clk_sys        ( clk_rgb   ),
     .conf_str       ( CONF_STR  ),
@@ -111,6 +113,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .joystick_0     ( joystick2 ),
     .joystick_1     ( joystick1 ),
     .status         ( status    ),
+    .ypbpr          ( ypbpr     ),
     // unused ports:
     .serial_strobe  ( 1'b0      ),
     .serial_data    ( 8'd0      ),
@@ -252,6 +255,11 @@ jtgng_vga vga_conv (
 );
 
 // include the on screen display
+wire [5:0] osd_r_o;
+wire [5:0] osd_g_o;
+wire [5:0] osd_b_o;
+wire       HSync, VSync, CSync;
+
 osd #(0,0,4) osd (
    .pclk       ( clk_vga      ),
 
@@ -266,11 +274,31 @@ osd #(0,0,4) osd (
    .hs_in      ( vga_hsync    ),
    .vs_in      ( vga_vsync    ),
 
-   .red_out    ( VGA_R        ),
-   .green_out  ( VGA_G        ),
-   .blue_out   ( VGA_B        ),
-   .hs_out     ( VGA_HS       ),
-   .vs_out     ( VGA_VS       )
+   .red_out    ( osd_r_o      ),
+   .green_out  ( osd_g_o      ),
+   .blue_out   ( osd_b_o      ),
+   .hs_out     ( HSync        ),
+   .vs_out     ( VSync        )
 );
+wire [5:0] Y, Pb, Pr;
+
+rgb2ypbpr rgb2ypbpr
+(
+    .red   ( osd_r_o ),
+    .green ( osd_g_o ),
+    .blue  ( osd_b_o ),
+    .y     ( Y       ),
+    .pb    ( Pb      ),
+    .pr    ( Pr      )
+);
+
+assign VGA_R = ypbpr?Pr:osd_r_o;
+assign VGA_G = ypbpr? Y:osd_g_o;
+assign VGA_B = ypbpr?Pb:osd_b_o;
+assign CSync = ~(HSync ^ VSync);
+// a minimig vga->scart cable expects a composite sync signal on the VGA_HS output.
+// and VCC on VGA_VS (to switch into rgb mode)
+assign      VGA_HS = ypbpr ? CSync : HSync;
+assign      VGA_VS = ypbpr ? 1'b1 : VSync;
 
 endmodule // jtgng_mist
