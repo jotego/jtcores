@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# This batch will create the release file and copy the data to a SD card
+# after a synthesis run.
+# This suits my development cycle but it is not an essential part of
+# Ghosts'n Goblins core at all.
+
 cd rom
 gngrom.py $*
 cd ..
