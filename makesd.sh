@@ -2,8 +2,10 @@
 cd rom
 gngrom.py $*
 cd ..
-# FPGA core
-mv -v mist/quartus/jtgng.rbf mist/core.rbf
-cp -v mist/core.rbf /media/jtejada/MIST/core.rbf
-# ROM file
+# Create release
+cp mist/quartus/jtgng.rbf core.rbf
+zip -9 releases/gng-mist-dev.zip core.rbf README.txt 
+rm core.rbf
+# Copy file
+cp -v mist/quartus/jtgng.rbf /media/jtejada/MIST/core.rbf
 cp -v rom/JTGNG.rom /media/jtejada/MIST 
