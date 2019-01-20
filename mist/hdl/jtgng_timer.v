@@ -26,7 +26,9 @@ module jtgng_timer(
     output  reg         Vinit,
     output  reg         LHBL,
     output  reg         LHBL_obj,
-    output  reg         LVBL
+    output  reg         LVBL,
+    output  reg         HS,
+    output  reg         VS
 );
 
 parameter obj_offset=10'd3;
@@ -71,7 +73,13 @@ always @(posedge clk)
         // LHBL <= H>=256;
             if( V==9'd496 ) LVBL <= 1'b0;
             if( V==9'd271 ) LVBL <= 1'b1;
+
+            if( V==9'd507 ) VS <= 1;
+            if( V==9'd510 ) VS <= 0;
         end
+
+        if (H==9'd178) HS <= 1;
+        if (H==9'd206) HS <= 0;
         // if (H==9'd136) LHBL_short <= 1'b0;
         // if (H==9'd248) LHBL_short <= 1'b1;
     end
