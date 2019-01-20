@@ -32,7 +32,6 @@ module data_io (
 	 
 	// external ram interface
 	input 			  	clk_sdram,
-	input				rst,
 	output reg     		downloading_sdram,   // signal indicating an active download
 	output reg [24:0] 	addr_sdram,
 	output reg [15:0]  	data_sdram
@@ -105,14 +104,15 @@ reg even;
 
 reg [7:0] half;
 
-always@(posedge clk_sdram or posedge rst) 
-	if ( rst ) begin
-		addr_sdram <= ~25'd0;
-		even <= 1'b0;
-	end
-	else begin
+always@(posedge clk_sdram)
+	begin
 		{ downloading_sdram, sync_aux } <= { sync_aux, downloading_reg };
-		// bring rclk from spi clock domain into c64 clock domain
+		if ({ downloading_sdram, sync_aux } == 2'b01) begin
+			addr_sdram <= ~25'd0;
+			even <= 1'b0;
+		end
+
+		// bring rclk from spi clock domain into sdram clock domain
 		rclkD <= rclk;
 		rclkD2 <= rclkD;
 		
@@ -122,7 +122,7 @@ always@(posedge clk_sdram or posedge rst)
 			if( even ) begin
 				data_sdram <= { half, data };
 				//data_sdram <= { data_sdram[7:0], data };
-				addr_sdram <= addr_sdram + 1;
+				addr_sdram <= addr_sdram + 1'd1;
 			end
 		end
 	end
