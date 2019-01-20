@@ -102,6 +102,7 @@ end
 // assign joystick = joystick_0; // | joystick_1;
 
 wire ypbpr;
+wire scandoubler_disable;
 
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .clk_sys        ( clk_rgb   ),
@@ -114,6 +115,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .joystick_1     ( joystick1 ),
     .status         ( status    ),
     .ypbpr          ( ypbpr     ),
+    .scandoubler_disable ( scandoubler_disable ),
     // unused ports:
     .serial_strobe  ( 1'b0      ),
     .serial_data    ( 8'd0      ),
@@ -163,6 +165,8 @@ jtgng_cen u_cen(
     wire [3:0] blue;
     wire LHBL;
     wire LVBL;
+    wire hs;
+    wire vs;
     wire signed [15:0] ym_snd;
     wire ym_mux_sample;
 jtgng_game game(
@@ -178,6 +182,8 @@ jtgng_game game(
     .blue        ( blue          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
+    .HS          ( hs            ),
+    .VS          ( vs            ),
 
     .joystick1   ( joy1_sync     ),
     .joystick2   ( joy2_sync     ),
@@ -258,27 +264,27 @@ jtgng_vga vga_conv (
 wire [5:0] osd_r_o;
 wire [5:0] osd_g_o;
 wire [5:0] osd_b_o;
-wire       HSync, VSync, CSync;
+wire       HSync = scandoubler_disable ? ~hs : vga_hsync;
+wire       VSync = scandoubler_disable ? ~vs : vga_vsync;
+wire       CSync = ~(HSync ^ VSync);
 
 osd #(0,0,4) osd (
-   .pclk       ( clk_vga      ),
+   .clk_sys    ( scandoubler_disable ? clk_rgb : clk_vga ),
 
    // spi for OSD
-   .sdi        ( SPI_DI       ),
-   .sck        ( SPI_SCK      ),
-   .ss         ( SPI_SS3      ),
+   .SPI_DI     ( SPI_DI       ),
+   .SPI_SCK    ( SPI_SCK      ),
+   .SPI_SS3    ( SPI_SS3      ),
 
-   .red_in     ( GNG_R        ),
-   .green_in   ( GNG_G        ),
-   .blue_in    ( GNG_B        ),
-   .hs_in      ( vga_hsync    ),
-   .vs_in      ( vga_vsync    ),
+   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : GNG_R  ),
+   .G_in       ( scandoubler_disable ? { green, green[3:2] } : GNG_G  ),
+   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : GNG_B  ),
+   .HSync      ( HSync        ),
+   .VSync      ( VSync        ),
 
-   .red_out    ( osd_r_o      ),
-   .green_out  ( osd_g_o      ),
-   .blue_out   ( osd_b_o      ),
-   .hs_out     ( HSync        ),
-   .vs_out     ( VSync        )
+   .R_out      ( osd_r_o      ),
+   .G_out      ( osd_g_o      ),
+   .B_out      ( osd_b_o      ),
 );
 wire [5:0] Y, Pb, Pr;
 
@@ -295,10 +301,9 @@ rgb2ypbpr rgb2ypbpr
 assign VGA_R = ypbpr?Pr:osd_r_o;
 assign VGA_G = ypbpr? Y:osd_g_o;
 assign VGA_B = ypbpr?Pb:osd_b_o;
-assign CSync = ~(HSync ^ VSync);
 // a minimig vga->scart cable expects a composite sync signal on the VGA_HS output.
 // and VCC on VGA_VS (to switch into rgb mode)
-assign      VGA_HS = ypbpr ? CSync : HSync;
-assign      VGA_VS = ypbpr ? 1'b1 : VSync;
+assign      VGA_HS = (scandoubler_disable | ypbpr) ? CSync : HSync;
+assign      VGA_VS = (scandoubler_disable | ypbpr) ? 1'b1 : VSync;
 
 endmodule // jtgng_mist

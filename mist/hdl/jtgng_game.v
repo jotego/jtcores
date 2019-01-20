@@ -28,6 +28,8 @@ module jtgng_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
+    output          HS,
+    output          VS,
     // cabinet I/O
     input   [7:0]   joystick1,
     input   [7:0]   joystick2,  
@@ -100,6 +102,8 @@ jtgng_timer u_timer(
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
     .LVBL      ( LVBL     ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
     .Vinit     (          )
 );
 
