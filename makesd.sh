@@ -5,13 +5,18 @@
 # This suits my development cycle but it is not an essential part of
 # Ghosts'n Goblins core at all.
 
+# Create release
+cp mist/quartus/jtgng.rbf core.rbf
+zip -9 --junk-paths releases/gng-mist-dev.zip rom/gngrom.py core.rbf README.txt 
+rm core.rbf 
+# Copy file
+if [ ! -e /media/jtejada/MIST ]; then
+    exit 0
+fi
+
+cp -v mist/quartus/jtgng.rbf /media/jtejada/MIST/core.rbf
+# and ROM
 cd rom
 gngrom.py $*
 cd ..
-# Create release
-cp mist/quartus/jtgng.rbf core.rbf
-zip -9 releases/gng-mist-dev.zip core.rbf README.txt 
-rm core.rbf
-# Copy file
-cp -v mist/quartus/jtgng.rbf /media/jtejada/MIST/core.rbf
 cp -v rom/JTGNG.rom /media/jtejada/MIST 
