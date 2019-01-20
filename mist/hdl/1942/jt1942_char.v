@@ -1,0 +1,136 @@
+/*  This file is part of JT_GNG.
+    JT_GNG program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JT_GNG program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JT_GNG.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 20-1-2019 */
+
+// 1942 Character Generation CHARA-GENE
+// Schematics pages 7/8
+    
+module jt1942_char(
+    input            clk,    // 24 MHz
+    input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
+    input   [10:0]   AB,
+    input   [ 7:0]   V128, // V128-V1
+    input   [ 7:0]   H128, // Hfix-H1
+    input            char_cs, // DOCS in schematics
+    input            flipch,
+    input   [ 7:0]   din,
+    output  [ 7:0]   dout,
+    input            rd_n,
+    output           wait_n,
+    output [3:0]     char_pxl,
+    // Palette PROM F1
+    input   [7:0]   prog_addr,
+    input           prom_f1_we,
+    input   [3:0]   prom_f1_din,
+    // ROM
+    output reg [11:0] char_addr,
+    input  [15:0] chrom_data,
+);
+
+parameter Hoffset=8'd5;
+reg [5:0] char_pal;
+reg [3:0] char_col;
+
+wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
+
+wire sel_scan = ~Hfix[2];
+wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
+wire [9:0] addr = sel_scan ? scan : AB[9:0];
+wire we = !sel_scan && char_cs && rd_n;
+wire we_low  = we && !AB[10];
+wire we_high = we &&  AB[10];
+wire [7:0] dout_low, dout_high;
+assign dout = AB[10] ? dout_high : dout_low;
+
+jtgng_ram #(.aw(10),.simfile("char_low.hex")) u_ram_low(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .data   ( din      ),
+    .addr   ( addr     ),
+    .we     ( we_low   ),
+    .q      ( dout_low )
+);
+
+jtgng_ram #(.aw(10),.simfile("char_high.hex")) u_ram_high(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .data   ( din      ),
+    .addr   ( addr     ),
+    .we     ( we_high  ),
+    .q      ( dout_high)
+);
+
+assign wait_n = !( char_cs && sel_scan ); // hold CPU
+
+reg [7:0] addr_lsb;
+reg half_addr;
+
+// Draw pixel on screen
+reg [15:0] chd;
+reg [5:0] char_attr0, char_attr1, char_attr2;
+
+always @(posedge clk) if(cen6) begin
+    // new tile starts 8+5=13 pixels off
+    // 8 pixels from delay in ROM reading
+    // 4 pixels from processing the x,y,z and attr info.    
+    if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
+        // Set input for ROM reading
+        char_attr1 <= char_attr0;
+        char_attr0 <= dout_high[5:0];
+        char_addr  <= { {dout_high[7], dout_low}, 
+            {3{dout_high[5] /*vflip*/ ^ flip}}^V128[2:0] };
+    end
+    // The two case-statements cannot be joined because of the default statement
+    // which needs to apply in all cases except the two outlined before it.
+    case( Hfix[2:0] )
+        3'd2: begin
+            chd <= !flipch ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+            char_attr2 <= char_attr1;
+        end
+        3'd6: 
+            chd[7:0] <= chd[15:8];
+        default:
+            begin
+                if( flipch ) begin
+                    chd[7:4] <= {1'b0, chd[7:5]};
+                    chd[3:0] <= {1'b0, chd[3:1]};
+                end
+                else  begin
+                    chd[7:4] <= {chd[6:4], 1'b0};
+                    chd[3:0] <= {chd[2:0], 1'b0};
+                end
+            end
+    endcase
+    // 1-pixel delay in order to latch signals:
+    char_col <= flipch ? { chd[0], chd[4] } : { chd[3], chd[7] };
+    char_pal <= char_attr2; 
+end
+
+wire [7:0] prom_f1_addr = prom_f1_we ? prog_addr[7:0] : {char_pal,char_col};
+
+// palette ROM
+jtgng_ram #(.aw(8),.dw(4),.simfile("prom_f1.hex")) u_vprom(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prom_f1_din    ),
+    .addr   ( prom_f1_addr   ),
+    .we     ( prom_f1_we     ),
+    .q      ( char_pxl       )
+);
+
+
+endmodule // jtgng_char
