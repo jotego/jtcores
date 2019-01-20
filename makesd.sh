@@ -16,7 +16,7 @@ fi
 
 cp -v mist/quartus/jtgng.rbf /media/jtejada/MIST/core.rbf
 # and ROM
-cd rom
-gngrom.py $*
-cd ..
-cp -v rom/JTGNG.rom /media/jtejada/MIST 
+cd rom/gngroms
+../gngrom.py $*
+cp -v JTGNG.rom /media/jtejada/MIST 
+cd ../..
