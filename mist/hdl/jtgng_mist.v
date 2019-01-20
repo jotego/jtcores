@@ -47,13 +47,16 @@ module jtgng_mist(
     input           CONF_DATA0,
     // sound
     output          AUDIO_L,
-    output          AUDIO_R
+    output          AUDIO_R,
+    // user LED
+    output          LED
 );
 
 wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
 
+assign LED = ~downloading;
 
 parameter CONF_STR = {
     //   000000000111111111122222222223
@@ -83,7 +86,6 @@ data_io datain (
     .ss                 ( SPI_SS2      ),
     .sdi                ( SPI_DI       ),
     // .index      (index        ),
-    .rst                ( rst          ),
     .clk_sdram          ( clk_rom      ),
     .downloading_sdram  ( downloading  ),
     .addr_sdram         ( romload_addr ),
@@ -99,17 +101,20 @@ end
 
 // assign joystick = joystick_0; // | joystick_1;
 
+wire ypbpr;
+
 user_io #(.STRLEN(CONF_STR_LEN)) userio(
+    .clk_sys        ( clk_rgb   ),
     .conf_str       ( CONF_STR  ),
-    .SPI_SCK        ( SPI_SCK   ),
-    .CONF_DATA0     ( CONF_DATA0),
-    .SPI_DO         ( SPI_DO    ),
-    .SPI_DI         ( SPI_DI    ),
+    .SPI_CLK        ( SPI_SCK   ),
+    .SPI_SS_IO      ( CONF_DATA0),
+    .SPI_MISO       ( SPI_DO    ),
+    .SPI_MOSI       ( SPI_DI    ),
     .joystick_0     ( joystick2 ),
     .joystick_1     ( joystick1 ),
     .status         ( status    ),
+    .ypbpr          ( ypbpr     ),
     // unused ports:
-    .ps2_clk        ( 1'b0      ),
     .serial_strobe  ( 1'b0      ),
     .serial_data    ( 8'd0      ),
     .sd_lba         ( 32'd0     ),
@@ -250,6 +255,11 @@ jtgng_vga vga_conv (
 );
 
 // include the on screen display
+wire [5:0] osd_r_o;
+wire [5:0] osd_g_o;
+wire [5:0] osd_b_o;
+wire       HSync, VSync, CSync;
+
 osd #(0,0,4) osd (
    .pclk       ( clk_vga      ),
 
@@ -264,11 +274,31 @@ osd #(0,0,4) osd (
    .hs_in      ( vga_hsync    ),
    .vs_in      ( vga_vsync    ),
 
-   .red_out    ( VGA_R        ),
-   .green_out  ( VGA_G        ),
-   .blue_out   ( VGA_B        ),
-   .hs_out     ( VGA_HS       ),
-   .vs_out     ( VGA_VS       )
+   .red_out    ( osd_r_o      ),
+   .green_out  ( osd_g_o      ),
+   .blue_out   ( osd_b_o      ),
+   .hs_out     ( HSync        ),
+   .vs_out     ( VSync        )
 );
+wire [5:0] Y, Pb, Pr;
+
+rgb2ypbpr rgb2ypbpr
+(
+    .red   ( osd_r_o ),
+    .green ( osd_g_o ),
+    .blue  ( osd_b_o ),
+    .y     ( Y       ),
+    .pb    ( Pb      ),
+    .pr    ( Pr      )
+);
+
+assign VGA_R = ypbpr?Pr:osd_r_o;
+assign VGA_G = ypbpr? Y:osd_g_o;
+assign VGA_B = ypbpr?Pb:osd_b_o;
+assign CSync = ~(HSync ^ VSync);
+// a minimig vga->scart cable expects a composite sync signal on the VGA_HS output.
+// and VCC on VGA_VS (to switch into rgb mode)
+assign      VGA_HS = ypbpr ? CSync : HSync;
+assign      VGA_VS = ypbpr ? 1'b1 : VSync;
 
 endmodule // jtgng_mist

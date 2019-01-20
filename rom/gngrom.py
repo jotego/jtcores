@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import sys
+import os.path
+import binascii
 
 if len(sys.argv) > 1:
     game=sys.argv[1]
@@ -34,6 +36,17 @@ def append_dup( filename ):
         fo.write(buf[k])
         fo.write(buf[k])
 
+def check_files( filenames ):
+    problem=False
+    for i in filenames.values():
+        if os.path.isfile(i)==False:
+            print "Cannot find file "+i
+            problem = True
+    if problem:
+        print "You have to unzip your Ghosts'n Goblins ROM files in"
+        print "the same folder as gngrom.py"
+        exit(1)
+
 if game == "makaimur":
     roms = {
         'rom8n'     : '8n.rom',
@@ -53,6 +66,7 @@ if game == "makaimur":
         'romx14'    : 'gng16.l4',
         'romx13'    : 'gg13.bin',
         'romx12'    : 'gg12.bin' }
+    rom_crc = 'A7DDC87E'
 elif game == "makaimurg":
     roms = {
         'rom10n'    : 'mj04g.bin',
@@ -72,8 +86,9 @@ elif game == "makaimurg":
         'romx14'    : 'gng16.l4',
         'romx13'    : 'gg13.bin',
         'romx12'    : 'gg12.bin' }
+    rom_crc='F6C6826C'
 elif game == "gngc":
-        roms = {
+    roms = {
         'rom10n'    :'mm_c_04',
         'rom8n'     :'mm_c_03',
         'rom12n'    :'mm_c_05',
@@ -91,6 +106,8 @@ elif game == "gngc":
         'romx14'    :'gng16.l4',
         'romx13'    :'gg13.bin',
         'romx12'    :'gg12.bin' }
+    rom_crc='C8C6D288'
+
 elif game == "gngt":
     roms = {
         'rom8n'     :'mmt03d.8n',
@@ -110,6 +127,9 @@ elif game == "gngt":
         'romx14'    :'mm14.4l',
         'romx13'    :'mm13.3l',
         'romx12'    :'mm12.1l' }
+    rom_crc='25BADA9D'
+
+check_files( roms )
 
 append_file( [roms['rom8n'], roms['rom10n'], roms['rom12n']] )
 # print "Sound starts at "
@@ -126,3 +146,14 @@ append_dup( roms['romx10'])
 byte_merge( [roms['romx17'], roms['romx14']])
 byte_merge( [roms['romx16'], roms['romx13']])
 byte_merge( [roms['romx15'], roms['romx12']])
+# Calculate CRC
+fo.close()
+with open('JTGNG.rom','rb') as f:
+    buf = f.read()
+    buf=(binascii.crc32(buf) & 0xFFFFFFFF )
+    if format(buf,'08X') != rom_crc:
+        print "Wrong CRC check sum for generated ROM file"
+        print "Maybe your rom set is not correct. You can"
+        print "still try it."
+    else:
+        print "CRC check = ", rom_crc, " correct."
