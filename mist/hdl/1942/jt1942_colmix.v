@@ -28,7 +28,7 @@ module jt1942_colmix(
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code
     input [5:0]     scr_pxl,
-    input [4:0]     obj_pxl,
+    input [3:0]     obj_pxl,
     // Palette PROMs E8, E9, E10 
     input   [7:0]   prog_addr,
     input           prom_e8_we,
@@ -57,12 +57,12 @@ always @(posedge clk) if(cen6) begin
     if( !char_blank ) begin
         // Object or scroll
         if( !obj_blank ) 
-            pixel_mux[5:0] <= scr_pxl // scroll wins
+            pixel_mux[5:0] <= scr_pxl; // scroll wins
         else
-            pixel_mux <= {2'b0, obj_pxl }; // object wins
+            pixel_mux[5:0] <= {2'b0, obj_pxl }; // object wins
     end
     else begin // characters
-        pixel_mux <= { 2'b0, char_pxl };
+        pixel_mux[5:0] <= { 2'b0, char_pxl };
     end
     pixel_mux[7:6] <= { char_blank, obj_blank };
 end
@@ -79,13 +79,22 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e8.hex")) u_red(
     .q      ( red         )
 );
 
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e9.hex")) u_red(
+jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e9.hex")) u_green(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
     .addr   ( prom_addr   ),
     .we     ( prom_e9_we  ),
-    .q      ( red         )
+    .q      ( green       )
+);
+
+jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e10.hex")) u_blue(
+    .clk    ( clk         ),
+    .cen    ( cen6        ),
+    .data   ( prom_din    ),
+    .addr   ( prom_addr   ),
+    .we     ( prom_e10_we ),
+    .q      ( blue        )
 );
 
 endmodule // jtgng_colmix

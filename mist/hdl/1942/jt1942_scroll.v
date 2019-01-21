@@ -42,7 +42,7 @@ module jt1942_scroll(
     // ROM
     output reg  [14:0] scr_addr,
     input       [23:0] scrom_data,
-    output      [ 5:0] scr_pxl,
+    output      [ 5:0] scr_pxl
 );
 
 reg [2:0] scr_col0;
@@ -67,17 +67,17 @@ end
 
 wire [8:0] scan = { HS[8:4], VF[7:4] };
 wire sel_scan = ~HS[2];
-wire [9:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
+wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
 wire we = !sel_scan && scr_cs && !rd;
 wire we_low  = we && !AB[4];
 wire we_high = we &&  AB[4];
 
 always @(posedge clk) if(cen6) begin
     if( scrpos_cs && AB[3]) 
-    case(AB[0])
-        2'd0: hpos[7:0] <= din;
-        2'd1: hpos[8]   <= din[0];
-    endcase 
+    if(AB[0])
+        hpos[8]   <= din[0];
+    else
+        hpos[7:0] <= din;
 end
 
 wire [7:0] dout_low, dout_high;

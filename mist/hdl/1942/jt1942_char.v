@@ -26,7 +26,7 @@ module jt1942_char(
     input   [ 7:0]   V128, // V128-V1
     input   [ 7:0]   H128, // Hfix-H1
     input            char_cs, // DOCS in schematics
-    input            flipch,
+    input            flip,
     input   [ 7:0]   din,
     output  [ 7:0]   dout,
     input            rd_n,
@@ -38,12 +38,12 @@ module jt1942_char(
     input   [3:0]   prom_f1_din,
     // ROM
     output reg [11:0] char_addr,
-    input  [15:0] chrom_data,
+    input      [15:0] chrom_data
 );
 
 parameter Hoffset=8'd5;
 reg [5:0] char_pal;
-reg [3:0] char_col;
+reg [1:0] char_col;
 
 wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
 
@@ -92,20 +92,20 @@ always @(posedge clk) if(cen6) begin
         char_attr1 <= char_attr0;
         char_attr0 <= dout_high[5:0];
         char_addr  <= { {dout_high[7], dout_low}, 
-            {3{dout_high[5] /*vflip*/ ^ flip}}^V128[2:0] };
+            {3{dout_high[5] /*vflip*/ ^ flip }}^V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
         3'd2: begin
-            chd <= !flipch ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+            chd <= !flip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
             char_attr2 <= char_attr1;
         end
         3'd6: 
             chd[7:0] <= chd[15:8];
         default:
             begin
-                if( flipch ) begin
+                if( flip ) begin
                     chd[7:4] <= {1'b0, chd[7:5]};
                     chd[3:0] <= {1'b0, chd[3:1]};
                 end
@@ -116,7 +116,7 @@ always @(posedge clk) if(cen6) begin
             end
     endcase
     // 1-pixel delay in order to latch signals:
-    char_col <= flipch ? { chd[0], chd[4] } : { chd[3], chd[7] };
+    char_col <= flip ? { chd[0], chd[4] } : { chd[3], chd[7] };
     char_pal <= char_attr2; 
 end
 
