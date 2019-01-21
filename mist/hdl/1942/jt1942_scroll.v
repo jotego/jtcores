@@ -30,14 +30,13 @@ module jt1942_scroll(
     input              flip,
     input       [ 7:0] din,
     output      [ 7:0] dout,
-    input              rd,
-    output             MRDY_b,
+    input              rd_n,
 
     // Palette PROMs D1, D2
-    input   [7:0]   prog_addr,
-    input           prom_d1_we,
-    input           prom_d2_we,
-    input   [3:0]   prom_din,    
+    input   [7:0]      prog_addr,
+    input              prom_d1_we,
+    input              prom_d2_we,
+    input   [3:0]      prom_din,    
 
     // ROM
     output reg  [14:0] scr_addr,
@@ -68,7 +67,7 @@ end
 wire [8:0] scan = { HS[8:4], VF[7:4] };
 wire sel_scan = ~HS[2];
 wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
-wire we = !sel_scan && scr_cs && !rd;
+wire we = !sel_scan && scr_cs && rd_n;
 wire we_low  = we && !AB[4];
 wire we_high = we &&  AB[4];
 
@@ -100,8 +99,6 @@ jtgng_ram #(.aw(9),.simfile("scr_att.hex")) u_ram_high(
     .we     ( we_high  ),
     .q      ( dout_high)
 );
-
-assign MRDY_b = !( scr_cs && sel_scan ); // halt CPU
 
 reg scr_hflip;
 reg [7:0] addr_lsb;

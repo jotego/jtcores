@@ -20,24 +20,21 @@
 // Schematics page 3/8
 
 module jt1942_sound(
-    input   clk,    // 24   MHz
-    input   cen6   /* synthesis direct_enable = 1 */,   //  6   MHz
-    input   cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
-    input   cen1p5 /* synthesis direct_enable = 1 */, //  1.5 MHz
-    input   rst,
+    input           clk,    // 24   MHz
+    input           cen6   /* synthesis direct_enable = 1 */,   //  6   MHz
+    input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
+    input           cen1p5 /* synthesis direct_enable = 1 */, //  1.5 MHz
+    input           rst,
     // Interface with main CPU
     input           cpu_bres,
-    input   [7:0]   main_dout,
+    input   [ 7:0]  main_dout,
     input           main_latch0_cs,
     input           main_latch1_cs,
     // ROM access
     output  [14:0]  rom_addr,
-    output          rom_cs,
-    input   [ 7:0]  rom_dout,
+    input   [ 7:0]  rom_data,
     // Sound output
-    input   enable_psg,
-    input   enable_fm,
-    output  signed [8:0] snd,
+    output  [ 8:0]  snd,
     output  sample
 );
 
@@ -63,7 +60,7 @@ reg reset_n=1'b0;
 always @(posedge clk) if(cen3)
     reset_n <= ~( rst | ~cpu_bres | ~sres_b );
 
-wire ay1_cs,ay0_cs, latch_cs, ram_cs;
+wire rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs;
 reg [4:0] map_cs;
 
 assign { rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs } = map_cs;
@@ -109,7 +106,7 @@ always @(*)
         5'b1_00_00:  din = ay1_dout;
         5'b0_10_00:  din = ay0_dout;
         5'b0_01_00:  din = A[0] ? latch1 : latch0;
-        5'b0_00_10:  din = rom_dout;
+        5'b0_00_10:  din = rom_data;
         5'b0_00_01:  din = ram_dout;
         default:  din = 8'd0;
     endcase // {latch_cs,rom_cs,ram_cs}

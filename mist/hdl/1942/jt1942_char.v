@@ -35,10 +35,10 @@ module jt1942_char(
     // Palette PROM F1
     input   [7:0]   prog_addr,
     input           prom_f1_we,
-    input   [3:0]   prom_f1_din,
+    input   [3:0]   prom_din,
     // ROM
     output reg [11:0] char_addr,
-    input      [15:0] chrom_data
+    input      [15:0] char_data
 );
 
 parameter Hoffset=8'd5;
@@ -98,7 +98,7 @@ always @(posedge clk) if(cen6) begin
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
         3'd2: begin
-            chd <= !flip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+            chd <= !flip ? {char_data[7:0],char_data[15:8]} : char_data;
             char_attr2 <= char_attr1;
         end
         3'd6: 
@@ -126,7 +126,7 @@ wire [7:0] prom_f1_addr = prom_f1_we ? prog_addr[7:0] : {char_pal,char_col};
 jtgng_ram #(.aw(8),.dw(4),.simfile("prom_f1.hex")) u_vprom(
     .clk    ( clk            ),
     .cen    ( cen6           ),
-    .data   ( prom_f1_din    ),
+    .data   ( prom_din       ),
     .addr   ( prom_f1_addr   ),
     .we     ( prom_f1_we     ),
     .q      ( char_pxl       )

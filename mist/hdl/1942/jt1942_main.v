@@ -20,25 +20,22 @@
 
 module jt1942_main(
     input              clk, 
-    input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
-    input              cen3  /* synthesis direct_enable = 1 */,   // 3MHz
+    input              cen6    /* synthesis direct_enable = 1 */,   // 6MHz
+    input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     input              cen1p5  /* synthesis direct_enable = 1 */,   // 1.5MHz
     input              rst,
     input              soft_rst,
-    input              ch_mrdy,
     input              [7:0] char_dout,
     input              LVBL,   // vertical blanking when 0
     output             [7:0] cpu_dout,
-    output             main_cs,
     output             char_cs,
-    output             blue_cs,
-    output             redgreen_cs,    
+    input              wait_n,
     output  reg        flip,
     // Sound
-    output  reg        sres_b, // Z80 reset
-    output  reg [7:0]  snd_latch,
+    output  reg        sres_b, // sound reset
+    output             snd_latch0_cs,
+    output             snd_latch1_cs,
     // scroll
-    input              scr_mrdy,
     input   [7:0]      scr_dout,
     output             scr_cs,
     output             scrpos_cs,
@@ -50,10 +47,9 @@ module jt1942_main(
     output  [12:0]     cpu_AB,
     output             RnW,
     output             OKOUT,
-    output  [7:0]      ram_dout,
     // ROM access
     output  reg [16:0] rom_addr,
-    input       [ 7:0] rom_dout,
+    input       [ 7:0] rom_data,
     // DIP switches
     input              dip_flip,
     input              dip_game_mode,
@@ -62,33 +58,26 @@ module jt1942_main(
 );
 
 wire [15:0] A;
-wire MRDY_b = ch_mrdy & scr_mrdy;
+wire [ 7:0] ram_dout;
 reg nRESET;
 wire in_cs;
-wire sound_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
-
-reg [11:0] map_cs;
-
-assign { 
-    sound_cs, OKOUT, scrpos_cs,   scr_cs, 
-    in_cs,  blue_cs, redgreen_cs, flip_cs, 
-    ram_cs, char_cs, bank_cs,     main_cs } = map_cs;
+wire ram_cs, bank_cs, flip_cs;
 
 reg [7:0] AH;
 
 always @(A,rd_n) begin
-    main_cs    = 1'b0;
-    ram_cs     = 1'b0;
-    snd_latch0 = 1'b0;
-    snd_latch1 = 1'b0;
-    scrpos_cs  = 1'b0;
-    flip_cs    = 1'b0;
-    bank_cs    = 1'b0;
-    in_cs      = 1'b0;
-    joy1_cs    = 1'b0;
-    joy2_cs    = 1'b0;
-    dip1_cs    = 1'b0;
-    dip2_cs    = 1'b0;
+    main_cs       = 1'b0;
+    ram_cs        = 1'b0;
+    snd_latch0_cs = 1'b0;
+    snd_latch1_cs = 1'b0;
+    scrpos_cs     = 1'b0;
+    flip_cs       = 1'b0;
+    bank_cs       = 1'b0;
+    in_cs         = 1'b0;
+    joy1_cs       = 1'b0;
+    joy2_cs       = 1'b0;
+    dip1_cs       = 1'b0;
+    dip2_cs       = 1'b0;
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
@@ -157,13 +146,6 @@ always @(posedge clk)
             endcase
     end
 
-always @(posedge clk)
-    if( rst ) 
-        snd_latch <= 8'd0;
-    else if(cen6) begin
-        if( sound_cs ) snd_latch <= cpu_dout;
-    end
-
 reg [7:0] cabinet_input;
 wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };
 wire [7:0] dipsw_b = { 3'd3, /* normal game */
@@ -206,9 +188,9 @@ always @(*)
         5'b10_000: cpu_din =  ram_dout;
         5'b01_000: cpu_din = char_dout;
         5'b00_100: cpu_din =  scr_dout;
-        5'b00_010: cpu_din =  rom_dout;
+        5'b00_010: cpu_din =  rom_data;
         5'b00_001: cpu_din =  cabinet_input;
-        default:   cpu_din =  rom_dout;
+        default:   cpu_din =  rom_data;
     endcase
 
 always @(A,bank) begin
