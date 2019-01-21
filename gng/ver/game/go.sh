@@ -60,8 +60,8 @@ case "$1" in
     "-nochar")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOCHAR";;
     "-altcpu")
-        FASTSIM="$FASTSIM ${MACROPREFIX}ALT6809";;
         M6809_FILES=$(ls ../../../modules/cpu09l_128a.vhd)
+        FASTSIM="$FASTSIM ${MACROPREFIX}ALT6809";;
     "-time")
         shift
         if [ "$1" = "" ]; then

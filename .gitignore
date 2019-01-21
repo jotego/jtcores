@@ -6,6 +6,8 @@
 *.fst
 *.bak
 *.lst
+*.bin
+*.log
 sim
 mist/quartus/db
 mist/quartus/incremental_db
@@ -13,5 +15,6 @@ mist/ver/game/.simvision
 mist/ver/game/ncverilog.*
 *.smsg
 *.summary
+ncverilog.*
 INCA_libs
 test.shm
