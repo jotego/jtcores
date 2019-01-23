@@ -135,17 +135,10 @@ jt1942_cen u_cen(
 wire [15:0] snd;
 wire snd_sample;
 
-wire [12:0]  char_addr;
-wire [12:0]  obj_addr;
-wire [14:0]  scr_addr;
-wire [16:0]  main_addr;
-wire [14:0]  snd_addr;
-
-wire [15:0]  char_data;
-wire [15:0]  obj_data;
-wire [23:0]  scr_data;
-wire [ 7:0]  main_data;
-wire [ 7:0]  snd_data;
+wire   [21:0]  sdram_addr;
+wire   [15:0]  data_read;
+wire   loop_rst, autorefresh, loop_start; 
+wire   HS, VS;
 
 
 jt1942_game UUT(
@@ -166,17 +159,15 @@ jt1942_game UUT(
     // cabinet I/O
     .joystick1  ( 8'hff     ),
     .joystick2  ( 8'hff     ),
-    // ROM data
-    .char_addr  ( char_addr ),
-    .char_data  ( char_data ),
-    .obj_addr   ( obj_addr  ),
-    .obj_data   ( obj_data  ),
-    .scr_addr   ( scr_addr  ),
-    .scr_data   ( scr_data  ),    
-    .main_addr  ( main_addr ),
-    .main_data  ( main_data ),
-    .snd_addr   ( snd_addr  ),
-    .snd_data   ( snd_data  ),
+    // ROM load
+    .downloading ( downloading   ),
+    .romload_addr( romload_addr  ),
+    .romload_data( romload_data  ),
+    .loop_rst    ( loop_rst      ),
+    .loop_start  ( loop_start    ),
+    .autorefresh ( autorefresh   ),
+    .sdram_addr  ( sdram_addr    ),
+    .data_read   ( data_read     ),
 
     // PROM programming
     .prog_addr  ( 8'b0      ),
@@ -195,6 +186,31 @@ jt1942_game UUT(
     // Sound output
     .snd            ( snd       ),
     .sample         ( snd_sample)
+);
+
+jtgng_sdram u_sdram(
+    .rst            ( rst           ),
+    .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .loop_rst       ( loop_rst      ),  
+    .loop_start     ( loop_start    ),
+    .autorefresh    ( autorefresh   ),
+    .data_read      ( data_read     ),
+    // ROM-load interface
+    .downloading    ( downloading   ),
+    .romload_addr   ( romload_addr  ),
+    .romload_data   ( romload_data  ),
+    .sdram_addr     ( sdram_addr    ),
+    // SDRAM interface
+    .SDRAM_DQ       ( SDRAM_DQ      ),
+    .SDRAM_A        ( SDRAM_A       ),
+    .SDRAM_DQML     ( SDRAM_DQML    ),
+    .SDRAM_DQMH     ( SDRAM_DQMH    ),
+    .SDRAM_nWE      ( SDRAM_nWE     ),
+    .SDRAM_nCAS     ( SDRAM_nCAS    ),
+    .SDRAM_nRAS     ( SDRAM_nRAS    ),
+    .SDRAM_nCS      ( SDRAM_nCS     ),
+    .SDRAM_BA       ( SDRAM_BA      ),
+    .SDRAM_CKE      ( SDRAM_CKE     ) 
 );
 
 /*

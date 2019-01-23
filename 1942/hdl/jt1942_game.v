@@ -20,6 +20,7 @@ module jt1942_game(
     input           rst,
     input           soft_rst,
     input           clk,        // 24   MHz
+    input           clk_rom,    // 96   MHz    
     input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
     input           cen1p5,     //  1.5 MHz
@@ -33,17 +34,16 @@ module jt1942_game(
     // cabinet I/O
     input   [ 7:0]  joystick1,
     input   [ 7:0]  joystick2,  
-    // ROM data
-    output  [12:0]  char_addr,
-    input   [15:0]  char_data,
-    output  [12:0]  obj_addr,
-    input   [15:0]  obj_data,
-    output  [14:0]  scr_addr,
-    input   [23:0]  scr_data,    
-    output  [16:0]  main_addr,
-    input   [ 7:0]  main_data,
-    output  [14:0]  snd_addr,
-    input   [ 7:0]  snd_data,
+
+    // SDRAM interface
+    input           downloading,
+    input           loop_rst,
+    output          autorefresh,
+    output          loop_start,
+    output  [21:0]  sdram_addr,
+    input   [15:0]  data_read,
+    input   [24:0]  romload_addr,
+    input   [15:0]  romload_data,
 
     // PROM programming
     input   [ 7:0]  prog_addr,
@@ -114,6 +114,16 @@ wire scr_cs, scrpos_cs;
 
 wire [7:0] dipsw_a = { dip_planes, 2'b00, dip_upright, dip_price };
 wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b0 };
+
+// ROM data
+wire  [12:0]  char_addr;
+wire  [12:0]  obj_addr;
+wire  [15:0]  char_data, obj_data;
+wire  [ 7:0]  main_data, snd_data;
+wire  [23:0]  scr_data;
+wire  [14:0]  scr_addr;
+wire  [16:0]  main_addr;
+wire  [14:0]  snd_addr;
 
 jtgng_main u_main(
     .clk        ( clk           ),
@@ -216,6 +226,33 @@ jtgng_video u_video(
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )    
+);
+
+jtgng_rom u_rom (
+    .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
+    .clk24       ( clk           ),
+    .cen6        ( cen6          ),
+    .H           ( H[2:0]        ),
+    .rst         ( rst           ),
+    .char_addr   ( char_addr     ),
+    .main_addr   ( main_addr     ),
+    .snd_addr    ( snd_addr      ),
+    .obj_addr    ( obj_addr      ),
+    .scr_addr    ( scr_addr      ),
+
+    .char_dout   ( chrom_data    ),
+    .main_dout   ( main_dout     ),
+    .snd_dout    ( snd_dout      ),
+    .obj_dout    ( obj_dout      ),
+    .scr_dout    ( scr_dout      ),
+    .ready       ( rom_ready     ),
+    // SDRAM interface
+    .downloading ( downloading   ),
+    .loop_rst    ( loop_rst      ),
+    .autorefresh ( autorefresh   ),
+    .loop_start  ( loop_start    ),
+    .sdram_addr  ( sdram_addr    ),
+    .data_read   ( data_read     )
 );
 
 endmodule // jtgng
