@@ -84,11 +84,11 @@ wire loop_start = rdcnt==3'd7 && rd_state==4'd15;
 
 reg main_lsb, snd_lsb;
 
-localparam  snd_offset = 22'h0A000;
-localparam char_offset = 22'h0E000;
-localparam  scr_offset = 22'h10000;
-localparam scr2_offset = 22'h08000; // upper byte of each tile
-localparam  obj_offset = 22'h20000;
+parameter  snd_offset = 22'h0A000;
+parameter char_offset = 22'h0E000;
+parameter  scr_offset = 22'h10000;
+parameter scr2_offset = 22'h08000; // upper byte of each tile
+parameter  obj_offset = 22'h20000;
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;

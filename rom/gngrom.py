@@ -2,13 +2,19 @@
 import sys
 import os.path
 import binascii
+import platform
+
+python_version = platform.python_version_tuple()
+if python_version[0] != '2':
+    print("Error: this script requires Python 2 to work.")
+    exit(1)
 
 if len(sys.argv) > 1:
     game=sys.argv[1]
-    print "Generating file for game: ",game
+    print("Generating file for game: ",game)
     if game != "makaimur" and game != "makaimurg" and game != "gngt" and game != "gngc":
-        print "Wrong game name. Please use one of these:"
-        print "makaimur, makaimurg, gng, gngc"
+        print("Wrong game name. Please use one of these:")
+        print("makaimur, makaimurg, gng, gngc")
         exit(1)
 else:
     game="gngt"
@@ -40,11 +46,11 @@ def check_files( filenames ):
     problem=False
     for i in filenames.values():
         if os.path.isfile(i)==False:
-            print "Cannot find file "+i
+            print("Cannot find file "+i)
             problem = True
     if problem:
-        print "You have to unzip your Ghosts'n Goblins ROM files in"
-        print "the same folder as gngrom.py"
+        print("You have to unzip your Ghosts'n Goblins ROM files in")
+        print("the same folder as gngrom.py")
         exit(1)
 
 if game == "makaimur":
@@ -152,8 +158,8 @@ with open('JTGNG.rom','rb') as f:
     buf = f.read()
     buf=(binascii.crc32(buf) & 0xFFFFFFFF )
     if format(buf,'08X') != rom_crc:
-        print "Wrong CRC check sum for generated ROM file"
-        print "Maybe your rom set is not correct. You can"
-        print "still try it."
+        print("Wrong CRC check sum for generated ROM file")
+        print("Maybe your rom set is not correct. You can")
+        print("still try it.")
     else:
-        print "CRC check = ", rom_crc, " correct."
+        print("CRC check = ", rom_crc, " correct.")
