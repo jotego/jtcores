@@ -228,7 +228,7 @@ quick_sdram mist_sdram(
     .SDRAM_nWE  ( SDRAM_nWE     )
 );
 `else
-mt48lc16m16a2 mist_sdram (
+mt48lc16m16a2 #(.filename("../../rom/JT1942.rom")) mist_sdram (
     .Dq         ( SDRAM_DQ      ),
     .Addr       ( SDRAM_A       ),
     .Ba         ( SDRAM_BA      ),
