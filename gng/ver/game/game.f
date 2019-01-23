@@ -7,7 +7,6 @@
 ../../hdl/jtgng_objbuf.v
 ../../hdl/jtgng_objdraw.v
 ../../hdl/jtgng_objpxl.v
-../../hdl/jtgng_rom.v
 ../../hdl/jtgng_scroll.v
 ../../hdl/jtgng_sound.v
 ../../hdl/jtgng_video.v
@@ -17,6 +16,7 @@
 ../../../modules/jtgng_dual_clk_ram.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_ram.v
+../../../modules/jtgng_rom.v
 ../../../modules/jtgng_sdram.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v

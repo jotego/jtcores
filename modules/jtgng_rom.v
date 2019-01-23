@@ -34,26 +34,16 @@ module jtgng_rom(
     output  reg [15:0]  obj_dout,
     output  reg [23:0]  scr_dout,
     output  reg         ready,
-
-    // SDRAM interface
-    inout       [15:0]  SDRAM_DQ,       // SDRAM Data bus 16 Bits
-    output      [12:0]  SDRAM_A,        // SDRAM Address bus 13 Bits
-    output              SDRAM_DQML,     // SDRAM Low-byte Data Mask
-    output              SDRAM_DQMH,     // SDRAM High-byte Data Mask
-    output              SDRAM_nWE,      // SDRAM Write Enable
-    output              SDRAM_nCAS,     // SDRAM Column Address Strobe
-    output              SDRAM_nRAS,     // SDRAM Row Address Strobe
-    output              SDRAM_nCS,      // SDRAM Chip Select
-    output      [ 1:0]  SDRAM_BA,       // SDRAM Bank Address
-    output              SDRAM_CKE,      // SDRAM Clock Enable   
-    // ROM load 
+    // ROM interface
     input               downloading,
-    input       [24:0]  romload_addr,
-    input       [15:0]  romload_data
+    input               loop_rst,
+    output  reg         autorefresh,
+    output              loop_start,
+    output  reg [21:0]  sdram_addr,
+    input       [15:0]  data_read
 );
 
 reg [3:0] rd_state;
-reg autorefresh;
 
 // H is used to align with the pixel transfers
 // the SDRAM-read state machine will start at roughly pixel 0 (of each 8-pixel tuple)
@@ -71,16 +61,14 @@ always @(posedge clk) begin
 end
 
 reg  [15:0] scr_aux;
-wire [15:0] data_read;
 
 reg [2:0] rdcnt; // Each read cycle takes 8 counts
-wire loop_rst;
 reg sync_withH;
 always @(posedge clk)
     if(loop_rst | sync_withH) rdcnt<=3'd4;
     else rdcnt<=rdcnt+3'd1;
 
-wire loop_start = rdcnt==3'd7 && rd_state==4'd15;
+assign loop_start = rdcnt==3'd7 && rd_state==4'd15;
 
 reg main_lsb, snd_lsb;
 
@@ -93,7 +81,6 @@ parameter  obj_offset = 22'h20000;
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 
-reg [21:0] sdram_addr;
 
 always @(posedge clk)
     if( loop_rst ) begin
@@ -160,30 +147,5 @@ always @(posedge clk)
             end
         end
     end
-
-jtgng_sdram u_sdram(
-    .rst            ( rst           ),
-    .clk            ( clk           ), // 96MHz = 32 * 6 MHz -> CL=2  
-    .loop_rst       ( loop_rst      ),  
-    .loop_start     ( loop_start    ),
-    .autorefresh    ( autorefresh   ),
-    .data_read      ( data_read     ),
-    // ROM-load interface
-    .downloading    ( downloading   ),
-    .romload_addr   ( romload_addr  ),
-    .romload_data   ( romload_data  ),
-    .sdram_addr     ( sdram_addr    ),
-    // SDRAM interface
-    .SDRAM_DQ       ( SDRAM_DQ      ),
-    .SDRAM_A        ( SDRAM_A       ),
-    .SDRAM_DQML     ( SDRAM_DQML    ),
-    .SDRAM_DQMH     ( SDRAM_DQMH    ),
-    .SDRAM_nWE      ( SDRAM_nWE     ),
-    .SDRAM_nCAS     ( SDRAM_nCAS    ),
-    .SDRAM_nRAS     ( SDRAM_nRAS    ),
-    .SDRAM_nCS      ( SDRAM_nCS     ),
-    .SDRAM_BA       ( SDRAM_BA      ),
-    .SDRAM_CKE      ( SDRAM_CKE     ) 
-);
 
 endmodule // jtgng_rom

@@ -169,10 +169,14 @@ jtgng_cen u_cen(
     wire vs;
     wire signed [15:0] ym_snd;
     wire ym_mux_sample;
+    wire   [21:0]  sdram_addr;
+    wire   [15:0]  data_read;
+    wire   loop_rst, autorefresh, loop_start; 
+
 jtgng_game game(
     .rst         ( rst           ),
     .soft_rst    ( status[6]     ),
-    .SDRAM_CLK   ( clk_rom       ),  // 96   MHz
+    .clk_rom     ( clk_rom       ),  // 96   MHz
     .clk         ( clk_rgb       ),  //  6   MHz
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
@@ -188,20 +192,15 @@ jtgng_game game(
     .joystick1   ( joy1_sync     ),
     .joystick2   ( joy2_sync     ),
 
-    .SDRAM_DQ    ( SDRAM_DQ      ),
-    .SDRAM_A     ( SDRAM_A       ),
-    .SDRAM_DQML  ( SDRAM_DQML    ),
-    .SDRAM_DQMH  ( SDRAM_DQMH    ),
-    .SDRAM_nWE   ( SDRAM_nWE     ),
-    .SDRAM_nCAS  ( SDRAM_nCAS    ),
-    .SDRAM_nRAS  ( SDRAM_nRAS    ),
-    .SDRAM_nCS   ( SDRAM_nCS     ),
-    .SDRAM_BA    ( SDRAM_BA      ),
-    .SDRAM_CKE   ( SDRAM_CKE     ),
     // ROM load
     .downloading ( downloading   ),
     .romload_addr( romload_addr  ),
     .romload_data( romload_data  ),
+    .loop_rst    ( loop_rst      ),
+    .loop_start  ( loop_start    ),
+    .autorefresh ( autorefresh   ),
+    .sdram_addr  ( sdram_addr    ),
+    .data_read   ( data_read     ),
     // DEBUG
     .enable_char ( 1'b1          ),
     .enable_scr  ( 1'b1          ),
@@ -216,6 +215,31 @@ jtgng_game game(
     .enable_fm   ( ~status[4]    ),
     .ym_snd      ( ym_snd        ),
     .sample      (               )
+);
+
+jtgng_sdram u_sdram(
+    .rst            ( rst           ),
+    .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .loop_rst       ( loop_rst      ),  
+    .loop_start     ( loop_start    ),
+    .autorefresh    ( autorefresh   ),
+    .data_read      ( data_read     ),
+    // ROM-load interface
+    .downloading    ( downloading   ),
+    .romload_addr   ( romload_addr  ),
+    .romload_data   ( romload_data  ),
+    .sdram_addr     ( sdram_addr    ),
+    // SDRAM interface
+    .SDRAM_DQ       ( SDRAM_DQ      ),
+    .SDRAM_A        ( SDRAM_A       ),
+    .SDRAM_DQML     ( SDRAM_DQML    ),
+    .SDRAM_DQMH     ( SDRAM_DQMH    ),
+    .SDRAM_nWE      ( SDRAM_nWE     ),
+    .SDRAM_nCAS     ( SDRAM_nCAS    ),
+    .SDRAM_nRAS     ( SDRAM_nRAS    ),
+    .SDRAM_nCS      ( SDRAM_nCS     ),
+    .SDRAM_BA       ( SDRAM_BA      ),
+    .SDRAM_CKE      ( SDRAM_CKE     ) 
 );
 
 // more resolution for sound when screen is filtered too
@@ -284,7 +308,7 @@ osd #(0,0,4) osd (
 
    .R_out      ( osd_r_o      ),
    .G_out      ( osd_g_o      ),
-   .B_out      ( osd_b_o      ),
+   .B_out      ( osd_b_o      )
 );
 wire [5:0] Y, Pb, Pr;
 
