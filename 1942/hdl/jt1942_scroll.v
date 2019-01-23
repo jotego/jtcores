@@ -150,7 +150,7 @@ end
 wire [7:0] prom_addr = (prom_d1_we || prom_d2_we) ? {scr_pal0, scr_col0} : prog_addr;
 
 // Palette
-jtgng_ram #(.aw(8),.dw(2),.simfile("prom_d1.hex")) u_prom_d1(
+jtgng_ram #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din[1:0]  ),
@@ -159,7 +159,7 @@ jtgng_ram #(.aw(8),.dw(2),.simfile("prom_d1.hex")) u_prom_d1(
     .q      ( scr_pxl[5:4]   )
 );
 
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_d2.hex")) u_prom_d0(
+jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din       ),

@@ -209,7 +209,7 @@ wire [3:0] int_ctrl;
 
 wire [7:0] prom_k6_addr = prom_k6_we ? prog_addr[7:0] : V[7:0];
 
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_k6.hex")) u_vprom(
+jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .clk    ( clk          ),
     .cen    ( cen6         ),
     .data   ( prog_din     ),

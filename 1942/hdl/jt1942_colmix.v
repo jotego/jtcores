@@ -70,7 +70,7 @@ end
 wire [7:0] prom_addr = (prom_e8_we||prom_e9_we||prom_e10_we) ? prog_addr : ( (LVBL&&LHBL) ? pixel_mux : 8'd0 );
 
 // palette ROM
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e8.hex")) u_red(
+jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -79,7 +79,7 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e8.hex")) u_red(
     .q      ( red         )
 );
 
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e9.hex")) u_green(
+jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -88,7 +88,7 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e9.hex")) u_green(
     .q      ( green       )
 );
 
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_e10.hex")) u_blue(
+jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-7.e10")) u_blue(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),

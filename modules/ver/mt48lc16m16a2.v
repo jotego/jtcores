@@ -75,10 +75,14 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         Bank0[{4'd7, 4'd0, 12'd0}] = 16'h7; // scr1 ROM
         `else
         	`ifndef LOADROM
-                $display("JTGNG.rom read into SDRAM");
                 file=$fopen(filename,"rb");
-                romfilecnt=$fread( Bank0, file );
-                $fclose(file);
+                if( file != 0 ) begin
+                    romfilecnt=$fread( Bank0, file );
+                    $display("JTGNG.rom read into SDRAM");
+                    $fclose(file);
+                end else begin
+                    $display("ERROR: Cannot open file", filename);
+                end
                 // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
                 `ifdef GNGTEST
                 $display("gng_test.bin read into first 32kB of SDRAM");

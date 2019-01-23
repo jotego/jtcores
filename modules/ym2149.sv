@@ -75,9 +75,15 @@ assign IOB_out = ymreg[15];
 reg env_reset;
 always @(posedge CLK) begin
 	if(RESET) begin
-		ymreg     <= '{default:0};
-		ymreg[7]  <= '1;
-		addr      <= '0;
+		ymreg[0]  <= 8'd0; ymreg[1]  <= 8'd0;
+		ymreg[2]  <= 8'd0; ymreg[3]  <= 8'd0;
+		ymreg[4]  <= 8'd0; ymreg[5]  <= 8'd0;
+		ymreg[6]  <= 8'd0; ymreg[7]  <= 8'd1;
+		ymreg[8]  <= 8'd0; ymreg[9]  <= 8'd0;
+		ymreg[10] <= 8'd0; ymreg[11] <= 8'd0;
+		ymreg[12] <= 8'd0; ymreg[13] <= 8'd0;
+		ymreg[14] <= 8'd0; ymreg[15] <= 8'd0;
+		addr      <= 8'd0;
 		env_reset <= 0;
 	end else begin
 		env_reset <= 0;
@@ -94,7 +100,7 @@ end
 // Read from PSG
 reg [7:0] dout;
 assign DO = dout;
-always_comb begin
+always @(*) begin
 	dout = 8'hFF;
 	if(~BDIR & BC & !addr[7:4]) begin
 		case(addr[3:0])
@@ -310,6 +316,7 @@ always @(posedge CLK) begin
 	C <= {MODE, ~((ymreg[7][2] | tone_gen_op[3]) & (ymreg[7][5] | noise_gen_op[2])) ? 5'd0 : ymreg[10][4] ? env_vol[4:0] : {ymreg[10][3:0], ymreg[10][3]}};
 end
 
+`ifndef IVERILOG
 wire [7:0] volTable[64] = '{
 	//YM2149
 	8'h00, 8'h01, 8'h01, 8'h02, 8'h02, 8'h03, 8'h03, 8'h04, 
@@ -323,6 +330,10 @@ wire [7:0] volTable[64] = '{
 	8'h28, 8'h28, 8'h41, 8'h41, 8'h5b, 8'h5b, 8'h72, 8'h72, 
 	8'h90, 8'h90, 8'hb5, 8'hb5, 8'hd7, 8'hd7, 8'hff, 8'hff 
 };
+`else 
+// allow simulation to work on iVerilog, but only X's will be produced
+reg [7:0] volTable[64];
+`endif
 
 assign CHANNEL_A = volTable[A];
 assign CHANNEL_B = volTable[B];

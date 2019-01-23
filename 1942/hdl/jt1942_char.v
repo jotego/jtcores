@@ -123,7 +123,7 @@ end
 wire [7:0] prom_f1_addr = prom_f1_we ? prog_addr[7:0] : {char_pal,char_col};
 
 // palette ROM
-jtgng_ram #(.aw(8),.dw(4),.simfile("prom_f1.hex")) u_vprom(
+jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-0.f1")) u_vprom(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din       ),
