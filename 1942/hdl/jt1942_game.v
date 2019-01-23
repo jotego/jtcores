@@ -239,7 +239,13 @@ jt1942_video u_video(
     .prom_e10_we( prom_e10_we   )
 );
 
-jtgng_rom u_rom (
+jtgng_rom #(
+    .snd_offset (22'h09000),
+    .char_offset(22'h0B000),
+    .scr_offset (22'h0C000),
+    .scr2_offset(22'h10000),
+    .obj_offset (22'h18000)
+) u_rom (
     .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
     .clk24       ( clk           ),
     .cen6        ( cen6          ),

@@ -78,7 +78,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 file=$fopen(filename,"rb");
                 if( file != 0 ) begin
                     romfilecnt=$fread( Bank0, file );
-                    $display("JTGNG.rom read into SDRAM");
+                    $display(filename," read into SDRAM");
                     $fclose(file);
                 end else begin
                     $display("ERROR: Cannot open file", filename);

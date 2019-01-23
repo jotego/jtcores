@@ -9,7 +9,8 @@ module game_test;
         $dumpfile("test.lxt");
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.u_main);
-            $dumpvars(1,game_test.UUT.u_video.u_obj);
+            $dumpvars(1,game_test.UUT);
+            //$dumpvars(1,game_test.UUT.u_video.u_obj);
             //$dumpvars(1,game_test.UUT.u_rom);
             //$dumpvars(1,game_test);
             //$dumpvars(1,game_test.datain);
@@ -139,6 +140,18 @@ wire   [15:0]  data_read;
 wire   loop_rst, autorefresh, loop_start; 
 wire   HS, VS;
 
+reg [6:0] prom_we;
+always @(*)
+    if( !downloading ) prom_we = 7'd0;
+    else case(romload_addr[10:8])
+        3'd0: prom_we = 7'h1;
+        3'd1: prom_we = 7'h2;
+        3'd2: prom_we = 7'h4;
+        3'd3: prom_we = 7'h8;
+        3'd4: prom_we = 7'h10;
+        3'd5: prom_we = 7'h20;
+        3'd6: prom_we = 7'h40;
+    endcase // romload_addr[10:8]
 
 jt1942_game UUT(
     .rst        ( rst       ),
@@ -170,16 +183,16 @@ jt1942_game UUT(
     .data_read   ( data_read     ),
 
     // PROM programming
-    .prog_addr  ( 8'b0      ),
-    .prog_din   ( 4'b0      ),
-    .prom_k6_we ( 1'b0      ),
-    .prom_d1_we ( 1'b0      ),
-    .prom_d2_we ( 1'b0      ),
-    .prom_e8_we ( 1'b0      ),
-    .prom_e9_we ( 1'b0      ),
-    .prom_e10_we( 1'b0      ),
-    .prom_f1_we ( 1'b0      ),    
-
+    .prog_addr   ( romload_addr[7:0] ),
+    .prog_din    ( romload_data[3:0] ),
+    .prom_k6_we  ( prom_we[0]        ),
+    .prom_d1_we  ( prom_we[1]        ),
+    .prom_d2_we  ( prom_we[2]        ),
+    .prom_e8_we  ( prom_we[3]        ),
+    .prom_e9_we  ( prom_we[4]        ),
+    .prom_e10_we ( prom_we[5]        ),
+    .prom_f1_we  ( prom_we[6]        ), 
+    
     // DIP switches
     .dip_test   ( 1'b0      ),
     .dip_planes ( 2'b0      ),
@@ -228,7 +241,7 @@ quick_sdram mist_sdram(
     .SDRAM_nWE  ( SDRAM_nWE     )
 );
 `else
-mt48lc16m16a2 #(.filename("../../rom/JT1942.rom")) mist_sdram (
+mt48lc16m16a2 #(.filename("../../../rom/JT1942.rom")) mist_sdram (
     .Dq         ( SDRAM_DQ      ),
     .Addr       ( SDRAM_A       ),
     .Ba         ( SDRAM_BA      ),
@@ -349,13 +362,18 @@ reg     CONF_DATA0;
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
-localparam TX_LEN           = 32'he000*2; // Only code for both CPUs
+localparam TX_LEN           = 234496;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
 
 initial begin
     file=$fopen("../../../rom/JT1942.rom","rb");
     tx_cnt=$fread( rom_buffer, file );
+    if( tx_cnt != TX_LEN ) begin
+        $display("Cannot read a JT1942.rom file long enough");
+        $fclose(file);
+        $finish;
+    end
     $fclose(file);
 end
 
@@ -450,7 +468,6 @@ data_io datain (
     .sdi        (SPI_DI       ),
     .downloading_sdram(downloading  ),
     // .index      (index        ),
-    .rst        ( rst         ),
     .clk_sdram  (SDRAM_CLK    ),
     .addr_sdram (romload_addr ),
     .data_sdram (romload_data )

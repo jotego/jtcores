@@ -96,9 +96,9 @@ case "$1" in
     "-load")
         LOADROM=${MACROPREFIX}LOADROM
         echo ROM load through SPI enabled
-        if [ ! -e ../../../rom/JTGNG.rom ]; then
-            echo "Missing file JTGNG.rom in rom folder"
-            echo "Run go-mist.sh in rom folder to generate it."
+        if [ ! -e ../../../rom/JT1942.rom ]; then
+            echo "Missing file JT1942.rom in rom folder"
+            echo "Run 1942rom.py in rom folder to generate it."
             exit 1
         fi
         ;;

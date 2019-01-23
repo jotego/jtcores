@@ -84,7 +84,8 @@ always @(A,rd_n) begin
     dipsw1_cs     = 1'b0;
     dipsw2_cs     = 1'b0;
     char_cs       = 1'b0;
-    scr_cs        = 1'b1;
+    scr_cs        = 1'b0;
+    obj_cs        = 1'b0;
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
@@ -126,7 +127,7 @@ always @(posedge clk)
         t80_rst_n <= 1'b0;
         bank   <= 3'd0;
     end
-    else if(cen6) begin
+    else if(cen3) begin
         if( bank_cs && rd_n ) begin
             bank <= cpu_dout[1:0];
         end
@@ -143,7 +144,7 @@ always @(posedge clk)
         flip <= 1'b0;
         sres_b <= 1'b1;
         end
-    else if(cen6) begin
+    else if(cen3) begin
         if( flip_cs ) 
             case(A[2:0])
                 3'd0: flip <= cpu_dout[0];
@@ -170,13 +171,14 @@ always @(*)
 
 
 // RAM, 8kB
-wire cpu_ram_we = ram_cs && rd_n;
+wire wr_n;
+wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-jtgng_ram #(.aw(11)) RAM(
+jtgng_ram #(.aw(12)) RAM(
     .clk        ( clk       ),
-    .cen        ( cen6      ),
-    .addr       ( A[10:0]   ),
+    .cen        ( cen3      ),
+    .addr       ( A[11:0]   ),
     .data       ( cpu_dout  ),
     .we         ( cpu_ram_we),
     .q          ( ram_dout  )
@@ -240,7 +242,7 @@ end
 tv80s #(.Mode(0)) u_cpu (
     .reset_n( t80_rst_n  ),
     .clk    ( clk        ), // 3 MHz, clock gated
-    .cen    ( cen6       ),
+    .cen    ( cen3       ),
     .wait_n ( wait_n     ),
     .int_n  ( int_n      ),
     .nmi_n  ( 1'b1       ),
@@ -262,7 +264,7 @@ tv80s #(.Mode(0)) u_cpu (
 T80pa u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
-    .CEN_p      ( cen6        ),
+    .CEN_p      ( cen3        ),
     .CEN_n      ( 1'b1        ),
     .WAIT_n     ( wait_n      ),
     .INT_n      ( int_n       ),
