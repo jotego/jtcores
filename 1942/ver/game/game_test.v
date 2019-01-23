@@ -216,6 +216,32 @@ jtgng_sdram u_sdram(
     .SDRAM_CKE      ( SDRAM_CKE     ) 
 );
 
+
+`ifdef FASTSDRAM
+quick_sdram mist_sdram(
+    .SDRAM_DQ   ( SDRAM_DQ      ),
+    .SDRAM_A    ( SDRAM_A       ),
+    .SDRAM_CLK  ( SDRAM_CLK     ),
+    .SDRAM_nCS  ( SDRAM_nCS     ),
+    .SDRAM_nRAS ( SDRAM_nRAS    ),
+    .SDRAM_nCAS ( SDRAM_nCAS    ),
+    .SDRAM_nWE  ( SDRAM_nWE     )
+);
+`else
+mt48lc16m16a2 mist_sdram (
+    .Dq         ( SDRAM_DQ      ),
+    .Addr       ( SDRAM_A       ),
+    .Ba         ( SDRAM_BA      ),
+    .Clk        ( SDRAM_CLK     ),
+    .Cke        ( SDRAM_CKE     ),
+    .Cs_n       ( SDRAM_nCS     ),
+    .Ras_n      ( SDRAM_nRAS    ),
+    .Cas_n      ( SDRAM_nCAS    ),
+    .We_n       ( SDRAM_nWE     ),
+    .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
+);
+`endif
+
 /*
 `ifdef VGACONV
 reg clk_vga;
