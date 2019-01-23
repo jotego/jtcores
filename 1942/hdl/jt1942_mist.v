@@ -173,18 +173,21 @@ jtgng_cen u_cen(
     wire   [15:0]  data_read;
     wire   loop_rst, autorefresh, loop_start; 
 
-reg [6:0] prom_we;
+reg [9:0] prom_we;
 always @(*)
-    if( !downloading ) prom_we = 7'd0;
-    else case(romload_addr[10:8])
-        3'd0: prom_we = 7'h1;
-        3'd1: prom_we = 7'h2;
-        3'd2: prom_we = 7'h4;
-        3'd3: prom_we = 7'h8;
-        3'd4: prom_we = 7'h10;
-        3'd5: prom_we = 7'h20;
-        3'd6: prom_we = 7'h40;
-        default: prom_we = 7'h0;
+    if( !downloading ) prom_we = 10'd0;
+    else case(romload_addr[11:8])
+        4'd0: prom_we = 10'h1;
+        4'd1: prom_we = 10'h2;
+        4'd2: prom_we = 10'h4;
+        4'd3: prom_we = 10'h8;
+        4'd4: prom_we = 10'h10;
+        4'd5: prom_we = 10'h20;
+        4'd6: prom_we = 10'h40;
+        4'd7: prom_we = 10'h80;
+        4'd8: prom_we = 10'h100;
+        4'd9: prom_we = 10'h200;
+        default: prom_we = 10'h0;
     endcase // romload_addr[10:8]
 
 jt1942_game game(
