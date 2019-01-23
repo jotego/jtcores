@@ -184,6 +184,7 @@ always @(*)
         3'd4: prom_we = 7'h10;
         3'd5: prom_we = 7'h20;
         3'd6: prom_we = 7'h40;
+        default: prom_we = 7'h0;
     endcase // romload_addr[10:8]
 
 jt1942_game game(

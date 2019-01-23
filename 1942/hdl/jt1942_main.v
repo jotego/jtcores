@@ -275,7 +275,7 @@ T80pa u_cpu(
     .A          ( A           ),
     .DI         ( cpu_din     ),
     .DO         ( cpu_dout    ),
-    .IORQ       ( iorq_n      ),
+    .IORQ_n     ( iorq_n      ),
     .M1_n       ( m1_n        ),
     // unused
     .REG        (),
