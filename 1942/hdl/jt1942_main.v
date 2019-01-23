@@ -28,7 +28,7 @@ module jt1942_main(
     input              [7:0] char_dout,
     input              LVBL,   // vertical blanking when 0
     output             [7:0] cpu_dout,
-    output             char_cs,
+    output  reg        char_cs,
     input              wait_n,
     output  reg        flip,
     // Sound
@@ -37,7 +37,7 @@ module jt1942_main(
     output             snd_latch1_cs,
     // scroll
     input   [7:0]      scr_dout,
-    output             scr_cs,
+    output  reg        scr_cs,
     output             scrpos_cs,
     // cabinet I/O
     input   [7:0]      joystick1,
@@ -78,12 +78,23 @@ always @(A,rd_n) begin
     joy2_cs       = 1'b0;
     dip1_cs       = 1'b0;
     dip2_cs       = 1'b0;
+    char_cs       = 1'b0;
+    scr_cs        = 1'b1;
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // COCS
+                    if( !rd_n )
+                        case(A[2:0])
+                            3'b000: in_cs; // coin, 1p/2p start...
+                            3'b001: joy1_cs;
+                            3'b010: joy2_cs;
+                            3'b011: dip1_cs;
+                            3'b100: dip2_cs;
+                            default:;
+                        endcase
                 2'b01:
                     if( A[10]==1'b1 )
                         obj_cs = 1'b1;
@@ -96,17 +107,9 @@ always @(A,rd_n) begin
                             3'b110: bank_cs    = 1'b1;
                             default:;
                         endcase
-                2'b10: // DOCS
-                2'b11: // SCRCE
+                2'b10: char_cs = 1'b1; // DOCS
+                2'b11: scr_cs  = 1'b1; // SCRCE
             endcase
-            if( !rd_n )
-                case(A[2:0])
-                    3'b000: in_cs; // coin, 1p/2p start...
-                    3'b001: joy1_cs;
-                    3'b010: joy2_cs;
-                    3'b011: dip1_cs;
-                    3'b100: dip2_cs;
-                    default:;
         3'b111: ram_cs = A[12]==1'b0; // csef
     endcase
 end

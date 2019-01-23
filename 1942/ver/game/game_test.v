@@ -1,16 +1,5 @@
 `timescale 1ns/1ps
 
-/*
-
-    Game test
-
-    ~0.95 frames/minute on DELL laptop
-    at least 900 frames to see SERVICE screen
-
-*/
-
-/* verilator lint_off STMTDLY */
-
 module game_test;
 `ifndef NCVERILOG
     `ifdef DUMP

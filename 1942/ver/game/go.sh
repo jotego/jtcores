@@ -25,11 +25,6 @@ MIST=
 MACROPREFIX=-D
 M6809_FILES=$(ls ../../../modules/mc6809/mc6809{,i}.v)
 
-if ! g++ init_ram.cc -o init_ram; then
-    exit 1;
-fi
-init_ram
-
 ARGNUMBER=1
 while [ $# -gt 0 ]; do
 case "$1" in
@@ -59,9 +54,6 @@ case "$1" in
         FASTSIM="$FASTSIM ${MACROPREFIX}NOSCR";;
     "-nochar")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOCHAR";;
-    "-altcpu")
-        FASTSIM="$FASTSIM ${MACROPREFIX}ALT6809";;
-        M6809_FILES=$(ls ../../../modules/cpu09l_128a.vhd)
     "-time")
         shift
         if [ "$1" = "" ]; then
@@ -146,11 +138,8 @@ function clear_hex_file {
 
 clear_hex_file obj_buf  128
 
-python char_msg.py
-
 case $SIMULATOR in
 iverilog)   iverilog -g2005-sv ${TOP}.v \
-        $(add_dir ../../../modules/jt12/hdl jt03.f) \
         -f game.f \
         ../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
         $M6809_FILES \
@@ -161,7 +150,6 @@ iverilog)   iverilog -g2005-sv ${TOP}.v \
     && sim -lxt;;
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
-        -F ../../../modules/jt12/hdl/jt03.f \
         ../../../modules/jt12/hdl/mixer/jt12_mixer.v \
         -f game.f \
         ../common/mt48lc16m16a2.v \
@@ -178,7 +166,6 @@ verilator)
         $M6809_FILES \
         ../../../modules/tv80/*.v \
         ../common/quick_sdram.v \
-        -F ../../../modules/jt12/hdl/jt03.f \
         --top-module jtgng_game -o sim \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
         -DVERILATOR_LINT \
