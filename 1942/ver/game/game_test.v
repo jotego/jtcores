@@ -132,75 +132,71 @@ jt1942_cen u_cen(
     .cen1p5 ( cen1p5 )
 );
 
+wire [15:0] snd;
+wire snd_sample;
 
-jt1942_game UUT (
+wire [12:0]  char_addr;
+wire [12:0]  obj_addr;
+wire [14:0]  scr_addr;
+wire [16:0]  main_addr;
+wire [14:0]  snd_addr;
+
+wire [15:0]  char_data;
+wire [15:0]  obj_data;
+wire [23:0]  scr_data;
+wire [ 7:0]  main_data;
+wire [ 7:0]  snd_data;
+
+
+jt1942_game UUT(
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
     .clk        ( clk       ),
     .cen6       ( cen6      ),
     .cen3       ( cen3      ),
     .cen1p5     ( cen1p5    ),
-    .SDRAM_CLK  ( SDRAM_CLK ),
+
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-
-    .SDRAM_DQ   ( SDRAM_DQ  ),
-    .SDRAM_A    ( SDRAM_A   ),
-    .SDRAM_DQML ( SDRAM_DQML),
-    .SDRAM_DQMH ( SDRAM_DQMH),
-    .SDRAM_nWE  ( SDRAM_nWE ),
-    .SDRAM_nCAS ( SDRAM_nCAS),
-    .SDRAM_nRAS ( SDRAM_nRAS),
-    .SDRAM_nCS  ( SDRAM_nCS ),
-    .SDRAM_BA   ( SDRAM_BA  ),
-    .SDRAM_CKE  ( SDRAM_CKE ),
+    .HS         ( HS        ),
+    .VS         ( VS        ),
+    // cabinet I/O
     .joystick1  ( 8'hff     ),
     .joystick2  ( 8'hff     ),
-    .downloading( downloading ),
-    .romload_addr( romload_addr ),
-    .romload_data( romload_data ),
-    // Debug
-    .enable_char( 1'b1          ),
-    .enable_obj ( 1'b1          ),
-    .enable_scr ( 1'b1          ),
-    .enable_psg ( 1'b1          ),
-    .enable_fm  ( 1'b1          ),
+    // ROM data
+    .char_addr  ( char_addr ),
+    .char_data  ( char_data ),
+    .obj_addr   ( obj_addr  ),
+    .obj_data   ( obj_data  ),
+    .scr_addr   ( scr_addr  ),
+    .scr_data   ( scr_data  ),    
+    .main_addr  ( main_addr ),
+    .main_data  ( main_data ),
+    .snd_addr   ( snd_addr  ),
+    .snd_data   ( snd_data  ),
+
+    // PROM programming
+    .prog_addr  ( 8'b0      ),
+    .prom_din   ( 4'b0      ),
+    .prom_e8_we ( 1'b0      ),
+    .prom_e9_we ( 1'b0      ),
+    .prom_e10_we( 1'b0      ),
+    .prom_f1_we ( 1'b0      ),    
+
     // DIP switches
-    //.dip_flip     (   1'b0    ),
-    .dip_game_mode  (   1'b0    ),
-    .dip_attract_snd(   1'b0    ),
-    .dip_upright    (   1'b1    ),
-    .ym_snd         (           ),
-    .sample         (           )
+    .dip_test   ( 1'b0      ),
+    .dip_planes ( 2'b0      ),
+    .dip_level  ( 2'b0      ),
+    .dip_upright( 1'b0      ),
+    .dip_price  ( 4'b0      ),    
+    // Sound output
+    .snd            ( snd       ),
+    .sample         ( snd_sample)
 );
 
-`ifdef FASTSDRAM
-quick_sdram mist_sdram(
-    .SDRAM_DQ   ( SDRAM_DQ      ),
-    .SDRAM_A    ( SDRAM_A       ),
-    .SDRAM_CLK  ( SDRAM_CLK     ),
-    .SDRAM_nCS  ( SDRAM_nCS     ),
-    .SDRAM_nRAS ( SDRAM_nRAS    ),
-    .SDRAM_nCAS ( SDRAM_nCAS    ),
-    .SDRAM_nWE  ( SDRAM_nWE     )
-);
-`else
-mt48lc16m16a2 mist_sdram (
-    .Dq         ( SDRAM_DQ      ),
-    .Addr       ( SDRAM_A       ),
-    .Ba         ( SDRAM_BA      ),
-    .Clk        ( SDRAM_CLK     ),
-    .Cke        ( SDRAM_CKE     ),
-    .Cs_n       ( SDRAM_nCS     ),
-    .Ras_n      ( SDRAM_nRAS    ),
-    .Cas_n      ( SDRAM_nCAS    ),
-    .We_n       ( SDRAM_nWE     ),
-    .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
-);
-`endif
 /*
 `ifdef VGACONV
 reg clk_vga;

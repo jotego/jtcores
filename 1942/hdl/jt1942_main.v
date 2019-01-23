@@ -51,10 +51,8 @@ module jt1942_main(
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     // DIP switches
-    input              dip_flip,
-    input              dip_game_mode,
-    input              dip_attract_snd,
-    input              dip_upright
+    input    [7:0]     dipsw_a,
+    input    [7:0]     dipsw_b
 );
 
 wire [15:0] A;
@@ -150,10 +148,6 @@ always @(posedge clk)
     end
 
 reg [7:0] cabinet_input;
-wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };
-wire [7:0] dipsw_b = { 3'd3, /* normal game */
-    2'd3, /* bonus at 20k and every 70k */
-    dip_upright, 2'd3 /* 3 lifes */ };
 
 always @(*)
     case( cpu_AB[3:0])

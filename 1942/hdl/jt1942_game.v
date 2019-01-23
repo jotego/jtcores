@@ -54,9 +54,11 @@ module jt1942_game(
     input           prom_f1_we,    
 
     // DIP switches
-    input           dip_game_mode,
-    input           dip_attract_snd,
+    input           dip_test,
+    input   [1:0]   dip_planes,
+    input   [1:0]   dip_level, // difficulty level
     input           dip_upright,
+    input   [3:0]   dip_price,
     // Sound output
     output  [15:0]  snd,
     output          sample
@@ -110,6 +112,9 @@ wire [7:0] snd_latch;
 
 wire scr_cs, scrpos_cs;
 
+wire [7:0] dipsw_a = { dip_planes, 2'b00, dip_upright, dip_price };
+wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b0 };
+
 jtgng_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -141,10 +146,8 @@ jtgng_main u_main(
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),   
     // DIP switches
-    .dip_flip       ( 1'b0      ),
-    .dip_game_mode  ( dip_game_mode     ),
-    .dip_attract_snd( dip_attract_snd   ),
-    .dip_upright    ( dip_upright       )
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
 );
 
 `ifndef NOSOUND
