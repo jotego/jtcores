@@ -82,7 +82,7 @@ end
 wire [7:0] dout_low, dout_high;
 assign dout = AB[4] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(9),.simfile("scr_ram.hex")) u_ram_low(
+jtgng_ram #(.aw(9)) u_ram_tile(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),
@@ -91,7 +91,7 @@ jtgng_ram #(.aw(9),.simfile("scr_ram.hex")) u_ram_low(
     .q      ( dout_low )
 );
 
-jtgng_ram #(.aw(9),.simfile("scr_att.hex")) u_ram_high(
+jtgng_ram #(.aw(9)) u_ram_att(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),

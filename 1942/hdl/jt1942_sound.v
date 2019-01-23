@@ -25,16 +25,18 @@ module jt1942_sound(
     input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
     input           cen1p5 /* synthesis direct_enable = 1 */, //  1.5 MHz
     input           rst,
+    input           soft_rst,    
     // Interface with main CPU
-    input           cpu_bres,
+    input           sres_b,
     input   [ 7:0]  main_dout,
     input           main_latch0_cs,
     input           main_latch1_cs,
+    input           snd_int,
     // ROM access
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
     // Sound output
-    output  [ 8:0]  snd,
+    output reg [ 8:0]  snd,
     output  sample
 );
 
@@ -58,7 +60,7 @@ assign rom_addr = A[14:0];
 reg reset_n=1'b0;
 
 always @(posedge clk) if(cen3)
-    reset_n <= ~( rst | ~cpu_bres | ~sres_b );
+    reset_n <= ~( rst | soft_rst | ~sres_b );
 
 wire rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs;
 reg [4:0] map_cs;
@@ -90,7 +92,7 @@ wire wr_n;
 wire RAM_we = ram_cs && !wr_n;
 wire [7:0] ram_dout, dout;
 
-jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
+jtgng_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dout     ),
@@ -100,6 +102,7 @@ jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
 );
 
 reg [7:0] din;
+wire [7:0] ay1_dout, ay0_dout;
 
 always @(*)
     case( {ay1_cs, ay0_cs, latch_cs, rom_cs,ram_cs } )

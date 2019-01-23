@@ -26,40 +26,47 @@ module jt1942_main(
     input              rst,
     input              soft_rst,
     input              [7:0] char_dout,
-    input              LVBL,   // vertical blanking when 0
     output             [7:0] cpu_dout,
     output  reg        char_cs,
     input              wait_n,
+    input              scr_mrdy,
     output  reg        flip,
+    input   [7:0]      V,
+    input              LHBL,
     // Sound
     output  reg        sres_b, // sound reset
-    output             snd_latch0_cs,
-    output             snd_latch1_cs,
+    output  reg        snd_int,
+    output  reg        snd_latch0_cs,
+    output  reg        snd_latch1_cs,
     // scroll
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
-    output             scrpos_cs,
+    output  reg        scrpos_cs,
+    // Object
+    output  reg        obj_cs,
     // cabinet I/O
     input   [7:0]      joystick1,
     input   [7:0]      joystick2,
     // BUS sharing
-    input   [ 8:0]     obj_AB,
     output  [12:0]     cpu_AB,
-    output             RnW,
-    output             OKOUT,
+    output             rd_n,
     // ROM access
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     // DIP switches
     input    [7:0]     dipsw_a,
-    input    [7:0]     dipsw_b
+    input    [7:0]     dipsw_b,
+    // PROM F1
+    input    [7:0]     prog_addr,
+    input              prom_k6_we,
+    input    [3:0]     prog_din
 );
 
 wire [15:0] A;
 wire [ 7:0] ram_dout;
-reg nRESET;
-wire in_cs;
-wire ram_cs, bank_cs, flip_cs;
+reg t80_rst_n;
+reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, 
+    joy1_cs, joy2_cs, dipsw1_cs, dipsw2_cs;
 
 reg [7:0] AH;
 
@@ -74,8 +81,8 @@ always @(A,rd_n) begin
     in_cs         = 1'b0;
     joy1_cs       = 1'b0;
     joy2_cs       = 1'b0;
-    dip1_cs       = 1'b0;
-    dip2_cs       = 1'b0;
+    dipsw1_cs     = 1'b0;
+    dipsw2_cs     = 1'b0;
     char_cs       = 1'b0;
     scr_cs        = 1'b1;
     casez(A[15:13])
@@ -86,11 +93,11 @@ always @(A,rd_n) begin
                 2'b00: // COCS
                     if( !rd_n )
                         case(A[2:0])
-                            3'b000: in_cs; // coin, 1p/2p start...
-                            3'b001: joy1_cs;
-                            3'b010: joy2_cs;
-                            3'b011: dip1_cs;
-                            3'b100: dip2_cs;
+                            3'b000: in_cs     = 1'b1; // coin, 1p/2p start...
+                            3'b001: joy1_cs   = 1'b1;
+                            3'b010: joy2_cs   = 1'b1;
+                            3'b011: dipsw1_cs = 1'b1;
+                            3'b100: dipsw2_cs = 1'b1;
                             default:;
                         endcase
                 2'b01:
@@ -98,11 +105,11 @@ always @(A,rd_n) begin
                         obj_cs = 1'b1;
                     else
                         case(A[2:0])
-                            3'b000: snd_latch0 = 1'b1;
-                            3'b001: snd_latch1 = 1'b1;
-                            3'b01?: scrpos_cs  = 1'b1;
-                            3'b100: flip_cs    = 1'b1;
-                            3'b110: bank_cs    = 1'b1;
+                            3'b000: snd_latch0_cs = 1'b1;
+                            3'b001: snd_latch1_cs = 1'b1;
+                            3'b01?: scrpos_cs     = 1'b1;
+                            3'b100: flip_cs       = 1'b1;
+                            3'b110: bank_cs       = 1'b1;
                             default:;
                         endcase
                 2'b10: char_cs = 1'b1; // DOCS
@@ -116,14 +123,14 @@ end
 reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        nRESET <= 1'b0;
+        t80_rst_n <= 1'b0;
         bank   <= 3'd0;
     end
     else if(cen6) begin
-        if( bank_cs && !RnW ) begin
+        if( bank_cs && rd_n ) begin
             bank <= cpu_dout[1:0];
         end
-        else nRESET <= ~(rst | soft_rst);
+        else t80_rst_n <= ~(rst | soft_rst);
     end
 
 localparam coinw = 4;
@@ -163,18 +170,15 @@ always @(*)
 
 
 // RAM, 8kB
-wire cpu_ram_we = ram_cs && !RnW;
+wire cpu_ram_we = ram_cs && rd_n;
 assign cpu_AB = A[12:0];
 
-wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
-wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
-
-jtgng_ram #(.aw(12)) RAM(
+jtgng_ram #(.aw(11)) RAM(
     .clk        ( clk       ),
     .cen        ( cen6      ),
-    .addr       ( RAM_addr  ),
+    .addr       ( A[10:0]   ),
     .data       ( cpu_dout  ),
-    .we         ( RAM_we    ),
+    .we         ( cpu_ram_we),
     .q          ( ram_dout  )
 );
 
@@ -201,34 +205,23 @@ always @(A,bank) begin
     endcase
 end
 
-// Bus access
-reg nIRQ, last_LVBL;
-wire BS,BA;
-
-assign bus_ack = BA && BS;
-
-always @(posedge clk) if(cen6) begin
-    last_LVBL <= LVBL;
-    if( {BS,BA}==2'b10 )
-        nIRQ <= 1'b1;
-    else 
-        if(last_LVBL && !LVBL ) nIRQ<=1'b0; // when LVBL goes low
-end
-
 wire [3:0] int_ctrl;
 
 wire [7:0] prom_k6_addr = prom_k6_we ? prog_addr[7:0] : V[7:0];
 
 jtgng_ram #(.aw(8),.dw(4),.simfile("prom_k6.hex")) u_vprom(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_k6_din    ),
-    .addr   ( prom_k6_addr   ),
-    .we     ( prom_k6_we     ),
-    .q      ( int_ctrl       )
+    .clk    ( clk          ),
+    .cen    ( cen6         ),
+    .data   ( prog_din     ),
+    .addr   ( prom_k6_addr ),
+    .we     ( prom_k6_we   ),
+    .q      ( int_ctrl     )
 );
 
 reg [7:0] vstatus;
+reg int_n, LHBL_old;
+wire iorq_n, m1_n;
+wire LHBL_rising = LHBL && ! LHBL_old;
 
 always @(posedge clk) if(cen3) begin // H1 == cen3
     // Schematic K10
@@ -236,6 +229,7 @@ always @(posedge clk) if(cen3) begin // H1 == cen3
     // Schematic L5 - sound interrupter
     snd_int <= int_ctrl[2];
     // Schematic L6, L5 - main CPU interrupter
+    LHBL_old<=LHBL;
     if( iorq_n || m1_n )
         int_n <= 1'b1;
     else if(LHBL_rising) int_n <= int_ctrl[3];
@@ -244,20 +238,20 @@ end
 
 `ifdef SIMULATION
 tv80s #(.Mode(0)) u_cpu (
-    .reset_n(reset_n ),
-    .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (cen6    ),
-    .wait_n (wait_n  ),
-    .int_n  (int_n   ),
-    .nmi_n  (1'b1    ),
-    .busrq_n(1'b1    ),
-    .rd_n   (rd_n    ),
-    .wr_n   (wr_n    ),
-    .A      (A       ),
-    .di     (din     ),
-    .dout   (dout    ),
-    .iorq_n (iorq_n  ),
-    .m1_n   (m1_n    ),
+    .reset_n( t80_rst_n  ),
+    .clk    ( clk        ), // 3 MHz, clock gated
+    .cen    ( cen6       ),
+    .wait_n ( wait_n     ),
+    .int_n  ( int_n      ),
+    .nmi_n  ( 1'b1       ),
+    .busrq_n( 1'b1       ),
+    .rd_n   ( rd_n       ),
+    .wr_n   ( wr_n       ),
+    .A      ( A          ),
+    .di     ( cpu_din    ),
+    .dout   ( cpu_dout   ),
+    .iorq_n ( iorq_n     ),
+    .m1_n   ( m1_n       ),
     // unused
     .mreq_n (),
     .busak_n(),
@@ -266,21 +260,21 @@ tv80s #(.Mode(0)) u_cpu (
 );
 `else
 T80pa u_cpu(
-    .RESET_n    ( reset_n ),
-    .CLK        ( clk     ),
-    .CEN_p      ( cen6    ),
-    .CEN_n      ( 1'b1    ),
-    .WAIT_n     ( wait_n  ),
-    .INT_n      ( int_n   ),
-    .NMI_n      ( 1'b1    ),
-    .BUSRQ_n    ( 1'b1    ),
-    .RD_n       ( rd_n    ),
-    .WR_n       ( wr_n    ),
-    .A          ( A       ),
-    .DI         ( din     ),
-    .DO         ( dout    ),
-    .IORQ       ( iorq_n  ),
-    .M1_n       ( m1_n    ),
+    .RESET_n    ( t80_rst_n   ),
+    .CLK        ( clk         ),
+    .CEN_p      ( cen6        ),
+    .CEN_n      ( 1'b1        ),
+    .WAIT_n     ( wait_n      ),
+    .INT_n      ( int_n       ),
+    .NMI_n      ( 1'b1        ),
+    .BUSRQ_n    ( 1'b1        ),
+    .RD_n       ( rd_n        ),
+    .WR_n       ( wr_n        ),
+    .A          ( A           ),
+    .DI         ( cpu_din     ),
+    .DO         ( cpu_dout    ),
+    .IORQ       ( iorq_n      ),
+    .M1_n       ( m1_n        ),
     // unused
     .REG        (),
     .RFSH_n     (),

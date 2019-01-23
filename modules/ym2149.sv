@@ -64,12 +64,12 @@ module ym2149
 	output [7:0] IOB_out
 );
 
+reg [7:0] addr;
+reg [7:0] ymreg[16];
+
 assign ACTIVE  = ~ymreg[7][5:0];
 assign IOA_out = ymreg[14];
 assign IOB_out = ymreg[15];
-
-reg [7:0] addr;
-reg [7:0] ymreg[16];
 
 // Write to PSG
 reg env_reset;
@@ -92,8 +92,8 @@ always @(posedge CLK) begin
 end
 
 // Read from PSG
-assign DO = dout;
 reg [7:0] dout;
+assign DO = dout;
 always_comb begin
 	dout = 8'hFF;
 	if(~BDIR & BC & !addr[7:4]) begin

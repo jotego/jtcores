@@ -47,7 +47,10 @@ module jt1942_game(
 
     // PROM programming
     input   [ 7:0]  prog_addr,
-    input   [ 3:0]  prom_din,
+    input   [ 3:0]  prog_din,
+    input           prom_k6_we,
+    input           prom_d1_we,
+    input           prom_d2_we,
     input           prom_e8_we,
     input           prom_e9_we,
     input           prom_e10_we,
@@ -60,7 +63,7 @@ module jt1942_game(
     input           dip_upright,
     input   [3:0]   dip_price,
     // Sound output
-    output  [15:0]  snd,
+    output  [8:0]   snd,
     output          sample
 );
 
@@ -74,7 +77,7 @@ wire flip;
 wire [7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire rd;
-wire char_mrdy, scr_mrdy;
+wire scr_mrdy;
 wire rom_ready;
 
 reg rst_game=1'b1;
@@ -105,7 +108,7 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-wire RnW;
+wire rd_n;
 // sound
 wire sres_b;
 wire [7:0] snd_latch;
@@ -116,8 +119,8 @@ wire [7:0] dipsw_a = { dip_planes, 2'b00, dip_upright, dip_price };
 wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b0 };
 
 // ROM data
-wire  [12:0]  char_addr;
-wire  [12:0]  obj_addr;
+wire  [11:0]  char_addr;
+wire  [13:0]  obj_addr;
 wire  [15:0]  char_data, obj_data;
 wire  [ 7:0]  main_data, snd_data;
 wire  [23:0]  scr_data;
@@ -125,107 +128,115 @@ wire  [14:0]  scr_addr;
 wire  [16:0]  main_addr;
 wire  [14:0]  snd_addr;
 
-jtgng_main u_main(
+wire snd_latch0_cs, snd_latch1_cs, snd_int;
+wire wait_n;
+
+jt1942_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
     .rst        ( rst_game      ),
     .soft_rst   ( soft_rst      ),
-    .ch_mrdy    ( char_mrdy     ),
+    .wait_n     ( wait_n        ),
     .scr_mrdy   ( scr_mrdy      ),
     .char_dout  ( chram_dout    ),
     .scr_dout   ( scram_dout    ),
     // sound
-    .sres_b     ( sres_b        ),
-    .snd_latch  ( snd_latch     ),
+    .sres_b        ( sres_b        ),
+    .snd_latch0_cs ( snd_latch0_cs ),
+    .snd_latch1_cs ( snd_latch1_cs ),
+    .snd_int       ( snd_int       ),
     
-    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
+    .obj_cs     ( obj_cs        ),
     .flip       ( flip          ),
-    .bus_ack    ( bus_ack       ),
+    .V          ( V[7:0]        ),
     .cpu_AB     ( cpu_AB        ),
-    .RnW        ( RnW           ),
+    .rd_n       ( rd_n          ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),   
+    // PROM K6
+    .prog_addr  ( prog_addr     ),
+    .prom_k6_we ( prom_k6_we    ),
+    .prog_din   ( prog_din      ),
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
 
 `ifndef NOSOUND
-jtgng_sound u_sound (
-    .clk            ( clk        ),
-    .cen3           ( cen3       ),
-    .cen1p5         ( cen1p5     ),
-    .rst            ( rst_game   ),
-    .soft_rst       ( soft_rst   ),
-    .sres_b         ( sres_b     ),
-    .snd_latch      ( snd_latch  ),
-    .V32            ( V[5]       ),
-    .rom_addr       ( snd_addr   ),
-    .rom_data       ( snd_data   ),
-    .enable_psg     ( enable_psg ),
-    .enable_fm      ( enable_fm  ),
-    .ym_snd         ( ym_snd     ),
-    .sample         ( sample     ) 
+jt1942_sound u_sound (
+    .clk            ( clk            ),
+    .cen6           ( cen6           ),
+    .cen3           ( cen3           ),
+    .cen1p5         ( cen1p5         ),
+    .rst            ( rst_game       ),
+    .soft_rst       ( soft_rst       ),
+    .sres_b         ( sres_b         ),
+    .main_dout      ( cpu_dout       ),
+    .main_latch0_cs ( snd_latch0_cs  ),
+    .main_latch1_cs ( snd_latch1_cs  ),
+    .snd_int        ( snd_int        ),
+    .rom_addr       ( snd_addr       ),
+    .rom_data       ( snd_data       ),
+    .snd            ( snd            ),
+    .sample         ( sample         ) 
 );
 `else 
 assign snd_addr = 15'd0;
 `endif
 
-jtgng_video u_video(
+jt1942_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
-    .RnW        ( RnW           ),
+    .rd_n       ( rd_n          ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
-    .char_mrdy  ( char_mrdy     ),
     .char_addr  ( char_addr     ), // CHAR ROM
     .char_data  ( char_data     ),
+    .char_wait_n( wait_n        ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),    
-    .scram_dout ( scram_dout    ),    
+    .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_dout      ),   
-    .scr_mrdy   ( scr_mrdy      ), 
+    .scrom_data ( scr_data      ),
+    .scr_mrdy   ( scr_mrdy      ),
     // OBJ
-    .HINIT      ( HINIT         ),    
-    .obj_AB     ( obj_AB        ),    
-    .main_ram   ( main_ram      ),
-    .OKOUT      ( OKOUT         ),
-    .bus_req    ( bus_req       ), // Request bus
-    .bus_ack    ( bus_ack       ), // bus acknowledge
-    .blcnten    ( blcnten       ), // bus line counter enable
+    .obj_cs     ( obj_cs        ),
+    .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_dout      ),    
+    .objrom_data( obj_data      ),
     // Color Mix
-    .LHBL       ( LHBL          ),       
-    .LHBL_obj   ( LHBL_obj      ),       
+    .LHBL       ( LHBL          ),
+    .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),    
-    .enable_char( enable_char   ),
-    .enable_obj ( enable_obj    ),
-    .enable_scr ( enable_scr    ),    
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          )    
+    .blue       ( blue          ),
+    // PROM access
+    .prog_addr  ( prog_addr     ),
+    .prog_din   ( prog_din      ),
+    .prom_f1_we ( prom_f1_we    ),
+    .prom_d1_we ( prom_d1_we    ),
+    .prom_d2_we ( prom_d2_we    ),
+    .prom_e8_we ( prom_e8_we    ),
+    .prom_e9_we ( prom_e9_we    ),
+    .prom_e10_we( prom_e10_we   )
 );
 
 jtgng_rom u_rom (
@@ -234,17 +245,17 @@ jtgng_rom u_rom (
     .cen6        ( cen6          ),
     .H           ( H[2:0]        ),
     .rst         ( rst           ),
-    .char_addr   ( char_addr     ),
+    .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
-    .obj_addr    ( obj_addr      ),
+    .obj_addr    ( {2'd0, obj_addr} ),
     .scr_addr    ( scr_addr      ),
 
-    .char_dout   ( chrom_data    ),
-    .main_dout   ( main_dout     ),
-    .snd_dout    ( snd_dout      ),
-    .obj_dout    ( obj_dout      ),
-    .scr_dout    ( scr_dout      ),
+    .char_dout   ( char_data     ),
+    .main_dout   ( main_data     ),
+    .snd_dout    ( snd_data      ),
+    .obj_dout    ( obj_data      ),
+    .scr_dout    ( scr_data      ),
     .ready       ( rom_ready     ),
     // SDRAM interface
     .downloading ( downloading   ),

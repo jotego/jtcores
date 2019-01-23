@@ -142,7 +142,6 @@ case $SIMULATOR in
 iverilog)   iverilog -g2005-sv ${TOP}.v \
         -f game.f \
         ../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
-        $M6809_FILES \
         ../../../modules/tv80/*.v $MIST \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
@@ -150,12 +149,11 @@ iverilog)   iverilog -g2005-sv ${TOP}.v \
     && sim -lxt;;
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
-        ../../../modules/jt12/hdl/mixer/jt12_mixer.v \
         -f game.f \
-        ../common/mt48lc16m16a2.v \
+        ../../../modules/ver/mt48lc16m16a2.v \
+        ../../../modules/jtgng_sdram.v \
         -vhdlext vhdl93 \
         ../../../modules/tv80/*.v $MIST \
-        $M6809_FILES \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME $OBJTEST;;

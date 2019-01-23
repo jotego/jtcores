@@ -23,30 +23,26 @@ module jt1942_video(
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
-    input               RnW,
+    input               rd_n,
     input               flip,
     input       [ 7:0]  cpu_dout,
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
-    output              char_mrdy,
     output      [11:0]  char_addr,
     input       [15:0]  char_data,
+    output              char_wait_n,
     // SCROLL - ROM
     input               scr_cs,
     input               scrpos_cs,    
+    output              scr_mrdy,
     output      [ 7:0]  scram_dout,    
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,    
     // OBJ
+    input               obj_cs,
     input               HINIT,    
-    output      [ 8:0]  obj_AB,    
-    input       [ 7:0]  main_ram,
-    input               OKOUT,
-    output              bus_req, // Request bus
-    input               bus_ack, // bus acknowledge
-    output              blcnten,    // bus line counter enable
-    output      [15:0]  obj_addr,
+    output      [13:0]  obj_addr,
     input       [15:0]  objrom_data,    
     // Color Mix
     input               LVBL,

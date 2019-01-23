@@ -43,7 +43,6 @@ module game_test;
             $shm_probe(UUT.u_rom,"A");
             `ifndef NOSOUND
             $shm_probe(UUT.u_sound,"A");
-            $shm_probe(UUT.u_sound.u_mixer,"A");
             `endif
         `endif
         // $shm_probe(UUT.u_video,"A");
@@ -125,14 +124,14 @@ wire    [24:0]  romload_addr;
 wire    [15:0]  romload_data;
 
 
-jt1942_cen u_cen(
+jtgng_cen u_cen(
     .clk    ( clk    ),    // 24 MHz
     .cen6   ( cen6   ),
     .cen3   ( cen3   ),
     .cen1p5 ( cen1p5 )
 );
 
-wire [15:0] snd;
+wire [8:0] snd;
 wire snd_sample;
 
 wire   [21:0]  sdram_addr;
@@ -145,6 +144,7 @@ jt1942_game UUT(
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
     .clk        ( clk       ),
+    .clk_rom    ( clk_rom   ),
     .cen6       ( cen6      ),
     .cen3       ( cen3      ),
     .cen1p5     ( cen1p5    ),
@@ -171,7 +171,10 @@ jt1942_game UUT(
 
     // PROM programming
     .prog_addr  ( 8'b0      ),
-    .prom_din   ( 4'b0      ),
+    .prog_din   ( 4'b0      ),
+    .prom_k6_we ( 1'b0      ),
+    .prom_d1_we ( 1'b0      ),
+    .prom_d2_we ( 1'b0      ),
     .prom_e8_we ( 1'b0      ),
     .prom_e9_we ( 1'b0      ),
     .prom_e10_we( 1'b0      ),
