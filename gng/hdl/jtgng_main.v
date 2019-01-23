@@ -21,8 +21,8 @@
 module jtgng_main(
     input              clk, 
     input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
-    input              cen3  /* synthesis direct_enable = 1 */,   // 3MHz
-    input              cen1p5  /* synthesis direct_enable = 1 */,   // 1.5MHz
+    input              cen3,   // 3MHz
+    input              cen1p5,   // 1.5MHz
     input              rst,
     input              soft_rst,
     input              ch_mrdy,

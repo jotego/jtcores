@@ -20,6 +20,7 @@ module jtgng_game(
     input           rst,
     input           soft_rst,
     input           clk,        // 24   MHz
+    input           clk_rom,    // 96   MHz
     input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
     input           cen1p5,     //  1.5 MHz
@@ -34,19 +35,12 @@ module jtgng_game(
     input   [7:0]   joystick1,
     input   [7:0]   joystick2,  
     // SDRAM interface
-    input           SDRAM_CLK,      // SDRAM Clock 81 MHz
-    inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
-    output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
-    output          SDRAM_DQML,     // SDRAM Low-byte Data Mask
-    output          SDRAM_DQMH,     // SDRAM High-byte Data Mask
-    output          SDRAM_nWE,      // SDRAM Write Enable
-    output          SDRAM_nCAS,     // SDRAM Column Address Strobe
-    output          SDRAM_nRAS,     // SDRAM Row Address Strobe
-    output          SDRAM_nCS,      // SDRAM Chip Select
-    output [1:0]    SDRAM_BA,       // SDRAM Bank Address
-    output          SDRAM_CKE,      // SDRAM Clock Enable
-    // ROM load
     input           downloading,
+    input           loop_rst,
+    output          autorefresh,
+    output          loop_start,
+    output  [21:0]  sdram_addr,
+    input   [15:0]  data_read,
     input   [24:0]  romload_addr,
     input   [15:0]  romload_data,
     // DEBUG
@@ -255,38 +249,30 @@ jtgng_video u_video(
 );
 
 jtgng_rom u_rom (
-    .clk        ( SDRAM_CLK     ), // 96MHz = 32 * 6 MHz -> CL=2
-    .clk24      ( clk           ),
-    .cen6       ( cen6          ),
-    .H          ( H[2:0]        ),
-    .rst        ( rst           ),
-    .char_addr  ( char_addr     ),
-    .main_addr  ( main_addr     ),
-    .snd_addr   ( snd_addr      ),
-    .obj_addr   ( obj_addr      ),
-    .scr_addr   ( scr_addr      ),
+    .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
+    .clk24       ( clk           ),
+    .cen6        ( cen6          ),
+    .H           ( H[2:0]        ),
+    .rst         ( rst           ),
+    .char_addr   ( char_addr     ),
+    .main_addr   ( main_addr     ),
+    .snd_addr    ( snd_addr      ),
+    .obj_addr    ( obj_addr      ),
+    .scr_addr    ( scr_addr      ),
 
-    .char_dout  ( chrom_data    ),
-    .main_dout  ( main_dout     ),
-    .snd_dout   ( snd_dout      ),
-    .obj_dout   ( obj_dout      ),
-    .scr_dout   ( scr_dout      ),
-    .ready      ( rom_ready     ),
+    .char_dout   ( chrom_data    ),
+    .main_dout   ( main_dout     ),
+    .snd_dout    ( snd_dout      ),
+    .obj_dout    ( obj_dout      ),
+    .scr_dout    ( scr_dout      ),
+    .ready       ( rom_ready     ),
     // SDRAM interface
-    .SDRAM_DQ   ( SDRAM_DQ      ),
-    .SDRAM_A    ( SDRAM_A       ),
-    .SDRAM_DQML ( SDRAM_DQML    ),
-    .SDRAM_DQMH ( SDRAM_DQMH    ),
-    .SDRAM_nWE  ( SDRAM_nWE     ),
-    .SDRAM_nCAS ( SDRAM_nCAS    ),
-    .SDRAM_nRAS ( SDRAM_nRAS    ),
-    .SDRAM_nCS  ( SDRAM_nCS     ),
-    .SDRAM_BA   ( SDRAM_BA      ),
-    .SDRAM_CKE  ( SDRAM_CKE     ),
-    // ROM load
-    .downloading ( downloading  ),
-    .romload_addr( romload_addr ),
-    .romload_data( romload_data )
+    .downloading ( downloading   ),
+    .loop_rst    ( loop_rst      ),
+    .autorefresh ( autorefresh   ),
+    .loop_start  ( loop_start    ),
+    .sdram_addr  ( sdram_addr    ),
+    .data_read   ( data_read     )
 );
 
 endmodule // jtgng

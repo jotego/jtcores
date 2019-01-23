@@ -143,36 +143,38 @@ jtgng_cen u_cen(
     .cen1p5 ( cen1p5 )
 );
 
+wire   [21:0]  sdram_addr;
+wire   [15:0]  data_read;
+wire   loop_rst, autorefresh, loop_start; 
+wire   HS, VS;
 
 jtgng_game UUT (
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
     .clk        ( clk       ),
+    .clk_rom    ( clk_rom   ),
     .cen6       ( cen6      ),
     .cen3       ( cen3      ),
     .cen1p5     ( cen1p5    ),
-    .SDRAM_CLK  ( SDRAM_CLK ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
+    .HS         ( HS        ),
+    .VS         ( VS        ),
 
-    .SDRAM_DQ   ( SDRAM_DQ  ),
-    .SDRAM_A    ( SDRAM_A   ),
-    .SDRAM_DQML ( SDRAM_DQML),
-    .SDRAM_DQMH ( SDRAM_DQMH),
-    .SDRAM_nWE  ( SDRAM_nWE ),
-    .SDRAM_nCAS ( SDRAM_nCAS),
-    .SDRAM_nRAS ( SDRAM_nRAS),
-    .SDRAM_nCS  ( SDRAM_nCS ),
-    .SDRAM_BA   ( SDRAM_BA  ),
-    .SDRAM_CKE  ( SDRAM_CKE ),
     .joystick1  ( 8'hff     ),
     .joystick2  ( 8'hff     ),
-    .downloading( downloading ),
-    .romload_addr( romload_addr ),
-    .romload_data( romload_data ),
+    // ROM load
+    .downloading ( downloading   ),
+    .romload_addr( romload_addr  ),
+    .romload_data( romload_data  ),
+    .loop_rst    ( loop_rst      ),
+    .loop_start  ( loop_start    ),
+    .autorefresh ( autorefresh   ),
+    .sdram_addr  ( sdram_addr    ),
+    .data_read   ( data_read     ),
     // Debug
     .enable_char( 1'b1          ),
     .enable_obj ( 1'b1          ),
@@ -187,6 +189,32 @@ jtgng_game UUT (
     .ym_snd         (           ),
     .sample         (           )
 );
+
+jtgng_sdram u_sdram(
+    .rst            ( rst           ),
+    .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .loop_rst       ( loop_rst      ),  
+    .loop_start     ( loop_start    ),
+    .autorefresh    ( autorefresh   ),
+    .data_read      ( data_read     ),
+    // ROM-load interface
+    .downloading    ( downloading   ),
+    .romload_addr   ( romload_addr  ),
+    .romload_data   ( romload_data  ),
+    .sdram_addr     ( sdram_addr    ),
+    // SDRAM interface
+    .SDRAM_DQ       ( SDRAM_DQ      ),
+    .SDRAM_A        ( SDRAM_A       ),
+    .SDRAM_DQML     ( SDRAM_DQML    ),
+    .SDRAM_DQMH     ( SDRAM_DQMH    ),
+    .SDRAM_nWE      ( SDRAM_nWE     ),
+    .SDRAM_nCAS     ( SDRAM_nCAS    ),
+    .SDRAM_nRAS     ( SDRAM_nRAS    ),
+    .SDRAM_nCS      ( SDRAM_nCS     ),
+    .SDRAM_BA       ( SDRAM_BA      ),
+    .SDRAM_CKE      ( SDRAM_CKE     ) 
+);
+
 
 `ifdef FASTSDRAM
 quick_sdram mist_sdram(
