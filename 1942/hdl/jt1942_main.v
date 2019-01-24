@@ -205,13 +205,7 @@ always @(*)
 // ROM ADDRESS
 always @(A,bank) begin
     rom_addr[13:0] = A[13:0];
-    casez( A[15:13] )
-        3'b00?: rom_addr[16:14] = 3'd0;
-        3'b01?: rom_addr[16:14] = 3'd1;
-        3'b10?: // bank
-          rom_addr[16:14] = 3'd2 + {1'b0, bank};
-        default: rom_addr[16:14] = 3'd0;
-    endcase
+    rom_addr[16:14] = { 1'b0, A[15:14] } + (!A[15] ? 3'd0 : {1'b0, bank});
 end
 
 
@@ -226,7 +220,7 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .q      ( int_ctrl     )
 );
 
-
+// interrupt generation
 reg [7:0] vstatus;
 reg int_n, LHBL_old;
 

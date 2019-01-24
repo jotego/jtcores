@@ -23,7 +23,6 @@ FASTSIM=
 TOP=game_test
 MIST=
 MACROPREFIX=-D
-M6809_FILES=$(ls ../../../modules/mc6809/mc6809{,i}.v)
 
 ARGNUMBER=1
 while [ $# -gt 0 ]; do
@@ -44,7 +43,7 @@ case "$1" in
         ;;
     "-mist")
         TOP=mist_test
-        MIST=../../../modules/jt12/hdl/dac/jt12_dac.v
+        MIST="-f mist.f"
         ;;
     "-nosnd")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOSOUND";;

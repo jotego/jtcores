@@ -55,6 +55,7 @@ module jt1942_mist(
 wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
+wire downloading;
 
 assign LED = ~downloading;
 
@@ -75,7 +76,6 @@ parameter CONF_STR_LEN = 8+20+23+15+15+24+9+30;
 
 reg rst = 1'b1;
 
-wire downloading;
 // wire [4:0] index;
 wire clk_rom;
 wire [24:0] romload_addr;
@@ -92,11 +92,11 @@ data_io datain (
     .data_sdram         ( romload_data )
 );
 
-wire [7:0] status, joystick1, joystick2; //, joystick;
+wire [31:0] status, joystick1, joystick2; //, joystick;
 reg [7:0] joy1_sync, joy2_sync;
 always @(posedge clk_rgb) begin
-    joy1_sync <= ~joystick1;
-    joy2_sync <= ~joystick2;
+    joy1_sync <= ~joystick1[7:0];
+    joy2_sync <= ~joystick2[7:0];
 end
 
 // assign joystick = joystick_0; // | joystick_1;
@@ -167,7 +167,7 @@ jtgng_cen u_cen(
     wire LVBL;
     wire hs;
     wire vs;
-    wire signed [15:0] ym_snd;
+    wire [8:0] snd;
     wire ym_mux_sample;
     wire   [21:0]  sdram_addr;
     wire   [15:0]  data_read;
@@ -190,7 +190,7 @@ always @(*)
         default: prom_we = 10'h0;
     endcase // romload_addr[10:8]
 
-jt1942_game game(
+jt1942_game u_game(
     .rst         ( rst           ),
     .soft_rst    ( status[6]     ),
     .clk_rom     ( clk_rom       ),  // 96   MHz
@@ -265,21 +265,22 @@ jtgng_sdram u_sdram(
     .SDRAM_CKE      ( SDRAM_CKE     ) 
 );
 
+`ifndef NOSOUND
 // more resolution for sound when screen is filtered too
 // not really important...
 wire clk_dac = status[2] ? clk_rom : clk_rgb;
 assign AUDIO_R = AUDIO_L;
 
-// jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
-//jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 hybrid_pwm_sd u_dac
 (
     .clk    ( clk_dac   ),
     .n_reset( ~rst      ),
-    .din    ( {~ym_snd[15], ym_snd[14:0]}    ),
+    .din    ( { snd, 7'd0 }    ),
     .dout   ( AUDIO_L   )
 );
+`endif
 
+`ifndef SIMULATION
 wire [5:0] GNG_R, GNG_G, GNG_B;
 
 // convert 5-bit colour to 6-bit colour
@@ -352,5 +353,5 @@ assign VGA_B = ypbpr?Pb:osd_b_o;
 // and VCC on VGA_VS (to switch into rgb mode)
 assign      VGA_HS = (scandoubler_disable | ypbpr) ? CSync : HSync;
 assign      VGA_VS = (scandoubler_disable | ypbpr) ? 1'b1 : VSync;
-
+`endif
 endmodule // jtgng_mist
