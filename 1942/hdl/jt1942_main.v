@@ -69,6 +69,7 @@ reg main_cs, in_cs, ram_cs, bank_cs, flip_cs,
     joy1_cs, joy2_cs, dipsw1_cs, dipsw2_cs;
 
 reg [7:0] AH;
+wire mreq_n;
 
 always @(A,rd_n) begin
     main_cs       = 1'b0;
@@ -86,6 +87,7 @@ always @(A,rd_n) begin
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
     obj_cs        = 1'b0;
+    if( mreq_n )
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
@@ -184,9 +186,14 @@ jtgng_ram #(.aw(12)) RAM(
     .q          ( ram_dout  )
 );
 
+// Data bus input
 reg [7:0] cpu_din;
+wire [3:0] int_ctrl;
 
 always @(*)
+    if( !iorq_n && !m1_n ) // Interrupt address
+        cpu_din = {3'b110, int_ctrl[1:0], 3'b000 };
+    else
     case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
         5'b10_000: cpu_din =  ram_dout;
         5'b01_000: cpu_din = char_dout;
@@ -208,9 +215,8 @@ always @(A,bank) begin
     endcase
 end
 
-wire [3:0] int_ctrl;
 
-wire [7:0] prom_k6_addr = prom_k6_we ? prog_addr[7:0] : V[7:0];
+wire [7:0] prom_k6_addr  = prom_k6_we  ? prog_addr[7:0] : V[7:0];
 
 jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .clk    ( clk          ),
@@ -220,6 +226,7 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .we     ( prom_k6_we   ),
     .q      ( int_ctrl     )
 );
+
 
 reg [7:0] vstatus;
 reg int_n, LHBL_old;
@@ -259,12 +266,12 @@ T80pa u_cpu(
     .DO         ( cpu_dout    ),
     .IORQ_n     ( iorq_n      ),
     .M1_n       ( m1_n        ),
+    .MREQ_n     ( mreq_n      ),
     // unused
     .REG        (),
     .RFSH_n     (),
     .BUSAK_n    (),
     .HALT_n     (),
-    .MREQ_n     (),
     .MC         (),
     .TS         (),
     .IntCycle_n (),
@@ -291,8 +298,8 @@ tv80s #(.Mode(0)) u_cpu (
     .dout   ( cpu_dout   ),
     .iorq_n ( iorq_n     ),
     .m1_n   ( m1_n       ),
+    .mreq_n ( mreq_n     ),
     // unused
-    .mreq_n (),
     .busak_n(),
     .halt_n (),
     .rfsh_n ()
