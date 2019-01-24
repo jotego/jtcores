@@ -114,7 +114,7 @@ wire [7:0] snd_latch;
 
 wire scr_cs, scrpos_cs, obj_cs;
 
-wire [7:0] dipsw_a = { dip_planes, 2'b00, dip_upright, dip_price };
+wire [7:0] dipsw_a = { dip_planes, 1'b0, dip_upright, dip_price };
 wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b0 };
 
 // ROM data

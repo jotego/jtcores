@@ -105,7 +105,7 @@ always @(A,rd_n) begin
                     if( A[10]==1'b1 )
                         obj_cs = 1'b1;
                     else
-                        case(A[2:0])
+                        casez(A[2:0])
                             3'b000: snd_latch0_cs = 1'b1;
                             3'b001: snd_latch1_cs = 1'b1;
                             3'b01?: scrpos_cs     = 1'b1;
@@ -196,14 +196,15 @@ always @(*)
         default:   cpu_din =  rom_data;
     endcase
 
+// ROM ADDRESS
 always @(A,bank) begin
-    rom_addr[12:0] = A[12:0];
+    rom_addr[13:0] = A[13:0];
     casez( A[15:13] )
-        3'b1??: rom_addr[16:13] = { 2'h0, A[14:13] }; // 8N, 9N (32kB) 0x8000-0xFFFF
-        3'b011: rom_addr[16:13] = 4'b101; // 10N - 0x6000-0x7FFF (8kB)
-        3'b010:  // 0x4000-0x5FFF
-          rom_addr[16:13] = bank==3'd4 ? 4'b100 : {2'd0,bank[1:0]}+4'b110; // 13N
-        default: rom_addr[16:13] = 4'd0;
+        3'b00?: rom_addr[16:14] = 3'd0;
+        3'b01?: rom_addr[16:14] = 3'd1;
+        3'b10?: // bank
+          rom_addr[16:14] = 3'd2 + {1'b0, bank};
+        default: rom_addr[16:14] = 3'd0;
     endcase
 end
 
