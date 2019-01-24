@@ -89,7 +89,7 @@ always @(posedge CLK) begin
 		env_reset <= 0;
 		if(BDIR) begin
 			if(BC) addr <= DI;
-			else if(!addr[7:4]) begin
+			else if(addr[7:4]==4'd0) begin
 				ymreg[addr[3:0]] <= DI;
 				env_reset <= (addr == 13);
 			end
@@ -102,24 +102,24 @@ reg [7:0] dout;
 assign DO = dout;
 always @(*) begin
 	dout = 8'hFF;
-	if(~BDIR & BC & !addr[7:4]) begin
+	if(!BDIR && BC && addr[7:4]==4'd0) begin
 		case(addr[3:0])
-			 0: dout = ymreg[0];
-			 1: dout = ymreg[1][3:0];
-			 2: dout = ymreg[2];
-			 3: dout = ymreg[3][3:0];
-			 4: dout = ymreg[4];
-			 5: dout = ymreg[5][3:0];
-			 6: dout = ymreg[6][4:0];
-			 7: dout = ymreg[7];
-			 8: dout = ymreg[8][4:0];
-			 9: dout = ymreg[9][4:0];
-			10: dout = ymreg[10][4:0];
-			11: dout = ymreg[11];
-			12: dout = ymreg[12];
-			13: dout = ymreg[13][3:0];
-			14: dout = ymreg[7][6] ? ymreg[14] : IOA_in;
-			15: dout = ymreg[7][7] ? ymreg[15] : IOB_in;
+			 4'd0: dout      = ymreg[0];
+			 4'd1: dout[3:0] = ymreg[1][3:0];
+			 4'd2: dout      = ymreg[2];
+			 4'd3: dout[3:0] = ymreg[3][3:0];
+			 4'd4: dout      = ymreg[4];
+			 4'd5: dout[3:0] = ymreg[5][3:0];
+			 4'd6: dout[4:0] = ymreg[6][4:0];
+			 4'd7: dout      = ymreg[7];
+			 4'd8: dout[4:0] = ymreg[8][4:0];
+			 4'd9: dout[4:0] = ymreg[9][4:0];
+			4'd10: dout[4:0] = ymreg[10][4:0];
+			4'd11: dout      = ymreg[11];
+			4'd12: dout      = ymreg[12];
+			4'd13: dout[3:0] = ymreg[13][3:0];
+			4'd14: dout      = ymreg[7][6] ? ymreg[14] : IOA_in;
+			4'd15: dout      = ymreg[7][7] ? ymreg[15] : IOB_in;
 		endcase
 	end
 end
@@ -135,7 +135,7 @@ always @(posedge CLK) begin
 	if(CE) begin
 		ena_div <= 0;
 		ena_div_noise <= 0;
-		if(!cnt_div) begin
+		if(cnt_div==4'd0) begin
 			cnt_div <= {SEL, 3'b111};
 			ena_div <= 1;
             
@@ -157,10 +157,10 @@ always @(posedge CLK) begin
 
 	if(CE) begin
 		if (ena_div_noise) begin
-			if(ymreg[6][4:0]) begin
+			if(ymreg[6][4:0]!=5'd0) begin
 				if (noise_gen_cnt >= ymreg[6][4:0] - 1'd1) begin
 					noise_gen_cnt <= 0;
-					poly17 <= {(poly17[0] ^ poly17[2] ^ !poly17), poly17[16:1]};
+					poly17 <= {(poly17[0] ^ poly17[2] ^ |poly17), poly17[16:1]};
 				end else begin
 					noise_gen_cnt <= noise_gen_cnt + 1'd1;
 				end
@@ -190,7 +190,7 @@ always @(posedge CLK) begin
 	
 		for (i = 1; i <= 3; i = i + 1) begin
 			if(ena_div) begin
-				if (tone_gen_freq[i]) begin
+				if (tone_gen_freq[i]!=12'd0) begin
 					if (tone_gen_cnt[i] >= (tone_gen_freq[i] - 1'd1)) begin
 						tone_gen_cnt[i] <= 0;
 						tone_gen_op[i]  <= ~tone_gen_op[i];
@@ -207,7 +207,7 @@ always @(posedge CLK) begin
 end
 
 reg env_ena;
-wire [15:0] env_gen_comp = {ymreg[12], ymreg[11]} ? {ymreg[12], ymreg[11]} - 1'd1 : 16'd0;
+wire [15:0] env_gen_comp = {ymreg[12], ymreg[11]} != 16'd0 ? {ymreg[12], ymreg[11]} - 16'd1 : 16'd0;
 
 //p_envelope_freq
 always @(posedge CLK) begin
@@ -316,24 +316,29 @@ always @(posedge CLK) begin
 	C <= {MODE, ~((ymreg[7][2] | tone_gen_op[3]) & (ymreg[7][5] | noise_gen_op[2])) ? 5'd0 : ymreg[10][4] ? env_vol[4:0] : {ymreg[10][3:0], ymreg[10][3]}};
 end
 
-`ifndef IVERILOG
-wire [7:0] volTable[64] = '{
+reg [7:0] volTable[64];
+
+initial begin
 	//YM2149
-	8'h00, 8'h01, 8'h01, 8'h02, 8'h02, 8'h03, 8'h03, 8'h04, 
-	8'h06, 8'h07, 8'h09, 8'h0a, 8'h0c, 8'h0e, 8'h11, 8'h13, 
-	8'h17, 8'h1b, 8'h20, 8'h25, 8'h2c, 8'h35, 8'h3e, 8'h47, 
-	8'h54, 8'h66, 8'h77, 8'h88, 8'ha1, 8'hc0, 8'he0, 8'hff,
+	volTable[6'h00] = 8'h00; volTable[6'h01] = 8'h01; volTable[6'h02] = 8'h01; volTable[6'h03] = 8'h02; 
+	volTable[6'h04] = 8'h02; volTable[6'h05] = 8'h03; volTable[6'h06] = 8'h03; volTable[6'h07] = 8'h04; 
+	volTable[6'h08] = 8'h06; volTable[6'h09] = 8'h07; volTable[6'h0A] = 8'h09; volTable[6'h0B] = 8'h0a; 
+	volTable[6'h0C] = 8'h0c; volTable[6'h0D] = 8'h0e; volTable[6'h0E] = 8'h11; volTable[6'h0F] = 8'h13; 
+	volTable[6'h10] = 8'h17; volTable[6'h11] = 8'h1b; volTable[6'h12] = 8'h20; volTable[6'h13] = 8'h25; 
+	volTable[6'h14] = 8'h2c; volTable[6'h15] = 8'h35; volTable[6'h16] = 8'h3e; volTable[6'h17] = 8'h47; 
+	volTable[6'h18] = 8'h54; volTable[6'h19] = 8'h66; volTable[6'h1A] = 8'h77; volTable[6'h1B] = 8'h88; 
+	volTable[6'h1C] = 8'ha1; volTable[6'h1D] = 8'hc0; volTable[6'h1E] = 8'he0; volTable[6'h1F] = 8'hff;
 
 	//AY8910
-	8'h00, 8'h00, 8'h03, 8'h03, 8'h04, 8'h04, 8'h06, 8'h06, 
-	8'h0a, 8'h0a, 8'h0f, 8'h0f, 8'h15, 8'h15, 8'h22, 8'h22, 
-	8'h28, 8'h28, 8'h41, 8'h41, 8'h5b, 8'h5b, 8'h72, 8'h72, 
-	8'h90, 8'h90, 8'hb5, 8'hb5, 8'hd7, 8'hd7, 8'hff, 8'hff 
-};
-`else 
-// allow simulation to work on iVerilog, but only X's will be produced
-reg [7:0] volTable[64];
-`endif
+	volTable[6'h20] = 8'h00; volTable[6'h21] = 8'h00; volTable[6'h22] = 8'h03; volTable[6'h23] = 8'h03; 
+	volTable[6'h24] = 8'h04; volTable[6'h25] = 8'h04; volTable[6'h26] = 8'h06; volTable[6'h27] = 8'h06; 
+	volTable[6'h28] = 8'h0a; volTable[6'h29] = 8'h0a; volTable[6'h2A] = 8'h0f; volTable[6'h2B] = 8'h0f; 
+	volTable[6'h2C] = 8'h15; volTable[6'h2D] = 8'h15; volTable[6'h2E] = 8'h22; volTable[6'h2F] = 8'h22; 
+	volTable[6'h30] = 8'h28; volTable[6'h31] = 8'h28; volTable[6'h32] = 8'h41; volTable[6'h33] = 8'h41; 
+	volTable[6'h34] = 8'h5b; volTable[6'h35] = 8'h5b; volTable[6'h36] = 8'h72; volTable[6'h37] = 8'h72; 
+	volTable[6'h38] = 8'h90; volTable[6'h39] = 8'h90; volTable[6'h3A] = 8'hb5; volTable[6'h3B] = 8'hb5; 
+	volTable[6'h3C] = 8'hd7; volTable[6'h3D] = 8'hd7; volTable[6'h3E] = 8'hff; volTable[6'h3F] = 8'hff;
+end
 
 assign CHANNEL_A = volTable[A];
 assign CHANNEL_B = volTable[B];

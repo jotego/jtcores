@@ -22,7 +22,7 @@ module game_test;
             `else
                 //$display("DUMP starts");
                 $dumpvars(1,game_test.UUT.u_main);
-                $dumpvars(0,game_test.UUT.u_video.u_obj);
+                //$dumpvars(0,game_test.UUT.u_video.u_obj);
                 //$dumpvars(1,game_test.UUT.u_rom);
                 //$dumpvars(1,game_test.UUT.u_video);
                 //$dumpvars(1,game_test.UUT.u_video.u_char);

@@ -35,7 +35,7 @@ module jt1942_video(
     // SCROLL - ROM
     input               scr_cs,
     input               scrpos_cs,    
-    output              scr_mrdy,
+    output              scr_wait_n,
     output      [ 7:0]  scram_dout,    
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,    
@@ -102,6 +102,7 @@ jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .H          ( H             ),
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
+    .wait_n     ( scr_wait_n    ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( scram_dout    ),
@@ -117,6 +118,8 @@ jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .scrom_data ( scrom_data    ),
     .scr_pxl    ( scr_pxl       )
 );
+`else 
+assign scr_wait_n = 1'b1;
 `endif
 
 `ifndef NOCOLMIX

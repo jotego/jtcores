@@ -115,29 +115,10 @@ always @(*)
     endcase // {latch_cs,rom_cs,ram_cs}
 
 
-`ifdef SIMULATION
-tv80s #(.Mode(0)) u_cpu (
-    .reset_n(reset_n ),
-    .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (cen3    ),
-    .wait_n (1'b1    ),
-    .int_n  (int_n   ),
-    .nmi_n  (1'b1    ),
-    .busrq_n(1'b1    ),
-    .rd_n   (rd_n    ),
-    .wr_n   (wr_n    ),
-    .A      (A       ),
-    .di     (din     ),
-    .dout   (dout    ),
-    .iorq_n ( iorq_n ),
-    // unused
-    .mreq_n (),
-    .m1_n   (),
-    .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
-);
-`else
+`define Z80_ALT_CPU
+`ifndef SIMULATION
+`ifndef VERILATOR_LINT 
+`undef Z80_ALT_CPU
 T80pa u_cpu(
     .RESET_n    ( reset_n ),
     .CLK        ( clk     ),
@@ -168,7 +149,31 @@ T80pa u_cpu(
     .REG        ()
 );
 `endif
+`endif
 
+`ifdef Z80_ALT_CPU
+tv80s #(.Mode(0)) u_cpu (
+    .reset_n(reset_n ),
+    .clk    (clk     ), // 3 MHz, clock gated
+    .cen    (cen3    ),
+    .wait_n (1'b1    ),
+    .int_n  (int_n   ),
+    .nmi_n  (1'b1    ),
+    .busrq_n(1'b1    ),
+    .rd_n   (rd_n    ),
+    .wr_n   (wr_n    ),
+    .A      (A       ),
+    .di     (din     ),
+    .dout   (dout    ),
+    .iorq_n ( iorq_n ),
+    // unused
+    .mreq_n (),
+    .m1_n   (),
+    .busak_n(),
+    .halt_n (),
+    .rfsh_n ()
+);
+`endif
 
 wire [7:0] ay0_a, ay0_b, ay0_c;
 wire [7:0] ay1_a, ay1_b, ay1_c;

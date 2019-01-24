@@ -28,8 +28,8 @@ module jt1942_main(
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
     output  reg        char_cs,
-    input              wait_n,
-    input              scr_mrdy,
+    input              char_wait_n,
+    input              scr_wait_n,
     output  reg        flip,
     input   [7:0]      V,
     input              LHBL,
@@ -125,7 +125,7 @@ reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
         t80_rst_n <= 1'b0;
-        bank   <= 3'd0;
+        bank      <= 2'd0;
     end
     else if(cen3) begin
         if( bank_cs && rd_n ) begin
@@ -237,30 +237,12 @@ always @(posedge clk) if(cen3) begin // H1 == cen3
     else if(LHBL_rising) int_n <= int_ctrl[3];
 end
 
+wire wait_n = scr_wait_n & char_wait_n;
 
-`ifdef SIMULATION
-tv80s #(.Mode(0)) u_cpu (
-    .reset_n( t80_rst_n  ),
-    .clk    ( clk        ), // 3 MHz, clock gated
-    .cen    ( cen3       ),
-    .wait_n ( wait_n     ),
-    .int_n  ( int_n      ),
-    .nmi_n  ( 1'b1       ),
-    .busrq_n( 1'b1       ),
-    .rd_n   ( rd_n       ),
-    .wr_n   ( wr_n       ),
-    .A      ( A          ),
-    .di     ( cpu_din    ),
-    .dout   ( cpu_dout   ),
-    .iorq_n ( iorq_n     ),
-    .m1_n   ( m1_n       ),
-    // unused
-    .mreq_n (),
-    .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
-);
-`else
+`define Z80_ALT_CPU
+`ifndef SIMULATION
+`ifndef VERILATOR_LINT 
+`undef Z80_ALT_CPU
 T80pa u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
@@ -291,5 +273,29 @@ T80pa u_cpu(
     .REG        ()
 );
 `endif
+`endif
 
+`ifdef Z80_ALT_CPU
+tv80s #(.Mode(0)) u_cpu (
+    .reset_n( t80_rst_n  ),
+    .clk    ( clk        ), // 3 MHz, clock gated
+    .cen    ( cen3       ),
+    .wait_n ( wait_n     ),
+    .int_n  ( int_n      ),
+    .nmi_n  ( 1'b1       ),
+    .busrq_n( 1'b1       ),
+    .rd_n   ( rd_n       ),
+    .wr_n   ( wr_n       ),
+    .A      ( A          ),
+    .di     ( cpu_din    ),
+    .dout   ( cpu_dout   ),
+    .iorq_n ( iorq_n     ),
+    .m1_n   ( m1_n       ),
+    // unused
+    .mreq_n (),
+    .busak_n(),
+    .halt_n (),
+    .rfsh_n ()
+);
+`endif
 endmodule // jtgng_main

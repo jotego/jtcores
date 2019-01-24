@@ -77,7 +77,6 @@ wire flip;
 wire [7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire rd;
-wire scr_mrdy;
 wire rom_ready;
 
 reg rst_game=1'b1;
@@ -113,7 +112,7 @@ wire rd_n;
 wire sres_b;
 wire [7:0] snd_latch;
 
-wire scr_cs, scrpos_cs;
+wire scr_cs, scrpos_cs, obj_cs;
 
 wire [7:0] dipsw_a = { dip_planes, 2'b00, dip_upright, dip_price };
 wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b0 };
@@ -129,7 +128,7 @@ wire  [16:0]  main_addr;
 wire  [14:0]  snd_addr;
 
 wire snd_latch0_cs, snd_latch1_cs, snd_int;
-wire wait_n;
+wire char_wait_n, scr_wait_n;
 
 jt1942_main u_main(
     .clk        ( clk           ),
@@ -138,8 +137,8 @@ jt1942_main u_main(
     .cen1p5     ( cen1p5        ),
     .rst        ( rst_game      ),
     .soft_rst   ( soft_rst      ),
-    .wait_n     ( wait_n        ),
-    .scr_mrdy   ( scr_mrdy      ),
+    .char_wait_n( char_wait_n   ),
+    .scr_wait_n ( scr_wait_n    ),
     .char_dout  ( chram_dout    ),
     .scr_dout   ( scram_dout    ),
     // sound
@@ -208,14 +207,14 @@ jt1942_video u_video(
     .chram_dout ( chram_dout    ),
     .char_addr  ( char_addr     ), // CHAR ROM
     .char_data  ( char_data     ),
-    .char_wait_n( wait_n        ),
+    .char_wait_n( char_wait_n   ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),    
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
-    .scr_mrdy   ( scr_mrdy      ),
+    .scr_wait_n ( scr_wait_n    ),
     // OBJ
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),

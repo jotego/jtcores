@@ -27,6 +27,7 @@ module jt1942_scroll(
     input       [ 8:0] H, // H256-H1
     input              scr_cs,
     input              scrpos_cs,
+    output             wait_n,
     input              flip,
     input       [ 7:0] din,
     output      [ 7:0] dout,
@@ -70,6 +71,8 @@ wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects betwe
 wire we = !sel_scan && scr_cs && rd_n;
 wire we_low  = we && !AB[4];
 wire we_high = we &&  AB[4];
+
+assign wait_n = !( scr_cs && sel_scan ); // hold CPU
 
 always @(posedge clk) if(cen6) begin
     if( scrpos_cs && AB[3]) 

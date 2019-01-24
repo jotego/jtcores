@@ -66,8 +66,8 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 always @(posedge clk) 
     if( rst ) LVBL <= 1'b0;
     else if(clk_en) begin
-        if( H==LHBL_obj1 ) LHBL_obj<=1'b1;
-        if( H==LHBL_obj0 ) LHBL_obj<=1'b0;
+        if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
+        if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
         if( &H[2:0] ) begin
             LHBL <= H[8];
         // LHBL <= H>=256;

@@ -161,24 +161,23 @@ ncverilog)
         # ../../../modules/t80/{T80_ALU,T80_MCode,T80_Pack,T80pa,T80_Reg,T80}.vhd \
 verilator)
     verilator -I../../hdl \
-        ../../hdl/jtgng_game.v \
-        $M6809_FILES \
+        -f game.f \
         ../../../modules/tv80/*.v \
-        ../common/quick_sdram.v \
-        --top-module jtgng_game -o sim \
+        ../../../modules/ver/quick_sdram.v \
+        --top-module jt1942_game -o sim \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
         -DVERILATOR_LINT \
         $MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only;;
 esac
 
-if [ $CHR_DUMP = CHR_DUMP ]; then
-    rm frame*png
-    for i in frame_*; do
-        name=$(basename "$i")
-        extension="${name##*.}"
-        if [ "$extension" == png ]; then continue; fi
-        ../../../cc/frame2png "$i"
-        mv output.png "$i.png"
-        mv "$i" old/"$i"
-    done
-fi
+# if [ $CHR_DUMP = CHR_DUMP ]; then
+#     rm frame*png
+#     for i in frame_*; do
+#         name=$(basename "$i")
+#         extension="${name##*.}"
+#         if [ "$extension" == png ]; then continue; fi
+#         ../../../cc/frame2png "$i"
+#         mv output.png "$i.png"
+#         mv "$i" old/"$i"
+#     done
+# fi
