@@ -372,6 +372,7 @@ localparam UIO_FILE_INDEX   = 8'h55;
 localparam TX_LEN           = 234496;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
+integer tx_cnt;
 
 initial begin
     file=$fopen("../../../rom/JT1942.rom","rb");
@@ -384,7 +385,7 @@ initial begin
     $fclose(file);
 end
 
-integer tx_cnt, spi_st, next, buff_cnt;
+integer spi_st, next, buff_cnt;
 reg spi_clkgate;
 reg clk_24;
 

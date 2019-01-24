@@ -224,7 +224,6 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
 reg [7:0] vstatus;
 reg int_n, LHBL_old;
 wire iorq_n, m1_n;
-wire LHBL_rising = LHBL && ! LHBL_old;
 
 always @(posedge clk) if(cen3) begin // H1 == cen3
     // Schematic K10
@@ -233,9 +232,9 @@ always @(posedge clk) if(cen3) begin // H1 == cen3
     snd_int <= int_ctrl[2];
     // Schematic L6, L5 - main CPU interrupter
     LHBL_old<=LHBL;
-    if( iorq_n || m1_n )
+    if( !(iorq_n || m1_n) )
         int_n <= 1'b1;
-    else if(LHBL_rising) int_n <= int_ctrl[3];
+    else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
 end
 
 wire wait_n = scr_wait_n & char_wait_n;
