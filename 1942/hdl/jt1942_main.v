@@ -68,7 +68,6 @@ reg t80_rst_n;
 reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, 
     joy1_cs, joy2_cs, dipsw1_cs, dipsw2_cs;
 
-reg [7:0] AH;
 wire mreq_n;
 
 always @(A,rd_n) begin
@@ -87,7 +86,6 @@ always @(A,rd_n) begin
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
     obj_cs        = 1'b0;
-    if( mreq_n )
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
@@ -189,6 +187,7 @@ jtgng_ram #(.aw(12)) RAM(
 // Data bus input
 reg [7:0] cpu_din;
 wire [3:0] int_ctrl;
+wire iorq_n, m1_n;
 
 always @(*)
     if( !iorq_n && !m1_n ) // Interrupt address
@@ -230,7 +229,6 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
 
 reg [7:0] vstatus;
 reg int_n, LHBL_old;
-wire iorq_n, m1_n;
 
 always @(posedge clk) if(cen3) begin // H1 == cen3
     // Schematic K10
