@@ -135,6 +135,9 @@ always @(posedge clk)
         if( bank_cs && !wr_n ) begin
             bank   <= cpu_dout[1:0];
             scr_br <= cpu_dout[2:0];
+            `ifdef SIMULATION
+            $display("Bank changed to %d", cpu_dout[1:0]);
+            `endif
         end
     end
 
