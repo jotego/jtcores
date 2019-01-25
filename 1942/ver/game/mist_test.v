@@ -66,8 +66,8 @@ integer fincnt;
 
 initial begin
     for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
-        #(300*1000); // 0.3ms
-        $display("step %d",fincnt+1);
+        #(1000*1000); 
+        $display("%d ms",fincnt+1);
     end
     can_finish = 1'b1;
 end
@@ -157,7 +157,7 @@ quick_sdram mist_sdram(
     .SDRAM_nWE  ( SDRAM_nWE     )
 );
 `else
-mt48lc16m16a2 mist_sdram (
+mt48lc16m16a2 #(.filename("../../../rom/JT1942.rom")) mist_sdram (
     .Dq         ( SDRAM_DQ      ),
     .Addr       ( SDRAM_A       ),
     .Ba         ( SDRAM_BA      ),

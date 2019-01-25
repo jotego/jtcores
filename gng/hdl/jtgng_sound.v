@@ -143,17 +143,15 @@ T80pa u_cpu(
     .DI         ( din     ),
     .DO         ( dout    ),
     // unused
-    .REG        (),
+    .DIRSET     ( 1'b0    ),
+    .DIR        ( 212'b0  ),
+    .OUT0       ( 1'b0    ),
     .RFSH_n     (),
     .IORQ       (),
     .M1_n       (),
     .BUSAK_n    (),
     .HALT_n     (),
     .MREQ_n     (),
-    .MC         (),
-    .TS         (),
-    .IntCycle_n (),
-    .IntE       (),
     .Stop       (),
     .REG        ()
 );

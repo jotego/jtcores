@@ -38,7 +38,8 @@ module jt1942_video(
     output              scr_wait_n,
     output      [ 7:0]  scram_dout,    
     output      [14:0]  scr_addr,
-    input       [23:0]  scrom_data,    
+    input       [23:0]  scrom_data,
+    input       [ 2:0]  scr_br,
     // OBJ
     input               obj_cs,
     input               HINIT,    
@@ -57,6 +58,7 @@ module jt1942_video(
     input           prom_f1_we,
     input           prom_d1_we,
     input           prom_d2_we,
+    input           prom_d6_we,
     input           prom_e8_we,
     input           prom_e9_we,
     input           prom_e10_we
@@ -108,9 +110,11 @@ jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .dout       ( scram_dout    ),
     .rd_n       ( rd_n          ),
     // Palette PROMs D1, D2
+    .scr_br     ( scr_br        ),
     .prog_addr  ( prog_addr     ),
     .prom_d1_we ( prom_d1_we    ),
     .prom_d2_we ( prom_d2_we    ),
+    .prom_d6_we ( prom_d6_we    ),
     .prom_din   ( prog_din      ),    
 
     // ROM

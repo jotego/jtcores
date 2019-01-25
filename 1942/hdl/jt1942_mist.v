@@ -56,8 +56,9 @@ wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
 wire downloading;
+wire coin_cnt;
 
-assign LED = ~downloading;
+assign LED = ~downloading || coin_cnt;
 
 parameter CONF_STR = {
     //   000000000111111111122222222223
@@ -132,11 +133,9 @@ jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
     .c1     ( clk_rgb     ), // 24
     .c2     ( clk_rom     ), // 96
-    .c3     (    ), // 96 (shifted by -2.5ns)
+    .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
 );
-
-assign SDRAM_CLK = clk_rom;
 
 jtgng_pll1 clk_gen2 (
     .inclk0 ( clk_rgb   ),
@@ -168,27 +167,16 @@ jtgng_cen u_cen(
     wire hs;
     wire vs;
     wire [8:0] snd;
-    wire ym_mux_sample;
     wire   [21:0]  sdram_addr;
     wire   [15:0]  data_read;
     wire   loop_rst, autorefresh, loop_start; 
 
-reg [9:0] prom_we;
-always @(*)
-    if( !downloading ) prom_we = 10'd0;
-    else case(romload_addr[11:8])
-        4'd0: prom_we = 10'h1;
-        4'd1: prom_we = 10'h2;
-        4'd2: prom_we = 10'h4;
-        4'd3: prom_we = 10'h8;
-        4'd4: prom_we = 10'h10;
-        4'd5: prom_we = 10'h20;
-        4'd6: prom_we = 10'h40;
-        4'd7: prom_we = 10'h80;
-        4'd8: prom_we = 10'h100;
-        4'd9: prom_we = 10'h200;
-        default: prom_we = 10'h0;
-    endcase // romload_addr[10:8]
+wire [9:0] prom_we;
+jt1942_prom_we u_prom_we(
+    .downloading    ( downloading   ), 
+    .romload_addr   ( romload_addr  ),
+    .prom_we        ( prom_we       )
+);
 
 jt1942_game u_game(
     .rst         ( rst           ),
@@ -215,10 +203,13 @@ jt1942_game u_game(
     .prom_k6_we  ( prom_we[0]        ),
     .prom_d1_we  ( prom_we[1]        ),
     .prom_d2_we  ( prom_we[2]        ),
-    .prom_e8_we  ( prom_we[3]        ),
-    .prom_e9_we  ( prom_we[4]        ),
-    .prom_e10_we ( prom_we[5]        ),
-    .prom_f1_we  ( prom_we[6]        ),  
+    .prom_d6_we  ( prom_we[3]        ),
+    .prom_e8_we  ( prom_we[4]        ),
+    .prom_e9_we  ( prom_we[5]        ),
+    .prom_e10_we ( prom_we[6]        ),
+    .prom_f1_we  ( prom_we[7]        ),  
+    //.prom_k3_we  ( prom_we[8]        ),  
+    //.prom_m11_we ( prom_we[9]        ),  
 
     // ROM load
     .downloading ( downloading   ),
@@ -235,6 +226,7 @@ jt1942_game u_game(
     .dip_level   ( 2'b0          ),
     .dip_upright ( 1'b0          ),
     .dip_price   ( 4'b0          ),
+    .coin_cnt    ( coin_cnt      ),
     // sound
     .snd         ( snd           ),
     .sample      (               )

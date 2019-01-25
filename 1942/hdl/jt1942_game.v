@@ -51,6 +51,7 @@ module jt1942_game(
     input           prom_k6_we,
     input           prom_d1_we,
     input           prom_d2_we,
+    input           prom_d6_we,
     input           prom_e8_we,
     input           prom_e9_we,
     input           prom_e10_we,
@@ -62,6 +63,7 @@ module jt1942_game(
     input   [1:0]   dip_level, // difficulty level
     input           dip_upright,
     input   [3:0]   dip_price,
+    output          coin_cnt,
     // Sound output
     output  [8:0]   snd,
     output          sample
@@ -113,13 +115,14 @@ wire sres_b;
 wire [7:0] snd_latch;
 
 wire scr_cs, scrpos_cs, obj_cs;
+wire [2:0] scr_br;
 
-wire [7:0] dipsw_a = { dip_planes, 1'b1, dip_upright, dip_price };
-wire [7:0] dipsw_b = { 1'b1, dip_level, 1'b1, dip_test, 3'b111 };
+wire [7:0] dipsw_a = { dip_planes, 1'b0, dip_upright, dip_price };
+wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b000 };
 
 // ROM data
 wire  [11:0]  char_addr;
-wire  [13:0]  obj_addr;
+wire  [13:0]  obj_addr=14'd0;
 wire  [15:0]  char_data, obj_data;
 wire  [ 7:0]  main_data, snd_data;
 wire  [23:0]  scr_data;
@@ -141,6 +144,7 @@ jt1942_main u_main(
     .scr_wait_n ( scr_wait_n    ),
     .char_dout  ( chram_dout    ),
     .scr_dout   ( scram_dout    ),
+    .scr_br     ( scr_br        ),
     // sound
     .sres_b        ( sres_b        ),
     .snd_latch0_cs ( snd_latch0_cs ),
@@ -167,7 +171,8 @@ jt1942_main u_main(
     .prog_din   ( prog_din      ),
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_b    ( dipsw_b       ),
+    .coin_cnt   ( coin_cnt      )
 );
 
 `ifndef NOSOUND
@@ -215,6 +220,7 @@ jt1942_video u_video(
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
     .scr_wait_n ( scr_wait_n    ),
+    .scr_br     ( scr_br        ),
     // OBJ
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
@@ -233,6 +239,7 @@ jt1942_video u_video(
     .prom_f1_we ( prom_f1_we    ),
     .prom_d1_we ( prom_d1_we    ),
     .prom_d2_we ( prom_d2_we    ),
+    .prom_d6_we ( prom_d6_we    ),
     .prom_e8_we ( prom_e8_we    ),
     .prom_e9_we ( prom_e9_we    ),
     .prom_e10_we( prom_e10_we   )

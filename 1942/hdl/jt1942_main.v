@@ -42,6 +42,7 @@ module jt1942_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     output  reg        scrpos_cs,
+    output  reg [2:0]  scr_br,
     // Object
     output  reg        obj_cs,
     // cabinet I/O
@@ -56,6 +57,7 @@ module jt1942_main(
     // DIP switches
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
+    output reg         coin_cnt,
     // PROM F1
     input    [7:0]     prog_addr,
     input              prom_k6_we,
@@ -68,7 +70,8 @@ reg t80_rst_n;
 reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, 
     joy1_cs, joy2_cs, dipsw1_cs, dipsw2_cs;
 
-wire mreq_n;
+wire mreq_n, wr_n;
+reg bank_access;
 
 always @(A,rd_n) begin
     main_cs       = 1'b0;
@@ -86,9 +89,10 @@ always @(A,rd_n) begin
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
     obj_cs        = 1'b0;
+    bank_access   = 1'b0;
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
-        3'b10?: main_cs = 1'b1; // bank
+        3'b10?: begin main_cs = 1'b1; bank_access = 1'b1; end // bank
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // COCS
@@ -125,34 +129,31 @@ reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
         bank      <= 2'd0;
+        scr_br    <= 3'b0;
     end
     else if(cen3) begin
-        if( bank_cs && !wr_n ) 
-            bank <= cpu_dout[1:0];
+        if( bank_cs && !wr_n ) begin
+            bank   <= cpu_dout[1:0];
+            scr_br <= cpu_dout[2:0];
+        end
     end
 
 always @(negedge clk)
     t80_rst_n <= ~(rst | soft_rst);
 
 localparam coinw = 4;
-reg [coinw-1:0] coin_cnt1, coin_cnt2;
 
 always @(posedge clk)
     if( rst ) begin
-        coin_cnt1 <= {coinw{1'b0}};
-        coin_cnt2 <= {coinw{1'b0}};
         flip <= 1'b0;
         sres_b <= 1'b1;
         end
     else if(cen3) begin
-        if( flip_cs ) 
-            case(A[2:0])
-                3'd0: flip <= cpu_dout[0];
-                3'd1: sres_b <= cpu_dout[0];
-                3'd2: coin_cnt1 <= coin_cnt1+{ {(coinw-1){1'b0}}, cpu_dout[0] };
-                3'd3: coin_cnt2 <= coin_cnt2+{ {(coinw-1){1'b0}}, cpu_dout[0] };
-                default:;
-            endcase
+        if( flip_cs ) begin
+            flip     <= cpu_dout[7];
+            sres_b   <= ~cpu_dout[4];
+            coin_cnt <= ~cpu_dout[0];
+        end
     end
 
 reg [7:0] cabinet_input;
@@ -171,7 +172,6 @@ always @(*)
 
 
 // RAM, 8kB
-wire wr_n;
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
@@ -188,9 +188,10 @@ jtgng_ram #(.aw(12)) RAM(
 reg [7:0] cpu_din;
 wire [3:0] int_ctrl;
 wire iorq_n, m1_n;
+wire irq_ack = !iorq_n && !m1_n;
 
 always @(*)
-    if( !iorq_n && !m1_n ) // Interrupt address
+    if( irq_ack ) // Interrupt address
         cpu_din = {3'b110, int_ctrl[1:0], 3'b000 };
     else
     case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
@@ -205,17 +206,16 @@ always @(*)
 // ROM ADDRESS
 always @(A,bank) begin
     rom_addr[13:0] = A[13:0];
+    //rom_addr[16:14] = { 1'b0, A[15:14] } + (!A[15] ? 3'd0 : {1'b0, bank});
     rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + {1'b0, bank});
 end
 
-
-wire [7:0] prom_k6_addr  = prom_k6_we  ? prog_addr[7:0] : V[7:0];
-
-jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .clk    ( clk          ),
     .cen    ( cen6         ),
     .data   ( prog_din     ),
-    .addr   ( prom_k6_addr ),
+    .wr_addr( prog_addr    ),
+    .rd_addr( V[7:0]       ),
     .we     ( prom_k6_we   ),
     .q      ( int_ctrl     )
 );
@@ -224,24 +224,38 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
 reg [7:0] vstatus;
 reg int_n, LHBL_old;
 
-always @(posedge clk) if(cen6) begin // H1 == cen3
-    // Schematic K10
-    vstatus <= { 2'b11, 1'b0, int_ctrl[1:0], 3'b111 };
-    // Schematic L5 - sound interrupter
-    snd_int <= int_ctrl[2];
-    // Schematic L6, L5 - main CPU interrupter
-    LHBL_old<=LHBL;
-    if( !(iorq_n || m1_n) )
-        int_n <= 1'b1;
-    else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
-end
+always @(posedge clk) 
+    if (rst) begin
+        snd_int <= 1'b1;
+        int_n   <= 1'b1;
+    end else if(cen6) begin // H1 == cen3
+        // Schematic K10
+        vstatus <= { 2'b11, 1'b0, int_ctrl[1:0], 3'b111 };
+        // Schematic L5 - sound interrupter
+        snd_int <= int_ctrl[2];
+        // Schematic L6, L5 - main CPU interrupter
+        LHBL_old<=LHBL;
+        if( irq_ack )
+            int_n <= 1'b1;
+        else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
+    end
 
 wire wait_n = scr_wait_n & char_wait_n;
 
+`ifdef SIMULATION
 `define Z80_ALT_CPU
-`ifndef SIMULATION
-`ifndef VERILATOR_LINT 
+`endif
+
+// `ifdef NCVERILOG
+// `undef Z80_ALT_CPU
+// `endif
+
+`ifdef VERILATOR_LINT 
 `undef Z80_ALT_CPU
+`endif
+
+`ifndef Z80_ALT_CPU
+// This CPU is used for synthesis
 T80pa u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
@@ -260,21 +274,16 @@ T80pa u_cpu(
     .M1_n       ( m1_n        ),
     .MREQ_n     ( mreq_n      ),
     // unused
-    .REG        (),
+    .DIRSET     ( 1'b0        ),
+    .DIR        ( 212'b0      ),
+    .OUT0       ( 1'b0        ),
     .RFSH_n     (),
     .BUSAK_n    (),
     .HALT_n     (),
-    .MC         (),
-    .TS         (),
-    .IntCycle_n (),
-    .IntE       (),
-    .Stop       (),
     .REG        ()
 );
-`endif
-`endif
-
-`ifdef Z80_ALT_CPU
+`else
+// This CPU is used for simulation
 tv80s #(.Mode(0)) u_cpu (
     .reset_n( t80_rst_n  ),
     .clk    ( clk        ), // 3 MHz, clock gated

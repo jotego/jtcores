@@ -34,9 +34,11 @@ module jt1942_scroll(
     input              rd_n,
 
     // Palette PROMs D1, D2
+    input   [2:0]      scr_br,
     input   [7:0]      prog_addr,
     input              prom_d1_we,
     input              prom_d2_we,
+    input              prom_d6_we,
     input   [3:0]      prom_din,    
 
     // ROM
@@ -150,25 +152,40 @@ always @(posedge clk) if(cen6) begin
     scr_pal0  <= scr_attr2;
 end
 
-wire [7:0] prom_addr = (prom_d1_we || prom_d2_we) ? {scr_pal0, scr_col0} : prog_addr;
+wire [7:0] pal_addr;
+assign pal_addr[7] = 1'b0;
+assign pal_addr[6:4] = scr_br[2:0];
 
 // Palette
-jtgng_ram #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
+jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din[1:0]  ),
-    .addr   ( prom_addr      ),
+    .rd_addr( pal_addr       ),
+    .wr_addr( prog_addr      ),
     .we     ( prom_d1_we     ),
     .q      ( scr_pxl[5:4]   )
 );
 
-jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din       ),
-    .addr   ( prom_addr      ),
+    .rd_addr( pal_addr       ),
+    .wr_addr( prog_addr      ),
     .we     ( prom_d2_we     ),
     .q      ( scr_pxl[3:0]   )
 );
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prom_din       ),
+    .rd_addr( {scr_pal0, scr_col0} ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d6_we     ),
+    .q      ( pal_addr[3:0]  )
+);
+
 
 endmodule // jtgng_scroll

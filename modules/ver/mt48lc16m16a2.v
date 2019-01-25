@@ -70,7 +70,11 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         file=$fopen(filename,"rb");
         if( file != 0 ) begin
             romfilecnt=$fread( Bank0, file );
-            $display(filename," read into SDRAM");
+            if( romfilecnt==0 ) begin
+                $display("ERROR: ROM file %s was empty", filename);
+                $finish;
+            end
+            $display("%s read into SDRAM",filename);
             $fclose(file);
         end else begin
             $display("ERROR: Cannot open file", filename);
@@ -1087,15 +1091,15 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         $width    (negedge Clk,           tCL);
         $period   (negedge Clk,           tCK);
         $period   (posedge Clk,           tCK);
-        // $setuphold(posedge Clk,    Cke,   tCKS, tCKH);
-        // $setuphold(posedge Clk,    Cs_n,  tCMS, tCMH);
-        // $setuphold(posedge Clk,    Cas_n, tCMS, tCMH);
-        // $setuphold(posedge Clk,    Ras_n, tCMS, tCMH);
-        // $setuphold(posedge Clk,    We_n,  tCMS, tCMH);
-        // $setuphold(posedge Clk,    Addr,  tAS,  tAH);
-        // $setuphold(posedge Clk,    Ba,    tAS,  tAH);
-        // $setuphold(posedge Clk,    Dqm,   tCMS, tCMH);
-        // $setuphold(posedge Dq_chk, Dq,    tDS,  tDH);
+        $setuphold(posedge Clk,    Cke,   tCKS, tCKH);
+        $setuphold(posedge Clk,    Cs_n,  tCMS, tCMH);
+        $setuphold(posedge Clk,    Cas_n, tCMS, tCMH);
+        $setuphold(posedge Clk,    Ras_n, tCMS, tCMH);
+        $setuphold(posedge Clk,    We_n,  tCMS, tCMH);
+        $setuphold(posedge Clk,    Addr,  tAS,  tAH);
+        $setuphold(posedge Clk,    Ba,    tAS,  tAH);
+        $setuphold(posedge Clk,    Dqm,   tCMS, tCMH);
+        $setuphold(posedge Dq_chk, Dq,    tDS,  tDH);
     endspecify
 
 endmodule

@@ -189,7 +189,7 @@ always @(posedge clk)
             end     
         SET_READ:begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_READ;
-            wait_cnt <= CL_WAIT;
+            wait_cnt <= CL_WAIT-4'd1;
             state    <= WAIT;
             next     <= READ;
             SDRAM_A  <= { {(addr_w-col_w){1'b0}}, col_addr};
@@ -198,8 +198,10 @@ always @(posedge clk)
             if( downloading )
                 state <=  SET_PRECHARGE_WR;
             else begin
-                state     <= SET_PRECHARGE;
-                data_read <= SDRAM_DQ;
+                wait_cnt  <= 4'd0; // waste one cycle to synchronize with jtgng_rom
+                state     <= WAIT;
+                next      <= SET_PRECHARGE;
+                data_read <= SDRAM_DQ;                
             end
             end
         SYNC_START:
@@ -230,7 +232,7 @@ always @(posedge clk)
         SET_WRITE: if( downloading) begin
             { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_WRITE;
             SDRAM_WRITE <= 1'b1;
-            wait_cnt <= PRECHARGE_WAIT + CL_WAIT +2;
+            wait_cnt <= PRECHARGE_WAIT + 3;
             state <= WAIT;
             next  <= ACTIVATE_WR;
             SDRAM_A[8:0] <= romload_col;

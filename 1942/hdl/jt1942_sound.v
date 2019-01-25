@@ -114,11 +114,21 @@ always @(*)
         default:  din = 8'd0;
     endcase // {latch_cs,rom_cs,ram_cs}
 
-
+// Select the Z80 core to use
+`ifdef SIMULATION
 `define Z80_ALT_CPU
-`ifndef SIMULATION
-`ifndef VERILATOR_LINT 
+`endif
+
+// `ifdef NCVERILOG
+// `undef Z80_ALT_CPU
+// `endif
+
+`ifdef VERILATOR_LINT 
 `undef Z80_ALT_CPU
+`endif
+
+`ifndef Z80_ALT_CPU
+// This CPU is used for synthesis
 T80pa u_cpu(
     .RESET_n    ( reset_n ),
     .CLK        ( clk     ),
@@ -135,23 +145,17 @@ T80pa u_cpu(
     .DO         ( dout    ),
     .IORQ_n     ( iorq_n  ),
     // unused
-    .REG        (),
+    .DIRSET     ( 1'b0    ),
+    .DIR        ( 212'b0  ),
+    .OUT0       ( 1'b0    ),
     .RFSH_n     (),
     .M1_n       (),
     .BUSAK_n    (),
     .HALT_n     (),
     .MREQ_n     (),
-    .MC         (),
-    .TS         (),
-    .IntCycle_n (),
-    .IntE       (),
-    .Stop       (),
     .REG        ()
 );
-`endif
-`endif
-
-`ifdef Z80_ALT_CPU
+`else
 tv80s #(.Mode(0)) u_cpu (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated

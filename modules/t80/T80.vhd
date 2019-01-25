@@ -80,6 +80,8 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 
+use work.all;
+
 entity T80 is
 	generic(
 		Mode   : integer := 0;  -- 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
@@ -126,6 +128,128 @@ entity T80 is
 end T80;
 
 architecture rtl of T80 is
+    component T80_MCode 
+        generic(
+            Mode   : integer := 0;
+            Flag_C : integer := 0;
+            Flag_N : integer := 1;
+            Flag_P : integer := 2;
+            Flag_X : integer := 3;
+            Flag_H : integer := 4;
+            Flag_Y : integer := 5;
+            Flag_Z : integer := 6;
+            Flag_S : integer := 7
+        );
+        port(
+          IR          : in std_logic_vector(7 downto 0);
+          ISet        : in std_logic_vector(1 downto 0);
+          MCycle      : in std_logic_vector(2 downto 0);
+          F           : in std_logic_vector(7 downto 0);
+          NMICycle    : in std_logic;
+          IntCycle    : in std_logic;
+          XY_State    : in std_logic_vector(1 downto 0);
+          MCycles     : out std_logic_vector(2 downto 0);
+          TStates     : out std_logic_vector(2 downto 0);
+          Prefix      : out std_logic_vector(1 downto 0); -- None,CB,ED,DD/FD
+          Inc_PC      : out std_logic;
+          Inc_WZ      : out std_logic;
+          IncDec_16   : out std_logic_vector(3 downto 0); -- BC,DE,HL,SP   0 is inc
+          Read_To_Reg : out std_logic;
+          Read_To_Acc : out std_logic;
+          Set_BusA_To : out std_logic_vector(3 downto 0); -- B,C,D,E,H,L,DI/DB,A,SP(L),SP(M),0,F
+          Set_BusB_To : out std_logic_vector(3 downto 0); -- B,C,D,E,H,L,DI,A,SP(L),SP(M),1,F,PC(L),PC(M),0
+          ALU_Op      : out std_logic_vector(3 downto 0);
+             -- ADD, ADC, SUB, SBC, AND, XOR, OR, CP, ROT, BIT, SET, RES, DAA, RLD, RRD, None
+          Save_ALU    : out std_logic;
+          PreserveC   : out std_logic;
+          Arith16     : out std_logic;
+          Set_Addr_To : out std_logic_vector(2 downto 0); -- aNone,aXY,aIOA,aSP,aBC,aDE,aZI
+          IORQ        : out std_logic;
+          Jump        : out std_logic;
+          JumpE       : out std_logic;
+          JumpXY      : out std_logic;
+          Call        : out std_logic;
+          RstP        : out std_logic;
+          LDZ         : out std_logic;
+          LDW         : out std_logic;
+          LDSPHL      : out std_logic;
+          Special_LD  : out std_logic_vector(2 downto 0); -- A,I;A,R;I,A;R,A;None
+          ExchangeDH  : out std_logic;
+          ExchangeRp  : out std_logic;
+          ExchangeAF  : out std_logic;
+          ExchangeRS  : out std_logic;
+          I_DJNZ      : out std_logic;
+          I_CPL       : out std_logic;
+          I_CCF       : out std_logic;
+          I_SCF       : out std_logic;
+          I_RETN      : out std_logic;
+          I_BT        : out std_logic;
+          I_BC        : out std_logic;
+          I_BTR       : out std_logic;
+          I_RLD       : out std_logic;
+          I_RRD       : out std_logic;
+          I_INRC      : out std_logic;
+          SetWZ       : out std_logic_vector(1 downto 0);
+          SetDI       : out std_logic;
+          SetEI       : out std_logic;
+          IMode       : out std_logic_vector(1 downto 0);
+          Halt        : out std_logic;
+          NoRead      : out std_logic;
+          Write       : out std_logic;
+          XYbit_undoc : out std_logic
+       );
+    end component;
+
+    component T80_ALU
+        generic(
+            Mode : integer := 0;
+            Flag_C : integer := 0;
+            Flag_N : integer := 1;
+            Flag_P : integer := 2;
+            Flag_X : integer := 3;
+            Flag_H : integer := 4;
+            Flag_Y : integer := 5;
+            Flag_Z : integer := 6;
+            Flag_S : integer := 7
+        );
+        port(
+            Arith16         : in  std_logic;
+            Z16             : in  std_logic;
+            WZ              : in  std_logic_vector(15 downto 0);
+            XY_State            : in  std_logic_vector(1 downto 0);
+            ALU_Op          : in  std_logic_vector(3 downto 0);
+            IR              : in  std_logic_vector(5 downto 0);
+            ISet            : in  std_logic_vector(1 downto 0);
+            BusA            : in  std_logic_vector(7 downto 0);
+            BusB            : in  std_logic_vector(7 downto 0);
+            F_In            : in  std_logic_vector(7 downto 0);
+            Q               : out std_logic_vector(7 downto 0);
+            F_Out           : out std_logic_vector(7 downto 0)
+        );
+    end component;    
+
+    component T80_Reg
+        port(
+            Clk     : in  std_logic;
+            CEN     : in  std_logic;
+            WEH     : in  std_logic;
+            WEL     : in  std_logic;
+            AddrA   : in  std_logic_vector(2 downto 0);
+            AddrB   : in  std_logic_vector(2 downto 0);
+            AddrC   : in  std_logic_vector(2 downto 0);
+            DIH     : in  std_logic_vector(7 downto 0);
+            DIL     : in  std_logic_vector(7 downto 0);
+            DOAH    : out std_logic_vector(7 downto 0);
+            DOAL    : out std_logic_vector(7 downto 0);
+            DOBH    : out std_logic_vector(7 downto 0);
+            DOBL    : out std_logic_vector(7 downto 0);
+            DOCH    : out std_logic_vector(7 downto 0);
+            DOCL    : out std_logic_vector(7 downto 0);
+            DOR     : out std_logic_vector(127 downto 0);
+            DIRSet  : in  std_logic;
+            DIR     : in  std_logic_vector(127 downto 0)
+        );
+    end component;
 
 	constant aNone              : std_logic_vector(2 downto 0) := "111";
 	constant aBC                : std_logic_vector(2 downto 0) := "000";
@@ -262,7 +386,7 @@ begin
 			 else IntE_FF2 & IntE_FF1 & IStatus & DOR(127 downto 112) & DOR(47 downto 0) & DOR(63 downto 48) & DOR(111 downto 64) &
 						std_logic_vector(PC) & std_logic_vector(SP) & std_logic_vector(R) & I & Fp & Ap & F & ACC;
 
-	mcode : work.T80_MCode
+	mcode : T80_MCode
 		generic map(
 			Mode   => Mode,
 			Flag_C => Flag_C,
@@ -330,7 +454,7 @@ begin
 			Write       => Write,
 			XYbit_undoc => XYbit_undoc);
 
-	alu : work.T80_ALU
+	alu : T80_ALU
 		generic map(
 			Mode   => Mode,
 			Flag_C => Flag_C,
@@ -929,7 +1053,7 @@ begin
 		end if;
 	end process;
 
-	Regs : work.T80_Reg
+	Regs : T80_Reg
 		port map(
 			Clk => CLK_n,
 			CEN => ClkEn,

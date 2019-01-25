@@ -5,6 +5,7 @@
 ../../hdl/jt1942_scroll.v
 ../../hdl/jt1942_sound.v
 ../../hdl/jt1942_video.v
+../../hdl/jt1942_prom_we.v
 ../../../modules/jtgng_vga.v
 ../../../modules/jtgng_vgapxl.v
 ../../../modules/jtgng_cen.v
@@ -12,6 +13,7 @@
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_ram.v
 ../../../modules/jtgng_rom.v
+../../../modules/jtgng_prom.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v

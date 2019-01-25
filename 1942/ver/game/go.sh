@@ -60,7 +60,7 @@ case "$1" in
             exit 1
         fi
         SIM_MS="$1"
-        echo Simulate $1 ms or "(1/3th of that if top level is MiST)"
+        echo Simulate $1 ms
         ;;
     "-firmonly")
         FIRMONLY=FIRMONLY
@@ -152,12 +152,12 @@ ncverilog)
         -f game.f \
         ../../../modules/ver/mt48lc16m16a2.v \
         ../../../modules/jtgng_sdram.v \
-        -vhdlext vhdl93 \
-        ../../../modules/tv80/*.v $MIST \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
-        $MAXFRAME $OBJTEST;;
-        # ../../../modules/t80/{T80_ALU,T80_MCode,T80_Pack,T80pa,T80_Reg,T80}.vhd \
+        $MAXFRAME $OBJTEST \
+        ../../../modules/tv80/*.v \
+        $MIST;;
+        #-ncvhdl_args,-V93 ../../../modules/t80/T80pa.vhd \
 verilator)
     verilator -I../../hdl \
         -f game.f \

@@ -11,7 +11,7 @@ module spitx(
 );
 
 parameter filename="../../../rom/JT1942.rom";
-parameter TX_LEN           = 234496;
+parameter TX_LEN           = 242688;
 
 integer file, tx_cnt;
 assign SPI_SS3=1'b0;

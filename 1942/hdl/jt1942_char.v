@@ -120,14 +120,13 @@ always @(posedge clk) if(cen6) begin
     char_pal <= char_attr2; 
 end
 
-wire [7:0] prom_f1_addr = prom_f1_we ? prog_addr[7:0] : {char_pal,char_col};
-
 // palette ROM
-jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-0.f1")) u_vprom(
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-0.f1")) u_vprom(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din       ),
-    .addr   ( prom_f1_addr   ),
+    .rd_addr( {char_pal,char_col}   ),
+    .wr_addr( prog_addr      ),
     .we     ( prom_f1_we     ),
     .q      ( char_pxl       )
 );

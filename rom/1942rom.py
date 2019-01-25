@@ -11,32 +11,39 @@ if python_version[0] != '2':
     print("Error: this script requires Python 2 to work.")
     exit(1)
 
-if len(sys.argv) > 1:
-    game=sys.argv[1]
-    print("Generating file for game: ",game)
-    if game != "1942": #and game != "makaimurg" and game != "gngt" and game != "gngc":
-        print("Wrong game name. Please use one of these:")
-        print("1942")
-        exit(1)
-else:
-    game="1942"
+rompath=""
+
+arg_cur=1
+game="1942"
+while len(sys.argv) > arg_cur:
+    if sys.argv[arg_cur] == "-path":
+        arg_cur = arg_cur+1
+        rompath=sys.argv[arg_cur]+"/"
+    else:        
+        game=sys.argv[arg_cur]
+        print("Generating file for game: ",game)
+        if game != "1942": #and game != "makaimurg" and game != "gngt" and game != "gngc":
+            print("Wrong game name. Please use one of these:")
+            print("1942")
+            exit(1)
+    arg_cur = arg_cur+1
 
 def append_file( file_list ):
     for fname in file_list:
-        with open(fname,'rb') as f:
+        with open(rompath+fname,'rb') as f:
             fo.write( f.read() )
 
 def byte_merge( file_list ):    
-    with open(file_list[0],'rb') as flsb:
+    with open(rompath+file_list[0],'rb') as flsb:
         blsb = flsb.read()
-    with open(file_list[1],'rb') as fmsb:
+    with open(rompath+file_list[1],'rb') as fmsb:
         bmsb = fmsb.read()
     for k in range(len(blsb)):
         fo.write( blsb[k] )
         fo.write( bmsb[k] )
 
 def append_dup( filename ):
-    with open(filename,'rb') as f:
+    with open(rompath+filename,'rb') as f:
         buf = f.read()        
     for k in range(len(buf)):
         fo.write(buf[k])
@@ -45,7 +52,7 @@ def append_dup( filename ):
 def check_files( filenames ):
     problem=False
     for i in filenames.values():
-        if os.path.isfile(i)==False:
+        if os.path.isfile(rompath+i)==False:
             print("Cannot find file "+i)
             problem = True
     if problem:
@@ -80,10 +87,11 @@ if game == "1942":
         'k3'        : "sb-8.k3",
         'd1'        : "sb-2.d1",
         'd2'        : "sb-3.d2",
+        'd6'        : "sb-4.d6",
         'k6'        : "sb-1.k6",
         'm11'       : "sb-9.m11",
     }
-    rom_crc = 'E4B69BD8'
+    rom_crc = '8389D079'
 else:
     print("Unsupported option: ", game)
     exit(1)
@@ -126,11 +134,11 @@ report_pos( "PROMs" )
 byte_merge( [roms["k6"],  roms["k6"]  ])
 byte_merge( [roms["d1"],  roms["d1"]  ])
 byte_merge( [roms["d2"],  roms["d2"]  ])
+byte_merge( [roms["d6"],  roms["d6"]  ])
 byte_merge( [roms["e8"],  roms["e8"]  ])
 byte_merge( [roms["e9"],  roms["e9"]  ])
 byte_merge( [roms["e10"], roms["e10"] ])
 byte_merge( [roms["f1"],  roms["f1"]  ])
-byte_merge( [roms["d6"],  roms["d6"]  ])
 byte_merge( [roms["k3"],  roms["k3"]  ])
 byte_merge( [roms["m11"], roms["m11"] ])
 
