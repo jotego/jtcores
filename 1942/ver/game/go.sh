@@ -68,15 +68,15 @@ case "$1" in
         ;;
     "-t")
         # is there a file name?        
-        if [ "${2:0:1}" != "-" ]; then
+        if [[ "${2:0:1}" != "-" && $# -gt 1  ]]; then
             shift
             FIRMWARE=$1
-            echo "Using firmware $1"
         else
-            FIRMWARE=gng_test.s
+            FIRMWARE=bank_check.s
         fi
-        LOADROM=${MACROPREFIX}GNGTEST
-        if ! lwasm $FIRMWARE --output=gng_test.bin --list=gng_test.lst --format=raw; then
+        echo "Using test firmware $FIRMWARE"
+        LOADROM=${MACROPREFIX}TESTROM
+        if ! z80asm $FIRMWARE -o test.bin; then
             exit 1
         fi        
         ;;

@@ -65,34 +65,26 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
     integer file, romfilecnt;
 
+    `ifndef LOADROM
     initial begin
-        `ifdef BLOCKID
-        Bank0[{4'd0, 4'd0, 12'd0}] = 16'h0; // Main ROM
-        Bank0[{4'd3, 4'd0, 12'd0}] = 16'h3; // sound ROM
-        Bank0[{4'd4, 4'd0, 12'd0}] = 16'h4; // char ROM
-        Bank0[{4'd5, 4'd0, 12'd0}] = 16'h5; // obj ROM
-        Bank0[{4'd6, 4'd0, 12'd0}] = 16'h6; // scr0 ROM
-        Bank0[{4'd7, 4'd0, 12'd0}] = 16'h7; // scr1 ROM
-        `else
-        	`ifndef LOADROM
-                file=$fopen(filename,"rb");
-                if( file != 0 ) begin
-                    romfilecnt=$fread( Bank0, file );
-                    $display(filename," read into SDRAM");
-                    $fclose(file);
-                end else begin
-                    $display("ERROR: Cannot open file", filename);
-                end
-                // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
-                `ifdef GNGTEST
-                $display("gng_test.bin read into first 32kB of SDRAM");
-                file=$fopen("gng_test.bin", "rb");
-                romfilecnt=$fread( Bank0, file, 0, 32*1024-1 );
-                $fclose(file);
-                `endif
-        	`endif
+        file=$fopen(filename,"rb");
+        if( file != 0 ) begin
+            romfilecnt=$fread( Bank0, file );
+            $display(filename," read into SDRAM");
+            $fclose(file);
+        end else begin
+            $display("ERROR: Cannot open file", filename);
+        end
+        // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
+        `ifdef TESTROM
+        $display("test.bin read into first bytes of SDRAM");
+        file=$fopen("test.bin", "rb");
+        romfilecnt=$fread( Bank0, file );
+        $display("Read %d bytes of test code", romfilecnt);
+        $fclose(file);
         `endif
     end
+    `endif
 
     reg                   [1 : 0] Bank_addr [0 : 3];                // Bank Address Pipeline
     reg        [col_bits - 1 : 0] Col_addr [0 : 3];                 // Column Address Pipeline

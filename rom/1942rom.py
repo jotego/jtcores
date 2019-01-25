@@ -83,7 +83,7 @@ if game == "1942":
         'k6'        : "sb-1.k6",
         'm11'       : "sb-9.m11",
     }
-    rom_crc = '5A43C84C'
+    rom_crc = 'E4B69BD8'
 else:
     print("Unsupported option: ", game)
     exit(1)
@@ -99,6 +99,7 @@ append_file( [roms['main0'],
               roms['main1'],
               roms['main2'],
               roms['main3'],
+              roms['main3'], # main3 is repeated to make it 16kB
               roms['main4']] )
 #print("Sound starts at 0x%x" % fo.tell() )
 report_pos( "Sound" )

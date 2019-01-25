@@ -114,8 +114,8 @@ wire [7:0] snd_latch;
 
 wire scr_cs, scrpos_cs, obj_cs;
 
-wire [7:0] dipsw_a = { dip_planes, 1'b0, dip_upright, dip_price };
-wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b0 };
+wire [7:0] dipsw_a = { dip_planes, 1'b1, dip_upright, dip_price };
+wire [7:0] dipsw_b = { 1'b1, dip_level, 1'b1, dip_test, 3'b111 };
 
 // ROM data
 wire  [11:0]  char_addr;
@@ -239,11 +239,11 @@ jt1942_video u_video(
 );
 
 jtgng_rom #(
-    .snd_offset (22'h09000),
-    .char_offset(22'h0B000),
-    .scr_offset (22'h0C000),
-    .scr2_offset(22'h10000),
-    .obj_offset (22'h18000)
+    .snd_offset (22'h0A000),
+    .char_offset(22'h0C000),
+    .scr_offset (22'h0D000),
+    .scr2_offset(22'h04000),
+    .obj_offset (22'h15000)
 ) u_rom (
     .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
     .clk24       ( clk           ),

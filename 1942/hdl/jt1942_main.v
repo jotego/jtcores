@@ -124,15 +124,15 @@ end
 reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        t80_rst_n <= 1'b0;
         bank      <= 2'd0;
     end
     else if(cen3) begin
-        if( bank_cs && rd_n ) begin
+        if( bank_cs && !wr_n ) 
             bank <= cpu_dout[1:0];
-        end
-        else t80_rst_n <= ~(rst | soft_rst);
     end
+
+always @(negedge clk)
+    t80_rst_n <= ~(rst | soft_rst);
 
 localparam coinw = 4;
 reg [coinw-1:0] coin_cnt1, coin_cnt2;
@@ -205,7 +205,7 @@ always @(*)
 // ROM ADDRESS
 always @(A,bank) begin
     rom_addr[13:0] = A[13:0];
-    rom_addr[16:14] = { 1'b0, A[15:14] } + (!A[15] ? 3'd0 : {1'b0, bank});
+    rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + {1'b0, bank});
 end
 
 
@@ -224,7 +224,7 @@ jtgng_ram #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
 reg [7:0] vstatus;
 reg int_n, LHBL_old;
 
-always @(posedge clk) if(cen3) begin // H1 == cen3
+always @(posedge clk) if(cen6) begin // H1 == cen3
     // Schematic K10
     vstatus <= { 2'b11, 1'b0, int_ctrl[1:0], 3'b111 };
     // Schematic L5 - sound interrupter

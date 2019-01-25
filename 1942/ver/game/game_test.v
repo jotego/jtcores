@@ -83,13 +83,24 @@ initial begin
     forever clk_rom = #(10.417/2) ~clk_rom; // 96 MHz
 end
 
-reg [2:0] clk_cnt=3'd0;
+reg [3:0] clk_cnt=3'd0;
 
 always @(posedge clk_rom) begin
-    clk_cnt <= clk_cnt + 3'd1;
+    clk_cnt <= clk_cnt + 4'd1;
 end
 
-always @(*) clk = clk_cnt[1];
+parameter clk_speed=6;
+
+always @(*) 
+    case(clk_speed)
+        24: clk = clk_cnt[1];
+        12: clk = clk_cnt[2];
+        6: clk = clk_cnt[3];
+        default: begin 
+            $display("ERROR: Invalid value of clk_speed");
+            $finish;
+        end
+    endcase // clk_speedendcase
 
 reg rst_base=1'b1;
 
@@ -125,8 +136,8 @@ wire    [24:0]  romload_addr;
 wire    [15:0]  romload_data;
 
 
-jtgng_cen u_cen(
-    .clk    ( clk    ),    // 24 MHz
+jtgng_cen #(.clk_speed(clk_speed)) u_cen(
+    .clk    ( clk    ),
     .cen6   ( cen6   ),
     .cen3   ( cen3   ),
     .cen1p5 ( cen1p5 )
@@ -201,11 +212,11 @@ jt1942_game UUT(
     //.prom_m11_we ( prom_we[9]        ), 
 
     // DIP switches
-    .dip_test   ( 1'b0      ),
-    .dip_planes ( 2'b0      ),
-    .dip_level  ( 2'b0      ),
-    .dip_upright( 1'b0      ),
-    .dip_price  ( 4'b0      ),    
+    .dip_test   ( 1'b1      ),
+    .dip_planes ( 2'b11     ),
+    .dip_level  ( 2'b11     ),
+    .dip_upright( 1'b1      ),
+    .dip_price  ( 4'b1111   ),    
     // Sound output
     .snd            ( snd       ),
     .sample         ( snd_sample)
@@ -372,7 +383,6 @@ localparam UIO_FILE_INDEX   = 8'h55;
 localparam TX_LEN           = 234496;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
-integer tx_cnt;
 
 initial begin
     file=$fopen("../../../rom/JT1942.rom","rb");
@@ -385,7 +395,7 @@ initial begin
     $fclose(file);
 end
 
-integer spi_st, next, buff_cnt;
+integer tx_cnt, spi_st, next, buff_cnt;
 reg spi_clkgate;
 reg clk_24;
 
