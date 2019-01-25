@@ -133,11 +133,11 @@ jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
     .c1     ( clk_rgb     ), // 24
     .c2     ( clk_rom     ), // 96
-    .c3     (    ), // 96 (shifted by -2.5ns)
+    .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
 );
 
-assign SDRAM_CLK = clk_rom;
+// assign SDRAM_CLK = clk_rom;
 
 jtgng_pll1 clk_gen2 (
     .inclk0 ( clk_rgb   ),
