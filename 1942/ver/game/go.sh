@@ -76,7 +76,7 @@ case "$1" in
         fi
         echo "Using test firmware $FIRMWARE"
         LOADROM=${MACROPREFIX}TESTROM
-        if ! z80asm $FIRMWARE -o test.bin; then
+        if ! z80asm $FIRMWARE -o test.bin -l > $(basename $FIRMWARE .s).lst; then
             exit 1
         fi        
         ;;

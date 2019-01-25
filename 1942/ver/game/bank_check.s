@@ -16,4 +16,5 @@ bank_loop:
     EI
 
 end: 
+    EI
     jp end

@@ -192,10 +192,11 @@ reg [7:0] cpu_din;
 wire [3:0] int_ctrl;
 wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
+wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 };
 
 always @(*)
     if( irq_ack ) // Interrupt address
-        cpu_din = {3'b110, int_ctrl[1:0], 3'b000 };
+        cpu_din = irq_vector;
     else
     case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
         5'b10_000: cpu_din =  ram_dout;
