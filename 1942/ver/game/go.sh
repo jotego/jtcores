@@ -138,10 +138,10 @@ function clear_hex_file {
 clear_hex_file obj_buf  128
 
 case $SIMULATOR in
-iverilog)   iverilog -g2005-sv ${TOP}.v \
+iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
         -f game.f \
         ../../../modules/ver/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
-        ../../../modules/tv80/*.v $MIST \
+        ../../../modules/tv80/*.v  \
         ../../../modules/jtgng_sdram.v \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \

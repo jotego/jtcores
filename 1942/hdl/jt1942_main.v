@@ -67,8 +67,7 @@ module jt1942_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
-reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, 
-    joy1_cs, joy2_cs, dipsw1_cs, dipsw2_cs;
+reg main_cs, in_cs, ram_cs, bank_cs, flip_cs;
 
 wire mreq_n, wr_n;
 reg bank_access;
@@ -82,10 +81,6 @@ always @(A,rd_n) begin
     flip_cs       = 1'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
-    joy1_cs       = 1'b0;
-    joy2_cs       = 1'b0;
-    dipsw1_cs     = 1'b0;
-    dipsw2_cs     = 1'b0;
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
     obj_cs        = 1'b0;
@@ -96,15 +91,7 @@ always @(A,rd_n) begin
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // COCS
-                    if( !rd_n )
-                        case(A[2:0])
-                            3'b000: in_cs     = 1'b1; // coin, 1p/2p start...
-                            3'b001: joy1_cs   = 1'b1;
-                            3'b010: joy2_cs   = 1'b1;
-                            3'b011: dipsw1_cs = 1'b1;
-                            3'b100: dipsw2_cs = 1'b1;
-                            default:;
-                        endcase
+                    if( !rd_n ) in_cs = 1'b1;
                 2'b01:
                     if( A[10]==1'b1 )
                         obj_cs = 1'b1;
@@ -148,8 +135,9 @@ localparam coinw = 4;
 
 always @(posedge clk)
     if( rst ) begin
-        flip <= 1'b0;
-        sres_b <= 1'b1;
+        flip     <= 1'b0;
+        sres_b   <= 1'b1;
+        coin_cnt <= 1'b0;
         end
     else if(cen3) begin
         if( flip_cs ) begin
@@ -162,14 +150,14 @@ always @(posedge clk)
 reg [7:0] cabinet_input;
 
 always @(*)
-    case( cpu_AB[3:0])
-        4'd0: cabinet_input = { joystick2[7],joystick1[7], // COINS
+    case( A[2:0] )
+        3'd0: cabinet_input = { joystick2[7],joystick1[7], // COINS
                      4'hf, // undocumented. The game start screen has background when set to 0!
                      joystick2[6], joystick1[6] }; // START
-        4'd1: cabinet_input = { 2'b11, joystick1[5:0] };
-        4'd2: cabinet_input = { 2'b11, joystick2[5:0] };
-        4'd3: cabinet_input = dipsw_a;
-        4'd4: cabinet_input = dipsw_b;
+        3'd1: cabinet_input = { 2'b11, joystick1[5:0] };
+        3'd2: cabinet_input = { 2'b11, joystick2[5:0] };
+        3'd3: cabinet_input = dipsw_a;
+        3'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;
     endcase
 
@@ -208,7 +196,7 @@ always @(*)
     endcase
 
 // ROM ADDRESS
-always @(A,bank) begin
+always @(*) begin
     rom_addr[13:0] = A[13:0];
     //rom_addr[16:14] = { 1'b0, A[15:14] } + (!A[15] ? 3'd0 : {1'b0, bank});
     rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + {1'b0, bank});

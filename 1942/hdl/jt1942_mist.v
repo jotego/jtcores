@@ -66,8 +66,8 @@ parameter CONF_STR = {
         "JT1942;;",
         "O1,Test mode,OFF,ON;",
         "O2,Cabinet mode,OFF,ON;",
-        "O3,N/A ,ON,OFF;",
-        "O4,N/A ,ON,OFF;",
+        "O3,Flip,ON,OFF;",
+        "O4,DIPs,ON,OFF;",
         "O5,Screen filter,ON,OFF;",
         "T6,Reset;",
         "V,http://patreon.com/topapate;"
@@ -133,9 +133,11 @@ jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
     .c1     ( clk_rgb     ), // 24
     .c2     ( clk_rom     ), // 96
-    .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
+    .c3     (    ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
 );
+
+assign SDRAM_CLK = clk_rom;
 
 jtgng_pll1 clk_gen2 (
     .inclk0 ( clk_rgb   ),
@@ -221,11 +223,15 @@ jt1942_game u_game(
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // DIP switches
-    .dip_test    ( 1'b0          ),
+    .dip_test    ( ~status[0]    ),
+    .dip_upright ( ~status[1]    ),
+    .dip_flip    ( ~status[2]    ),
+    .dip_other   ( ~status[3]    ),
     .dip_planes  ( 2'b0          ),
     .dip_level   ( 2'b0          ),
-    .dip_upright ( 1'b0          ),
-    .dip_price   ( 4'b0          ),
+    .dip_price_a ( 3'b0          ),
+    .dip_price_b ( 3'b0          ),
+    .dip_bonus   ( 2'b0          ),
     .coin_cnt    ( coin_cnt      ),
     // sound
     .snd         ( snd           ),
@@ -258,9 +264,7 @@ jtgng_sdram u_sdram(
 );
 
 `ifndef NOSOUND
-// more resolution for sound when screen is filtered too
-// not really important...
-wire clk_dac = status[2] ? clk_rom : clk_rgb;
+wire clk_dac = clk_rom;
 assign AUDIO_R = AUDIO_L;
 
 hybrid_pwm_sd u_dac

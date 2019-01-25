@@ -23,7 +23,7 @@ module mist_test;
             `else
                 #75_000_000;
                 $display("DUMP starts");
-                $dumpvars(1,mist_test.UUT.u_main);
+                $dumpvars(1,mist_test.UUT.u_game.u_main);
                 //$dumpvars(1,mist_test.UUT.u_rom);
                 //$dumpoff;
                 //$dumpvars(1,mist_test.UUT.u_video);

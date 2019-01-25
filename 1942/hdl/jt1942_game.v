@@ -62,7 +62,11 @@ module jt1942_game(
     input   [1:0]   dip_planes,
     input   [1:0]   dip_level, // difficulty level
     input           dip_upright,
-    input   [3:0]   dip_price,
+    input           dip_flip,
+    input   [2:0]   dip_price_a,
+    input   [2:0]   dip_price_b,
+    input   [1:0]   dip_bonus,
+    input           dip_other,
     output          coin_cnt,
     // Sound output
     output  [8:0]   snd,
@@ -117,12 +121,12 @@ wire [7:0] snd_latch;
 wire scr_cs, scrpos_cs, obj_cs;
 wire [2:0] scr_br;
 
-wire [7:0] dipsw_a = { dip_planes, 1'b0, dip_upright, dip_price };
-wire [7:0] dipsw_b = { 1'b0, dip_level, 1'b0, dip_test, 3'b000 };
+wire [7:0] dipsw_a = { dip_planes, dip_bonus, dip_upright, dip_price_a };
+wire [7:0] dipsw_b = { dip_other, dip_level, dip_flip, dip_test, dip_price_b };
 
 // ROM data
 wire  [11:0]  char_addr;
-wire  [13:0]  obj_addr=14'd0;
+wire  [13:0]  obj_addr;
 wire  [15:0]  char_data, obj_data;
 wire  [ 7:0]  main_data, snd_data;
 wire  [23:0]  scr_data;
