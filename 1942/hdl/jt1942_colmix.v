@@ -49,25 +49,29 @@ wire [3:0] dout_b;
 
 reg [7:0] pixel_mux;
 
-wire char_blank = ~&char_pxl;
-wire obj_blank  = ~&obj_pxl;
+wire char_blank_b = |(~char_pxl);
+// wire obj_blank_b  = |(~obj_pxl);
+wire obj_blank_b  = 1'b0;
+reg [7:0] prom_addr;
 
-
-always @(posedge clk) if(cen6) begin   
-    if( !char_blank ) begin
+always @(*) begin
+    if( !char_blank_b ) begin
         // Object or scroll
-        if( !obj_blank ) 
-            pixel_mux[5:0] <= scr_pxl; // scroll wins
+        if( !obj_blank_b ) 
+            pixel_mux[5:0] = scr_pxl; // scroll wins
         else
-            pixel_mux[5:0] <= {2'b0, obj_pxl }; // object wins
+            pixel_mux[5:0] = {2'b0, obj_pxl }; // object wins
     end
     else begin // characters
-        pixel_mux[5:0] <= { 2'b0, char_pxl };
+        pixel_mux[5:0] = { 2'b0, char_pxl };
     end
-    pixel_mux[7:6] <= { char_blank, obj_blank };
+    pixel_mux[7:6] = { char_blank_b, obj_blank_b };
 end
 
-wire [7:0] prom_addr = (LVBL&&LHBL) ? pixel_mux : 8'd0;
+always @(posedge clk) if(cen6) begin   
+    prom_addr <= (LVBL&&LHBL) ? pixel_mux : 8'd0;
+end
+
 
 // palette ROM
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(

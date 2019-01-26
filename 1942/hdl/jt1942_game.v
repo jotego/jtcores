@@ -62,7 +62,7 @@ module jt1942_game(
     input   [1:0]   dip_planes,
     input   [1:0]   dip_level, // difficulty level
     input           dip_upright,
-    input           dip_flip,
+    input           dip_pause,
     input   [2:0]   dip_price_a,
     input   [2:0]   dip_price_b,
     input   [1:0]   dip_bonus,
@@ -118,11 +118,12 @@ wire rd_n;
 wire sres_b;
 wire [7:0] snd_latch;
 
-wire scr_cs, scrpos_cs, obj_cs;
+wire scr_cs, obj_cs;
+wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
 
 wire [7:0] dipsw_a = { dip_planes, dip_bonus, dip_upright, dip_price_a };
-wire [7:0] dipsw_b = { dip_other, dip_level, dip_flip, dip_test, dip_price_b };
+wire [7:0] dipsw_b = { dip_other, dip_level, dip_pause, dip_test, dip_price_b };
 
 // ROM data
 wire  [11:0]  char_addr;
@@ -141,7 +142,6 @@ jt1942_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .cen1p5     ( cen1p5        ),
     .rst        ( rst_game      ),
     .soft_rst   ( soft_rst      ),
     .char_wait_n( char_wait_n   ),
@@ -182,7 +182,6 @@ jt1942_main u_main(
 `ifndef NOSOUND
 jt1942_sound u_sound (
     .clk            ( clk            ),
-    .cen6           ( cen6           ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
     .rst            ( rst_game       ),

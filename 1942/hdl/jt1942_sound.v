@@ -21,9 +21,8 @@
 
 module jt1942_sound(
     input           clk,    // 24   MHz
-    input           cen6   /* synthesis direct_enable = 1 */,   //  6   MHz
     input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
-    input           cen1p5 /* synthesis direct_enable = 1 */, //  1.5 MHz
+    input           cen1p5, //  1.5 MHz
     input           rst,
     input           soft_rst,    
     // Interface with main CPU
@@ -43,16 +42,19 @@ module jt1942_sound(
 // posedge of snd_int
 reg snd_int_last;
 wire snd_int_edge = !snd_int_last && snd_int;
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen3) begin
     snd_int_last <= snd_int;
 end
 
 // interrupt latch
 reg int_n;
 wire iorq_n;
-always @(posedge clk) if(cen3) begin
-    int_n <= !iorq_n ? 1'b0 : ~snd_int_edge;
-end
+always @(posedge clk) 
+    if( rst ) int_n <= 1'b1;
+    else if(cen3) begin
+        if(!iorq_n) int_n <= 1'b1;
+        else if( snd_int_edge ) int_n <= 1'b0;
+    end
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
@@ -62,26 +64,29 @@ reg reset_n=1'b0;
 always @(posedge clk) if(cen3)
     reset_n <= ~( rst | soft_rst | ~sres_b );
 
-wire rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs;
-reg [4:0] map_cs;
-
-assign { rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs } = map_cs;
+reg rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs;
 
 reg [7:0] AH;
 
-always @(*)
+always @(*) begin
+    rom_cs   = 1'b0;
+    ay1_cs   = 1'b0;
+    ay0_cs   = 1'b0;
+    latch_cs = 1'b0;
+    ram_cs   = 1'b0;
     casez(A[15:13])
-        3'b000: map_cs = 5'h10; // ROM
-        3'b010: map_cs = 5'h1;  // RAM
-        3'b011: map_cs = 5'h2;  // Sound latch
-        3'b100: map_cs = 5'h4;  // AY0
-        3'b110: map_cs = 5'h8;  // AY1
-        default: map_cs = 5'h0;
+        3'b000: rom_cs   = 1'b1;
+        3'b010: ram_cs   = 1'b1;
+        3'b011: latch_cs = 1'b1;
+        3'b100: ay0_cs   = 1'b1;
+        3'b110: ay1_cs   = 1'b1;
+        default:;
     endcase
+end
 
 reg [7:0] latch0, latch1;
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen3) begin
     if( main_latch1_cs ) latch1 <= main_dout;
     if( main_latch0_cs ) latch0 <= main_dout;
 end
@@ -105,12 +110,12 @@ reg [7:0] din;
 wire [7:0] ay1_dout, ay0_dout;
 
 always @(*)
-    case( {ay1_cs, ay0_cs, latch_cs, rom_cs,ram_cs } )
-        5'b1_00_00:  din = ay1_dout;
-        5'b0_10_00:  din = ay0_dout;
-        5'b0_01_00:  din = A[0] ? latch1 : latch0;
-        5'b0_00_10:  din = rom_data;
-        5'b0_00_01:  din = ram_dout;
+    case( 1'b1 )
+        ay1_cs:   din = ay1_dout;
+        ay0_cs:   din = ay0_dout;
+        latch_cs: din = A[0] ? latch1 : latch0;
+        rom_cs:   din = rom_data;
+        ram_cs:   din = ram_dout;
         default:  din = 8'd0;
     endcase // {latch_cs,rom_cs,ram_cs}
 
@@ -124,7 +129,7 @@ always @(*)
 // `endif
 
 `ifdef VERILATOR_LINT 
-`undef Z80_ALT_CPU
+`define Z80_ALT_CPU
 `endif
 
 `ifndef Z80_ALT_CPU
@@ -194,9 +199,9 @@ always @(posedge clk) if(cen1p5)
     snd <= unlim_snd[10:9]!=2'b0 ? 9'h1FF : unlim_snd[8:0];
 
 wire bdir0 = ay0_cs && !wr_n;
-wire bc0   = ay0_cs && !wr_n && !A[0];
 wire bdir1 = ay1_cs && !wr_n;
-wire bc1   = ay1_cs && !wr_n && !A[0];
+wire bc0   = ay0_cs && wr_n && !A[0];
+wire bc1   = ay1_cs && wr_n && !A[0];
 
 ym2149 u_ay0(
     .CLK        ( clk       ),  // Global clock

@@ -25,16 +25,16 @@ module jt1942_prom_we(
 always @(*)
     if( !downloading ) prom_we = 10'd0;
     else case(romload_addr[11:8])
-        4'd0: prom_we = 10'h1;      // k6
-        4'd1: prom_we = 10'h2;      // d1
-        4'd2: prom_we = 10'h4;      // d2
-        4'd3: prom_we = 10'h8;      // d6
-        4'd4: prom_we = 10'h10;     // e8
-        4'd5: prom_we = 10'h20;     // e9
-        4'd6: prom_we = 10'h40;     // e10
-        4'd7: prom_we = 10'h80;     // f1
-        4'd8: prom_we = 10'h100;    // k3
-        4'd9: prom_we = 10'h200;    // m11
+        4'd0: prom_we = 10'h0_01;      // k6
+        4'd1: prom_we = 10'h0_02;      // d1
+        4'd2: prom_we = 10'h0_04;      // d2
+        4'd3: prom_we = 10'h0_08;      // d6
+        4'd4: prom_we = 10'h0_10;     // e8
+        4'd5: prom_we = 10'h0_20;     // e9
+        4'd6: prom_we = 10'h0_40;     // e10
+        4'd7: prom_we = 10'h0_80;     // f1
+        4'd8: prom_we = 10'h1_00;    // k3
+        4'd9: prom_we = 10'h2_00;    // m11
         default: prom_we = 10'h0;   // 
     endcase // romload_addr[10:8]
 

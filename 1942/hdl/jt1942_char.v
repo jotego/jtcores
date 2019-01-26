@@ -51,9 +51,9 @@ wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && char_cs && rd_n;
+wire [7:0] dout_low, dout_high;
 wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];
-wire [7:0] dout_low, dout_high;
 assign dout = AB[10] ? dout_high : dout_low;
 
 jtgng_ram #(.aw(10)) u_ram_low(
@@ -92,7 +92,7 @@ always @(posedge clk) if(cen6) begin
         char_attr1 <= char_attr0;
         char_attr0 <= dout_high[5:0];
         char_addr  <= { {dout_high[7], dout_low}, 
-            {3{dout_high[5] /*vflip*/ ^ flip }}^V128[2:0] };
+            {3{dout_high[6] /*vflip*/  }}^V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.

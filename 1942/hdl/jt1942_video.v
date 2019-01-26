@@ -34,7 +34,7 @@ module jt1942_video(
     output              char_wait_n,
     // SCROLL - ROM
     input               scr_cs,
-    input               scrpos_cs,    
+    input       [ 1:0]  scrpos_cs,    
     output              scr_wait_n,
     output      [ 7:0]  scram_dout,    
     output      [14:0]  scr_addr,
@@ -97,31 +97,33 @@ assign char_wait_n = 1'b1;
 
 `ifndef NOSCR
 jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
-    .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .AB         ( cpu_AB[9:0]   ),
-    .V128       ( V[7:0]        ),
-    .H          ( H             ),
-    .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
-    .wait_n     ( scr_wait_n    ),
-    .flip       ( flip          ),
-    .din        ( cpu_dout      ),
-    .dout       ( scram_dout    ),
-    .rd_n       ( rd_n          ),
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
+    .AB           ( cpu_AB[9:0]   ),
+    .V128         ( V[7:0]        ),
+    .H            ( H             ),
+    .scr_cs       ( scr_cs        ),
+    .scrpos_cs    ( scrpos_cs     ),
+    .wait_n       ( scr_wait_n    ),
+    .flip         ( flip          ),
+    .din          ( cpu_dout      ),
+    .dout         ( scram_dout    ),
+    .rd_n         ( rd_n          ),
     // Palette PROMs D1, D2
-    .scr_br     ( scr_br        ),
-    .prog_addr  ( prog_addr     ),
-    .prom_d1_we ( prom_d1_we    ),
-    .prom_d2_we ( prom_d2_we    ),
-    .prom_d6_we ( prom_d6_we    ),
-    .prom_din   ( prog_din      ),    
+    .scr_br       ( scr_br        ),
+    .prog_addr    ( prog_addr     ),
+    .prom_d1_we   ( prom_d1_we    ),
+    .prom_d2_we   ( prom_d2_we    ),
+    .prom_d6_we   ( prom_d6_we    ),
+    .prom_din     ( prog_din      ),    
 
     // ROM
-    .scr_addr   ( scr_addr      ),
-    .scrom_data ( scrom_data    ),
-    .scr_pxl    ( scr_pxl       )
+    .scr_addr     ( scr_addr[13:0]),
+    .scrom_data   ( scrom_data    ),
+    .scr_pxl      ( scr_pxl       )
 );
+assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
+    // leave bit 14 to maintain the same ROM interface as with GnG
 `else 
 assign scr_wait_n = 1'b1;
 `endif
@@ -177,6 +179,6 @@ assign green= 4'd0;
 //     // pixel data
 //     .obj_pxl    ( obj_pxl     )
 // );
-assign obj_pxl = 4'd0;
+assign obj_pxl = 4'hf;
 
 endmodule // jtgng_video

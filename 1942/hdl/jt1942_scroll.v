@@ -26,7 +26,7 @@ module jt1942_scroll(
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
     input              scr_cs,
-    input              scrpos_cs,
+    input       [ 1:0] scrpos_cs,
     output             wait_n,
     input              flip,
     input       [ 7:0] din,
@@ -42,7 +42,7 @@ module jt1942_scroll(
     input   [3:0]      prom_din,    
 
     // ROM
-    output reg  [14:0] scr_addr,
+    output reg  [13:0] scr_addr,
     input       [23:0] scrom_data,
     output      [ 5:0] scr_pxl
 );
@@ -71,20 +71,17 @@ wire [8:0] scan = { HS[8:4], VF[7:4] };
 wire sel_scan = ~HS[2];
 wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
 wire we = !sel_scan && scr_cs && rd_n;
-wire we_low  = we && !AB[4];
-wire we_high = we &&  AB[4];
 
 assign wait_n = !( scr_cs && sel_scan ); // hold CPU
 
 always @(posedge clk) if(cen6) begin
-    if( scrpos_cs && AB[3]) 
-    if(AB[0])
-        hpos[8]   <= din[0];
-    else
-        hpos[7:0] <= din;
+    if( scrpos_cs[1] ) hpos[8]   <= din[0];
+    if( scrpos_cs[0] ) hpos[7:0] <= din;
 end
 
 wire [7:0] dout_low, dout_high;
+wire we_low  = we && !AB[4];
+wire we_high = we &&  AB[4];
 assign dout = AB[4] ? dout_high : dout_low;
 
 jtgng_ram #(.aw(9)) u_ram_tile(
@@ -116,7 +113,7 @@ always @(posedge clk) if(cen6) begin
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr1 <= scr_attr0;
         scr_attr0 <= dout_high[5:0];
-        scr_addr  <= {   dout_high[7:6], dout_low, // AS
+        scr_addr  <= {   dout_high[7], dout_low, // AS
                         HS[3]^dout_high[5] /*scr_hflip*/, 
                         {4{dout_high[6] /*vflip*/}}^VF[3:0] /*vert_addr*/ };
     end

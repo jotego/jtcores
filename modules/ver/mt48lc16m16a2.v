@@ -46,6 +46,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     parameter col_bits  =       9;
     parameter mem_sizes = 4194303;
     parameter filename  = "../../../rom/JTGNG.rom";
+    parameter test2_offset = 32'ha000;
 
     inout     [data_bits - 1 : 0] Dq;
     input     [addr_bits - 1 : 0] Addr;
@@ -86,6 +87,13 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         romfilecnt=$fread( Bank0, file );
         $display("Read %d bytes of test code", romfilecnt);
         $fclose(file);
+        // Try to open test2.bin too
+        file=$fopen("test2.bin", "rb");
+        if( file != 0 ) begin
+            romfilecnt=$fread( Bank0, file, test2_offset );
+            $display("Read %d bytes of test code for second CPU", romfilecnt);
+            $fclose(file);
+        end        
         `endif
     end
     `endif

@@ -20,9 +20,8 @@
 
 module jt1942_main(
     input              clk, 
-    input              cen6    /* synthesis direct_enable = 1 */,   // 6MHz
+    input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
-    input              cen1p5  /* synthesis direct_enable = 1 */,   // 1.5MHz
     input              rst,
     input              soft_rst,
     input              [7:0] char_dout,
@@ -41,7 +40,7 @@ module jt1942_main(
     // scroll
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
-    output  reg        scrpos_cs,
+    output  reg [1:0]  scrpos_cs,
     output  reg [2:0]  scr_br,
     // Object
     output  reg        obj_cs,
@@ -67,7 +66,7 @@ module jt1942_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
-reg main_cs, in_cs, ram_cs, bank_cs, flip_cs;
+reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
 
 wire mreq_n, wr_n;
 reg bank_access;
@@ -77,30 +76,33 @@ always @(A,rd_n) begin
     ram_cs        = 1'b0;
     snd_latch0_cs = 1'b0;
     snd_latch1_cs = 1'b0;
-    scrpos_cs     = 1'b0;
+    scrpos_cs     = 2'b0;
     flip_cs       = 1'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
+    brt_cs        = 1'b0;
     obj_cs        = 1'b0;
-    bank_access   = 1'b0;
+    bank_access   = 1'b0; // Only of interest for simulation
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: begin main_cs = 1'b1; bank_access = 1'b1; end // bank
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // COCS
-                    if( !rd_n ) in_cs = 1'b1;
+                    in_cs = 1'b1;
                 2'b01:
                     if( A[10]==1'b1 )
                         obj_cs = 1'b1;
-                    else
+                    else 
                         casez(A[2:0])
                             3'b000: snd_latch0_cs = 1'b1;
                             3'b001: snd_latch1_cs = 1'b1;
-                            3'b01?: scrpos_cs     = 1'b1;
+                            3'b010: scrpos_cs     = 2'b01;
+                            3'b011: scrpos_cs     = 2'b10;
                             3'b100: flip_cs       = 1'b1;
+                            3'b101: brt_cs        = 1'b1;
                             3'b110: bank_cs       = 1'b1;
                             default:;
                         endcase
@@ -117,35 +119,27 @@ always @(posedge clk)
     if( rst ) begin
         bank      <= 2'd0;
         scr_br    <= 3'b0;
+        flip     <= 1'b0;
+        sres_b   <= 1'b1;
+        coin_cnt <= 1'b0;
     end
     else if(cen3) begin
-        if( bank_cs && !wr_n ) begin
+        if( bank_cs  ) begin
             bank   <= cpu_dout[1:0];
-            scr_br <= cpu_dout[2:0];
             `ifdef SIMULATION
             $display("Bank changed to %d", cpu_dout[1:0]);
             `endif
+        end
+        if (brt_cs ) scr_br <= cpu_dout[2:0];
+        if( flip_cs ) begin
+            flip     <=  cpu_dout[7];
+            sres_b   <= ~cpu_dout[4];
+            coin_cnt <= ~cpu_dout[0];
         end
     end
 
 always @(negedge clk)
     t80_rst_n <= ~(rst | soft_rst);
-
-localparam coinw = 4;
-
-always @(posedge clk)
-    if( rst ) begin
-        flip     <= 1'b0;
-        sres_b   <= 1'b1;
-        coin_cnt <= 1'b0;
-        end
-    else if(cen3) begin
-        if( flip_cs ) begin
-            flip     <= cpu_dout[7];
-            sres_b   <= ~cpu_dout[4];
-            coin_cnt <= ~cpu_dout[0];
-        end
-    end
 
 reg [7:0] cabinet_input;
 
@@ -180,7 +174,7 @@ reg [7:0] cpu_din;
 wire [3:0] int_ctrl;
 wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 };
+wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K10
 
 always @(*)
     if( irq_ack ) // Interrupt address
@@ -213,7 +207,6 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
 );
 
 // interrupt generation
-reg [7:0] vstatus;
 reg int_n, LHBL_old;
 
 always @(posedge clk) 
@@ -221,8 +214,6 @@ always @(posedge clk)
         snd_int <= 1'b1;
         int_n   <= 1'b1;
     end else if(cen6) begin // H1 == cen3
-        // Schematic K10
-        vstatus <= { 2'b11, 1'b0, int_ctrl[1:0], 3'b111 };
         // Schematic L5 - sound interrupter
         snd_int <= int_ctrl[2];
         // Schematic L6, L5 - main CPU interrupter
@@ -243,7 +234,7 @@ wire wait_n = scr_wait_n & char_wait_n;
 // `endif
 
 `ifdef VERILATOR_LINT 
-`undef Z80_ALT_CPU
+`define Z80_ALT_CPU
 `endif
 
 `ifndef Z80_ALT_CPU

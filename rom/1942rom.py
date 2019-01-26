@@ -91,13 +91,15 @@ if game == "1942":
         'k6'        : "sb-1.k6",
         'm11'       : "sb-9.m11",
     }
-    rom_crc = '8389D079'
+    rom_crc = '183CBD79'
 else:
     print("Unsupported option: ", game)
     exit(1)
 
 def report_pos( msg ):
-    print("%s starts at 0x%x" % (msg,fo.tell()/2) )
+    pos = fo.tell()/2;
+    print("%s starts at 0x%x" % (msg,pos) )
+    return pos
 
 check_files( roms )
 
@@ -116,11 +118,12 @@ append_file( [roms['audio']] )
 report_pos( "Char" )
 append_file( [roms['char']] )
 
-report_pos( "Scroll" )
-byte_merge( [roms['scr0'], roms['scr1']])
-byte_merge( [roms['scr2'], roms['scr3']])
+scr_start = report_pos( "Scroll" )
+byte_merge( [roms['scr2'], roms['scr0']])
+byte_merge( [roms['scr3'], roms['scr1']])
 
-report_pos( "Scroll (upper)" )
+scr_cont = report_pos( "Scroll (upper)" )
+print("\tscroll offset = 0x%x" % (scr_cont-scr_start) )
 append_dup( roms['scr4'])
 append_dup( roms['scr5'])
 

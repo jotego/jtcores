@@ -113,7 +113,7 @@ module jtgng_pll0 (
 		altpll_component.clk3_divide_by = 9,
 		altpll_component.clk3_duty_cycle = 50,
 		altpll_component.clk3_multiply_by = 32,
-		altpll_component.clk3_phase_shift = "-289",
+		altpll_component.clk3_phase_shift = "289",
 		altpll_component.compensate_clock = "CLK1",
 		altpll_component.inclk0_input_frequency = 37037,
 		altpll_component.intended_device_family = "Cyclone III",
@@ -239,7 +239,7 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "0.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "-10.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "10.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "deg"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT2 STRING "deg"
@@ -292,7 +292,7 @@ endmodule
 // Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "9"
 // Retrieval info: CONSTANT: CLK3_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "32"
-// Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "-289"
+// Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "289"
 // Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK1"
 // Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "37037"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone III"

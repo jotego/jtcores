@@ -80,6 +80,20 @@ case "$1" in
             exit 1
         fi        
         ;;
+    "-t2")
+        # is there a file name?        
+        if [[ "${2:0:1}" != "-" && $# -gt 1  ]]; then
+            shift
+            FIRMWARE2=$1
+        else
+            FIRMWARE2=bank_check.s
+        fi
+        echo "Using test firmware $FIRMWARE2 for second CPU"
+        LOADROM=${MACROPREFIX}TESTROM
+        if ! z80asm $FIRMWARE2 -o test2.bin -l > $(basename $FIRMWARE2 .s).lst; then
+            exit 1
+        fi        
+        ;;        
     "-ch")
         CHR_DUMP=CHR_DUMP
         echo Character dump enabled

@@ -66,14 +66,14 @@ parameter CONF_STR = {
         "JT1942;;",
         "O1,Test mode,OFF,ON;",
         "O2,Cabinet mode,OFF,ON;",
-        "O3,Flip,ON,OFF;",
+        "O3,Pause,ON,OFF;",
         "O4,DIPs,ON,OFF;",
         "O5,Screen filter,ON,OFF;",
         "T6,Reset;",
         "V,http://patreon.com/topapate;"
 };
 
-parameter CONF_STR_LEN = 8+20+23+15+15+24+9+30;
+parameter CONF_STR_LEN = 8+20+23+16+15+24+9+30;
 
 reg rst = 1'b1;
 
@@ -225,12 +225,12 @@ jt1942_game u_game(
     // DIP switches
     .dip_test    ( ~status[0]    ),
     .dip_upright ( ~status[1]    ),
-    .dip_flip    ( ~status[2]    ),
+    .dip_pause   ( ~status[2] && ~joy1_sync[7]   ),
     .dip_other   ( ~status[3]    ),
     .dip_planes  ( 2'b0          ),
     .dip_level   ( 2'b0          ),
-    .dip_price_a ( 3'b0          ),
-    .dip_price_b ( 3'b0          ),
+    .dip_price_a ( 3'b111        ),
+    .dip_price_b ( 3'b110        ),
     .dip_bonus   ( 2'b0          ),
     .coin_cnt    ( coin_cnt      ),
     // sound
