@@ -22,6 +22,7 @@
 module jt1942_scroll(
     input              clk,     // 24 MHz
     input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
+    input              cen3,
     input       [ 9:0] AB,
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
@@ -32,6 +33,7 @@ module jt1942_scroll(
     input       [ 7:0] din,
     output      [ 7:0] dout,
     input              rd_n,
+    input              wr_n,
 
     // Palette PROMs D1, D2
     input   [2:0]      scr_br,
@@ -70,7 +72,7 @@ end
 wire [8:0] scan = { HS[8:4], VF[7:4] };
 wire sel_scan = ~HS[2];
 wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
-wire we = !sel_scan && scr_cs && rd_n;
+wire we = !sel_scan && scr_cs && !wr_n;
 
 assign wait_n = !( scr_cs && sel_scan ); // hold CPU
 
@@ -86,7 +88,7 @@ assign dout = AB[4] ? dout_high : dout_low;
 
 jtgng_ram #(.aw(9)) u_ram_tile(
     .clk    ( clk      ),
-    .cen    ( cen6     ),
+    .cen    ( cen3     ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_low   ),
@@ -95,7 +97,7 @@ jtgng_ram #(.aw(9)) u_ram_tile(
 
 jtgng_ram #(.aw(9)) u_ram_att(
     .clk    ( clk      ),
-    .cen    ( cen6     ),
+    .cen    ( cen3     ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_high  ),

@@ -50,6 +50,7 @@ module jt1942_main(
     // BUS sharing
     output  [12:0]     cpu_AB,
     output             rd_n,
+    output             wr_n,
     // ROM access
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
@@ -68,7 +69,7 @@ wire [ 7:0] ram_dout;
 reg t80_rst_n;
 reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
 
-wire mreq_n, wr_n;
+wire mreq_n;
 reg bank_access;
 
 always @(A,rd_n) begin

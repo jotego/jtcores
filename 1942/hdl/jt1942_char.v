@@ -22,6 +22,7 @@
 module jt1942_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
+    input            cen3,
     input   [10:0]   AB,
     input   [ 7:0]   V128, // V128-V1
     input   [ 7:0]   H128, // Hfix-H1

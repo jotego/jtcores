@@ -20,10 +20,12 @@ module jt1942_video(
     input               rst,    
     input               clk,
     input               cen6,
+    input               cen3,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
     input               rd_n,
+    input               wr_n,
     input               flip,
     input       [ 7:0]  cpu_dout,
     // CHAR
@@ -73,6 +75,7 @@ localparam scrchr_off = 5;
 jt1942_char #(.Hoffset(scrchr_off)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H128       ( H[7:0]        ),
@@ -99,6 +102,7 @@ assign char_wait_n = 1'b1;
 jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .clk          ( clk           ),
     .cen6         ( cen6          ),
+    .cen3         ( cen3          ),
     .AB           ( cpu_AB[9:0]   ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
@@ -109,6 +113,7 @@ jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),
     .rd_n         ( rd_n          ),
+    .wr_n         ( wr_n          ),
     // Palette PROMs D1, D2
     .scr_br       ( scr_br        ),
     .prog_addr    ( prog_addr     ),

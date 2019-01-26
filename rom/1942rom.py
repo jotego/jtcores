@@ -87,7 +87,6 @@ if game == "1942":
         'k3'        : "sb-8.k3",
         'd1'        : "sb-2.d1",
         'd2'        : "sb-3.d2",
-        'd6'        : "sb-4.d6",
         'k6'        : "sb-1.k6",
         'm11'       : "sb-9.m11",
     }
@@ -110,7 +109,8 @@ append_file( [roms['main0'],
               roms['main2'],
               roms['main3'],
               roms['main3'], # main3 is repeated to make it 16kB
-              roms['main4']] )
+              roms['main4'],
+              ] )
 #print("Sound starts at 0x%x" % fo.tell() )
 report_pos( "Sound" )
 append_file( [roms['audio']] )

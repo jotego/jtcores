@@ -58,15 +58,17 @@ module jt1942_game(
     input           prom_f1_we,    
 
     // DIP switches
-    input           dip_test,
-    input   [1:0]   dip_planes,
-    input   [1:0]   dip_level, // difficulty level
-    input           dip_upright,
-    input           dip_pause,
-    input   [2:0]   dip_price_a,
-    input   [2:0]   dip_price_b,
-    input   [1:0]   dip_bonus,
-    input           dip_other,
+    input [7:0] dipsw_a,
+    input [7:0] dipsw_b,
+    // input           dip_test,
+    // input   [1:0]   dip_planes,
+    // input   [1:0]   dip_level, // difficulty level
+    // input           dip_upright,
+    // input           dip_pause,
+    // input   [2:0]   dip_price_a,
+    // input   [2:0]   dip_price_b,
+    // input   [1:0]   dip_bonus,
+    // input           dip_other,
     output          coin_cnt,
     // Sound output
     output  [8:0]   snd,
@@ -113,7 +115,7 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-wire rd_n;
+wire wr_n, rd_n;
 // sound
 wire sres_b;
 wire [7:0] snd_latch;
@@ -122,8 +124,8 @@ wire scr_cs, obj_cs;
 wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
 
-wire [7:0] dipsw_a = { dip_planes, dip_bonus, dip_upright, dip_price_a };
-wire [7:0] dipsw_b = { dip_other, dip_level, dip_pause, dip_test, dip_price_b };
+//wire [7:0] dipsw_a = { dip_planes, dip_bonus, dip_upright, dip_price_a };
+//wire [7:0] dipsw_b = { dip_other, dip_level, dip_pause, dip_test, dip_price_b };
 
 // ROM data
 wire  [11:0]  char_addr;
@@ -165,6 +167,7 @@ jt1942_main u_main(
     .V          ( V[7:0]        ),
     .cpu_AB     ( cpu_AB        ),
     .rd_n       ( rd_n          ),
+    .wr_n       ( wr_n          ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),
     .joystick1  ( joystick1     ),
@@ -204,10 +207,12 @@ jt1942_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .rd_n       ( rd_n          ),
+    .wr_n       ( wr_n          ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
     // CHAR
