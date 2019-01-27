@@ -170,7 +170,7 @@ always @(posedge clk_rgb) // if(cen6)
 
 wire cen6, cen3, cen1p5;
 
-jtgng_cen u_cen(
+jtgng_cen #(.clk_speed(12)) u_cen(
     .clk    ( clk_rgb   ),    // 24 MHz
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),

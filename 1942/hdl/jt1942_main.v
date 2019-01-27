@@ -214,7 +214,7 @@ always @(posedge clk)
     if (rst) begin
         snd_int <= 1'b1;
         int_n   <= 1'b1;
-    end else if(cen6) begin // H1 == cen3
+    end else if(cen3) begin // H1 == cen3
         // Schematic L5 - sound interrupter
         snd_int <= int_ctrl[2];
         // Schematic L6, L5 - main CPU interrupter

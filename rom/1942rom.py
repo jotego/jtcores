@@ -90,7 +90,7 @@ if game == "1942":
         'k6'        : "sb-1.k6",
         'm11'       : "sb-9.m11",
     }
-    rom_crc = '183CBD79'
+    rom_crc = '504BB09F'
 else:
     print("Unsupported option: ", game)
     exit(1)

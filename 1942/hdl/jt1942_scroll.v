@@ -76,7 +76,7 @@ wire we = !sel_scan && scr_cs && !wr_n;
 
 assign wait_n = !( scr_cs && sel_scan ); // hold CPU
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen3) begin
     if( scrpos_cs[1] ) hpos[8]   <= din[0];
     if( scrpos_cs[0] ) hpos[7:0] <= din;
 end
