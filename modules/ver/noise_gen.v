@@ -7,11 +7,8 @@ module noise_gen(
     output [7:0] noise
 );
 
-
-//  p_noise_gen
-assign noise = bb[7:0];
-
 reg [16:0] bb;
+assign noise = bb[7:0];
 
 always @(posedge clk) begin : base_counter
     if( rst ) begin
