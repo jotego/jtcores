@@ -203,15 +203,8 @@ jt1942_game UUT(
 
     // DIP switches
     // DIP switches
-    .dip_test    ( 1  ),
-    .dip_upright ( 1  ),
-    .dip_pause   ( 1  ),
-    .dip_other   ( 1  ),
-    .dip_planes  ( 1  ),
-    .dip_level   ( 1  ),
-    .dip_price_a ( 1  ),
-    .dip_price_b ( 1  ),
-    .dip_bonus   ( 1  ),
+    .dipsw_a    ( 8'hff     ),
+    .dipsw_b    ( 8'hff     ),
     .coin_cnt   ( coin_cnt  ),
     // Sound output
     .snd            ( snd       ),

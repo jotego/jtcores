@@ -142,6 +142,17 @@ always @(posedge clk)
 always @(negedge clk)
     t80_rst_n <= ~(rst | soft_rst);
 
+`ifdef SIMULATION
+wire [7:0] random;
+
+noise_gen u_noise(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cen    ( cen3   ),
+    .noise  ( random )
+);
+`endif
+
 reg [7:0] cabinet_input;
 
 always @(*)
@@ -153,6 +164,14 @@ always @(*)
         3'd2: cabinet_input = { 2'b11, joystick2[5:0] };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
+
+        `ifdef SIMULATION
+        3'd5: cabinet_input = random;
+        3'd6: if(in_cs) begin
+                $display("INFO: Simulation finished as per firmware request.");
+                $finish;
+            end
+        `endif
         default: cabinet_input = 8'hff;
     endcase
 

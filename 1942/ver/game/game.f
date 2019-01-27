@@ -19,5 +19,6 @@
 ../../../modules/jtgng_timer.v
 ../../../modules/data_io.v
 ../../../modules/ym2149.sv
+../../../modules/ver/noise_gen.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v

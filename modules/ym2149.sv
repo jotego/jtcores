@@ -1,6 +1,7 @@
 //
 // Copyright (c) MikeJ - Jan 2005
 // Copyright (c) 2016-2018 Sorgelig
+// Copyright (c) 2019 Jose Tejada (@topapate)
 //
 // All rights reserved
 //
@@ -38,6 +39,7 @@
 //   1   0   write value
 //   1   1   set address
 //
+// Modified to remove System-Verilog specific constructions.
 
 module ym2149
 (
