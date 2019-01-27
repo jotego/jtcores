@@ -55,7 +55,9 @@ module jt1942_game(
     input           prom_e8_we,
     input           prom_e9_we,
     input           prom_e10_we,
-    input           prom_f1_we,    
+    input           prom_f1_we,
+    input           prom_k3_we,
+    input           prom_m11_we,
 
     // DIP switches
     input [7:0] dipsw_a,
@@ -250,7 +252,9 @@ jt1942_video u_video(
     .prom_d6_we ( prom_d6_we    ),
     .prom_e8_we ( prom_e8_we    ),
     .prom_e9_we ( prom_e9_we    ),
-    .prom_e10_we( prom_e10_we   )
+    .prom_e10_we( prom_e10_we   ),
+    .prom_k3_we ( prom_k3_we    ),
+    .prom_m11_we( prom_m11_we   )    
 );
 
 jtgng_rom #(

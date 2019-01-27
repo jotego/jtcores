@@ -55,15 +55,17 @@ module jt1942_video(
     output      [3:0]   green,
     output      [3:0]   blue,
     // PROM access
-    input   [7:0]   prog_addr,
-    input   [3:0]   prog_din,    
-    input           prom_f1_we,
-    input           prom_d1_we,
-    input           prom_d2_we,
-    input           prom_d6_we,
-    input           prom_e8_we,
-    input           prom_e9_we,
-    input           prom_e10_we
+    input       [7:0]   prog_addr,
+    input       [3:0]   prog_din,    
+    input               prom_f1_we,
+    input               prom_d1_we,
+    input               prom_d2_we,
+    input               prom_d6_we,
+    input               prom_e8_we,
+    input               prom_e9_we,
+    input               prom_e10_we,
+    input               prom_k3_we,
+    input               prom_m11_we
 );
 
 wire [3:0] char_pxl, obj_pxl;
@@ -161,29 +163,32 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
-
-// jtgng_obj u_obj (   
-//     .rst        ( rst         ),
-//     .clk        ( clk         ),
-//     .cen6       ( cen6        ),    
-//     .AB         ( obj_AB      ),
-//     .DB         ( main_ram    ),
-//     .OKOUT      ( OKOUT       ),
-//     .bus_req    ( bus_req     ),
-//     .bus_ack    ( bus_ack     ),
-//     .blen       ( blcnten     ),
-//     .LHBL       ( LHBL_obj    ),
-//     .LVBL       ( LVBL        ),
-//     .HINIT      ( HINIT       ),
-//     .flip       ( flip        ),
-//     .V          ( V[7:0]      ),
-//     .H          ( H           ),
-//     // SDRAM interface
-//     .obj_addr   ( obj_addr    ),
-//     .objrom_data( objrom_data ),
-//     // pixel data
-//     .obj_pxl    ( obj_pxl     )
-// );
-assign obj_pxl = 4'hf;
+jt1942_obj u_obj(   
+    .rst            ( rst       ),
+    .clk            ( clk       ),
+    .cen6           ( cen6      ),
+    .cen3           ( cen3      ),
+    // screen
+    .HINIT          ( HINIT     ),
+    .LHBL           ( LHBL      ),
+    .LVBL           ( LVBL      ),
+    .V              ( V         ),
+    .H              ( H         ),
+    .flip           ( flip      ),
+    // CPU bus
+    .AB             ( cpu_AB[6:0] ),
+    .DB             ( cpu_dout  ),
+    .wr_n           ( wr_n      ),
+    // SDRAM interface
+    .obj_addr       ( obj_addr[13:0] ),
+    .objrom_data    ( objrom_data    ),
+    // PROMs
+    .prog_addr      ( prog_addr      ),
+    .prom_m11_we    ( prom_m11_we    ),
+    .prom_k3_we     ( prom_k3_we     ),
+    .prog_din       ( prog_din       ),
+    // pixel output
+    .obj_pxl        ( obj_pxl   )
+);
 
 endmodule // jtgng_video

@@ -41,8 +41,8 @@ reg [7:0] lineA_address_a, lineA_address_b;
 reg [7:0] lineB_address_a, lineB_address_b;
 reg [7:0] Hcnt;
 
-wire [7:0] lineA_q_a, lineA_q_b;
-wire [7:0] lineB_q_a, lineB_q_b;
+wire [3:0] lineA_q_a, lineA_q_b;
+wire [3:0] lineB_q_a, lineB_q_b;
 
 reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
 
@@ -65,7 +65,7 @@ always @(*)
         // lineA readout
         lineA_address_a = Hcnt;
         lineA_we_a = 1'b0;
-        obj_pxl = lineA_q_a[5:0];
+        obj_pxl = lineA_q_a;
         // lineB writein
         lineB_address_a = {8{flip}} ^ posx[7:0];
         lineB_we_a = !posx[8] && (new_pxl!=4'hf);
@@ -76,7 +76,7 @@ always @(*)
         // lineB readout
         lineB_address_a = Hcnt;
         lineB_we_a = 1'b0;
-        obj_pxl = lineB_q_a[5:0];
+        obj_pxl = lineB_q_a;
     end
 
 always @(posedge clk) if(cen6) begin

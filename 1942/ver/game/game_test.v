@@ -198,8 +198,8 @@ jt1942_game UUT(
     .prom_e10_we ( prom_we[5]        ),
     .prom_f1_we  ( prom_we[6]        ), 
     .prom_d6_we  ( prom_we[7]        ),
-    //.prom_k3_we  ( prom_we[8]        ),
-    //.prom_m11_we ( prom_we[9]        ), 
+    .prom_k3_we  ( prom_we[8]        ),
+    .prom_m11_we ( prom_we[9]        ), 
 
     // DIP switches
     // DIP switches

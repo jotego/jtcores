@@ -20,8 +20,9 @@
     
 module jt1942_obj(
     input              rst,
-    input              clk,     // 24 MHz
+    input              clk,
     input              cen6,    //  6 MHz
+    input              cen3,    //  3 MHz
     // screen
     input              HINIT,
     input              LHBL,
@@ -29,21 +30,24 @@ module jt1942_obj(
     input   [ 7:0]     V,
     input   [ 8:0]     H,
     input              flip,
-    // shared bus
-    output       [8:0] AB,
+    // CPU bus
+    input        [6:0] AB,
     input        [7:0] DB,
+    input              wr_n,
     // SDRAM interface
-    output      [15:0] obj_addr,
+    output      [13:0] obj_addr,
     input       [15:0] objrom_data,
+    // PROMs
+    input   [7:0]      prog_addr,
+    input              prom_m11_we,
+    input              prom_k3_we,
+    input   [3:0]      prog_din,
     // pixel output
     output       [3:0] obj_pxl
 );
 
-wire [8:0] pre_scan;
-wire [7:0] ram_dout;
 
 wire line, fill, line_obj_we;
-wire [4:0] post_scan;
 wire [7:0] VF;
 wire [7:0] objbuf_data;
 
@@ -57,6 +61,28 @@ always @(posedge clk) if(cen6) begin
         if( objcnt != 5'd0 )  { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 1'd1;
 end
 
+jt1942_objram u_ram(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .cen6           ( cen6          ),    //  6 MHz
+    .cen3           ( cen3          ),    //  3 MHz
+    .H              ( H             ),
+    .V              ( V             ),
+    // CPU interface
+    .DB             ( DB            ),
+    .AB             ( AB            ),
+    .wr_n           ( wr_n          ),
+    // memory output
+    .objbuf_data    ( objbuf_data   ),
+    // Timing PROM
+    .prog_addr      ( prog_addr     ),
+    .prom_m11_we    ( prom_m11_we   ),
+    .prog_din       ( prog_din[1:0] )
+);
+
+wire [8:0] posx;
+wire [3:0] new_pxl;
+
 // draw the sprite
 jtgng_objdraw u_draw(
     .rst            ( rst           ),
@@ -64,6 +90,7 @@ jtgng_objdraw u_draw(
     .cen6           ( cen6          ),    //  6 MHz
     // screen
     .VF             ( VF            ),
+    .H              ( H             ),
     .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
     // per-line sprite data
@@ -72,8 +99,11 @@ jtgng_objdraw u_draw(
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .objrom_data    ( objrom_data   ),
+    // Palette PROM
+    .prog_addr      ( prog_addr     ),
+    .prom_k3_we     ( prom_k3_we    ),
+    .prog_din       ( prog_din      ),
     // pixel data
-    .pospal         ( pospal        ),
     .new_pxl        ( new_pxl       )
 );
 

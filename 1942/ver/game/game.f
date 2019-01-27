@@ -6,6 +6,10 @@
 ../../hdl/jt1942_sound.v
 ../../hdl/jt1942_video.v
 ../../hdl/jt1942_prom_we.v
+../../hdl/jt1942_obj.v
+../../hdl/jt1942_objram.v
+../../hdl/jt1942_objdraw.v
+../../hdl/jt1942_objpxl.v
 ../../../modules/jtgng_vga.v
 ../../../modules/jtgng_vgapxl.v
 ../../../modules/jtgng_cen.v
