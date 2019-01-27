@@ -238,13 +238,15 @@ wire wait_n = scr_wait_n & char_wait_n;
 `define Z80_ALT_CPU
 `endif
 
+
+
 `ifndef Z80_ALT_CPU
 // This CPU is used for synthesis
 T80pa u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
     .CEN_p      ( cen3        ),
-    .CEN_n      ( 1'b1        ),
+    .CEN_n      ( scr_wait_n  ),
     .WAIT_n     ( wait_n      ),
     .INT_n      ( int_n       ),
     .NMI_n      ( 1'b1        ),
