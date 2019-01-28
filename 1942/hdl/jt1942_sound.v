@@ -184,15 +184,8 @@ tv80s #(.Mode(0)) u_cpu (
 );
 `endif
 
-wire [7:0] ay0_a, ay0_b, ay0_c;
-wire [7:0] ay1_a, ay1_b, ay1_c;
-wire [10:0] unlim_snd = 
-    {3'b0, ay0_a} +
-    {3'b0, ay0_b} +
-    {3'b0, ay0_c} +
-    {3'b0, ay1_a} +
-    {3'b0, ay1_b} +
-    {3'b0, ay1_c};
+wire [9:0] sound0, sound1;
+wire [10:0] unlim_snd = sound0 + sound1;
 
 // limit to 9 bits in order to get good volume
 always @(posedge clk) if(cen1p5)
@@ -200,52 +193,31 @@ always @(posedge clk) if(cen1p5)
 
 wire bdir0 = ay0_cs && !wr_n;
 wire bdir1 = ay1_cs && !wr_n;
-wire bc0   = ay0_cs && wr_n && !A[0];
-wire bc1   = ay1_cs && wr_n && !A[0];
+wire bc0   = ay0_cs && !wr_n && !A[0];
+wire bc1   = ay1_cs && !wr_n && !A[0];
 
-ym2149 u_ay0(
-    .CLK        ( clk       ),  // Global clock
-    .CE         ( cen1p5    ),  // PSG Clock enable
-    .RESET      ( rst       ),  // Chip RESET (set all Registers to '0', active hi)
-    .BDIR       ( bdir0     ),  // Bus Direction (0 - read , 1 - write)
-    .BC         ( bc0       ),  // Bus control
-    .DI         ( dout      ),  // Data In
-    .DO         ( ay0_dout  ),  // Data Out
-    .CHANNEL_A  ( ay0_a     ),  // PSG Output channel A
-    .CHANNEL_B  ( ay0_b     ),  // PSG Output channel B
-    .CHANNEL_C  ( ay0_c     ),  // PSG Output channel C
-    // AY mode:
-    .SEL        ( 1'b1      ),
-    .MODE       ( 1'b1      ),
-    // unused 
-    .IOA_in     ( 8'd0      ),
-    .IOB_in     ( 8'd0      ),
-    .ACTIVE     (           ),
-    .IOA_out    (           ),
-    .IOB_out    (           )
+jt49_bus u_ay0( // note that input ports are not multiplexed
+    .rst_n  ( reset_n   ),
+    .clk    ( clk       ),
+    .clk_en ( cen1p5    ),
+    .bdir   ( bdir0     ),
+    .bc1    ( bc0       ),
+    .din    ( dout      ),
+    .sel    ( 1'b1      ),
+    .dout   ( ay0_dout  ),
+    .sound  ( sound0    )
 );
 
-ym2149 u_ay1(
-    .CLK        ( clk       ),  // Global clock
-    .CE         ( cen1p5    ),  // PSG Clock enable
-    .RESET      ( rst       ),  // Chip RESET (set all Registers to '0', active hi)
-    .BDIR       ( bdir1     ),  // Bus Direction (0 - read , 1 - write)
-    .BC         ( bc1       ),  // Bus control
-    .DI         ( dout      ),  // Data In
-    .DO         ( ay1_dout  ),  // Data Out
-    .CHANNEL_A  ( ay1_a     ),  // PSG Output channel A
-    .CHANNEL_B  ( ay1_b     ),  // PSG Output channel B
-    .CHANNEL_C  ( ay1_c     ),  // PSG Output channel C
-    // AY mode:
-    .SEL        ( 1'b1      ),
-    .MODE       ( 1'b1      ),
-    // unused 
-    .IOA_in     ( 8'd0      ),
-    .IOB_in     ( 8'd0      ),
-    .ACTIVE     (           ),
-    .IOA_out    (           ),
-    .IOB_out    (           )
+jt49_bus u_ay1( // note that input ports are not multiplexed
+    .rst_n  ( reset_n   ),
+    .clk    ( clk       ),
+    .clk_en ( cen1p5    ),
+    .bdir   ( bdir1     ),
+    .bc1    ( bc1       ),
+    .din    ( dout      ),
+    .sel    ( 1'b1      ),
+    .dout   ( ay1_dout  ),
+    .sound  ( sound1    )
 );
-
 
 endmodule // jtgng_sound

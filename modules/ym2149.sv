@@ -92,6 +92,9 @@ always @(posedge CLK) begin
 		if(BDIR) begin
 			if(BC) addr <= DI;
 			else if(addr[7:4]==4'd0) begin
+                `ifdef SIMULATION
+                $display("YMREG[%x]<=%x", addr[3:0], DI);
+                `endif
 				ymreg[addr[3:0]] <= DI;
 				env_reset <= (addr == 13);
 			end
@@ -150,7 +153,7 @@ always @(posedge CLK) begin
 end
 
 
-reg [2:0] noise_gen_op;
+reg [2:0] noise_gen_op=3'd0;
 
 //  p_noise_gen
 always @(posedge CLK) begin
@@ -180,7 +183,7 @@ assign tone_gen_freq[1] = {ymreg[1][3:0], ymreg[0]};
 assign tone_gen_freq[2] = {ymreg[3][3:0], ymreg[2]};
 assign tone_gen_freq[3] = {ymreg[5][3:0], ymreg[4]};
 
-reg [3:1] tone_gen_op;
+reg [3:1] tone_gen_op=3'b0;
 
 //p_tone_gens
 always @(posedge CLK) begin
