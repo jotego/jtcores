@@ -66,6 +66,8 @@ always @(*) begin
     VINlen = (|{vlen, LVBETA[4]}) & (vlen[1]|LVBETA[5]) & ((&vlen[1:0]) | LVBETA[6]) & ((&vlen[1:0]) | LVBETA[7] );
 end
 
+reg [7:0] newx;
+
 always @(posedge clk)
     if( cen6 ) begin
         case( pxlcnt[3:0] )
@@ -76,7 +78,7 @@ always @(posedge clk)
                 hover <= objbuf_data[4];
                 preCD <= objbuf_data[3:0];
             end
-            4'd3: begin
+            4'd2: begin
                 obj_addr[13:10] <= AD[7:4];
                 case( vlen )
                     2'd0: obj_addr[9:6] <= AD[3:0];
@@ -88,9 +90,11 @@ always @(posedge clk)
                 vinzone <= ~(VINcmp & VINlen);
                 { obj_addr[5], obj_addr[0] } <= 2'd0;
             end
+            4'd3: newx <= objbuf_data;
             4'd7:  { obj_addr[5], obj_addr[0] } <= 2'd1;
             4'd11: { obj_addr[5], obj_addr[0] } <= 2'd2;
             4'd15: { obj_addr[5], obj_addr[0] } <= 2'd3;
+            default:;
         endcase
     end
 
@@ -104,7 +108,7 @@ wire [7:0] pal_addr = { CD, obj_wxyz};
 
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};   
-    posx     <= pxlcnt[3:0]==4'h8 ? objbuf_data : posx + 1'b1;
+    posx     <= pxlcnt[3:0]==4'h8 ? {hover, newx} : posx + 1'b1;
     if( pxlcnt==4'd8 ) CD <= vinzone2 ? preCD : 4'hf;
     case( pxlcnt[3:0] )        
         4'd3,4'd7,4'd11,4'd15:  begin // new data

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 20-1-2019 */
 
-// 1942 Scroll Generation
+// 1942 Object Line Buffer
 
 module jt1942_objpxl(
     input              rst,

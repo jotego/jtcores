@@ -49,7 +49,8 @@ module jt1942_obj(
 
 wire line, fill, line_obj_we;
 wire [7:0] objbuf_data;
-wire [3:0]   pxlcnt;
+wire [3:0] pxlcnt;
+wire [4:0] objcnt;
 
 jt1942_objtiming u_timing(
     .rst       ( rst       ),
@@ -58,6 +59,7 @@ jt1942_objtiming u_timing(
     // screen
     .HINIT     ( HINIT     ),
     .pxlcnt    ( pxlcnt    ),
+    .objcnt    ( objcnt    ),
     .line      ( line      )
 );
 
@@ -67,8 +69,9 @@ jt1942_objram u_ram(
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
     .cen3           ( cen3          ),    //  3 MHz
-    .H              ( H             ),
     .V              ( V             ),
+    .objcnt         ( objcnt        ),
+    .pxlcnt         ( pxlcnt        ),
     // CPU interface
     .DB             ( DB            ),
     .AB             ( AB            ),
@@ -92,7 +95,7 @@ jtgng_objdraw u_draw(
     // screen
     .V              ( V             ),
     .H              ( H             ),
-    .pxlcnt         ( pxlcnt        ),
+    .pxlcnt         ( pxlcnt-4'd1   ),
     .posx           ( posx          ),
     .flip           ( flip          ),
     // per-line sprite data

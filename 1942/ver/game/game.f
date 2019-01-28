@@ -25,4 +25,3 @@
 ../../../modules/data_io.v
 ../../../modules/ym2149.sv
 ../../../modules/ver/noise_gen.v
--F ../../../modules/jt12/jt49/hdl/jt49.f

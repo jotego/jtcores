@@ -50,8 +50,7 @@ wire [3:0] dout_b;
 reg [7:0] pixel_mux;
 
 wire char_blank_b = |(~char_pxl);
-// wire obj_blank_b  = |(~obj_pxl);
-wire obj_blank_b  = 1'b0;
+wire obj_blank_b  = |(~obj_pxl);
 reg [7:0] prom_addr;
 
 always @(*) begin

@@ -72,7 +72,7 @@ reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
 wire mreq_n;
 reg bank_access;
 
-always @(A,rd_n) begin
+always @(*) begin
     main_cs       = 1'b0;
     ram_cs        = 1'b0;
     snd_latch0_cs = 1'b0;
@@ -96,7 +96,7 @@ always @(A,rd_n) begin
                 2'b01:
                     if( A[10]==1'b1 )
                         obj_cs = 1'b1;
-                    else 
+                    else if(!wr_n)
                         casez(A[2:0])
                             3'b000: snd_latch0_cs = 1'b1;
                             3'b001: snd_latch1_cs = 1'b1;

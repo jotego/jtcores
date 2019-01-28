@@ -153,7 +153,7 @@ clear_hex_file obj_buf  128
 
 case $SIMULATOR in
 iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
-        -f game.f \
+        -f game.f $(add_dir ../../../modules/jt12/jt49/hdl jt49.f )\
         ../../../modules/ver/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
         ../../../modules/tv80/*.v  \
         ../../../modules/jtgng_sdram.v \
@@ -163,7 +163,7 @@ iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
     && sim -lxt;;
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
-        -f game.f \
+        -f game.f -f ../../../modules/jt12/jt49/hdl/jt49.f \
         ../../../modules/ver/mt48lc16m16a2.v \
         ../../../modules/jtgng_sdram.v \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
@@ -174,7 +174,7 @@ ncverilog)
         #-ncvhdl_args,-V93 ../../../modules/t80/T80pa.vhd \
 verilator)
     verilator -I../../hdl \
-        -f game.f \
+        -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f\
         ../../../modules/tv80/*.v \
         ../../../modules/ver/quick_sdram.v \
         --top-module jt1942_game -o sim \

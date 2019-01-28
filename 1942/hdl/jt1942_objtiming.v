@@ -1,3 +1,4 @@
+
 /*  This file is part of JT_GNG.
     JT_GNG program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,15 +26,18 @@ module jt1942_objtiming(
     // screen
     input              HINIT,
     output reg [3:0]   pxlcnt,
+    output reg [4:0]   objcnt,
     output reg         line
 );
 
 
 always @(posedge clk) if(cen6) begin
-    if( HINIT ) 
+    if( HINIT ) begin
         pxlcnt <= 4'd0;
-    else 
-        pxlcnt  <=  pxlcnt + 4'd1;
+        objcnt <= 5'd0;
+    end else begin
+        { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 9'd1;
+    end
 end
 
 always @(posedge clk) 

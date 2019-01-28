@@ -70,10 +70,10 @@ reg [7:0] AH;
 
 always @(*) begin
     rom_cs   = 1'b0;
-    ay1_cs   = 1'b0;
-    ay0_cs   = 1'b0;
-    latch_cs = 1'b0;
     ram_cs   = 1'b0;
+    latch_cs = 1'b0;
+    ay0_cs   = 1'b0;
+    ay1_cs   = 1'b0;
     casez(A[15:13])
         3'b000: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
@@ -192,8 +192,8 @@ always @(posedge clk) if(cen1p5)
     snd <= unlim_snd[10:9]!=2'b0 ? 9'h1FF : unlim_snd[8:0];
 
 wire bdir0 = ay0_cs && !wr_n;
-wire bdir1 = ay1_cs && !wr_n;
 wire bc0   = ay0_cs && !wr_n && !A[0];
+wire bdir1 = ay1_cs && !wr_n;
 wire bc1   = ay1_cs && !wr_n && !A[0];
 
 jt49_bus u_ay0( // note that input ports are not multiplexed
@@ -205,7 +205,8 @@ jt49_bus u_ay0( // note that input ports are not multiplexed
     .din    ( dout      ),
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
-    .sound  ( sound0    )
+    .sound  ( sound0    ),
+    .A(), .B(), .C() // unused outputs
 );
 
 jt49_bus u_ay1( // note that input ports are not multiplexed
@@ -217,7 +218,8 @@ jt49_bus u_ay1( // note that input ports are not multiplexed
     .din    ( dout      ),
     .sel    ( 1'b1      ),
     .dout   ( ay1_dout  ),
-    .sound  ( sound1    )
+    .sound  ( sound1    ),
+    .A(), .B(), .C() // unused outputs
 );
 
 endmodule // jtgng_sound

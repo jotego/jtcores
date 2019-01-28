@@ -23,8 +23,9 @@ module jt1942_objram(
     input              clk,
     input              cen6,    //  6 MHz
     input              cen3,    //  3 MHz
-    input   [8:0]      H,
     input   [7:0]      V,
+    input   [3:0]      pxlcnt,
+    input   [4:0]      objcnt,
     // CPU interface
     input   [7:0]      DB,
     input   [6:0]      AB,
@@ -42,9 +43,7 @@ reg [6:0] scan, addr;
 reg we;
 
 always @(*) begin
-    scan[6]   = H[7]^H[6];
-    scan[5]   = (V[6]&scan[6]) ^ ~H[6];
-    scan[4:0] = H[5:1];
+    scan = { objcnt, pxlcnt[1:0] };
     if( SEATM_b ) begin
         addr = AB;
         we   = !wr_n;

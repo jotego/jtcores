@@ -9,14 +9,14 @@ END:
     JP END
 
 SPRDATA:
-DB  $10,$01,$10,$40
-DB  $20,$FF,$20,$FF
-DB  $30,$FF,$30,$FF
-DB  $40,$FF,$40,$FF
-DB  $50,$FF,$50,$FF
-DB  $60,$FF,$60,$FF
-DB  $70,$FF,$70,$FF
-DB  $80,$FF,$80,$FF
+DB  $10,$01,$11,$40
+DB  $20,$FF,$22,$FF
+DB  $30,$FF,$33,$FF
+DB  $40,$FF,$44,$FF
+DB  $50,$FF,$55,$FF
+DB  $60,$FF,$66,$FF
+DB  $70,$FF,$77,$FF
+DB  $80,$FF,$88,$FF
 
 DB  $BB,$01,$10,$80
 DB  $FF,$FF,$FF,$FF
