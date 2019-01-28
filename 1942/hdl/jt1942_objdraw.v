@@ -22,14 +22,13 @@ module jtgng_objdraw(
     input              cen6,    //  6 MHz
     // screen
     input              flip,
-    input       [7:0]  VF,
+    input       [7:0]  V,
     input       [8:0]  H,
     input       [3:0]  pxlcnt,
     // per-line sprite data
-    input       [4:0]  objcnt,
     input       [7:0]  objbuf_data,
     // SDRAM interface
-    output  reg [13:0] obj_addr,
+    output reg  [13:0] obj_addr,
     input       [15:0] objrom_data,
     // Palette PROM
     input   [7:0]      prog_addr,
@@ -37,13 +36,14 @@ module jtgng_objdraw(
     input   [3:0]      prog_din,
     // pixel data
     output reg  [8:0]  posx,
-    output reg  [3:0]  new_pxl
+    output      [3:0]  new_pxl
 );
 
 reg [7:0] AD;
-reg [1:0] objpal;
+reg [3:0] CD; // colour data
 reg [7:0] objy, objx;
 reg [7:0] V2C;
+wire [7:0] VF = {8{flip}} ^V;
 wire [8:0] objx2;
 reg vover, hover;
 wire posvflip, poshflip;
@@ -68,15 +68,15 @@ end
 
 always @(posedge clk)
     if( cen6 ) begin
-        case( H[3:1] )
-            3'd0: AD <= objbuf_data;
-            3'd1: begin
+        case( pxlcnt[3:0] )
+            4'd0: AD <= objbuf_data;
+            4'd1: begin
                 vlen  <= objbuf_data[7:6];
                 vover <= objbuf_data[5];
                 hover <= objbuf_data[4];
                 preCD <= objbuf_data[3:0];
             end
-            3'd3: begin
+            4'd3: begin
                 obj_addr[13:10] <= AD[7:4];
                 case( vlen )
                     2'd0: obj_addr[9:6] <= AD[3:0];
@@ -84,26 +84,32 @@ always @(posedge clk)
                     2'd2: obj_addr[9:6] <= { AD[3:2], VBETA[5:4] };
                     2'd3: obj_addr[9:6] <= VBETA[7:4];
                 endcase
-                obj_addr[5]   <= H[3] ^ ~H[2];
                 obj_addr[4:1] <= VBETA[3:0];
-                obj_addr[0]   <= ~H[2];
                 vinzone <= ~(VINcmp & VINlen);
+                { obj_addr[5], obj_addr[0] } <= 2'd0;
             end
+            4'd7:  { obj_addr[5], obj_addr[0] } <= 2'd1;
+            4'd11: { obj_addr[5], obj_addr[0] } <= 2'd2;
+            4'd15: { obj_addr[5], obj_addr[0] } <= 2'd3;
         endcase
     end
+
+jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .clk_en(cen6), .din(vinzone), .drop(vinzone2));
 
 // ROM data depacking
 
 reg  [3:0] z,y,x,w;
 reg  [3:0] obj_wxyz;
-wire [7:0] pal_addr = { objpal, obj_wxyz};
+wire [7:0] pal_addr = { CD, obj_wxyz};
 
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};   
-    //posx     <= pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
-    case( pxlcnt[3:0] )
-        4'd3,4'd7,4'd11,4'd15:  // new data
-                {z,y,x,w} <= vinzone ? objrom_data[15:0] : 16'hffff;
+    posx     <= pxlcnt[3:0]==4'h8 ? objbuf_data : posx + 1'b1;
+    if( pxlcnt==4'd8 ) CD <= vinzone2 ? preCD : 4'hf;
+    case( pxlcnt[3:0] )        
+        4'd3,4'd7,4'd11,4'd15:  begin // new data
+            {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
+        end
         default: 
             if( poshflip ) begin
                 z <= z >> 1;

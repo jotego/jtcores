@@ -48,18 +48,19 @@ module jt1942_obj(
 
 
 wire line, fill, line_obj_we;
-wire [7:0] VF;
 wire [7:0] objbuf_data;
+wire [3:0]   pxlcnt;
 
-reg [4:0] objcnt;
-reg [3:0] pxlcnt;
+jt1942_objtiming u_timing(
+    .rst       ( rst       ),
+    .clk       ( clk       ),
+    .cen6      ( cen6      ),    //  6 MHz
+    // screen
+    .HINIT     ( HINIT     ),
+    .pxlcnt    ( pxlcnt    ),
+    .line      ( line      )
+);
 
-always @(posedge clk) if(cen6) begin
-    if( HINIT ) 
-        { objcnt, pxlcnt } <= {5'd8,4'd0};
-    else 
-        if( objcnt != 5'd0 )  { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 1'd1;
-end
 
 jt1942_objram u_ram(
     .rst            ( rst           ),
@@ -89,12 +90,12 @@ jtgng_objdraw u_draw(
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
     // screen
-    .VF             ( VF            ),
+    .V              ( V             ),
     .H              ( H             ),
     .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
+    .flip           ( flip          ),
     // per-line sprite data
-    .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
