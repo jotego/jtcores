@@ -10,17 +10,22 @@ RANDOM_TEST:
     ; Random value to write
     LD A,(IX+0)
     LD (HL),A
-    LD B,A
+    LD D,A      ; save the value to compare later
     ; Random wait
     LD A,(IX+0)
     AND $3
-    LD D,A
+    LD B,A
 WAIT:
     DJNZ WAIT
     ; Compare value
-    LD A,B
-    CP (HL)
-    JP NZ,RANDOM_TEST
+    LD A,D
+    LD D,(HL)
+    CP D
+    JP Z,RANDOM_TEST
     ; There was an error
     LD HL,$DEAD
-    LD (IX+1),A    ; Finish the simulation
+    LD A,(IX+1)    ; Finish the simulation
+FIN:
+    JP FIN
+
+    DW 0,0,0,0

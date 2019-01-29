@@ -165,11 +165,11 @@ always @(*)
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
 
-        `ifdef SIMULATION
+        `ifdef FIRMWARE_SIM
         3'd5: cabinet_input = random;
         3'd6: if(in_cs) begin
-                $display("INFO: Simulation finished as per firmware request.");
-                $finish;
+                $display("INFO: Simulation finished as per firmware request. (%m)");
+                #100 $finish;
             end
         `endif
         default: cabinet_input = 8'hff;
@@ -249,9 +249,9 @@ wire wait_n = scr_wait_n & char_wait_n;
 `define Z80_ALT_CPU
 `endif
 
-// `ifdef NCVERILOG
-// `undef Z80_ALT_CPU
-// `endif
+`ifdef NCVERILOG
+`undef Z80_ALT_CPU
+`endif
 
 `ifdef VERILATOR_LINT 
 `define Z80_ALT_CPU
@@ -261,6 +261,32 @@ wire wait_n = scr_wait_n & char_wait_n;
 
 `ifndef Z80_ALT_CPU
 // This CPU is used for synthesis
+wire [211:0] z80_regs;
+`ifdef SIMULATION
+wire reg_IFF2; 
+wire reg_IFF1; 
+wire [1:0]  reg_IM;    // 4
+wire [15:0] reg_IY; 
+wire [15:0] reg_HL_; 
+wire [15:0] reg_DE_; 
+wire [15:0] reg_BC_; 
+wire [15:0] reg_IX; 
+wire [15:0] reg_HL; 
+wire [15:0] reg_DE; 
+wire [15:0] reg_BC; 
+wire [15:0] reg_PC; 
+wire [15:0] reg_SP; // 164 
+wire [7:0]  reg_R; 
+wire [7:0]  reg_I; 
+wire [7:0]  reg_F_; 
+wire [7:0]  reg_A_; 
+wire [7:0]  reg_F; 
+wire [7:0]  reg_A;
+assign { 
+    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_, 
+    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I, 
+    reg_F_, reg_A_, reg_F, reg_A } = z80_regs; 
+`endif
 T80pa u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
@@ -285,8 +311,9 @@ T80pa u_cpu(
     .RFSH_n     (),
     .BUSAK_n    (),
     .HALT_n     (),
-    .REG        ()
+    .REG        ( z80_regs )
 );
+
 `else
 // This CPU is used for simulation
 tv80s #(.Mode(0)) u_cpu (

@@ -74,7 +74,11 @@ wire sel_scan = ~HS[2];
 wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
 wire we = !sel_scan && scr_cs && !wr_n;
 
-assign wait_n = !( scr_cs && sel_scan ); // hold CPU
+reg latch_wait_n = 1'b1;
+assign wait_n = !( scr_cs && sel_scan ) && latch_wait_n; // hold CPU
+
+always @(posedge clk) if(cen3)
+    latch_wait_n <= !( scr_cs && sel_scan );
 
 always @(posedge clk) if(cen3) begin
     if( scrpos_cs[1] ) hpos[8]   <= din[0];

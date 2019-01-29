@@ -75,7 +75,7 @@ case "$1" in
             FIRMWARE=bank_check.s
         fi
         echo "Using test firmware $FIRMWARE"
-        LOADROM=${MACROPREFIX}TESTROM
+        LOADROM="${MACROPREFIX}TESTROM ${MACROPREFIX}FIRMWARE_SIM"
         if ! z80asm $FIRMWARE -o test.bin -l; then
             exit 1
         fi        
@@ -159,19 +159,19 @@ iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
         ../../../modules/jtgng_sdram.v \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
-        $MAXFRAME $OBJTEST -DIVERILOG \
+        $MAXFRAME -DIVERILOG \
     && sim -lxt;;
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
-        -f game.f -f ../../../modules/jt12/jt49/hdl/jt49.f \
+        -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f \
         ../../../modules/ver/mt48lc16m16a2.v \
         ../../../modules/jtgng_sdram.v \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
-        $MAXFRAME $OBJTEST \
-        ../../../modules/tv80/*.v \
+        $MAXFRAME \
+        -ncvhdl_args,-V93 ../../../modules/t80/T80{pa,_ALU,_Reg,_MCode,""}.vhd \
         $MIST;;
-        #-ncvhdl_args,-V93 ../../../modules/t80/T80pa.vhd \
+        # ../../../modules/tv80/*.v \
 verilator)
     verilator -I../../hdl \
         -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f\
@@ -180,7 +180,7 @@ verilator)
         --top-module jt1942_game -o sim \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
         -DVERILATOR_LINT \
-        $MAXFRAME $OBJTEST -DSIM_MS=$SIM_MS --lint-only;;
+        $MAXFRAME -DSIM_MS=$SIM_MS --lint-only;;
 esac
 
 # if [ $CHR_DUMP = CHR_DUMP ]; then

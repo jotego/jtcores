@@ -75,7 +75,11 @@ jtgng_ram #(.aw(10)) u_ram_high(
     .q      ( dout_high)
 );
 
-assign wait_n = !( char_cs && sel_scan ); // hold CPU
+reg latch_wait_n = 1'b1;
+assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
+
+always @(posedge clk) if(cen3)
+    latch_wait_n <= !( char_cs && sel_scan );
 
 reg [7:0] addr_lsb;
 reg half_addr;

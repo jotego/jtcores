@@ -158,6 +158,18 @@ jt1942_prom_we u_prom_we(
     .prom_we        ( prom_we       )
 );
 
+reg coin;
+initial begin
+    coin = 1'b1;
+    forever begin
+        coin = #1000_000_000 1'b0;
+        $display("INFO: Coin inserted ");
+        coin =      #500_000 1'b1;
+        #2000_000_000;
+    end
+end
+
+
 jt1942_game UUT(
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
@@ -175,8 +187,8 @@ jt1942_game UUT(
     .HS         ( HS        ),
     .VS         ( VS        ),
     // cabinet I/O
-    .joystick1  ( 8'hff     ),
-    .joystick2  ( 8'hff     ),
+    .joystick1  ( { coin, 7'h7f } ),
+    .joystick2  ( 8'hff           ),
     // ROM load
     .downloading ( downloading   ),
     .romload_addr( romload_addr  ),
