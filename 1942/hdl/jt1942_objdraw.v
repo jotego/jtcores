@@ -36,7 +36,7 @@ module jtgng_objdraw(
     input   [3:0]      prog_din,
     // pixel data
     output reg  [8:0]  posx,
-    output      [3:0]  new_pxl
+    output reg  [3:0]  new_pxl
 );
 
 reg [7:0] AD;
@@ -47,7 +47,7 @@ wire [7:0] VF = {8{flip}} ^V;
 wire [8:0] objx2;
 reg vover, hover;
 wire posvflip, poshflip;
-reg vinzone;
+reg VINZONE;
 wire vinzone2;
 
 reg [1:0] vlen;
@@ -62,8 +62,14 @@ always @(*) begin
     Vgt = VBETA  > ~objbuf_data;
     Veq = VBETA == ~objbuf_data;
     Vlt = VBETA  < ~objbuf_data;
-    VINcmp = ((Vlt|Veq) & ~vover) | (Vgt&vover);
-    VINlen = (|{vlen, LVBETA[4]}) & (vlen[1]|LVBETA[5]) & ((&vlen[1:0]) | LVBETA[6]) & ((&vlen[1:0]) | LVBETA[7] );
+    VINcmp = vover ? Vgt : (Veq|Vlt);
+    //VINlen = (|{vlen, LVBETA[4]}) & (vlen[1]|LVBETA[5]) & ((&vlen[1:0]) | LVBETA[6]) & ((&vlen[1:0]) | LVBETA[7] );
+    case( vlen )
+        2'b00: VINlen = &LVBETA[7:4];
+        2'b01: VINlen = &LVBETA[7:5];
+        2'b10: VINlen = &LVBETA[7:6];
+        2'b11: VINlen = 1'b1;
+    endcase // vlen
 end
 
 reg [7:0] newx;
@@ -87,7 +93,7 @@ always @(posedge clk)
                     2'd3: obj_addr[9:6] <= VBETA[7:4];
                 endcase
                 obj_addr[4:1] <= VBETA[3:0];
-                vinzone <= ~(VINcmp & VINlen);
+                VINZONE <= ~(VINcmp & VINlen);
                 { obj_addr[5], obj_addr[0] } <= 2'd0;
             end
             4'd3: newx <= objbuf_data;
@@ -98,7 +104,7 @@ always @(posedge clk)
         endcase
     end
 
-jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .clk_en(cen6), .din(vinzone), .drop(vinzone2));
+jtgng_sh #(.width(1), .stages(5)) sh_objz (.clk(clk), .clk_en(cen6), .din(VINZONE), .drop(vinzone2));
 
 // ROM data depacking
 
@@ -109,10 +115,10 @@ wire [7:0] pal_addr = { CD, obj_wxyz};
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};   
     posx     <= pxlcnt[3:0]==4'h8 ? {hover, newx} : posx + 1'b1;
-    if( pxlcnt==4'd8 ) CD <= vinzone2 ? preCD : 4'hf;
+    if( pxlcnt==4'd8 ) CD <= preCD;
     case( pxlcnt[3:0] )        
         4'd3,4'd7,4'd11,4'd15:  begin // new data
-            {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
+            {z,y,x,w} <= objrom_data[15:0];
         end
         default: 
             if( poshflip ) begin
@@ -129,6 +135,12 @@ always @(posedge clk) if(cen6) begin
     endcase
 end
 
+wire [3:0] prom_dout;
+
+always @(posedge clk ) if(cen6) begin
+    new_pxl <= !vinzone2 ? prom_dout : 4'hf;
+end
+
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-8.k3")) u_prom_k3(
     .clk    ( clk            ),
     .cen    ( cen6           ),
@@ -136,7 +148,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-8.k3")) u_prom_k3(
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
     .we     ( prom_k3_we     ),
-    .q      ( new_pxl        )
+    .q      ( prom_dout      )
 );
 
 
