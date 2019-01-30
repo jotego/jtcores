@@ -314,7 +314,6 @@ hybrid_pwm_sd u_dac
 assign AUDIO_L = 1'b0;
 `endif
 
-`ifndef SIMULATION
 wire [5:0] GNG_R, GNG_G, GNG_B;
 
 // convert 5-bit colour to 6-bit colour
@@ -324,7 +323,7 @@ assign GNG_B[0] = GNG_B[5];
 
 wire vga_hsync, vga_vsync;
 
-jtgng_vga vga_conv (
+jtgng_vga u_scandoubler (
     .clk_rgb    ( clk_rgb       ), // 24 MHz
     .cen6       ( cen6          ), //  6 MHz
     .clk_vga    ( clk_vga       ), // 25 MHz
@@ -342,6 +341,7 @@ jtgng_vga vga_conv (
     .vga_vsync  ( vga_vsync     )
 );
 
+`ifndef SIMULATION
 // include the on screen display
 wire [5:0] osd_r_o;
 wire [5:0] osd_g_o;

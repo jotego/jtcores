@@ -42,8 +42,9 @@ module mist_test;
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
         `else        
-            $shm_probe(UUT.u_game.u_main,"A");
+            //$shm_probe(UUT.u_game.u_main,"A");
             $shm_probe(UUT.u_game.u_video.u_obj,"AS");
+            $shm_probe(UUT.u_scandoubler,"AS");
             `ifndef NOSOUND
             $shm_probe(UUT.u_game.u_sound,"A");
             `endif
