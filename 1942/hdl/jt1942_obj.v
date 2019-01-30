@@ -35,7 +35,7 @@ module jt1942_obj(
     input        [7:0] DB,
     input              wr_n,
     // SDRAM interface
-    output      [13:0] obj_addr,
+    output      [14:0] obj_addr,
     input       [15:0] objrom_data,
     // PROMs
     input   [7:0]      prog_addr,
@@ -95,7 +95,7 @@ jtgng_objdraw u_draw(
     // screen
     .V              ( V             ),
     .H              ( H             ),
-    .pxlcnt         ( pxlcnt-4'd1   ),
+    .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
     .flip           ( flip          ),
     // per-line sprite data

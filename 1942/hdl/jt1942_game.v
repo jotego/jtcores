@@ -131,7 +131,7 @@ wire [2:0] scr_br;
 
 // ROM data
 wire  [11:0]  char_addr;
-wire  [13:0]  obj_addr;
+wire  [14:0]  obj_addr;
 wire  [15:0]  char_data, obj_data;
 wire  [ 7:0]  main_data, snd_data;
 wire  [23:0]  scr_data;
@@ -272,7 +272,7 @@ jtgng_rom #(
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
-    .obj_addr    ( {2'd0, obj_addr} ),
+    .obj_addr    ( {1'd0, obj_addr} ),
     .scr_addr    ( scr_addr      ),
 
     .char_dout   ( char_data     ),

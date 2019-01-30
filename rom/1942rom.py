@@ -128,9 +128,9 @@ append_dup( roms['scr4'])
 append_dup( roms['scr5'])
 
 report_pos( "Objects" )
-byte_merge( [roms['obj0'], roms['obj1']])
+byte_merge( [roms['obj0'], roms['obj2']])
 report_pos( "Objects (upper)" )
-byte_merge( [roms['obj2'], roms['obj3']])
+byte_merge( [roms['obj1'], roms['obj3']])
 
 # PROMs
 report_pos( "PROMs" )

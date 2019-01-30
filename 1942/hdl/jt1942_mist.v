@@ -196,9 +196,26 @@ jt1942_prom_we u_prom_we(
     .prom_we        ( prom_we       )
 );
 
+reg soft_rst;
+reg [7:0] soft_rst_cnt;
+reg last_downloading;
+always @(negedge clk_rgb) 
+    if ( rst ) begin
+        soft_rst <= 1'b0;
+        soft_rst_cnt <= 8'h0;
+    end else begin
+        last_downloading <= downloading;
+        if( last_downloading && !downloading ) begin
+            soft_rst <= 1'b1;
+            soft_rst_cnt <= ~8'h0;;
+        end
+        if( soft_rst_cnt != 8'h0 ) soft_rst_cnt <= soft_rst_cnt-8'b1;
+        if( soft_rst_cnt == 8'h0 ) soft_rst <= status[9];
+    end
+
 jt1942_game u_game(
     .rst         ( rst           ),
-    .soft_rst    ( status[9]     ),
+    .soft_rst    ( soft_rst      ),
     .clk_rom     ( clk_rom       ),  // 96   MHz
     .clk         ( clk_rgb       ),  //  6   MHz
     .cen6        ( cen6          ),
@@ -281,9 +298,10 @@ jtgng_sdram u_sdram(
     .SDRAM_CKE      ( SDRAM_CKE     ) 
 );
 
+assign AUDIO_R = AUDIO_L;
+
 `ifndef NOSOUND
 wire clk_dac = clk_rom;
-assign AUDIO_R = AUDIO_L;
 
 hybrid_pwm_sd u_dac
 (
@@ -292,6 +310,8 @@ hybrid_pwm_sd u_dac
     .din    ( { snd, 7'd0 }    ),
     .dout   ( AUDIO_L   )
 );
+`else 
+assign AUDIO_L = 1'b0;
 `endif
 
 `ifndef SIMULATION

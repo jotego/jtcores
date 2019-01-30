@@ -51,6 +51,7 @@ reg [7:0] pixel_mux;
 
 wire char_blank_b = |(~char_pxl);
 wire obj_blank_b  = |(~obj_pxl);
+//wire obj_blank_b  = 1'b0;
 reg [7:0] prom_addr;
 
 always @(*) begin
