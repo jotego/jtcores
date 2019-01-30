@@ -23,6 +23,7 @@ module jt1942_objpxl(
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz
     // screen
+    input              DISPTM_b,
     input              LHBL,    
     input              flip,
     input       [3:0]  pxlcnt,
@@ -60,23 +61,25 @@ always @(posedge clk) if(cen6) begin
     else Hcnt <= Hcnt+1'd1;
 end
 
+wire we = !posx[8] && (new_pxl!=4'hf); // && !DISPTM_b && LHBL;
+
 always @(*)
     if( pxlbuf_line == lineA ) begin 
         // lineA readout
         lineA_address_a = Hcnt;
         lineA_we_a = 1'b0;
-        obj_pxl = lineA_q_a;
+        obj_pxl = !DISPTM_b ? lineA_q_a : 4'hf;
         // lineB writein
         lineB_address_a = {8{flip}} ^ posx[7:0];
-        lineB_we_a = !posx[8] && (new_pxl!=4'hf);
+        lineB_we_a = we;
     end else begin
         // lineA writein
         lineA_address_a = {8{flip}} ^ posx[7:0];
-        lineA_we_a = !posx[8] && (new_pxl!=4'hf);
+        lineA_we_a = we;
         // lineB readout
         lineB_address_a = Hcnt;
         lineB_we_a = 1'b0;
-        obj_pxl = lineB_q_a;
+        obj_pxl = !DISPTM_b ? lineB_q_a : 4'hf;
     end
 
 always @(posedge clk) if(cen6) begin

@@ -24,10 +24,17 @@ module jt1942_objtiming(
     input              clk,
     input              cen6,    //  6 MHz
     // screen
+    input   [7:0]      V,    
     input              HINIT,
     output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
-    output reg         line
+    output reg         line,
+    output             SEATM_b,
+    output             DISPTM_b,
+    // Timing PROM
+    input   [7:0]      prog_addr,
+    input              prom_m11_we,
+    input   [1:0]      prog_din    
 );
 
 
@@ -46,5 +53,15 @@ always @(posedge clk)
     else if(cen6) begin
         if( HINIT ) line <= ~line;
     end
+
+jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-9.m11")) u_prom_m11(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din       ),
+    .rd_addr( V[7:0]         ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_m11_we    ),
+    .q      ( {DISPTM_b, SEATM_b} )
+);
 
 endmodule // jt1942_obj

@@ -52,15 +52,25 @@ wire [7:0] objbuf_data;
 wire [3:0] pxlcnt;
 wire [4:0] objcnt;
 
+wire SEATM_b, DISPTM_b;
+
 jt1942_objtiming u_timing(
-    .rst       ( rst       ),
-    .clk       ( clk       ),
-    .cen6      ( cen6      ),    //  6 MHz
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .cen6        ( cen6          ),    //  6 MHz
     // screen
-    .HINIT     ( HINIT     ),
-    .pxlcnt    ( pxlcnt    ),
-    .objcnt    ( objcnt    ),
-    .line      ( line      )
+    .HINIT       ( HINIT         ),
+    .V           ( V             ),
+    // Timings
+    .SEATM_b     ( SEATM_b       ),
+    .DISPTM_b    ( DISPTM_b      ),
+    // Timing PROM
+    .prog_addr   ( prog_addr     ),
+    .prom_m11_we ( prom_m11_we   ),
+    .prog_din    ( prog_din[1:0] ),
+    .pxlcnt      ( pxlcnt        ),
+    .objcnt      ( objcnt        ),
+    .line        ( line          )
 );
 
 
@@ -69,19 +79,16 @@ jt1942_objram u_ram(
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
     .cen3           ( cen3          ),    //  3 MHz
-    .V              ( V             ),
+    // Timings
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
+    .SEATM_b     ( SEATM_b       ),
     // CPU interface
     .DB             ( DB            ),
     .AB             ( AB            ),
     .wr_n           ( wr_n          ),
     // memory output
-    .objbuf_data    ( objbuf_data   ),
-    // Timing PROM
-    .prog_addr      ( prog_addr     ),
-    .prom_m11_we    ( prom_m11_we   ),
-    .prog_din       ( prog_din[1:0] )
+    .objbuf_data    ( objbuf_data   )
 );
 
 wire [8:0] posx;
@@ -118,6 +125,7 @@ jt1942_objpxl u_pxlbuf(
     .cen6           ( cen6          ),    //  6 MHz
     // screen
     .LHBL           ( LHBL          ),    
+    .DISPTM_b       ( DISPTM_b      ),
     .flip           ( flip          ),
     .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
