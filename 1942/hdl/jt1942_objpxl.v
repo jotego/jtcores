@@ -33,7 +33,7 @@ module jt1942_objpxl(
     input       [3:0]  new_pxl,
     output reg  [3:0]  obj_pxl
 );
-
+parameter obj_dly = 4'h8;
 localparam lineA=1'b0, lineB=1'b1;
 
 // Line colour buffer
@@ -53,7 +53,7 @@ always @(posedge clk)
     if( rst )
         pxlbuf_line <= lineA;
     else if(cen6) begin
-        if( pxlcnt== 4'hf ) pxlbuf_line<=line; // to account for latency drawing the object
+        if( pxlcnt== obj_dly ) pxlbuf_line<=line; // to account for latency drawing the object
     end
 
 always @(posedge clk) if(cen6) begin

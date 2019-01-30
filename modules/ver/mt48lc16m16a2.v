@@ -158,7 +158,10 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     wire      Debug            = 1'b0;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
     
-    assign    Dq               = Dq_reg;                        // DQ buffer
+    reg [data_bits-1:0] Dq_reg_dly;
+    always @(*) Dq_reg_dly = #10 Dq_reg;
+
+    assign    Dq               = Dq_reg_dly;                        // DQ buffer
 
     // Commands Operation
     `define   ACT       0

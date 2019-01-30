@@ -25,6 +25,7 @@ module jt1942_objtiming(
     input              cen6,    //  6 MHz
     // screen
     input   [7:0]      V,    
+    input   [8:0]      H,    
     input              HINIT,
     output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
@@ -37,6 +38,15 @@ module jt1942_objtiming(
     input   [1:0]      prog_din    
 );
 
+
+// reg [6:0] scan_orig; // original PCB scan sequence
+// 
+// always @(*) begin
+//     scan_orig[6] = H[8] ^ ~H[7];
+//     scan_orig[5] = (scan_orig[6]&V[7]) ^ ~H[7];
+//     scan_orig[4:2] = H[6:4];
+//     scan_orig[1:0] = H[2:1];
+// end
 
 always @(posedge clk) if(cen6) begin
     if( HINIT ) begin

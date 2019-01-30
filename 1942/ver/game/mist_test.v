@@ -24,6 +24,7 @@ module mist_test;
                 #75_000_000;
                 $display("DUMP starts");
                 $dumpvars(1,mist_test.UUT.u_game.u_main);
+                $dumpvars(0,mist_test.UUT.u_game.u_video.u_obj);
                 //$dumpvars(1,mist_test.UUT.u_rom);
                 //$dumpoff;
                 //$dumpvars(1,mist_test.UUT.u_video);
@@ -42,6 +43,7 @@ module mist_test;
             $shm_probe(mist_test,"AS");
         `else        
             $shm_probe(UUT.u_game.u_main,"A");
+            $shm_probe(UUT.u_game.u_video.u_obj,"AS");
             `ifndef NOSOUND
             $shm_probe(UUT.u_game.u_sound,"A");
             `endif

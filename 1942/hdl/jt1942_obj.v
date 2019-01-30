@@ -61,6 +61,7 @@ jt1942_objtiming u_timing(
     // screen
     .HINIT       ( HINIT         ),
     .V           ( V             ),
+    .H           ( H             ),    
     // Timings
     .SEATM_b     ( SEATM_b       ),
     .DISPTM_b    ( DISPTM_b      ),
@@ -82,7 +83,7 @@ jt1942_objram u_ram(
     // Timings
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
-    .SEATM_b     ( SEATM_b       ),
+    .SEATM_b        ( SEATM_b       ),
     // CPU interface
     .DB             ( DB            ),
     .AB             ( AB            ),

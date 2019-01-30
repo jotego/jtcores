@@ -14,6 +14,7 @@ RANDOM_TEST:
     ; Random wait
     LD A,(IX+0)
     AND $3
+    ADD 1
     LD B,A
 WAIT:
     DJNZ WAIT

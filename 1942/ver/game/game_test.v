@@ -41,7 +41,7 @@ module game_test;
             $shm_probe(game_test,"AS");
         `else        
             $shm_probe(UUT.u_main,"A");
-            $shm_probe(UUT.u_rom,"A");
+            $shm_probe(UUT.u_video.u_obj,"AS");
             `ifndef NOSOUND
             $shm_probe(UUT.u_sound,"A");
             `endif
@@ -76,7 +76,9 @@ always @(posedge clk)
 
 
 
-wire SDRAM_CLK = clk_rom;
+reg SDRAM_CLK;
+
+always @(*) SDRAM_CLK = #5 clk_rom;
 
 initial begin
     clk_rom=1'b0;
@@ -89,7 +91,7 @@ always @(posedge clk_rom) begin
     clk_cnt <= clk_cnt + 4'd1;
 end
 
-parameter clk_speed=6;
+parameter clk_speed=12;
 
 always @(*) 
     case(clk_speed)

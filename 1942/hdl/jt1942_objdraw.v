@@ -103,7 +103,7 @@ always @(posedge clk)
         endcase
     end
 
-localparam delay=5;
+localparam delay=6;
 //wire hover2;
 
 jtgng_sh #(.width(1), .stages(delay)) u_shzone 
