@@ -71,7 +71,7 @@ module jt1942_video(
 wire [3:0] char_pxl, obj_pxl;
 wire [5:0] scr_pxl;
 
-localparam scrchr_off = 5;
+localparam scrchr_off = 6;
 
 `ifndef NOCHAR
 jt1942_char #(.Hoffset(scrchr_off)) u_char (

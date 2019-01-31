@@ -33,7 +33,7 @@ module jt1942_objpxl(
     input       [3:0]  new_pxl,
     output reg  [3:0]  obj_pxl
 );
-parameter obj_dly = 4'h8;
+parameter obj_dly = 4'hc;
 localparam lineA=1'b0, lineB=1'b1;
 
 // Line colour buffer

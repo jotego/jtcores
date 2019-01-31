@@ -32,7 +32,10 @@ module jt1942_objram(
     input   [6:0]      AB,
     input              wr_n,
     // memory output
-    output  [7:0]      objbuf_data
+    output  reg [7:0]  objbuf_data0,
+    output  reg [7:0]  objbuf_data1,
+    output  reg [7:0]  objbuf_data2,
+    output  reg [7:0]  objbuf_data3
 );
 
 reg [6:0] scan, addr;
@@ -49,6 +52,7 @@ always @(*) begin
     end
 end
 
+wire [7:0] ram_data;
 
 jtgng_ram #(.aw(7)) u_ram(
     .clk    ( clk         ),
@@ -56,21 +60,19 @@ jtgng_ram #(.aw(7)) u_ram(
     .data   ( DB          ),
     .addr   ( addr        ),
     .we     ( we          ),
-//    .q      ( objbuf_data )
-    .q()
+    .q      ( ram_data    )
 );
 
-reg [7:0] objdebug;
-always @(posedge clk)
-    case(scan)
-        7'd0: objdebug <= 8'h45;
-        7'd1: objdebug <= 8'h4;
-        7'd2: objdebug <= 8'h30;
-        7'd3: objdebug <= 8'hc0;
-        default: objdebug <= 8'h0;
-    endcase // scan
+// Latches data output. It can be done without this, but
+// I find this less prone to bugs
+reg [31:0] collect;
 
+always @(posedge clk) if(cen6) begin
+    collect[31:0] <= {collect[23:0], ram_data };
+    if( !SEATM_b && pxlcnt==4'd6 ) begin
+        { objbuf_data2, objbuf_data3, objbuf_data0, objbuf_data1 } <= collect;
+    end
+end
 
-assign objbuf_data = objdebug;
 
 endmodule // jtgng_objdraw

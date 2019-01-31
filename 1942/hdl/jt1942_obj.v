@@ -48,7 +48,8 @@ module jt1942_obj(
 
 
 wire line, fill, line_obj_we;
-wire [7:0] objbuf_data;
+wire [7:0]  objbuf_data0, objbuf_data1, objbuf_data2, objbuf_data3;
+
 wire [3:0] pxlcnt;
 wire [4:0] objcnt;
 
@@ -89,7 +90,10 @@ jt1942_objram u_ram(
     .AB             ( AB            ),
     .wr_n           ( wr_n          ),
     // memory output
-    .objbuf_data    ( objbuf_data   )
+    .objbuf_data0   ( objbuf_data0  ),
+    .objbuf_data1   ( objbuf_data1  ),
+    .objbuf_data2   ( objbuf_data2  ),
+    .objbuf_data3   ( objbuf_data3  )
 );
 
 wire [8:0] posx;
@@ -107,10 +111,13 @@ jtgng_objdraw u_draw(
     .posx           ( posx          ),
     .flip           ( flip          ),
     // per-line sprite data
-    .objbuf_data    ( objbuf_data   ),
+    .objbuf_data0   ( objbuf_data0  ),
+    .objbuf_data1   ( objbuf_data1  ),
+    .objbuf_data2   ( objbuf_data2  ),
+    .objbuf_data3   ( objbuf_data3  ),
+    .objrom_data    ( objrom_data   ),
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
-    .objrom_data    ( objrom_data   ),
     // Palette PROM
     .prog_addr      ( prog_addr     ),
     .prom_k3_we     ( prom_k3_we    ),
