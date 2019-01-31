@@ -25,6 +25,9 @@ MIST=
 MACROPREFIX=-D
 
 ARGNUMBER=1
+
+rm test2.bin
+
 while [ $# -gt 0 ]; do
 case "$1" in
     "-w" | "-deep")
@@ -170,8 +173,8 @@ ncverilog)
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME \
         -ncvhdl_args,-V93 ../../../modules/t80/T80{pa,_ALU,_Reg,_MCode,""}.vhd \
+        ../../../modules/tv80/*.v \
         $MIST;;
-        # ../../../modules/tv80/*.v \
 verilator)
     verilator -I../../hdl \
         -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f\

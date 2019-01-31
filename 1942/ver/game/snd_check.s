@@ -1,9 +1,18 @@
     DI
     LD IX,0xC800
 
-    LD A,$AA
+LOOP:
+    LD A,$2
     LD (IX+0),A
-    LD A,$55
-    LD (IX+1),A
+    ;LD (IX+1),A
+
+    LD B,0
+WAIT:
+    DJNZ WAIT
+    LD B,0
+    DJNZ WAIT
+;    LD B,0
+;    DJNZ WAIT
+;    JP LOOP    
 end: 
     jp end

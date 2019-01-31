@@ -22,6 +22,7 @@ module game_test;
             `else
                 //$display("DUMP starts");
                 $dumpvars(1,game_test.UUT.u_main);
+                //$dumpvars(1,game_test.UUT.u_audio);
                 //$dumpvars(0,game_test.UUT.u_video.u_obj);
                 //$dumpvars(1,game_test.UUT.u_rom);
                 //$dumpvars(1,game_test.UUT.u_video);
@@ -40,10 +41,10 @@ module game_test;
         `ifdef DEEPDUMP
             $shm_probe(game_test,"AS");
         `else        
-            $shm_probe(UUT.u_main,"A");
-            $shm_probe(UUT.u_video.u_obj,"AS");
+            //$shm_probe(UUT.u_main,"A");
+            //$shm_probe(UUT.u_video.u_obj,"AS");
             `ifndef NOSOUND
-            $shm_probe(UUT.u_sound,"A");
+            $shm_probe(UUT.u_sound,"AS");
             `endif
         `endif
         // $shm_probe(UUT.u_video,"A");

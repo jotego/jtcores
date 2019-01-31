@@ -84,9 +84,23 @@ always @(*) begin
     endcase
 end
 
+reg [1:0] cs_wait;
+always @(posedge clk)
+    if( rst )
+        cs_wait <= 2'b11;
+    else if(cen3) begin
+        cs_wait <= { cs_wait[0], ~(ay0_cs|ay1_cs) };
+    end // else if(cen3)
+
+wire wait_n = ~cs_wait[1] | cs_wait[0];
+
 reg [7:0] latch0, latch1;
 
-always @(posedge clk) if(cen3) begin
+always @(posedge clk) 
+if( rst ) begin
+    latch1 <= 8'd0;
+    latch0 <= 8'd0;
+end else if(cen3) begin
     if( main_latch1_cs ) latch1 <= main_dout;
     if( main_latch0_cs ) latch0 <= main_dout;
     `ifdef SIMULATION
@@ -122,7 +136,7 @@ always @(*)
         latch_cs: din = A[0] ? latch1 : latch0;
         rom_cs:   din = rom_data;
         ram_cs:   din = ram_dout;
-        default:  din = 8'd0;
+        default:  din = 8'hff;
     endcase // {latch_cs,rom_cs,ram_cs}
 
 // Select the Z80 core to use
@@ -130,9 +144,9 @@ always @(*)
 `define Z80_ALT_CPU
 `endif
 
-`ifdef NCVERILOG
-`undef Z80_ALT_CPU
-`endif
+// `ifdef NCVERILOG
+// `undef Z80_ALT_CPU
+// `endif
 
 `ifdef VERILATOR_LINT 
 `define Z80_ALT_CPU
@@ -145,7 +159,7 @@ T80pa u_cpu(
     .CLK        ( clk     ),
     .CEN_p      ( cen3    ),
     .CEN_n      ( 1'b1    ),
-    .WAIT_n     ( 1'b1    ),
+    .WAIT_n     ( wait_n  ),
     .INT_n      ( int_n   ),
     .NMI_n      ( 1'b1    ),
     .BUSRQ_n    ( 1'b1    ),
@@ -171,7 +185,7 @@ tv80s #(.Mode(0)) u_cpu (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
     .cen    (cen3    ),
-    .wait_n (1'b1    ),
+    .wait_n (wait_n  ),
     .int_n  (int_n   ),
     .nmi_n  (1'b1    ),
     .busrq_n(1'b1    ),
@@ -197,10 +211,10 @@ wire [10:0] unlim_snd = sound0 + sound1;
 always @(posedge clk) if(cen1p5)
     snd <= unlim_snd[10:9]!=2'b0 ? 9'h1FF : unlim_snd[8:0];
 
-wire bdir0 = ay0_cs && !wr_n;
-wire bc0   = ay0_cs && !wr_n && !A[0];
-wire bdir1 = ay1_cs && !wr_n;
-wire bc1   = ay1_cs && !wr_n && !A[0];
+wire bdir0 = ay0_cs & ~wr_n;
+wire bc0   = ay0_cs & ~wr_n & ~A[0];
+wire bdir1 = ay1_cs & ~wr_n;
+wire bc1   = ay1_cs & ~wr_n & ~A[0];
 
 jt49_bus u_ay0( // note that input ports are not multiplexed
     .rst_n  ( reset_n   ),

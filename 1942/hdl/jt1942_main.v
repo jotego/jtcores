@@ -249,9 +249,9 @@ wire wait_n = scr_wait_n & char_wait_n;
 `define Z80_ALT_CPU
 `endif
 
-`ifdef NCVERILOG
-`undef Z80_ALT_CPU
-`endif
+//`ifdef NCVERILOG
+//`undef Z80_ALT_CPU
+//`endif
 
 `ifdef VERILATOR_LINT 
 `define Z80_ALT_CPU
