@@ -56,7 +56,21 @@ jtgng_ram #(.aw(7)) u_ram(
     .data   ( DB          ),
     .addr   ( addr        ),
     .we     ( we          ),
-    .q      ( objbuf_data )
+//    .q      ( objbuf_data )
+    .q()
 );
+
+reg [7:0] objdebug;
+always @(posedge clk)
+    case(scan)
+        7'd0: objdebug <= 8'h45;
+        7'd1: objdebug <= 8'h4;
+        7'd2: objdebug <= 8'h30;
+        7'd3: objdebug <= 8'hc0;
+        default: objdebug <= 8'h0;
+    endcase // scan
+
+
+assign objbuf_data = objdebug;
 
 endmodule // jtgng_objdraw

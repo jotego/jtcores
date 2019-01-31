@@ -45,7 +45,7 @@ reg [7:0] objy, objx;
 reg [7:0] V2C;
 wire [7:0] VF = {8{flip}} ^V;
 wire [8:0] objx2;
-reg vover, hover;
+reg ADext, hover;
 reg VINZONE;
 wire vinzone2;
 
@@ -55,13 +55,16 @@ wire [7:0] VBETA = ~LVBETA;
 reg VINcmp, VINlen, Vgt, Veq, Vlt;
 reg [3:0] preCD;
 
-always @(*) begin
+always @(posedge clk) if(cen6) begin
     V2C = ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
+end
+
+always @(*) begin
     // comparison side of VINZONE
-    Vgt = VBETA  > ~objbuf_data;
-    Veq = VBETA == ~objbuf_data;
-    Vlt = VBETA  < ~objbuf_data;
-    VINcmp = /*vover ? Vgt :*/ (Veq|Vlt);
+    Vgt = VBETA  > ~newy;
+    Veq = VBETA == ~newy;
+    Vlt = VBETA  < ~newy;
+    VINcmp = /*ADext ? Vgt :*/ (Veq|Vlt);
     //VINlen = (|{vlen, LVBETA[4]}) & (vlen[1]|LVBETA[5]) & ((&vlen[1:0]) | LVBETA[6]) & ((&vlen[1:0]) | LVBETA[7] );
     case( vlen )
         2'b00: VINlen = &LVBETA[7:4];
@@ -72,38 +75,41 @@ always @(*) begin
 end
 
 reg [8:0] newx;
+reg [7:0] newy;
 
-always @(posedge clk)
-    if( cen6 ) begin
-        case( pxlcnt[3:0] )
-            4'd0: AD <= objbuf_data;
-            4'd1: begin
-                vlen  <= objbuf_data[7:6];
-                vover <= objbuf_data[5];
-                hover <= objbuf_data[4];
-                preCD <= objbuf_data[3:0];
-            end
-            4'd2: begin
-                obj_addr[14:10] <= {AD[7], vover, AD[6:4]};
-                case( vlen )
-                    2'd0: obj_addr[9:6] <= AD[3:0];
-                    2'd1: obj_addr[9:6] <= { AD[3:1], VBETA[4] };
-                    2'd2: obj_addr[9:6] <= { AD[3:2], VBETA[5:4] };
-                    2'd3: obj_addr[9:6] <= VBETA[7:4];
-                endcase
-                obj_addr[4:1] <= VBETA[3:0];
-                VINZONE <= ~(VINcmp & VINlen);
-                { obj_addr[5], obj_addr[0] } <= 2'd0;
-            end
-            4'd3: newx <= {hover, objbuf_data}; // - { hover, 8'h0 };
-            4'd6:  { obj_addr[5], obj_addr[0] } <= 2'd1;
-            4'd10: { obj_addr[5], obj_addr[0] } <= 2'd2;
-            4'd14: { obj_addr[5], obj_addr[0] } <= 2'd3;
-            default:;
-        endcase
-    end
+always @(posedge clk) if( cen6 ) begin
+    case( pxlcnt[3:0] )
+        4'd0: AD <= objbuf_data;
+        4'd1: begin
+            vlen  <= objbuf_data[7:6];
+            ADext <= objbuf_data[5];
+            hover <= objbuf_data[4];
+            preCD <= objbuf_data[3:0];
+        end
+        4'd2: begin
+            newy <= objbuf_data;
+            obj_addr[14:10] <= {AD[7], ADext, AD[6:4]};
+            case( vlen )
+                2'd0: obj_addr[9:6] <= AD[3:0];
+                2'd1: obj_addr[9:6] <= { AD[3:1], VBETA[4] };
+                2'd2: obj_addr[9:6] <= { AD[3:2], VBETA[5:4] };
+                2'd3: obj_addr[9:6] <= VBETA[7:4];
+            endcase
+            obj_addr[4:1] <= VBETA[3:0];
+            { obj_addr[5], obj_addr[0] } <= 2'd0;
+        end
+        4'd3: begin
+            newx <= { hover, objbuf_data}; // - { hover, 8'h0 };
+            VINZONE <= ~(VINcmp & VINlen);
+        end
+        4'd6:  { obj_addr[5], obj_addr[0] } <= 2'd1;
+        4'd10: { obj_addr[5], obj_addr[0] } <= 2'd2;
+        4'd14: { obj_addr[5], obj_addr[0] } <= 2'd3;
+        default:;
+    endcase
+end
 
-localparam delay=6;
+localparam delay=4;
 //wire hover2;
 
 jtgng_sh #(.width(1), .stages(delay)) u_shzone 
@@ -120,7 +126,7 @@ wire [7:0] pal_addr = { CD, obj_wxyz};
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};   
     posx     <= pxlcnt[3:0]==4'h8 ? newx : posx + 9'b1;
-    if( pxlcnt==4'd8 ) CD <= preCD;
+    if( pxlcnt==4'd4 ) CD <= preCD;
     case( pxlcnt[3:0] )        
         4'd3,4'd7,4'd11,4'd15:  begin // new data
             {z,y,x,w} <= objrom_data[15:0];
