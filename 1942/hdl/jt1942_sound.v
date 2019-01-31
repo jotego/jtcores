@@ -75,7 +75,7 @@ always @(*) begin
     ay0_cs   = 1'b0;
     ay1_cs   = 1'b0;
     casez(A[15:13])
-        3'b000: rom_cs   = 1'b1;
+        3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
         3'b100: ay0_cs   = 1'b1;
