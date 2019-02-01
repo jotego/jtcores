@@ -272,7 +272,7 @@ jtgng_rom #(
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
-    .obj_addr    ( {1'd0, obj_addr} ),
+    .obj_addr    ( {1'd0, obj_addr} ), // 15:0 for ROM
     .scr_addr    ( scr_addr      ),
 
     .char_dout   ( char_data     ),

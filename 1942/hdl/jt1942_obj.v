@@ -33,6 +33,7 @@ module jt1942_obj(
     // CPU bus
     input        [6:0] AB,
     input        [7:0] DB,
+    input              obj_cs,
     input              wr_n,
     // SDRAM interface
     output      [14:0] obj_addr,
@@ -89,6 +90,7 @@ jt1942_objram u_ram(
     .DB             ( DB            ),
     .AB             ( AB            ),
     .wr_n           ( wr_n          ),
+    .obj_cs         ( obj_cs        ),
     // memory output
     .objbuf_data0   ( objbuf_data0  ),
     .objbuf_data1   ( objbuf_data1  ),

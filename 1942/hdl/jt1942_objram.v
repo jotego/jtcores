@@ -30,28 +30,18 @@ module jt1942_objram(
     // CPU interface
     input   [7:0]      DB,
     input   [6:0]      AB,
+    input              obj_cs,
     input              wr_n,
     // memory output
-    output  reg [7:0]  objbuf_data0,
-    output  reg [7:0]  objbuf_data1,
-    output  reg [7:0]  objbuf_data2,
-    output  reg [7:0]  objbuf_data3
+    output reg  [7:0]  objbuf_data0,
+    output reg  [7:0]  objbuf_data1,
+    output reg  [7:0]  objbuf_data2,
+    output reg  [7:0]  objbuf_data3
 );
 
-reg [6:0] scan, addr;
-reg we;
-
-always @(*) begin
-    scan = { objcnt, pxlcnt[1:0] };
-    if( SEATM_b ) begin
-        addr = AB;
-        we   = !wr_n;
-    end else begin
-        addr = scan;
-        we   = 1'b0;
-    end
-end
-
+wire [6:0] scan = { objcnt, pxlcnt[1:0] };
+wire [6:0] addr = SEATM_b ? AB : scan;
+wire we = SEATM_b && !wr_n && obj_cs;
 wire [7:0] ram_data;
 
 jtgng_ram #(.aw(7)) u_ram(
@@ -65,6 +55,7 @@ jtgng_ram #(.aw(7)) u_ram(
 
 // Latches data output. It can be done without this, but
 // I find this less prone to bugs
+`ifndef OBJ_TEST
 reg [31:0] collect;
 
 always @(posedge clk) if(cen6) begin
@@ -73,6 +64,20 @@ always @(posedge clk) if(cen6) begin
         { objbuf_data2, objbuf_data3, objbuf_data0, objbuf_data1 } <= collect;
     end
 end
-
-
+`else
+always @(posedge clk) if(cen6) 
+case(scan[6:2])
+    5'd0: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h10_04_80_c0;
+    5'd1: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h11_04_98_c0;
+    5'd2: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h12_04_b0_c0;
+    5'd3: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h13_04_c8_c0;
+    5'd4: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he0_40_80_a0;
+    5'd5: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he1_40_b0_a0;
+    5'd6: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he4_40_80_80;
+    5'd7: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he8_40_80_70;
+    5'd8: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h8e_80_80_50;
+    5'd9: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h84_40_90_40;
+    default: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h0;
+endcase
+`endif
 endmodule // jtgng_objdraw

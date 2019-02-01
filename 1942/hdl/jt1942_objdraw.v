@@ -31,7 +31,7 @@ module jtgng_objdraw(
     input       [7:0]  objbuf_data2,
     input       [7:0]  objbuf_data3,
     // SDRAM interface
-    output reg  [14:0] obj_addr,
+    output      [14:0] obj_addr,
     input       [15:0] objrom_data,
     // Palette PROM
     input   [7:0]      prog_addr,
@@ -59,7 +59,7 @@ wire [7:0] next_AD    = objbuf_data0;
 wire [1:0] next_vlen  = objbuf_data1[7:6];
 wire       next_ADext = objbuf_data1[5];
 wire       next_hover = objbuf_data1[4];
-wire [1:0] next_CD    = objbuf_data1[3:0];
+wire [3:0] next_CD    = objbuf_data1[3:0];
 wire [7:0] next_y     = objbuf_data2; 
 wire [7:0] next_x     = objbuf_data3; 
 
@@ -72,30 +72,34 @@ always @(*) begin
     Veq = VBETA == ~next_y;
     Vlt = VBETA  < ~next_y;
     VINcmp = /*ADext ? Vgt :*/ (Veq|Vlt);
-    //VINlen = (|{vlen, LVBETA[4]}) & (vlen[1]|LVBETA[5]) & ((&vlen[1:0]) | LVBETA[6]) & ((&vlen[1:0]) | LVBETA[7] );
     case( next_vlen )
         2'b00: VINlen = &LVBETA[7:4];
         2'b01: VINlen = &LVBETA[7:5];
         2'b10: VINlen = &LVBETA[7:6];
         2'b11: VINlen = 1'b1;
     endcase // vlen
+    //VINZONE = ~(VINcmp & VINlen);    
     VINZONE = ~(VINcmp & VINlen);    
 end
 
+reg [14:0] pre_addr;
+
 always @(posedge clk) if( cen6 ) begin
     if( pxlcnt[3:0] == 4'd7 )begin
-        obj_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
+        pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
         case( next_vlen )
-            2'd0: obj_addr[9:6] <= next_AD[3:0];
-            2'd1: obj_addr[9:6] <= { next_AD[3:1], VBETA[4] };
-            2'd2: obj_addr[9:6] <= { next_AD[3:2], VBETA[5:4] };
-            2'd3: obj_addr[9:6] <= VBETA[7:4];
+            2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
+            2'd1: pre_addr[9:6] <= { next_AD[3:1], VBETA[4] }; // 32 
+            2'd2: pre_addr[9:6] <= { next_AD[3:2], VBETA[5], VBETA[4] }; // 64
+            2'd3: pre_addr[9:6] <= VBETA[7:4];
         endcase
-        obj_addr[4:1] <= VBETA[3:0];
+        pre_addr[4:1] <= VBETA[3:0];
     end
 end
 
-always @(*) { obj_addr[5], obj_addr[0] } = pxlcnt[3:2];
+assign obj_addr[14:6] = pre_addr[14:6];
+assign obj_addr[ 4:1] = pre_addr[ 4:1];
+assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
 
 // ROM data depacking
 
@@ -105,35 +109,37 @@ reg  [8:0] posx0;
 wire [7:0] pal_addr = { CD, obj_wxyz};
 reg VINZONE2;
 
+wire [3:0] rom_at = 4'hc;
+
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};
-    if( pxlcnt == 4'ha ) begin
+    if( pxlcnt == (rom_at+4'h1) ) begin // 
         posx0     <= { next_hover, next_x };
         CD       <= next_CD;
         VINZONE2 <= VINZONE;
     end
     else posx0 <= posx0 + 9'b1;
-    case( pxlcnt[3:0] )        
-        4'ha,4'he,4'h2,4'h6:  begin // new data
-            {z,y,x,w} <= objrom_data[15:0];
-        end
-        default: begin
-            z <= z << 1;
-            y <= y << 1;
-            x <= x << 1;
-            w <= w << 1;
-			end
-    endcase
+    if( pxlcnt[1:0] == rom_at[1:0] )
+        {z,y,x,w} <= objrom_data[15:0];
+    else begin
+        z <= z << 1;
+        y <= y << 1;
+        x <= x << 1;
+        w <= w << 1;
+	end
 end
 
 wire [3:0] prom_dout;
 
 always @(posedge clk ) if(cen6) begin
-    new_pxl <= (!VINZONE2 /*&& !hover2*/) ? prom_dout : 4'hf;
+    new_pxl <= (!VINZONE2 && !posx[8]) ? prom_dout : 4'hf;
     posx    <= posx0;
 end
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-8.k3")) u_prom_k3(
+jtgng_prom #(.aw(8),.dw(4),
+    .simfile("../../../rom/1942/sb-8.k3"),
+    .cen_rd(1)
+) u_prom_k3(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prog_din       ),

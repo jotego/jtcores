@@ -16,7 +16,10 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_prom #(parameter dw=8, aw=10, simfile="", check_time=90_000_000)(
+module jtgng_prom #(parameter dw=8, aw=10, simfile="", 
+    check_time=90_000_000,
+    cen_rd=0
+)(
     input   clk,
     input   cen  /* synthesis direct_enable = 1 */,
     input   [dw-1:0] data,
@@ -65,7 +68,7 @@ end
 `endif
 
 always @(posedge clk) begin
-    q <= mem[rd_addr];
+    if( !cen_rd || cen ) q <= mem[rd_addr];
     if( cen && we) mem[wr_addr] <= data;
 end
 

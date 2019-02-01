@@ -71,7 +71,7 @@ module jt1942_video(
 wire [3:0] char_pxl, obj_pxl;
 wire [5:0] scr_pxl;
 
-localparam scrchr_off = 6;
+localparam scrchr_off = 4;
 
 `ifndef NOCHAR
 jt1942_char #(.Hoffset(scrchr_off)) u_char (
@@ -177,8 +177,9 @@ jt1942_obj u_obj(
     .flip           ( flip      ),
     // CPU bus
     .AB             ( cpu_AB[6:0] ),
-    .DB             ( cpu_dout  ),
-    .wr_n           ( wr_n      ),
+    .DB             ( cpu_dout    ),
+    .obj_cs         ( obj_cs      ),
+    .wr_n           ( wr_n        ),
     // SDRAM interface
     .obj_addr       ( obj_addr    ),
     .objrom_data    ( objrom_data ),
