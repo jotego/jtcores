@@ -86,7 +86,7 @@ assign HDMI_ARY = status[1] ? 8'd9  : 8'd3;
 
 `include "build_id.v" 
 localparam CONF_STR1 = {
-	"A.GnG;;", 
+	"A.JT1942;;", 
 	"-;",
 	"O1,Aspect Ratio,Original,Wide;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", 
@@ -137,7 +137,7 @@ wire  [1:0] buttons;
 wire        ioctl_download;
 wire        ioctl_wr;
 wire [24:0] ioctl_addr;
-wire  [7:0] ioctl_dout;
+wire [15:0] ioctl_dout;
 
 wire [10:0] ps2_key;
 
@@ -145,7 +145,7 @@ wire  [8:0] joy_0, joy_1;
 
 wire        forced_scandoubler;
 
-hps_io #(.STRLEN(($size(CONF_STR1)>>3) + ($size(CONF_STR2)>>3) + 1)) hps_io
+hps_io #(.STRLEN(($size(CONF_STR1)>>3) + ($size(CONF_STR2)>>3) + 1),.WIDE(1)) hps_io
 (
 	.clk_sys(clk_sys),
 	.HPS_BUS(HPS_BUS),
@@ -248,9 +248,29 @@ video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
 	.VBlank(~VBlank)
 );
 
+wire [9:0] prom_we;
+jt1942_prom_we u_prom_we(
+    .downloading    ( ioctl_download ), 
+    .romload_addr   ( romload_addr   ),
+    .prom_we        ( prom_we        )
+);
+
+wire [15:0] rom_data;
+wire [21:0] rom_addr;
+
+jtgng_prom #(.dw(16), .aw(21)) u_rom(
+    .clk    ( clk_sys          ),
+    .cen    ( 1'b1             ),
+    .data   ( ioctl_dout       ),
+    .rd_addr( rom_addr[20:0]   ),
+    .wr_addr( ioctl_addr[20:0] ),
+    .we     ( ioctl_wr         ),
+    .q      ( rom_data         )
+);
+
 jt1942_game game
 (
-	.rst(RESET | ioctl_download),
+	.rst(RESET ),
 	.soft_rst(status[0] | buttons[1]),
 	.clk(clk_sys),
 	.cen6(ce_6),
@@ -267,19 +287,29 @@ jt1942_game game
 	.joystick1(~{m_coin,m_start1,m_jump,m_fire,m_up,m_down,m_left,m_right}),
 	.joystick2(~{1'b0,  m_start2,m_jump,m_fire,m_up,m_down,m_left,m_right}),
 
-	.romload_wr(ioctl_wr),
-	.romload_addr(ioctl_addr[18:0]),
-	.romload_data(ioctl_dout),
+    // SDRAM interface
+    .downloading  ( ioctl_download ),
+    .loop_rst     ( ioctl_download ),
+    .sdram_addr   ( rom_addr[21:0] ),
+    .data_read    ( rom_data       ),
 
-	.enable_char(1),
-	.enable_scr(1),
-	.enable_obj(1),
+    // PROM programming
+    .prog_addr    ( ioctl_addr[7:0]),
+    .prog_din     ( ioctl_dout[3:0]),
+    .prom_k6_we   ( prom_we[0]     ),
+    .prom_d1_we   ( prom_we[1]     ),
+    .prom_d2_we   ( prom_we[2]     ),
+    .prom_d6_we   ( prom_we[3]     ),
+    .prom_e8_we   ( prom_we[4]     ),
+    .prom_e9_we   ( prom_we[5]     ),
+    .prom_e10_we  ( prom_we[6]     ),
+    .prom_f1_we   ( prom_we[7]     ), 
+    .prom_k3_we   ( prom_we[8]     ), 
+    .prom_m11_we  ( prom_we[9]     ),
 
-	.dipsw({~inv_ena | ~status[14],~status[13:12],~status[11:10],1'b0,~status[9:8],4'h5,{4{status[15]}}}),
-
-	.enable_psg(~status[6]),
-	.enable_fm(~status[7]),
-	.ym_snd(AUDIO_L)
+    .dipsw_a      ( 8'hFF          ),
+	.dipsw_b      ( 8'hFF          ),
+    .snd          ( AUDIO_L        )
 );
 
 assign AUDIO_R = AUDIO_L;
