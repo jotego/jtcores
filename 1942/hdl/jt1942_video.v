@@ -28,6 +28,7 @@ module jt1942_video(
     input               wr_n,
     input               flip,
     input       [ 7:0]  cpu_dout,
+    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
@@ -88,6 +89,7 @@ jt1942_char #(.Hoffset(scrchr_off)) u_char (
     .rd_n       ( rd_n          ),
     .wait_n     ( char_wait_n   ),
     .char_pxl   ( char_pxl      ),
+    .pause      ( pause         ),
     // Palette PROM F1
     .prog_addr  ( prog_addr     ),
     .prom_din   ( prog_din      ),

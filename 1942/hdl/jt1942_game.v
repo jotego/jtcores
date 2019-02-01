@@ -215,6 +215,7 @@ jt1942_video u_video(
     .wr_n       ( wr_n          ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
+    .pause      ( 1'b0 ), //dipsw_a[7]    ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
