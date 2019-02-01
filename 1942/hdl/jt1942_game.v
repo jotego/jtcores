@@ -42,8 +42,6 @@ module jt1942_game(
     output          loop_start,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
-    input   [24:0]  romload_addr,
-    input   [15:0]  romload_data,
 
     // PROM programming
     input   [ 7:0]  prog_addr,
