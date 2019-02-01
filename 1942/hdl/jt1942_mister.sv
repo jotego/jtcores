@@ -88,7 +88,7 @@ assign HDMI_ARY = status[1] ? 8'd9  : 8'd3;
 localparam CONF_STR1 = {
 	"A.JT1942;;", 
 	"-;",
-	"O1,Aspect Ratio,Original,Wide;",
+	"O1,Pause,OFF,ON;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", 
 	"-;",
 	"OF,Coin-free play,Yes,No;",
@@ -307,9 +307,11 @@ jt1942_game game
     .prom_k3_we   ( prom_we[8]     ), 
     .prom_m11_we  ( prom_we[9]     ),
 
-    .dipsw_a      ( 8'hFF          ),
-	.dipsw_b      ( 8'hFF          ),
-    .snd          ( AUDIO_L        )
+    .dipsw_a     ( 8'hff         ),
+    .dip_pause   ( ~status[1]    ),
+    .dip_level   ( ~status[3:2]  ),
+    .dip_test    ( ~status[4]    ),
+    .snd         ( AUDIO_L        )
 );
 
 assign AUDIO_R = AUDIO_L;
