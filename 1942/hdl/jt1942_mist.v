@@ -248,8 +248,6 @@ jt1942_game u_game(
 
     // ROM load
     .downloading ( downloading   ),
-    .romload_addr( romload_addr  ),
-    .romload_data( romload_data  ),
     .loop_rst    ( loop_rst      ),
     .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
