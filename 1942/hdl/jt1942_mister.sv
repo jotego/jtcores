@@ -258,12 +258,12 @@ jt1942_prom_we u_prom_we(
 wire [15:0] rom_data;
 wire [21:0] rom_addr;
 
-jtgng_prom #(.dw(16), .aw(21)) u_rom(
+jtgng_prom #(.dw(16), .aw(17)) u_rom(
     .clk    ( clk_sys          ),
     .cen    ( 1'b1             ),
     .data   ( ioctl_dout       ),
-    .rd_addr( rom_addr[20:0]   ),
-    .wr_addr( ioctl_addr[20:0] ),
+    .rd_addr( rom_addr[16:0]   ),
+    .wr_addr( ioctl_addr[16:0] ),
     .we     ( ioctl_wr         ),
     .q      ( rom_data         )
 );
