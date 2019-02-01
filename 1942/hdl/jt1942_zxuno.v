@@ -18,7 +18,7 @@
 
 `timescale 1ns/1ps
 
-module jt1942_mist(
+module jt1942_zxuno(
     input   [1:0]   CLOCK_27,
     output  [5:0]   VGA_R,
     output  [5:0]   VGA_G,
@@ -49,11 +49,13 @@ module jt1942_mist(
     output          AUDIO_L,
     output          AUDIO_R,
     // user LED
-    output          LED
+    output          LED,
+    // 
+    input clk_rgb, clk_rom, clk_vga
 );
 
-wire clk_rgb; // 36
-wire clk_vga; // 25
+// wire clk_rgb; // 36
+// wire clk_vga; // 25
 wire locked;
 wire downloading;
 wire coin_cnt;
@@ -64,37 +66,23 @@ assign LED = ~downloading || coin_cnt;
 //     //   000000000111111111122222222223
 //     //   123456789012345678901234567890
 //         "JT1942;;",
-//         "O1,Test mode,OFF,ON;",
-//         "O2,Cabinet mode,OFF,ON;",
-//         "O3,Pause,ON,OFF;",
-//         "O4,DIPs,ON,OFF;",
-//         "O5,Screen filter,ON,OFF;",
-//         "T6,Reset;",
+//         "O1,DIP0,OFF,ON;",
+//         "O2,DIP1,OFF,ON;",
+//         "O3,DIP2,OFF,ON;",
+//         "O4,DIP3,OFF,ON;",
+//         "O5,DIP4,OFF,ON;",
+//         "O6,DIP5,OFF,ON;",
+//         "O7,DIP6,OFF,ON;",
+//         "O8,DIP7,OFF,ON;",
+//         "T9,RST ,OFF,ON;",
 //         "V,http://patreon.com/topapate;"
 // };
-// parameter CONF_STR_LEN = 8+20+23+16+15+24+9+30;
-
-parameter CONF_STR = {
-    //   000000000111111111122222222223
-    //   123456789012345678901234567890
-        "JT1942;;",
-        "O1,DIP0,OFF,ON;",
-        "O2,DIP1,OFF,ON;",
-        "O3,DIP2,OFF,ON;",
-        "O4,DIP3,OFF,ON;",
-        "O5,DIP4,OFF,ON;",
-        "O6,DIP5,OFF,ON;",
-        "O7,DIP6,OFF,ON;",
-        "O8,DIP7,OFF,ON;",
-        "T9,RST ,OFF,ON;",
-        "V,http://patreon.com/topapate;"
-};
-parameter CONF_STR_LEN = 8+9*15+30;
+// parameter CONF_STR_LEN = 8+9*15+30;
 
 reg rst = 1'b1;
 
 // wire [4:0] index;
-wire clk_rom;
+// wire clk_rom;
 wire [24:0] romload_addr;
 wire [15:0] romload_data;
 
@@ -112,39 +100,13 @@ data_io datain (
 wire [31:0] status, joystick1, joystick2; //, joystick;
 reg [7:0] joy1_sync, joy2_sync;
 always @(posedge clk_rgb) begin
-    joy1_sync <= ~joystick1[7:0];
-    joy2_sync <= ~joystick2[7:0];
+    joy1_sync <= 8'd0; //~joystick1[7:0];
+    joy2_sync <= 8'd0; //~joystick2[7:0];
 end
 
 // assign joystick = joystick_0; // | joystick_1;
 
-wire ypbpr;
-wire scandoubler_disable;
-
-user_io #(.STRLEN(CONF_STR_LEN)) userio(
-    .clk_sys        ( clk_rgb   ),
-    .conf_str       ( CONF_STR  ),
-    .SPI_CLK        ( SPI_SCK   ),
-    .SPI_SS_IO      ( CONF_DATA0),
-    .SPI_MISO       ( SPI_DO    ),
-    .SPI_MOSI       ( SPI_DI    ),
-    .joystick_0     ( joystick2 ),
-    .joystick_1     ( joystick1 ),
-    .status         ( status    ),
-    .ypbpr          ( ypbpr     ),
-    .scandoubler_disable ( scandoubler_disable ),
-    // unused ports:
-    .serial_strobe  ( 1'b0      ),
-    .serial_data    ( 8'd0      ),
-    .sd_lba         ( 32'd0     ),
-    .sd_rd          ( 1'b0      ),
-    .sd_wr          ( 1'b0      ),
-    .sd_conf        ( 1'b0      ),
-    .sd_sdhc        ( 1'b0      ),
-    .sd_din         ( 8'd0      )
-);
-
-
+/*
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
     .c1     ( clk_rgb     ), // 24
@@ -159,7 +121,7 @@ jtgng_pll1 clk_gen2 (
     .inclk0 ( clk_rgb   ),
     .c0     ( clk_vga   ) // 25
 );
-
+*/
 reg [7:0] rst_cnt=8'd0;
 
 always @(posedge clk_rgb) // if(cen6)
@@ -341,49 +303,17 @@ jtgng_vga u_scandoubler (
 
 `ifndef SIMULATION
 // include the on screen display
-wire [5:0] osd_r_o;
-wire [5:0] osd_g_o;
-wire [5:0] osd_b_o;
-wire       HSync = scandoubler_disable ? ~hs : vga_hsync;
-wire       VSync = scandoubler_disable ? ~vs : vga_vsync;
+wire       HSync = vga_hsync;
+wire       VSync = vga_vsync;
 wire       CSync = ~(HSync ^ VSync);
 
-osd #(0,0,4) osd (
-   .clk_sys    ( scandoubler_disable ? clk_rgb : clk_vga ),
 
-   // spi for OSD
-   .SPI_DI     ( SPI_DI       ),
-   .SPI_SCK    ( SPI_SCK      ),
-   .SPI_SS3    ( SPI_SS3      ),
-
-   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : GNG_R  ),
-   .G_in       ( scandoubler_disable ? { green, green[3:2] } : GNG_G  ),
-   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : GNG_B  ),
-   .HSync      ( HSync        ),
-   .VSync      ( VSync        ),
-
-   .R_out      ( osd_r_o      ),
-   .G_out      ( osd_g_o      ),
-   .B_out      ( osd_b_o      )
-);
-wire [5:0] Y, Pb, Pr;
-
-rgb2ypbpr rgb2ypbpr
-(
-    .red   ( osd_r_o ),
-    .green ( osd_g_o ),
-    .blue  ( osd_b_o ),
-    .y     ( Y       ),
-    .pb    ( Pb      ),
-    .pr    ( Pr      )
-);
-
-assign VGA_R = ypbpr?Pr:osd_r_o;
-assign VGA_G = ypbpr? Y:osd_g_o;
-assign VGA_B = ypbpr?Pb:osd_b_o;
+assign VGA_R =  GNG_R;
+assign VGA_G =  GNG_G;
+assign VGA_B =  GNG_B;
 // a minimig vga->scart cable expects a composite sync signal on the VGA_HS output.
 // and VCC on VGA_VS (to switch into rgb mode)
-assign      VGA_HS = (scandoubler_disable | ypbpr) ? CSync : HSync;
-assign      VGA_VS = (scandoubler_disable | ypbpr) ? 1'b1 : VSync;
+assign      VGA_HS = HSync;
+assign      VGA_VS = VSync;
 `endif
 endmodule // jtgng_mist

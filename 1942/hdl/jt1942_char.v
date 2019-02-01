@@ -33,10 +33,11 @@ module jt1942_char(
     input            rd_n,
     output           wait_n,
     output [3:0]     char_pxl,
+    input            pause,
     // Palette PROM F1
-    input   [7:0]   prog_addr,
-    input           prom_f1_we,
-    input   [3:0]   prom_din,
+    input   [7:0]    prog_addr,
+    input            prom_f1_we,
+    input   [3:0]    prom_din,
     // ROM
     output reg [11:0] char_addr,
     input      [15:0] char_data
@@ -52,7 +53,7 @@ wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && char_cs && rd_n;
-wire [7:0] dout_low, dout_high;
+wire [7:0] mem_low, mem_high, mem_msg;
 wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];
 assign dout = AB[10] ? dout_high : dout_low;
@@ -63,7 +64,7 @@ jtgng_ram #(.aw(10)) u_ram_low(
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_low   ),
-    .q      ( dout_low )
+    .q      ( mem_low  )
 );
 
 jtgng_ram #(.aw(10)) u_ram_high(
@@ -72,8 +73,24 @@ jtgng_ram #(.aw(10)) u_ram_high(
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_high  ),
-    .q      ( dout_high)
+    .q      ( mem_high )
 );
+
+jtgng_ram #(.aw(10),.synfile("1942_msg.hex")) u_ram_msg(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .data   ( 8'd0     ),
+    .addr   ( scan     ),
+    .we     ( 1'b0     ),
+    .q      ( mem_msg  )
+);
+
+reg [7:0] dout_low, dout_high;
+
+always @(*) begin
+    dout_low  = pause ? mem_msg : mem_low;
+    dout_high = mem_high;
+end
 
 reg latch_wait_n = 1'b1;
 assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
