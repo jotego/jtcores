@@ -89,7 +89,7 @@ reg [7:0] dout_low, dout_high;
 
 always @(*) begin
     dout_low  = pause ? mem_msg : mem_low;
-    dout_high = mem_high;
+    dout_high = pause ? 8'h2    : mem_high;
 end
 
 reg latch_wait_n = 1'b1;

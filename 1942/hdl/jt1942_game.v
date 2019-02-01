@@ -59,12 +59,13 @@ module jt1942_game(
 
     // DIP switches
     input [7:0] dipsw_a,
-    input [7:0] dipsw_b,
-    // input           dip_test,
     // input   [1:0]   dip_planes,
-    // input   [1:0]   dip_level, // difficulty level
+    // DIP Switch B
+    input           dip_pause,   // DWB - bit 7
+    input   [1:0]   dip_level, // difficulty level
+    input           dip_test,
+    //input           dip_flip,
     // input           dip_upright,
-    // input           dip_pause,
     // input   [2:0]   dip_price_a,
     // input   [2:0]   dip_price_b,
     // input   [1:0]   dip_bonus,
@@ -178,7 +179,7 @@ jt1942_main u_main(
     .prog_din   ( prog_din      ),
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       ),
+    .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7} ),
     .coin_cnt   ( coin_cnt      )
 );
 
@@ -215,7 +216,7 @@ jt1942_video u_video(
     .wr_n       ( wr_n          ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( 1'b0 ), //dipsw_a[7]    ),
+    .pause      ( ~dip_pause    ), //dipsw_a[7]    ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
