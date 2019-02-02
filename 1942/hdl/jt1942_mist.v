@@ -149,10 +149,11 @@ always @(posedge clk_rgb) // if(cen6)
         rst_cnt <= rst_cnt + 8'd1;
     end else rst <= 1'b0;
 
-wire cen6, cen3, cen1p5;
+wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.clk_speed(12)) u_cen(
     .clk    ( clk_rgb   ),    // 24 MHz
+    .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -197,8 +198,8 @@ always @(negedge clk_rgb)
 jt1942_game u_game(
     .rst         ( rst           ),
     .soft_rst    ( soft_rst      ),
-    .clk_rom     ( clk_rom       ),  // 96   MHz
-    .clk         ( clk_rgb       ),  //  6   MHz
+    .clk         ( clk_rgb       ),
+    .cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
     .cen1p5      ( cen1p5        ),

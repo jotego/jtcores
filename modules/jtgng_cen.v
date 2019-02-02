@@ -18,6 +18,7 @@
 
 module jtgng_cen(
     input   clk,    // 24 MHz
+    output  reg cen12,
     output  reg cen6,
     output  reg cen3,
     output  reg cen1p5
@@ -32,19 +33,16 @@ always @(posedge clk)
 always @(negedge clk) begin
     // cen12  <= cencnt[  0] == 1'd0;
     if( clk_speed==24 ) begin
+        cen12  <= cencnt[0]   == 1'd0;
         cen6   <= cencnt[1:0] == 2'd0;
         cen3   <= cencnt[2:0] == 3'd0;
         cen1p5 <= cencnt[3:0] == 4'd0;
     end
     else if( clk_speed==12 ) begin
-        cen6   <= cencnt[0] == 1'd0;
+        cen12  <= 1'b1;
+        cen6   <= cencnt[0]   == 1'd0;
         cen3   <= cencnt[1:0] == 2'd0;
         cen1p5 <= cencnt[2:0] == 3'd0;
-    end
-    else if( clk_speed==6 ) begin
-        cen6   <= 1'b1;
-        cen3   <= cencnt[0] == 1'd0;
-        cen1p5 <= cencnt[1:0] == 2'd0;
     end
 end
 

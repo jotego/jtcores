@@ -60,10 +60,11 @@ localparam  INITIALIZE    = 4'd15,
             SET_READ      = 4'd3, 
             READ          = 4'd4, 
             AUTO_REFRESH1 = 4'd5,
+            SYNC_START    = 4'd6,
+            SYNC_PRECHARGE= 4'd7,
             SET_PRECHARGE_WR = 4'd8, 
             ACTIVATE_WR   = 4'd9,
-            SET_WRITE     = 4'd10,
-            SYNC_START    = 4'd6;
+            SET_WRITE     = 4'd10;
 
 parameter PRECHARGE_WAIT = 4'd0, ACTIVATE_WAIT=4'd0, CL_WAIT=4'd1;
 
@@ -202,13 +203,26 @@ always @(posedge clk)
                 data_read <= SDRAM_DQ;
             end
             end
-        SYNC_START:
-            if( loop_start ) state <= SET_PRECHARGE;
+        // Sync with control loop
+        SYNC_PRECHARGE: begin
+            { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_PRECHARGE;
+            SDRAM_A[10]<=1'b1; // all banks
+            wait_cnt <= PRECHARGE_WAIT+7;
+            state    <= WAIT;
+            next     <= ACTIVATE;     
+            // Clear WRITE state:
+            SDRAM_WRITE <= 1'b0;
+            end        
+        SYNC_START:begin
+            // if( loop_start ) state <= SET_PRECHARGE;
+            if( !autorefresh && !loop_start ) state <= ACTIVATE;
+        end
         AUTO_REFRESH1: begin
                 { SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } <= CMD_AUTOREFRESH;
                 wait_cnt <= 4'd5;
                 state    <= WAIT;
-                next     <= SYNC_START;
+                next     <= SYNC_PRECHARGE;
+                //next     <= SET_PRECHARGE;
             end
         // Write states
         SET_PRECHARGE_WR: begin

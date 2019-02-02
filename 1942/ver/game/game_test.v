@@ -115,7 +115,7 @@ initial begin
 end
 
 integer rst_cnt;
-wire cen6, cen3, cen1p5;
+wire cen12, cen6, cen3, cen1p5;
 
 always @(negedge clk or posedge rst_base)
     if( rst_base ) begin
@@ -141,6 +141,7 @@ wire    [15:0]  romload_data;
 
 jtgng_cen #(.clk_speed(clk_speed)) u_cen(
     .clk    ( clk    ),
+    .cen12  ( cen12  ),
     .cen6   ( cen6   ),
     .cen3   ( cen3   ),
     .cen1p5 ( cen1p5 )
@@ -177,7 +178,7 @@ jt1942_game UUT(
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
     .clk        ( clk       ),
-    .clk_rom    ( clk_rom   ),
+    .cen12      ( cen12     ),
     .cen6       ( cen6      ),
     .cen3       ( cen3      ),
     .cen1p5     ( cen1p5    ),
@@ -194,8 +195,6 @@ jt1942_game UUT(
     .joystick2  ( 8'hff           ),
     // ROM load
     .downloading ( downloading   ),
-    .romload_addr( romload_addr  ),
-    .romload_data( romload_data  ),
     .loop_rst    ( loop_rst      ),
     .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
@@ -219,7 +218,9 @@ jt1942_game UUT(
     // DIP switches
     // DIP switches
     .dipsw_a    ( 8'hff     ),
-    .dipsw_b    ( 8'hff     ),
+    .dip_pause  ( 1'b1      ),
+    .dip_level  ( 2'b11     ),
+    .dip_test   ( 1'b1      ),
     .coin_cnt   ( coin_cnt  ),
     // Sound output
     .snd            ( snd       ),

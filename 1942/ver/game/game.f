@@ -22,5 +22,5 @@
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
-../../../modules/data_io.v
+../../../modules/mist/data_io.v
 ../../../modules/ver/noise_gen.v

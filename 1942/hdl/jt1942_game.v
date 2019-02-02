@@ -20,7 +20,7 @@ module jt1942_game(
     input           rst,
     input           soft_rst,
     input           clk,        // 24   MHz
-    input           clk_rom,    // 96   MHz    
+    input           cen12,      // 12   MHz
     input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
     input           cen1p5,     //  1.5 MHz
@@ -264,9 +264,8 @@ jtgng_rom #(
     .scr2_offset(22'h04000),
     .obj_offset (22'h15000)
 ) u_rom (
-    .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
-    .clk24       ( clk           ),
-    .cen6        ( cen6          ),
+    .clk         ( clk           ),
+    .cen12       ( cen12         ),
     .H           ( H[2:0]        ),
     .rst         ( rst           ),
     .char_addr   ( {1'b0,char_addr} ),
