@@ -169,7 +169,7 @@ jtgng_cen #(.clk_speed(12)) u_cen(
     wire [8:0] snd;
     wire   [21:0]  sdram_addr;
     wire   [15:0]  data_read;
-    wire   loop_rst, autorefresh, loop_start; 
+    wire   loop_rst, autorefresh; 
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
@@ -231,7 +231,6 @@ jt1942_game u_game(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
@@ -255,8 +254,8 @@ jt1942_game u_game(
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .clk_slow       ( clk_rgb & cen12 ),
     .loop_rst       ( loop_rst      ),  
-    .loop_start     ( loop_start    ),
     .autorefresh    ( autorefresh   ),
     .data_read      ( data_read     ),
     // ROM-load interface

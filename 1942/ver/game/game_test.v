@@ -10,6 +10,8 @@ module game_test;
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.u_main);
             $dumpvars(1,game_test.UUT);
+            $dumpvars(1,game_test.u_sdram);
+            $dumpvars(1,game_test.mist_sdram);
             //$dumpvars(1,game_test.UUT.u_video.u_obj);
             //$dumpvars(1,game_test.UUT.u_rom);
             //$dumpvars(1,game_test);
@@ -196,7 +198,6 @@ jt1942_game UUT(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
@@ -230,8 +231,8 @@ jt1942_game UUT(
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .clk_slow       ( clk & cen12   ),
     .loop_rst       ( loop_rst      ),  
-    .loop_start     ( loop_start    ),
     .autorefresh    ( autorefresh   ),
     .data_read      ( data_read     ),
     // ROM-load interface

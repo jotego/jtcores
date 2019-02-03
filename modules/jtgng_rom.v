@@ -37,7 +37,6 @@ module jtgng_rom(
     input               downloading,
     input               loop_rst,
     output  reg         autorefresh,
-    output              loop_start,
     output  reg [21:0]  sdram_addr,
     input       [15:0]  data_read
 );
@@ -50,9 +49,6 @@ reg [3:0] rd_state;
 // this avoids data coming at unexpected time.
 
 reg  [15:0] scr_aux;
-
-assign loop_start = rd_state==4'd15;
-
 reg main_lsb, snd_lsb;
 
 // Default values correspond to G&G
@@ -122,7 +118,7 @@ end else if(cen12) begin
             4'd7: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
             default:;
         endcase 
-        autorefresh <= downloading ? 1'b0 : (rd_state==4'd13);
+        autorefresh <= downloading ? 1'b0 : (rd_state==4'd14);
     end
 end
 endmodule // jtgng_rom

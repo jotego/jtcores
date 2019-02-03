@@ -39,7 +39,6 @@ module jt1942_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
-    output          loop_start,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
 
@@ -284,7 +283,6 @@ jtgng_rom #(
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
-    .loop_start  ( loop_start    ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

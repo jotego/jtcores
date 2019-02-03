@@ -158,10 +158,9 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     wire      Debug            = 1'b0;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
     
-    reg [data_bits-1:0] Dq_reg_dly;
-    always @(*) Dq_reg_dly = #10 Dq_reg;
-
-    assign    Dq               = Dq_reg_dly;                        // DQ buffer
+    // Added 10ns delay for MiST
+    localparam tMiST = 10;
+    assign  Dq               = Dq_reg;                        // DQ buffer
 
     // Commands Operation
     `define   ACT       0
@@ -1012,12 +1011,12 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
             // Display debug message
             if (Dqm_reg0 !== 2'b11) begin
-                Dq_reg = #tAC Dq_dqm;
+                Dq_reg = #(tAC+tMiST) Dq_dqm;
                 if (Debug) begin
                     $display("%m: at time %t READ : Bank = %d Row = %d, Col = %d, Data = 0x%X", $time, Bank, Row, Col, Dq_reg);
                 end
             end else begin
-                Dq_reg = #tHZ {data_bits{1'bz}};
+                Dq_reg = #(tHZ+tMiST) {data_bits{1'bz}};
                 if (Debug) begin
                     $display("%m: at time %t READ : Bank = %d Row = %d, Col = %d, Data = Hi-Z due to DQM", $time, Bank, Row, Col);
                 end
