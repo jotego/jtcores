@@ -56,6 +56,7 @@ wire we = !sel_scan && char_cs && rd_n;
 wire [7:0] mem_low, mem_high, mem_msg;
 wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];
+reg [7:0] dout_low, dout_high;
 assign dout = AB[10] ? dout_high : dout_low;
 
 jtgng_ram #(.aw(10)) u_ram_low(
@@ -84,8 +85,6 @@ jtgng_ram #(.aw(10),.synfile("1942_msg.hex")) u_ram_msg(
     .we     ( 1'b0     ),
     .q      ( mem_msg  )
 );
-
-reg [7:0] dout_low, dout_high;
 
 always @(*) begin
     dout_low  = pause ? mem_msg : mem_low;
