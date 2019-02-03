@@ -90,7 +90,9 @@ end
 
 reg [3:0] clk_cnt=3'd0;
 
-always @(posedge clk_rom) begin
+reg clk_gen;
+always @(clk_rom) clk_gen = #8 clk_rom;
+always @(posedge clk_gen) begin
     clk_cnt <= clk_cnt + 4'd1;
 end
 
@@ -100,7 +102,7 @@ always @(*)
     case(clk_speed)
         24: clk = clk_cnt[1];
         12: clk = clk_cnt[2];
-        6: clk = clk_cnt[3];
+        6:  clk = clk_cnt[3];
         default: begin 
             $display("ERROR: Invalid value of clk_speed");
             $finish;
