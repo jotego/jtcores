@@ -71,10 +71,12 @@ always @(posedge clk)
         {ready, ready_cnt}  <= {ready_cnt, pre_ready};
     end
 
+reg [3:0] rd_state_last;
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
     rd_state    <= 4'd0;
+    rd_state_last<= ~4'd0;
     autorefresh <= 1'b0;
     sdram_addr <= {(addr_w+col_w){1'b0}};
     snd_dout  <=  8'd0;
@@ -86,8 +88,9 @@ if( loop_rst || downloading ) begin
 end else if(cen12) begin
     pre_ready <= 1'b1;
     rd_state <= rd_state + 4'd1;
+    rd_state_last <= rd_state;
     // Get data from current read
-    casez(rd_state-4'd1) // I hope the -4'd1 gets re-encoded in the
+    casez(rd_state_last) // I hope the -4'd1 gets re-encoded in the
         // case list, rather than getting implemented as an actual adder
         // but it depends on how good the synthesis tool is.
         // Anyway, the idea is that we get the data for the last address

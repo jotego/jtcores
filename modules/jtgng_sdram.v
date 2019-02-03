@@ -63,9 +63,7 @@ reg SDRAM_WRITE;
 reg [15:0] write_data;
 assign SDRAM_DQ =  SDRAM_WRITE ? write_data : 16'hzzzz;            
 
-localparam col_w = 9, row_w = 13;
-
-reg [9:0] col_addr;
+reg [8:0] col_addr;
 
 reg [3:0] SDRAM_CMD;
 assign {SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } = SDRAM_CMD;
@@ -98,7 +96,7 @@ always @(posedge clk)
         // Main loop
         cnt_state  <= 3'd4; // Starts after the precharge
     end else if( initialize ) begin
-        if( wait_cnt ) begin
+        if( |wait_cnt ) begin
             wait_cnt <= wait_cnt-14'd1;
             SDRAM_CMD <= CMD_NOP;
         end else begin
@@ -124,6 +122,7 @@ always @(posedge clk)
                     wait_cnt   <= 14'd1;
                 end
                 3'd4: if( slow_clk_edge) initialize <= 1'b0;
+                default:;
             endcase
         end
     end else  begin // regular operation

@@ -205,7 +205,7 @@ tv80s #(.Mode(0)) u_cpu (
 `endif
 
 wire [9:0] sound0, sound1;
-wire [10:0] unlim_snd = sound0 + sound1;
+wire [10:0] unlim_snd = {1'b0, sound0} + {1'b0, sound1};
 
 // limit to 9 bits in order to get good volume
 always @(posedge clk) if(cen1p5)
