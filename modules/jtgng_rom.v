@@ -62,13 +62,13 @@ localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 
 reg [2:0] last_H;
+reg pre_ready;
 
 always @(posedge clk) begin
     last_H <= H;
     ready  <= pre_ready;
 end
 
-reg pre_ready;
 
 always @(posedge clk) 
 if( loop_rst ) begin
