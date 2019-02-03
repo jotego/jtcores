@@ -90,9 +90,9 @@ end
 
 reg [3:0] clk_cnt=3'd0;
 
-reg clk_gen;
-always @(clk_rom) clk_gen = #8 clk_rom;
-always @(posedge clk_gen) begin
+//reg clk_gen;
+//always @(clk_rom) clk_gen = #8 clk_rom;
+always @(posedge clk_rom) begin
     clk_cnt <= clk_cnt + 4'd1;
 end
 
@@ -221,7 +221,7 @@ jt1942_game UUT(
     // DIP switches
     // DIP switches
     .dipsw_a    ( 8'hff     ),
-    .dip_pause  ( 1'b1      ),
+    .dip_pause  ( 1'b0      ),
     .dip_level  ( 2'b11     ),
     .dip_test   ( 1'b1      ),
     .coin_cnt   ( coin_cnt  ),
