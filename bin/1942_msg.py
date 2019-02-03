@@ -18,11 +18,16 @@ char_ram = [ 0x70 for x in range(0x400) ]
 row=31
 
 def save_hex(filename, data):
-    f = open(filename,"w")
-    for k in data:
-        f.write( "%X" % k )
-        f.write( "\n" )
-    f.close()
+    with open(filename,"w") as f:
+        for k in data:
+            f.write( "%X" % k )
+            f.write( "\n" )
+        f.close()
+
+def save_bin(filename, data):
+    with open(filename,"wb") as f:
+        f.write( bytearray(data) )
+        f.close()
 
 def print_char( msg ):
     global row
@@ -57,7 +62,7 @@ print_char("                                ")
 print_char("  Dustin Hubbard                ")
 print_char("  SmokeMonster - Youtube chan!  ")
 print_char("  Oscar Laguna Garcia           ")
-print_char("  Matthe Coyne                  ")
+print_char("  Matthew Coyne                 ")
 print_char("  Mary Marshall                 ")
 print_char("  Leslie Law                    ")
 print_char("  Don Gafford                   ")
@@ -71,3 +76,4 @@ print_char("  Greetings to Alexey Melnikov! ")
 print_char("                                ")
 
 save_hex( "../1942/mister/1942_msg.hex", char_ram )
+save_bin( "../1942/ver/game/1942_msg.bin", char_ram )

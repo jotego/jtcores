@@ -265,7 +265,6 @@ jtgng_rom #(
 ) u_rom (
     .clk         ( clk           ),
     .cen12       ( cen12         ),
-    .H           ( H[2:0]        ),
     .rst         ( rst           ),
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),

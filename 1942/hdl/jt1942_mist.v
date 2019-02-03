@@ -58,7 +58,8 @@ wire locked;
 wire downloading;
 wire coin_cnt;
 
-assign LED = ~downloading || coin_cnt;
+reg rst = 1'b1;
+assign LED = ~downloading || coin_cnt || rst;
 
 parameter CONF_STR = {
     //   000000000111111111122222222223
@@ -72,7 +73,6 @@ parameter CONF_STR = {
 };
 parameter CONF_STR_LEN = 8+16+42+20+15+30;
 
-reg rst = 1'b1;
 
 // wire [4:0] index;
 wire clk_rom;
