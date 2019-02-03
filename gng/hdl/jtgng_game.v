@@ -20,8 +20,8 @@ module jtgng_game(
     input           rst,
     input           soft_rst,
     input           clk,        // 24   MHz
-    input           clk_rom,    // 96   MHz
-    input           cen6,       //  6   MHz
+    input           cen12,      // 12   MHz
+	 input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
     input           cen1p5,     //  1.5 MHz
     output   [3:0]  red,
@@ -38,7 +38,6 @@ module jtgng_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
-    output          loop_start,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
     input   [24:0]  romload_addr,
@@ -249,10 +248,9 @@ jtgng_video u_video(
 );
 
 jtgng_rom u_rom (
-    .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
-    .clk24       ( clk           ),
-    .cen6        ( cen6          ),
-    .H           ( H[2:0]        ),
+    .clk         ( clk           ),
+    .cen12       ( cen12         ),
+    //.H           ( H[2:0]        ),
     .rst         ( rst           ),
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
@@ -270,7 +268,6 @@ jtgng_rom u_rom (
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
-    .loop_start  ( loop_start    ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

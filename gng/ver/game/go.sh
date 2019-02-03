@@ -152,7 +152,7 @@ case $SIMULATOR in
 iverilog)   iverilog -g2005-sv ${TOP}.v \
         $(add_dir ../../../modules/jt12/hdl jt03.f) \
         -f game.f \
-        ../common/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
+        ../../../modules/ver/{mt48lc16m16a2,altera_mf,quick_sdram}.v \
         $M6809_FILES \
         ../../../modules/tv80/*.v $MIST \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \

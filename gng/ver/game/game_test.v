@@ -112,7 +112,7 @@ initial begin
 end
 
 integer rst_cnt;
-wire cen6, cen3, cen1p5;
+wire cen12, cen6, cen3, cen1p5;
 
 always @(negedge clk or posedge rst_base)
     if( rst_base ) begin
@@ -138,6 +138,7 @@ wire    [15:0]  romload_data;
 
 jtgng_cen u_cen(
     .clk    ( clk    ),    // 24 MHz
+    .cen12  ( cen12  ),
     .cen6   ( cen6   ),
     .cen3   ( cen3   ),
     .cen1p5 ( cen1p5 )
@@ -152,7 +153,7 @@ jtgng_game UUT (
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
     .clk        ( clk       ),
-    .clk_rom    ( clk_rom   ),
+    .cen12      ( cen12     ),
     .cen6       ( cen6      ),
     .cen3       ( cen3      ),
     .cen1p5     ( cen1p5    ),
@@ -171,7 +172,6 @@ jtgng_game UUT (
     .romload_addr( romload_addr  ),
     .romload_data( romload_data  ),
     .loop_rst    ( loop_rst      ),
-    .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
@@ -194,7 +194,6 @@ jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
     .loop_rst       ( loop_rst      ),  
-    .loop_start     ( loop_start    ),
     .autorefresh    ( autorefresh   ),
     .data_read      ( data_read     ),
     // ROM-load interface
