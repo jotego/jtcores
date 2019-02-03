@@ -72,7 +72,7 @@ always @(posedge clk)
             LHBL <= H[8];
         // LHBL <= H>=256;
             if( V==9'd496 ) LVBL <= 1'b0;
-            if( V==9'd271 ) LVBL <= 1'b1;
+            if( V==9'd272 ) LVBL <= 1'b1;
 
             if( V==9'd507 ) VS <= 1;
             if( V==9'd510 ) VS <= 0;

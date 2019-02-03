@@ -287,15 +287,12 @@ assign {
     reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I, 
     reg_F_, reg_A_, reg_F, reg_A } = z80_regs; 
 `endif
-T80pa u_cpu(
+T80s u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
-    .CEN_p      ( cen3        ),
-    .CEN_n      ( scr_wait_n  ),
+    .CEN        ( cen3        ),
     .WAIT_n     ( wait_n      ),
     .INT_n      ( int_n       ),
-    .NMI_n      ( 1'b1        ),
-    .BUSRQ_n    ( 1'b1        ),
     .RD_n       ( rd_n        ),
     .WR_n       ( wr_n        ),
     .A          ( A           ),
@@ -303,17 +300,8 @@ T80pa u_cpu(
     .DO         ( cpu_dout    ),
     .IORQ_n     ( iorq_n      ),
     .M1_n       ( m1_n        ),
-    .MREQ_n     ( mreq_n      ),
-    // unused
-    .DIRSET     ( 1'b0        ),
-    .DIR        ( 212'b0      ),
-    .OUT0       ( 1'b0        ),
-    .RFSH_n     (),
-    .BUSAK_n    (),
-    .HALT_n     (),
-    .REG        ( z80_regs )
+    .MREQ_n     ( mreq_n      )
 );
-
 `else
 // This CPU is used for simulation
 tv80s #(.Mode(0)) u_cpu (

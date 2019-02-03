@@ -154,31 +154,18 @@ always @(*)
 
 `ifndef Z80_ALT_CPU
 // This CPU is used for synthesis
-T80pa u_cpu(
-    .RESET_n    ( reset_n ),
-    .CLK        ( clk     ),
-    .CEN_p      ( cen3    ),
-    .CEN_n      ( 1'b1    ),
-    .WAIT_n     ( wait_n  ),
-    .INT_n      ( int_n   ),
-    .NMI_n      ( 1'b1    ),
-    .BUSRQ_n    ( 1'b1    ),
-    .RD_n       ( rd_n    ),
-    .WR_n       ( wr_n    ),
-    .A          ( A       ),
-    .DI         ( din     ),
-    .DO         ( dout    ),
-    .IORQ_n     ( iorq_n  ),
-    // unused
-    .DIRSET     ( 1'b0    ),
-    .DIR        ( 212'b0  ),
-    .OUT0       ( 1'b0    ),
-    .RFSH_n     (),
-    .M1_n       (),
-    .BUSAK_n    (),
-    .HALT_n     (),
-    .MREQ_n     (),
-    .REG        ()
+T80s u_cpu(
+    .RESET_n    ( reset_n     ),
+    .CLK        ( clk         ),
+    .CEN        ( cen3        ),
+    .WAIT_n     ( wait_n      ),
+    .INT_n      ( int_n       ),
+    .RD_n       ( rd_n        ),
+    .WR_n       ( wr_n        ),
+    .A          ( A           ),
+    .DI         ( din         ),
+    .DO         ( dout        ),
+    .IORQ_n     ( iorq_n      )
 );
 `else
 tv80s #(.Mode(0)) u_cpu (
