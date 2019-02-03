@@ -58,7 +58,8 @@ wire locked;
 wire downloading;
 wire coin_cnt;
 
-assign LED = ~downloading || coin_cnt;
+reg rst = 1'b1;
+assign LED = ~downloading || coin_cnt || rst;
 
 parameter CONF_STR = {
     //   000000000111111111122222222223
@@ -72,7 +73,6 @@ parameter CONF_STR = {
 };
 parameter CONF_STR_LEN = 8+16+42+20+15+30;
 
-reg rst = 1'b1;
 
 // wire [4:0] index;
 wire clk_rom;
@@ -149,10 +149,11 @@ always @(posedge clk_rgb) // if(cen6)
         rst_cnt <= rst_cnt + 8'd1;
     end else rst <= 1'b0;
 
-wire cen6, cen3, cen1p5;
+wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.clk_speed(12)) u_cen(
     .clk    ( clk_rgb   ),    // 24 MHz
+    .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -168,7 +169,7 @@ jtgng_cen #(.clk_speed(12)) u_cen(
     wire [8:0] snd;
     wire   [21:0]  sdram_addr;
     wire   [15:0]  data_read;
-    wire   loop_rst, autorefresh, loop_start; 
+    wire   loop_rst, autorefresh; 
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
@@ -197,8 +198,8 @@ always @(negedge clk_rgb)
 jt1942_game u_game(
     .rst         ( rst           ),
     .soft_rst    ( soft_rst      ),
-    .clk_rom     ( clk_rom       ),  // 96   MHz
-    .clk         ( clk_rgb       ),  //  6   MHz
+    .clk         ( clk_rgb       ),
+    .cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
     .cen1p5      ( cen1p5        ),
@@ -230,7 +231,6 @@ jt1942_game u_game(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
@@ -254,8 +254,8 @@ jt1942_game u_game(
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .clk_slow       ( clk_rgb & cen12 ),
     .loop_rst       ( loop_rst      ),  
-    .loop_start     ( loop_start    ),
     .autorefresh    ( autorefresh   ),
     .data_read      ( data_read     ),
     // ROM-load interface

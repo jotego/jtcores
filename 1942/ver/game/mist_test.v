@@ -10,11 +10,10 @@ module mist_test;
         $display("DUMP enabled");
         $dumpfile("test.lxt");
         `ifdef LOADROM
-            $dumpvars(1,mist_test.UUT.u_main);
-            $dumpvars(1,mist_test.UUT.u_sound);
-            $dumpvars(1,mist_test.UUT.u_rom);
+            $dumpvars(1,mist_test.UUT.u_game.u_main);
+            $dumpvars(1,mist_test.UUT.u_game.u_sound);
+            $dumpvars(1,mist_test.UUT.u_game.u_rom);
             $dumpvars(1,mist_test);
-            $dumpvars(1,mist_test.datain);
             // $dumpvars(0,mist_test);
             $dumpon;
         `else

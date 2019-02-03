@@ -250,7 +250,7 @@ video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .downloading    ( ioctl_download ), 
+    .downloading    ( ioctl_download & ioctl_wr), 
     .romload_addr   ( romload_addr   ),
     .prom_we        ( prom_we        )
 );

@@ -20,7 +20,7 @@ module jt1942_game(
     input           rst,
     input           soft_rst,
     input           clk,        // 24   MHz
-    input           clk_rom,    // 96   MHz    
+    input           cen12,      // 12   MHz
     input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
     input           cen1p5,     //  1.5 MHz
@@ -39,7 +39,6 @@ module jt1942_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
-    output          loop_start,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
 
@@ -264,10 +263,8 @@ jtgng_rom #(
     .scr2_offset(22'h04000),
     .obj_offset (22'h15000)
 ) u_rom (
-    .clk         ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
-    .clk24       ( clk           ),
-    .cen6        ( cen6          ),
-    .H           ( H[2:0]        ),
+    .clk         ( clk           ),
+    .cen12       ( cen12         ),
     .rst         ( rst           ),
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
@@ -285,7 +282,6 @@ jtgng_rom #(
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
-    .loop_start  ( loop_start    ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

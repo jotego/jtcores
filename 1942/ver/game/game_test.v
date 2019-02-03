@@ -10,6 +10,8 @@ module game_test;
         `ifdef LOADROM
             $dumpvars(1,game_test.UUT.u_main);
             $dumpvars(1,game_test.UUT);
+            $dumpvars(1,game_test.u_sdram);
+            $dumpvars(1,game_test.mist_sdram);
             //$dumpvars(1,game_test.UUT.u_video.u_obj);
             //$dumpvars(1,game_test.UUT.u_rom);
             //$dumpvars(1,game_test);
@@ -88,6 +90,8 @@ end
 
 reg [3:0] clk_cnt=3'd0;
 
+//reg clk_gen;
+//always @(clk_rom) clk_gen = #8 clk_rom;
 always @(posedge clk_rom) begin
     clk_cnt <= clk_cnt + 4'd1;
 end
@@ -98,7 +102,7 @@ always @(*)
     case(clk_speed)
         24: clk = clk_cnt[1];
         12: clk = clk_cnt[2];
-        6: clk = clk_cnt[3];
+        6:  clk = clk_cnt[3];
         default: begin 
             $display("ERROR: Invalid value of clk_speed");
             $finish;
@@ -115,7 +119,7 @@ initial begin
 end
 
 integer rst_cnt;
-wire cen6, cen3, cen1p5;
+wire cen12, cen6, cen3, cen1p5;
 
 always @(negedge clk or posedge rst_base)
     if( rst_base ) begin
@@ -141,6 +145,7 @@ wire    [15:0]  romload_data;
 
 jtgng_cen #(.clk_speed(clk_speed)) u_cen(
     .clk    ( clk    ),
+    .cen12  ( cen12  ),
     .cen6   ( cen6   ),
     .cen3   ( cen3   ),
     .cen1p5 ( cen1p5 )
@@ -177,7 +182,7 @@ jt1942_game UUT(
     .rst        ( rst       ),
     .soft_rst   ( 1'b0      ),
     .clk        ( clk       ),
-    .clk_rom    ( clk_rom   ),
+    .cen12      ( cen12     ),
     .cen6       ( cen6      ),
     .cen3       ( cen3      ),
     .cen1p5     ( cen1p5    ),
@@ -194,10 +199,7 @@ jt1942_game UUT(
     .joystick2  ( 8'hff           ),
     // ROM load
     .downloading ( downloading   ),
-    .romload_addr( romload_addr  ),
-    .romload_data( romload_data  ),
     .loop_rst    ( loop_rst      ),
-    .loop_start  ( loop_start    ),
     .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
@@ -219,7 +221,9 @@ jt1942_game UUT(
     // DIP switches
     // DIP switches
     .dipsw_a    ( 8'hff     ),
-    .dipsw_b    ( 8'hff     ),
+    .dip_pause  ( 1'b0      ),
+    .dip_level  ( 2'b11     ),
+    .dip_test   ( 1'b1      ),
     .coin_cnt   ( coin_cnt  ),
     // Sound output
     .snd            ( snd       ),
@@ -229,8 +233,8 @@ jt1942_game UUT(
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .clk_slow       ( clk & cen12   ),
     .loop_rst       ( loop_rst      ),  
-    .loop_start     ( loop_start    ),
     .autorefresh    ( autorefresh   ),
     .data_read      ( data_read     ),
     // ROM-load interface

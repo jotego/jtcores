@@ -26,7 +26,7 @@ MACROPREFIX=-D
 
 ARGNUMBER=1
 
-rm test2.bin
+rm -f test2.bin
 
 while [ $# -gt 0 ]; do
 case "$1" in
