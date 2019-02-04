@@ -108,7 +108,7 @@ always @(negedge clk or posedge rst_base)
     end
 
 
-jtgng_cen #(.clk_speed(clk_speed)) u_cen(
+jtgng_cen #(.CLK_SPEED(clk_speed)) u_cen(
     .clk    ( clk    ),
     .cen12  ( cen12  ),
     .cen6   ( cen6   ),

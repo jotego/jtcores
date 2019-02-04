@@ -61,13 +61,23 @@ jtgng_vgapxl u_pxl1( // pixel doubler
     .rgb_out( dbl1_rgb  )
 );
 
+function [4:0] avg; // Average of two 5-bit numbers
+    input [4:0] a;
+    input [4:0] b;
+    reg [5:0] sum;
+    begin
+        sum = { 1'b0, a } + {1'b0,b};
+        avg = sum[5:1];
+    end
+endfunction
+
 always @(posedge clk_vga) begin
     if( !scanline || !en_mixing)
         {vga_red, vga_green,vga_blue} <= !rd_sel ? dbl1_rgb : dbl0_rgb;
     else begin // mix the two lines
-        vga_red  <= ({1'b0,dbl1_rgb[14:10]} + {1'b0,dbl0_rgb[14:10]})>>1;
-        vga_green<= ({1'b0,dbl1_rgb[ 9:5 ]} + {1'b0,dbl0_rgb[ 9:5 ]})>>1;
-        vga_blue <= ({1'b0,dbl1_rgb[ 4:0 ]} + {1'b0,dbl0_rgb[ 4:0 ]})>>1;
+        vga_red  <= avg( dbl1_rgb[14:10], dbl0_rgb[14:10]);
+        vga_green<= avg( dbl1_rgb[ 9:5 ], dbl0_rgb[ 9:5 ]);
+        vga_blue <= avg( dbl1_rgb[ 4:0 ], dbl0_rgb[ 4:0 ]);
     end
 end
 

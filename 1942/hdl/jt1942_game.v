@@ -90,6 +90,8 @@ wire rom_ready;
 reg rst_game=1'b1;
 reg rst_aux;
 
+assign sample=1'b1;
+
 always @(posedge clk)
     if( rst || !rom_ready ) begin
         {rst_game,rst_aux} <= 2'b11;
@@ -196,8 +198,7 @@ jt1942_sound u_sound (
     .snd_int        ( snd_int        ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
-    .snd            ( snd            ),
-    .sample         ( sample         ) 
+    .snd            ( snd            ) 
 );
 `else 
 assign snd_addr = 15'd0;

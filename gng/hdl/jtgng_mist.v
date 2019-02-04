@@ -151,7 +151,7 @@ always @(posedge clk_rgb) // if(cen6)
 
 wire cen12, cen6, cen3, cen1p5;
 
-jtgng_cen #(.clk_speed(12)) u_cen(
+jtgng_cen #(.CLK_SPEED(12)) u_cen(
     .clk    ( clk_rgb   ),    // 12 MHz
 	.cen12  ( cen12     ),
     .cen6   ( cen6      ),

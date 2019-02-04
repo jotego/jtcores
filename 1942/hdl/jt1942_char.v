@@ -43,11 +43,11 @@ module jt1942_char(
     input      [15:0] char_data
 );
 
-parameter Hoffset=8'd5;
+parameter HOFFSET=8'd5;
 reg [5:0] char_pal;
 reg [1:0] char_col;
 
-wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
+wire [7:0] Hfix = H128 + HOFFSET; // Corrects pixel output offset
 
 wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
@@ -96,9 +96,6 @@ assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
 
 always @(posedge clk) if(cen3)
     latch_wait_n <= !( char_cs && sel_scan );
-
-reg [7:0] addr_lsb;
-reg half_addr;
 
 // Draw pixel on screen
 reg [15:0] chd;

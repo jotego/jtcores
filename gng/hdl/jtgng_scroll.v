@@ -19,6 +19,7 @@
 module jtgng_scroll(
     input              clk,     // 24 MHz
     input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
+    input              cen3,
     input       [10:0] AB,
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
@@ -110,7 +111,11 @@ jtgng_ram #(.aw(10)) u_ram_high(
     .q      ( dout_high)
 );
 
-assign MRDY_b = !( scr_cs && sel_scan ); // halt CPU
+reg latch_wait_n = 1'b1;
+assign MRDY_b = !( scr_cs && sel_scan ) && latch_wait_n; // halt CPU
+
+always @(posedge clk) if(cen3)
+    latch_wait_n <= !( scr_cs && sel_scan );
 
 reg scr_hflip;
 reg [7:0] addr_lsb;

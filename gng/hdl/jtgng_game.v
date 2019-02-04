@@ -204,6 +204,7 @@ jtgng_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),

@@ -72,10 +72,10 @@ module jt1942_video(
 wire [3:0] char_pxl, obj_pxl;
 wire [5:0] scr_pxl;
 
-localparam scrchr_off = 4;
+localparam scrchr_off = 8'd4;
 
 `ifndef NOCHAR
-jt1942_char #(.Hoffset(scrchr_off)) u_char (
+jt1942_char #(.HOFFSET(scrchr_off)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -103,7 +103,7 @@ assign char_wait_n = 1'b1;
 `endif
 
 `ifndef NOSCR
-jt1942_scroll #(.Hoffset(scrchr_off)) u_scroll (
+jt1942_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .cen3         ( cen3          ),

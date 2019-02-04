@@ -52,9 +52,9 @@ module jt1942_scroll(
 reg [2:0] scr_col0;
 reg [4:0] scr_pal0;
 
-parameter Hoffset=9'd5;
+parameter HOFFSET=9'd5;
 
-wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
+wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS;
 wire [ 7:0] VF = {8{flip}}^V128;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];

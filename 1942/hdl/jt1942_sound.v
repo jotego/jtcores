@@ -35,8 +35,7 @@ module jt1942_sound(
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
     // Sound output
-    output reg [ 8:0]  snd,
-    output  sample
+    output reg [ 8:0]  snd
 );
 
 // posedge of snd_int

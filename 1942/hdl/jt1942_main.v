@@ -70,7 +70,6 @@ reg t80_rst_n;
 reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
 
 wire mreq_n;
-reg bank_access;
 
 always @(*) begin
     main_cs       = 1'b0;
@@ -84,11 +83,10 @@ always @(*) begin
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
     brt_cs        = 1'b0;
-    obj_cs        = 1'b0;
-    bank_access   = 1'b0; // Only of interest for simulation
+    obj_cs        = 1'b0;    
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
-        3'b10?: begin main_cs = 1'b1; bank_access = 1'b1; end // bank
+        3'b10?: main_cs = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // COCS
