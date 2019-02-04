@@ -242,18 +242,21 @@ jtgng_sdram u_sdram(
 
 // more resolution for sound when screen is filtered too
 // not really important...
-wire clk_dac = status[2] ? clk_rom : clk_rgb;
-assign AUDIO_R = AUDIO_L;
 
+assign AUDIO_R = AUDIO_L;
+`ifndef NOSOUND
 // jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 //jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
 hybrid_pwm_sd u_dac
 (
-    .clk    ( clk_dac   ),
+    .clk    ( clk_rom   ),
     .n_reset( ~rst      ),
     .din    ( {~ym_snd[15], ym_snd[14:0]}    ),
     .dout   ( AUDIO_L   )
 );
+`else 
+assign AUDIO_L=1'b0;
+`endif
 
 wire [5:0] GNG_R, GNG_G, GNG_B;
 

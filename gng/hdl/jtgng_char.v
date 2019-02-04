@@ -68,11 +68,11 @@ jtgng_ram #(.aw(10)) u_ram_high(
     .q      ( dout_high)
 );
 
-reg latch_wait_n = 1'b1;
+reg sel_scan_last;
+assign MRDY_b = !( char_cs && sel_scan ); // halt CPU
 
-assign MRDY_b = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
-always @(posedge clk) if(cen3)
-    latch_wait_n <= !( char_cs && sel_scan );
+always @(posedge clk) if(cen6)
+    sel_scan_last <= sel_scan;
 
 reg [7:0] addr_lsb;
 reg char_hflip;

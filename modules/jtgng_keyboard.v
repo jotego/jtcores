@@ -39,6 +39,11 @@ wire error;
 reg key_released;
 reg key_extended;
 
+/* Left e06b, right e074, up e075, down e072,
+   CTRL 14, space 29, alt 11, "1" 16, "2" 1e
+   "5" 2e, "F3" 4, P 4d, W 1d, a 1c, s 1b, d 23
+   z 1a, x 22, c 21 */
+
 always @(posedge clk) begin
     if(reset) begin
         keys <= 8'h00;

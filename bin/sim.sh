@@ -28,6 +28,17 @@ ARGNUMBER=1
 
 rm -f test2.bin
 
+function add_dir {
+    for i in $(cat $1/$2); do
+        fn="$1/$i"
+        if [ ! -e "$fn" ]; then
+            (>&2 echo "Cannot find file $fn")
+            exit 1
+        fi
+        echo $fn
+    done
+}
+
 function find_core_name {
     while [ $# -gt 0 ]; do
         if [ "$1" = "-sysname" ]; then
@@ -39,12 +50,15 @@ function find_core_name {
 
 # Which core is this for?
 SYSNAME=$(find_core_name $*)
+PERCORE=
 
-if [ "$SYSNAME" = "" ]; then
-    echo "ERROR: Needs system name. Use -sysname"
-    exit 1
-fi
-
+case "$SYSNAME" in
+    "")
+        echo "ERROR: Needs system name. Use -sysname"
+        exit 1;;
+    gng)  PERCORE=$(add_dir ../../../modules/jt12/hdl jt03.f);;
+    1942) PERCORE=$(add_dir ../../../modules/jt12/jt49/hdl jt49.f);;
+esac
 # switch to NCVerilog if available
 if which ncverilog; then
     SIMULATOR=ncverilog        
@@ -160,12 +174,6 @@ done
 
 if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 
-function add_dir {
-    for i in $(cat $1/$2); do
-        echo $1/$i
-    done
-}
-
 # HEX files with initial contents for some of the RAMs
 function clear_hex_file {
     cnt=0
@@ -179,9 +187,10 @@ function clear_hex_file {
 clear_hex_file obj_buf  128
 
 case $SIMULATOR in
-iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
-        -f game.f $(add_dir ../../../modules/jt12/jt49/hdl jt49.f )\
-        -f ../../../modules/ver/sim.f \
+iverilog)   
+    iverilog -g2005-sv $MIST ${TOP}.v \
+        -f game.f $PERCORE \
+        $(add_dir ../../../modules/ver sim.f ) \
         ../../../modules/tv80/*.v  \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
@@ -189,7 +198,7 @@ iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
     && sim -lxt;;
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
-        -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f \
+        -f game.f $PERCORE \
         -F ../../../modules/ver/sim.f $MIST \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
@@ -199,7 +208,7 @@ ncverilog)
         $MIST;;
 verilator)
     verilator -I../../hdl \
-        -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f\
+        -f game.f $PERCORE \
         ../../../modules/tv80/*.v \
         ../../../modules/ver/quick_sdram.v \
         --top-module jt1942_game -o sim \

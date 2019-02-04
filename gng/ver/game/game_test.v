@@ -79,7 +79,7 @@ wire [21:0]  sdram_addr;
 wire [15:0]  data_read;
 
 
-test_harness u_harness(
+test_harness #(.GAME_ROMNAME("../../../rom/JTGNG.rom")) u_harness(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen12       ( cen12         ),

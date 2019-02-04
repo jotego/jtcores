@@ -34,8 +34,7 @@ module test_harness(
     inout        SDRAM_CKE
 );
 
-parameter sdram_instance = 1;
-
+parameter sdram_instance = 1, GAME_ROMNAME="_PASS ROM NAME to test_harness_";
 
 `ifdef MAXFRAME
 reg frame_done=1'b1, max_frames_done=1'b0;
@@ -160,7 +159,7 @@ quick_sdram mist_sdram(
     .SDRAM_nWE  ( SDRAM_nWE     )
 );
 `else
-mt48lc16m16a2 #(.filename("../../../rom/JT1942.rom")) mist_sdram (
+mt48lc16m16a2 #(.filename(GAME_ROMNAME)) mist_sdram (
     .Dq         ( SDRAM_DQ      ),
     .Addr       ( SDRAM_A       ),
     .Ba         ( SDRAM_BA      ),

@@ -45,7 +45,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     parameter data_bits =      16;
     parameter col_bits  =       9;
     parameter mem_sizes = 4194303;
-    parameter filename  = "../../../rom/JTGNG.rom";
+    parameter filename  = "_No default ROM filename_";
     parameter test2_offset = 32'ha000;
 
     inout     [data_bits - 1 : 0] Dq;

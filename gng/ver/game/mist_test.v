@@ -79,7 +79,8 @@ wire [ 1:0] SDRAM_BA;
 wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS, 
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
-test_harness #(.sdram_instance(0)) u_harness(
+test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JTGNG.rom")) 
+u_harness(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .clk27       ( clk27         ),
