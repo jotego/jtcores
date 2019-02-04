@@ -1,7 +1,7 @@
 module spitx(
     input   rst,
     input   SPI_DO,
-    input   SPI_SCK,
+    output  SPI_SCK,
     output  reg SPI_DI,
     output  reg SPI_SS2,
     output  SPI_SS3,

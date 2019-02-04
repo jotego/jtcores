@@ -54,6 +54,7 @@ wire clk_rgb; // 36
 wire clk_vga; // 25
 wire locked;
 
+wire downloading;
 assign LED = ~downloading;
 
 parameter CONF_STR = {
@@ -73,7 +74,6 @@ parameter CONF_STR_LEN = 7+20+23+15+15+24+9+30;
 
 reg rst = 1'b1;
 
-wire downloading;
 // wire [4:0] index;
 wire clk_rom;
 wire [24:0] romload_addr;
@@ -128,7 +128,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
 
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rgb     ), // 24
+    .c1     ( clk_rgb     ), // 12
     .c2     ( clk_rom     ), // 96
     .c3     (    ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
@@ -151,9 +151,9 @@ always @(posedge clk_rgb) // if(cen6)
 
 wire cen12, cen6, cen3, cen1p5;
 
-jtgng_cen u_cen(
-    .clk    ( clk_rgb   ),    // 24 MHz
-	 .cen12  ( cen12     ),
+jtgng_cen #(.clk_speed(12)) u_cen(
+    .clk    ( clk_rgb   ),    // 12 MHz
+	.cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -176,7 +176,7 @@ jtgng_game game(
     .rst         ( rst           ),
     .soft_rst    ( status[6]     ),
     .clk         ( clk_rgb       ),  //  6   MHz
-	 .cen12       ( cen12         ),
+	.cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
     .cen1p5      ( cen1p5        ),
@@ -218,7 +218,7 @@ jtgng_game game(
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
-    .clk_slow       ( clk_rgb       ),
+    .clk_slow       ( clk_rgb & cen12 ),
     .loop_rst       ( loop_rst      ),  
     .autorefresh    ( autorefresh   ),
     .data_read      ( data_read     ),
@@ -265,7 +265,7 @@ assign GNG_B[0] = GNG_B[5];
 wire vga_hsync, vga_vsync;
 
 jtgng_vga vga_conv (
-    .clk_rgb    ( clk_rgb       ), // 24 MHz
+    .clk_rgb    ( clk_rgb       ), 
     .cen6       ( cen6          ), //  6 MHz
     .clk_vga    ( clk_vga       ), // 25 MHz
     .rst        ( rst           ),

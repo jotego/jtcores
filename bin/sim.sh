@@ -28,8 +28,32 @@ ARGNUMBER=1
 
 rm -f test2.bin
 
+function find_core_name {
+    while [ $# -gt 0 ]; do
+        if [ "$1" = "-sysname" ]; then
+            echo $2
+        fi
+        shift
+    done    
+}
+
+# Which core is this for?
+SYSNAME=$(find_core_name $*)
+
+if [ "$SYSNAME" = "" ]; then
+    echo "ERROR: Needs system name. Use -sysname"
+    exit 1
+fi
+
+# switch to NCVerilog if available
+if which ncverilog; then
+    SIMULATOR=ncverilog        
+    MACROPREFIX="+define+"
+fi
+
 while [ $# -gt 0 ]; do
 case "$1" in
+    "-sysname") shift;; # ignore here
     "-w" | "-deep")
         DUMP=${MACROPREFIX}DUMP
         echo Signal dump enabled
@@ -46,7 +70,7 @@ case "$1" in
         ;;
     "-mist")
         TOP=mist_test
-        MIST="-f mist.f"
+        MIST="-F ../../../modules/mist/mist.f ../../hdl/jt${SYSNAME}_mist.v"
         ;;
     "-nosnd")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOSOUND";;
@@ -166,7 +190,7 @@ iverilog)   iverilog -g2005-sv $MIST ${TOP}.v \
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
         -f game.f -F ../../../modules/jt12/jt49/hdl/jt49.f \
-        -F ../../../modules/ver/sim.f \
+        -F ../../../modules/ver/sim.f $MIST \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME \

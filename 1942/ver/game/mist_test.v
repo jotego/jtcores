@@ -56,63 +56,55 @@ module mist_test;
     end
 `endif
 
-`ifdef MAXFRAME
-reg frame_done=1'b1, max_frames_done=1'b0;
-`else 
-reg frame_done=1'b1, max_frames_done=1'b1;
-`endif
-
-reg can_finish=1'b0;
-wire spi_done;
-integer fincnt;
-
-initial begin
-    for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
-        #(1000*1000); 
-        $display("%d ms",fincnt+1);
-    end
-    can_finish = 1'b1;
-end
-
-reg rst, clk27;
-
-always @(posedge clk27)
-    if( spi_done && frame_done && can_finish && max_frames_done ) begin
-        $finish;
-    end
-
-initial begin
-    clk27 = 1'b0;
-    forever clk27 = #(37.037/2) ~clk27; // 27 MHz
-end
-
-reg rst_base;
-
-initial begin
-    rst_base = 1'b0;
-    #500 rst_base = 1'b1;
-    #2500 rst_base=1'b0;
-end
-
-integer rst_cnt;
-
-always @(negedge clk27 or posedge rst_base)
-    if( rst_base ) begin
-        rst <= 1'b1; 
-        rst_cnt <= 2;
-    end else begin
-        if(rst_cnt) rst_cnt<=rst_cnt-1;
-        else rst<=rst_base;
-    end
+wire            downloading;
+wire    [24:0]  romload_addr;
+wire    [15:0]  romload_data;
+wire cen12, cen6, cen3, cen1p5, clk, clk27, rst;
+wire [21:0]  sdram_addr;
+wire [15:0]  data_read;
+wire SPI_SCK, SPI_DO, SPI_DI, CONF_DATA0;
 
 wire [15:0] SDRAM_DQ;
 wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
-wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS, SDRAM_CKE;
+wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS, 
+     SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
+
+test_harness #(.sdram_instance(0)) u_harness(
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .clk27       ( clk27         ),
+    .cen12       ( cen12         ),
+    .cen6        ( cen6          ),
+    .cen3        ( cen3          ),
+    .cen1p5      ( cen1p5        ),
+    .downloading ( downloading   ),
+//    .loop_rst    ( loop_rst      ),
+//    .autorefresh ( autorefresh   ),
+//    .sdram_addr  ( sdram_addr    ),
+//    .data_read   ( data_read     ),
+    .romload_addr( romload_addr  ),
+    .romload_data( romload_data  ),
+    .SPI_SCK     ( SPI_SCK       ),
+    .SPI_DI      ( SPI_DI        ),
+    .SPI_DO      ( SPI_DO        ),
+    .CONF_DATA0  ( CONF_DATA0    ),
+    // SDRAM
+    .SDRAM_DQ    ( SDRAM_DQ  ),
+    .SDRAM_A     ( SDRAM_A   ),
+    .SDRAM_DQML  ( SDRAM_DQML),
+    .SDRAM_DQMH  ( SDRAM_DQMH),
+    .SDRAM_nWE   ( SDRAM_nWE ),
+    .SDRAM_nCAS  ( SDRAM_nCAS),
+    .SDRAM_nRAS  ( SDRAM_nRAS),
+    .SDRAM_nCS   ( SDRAM_nCS ),
+    .SDRAM_BA    ( SDRAM_BA  ),
+    .SDRAM_CLK   ( SDRAM_CLK ),
+    .SDRAM_CKE   ( SDRAM_CKE )    
+);
+
 wire [5:0] VGA_R, VGA_G, VGA_B;
 wire VGA_HS, VGA_VS;
-
-wire SPI_DO, SPI_DI, SPI_SCK, SPI_SS2, SPI_SS3, SPI_SS4, CONF_DATA0;
 
 jt1942_mist UUT(
     .CLOCK_27   ( { 1'b0, clk27 }),
@@ -137,9 +129,9 @@ jt1942_mist UUT(
     .SPI_DO     ( SPI_DO    ),
     .SPI_DI     ( SPI_DI    ),
     .SPI_SCK    ( SPI_SCK   ),
-    .SPI_SS2    ( SPI_SS2   ),
-    .SPI_SS3    ( SPI_SS3   ),
-    .SPI_SS4    ( SPI_SS4   ),
+    .SPI_SS2    ( 1'b0      ),
+    .SPI_SS3    ( 1'b0      ),
+    .SPI_SS4    ( 1'b0      ),
     .CONF_DATA0 ( CONF_DATA0),
     // sound
     .AUDIO_L    ( AUDIO_L   ),
@@ -148,45 +140,5 @@ jt1942_mist UUT(
     .LED()
 );
 
-`ifdef FASTSDRAM
-quick_sdram mist_sdram(
-    .SDRAM_DQ   ( SDRAM_DQ      ),
-    .SDRAM_A    ( SDRAM_A       ),
-    .SDRAM_CLK  ( SDRAM_CLK     ),
-    .SDRAM_nCS  ( SDRAM_nCS     ),
-    .SDRAM_nRAS ( SDRAM_nRAS    ),
-    .SDRAM_nCAS ( SDRAM_nCAS    ),
-    .SDRAM_nWE  ( SDRAM_nWE     )
-);
-`else
-mt48lc16m16a2 #(.filename("../../../rom/JT1942.rom")) mist_sdram (
-    .Dq         ( SDRAM_DQ      ),
-    .Addr       ( SDRAM_A       ),
-    .Ba         ( SDRAM_BA      ),
-    .Clk        ( SDRAM_CLK     ),
-    .Cke        ( SDRAM_CKE     ),
-    .Cs_n       ( SDRAM_nCS     ),
-    .Ras_n      ( SDRAM_nRAS    ),
-    .Cas_n      ( SDRAM_nCAS    ),
-    .We_n       ( SDRAM_nWE     ),
-    .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
-);
-`endif
-
-`ifdef LOADROM
-spitx u_spitx(
-    .rst        ( rst        ),
-    .SPI_DO     ( SPI_DO     ),
-    .SPI_SCK    ( SPI_SCK    ),
-    .SPI_DI     ( SPI_DI     ),
-    .SPI_SS2    ( SPI_SS2    ),
-    .SPI_SS3    ( SPI_SS3    ),
-    .SPI_SS4    ( SPI_SS4    ),
-    .CONF_DATA0 ( CONF_DATA0 ),
-    .spi_done   ( spi_done   )
-);
-`else 
-assign spi_done = 1'b1;
-`endif
 
 endmodule // jt_gng_a_test

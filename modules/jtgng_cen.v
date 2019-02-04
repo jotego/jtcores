@@ -24,7 +24,7 @@ module jtgng_cen(
     output  reg cen1p5
 );
 
-parameter clk_speed = 24;
+parameter clk_speed = 12;
 reg [3:0] cencnt=4'd0;
 
 always @(posedge clk)
