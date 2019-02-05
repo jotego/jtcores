@@ -100,14 +100,16 @@ always @(posedge clk)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
-wire LHBL_obj;
+wire LHBL_obj, Hsub;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .clk_en    ( cen6     ),
+    .cen12     ( cen12    ),
+    .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
+    .Hsub      ( Hsub     ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
@@ -268,6 +270,7 @@ jtgng_rom #(
     .clk         ( clk           ),
     .cen12       ( cen12         ),
     .H           ( H[2:0]        ),
+    .Hsub        ( Hsub          ),
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),

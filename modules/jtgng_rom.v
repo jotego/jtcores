@@ -21,6 +21,7 @@ module jtgng_rom(
     input               clk, 
     input               cen12, // 12 MHz
     input       [ 2:0]  H,
+    input               Hsub,
     input       [12:0]  char_addr,
     input       [16:0]  main_addr,
     input       [14:0]  snd_addr,
@@ -41,7 +42,7 @@ module jtgng_rom(
     input       [15:0]  data_read
 );
 
-reg [3:0] rd_state;
+wire [3:0] rd_state = { H, Hsub } +4'd1;
 
 // H is used to align with the pixel transfers
 // the SDRAM-read state machine will start at roughly pixel 0 (of each 8-pixel tuple)
@@ -79,7 +80,7 @@ always @(posedge clk)
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
-    rd_state    <= { H,1'b1 };
+    //rd_state    <= { H,1'b1 };
     autorefresh <= 1'b0;
     sdram_addr <= {(addr_w+col_w){1'b0}};
     snd_dout  <=  8'd0;
@@ -90,7 +91,7 @@ if( loop_rst || downloading ) begin
     pre_ready <= 1'b0;
 end else if(cen12) begin
     pre_ready <= 1'b1;
-    rd_state <= rd_state + 4'd1;
+    //rd_state <= rd_state + 4'd1;
     // Get data from current read
     casez(rd_state_last) // I hope the -4'd1 gets re-encoded in the
         // case list, rather than getting implemented as an actual adder
