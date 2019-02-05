@@ -169,7 +169,6 @@ set_global_assignment -name VHDL_FILE ../../modules/t80/T80_ALU.vhd
 set_global_assignment -name VHDL_FILE ../../modules/t80/T80.vhd
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809_cen.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_rom.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_video.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809i.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_cen.v
@@ -177,6 +176,7 @@ set_global_assignment -name VERILOG_FILE ../../modules/jtgng_ram.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_true_dual_ram.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_dual_ram.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_dual_clk_ram.v
+set_global_assignment -name VERILOG_FILE ../../modules/jtgng_rom.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_sdram.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_sh.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_vga.v
@@ -200,7 +200,6 @@ set_global_assignment -name VERILOG_FILE ../hdl/jtgng_pll0.v
 set_global_assignment -name QIP_FILE ../hdl/jtgng_pll0.qip
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_mist.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_main.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_m9k.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_game.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_colmix.v
 set_global_assignment -name VERILOG_FILE ../hdl/jtgng_char.v

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 23-12-2018 */
 
-module jtgng_dual_ram #(parameter dw=8, aw=10, simfile="ram.hex")(
+module jtgng_dual_ram #(parameter dw=8, aw=10, simfile="")(
     input   clk,
     input   clk_en /* synthesis direct_enable = 1 */,
     input   [dw-1:0] data,
@@ -29,7 +29,17 @@ module jtgng_dual_ram #(parameter dw=8, aw=10, simfile="ram.hex")(
 reg [dw-1:0] mem[0:(2**aw)-1];
 
 `ifdef SIMULATION
-initial $readmemh(simfile, mem );
+integer f, readcnt; 
+initial 
+if( simfile != "" ) begin
+    f=$fopen(simfile,"rb");
+    readcnt=$fread( mem, f );
+    $fclose(f);
+    end
+else begin
+    for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )
+        mem[readcnt] = {dw{1'b0}};
+    end
 `endif
 
 always @(posedge clk) begin
