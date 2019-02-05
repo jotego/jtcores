@@ -17,11 +17,13 @@
     Date: 27-10-2017 */
 
 module jtgng_timer(
-    input               clk,    // 24MHz
-    input               clk_en, // 6 MHz
+    input               clk,
+    input               cen12,  // 12 MHz
+    input               cen6,   //  6 MHz
     input               rst,
     output  reg [8:0]   V,
     output  reg [8:0]   H,
+    output  reg         Hsub,
     output  reg         Hinit,
     output  reg         Vinit,
     output  reg         LHBL,
@@ -38,23 +40,34 @@ parameter obj_offset=10'd3;
 //reg G4H;    // high on 4H transition
 //reg OH;     // high on 0H transition
  
-// H/V counters
+// H counter
 always @(posedge clk) begin
     if( rst ) begin
         { Hinit, H } <= 10'd0;
-        V     <= 9'd250;
-        Vinit <= 1'b1;
-    end else if(clk_en) begin
+        Hsub <= 1'b0;
+    end else if(cen12) begin
         Hinit <= H == 9'h86;
-        if( H == 9'd511 ) begin
+        Hsub  <= ~Hsub;
+        if( {H,Hsub} == {9'd511,1'b1} ) begin
             //Hinit <= 1'b1;
             H <= 9'd128;
-            Vinit <= &V;
-            V <= &V ? 9'd250 : V + 1'd1;
         end
         else begin
             //Hinit <= 1'b0;
-            H <= H + 1'b1;
+            H <= H + Hsub;
+        end
+    end
+end
+
+// V Counter
+always @(posedge clk) begin
+    if( rst ) begin
+        V     <= 9'd250;
+        Vinit <= 1'b1;
+    end else if(cen6) begin
+        if( H == 9'd511 ) begin
+            Vinit <= &V;
+            V <= &V ? 9'd250 : V + 1'd1;
         end
     end
 end
@@ -65,14 +78,14 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // L Horizontal/Vertical Blanking
 always @(posedge clk) 
     if( rst ) LVBL <= 1'b0;
-    else if(clk_en) begin
-        if( H==LHBL_obj1 ) LHBL_obj<=1'b1;
-        if( H==LHBL_obj0 ) LHBL_obj<=1'b0;
+    else if(cen6) begin
+        if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
+        if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
         if( &H[2:0] ) begin
             LHBL <= H[8];
         // LHBL <= H>=256;
             if( V==9'd496 ) LVBL <= 1'b0;
-            if( V==9'd271 ) LVBL <= 1'b1;
+            if( V==9'd272 ) LVBL <= 1'b1;
 
             if( V==9'd507 ) VS <= 1;
             if( V==9'd510 ) VS <= 0;

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_ram #(parameter dw=8, aw=10, simfile="")(
+module jtgng_ram #(parameter dw=8, aw=10, simfile="", synfile="")(
     input   clk,
     input   cen  /* synthesis direct_enable = 1 */,
     input   [dw-1:0] data,
@@ -32,13 +32,20 @@ integer f, readcnt;
 initial 
 if( simfile != "" ) begin
     f=$fopen(simfile,"rb");
-    readcnt=$fread( mem, f );
-    $fclose(f);
+    if( f != 0 ) begin    
+        readcnt=$fread( mem, f );
+        $fclose(f);
+    end else begin
+        $display("WARNING: Cannot open file", simfile);
+    end
     end
 else begin
     for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )
         mem[readcnt] = {dw{1'b0}};
     end
+`else 
+// file for synthesis:
+initial if(synfile!="" )$readmemh(synfile,mem);
 `endif
 
 always @(posedge clk) begin

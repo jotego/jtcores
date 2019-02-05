@@ -45,6 +45,8 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     parameter data_bits =      16;
     parameter col_bits  =       9;
     parameter mem_sizes = 4194303;
+    parameter filename  = "_No default ROM filename_";
+    parameter test2_offset = 32'ha000;
 
     inout     [data_bits - 1 : 0] Dq;
     input     [addr_bits - 1 : 0] Addr;
@@ -64,30 +66,37 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
     integer file, romfilecnt;
 
+    `ifndef LOADROM
     initial begin
-        `ifdef BLOCKID
-        Bank0[{4'd0, 4'd0, 12'd0}] = 16'h0; // Main ROM
-        Bank0[{4'd3, 4'd0, 12'd0}] = 16'h3; // sound ROM
-        Bank0[{4'd4, 4'd0, 12'd0}] = 16'h4; // char ROM
-        Bank0[{4'd5, 4'd0, 12'd0}] = 16'h5; // obj ROM
-        Bank0[{4'd6, 4'd0, 12'd0}] = 16'h6; // scr0 ROM
-        Bank0[{4'd7, 4'd0, 12'd0}] = 16'h7; // scr1 ROM
-        `else
-        	`ifndef LOADROM
-                $display("JTGNG.rom read into SDRAM");
-                file=$fopen("../../../rom/JTGNG.rom","rb");
-                romfilecnt=$fread( Bank0, file );
-                $fclose(file);
-                // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
-                `ifdef GNGTEST
-                $display("gng_test.bin read into first 32kB of SDRAM");
-                file=$fopen("gng_test.bin", "rb");
-                romfilecnt=$fread( Bank0, file, 0, 32*1024-1 );
-                $fclose(file);
-                `endif
-        	`endif
+        file=$fopen(filename,"rb");
+        if( file != 0 ) begin
+            romfilecnt=$fread( Bank0, file );
+            if( romfilecnt==0 ) begin
+                $display("ERROR: ROM file %s was empty", filename);
+                $finish;
+            end
+            $display("%s read into SDRAM",filename);
+            $fclose(file);
+        end else begin
+            $display("ERROR: Cannot open file", filename);
+        end
+        // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
+        `ifdef TESTROM
+        $display("test.bin read into first bytes of SDRAM");
+        file=$fopen("test.bin", "rb");
+        romfilecnt=$fread( Bank0, file );
+        $display("Read %d bytes of test code", romfilecnt);
+        $fclose(file);
+        // Try to open test2.bin too
+        file=$fopen("test2.bin", "rb");
+        if( file != 0 ) begin
+            romfilecnt=$fread( Bank0, file, test2_offset );
+            $display("Read %d bytes of test code for second CPU", romfilecnt);
+            $fclose(file);
+        end        
         `endif
     end
+    `endif
 
     reg                   [1 : 0] Bank_addr [0 : 3];                // Bank Address Pipeline
     reg        [col_bits - 1 : 0] Col_addr [0 : 3];                 // Column Address Pipeline
@@ -149,7 +158,9 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     wire      Debug            = 1'b0;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
     
-    assign    Dq               = Dq_reg;                        // DQ buffer
+    // Added 10ns delay for MiST
+    localparam tMiST = 10;
+    assign  Dq               = Dq_reg;                        // DQ buffer
 
     // Commands Operation
     `define   ACT       0
@@ -1000,12 +1011,12 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
             // Display debug message
             if (Dqm_reg0 !== 2'b11) begin
-                Dq_reg = #tAC Dq_dqm;
+                Dq_reg = #(tAC+tMiST) Dq_dqm;
                 if (Debug) begin
                     $display("%m: at time %t READ : Bank = %d Row = %d, Col = %d, Data = 0x%X", $time, Bank, Row, Col, Dq_reg);
                 end
             end else begin
-                Dq_reg = #tHZ {data_bits{1'bz}};
+                Dq_reg = #(tHZ+tMiST) {data_bits{1'bz}};
                 if (Debug) begin
                     $display("%m: at time %t READ : Bank = %d Row = %d, Col = %d, Data = Hi-Z due to DQM", $time, Bank, Row, Col);
                 end

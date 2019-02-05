@@ -20,6 +20,7 @@ module jtgng_video(
     input               rst,    
     input               clk,
     input               cen6,
+    input               cen3,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
@@ -71,12 +72,13 @@ wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
 
-localparam scrchr_off = 5;
+localparam scrchr_off = 8'd5;
 
 `ifndef NOCHAR
 jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H128       ( H[7:0]        ),
@@ -99,6 +101,7 @@ assign char_mrdy = 1'b1;
 jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
     .H          ( H             ),

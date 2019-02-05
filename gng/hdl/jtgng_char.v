@@ -19,6 +19,7 @@
 module jtgng_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
+    input            cen3,
     input   [10:0]   AB,
     input   [ 7:0]   V128, // V128-V1
     input   [ 7:0]   H128, // Hfix-H1
@@ -67,7 +68,11 @@ jtgng_ram #(.aw(10)) u_ram_high(
     .q      ( dout_high)
 );
 
-assign MRDY_b = !( char_cs && sel_scan ); // hold CPU
+reg sel_scan_last;
+assign MRDY_b = !( char_cs && sel_scan ); // halt CPU
+
+always @(posedge clk) if(cen6)
+    sel_scan_last <= sel_scan;
 
 reg [7:0] addr_lsb;
 reg char_hflip;

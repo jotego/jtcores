@@ -10,6 +10,8 @@
 ../../hdl/jtgng_scroll.v
 ../../hdl/jtgng_sound.v
 ../../hdl/jtgng_video.v
+../../../modules/mc6809/mc6809.v
+../../../modules/mc6809/mc6809i.v
 ../../../modules/jtgng_vga.v
 ../../../modules/jtgng_vgapxl.v
 ../../../modules/jtgng_cen.v
@@ -17,10 +19,9 @@
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_ram.v
 ../../../modules/jtgng_rom.v
-../../../modules/jtgng_sdram.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
-../../../modules/data_io.v
+../../../modules/mist/data_io.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-`timescale 1ns/1ps
+// Ghosts'n Goblins: Main CPU
 
 module jtgng_main(
     input              clk, 
