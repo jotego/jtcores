@@ -113,7 +113,7 @@ wire [3:0] rom_at = 4'hc;
 
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};
-    if( pxlcnt == (rom_at+4'h1) ) begin // 
+    if( pxlcnt == (rom_at+4'h2) ) begin // 
         posx0     <= { next_hover, next_x };
         CD       <= next_CD;
         VINZONE2 <= VINZONE;

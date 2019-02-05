@@ -20,6 +20,7 @@ module jtgng_rom(
     input               rst,
     input               clk, 
     input               cen12, // 12 MHz
+    input       [ 2:0]  H,
     input       [12:0]  char_addr,
     input       [16:0]  main_addr,
     input       [14:0]  snd_addr,
@@ -74,9 +75,11 @@ always @(posedge clk)
 reg [3:0] rd_state_last;
 
 always @(posedge clk) 
+    rd_state_last <= rd_state;
+
+always @(posedge clk) 
 if( loop_rst || downloading ) begin
-    rd_state    <= 4'd0;
-    rd_state_last<= ~4'd0;
+    rd_state    <= { H,1'b1 };
     autorefresh <= 1'b0;
     sdram_addr <= {(addr_w+col_w){1'b0}};
     snd_dout  <=  8'd0;
@@ -88,7 +91,6 @@ if( loop_rst || downloading ) begin
 end else if(cen12) begin
     pre_ready <= 1'b1;
     rd_state <= rd_state + 4'd1;
-    rd_state_last <= rd_state;
     // Get data from current read
     casez(rd_state_last) // I hope the -4'd1 gets re-encoded in the
         // case list, rather than getting implemented as an actual adder

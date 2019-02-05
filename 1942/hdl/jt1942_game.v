@@ -264,9 +264,10 @@ jtgng_rom #(
     .scr2_offset(22'h04000),
     .obj_offset (22'h15000)
 ) u_rom (
+    .rst         ( rst           ),
     .clk         ( clk           ),
     .cen12       ( cen12         ),
-    .rst         ( rst           ),
+    .H           ( H[2:0]        ),
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
