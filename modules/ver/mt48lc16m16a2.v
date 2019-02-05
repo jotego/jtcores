@@ -78,7 +78,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             $display("%s read into SDRAM",filename);
             $fclose(file);
         end else begin
-            $display("ERROR: Cannot open file", filename);
+            $display("ERROR: Cannot open file %s", filename);
         end
         // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
         `ifdef TESTROM
