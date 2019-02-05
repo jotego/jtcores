@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 21-1-2019 */
 
-module jtgng_objdraw(
+module jt1942_objdraw(
     input              rst,
     input              clk,     // 
     input              cen6,    //  6 MHz

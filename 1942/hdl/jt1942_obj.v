@@ -102,7 +102,7 @@ wire [8:0] posx;
 wire [3:0] new_pxl;
 
 // draw the sprite
-jtgng_objdraw u_draw(
+jt1942_objdraw u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
