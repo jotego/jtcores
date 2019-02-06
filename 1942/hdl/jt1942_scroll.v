@@ -90,7 +90,7 @@ wire we_low  = we && !AB[4];
 wire we_high = we &&  AB[4];
 assign dout = AB[4] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(9)) u_ram_tile(
+jtgng_ram #(.aw(9),.simfile("zeros512.bin")) u_ram_tile(
     .clk    ( clk      ),
     .cen    ( cen3     ),
     .data   ( din      ),
@@ -99,7 +99,7 @@ jtgng_ram #(.aw(9)) u_ram_tile(
     .q      ( dout_low )
 );
 
-jtgng_ram #(.aw(9)) u_ram_att(
+jtgng_ram #(.aw(9),.simfile("zeros512.bin")) u_ram_att(
     .clk    ( clk      ),
     .cen    ( cen3     ),
     .data   ( din      ),

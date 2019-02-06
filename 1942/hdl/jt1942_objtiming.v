@@ -38,23 +38,22 @@ module jt1942_objtiming(
     input   [1:0]      prog_din    
 );
 
-
-// reg [6:0] scan_orig; // original PCB scan sequence
-// 
-// always @(*) begin
-//     scan_orig[6] = H[8] ^ ~H[7];
-//     scan_orig[5] = (scan_orig[6]&V[7]) ^ ~H[7];
-//     scan_orig[4:2] = H[6:4];
-//     scan_orig[1:0] = H[2:1];
-// end
-
+// for pixels within the object, I prefer to use my own
+// counter instead of following the original one
+// as this is very dependent on the memory technology
 always @(posedge clk) if(cen6) begin
     if( HINIT ) begin
         pxlcnt <= 4'd0;
-        objcnt <= 5'd0;
     end else begin
-        { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 9'd1;
+        pxlcnt <= pxlcnt+4'd1;
     end
+end
+
+// This is the original scan sequence, that counts objects
+always @(*) begin
+    objcnt[4] = H[8]^~H[7];
+    objcnt[3] = (V[7] & objcnt[4]) ^ ~H[7];
+    objcnt[2:0] = H[6:4];
 end
 
 always @(posedge clk) 

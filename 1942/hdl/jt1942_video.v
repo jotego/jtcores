@@ -100,6 +100,7 @@ jt1942_char #(.HOFFSET(scrchr_off)) u_char (
 );
 `else 
 assign char_wait_n = 1'b1;
+assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
@@ -135,6 +136,7 @@ assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
     // leave bit 14 to maintain the same ROM interface as with GnG
 `else 
 assign scr_wait_n = 1'b1;
+assign scr_pxl = ~6'h0;
 `endif
 
 `ifndef NOCOLMIX

@@ -9,6 +9,14 @@ function zero_file {
     done;
 }
 
+if [ ! -e zeros1k.bin ]; then
+    dd if=/dev/zero of=zeros1k.bin count=2
+fi
+
+if [ ! -e zeros512.bin ]; then
+    dd if=/dev/zero of=zeros512.bin count=1
+fi
+
 DUMP=
 CHR_DUMP=NOCHR_DUMP
 RAM_INFO=NORAM_INFO
@@ -23,7 +31,7 @@ FASTSIM=
 TOP=game_test
 MIST=
 MACROPREFIX=-D
-
+EXTRA=
 ARGNUMBER=1
 
 rm -f test2.bin
@@ -72,6 +80,10 @@ case "$1" in
         DUMP=${MACROPREFIX}DUMP
         echo Signal dump enabled
         if [ $1 = "-deep" ]; then DUMP="$DUMP ${MACROPREFIX}DEEPDUMP"; fi
+        ;;
+    "-d")
+        shift
+        EXTRA="$EXTRA ${MACROPREFIX}$1"
         ;;
     "-frames")
         shift
@@ -186,6 +198,10 @@ function clear_hex_file {
 
 clear_hex_file obj_buf  128
 
+if [ "$EXTRA" != "" ]; then
+    echo Verilog macros: "$EXTRA"
+fi
+
 case $SIMULATOR in
 iverilog)   
     iverilog -g2005-sv $MIST ${TOP}.v \
@@ -194,7 +210,7 @@ iverilog)
         ../../../modules/tv80/*.v  \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
-        $MAXFRAME -DIVERILOG \
+        $MAXFRAME -DIVERILOG $EXTRA \
     && sim -lxt;;
 ncverilog)
     ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
@@ -205,7 +221,7 @@ ncverilog)
         $MAXFRAME \
         -ncvhdl_args,-V93 ../../../modules/t80/T80{pa,_ALU,_Reg,_MCode,""}.vhd \
         ../../../modules/tv80/*.v \
-        $MIST;;
+        $MIST $EXTRA;;
 verilator)
     verilator -I../../hdl \
         -f game.f $PERCORE \
@@ -214,7 +230,7 @@ verilator)
         --top-module jt1942_game -o sim \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
         -DVERILATOR_LINT \
-        $MAXFRAME -DSIM_MS=$SIM_MS --lint-only;;
+        $MAXFRAME -DSIM_MS=$SIM_MS --lint-only $EXTRA;;
 esac
 
 # if [ $CHR_DUMP = CHR_DUMP ]; then

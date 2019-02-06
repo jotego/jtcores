@@ -44,7 +44,8 @@ module game_test;
             $shm_probe(game_test,"AS");
         `else        
             //$shm_probe(UUT.u_main,"A");
-            //$shm_probe(UUT.u_video.u_obj,"AS");
+            $shm_probe(UUT.u_video.u_obj,"AS");
+            $shm_probe(UUT.u_video.u_colmix,"AS");
             `ifndef NOSOUND
             $shm_probe(UUT.u_sound,"AS");
             `endif
@@ -149,7 +150,7 @@ jt1942_game UUT(
     // DIP switches
     // DIP switches
     .dipsw_a    ( 8'hff     ),
-    .dip_pause  ( 1'b0      ),
+    .dip_pause  ( 1'b1      ),
     .dip_level  ( 2'b11     ),
     .dip_test   ( 1'b1      ),
     .coin_cnt   ( coin_cnt  ),

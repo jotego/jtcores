@@ -1,5 +1,6 @@
-JT_GNG FPGA Clone of Ghosts'n Goblins by Jose Tejada (@topapate)
-================================================================
+JT_GNG FPGA Clone of early CAPCOM arcade games by Jose Tejada (@topapate)
+=========================================================================
+
 
 You can show your appreciation through
     * Patreon: https://patreon.com/topapate
@@ -10,6 +11,12 @@ Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First yo
 What you get with this is an extremely accurate (allegedly 100% accurate) clone of the original hardware. You will notice differences from MAME if you compare. Try resetting it and compare those screens for a start! Original hardware handled sound and graphics in a different way from the emulator. There were delays in CPU bus access and other details that will make the experience different from an emulator. Of course, no pause. Just like the real thing!
 
 I hope you will have as much fun with it as I had it while making it!
+
+Supported Games
+===============
+
+* 1942
+* Ghosts'n Goblins
 
 Project Structure
 =================
@@ -34,7 +41,7 @@ Directory Structure
 ===================
 original/hdl/        replica of original PCB schematics
 original/ver/        simulation files for original PCB
-modules     external files used
+modules     files shared by several games and external files
 doc         documents related to original PCB
 rom         script to convert from MAME rom files to the required format
             simulation files expect the rom files here
@@ -44,6 +51,8 @@ gng/hdl     Verilog files of the clone for MiST
 gng/doc     documents related to MiST clone or MiST hardware
 gng/quartus project to synthesize the clone
 gng/ver     simulation files of MiST clone
+
+1942        MiST board version of 1942 arcade game
 
 Clone Structure
 ===============
