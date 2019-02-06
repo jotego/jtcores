@@ -51,7 +51,7 @@ reg [1:0] vlen;
 reg VINcmp, VINlen, Vgt, Veq, Vlt;
 
 always @(posedge clk) if(cen6) begin
-    V2C = ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
+    if(pxlcnt[2:0]==3'b0 ) V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
 end
 
 // signal aliases
@@ -89,11 +89,11 @@ always @(posedge clk) if( cen6 ) begin
         pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
         case( next_vlen )
             2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
-            2'd1: pre_addr[9:6] <= { next_AD[3:1], VBETA[4] }; // 32 
-            2'd2: pre_addr[9:6] <= { next_AD[3:2], VBETA[5], VBETA[4] }; // 64
-            2'd3: pre_addr[9:6] <= VBETA[7:4];
+            2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32 
+            2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
+            2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
         endcase
-        pre_addr[4:1] <= VBETA[3:0];
+        pre_addr[4:1] <= ~LVBETA[3:0];
     end
 end
 

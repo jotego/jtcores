@@ -63,12 +63,13 @@ always @(posedge clk) begin
                 key_released <= 1'b0;
                 
                 case(byte)
-                    8'h29:  joy0[5] <= !key_released;   // Button 2
-                    8'h1b:  joy0[4] <= !key_released;   // Button 1
-                    8'h21:  joy0[3] <= !key_released;   // Up
-                    8'h21:  joy0[2] <= !key_released;   // Down
-                    8'h21:  joy0[1] <= !key_released;   // Left
-                    8'h21:  joy0[0] <= !key_released;   // Right
+                    8'h29: joy0[5] <= !key_released;   // Button 2
+                    8'h1b: joy0[4] <= !key_released;   // Button 1
+                    8'h21: joy0[3] <= !key_released;   // Up
+                    8'h21: joy0[2] <= !key_released;   // Down
+                    8'h21: joy0[1] <= !key_released;   // Left
+                    8'h21: joy0[0] <= !key_released;   // Right
+                    8'h04: rst_req <= 1'b1;
                 endcase
             end
         end
