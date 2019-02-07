@@ -148,12 +148,16 @@ jt1942_game UUT(
     .prom_m11_we ( prom_we[9]        ), 
 
     // DIP switches
-    // DIP switches
-    .dipsw_a    ( 8'hff     ),
     .dip_pause  ( 1'b1      ),
     .dip_level  ( 2'b11     ),
     .dip_test   ( 1'b1      ),
+    .dip_upright( 1'b0      ),
+    .dip_planes ( 2'b11     ),
+    .dip_price  ( 3'b111    ), // 1 credit, 1 coin
+    .dip_bonus  ( 2'b11     ),
     .coin_cnt   ( coin_cnt  ),
+
+
     // Sound output
     .snd            ( snd       ),
     .sample         ( snd_sample)

@@ -26,7 +26,7 @@ module jt1942_mist(
     output          VGA_HS,
     output          VGA_VS,
     // SDRAM interface
-    inout [15:0]    SDRAM_DQ,       // SDRAM Data bus 16 Bits
+    inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
     output          SDRAM_DQML,     // SDRAM Low-byte Data Mask
     output          SDRAM_DQMH,     // SDRAM High-byte Data Mask
@@ -61,17 +61,20 @@ wire coin_cnt;
 reg rst = 1'b1;
 assign LED = ~downloading || coin_cnt || rst;
 
-parameter CONF_STR = {
-    //   000000000111111111122222222223
-    //   123456789012345678901234567890
-        "JT1942;;",
+localparam CONF_STR = {
+    //   00000000011111111112222222222333333333344444444445
+    //   12345678901234567890123456789012345678901234567890
+        "JT1942;;", //8
         "O1,Pause,OFF,ON;", // 16
         "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
         "O4,Test mode,OFF,ON;", // 20
+        "O65,Lifes,5,2,1,3;", // 18
+        "O87,Bonus,30/100,30/80,20/100,20/80;", // 36
         "T9,RST ,OFF,ON;", // 15
-        "V,http://patreon.com/topapate;"
+        "V,http://patreon.com/topapate;" // 40
 };
-parameter CONF_STR_LEN = 8+16+42+20+15+30;
+
+localparam CONF_STR_LEN = 8+16+42+20+18+36+15+40;
 
 
 // wire [4:0] index;
@@ -79,7 +82,9 @@ wire clk_rom;
 wire [24:0] romload_addr;
 wire [15:0] romload_data;
 
-data_io datain (
+wire ps2_kbd_clk, ps2_kbd_data;
+
+data_io u_datain (
     .sck                ( SPI_SCK      ),
     .ss                 ( SPI_SS2      ),
     .sdi                ( SPI_DI       ),
@@ -90,11 +95,46 @@ data_io datain (
     .data_sdram         ( romload_data )
 );
 
+wire [5:0] key_joy1, key_joy2;
+wire [1:0] key_start, key_coin;
+wire key_reset, key_pause;
+
+`ifndef SIMULATION
+jtgng_keyboard u_keyboard( 
+    .clk    ( clk_rgb   ),
+    .rst    ( rst       ),
+
+    // ps2 interface    
+    .ps2_clk    ( ps2_kbd_clk  ),
+    .ps2_data   ( ps2_kbd_data ),
+    
+    // decodes keys
+    .key_joy1    ( key_joy1      ),
+    .key_joy2    ( key_joy2      ),
+    .key_start   ( key_start     ),
+    .key_coin    ( key_coin      ),
+    .key_reset   ( key_reset     ),
+    .key_pause   ( key_pause     )
+);
+`else 
+assign key_joy2  = 6'h0;
+assign key_joy1  = 6'h0;
+assign key_start = 2'd0;
+assign key_coin  = 2'd0;
+assign key_reset = 1'b0;
+assign key_pause = 1'b0;
+`endif
+
 wire [31:0] status, joystick1, joystick2; //, joystick;
-reg [7:0] joy1_sync, joy2_sync;
+reg [5:0] joy1_sync, joy2_sync;
+reg [1:0] start_button;
+reg [1:0] coin_input;
+
 always @(posedge clk_rgb) begin
-    joy1_sync <= ~joystick1[7:0];
-    joy2_sync <= ~joystick2[7:0];
+    joy1_sync <= ~joystick1[5:0] & ~key_joy1;
+    joy2_sync <= ~joystick2[5:0] & ~key_joy2;
+    coin_input   <= ~{joystick2[6],joystick1[6]} & ~key_coin;
+    start_button <= ~{joystick2[7],joystick2[7]} & ~key_start;
 end
 
 // assign joystick = joystick_0; // | joystick_1;
@@ -102,7 +142,7 @@ end
 wire ypbpr;
 wire scandoubler_disable;
 
-user_io #(.STRLEN(CONF_STR_LEN)) userio(
+user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
     .clk_sys        ( clk_rgb   ),
     .conf_str       ( CONF_STR  ),
     .SPI_CLK        ( SPI_SCK   ),
@@ -114,6 +154,9 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .status         ( status    ),
     .ypbpr          ( ypbpr     ),
     .scandoubler_disable ( scandoubler_disable ),
+    // keyboard
+    .ps2_kbd_clk    ( ps2_kbd_clk  ),
+    .ps2_kbd_data   ( ps2_kbd_data ),
     // unused ports:
     .serial_strobe  ( 1'b0      ),
     .serial_data    ( 8'd0      ),
@@ -211,6 +254,8 @@ jt1942_game u_game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
+    .start_button( start_button  ),
+    .coin_input  ( coin_input    ),
     .joystick1   ( joy1_sync     ),
     .joystick2   ( joy2_sync     ),
 
@@ -235,16 +280,14 @@ jt1942_game u_game(
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // DIP switches
-    .dipsw_a     ( 8'hff         ),
+    
     .dip_pause   ( ~status[1]    ),
     .dip_level   ( ~status[3:2]  ),
     .dip_test    ( ~status[4]    ),
-    //.dip_upright ( ~status[1]    ),
-    //.dip_other   ( ~status[3]    ),
-    //.dip_planes  ( 2'b0          ),
-    //.dip_price_a ( 3'b111        ),
-    //.dip_price_b ( 3'b110        ),
-    //.dip_bonus   ( 2'b0          ),
+    .dip_upright ( 1'b0          ),
+    .dip_planes  ( ~status[6:5]  ),
+    .dip_price   ( 3'b111        ), // 1 credit, 1 coin
+    .dip_bonus   ( ~status[8:7]  ),
     .coin_cnt    ( coin_cnt      ),
     // sound
     .snd         ( snd           ),
@@ -348,7 +391,7 @@ osd #(0,0,4) osd (
 );
 wire [5:0] Y, Pb, Pr;
 
-rgb2ypbpr rgb2ypbpr
+rgb2ypbpr u_rgb2ypbpr
 (
     .red   ( osd_r_o ),
     .green ( osd_g_o ),

@@ -32,8 +32,10 @@ module jt1942_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [ 7:0]  joystick1,
-    input   [ 7:0]  joystick2,  
+    input   [ 1:0]  start_button,
+    input   [ 1:0]  coin_input,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,  
 
     // SDRAM interface
     input           downloading,
@@ -56,19 +58,15 @@ module jt1942_game(
     input           prom_k3_we,
     input           prom_m11_we,
 
-    // DIP switches
-    input [7:0] dipsw_a,
-    // input   [1:0]   dip_planes,
+    // DIP Switch A
+    input   [1:0]   dip_planes,
+    input   [1:0]   dip_bonus,
+    input           dip_upright,
+    input   [2:0]   dip_price,
     // DIP Switch B
     input           dip_pause,   // DWB - bit 7
     input   [1:0]   dip_level, // difficulty level
     input           dip_test,
-    //input           dip_flip,
-    // input           dip_upright,
-    // input   [2:0]   dip_price_a,
-    // input   [2:0]   dip_price_b,
-    // input   [1:0]   dip_bonus,
-    // input           dip_other,
     output          coin_cnt,
     // Sound output
     output  [8:0]   snd,
@@ -128,9 +126,6 @@ wire scr_cs, obj_cs;
 wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
 
-//wire [7:0] dipsw_a = { dip_planes, dip_bonus, dip_upright, dip_price_a };
-//wire [7:0] dipsw_b = { dip_other, dip_level, dip_pause, dip_test, dip_price_b };
-
 // ROM data
 wire  [11:0]  char_addr;
 wire  [14:0]  obj_addr;
@@ -174,6 +169,9 @@ jt1942_main u_main(
     .wr_n       ( wr_n          ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),
+    // Cabinet input
+    .start_button( start_button ),
+    .coin_input ( coin_input    ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),   
     // PROM K6
@@ -181,8 +179,8 @@ jt1942_main u_main(
     .prom_k6_we ( prom_k6_we    ),
     .prog_din   ( prog_din      ),
     // DIP switches
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7} ),
+    .dipsw_a    ( {dip_planes, dip_bonus, dip_upright, dip_price } ),
+    .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7}     ),
     .coin_cnt   ( coin_cnt      )
 );
 

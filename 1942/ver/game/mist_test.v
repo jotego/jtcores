@@ -43,7 +43,8 @@ module mist_test;
         `else        
             //$shm_probe(UUT.u_game.u_main,"A");
             $shm_probe(UUT.u_game.u_video.u_obj,"AS");
-            $shm_probe(UUT.u_scandoubler,"AS");
+            $shm_probe(UUT.u_game.u_video.u_colmix,"AS");
+            //$shm_probe(UUT.u_scandoubler,"AS");
             `ifndef NOSOUND
             $shm_probe(UUT.u_game.u_sound,"A");
             `endif

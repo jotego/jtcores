@@ -20,24 +20,28 @@
 
 module jtgng_keyboard( 
     input clk,
-    input reset,
+    input rst,
 
     // ps2 interface    
     input ps2_clk,
     input ps2_data,
     
     // decodes keys
-    output reg [7:0] keys
+    output reg [5:0] key_joy1,
+    output reg [5:0] key_joy2,
+    output reg [1:0] key_start,
+    output reg [1:0] key_coin,
+    output reg key_reset,
+    output reg key_pause
 );
 
-parameter ACTIVE_LOW=1'b1;
-
-wire [7:0] byte;
 wire valid;
 wire error;
 
 reg key_released;
 reg key_extended;
+reg [7:0] keys;
+reg [7:0] ps2byte;
 
 /* Left e06b, right e074, up e075, down e072,
    CTRL 14, space 29, alt 11, "1" 16, "2" 1e
@@ -45,31 +49,45 @@ reg key_extended;
    z 1a, x 22, c 21 */
 
 always @(posedge clk) begin
-    if(reset) begin
+    if(rst) begin
         keys <= 8'h00;
       key_released <= 1'b0;
       key_extended <= 1'b0;
+      key_joy1 <= 6'd0;
+      key_joy2 <= 6'd0;
+      key_coin <= 2'd0;
+      key_start<= 2'd0;
+      key_reset<= 1'b0;
+      key_pause<= 1'b0;
     end else begin
-        // ps2 decoder has received a valid byte
+        // ps2 decoder has received a valid ps2byte
         if(valid) begin
-            if(byte == 8'he0) 
+            if(ps2byte == 8'he0) 
                 // extended key code
             key_extended <= 1'b1;
-         else if(byte == 8'hf0)
+         else if(ps2byte == 8'hf0)
                 // release code
             key_released <= 1'b1;
          else begin
                 key_extended <= 1'b0;
                 key_released <= 1'b0;
                 
-                case(byte)
-                    8'h29: joy0[5] <= !key_released;   // Button 2
-                    8'h1b: joy0[4] <= !key_released;   // Button 1
-                    8'h21: joy0[3] <= !key_released;   // Up
-                    8'h21: joy0[2] <= !key_released;   // Down
-                    8'h21: joy0[1] <= !key_released;   // Left
-                    8'h21: joy0[0] <= !key_released;   // Right
-                    8'h04: rst_req <= 1'b1;
+                case({key_extended, ps2byte})
+                    // first joystick
+                    9'h0_11: key_joy1[5] <= !key_released;   // Button 2
+                    9'h0_14: key_joy1[4] <= !key_released;   // Button 1
+                    9'h1_75: key_joy1[3] <= !key_released;   // Up
+                    9'h1_72: key_joy1[2] <= !key_released;   // Down
+                    9'h1_6b: key_joy1[1] <= !key_released;   // Left
+                    9'h1_74: key_joy1[0] <= !key_released;   // Right
+                    // second joystick
+                    // coins
+                    9'h2e: key_coin[0] <= !key_released; // 1st coin
+                    9'h16: key_start[0] <= !key_released; // 1P start
+                    9'h1e: key_start[1] <= !key_released;  // 2P start
+                    // system control
+                    9'h4d: if(key_released) key_pause <= ~key_pause;
+                    9'h04: key_reset <= !key_released;
                 endcase
             end
         end
@@ -79,15 +97,15 @@ end
 // the ps2 decoder has been taken from the zx spectrum core
 ps2_intf ps2_keyboard (
     .CLK         ( clk             ),
-    .nRESET  ( !reset          ),
+    .nRESET  ( !rst          ),
     
     // PS/2 interface
     .PS2_CLK  ( ps2_clk         ),
     .PS2_DATA ( ps2_data        ),
     
-    // Byte-wide data interface - only valid for one clock
+    // ps2byte-wide data interface - only valid for one clock
     // so must be latched externally if required
-    .DATA         ( byte   ),
+    .DATA         ( ps2byte   ),
     .VALID    ( valid  ),
     .ERROR    ( error  )
 );
