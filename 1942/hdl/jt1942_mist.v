@@ -70,11 +70,12 @@ localparam CONF_STR = {
         "O4,Test mode,OFF,ON;", // 20
         "O65,Lifes,5,2,1,3;", // 18
         "O87,Bonus,30/100,30/80,20/100,20/80;", // 36
-        "T9,RST ,OFF,ON;", // 15
-        "V,http://patreon.com/topapate;" // 40
+        "O9,Screen filter,OFF,ON;", // 24
+        "TA,RST ,OFF,ON;", // 15
+        "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+42+20+18+36+15+40;
+localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+30;
 
 
 // wire [4:0] index;
@@ -235,7 +236,7 @@ always @(negedge clk_rgb)
             soft_rst_cnt <= ~8'h0;;
         end
         if( soft_rst_cnt != 8'h0 ) soft_rst_cnt <= soft_rst_cnt-8'b1;
-        if( soft_rst_cnt == 8'h0 ) soft_rst <= status[9];
+        if( soft_rst_cnt == 8'h0 ) soft_rst <= status[10];
     end
 
 jt1942_game u_game(
@@ -354,7 +355,7 @@ jtgng_vga u_scandoubler (
     .blue       ( blue          ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[5]    ),
+    .en_mixing  ( ~status[9]    ),
     .vga_red    ( GNG_R[5:1]    ),
     .vga_green  ( GNG_G[5:1]    ),
     .vga_blue   ( GNG_B[5:1]    ),

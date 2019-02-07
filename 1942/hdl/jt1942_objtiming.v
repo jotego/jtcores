@@ -27,7 +27,7 @@ module jt1942_objtiming(
     input   [7:0]      V,    
     input   [8:0]      H,    
     input              HINIT,
-    output     [3:0]   pxlcnt,
+    output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
     output reg         line,
     output             SEATM_b,
@@ -38,7 +38,14 @@ module jt1942_objtiming(
     input   [1:0]      prog_din    
 );
 
-assign pxlcnt = H[3:0];
+always @(posedge clk) if(cen6) begin
+    if( HINIT ) begin
+        pxlcnt <= 4'd0;
+    end else begin
+        pxlcnt <= pxlcnt+4'd1;
+    end
+end
+//assign pxlcnt = H[3:0];
 
 // This is the original scan sequence, that counts objects
 always @(*) begin
