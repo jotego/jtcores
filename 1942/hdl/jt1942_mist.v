@@ -68,8 +68,8 @@ localparam CONF_STR = {
         "O1,Pause,OFF,ON;", // 16
         "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
         "O4,Test mode,OFF,ON;", // 20
-        "O65,Lifes,5,2,1,3;", // 18
-        "O87,Bonus,30/100,30/80,20/100,20/80;", // 36
+        "O56,Lifes,2,1,3,5;", // 18
+        "O78,Bonus,30/100,30/80,20/100,20/80;", // 36
         "O9,Screen filter,OFF,ON;", // 24
         "TA,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
