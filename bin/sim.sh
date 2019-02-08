@@ -96,7 +96,12 @@ case "$1" in
         ;;
     "-mist")
         TOP=mist_test
-        MIST="-F ../../../modules/mist/mist.f ../../hdl/jt${SYSNAME}_mist.v"
+        if [ $SIMULATOR == iverilog ]; then
+            MIST=$(add_dir ../../../modules/mist mist_iverilog.f)
+        else
+            MIST="-F ../../../modules/mist/mist.f"
+        fi
+        MIST="$MIST ../../hdl/jt${SYSNAME}_mist.v"
         ;;
     "-nosnd")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOSOUND";;

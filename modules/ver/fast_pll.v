@@ -2,7 +2,7 @@
 
 module jtgng_pll0(
     input    inclk0,
-    output   reg c1,      // 24
+    output   reg c1,      // 12
     output   reg c2,      // 96
     output   reg c3,     // 96 (shifted by -2.5ns)
     output   locked
@@ -11,7 +11,7 @@ module jtgng_pll0(
 assign locked = 1'b1;
 initial begin
     c1 = 1'b0;
-    forever c1 = #20.833 ~c1;
+    forever c1 = #(20.833*2) ~c1;
 end
 
 initial begin

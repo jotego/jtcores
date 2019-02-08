@@ -131,7 +131,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
 
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rgb     ), // 24
+    .c1     ( clk_rgb     ),
     .c2     ( clk_rom     ), // 96
     .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
     .locked ( locked      )

@@ -18,7 +18,7 @@
 
 // 1942 Object Line Buffer
 
-module jt1942_objpxl #(parameter dw=4)(
+module jt1942_objpxl #(parameter dw=4,obj_dly = 4'hc)(
     input              rst,
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz
@@ -33,7 +33,7 @@ module jt1942_objpxl #(parameter dw=4)(
     input       [dw-1:0]  new_pxl,
     output reg  [dw-1:0]  obj_pxl
 );
-parameter obj_dly = 4'hc;
+
 localparam lineA=1'b0, lineB=1'b1;
 
 // Line colour buffer
