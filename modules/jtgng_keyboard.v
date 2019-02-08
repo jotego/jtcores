@@ -96,7 +96,7 @@ end
 
 // the ps2 decoder has been taken from the zx spectrum core
 ps2_intf ps2_keyboard (
-    .CLK         ( clk             ),
+    .CLK     ( clk           ),
     .nRESET  ( !rst          ),
     
     // PS/2 interface

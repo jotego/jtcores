@@ -18,7 +18,7 @@
 
 // 1942 Object Line Buffer
 
-module jt1942_objpxl(
+module jt1942_objpxl #(parameter dw=4)(
     input              rst,
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz
@@ -30,8 +30,8 @@ module jt1942_objpxl(
     input       [8:0]  posx,
     input              line,
     // pixel data
-    input       [3:0]  new_pxl,
-    output reg  [3:0]  obj_pxl
+    input       [dw-1:0]  new_pxl,
+    output reg  [dw-1:0]  obj_pxl
 );
 parameter obj_dly = 4'hc;
 localparam lineA=1'b0, lineB=1'b1;
@@ -41,8 +41,8 @@ localparam lineA=1'b0, lineB=1'b1;
 reg [7:0] addrA, addrB;
 reg [7:0] Hcnt;
 
-wire [3:0] lineA_q, lineB_q;
-reg [3:0] dataA, dataB;
+wire [dw-1:0] lineA_q, lineB_q;
+reg  [dw-1:0] dataA, dataB;
 reg weA, weB;
 
 reg pxlbuf_line;
@@ -59,21 +59,23 @@ always @(posedge clk) if(cen6) begin
     else Hcnt <= Hcnt+1'd1;
 end
 
-wire we_pxl = !posx[8] && (new_pxl!=4'hf); // && !DISPTM_b && LHBL;
+wire [dw-1:0] blank = {dw{1'b1}};
+
+wire we_pxl = !posx[8] && (new_pxl!=blank); // && !DISPTM_b && LHBL;
 
 always @(*)
     if( pxlbuf_line == lineA ) begin 
-        obj_pxl = !DISPTM_b ? lineA_q : 4'hf;
+        obj_pxl = !DISPTM_b ? lineA_q : blank;
         // lineA readout
         addrA = Hcnt;
         weA   = 1'b1;
-        dataA = 4'hF;
+        dataA = blank;
         // lineB writein
         addrB = {8{flip}} ^ posx[7:0];
         weB   = we_pxl;
         dataB = new_pxl;
     end else begin
-        obj_pxl = !DISPTM_b ? lineB_q : 4'hf;
+        obj_pxl = !DISPTM_b ? lineB_q : blank;
         // lineA writein
         addrA = {8{flip}} ^ posx[7:0];
         weA   = we_pxl;
@@ -81,10 +83,10 @@ always @(*)
         // lineB readout
         addrB = Hcnt;
         weB   = 1'b1;
-        dataB = 4'hF;
+        dataB = blank;
     end
 
-jtgng_ram #(.aw(8),.dw(4),.cen_rd(1)) lineA_buf(
+jtgng_ram #(.aw(8),.dw(dw),.cen_rd(1)) lineA_buf(
     .clk     ( clk             ),
     .cen     ( cen6            ),
     .addr    ( addrA           ),
@@ -93,7 +95,7 @@ jtgng_ram #(.aw(8),.dw(4),.cen_rd(1)) lineA_buf(
     .q       ( lineA_q         )
 );
 
-jtgng_ram #(.aw(8),.dw(4),.cen_rd(1)) lineB_buf(
+jtgng_ram #(.aw(8),.dw(dw),.cen_rd(1)) lineB_buf(
     .clk     ( clk             ),
     .cen     ( cen6            ),
     .addr    ( addrB           ),

@@ -58,7 +58,7 @@ wire locked;
 wire downloading;
 wire coin_cnt;
 
-reg rst = 1'b1;
+wire rst;
 assign LED = ~downloading || coin_cnt || rst;
 
 localparam CONF_STR = {
@@ -96,49 +96,8 @@ data_io u_datain (
     .data_sdram         ( romload_data )
 );
 
-wire [5:0] key_joy1, key_joy2;
-wire [1:0] key_start, key_coin;
-wire key_reset, key_pause;
-
-`ifndef SIMULATION
-jtgng_keyboard u_keyboard( 
-    .clk    ( clk_rgb   ),
-    .rst    ( rst       ),
-
-    // ps2 interface    
-    .ps2_clk    ( ps2_kbd_clk  ),
-    .ps2_data   ( ps2_kbd_data ),
-    
-    // decodes keys
-    .key_joy1    ( key_joy1      ),
-    .key_joy2    ( key_joy2      ),
-    .key_start   ( key_start     ),
-    .key_coin    ( key_coin      ),
-    .key_reset   ( key_reset     ),
-    .key_pause   ( key_pause     )
-);
-`else 
-assign key_joy2  = 6'h0;
-assign key_joy1  = 6'h0;
-assign key_start = 2'd0;
-assign key_coin  = 2'd0;
-assign key_reset = 1'b0;
-assign key_pause = 1'b0;
-`endif
 
 wire [31:0] status, joystick1, joystick2; //, joystick;
-reg [5:0] joy1_sync, joy2_sync;
-reg [1:0] start_button;
-reg [1:0] coin_input;
-
-always @(posedge clk_rgb) begin
-    joy1_sync <= ~joystick1[5:0] & ~key_joy1;
-    joy2_sync <= ~joystick2[5:0] & ~key_joy2;
-    coin_input   <= ~{joystick2[6],joystick1[6]} & ~key_coin;
-    start_button <= ~{joystick2[7],joystick2[7]} & ~key_start;
-end
-
-// assign joystick = joystick_0; // | joystick_1;
 
 wire ypbpr;
 wire scandoubler_disable;
@@ -185,18 +144,11 @@ jtgng_pll1 clk_gen2 (
     .c0     ( clk_vga   ) // 25
 );
 
-reg [7:0] rst_cnt=8'd0;
-
-always @(posedge clk_rgb) // if(cen6)
-    if( rst_cnt != ~8'b0 ) begin
-        rst <= 1'b1;
-        rst_cnt <= rst_cnt + 8'd1;
-    end else rst <= 1'b0;
 
 wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.CLK_SPEED(12)) u_cen(
-    .clk    ( clk_rgb   ),    // 24 MHz
+    .clk    ( clk_rgb   ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
@@ -239,6 +191,9 @@ always @(negedge clk_rgb)
         if( soft_rst_cnt == 8'h0 ) soft_rst <= status[10];
     end
 
+wire [1:0] game_start, game_coin;
+wire [5:0] game_joystick1, game_joystick2;
+
 jt1942_game u_game(
     .rst         ( rst           ),
     .soft_rst    ( soft_rst      ),
@@ -255,10 +210,10 @@ jt1942_game u_game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
-    .start_button( start_button  ),
-    .coin_input  ( coin_input    ),
-    .joystick1   ( joy1_sync     ),
-    .joystick2   ( joy2_sync     ),
+    .start_button( game_start        ),
+    .coin_input  ( game_coin         ),
+    .joystick1   ( game_joystick1    ),
+    .joystick2   ( game_joystick2    ),
 
     // PROM programming
     .prog_addr   ( romload_addr[7:0] ),
@@ -322,45 +277,38 @@ jtgng_sdram u_sdram(
 
 assign AUDIO_R = AUDIO_L;
 
-`ifndef NOSOUND
-wire clk_dac = clk_rom;
-
-hybrid_pwm_sd u_dac
-(
-    .clk    ( clk_dac   ),
-    .n_reset( ~rst      ),
-    .din    ( { snd, 7'd0 }    ),
-    .dout   ( AUDIO_L   )
-);
-`else 
-assign AUDIO_L = 1'b0;
-`endif
-
-wire [5:0] GNG_R, GNG_G, GNG_B;
-
-// convert 5-bit colour to 6-bit colour
-assign GNG_R[0] = GNG_R[5];
-assign GNG_G[0] = GNG_G[5];
-assign GNG_B[0] = GNG_B[5];
-
 wire vga_hsync, vga_vsync;
+wire [5:0] vga_r, vga_g, vga_b;
 
-jtgng_vga u_scandoubler (
-    .clk_rgb    ( clk_rgb       ), // 24 MHz
-    .cen6       ( cen6          ), //  6 MHz
-    .clk_vga    ( clk_vga       ), // 25 MHz
-    .rst        ( rst           ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[9]    ),
-    .vga_red    ( GNG_R[5:1]    ),
-    .vga_green  ( GNG_G[5:1]    ),
-    .vga_blue   ( GNG_B[5:1]    ),
-    .vga_hsync  ( vga_hsync     ),
-    .vga_vsync  ( vga_vsync     )
+jtgng_board u_board(
+    .rst            ( rst             ),
+    .clk_dac        ( clk_rom         ),
+    // audio
+    .snd            ( { snd, 7'd0 }   ),
+    .snd_pwm        ( AUDIO_L         ),
+    // VGA
+    .clk_rgb        ( clk_rgb         ),
+    .clk_vga        ( clk_vga         ),
+    .en_mixing      ( ~status[9]      ),    
+    .game_r         ( red             ),
+    .game_g         ( green           ),
+    .game_b         ( blue            ),
+    .LHBL           ( LHBL            ),
+    .LVBL           ( LVBL            ),
+    .vga_r          ( vga_r           ),
+    .vga_g          ( vga_g           ),
+    .vga_b          ( vga_b           ),    
+    .vga_hsync      ( vga_hsync       ),
+    .vga_vsync      ( vga_vsync       ),
+    // joystick
+    .ps2_kbd_clk    ( ps2_kbd_clk     ),
+    .ps2_kbd_data   ( ps2_kbd_data    ),
+    .board_joystick1( ~joystick1[7:0] ),
+    .board_joystick2( ~joystick2[7:0] ),
+    .game_joystick1 ( game_joystick1  ),
+    .game_joystick2 ( game_joystick2  ),
+    .game_coin      ( game_coin       ),
+    .game_start     ( game_start      )
 );
 
 `ifndef SIMULATION
@@ -380,9 +328,9 @@ osd #(0,0,4) osd (
    .SPI_SCK    ( SPI_SCK      ),
    .SPI_SS3    ( SPI_SS3      ),
 
-   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : GNG_R  ),
-   .G_in       ( scandoubler_disable ? { green, green[3:2] } : GNG_G  ),
-   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : GNG_B  ),
+   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : vga_r  ),
+   .G_in       ( scandoubler_disable ? { green, green[3:2] } : vga_g  ),
+   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : vga_b  ),
    .HSync      ( HSync        ),
    .VSync      ( VSync        ),
 

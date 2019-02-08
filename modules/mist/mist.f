@@ -6,3 +6,4 @@ jtgng_pll1.v
 ../ver/altera_mf.v
 -sv rgb2ypbpr.sv
 osd.v
+../jtgng_board.v
