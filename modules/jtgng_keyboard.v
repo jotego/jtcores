@@ -40,7 +40,6 @@ wire error;
 
 reg key_released;
 reg key_extended;
-reg [7:0] keys;
 reg [7:0] ps2byte;
 
 /* Left e06b, right e074, up e075, down e072,
@@ -50,7 +49,6 @@ reg [7:0] ps2byte;
 
 always @(posedge clk) begin
     if(rst) begin
-        keys <= 8'h00;
       key_released <= 1'b0;
       key_extended <= 1'b0;
       key_joy1 <= 6'd0;
@@ -83,6 +81,7 @@ always @(posedge clk) begin
                     // second joystick
                     // coins
                     9'h2e: key_coin[0] <= !key_released; // 1st coin
+                    9'h2f: key_coin[1] <= !key_released; // 2nd coin
                     9'h16: key_start[0] <= !key_released; // 1P start
                     9'h1e: key_start[1] <= !key_released;  // 2P start
                     // system control

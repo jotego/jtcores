@@ -1,0 +1,147 @@
+000000-004000 Boot Header Xilinx
+004000-0BC000 Firmware-ROMs (44 ROMs)
+--(004000-006000) ESXDOS
+--(006000-008000) ROM Directory
+--(008000-00C000) Firmware-BIOS
+--(00C000-098000) 35 Spectrum ROMs
+0098000 - Bitstream 1
+010C000 - Bitstream 2
+0180000 - Bitstream 3
+01F4000 - Bitstream 4
+0268000 - Bitstream 5
+02DC000 - Bitstream 6
+0350000 - Bitstream 7
+03C4000 - Bitstream 8
+0438000 - Bitstream 9
+04AC000 - Bitstream 10
+0520000 - Bitstream 11
+0594000 - Bitstream 12
+0608000 - Bitstream 13
+067C000 - Bitstream 14
+06F0000 - Bitstream 15
+0764000 - Bitstream 16
+07D8000 - Bitstream 17
+084C000 - Bitstream 18
+08C0000 - Bitstream 19
+0934000 - Bitstream 20
+09A8000 - Bitstream 21
+0A1C000 - Bitstream 22
+0A90000 - Bitstream 23
+0B04000 - Bitstream 24
+0B78000 - Bitstream 25
+0BEC000 - Bitstream 26
+0C60000 - Bitstream 27
+0CD4000 - Bitstream 28
+0D48000 - Bitstream 29
+0DBC000 - Bitstream 30
+0E30000 - Bitstream 31
+0EA4000 - Bitstream 32
+0F18000 - Bitstream 33
+0F8C000 - Bitstream 34
+--(1000000-1023FFF) 9 Spectrum ROMs
+1024000 - Bitstream 35
+1098000 - Bitstream 36
+110C000 - Bitstream 37
+1180000 - Bitstream 38
+11F4000 - Bitstream 39
+1268000 - Bitstream 40
+12DC000 - Bitstream 41
+1350000 - Bitstream 42
+13C4000 - Bitstream 43
+1438000 - Bitstream 44
+14AC000 - Bitstream 45
+1520000 - Bitstream 46
+1594000 - Bitstream 47
+1608000 - Bitstream 48
+167C000 - Bitstream 49
+16F0000 - Bitstream 50
+1764000 - Bitstream 51
+17D8000 - Bitstream 52
+184C000 - Bitstream 53
+18C0000 - Bitstream 54
+1934000 - Bitstream 55
+19A8000 - Bitstream 56
+1A1C000 - Bitstream 57
+1A90000 - Bitstream 58
+1B04000 - Bitstream 59
+1B78000 - Bitstream 60
+1BEC000 - Bitstream 61
+1C60000 - Bitstream 62
+1CD4000 - Bitstream 63
+1D48000 - Bitstream 64
+1DBC000 - Bitstream 65
+1E30000 - Bitstream 66
+1EA4000 - Bitstream 67
+1F18000 - Bitstream 68
+1F8C000 - Bitstream 69
+
+(006000-008000) ROM Directory
+--6000-6B00 44 ROM entries
+--7000-8000 Entry index and Bitstream names
+----7000-704F Entry index
+----7100-7980 68 Bitstream names of Q256 (32 bytes each)
+----7980-8000 Reserved
+
+ROM entry
+  00 slot offset
+  01 slot size
+  02 flags 1
+      Bits 0-1. Machine timings: 00=48K, 01=128K, 10=Pentagon
+      Bit 2. NMI DivMMC: 0=disabled, 1=enabled
+      Bit 3. DivMMC: 0=disabled, 1=enabled
+      Bit 4. Contention: 0=disabled, 1=enabled
+      Bit 5. Keyboard issue: 0=issue 2, 1=issue 3
+  03 flags 2
+      Bit 0. AY chip: 0=enabled, 1=disabled
+      Bit 1. 2nd AY chip (TurboSound): 0=enabled, 1=disabled
+      Bit 2. 7ffd port: 0=enabled, 1=disabled
+      Bit 3. 1ffd port: 0=enabled, 1=disabled
+      Bit 4. ROM low bit: 0=enabled, 1=disabled
+      Bit 5. ROM high bit: 0=enabled, 1=disabled
+      Bit 6. horizontal MMU in Timex: 0=disabled, 1=enabled
+      Bit 7. DivMMC and ZXMMC ports: 0=enabled, 1=disabled
+  08-0f crc16-ccitt values. Up to 4 16-bit values in reverse order
+  10-20 unused
+  20-3f Name of ROM in ASCII, space padded
+
+Tape format
+  Block 1. 0x51 length header
+  Block 2,3.. 16Kb length data blocks
+  Header format:
+    00 slot size
+    01 flags 1
+        Bits 0-1. Machine timings: 00=48K, 01=128K, 10=Pentagon
+        Bit 2. NMI DivMMC: 0=disabled, 1=enabled
+        Bit 3. DivMMC: 0=disabled, 1=enabled
+        Bit 4. Contention: 0=disabled, 1=enabled
+        Bit 5. Keyboard issue: 0=issue 2, 1=issue 3
+    02 flags 2 or special
+        Bit 0. AY chip: 0=enabled, 1=disabled
+        Bit 1. 2nd AY chip (TurboSound): 0=enabled, 1=disabled
+        Bit 2. 7ffd port: 0=enabled, 1=disabled
+        Bit 3. 1ffd port: 0=enabled, 1=disabled
+        Bit 4. ROM low bit: 0=enabled, 1=disabled
+        Bit 5. ROM high bit: 0=enabled, 1=disabled
+        Bit 6. horizontal MMU in Timex: 0=disabled, 1=enabled
+        Bit 7. DivMMC and ZXMMC ports: 0=enabled, 1=disabled
+        special=0x00 normal core or esxdos
+        special=0xcb spectrum core
+        special=0xca firmware
+    07-30 crc16-ccitt values. Up to 21 16-bit values in reverse order
+    31-50 Name in ASCII, space padded
+
+Each block follows the .TAP file standard. That is a header with 2+1 bytes
+for lenght+type and a tail of one byte with the checksum. For example:
+
+Lenght+2   Type (always FF)
+    v      v 
+    vvvvv vv
+    53 00 FF<01 3C 3C 00 00 00 00 FD 5E 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 5A 58 20 53 70 65 63 74 72 75 6D 20
+    34 38 4B 20 20 20 20 20 20 20 20 20 20 20 20 20
+    20 20 20 20>03 02 40 FF<F3 AF 11 FF FF C3 CB 11
+                ^^ ^^^^^ ^^Type
+                |    |    
+         Checksum  Length+2

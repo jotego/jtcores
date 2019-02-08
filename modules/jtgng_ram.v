@@ -18,7 +18,7 @@
 
 module jtgng_ram #(parameter dw=8, aw=10, simfile="", synfile="",cen_rd=0)(
     input   clk,
-    input   cen  /* synthesis direct_enable = 1 */,
+    input   cen,
     input   [dw-1:0] data,
     input   [aw-1:0] addr,
     input   we,

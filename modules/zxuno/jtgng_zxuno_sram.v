@@ -20,8 +20,8 @@ module jtgng_zxuno_sram(
     input             clk,
     input             cen24,
     input             cen12,
-    input      [19:0] game_addr,
-    output     [20:0] sram_addr,
+    input      [19:0] game_addr16,
+    output     [20:0] game_addr8,
     input      [ 7:0] sram_data,
     output reg [15:0] sram_data16
 );
@@ -29,8 +29,8 @@ module jtgng_zxuno_sram(
 reg lsb;
 reg [7:0] last;
 
-assign sram_addr[20:1] = game_addr[19:0];
-assign sram_addr[0]    = lsb;
+assign game_addr8[20:1] = game_addr16[19:0];
+assign game_addr8[0]    = lsb;
 
 always @(posedge clk) if(cen24) begin
     lsb  <= ~cen12;

@@ -22,17 +22,147 @@
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="zxuno.xise"/>
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
-    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="jt1942_zxuno.prj"/>
-    <file xil_pn:fileType="FILE_XST_STX" xil_pn:name="jt1942_zxuno.stx"/>
-    <file xil_pn:fileType="FILE_XST" xil_pn:name="jt1942_zxuno.xst"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="ipcore_dir/coregen.log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="jt1942_zxuno.bld"/>
+    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="jt1942_zxuno.cmd_log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="jt1942_zxuno.lso"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="jt1942_zxuno.ncd" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="jt1942_zxuno.ngc"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="jt1942_zxuno.ngd"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="jt1942_zxuno.ngr"/>
+    <file xil_pn:fileType="FILE_PAD_MISC" xil_pn:name="jt1942_zxuno.pad"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="jt1942_zxuno.par" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="jt1942_zxuno.pcf" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="jt1942_zxuno.prj"/>
+    <file xil_pn:fileType="FILE_TRCE_MISC" xil_pn:name="jt1942_zxuno.ptwx"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="jt1942_zxuno.stx"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="jt1942_zxuno.syr"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="jt1942_zxuno.twr" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="jt1942_zxuno.twx" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="jt1942_zxuno.unroutes" xil_pn:subbranch="Par"/>
+    <file xil_pn:fileType="FILE_XPI" xil_pn:name="jt1942_zxuno.xpi"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="jt1942_zxuno.xst"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="jt1942_zxuno_envsettings.html"/>
+    <file xil_pn:fileType="FILE_NCD" xil_pn:name="jt1942_zxuno_guide.ncd" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="jt1942_zxuno_map.map" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="jt1942_zxuno_map.mrp" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="jt1942_zxuno_map.ncd" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="jt1942_zxuno_map.ngm" xil_pn:subbranch="Map"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="jt1942_zxuno_map.xrpt"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="jt1942_zxuno_ngdbuild.xrpt"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="jt1942_zxuno_pad.csv" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="jt1942_zxuno_pad.txt" xil_pn:subbranch="Par"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="jt1942_zxuno_par.xrpt"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="jt1942_zxuno_summary.html"/>
+    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="jt1942_zxuno_summary.xml"/>
+    <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="jt1942_zxuno_usage.xml"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="jt1942_zxuno_xst.xrpt"/>
+    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
+    <transform xil_pn:end_ts="1549631980" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1549631980">
+      <status xil_pn:value="SuccessfullyRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549631980" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="7801035363468372326" xil_pn:start_ts="1549631980">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549639045" xil_pn:in_ck="-4290879279053737048" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="-3543280930520569931" xil_pn:start_ts="1549639045">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="ipcore_dir/jtgng_pll.v"/>
+    </transform>
     <transform xil_pn:name="TRAN_SubProjectAbstractToPreProxy">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549631980" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="-198526088086225816" xil_pn:start_ts="1549631980">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549631980" xil_pn:in_ck="5974936380903097111" xil_pn:name="TRAN_SubProjectPreToStructuralProxy" xil_pn:prop_ck="250970745955965653" xil_pn:start_ts="1549631980">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549631980" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="8959801594662510719" xil_pn:start_ts="1549631980">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549642259" xil_pn:in_ck="764436877923274986" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="6648459182403713188" xil_pn:start_ts="1549642225">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
+      <outfile xil_pn:name="jt1942_zxuno.lso"/>
+      <outfile xil_pn:name="jt1942_zxuno.ngc"/>
+      <outfile xil_pn:name="jt1942_zxuno.ngr"/>
+      <outfile xil_pn:name="jt1942_zxuno.prj"/>
+      <outfile xil_pn:name="jt1942_zxuno.stx"/>
+      <outfile xil_pn:name="jt1942_zxuno.syr"/>
+      <outfile xil_pn:name="jt1942_zxuno.xst"/>
+      <outfile xil_pn:name="jt1942_zxuno_xst.xrpt"/>
+      <outfile xil_pn:name="webtalk_pn.xml"/>
+      <outfile xil_pn:name="xst"/>
+    </transform>
+    <transform xil_pn:end_ts="1549639211" xil_pn:in_ck="8271290089891869085" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-7572783719196380909" xil_pn:start_ts="1549639211">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1549642322" xil_pn:in_ck="-6240905320239072296" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="8909009856828341462" xil_pn:start_ts="1549642315">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_ngo"/>
+      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
+      <outfile xil_pn:name="jt1942_zxuno.bld"/>
+      <outfile xil_pn:name="jt1942_zxuno.ngd"/>
+      <outfile xil_pn:name="jt1942_zxuno_ngdbuild.xrpt"/>
+    </transform>
+    <transform xil_pn:end_ts="1549642337" xil_pn:in_ck="-6240905320239072295" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1549642322">
+      <status xil_pn:value="FailedRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
+      <outfile xil_pn:name="jt1942_zxuno.pcf"/>
+      <outfile xil_pn:name="jt1942_zxuno_map.map"/>
+      <outfile xil_pn:name="jt1942_zxuno_map.mrp"/>
+      <outfile xil_pn:name="jt1942_zxuno_map.ngm"/>
+      <outfile xil_pn:name="jt1942_zxuno_map.xrpt"/>
+      <outfile xil_pn:name="jt1942_zxuno_summary.xml"/>
+      <outfile xil_pn:name="jt1942_zxuno_usage.xml"/>
+    </transform>
+    <transform xil_pn:end_ts="1549641921" xil_pn:in_ck="425716665947197298" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1549641878">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
+      <outfile xil_pn:name="jt1942_zxuno.ncd"/>
+      <outfile xil_pn:name="jt1942_zxuno.pad"/>
+      <outfile xil_pn:name="jt1942_zxuno.par"/>
+      <outfile xil_pn:name="jt1942_zxuno.ptwx"/>
+      <outfile xil_pn:name="jt1942_zxuno.unroutes"/>
+      <outfile xil_pn:name="jt1942_zxuno.xpi"/>
+      <outfile xil_pn:name="jt1942_zxuno_pad.csv"/>
+      <outfile xil_pn:name="jt1942_zxuno_pad.txt"/>
+      <outfile xil_pn:name="jt1942_zxuno_par.xrpt"/>
+    </transform>
+    <transform xil_pn:end_ts="1549641921" xil_pn:in_ck="-6240905320239072427" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1549641914">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
+      <outfile xil_pn:name="jt1942_zxuno.twr"/>
+      <outfile xil_pn:name="jt1942_zxuno.twx"/>
     </transform>
   </transforms>
 

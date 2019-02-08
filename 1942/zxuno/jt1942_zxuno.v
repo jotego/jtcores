@@ -18,16 +18,18 @@
 
 module jt1942_zxuno(
    input         CLOCK_50,
-   // Addon output
+   // 6-bit output (add-on)
    output [5:0]  VGA_R,
    output [5:0]  VGA_G,
    output [5:0]  VGA_B,
-   // Simple output
-   output [2:0]  VGA2_R,
-   output [2:0]  VGA2_G,
-   output [2:0]  VGA2_B,
    output        VGA_HS,
    output        VGA_VS,
+   // 3-bit output
+   output [2:0]  VGALOW_R,
+   output [2:0]  VGALOW_G,
+   output [2:0]  VGALOW_B,
+   output        VGALOW_HS,
+   output        VGALOW_VS,
    // keyboard
    inout         PS2_KBD_CLK,
    inout         PS2_KBD_DATA,
@@ -44,8 +46,8 @@ module jt1942_zxuno(
    output        FLASH_CLK,
    output        FLASH_MOSI,
    input         FLASH_MISO,
-   input         FLASH_WP,
-   input         FLASH_HOLD,
+   output        FLASH_WP,
+   output        FLASH_HOLD,
    // SD Card
    // output        SD_CS_N,
    // output        SD_CLK,
@@ -56,11 +58,17 @@ module jt1942_zxuno(
    input    [5:0] JOYSTICK
 );
 
+assign VGALOW_VS = VGA_VS, VGALOW_HS = VGA_HS;
+assign VGALOW_R = VGA_R[5:3];
+assign VGALOW_G = VGA_G[5:3];
+assign VGALOW_B = VGA_B[5:3];
+
 wire clk_rgb, clk_vga;
+assign FLASH_HOLD = 1'b1, FLASH_WP = 1'b1, FLASH_CLK = clk_rgb;
 
 jtgng_pll u_pll(
     .CLK_IN1    ( CLOCK_50  ),
-    .clk_rgb    ( clk_rgb   ), // 12 MHz
+    .clk_rgb    ( clk_rgb   ), // 24 MHz
     .clk_vga    ( clk_vga   ), // 25 MHz
     .locked     ( locked    )
 );
@@ -79,22 +87,27 @@ jtgng_cen #(.CLK_SPEED(24)) u_cen(
 );
 
 wire        sram_we_n;
-wire [20:0] sram_addr, romload_addr, game_addr16;
-wire [19:0] game_addr;
-wire [ 7:0] sram_data;
+wire [20:0] sram_addr, romload_addr, game_addr8;
+wire [19:0] game_addr16;
+wire [ 7:0] sram_data_wr;
 wire        downloading;
+wire [ 7:0] romload_data = sram_data_wr;
+
+assign SRAM_DATA = downloading ? sram_data_wr : 8'hzz;
 
 jtgng_zxuno_prog u_prog(
     .rst         ( rst          ),
-    .clk         ( clk          ),
+    .clk         ( clk_rgb      ),
     // Flash
+    .flash_miso  ( FLASH_MISO   ),
+    .flash_mosi  ( FLASH_MOSI   ),
+    .flash_cs_n  ( FLASH_CS_N   ),
     // SRAM
-    .sram_we_n   ( sram_we_n    ),
-    .romload_addr( romload_addr ),
-    .game_addr   ( game_addr16  ),
+    .sram_we_n   ( SRAM_WE_N    ),
+    .romload_addr( romload_addr ),    
+    .game_addr8  ( game_addr8   ),
     .sram_addr   ( SRAM_ADDR    ),
-    .sram_data   ( sram_data    ),
-    .game_addr   ( game_addr    ),
+    .sram_data   ( sram_data_wr ),
     // 
     .downloading( downloading   )
 );
@@ -102,27 +115,29 @@ jtgng_zxuno_prog u_prog(
 wire [15:0] sram_data16;
 
 jtgng_zxuno_sram u_sram(
-    .clk         ( clk           ),
+    .clk         ( clk_rgb       ),
     .cen24       ( 1'b1          ),
     .cen12       ( cen12         ),
-    .game_addr   ( game_addr     ),
-    .sram_addr   ( game_addr16   ),
-    .sram_data   ( sram_data     ),
+    .game_addr16 ( game_addr16   ),
+    .game_addr8  ( game_addr8    ),
+    .sram_data   ( SRAM_DATA     ),
     .sram_data16 ( sram_data16   )
 );
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .downloading    ( downloading           ), 
-    .romload_addr   ( {4'd0, romload_addr}  ),
-    .prom_we        ( prom_we               )
+    .downloading  ( downloading           ), 
+    .romload_addr ( {4'd0, romload_addr}  ),
+    .prom_we      ( prom_we               )
 );
 
 wire [1:0] nc;
+wire [3:0] red, green, blue;
+wire [8:0] snd;
 
 jt1942_game u_game(
     .rst         ( rst           ),
-    .soft_rst    ( soft_rst      ),
+    .soft_rst    ( 1'b0          ),
     .clk         ( clk_rgb       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
@@ -157,9 +172,9 @@ jt1942_game u_game(
 
     // ROM load
     .downloading ( downloading       ),
-    .loop_rst    ( loop_rst          ),
-    .autorefresh ( autorefresh       ),
-    .sdram_addr  ( {nc, game_addr}   ),
+    .loop_rst    ( 1'b0              ),
+    .autorefresh (                   ),
+    .sdram_addr  ( {nc, game_addr16} ),
     .data_read   ( sram_data16       ),
     // DIP switches
     
@@ -180,7 +195,8 @@ assign AUDIO_R = AUDIO_L;
 
 jtgng_board u_board(
     .rst            ( rst             ),
-    .clk_dac        ( clk_rom         ),
+    .cen6           ( cen6            ),
+    .clk_dac        ( clk_rgb         ),
     // audio
     .snd            ( { snd, 7'd0 }   ),
     .snd_pwm        ( AUDIO_L         ),
@@ -202,11 +218,12 @@ jtgng_board u_board(
     .ps2_kbd_clk    ( PS2_KBD_CLK     ),
     .ps2_kbd_data   ( PS2_KBD_DATA    ),    
     .board_joystick1( ~{2'b0, JOYSTICK} ),
-    .board_joystick2( 8'hFF           ),
+    .board_joystick2( 8'h00           ),
     .game_joystick1 ( game_joystick1  ),
     .game_joystick2 ( game_joystick2  ),
     .game_coin      ( game_coin       ),
-    .game_start     ( game_start      )
+    .game_start     ( game_start      ),
+    .key_pause      ( LED             )
 );
 
 endmodule

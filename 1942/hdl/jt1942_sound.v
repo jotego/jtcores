@@ -164,7 +164,10 @@ T80s u_cpu(
     .A          ( A           ),
     .DI         ( din         ),
     .DO         ( dout        ),
-    .IORQ_n     ( iorq_n      )
+    .IORQ_n     ( iorq_n      ),
+    .NMI_n      ( 1'b1        ),
+    .BUSRQ_n    ( 1'b1        ),
+    .out0       ( 1'b0        )
 );
 `else
 tv80s #(.Mode(0)) u_cpu (

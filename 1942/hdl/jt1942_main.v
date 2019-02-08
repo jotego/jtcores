@@ -300,7 +300,10 @@ T80s u_cpu(
     .DO         ( cpu_dout    ),
     .IORQ_n     ( iorq_n      ),
     .M1_n       ( m1_n        ),
-    .MREQ_n     ( mreq_n      )
+    .MREQ_n     ( mreq_n      ),
+    .NMI_n      ( 1'b1        ),
+    .BUSRQ_n    ( 1'b1        ),
+    .out0       ( 1'b0        )
 );
 `else
 // This CPU is used for simulation

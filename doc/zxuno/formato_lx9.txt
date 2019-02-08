@@ -1,0 +1,126 @@
+000000-004000 Boot Header Xilinx
+004000-058000 Firmware-ROMs (19 ROMs)
+--(004000-006000) ESXDOS
+--(006000-008000) ROM Directory
+--(008000-00C000) Firmware-BIOS
+--(00C000-058000) 19 Spectrum ROMs
+058000-0AC000 Bitstream 1
+0AC000-100000 Bitstream 2
+100000-154000 Bitstream 3
+154000-1A8000 Bitstream 4
+1A8000-1FC000 Bitstream 5
+1FC000-250000 Bitstream 6
+250000-2A4000 Bitstream 7
+2A4000-2F8000 Bitstream 8
+2F8000-34C000 Bitstream 9
+34C000-400000 (size B4000 = 720K) Reserved for other 45 spectrum roms (64 in total)
+400000-453FFF Bitstream 10
+454000-4A7FFF Bitstream 11
+4A8000-4FBFFF Bitstream 12
+4FC000-54FFFF Bitstream 13
+550000-5A3FFF Bitstream 14
+5A4000-5F7FFF Bitstream 15
+5F8000-64BFFF Bitstream 16
+64C000-69FFFF Bitstream 17
+6A0000-6F3FFF Bitstream 18
+6F4000-747FFF Bitstream 19
+748000-79BFFF Bitstream 20
+79C000-7EFFFF Bitstream 21
+7F0000-843FFF Bitstream 22
+844000-897FFF Bitstream 23
+898000-8EBFFF Bitstream 24
+8EC000-93FFFF Bitstream 25
+940000-993FFF Bitstream 26
+994000-9E7FFF Bitstream 27
+9E8000-A3BFFF Bitstream 28
+A3C000-A8FFFF Bitstream 29
+A90000-AE3FFF Bitstream 30
+AE4000-B37FFF Bitstream 31
+B38000-B8BFFF Bitstream 32
+B8C000-BDFFFF Bitstream 33
+BE0000-C33FFF Bitstream 34
+C34000-C87FFF Bitstream 35
+C88000-CDBFFF Bitstream 36
+CDC000-D2FFFF Bitstream 37
+D30000-D83FFF Bitstream 38
+D84000-DD7FFF Bitstream 39
+DD8000-E2BFFF Bitstream 40
+E2C000-E7FFFF Bitstream 41
+E80000-ED3FFF Bitstream 42
+ED4000-F27FFF Bitstream 43
+F28000-F7BFFF Bitstream 44
+F7C000-FCFFFF Bitstream 45
+
+(006000-008000) ROM Directory
+--6000-7000 ROM Entries and Bitstream names
+----6000-64C0 First 19 entries (points to 00C000)
+----64C0-7000 Last 45 entries (points to 34C000)
+--7000-8000 Entry index and Bitstream names
+----7000-704F Entry index
+----7100-7200 8 Bitstream names of Q32 (32 bytes each)
+----7200-7680 36 Next bitstream names in Q128 (32 bytes each)
+----7680-8000 Reserved
+
+ROM entry
+  00 slot offset
+  01 slot size
+  02 flags 1
+      Bits 0-1. Machine timings: 00=48K, 01=128K, 10=Pentagon
+      Bit 2. NMI DivMMC: 0=disabled, 1=enabled
+      Bit 3. DivMMC: 0=disabled, 1=enabled
+      Bit 4. Contention: 0=disabled, 1=enabled
+      Bit 5. Keyboard issue: 0=issue 2, 1=issue 3
+  03 flags 2
+      Bit 0. AY chip: 0=enabled, 1=disabled
+      Bit 1. 2nd AY chip (TurboSound): 0=enabled, 1=disabled
+      Bit 2. 7ffd port: 0=enabled, 1=disabled
+      Bit 3. 1ffd port: 0=enabled, 1=disabled
+      Bit 4. ROM low bit: 0=enabled, 1=disabled
+      Bit 5. ROM high bit: 0=enabled, 1=disabled
+      Bit 6. horizontal MMU in Timex: 0=disabled, 1=enabled
+      Bit 7. DivMMC and ZXMMC ports: 0=enabled, 1=disabled
+  08-0f crc16-ccitt values. Up to 4 16-bit values in reverse order
+  10-20 unused
+  20-3f Name of ROM in ASCII, space padded
+
+Tape format
+  Block 1. 0x51 length header
+  Block 2,3.. 16Kb length data blocks
+  Header format:
+    00 slot size
+    01 flags 1
+        Bits 0-1. Machine timings: 00=48K, 01=128K, 10=Pentagon
+        Bit 2. NMI DivMMC: 0=disabled, 1=enabled
+        Bit 3. DivMMC: 0=disabled, 1=enabled
+        Bit 4. Contention: 0=disabled, 1=enabled
+        Bit 5. Keyboard issue: 0=issue 2, 1=issue 3
+    02 flags 2 or special
+        Bit 0. AY chip: 0=enabled, 1=disabled
+        Bit 1. 2nd AY chip (TurboSound): 0=enabled, 1=disabled
+        Bit 2. 7ffd port: 0=enabled, 1=disabled
+        Bit 3. 1ffd port: 0=enabled, 1=disabled
+        Bit 4. ROM low bit: 0=enabled, 1=disabled
+        Bit 5. ROM high bit: 0=enabled, 1=disabled
+        Bit 6. horizontal MMU in Timex: 0=disabled, 1=enabled
+        Bit 7. DivMMC and ZXMMC ports: 0=enabled, 1=disabled
+        special=0x00 normal core or esxdos
+        special=0xcb spectrum core
+        special=0xca firmware
+    07-30 crc16-ccitt values. Up to 21 16-bit values in reverse order
+    31-50 Name in ASCII, space padded
+
+Each block follows the .TAP file standard. That is a header with 2+1 bytes
+for lenght+type and a tail of one byte with the checksum. For example:
+
+Lenght+2   Type (always FF)
+    v      v 
+    vvvvv vv
+    53 00 FF<01 3C 3C 00 00 00 00 FD 5E 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 5A 58 20 53 70 65 63 74 72 75 6D 20
+    34 38 4B 20 20 20 20 20 20 20 20 20 20 20 20 20
+    20 20 20 20>03 02 40 FF<F3 AF 11 FF FF C3 CB 11
+                ^^ ^^^^^ ^^Type
+                |    |    
+         Checksum  Length+2

@@ -21,7 +21,7 @@ module jtgng_prom #(parameter dw=8, aw=10, simfile="",
     cen_rd=0
 )(
     input   clk,
-    input   cen  /* synthesis direct_enable = 1 */,
+    input   cen,
     input   [dw-1:0] data,
     input   [aw-1:0] rd_addr,
     input   [aw-1:0] wr_addr,

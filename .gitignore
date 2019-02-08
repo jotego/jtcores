@@ -10,6 +10,9 @@
 *.log
 sim
 1942/mist/db
+1942/zxuno/*
+1942/mist/*
+1942/mister/*
 1942/mist/incremental_db
 1942/ver/game/.simvision
 1942/ver/game/ncverilog.*

@@ -21,6 +21,7 @@ module jtgng_board(
     input             clk_dac,
     input             clk_rgb,
     input             clk_vga,
+    input             cen6,
     input   [15:0]    snd,
     output            snd_pwm,
     // VGA
@@ -138,7 +139,7 @@ always @(posedge clk_rgb) begin
     game_joystick1 <= ~board_joystick1[5:0] & ~key_joy1;
     game_joystick2 <= ~board_joystick2[5:0] & ~key_joy2;
     game_coin      <= ~{board_joystick2[6],board_joystick1[6]} & ~key_coin;
-    game_start     <= ~{board_joystick2[7],board_joystick2[7]} & ~key_start;
+    game_start     <= ~{board_joystick2[7],board_joystick1[7]} & ~key_start;
 end
 
 

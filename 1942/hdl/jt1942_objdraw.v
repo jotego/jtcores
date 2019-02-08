@@ -48,7 +48,7 @@ wire [7:0] VF = {8{flip}} ^V;
 reg VINZONE;
 
 reg [1:0] vlen;
-reg VINcmp, VINlen, Vgt, Veq, Vlt;
+reg VINcmp, VINlen, Veq, Vlt; // Vgt;
 
 always @(posedge clk) if(cen6) begin
     if(pxlcnt[2:0]==3'b0 ) V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
@@ -68,7 +68,7 @@ wire [7:0] VBETA = ~LVBETA;
 
 always @(*) begin
     // comparison side of VINZONE
-    Vgt = VBETA  > ~next_y;
+    // Vgt = VBETA  > ~next_y;
     Veq = VBETA == ~next_y;
     Vlt = VBETA  < ~next_y;
     VINcmp = /*ADext ? Vgt :*/ (Veq|Vlt);
