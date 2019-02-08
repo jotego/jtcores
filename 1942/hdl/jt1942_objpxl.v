@@ -38,14 +38,12 @@ localparam lineA=1'b0, lineB=1'b1;
 
 // Line colour buffer
 
-reg [7:0] lineA_address_a, lineA_address_b;
-reg [7:0] lineB_address_a, lineB_address_b;
+reg [7:0] addrA, addrB;
 reg [7:0] Hcnt;
 
-wire [3:0] lineA_q_a, lineA_q_b;
-wire [3:0] lineB_q_a, lineB_q_b;
-
-reg lineA_we_a, lineB_we_a, lineA_we_b, lineB_we_b;
+wire [3:0] lineA_q, lineB_q;
+reg [3:0] dataA, dataB;
+reg weA, weB;
 
 reg pxlbuf_line;
 
@@ -61,68 +59,47 @@ always @(posedge clk) if(cen6) begin
     else Hcnt <= Hcnt+1'd1;
 end
 
-wire we = !posx[8] && (new_pxl!=4'hf); // && !DISPTM_b && LHBL;
+wire we_pxl = !posx[8] && (new_pxl!=4'hf); // && !DISPTM_b && LHBL;
 
 always @(*)
     if( pxlbuf_line == lineA ) begin 
+        obj_pxl = !DISPTM_b ? lineA_q : 4'hf;
         // lineA readout
-        lineA_address_a = Hcnt;
-        lineA_we_a = 1'b0;
-        obj_pxl = !DISPTM_b ? lineA_q_a : 4'hf;
+        addrA = Hcnt;
+        weA   = 1'b1;
+        dataA = 4'hF;
         // lineB writein
-        lineB_address_a = {8{flip}} ^ posx[7:0];
-        lineB_we_a = we;
+        addrB = {8{flip}} ^ posx[7:0];
+        weB   = we_pxl;
+        dataB = new_pxl;
     end else begin
+        obj_pxl = !DISPTM_b ? lineB_q : 4'hf;
         // lineA writein
-        lineA_address_a = {8{flip}} ^ posx[7:0];
-        lineA_we_a = we;
+        addrA = {8{flip}} ^ posx[7:0];
+        weA   = we_pxl;
+        dataA = new_pxl;
         // lineB readout
-        lineB_address_a = Hcnt;
-        lineB_we_a = 1'b0;
-        obj_pxl = !DISPTM_b ? lineB_q_a : 4'hf;
+        addrB = Hcnt;
+        weB   = 1'b1;
+        dataB = 4'hF;
     end
 
-always @(posedge clk) if(cen6) begin
-    if( pxlbuf_line == lineA ) begin
-        // lineA clear after each pixel is readout
-        lineA_address_b <= lineA_address_a;
-        lineA_we_b <= 1'b1;
-        // lineB port B unused
-        lineB_we_b <= 1'b0;
-    end
-    else begin
-        // lineA port A unused
-        lineA_we_b <= 1'b0;
-        // lineB clear after each pixel is readout
-        lineB_address_b <= lineB_address_a;
-        lineB_we_b <= 1'b1;
-    end
-end
-
-jtgng_true_dual_ram #(.aw(8),.dw(4)) lineA_buf(
+jtgng_ram #(.aw(8),.dw(4),.cen_rd(1)) lineA_buf(
     .clk     ( clk             ),
-    .clk_en  ( cen6            ),
-    .addr_a  ( lineA_address_a ),
-    .addr_b  ( lineA_address_b ),
-    .data_a  ( new_pxl         ),
-    .data_b  ( 4'hF            ), // delete only
-    .we_a    ( lineA_we_a      ),
-    .we_b    ( lineA_we_b      ),
-    .q_a     ( lineA_q_a       ),
-    .q_b     (                 )
+    .cen     ( cen6            ),
+    .addr    ( addrA           ),
+    .data    ( dataA           ),
+    .we      ( weA             ),
+    .q       ( lineA_q         )
 );
 
-jtgng_true_dual_ram #(.aw(8),.dw(4)) lineB_buf(
+jtgng_ram #(.aw(8),.dw(4),.cen_rd(1)) lineB_buf(
     .clk     ( clk             ),
-    .clk_en  ( cen6            ),
-    .addr_a  ( lineB_address_a ),
-    .addr_b  ( lineB_address_b ),
-    .data_a  ( new_pxl         ),
-    .data_b  ( 4'hF            ), // delete only
-    .we_a    ( lineB_we_a      ),
-    .we_b    ( lineB_we_b      ),
-    .q_a     ( lineB_q_a       ),
-    .q_b     (                 )
+    .cen     ( cen6            ),
+    .addr    ( addrB           ),
+    .data    ( dataB           ),
+    .we      ( weB             ),
+    .q       ( lineB_q         )
 );
 
 endmodule // jtgng_objpxl

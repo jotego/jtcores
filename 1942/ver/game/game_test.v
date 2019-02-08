@@ -25,7 +25,7 @@ module game_test;
                 //$display("DUMP starts");
                 $dumpvars(1,game_test.UUT.u_main);
                 //$dumpvars(1,game_test.UUT.u_audio);
-                //$dumpvars(0,game_test.UUT.u_video.u_obj);
+                $dumpvars(0,game_test.UUT.u_video.u_obj);
                 //$dumpvars(1,game_test.UUT.u_rom);
                 //$dumpvars(1,game_test.UUT.u_video);
                 //$dumpvars(1,game_test.UUT.u_video.u_char);
@@ -124,8 +124,10 @@ jt1942_game UUT(
     .HS         ( HS        ),
     .VS         ( VS        ),
     // cabinet I/O
-    .joystick1  ( { coin, 7'h7f } ),
-    .joystick2  ( 8'hff           ),
+    .joystick1  ( 6'h3f     ),
+    .joystick2  ( 6'h3f     ),
+    .start_button( 2'b11    ),
+    .coin_input ( { 1'b1, coin } ),
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),

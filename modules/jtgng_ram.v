@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_ram #(parameter dw=8, aw=10, simfile="", synfile="")(
+module jtgng_ram #(parameter dw=8, aw=10, simfile="", synfile="",cen_rd=0)(
     input   clk,
     input   cen  /* synthesis direct_enable = 1 */,
     input   [dw-1:0] data,
@@ -49,7 +49,7 @@ initial if(synfile!="" )$readmemh(synfile,mem);
 `endif
 
 always @(posedge clk) begin
-    q <= mem[addr];
+    if( !cen_rd || cen ) q <= mem[addr];
     if( cen && we) mem[addr] <= data;
 end
 
