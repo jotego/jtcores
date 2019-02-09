@@ -55,7 +55,8 @@ wire clk_vga; // 25
 wire locked;
 
 wire downloading;
-assign LED = ~downloading;
+wire rst;
+assign LED = ~downloading | rst;
 
 parameter CONF_STR = {
     //   000000000111111111122222222223
@@ -65,14 +66,12 @@ parameter CONF_STR = {
         "O2,Cabinet mode,OFF,ON;",
         "O3,PSG ,ON,OFF;",
         "O4,FM  ,ON,OFF;",
-        "O5,Screen filter,ON,OFF;",
-        "T6,Reset;",
+        "O9,Screen filter,ON,OFF;",
+        "TA,Reset;",
         "V,http://patreon.com/topapate;"
 };
 
 parameter CONF_STR_LEN = 7+20+23+15+15+24+9+30;
-
-reg rst = 1'b1;
 
 // wire [4:0] index;
 wire clk_rom;
@@ -90,19 +89,13 @@ data_io datain (
     .data_sdram         ( romload_data )
 );
 
-wire [7:0] status, joystick1, joystick2; //, joystick;
-reg [7:0] joy1_sync, joy2_sync;
-always @(posedge clk_rgb) begin
-    joy1_sync <= ~joystick1;
-    joy2_sync <= ~joystick2;
-end
-
-// assign joystick = joystick_0; // | joystick_1;
+wire [31:0] status, joystick1, joystick2; //, joystick;
 
 wire ypbpr;
 wire scandoubler_disable;
+wire ps2_kbd_clk, ps2_kbd_data;
 
-user_io #(.STRLEN(CONF_STR_LEN)) userio(
+user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
     .clk_sys        ( clk_rgb   ),
     .conf_str       ( CONF_STR  ),
     .SPI_CLK        ( SPI_SCK   ),
@@ -114,6 +107,9 @@ user_io #(.STRLEN(CONF_STR_LEN)) userio(
     .status         ( status    ),
     .ypbpr          ( ypbpr     ),
     .scandoubler_disable ( scandoubler_disable ),
+    // keyboard
+    .ps2_kbd_clk    ( ps2_kbd_clk  ),
+    .ps2_kbd_data   ( ps2_kbd_data ),    
     // unused ports:
     .serial_strobe  ( 1'b0      ),
     .serial_data    ( 8'd0      ),
@@ -141,14 +137,6 @@ jtgng_pll1 clk_gen2 (
     .c0     ( clk_vga   ) // 25
 );
 
-reg [7:0] rst_cnt=8'd0;
-
-always @(posedge clk_rgb) // if(cen6)
-    if( rst_cnt != ~8'b0 ) begin
-        rst <= 1'b1;
-        rst_cnt <= rst_cnt + 8'd1;
-    end else rst <= 1'b0;
-
 wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.CLK_SPEED(12)) u_cen(
@@ -172,10 +160,13 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
     wire   [15:0]  data_read;
     wire   loop_rst, autorefresh, loop_start; 
 
+wire [5:0] game_joystick1, game_joystick2;
+wire [1:0] game_coin, game_start;
+
 jtgng_game game(
     .rst         ( rst           ),
-    .soft_rst    ( status[6]     ),
-    .clk         ( clk_rgb       ),  //  6   MHz
+    .soft_rst    ( status[10]    ),
+    .clk         ( clk_rgb       ),
 	.cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
@@ -188,8 +179,10 @@ jtgng_game game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
-    .joystick1   ( joy1_sync     ),
-    .joystick2   ( joy2_sync     ),
+    .start_button( game_start     ),
+    .coin_input  ( game_coin      ),
+    .joystick1   ( game_joystick1 ),
+    .joystick2   ( game_joystick2 ),
 
     // ROM load
     .downloading ( downloading   ),
@@ -244,45 +237,40 @@ jtgng_sdram u_sdram(
 // not really important...
 
 assign AUDIO_R = AUDIO_L;
-`ifndef NOSOUND
-// jt12_dac #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
-//jt12_dac2 #(.width(16)) dac2_left (.clk(clk_dac), .rst(rst), .din(ym_snd), .dout(AUDIO_L));
-hybrid_pwm_sd u_dac
-(
-    .clk    ( clk_rom   ),
-    .n_reset( ~rst      ),
-    .din    ( {~ym_snd[15], ym_snd[14:0]}    ),
-    .dout   ( AUDIO_L   )
-);
-`else 
-assign AUDIO_L=1'b0;
-`endif
-
 wire [5:0] GNG_R, GNG_G, GNG_B;
-
-// convert 5-bit colour to 6-bit colour
-assign GNG_R[0] = GNG_R[5];
-assign GNG_G[0] = GNG_G[5];
-assign GNG_B[0] = GNG_B[5];
-
 wire vga_hsync, vga_vsync;
 
-jtgng_vga vga_conv (
-    .clk_rgb    ( clk_rgb       ), 
-    .cen6       ( cen6          ), //  6 MHz
-    .clk_vga    ( clk_vga       ), // 25 MHz
-    .rst        ( rst           ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[5]    ),
-    .vga_red    ( GNG_R[5:1]    ),
-    .vga_green  ( GNG_G[5:1]    ),
-    .vga_blue   ( GNG_B[5:1]    ),
-    .vga_hsync  ( vga_hsync     ),
-    .vga_vsync  ( vga_vsync     )
+jtgng_board #(.SIGNED_SND(1'b1))u_board(
+    .rst            ( rst             ),
+    .clk_rgb        ( clk_rgb         ),
+    .clk_dac        ( clk_rom         ),
+    // audio
+    .snd            ( ym_snd          ),
+    .snd_pwm        ( AUDIO_L         ),
+    // VGA
+    .cen6           ( cen6            ),
+    .clk_vga        ( clk_vga         ),
+    .en_mixing      ( ~status[9]      ),    
+    .game_r         ( red             ),
+    .game_g         ( green           ),
+    .game_b         ( blue            ),
+    .LHBL           ( LHBL            ),
+    .LVBL           ( LVBL            ),
+    .vga_r          ( GNG_R           ),
+    .vga_g          ( GNG_G           ),
+    .vga_b          ( GNG_B           ),    
+    .vga_hsync      ( vga_hsync       ),
+    .vga_vsync      ( vga_vsync       ),
+    // joystick
+    .ps2_kbd_clk    ( ps2_kbd_clk     ),
+    .ps2_kbd_data   ( ps2_kbd_data    ),
+    .board_joystick1( joystick1[8:0]  ),
+    .board_joystick2( joystick2[8:0]  ),
+    .game_joystick1 ( game_joystick1  ),
+    .game_joystick2 ( game_joystick2  ),
+    .game_coin      ( game_coin       ),
+    .game_start     ( game_start      ),
+    .game_pause     ( game_pause      )
 );
 
 // include the on screen display

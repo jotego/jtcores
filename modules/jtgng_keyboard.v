@@ -80,10 +80,10 @@ always @(posedge clk) begin
                     9'h1_74: key_joy1[0] <= !key_released;   // Right
                     // second joystick
                     // coins
-                    9'h2e: key_coin[0] <= !key_released; // 1st coin
-                    9'h2f: key_coin[1] <= !key_released; // 2nd coin
+                    9'h2e: key_coin[0] <= !key_released;  // 1st coin
+                    9'h36: key_coin[1] <= !key_released;  // 2nd coin
                     9'h16: key_start[0] <= !key_released; // 1P start
-                    9'h1e: key_start[1] <= !key_released;  // 2P start
+                    9'h1e: key_start[1] <= !key_released; // 2P start
                     // system control
                     9'h4d: key_pause <= !key_released;
                     9'h04: key_reset <= !key_released;

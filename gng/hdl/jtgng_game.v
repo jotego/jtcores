@@ -32,8 +32,10 @@ module jtgng_game(
     output          HS,
     output          VS,
     // cabinet I/O
-    input   [7:0]   joystick1,
-    input   [7:0]   joystick2,  
+    input   [ 1:0]  start_button,
+    input   [ 1:0]  coin_input,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,  
     // SDRAM interface
     input           downloading,
     input           loop_rst,
@@ -166,6 +168,8 @@ jtgng_main u_main(
     .RnW        ( RnW           ),
     .rom_addr   ( main_addr     ),
     .rom_dout   ( main_dout     ),
+    .start_button( start_button ),
+    .coin_input ( coin_input    ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),   
     // DIP switches

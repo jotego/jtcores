@@ -43,7 +43,7 @@ module jt1942_zxuno(
    output        SRAM_WE_N,
    // Flash ROM
    output        FLASH_CS_N,
-   output        FLASH_CLK,
+   output  reg   FLASH_CLK,
    output        FLASH_MOSI,
    input         FLASH_MISO,
    output        FLASH_WP,
@@ -64,15 +64,20 @@ assign VGALOW_G = VGA_G[5:3];
 assign VGALOW_B = VGA_B[5:3];
 
 wire clk_rgb, clk_vga;
-assign FLASH_HOLD = 1'b1, FLASH_WP = 1'b1, FLASH_CLK = clk_rgb;
+assign FLASH_HOLD = 1'b1, FLASH_WP = 1'b1;
+
+always @(*) FLASH_CLK = 1'b1;
 
 jtgng_pll u_pll(
     .CLK_IN1    ( CLOCK_50  ),
     .clk_rgb    ( clk_rgb   ), // 24 MHz
     .clk_vga    ( clk_vga   ), // 25 MHz
-    .locked     ( locked    )
+    .locked     ( locked    ),
+    .CLKFB_IN   ( 1'b0      )
 );
 
+wire game_rst;
+wire rst = game_rst | ~locked;
 wire [1:0] game_start, game_coin;
 wire [5:0] game_joystick1, game_joystick2;
 
@@ -194,7 +199,7 @@ jt1942_game u_game(
 assign AUDIO_R = AUDIO_L;
 
 jtgng_board u_board(
-    .rst            ( rst             ),
+    .rst            ( game_rst        ),
     .cen6           ( cen6            ),
     .clk_dac        ( clk_rgb         ),
     // audio
@@ -217,13 +222,14 @@ jtgng_board u_board(
     // joystick
     .ps2_kbd_clk    ( PS2_KBD_CLK     ),
     .ps2_kbd_data   ( PS2_KBD_DATA    ),    
-    .board_joystick1( ~{2'b0, JOYSTICK} ),
-    .board_joystick2( 8'h00           ),
+    .board_joystick1( ~{3'b0, JOYSTICK} ),
+    .board_joystick2( 9'h00           ),
     .game_joystick1 ( game_joystick1  ),
     .game_joystick2 ( game_joystick2  ),
     .game_coin      ( game_coin       ),
     .game_start     ( game_start      ),
-    .key_pause      ( LED             )
+    .game_pause     ( LED             ),
+    .soft_rst       ()
 );
 
 endmodule

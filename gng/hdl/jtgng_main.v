@@ -43,8 +43,10 @@ module jtgng_main(
     output             scr_cs,
     output             scrpos_cs,
     // cabinet I/O
-    input   [7:0]      joystick1,
-    input   [7:0]      joystick2,
+    input   [ 1:0]     start_button,
+    input   [ 1:0]     coin_input,
+    input   [ 5:0]     joystick1,
+    input   [ 5:0]     joystick2,  
     // BUS sharing
     output             bus_ack,
     input              bus_req,
@@ -144,22 +146,14 @@ wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin
 wire [7:0] dipsw_b = { 3'd3, /* normal game */
     2'd3, /* bonus at 20k and every 70k */
     dip_upright, 2'd3 /* 3 lifes */ };
-/*
-reg [7:0] joystick1_sync, joystick2_sync;
 
-// 1 FF synchronizer
-always @(negedge clk) begin
-    joystick1_sync <= joystick1;
-    joystick2_sync <= joystick2;
-end
-*/
 always @(*)
     case( cpu_AB[3:0])
-        4'd0: cabinet_input = { joystick2[7],joystick1[7], // COINS
+        4'd0: cabinet_input = { coin_input, // COINS
                      4'hf, // undocumented. The game start screen has background when set to 0!
-                     joystick2[6], joystick1[6] }; // START
-        4'd1: cabinet_input = { 2'b11, joystick1[5:0] };
-        4'd2: cabinet_input = { 2'b11, joystick2[5:0] };
+                     start_button }; // START
+        4'd1: cabinet_input = { 2'b11, joystick1 };
+        4'd2: cabinet_input = { 2'b11, joystick2 };
         4'd3: cabinet_input = dipsw_a;
         4'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;

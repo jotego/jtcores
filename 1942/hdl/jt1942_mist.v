@@ -60,7 +60,7 @@ wire coin_cnt;
 
 //reg rst = 1'b1;
 wire rst;
-assign LED = ~downloading || coin_cnt || rst;
+assign LED = ~downloading | coin_cnt | rst;
 
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
@@ -131,7 +131,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
 
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rgb     ), // 24
+    .c1     ( clk_rgb     ),
     .c2     ( clk_rom     ), // 96
     .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
@@ -147,7 +147,7 @@ jtgng_pll1 clk_gen2 (
 wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.CLK_SPEED(12)) u_cen(
-    .clk    ( clk_rgb   ),    // 24 MHz
+    .clk    ( clk_rgb   ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),

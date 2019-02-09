@@ -50,6 +50,7 @@ module jtgng_board(
     output reg        soft_rst
 );
 
+parameter SIGNED_SND=1'b0;
 
 wire key_reset, key_pause;
 reg [7:0] rst_cnt=8'd0;
@@ -66,7 +67,7 @@ hybrid_pwm_sd u_dac
 (
     .clk    ( clk_dac   ),
     .n_reset( ~rst      ),
-    .din    ( snd       ),
+    .din    ( {snd[15]^SIGNED_SND, snd[14:0]}  ),
     .dout   ( snd_pwm   )
 );
 `endif
@@ -138,7 +139,7 @@ assign key_pause = 1'b0;
 
 reg [8:0] joy1_sync, joy2_sync;
 
-always @(posedge clk_rgb) begin
+always @(posedge clk_rgb) if(cen6) begin
     joy1_sync <= ~board_joystick1;
     joy2_sync <= ~board_joystick2;
 end

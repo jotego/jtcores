@@ -171,9 +171,9 @@ jt1942_main u_main(
     .rom_data   ( main_data     ),
     // Cabinet input
     .start_button( start_button ),
-    .coin_input ( coin_input    ),
-    .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),   
+    .coin_input  ( coin_input   ),
+    .joystick1   ( joystick1    ),
+    .joystick2   ( joystick2    ),   
     // PROM K6
     .prog_addr  ( prog_addr     ),
     .prom_k6_we ( prom_k6_we    ),

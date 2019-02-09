@@ -18,7 +18,7 @@
 
 // 1942 Object Line Buffer
 
-module jt1942_objpxl #(parameter dw=4,obj_dly = 4'hc)(
+module jt1942_objpxl #(parameter dw=4,obj_dly = 4'hc,palw=0)(
     input              rst,
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz
@@ -61,7 +61,7 @@ end
 
 wire [dw-1:0] blank = {dw{1'b1}};
 
-wire we_pxl = !posx[8] && (new_pxl!=blank); // && !DISPTM_b && LHBL;
+wire we_pxl = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
 
 always @(*)
     if( pxlbuf_line == lineA ) begin 

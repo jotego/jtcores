@@ -22,6 +22,7 @@ module jtgng_zxuno_prog(
     // Flash
     input             flash_miso,
     output            flash_mosi,
+    output            flash_clk,
     output reg        flash_cs_n,
     // SRAM
     output reg        sram_we_n,
@@ -43,7 +44,7 @@ reg [31:0] flash_cmd;
 reg [ 7:0] flash_read;
 
 always @(negedge clk)
-    flash_read <= { flash_read[6:0], flash_miso };
+    if(!flash_clk) flash_read <= { flash_read[6:0], flash_miso };
 
 parameter TX_LEN = 1024;
 
@@ -54,12 +55,15 @@ always @(posedge clk)
 if(rst) begin
     downloading <= 1'b1;
     romload_addr   <= 21'd0;
-    flash_cs_n  <= 1'b1;    
+    flash_cs_n  <= 1'b1;
+    flash_clk   <= 1'b0;    
     sram_we_n   <= 1'b1;
     sram_data   <= 8'd0;
     state       <= 2'd0;
     cnt         <= 5'd0;
-end else if(romload_addr!=TX_LEN) begin        
+end else begin
+    flash_clk <= ~flash_clk;
+    if(romload_addr!=TX_LEN) begin        
         if(cnt==5'd0) state <= state + 2'd1;
         case( state )
             2'd0: begin
@@ -90,6 +94,7 @@ end else if(romload_addr!=TX_LEN) begin
         flash_cs_n  <= 1'b1;
         downloading <= 1'b0;
     end
+end
 
 
 

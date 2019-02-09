@@ -71,6 +71,7 @@
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
     <transform xil_pn:end_ts="1549631980" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1549631980">
       <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
     </transform>
     <transform xil_pn:end_ts="1549631980" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="7801035363468372326" xil_pn:start_ts="1549631980">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -97,10 +98,12 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1549642259" xil_pn:in_ck="764436877923274986" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="6648459182403713188" xil_pn:start_ts="1549642225">
+    <transform xil_pn:end_ts="1549737664" xil_pn:in_ck="764436877923274986" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="6648459182403713188" xil_pn:start_ts="1549737613">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
       <outfile xil_pn:name="jt1942_zxuno.lso"/>
       <outfile xil_pn:name="jt1942_zxuno.ngc"/>
@@ -117,9 +120,8 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1549642322" xil_pn:in_ck="-6240905320239072296" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="8909009856828341462" xil_pn:start_ts="1549642315">
+    <transform xil_pn:end_ts="1549737673" xil_pn:in_ck="-6240905320239072296" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="8909009856828341462" xil_pn:start_ts="1549737664">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
@@ -127,24 +129,23 @@
       <outfile xil_pn:name="jt1942_zxuno.ngd"/>
       <outfile xil_pn:name="jt1942_zxuno_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1549642337" xil_pn:in_ck="-6240905320239072295" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1549642322">
-      <status xil_pn:value="FailedRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
+    <transform xil_pn:end_ts="1549737782" xil_pn:in_ck="-6240905320239072295" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1549737673">
+      <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="jt1942_zxuno.pcf"/>
       <outfile xil_pn:name="jt1942_zxuno_map.map"/>
       <outfile xil_pn:name="jt1942_zxuno_map.mrp"/>
+      <outfile xil_pn:name="jt1942_zxuno_map.ncd"/>
       <outfile xil_pn:name="jt1942_zxuno_map.ngm"/>
       <outfile xil_pn:name="jt1942_zxuno_map.xrpt"/>
       <outfile xil_pn:name="jt1942_zxuno_summary.xml"/>
       <outfile xil_pn:name="jt1942_zxuno_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1549641921" xil_pn:in_ck="425716665947197298" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1549641878">
+    <transform xil_pn:end_ts="1549737841" xil_pn:in_ck="425716665947197298" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1549737782">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="jt1942_zxuno.ncd"/>
       <outfile xil_pn:name="jt1942_zxuno.pad"/>
@@ -156,10 +157,9 @@
       <outfile xil_pn:name="jt1942_zxuno_pad.txt"/>
       <outfile xil_pn:name="jt1942_zxuno_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1549641921" xil_pn:in_ck="-6240905320239072427" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1549641914">
+    <transform xil_pn:end_ts="1549737841" xil_pn:in_ck="-6240905320239072427" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1549737831">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="jt1942_zxuno.twr"/>
       <outfile xil_pn:name="jt1942_zxuno.twx"/>
