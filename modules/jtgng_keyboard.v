@@ -85,7 +85,7 @@ always @(posedge clk) begin
                     9'h16: key_start[0] <= !key_released; // 1P start
                     9'h1e: key_start[1] <= !key_released;  // 2P start
                     // system control
-                    9'h4d: if(key_released) key_pause <= ~key_pause;
+                    9'h4d: key_pause <= !key_released;
                     9'h04: key_reset <= !key_released;
                 endcase
             end

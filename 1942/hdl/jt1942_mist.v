@@ -58,6 +58,7 @@ wire locked;
 wire downloading;
 wire coin_cnt;
 
+//reg rst = 1'b1;
 wire rst;
 assign LED = ~downloading || coin_cnt || rst;
 
@@ -96,7 +97,6 @@ data_io u_datain (
     .data_sdram         ( romload_data )
 );
 
-
 wire [31:0] status, joystick1, joystick2; //, joystick;
 
 wire ypbpr;
@@ -131,7 +131,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
 
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rgb     ),
+    .c1     ( clk_rgb     ), // 24
     .c2     ( clk_rom     ), // 96
     .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
     .locked ( locked      )
@@ -144,11 +144,10 @@ jtgng_pll1 clk_gen2 (
     .c0     ( clk_vga   ) // 25
 );
 
-
 wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.CLK_SPEED(12)) u_cen(
-    .clk    ( clk_rgb   ),
+    .clk    ( clk_rgb   ),    // 24 MHz
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
@@ -191,8 +190,9 @@ always @(negedge clk_rgb)
         if( soft_rst_cnt == 8'h0 ) soft_rst <= status[10];
     end
 
-wire [1:0] game_start, game_coin;
 wire [5:0] game_joystick1, game_joystick2;
+wire [1:0] game_coin, game_start;
+wire game_pause;
 
 jt1942_game u_game(
     .rst         ( rst           ),
@@ -210,10 +210,10 @@ jt1942_game u_game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
-    .start_button( game_start        ),
-    .coin_input  ( game_coin         ),
-    .joystick1   ( game_joystick1    ),
-    .joystick2   ( game_joystick2    ),
+    .start_button( game_start     ),
+    .coin_input  ( game_coin      ),
+    .joystick1   ( game_joystick1 ),
+    .joystick2   ( game_joystick2 ),
 
     // PROM programming
     .prog_addr   ( romload_addr[7:0] ),
@@ -237,7 +237,7 @@ jt1942_game u_game(
     .data_read   ( data_read     ),
     // DIP switches
     
-    .dip_pause   ( ~status[1]    ),
+    .dip_pause   ( ~(status[1]|game_pause)   ),
     .dip_level   ( ~status[3:2]  ),
     .dip_test    ( ~status[4]    ),
     .dip_upright ( 1'b0          ),
@@ -276,18 +276,17 @@ jtgng_sdram u_sdram(
 );
 
 assign AUDIO_R = AUDIO_L;
-
-wire vga_hsync, vga_vsync;
-wire [5:0] vga_r, vga_g, vga_b;
+wire [5:0] GNG_R, GNG_G, GNG_B;
 
 jtgng_board u_board(
     .rst            ( rst             ),
+    .clk_rgb        ( clk_rgb         ),
     .clk_dac        ( clk_rom         ),
     // audio
     .snd            ( { snd, 7'd0 }   ),
     .snd_pwm        ( AUDIO_L         ),
     // VGA
-    .clk_rgb        ( clk_rgb         ),
+    .cen6           ( cen6            ),
     .clk_vga        ( clk_vga         ),
     .en_mixing      ( ~status[9]      ),    
     .game_r         ( red             ),
@@ -295,20 +294,21 @@ jtgng_board u_board(
     .game_b         ( blue            ),
     .LHBL           ( LHBL            ),
     .LVBL           ( LVBL            ),
-    .vga_r          ( vga_r           ),
-    .vga_g          ( vga_g           ),
-    .vga_b          ( vga_b           ),    
+    .vga_r          ( GNG_R           ),
+    .vga_g          ( GNG_G           ),
+    .vga_b          ( GNG_B           ),    
     .vga_hsync      ( vga_hsync       ),
     .vga_vsync      ( vga_vsync       ),
     // joystick
     .ps2_kbd_clk    ( ps2_kbd_clk     ),
     .ps2_kbd_data   ( ps2_kbd_data    ),
-    .board_joystick1( ~joystick1[7:0] ),
-    .board_joystick2( ~joystick2[7:0] ),
+    .board_joystick1( joystick1[8:0]  ),
+    .board_joystick2( joystick2[8:0]  ),
     .game_joystick1 ( game_joystick1  ),
     .game_joystick2 ( game_joystick2  ),
     .game_coin      ( game_coin       ),
-    .game_start     ( game_start      )
+    .game_start     ( game_start      ),
+    .game_pause     ( game_pause      )
 );
 
 `ifndef SIMULATION
@@ -328,9 +328,9 @@ osd #(0,0,4) osd (
    .SPI_SCK    ( SPI_SCK      ),
    .SPI_SS3    ( SPI_SS3      ),
 
-   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : vga_r  ),
-   .G_in       ( scandoubler_disable ? { green, green[3:2] } : vga_g  ),
-   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : vga_b  ),
+   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : GNG_R  ),
+   .G_in       ( scandoubler_disable ? { green, green[3:2] } : GNG_G  ),
+   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : GNG_B  ),
    .HSync      ( HSync        ),
    .VSync      ( VSync        ),
 
