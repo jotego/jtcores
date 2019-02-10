@@ -202,6 +202,7 @@ jt1942_sound u_sound (
 );
 `else 
 assign snd_addr = 15'd0;
+assign snd = 9'd0;
 `endif
 
 jt1942_video u_video(

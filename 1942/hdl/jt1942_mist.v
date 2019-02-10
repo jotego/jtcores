@@ -58,7 +58,7 @@ localparam CONF_STR = {
         "O1,Pause,OFF,ON;", // 16
         "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
         "O4,Test mode,OFF,ON;", // 20
-        "O56,Lifes,2,1,3,5;", // 18
+        "O56,Lives,2,1,3,5;", // 18
         "O78,Bonus,30/100,30/80,20/100,20/80;", // 36
         "O9,Screen filter,OFF,ON;", // 24
         "TA,RST ,OFF,ON;", // 15
@@ -84,6 +84,7 @@ wire          coin_cnt;
 assign LED = ~downloading | coin_cnt | rst;
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
+    .rst            ( rst           ),
     .clk_rgb        ( clk_rgb       ),
     .clk_vga        ( clk_vga       ),
     .clk_rom        ( clk_rom       ),

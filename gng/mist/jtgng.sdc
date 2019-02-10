@@ -48,9 +48,11 @@ create_clock -name {jtgng_vga:vga_conv|vga_hsync} -period 31777.000 -waveform { 
 #**************************************************************
 
 derive_pll_clocks -create_base_clocks
-create_generated_clock -name {sdclk_pin} -source [get_pins {clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
-create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:u_cpu|rE} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -phase 135.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
-create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:u_cpu|rQ} -source [get_nets {clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -phase 45.000 -master_clock {clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
+create_generated_clock -name {sdclk_pin} -source [get_pins {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
+
+create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:u_cpu|rE} -source [get_nets {u_base|clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -phase 135.000 -master_clock {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
+
+create_generated_clock -name {jtgng_game:game|jtgng_main:u_main|mc6809:u_cpu|rQ} -source [get_nets {u_base|clk_gen|altpll_component|auto_generated|wire_pll1_clk[1]}] -divide_by 4 -phase 45.000 -master_clock {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[1]} 
 
 
 
@@ -86,7 +88,7 @@ set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
 #**************************************************************
 
 set_clock_groups -asynchronous -group [get_clocks {SPI_SCK}] -group [get_clocks {*|altpll_component|auto_generated|pll1|clk[*]}]
-set_clock_groups -asynchronous -group [get_clocks {clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -group [get_clocks {clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]
+set_clock_groups -asynchronous -group [get_clocks {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -group [get_clocks {u_base|clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]
 
 #**************************************************************
 # Set False Path

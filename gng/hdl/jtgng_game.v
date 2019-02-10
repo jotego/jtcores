@@ -49,6 +49,9 @@ module jtgng_game(
     input           enable_obj,
     input           enable_scr,
     // DIP switches
+    input   [ 1:0]  dip_lives,
+    input   [ 1:0]  dip_level,
+    input   [ 1:0]  dip_bonus,    
     input           dip_game_mode,
     input           dip_attract_snd,
     input           dip_upright,
@@ -173,10 +176,13 @@ jtgng_main u_main(
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),   
     // DIP switches
-    .dip_flip       ( 1'b0      ),
-    .dip_game_mode  ( dip_game_mode     ),
-    .dip_attract_snd( dip_attract_snd   ),
-    .dip_upright    ( dip_upright       )
+    .dip_flip       ( 1'b0            ),
+    .dip_lives      ( dip_lives       ),
+    .dip_level      ( dip_level       ),
+    .dip_bonus      ( dip_bonus       ),
+    .dip_game_mode  ( dip_game_mode   ),
+    .dip_attract_snd( dip_attract_snd ),
+    .dip_upright    ( dip_upright     )
 );
 
 wire [15:0] obj_addr;
