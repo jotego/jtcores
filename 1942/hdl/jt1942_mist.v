@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-`timescale 1ns/1ps
-
 module jt1942_mist(
     input   [1:0]   CLOCK_27,
     output  [5:0]   VGA_R,
@@ -52,15 +50,6 @@ module jt1942_mist(
     output          LED
 );
 
-wire clk_rgb; // 36
-wire clk_vga; // 25
-wire locked;
-wire downloading;
-wire coin_cnt;
-
-//reg rst = 1'b1;
-wire rst;
-assign LED = ~downloading | coin_cnt | rst;
 
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
@@ -78,73 +67,78 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+30;
 
+wire          rst, clk_rgb, clk_vga, clk_rom;
+wire          cen12, cen6, cen3, cen1p5;
+wire [31:0]   status, joystick1, joystick2;
+wire          ps2_kbd_clk, ps2_kbd_data;
+wire [ 5:0]   board_r, board_g, board_b;
+wire          board_hsync, board_vsync, hs, vs;
+wire [21:0]   sdram_addr;
+wire [15:0]   data_read;
+wire          loop_rst, autorefresh; 
+wire          downloading;
+wire [24:0]   romload_addr;
+wire [15:0]   romload_data;
+wire          coin_cnt;
 
-// wire [4:0] index;
-wire clk_rom;
-wire [24:0] romload_addr;
-wire [15:0] romload_data;
+assign LED = ~downloading | coin_cnt | rst;
 
-wire ps2_kbd_clk, ps2_kbd_data;
-
-data_io u_datain (
-    .sck                ( SPI_SCK      ),
-    .ss                 ( SPI_SS2      ),
-    .sdi                ( SPI_DI       ),
-    // .index      (index        ),
-    .clk_sdram          ( clk_rom      ),
-    .downloading_sdram  ( downloading  ),
-    .addr_sdram         ( romload_addr ),
-    .data_sdram         ( romload_data )
+jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
+    .clk_rgb        ( clk_rgb       ),
+    .clk_vga        ( clk_vga       ),
+    .clk_rom        ( clk_rom       ),
+    .SDRAM_CLK      ( SDRAM_CLK     ),
+    .cen12          ( cen12         ),
+    // Base video
+    .board_r        ( board_r       ),
+    .board_g        ( board_g       ),
+    .board_b        ( board_b       ),
+    .board_hsync    ( board_hsync   ),
+    .board_vsync    ( board_vsync   ),
+    .hs             ( hs            ),
+    .vs             ( vs            ),
+    // VGA
+    .CLOCK_27       ( CLOCK_27      ),
+    .VGA_R          ( VGA_R         ),
+    .VGA_G          ( VGA_G         ),
+    .VGA_B          ( VGA_B         ),
+    .VGA_HS         ( VGA_HS        ),
+    .VGA_VS         ( VGA_VS        ),
+    // SDRAM interface
+    .SDRAM_DQ       ( SDRAM_DQ      ),
+    .SDRAM_A        ( SDRAM_A       ),
+    .SDRAM_DQML     ( SDRAM_DQML    ),
+    .SDRAM_DQMH     ( SDRAM_DQMH    ),
+    .SDRAM_nWE      ( SDRAM_nWE     ),
+    .SDRAM_nCAS     ( SDRAM_nCAS    ),
+    .SDRAM_nRAS     ( SDRAM_nRAS    ),
+    .SDRAM_nCS      ( SDRAM_nCS     ),
+    .SDRAM_BA       ( SDRAM_BA      ),
+    .SDRAM_CKE      ( SDRAM_CKE     ),
+    // SPI interface to arm io controller
+    .SPI_DO         ( SPI_DO        ),
+    .SPI_DI         ( SPI_DI        ),
+    .SPI_SCK        ( SPI_SCK       ),
+    .SPI_SS2        ( SPI_SS2       ),
+    .SPI_SS3        ( SPI_SS3       ),
+    .SPI_SS4        ( SPI_SS4       ),
+    .CONF_DATA0     ( CONF_DATA0    ),
+    // control
+    .status         ( status        ), 
+    .joystick1      ( joystick1     ), 
+    .joystick2      ( joystick2     ),
+    .ps2_kbd_clk    ( ps2_kbd_clk   ),
+    .ps2_kbd_data   ( ps2_kbd_data  ),
+    // ROM
+    .romload_addr   ( romload_addr  ),
+    .romload_data   ( romload_data  ),
+    .downloading    ( downloading   ),
+    .loop_rst       ( loop_rst      ),
+    .autorefresh    ( autorefresh   ),
+    .sdram_addr     ( sdram_addr    ),
+    .data_read      ( data_read     )
 );
 
-wire [31:0] status, joystick1, joystick2; //, joystick;
-
-wire ypbpr;
-wire scandoubler_disable;
-
-user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
-    .clk_sys        ( clk_rgb   ),
-    .conf_str       ( CONF_STR  ),
-    .SPI_CLK        ( SPI_SCK   ),
-    .SPI_SS_IO      ( CONF_DATA0),
-    .SPI_MISO       ( SPI_DO    ),
-    .SPI_MOSI       ( SPI_DI    ),
-    .joystick_0     ( joystick2 ),
-    .joystick_1     ( joystick1 ),
-    .status         ( status    ),
-    .ypbpr          ( ypbpr     ),
-    .scandoubler_disable ( scandoubler_disable ),
-    // keyboard
-    .ps2_kbd_clk    ( ps2_kbd_clk  ),
-    .ps2_kbd_data   ( ps2_kbd_data ),
-    // unused ports:
-    .serial_strobe  ( 1'b0      ),
-    .serial_data    ( 8'd0      ),
-    .sd_lba         ( 32'd0     ),
-    .sd_rd          ( 1'b0      ),
-    .sd_wr          ( 1'b0      ),
-    .sd_conf        ( 1'b0      ),
-    .sd_sdhc        ( 1'b0      ),
-    .sd_din         ( 8'd0      )
-);
-
-
-jtgng_pll0 clk_gen (
-    .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rgb     ),
-    .c2     ( clk_rom     ), // 96
-    .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
-    .locked ( locked      )
-);
-
-// assign SDRAM_CLK = clk_rom;
-
-jtgng_pll1 clk_gen2 (
-    .inclk0 ( clk_rgb   ),
-    .c0     ( clk_vga   ) // 25
-);
-
-wire cen12, cen6, cen3, cen1p5;
 
 jtgng_cen #(.CLK_SPEED(12)) u_cen(
     .clk    ( clk_rgb   ),
@@ -159,12 +153,7 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
     wire [3:0] blue;
     wire LHBL;
     wire LVBL;
-    wire hs;
-    wire vs;
     wire [8:0] snd;
-    wire   [21:0]  sdram_addr;
-    wire   [15:0]  data_read;
-    wire   loop_rst, autorefresh; 
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
@@ -250,33 +239,7 @@ jt1942_game u_game(
     .sample      (               )
 );
 
-jtgng_sdram u_sdram(
-    .rst            ( rst           ),
-    .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
-    .clk_slow       ( clk_rgb & cen12 ),
-    .loop_rst       ( loop_rst      ),  
-    .autorefresh    ( autorefresh   ),
-    .data_read      ( data_read     ),
-    // ROM-load interface
-    .downloading    ( downloading   ),
-    .romload_addr   ( romload_addr  ),
-    .romload_data   ( romload_data  ),
-    .sdram_addr     ( sdram_addr    ),
-    // SDRAM interface
-    .SDRAM_DQ       ( SDRAM_DQ      ),
-    .SDRAM_A        ( SDRAM_A       ),
-    .SDRAM_DQML     ( SDRAM_DQML    ),
-    .SDRAM_DQMH     ( SDRAM_DQMH    ),
-    .SDRAM_nWE      ( SDRAM_nWE     ),
-    .SDRAM_nCAS     ( SDRAM_nCAS    ),
-    .SDRAM_nRAS     ( SDRAM_nRAS    ),
-    .SDRAM_nCS      ( SDRAM_nCS     ),
-    .SDRAM_BA       ( SDRAM_BA      ),
-    .SDRAM_CKE      ( SDRAM_CKE     ) 
-);
-
 assign AUDIO_R = AUDIO_L;
-wire [5:0] GNG_R, GNG_G, GNG_B;
 
 jtgng_board u_board(
     .rst            ( rst             ),
@@ -294,11 +257,11 @@ jtgng_board u_board(
     .game_b         ( blue            ),
     .LHBL           ( LHBL            ),
     .LVBL           ( LVBL            ),
-    .vga_r          ( GNG_R           ),
-    .vga_g          ( GNG_G           ),
-    .vga_b          ( GNG_B           ),    
-    .vga_hsync      ( vga_hsync       ),
-    .vga_vsync      ( vga_vsync       ),
+    .vga_r          ( board_r         ),
+    .vga_g          ( board_g         ),
+    .vga_b          ( board_b         ),    
+    .vga_hsync      ( board_hsync     ),
+    .vga_vsync      ( board_vsync     ),
     // joystick
     .ps2_kbd_clk    ( ps2_kbd_clk     ),
     .ps2_kbd_data   ( ps2_kbd_data    ),
@@ -310,52 +273,4 @@ jtgng_board u_board(
     .game_start     ( game_start      ),
     .game_pause     ( game_pause      )
 );
-
-`ifndef SIMULATION
-// include the on screen display
-wire [5:0] osd_r_o;
-wire [5:0] osd_g_o;
-wire [5:0] osd_b_o;
-wire       HSync = scandoubler_disable ? ~hs : vga_hsync;
-wire       VSync = scandoubler_disable ? ~vs : vga_vsync;
-wire       CSync = ~(HSync ^ VSync);
-
-osd #(0,0,4) osd (
-   .clk_sys    ( scandoubler_disable ? clk_rgb : clk_vga ),
-
-   // spi for OSD
-   .SPI_DI     ( SPI_DI       ),
-   .SPI_SCK    ( SPI_SCK      ),
-   .SPI_SS3    ( SPI_SS3      ),
-
-   .R_in       ( scandoubler_disable ? { red  , red  [3:2] } : GNG_R  ),
-   .G_in       ( scandoubler_disable ? { green, green[3:2] } : GNG_G  ),
-   .B_in       ( scandoubler_disable ? { blue , blue [3:2] } : GNG_B  ),
-   .HSync      ( HSync        ),
-   .VSync      ( VSync        ),
-
-   .R_out      ( osd_r_o      ),
-   .G_out      ( osd_g_o      ),
-   .B_out      ( osd_b_o      )
-);
-wire [5:0] Y, Pb, Pr;
-
-rgb2ypbpr u_rgb2ypbpr
-(
-    .red   ( osd_r_o ),
-    .green ( osd_g_o ),
-    .blue  ( osd_b_o ),
-    .y     ( Y       ),
-    .pb    ( Pb      ),
-    .pr    ( Pr      )
-);
-
-assign VGA_R = ypbpr?Pr:osd_r_o;
-assign VGA_G = ypbpr? Y:osd_g_o;
-assign VGA_B = ypbpr?Pb:osd_b_o;
-// a minimig vga->scart cable expects a composite sync signal on the VGA_HS output.
-// and VCC on VGA_VS (to switch into rgb mode)
-assign      VGA_HS = (scandoubler_disable | ypbpr) ? CSync : HSync;
-assign      VGA_VS = (scandoubler_disable | ypbpr) ? 1'b1 : VSync;
-`endif
 endmodule // jtgng_mist

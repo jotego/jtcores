@@ -1,3 +1,4 @@
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_mist_base.v  ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) osd.v              ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) user_io.v          ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) data_io.v          ]
