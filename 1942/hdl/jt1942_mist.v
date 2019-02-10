@@ -61,11 +61,12 @@ localparam CONF_STR = {
         "O56,Lives,2,1,3,5;", // 18
         "O78,Bonus,30/100,30/80,20/100,20/80;", // 36
         "O9,Screen filter,OFF,ON;", // 24
-        "TA,RST ,OFF,ON;", // 15
+        "OA,Invincibility,OFF,ON;", // 24
+        "TF,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+30;
+localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+24+30;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -82,6 +83,8 @@ wire [15:0]   romload_data;
 wire          coin_cnt;
 
 assign LED = ~downloading | coin_cnt | rst;
+wire cheat_invincible = status[32'd10];
+wire rst_req = status[32'hf];
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .rst            ( rst           ),
@@ -177,7 +180,7 @@ always @(negedge clk_rgb)
             soft_rst_cnt <= ~8'h0;;
         end
         if( soft_rst_cnt != 8'h0 ) soft_rst_cnt <= soft_rst_cnt-8'b1;
-        if( soft_rst_cnt == 8'h0 ) soft_rst <= status[10];
+        if( soft_rst_cnt == 8'h0 ) soft_rst <= rst_req;
     end
 
 wire [5:0] game_joystick1, game_joystick2;
@@ -225,8 +228,9 @@ jt1942_game u_game(
     .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
+    // Cheat
+    .cheat_invincible( cheat_invincible ),
     // DIP switches
-    
     .dip_pause   ( ~(status[1]|game_pause)   ),
     .dip_level   ( ~status[3:2]  ),
     .dip_test    ( ~status[4]    ),

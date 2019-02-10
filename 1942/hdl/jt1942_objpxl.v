@@ -61,7 +61,18 @@ end
 
 wire [dw-1:0] blank = {dw{1'b1}};
 
-wire we_pxl = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+reg [7:0]    addr_wr;
+reg [dw-1:0] data_wr;
+reg we_pxl, we0;
+
+//wire we_pxl = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+
+always @(posedge clk) if(cen6) begin
+    data_wr <= new_pxl;
+    addr_wr <= {8{flip}} ^ posx[7:0];
+    we_pxl  <= !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+    //we_pxl  <= we0;
+end
 
 always @(*)
     if( pxlbuf_line == lineA ) begin 
@@ -71,15 +82,15 @@ always @(*)
         weA   = 1'b1;
         dataA = blank;
         // lineB writein
-        addrB = {8{flip}} ^ posx[7:0];
+        addrB = addr_wr;
         weB   = we_pxl;
-        dataB = new_pxl;
+        dataB = data_wr;
     end else begin
         obj_pxl = !DISPTM_b ? lineB_q : blank;
         // lineA writein
-        addrA = {8{flip}} ^ posx[7:0];
+        addrA = addr_wr;
         weA   = we_pxl;
-        dataA = new_pxl;
+        dataA = data_wr;
         // lineB readout
         addrB = Hcnt;
         weB   = 1'b1;

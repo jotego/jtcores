@@ -83,6 +83,9 @@ always @(*) begin
 end
 
 reg [14:0] pre_addr;
+reg VINZONE2, VINZONE3;
+reg [8:0] posx0, posx1;
+reg [3:0] CD2;
 
 always @(posedge clk) if( cen6 ) begin
     if( pxlcnt[3:0] == 4'd7 )begin
@@ -94,6 +97,9 @@ always @(posedge clk) if( cen6 ) begin
             2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
         endcase
         pre_addr[4:1] <= ~LVBETA[3:0];
+        VINZONE2 <= VINZONE;
+        posx0 <= { next_hover, next_x };
+        CD2   <= next_CD;
     end
 end
 
@@ -105,20 +111,19 @@ assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
 
 reg  [3:0] z,y,x,w;
 reg  [3:0] obj_wxyz;
-reg  [8:0] posx0;
 wire [7:0] pal_addr = { CD, obj_wxyz};
-reg VINZONE2;
 
 wire [3:0] rom_at = 4'hc;
 
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};
     if( pxlcnt == (rom_at+4'h2) ) begin // 
-        posx0     <= { next_hover, next_x };
-        CD       <= next_CD;
-        VINZONE2 <= VINZONE;
+        CD       <= CD2;
+        VINZONE3 <= VINZONE2;
     end
-    else posx0 <= posx0 + 9'b1;
+    if( pxlcnt == rom_at+4'h2 ) 
+        posx1<=posx0;
+    else posx1 <= posx1 + 9'b1;
     if( pxlcnt[1:0] == rom_at[1:0] )
         {z,y,x,w} <= objrom_data[15:0];
     else begin
@@ -132,8 +137,13 @@ end
 wire [3:0] prom_dout;
 
 always @(posedge clk ) if(cen6) begin
-    new_pxl <= (!VINZONE2 && !posx[8]) ? prom_dout : 4'hf;
-    posx    <= posx0;
+    if( !VINZONE3 ) begin
+        new_pxl <= prom_dout;
+        posx    <= posx1;
+    end else begin
+        new_pxl <= 4'hf;
+        posx    <= 9'h100;
+    end
 end
 
 jtgng_prom #(.aw(8),.dw(4),

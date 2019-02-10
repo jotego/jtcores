@@ -101,6 +101,20 @@ jt1942_objram u_ram(
 wire [8:0] posx;
 wire [3:0] new_pxl;
 
+`ifdef OBJ_TEST
+    reg [15:0] test_data, td0, td1, td2;
+    always @(*)
+        case( obj_addr[14:8] )
+            7'h3b: td0 = {2{~obj_addr[3:0],obj_addr[3:0]}};
+            default: td0 = 16'd0;
+        endcase
+    always @(posedge clk) if(cen6) begin
+        td1 <= td0;
+        td2 <= td1;
+        test_data <= td2;
+    end
+`endif
+
 // draw the sprite
 jt1942_objdraw u_draw(
     .rst            ( rst           ),
@@ -117,7 +131,11 @@ jt1942_objdraw u_draw(
     .objbuf_data1   ( objbuf_data1  ),
     .objbuf_data2   ( objbuf_data2  ),
     .objbuf_data3   ( objbuf_data3  ),
+    `ifdef OBJ_TEST
+    .objrom_data    ( test_data     ),
+    `else
     .objrom_data    ( objrom_data   ),
+    `endif
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     // Palette PROM

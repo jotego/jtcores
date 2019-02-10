@@ -68,7 +68,7 @@ always @(posedge clk) if(cen6) begin
 end
 `else
 always @(posedge clk) if(cen6) 
-case(scan[6:2])
+if( !SEATM_b && pxlcnt==4'd6 ) case(scan[6:2])
     // 5'd0: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'hD2_46_61_20;
     // 5'd1: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h11_04_98_c0;
     // 5'd2: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h12_04_b0_c0;
@@ -76,7 +76,7 @@ case(scan[6:2])
     // 5'd4: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he0_40_80_a0;
     // 5'd5: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he1_40_b0_a0;
     // 5'd6: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he4_40_80_80;
-    // 5'd7: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he8_40_80_70;
+    //5'd7: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h6c_a6_40_20;
     5'd8: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h6C_A6_61_20;
     5'd9: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h6C_00_00_20;
     default: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h0;

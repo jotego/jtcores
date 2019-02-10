@@ -58,6 +58,8 @@ module jt1942_game(
     input           prom_k3_we,
     input           prom_m11_we,
 
+    // cheat
+    input           cheat_invincible,
     // DIP Switch A
     input   [1:0]   dip_planes,
     input   [1:0]   dip_bonus,
@@ -178,6 +180,8 @@ jt1942_main u_main(
     .prog_addr  ( prog_addr     ),
     .prom_k6_we ( prom_k6_we    ),
     .prog_din   ( prog_din      ),
+    // Cheat
+    .cheat_invincible( cheat_invincible ),
     // DIP switches
     .dipsw_a    ( {dip_planes, dip_bonus, dip_upright, dip_price } ),
     .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7}     ),

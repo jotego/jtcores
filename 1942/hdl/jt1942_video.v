@@ -174,7 +174,7 @@ jt1942_obj u_obj(
     .cen3           ( cen3      ),
     // screen
     .HINIT          ( HINIT     ),
-    .LHBL           ( LHBL      ),
+    .LHBL           ( LHBL_obj  ),
     .LVBL           ( LVBL      ),
     .V              ( V         ),
     .H              ( H         ),

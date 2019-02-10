@@ -42,6 +42,8 @@ module jt1942_main(
     output  reg        scr_cs,
     output  reg [1:0]  scrpos_cs,
     output  reg [2:0]  scr_br,
+    // cheat!
+    input              cheat_invincible,
     // Object
     output  reg        obj_cs,
     // cabinet I/O
@@ -201,7 +203,7 @@ always @(*)
         cpu_din = irq_vector;
     else
     case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
-        5'b10_000: cpu_din =  ram_dout;
+        5'b10_000: cpu_din =  (cheat_invincible && A==16'he0a5) ? 8'h2 : ram_dout;
         5'b01_000: cpu_din = char_dout;
         5'b00_100: cpu_din =  scr_dout;
         5'b00_010: cpu_din =  rom_data;
