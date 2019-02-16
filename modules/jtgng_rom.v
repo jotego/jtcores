@@ -22,6 +22,8 @@ module jtgng_rom(
     input               cen12, // 12 MHz
     input       [ 2:0]  H,
     input               Hsub,
+    input               LHBL,
+    input               LVBL,
     input       [12:0]  char_addr,
     input       [16:0]  main_addr,
     input       [14:0]  snd_addr,
@@ -68,10 +70,10 @@ reg [3:0] rd_state_last;
 `ifdef SIMULATION
 wire main_rq = rd_state[1:0]==2'b01;
 wire  snd_rq = rd_state[1:0]==2'b00;
-wire char_rq = rd_state == 4'd2;
-wire  scr_rq = rd_state == 4'd6 || rd_state==4'd7;
 wire  obj_rq = rd_state[2:0] == 3'b011;
 `endif
+wire char_rq = rd_state == 4'd2;
+wire  scr_rq = rd_state == 4'd6 || rd_state==4'd7;
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
@@ -118,7 +120,7 @@ end else if(cen12) begin
         4'd7: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
         default:;
     endcase 
-    autorefresh <= rd_state==4'd14;
+    autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
 end
 
 endmodule // jtgng_rom

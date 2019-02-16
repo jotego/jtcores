@@ -276,6 +276,8 @@ jtgng_rom #(
     .cen12       ( cen12         ),
     .H           ( H[2:0]        ),
     .Hsub        ( Hsub          ),
+    .LHBL        ( LHBL          ),
+    .LVBL        ( LVBL          ),
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
