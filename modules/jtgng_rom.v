@@ -73,7 +73,7 @@ wire  snd_rq = rd_state[1:0]==2'b00;
 wire  obj_rq = rd_state[2:0] == 3'b011;
 `endif
 wire char_rq = rd_state == 4'd2;
-wire  scr_rq = rd_state == 4'd6 || rd_state==4'd7;
+wire  scr_rq = rd_state[2:1] == 2'b11;
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
@@ -101,8 +101,8 @@ end else if(cen12) begin
         4'b??01:    main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
         4'd2:       char_dout <= data_read;
         4'd3,4'd11: obj_dout  <= data_read;
-        4'd6:       scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
-        4'd7:       scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
+        4'b?110:       scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
+        4'b?111:       scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
         default:;
     endcase
     casez(rd_state)
@@ -116,8 +116,8 @@ end else if(cen12) begin
         end
         4'd2: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
         4'd3, 4'd11: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
-        4'd6: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
-        4'd7: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
+        4'b?110: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
+        4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
         default:;
     endcase 
     autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
