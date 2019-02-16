@@ -83,8 +83,8 @@ wire [15:0]   romload_data;
 wire          coin_cnt;
 
 assign LED = ~downloading | coin_cnt | rst;
-wire cheat_invincible = status[32'd10];
 wire rst_req = status[32'hf];
+wire cheat_invincible = status[32'd10];
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .rst            ( rst           ),
@@ -160,31 +160,16 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
     wire LVBL;
     wire [8:0] snd;
 
-reg soft_rst;
-reg [7:0] soft_rst_cnt;
-reg last_downloading;
-
-always @(negedge clk_rgb) 
-    if ( rst ) begin
-        soft_rst <= 1'b0;
-        soft_rst_cnt <= 8'h0;
-    end else begin
-        last_downloading <= downloading;
-        if( last_downloading && !downloading ) begin
-            soft_rst <= 1'b1;
-            soft_rst_cnt <= ~8'h0;;
-        end
-        if( soft_rst_cnt != 8'h0 ) soft_rst_cnt <= soft_rst_cnt-8'b1;
-        if( soft_rst_cnt == 8'h0 ) soft_rst <= rst_req;
-    end
-
 wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_pause;
 
+reg game_rst;
+always @(negedge clk_rgb)
+    game_rst <= downloading | rst | rst_req;
+
 jt1942_game u_game(
-    .rst         ( rst           ),
-    .soft_rst    ( soft_rst      ),
+    .rst         ( game_rst      ),
     .clk         ( clk_rgb       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),

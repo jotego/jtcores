@@ -18,7 +18,6 @@
     
 module jt1942_game(
     input           rst,
-    input           soft_rst,
     input           clk,        // 24   MHz
     input           cen12,      // 12   MHz
     input           cen6,       //  6   MHz
@@ -78,18 +77,7 @@ wire [ 7:0] chram_dout,scram_dout;
 wire rd;
 wire rom_ready;
 
-reg rst_game=1'b1;
-reg rst_aux;
-
 assign sample=1'b1;
-
-always @(posedge clk)
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
 
 wire LHBL_obj, Hsub;
 assign H0 = { H[2:0], Hsub } == 4'b0000;
@@ -164,7 +152,7 @@ jt1942_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .soft_rst   ( soft_rst      ),
     .char_wait_n( char_wait_n   ),
     .scr_wait_n ( scr_wait_n    ),
@@ -212,7 +200,7 @@ jt1942_sound u_sound (
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
-    .rst            ( rst_game       ),
+    .rst            ( rst            ),
     .soft_rst       ( soft_rst       ),
     .sres_b         ( sres_b         ),
     .main_dout      ( cpu_dout       ),

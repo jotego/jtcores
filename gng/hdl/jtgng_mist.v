@@ -87,6 +87,7 @@ wire [1:0]    dip_bonus = 2'b11;
 
 
 assign LED = ~downloading | coin_cnt | rst;
+wire rst_req = status[10];
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .rst            ( rst           ),
@@ -164,9 +165,12 @@ wire signed [15:0] ym_snd;
 wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 
+reg game_rst;
+always @(negedge clk_rgb)
+    game_rst <= downloading | rst | rst_req;
+
 jtgng_game game(
-    .rst         ( rst           ),
-    .soft_rst    ( status[10]    ),
+    .rst         ( game_rst      ),
     .clk         ( clk_rgb       ),
 	.cen12       ( cen12         ),
     .cen6        ( cen6          ),
