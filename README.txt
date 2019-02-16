@@ -8,7 +8,7 @@ You can show your appreciation through
 
 Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST is here to the rescue.
 
-What you get with this is an extremely accurate (allegedly 100% accurate) clone of the original hardware. You will notice differences from MAME if you compare. Try resetting it and compare those screens for a start! Original hardware handled sound and graphics in a different way from the emulator. There were delays in CPU bus access and other details that will make the experience different from an emulator. Of course, no pause. Just like the real thing!
+What you get with this is an extremely accurate (allegedly 100% accurate) clone of the original hardware. You will notice differences from MAME if you compare. For instance, on Ghosts'n Goblins try resetting it and compare those screens for a start! Original hardware handled sound and graphics in a different way from the emulator. There were delays in CPU bus access and other details that will make the experience different from an emulator.
 
 I hope you will have as much fun with it as I had it while making it!
 
@@ -16,7 +16,11 @@ Supported Games
 ===============
 
 * 1942
-* Ghosts'n Goblins
+* Ghosts'n Goblins (MiSTer port https://github.com/MiSTer-devel/Arcade-GnG_MiSTer)
+
+How to continue the game
+========================
+Most CAPCOM games of this era require to hold the fire button while pressing 1P to continue the game.
 
 Project Structure
 =================
@@ -39,20 +43,25 @@ hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
 
 Directory Structure
 ===================
-original/hdl/        replica of original PCB schematics
-original/ver/        simulation files for original PCB
-modules     files shared by several games and external files
-doc         documents related to original PCB
-rom         script to convert from MAME rom files to the required format
-            simulation files expect the rom files here
-gng/        MiST board version of Ghosts'n Goblins.
-            Latest core version is located in this folder and called core.rbf
-gng/hdl     Verilog files of the clone for MiST
-gng/doc     documents related to MiST clone or MiST hardware
-gng/quartus project to synthesize the clone
-gng/ver     simulation files of MiST clone
+original/hdl/   replica of original PCB schematics
+original/ver/   simulation files for original PCB
+modules         files shared by several games and external files
+modules/mist    
+doc             documents related to original PCB
+doc/74          74' series data sheets
+rom             script to convert from MAME rom files to the required format
+                simulation files expect the rom files here
+gng/            MiST board version of Ghosts'n Goblins.
+                Latest core version is located in this folder and called core.rbf
+gng/hdl         Verilog files of the clone for MiST
+gng/doc         documents related to MiST clone or MiST hardware
+gng/quartus     project to synthesize the clone
+gng/ver         simulation files of MiST clone
 
-1942        MiST board version of 1942 arcade game
+1942            MiST board version of 1942 arcade game
+1942/hdl        Verilog files of the clone for MiST
+1942/zxuno      files for ZX-UNO version
+1942/mist       Quartus files for MiST version
 
 Clone Structure
 ===============
@@ -80,7 +89,7 @@ You can press F12 to bring the OSD menu up. You can turn off music, or sound eff
 
 Sound
 =======
-Original filter for sound:
+Original filter for sound (GnG)
     -high pass filter with cut-off freq. at 1.6Hz
     -low pass filter with cut-off freq. at 32.3kHz
 
@@ -92,3 +101,35 @@ Project is hosted in http://www.github.com/jotego/jt_gng
 License: GPL3, you are obligued to publish your code if you use mine
 
 Special thanks to Greg Miller and Alexey Melnikov
+
+Patreon supporters for 1942 core
+================================
+    Scralings
+    Suvodip Mitra
+    Don Gafford
+    Matthew Coyne
+    Fred Fryolator
+    Víctor Gomariz Ladrón de Guevara
+    albconde
+    Blue1597
+    Bruno Silva
+    Dag J.
+    Darren Newman
+    Ed Balan
+    Fredrik Berglind
+    Jacob Proctor
+    JD
+    John Klimek
+    Juan Javier Rivera Lopez
+    loloC2C
+    Manuel Fernández
+    Matt Charlesworth
+    Michael Stegen
+    PsyFX
+    remowilliams
+    Salvador Perugorria Lorente
+    Vorvek
+    Andyways
+    SmokeMonster
+
+Thank you all!
