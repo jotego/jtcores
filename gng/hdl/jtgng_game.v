@@ -40,6 +40,7 @@ module jtgng_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
+    output          H0,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
     input   [24:0]  romload_addr,
@@ -89,6 +90,7 @@ always @(posedge clk)
     end
 
 wire LHBL_obj, Hsub;
+assign H0 = { H[2:0], Hsub } == 4'b0000;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -261,11 +263,13 @@ jtgng_video u_video(
 );
 
 jtgng_rom u_rom (
+    .rst         ( rst           ),
     .clk         ( clk           ),
     .cen12       ( cen12         ),
     .H           ( H[2:0]        ),
     .Hsub        ( Hsub          ),
-    .rst         ( rst           ),
+    .LHBL        ( LHBL          ),
+    .LVBL        ( LVBL          ),    
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),

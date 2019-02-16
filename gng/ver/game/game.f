@@ -6,7 +6,7 @@
 ../../hdl/jtgng_objdma.v
 ../../hdl/jtgng_objbuf.v
 ../../hdl/jtgng_objdraw.v
-../../hdl/jtgng_objpxl.v
+../../../1942/hdl/jt1942_objpxl.v
 ../../hdl/jtgng_scroll.v
 ../../hdl/jtgng_sound.v
 ../../hdl/jtgng_video.v

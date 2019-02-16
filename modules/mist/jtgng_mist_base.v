@@ -78,13 +78,13 @@ module jtgng_mist_base(
     input           autorefresh
 );
 
-wire ypbpr;
-wire scandoubler_disable;
-
-
 parameter CONF_STR="CORE";
 parameter CONF_STR_LEN=4;
 
+wire ypbpr;
+wire scandoubler_disable;
+
+`ifndef SIMULATION
 user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
     .clk_sys        ( clk_rgb   ),
     .conf_str       ( CONF_STR  ),
@@ -110,7 +110,14 @@ user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
     .sd_sdhc        ( 1'b0      ),
     .sd_din         ( 8'd0      )
 );
-
+`else 
+assign joystick1 = 32'd0;
+assign joystick2 = 32'd0;
+assign status    = 32'd0;
+assign ps2_kbd_data = 1'b0;
+assign ps2_kbd_clk  = 1'b0;
+assign scandoubler_disable = 1'b1;
+`endif
 
 jtgng_pll0 clk_gen (
     .inclk0 ( CLOCK_27[0] ),

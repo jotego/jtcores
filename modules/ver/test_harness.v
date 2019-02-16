@@ -10,9 +10,10 @@ module test_harness(
     output       cen1p5,
     input   [21:0]  sdram_addr,
     output  [15:0]  data_read,
-    input   loop_rst, 
-    input   autorefresh,   
-    output  downloading,
+    output            loop_rst, 
+    input             autorefresh,   
+    input             H0,
+    output            downloading,
     output    [24:0]  romload_addr,
     output    [15:0]  romload_data,
     // SPI
@@ -122,7 +123,7 @@ generate
         jtgng_sdram u_sdram(
             .rst            ( rst           ),
             .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
-            .clk_slow       ( clk & cen12   ),
+            .H0             ( H0            ),
             .loop_rst       ( loop_rst      ),  
             .autorefresh    ( autorefresh   ),
             .data_read      ( data_read     ),
@@ -172,59 +173,6 @@ mt48lc16m16a2 #(.filename(GAME_ROMNAME)) mist_sdram (
     .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
 );
 `endif
-
-/*
-`ifdef VGACONV
-reg clk_vga;
-wire [3:0] VGA_R, VGA_G, VGA_B;
-wire VGA_HS, VGA_VS;
-
-initial begin
-    clk_vga =1'b0;
-    forever clk_vga  = #20.063 ~clk_vga ; //20
-end
-
-jt1942_vga vga_conv (
-    .clk_1942    ( clk_pxl       ), //  6 MHz
-    .clk_vga    ( clk_vga       ), // 25 MHz
-    .rst        ( rst           ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .vga_red    ( VGA_R         ),
-    .vga_green  ( VGA_G         ),
-    .vga_blue   ( VGA_B         ),
-    .vga_hsync  ( VGA_HS        ),
-    .vga_vsync  ( VGA_VS        )
-);
-`ifdef CHR_DUMP
-integer frame_cnt;
-reg enter_hbl, enter_vbl;
-always @(posedge clk_vga) begin
-    if( rst ) begin
-        enter_hbl <= 1'b0;
-        enter_vbl <= 1'b0;
-        frame_cnt <= 0;
-    end else begin
-        enter_hbl <= VGA_HS;
-        enter_vbl <= VGA_VS;
-        if( enter_vbl != VGA_VS && !VGA_VS) begin
-            $write(")]\n# New frame\nframe_%d=[(\n", frame_cnt);
-            frame_cnt <= frame_cnt + 1;
-        end
-        else
-        if( enter_hbl != VGA_HS && !VGA_HS)
-            $write("),\n(");
-        else
-            if( VGA_HS ) $write("%d,%d,%d,",red,red, green, green, blue, blue);
-    end
-end
-`endif
-
-`endif
-*/
 
 `ifdef MAXFRAME
 integer fout, frame_cnt;

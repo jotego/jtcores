@@ -232,7 +232,7 @@ verilator)
         -f game.f $PERCORE \
         ../../../modules/tv80/*.v \
         ../../../modules/ver/quick_sdram.v \
-        --top-module jt1942_game -o sim \
+        --top-module jt${SYSNAME}_game -o sim \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM -DFASTSDRAM \
         -DVERILATOR_LINT \
         $MAXFRAME -DSIM_MS=$SIM_MS --lint-only $EXTRA;;

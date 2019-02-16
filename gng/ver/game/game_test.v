@@ -65,7 +65,7 @@ module game_test;
     end
 `endif
 
-wire            downloading;
+wire            downloading, autorefresh, H0;
 wire    [24:0]  romload_addr;
 wire    [15:0]  romload_data;
 wire [3:0] red, green, blue;
@@ -89,6 +89,7 @@ test_harness #(.GAME_ROMNAME("../../../rom/JTGNG.rom")) u_harness(
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
+    .H0          ( H0            ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     .romload_addr( romload_addr  ),
@@ -111,14 +112,15 @@ jtgng_game UUT (
     .HS         ( HS        ),
     .VS         ( VS        ),
 
-    .joystick1  ( 8'hff     ),
-    .joystick2  ( 8'hff     ),
+    .joystick1  ( ~6'h0     ),
+    .joystick2  ( ~6'h0     ),
     // ROM load
     .downloading ( downloading   ),
     .romload_addr( romload_addr  ),
     .romload_data( romload_data  ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
+    .H0          ( H0            ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // Debug

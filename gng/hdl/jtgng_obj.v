@@ -124,7 +124,7 @@ jtgng_objdraw u_draw(
 );
 
 // line buffers for pixel data
-jt1942_objpxl #(.dw(6),.obj_dly(4'hf),.palw(2)) u_pxlbuf(
+jt1942_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -132,6 +132,7 @@ jt1942_objpxl #(.dw(6),.obj_dly(4'hf),.palw(2)) u_pxlbuf(
     // screen
     .LHBL           ( LHBL          ),    
     .flip           ( flip          ),
+    .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
     .line           ( line          ),
