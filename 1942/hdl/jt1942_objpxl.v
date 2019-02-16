@@ -18,7 +18,7 @@
 
 // 1942 Object Line Buffer
 
-module jt1942_objpxl #(parameter dw=4,obj_dly = 4'hc,palw=0)(
+module jt1942_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0)(
     input              rst,
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz
@@ -26,6 +26,7 @@ module jt1942_objpxl #(parameter dw=4,obj_dly = 4'hc,palw=0)(
     input              DISPTM_b,
     input              LHBL,    
     input              flip,
+    input       [4:0]  objcnt,    
     input       [3:0]  pxlcnt,
     input       [8:0]  posx,
     input              line,
@@ -51,7 +52,7 @@ always @(posedge clk)
     if( rst )
         pxlbuf_line <= lineA;
     else if(cen6) begin
-        if( pxlcnt== obj_dly ) pxlbuf_line<=line; // to account for latency drawing the object
+        if( {objcnt[0],pxlcnt}== obj_dly ) pxlbuf_line<=line; // to account for latency drawing the object
     end
 
 always @(posedge clk) if(cen6) begin
