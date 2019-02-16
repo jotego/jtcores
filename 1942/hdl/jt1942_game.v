@@ -41,6 +41,7 @@ module jt1942_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
+    output          H0,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
 
@@ -101,6 +102,7 @@ always @(posedge clk)
     end
 
 wire LHBL_obj, Hsub;
+assign H0 = { H[2:0], Hsub } == 4'b0000;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),

@@ -42,7 +42,7 @@ module jtgng_rom(
     input       [15:0]  data_read
 );
 
-wire [3:0] rd_state = { H, Hsub } +4'd1;
+wire [3:0] rd_state = { H, Hsub }; // +4'd1;
 
 // H is used to align with the pixel transfers
 // the SDRAM-read state machine will start at roughly pixel 0 (of each 8-pixel tuple)
@@ -62,21 +62,16 @@ parameter  obj_offset = 22'h20000;
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
 
-reg pre_ready;
 reg [3:0] ready_cnt;
-
-always @(posedge clk) 
-    if(rst || downloading) begin
-        ready <= 1'b0;
-        ready_cnt <= 4'd0;
-    end else begin
-        {ready, ready_cnt}  <= {ready_cnt, pre_ready};
-    end
-
 reg [3:0] rd_state_last;
 
-always @(posedge clk) 
-    rd_state_last <= rd_state;
+`ifdef SIMULATION
+wire main_rq = rd_state[1:0]==2'b01;
+wire  snd_rq = rd_state[1:0]==2'b00;
+wire char_rq = rd_state == 4'd2;
+wire  scr_rq = rd_state == 4'd6 || rd_state==4'd7;
+wire  obj_rq = rd_state[2:0] == 3'b011;
+`endif
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
@@ -88,10 +83,11 @@ if( loop_rst || downloading ) begin
     char_dout <= 16'd0;
     obj_dout  <= 16'd0;
     scr_dout  <= 24'd0;
-    pre_ready <= 1'b0;
+    ready_cnt <=  4'd0;    
+    ready     <=  1'b0;
 end else if(cen12) begin
-    pre_ready <= 1'b1;
-    //rd_state <= rd_state + 4'd1;
+    {ready, ready_cnt}  <= {ready_cnt, 1'b1};
+    rd_state_last <= rd_state;
     // Get data from current read
     casez(rd_state_last) // I hope the -4'd1 gets re-encoded in the
         // case list, rather than getting implemented as an actual adder

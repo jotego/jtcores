@@ -22,9 +22,9 @@
 module jtgng_sdram(
     input               rst,
     input               clk, // 96MHz = 32 * 6 MHz -> CL=2  
-    input               clk_slow, // sync to the rising edge of this clock
     output              loop_rst,  
     input               autorefresh,
+    input               H0,    
     output reg  [15:0]  data_read,
     input       [21:0]  sdram_addr,
     // ROM-load interface
@@ -68,22 +68,14 @@ reg [8:0] col_addr;
 reg [3:0] SDRAM_CMD;
 assign {SDRAM_nCS, SDRAM_nRAS, SDRAM_nCAS, SDRAM_nWE } = SDRAM_CMD;
 
-// Edge with 1 FF synchronization
-reg slow_clk_edge;
-reg [1:0] clk_slow_last;
-always @(posedge clk) begin
-    clk_slow_last <= { clk_slow_last[0], clk_slow };
-    slow_clk_edge <= !clk_slow_last[1] && clk_slow_last[0];
-end
-
-reg autorefresh_sync;
-always @(posedge clk) autorefresh_sync <= autorefresh;
-
 reg [13:0] wait_cnt;
 reg [2:0] cnt_state, init_state;
 reg       initialize;
 
 assign loop_rst = initialize;
+
+reg H0_last;
+always @(posedge clk) H0_last <= H0;
 
 always @(posedge clk)
     if( rst ) begin
@@ -94,7 +86,10 @@ always @(posedge clk)
         initialize <= 1'b1;
         init_state <= 3'd0;
         // Main loop
-        cnt_state  <= 3'd4; // Starts after the precharge
+        cnt_state  <= 3'd3; //Starts after the precharge
+            // 0,1,4,5,6,7 fails
+            // 3 SCROLL is chunky
+            // 2 SCROLL very chunky
     end else if( initialize ) begin
         if( |wait_cnt ) begin
             wait_cnt <= wait_cnt-14'd1;
@@ -121,7 +116,7 @@ always @(posedge clk)
                     SDRAM_A[10]<= 1'b1; // all banks
                     wait_cnt   <= 14'd1;
                 end
-                3'd4: if( slow_clk_edge) initialize <= 1'b0;
+                3'd4: if( !H0 && H0_last ) initialize <= 1'b0;
                 default:;
             endcase
         end
@@ -138,7 +133,7 @@ always @(posedge clk)
                 { SDRAM_A, col_addr } <= romload_addr[21:0];
             end else begin                
                 SDRAM_CMD <= 
-                    autorefresh_sync ? CMD_AUTOREFRESH : CMD_ACTIVATE;
+                    autorefresh ? CMD_AUTOREFRESH : CMD_ACTIVATE;
                 { SDRAM_A, col_addr } <= sdram_addr;
             end
         end
@@ -147,7 +142,7 @@ always @(posedge clk)
             SDRAM_A[ 8:0] <= col_addr;
             SDRAM_WRITE <= downloading;
             SDRAM_CMD <= downloading ? CMD_WRITE :
-                autorefresh_sync ? CMD_NOP : CMD_READ;
+                autorefresh ? CMD_NOP : CMD_READ;
         end
         3'd7: data_read <= SDRAM_DQ;
         endcase

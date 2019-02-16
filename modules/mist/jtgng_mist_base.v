@@ -23,6 +23,7 @@ module jtgng_mist_base(
     output          clk_rom,
     output          clk_vga,
     input           cen12,
+    input           H0,
     // Base video
     input   [3:0]   game_r,
     input   [3:0]   game_g,
@@ -140,9 +141,9 @@ data_io u_datain (
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
-    .clk_slow       ( clk_rgb & cen12 ),
     .loop_rst       ( loop_rst      ),  
     .autorefresh    ( autorefresh   ),
+    .H0             ( H0            ),
     .data_read      ( data_read     ),
     // ROM-load interface
     .downloading    ( downloading   ),

@@ -76,7 +76,7 @@ wire [ 5:0]   board_r, board_g, board_b;
 wire          board_hsync, board_vsync, hs, vs;
 wire [21:0]   sdram_addr;
 wire [15:0]   data_read;
-wire          loop_rst, autorefresh; 
+wire          loop_rst, autorefresh, H0; 
 wire          downloading;
 wire [24:0]   romload_addr;
 wire [15:0]   romload_data;
@@ -93,6 +93,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .clk_rom        ( clk_rom       ),
     .SDRAM_CLK      ( SDRAM_CLK     ),
     .cen12          ( cen12         ),
+    .H0             ( H0            ),
     // Base video
     .board_r        ( board_r       ),
     .board_g        ( board_g       ),
@@ -226,6 +227,7 @@ jt1942_game u_game(
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
+    .H0          ( H0            ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // Cheat
