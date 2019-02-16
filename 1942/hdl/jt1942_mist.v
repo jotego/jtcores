@@ -160,16 +160,10 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
     wire LVBL;
     wire [8:0] snd;
 
-wire [9:0] prom_we;
-jt1942_prom_we u_prom_we(
-    .downloading    ( downloading   ), 
-    .romload_addr   ( romload_addr  ),
-    .prom_we        ( prom_we       )
-);
-
 reg soft_rst;
 reg [7:0] soft_rst_cnt;
 reg last_downloading;
+
 always @(negedge clk_rgb) 
     if ( rst ) begin
         soft_rst <= 1'b0;
@@ -210,18 +204,8 @@ jt1942_game u_game(
     .joystick2   ( game_joystick2 ),
 
     // PROM programming
-    .prog_addr   ( romload_addr[7:0] ),
-    .prog_din    ( romload_data[3:0] ),
-    .prom_k6_we  ( prom_we[0]        ),
-    .prom_d1_we  ( prom_we[1]        ),
-    .prom_d2_we  ( prom_we[2]        ),
-    .prom_d6_we  ( prom_we[3]        ),
-    .prom_e8_we  ( prom_we[4]        ),
-    .prom_e9_we  ( prom_we[5]        ),
-    .prom_e10_we ( prom_we[6]        ),
-    .prom_f1_we  ( prom_we[7]        ),  
-    .prom_k3_we  ( prom_we[8]        ),  
-    .prom_m11_we ( prom_we[9]        ),  
+    .ioctl_addr  ( romload_addr[21:0] ),
+    .prog_din    ( romload_data[3:0] ), 
 
     // ROM load
     .downloading ( downloading   ),

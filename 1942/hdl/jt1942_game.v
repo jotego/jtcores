@@ -46,18 +46,8 @@ module jt1942_game(
     input   [15:0]  data_read,
 
     // PROM programming
-    input   [ 7:0]  prog_addr,
+    input   [21:0]  ioctl_addr,    
     input   [ 3:0]  prog_din,
-    input           prom_k6_we,
-    input           prom_d1_we,
-    input           prom_d2_we,
-    input           prom_d6_we,
-    input           prom_e8_we,
-    input           prom_e9_we,
-    input           prom_e10_we,
-    input           prom_f1_we,
-    input           prom_k3_we,
-    input           prom_m11_we,
 
     // cheat
     input           cheat_invincible,
@@ -142,6 +132,33 @@ wire  [14:0]  snd_addr;
 
 wire snd_latch0_cs, snd_latch1_cs, snd_int;
 wire char_wait_n, scr_wait_n;
+
+wire [9:0] prom_we;
+jt1942_prom_we u_prom_we(
+    //.clk_rom     ( clk_rom       ),
+    .downloading ( downloading   ), 
+    //.ioctl_wr    ( ioctl_wr      ),
+    //.ioctl_addr  ( ioctl_addr    ),
+    //.ioctl_data  ( ioctl_data    ),
+    //.prog_data   ( prog_data     ),
+    //.prog_mask   ( prog_mask     ),
+    //.prog_addr   ( prog_addr     ),
+    .romload_addr( ioctl_addr    ),    
+    .prom_we     ( prom_we       )
+);
+
+wire [7:0] prog_addr = ioctl_addr[7:0];
+
+wire prom_k6_we  = prom_we[0];
+wire prom_d1_we  = prom_we[1];
+wire prom_d2_we  = prom_we[2];
+wire prom_d6_we  = prom_we[3];
+wire prom_e8_we  = prom_we[4];
+wire prom_e9_we  = prom_we[5];
+wire prom_e10_we = prom_we[6];
+wire prom_f1_we  = prom_we[7];
+wire prom_k3_we  = prom_we[8];
+wire prom_m11_we = prom_we[9];
 
 jt1942_main u_main(
     .clk        ( clk           ),

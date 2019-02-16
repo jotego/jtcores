@@ -18,7 +18,7 @@
 
 module jt1942_prom_we(
     input             downloading, 
-    input [24:0]      romload_addr,
+    input [21:0]      romload_addr,
     output reg [9:0]  prom_we
 );
 
