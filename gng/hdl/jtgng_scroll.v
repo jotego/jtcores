@@ -93,7 +93,7 @@ end
 wire [7:0] dout_low, dout_high;
 assign dout = AB[10] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(10)) u_ram_low(
+jtgng_ram #(.aw(10),.cen_rd(1)) u_ram_low(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),
@@ -102,7 +102,7 @@ jtgng_ram #(.aw(10)) u_ram_low(
     .q      ( dout_low )
 );
 
-jtgng_ram #(.aw(10)) u_ram_high(
+jtgng_ram #(.aw(10),.cen_rd(1)) u_ram_high(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),

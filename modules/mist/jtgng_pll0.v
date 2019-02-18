@@ -104,7 +104,7 @@ module jtgng_pll0 (
 		altpll_component.bandwidth_type = "AUTO",
 		altpll_component.clk1_divide_by = 9,
 		altpll_component.clk1_duty_cycle = 50,
-		altpll_component.clk1_multiply_by = 4,
+		altpll_component.clk1_multiply_by = 8,
 		altpll_component.clk1_phase_shift = "0",
 		altpll_component.clk2_divide_by = 9,
 		altpll_component.clk2_duty_cycle = 50,
@@ -193,7 +193,7 @@ endmodule
 // Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE3 STRING "50.00000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "12.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "24.000000"
 // Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "96.000000"
 // Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE3 STRING "96.000000"
 // Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
@@ -226,7 +226,7 @@ endmodule
 // Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "1"
 // Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "32"
 // Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
-// Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "12.00000000"
+// Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "24.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "96.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "100.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "1"
@@ -283,7 +283,7 @@ endmodule
 // Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
 // Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "9"
 // Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "4"
+// Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "8"
 // Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
 // Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "9"
 // Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"

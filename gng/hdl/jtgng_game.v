@@ -212,6 +212,8 @@ jtgng_sound u_sound (
 );
 `else 
 assign snd_addr = 15'd0;
+assign sample   = 1'b0;
+assign ym_snd   = 16'b0;
 `endif
 
 jtgng_video u_video(
