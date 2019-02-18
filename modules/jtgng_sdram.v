@@ -77,7 +77,10 @@ reg write_cycle=1'b0, write_req=1'b0;
 
 assign loop_rst = initialize;
 
-wire readon  = !downloading && (read_req || autorefresh);
+reg last_read_req;
+
+always @(posedge clk) last_read_req <= read_req;
+wire readon  = !downloading && ((read_req!=last_read_req) || autorefresh);
 wire writeon = downloading && prog_we;
 
 reg autorefresh_cycle;
@@ -129,7 +132,7 @@ always @(posedge clk)
         if( cnt_state!=3'd0 || 
             readon || /* when not downloading */
             writeon   /* when downloading */) 
-            cnt_state <= cnt_state + 3'd1;
+            cnt_state <= cnt_state==3'd6 ? 3'd0 : (cnt_state + 3'd1);
         case( cnt_state )
         default: begin // wait
             SDRAM_CMD <= CMD_NOP;

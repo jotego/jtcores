@@ -24,7 +24,8 @@ module jtgng_rom(
     input               Hsub,
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_re,
+    output  reg         sdram_re, // any edge (rising or falling) 
+        // means a read request
 
     input       [12:0]  char_addr,
     input       [16:0]  main_addr,
@@ -77,13 +78,13 @@ wire  obj_rq = rd_state[2:0] == 3'b011;
 wire char_rq = rd_state == 4'd2;
 wire  scr_rq = rd_state[2:1] == 2'b11;
 
-// clk is 24 MHz, read strobes
-always @(posedge clk)
+always @(posedge clk) if(cen12) begin
     if( loop_rst )
         sdram_re <= 1'b0;   // start strobing before ready signal
             // because first data must be read before that signal.
     else
         sdram_re <= ~sdram_re;
+end
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin

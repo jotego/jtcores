@@ -145,7 +145,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
 );
 
 
-jtgng_cen #(.CLK_SPEED(24)) u_cen(
+jtgng_cen #(.CLK_SPEED(12)) u_cen(
     .clk    ( clk_rgb   ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
