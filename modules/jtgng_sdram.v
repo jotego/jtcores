@@ -126,15 +126,15 @@ always @(posedge clk)
             endcase
         end
     end else  begin // regular operation
-        if( cnt_state!=3'd2 || 
+        if( cnt_state!=3'd0 || 
             readon || /* when not downloading */
             writeon   /* when downloading */) 
             cnt_state <= cnt_state + 3'd1;
         case( cnt_state )
-        3'd0,3'd1,3'd3,3'd5,3'd6: begin // wait
+        default: begin // wait
             SDRAM_CMD <= CMD_NOP;
         end
-        3'd2: begin // activate or refresh
+        3'd0: begin // activate or refresh
             write_data  <= prog_data;
             if( writeon ) begin
                 SDRAM_CMD <= CMD_ACTIVATE;
@@ -150,14 +150,14 @@ always @(posedge clk)
                 write_cycle       <= 1'b0;               
             end
         end
-        3'd4: begin // set read/write            
+        3'd2: begin // set read/write            
             SDRAM_A[12:9] <= 4'b0010; // auto precharge;
             SDRAM_A[ 8:0] <= col_addr;
             SDRAM_WRITE <= write_cycle;
             SDRAM_CMD <= write_cycle ? CMD_WRITE :
                 autorefresh_cycle ? CMD_NOP : CMD_READ;
         end
-        3'd7: begin
+        3'd5: begin
             if(!write_cycle && !autorefresh_cycle) data_read <= SDRAM_DQ;
             write_cycle       <= 1'b0;
             autorefresh_cycle <= 1'b0;
