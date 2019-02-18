@@ -24,13 +24,14 @@ module jtgng_sdram(
     input               clk, // 96MHz = 32 * 6 MHz -> CL=2  
     output              loop_rst,  
     input               autorefresh,
-    input               H0,    
+    input               read_req,    // read strobe
     output reg  [15:0]  data_read,
     input       [21:0]  sdram_addr,
     // ROM-load interface
     input               downloading,
-    input       [24:0]  romload_addr,
-    input       [15:0]  romload_data,
+    input               prog_we,    // strobe
+    input       [21:0]  prog_addr,
+    input       [15:0]  prog_data,    
     // SDRAM interface
     inout       [15:0]  SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output reg  [12:0]  SDRAM_A,        // SDRAM Address bus 13 Bits
@@ -72,10 +73,14 @@ reg [13:0] wait_cnt;
 reg [2:0] cnt_state, init_state;
 reg       initialize;
 
+reg write_cycle=1'b0, write_req=1'b0;
+
 assign loop_rst = initialize;
 
-reg H0_last;
-always @(posedge clk) H0_last <= H0;
+wire readon  = !downloading && (read_req || autorefresh);
+wire writeon = downloading && prog_we;
+
+reg autorefresh_cycle;
 
 always @(posedge clk)
     if( rst ) begin
@@ -116,35 +121,47 @@ always @(posedge clk)
                     SDRAM_A[10]<= 1'b1; // all banks
                     wait_cnt   <= 14'd1;
                 end
-                3'd4: if( !H0 && H0_last ) initialize <= 1'b0;
+                3'd4: initialize <= 1'b0;
                 default:;
             endcase
         end
     end else  begin // regular operation
-        cnt_state <= cnt_state + 3'd1;
+        if( cnt_state!=3'd2 || 
+            readon || /* when not downloading */
+            writeon   /* when downloading */) 
+            cnt_state <= cnt_state + 3'd1;
         case( cnt_state )
         3'd0,3'd1,3'd3,3'd5,3'd6: begin // wait
             SDRAM_CMD <= CMD_NOP;
         end
         3'd2: begin // activate or refresh
-            write_data  <= romload_data;
-            if( downloading ) begin
+            write_data  <= prog_data;
+            if( writeon ) begin
                 SDRAM_CMD <= CMD_ACTIVATE;
-                { SDRAM_A, col_addr } <= romload_addr[21:0];
-            end else begin                
+                { SDRAM_A, col_addr } <= prog_addr[21:0];
+                autorefresh_cycle <= 1'b0;
+                write_cycle       <= 1'b1;
+            end 
+            if( readon ) begin                
                 SDRAM_CMD <= 
                     autorefresh ? CMD_AUTOREFRESH : CMD_ACTIVATE;
-                { SDRAM_A, col_addr } <= sdram_addr;
+                { SDRAM_A, col_addr } <= sdram_addr;                
+                autorefresh_cycle <= autorefresh; 
+                write_cycle       <= 1'b0;               
             end
         end
         3'd4: begin // set read/write            
             SDRAM_A[12:9] <= 4'b0010; // auto precharge;
             SDRAM_A[ 8:0] <= col_addr;
-            SDRAM_WRITE <= downloading;
-            SDRAM_CMD <= downloading ? CMD_WRITE :
-                autorefresh ? CMD_NOP : CMD_READ;
+            SDRAM_WRITE <= write_cycle;
+            SDRAM_CMD <= write_cycle ? CMD_WRITE :
+                autorefresh_cycle ? CMD_NOP : CMD_READ;
         end
-        3'd7: data_read <= SDRAM_DQ;
+        3'd7: begin
+            if(!write_cycle && !autorefresh_cycle) data_read <= SDRAM_DQ;
+            write_cycle       <= 1'b0;
+            autorefresh_cycle <= 1'b0;
+        end
         endcase
     end
 endmodule // jtgng_sdram

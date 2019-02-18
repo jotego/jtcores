@@ -23,7 +23,7 @@ module jtgng_mist_base(
     output          clk_rom,
     output          clk_vga,
     input           cen12,
-    input           H0,
+    input           sdram_re,
     // Base video
     input   [3:0]   game_r,
     input   [3:0]   game_g,
@@ -69,9 +69,15 @@ module jtgng_mist_base(
     output          ps2_kbd_clk,
     output          ps2_kbd_data,
     // ROM
-    output [24:0]   romload_addr,
-    output [15:0]   romload_data,
+    output [21:0]   ioctl_addr,
+    output [15:0]   ioctl_data,
+    output          ioctl_wr,
+    // input  [21:0]   prog_addr,
+    // input  [ 7:0]   prog_data,
+    // input  [ 1:0]   prog_mask,
+    // input           prog_we,
     output          downloading,
+    // ROM access from game
     input  [21:0]   sdram_addr,
     output [15:0]   data_read,
     output          loop_rst, 
@@ -134,28 +140,34 @@ jtgng_pll1 clk_gen2 (
     .c0     ( clk_vga   ) // 25
 );
 
-data_io u_datain (
+data_io #(.aw(22)) u_datain (
     .sck                ( SPI_SCK      ),
     .ss                 ( SPI_SS2      ),
     .sdi                ( SPI_DI       ),
     // .index      (index        ),
     .clk_sdram          ( clk_rom      ),
     .downloading_sdram  ( downloading  ),
-    .addr_sdram         ( romload_addr ),
-    .data_sdram         ( romload_data )
+    .ioctl_addr         ( ioctl_addr   ),
+    .ioctl_data         ( ioctl_data   ),
+    .ioctl_wr           ( ioctl_wr     )
 );
+
+wire [21:0] prog_addr = ioctl_addr[21:0];
+wire [15:0] prog_data = ioctl_data;
+wire        prog_we   = ioctl_wr;
 
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
-    .loop_rst       ( loop_rst      ),  
+    .loop_rst       ( loop_rst      ),
+    .read_req       ( sdram_re      ),
     .autorefresh    ( autorefresh   ),
-    .H0             ( H0            ),
     .data_read      ( data_read     ),
     // ROM-load interface
     .downloading    ( downloading   ),
-    .romload_addr   ( romload_addr  ),
-    .romload_data   ( romload_data  ),
+    .prog_we        ( prog_we       ),
+    .prog_addr      ( prog_addr     ),
+    .prog_data      ( prog_data     ),
     .sdram_addr     ( sdram_addr    ),
     // SDRAM interface
     .SDRAM_DQ       ( SDRAM_DQ      ),

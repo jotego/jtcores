@@ -1,25 +1,27 @@
 `timescale 1ns/1ps
 
 module test_harness(
-    output  reg  rst,
-    output  reg  clk,
-    output  reg  clk27,
-    output       cen12, 
-    output       cen6,
-    output       cen3,
-    output       cen1p5,
-    input   [21:0]  sdram_addr,
-    output  [15:0]  data_read,
-    output            loop_rst, 
-    input             autorefresh,   
-    input             H0,
-    output            downloading,
-    output    [24:0]  romload_addr,
-    output    [15:0]  romload_data,
+    output  reg      rst,
+    output  reg      clk,
+    output  reg      clk27,
+    output           cen12, 
+    output           cen6,
+    output           cen3,
+    output           cen1p5,
+    input   [21:0]   sdram_addr,
+    output  [15:0]   data_read,
+    output           loop_rst, 
+    input            autorefresh,   
+    input            H0,
+    output           downloading,
+    output    [21:0] ioctl_addr,
+    output    [15:0] ioctl_data,
+    output           ioctl_wr,
     // SPI
     output  SPI_SCK,
     output  SPI_DI,  // SPI always from FPGA's view
     input   SPI_DO,
+    input   SPI_SS2,
     output  CONF_DATA0,
     // SDRAM
     inout [15:0] SDRAM_DQ,
@@ -129,8 +131,9 @@ generate
             .data_read      ( data_read     ),
             // ROM-load interface
             .downloading    ( downloading   ),
-            .romload_addr   ( romload_addr  ),
-            .romload_data   ( romload_data  ),
+            .prog_addr      ( ioctl_addr    ),
+            .prog_data      ( ioctl_data    ),
+            .prog_we        ( ioctl_wr      ),
             .sdram_addr     ( sdram_addr    ),
             // SDRAM interface
             .SDRAM_DQ       ( SDRAM_DQ      ),
@@ -228,15 +231,16 @@ spitx u_spitx(
     .spi_done   ( spi_done   )
 );
 
-data_io datain (
+data_io #(.aw(22)) datain (
     .sck        (SPI_SCK      ),
     .ss         (SPI_SS2      ),
     .sdi        (SPI_DI       ),
     .downloading_sdram(downloading  ),
     .index      (             ),
     .clk_sdram  (SDRAM_CLK    ),
-    .addr_sdram (romload_addr ),
-    .data_sdram (romload_data )
+    .ioctl_addr ( ioctl_addr  ),
+    .ioctl_data ( ioctl_data  ),
+    .ioctl_wr   ( ioctl_wr    )
 );
 `else 
 assign downloading = 0;

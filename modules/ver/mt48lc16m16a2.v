@@ -96,6 +96,25 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end        
         `endif
     end
+    `else 
+    // check contents after 140ms
+    reg [15:0] mem_check[0 : mem_sizes];
+    integer readcnt, f;
+    initial begin
+        #(140_000_000);
+        f=$fopen(filename,"rb");
+        if( f!= 0 ) begin
+            readcnt = $fread( mem_check, f );
+            $fclose(f);
+            for( readcnt=readcnt-1;readcnt>0; readcnt=readcnt-1) begin
+                if( mem_check[readcnt] != Bank0[readcnt] ) begin
+                    $display("ERROR: %m\n\tMemory content check failed for file %s at offset %X", filename, readcnt );
+                    $finish;
+                end
+            end
+            $display("INFO: memory content check succedded (SDRAM)");
+        end
+    end
     `endif
 
     reg                   [1 : 0] Bank_addr [0 : 3];                // Bank Address Pipeline
@@ -304,6 +323,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             // Precharge to Refresh
             if (Pc_b0 === 1'b0 || Pc_b1 === 1'b0 || Pc_b2 === 1'b0 || Pc_b3 === 1'b0) begin
                 $display ("%m : at time %t ERROR: All banks must be Precharge before Auto Refresh", $time);
+                $finish;
             end
 
             // Load Mode Register to Auto Refresh
@@ -362,6 +382,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             // Precharge to Load Mode Register
             if (Pc_b0 === 1'b0 && Pc_b1 === 1'b0 && Pc_b2 === 1'b0 && Pc_b3 === 1'b0) begin
                 $display ("%m : at time %t ERROR: all banks must be Precharge before Load Mode Register", $time);
+                $finish;
             end
 
             // Precharge to Load Mode Register
@@ -390,6 +411,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             if ((Ba === 2'b00 && Act_b0 === 1'b1) || (Ba === 2'b01 && Act_b1 === 1'b1) ||
                 (Ba === 2'b10 && Act_b2 === 1'b1) || (Ba === 2'b11 && Act_b3 === 1'b1)) begin
                 $display ("%m : at time %t ERROR: Bank already activated -- data can be corrupted", $time);
+                #100 $finish;
             end
 
             // Activate Bank 0
@@ -957,17 +979,21 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             endcase
 
             // Dqm operation
-            if (Dqm[0] == 1'b0) begin
+            if (Dqm[0] === 1'b0) begin
                 Dq_dqm [ 7 : 0] = Dq [ 7 : 0];
             end
-            if (Dqm[1] == 1'b0) begin
+            if (Dqm[1] === 1'b0) begin
                 Dq_dqm [15 : 8] = Dq [15 : 8];
+            end
+            if (Dqm[0] === 1'bx || Dqm[1]== 1'bx) begin
+                $display("ERROR: DQ Mask is XX during write operation %m");
+                $finish;
             end
 
             // Write to memory
-            `ifdef LOADROM
-            $display("WRITE: Bank %d, Row %X, Col %x, Value %x ", Bank, Row, Col, Dq_dqm);
-            `endif
+            // `ifdef LOADROM
+            // $display("WRITE: Bank %d, Row %X, Col %x, Value %x ", Bank, Row, Col, Dq_dqm);
+            // `endif
             case (Bank)
                 2'b00 : Bank0 [{Row, Col}] = Dq_dqm;
                 2'b01 : Bank1 [{Row, Col}] = Dq_dqm;

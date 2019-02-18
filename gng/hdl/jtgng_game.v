@@ -40,11 +40,9 @@ module jtgng_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
-    output          H0,
+    output          sdram_re,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
-    input   [24:0]  romload_addr,
-    input   [15:0]  romload_data,
     // DEBUG
     input           enable_char,
     input           enable_obj,
@@ -271,7 +269,9 @@ jtgng_rom u_rom (
     .H           ( H[2:0]        ),
     .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
-    .LVBL        ( LVBL          ),    
+    .LVBL        ( LVBL          ),
+    .sdram_re    ( sdram_re      ),
+
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),

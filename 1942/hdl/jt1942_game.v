@@ -40,7 +40,7 @@ module jt1942_game(
     input           downloading,
     input           loop_rst,
     output          autorefresh,
-    output          H0,
+    output          sdram_re,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
 
@@ -81,6 +81,11 @@ assign sample=1'b1;
 
 wire LHBL_obj, Hsub;
 assign H0 = { H[2:0], Hsub } == 4'b0000;
+
+reg rst_game;
+
+always @(negedge clk)
+    rst_game <= rst || !rom_ready;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -149,10 +154,10 @@ wire prom_k3_we  = prom_we[8];
 wire prom_m11_we = prom_we[9];
 
 jt1942_main u_main(
+    .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .rst        ( rst           ),
     .soft_rst   ( soft_rst      ),
     .char_wait_n( char_wait_n   ),
     .scr_wait_n ( scr_wait_n    ),
@@ -197,10 +202,10 @@ jt1942_main u_main(
 
 `ifndef NOSOUND
 jt1942_sound u_sound (
+    .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
-    .rst            ( rst            ),
     .soft_rst       ( soft_rst       ),
     .sres_b         ( sres_b         ),
     .main_dout      ( cpu_dout       ),
@@ -283,6 +288,8 @@ jtgng_rom #(
     .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
+    .sdram_re    ( sdram_re      ),
+    
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),

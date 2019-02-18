@@ -1,8 +1,51 @@
+`timescale 1 ns / 1 ps
+
+module spitx_sub(
+    input       rst,
+    input       clk,
+    output reg  spi_clk,
+    input       [7:0] datain,
+    input       send,  // send strobe
+    output reg  data_sent,
+    output      spi_ser
+);
+
+reg [2:0] cnt;
+reg [7:0] databuf;
+
+assign spi_ser = databuf[7];
+
+always @(posedge clk)
+    if ( rst ) begin
+        spi_clk   <= 1'b0;
+        databuf   <= 8'h0;
+        data_sent <= 1'b0;
+    end else begin
+        if( send ) begin
+            cnt <= ~3'h0;
+            databuf <= datain;
+            spi_clk <= 1'b0;
+        end
+        if( !spi_clk ) begin
+            spi_clk   <= 1'b1;
+            data_sent <= 1'b0;
+        end else if(cnt!=3'h0 ) begin
+            databuf <= { databuf[7:0], 1'b0 };
+            spi_clk <= 1'b0;
+            cnt <= cnt - 3'h1;
+            if( cnt==3'd1 ) data_sent <= 1'b1;
+        end
+    end
+endmodule
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 module spitx(
     input   rst,
     input   SPI_DO,
     output  SPI_SCK,
-    output  reg SPI_DI,
+    output  SPI_DI,
     output  reg SPI_SS2,
     output  SPI_SS3,
     output  SPI_SS4,
@@ -22,104 +65,117 @@ localparam UIO_FILE_TX_DAT  = 8'h54;
 localparam UIO_FILE_INDEX   = 8'h55;
 
 reg [7:0] rom_buffer[0:TX_LEN-1];
+reg send;
 
 initial begin
     file=$fopen(filename,"rb");
     if( file==0 ) begin
-        $display("ERROR: could not open file ", filename );
+        $display("ERROR: %m\n\tcould not open file %s", filename );
         $finish;
     end
     tx_cnt=$fread( rom_buffer, file );
     if( tx_cnt != TX_LEN ) begin
-        $display("ERROR: ", filename," was expected to be of length %d", TX_LEN );
+        $display("ERROR: %m\n\t%s", filename," was expected to be of length %d", TX_LEN );
         $finish;
     end
+    $display("INFO: Read %s for SPI transmission.",filename);
     $fclose(file);
 end
 
-integer spi_st, next, buff_cnt;
-reg spi_clkgate;
-reg clk_24;
+reg clk;
+wire data_sent;
+reg [7:0] data;
+
+spitx_sub u_sub(
+    .rst       ( rst          ),
+    .clk       ( clk          ),
+    .spi_clk   ( SPI_SCK      ),
+    .datain    ( data         ),
+    .send      ( send         ),  // send strobe
+    .data_sent ( data_sent    ),
+    .spi_ser   ( SPI_DI       )
+);
+
+integer state, next;
+reg hold;
+
+localparam clkspeed=8; // MiST is probably 28MHz or clkspeed=17.857
 
 initial begin
-    clk_24 = 0;
-    forever #20.833 clk_24 = ~clk_24;
+    clk = 0;
+    forever #(clkspeed) clk = ~clk;
 end
 
-localparam SPI_INIT=0, SPI_TX=1, SPI_SET=2, SPI_END=3, SPI_UNSET=4;
-assign SPI_SCK = clk_24 /*& spi_clkgate*/;
-reg [15:0] spi_buffer;
-
-always @(posedge SPI_SCK or posedge rst) begin
-    if( rst ) begin 
-        tx_cnt <= 3000;
-        spi_st <= 0;
-        spi_buffer <= { UIO_FILE_TX, 8'hff };
-        spi_clkgate <= 1'b1;
-        SPI_SS2 <= 1'b1;
-        buff_cnt <= 15;
-        spi_done <= 1'b0;       
+always @(posedge clk or posedge rst)
+if( rst ) begin 
+    tx_cnt <= 8000;
+    state <= 0;
+    SPI_SS2 <= 1'b0;
+    spi_done <= 1'b0;
+    send     <= 1'b0; 
+    hold     <= 1'b1;  
+end
+else begin
+    if( !hold ) begin
+        state <= state + 1;
     end
-    else
-    case( spi_st )
-        SPI_INIT: begin
-            if( tx_cnt ) tx_cnt <= tx_cnt-1; // wait for SDRAM to be ready
-        else begin
-            SPI_SS2 <= 1'b0;
-            SPI_DI <= spi_buffer[buff_cnt];
-            if( buff_cnt==0 ) begin
-                $display("SPI transfer begins");
-                spi_st <= SPI_SET;
-            end
-            else
-                buff_cnt <= buff_cnt-1;
-            end
-        end
-        SPI_SET: begin
-            SPI_SS2 <= 1'b1;
-            spi_buffer[7:0] <= UIO_FILE_TX_DAT;
-            spi_st <= SPI_TX;
-            buff_cnt <= 7;
-        end
-        SPI_TX: begin
-            SPI_SS2 <= 1'b0;
-            SPI_DI <= spi_buffer[buff_cnt];
-            if( buff_cnt ) begin
-                spi_clkgate <= 1'b1;
-                buff_cnt <= buff_cnt-1;
-            end
+    SPI_SS2 <= 1'b0;
+    send    <= 1'b0;
+    case( state )
+        0: begin            
+            if( tx_cnt )
+                tx_cnt <= tx_cnt-1; // wait for SDRAM to be ready
             else begin
-                tx_cnt <= tx_cnt + 1;
-                // $display("tx_cnt %X",tx_cnt);
-                if(tx_cnt==TX_LEN) begin
-                    SPI_SS2 <= 1'b1;
-                    spi_st <= SPI_UNSET;
-                end
-                else begin
-                    buff_cnt <= 7;
-                    spi_buffer[7:0] <= rom_buffer[tx_cnt];
-                end
-                if(tx_cnt>TX_LEN) spi_st <= SPI_END;
+                SPI_SS2 <= 1'b1;
+                hold <= 1'b0;
             end
         end
-        SPI_END: begin
-            spi_done <= 1'b1;
-            spi_clkgate <= 1'b0;
+        // send DOWNLOAD signal
+        1: begin
+            $display("ROM loading starts");
+            data <= UIO_FILE_TX;
+            send <= 1'b1;
+            hold <= 1'b1;
         end
-        SPI_UNSET: begin
-            spi_buffer <= {UIO_FILE_TX, 8'd0};
-            buff_cnt <= 15;
-            spi_st <= SPI_TX;
+        2,4,7,12: if(data_sent) hold <= 1'b0;
+        3: begin
+            data <= 8'h1;
+            send <= 1'b1;
+            hold <= 1'b1;
+        end
+        // send DATA signal
+        5: SPI_SS2 <= 1'b1;
+        6: begin
+            data <= UIO_FILE_TX_DAT;
+            send <= 1'b1;
+            hold <= 1'b1;
+        end
+        // send actual data:
+        8: begin
+            data <= rom_buffer[tx_cnt];
+            send <= 1'b1;
+            hold <= 1'b1;
+            tx_cnt <= tx_cnt + 1;
+        end
+        9: if( data_sent ) begin
+            if( tx_cnt!=TX_LEN ) state <= 8;
+            hold <= 1'b0;
+        end
+        // finish DOWNLOAD signal
+        10: SPI_SS2 <= 1'b1;
+        11: begin
+            $display("ROM loading finished");
+            data <= UIO_FILE_TX;
+            send <= 1'b1;
+            hold <= 1'b1;
+        end
+        13: begin
+            data <= 8'h0; // Toggle down downloading signal
+            send <= 1'b1;
+            hold <= 1'b1;
+            spi_done <= 1'b1;
         end
     endcase
 end
-
-always @(spi_done)
-    if(spi_done) begin
-        $display("ROM loading completed");
-        `ifdef DUMP
-        $dumpon;
-        `endif
-    end
 
 endmodule // spitx

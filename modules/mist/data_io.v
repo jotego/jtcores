@@ -22,7 +22,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-module data_io (
+module data_io #(parameter aw=25)(
 	// io controller spi interface
 	input         sck,
 	input         ss,
@@ -33,8 +33,9 @@ module data_io (
 	// external ram interface
 	input 			  	clk_sdram,
 	output reg     		downloading_sdram,   // signal indicating an active download
-	output reg [24:0] 	addr_sdram,
-	output reg [15:0]  	data_sdram
+	output reg [aw-1:0] ioctl_addr,
+	output reg [15:0]  	ioctl_data,
+    output reg          ioctl_wr
 );
 
 // *********************************************************************************
@@ -108,7 +109,7 @@ always@(posedge clk_sdram)
 	begin
 		{ downloading_sdram, sync_aux } <= { sync_aux, downloading_reg };
 		if ({ downloading_sdram, sync_aux } == 2'b01) begin
-			addr_sdram <= ~25'd0;
+			ioctl_addr <= {aw{1'b1}};
 			even <= 1'b0;
 		end
 
@@ -120,11 +121,12 @@ always@(posedge clk_sdram)
 			half <= data;
 			even <= ~even;
 			if( even ) begin
-				data_sdram <= { half, data };
-				//data_sdram <= { data_sdram[7:0], data };
-				addr_sdram <= addr_sdram + 1'd1;
+				ioctl_data <= { half, data };
+				//ioctl_data <= { ioctl_data[7:0], data };
+				ioctl_addr <= ioctl_addr + 1'd1;
 			end
 		end
+        ioctl_wr <= rclkD && !rclkD2;
 	end
 
 endmodule

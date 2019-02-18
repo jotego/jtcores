@@ -77,8 +77,8 @@ wire [21:0]   sdram_addr;
 wire [15:0]   data_read;
 wire          loop_rst, autorefresh, H0; 
 wire          downloading;
-wire [24:0]   romload_addr;
-wire [15:0]   romload_data;
+wire [21:0]   ioctl_addr;
+wire [15:0]   ioctl_data;
 wire          coin_cnt = 1'b0; // To do: check if GnG provided this output
 
 wire [1:0]    dip_level = ~status[8:7];
@@ -96,7 +96,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .clk_rom        ( clk_rom       ),
     .SDRAM_CLK      ( SDRAM_CLK     ),
     .cen12          ( cen12         ),
-    .H0             ( H0            ),
+    .sdram_re       ( sdram_re      ),
     // Base video
     .board_r        ( board_r       ),
     .board_g        ( board_g       ),
@@ -138,8 +138,8 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .ps2_kbd_clk    ( ps2_kbd_clk   ),
     .ps2_kbd_data   ( ps2_kbd_data  ),
     // ROM
-    .romload_addr   ( romload_addr  ),
-    .romload_data   ( romload_data  ),
+    .ioctl_addr     ( ioctl_addr    ),
+    .ioctl_data     ( ioctl_data    ),
     .downloading    ( downloading   ),
     .loop_rst       ( loop_rst      ),
     .autorefresh    ( autorefresh   ),
@@ -191,11 +191,9 @@ jtgng_game game(
 
     // ROM load
     .downloading ( downloading   ),
-    .romload_addr( romload_addr  ),
-    .romload_data( romload_data  ),
     .loop_rst    ( loop_rst      ),
     .autorefresh ( autorefresh   ),
-    .H0          ( H0            ),
+    .sdram_re    ( sdram_re      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // DEBUG

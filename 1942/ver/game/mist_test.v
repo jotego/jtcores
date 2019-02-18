@@ -10,11 +10,7 @@ module mist_test;
         $display("DUMP enabled");
         $dumpfile("test.lxt");
         `ifdef LOADROM
-            $dumpvars(1,mist_test.UUT.u_game.u_main);
-            $dumpvars(1,mist_test.UUT.u_game.u_sound);
-            $dumpvars(1,mist_test.UUT.u_game.u_rom);
-            $dumpvars(1,mist_test);
-            // $dumpvars(0,mist_test);
+            $dumpvars(0,mist_test);
             $dumpon;
         `else
             `ifdef DEEPDUMP
@@ -58,12 +54,12 @@ module mist_test;
 `endif
 
 wire            downloading;
-wire    [24:0]  romload_addr;
-wire    [15:0]  romload_data;
+wire    [21:0]  ioctl_addr;
+wire    [15:0]  ioctl_data;
 wire cen12, cen6, cen3, cen1p5, clk, clk27, rst;
 wire [21:0]  sdram_addr;
 wire [15:0]  data_read;
-wire SPI_SCK, SPI_DO, SPI_DI, CONF_DATA0;
+wire SPI_SCK, SPI_DO, SPI_DI, SPI_SS2, CONF_DATA0;
 
 wire [15:0] SDRAM_DQ;
 wire [12:0] SDRAM_A;
@@ -84,9 +80,10 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1942.rom")) u_ha
 //    .autorefresh ( autorefresh   ),
 //    .sdram_addr  ( sdram_addr    ),
 //    .data_read   ( data_read     ),
-    .romload_addr( romload_addr  ),
-    .romload_data( romload_data  ),
+    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_data  ( ioctl_data    ),
     .SPI_SCK     ( SPI_SCK       ),
+    .SPI_SS2     ( SPI_SS2       ),
     .SPI_DI      ( SPI_DI        ),
     .SPI_DO      ( SPI_DO        ),
     .CONF_DATA0  ( CONF_DATA0    ),
@@ -130,7 +127,7 @@ jt1942_mist UUT(
     .SPI_DO     ( SPI_DO    ),
     .SPI_DI     ( SPI_DI    ),
     .SPI_SCK    ( SPI_SCK   ),
-    .SPI_SS2    ( 1'b0      ),
+    .SPI_SS2    ( SPI_SS2   ),
     .SPI_SS3    ( 1'b0      ),
     .SPI_SS4    ( 1'b0      ),
     .CONF_DATA0 ( CONF_DATA0),
