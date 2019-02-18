@@ -70,12 +70,12 @@ module jtgng_mist_base(
     output          ps2_kbd_data,
     // ROM
     output [21:0]   ioctl_addr,
-    output [15:0]   ioctl_data,
+    output [ 7:0]   ioctl_data,
     output          ioctl_wr,
-    // input  [21:0]   prog_addr,
-    // input  [ 7:0]   prog_data,
-    // input  [ 1:0]   prog_mask,
-    // input           prog_we,
+    input  [21:0]   prog_addr,
+    input  [ 7:0]   prog_data,
+    input  [ 1:0]   prog_mask,
+    input           prog_we,
     output          downloading,
     // ROM access from game
     input  [21:0]   sdram_addr,
@@ -152,10 +152,6 @@ data_io #(.aw(22)) u_datain (
     .ioctl_wr           ( ioctl_wr     )
 );
 
-wire [21:0] prog_addr = ioctl_addr[21:0];
-wire [15:0] prog_data = ioctl_data;
-wire        prog_we   = ioctl_wr;
-
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
     .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
@@ -168,6 +164,7 @@ jtgng_sdram u_sdram(
     .prog_we        ( prog_we       ),
     .prog_addr      ( prog_addr     ),
     .prog_data      ( prog_data     ),
+    .prog_mask      ( prog_mask     ),
     .sdram_addr     ( sdram_addr    ),
     // SDRAM interface
     .SDRAM_DQ       ( SDRAM_DQ      ),

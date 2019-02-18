@@ -19,10 +19,10 @@ module mist_test;
         $display("DUMP enabled");
         $dumpfile("test.lxt");
         `ifdef LOADROM
-            $dumpvars(1,mist_test.UUT.u_game.u_main);
-            $dumpvars(1,mist_test.UUT.u_game.u_sound);
-            $dumpvars(1,mist_test.UUT.u_game.u_rom);
-            $dumpvars(1,mist_test);
+            //$dumpvars(1,mist_test.UUT.u_game.u_main);
+            //$dumpvars(1,mist_test.UUT.u_game.u_sound);
+            //$dumpvars(1,mist_test.UUT.u_game.u_rom);
+            $dumpvars(0,mist_test);
             // $dumpvars(0,mist_test);
             $dumpon;
         `else
@@ -79,7 +79,9 @@ wire [ 1:0] SDRAM_BA;
 wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS, 
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
-test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JTGNG.rom")) 
+test_harness #(.sdram_instance(0),
+    .GAME_ROMNAME("../../../rom/JTGNG.rom"),
+    .TX_LEN(32'h10000)) 
 u_harness(
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -98,6 +100,7 @@ u_harness(
     .SPI_SCK     ( SPI_SCK       ),
     .SPI_DI      ( SPI_DI        ),
     .SPI_DO      ( SPI_DO        ),
+    .SPI_SS2     ( SPI_SS2       ),
     .CONF_DATA0  ( CONF_DATA0    ),
     // SDRAM
     .SDRAM_DQ    ( SDRAM_DQ  ),
@@ -144,7 +147,7 @@ jtgng_mist UUT(
     .AUDIO_L    ( AUDIO_L   ),
     .AUDIO_R    ( AUDIO_R   ),
     // unused
-    .SPI_SS2    ( 1'b0      ),
+    .SPI_SS2    ( SPI_SS2   ),
     .SPI_SS3    ( 1'b0      ),
     .SPI_SS4    ( 1'b0      ),
     .LED()

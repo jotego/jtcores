@@ -31,12 +31,13 @@ module jtgng_sdram(
     input               downloading,
     input               prog_we,    // strobe
     input       [21:0]  prog_addr,
-    input       [15:0]  prog_data,    
+    input       [ 7:0]  prog_data,
+    input       [ 1:0]  prog_mask,
     // SDRAM interface
     inout       [15:0]  SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output reg  [12:0]  SDRAM_A,        // SDRAM Address bus 13 Bits
-    output              SDRAM_DQML,     // SDRAM Low-byte Data Mask
-    output              SDRAM_DQMH,     // SDRAM High-byte Data Mask
+    output reg          SDRAM_DQML,     // SDRAM Low-byte Data Mask
+    output reg          SDRAM_DQMH,     // SDRAM High-byte Data Mask
     output              SDRAM_nWE,      // SDRAM Write Enable
     output              SDRAM_nCAS,     // SDRAM Column Address Strobe
     output              SDRAM_nRAS,     // SDRAM Row Address Strobe
@@ -55,14 +56,12 @@ localparam  CMD_LOAD_MODE   = 4'b0000, // 0
             CMD_NOP         = 4'b0111, // 7
             CMD_INHIBIT     = 4'b1000; // 8
 
-assign SDRAM_DQMH = 1'b0;
-assign SDRAM_DQML = 1'b0;
 assign SDRAM_BA   = 2'b0;
 assign SDRAM_CKE  = 1'b1;
 
 reg SDRAM_WRITE;
-reg [15:0] write_data;
-assign SDRAM_DQ =  SDRAM_WRITE ? write_data : 16'hzzzz;            
+reg [7:0] write_data;
+assign SDRAM_DQ =  SDRAM_WRITE ? {write_data, write_data} : 16'hzzzz;            
 
 reg [8:0] col_addr;
 
@@ -139,18 +138,20 @@ always @(posedge clk)
         end
         3'd0: begin // activate or refresh
             write_data  <= prog_data;
+            {SDRAM_DQMH, SDRAM_DQML } <= 2'b00;
             if( writeon ) begin
                 SDRAM_CMD <= CMD_ACTIVATE;
                 { SDRAM_A, col_addr } <= prog_addr[21:0];
                 autorefresh_cycle <= 1'b0;
                 write_cycle       <= 1'b1;
+                {SDRAM_DQMH, SDRAM_DQML } <= prog_mask;
             end 
             if( readon ) begin                
                 SDRAM_CMD <= 
                     autorefresh ? CMD_AUTOREFRESH : CMD_ACTIVATE;
                 { SDRAM_A, col_addr } <= sdram_addr;                
                 autorefresh_cycle <= autorefresh; 
-                write_cycle       <= 1'b0;               
+                write_cycle       <= 1'b0;
             end
         end
         3'd2: begin // set read/write            

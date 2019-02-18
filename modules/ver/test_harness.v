@@ -15,14 +15,14 @@ module test_harness(
     input            H0,
     output           downloading,
     output    [21:0] ioctl_addr,
-    output    [15:0] ioctl_data,
+    output    [ 7:0] ioctl_data,
     output           ioctl_wr,
     // SPI
-    output  SPI_SCK,
-    output  SPI_DI,  // SPI always from FPGA's view
-    input   SPI_DO,
-    input   SPI_SS2,
-    output  CONF_DATA0,
+    output       SPI_SCK,
+    output       SPI_DI,  // SPI always from FPGA's view
+    input        SPI_DO,
+    input        SPI_SS2,
+    output       CONF_DATA0,
     // SDRAM
     inout [15:0] SDRAM_DQ,
     inout [12:0] SDRAM_A,   
@@ -38,6 +38,7 @@ module test_harness(
 );
 
 parameter sdram_instance = 1, GAME_ROMNAME="_PASS ROM NAME to test_harness_";
+parameter TX_LEN = 207;
 
 `ifdef MAXFRAME
 reg frame_done=1'b1, max_frames_done=1'b0;
@@ -219,7 +220,8 @@ end
 
 
 `ifdef LOADROM
-spitx u_spitx(
+spitx #(.filename(GAME_ROMNAME), .TX_LEN(TX_LEN) )
+    u_spitx(
     .rst        ( rst        ),
     .SPI_DO     ( 1'b0       ),
     .SPI_SCK    ( SPI_SCK    ),

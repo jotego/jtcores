@@ -79,7 +79,7 @@ wire char_rq = rd_state == 4'd2;
 wire  scr_rq = rd_state[2:1] == 2'b11;
 
 always @(posedge clk) if(cen12) begin
-    if( loop_rst )
+    if( loop_rst || downloading )
         sdram_re <= 1'b0;   // start strobing before ready signal
             // because first data must be read before that signal.
     else

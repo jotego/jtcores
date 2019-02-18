@@ -78,7 +78,7 @@ wire [15:0]   data_read;
 wire          loop_rst, autorefresh, H0; 
 wire          downloading;
 wire [21:0]   ioctl_addr;
-wire [15:0]   ioctl_data;
+wire [ 7:0]   ioctl_data;
 wire          coin_cnt = 1'b0; // To do: check if GnG provided this output
 
 wire [1:0]    dip_level = ~status[8:7];
@@ -88,6 +88,21 @@ wire [1:0]    dip_bonus = 2'b11;
 
 assign LED = ~downloading | coin_cnt | rst;
 wire rst_req = status[10];
+
+reg  [21:0]   prog_addr;
+reg  [ 7:0]   prog_data;
+reg  [ 1:0]   prog_mask;
+reg           prog_we = 1'b0;
+
+always @(posedge clk_rom) begin
+    if ( ioctl_wr ) begin
+        prog_addr <= { 1'b0, ioctl_addr[21:1] };
+        prog_data <= ioctl_data;
+        prog_mask <= { ioctl_addr[0], ~ioctl_addr[0] };
+        prog_we   <= 1'b1;
+    end
+    else prog_we <= 1'b0;
+end
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .rst            ( rst           ),
@@ -140,6 +155,11 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     // ROM
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_data     ( ioctl_data    ),
+    .ioctl_wr       ( ioctl_wr      ),
+    .prog_addr      ( prog_addr     ),
+    .prog_data      ( prog_data     ),
+    .prog_mask      ( prog_mask     ),
+    .prog_we        ( prog_we       ),
     .downloading    ( downloading   ),
     .loop_rst       ( loop_rst      ),
     .autorefresh    ( autorefresh   ),

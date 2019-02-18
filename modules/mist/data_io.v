@@ -22,19 +22,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-module data_io #(parameter aw=25)(
-	// io controller spi interface
-	input         sck,
-	input         ss,
-	input         sdi,
+module data_io #(parameter aw=22)(
+    // io controller spi interface
+    input         sck,
+    input         ss,
+    input         sdi,
 
     output reg [4:0]  index,     // menu index used to upload the file
-	 
-	// external ram interface
-	input 			  	clk_sdram,
-	output reg     		downloading_sdram,   // signal indicating an active download
-	output reg [aw-1:0] ioctl_addr,
-	output reg [15:0]  	ioctl_data,
+     
+    // external ram interface
+    input               clk_sdram,
+    output reg          downloading_sdram,   // signal indicating an active download
+    output reg [aw-1:0] ioctl_addr,
+    output reg [ 7:0]   ioctl_data,
     output reg          ioctl_wr
 );
 
@@ -46,9 +46,9 @@ module data_io #(parameter aw=25)(
 // of the minimig
 reg [6:0]      sbuf;
 reg [7:0]      cmd;
-reg [4:0]      cnt;
+reg [4:0]      cnt=5'd0;
 reg rclk;
-reg	[7:0]		data;
+reg [7:0]       data;
 
 localparam UIO_FILE_TX      = 8'h53;
 localparam UIO_FILE_TX_DAT  = 8'h54;
@@ -58,75 +58,69 @@ reg downloading_reg = 1'b0;
 
 // data_io has its own SPI interface to the io controller
 always@(posedge sck, posedge ss) begin
-	if(ss == 1'b1) begin
-		cnt <= 5'd0;
-	end
-	else begin
-		rclk <= 1'b0;
+    if(ss == 1'b1) begin
+        cnt <= 5'd0;
+    end
+    else begin
+        rclk <= 1'b0;
 
-		// don't shift in last bit. It is evaluated directly
-		// when writing to ram
-		if(cnt != 15)
-			sbuf <= { sbuf[5:0], sdi};
+        // don't shift in last bit. It is evaluated directly
+        // when writing to ram
+        if(cnt != 15)
+            sbuf <= { sbuf[5:0], sdi};
 
-		// count 0-7 8-15 8-15 ... 
-		if(cnt < 15) 	cnt <= cnt + 4'd1;
-		else				cnt <= 4'd8;
+        // count 0-7 8-15 8-15 ... 
+        if(cnt < 15)
+            cnt <= cnt + 4'd1;
+        else
+            cnt <= 4'd8;
 
-		// finished command byte
-      if(cnt == 7)
-			cmd <= {sbuf, sdi};
+        // finished command byte
+        if(cnt == 7)
+            cmd <= {sbuf, sdi};
 
-		// prepare/end transmission
-		if((cmd == UIO_FILE_TX) && (cnt == 15)) begin
-			// prepare 
-			if(sdi) begin
-				// addr <= 25'd0;
-				downloading_reg <= 1'b1; 
-			end else
-				downloading_reg <= 1'b0; 
-		end
-		
-		// command 0x54: UIO_FILE_TX
-		if((cmd == UIO_FILE_TX_DAT) && (cnt == 15)) begin
-			data <= {sbuf, sdi};
-			rclk <= 1'b1;
-		end
-		
+        // prepare/end transmission
+        if((cmd == UIO_FILE_TX) && (cnt == 15)) begin
+            // prepare 
+            if(sdi) begin
+                // addr <= 25'd0;
+                downloading_reg <= 1'b1; 
+            end else
+                downloading_reg <= 1'b0; 
+        end
+        
+        // command 0x54: UIO_FILE_TX
+        if((cmd == UIO_FILE_TX_DAT) && (cnt == 15)) begin
+            data <= {sbuf, sdi};
+            rclk <= 1'b1;
+        end
+        
       // expose file (menu) index
       if((cmd == UIO_FILE_INDEX) && (cnt == 15))
-			index <= {sbuf[3:0], sdi};
-	end
+            index <= {sbuf[3:0], sdi};
+    end
 end
 
 reg rclkD, rclkD2;
 reg sync_aux;
-reg even;
-
-reg [7:0] half;
 
 always@(posedge clk_sdram)
-	begin
-		{ downloading_sdram, sync_aux } <= { sync_aux, downloading_reg };
-		if ({ downloading_sdram, sync_aux } == 2'b01) begin
-			ioctl_addr <= {aw{1'b1}};
-			even <= 1'b0;
-		end
+    begin
+        { downloading_sdram, sync_aux } <= { sync_aux, downloading_reg };
+        if ({ downloading_sdram, sync_aux } == 2'b01) begin
+            ioctl_addr <= ~{aw{1'b0}};
+            ioctl_wr   <= 1'b0;
+        end
 
-		// bring rclk from spi clock domain into sdram clock domain
-		rclkD <= rclk;
-		rclkD2 <= rclkD;
-		
-		if( rclkD && !rclkD2 ) begin
-			half <= data;
-			even <= ~even;
-			if( even ) begin
-				ioctl_data <= { half, data };
-				//ioctl_data <= { ioctl_data[7:0], data };
-				ioctl_addr <= ioctl_addr + 1'd1;
-			end
-		end
+        // bring rclk from spi clock domain into sdram clock domain
+        rclkD <= rclk;
+        rclkD2 <= rclkD;
+        
+        if( rclkD && !rclkD2 ) begin
+            ioctl_data <= data;
+            ioctl_addr <= ioctl_addr + 1'd1;
+        end
         ioctl_wr <= rclkD && !rclkD2;
-	end
+    end
 
 endmodule
