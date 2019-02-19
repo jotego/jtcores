@@ -30,6 +30,9 @@ module jt1942_prom_we(
     output reg [9:0]     prom_we
 );
 
+localparam OBJADDR = 22'h1A000;
+wire [21:0] obj_addr = ioctl_addr - OBJADDR;
+
 reg set_strobe, set_done;
 reg [9:0] prom_we0;
 
@@ -46,25 +49,32 @@ end
 always @(posedge clk_rom) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
-        prog_addr <= { 1'b0, ioctl_addr[21:1] };
-        prog_data <= ioctl_data;
-        prog_mask <= { ioctl_addr[0], ~ioctl_addr[0] };
         prog_we   <= 1'b1;
-        // PROM
-        if(!ioctl_addr[0]) begin
-            case(ioctl_addr[12:9])
-                4'd0: prom_we0 = 10'h0_01;    // k6
-                4'd1: prom_we0 = 10'h0_02;    // d1
-                4'd2: prom_we0 = 10'h0_04;    // d2
-                4'd3: prom_we0 = 10'h0_08;    // d6
-                4'd4: prom_we0 = 10'h0_10;    // e8
-                4'd5: prom_we0 = 10'h0_20;    // e9
-                4'd6: prom_we0 = 10'h0_40;    // e10
-                4'd7: prom_we0 = 10'h0_80;    // f1
-                4'd8: prom_we0 = 10'h1_00;    // k3
-                4'd9: prom_we0 = 10'h2_00;    // m11
-                default: prom_we0 = 10'h0;        //         
-            endcase
+        prog_data <= ioctl_data;
+        if(ioctl_addr < OBJADDR) begin
+            prog_addr <= {1'b0, ioctl_addr[21:1]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+        end
+        else if(ioctl_addr < (OBJADDR+22'h20_000)) begin
+            prog_addr <= OBJADDR[17:1] + {obj_addr[16:15], obj_addr[13:0]};
+            prog_mask <= {obj_addr[14], ~obj_addr[14]};
+        end
+        else begin // PROMs
+            prog_addr <= { 4'hF, ioctl_addr[17:0] };
+            prog_mask <= 2'b11;
+            case(ioctl_addr[11:8])
+                4'd0: prom_we0 <= 10'h0_01;    // k6
+                4'd1: prom_we0 <= 10'h0_02;    // d1
+                4'd2: prom_we0 <= 10'h0_04;    // d2
+                4'd3: prom_we0 <= 10'h0_08;    // d6
+                4'd4: prom_we0 <= 10'h0_10;    // e8
+                4'd5: prom_we0 <= 10'h0_20;    // e9
+                4'd6: prom_we0 <= 10'h0_40;    // e10
+                4'd7: prom_we0 <= 10'h0_80;    // f1
+                4'd8: prom_we0 <= 10'h1_00;    // k3
+                4'd9: prom_we0 <= 10'h2_00;    // m11
+                default: prom_we0 <= 10'h0;    // 
+            endcase 
             set_strobe <= 1'b1;
         end
     end
