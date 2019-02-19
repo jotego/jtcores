@@ -79,10 +79,13 @@ assign loop_rst = initialize;
 reg last_read_req;
 
 always @(posedge clk) last_read_req <= read_req;
-wire readon  = !downloading && ((read_req!=last_read_req) || autorefresh);
+wire readon  = !downloading && ((read_req!=last_read_req) /*|| autorefresh*/);
 wire writeon = downloading && prog_we;
 
 reg autorefresh_cycle;
+reg [21:0] last_sdram_addr;
+
+wire refresh_ok = last_sdram_addr === sdram_addr;
 
 always @(posedge clk)
     if( rst ) begin
@@ -146,11 +149,12 @@ always @(posedge clk)
                 write_cycle       <= 1'b1;
                 {SDRAM_DQMH, SDRAM_DQML } <= prog_mask;
             end 
-            if( readon ) begin                
+            if( readon ) begin
+                last_sdram_addr <= sdram_addr;
                 SDRAM_CMD <= 
-                    autorefresh ? CMD_AUTOREFRESH : CMD_ACTIVATE;
+                    refresh_ok ? CMD_AUTOREFRESH : CMD_ACTIVATE;
                 { SDRAM_A, col_addr } <= sdram_addr;                
-                autorefresh_cycle <= autorefresh; 
+                autorefresh_cycle <= refresh_ok; 
                 write_cycle       <= 1'b0;
             end
         end
