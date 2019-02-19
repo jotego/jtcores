@@ -72,7 +72,7 @@ reg [13:0] wait_cnt;
 reg [2:0] cnt_state, init_state;
 reg       initialize;
 
-reg write_cycle=1'b0, write_req=1'b0;
+reg write_cycle=1'b0;
 
 assign loop_rst = initialize;
 

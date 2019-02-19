@@ -24,7 +24,6 @@ module jt1942_sound(
     input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
     input           cen1p5, //  1.5 MHz
     input           rst,
-    input           soft_rst,    
     // Interface with main CPU
     input           sres_b,
     input   [ 7:0]  main_dout,
@@ -61,7 +60,7 @@ assign rom_addr = A[14:0];
 reg reset_n=1'b0;
 
 always @(posedge clk) if(cen3)
-    reset_n <= ~( rst | soft_rst | ~sres_b );
+    reset_n <= ~( rst | ~sres_b );
 
 reg rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs;
 

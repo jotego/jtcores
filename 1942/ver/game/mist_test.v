@@ -55,7 +55,7 @@ module mist_test;
 
 wire            downloading;
 wire    [21:0]  ioctl_addr;
-wire    [15:0]  ioctl_data;
+wire    [ 7:0]  ioctl_data;
 wire cen12, cen6, cen3, cen1p5, clk, clk27, rst;
 wire [21:0]  sdram_addr;
 wire [15:0]  data_read;

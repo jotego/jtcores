@@ -79,12 +79,19 @@ wire [15:0]   data_read;
 wire          loop_rst, autorefresh, sdram_re; 
 wire          downloading;
 wire [21:0]   ioctl_addr;
-wire [15:0]   ioctl_data;
+wire [ 7:0]   ioctl_data;
+wire          ioctl_wr;
 wire          coin_cnt;
 
 assign LED = ~downloading | coin_cnt | rst;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
+
+wire [21:0]   prog_addr;
+wire [ 7:0]   prog_data;
+wire [ 1:0]   prog_mask;
+wire          prog_we;
+
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .rst            ( rst           ),
@@ -137,6 +144,11 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     // ROM
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_data     ( ioctl_data    ),
+    .ioctl_wr       ( ioctl_wr      ),
+    .prog_addr      ( prog_addr     ),
+    .prog_data      ( prog_data     ),
+    .prog_mask      ( prog_mask     ),
+    .prog_we        ( prog_we       ),
     .downloading    ( downloading   ),
     .loop_rst       ( loop_rst      ),
     .autorefresh    ( autorefresh   ),
@@ -170,6 +182,7 @@ always @(negedge clk_rgb)
 
 jt1942_game u_game(
     .rst         ( game_rst      ),
+    .clk_rom     ( clk_rom       ),
     .clk         ( clk_rgb       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
@@ -190,7 +203,12 @@ jt1942_game u_game(
 
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
-    .prog_din    ( ioctl_data[3:0]), 
+    .ioctl_data  ( ioctl_data     ),
+    .ioctl_wr    ( ioctl_wr       ),
+    .prog_addr   ( prog_addr      ),
+    .prog_data   ( prog_data      ),
+    .prog_mask   ( prog_mask      ),
+    .prog_we     ( prog_we        ),
 
     // ROM load
     .downloading ( downloading   ),
