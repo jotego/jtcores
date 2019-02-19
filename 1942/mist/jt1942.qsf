@@ -165,6 +165,5 @@ set_global_assignment -name QIP_FILE ../../modules/mist/mist.qip
 set_global_assignment -name QIP_FILE ../hdl/jt1942.qip
 set_global_assignment -name QIP_FILE ../../../jt12/jt49/hdl/jt49.qip
 set_global_assignment -name SDC_FILE jt1942.sdc
-set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
