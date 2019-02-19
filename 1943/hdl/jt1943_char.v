@@ -38,7 +38,7 @@ module jt1943_char(
     input            prom_f1_we,
     input   [3:0]    prom_din,
     // ROM
-    output reg [11:0] char_addr,
+    output reg [13:0] char_addr, // 32 kBytes
     input      [15:0] char_data
 );
 
@@ -90,6 +90,7 @@ always @(*) begin
     dout_high = pause ? 8'h2    : mem_high;
 end
 
+// The original board gates the CPU clock instead of using wait_n
 reg latch_wait_n = 1'b1;
 assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
 
@@ -98,7 +99,7 @@ always @(posedge clk) if(cen3)
 
 // Draw pixel on screen
 reg [15:0] chd;
-reg [5:0] char_attr0, char_attr1, char_attr2;
+reg [4:0] char_attr0, char_attr1, char_attr2;
 
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
@@ -107,9 +108,8 @@ always @(posedge clk) if(cen6) begin
     if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
         char_attr1 <= char_attr0;
-        char_attr0 <= dout_high[5:0];
-        char_addr  <= { {dout_high[7], dout_low}, 
-            {3{dout_high[6] /*vflip*/  }}^V128[2:0] };
+        char_attr0 <= dout_high[4:0];
+        char_addr  <= { {dout_high[7:5], dout_low}, V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.

@@ -114,7 +114,7 @@ wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
 
 // ROM data
-wire  [11:0]  char_addr;
+wire  [13:0]  char_addr;
 wire  [14:0]  obj_addr;
 wire  [15:0]  char_data, obj_data;
 wire  [ 7:0]  main_data, snd_data;
@@ -263,15 +263,11 @@ jt1943_video u_video(
     // PROM access
     .prog_addr  ( prog_addr     ),
     .prog_din   ( prog_din      ),
-    .prom_f1_we ( prom_f1_we    ),
-    .prom_d1_we ( prom_d1_we    ),
-    .prom_d2_we ( prom_d2_we    ),
-    .prom_d6_we ( prom_d6_we    ),
-    .prom_e8_we ( prom_e8_we    ),
-    .prom_e9_we ( prom_e9_we    ),
-    .prom_e10_we( prom_e10_we   ),
-    .prom_k3_we ( prom_k3_we    ),
-    .prom_m11_we( prom_m11_we   )    
+    // color mixer proms
+prom_12a_we
+prom_13a_we
+prom_14a_we
+prom_12c_we  
 );
 
 jtgng_rom #(
