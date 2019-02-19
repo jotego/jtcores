@@ -29,7 +29,7 @@ module jt1943_scroll(
     input       [ 8:0] H, // H256-H1
     input              scr_cs,
     input       [ 1:0] scrposh_cs,
-    input              scrposv_cs,
+    input       [ 7:0] vpos;
     input              SCxON,
     output             wait_n,
     input              flip,
@@ -46,7 +46,10 @@ module jt1943_scroll(
     input              prom_d6_we,
     input   [3:0]      prom_din,    
 
-    // ROM
+    // Map ROM
+    output reg  [13:0] map_addr,
+    input       [15:0] map_data,
+    // Gfx ROM
     output reg  [13:0] scr_addr,
     input       [23:0] scrom_data,
     output      [ 5:0] scr_pxl
@@ -59,9 +62,9 @@ parameter HOFFSET=9'd5;
 
 wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS;
-reg  [ 7:0] VF, SV, vpos;
+reg  [ 7:0] VF, SV;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
-reg  [ 8:0] hpos=9'd0;
+reg  [15:0] hpos;
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
@@ -91,11 +94,9 @@ always @(posedge clk) if(cen3)
 always @(posedge clk) 
     if( rst ) begin
         hpos <= 9'd0;
-        vpos <= 8'd0;
     end else if(cen3) begin
-        if( scrposh_cs[1] ) hpos[8]   <= din[0];
-        if( scrposh_cs[0] ) hpos[7:0] <= din;
-        if( scrposv_cs    ) vpos      <= din;
+        if( scrposh_cs[1] ) hpos[15:0] <= din;
+        if( scrposh_cs[0] ) hpos[ 7:0] <= din;
     end
 
 wire [7:0] dout_low, dout_high;

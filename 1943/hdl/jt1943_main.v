@@ -38,7 +38,7 @@ module jt1943_main(
     output  reg        snd_latch1_cs,
     // scroll
     input   [7:0]      scr_dout,
-    output  reg        scr_cs,
+    output  [7:0]      scr_vpos,
     output  reg [1:0]  scrpos_cs,
     output  reg [2:0]  scr_br,
     // cheat!
@@ -70,24 +70,25 @@ module jt1943_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
-reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
-reg SECWR;
+reg main_cs, in_cs, ram_cs, bank_cs;
+reg SECWR_cs, OKOUT_cs;
 
 wire mreq_n;
 
 always @(*) begin
     main_cs       = 1'b0;
     ram_cs        = 1'b0;
-    snd_latch_cs = 1'b0;
-    snd_latch1_cs = 1'b0;
-    scrpos_cs     = 2'b0;
-    flip_cs       = 1'b0;
+    snd_latch_cs  = 1'b0;
+    scrposv_cs    = 2'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
-    scr_cs        = 1'b0;
-    brt_cs        = 1'b0;
-    obj_cs        = 1'b0;    
+    obj_cs        = 1'b0;
+    scr1posh_cs   = 2'd0;
+    scr2posh_cs   = 2'd0;
+    gfxen_cs      = 1'b0;
+    OKOUT_cs      = 1'b0;         
+    SECWR_cs      = 1'b0;
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
@@ -98,13 +99,9 @@ always @(*) begin
                 2'b01:
                     casez(A[2:0])
                         3'b000: snd_latch_cs = 1'b1;
-                        3'b100: bank_cs       = 1'b1;
-                        3'b110: OKOUT         = 1'b1;
-                        3'b111: SECWR         = 1'b1;
-                        //3'b010: scrpos_cs     = 2'b01;
-                        //3'b011: scrpos_cs     = 2'b10;
-                        //3'b100: flip_cs       = 1'b1;
-                        //3'b101: brt_cs        = 1'b1;
+                        3'b100: bank_cs      = 1'b1;
+                        3'b110: OKOUT_cs     = 1'b1;
+                        3'b111: SECWR_cs     = 1'b1;
                         default:;
                     endcase
                 2'b10: // DOCS
@@ -113,9 +110,9 @@ always @(*) begin
                     if( !A[3] && !wr_n) case(A[2:0])
                         3'd0: scr1posh_cs <= 2'b01; // LSB
                         3'd1: scr1posh_cs <= 2'b10; // MSB
-                        3'd2: scr1posv_cs <= 1'b1;
-                        3'd3: scr1posh_cs <= 2'b01; // LSB
-                        3'd4: scr1posh_cs <= 2'b10; // MSB
+                        3'd2: scrposv_cs  <= 1'b1;
+                        3'd3: scr2posh_cs <= 2'b01; // LSB
+                        3'd4: scr2posh_cs <= 2'b10; // MSB
                         3'd6: gfxen_cs    <= 1'b1;
                     endcase
                     scr_cs  = 1'b1; // SCRCE
@@ -129,28 +126,30 @@ reg [2:0] bank;
 always @(posedge clk)
     if( rst ) begin
         bank      <= 2'd0;
-        scr_br    <= 3'b0;
-        flip     <= 1'b0;
-        sres_b   <= 1'b1;
-        coin_cnt <= 1'b0;
+        scr_vpos  <= 8'd0;
+        flip      <= 1'b0;
+        sres_b    <= 1'b1;
+        coin_cnt  <= 1'b0;
     end
     else if(cen3) begin
         if( bank_cs  ) begin
-            CHON   <= cpu_dout[7];
-            flip   <= cpu_dout[6];
-            coin_cnt <= cpu_dout[5] | cpu_dout[1:0];
-            bank   <= cpu_dout[4:2];
+            CHON     <= cpu_dout[7];
+            flip     <= cpu_dout[6];
+            sres_b   <= cpu_dout[5];
+            coin_cnt <= cpu_dout[1:0];
+            bank     <= cpu_dout[4:2];
             `ifdef SIMULATION
             $display("Bank changed to %d", cpu_dout[4:2]);
             `endif
         end
+        if( scrposv_cs ) scr_vpos <= cpu_dout;
     end
 
 always @(negedge clk)
     t80_rst_n <= ~rst;
 
 reg [7:0] cabinet_input;
-reg [7:0] security_code;
+reg [7:0] security;
 
 always @(*)
     case( A[2:0] )
@@ -161,7 +160,7 @@ always @(*)
         3'd2: cabinet_input = { 1'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
-        3'd7: cabinet_input = security_code;
+        3'd7: cabinet_input = security;
         default: cabinet_input = 8'hff;
     endcase
 
@@ -191,7 +190,6 @@ always @(*)
         5'b10_000: cpu_din =  //(cheat_invincible && A==16'he0a5) ? 8'h2 : 
                             ram_dout;
         5'b01_000: cpu_din = char_dout;
-        5'b00_100: cpu_din = scr_dout;
         5'b00_010: cpu_din = rom_data;
         5'b00_001: cpu_din = cabinet_input;
         default:   cpu_din = rom_data;
@@ -224,49 +222,14 @@ end
 wire wait_n = scr_wait_n & char_wait_n;
 
 
-///////////////////////////////////////////////////////////////////
-// CPU Security (copy protection)
-reg [7:0] security;
-
-always @(posedge clk) begin
-    if( SECWR && !wr_n )
-        security <= cpu_dout;
-    case( security )    
-        8'h24: security_code <= 8'h1d;
-        8'h60: security_code <= 8'hf7;
-        8'h01: security_code <= 8'hac;
-        8'h55: security_code <= 8'h50;
-        8'h56: security_code <= 8'he2;
-        8'h2a: security_code <= 8'h58;
-        8'ha8: security_code <= 8'h13;
-        8'h22: security_code <= 8'h3e;
-        8'h3b: security_code <= 8'h5a;
-        8'h1e: security_code <= 8'h1b;
-        8'he9: security_code <= 8'h41;
-        8'h7d: security_code <= 8'hd5;
-        8'h43: security_code <= 8'h54;
-        8'h37: security_code <= 8'h6f;
-        8'h4c: security_code <= 8'h59;
-        8'h5f: security_code <= 8'h56;
-        8'h3f: security_code <= 8'h2f;
-        8'h3e: security_code <= 8'h3d;
-        8'hfb: security_code <= 8'h36;
-        8'h1d: security_code <= 8'h3b;
-        8'h27: security_code <= 8'hae;
-        8'h26: security_code <= 8'h39;
-        8'h58: security_code <= 8'h3c;
-        8'h32: security_code <= 8'h51;
-        8'h1a: security_code <= 8'ha8;
-        8'hbc: security_code <= 8'h33;
-        8'h30: security_code <= 8'h4a;
-        8'h64: security_code <= 8'h12;
-        8'h11: security_code <= 8'h40;
-        8'h33: security_code <= 8'h35;
-        8'h09: security_code <= 8'h17;
-        8'h25: security_code <= 8'h04;
-        default: security_code <= 8'h0;
-    endcase
-end
+jt1943_security u_security(
+    .clk    ( clk      ),
+    .cen    ( cen6     ),
+    .wr_n   ( wr_n     ),
+    .cs     ( SECWR_cs ),
+    .din    ( cpu_dout ),
+    .dout   ( security )
+);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -314,7 +277,7 @@ assign {
 T80s u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
-    .CEN        ( cen3        ),
+    .CEN        ( cen6        ),
     .WAIT_n     ( wait_n      ),
     .INT_n      ( int_n       ),
     .RD_n       ( rd_n        ),
@@ -333,8 +296,8 @@ T80s u_cpu(
 // This CPU is used for simulation
 tv80s #(.Mode(0)) u_cpu (
     .reset_n( t80_rst_n  ),
-    .clk    ( clk        ), // 3 MHz, clock gated
-    .cen    ( cen3       ),
+    .clk    ( clk        ),
+    .cen    ( cen6       ),
     .wait_n ( wait_n     ),
     .int_n  ( int_n      ),
     .nmi_n  ( 1'b1       ),

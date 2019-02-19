@@ -34,7 +34,9 @@ module jt1943_game(
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
     input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,  
+    input   [ 6:0]  joystick2,
+    input           enable_fm,
+    input           enable_psg,
 
     // SDRAM interface
     input           downloading,
@@ -61,7 +63,7 @@ module jt1943_game(
     input           dip_test,
     output          coin_cnt,
     // Sound output
-    output  [8:0]   snd,
+    output  [15:0]  snd,
     output          sample
 );
 
@@ -206,12 +208,13 @@ jt1943_sound u_sound (
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
-    .soft_rst       ( soft_rst       ),
     .sres_b         ( sres_b         ),
     .main_dout      ( cpu_dout       ),
-    .main_latch0_cs ( snd_latch0_cs  ),
-    .main_latch1_cs ( snd_latch1_cs  ),
-    .snd_int        ( snd_int        ),
+    .main_latch_cs  ( snd_latch_cs   ),
+    // sound control
+    .enable_psg     ( enable_psg     ),
+    .enable_fm      ( enable_fm      ),
+    .snd_int        ( V[5]           ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .snd            ( snd            ) 
