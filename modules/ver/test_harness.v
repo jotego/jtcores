@@ -21,7 +21,7 @@ module test_harness(
     output       SPI_SCK,
     output       SPI_DI,  // SPI always from FPGA's view
     input        SPI_DO,
-    input        SPI_SS2,
+    output       SPI_SS2,
     output       CONF_DATA0,
     // SDRAM
     inout [15:0] SDRAM_DQ,
@@ -249,6 +249,7 @@ assign downloading = 0;
 assign romload_addr = 0;
 assign romload_data = 0;
 assign spi_done = 1'b1;
+assign SPI_SS2  = 1'b0;
 `endif
 
 endmodule // jt_1942_a_test
