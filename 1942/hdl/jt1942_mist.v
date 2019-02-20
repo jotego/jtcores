@@ -62,11 +62,12 @@ localparam CONF_STR = {
         "O78,Bonus,30/100,30/80,20/100,20/80;", // 36
         "O9,Screen filter,OFF,ON;", // 24
         "OA,Invincibility,OFF,ON;", // 24
+        "OB,Flip screen,OFF,ON;", // 22
         "TF,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+24+30;
+localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+24+22+30;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -86,6 +87,7 @@ wire          coin_cnt;
 assign LED = ~downloading | coin_cnt | rst;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
+wire dip_flip = status[32'hb];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -223,6 +225,7 @@ jt1942_game u_game(
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches
+    .dip_flip    ( dip_flip      ),
     .dip_pause   ( ~(status[1]|game_pause)   ),
     .dip_level   ( ~status[3:2]  ),
     .dip_test    ( ~status[4]    ),
