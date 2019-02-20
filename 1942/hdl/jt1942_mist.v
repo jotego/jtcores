@@ -92,6 +92,9 @@ wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
 wire          prog_we;
 
+wire [3:0] red;
+wire [3:0] green;
+wire [3:0] blue;
 
 jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .rst            ( rst           ),
@@ -102,6 +105,9 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .cen12          ( cen12         ),
     .sdram_re       ( sdram_re      ),
     // Base video
+    .game_r         ( red           ),
+    .game_g         ( green         ),
+    .game_b         ( blue          ),    
     .board_r        ( board_r       ),
     .board_g        ( board_g       ),
     .board_b        ( board_b       ),
@@ -165,9 +171,6 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-    wire [3:0] red;
-    wire [3:0] green;
-    wire [3:0] blue;
     wire LHBL;
     wire LVBL;
     wire [8:0] snd;
