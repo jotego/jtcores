@@ -110,7 +110,7 @@ always @(posedge clk) if(cen6) begin
         char_attr1 <= char_attr0;
         char_attr0 <= dout_high[5:0];
         char_addr  <= { {dout_high[7], dout_low}, 
-            {3{dout_high[6] /*vflip*/  }}^V128[2:0] };
+            {3{dout_high[6] ^ flip /*vflip*/  }}^V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
