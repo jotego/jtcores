@@ -36,13 +36,15 @@ module jt1943_video(
     input       [15:0]  char_data,
     output              char_wait_n,
     // SCROLL - ROM
-    input               scr_cs,
     input       [ 1:0]  scrpos_cs,    
-    output              scr_wait_n,
-    output      [ 7:0]  scram_dout,    
-    output      [14:0]  scr_addr,
-    input       [23:0]  scrom_data,
-    input       [ 2:0]  scr_br,
+    output      [17:0]  scr1_addr,
+    output      [14:0]  scr2_addr,
+    input       [15:0]  scr1_data,
+    // MAP
+    output      [13:0]  map1_addr,
+    output      [13:0]  map2_addr,
+    input       [15:0]  map1_data,
+    input       [15:0]  map2_data,
     // OBJ
     input               obj_cs,
     input               HINIT,    
@@ -57,11 +59,19 @@ module jt1943_video(
     output      [3:0]   blue,
     // PROM access
     input       [7:0]   prog_addr,
-    input       [3:0]   prog_din,    
+    input       [3:0]   prog_din,
+    // Char
+    input               prom_7f_we,
+        // color mixer
     input               prom_12a_we,
     input               prom_13a_we,
     input               prom_14a_we,
     input               prom_12c_we,
+        // scroll
+    input               prom_6l_we,
+    input               prom_7l_we,
+    input               prom_12l_we,
+    input               prom_12m_we
 );
 
 wire [3:0] char_pxl;
@@ -88,7 +98,7 @@ jt1943_char #(.HOFFSET(scrchr_off)) u_char (
     // Palette PROM F1
     .prog_addr  ( prog_addr     ),
     .prom_din   ( prog_din      ),
-    .prom_f1_we ( prom_f1_we    ),
+    .prom_7f_we ( prom_7f_we    ),
     // ROM
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     )
@@ -99,40 +109,71 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1943_scroll #(.HOFFSET(scrchr_off)) u_scroll (
+jt1943_scroll #(.HOFFSET(scrchr_off)
+    .SIMFILE_MSB("../../../rom/1943/bm9.6l"),
+    .SIMFILE_LSB("../../../rom/1943/bm10.7l"),
+) u_scroll1 (
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .cen3         ( cen3          ),
-    .AB           ( cpu_AB[9:0]   ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
-    .scr_cs       ( scr_cs        ),
-    .scrpos_cs    ( scrpos_cs     ),
-    .wait_n       ( scr_wait_n    ),
+    .scrposh_cs   ( scr1posh_cs   ),
     .flip         ( flip          ),
     .din          ( cpu_dout      ),
-    .dout         ( scram_dout    ),
-    .rd_n         ( rd_n          ),
     .wr_n         ( wr_n          ),
-    // Palette PROMs D1, D2
-    .scr_br       ( scr_br        ),
+    // Palette PROMs
     .prog_addr    ( prog_addr     ),
-    .prom_d1_we   ( prom_d1_we    ),
-    .prom_d2_we   ( prom_d2_we    ),
-    .prom_d6_we   ( prom_d6_we    ),
+    .prom_lsb_we  ( prom_6l_we    ),
+    .prom_msb_we  ( prom_7l_we    ),
     .prom_din     ( prog_din      ),    
 
     // ROM
-    .scr_addr     ( scr_addr[13:0]),
-    .scrom_data   ( scrom_data    ),
-    .scr_pxl      ( scr_pxl       )
+    .map_addr     ( map1_addr     ),
+    .map_data     ( map1_data     ),
+    .scr_addr     ( scr1_addr     ),
+    .scrom_data   ( scr1_data     ),
+    .scr_pxl      ( scr1_pxl      )
 );
-assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
-    // leave bit 14 to maintain the same ROM interface as with GnG
+
+wire [2:0] scr2_nc; // not connected bits of the address
+
+jt1943_scroll #(.HOFFSET(scrchr_off),
+    .SIMFILE_MSB("../../../rom/1943/bm11.12l"),
+    .SIMFILE_LSB("../../../rom/1943/bm12.12m"),
+) u_scroll2 (
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
+    .cen3         ( cen3          ),
+    .V128         ( V[7:0]        ),
+    .H            ( H             ),
+    .scrposh_cs   ( scr2posh_cs   ),
+    .flip         ( flip          ),
+    .din          ( cpu_dout      ),
+    .wr_n         ( wr_n          ),
+    // Palette PROMs
+    .prog_addr    ( prog_addr     ),
+    .prom_lsb_we  ( prom_12l_we   ),
+    .prom_msb_we  ( prom_12m_we   ),
+    .prom_din     ( prog_din      ),    
+
+    // ROM
+    .map_addr     ( map2_addr     ),
+    .map_data     ( map2_data     ),
+    .scr_addr     ( { scr2_nc, scr2_addr} ),
+    .scrom_data   ( scr2_data     ),
+    .scr_pxl      ( scr2_pxl      )
+);
 `else 
-assign scr_wait_n = 1'b1;
-assign scr_pxl = ~6'h0;
+assign scr1_pxl  = ~6'h0;
+assign scr1_addr = 18'h0;
+assign map1_addr = 14'h0;
+
+assign scr2_pxl  = ~6'h0;
+assign scr2_addr = 18'h0;
+assign map2_addr = 14'h0;
 `endif
+
 
 `ifndef NOCOLMIX
 jt1943_colmix u_colmix (
@@ -162,7 +203,7 @@ assign  red = 4'd0;
 assign blue = 4'd0;
 assign green= 4'd0;
 `endif
-
+/*
 jt1943_obj u_obj(   
     .rst            ( rst       ),
     .clk            ( clk       ),
@@ -191,5 +232,8 @@ jt1943_obj u_obj(
     // pixel output
     .obj_pxl        ( obj_pxl   )
 );
+*/
+assign obj_addr = 15'd0;
+assign obj_pxl  = ~6'd0;
 
 endmodule // jtgng_video

@@ -45,7 +45,9 @@ else begin
     end
 `else 
 // file for synthesis:
+/* verilator lint_off WIDTH */
 initial if(synfile!="" )$readmemh(synfile,mem);
+/* verilator lint_on WIDTH */
 `endif
 
 always @(posedge clk) begin

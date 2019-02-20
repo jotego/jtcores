@@ -27,31 +27,26 @@ module jt1943_scroll(
     input       [ 9:0] AB,
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
-    input              scr_cs,
+
     input       [ 1:0] scrposh_cs,
-    input       [ 7:0] vpos;
+    input       [ 7:0] vpos,
     input              SCxON,
-    output             wait_n,
     input              flip,
     input       [ 7:0] din,
-    output      [ 7:0] dout,
-    input              rd_n,
     input              wr_n,
 
     // Palette PROMs D1, D2
-    input   [2:0]      scr_br,
     input   [7:0]      prog_addr,
-    input              prom_d1_we,
-    input              prom_d2_we,
-    input              prom_d6_we,
+    input              prom_lsb_we,
+    input              prom_msb_we,
     input   [3:0]      prom_din,    
 
-    // Map ROM
+    // Map ROM    
     output reg  [13:0] map_addr,
     input       [15:0] map_data,
     // Gfx ROM
-    output reg  [13:0] scr_addr,
-    input       [23:0] scrom_data,
+    output reg  [17:0] scr_addr,
+    input       [15:0] scrom_data,
     output      [ 5:0] scr_pxl
 );
 
@@ -59,6 +54,7 @@ reg [2:0] scr_col0;
 reg [4:0] scr_pal0;
 
 parameter HOFFSET=9'd5;
+parameter SIMFILE_MSB="", SIMFILE_LSB="";
 
 wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS;
@@ -104,23 +100,6 @@ wire we_low  = we && !AB[4];
 wire we_high = we &&  AB[4];
 assign dout = AB[4] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(9),.simfile("zeros512.bin")) u_ram_tile(
-    .clk    ( clk      ),
-    .cen    ( cen3     ),
-    .data   ( din      ),
-    .addr   ( addr     ),
-    .we     ( we_low   ),
-    .q      ( dout_low )
-);
-
-jtgng_ram #(.aw(9),.simfile("zeros512.bin")) u_ram_att(
-    .clk    ( clk      ),
-    .cen    ( cen3     ),
-    .data   ( din      ),
-    .addr   ( addr     ),
-    .we     ( we_high  ),
-    .q      ( dout_high)
-);
 
 reg scr_hflip;
 reg [7:0] addr_lsb;
@@ -174,17 +153,17 @@ assign pal_addr[7] = 1'b0;
 assign pal_addr[6:4] = scr_br[2:0];
 
 // Palette
-jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1943/sb-2.d1")) u_prom_d1(
+jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_MSB)) u_prom_msb(
     .clk    ( clk            ),
     .cen    ( cen6           ),
-    .data   ( prom_din[1:0]  ),
+    .data   ( prom_din       ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
     .we     ( prom_d1_we     ),
     .q      ( scr_pxl[5:4]   )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/sb-3.d2")) u_prom_d2(
+jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din       ),
@@ -193,16 +172,5 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/sb-3.d2")) u_prom_d2(
     .we     ( prom_d2_we     ),
     .q      ( scr_pxl[3:0]   )
 );
-
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/sb-4.d6")) u_prom_d6(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din       ),
-    .rd_addr( {scr_pal0, scr_col0} ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_d6_we     ),
-    .q      ( pal_addr[3:0]  )
-);
-
 
 endmodule // jtgng_scroll

@@ -27,14 +27,14 @@ module jtgng_rom(
     output  reg         sdram_re, // any edge (rising or falling) 
         // means a read request
 
-    input       [14:0]  char_addr,
-    input       [16:0]  main_addr,
-    input       [14:0]  snd_addr,
-    input       [15:0]  obj_addr,
-    input       [14:0]  scr1_addr,
-    input       [14:0]  scr2_addr,
-    input       [14:0]  map1_addr,
-    input       [14:0]  map2_addr,
+    input       [13:0]  char_addr, //  32 kB
+    input       [16:0]  main_addr, // 160 kB, addressed as 8-bit words
+    input       [14:0]  snd_addr,  //  32 kB, addressed as 8-bit words
+    input       [17:0]  obj_addr,  // 256 kB
+    input       [17:0]  scr1_addr, // 256 kB (16-bit words)
+    input       [14:0]  scr2_addr, //  64 kB
+    input       [13:0]  map1_addr, //  32 kB
+    input       [13:0]  map2_addr, //  32 kB
 
     output  reg [15:0]  char_dout,
     output  reg [ 7:0]  main_dout,
@@ -42,8 +42,8 @@ module jtgng_rom(
     output  reg [15:0]  obj_dout,
     output  reg [15:0]  map1_dout,
     output  reg [15:0]  map2_dout,
-    output  reg [23:0]  scr1_dout,
-    output  reg [23:0]  scr2_dout,
+    output  reg [15:0]  scr1_dout,
+    output  reg [15:0]  scr2_dout,
     output  reg         ready,
     // ROM interface
     input               downloading,
@@ -62,14 +62,17 @@ wire [3:0] rd_state = { H, Hsub }; // +4'd1;
 reg  [15:0] scr_aux;
 reg main_lsb, snd_lsb;
 
-// Default values correspond to G&G
-parameter  snd_offset = 22'h0A000;
-parameter char_offset = 22'h0E000;
-parameter scr1_offset = 22'h10000;
-parameter scr2_offset = 22'h10000;
-parameter map1_offset = 22'h10000;
-parameter map2_offset = 22'h10000;
-parameter  obj_offset = 22'h20000;
+// Main code
+// bme01.12d -> 32kB
+// bme02.13d, bme03.14d, -> 128kB, 8 banks of 16kB each
+parameter  snd_offset = 22'h14_000; // bm05.4k,  32kB
+parameter char_offset = 22'h18_000; // bm04.5h,  32kB
+parameter map1_offset = 22'h1C_000; // bmm14.5f, 32kB
+parameter map2_offset = 22'h20_000; // bmm23.8k, 32kB
+parameter scr1_offset = 22'h24_000; // 10f/j, 11f/j, 12f/j, 14f/j 256kB
+parameter scr2_offset = 22'h44_000; // 14k/l 64kB
+parameter  obj_offset = 22'h4C_000; // 10a/c, 11a/c, 12a/c, 14a/c 256kB
+// 6C_000 = ROM LEN
 
 localparam col_w = 9, row_w = 13;
 localparam addr_w = 13, data_w = 16;
@@ -96,7 +99,6 @@ end
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
     //rd_state    <= { H,1'b1 };
-    autorefresh <= 1'b0;
     sdram_addr <= {(addr_w+col_w){1'b0}};
     snd_dout  <=  8'd0;
     main_dout <=  8'd0;
@@ -115,30 +117,41 @@ end else if(cen12) begin
         // Anyway, the idea is that we get the data for the last address
         // requested but rd_state has already gone up by 1, that's why
         // we need this
-        4'b??00:    snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
-        4'b??01:    main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
-        4'd2:       char_dout <= data_read;
-        4'd3,4'd11: obj_dout  <= data_read;
-        4'b?110:       scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
-        4'b?111:       scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
+        4'b?000: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
+        4'b?100: scr1_dout <= data_read;
+
+        4'b??01: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
+
+        4'b0010: char_dout <= data_read;
+        4'b0110: ; // unused
+        4'b1010: map1_dout <= data_read;
+        4'b1110: map2_dout <= data_read;
+
+        4'b?011: obj_dout  <= data_read;
+        4'b?111: scr2_dout <= data_read;
         default:;
     endcase
     casez(rd_state)
-        4'b??00: begin
+        4'b?000: begin
             sdram_addr <= snd_offset + { 8'b0,  snd_addr[14:1] }; // 14:0
             snd_lsb <= snd_addr[0];
         end
+        4'b?100: sdram_addr <= scr1_offset + { 6'b0, scr1_addr }; // 14:0 B/C ROMs
+
         4'b??01: begin
             sdram_addr <= { 6'd0, main_addr[16:1] }; // 16:0
             main_lsb <= main_addr[0];
         end
-        4'd2: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
-        4'd3, 4'd11: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
-        4'b?110: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
+
+        4'b0010: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
+        4'b1010: sdram_addr <= map1_offset + { 9'b0, map1_addr }; // 12:0
+        4'b1110: sdram_addr <= map2_offset + { 9'b0, map2_addr }; // 12:0
+
+        4'b?011: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
         4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
         default:;
     endcase 
-    autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
+    // autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
 end
 
 endmodule // jtgng_rom

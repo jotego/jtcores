@@ -31,19 +31,19 @@ module jt1943_char(
     output  [ 7:0]   dout,
     input            rd_n,
     output           wait_n,
-    output [3:0]     char_pxl,
+    output  [ 3:0]   char_pxl,
     input            pause,
     // Palette PROM F1
-    input   [7:0]    prog_addr,
-    input            prom_f1_we,
-    input   [3:0]    prom_din,
+    input   [ 7:0]   prog_addr,
+    input            prom_7f_we,
+    input   [ 3:0]   prom_din,
     // ROM
     output reg [13:0] char_addr, // 32 kBytes
     input      [15:0] char_data
 );
 
 parameter HOFFSET=8'd5;
-reg [5:0] char_pal;
+reg [4:0] char_pal;
 reg [1:0] char_col;
 
 wire [7:0] Hfix = H128 + HOFFSET; // Corrects pixel output offset
@@ -138,13 +138,15 @@ always @(posedge clk) if(cen6) begin
 end
 
 // palette ROM
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/sb-0.f1")) u_vprom(
+wire [7:0] prom_addr = {1'b0, char_pal,char_col };
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prom_din       ),
-    .rd_addr( {char_pal,char_col}   ),
+    .rd_addr( prom_addr      ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_f1_we     ),
+    .we     ( prom_7f_we     ),
     .q      ( char_pxl       )
 );
 

@@ -41,7 +41,6 @@ module jt1943_game(
     // SDRAM interface
     input           downloading,
     input           loop_rst,
-    output          autorefresh,
     output          sdram_re,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
@@ -116,44 +115,48 @@ wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
 
 // ROM data
-wire  [13:0]  char_addr;
-wire  [14:0]  obj_addr;
-wire  [15:0]  char_data, obj_data;
-wire  [ 7:0]  main_data, snd_data;
-wire  [23:0]  scr_data;
-wire  [14:0]  scr_addr;
-wire  [16:0]  main_addr;
-wire  [14:0]  snd_addr;
+wire [16:0]  main_addr,
+wire [17:0]  obj_addr, scr1_addr;
+wire [14:0]  snd_addr, scr2_addr,
+wire [13:0]  char_addr, map1_addr, map2_addr;
+wire [ 7:0]  main_dout, snd_dout;
+wire [15:0]  char_dout, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
 
-wire snd_latch0_cs, snd_latch1_cs, snd_int;
+wire snd_latch_cs, snd_latch1_cs, snd_int;
 wire char_wait_n, scr_wait_n;
 
-wire [9:0] prom_we;
+wire [11:0] prom_we;
 jt1943_prom_we u_prom_we(
-    //.clk_rom     ( clk_rom       ),
+    .clk_rom     ( clk_rom       ),
+    .clk_rgb     ( clk           ),
     .downloading ( downloading   ), 
-    //.ioctl_wr    ( ioctl_wr      ),
-    //.ioctl_addr  ( ioctl_addr    ),
-    //.ioctl_data  ( ioctl_data    ),
-    //.prog_data   ( prog_data     ),
-    //.prog_mask   ( prog_mask     ),
-    //.prog_addr   ( prog_addr     ),
-    .romload_addr( ioctl_addr    ),    
+
+    .ioctl_wr    ( ioctl_wr      ),
+    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_data  ( ioctl_data    ),
+
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       ),
+
     .prom_we     ( prom_we       )
 );
 
 wire [7:0] prog_addr = ioctl_addr[7:0];
 
-wire prom_k6_we  = prom_we[0];
-wire prom_d1_we  = prom_we[1];
-wire prom_d2_we  = prom_we[2];
-wire prom_d6_we  = prom_we[3];
-wire prom_e8_we  = prom_we[4];
-wire prom_e9_we  = prom_we[5];
-wire prom_e10_we = prom_we[6];
-wire prom_f1_we  = prom_we[7];
-wire prom_k3_we  = prom_we[8];
-wire prom_m11_we = prom_we[9];
+wire prom_7l_we  = prom_we[ 0];
+wire prom_12l_we = prom_we[ 1];
+wire prom_12a_we = prom_we[ 2];
+wire prom_12m_we = prom_we[ 3];
+wire prom_13a_we = prom_we[ 4];
+wire prom_14a_we = prom_we[ 5];
+wire prom_12c_we = prom_we[ 6];
+wire prom_7f_we  = prom_we[ 7];
+wire prom_4b_we  = prom_we[ 8];
+wire prom_7c_we  = prom_we[ 9];
+wire prom_8c_we  = prom_we[10];
+wire prom_6l_we  = prom_we[11];
 
 jt1943_main u_main(
     .rst        ( rst_game      ),
@@ -162,19 +165,16 @@ jt1943_main u_main(
     .cen3       ( cen3          ),
     .soft_rst   ( soft_rst      ),
     .char_wait_n( char_wait_n   ),
-    .scr_wait_n ( scr_wait_n    ),
-    .char_dout  ( chram_dout    ),
-    .scr_dout   ( scram_dout    ),
-    .scr_br     ( scr_br        ),
     // sound
-    .sres_b        ( sres_b        ),
-    .snd_latch0_cs ( snd_latch0_cs ),
-    .snd_latch1_cs ( snd_latch1_cs ),
-    .snd_int       ( snd_int       ),
+    .sres_b       ( sres_b        ),
+    .snd_latch_cs ( snd_latch_cs  ),
+    .snd_int      ( snd_int       ),
     
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
+    // CHAR
     .char_cs    ( char_cs       ),
+    .char_dout  ( chram_dout    ),    
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
     .obj_cs     ( obj_cs        ),
@@ -190,10 +190,6 @@ jt1943_main u_main(
     .coin_input  ( coin_input   ),
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),   
-    // PROM K6
-    .prog_addr  ( prog_addr     ),
-    .prom_k6_we ( prom_k6_we    ),
-    .prog_din   ( prog_din      ),
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches
@@ -244,13 +240,16 @@ jt1943_video u_video(
     .char_data  ( char_data     ),
     .char_wait_n( char_wait_n   ),
     // SCROLL - ROM
-    .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),    
-    .scram_dout ( scram_dout    ),
-    .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_data      ),
-    .scr_wait_n ( scr_wait_n    ),
-    .scr_br     ( scr_br        ),
+    .scr1_addr  ( scr1_addr     ),
+    .scr1_data  ( scr1_data     ),
+    .scr2_addr  ( scr2_addr     ),
+    .scr2_data  ( scr2_data     ),
+    // Scroll maps
+    .map1_addr  ( map1_addr     ),
+    .map1_data  ( map1_data     ),
+    .map2_addr  ( map2_addr     ),
+    .map2_data  ( map2_data     ),
     // OBJ
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
@@ -267,19 +266,18 @@ jt1943_video u_video(
     .prog_addr  ( prog_addr     ),
     .prog_din   ( prog_din      ),
     // color mixer proms
-prom_12a_we
-prom_13a_we
-prom_14a_we
-prom_12c_we  
+    .prom_12a_we( prom_12a_we   ),
+    .prom_13a_we( prom_13a_we   ),
+    .prom_14a_we( prom_14a_we   ),
+    .prom_12c_we( prom_12c_we   ),
+    // scroll 1/2 proms
+    .prom_6l_we ( prom_6l_we    ),
+    .prom_7l_we ( prom_7l_we    ),
+    .prom_12l_we( prom_12l_we   ),
+    .prom_12m_we( prom_12m_we   )
 );
 
-jtgng_rom #(
-    .snd_offset (22'h0A000),
-    .char_offset(22'h0C000),
-    .scr_offset (22'h0D000),
-    .scr2_offset(22'h04000),
-    .obj_offset (22'h15000)
-) u_rom (
+jt1943_rom u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen12       ( cen12         ),
@@ -289,22 +287,28 @@ jtgng_rom #(
     .LVBL        ( LVBL          ),
     .sdram_re    ( sdram_re      ),
     
-    .char_addr   ( {1'b0,char_addr} ),
-    .main_addr   ( main_addr     ),
-    .snd_addr    ( snd_addr      ),
-    .obj_addr    ( {1'd0, obj_addr} ), // 15:0 for ROM
-    .scr_addr    ( scr_addr      ),
+    .char_addr   ( char_addr     ), //  32 kB
+    .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
+    .snd_addr    ( snd_addr      ),  //  32 kB, addressed as 8-bit words
+    .obj_addr    ( obj_addr      ),  // 256 kB
+    .scr1_addr   ( scr1_addr     ), // 256 kB (16-bit words)
+    .scr2_addr   ( scr2_addr     ), //  64 kB
+    .map1_addr   ( map1_addr     ), //  32 kB
+    .map2_addr   ( map2_addr     ), //  32 kB
 
-    .char_dout   ( char_data     ),
-    .main_dout   ( main_data     ),
-    .snd_dout    ( snd_data      ),
-    .obj_dout    ( obj_data      ),
-    .scr_dout    ( scr_data      ),
+    .char_dout   ( char_dout     ),
+    .main_dout   ( main_dout     ),
+    .snd_dout    ( snd_dout      ),
+    .obj_dout    ( obj_dout      ),
+    .map1_dout   ( map1_dout     ),
+    .map2_dout   ( map2_dout     ),
+    .scr1_dout   ( scr1_dout     ),
+    .scr2_dout   ( scr2_dout     ),
+
     .ready       ( rom_ready     ),
     // SDRAM interface
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );
