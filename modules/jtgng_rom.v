@@ -71,8 +71,8 @@ reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
 
 `ifdef SIMULATION
-wire main_rq = rd_state[1:0]==2'b01;
-wire  snd_rq = rd_state[1:0]==2'b00;
+wire main_rq = rd_state[1:0] ==  2'b01;
+wire  snd_rq = rd_state[2:0] == 3'b000;
 wire  obj_rq = rd_state[2:0] == 3'b011;
 `endif
 wire char_rq = rd_state == 4'd2;
@@ -85,6 +85,12 @@ always @(posedge clk) if(cen12) begin
     else
         sdram_re <= ~sdram_re;
 end
+
+// 0, 8:        sound
+// 1, 4, 9, 12: main
+// 2            char
+// 3, 11        obj
+// 6, 14, 7, 15 scr
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
@@ -108,12 +114,12 @@ end else if(cen12) begin
         // Anyway, the idea is that we get the data for the last address
         // requested but rd_state has already gone up by 1, that's why
         // we need this
-        4'b??00:    snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
-        4'b??01:    main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
-        4'd2:       char_dout <= data_read;
-        4'd3,4'd11: obj_dout  <= data_read;
-        4'b?110:       scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
-        4'b?111:       scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
+        4'b??00: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
+        4'b??01: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
+        4'b0010: char_dout <= data_read;
+        4'b?011: obj_dout  <= data_read;
+        4'b?110: scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
+        4'b?111: scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
         default:;
     endcase
     casez(rd_state)
@@ -125,8 +131,8 @@ end else if(cen12) begin
             sdram_addr <= { 6'd0, main_addr[16:1] }; // 16:0
             main_lsb <= main_addr[0];
         end
-        4'd2: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
-        4'd3, 4'd11: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
+        4'b0010: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
+        4'b?011: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
         4'b?110: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
         4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
         default:;
