@@ -36,10 +36,14 @@ module jt1943_video(
     input       [15:0]  char_data,
     output              char_wait_n,
     // SCROLL - ROM
-    input       [ 1:0]  scrpos_cs,    
-    output      [17:0]  scr1_addr,
+    input       [ 1:0]  scr1posh_cs,
+    input       [ 1:0]  scr2posh_cs,
+    input       [ 7:0]  scrposv,
+    output      [16:0]  scr1_addr,
     output      [14:0]  scr2_addr,
     input       [15:0]  scr1_data,
+    input       [15:0]  scr2_data,
+    input       [ 1:0]  SCxON,
     // MAP
     output      [13:0]  map1_addr,
     output      [13:0]  map2_addr,
@@ -109,16 +113,19 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1943_scroll #(.HOFFSET(scrchr_off)
+jt1943_scroll #(.HOFFSET(scrchr_off),
     .SIMFILE_MSB("../../../rom/1943/bm9.6l"),
-    .SIMFILE_LSB("../../../rom/1943/bm10.7l"),
+    .SIMFILE_LSB("../../../rom/1943/bm10.7l")
 ) u_scroll1 (
+    .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .cen3         ( cen3          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
+    .SCxON        ( SCxON[0]      ),
     .scrposh_cs   ( scr1posh_cs   ),
+    .vpos         ( scrposv       ),
     .flip         ( flip          ),
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
@@ -136,18 +143,21 @@ jt1943_scroll #(.HOFFSET(scrchr_off)
     .scr_pxl      ( scr1_pxl      )
 );
 
-wire [2:0] scr2_nc; // not connected bits of the address
+wire [1:0] scr2_nc; // not connected bits of the address
 
 jt1943_scroll #(.HOFFSET(scrchr_off),
     .SIMFILE_MSB("../../../rom/1943/bm11.12l"),
-    .SIMFILE_LSB("../../../rom/1943/bm12.12m"),
+    .SIMFILE_LSB("../../../rom/1943/bm12.12m")
 ) u_scroll2 (
+    .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .cen3         ( cen3          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
+    .SCxON        ( SCxON[1]      ),
     .scrposh_cs   ( scr2posh_cs   ),
+    .vpos         ( scrposv       ),
     .flip         ( flip          ),
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
@@ -166,11 +176,11 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
 );
 `else 
 assign scr1_pxl  = ~6'h0;
-assign scr1_addr = 18'h0;
+assign scr1_addr = 17'h0;
 assign map1_addr = 14'h0;
 
 assign scr2_pxl  = ~6'h0;
-assign scr2_addr = 18'h0;
+assign scr2_addr = 17'h0;
 assign map2_addr = 14'h0;
 `endif
 
@@ -184,7 +194,8 @@ jt1943_colmix u_colmix (
     .LHBL       ( LHBL          ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
-    .scr_pxl    ( scr_pxl       ),
+    .scr1_pxl   ( scr1_pxl      ),
+    .scr2_pxl   ( scr2_pxl      ),
     .obj_pxl    ( obj_pxl       ),
     // Palette and priority PROMs
     .prog_addr  ( prog_addr     ),

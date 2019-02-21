@@ -24,7 +24,6 @@ module jt1943_scroll(
     input              clk,  // >12 MHz
     input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
     input              cen3,
-    input       [ 9:0] AB,
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
 
@@ -45,121 +44,107 @@ module jt1943_scroll(
     output reg  [13:0] map_addr,
     input       [15:0] map_data,
     // Gfx ROM
-    output reg  [17:0] scr_addr,
+    output reg  [16:0] scr_addr,
     input       [15:0] scrom_data,
     output      [ 5:0] scr_pxl
 );
-
-reg [2:0] scr_col0;
-reg [4:0] scr_pal0;
 
 parameter HOFFSET=9'd5;
 parameter SIMFILE_MSB="", SIMFILE_LSB="";
 
 wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS;
-reg  [ 7:0] VF, SV;
+reg  [ 7:0] VF, SV, SH, PIC;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
-reg  [15:0] hpos;
+reg  [15:0] hpos; // called "SP" on the schematics
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
 
 always @(*) begin
-    { HS[8:3], HSaux } = hpos + { ~Hfix[8], H7, HF[6:0]};
+    { HS[8:3], HSaux } = { ~Hfix[8], H7, HF[6:0]};
     HS[2:0] = HSaux ^ {3{flip}};
 end
-
-wire [8:0] scan = { HS[8:4], VF[7:4] };
-wire sel_scan = ~HS[2];
-wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
-wire we = !sel_scan && scr_cs && !wr_n;
-
-reg latch_wait_n = 1'b1;
-assign wait_n = !( scr_cs && sel_scan ) && latch_wait_n; // hold CPU
 
 always @(posedge clk) if(cen3) begin
     VF <= {8{flip}}^V128;
     SV <= VF + vpos;
+    SH <= HS[7:0] + hpos[7:0];
+    PIC <= hpos[15:8] + { {7{HF[6]&~Hfix[8]}}, ~Hfix[8] };
+    map_addr <= { PIC, SH[7:5], SV[7:5] };
 end
-
-always @(posedge clk) if(cen3)
-    latch_wait_n <= !( scr_cs && sel_scan );
 
 always @(posedge clk) 
     if( rst ) begin
-        hpos <= 9'd0;
-    end else if(cen3) begin
-        if( scrposh_cs[1] ) hpos[15:0] <= din;
+        hpos <= 'd0;
+    end else if(cen6) begin // same cen as main CPU
+        if( scrposh_cs[1] ) hpos[15:8] <= din;
         if( scrposh_cs[0] ) hpos[ 7:0] <= din;
     end
 
-wire [7:0] dout_low, dout_high;
-wire we_low  = we && !AB[4];
-wire we_high = we &&  AB[4];
-assign dout = AB[4] ? dout_high : dout_low;
-
+wire [7:0] dout_low = map_data[7:0], dout_high = map_data[15:8];
 
 reg scr_hflip;
 reg [7:0] addr_lsb;
 
-reg [5:0] scr_attr0, scr_attr1;
+reg [4:0] scr_attr0, scr_attr1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     if( HS[2:0]==3'd1 ) begin // dout_high/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr1 <= scr_attr0;
-        scr_attr0 <= dout_high[5:0];
-        scr_addr  <= {   dout_high[7], dout_low, // AS
-                        HS[3]^dout_high[5] /*scr_hflip*/, 
-                        {4{dout_high[6] /*vflip*/}}^VF[3:0] /*vert_addr*/ };
+        scr_attr0 <= dout_high[6:2];
+        scr_addr  <= {   dout_high[0], dout_low, // AS
+                        HS[4:3]^{2{dout_high[6]}} /*scr_hflip*/, 
+                        {5{dout_high[7] /*vflip*/}}^VF[4:0] /*vert_addr*/,
+                        HS[2]^dout_high[6] };
     end
 end
 
 // Draw pixel on screen
-reg [7:0] x,y,z;
-reg [4:0] scr_attr2;
+reg [3:0] w,x,y,z;
+reg [3:0] scr_attr2, scr_col0, scr_pal0;
 
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( HS[2:0]==3'd2 ) begin
-            { z,y,x } <= scrom_data;     
-            scr_hflip <= scr_attr1[5] ^ flip; // must be ready when z,y,x are.
-            scr_attr2 <= scr_attr1[4:0];
+    if( HS[1:0]==2'd2 ) begin
+            { z,y,x,w } <= scrom_data;     
+            scr_hflip   <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
+            scr_attr2   <= scr_attr1[3:0];
         end
     else
         begin
             if( scr_hflip ) begin
-                x <= {1'b0, x[7:1]};
-                y <= {1'b0, y[7:1]};
-                z <= {1'b0, z[7:1]};
+                w <= {1'b0, w[3:1]};
+                x <= {1'b0, x[3:1]};
+                y <= {1'b0, y[3:1]};
+                z <= {1'b0, z[3:1]};
             end
             else  begin
-                x <= {x[6:0], 1'b0};
-                y <= {y[6:0], 1'b0};
-                z <= {z[6:0], 1'b0};
+                w <= {w[2:0], 1'b0};
+                x <= {x[2:0], 1'b0};
+                y <= {y[2:0], 1'b0};
+                z <= {z[2:0], 1'b0};
             end
         end
-    scr_col0  <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    scr_col0  <= scr_hflip ? { w[0], x[0], y[0], z[0] } : { w[3], x[3], y[3], z[3] };
     scr_pal0  <= scr_attr2;
 end
 
-wire [7:0] pal_addr;
-assign pal_addr[7] = 1'b0;
-assign pal_addr[6:4] = scr_br[2:0];
+wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
 
 // Palette
-jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_MSB)) u_prom_msb(
+jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
     .clk    ( clk            ),
     .cen    ( cen6           ),
-    .data   ( prom_din       ),
+    .data   ( prom_din[1:0]  ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_d1_we     ),
+    .we     ( prom_msb_we    ),
     .q      ( scr_pxl[5:4]   )
 );
 
@@ -169,7 +154,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
     .data   ( prom_din       ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_d2_we     ),
+    .we     ( prom_lsb_we    ),
     .q      ( scr_pxl[3:0]   )
 );
 

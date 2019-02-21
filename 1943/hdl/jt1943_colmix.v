@@ -51,26 +51,10 @@ wire [3:0] dout_b;
 
 reg [7:0] pixel_mux;
 
-// wire char_blank_b  = |(~char_pxl);
-// wire obj_blank_b   = |(~obj_pxl);
-// wire scr1_blank_b  = |(~scr1_pxl);
 reg [7:0] prom_addr;
 wire [3:0] selbus;
 
 always @(*) begin
-    if( !char_blank_b ) begin
-        // Object or scroll
-        if( !obj_blank_b ) begin
-            if( !scr1_blank_b )
-                pixel_mux[5:0] = scr2_pxl; // scroll 2 wins
-            else
-                pixel_mux[5:0] = scr1_pxl; // scroll 2 wins
-        end else
-            pixel_mux[5:0] = obj_pxl; // object wins
-    end
-    else begin // characters
-        pixel_mux[5:0] = { 2'b0, char_pxl };
-    end
     case( selbus[1:0] )
         2'b00: pixel_mux[5:0] = scr2_pxl;
         2'b01: pixel_mux[5:0] = scr1_pxl;
@@ -116,7 +100,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
     .q      ( blue        )
 );
 
-jtgng_prom #(.aw(5),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_blue(
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
