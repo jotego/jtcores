@@ -56,6 +56,7 @@ module jt1942_game(
     // cheat
     input           cheat_invincible,
     // DIP Switch A
+    input           dip_flip,
     input   [1:0]   dip_planes,
     input   [1:0]   dip_bonus,
     input           dip_upright,
@@ -200,6 +201,7 @@ jt1942_main u_main(
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches
+    .dip_flip   ( dip_flip      ),
     .dipsw_a    ( {dip_planes, dip_bonus, dip_upright, dip_price } ),
     .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7}     ),
     .coin_cnt   ( coin_cnt      )

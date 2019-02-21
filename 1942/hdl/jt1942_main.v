@@ -58,6 +58,7 @@ module jt1942_main(
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     // DIP switches
+    input              dip_flip,    // Not a DIP in the original board ;-)
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
     output reg         coin_cnt,
@@ -119,8 +120,8 @@ end
 reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        bank      <= 2'd0;
-        scr_br    <= 3'b0;
+        bank     <= 2'd0;
+        scr_br   <= 3'b0;
         flip     <= 1'b0;
         sres_b   <= 1'b1;
         coin_cnt <= 1'b0;
@@ -134,7 +135,7 @@ always @(posedge clk)
         end
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin
-            flip     <=  cpu_dout[7];
+            flip     <=  cpu_dout[7] ^ dip_flip;
             sres_b   <= ~cpu_dout[4];
             coin_cnt <= ~cpu_dout[0];
         end
