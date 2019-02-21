@@ -60,7 +60,7 @@ localparam CONF_STR = {
         "O4,FM  ,ON,OFF;",
         "O56,Lives,3,4,5,6;",
         "O78,Difficulty,easy,normal,hard,very hard;",
-        "O9,Screen filter,ON,OFF;",
+        "O9,Screen filter,OFF,ON;",
         "TA,Reset;",
         "V,http://patreon.com/topapate;"
 };

@@ -60,7 +60,7 @@ localparam CONF_STR = {
         "O4,Test mode,OFF,ON;", // 20
         "O56,Lives,2,1,3,5;", // 18
         "O78,Bonus,30/100,30/80,20/100,20/80;", // 36
-        "O9,Screen filter,OFF,ON;", // 24
+        "O9,Screen filter,ON,OFF;", // 24
         "OA,Invincibility,OFF,ON;", // 24
         "OB,Flip screen,OFF,ON;", // 22
         "TF,RST ,OFF,ON;", // 15
