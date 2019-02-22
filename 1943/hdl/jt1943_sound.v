@@ -116,7 +116,7 @@ wire rd_n;
 wire wr_n;
 
 wire RAM_we = ram_cs && !wr_n;
-wire [7:0] ram_dout, dout;
+wire [7:0] ram_dout, dout, rom_data0, rom_data1;
 
 jtgng_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
@@ -128,15 +128,28 @@ jtgng_ram #(.aw(11)) u_ram(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(15),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
     .clk    ( clk         ),
     .cen    ( cen3        ),
     .data   ( prom_din    ),
-    .rd_addr( A[14:0]     ),
+    .rd_addr( A[13:0]     ),
     .wr_addr( prog_addr   ),
-    .we     ( prom_4k_we  ),
-    .q      ( rom_data    )
+    .we     ( prom_4k_we & !prog_addr[14] ),
+    .q      ( rom_data0   )
 );
+
+// full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
+    .clk    ( clk         ),
+    .cen    ( cen3        ),
+    .data   ( prom_din    ),
+    .rd_addr( A[13:0]     ),
+    .wr_addr( prog_addr   ),
+    .we     ( prom_4k_we & prog_addr[14]  ),
+    .q      ( rom_data1   )
+);
+
+assign rom_data = A[14] ? rom_data1 : rom_data0;
 
 reg [7:0] din;
 wire [7:0] fm1_dout, fm0_dout, security;
