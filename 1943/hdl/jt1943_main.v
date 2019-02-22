@@ -23,11 +23,7 @@ module jt1943_main(
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     input              rst,
-    input              [7:0] char_dout,
-    output             [7:0] cpu_dout,
-    output  reg        char_cs,
-    input              char_wait_n,
-    input              scr_wait_n,
+    // Timing
     output  reg        flip,
     input   [8:0]      V,
     input              LHBL,
@@ -36,11 +32,16 @@ module jt1943_main(
     output  reg        snd_int,
     output  reg        snd_latch_cs,
     output  reg        snd_latch1_cs,
+    // Characters
+    input              [7:0] char_dout,
+    output             [7:0] cpu_dout,
+    output  reg        char_cs,
+    output  reg        CHON,    // 1 enables character output
+    input              char_wait_n,
     // scroll
-    input   [7:0]      scr_dout,
     output  [7:0]      scr_vpos,
-    output  reg [1:0]  scrpos_cs,
-    output  reg [2:0]  scr_br,
+    output  reg [1:0]  scr1posh_cs,
+    output  reg [1:0]  scr2posh_cs,
     // cheat!
     input              cheat_invincible,
     // Object
@@ -55,7 +56,7 @@ module jt1943_main(
     output             rd_n,
     output             wr_n,
     // ROM access
-    output  reg [16:0] rom_addr,
+    output  reg [17:0] rom_addr,
     input       [ 7:0] rom_data,
     // DIP switches
     input    [7:0]     dipsw_a,
@@ -70,7 +71,7 @@ module jt1943_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
-reg main_cs, in_cs, ram_cs, bank_cs;
+reg main_cs, in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
 reg SECWR_cs, OKOUT_cs;
 
 wire mreq_n;
@@ -79,13 +80,14 @@ always @(*) begin
     main_cs       = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
-    scrposv_cs    = 2'b0;
+    scrposv_cs    = 1'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
     obj_cs        = 1'b0;
-    scr1posh_cs   = 2'd0;
-    scr2posh_cs   = 2'd0;
+    scr1posh_cs   = 2'b0;
+    scr2posh_cs   = 2'b0;
+    scrposv_cs    = 1'b0;
     gfxen_cs      = 1'b0;
     OKOUT_cs      = 1'b0;         
     SECWR_cs      = 1'b0;
@@ -104,18 +106,18 @@ always @(*) begin
                         3'b111: SECWR_cs     = 1'b1;
                         default:;
                     endcase
-                2'b10: // DOCS
-                //    char_cs = 1'b1; // DOCS
+                2'b10: // D0CS (D phi CS on schematics)
+                    char_cs = 1'b1; // D0CS
                 2'b11: // D8CS
                     if( !A[3] && !wr_n) case(A[2:0])
-                        3'd0: scr1posh_cs <= 2'b01; // LSB
-                        3'd1: scr1posh_cs <= 2'b10; // MSB
-                        3'd2: scrposv_cs  <= 1'b1;
-                        3'd3: scr2posh_cs <= 2'b01; // LSB
-                        3'd4: scr2posh_cs <= 2'b10; // MSB
-                        3'd6: gfxen_cs    <= 1'b1;
+                        3'd0: scr1posh_cs = 2'b01; // LSB
+                        3'd1: scr1posh_cs = 2'b10; // MSB
+                        3'd2: scrposv_cs  = 1'b1;
+                        3'd3: scr2posh_cs = 2'b01; // LSB
+                        3'd4: scr2posh_cs = 2'b10; // MSB
+                        3'd6: gfxen_cs    = 1'b1;
+                        default:;
                     endcase
-                    scr_cs  = 1'b1; // SCRCE
             endcase
         3'b111: ram_cs = A[12]==1'b0; // csef
     endcase
@@ -125,7 +127,7 @@ end
 reg [2:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        bank      <= 2'd0;
+        bank      <= 'd0;
         scr_vpos  <= 8'd0;
         flip      <= 1'b0;
         sres_b    <= 1'b1;
@@ -136,7 +138,7 @@ always @(posedge clk)
             CHON     <= cpu_dout[7];
             flip     <= cpu_dout[6];
             sres_b   <= cpu_dout[5];
-            coin_cnt <= cpu_dout[1:0];
+            coin_cnt <= |cpu_dout[1:0];
             bank     <= cpu_dout[4:2];
             `ifdef SIMULATION
             $display("Bank changed to %d", cpu_dout[4:2]);
@@ -186,20 +188,19 @@ wire irq_ack = !iorq_n && !m1_n;
 wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K10
 
 always @(*)
-    case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
-        5'b10_000: cpu_din =  //(cheat_invincible && A==16'he0a5) ? 8'h2 : 
+    case( {ram_cs, char_cs, main_cs, in_cs} )
+        4'b10_00: cpu_din =  //(cheat_invincible && A==16'he0a5) ? 8'h2 : 
                             ram_dout;
-        5'b01_000: cpu_din = char_dout;
-        5'b00_010: cpu_din = rom_data;
-        5'b00_001: cpu_din = cabinet_input;
+        4'b01_00: cpu_din = char_dout;
+        4'b00_10: cpu_din = rom_data;
+        4'b00_01: cpu_din = cabinet_input;
         default:   cpu_din = rom_data;
     endcase
 
-// ROM ADDRESS
+// ROM ADDRESS: 32kB + 8 banks of 16kB
 always @(*) begin
     rom_addr[13:0] = A[13:0];
-    //rom_addr[16:14] = { 1'b0, A[15:14] } + (!A[15] ? 3'd0 : {1'b0, bank});
-    rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + {1'b0, bank});
+    rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
 end
 
 ///////////////////////////////////////////////////////////////////
@@ -211,6 +212,7 @@ always @(posedge clk) begin
         case( V[7:5] )
             3'd7: int_latch_qb <= 1'b0;
             3'd0: int_latch_qb <= 1'b1;
+            default:;
         endcase
     int_rqb_last <= int_rqb;
     int_rqb <= int_latch_qb && (V[8] && !V[4] && V[7:5]==3'd3 );
@@ -219,7 +221,7 @@ always @(posedge clk) begin
     else
         int_n <= !( int_rqb && !int_rqb_last );
 end
-wire wait_n = scr_wait_n & char_wait_n;
+wire wait_n = char_wait_n;
 
 
 jt1943_security u_security(
