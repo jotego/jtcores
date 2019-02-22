@@ -128,7 +128,7 @@ jtgng_ram #(.aw(11)) u_ram(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom0(
     .clk    ( clk         ),
     .cen    ( cen3        ),
     .data   ( prom_din    ),
@@ -139,7 +139,7 @@ jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom1(
     .clk    ( clk         ),
     .cen    ( cen3        ),
     .data   ( prom_din    ),
