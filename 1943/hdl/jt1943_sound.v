@@ -37,7 +37,7 @@ module jt1943_sound(
     input           prom_4k_we,
     input   [7:0]   prom_din,      
     // Sound output
-    output reg [15:0]  snd
+    output  [15:0]  snd
 );
 
 wire [7:0]  rom_data;
@@ -138,8 +138,8 @@ jtgng_prom #(.aw(15),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
     .q      ( rom_data    )
 );
 
-reg [7:0] din, security;
-wire [7:0] fm1_dout, fm0_dout;
+reg [7:0] din;
+wire [7:0] fm1_dout, fm0_dout, security;
 
 always @(*)
     case( 1'b1 )

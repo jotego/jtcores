@@ -145,7 +145,7 @@ always @(negedge clk)
     t80_rst_n <= ~rst;
 
 reg [7:0] cabinet_input;
-reg [7:0] security;
+wire [7:0] security;
 
 always @(*)
     case( A[2:0] )
