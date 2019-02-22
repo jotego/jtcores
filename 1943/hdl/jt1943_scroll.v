@@ -36,8 +36,8 @@ module jt1943_scroll(
 
     // Palette PROMs D1, D2
     input   [7:0]      prog_addr,
-    input              prom_lsb_we,
     input              prom_msb_we,
+    input              prom_lsb_we,
     input   [3:0]      prom_din,    
 
     // Map ROM    

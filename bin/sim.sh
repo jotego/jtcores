@@ -33,6 +33,7 @@ MIST=
 MACROPREFIX=-D
 EXTRA=
 ARGNUMBER=1
+MEM_CHECK_TIME=140_000_000
 
 rm -f test2.bin
 
@@ -66,6 +67,8 @@ case "$SYSNAME" in
         exit 1;;
     gng)  PERCORE=$(add_dir ../../../modules/jt12/hdl jt03.f);;
     1942) PERCORE=$(add_dir ../../../modules/jt12/jt49/hdl jt49.f);;
+    1943) PERCORE=$(add_dir ../../../modules/jt12/hdl jt03.f);
+          MEM_CHECK_TIME=250_000_000;;
 esac
 # switch to NCVerilog if available
 if which ncverilog; then
@@ -206,6 +209,8 @@ clear_hex_file obj_buf  128
 if [ "$EXTRA" != "" ]; then
     echo Verilog macros: "$EXTRA"
 fi
+
+EXTRA="$EXTRA ${MACROPREFIX}MEM_CHECK_TIME=$MEM_CHECK_TIME"
 
 case $SIMULATOR in
 iverilog)   

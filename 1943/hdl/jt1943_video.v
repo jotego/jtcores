@@ -131,8 +131,8 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .wr_n         ( wr_n          ),
     // Palette PROMs
     .prog_addr    ( prog_addr     ),
-    .prom_lsb_we  ( prom_6l_we    ),
-    .prom_msb_we  ( prom_7l_we    ),
+    .prom_msb_we  ( prom_6l_we    ),
+    .prom_lsb_we  ( prom_7l_we    ),
     .prom_din     ( prog_din      ),    
 
     // ROM
@@ -163,8 +163,8 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .wr_n         ( wr_n          ),
     // Palette PROMs
     .prog_addr    ( prog_addr     ),
-    .prom_lsb_we  ( prom_12l_we   ),
-    .prom_msb_we  ( prom_12m_we   ),
+    .prom_msb_we  ( prom_12l_we   ),
+    .prom_lsb_we  ( prom_12m_we   ),
     .prom_din     ( prog_din      ),    
 
     // ROM

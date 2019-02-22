@@ -37,11 +37,11 @@ reg set_strobe, set_done;
 reg [11:0] prom_we0;
 
 always @(posedge clk_rgb) begin
+    prom_we <= 'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
     end else if(set_done) begin
-        prom_we <= 'd0;
         set_done <= 1'b0;
     end
 end
@@ -53,7 +53,7 @@ always @(posedge clk_rom) begin
         prog_data <= ioctl_data;
         if(ioctl_addr < SCR1ADDR) begin
             prog_addr <= {1'b0, ioctl_addr[21:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};            
         end
         else if(ioctl_addr < ROMEND) begin
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:15], scr_start[13:0]};
@@ -81,7 +81,7 @@ always @(posedge clk_rom) begin
         end
     end
     else begin
-        prog_we <= 1'b0;
+        prog_we <= 1'b0;        
     end
 end
 

@@ -16,10 +16,7 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_prom #(parameter dw=8, aw=10, simfile="", 
-    check_time=90_000_000,
-    cen_rd=0
-)(
+module jtgng_prom #(parameter dw=8, aw=10, simfile="", cen_rd=0 )(
     input   clk,
     input   cen,
     input   [dw-1:0] data,
@@ -51,7 +48,7 @@ else begin
 // check contents after 80ms
 reg [dw-1:0] mem_check[0:(2**aw)-1];
 initial begin
-    #(check_time);
+    #(`MEM_CHECK_TIME);
     f=$fopen(simfile,"rb");
     if( f!= 0 ) begin
         readcnt = $fread( mem_check, f );

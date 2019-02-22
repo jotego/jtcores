@@ -14,9 +14,9 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-10-2017 */
+    Date: 20-2-2019 */
 
-module jtgng_rom(
+module jt1943_rom(
     input               rst,
     input               clk, 
     input               cen12, // 12 MHz
@@ -103,7 +103,8 @@ if( loop_rst || downloading ) begin
     main_dout <=  8'd0;
     char_dout <= 16'd0;
     obj_dout  <= 16'd0;
-    scr_dout  <= 24'd0;
+    scr1_dout <= 16'd0;
+    scr2_dout <= 16'd0;
     ready_cnt <=  4'd0;    
     ready     <=  1'b0;
 end else if(cen12) begin

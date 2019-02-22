@@ -97,24 +97,36 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         `endif
     end
     `else 
-    // check contents after 140ms
-    reg [15:0] mem_check[0 : mem_sizes];
-    integer readcnt, f;
-    initial begin
-        #(140_000_000);
-        f=$fopen(filename,"rb");
-        if( f!= 0 ) begin
-            readcnt = $fread( mem_check, f );
-            $fclose(f);
-            for( readcnt=readcnt-1;readcnt>0; readcnt=readcnt-1) begin
-                if( mem_check[readcnt] != Bank0[readcnt] ) begin
-                    $display("ERROR: %m\n\tMemory content check failed for file %s at offset %X", filename, readcnt );
-                    $finish;
+        `ifdef CHECKROM
+        // check contents after 140ms
+        reg [15:0] mem_check[0 : mem_sizes];
+        integer readcnt, f;
+        initial begin
+            #(`MEM_CHECK_TIME);
+            f=$fopen(filename,"rb");
+            if( f!= 0 ) begin
+                readcnt = $fread( mem_check, f );
+                $fclose(f);
+                for( readcnt=readcnt-1;readcnt>0; readcnt=readcnt-1) begin
+                    if( mem_check[readcnt] != Bank0[readcnt] ) begin
+                        $display("ERROR: %m\n\tMemory content check failed for file %s at offset %X", filename, readcnt );
+                        $finish;
+                    end
                 end
+                $display("INFO: memory content check succedded (SDRAM)");
             end
-            $display("INFO: memory content check succedded (SDRAM)");
         end
-    end
+        `else // save contents
+        integer dumpcnt,f;
+        initial begin
+            #(`MEM_CHECK_TIME);
+            f=$fopen("sdram.hex","w");
+            for( dumpcnt=0; dumpcnt<4096*1024; dumpcnt=dumpcnt+1)
+                $fwrite(f,"%u",Bank0[dumpcnt]);
+            $fclose(f);
+            $display("INFO: SDRAM memory content dumped to sdram.hex");
+        end
+        `endif
     `endif
 
     reg                   [1 : 0] Bank_addr [0 : 3];                // Bank Address Pipeline

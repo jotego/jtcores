@@ -19,6 +19,7 @@
 module jt1943_game(
     input           rst,
     input           clk,        // 24   MHz
+    input           clk_rom,    // SDRAM clock
     input           cen12,      // 12   MHz
     input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
@@ -45,21 +46,29 @@ module jt1943_game(
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
 
-    // PROM programming
-    input   [21:0]  ioctl_addr,    
-    input   [ 3:0]  prog_din,
+    // ROM LOAD
+    input   [21:0]  ioctl_addr, 
+    input   [ 7:0]  ioctl_data,
+    input           ioctl_wr,   
+    output  [21:0]  prog_addr,
+    output  [ 7:0]  prog_data,
+    output  [ 1:0]  prog_mask,
+    output          prog_we,
 
     // cheat
     input           cheat_invincible,
     // DIP Switch A
-    input   [1:0]   dip_planes,
-    input   [1:0]   dip_bonus,
-    input           dip_upright,
-    input   [2:0]   dip_price,
-    // DIP Switch B
-    input           dip_pause,   // DWB - bit 7
-    input   [1:0]   dip_level, // difficulty level
     input           dip_test,
+    input           dip_pause,
+    input           dip_upright,
+    input           dip_credits2p,
+    input   [3:0]   dip_level, // difficulty level
+    // DIP Switch B
+    input           dip_demosnd,
+    input           dip_continue,
+    input   [2:0]   dip_price2,
+    input   [2:0]   dip_price1,
+    input           dip_flip,
     output          coin_cnt,
     // Sound output
     output  [15:0]  snd,
@@ -73,7 +82,7 @@ wire HINIT;
 wire [12:0] cpu_AB;
 wire char_cs;
 wire flip;
-wire [7:0] cpu_dout, char_dout;
+wire [7:0] cpu_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire rd;
 wire rom_ready;
@@ -108,24 +117,26 @@ jtgng_timer u_timer(
 wire wr_n, rd_n;
 // sound
 wire sres_b;
-wire [7:0] snd_latch;
+wire [7:0] snd_latch, scrposv;
 
-wire scr_cs, obj_cs;
-wire [1:0] scrpos_cs;
-wire [2:0] scr_br;
+wire obj_cs;
+wire [1:0] scr1pos_cs, scr2pos_cs;
 
 // ROM data
-wire [16:0]  main_addr,
-wire [17:0]  obj_addr, scr1_addr;
-wire [14:0]  snd_addr, scr2_addr,
+wire [17:0]  main_addr;
+wire [17:0]  obj_addr;
+wire [16:0]  scr1_addr;
+wire [14:0]  snd_addr, scr2_addr;
 wire [13:0]  char_addr, map1_addr, map2_addr;
 wire [ 7:0]  main_dout, snd_dout;
 wire [15:0]  char_dout, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
 
-wire snd_latch_cs, snd_latch1_cs, snd_int;
-wire char_wait_n, scr_wait_n;
+wire snd_latch_cs, snd_int;
+wire char_wait_n;
 
 wire [11:0] prom_we;
+wire [21:0] prog_addr;
+
 jt1943_prom_we u_prom_we(
     .clk_rom     ( clk_rom       ),
     .clk_rgb     ( clk           ),
@@ -142,8 +153,6 @@ jt1943_prom_we u_prom_we(
 
     .prom_we     ( prom_we       )
 );
-
-wire [7:0] prog_addr = ioctl_addr[7:0];
 
 wire prom_7l_we  = prom_we[ 0];
 wire prom_12l_we = prom_we[ 1];
@@ -163,20 +172,20 @@ jt1943_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .soft_rst   ( soft_rst      ),
     .char_wait_n( char_wait_n   ),
     // sound
     .sres_b       ( sres_b        ),
     .snd_latch_cs ( snd_latch_cs  ),
-    .snd_int      ( snd_int       ),
     
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
     // CHAR
     .char_cs    ( char_cs       ),
-    .char_dout  ( chram_dout    ),    
-    .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
+    .char_dout  ( chram_dout    ),  
+    // SCROLL
+    .scrposv    ( scrposv       ),
+    .scr1posh_cs( scr1posh_cs   ),
+    .scr2posh_cs( scr2posh_cs   ),
     .obj_cs     ( obj_cs        ),
     .flip       ( flip          ),
     .V          ( V             ),
@@ -184,7 +193,7 @@ jt1943_main u_main(
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
     .rom_addr   ( main_addr     ),
-    .rom_data   ( main_data     ),
+    .rom_data   ( main_dout     ),
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
@@ -193,8 +202,8 @@ jt1943_main u_main(
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches
-    .dipsw_a    ( {dip_planes, dip_bonus, dip_upright, dip_price } ),
-    .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7}     ),
+    .dipsw_a    ( {dip_test, dip_pause, dip_upright, dip_credits2p, dip_level } ),
+    .dipsw_b    ( {dip_demosnd, dip_continue, dip_price2, dip_price1} ),
     .coin_cnt   ( coin_cnt      )
 );
 
@@ -240,7 +249,9 @@ jt1943_video u_video(
     .char_data  ( char_data     ),
     .char_wait_n( char_wait_n   ),
     // SCROLL - ROM
-    .scrpos_cs  ( scrpos_cs     ),    
+    .scr1posh_cs( scr1posh_cs   ),    
+    .scr2posh_cs( scr2posh_cs   ),    
+    .scrposv    ( scrposv       ),
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_data     ),
     .scr2_addr  ( scr2_addr     ),
@@ -264,7 +275,7 @@ jt1943_video u_video(
     .blue       ( blue          ),
     // PROM access
     .prog_addr  ( prog_addr     ),
-    .prog_din   ( prog_din      ),
+    .prog_din   ( prog_data     ),
     // color mixer proms
     .prom_12a_we( prom_12a_we   ),
     .prom_13a_we( prom_13a_we   ),

@@ -29,9 +29,7 @@ module jt1943_main(
     input              LHBL,
     // Sound
     output  reg        sres_b, // sound reset
-    output  reg        snd_int,
     output  reg        snd_latch_cs,
-    output  reg        snd_latch1_cs,
     // Characters
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
@@ -39,7 +37,7 @@ module jt1943_main(
     output  reg        CHON,    // 1 enables character output
     input              char_wait_n,
     // scroll
-    output  [7:0]      scr_vpos,
+    output  reg [7:0]  scrposv,
     output  reg [1:0]  scr1posh_cs,
     output  reg [1:0]  scr2posh_cs,
     // cheat!
@@ -128,7 +126,7 @@ reg [2:0] bank;
 always @(posedge clk)
     if( rst ) begin
         bank      <= 'd0;
-        scr_vpos  <= 8'd0;
+        scrposv  <= 8'd0;
         flip      <= 1'b0;
         sres_b    <= 1'b1;
         coin_cnt  <= 1'b0;
@@ -144,7 +142,7 @@ always @(posedge clk)
             $display("Bank changed to %d", cpu_dout[4:2]);
             `endif
         end
-        if( scrposv_cs ) scr_vpos <= cpu_dout;
+        if( scrposv_cs ) scrposv <= cpu_dout;
     end
 
 always @(negedge clk)
@@ -279,7 +277,7 @@ assign {
 T80s u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
-    .CEN        ( cen6        ),
+    .CEN        ( cen3        ),
     .WAIT_n     ( wait_n      ),
     .INT_n      ( int_n       ),
     .RD_n       ( rd_n        ),
@@ -299,7 +297,7 @@ T80s u_cpu(
 tv80s #(.Mode(0)) u_cpu (
     .reset_n( t80_rst_n  ),
     .clk    ( clk        ),
-    .cen    ( cen6       ),
+    .cen    ( cen3       ),
     .wait_n ( wait_n     ),
     .int_n  ( int_n      ),
     .nmi_n  ( 1'b1       ),

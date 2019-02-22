@@ -42,8 +42,8 @@ module jtgng_board(
     // joystick
     input      [8:0]  board_joystick1,
     input      [8:0]  board_joystick2,
-    output reg [5:0]  game_joystick1,
-    output reg [5:0]  game_joystick2,
+    output reg [6:0]  game_joystick1,
+    output reg [6:0]  game_joystick2,
     output reg [1:0]  game_coin,
     output reg [1:0]  game_start,
     output reg        game_pause,
@@ -109,7 +109,7 @@ assign vga_hsync  = 1'b0;
 assign vga_vsync  = 1'b0;
 `endif
 
-wire [5:0] key_joy1, key_joy2;
+wire [6:0] key_joy1, key_joy2;
 wire [1:0] key_start, key_coin;
 
 
@@ -151,8 +151,8 @@ always @(posedge clk_rgb) begin
     last_reset <= key_reset;
     last_joypause_b <= joy_pause_b; // joy is active low!
 
-    game_joystick1 <= joy1_sync[5:0] & ~key_joy1;
-    game_joystick2 <= joy2_sync[5:0] & ~key_joy2;
+    game_joystick1 <= joy1_sync[6:0] & ~key_joy1;
+    game_joystick2 <= joy2_sync[6:0] & ~key_joy2;
     game_coin      <= {joy2_sync[6],joy1_sync[6]} & ~key_coin;
     game_start     <= {joy2_sync[7],joy1_sync[7]} & ~key_start;
     if(key_pause && !last_pause)    game_pause  <= ~game_pause;

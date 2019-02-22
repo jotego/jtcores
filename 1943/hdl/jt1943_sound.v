@@ -27,8 +27,7 @@ module jt1943_sound(
     // Interface with main CPU
     input           sres_b,
     input   [ 7:0]  main_dout,
-    input           main_latch0_cs,
-    input           main_latch1_cs,
+    input           main_latch_cs,
     input           snd_int,
     // Sound control
     input           enable_psg,
@@ -67,7 +66,7 @@ always @(posedge clk) if(cen3)
 
 reg rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs, SECWR_cs;
 
-reg [7:0] AH;
+reg [7:0] latch;
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -106,17 +105,9 @@ reg [7:0] latch0, latch1;
 
 always @(posedge clk) 
 if( rst ) begin
-    latch1 <= 8'd0;
-    latch0 <= 8'd0;
+    latch <= 8'd0;
 end else if(cen3) begin
-    if( main_latch1_cs ) latch1 <= main_dout;
-    if( main_latch0_cs ) latch0 <= main_dout;
-    `ifdef SIMULATION
-        if( main_latch1_cs ) 
-            $display("(%X) SND LATCH 1 = $%X", $time/1000, main_dout );
-        if( main_latch0_cs ) 
-            $display("(%X) SND LATCH 0 = $%X", $time/1000, main_dout );
-    `endif
+    if( main_latch_cs ) latch <= main_dout;
 end
 
 wire rd_n;
@@ -141,7 +132,7 @@ always @(*)
     case( 1'b1 )
         fm1_cs:   din = fm1_dout;
         fm0_cs:   din = fm0_dout;
-        latch_cs: din = A[0] ? latch1 : latch0;
+        latch_cs: din = latch;
         rom_cs:   din = rom_data;
         ram_cs:   din = ram_dout;
         default:  din = 8'hff;
