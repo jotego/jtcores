@@ -58,6 +58,8 @@ localparam CONF_STR = {
         "O1,Pause,OFF,ON;", // 16
         "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
         "O4,Test mode,OFF,ON;", // 20
+        "O7,PSG,ON,OFF;", // 14
+        "O8,FM ,ON,OFF;", // 14
         "O9,Screen filter,ON,OFF;", // 24
         "OA,Invincibility,OFF,ON;", // 24
         "OB,Flip screen,OFF,ON;", // 22
@@ -65,7 +67,7 @@ localparam CONF_STR = {
         "V,patreon.com/topapate;" // 23
 };
 
-localparam CONF_STR_LEN = 8+16+42+20+15+24+24+22+23;
+localparam CONF_STR_LEN = 8+16+42+20+15+14*2+24+24+22+23;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -86,6 +88,8 @@ assign LED = ~downloading | coin_cnt | rst;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
 wire dip_flip = status[32'hb];
+
+wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire dip_test  = ~status[4];
 wire dip_pause = ~status[1];
@@ -224,6 +228,9 @@ jt1943_game u_game(
     .joystick1   ( game_joystick1 ),
     .joystick2   ( game_joystick2 ),
 
+    // Sound control
+    .enable_fm   ( enable_fm      ),
+    .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_data  ( ioctl_data     ),

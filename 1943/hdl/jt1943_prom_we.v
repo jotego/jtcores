@@ -25,16 +25,17 @@ module jt1943_prom_we(
     input                ioctl_wr,   
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
-    output reg [ 1:0]    prog_mask,
+    output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg [11:0]    prom_we
+    output reg [12:0]    prom_we
 );
 
-localparam SCR1ADDR = 22'h24_000*2, ROMEND=22'h6C_000*2;
+localparam SNDADDR=22'h14_000*2, CHARADDR=22'h18_000*2,
+    SCR1ADDR=22'h24_000*2, ROMEND=22'h6C_000*2;
 wire [21:0] scr_start = ioctl_addr - SCR1ADDR;
 
 reg set_strobe, set_done;
-reg [11:0] prom_we0;
+reg [12:0] prom_we0;
 
 always @(posedge clk_rgb) begin
     prom_we <= 'd0;
@@ -52,8 +53,16 @@ always @(posedge clk_rom) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
         if(ioctl_addr < SCR1ADDR) begin
-            prog_addr <= {1'b0, ioctl_addr[21:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};            
+            if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR) begin // Sound ROM
+                prom_we0   <= 13'h10_00;
+                set_strobe <= 1'b1;
+                prog_we    <= 1'b0; // Do not write this on the SDRAM
+                prog_addr  <= ioctl_addr - SNDADDR;
+                prog_mask <= 2'b11;
+            end else begin
+                prog_addr <= {1'b0, ioctl_addr[21:1]};
+                prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            end
         end
         else if(ioctl_addr < ROMEND) begin
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:15], scr_start[13:0]};
@@ -61,21 +70,22 @@ always @(posedge clk_rom) begin
         end
         else begin // PROMs
             prog_addr <= { 3'h7, ioctl_addr[18:0] };
+            prog_we   <= 1'b0;
             prog_mask <= 2'b11;
             case(ioctl_addr[11:8])
-                4'h0: prom_we0 <= 12'h0_01;    // 
-                4'h1: prom_we0 <= 12'h0_02;    // 
-                4'h2: prom_we0 <= 12'h0_04;    // 
-                4'h3: prom_we0 <= 12'h0_08;    // 
-                4'h4: prom_we0 <= 12'h0_10;    // 
-                4'h5: prom_we0 <= 12'h0_20;    // 
-                4'h6: prom_we0 <= 12'h0_40;    // 
-                4'h7: prom_we0 <= 12'h0_80;    // 
-                4'h8: prom_we0 <= 12'h1_00;    // 
-                4'h9: prom_we0 <= 12'h2_00;    // 
-                4'ha: prom_we0 <= 12'h4_00;    // 
-                4'hb: prom_we0 <= 12'h8_00;    // 
-                default: prom_we0 <= 12'h0;    // 
+                4'h0: prom_we0 <= 13'h0_01;    // 
+                4'h1: prom_we0 <= 13'h0_02;    // 
+                4'h2: prom_we0 <= 13'h0_04;    // 
+                4'h3: prom_we0 <= 13'h0_08;    // 
+                4'h4: prom_we0 <= 13'h0_10;    // 
+                4'h5: prom_we0 <= 13'h0_20;    // 
+                4'h6: prom_we0 <= 13'h0_40;    // 
+                4'h7: prom_we0 <= 13'h0_80;    // 
+                4'h8: prom_we0 <= 13'h1_00;    // 
+                4'h9: prom_we0 <= 13'h2_00;    // 
+                4'ha: prom_we0 <= 13'h4_00;    // 
+                4'hb: prom_we0 <= 13'h8_00;    // 
+                default: prom_we0 <= 13'h0;    // 
             endcase 
             set_strobe <= 1'b1;
         end

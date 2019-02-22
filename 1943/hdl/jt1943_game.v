@@ -134,8 +134,7 @@ wire [15:0]  char_dout, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
 wire snd_latch_cs, snd_int;
 wire char_wait_n;
 
-wire [11:0] prom_we;
-wire [21:0] prog_addr;
+wire [12:0] prom_we;
 
 jt1943_prom_we u_prom_we(
     .clk_rom     ( clk_rom       ),
@@ -166,6 +165,9 @@ wire prom_4b_we  = prom_we[ 8];
 wire prom_7c_we  = prom_we[ 9];
 wire prom_8c_we  = prom_we[10];
 wire prom_6l_we  = prom_we[11];
+wire prom_4k_we  = prom_we[12];
+
+wire [1:0] scr1posh_cs, scr2posh_cs;
 
 jt1943_main u_main(
     .rst        ( rst_game      ),
@@ -220,8 +222,10 @@ jt1943_sound u_sound (
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
     .snd_int        ( V[5]           ),
-    .rom_addr       ( snd_addr       ),
-    .rom_data       ( snd_data       ),
+    // PROM 4K
+    .prog_addr      ( prog_addr[14:0]),
+    .prom_4k_we     ( prom_4k_we     ),
+    .prom_din       ( prog_data      ), 
     .snd            ( snd            ) 
 );
 `else 
@@ -246,26 +250,26 @@ jt1943_video u_video(
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
     .char_addr  ( char_addr     ), // CHAR ROM
-    .char_data  ( char_data     ),
+    .char_data  ( char_dout     ),
     .char_wait_n( char_wait_n   ),
     // SCROLL - ROM
     .scr1posh_cs( scr1posh_cs   ),    
     .scr2posh_cs( scr2posh_cs   ),    
     .scrposv    ( scrposv       ),
     .scr1_addr  ( scr1_addr     ),
-    .scr1_data  ( scr1_data     ),
+    .scr1_data  ( scr1_dout     ),
     .scr2_addr  ( scr2_addr     ),
-    .scr2_data  ( scr2_data     ),
+    .scr2_data  ( scr2_dout     ),
     // Scroll maps
     .map1_addr  ( map1_addr     ),
-    .map1_data  ( map1_data     ),
+    .map1_data  ( map1_dout     ),
     .map2_addr  ( map2_addr     ),
-    .map2_data  ( map2_data     ),
+    .map2_data  ( map2_dout     ),
     // OBJ
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .objrom_data( obj_dout      ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
@@ -274,8 +278,8 @@ jt1943_video u_video(
     .green      ( green         ),
     .blue       ( blue          ),
     // PROM access
-    .prog_addr  ( prog_addr     ),
-    .prog_din   ( prog_data     ),
+    .prog_addr  ( prog_addr[7:0]),
+    .prog_din   ( prog_data[3:0]),
     // color mixer proms
     .prom_12a_we( prom_12a_we   ),
     .prom_13a_we( prom_13a_we   ),
@@ -300,7 +304,6 @@ jt1943_rom u_rom (
     
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
-    .snd_addr    ( snd_addr      ),  //  32 kB, addressed as 8-bit words
     .obj_addr    ( obj_addr      ),  // 256 kB
     .scr1_addr   ( scr1_addr     ), // 256 kB (16-bit words)
     .scr2_addr   ( scr2_addr     ), //  64 kB
@@ -309,7 +312,6 @@ jt1943_rom u_rom (
 
     .char_dout   ( char_dout     ),
     .main_dout   ( main_dout     ),
-    .snd_dout    ( snd_dout      ),
     .obj_dout    ( obj_dout      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),

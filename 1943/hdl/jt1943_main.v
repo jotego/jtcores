@@ -59,11 +59,7 @@ module jt1943_main(
     // DIP switches
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
-    output reg         coin_cnt,
-    // PROM F1
-    input    [7:0]     prog_addr,
-    input              prom_k6_we,
-    input    [3:0]     prog_din
+    output reg         coin_cnt
 );
 
 wire [15:0] A;

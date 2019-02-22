@@ -28,17 +28,15 @@ module jt1943_rom(
         // means a read request
 
     input       [13:0]  char_addr, //  32 kB
-    input       [16:0]  main_addr, // 160 kB, addressed as 8-bit words
-    input       [14:0]  snd_addr,  //  32 kB, addressed as 8-bit words
+    input       [17:0]  main_addr, // 160 kB, addressed as 8-bit words
     input       [17:0]  obj_addr,  // 256 kB
-    input       [17:0]  scr1_addr, // 256 kB (16-bit words)
+    input       [16:0]  scr1_addr, // 256 kB (16-bit words)
     input       [14:0]  scr2_addr, //  64 kB
     input       [13:0]  map1_addr, //  32 kB
     input       [13:0]  map2_addr, //  32 kB
 
     output  reg [15:0]  char_dout,
     output  reg [ 7:0]  main_dout,
-    output  reg [ 7:0]  snd_dout,
     output  reg [15:0]  obj_dout,
     output  reg [15:0]  map1_dout,
     output  reg [15:0]  map2_dout,
@@ -99,7 +97,6 @@ end
 always @(posedge clk) 
 if( loop_rst || downloading ) begin
     sdram_addr <= {(addr_w+col_w){1'b0}};
-    snd_dout  <=  8'd0;
     main_dout <=  8'd0;
     char_dout <= 16'd0;
     obj_dout  <= 16'd0;
@@ -112,7 +109,6 @@ end else if(cen12) begin
     rd_state_last <= rd_state;
     // Get data from current read
     casez(rd_state_last) 
-        4'b?000: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
         4'b?100: scr1_dout <= data_read;
 
         4'b??01: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
@@ -127,14 +123,10 @@ end else if(cen12) begin
         default:;
     endcase
     casez(rd_state)
-        4'b?000: begin
-            sdram_addr <= snd_offset + { 8'b0,  snd_addr[14:1] }; // 14:0
-            snd_lsb <= snd_addr[0];
-        end
-        4'b?100: sdram_addr <= scr1_offset + { 6'b0, scr1_addr }; // 14:0 B/C ROMs
+        4'b?100: sdram_addr <= scr1_offset + { 5'b0, scr1_addr }; // 14:0 B/C ROMs
 
         4'b??01: begin
-            sdram_addr <= { 6'd0, main_addr[16:1] }; // 16:0
+            sdram_addr <= { 4'd0, main_addr[17:1] };
             main_lsb <= main_addr[0];
         end
 

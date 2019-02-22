@@ -32,12 +32,16 @@ module jt1943_sound(
     // Sound control
     input           enable_psg,
     input           enable_fm,
-    // ROM access
-    output  [14:0]  rom_addr,
-    input   [ 7:0]  rom_data,
+    // PROM 4K
+    input   [14:0]  prog_addr,
+    input           prom_4k_we,
+    input   [7:0]   prom_din,      
     // Sound output
     output reg [15:0]  snd
 );
+
+wire [7:0]  rom_data;
+wire mreq_n;
 
 // posedge of snd_int
 reg snd_int_last;
@@ -75,7 +79,7 @@ always @(*) begin
     fm0_cs   = 1'b0;
     fm1_cs   = 1'b0;
     SECWR_cs = 1'b0;
-    casez(A[15:13])
+    /*if(!mreq_n)*/ casez(A[15:13])
         3'b0??: rom_cs   = 1'b1;
         3'b110:
             case( A[12:11] )
@@ -101,8 +105,6 @@ always @(posedge clk)
 
 wire wait_n = ~cs_wait[1] | cs_wait[0];
 
-reg [7:0] latch0, latch1;
-
 always @(posedge clk) 
 if( rst ) begin
     latch <= 8'd0;
@@ -125,6 +127,17 @@ jtgng_ram #(.aw(11)) u_ram(
     .q      ( ram_dout )
 );
 
+// full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
+jtgng_prom #(.aw(15),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom(
+    .clk    ( clk         ),
+    .cen    ( cen3        ),
+    .data   ( prom_din    ),
+    .rd_addr( A[14:0]     ),
+    .wr_addr( prog_addr   ),
+    .we     ( prom_4k_we  ),
+    .q      ( rom_data    )
+);
+
 reg [7:0] din, security;
 wire [7:0] fm1_dout, fm0_dout;
 
@@ -133,9 +146,8 @@ always @(*)
         fm1_cs:   din = fm1_dout;
         fm0_cs:   din = fm0_dout;
         latch_cs: din = latch;
-        rom_cs:   din = rom_data;
         ram_cs:   din = ram_dout;
-        default:  din = 8'hff;
+        default:  din = rom_data;
     endcase // {latch_cs,rom_cs,ram_cs}
 
 jt1943_security u_security(
@@ -174,6 +186,7 @@ T80s u_cpu(
     .DI         ( din         ),
     .DO         ( dout        ),
     .IORQ_n     ( iorq_n      ),
+    .MREQ_n     ( mreq_n      ),
     .NMI_n      ( 1'b1        ),
     .BUSRQ_n    ( 1'b1        ),
     .out0       ( 1'b0        )
@@ -193,8 +206,8 @@ tv80s #(.Mode(0)) u_cpu (
     .di     (din     ),
     .dout   (dout    ),
     .iorq_n ( iorq_n ),
+    .mreq_n ( mreq_n ),
     // unused
-    .mreq_n (),
     .m1_n   (),
     .busak_n(),
     .halt_n (),
@@ -237,11 +250,12 @@ jt12_mixer #(.w0(16),.w1(16),.w2(13),.w3(8),.wout(16)) u_mixer(
 );
 
 jt03 u_fm0(
-    .rst    ( ~reset_n  ),
+    .rst    ( ~reset_n   ),
     // CPU interface
     .clk    ( clk        ),
     .cen    ( cen1p5     ),
     .din    ( dout       ),
+    .dout   ( fm0_dout   ),
     .addr   ( A[0]       ),
     .cs_n   ( ~fm0_cs    ),
     .wr_n   ( wr_n       ),
@@ -249,7 +263,6 @@ jt03 u_fm0(
     .fm_snd ( fm0_snd    ),
     .snd_sample ( sample ),
     // unused outputs
-    .dout   (),
     .irq_n  (),
     .psg_A  (),
     .psg_B  (),
@@ -263,13 +276,13 @@ jt03 u_fm1(
     .clk    ( clk       ),
     .cen    ( cen1p5    ),
     .din    ( dout      ),
+    .dout   ( fm1_dout  ),    
     .addr   ( A[0]      ),
     .cs_n   ( ~fm1_cs   ),
     .wr_n   ( wr_n      ),
     .psg_snd( psg1_snd  ),
     .fm_snd ( fm1_snd   ),
     // unused outputs
-    .dout   (),
     .irq_n  (),
     .psg_A  (),
     .psg_B  (),
