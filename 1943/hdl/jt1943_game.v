@@ -90,7 +90,6 @@ wire rom_ready;
 assign sample=1'b1;
 
 wire LHBL_obj, Hsub;
-assign H0 = { H[2:0], Hsub } == 4'b0000;
 
 reg rst_game;
 
@@ -169,6 +168,8 @@ wire prom_4k_we  = prom_we[12];
 
 wire [1:0] scr1posh_cs, scr2posh_cs;
 
+wire CHON, OBJON, SC2ON, SC1ON;
+
 jt1943_main u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
@@ -184,11 +185,16 @@ jt1943_main u_main(
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( chram_dout    ),  
+    .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
     .scr1posh_cs( scr1posh_cs   ),
     .scr2posh_cs( scr2posh_cs   ),
+    .SC1ON      ( SC1ON         ),
+    .SC2ON      ( SC2ON         ),
+    // OBJ
     .obj_cs     ( obj_cs        ),
+    .OBJON      ( OBJON         ),
     .flip       ( flip          ),
     .V          ( V             ),
     .cpu_AB     ( cpu_AB        ),
@@ -252,6 +258,7 @@ jt1943_video u_video(
     .char_addr  ( char_addr     ), // CHAR ROM
     .char_data  ( char_dout     ),
     .char_wait_n( char_wait_n   ),
+    .CHON       ( CHON          ),
     // SCROLL - ROM
     .scr1posh_cs( scr1posh_cs   ),    
     .scr2posh_cs( scr2posh_cs   ),    
@@ -260,12 +267,15 @@ jt1943_video u_video(
     .scr1_data  ( scr1_dout     ),
     .scr2_addr  ( scr2_addr     ),
     .scr2_data  ( scr2_dout     ),
+    .SC1ON      ( SC1ON         ),
+    .SC2ON      ( SC2ON         ),    
     // Scroll maps
     .map1_addr  ( map1_addr     ),
     .map1_data  ( map1_dout     ),
     .map2_addr  ( map2_addr     ),
     .map2_data  ( map2_dout     ),
     // OBJ
+    .OBJON      ( OBJON         ),
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),

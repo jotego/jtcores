@@ -130,12 +130,12 @@ end else if(cen12) begin
             main_lsb <= main_addr[0];
         end
 
-        4'b0010: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
-        4'b1010: sdram_addr <= map1_offset + { 9'b0, map1_addr }; // 12:0
-        4'b1110: sdram_addr <= map2_offset + { 9'b0, map2_addr }; // 12:0
+        4'b0010: sdram_addr <= char_offset + { 8'b0, char_addr }; // 12:0
+        4'b1010: sdram_addr <= map1_offset + { 8'b0, map1_addr }; // 12:0
+        4'b1110: sdram_addr <= map2_offset + { 8'b0, map2_addr }; // 12:0
 
-        4'b?011: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
-        4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
+        4'b?011: sdram_addr <= obj_offset + { 6'b0,  obj_addr }; // 15:0
+        4'b?111: sdram_addr <= scr2_offset+ { 7'b0, scr2_addr }; // scr_addr E ROMs
         default:;
     endcase 
     // autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;

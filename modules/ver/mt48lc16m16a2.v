@@ -68,19 +68,19 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
     `ifndef LOADROM
     initial begin
-        file=$fopen(filename,"rb");
-        if( file != 0 ) begin
-            romfilecnt=$fread( Bank0, file );
-            if( romfilecnt==0 ) begin
-                $display("ERROR: ROM file %s was empty", filename);
-                $finish;
-            end
-            $display("%s read into SDRAM",filename);
-            $fclose(file);
-        end else begin
-            $display("ERROR: Cannot open file %s", filename);
-        end
-        // $readmemh("../../../rom/gng.hex",  Bank0, 0, 180223);
+        // file=$fopen(filename,"rb");
+        // if( file != 0 ) begin
+        //     romfilecnt=$fread( Bank0, file );
+        //     if( romfilecnt==0 ) begin
+        //         $display("ERROR: ROM file %s was empty", filename);
+        //         $finish;
+        //     end
+        //     $display("%s read into SDRAM",filename);
+        //     $fclose(file);
+        // end else begin
+        //     $display("ERROR: Cannot open file %s", filename);
+        // end
+        $readmemh("sdram.hex",  Bank0 );
         `ifdef TESTROM
         $display("test.bin read into first bytes of SDRAM");
         file=$fopen("test.bin", "rb");
@@ -122,7 +122,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             #(`MEM_CHECK_TIME);
             f=$fopen("sdram.hex","w");
             for( dumpcnt=0; dumpcnt<4096*1024; dumpcnt=dumpcnt+1)
-                $fwrite(f,"%u",Bank0[dumpcnt]);
+                $fwrite(f,"%h\n",Bank0[dumpcnt]);
             $fclose(f);
             $display("INFO: SDRAM memory content dumped to sdram.hex");
         end

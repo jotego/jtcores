@@ -40,8 +40,11 @@ module jt1943_main(
     output  reg [7:0]  scrposv,
     output  reg [1:0]  scr1posh_cs,
     output  reg [1:0]  scr2posh_cs,
+    output  reg        SC1ON,
+    output  reg        SC2ON,
     // cheat!
     input              cheat_invincible,
+    output  reg        OBJON,
     // Object
     output  reg        obj_cs,
     // cabinet I/O
@@ -121,17 +124,19 @@ end
 reg [2:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        bank      <= 'd0;
-        scrposv  <= 8'd0;
+        bank      <=  'd0;
+        scrposv   <= 8'd0;
+        CHON      <= 1'b0;
         flip      <= 1'b0;
         sres_b    <= 1'b1;
-        coin_cnt  <= 1'b0;
+        coin_cnt  <= 1'b0;  // omitting inverter in M54532 for coin counter.
+        {OBJON, SC2ON, SC1ON } <= 3'd0;
     end
     else if(cen3) begin
         if( bank_cs  ) begin
             CHON     <= cpu_dout[7];
             flip     <= cpu_dout[6];
-            sres_b   <= cpu_dout[5];
+            sres_b   <= ~cpu_dout[5]; // inverted through M54532 
             coin_cnt <= |cpu_dout[1:0];
             bank     <= cpu_dout[4:2];
             `ifdef SIMULATION
@@ -139,6 +144,9 @@ always @(posedge clk)
             `endif
         end
         if( scrposv_cs ) scrposv <= cpu_dout;
+        if( gfxen_cs ) begin
+            {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];
+        end
     end
 
 always @(negedge clk)
@@ -176,10 +184,8 @@ jtgng_ram #(.aw(13)) RAM(
 
 // Data bus input
 reg [7:0] cpu_din;
-wire [3:0] int_ctrl;
 wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K10
 
 always @(*)
     case( {ram_cs, char_cs, main_cs, in_cs} )
@@ -201,20 +207,24 @@ end
 // interrupt generation. Schematics page 5/9, parts 12J and 14K
 reg int_n, int_latch_qb, int_rqb, int_rqb_last;
 
-always @(posedge clk) begin
-    if( V[8] && !V[4] )
-        case( V[7:5] )
-            3'd7: int_latch_qb <= 1'b0;
-            3'd0: int_latch_qb <= 1'b1;
-            default:;
-        endcase
-    int_rqb_last <= int_rqb;
-    int_rqb <= int_latch_qb && (V[8] && !V[4] && V[7:5]==3'd3 );
-    if( iorq_n || m1_n )
+always @(posedge clk)
+    if(rst) begin
         int_n <= 1'b1;
-    else
-        int_n <= !( int_rqb && !int_rqb_last );
-end
+    end else if(cen6) begin
+        if( V[8] && !V[4] )
+            case( V[7:5] )
+                3'd7: int_latch_qb <= 1'b0;
+                3'd0: int_latch_qb <= 1'b1;
+                default:;
+            endcase
+        int_rqb_last <= int_rqb;
+        int_rqb <= int_latch_qb && (V[8] && !V[4] && V[7:5]==3'd3 );
+        if( irq_ack )
+            int_n <= 1'b1;
+        else
+            if ( !int_rqb && int_rqb_last ) int_n <= 1'b0;
+    end
+
 wire wait_n = char_wait_n;
 
 

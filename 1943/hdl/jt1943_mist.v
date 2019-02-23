@@ -64,10 +64,10 @@ localparam CONF_STR = {
         "OA,Invincibility,OFF,ON;", // 24
         "OB,Flip screen,OFF,ON;", // 22
         "TF,RST ,OFF,ON;", // 15
-        "V,patreon.com/topapate;" // 23
+        "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+42+20+15+14*2+24+24+22+23;
+localparam CONF_STR_LEN = 8+16+42+20+15+14*2+24+24+22+30;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -195,9 +195,9 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-    wire LHBL;
-    wire LVBL;
-    wire [8:0] snd;
+wire LHBL;
+wire LVBL;
+wire [15:0] snd;
 
 wire [6:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
@@ -268,12 +268,12 @@ jt1943_game u_game(
 
 assign AUDIO_R = AUDIO_L;
 
-jtgng_board u_board(
+jtgng_board #(.SIGNED_SND(1'b1)) u_board(
     .rst            ( rst             ),
     .clk_rgb        ( clk_rgb         ),
     .clk_dac        ( clk_rom         ),
     // audio
-    .snd            ( { snd, 7'd0 }   ),
+    .snd            ( snd             ),
     .snd_pwm        ( AUDIO_L         ),
     // VGA
     .cen6           ( cen6            ),

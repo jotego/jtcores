@@ -22,6 +22,7 @@ module jt1943_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
     input            cen3,
+    input            CHON,
     input   [10:0]   AB,
     input   [ 7:0]   V128, // V128-V1
     input   [ 7:0]   H128, // Hfix-H1
@@ -139,6 +140,8 @@ end
 
 // palette ROM
 wire [7:0] prom_addr = {1'b0, char_pal,char_col };
+wire [3:0] prom_data;
+assign char_pxl = CHON ? prom_data : 4'hF;
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
     .clk    ( clk            ),
@@ -147,7 +150,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
     .rd_addr( prom_addr      ),
     .wr_addr( prog_addr      ),
     .we     ( prom_7f_we     ),
-    .q      ( char_pxl       )
+    .q      ( prom_data      )
 );
 
 

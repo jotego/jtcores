@@ -61,7 +61,6 @@ always @(posedge clk)
     end
 
 wire [15:0] A;
-assign rom_addr = A[14:0];
 
 reg reset_n=1'b0;
 
@@ -129,22 +128,22 @@ jtgng_ram #(.aw(11)) u_ram(
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
 jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom0(
-    .clk    ( clk         ),
-    .cen    ( cen3        ),
-    .data   ( prom_din    ),
-    .rd_addr( A[13:0]     ),
-    .wr_addr( prog_addr   ),
+    .clk    ( clk               ),
+    .cen    ( cen3              ),
+    .data   ( prom_din          ),
+    .rd_addr( A[13:0]           ),
+    .wr_addr( prog_addr[13:0]   ),
     .we     ( prom_4k_we & !prog_addr[14] ),
     .q      ( rom_data0   )
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
 jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom1(
-    .clk    ( clk         ),
-    .cen    ( cen3        ),
-    .data   ( prom_din    ),
-    .rd_addr( A[13:0]     ),
-    .wr_addr( prog_addr   ),
+    .clk    ( clk               ),
+    .cen    ( cen3              ),
+    .data   ( prom_din          ),
+    .rd_addr( A[13:0]           ),
+    .wr_addr( prog_addr[13:0]   ),
     .we     ( prom_4k_we & prog_addr[14]  ),
     .q      ( rom_data1   )
 );
@@ -274,8 +273,8 @@ jt03 u_fm0(
     .wr_n   ( wr_n       ),
     .psg_snd( psg0_snd   ),
     .fm_snd ( fm0_snd    ),
-    .snd_sample ( sample ),
     // unused outputs
+    .snd_sample (),
     .irq_n  (),
     .psg_A  (),
     .psg_B  (),
