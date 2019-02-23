@@ -227,6 +227,11 @@ assign VGA_B = ypbpr?Pb:osd_b_o;
 // and VCC on VGA_VS (to switch into rgb mode)
 assign VGA_HS = (scandoubler_disable | ypbpr) ? CSync : HSync;
 assign VGA_VS = (scandoubler_disable | ypbpr) ? 1'b1 : VSync;
-
+`else 
+assign VGA_R = game_r;// { game_r, game_r[3:2] };
+assign VGA_G = game_g;// { game_g, game_g[3:2] };
+assign VGA_B = game_b;// { game_b, game_b[3:2] };
+assign VGA_HS = hs;
+assign VGA_VS = vs;
 `endif
 endmodule // jtgng_mist_base

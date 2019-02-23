@@ -63,10 +63,18 @@ end
 `endif
 
 ////////////////////////////////////////////////////////////////////
+initial frame_cnt=0;
+always @(posedge VS ) begin
+    frame_cnt<=frame_cnt+1;
+    $display("New frame %d", frame_cnt);
+end
+
 `ifdef MAXFRAME
-reg frame_done=1'b1, max_frames_done=1'b0;
+reg frames_done=1'b0;
+always @(negedge VS)
+    if( frame_cnt == `MAXFRAME ) frames_done <= 1'b1;
 `else 
-reg frame_done=1'b1, max_frames_done=1'b1;
+reg frames_done=1'b1;
 `endif
 
 wire spi_done;
@@ -78,8 +86,9 @@ initial begin
     forever clk_rom = #(10.417/2) ~clk_rom; // 96 MHz
 end
 
+////////////////////////////////////////////////////////////////////
 always @(posedge clk)
-    if( spi_done && frame_done && max_frames_done ) begin
+    if( spi_done && frames_done ) begin
         for( fincnt=0; fincnt<`SIM_MS; fincnt=fincnt+1 ) begin
             #(1000*1000); // ms
             $display("%d ms",fincnt+1);
@@ -200,47 +209,6 @@ mt48lc16m16a2 #(.filename(GAME_ROMNAME)) mist_sdram (
     .Dqm        ( {SDRAM_DQMH,SDRAM_DQML}   )
 );
 `endif
-
-`ifdef MAXFRAME
-integer fout;
-reg skip;
-
-reg enter_hbl, enter_vbl;
-always @(posedge clk ) if(cen6) begin
-    if( rst || downloading ) begin
-        enter_hbl <= 1'b0;
-        enter_vbl <= 1'b0;
-        frame_cnt <= 0;
-        skip <= 1'b1;
-    end else if(!downloading) begin
-        enter_hbl <= LHBL;
-        enter_vbl <= LVBL;
-        if( enter_vbl != LVBL && !LVBL ) begin
-            if( frame_cnt>0) $fclose(fout);
-            $display("New frame (%d)", frame_cnt);
-            `ifdef MAXFRAME
-            if( frame_cnt == `MAXFRAME-1 ) max_frames_done<=1'b1;
-            `endif
-            fout = $fopen("frame_0"+(frame_cnt&32'h1f),"wb"); // do not move this line
-
-            frame_cnt <= frame_cnt + 1;
-            skip <= 1'b1;
-            frame_done <= 1'b1;
-        end
-        else begin
-            if( enter_hbl != LHBL && !LHBL) begin
-                skip <= 1'b0; // skip first line;
-                frame_done <= 1'b0;
-                $fwrite(fout,"%u",32'hFFFFFFFF); // new line marker
-            end
-            if( !skip && LHBL ) 
-                $fwrite(fout,"%u", {8'd0, red, 4'd0, green, 4'd0, blue, 4'd0});
-                // $write("%d,%d,%d,",red*8'd16,green*8'd16,blue*8'd16);
-        end
-    end
-end
-`endif
-
 
 `ifdef LOADROM
 spitx #(.filename(GAME_ROMNAME), .TX_LEN(TX_LEN) )
