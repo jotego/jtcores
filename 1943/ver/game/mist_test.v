@@ -3,6 +3,9 @@
 /* verilator lint_off STMTDLY */
 
 module mist_test;
+
+wire [31:0] frame_cnt;
+
 `ifndef NCVERILOG
     `ifdef DUMP
     initial begin
@@ -68,6 +71,9 @@ wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
 wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS, 
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
+     
+wire [5:0] VGA_R, VGA_G, VGA_B;
+wire VGA_HS, VGA_VS;
 
 test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
     .TX_LEN(887808)) u_harness(
@@ -79,10 +85,6 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
     .cen3        ( cen3          ),
     .cen1p5      ( cen1p5        ),
     .downloading ( downloading   ),
-//    .loop_rst    ( loop_rst      ),
-//    .autorefresh ( autorefresh   ),
-//    .sdram_addr  ( sdram_addr    ),
-//    .data_read   ( data_read     ),
     .ioctl_addr  ( ioctl_addr    ),
     .ioctl_data  ( ioctl_data    ),
     .SPI_SCK     ( SPI_SCK       ),
@@ -90,6 +92,13 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
     .SPI_DI      ( SPI_DI        ),
     .SPI_DO      ( SPI_DO        ),
     .CONF_DATA0  ( CONF_DATA0    ),
+    // Video dumping. VGA_ signals are equal to game signals in simulation.
+    .HS          ( VGA_HS    ), 
+    .VS          ( VGA_VS    ),
+    .red         ( VGA_R[3:0]),
+    .green       ( VGA_G[3:0]),
+    .blue        ( VGA_B[3:0]),
+    .frame_cnt   ( frame_cnt ),
     // SDRAM
     .SDRAM_DQ    ( SDRAM_DQ  ),
     .SDRAM_A     ( SDRAM_A   ),
@@ -104,8 +113,6 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
     .SDRAM_CKE   ( SDRAM_CKE )    
 );
 
-wire [5:0] VGA_R, VGA_G, VGA_B;
-wire VGA_HS, VGA_VS;
 
 jt1943_mist UUT(
     .CLOCK_27   ( { 1'b0, clk27 }),

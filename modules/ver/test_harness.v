@@ -17,6 +17,13 @@ module test_harness(
     output    [21:0] ioctl_addr,
     output    [ 7:0] ioctl_data,
     output           ioctl_wr,
+    // Video dumping 
+    input             HS,
+    input             VS,
+    input       [3:0] red,
+    input       [3:0] green,
+    input       [3:0] blue,
+    output reg [31:0] frame_cnt,
     // SPI
     output       SPI_SCK,
     output       SPI_DI,  // SPI always from FPGA's view
@@ -40,6 +47,22 @@ module test_harness(
 parameter sdram_instance = 1, GAME_ROMNAME="_PASS ROM NAME to test_harness_";
 parameter TX_LEN = 207;
 
+////////////////////////////////////////////////////////////////////
+// video output dump
+`ifdef DUMP_VIDEO
+integer fvideo;
+initial begin
+    fvideo = $fopen("video.bin","wb");    
+end
+
+wire [15:0] video_dump = { 2'b0,VS,HS, red, green, blue  };
+
+always @(posedge clk) if(cen6) begin
+    $fwrite(fvideo,"%u", video_dump);
+end
+`endif
+
+////////////////////////////////////////////////////////////////////
 `ifdef MAXFRAME
 reg frame_done=1'b1, max_frames_done=1'b0;
 `else 
@@ -179,7 +202,7 @@ mt48lc16m16a2 #(.filename(GAME_ROMNAME)) mist_sdram (
 `endif
 
 `ifdef MAXFRAME
-integer fout, frame_cnt;
+integer fout;
 reg skip;
 
 reg enter_hbl, enter_vbl;

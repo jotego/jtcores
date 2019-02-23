@@ -82,7 +82,8 @@ module jt1943_video(
 );
 
 wire [3:0] char_pxl;
-wire [5:0] scr1_pxl, scr2_pxl, obj_pxl;
+wire [5:0] scr1_pxl, scr2_pxl;
+wire [7:0] obj_pxl;
 
 localparam scrchr_off = 8'd4;
 
@@ -249,6 +250,6 @@ jt1943_obj u_obj(
 );
 */
 assign obj_addr = 15'd0;
-assign obj_pxl  = ~6'd0;
+assign obj_pxl  = ~8'd0;
 
 endmodule // jtgng_video

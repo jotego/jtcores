@@ -92,7 +92,7 @@ wire dip_flip = status[32'hb];
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire dip_test  = ~status[4];
-wire dip_pause = ~status[1];
+wire dip_pause = 1'b0; // ~status[1];
 wire dip_upright = 1'b1;
 wire dip_credits2p = 1'b1;
 reg [3:0] dip_level;

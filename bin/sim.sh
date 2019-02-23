@@ -163,9 +163,12 @@ case "$1" in
         RAM_INFO=RAM_INFO
         echo RAM information enabled
         ;;
-    "-vga")
-        VGACONV=VGACONV
-        echo VGA conversion enabled
+    "-video")
+        EXTRA="$EXTRA ${MACROPREFIX}DUMP_VIDEO"
+        echo Video dump enabled
+        rm -f video.bin
+        rm *png
+        VIDEO_DUMP=TRUE
         ;;
     "-load")
         LOADROM=${MACROPREFIX}LOADROM
@@ -243,14 +246,6 @@ verilator)
         $MAXFRAME -DSIM_MS=$SIM_MS --lint-only $EXTRA;;
 esac
 
-# if [ $CHR_DUMP = CHR_DUMP ]; then
-#     rm frame*png
-#     for i in frame_*; do
-#         name=$(basename "$i")
-#         extension="${name##*.}"
-#         if [ "$extension" == png ]; then continue; fi
-#         ../../../cc/frame2png "$i"
-#         mv output.png "$i.png"
-#         mv "$i" old/"$i"
-#     done
-# fi
+if [ "$VIDEO_DUMP" = TRUE ]; then
+    ../../../bin/bin2png.py
+fi

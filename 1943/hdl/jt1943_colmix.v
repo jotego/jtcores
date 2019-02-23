@@ -29,7 +29,7 @@ module jt1943_colmix(
     input [3:0]     char_pxl,        // character color code
     input [5:0]     scr1_pxl,
     input [5:0]     scr2_pxl,
-    input [5:0]     obj_pxl,
+    input [7:0]     obj_pxl,
     // Palette PROMs 12A, 13A, 14A, 12C
     input   [7:0]   prog_addr,
     input           prom_12a_we,
@@ -54,11 +54,16 @@ reg [7:0] pixel_mux;
 reg [7:0] prom_addr;
 wire [3:0] selbus;
 
+wire char_blank = |(~char_pxl);
+wire obj_blank  = |(~obj_pxl[3:0]);
+wire scr1_blank = |(~scr1_pxl[3:0]);
+wire [7:0] seladdr = { 3'b0, char_blank, obj_blank, obj_pxl[7:6], scr1_blank };
+
 always @(*) begin
     case( selbus[1:0] )
         2'b00: pixel_mux[5:0] = scr2_pxl;
         2'b01: pixel_mux[5:0] = scr1_pxl;
-        2'b10: pixel_mux[5:0] =  obj_pxl;
+        2'b10: pixel_mux[5:0] =  obj_pxl[5:0];
         2'b11: pixel_mux[5:0] = { 2'b0, char_pxl };
     endcase // selbus[1:0]
     pixel_mux[7:6] = selbus[3:2];
@@ -104,7 +109,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( seladdr     ),
     .wr_addr( prog_addr   ),
     .we     ( prom_12c_we ),
     .q      ( selbus      )

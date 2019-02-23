@@ -141,7 +141,7 @@ end
 // palette ROM
 wire [7:0] prom_addr = {1'b0, char_pal,char_col };
 wire [3:0] prom_data;
-assign char_pxl = CHON ? prom_data : 4'hF;
+assign char_pxl = (CHON | pause) ? prom_data : 4'hF;
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
     .clk    ( clk            ),
