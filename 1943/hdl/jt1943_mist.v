@@ -84,15 +84,20 @@ wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 wire          coin_cnt;
 
-assign LED = ~downloading | coin_cnt | rst;
+assign LED = downloading; // | coin_cnt | rst;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
 wire dip_flip = status[32'hb];
 
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
-wire dip_test  = ~status[4];
+`ifdef SIMULATION
 wire dip_pause = 1'b0; // ~status[1];
+`else 
+wire dip_pause = ~status[1];
+`endif
+
+wire dip_test  = ~status[4];
 wire dip_upright = 1'b1;
 wire dip_credits2p = 1'b1;
 reg [3:0] dip_level;

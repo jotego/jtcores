@@ -290,6 +290,8 @@ jt1943_video u_video(
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),
+    // Char
+    .prom_7f_we ( prom_7f_we    ),
     // color mixer proms
     .prom_12a_we( prom_12a_we   ),
     .prom_13a_we( prom_13a_we   ),

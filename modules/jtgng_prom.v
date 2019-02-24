@@ -30,21 +30,25 @@ reg [dw-1:0] mem[0:(2**aw)-1];
 
 `ifdef SIMULATION
 integer f, readcnt; 
-// load the file
-initial 
-if( simfile != "" ) begin
-    f=$fopen(simfile,"rb");
-    if( f != 0 ) begin    
-        readcnt=$fread( mem, f );
-        $fclose(f);
-    end else begin
-        $display("WARNING: Cannot open file %s", simfile);
-    end
-    end
-else begin
-    for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )
-        mem[readcnt] = {dw{1'b0}};
-    end
+`ifndef LOADROM
+// load the file only when SPI load is not simulated
+initial begin
+    if( simfile != "" ) begin
+        f=$fopen(simfile,"rb");
+        if( f != 0 ) begin    
+            readcnt=$fread( mem, f );
+            $display("INFO: %m file %s loaded",simfile);
+            $fclose(f);
+        end else begin
+            $display("WARNING: %m cannot open %s", simfile);
+        end
+        end
+    else begin
+        for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )
+            mem[readcnt] = {dw{1'b0}};
+        end
+end
+`endif
 // check contents after 80ms
 reg [dw-1:0] mem_check[0:(2**aw)-1];
 initial begin
@@ -56,10 +60,10 @@ initial begin
         for( readcnt=readcnt-1;readcnt>0; readcnt=readcnt-1) begin
             if( mem_check[readcnt] != mem[readcnt] ) begin
                 $display("ERROR: memory content check failed for file %s (%m)", simfile );
-                $finish;
+                //$finish;
             end
         end
-        $display("INFO: memory content check succedded");
+        $display("INFO: %m memory check succedded");
     end
 end
 `endif

@@ -5,32 +5,36 @@
 module mist_test;
 
 wire [31:0] frame_cnt;
+wire led;
 
-`ifndef NCVERILOG
-    `ifdef DUMP
+`ifdef DUMP
+`ifndef NCVERILOG // iVerilog:
     initial begin
         // #(200*100*1000*1000);
         $display("DUMP enabled");
         $dumpfile("test.lxt");
-        `ifdef LOADROM
+    end
+    `ifdef LOADROM
+    always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
+        $display("DUMP starts");
+        $dumpvars(0,mist_test);
+        $dumpon;
+    end
+    `else
+    initial begin
+        $display("DUMP starts");
+        `ifdef DEEPDUMP
             $dumpvars(0,mist_test);
-            $dumpon;
         `else
-            `ifdef DEEPDUMP
-                $dumpvars(0,mist_test);
-            `else
-                #75_000_000;
-                $display("DUMP starts");
-                $dumpvars(1,mist_test.UUT.u_game.u_main);
-                //$dumpvars(0,mist_test.UUT.u_game.u_video.u_obj);
-                //$dumpvars(1,mist_test.UUT.u_rom);
-                //$dumpoff;
-                //$dumpvars(1,mist_test.UUT.u_video);
-                //$dumpvars(1,mist_test.UUT.u_video.u_char);
-                //$dumpvars(0,UUT.chargen);
-            `endif
-            $dumpon;
+            $dumpvars(1,mist_test.UUT.u_game.u_main);
+            //$dumpvars(0,mist_test.UUT.u_game.u_video.u_obj);
+            //$dumpvars(1,mist_test.UUT.u_rom);
+            //$dumpoff;
+            //$dumpvars(1,mist_test.UUT.u_video);
+            //$dumpvars(1,mist_test.UUT.u_video.u_char);
+            //$dumpvars(0,UUT.chargen);
         `endif
+        $dumpon;
     end
     `endif
 `else // NCVERILOG
@@ -57,6 +61,7 @@ wire [31:0] frame_cnt;
         // $shm_probe(UUT.u_sound.u_cpu,"AS");
     end
 `endif
+`endif
 
 wire            downloading;
 wire    [21:0]  ioctl_addr;
@@ -71,7 +76,7 @@ wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
 wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS, 
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
-     
+
 wire [5:0] VGA_R, VGA_G, VGA_B;
 wire VGA_HS, VGA_VS;
 
@@ -145,7 +150,7 @@ jt1943_mist UUT(
     .AUDIO_L    ( AUDIO_L   ),
     .AUDIO_R    ( AUDIO_R   ),
     // unused
-    .LED()
+    .LED        ( led       )
 );
 
 

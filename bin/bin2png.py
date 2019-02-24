@@ -131,11 +131,15 @@ while frame_start < len(video_data)-2:
             width = 0
             continue
         red  = video_data[k+1]&0xf
-        green= video_data[k]>>4
+        green= (video_data[k]>>4)&0xf
         blue = video_data[k]&0xf
-        frame[c  ] = red   * 17
-        frame[c+1] = green * 17
-        frame[c+2] = blue  * 17
+        try:
+            frame[c  ] = red   * 17
+            frame[c+1] = green * 17
+            frame[c+2] = blue  * 17
+        except:
+            print( "error with %d,%d,%d. Index = %d" % (red,green,blue, c) )
+            raise
         c+=3
         width+=1
     if dumped == frame_start:

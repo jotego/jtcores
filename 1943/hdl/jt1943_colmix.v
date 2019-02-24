@@ -60,13 +60,12 @@ wire scr1_blank = |(~scr1_pxl[3:0]);
 wire [7:0] seladdr = { 3'b0, char_blank, obj_blank, obj_pxl[7:6], scr1_blank };
 
 always @(*) begin
-    //case( selbus[1:0] )
-    //    2'b00: pixel_mux[5:0] = scr2_pxl;
-    //    2'b01: pixel_mux[5:0] = scr1_pxl;
-    //    2'b10: pixel_mux[5:0] =  obj_pxl[5:0];
-    //    2'b11: pixel_mux[5:0] = { 2'b0, char_pxl };
-    //endcase // selbus[1:0]
-    pixel_mux[5:0] = { 2'b0, char_pxl };
+    case( selbus[1:0] )
+        2'b00: pixel_mux[5:0] = scr2_pxl;
+        2'b01: pixel_mux[5:0] = scr1_pxl;
+        2'b10: pixel_mux[5:0] =  obj_pxl[5:0];
+        2'b11: pixel_mux[5:0] = { 2'b0, char_pxl };
+    endcase // selbus[1:0]
     pixel_mux[7:6] = selbus[3:2];
 end
 

@@ -127,7 +127,7 @@ jtgng_ram #(.aw(11)) u_ram(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom0(
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prom_din          ),
@@ -138,7 +138,7 @@ jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom0(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k")) u_prom1(
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prom_din          ),
@@ -227,6 +227,7 @@ tv80s #(.Mode(0)) u_cpu (
 );
 `endif
 
+`ifndef SIMULATION
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;
 wire        [10:0] psg01 = psg0_snd + psg1_snd;
@@ -302,5 +303,9 @@ jt03 u_fm1(
     .snd    (),
     .snd_sample()
 );
-
+`else 
+assign fm0_dout = 'd0;
+assign fm1_dout = 'd0;
+assign snd      = 'd0;
+`endif
 endmodule // jtgng_sound

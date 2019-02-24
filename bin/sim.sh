@@ -88,7 +88,7 @@ case "$1" in
         shift
         EXTRA="$EXTRA ${MACROPREFIX}$1"
         ;;
-    "-frames")
+    "-frame")
         shift
         if [ "$1" = "" ]; then
             echo "Must specify number of frames to simulate"
@@ -167,7 +167,7 @@ case "$1" in
         EXTRA="$EXTRA ${MACROPREFIX}DUMP_VIDEO"
         echo Video dump enabled
         rm -f video.bin
-        rm *png
+        rm -f *png
         VIDEO_DUMP=TRUE
         ;;
     "-load")
