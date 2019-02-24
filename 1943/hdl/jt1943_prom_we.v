@@ -65,8 +65,8 @@ always @(posedge clk_rom) begin
             end
         end
         else if(ioctl_addr < ROMEND) begin
-            prog_addr <= SCR1ADDR[21:1] + {scr_start[21:15], scr_start[13:0]};
-            prog_mask <= {scr_start[14], ~scr_start[14]};
+            prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], scr_start[14:0]};
+            prog_mask <= {scr_start[15], ~scr_start[15]};
         end
         else begin // PROMs
             prog_addr <= { 3'h7, ioctl_addr[18:0] };

@@ -65,7 +65,7 @@ reg main_lsb, snd_lsb;
 // bme02.13d, bme03.14d, -> 128kB, 8 banks of 16kB each
 parameter  snd_offset = 22'h14_000; // bm05.4k,  32kB
 parameter char_offset = 22'h18_000; // bm04.5h,  32kB
-parameter map1_offset = 22'h1C_000; // bmm14.5f, 32kB
+parameter map1_offset = 22'h1C_000; // bm14.5f,  32kB
 parameter map2_offset = 22'h20_000; // bmm23.8k, 32kB
 parameter scr1_offset = 22'h24_000; // 10f/j, 11f/j, 12f/j, 14f/j 256kB
 parameter scr2_offset = 22'h44_000; // 14k/l 64kB

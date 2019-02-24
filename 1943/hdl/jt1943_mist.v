@@ -91,11 +91,11 @@ wire dip_flip = status[32'hb];
 
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
-`ifdef SIMULATION
-wire dip_pause = 1'b0; // ~status[1];
-`else 
+//`ifdef SIMULATION
+//wire dip_pause = 1'b0; // ~status[1];
+//`else 
 wire dip_pause = ~status[1];
-`endif
+//`endif
 
 wire dip_test  = ~status[4];
 wire dip_upright = 1'b1;

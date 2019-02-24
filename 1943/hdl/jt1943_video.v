@@ -135,6 +135,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .flip         ( flip          ),
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
+    .pause        ( pause         ),
     // Palette PROMs
     .prog_addr    ( prog_addr     ),
     .prom_msb_we  ( prom_6l_we    ),
@@ -167,6 +168,8 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .flip         ( flip          ),
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
+
+    .pause        ( pause         ),
     // Palette PROMs
     .prog_addr    ( prog_addr     ),
     .prom_msb_we  ( prom_12l_we   ),

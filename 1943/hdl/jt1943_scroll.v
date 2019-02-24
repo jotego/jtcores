@@ -34,6 +34,7 @@ module jt1943_scroll(
     input       [ 7:0] din,
     input              wr_n,
 
+    input              pause,
     // Palette PROMs D1, D2
     input   [7:0]      prog_addr,
     input              prom_msb_we,
@@ -69,21 +70,32 @@ end
 
 always @(posedge clk) if(cen3) begin
     VF <= {8{flip}}^V128;
-    SV <= VF + vpos;
+    SV <= VF + ( pause ? 8'd0 : vpos );
     SH <= HS[7:0] + hpos[7:0];
     PIC <= hpos[15:8] + { {7{HF[6]&~Hfix[8]}}, ~Hfix[8] };
     map_addr <= { PIC, SH[7:5], SV[7:5] };
 end
 
+/* H1  = C18
+   H8  = D19
+   H16 = C20 
+   H32 = D20
+   H64 = C21
+   H128= D21
+   H256= C22
+
+*/
+
 always @(posedge clk) 
     if( rst ) begin
         hpos <= 'd0;
     end else if(cen6) begin // same cen as main CPU
-        if( scrposh_cs[1] ) hpos[15:8] <= din;
-        if( scrposh_cs[0] ) hpos[ 7:0] <= din;
+        if( scrposh_cs[1] && !wr_n ) hpos[15:8] <= din;
+        if( scrposh_cs[0] && !wr_n ) hpos[ 7:0] <= din;
     end
 
-wire [7:0] dout_low = map_data[7:0], dout_high = map_data[15:8];
+wire [7:0] dout_high = map_data[ 7:0];
+wire [7:0] dout_low  = map_data[15:8];
 
 reg scr_hflip;
 reg [7:0] addr_lsb;

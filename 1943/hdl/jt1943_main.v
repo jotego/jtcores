@@ -133,7 +133,7 @@ always @(posedge clk)
         {OBJON, SC2ON, SC1ON } <= 3'd0;
     end
     else if(cen3) begin
-        if( bank_cs  ) begin
+        if( bank_cs  && !wr_n ) begin
             CHON     <= cpu_dout[7];
             flip     <= cpu_dout[6];
             sres_b   <= ~cpu_dout[5]; // inverted through M54532 
