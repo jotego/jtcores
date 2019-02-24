@@ -31,6 +31,7 @@ module jt1943_char(
     input   [ 7:0]   din,
     output  [ 7:0]   dout,
     input            rd_n,
+    input            wr_n,
     output           wait_n,
     output  [ 3:0]   char_pxl,
     input            pause,
@@ -52,7 +53,7 @@ wire [7:0] Hfix = H128 + HOFFSET; // Corrects pixel output offset
 wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
-wire we = !sel_scan && char_cs && rd_n;
+wire we = !sel_scan && char_cs && !wr_n;
 wire [7:0] mem_low, mem_high, mem_msg;
 wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];

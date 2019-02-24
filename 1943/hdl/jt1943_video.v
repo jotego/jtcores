@@ -101,6 +101,7 @@ jt1943_char #(.HOFFSET(scrchr_off)) u_char (
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
     .rd_n       ( rd_n          ),
+    .wr_n       ( wr_n          ),
     .wait_n     ( char_wait_n   ),
     .char_pxl   ( char_pxl      ),
     .pause      ( pause         ),
