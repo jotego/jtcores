@@ -5,6 +5,7 @@
 module mist_test;
 
 wire [31:0] frame_cnt;
+wire VGA_HS, VGA_VS;
 wire led;
 
 `ifdef DUMP
@@ -38,7 +39,8 @@ wire led;
     end
     `endif
 `else // NCVERILOG
-    initial begin
+    //initial begin
+    always @(negedge VGA_VS) if( frame_cnt==148 ) begin
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
         `ifdef DEEPDUMP
@@ -78,7 +80,6 @@ wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS,
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
 wire [5:0] VGA_R, VGA_G, VGA_B;
-wire VGA_HS, VGA_VS;
 
 test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
     .TX_LEN(887808)) u_harness(

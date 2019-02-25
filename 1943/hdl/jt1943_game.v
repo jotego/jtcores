@@ -169,6 +169,7 @@ wire prom_4k_we  = prom_we[12];
 wire [1:0] scr1posh_cs, scr2posh_cs;
 
 wire CHON, OBJON, SC2ON, SC1ON;
+wire cpu_cen;
 
 jt1943_main u_main(
     .rst        ( rst_game      ),
@@ -181,8 +182,10 @@ jt1943_main u_main(
     .snd_latch_cs ( snd_latch_cs  ),
     
     .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
     .cpu_dout   ( cpu_dout      ),
     // CHAR
+    .cpu_cen    ( cpu_cen       ),
     .char_cs    ( char_cs       ),
     .char_dout  ( chram_dout    ),  
     .CHON       ( CHON          ),
@@ -244,6 +247,7 @@ jt1943_video u_video(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
+    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),

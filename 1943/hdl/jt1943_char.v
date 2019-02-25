@@ -22,6 +22,7 @@ module jt1943_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
     input            cen3,
+    input            cpu_cen,
     input            CHON,
     input   [10:0]   AB,
     input   [ 7:0]   V128, // V128-V1
@@ -62,7 +63,7 @@ assign dout = AB[10] ? dout_high : dout_low;
 
 jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_low(
     .clk    ( clk      ),
-    .cen    ( cen6     ),
+    .cen    ( cpu_cen  ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_low   ),
@@ -71,7 +72,7 @@ jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_low(
 
 jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_high(
     .clk    ( clk      ),
-    .cen    ( cen6     ),
+    .cen    ( cpu_cen  ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_high  ),
@@ -96,7 +97,7 @@ end
 reg latch_wait_n = 1'b1;
 assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
 
-always @(posedge clk) if(cen3)
+always @(posedge clk) if(cpu_cen)
     latch_wait_n <= !( char_cs && sel_scan );
 
 // Draw pixel on screen

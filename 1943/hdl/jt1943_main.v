@@ -27,6 +27,7 @@ module jt1943_main(
     output  reg        flip,
     input   [8:0]      V,
     input              LHBL,
+    input              LVBL,
     // Sound
     output  reg        sres_b, // sound reset
     output  reg        snd_latch_cs,
@@ -35,6 +36,7 @@ module jt1943_main(
     output             [7:0] cpu_dout,
     output  reg        char_cs,
     output  reg        CHON,    // 1 enables character output
+    output             cpu_cen,
     input              char_wait_n,
     // scroll
     output  reg [7:0]  scrposv,
@@ -71,7 +73,8 @@ reg t80_rst_n;
 reg main_cs, in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
 reg SECWR_cs, OKOUT_cs;
 
-wire mreq_n;
+wire mreq_n, rfsh_n;
+assign cpu_cen = cen3;
 
 always @(*) begin
     main_cs       = 1'b0;
@@ -88,7 +91,7 @@ always @(*) begin
     gfxen_cs      = 1'b0;
     OKOUT_cs      = 1'b0;         
     SECWR_cs      = 1'b0;
-    casez(A[15:13])
+    if( rfsh_n && !mreq_n ) casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
         3'b110: // cscd
@@ -132,7 +135,7 @@ always @(posedge clk)
         coin_cnt  <= 1'b0;  // omitting inverter in M54532 for coin counter.
         {OBJON, SC2ON, SC1ON } <= 3'd0;
     end
-    else if(cen3) begin
+    else if(cpu_cen) begin
         if( bank_cs  && !wr_n ) begin
             CHON     <= cpu_dout[7];
             flip     <= cpu_dout[6];
@@ -158,7 +161,9 @@ wire [7:0] security;
 always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
-                     4'hf, // undocumented. The game start screen has background when set to 0!
+                     ~2'h0, // undocumented. D5 & D4 what are those?
+                     ~LVBL,
+                     1'b1,
                      start_button }; // START
         3'd1: cabinet_input = { 1'b1, joystick1 };
         3'd2: cabinet_input = { 1'b1, joystick2 };
@@ -173,9 +178,9 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-jtgng_ram #(.aw(13)) RAM(
+jtgng_ram #(.aw(13),.cen_rd(1)) RAM(
     .clk        ( clk       ),
-    .cen        ( cen3      ),
+    .cen        ( cpu_cen   ),
     .addr       ( A[12:0]   ),
     .data       ( cpu_dout  ),
     .we         ( cpu_ram_we),
@@ -194,8 +199,13 @@ always @(*)
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;
         4'b00_01: cpu_din = cabinet_input;
-        default:   cpu_din = rom_data;
+        default:  cpu_din = rom_data;
     endcase
+
+`ifdef SIMULATION
+always @(negedge rd_n)
+    if( in_cs && A[2:0]=='d7 ) $display("INFO: Security code read %m ");
+`endif
 
 // ROM ADDRESS: 32kB + 8 banks of 16kB
 always @(*) begin
@@ -205,32 +215,47 @@ end
 
 ///////////////////////////////////////////////////////////////////
 // interrupt generation. Schematics page 5/9, parts 12J and 14K
-reg int_n, int_latch_qb, int_rqb, int_rqb_last;
+reg int_n, int_latch_qb, int_rqb, int_rqb_last, int_middle;
 
 always @(posedge clk)
     if(rst) begin
         int_n <= 1'b1;
-    end else if(cen6) begin
-        if( V[8] && !V[4] )
+    end else if(cpu_cen) begin
+        if( V[8] && V[4] ) begin
             case( V[7:5] )
                 3'd7: int_latch_qb <= 1'b0;
                 3'd0: int_latch_qb <= 1'b1;
                 default:;
             endcase
+            int_middle <= V[7:5]!=3'd3;
+        end
         int_rqb_last <= int_rqb;
-        int_rqb <= int_latch_qb && (V[8] && !V[4] && V[7:5]==3'd3 );
+        int_rqb <= int_latch_qb && int_middle;
         if( irq_ack )
             int_n <= 1'b1;
         else
             if ( !int_rqb && int_rqb_last ) int_n <= 1'b0;
     end
 
-wire wait_n = char_wait_n;
+reg [1:0] mem_wait_n;
+wire wait_n = char_wait_n; // & mem_wait_n[0];
+
+// The PCB has a slow down mechanism for the main CPU
+// is loses one clock cycle at the beginning of every machine cycle
+always @(posedge clk)
+    if(rst)
+        mem_wait_n[0] <= 1'b1;
+    else // do not clock gate this!
+        mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n & mreq_n; // mreq_n
+            // signal was not in the original schematics. Bug?
+
+always @(posedge clk) if(cpu_cen) mem_wait_n[1] <= mem_wait_n[0];
+
 
 
 jt1943_security u_security(
     .clk    ( clk      ),
-    .cen    ( cen3     ),
+    .cen    ( cpu_cen  ),
     .wr_n   ( wr_n     ),
     .cs     ( SECWR_cs ),
     .din    ( cpu_dout ),
@@ -283,7 +308,7 @@ assign {
 T80s u_cpu(
     .RESET_n    ( t80_rst_n   ),
     .CLK        ( clk         ),
-    .CEN        ( cen3        ),
+    .CEN        ( cpu_cen     ),
     .WAIT_n     ( wait_n      ),
     .INT_n      ( int_n       ),
     .RD_n       ( rd_n        ),
@@ -296,6 +321,7 @@ T80s u_cpu(
     .MREQ_n     ( mreq_n      ),
     .NMI_n      ( 1'b1        ),
     .BUSRQ_n    ( 1'b1        ),
+    .RFSH_n     ( rfsh_n      ),
     .out0       ( 1'b0        )
 );
 `else
@@ -303,7 +329,7 @@ T80s u_cpu(
 tv80s #(.Mode(0)) u_cpu (
     .reset_n( t80_rst_n  ),
     .clk    ( clk        ),
-    .cen    ( cen3       ),
+    .cen    ( cpu_cen    ),
     .wait_n ( wait_n     ),
     .int_n  ( int_n      ),
     .nmi_n  ( 1'b1       ),
@@ -316,10 +342,10 @@ tv80s #(.Mode(0)) u_cpu (
     .iorq_n ( iorq_n     ),
     .m1_n   ( m1_n       ),
     .mreq_n ( mreq_n     ),
+    .rfsh_n ( rfsh_n     ),
     // unused
     .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
+    .halt_n ()
 );
 `endif
 endmodule // jtgng_main

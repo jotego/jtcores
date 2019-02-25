@@ -97,7 +97,12 @@ wire enable_fm = ~status[8], enable_psg = ~status[7];
 wire dip_pause = ~status[1];
 //`endif
 
+//`ifdef SIMULATION
+//wire dip_test  = 1'b0;
+//`else
 wire dip_test  = ~status[4];
+//`endif
+
 wire dip_upright = 1'b1;
 wire dip_credits2p = 1'b1;
 reg [3:0] dip_level;
@@ -212,6 +217,14 @@ reg game_rst;
 always @(negedge clk_rgb)
     game_rst <= downloading | rst | rst_req;
 
+`ifdef SIMULATION
+reg autofire=1'b0;
+always @(negedge vs) autofire<=~autofire;
+assign game_joystick1[4] = autofire;
+assign game_joystick1[3:0] = ~4'd0;
+assign game_joystick1[6:5] = ~2'd0;
+`endif
+
 jt1943_game u_game(
     .rst         ( game_rst      ),
     .clk_rom     ( clk_rom       ),
@@ -299,7 +312,9 @@ jtgng_board #(.SIGNED_SND(1'b1)) u_board(
     .ps2_kbd_data   ( ps2_kbd_data    ),
     .board_joystick1( joystick1[8:0]  ),
     .board_joystick2( joystick2[8:0]  ),
+`ifndef SIMULATION
     .game_joystick1 ( game_joystick1  ),
+`endif
     .game_joystick2 ( game_joystick2  ),
     .game_coin      ( game_coin       ),
     .game_start     ( game_start      ),

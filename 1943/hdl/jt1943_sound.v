@@ -94,6 +94,7 @@ always @(*) begin
     endcase
 end
 
+
 reg [1:0] cs_wait;
 always @(posedge clk)
     if( rst )
