@@ -29,9 +29,13 @@ module jt1943_security(
 // CPU Security (copy protection)
 reg [7:0] security;
 
-always @(posedge clk) begin
-    if( cs && !wr_n )
+always @(posedge clk) if(cen) begin
+    if( cs && !wr_n ) begin
         security <= din;
+        `ifdef SIMULATION
+        $display("INFO: security write %X - %m at time %d", din, $time());
+        `endif
+    end
     case( security )    
         8'h24: dout <= 8'h1d;
         8'h60: dout <= 8'hf7;

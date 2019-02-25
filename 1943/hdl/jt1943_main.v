@@ -230,7 +230,7 @@ wire wait_n = char_wait_n;
 
 jt1943_security u_security(
     .clk    ( clk      ),
-    .cen    ( cen6     ),
+    .cen    ( cen3     ),
     .wr_n   ( wr_n     ),
     .cs     ( SECWR_cs ),
     .din    ( cpu_dout ),
