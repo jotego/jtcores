@@ -178,7 +178,7 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-jtgng_ram #(.aw(13),.cen_rd(1)) RAM(
+jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),
     .addr       ( A[12:0]   ),
@@ -215,30 +215,24 @@ end
 
 ///////////////////////////////////////////////////////////////////
 // interrupt generation. Schematics page 5/9, parts 12J and 14K
-reg int_n, int_latch_qb, int_rqb, int_rqb_last, int_middle;
+reg int_n, int_rqb, int_rqb_last;
+wire int_middle = V[7:5]!=3'd3;
+wire int_rqb_negedge = !int_rqb && int_rqb_last;
 
 always @(posedge clk)
     if(rst) begin
         int_n <= 1'b1;
     end else if(cpu_cen) begin
-        if( V[8] && V[4] ) begin
-            case( V[7:5] )
-                3'd7: int_latch_qb <= 1'b0;
-                3'd0: int_latch_qb <= 1'b1;
-                default:;
-            endcase
-            int_middle <= V[7:5]!=3'd3;
-        end
         int_rqb_last <= int_rqb;
-        int_rqb <= int_latch_qb && int_middle;
+        int_rqb <= LVBL && int_middle;
         if( irq_ack )
             int_n <= 1'b1;
         else
-            if ( !int_rqb && int_rqb_last ) int_n <= 1'b0;
+            if ( int_rqb_negedge ) int_n <= 1'b0;
     end
 
 reg [1:0] mem_wait_n;
-wire wait_n = char_wait_n; // & mem_wait_n[0];
+wire wait_n = char_wait_n & mem_wait_n[0];
 
 // The PCB has a slow down mechanism for the main CPU
 // is loses one clock cycle at the beginning of every machine cycle
@@ -246,7 +240,7 @@ always @(posedge clk)
     if(rst)
         mem_wait_n[0] <= 1'b1;
     else // do not clock gate this!
-        mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n & mreq_n; // mreq_n
+        mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
             // signal was not in the original schematics. Bug?
 
 always @(posedge clk) if(cpu_cen) mem_wait_n[1] <= mem_wait_n[0];
