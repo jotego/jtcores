@@ -39,8 +39,8 @@ wire led;
     end
     `endif
 `else // NCVERILOG
-    //initial begin
-    always @(negedge VGA_VS) if( frame_cnt==148 ) begin
+    initial begin
+    //always @(negedge VGA_VS) if( frame_cnt==148 ) begin
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
         `ifdef DEEPDUMP

@@ -26,6 +26,7 @@ module jt1943_scroll(
     input              cen3,
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
+    input              LVBL,
 
     input       [ 1:0] scrposh_cs,
     input       [ 7:0] vpos,
@@ -52,29 +53,39 @@ module jt1943_scroll(
 
 parameter HOFFSET=9'd5;
 parameter SIMFILE_MSB="", SIMFILE_LSB="";
+parameter AS8MASK = 1'b1;
 
 wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC;
-wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
+wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
 reg  [15:0] hpos; // called "SP" on the schematics
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
 
-always @(*) begin
-    { HS[8:3], HSaux } = { ~Hfix[8], H7, HF[6:0]};
-    HS[2:0] = HSaux ^ {3{flip}};
-end
 
-always @(posedge clk) if(cen3) begin
+`ifdef TESTSCR1
+//reg [15:0] hpos_test;
+always @(posedge LVBL or posedge rst)
+    if( rst )
+        hpos <= 'd768;
+    else
+        hpos <= hpos + 16'd8;
+`endif
+
+wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
+
+always @(posedge clk) if(cen6) begin
     VF <= {8{flip}}^V128;
     SV <= VF + ( pause ? 8'd0 : vpos );
-    SH <= HS[7:0] + hpos[7:0];
-    PIC <= hpos[15:8] + { {7{HF[6]&~Hfix[8]}}, ~Hfix[8] };
+    {PIC, SH } <= hpos + { {7{SCHF[9]}},SCHF[8:0] };
     map_addr <= { PIC, SH[7:5], SV[7:5] };
+    HS[8:3] <= SCHF[8:3];
+    HS[2:0] <= SCHF[2:0] ^ {3{flip}};
 end
+
 
 /* H1  = C18
    H8  = D19
@@ -108,11 +119,11 @@ always @(posedge clk) if(cen6) begin
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr1 <= scr_attr0;
         scr_attr0 <= dout_high[6:2];
-        scr_addr  <= {   dout_high[0], dout_low, // AS
+        scr_addr[16:1] <= {   dout_high[0] & AS8MASK, dout_low, // AS
                         HS[4:3]^{2{dout_high[6]}} /*scr_hflip*/, 
-                        {5{dout_high[7] /*vflip*/}}^VF[4:0] /*vert_addr*/,
-                        HS[2]^dout_high[6] };
+                        {5{dout_high[7] /*vflip*/}}^VF[4:0] }; /*vert_addr*/
     end
+    scr_addr[0] <= HS[2]^dout_high[6];
 end
 
 // Draw pixel on screen

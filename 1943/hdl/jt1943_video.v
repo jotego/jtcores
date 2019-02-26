@@ -131,10 +131,17 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .cen3         ( cen3          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
-    .SCxON        ( SC1ON         ),
+    .LVBL         ( LVBL          ),
     .scrposh_cs   ( scr1posh_cs   ),
+    `ifndef TESTSCR1
+    .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
+    `else 
+    .SCxON        ( 1'b1          ),
+    .vpos         ( 8'd0          ),
+    .flip         ( 1'b0          ),
+    `endif
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
     .pause        ( pause         ),
@@ -156,7 +163,8 @@ wire [1:0] scr2_nc; // not connected bits of the address
 
 jt1943_scroll #(.HOFFSET(scrchr_off),
     .SIMFILE_MSB("../../../rom/1943/bm11.12l"),
-    .SIMFILE_LSB("../../../rom/1943/bm12.12m")
+    .SIMFILE_LSB("../../../rom/1943/bm12.12m"),
+    .AS8MASK(1'b0)
 ) u_scroll2 (
     .rst          ( rst           ),
     .clk          ( clk           ),
@@ -164,10 +172,17 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .cen3         ( cen3          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
-    .SCxON        ( SC2ON         ),
+    .LVBL         ( LVBL          ),
     .scrposh_cs   ( scr2posh_cs   ),
+    `ifndef TESTSCR2
+    .SCxON        ( SC2ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
+    `else 
+    .SCxON        ( 1'b1          ),
+    .vpos         ( 8'd0          ),
+    .flip         ( 1'b0          ),
+    `endif
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
 

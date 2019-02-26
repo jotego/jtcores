@@ -171,6 +171,7 @@ wire [1:0] scr1posh_cs, scr2posh_cs;
 wire CHON, OBJON, SC2ON, SC1ON;
 wire cpu_cen;
 
+`ifndef NOMAIN
 jt1943_main u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
@@ -217,6 +218,21 @@ jt1943_main u_main(
     .dipsw_b    ( {dip_demosnd, dip_continue, dip_price2, dip_price1} ),
     .coin_cnt   ( coin_cnt      )
 );
+`else
+assign scr1posh_cs = 'b0;
+assign scr2posh_cs = 'b0;
+assign char_cs = 'b0;
+assign SC1ON = 'b1;
+assign SC2ON = 'b1;
+assign OBJON = 'b1;
+assign  CHON = 'b1;
+assign main_addr = 'd0;
+assign rd_n = 'b1;
+assign wr_n = 'b1;
+assign cpu_AB = 'b0;
+assign sres_b = 'b1;
+assign cpu_dout = 'b0;
+`endif
 
 `ifndef NOSOUND
 jt1943_sound u_sound (
