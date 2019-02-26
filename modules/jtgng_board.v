@@ -40,10 +40,10 @@ module jtgng_board(
     input             ps2_kbd_clk,
     input             ps2_kbd_data,
     // joystick
-    input      [8:0]  board_joystick1,
-    input      [8:0]  board_joystick2,
-    output reg [6:0]  game_joystick1,
-    output reg [6:0]  game_joystick2,
+    input      [9:0]  board_joystick1,
+    input      [9:0]  board_joystick2,
+    output reg [9:0]  game_joystick1,
+    output reg [9:0]  game_joystick2,
     output reg [1:0]  game_coin,
     output reg [1:0]  game_start,
     output reg        game_pause,
@@ -51,6 +51,7 @@ module jtgng_board(
 );
 
 parameter SIGNED_SND=1'b0;
+parameter THREE_BUTTONS=0;
 
 wire key_reset, key_pause;
 reg [7:0] rst_cnt=8'd0;
@@ -109,7 +110,7 @@ assign vga_hsync  = 1'b0;
 assign vga_vsync  = 1'b0;
 `endif
 
-wire [6:0] key_joy1, key_joy2;
+wire [9:0] key_joy1, key_joy2;
 wire [1:0] key_start, key_coin;
 
 
@@ -137,24 +138,28 @@ assign key_reset = 1'b0;
 assign key_pause = 1'b0;
 `endif
 
-reg [8:0] joy1_sync, joy2_sync;
+reg [9:0] joy1_sync, joy2_sync;
 
 always @(posedge clk_rgb) if(cen6) begin
     joy1_sync <= ~board_joystick1;
     joy2_sync <= ~board_joystick2;
 end
 
+localparam PAUSE_BIT = 8+THREE_BUTTONS;
+localparam START_BIT = 7+THREE_BUTTONS;
+localparam COIN_BIT  = 6+THREE_BUTTONS;
+
 reg last_pause, last_joypause_b, last_reset;
-wire joy_pause_b = joy1_sync[8] & joy2_sync[8];
+wire joy_pause_b = joy1_sync[PAUSE_BIT] & joy2_sync[PAUSE_BIT];
 always @(posedge clk_rgb) begin
     last_pause <= key_pause;
     last_reset <= key_reset;
     last_joypause_b <= joy_pause_b; // joy is active low!
 
-    game_joystick1 <= joy1_sync[6:0] & ~key_joy1;
-    game_joystick2 <= joy2_sync[6:0] & ~key_joy2;
-    game_coin      <= {joy2_sync[6],joy1_sync[6]} & ~key_coin;
-    game_start     <= {joy2_sync[7],joy1_sync[7]} & ~key_start;
+    game_joystick1 <= joy1_sync & ~key_joy1;
+    game_joystick2 <= joy2_sync & ~key_joy2;
+    game_coin      <= {joy2_sync[COIN_BIT],joy1_sync[COIN_BIT]} & ~key_coin;
+    game_start     <= {joy2_sync[START_BIT],joy1_sync[START_BIT]} & ~key_start;
     if(key_pause && !last_pause)    game_pause  <= ~game_pause;
     if(!joy_pause_b && last_joypause_b) game_pause  <= ~game_pause;
     soft_rst <= key_reset && !last_reset;

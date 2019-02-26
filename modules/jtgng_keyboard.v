@@ -27,8 +27,8 @@ module jtgng_keyboard(
     input ps2_data,
     
     // decodes keys
-    output reg [6:0] key_joy1,
-    output reg [6:0] key_joy2,
+    output reg [9:0] key_joy1,
+    output reg [9:0] key_joy2,
     output reg [1:0] key_start,
     output reg [1:0] key_coin,
     output reg key_reset,
@@ -51,8 +51,8 @@ always @(posedge clk) begin
     if(rst) begin
       key_released <= 1'b0;
       key_extended <= 1'b0;
-      key_joy1 <= 7'd0;
-      key_joy2 <= 7'd0;
+      key_joy1 <=  'd0;
+      key_joy2 <=  'd0;
       key_coin <= 2'd0;
       key_start<= 2'd0;
       key_reset<= 1'b0;
@@ -72,6 +72,7 @@ always @(posedge clk) begin
                 
                 case({key_extended, ps2byte})
                     // first joystick
+                    9'h0_29: key_joy1[6] <= !key_released;   // Button 3
                     9'h0_11: key_joy1[5] <= !key_released;   // Button 2
                     9'h0_14: key_joy1[4] <= !key_released;   // Button 1
                     9'h1_75: key_joy1[3] <= !key_released;   // Up

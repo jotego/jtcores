@@ -209,7 +209,7 @@ wire LHBL;
 wire LVBL;
 wire [15:0] snd;
 
-wire [6:0] game_joystick1, game_joystick2;
+wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_pause;
 
@@ -243,8 +243,8 @@ jt1943_game u_game(
 
     .start_button( game_start     ),
     .coin_input  ( game_coin      ),
-    .joystick1   ( game_joystick1 ),
-    .joystick2   ( game_joystick2 ),
+    .joystick1   ( game_joystick1[6:0] ),
+    .joystick2   ( game_joystick2[6:0] ),
 
     // Sound control
     .enable_fm   ( enable_fm      ),
@@ -286,7 +286,7 @@ jt1943_game u_game(
 
 assign AUDIO_R = AUDIO_L;
 
-jtgng_board #(.SIGNED_SND(1'b1)) u_board(
+jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
     .rst            ( rst             ),
     .clk_rgb        ( clk_rgb         ),
     .clk_dac        ( clk_rom         ),

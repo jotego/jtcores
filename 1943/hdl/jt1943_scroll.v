@@ -123,7 +123,7 @@ always @(posedge clk) if(cen6) begin
                         HS[4:3]^{2{dout_high[6]}} /*scr_hflip*/, 
                         {5{dout_high[7] /*vflip*/}}^VF[4:0] }; /*vert_addr*/
     end
-    scr_addr[0] <= HS[2]^dout_high[6];
+    scr_addr[0] <= ~HS[2]^dout_high[6];
 end
 
 // Draw pixel on screen
