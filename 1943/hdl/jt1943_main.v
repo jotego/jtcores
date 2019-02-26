@@ -119,7 +119,7 @@ always @(*) begin
                         default:;
                     endcase
             endcase
-        3'b111: ram_cs = A[12]==1'b0; // csef
+        3'b111: ram_cs = 1'b1;
     endcase
 end
 
