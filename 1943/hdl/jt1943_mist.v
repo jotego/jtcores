@@ -91,10 +91,11 @@ wire dip_flip = status[32'hb];
 
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
+wire game_pause;
 //`ifdef SIMULATION
 //wire dip_pause = 1'b0; // ~status[1];
 //`else 
-wire dip_pause = ~status[1];
+wire dip_pause = ~status[1] & ~game_pause;
 //`endif
 
 //`ifdef SIMULATION
@@ -211,7 +212,6 @@ wire [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-wire game_pause;
 
 reg game_rst;
 always @(negedge clk_rgb)

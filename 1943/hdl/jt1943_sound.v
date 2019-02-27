@@ -246,8 +246,8 @@ jt49_dcrm2 #(.sw(11)) u_dcrm (
     .dout   (  psg2x  )
 );
 
-wire signed [7:0] psg_gain = enable_psg ? 8'h20 : 8'h0;
-wire signed [7:0]  fm_gain = enable_fm  ? 8'h20 : 8'h0;
+wire signed [7:0] psg_gain = enable_psg ? 8'h80 : 8'h0;
+wire signed [7:0]  fm_gain = enable_fm  ? 8'h10 : 8'h0;
 
 jt12_mixer #(.w0(16),.w1(16),.w2(13),.w3(8),.wout(16)) u_mixer(
     .clk    ( clk          ),
