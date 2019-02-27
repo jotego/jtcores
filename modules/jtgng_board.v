@@ -151,19 +151,24 @@ localparam COIN_BIT  = 6+THREE_BUTTONS;
 
 reg last_pause, last_joypause_b, last_reset;
 wire joy_pause_b = joy1_sync[PAUSE_BIT] & joy2_sync[PAUSE_BIT];
-always @(posedge clk_rgb) begin
-    last_pause <= key_pause;
-    last_reset <= key_reset;
-    last_joypause_b <= joy_pause_b; // joy is active low!
 
-    game_joystick1 <= joy1_sync & ~key_joy1;
-    game_joystick2 <= joy2_sync & ~key_joy2;
-    game_coin      <= {joy2_sync[COIN_BIT],joy1_sync[COIN_BIT]} & ~key_coin;
-    game_start     <= {joy2_sync[START_BIT],joy1_sync[START_BIT]} & ~key_start;
-    if(key_pause && !last_pause)    game_pause  <= ~game_pause;
-    if(!joy_pause_b && last_joypause_b) game_pause  <= ~game_pause;
-    soft_rst <= key_reset && !last_reset;
-end
+always @(posedge clk_rgb) 
+    if(rst ) begin
+        game_pause <= 1'b0;
+        soft_rst   <= 1'b0;
+    end else begin
+        last_pause <= key_pause;
+        last_reset <= key_reset;
+        last_joypause_b <= joy_pause_b; // joy is active low!
+
+        game_joystick1 <= joy1_sync & ~key_joy1;
+        game_joystick2 <= joy2_sync & ~key_joy2;
+        game_coin      <= {joy2_sync[COIN_BIT],joy1_sync[COIN_BIT]} & ~key_coin;
+        game_start     <= {joy2_sync[START_BIT],joy1_sync[START_BIT]} & ~key_start;
+        if(key_pause && !last_pause)    game_pause  <= ~game_pause;
+        if(!joy_pause_b && last_joypause_b) game_pause  <= ~game_pause;
+        soft_rst <= key_reset && !last_reset;
+    end
 
 
 endmodule // jtgng_board
