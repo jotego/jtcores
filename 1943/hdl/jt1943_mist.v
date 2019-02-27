@@ -84,7 +84,7 @@ wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 wire          coin_cnt;
 
-assign LED = downloading; // | coin_cnt | rst;
+assign LED = ~downloading; // | coin_cnt | rst;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
 wire dip_flip = status[32'hb];
