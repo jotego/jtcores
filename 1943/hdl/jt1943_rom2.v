@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 20-2-2019 */
 
-module jt1943_rom(
+module jt1943_rom2(
     input               rst,
     input               clk, 
     input               cen12, // 12 MHz
@@ -186,70 +186,38 @@ if( loop_rst || downloading ) begin
     ready_cnt <=  4'd0;    
     ready     <=  1'b0;
 end else if(cen12) begin
+    {ready, ready_cnt}  <= {ready_cnt, 1'b1};
     case( 1'b1 )
         main_req: begin
             sdram_addr <= { 4'd0, main_addr_req[17:1] };
             data_sel   <= 'b1;
         end
         char_req: begin
-            sdram_addr <= char_offset + { 8'b0, char_addr_req }; // 12:0
+            sdram_addr <= char_offset + { 8'b0, char_addr_req };
             data_sel   <= 'b10;
         end
         map1_req: begin
-            sdram_addr <= sdram_addr <= map1_offset + { 8'b0, map1_addr }; // 12:0
+            sdram_addr <= sdram_addr <= map1_offset + { 8'b0, map1_addr };
             data_sel   <= 'b100;
         end
         map2_req: begin
-            sdram_addr <= sdram_addr <= map2_offset + { 8'b0, map2_addr }; // 12:0
+            sdram_addr <= sdram_addr <= map2_offset + { 8'b0, map2_addr };
             data_sel   <= 'b1000;
         end
         scr1_req: begin
-            sdram_addr <= sdram_addr <= scr1_offset + { 8'b0, scr1_addr }; // 12:0
+            sdram_addr <= sdram_addr <= scr1_offset + { 5'b0, scr1_addr };
             data_sel   <= 'b1_0000;
         end
         scr2_req: begin
-            sdram_addr <= sdram_addr <= scr2_offset + { 8'b0, scr2_addr }; // 12:0
+            sdram_addr <= sdram_addr <= scr2_offset + { 7'b0, scr2_addr };
             data_sel   <= 'b10_0000;
         end     
         obj_req: begin
-            sdram_addr <= sdram_addr <= obj_offset + { 8'b0, obj_addr }; // 12:0
+            sdram_addr <= sdram_addr <= obj_offset + { 4'b0, obj_addr };
             data_sel   <= 'b100_0000;
         end
+        default: data_sel <= 'b0;
     endcase
-    /*
-    {ready, ready_cnt}  <= {ready_cnt, 1'b1};
-    rd_state_last <= rd_state;
-    // Get data from current read
-    casez(rd_state_last) 
-        4'b?100: scr1_dout <= data_read;
-
-        4'b??01: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
-
-        4'b0010: char_dout <= data_read;
-        4'b0110: ; // unused
-        4'b1010: map1_dout <= data_read;
-        4'b1110: map2_dout <= data_read;
-
-        4'b?011: obj_dout  <= data_read;
-        4'b?111: scr2_dout <= data_read;
-        default:;
-    endcase
-    casez(rd_state)
-        4'b?100: sdram_addr <= scr1_offset + { 5'b0, scr1_addr }; // 14:0 B/C ROMs
-
-        4'b??01: begin
-            sdram_addr <= { 4'd0, main_addr[17:1] };
-            main_lsb <= main_addr[0];
-        end
-
-        4'b0010: sdram_addr <= char_offset + { 8'b0, char_addr }; // 12:0
-        4'b1010: sdram_addr <= map1_offset + { 8'b0, map1_addr }; // 12:0
-        4'b1110: sdram_addr <= map2_offset + { 8'b0, map2_addr }; // 12:0
-
-        4'b?011: sdram_addr <= obj_offset + { 6'b0,  obj_addr }; // 15:0
-        4'b?111: sdram_addr <= scr2_offset+ { 7'b0, scr2_addr }; // scr_addr E ROMs
-        default:;
-    endcase */
 end
 
 endmodule // jtgng_rom

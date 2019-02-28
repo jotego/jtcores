@@ -77,7 +77,7 @@ wire          ps2_kbd_clk, ps2_kbd_data;
 wire [ 5:0]   board_r, board_g, board_b;
 wire          board_hsync, board_vsync, hs, vs;
 wire [21:0]   sdram_addr;
-wire [15:0]   data_read;
+wire [31:0]   data_read;
 wire          loop_rst, autorefresh, sdram_re; 
 wire          downloading;
 wire [21:0]   ioctl_addr;

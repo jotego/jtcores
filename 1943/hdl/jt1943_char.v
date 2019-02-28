@@ -117,11 +117,11 @@ always @(posedge clk) if(cen6) begin
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
-        3'd2: begin
+        3'd1: begin
             chd <= !flip ? {char_data[7:0],char_data[15:8]} : char_data;
             char_attr2 <= char_attr1;
         end
-        3'd6: 
+        3'd5: 
             chd[7:0] <= chd[15:8];
         default:
             begin

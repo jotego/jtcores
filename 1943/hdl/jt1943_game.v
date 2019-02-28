@@ -44,7 +44,7 @@ module jt1943_game(
     input           loop_rst,
     output          sdram_re,
     output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
+    input   [31:0]  data_read,
 
     // ROM LOAD
     input   [21:0]  ioctl_addr, 
@@ -324,7 +324,7 @@ jt1943_video u_video(
     .prom_12m_we( prom_12m_we   )
 );
 
-jt1943_rom u_rom (
+jt1943_rom2 u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen12       ( cen12         ),

@@ -79,7 +79,7 @@ module jtgng_mist_base(
     output          downloading,
     // ROM access from game
     input  [21:0]   sdram_addr,
-    output [15:0]   data_read,
+    output [31:0]   data_read,
     output          loop_rst, 
     input           autorefresh
 );

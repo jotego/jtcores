@@ -38,7 +38,7 @@ always @(*) begin
         16: addr_req = {addr[AW-1:1],1'b0};
         32: addr_req = addr;
     endcase 
-    req = init || (addr_req != cached_addr );
+    req = init || (addr_req !== cached_addr );
 end
 
 always @(posedge clk) 
@@ -52,19 +52,28 @@ always @(posedge clk)
         end
     end
 
-always @(*)
-    case(DW)
-        8: case( {addr[1], INVERT_A0^addr[0]} )
-                2'd0: dout = cached_data[ 7: 0];
-                2'd1: dout = cached_data[15: 8];
-                2'd2: dout = cached_data[23:16];
-                2'd3: dout = cached_data[31:24];
-            endcase
-        16: case( addr[1] )
+generate
+    if(DW==8) begin
+        wire subaddr;
+        if( INVERT_A0 )
+            assign subaddr = ~addr[0];
+        else
+            assign subaddr =  addr[0];
+        always @(*)
+        case( { addr[1], subaddr} )
+            2'd0: dout = cached_data[ 7: 0];
+            2'd1: dout = cached_data[15: 8];
+            2'd2: dout = cached_data[23:16];
+            2'd3: dout = cached_data[31:24];
+        endcase
+    end else if(DW==16) begin
+        always @(*)
+        case( addr[0] )
                 1'd0: dout = cached_data[15:0];
                 1'd1: dout = cached_data[31:16];
-            endcase
-        32: dout = cached_data;
-    endcase
+        endcase
+    end else assign dout = cached_data;
+endgenerate
+
 
 endmodule // jt1943_romrq
