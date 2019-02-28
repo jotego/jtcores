@@ -89,7 +89,7 @@ jtgng_ram #(.aw(10),.synfile("1943_msg.hex"),.simfile("1943_msg.bin")) u_ram_msg
 );
 
 always @(*) begin
-    dout_low  = pause ? /*mem_msg*/ 8'h24 : mem_low;
+    dout_low  = pause ? mem_msg  : mem_low;
     dout_high = pause ? 8'h2    : mem_high;
 end
 

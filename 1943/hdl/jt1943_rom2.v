@@ -35,13 +35,13 @@ module jt1943_rom2(
     input       [13:0]  map1_addr, //  32 kB
     input       [13:0]  map2_addr, //  32 kB
 
-    output  reg [15:0]  char_dout,
-    output  reg [ 7:0]  main_dout,
-    output  reg [15:0]  obj_dout,
-    output  reg [15:0]  map1_dout,
-    output  reg [15:0]  map2_dout,
-    output  reg [15:0]  scr1_dout,
-    output  reg [15:0]  scr2_dout,
+    output      [15:0]  char_dout,
+    output      [ 7:0]  main_dout,
+    output      [15:0]  obj_dout,
+    output      [15:0]  map1_dout,
+    output      [15:0]  map2_dout,
+    output      [15:0]  scr1_dout,
+    output      [15:0]  scr2_dout,
     output  reg         ready,
     // ROM interface
     input               downloading,
@@ -196,24 +196,24 @@ end else if(cen12) begin
             sdram_addr <= char_offset + { 8'b0, char_addr_req };
             data_sel   <= 'b10;
         end
-        map1_req: begin
-            sdram_addr <= sdram_addr <= map1_offset + { 8'b0, map1_addr };
-            data_sel   <= 'b100;
-        end
         map2_req: begin
-            sdram_addr <= sdram_addr <= map2_offset + { 8'b0, map2_addr };
+            sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
             data_sel   <= 'b1000;
         end
-        scr1_req: begin
-            sdram_addr <= sdram_addr <= scr1_offset + { 5'b0, scr1_addr };
-            data_sel   <= 'b1_0000;
-        end
         scr2_req: begin
-            sdram_addr <= sdram_addr <= scr2_offset + { 7'b0, scr2_addr };
+            sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
             data_sel   <= 'b10_0000;
         end     
+        map1_req: begin
+            sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
+            data_sel   <= 'b100;
+        end
+        scr1_req: begin
+            sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
+            data_sel   <= 'b1_0000;
+        end
         obj_req: begin
-            sdram_addr <= sdram_addr <= obj_offset + { 4'b0, obj_addr };
+            sdram_addr <= obj_offset + { 4'b0, obj_addr_req };
             data_sel   <= 'b100_0000;
         end
         default: data_sel <= 'b0;

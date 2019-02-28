@@ -29,6 +29,7 @@ module jt1943_romrq #(parameter AW=18, DW=8, INVERT_A0=0 )(
 );
 
 reg [AW-1:0] cached_addr;
+reg [1:0]    subaddr;
 reg [31:0]   cached_data;
 reg init;
 
@@ -51,28 +52,30 @@ always @(posedge clk)
             init        <= 1'b0;
         end
     end
+always @(*) begin
+    subaddr[1] <= addr[1];
+    if( INVERT_A0 )
+        subaddr[0] <= ~addr[0];
+    else
+        subaddr[0] <=  addr[0]; 
+end
 
 generate
     if(DW==8) begin
-        wire subaddr;
-        if( INVERT_A0 )
-            assign subaddr = ~addr[0];
-        else
-            assign subaddr =  addr[0];
-        always @(*)
-        case( { addr[1], subaddr} )
-            2'd0: dout = cached_data[ 7: 0];
-            2'd1: dout = cached_data[15: 8];
-            2'd2: dout = cached_data[23:16];
-            2'd3: dout = cached_data[31:24];
+        always @(posedge clk)
+        if(!req) case( subaddr )
+            2'd0: dout <= cached_data[ 7: 0];
+            2'd1: dout <= cached_data[15: 8];
+            2'd2: dout <= cached_data[23:16];
+            2'd3: dout <= cached_data[31:24];
         endcase
     end else if(DW==16) begin
-        always @(*)
-        case( addr[0] )
+        always @(posedge clk)
+        if(!req) case( subaddr[0] )
                 1'd0: dout = cached_data[15:0];
                 1'd1: dout = cached_data[31:16];
         endcase
-    end else assign dout = cached_data;
+    end else always @(*) dout = cached_data;
 endgenerate
 
 

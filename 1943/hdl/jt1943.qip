@@ -5,7 +5,7 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_colmix.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_char.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_prom_we.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_rom.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_rom2.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_romrq.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_video.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1943_security.v  ]
