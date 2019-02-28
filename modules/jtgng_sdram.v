@@ -83,14 +83,17 @@ wire readon  = !downloading && ((read_req!=last_read_req) /*|| autorefresh*/);
 wire writeon = downloading && prog_we;
 
 reg downloading_last;
-reg set_burst, burst_done;
+reg set_burst, burst_done, burst_mode;
 
 always @(posedge clk) 
     if(rst) begin
         set_burst <= 1'b0;
     end else begin
         downloading_last <= downloading;
-        if( !downloading && downloading_last) set_burst <= 1'b1;
+        if( downloading != downloading_last) begin
+            set_burst <= 1'b1;
+            burst_mode <= ~downloading;
+        end
         if( burst_done ) set_burst <= 1'b0;
     end
 
@@ -133,7 +136,7 @@ always @(posedge clk)
                     `ifndef LOADROM
                         // Start directly with burst mode on simulation
                         // if the ROM load process is not being simulated
-                        SDRAM_A   <= 13'b00_1_00_010_0_001; // CAS Latency = 2
+                        SDRAM_A   <= {12'b00_1_00_010_0_00, burst_mode}; // CAS Latency = 2
                     `endif
                     `endif
                     wait_cnt  <= 14'd2;
