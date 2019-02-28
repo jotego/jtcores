@@ -2,7 +2,7 @@
 
 module jtgng_pll0(
     input    inclk0,
-    output   c1,      // 12
+    output   reg c1,      // 12
     output   reg c2,      // 96
     output       c3,     // 96 (shifted by -2.5ns)
     output   locked
@@ -12,12 +12,19 @@ assign locked = 1'b1;
 
 initial begin
     c2 = 1'b0;
-    forever c2 = #(10.417/2) ~c2;
+    // forever c2 = #(10.417/2) ~c2; // 96 MHz
+    forever c2 = #(9.259/2) ~c2; // 108 MHz
 end
 
-reg [3:0] div=4'd0;
-always @(posedge c2) div<=div+4'd1;
-assign c1 = div[2];
+reg [3:0] div=5'd0;
+
+initial c1=1'b0;
+
+always @(posedge c2) begin
+    div <= div=='d8 ? 'd0 : div+'d1;
+    if ( div=='d0 ) c1 <= 1'b0;
+    if ( div=='d4 ) c1 <= 1'b1;
+end
 
 assign #2.5 c3 = c2;
 

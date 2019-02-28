@@ -8,6 +8,7 @@
 ../../hdl/jt1943_prom_we.v
 ../../hdl/jt1943_security.v
 ../../hdl/jt1943_rom.v
+../../hdl/jt1943_romrq.v
 ../../../modules/jtgng_vga.v
 ../../../modules/jtgng_vgapxl.v
 ../../../modules/jtgng_cen.v
