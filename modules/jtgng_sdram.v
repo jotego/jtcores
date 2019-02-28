@@ -131,12 +131,12 @@ always @(posedge clk)
                 end
                 3'd2: begin
                     SDRAM_CMD <= CMD_LOAD_MODE;                    
-                    SDRAM_A   <= 13'b00_1_00_010_0_000; // CAS Latency = 2
+                    SDRAM_A   <= 13'b00_1_00_010_0_001; // CAS Latency = 2, burst = 2
                     `ifdef SIMULATION
                     `ifndef LOADROM
                         // Start directly with burst mode on simulation
                         // if the ROM load process is not being simulated
-                        SDRAM_A   <= {12'b00_1_00_010_0_00, burst_mode}; // CAS Latency = 2
+                        SDRAM_A   <= 12'b00_1_00_010_0_001; // CAS Latency = 2
                     `endif
                     `endif
                     wait_cnt  <= 14'd2;
@@ -164,12 +164,16 @@ always @(posedge clk)
             write_cycle       <= 1'b0;
             read_cycle        <= 1'b0;
             autorefresh_cycle <= 1'b0;
+            burst_done        <= 1'b0;
             if( read_cycle) data_read[31:16] <= SDRAM_DQ;
             {SDRAM_DQMH, SDRAM_DQML } <= 2'b00;
             if( set_burst ) begin
-                SDRAM_CMD <= CMD_LOAD_MODE;                    
-                SDRAM_A   <= 13'b00_1_00_010_0_001; // CAS Latency = 2, burst = 2
+                SDRAM_CMD <= CMD_LOAD_MODE;
+                // Burst mode can be 0 = 1 word. Used for ROM downloading
+                // or 1 = 2 words, used for normal operation
+                SDRAM_A   <= {12'b00_1_00_010_0_00, burst_mode}; // CAS Latency = 2
                 burst_done <= 1'b1;
+                cnt_state  <= 3'd7; // give one NOP cycle after changing the mode
             end else begin
                 SDRAM_CMD <= CMD_NOP;
                 if( writeon ) begin
