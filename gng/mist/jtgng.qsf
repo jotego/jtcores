@@ -42,7 +42,7 @@ set_global_assignment -name DEVICE EP3C25E144C8
 set_global_assignment -name TOP_LEVEL_ENTITY jtgng_mist
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:14:01  APRIL 10, 2012"
-set_global_assignment -name LAST_QUARTUS_VERSION 13.1
+set_global_assignment -name LAST_QUARTUS_VERSION "13.1 SP4.26"
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"
@@ -167,31 +167,13 @@ set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_comb.v
 set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_interpol.v
 set_global_assignment -name VERILOG_FILE ../../../jt12/jt49/hdl/filter/jt49_dcrm2.v
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_video.v
+set_global_assignment -name QIP_FILE     ../hdl/jtgng.qip
 set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809i.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_cen.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_ram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_dual_ram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_dual_clk_ram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_rom.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_sdram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_sh.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_timer.v
+
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/mist/rgb2ypbpr.sv
 set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_sound.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_obj.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_objbuf.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_objdma.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_objdraw.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_scroll.v
 set_global_assignment -name SDC_FILE jtgng.sdc
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_mist.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_main.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_game.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_colmix.v
-set_global_assignment -name VERILOG_FILE ../hdl/jtgng_char.v
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
