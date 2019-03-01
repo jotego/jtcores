@@ -127,13 +127,18 @@ jt1943_objdraw u_draw(
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .objrom_data    ( objrom_data   ),
+    // PROMs
+    .prog_addr      ( prog_addr     ),
+    .prom_7c_we     ( prom_7c_we    ),
+    .prom_8c_we     ( prom_8c_we    ),
+    .prog_din       ( prog_din      ),
     // pixel data
     .posx           ( posx          ),
     .new_pxl        ( new_pxl       )
 );
 
 // line buffers for pixel data
-jtgng_objpxl #(.dw(8),.obj_dly(5'hf)) u_pxlbuf(
+jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz

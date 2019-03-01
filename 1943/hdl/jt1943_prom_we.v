@@ -31,7 +31,8 @@ module jt1943_prom_we(
 );
 
 localparam SNDADDR=22'h14_000*2, CHARADDR=22'h18_000*2,
-    SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2, MAP1ADDR=22'h1C_000<<1;
+    SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2, MAP1ADDR=22'h1C_000<<1,
+    OBJADDR=22'h4C_000<<1;
 wire [21:0] scr_start = ioctl_addr - SCR1ADDR;
 wire [21:0] map_start = ioctl_addr - MAP1ADDR;
 
@@ -71,8 +72,13 @@ always @(posedge clk_rom) begin
             prog_addr <= MAP1ADDR[21:1] + {map_start[21:5], map_start[3:1], map_start[4]};
             prog_mask <= {map_start[0], ~map_start[0]};
         end        
-        else if(ioctl_addr < ROMEND) begin // SCR + OBJ
+        else if(ioctl_addr < OBJADDR) begin // SCR
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], scr_start[14:0]};
+            prog_mask <= { scr_start[15], ~scr_start[15]};
+        end
+        else if(ioctl_addr < ROMEND) begin // OBJ
+            prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], 
+                scr_start[14:6], scr_start[4:1], scr_start[5], scr_start[0] };
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
         else begin // PROMs

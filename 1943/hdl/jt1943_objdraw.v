@@ -51,7 +51,7 @@ reg [7:0] VB;
 wire [7:0] posy;
 reg  hover;
 reg vinzone;
-wire vinzone2;
+reg vinzone2;
 
 
 
@@ -111,10 +111,10 @@ always @(posedge clk) if(cen6) begin
     end else begin
         posx1  <= posx1 + 'b1;
     end
-
+    if( pxlcnt == 4'd6 ) vinzone2 <= vinzone;
     case( pxlcnt[1:0] )
         2'd3:  // new data starts at count 7
-                {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
+                {z,y,x,w} <= objrom_data;  //vinzone2 ? objrom_data[15:0] : 16'hffff;
         default: begin
                 z <= z << 1;
                 y <= y << 1;

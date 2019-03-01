@@ -334,7 +334,10 @@ jt1943_video u_video(
     .prom_6l_we ( prom_6l_we    ),
     .prom_7l_we ( prom_7l_we    ),
     .prom_12l_we( prom_12l_we   ),
-    .prom_12m_we( prom_12m_we   )
+    .prom_12m_we( prom_12m_we   ),
+    // obj proms
+    .prom_7c_we ( prom_7c_we    ),
+    .prom_8c_we ( prom_8c_we    )    
 );
 
 jt1943_rom2 u_rom (
