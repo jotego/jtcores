@@ -116,9 +116,8 @@ jtgng_timer u_timer(
 wire wr_n, rd_n;
 // sound
 wire sres_b;
-wire [7:0] snd_latch, scrposv;
+wire [7:0] snd_latch, scrposv, main_ram;
 
-wire obj_cs;
 wire [1:0] scr1pos_cs, scr2pos_cs;
 
 // ROM data
@@ -170,6 +169,8 @@ wire [1:0] scr1posh_cs, scr2posh_cs;
 
 wire CHON, OBJON, SC2ON, SC1ON;
 wire cpu_cen, main_cs;
+wire OKOUT, blcnten, bus_req, bus_ack;
+wire [12:0] obj_AB;
 
 `ifndef NOMAIN
 jt1943_main u_main(
@@ -196,14 +197,19 @@ jt1943_main u_main(
     .scr2posh_cs( scr2posh_cs   ),
     .SC1ON      ( SC1ON         ),
     .SC2ON      ( SC2ON         ),
-    // OBJ
-    .obj_cs     ( obj_cs        ),
+    // OBJ - bus sharing
     .OBJON      ( OBJON         ),
     .flip       ( flip          ),
     .V          ( V             ),
+    .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
+    .ram_dout   ( main_ram      ),
+    .OKOUT      ( OKOUT         ),
+    .blcnten    ( blcnten       ),
+    .bus_req    ( bus_req       ),
+    .bus_ack    ( bus_ack       ),
     // ROM
     .main_cs    ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -298,10 +304,15 @@ jt1943_video u_video(
     .map2_data  ( map2_dout     ),
     // OBJ
     .OBJON      ( OBJON         ),
-    .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_dout      ),
+    .main_ram   ( main_ram      ),
+    .obj_AB     ( obj_AB        ),
+    .OKOUT      ( OKOUT         ),
+    .blcnten    ( blcnten       ),
+    .bus_req    ( bus_req       ),
+    .bus_ack    ( bus_ack       ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),

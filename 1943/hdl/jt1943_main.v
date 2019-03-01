@@ -47,8 +47,6 @@ module jt1943_main(
     // cheat!
     input              cheat_invincible,
     output  reg        OBJON,
-    // Object
-    output  reg        obj_cs,
     // cabinet I/O
     input   [6:0]      joystick1,
     input   [6:0]      joystick2,
@@ -56,8 +54,14 @@ module jt1943_main(
     input   [1:0]      coin_input,
     // BUS sharing
     output  [12:0]     cpu_AB,
+    output  [ 7:0]     ram_dout,
+    input   [12:0]     obj_AB,    
     output             rd_n,
     output             wr_n,
+    output  reg        OKOUT,
+    input              bus_req,  // Request bus
+    output             bus_ack,  // bus acknowledge
+    input              blcnten,  // bus line counter enable    
     // ROM access
     output  reg        main_cs,
     output  reg [17:0] rom_addr,
@@ -69,13 +73,13 @@ module jt1943_main(
 );
 
 wire [15:0] A;
-wire [ 7:0] ram_dout;
 reg t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
-reg SECWR_cs, OKOUT_cs;
+reg SECWR_cs;
 
-wire mreq_n, rfsh_n;
+wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen6;
+assign bus_ack = ~busak_n;
 
 always @(*) begin
     main_cs       = 1'b0;
@@ -85,12 +89,11 @@ always @(*) begin
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
-    obj_cs        = 1'b0;
     scr1posh_cs   = 2'b0;
     scr2posh_cs   = 2'b0;
     scrposv_cs    = 1'b0;
     gfxen_cs      = 1'b0;
-    OKOUT_cs      = 1'b0;         
+    OKOUT         = 1'b0;         
     SECWR_cs      = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
         3'b0??: main_cs = 1'b1;
@@ -103,7 +106,7 @@ always @(*) begin
                     casez(A[2:0])
                         3'b000: snd_latch_cs = 1'b1;
                         3'b100: bank_cs      = 1'b1;
-                        3'b110: OKOUT_cs     = 1'b1;
+                        3'b110: OKOUT        = 1'b1;
                         3'b111: SECWR_cs     = 1'b1;
                         default:;
                     endcase
@@ -180,13 +183,16 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
+wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
+wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
+
 jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),
-    .addr       ( A[12:0]   ),
+    .addr       ( RAM_addr  ),
     .data       ( cpu_dout  ),
-    .we         ( cpu_ram_we),
-    .q          ( ram_dout  )
+    .we         ( RAM_we    ),
+    .q          ( ram_dout  )    
 );
 
 // Data bus input
@@ -316,7 +322,8 @@ T80s u_cpu(
     .M1_n       ( m1_n        ),
     .MREQ_n     ( mreq_n      ),
     .NMI_n      ( 1'b1        ),
-    .BUSRQ_n    ( 1'b1        ),
+    .BUSRQ_n    ( ~bus_req    ),
+    .BUSAK_n    ( busak_n     ),
     .RFSH_n     ( rfsh_n      ),
     .out0       ( 1'b0        )
 );
@@ -329,7 +336,7 @@ tv80s #(.Mode(0)) u_cpu (
     .wait_n ( wait_n     ),
     .int_n  ( int_n      ),
     .nmi_n  ( 1'b1       ),
-    .busrq_n( 1'b1       ),
+    .busrq_n( ~bus_req   ),
     .rd_n   ( rd_n       ),
     .wr_n   ( wr_n       ),
     .A      ( A          ),
@@ -339,8 +346,8 @@ tv80s #(.Mode(0)) u_cpu (
     .m1_n   ( m1_n       ),
     .mreq_n ( mreq_n     ),
     .rfsh_n ( rfsh_n     ),
+    .busak_n( busak_n    ),
     // unused
-    .busak_n(),
     .halt_n ()
 );
 `endif

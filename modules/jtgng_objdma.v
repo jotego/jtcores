@@ -35,7 +35,6 @@ module jtgng_objdma(
 );
 
 reg [1:0] bus_state;
-reg over96;
 
 localparam ST_IDLE=2'd0, ST_WAIT=2'd1,ST_BUSY=2'd2;
 localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;

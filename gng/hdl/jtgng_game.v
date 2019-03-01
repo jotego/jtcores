@@ -153,6 +153,7 @@ jtgng_main u_main(
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
+    .bus_ack    ( bus_ack       ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
@@ -166,7 +167,6 @@ jtgng_main u_main(
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
     .flip       ( flip          ),
-    .bus_ack    ( bus_ack       ),
     .cpu_AB     ( cpu_AB        ),
     .RnW        ( RnW           ),
     .rom_addr   ( main_addr     ),

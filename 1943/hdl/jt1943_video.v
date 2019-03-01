@@ -17,7 +17,7 @@
     Date: 19-2-2019 */
 
 module jt1943_video(
-    input               rst,    
+    input               rst,
     input               clk,
     input               cen6,
     input               cen3,
@@ -53,15 +53,22 @@ module jt1943_video(
     input       [15:0]  map1_data,
     input       [15:0]  map2_data,
     // OBJ
-    input               obj_cs,
     input               OBJON,
-    input               HINIT,    
+    input               HINIT,
     output      [14:0]  obj_addr,
-    input       [15:0]  objrom_data,    
+    input       [15:0]  objrom_data,
+    // shared bus
+    output      [12:0]  obj_AB,
+    input        [7:0]  DB,
+    input        [7:0]  main_ram,
+    input               OKOUT,
+    output              bus_req,   // Request bus
+    input               bus_ack,   // bus acknowledge
+    output              blcnten,   // bus line counter enable
     // Color Mix
     input               LVBL,
-    input               LHBL,       
-    input               LHBL_obj,       
+    input               LHBL,
+    input               LHBL_obj,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue,
@@ -115,7 +122,7 @@ jt1943_char #(.HOFFSET(scrchr_off)) u_char (
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     )
 );
-`else 
+`else
 assign char_wait_n = 1'b1;
 assign char_pxl = 4'hf;
 `endif
@@ -137,7 +144,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else 
+    `else
     .SCxON        ( 1'b1          ),
     .vpos         ( 8'd0          ),
     .flip         ( 1'b0          ),
@@ -149,7 +156,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .prog_addr    ( prog_addr     ),
     .prom_msb_we  ( prom_6l_we    ),
     .prom_lsb_we  ( prom_7l_we    ),
-    .prom_din     ( prog_din      ),    
+    .prom_din     ( prog_din      ),
 
     // ROM
     .map_addr     ( map1_addr     ),
@@ -178,7 +185,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .SCxON        ( SC2ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else 
+    `else
     .SCxON        ( 1'b1          ),
     .vpos         ( 8'd0          ),
     .flip         ( 1'b0          ),
@@ -191,7 +198,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .prog_addr    ( prog_addr     ),
     .prom_msb_we  ( prom_12l_we   ),
     .prom_lsb_we  ( prom_12m_we   ),
-    .prom_din     ( prog_din      ),    
+    .prom_din     ( prog_din      ),
 
     // ROM
     .map_addr     ( map2_addr     ),
@@ -200,7 +207,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
     .scrom_data   ( scr2_data     ),
     .scr_pxl      ( scr2_pxl      )
 );
-`else 
+`else
 assign scr1_pxl  = ~6'h0;
 assign scr1_addr = 17'h0;
 assign map1_addr = 14'h0;
@@ -228,8 +235,8 @@ jt1943_colmix u_colmix (
     .prom_12a_we( prom_12a_we   ),
     .prom_13a_we( prom_13a_we   ),
     .prom_14a_we( prom_14a_we   ),
-    .prom_12c_we( prom_12c_we   ),    
-    .prom_din   ( prog_din      ),    
+    .prom_12c_we( prom_12c_we   ),
+    .prom_din   ( prog_din      ),
     // output
     .red        ( red           ),
     .green      ( green         ),
@@ -240,12 +247,12 @@ assign  red = 4'd0;
 assign blue = 4'd0;
 assign green= 4'd0;
 `endif
-/*
-jt1943_obj u_obj(   
+
+jt1943_obj u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( cen6      ),
-    .cen3           ( cen3      ),
+    //.cen3           ( cen3      ),
     // screen
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
@@ -254,22 +261,25 @@ jt1943_obj u_obj(
     .H              ( H         ),
     .flip           ( flip      ),
     // CPU bus
-    .AB             ( cpu_AB[6:0] ),
-    .DB             ( cpu_dout    ),
-    .obj_cs         ( obj_cs      ),
-    .wr_n           ( wr_n        ),
+    .AB             ( obj_AB    ),
+    .DB             ( main_ram  ),
+    // shared bus
+    .OKOUT          ( OKOUT     ),
+    .bus_req        ( bus_req   ),        // Request bus
+    .bus_ack        ( bus_ack   ),    // bus acknowledge
+    .blen           ( blcnten   ),   // bus line counter enable
     // SDRAM interface
-    .obj_addr       ( obj_addr    ),
-    .objrom_data    ( objrom_data ),
+    //.obj_addr       ( obj_addr    ),
+    .objrom_data    ( objrom_data )
     // PROMs
-    .prog_addr      ( prog_addr   ),
-    .prom_m11_we    ( prom_m11_we ),
-    .prom_k3_we     ( prom_k3_we  ),
-    .prog_din       ( prog_din    ),
+    // .prog_addr      ( prog_addr   ),
+    // .prom_m11_we    ( prom_m11_we ),
+    // .prom_k3_we     ( prom_k3_we  ),
+    // .prog_din       ( prog_din    ),
     // pixel output
-    .obj_pxl        ( obj_pxl   )
+    //.obj_pxl        ( obj_pxl   )
 );
-*/
+
 assign obj_addr = 15'd0;
 assign obj_pxl  = ~8'd0;
 
