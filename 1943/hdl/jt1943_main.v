@@ -75,7 +75,7 @@ reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
 reg SECWR_cs, OKOUT_cs;
 
 wire mreq_n, rfsh_n;
-assign cpu_cen = cen3;
+assign cpu_cen = cen6;
 
 always @(*) begin
     main_cs       = 1'b0;

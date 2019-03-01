@@ -104,7 +104,13 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( main_addr       ),
-    .addr_ok  ( main_cs         ),
+    .addr_ok  ( 1'b1            ), // it could be main_cs instead of 1'b1
+        // but that would not allow the main CPU to run at 6MHz
+        // because the main_cs signal is delayed with respect to the
+        // address bus. There is a delay of 250ns (SDRAM CLK=108MHz) from
+        // address set to data available to the requester. 
+        // main_cs gets asserted when mreq_n goes low but address bus holds
+        // the address one clock cycle earlier.
     .addr_req ( main_addr_req   ),
     .din      ( data_read       ),
     .dout     ( main_dout       ),
