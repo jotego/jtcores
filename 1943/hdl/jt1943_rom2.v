@@ -223,14 +223,6 @@ end else if(cen12) begin
             sdram_addr <= char_offset + { 8'b0, char_addr_req };
             data_sel   <= 'b10;
         end
-        map2_req: begin
-            sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
-            data_sel   <= 'b1000;
-        end
-        scr2_req: begin
-            sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
-            data_sel   <= 'b10_0000;
-        end     
         map1_req: begin
             sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
             data_sel   <= 'b100;
@@ -239,6 +231,14 @@ end else if(cen12) begin
             sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
             data_sel   <= 'b1_0000;
         end
+        map2_req: begin
+            sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
+            data_sel   <= 'b1000;
+        end
+        scr2_req: begin
+            sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
+            data_sel   <= 'b10_0000;
+        end     
         obj_req: begin
             sdram_addr <= obj_offset + { 4'b0, obj_addr_req };
             data_sel   <= 'b100_0000;
