@@ -82,6 +82,7 @@ always @(posedge clk) if(cen6) begin
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end
 
+`ifndef TESTSCR1
 always @(posedge clk) 
     if( rst ) begin
         hpos <= 'd0;
@@ -89,6 +90,11 @@ always @(posedge clk)
         if( scrposh_cs[1] && !wr_n ) hpos[15:8] <= din;
         if( scrposh_cs[0] && !wr_n ) hpos[ 7:0] <= din;
     end
+`else 
+    initial hpos <= 'h100;
+    always @(negedge LVBL)
+        hpos <= hpos + 'h1;
+`endif
 
 wire [7:0] dout_high = map_data[ 7:0];
 wire [7:0] dout_low  = map_data[15:8];

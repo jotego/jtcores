@@ -155,10 +155,6 @@ case "$1" in
             exit 1
         fi        
         ;;        
-    "-ch")
-        CHR_DUMP=CHR_DUMP
-        echo Character dump enabled
-        ;;
     "-info")
         RAM_INFO=RAM_INFO
         echo RAM information enabled
@@ -189,7 +185,34 @@ case "$1" in
             exit 1
         fi
         ;;
-    *) echo "Unknown option $1"; exit 1;;
+    "-help")
+        cat << EOF
+JT_GNG simulation tool. (c) Jose Tejada 2019, @topapate
+    -mist   Use MiST setup for simulation, instead of using directly the
+            game module. This is slower but more informative.
+    -video  Enable video output
+    -lint   Run verilator as lint tool
+    -nc     Select NCVerilog as the simulator
+    -load   Load the ROM file using the SPI communication. Slower.
+    -t      Compile and load test file for main CPU. It can be used with the
+            name of an assembly language file.
+    -t2     Same as -t but for the sound CPU
+    -nochar Disable CHAR hardware. Faster simulation.
+    -noscr  Disable SCROLL hardware. Faster simulation.
+    -nosnd  Disable SOUND hardware. Speeds up simulation a lot!
+    -w      Save a small set of signals for scope verification
+    -deep   Save all signals for scope verification
+    -frame  Number of frames to simulate
+    -time   Number of milliseconds to simulate
+    -d      Add specific Verilog macros for the simulation. Common options
+        VIDEO_START=X   video output will start on frame X
+        TESTSCR1        disable scroll control by the CPU and scroll the 
+                        background automatically. It can be used together with
+                        NOMAIN macro
+EOF
+        exit 0
+        ;;
+    *) echo "Unknown option $1. Use -help to see the list of options"; exit 1;;
 esac
     shift
     ARGNUMBER=$((ARGNUMBER+1))

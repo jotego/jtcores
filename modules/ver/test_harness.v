@@ -57,7 +57,13 @@ end
 
 wire [15:0] video_dump = { 2'b0,VS,HS, red, green, blue  };
 
-always @(posedge clk) if(cen6) begin
+// Define VIDEO_START with the first frame number for which
+// video will be dumped. If undefined, it will start from frame 0
+`ifndef VIDEO_START
+`define VIDEO_START 0
+`endif
+
+always @(posedge clk) if(cen6 && frame_cnt>=`VIDEO_START ) begin
     $fwrite(fvideo,"%u", video_dump);
 end
 `endif

@@ -144,7 +144,8 @@ always @(posedge clk)
             coin_cnt <= |cpu_dout[1:0];
             bank     <= cpu_dout[4:2];
             `ifdef SIMULATION
-            $display("Bank changed to %d", cpu_dout[4:2]);
+                if(cpu_dout[4:2]!=bank)
+                    $display("INFO: Bank changed to %d", cpu_dout[4:2]);
             `endif
         end
         if( scrposv_cs ) scrposv <= cpu_dout;
