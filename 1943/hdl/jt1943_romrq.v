@@ -21,6 +21,7 @@ module jt1943_romrq #(parameter AW=18, DW=8, INVERT_A0=0 )(
     input               clk, 
     input               cen,
     input [AW-1:0]      addr,
+    input               addr_ok,
     input [31:0]        din,
     input               we,
     output reg          req,
@@ -39,7 +40,7 @@ always @(*) begin
         16: addr_req = {addr[AW-1:1],1'b0};
         32: addr_req = addr;
     endcase 
-    req = init || (addr_req !== cached_addr );
+    req = init || ((addr_req !== cached_addr) && addr_ok);
 end
 
 always @(posedge clk) 

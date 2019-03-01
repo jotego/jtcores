@@ -27,6 +27,7 @@ module jt1943_rom2(
     output  reg         sdram_re, // any edge (rising or falling) 
         // means a read request
 
+    input               main_cs,
     input       [13:0]  char_addr, //  32 kB
     input       [17:0]  main_addr, // 160 kB, addressed as 8-bit words
     input       [17:0]  obj_addr,  // 256 kB
@@ -96,11 +97,14 @@ wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
+wire blank_b = LVBL && LHBL;
+
 jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( main_addr       ),
+    .addr_ok  ( main_cs         ),
     .addr_req ( main_addr_req   ),
     .din      ( data_read       ),
     .dout     ( main_dout       ),
@@ -113,6 +117,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_char(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( char_addr       ),
+    .addr_ok  ( blank_b         ),
     .addr_req ( char_addr_req   ),
     .din      ( data_read       ),
     .dout     ( char_dout       ),
@@ -125,6 +130,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( map1_addr       ),
+    .addr_ok  ( LVBL            ),    
     .addr_req ( map1_addr_req   ),
     .din      ( data_read       ),
     .dout     ( map1_dout       ),
@@ -137,6 +143,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map2(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( map2_addr       ),
+    .addr_ok  ( LVBL            ),    
     .addr_req ( map2_addr_req   ),
     .din      ( data_read       ),
     .dout     ( map2_dout       ),
@@ -149,6 +156,7 @@ jt1943_romrq #(.AW(17),.DW(16)) u_scr1(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( scr1_addr       ),
+    .addr_ok  ( LVBL            ),
     .addr_req ( scr1_addr_req   ),
     .din      ( data_read       ),
     .dout     ( scr1_dout       ),
@@ -161,6 +169,7 @@ jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( scr2_addr       ),
+    .addr_ok  ( LVBL            ),
     .addr_req ( scr2_addr_req   ),
     .din      ( data_read       ),
     .dout     ( scr2_dout       ),
@@ -173,12 +182,24 @@ jt1943_romrq #(.AW(18),.DW(16)) u_obj(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( obj_addr        ),
+    .addr_ok  ( 1'b1            ),
     .addr_req ( obj_addr_req    ),
     .din      ( data_read       ),
     .dout     ( obj_dout        ),
     .req      ( obj_req         ),
     .we       ( data_sel[6]     )
 );
+
+`ifdef SIMULATION
+real busy_cnt=0, total_cnt=0;
+always @(posedge clk) begin
+    total_cnt <= total_cnt + 1;
+    if( |data_sel ) busy_cnt <= busy_cnt+1;
+end
+always @(posedge LVBL) begin
+    $display("INFO: frame ROM stats: %.0f %%", 100.0*busy_cnt/total_cnt);
+end
+`endif
 
 always @(posedge clk) 
 if( loop_rst || downloading ) begin

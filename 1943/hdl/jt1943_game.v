@@ -169,7 +169,7 @@ wire prom_4k_we  = prom_we[12];
 wire [1:0] scr1posh_cs, scr2posh_cs;
 
 wire CHON, OBJON, SC2ON, SC1ON;
-wire cpu_cen;
+wire cpu_cen, main_cs;
 
 `ifndef NOMAIN
 jt1943_main u_main(
@@ -204,6 +204,8 @@ jt1943_main u_main(
     .cpu_AB     ( cpu_AB        ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
+    // ROM
+    .main_cs    ( main_cs       ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_dout     ),
     // Cabinet input
@@ -333,7 +335,7 @@ jt1943_rom2 u_rom (
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
     .sdram_re    ( sdram_re      ),
-    
+    .main_cs     ( main_cs       ),
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
     .obj_addr    ( obj_addr      ),  // 256 kB

@@ -59,6 +59,7 @@ module jt1943_main(
     output             rd_n,
     output             wr_n,
     // ROM access
+    output  reg        main_cs,
     output  reg [17:0] rom_addr,
     input       [ 7:0] rom_data,
     // DIP switches
@@ -70,7 +71,7 @@ module jt1943_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
-reg main_cs, in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
+reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
 reg SECWR_cs, OKOUT_cs;
 
 wire mreq_n, rfsh_n;
