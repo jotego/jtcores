@@ -16,9 +16,9 @@
     Version: 1.0
     Date: 20-1-2019 */
 
-// 1942 Object Line Buffer
+// Object Line Buffer
 
-module jt1942_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0)(
+module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0)(
     input              rst,
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz

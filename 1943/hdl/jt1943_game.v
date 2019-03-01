@@ -122,7 +122,7 @@ wire [1:0] scr1pos_cs, scr2pos_cs;
 
 // ROM data
 wire [17:0]  main_addr;
-wire [17:0]  obj_addr;
+wire [16:0]  obj_addr;
 wire [16:0]  scr1_addr;
 wire [14:0]  snd_addr, scr2_addr;
 wire [13:0]  char_addr, map1_addr, map2_addr;

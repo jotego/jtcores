@@ -20,6 +20,7 @@ module jt1943_obj(
     input              rst,
     input              clk,
     input              cen6,
+    input              OBJON,
     // screen
     input              HINIT,
     input              LHBL,
@@ -34,11 +35,16 @@ module jt1943_obj(
     output             bus_req,        // Request bus
     input              bus_ack,    // bus acknowledge
     output             blen,   // bus line counter enable
+    // Palette PROM
+    input   [7:0]      prog_addr,
+    input              prom_7c_we,
+    input              prom_8c_we,
+    input   [3:0]      prog_din, 
     // SDRAM interface
-    output      [15:0] obj_addr,
+    output      [16:0] obj_addr,
     input       [15:0] objrom_data,
     // pixel output
-    output       [5:0] obj_pxl
+    output       [7:0] obj_pxl
 );
 
 wire [8:0] pre_scan;
@@ -102,20 +108,19 @@ jtgng_objbuf u_buf(
     .pxlcnt         ( pxlcnt        ),
     .line           ( line          )
 );
-/*
+
 wire [8:0] posx;
-wire [1:0] pospal;
-wire [3:0] new_pxl;
+wire [7:0] new_pxl;
 
 // draw the sprite
-jtgng_objdraw u_draw(
+jt1943_objdraw u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
+    .OBJON          ( OBJON         ),
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
-    .posx           ( posx          ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),
@@ -123,12 +128,12 @@ jtgng_objdraw u_draw(
     .obj_addr       ( obj_addr      ),
     .objrom_data    ( objrom_data   ),
     // pixel data
-    .pospal         ( pospal        ),
+    .posx           ( posx          ),
     .new_pxl        ( new_pxl       )
 );
 
 // line buffers for pixel data
-jt1942_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
+jtgng_objpxl #(.dw(8),.obj_dly(5'hf)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -141,9 +146,8 @@ jt1942_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
     .posx           ( posx          ),
     .line           ( line          ),
     // pixel data
-    // .pospal         ( pospal        ),
-    .new_pxl        ( {pospal, new_pxl}       ),
+    .new_pxl        ( new_pxl       ),
     .obj_pxl        ( obj_pxl       )
 );
-*/
+
 endmodule // jtgng_char

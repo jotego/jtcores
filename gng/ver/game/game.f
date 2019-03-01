@@ -3,13 +3,13 @@
 ../../hdl/jtgng_game.v
 ../../hdl/jtgng_main.v
 ../../hdl/jtgng_obj.v
-../../hdl/jtgng_objdma.v
-../../hdl/jtgng_objbuf.v
-../../hdl/jtgng_objdraw.v
-../../../1942/hdl/jt1942_objpxl.v
 ../../hdl/jtgng_scroll.v
 ../../hdl/jtgng_sound.v
 ../../hdl/jtgng_video.v
+../../../modules/jtgng_objdma.v
+../../../modules/jtgng_objbuf.v
+../../../modules/jtgng_objpxl.v
+../../../modules/jtgng_objdraw.v
 ../../../modules/mc6809/mc6809.v
 ../../../modules/mc6809/mc6809i.v
 ../../../modules/jtgng_vga.v

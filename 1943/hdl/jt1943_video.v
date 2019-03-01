@@ -55,7 +55,7 @@ module jt1943_video(
     // OBJ
     input               OBJON,
     input               HINIT,
-    output      [14:0]  obj_addr,
+    output      [16:0]  obj_addr,
     input       [15:0]  objrom_data,
     // shared bus
     output      [12:0]  obj_AB,
@@ -86,7 +86,10 @@ module jt1943_video(
     input               prom_6l_we,
     input               prom_7l_we,
     input               prom_12l_we,
-    input               prom_12m_we
+    input               prom_12m_we,
+        // obj
+    input               prom_7c_we,
+    input               prom_8c_we
 );
 
 wire [3:0] char_pxl;
@@ -254,6 +257,7 @@ jt1943_obj u_obj(
     .cen6           ( cen6      ),
     //.cen3           ( cen3      ),
     // screen
+    .OBJON          ( OBJON     ),
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
     .LVBL           ( LVBL      ),
@@ -269,18 +273,15 @@ jt1943_obj u_obj(
     .bus_ack        ( bus_ack   ),    // bus acknowledge
     .blen           ( blcnten   ),   // bus line counter enable
     // SDRAM interface
-    //.obj_addr       ( obj_addr    ),
-    .objrom_data    ( objrom_data )
+    .obj_addr       ( obj_addr    ),
+    .objrom_data    ( objrom_data ),
     // PROMs
-    // .prog_addr      ( prog_addr   ),
-    // .prom_m11_we    ( prom_m11_we ),
-    // .prom_k3_we     ( prom_k3_we  ),
-    // .prog_din       ( prog_din    ),
+    .prog_addr      ( prog_addr   ),
+    .prom_7c_we     ( prom_7c_we  ),
+    .prom_8c_we     ( prom_8c_we  ),
+    .prog_din       ( prog_din    ),
     // pixel output
-    //.obj_pxl        ( obj_pxl   )
+    .obj_pxl        ( obj_pxl     )
 );
-
-assign obj_addr = 15'd0;
-assign obj_pxl  = ~8'd0;
 
 endmodule // jtgng_video

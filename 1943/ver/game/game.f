@@ -10,6 +10,7 @@
 ../../hdl/jt1943_rom2.v
 ../../hdl/jt1943_romrq.v
 ../../hdl/jt1943_obj.v
+../../hdl/jt1943_objdraw.v
 ../../../modules/jtgng_vga.v
 ../../../modules/jtgng_vgapxl.v
 ../../../modules/jtgng_cen.v
@@ -22,6 +23,7 @@
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objbuf.v
+../../../modules/jtgng_objpxl.v
 ../../../modules/mist/data_io.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v

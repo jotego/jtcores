@@ -30,7 +30,7 @@ module jt1943_rom2(
     input               main_cs,
     input       [13:0]  char_addr, //  32 kB
     input       [17:0]  main_addr, // 160 kB, addressed as 8-bit words
-    input       [17:0]  obj_addr,  // 256 kB
+    input       [16:0]  obj_addr,  // 256 kB
     input       [16:0]  scr1_addr, // 256 kB (16-bit words)
     input       [14:0]  scr2_addr, //  64 kB
     input       [13:0]  map1_addr, //  32 kB
@@ -91,7 +91,7 @@ reg [6:0] data_sel;
 wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req;
 wire [17:0] main_addr_req;
 wire [13:0] char_addr_req;
-wire [17:0] obj_addr_req;
+wire [16:0] obj_addr_req;
 wire [16:0] scr1_addr_req;
 wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
@@ -183,7 +183,7 @@ jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
     .we       ( data_sel[5]     )
 );
 
-jt1943_romrq #(.AW(18),.DW(16)) u_obj(
+jt1943_romrq #(.AW(17),.DW(16)) u_obj(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( cen12           ),
@@ -240,7 +240,7 @@ end else if(cen12) begin
             data_sel   <= 'b10_0000;
         end     
         obj_req: begin
-            sdram_addr <= obj_offset + { 4'b0, obj_addr_req };
+            sdram_addr <= obj_offset + { 5'b0, obj_addr_req };
             data_sel   <= 'b100_0000;
         end
         default: data_sel <= 'b0;

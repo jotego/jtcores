@@ -111,7 +111,6 @@ jtgng_objdraw u_draw(
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
-    .posx           ( posx          ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),
@@ -119,12 +118,13 @@ jtgng_objdraw u_draw(
     .obj_addr       ( obj_addr      ),
     .objrom_data    ( objrom_data   ),
     // pixel data
+    .posx           ( posx          ),
     .pospal         ( pospal        ),
     .new_pxl        ( new_pxl       )
 );
 
 // line buffers for pixel data
-jt1942_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
+jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz

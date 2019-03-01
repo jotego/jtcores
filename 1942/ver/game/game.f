@@ -9,10 +9,10 @@
 ../../hdl/jt1942_obj.v
 ../../hdl/jt1942_objram.v
 ../../hdl/jt1942_objdraw.v
-../../hdl/jt1942_objpxl.v
 ../../hdl/jt1942_objtiming.v
 ../../../modules/jtgng_vga.v
 ../../../modules/jtgng_vgapxl.v
+../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_clk_ram.v
 ../../../modules/jtgng_dual_ram.v
