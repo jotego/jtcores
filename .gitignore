@@ -8,7 +8,9 @@
 *.lst
 *.bin
 *.log
+*.png
 sim
+1943/mist/*
 1942/mist/db
 1942/zxuno/*
 1942/mist/*
@@ -16,11 +18,12 @@ sim
 1942/mist/incremental_db
 1942/ver/game/.simvision
 1942/ver/game/ncverilog.*
-gng/mist/db
+gng/mist/*
 gng/mist/incremental_db
 gng/ver/game/.simvision
 gng/ver/game/ncverilog.*
 rom/1942/*
+rom/1943*/*
 rom/gngroms/*
 rom/*zip
 *.smsg
