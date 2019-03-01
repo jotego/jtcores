@@ -93,17 +93,17 @@ wire dip_flip = status[32'hb];
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire game_pause;
-`ifdef SIMULATION
-wire dip_pause = 1'b0; // ~status[1];
-`else 
-wire dip_pause = ~status[1] & ~game_pause;
-`endif
-
 //`ifdef SIMULATION
-//wire dip_test  = 1'b0;
-//`else
-wire dip_test  = ~status[4];
+//wire dip_pause = 1'b0; // ~status[1];
+//`else 
+wire dip_pause = ~status[1] & ~game_pause;
 //`endif
+
+`ifdef SIMULATION
+wire dip_test  = 1'b1;
+`else
+wire dip_test  = ~status[4];
+`endif
 
 wire dip_upright = 1'b1;
 wire dip_credits2p = 1'b1;
@@ -218,13 +218,13 @@ reg game_rst;
 always @(negedge clk_rgb)
     game_rst <= downloading | rst | rst_req;
 
-`ifdef SIMULATION
-reg autofire=1'b0;
-always @(negedge vs) autofire<=~autofire;
-assign game_joystick1[4] = autofire;
-assign game_joystick1[3:0] = ~4'd0;
-assign game_joystick1[6:5] = ~2'd0;
-`endif
+//`ifdef SIMULATION
+//reg autofire=1'b0;
+//always @(negedge vs) autofire<=~autofire;
+//assign game_joystick1[4] = autofire;
+//assign game_joystick1[3:0] = ~4'd0;
+//assign game_joystick1[6:5] = ~2'd0;
+//`endif
 
 jt1943_game u_game(
     .rst         ( game_rst      ),

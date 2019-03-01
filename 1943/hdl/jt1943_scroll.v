@@ -73,7 +73,8 @@ always @(posedge clk) if(cen6) begin
     // always update the map at the same pixel count
     //if( SH[2:0]==3'd0 ) begin
         HS[4:3] <= SH[4:3];
-        map_addr <= { PIC, SH[7:5], SV[7:5] };
+        map_addr <= { PIC, SH[7:6], SV[7:5], SH[5] }; // SH[5] is LSB
+            // in order to optimize cache use
     //end
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end

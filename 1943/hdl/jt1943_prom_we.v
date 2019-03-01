@@ -31,8 +31,9 @@ module jt1943_prom_we(
 );
 
 localparam SNDADDR=22'h14_000*2, CHARADDR=22'h18_000*2,
-    SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2;
+    SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2, MAP1ADDR=22'h1C_000<<1;
 wire [21:0] scr_start = ioctl_addr - SCR1ADDR;
+wire [21:0] map_start = ioctl_addr - MAP1ADDR;
 
 reg set_strobe, set_done;
 reg [12:0] prom_we0;
@@ -52,18 +53,24 @@ always @(posedge clk_rom) begin
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
-        if(ioctl_addr < SCR1ADDR) begin
+        if(ioctl_addr < MAP1ADDR) begin
             if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR) begin // Sound ROM
                 prom_we0   <= 13'h10_00;
                 set_strobe <= 1'b1;
                 prog_we    <= 1'b0; // Do not write this on the SDRAM
                 prog_addr  <= ioctl_addr - SNDADDR;
                 prog_mask <= 2'b11;
-            end else begin
+            end else begin // Main ROM, CHAR ROM
                 prog_addr <= {1'b0, ioctl_addr[21:1]};
                 prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             end
         end
+        else if(ioctl_addr < SCR1ADDR) begin // MAP1+MAP2
+            // MAP data is reordered so reads hit consequitive addresses
+            // this optimizes cache usage.
+            prog_addr <= MAP1ADDR[21:1] + {map_start[21:5], map_start[3:1], map_start[4]};
+            prog_mask <= {map_start[0], ~map_start[0]};
+        end        
         else if(ioctl_addr < ROMEND) begin // SCR + OBJ
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], scr_start[14:0]};
             prog_mask <= { scr_start[15], ~scr_start[15]};
