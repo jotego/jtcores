@@ -54,7 +54,10 @@ parameter HOFFSET=9'd5;
 parameter SIMFILE_MSB="", SIMFILE_LSB="";
 parameter AS8MASK = 1'b1;
 
-wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
+// H goes from 80h to 1FFh
+wire [8:0] Hfix_prev = H+HOFFSET;
+wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
+
 reg  [ 4:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
