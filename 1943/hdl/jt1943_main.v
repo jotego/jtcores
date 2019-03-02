@@ -202,7 +202,7 @@ wire irq_ack = !iorq_n && !m1_n;
 
 always @(*)
     case( {ram_cs, char_cs, main_cs, in_cs} )
-        4'b10_00: cpu_din =  //(cheat_invincible && A==16'he0a5) ? 8'h2 : 
+        4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 : 
                             ram_dout;
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;

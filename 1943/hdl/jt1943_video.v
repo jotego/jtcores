@@ -106,7 +106,7 @@ jt1943_char #(.HOFFSET(scrchr_off)) u_char (
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V128       ( V[7:0]        ),
-    .H128       ( H[7:0]        ),
+    .H          ( H             ),
     .char_cs    ( char_cs       ),
     .CHON       ( CHON          ),
     .flip       ( flip          ),

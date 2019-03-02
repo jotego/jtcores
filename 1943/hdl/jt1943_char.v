@@ -26,7 +26,7 @@ module jt1943_char(
     input            CHON,
     input   [10:0]   AB,
     input   [ 7:0]   V128, // V128-V1
-    input   [ 7:0]   H128, // Hfix-H1
+    input   [ 8:0]   H, // Hfix-H1
     input            char_cs, // DOCS in schematics
     input            flip,
     input   [ 7:0]   din,
@@ -49,7 +49,9 @@ parameter HOFFSET=8'd5;
 reg [4:0] char_pal;
 reg [1:0] char_col;
 
-wire [7:0] Hfix = H128 + HOFFSET; // Corrects pixel output offset
+// H goes from 80h to 1FFh
+wire [8:0] Hfix_prev = H+HOFFSET;
+wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
 
 wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
@@ -89,7 +91,7 @@ jtgng_ram #(.aw(10),.synfile("1943_msg.hex"),.simfile("1943_msg.bin")) u_ram_msg
 );
 
 always @(*) begin
-    dout_low  = pause ? mem_msg  : mem_low;
+    dout_low  = pause ? mem_msg : mem_low;
     dout_high = pause ? 8'h2    : mem_high;
 end
 
@@ -102,7 +104,7 @@ always @(posedge clk) if(cpu_cen)
 
 // Draw pixel on screen
 reg [15:0] chd;
-reg [4:0] char_attr0, char_attr1, char_attr2;
+reg [4:0] char_attr0, char_attr2;
 
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
@@ -110,7 +112,6 @@ always @(posedge clk) if(cen6) begin
     // 4 pixels from processing the x,y,z and attr info.    
     if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
-        char_attr1 <= char_attr0;
         char_attr0 <= dout_high[4:0];
         char_addr  <= { {dout_high[7:5], dout_low}, V128[2:0] };
     end
@@ -119,7 +120,7 @@ always @(posedge clk) if(cen6) begin
     case( Hfix[2:0] )
         3'd1: begin
             chd <= !flip ? {char_data[7:0],char_data[15:8]} : char_data;
-            char_attr2 <= char_attr1;
+            char_attr2 <= char_attr0;
         end
         3'd5: 
             chd[7:0] <= chd[15:8];
