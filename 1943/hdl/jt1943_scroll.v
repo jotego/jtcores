@@ -59,7 +59,7 @@ wire [8:0] Hfix_prev = H+HOFFSET;
 wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
 
 reg  [ 4:0] HS;
-reg  [ 7:0] VF, SV, SH, PIC;
+reg  [ 7:0] VF, SV, SH, PIC, PIC2,SH2;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
 reg  [15:0] hpos, SP; // called "SP" on the schematics
 
@@ -70,14 +70,15 @@ always @(*) begin
     VF = {8{flip}}^V128;
     SV = VF + vpos;
     {PIC, SH }  = SP + { {6{SCHF[9]}},SCHF };
+    {PIC2, SH2 }  = hpos + { {6{SCHF[9]}},SCHF };
 end
 
 always @(posedge clk) if(cen6) begin
     // always update the map at the same pixel count
-    if( SH[2:0] == 3'd7 ) SP <= hpos;
-    if( SH[2:0]==3'd0 ) begin
-        HS[4:3] <= SH[4:3];
-        map_addr <= { PIC, SH[7:6], SV[7:5], SH[5] }; // SH[5] is LSB
+    if( SH[2:0]==3'd7 ) begin
+        SP <= hpos;
+        HS[4:3] <= SH2[4:3];
+        map_addr <= { PIC2, SH2[7:6], SV[7:5], SH2[5] }; // SH[5] is LSB
             // in order to optimize cache use
     end
     HS[2:0] <= SH[2:0] ^ {3{flip}};
