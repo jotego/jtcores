@@ -80,7 +80,7 @@ always @(posedge clk)
                 end
                 else begin
                     line_obj_we <= 1'b0;
-                    if( (ram_dout-8'd3)<=VF && (ram_dout+8'd12)>=VF  ) begin
+                    if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
                         pre_scan[1:0] <= 2'd0;
                         trf_next  <= TRANSFER;
                         trf_state <= WAIT;
