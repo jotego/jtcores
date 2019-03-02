@@ -60,6 +60,7 @@ module jtgng_main(
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_dout,
     // DIP switches
+    input              dip_pause,
     input              dip_flip,
     input  [1:0]       dip_lives,
     input  [1:0]       dip_level,
@@ -227,7 +228,7 @@ mc6809 u_cpu (
     .RnW     ( RnW     ),
     .BS      ( BS      ),
     .BA      ( BA      ),
-    .nIRQ    ( nIRQ    ),
+    .nIRQ    ( nIRQ | dip_pause ),
     .nFIRQ   ( 1'b1    ),
     .nNMI    ( 1'b1    ),
     .EXTAL   ( EXTAL   ),
@@ -295,27 +296,5 @@ cpu09 u_cpu(
     .opfetch (           )
 );
 `endif
-/*
-`ifndef VERILATOR_LINT
-wire VMA;
-mc6809_cen cpu (
-    .clk     ( clk     ),
-    .clk_en  ( cen6    ),
-    .D       ( cpu_din ),
-    .DOut    ( cpu_dout),
-    .ADDR    ( A       ),
-    .RnW     ( RnW     ),
-    .BS      ( BS      ),
-    .BA      ( BA      ),
-    .nIRQ    ( nIRQ    ),
-    .nFIRQ   ( 1'b1    ),
-    .nNMI    ( 1'b1    ),
-    .nHALT   ( ~bus_req),
-    .nRESET  ( nRESET  ),
-    .MRDY    ( MRDY_b  ),
-    .nDMABREQ( 1'b1    ),
-    .VMA     ( VMA     )
-);
-`endif
-*/
+
 endmodule // jtgng_main

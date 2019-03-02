@@ -53,19 +53,20 @@ module jtgng_mist(
 localparam CONF_STR = {
     //   000000000111111111122222222223
     //   123456789012345678901234567890
-        "JTGNG;;",
-        "O1,Test mode,OFF,ON;",
-        "O2,Cabinet mode,OFF,ON;",
-        "O3,PSG ,ON,OFF;",
-        "O4,FM  ,ON,OFF;",
-        "O56,Lives,3,4,5,6;",
-        "O78,Difficulty,easy,normal,hard,very hard;",
-        "O9,Screen filter,OFF,ON;",
-        "TA,Reset;",
-        "V,http://patreon.com/topapate;"
+        "JTGNG;;", // 7
+        "O1,Pause,OFF,ON;", // 16
+        "F,rom;", // 6    
+        "O23,Difficulty,easy,normal,hard,very hard;", // 42
+        "O4,Test mode,OFF,ON;", // 20
+        "O7,PSG ,ON,OFF;", // 15
+        "O8,FM  ,ON,OFF;", // 15
+        "O9A,Lives,3,4,5,6;", // 18
+        "OB,Screen filter,OFF,ON;", // 24
+        "TF,Reset;", // 9
+        "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 7+20+23+15+15+ 18+42+ 24+9+30;
+localparam CONF_STR_LEN = 7+16+6+42+20+15+15+18+24+9+30;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -81,13 +82,18 @@ wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          coin_cnt = 1'b0; // To do: check if GnG provided this output
 
-wire [1:0]    dip_level = ~status[8:7];
-wire [1:0]    dip_lives = ~status[6:5];
+wire          game_pause;
+wire          rst_req   = status[32'hf];
+wire [1:0]    dip_level = ~status[3:2];
+wire [1:0]    dip_lives = ~status[10:9];
 wire [1:0]    dip_bonus = 2'b11;
+wire          dip_pause = status[1] | game_pause;
+wire          dip_test  = ~status[4];
+wire          enable_psg = ~status[7], enable_fm = ~status[8];
+
 
 
 assign LED = ~downloading | coin_cnt | rst;
-wire rst_req = status[10];
 
 reg  [21:0]   prog_addr;
 reg  [ 7:0]   prog_data;
@@ -225,15 +231,16 @@ jtgng_game game(
     .enable_scr  ( 1'b1          ),
     .enable_obj  ( 1'b1          ),
     // DIP switches
+    .dip_pause      ( dip_pause  ),
     .dip_lives      ( dip_lives  ),
     .dip_level      ( dip_level  ),
     .dip_bonus      ( dip_bonus  ),
-    .dip_game_mode  ( ~status[1] ),
-    .dip_upright    ( status[2]  ),
+    .dip_game_mode  ( dip_test   ),
+    .dip_upright    ( 1'b1       ),
     .dip_attract_snd( 1'b1       ), // 0 for sound
     // sound
-    .enable_psg  ( ~status[3]    ),
-    .enable_fm   ( ~status[4]    ),
+    .enable_psg  ( enable_psg    ),
+    .enable_fm   ( enable_fm     ),
     .ym_snd      ( ym_snd        ),
     .sample      (               )
 );
@@ -251,7 +258,7 @@ jtgng_board #(.SIGNED_SND(1'b1))u_board(
     // VGA
     .cen6           ( cen6            ),
     .clk_vga        ( clk_vga         ),
-    .en_mixing      ( ~status[9]      ),    
+    .en_mixing      ( ~status['hb]    ),    
     .game_r         ( red             ),
     .game_g         ( green           ),
     .game_b         ( blue            ),

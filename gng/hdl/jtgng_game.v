@@ -21,7 +21,7 @@ module jtgng_game(
     input           soft_rst,
     input           clk,        // 24   MHz
     input           cen12,      // 12   MHz
-	 input           cen6,       //  6   MHz
+	input           cen6,       //  6   MHz
     input           cen3,       //  3   MHz
     input           cen1p5,     //  1.5 MHz
     output   [3:0]  red,
@@ -48,6 +48,7 @@ module jtgng_game(
     input           enable_obj,
     input           enable_scr,
     // DIP switches
+    input           dip_pause, // Not a DIP on the original PCB
     input   [ 1:0]  dip_lives,
     input   [ 1:0]  dip_level,
     input   [ 1:0]  dip_bonus,    
@@ -87,7 +88,7 @@ always @(posedge clk)
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
 
-wire LHBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj, Hsub;
 assign H0 = { H[2:0], Hsub } == 4'b0000;
 
 jtgng_timer u_timer(
@@ -102,6 +103,7 @@ jtgng_timer u_timer(
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
     .LVBL      ( LVBL     ),
+    .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
     .Vinit     (          )
@@ -176,6 +178,7 @@ jtgng_main u_main(
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),   
     // DIP switches
+    .dip_pause      ( dip_pause       ),
     .dip_flip       ( 1'b0            ),
     .dip_lives      ( dip_lives       ),
     .dip_level      ( dip_level       ),
@@ -252,6 +255,7 @@ jtgng_video u_video(
     .LHBL       ( LHBL          ),       
     .LHBL_obj   ( LHBL_obj      ),       
     .LVBL       ( LVBL          ),
+    .LVBL_obj   ( LVBL_obj      ),
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),    
     .enable_char( enable_char   ),

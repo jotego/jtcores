@@ -89,7 +89,7 @@ wire rom_ready;
 
 assign sample=1'b1;
 
-wire LHBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj, Hsub;
 
 reg rst_game;
 
@@ -108,6 +108,7 @@ jtgng_timer u_timer(
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
     .LVBL      ( LVBL     ),
+    .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
     .Vinit     (          )
@@ -317,6 +318,7 @@ jt1943_video u_video(
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
+    .LVBL_obj   ( LVBL_obj      ),
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),

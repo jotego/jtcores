@@ -67,6 +67,7 @@ module jt1943_video(
     output              blcnten,   // bus line counter enable
     // Color Mix
     input               LVBL,
+    input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
     output      [3:0]   red,
@@ -262,6 +263,7 @@ jt1943_obj u_obj(
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
     .LVBL           ( LVBL      ),
+    .LVBL_obj       ( LVBL_obj  ),
     .V              ( V         ),
     .H              ( H         ),
     .flip           ( flip      ),

@@ -29,6 +29,7 @@ module jtgng_timer(
     output  reg         LHBL,
     output  reg         LHBL_obj,
     output  reg         LVBL,
+    output  reg         LVBL_obj,
     output  reg         HS,
     output  reg         VS
 );
@@ -76,19 +77,34 @@ wire [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd
 wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 
 // L Horizontal/Vertical Blanking
+// Objects are drawn using a 2-line buffer
+// so they are calculated two lines in advanced
+// original games use a small ROM to generate
+// control signals for the object buffers. 
+// I do not always use that ROM in my games,
+// I often just generates the signals with logic
+// LVBL_obj is such a signal. In CAPCOM schematics
+// this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
 always @(posedge clk) 
-    if( rst ) LVBL <= 1'b0;
+    if( rst ) begin
+        LVBL <= 1'b0;
+        LVBL_obj <= 1'b0;
+    end
     else if(cen6) begin
         if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
         if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
         if( &H[2:0] ) begin
             LHBL <= H[8];
-        // LHBL <= H>=256;
-            if( V==9'd496 ) LVBL <= 1'b0; // h1F0
-            if( V==9'd272 ) LVBL <= 1'b1; // h110
+            case( V )
+                9'd496: LVBL <= 1'b0; // h1F0
+                9'd272: LVBL <= 1'b1; // h110
+                // OBJ LVBL is two lines ahead
+                9'd494: LVBL_obj <= 1'b0;
+                9'd270: LVBL_obj <= 1'b1;
 
-            if( V==9'd507 ) VS <= 1;
-            if( V==9'd510 ) VS <= 0;
+                9'd507: VS <= 1;
+                9'd510: VS <= 0;
+            endcase // V
         end
 
         if (H==9'd178) HS <= 1;

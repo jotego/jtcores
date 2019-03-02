@@ -25,6 +25,7 @@ module jt1943_obj(
     input              HINIT,
     input              LHBL,
     input              LVBL,
+    input              LVBL_obj,
     input   [ 7:0]     V,
     input   [ 8:0]     H,
     input              flip,
@@ -95,7 +96,7 @@ jtgng_objbuf u_buf(
     .cen6           ( cen6          ),    //  6 MHz
     // screen
     .HINIT          ( HINIT         ),
-    .LVBL           ( LVBL          ),
+    .LVBL           ( LVBL_obj      ),
     .V              ( V             ),
     .VF             ( VF            ),
     .flip           ( flip          ),

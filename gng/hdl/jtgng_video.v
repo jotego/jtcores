@@ -52,6 +52,7 @@ module jtgng_video(
     input       [15:0]  objrom_data,
     // Color Mix
     input               LVBL,
+    input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
     input               blue_cs,
@@ -170,6 +171,7 @@ jtgng_obj u_obj (
     .blen       ( blcnten     ),
     .LHBL       ( LHBL_obj    ),
     .LVBL       ( LVBL        ),
+    .LVBL_obj   ( LVBL_obj    ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
