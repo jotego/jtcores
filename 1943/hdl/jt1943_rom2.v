@@ -97,8 +97,6 @@ wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
-wire blank_b = LVBL && LHBL;
-
 jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
     .clk      ( clk             ),
@@ -123,7 +121,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_char(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( char_addr       ),
-    .addr_ok  ( blank_b         ),
+    .addr_ok  ( LVBL            ),
     .addr_req ( char_addr_req   ),
     .din      ( data_read       ),
     .dout     ( char_dout       ),
