@@ -251,6 +251,7 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
+`ifndef NOOBJ
 jt1943_obj u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
@@ -283,5 +284,11 @@ jt1943_obj u_obj(
     // pixel output
     .obj_pxl        ( obj_pxl     )
 );
+`else 
+assign prog_addr = 'd0;
+assign obj_pxl   = ~'d0;
+assign bus_req   = 'b0;
+assign blcnten   = 'b0;
+`endif
 
 endmodule // jtgng_video

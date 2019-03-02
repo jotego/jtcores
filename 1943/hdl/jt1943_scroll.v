@@ -61,7 +61,7 @@ wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Correc
 reg  [ 4:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
-reg  [15:0] hpos; // called "SP" on the schematics
+reg  [15:0] hpos, SP; // called "SP" on the schematics
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
@@ -69,16 +69,17 @@ wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
 always @(*) begin
     VF = {8{flip}}^V128;
     SV = VF + vpos;
-    {PIC, SH }  = hpos + { {6{SCHF[9]}},SCHF };
+    {PIC, SH }  = SP + { {6{SCHF[9]}},SCHF };
 end
 
 always @(posedge clk) if(cen6) begin
     // always update the map at the same pixel count
-    //if( SH[2:0]==3'd0 ) begin
+    if( SH[2:0] == 3'd7 ) SP <= hpos;
+    if( SH[2:0]==3'd0 ) begin
         HS[4:3] <= SH[4:3];
         map_addr <= { PIC, SH[7:6], SV[7:5], SH[5] }; // SH[5] is LSB
             // in order to optimize cache use
-    //end
+    end
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end
 
