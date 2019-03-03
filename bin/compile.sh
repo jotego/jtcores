@@ -87,9 +87,14 @@ if [ -e rom/${PRJ:2}/build_rom.ini ]; then
     zip --junk-paths releases/$RELEASE.zip rom/build_rom.sh rom/${PRJ:2}/build_rom.ini
 fi
 
-if [ -e doc/$PRJ.txt ]; then
-    zip --junk-paths releases/$RELEASE.zip doc/$PRJ.txt
-fi
+function add_ifexists {
+    if [ -e $1 ]; then
+        zip --junk-paths releases/$RELEASE.zip $1
+    fi   
+}
+
+add_ifexists doc/$PRJ.txt
+add_ifexists rom/${PRJ:2}/build_rom.bat
 
 # Add to git
 if [ $GIT = TRUE ]; then
