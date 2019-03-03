@@ -11,6 +11,8 @@ module osd (
 	input        SPI_SS3,
 	input        SPI_DI,
 
+	input  [1:0] rotate, //[0] - rotate [1] - left or right
+
 	// VGA signals coming from core
 	input  [5:0] R_in,
 	input  [5:0] G_in,
@@ -160,17 +162,30 @@ wire [9:0] h_osd_start = ((dsp_width - OSD_WIDTH)>> 1) + OSD_X_OFFSET;
 wire [9:0] h_osd_end   = h_osd_start + OSD_WIDTH;
 wire [9:0] v_osd_start = ((dsp_height- (OSD_HEIGHT<<doublescan))>> 1) + OSD_Y_OFFSET;
 wire [9:0] v_osd_end   = v_osd_start + (OSD_HEIGHT<<doublescan);
-wire [9:0] osd_hcnt    = h_cnt - h_osd_start + 1'd1;  // one pixel offset for osd_byte register
+wire [9:0] osd_hcnt    = h_cnt - h_osd_start;
 wire [9:0] osd_vcnt    = v_cnt - v_osd_start;
+wire [9:0] osd_hcnt_next  = osd_hcnt + 2'd1;  // one pixel offset for osd pixel
+wire [9:0] osd_hcnt_next2 = osd_hcnt + 2'd2;  // two pixel offset for osd byte address register
 
 wire osd_de = osd_enable &&
               (HSync != hs_pol) && (h_cnt >= h_osd_start) && (h_cnt < h_osd_end) &&
               (VSync != vs_pol) && (v_cnt >= v_osd_start) && (v_cnt < v_osd_end);
 
-reg  [7:0] osd_byte;
-always @(posedge clk_sys) if(ce_pix) osd_byte <= osd_buffer[{doublescan ? osd_vcnt[7:5] : osd_vcnt[6:4], osd_hcnt[7:0]}];
+reg [10:0] osd_buffer_addr;
+wire [7:0] osd_byte = osd_buffer[osd_buffer_addr];
+reg        osd_pixel;
 
-wire osd_pixel = osd_byte[doublescan ? osd_vcnt[4:2] : osd_vcnt[3:1]];
+always @(posedge clk_sys) begin
+    if(ce_pix) begin
+		osd_buffer_addr <= rotate[0] ? {rotate[1] ? osd_hcnt_next2[7:5] : ~osd_hcnt_next2[7:5],
+		                                rotate[1] ? (doublescan ? ~osd_vcnt[7:0] : ~{osd_vcnt[6:0], 1'b0}) :
+										            (doublescan ?  osd_vcnt[7:0]  : {osd_vcnt[6:0], 1'b0})} :
+		                               {doublescan ? osd_vcnt[7:5] : osd_vcnt[6:4], osd_hcnt_next2[7:0]};
+
+		osd_pixel <= rotate[0]  ? osd_byte[rotate[1] ? osd_hcnt_next[4:2] : ~osd_hcnt_next[4:2]] :
+		                          osd_byte[doublescan ? osd_vcnt[4:2] : osd_vcnt[3:1]];
+	end
+end
 
 assign R_out = !osd_de ? R_in : {osd_pixel, osd_pixel, OSD_COLOR[2], R_in[5:3]};
 assign G_out = !osd_de ? G_in : {osd_pixel, osd_pixel, OSD_COLOR[1], G_in[5:3]};

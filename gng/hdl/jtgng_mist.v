@@ -123,6 +123,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .cen12          ( cen12         ),
     .sdram_re       ( sdram_re      ),
     // Base video
+    .osd_rotate     ( 0             ),
     .game_r         ( red           ),
     .game_g         ( green         ),
     .game_b         ( blue          ),
