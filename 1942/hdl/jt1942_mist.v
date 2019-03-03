@@ -56,6 +56,7 @@ localparam CONF_STR = {
     //   12345678901234567890123456789012345678901234567890
         "JT1942;;", //8
         "O1,Pause,OFF,ON;", // 16
+        "F,rom;", // 6
         "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
         "O4,Test mode,OFF,ON;", // 20
         "O56,Lives,2,1,3,5;", // 18
@@ -67,7 +68,7 @@ localparam CONF_STR = {
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+42+20+18+36+15+24+24+22+30;
+localparam CONF_STR_LEN = 8+16+6+42+20+18+36+15+24+24+22+30;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;

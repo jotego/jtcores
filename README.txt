@@ -17,6 +17,7 @@ Supported Games
 
 * 1942
 * Ghosts'n Goblins (MiSTer port https://github.com/MiSTer-devel/Arcade-GnG_MiSTer)
+* 1943 (see separate readme file 1943.txt)
 
 How to continue the game
 ========================
@@ -62,6 +63,11 @@ gng/ver         simulation files of MiST clone
 1942/hdl        Verilog files of the clone for MiST
 1942/zxuno      files for ZX-UNO version
 1942/mist       Quartus files for MiST version
+
+1943            MiST board version of 1943 arcade game
+1943/hdl        Verilog files of the clone for MiST
+1943/mist       Quartus files for MiST version
+
 
 Clone Structure
 ===============

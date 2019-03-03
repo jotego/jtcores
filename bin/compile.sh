@@ -10,7 +10,6 @@ fi
 
 # Is the project defined?
 PRJ=$1
-ZIP=
 shift
 
 if [ "$PRJ" = "" ]; then
@@ -19,6 +18,7 @@ if [ "$PRJ" = "" ]; then
     exit 1
 fi
 
+ZIP=TRUE
 GIT=FALSE
 PROG=FALSE
 SKIP_COMPILE=FALSE
@@ -30,6 +30,7 @@ while [ $# -gt 0 ]; do
         "-prog") PROG=TRUE;;
         "-prog-only") 
             PROG=TRUE
+            ZIP=FALSE
             SKIP_COMPILE=TRUE;;
         "-zip") shift; break;;
         "-help")
@@ -67,34 +68,34 @@ if [ $SKIP_COMPILE = FALSE ]; then
         echo "ERROR while compiling the project. Aborting"
         exit 1
     fi
-else
-    echo "INFO: Skipping compilation"
 fi
 
-# Rename output file
-cd $JTGNG_ROOT
-RELEASE=${PRJ}_mist_$(date +"%Y%m%d")
-RBF=${PRJ:2}/mist/$PRJ.rbf
-if [ ! -e $RBF ]; then
-    echo "ERROR: file $RBF does not exist. You need to recompile."
-    exit 1
+if [ $ZIP = TRUE ]; then
+    # Rename output file
+    cd $JTGNG_ROOT
+    RELEASE=${PRJ}_mist_$(date +"%Y%m%d")
+    RBF=${PRJ:2}/mist/$PRJ.rbf
+    if [ ! -e $RBF ]; then
+        echo "ERROR: file $RBF does not exist. You need to recompile."
+        exit 1
+    fi
+    cp $RBF $RELEASE.rbf
+    zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $*
+    rm $RELEASE.rbf
+
+    if [ -e rom/${PRJ:2}/build_rom.ini ]; then
+        zip --junk-paths releases/$RELEASE.zip rom/build_rom.sh rom/${PRJ:2}/build_rom.ini
+    fi
+
+    function add_ifexists {
+        if [ -e $1 ]; then
+            zip --junk-paths releases/$RELEASE.zip $1
+        fi   
+    }
+
+    add_ifexists doc/$PRJ.txt
+    add_ifexists rom/${PRJ:2}/build_rom.bat
 fi
-cp $RBF $RELEASE.rbf
-zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $*
-rm $RELEASE.rbf
-
-if [ -e rom/${PRJ:2}/build_rom.ini ]; then
-    zip --junk-paths releases/$RELEASE.zip rom/build_rom.sh rom/${PRJ:2}/build_rom.ini
-fi
-
-function add_ifexists {
-    if [ -e $1 ]; then
-        zip --junk-paths releases/$RELEASE.zip $1
-    fi   
-}
-
-add_ifexists doc/$PRJ.txt
-add_ifexists rom/${PRJ:2}/build_rom.bat
 
 # Add to git
 if [ $GIT = TRUE ]; then

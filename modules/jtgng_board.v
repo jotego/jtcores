@@ -85,12 +85,25 @@ end
 
 `ifndef SIMULATION
 `ifndef NOSOUND
-hybrid_pwm_sd u_dac
+// hybrid_pwm_sd u_dac
+// (
+//     .clk    ( clk_dac   ),
+//     .n_reset( ~rst      ),
+//     .din    ( {snd[15]^SIGNED_SND, snd[14:0]}  ),
+//     .dout   ( snd_pwm   )
+// );
+
+wire [15:0] snd_in = {snd[15]^SIGNED_SND, snd[14:0]};
+wire [19:0] snd_padded = { 1'b0, snd_in, 3'd0 };
+
+
+hifi_1bit_dac u_dac
 (
-    .clk    ( clk_dac   ),
-    .n_reset( ~rst      ),
-    .din    ( {snd[15]^SIGNED_SND, snd[14:0]}  ),
-    .dout   ( snd_pwm   )
+  .reset    ( rst        ),
+  .clk      ( clk_dac    ),
+  .clk_ena  ( 1'b1       ),
+  .pcm_in   ( snd_padded ),
+  .dac_out  ( snd_pwm    )
 );
 `endif
 `endif
