@@ -30,7 +30,7 @@ module video_cleaner
 	output reg       VGA_VS,
 	output reg       VGA_HS,
 	output           VGA_DE,
-	
+
 	// optional aligned blank
 	output reg       HBlank_out,
 	output reg       VBlank_out
@@ -64,7 +64,7 @@ endmodule
 module s_fix
 (
 	input clk,
-	
+
 	input sync_in,
 	output sync_out
 );

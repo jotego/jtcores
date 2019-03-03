@@ -19,10 +19,10 @@
 module jt1942_prom_we(
     input                clk_rom,
     input                clk_rgb,
-    input                downloading, 
-    input      [21:0]    ioctl_addr, 
+    input                downloading,
+    input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
-    input                ioctl_wr,   
+    input                ioctl_wr,
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask,
@@ -73,8 +73,8 @@ always @(posedge clk_rom) begin
                 4'd7: prom_we0 <= 10'h0_80;    // f1
                 4'd8: prom_we0 <= 10'h1_00;    // k3
                 4'd9: prom_we0 <= 10'h2_00;    // m11
-                default: prom_we0 <= 10'h0;    // 
-            endcase 
+                default: prom_we0 <= 10'h0;    //
+            endcase
             set_strobe <= 1'b1;
         end
     end

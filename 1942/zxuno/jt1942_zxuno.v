@@ -109,11 +109,11 @@ jtgng_zxuno_prog u_prog(
     .flash_cs_n  ( FLASH_CS_N   ),
     // SRAM
     .sram_we_n   ( SRAM_WE_N    ),
-    .romload_addr( romload_addr ),    
+    .romload_addr( romload_addr ),
     .game_addr8  ( game_addr8   ),
     .sram_addr   ( SRAM_ADDR    ),
     .sram_data   ( sram_data_wr ),
-    // 
+    //
     .downloading( downloading   )
 );
 
@@ -131,7 +131,7 @@ jtgng_zxuno_sram u_sram(
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .downloading  ( downloading           ), 
+    .downloading  ( downloading           ),
     .romload_addr ( {4'd0, romload_addr}  ),
     .prom_we      ( prom_we               )
 );
@@ -171,9 +171,9 @@ jt1942_game u_game(
     .prom_e8_we  ( prom_we[4]        ),
     .prom_e9_we  ( prom_we[5]        ),
     .prom_e10_we ( prom_we[6]        ),
-    .prom_f1_we  ( prom_we[7]        ),  
-    .prom_k3_we  ( prom_we[8]        ),  
-    .prom_m11_we ( prom_we[9]        ),  
+    .prom_f1_we  ( prom_we[7]        ),
+    .prom_k3_we  ( prom_we[8]        ),
+    .prom_m11_we ( prom_we[9]        ),
 
     // ROM load
     .downloading ( downloading       ),
@@ -182,7 +182,7 @@ jt1942_game u_game(
     .sdram_addr  ( {nc, game_addr16} ),
     .data_read   ( sram_data16       ),
     // DIP switches
-    
+
     .dip_pause   ( 1'b1          ),
     .dip_level   ( 2'b11         ),
     .dip_test    ( 1'b1          ),
@@ -208,7 +208,7 @@ jtgng_board u_board(
     // VGA
     .clk_rgb        ( clk_rgb         ),
     .clk_vga        ( clk_vga         ),
-    .en_mixing      ( 1'b1            ),    
+    .en_mixing      ( 1'b1            ),
     .game_r         ( red             ),
     .game_g         ( green           ),
     .game_b         ( blue            ),
@@ -216,12 +216,12 @@ jtgng_board u_board(
     .LVBL           ( LVBL            ),
     .vga_r          ( VGA_R           ),
     .vga_g          ( VGA_G           ),
-    .vga_b          ( VGA_B           ),    
+    .vga_b          ( VGA_B           ),
     .vga_hsync      ( VGA_HS          ),
     .vga_vsync      ( VGA_VS          ),
     // joystick
     .ps2_kbd_clk    ( PS2_KBD_CLK     ),
-    .ps2_kbd_data   ( PS2_KBD_DATA    ),    
+    .ps2_kbd_data   ( PS2_KBD_DATA    ),
     .board_joystick1( ~{3'b0, JOYSTICK} ),
     .board_joystick2( 9'h00           ),
     .game_joystick1 ( game_joystick1  ),

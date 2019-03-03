@@ -35,7 +35,7 @@ module jt1943_sound(
     // PROM 4K
     input   [14:0]  prog_addr,
     input           prom_4k_we,
-    input   [7:0]   prom_din,      
+    input   [7:0]   prom_din,
     // Sound output
     output  [15:0]  snd
 );
@@ -53,7 +53,7 @@ end
 // interrupt latch
 reg int_n;
 wire iorq_n;
-always @(posedge clk) 
+always @(posedge clk)
     if( rst ) int_n <= 1'b1;
     else if(cen3) begin
         if(!iorq_n) int_n <= 1'b1;
@@ -105,7 +105,7 @@ always @(posedge clk)
 
 wire wait_n = ~cs_wait[1] | cs_wait[0];
 
-always @(posedge clk) 
+always @(posedge clk)
 if( rst ) begin
     latch <= 8'd0;
 end else if(cen3) begin
@@ -181,7 +181,7 @@ jt1943_security u_security(
 // `undef Z80_ALT_CPU
 // `endif
 
-`ifdef VERILATOR_LINT 
+`ifdef VERILATOR_LINT
 `define Z80_ALT_CPU
 `endif
 
@@ -232,7 +232,7 @@ tv80s #(.Mode(0)) u_cpu (
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;
 wire        [10:0] psg01 = psg0_snd + psg1_snd;
-// wire signed [15:0] 
+// wire signed [15:0]
 //     psg0_signed = {1'b0, psg0_snd, 4'b0 },
 //     psg1_signed = {1'b0, psg1_snd, 4'b0 };
 
@@ -290,7 +290,7 @@ jt03 u_fm1(
     .clk    ( clk       ),
     .cen    ( cen1p5    ),
     .din    ( dout      ),
-    .dout   ( fm1_dout  ),    
+    .dout   ( fm1_dout  ),
     .addr   ( A[0]      ),
     .cs_n   ( ~fm1_cs   ),
     .wr_n   ( wr_n      ),
@@ -304,7 +304,7 @@ jt03 u_fm1(
     .snd    (),
     .snd_sample()
 );
-`else 
+`else
 assign fm0_dout = 'd0;
 assign fm1_dout = 'd0;
 assign snd      = 'd0;

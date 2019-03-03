@@ -15,7 +15,7 @@ module jt74161(
 
 	initial q=4'd0;
 
-	always @(posedge clk or negedge cl_b) 
+	always @(posedge clk or negedge cl_b)
 		if( !cl_b )
 			q <= 4'd0;
 		else begin
@@ -41,7 +41,7 @@ module jt74163(
 
 	initial q=4'd0;
 
-	always @(posedge clk) 
+	always @(posedge clk)
 		if( !cl_b )
 			q <= 4'd0;
 		else begin
@@ -78,7 +78,7 @@ module jt74138(
 	input e2_b,
 	input e3,
 	input [2:0] a,
-	output [7:0] y_b 
+	output [7:0] y_b
 );
 	reg [7:0] yb_nodly;
 	always @(*)

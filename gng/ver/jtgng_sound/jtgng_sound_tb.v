@@ -21,7 +21,7 @@ end
 
 initial begin
 	V32 =1'b0;
-	forever V32  = #4096000 ~V32 ; 
+	forever V32  = #4096000 ~V32 ;
 end
 
 initial begin
@@ -66,7 +66,7 @@ jtgng_sound uut(
 	// Interface with main CPU
 	.sres_b	( 1'b1		),	// Z80 reset
 	.snd_latch( snd_latch ),
-	.V32	( V32		),	
+	.V32	( V32		),
 	// ROM access
 	.rom_addr	( rom_addr	),
 	.rom_cs		( rom_cs	),
@@ -95,6 +95,6 @@ initial begin
 	$dumpvars(2,jtgng_sound_tb.uut.Z80);
 	$dumpvars;
 	$dumpon;
-end	
+end
 
 endmodule // jtgng_sound_tb

@@ -28,11 +28,11 @@ module jtgng_ram #(parameter dw=8, aw=10, simfile="", synfile="",cen_rd=0)(
 reg [dw-1:0] mem[0:(2**aw)-1];
 
 `ifdef SIMULATION
-integer f, readcnt; 
-initial 
+integer f, readcnt;
+initial
 if( simfile != "" ) begin
     f=$fopen(simfile,"rb");
-    if( f != 0 ) begin    
+    if( f != 0 ) begin
         readcnt=$fread( mem, f );
         $fclose(f);
     end else begin
@@ -43,7 +43,7 @@ else begin
     for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )
         mem[readcnt] = {dw{1'b0}};
     end
-`else 
+`else
 // file for synthesis:
 /* verilator lint_off WIDTH */
 initial if(synfile!="" )$readmemh(synfile,mem);

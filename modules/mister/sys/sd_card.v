@@ -1,4 +1,4 @@
-// 
+//
 // sd_card.v
 //
 // Copyright (c) 2014 Till Harbaum <till@harbaum.org>
@@ -31,7 +31,7 @@ module sd_card
 	input         reset,
 
 	input         sdhc,
-	
+
 	output [31:0] sd_lba,
 	output reg    sd_rd,
 	output reg    sd_wr,
@@ -137,7 +137,7 @@ always @(posedge clk_spi) begin
 	if(ack[5:4] == 2'b01) {sd_rd,sd_wr} <= 0;
 
 	old_sck <= sck;
-	
+
 	if(~ss)                              idle_cnt <= 31;
 	else if(~old_sck && sck && idle_cnt) idle_cnt <= idle_cnt - 1'd1;
 
@@ -168,7 +168,7 @@ always @(posedge clk_spi) begin
 				// CMD10: SEND_CID
 				if((cmd == 'h49) | (cmd ==  'h4a))
 					read_state <= RD_STATE_SEND_TOKEN;      // jump directly to data transmission
-						
+
 				// CMD17/CMD18
 				if((cmd == 'h51) | (cmd == 'h52)) begin
 					io_ack <= 0;
@@ -200,7 +200,7 @@ always @(posedge clk_spi) begin
 			// send data token
 			RD_STATE_SEND_TOKEN: begin
 				miso <= READ_DATA_TOKEN[~bit_cnt];
-	
+
 				if(bit_cnt == 7) begin
 					read_state <= RD_STATE_SEND_DATA;   // next: send data
 					buffer_ptr <= 0;
@@ -343,7 +343,7 @@ always @(posedge clk_spi) begin
 					// CMD10: SEND_CID
 					'h4a: reply <= 0;    // ok
 
-					// CMD12: STOP_TRANSMISSION 
+					// CMD12: STOP_TRANSMISSION
 					'h4c: reply <= 0;    // ok
 
 					// CMD16: SET_BLOCKLEN
@@ -450,7 +450,7 @@ always @(posedge clk_spi) begin
 					end
 			endcase
 		end
-		
+
 		// wait for first 0 bit until start counting bits
 		if(!synced && !mosi) begin
 			synced   <= 1;

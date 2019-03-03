@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-*    File Name:  MT48LC16M16A2.V  
+*    File Name:  MT48LC16M16A2.V
 *      Version:  2.1
 *         Date:  June 6th, 2002
 *        Model:  BUS Functional
@@ -19,8 +19,8 @@
 *         Note:  - Set simulator resolution to "ps" accuracy
 *                - Set Debug = 0 to disable $display messages
 *
-*   Disclaimer:  THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY 
-*                WHATSOEVER AND MICRON SPECIFICALLY DISCLAIMS ANY 
+*   Disclaimer:  THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY
+*                WHATSOEVER AND MICRON SPECIFICALLY DISCLAIMS ANY
 *                IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
 *                A PARTICULAR PURPOSE, OR AGAINST INFRINGEMENT.
 *
@@ -93,10 +93,10 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             romfilecnt=$fread( Bank0, file, test2_offset );
             $display("Read %d bytes of test code for second CPU", romfilecnt);
             $fclose(file);
-        end        
+        end
         `endif
     end
-    `else 
+    `else
         `ifdef CHECKROM
         // check contents after 140ms
         reg [15:0] mem_check[0 : mem_sizes];
@@ -188,7 +188,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
     wire      Debug            = 1'b0;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
-    
+
     // Added 10ns delay for MiST
     localparam tMiST = 10;
     assign  Dq               = Dq_reg;                        // DQ buffer
@@ -346,7 +346,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             // Record Current tRFC time
             RFC_chk = $time;
         end
-        
+
         // Load Mode Register
         if (Mode_reg_enable === 1'b1) begin
             // Register Mode
@@ -416,7 +416,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             // Reset MRD Counter
             MRD_chk = 0;
         end
-        
+
         // Active Block (Latch Bank Address and Row Address)
         if (Active_enable === 1'b1) begin
             // Activate an open bank can corrupt data
@@ -546,7 +546,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             RRD_chk = $time;
             Prev_bank = Ba;
         end
-        
+
         // Precharge Block
         if (Prech_enable == 1'b1) begin
             // Load Mode Register to Precharge
@@ -638,7 +638,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 A10_precharge[1] = Addr[10];
             end
         end
-        
+
         // Burst terminate
         if ( /*Burst_term === 1'b1*/ ~Cs_n &  Ras_n &  Cas_n & ~We_n ) begin
             // Terminate a Write Immediately
@@ -660,7 +660,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 $display ("%m : at time %t BST  : Burst Terminate",$time);
             end
         end
-        
+
         // Read, Write, Column Latch
         if (Read_enable === 1'b1) begin
             // Check to see if bank is open (ACT)
@@ -752,7 +752,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
             // Write interrupt Read (terminate Read immediately)
             if (Data_out_enable == 1'b1) begin
                 Data_out_enable = 1'b0;
-                
+
                 // Interrupting a Read with Autoprecharge
                 if (Auto_precharge[RW_interrupt_bank] == 1'b1 && Read_precharge[RW_interrupt_bank] == 1'b1) begin
                     RW_interrupt_read[RW_interrupt_bank] = 1'b1;
@@ -881,7 +881,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end
         if ((Auto_precharge[1] == 1'b1) && (Read_precharge[1] == 1'b1)) begin
             if ((($time - RAS_chk1 >= tRAS) &&
-                ((Burst_length_1 == 1'b1 && Count_precharge[1] >= 1) || 
+                ((Burst_length_1 == 1'b1 && Count_precharge[1] >= 1) ||
                  (Burst_length_2 == 1'b1 && Count_precharge[1] >= 2) ||
                  (Burst_length_4 == 1'b1 && Count_precharge[1] >= 4) ||
                  (Burst_length_8 == 1'b1 && Count_precharge[1] >= 8))) ||
@@ -899,7 +899,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end
         if ((Auto_precharge[2] == 1'b1) && (Read_precharge[2] == 1'b1)) begin
             if ((($time - RAS_chk2 >= tRAS) &&
-                ((Burst_length_1 == 1'b1 && Count_precharge[2] >= 1) || 
+                ((Burst_length_1 == 1'b1 && Count_precharge[2] >= 1) ||
                  (Burst_length_2 == 1'b1 && Count_precharge[2] >= 2) ||
                  (Burst_length_4 == 1'b1 && Count_precharge[2] >= 4) ||
                  (Burst_length_8 == 1'b1 && Count_precharge[2] >= 8))) ||
@@ -917,7 +917,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end
         if ((Auto_precharge[3] == 1'b1) && (Read_precharge[3] == 1'b1)) begin
             if ((($time - RAS_chk3 >= tRAS) &&
-                ((Burst_length_1 == 1'b1 && Count_precharge[3] >= 1) || 
+                ((Burst_length_1 == 1'b1 && Count_precharge[3] >= 1) ||
                  (Burst_length_2 == 1'b1 && Count_precharge[3] >= 2) ||
                  (Burst_length_4 == 1'b1 && Count_precharge[3] >= 4) ||
                  (Burst_length_8 == 1'b1 && Count_precharge[3] >= 8))) ||
@@ -1091,7 +1091,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 Col = Col_temp;
             end
 
-            // Burst Read Single Write            
+            // Burst Read Single Write
             if (Write_burst_mode == 1'b1) begin
                 Data_in_enable = 1'b0;
             end

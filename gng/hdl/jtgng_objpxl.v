@@ -21,7 +21,7 @@ module jtgng_objpxl(
     input              clk,     // 24 MHz
     input              cen6,    //  6 MHz
     // screen
-    input              LHBL,    
+    input              LHBL,
     input              flip,
     input       [3:0]  pxlcnt,
     input       [8:0]  posx,
@@ -61,7 +61,7 @@ always @(posedge clk) if(cen6) begin
 end
 
 always @(*)
-    if( pxlbuf_line == lineA ) begin 
+    if( pxlbuf_line == lineA ) begin
         // lineA readout
         lineA_address_a = Hcnt;
         lineA_we_a = 1'b0;

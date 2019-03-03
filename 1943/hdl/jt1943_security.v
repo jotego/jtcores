@@ -36,7 +36,7 @@ always @(posedge clk) if(cen) begin
         $display("INFO: security write %X - %m at time %d", din, $time());
         `endif
     end
-    case( security )    
+    case( security )
         8'h24: dout <= 8'h1d;
         8'h60: dout <= 8'hf7;
         8'h01: dout <= 8'hac;

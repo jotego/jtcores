@@ -17,10 +17,10 @@
     Date: 14-1-2019 */
 
 module jtgng_vgapxl(
-    input         clk,    
-    input         double, 
-    input         en_mix, 
-    input  [11:0] rgb_in, 
+    input         clk,
+    input         double,
+    input         en_mix,
+    input  [11:0] rgb_in,
     output  [14:0] rgb_out
 );
 

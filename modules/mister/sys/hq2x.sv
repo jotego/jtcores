@@ -109,7 +109,7 @@ hq2x_in #(.LENGTH(LENGTH), .DWIDTH(DWIDTH)) hq2x_in
 );
 
 reg     [AWIDTH+1:0] read_x;
-reg     [AWIDTH+1:0] wrout_addr; 
+reg     [AWIDTH+1:0] wrout_addr;
 reg                  wrout_en;
 reg  [DWIDTH1*4-1:0] wrdata, wrdata_pre;
 wire [DWIDTH1*4-1:0] outpixel_x4;
@@ -193,7 +193,7 @@ always @(posedge clk) begin
 				prevbuf <= 0;
 			end
 		end
-		
+
 		if(~hblank & ~&read_x) read_x <= read_x + 1'd1;
 		if(hblank) read_x <= 0;
 
@@ -371,7 +371,7 @@ module Blend
 
 	// Generate inputs to the inner blender. Valid combinations.
 	// 00: E A B
-	// 01: E A D 
+	// 01: E A D
 	// 10: E D B
 	// 11: E B D
 	wire [23:0] Input1 = E;

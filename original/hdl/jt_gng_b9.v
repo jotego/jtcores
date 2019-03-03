@@ -22,7 +22,7 @@ module shift8(
 		.cl_b	( 1'b1		),
 		.clk	( clk		),
 		.S		( S			),
-		.Q		( Q4A		)	
+		.Q		( Q4A		)
 	);
 
 	jt74194 u_4B(
@@ -32,7 +32,7 @@ module shift8(
 		.cl_b	( 1'b1		),
 		.clk	( clk		),
 		.S		( S			),
-		.Q		( Q4B		)	
+		.Q		( Q4B		)
 	);
 	assign Y = SEL ? Q4B[3] : Q4A[0];
 endmodule
@@ -56,10 +56,10 @@ module jt_gng_b9(
 );
 
 reg [7:0] 	mem_3b [0:16383];
-reg [7:0]	mem_3c [0:16383]; 
-reg [7:0]	mem_3e [0:16383]; 
-reg [7:0]	mem_1b [0:16383]; 
-reg [7:0]	mem_1c [0:16383]; 
+reg [7:0]	mem_3c [0:16383];
+reg [7:0]	mem_3e [0:16383];
+reg [7:0]	mem_1b [0:16383];
+reg [7:0]	mem_1c [0:16383];
 reg [7:0]	mem_1e [0:16383];
 
 initial begin

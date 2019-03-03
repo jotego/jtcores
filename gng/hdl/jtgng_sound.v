@@ -25,7 +25,7 @@ module jtgng_sound(
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
-    input           V32,    
+    input           V32,
     // ROM access
     output  [14:0]  rom_addr,
     output          rom_cs,
@@ -98,7 +98,7 @@ always @(posedge clk) if(cen3) begin
         { int_n, int_n2 } <= 6'b0;
     end
     else begin
-        if( ~&int_n2 ) 
+        if( ~&int_n2 )
             int_n2 <= int_n2+5'd1;
         else
             int_n <= 1'b1;
@@ -161,7 +161,7 @@ T80pa u_cpu(
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;
 wire        [10:0] psg01 = psg0_snd + psg1_snd;
-// wire signed [15:0] 
+// wire signed [15:0]
 //     psg0_signed = {1'b0, psg0_snd, 4'b0 },
 //     psg1_signed = {1'b0, psg1_snd, 4'b0 };
 

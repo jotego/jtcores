@@ -18,13 +18,13 @@
 
 module jt1943_rom2(
     input               rst,
-    input               clk, 
+    input               clk,
     input               cen12, // 12 MHz
     input       [ 2:0]  H,
     input               Hsub,
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_re, // any edge (rising or falling) 
+    output  reg         sdram_re, // any edge (rising or falling)
         // means a read request
 
     input               main_cs,
@@ -106,7 +106,7 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
         // but that would not allow the main CPU to run at 6MHz
         // because the main_cs signal is delayed with respect to the
         // address bus. There is a delay of 250ns (SDRAM CLK=108MHz) from
-        // address set to data available to the requester. 
+        // address set to data available to the requester.
         // main_cs gets asserted when mreq_n goes low but address bus holds
         // the address one clock cycle earlier.
     .addr_req ( main_addr_req   ),
@@ -134,7 +134,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( map1_addr       ),
-    .addr_ok  ( LVBL            ),    
+    .addr_ok  ( LVBL            ),
     .addr_req ( map1_addr_req   ),
     .din      ( data_read       ),
     .dout     ( map1_dout       ),
@@ -147,7 +147,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map2(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( map2_addr       ),
-    .addr_ok  ( LVBL            ),    
+    .addr_ok  ( LVBL            ),
     .addr_req ( map2_addr_req   ),
     .din      ( data_read       ),
     .dout     ( map2_dout       ),
@@ -205,10 +205,10 @@ always @(posedge LVBL) begin
 end
 `endif
 
-always @(posedge clk) 
+always @(posedge clk)
 if( loop_rst || downloading ) begin
     sdram_addr <= {(addr_w+col_w){1'b0}};
-    ready_cnt <=  4'd0;    
+    ready_cnt <=  4'd0;
     ready     <=  1'b0;
 end else if(cen12) begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
@@ -232,7 +232,7 @@ end else if(cen12) begin
         scr2_req: begin
             sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
             data_sel   <= 'b10_0000;
-        end     
+        end
         char_req: begin
             sdram_addr <= char_offset + { 8'b0, char_addr_req };
             data_sel   <= 'b10;

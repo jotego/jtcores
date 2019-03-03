@@ -29,7 +29,7 @@ module data_io #(parameter aw=22)(
     input         sdi,
 
     output reg [4:0]  index,     // menu index used to upload the file
-     
+
     // external ram interface
     input               clk_sdram,
     output reg          downloading_sdram,   // signal indicating an active download
@@ -69,7 +69,7 @@ always@(posedge sck, posedge ss) begin
         if(cnt != 15)
             sbuf <= { sbuf[5:0], sdi};
 
-        // count 0-7 8-15 8-15 ... 
+        // count 0-7 8-15 8-15 ...
         if(cnt < 15)
             cnt <= cnt + 4'd1;
         else
@@ -81,20 +81,20 @@ always@(posedge sck, posedge ss) begin
 
         // prepare/end transmission
         if((cmd == UIO_FILE_TX) && (cnt == 15)) begin
-            // prepare 
+            // prepare
             if(sdi) begin
                 // addr <= 25'd0;
-                downloading_reg <= 1'b1; 
+                downloading_reg <= 1'b1;
             end else
-                downloading_reg <= 1'b0; 
+                downloading_reg <= 1'b0;
         end
-        
+
         // command 0x54: UIO_FILE_TX
         if((cmd == UIO_FILE_TX_DAT) && (cnt == 15)) begin
             data <= {sbuf, sdi};
             rclk <= 1'b1;
         end
-        
+
       // expose file (menu) index
       if((cmd == UIO_FILE_INDEX) && (cnt == 15))
             index <= {sbuf[3:0], sdi};
@@ -115,7 +115,7 @@ always@(posedge clk_sdram)
         // bring rclk from spi clock domain into sdram clock domain
         rclkD <= rclk;
         rclkD2 <= rclkD;
-        
+
         if( rclkD && !rclkD2 ) begin
             ioctl_data <= data;
             ioctl_addr <= ioctl_addr + 1'd1;

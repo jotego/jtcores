@@ -18,14 +18,14 @@
 
 // Based on MiST tutorials
 
-module jtgng_keyboard( 
+module jtgng_keyboard(
     input clk,
     input rst,
 
-    // ps2 interface    
+    // ps2 interface
     input ps2_clk,
     input ps2_data,
-    
+
     // decodes keys
     output reg [9:0] key_joy1,
     output reg [9:0] key_joy2,
@@ -60,7 +60,7 @@ always @(posedge clk) begin
     end else begin
         // ps2 decoder has received a valid ps2byte
         if(valid) begin
-            if(ps2byte == 8'he0) 
+            if(ps2byte == 8'he0)
                 // extended key code
             key_extended <= 1'b1;
          else if(ps2byte == 8'hf0)
@@ -69,7 +69,7 @@ always @(posedge clk) begin
          else begin
                 key_extended <= 1'b0;
                 key_released <= 1'b0;
-                
+
                 case({key_extended, ps2byte})
                     // first joystick
                     9'h0_29: key_joy1[6] <= !key_released;   // Button 3
@@ -98,11 +98,11 @@ end
 ps2_intf ps2_keyboard (
     .CLK     ( clk           ),
     .nRESET  ( !rst          ),
-    
+
     // PS/2 interface
     .PS2_CLK  ( ps2_clk         ),
     .PS2_DATA ( ps2_data        ),
-    
+
     // ps2byte-wide data interface - only valid for one clock
     // so must be latched externally if required
     .DATA         ( ps2byte   ),

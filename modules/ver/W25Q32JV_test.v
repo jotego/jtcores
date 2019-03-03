@@ -101,17 +101,17 @@ begin
 	qpi_mode = 0;
 
 	#200
-	
-	
-	
+
+
+
 	$display("Read Manufacturer's ID");
 	spi_rd_id(0,null_reg);
 	spi_rd_id(1,null_reg);
-	
+
 	$display("Read Manufacturer's ID Dual");
 	spi_rd_id_dual(0,null_reg);
 	spi_rd_id_dual(1,null_reg);
-	
+
 	$display("Read Manufacturer's ID Quad");
 	spi_rd_id_quad(0,null_reg);
 	spi_rd_id_quad(1,null_reg);
@@ -122,9 +122,9 @@ begin
 	spi_sr2(status);
 
   $display("QE=1 is the power up default");
-	
+
 	// $stop;
-	
+
 	spi_we;
 	spi_sr(status);
 	spi_wd;
@@ -133,7 +133,7 @@ begin
 	$display("Write Enable while WPn = 0");
 	spi_we;
 	spi_sr(status);
-	
+
 	WPn_Reg = 1;
 
 // QPI Mode
@@ -148,45 +148,45 @@ begin
 	spi_chip_reset;
 	spi_wait_busy(1000000);
    $display("Should execute wait busy loop until end. Chip ignores reset.");
-   
-	
+
+
 	// Now that quad mode is set, tri-state the WPn and HOLDn pins.
 	WPn_Reg = 1'bz;
 	HOLDn_Reg = 1'bz;
-	
+
  	$display("Read Manufacturer's ID Quad");
 	spi_rd_id_quad(0,null_reg);
 	spi_rd_id_quad(1,null_reg);
 	$display("Should succeed.");
-	
-	
+
+
 
 	$display("Enable QPI Mode.");
-	spi_enable_QPI();	
-   
+	spi_enable_QPI();
+
   spi_sr(status);
 
-  
-   
+
+
 	spi_we;
 	status[`QE] = 1;
 	spi_wsr(status);
  	spi_wait_busy(1000000);
- 	
-  
-     
+
+
+
   $display("Read with Quad Output - QPI");
 	spi_rs_fast_qpi(0, PAGESIZE, PAGESIZE);
 	display_test_buf(PAGESIZE, PAGESIZE);
 	$display("Should be all FF");
-	
-	
-	
+
+
+
 	uniq_test_buf;
 	spi_we;
 	spi_ws(0,PAGESIZE,0);
 	spi_wait_busy(1000000);
-	
+
    $display("Read Sector Fast - QPI");
 	spi_rs_fast_qpi(0, PAGESIZE, PAGESIZE);
 	display_test_buf(PAGESIZE, PAGESIZE);
@@ -213,7 +213,7 @@ begin
 	spi_rs_quad_wrap_qpi(8'h0b,PAGESIZE, PAGESIZE);
 	display_test_buf(PAGESIZE,PAGESIZE);
 	$display("Should see 0b 0c 0d 0e 0f 00 01 02 03 04 05 06 08 09 0a repeated.");
-   	
+
    spi_set_qpi_param(8'h02);
 
 	spi_rs_quad_wrap_qpi(0,PAGESIZE, PAGESIZE);
@@ -225,7 +225,7 @@ begin
 	display_test_buf(PAGESIZE,PAGESIZE);
 	$display("Should see 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a");
 	$display("Should see 1b 1c 1d 1e 1f 00 01 02 03 04 05 06 07 08 09 0a repeated.");
-	
+
    spi_set_qpi_param(8'h03);
 
 	spi_rs_quad_wrap_qpi(8'h0,PAGESIZE, PAGESIZE);
@@ -242,49 +242,49 @@ begin
 	$display("Should see 2b 2c 2d 2e 2f 30 31 32 33 34 35 36 37 38 39 3a");
 	$display("Should see 3b 3c 3d 3e 3f 00 01 02 03 04 05 06 07 08 09 0a repeated.");
 
-   spi_set_qpi_param(0);	
-   	
-	
-	
+   spi_set_qpi_param(0);
+
+
+
 	$display("Disable QPI Mode.");
 	spi_disable_QPI();
-	
+
 	spi_sr(status);
-	
+
   $display("Read SFDP Parameters");
 	spi_r_sfdp(0,PAGESIZE,0);
 	display_test_buf(0,PAGESIZE);
-	
-	 uniq_test_buf;  	
+
+	 uniq_test_buf;
 	 spi_we;
   	spi_ws(32'h01ffff00,PAGESIZE,0);
-   spi_wait_busy(1000000);  
+   spi_wait_busy(1000000);
 
 
   spi_we;
 	status[`QE] = 1;
 	spi_wsr(status);
 	spi_wait_busy(1000000);
-	
+
 	// Now that quad mode is set, tri-state the WPn and HOLDn pins.
 	WPn_Reg = 1'bz;
 	HOLDn_Reg = 1'bz;
 
-	
+
 	$display("Enable QPI Mode.");
-	spi_enable_QPI();	
-   
+	spi_enable_QPI();
+
   spi_sr(status);
 
   $display("Read quad with 3 byte address - QPI.");
-  pattern_test_buf(0,PAGESIZE,32'hff00ff00);			  
+  pattern_test_buf(0,PAGESIZE,32'hff00ff00);
   spi_rs_fast_qpi(32'h01ffff00,PAGESIZE,0);
-	display_test_buf(0,PAGESIZE);  
-	
+	display_test_buf(0,PAGESIZE);
+
   $display("Disable QPI Mode.");
 	spi_disable_QPI();
-  
-	
+
+
   spi_we;
 	status[`QE] = 0;
 	spi_wsr(status);
@@ -292,7 +292,7 @@ begin
 
 	WPn_Reg = 1'b1;
 	HOLDn_Reg = 1'b1;
-		
+
 	$display("Write status register SRP=1 and BP0=1, WPn = 1");
 	spi_we;
 	spi_sr(status);
@@ -302,7 +302,7 @@ begin
 	spi_wait_busy(1000000);
 
 	$display("Write status register SRP=0, WPn = 0");
-	
+
 	WPn_Reg = 0;
 	status[`SRP] = 0;
 	spi_we;
@@ -319,39 +319,39 @@ begin
 	status[`SRP] = 0;
 	spi_wsr(status);
 	spi_wait_busy(1000000);
-	
+
 // Test Security Register
 
 
    spi_read_security_page(1,PAGESIZE,0);
   	display_test_buf(0,PAGESIZE);
 
-	 uniq_test_buf;  	
+	 uniq_test_buf;
 	 spi_we;
   	spi_write_security_page(1,PAGESIZE,0);
-   spi_wait_busy(1000000);  
-   
+   spi_wait_busy(1000000);
+
    spi_we;
   	spi_write_security_page(2,PAGESIZE,0);
-   spi_wait_busy(1000000);  	
-   	
+   spi_wait_busy(1000000);
+
    spi_read_security_page(1,PAGESIZE,0);
   	display_test_buf(0,PAGESIZE);
-  	
+
    spi_read_security_page(2,PAGESIZE,0);
   	display_test_buf(0,PAGESIZE);
 
    spi_we;
    spi_erase_security_page(1);
-   spi_wait_busy(1000000);  	
-        	
+   spi_wait_busy(1000000);
+
    spi_read_security_page(1,PAGESIZE,0);
   	display_test_buf(0,PAGESIZE);
-  	
+
 
 	spi_we;
 	spi_sr(status);
-   status[`LB1] = 1;  		
+   status[`LB1] = 1;
 	spi_wsr(status);
 	spi_wait_busy(1000000);
 
@@ -360,24 +360,24 @@ begin
 	spi_we;
 	spi_write_security_page(1,PAGESIZE,0);
 	spi_wait_busy(1000000);
-   
+
 	spi_we;
 	spi_sr(status);
-  status[`LB1] = 0;  		
+  status[`LB1] = 0;
 	spi_wsr(status);
-	spi_wait_busy(1000000); 
-	
+	spi_wait_busy(1000000);
+
 	spi_sr2(status);
 
   spi_sr3(status);
-  
-  
-   
+
+
+
 // Test for erase bulk
 	$display("Erase Bulk, then reset");
 	spi_we;
 	spi_eb;
-	
+
 	#20000;
 	spi_enable_reset;
 	spi_chip_reset;
@@ -387,26 +387,26 @@ begin
 	$display("Erase Bulk");
 	spi_we;
 	spi_eb;
-	
+
 	spi_wait_busy(200000000);
 
-	
+
 // Test HOLDn pin
   $display("Test HOLDn");
 	read_with_holdn(0,PAGESIZE,0);
 	display_test_buf(0,PAGESIZE);
 	spi_sr(status);
 	$display("Output should be all FF. If test failed, output will be a copy of the status register.\n");
-		
 
-		
+
+
 // Test for write protected write
 	$display("Write Page while WEL=0");
 	pattern_test_buf(0,PAGESIZE,32'hff00ff00);
 	spi_ws(0,PAGESIZE,0);
 	spi_wait_busy(1000000);
 	$display("Should never report busy.");
-	
+
 	// Test for write protected write WPn = 0
 	$display("Write Page while WPn=0");
 	WPn_Reg = 0;
@@ -471,11 +471,11 @@ begin
 
 // Test for erase sector with Suspend / Resume
    $display("Erase Sector 0, with Suspend / Resume");
-   test_erase_suspend(0);	
+   test_erase_suspend(0);
 
    $display("Program Sector 0, with Suspend / Resume");
    test_program_suspend(0);
- 
+
 // Test for erase sector
 	$display("Erase Sector 0, wait busy, Read Page 0 and status");
 	spi_we;
@@ -501,13 +501,13 @@ begin
 	$display("Should fail\n");
 
   spi_global_unlock();
-  
+
 	spi_we;
 	spi_ws(0,PAGESIZE,0);
 	spi_wait_busy(1000000);
 	$display("Should succeed\n");
-	
-  
+
+
   // Test write protect
 	$display("\nReset WPS bit for write SEC,TB,BPx protect modes.");
 	spi_we;
@@ -518,7 +518,7 @@ begin
 	spi_sr3(status);
 	uniq_test_buf;
 
-    
+
 // Test write protect
 	$display("\nWrite to page with SEC=0 TB=0 BP2=0 BP1=0 BP0=1");
 	spi_we;
@@ -526,7 +526,7 @@ begin
 	status[`SEC] = 0;
 	status[`TB] = 0;
 	status[`BP2] = 0;
-	status[`BP1] = 0;   
+	status[`BP1] = 0;
 	status[`BP0] = 1;
 	spi_wsr(status);
 	spi_wait_busy(1000000);
@@ -547,7 +547,7 @@ begin
 	spi_wait_busy(1000000);
 	$display("Should fail\n\n");
 
-	
+
 
 // Read 64-bit unique ID
 
@@ -587,8 +587,8 @@ begin
 	status[`QE] = 1;
 	spi_wsr(status);
 	spi_wait_busy(1000000);
-	
-	
+
+
 	$display("Read ID with Quad Output");
 	spi_rd_id_quad(0,null_reg);
 	spi_rd_id_quad(1,null_reg);
@@ -596,12 +596,12 @@ begin
   $display("Read with Quad Output");
 	spi_rs_quad(0, PAGESIZE, PAGESIZE);
 	display_test_buf(PAGESIZE, PAGESIZE);
-	
+
 	$display("Test Burst Wrap Feature");
-	
+
 	spi_set_wrap(0);
 
-	
+
 	spi_rs_quadio(8'h0,PAGESIZE, 8'h0, 0, PAGESIZE);
 	display_test_buf(PAGESIZE,PAGESIZE);
 	$display("Should see 00 01 02 03 04 05 06 07 repeated.");
@@ -619,7 +619,7 @@ begin
 	spi_rs_quadio(8'h0b,PAGESIZE, 8'h0, 0, PAGESIZE);
 	display_test_buf(PAGESIZE,PAGESIZE);
 	$display("Should see 0b 0c 0d 0e 0f 00 01 02 03 04 05 06 08 09 0a repeated.");
-   	
+
   spi_set_wrap(8'h40);
 
 	spi_rs_quadio(8'h0,PAGESIZE, 8'h0, 0, PAGESIZE);
@@ -631,7 +631,7 @@ begin
 	display_test_buf(PAGESIZE,PAGESIZE);
 	$display("Should see 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a");
 	$display("Should see 1b 1c 1d 1e 1f 00 01 02 03 04 05 06 07 08 09 0a repeated.");
-	
+
   spi_set_wrap(8'h60);
 
 	spi_rs_quadio(8'h0,PAGESIZE, 8'h0, 0, PAGESIZE);
@@ -648,7 +648,7 @@ begin
 	$display("Should see 2b 2c 2d 2e 2f 30 31 32 33 34 35 36 37 38 39 3a");
 	$display("Should see 3b 3c 3d 3e 3f 00 01 02 03 04 05 06 07 08 09 0a repeated.");
 
-  spi_set_wrap(8'h10);	
+  spi_set_wrap(8'h10);
 
 	spi_rs_quadio(0,PAGESIZE, 8'h0, 0, PAGESIZE);
 	display_test_buf(PAGESIZE,PAGESIZE);
@@ -665,7 +665,7 @@ begin
 	spi_we;
 	spi_es(0);
 	spi_wait_busy(1000000);
-	
+
 
 	pattern_test_buf(0,PAGESIZE,32'hff00ff00);
 	spi_we;
@@ -678,7 +678,7 @@ begin
 end
 
 //
-// When CS goes active, store state of output registers in test bench. 
+// When CS goes active, store state of output registers in test bench.
 // This allows the test bench to provide a consistent environment for
 // Each command that is written.  It also allows for the definition of the
 // pins to change while CSn is held high.
@@ -949,8 +949,8 @@ begin
    	#Tcss;
 	output_dut_byte(`CMD_SREG_PROGRAM);
   address = page[1:0] << 12;
-   	
-	
+
+
 	output_dut_byte(address[23:16]);
 	output_dut_byte(address[15:8]);
 	output_dut_byte(address[7:0]);
@@ -961,7 +961,7 @@ begin
 	$display("Write to Security Page. (Page ID = %h)",page);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
-	
+
 end
 endtask
 
@@ -988,7 +988,7 @@ begin
 	output_dut_byte(address[23:16]);
 	output_dut_byte(address[15:8]);
 	output_dut_byte(address[7:0]);
-	input_dut_byte(temp);            // Null 
+	input_dut_byte(temp);            // Null
 
 	begin
 		for(x = 0; x < num; x=x+1)
@@ -1016,7 +1016,7 @@ begin
 	CSn_Reg = 1'b0;
      #Tcss;
 
-   address = page[1:0] << 12;     
+   address = page[1:0] << 12;
 	output_dut_byte(`CMD_SREG_ERASE);
 	output_dut_byte(address[23:16]);
 	output_dut_byte(address[15:8]);
@@ -1074,7 +1074,7 @@ endtask
 
 
 /******************************************************************************
- The following task sends the Write to Page command 
+ The following task sends the Write to Page command
  This command writes the from offset for num bytes from the test buffer.
 ******************************************************************************/
 
@@ -1103,7 +1103,7 @@ endtask
 
 
 /******************************************************************************
- The following task sends the Write to Page Quad command 
+ The following task sends the Write to Page Quad command
  This command writes the from offset for num bytes from the test buffer.
 ******************************************************************************/
 
@@ -1259,7 +1259,7 @@ begin
 		input_dut_byte(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	$display("Read Page Fast. (Address = %h, Num = %h)",address,num);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -1294,7 +1294,7 @@ begin
 		input_dut_byte_quad(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	$display("Read Page Fast - QPI. (Address = %h, Num = %h)",address,num);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -1351,7 +1351,7 @@ begin
 	output_dut_byte_dual(address[15:8]);
 	output_dut_byte_dual(address[7:0]);
 	output_dut_byte_dual(8'hF0);
-   
+
    input_dut_byte_dual(id);
 
 	$display("Read Manufacturers ID Dual. (Address = %h, ID = %h)",address,id);
@@ -1382,7 +1382,7 @@ begin
 	output_dut_byte_quad(8'hF0);
    output_dut_byte_quad(8'h00);
    output_dut_byte_quad(8'h00);
-   
+
    input_dut_byte_quad(id);
 
 	$display("Read Manufacturers ID Quad. (Address = %h, ID = %h)",address,id);
@@ -1454,7 +1454,7 @@ begin
 		input_dut_byte_dual(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	$display("Read Page Dual. (Address = %h, Num = %h)",address,num);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -1476,7 +1476,7 @@ input [7:0] mode;
 input no_cmd;
 input [15:0] test_buf_off;
 integer x,temp;
-  
+
 begin
 	CSn_Reg = 1'b0;
      #Tcss;
@@ -1492,14 +1492,14 @@ begin
 		input_dut_byte_dual(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	if(no_cmd)
 		$display("Read Page Dual IO - No CMD. (Address = %h, Num = %h, Mode = %h)",address,num,mode);
 	else
 		$display("Read Page Dual IO. (Address = %h, Num = %h, Mode = %h)",address,num,mode);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
-	
+
 end
 endtask
 
@@ -1530,7 +1530,7 @@ begin
 		input_dut_byte_quad(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	$display("Read Page Quad. (Address = %h, Num = %h)",address,num);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -1564,7 +1564,7 @@ begin
 		input_dut_byte_quad(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	$display("Read Page Quad Wrap QPI. (Address = %h, Num = %h)",address,num);
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -1597,14 +1597,14 @@ begin
 	output_dut_byte_quad(mode);
 
 	input_dut_byte_quad(temp);
-	input_dut_byte_quad(temp);	
+	input_dut_byte_quad(temp);
 
 	for(x = 0; x < num; x=x+1)
 	begin
 		input_dut_byte_quad(temp);
 		test_buf[x+test_buf_off]=temp;
      end
-	
+
 	if(no_cmd)
 		$display("Read Page Quad IO - No CMD. (Address = %h, Num = %h, Mode = %h)",address,num,mode);
 	else
@@ -1616,7 +1616,7 @@ end
 endtask
 
 /******************************************************************************
- The following task sends the set wrap command 77h 
+ The following task sends the set wrap command 77h
 ******************************************************************************/
 
 task spi_set_wrap;
@@ -1628,7 +1628,7 @@ begin
 	output_dut_byte(`CMD_SET_BURST_WRAP);
 	output_dut_byte_quad(8'h00);
 	output_dut_byte_quad(8'h00);
-	output_dut_byte_quad(8'h00);	
+	output_dut_byte_quad(8'h00);
 	output_dut_byte_quad(wrap);
 
 	$display("Set Burst Wrap. (Wrap Value = %h)",wrap);
@@ -1638,7 +1638,7 @@ end
 endtask
 
 /******************************************************************************
- The following task sends the set read param command C0h 
+ The following task sends the set read param command C0h
 ******************************************************************************/
 
 task spi_set_qpi_param;
@@ -1677,7 +1677,7 @@ begin
 			$write("- ");
 		else
 			$write("   ");
-	end		
+	end
 	for(col = offset; col < num + offset; col=col+1)
 	begin
 		if(!(col % 8) && (col % 16))
@@ -1734,7 +1734,7 @@ task output_dut_byte;
 input [7:0] data;
 integer x;
 begin
-    
+
    if(qpi_mode)
       output_dut_byte_quad(data);
    else
@@ -1792,9 +1792,9 @@ begin
 		reading_reg = 1'b0;
 		CLK_Reg = 1'b0;
 		fork
-			#Thov 
+			#Thov
 			DIO_Reg = data[x-3];
-			DO_Reg = data[x-2];			
+			DO_Reg = data[x-2];
 			WPn_Reg = data[x-1];
 			HOLDn_Reg = data[x];
 			#CLKlo CLK_Reg = 1'b1;
@@ -1828,7 +1828,7 @@ begin
 		data[x-3] = DIO;
 		data[x-2] = DO;
 		data[x-1] = WPn;
-		data[x] = HOLDn;		
+		data[x] = HOLDn;
 		#CLKhi;
 	end
 	#CLKhi;  //CVG
@@ -1870,14 +1870,14 @@ task input_dut_byte;
 output [7:0] data;
 integer x;
 begin
-    
+
    if(qpi_mode)
       input_dut_byte_quad(data);
    else
    begin
       	// Set output register to High-Z when reading
       	DO_Reg = 1'bz;
-      
+
       	for(x = 7; x >= 0; x=x-1)
       	begin
       		 reading_reg = 1'b1;
@@ -1904,13 +1904,13 @@ integer x,temp;
 begin
 	CSn_Reg = 1'b0;
    #Tcss;
-     
+
    HOLDn_Reg = 1'b0;
-   
+
    output_dut_byte(`CMD_READ_STATUS);
-   
+
    HOLDn_Reg = 1'b1;
-     
+
    output_dut_byte(`CMD_READ_DATA);
    output_dut_byte(address[23:16]);
    output_dut_byte(address[15:8]);
@@ -1944,34 +1944,34 @@ begin
 
    spi_we;
    spi_es(address);
-   
+
    // Delay 50 ms and send
    #15000000
-   
+
 	spi_sr(status);
 	spi_suspend;
    spi_wait_busy(1000);
-   	
+
 	spi_rs(address,PAGESIZE,PAGESIZE);
 	spi_sr(status);
 	display_test_buf(PAGESIZE,PAGESIZE);
-	
+
 	pattern_test_buf(0,PAGESIZE,32'hff00ff00);
 	spi_we;
 	spi_ws(0,PAGESIZE,0);
 	spi_wait_busy(1000000);
-	$display("Should Fail");	
-      
+	$display("Should Fail");
+
    spi_resume;
-	spi_wait_busy(1000000);   
-	
+	spi_wait_busy(1000000);
+
 	spi_rs(address,PAGESIZE,PAGESIZE);
 	spi_sr(status);
 	display_test_buf(PAGESIZE,PAGESIZE);
-         
+
 	$display("Erase sector with Suspend / Resume (Address = %h)",address);
    $display("First sector dump should be pre erase data. Second sector dump should be erased data.");
-   
+
 end
 endtask
 
@@ -1988,35 +1988,35 @@ begin
 
    pattern_test_buf(0,PAGESIZE,32'h12345678);
    spi_we;
-   spi_ws(0,PAGESIZE,0);   
-      
+   spi_ws(0,PAGESIZE,0);
+
    // Delay 1ms and send
    #500000
-   
+
 	spi_sr(status);
 	spi_suspend;
    spi_wait_busy(1000);
-   	
+
 	spi_rs(address,PAGESIZE,PAGESIZE);
 	spi_sr(status);
 	display_test_buf(PAGESIZE,PAGESIZE);
-	
+
 	pattern_test_buf(0,PAGESIZE,32'hff00ff00);
 	spi_we;
 	spi_ws(0,PAGESIZE,0);
 	spi_wait_busy(1000000);
-	$display("Should Fail");	
-      
+	$display("Should Fail");
+
    spi_resume;
-	spi_wait_busy(1000000);   
-	
+	spi_wait_busy(1000000);
+
 	spi_rs(address,PAGESIZE,PAGESIZE);
 	spi_sr(status);
 	display_test_buf(PAGESIZE,PAGESIZE);
-         
+
 	$display("Program sector with Suspend / Resume (Address = %h)",address);
    $display("First sector dump should be partially written page. Second sector dump should be completely written page.");
-   
+
 end
 endtask
 
@@ -2030,9 +2030,9 @@ task spi_enable_reset;
 begin
 	CSn_Reg = 1'b0;
    #Tcss;
-     
+
    output_dut_byte(`CMD_ENABLE_RESET);
-   
+
 	$display("Enable Reset.");
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -2051,9 +2051,9 @@ task spi_chip_reset;
 begin
 	CSn_Reg = 1'b0;
    #Tcss;
-     
+
    output_dut_byte(`CMD_CHIP_RESET);
-   
+
 	$display("Chip Reset.");
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -2185,7 +2185,7 @@ begin
    #Tcss;
 
 	output_dut_byte(`CMD_GLOBAL_BLOCK_LOCK);
-	
+
 	$display("Global Lock");
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;
@@ -2205,7 +2205,7 @@ begin
    #Tcss;
 
 	output_dut_byte(`CMD_GLOBAL_BLOCK_UNLOCK);
-	
+
 	$display("Global Unlock");
 	#Tcsh CSn_Reg = 1'b1;
 	#Tcs;

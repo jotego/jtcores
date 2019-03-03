@@ -18,7 +18,7 @@
 
 // 1942 Character Generation CHARA-GENE
 // Schematics pages 7/8
-    
+
 module jt1942_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
@@ -104,12 +104,12 @@ reg [5:0] char_attr0, char_attr1, char_attr2;
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
-    // 4 pixels from processing the x,y,z and attr info.    
+    // 4 pixels from processing the x,y,z and attr info.
     if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
         char_attr1 <= char_attr0;
         char_attr0 <= dout_high[5:0];
-        char_addr  <= { {dout_high[7], dout_low}, 
+        char_addr  <= { {dout_high[7], dout_low},
             {3{dout_high[6] ^ flip /*vflip*/  }}^V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
@@ -119,7 +119,7 @@ always @(posedge clk) if(cen6) begin
             chd <= !flip ? {char_data[7:0],char_data[15:8]} : char_data;
             char_attr2 <= char_attr1;
         end
-        3'd6: 
+        3'd6:
             chd[7:0] <= chd[15:8];
         default:
             begin
@@ -135,7 +135,7 @@ always @(posedge clk) if(cen6) begin
     endcase
     // 1-pixel delay in order to latch signals:
     char_col <= flip ? { chd[0], chd[4] } : { chd[3], chd[7] };
-    char_pal <= char_attr2; 
+    char_pal <= char_attr2;
 end
 
 // palette ROM

@@ -35,7 +35,7 @@ module jt1943_objdraw(
     input   [7:0]      prog_addr,
     input              prom_7c_we,
     input              prom_8c_we,
-    input   [3:0]      prog_din,    
+    input   [3:0]      prog_din,
     // pixel data
     output reg  [7:0]  new_pxl
 );
@@ -76,8 +76,8 @@ always @(posedge clk) if(cen6) begin
         end
         default:;
     endcase
-    if( pxlcnt[1:0]==2'd3 ) begin   
-        obj_addr <= (!vinzone || objcnt==5'd0) ? 'd0 : 
+    if( pxlcnt[1:0]==2'd3 ) begin
+        obj_addr <= (!vinzone || objcnt==5'd0) ? 'd0 :
             { ADhigh, ADlow, VB[3:0],  pxlcnt[3:2] };
     end
 end

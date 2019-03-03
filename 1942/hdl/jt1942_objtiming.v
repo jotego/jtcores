@@ -18,14 +18,14 @@
     Date: 20-1-2019 */
 
 // 1942 Object Generation
-    
+
 module jt1942_objtiming(
     input              rst,
     input              clk,
     input              cen6,    //  6 MHz
     // screen
-    input   [7:0]      V,    
-    input   [8:0]      H,    
+    input   [7:0]      V,
+    input   [8:0]      H,
     input              HINIT,
     output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
@@ -35,7 +35,7 @@ module jt1942_objtiming(
     // Timing PROM
     input   [7:0]      prog_addr,
     input              prom_m11_we,
-    input   [1:0]      prog_din    
+    input   [1:0]      prog_din
 );
 
 always @(posedge clk) if(cen6) begin
@@ -54,7 +54,7 @@ always @(*) begin
     objcnt[2:0] = H[6:4];
 end
 
-always @(posedge clk) 
+always @(posedge clk)
     if( rst )
         line <= 1'b0;
     else if(cen6) begin

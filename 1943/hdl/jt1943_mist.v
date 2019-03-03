@@ -34,7 +34,7 @@ module jt1943_mist(
     output          SDRAM_nCS,      // SDRAM Chip Select
     output [1:0]    SDRAM_BA,       // SDRAM Bank Address
     output          SDRAM_CLK,      // SDRAM Clock
-    output          SDRAM_CKE,      // SDRAM Clock Enable   
+    output          SDRAM_CKE,      // SDRAM Clock Enable
    // SPI interface to arm io controller
     output          SPI_DO,
     input           SPI_DI,
@@ -78,7 +78,7 @@ wire [ 5:0]   board_r, board_g, board_b;
 wire          board_hsync, board_vsync, hs, vs;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
-wire          loop_rst, autorefresh, sdram_re; 
+wire          loop_rst, autorefresh, sdram_re;
 wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
@@ -95,7 +95,7 @@ wire enable_fm = ~status[8], enable_psg = ~status[7];
 wire game_pause;
 //`ifdef SIMULATION
 //wire dip_pause = 1'b0; // ~status[1];
-//`else 
+//`else
 wire dip_pause = ~status[1] & ~game_pause;
 //`endif
 
@@ -143,7 +143,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     // Base video
     .game_r         ( red           ),
     .game_g         ( green         ),
-    .game_b         ( blue          ),    
+    .game_b         ( blue          ),
     .board_r        ( board_r       ),
     .board_g        ( board_g       ),
     .board_b        ( board_b       ),
@@ -178,8 +178,8 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .SPI_SS4        ( SPI_SS4       ),
     .CONF_DATA0     ( CONF_DATA0    ),
     // control
-    .status         ( status        ), 
-    .joystick1      ( joystick1     ), 
+    .status         ( status        ),
+    .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .ps2_kbd_clk    ( ps2_kbd_clk   ),
     .ps2_kbd_data   ( ps2_kbd_data  ),
@@ -276,7 +276,7 @@ jt1943_game u_game(
     .dip_demosnd ( dip_demosnd    ),
     .dip_continue( dip_continue   ),
     .dip_price2  ( dip_price2     ),
-    .dip_price1  ( dip_price1     ),    
+    .dip_price1  ( dip_price1     ),
     .dip_flip    ( dip_flip       ),
 
     .coin_cnt    ( coin_cnt       ),
@@ -297,7 +297,7 @@ jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
     // VGA
     .cen6           ( cen6            ),
     .clk_vga        ( clk_vga         ),
-    .en_mixing      ( ~status[9]      ),    
+    .en_mixing      ( ~status[9]      ),
     .game_r         ( red             ),
     .game_g         ( green           ),
     .game_b         ( blue            ),
@@ -305,7 +305,7 @@ jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
     .LVBL           ( LVBL            ),
     .vga_r          ( board_r         ),
     .vga_g          ( board_g         ),
-    .vga_b          ( board_b         ),    
+    .vga_b          ( board_b         ),
     .vga_hsync      ( board_hsync     ),
     .vga_vsync      ( board_vsync     ),
     // joystick

@@ -83,8 +83,8 @@ always @(posedge clk) if(cen6) begin
         end
         default:;
     endcase
-    if( pxlcnt[1:0]==2'd3 ) begin   
-        obj_addr <= (!vinzone || objcnt==5'd0) ? 16'd0 : 
+    if( pxlcnt[1:0]==2'd3 ) begin
+        obj_addr <= (!vinzone || objcnt==5'd0) ? 16'd0 :
             { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}}, pxlcnt[2]^obj_hflip };
     end
 end
@@ -95,12 +95,12 @@ end
 reg [3:0] z,y,x,w;
 
 always @(posedge clk) if(cen6) begin
-    new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};   
+    new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
     posx    <= pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
     case( pxlcnt[3:0] )
         4'd3,4'd7,4'd11,4'd15:  // new data
                 {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
-        default: 
+        default:
             if( poshflip ) begin
                 z <= z >> 1;
                 y <= y >> 1;

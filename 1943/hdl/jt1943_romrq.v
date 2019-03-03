@@ -18,7 +18,7 @@
 
 module jt1943_romrq #(parameter AW=18, DW=8, INVERT_A0=0 )(
     input               rst,
-    input               clk, 
+    input               clk,
     input               cen,
     input [AW-1:0]      addr,
     input               addr_ok,
@@ -49,7 +49,7 @@ always @(*) begin
     req = init || ( !(hit0 || hit1) && addr_ok && !we);
 end
 
-always @(posedge clk) 
+always @(posedge clk)
     if( rst ) begin
         init <= 1'b1;
         deleterus <= 1'b0;
@@ -78,7 +78,7 @@ always @(*) begin
     if( INVERT_A0 )
         subaddr[0] <= ~addr[0];
     else
-        subaddr[0] <=  addr[0]; 
+        subaddr[0] <=  addr[0];
 end
 
 wire [31:0] data_mux = hit0 ? cached_data0 : cached_data1;

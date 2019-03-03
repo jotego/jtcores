@@ -17,7 +17,7 @@
     Date: 20-1-2019 */
 
 module jt1942_video(
-    input               rst,    
+    input               rst,
     input               clk,
     input               cen6,
     input               cen3,
@@ -37,27 +37,27 @@ module jt1942_video(
     output              char_wait_n,
     // SCROLL - ROM
     input               scr_cs,
-    input       [ 1:0]  scrpos_cs,    
+    input       [ 1:0]  scrpos_cs,
     output              scr_wait_n,
-    output      [ 7:0]  scram_dout,    
+    output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,
     input       [ 2:0]  scr_br,
     // OBJ
     input               obj_cs,
-    input               HINIT,    
+    input               HINIT,
     output      [14:0]  obj_addr,
-    input       [15:0]  objrom_data,    
+    input       [15:0]  objrom_data,
     // Color Mix
     input               LVBL,
-    input               LHBL,       
-    input               LHBL_obj,       
+    input               LHBL,
+    input               LHBL_obj,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue,
     // PROM access
     input       [7:0]   prog_addr,
-    input       [3:0]   prog_din,    
+    input       [3:0]   prog_din,
     input               prom_f1_we,
     input               prom_d1_we,
     input               prom_d2_we,
@@ -98,7 +98,7 @@ jt1942_char #(.HOFFSET(scrchr_off)) u_char (
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     )
 );
-`else 
+`else
 assign char_wait_n = 1'b1;
 assign char_pxl = 4'hf;
 `endif
@@ -125,7 +125,7 @@ jt1942_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .prom_d1_we   ( prom_d1_we    ),
     .prom_d2_we   ( prom_d2_we    ),
     .prom_d6_we   ( prom_d6_we    ),
-    .prom_din     ( prog_din      ),    
+    .prom_din     ( prog_din      ),
 
     // ROM
     .scr_addr     ( scr_addr[13:0]),
@@ -134,7 +134,7 @@ jt1942_scroll #(.HOFFSET(scrchr_off)) u_scroll (
 );
 assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
     // leave bit 14 to maintain the same ROM interface as with GnG
-`else 
+`else
 assign scr_wait_n = 1'b1;
 assign scr_pxl = ~6'h0;
 `endif
@@ -150,12 +150,12 @@ jt1942_colmix u_colmix (
     .char_pxl   ( char_pxl      ),        // character color code
     .scr_pxl    ( scr_pxl       ),
     .obj_pxl    ( obj_pxl       ),
-    // Palette PROMs E8, E9, E10 
+    // Palette PROMs E8, E9, E10
     .prog_addr  ( prog_addr     ),
     .prom_e8_we ( prom_e8_we    ),
     .prom_e9_we ( prom_e9_we    ),
     .prom_e10_we( prom_e10_we   ),
-    .prom_din   ( prog_din      ),    
+    .prom_din   ( prog_din      ),
     // output
     .red        ( red           ),
     .green      ( green         ),
@@ -167,7 +167,7 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
-jt1942_obj u_obj(   
+jt1942_obj u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( cen6      ),

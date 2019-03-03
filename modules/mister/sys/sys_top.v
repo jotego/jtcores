@@ -53,7 +53,7 @@ module sys_top
 	output [23:0] HDMI_TX_D,
 	output        HDMI_TX_HS,
 	output        HDMI_TX_VS,
-	
+
 	input         HDMI_TX_INT,
 
 	//////////// SDR ///////////
@@ -123,7 +123,7 @@ always @(posedge FPGA_CLK2_50) begin
 
 	div <= div + 1'b1;
 	if(div > 100000) div <= 0;
-	
+
 	if(!div) begin
 		deb_user <= {deb_user[6:0], ~(BTN_USER & KEY[1])};
 		if(&deb_user) btn_user <= 1;
@@ -149,7 +149,7 @@ wire [31:0] gp_out;
 wire  [1:0] io_ver    = 1; // 0 - standard MiST I/O (for quick porting of complex MiST cores). 1 - optimized HPS I/O. 2,3 - reserved for future.
 wire        io_wait;
 wire        io_wide;
-wire [15:0] io_dout;                  
+wire [15:0] io_dout;
 wire [15:0] io_din    = gp_outr[15:0];
 wire        io_clk    = gp_outr[17];
 wire        io_fpga   = gp_outr[18];
@@ -371,7 +371,7 @@ wire [127:0] vbuf_writedata;
 wire  [15:0] vbuf_byteenable;
 wire         vbuf_write;
 
-ascal 
+ascal
 #(
 	.RAMBASE(32'h20000000),
 	.N_DW(128),
@@ -537,9 +537,9 @@ always @(posedge FPGA_CLK1_50) begin
 
 	gotd  <= cfg_got;
 	gotd2 <= gotd;
-	
+
 	adj_write <= 0;
-	
+
 	custd <= cfg_custom_t;
 	custd2 <= custd;
 	if(custd2 != custd & ~gotd) begin
@@ -711,7 +711,7 @@ always @(posedge clk_audio) begin
 	reg signed [16:0] als, al, acl, apl;
 	reg signed [16:0] ars, ar, acr, apr;
 
-	{acl,acr} <= audio_s ? {audio_ls[15],audio_ls,audio_rs[15],audio_rs}: 
+	{acl,acr} <= audio_s ? {audio_ls[15],audio_ls,audio_rs[15],audio_rs}:
 	                       {2'b00,audio_ls[15:1],  2'b00,audio_rs[15:1]};
 
 	als <= acl + {alsa_l[15],alsa_l};
@@ -730,7 +730,7 @@ always @(posedge clk_audio) begin
 		2: ar <= ars - (ars >>> 2) + (als >>> 2);
 		3: ar <= (ars >>> 1) + (als >>> 1);
 	endcase
-	
+
 	if(vol_att[4]) begin
 		apl <= 0;
 		apr <= 0;
@@ -845,7 +845,7 @@ endmodule
 module sync_fix
 (
 	input clk,
-	
+
 	input sync_in,
 	output sync_out
 );

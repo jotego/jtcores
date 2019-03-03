@@ -21,7 +21,7 @@
 //
 
 // parameter STRLEN and the actual length of conf_str have to match
- 
+
 module user_io #(parameter STRLEN=0, parameter PS2DIV=100) (
 	input [(8*STRLEN)-1:0] conf_str,
 
@@ -69,7 +69,7 @@ module user_io #(parameter STRLEN=0, parameter PS2DIV=100) (
 	output              ps2_mouse_clk,
 	output reg          ps2_mouse_data,
 
-	// serial com port 
+	// serial com port
 	input [7:0]         serial_data,
 	input               serial_strobe
 );
@@ -156,14 +156,14 @@ always@(posedge clk_sys) begin
 			if((ps2_kbd_tx_state >= 1)&&(ps2_kbd_tx_state < 9)) begin
 				ps2_kbd_data <= ps2_kbd_tx_byte[0];			  // data bits
 				ps2_kbd_tx_byte[6:0] <= ps2_kbd_tx_byte[7:1]; // shift down
-				if(ps2_kbd_tx_byte[0]) 
+				if(ps2_kbd_tx_byte[0])
 					ps2_kbd_parity <= !ps2_kbd_parity;
 			end
 
 			// transmission of parity
 			if(ps2_kbd_tx_state == 9)
 				ps2_kbd_data <= ps2_kbd_parity;
-			
+
 			// transmission of stop bit
 			if(ps2_kbd_tx_state == 10)
 				ps2_kbd_data <= 1'b1;			// stop bit is 1
@@ -171,7 +171,7 @@ always@(posedge clk_sys) begin
 			// advance state machine
 			if(ps2_kbd_tx_state < 11)
 				ps2_kbd_tx_state <= ps2_kbd_tx_state + 4'd1;
-			else	
+			else
 				ps2_kbd_tx_state <= 4'd0;
 		end
 	end
@@ -225,7 +225,7 @@ always@(posedge clk_sys) begin
 			if((ps2_mouse_tx_state >= 1)&&(ps2_mouse_tx_state < 9)) begin
 				ps2_mouse_data <= ps2_mouse_tx_byte[0];			  // data bits
 				ps2_mouse_tx_byte[6:0] <= ps2_mouse_tx_byte[7:1]; // shift down
-				if(ps2_mouse_tx_byte[0]) 
+				if(ps2_mouse_tx_byte[0])
 					ps2_mouse_parity <= !ps2_mouse_parity;
 			end
 
@@ -240,7 +240,7 @@ always@(posedge clk_sys) begin
 			// advance state machine
 			if(ps2_mouse_tx_state < 11)
 				ps2_mouse_tx_state <= ps2_mouse_tx_state + 4'd1;
-			else	
+			else
 				ps2_mouse_tx_state <= 4'd0;
 		end
 	end
@@ -253,7 +253,7 @@ localparam SERIAL_OUT_FIFO_BITS = 6;
 reg [7:0] serial_out_fifo [(2**SERIAL_OUT_FIFO_BITS)-1:0];
 reg [SERIAL_OUT_FIFO_BITS-1:0] serial_out_wptr;
 reg [SERIAL_OUT_FIFO_BITS-1:0] serial_out_rptr;
- 
+
 wire serial_out_data_available = serial_out_wptr != serial_out_rptr;
 wire [7:0] serial_out_byte = serial_out_fifo[serial_out_rptr] /* synthesis keep */;
 wire [7:0] serial_out_status = { 7'b1000000, serial_out_data_available};
@@ -263,11 +263,11 @@ wire [7:0] serial_out_status = { 7'b1000000, serial_out_data_available};
 always @(posedge serial_strobe or posedge status[0]) begin
 	if(status[0] == 1) begin
 		serial_out_wptr <= 0;
-	end else begin 
+	end else begin
 		serial_out_fifo[serial_out_wptr] <= serial_data;
 		serial_out_wptr <= serial_out_wptr + 1'd1;
 	end
-end 
+end
 
 always@(negedge spi_sck or posedge status[0]) begin
 	if(status[0] == 1) begin
@@ -288,7 +288,7 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin
 		bit_cnt <= 0;
 		byte_cnt <= 0;
 	end else begin
-		if((bit_cnt == 7)&&(~&byte_cnt)) 
+		if((bit_cnt == 7)&&(~&byte_cnt))
 			byte_cnt <= byte_cnt + 8'd1;
 
 		bit_cnt <= bit_cnt + 1'd1;
@@ -384,7 +384,7 @@ always @(posedge clk_sys) begin
 		abyte_cnt <= 8'd0;
 	end else if (spi_receiver_strobeD ^ spi_receiver_strobe) begin
 
-		if(~&abyte_cnt) 
+		if(~&abyte_cnt)
 			abyte_cnt <= abyte_cnt + 8'd1;
 
 		if(abyte_cnt == 0) begin
@@ -399,12 +399,12 @@ always @(posedge clk_sys) begin
 				8'h63: if (abyte_cnt < 5) joystick_3[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				8'h64: if (abyte_cnt < 5) joystick_4[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				8'h04: begin
-					// store incoming ps2 mouse bytes 
+					// store incoming ps2 mouse bytes
 					ps2_mouse_fifo[ps2_mouse_wptr] <= spi_byte_in;
 					ps2_mouse_wptr <= ps2_mouse_wptr + 1'd1;
 				end
 				8'h05: begin
-					// store incoming ps2 keyboard bytes 
+					// store incoming ps2 keyboard bytes
 					ps2_kbd_fifo[ps2_kbd_wptr] <= spi_byte_in;
 					ps2_kbd_wptr <= ps2_kbd_wptr + 1'd1;
 				end
@@ -480,7 +480,7 @@ always @(posedge clk_sd) begin
 		sd_buff_addr <= 0;
 	end else if (spi_receiver_strobeD ^ spi_receiver_strobe) begin
 
-		if(~&abyte_cnt) 
+		if(~&abyte_cnt)
 			abyte_cnt <= abyte_cnt + 8'd1;
 
 		if(abyte_cnt == 0) begin

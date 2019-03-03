@@ -16,7 +16,7 @@ module jt_gng_a7(
 	input		G4_3H,
 	input		CHVFLIP,	// from 6/8
 	input		CHHFLIP,
-	input		CHHFLIPq,	
+	input		CHHFLIPq,
 	input [9:0] AC,
 	input		FLIP,		// from 2/8
 	output		CH6M,		// to 8/8

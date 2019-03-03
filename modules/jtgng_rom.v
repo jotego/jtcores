@@ -18,13 +18,13 @@
 
 module jtgng_rom(
     input               rst,
-    input               clk, 
+    input               clk,
     input               cen12, // 12 MHz
     input       [ 2:0]  H,
     input               Hsub,
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_re, // any edge (rising or falling) 
+    output  reg         sdram_re, // any edge (rising or falling)
         // means a read request
 
     input       [12:0]  char_addr,
@@ -92,7 +92,7 @@ end
 // 3, 11        obj
 // 6, 14, 7, 15 scr
 
-always @(posedge clk) 
+always @(posedge clk)
 if( loop_rst || downloading ) begin
     //rd_state    <= { H,1'b1 };
     autorefresh <= 1'b0;
@@ -102,7 +102,7 @@ if( loop_rst || downloading ) begin
     char_dout <= 16'd0;
     obj_dout  <= 16'd0;
     scr_dout  <= 24'd0;
-    ready_cnt <=  4'd0;    
+    ready_cnt <=  4'd0;
     ready     <=  1'b0;
 end else if(cen12) begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
@@ -136,7 +136,7 @@ end else if(cen12) begin
         4'b?110: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
         4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
         default:;
-    endcase 
+    endcase
     autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
 end
 

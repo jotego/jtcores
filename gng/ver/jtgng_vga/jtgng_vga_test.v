@@ -7,7 +7,7 @@ module jtgng_vga_test;
         $dumpfile("test.lxt");
         `ifndef SIMPLL
         $dumpvars;
-        `else 
+        `else
         //$dumpvars;
         $dumpvars(0,UUT);
         $dumpvars(0,timer);
@@ -25,7 +25,7 @@ module jtgng_vga_test;
 `endif
 
 initial begin
-    #(4*1000*1000) $finish; 
+    #(4*1000*1000) $finish;
 end
 
 reg rst;
@@ -115,7 +115,7 @@ jtgng_timer timer (
     .LHBL     (LHBL   ),
     .LVBL     (LVBL   ),
     .LHBL_obj (),
-    .Vinit    ()    
+    .Vinit    ()
 );
 
 

@@ -54,7 +54,7 @@ module jt_gng_b8(
 reg [8:0] vscroll;
 reg [7:0] Vq;
 
-// posedge in the original, changed to negedge 
+// posedge in the original, changed to negedge
 // to cope with simulation timings more easily
 always @(negedge POS2) vscroll[7:0] <= DB;
 always @(negedge POS3) vscroll[ 8 ] <= DB[0];
@@ -80,7 +80,7 @@ jt74245 u_10A(
 always @(*)
 	if( SCREN_b ) begin
 		ram_a  = {	SH2, SH256, SH128,
-					SH64, SH32, SH16, V256S, 
+					SH64, SH32, SH16, V256S,
 					V128S, V64S, V32S, V16S };
 		ram_we_b = 1'b1;
 	end else begin
@@ -89,10 +89,10 @@ always @(*)
 	end
 
 jt_gng_genram #(.addrw(11),.id(8)) u_7A (
-	.A		(ram_a		), 
-	.D		(DF			), 
-	.cs_b	(1'b0		), 
-	.rd_b	(1'b0		), 
+	.A		(ram_a		),
+	.D		(DF			),
+	.cs_b	(1'b0		),
+	.rd_b	(1'b0		),
 	.wr_b	(ram_we_b	)
 );
 

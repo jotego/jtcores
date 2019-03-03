@@ -19,7 +19,7 @@
 // 1942: Main CPU
 
 module jt1942_main(
-    input              clk, 
+    input              clk,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     input              rst,
@@ -87,7 +87,7 @@ always @(*) begin
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
     brt_cs        = 1'b0;
-    obj_cs        = 1'b0;    
+    obj_cs        = 1'b0;
     casez(A[15:13])
         3'b0??: main_cs = 1'b1;
         3'b10?: main_cs = 1'b1; // bank
@@ -231,7 +231,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
 // interrupt generation
 reg int_n, LHBL_old;
 
-always @(posedge clk) 
+always @(posedge clk)
     if (rst) begin
         snd_int <= 1'b1;
         int_n   <= 1'b1;
@@ -255,7 +255,7 @@ wire wait_n = scr_wait_n & char_wait_n;
 //`undef Z80_ALT_CPU
 //`endif
 
-`ifdef VERILATOR_LINT 
+`ifdef VERILATOR_LINT
 `define Z80_ALT_CPU
 `endif
 
@@ -265,29 +265,29 @@ wire wait_n = scr_wait_n & char_wait_n;
 // This CPU is used for synthesis
 wire [211:0] z80_regs;
 `ifdef SIMULATION
-wire reg_IFF2; 
-wire reg_IFF1; 
+wire reg_IFF2;
+wire reg_IFF1;
 wire [1:0]  reg_IM;    // 4
-wire [15:0] reg_IY; 
-wire [15:0] reg_HL_; 
-wire [15:0] reg_DE_; 
-wire [15:0] reg_BC_; 
-wire [15:0] reg_IX; 
-wire [15:0] reg_HL; 
-wire [15:0] reg_DE; 
-wire [15:0] reg_BC; 
-wire [15:0] reg_PC; 
-wire [15:0] reg_SP; // 164 
-wire [7:0]  reg_R; 
-wire [7:0]  reg_I; 
-wire [7:0]  reg_F_; 
-wire [7:0]  reg_A_; 
-wire [7:0]  reg_F; 
+wire [15:0] reg_IY;
+wire [15:0] reg_HL_;
+wire [15:0] reg_DE_;
+wire [15:0] reg_BC_;
+wire [15:0] reg_IX;
+wire [15:0] reg_HL;
+wire [15:0] reg_DE;
+wire [15:0] reg_BC;
+wire [15:0] reg_PC;
+wire [15:0] reg_SP; // 164
+wire [7:0]  reg_R;
+wire [7:0]  reg_I;
+wire [7:0]  reg_F_;
+wire [7:0]  reg_A_;
+wire [7:0]  reg_F;
 wire [7:0]  reg_A;
-assign { 
-    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_, 
-    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I, 
-    reg_F_, reg_A_, reg_F, reg_A } = z80_regs; 
+assign {
+    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_,
+    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I,
+    reg_F_, reg_A_, reg_F, reg_A } = z80_regs;
 `endif
 T80s u_cpu(
     .RESET_n    ( t80_rst_n   ),

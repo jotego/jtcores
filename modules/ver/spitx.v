@@ -107,13 +107,13 @@ initial begin
 end
 
 always @(posedge clk or posedge rst)
-if( rst ) begin 
+if( rst ) begin
     tx_cnt <= 8000;
     state <= 0;
     SPI_SS2 <= 1'b0;
     spi_done <= 1'b0;
-    send     <= 1'b0; 
-    hold     <= 1'b1;  
+    send     <= 1'b0;
+    hold     <= 1'b1;
 end
 else begin
     if( !hold ) begin
@@ -122,7 +122,7 @@ else begin
     SPI_SS2 <= 1'b0;
     send    <= 1'b0;
     case( state )
-        0: begin            
+        0: begin
             if( tx_cnt )
                 tx_cnt <= tx_cnt-1; // wait for SDRAM to be ready
             else begin

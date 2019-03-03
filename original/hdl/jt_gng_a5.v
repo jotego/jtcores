@@ -99,7 +99,7 @@ module jt_gng_a5(
 
 	wire H1_2_4;
 	assign #2 H1_2_4 = ~&{ H1, XH2, XH4 };
-	
+
 	wire C4, D3, D4;
 	assign G4_3H = C4;
 	assign OH = D3;
@@ -111,7 +111,7 @@ module jt_gng_a5(
 		.cl_b	( 1'b1 	),
 		.d		( H1_2_4 	),
 		.q		( sh5_4nb_q	)
-	);	
+	);
 
 	jt7474 sh5_4nc(
 		.clk	( X6M	),
@@ -119,7 +119,7 @@ module jt_gng_a5(
 		.cl_b	( 1'b1 	),
 		.d		( sh5_4nb_q 	),
 		.q_b	( D3	)
-	);	
+	);
 
 	jt7474 sh5_4na(
 		.clk	( L6M	),
@@ -135,7 +135,7 @@ module jt_gng_a5(
 		.cl_b	( 1'b1 	),
 		.d		( C4 & ~XH4	),
 		.q		( D4		)
-	);	
+	);
 
 	wire LHBL;
 	wire sh5_5m_j, sh5_5m_k;
@@ -149,7 +149,7 @@ module jt_gng_a5(
 		.j		( sh5_5m_j	),
 		.k		( sh5_5m_k	),
 		.q_b	( LHBL		)
-	);		
+	);
 
 	// vertical line counter
 	wire V1, VINIT;
@@ -161,7 +161,7 @@ module jt_gng_a5(
 		.cl_b	( 1'b1 	),
 		.d		( sh5_1k_ca	),
 		.q		( VCLK	)
-	);	
+	);
 
 	jt7474 sh5_3lb(
 		.clk	( VCLK	),
@@ -216,7 +216,7 @@ module jt_gng_a5(
 		.cl_b	( 1'b1 	),
 		.d		( IRQ1_b	),
 		.q		( LVBL		)
-	);	
+	);
 
 	wire [7:0] sh5_2m_y_b, sh5_4k_y_b;
 	wire CMP_SYNC;
@@ -251,7 +251,7 @@ module jt_gng_a5(
 		.Y		( sh5_1j_y 	),
 		.en4_b	( 1'b0 		),
 		.en6_b	( 1'b0 		)
-	);	
+	);
 
 endmodule
 

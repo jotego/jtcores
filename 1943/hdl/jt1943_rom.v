@@ -18,13 +18,13 @@
 
 module jt1943_rom(
     input               rst,
-    input               clk, 
+    input               clk,
     input               cen12, // 12 MHz
     input       [ 2:0]  H,
     input               Hsub,
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_re, // any edge (rising or falling) 
+    output  reg         sdram_re, // any edge (rising or falling)
         // means a read request
 
     input       [13:0]  char_addr, //  32 kB
@@ -94,7 +94,7 @@ always @(posedge clk) if(cen12) begin
         sdram_re <= ~sdram_re;
 end
 
-always @(posedge clk) 
+always @(posedge clk)
 if( loop_rst || downloading ) begin
     sdram_addr <= {(addr_w+col_w){1'b0}};
     main_dout <=  8'd0;
@@ -102,13 +102,13 @@ if( loop_rst || downloading ) begin
     obj_dout  <= 16'd0;
     scr1_dout <= 16'd0;
     scr2_dout <= 16'd0;
-    ready_cnt <=  4'd0;    
+    ready_cnt <=  4'd0;
     ready     <=  1'b0;
 end else if(cen12) begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
     rd_state_last <= rd_state;
     // Get data from current read
-    casez(rd_state_last) 
+    casez(rd_state_last)
         4'b?100: scr1_dout <= data_read;
 
         4'b??01: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
@@ -137,7 +137,7 @@ end else if(cen12) begin
         4'b?011: sdram_addr <= obj_offset + { 6'b0,  obj_addr }; // 15:0
         4'b?111: sdram_addr <= scr2_offset+ { 7'b0, scr2_addr }; // scr_addr E ROMs
         default:;
-    endcase 
+    endcase
     // autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
 end
 

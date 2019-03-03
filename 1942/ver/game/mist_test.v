@@ -36,7 +36,7 @@ module mist_test;
         $shm_open("test.shm");
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
-        `else        
+        `else
             //$shm_probe(UUT.u_game.u_main,"A");
             $shm_probe(UUT.u_game.u_video.u_obj,"AS");
             $shm_probe(UUT.u_game.u_video.u_colmix,"AS");
@@ -64,7 +64,7 @@ wire SPI_SCK, SPI_DO, SPI_DI, SPI_SS2, CONF_DATA0;
 wire [15:0] SDRAM_DQ;
 wire [12:0] SDRAM_A;
 wire [ 1:0] SDRAM_BA;
-wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS, 
+wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS,
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
 test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1942.rom"),
@@ -99,7 +99,7 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1942.rom"),
     .SDRAM_nCS   ( SDRAM_nCS ),
     .SDRAM_BA    ( SDRAM_BA  ),
     .SDRAM_CLK   ( SDRAM_CLK ),
-    .SDRAM_CKE   ( SDRAM_CKE )    
+    .SDRAM_CKE   ( SDRAM_CKE )
 );
 
 wire [5:0] VGA_R, VGA_G, VGA_B;

@@ -14,7 +14,7 @@ always @(posedge clk) begin
 
 	old_hs <= hs;
 	old_vs <= vs;
-	
+
 	if(old_hs && ~hs) begin
 		if(v2) begin
 			scanline <= scanline + 1'd1;

@@ -30,7 +30,7 @@ module jtgng_zxuno_prog(
     output     [20:0] sram_addr,
     output reg [ 7:0] sram_data,
     input      [20:0] game_addr8,
-    // 
+    //
     output reg        downloading
 );
 
@@ -56,14 +56,14 @@ if(rst) begin
     downloading <= 1'b1;
     romload_addr   <= 21'd0;
     flash_cs_n  <= 1'b1;
-    flash_clk   <= 1'b0;    
+    flash_clk   <= 1'b0;
     sram_we_n   <= 1'b1;
     sram_data   <= 8'd0;
     state       <= 2'd0;
     cnt         <= 5'd0;
 end else begin
     flash_clk <= ~flash_clk;
-    if(romload_addr!=TX_LEN) begin        
+    if(romload_addr!=TX_LEN) begin
         if(cnt==5'd0) state <= state + 2'd1;
         case( state )
             2'd0: begin
@@ -76,7 +76,7 @@ end else begin
                 cnt <= cnt!=5'd0 ? (cnt - 5'd1) : 5'd8;
             end
             2'd2: begin // wait data input
-                if ( cnt!=5'd0 ) 
+                if ( cnt!=5'd0 )
                     cnt<=cnt-5'd1;
                 else begin
                     sram_data  <= flash_read;

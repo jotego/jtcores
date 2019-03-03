@@ -60,8 +60,8 @@ reg lock_array[0:NUM_LOCKBITS];                                            // 51
 
 reg [23:0] status_reg;				      // Status Register
 reg [23:0] status_reg_shadow;			// Status Register Shadow Register
-reg status_reg_otp [23:0];      // Status Register OTP Bits 
-reg [23:0] byte_address;				    // Page address used for reading pages. 
+reg status_reg_otp [23:0];      // Status Register OTP Bits
+reg [23:0] byte_address;				    // Page address used for reading pages.
 reg [23:0] prog_byte_address;   // Page address used for writing pages.
 reg [8:0] prog_byte_number;
 reg [7:0] mode_reg;					        // Mode Register
@@ -104,19 +104,19 @@ reg [7:0] out_byte;
 
 // Logic output for WPn pin.
 //
-reg WPn_Reg, WPn_Output_Enable_reg; 
+reg WPn_Reg, WPn_Output_Enable_reg;
 wire WPn_Output_Enable = WPn_Output_Enable_reg;
 
 // Logic output for HOLDn pin.
 //
-reg HOLDn_Reg, HOLDn_Output_Enable; 
+reg HOLDn_Reg, HOLDn_Output_Enable;
 
 // Logic output for DO pin.
 //
 reg DO_Reg, DO_Output_Enable, temp_DO_Output_Enable;
 
 // Logic output for DIO pin.
-// 
+//
 reg DIO_Reg, DIO_Output_Enable_reg, temp_DIO_Output_Enable_reg;
 wire DIO_Output_Enable = DIO_Output_Enable_reg;
 
@@ -236,25 +236,25 @@ reg [15:0] file_length;
 `define WEL	 					1
 `define WIP	 					0
 
-                                        
+
 // Required for specify block
 wire flag_quad_mode = status_reg[`QE];
 wire flag_quad_mode_cs = !flag_quad_mode & !CSn;
 
 specify
 
-specparam tReset_Suspend_Max = 1000;      // Reset / Suspend Granularity. Controls maximum amount of time for model to recognize a Suspend command.  
+specparam tReset_Suspend_Max = 1000;      // Reset / Suspend Granularity. Controls maximum amount of time for model to recognize a Suspend command.
                                          // Also controls amount of time it takes to recognize a reset command
 
 // CSn timing checks
 
-specparam	tSLCH = 5;					
-$setup(negedge CSn, posedge CLK, tSLCH, timing_error); 
+specparam	tSLCH = 5;
+$setup(negedge CSn, posedge CLK, tSLCH, timing_error);
 
-specparam tCHSL = 5;					
+specparam tCHSL = 5;
 $setup(posedge CLK, negedge CSn, tCHSL, timing_error);
 
-specparam	tSHSL_R = 10;					
+specparam	tSHSL_R = 10;
 specparam tSHSL_W = 50;
 $width(posedge CSn &&& flag_read_op, tSHSL_R, 0, timing_error);
 $width(posedge CSn &&& (~flag_read_op), tSHSL_W, 0, timing_error);
@@ -323,7 +323,7 @@ $hold(posedge CLK, negedge HOLDn &&& (flag_quad_mode_cs),tHLCH, timing_error);
 specparam tCHHH = 5;
 $setup(posedge CLK, posedge HOLDn &&& (flag_quad_mode_cs),tCHHH, timing_error);
 
-specparam tHHCH = 5;               
+specparam tHHCH = 5;
 $hold(posedge CLK, posedge HOLDn &&& (flag_quad_mode_cs), tHHCH, timing_error);
 
 
@@ -350,24 +350,24 @@ simulation.
 initial
 begin :initialization
 
-   
+
 // Erase memory array to FFh state.
 //	for(x = 0; x < (NUM_PAGES * PAGESIZE); x=x+1)
 //		memory[x] = 8'hff;
-//		
-//	dump_mem();	
-		
+//
+//	dump_mem();
+
   $readmemh(`MEM_FILENAME,memory);
   $readmemh(`SECSI_FILENAME,secsi);
   $readmemh(`SFDP_FILENAME,sfdp);
   $readmemh(`SREG_FILENAME,status_reg_otp);
-  
+
   chip_reset();
 
 end
 
 /******************************************************************************
-The following continuous assignment statement assigns the DIO_Reg register to the 
+The following continuous assignment statement assigns the DIO_Reg register to the
 DIO inout wire and so on for the rest of the quad outputs.
 ******************************************************************************/
 
@@ -400,18 +400,18 @@ begin :read_opcode
 
 	if((mode_reg & 8'h30) != 8'h20)			  // If we are in mode 0x20, skip inputing command byte, execute last command
 	   input_byte(cmd_byte);	           // Read Opcode from SPI Port
-		   
+
 	if(!is_qpi(cmd_byte))
 	begin
 		$display("WARNING: Non-QPI command was executed in QPI mode");
     $stop;
 	end
-	
+
 	if(cmd_byte != `CMD_CHIP_RESET)
 	   flag_enable_reset = 0;   // Ensure that ENABLE_RESET immediately precedes CHIP_RESET
 
 	case (cmd_byte)				         // Now dispatch the correct function
-	    
+
 
 // Mode and Reset commands.
 
@@ -424,7 +424,7 @@ begin :read_opcode
      				get_posclk_holdn;
      				flag_set_read_param = 0;
  		  end
-    end  
+    end
 
     `CMD_ENABLE_QPI :
     begin
@@ -433,19 +433,19 @@ begin :read_opcode
          if(status_reg[`QE] == 1)
              flag_qpi_mode = 1;
       end
-    end  
+    end
 
     `CMD_MODE_RESET :
 	  begin
-	    if(!flag_power_down)   
+	    if(!flag_power_down)
  		       flag_qpi_mode = 0;
 	  end
-	
+
 	  `CMD_ENABLE_RESET :            // Reset can happen at any time.
 	  begin
-       flag_enable_reset = 1;		    
+       flag_enable_reset = 1;
 	  end
-	    
+
 		`CMD_CHIP_RESET :
 		begin
 		   if(flag_enable_reset == 1)
@@ -456,7 +456,7 @@ begin :read_opcode
        end
     end
 
- // Power, ID and Extended Address commands		            
+ // Power, ID and Extended Address commands
 
 		`CMD_DEEP_POWERDOWN :
 		begin
@@ -467,8 +467,8 @@ begin :read_opcode
 		     flag_power_down = 0;
 			end
 		end
-		
-	  		
+
+
 		`CMD_READ_SIGNATURE :
 		begin
          if(!status_reg[`WIP])
@@ -502,7 +502,7 @@ begin :read_opcode
 		begin
          if(!status_reg[`WIP] && !flag_power_down)
          begin
-            byte_address = 0;               
+            byte_address = 0;
             input_byte(byte_address[23:16]);
             input_byte(byte_address[15:8]);
             input_byte(byte_address[7:0]);
@@ -518,15 +518,15 @@ begin :read_opcode
                  output_byte(MANUFACTURER);
                  output_byte(DEVICE_ID);
               end
-            end				    
+            end
          end
       end
 
-     `CMD_READ_ID_DUAL :  
+     `CMD_READ_ID_DUAL :
 	   begin
          if(!status_reg[`WIP] && !flag_power_down)
          begin
-            byte_address = 0;                          
+            byte_address = 0;
             input_byte_dual(byte_address[23:16]);
             input_byte_dual(byte_address[15:8]);
             input_byte_dual(byte_address[7:0]);
@@ -543,19 +543,19 @@ begin :read_opcode
                   output_byte_dual(MANUFACTURER);
                   output_byte_dual(DEVICE_ID);
                end
-            end				    
+            end
          end
       end
 
       `CMD_READ_ID_QUAD :
       begin
          if(!status_reg[`WIP] && !flag_power_down && status_reg[`QE])
-         begin  
-            byte_address = 0;                       
+         begin
+            byte_address = 0;
             input_byte_quad(byte_address[23:16]);
             input_byte_quad(byte_address[15:8]);
             input_byte_quad(byte_address[7:0]);
-            input_byte_quad(mode_reg[7:0]);                
+            input_byte_quad(mode_reg[7:0]);
             input_byte_quad(temp[7:0]);
             input_byte_quad(temp[7:0]);
             forever
@@ -570,10 +570,10 @@ begin :read_opcode
                   output_byte_quad(MANUFACTURER);
                   output_byte_quad(DEVICE_ID);
                end
-            end				    
+            end
          end
       end
-    
+
    	`CMD_READ_UNIQUE_ID :
 		begin
 			if(!status_reg[`WIP] && !flag_power_down)
@@ -585,7 +585,7 @@ begin :read_opcode
 				output_byte(UNIQUE_ID[63:56]);
 				output_byte(UNIQUE_ID[55:48]);
 				output_byte(UNIQUE_ID[47:40]);
-				output_byte(UNIQUE_ID[39:32]);	
+				output_byte(UNIQUE_ID[39:32]);
 				output_byte(UNIQUE_ID[31:24]);
 				output_byte(UNIQUE_ID[23:16]);
 				output_byte(UNIQUE_ID[15:8]);
@@ -593,7 +593,7 @@ begin :read_opcode
 			end
 		end
 
-			
+
 
 // Status Register commands
 
@@ -602,13 +602,13 @@ begin :read_opcode
 			if((!flag_power_down)	&& (WPn || status_reg[`QE]))
 				status_reg[`WEL] = 1;
 	   end
-	   
+
 	   `CMD_WRITE_ENABLE_VSR :
 	   begin
-			if(!flag_power_down)	
+			if(!flag_power_down)
 			   flag_volatile_sr_write = 1;
 	   end
-	   
+
 	   `CMD_WRITE_DISABLE :
 	   begin
 	      if(!flag_power_down)
@@ -657,19 +657,19 @@ begin :read_opcode
   		        case ({status_reg[`SRL],status_reg[`SRP]})
             2'b00, 2'b01 :
        					begin
-  		  	      		if((status_reg[`SRP] && WPn) || !status_reg[`SRP] || status_reg[`QE]) 
+  		  	      		if((status_reg[`SRP] && WPn) || !status_reg[`SRP] || status_reg[`QE])
          						begin
   					      		// Zero out high order byte of status register
            							status_reg_shadow[23:8] = status_reg[23:8];
           			 				input_byte(status_reg_shadow[7:0]);
            							// flag write now that we have 8 bits....2nd 8 bits is optional
-                  // command must bail if /CS does not go high at 8th or 16th clock  
+                  // command must bail if /CS does not go high at 8th or 16th clock
   		         					flag_write_status_reg = 1;
            							// 2nd byte is optional
            							if(flag_qpi_mode == 1)
            							   @(posedge CLK);
   							    else
-                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.							
+                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.
                   flag_write_status_reg = 0;
   						     	input_byte_no1stclock(temp);
            							flag_write_status_reg = 1;
@@ -677,14 +677,14 @@ begin :read_opcode
            							if(flag_qpi_mode == 1)
   							       @(posedge CLK);
            							else
-                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.							
+                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.
                   flag_write_status_reg = 0;
          						end
     		  			 end
   				    endcase
  		    end
 		end
-		
+
 		`CMD_WRITE_STATUS2 :
 		begin
 	     	if(!status_reg[`WIP] && (status_reg[`WEL] || flag_volatile_sr_write) && !flag_power_down && !status_reg[`SUS])
@@ -693,19 +693,19 @@ begin :read_opcode
 				    case ({status_reg[`SRL],status_reg[`SRP]})
 					  2'b00, 2'b01 :
 					  begin
-						   if((status_reg[`SRP] && WPn) || !status_reg[`SRP] || status_reg[`QE]) 
+						   if((status_reg[`SRP] && WPn) || !status_reg[`SRP] || status_reg[`QE])
 						   begin
 							    status_reg_shadow[23:16] = status_reg[23:16];
-							    status_reg_shadow[7:0] = status_reg[7:0];							    
+							    status_reg_shadow[7:0] = status_reg[7:0];
 			 				    input_byte(status_reg_shadow[15:8]);
 							    // flag write now that we have 8 bits....
-                  // command must bail if /CS does not go high at 8th clock  
+                  // command must bail if /CS does not go high at 8th clock
 							    flag_write_status_reg = 1;
 							    // 2nd byte is optional
 							    if(flag_qpi_mode == 1)
 							       @(posedge CLK);
 							    else
-                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.							
+                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.
                   flag_write_status_reg = 0;
 						   end
  					 end
@@ -721,18 +721,18 @@ begin :read_opcode
 				    case ({status_reg[`SRL],status_reg[`SRP]})
 					  2'b00, 2'b01 :
 					  begin
-						   if((status_reg[`SRP] && WPn) || !status_reg[`SRP] || status_reg[`QE]) 
+						   if((status_reg[`SRP] && WPn) || !status_reg[`SRP] || status_reg[`QE])
 						   begin
 							    status_reg_shadow[15:0] = status_reg[15:0];
 			 				    input_byte(status_reg_shadow[23:16]);
 							    // flag write now that we have 8 bits....
-                  // command must bail if /CS does not go high at 8th clock  
+                  // command must bail if /CS does not go high at 8th clock
 							    flag_write_status_reg = 1;
 							    // 2nd byte is optional
 							    if(flag_qpi_mode == 1)
 							       @(posedge CLK);
 							    else
-                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.							
+                     get_posclk_holdn;   // If an extra clock comes before CSn goes high, kill command read 2nd byte.
                   flag_write_status_reg = 0;
 						   end
  					 end
@@ -775,7 +775,7 @@ begin :read_opcode
             end
          end
       end
-      
+
       `CMD_RESUME :
       begin
           if(!flag_power_down)
@@ -788,9 +788,9 @@ begin :read_opcode
              end
           end
       end
-      
- // Erase Commands     
-      
+
+ // Erase Commands
+
 		`CMD_SECTOR_ERASE :
 		begin
 			if(status_reg[`WEL] && !flag_power_down && !status_reg[`SUS])
@@ -874,42 +874,42 @@ begin :read_opcode
 				read_page(0,0);
 			end
 		end
-		
+
 		`CMD_READ_DATA_FAST :
 		begin
 			if(!flag_power_down)
 				read_page(1,0);
 		end
-		
+
 		`CMD_READ_DATA_FAST_WRAP :
 		begin
       	   if(!flag_power_down)
-      	   begin  
+      	   begin
       	     if(flag_qpi_mode)
-              read_page_quadio(cmd_byte);     	       
-            else  
+              read_page_quadio(cmd_byte);
+            else
               read_page(1,0);
-          end 
+          end
 		end
-		    
+
 		`CMD_READ_DATA_FAST_DUAL :
 		begin
 			if(!flag_power_down)
 				read_page(2,0);
 		end
-		
+
 		`CMD_READ_DATA_FAST_QUAD :
 		begin
 			if(!flag_power_down && status_reg[`QE])
 				read_page(3,0);
 		end
-		
+
 		`CMD_READ_DATA_FAST_DUAL_IO :
 		begin
 			if(!flag_power_down)
 				read_page_dualio;
 		end
-		
+
 		`CMD_READ_DATA_FAST_QUAD_IO :
 		begin
 			if(!flag_power_down && status_reg[`QE])
@@ -921,24 +921,24 @@ begin :read_opcode
 			if(!flag_power_down && status_reg[`QE])
 				read_page_quadio(cmd_byte);
 		end
-		
+
 		`CMD_READ_WORD_FAST_QUAD_IO :
 		begin
 		    if(!flag_power_down && status_reg[`QE])
 		       read_page_quadio(cmd_byte);
 		end
-		
+
 		`CMD_SET_BURST_WRAP :
 		begin
     			if(!flag_power_down && status_reg[`QE])
     			begin
-      	    	input_byte_quad(temp[7:0]);	
-   	    	   input_byte_quad(temp[7:0]);	
-   	    	   input_byte_quad(temp[7:0]);	   	    	      	    	   
-   	    	   input_byte_quad(wrap_reg[7:0]);	   	    	      	    	   
+      	    	input_byte_quad(temp[7:0]);
+   	    	   input_byte_quad(temp[7:0]);
+   	    	   input_byte_quad(temp[7:0]);
+   	    	   input_byte_quad(wrap_reg[7:0]);
 			end
 		end
-		
+
 		`CMD_READ_SFDP :
 		begin
 			if(!flag_power_down)
@@ -947,8 +947,8 @@ begin :read_opcode
 				read_page(0,2);
 			end
 		end
-		
-		
+
+
 // Security Register Opcodes
 
       `CMD_SREG_READ :
@@ -958,13 +958,13 @@ begin :read_opcode
 				    read_page(0,1);
 			   end
 		  end
-      
+
       `CMD_SREG_ERASE :
       begin
 			if(status_reg[`WEL] && !flag_power_down && !status_reg[`SUS])
 			begin
 			   flag_read_op_reg = 1'b0;
- 			   
+
 				 input_byte(byte_address[23:16]);
 				 input_byte(byte_address[15:8]);
 				 input_byte(byte_address[7:0]);
@@ -996,11 +996,11 @@ begin :read_opcode
 						   flag_erase_secsi_sector = 0;
 						end
 					end
-		
+
 				endcase
 			end
       end
-      
+
     `CMD_SREG_PROGRAM :
 		begin
 			if(status_reg[`WEL] && !flag_power_down && !status_reg[`SUS])
@@ -1013,7 +1013,7 @@ begin :read_opcode
             		    input_byte(prog_byte_address[23:16]);
 		              input_byte(prog_byte_address[15:8]);
 		              input_byte(prog_byte_address[7:0]);
-		            
+
    				          case (byte_address[23:8])
 					         16'h10 :
 					         if(!status_reg[`LB1])
@@ -1030,8 +1030,8 @@ begin :read_opcode
          end
 		end
 
-// Lock Bit commands		    	    
-    
+// Lock Bit commands
+
     `CMD_GLOBAL_BLOCK_LOCK :
     begin
       if(!status_reg[`WIP] && !flag_power_down)
@@ -1040,7 +1040,7 @@ begin :read_opcode
           lock_array[x] = 1;
       end
     end
-    
+
     `CMD_GLOBAL_BLOCK_UNLOCK :
     begin
       if(!status_reg[`WIP] && !flag_power_down)
@@ -1049,7 +1049,7 @@ begin :read_opcode
           lock_array[x] = 0;
       end
     end
-    
+
     `CMD_INDIVIDUAL_LOCK :
     begin
       if(!status_reg[`WIP] && !flag_power_down)
@@ -1058,11 +1058,11 @@ begin :read_opcode
    		    input_byte(byte_address[23:16]);
          input_byte(byte_address[15:8]);
          input_byte(byte_address[7:0]);
-         
+
          lock_array[lockbit_index(byte_address)] = 1;
       end
     end
-    
+
     `CMD_INDIVIDUAL_UNLOCK :
     begin
       if(!status_reg[`WIP] && !flag_power_down)
@@ -1071,11 +1071,11 @@ begin :read_opcode
    		    input_byte(byte_address[23:16]);
          input_byte(byte_address[15:8]);
          input_byte(byte_address[7:0]);
-         
+
          lock_array[lockbit_index(byte_address)] = 0;
       end
     end
-    
+
     `CMD_READ_BLOCK_LOCK :
     begin
       if(!status_reg[`WIP] && !flag_power_down)
@@ -1084,13 +1084,13 @@ begin :read_opcode
    		    input_byte(byte_address[23:16]);
          input_byte(byte_address[15:8]);
          input_byte(byte_address[7:0]);
-         
+
          null_reg[7:1] = 0;
          null_reg[0] = lock_array[lockbit_index(byte_address)];
          output_byte(null_reg);
       end
     end
-          		
+
 		default :
 		begin
 			$display("Invalid Opcode. (%0h)",cmd_byte);
@@ -1110,7 +1110,7 @@ always @(posedge CSn)		   		      // When CSn goes high, device becomes in-activ
 begin :disable_interface
 	#tSHQZ;						                  // Data-output disable time
 	HOLDn_Active = 1'b0;           // Disable HOLDn from mucking with output registers.
-	DO_Output_Enable = 1'b0;			    // Tri-state DO output.					
+	DO_Output_Enable = 1'b0;			    // Tri-state DO output.
 	DIO_Output_Enable_reg = 1'b0;		// Tri-state DIO output.
 	WPn_Output_Enable_reg = 1'b0;		// Tri-state WPn output
 	HOLDn_Output_Enable = 1'b0;		  // Tri-state HOLDn output
@@ -1134,10 +1134,10 @@ begin :disable_interface
 end
 
 /******************************************************************************
- The following routine occurs when HOLDn goes low.  
+ The following routine occurs when HOLDn goes low.
 ******************************************************************************/
 
-always @(negedge (HOLDn & !status_reg[`QE] & !CSn))		   		      
+always @(negedge (HOLDn & !status_reg[`QE] & !CSn))
 begin
 
    if(!HOLDn)
@@ -1149,25 +1149,25 @@ begin
       DO_Output_Enable = 1'b0;
       HOLDn_Active = 1'b1;
    end
-   
-   
+
+
 end
 
 /******************************************************************************
  The following routine occurs when HOLDn goes high.
 ******************************************************************************/
 
-always @(posedge HOLDn)		   		      
+always @(posedge HOLDn)
 begin
 
    if(HOLDn_Active == 1'b1)
    begin
        #tHHQX;
        DIO_Output_Enable_reg = temp_DIO_Output_Enable_reg;
-       DO_Output_Enable = temp_DO_Output_Enable;	
+       DO_Output_Enable = temp_DO_Output_Enable;
        HOLDn_Active = 1'b0;
    end
-   
+
 end
 
 /******************************************************************************
@@ -1189,17 +1189,17 @@ begin
 	HOLDn_Active = 1'b0;
 
 	// Set all output registers to default to 0
-	
+
 	DIO_Reg = 1'b0;
 	DO_Reg = 1'b0;
 	WPn_Reg = 1'b0;
 	HOLDn_Reg = 1'b0;
-	
+
 	mode_reg = 8'h00;					        // Setup null mode register
 	wrap_reg = 8'b00010000;       // Setup Bit 4 of wrap register to 1 as default
 	read_param_reg = 8'h00;       // Reset defaults for read parameter register
 
-   
+
 	status_reg = 0;             		// Status register default OTP values.
   status_reg[`QE] = status_reg_otp[`QE];
   status_reg[`SRL] = status_reg_otp[`SRL];
@@ -1216,13 +1216,13 @@ begin
   status_reg[`HLD_RST] = status_reg_otp[`HLD_RST];
   status_reg[`LB1] = status_reg_otp[`LB1];
   status_reg[`LB2] = status_reg_otp[`LB2];
-  status_reg[`LB3] = status_reg_otp[`LB3];	
-	
+  status_reg[`LB3] = status_reg_otp[`LB3];
+
 	flag_prog_page = 0;
 	flag_prog_secsi_page = 0;
 	flag_erase_sector = 0;
 	flag_erase_half_block = 0;
-  flag_erase_block = 0;		
+  flag_erase_block = 0;
 	flag_erase_secsi_sector = 0;
 	flag_erase_bulk = 0;
 	flag_power_down = 0;
@@ -1234,7 +1234,7 @@ begin
 	flag_suspend = 1'b0;          // clear erase suspend status
 	flag_suspend_enabled = 1'b0;
 	flag_volatile_sr_write = 1'b0;
-	flag_qpi_mode = 0;   
+	flag_qpi_mode = 0;
 	flag_enable_reset = 0;
 	flag_reset = 0;
 	flag_reset_condition = 0;
@@ -1244,12 +1244,12 @@ begin
 	null_reg = 0;
 	in_byte = 0;
 	out_byte = 0;
-	
+
 	// Reset the Lock Array to full write protect
-	
+
 	for(x = 0; x < NUM_LOCKBITS; x=x+1)
 	   lock_array[x] = 1;
-    
+
 end
 endtask
 
@@ -1267,11 +1267,11 @@ begin
    if(flag_qpi_mode == 1)
       input_byte_quad(input_data);
    else
-   begin	
+   begin
 	   // Set the DIO output register high-Z
 	   if(DIO_Output_Enable_reg != 1'b0)
 		   DIO_Output_Enable_reg = 1'b0;
-	
+
 	   for(x = 7; x >= 0; x=x-1)
 	   begin
 	      get_posclk_holdn;
@@ -1295,11 +1295,11 @@ begin
    if(flag_qpi_mode == 1)
       input_byte_quad_no1stclock(input_data);
    else
-   begin	
+   begin
       // Set the DIO output register high-Z
 	   if(DIO_Output_Enable_reg != 1'b0)
 		   DIO_Output_Enable_reg = 1'b0;
-	
+
 	   for(x = 7; x >= 0; x=x-1)
 	   begin
 	      if(x != 7)
@@ -1320,21 +1320,21 @@ task input_byte_dual;
 output [7:0] input_data;
 integer x;
 begin
-	
+
 	// Set the DIO output register high-Z
 	if(DIO_Output_Enable_reg != 1'b0)
 		DIO_Output_Enable_reg = 1'b0;
-	
+
 	// Set the DO output register high-Z
 	if(DO_Output_Enable != 1'b0)
 		DO_Output_Enable = 1'b0;
-	
+
 	for(x = 7; x >= 0; x=x-2)
 	begin
 	   get_posclk_holdn;
-	   
-	   input_data[x-1] = DIO;		
-		input_data[x] = DO;   
+
+	   input_data[x-1] = DIO;
+		input_data[x] = DO;
    end
 	in_byte = input_data;
 end
@@ -1349,21 +1349,21 @@ task input_mode_dual;
 output [5:0] input_data;
 integer x;
 begin
-	
+
 	// Set the DIO output register high-Z
 	if(DIO_Output_Enable_reg != 1'b0)
 		DIO_Output_Enable_reg = 1'b0;
-	
+
 	// Set the DO output register high-Z
 	if(DO_Output_Enable != 1'b0)
 		DO_Output_Enable = 1'b0;
-	
+
 	for(x = 5; x >= 0; x=x-2)
 	begin
 	   get_posclk_holdn;
-	   
-	   input_data[x-1] = DIO;		
-		input_data[x] = DO;   
+
+	   input_data[x-1] = DIO;
+		input_data[x] = DO;
    end
 
 end
@@ -1382,7 +1382,7 @@ begin
 	// Set the DIO output register high-Z
 	if(DIO_Output_Enable_reg != 1'b0)
 		DIO_Output_Enable_reg = 1'b0;
-	
+
 	// Set the DO output register high-Z
 	if(DO_Output_Enable != 1'b0)
 		DO_Output_Enable = 1'b0;
@@ -1420,7 +1420,7 @@ begin
 	// Set the DIO output register high-Z
 	if(DIO_Output_Enable_reg != 1'b0)
 		DIO_Output_Enable_reg = 1'b0;
-	
+
 	// Set the DO output register high-Z
 	if(DO_Output_Enable != 1'b0)
 		DO_Output_Enable = 1'b0;
@@ -1435,7 +1435,7 @@ begin
 
 	for(x = 7; x >= 0; x=x-4)
 	begin
-	   if(x != 7) 
+	   if(x != 7)
 	      @(posedge CLK);
 	  	input_data[x-3] = DIO;
      input_data[x-2] = DO;
@@ -1455,7 +1455,7 @@ task output_byte;
 input [7:0] output_data;
 integer x;
 begin
-   
+
    if(flag_qpi_mode == 1)
       output_byte_quad(output_data);
    else
@@ -1464,7 +1464,7 @@ begin
 	   for(x = 7; x >= 0; x=x-1)
 	   begin
 	      get_negclk_holdn;
-		   
+
 		   if(DO_Output_Enable == 1'b0)					// If the bus is not enabled, enable it now.
 			   DO_Output_Enable = 1'b1;
          #tCLQV DO_Reg = output_data[x];
@@ -1485,12 +1485,12 @@ begin
 	for(x = 7; x >= 0; x=x-2)
 	begin
 	   get_negclk_holdn;
-	   
+
 		if(DO_Output_Enable == 1'b0)					// If the bus is not enabled, enable it now.
 			DO_Output_Enable = 1'b1;
 		if(DIO_Output_Enable_reg == 1'b0)
 			DIO_Output_Enable_reg = 1'b1;
-	
+
 		#tCLQV ;
 		DIO_Reg = output_data[x-1];
      	DO_Reg = output_data[x];
@@ -1518,7 +1518,7 @@ begin
 			WPn_Output_Enable_reg = 1'b1;
 		if(HOLDn_Output_Enable == 1'b0)
 			HOLDn_Output_Enable = 1'b1;
-	
+
 		#tCLQV;
 		DIO_Reg = output_data[x-3];
 		DO_Reg = output_data[x-2];
@@ -1571,15 +1571,15 @@ input [31:0] delay;
 integer waitx;
 integer num_iterations;
 begin
-    
+
 // Warning, this routine is not recursive and cannot be called while suspend is enabled!
 
 // This function delays while optionally waiting for the suspend signal.  To reduce CPU simulation resources,
-// This routine will count in tReset_Suspend_Max increments down to a value less than tReset_Suspend_Max wait and then 
+// This routine will count in tReset_Suspend_Max increments down to a value less than tReset_Suspend_Max wait and then
 // look every nanosecond to finish. It exists under any circumstance if the chip is reset.
 
       waitx = 0;
-      
+
       if(delay >= tReset_Suspend_Max)
       begin
         num_iterations = delay / tReset_Suspend_Max;
@@ -1596,12 +1596,12 @@ begin
 		  end
 
       num_iterations = delay % tReset_Suspend_Max;
-    		for(waitx = 0; waitx < num_iterations; waitx=waitx+1)    
+    		for(waitx = 0; waitx < num_iterations; waitx=waitx+1)
     		begin
     		   if(flag_reset_condition)                                  // check for chip reset while part is programming
     		      waitx = num_iterations;
 	      else
-	      begin 
+	      begin
 		      wait(!flag_suspend_enabled || flag_reset_condition);   // check for erase suspend while waiting
           #1;
 		   end
@@ -1621,11 +1621,11 @@ integer num_iterations;
 begin
 
 // This task delays while waiting for the reset signal.  To reduce CPU simulation resources,
-// This routine will count in tReset_Suspend_Max increments down to a value less than tReset_Suspend_Max wait and then 
+// This routine will count in tReset_Suspend_Max increments down to a value less than tReset_Suspend_Max wait and then
 // look every nanosecond to finish. It exists under any circumstance if the chip is reset.
 
       waitx = 0;
-      
+
       if(delay >= tReset_Suspend_Max)
       begin
         num_iterations = delay / tReset_Suspend_Max;
@@ -1673,7 +1673,7 @@ begin
    			    	write_protected = 1'b1 ^ status_reg[`CMPB];
     			  else
     				   write_protected = 1'b0 ^ status_reg[`CMPB];
-    		end		
+    		end
     		5'b00010 :
     		begin
     			  if(byte_address >= (NUM_PAGES * 31 / 32 * PAGESIZE))
@@ -1688,7 +1688,7 @@ begin
     			  else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    		
+
     		5'b00100 :
     		begin
     			  if(byte_address >= (NUM_PAGES * 7 / 8 * PAGESIZE))
@@ -1731,7 +1731,7 @@ begin
     			  else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    		
+
     		5'b01100 :
     		begin
     			  if(byte_address >= (NUM_PAGES * 1 / 8 * PAGESIZE))
@@ -1753,7 +1753,7 @@ begin
     			  else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b10001 :
     		begin
     			  if(byte_address < (NUM_PAGES * 1023 / 1024 * PAGESIZE))
@@ -1761,7 +1761,7 @@ begin
   			   else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b10010 :
     		begin
     			  if(byte_address < (NUM_PAGES * 511 / 512 * PAGESIZE))
@@ -1769,7 +1769,7 @@ begin
     			  else
     				   write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b10011:
     		begin
     			  if(byte_address < (NUM_PAGES * 255 / 256 * PAGESIZE))
@@ -1777,7 +1777,7 @@ begin
     			  else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b1010? :
     		begin
     			  if(byte_address < (NUM_PAGES * 127 / 128 * PAGESIZE))
@@ -1785,7 +1785,7 @@ begin
     			  else
     				   write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b11001 :
     		begin
     			  if(byte_address < (NUM_PAGES * 1 / 1024 * PAGESIZE))
@@ -1793,7 +1793,7 @@ begin
   			   else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b11010 :
     		begin
     			  if(byte_address < (NUM_PAGES * 1 / 512 * PAGESIZE))
@@ -1801,7 +1801,7 @@ begin
     			  else
     				   write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b11011:
     		begin
     			  if(byte_address < (NUM_PAGES * 1 / 256 * PAGESIZE))
@@ -1809,7 +1809,7 @@ begin
     			  else
     			   	write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    
+
     		5'b1110? :
     		begin
     			  if(byte_address < (NUM_PAGES * 1 / 128 * PAGESIZE))
@@ -1817,13 +1817,13 @@ begin
     			  else
     				   write_protected = 1'b0 ^ status_reg[`CMPB];
     		end
-    		
 
-    
+
+
      	5'b??111 :
     		begin
     				 write_protected = 1'b1 ^ status_reg[`CMPB];
-    		end		
+    		end
     	endcase
 	end
 end
@@ -1843,7 +1843,7 @@ begin
      	case (cmd_byte)				         // check command byte for being valid in QPI mode.
 
       `CMD_WRITE_ENABLE, `CMD_WRITE_ENABLE_VSR, `CMD_WRITE_DISABLE, `CMD_READ_STATUS,
-      `CMD_READ_STATUS2, `CMD_READ_STATUS3, `CMD_WRITE_STATUS, `CMD_WRITE_STATUS2, `CMD_WRITE_STATUS3, `CMD_PAGE_PROGRAM, 
+      `CMD_READ_STATUS2, `CMD_READ_STATUS3, `CMD_WRITE_STATUS, `CMD_WRITE_STATUS2, `CMD_WRITE_STATUS3, `CMD_PAGE_PROGRAM,
       `CMD_INDIVIDUAL_LOCK, `CMD_INDIVIDUAL_UNLOCK, `CMD_READ_BLOCK_LOCK, `CMD_GLOBAL_BLOCK_LOCK, `CMD_GLOBAL_BLOCK_UNLOCK,
       `CMD_SECTOR_ERASE,`CMD_HALF_BLOCK_ERASE, `CMD_BLOCK_ERASE, `CMD_BULK_ERASE, `CMD_BULK_ERASE2,
       `CMD_SUSPEND, `CMD_RESUME, `CMD_DEEP_POWERDOWN, `CMD_SET_READ_PARAM, `CMD_READ_DATA_FAST,
@@ -1852,13 +1852,13 @@ begin
        begin
          is_qpi = 1;
        end
-  
+
        default :
 	    begin
 		   is_qpi = 0;
 		   $display("Invalid Opcode for QPI mode. (%0h)",cmd_byte);
 	    end
-	    endcase 
+	    endcase
    end
    else
       is_qpi = 1;
@@ -1868,27 +1868,27 @@ endfunction
 
 /******************************************************************************
  The following function returns the lockbit index based on the passed byte address
- The array is indexed with BLOCK 0 sectors, then last Block sectors, 
+ The array is indexed with BLOCK 0 sectors, then last Block sectors,
  then block 1 - 510
  ******************************************************************************/
 
 function integer lockbit_index;
 input [23:0] byte_address;
 begin
-  
+
    if((byte_address[23:16] == 0) || (byte_address[23:16] == (NUM_BLOCKS-1)))
    begin
       if(byte_address[23:16] == 0)
          lockbit_index = byte_address[15:0] / SECTORSIZE;
-      else   
+      else
          lockbit_index = (byte_address[15:0] / SECTORSIZE) + 16;
    end
    else
      lockbit_index = byte_address[23:16] - 1 + 32;
 end
-endfunction   
-        
-         
+endfunction
+
+
 /******************************************************************************
  ******************************************************************************
  ******************************************************************************
@@ -1920,8 +1920,8 @@ integer x;
 begin
 	if(!status_reg[`WIP])
 	begin
-    
-		input_byte(byte_address[23:16]);	
+
+		input_byte(byte_address[23:16]);
 		input_byte(byte_address[15:8]);
 		input_byte(byte_address[7:0]);
 		if(fast_read)
@@ -1930,31 +1930,31 @@ begin
 		   begin
 		       for(x = 0; x <= read_param_reg[5:4];x = x + 1)
 		          input_byte(null_reg);
-		   end    
-		   else 
+		   end
+		   else
    			   input_byte(null_reg);
    	end
-   	
+
    	if(mem_read)    // SFDP Read and Security Register Read, input 8 dummy bytes.
    	  input_byte(null_reg);
-   	  
+
 		forever
 		begin
 		   if(mem_read == 1) // If we're reading a security sector, process output here.
 		   begin
          case(byte_address[23:8])
-           16'h10 :  
-       				  output_byte(secsi[byte_address[7:0]]);             
+           16'h10 :
+       				  output_byte(secsi[byte_address[7:0]]);
            16'h20 :
-       				  output_byte(secsi[byte_address[7:0]+PAGESIZE]);                       
+       				  output_byte(secsi[byte_address[7:0]+PAGESIZE]);
            16'h30 :
-       				  output_byte(secsi[byte_address[7:0]]+(2*PAGESIZE));                       
+       				  output_byte(secsi[byte_address[7:0]]+(2*PAGESIZE));
            default :
            begin
              $display("Invalid Security Page Address (%x)",byte_address);
              $stop;
            end
-         endcase  
+         endcase
        end
 		   else if(mem_read == 2) //If we're reading SFDP, process output here.
 		   begin
@@ -1964,7 +1964,7 @@ begin
 		     begin
 		        $display("Invalid SFDP Page Address (%x)", byte_address);
 		        $stop;
-         end		     
+         end
 	     end
 	     else    // Main Array Reads
 		   begin
@@ -1998,14 +1998,14 @@ begin
 	if(!status_reg[`WIP])
 	begin
 
-	  
 
-		input_byte_dual(byte_address[23:16]);	
+
+		input_byte_dual(byte_address[23:16]);
 		input_byte_dual(byte_address[15:8]);
 		input_byte_dual(byte_address[7:0]);
 		input_mode_dual(mode_reg[7:2]);         // Ensure that mode_reg is setup on posedge clock 22.
 	  get_posclk_holdn;                       // Get dummy last clock.
-      	
+
 		forever
 		begin
 			byte_address = byte_address & ADDRESS_MASK;
@@ -2036,14 +2036,14 @@ begin
   input_byte_quad(byte_address[23:16]);
 	input_byte_quad(byte_address[15:8]);
 	input_byte_quad(byte_address[7:0]);
-	
+
 
 	if(!status_reg[`WIP])
 	begin
 	   case (cmd)
 	       `CMD_READ_OCTAL_FAST_QUAD_IO :
           begin
-            input_byte_quad(mode_reg[7:0]);              
+            input_byte_quad(mode_reg[7:0]);
             if(byte_address[3:0] != 0)
             begin
 			         $display("WARNING: Error in Octal Word Read Quad I/O address input. A3-0 are non-zero!");
@@ -2053,14 +2053,14 @@ begin
 			    end
 			    `CMD_READ_DATA_FAST_QUAD_IO :
 			    begin
-             input_byte_quad(mode_reg[7:0]);			     
+             input_byte_quad(mode_reg[7:0]);
          			 input_byte_quad(null_reg);
         	 		 input_byte_quad(null_reg);
 			    end
 			    `CMD_READ_WORD_FAST_QUAD_IO :
 			    begin
-            input_byte_quad(mode_reg[7:0]);			     
-		        input_byte_quad(null_reg);            
+            input_byte_quad(mode_reg[7:0]);
+		        input_byte_quad(null_reg);
             if(byte_address[0] != 0)
             begin
 			         $display("WARNING: Error in Word Read Quad I/O address input. A0 is non-zero!");
@@ -2074,15 +2074,15 @@ begin
 		       for(x = 0; x <= read_param_reg[5:4];x = x + 1)
 		          input_byte_quad(null_reg);
   	       end
-			  
-		 endcase	   
+
+		 endcase
 		 forever
 		 begin
 			  byte_address = byte_address & ADDRESS_MASK;
 			  output_byte_quad(memory[byte_address]);
 			  if(cmd == `CMD_READ_DATA_FAST_WRAP)
 			  begin
-            case ({read_param_reg[1],read_param_reg[0]})		    
+            case ({read_param_reg[1],read_param_reg[0]})
                2'b00 :
 			         byte_address[2:0]  = byte_address[2:0] + 1;
                2'b01 :
@@ -2096,7 +2096,7 @@ begin
 			  else
 			  if(!wrap_reg[4] && ((cmd == `CMD_READ_WORD_FAST_QUAD_IO) || (cmd == `CMD_READ_DATA_FAST_QUAD_IO)))                     // wrap only a feature on non-fast read commands.
 		    begin
-            case ({wrap_reg[6],wrap_reg[5]})		    
+            case ({wrap_reg[6],wrap_reg[5]})
                2'b00 :
 			         byte_address[2:0]  = byte_address[2:0] + 1;
                2'b01 :
@@ -2109,7 +2109,7 @@ begin
          end
          else
 				    byte_address = byte_address + 1;
-			
+
 		end
 	end
 end
@@ -2168,7 +2168,7 @@ begin
 
 	for(x = 0; x < PAGESIZE; x=x+1)
 	   page_latch[x] = flag_secsi ? secsi[address+x] : memory[address+x];
-	
+
 	// Now update page latch with input data and signal a page_program operation
 	forever
 	begin
@@ -2196,20 +2196,20 @@ task dump_mem;
 integer x;
 integer file;
 begin
-  
+
   file = $fopen(`MEM_FILENAME);
   $fwrite(file,"/* Contents of Memory Array starting from address 0.  This is a standard Verilog readmemh format. */");
-  
+
   	// Erase memory array to FFh state.
 	for(x = 0; x < (NUM_PAGES * PAGESIZE); x=x+1)
 	begin
 	  if(x % 16)
 	     $fwrite(file,"%h ", memory[x]);
 	  else
-	     $fwrite(file,"\n%h ", memory[x]);	    
-  end		   
+	     $fwrite(file,"\n%h ", memory[x]);
+  end
   $fclose(file);
-  
+
 end
 endtask
 
@@ -2236,11 +2236,11 @@ begin :set_read_param
 	begin
 	   read_param_reg = read_param_reg_shadow;
 	end
-   flag_set_read_param = 0;	
+   flag_set_read_param = 0;
 end
- 				
- 				
- 				
+
+
+
 /******************************************************************************
  The following routine occurs when flag_reset goes high.
  This starts the main process for the reset process.
@@ -2254,7 +2254,7 @@ begin :reset
 	if((flag_reset == 1) && (flag_write_status_reg == 0))  // Execute command, except if within a write status register command.
 	begin
       flag_reset_condition = 1;
-      #tRES1;                     	    
+      #tRES1;
       chip_reset();
 
 	end
@@ -2315,7 +2315,7 @@ end
  This starts the main erase process for the handling erase suspend.
 ******************************************************************************/
 
-always @(posedge flag_suspend)		
+always @(posedge flag_suspend)
 
 begin :erase_suspend
 
@@ -2327,7 +2327,7 @@ begin :erase_suspend
       flag_suspend_enabled = 1'b1;
       status_reg[`WIP] = 0;
       status_reg[`WEL] = 0;
-      
+
    end
 end
 
@@ -2336,7 +2336,7 @@ end
  This starts the main erase process for the handling erase resume.
 ******************************************************************************/
 
-always @(posedge flag_resume)		
+always @(posedge flag_resume)
 
 begin :erase_resume
 
@@ -2349,7 +2349,7 @@ begin :erase_resume
 	   flag_resume = 1'b0;
 	   status_reg[`WEL] = 1;
 	   status_reg[`WIP] = 1;
-	   
+
    end
 end
 
@@ -2368,8 +2368,8 @@ integer x;
 	begin
 		status_reg[`WIP] = 1;
 
-    wait_reset_suspend(tSE);	
- 	  
+    wait_reset_suspend(tSE);
+
 		for(x = 0; x < SECTORSIZE; x=x+1)
 			memory[(byte_address[23:12] * SECTORSIZE) + x] = 8'hff;
 
@@ -2395,21 +2395,21 @@ integer x;
 		status_reg[`WIP] = 1;
 
     case(byte_address[23:8])
-      16'h10 :  
+      16'h10 :
       begin
-        wait_reset_suspend(tSE);      
+        wait_reset_suspend(tSE);
       		for(x = 0; x < PAGESIZE; x=x+1)
         			secsi[x] = 8'hff;
-   			end     
+   			end
       16'h20 :
       begin
-        wait_reset_suspend(tSE);      
+        wait_reset_suspend(tSE);
       		for(x = 0; x < PAGESIZE; x=x+1)
-        			secsi[x+PAGESIZE] = 8'hff;      
+        			secsi[x+PAGESIZE] = 8'hff;
    			end
       16'h30 :
       begin
-        wait_reset_suspend(tSE);      
+        wait_reset_suspend(tSE);
       		for(x = 0; x < PAGESIZE; x=x+1)
         			secsi[x+(PAGESIZE * 2)] = 8'hff;
    			end
@@ -2418,7 +2418,7 @@ integer x;
         $display("Invalid Security Page Erase Address (%x)",byte_address);
         $stop;
       end
-    endcase  
+    endcase
 
 		status_reg[`WIP] = 0;
 		status_reg[`WEL] = 0;
@@ -2442,7 +2442,7 @@ integer x;
 	if(flag_erase_block == 1)
 	begin
 		status_reg[`WIP] = 1;
-		
+
 		wait_reset_suspend(tBE2);
 
 		for(x = 0; x < BLOCKSIZE; x=x+1)
@@ -2487,7 +2487,7 @@ end
  This starts the main erase process for the entire chip.
 ******************************************************************************/
 
-always @(posedge flag_erase_bulk)	// When flag_erase_block goes high, device becomes active								
+always @(posedge flag_erase_bulk)	// When flag_erase_block goes high, device becomes active
                                   // and starts erasing the block defined by page_address
 begin :erase_bulk
 integer x;
@@ -2533,11 +2533,11 @@ integer x;                         // Local loop variable only to be used here.
       			prog_byte_address[7:0] = 0;
       			prog_byte_number = 256;
       		end
-      		
-      		for(x = prog_byte_address; x < (prog_byte_address+prog_byte_number[8:0]); x=x+1)    
+
+      		for(x = prog_byte_address; x < (prog_byte_address+prog_byte_number[8:0]); x=x+1)
       		begin
           		memory[x] = page_latch[x[7:0]] & memory[x];
-        		
+
         		if(x == prog_byte_address)
         			wait_reset_suspend(tBP1);
         		else
@@ -2564,38 +2564,38 @@ integer x;                                // Local loop variable only to be used
 	begin
     		status_reg[`WIP] = 1;
       prog_byte_address[7:0] = 0;
-      
+
       case(prog_byte_address[23:8])
-        16'h10 :  
+        16'h10 :
         begin
-           for(x = 0; x < PAGESIZE; x=x+1)    
+           for(x = 0; x < PAGESIZE; x=x+1)
            begin
               secsi[x] = page_latch[x] & secsi[x];
             		wait_reset_suspend(tPP / PAGESIZE);
          		end
-     			end     
+     			end
         16'h20 :
         begin
-           for(x = 0; x < PAGESIZE; x=x+1)    
+           for(x = 0; x < PAGESIZE; x=x+1)
            begin
               secsi[x+PAGESIZE] = page_latch[x] & secsi[x+PAGESIZE];
             		wait_reset_suspend(tPP / PAGESIZE);
          		end
-     			end     
+     			end
         16'h30 :
         begin
-           for(x = 0; x < PAGESIZE; x=x+1)    
+           for(x = 0; x < PAGESIZE; x=x+1)
            begin
               secsi[x+(PAGESIZE*2)] = page_latch[x] & secsi[x+(PAGESIZE*2)];
             		wait_reset_suspend(tPP / PAGESIZE);
          		end
-     			end     
+     			end
         default :
         begin
           $display("Invalid Security Page Program Address (%x)",prog_byte_address);
           $stop;
         end
-      endcase  
+      endcase
 
 		status_reg[`WIP] = 0;
 		status_reg[`WEL] = 0;
@@ -2628,14 +2628,14 @@ begin :write_status_reg
      status_reg[`BP0] = status_reg_shadow[`BP0];
      status_reg[`BP1] = status_reg_shadow[`BP1];
 	   status_reg[`BP2] = status_reg_shadow[`BP2];
-     status_reg[`TB] = status_reg_shadow[`TB];	   
+     status_reg[`TB] = status_reg_shadow[`TB];
 	   status_reg[`SEC] = status_reg_shadow[`SEC];
 	   status_reg[`CMPB] = status_reg_shadow[`CMPB];
 	   status_reg[`WPS] = status_reg_shadow[`WPS];
 	   status_reg[`DRV0] = status_reg_shadow[`DRV0];
 	   status_reg[`DRV1] =  status_reg_shadow[`DRV1];
 	   status_reg[`HLD_RST] = status_reg_shadow[`HLD_RST];
-	   
+
 	   // One time program OTP bits to 1.
      status_reg[`LB1] = status_reg[`LB1] | status_reg_shadow[`LB1];
      status_reg[`LB2] = status_reg[`LB2] | status_reg_shadow[`LB2];
@@ -2643,7 +2643,7 @@ begin :write_status_reg
 
 	   if(!flag_volatile_sr_write)
      begin
-      
+
          // Now set OTP bits
 
 	      status_reg_otp[`QE] = status_reg_shadow[`QE];
@@ -2664,14 +2664,14 @@ begin :write_status_reg
         status_reg_otp[`LB1] = status_reg[`LB1] | status_reg_shadow[`LB1];
         status_reg_otp[`LB2] = status_reg[`LB2] | status_reg_shadow[`LB2];
         status_reg_otp[`LB3] = status_reg[`LB3] | status_reg_shadow[`LB3];
-         
-     end   
-      
+
+     end
+
      // If QE bit got reset, make sure QPI mode is disabled.
      if(status_reg[`QE] == 0)
         flag_qpi_mode = 0;
-         
-  	
+
+
 	   if(status_reg[`WEL])
         wait_reset(tW);
 	   status_reg[`WIP] = 0;

@@ -4,7 +4,7 @@ module hdmi_config
 	//	Host Side
 	input			iCLK,
 	input			iRST_N,
-	
+
 	input       dvi_mode,
 	input       audio_96k,
 
@@ -29,7 +29,7 @@ i2c #(50_000_000, 20_000) i2c_av
 
 	.I2C_DATA({8'h72,init_data[LUT_INDEX]}),	//	DATA:[SLAVE_ADDR,SUB_ADDR,DATA]. 0x72 is the Slave Address of the ADV7513 chip!
 	.START(mI2C_GO),    		//	START transfer
-	.END(mI2C_END),			//	END transfer 
+	.END(mI2C_END),			//	END transfer
 	.ACK(mI2C_ACK) 			//	ACK
 );
 
@@ -64,7 +64,7 @@ end
 ////////////////////////////////////////////////////////////////////
 /////////////////////	Config Data LUT   //////////////////////////
 
-wire [15:0] init_data[58] = 
+wire [15:0] init_data[58] =
 '{
 	16'h9803,					// ADI required Write.
 
@@ -132,7 +132,7 @@ wire [15:0] init_data[58] =
 	16'h9F00,					// ADI required Write.
 
 	{8'hA1, 8'b0000_0000},	// [6]=1 Monitor Sense Power Down DISabled.
-	
+
 	16'hA408,					// ADI required Write.
 	16'hA504,					// ADI required Write.
 	16'hA600,					// ADI required Write.
@@ -141,7 +141,7 @@ wire [15:0] init_data[58] =
 	16'hA900,					// ADI required Write.
 	16'hAA00,					// ADI required Write.
 	16'hAB40,					// ADI required Write.
-	
+
 	{8'hAF, 6'b0000_01,~dvi_mode,1'b0},	// [7]=0 HDCP Disabled.
 									// [6:5] must be b00!
 									// [4]=0 Current frame is unencrypted
@@ -160,33 +160,33 @@ wire [15:0] init_data[58] =
 									// b101 = 0.8ns.
 									// b110 = 1.2ns.
 									// b111 = 1.6ns.
-					
+
 	16'hBB00,					// ADI required Write.
-	
+
 	16'hDE9C,					// ADI required Write.
 	16'hE460,					// ADI required Write.
 	16'hFA7D,					// Nbr of times to search for good phase
 
-	
+
 									// (Audio stuff on Programming Guide, Page 66)...
-	
+
 	{8'h0A, 8'b0000_0000},	// [6:4] Audio Select. b000 = I2S.
 									// [3:2] Audio Mode. (HBR stuff, leave at 00!).
 
 	{8'h0B, 8'b0000_1110},	//
-									
+
 	{8'h0C, 8'b0000_0100},	// [7] 0 = Use sampling rate from I2S stream.   1 = Use samp rate from I2C Register.
 									// [6] 0 = Use Channel Status bits from stream. 1 = Use Channel Status bits from I2C register.
 									// [2] 1 = I2S0 Enable.
 									// [1:0] I2S Format: 00 = Standard. 01 = Right Justified. 10 = Left Justified. 11 = AES.
-									
+
 	{8'h0D, 8'b0001_0000},	// [4:0] I2S Bit (Word) Width for Right-Justified.
 	{8'h14, 8'b0000_0010},	// [3:0] Audio Word Length. b0010 = 16 bits.
 	{8'h15, audio_96k, 7'b010_0000},	// I2S Sampling Rate [7:4]. b0000 = (44.1KHz). b0010 = 48KHz.
 									// Input ID [3:1] b000 (0) = 24-bit RGB 444 or YCrCb 444 with Separate Syncs.
 
 	// Audio Clock Config
-	16'h0100,					//  
+	16'h0100,					//
 	audio_96k ? 16'h0230 : 16'h0218,	// Set N Value 12288/6144
 	16'h0300,					//
 

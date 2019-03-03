@@ -83,10 +83,10 @@ jt74174 u8F( .clk(OH), .d(aux2[5:0]), .q(aux3), .cl_b(1'b1) );
 
 
 jt_gng_genram #(.addrw(11),.id(3)) u_7H (
-	.A		(ram_addr	), 
-	.D		(DC			), 
-	.cs_b	(1'b0		), 
-	.rd_b	(1'b0		), 
+	.A		(ram_addr	),
+	.D		(DC			),
+	.cs_b	(1'b0		),
+	.rd_b	(1'b0		),
 	.wr_b	(ram_we_b	)
 );
 

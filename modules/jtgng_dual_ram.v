@@ -29,8 +29,8 @@ module jtgng_dual_ram #(parameter dw=8, aw=10, simfile="")(
 reg [dw-1:0] mem[0:(2**aw)-1];
 
 `ifdef SIMULATION
-integer f, readcnt; 
-initial 
+integer f, readcnt;
+initial
 if( simfile != "" ) begin
     f=$fopen(simfile,"rb");
     readcnt=$fread( mem, f );

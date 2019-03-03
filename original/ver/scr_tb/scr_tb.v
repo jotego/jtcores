@@ -171,7 +171,7 @@ jt_gng_b1 i_jt_gng_b1 (
 	.V32F     (V32F     ),
 	.V64F     (V64F     ),
 	.V128F    (V128F    ),
-	.AB       (AB       ), // TODO: Check connection ! Signal/port not matching : Expecting logic [12:0]  -- Found logic [10:0] 
+	.AB       (AB       ), // TODO: Check connection ! Signal/port not matching : Expecting logic [12:0]  -- Found logic [10:0]
 	.OB       (OB       ),
 	.DB       (DB       ),
 	.BLCNTEN_b(BLCNTEN_b),
@@ -340,7 +340,7 @@ always @(posedge G6M) begin
 		3'd5: $write("+");
 		3'd6: $write("#");
 		3'd7: $write("@");
-	endcase 
+	endcase
 end
 
 endmodule // char_tb

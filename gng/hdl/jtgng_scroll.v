@@ -48,10 +48,10 @@ assign scrwin  = scrwin0;
 
 // align with sprites
 // jtgng_sh #(.width(7), .stages(4)) u_sh (
-//     .clk    ( clk    ), 
-//     .clk_en ( cen6   ), 
-//     .din    ( {scrwin0, scr_pal0, scr_col0} ), 
-//     .drop   ( {scrwin,  scr_pal,  scr_col } )   
+//     .clk    ( clk    ),
+//     .clk_en ( cen6   ),
+//     .din    ( {scrwin0, scr_pal0, scr_col0} ),
+//     .drop   ( {scrwin,  scr_pal,  scr_col } )
 // );
 
 
@@ -81,13 +81,13 @@ wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];
 
 always @(posedge clk) if(cen6) begin
-    if( scrpos_cs && AB[3]) 
+    if( scrpos_cs && AB[3])
     case(AB[1:0])
         2'd0: hpos[7:0] <= din;
         2'd1: hpos[8]   <= din[0];
         2'd2: vpos[7:0] <= din;
         2'd3: vpos[8]   <= din[0];
-    endcase 
+    endcase
 end
 
 wire [7:0] dout_low, dout_high;
@@ -129,7 +129,7 @@ always @(posedge clk) if(cen6) begin
         scr_attr1 <= scr_attr0;
         scr_attr0 <= dout_high[4:0];
         scr_addr  <= {   dout_high[7:6], dout_low, // AS
-                        HS[3]^dout_high[4] /*scr_hflip*/, 
+                        HS[3]^dout_high[4] /*scr_hflip*/,
                         {4{dout_high[5] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
     end
 end
@@ -143,7 +143,7 @@ always @(posedge clk) if(cen6) begin
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
     if( HS[2:0]==3'd2 ) begin
-            { z,y,x } <= scrom_data;     
+            { z,y,x } <= scrom_data;
             scr_hflip <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
             scr_attr2 <= scr_attr1[3:0];
         end
@@ -162,7 +162,7 @@ always @(posedge clk) if(cen6) begin
         end
     scr_col0  <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
     scr_pal0  <= scr_attr2[2:0];
-    scrwin0   <= scr_attr2[3]; 
+    scrwin0   <= scr_attr2[3];
 end
 
 endmodule // jtgng_scroll

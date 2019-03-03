@@ -69,7 +69,7 @@ jt_gng_a boardA (
 	.MRDY2_b  (MRDY2_b  ),
 	.G6M      (G6M      ),
 	.G4H	  (G4H		),
-	.G4_3H	  (G4_3H    ),	
+	.G4_3H	  (G4_3H    ),
 	.HINIT_b  (HINIT_b  ),
 	.H256     (H256     ),
 	.H128     (H128     ),
@@ -86,7 +86,7 @@ jt_gng_a boardA (
 	.SCD      (SCD      ),
 	.SCRX     (SCRX     ),
 	.SCRY     (SCRY     ),
-	.SCRZ     (SCRZ     )	
+	.SCRZ     (SCRZ     )
 );
 
 jt_gng_b boardB (
@@ -125,7 +125,7 @@ jt_gng_b boardB (
 	.H4       (H4       ),
 	.H2       (H2       ),
 	.H1       (H1       ),
-	.LHBL	  (LHBL		),	
+	.LHBL	  (LHBL		),
 	.OBJ      (OBJ      ),
 	.SCRWIN   (SCRWIN   ),
 	.SCD      (SCD      ),

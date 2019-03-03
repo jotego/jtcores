@@ -4,20 +4,20 @@ module test_harness(
     output  reg      rst,
     output  reg      clk,
     output  reg      clk27,
-    output           cen12, 
+    output           cen12,
     output           cen6,
     output           cen3,
     output           cen1p5,
     input   [21:0]   sdram_addr,
     output  [15:0]   data_read,
-    output           loop_rst, 
-    input            autorefresh,   
+    output           loop_rst,
+    input            autorefresh,
     input            H0,
     output           downloading,
     output    [21:0] ioctl_addr,
     output    [ 7:0] ioctl_data,
     output           ioctl_wr,
-    // Video dumping 
+    // Video dumping
     input             HS,
     input             VS,
     input       [3:0] red,
@@ -32,15 +32,15 @@ module test_harness(
     output       CONF_DATA0,
     // SDRAM
     inout [15:0] SDRAM_DQ,
-    inout [12:0] SDRAM_A,   
+    inout [12:0] SDRAM_A,
     inout        SDRAM_DQML,
-    inout        SDRAM_DQMH, 
-    inout        SDRAM_nWE,  
-    inout        SDRAM_nCAS, 
-    inout        SDRAM_nRAS, 
-    inout        SDRAM_nCS,  
-    inout [1:0]  SDRAM_BA,   
-    inout        SDRAM_CLK,  
+    inout        SDRAM_DQMH,
+    inout        SDRAM_nWE,
+    inout        SDRAM_nCAS,
+    inout        SDRAM_nRAS,
+    inout        SDRAM_nCS,
+    inout [1:0]  SDRAM_BA,
+    inout        SDRAM_CLK,
     inout        SDRAM_CKE
 );
 
@@ -52,7 +52,7 @@ parameter TX_LEN = 207;
 `ifdef DUMP_VIDEO
 integer fvideo;
 initial begin
-    fvideo = $fopen("video.bin","wb");    
+    fvideo = $fopen("video.bin","wb");
 end
 
 wire [15:0] video_dump = { 2'b0,VS,HS, red, green, blue  };
@@ -79,7 +79,7 @@ end
 reg frames_done=1'b0;
 always @(negedge VS)
     if( frame_cnt == `MAXFRAME ) frames_done <= 1'b1;
-`else 
+`else
 reg frames_done=1'b1;
 `endif
 
@@ -117,12 +117,12 @@ end
 
 parameter clk_speed=12;
 
-always @(*) 
+always @(*)
     case(clk_speed)
         24: clk = clk_cnt[1];
         12: clk = clk_cnt[2];
         6:  clk = clk_cnt[3];
-        default: begin 
+        default: begin
             $display("ERROR: Invalid value of clk_speed");
             $finish;
         end
@@ -141,7 +141,7 @@ integer rst_cnt;
 
 always @(negedge clk or posedge rst_base)
     if( rst_base ) begin
-        rst <= 1'b1; 
+        rst <= 1'b1;
         rst_cnt <= 2;
     end else if(cen6) begin
         if(rst_cnt) rst_cnt<=rst_cnt-1;
@@ -163,9 +163,9 @@ generate
 
         jtgng_sdram u_sdram(
             .rst            ( rst           ),
-            .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+            .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
             .H0             ( H0            ),
-            .loop_rst       ( loop_rst      ),  
+            .loop_rst       ( loop_rst      ),
             .autorefresh    ( autorefresh   ),
             .data_read      ( data_read     ),
             // ROM-load interface
@@ -184,7 +184,7 @@ generate
             .SDRAM_nRAS     ( SDRAM_nRAS    ),
             .SDRAM_nCS      ( SDRAM_nCS     ),
             .SDRAM_BA       ( SDRAM_BA      ),
-            .SDRAM_CKE      ( SDRAM_CKE     ) 
+            .SDRAM_CKE      ( SDRAM_CKE     )
         );
     end
 endgenerate
@@ -241,7 +241,7 @@ data_io #(.aw(22)) datain (
     .ioctl_data ( ioctl_data  ),
     .ioctl_wr   ( ioctl_wr    )
 );
-`else 
+`else
 assign downloading = 0;
 assign romload_addr = 0;
 assign romload_data = 0;

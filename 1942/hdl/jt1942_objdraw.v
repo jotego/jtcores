@@ -18,7 +18,7 @@
 
 module jt1942_objdraw(
     input              rst,
-    input              clk,     // 
+    input              clk,     //
     input              cen6,    //  6 MHz
     // screen
     input              flip,
@@ -60,8 +60,8 @@ wire [1:0] next_vlen  = objbuf_data1[7:6];
 wire       next_ADext = objbuf_data1[5];
 wire       next_hover = objbuf_data1[4];
 wire [3:0] next_CD    = objbuf_data1[3:0];
-wire [7:0] next_y     = objbuf_data2; 
-wire [7:0] next_x     = objbuf_data3; 
+wire [7:0] next_y     = objbuf_data2;
+wire [7:0] next_x     = objbuf_data3;
 
 wire [7:0] LVBETA = next_y + V2C;
 wire [7:0] VBETA = ~LVBETA;
@@ -78,8 +78,8 @@ always @(*) begin
         2'b10: VINlen = &LVBETA[7:6]; // 64 lines
         2'b11: VINlen = 1'b1;
     endcase // vlen
-    //VINZONE = ~(VINcmp & VINlen);    
-    VINZONE = ~(VINcmp & VINlen);    
+    //VINZONE = ~(VINcmp & VINlen);
+    VINZONE = ~(VINcmp & VINlen);
 end
 
 reg [14:0] pre_addr;
@@ -92,7 +92,7 @@ always @(posedge clk) if( cen6 ) begin
         pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
         case( next_vlen )
             2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
-            2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32 
+            2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
             2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
             2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
         endcase
@@ -117,11 +117,11 @@ wire [3:0] rom_at = 4'hc;
 
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};
-    if( pxlcnt == (rom_at+4'h2) ) begin // 
+    if( pxlcnt == (rom_at+4'h2) ) begin //
         CD       <= CD2;
         VINZONE3 <= VINZONE2;
     end
-    if( pxlcnt == rom_at+4'h2 ) 
+    if( pxlcnt == rom_at+4'h2 )
         posx1<=posx0;
     else posx1 <= posx1 + 9'b1;
     if( pxlcnt[1:0] == rom_at[1:0] )

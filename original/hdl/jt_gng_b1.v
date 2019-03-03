@@ -109,7 +109,7 @@ module jt_gng_b1(
 	input [8:0]  OB,
 	inout [7:0] DB,
 	output 		BLCNTEN_b,
-	
+
 	input		OBASEL_b,
 	input		OBBSEL_b,
 	output	[7:0] DEA,
@@ -127,7 +127,7 @@ module jt_gng_b1(
 );
 
 // 12K, 13K
-assign {V1F,V2F,V4F,V8F,V16F,V32F,V64F,V128F} 
+assign {V1F,V2F,V4F,V8F,V16F,V32F,V64F,V128F}
 	= {8{FLIP}} ^ { V1,V2,V4,V8,V16,V32,V64,V128};
 wire [7:0] VF = {V128F, V64F, V32F, V16F, V8F, V4F, V2F, V1F};
 wire FLIP_b = ~FLIP;
@@ -155,10 +155,10 @@ jt74245 u2 (.a(DB), .b(DE), .dir(1'b1), .en_b(BLCNTEN_b));
 // 11D, 13D
 wire pr3_b = ALC2_b & ( RQB_b | OVER96_b );
 
-jt7474 u14D_a (.d(1'b0), .pr_b(pr3_b), .cl_b(1'b1), 
+jt7474 u14D_a (.d(1'b0), .pr_b(pr3_b), .cl_b(1'b1),
 	.clk(OKOUT_b), .q(RQB_b), .q_b(RQB));
 
-jt7474 u14D_b (.d(AKB_b), .pr_b(RQB), .cl_b(1'b1), 
+jt7474 u14D_b (.d(AKB_b), .pr_b(RQB), .cl_b(1'b1),
 	.clk(phiBB), .q_b(BLEN));
 
 wire mem_WE_b = phiBB | BLCNTEN_b;
@@ -172,16 +172,16 @@ wire oba_en = OVER96 | OBASEL_b; // 11D
 wire obb_en = OVER96 | OBBSEL_b; // 11D
 
 jt74245 u_11F (
-	.a		(DE		), 
-	.b		(DEA	), 
-	.dir	(1'b1	), 
+	.a		(DE		),
+	.b		(DEA	),
+	.dir	(1'b1	),
 	.en_b	(oba_en	)
 );
 
 jt74245 u_12F (
-	.a		(DE		), 
-	.b		(DEB	), 
-	.dir	(1'b1	), 
+	.a		(DE		),
+	.b		(DEB	),
+	.dir	(1'b1	),
 	.en_b	(obb_en	)
 );
 
@@ -192,7 +192,7 @@ jt_gng_b1_alt alt (
 	.V        ({V128,V64,V32,V16,V8,V4,V2,V1}),
 	.FLIP     (FLIP     ),
 	.OB       (OB       ),
-	.DB       (DB       ),	
+	.DB       (DB       ),
 	.OBASEL_b (OBASEL_b ),
 	.OBBSEL_b (OBBSEL_b ),
 	.ALC2_b   (ALC2_b   ),

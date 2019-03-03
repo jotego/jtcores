@@ -17,7 +17,7 @@ module osd (
 	input  [5:0] B_in,
 	input        HSync,
 	input        VSync,
-	
+
 	// VGA signals going to video connector
 	output [5:0] R_out,
 	output [5:0] G_out,
@@ -91,7 +91,7 @@ reg  [9:0] vs_low, vs_high;
 wire       vs_pol = vs_high < vs_low;
 wire [9:0] dsp_height = vs_pol ? vs_low : vs_high;
 
-wire doublescan = (dsp_height>350); 
+wire doublescan = (dsp_height>350);
 
 reg ce_pix;
 always @(negedge clk_sys) begin
@@ -124,13 +124,13 @@ always @(posedge clk_sys) begin
 		hsD2 <= hsD;
 
 		// falling edge of HSync
-		if(!hsD && hsD2) begin	
+		if(!hsD && hsD2) begin
 			h_cnt <= 0;
 			hs_high <= h_cnt;
 		end
 
 		// rising edge of HSync
-		else if(hsD && !hsD2) begin	
+		else if(hsD && !hsD2) begin
 			h_cnt <= 0;
 			hs_low <= h_cnt;
 			v_cnt <= v_cnt + 1'd1;
@@ -142,13 +142,13 @@ always @(posedge clk_sys) begin
 		vsD2 <= vsD;
 
 		// falling edge of VSync
-		if(!vsD && vsD2) begin	
+		if(!vsD && vsD2) begin
 			v_cnt <= 0;
 			vs_high <= v_cnt;
 		end
 
 		// rising edge of VSync
-		else if(vsD && !vsD2) begin	
+		else if(vsD && !vsD2) begin
 			v_cnt <= 0;
 			vs_low <= v_cnt;
 		end
@@ -163,7 +163,7 @@ wire [9:0] v_osd_end   = v_osd_start + (OSD_HEIGHT<<doublescan);
 wire [9:0] osd_hcnt    = h_cnt - h_osd_start + 1'd1;  // one pixel offset for osd_byte register
 wire [9:0] osd_vcnt    = v_cnt - v_osd_start;
 
-wire osd_de = osd_enable && 
+wire osd_de = osd_enable &&
               (HSync != hs_pol) && (h_cnt >= h_osd_start) && (h_cnt < h_osd_end) &&
               (VSync != vs_pol) && (v_cnt >= v_osd_start) && (v_cnt < v_osd_end);
 

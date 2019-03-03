@@ -56,7 +56,7 @@ module ym2149
 
 	input        SEL,
 	input        MODE,
-	
+
 	output [5:0] ACTIVE,
 
 	input  [7:0] IOA_in,
@@ -143,7 +143,7 @@ always @(posedge CLK) begin
 		if(cnt_div==4'd0) begin
 			cnt_div <= {SEL, 3'b111};
 			ena_div <= 1;
-            
+
 			noise_div <= (~noise_div);
 			if (noise_div) ena_div_noise <= 1;
 		end else begin
@@ -192,7 +192,7 @@ always @(posedge CLK) begin
 
 	if(CE) begin
 		// looks like real chips count up - we need to get the Exact behaviour ..
-	
+
 		for (i = 1; i <= 3; i = i + 1) begin
 			if(ena_div) begin
 				if (tone_gen_freq[i]!=12'd0) begin
@@ -325,23 +325,23 @@ reg [7:0] volTable[64];
 
 initial begin
 	//YM2149
-	volTable[6'h00] = 8'h00; volTable[6'h01] = 8'h01; volTable[6'h02] = 8'h01; volTable[6'h03] = 8'h02; 
-	volTable[6'h04] = 8'h02; volTable[6'h05] = 8'h03; volTable[6'h06] = 8'h03; volTable[6'h07] = 8'h04; 
-	volTable[6'h08] = 8'h06; volTable[6'h09] = 8'h07; volTable[6'h0A] = 8'h09; volTable[6'h0B] = 8'h0a; 
-	volTable[6'h0C] = 8'h0c; volTable[6'h0D] = 8'h0e; volTable[6'h0E] = 8'h11; volTable[6'h0F] = 8'h13; 
-	volTable[6'h10] = 8'h17; volTable[6'h11] = 8'h1b; volTable[6'h12] = 8'h20; volTable[6'h13] = 8'h25; 
-	volTable[6'h14] = 8'h2c; volTable[6'h15] = 8'h35; volTable[6'h16] = 8'h3e; volTable[6'h17] = 8'h47; 
-	volTable[6'h18] = 8'h54; volTable[6'h19] = 8'h66; volTable[6'h1A] = 8'h77; volTable[6'h1B] = 8'h88; 
+	volTable[6'h00] = 8'h00; volTable[6'h01] = 8'h01; volTable[6'h02] = 8'h01; volTable[6'h03] = 8'h02;
+	volTable[6'h04] = 8'h02; volTable[6'h05] = 8'h03; volTable[6'h06] = 8'h03; volTable[6'h07] = 8'h04;
+	volTable[6'h08] = 8'h06; volTable[6'h09] = 8'h07; volTable[6'h0A] = 8'h09; volTable[6'h0B] = 8'h0a;
+	volTable[6'h0C] = 8'h0c; volTable[6'h0D] = 8'h0e; volTable[6'h0E] = 8'h11; volTable[6'h0F] = 8'h13;
+	volTable[6'h10] = 8'h17; volTable[6'h11] = 8'h1b; volTable[6'h12] = 8'h20; volTable[6'h13] = 8'h25;
+	volTable[6'h14] = 8'h2c; volTable[6'h15] = 8'h35; volTable[6'h16] = 8'h3e; volTable[6'h17] = 8'h47;
+	volTable[6'h18] = 8'h54; volTable[6'h19] = 8'h66; volTable[6'h1A] = 8'h77; volTable[6'h1B] = 8'h88;
 	volTable[6'h1C] = 8'ha1; volTable[6'h1D] = 8'hc0; volTable[6'h1E] = 8'he0; volTable[6'h1F] = 8'hff;
 
 	//AY8910
-	volTable[6'h20] = 8'h00; volTable[6'h21] = 8'h00; volTable[6'h22] = 8'h03; volTable[6'h23] = 8'h03; 
-	volTable[6'h24] = 8'h04; volTable[6'h25] = 8'h04; volTable[6'h26] = 8'h06; volTable[6'h27] = 8'h06; 
-	volTable[6'h28] = 8'h0a; volTable[6'h29] = 8'h0a; volTable[6'h2A] = 8'h0f; volTable[6'h2B] = 8'h0f; 
-	volTable[6'h2C] = 8'h15; volTable[6'h2D] = 8'h15; volTable[6'h2E] = 8'h22; volTable[6'h2F] = 8'h22; 
-	volTable[6'h30] = 8'h28; volTable[6'h31] = 8'h28; volTable[6'h32] = 8'h41; volTable[6'h33] = 8'h41; 
-	volTable[6'h34] = 8'h5b; volTable[6'h35] = 8'h5b; volTable[6'h36] = 8'h72; volTable[6'h37] = 8'h72; 
-	volTable[6'h38] = 8'h90; volTable[6'h39] = 8'h90; volTable[6'h3A] = 8'hb5; volTable[6'h3B] = 8'hb5; 
+	volTable[6'h20] = 8'h00; volTable[6'h21] = 8'h00; volTable[6'h22] = 8'h03; volTable[6'h23] = 8'h03;
+	volTable[6'h24] = 8'h04; volTable[6'h25] = 8'h04; volTable[6'h26] = 8'h06; volTable[6'h27] = 8'h06;
+	volTable[6'h28] = 8'h0a; volTable[6'h29] = 8'h0a; volTable[6'h2A] = 8'h0f; volTable[6'h2B] = 8'h0f;
+	volTable[6'h2C] = 8'h15; volTable[6'h2D] = 8'h15; volTable[6'h2E] = 8'h22; volTable[6'h2F] = 8'h22;
+	volTable[6'h30] = 8'h28; volTable[6'h31] = 8'h28; volTable[6'h32] = 8'h41; volTable[6'h33] = 8'h41;
+	volTable[6'h34] = 8'h5b; volTable[6'h35] = 8'h5b; volTable[6'h36] = 8'h72; volTable[6'h37] = 8'h72;
+	volTable[6'h38] = 8'h90; volTable[6'h39] = 8'h90; volTable[6'h3A] = 8'hb5; volTable[6'h3B] = 8'hb5;
 	volTable[6'h3C] = 8'hd7; volTable[6'h3D] = 8'hd7; volTable[6'h3E] = 8'hff; volTable[6'h3F] = 8'hff;
 end
 

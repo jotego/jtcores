@@ -19,10 +19,10 @@
 module jt1943_prom_we(
     input                clk_rom,
     input                clk_rgb,
-    input                downloading, 
-    input      [21:0]    ioctl_addr, 
+    input                downloading,
+    input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
-    input                ioctl_wr,   
+    input                ioctl_wr,
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
@@ -71,13 +71,13 @@ always @(posedge clk_rom) begin
             // this optimizes cache usage.
             prog_addr <= MAP1ADDR[21:1] + {map_start[21:5], map_start[3:1], map_start[4]};
             prog_mask <= {map_start[0], ~map_start[0]};
-        end        
+        end
         else if(ioctl_addr < OBJADDR) begin // SCR
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], scr_start[14:0]};
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
         else if(ioctl_addr < ROMEND) begin // OBJ
-            prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], 
+            prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16],
                 scr_start[14:6], scr_start[4:1], scr_start[5], scr_start[0] };
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
@@ -86,25 +86,25 @@ always @(posedge clk_rom) begin
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
             case(ioctl_addr[11:8])
-                4'h0: prom_we0 <= 13'h0_01;    // 
-                4'h1: prom_we0 <= 13'h0_02;    // 
-                4'h2: prom_we0 <= 13'h0_04;    // 
-                4'h3: prom_we0 <= 13'h0_08;    // 
-                4'h4: prom_we0 <= 13'h0_10;    // 
-                4'h5: prom_we0 <= 13'h0_20;    // 
-                4'h6: prom_we0 <= 13'h0_40;    // 
-                4'h7: prom_we0 <= 13'h0_80;    // 
-                4'h8: prom_we0 <= 13'h1_00;    // 
-                4'h9: prom_we0 <= 13'h2_00;    // 
-                4'ha: prom_we0 <= 13'h4_00;    // 
-                4'hb: prom_we0 <= 13'h8_00;    // 
-                default: prom_we0 <= 13'h0;    // 
-            endcase 
+                4'h0: prom_we0 <= 13'h0_01;    //
+                4'h1: prom_we0 <= 13'h0_02;    //
+                4'h2: prom_we0 <= 13'h0_04;    //
+                4'h3: prom_we0 <= 13'h0_08;    //
+                4'h4: prom_we0 <= 13'h0_10;    //
+                4'h5: prom_we0 <= 13'h0_20;    //
+                4'h6: prom_we0 <= 13'h0_40;    //
+                4'h7: prom_we0 <= 13'h0_80;    //
+                4'h8: prom_we0 <= 13'h1_00;    //
+                4'h9: prom_we0 <= 13'h2_00;    //
+                4'ha: prom_we0 <= 13'h4_00;    //
+                4'hb: prom_we0 <= 13'h8_00;    //
+                default: prom_we0 <= 13'h0;    //
+            endcase
             set_strobe <= 1'b1;
         end
     end
     else begin
-        prog_we <= 1'b0;        
+        prog_we <= 1'b0;
     end
 end
 

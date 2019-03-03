@@ -108,7 +108,7 @@ wire INCS_b;
 wire SCRPO_b;
 assign CBCS_b = SCRPO_b;
 jt_gng_a2 A2 (
-	.AB      (AB      ), 
+	.AB      (AB      ),
 	.WRAM_b  (WRAM_b  ),
 	.WRB_b   (WRB_b   ),
 	.RDB_b   (RDB_b   ),
@@ -294,7 +294,7 @@ reg lastHINIT, lastIRQ;
 always @(posedge G6M) begin
 	lastHINIT <= HINIT_b;
 	lastIRQ   <= IRQ1;
-	if( IRQ1 && !lastIRQ ) 
+	if( IRQ1 && !lastIRQ )
 		$write("-----------------------------------------------\n");
 	else
 	if( !HINIT_b && lastHINIT) $write("\n");

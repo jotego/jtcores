@@ -29,13 +29,13 @@ module jtgng_prom #(parameter dw=8, aw=10, simfile="", cen_rd=0 )(
 reg [dw-1:0] mem[0:(2**aw)-1];
 
 `ifdef SIMULATION
-integer f, readcnt; 
+integer f, readcnt;
 `ifndef LOADROM
 // load the file only when SPI load is not simulated
 initial begin
     if( simfile != "" ) begin
         f=$fopen(simfile,"rb");
-        if( f != 0 ) begin    
+        if( f != 0 ) begin
             readcnt=$fread( mem, f );
             $display("INFO: %m file %s loaded",simfile);
             $fclose(f);

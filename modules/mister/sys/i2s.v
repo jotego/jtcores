@@ -53,7 +53,7 @@ always @(posedge clk_sys) begin
 
 	reg msclk;
 	reg ce;
-	
+
 	lpf_ce <= 0;
 
 	if (reset) begin

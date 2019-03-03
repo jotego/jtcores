@@ -102,7 +102,7 @@ jtgng_vga u_scandoubler (
     .vga_hsync  ( vga_hsync     ),
     .vga_vsync  ( vga_vsync     )
 );
-`else 
+`else
 assign vga_r[5:1] = 4'd0;
 assign vga_g[5:1] = 4'd0;
 assign vga_b[5:1] = 4'd0;
@@ -115,10 +115,10 @@ wire [1:0] key_start, key_coin;
 
 
 `ifndef SIMULATION
-jtgng_keyboard u_keyboard( 
+jtgng_keyboard u_keyboard(
     .clk         ( clk_rgb       ),
     .rst         ( rst           ),
-    // ps2 interface    
+    // ps2 interface
     .ps2_clk     ( ps2_kbd_clk   ),
     .ps2_data    ( ps2_kbd_data  ),
     // decoded keys
@@ -129,7 +129,7 @@ jtgng_keyboard u_keyboard(
     .key_reset   ( key_reset     ),
     .key_pause   ( key_pause     )
 );
-`else 
+`else
 assign key_joy2  = 6'h0;
 assign key_joy1  = 6'h0;
 assign key_start = 2'd0;
@@ -152,7 +152,7 @@ localparam COIN_BIT  = 6+THREE_BUTTONS;
 reg last_pause, last_joypause_b, last_reset;
 wire joy_pause_b = joy1_sync[PAUSE_BIT] & joy2_sync[PAUSE_BIT];
 
-always @(posedge clk_rgb) 
+always @(posedge clk_rgb)
     if(rst ) begin
         game_pause <= 1'b0;
         soft_rst   <= 1'b0;

@@ -39,9 +39,9 @@ module jt1943_scroll(
     input   [7:0]      prog_addr,
     input              prom_msb_we,
     input              prom_lsb_we,
-    input   [3:0]      prom_din,    
+    input   [3:0]      prom_din,
 
-    // Map ROM    
+    // Map ROM
     output reg  [13:0] map_addr,
     input       [15:0] map_data,
     // Gfx ROM
@@ -85,14 +85,14 @@ always @(posedge clk) if(cen6) begin
 end
 
 `ifndef TESTSCR1
-always @(posedge clk) 
+always @(posedge clk)
     if( rst ) begin
         hpos <= 'd0;
     end else if(cen6) begin // same cen as main CPU
         if( scrposh_cs[1] && !wr_n ) hpos[15:8] <= din;
         if( scrposh_cs[0] && !wr_n ) hpos[ 7:0] <= din;
     end
-`else 
+`else
     initial hpos <= 'h100;
     always @(negedge LVBL)
         hpos <= hpos + 'h1;
@@ -114,7 +114,7 @@ always @(posedge clk) if(cen6) begin
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr0 <= dout_high[6:2];
         scr_addr[16:1] <= {   dout_high[0] & AS8MASK, dout_low, // AS
-                        HS[4:3]^{2{dout_high[6]}} /*scr_hflip*/, 
+                        HS[4:3]^{2{dout_high[6]}} /*scr_hflip*/,
                         {5{dout_high[7] /*vflip*/}}^SV[4:0] }; /*vert_addr*/
         scr_addr[0] <= HS[2]^dout_high[6];
     end
@@ -130,7 +130,7 @@ always @(posedge clk) if(cen6) begin
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
     if( HS[1:0]==2'd1 ) begin
-            { z,y,x,w } <= scrom_data;     
+            { z,y,x,w } <= scrom_data;
             scr_hflip   <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
             scr_attr2   <= scr_attr1[3:0];
         end

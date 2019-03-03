@@ -1,13 +1,13 @@
 // (C) 2001-2017 Intel Corporation. All rights reserved.
-// Your use of Intel Corporation's design tools, logic functions and other 
-// software and tools, and its AMPP partner logic functions, and any output 
-// files any of the foregoing (including device programming or simulation 
-// files), and any associated documentation or information are expressly subject 
-// to the terms and conditions of the Intel Program License Subscription 
-// Agreement, Intel MegaCore Function License Agreement, or other applicable 
-// license agreement, including, without limitation, that your use is for the 
-// sole purpose of programming logic devices manufactured by Intel and sold by 
-// Intel or its authorized distributors.  Please refer to the applicable 
+// Your use of Intel Corporation's design tools, logic functions and other
+// software and tools, and its AMPP partner logic functions, and any output
+// files any of the foregoing (including device programming or simulation
+// files), and any associated documentation or information are expressly subject
+// to the terms and conditions of the Intel Program License Subscription
+// Agreement, Intel MegaCore Function License Agreement, or other applicable
+// license agreement, including, without limitation, that your use is for the
+// sole purpose of programming logic devices manufactured by Intel and sold by
+// Intel or its authorized distributors.  Please refer to the applicable
 // agreement for further details.
 
 
@@ -23,7 +23,7 @@ module altera_pll_reconfig_core
     parameter   ROM_ADDR_WIDTH          = 9,
     parameter   ROM_DATA_WIDTH          = 32,
     parameter	ROM_NUM_WORDS           = 512
-) ( 
+) (
 
     //input
     input   wire    mgmt_clk,
@@ -62,7 +62,7 @@ module altera_pll_reconfig_core
     localparam CNT_BASE           = 5'b001010;
     localparam VCO_REG              = 6'b011100;
     localparam MIF_REG            = 6'b011111;
-    
+
     //C Counters
     localparam number_of_counters = 5'd18;
     localparam  CNT_0 = 1'd0, CNT_1 = 5'd1, CNT_2 = 5'd2,
@@ -86,14 +86,14 @@ module altera_pll_reconfig_core
     localparam M_CNT_DIV_ADDR = 5'h12;
     localparam M_CNT_BYPASS_EN_ADDR = 5'h15;
     localparam M_CNT_ODD_DIV_EN_ADDR = 5'h17;
-    
+
     //DSM address
     localparam DSM_K_FRACTIONAL_DIVISION_ADDR_0 = 5'h18;
     localparam DSM_K_FRACTIONAL_DIVISION_ADDR_1 = 5'h19;
     localparam DSM_K_READY_ADDR = 5'h17;
     localparam DSM_K_DITHER_ADDR = 5'h17;
     localparam DSM_OUT_SEL_ADDR = 6'h30;
-    
+
     //Other DSM params
     localparam DSM_K_READY_BIT_INDEX = 4'd11;
     //BWCTRL address
@@ -102,7 +102,7 @@ module altera_pll_reconfig_core
     //CP_CURRENT address
     //Bit 0-2 of addr
     localparam CP_CURRENT_ADDR = 6'h31;
-    
+
     // VCODIV address
     localparam VCO_ADDR = 5'h17;
 
@@ -110,7 +110,7 @@ module altera_pll_reconfig_core
                FIVE = 3'd5, SIX = 3'd6, SEVEN = 3'd7, EIGHT = 4'd8, NINE = 4'd9, TEN = 4'd10,
                ELEVEN = 4'd11, TWELVE = 4'd12, THIRTEEN = 4'd13, FOURTEEN = 4'd14, DPRIO_DONE = 4'd15;
     localparam IDLE = 2'b00, WAIT_ON_LOCK = 2'b01, LOCKED = 2'b10;
-    
+
     wire            clk;
     wire            reset;
     wire            gnd;
@@ -128,10 +128,10 @@ module altera_pll_reconfig_core
     assign          clk             = mgmt_clk;
 
     assign          slave_address       = mgmt_address;
-    assign          slave_read      = mgmt_read;    
+    assign          slave_read      = mgmt_read;
     assign          slave_write     = mgmt_write;
     assign          slave_writedata     = mgmt_writedata;
-    
+
     reg read_waitrequest;
     // Outputs
     assign          mgmt_readdata       = slave_readdata_q;
@@ -140,7 +140,7 @@ module altera_pll_reconfig_core
     //internal signals
     wire            locked_orig;
     wire            locked;
-   
+
     wire            pll_start;
     wire            pll_start_valid;
     reg             status_read;
@@ -195,7 +195,7 @@ module altera_pll_reconfig_core
     wire            phase_en/*synthesis keep*/;
     wire            up_dn/*synthesis keep*/;
     wire  [4:0]     cnt_sel;
-    
+
     //DPRIO input signals
     wire  [15:0]     dprio_readdata;
 
@@ -219,7 +219,7 @@ module altera_pll_reconfig_core
     reg  [7:0]      usr_c_cnt_hi;
     reg             usr_c_cnt_bypass_en;
     reg             usr_c_cnt_odd_duty_div_en;
-    reg  [7:0]      temp_c_cnt_lo [0:17]; 
+    reg  [7:0]      temp_c_cnt_lo [0:17];
     reg  [7:0]      temp_c_cnt_hi [0:17];
     reg             temp_c_cnt_bypass_en [0:17];
     reg      	    temp_c_cnt_odd_duty_div_en [0:17];
@@ -230,7 +230,7 @@ module altera_pll_reconfig_core
     reg  [17:0]     c_cnt_done_d;
     reg  [17:0]     c_cnt_done_q;
     //N counter signals
-    reg  [7:0]      usr_n_cnt_lo; 
+    reg  [7:0]      usr_n_cnt_lo;
     reg  [7:0]      usr_n_cnt_hi;
     reg             usr_n_cnt_bypass_en;
     reg             usr_n_cnt_odd_duty_div_en;
@@ -238,7 +238,7 @@ module altera_pll_reconfig_core
     reg             n_cnt_done_d;
     reg             n_cnt_done_q;
     //M counter signals
-    reg  [7:0]      usr_m_cnt_lo; 
+    reg  [7:0]      usr_m_cnt_lo;
     reg  [7:0]      usr_m_cnt_hi;
     reg             usr_m_cnt_bypass_en;
     reg             usr_m_cnt_odd_duty_div_en;
@@ -259,17 +259,17 @@ module altera_pll_reconfig_core
     reg             dsm_k_done_d;
     reg             dsm_k_done_q;
     reg             dsm_k_ready_false_done_d;
-    //BW signals 
+    //BW signals
     reg [3:0]       usr_bwctrl_value;
     reg             bwctrl_changed;
     reg             bwctrl_done_d;
     reg             bwctrl_done_q;
-    //CP signals 
+    //CP signals
     reg [2:0]       usr_cp_current_value;
     reg             cp_current_changed;
     reg             cp_current_done_d;
     reg             cp_current_done_q;
-    //VCO signals 
+    //VCO signals
     reg             usr_vco_value;
     reg             vco_changed;
     reg             vco_done_d;
@@ -288,23 +288,23 @@ module altera_pll_reconfig_core
     // on whether PLL_0 or PLL_1 being used
 
 
-    //Fitter will tell if FPLL1 is being used 
+    //Fitter will tell if FPLL1 is being used
     wire            fpll_1;
 
     // other
     reg             mif_reg_asserted;
-    // MAIN FSM                             
+    // MAIN FSM
 
     // Synchronize locked signal
    altera_std_synchronizer #(
         .depth(3)
     ) altera_std_synchronizer_inst (
         .clk(mgmt_clk),
-        .reset_n(~mgmt_reset), 
+        .reset_n(~mgmt_reset),
         .din(locked_orig),
         .dout(locked)
     );
-   
+
     always @(posedge clk)
     begin
         if (reset)
@@ -342,17 +342,17 @@ module altera_pll_reconfig_core
                else
                   next_state = WAIT_ON_LOCK;
             end
-              
+
           LOCKED:
             begin
-               if (status_read) // stay in LOCKED until user reads status 
+               if (status_read) // stay in LOCKED until user reads status
                  next_state = IDLE;
                else
                  next_state = LOCKED;
             end
 
           default: next_state = 2'bxx;
-          
+
         endcase
      end
 
@@ -449,11 +449,11 @@ module altera_pll_reconfig_core
         begin
             if (dprio_temp_read_1)
             begin
-                dprio_temp_m_n_c_readdata_1_q <= dprio_temp_m_n_c_readdata_1_d; 
+                dprio_temp_m_n_c_readdata_1_q <= dprio_temp_m_n_c_readdata_1_d;
             end
             if (dprio_temp_read_2)
             begin
-                dprio_temp_m_n_c_readdata_2_q <= dprio_temp_m_n_c_readdata_2_d; 
+                dprio_temp_m_n_c_readdata_2_q <= dprio_temp_m_n_c_readdata_2_d;
             end
             if ((dps_done)) dps_changed <= 0;
             if (dsm_k_done_d) dsm_k_done_q <= dsm_k_done_d;
@@ -468,7 +468,7 @@ module altera_pll_reconfig_core
 
             if (mif_start_out == 1'b1)
                 mif_start_assert <= 0; // Signaled MIF block to start, so deassert on next cycle
-            
+
             if (dps_done != 1'b1)
                 dps_start_assert <= 0; // DPS has started, so dessert its start signal on next cycle
 
@@ -498,13 +498,13 @@ module altera_pll_reconfig_core
                 begin
                     usr_cnt_sel <= usr_cnt_sel;
                 end
-                else 
+                else
                 begin
                     usr_cnt_sel <= 0;
                 end
                 mif_reg_asserted <= 0;
             end
-            else 
+            else
             begin
                 dsm_k_changed <= dsm_k_changed;
                 n_cnt_changed <= n_cnt_changed;
@@ -523,7 +523,7 @@ module altera_pll_reconfig_core
                 DSM_REG:
                 begin
                     operation_address <= DSM_REG;
-                    usr_k_value <= slave_writedata[31:0]; 
+                    usr_k_value <= slave_writedata[31:0];
                     dsm_k_changed <= 1'b1;
                     dsm_k_done_q <= 0;
                     dprio_start <= 1'b1;
@@ -531,7 +531,7 @@ module altera_pll_reconfig_core
                 N_REG:
                 begin
                     operation_address <= N_REG;
-                    usr_n_cnt_lo <= slave_writedata[7:0]; 
+                    usr_n_cnt_lo <= slave_writedata[7:0];
                     usr_n_cnt_hi <= slave_writedata[15:8];
                     usr_n_cnt_bypass_en <= slave_writedata[16];
                     usr_n_cnt_odd_duty_div_en <= slave_writedata[17];
@@ -542,7 +542,7 @@ module altera_pll_reconfig_core
                 M_REG:
                 begin
                     operation_address <= M_REG;
-                    usr_m_cnt_lo <= slave_writedata[7:0]; 
+                    usr_m_cnt_lo <= slave_writedata[7:0];
                     usr_m_cnt_hi <= slave_writedata[15:8];
                     usr_m_cnt_bypass_en <= slave_writedata[16];
                     usr_m_cnt_odd_duty_div_en <= slave_writedata[17];
@@ -562,7 +562,7 @@ module altera_pll_reconfig_core
                 C_COUNTERS_REG:
                 begin
 						  operation_address <= C_COUNTERS_REG;
-                    usr_c_cnt_lo <= slave_writedata[7:0]; 
+                    usr_c_cnt_lo <= slave_writedata[7:0];
                     usr_c_cnt_hi <= slave_writedata[15:8];
                     usr_c_cnt_bypass_en <= slave_writedata[16];
                     usr_c_cnt_odd_duty_div_en <= slave_writedata[17];
@@ -573,7 +573,7 @@ module altera_pll_reconfig_core
                 end
                 BWCTRL_REG:
                 begin
-                    usr_bwctrl_value <= slave_writedata[3:0]; 
+                    usr_bwctrl_value <= slave_writedata[3:0];
                     bwctrl_changed <= 1'b1;
                     bwctrl_done_q <= 0;
                     dprio_start <= 1'b1;
@@ -581,7 +581,7 @@ module altera_pll_reconfig_core
                 end
                 CP_CURRENT_REG:
                 begin
-                    usr_cp_current_value <= slave_writedata[2:0]; 
+                    usr_cp_current_value <= slave_writedata[2:0];
                     cp_current_changed <= 1'b1;
                     cp_current_done_q <= 0;
                     dprio_start <= 1'b1;
@@ -589,7 +589,7 @@ module altera_pll_reconfig_core
                 end
                 VCO_REG:
                 begin
-                    usr_vco_value <= slave_writedata[0]; 
+                    usr_vco_value <= slave_writedata[0];
                     vco_changed <= 1'b1;
                     vco_done_q <= 0;
                     dprio_start <= 1'b1;
@@ -610,13 +610,13 @@ module altera_pll_reconfig_core
                     mif_reg_asserted <= 1'b1;
                     mif_base_addr <= slave_writedata[ROM_ADDR_WIDTH-1:0];
                     mif_start_assert <= 1'b1;
-                end                
+                end
                 endcase
              end
-        end 
+        end
     end
     //C Counter assigning values to the 2-d array of values for each C counter
-   
+
     reg [4:0] j;
     always @(posedge clk)
     begin
@@ -632,7 +632,7 @@ module altera_pll_reconfig_core
                 temp_c_cnt_hi[j][7:0] <= 0;
             end
         end
-        else 
+        else
         begin
             if (dprio_write_done)
             begin
@@ -795,12 +795,12 @@ module altera_pll_reconfig_core
     //logic to handle which writes the user indicated and wants to start.
     assign usr_valid_changes =dsm_k_changed| any_c_cnt_changed |n_cnt_changed | m_cnt_changed | dps_changed_valid |manual_dprio_changed |cp_current_changed|bwctrl_changed|vco_changed;
 
-     
+
     //start the reconfig operations by writing to the DPRIO
     reg break_loop;
     reg [4:0] i;
     always @(*)
-    begin 
+    begin
         dprio_temp_read_1 = 0;
         dprio_temp_read_2 = 0;
         dprio_temp_m_n_c_readdata_1_d = 0;
@@ -824,8 +824,8 @@ module altera_pll_reconfig_core
         cp_current_done_d = 0;
         vco_done_d = 0;
         i = 0;
-       
-        // Deassert dprio_write_done so it doesn't reset mif_reg_asserted (toggled writes) 
+
+        // Deassert dprio_write_done so it doesn't reset mif_reg_asserted (toggled writes)
         if (dprio_start | mif_start_assert)
             dprio_write_done = 0;
 
@@ -834,7 +834,7 @@ module altera_pll_reconfig_core
             case (dprio_cur_state)
                 ONE:
                 begin
-                    if (n_cnt_changed & !n_cnt_done_q) 
+                    if (n_cnt_changed & !n_cnt_done_q)
                     begin
 			dprio_write_done = 0;
                     	avmm_dprio_write = 1'b1;
@@ -844,7 +844,7 @@ module altera_pll_reconfig_core
                         avmm_dprio_writedata[7:0] = usr_n_cnt_lo;
                         avmm_dprio_writedata[15:8] = usr_n_cnt_hi;
                     end
-                    else if (m_cnt_changed & !m_cnt_done_q) 
+                    else if (m_cnt_changed & !m_cnt_done_q)
                     begin
 		    	dprio_write_done = 0;
                     	avmm_dprio_write = 1'b1;
@@ -875,27 +875,27 @@ module altera_pll_reconfig_core
                             end
                         end
                     end
-                    else if (dsm_k_changed & !dsm_k_done_q) 
+                    else if (dsm_k_changed & !dsm_k_done_q)
                     begin
 		    	dprio_write_done = 0;
                         avmm_dprio_write = 0;
                         dprio_next_state = TWO;
                     end
-                    else if (bwctrl_changed & !bwctrl_done_q) 
+                    else if (bwctrl_changed & !bwctrl_done_q)
                     begin
 		    	dprio_write_done = 0;
                         avmm_dprio_write = 0;
                         dprio_next_state = TWO;
                     end
-                    else if (cp_current_changed & !cp_current_done_q) 
+                    else if (cp_current_changed & !cp_current_done_q)
                     begin
-		    	dprio_write_done = 0;		    
+		    	dprio_write_done = 0;
                         avmm_dprio_write = 0;
                         dprio_next_state = TWO;
                     end
-                    else if (vco_changed & !vco_done_q) 
+                    else if (vco_changed & !vco_done_q)
                     begin
-		    	dprio_write_done = 0;		    
+		    	dprio_write_done = 0;
                         avmm_dprio_write = 0;
                         dprio_next_state = TWO;
                     end
@@ -903,14 +903,14 @@ module altera_pll_reconfig_core
                     begin
 		    	dprio_write_done = 0;
                     	avmm_dprio_byteen = 2'b11;
-                    	dprio_next_state = TWO;		    
+                    	dprio_next_state = TWO;
                         avmm_dprio_write = usr_r_w;
                         avmm_dprio_address = usr_dprio_address;
                         avmm_dprio_writedata[15:0] = usr_dprio_writedata_0;
                     end
                     else dprio_next_state = DPRIO_IDLE;
                 end
-            
+
                 TWO:
                 begin
                     //handle reading the two setting bits on n_cnt, then
@@ -928,7 +928,7 @@ module altera_pll_reconfig_core
                     begin
                         avmm_dprio_address = M_CNT_BYPASS_EN_ADDR;
                     end
-                   
+
                     else if (any_c_cnt_changed & !all_c_cnt_done_q)
                     begin
                         for (i = 0; (i < number_of_counters) & !break_loop; i = i + 1'b1)
@@ -975,22 +975,22 @@ module altera_pll_reconfig_core
                     end
                     //reading the K ready 16 bit word. Need to write 0 to it
                     //afterwards to indicate that K has not been done writing
-                    else if (dsm_k_changed & !dsm_k_done_q) 
+                    else if (dsm_k_changed & !dsm_k_done_q)
                     begin
                         avmm_dprio_address = DSM_K_READY_ADDR;
                         dprio_next_state = FOUR;
                     end
-                    else if (bwctrl_changed & !bwctrl_done_q) 
+                    else if (bwctrl_changed & !bwctrl_done_q)
                     begin
                         avmm_dprio_address = BWCTRL_ADDR;
                         dprio_next_state = FOUR;
                     end
-                    else if (cp_current_changed & !cp_current_done_q) 
+                    else if (cp_current_changed & !cp_current_done_q)
                     begin
                         avmm_dprio_address = CP_CURRENT_ADDR;
                         dprio_next_state = FOUR;
                     end
-                    else if (vco_changed & !vco_done_q) 
+                    else if (vco_changed & !vco_done_q)
                     begin
                         avmm_dprio_address = VCO_ADDR;
                         dprio_next_state = FOUR;
@@ -1002,7 +1002,7 @@ module altera_pll_reconfig_core
                         dprio_next_state = DPRIO_DONE;
                     end
                     else dprio_next_state = DPRIO_IDLE;
-                end       
+                end
                 THREE:
                 begin
                     dprio_write_done = 0;
@@ -1060,7 +1060,7 @@ module altera_pll_reconfig_core
                                 end
                             end
                         end
-                    end   
+                    end
                     else dprio_next_state = DPRIO_IDLE;
                 end
                 FOUR:
@@ -1151,20 +1151,20 @@ module altera_pll_reconfig_core
                                 end
                             end
                         end
-                    end    
+                    end
                     else if (dsm_k_changed & !dsm_k_done_q)
                     begin
                         avmm_dprio_write = 0;
                     end
-                    else if (bwctrl_changed & !bwctrl_done_q) 
+                    else if (bwctrl_changed & !bwctrl_done_q)
                     begin
                         avmm_dprio_write = 0;
                     end
-                    else if (cp_current_changed & !cp_current_done_q) 
+                    else if (cp_current_changed & !cp_current_done_q)
                     begin
                         avmm_dprio_write = 0;
                     end
-                    else if (vco_changed & !vco_done_q) 
+                    else if (vco_changed & !vco_done_q)
                     begin
                         avmm_dprio_write = 0;
                     end
@@ -1189,7 +1189,7 @@ module altera_pll_reconfig_core
                         avmm_dprio_writedata[4] = usr_m_cnt_odd_duty_div_en;
                         m_cnt_done_d = 1'b1;
                     end
-                         
+
                     else if (any_c_cnt_changed & !all_c_cnt_done_q)
                     begin
                         for (i = 0; (i < number_of_counters) & !break_loop; i = i + 1'b1)
@@ -1256,26 +1256,26 @@ module altera_pll_reconfig_core
                         avmm_dprio_writedata[DSM_K_READY_BIT_INDEX] = 1'b0;
                         dsm_k_ready_false_done_d = 1'b1;
                     end
-                    else if (bwctrl_changed & !bwctrl_done_q) 
+                    else if (bwctrl_changed & !bwctrl_done_q)
                     begin
                         avmm_dprio_address = BWCTRL_ADDR;
                         avmm_dprio_writedata[3:0] = usr_bwctrl_value;
                         bwctrl_done_d = 1'b1;
                     end
-                    else if (cp_current_changed & !cp_current_done_q) 
+                    else if (cp_current_changed & !cp_current_done_q)
                     begin
                         avmm_dprio_address = CP_CURRENT_ADDR;
                         avmm_dprio_writedata[2:0] = usr_cp_current_value;
                         cp_current_done_d = 1'b1;
                     end
-                    else if (vco_changed & !vco_done_q) 
+                    else if (vco_changed & !vco_done_q)
                     begin
                         avmm_dprio_address = VCO_ADDR;
                         avmm_dprio_writedata[8] = usr_vco_value;
                         vco_done_d = 1'b1;
                     end
 
-                   
+
                     //if all C_cnt that were changed are done, then assert all_c_cnt_done
                     if (c_cnt_done_d == c_cnt_changed)
                         all_c_cnt_done_d = 1'b1;
@@ -1295,7 +1295,7 @@ module altera_pll_reconfig_core
                         dprio_next_state = TWO;
                     else if (vco_changed & !vco_done_d)
                         dprio_next_state = TWO;
-                    else 
+                    else
                     begin
                         dprio_next_state = DPRIO_DONE;
                         dprio_write_done = 1'b1;
@@ -1303,7 +1303,7 @@ module altera_pll_reconfig_core
                 end
                 //finish the rest of the DSM reads/writes
                 //writing k value, writing k_ready to 1.
-                EIGHT: 
+                EIGHT:
                 begin
                     dprio_write_done = 0;
                     dprio_next_state = NINE;
@@ -1315,7 +1315,7 @@ module altera_pll_reconfig_core
                         avmm_dprio_writedata[15:0] = usr_k_value[15:0];
                     end
                 end
-                NINE: 
+                NINE:
                 begin
                     dprio_write_done = 0;
                     dprio_next_state = TEN;
@@ -1337,7 +1337,7 @@ module altera_pll_reconfig_core
                     begin
                         avmm_dprio_address = DSM_K_READY_ADDR;
                         //already have the readdata for DSM_K_READY_ADDR since we read it
-                        //earlier. Just reuse here 
+                        //earlier. Just reuse here
                         avmm_dprio_writedata = dprio_temp_m_n_c_readdata_2_q;
                         avmm_dprio_writedata[DSM_K_READY_BIT_INDEX] = 1'b1;
                         dsm_k_done_d = 1'b1;
@@ -1353,7 +1353,7 @@ module altera_pll_reconfig_core
                 begin
                     if (dprio_start) dprio_next_state = ONE;
                     else dprio_next_state = DPRIO_IDLE;
-                end 
+                end
                 default:    dprio_next_state = 4'bxxxx;
             endcase
         end
@@ -1363,7 +1363,7 @@ module altera_pll_reconfig_core
 
     //assert the waitreq signal according to the state of the slave
     assign slave_waitrequest = (slave_mode==mode_WR) ? ((locked === 1'b1) ? (((current_state==WAIT_ON_LOCK) & !dprio_write_done) | !dps_done |reset|!dprio_init_done) : 1'b1) : 1'b0;
-        
+
     // Read operations
     always @(*)
     begin
@@ -1385,8 +1385,8 @@ module altera_pll_reconfig_core
     reg  [5:0]      dprio_address_1;
     reg  [1:0]      dprio_byteen_1;
     reg  [4:0]      usr_cnt_sel_1;
-    localparam READ = 2'b00, READ_WAIT = 2'b01, READ_IDLE = 2'b10, READ_POST_WAIT = 2'b11; 
-    
+    localparam READ = 2'b00, READ_WAIT = 2'b01, READ_IDLE = 2'b10, READ_POST_WAIT = 2'b11;
+
     always @(*)
     begin
       if(next_read_state == READ_IDLE)
@@ -1398,7 +1398,7 @@ module altera_pll_reconfig_core
           read_waitrequest <= 1'b1;
         end
     end
-    
+
     always @(posedge clk)
     begin
         if (reset)
@@ -1560,7 +1560,7 @@ module altera_pll_reconfig_core
 
 
     dyn_phase_shift dyn_phase_shift_inst (
-        .clk(clk), 
+        .clk(clk),
         .reset(reset),
         .phase_done(phase_done),
         .pll_start_valid(pll_start_valid),
@@ -1579,7 +1579,7 @@ module altera_pll_reconfig_core
 
     assign dprio_clk = clk;
     self_reset self_reset_inst (mgmt_reset, clk, reset, dprio_init_reset);
-    
+
     dprio_mux dprio_mux_inst (
     .init_dprio_address(init_dprio_address),
     .init_dprio_read(init_dprio_read),
@@ -1660,8 +1660,8 @@ module altera_pll_reconfig_core
 	 defparam lcell_dprio_read.dont_touch = "on";
 	 defparam lcell_dprio_read.family = device_family;
 
-   
-    
+
+
 
 
     //assign reconfig_to_pll signals
@@ -1683,7 +1683,7 @@ module altera_pll_reconfig_core
     assign reconfig_to_pll[63:39] = 0;
 
     //assign reconfig_from_pll signals
-    assign dprio_readdata = reconfig_from_pll [15:0]; 
+    assign dprio_readdata = reconfig_from_pll [15:0];
     assign locked_orig    = reconfig_from_pll [16];
     assign phase_done     = reconfig_from_pll [17];
 
@@ -1695,7 +1695,7 @@ module self_reset (input wire mgmt_reset, input wire clk, output wire reset, out
     reg [9:0]counter;
     reg local_reset;
     reg usr_mode_init_wait;
-    initial 
+    initial
     begin
         local_reset = 1'b1;
         counter = 0;
@@ -1718,7 +1718,7 @@ module self_reset (input wire mgmt_reset, input wire clk, output wire reset, out
                     usr_mode_init_wait <= 1'b1;
                     counter <= 0;
                 end
-                else 
+                else
                 begin
                 counter <= counter + 1'b1;
                 end
@@ -1727,7 +1727,7 @@ module self_reset (input wire mgmt_reset, input wire clk, output wire reset, out
             begin
                 if (counter == RESET_COUNTER_VALUE)
                     local_reset <= 0;
-                else 
+                else
                     counter <= counter + 1'b1;
             end
         end
@@ -1822,7 +1822,7 @@ module fpll_dprio_init (
     assign  dprio_read      = 1'b0;
     assign  dprio_writedata = 16'd0;
 
-    assign  int_ser_shift_load  = count[6] ? |count[2:1]  : 1'b1; 
+    assign  int_ser_shift_load  = count[6] ? |count[2:1]  : 1'b1;
     assign  int_mdio_dis        = count[6] ? ~count[2]    : 1'b1;
     assign  int_dprio_init_done = ~init_done_forever ? (count[6] ? &count[2:0]  : 1'b0)
                                                     : 1'b1;
@@ -1861,7 +1861,7 @@ module fpll_dprio_init (
         begin
             count <= 7'd0;
         end
-        else if(~int_dprio_init_done) 
+        else if(~int_dprio_init_done)
         begin
             count <= count + 7'd1;
         end
@@ -1884,7 +1884,7 @@ endmodule
 module dyn_phase_shift
 #(
     parameter device_family       = "Stratix V"
-) ( 
+) (
 
     input   wire        clk,
     input   wire        reset,
@@ -1903,21 +1903,21 @@ module dyn_phase_shift
     output  wire        up_dn,
     output  wire        dps_changed_valid,
     output  wire [4:0]  cnt_sel);
-    
-	
+
+
 
     reg        first_phase_shift_d;
     reg        first_phase_shift_q;
     reg [15:0] phase_en_counter;
     reg [3:0]       dps_current_state;
     reg [3:0]       dps_next_state;
-    localparam DPS_START = 4'd0, DPS_WAIT_PHASE_DONE = 4'd1, DPS_DONE = 4'd2, DPS_WAIT_PHASE_EN = 4'd3, DPS_WAIT_DPRIO_WRITING = 4'd4, DPS_CHANGED = 4'd5; 
+    localparam DPS_START = 4'd0, DPS_WAIT_PHASE_DONE = 4'd1, DPS_DONE = 4'd2, DPS_WAIT_PHASE_EN = 4'd3, DPS_WAIT_DPRIO_WRITING = 4'd4, DPS_CHANGED = 4'd5;
     localparam PHASE_EN_WAIT_COUNTER = 5'd1;
 
     reg [15:0] shifts_done_counter;
     reg        phase_done_final;
 	 wire 		gnd /*synthesis keep*/;
-	 
+
     //fsm
     //always block controlling the state regs
     always @(posedge clk)
@@ -1984,8 +1984,8 @@ module dyn_phase_shift
             end
             DPS_DONE:
             begin
-                phase_done_final = 0;            
-                if (dps_changed) 
+                phase_done_final = 0;
+                if (dps_changed)
                     dps_next_state = DPS_CHANGED;
                 else dps_next_state = DPS_DONE;
 
@@ -2007,14 +2007,14 @@ module dyn_phase_shift
 
             default: dps_next_state = 4'bxxxx;
         endcase
-    
-    
+
+
     end
 
     always @(posedge clk)
     begin
 
-        
+
         if (dps_current_state == DPS_WAIT_PHASE_DONE)
             phase_en_counter <= 0;
         else if (dps_current_state == DPS_WAIT_PHASE_EN)
@@ -2048,7 +2048,7 @@ module dyn_phase_shift
     assign dps_done =(dps_current_state == DPS_DONE) | (dps_current_state == DPS_CHANGED);
     assign up_dn = usr_up_dn;
 	 assign gnd = 1'b0;
-	
+
     //cnt select luts (5)
     generic_lcell_comb lcell_cnt_sel_0 (
         .dataa(usr_cnt_sel[0]),
@@ -2105,8 +2105,8 @@ module dyn_phase_shift
     defparam lcell_cnt_sel_4.lut_mask = 64'hFFFF0000FFFF0000;
     defparam lcell_cnt_sel_4.dont_touch = "on";
     defparam lcell_cnt_sel_4.family = device_family;
-   
-    
+
+
 endmodule
 
 module generic_lcell_comb
@@ -2115,7 +2115,7 @@ module generic_lcell_comb
     parameter family             = "Stratix V",
     parameter lut_mask           = 64'hAAAAAAAAAAAAAAAA,
     parameter dont_touch         = "on"
-) ( 
+) (
 
     input    dataa,
     input    datab,

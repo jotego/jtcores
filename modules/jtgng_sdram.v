@@ -21,8 +21,8 @@
 
 module jtgng_sdram(
     input               rst,
-    input               clk, // 96MHz = 32 * 6 MHz -> CL=2  
-    output              loop_rst,  
+    input               clk, // 96MHz = 32 * 6 MHz -> CL=2
+    output              loop_rst,
     input               autorefresh,
     input               read_req,    // read strobe
     output reg  [31:0]  data_read,
@@ -43,13 +43,13 @@ module jtgng_sdram(
     output              SDRAM_nRAS,     // SDRAM Row Address Strobe
     output              SDRAM_nCS,      // SDRAM Chip Select
     output      [ 1:0]  SDRAM_BA,       // SDRAM Bank Address
-    output              SDRAM_CKE       // SDRAM Clock Enable     
+    output              SDRAM_CKE       // SDRAM Clock Enable
 );
 
-localparam  CMD_LOAD_MODE   = 4'b0000, // 0 
-            CMD_AUTOREFRESH = 4'b0001, // 1 
+localparam  CMD_LOAD_MODE   = 4'b0000, // 0
+            CMD_AUTOREFRESH = 4'b0001, // 1
             CMD_PRECHARGE   = 4'b0010, // 2
-            CMD_ACTIVATE    = 4'b0011, // 3 
+            CMD_ACTIVATE    = 4'b0011, // 3
             CMD_WRITE       = 4'b0100, // 4
             CMD_READ        = 4'b0101, // 5
             CMD_STOP        = 4'b0110, // 6
@@ -61,7 +61,7 @@ assign SDRAM_CKE  = 1'b1;
 
 reg SDRAM_WRITE;
 reg [7:0] write_data;
-assign SDRAM_DQ =  SDRAM_WRITE ? {write_data, write_data} : 16'hzzzz;            
+assign SDRAM_DQ =  SDRAM_WRITE ? {write_data, write_data} : 16'hzzzz;
 
 reg [8:0] col_addr;
 
@@ -85,7 +85,7 @@ wire writeon = downloading && prog_we;
 reg downloading_last;
 reg set_burst, burst_done, burst_mode;
 
-always @(posedge clk) 
+always @(posedge clk)
     if(rst) begin
         set_burst <= 1'b0;
     end else begin
@@ -109,7 +109,7 @@ always @(posedge clk)
         SDRAM_CMD <= CMD_NOP;
         wait_cnt   <= 14'd9750; // wait for 100us
         initialize <= 1'b1;
-        init_state <= 3'd0;        
+        init_state <= 3'd0;
         // Main loop
         burst_done <= 1'b0;
         cnt_state  <= 3'd3; //Starts after the precharge
@@ -130,7 +130,7 @@ always @(posedge clk)
                     wait_cnt  <= 14'd10;
                 end
                 3'd2: begin
-                    SDRAM_CMD <= CMD_LOAD_MODE;                    
+                    SDRAM_CMD <= CMD_LOAD_MODE;
                     SDRAM_A   <= 13'b00_1_00_010_0_001; // CAS Latency = 2, burst = 2
                     `ifdef SIMULATION
                     `ifndef LOADROM
@@ -151,9 +151,9 @@ always @(posedge clk)
             endcase
         end
     end else  begin // regular operation
-        if( cnt_state!=3'd0 || 
+        if( cnt_state!=3'd0 ||
             readon || /* when not downloading */
-            writeon   /* when downloading */) 
+            writeon   /* when downloading */)
             cnt_state <= cnt_state==3'd6 ? 3'd0 : (cnt_state + 3'd1);
         case( cnt_state )
         default: begin // wait
@@ -182,19 +182,19 @@ always @(posedge clk)
                     autorefresh_cycle <= 1'b0;
                     write_cycle       <= 1'b1;
                     {SDRAM_DQMH, SDRAM_DQML } <= prog_mask;
-                end 
+                end
                 if( readon ) begin
                     last_sdram_addr <= sdram_addr;
-                    SDRAM_CMD <= 
+                    SDRAM_CMD <=
                         refresh_ok ? CMD_AUTOREFRESH : CMD_ACTIVATE;
-                    { SDRAM_A, col_addr } <= sdram_addr;                
+                    { SDRAM_A, col_addr } <= sdram_addr;
                     autorefresh_cycle <= refresh_ok;
                     read_cycle        <= ~refresh_ok;
                     write_cycle       <= 1'b0;
                 end
             end
         end
-        3'd2: begin // set read/write            
+        3'd2: begin // set read/write
             SDRAM_A[12:9] <= 4'b0010; // auto precharge;
             SDRAM_A[ 8:0] <= col_addr;
             SDRAM_WRITE <= write_cycle;

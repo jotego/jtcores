@@ -1,5 +1,5 @@
 //============================================================================
-//  Arcade: Ghosts'n'Goblins  by Jose Tejada Gomez. Twitter: @topapate 
+//  Arcade: Ghosts'n'Goblins  by Jose Tejada Gomez. Twitter: @topapate
 //
 //  Port to MiSTer
 //  Copyright (C) 2019 Sorgelig
@@ -84,12 +84,12 @@ assign LED_POWER = 0;
 assign HDMI_ARX = status[1] ? 8'd16 : 8'd4;
 assign HDMI_ARY = status[1] ? 8'd9  : 8'd3;
 
-`include "build_id.v" 
+`include "build_id.v"
 localparam CONF_STR1 = {
-	"A.JT1942;;", 
+	"A.JT1942;;",
 	"-;",
 	"O1,Pause,OFF,ON;",
-	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", 
+	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
 	"OF,Coin-free play,Yes,No;",
 	"O89,Lives,3,4,5,7;",
@@ -121,7 +121,7 @@ pll pll
 reg ce_6, ce_3, ce_1p5;
 always @(negedge clk_sys) begin
 	reg [3:0] div;
-	
+
 	div <= div + 1'd1;
 	ce_6 <= !div[1:0];
 	ce_3 <= !div[2:0];
@@ -171,7 +171,7 @@ wire [7:0] code    = ps2_key[7:0];
 always @(posedge clk_sys) begin
 	reg old_state;
 	old_state <= ps2_key[10];
-	
+
 	if(old_state != ps2_key[10]) begin
 		case(code)
 			'h75: btn_up         	<= pressed; // up
@@ -231,7 +231,7 @@ assign HDMI_SL  = sl[1:0];
 
 wire [2:0] scale = status[5:3];
 wire [2:0] sl = scale ? scale - 1'd1 : 3'd0;
-wire       scandoubler = (scale || forced_scandoubler); 
+wire       scandoubler = (scale || forced_scandoubler);
 
 video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
 (
@@ -243,14 +243,14 @@ video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
 	.scanlines(0),
 	.hq2x(scale==1),
 	.mono(0),
-	
+
 	.HBlank(~HBlank),
 	.VBlank(~VBlank)
 );
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .downloading    ( ioctl_download & ioctl_wr), 
+    .downloading    ( ioctl_download & ioctl_wr),
     .romload_addr   ( romload_addr   ),
     .prom_we        ( prom_we        )
 );
@@ -303,8 +303,8 @@ jt1942_game game
     .prom_e8_we   ( prom_we[4]     ),
     .prom_e9_we   ( prom_we[5]     ),
     .prom_e10_we  ( prom_we[6]     ),
-    .prom_f1_we   ( prom_we[7]     ), 
-    .prom_k3_we   ( prom_we[8]     ), 
+    .prom_f1_we   ( prom_we[7]     ),
+    .prom_k3_we   ( prom_we[8]     ),
     .prom_m11_we  ( prom_we[9]     ),
 
     .dipsw_a     ( 8'hff         ),
@@ -327,7 +327,7 @@ always @(posedge clk_sys) begin
 		if(ioctl_addr == 2) flg[2] <= (ioctl_dout == 'h00);
 		if(ioctl_addr == 3) flg[3] <= (ioctl_dout == 'h80);
 	end
-	
+
 	inv_ena <= &flg;
 end
 

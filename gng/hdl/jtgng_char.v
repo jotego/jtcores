@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 27-10-2017 */
-    
+
 module jtgng_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz
@@ -86,12 +86,12 @@ reg [3:0] char_attr2;
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
-    // 4 pixels from processing the x,y,z and attr info.    
+    // 4 pixels from processing the x,y,z and attr info.
     if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
         char_attr1 <= char_attr0;
         char_attr0 <= dout_high[4:0];
-        char_addr  <= { {dout_high[7:6], dout_low}, 
+        char_addr  <= { {dout_high[7:6], dout_low},
             {3{dout_high[5] /*vflip*/ ^ flip}}^V128[2:0] };
     end
     // The two case-statements cannot be joined because of the default statement
@@ -102,7 +102,7 @@ always @(posedge clk) if(cen6) begin
             char_hflip <= char_attr1[4] ^ flip;
             char_attr2 <= char_attr1[3:0];
         end
-        3'd6: 
+        3'd6:
             chd[7:0] <= chd[15:8];
         default:
             begin
@@ -118,7 +118,7 @@ always @(posedge clk) if(cen6) begin
     endcase
     // 1-pixel delay in order to latch signals:
     char_col <= char_hflip ? { chd[0], chd[4] } : { chd[3], chd[7] };
-    char_pal <= char_attr2; 
+    char_pal <= char_attr2;
 end
 
 endmodule // jtgng_char

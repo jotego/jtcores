@@ -30,11 +30,11 @@ module alsa
 	input      [63:0] ram_readdata,
 	input             ram_readdatavalid,
 	output reg        ram_read,
-	
+
 	input             spi_ss,
 	input             spi_sck,
 	input             spi_mosi,
-	
+
 	output reg [15:0] pcm_l,
 	output reg [15:0] pcm_r
 );
@@ -44,7 +44,7 @@ reg [127:0] spi_data;
 always @(posedge spi_sck, posedge spi_ss) begin
 	reg [7:0] mosi;
 	reg [6:0] spicnt = 0;
-	
+
 	if(spi_ss) spicnt <= 0;
 	else begin
 		mosi <= {mosi[6:0],spi_mosi};
@@ -68,10 +68,10 @@ always @(posedge ram_clk) begin
 	n1 <= spi_new;
 	n2 <= n1;
 	n3 <= n2;
-	
+
 	data1 <= spi_data;
 	data2 <= data1;
-	
+
 	if(~n3 & n2) {buf_wptr,buf_len,buf_addr} <= data2[95:0];
 end
 

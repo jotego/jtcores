@@ -24,9 +24,9 @@ module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0)(
     input              cen6,    //  6 MHz
     // screen
     input              DISPTM_b,
-    input              LHBL,    
+    input              LHBL,
     input              flip,
-    input       [4:0]  objcnt,    
+    input       [4:0]  objcnt,
     input       [3:0]  pxlcnt,
     input       [8:0]  posx,
     input              line,
@@ -76,7 +76,7 @@ always @(posedge clk) if(cen6) begin
 end
 
 always @(*)
-    if( pxlbuf_line == lineA ) begin 
+    if( pxlbuf_line == lineA ) begin
         obj_pxl = !DISPTM_b ? lineA_q : blank;
         // lineA readout
         addrA = Hcnt;

@@ -39,7 +39,7 @@ always @(posedge CH6M) begin
 	{CHARF,CHARE,CHARD,CHARC,CHARB,CHARA} <=
 		{ CC, CHARY,CHARZ };
 	{OBJF,OBJE,OBJD,OBJC,OBJB,OBJA} <= OBJ;
-	{SCRG,SCRF,SCRE,SCRD,SCRC,SCRB,SCRA} <= 
+	{SCRG,SCRF,SCRE,SCRD,SCRC,SCRB,SCRA} <=
 		{SCRWIN,SCD,SCRX,SCRY,SCRZ};
 end
 
@@ -91,13 +91,13 @@ assign #2 rgb_addr = !ABen ? 8'hzz : pixel_raw;
 
 wire [3:0] R,G,B;
 
-jt_gng_genram #(.addrw(8), .dataw(4), .id(10)) ram_6D 
+jt_gng_genram #(.addrw(8), .dataw(4), .id(10)) ram_6D
 	(.A(rgb_addr), .D(R), .cs_b(1'b0), .rd_b(~RGCS_b), .wr_b(RGCS_b));
 
-jt_gng_genram #(.addrw(8), .dataw(4), .id(11)) ram_7D 
+jt_gng_genram #(.addrw(8), .dataw(4), .id(11)) ram_7D
 	(.A(rgb_addr), .D(G), .cs_b(1'b0), .rd_b(~RGCS_b), .wr_b(RGCS_b));
 
-jt_gng_genram #(.addrw(8), .dataw(4), .id(12)) ram_8D 
+jt_gng_genram #(.addrw(8), .dataw(4), .id(12)) ram_8D
 	(.A(rgb_addr), .D(B), .cs_b(1'b0), .rd_b(~BCS_b), .wr_b(BCS_b));
 
 

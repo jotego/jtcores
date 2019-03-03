@@ -15,7 +15,7 @@ module stim(
 
 reg SDRAM_CLK,  // 96   MHz
     clk=1'b0,        // 24   MHz
-    cen6=1'b1,       //  6   MHz    
+    cen6=1'b1,       //  6   MHz
     rst;
 wire flip = 1'b0;
 
@@ -54,17 +54,17 @@ always @(posedge LHBL) begin
 end
 
 test uut(
-    .rst        ( rst       ),    
+    .rst        ( rst       ),
     .SDRAM_CLK  ( SDRAM_CLK ),
     .clk        ( clk       ),  // 24 MHz
-    .cen6       ( cen6      ),  //  6 MHz    
+    .cen6       ( cen6      ),  //  6 MHz
     .flip       ( flip      ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .rom_ready  ( rom_ready )    
+    .rom_ready  ( rom_ready )
 );
 
 initial begin

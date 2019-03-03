@@ -42,7 +42,7 @@ module game_test;
         $shm_open("test.shm");
         `ifdef DEEPDUMP
             $shm_probe(game_test,"AS");
-        `else        
+        `else
             //$shm_probe(UUT.u_main,"A");
             $shm_probe(UUT.u_video.u_obj,"AS");
             $shm_probe(UUT.u_video.u_colmix,"AS");
@@ -70,7 +70,7 @@ wire   HS, VS;
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .downloading    ( downloading   ), 
+    .downloading    ( downloading   ),
     .romload_addr   ( romload_addr  ),
     .prom_we        ( prom_we       )
 );
@@ -144,10 +144,10 @@ jt1942_game UUT(
     .prom_e8_we  ( prom_we[3]        ),
     .prom_e9_we  ( prom_we[4]        ),
     .prom_e10_we ( prom_we[5]        ),
-    .prom_f1_we  ( prom_we[6]        ), 
+    .prom_f1_we  ( prom_we[6]        ),
     .prom_d6_we  ( prom_we[7]        ),
     .prom_k3_we  ( prom_we[8]        ),
-    .prom_m11_we ( prom_we[9]        ), 
+    .prom_m11_we ( prom_we[9]        ),
 
     // DIP switches
     .dip_pause  ( 1'b1      ),

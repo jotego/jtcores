@@ -8,15 +8,15 @@
 
 module jt_gng_b7(
 	input	[7:0]	DB,		// from 1/9
-	input	[3:0]	AB,	
+	input	[3:0]	AB,
 	input			CBCS_b,	// from B13
 	input			G6M,	// from 4/9
 	input			FLIP,
 	input			H256,	// from 3/9
-	input			H128,	
-	input			H64,	
-	input			H32,	
-	input			H16,	
+	input			H128,
+	input			H64,
+	input			H32,
+	input			H16,
 	input			H8,
 	input			H4,
 	input			H2,

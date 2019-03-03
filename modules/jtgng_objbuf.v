@@ -23,7 +23,7 @@ module jtgng_objbuf(
     // screen
     input               HINIT,
     input               LVBL,
-    input       [7:0]   V,    
+    input       [7:0]   V,
     output reg  [7:0]   VF,
     input               flip,
     // sprite data scan
@@ -55,7 +55,7 @@ end
 
 localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;
 
-always @(posedge clk) 
+always @(posedge clk)
     if( rst )
         line <= lineA;
     else if(cen6) begin
@@ -63,7 +63,7 @@ always @(posedge clk)
     end
 
 
-always @(posedge clk) 
+always @(posedge clk)
     if( rst ) begin
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;
@@ -176,7 +176,7 @@ jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
 
 jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_b(
     .clk   ( clk       ),
-    .cen   ( cen6      ),    
+    .cen   ( cen6      ),
     .addr  ( address_b ),
     .data  ( data_b    ),
     .we    ( we_b      ),

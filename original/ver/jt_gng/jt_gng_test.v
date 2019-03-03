@@ -27,7 +27,7 @@ module jt_gng_test;
 	initial begin
 		for( reps=0; reps<`REPS; reps=reps+1)
 			#(50*1000*1000);
-		$finish; 
+		$finish;
 	end
 
 	wire [1:0] UP		= 2'd0;

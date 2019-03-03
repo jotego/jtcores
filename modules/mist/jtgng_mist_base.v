@@ -53,7 +53,7 @@ module jtgng_mist_base(
     output          SDRAM_nCS,      // SDRAM Chip Select
     output [1:0]    SDRAM_BA,       // SDRAM Bank Address
     output          SDRAM_CLK,      // SDRAM Clock
-    output          SDRAM_CKE,      // SDRAM Clock Enable       
+    output          SDRAM_CKE,      // SDRAM Clock Enable
     // SPI interface to arm io controller
     output          SPI_DO,
     input           SPI_DI,
@@ -63,8 +63,8 @@ module jtgng_mist_base(
     input           SPI_SS4,
     input           CONF_DATA0,
     // control
-    output [31:0]   status, 
-    output [31:0]   joystick1, 
+    output [31:0]   status,
+    output [31:0]   joystick1,
     output [31:0]   joystick2,
     output          ps2_kbd_clk,
     output          ps2_kbd_data,
@@ -80,7 +80,7 @@ module jtgng_mist_base(
     // ROM access from game
     input  [21:0]   sdram_addr,
     output [31:0]   data_read,
-    output          loop_rst, 
+    output          loop_rst,
     input           autorefresh
 );
 
@@ -116,7 +116,7 @@ user_io #(.STRLEN(CONF_STR_LEN)) u_userio(
     .sd_sdhc        ( 1'b0      ),
     .sd_din         ( 8'd0      )
 );
-`else 
+`else
 assign joystick1 = 32'd0;
 assign joystick2 = 32'd0;
 assign status    = 32'd0;
@@ -154,7 +154,7 @@ data_io #(.aw(22)) u_datain (
 
 jtgng_sdram u_sdram(
     .rst            ( rst           ),
-    .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2  
+    .clk            ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
     .loop_rst       ( loop_rst      ),
     .read_req       ( sdram_re      ),
     .autorefresh    ( autorefresh   ),
@@ -176,7 +176,7 @@ jtgng_sdram u_sdram(
     .SDRAM_nRAS     ( SDRAM_nRAS    ),
     .SDRAM_nCS      ( SDRAM_nCS     ),
     .SDRAM_BA       ( SDRAM_BA      ),
-    .SDRAM_CKE      ( SDRAM_CKE     ) 
+    .SDRAM_CKE      ( SDRAM_CKE     )
 );
 
 
@@ -227,7 +227,7 @@ assign VGA_B = ypbpr?Pb:osd_b_o;
 // and VCC on VGA_VS (to switch into rgb mode)
 assign VGA_HS = (scandoubler_disable | ypbpr) ? CSync : HSync;
 assign VGA_VS = (scandoubler_disable | ypbpr) ? 1'b1 : VSync;
-`else 
+`else
 assign VGA_R = game_r;// { game_r, game_r[3:2] };
 assign VGA_G = game_g;// { game_g, game_g[3:2] };
 assign VGA_B = game_b;// { game_b, game_b[3:2] };

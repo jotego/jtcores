@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 18-2-2019 */
-    
+
 module jt1943_game(
     input           rst,
     input           clk,        // 24   MHz
@@ -47,9 +47,9 @@ module jt1943_game(
     input   [31:0]  data_read,
 
     // ROM LOAD
-    input   [21:0]  ioctl_addr, 
+    input   [21:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
-    input           ioctl_wr,   
+    input           ioctl_wr,
     output  [21:0]  prog_addr,
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
@@ -138,7 +138,7 @@ wire [12:0] prom_we;
 jt1943_prom_we u_prom_we(
     .clk_rom     ( clk_rom       ),
     .clk_rgb     ( clk           ),
-    .downloading ( downloading   ), 
+    .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  ( ioctl_addr    ),
@@ -183,14 +183,14 @@ jt1943_main u_main(
     // sound
     .sres_b       ( sres_b        ),
     .snd_latch_cs ( snd_latch_cs  ),
-    
+
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .cpu_dout   ( cpu_dout      ),
     // CHAR
     .cpu_cen    ( cpu_cen       ),
     .char_cs    ( char_cs       ),
-    .char_dout  ( chram_dout    ),  
+    .char_dout  ( chram_dout    ),
     .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
@@ -219,7 +219,7 @@ jt1943_main u_main(
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
     .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),   
+    .joystick2   ( joystick2    ),
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches
@@ -259,10 +259,10 @@ jt1943_sound u_sound (
     // PROM 4K
     .prog_addr      ( prog_addr[14:0]),
     .prom_4k_we     ( prom_4k_we     ),
-    .prom_din       ( prog_data      ), 
-    .snd            ( snd            ) 
+    .prom_din       ( prog_data      ),
+    .snd            ( snd            )
 );
-`else 
+`else
 assign snd_addr = 15'd0;
 assign snd = 9'd0;
 `endif
@@ -289,15 +289,15 @@ jt1943_video u_video(
     .char_wait_n( char_wait_n   ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
-    .scr1posh_cs( scr1posh_cs   ),    
-    .scr2posh_cs( scr2posh_cs   ),    
+    .scr1posh_cs( scr1posh_cs   ),
+    .scr2posh_cs( scr2posh_cs   ),
     .scrposv    ( scrposv       ),
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_dout     ),
     .scr2_addr  ( scr2_addr     ),
     .scr2_data  ( scr2_dout     ),
     .SC1ON      ( SC1ON         ),
-    .SC2ON      ( SC2ON         ),    
+    .SC2ON      ( SC2ON         ),
     // Scroll maps
     .map1_addr  ( map1_addr     ),
     .map1_data  ( map1_dout     ),
@@ -339,7 +339,7 @@ jt1943_video u_video(
     .prom_12m_we( prom_12m_we   ),
     // obj proms
     .prom_7c_we ( prom_7c_we    ),
-    .prom_8c_we ( prom_8c_we    )    
+    .prom_8c_we ( prom_8c_we    )
 );
 
 jt1943_rom2 u_rom (

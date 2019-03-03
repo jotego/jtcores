@@ -286,7 +286,7 @@ jt1943_obj u_obj(
     // pixel output
     .obj_pxl        ( obj_pxl     )
 );
-`else 
+`else
 assign prog_addr = 'd0;
 assign obj_pxl   = ~'d0;
 assign bus_req   = 'b0;

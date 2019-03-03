@@ -120,9 +120,9 @@ reg last_LHBL;
 always @(posedge clk_rgb)
     if( rst ) begin
         wr_addr <= 8'd0;
-        wr_sel <= 1'b0;     
+        wr_sel <= 1'b0;
     end else begin
-        last_LHBL <= LHBL;  
+        last_LHBL <= LHBL;
         if( !LHBL ) begin
             wr_addr <= 8'd0;
             if( last_LHBL!=LHBL ) wr_sel <= ~wr_sel;
@@ -164,18 +164,18 @@ always @(posedge clk_vga) begin
         vga_vsync   <= 1'b1;
         vga_hsync   <= 1'b1;
         rd_sel_aux  <= 1'b0;
-        rd_sel      <= 1'b0;   
-        scanline    <= 1'b0; 
+        rd_sel      <= 1'b0;
+        scanline    <= 1'b0;
     end
-    else 
+    else
     case( state )
         SYNC: begin
             rd_addr <= 8'd0;
             vga_hsync <= 1'b0;
             if( vsync_req ) begin
                 vga_vsync <= 1'b0;
-                vsync_cnt <= 1'b0;      
-            end         
+                vsync_cnt <= 1'b0;
+            end
             cnt <= cnt - 1'b1;
             if( wait_hsync && (LHBL_vga && !last_LHBL_vga) ||
                !wait_hsync && cnt==7'd0 ) begin
@@ -202,9 +202,9 @@ always @(posedge clk_vga) begin
         LINE: begin
             case( {finish, centre_done})
                 2'b00:
-                    if(cnt!=7'd0) 
+                    if(cnt!=7'd0)
                         cnt<=cnt-1'b1; // blank space on left
-                    else 
+                    else
                         {centre_done,rd_addr,double}<={rd_addr,double}+1'b1;
                 2'b01: begin
                     finish <= cnt==7'd60;
@@ -216,8 +216,8 @@ always @(posedge clk_vga) begin
                 end
                 default:;
             endcase
-        end             
-        BACK: begin         
+        end
+        BACK: begin
             if( cnt==7'd0 ) begin
                 state<=SYNC;
                 cnt <= 7'd96;

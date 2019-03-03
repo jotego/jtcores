@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 27-10-2017 */
-    
+
 // This module introduces 1-pixel delay
 // clock operates at 4*cen6 because colour data requires
 // two memory reads per pixel
@@ -47,7 +47,7 @@ module jtgng_colmix(
     input           redgreen_cs,
     input [7:0]     DB,
     input           LVBL,
-    input           LHBL,   
+    input           LHBL,
 
     output  reg [3:0]   red,
     output  reg [3:0]   green,
@@ -58,10 +58,10 @@ wire [7:0] dout_rg;
 wire [3:0] dout_b;
 
 reg [7:0] pixel_mux;
-always @(posedge clk) if(cen6) begin   
+always @(posedge clk) if(cen6) begin
     if( chr_col==2'b11 || !enable_char ) begin
         // Object or scroll
-        if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=3'd0) ) 
+        if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=3'd0) )
             pixel_mux <= {2'b00, scr_pal, scr_col }; // scroll wins
         else
             pixel_mux <= {2'b01, obj_pxl }; // object wins
@@ -76,7 +76,7 @@ wire we_b  = !LVBL && blue_cs;
 
 
 always @(posedge clk) if (cen6)
-    {red, green, blue } <= (LVBL&&LHBL)? { dout_rg, dout_b } : 12'd0; 
+    {red, green, blue } <= (LVBL&&LHBL)? { dout_rg, dout_b } : 12'd0;
 
 // RAM
 jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(

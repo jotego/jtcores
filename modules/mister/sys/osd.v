@@ -111,7 +111,7 @@ always @(posedge clk_video) begin
 	reg        deD;
 	reg  [1:0] osd_div;
 	reg  [1:0] multiscan;
-	reg  [7:0] osd_byte; 
+	reg  [7:0] osd_byte;
 	reg [23:0] h_cnt;
 	reg [21:0] v_cnt;
 	reg [21:0] dsp_width;

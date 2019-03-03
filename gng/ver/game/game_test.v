@@ -49,7 +49,7 @@ module game_test;
         $shm_open("test.shm");
         `ifdef DEEPDUMP
             $shm_probe(game_test,"AS");
-        `else        
+        `else
             $shm_probe(UUT.u_main,"A");
             $shm_probe(UUT.u_rom,"A");
             `ifndef NOSOUND

@@ -63,11 +63,11 @@ wire [14:0] addr = { AD[8:0], OBH8, Vbeta, OBH4 };
 
 wire [3:0] ROM_ce;
 jt74139 u_dec (
-	.en1_b	(1'b0), 
-	.a1		(AD[9:8]), 
-	.y1_b	(ROM_ce), 
+	.en1_b	(1'b0),
+	.a1		(AD[9:8]),
+	.y1_b	(ROM_ce),
 	// unused half
-	.en2_b	(1'b1), 
+	.en2_b	(1'b1),
 	.a2		(2'b0)
 );
 
@@ -111,49 +111,49 @@ assign #5 G6M_buf = G6M; // 6K
 
 jt74194 u_1K (
 	.D		(DN[7:4]),   // Z
-	.S		(S		), 
-	.clk	(G6M_buf), 
-	.cl_b	(1'b1	), 
-	.R		(1'b0	), 
-	.L		(1'b0	), 
+	.S		(S		),
+	.clk	(G6M_buf),
+	.cl_b	(1'b1	),
+	.R		(1'b0	),
+	.L		(1'b0	),
 	.Q		(QZ		)
 );
 
 jt74194 u_2K (
 	.D		(DN[3:0]),   // Y
-	.S		(S		), 
-	.clk	(G6M_buf), 
-	.cl_b	(1'b1	), 
-	.R		(1'b0	), 
-	.L		(1'b0	), 
+	.S		(S		),
+	.clk	(G6M_buf),
+	.cl_b	(1'b1	),
+	.R		(1'b0	),
+	.L		(1'b0	),
 	.Q		(QY		)
 );
 
 jt74194 u_3K (
 	.D		(DL[7:4]),   // X
-	.S		(S		), 
-	.clk	(G6M_buf), 
-	.cl_b	(1'b1	), 
-	.R		(1'b0	), 
-	.L		(1'b0	), 
+	.S		(S		),
+	.clk	(G6M_buf),
+	.cl_b	(1'b1	),
+	.R		(1'b0	),
+	.L		(1'b0	),
 	.Q		(QX		)
 );
 
 jt74194 u_4K (
 	.D		(DL[3:0]),   // W
-	.S		(S		), 
-	.clk	(G6M_buf), 
-	.cl_b	(1'b1	), 
-	.R		(1'b0	), 
-	.L		(1'b0	), 
+	.S		(S		),
+	.clk	(G6M_buf),
+	.cl_b	(1'b1	),
+	.R		(1'b0	),
+	.L		(1'b0	),
 	.Q		(QW		)
 );
 
 jt74257 u_5K (
-	.sel	(OBHFLIPq), 
-	.en_b	(timings[0]), 
-	.a		( {QW[0],QX[0],QY[0],QZ[0]} ), 
-	.b		( {QW[3],QX[3],QY[3],QZ[3]} ), 
+	.sel	(OBHFLIPq),
+	.en_b	(timings[0]),
+	.a		( {QW[0],QX[0],QY[0],QZ[0]} ),
+	.b		( {QW[3],QX[3],QY[3],QZ[3]} ),
 	.y		( COL )
 );
 
@@ -193,23 +193,23 @@ wire [5:0] NoConn;
 
 jt74139 u_9K (
 	// unused half
-	.en1_b	(1'b1	), 
-	.a1		(2'b0	), 
+	.en1_b	(1'b1	),
+	.a1		(2'b0	),
 	// 1ST, 2ST
-	.en2_b	(timings[2]						), 
-	.a2		({G6M,timings[3]}				), 
-	.y2_b	({NoConn[1:0], ST1_b, ST2_b}	)	
+	.en2_b	(timings[2]						),
+	.a2		({G6M,timings[3]}				),
+	.y2_b	({NoConn[1:0], ST1_b, ST2_b}	)
 );
 
 jt74139 u_10K (
 	// 1LOAD, 2LOAD
-	.en1_b	( vgal[0]		), 
+	.en1_b	( vgal[0]		),
 	.a1		({ TR3_b, V1 }	),
 	.y1_b	({NoConn[3:2],LOAD1_b, LOAD2_b}),
 	// 1ST, 2ST
-	.en2_b	(DISPIM_bq						), 
-	.a2		({~LHBL,timings[3]}				), 
-	.y2_b	({CL2_b, CL1_b, NoConn[5:4]}	)	
+	.en2_b	(DISPIM_bq						),
+	.a2		({~LHBL,timings[3]}				),
+	.y2_b	({CL2_b, CL1_b, NoConn[5:4]}	)
 );
 
 assign #2 WR2_b = ~&{ CL2_b, L6MB };

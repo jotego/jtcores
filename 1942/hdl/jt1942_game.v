@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 20-1-2019 */
-    
+
 module jt1942_game(
     input           rst,
     input           clk_rom,
@@ -35,7 +35,7 @@ module jt1942_game(
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
     input   [ 5:0]  joystick1,
-    input   [ 5:0]  joystick2,  
+    input   [ 5:0]  joystick2,
 
     // SDRAM interface
     input           downloading,
@@ -46,9 +46,9 @@ module jt1942_game(
     input   [15:0]  data_read,
 
     // ROM LOAD
-    input   [21:0]  ioctl_addr, 
+    input   [21:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
-    input           ioctl_wr,   
+    input           ioctl_wr,
     output  [21:0]  prog_addr,
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
@@ -135,7 +135,7 @@ wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
     .clk_rom     ( clk_rom       ),
     .clk_rgb     ( clk           ),
-    .downloading ( downloading   ), 
+    .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  ( ioctl_addr    ),
@@ -175,7 +175,7 @@ jt1942_main u_main(
     .snd_latch0_cs ( snd_latch0_cs ),
     .snd_latch1_cs ( snd_latch1_cs ),
     .snd_int       ( snd_int       ),
-    
+
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
@@ -193,7 +193,7 @@ jt1942_main u_main(
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
     .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),   
+    .joystick2   ( joystick2    ),
     // PROM K6
     .prog_addr  ( prog_addr[7:0]),
     .prom_k6_we ( prom_k6_we    ),
@@ -220,9 +220,9 @@ jt1942_sound u_sound (
     .snd_int        ( snd_int        ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
-    .snd            ( snd            ) 
+    .snd            ( snd            )
 );
-`else 
+`else
 assign snd_addr = 15'd0;
 assign snd = 9'd0;
 `endif
@@ -248,7 +248,7 @@ jt1942_video u_video(
     .char_wait_n( char_wait_n   ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),    
+    .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
@@ -277,7 +277,7 @@ jt1942_video u_video(
     .prom_e9_we ( prom_e9_we    ),
     .prom_e10_we( prom_e10_we   ),
     .prom_k3_we ( prom_k3_we    ),
-    .prom_m11_we( prom_m11_we   )    
+    .prom_m11_we( prom_m11_we   )
 );
 
 jtgng_rom #(
@@ -295,7 +295,7 @@ jtgng_rom #(
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
     .sdram_re    ( sdram_re      ),
-    
+
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),

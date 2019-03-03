@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 1-13-2019 */
-    
+
 module jt1943_obj(
     input              rst,
     input              clk,
@@ -40,7 +40,7 @@ module jt1943_obj(
     input   [7:0]      prog_addr,
     input              prom_7c_we,
     input              prom_8c_we,
-    input   [3:0]      prog_din, 
+    input   [3:0]      prog_din,
     // SDRAM interface
     output      [16:0] obj_addr,
     input       [15:0] objrom_data,
@@ -60,9 +60,9 @@ reg [4:0] objcnt;
 reg [3:0] pxlcnt;
 
 always @(posedge clk) if(cen6) begin
-    if( HINIT ) 
+    if( HINIT )
         { objcnt, pxlcnt } <= {5'd8,4'd0};
-    else 
+    else
         if( objcnt != 5'd0 )  { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 1'd1;
 end
 
@@ -145,7 +145,7 @@ jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
     .cen6           ( cen6          ),    //  6 MHz
     .DISPTM_b       ( 1'b0          ),
     // screen
-    .LHBL           ( LHBL          ),    
+    .LHBL           ( LHBL          ),
     .flip           ( flip          ),
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),

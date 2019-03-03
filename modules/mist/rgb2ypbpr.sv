@@ -6,8 +6,8 @@ module rgb2ypbpr (
 	output [5:0]    y,
 	output [5:0]    pb,
 	output [5:0]    pr
-);	
-	
+);
+
 wire [5:0] yuv_full[225] = '{
   6'd0,   6'd0,  6'd0,  6'd0,  6'd1,  6'd1,  6'd1,  6'd1,
   6'd2,   6'd2,  6'd2,  6'd3,  6'd3,  6'd3,  6'd3,  6'd4,

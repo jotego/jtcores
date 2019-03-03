@@ -18,7 +18,7 @@
 
 module jtgng_objdma(
     input              rst,
-    input              clk,     
+    input              clk,
     input              cen6,    //  6 MHz
     // screen
     input              LVBL,
@@ -41,7 +41,7 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 
 reg mem_sel;
 
-always @(posedge clk) 
+always @(posedge clk)
     if( rst ) begin
         blen      <= 1'b0;
         bus_state <= ST_IDLE;
@@ -85,7 +85,7 @@ always @(posedge clk)
     end
 
 
-wire [9:0]  wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 10'd0; 
+wire [9:0]  wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 10'd0;
 wire [7:0]  ram_din = mem_sel==MEM_PREBUF ? DB : 8'd0;
 wire        ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 

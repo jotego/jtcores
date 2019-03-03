@@ -27,7 +27,7 @@ module video_mixer
 	// master clock
 	// it should be multiple by (ce_pix*4).
 	input            clk_sys,
-	
+
 	// Pixel clock or clock_enable (both are accepted).
 	input            ce_pix,
 	output           ce_pix_out,
@@ -116,10 +116,10 @@ assign ce_pix_out = scandoubler ? ce_pix_sd : ce_pix;
 reg scanline = 0;
 always @(posedge clk_sys) begin
 	reg old_hs, old_vs;
-	
+
 	old_hs <= hs;
 	old_vs <= vs;
-	
+
 	if(old_hs && ~hs) scanline <= ~scanline;
 	if(old_vs && ~vs) scanline <= 0;
 end

@@ -1,8 +1,8 @@
 module test(
-    input           rst,    
+    input           rst,
     input           SDRAM_CLK,
     input           clk,        // 24   MHz
-    input           cen6,       //  6   MHz    
+    input           cen6,       //  6   MHz
     input           flip,
     output   [3:0]  red,
     output   [3:0]  green,
@@ -56,31 +56,31 @@ jtgng_video u_video(
     .chrom_data ( chrom_data    ),
     // SCROLL - ROM
     .scr_cs     ( 1'b0          ),
-    .scrpos_cs  ( 1'b0          ),    
-    .scram_dout ( scram_dout    ),    
+    .scrpos_cs  ( 1'b0          ),
+    .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_dout      ),    
+    .scrom_data ( scr_dout      ),
     // OBJ
-    .HINIT      ( HINIT         ),    
-    .obj_AB     ( obj_AB        ),    
+    .HINIT      ( HINIT         ),
+    .obj_AB     ( obj_AB        ),
     .main_ram   ( 8'd0          ),
     .OKOUT      ( 1'b0          ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( 1'b0          ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .obj_addr   ( obj_addr      ),
-    .objrom_data( objrom_data   ),    
+    .objrom_data( objrom_data   ),
     // Color Mix
-    .LHBL       ( LHBL          ),       
+    .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .blue_cs    ( 1'b0          ),
-    .redgreen_cs( 1'b0          ),    
+    .redgreen_cs( 1'b0          ),
     .enable_char( 1'b1          ),
     .enable_obj ( 1'b0          ),
-    .enable_scr ( 1'b0          ),    
+    .enable_scr ( 1'b0          ),
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          )    
+    .blue       ( blue          )
 );
 
 // SDRAM interface
@@ -93,20 +93,20 @@ wire        SDRAM_nCAS;     // SDRAM Column Address Strobe
 wire        SDRAM_nRAS;     // SDRAM Row Address Strobe
 wire        SDRAM_nCS;      // SDRAM Chip Select
 wire  [1:0] SDRAM_BA;       // SDRAM Bank Address
-wire        SDRAM_CKE;      // SDRAM Clock Enable 
+wire        SDRAM_CKE;      // SDRAM Clock Enable
 
 
 wire [1:0] Dqm = { SDRAM_DQMH, SDRAM_DQML };
 /*
 mt48lc16m16a2 SDRAM(
-    .Dq     ( SDRAM_DQ   ), 
-    .Addr   ( SDRAM_A    ), 
-    .Ba     ( SDRAM_BA   ), 
-    .Clk    ( clk        ), 
-    .Cke    ( SDRAM_CKE  ), 
-    .Cs_n   ( SDRAM_nCS  ), 
-    .Ras_n  ( SDRAM_nRAS ), 
-    .Cas_n  ( SDRAM_nCAS ), 
+    .Dq     ( SDRAM_DQ   ),
+    .Addr   ( SDRAM_A    ),
+    .Ba     ( SDRAM_BA   ),
+    .Clk    ( clk        ),
+    .Cke    ( SDRAM_CKE  ),
+    .Cs_n   ( SDRAM_nCS  ),
+    .Ras_n  ( SDRAM_nRAS ),
+    .Cas_n  ( SDRAM_nCAS ),
     .We_n   ( SDRAM_nWE  ),
     .Dqm    ( Dqm        )
 );

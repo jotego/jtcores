@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 27-10-2017 */
-    
+
 module jtgng_game(
     input           rst,
     input           soft_rst,
@@ -35,7 +35,7 @@ module jtgng_game(
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
     input   [ 5:0]  joystick1,
-    input   [ 5:0]  joystick2,  
+    input   [ 5:0]  joystick2,
     // SDRAM interface
     input           downloading,
     input           loop_rst,
@@ -51,7 +51,7 @@ module jtgng_game(
     input           dip_pause, // Not a DIP on the original PCB
     input   [ 1:0]  dip_lives,
     input   [ 1:0]  dip_level,
-    input   [ 1:0]  dip_bonus,    
+    input   [ 1:0]  dip_bonus,
     input           dip_game_mode,
     input           dip_attract_snd,
     input           dip_upright,
@@ -125,9 +125,9 @@ wire [16:0] main_addr;
 wire [ 7:0] main_dout;
 wire [15:0] sdram_din;
 wire [12:0] wr_row;
-wire [ 8:0] wr_col; 
+wire [ 8:0] wr_col;
 wire        main_cs;
-// OBJ  
+// OBJ
 wire [ 8:0] obj_AB;
 wire OKOUT;
 wire [7:0] main_ram;
@@ -159,7 +159,7 @@ jtgng_main u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
-    
+
     .LVBL       ( LVBL          ),
     .main_cs    ( main_cs       ),
     .cpu_dout   ( cpu_dout      ),
@@ -176,7 +176,7 @@ jtgng_main u_main(
     .start_button( start_button ),
     .coin_input ( coin_input    ),
     .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),   
+    .joystick2  ( joystick2     ),
     // DIP switches
     .dip_pause      ( dip_pause       ),
     .dip_flip       ( 1'b0            ),
@@ -209,9 +209,9 @@ jtgng_sound u_sound (
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
     .ym_snd         ( ym_snd     ),
-    .sample         ( sample     ) 
+    .sample         ( sample     )
 );
-`else 
+`else
 assign snd_addr = 15'd0;
 assign sample   = 1'b0;
 assign ym_snd   = 16'b0;
@@ -236,34 +236,34 @@ jtgng_video u_video(
     .chrom_data ( chrom_data    ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),    
-    .scram_dout ( scram_dout    ),    
+    .scrpos_cs  ( scrpos_cs     ),
+    .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_dout      ),   
-    .scr_mrdy   ( scr_mrdy      ), 
+    .scrom_data ( scr_dout      ),
+    .scr_mrdy   ( scr_mrdy      ),
     // OBJ
-    .HINIT      ( HINIT         ),    
-    .obj_AB     ( obj_AB        ),    
+    .HINIT      ( HINIT         ),
+    .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_dout      ),    
+    .objrom_data( obj_dout      ),
     // Color Mix
-    .LHBL       ( LHBL          ),       
-    .LHBL_obj   ( LHBL_obj      ),       
+    .LHBL       ( LHBL          ),
+    .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
     .LVBL_obj   ( LVBL_obj      ),
     .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),    
+    .redgreen_cs( redgreen_cs   ),
     .enable_char( enable_char   ),
     .enable_obj ( enable_obj    ),
-    .enable_scr ( enable_scr    ),    
+    .enable_scr ( enable_scr    ),
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          )    
+    .blue       ( blue          )
 );
 
 jtgng_rom u_rom (

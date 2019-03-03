@@ -51,7 +51,7 @@ end
 always @(posedge clk)
     if(addr_rst)
         snd_addr   <= 0;
-    else if(cen3) 
+    else if(cen3)
         snd_addr   <= snd_addr  + 1'b1;
 
 always @(posedge clk)
@@ -88,7 +88,7 @@ wire        SDRAM_nCAS;     // SDRAM Column Address Strobe
 wire        SDRAM_nRAS;     // SDRAM Row Address Strobe
 wire        SDRAM_nCS;      // SDRAM Chip Select
 wire  [1:0] SDRAM_BA;       // SDRAM Bank Address
-wire        SDRAM_CKE;      // SDRAM Clock Enable 
+wire        SDRAM_CKE;      // SDRAM Clock Enable
 
 jtgng_rom uut (
     .clk        (clk      ),
@@ -114,20 +114,20 @@ jtgng_rom uut (
     .SDRAM_nRAS ( SDRAM_nRAS ),   // SDRAM Row Address Strobe
     .SDRAM_nCS  ( SDRAM_nCS  ),   // SDRAM Chip Select
     .SDRAM_BA   ( SDRAM_BA   ),   // SDRAM Bank Address
-    .SDRAM_CKE  ( SDRAM_CKE  )    // SDRAM Clock Enable     
+    .SDRAM_CKE  ( SDRAM_CKE  )    // SDRAM Clock Enable
 );
 
 wire [1:0] Dqm = { SDRAM_DQMH, SDRAM_DQML };
 
 mt48lc16m16a2 SDRAM(
-    .Dq     ( SDRAM_DQ   ), 
-    .Addr   ( SDRAM_A    ), 
-    .Ba     ( SDRAM_BA   ), 
-    .Clk    ( clk        ), 
-    .Cke    ( SDRAM_CKE  ), 
-    .Cs_n   ( SDRAM_nCS  ), 
-    .Ras_n  ( SDRAM_nRAS ), 
-    .Cas_n  ( SDRAM_nCAS ), 
+    .Dq     ( SDRAM_DQ   ),
+    .Addr   ( SDRAM_A    ),
+    .Ba     ( SDRAM_BA   ),
+    .Clk    ( clk        ),
+    .Cke    ( SDRAM_CKE  ),
+    .Cs_n   ( SDRAM_nCS  ),
+    .Ras_n  ( SDRAM_nRAS ),
+    .Cas_n  ( SDRAM_nCAS ),
     .We_n   ( SDRAM_nWE  ),
     .Dqm    ( Dqm        )
 );

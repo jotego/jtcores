@@ -60,7 +60,7 @@ always @(posedge phiBB or posedge OVER24) begin
 		{ mode, base_cnt } <= 3'd0;
 	else if( load_base )
 		{ mode, base_cnt } <= { next_mode, ~next_mode, 1'b0 };
-	else 
+	else
 		{ mode, base_cnt } <= { mode, base_cnt } + 1'b1;
 end
 
@@ -74,7 +74,7 @@ wire OVER95 = bus_cnt >= 7'd95;
 wire MATCH = ~MATCH_b;
 wire matched = cnt2 && ~MATCH_b;
 
-// MATCH is only used when cnt2 is active because that marks 
+// MATCH is only used when cnt2 is active because that marks
 // byte #2 of the 4-byte sprite structure
 
 assign next_mode = AKB || (OVER95 && !HINIT) || matched;
@@ -85,7 +85,7 @@ always @(posedge phiBB) begin
 	if( load_bus )
 		bus_cnt <= 7'd0;
 	else if( count_both || ( !matched && cnt2 ) )
-		bus_cnt <= bus_cnt + 1'd1;	
+		bus_cnt <= bus_cnt + 1'd1;
 end
 
 // data buffer counter
@@ -112,7 +112,7 @@ always @(*) begin
 		OBJABWR = 1'b0;
 		OBASEL  = 1'b0;
 		OBBSEL  = 1'b0;
-	end		
+	end
 	else begin
 		OBJABWR = &{ mode, ~OVER24, H1 }; // H1 is the clock for this operation
 		OBASEL  =  LV1;
@@ -155,11 +155,11 @@ assign	#2 phiBB = ~H1; // 8D
 wire	OVER24_b;
 
 jt7474 u_2J (
-	.d		(BLTIMING), 
-	.pr_b	(1'b1), 
-	.cl_b	(1'b1), 
-	.clk	(H256_b), 
-	.q		(TM2496_b), 
+	.d		(BLTIMING),
+	.pr_b	(1'b1),
+	.cl_b	(1'b1),
+	.clk	(H256_b),
+	.q		(TM2496_b),
 	.q_b	(TM2496)
 );
 
@@ -186,7 +186,7 @@ assign #2 Y_13D3  = OB[1] & ~q_6E[3]; // 12D, 13D
 wire Y_2H6;
 assign #2 Y_2H6  = MATCH_b | ~Y_13D3; // 2H, 5E
 wire Y_6F6;
-assign #2 Y_6F6  = ~&{AKB_b, Y_5F6, Y_2H6 }; // 6F 
+assign #2 Y_6F6  = ~&{AKB_b, Y_5F6, Y_2H6 }; // 6F
 
 wire BLEN_2496;
 assign #2 BLEN_2496 = BLEN | TM2496; // 2H
@@ -194,12 +194,12 @@ wire load_b;
 assign #2 load_b = (TM2496_b | HINIT_b) & BLEN_2496; // 2H, 3H
 
 jt74161 u_7D (
-	.cet	(ca_6D), 
-	.cep	(ca_6D), 
-	.ld_b	(load_b), 
-	.clk	(phiBB), 
-	.cl_b	(1'b1), 
-	.d		(4'd0), 
+	.cet	(ca_6D),
+	.cep	(ca_6D),
+	.ld_b	(load_b),
+	.clk	(phiBB),
+	.cl_b	(1'b1),
+	.d		(4'd0),
 	.q		(OB[8:6])
 );
 
@@ -207,13 +207,13 @@ wire Y_3H6;
 assign #2 Y_3H6 = load_b & ~(ca_6E|Y_13D3); // 3H, 5E, 2H
 
 jt74161 u_6E (
-	.cet	(1'b1		), 
-	.cep	(1'b1		), 
-	.ld_b	(Y_3H6		), 
-	.clk	(phiBB		), 
-	.cl_b	(OVER24_b	), 
-	.d		({Y_6F6, Y_6F6, ~Y_6F6, 1'b0}), 
-	.q		(q_6E		), 
+	.cet	(1'b1		),
+	.cep	(1'b1		),
+	.ld_b	(Y_3H6		),
+	.clk	(phiBB		),
+	.cl_b	(OVER24_b	),
+	.d		({Y_6F6, Y_6F6, ~Y_6F6, 1'b0}),
+	.q		(q_6E		),
 	.ca		(ca_6E		)
 );
 
@@ -222,13 +222,13 @@ assign OB[1:0] = q_6E[1:0];
 wire Y_1J3 = (MATCH_b&Y_13D3) | ca_6E;
 
 jt74161 u_6D (
-	.cet	(Y_1J3		), 
-	.cep	(Y_1J3		), 
-	.ld_b	(load_b		), 
-	.clk	(phiBB		), 
-	.cl_b	(1'b1		), 
-	.d		(4'd0		), 
-	.q		(OB[5:2]	), 
+	.cet	(Y_1J3		),
+	.cep	(Y_1J3		),
+	.ld_b	(load_b		),
+	.clk	(phiBB		),
+	.cl_b	(1'b1		),
+	.d		(4'd0		),
+	.q		(OB[5:2]	),
 	.ca		(ca_6D		)
 );
 
@@ -237,13 +237,13 @@ assign #2 Y_3H3 = HINIT_b & TM2496;
 
 
 jt74161 u_5H (
-	.cet	( ca_6E	), 
-	.cep	( ca_6E	), 
-	.ld_b	( Y_3H3	), 
-	.clk	( phiBB ), 
-	.cl_b	( 1'b1  ), 
-	.d		( 4'h8  ), 
-	.q		( OBA[3:0]	), 
+	.cet	( ca_6E	),
+	.cep	( ca_6E	),
+	.ld_b	( Y_3H3	),
+	.clk	( phiBB ),
+	.cl_b	( 1'b1  ),
+	.d		( 4'h8  ),
+	.q		( OBA[3:0]	),
 	.ca		( ca_5H	)
 );
 
@@ -251,12 +251,12 @@ wire OVER24;
 assign #2 OVER24_b = ~OVER24; // 5E
 
 jt74161 u_4H (
-	.cet	( ca_5H	), 
-	.cep	( ca_5H	), 
-	.ld_b	( Y_3H3	), 
-	.clk	( phiBB	), 
-	.cl_b	( 1'b1  ), 
-	.d		( 4'd0  ), 
+	.cet	( ca_5H	),
+	.cep	( ca_5H	),
+	.ld_b	( Y_3H3	),
+	.clk	( phiBB	),
+	.cl_b	( 1'b1  ),
+	.d		( 4'd0  ),
 	.q		( { OVER24, OBA[4] } )
 );
 

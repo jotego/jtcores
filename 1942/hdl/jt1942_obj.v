@@ -17,7 +17,7 @@
     Date: 20-1-2019 */
 
 // 1942 Object Generation
-    
+
 module jt1942_obj(
     input              rst,
     input              clk,
@@ -63,7 +63,7 @@ jt1942_objtiming u_timing(
     // screen
     .HINIT       ( HINIT         ),
     .V           ( V             ),
-    .H           ( H             ),    
+    .H           ( H             ),
     // Timings
     .SEATM_b     ( SEATM_b       ),
     .DISPTM_b    ( DISPTM_b      ),
@@ -152,7 +152,7 @@ jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
     // screen
-    .LHBL           ( LHBL          ),    
+    .LHBL           ( LHBL          ),
     .DISPTM_b       ( DISPTM_b      ),
     .flip           ( flip          ),
     .objcnt         ( objcnt        ),

@@ -19,7 +19,7 @@
 // 1943: Main CPU
 
 module jt1943_main(
-    input              clk, 
+    input              clk,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     input              rst,
@@ -55,13 +55,13 @@ module jt1943_main(
     // BUS sharing
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
-    input   [12:0]     obj_AB,    
+    input   [12:0]     obj_AB,
     output             rd_n,
     output             wr_n,
     output  reg        OKOUT,
     input              bus_req,  // Request bus
     output             bus_ack,  // bus acknowledge
-    input              blcnten,  // bus line counter enable    
+    input              blcnten,  // bus line counter enable
     // ROM access
     output  reg        main_cs,
     output  reg [17:0] rom_addr,
@@ -93,7 +93,7 @@ always @(*) begin
     scr2posh_cs   = 2'b0;
     scrposv_cs    = 1'b0;
     gfxen_cs      = 1'b0;
-    OKOUT         = 1'b0;         
+    OKOUT         = 1'b0;
     SECWR_cs      = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
         3'b0??: main_cs = 1'b1;
@@ -143,7 +143,7 @@ always @(posedge clk)
         if( bank_cs  && !wr_n ) begin
             CHON     <= cpu_dout[7];
             flip     <= cpu_dout[6];
-            sres_b   <= ~cpu_dout[5]; // inverted through M54532 
+            sres_b   <= ~cpu_dout[5]; // inverted through M54532
             coin_cnt <= |cpu_dout[1:0];
             bank     <= cpu_dout[4:2];
             `ifdef SIMULATION
@@ -192,7 +192,7 @@ jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
     .addr       ( RAM_addr  ),
     .data       ( cpu_dout  ),
     .we         ( RAM_we    ),
-    .q          ( ram_dout  )    
+    .q          ( ram_dout  )
 );
 
 // Data bus input
@@ -202,7 +202,7 @@ wire irq_ack = !iorq_n && !m1_n;
 
 always @(*)
     case( {ram_cs, char_cs, main_cs, in_cs} )
-        4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 : 
+        4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
                             ram_dout;
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;
@@ -275,7 +275,7 @@ jt1943_security u_security(
 //`undef Z80_ALT_CPU
 //`endif
 
-`ifdef VERILATOR_LINT 
+`ifdef VERILATOR_LINT
 `define Z80_ALT_CPU
 `endif
 
@@ -283,29 +283,29 @@ jt1943_security u_security(
 // This CPU is used for synthesis
 wire [211:0] z80_regs;
 `ifdef SIMULATION
-wire reg_IFF2; 
-wire reg_IFF1; 
+wire reg_IFF2;
+wire reg_IFF1;
 wire [1:0]  reg_IM;    // 4
-wire [15:0] reg_IY; 
-wire [15:0] reg_HL_; 
-wire [15:0] reg_DE_; 
-wire [15:0] reg_BC_; 
-wire [15:0] reg_IX; 
-wire [15:0] reg_HL; 
-wire [15:0] reg_DE; 
-wire [15:0] reg_BC; 
-wire [15:0] reg_PC; 
-wire [15:0] reg_SP; // 164 
-wire [7:0]  reg_R; 
-wire [7:0]  reg_I; 
-wire [7:0]  reg_F_; 
-wire [7:0]  reg_A_; 
-wire [7:0]  reg_F; 
+wire [15:0] reg_IY;
+wire [15:0] reg_HL_;
+wire [15:0] reg_DE_;
+wire [15:0] reg_BC_;
+wire [15:0] reg_IX;
+wire [15:0] reg_HL;
+wire [15:0] reg_DE;
+wire [15:0] reg_BC;
+wire [15:0] reg_PC;
+wire [15:0] reg_SP; // 164
+wire [7:0]  reg_R;
+wire [7:0]  reg_I;
+wire [7:0]  reg_F_;
+wire [7:0]  reg_A_;
+wire [7:0]  reg_F;
 wire [7:0]  reg_A;
-assign { 
-    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_, 
-    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I, 
-    reg_F_, reg_A_, reg_F, reg_A } = z80_regs; 
+assign {
+    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_,
+    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I,
+    reg_F_, reg_A_, reg_F, reg_A } = z80_regs;
 `endif
 T80s u_cpu(
     .RESET_n    ( t80_rst_n   ),

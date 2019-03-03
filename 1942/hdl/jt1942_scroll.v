@@ -41,7 +41,7 @@ module jt1942_scroll(
     input              prom_d1_we,
     input              prom_d2_we,
     input              prom_d6_we,
-    input   [3:0]      prom_din,    
+    input   [3:0]      prom_din,
 
     // ROM
     output reg  [13:0] scr_addr,
@@ -120,7 +120,7 @@ always @(posedge clk) if(cen6) begin
         scr_attr1 <= scr_attr0;
         scr_attr0 <= dout_high[5:0];
         scr_addr  <= {   dout_high[7], dout_low, // AS
-                        HS[3]^dout_high[5] /*scr_hflip*/, 
+                        HS[3]^dout_high[5] /*scr_hflip*/,
                         {4{dout_high[6] /*vflip*/}}^VF[3:0] /*vert_addr*/ };
     end
 end
@@ -134,7 +134,7 @@ always @(posedge clk) if(cen6) begin
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
     if( HS[2:0]==3'd2 ) begin
-            { z,y,x } <= scrom_data;     
+            { z,y,x } <= scrom_data;
             scr_hflip <= scr_attr1[5] ^ flip; // must be ready when z,y,x are.
             scr_attr2 <= scr_attr1[4:0];
         end

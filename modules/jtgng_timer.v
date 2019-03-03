@@ -40,7 +40,7 @@ parameter obj_offset=10'd3;
 //reg G4_3H;  // high on 3/4 H transition
 //reg G4H;    // high on 4H transition
 //reg OH;     // high on 0H transition
- 
+
 // H counter
 always @(posedge clk) begin
     if( rst ) begin
@@ -80,12 +80,12 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // Objects are drawn using a 2-line buffer
 // so they are calculated two lines in advanced
 // original games use a small ROM to generate
-// control signals for the object buffers. 
+// control signals for the object buffers.
 // I do not always use that ROM in my games,
 // I often just generates the signals with logic
 // LVBL_obj is such a signal. In CAPCOM schematics
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
-always @(posedge clk) 
+always @(posedge clk)
     if( rst ) begin
         LVBL <= 1'b0;
         LVBL_obj <= 1'b0;
@@ -118,7 +118,7 @@ always @(posedge clk)
 //     G4H <= &H[1:0];
 //     OH  <= &H[2:0];
 // end
-// 
+//
 // always @(posedge clk) begin
 //     G4_3H <= &H[1:0];
 // end

@@ -67,7 +67,7 @@ always @(posedge clk) if(cen6) begin
     end
 end
 `else
-always @(posedge clk) if(cen6) 
+always @(posedge clk) if(cen6)
 if( !SEATM_b && pxlcnt==4'd6 ) case(scan[6:2])
     // 5'd0: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'hD2_46_61_20;
     // 5'd1: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h11_04_98_c0;

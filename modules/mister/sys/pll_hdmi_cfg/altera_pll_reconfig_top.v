@@ -1,13 +1,13 @@
 // (C) 2001-2017 Intel Corporation. All rights reserved.
-// Your use of Intel Corporation's design tools, logic functions and other 
-// software and tools, and its AMPP partner logic functions, and any output 
-// files any of the foregoing (including device programming or simulation 
-// files), and any associated documentation or information are expressly subject 
-// to the terms and conditions of the Intel Program License Subscription 
-// Agreement, Intel MegaCore Function License Agreement, or other applicable 
-// license agreement, including, without limitation, that your use is for the 
-// sole purpose of programming logic devices manufactured by Intel and sold by 
-// Intel or its authorized distributors.  Please refer to the applicable 
+// Your use of Intel Corporation's design tools, logic functions and other
+// software and tools, and its AMPP partner logic functions, and any output
+// files any of the foregoing (including device programming or simulation
+// files), and any associated documentation or information are expressly subject
+// to the terms and conditions of the Intel Program License Subscription
+// Agreement, Intel MegaCore Function License Agreement, or other applicable
+// license agreement, including, without limitation, that your use is for the
+// sole purpose of programming logic devices manufactured by Intel and sold by
+// Intel or its authorized distributors.  Please refer to the applicable
 // agreement for further details.
 
 
@@ -19,18 +19,18 @@ module altera_pll_reconfig_top
     parameter   device_family           = "Stratix V",
     parameter   RECONFIG_ADDR_WIDTH     = 6,
     parameter   RECONFIG_DATA_WIDTH     = 32,
-    
+
 	parameter   ROM_ADDR_WIDTH          = 9,
     parameter   ROM_DATA_WIDTH          = 32,
 	parameter	ROM_NUM_WORDS           = 512,
 
-    parameter   ENABLE_MIF              = 0,    
+    parameter   ENABLE_MIF              = 0,
     parameter   MIF_FILE_NAME           = "",
-	
+
 	parameter 	ENABLE_BYTEENABLE		= 0,
 	parameter	BYTEENABLE_WIDTH		= 4,
     parameter   WAIT_FOR_LOCK           = 1
-) ( 
+) (
 
     //input
     input   wire    mgmt_clk,
@@ -48,8 +48,8 @@ module altera_pll_reconfig_top
     input   wire        mgmt_read,
     input   wire        mgmt_write,
     input   wire [RECONFIG_DATA_WIDTH-1:0] mgmt_writedata,
-	
-	//conditional input 
+
+	//conditional input
 	input 	wire [BYTEENABLE_WIDTH-1:0] mgmt_byteenable
 );
 
@@ -62,18 +62,18 @@ localparam MIF_STATE_START = 2'b01;
 localparam MIF_STATE_BUSY = 2'b10;
 
 wire mgmt_byteenable_write;
-assign mgmt_byteenable_write = (ENABLE_BYTEENABLE == 1) ? 
-										((mgmt_byteenable == {BYTEENABLE_WIDTH{1'b1}}) ? mgmt_write : 1'b0) : 
+assign mgmt_byteenable_write = (ENABLE_BYTEENABLE == 1) ?
+										((mgmt_byteenable == {BYTEENABLE_WIDTH{1'b1}}) ? mgmt_write : 1'b0) :
 										mgmt_write;
-										
+
 generate
 if (device_family == "Arria 10")
 begin:nm20_reconfig
 	if(ENABLE_MIF == 1)
 	begin:mif_reconfig_20nm // Generate Reconfig with MIF
-	
+
 		// MIF-related regs/wires
-        reg [RECONFIG_ADDR_WIDTH-1:0]   reconfig_mgmt_addr; 
+        reg [RECONFIG_ADDR_WIDTH-1:0]   reconfig_mgmt_addr;
         reg                             reconfig_mgmt_read;
         reg                             reconfig_mgmt_write;
         reg [RECONFIG_DATA_WIDTH-1:0]   reconfig_mgmt_writedata;
@@ -101,10 +101,10 @@ begin:nm20_reconfig
 
 		//user must lower this by the time mif streaming is done - suggest to lower after 1 cycle
 		assign mif_start = mgmt_byteenable_write & (mgmt_address == NM20_MIFSTART_ADDR);
-		
+
 		//mif base addr is initially specified by the user
 		assign mif_base_addr = mgmt_writedata[ROM_ADDR_WIDTH-1:0];
-		
+
 		//MIF statemachine
 		always @(posedge mgmt_clk)
 		begin
@@ -113,7 +113,7 @@ begin:nm20_reconfig
 			else
 				mif_curstate <= mif_nextstate;
 		end
-		
+
 		always @(*)
 		begin
 			case (mif_curstate)
@@ -127,7 +127,7 @@ begin:nm20_reconfig
 				MIF_STATE_START:
 				begin
 					mif_nextstate <= MIF_STATE_BUSY;
-				end				
+				end
 				MIF_STATE_BUSY:
 				begin
 					if(mif_busy)
@@ -137,7 +137,7 @@ begin:nm20_reconfig
 				end
 			endcase
 		end
-		
+
 		//Mif muxes
         always @(*)
         begin
@@ -165,13 +165,13 @@ begin:nm20_reconfig
             begin
                 mif_select <= 0;
             end
-            else 
+            else
             begin
                 mif_select <= (mif_start || mif_busy) ? 1'b1 : 1'b0;
             end
         end
-	
-        twentynm_pll_reconfig_mif_reader  
+
+        twentynm_pll_reconfig_mif_reader
         #(
             .RECONFIG_ADDR_WIDTH(RECONFIG_ADDR_WIDTH),
             .RECONFIG_DATA_WIDTH(RECONFIG_DATA_WIDTH),
@@ -184,7 +184,7 @@ begin:nm20_reconfig
         ) twentynm_pll_reconfig_mif_reader_inst0 (
             .mif_clk(mgmt_clk),
             .mif_rst(mgmt_reset),
-            
+
             //Altera_PLL Reconfig interface
             //inputs
             .reconfig_waitrequest(reconfig_mgmt_waitrequest),
@@ -202,10 +202,10 @@ begin:nm20_reconfig
             //outputs
             .mif_busy(mif_busy)
         );
-		
-        // ------ END MIF-RELATED MANAGEMENT ------	
-		
-		twentynm_iopll_reconfig_core 
+
+        // ------ END MIF-RELATED MANAGEMENT ------
+
+		twentynm_iopll_reconfig_core
         #(
             .WAIT_FOR_LOCK(WAIT_FOR_LOCK)
         ) twentynm_iopll_reconfig_core_inst	(
@@ -220,16 +220,16 @@ begin:nm20_reconfig
 			// Outputs
 			.mgmt_readdata(reconfig_mgmt_readdata),
 			.mgmt_waitrequest(reconfig_mgmt_waitrequest),
-			
+
 			// PLL Conduits
 			.reconfig_to_pll(reconfig_to_pll),
 			.reconfig_from_pll(reconfig_from_pll)
 		);
-		
+
 	end // End generate reconfig with MIF
-	else 
+	else
 	begin:reconfig_core_20nm
-		twentynm_iopll_reconfig_core 
+		twentynm_iopll_reconfig_core
         #(
             .WAIT_FOR_LOCK(WAIT_FOR_LOCK)
         ) twentynm_iopll_reconfig_core_inst	(
@@ -244,7 +244,7 @@ begin:nm20_reconfig
 			// Outputs
 			.mgmt_readdata(mgmt_readdata),
 			.mgmt_waitrequest(mgmt_waitrequest),
-			
+
 			// PLL Conduits
 			.reconfig_to_pll(reconfig_to_pll),
 			.reconfig_from_pll(reconfig_from_pll)
@@ -305,13 +305,13 @@ begin:NM28_reconfig
             begin
                 mif_select <= 0;
             end
-            else 
+            else
             begin
                 mif_select <= (reconfig2mif_start_out || mif2reconfig_busy) ? 1'b1 : 1'b0;
             end
         end
 
-        altera_pll_reconfig_mif_reader 
+        altera_pll_reconfig_mif_reader
         #(
             .RECONFIG_ADDR_WIDTH(RECONFIG_ADDR_WIDTH),
             .RECONFIG_DATA_WIDTH(RECONFIG_DATA_WIDTH),
@@ -324,7 +324,7 @@ begin:NM28_reconfig
         ) altera_pll_reconfig_mif_reader_inst0 (
             .mif_clk(mgmt_clk),
             .mif_rst(mgmt_reset),
-            
+
             //Altera_PLL Reconfig interface
             //inputs
             .reconfig_busy(reconfig_mgmt_waitrequest),
@@ -367,7 +367,7 @@ begin:NM28_reconfig
             //User data outputs
             .mgmt_readdata(reconfig_mgmt_readdata),
             .mgmt_waitrequest(reconfig_mgmt_waitrequest),
-            
+
             //User data inputs
             .mgmt_address(reconfig_mgmt_addr),
             .mgmt_read(reconfig_mgmt_read),
@@ -407,7 +407,7 @@ begin:NM28_reconfig
             //User data outputs
             .mgmt_readdata(mgmt_readdata),
             .mgmt_waitrequest(mgmt_waitrequest),
-            
+
             //User data inputs
             .mgmt_address(mgmt_address),
             .mgmt_read(mgmt_read),
@@ -419,7 +419,7 @@ begin:NM28_reconfig
             .mif_base_addr(mif_base_addr)
         );
 
-        
+
     end // End generate reconfig core only
 end // End 28nm Reconfig
 endgenerate

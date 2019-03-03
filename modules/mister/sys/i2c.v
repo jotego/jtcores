@@ -53,7 +53,7 @@ always @(posedge CLK) begin
 		SD_COUNTER <= 0;
 	end else begin
 		if(~old_clk && I2C_CLOCK && ~&SD_COUNTER) begin
-			SD_COUNTER <= SD_COUNTER + 6'd1;	
+			SD_COUNTER <= SD_COUNTER + 6'd1;
 			case(SD_COUNTER)
 				      01: SCLK <= 0;
 				10,19,28: ACK  <= ACK | I2C_SDA;

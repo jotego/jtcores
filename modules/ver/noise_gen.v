@@ -14,7 +14,7 @@ always @(posedge clk) begin : base_counter
     if( rst ) begin
         bb <= 17'hCAFE;
     end
-    else if( cen ) begin   
+    else if( cen ) begin
             bb[16:1]    <= bb[15:0];
             bb[0]       <= ~(bb[16]^bb[13]);
         end

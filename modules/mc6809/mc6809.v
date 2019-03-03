@@ -1,21 +1,21 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    08:11:34 09/23/2016 
-// Design Name: 
-// Module Name:    mc6809e 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
+// Company:
+// Engineer:
 //
-// Dependencies: 
+// Create Date:    08:11:34 09/23/2016
+// Design Name:
+// Module Name:    mc6809e
+// Project Name:
+// Target Devices:
+// Tool versions:
+// Description:
 //
-// Revision: 
+// Dependencies:
+//
+// Revision:
 // Revision 0.01 - File Created
-// Additional Comments: 
+// Additional Comments:
 //
 //////////////////////////////////////////////////////////////////////////////////
 module mc6809(
@@ -32,11 +32,11 @@ module mc6809(
     input   nNMI,
     input   EXTAL,
     input   XTAL,
-    input   nHALT,	 
+    input   nHALT,
     input   nRESET,
     input   MRDY,
     input   nDMABREQ
-    
+
     , output  [111:0] RegData
 
     );
@@ -54,7 +54,7 @@ reg    rQ;
 assign E = rE;
 assign Q = rQ;
 
-mc6809i cpucore(.D(D), .DOut(DOut), .ADDR(ADDR), .RnW(RnW), .E(E), .Q(Q), .BS(BS), .BA(BA), .nIRQ(nIRQ), .nFIRQ(nFIRQ), 
+mc6809i cpucore(.D(D), .DOut(DOut), .ADDR(ADDR), .RnW(RnW), .E(E), .Q(Q), .BS(BS), .BA(BA), .nIRQ(nIRQ), .nFIRQ(nFIRQ),
                 .nNMI(nNMI), .AVMA(AVMA), .BUSY(BUSY), .LIC(LIC), .nHALT(nHALT), .nRESET(nRESET), .nDMABREQ(nDMABREQ)
                 ,.RegData(RegData)
                 );
@@ -71,8 +71,8 @@ begin
         2'b11:
             rQ <= 0;
     endcase
-    
-    if (MRDY == 1'b1) 
+
+    if (MRDY == 1'b1)
         clk_phase <= clk_phase + 2'b01;
 end
 

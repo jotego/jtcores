@@ -369,7 +369,7 @@ jt_gng_b8 B8 (
 	.S2H     (S2H     ),
 	.S0H     (S0H     ),
 	.S4H     (S4H     ),
-	.AB      (AB[10:0]), 
+	.AB      (AB[10:0]),
 	.AS      (AS      ),
 	.V256S   (V256S   ),
 	.V128S   (V128S   ),

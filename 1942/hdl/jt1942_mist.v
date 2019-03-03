@@ -34,7 +34,7 @@ module jt1942_mist(
     output          SDRAM_nCS,      // SDRAM Chip Select
     output [1:0]    SDRAM_BA,       // SDRAM Bank Address
     output          SDRAM_CLK,      // SDRAM Clock
-    output          SDRAM_CKE,      // SDRAM Clock Enable   
+    output          SDRAM_CKE,      // SDRAM Clock Enable
    // SPI interface to arm io controller
     output          SPI_DO,
     input           SPI_DI,
@@ -77,7 +77,7 @@ wire [ 5:0]   board_r, board_g, board_b;
 wire          board_hsync, board_vsync, hs, vs;
 wire [21:0]   sdram_addr;
 wire [15:0]   data_read;
-wire          loop_rst, autorefresh, sdram_re; 
+wire          loop_rst, autorefresh, sdram_re;
 wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
@@ -109,7 +109,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     // Base video
     .game_r         ( red           ),
     .game_g         ( green         ),
-    .game_b         ( blue          ),    
+    .game_b         ( blue          ),
     .board_r        ( board_r       ),
     .board_g        ( board_g       ),
     .board_b        ( board_b       ),
@@ -144,8 +144,8 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .SPI_SS4        ( SPI_SS4       ),
     .CONF_DATA0     ( CONF_DATA0    ),
     // control
-    .status         ( status        ), 
-    .joystick1      ( joystick1     ), 
+    .status         ( status        ),
+    .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .ps2_kbd_clk    ( ps2_kbd_clk   ),
     .ps2_kbd_data   ( ps2_kbd_data  ),
@@ -251,7 +251,7 @@ jtgng_board u_board(
     // VGA
     .cen6           ( cen6            ),
     .clk_vga        ( clk_vga         ),
-    .en_mixing      ( ~status[9]      ),    
+    .en_mixing      ( ~status[9]      ),
     .game_r         ( red             ),
     .game_g         ( green           ),
     .game_b         ( blue            ),
@@ -259,7 +259,7 @@ jtgng_board u_board(
     .LVBL           ( LVBL            ),
     .vga_r          ( board_r         ),
     .vga_g          ( board_g         ),
-    .vga_b          ( board_b         ),    
+    .vga_b          ( board_b         ),
     .vga_hsync      ( board_hsync     ),
     .vga_vsync      ( board_vsync     ),
     // joystick

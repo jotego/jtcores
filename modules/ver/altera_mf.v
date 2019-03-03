@@ -1,15 +1,15 @@
 // Copyright (C) 1991-2013 Altera Corporation
-// Your use of Altera Corporation's design tools, logic functions 
-// and other software and tools, and its AMPP partner logic 
-// functions, and any output files from any of the foregoing 
-// (including device programming or simulation files), and any 
-// associated documentation or information are expressly subject 
-// to the terms and conditions of the Altera Program License 
-// Subscription Agreement, Altera MegaCore Function License 
-// Agreement, or other applicable license agreement, including, 
-// without limitation, that your use is for the sole purpose of 
-// programming logic devices manufactured by Altera and sold by 
-// Altera or its authorized distributors.  Please refer to the 
+// Your use of Altera Corporation's design tools, logic functions
+// and other software and tools, and its AMPP partner logic
+// functions, and any output files from any of the foregoing
+// (including device programming or simulation files), and any
+// associated documentation or information are expressly subject
+// to the terms and conditions of the Altera Program License
+// Subscription Agreement, Altera MegaCore Function License
+// Agreement, or other applicable license agreement, including,
+// without limitation, that your use is for the sole purpose of
+// programming logic devices manufactured by Altera and sold by
+// Altera or its authorized distributors.  Please refer to the
 // applicable agreement for further details.
 // Quartus II 13.1.0 Build 162 10/23/2013
 
@@ -41,8 +41,8 @@ endmodule
 // BEGINNING OF MODULE
 `timescale 1 ps / 1 ps
 
-`define TRUE 1 
-`define FALSE 0 
+`define TRUE 1
+`define FALSE 0
 `define NULL 0
 `define EOF -1
 `define MAX_BUFFER_SZ   2048
@@ -84,10 +84,10 @@ begin
         tolower = conv_char;
     end
     else
-        tolower = given_character;    
+        tolower = given_character;
 end
 endfunction
-    
+
 /****************************************************************/
 /* Read in Altera-mif format data to verilog format data.       */
 /****************************************************************/
@@ -127,7 +127,7 @@ task convert_mif2ver;
     integer value;
     integer ifp, ofp, r, r2;
     integer i, j, k, m, n;
-    
+
     integer off_addr, nn, address, tt, cc, aah, aal, dd, sum ;
     integer start_address, end_address;
     integer line_no;
@@ -191,9 +191,9 @@ begin
                 $display("ERROR: cannot read %0s.", in_file);
                 done = `TRUE;
             end
-        
+
             out_file = in_file;
-            
+
             if((out_file[4*8 : 1] == ".mif") || (out_file[4*8 : 1] == ".MIF"))
                 out_file[3*8 : 1] = `EXT_STR;
             else
@@ -203,7 +203,7 @@ begin
             end
 
             if (!done)
-            begin            
+            begin
                 ofp = $fopen(out_file, "w");
 
                 if (ofp == `NULL)
@@ -212,10 +212,10 @@ begin
                     done = `TRUE;
                 end
             end
-            
+
             while((!done) && (!error_status))
             begin : READER
- 
+
                 r = $fgetc(ifp);
 
                 if (r == `EOF)
@@ -240,7 +240,7 @@ begin
                     done = `TRUE;
                 end
                 else if ((r == `NEWLINE) || (r == `CARRIAGE_RETURN))
-                begin                    
+                begin
                     if ((buffer == "contentbegin") && (get_address_data_pairs == `FALSE))
                     begin
                         get_address_data_pairs = `TRUE;
@@ -260,7 +260,7 @@ begin
                         disable READER;
                     end
                     line_no = line_no +1;
-                    
+
                 end
                 else if ((r == `SPACE) || (r == `TAB))
                 begin
@@ -273,7 +273,7 @@ begin
 
                     while ((r != `PERCENT) && (r != `NEWLINE) && (r != `CARRIAGE_RETURN))
                     begin
-                        r = $fgetc(ifp);                      
+                        r = $fgetc(ifp);
                     end
 
                     if ((r == `NEWLINE) || (r == `CARRIAGE_RETURN))
@@ -295,13 +295,13 @@ begin
                     begin
                         // Ignore all the characters which which is part of comment.
                         r = $fgetc(ifp);
-    
+
                         while ((r != `NEWLINE) && (r != `CARRIAGE_RETURN))
                         begin
                             r = $fgetc(ifp);
-                            
+
                         end
-    
+
                         if ((r == `NEWLINE) || (r == `CARRIAGE_RETURN))
                         begin
                             line_no = line_no +1;
@@ -340,7 +340,7 @@ begin
                     else if (buffer == "depth")
                     begin
                         get_depth = `TRUE;
-                        buffer = ""; 
+                        buffer = "";
                     end
                     else if (buffer == "data_radix")
                     begin
@@ -384,7 +384,7 @@ begin
                         if (get_start_address == `TRUE)
                         begin
                             start_address = address;
-                            address = 0; 
+                            address = 0;
                             get_start_address = `FALSE;
                             get_end_address = `TRUE;
                         end
@@ -413,7 +413,7 @@ begin
                     if (get_end_address == `TRUE)
                     begin
                         end_address = address;
-                        address = 0; 
+                        address = 0;
                         get_end_address = `FALSE;
                     end
                     else
@@ -423,7 +423,7 @@ begin
                         done = `TRUE;
                         disable READER;
                     end
-                end                
+                end
                 else if (r == `SEMICOLON)
                 begin
                     if (get_width == `TRUE)
@@ -493,24 +493,24 @@ begin
                         get_data = `FALSE;
                         buffer = "";
                         character_count = 0;
-                        
+
                         if (start_address != end_address)
                         begin
                             for (address = start_address; address <= end_address; address = address+1)
                             begin
                                 $fdisplay(ofp,"@%0h", address);
-                                
+
                                 for (i = memory_width -1; i >= 0; i = i-1 )
                                 begin
                                     hex[(i % 4)] =  memory_data1[i];
-                                    
+
                                     if ((i % 4) == 0)
                                     begin
                                         $fwrite(ofp, "%0h", hex);
                                         hex = 0;
                                     end
                                 end
-        
+
                                 $fwrite(ofp, "\n");
                             end
                             start_address = 0;
@@ -526,19 +526,19 @@ begin
                                 $fdisplay(ofp,"@%0h", address);
                                 display_address = `FALSE;
                             end
-                            
+
                             for (i = memory_width -1; i >= 0; i = i-1 )
                             begin
                                 hex[(i % 4)] =  memory_data1[i];
-                                
+
                                 if ((i % 4) == 0)
                                 begin
                                     $fwrite(ofp, "%0h", hex);
                                     hex = 0;
                                 end
                             end
-    
-                            $fwrite(ofp, "\n");                      
+
+                            $fwrite(ofp, "\n");
                             address = 0;
                             hex = 0;
                             memory_data1 = {(`MAX_WIDTH+1) {1'b0}};
@@ -574,7 +574,7 @@ begin
                         begin
                             invalid_address = `TRUE;
                         end
-                            
+
                         address = (address * 16) + value;
                     end
                     else if ((address_radix == "dec"))
@@ -585,7 +585,7 @@ begin
                         begin
                             invalid_address = `TRUE;
                         end
-                            
+
                         address = (address * 10) + value;
                     end
                     else if (address_radix == "uns")
@@ -596,8 +596,8 @@ begin
                         begin
                             invalid_address = `TRUE;
                         end
-                            
-                        address = (address * 10) + value; 
+
+                        address = (address * 10) + value;
                     end
                     else if (address_radix == "bin")
                     begin
@@ -607,7 +607,7 @@ begin
                         begin
                             invalid_address = `TRUE;
                         end
-                            
+
                         address = (address * 2) + value;
                     end
                     else if (address_radix == "oct")
@@ -618,19 +618,19 @@ begin
                         begin
                             invalid_address = `TRUE;
                         end
-                            
+
                         address = (address * 8) + value;
                     end
-                    
+
                     if ((r >= 65) && (r <= 90))
-                        c = tolower(r); 
+                        c = tolower(r);
                     else
                         c = r;
 
-                    {tmp_char,buffer} = {buffer, c};                    
+                    {tmp_char,buffer} = {buffer, c};
                 end
                 else if (get_data == `TRUE)
-                begin                    
+                begin
                     character_count = character_count +1;
 
                     if (data_radix == "hex")
@@ -648,7 +648,7 @@ begin
                             done = `TRUE;
                             disable READER;
                         end
-                            
+
                         memory_data1 = (memory_data1 * 16) + value;
                     end
                     else if ((data_radix == "dec"))
@@ -662,7 +662,7 @@ begin
                             done = `TRUE;
                             disable READER;
                         end
-                            
+
                         memory_data1 = (memory_data1 * 10) + value;
                     end
                     else if (data_radix == "uns")
@@ -676,8 +676,8 @@ begin
                             done = `TRUE;
                             disable READER;
                         end
-                            
-                        memory_data1 = (memory_data1 * 10) + value; 
+
+                        memory_data1 = (memory_data1 * 10) + value;
                     end
                     else if (data_radix == "bin")
                     begin
@@ -690,7 +690,7 @@ begin
                             done = `TRUE;
                             disable READER;
                         end
-                            
+
                         memory_data1 = (memory_data1 * 2) + value;
                     end
                     else if (data_radix == "oct")
@@ -704,20 +704,20 @@ begin
                             done = `TRUE;
                             disable READER;
                         end
-                            
+
                         memory_data1 = (memory_data1 * 8) + value;
                     end
                 end
                 else
                 begin
                     first_rec = `TRUE;
-                    
+
                     if ((r >= 65) && (r <= 90))
-                        c = tolower(r); 
+                        c = tolower(r);
                     else
                         c = r;
 
-                    {tmp_char,buffer} = {buffer, c};                    
+                    {tmp_char,buffer} = {buffer, c};
                 end
             end
             $fclose(ifp);
@@ -748,7 +748,7 @@ task convert_hex2ver;
     integer width;
     integer ifp, ofp, r, r2;
     integer i, j, k, m, n;
-    
+
     integer off_addr, nn, aaaa, aaaa_pre, tt, cc, aah, aal, dd, sum ;
     integer line_no;
     integer divide_factor;
@@ -785,9 +785,9 @@ begin
                 $display("ERROR: cannot read %0s.", in_file);
                 done = `TRUE;
             end
-        
+
             out_file = in_file;
-            
+
             if((out_file[4*8 : 1] == ".hex") || (out_file[4*8 : 1] == ".HEX"))
                 out_file[3*8 : 1] = `EXT_STR;
             else
@@ -795,9 +795,9 @@ begin
                 $display("ERROR: Invalid input file name %0s. Expecting file with .hex extension and Intel-hex data format.", in_file);
                 done = `TRUE;
             end
-            
+
             if (!done)
-            begin            
+            begin
                 ofp = $fopen(out_file, "w");
                 if (ofp == `NULL)
                 begin
@@ -805,12 +805,12 @@ begin
                     done = `TRUE;
                 end
             end
-            
+
             while((!done) && (!error_status))
             begin : READER
-        
+
                 r = $fgetc(ifp);
-        
+
                 if (r == `EOF)
                 begin
                     if(!first_rec)
@@ -837,12 +837,12 @@ begin
                     aal= 0;
                     dd= 0;
                     sum = 0;
-        
+
                     // get record length bytes
                     for (i = 0; i < 2; i = i+1)
                     begin
                         r = $fgetc(ifp);
-                        
+
                         if ((r >= "0") && (r <= "9"))
                             nn = (nn * 16) + (r - 'h30);
                         else if ((r >= "A") && (r <= "F"))
@@ -857,12 +857,12 @@ begin
                             disable READER;
                         end
                     end
-        
+
                     // get address bytes
                     for (i = 0; i < 4; i = i+1)
                     begin
                         r = $fgetc(ifp);
-                        
+
                         if ((r >= "0") && (r <= "9"))
                             hex = (r - 'h30);
                         else if ((r >= "A") && (r <= "F"))
@@ -876,20 +876,20 @@ begin
                             done = `TRUE;
                             disable READER;
                         end
-                        
+
                         aaaa = (aaaa * 16) + hex;
-                        
+
                         if (i < 2)
                             aal = (aal * 16) + hex;
                         else
                             aah = (aah * 16) + hex;
                     end
-                    
-                    // get record type bytes   
+
+                    // get record type bytes
                     for (i = 0; i < 2; i = i+1)
                     begin
                         r = $fgetc(ifp);
-                        
+
                         if ((r >= "0") && (r <= "9"))
                             tt = (tt * 16) + (r - 'h30);
                         else if ((r >= "A") && (r <= "F"))
@@ -904,7 +904,7 @@ begin
                             disable READER;
                         end
                     end
-        
+
                     if((tt == 2) && (nn != 2) )
                     begin
                         error_status = `TRUE;
@@ -912,10 +912,10 @@ begin
                     end
                     else
                     begin
-        
+
                         // get the sum of all the bytes for record length, address and record types
-                        sum = nn + aah + aal + tt ; 
-                   
+                        sum = nn + aah + aal + tt ;
+
                         // check the record type
                         case(tt)
                             // normal_record
@@ -925,11 +925,11 @@ begin
                                 i = 0;
                                 k = width / `AWORD;
                                 if ((width % `AWORD) != 0)
-                                    k = k + 1; 
-        
+                                    k = k + 1;
+
                                 if ((first_normal_record == `FALSE) &&(aaaa != k))
                                     is_word_address_format = `TRUE;
-                                
+
                                 first_normal_record = `FALSE;
 
                                 if ((aaaa == k) && (is_word_address_format == `FALSE))
@@ -954,9 +954,9 @@ begin
                                         begin
                                             // get the data bytes
                                             for(m = 1; m <= 2; m= m+1)
-                                            begin                    
+                                            begin
                                                 r = $fgetc(ifp);
-                            
+
                                                 if ((r >= "0") && (r <= "9"))
                                                     hex = (r - 'h30);
                                                 else if ((r >= "A") && (r <= "F"))
@@ -970,11 +970,11 @@ begin
                                                     done = `TRUE;
                                                     disable READER;
                                                 end
-            
+
                                                 if((((k-j)*8) + ((3-m)*4) - width) < 4)
                                                     $fwrite(ofp, "%h", hex);
                                                 dd = (dd * 16) + hex;
-            
+
                                                 if(m % 2 == 0)
                                                 begin
                                                     sum = sum + dd;
@@ -984,13 +984,13 @@ begin
                                         end
                                     end
                                     $fwrite(ofp, "\n");
-        
+
                                     i = i + k;
                                     aaaa = aaaa + 1;
                                 end // end of while (i < nn)
                             end
                             // last record
-                            8'h01: 
+                            8'h01:
                             begin
                                 last_rec = `TRUE;
                                 done = `TRUE;
@@ -1002,9 +1002,9 @@ begin
 
                                 // get the extended segment address record
                                 for(i = 1; i <= (nn*2); i= i+1)
-                                begin                    
+                                begin
                                     r = $fgetc(ifp);
-                
+
                                     if ((r >= "0") && (r <= "9"))
                                         hex = (r - 'h30);
                                     else if ((r >= "A") && (r <= "F"))
@@ -1018,24 +1018,24 @@ begin
                                         done = `TRUE;
                                         disable READER;
                                     end
-        
-                                    off_addr = (off_addr * `H10) + hex;        
+
+                                    off_addr = (off_addr * `H10) + hex;
                                     dd = (dd * 16) + hex;
-        
+
                                     if(i % 2 == 0)
                                     begin
                                         sum = sum + dd;
                                         dd = 0;
                                     end
                                 end
-            
+
                                 off_addr = off_addr * `H10;
                             end
                             // address base record
                             8'h03:
                                 // get the start segment address record
                                 for(i = 1; i <= (nn*2); i= i+1)
-                                begin                    
+                                begin
                                     r = $fgetc(ifp);
 
                                     if ((r >= "0") && (r <= "9"))
@@ -1052,7 +1052,7 @@ begin
                                         disable READER;
                                     end
                                     dd = (dd * 16) + hex;
-        
+
                                     if(i % 2 == 0)
                                     begin
                                         sum = sum + dd;
@@ -1066,7 +1066,7 @@ begin
 
                                 // get the extended linear address record
                                 for(i = 1; i <= (nn*2); i= i+1)
-                                begin                    
+                                begin
                                     r = $fgetc(ifp);
 
                                     if ((r >= "0") && (r <= "9"))
@@ -1082,24 +1082,24 @@ begin
                                         done = `TRUE;
                                         disable READER;
                                     end
-        
-                                    off_addr = (off_addr * `H10) + hex;        
+
+                                    off_addr = (off_addr * `H10) + hex;
                                     dd = (dd * 16) + hex;
-        
+
                                     if(i % 2 == 0)
                                     begin
                                         sum = sum + dd;
                                         dd = 0;
                                     end
                                 end
-            
+
                                 off_addr = off_addr * `H10000;
                             end
                             // address base record
                             8'h05:
                                 // get the start linear address record
                                 for(i = 1; i <= (nn*2); i= i+1)
-                                begin                    
+                                begin
                                     r = $fgetc(ifp);
 
                                     if ((r >= "0") && (r <= "9"))
@@ -1116,7 +1116,7 @@ begin
                                         disable READER;
                                     end
                                     dd = (dd * 16) + hex;
-        
+
                                     if(i % 2 == 0)
                                     begin
                                         sum = sum + dd;
@@ -1129,12 +1129,12 @@ begin
                                 $display("ERROR: %0s, line %0d, Unknown record type.", in_file, line_no);
                             end
                         endcase
-                        
+
                         // get the checksum bytes
                         for (i = 0; i < 2; i = i+1)
                         begin
                             r = $fgetc(ifp);
-                            
+
                             if ((r >= "0") && (r <= "9"))
                                 cc = (cc * 16) + (r - 'h30);
                             else if ((r >= "A") && (r <= "F"))
@@ -1149,7 +1149,7 @@ begin
                                 disable READER;
                             end
                         end
-                        
+
                         // Perform check sum.
                         if(((~sum+1)& `MASK15) != cc)
                         begin
@@ -1186,8 +1186,8 @@ task convert_to_ver_file;
     reg [`MAX_NAME_SZ*8 : 1] in_file;
     reg [`MAX_NAME_SZ*8 : 1] out_file;
     integer width;
-begin    
-           
+begin
+
         if((in_file[4*8 : 1] == ".hex") || (in_file[4*8 : 1] == ".HEX") ||
             (in_file[4*8 : 1] == ".dat") || (in_file[4*8 : 1] == ".DAT"))
             convert_hex2ver(in_file, width, out_file);
@@ -2192,12 +2192,12 @@ endmodule // ALTERA_DEVICE_FAMILIES
 
 // DFFP
 `timescale 1ps / 1ps
-module dffp ( 
-    q, 
-    clk, 
-    ena, 
-    d, 
-    clrn, 
+module dffp (
+    q,
+    clk,
+    ena,
+    d,
+    clrn,
     prn );
 
     input d;
@@ -2212,9 +2212,9 @@ module dffp (
     reg q;
 
     always @ (posedge clk or negedge clrn or negedge prn )
-        if (prn == 1'b0) 
+        if (prn == 1'b0)
             q <= 1;
-        else if (clrn == 1'b0) 
+        else if (clrn == 1'b0)
             q <= 0;
         else
         begin
@@ -2231,14 +2231,14 @@ module pll_iobuf (i, oe, io, o);
     inout io;
     output o;
     reg    o;
-    
+
     always @(io)
     begin
         o = io;
     end
 
     assign io = (oe == 1) ? i : 1'bz;
-endmodule    
+endmodule
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2591,7 +2591,7 @@ endmodule // MF_pll_reg
 // Module Name : MF_stratix_pll
 //
 // Description : The behavioral model for Stratix PLL.
-// 
+//
 // Limitations : Applies to the Stratix and Stratix GX device families
 //               No support for spread spectrum feature in the model
 //
@@ -2988,7 +2988,7 @@ module MF_stratix_pll (inclk,
     time    refclk_time;
     time    scanaclr_rising_time;
     time    scanaclr_falling_time;
- 
+
     reg got_first_refclk;
     reg got_second_refclk;
     reg got_first_fbclk;
@@ -3154,7 +3154,7 @@ module MF_stratix_pll (inclk,
     wire lvds_dffb_clk;
     wire lvds_dffc_clk;
     wire lvds_dffd_clk;
-    
+
     reg first_schedule;
 
     wire enable0_tmp;
@@ -3385,21 +3385,21 @@ module MF_stratix_pll (inclk,
     specify
     endspecify
 
-    // finds the closest integer fraction of a given pair of numerator and denominator. 
+    // finds the closest integer fraction of a given pair of numerator and denominator.
     task find_simple_integer_fraction;
         input numerator;
         input denominator;
         input max_denom;
-        output fraction_num; 
-        output fraction_div; 
+        output fraction_num;
+        output fraction_div;
         parameter max_iter = 20;
-        
+
         integer numerator;
         integer denominator;
         integer max_denom;
-        integer fraction_num; 
-        integer fraction_div; 
-        
+        integer fraction_num;
+        integer fraction_div;
+
         integer quotient_array[max_iter-1:0];
         integer int_loop_iter;
         integer int_quot;
@@ -3413,20 +3413,20 @@ module MF_stratix_pll (inclk,
         integer den;
         integer i_max_iter;
 
-    begin      
+    begin
         loop_iter = 0;
         num = numerator;
         den = denominator;
         i_max_iter = max_iter;
-       
+
         while (loop_iter < i_max_iter)
         begin
             int_quot = num / den;
             quotient_array[loop_iter] = int_quot;
             num = num - (den*int_quot);
             loop_iter=loop_iter+1;
-            
-            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter)) 
+
+            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter))
             begin
                 // calculate the numerator and denominator if there is a restriction on the
                 // max denom value or if the loop is ending
@@ -3529,7 +3529,7 @@ module MF_stratix_pll (inclk,
         slowest_clk = ((refclk/m_mod) * max_modulus *2);
     end
     endfunction
-    
+
     // count the number of digits in the given integer
     function integer count_digit;
     input X;
@@ -3543,7 +3543,7 @@ module MF_stratix_pll (inclk,
             result = (result / 10);
             count = count + 1;
         end
-        
+
         count_digit = count;
     end
     endfunction
@@ -3557,13 +3557,13 @@ module MF_stratix_pll (inclk,
     begin
         fac_ten = 1;
         count = count_digit(X);
-        
+
         for (lc = 0; lc < (count-Y); lc = lc + 1)
             fac_ten = fac_ten * 10;
 
         scale_num = (X / fac_ten);
     end
-    endfunction     
+    endfunction
 
     // find the greatest common denominator of X and Y
     function integer gcd;
@@ -3621,7 +3621,7 @@ module MF_stratix_pll (inclk,
             R = scale_num(M9,3);
         else
             R = M9;
-        lcm = R; 
+        lcm = R;
     end
     endfunction
 
@@ -3758,7 +3758,7 @@ module MF_stratix_pll (inclk,
     end
     endfunction
 
-    // adjust the given tap_phase by adding the largest negative number (ph_base) 
+    // adjust the given tap_phase by adding the largest negative number (ph_base)
     function integer ph_adjust;
     input tap_phase, ph_base;
     integer tap_phase, ph_base;
@@ -3776,7 +3776,7 @@ module MF_stratix_pll (inclk,
     end
     endfunction
 
-    // find the number of VCO clock cycles to wait initially before the first 
+    // find the number of VCO clock cycles to wait initially before the first
     // rising edge of the output clock
     function integer counter_initial;
     input tap_phase, m, n;
@@ -3820,7 +3820,7 @@ module MF_stratix_pll (inclk,
     endfunction
 
     // convert string to integer with sign
-    function integer str2int; 
+    function integer str2int;
     input [8*16:1] s;
 
     reg [8*16:1] reg_s;
@@ -3839,7 +3839,7 @@ module MF_stratix_pll (inclk,
             digit = tmp & 8'b00001111;
             reg_s = reg_s << 8;
             // Accumulate ascii digits 0-9 only.
-            if ((tmp>=48) && (tmp<=57)) 
+            if ((tmp>=48) && (tmp<=57))
                 magnitude = (magnitude * 10) + digit;
             if (tmp == 45)
                 sign = -1;  // Found a '-' character, i.e. number is negative.
@@ -3850,25 +3850,25 @@ module MF_stratix_pll (inclk,
 
     // this is for stratix lvds only
     // convert phase delay to integer
-    function integer get_int_phase_shift; 
+    function integer get_int_phase_shift;
     input [8*16:1] s;
     input i_phase_shift;
     integer i_phase_shift;
 
     begin
         if (i_phase_shift != 0)
-        begin                   
+        begin
             get_int_phase_shift = i_phase_shift;
-        end       
+        end
         else
         begin
             get_int_phase_shift = str2int(s);
-        end        
+        end
     end
     endfunction
 
     // calculate the given phase shift (in ps) in terms of degrees
-    function integer get_phase_degree; 
+    function integer get_phase_degree;
     input phase_shift;
     integer phase_shift, result;
     begin
@@ -3912,7 +3912,7 @@ module MF_stratix_pll (inclk,
             else
                 return_string = {return_string, tmp};
         end
-    
+
         alpha_tolower = return_string;
     end
     endfunction
@@ -3938,11 +3938,11 @@ module MF_stratix_pll (inclk,
         l_enable1_counter            = alpha_tolower(enable1_counter);
 
         if (m == 0)
-        begin 
+        begin
             // set the limit of the divide_by value that can be returned by
             // the following function.
             max_d_value = 500;
-            
+
             // scale down the multiply_by and divide_by values provided by the design
             // before attempting to use them in the calculations below
             find_simple_integer_fraction(clk0_multiply_by, clk0_divide_by,
@@ -4004,7 +4004,7 @@ module MF_stratix_pll (inclk,
                 i_g0_high = counter_high(output_counter_value(i_clk0_div_by,
                             i_clk0_mult_by, i_m, i_n), clk0_duty_cycle);
 
-            
+
             i_g1_high = counter_high(output_counter_value(i_clk1_div_by,
                         i_clk1_mult_by, i_m, i_n), clk1_duty_cycle);
             i_g2_high = counter_high(output_counter_value(i_clk2_div_by,
@@ -4062,8 +4062,8 @@ module MF_stratix_pll (inclk,
             i_e2_low  = counter_low(output_counter_value(i_extclk2_div_by,
                         i_extclk2_mult_by,  i_m, i_n), extclk2_duty_cycle);
             i_e3_low  = counter_low(output_counter_value(i_extclk3_div_by,
-                        i_extclk3_mult_by,  i_m, i_n), extclk3_duty_cycle);            
-            
+                        i_extclk3_mult_by,  i_m, i_n), extclk3_duty_cycle);
+
             if (l_pll_type == "flvds")
             begin
                 // Need to readjust phase shift values when the clock multiply value has been readjusted.
@@ -4078,7 +4078,7 @@ module MF_stratix_pll (inclk,
                 i_clk1_phase_shift = get_int_phase_shift(clk1_phase_shift, clk1_phase_shift_num);
                 i_clk2_phase_shift = get_int_phase_shift(clk2_phase_shift, clk2_phase_shift_num);
             end
-            
+
             max_neg_abs = maxnegabs(i_clk0_phase_shift,
                                     i_clk1_phase_shift,
                                     i_clk2_phase_shift,
@@ -4269,7 +4269,7 @@ module MF_stratix_pll (inclk,
             end
 
         end
-        else 
+        else
         begin //  m != 0
 
             i_n = n;
@@ -4557,7 +4557,7 @@ module MF_stratix_pll (inclk,
                                     l_scan_chain,
                                     refclk_period, m_val);
         pll_in_quiet_period = 0;
-        start_quiet_time = 0; 
+        start_quiet_time = 0;
         quiet_period_violation = 0;
         reconfig_err = 0;
         scanclr_violation = 0;
@@ -5059,7 +5059,7 @@ module MF_stratix_pll (inclk,
         if (areset_ipd == 'b1)
         begin
             gate_count = 0;
-            gate_out = 0; 
+            gate_out = 0;
         end
         else if (inclk_n == 'b1 && inclk_last_value != inclk_n)
             if (ena_ipd == 'b1)
@@ -5105,7 +5105,7 @@ module MF_stratix_pll (inclk,
         begin
             if (pll_in_quiet_period && ($time - start_quiet_time < quiet_time))
             begin
-                $display("Time: %0t", $time, "   Warning : Detected transition on SCANCLK during quiet time. PLL may not function correctly."); 
+                $display("Time: %0t", $time, "   Warning : Detected transition on SCANCLK during quiet time. PLL may not function correctly.");
                 $display ("Time: %0t  Instance: %m", $time);
                 quiet_period_violation = 1;
             end
@@ -5127,7 +5127,7 @@ module MF_stratix_pll (inclk,
         begin
             if (pll_in_quiet_period && ($time - start_quiet_time < quiet_time))
             begin
-                $display("Time: %0t", $time, "   Warning : Detected transition on SCANCLK during quiet time. PLL may not function correctly."); 
+                $display("Time: %0t", $time, "   Warning : Detected transition on SCANCLK during quiet time. PLL may not function correctly.");
                 $display ("Time: %0t  Instance: %m", $time);
                 quiet_period_violation = 1;
             end
@@ -5732,7 +5732,7 @@ module MF_stratix_pll (inclk,
                         begin
                             $display ("Warning : N2 counter switched from enabled to BYPASS mode. PLL may lose lock.");
                             $display ("Time: %0t  Instance: %m", $time);
-                        end    
+                        end
                         n2_val[9:0] = 10'b0000000001;
                         n2_mode_val = "bypass";
                         $display(" N2 modulus = %d ", n2_val[9:0]);
@@ -5787,7 +5787,7 @@ begin
 
     for (i = 0; i <= 7; i=i+1)
         last_phase_shift[i] = phase_shift[i];
- 
+
     cycle_to_adjust = 0;
     l_index = 1;
     m_times_vco_period = new_m_times_vco_period;
@@ -6683,7 +6683,7 @@ endmodule // arm_scale_cntr
 // Module Name : MF_stratixii_pll
 //
 // Description : Behavioral model for StratixII pll.
-// 
+//
 // Limitations : Does not support Spread Spectrum and Bandwidth.
 //
 // Outputs     : Up to 6 output clocks, each defined by its own set of
@@ -7148,7 +7148,7 @@ module MF_stratixii_pll (inclk,
 
     wire refclk;
     wire fbclk;
-    
+
     wire pllena_reg;
     wire test_mode_inclk;
 
@@ -7326,21 +7326,21 @@ module MF_stratixii_pll (inclk,
     ALTERA_DEVICE_FAMILIES dev ();
 
 
-    // finds the closest integer fraction of a given pair of numerator and denominator. 
+    // finds the closest integer fraction of a given pair of numerator and denominator.
     task find_simple_integer_fraction;
         input numerator;
         input denominator;
         input max_denom;
-        output fraction_num; 
-        output fraction_div; 
+        output fraction_num;
+        output fraction_div;
         parameter max_iter = 20;
-        
+
         integer numerator;
         integer denominator;
         integer max_denom;
-        integer fraction_num; 
-        integer fraction_div; 
-        
+        integer fraction_num;
+        integer fraction_div;
+
         integer quotient_array[max_iter-1:0];
         integer int_loop_iter;
         integer int_quot;
@@ -7354,20 +7354,20 @@ module MF_stratixii_pll (inclk,
         integer den;
         integer i_max_iter;
 
-    begin      
+    begin
         loop_iter = 0;
         num = numerator;
         den = denominator;
         i_max_iter = max_iter;
-       
+
         while (loop_iter < i_max_iter)
         begin
             int_quot = num / den;
             quotient_array[loop_iter] = int_quot;
             num = num - (den*int_quot);
             loop_iter=loop_iter+1;
-            
-            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter)) 
+
+            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter))
             begin
                 // calculate the numerator and denominator if there is a restriction on the
                 // max denom value or if the loop is ending
@@ -7475,7 +7475,7 @@ module MF_stratixii_pll (inclk,
             result = (result / 10);
             count = count + 1;
         end
-        
+
         count_digit = count;
     end
     endfunction
@@ -7489,7 +7489,7 @@ module MF_stratixii_pll (inclk,
     begin
         fac_ten = 1;
         count = count_digit(X);
-        
+
         for (lc = 0; lc < (count-Y); lc = lc + 1)
             fac_ten = fac_ten * 10;
 
@@ -7553,7 +7553,7 @@ module MF_stratixii_pll (inclk,
             R = scale_num(M9, 3);
         else
             R = M9;
-        lcm = R; 
+        lcm = R;
     end
     endfunction
 
@@ -7622,7 +7622,7 @@ module MF_stratixii_pll (inclk,
             counter_l = 1;
         else counter_l = tmp_counter_low;
 
-        counter_low = counter_l;    
+        counter_low = counter_l;
     end
     endfunction
 
@@ -7694,7 +7694,7 @@ module MF_stratixii_pll (inclk,
     end
     endfunction
 
-    // adjust the given tap_phase by adding the largest negative number (ph_base) 
+    // adjust the given tap_phase by adding the largest negative number (ph_base)
     function integer ph_adjust;
     input tap_phase, ph_base;
     integer tap_phase, ph_base;
@@ -7703,7 +7703,7 @@ module MF_stratixii_pll (inclk,
     end
     endfunction
 
-    // find the number of VCO clock cycles to wait initially before the first 
+    // find the number of VCO clock cycles to wait initially before the first
     // rising edge of the output clock
     function integer counter_initial;
     input tap_phase, m, n;
@@ -7747,7 +7747,7 @@ module MF_stratixii_pll (inclk,
     endfunction
 
     // convert string to integer with sign
-    function integer str2int; 
+    function integer str2int;
     input [8*16:1] s;
 
     reg [8*16:1] reg_s;
@@ -7766,7 +7766,7 @@ module MF_stratixii_pll (inclk,
             digit = tmp & 8'b00001111;
             reg_s = reg_s << 8;
             // Accumulate ascii digits 0-9 only.
-            if ((tmp>=48) && (tmp<=57)) 
+            if ((tmp>=48) && (tmp<=57))
                 magnitude = (magnitude * 10) + digit;
             if (tmp == 45)
                 sign = -1;  // Found a '-' character, i.e. number is negative.
@@ -7777,25 +7777,25 @@ module MF_stratixii_pll (inclk,
 
     // this is for stratixii lvds only
     // convert phase delay to integer
-    function integer get_int_phase_shift; 
+    function integer get_int_phase_shift;
     input [8*16:1] s;
     input i_phase_shift;
     integer i_phase_shift;
 
     begin
         if (i_phase_shift != 0)
-        begin                   
+        begin
             get_int_phase_shift = i_phase_shift;
-        end       
+        end
         else
         begin
             get_int_phase_shift = str2int(s);
-        end        
+        end
     end
     endfunction
 
     // calculate the given phase shift (in ps) in terms of degrees
-    function integer get_phase_degree; 
+    function integer get_phase_degree;
     input phase_shift;
     integer phase_shift, result;
     begin
@@ -7839,7 +7839,7 @@ module MF_stratixii_pll (inclk,
             else
                 return_string = {return_string, tmp};
         end
-    
+
         alpha_tolower = return_string;
     end
     endfunction
@@ -7901,12 +7901,12 @@ module MF_stratixii_pll (inclk,
         loop_filter_c_arr[1] = 16;
         loop_filter_c_arr[2] = 36;
         loop_filter_c_arr[3] = 5;
-        
+
         fpll_loop_filter_c_arr[0] = 18;
         fpll_loop_filter_c_arr[1] = 13;
         fpll_loop_filter_c_arr[2] = 8;
         fpll_loop_filter_c_arr[3] = 2;
-        
+
         charge_pump_curr_arr[0] = 6;
         charge_pump_curr_arr[1] = 12;
         charge_pump_curr_arr[2] = 30;
@@ -8022,12 +8022,12 @@ module MF_stratixii_pll (inclk,
         end
 
         if (m == 0)
-        begin 
+        begin
 
             // set the limit of the divide_by value that can be returned by
             // the following function.
             max_d_value = 500;
-            
+
             // scale down the multiply_by and divide_by values provided by the design
             // before attempting to use them in the calculations below
             find_simple_integer_fraction(clk0_multiply_by, clk0_divide_by,
@@ -8122,7 +8122,7 @@ module MF_stratixii_pll (inclk,
 
             i_m_ph    = counter_ph(get_phase_degree(max_neg_abs), i_m, i_n);
             i_m_initial = counter_initial(get_phase_degree(max_neg_abs), i_m, i_n);
-            
+
             i_c_ph[0] = counter_ph(get_phase_degree(ph_adjust(i_clk0_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[1] = counter_ph(get_phase_degree(ph_adjust(i_clk1_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[2] = counter_ph(get_phase_degree(ph_adjust(i_clk2_phase_shift, max_neg_abs)), i_m, i_n);
@@ -8149,7 +8149,7 @@ module MF_stratixii_pll (inclk,
             end
 
         end
-        else 
+        else
         begin //  m != 0
 
             i_n = n;
@@ -9138,7 +9138,7 @@ module MF_stratixii_pll (inclk,
         if (areset_ipd == 1'b1 || ena_pll == 1'b0)
         begin
             gate_count = 0;
-            gate_out = 0; 
+            gate_out = 0;
         end
         else if (inclk_n == 1'b1 && inclk_last_value != inclk_n)
         begin
@@ -9290,9 +9290,9 @@ module MF_stratixii_pll (inclk,
             cp_curr_val = charge_pump_curr_arr[scan_data[3:0]];
 
             // LF Resistance : bits 4-9
-            // values from 010000 - 010111, 100000 - 100111, 
+            // values from 010000 - 010111, 100000 - 100111,
             //             110000- 110111 are illegal
-            if (((tmp_scan_data[9:4] >= 6'b010000) && (tmp_scan_data[9:4] <= 6'b010111)) || 
+            if (((tmp_scan_data[9:4] >= 6'b010000) && (tmp_scan_data[9:4] <= 6'b010111)) ||
                 ((tmp_scan_data[9:4] >= 6'b100000) && (tmp_scan_data[9:4] <= 6'b100111)) ||
                 ((tmp_scan_data[9:4] >= 6'b110000) && (tmp_scan_data[9:4] <= 6'b110111)))
             begin
@@ -9351,7 +9351,7 @@ module MF_stratixii_pll (inclk,
                 if (m_ph_val_tmp < 0)
                     m_ph_val_tmp = 7;
             end
-            else 
+            else
             begin
                 $display ("Warning : Illegal bit settings for M counter phase tap. Reconfiguration may not work.");
                 $display ("Time: %0t  Instance: %m", $time);
@@ -9728,7 +9728,7 @@ module MF_stratixii_pll (inclk,
                     end
                 end
             end
-            
+
             slowest_clk_old = slowest_clk  ( c_high_val[0]+c_low_val[0], c_mode_val[0],
                                         c_high_val[1]+c_low_val[1], c_mode_val[1],
                                         c_high_val[2]+c_low_val[2], c_mode_val[2],
@@ -9746,7 +9746,7 @@ module MF_stratixii_pll (inclk,
                                         refclk_period, m_val_tmp[0]);
 
             quiet_time = (slowest_clk_new > slowest_clk_old) ? slowest_clk_new : slowest_clk_old;
-                                        
+
             // get quiet time in terms of scanclk cycles
             my_rem = quiet_time % scanclk_period;
             scanclk_cycles = quiet_time/scanclk_period;
@@ -9762,14 +9762,14 @@ module MF_stratixii_pll (inclk,
     always @(schedule_vco or areset_ipd or ena_pll)
     begin
         sched_time = 0;
-    
+
         for (i = 0; i <= 7; i=i+1)
             last_phase_shift[i] = phase_shift[i];
-     
+
         cycle_to_adjust = 0;
         l_index = 1;
         m_times_vco_period = new_m_times_vco_period;
-    
+
         // give appropriate messages
         // if areset was asserted
         if (areset_ipd === 1'b1 && areset_ipd_last_value !== areset_ipd)
@@ -9787,7 +9787,7 @@ module MF_stratixii_pll (inclk,
             for (x = 0; x <= 7; x=x+1)
                 vco_tap[x] <= 1'b0;
         end
-    
+
         // areset deasserted : note time
         // note it as refclk_time to prevent false triggering
         // of stop_vco after areset
@@ -9818,24 +9818,24 @@ module MF_stratixii_pll (inclk,
             if ((areset_ipd !== 1'b1) && (stop_vco !== 1'b1) && (next_vco_sched_time < $time))
                 schedule_vco = ~ schedule_vco;
         end
-    
+
         // illegal value on areset_ipd
         if (areset_ipd === 1'bx && (areset_ipd_last_value === 1'b0 || areset_ipd_last_value === 1'b1))
         begin
             $display("Warning : Illegal value 'X' detected on ARESET input");
             $display ("Time: %0t  Instance: %m", $time);
         end
-    
+
         if (areset_ipd == 1'b1 || ena_pll == 1'b0 || stop_vco == 1'b1)
         begin
-   
+
             // reset lock parameters
             locked_tmp = 0;
             pll_is_locked = 0;
             pll_about_to_lock = 0;
             cycles_to_lock = 0;
             cycles_to_unlock = 0;
-    
+
             got_first_refclk = 0;
             got_second_refclk = 0;
             refclk_time = 0;
@@ -9843,18 +9843,18 @@ module MF_stratixii_pll (inclk,
             fbclk_time = 0;
             first_fbclk_time = 0;
             fbclk_period = 0;
-    
+
             vco_period_was_phase_adjusted = 0;
             phase_adjust_was_scheduled = 0;
         end
- 
+
         if ( ($time == 0 && first_schedule == 1'b1) || (schedule_vco !== schedule_vco_last_value && (stop_vco !== 1'b1) && (ena_pll === 1'b1) && (areset_ipd !== 1'b1)) )
         begin
             // calculate loop_xplier : this will be different from m_val in ext. fbk mode
             loop_xplier = m_val[0];
             loop_initial = i_m_initial - 1;
             loop_ph = m_ph_val;
-    
+
             if (op_mode == 1)
             begin
                 if (ext_fbk_cntr_mode == "bypass")
@@ -9866,40 +9866,40 @@ module MF_stratixii_pll (inclk,
                 loop_ph = ext_fbk_cntr_ph;
                 loop_initial = ext_fbk_cntr_initial - 1 + ((i_m_initial - 1) * ext_fbk_cntr_modulus);
             end
-    
+
             // convert initial value to delay
             initial_delay = (loop_initial * m_times_vco_period)/loop_xplier;
-    
+
             // convert loop ph_tap to delay
             rem = m_times_vco_period % loop_xplier;
             vco_per = m_times_vco_period/loop_xplier;
             if (rem != 0)
                 vco_per = vco_per + 1;
             fbk_phase = (loop_ph * vco_per)/8;
-    
+
             if (op_mode == 1)
             begin
                 pull_back_M = (i_m_initial - 1) * (ext_fbk_cntr_modulus) * (m_times_vco_period/loop_xplier);
-    
+
                 while (pull_back_M > refclk_period)
                     pull_back_M = pull_back_M - refclk_period;
             end
             else begin
                 pull_back_M = initial_delay + fbk_phase;
             end
-    
+
             total_pull_back = pull_back_M;
             if (l_simulation_type == "timing")
                 total_pull_back = total_pull_back + pll_compensation_delay;
-    
+
             while (total_pull_back > refclk_period)
                 total_pull_back = total_pull_back - refclk_period;
-    
+
             if (total_pull_back > 0)
                 offset = refclk_period - total_pull_back;
             else
                 offset = 0;
-    
+
             if (op_mode == 1)
             begin
                 fbk_delay = pull_back_M;
@@ -9914,10 +9914,10 @@ module MF_stratixii_pll (inclk,
                     fbk_delay = total_pull_back;
                 end
             end
-    
+
             // assign m_delay
             m_delay = fbk_delay;
-    
+
             for (i = 1; i <= loop_xplier; i=i+1)
             begin
                 // adjust cycles
@@ -9934,13 +9934,13 @@ module MF_stratixii_pll (inclk,
                     tmp_vco_per = tmp_vco_per + 1;
                     l_index = l_index + 1;
                 end
-    
+
                 // calculate high and low periods
                 high_time = tmp_vco_per/2;
                 if (tmp_vco_per % 2 != 0)
                     high_time = high_time + 1;
                 low_time = tmp_vco_per - high_time;
-    
+
                 // schedule the rising and falling egdes
                 for (j=0; j<=1; j=j+1)
                 begin
@@ -9949,7 +9949,7 @@ module MF_stratixii_pll (inclk,
                         sched_time = sched_time + high_time;
                     else
                         sched_time = sched_time + low_time;
-    
+
                     // schedule tap 0
                     vco_out[0] <= #(sched_time) vco_val;
 
@@ -9976,17 +9976,17 @@ module MF_stratixii_pll (inclk,
                 new_m_times_vco_period = refclk_period;
                 vco_period_was_phase_adjusted = 0;
                 phase_adjust_was_scheduled = 1;
-    
+
                 tmp_vco_per = m_times_vco_period/loop_xplier;
                 for (k = 0; k <= 7; k=k+1)
                     phase_shift[k] = (k*tmp_vco_per)/8;
             end
         end
-    
+
         areset_ipd_last_value = areset_ipd;
         ena_ipd_last_value = ena_pll;
         schedule_vco_last_value = schedule_vco;
-    
+
     end
 
     always @(pfdena_ipd)
@@ -10510,7 +10510,7 @@ endmodule // ttn_scale_cntr
 // Module Name : MF_stratixiii_pll
 //
 // Description : Behavioral model for StratixIII pll.
-// 
+//
 // Limitations : Does not support Spread Spectrum and Bandwidth.
 //
 // Outputs     : Up to 10 output clocks, each defined by its own set of
@@ -10579,7 +10579,7 @@ module MF_stratixiii_pll (inclk,
     parameter lock_low = 0;  // 0 .. 7
     parameter lock_window_ui = "0.05"; // "0.05", "0.1", "0.15", "0.2"
     parameter test_bypass_lock_detect              = "off";
-    
+
     parameter clk0_output_frequency                = 0;
     parameter clk0_multiply_by                     = 0;
     parameter clk0_divide_by                       = 0;
@@ -10615,31 +10615,31 @@ module MF_stratixiii_pll (inclk,
     parameter clk5_divide_by                       = 0;
     parameter clk5_phase_shift                     = "0";
     parameter clk5_duty_cycle                      = 50;
-    
+
     parameter clk6_output_frequency                = 0;
     parameter clk6_multiply_by                     = 0;
     parameter clk6_divide_by                       = 0;
     parameter clk6_phase_shift                     = "0";
     parameter clk6_duty_cycle                      = 50;
-    
+
     parameter clk7_output_frequency                = 0;
     parameter clk7_multiply_by                     = 0;
     parameter clk7_divide_by                       = 0;
     parameter clk7_phase_shift                     = "0";
     parameter clk7_duty_cycle                      = 50;
-    
+
     parameter clk8_output_frequency                = 0;
     parameter clk8_multiply_by                     = 0;
     parameter clk8_divide_by                       = 0;
     parameter clk8_phase_shift                     = "0";
     parameter clk8_duty_cycle                      = 50;
-    
+
     parameter clk9_output_frequency                = 0;
     parameter clk9_multiply_by                     = 0;
     parameter clk9_divide_by                       = 0;
     parameter clk9_phase_shift                     = "0";
     parameter clk9_duty_cycle                      = 50;
-    
+
 
     parameter pfd_min                              = 0;
     parameter pfd_max                              = 0;
@@ -10687,31 +10687,31 @@ module MF_stratixiii_pll (inclk,
     parameter c5_initial = 1;
     parameter c5_mode = "bypass";
     parameter c5_ph = 0;
-    
+
     parameter c6_high = 1;
     parameter c6_low = 1;
     parameter c6_initial = 1;
     parameter c6_mode = "bypass";
     parameter c6_ph = 0;
-    
+
     parameter c7_high = 1;
     parameter c7_low = 1;
     parameter c7_initial = 1;
     parameter c7_mode = "bypass";
     parameter c7_ph = 0;
-    
+
     parameter c8_high = 1;
     parameter c8_low = 1;
     parameter c8_initial = 1;
     parameter c8_mode = "bypass";
     parameter c8_ph = 0;
-    
+
     parameter c9_high = 1;
     parameter c9_low = 1;
     parameter c9_initial = 1;
     parameter c9_mode = "bypass";
     parameter c9_ph = 0;
-    
+
 
     parameter m_ph = 0;
 
@@ -10753,7 +10753,7 @@ module MF_stratixiii_pll (inclk,
     parameter vco_post_scale = 1; // 1 .. 2
     parameter vco_frequency_control = "auto";
     parameter vco_phase_shift_step = 0;
-    
+
     parameter charge_pump_current = 10;
     parameter loop_filter_r = "1.0";    // "1.0", "2.0", "4.0", "6.0", "8.0", "12.0", "16.0", "20.0"
     parameter loop_filter_c = 0;        // 0 , 2 , 4
@@ -10798,19 +10798,19 @@ module MF_stratixiii_pll (inclk,
     parameter clk9_use_even_counter_value = "off";
 
     // TEST ONLY
-    
+
     parameter init_block_reset_a_count = 1;
     parameter init_block_reset_b_count = 1;
 
 // SIMULATION_ONLY_PARAMETERS_END
-    
+
 // LOCAL_PARAMETERS_BEGIN
 
     parameter phase_counter_select_width = 4;
     parameter lock_window = 5;
     parameter inclk0_freq = inclk0_input_frequency;
     parameter inclk1_freq = inclk1_input_frequency;
-   
+
 parameter charge_pump_current_bits = 0;
 parameter lock_window_ui_bits = 0;
 parameter loop_filter_c_bits = 0;
@@ -10834,7 +10834,7 @@ parameter test_volt_reg_output_voltage_bits = 0;
 parameter test_volt_reg_test_mode = "false";
 parameter vco_range_detector_high_bits = -1;
 parameter vco_range_detector_low_bits = -1;
-parameter scan_chain_mif_file = ""; 
+parameter scan_chain_mif_file = "";
 
     parameter test_counter_c3_sclk_delay_chain_bits  = -1;
     parameter test_counter_c4_sclk_delay_chain_bits  = -1;
@@ -10844,7 +10844,7 @@ parameter scan_chain_mif_file = "";
 parameter auto_settings = "true";
 
 // LOCAL_PARAMETERS_END
- 
+
     // INPUT PORTS
     input [1:0] inclk;
     input fbin;
@@ -10870,8 +10870,8 @@ parameter auto_settings = "true";
     output phasedone;
     output vcooverrange;
     output vcounderrange;
-    
-        
+
+
 
     // INTERNAL VARIABLES AND NETS
     reg [8*6:1] clk_num[0:9];
@@ -10936,7 +10936,7 @@ parameter auto_settings = "true";
     reg pfdena_last_value;
     reg inclk_out_of_range;
     reg schedule_vco_last_value;
-    
+
     // Test bypass lock detect
     reg pfd_locked;
     integer cycles_pfd_low, cycles_pfd_high;
@@ -10961,7 +10961,7 @@ parameter auto_settings = "true";
 
     // VCO Frequency Range control
     reg vco_over, vco_under;
-   
+
     // temporary registers for reprogramming
     integer c_ph_val_tmp[0:9];
     reg [31:0] c_high_val_tmp[0:9];
@@ -11001,7 +11001,7 @@ parameter auto_settings = "true";
     reg vco_val_bit_setting, vco_val_old_bit_setting;
     reg [3:7] lfr_val_bit_setting, lfr_val_old_bit_setting;
     reg [14:16] cp_curr_bit_setting, cp_curr_old_bit_setting;
-    
+
     // Setting on  - display real values
     // Setting off - display only bits
     reg pll_reconfig_display_full_setting;
@@ -11035,7 +11035,7 @@ parameter auto_settings = "true";
     wire inclk_c7;
     wire inclk_c8;
     wire inclk_c9;
-    
+
     wire  inclk_c0_from_vco;
     wire  inclk_c1_from_vco;
     wire  inclk_c2_from_vco;
@@ -11046,7 +11046,7 @@ parameter auto_settings = "true";
     wire  inclk_c7_from_vco;
     wire  inclk_c8_from_vco;
     wire  inclk_c9_from_vco;
-    
+
     wire  inclk_m_from_vco;
 
     wire inclk_m;
@@ -11074,10 +11074,10 @@ parameter auto_settings = "true";
 
     wire refclk;
     wire fbclk;
-    
+
     wire pllena_reg;
     wire test_mode_inclk;
- 
+
     // Self Reset
     wire reset_self;
 
@@ -11136,16 +11136,16 @@ parameter auto_settings = "true";
 
     integer num_output_cntrs;
     reg no_warn;
-    
+
     // Phase reconfig
-    
+
     reg [3:0] phasecounterselect_reg;
     reg phaseupdown_reg;
     reg phasestep_reg;
     integer select_counter;
     integer phasestep_high_count;
     reg update_phase;
-    
+
 
 // LOCAL_PARAMETERS_BEGIN
 
@@ -11245,7 +11245,7 @@ parameter auto_settings = "true";
     reg [8*`STXIII_PLL_WORD_LENGTH:1] l_vco_frequency_control;
     reg [8*`STXIII_PLL_WORD_LENGTH:1] l_enable_switch_over_counter;
     reg [8*`STXIII_PLL_WORD_LENGTH:1] l_self_reset_on_loss_lock;
-    
+
 
 
     integer current_clock;
@@ -11270,21 +11270,21 @@ parameter auto_settings = "true";
 
 
 
-    // finds the closest integer fraction of a given pair of numerator and denominator. 
+    // finds the closest integer fraction of a given pair of numerator and denominator.
     task find_simple_integer_fraction;
         input numerator;
         input denominator;
         input max_denom;
-        output fraction_num; 
-        output fraction_div; 
+        output fraction_num;
+        output fraction_div;
         parameter max_iter = 20;
-        
+
         integer numerator;
         integer denominator;
         integer max_denom;
-        integer fraction_num; 
-        integer fraction_div; 
-        
+        integer fraction_num;
+        integer fraction_div;
+
         integer quotient_array[max_iter-1:0];
         integer int_loop_iter;
         integer int_quot;
@@ -11298,20 +11298,20 @@ parameter auto_settings = "true";
         integer den;
         integer i_max_iter;
 
-    begin      
+    begin
         loop_iter = 0;
         num = (numerator == 0) ? 1 : numerator;
         den = (denominator == 0) ? 1 : denominator;
         i_max_iter = max_iter;
-       
+
         while (loop_iter < i_max_iter)
         begin
             int_quot = num / den;
             quotient_array[loop_iter] = int_quot;
             num = num - (den*int_quot);
             loop_iter=loop_iter+1;
-            
-            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter)) 
+
+            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter))
             begin
                 // calculate the numerator and denominator if there is a restriction on the
                 // max denom value or if the loop is ending
@@ -11416,7 +11416,7 @@ parameter auto_settings = "true";
             result = (result / 10);
             count = count + 1;
         end
-        
+
         count_digit = count;
     end
     endfunction
@@ -11430,7 +11430,7 @@ parameter auto_settings = "true";
     begin
         fac_ten = 1;
         count = count_digit(X);
-        
+
         for (lc = 0; lc < (count-Y); lc = lc + 1)
             fac_ten = fac_ten * 10;
 
@@ -11494,7 +11494,7 @@ parameter auto_settings = "true";
             R = scale_num(M9, 3);
         else
             R = M9;
-        lcm = R; 
+        lcm = R;
     end
     endfunction
 
@@ -11514,8 +11514,8 @@ parameter auto_settings = "true";
         input clk5_div,  clk6_div,  clk7_div,  clk8_div,  clk9_div;
         input clk0_used,  clk1_used,  clk2_used,  clk3_used,  clk4_used;
         input clk5_used,  clk6_used,  clk7_used,  clk8_used,  clk9_used;
-        output m; 
-        output n; 
+        output m;
+        output n;
 
         parameter max_m = 511;
         parameter max_n = 511;
@@ -11524,24 +11524,24 @@ parameter auto_settings = "true";
         parameter max_vco = 1600; // max vco frequency. (in mHz)
         parameter min_vco = 300;  // min vco frequency. (in mHz)
         parameter max_offset = 0.004;
-        
+
         reg[160:1] clk0_used,  clk1_used,  clk2_used,  clk3_used,  clk4_used;
         reg[160:1] clk5_used,  clk6_used,  clk7_used,  clk8_used,  clk9_used;
-        
+
         integer inclock_period;
         integer vco_phase_shift_step;
         integer clk0_mult, clk1_mult, clk2_mult, clk3_mult, clk4_mult;
         integer clk5_mult, clk6_mult, clk7_mult, clk8_mult, clk9_mult;
         integer clk0_div,  clk1_div,  clk2_div,  clk3_div,  clk4_div;
         integer clk5_div,  clk6_div,  clk7_div,  clk8_div,  clk9_div;
-        integer m; 
+        integer m;
         integer n;
         integer pre_m;
         integer pre_n;
         integer m_out;
         integer n_out;
         integer closest_vco_step_value;
-        
+
         integer vco_period;
         integer pfd_freq;
         integer vco_freq;
@@ -11599,7 +11599,7 @@ parameter auto_settings = "true";
                         clk7_div_factor_real = (clk7_div * m_out * 1.0) / (clk7_mult * n_out);
                         clk8_div_factor_real = (clk8_div * m_out * 1.0) / (clk8_mult * n_out);
                         clk9_div_factor_real = (clk9_div * m_out * 1.0) / (clk9_mult * n_out);
-        
+
                         clk0_div_factor_int = clk0_div_factor_real;
                         clk1_div_factor_int = clk1_div_factor_real;
                         clk2_div_factor_int = clk2_div_factor_real;
@@ -11610,7 +11610,7 @@ parameter auto_settings = "true";
                         clk7_div_factor_int = clk7_div_factor_real;
                         clk8_div_factor_int = clk8_div_factor_real;
                         clk9_div_factor_int = clk9_div_factor_real;
-                        
+
                         clk0_div_factor_diff = (clk0_div_factor_real - clk0_div_factor_int < 0) ? (clk0_div_factor_real - clk0_div_factor_int) * -1.0 : clk0_div_factor_real - clk0_div_factor_int;
                         clk1_div_factor_diff = (clk1_div_factor_real - clk1_div_factor_int < 0) ? (clk1_div_factor_real - clk1_div_factor_int) * -1.0 : clk1_div_factor_real - clk1_div_factor_int;
                         clk2_div_factor_diff = (clk2_div_factor_real - clk2_div_factor_int < 0) ? (clk2_div_factor_real - clk2_div_factor_int) * -1.0 : clk2_div_factor_real - clk2_div_factor_int;
@@ -11621,8 +11621,8 @@ parameter auto_settings = "true";
                         clk7_div_factor_diff = (clk7_div_factor_real - clk7_div_factor_int < 0) ? (clk7_div_factor_real - clk7_div_factor_int) * -1.0 : clk7_div_factor_real - clk7_div_factor_int;
                         clk8_div_factor_diff = (clk8_div_factor_real - clk8_div_factor_int < 0) ? (clk8_div_factor_real - clk8_div_factor_int) * -1.0 : clk8_div_factor_real - clk8_div_factor_int;
                         clk9_div_factor_diff = (clk9_div_factor_real - clk9_div_factor_int < 0) ? (clk9_div_factor_real - clk9_div_factor_int) * -1.0 : clk9_div_factor_real - clk9_div_factor_int;
-                        
-        
+
+
                         if (((clk0_div_factor_diff < max_offset) || (clk0_used == "unused")) &&
                             ((clk1_div_factor_diff < max_offset) || (clk1_used == "unused")) &&
                             ((clk2_div_factor_diff < max_offset) || (clk2_used == "unused")) &&
@@ -11633,13 +11633,13 @@ parameter auto_settings = "true";
                             ((clk7_div_factor_diff < max_offset) || (clk7_used == "unused")) &&
                             ((clk8_div_factor_diff < max_offset) || (clk8_used == "unused")) &&
                             ((clk9_div_factor_diff < max_offset) || (clk9_used == "unused")) )
-                        begin                
+                        begin
                             if ((m_out != 0) && (n_out != 0))
                             begin
                                 pfd_freq = 1000000 / (inclock_period * n_out);
                                 vco_freq = (1000000 * m_out) / (inclock_period * n_out);
                                 vco_ps_step_value = (inclock_period * n_out) / (8 * m_out);
-                
+
                                 if ( (m_out < max_m) && (n_out < max_n) && (pfd_freq >= min_pfd) && (pfd_freq <= max_pfd) &&
                                     (vco_freq >= min_vco) && (vco_freq <= max_vco) )
                                 begin
@@ -11664,7 +11664,7 @@ parameter auto_settings = "true";
                     end
                 end
         end
-        
+
         if ((pre_m != 0) && (pre_n != 0))
         begin
             find_simple_integer_fraction(pre_m, pre_n,
@@ -11675,7 +11675,7 @@ parameter auto_settings = "true";
             n = 1;
             m = lcm  (clk0_mult, clk1_mult, clk2_mult, clk3_mult,
                     clk4_mult, clk5_mult, clk6_mult,
-                    clk7_mult, clk8_mult, clk9_mult, inclock_period);           
+                    clk7_mult, clk8_mult, clk9_mult, inclock_period);
         end
     end
     endtask // find_m_and_n_4_manual_phase
@@ -11813,7 +11813,7 @@ parameter auto_settings = "true";
     end
     endfunction
 
-    // adjust the given tap_phase by adding the largest negative number (ph_base) 
+    // adjust the given tap_phase by adding the largest negative number (ph_base)
     function integer ph_adjust;
     input tap_phase, ph_base;
     integer tap_phase, ph_base;
@@ -11822,7 +11822,7 @@ parameter auto_settings = "true";
     end
     endfunction
 
-    // find the number of VCO clock cycles to wait initially before the first 
+    // find the number of VCO clock cycles to wait initially before the first
     // rising edge of the output clock
     function integer counter_initial;
     input tap_phase, m, n;
@@ -11869,7 +11869,7 @@ parameter auto_settings = "true";
     endfunction
 
     // convert string to integer with sign
-    function integer str2int; 
+    function integer str2int;
     input [8*16:1] s;
 
     reg [8*16:1] reg_s;
@@ -11888,7 +11888,7 @@ parameter auto_settings = "true";
             digit = tmp & 8'b00001111;
             reg_s = reg_s << 8;
             // Accumulate ascii digits 0-9 only.
-            if ((tmp>=48) && (tmp<=57)) 
+            if ((tmp>=48) && (tmp<=57))
                 magnitude = (magnitude * 10) + digit;
             if (tmp == 45)
                 sign = -1;  // Found a '-' character, i.e. number is negative.
@@ -11899,25 +11899,25 @@ parameter auto_settings = "true";
 
     // this is for stratixiii lvds only
     // convert phase delay to integer
-    function integer get_int_phase_shift; 
+    function integer get_int_phase_shift;
     input [8*16:1] s;
     input i_phase_shift;
     integer i_phase_shift;
 
     begin
         if (i_phase_shift != 0)
-        begin                   
+        begin
             get_int_phase_shift = i_phase_shift;
-        end       
+        end
         else
         begin
             get_int_phase_shift = str2int(s);
-        end        
+        end
     end
     endfunction
 
     // calculate the given phase shift (in ps) in terms of degrees
-    function integer get_phase_degree; 
+    function integer get_phase_degree;
     input phase_shift;
     integer phase_shift, result;
     begin
@@ -11961,7 +11961,7 @@ parameter auto_settings = "true";
             else
                 return_string = {return_string, tmp};
         end
-    
+
         alpha_tolower = return_string;
     end
     endfunction
@@ -12004,19 +12004,19 @@ parameter auto_settings = "true";
         l_vco_frequency_control      = alpha_tolower(vco_frequency_control);
         l_enable_switch_over_counter = alpha_tolower(enable_switch_over_counter);
         l_self_reset_on_loss_lock    = alpha_tolower(self_reset_on_loss_lock);
-    
-        real_lock_high = (l_sim_gate_lock_device_behavior == "on") ? lock_high : 0;    
+
+        real_lock_high = (l_sim_gate_lock_device_behavior == "on") ? lock_high : 0;
         // initialize charge_pump_current, and loop_filter tables
         loop_filter_c_arr[0] = 0;
         loop_filter_c_arr[1] = 0;
         loop_filter_c_arr[2] = 0;
         loop_filter_c_arr[3] = 0;
-        
+
         fpll_loop_filter_c_arr[0] = 0;
         fpll_loop_filter_c_arr[1] = 0;
         fpll_loop_filter_c_arr[2] = 0;
         fpll_loop_filter_c_arr[3] = 0;
-        
+
         charge_pump_curr_arr[0] = 0;
         charge_pump_curr_arr[1] = 0;
         charge_pump_curr_arr[2] = 0;
@@ -12035,17 +12035,17 @@ parameter auto_settings = "true";
         charge_pump_curr_arr[15] = 0;
 
         i_vco_max = vco_max;
-        i_vco_min = vco_min; 
+        i_vco_min = vco_min;
 
         if(vco_post_scale == 1)
         begin
             i_vco_max_no_division = vco_max * 2;
-            i_vco_min_no_division = vco_min * 2;    
+            i_vco_min_no_division = vco_min * 2;
         end
         else
         begin
             i_vco_max_no_division = vco_max;
-            i_vco_min_no_division = vco_min;    
+            i_vco_min_no_division = vco_min;
         end
 
 
@@ -12076,12 +12076,12 @@ parameter auto_settings = "true";
         end
 
         if (m == 0)
-        begin 
+        begin
 
             // set the limit of the divide_by value that can be returned by
             // the following function.
             max_d_value = 1500;
-            
+
             // scale down the multiply_by and divide_by values provided by the design
             // before attempting to use them in the calculations below
             find_simple_integer_fraction(clk0_multiply_by, clk0_divide_by,
@@ -12241,7 +12241,7 @@ parameter auto_settings = "true";
 
             i_m_ph    = counter_ph(get_phase_degree(max_neg_abs), i_m, i_n);
             i_m_initial = counter_initial(get_phase_degree(max_neg_abs), i_m, i_n);
-            
+
             i_c_ph[0] = counter_ph(get_phase_degree(ph_adjust(i_clk0_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[1] = counter_ph(get_phase_degree(ph_adjust(i_clk1_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[2] = counter_ph(get_phase_degree(ph_adjust(i_clk2_phase_shift, max_neg_abs)), i_m, i_n);
@@ -12255,7 +12255,7 @@ parameter auto_settings = "true";
 
 
         end
-        else 
+        else
         begin //  m != 0
 
             i_n = n;
@@ -12314,7 +12314,7 @@ parameter auto_settings = "true";
             i_m_initial = m_initial;
 
         end // user to advanced conversion
-        
+
         switch_clock = 1'b0;
 
         refclk_period = inclk0_freq * i_n;
@@ -12373,7 +12373,7 @@ parameter auto_settings = "true";
             scan_chain_length = GPP_SCAN_CHAIN;
             num_output_cntrs = 10;
         end
-        
+
         phasestep_high_count = 0;
         update_phase = 0;
         // set initial values for counter parameters
@@ -12442,7 +12442,7 @@ parameter auto_settings = "true";
         j = 0;
         inclk_last_value = 0;
 
-    
+
         // initialize clkswitch variables
 
         clk0_is_bad = 0;
@@ -12485,8 +12485,8 @@ parameter auto_settings = "true";
                                     refclk_period, m_val[0]);
         reconfig_err = 0;
         error = 0;
-        
-        
+
+
         c0_rising_edge_transfer_done = 0;
         c1_rising_edge_transfer_done = 0;
         c2_rising_edge_transfer_done = 0;
@@ -12505,16 +12505,16 @@ parameter auto_settings = "true";
 
         vco_over  = 1'b0;
         vco_under = 1'b0;
-        
-        // Initialize the scan chain 
-        
+
+        // Initialize the scan chain
+
         // LF unused : bit 1
         scan_data[-1:0] = 2'b00;
         // LF Capacitance : bits 1,2 : all values are legal
         scan_data[1:2] = loop_filter_c_bits;
         // LF Resistance : bits 3-7
         scan_data[3:7] = loop_filter_r_bits;
-        
+
         // VCO post scale
         if(vco_post_scale == 1)
         begin
@@ -12526,19 +12526,19 @@ parameter auto_settings = "true";
             scan_data[8] = 1'b0;
             vco_val_old_bit_setting = 1'b0;
         end
-            
+
         scan_data[9:13] = 5'b00000;
         // CP
         // Bit 8 : CRBYPASS
         // Bit 9-13 : unused
-        // Bits 14-16 : all values are legal                 
+        // Bits 14-16 : all values are legal
                 scan_data[14:16] = charge_pump_current_bits;
         // store as old values
-        
+
         cp_curr_old_bit_setting = charge_pump_current_bits;
         lfc_val_old_bit_setting = loop_filter_c_bits;
         lfr_val_old_bit_setting = loop_filter_r_bits;
-            
+
         // C counters (start bit 53) bit 1:mode(bypass),bit 2-9:high,bit 10:mode(odd/even),bit 11-18:low
         for (i = 0; i < num_output_cntrs; i = i + 1)
         begin
@@ -12564,20 +12564,20 @@ parameter auto_settings = "true";
             c_val = c_high_val[i];
             for (j = 1; j <= 8; j = j + 1)
                 scan_data[53 + i*18 + j]  = c_val[8 - j];
-   
+
             // 4. Low
             c_val = c_low_val[i];
             for (j = 10; j <= 17; j = j + 1)
                 scan_data[53 + i*18 + j] = c_val[17 - j];
         end
-            
+
         // M counter
         // 1. Mode - bypass (bit 17)
         if (m_mode_val[0] == "bypass")
                 scan_data[17] = 1'b1;
         else
                 scan_data[17] = 1'b0;  // set bypass bit to 0
-       
+
         // 2. High (bit 18-25)
         // 3. Mode - odd/even (bit 26)
         if (m_val[0] % 2 == 0)
@@ -12587,8 +12587,8 @@ parameter auto_settings = "true";
                 scan_data[18:25] = m_val[0]/2;
                 scan_data[26] = 1'b0;
         end
-        else 
-        begin 
+        else
+        begin
             // M is odd : M high = low + 1
                 scan_data[18:25] = m_val[0]/2 + 1;
                 scan_data[26] = 1'b1;
@@ -12596,12 +12596,12 @@ parameter auto_settings = "true";
         // 4. Low (bit 27-34)
             scan_data[27:34] = m_val[0]/2;
 
-        
+
         // N counter
         // 1. Mode - bypass (bit 35)
         if (n_mode_val[0] == "bypass")
                 scan_data[35] = 1'b1;
-        else 
+        else
                 scan_data[35] = 1'b0;  // set bypass bit to 0
         // 2. High (bit 36-43)
         // 3. Mode - odd/even (bit 44)
@@ -12612,7 +12612,7 @@ parameter auto_settings = "true";
                 scan_data[36:43] = n_val[0]/2;
                 scan_data[44] = 1'b0;
         end
-        else 
+        else
         begin // N is odd : N high = N low + 1
                 scan_data[36:43] = n_val[0]/2 + 1;
                 scan_data[44] = 1'b1;
@@ -12628,7 +12628,7 @@ parameter auto_settings = "true";
         locked_tmp = 0;
         pll_is_locked = 0;
         no_warn = 1'b0;
-        
+
         pfd_locked = 1'b0;
         cycles_pfd_high = 0;
         cycles_pfd_low  = 0;
@@ -12683,8 +12683,8 @@ parameter auto_settings = "true";
             ic9_use_casc_in = 0;
 
         tap0_is_active = 1;
-        
-// To display clock mapping       
+
+// To display clock mapping
     case( i_clk0_counter)
             "c0" : clk_num[0] = "  clk0";
             "c1" : clk_num[0] = "  clk1";
@@ -12698,7 +12698,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[0] = "  clk9";
             default:clk_num[0] = "unused";
     endcase
-    
+
         case( i_clk1_counter)
             "c0" : clk_num[1] = "  clk0";
             "c1" : clk_num[1] = "  clk1";
@@ -12712,7 +12712,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[1] = "  clk9";
             default:clk_num[1] = "unused";
     endcase
-        
+
     case( i_clk2_counter)
             "c0" : clk_num[2] = "  clk0";
             "c1" : clk_num[2] = "  clk1";
@@ -12726,7 +12726,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[2] = "  clk9";
             default:clk_num[2] = "unused";
     endcase
-        
+
     case( i_clk3_counter)
             "c0" : clk_num[3] = "  clk0";
             "c1" : clk_num[3] = "  clk1";
@@ -12740,7 +12740,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[3] = "  clk9";
             default:clk_num[3] = "unused";
     endcase
-        
+
     case( i_clk4_counter)
             "c0" : clk_num[4] = "  clk0";
             "c1" : clk_num[4] = "  clk1";
@@ -12754,7 +12754,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[4] = "  clk9";
             default:clk_num[4] = "unused";
     endcase
-        
+
     case( i_clk5_counter)
             "c0" : clk_num[5] = "  clk0";
             "c1" : clk_num[5] = "  clk1";
@@ -12768,7 +12768,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[5] = "  clk9";
             default:clk_num[5] = "unused";
     endcase
-        
+
     case( i_clk6_counter)
             "c0" : clk_num[6] = "  clk0";
             "c1" : clk_num[6] = "  clk1";
@@ -12782,7 +12782,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[6] = "  clk9";
             default:clk_num[6] = "unused";
     endcase
-    
+
     case( i_clk7_counter)
             "c0" : clk_num[7] = "  clk0";
             "c1" : clk_num[7] = "  clk1";
@@ -12796,7 +12796,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[7] = "  clk9";
             default:clk_num[7] = "unused";
     endcase
-        
+
     case( i_clk8_counter)
             "c0" : clk_num[8] = "  clk0";
             "c1" : clk_num[8] = "  clk1";
@@ -12810,7 +12810,7 @@ parameter auto_settings = "true";
             "c9" : clk_num[8] = "  clk9";
             default:clk_num[8] = "unused";
     endcase
-        
+
     case( i_clk9_counter)
             "c0" : clk_num[9] = "  clk0";
             "c1" : clk_num[9] = "  clk1";
@@ -12834,7 +12834,7 @@ always @(clkswitch)
 begin
     if (clkswitch === 1'b1 && l_switch_over_type == "auto")
         external_switch = 1;
-    else if (l_switch_over_type == "manual") 
+    else if (l_switch_over_type == "manual")
     begin
         if(clkswitch === 1'b1)
             switch_clock = 1'b1;
@@ -12976,7 +12976,7 @@ end
         // actual switching -- automatic switch
         if ((other_clock_value == 1'b1) && (other_clock_value != other_clock_last_value) && l_enable_switch_over_counter == "on" && primary_clk_is_bad)
             switch_over_count = switch_over_count + 1;
-        
+
         if ((other_clock_value == 1'b0) && (other_clock_value != other_clock_last_value))
         begin
             if ((external_switch && (got_curr_clk_falling_edge_after_clkswitch || current_clk_is_bad)) || (primary_clk_is_bad && (clkswitch !== 1'b1) && ((l_enable_switch_over_counter == "off" || switch_over_count == switch_over_counter))))
@@ -13000,7 +13000,7 @@ end
                     current_clock = 1;
                 else
                     current_clock = 0;
-                    
+
                 active_clock = ~active_clock;
                 switch_over_count = 0;
                 external_switch = 0;
@@ -13012,21 +13012,21 @@ end
                         begin
                             current_clock = 1;
                             active_clock = ~active_clock;
-                        end 
-                
+                        end
+
                     if(current_clock == 1 && clk1_is_bad == 1'b1 && clk0_is_bad == 1'b0 )
                         begin
                             current_clock = 0;
                             active_clock = ~active_clock;
                         end
-                end     
+                end
         end
-        
+
         if(l_switch_over_type == "manual")
             inclk_n = inclk_man;
         else
             inclk_n = inclk_es;
-            
+
         inclk0_last_value = inclk[0];
         inclk1_last_value = inclk[1];
         other_clock_last_value = other_clock_value;
@@ -13038,8 +13038,8 @@ end
     and (activeclock, active_clock, 1'b1);
 
 
-    assign inclk_m = (m_test_source == 0) ? fbclk : (m_test_source == 1) ? refclk : inclk_m_from_vco; 
-                       
+    assign inclk_m = (m_test_source == 0) ? fbclk : (m_test_source == 1) ? refclk : inclk_m_from_vco;
+
 
     ttn_m_cntr m1 (.clk(inclk_m),
                         .reset(areset || stop_vco),
@@ -13094,7 +13094,7 @@ always @(vco_out)
     always @(vco_tap)
     begin
         // Update phase taps for C/M counters on negative edge of VCO clock output
-        
+
         if (update_phase == 1'b1)
         begin
             for (x = 0; x <= 7; x = x + 1)
@@ -13158,7 +13158,7 @@ always @(vco_out)
     end
 
     assign inclk_c1 = (c1_test_source == 0) ? fbclk : (c1_test_source == 1) ? refclk : (ic1_use_casc_in == 1) ? c0_clk : inclk_c1_from_vco;
-    
+
     ttn_scale_cntr c1 (.clk(inclk_c1),
                             .reset(areset || stop_vco),
                             .cout(c1_clk),
@@ -13214,7 +13214,7 @@ always @(vco_out)
     end
 
     assign inclk_c3 = (c3_test_source == 0) ? fbclk : (c3_test_source == 1) ? refclk : (ic3_use_casc_in == 1) ? c2_clk : inclk_c3_from_vco;
-    
+
     ttn_scale_cntr c3 (.clk(inclk_c3),
                             .reset(areset  || stop_vco),
                             .cout(c3_clk),
@@ -13294,7 +13294,7 @@ always @(vco_out)
             c_low_val[5] <= c_low_val_tmp[5];
         end
     end
-    
+
     assign inclk_c6 = ((c6_test_source == 0) ? fbclk : (c6_test_source == 1) ? refclk :  (ic6_use_casc_in == 1) ? c5_clk : inclk_c6_from_vco);
     ttn_scale_cntr c6 (.clk(inclk_c6),
                             .reset(areset  || stop_vco),
@@ -13321,7 +13321,7 @@ always @(vco_out)
             c_low_val[6] <= c_low_val_tmp[6];
         end
     end
-    
+
     assign inclk_c7 = ((c7_test_source == 0) ? fbclk : (c7_test_source == 1) ? refclk :  (ic7_use_casc_in == 1) ? c6_clk : inclk_c7_from_vco);
     ttn_scale_cntr c7 (.clk(inclk_c7),
                             .reset(areset  || stop_vco),
@@ -13348,7 +13348,7 @@ always @(vco_out)
             c_low_val[7] <= c_low_val_tmp[7];
         end
     end
-    
+
     assign inclk_c8 = ((c8_test_source == 0) ? fbclk : (c8_test_source == 1) ? refclk :  (ic8_use_casc_in == 1) ? c7_clk : inclk_c8_from_vco);
     ttn_scale_cntr c8 (.clk(inclk_c8),
                             .reset(areset || stop_vco),
@@ -13375,7 +13375,7 @@ always @(vco_out)
             c_low_val[8] <= c_low_val_tmp[8];
         end
     end
-    
+
     assign inclk_c9 = ((c9_test_source == 0) ? fbclk : (c9_test_source == 1) ? refclk :  (ic9_use_casc_in == 1) ? c8_clk : inclk_c9_from_vco);
     ttn_scale_cntr c9 (.clk(inclk_c9),
                             .reset(areset  || stop_vco),
@@ -13402,13 +13402,13 @@ always @(vco_out)
             c_low_val[9] <= c_low_val_tmp[9];
         end
     end
-    
+
 assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
 
 // Register scanclk enable
     always @(negedge scanclk)
         scanclkena_reg <= scanclkena;
-        
+
 // Negative edge flip-flop in front of scan-chain
 
     always @(negedge scanclk)
@@ -13418,7 +13418,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
             scandata_in <= scandata;
         end
     end
-   
+
 // Scan chain
     always @(posedge scanclk)
     begin
@@ -13426,15 +13426,15 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
                 got_first_scanclk = 1'b1;
         else
                 scanclk_period = $time - scanclk_last_rising_edge;
-        if (scanclkena_reg) 
-        begin        
+        if (scanclkena_reg)
+        begin
             for (j = scan_chain_length-2; j >= 0; j = j - 1)
                 scan_data[j] = scan_data[j - 1];
             scan_data[-1] <= scandata_in;
         end
         scanclk_last_rising_edge = $realtime;
     end
-    
+
 // Scan output
     assign scandataout_tmp = (l_pll_type == "fast" || l_pll_type == "lvds" || l_pll_type == "left_right") ? scan_data[FAST_SCAN_CHAIN-2] : scan_data[GPP_SCAN_CHAIN-2];
 
@@ -13447,7 +13447,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
             scandata_out <= scandataout_tmp;
         end
     end
-    
+
 // Scan complete
     always @(negedge scandone_tmp)
     begin
@@ -13460,7 +13460,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
 
                 $display("               N modulus =   %0d (%0d) ", n_val[0], n_val_old[0]);
                 $display("               M modulus =   %0d (%0d) ", m_val[0], m_val_old[0]);
-                
+
 
                 for (i = 0; i < num_output_cntrs; i=i+1)
                 begin
@@ -13511,29 +13511,29 @@ begin
                 if (phasecounterselect == 0) // all output counters selected
                 begin
                     for (i = 0; i < num_output_cntrs; i = i + 1)
-                        c_ph_val_tmp[i] = (phaseupdown == 1'b1) ? 
+                        c_ph_val_tmp[i] = (phaseupdown == 1'b1) ?
                                     (c_ph_val_tmp[i] + 1) % num_phase_taps :
                                     (c_ph_val_tmp[i] == 0) ? num_phase_taps - 1 : (c_ph_val_tmp[i] - 1) % num_phase_taps ;
                 end
                 else if (phasecounterselect == 1) // select M counter
                 begin
-                    m_ph_val_tmp = (phaseupdown == 1'b1) ? 
+                    m_ph_val_tmp = (phaseupdown == 1'b1) ?
                                 (m_ph_val + 1) % num_phase_taps :
                                 (m_ph_val == 0) ? num_phase_taps - 1 : (m_ph_val - 1) % num_phase_taps ;
                 end
                 else // select C counters
                 begin
                     select_counter = phasecounterselect - 2;
-                    c_ph_val_tmp[select_counter] =  (phaseupdown == 1'b1) ? 
+                    c_ph_val_tmp[select_counter] =  (phaseupdown == 1'b1) ?
                                             (c_ph_val_tmp[select_counter] + 1) % num_phase_taps :
                                             (c_ph_val_tmp[select_counter] == 0) ? num_phase_taps - 1 : (c_ph_val_tmp[select_counter] - 1) % num_phase_taps ;
                 end
                 update_phase <= 1'b1;
-            end 
-           
+            end
+
         end
         phasestep_high_count = phasestep_high_count + 1;
-       
+
     end
 end
 
@@ -13543,7 +13543,7 @@ begin
     phasestep_reg <= phasestep;
 end
 
-always @(posedge phasestep) 
+always @(posedge phasestep)
 begin
     if (update_phase == 1'b0) phasestep_high_count = 0; // phase adjustments must be 1 cycle apart
                                                         // if not, next phasestep cycle is skipped
@@ -13574,15 +13574,15 @@ assign update_conf_latches = configupdate;
     begin
         initiate_reconfig <= 1'b1;
     end
-   
+
     always @(posedge areset)
     begin
         if (scandone_tmp == 1'b1) scandone_tmp = 1'b0;
     end
-   
+
     always @(posedge scanclk)
     begin
-        if (initiate_reconfig == 1'b1) 
+        if (initiate_reconfig == 1'b1)
         begin
             initiate_reconfig <= 1'b0;
             $display ("NOTE : PLL Reprogramming initiated ....");
@@ -13615,7 +13615,7 @@ assign update_conf_latches = configupdate;
 
             // LF Resistance : bits 3-7
             // valid values - 00000,00100,10000,10100,11000,11011,11100,11110
-            if (((scan_data[3:7] == 5'b00000) || (scan_data[3:7] == 5'b00100)) || 
+            if (((scan_data[3:7] == 5'b00000) || (scan_data[3:7] == 5'b00100)) ||
                 ((scan_data[3:7] == 5'b10000) || (scan_data[3:7] == 5'b10100)) ||
                 ((scan_data[3:7] == 5'b11000) || (scan_data[3:7] == 5'b11011)) ||
                 ((scan_data[3:7] == 5'b11100) || (scan_data[3:7] == 5'b11110))
@@ -13626,7 +13626,7 @@ assign update_conf_latches = configupdate;
                             (scan_data[3:7] == 5'b10000) ? "12" :
                             (scan_data[3:7] == 5'b10100) ? "8" :
                             (scan_data[3:7] == 5'b11000) ? "6" :
-                            (scan_data[3:7] == 5'b11011) ? "4" : 
+                            (scan_data[3:7] == 5'b11011) ? "4" :
                             (scan_data[3:7] == 5'b11100) ? "2" : "1";
             end
 
@@ -13640,9 +13640,9 @@ assign update_conf_latches = configupdate;
             else
             begin
                 i_vco_max = vco_max;
-                i_vco_min = vco_min; 
+                i_vco_min = vco_min;
                 vco_cur = 2;
-            end          
+            end
 
             // CP
             // Bit 8 : CRBYPASS
@@ -13677,7 +13677,7 @@ assign update_conf_latches = configupdate;
             // 2. High (bit 18-25)
                 m_hi = scan_data[18:25];
             // 4. Low (bit 27-34)
-                m_lo = scan_data[27:34]; 
+                m_lo = scan_data[27:34];
 
 
             // N counter
@@ -13689,22 +13689,22 @@ assign update_conf_latches = configupdate;
                 n_mode_val[0] = "   odd";
             else
                 n_mode_val[0] = "  even";
-            
+
             // 2. High (bit 36-43)
                 n_hi = scan_data[36:43];
-            
+
             // 4. Low (bit 45-52)
-                n_lo = scan_data[45:52]; 
+                n_lo = scan_data[45:52];
 
 
-            
+
 //Update the current M and N counter values if the counters are NOT bypassed
 
 if (m_mode_val[0] != "bypass")
 m_val[0] = m_hi + m_lo;
-if (n_mode_val[0] != "bypass")  
+if (n_mode_val[0] != "bypass")
 n_val[0] = n_hi + n_lo;
-            
+
 
 
             // C counters (start bit 53) bit 1:mode(bypass),bit 2-9:high,bit 10:mode(odd/even),bit 11-18:low
@@ -13719,7 +13719,7 @@ n_val[0] = n_hi + n_lo;
                     c_mode_val_tmp[i] = "   odd";
                 else
                     c_mode_val_tmp[i] = "  even";
-                    
+
                 // 2. Hi
                 for (j = 1; j <= 8; j = j + 1)
                     c_val[8-j] = scan_data[53 + i*18 + j];
@@ -13728,18 +13728,18 @@ n_val[0] = n_hi + n_lo;
                     c_high_val_tmp[i] = c_hval[i];
                 else
                     c_high_val_tmp[i] = 9'b100000000;
-                // 4. Low 
+                // 4. Low
                 for (j = 10; j <= 17; j = j + 1)
-                    c_val[17 - j] = scan_data[53 + i*18 + j]; 
+                    c_val[17 - j] = scan_data[53 + i*18 + j];
                 c_lval[i] = c_val[7:0];
                 if (c_lval[i] !== 32'h00000000)
-                    c_low_val_tmp[i] = c_lval[i];  
+                    c_low_val_tmp[i] = c_lval[i];
                 else
-                    c_low_val_tmp[i] = 9'b100000000; 
+                    c_low_val_tmp[i] = 9'b100000000;
             end
 
             // Legality Checks
-            
+
             if (m_mode_val[0] != "bypass")
             begin
             if ((m_hi !== m_lo) && (m_mode_val[0] != "   odd"))
@@ -13754,11 +13754,11 @@ n_val[0] = n_hi + n_lo;
                     m_val_tmp[0] = m_hi + m_lo;
             end
             else
-                m_val_tmp[0] =  9'b100000000; 
+                m_val_tmp[0] =  9'b100000000;
             end
             else
                 m_val_tmp[0] = 8'b00000001;
-                
+
             if (n_mode_val[0] != "bypass")
             begin
             if ((n_hi !== n_lo) && (n_mode_val[0] != "   odd"))
@@ -13773,12 +13773,12 @@ n_val[0] = n_hi + n_lo;
                     n_val[0] = n_hi + n_lo;
             end
             else
-                n_val[0] =  9'b100000000; 
+                n_val[0] =  9'b100000000;
             end
             else
                 n_val[0] = 8'b00000001;
-                           
-                 
+
+
 
 // TODO : Give warnings/errors in the following cases?
 // 1. Illegal counter values (error)
@@ -13787,7 +13787,7 @@ n_val[0] = n_hi + n_lo;
 
         end
     end
-    
+
     // Self reset on loss of lock
     assign reset_self = (l_self_reset_on_loss_lock == "on") ? ~pll_is_locked : 1'b0;
 
@@ -13796,20 +13796,20 @@ n_val[0] = n_hi + n_lo;
         $display (" Note : %s PLL self reset due to loss of lock", family_name);
         $display ("Time: %0t  Instance: %m", $time);
     end
-    
+
     // Phase shift on /o counters
-    
+
     always @(schedule_vco or areset)
     begin
         sched_time = 0;
-    
+
         for (i = 0; i <= 7; i=i+1)
             last_phase_shift[i] = phase_shift[i];
-     
+
         cycle_to_adjust = 0;
         l_index = 1;
         m_times_vco_period = new_m_times_vco_period;
-            
+
         // give appropriate messages
         // if areset was asserted
         if (areset === 1'b1 && areset_last_value !== areset)
@@ -13825,24 +13825,24 @@ n_val[0] = n_hi + n_lo;
             for (x = 0; x <= 7; x=x+1)
                 vco_tap[x] <= 1'b0;
         end
-    
+
         // illegal value on areset
         if (areset === 1'bx && (areset_last_value === 1'b0 || areset_last_value === 1'b1))
         begin
             $display("Warning : Illegal value 'X' detected on ARESET input");
             $display ("Time: %0t  Instance: %m", $time);
         end
-    
+
         if ((areset == 1'b1))
         begin
             pll_is_in_reset = 1;
             got_first_refclk = 0;
             got_second_refclk = 0;
         end
-                            
+
         if ((schedule_vco !== schedule_vco_last_value) && (areset == 1'b1 || stop_vco == 1'b1))
         begin
-   
+
             // drop VCO taps to 0
             for (i = 0; i <= 7; i=i+1)
             begin
@@ -13851,12 +13851,12 @@ n_val[0] = n_hi + n_lo;
                 phase_shift[i] = 0;
                 last_phase_shift[i] = 0;
             end
-    
+
             // reset lock parameters
             pll_is_locked = 0;
             cycles_to_lock = 0;
             cycles_to_unlock = 0;
-    
+
             got_first_refclk = 0;
             got_second_refclk = 0;
             refclk_time = 0;
@@ -13864,7 +13864,7 @@ n_val[0] = n_hi + n_lo;
             fbclk_time = 0;
             first_fbclk_time = 0;
             fbclk_period = 0;
-    
+
             first_schedule = 1;
             vco_val = 0;
             vco_period_was_phase_adjusted = 0;
@@ -13874,7 +13874,7 @@ n_val[0] = n_hi + n_lo;
             m_ph_val = m_ph_val_orig;
             for (i=0; i<= 5; i=i+1)
                 c_ph_val[i] = c_ph_val_orig[i];
-    
+
         end else if (areset === 1'b0 && stop_vco === 1'b0)
         begin
             // else note areset deassert time
@@ -13886,46 +13886,46 @@ n_val[0] = n_hi + n_lo;
                 locked_tmp = 1'b0;
             end
             pll_is_in_reset = 0;
-    
+
             // calculate loop_xplier : this will be different from m_val in ext. fbk mode
             loop_xplier = m_val[0];
             loop_initial = i_m_initial - 1;
             loop_ph = m_ph_val;
-    
+
             // convert initial value to delay
             initial_delay = (loop_initial * m_times_vco_period)/loop_xplier;
-    
+
             // convert loop ph_tap to delay
             rem = m_times_vco_period % loop_xplier;
             vco_per = m_times_vco_period/loop_xplier;
             if (rem != 0)
                 vco_per = vco_per + 1;
             fbk_phase = (loop_ph * vco_per)/8;
-    
+
             pull_back_M = initial_delay + fbk_phase;
-    
+
             total_pull_back = pull_back_M;
             if (l_simulation_type == "timing")
                 total_pull_back = total_pull_back + pll_compensation_delay;
-    
+
             while (total_pull_back > refclk_period)
                 total_pull_back = total_pull_back - refclk_period;
-    
+
             if (total_pull_back > 0)
                 offset = refclk_period - total_pull_back;
             else
                 offset = 0;
-    
+
             fbk_delay = total_pull_back - fbk_phase;
             if (fbk_delay < 0)
             begin
                 offset = offset - fbk_phase;
                 fbk_delay = total_pull_back;
             end
-    
+
             // assign m_delay
             m_delay = fbk_delay;
-    
+
             for (i = 1; i <= loop_xplier; i=i+1)
             begin
                 // adjust cycles
@@ -13942,13 +13942,13 @@ n_val[0] = n_hi + n_lo;
                     tmp_vco_per = tmp_vco_per + 1;
                     l_index = l_index + 1;
                 end
-    
+
                 // calculate high and low periods
                 high_time = tmp_vco_per/2;
                 if (tmp_vco_per % 2 != 0)
                     high_time = high_time + 1;
                 low_time = tmp_vco_per - high_time;
-    
+
                 // schedule the rising and falling egdes
                 for (j=0; j<=1; j=j+1)
                 begin
@@ -13957,7 +13957,7 @@ n_val[0] = n_hi + n_lo;
                         sched_time = sched_time + high_time;
                     else
                         sched_time = sched_time + low_time;
-    
+
                     // schedule taps with appropriate phase shifts
                     for (k = 0; k <= 7; k=k+1)
                     begin
@@ -13991,19 +13991,19 @@ n_val[0] = n_hi + n_lo;
                 new_m_times_vco_period = refclk_period;
                 vco_period_was_phase_adjusted = 0;
                 phase_adjust_was_scheduled = 1;
-    
+
                 tmp_vco_per = m_times_vco_period/loop_xplier;
                 for (k = 0; k <= 7; k=k+1)
                     phase_shift[k] = (k*tmp_vco_per)/8;
             end
         end
-    
+
         areset_last_value = areset;
         schedule_vco_last_value = schedule_vco;
-    
+
     end
 
-    assign pfdena_wire = (pfdena === 1'b0) ? 1'b0 : 1'b1; 
+    assign pfdena_wire = (pfdena === 1'b0) ? 1'b0 : 1'b1;
     // PFD enable
     always @(pfdena_wire)
     begin
@@ -14033,7 +14033,7 @@ n_val[0] = n_hi + n_lo;
     end
 
     // Bypass lock detect
-        
+
     always @(posedge refclk)
     begin
     if (test_bypass_lock_detect == "on")
@@ -14068,7 +14068,7 @@ n_val[0] = n_hi + n_lo;
                 end
         end
     end
-    
+
     always @(posedge scandone_tmp or posedge locked_tmp)
     begin
         if(scandone_tmp == 1)
@@ -14076,7 +14076,7 @@ n_val[0] = n_hi + n_lo;
         else
             pll_has_just_been_reconfigured <= 0;
     end
-    
+
     // VCO Frequency Range check
     always @(posedge refclk or posedge fbclk)
     begin
@@ -14092,9 +14092,9 @@ n_val[0] = n_hi + n_lo;
 
                 // check if incoming freq. will cause VCO range to be
                 // exceeded
-                if ((i_vco_max != 0 && i_vco_min != 0) && (pfdena_wire === 1'b1) &&        
-                    ((refclk_period/loop_xplier > i_vco_max) || 
-                    (refclk_period/loop_xplier < i_vco_min)) ) 
+                if ((i_vco_max != 0 && i_vco_min != 0) && (pfdena_wire === 1'b1) &&
+                    ((refclk_period/loop_xplier > i_vco_max) ||
+                    (refclk_period/loop_xplier < i_vco_min)) )
                 begin
                     if (pll_is_locked == 1'b1)
                     begin
@@ -14158,7 +14158,7 @@ n_val[0] = n_hi + n_lo;
         end
 
         // Update M counter value on feedback clock edge
-        
+
         if (fbclk == 1'b1 && fbclk_last_value !== fbclk)
         begin
             if (update_conf_latches === 1'b1)
@@ -14204,10 +14204,10 @@ n_val[0] = n_hi + n_lo;
             end
             fbclk_time = $time;
         end
-        
-                
+
+
         // Core lock functionality
-        
+
         if (got_second_refclk && pfdena_wire === 1'b1 && (!inclk_out_of_range))
         begin
             // now we know actual incoming period
@@ -14612,7 +14612,7 @@ endmodule // cda_scale_cntr
 // Module Name : MF_cycloneiii_pll
 //
 // Description : Behavioral model for CycloneIII pll.
-// 
+//
 // Limitations : Does not support Spread Spectrum and Bandwidth.
 //
 // Outputs     : Up to 10 output clocks, each defined by its own set of
@@ -14678,7 +14678,7 @@ module MF_cycloneiii_pll (inclk,
     parameter lock_low = 0;  // 0 .. 7
     parameter lock_window_ui = "0.05"; // "0.05", "0.1", "0.15", "0.2"
     parameter test_bypass_lock_detect              = "off";
-    
+
     parameter clk0_output_frequency                = 0;
     parameter clk0_multiply_by                     = 0;
     parameter clk0_divide_by                       = 0;
@@ -14709,11 +14709,11 @@ module MF_cycloneiii_pll (inclk,
     parameter clk4_phase_shift                     = "0";
     parameter clk4_duty_cycle                      = 50;
 
-    
-    
-    
-    
-    
+
+
+
+
+
 
     parameter pfd_min                              = 0;
     parameter pfd_max                              = 0;
@@ -14756,11 +14756,11 @@ module MF_cycloneiii_pll (inclk,
     parameter c4_mode = "bypass";
     parameter c4_ph = 0;
 
-    
-    
-    
-    
-    
+
+
+
+
+
 
     parameter m_ph = 0;
 
@@ -14787,7 +14787,7 @@ module MF_cycloneiii_pll (inclk,
     parameter vco_post_scale = 1; // 1 .. 2
     parameter vco_frequency_control = "auto";
     parameter vco_phase_shift_step = 0;
-    
+
     parameter charge_pump_current = 10;
     parameter loop_filter_r = "1.0";    // "1.0", "2.0", "4.0", "6.0", "8.0", "12.0", "16.0", "20.0"
     parameter loop_filter_c = 0;        // 0 , 2 , 4
@@ -14822,19 +14822,19 @@ module MF_cycloneiii_pll (inclk,
     parameter clk4_use_even_counter_value = "off";
 
     // TEST ONLY
-    
+
     parameter init_block_reset_a_count = 1;
     parameter init_block_reset_b_count = 1;
 
 // SIMULATION_ONLY_PARAMETERS_END
-    
+
 // LOCAL_PARAMETERS_BEGIN
 
     parameter phase_counter_select_width = 3;
     parameter lock_window = 5;
     parameter inclk0_freq = inclk0_input_frequency;
     parameter inclk1_freq = inclk1_input_frequency;
-   
+
 parameter charge_pump_current_bits = 0;
 parameter lock_window_ui_bits = 0;
 parameter loop_filter_c_bits = 0;
@@ -14854,13 +14854,13 @@ parameter test_volt_reg_output_voltage_bits = 0;
 parameter test_volt_reg_test_mode = "false";
 parameter vco_range_detector_high_bits = -1;
 parameter vco_range_detector_low_bits = -1;
-parameter scan_chain_mif_file = ""; 
+parameter scan_chain_mif_file = "";
 
 
 parameter auto_settings = "true";
 
 // LOCAL_PARAMETERS_END
- 
+
     // INPUT PORTS
     input [1:0] inclk;
     input fbin;
@@ -14886,8 +14886,8 @@ parameter auto_settings = "true";
     output phasedone;
     output vcooverrange;
     output vcounderrange;
-    
-        
+
+
 
     // INTERNAL VARIABLES AND NETS
     reg [8*6:1] clk_num[0:4];
@@ -14952,7 +14952,7 @@ parameter auto_settings = "true";
     reg pfdena_last_value;
     reg inclk_out_of_range;
     reg schedule_vco_last_value;
-    
+
     // Test bypass lock detect
     reg pfd_locked;
     integer cycles_pfd_low, cycles_pfd_high;
@@ -14977,7 +14977,7 @@ parameter auto_settings = "true";
 
     // VCO Frequency Range control
     reg vco_over, vco_under;
-   
+
     // temporary registers for reprogramming
     integer c_ph_val_tmp[0:9];
     reg [31:0] c_high_val_tmp[0:9];
@@ -15017,7 +15017,7 @@ parameter auto_settings = "true";
     reg vco_val_bit_setting, vco_val_old_bit_setting;
     reg [3:7] lfr_val_bit_setting, lfr_val_old_bit_setting;
     reg [14:16] cp_curr_bit_setting, cp_curr_old_bit_setting;
-    
+
     // Setting on  - display real values
     // Setting off - display only bits
     reg pll_reconfig_display_full_setting;
@@ -15046,13 +15046,13 @@ parameter auto_settings = "true";
     wire inclk_c2;
     wire inclk_c3;
     wire inclk_c4;
-    
+
     wire  inclk_c0_from_vco;
     wire  inclk_c1_from_vco;
     wire  inclk_c2_from_vco;
     wire  inclk_c3_from_vco;
     wire  inclk_c4_from_vco;
-    
+
     wire  inclk_m_from_vco;
 
     wire inclk_m;
@@ -15075,10 +15075,10 @@ parameter auto_settings = "true";
 
     wire refclk;
     wire fbclk;
-    
+
     wire pllena_reg;
     wire test_mode_inclk;
- 
+
     // Self Reset
     wire reset_self;
 
@@ -15132,16 +15132,16 @@ parameter auto_settings = "true";
 
     integer num_output_cntrs;
     reg no_warn;
-    
+
     // Phase reconfig
-    
+
     reg [2:0] phasecounterselect_reg;
     reg phaseupdown_reg;
     reg phasestep_reg;
     integer select_counter;
     integer phasestep_high_count;
     reg update_phase;
-    
+
 
 // LOCAL_PARAMETERS_BEGIN
 
@@ -15236,7 +15236,7 @@ parameter auto_settings = "true";
     reg [8*`CYCIII_PLL_WORD_LENGTH:1] l_vco_frequency_control;
     reg [8*`CYCIII_PLL_WORD_LENGTH:1] l_enable_switch_over_counter;
     reg [8*`CYCIII_PLL_WORD_LENGTH:1] l_self_reset_on_loss_lock;
-    
+
 
 
     integer current_clock;
@@ -15256,21 +15256,21 @@ parameter auto_settings = "true";
 
 
 
-    // finds the closest integer fraction of a given pair of numerator and denominator. 
+    // finds the closest integer fraction of a given pair of numerator and denominator.
     task find_simple_integer_fraction;
         input numerator;
         input denominator;
         input max_denom;
-        output fraction_num; 
-        output fraction_div; 
+        output fraction_num;
+        output fraction_div;
         parameter max_iter = 20;
-        
+
         integer numerator;
         integer denominator;
         integer max_denom;
-        integer fraction_num; 
-        integer fraction_div; 
-        
+        integer fraction_num;
+        integer fraction_div;
+
         integer quotient_array[max_iter-1:0];
         integer int_loop_iter;
         integer int_quot;
@@ -15284,20 +15284,20 @@ parameter auto_settings = "true";
         integer den;
         integer i_max_iter;
 
-    begin      
+    begin
         loop_iter = 0;
         num = (numerator == 0) ? 1 : numerator;
         den = (denominator == 0) ? 1 : denominator;
         i_max_iter = max_iter;
-       
+
         while (loop_iter < i_max_iter)
         begin
             int_quot = num / den;
             quotient_array[loop_iter] = int_quot;
             num = num - (den*int_quot);
             loop_iter=loop_iter+1;
-            
-            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter)) 
+
+            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter))
             begin
                 // calculate the numerator and denominator if there is a restriction on the
                 // max denom value or if the loop is ending
@@ -15402,7 +15402,7 @@ parameter auto_settings = "true";
             result = (result / 10);
             count = count + 1;
         end
-        
+
         count_digit = count;
     end
     endfunction
@@ -15416,7 +15416,7 @@ parameter auto_settings = "true";
     begin
         fac_ten = 1;
         count = count_digit(X);
-        
+
         for (lc = 0; lc < (count-Y); lc = lc + 1)
             fac_ten = fac_ten * 10;
 
@@ -15480,7 +15480,7 @@ parameter auto_settings = "true";
             R = scale_num(M9, 3);
         else
             R = M9;
-        lcm = R; 
+        lcm = R;
     end
     endfunction
 
@@ -15500,8 +15500,8 @@ parameter auto_settings = "true";
         input clk5_div,  clk6_div,  clk7_div,  clk8_div,  clk9_div;
         input clk0_used,  clk1_used,  clk2_used,  clk3_used,  clk4_used;
         input clk5_used,  clk6_used,  clk7_used,  clk8_used,  clk9_used;
-        output m; 
-        output n; 
+        output m;
+        output n;
 
         parameter max_m = 511;
         parameter max_n = 511;
@@ -15510,24 +15510,24 @@ parameter auto_settings = "true";
         parameter max_vco = 1600; // max vco frequency. (in mHz)
         parameter min_vco = 300;  // min vco frequency. (in mHz)
         parameter max_offset = 0.004;
-        
+
         reg[160:1] clk0_used,  clk1_used,  clk2_used,  clk3_used,  clk4_used;
         reg[160:1] clk5_used,  clk6_used,  clk7_used,  clk8_used,  clk9_used;
-        
+
         integer inclock_period;
         integer vco_phase_shift_step;
         integer clk0_mult, clk1_mult, clk2_mult, clk3_mult, clk4_mult;
         integer clk5_mult, clk6_mult, clk7_mult, clk8_mult, clk9_mult;
         integer clk0_div,  clk1_div,  clk2_div,  clk3_div,  clk4_div;
         integer clk5_div,  clk6_div,  clk7_div,  clk8_div,  clk9_div;
-        integer m; 
+        integer m;
         integer n;
         integer pre_m;
         integer pre_n;
         integer m_out;
         integer n_out;
         integer closest_vco_step_value;
-        
+
         integer vco_period;
         integer pfd_freq;
         integer vco_freq;
@@ -15585,7 +15585,7 @@ parameter auto_settings = "true";
                         clk7_div_factor_real = (clk7_div * m_out * 1.0) / (clk7_mult * n_out);
                         clk8_div_factor_real = (clk8_div * m_out * 1.0) / (clk8_mult * n_out);
                         clk9_div_factor_real = (clk9_div * m_out * 1.0) / (clk9_mult * n_out);
-        
+
                         clk0_div_factor_int = clk0_div_factor_real;
                         clk1_div_factor_int = clk1_div_factor_real;
                         clk2_div_factor_int = clk2_div_factor_real;
@@ -15596,7 +15596,7 @@ parameter auto_settings = "true";
                         clk7_div_factor_int = clk7_div_factor_real;
                         clk8_div_factor_int = clk8_div_factor_real;
                         clk9_div_factor_int = clk9_div_factor_real;
-                        
+
                         clk0_div_factor_diff = (clk0_div_factor_real - clk0_div_factor_int < 0) ? (clk0_div_factor_real - clk0_div_factor_int) * -1.0 : clk0_div_factor_real - clk0_div_factor_int;
                         clk1_div_factor_diff = (clk1_div_factor_real - clk1_div_factor_int < 0) ? (clk1_div_factor_real - clk1_div_factor_int) * -1.0 : clk1_div_factor_real - clk1_div_factor_int;
                         clk2_div_factor_diff = (clk2_div_factor_real - clk2_div_factor_int < 0) ? (clk2_div_factor_real - clk2_div_factor_int) * -1.0 : clk2_div_factor_real - clk2_div_factor_int;
@@ -15607,8 +15607,8 @@ parameter auto_settings = "true";
                         clk7_div_factor_diff = (clk7_div_factor_real - clk7_div_factor_int < 0) ? (clk7_div_factor_real - clk7_div_factor_int) * -1.0 : clk7_div_factor_real - clk7_div_factor_int;
                         clk8_div_factor_diff = (clk8_div_factor_real - clk8_div_factor_int < 0) ? (clk8_div_factor_real - clk8_div_factor_int) * -1.0 : clk8_div_factor_real - clk8_div_factor_int;
                         clk9_div_factor_diff = (clk9_div_factor_real - clk9_div_factor_int < 0) ? (clk9_div_factor_real - clk9_div_factor_int) * -1.0 : clk9_div_factor_real - clk9_div_factor_int;
-                        
-        
+
+
                         if (((clk0_div_factor_diff < max_offset) || (clk0_used == "unused")) &&
                             ((clk1_div_factor_diff < max_offset) || (clk1_used == "unused")) &&
                             ((clk2_div_factor_diff < max_offset) || (clk2_used == "unused")) &&
@@ -15619,13 +15619,13 @@ parameter auto_settings = "true";
                             ((clk7_div_factor_diff < max_offset) || (clk7_used == "unused")) &&
                             ((clk8_div_factor_diff < max_offset) || (clk8_used == "unused")) &&
                             ((clk9_div_factor_diff < max_offset) || (clk9_used == "unused")) )
-                        begin                
+                        begin
                             if ((m_out != 0) && (n_out != 0))
                             begin
                                 pfd_freq = 1000000 / (inclock_period * n_out);
                                 vco_freq = (1000000 * m_out) / (inclock_period * n_out);
                                 vco_ps_step_value = (inclock_period * n_out) / (8 * m_out);
-                
+
                                 if ( (m_out < max_m) && (n_out < max_n) && (pfd_freq >= min_pfd) && (pfd_freq <= max_pfd) &&
                                     (vco_freq >= min_vco) && (vco_freq <= max_vco) )
                                 begin
@@ -15650,7 +15650,7 @@ parameter auto_settings = "true";
                     end
                 end
         end
-        
+
         if ((pre_m != 0) && (pre_n != 0))
         begin
             find_simple_integer_fraction(pre_m, pre_n,
@@ -15661,7 +15661,7 @@ parameter auto_settings = "true";
             n = 1;
             m = lcm  (clk0_mult, clk1_mult, clk2_mult, clk3_mult,
                     clk4_mult, clk5_mult, clk6_mult,
-                    clk7_mult, clk8_mult, clk9_mult, inclock_period);           
+                    clk7_mult, clk8_mult, clk9_mult, inclock_period);
         end
     end
     endtask // find_m_and_n_4_manual_phase
@@ -15799,7 +15799,7 @@ parameter auto_settings = "true";
     end
     endfunction
 
-    // adjust the given tap_phase by adding the largest negative number (ph_base) 
+    // adjust the given tap_phase by adding the largest negative number (ph_base)
     function integer ph_adjust;
     input tap_phase, ph_base;
     integer tap_phase, ph_base;
@@ -15808,7 +15808,7 @@ parameter auto_settings = "true";
     end
     endfunction
 
-    // find the number of VCO clock cycles to wait initially before the first 
+    // find the number of VCO clock cycles to wait initially before the first
     // rising edge of the output clock
     function integer counter_initial;
     input tap_phase, m, n;
@@ -15855,7 +15855,7 @@ parameter auto_settings = "true";
     endfunction
 
     // convert string to integer with sign
-    function integer str2int; 
+    function integer str2int;
     input [8*16:1] s;
 
     reg [8*16:1] reg_s;
@@ -15874,7 +15874,7 @@ parameter auto_settings = "true";
             digit = tmp & 8'b00001111;
             reg_s = reg_s << 8;
             // Accumulate ascii digits 0-9 only.
-            if ((tmp>=48) && (tmp<=57)) 
+            if ((tmp>=48) && (tmp<=57))
                 magnitude = (magnitude * 10) + digit;
             if (tmp == 45)
                 sign = -1;  // Found a '-' character, i.e. number is negative.
@@ -15885,25 +15885,25 @@ parameter auto_settings = "true";
 
     // this is for cycloneiii lvds only
     // convert phase delay to integer
-    function integer get_int_phase_shift; 
+    function integer get_int_phase_shift;
     input [8*16:1] s;
     input i_phase_shift;
     integer i_phase_shift;
 
     begin
         if (i_phase_shift != 0)
-        begin                   
+        begin
             get_int_phase_shift = i_phase_shift;
-        end       
+        end
         else
         begin
             get_int_phase_shift = str2int(s);
-        end        
+        end
     end
     endfunction
 
     // calculate the given phase shift (in ps) in terms of degrees
-    function integer get_phase_degree; 
+    function integer get_phase_degree;
     input phase_shift;
     integer phase_shift, result;
     begin
@@ -15947,7 +15947,7 @@ parameter auto_settings = "true";
             else
                 return_string = {return_string, tmp};
         end
-    
+
         alpha_tolower = return_string;
     end
     endfunction
@@ -15990,19 +15990,19 @@ parameter auto_settings = "true";
         l_vco_frequency_control      = alpha_tolower(vco_frequency_control);
         l_enable_switch_over_counter = alpha_tolower(enable_switch_over_counter);
         l_self_reset_on_loss_lock    = alpha_tolower(self_reset_on_loss_lock);
-    
-        real_lock_high = (l_sim_gate_lock_device_behavior == "on") ? lock_high : 0;    
+
+        real_lock_high = (l_sim_gate_lock_device_behavior == "on") ? lock_high : 0;
         // initialize charge_pump_current, and loop_filter tables
         loop_filter_c_arr[0] = 0;
         loop_filter_c_arr[1] = 0;
         loop_filter_c_arr[2] = 0;
         loop_filter_c_arr[3] = 0;
-        
+
         fpll_loop_filter_c_arr[0] = 0;
         fpll_loop_filter_c_arr[1] = 0;
         fpll_loop_filter_c_arr[2] = 0;
         fpll_loop_filter_c_arr[3] = 0;
-        
+
         charge_pump_curr_arr[0] = 0;
         charge_pump_curr_arr[1] = 0;
         charge_pump_curr_arr[2] = 0;
@@ -16021,17 +16021,17 @@ parameter auto_settings = "true";
         charge_pump_curr_arr[15] = 0;
 
         i_vco_max = vco_max;
-        i_vco_min = vco_min; 
+        i_vco_min = vco_min;
 
         if(vco_post_scale == 1)
         begin
             i_vco_max_no_division = vco_max * 2;
-            i_vco_min_no_division = vco_min * 2;    
+            i_vco_min_no_division = vco_min * 2;
         end
         else
         begin
             i_vco_max_no_division = vco_max;
-            i_vco_min_no_division = vco_min;    
+            i_vco_min_no_division = vco_min;
         end
 
 
@@ -16052,12 +16052,12 @@ parameter auto_settings = "true";
         end
 
         if (m == 0)
-        begin 
+        begin
 
             // set the limit of the divide_by value that can be returned by
             // the following function.
             max_d_value = 1500;
-            
+
             // scale down the multiply_by and divide_by values provided by the design
             // before attempting to use them in the calculations below
             find_simple_integer_fraction(clk0_multiply_by, clk0_divide_by,
@@ -16077,13 +16077,13 @@ parameter auto_settings = "true";
                 find_m_and_n_4_manual_phase(inclk0_freq, vco_phase_shift_step,
                             i_clk0_mult_by, i_clk1_mult_by,
                             i_clk2_mult_by, i_clk3_mult_by,i_clk4_mult_by,
-                1, 1, 1, 1, 1, 
+                1, 1, 1, 1, 1,
                             i_clk0_div_by, i_clk1_div_by,
                             i_clk2_div_by, i_clk3_div_by,i_clk4_div_by,
-                1, 1, 1, 1, 1, 
+                1, 1, 1, 1, 1,
                             clk0_counter, clk1_counter,
                             clk2_counter, clk3_counter,clk4_counter,
-                "unused", "unused", "unused", "unused", "unused", 
+                "unused", "unused", "unused", "unused", "unused",
                             i_m, i_n);
             end
             else if (((l_pll_type == "fast") || (l_pll_type == "lvds") || (l_pll_type == "left_right")) && (vco_multiply_by != 0) && (vco_divide_by != 0))
@@ -16098,7 +16098,7 @@ parameter auto_settings = "true";
                 else
                     i_m = lcm  (i_clk0_mult_by, i_clk1_mult_by,
                             i_clk2_mult_by, i_clk3_mult_by,i_clk4_mult_by,
-                1, 1, 1, 1, 1, 
+                1, 1, 1, 1, 1,
                             inclk0_freq);
             end
 
@@ -16169,7 +16169,7 @@ parameter auto_settings = "true";
 
             i_m_ph    = counter_ph(get_phase_degree(max_neg_abs), i_m, i_n);
             i_m_initial = counter_initial(get_phase_degree(max_neg_abs), i_m, i_n);
-            
+
             i_c_ph[0] = counter_ph(get_phase_degree(ph_adjust(i_clk0_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[1] = counter_ph(get_phase_degree(ph_adjust(i_clk1_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[2] = counter_ph(get_phase_degree(ph_adjust(i_clk2_phase_shift, max_neg_abs)), i_m, i_n);
@@ -16178,7 +16178,7 @@ parameter auto_settings = "true";
 
 
         end
-        else 
+        else
         begin //  m != 0
 
             i_n = n;
@@ -16212,7 +16212,7 @@ parameter auto_settings = "true";
             i_m_initial = m_initial;
 
         end // user to advanced conversion
-        
+
         switch_clock = 1'b0;
 
         refclk_period = inclk0_freq * i_n;
@@ -16263,7 +16263,7 @@ parameter auto_settings = "true";
         scan_chain_length = SCAN_CHAIN;
         num_output_cntrs  = 5;
 
-        
+
         phasestep_high_count = 0;
         update_phase = 0;
         // set initial values for counter parameters
@@ -16332,7 +16332,7 @@ parameter auto_settings = "true";
         j = 0;
         inclk_last_value = 0;
 
-    
+
         // initialize clkswitch variables
 
         clk0_is_bad = 0;
@@ -16375,8 +16375,8 @@ parameter auto_settings = "true";
                                     refclk_period, m_val[0]);
         reconfig_err = 0;
         error = 0;
-        
-        
+
+
         c0_rising_edge_transfer_done = 0;
         c1_rising_edge_transfer_done = 0;
         c2_rising_edge_transfer_done = 0;
@@ -16390,16 +16390,16 @@ parameter auto_settings = "true";
 
         vco_over  = 1'b0;
         vco_under = 1'b0;
-        
-        // Initialize the scan chain 
-        
+
+        // Initialize the scan chain
+
         // LF unused : bit 1
         scan_data[-1:0] = 2'b00;
         // LF Capacitance : bits 1,2 : all values are legal
         scan_data[1:2] = loop_filter_c_bits;
         // LF Resistance : bits 3-7
         scan_data[3:7] = loop_filter_r_bits;
-        
+
         // VCO post scale
         if(vco_post_scale == 1)
         begin
@@ -16411,19 +16411,19 @@ parameter auto_settings = "true";
             scan_data[8] = 1'b0;
             vco_val_old_bit_setting = 1'b0;
         end
-            
+
         scan_data[9:13] = 5'b00000;
         // CP
         // Bit 8 : CRBYPASS
         // Bit 9-13 : unused
-        // Bits 14-16 : all values are legal                 
+        // Bits 14-16 : all values are legal
                 scan_data[14:16] = charge_pump_current_bits;
         // store as old values
-        
+
         cp_curr_old_bit_setting = charge_pump_current_bits;
         lfc_val_old_bit_setting = loop_filter_c_bits;
         lfr_val_old_bit_setting = loop_filter_r_bits;
-            
+
         // C counters (start bit 53) bit 1:mode(bypass),bit 2-9:high,bit 10:mode(odd/even),bit 11-18:low
         for (i = 0; i < num_output_cntrs; i = i + 1)
         begin
@@ -16449,20 +16449,20 @@ parameter auto_settings = "true";
             c_val = c_high_val[i];
             for (j = 1; j <= 8; j = j + 1)
                 scan_data[53 + i*18 + j]  = c_val[8 - j];
-   
+
             // 4. Low
             c_val = c_low_val[i];
             for (j = 10; j <= 17; j = j + 1)
                 scan_data[53 + i*18 + j] = c_val[17 - j];
         end
-            
+
         // M counter
         // 1. Mode - bypass (bit 17)
         if (m_mode_val[0] == "bypass")
                 scan_data[35] = 1'b1;
         else
                 scan_data[35] = 1'b0;
-       
+
         // 2. High (bit 18-25)
         // 3. Mode - odd/even (bit 26)
         if (m_val[0] % 2 == 0)
@@ -16472,21 +16472,21 @@ parameter auto_settings = "true";
                 scan_data[36:43]= m_val[0]/2;
                 scan_data[44] = 1'b0;
         end
-        else 
-        begin 
+        else
+        begin
             // M is odd : M high = low + 1
                 scan_data[36:43] = m_val[0]/2 + 1;
-                scan_data[44] = 1'b1;             
+                scan_data[44] = 1'b1;
         end
         // 4. Low (bit 27-34)
             scan_data[45:52] = m_val[0]/2;
 
-        
+
         // N counter
         // 1. Mode - bypass (bit 35)
         if (n_mode_val[0] == "bypass")
                 scan_data[17] = 1'b1;
-        else 
+        else
                 scan_data[17] = 1'b0;
         // 2. High (bit 36-43)
         // 3. Mode - odd/even (bit 44)
@@ -16495,12 +16495,12 @@ parameter auto_settings = "true";
             // N is an even no. : set N high = low,
             // set odd/even bit to 0
                 scan_data[18:25] = n_val[0]/2;
-                scan_data[26] = 1'b0;         
+                scan_data[26] = 1'b0;
         end
-        else 
+        else
         begin // N is odd : N high = N low + 1
                 scan_data[18:25] = n_val[0]/2+ 1;
-                scan_data[26] = 1'b1;         
+                scan_data[26] = 1'b1;
         end
         // 4. Low (bit 45-52)
                 scan_data[27:34] = n_val[0]/2;
@@ -16513,7 +16513,7 @@ parameter auto_settings = "true";
         locked_tmp = 0;
         pll_is_locked = 0;
         no_warn = 1'b0;
-        
+
         pfd_locked = 1'b0;
         cycles_pfd_high = 0;
         cycles_pfd_low  = 0;
@@ -16548,8 +16548,8 @@ parameter auto_settings = "true";
             ic4_use_casc_in = 0;
 
         tap0_is_active = 1;
-        
-// To display clock mapping       
+
+// To display clock mapping
     case( i_clk0_counter)
             "c0" : clk_num[0] = "  clk0";
             "c1" : clk_num[0] = "  clk1";
@@ -16558,7 +16558,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[0] = "  clk4";
             default:clk_num[0] = "unused";
     endcase
-    
+
         case( i_clk1_counter)
             "c0" : clk_num[1] = "  clk0";
             "c1" : clk_num[1] = "  clk1";
@@ -16567,7 +16567,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[1] = "  clk4";
             default:clk_num[1] = "unused";
     endcase
-        
+
     case( i_clk2_counter)
             "c0" : clk_num[2] = "  clk0";
             "c1" : clk_num[2] = "  clk1";
@@ -16576,7 +16576,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[2] = "  clk4";
             default:clk_num[2] = "unused";
     endcase
-        
+
     case( i_clk3_counter)
             "c0" : clk_num[3] = "  clk0";
             "c1" : clk_num[3] = "  clk1";
@@ -16585,7 +16585,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[3] = "  clk4";
             default:clk_num[3] = "unused";
     endcase
-        
+
     case( i_clk4_counter)
             "c0" : clk_num[4] = "  clk0";
             "c1" : clk_num[4] = "  clk1";
@@ -16594,7 +16594,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[4] = "  clk4";
             default:clk_num[4] = "unused";
     endcase
-        
+
 
         end
 
@@ -16605,7 +16605,7 @@ always @(clkswitch)
 begin
     if (clkswitch === 1'b1 && l_switch_over_type == "auto")
         external_switch = 1;
-    else if (l_switch_over_type == "manual") 
+    else if (l_switch_over_type == "manual")
     begin
         if(clkswitch === 1'b1)
             switch_clock = 1'b1;
@@ -16747,7 +16747,7 @@ end
         // actual switching -- automatic switch
         if ((other_clock_value == 1'b1) && (other_clock_value != other_clock_last_value) && l_enable_switch_over_counter == "on" && primary_clk_is_bad)
             switch_over_count = switch_over_count + 1;
-        
+
         if ((other_clock_value == 1'b0) && (other_clock_value != other_clock_last_value))
         begin
             if ((external_switch && (got_curr_clk_falling_edge_after_clkswitch || current_clk_is_bad)) || (primary_clk_is_bad && (clkswitch !== 1'b1) && ((l_enable_switch_over_counter == "off" || switch_over_count == switch_over_counter))))
@@ -16771,7 +16771,7 @@ end
                     current_clock = 1;
                 else
                     current_clock = 0;
-                    
+
                 active_clock = ~active_clock;
                 switch_over_count = 0;
                 external_switch = 0;
@@ -16783,21 +16783,21 @@ end
                         begin
                             current_clock = 1;
                             active_clock = ~active_clock;
-                        end 
-                
+                        end
+
                     if(current_clock == 1 && clk1_is_bad == 1'b1 && clk0_is_bad == 1'b0 )
                         begin
                             current_clock = 0;
                             active_clock = ~active_clock;
                         end
-                end     
+                end
         end
-        
+
         if(l_switch_over_type == "manual")
             inclk_n = inclk_man;
         else
             inclk_n = inclk_es;
-            
+
         inclk0_last_value = inclk[0];
         inclk1_last_value = inclk[1];
         other_clock_last_value = other_clock_value;
@@ -16809,8 +16809,8 @@ end
     and (activeclock, active_clock, 1'b1);
 
 
-    assign inclk_m = (m_test_source == 0) ? fbclk : (m_test_source == 1) ? refclk : inclk_m_from_vco; 
-                       
+    assign inclk_m = (m_test_source == 0) ? fbclk : (m_test_source == 1) ? refclk : inclk_m_from_vco;
+
 
     cda_m_cntr m1 (.clk(inclk_m),
                         .reset(areset || stop_vco),
@@ -16860,7 +16860,7 @@ always @(vco_out)
     always @(vco_tap)
     begin
         // Update phase taps for C/M counters on negative edge of VCO clock output
-        
+
         if (update_phase == 1'b1)
         begin
             for (x = 0; x <= 7; x = x + 1)
@@ -16924,7 +16924,7 @@ always @(vco_out)
     end
 
     assign inclk_c1 = (c1_test_source == 0) ? fbclk : (c1_test_source == 1) ? refclk : (ic1_use_casc_in == 1) ? c0_clk : inclk_c1_from_vco;
-    
+
     cda_scale_cntr c1 (.clk(inclk_c1),
                             .reset(areset || stop_vco),
                             .cout(c1_clk),
@@ -16980,7 +16980,7 @@ always @(vco_out)
     end
 
     assign inclk_c3 = (c3_test_source == 0) ? fbclk : (c3_test_source == 1) ? refclk : (ic3_use_casc_in == 1) ? c2_clk : inclk_c3_from_vco;
-    
+
     cda_scale_cntr c3 (.clk(inclk_c3),
                             .reset(areset  || stop_vco),
                             .cout(c3_clk),
@@ -17034,13 +17034,13 @@ always @(vco_out)
         end
     end
 
-    
+
 assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
 
 // Register scanclk enable
     always @(negedge scanclk)
         scanclkena_reg <= scanclkena;
-        
+
 // Negative edge flip-flop in front of scan-chain
 
     always @(negedge scanclk)
@@ -17050,7 +17050,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
             scandata_in <= scandata;
         end
     end
-   
+
 // Scan chain
     always @(posedge scanclk)
     begin
@@ -17058,15 +17058,15 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
                 got_first_scanclk = 1'b1;
         else
                 scanclk_period = $time - scanclk_last_rising_edge;
-        if (scanclkena_reg) 
-        begin        
+        if (scanclkena_reg)
+        begin
             for (j = scan_chain_length-2; j >= 0; j = j - 1)
                 scan_data[j] = scan_data[j - 1];
             scan_data[-1] <= scandata_in;
         end
         scanclk_last_rising_edge = $realtime;
     end
-    
+
 // Scan output
     assign scandataout_tmp = scan_data[SCAN_CHAIN - 2];
 
@@ -17079,7 +17079,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
             scandata_out <= scandataout_tmp;
         end
     end
-    
+
 // Scan complete
     always @(negedge scandone_tmp)
     begin
@@ -17092,7 +17092,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
 
                 $display("               N modulus =   %0d (%0d) ", n_val[0], n_val_old[0]);
                 $display("               M modulus =   %0d (%0d) ", m_val[0], m_val_old[0]);
-                
+
 
                 for (i = 0; i < num_output_cntrs; i=i+1)
                 begin
@@ -17143,29 +17143,29 @@ begin
                 if (phasecounterselect == 0) // all output counters selected
                 begin
                     for (i = 0; i < num_output_cntrs; i = i + 1)
-                        c_ph_val_tmp[i] = (phaseupdown == 1'b1) ? 
+                        c_ph_val_tmp[i] = (phaseupdown == 1'b1) ?
                                     (c_ph_val_tmp[i] + 1) % num_phase_taps :
                                     (c_ph_val_tmp[i] == 0) ? num_phase_taps - 1 : (c_ph_val_tmp[i] - 1) % num_phase_taps ;
                 end
                 else if (phasecounterselect == 1) // select M counter
                 begin
-                    m_ph_val_tmp = (phaseupdown == 1'b1) ? 
+                    m_ph_val_tmp = (phaseupdown == 1'b1) ?
                                 (m_ph_val + 1) % num_phase_taps :
                                 (m_ph_val == 0) ? num_phase_taps - 1 : (m_ph_val - 1) % num_phase_taps ;
                 end
                 else // select C counters
                 begin
                     select_counter = phasecounterselect - 2;
-                    c_ph_val_tmp[select_counter] =  (phaseupdown == 1'b1) ? 
+                    c_ph_val_tmp[select_counter] =  (phaseupdown == 1'b1) ?
                                             (c_ph_val_tmp[select_counter] + 1) % num_phase_taps :
                                             (c_ph_val_tmp[select_counter] == 0) ? num_phase_taps - 1 : (c_ph_val_tmp[select_counter] - 1) % num_phase_taps ;
                 end
                 update_phase <= 1'b1;
-            end 
-           
+            end
+
         end
         phasestep_high_count = phasestep_high_count + 1;
-       
+
     end
 end
 
@@ -17175,7 +17175,7 @@ begin
     phasestep_reg <= phasestep;
 end
 
-always @(posedge phasestep) 
+always @(posedge phasestep)
 begin
     if (update_phase == 1'b0) phasestep_high_count = 0; // phase adjustments must be 1 cycle apart
                                                         // if not, next phasestep cycle is skipped
@@ -17201,15 +17201,15 @@ assign update_conf_latches = configupdate;
     begin
         initiate_reconfig <= 1'b1;
     end
-   
+
     always @(posedge areset)
     begin
         if (scandone_tmp == 1'b1) scandone_tmp = 1'b0;
     end
-   
+
     always @(posedge scanclk)
     begin
-        if (initiate_reconfig == 1'b1) 
+        if (initiate_reconfig == 1'b1)
         begin
             initiate_reconfig <= 1'b0;
             $display ("NOTE : PLL Reprogramming initiated ....");
@@ -17242,7 +17242,7 @@ assign update_conf_latches = configupdate;
 
             // LF Resistance : bits 3-7
             // valid values - 00000,00100,10000,10100,11000,11011,11100,11110
-            if (((scan_data[3:7] == 5'b00000) || (scan_data[3:7] == 5'b00100)) || 
+            if (((scan_data[3:7] == 5'b00000) || (scan_data[3:7] == 5'b00100)) ||
                 ((scan_data[3:7] == 5'b10000) || (scan_data[3:7] == 5'b10100)) ||
                 ((scan_data[3:7] == 5'b11000) || (scan_data[3:7] == 5'b11011)) ||
                 ((scan_data[3:7] == 5'b11100) || (scan_data[3:7] == 5'b11110))
@@ -17253,7 +17253,7 @@ assign update_conf_latches = configupdate;
                             (scan_data[3:7] == 5'b10000) ? "12" :
                             (scan_data[3:7] == 5'b10100) ? "8" :
                             (scan_data[3:7] == 5'b11000) ? "6" :
-                            (scan_data[3:7] == 5'b11011) ? "4" : 
+                            (scan_data[3:7] == 5'b11011) ? "4" :
                             (scan_data[3:7] == 5'b11100) ? "2" : "1";
             end
 
@@ -17267,9 +17267,9 @@ assign update_conf_latches = configupdate;
             else
             begin
                 i_vco_max = vco_max;
-                i_vco_min = vco_min; 
+                i_vco_min = vco_min;
                 vco_cur = 2;
-            end          
+            end
 
             // CP
             // Bit 8 : CRBYPASS
@@ -17298,13 +17298,13 @@ assign update_conf_latches = configupdate;
                 n_mode_val[0] = "bypass";
             // 3. Mode - odd/even (bit 26)
             else if (scan_data[26] == 1'b1)
-                n_mode_val[0] = "   odd";         
+                n_mode_val[0] = "   odd";
             else
-                n_mode_val[0] = "  even";         
+                n_mode_val[0] = "  even";
             // 2. High (bit 18-25)
                 n_hi = scan_data[18:25];
             // 4. Low (bit 27-34)
-                n_lo = scan_data[27:34]; 
+                n_lo = scan_data[27:34];
 
 
             // N counter
@@ -17316,22 +17316,22 @@ assign update_conf_latches = configupdate;
                 m_mode_val[0] = "   odd";
             else
                 m_mode_val[0] = "  even";
-            
+
             // 2. High (bit 36-43)
                 m_hi = scan_data[36:43];
-            
+
             // 4. Low (bit 45-52)
-                m_lo = scan_data[45:52]; 
+                m_lo = scan_data[45:52];
 
 
-            
+
 //Update the current M and N counter values if the counters are NOT bypassed
 
 if (m_mode_val[0] != "bypass")
 m_val[0] = m_hi + m_lo;
-if (n_mode_val[0] != "bypass")  
+if (n_mode_val[0] != "bypass")
 n_val[0] = n_hi + n_lo;
-            
+
 
 
             // C counters (start bit 53) bit 1:mode(bypass),bit 2-9:high,bit 10:mode(odd/even),bit 11-18:low
@@ -17346,7 +17346,7 @@ n_val[0] = n_hi + n_lo;
                     c_mode_val_tmp[i] = "   odd";
                 else
                     c_mode_val_tmp[i] = "  even";
-                    
+
                 // 2. Hi
                 for (j = 1; j <= 8; j = j + 1)
                     c_val[8-j] = scan_data[53 + i*18 + j];
@@ -17355,18 +17355,18 @@ n_val[0] = n_hi + n_lo;
                     c_high_val_tmp[i] = c_hval[i];
                 else
                     c_high_val_tmp[i] = 9'b100000000;
-                // 4. Low 
+                // 4. Low
                 for (j = 10; j <= 17; j = j + 1)
-                    c_val[17 - j] = scan_data[53 + i*18 + j]; 
+                    c_val[17 - j] = scan_data[53 + i*18 + j];
                 c_lval[i] = c_val[7:0];
                 if (c_lval[i] !== 32'h00000000)
-                    c_low_val_tmp[i] = c_lval[i];  
+                    c_low_val_tmp[i] = c_lval[i];
                 else
-                    c_low_val_tmp[i] = 9'b100000000; 
+                    c_low_val_tmp[i] = 9'b100000000;
             end
 
             // Legality Checks
-            
+
             if (m_mode_val[0] != "bypass")
             begin
             if ((m_hi !== m_lo) && (m_mode_val[0] != "   odd"))
@@ -17381,11 +17381,11 @@ n_val[0] = n_hi + n_lo;
                     m_val_tmp[0] = m_hi + m_lo;
             end
             else
-                m_val_tmp[0] =  9'b100000000; 
+                m_val_tmp[0] =  9'b100000000;
             end
             else
                 m_val_tmp[0] = 8'b00000001;
-                
+
             if (n_mode_val[0] != "bypass")
             begin
             if ((n_hi !== n_lo) && (n_mode_val[0] != "   odd"))
@@ -17400,12 +17400,12 @@ n_val[0] = n_hi + n_lo;
                     n_val[0] = n_hi + n_lo;
             end
             else
-                n_val[0] =  9'b100000000; 
+                n_val[0] =  9'b100000000;
             end
             else
                 n_val[0] = 8'b00000001;
-                           
-                 
+
+
 
 // TODO : Give warnings/errors in the following cases?
 // 1. Illegal counter values (error)
@@ -17414,7 +17414,7 @@ n_val[0] = n_hi + n_lo;
 
         end
     end
-    
+
     // Self reset on loss of lock
     assign reset_self = (l_self_reset_on_loss_lock == "on") ? ~pll_is_locked : 1'b0;
 
@@ -17423,20 +17423,20 @@ n_val[0] = n_hi + n_lo;
         $display (" Note : %s PLL self reset due to loss of lock", family_name);
         $display ("Time: %0t  Instance: %m", $time);
     end
-    
+
     // Phase shift on /o counters
-    
+
     always @(schedule_vco or areset)
     begin
         sched_time = 0;
-    
+
         for (i = 0; i <= 7; i=i+1)
             last_phase_shift[i] = phase_shift[i];
-     
+
         cycle_to_adjust = 0;
         l_index = 1;
         m_times_vco_period = new_m_times_vco_period;
-            
+
         // give appropriate messages
         // if areset was asserted
         if (areset === 1'b1 && areset_last_value !== areset)
@@ -17452,24 +17452,24 @@ n_val[0] = n_hi + n_lo;
             for (x = 0; x <= 7; x=x+1)
                 vco_tap[x] <= 1'b0;
         end
-    
+
         // illegal value on areset
         if (areset === 1'bx && (areset_last_value === 1'b0 || areset_last_value === 1'b1))
         begin
             $display("Warning : Illegal value 'X' detected on ARESET input");
             $display ("Time: %0t  Instance: %m", $time);
         end
-    
+
         if ((areset == 1'b1))
         begin
             pll_is_in_reset = 1;
             got_first_refclk = 0;
             got_second_refclk = 0;
         end
-                            
+
         if ((schedule_vco !== schedule_vco_last_value) && (areset == 1'b1 || stop_vco == 1'b1))
         begin
-   
+
             // drop VCO taps to 0
             for (i = 0; i <= 7; i=i+1)
             begin
@@ -17478,12 +17478,12 @@ n_val[0] = n_hi + n_lo;
                 phase_shift[i] = 0;
                 last_phase_shift[i] = 0;
             end
-    
+
             // reset lock parameters
             pll_is_locked = 0;
             cycles_to_lock = 0;
             cycles_to_unlock = 0;
-    
+
             got_first_refclk = 0;
             got_second_refclk = 0;
             refclk_time = 0;
@@ -17491,7 +17491,7 @@ n_val[0] = n_hi + n_lo;
             fbclk_time = 0;
             first_fbclk_time = 0;
             fbclk_period = 0;
-    
+
             first_schedule = 1;
             vco_val = 0;
             vco_period_was_phase_adjusted = 0;
@@ -17501,7 +17501,7 @@ n_val[0] = n_hi + n_lo;
             m_ph_val = m_ph_val_orig;
             for (i=0; i<= 5; i=i+1)
                 c_ph_val[i] = c_ph_val_orig[i];
-    
+
         end else if (areset === 1'b0 && stop_vco === 1'b0)
         begin
             // else note areset deassert time
@@ -17513,46 +17513,46 @@ n_val[0] = n_hi + n_lo;
                 locked_tmp = 1'b0;
             end
             pll_is_in_reset = 0;
-    
+
             // calculate loop_xplier : this will be different from m_val in ext. fbk mode
             loop_xplier = m_val[0];
             loop_initial = i_m_initial - 1;
             loop_ph = m_ph_val;
-    
+
             // convert initial value to delay
             initial_delay = (loop_initial * m_times_vco_period)/loop_xplier;
-    
+
             // convert loop ph_tap to delay
             rem = m_times_vco_period % loop_xplier;
             vco_per = m_times_vco_period/loop_xplier;
             if (rem != 0)
                 vco_per = vco_per + 1;
             fbk_phase = (loop_ph * vco_per)/8;
-    
+
             pull_back_M = initial_delay + fbk_phase;
-    
+
             total_pull_back = pull_back_M;
             if (l_simulation_type == "timing")
                 total_pull_back = total_pull_back + pll_compensation_delay;
-    
+
             while (total_pull_back > refclk_period)
                 total_pull_back = total_pull_back - refclk_period;
-    
+
             if (total_pull_back > 0)
                 offset = refclk_period - total_pull_back;
             else
                 offset = 0;
-    
+
             fbk_delay = total_pull_back - fbk_phase;
             if (fbk_delay < 0)
             begin
                 offset = offset - fbk_phase;
                 fbk_delay = total_pull_back;
             end
-    
+
             // assign m_delay
             m_delay = fbk_delay;
-    
+
             for (i = 1; i <= loop_xplier; i=i+1)
             begin
                 // adjust cycles
@@ -17569,13 +17569,13 @@ n_val[0] = n_hi + n_lo;
                     tmp_vco_per = tmp_vco_per + 1;
                     l_index = l_index + 1;
                 end
-    
+
                 // calculate high and low periods
                 high_time = tmp_vco_per/2;
                 if (tmp_vco_per % 2 != 0)
                     high_time = high_time + 1;
                 low_time = tmp_vco_per - high_time;
-    
+
                 // schedule the rising and falling egdes
                 for (j=0; j<=1; j=j+1)
                 begin
@@ -17584,7 +17584,7 @@ n_val[0] = n_hi + n_lo;
                         sched_time = sched_time + high_time;
                     else
                         sched_time = sched_time + low_time;
-    
+
                     // schedule taps with appropriate phase shifts
                     for (k = 0; k <= 7; k=k+1)
                     begin
@@ -17618,19 +17618,19 @@ n_val[0] = n_hi + n_lo;
                 new_m_times_vco_period = refclk_period;
                 vco_period_was_phase_adjusted = 0;
                 phase_adjust_was_scheduled = 1;
-    
+
                 tmp_vco_per = m_times_vco_period/loop_xplier;
                 for (k = 0; k <= 7; k=k+1)
                     phase_shift[k] = (k*tmp_vco_per)/8;
             end
         end
-    
+
         areset_last_value = areset;
         schedule_vco_last_value = schedule_vco;
-    
+
     end
 
-    assign pfdena_wire = (pfdena === 1'b0) ? 1'b0 : 1'b1; 
+    assign pfdena_wire = (pfdena === 1'b0) ? 1'b0 : 1'b1;
     // PFD enable
     always @(pfdena_wire)
     begin
@@ -17660,7 +17660,7 @@ n_val[0] = n_hi + n_lo;
     end
 
     // Bypass lock detect
-        
+
     always @(posedge refclk)
     begin
     if (test_bypass_lock_detect == "on")
@@ -17695,7 +17695,7 @@ n_val[0] = n_hi + n_lo;
                 end
         end
     end
-    
+
     always @(posedge scandone_tmp or posedge locked_tmp)
     begin
         if(scandone_tmp == 1)
@@ -17703,7 +17703,7 @@ n_val[0] = n_hi + n_lo;
         else
             pll_has_just_been_reconfigured <= 0;
     end
-    
+
     // VCO Frequency Range check
     always @(posedge refclk or posedge fbclk)
     begin
@@ -17719,9 +17719,9 @@ n_val[0] = n_hi + n_lo;
 
                 // check if incoming freq. will cause VCO range to be
                 // exceeded
-                if ((i_vco_max != 0 && i_vco_min != 0) && (pfdena_wire === 1'b1) &&        
-                    ((refclk_period/loop_xplier > i_vco_max) || 
-                    (refclk_period/loop_xplier < i_vco_min)) ) 
+                if ((i_vco_max != 0 && i_vco_min != 0) && (pfdena_wire === 1'b1) &&
+                    ((refclk_period/loop_xplier > i_vco_max) ||
+                    (refclk_period/loop_xplier < i_vco_min)) )
                 begin
                     if (pll_is_locked == 1'b1)
                     begin
@@ -17785,7 +17785,7 @@ n_val[0] = n_hi + n_lo;
         end
 
         // Update M counter value on feedback clock edge
-        
+
         if (fbclk == 1'b1 && fbclk_last_value !== fbclk)
         begin
             if (update_conf_latches === 1'b1)
@@ -17831,10 +17831,10 @@ n_val[0] = n_hi + n_lo;
             end
             fbclk_time = $time;
         end
-        
-                
+
+
         // Core lock functionality
-        
+
         if (got_second_refclk && pfdena_wire === 1'b1 && (!inclk_out_of_range))
         begin
             // now we know actual incoming period
@@ -18292,7 +18292,7 @@ endmodule // cycloneiiigl_post_divider
 // Module Name : MF_cycloneiiigl_pll
 //
 // Description : Simulation model for the cycloneiiigl PLL.
-// 
+//
 // Limitations : Does not support Spread Spectrum and Bandwidth.
 //
 // Outputs     : Up to 10 output clocks, each defined by its own set of
@@ -18360,7 +18360,7 @@ module MF_cycloneiiigl_pll (inclk,
     parameter lock_low = 0;  // 0 .. 7
     parameter lock_window_ui = "0.05"; // "0.05", "0.1", "0.15", "0.2"
     parameter test_bypass_lock_detect              = "off";
-    
+
     parameter clk0_output_frequency                = 0;
     parameter clk0_multiply_by                     = 0;
     parameter clk0_divide_by                       = 0;
@@ -18496,19 +18496,19 @@ module MF_cycloneiiigl_pll (inclk,
     parameter clk4_use_even_counter_value = "off";
 
     // TEST ONLY
-    
+
     parameter init_block_reset_a_count = 1;
     parameter init_block_reset_b_count = 1;
 
 // SIMULATION_ONLY_PARAMETERS_END
-    
+
 // LOCAL_PARAMETERS_BEGIN
 
     parameter phase_counter_select_width = 3;
     parameter lock_window = 5000;
     parameter inclk0_freq = inclk0_input_frequency * 1000;
     parameter inclk1_freq = inclk1_input_frequency * 1000;
-   
+
 parameter charge_pump_current_bits = 0;
 parameter lock_window_ui_bits = 0;
 parameter loop_filter_c_bits = 0;
@@ -18527,13 +18527,13 @@ parameter test_volt_reg_output_voltage_bits = 0;
 parameter test_volt_reg_test_mode = "false";
 parameter vco_range_detector_high_bits = -1;
 parameter vco_range_detector_low_bits = -1;
-parameter scan_chain_mif_file = ""; 
+parameter scan_chain_mif_file = "";
 
 
 parameter auto_settings = "true";
 
 // LOCAL_PARAMETERS_END
- 
+
     // INPUT PORTS
     input [1:0] inclk;
     input fbin;
@@ -18591,8 +18591,8 @@ parameter auto_settings = "true";
     buf (scandata_ipd, scandata);
     buf (scanclkena_ipd, scanclkena);
     buf (configupdate_ipd, configupdate);
-    
-        
+
+
 
     // INTERNAL VARIABLES AND NETS
     reg [8*6:1] clk_num[0:4];
@@ -18657,7 +18657,7 @@ parameter auto_settings = "true";
     reg pfdena_ipd_last_value;
     reg inclk_out_of_range;
     reg schedule_vco_last_value;
-    
+
     // Test bypass lock detect
     reg pfd_locked;
     integer cycles_pfd_low, cycles_pfd_high;
@@ -18682,7 +18682,7 @@ parameter auto_settings = "true";
 
     // VCO Frequency Range control
     reg vco_over, vco_under;
-   
+
     // temporary registers for reprogramming
     integer c_ph_val_tmp[0:9];
     reg [31:0] c_high_val_tmp[0:9];
@@ -18722,7 +18722,7 @@ parameter auto_settings = "true";
     reg vco_val_bit_setting, vco_val_old_bit_setting;
     reg [3:7] lfr_val_bit_setting, lfr_val_old_bit_setting;
     reg [14:16] cp_curr_bit_setting, cp_curr_old_bit_setting;
-    
+
     // Setting on  - display real values
     // Setting off - display only bits
     reg pll_reconfig_display_full_setting;
@@ -18751,13 +18751,13 @@ parameter auto_settings = "true";
     wire inclk_c2;
     wire inclk_c3;
     wire inclk_c4;
-    
+
     wire  inclk_c0_from_vco;
     wire  inclk_c1_from_vco;
     wire  inclk_c2_from_vco;
     wire  inclk_c3_from_vco;
     wire  inclk_c4_from_vco;
-    
+
     wire  inclk_m_from_vco;
 
     wire inclk_m;
@@ -18784,7 +18784,7 @@ parameter auto_settings = "true";
 
     wire pllena_reg;
     wire test_mode_inclk;
- 
+
     // Self Reset
     wire reset_self;
 
@@ -18838,16 +18838,16 @@ parameter auto_settings = "true";
 
     integer num_output_cntrs;
     reg no_warn;
-    
+
     // Phase reconfig
-    
+
     reg [2:0] phasecounterselect_reg;
     reg phaseupdown_reg;
     reg phasestep_reg;
     integer select_counter;
     integer phasestep_high_count;
     reg update_phase;
-    
+
 
 // LOCAL_PARAMETERS_BEGIN
 
@@ -18940,7 +18940,7 @@ parameter auto_settings = "true";
     reg [8*`CYCIIIGL_PLL_WORD_LENGTH:1] l_vco_frequency_control;
     reg [8*`CYCIIIGL_PLL_WORD_LENGTH:1] l_enable_switch_over_counter;
     reg [8*`CYCIIIGL_PLL_WORD_LENGTH:1] l_self_reset_on_loss_lock;
-    
+
 
 
     integer current_clock;
@@ -18960,21 +18960,21 @@ parameter auto_settings = "true";
 
 
 
-    // finds the closest integer fraction of a given pair of numerator and denominator. 
+    // finds the closest integer fraction of a given pair of numerator and denominator.
     task find_simple_integer_fraction;
         input numerator;
         input denominator;
         input max_denom;
-        output fraction_num; 
-        output fraction_div; 
+        output fraction_num;
+        output fraction_div;
         parameter max_iter = 20;
-        
+
         integer numerator;
         integer denominator;
         integer max_denom;
-        integer fraction_num; 
-        integer fraction_div; 
-        
+        integer fraction_num;
+        integer fraction_div;
+
         integer quotient_array[max_iter-1:0];
         integer int_loop_iter;
         integer int_quot;
@@ -18988,20 +18988,20 @@ parameter auto_settings = "true";
         integer den;
         integer i_max_iter;
 
-    begin      
+    begin
         loop_iter = 0;
         num = (numerator == 0) ? 1 : numerator;
         den = (denominator == 0) ? 1 : denominator;
         i_max_iter = max_iter;
-       
+
         while (loop_iter < i_max_iter)
         begin
             int_quot = num / den;
             quotient_array[loop_iter] = int_quot;
             num = num - (den*int_quot);
             loop_iter=loop_iter+1;
-            
-            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter)) 
+
+            if ((num == 0) || (max_denom != -1) || (loop_iter == i_max_iter))
             begin
                 // calculate the numerator and denominator if there is a restriction on the
                 // max denom value or if the loop is ending
@@ -19106,7 +19106,7 @@ parameter auto_settings = "true";
             result = (result / 10);
             count = count + 1;
         end
-        
+
         count_digit = count;
     end
     endfunction
@@ -19120,7 +19120,7 @@ parameter auto_settings = "true";
     begin
         fac_ten = 1;
         count = count_digit(X);
-        
+
         for (lc = 0; lc < (count-Y); lc = lc + 1)
             fac_ten = fac_ten * 10;
 
@@ -19184,7 +19184,7 @@ parameter auto_settings = "true";
             R = scale_num(M9, 3);
         else
             R = M9;
-        lcm = R; 
+        lcm = R;
     end
     endfunction
 
@@ -19204,8 +19204,8 @@ parameter auto_settings = "true";
         input clk5_div,  clk6_div,  clk7_div,  clk8_div,  clk9_div;
         input clk0_used,  clk1_used,  clk2_used,  clk3_used,  clk4_used;
         input clk5_used,  clk6_used,  clk7_used,  clk8_used,  clk9_used;
-        output m; 
-        output n; 
+        output m;
+        output n;
 
         parameter max_m = 511;
         parameter max_n = 511;
@@ -19214,24 +19214,24 @@ parameter auto_settings = "true";
         parameter max_vco = 1300;
         parameter min_vco = 300;
         parameter max_offset = 0.004;
-        
+
         reg[160:1] clk0_used,  clk1_used,  clk2_used,  clk3_used,  clk4_used;
         reg[160:1] clk5_used,  clk6_used,  clk7_used,  clk8_used,  clk9_used;
-        
+
         integer inclock_period;
         integer vco_phase_shift_step;
         integer clk0_mult, clk1_mult, clk2_mult, clk3_mult, clk4_mult;
         integer clk5_mult, clk6_mult, clk7_mult, clk8_mult, clk9_mult;
         integer clk0_div,  clk1_div,  clk2_div,  clk3_div,  clk4_div;
         integer clk5_div,  clk6_div,  clk7_div,  clk8_div,  clk9_div;
-        integer m; 
+        integer m;
         integer n;
         integer pre_m;
         integer pre_n;
         integer m_out;
         integer n_out;
         integer closest_vco_step_value;
-        
+
         integer vco_period;
         integer pfd_freq;
         integer vco_freq;
@@ -19289,7 +19289,7 @@ parameter auto_settings = "true";
                         clk7_div_factor_real = (clk7_div * m_out * 1.0) / (clk7_mult * n_out);
                         clk8_div_factor_real = (clk8_div * m_out * 1.0) / (clk8_mult * n_out);
                         clk9_div_factor_real = (clk9_div * m_out * 1.0) / (clk9_mult * n_out);
-        
+
                         clk0_div_factor_int = clk0_div_factor_real;
                         clk1_div_factor_int = clk1_div_factor_real;
                         clk2_div_factor_int = clk2_div_factor_real;
@@ -19300,7 +19300,7 @@ parameter auto_settings = "true";
                         clk7_div_factor_int = clk7_div_factor_real;
                         clk8_div_factor_int = clk8_div_factor_real;
                         clk9_div_factor_int = clk9_div_factor_real;
-                        
+
                         clk0_div_factor_diff = (clk0_div_factor_real - clk0_div_factor_int < 0) ? (clk0_div_factor_real - clk0_div_factor_int) * -1.0 : clk0_div_factor_real - clk0_div_factor_int;
                         clk1_div_factor_diff = (clk1_div_factor_real - clk1_div_factor_int < 0) ? (clk1_div_factor_real - clk1_div_factor_int) * -1.0 : clk1_div_factor_real - clk1_div_factor_int;
                         clk2_div_factor_diff = (clk2_div_factor_real - clk2_div_factor_int < 0) ? (clk2_div_factor_real - clk2_div_factor_int) * -1.0 : clk2_div_factor_real - clk2_div_factor_int;
@@ -19311,8 +19311,8 @@ parameter auto_settings = "true";
                         clk7_div_factor_diff = (clk7_div_factor_real - clk7_div_factor_int < 0) ? (clk7_div_factor_real - clk7_div_factor_int) * -1.0 : clk7_div_factor_real - clk7_div_factor_int;
                         clk8_div_factor_diff = (clk8_div_factor_real - clk8_div_factor_int < 0) ? (clk8_div_factor_real - clk8_div_factor_int) * -1.0 : clk8_div_factor_real - clk8_div_factor_int;
                         clk9_div_factor_diff = (clk9_div_factor_real - clk9_div_factor_int < 0) ? (clk9_div_factor_real - clk9_div_factor_int) * -1.0 : clk9_div_factor_real - clk9_div_factor_int;
-                        
-        
+
+
                         if (((clk0_div_factor_diff < max_offset) || (clk0_used == "unused")) &&
                             ((clk1_div_factor_diff < max_offset) || (clk1_used == "unused")) &&
                             ((clk2_div_factor_diff < max_offset) || (clk2_used == "unused")) &&
@@ -19323,13 +19323,13 @@ parameter auto_settings = "true";
                             ((clk7_div_factor_diff < max_offset) || (clk7_used == "unused")) &&
                             ((clk8_div_factor_diff < max_offset) || (clk8_used == "unused")) &&
                             ((clk9_div_factor_diff < max_offset) || (clk9_used == "unused")) )
-                        begin                
+                        begin
                             if ((m_out != 0) && (n_out != 0))
                             begin
                                 pfd_freq = 1000000 / (inclock_period * n_out);
                                 vco_freq = (1000000 * m_out) / (inclock_period * n_out);
                                 vco_ps_step_value = (inclock_period * n_out) / (8 * m_out);
-                
+
                                 if ( (m_out < max_m) && (n_out < max_n) && (pfd_freq >= min_pfd) && (pfd_freq <= max_pfd) &&
                                     (vco_freq >= min_vco) && (vco_freq <= max_vco) )
                                 begin
@@ -19354,7 +19354,7 @@ parameter auto_settings = "true";
                     end
                 end
         end
-        
+
         if ((pre_m != 0) && (pre_n != 0))
         begin
             find_simple_integer_fraction(pre_m, pre_n,
@@ -19365,7 +19365,7 @@ parameter auto_settings = "true";
             n = 1;
             m = lcm  (clk0_mult, clk1_mult, clk2_mult, clk3_mult,
                     clk4_mult, clk5_mult, clk6_mult,
-                    clk7_mult, clk8_mult, clk9_mult, inclock_period);           
+                    clk7_mult, clk8_mult, clk9_mult, inclock_period);
         end
     end
     endtask // find_m_and_n_4_manual_phase
@@ -19503,7 +19503,7 @@ parameter auto_settings = "true";
     end
     endfunction
 
-    // adjust the given tap_phase by adding the largest negative number (ph_base) 
+    // adjust the given tap_phase by adding the largest negative number (ph_base)
     function integer ph_adjust;
     input tap_phase, ph_base;
     integer tap_phase, ph_base;
@@ -19512,7 +19512,7 @@ parameter auto_settings = "true";
     end
     endfunction
 
-    // find the number of VCO clock cycles to wait initially before the first 
+    // find the number of VCO clock cycles to wait initially before the first
     // rising edge of the output clock
     function integer counter_initial;
     input tap_phase, m, n;
@@ -19559,7 +19559,7 @@ parameter auto_settings = "true";
     endfunction
 
     // convert string to integer with sign
-    function integer str2int; 
+    function integer str2int;
     input [8*16:1] s;
 
     reg [8*16:1] reg_s;
@@ -19578,7 +19578,7 @@ parameter auto_settings = "true";
             digit = tmp & 8'b00001111;
             reg_s = reg_s << 8;
             // Accumulate ascii digits 0-9 only.
-            if ((tmp>=48) && (tmp<=57)) 
+            if ((tmp>=48) && (tmp<=57))
                 magnitude = (magnitude * 10) + digit;
             if (tmp == 45)
                 sign = -1;  // Found a '-' character, i.e. number is negative.
@@ -19589,25 +19589,25 @@ parameter auto_settings = "true";
 
     // this is for cycloneiiigl lvds only
     // convert phase delay to integer
-    function integer get_int_phase_shift; 
+    function integer get_int_phase_shift;
     input [8*16:1] s;
     input i_phase_shift;
     integer i_phase_shift;
 
     begin
         if (i_phase_shift != 0)
-        begin                   
+        begin
             get_int_phase_shift = i_phase_shift;
-        end       
+        end
         else
         begin
             get_int_phase_shift = str2int(s);
-        end        
+        end
     end
     endfunction
 
     // calculate the given phase shift (in ps) in terms of degrees
-    function integer get_phase_degree; 
+    function integer get_phase_degree;
     input phase_shift;
     integer phase_shift, result;
     begin
@@ -19651,7 +19651,7 @@ parameter auto_settings = "true";
             else
                 return_string = {return_string, tmp};
         end
-    
+
         alpha_tolower = return_string;
     end
     endfunction
@@ -19694,19 +19694,19 @@ parameter auto_settings = "true";
         l_vco_frequency_control      = alpha_tolower(vco_frequency_control);
         l_enable_switch_over_counter = alpha_tolower(enable_switch_over_counter);
         l_self_reset_on_loss_lock    = alpha_tolower(self_reset_on_loss_lock);
-    
-        real_lock_high = (l_sim_gate_lock_device_behavior == "on") ? lock_high : 0;    
+
+        real_lock_high = (l_sim_gate_lock_device_behavior == "on") ? lock_high : 0;
         // initialize charge_pump_current, and loop_filter tables
         loop_filter_c_arr[0] = 0;
         loop_filter_c_arr[1] = 0;
         loop_filter_c_arr[2] = 0;
         loop_filter_c_arr[3] = 0;
-        
+
         fpll_loop_filter_c_arr[0] = 0;
         fpll_loop_filter_c_arr[1] = 0;
         fpll_loop_filter_c_arr[2] = 0;
         fpll_loop_filter_c_arr[3] = 0;
-        
+
         charge_pump_curr_arr[0] = 0;
         charge_pump_curr_arr[1] = 0;
         charge_pump_curr_arr[2] = 0;
@@ -19725,7 +19725,7 @@ parameter auto_settings = "true";
         charge_pump_curr_arr[15] = 0;
 
         i_vco_max = vco_max * (vco_post_scale/2) * 1000;
-        i_vco_min = vco_min * (vco_post_scale/2) * 1000;  
+        i_vco_min = vco_min * (vco_post_scale/2) * 1000;
 
 
         if (m == 0)
@@ -19745,12 +19745,12 @@ parameter auto_settings = "true";
         end
 
         if (m == 0)
-        begin 
+        begin
 
             // set the limit of the divide_by value that can be returned by
             // the following function.
             max_d_value = 500;
-            
+
             // scale down the multiply_by and divide_by values provided by the design
             // before attempting to use them in the calculations below
             find_simple_integer_fraction(clk0_multiply_by, clk0_divide_by,
@@ -19770,13 +19770,13 @@ parameter auto_settings = "true";
                 find_m_and_n_4_manual_phase(inclk0_input_frequency, vco_phase_shift_step,
                             i_clk0_mult_by, i_clk1_mult_by,
                             i_clk2_mult_by, i_clk3_mult_by,i_clk4_mult_by,
-                1, 1, 1, 1, 1, 
+                1, 1, 1, 1, 1,
                             i_clk0_div_by, i_clk1_div_by,
                             i_clk2_div_by, i_clk3_div_by,i_clk4_div_by,
-                1, 1, 1, 1, 1, 
+                1, 1, 1, 1, 1,
                             clk0_counter, clk1_counter,
                             clk2_counter, clk3_counter,clk4_counter,
-                "unused", "unused", "unused", "unused", "unused", 
+                "unused", "unused", "unused", "unused", "unused",
                             i_m, i_n);
             end
             else if (((l_pll_type == "fast") || (l_pll_type == "lvds") || (l_pll_type == "left_right")) && (vco_multiply_by != 0) && (vco_divide_by != 0))
@@ -19796,7 +19796,7 @@ parameter auto_settings = "true";
                 else
                     i_m = lcm  (i_clk0_mult_by, i_clk1_mult_by,
                             i_clk2_mult_by, i_clk3_mult_by,i_clk4_mult_by,
-                1, 1, 1, 1, 1, 
+                1, 1, 1, 1, 1,
                             inclk0_input_frequency);
             end
 
@@ -19867,7 +19867,7 @@ parameter auto_settings = "true";
 
             i_m_ph    = counter_ph(get_phase_degree(max_neg_abs), i_m, i_n);
             i_m_initial = counter_initial(get_phase_degree(max_neg_abs), i_m, i_n);
-            
+
             i_c_ph[0] = counter_ph(get_phase_degree(ph_adjust(i_clk0_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[1] = counter_ph(get_phase_degree(ph_adjust(i_clk1_phase_shift, max_neg_abs)), i_m, i_n);
             i_c_ph[2] = counter_ph(get_phase_degree(ph_adjust(i_clk2_phase_shift, max_neg_abs)), i_m, i_n);
@@ -19876,7 +19876,7 @@ parameter auto_settings = "true";
 
 
         end
-        else 
+        else
         begin //  m != 0
 
             i_n = n;
@@ -19910,7 +19910,7 @@ parameter auto_settings = "true";
             i_m_initial = m_initial;
 
         end // user to advanced conversion
-        
+
         switch_clock = 1'b0;
 
         refclk_period = inclk0_freq * i_n;
@@ -19961,7 +19961,7 @@ parameter auto_settings = "true";
         scan_chain_length = SCAN_CHAIN;
         num_output_cntrs  = 5;
 
-        
+
         phasestep_high_count = 0;
         update_phase = 0;
         // set initial values for counter parameters
@@ -20030,7 +20030,7 @@ parameter auto_settings = "true";
         j = 0;
         inclk_last_value = 0;
 
-    
+
         // initialize clkswitch variables
 
         clk0_is_bad = 0;
@@ -20073,8 +20073,8 @@ parameter auto_settings = "true";
                                     refclk_period, m_val[0]);
         reconfig_err = 0;
         error = 0;
-        
-        
+
+
         c0_rising_edge_transfer_done = 0;
         c1_rising_edge_transfer_done = 0;
         c2_rising_edge_transfer_done = 0;
@@ -20088,16 +20088,16 @@ parameter auto_settings = "true";
 
         vco_over  = 1'b0;
         vco_under = 1'b0;
-        
-        // Initialize the scan chain 
-        
+
+        // Initialize the scan chain
+
         // LF unused : bit 1
         scan_data[-1:0] = 2'b00;
         // LF Capacitance : bits 1,2 : all values are legal
         scan_data[1:2] = loop_filter_c_bits;
         // LF Resistance : bits 3-7
         scan_data[3:7] = loop_filter_r_bits;
-        
+
         // VCO post scale
         if(vco_post_scale == 1)
         begin
@@ -20109,19 +20109,19 @@ parameter auto_settings = "true";
             scan_data[8] = 1'b0;
             vco_val_old_bit_setting = 1'b0;
         end
-            
+
         scan_data[9:13] = 5'b00000;
         // CP
         // Bit 8 : CRBYPASS
         // Bit 9-13 : unused
-        // Bits 14-16 : all values are legal                 
+        // Bits 14-16 : all values are legal
                 scan_data[14:16] = charge_pump_current_bits;
         // store as old values
-        
+
         cp_curr_old_bit_setting = charge_pump_current_bits;
         lfc_val_old_bit_setting = loop_filter_c_bits;
         lfr_val_old_bit_setting = loop_filter_r_bits;
-            
+
         // C counters (start bit 53) bit 1:mode(bypass),bit 2-9:high,bit 10:mode(odd/even),bit 11-18:low
         for (i = 0; i < num_output_cntrs; i = i + 1)
         begin
@@ -20147,20 +20147,20 @@ parameter auto_settings = "true";
             c_val = c_high_val[i];
             for (j = 1; j <= 8; j = j + 1)
                 scan_data[53 + i*18 + j]  = c_val[8 - j];
-   
+
             // 4. Low
             c_val = c_low_val[i];
             for (j = 10; j <= 17; j = j + 1)
                 scan_data[53 + i*18 + j] = c_val[17 - j];
         end
-            
+
         // M counter
         // 1. Mode - bypass (bit 17)
         if (m_mode_val[0] == "bypass")
                 scan_data[35] = 1'b1;
         else
                 scan_data[35] = 1'b0;
-       
+
         // 2. High (bit 18-25)
         // 3. Mode - odd/even (bit 26)
         if (m_val[0] % 2 == 0)
@@ -20170,21 +20170,21 @@ parameter auto_settings = "true";
                 scan_data[36:43]= m_val[0]/2;
                 scan_data[44] = 1'b0;
         end
-        else 
-        begin 
+        else
+        begin
             // M is odd : M high = low + 1
                 scan_data[36:43] = m_val[0]/2 + 1;
-                scan_data[44] = 1'b1;             
+                scan_data[44] = 1'b1;
         end
         // 4. Low (bit 27-34)
             scan_data[45:52] = m_val[0]/2;
 
-        
+
         // N counter
         // 1. Mode - bypass (bit 35)
         if (n_mode_val[0] == "bypass")
                 scan_data[17] = 1'b1;
-        else 
+        else
                 scan_data[17] = 1'b0;
         // 2. High (bit 36-43)
         // 3. Mode - odd/even (bit 44)
@@ -20193,12 +20193,12 @@ parameter auto_settings = "true";
             // N is an even no. : set N high = low,
             // set odd/even bit to 0
                 scan_data[18:25] = n_val[0]/2;
-                scan_data[26] = 1'b0;         
+                scan_data[26] = 1'b0;
         end
-        else 
+        else
         begin // N is odd : N high = N low + 1
                 scan_data[18:25] = n_val[0]/2+ 1;
-                scan_data[26] = 1'b1;         
+                scan_data[26] = 1'b1;
         end
         // 4. Low (bit 45-52)
                 scan_data[27:34] = n_val[0]/2;
@@ -20211,7 +20211,7 @@ parameter auto_settings = "true";
         locked_tmp = 0;
         pll_is_locked = 0;
         no_warn = 1'b0;
-        
+
         pfd_locked = 1'b0;
         cycles_pfd_high = 0;
         cycles_pfd_low  = 0;
@@ -20246,8 +20246,8 @@ parameter auto_settings = "true";
             ic4_use_casc_in = 0;
 
         tap0_is_active = 1;
-        
-// To display clock mapping       
+
+// To display clock mapping
     case( i_clk0_counter)
             "c0" : clk_num[0] = "  clk0";
             "c1" : clk_num[0] = "  clk1";
@@ -20256,7 +20256,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[0] = "  clk4";
             default:clk_num[0] = "unused";
     endcase
-    
+
         case( i_clk1_counter)
             "c0" : clk_num[1] = "  clk0";
             "c1" : clk_num[1] = "  clk1";
@@ -20265,7 +20265,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[1] = "  clk4";
             default:clk_num[1] = "unused";
     endcase
-        
+
     case( i_clk2_counter)
             "c0" : clk_num[2] = "  clk0";
             "c1" : clk_num[2] = "  clk1";
@@ -20274,7 +20274,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[2] = "  clk4";
             default:clk_num[2] = "unused";
     endcase
-        
+
     case( i_clk3_counter)
             "c0" : clk_num[3] = "  clk0";
             "c1" : clk_num[3] = "  clk1";
@@ -20283,7 +20283,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[3] = "  clk4";
             default:clk_num[3] = "unused";
     endcase
-        
+
     case( i_clk4_counter)
             "c0" : clk_num[4] = "  clk0";
             "c1" : clk_num[4] = "  clk1";
@@ -20292,7 +20292,7 @@ parameter auto_settings = "true";
             "c4" : clk_num[4] = "  clk4";
             default:clk_num[4] = "unused";
     endcase
-        
+
 
         end
 
@@ -20303,7 +20303,7 @@ always @(clkswitch_ipd)
 begin
     if (clkswitch_ipd === 1'b1 && l_switch_over_type == "auto")
         external_switch = 1;
-    else if (l_switch_over_type == "manual") 
+    else if (l_switch_over_type == "manual")
     begin
         if(clkswitch_ipd === 1'b1)
             switch_clock = 1'b1;
@@ -20445,7 +20445,7 @@ end
         // actual switching -- automatic switch
         if ((other_clock_value == 1'b1) && (other_clock_value != other_clock_last_value) && l_enable_switch_over_counter == "on" && primary_clk_is_bad)
             switch_over_count = switch_over_count + 1;
-        
+
         if ((other_clock_value == 1'b0) && (other_clock_value != other_clock_last_value))
         begin
             if ((external_switch && (got_curr_clk_falling_edge_after_clkswitch || current_clk_is_bad)) || (primary_clk_is_bad && (clkswitch_ipd !== 1'b1) && ((l_enable_switch_over_counter == "off" || switch_over_count == switch_over_counter))))
@@ -20469,7 +20469,7 @@ end
                     current_clock = 1;
                 else
                     current_clock = 0;
-                    
+
                 active_clock = ~active_clock;
                 switch_over_count = 0;
                 external_switch = 0;
@@ -20481,21 +20481,21 @@ end
                         begin
                             current_clock = 1;
                             active_clock = ~active_clock;
-                        end 
-                
+                        end
+
                     if(current_clock == 1 && clk1_is_bad == 1'b1 && clk0_is_bad == 1'b0 )
                         begin
                             current_clock = 0;
                             active_clock = ~active_clock;
                         end
-                end     
+                end
         end
-        
+
         if(l_switch_over_type == "manual")
             inclk_n = inclk_man;
         else
             inclk_n = inclk_es;
-            
+
         inclk0_last_value = inclk0_ipd;
         inclk1_last_value = inclk1_ipd;
         other_clock_last_value = other_clock_value;
@@ -20507,8 +20507,8 @@ end
     and (activeclock, active_clock, 1'b1);
 
 
-    assign inclk_m = (m_test_source == 0) ? fbclk : (m_test_source == 1) ? refclk : inclk_m_from_vco; 
-                       
+    assign inclk_m = (m_test_source == 0) ? fbclk : (m_test_source == 1) ? refclk : inclk_m_from_vco;
+
 
     MF_cycloneiiigl_m_cntr m1 (.clk(inclk_m),
                         .reset(areset_ipd || stop_vco),
@@ -20562,7 +20562,7 @@ always @(vco_out)
     always @(vco_tap)
     begin
         // Update phase taps for C/M counters on negative edge of VCO clock output
-        
+
         if (update_phase == 1'b1)
         begin
             for (x = 0; x <= 7; x = x + 1)
@@ -20626,7 +20626,7 @@ always @(vco_out)
     end
 
     assign inclk_c1 = (c1_test_source == 0) ? fbclk : (c1_test_source == 1) ? refclk : (ic1_use_casc_in == 1) ? c0_clk : inclk_c1_from_vco;
-    
+
     MF_cycloneiiigl_scale_cntr c1 (.clk(inclk_c1),
                             .reset(areset_ipd || stop_vco),
                             .cout(c1_clk),
@@ -20682,7 +20682,7 @@ always @(vco_out)
     end
 
     assign inclk_c3 = (c3_test_source == 0) ? fbclk : (c3_test_source == 1) ? refclk : (ic3_use_casc_in == 1) ? c2_clk : inclk_c3_from_vco;
-    
+
     MF_cycloneiiigl_scale_cntr c3 (.clk(inclk_c3),
                             .reset(areset_ipd  || stop_vco),
                             .cout(c3_clk),
@@ -20736,13 +20736,13 @@ always @(vco_out)
         end
     end
 
-    
+
 assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
 
 // Register scanclk enable
     always @(negedge scanclk_ipd)
         scanclkena_reg <= scanclkena_ipd;
-        
+
 // Negative edge flip-flop in front of scan-chain
 
     always @(negedge scanclk_ipd)
@@ -20752,7 +20752,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
             scandata_in <= scandata_ipd;
         end
     end
-   
+
 // Scan chain
     always @(posedge scanclk_ipd)
     begin
@@ -20760,15 +20760,15 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
                 got_first_scanclk = 1'b1;
         else
                 scanclk_period = $time - scanclk_last_rising_edge;
-        if (scanclkena_reg) 
-        begin        
+        if (scanclkena_reg)
+        begin
             for (j = scan_chain_length-2; j >= 0; j = j - 1)
                 scan_data[j] = scan_data[j - 1];
             scan_data[-1] <= scandata_in;
         end
         scanclk_last_rising_edge = $realtime;
     end
-    
+
 // Scan output
     assign scandataout_tmp = scan_data[SCAN_CHAIN - 2];
 
@@ -20781,7 +20781,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
             scandata_out <= scandataout_tmp;
         end
     end
-    
+
 // Scan complete
     always @(negedge scandone_tmp)
     begin
@@ -20794,7 +20794,7 @@ assign locked = (test_bypass_lock_detect == "on") ? pfd_locked : locked_tmp;
 
                 $display("               N modulus =   %0d (%0d) ", n_val[0], n_val_old[0]);
                 $display("               M modulus =   %0d (%0d) ", m_val[0], m_val_old[0]);
-                
+
 
                 for (i = 0; i < num_output_cntrs; i=i+1)
                 begin
@@ -20845,29 +20845,29 @@ begin
                 if (phasecounterselect_ipd == 0) // all output counters selected
                 begin
                     for (i = 0; i < num_output_cntrs; i = i + 1)
-                        c_ph_val_tmp[i] = (phaseupdown_ipd == 1'b1) ? 
+                        c_ph_val_tmp[i] = (phaseupdown_ipd == 1'b1) ?
                                     (c_ph_val_tmp[i] + 1) % num_phase_taps :
                                     (c_ph_val_tmp[i] == 0) ? num_phase_taps - 1 : (c_ph_val_tmp[i] - 1) % num_phase_taps ;
                 end
                 else if (phasecounterselect_ipd == 1) // select M counter
                 begin
-                    m_ph_val_tmp = (phaseupdown_ipd == 1'b1) ? 
+                    m_ph_val_tmp = (phaseupdown_ipd == 1'b1) ?
                                 (m_ph_val + 1) % num_phase_taps :
                                 (m_ph_val == 0) ? num_phase_taps - 1 : (m_ph_val - 1) % num_phase_taps ;
                 end
                 else // select C counters
                 begin
                     select_counter = phasecounterselect_ipd - 2;
-                    c_ph_val_tmp[select_counter] =  (phaseupdown_ipd == 1'b1) ? 
+                    c_ph_val_tmp[select_counter] =  (phaseupdown_ipd == 1'b1) ?
                                             (c_ph_val_tmp[select_counter] + 1) % num_phase_taps :
                                             (c_ph_val_tmp[select_counter] == 0) ? num_phase_taps - 1 : (c_ph_val_tmp[select_counter] - 1) % num_phase_taps ;
                 end
                 update_phase <= 1'b1;
-            end 
-           
+            end
+
         end
         phasestep_high_count = phasestep_high_count + 1;
-       
+
     end
 end
 
@@ -20877,7 +20877,7 @@ begin
     phasestep_reg <= phasestep;
 end
 
-always @(posedge phasestep) 
+always @(posedge phasestep)
 begin
     if (update_phase == 1'b0) phasestep_high_count = 0; // phase adjustments must be 1 cycle apart
                                                         // if not, next phasestep cycle is skipped
@@ -20903,15 +20903,15 @@ assign update_conf_latches = configupdate_ipd;
     begin
         initiate_reconfig <= 1'b1;
     end
-   
+
     always @(posedge areset_ipd)
     begin
         if (scandone_tmp == 1'b1) scandone_tmp = 1'b0;
     end
-   
+
     always @(posedge scanclk_ipd)
     begin
-        if (initiate_reconfig == 1'b1) 
+        if (initiate_reconfig == 1'b1)
         begin
             initiate_reconfig <= 1'b0;
             $display ("NOTE : PLL Reprogramming initiated ....");
@@ -20944,7 +20944,7 @@ assign update_conf_latches = configupdate_ipd;
 
             // LF Resistance : bits 3-7
             // valid values - 00000,00100,10000,10100,11000,11011,11100,11110
-            if (((scan_data[3:7] == 5'b00000) || (scan_data[3:7] == 5'b00100)) || 
+            if (((scan_data[3:7] == 5'b00000) || (scan_data[3:7] == 5'b00100)) ||
                 ((scan_data[3:7] == 5'b10000) || (scan_data[3:7] == 5'b10100)) ||
                 ((scan_data[3:7] == 5'b11000) || (scan_data[3:7] == 5'b11011)) ||
                 ((scan_data[3:7] == 5'b11100) || (scan_data[3:7] == 5'b11110))
@@ -20955,7 +20955,7 @@ assign update_conf_latches = configupdate_ipd;
                             (scan_data[3:7] == 5'b10000) ? "12" :
                             (scan_data[3:7] == 5'b10100) ? "8" :
                             (scan_data[3:7] == 5'b11000) ? "6" :
-                            (scan_data[3:7] == 5'b11011) ? "4" : 
+                            (scan_data[3:7] == 5'b11011) ? "4" :
                             (scan_data[3:7] == 5'b11100) ? "2" : "1";
             end
 
@@ -20974,7 +20974,7 @@ assign update_conf_latches = configupdate_ipd;
                 i_vco_max = vco_max * 1000;
                 i_vco_min = vco_min * 1000;
                 vco_cur = 2;
-            end          
+            end
 
             // CP
             // Bit 8 : CRBYPASS
@@ -21003,13 +21003,13 @@ assign update_conf_latches = configupdate_ipd;
                 n_mode_val[0] = "bypass";
             // 3. Mode - odd/even (bit 26)
             else if (scan_data[26] == 1'b1)
-                n_mode_val[0] = "   odd";         
+                n_mode_val[0] = "   odd";
             else
-                n_mode_val[0] = "  even";         
+                n_mode_val[0] = "  even";
             // 2. High (bit 18-25)
                 n_hi = scan_data[18:25];
             // 4. Low (bit 27-34)
-                n_lo = scan_data[27:34]; 
+                n_lo = scan_data[27:34];
 
 
             // N counter
@@ -21021,22 +21021,22 @@ assign update_conf_latches = configupdate_ipd;
                 m_mode_val[0] = "   odd";
             else
                 m_mode_val[0] = "  even";
-            
+
             // 2. High (bit 36-43)
                 m_hi = scan_data[36:43];
-            
+
             // 4. Low (bit 45-52)
-                m_lo = scan_data[45:52]; 
+                m_lo = scan_data[45:52];
 
 
-            
+
 //Update the current M and N counter values if the counters are NOT bypassed
 
 if (m_mode_val[0] != "bypass")
 m_val[0] = m_hi + m_lo;
-if (n_mode_val[0] != "bypass")  
+if (n_mode_val[0] != "bypass")
 n_val[0] = n_hi + n_lo;
-            
+
 
 
             // C counters (start bit 53) bit 1:mode(bypass),bit 2-9:high,bit 10:mode(odd/even),bit 11-18:low
@@ -21051,7 +21051,7 @@ n_val[0] = n_hi + n_lo;
                     c_mode_val_tmp[i] = "   odd";
                 else
                     c_mode_val_tmp[i] = "  even";
-                    
+
                 // 2. Hi
                 for (j = 1; j <= 8; j = j + 1)
                     c_val[8-j] = scan_data[53 + i*18 + j];
@@ -21060,18 +21060,18 @@ n_val[0] = n_hi + n_lo;
                     c_high_val_tmp[i] = c_hval[i];
                 else
                     c_high_val_tmp[i] = 9'b100000000;
-                // 4. Low 
+                // 4. Low
                 for (j = 10; j <= 17; j = j + 1)
-                    c_val[17 - j] = scan_data[53 + i*18 + j]; 
+                    c_val[17 - j] = scan_data[53 + i*18 + j];
                 c_lval[i] = c_val[7:0];
                 if (c_lval[i] !== 32'h00000000)
-                    c_low_val_tmp[i] = c_lval[i];  
+                    c_low_val_tmp[i] = c_lval[i];
                 else
-                    c_low_val_tmp[i] = 9'b100000000; 
+                    c_low_val_tmp[i] = 9'b100000000;
             end
 
             // Legality Checks
-            
+
             if (m_mode_val[0] != "bypass")
             begin
             if ((m_hi !== m_lo) && (m_mode_val[0] != "   odd"))
@@ -21086,11 +21086,11 @@ n_val[0] = n_hi + n_lo;
                     m_val_tmp[0] = m_hi + m_lo;
             end
             else
-                m_val_tmp[0] =  9'b100000000; 
+                m_val_tmp[0] =  9'b100000000;
             end
             else
                 m_val_tmp[0] = 8'b00000001;
-                
+
             if (n_mode_val[0] != "bypass")
             begin
             if ((n_hi !== n_lo) && (n_mode_val[0] != "   odd"))
@@ -21105,12 +21105,12 @@ n_val[0] = n_hi + n_lo;
                     n_val[0] = n_hi + n_lo;
             end
             else
-                n_val[0] =  9'b100000000; 
+                n_val[0] =  9'b100000000;
             end
             else
                 n_val[0] = 8'b00000001;
-                           
-                 
+
+
 
 // TODO : Give warnings/errors in the following cases?
 // 1. Illegal counter values (error)
@@ -21119,7 +21119,7 @@ n_val[0] = n_hi + n_lo;
 
         end
     end
-    
+
     // Self reset on loss of lock
     assign reset_self = (l_self_reset_on_loss_lock == "on") ? ~pll_is_locked : 1'b0;
 
@@ -21128,20 +21128,20 @@ n_val[0] = n_hi + n_lo;
         $display (" Note : %s PLL self reset due to loss of lock", family_name);
         $display ("Time: %0t  Instance: %m", $time);
     end
-    
+
     // Phase shift on /o counters
-    
+
     always @(schedule_vco or areset_ipd)
     begin
         sched_time = 0;
-    
+
         for (i = 0; i <= 7; i=i+1)
             last_phase_shift[i] = phase_shift[i];
-     
+
         cycle_to_adjust = 0;
         l_index = 1;
         m_times_vco_period = new_m_times_vco_period;
-            
+
         // give appropriate messages
         // if areset was asserted
         if (areset_ipd === 1'b1 && areset_ipd_last_value !== areset_ipd)
@@ -21157,24 +21157,24 @@ n_val[0] = n_hi + n_lo;
             for (x = 0; x <= 7; x=x+1)
                 vco_tap[x] <= 1'b0;
         end
-    
+
         // illegal value on areset_ipd
         if (areset_ipd === 1'bx && (areset_ipd_last_value === 1'b0 || areset_ipd_last_value === 1'b1))
         begin
             $display("Warning : Illegal value 'X' detected on ARESET input");
             $display ("Time: %0t  Instance: %m", $time);
         end
-    
+
         if ((areset_ipd == 1'b1))
         begin
             pll_is_in_reset = 1;
             got_first_refclk = 0;
             got_second_refclk = 0;
         end
-                            
+
         if ((schedule_vco !== schedule_vco_last_value) && (areset_ipd == 1'b1 || stop_vco == 1'b1))
         begin
-   
+
             // drop VCO taps to 0
             for (i = 0; i <= 7; i=i+1)
             begin
@@ -21184,13 +21184,13 @@ n_val[0] = n_hi + n_lo;
                 phase_shift[i] = 0;
                 last_phase_shift[i] = 0;
             end
-    
+
             // reset lock parameters
             locked_tmp = 0;
             pll_is_locked = 0;
             cycles_to_lock = 0;
             cycles_to_unlock = 0;
-    
+
             got_first_refclk = 0;
             got_second_refclk = 0;
             refclk_time = 0;
@@ -21198,7 +21198,7 @@ n_val[0] = n_hi + n_lo;
             fbclk_time = 0;
             first_fbclk_time = 0;
             fbclk_period = 0;
-    
+
             first_schedule = 1;
             vco_val = 0;
             vco_period_was_phase_adjusted = 0;
@@ -21208,7 +21208,7 @@ n_val[0] = n_hi + n_lo;
             m_ph_val = m_ph_val_orig;
             for (i=0; i<= 5; i=i+1)
                 c_ph_val[i] = c_ph_val_orig[i];
-    
+
         end else if (areset_ipd === 1'b0 && stop_vco === 1'b0)
         begin
             // else note areset deassert time
@@ -21220,46 +21220,46 @@ n_val[0] = n_hi + n_lo;
                 pll_is_in_reset = 0;
                 locked_tmp = 1'b0;
             end
-    
+
             // calculate loop_xplier : this will be different from m_val in ext. fbk mode
             loop_xplier = m_val[0];
             loop_initial = i_m_initial - 1;
             loop_ph = m_ph_val;
-    
+
             // convert initial value to delay
             initial_delay = (loop_initial * m_times_vco_period)/loop_xplier;
-    
+
             // convert loop ph_tap to delay
             rem = m_times_vco_period % loop_xplier;
             vco_per = m_times_vco_period/loop_xplier;
             if (rem != 0)
                 vco_per = vco_per + 1;
             fbk_phase = (loop_ph * vco_per)/8;
-    
+
             pull_back_M = initial_delay + fbk_phase;
-    
+
             total_pull_back = pull_back_M;
             if (l_simulation_type == "timing")
                 total_pull_back = total_pull_back + (pll_compensation_delay * 1000);
-    
+
             while (total_pull_back > refclk_period)
                 total_pull_back = total_pull_back - refclk_period;
-    
+
             if (total_pull_back > 0)
                 offset = refclk_period - total_pull_back;
             else
                 offset = 0;
-    
+
             fbk_delay = total_pull_back - fbk_phase;
             if (fbk_delay < 0)
             begin
                 offset = offset - fbk_phase;
                 fbk_delay = total_pull_back;
             end
-    
+
             // assign m_delay
             m_delay = fbk_delay;
-    
+
             for (i = 1; i <= loop_xplier; i=i+1)
             begin
                 // adjust cycles
@@ -21276,13 +21276,13 @@ n_val[0] = n_hi + n_lo;
                     tmp_vco_per = tmp_vco_per + 1;
                     l_index = l_index + 1;
                 end
-    
+
                 // calculate high and low periods
                 high_time = tmp_vco_per/2;
                 if (tmp_vco_per % 2 != 0)
                     high_time = high_time + 1;
                 low_time = tmp_vco_per - high_time;
-    
+
                 // schedule the rising and falling egdes
                 for (j=0; j<=1; j=j+1)
                 begin
@@ -21291,7 +21291,7 @@ n_val[0] = n_hi + n_lo;
                         sched_time = sched_time + high_time;
                     else
                         sched_time = sched_time + low_time;
-    
+
                     // schedule taps with appropriate phase shifts
                     for (k = 0; k <= 7; k=k+1)
                     begin
@@ -21325,16 +21325,16 @@ n_val[0] = n_hi + n_lo;
                 new_m_times_vco_period = refclk_period;
                 vco_period_was_phase_adjusted = 0;
                 phase_adjust_was_scheduled = 1;
-    
+
                 tmp_vco_per = m_times_vco_period/loop_xplier;
                 for (k = 0; k <= 7; k=k+1)
                     phase_shift[k] = (k*tmp_vco_per)/8;
             end
         end
-    
+
         areset_ipd_last_value = areset_ipd;
         schedule_vco_last_value = schedule_vco;
-    
+
     end
 
     // PFD enable
@@ -21366,7 +21366,7 @@ n_val[0] = n_hi + n_lo;
     end
 
     // Bypass lock detect
-        
+
     always @(posedge refclk)
     begin
     if (test_bypass_lock_detect == "on")
@@ -21401,7 +21401,7 @@ n_val[0] = n_hi + n_lo;
                 end
         end
     end
-    
+
     always @(posedge scandone_tmp or posedge locked_tmp)
     begin
         if(scandone_tmp == 1)
@@ -21409,7 +21409,7 @@ n_val[0] = n_hi + n_lo;
         else
             pll_has_just_been_reconfigured <= 0;
     end
-    
+
     // VCO Frequency Range check
     always @(posedge refclk or posedge fbclk)
     begin
@@ -21425,9 +21425,9 @@ n_val[0] = n_hi + n_lo;
 
                 // check if incoming freq. will cause VCO range to be
                 // exceeded
-                if ((i_vco_max != 0 && i_vco_min != 0) && (pfdena_ipd === 1'b1) &&        
-                    ((refclk_period/loop_xplier > i_vco_max) || 
-                    (refclk_period/loop_xplier < i_vco_min)) ) 
+                if ((i_vco_max != 0 && i_vco_min != 0) && (pfdena_ipd === 1'b1) &&
+                    ((refclk_period/loop_xplier > i_vco_max) ||
+                    (refclk_period/loop_xplier < i_vco_min)) )
                 begin
                     if (pll_is_locked == 1'b1)
                     begin
@@ -21491,7 +21491,7 @@ n_val[0] = n_hi + n_lo;
         end
 
         // Update M counter value on feedback clock edge
-        
+
         if (fbclk == 1'b1 && fbclk_last_value !== fbclk)
         begin
             if (update_conf_latches === 1'b1)
@@ -21537,10 +21537,10 @@ n_val[0] = n_hi + n_lo;
             end
             fbclk_time = $time;
         end
-        
-                
+
+
         // Core lock functionality
-        
+
         if (got_second_refclk && pfdena_ipd === 1'b1 && (!inclk_out_of_range))
         begin
             // now we know actual incoming period
@@ -21867,7 +21867,7 @@ parameter   extclk2_duty_cycle      = 50;
 parameter   extclk1_duty_cycle      = 50;
 parameter   extclk0_duty_cycle      = 50;
 
-// The following 4 parameters are for Stratix II pll in lvds mode only 
+// The following 4 parameters are for Stratix II pll in lvds mode only
 parameter vco_multiply_by = 0;
 parameter vco_divide_by = 0;
 parameter sclkout0_phase_shift = "0";
@@ -22493,8 +22493,8 @@ begin
         $stop;
     end
 
-    if (!((primary_clock == "inclk0") || (primary_clock == "INCLK0") || 
-        (primary_clock == "inclk1") || (primary_clock == "INCLK1"))) 
+    if (!((primary_clock == "inclk0") || (primary_clock == "INCLK0") ||
+        (primary_clock == "inclk1") || (primary_clock == "INCLK1")))
     begin
         $display("ERROR: The primary clock is set to an illegal value");
         $display("Time: %0t  Instance: %m", $time);
@@ -22506,7 +22506,7 @@ begin
         $display ("Error! Unknown INTENDED_DEVICE_FAMILY=%s.", intended_device_family);
         $stop;
     end
-    
+
     family_stratixiii = dev.FEATURE_FAMILY_STRATIXIII(intended_device_family);
     family_cycloneiiigl = dev.FEATURE_FAMILY_CYCLONEIVGX(intended_device_family);
     family_cycloneiii = !family_cycloneiiigl && (dev.FEATURE_FAMILY_CYCLONEIII(intended_device_family) || dev.FEATURE_FAMILY_MAX10FPGA(intended_device_family) );
@@ -22520,19 +22520,19 @@ begin
         $display ("ERROR: The external feedback mode is not supported for the ARRIA II family.");
         $stop;
     end
-    
+
     if((family_arriaii) && (pll_type == "top_bottom"))
     begin
         $display ("WARNING: A pll_type specification is not supported for the ARRIA II family.  It will be ignored.");
         $display ("Time: %0t  Instance: %m", $time);
     end
-    
+
     if((family_arriaii) && ((port_clk7 != "PORT_UNUSED") || (port_clk8 != "PORT_UNUSED") || (port_clk9 != "PORT_UNUSED")))
     begin
         $display ("ERROR: One or more clock outputs used in the design are not supported in ARRIA II family.");
         $stop;
     end
-    
+
     // End of parameter checking
 
     pll_lock_sync = 1'b1;
@@ -22541,9 +22541,9 @@ end
 
 // COMPONENT INSTANTIATION
 generate
-if ((intended_device_family == "Stratix") || (intended_device_family == "STRATIX") || (intended_device_family == "stratix") || (intended_device_family == "Yeager") || (intended_device_family == "YEAGER") || (intended_device_family == "yeager") 
-    || (intended_device_family == "Cyclone") || (intended_device_family == "CYCLONE") || (intended_device_family == "cyclone") || (intended_device_family == "ACEX2K") || (intended_device_family == "acex2k") || (intended_device_family == "ACEX 2K") || (intended_device_family == "acex 2k") || (intended_device_family == "Tornado") || (intended_device_family == "TORNADO") || (intended_device_family == "tornado") 
-    || (intended_device_family == "Stratix GX") || (intended_device_family == "STRATIX GX") || (intended_device_family == "stratix gx") || (intended_device_family == "Stratix-GX") || (intended_device_family == "STRATIX-GX") || (intended_device_family == "stratix-gx") || (intended_device_family == "StratixGX") || (intended_device_family == "STRATIXGX") || (intended_device_family == "stratixgx") || (intended_device_family == "Aurora") || (intended_device_family == "AURORA") || (intended_device_family == "aurora") 
+if ((intended_device_family == "Stratix") || (intended_device_family == "STRATIX") || (intended_device_family == "stratix") || (intended_device_family == "Yeager") || (intended_device_family == "YEAGER") || (intended_device_family == "yeager")
+    || (intended_device_family == "Cyclone") || (intended_device_family == "CYCLONE") || (intended_device_family == "cyclone") || (intended_device_family == "ACEX2K") || (intended_device_family == "acex2k") || (intended_device_family == "ACEX 2K") || (intended_device_family == "acex 2k") || (intended_device_family == "Tornado") || (intended_device_family == "TORNADO") || (intended_device_family == "tornado")
+    || (intended_device_family == "Stratix GX") || (intended_device_family == "STRATIX GX") || (intended_device_family == "stratix gx") || (intended_device_family == "Stratix-GX") || (intended_device_family == "STRATIX-GX") || (intended_device_family == "stratix-gx") || (intended_device_family == "StratixGX") || (intended_device_family == "STRATIXGX") || (intended_device_family == "stratixgx") || (intended_device_family == "Aurora") || (intended_device_family == "AURORA") || (intended_device_family == "aurora")
     || (intended_device_family == "StratixHC"))
 begin : stratix_pll
 
@@ -22749,7 +22749,7 @@ end
 endgenerate
 
 generate
-if ((intended_device_family == "Stratix II") || (intended_device_family == "STRATIX II") || (intended_device_family == "stratix ii") || (intended_device_family == "StratixII") || (intended_device_family == "STRATIXII") || (intended_device_family == "stratixii") || (intended_device_family == "Armstrong") || (intended_device_family == "ARMSTRONG") || (intended_device_family == "armstrong") 
+if ((intended_device_family == "Stratix II") || (intended_device_family == "STRATIX II") || (intended_device_family == "stratix ii") || (intended_device_family == "StratixII") || (intended_device_family == "STRATIXII") || (intended_device_family == "stratixii") || (intended_device_family == "Armstrong") || (intended_device_family == "ARMSTRONG") || (intended_device_family == "armstrong")
     || (intended_device_family == "HardCopy II") || (intended_device_family == "HARDCOPY II") || (intended_device_family == "hardcopy ii") || (intended_device_family == "HardCopyII") || (intended_device_family == "HARDCOPYII") || (intended_device_family == "hardcopyii") || (intended_device_family == "Fusion") || (intended_device_family == "FUSION") || (intended_device_family == "fusion")
     || (intended_device_family == "Stratix II GX") || (intended_device_family == "STRATIX II GX") || (intended_device_family == "stratix ii gx") || (intended_device_family == "StratixIIGX") || (intended_device_family == "STRATIXIIGX") || (intended_device_family == "stratixiigx")
     || (intended_device_family == "Arria GX") || (intended_device_family == "ARRIA GX") || (intended_device_family == "arria gx") || (intended_device_family == "ArriaGX") || (intended_device_family == "ARRIAGX") || (intended_device_family == "arriagx") || (intended_device_family == "Stratix II GX Lite") || (intended_device_family == "STRATIX II GX LITE") || (intended_device_family == "stratix ii gx lite") || (intended_device_family == "StratixIIGXLite") || (intended_device_family == "STRATIXIIGXLITE") || (intended_device_family == "stratixiigxlite")
@@ -23517,7 +23517,7 @@ assign phasestep_pulldown = ((port_phasestep == "PORT_CONNECTIVITY") ||
                             (port_phasestep == "PORT_USED")) ? phasestep : 1'b0;
 assign configupdate_pulldown = ((port_configupdate == "PORT_CONNECTIVITY") ||
                             (port_configupdate == "PORT_USED")) ? configupdate : 1'b0;
-                            
+
 assign scanclk_pulldown = ((port_scanclk != "PORT_UNUSED")) ? scanclk : 1'b0;
 assign scanread_pulldown = ((port_scanread == "PORT_CONNECTIVITY") ||
                         (port_scanread == "PORT_USED")) ? scanread : 1'b0;
@@ -23551,7 +23551,7 @@ assign stratixii_clkswitch = (family_has_stratixii_style_pll) ? clkswitch_pulldo
 assign stratixii_areset = (family_has_stratixii_style_pll) ? areset_pulldown : 1'b0;
 assign stratixii_pfdena = (family_has_stratixii_style_pll) ? pfdena_pullup : 1'b1;
 assign stratixii_scanread = (family_has_stratixii_style_pll) ? scanread_pulldown : 1'b0;
-assign stratixii_scanwrite = (family_has_stratixii_style_pll) ? scanwrite_pulldown : 1'b0;                        
+assign stratixii_scanwrite = (family_has_stratixii_style_pll) ? scanwrite_pulldown : 1'b0;
 assign stratixii_scanclk = (family_has_stratixii_style_pll) ? scanclk_pulldown : 1'b0;
 assign stratixii_scandata = (family_has_stratixii_style_pll) ? scandata_pulldown : 1'b0;
 assign stratix3_inclk = (family_stratixiii) ? inclk_pulldown : {2{1'b0}};
@@ -23621,8 +23621,8 @@ assign pll_lock    = (family_stratixiii) ? stratix3_locked :
 
 assign locked_wire = (family_has_stratixii_style_pll) ? stratixii_locked :
                     (family_stratixiii) ? stratix3_locked & pll_lock_sync:
-                    (family_cycloneiii) ? cyclone3_locked & pll_lock_sync: 
-                    (family_cycloneiiigl) ? cyclone3gl_locked : 
+                    (family_cycloneiii) ? cyclone3_locked & pll_lock_sync:
+                    (family_cycloneiiigl) ? cyclone3gl_locked :
                     stratix_locked;
 assign locked = (port_locked != "PORT_UNUSED") ? locked_wire : 1'b0;
 assign stratix_locked = (alpha_tolower(pll_type) == "fast") ? (!locked_tmp) : locked_tmp;
@@ -23647,22 +23647,22 @@ assign sclkout0_wire = (family_has_stratixii_style_pll) ? stratixii_sclkout0 : 1
 assign sclkout0 = (port_sclkout0 != "PORT_UNUSED") ? sclkout0_wire : 1'b0;
 assign sclkout1_wire = (family_has_stratixii_style_pll) ? stratixii_sclkout1 : 1'b0;
 assign sclkout1 = (port_sclkout1 != "PORT_UNUSED") ? sclkout1_wire : 1'b0;
-assign phasedone_wire =  (family_stratixiii) ? stratix3_phasedone : 
+assign phasedone_wire =  (family_stratixiii) ? stratix3_phasedone :
             (family_cycloneiii) ? cyclone3_phasedone :
             (family_cycloneiiigl) ? cyclone3gl_phasedone :
             1'b0;
 assign phasedone = (port_phasedone != "PORT_UNUSED") ? phasedone_wire : 1'b0;
-assign vcooverrange_wire =  (family_stratixiii) ? stratix3_vcooverrange : 
+assign vcooverrange_wire =  (family_stratixiii) ? stratix3_vcooverrange :
             (family_cycloneiii) ? cyclone3_vcooverrange :
             (family_cycloneiiigl) ? cyclone3gl_vcooverrange :
             1'b0;
 assign vcooverrange = (port_vcooverrange != "PORT_UNUSED") ? vcooverrange_wire : 1'b0;
-assign vcounderrange_wire = (family_stratixiii) ? stratix3_vcounderrange : 
+assign vcounderrange_wire = (family_stratixiii) ? stratix3_vcounderrange :
             (family_cycloneiii) ? cyclone3_vcounderrange :
             (family_cycloneiiigl) ? cyclone3gl_vcounderrange :
             1'b0;
 assign vcounderrange = (port_vcounderrange != "PORT_UNUSED") ? vcounderrange_wire : 1'b0;
-assign fbout_wire =  (family_stratixiii) ? stratix3_fbout : 
+assign fbout_wire =  (family_stratixiii) ? stratix3_fbout :
             (family_cycloneiii) ? cyclone3_fbout :
             (family_cycloneiiigl) ? cyclone3gl_fbout :
             1'b0;
@@ -23838,12 +23838,12 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 ) ) || ((intended_device_family == "HardCopy III") || (intended_device_family == "HARDCOPY III") || (intended_device_family == "hardcopy iii") || (intended_device_family == "HardCopyIII") || (intended_device_family == "HARDCOPYIII") || (intended_device_family == "hardcopyiii") || (intended_device_family == "HCX") || (intended_device_family == "hcx"))
                                 ))
                                 ? 1 : 0;
-    
+
     // A ARRIA type of LVDS?
     parameter ARRIAII_RX_STYLE = ((((intended_device_family == "Arria II GX") || (intended_device_family == "ARRIA II GX") || (intended_device_family == "arria ii gx") || (intended_device_family == "ArriaIIGX") || (intended_device_family == "ARRIAIIGX") || (intended_device_family == "arriaiigx") || (intended_device_family == "Arria IIGX") || (intended_device_family == "ARRIA IIGX") || (intended_device_family == "arria iigx") || (intended_device_family == "ArriaII GX") || (intended_device_family == "ARRIAII GX") || (intended_device_family == "arriaii gx") || (intended_device_family == "Arria II") || (intended_device_family == "ARRIA II") || (intended_device_family == "arria ii") || (intended_device_family == "ArriaII") || (intended_device_family == "ARRIAII") || (intended_device_family == "arriaii") || (intended_device_family == "Arria II (GX/E)") || (intended_device_family == "ARRIA II (GX/E)") || (intended_device_family == "arria ii (gx/e)") || (intended_device_family == "ArriaII(GX/E)") || (intended_device_family == "ARRIAII(GX/E)") || (intended_device_family == "arriaii(gx/e)") || (intended_device_family == "PIRANHA") || (intended_device_family == "piranha"))
                                 ))
                                 ? 1 : 0;
-                                
+
     // A Stratix V type of LVDS?
     parameter STRATIXV_RX_STYLE = ((((intended_device_family == "Stratix V") || (intended_device_family == "STRATIX V") || (intended_device_family == "stratix v") || (intended_device_family == "StratixV") || (intended_device_family == "STRATIXV") || (intended_device_family == "stratixv") || (intended_device_family == "Stratix V (GS)") || (intended_device_family == "STRATIX V (GS)") || (intended_device_family == "stratix v (gs)") || (intended_device_family == "StratixV(GS)") || (intended_device_family == "STRATIXV(GS)") || (intended_device_family == "stratixv(gs)") || (intended_device_family == "Stratix V (GT)") || (intended_device_family == "STRATIX V (GT)") || (intended_device_family == "stratix v (gt)") || (intended_device_family == "StratixV(GT)") || (intended_device_family == "STRATIXV(GT)") || (intended_device_family == "stratixv(gt)") || (intended_device_family == "Stratix V (GX)") || (intended_device_family == "STRATIX V (GX)") || (intended_device_family == "stratix v (gx)") || (intended_device_family == "StratixV(GX)") || (intended_device_family == "STRATIXV(GX)") || (intended_device_family == "stratixv(gx)") || (intended_device_family == "Stratix V (GS/GX)") || (intended_device_family == "STRATIX V (GS/GX)") || (intended_device_family == "stratix v (gs/gx)") || (intended_device_family == "StratixV(GS/GX)") || (intended_device_family == "STRATIXV(GS/GX)") || (intended_device_family == "stratixv(gs/gx)") || (intended_device_family == "Stratix V (GS/GT)") || (intended_device_family == "STRATIX V (GS/GT)") || (intended_device_family == "stratix v (gs/gt)") || (intended_device_family == "StratixV(GS/GT)") || (intended_device_family == "STRATIXV(GS/GT)") || (intended_device_family == "stratixv(gs/gt)") || (intended_device_family == "Stratix V (GT/GX)") || (intended_device_family == "STRATIX V (GT/GX)") || (intended_device_family == "stratix v (gt/gx)") || (intended_device_family == "StratixV(GT/GX)") || (intended_device_family == "STRATIXV(GT/GX)") || (intended_device_family == "stratixv(gt/gx)") || (intended_device_family == "Stratix V (GX/GS)") || (intended_device_family == "STRATIX V (GX/GS)") || (intended_device_family == "stratix v (gx/gs)") || (intended_device_family == "StratixV(GX/GS)") || (intended_device_family == "STRATIXV(GX/GS)") || (intended_device_family == "stratixv(gx/gs)") || (intended_device_family == "Stratix V (GT/GS)") || (intended_device_family == "STRATIX V (GT/GS)") || (intended_device_family == "stratix v (gt/gs)") || (intended_device_family == "StratixV(GT/GS)") || (intended_device_family == "STRATIXV(GT/GS)") || (intended_device_family == "stratixv(gt/gs)") || (intended_device_family == "Stratix V (GX/GT)") || (intended_device_family == "STRATIX V (GX/GT)") || (intended_device_family == "stratix v (gx/gt)") || (intended_device_family == "StratixV(GX/GT)") || (intended_device_family == "STRATIXV(GX/GT)") || (intended_device_family == "stratixv(gx/gt)") || (intended_device_family == "Stratix V (GS/GT/GX)") || (intended_device_family == "STRATIX V (GS/GT/GX)") || (intended_device_family == "stratix v (gs/gt/gx)") || (intended_device_family == "Stratix V (GS/GX/GT)") || (intended_device_family == "STRATIX V (GS/GX/GT)") || (intended_device_family == "stratix v (gs/gx/gt)") || (intended_device_family == "Stratix V (GT/GS/GX)") || (intended_device_family == "STRATIX V (GT/GS/GX)") || (intended_device_family == "stratix v (gt/gs/gx)") || (intended_device_family == "Stratix V (GT/GX/GS)") || (intended_device_family == "STRATIX V (GT/GX/GS)") || (intended_device_family == "stratix v (gt/gx/gs)") || (intended_device_family == "Stratix V (GX/GS/GT)") || (intended_device_family == "STRATIX V (GX/GS/GT)") || (intended_device_family == "stratix v (gx/gs/gt)") || (intended_device_family == "Stratix V (GX/GT/GS)") || (intended_device_family == "STRATIX V (GX/GT/GS)") || (intended_device_family == "stratix v (gx/gt/gs)") || (intended_device_family == "StratixV(GS/GT/GX)") || (intended_device_family == "STRATIXV(GS/GT/GX)") || (intended_device_family == "stratixv(gs/gt/gx)") || (intended_device_family == "StratixV(GS/GX/GT)") || (intended_device_family == "STRATIXV(GS/GX/GT)") || (intended_device_family == "stratixv(gs/gx/gt)") || (intended_device_family == "StratixV(GT/GS/GX)") || (intended_device_family == "STRATIXV(GT/GS/GX)") || (intended_device_family == "stratixv(gt/gs/gx)") || (intended_device_family == "StratixV(GT/GX/GS)") || (intended_device_family == "STRATIXV(GT/GX/GS)") || (intended_device_family == "stratixv(gt/gx/gs)") || (intended_device_family == "StratixV(GX/GS/GT)") || (intended_device_family == "STRATIXV(GX/GS/GT)") || (intended_device_family == "stratixv(gx/gs/gt)") || (intended_device_family == "StratixV(GX/GT/GS)") || (intended_device_family == "STRATIXV(GX/GT/GS)") || (intended_device_family == "stratixv(gx/gt/gs)") || (intended_device_family == "Stratix V (GS/GT/GX/E)") || (intended_device_family == "STRATIX V (GS/GT/GX/E)") || (intended_device_family == "stratix v (gs/gt/gx/e)") || (intended_device_family == "StratixV(GS/GT/GX/E)") || (intended_device_family == "STRATIXV(GS/GT/GX/E)") || (intended_device_family == "stratixv(gs/gt/gx/e)") || (intended_device_family == "Stratix V (E)") || (intended_device_family == "STRATIX V (E)") || (intended_device_family == "stratix v (e)") || (intended_device_family == "StratixV(E)") || (intended_device_family == "STRATIXV(E)") || (intended_device_family == "stratixv(e)"))
                                 || (((intended_device_family == "Arria V GZ") || (intended_device_family == "ARRIA V GZ") || (intended_device_family == "arria v gz") || (intended_device_family == "ArriaVGZ") || (intended_device_family == "ARRIAVGZ") || (intended_device_family == "arriavgz"))
@@ -23903,7 +23903,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 : 1;
 
 
-    //28 NM families, to override the inclock_data_alignment parameter. 
+    //28 NM families, to override the inclock_data_alignment parameter.
     parameter VSERIES_FAMILY = ((((intended_device_family == "Stratix V") || (intended_device_family == "STRATIX V") || (intended_device_family == "stratix v") || (intended_device_family == "StratixV") || (intended_device_family == "STRATIXV") || (intended_device_family == "stratixv") || (intended_device_family == "Stratix V (GS)") || (intended_device_family == "STRATIX V (GS)") || (intended_device_family == "stratix v (gs)") || (intended_device_family == "StratixV(GS)") || (intended_device_family == "STRATIXV(GS)") || (intended_device_family == "stratixv(gs)") || (intended_device_family == "Stratix V (GT)") || (intended_device_family == "STRATIX V (GT)") || (intended_device_family == "stratix v (gt)") || (intended_device_family == "StratixV(GT)") || (intended_device_family == "STRATIXV(GT)") || (intended_device_family == "stratixv(gt)") || (intended_device_family == "Stratix V (GX)") || (intended_device_family == "STRATIX V (GX)") || (intended_device_family == "stratix v (gx)") || (intended_device_family == "StratixV(GX)") || (intended_device_family == "STRATIXV(GX)") || (intended_device_family == "stratixv(gx)") || (intended_device_family == "Stratix V (GS/GX)") || (intended_device_family == "STRATIX V (GS/GX)") || (intended_device_family == "stratix v (gs/gx)") || (intended_device_family == "StratixV(GS/GX)") || (intended_device_family == "STRATIXV(GS/GX)") || (intended_device_family == "stratixv(gs/gx)") || (intended_device_family == "Stratix V (GS/GT)") || (intended_device_family == "STRATIX V (GS/GT)") || (intended_device_family == "stratix v (gs/gt)") || (intended_device_family == "StratixV(GS/GT)") || (intended_device_family == "STRATIXV(GS/GT)") || (intended_device_family == "stratixv(gs/gt)") || (intended_device_family == "Stratix V (GT/GX)") || (intended_device_family == "STRATIX V (GT/GX)") || (intended_device_family == "stratix v (gt/gx)") || (intended_device_family == "StratixV(GT/GX)") || (intended_device_family == "STRATIXV(GT/GX)") || (intended_device_family == "stratixv(gt/gx)") || (intended_device_family == "Stratix V (GX/GS)") || (intended_device_family == "STRATIX V (GX/GS)") || (intended_device_family == "stratix v (gx/gs)") || (intended_device_family == "StratixV(GX/GS)") || (intended_device_family == "STRATIXV(GX/GS)") || (intended_device_family == "stratixv(gx/gs)") || (intended_device_family == "Stratix V (GT/GS)") || (intended_device_family == "STRATIX V (GT/GS)") || (intended_device_family == "stratix v (gt/gs)") || (intended_device_family == "StratixV(GT/GS)") || (intended_device_family == "STRATIXV(GT/GS)") || (intended_device_family == "stratixv(gt/gs)") || (intended_device_family == "Stratix V (GX/GT)") || (intended_device_family == "STRATIX V (GX/GT)") || (intended_device_family == "stratix v (gx/gt)") || (intended_device_family == "StratixV(GX/GT)") || (intended_device_family == "STRATIXV(GX/GT)") || (intended_device_family == "stratixv(gx/gt)") || (intended_device_family == "Stratix V (GS/GT/GX)") || (intended_device_family == "STRATIX V (GS/GT/GX)") || (intended_device_family == "stratix v (gs/gt/gx)") || (intended_device_family == "Stratix V (GS/GX/GT)") || (intended_device_family == "STRATIX V (GS/GX/GT)") || (intended_device_family == "stratix v (gs/gx/gt)") || (intended_device_family == "Stratix V (GT/GS/GX)") || (intended_device_family == "STRATIX V (GT/GS/GX)") || (intended_device_family == "stratix v (gt/gs/gx)") || (intended_device_family == "Stratix V (GT/GX/GS)") || (intended_device_family == "STRATIX V (GT/GX/GS)") || (intended_device_family == "stratix v (gt/gx/gs)") || (intended_device_family == "Stratix V (GX/GS/GT)") || (intended_device_family == "STRATIX V (GX/GS/GT)") || (intended_device_family == "stratix v (gx/gs/gt)") || (intended_device_family == "Stratix V (GX/GT/GS)") || (intended_device_family == "STRATIX V (GX/GT/GS)") || (intended_device_family == "stratix v (gx/gt/gs)") || (intended_device_family == "StratixV(GS/GT/GX)") || (intended_device_family == "STRATIXV(GS/GT/GX)") || (intended_device_family == "stratixv(gs/gt/gx)") || (intended_device_family == "StratixV(GS/GX/GT)") || (intended_device_family == "STRATIXV(GS/GX/GT)") || (intended_device_family == "stratixv(gs/gx/gt)") || (intended_device_family == "StratixV(GT/GS/GX)") || (intended_device_family == "STRATIXV(GT/GS/GX)") || (intended_device_family == "stratixv(gt/gs/gx)") || (intended_device_family == "StratixV(GT/GX/GS)") || (intended_device_family == "STRATIXV(GT/GX/GS)") || (intended_device_family == "stratixv(gt/gx/gs)") || (intended_device_family == "StratixV(GX/GS/GT)") || (intended_device_family == "STRATIXV(GX/GS/GT)") || (intended_device_family == "stratixv(gx/gs/gt)") || (intended_device_family == "StratixV(GX/GT/GS)") || (intended_device_family == "STRATIXV(GX/GT/GS)") || (intended_device_family == "stratixv(gx/gt/gs)") || (intended_device_family == "Stratix V (GS/GT/GX/E)") || (intended_device_family == "STRATIX V (GS/GT/GX/E)") || (intended_device_family == "stratix v (gs/gt/gx/e)") || (intended_device_family == "StratixV(GS/GT/GX/E)") || (intended_device_family == "STRATIXV(GS/GT/GX/E)") || (intended_device_family == "stratixv(gs/gt/gx/e)") || (intended_device_family == "Stratix V (E)") || (intended_device_family == "STRATIX V (E)") || (intended_device_family == "stratix v (e)") || (intended_device_family == "StratixV(E)") || (intended_device_family == "STRATIXV(E)") || (intended_device_family == "stratixv(e)"))
                                 || (((intended_device_family == "Arria V GZ") || (intended_device_family == "ARRIA V GZ") || (intended_device_family == "arria v gz") || (intended_device_family == "ArriaVGZ") || (intended_device_family == "ARRIAVGZ") || (intended_device_family == "arriavgz"))
                                 ) ) || (((intended_device_family == "Arria V") || (intended_device_family == "ARRIA V") || (intended_device_family == "arria v") || (intended_device_family == "Arria V (GT/GX)") || (intended_device_family == "ARRIA V (GT/GX)") || (intended_device_family == "arria v (gt/gx)") || (intended_device_family == "ArriaV(GT/GX)") || (intended_device_family == "ARRIAV(GT/GX)") || (intended_device_family == "arriav(gt/gx)") || (intended_device_family == "ArriaV") || (intended_device_family == "ARRIAV") || (intended_device_family == "arriav") || (intended_device_family == "Arria V (GT/GX/ST/SX)") || (intended_device_family == "ARRIA V (GT/GX/ST/SX)") || (intended_device_family == "arria v (gt/gx/st/sx)") || (intended_device_family == "ArriaV(GT/GX/ST/SX)") || (intended_device_family == "ARRIAV(GT/GX/ST/SX)") || (intended_device_family == "arriav(gt/gx/st/sx)") || (intended_device_family == "Arria V (GT)") || (intended_device_family == "ARRIA V (GT)") || (intended_device_family == "arria v (gt)") || (intended_device_family == "ArriaV(GT)") || (intended_device_family == "ARRIAV(GT)") || (intended_device_family == "arriav(gt)") || (intended_device_family == "Arria V (GX)") || (intended_device_family == "ARRIA V (GX)") || (intended_device_family == "arria v (gx)") || (intended_device_family == "ArriaV(GX)") || (intended_device_family == "ARRIAV(GX)") || (intended_device_family == "arriav(gx)") || (intended_device_family == "Arria V (ST)") || (intended_device_family == "ARRIA V (ST)") || (intended_device_family == "arria v (st)") || (intended_device_family == "ArriaV(ST)") || (intended_device_family == "ARRIAV(ST)") || (intended_device_family == "arriav(st)") || (intended_device_family == "Arria V (SX)") || (intended_device_family == "ARRIA V (SX)") || (intended_device_family == "arria v (sx)") || (intended_device_family == "ArriaV(SX)") || (intended_device_family == "ARRIAV(SX)") || (intended_device_family == "arriav(sx)"))
@@ -23964,10 +23964,10 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 : 10000;
 
     parameter FAST_CLK_ENA_PHASE_SHIFT = (deserialization_factor*2-3) * (inclock_period/(2*STRATIX_INCLOCK_BOOST));
-    
+
     parameter use_dpa_calibration = ((ARRIAII_RX_STYLE == 1) && (enable_dpa_calibration == "ON"))
                                 ? 1 : 0;
-                                
+
 // LOCAL_PARAMETERS_END
 
 // INPUT PORT DECLARATION
@@ -24162,7 +24162,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                 $finish;
             end
         end
-        
+
         if (CYCLONEII_RX_STYLE == 1)
         begin
             if ((use_external_pll == "OFF") && ((deserialization_factor > 10) || (deserialization_factor == 3)))
@@ -24172,7 +24172,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                 $finish;
             end
         end
-        
+
         if (dev.IS_VALID_FAMILY(intended_device_family) == 0)
         begin
             $display ("Error! Unknown INTENDED_DEVICE_FAMILY=%s.", intended_device_family);
@@ -24224,7 +24224,7 @@ parameter enable_clock_pin_mode = "UNUSED";
 
     defparam
         u1.pll_type               = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
-                                    ? ((inclock_data_alignment == "UNUSED") 
+                                    ? ((inclock_data_alignment == "UNUSED")
                                         ? "auto"
                                         : "flvds")
                                     : "lvds",
@@ -24266,7 +24266,7 @@ parameter enable_clock_pin_mode = "UNUSED";
     end
     endgenerate
 
-    
+
     // pll for Stratix II
     generate
     if ((FAMILY_HAS_STRATIXII_STYLE_PLL == 1) && (use_external_pll == "OFF") &&
@@ -24302,7 +24302,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                     ? pll_operation_mode
                                     : "normal",
         u2.pll_type               = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
-                                    ? ((inclock_data_alignment == "UNUSED") 
+                                    ? ((inclock_data_alignment == "UNUSED")
                                         ? "auto"
                                         : "flvds")
                                     : "lvds",
@@ -24384,7 +24384,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                     ? pll_operation_mode
                                     : "source_synchronous",
         u8.pll_type               = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
-                                    ? ((inclock_data_alignment == "UNUSED") 
+                                    ? ((inclock_data_alignment == "UNUSED")
                                         ? "auto"
                                         : "flvds")
                                     : "lvds",
@@ -24535,7 +24535,7 @@ parameter enable_clock_pin_mode = "UNUSED";
 
 // Stratix III lvds receiver
     generate
-    if ((STRATIXIII_RX_STYLE == 1) && (implement_in_les == "OFF") && (deserialization_factor > 2)) 
+    if ((STRATIXIII_RX_STYLE == 1) && (implement_in_les == "OFF") && (deserialization_factor > 2))
     begin : stratixiii_lvds_rx
     stratixiii_lvds_rx u7 (
         .rx_in(rx_in),
@@ -24581,7 +24581,7 @@ parameter enable_clock_pin_mode = "UNUSED";
         u7.STRATIXV_RX_STYLE = STRATIXV_RX_STYLE;
     end
     endgenerate
-        
+
 
 // ALWAYS CONSTRUCT BLOCK
 
@@ -24634,7 +24634,7 @@ parameter enable_clock_pin_mode = "UNUSED";
             pll_lock_sync <= 1'b0;
         else
             pll_lock_sync <= 1'b1;
-    end 
+    end
 
 // CONTINOUS ASSIGNMENT
     assign rx_out = (STRATIXGX_DPA_RX_STYLE == 1) && (deserialization_factor > 2)
@@ -24667,7 +24667,7 @@ parameter enable_clock_pin_mode = "UNUSED";
     assign rx_outclock = rx_outclk_int;
 
     assign rx_outclk_int = (deserialization_factor <= 2)
-                            ? rx_inclock 
+                            ? rx_inclock
                             : rx_slowclk;
 
     assign rx_slowclk = ((STRATIX_RX_STYLE == 1) ||
@@ -24808,8 +24808,8 @@ parameter enable_clock_pin_mode = "UNUSED";
                         ((use_external_pll == "ON") || ((STRATIXV_RX_STYLE == 1) && (enable_clock_pin_mode == "ON")))
                             ? rx_inclock
                             : stratixiii_pll_outclock[0];
-                            
-    assign stratixiii_slowclk = (((STRATIXIII_RX_STYLE == 0) && (implement_in_les == "OFF")) || ((STRATIXV_RX_STYLE == 1) && (enable_clock_pin_mode == "ON"))) 
+
+    assign stratixiii_slowclk = (((STRATIXIII_RX_STYLE == 0) && (implement_in_les == "OFF")) || ((STRATIXV_RX_STYLE == 1) && (enable_clock_pin_mode == "ON")))
                             ? 1'b0
                             : (use_external_pll == "ON")
                             ? rx_syncclock
@@ -24871,7 +24871,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 ? rx_syncclock
                                 : stratixiii_pll_outclock[1])
                             : 1'b0;
-                            
+
     assign flvds_rx_data_align = ((port_rx_channel_data_align == "PORT_USED") ||
                                 ((port_rx_channel_data_align == "PORT_CONNECTIVITY") &&
                                 (rx_channel_data_align !== {number_of_channels{1'bZ}})))
@@ -24888,7 +24888,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 ? {number_of_channels{rx_data_align_reset}}
                                 : {number_of_channels{1'b0}};
 
-                            
+
 endmodule // altlvds_rx
 // END OF MODULE
 
@@ -25139,14 +25139,14 @@ module stratixgx_dpa_lvds_rx (
         rx_in_reg = {number_of_channels{1'b0}};
         dpa_in = {number_of_channels{1'b0}};
         retime_data = {number_of_channels{1'b0}};
-  
+
         rx_channel_data_align_pre = {number_of_channels{1'b0}};
         clkout_tmp = {number_of_channels{1'b0}};
         sync_reset = {number_of_channels{1'b0}};
 
         rx_shift_reg = {REGISTER_WIDTH{1'b0}};
         rx_parallel_load_reg = {REGISTER_WIDTH{1'b0}};
-        fifo_data_out = {REGISTER_WIDTH{1'b0}};      
+        fifo_data_out = {REGISTER_WIDTH{1'b0}};
 
         for (i = 0; i < number_of_channels; i = i + 1)
         begin
@@ -25176,7 +25176,7 @@ module stratixgx_dpa_lvds_rx (
                     sync_reset[i0] <= 1'b1;
                 else
                     sync_reset[i0] <= 1'b0;
-                    
+
                 // add 1 ps delay to ensure that when the rising edge of
                 // global clock(core clock) happens at the same time of falling
                 // edge of fast clock, the count for the next falling edge of
@@ -25245,7 +25245,7 @@ module stratixgx_dpa_lvds_rx (
                         3'b000:
                             for (j = i3*deserialization_factor; j <= (i3+1)*deserialization_factor -1; j=j+1)
                                 ram_array0[j] <= fifo_data_in[j];
-    
+
                         3'b001:
                             for (j = i3*deserialization_factor; j <= (i3+1)*deserialization_factor -1; j=j+1)
                                 ram_array1[j] <= fifo_data_in[j];
@@ -25320,7 +25320,7 @@ module stratixgx_dpa_lvds_rx (
                                 $display("Time: %0t  Instance: %m", $time);
                             end
                         endcase
- 
+
                         rdPtr[i4] <= (rdPtr[i4] + 1) % 4;
                     end
                 end
@@ -25546,7 +25546,7 @@ module stratixii_lvds_rx (
 
         rx_shift_reg = {REGISTER_WIDTH{1'b0}};
         rx_out = {REGISTER_WIDTH{1'b0}};
-        
+
         if ((enable_dpa_mode == "ON") && (show_warning == "ON"))
         begin
             $display("Warning : DPA Phase tracking is not modeled and once locked, DPA will continue to lock until the next reset is asserted. Please refer to the device handbook for further details.");
@@ -25574,11 +25574,11 @@ module stratixii_lvds_rx (
     begin
         // Registering enable0 signal
         enable0_reg <= rx_enable;
-    
+
         if (enable0_reg == 1)
             rx_out <= rx_shift_reg;
-        
-        if (enable_dpa_mode == "ON")    
+
+        if (enable_dpa_mode == "ON")
         begin
             dpa_in <= rx_in;
             retime_data <= dpa_in;
@@ -25673,11 +25673,11 @@ module stratixii_lvds_rx (
                         ram_array[(i4*RAM_WIDTH) + j2] <= 1'b0;
                     fifo_in_sync_reg[i4] <= 1'b0;
                     write_side_sync_reset[i4] <= 1'b1;
-                    
+
                     rdPtr[i4] <= 3;
                     fifo_out_sync_reg[i4] <= 1'b0;
                     read_side_sync_reset[i4] <= 1'b1;
-    
+
                 end
                 else
                 begin
@@ -25690,7 +25690,7 @@ module stratixii_lvds_rx (
                             wrPtr[i4] <= 0;
                     end
                     write_side_sync_reset[i4] <= 1'b0;
-                    
+
                     if (read_side_sync_reset[i4] == 1'b0)
                     begin
                         rdPtr[i4] <= rdPtr[i4] + 1;
@@ -25865,7 +25865,7 @@ module flexible_lvds_rx (
         sync_clock = 1'b0;
         rx_data_align_reg = {number_of_channels{1'b0}};
         int_bitslip_reg = {number_of_channels{1'b0}};
-        
+
         for (i3= 0; i3 < number_of_channels; i3 = i3+1)
             bitslip_count[i3] = 0;
 
@@ -25897,13 +25897,13 @@ module flexible_lvds_rx (
                 datain_h_reg_int[i4] = {number_of_channels{1'b0}};
                 datain_l_reg_int[i4] = {number_of_channels{1'b0}};
             end
-            
+
             pipe_ptr <= 0;
         end
         else
         begin
             if (NUM_OF_SYNC_STAGES > 0)
-            begin           
+            begin
                 if (use_extra_ddio_register == "YES")
                 begin
                     ddio_h_reg <= rx_in;
@@ -25911,9 +25911,9 @@ module flexible_lvds_rx (
                 end
                 else
                     datain_h_reg_int[pipe_ptr] <= rx_in;
-        
+
                 datain_l_reg_int[pipe_ptr] <= datain_l_latch;
-    
+
                 if (NUM_OF_SYNC_STAGES > 1)
                     pipe_ptr <= (pipe_ptr + 1) % NUM_OF_SYNC_STAGES;
 
@@ -25929,7 +25929,7 @@ module flexible_lvds_rx (
                 end
                 else
                     datain_h_reg <= rx_in;
-        
+
                 datain_l_reg <= datain_l_latch;
             end
         end
@@ -26013,8 +26013,8 @@ module flexible_lvds_rx (
 
                         l_int_reg[x + (i * deserialization_factor)] <=
                             l_int_reg [x-1 + (i * deserialization_factor)];
-                    end                    
-    
+                    end
+
                     h_int_reg [i * deserialization_factor] <= datain_h_reg[i];
                     l_int_reg [i * deserialization_factor] <= datain_l_reg[i];
 
@@ -26051,7 +26051,7 @@ module flexible_lvds_rx (
                     begin
                         rx_shift_reg1[x + (i * deserialization_factor)] <=
                             rx_shift_reg1[x-2 + (i * deserialization_factor)];
-    
+
                         rx_shift_reg2[x + (i * deserialization_factor)] <=
                             rx_shift_reg2[x-2 + (i * deserialization_factor)];
                     end
@@ -26062,7 +26062,7 @@ module flexible_lvds_rx (
                             h_int_reg [x-1 + (i * deserialization_factor)];
 
                         l_int_reg[x + (i * deserialization_factor)] <=
-                            l_int_reg [x-1 + (i * deserialization_factor)];                             
+                            l_int_reg [x-1 + (i * deserialization_factor)];
                     end
 
                     h_int_reg [i * deserialization_factor] <= datain_h_reg[i];
@@ -26112,9 +26112,9 @@ module flexible_lvds_rx (
         else
         begin
             rx_sync_reg1 <= rx_shift_reg1;
-            rx_sync_reg2 <= rx_shift_reg2;    
+            rx_sync_reg2 <= rx_shift_reg2;
             rx_sync_reg1_buf2_pipe <= rx_sync_reg1_buf2;
-                
+
             if(use_extra_pll_clk == "NO")
             begin
                 if (select_bit)
@@ -26129,11 +26129,11 @@ module flexible_lvds_rx (
                 else
                     rx_out_odd_mode <= rx_sync_reg2_buf2;
             end
-            
+
             rx_out_odd <= rx_out_odd_mode;
         end
     end // BIT_SELECT
-    
+
     always @ (posedge rx_slowclk)
     begin
         if (rx_slowclk_pre == 1'b0)
@@ -26308,7 +26308,7 @@ module stratixiii_lvds_rx (
     wire [`MAX_CHANNEL -1: 0] i_rx_dpa_lock_reset;
     wire [`MAX_CHANNEL -1: 0] i_rx_dpaclock;
 
-// COMPONENT INSTANTIATIONS   
+// COMPONENT INSTANTIATIONS
 
     // Stratix III LVDS RX Channel
     generate
@@ -26357,7 +26357,7 @@ module stratixiii_lvds_rx (
         chnl.STRATIXV_RX_STYLE = STRATIXV_RX_STYLE;
     end
     endgenerate
-   
+
 // CONTINOUS ASSIGNMENT
 
 assign i_rx_in [number_of_channels - 1 : 0]      = rx_in[number_of_channels - 1 : 0];
@@ -26554,7 +26554,7 @@ parameter STRATIXV_RX_STYLE = 0;
 // LOCAL INTEGER DECLARATION
     integer j;
     integer i;
-    
+
 // INITIAL CONSTRUCT BLOCK
     initial
     begin
@@ -26597,11 +26597,11 @@ parameter STRATIXV_RX_STYLE = 0;
         lock_state_mc = 2'b0;
         rx_in_int = 1'b0;
         lock_state_mc_d = 2'b0;
-        
+
     end
 
 // COMPONENT INSTANTIATIONS
-    
+
     // Stratix III DPA block
     generate
     if (enable_dpa_mode == "ON")
@@ -26630,7 +26630,7 @@ parameter STRATIXV_RX_STYLE = 0;
 
     // This module produces lloaden clock from local clock divider.
     generate
-    if ((STRATIXV_RX_STYLE == 1) && (enable_clock_pin_mode == "ON") && (deserialization_factor > 2)) 
+    if ((STRATIXV_RX_STYLE == 1) && (enable_clock_pin_mode == "ON") && (deserialization_factor > 2))
     begin: stratixv_local_clk_divider
     stratixv_local_clk_divider rx_local_clk_divider (
         .clkin(rx_fastclk),
@@ -26644,12 +26644,12 @@ parameter STRATIXV_RX_STYLE = 0;
 
 // ALWAYS CONSTRUCT BLOCK
 
-   
+
     always @ (rx_in)
-    begin 
+    begin
         rx_in_int <= #120 rx_in;
     end
-    
+
     always @ (negedge fast_clk)
     begin
         if (enable_soft_cdr_mode == "ON")
@@ -26660,7 +26660,7 @@ parameter STRATIXV_RX_STYLE = 0;
 
     always @ (negedge rx_fastclk)
     begin
-        rx_in_reg_neg <= rx_in;       
+        rx_in_reg_neg <= rx_in;
     end
 
     // Generates the rx_divfwdclk
@@ -26684,7 +26684,7 @@ parameter STRATIXV_RX_STYLE = 0;
                 else if (div_clk_count_neg == ((deserialization_factor+1) / 2))
                     rx_divfwdclk_int = 1'b1;
             end
-           
+
             if (div_clk_count_neg == (deserialization_factor -1))
                 load_enable_cdr = 1'b1;
             else if (div_clk_count_neg == deserialization_factor)
@@ -26717,19 +26717,19 @@ parameter STRATIXV_RX_STYLE = 0;
         begin
             if (enable_soft_cdr_mode == "ON")
                 enable0_reg <= load_enable_cdr;
-            else 
+            else
                 enable0_reg <= dpa_loaden;
         end
         else
             enable0_reg <= rx_enable_dly;
-    
+
         if (enable0_reg == 1'b1)
             rx_out_int <= rx_shift_reg;
-        
-        rx_in_reg_pos <= rx_in; 
-            
+
+        rx_in_reg_pos <= rx_in;
+
         {tmp_reg, rx_shift_reg} <= {rx_shift_reg, bitslip_mux_out};
-    
+
         {tmp_reg, shift_reg_chain} <= {shift_reg_chain, 1'b0};
 
         if (rx_cda_reset !== 1'b1)
@@ -26793,7 +26793,7 @@ parameter STRATIXV_RX_STYLE = 0;
             bitslip_mux_out <= shift_reg_chain[bitslip_count];
 
         rx_channel_data_align_pre <= rx_channel_data_align;
-        
+
         if (enable_soft_cdr_mode == "ON")
         begin
             // get the number of positive edge of fast clock, which is used to determine
@@ -26829,7 +26829,7 @@ parameter STRATIXV_RX_STYLE = 0;
                     if (wrPtr == 5)
                         wrPtr <= 0;
                 end
-                write_side_sync_reset <= 1'b0;                    
+                write_side_sync_reset <= 1'b0;
             end
         end
     end
@@ -26842,13 +26842,13 @@ parameter STRATIXV_RX_STYLE = 0;
             if ((rx_reset == 1'b1) || (fifo_reset_regr_dly3 == 1'b1) ||
                 ((reset_fifo_at_first_lock == "ON") &&
                 (dpa_locked == 1'b0)))
-            begin                    
+            begin
                 rdPtr <= 3;
                 fifo_out_sync_reg <= 1'b0;
                 read_side_sync_reset <= 1'b1;
             end
             else
-            begin                    
+            begin
                 if (read_side_sync_reset == 1'b0)
                 begin
                     rdPtr <= rdPtr + 1;
@@ -26873,12 +26873,12 @@ parameter STRATIXV_RX_STYLE = 0;
     begin
         rx_dpa_sync_reg <= rx_out_int;
     end
-    
+
     always @ (rx_fastclk)
     begin
         rx_fastclk_dly <= rx_fastclk;
     end
-    
+
     always @ (rx_fastclk_dly)
     begin
         rx_fastclk_dly2 <= rx_fastclk_dly;
@@ -26888,39 +26888,39 @@ parameter STRATIXV_RX_STYLE = 0;
     begin
         rx_fastclk_dly3 <= rx_fastclk_dly2;
     end
-    
+
     always @ (fifo_reset_regr)
-    begin 
+    begin
         fifo_reset_regr_dly <= fifo_reset_regr;
     end
-    
+
     always @ (fifo_reset_regr_dly)
     begin
         fifo_reset_regr_dly2 <= fifo_reset_regr_dly;
     end
-    
+
     always @ (fifo_reset_regr_dly2)
     begin
         fifo_reset_regr_dly3 <= fifo_reset_regr_dly2;
     end
-    
+
     always @ (dpa_locked)
     begin
         dpa_locked_dly <= dpa_locked;
     end
-    
+
     always @ (dpa_locked_dly)
     begin
         reset_fifo <= !dpa_locked_dly;
     end
-    
+
     always @ (wire_lock_state_mc_d)
     begin
         lock_state_mc_d[1:0] <= wire_lock_state_mc_d[1:0];
     end
-    
-    
-    
+
+
+
     always @ (posedge rx_slowclk or posedge rx_reset or posedge pll_locked or posedge int_pll_kick_reset)
     begin
         if (rx_reset == 1'b1 || ~pll_locked || int_pll_kick_reset== 1'b1)
@@ -26929,27 +26929,27 @@ parameter STRATIXV_RX_STYLE = 0;
             extra_regr <=0;
             lock_out_regr <= 0;
             in_bus_add <= 0;
-        end                      
+        end
         else
-        begin 
+        begin
             pad_regr <= rx_out;
             in_bus_add[0] <= extra_regr ^ pad_regr[0];
             extra_regr <= pad_regr[deserialization_factor-1];
             for (j =1; j < deserialization_factor; j=j+1)
             begin
                 in_bus_add[j] <= pad_regr[j] ^ pad_regr[j-1];
-            end  
+            end
             if (accum_regr_temp >= 256)
             begin
                 lock_out_regr <= 1'b1;
-            end 
+            end
         end
-        
+
         if (rx_reset == 1'b1 || ~pll_locked)
             lock_out_reg_dly <= 1'b0;
         else
             lock_out_reg_dly <= lock_out_regr;
-         
+
         if (use_dpa_calibration == 1)
         begin
             if (rx_reset == 1'b1 || ~pll_locked)
@@ -26961,14 +26961,14 @@ parameter STRATIXV_RX_STYLE = 0;
                     lock_state_mc[0] <= lock_state_mc_d[0];
         end
     end
-      
+
     always @ (posedge rx_slowclk or posedge rx_reset or posedge pll_locked or posedge int_pll_kick_reset)
     begin
         if (rx_reset == 1'b1 || ~pll_locked || int_pll_kick_reset== 1'b1)
         begin
             accum_regr_temp = 0;
         end
-        else       
+        else
         for (i =0; i < deserialization_factor; i=i+1)
         begin
             if (in_bus_add[i] == 1'b1)
@@ -26977,7 +26977,7 @@ parameter STRATIXV_RX_STYLE = 0;
             end
         end
     end
-      
+
     // CONTINOUS ASSIGNMENT
     assign rx_divfwdclk = ~rx_divfwdclk_int;
     assign rx_out = (registered_output == "ON") ? rx_out_reg : rx_out_int;
@@ -27006,7 +27006,7 @@ endmodule // stratixiii_lvds_rx_channel
 // Limitation      :   Only available to Stratix III.
 //
 // Results expected:   Retimed data, dpa clock, enable and lock signal with the selected phase.
-//                     
+//
 //
 //END_MODULE_NAME---------------------------------------------------------------
 
@@ -27049,7 +27049,7 @@ module stratixiii_lvds_rx_dpa (
     output rx_dpa_clk;
     output rx_dpa_loaden;
     output rx_dpa_locked;
-    
+
 
 // INTERNAL REGISTERS DECLARATION
     reg  first_clkin_edge_detect;
@@ -27085,7 +27085,7 @@ module stratixiii_lvds_rx_dpa (
             counter_reset_value = 1000000/(sim_dpa_net_ppm_variation  * 8);
             count_value =  counter_reset_value;
         end
-        
+
         rx_dpa_locked    = 1'b0;
         dpa_locked_tmp   = 1'b0;
         dpa_clk_tmp      = {PHASE_NUM{1'b0}};
@@ -27094,7 +27094,7 @@ module stratixiii_lvds_rx_dpa (
         count = 0;
         ppm_offset = 0;
         dpa_dataout_tmp = 1'b0;
-        
+
         dpa_dataout_tmp = {PHASE_NUM{1'b0}};
     end
 
@@ -27113,7 +27113,7 @@ module stratixiii_lvds_rx_dpa (
                 clk_period = $realtime - last_clkin_edge;
             end
         last_clkin_edge = $realtime;
-    
+
         //assign dpa lock
         if(((clk_period ==last_clk_period) ||(clk_period == last_clk_period-1) || (clk_period ==last_clk_period +1)) && (clk_period != 0) && (last_clk_period != 0))
             dpa_locked_tmp = 1'b1;
@@ -27168,9 +27168,9 @@ module stratixiii_lvds_rx_dpa (
 
     always @ (dpa_dataout_tmp or ppm_offset or rx_dpa_reset)
     begin
-        
+
         if (enable_soft_cdr_mode == "OFF")
-            rx_out_int <= dpa_dataout_tmp[0];    
+            rx_out_int <= dpa_dataout_tmp[0];
         else
         begin
             if (rx_dpa_reset == 1'b1)
@@ -27192,7 +27192,7 @@ module stratixiii_lvds_rx_dpa (
 
     always @ (dpa_clk_tmp or ppm_offset or rx_dpa_reset)
     begin
-        
+
         if (enable_soft_cdr_mode == "OFF")
             rx_dpa_clk <= dpa_clk_tmp[INITIAL_PHASE_SELECT];
         else
@@ -27210,13 +27210,13 @@ module stratixiii_lvds_rx_dpa (
     end
 
     always @ (dpa_locked_tmp or rx_dpa_reset)
-    begin     
+    begin
         if (rx_dpa_reset == 1'b1)
             rx_dpa_locked = 1'b0;
         else
             rx_dpa_locked = dpa_locked_tmp;
     end
-    
+
     always@(posedge rx_fastclk or posedge rx_dpa_reset or posedge rx_dpa_hold)
     begin
         if (enable_soft_cdr_mode == "ON")
@@ -27249,7 +27249,7 @@ module stratixiii_lvds_rx_dpa (
             end
         end
     end
-    
+
     // CONTINOUS ASSIGNMENT
     assign rx_dpa_loaden = (enable_soft_cdr_mode == "ON") ? 1'b0 : dpa_loaden[INITIAL_PHASE_SELECT];
 
@@ -27465,7 +27465,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                     ? 2
                                     : 1)
                                 : 1;
-                                    
+
     // calculate clock boost for STRATIX, STRATIX GX and STRATIX II
     parameter STRATIX_INCLOCK_BOOST =
                                 ((output_data_rate !=0) && (inclock_period !=0))
@@ -27577,7 +27577,7 @@ parameter enable_clock_pin_mode = "UNUSED";
 
     // input clock period for PLL.
     parameter CLOCK_PERIOD = (deserialization_factor > 2) ? inclock_period : 10000;
-    
+
     parameter USE_NEW_CORECLK_CKT = (deserialization_factor%2 == 1) && (coreclock_divide_by == 1) ? "TRUE" : "FALSE";
 
 // LOCAL_PARAMETERS_END
@@ -27604,7 +27604,7 @@ parameter enable_clock_pin_mode = "UNUSED";
     // Asynchronously resets all counters to initial values (only for Stratix
     // and Stratix GX devices)
     input pll_areset;
-    
+
     input tx_data_reset;
 
 
@@ -27845,7 +27845,7 @@ parameter enable_clock_pin_mode = "UNUSED";
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
+
         // Invalid parameter checking for LE based lvds transmitter
         if (FAMILY_HAS_FLEXIBLE_LVDS == 1)
         begin
@@ -27901,7 +27901,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                         non_50_duty_cycle_is_valid = 1;
                 end
             end
-            
+
             if (outclock_duty_cycle != 50)
             begin
                 if (non_50_duty_cycle_is_valid)
@@ -28018,7 +28018,7 @@ parameter enable_clock_pin_mode = "UNUSED";
     defparam
         u1.primary_clock        = "inclk0",
         u1.pll_type             = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
-                                    ? ((inclock_data_alignment == "UNUSED") 
+                                    ? ((inclock_data_alignment == "UNUSED")
                                         ? "auto"
                                         : "flvds")
                                     : "lvds",
@@ -28098,7 +28098,7 @@ parameter enable_clock_pin_mode = "UNUSED";
 
     defparam
         u2.pll_type             = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
-                                    ? ((inclock_data_alignment == "UNUSED") 
+                                    ? ((inclock_data_alignment == "UNUSED")
                                         ? "auto"
                                         : "flvds")
                                     : "lvds",
@@ -28171,7 +28171,7 @@ parameter enable_clock_pin_mode = "UNUSED";
 
     defparam
         u6.pll_type             = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
-                                    ? ((inclock_data_alignment == "UNUSED") 
+                                    ? ((inclock_data_alignment == "UNUSED")
                                         ? "auto"
                                         : "flvds")
                                     : "lvds",
@@ -28262,11 +28262,11 @@ parameter enable_clock_pin_mode = "UNUSED";
     end
     endgenerate
 
-    
+
     // This module produces output clock for StratixII.
     generate
     if (((STRATIXII_TX_STYLE == 1) || (STRATIXIII_TX_STYLE == 1)) &&
-            (implement_in_les == "OFF") && (deserialization_factor > 2)) 
+            (implement_in_les == "OFF") && (deserialization_factor > 2))
     begin: stratixii_tx_outclk
     stratixii_tx_outclk u4 (
         .tx_in(phase_shift_txdata),
@@ -28321,7 +28321,7 @@ parameter enable_clock_pin_mode = "UNUSED";
     // This module produces lloaden clock from local clock divider.
     generate
     if ((STRATIXIII_TX_STYLE == 1) && (enable_clock_pin_mode == "ON") &&
-            (implement_in_les == "OFF") && (deserialization_factor > 2)) 
+            (implement_in_les == "OFF") && (deserialization_factor > 2))
     begin: stratixv_local_clk_divider
     stratixv_local_clk_divider u6 (
         .clkin(tx_fastclk),
@@ -28353,7 +28353,7 @@ parameter enable_clock_pin_mode = "UNUSED";
     begin : FAST_CLOCK_POS
         if (deserialization_factor > 2)
         begin
-        
+
             // registering load enable signal
             enable0_reg2 <= enable0_reg1;
             enable0_reg1 <= (use_external_pll == "ON") ? tx_enable :
@@ -28399,7 +28399,7 @@ parameter enable_clock_pin_mode = "UNUSED";
             enable0_neg <= enable0_reg2;
 
             negedge_count <= negedge_count + 1;
-    
+
             // Loading data to parallel load register for non-STRATIX family
             if ((negedge_count == 2) && (STRATIX_TX_STYLE == 0) &&
                 (STRATIXII_TX_STYLE == 0) && (STRATIXIII_TX_STYLE == 0) &&
@@ -28431,14 +28431,14 @@ parameter enable_clock_pin_mode = "UNUSED";
     begin
         stratixiii_enable1_dly <= stratixiii_enable1;
     end
-    
+
     always @(posedge stratixiii_locked or posedge pll_areset)
     begin
         if (pll_areset)
             pll_lock_sync <= 1'b0;
         else
             pll_lock_sync <= 1'b1;
-    end 
+    end
 
     // CONTINOUS ASSIGNMENT
     assign tx_out        =  (deserialization_factor == 1)
@@ -28489,7 +28489,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 ? stratixii_pll_outclock[1] :
                             ((FAMILY_HAS_FLEXIBLE_LVDS == 1) &&
                             (FAMILY_HAS_STRATIXIII_STYLE_PLL == 1))
-                                ? stratixiii_pll_outclock[1] 
+                                ? stratixiii_pll_outclock[1]
                                 : tx_slowclk;
 
     assign tx_coreclock  =  tx_coreclock_int;
@@ -28608,12 +28608,12 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 (implement_in_les == "OFF"))
                                 ?((enable_clock_pin_mode == "ON")
                                 ?local_clk_div_lloaden:
-                                stratixiii_pll_outclock[1]) 
+                                stratixiii_pll_outclock[1])
                                 : 1'b0;
 
     assign stratixiii_enable1 = ((STRATIXIII_TX_STYLE == 1) &&
                                 (implement_in_les == "OFF"))
-                                ?((enable_clock_pin_mode == "ON") 
+                                ?((enable_clock_pin_mode == "ON")
                                 ?local_clk_div_lloaden:
                                 stratixiii_pll_outclock[4])
                                 : 1'b0;
@@ -28634,7 +28634,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 ? tx_inclock
                                 : stratixiii_pll_outclock[0]) :
                             (MAXV_TX_STYLE == 1)
-                            ? tx_inclock 
+                            ? tx_inclock
                             : 1'b0;
 
     assign flvds_slowclk = ((FAMILY_HAS_FLEXIBLE_LVDS == 1) &&
@@ -28653,7 +28653,7 @@ parameter enable_clock_pin_mode = "UNUSED";
                                 ? tx_syncclock
                                 : stratixiii_pll_outclock[2]) :
                             (MAXV_TX_STYLE == 1)
-                            ? tx_syncclock 
+                            ? tx_syncclock
                             : 1'b0;
 
     assign flvds_regclk = (FAMILY_HAS_FLEXIBLE_LVDS == 1)
@@ -28720,7 +28720,7 @@ begin
  begin
 
 
- 
+
 if(cnt < clk_divide_by-1)
 
 
@@ -29115,7 +29115,7 @@ module flexible_lvds_tx (
         outclock_h = 1'b0;
         sync_dffe = 1'b0;
         load_enable = 1'b0;
-        
+
         if ((deserialization_factor%2 == 1) ||
             (((deserialization_factor == 6) ||
             (deserialization_factor == 10)) &&
@@ -29177,7 +29177,7 @@ module flexible_lvds_tx (
                 outclk_data_l = (outclock_divide_by == 7) ? 120 : 0;
             else if (deserialization_factor == 9)
                 outclk_data_l = (outclock_divide_by == 9) ? 391 : 0;
-                
+
             outclk_data_h = outclk_data_l;
         end
         outclk_shift_l = outclk_data_l;
@@ -29196,7 +29196,7 @@ module flexible_lvds_tx (
         begin
             dataout_h <= {number_of_channels{1'b0}};
             dataout_l <= {number_of_channels{1'b0}};
-            dataout_tmp <= {number_of_channels{1'b0}};            
+            dataout_tmp <= {number_of_channels{1'b0}};
         end
         else
         begin
@@ -29272,7 +29272,7 @@ module flexible_lvds_tx (
             // Implementation for even deserialization factor.
             if ((deserialization_factor % 2) == 0)
             begin
-    
+
                 if(load_enable == 1'b1)
                     tx_shift_reg <= tx_in_int;
                 else
@@ -29289,7 +29289,7 @@ module flexible_lvds_tx (
             begin
                 if (use_new_coreclk_ckt == "FALSE")
                 begin
-        
+
                     if(load_enable == 1'b1)
                         tx_shift_reg2 <= tx_in_int2;
                     else
@@ -29307,26 +29307,26 @@ module flexible_lvds_tx (
                     // state machine counter
                     if (((sm_p2s == 0) && start_sm_p2s) || (sm_p2s != 0))
                         sm_p2s <= (sm_p2s + 1) % deserialization_factor;
-    
+
                     // synchronization register
                     if (((sm_p2s == 0) && start_sm_p2s) || (sm_p2s == deserialization_factor/2 + 1))
                     begin
                         for (x=0; x < deserialization_factor; x = x+1)
                             tx_reg_2ary[x] <= tx_in_2ary[x];
                     end
-    
+
                     // stage 1a register
                     if ((sm_p2s > 0) && (sm_p2s < deserialization_factor/2 +1))
                         stage1_a <= {tx_reg_2ary[deserialization_factor - 2*sm_p2s + 1], tx_reg_2ary[deserialization_factor - 2*sm_p2s]};
                     else if (sm_p2s == deserialization_factor/2 + 1)
                         stage1_a <= {tx_reg_2ary[0], {number_of_channels{1'b0}}};
-    
+
                     // stage 1b register
                     if (((sm_p2s == 0) && start_sm_p2s))
-                        stage1_b <= {tx_reg_2ary[1], tx_reg_2ary[0]};                    
+                        stage1_b <= {tx_reg_2ary[1], tx_reg_2ary[0]};
                     else if ((sm_p2s > deserialization_factor /2 + 1) && (sm_p2s < deserialization_factor))
                         stage1_b <= {tx_reg_2ary[(deserialization_factor - sm_p2s)*2 + 1], tx_reg_2ary[(deserialization_factor - sm_p2s)*2]};
-    
+
                     // stage 2 register
                     if ((sm_p2s > 1) && (sm_p2s < deserialization_factor/2 +2))
                         stage2 <= stage1_a;
@@ -29335,7 +29335,7 @@ module flexible_lvds_tx (
                         stage2 <= stage1_b;
                     else if (sm_p2s == deserialization_factor/2 + 2)
                         stage2 <= {stage1_a[number_of_channels*2-1 : number_of_channels], tx_reg_2ary[deserialization_factor - 1]};
-                            
+
                 end
             end
         end
@@ -29416,7 +29416,7 @@ module flexible_lvds_tx (
         else
             outclk_load_cntr <= (outclk_load_cntr + 1) % deserialization_factor;
 
-    end  
+    end
 
     // generate outclock
     always @ (posedge pll_outclock or posedge pll_areset)
@@ -29436,10 +29436,10 @@ module flexible_lvds_tx (
             else
             begin
                 outclk_shift_l <= outclk_shift_l >> 1;
-                outclk_shift_h <= outclk_shift_h >> 1;                
+                outclk_shift_h <= outclk_shift_h >> 1;
             end
         end
-    end  
+    end
 
     always @ (posedge pll_outclock or posedge pll_areset)
     begin
@@ -29447,7 +29447,7 @@ module flexible_lvds_tx (
         begin
             outclock_h <= 1'b0;
             outclock_l <= 1'b0;
-            tx_outclock_tmp <= 1'b0;            
+            tx_outclock_tmp <= 1'b0;
         end
         else
         begin
@@ -29461,7 +29461,7 @@ module flexible_lvds_tx (
             begin
                 outclock_h <= outclk_shift_h[0];
                 outclock_l <= outclk_shift_l[0];
-                tx_outclock_tmp <= outclk_shift_h;                
+                tx_outclock_tmp <= outclk_shift_h;
             end
         end
     end
@@ -29502,14 +29502,14 @@ module flexible_lvds_tx (
             h_ff <= load_cntr;
             h_us_ff <= h_ff;
             l_s_ff <= l_us_ff;
-            
+
         end
         else
         begin
             l_ff <= load_cntr;
             l_us_ff <= l_ff;
             h_s_ff <= h_us_ff;
-            
+
         end
 
         load_enable <= (((h_ff == h_s_ff) & sync_dffe) | ((l_ff == l_s_ff) & !sync_dffe));
@@ -31141,7 +31141,7 @@ module dcfifo_low_latency (data, rdclk, wrclk, aclr, rdreq, wrreq,
                       (write_aclr_synch == "ON")) ?
                      ((overflow_checking == "OFF") ?  wrreq && (!sync_wraclr)
                                                    : (wrreq && !(i_wrfull | sync_wraclr))) :
-                      (overflow_checking == "OFF") ?  wrreq : (wrreq && !i_wrfull);     
+                      (overflow_checking == "OFF") ?  wrreq : (wrreq && !i_wrfull);
     assign rdempty = (is_underflow || is_overflow) ? 1'bx :
                      (((feature_family_stratixiii == 1) ||
                        (feature_family_cycloneiii == 1)) &&
@@ -31619,7 +31619,7 @@ endmodule // dcfifo
 //
 // Results expected:  result - The results of add or subtract operation. Output
 //                             port [width_out-1 .. 0] wide.
-//                    cout   - The cout port has a physical interpretation as 
+//                    cout   - The cout port has a physical interpretation as
 //                             the carry-out (borrow-in) of the MSB. The cout
 //                             port is most meaningful for detecting overflow
 //                             in unsigned operations. The cout port operates
@@ -31704,7 +31704,7 @@ module altaccumulate (cin, data, add_sub, clock, sload, clken, sign_data, aclr,
     // INITIAL CONSTRUCT BLOCK
     initial
     begin
-    
+
         // Checking for invalid parameters
         if( width_in <= 0 )
         begin
@@ -31719,19 +31719,19 @@ module altaccumulate (cin, data, add_sub, clock, sload, clken, sign_data, aclr,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if( extra_latency > width_out )
         begin
             $display("Info: Value of extra_latency parameter should be lower than width_out parameter for better performance/utilization.");
         end
-        
+
         if( width_in > width_out )
         begin
             $display("Error! Value of width_in parameter should be lower than or equal to width_out.");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-    
+
         result_full = 0;
         head = 0;
         result_int = 0;
@@ -31754,7 +31754,7 @@ module altaccumulate (cin, data, add_sub, clock, sload, clken, sign_data, aclr,
             begin
                 result_pipe [i] <= 0;
             end
-            
+
         end
         else
         begin
@@ -31774,7 +31774,7 @@ module altaccumulate (cin, data, add_sub, clock, sload, clken, sign_data, aclr,
                 else
                 begin
                     result_full <= {overflow_int_wire, {cout_int_wire, temp_sum_wire [width_out-1:0]}};
-                    
+
                 end
 
                 result_int <= {overflow_int_wire, {cout_int_wire, temp_sum_wire [width_out-1:0]}};
@@ -31786,13 +31786,13 @@ module altaccumulate (cin, data, add_sub, clock, sload, clken, sign_data, aclr,
     begin
         if (extra_latency > 0)
                 result_full = result_pipe [head];
-                
+
     end
 
     always @ (data or cin or add_sub_int or sign_data_int or
                 result_int_wire [width_out -1:0] or sload_int)
     begin
-        
+
         if ((lpm_representation == "SIGNED") || (sign_data_int == 1))
         begin
             zeropad = (data [width_in-1] ==0) ? 0 : -1;
@@ -31837,7 +31837,7 @@ module altaccumulate (cin, data, add_sub, clock, sload, clken, sign_data, aclr,
             cout_int = !add_sub_int;
             overflow_int = 0;
         end
-       
+
     end
 
     // CONTINOUS ASSIGNMENT
@@ -31875,33 +31875,33 @@ endmodule   // End of altaccumulate
 
 `timescale 1 ps / 1 ps
 
-module altmult_accum (  dataa, 
-                        datab, 
+module altmult_accum (  dataa,
+                        datab,
 			            datac,
                         scanina,
                         scaninb,
                         sourcea,
                         sourceb,
                         accum_sload_upper_data,
-                        addnsub, 
-                        accum_sload, 
-                        signa, 
+                        addnsub,
+                        accum_sload,
+                        signa,
                         signb,
-                        clock0, 
-                        clock1, 
-                        clock2, 
+                        clock0,
+                        clock1,
+                        clock2,
                         clock3,
-                        ena0, 
-                        ena1, 
-                        ena2, 
+                        ena0,
+                        ena1,
+                        ena2,
                         ena3,
-                        aclr0, 
-                        aclr1, 
-                        aclr2, 
+                        aclr0,
+                        aclr1,
+                        aclr2,
                         aclr3,
-                        result, 
-                        overflow, 
-                        scanouta, 
+                        result,
+                        overflow,
+                        scanouta,
                         scanoutb,
                         mult_round,
                         mult_saturation,
@@ -31981,7 +31981,7 @@ module altmult_accum (  dataa,
     parameter mult_round_reg = "CLOCK0";
     parameter mult_saturation_aclr = "ACLR3";
     parameter mult_saturation_reg = "CLOCK0";
-    
+
     parameter input_source_a  = "DATAA";
     parameter input_source_b  = "DATAB";
     parameter width_upper_data = 1;
@@ -32012,10 +32012,10 @@ module altmult_accum (  dataa,
   	parameter preadder_mode	= "SIMPLE";
   	parameter loadconst_value = 0;
   	parameter width_coef = 0;
-  	
+
   	parameter loadconst_control_register = "CLOCK0";
   	parameter loadconst_control_aclr	= "ACLR0";
- 	
+
 	parameter coefsel0_register = "CLOCK0";
   	parameter coefsel1_register	= "CLOCK0";
   	parameter coefsel2_register	= "CLOCK0";
@@ -32024,17 +32024,17 @@ module altmult_accum (  dataa,
    	parameter coefsel1_aclr	= "ACLR0";
 	parameter coefsel2_aclr	= "ACLR0";
    	parameter coefsel3_aclr	= "ACLR0";
-	
+
    	parameter preadder_direction_0	= "ADD";
 	parameter preadder_direction_1	= "ADD";
 	parameter preadder_direction_2	= "ADD";
 	parameter preadder_direction_3	= "ADD";
-	
+
 	parameter systolic_delay1 = "UNREGISTERED";
 	parameter systolic_delay3 = "UNREGISTERED";
 	parameter systolic_aclr1 = "NONE";
 	parameter systolic_aclr3 = "NONE";
-	
+
 	//coefficient storage
 	parameter coef0_0 = 0;
 	parameter coef0_1 = 0;
@@ -32044,7 +32044,7 @@ module altmult_accum (  dataa,
 	parameter coef0_5 = 0;
 	parameter coef0_6 = 0;
 	parameter coef0_7 = 0;
-	
+
 	parameter coef1_0 = 0;
 	parameter coef1_1 = 0;
 	parameter coef1_2 = 0;
@@ -32053,7 +32053,7 @@ module altmult_accum (  dataa,
 	parameter coef1_5 = 0;
 	parameter coef1_6 = 0;
 	parameter coef1_7 = 0;
-	
+
 	parameter coef2_0 = 0;
 	parameter coef2_1 = 0;
 	parameter coef2_2 = 0;
@@ -32062,7 +32062,7 @@ module altmult_accum (  dataa,
 	parameter coef2_5 = 0;
 	parameter coef2_6 = 0;
 	parameter coef2_7 = 0;
-	
+
 	parameter coef3_0 = 0;
 	parameter coef3_1 = 0;
 	parameter coef3_2 = 0;
@@ -32123,7 +32123,7 @@ module altmult_accum (  dataa,
 	input [2:0]coefsel1;
 	input [2:0]coefsel2;
 	input [2:0]coefsel3;
-	
+
     // output ports
     output [width_result -1 : 0] result;
     output overflow;
@@ -32138,7 +32138,7 @@ module altmult_accum (  dataa,
     // REG DECLARATION
     // ---------------
     reg [width_result -1 : 0] result;
-    
+
     reg [int_width_result -1 : 0] mult_res_out;
     reg [int_width_result : 0] temp_sum;
 
@@ -32147,7 +32147,7 @@ module altmult_accum (  dataa,
     reg [width_result + 1 : 0] result_full ;
 
     reg [int_width_result - 1 : 0] result_int;
-    
+
     reg [int_width_a - 1 : 0] mult_a_reg;
     reg [int_width_a - 1 : 0] mult_a_int;
     reg [int_width_a + int_width_b - 1 : 0] mult_res;
@@ -32157,10 +32157,10 @@ module altmult_accum (  dataa,
 
     reg [int_width_b -1 :0] mult_b_reg;
     reg [int_width_b -1 :0] mult_b_int;
-    
+
     reg [5 + int_width_a + int_width_b + width_upper_data : 0] mult_pipe [extra_multiplier_latency:0];
     reg [5 + int_width_a + int_width_b + width_upper_data : 0] mult_full;
-    
+
     reg [width_upper_data - 1 : 0] sload_upper_data_reg;
 
     reg [width_result - width_upper_data -1 + 4 : 0] lower_bits;
@@ -32188,7 +32188,7 @@ module altmult_accum (  dataa,
     reg overflow_tmp_int;
 
     reg overflow;
-    
+
     reg [int_width_a + int_width_b -1 : 0] mult_round_out;
     reg mult_saturate_overflow;
     reg [int_width_a + int_width_b -1 : 0] mult_saturate_out;
@@ -32204,11 +32204,11 @@ module altmult_accum (  dataa,
     tri0 mult_is_saturated_latent;
     reg mult_is_saturated_int;
     reg mult_is_saturated_reg;
-    
+
     reg accum_is_saturated_latent;
     reg [extra_accumulator_latency : 0] accum_saturate_pipe;
     reg [extra_accumulator_latency : 0] mult_is_saturated_pipe;
-    
+
     reg  mult_round_tmp;
     reg  mult_saturation_tmp;
     reg  accum_round_tmp1;
@@ -32219,7 +32219,7 @@ module altmult_accum (  dataa,
     reg is_stratixiii;
     reg is_stratixii;
     reg is_cycloneii;
-    
+
     reg  [int_width_result - int_width_a - int_width_b + 2 - 1 : 0] accum_result_sign_bits;
 
     reg [31:0] head_result;
@@ -32292,7 +32292,7 @@ module altmult_accum (  dataa,
     tri0 accum_sload_upper_data_wire_clr;
     tri0 accum_sload_upper_data_pipe_wire_clr;
 
-    
+
     // Tri wire for enable signal
 
     tri1 input_a_wire_en;
@@ -32311,7 +32311,7 @@ module altmult_accum (  dataa,
     tri1 sign_pipe_b_wire_en;
 
     tri1 multiplier_wire_en;
-    tri1 mult_pipe_wire_en; 
+    tri1 mult_pipe_wire_en;
 
     tri1 output_wire_en;
 
@@ -32356,7 +32356,7 @@ module altmult_accum (  dataa,
     wire sign_pipe_b_wire_clk;
 
     wire multiplier_wire_clk;
-    wire mult_pipe_wire_clk; 
+    wire mult_pipe_wire_clk;
 
     wire output_wire_clk;
 
@@ -32407,7 +32407,7 @@ module altmult_accum (  dataa,
     wire accum_round_wire_clk;
     wire accum_round_int;
     wire accum_round_pipe_wire_clk;
-    
+
     wire accum_saturation_tmp1_wire;
     wire accum_saturation_wire_clk;
     wire accum_saturation_int;
@@ -32416,9 +32416,9 @@ module altmult_accum (  dataa,
     wire accum_sload_upper_data_wire_clk;
     wire accum_sload_upper_data_pipe_wire_clk;
     wire [width_result -1 : width_result - width_upper_data] accum_sload_upper_data_int;
-   
+
     tri0 mult_is_saturated_wire;
-    
+
     wire [31:0] head_result_wire;
 
     // ------------------------
@@ -32430,30 +32430,30 @@ module altmult_accum (  dataa,
     // --------------------
     // ASSIGNMENT STATEMENTS
     // --------------------
-    
-                            
+
+
     assign addsub_int = (port_addnsub == "PORT_USED") ? addsub_pipe_wire :
                                 (port_addnsub == "PORT_UNUSED") ? ((accum_direction == "ADD") ? 1'b1 : 1'b0) :
                                     ((addnsub ===1'bz) ||
                                     (addsub_wire_clk ===1'bz) ||
                                     (addsub_pipe_wire_clk ===1'bz)) ?
-                                        ((accum_direction == "ADD") ? 1'b1 : 1'b0) : addsub_pipe_wire;                    
-                              
+                                        ((accum_direction == "ADD") ? 1'b1 : 1'b0) : addsub_pipe_wire;
+
     assign sign_a_int = (port_signa == "PORT_USED") ? sign_a_pipe_wire :
                                 (port_signa == "PORT_UNUSED") ? ((representation_a == "SIGNED") ? 1'b1 : 1'b0) :
                                     ((signa ===1'bz) ||
                                     (sign_a_wire_clk ===1'bz) ||
                                     (sign_pipe_a_wire_clk ===1'bz)) ?
-                                        ((representation_a == "SIGNED") ? 1'b1 : 1'b0) : sign_a_pipe_wire;   
-           
+                                        ((representation_a == "SIGNED") ? 1'b1 : 1'b0) : sign_a_pipe_wire;
+
     assign sign_b_int = (port_signb == "PORT_USED") ? sign_b_pipe_wire :
                                 (port_signb == "PORT_UNUSED") ? ((representation_b == "SIGNED") ? 1'b1 : 1'b0) :
                                     ((signb ===1'bz) ||
                                     (sign_b_wire_clk ===1'bz) ||
                                     (sign_pipe_b_wire_clk ===1'bz)) ?
-                                        ((representation_b == "SIGNED") ? 1'b1 : 1'b0) : sign_b_pipe_wire;                        
-          
-                            
+                                        ((representation_b == "SIGNED") ? 1'b1 : 1'b0) : sign_b_pipe_wire;
+
+
 
     assign sign_a_reg_int = (port_signa == "PORT_USED") ? sign_a_wire :
                                 (port_signa == "PORT_UNUSED") ? ((representation_a == "SIGNED") ? 1'b1 : 1'b0) :
@@ -32468,12 +32468,12 @@ module altmult_accum (  dataa,
                                     (sign_b_wire_clk ===1'bz) ||
                                     (sign_pipe_b_wire_clk ===1'bz)) ?
                                         ((representation_b == "SIGNED") ? 1'b1 : 1'b0) : sign_b_wire;
-                                         
+
     assign zero_acc_int   = ((accum_sload ===1'bz) ||
                             (zero_wire_clk===1'bz) ||
                             (zero_pipe_wire_clk===1'bz)) ?
                                 1'b0 : zero_acc_pipe_wire;
-                                 
+
     assign accum_sload_upper_data_int = ((accum_sload_upper_data === {width_upper_data{1'bz}}) ||
                                         (accum_sload_upper_data_wire_clk === 1'bz) ||
                                         (accum_sload_upper_data_pipe_wire_clk === 1'bz)) ?
@@ -32481,12 +32481,12 @@ module altmult_accum (  dataa,
 
     assign scanouta       = mult_a_wire[int_width_a - 1 : int_width_a - width_a];
     assign scanoutb       = mult_b_wire[int_width_b - 1 : int_width_b - width_b];
-    
+
     assign {addsub_latent, zeroacc_latent, signa_latent, signb_latent, mult_signed_latent, mult_out_latent, sload_upper_data_latent, mult_is_saturated_latent} = (extra_multiplier_latency > 0) ?
                 mult_full : {addsub_wire, zero_acc_wire, sign_a_wire, sign_b_wire, temp_mult_signed, mult_final_out, sload_upper_data_wire, mult_saturate_overflow};
 
     assign mult_is_saturated = (port_mult_is_saturated != "UNUSED") ? mult_is_saturated_int : 1'b0;
-    assign accum_is_saturated = (port_accum_is_saturated != "UNUSED") ? accum_is_saturated_latent : 1'b0;    
+    assign accum_is_saturated = (port_accum_is_saturated != "UNUSED") ? accum_is_saturated_latent : 1'b0;
 
     // ---------------------------------------------------------------------------------
     // Initialization block where all the internal signals and registers are initialized
@@ -32498,9 +32498,9 @@ module altmult_accum (  dataa,
         is_stratixiii = dev.FEATURE_FAMILY_STRATIXIII(intended_device_family);
         is_stratixii = dev.FEATURE_FAMILY_STRATIXII(intended_device_family);
         is_cycloneii = dev.FEATURE_FAMILY_CYCLONEII(intended_device_family);
-        
+
         // Checking for invalid parameters, in case Wizard is bypassed (hand-modified).
-		
+
 		//ALTMULT_ADD EOL FAMILY CHECKS
 		if(dev.FEATURE_FAMILY_IS_ALTMULT_ADD_EOL(intended_device_family) == 1)
 		begin
@@ -32508,22 +32508,22 @@ module altmult_accum (  dataa,
 				$display("Time: %0t  Instance: %m", $time);
 				$stop;
 		end
-		//Legality check, block new family from running pre_layout simulation using altera_mf (family with altera_mult_add flow) 		
+		//Legality check, block new family from running pre_layout simulation using altera_mf (family with altera_mult_add flow)
 		if(dev.FEATURE_FAMILY_HAS_ALTERA_MULT_ADD_FLOW(intended_device_family) == 1)
 		begin
 				$display ("Error: ALTMULT_ACCUM is not supported for %s device family", intended_device_family);
 				$display("Time: %0t  Instance: %m", $time);
 				$stop;
 		end
-		
-        if ((dedicated_multiplier_circuitry != "AUTO") && 
-            (dedicated_multiplier_circuitry != "YES") && 
+
+        if ((dedicated_multiplier_circuitry != "AUTO") &&
+            (dedicated_multiplier_circuitry != "YES") &&
             (dedicated_multiplier_circuitry != "NO"))
         begin
             $display("Error: The DEDICATED_MULTIPLIER_CIRCUITRY parameter is set to an illegal value.");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
-        end                
+        end
         if (width_a <= 0)
         begin
             $display("Error: width_a must be greater than 0.");
@@ -32552,7 +32552,7 @@ module altmult_accum (  dataa,
             $stop;
         end
 
-        if (( (is_stratixii == 0) && 
+        if (( (is_stratixii == 0) &&
             (is_cycloneii == 0))
             && (input_source_b != "DATAB"))
         begin
@@ -32588,14 +32588,14 @@ module altmult_accum (  dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((is_stratixiii) && (port_addnsub != "PORT_UNUSED"))
         begin
             $display ("Error: The addnsub port is not available for %s device.", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((is_stratixiii) && (accum_direction != "ADD") &&
             (accum_direction != "SUB"))
         begin
@@ -32603,7 +32603,7 @@ module altmult_accum (  dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((is_stratixiii) && (input_source_a == "VARIABLE"))
         begin
             $display ("Error: Invalid value for INPUT_SOURCE_A parameter for %s device.", intended_device_family);
@@ -32611,7 +32611,7 @@ module altmult_accum (  dataa,
             $stop;
         end
 
-        
+
         temp_sum             = 0;
         head_result          = 0;
         head_mult            = 0;
@@ -32645,17 +32645,17 @@ module altmult_accum (  dataa,
         mult_is_saturated_reg = 0;
         mult_saturation_tmp = 0;
         mult_saturate_overflow = 0;
-        
+
         accum_result = 0;
         accum_saturate_overflow = 0;
         accum_is_saturated_latent = 0;
-        
+
         mult_a_tmp = 0;
         mult_b_tmp = 0;
         mult_final_out = 0;
         temp_mult = 0;
         temp_mult_signed = 0;
-        
+
         for (i=0; i<=extra_accumulator_latency; i=i+1)
         begin
             result_pipe [i] = 0;
@@ -32808,7 +32808,7 @@ module altmult_accum (  dataa,
                             (accum_saturation_pipeline_reg == "CLOCK2")? clock2:
                             (accum_saturation_pipeline_reg == "CLOCK3")? clock3: 1'b0;
 
-                            
+
     // ----------------------------------------------------------------
     // This block updates the internal clock enable signals accordingly
     // every time the global clock enable signal changes state
@@ -32931,7 +32931,7 @@ module altmult_accum (  dataa,
                             (accum_round_reg == "CLOCK1")? ena1:
                             (accum_round_reg == "CLOCK2")? ena2:
                             (accum_round_reg == "CLOCK3")? ena3: 1'b1;
-                            
+
     assign accum_round_pipe_wire_en = (accum_round_pipeline_reg == "CLOCK0")? ena0:
                             (accum_round_pipeline_reg == "UNREGISTERED")? 1'b1:
                             (accum_round_pipeline_reg == "CLOCK1")? ena1:
@@ -32943,13 +32943,13 @@ module altmult_accum (  dataa,
                             (accum_saturation_reg == "CLOCK1")? ena1:
                             (accum_saturation_reg == "CLOCK2")? ena2:
                             (accum_saturation_reg == "CLOCK3")? ena3: 1'b1;
-                            
+
     assign accum_saturation_pipe_wire_en = (accum_saturation_pipeline_reg == "CLOCK0")? ena0:
                             (accum_saturation_pipeline_reg == "UNREGISTERED")? 1'b1:
                             (accum_saturation_pipeline_reg == "CLOCK1")? ena1:
                             (accum_saturation_pipeline_reg == "CLOCK2")? ena2:
                             (accum_saturation_pipeline_reg == "CLOCK3")? ena3: 1'b1;
-                            
+
     // ---------------------------------------------------------
     // This block updates the internal clear signals accordingly
     // every time the global clear signal changes state
@@ -32960,65 +32960,65 @@ module altmult_accum (  dataa,
                             (input_aclr_a == "ACLR0")? aclr0:
                             (input_aclr_a == "ACLR1")? aclr1:
                             (input_aclr_a == "ACLR2")? aclr2: 1'b0;
-                             
+
     assign input_b_wire_clr = (input_aclr_b == "ACLR3")? aclr3:
                             (input_aclr_b == "UNUSED")? 1'b0:
                             (input_aclr_b == "ACLR0")? aclr0:
                             (input_aclr_b == "ACLR1")? aclr1:
                             (input_aclr_b == "ACLR2")? aclr2: 1'b0;
-                             
+
 
     assign addsub_wire_clr =(addnsub_aclr == "ACLR3")? aclr3:
                             (addnsub_aclr == "UNUSED")? 1'b0:
                             (addnsub_aclr == "ACLR0")? aclr0:
                             (addnsub_aclr == "ACLR1")? aclr1:
                             (addnsub_aclr == "ACLR2")? aclr2: 1'b0;
-                              
+
 
     assign addsub_pipe_wire_clr =   (addnsub_pipeline_aclr == "ACLR3")? aclr3:
                                     (addnsub_pipeline_aclr == "UNUSED")? 1'b0:
                                     (addnsub_pipeline_aclr == "ACLR0")? aclr0:
                                     (addnsub_pipeline_aclr == "ACLR1")? aclr1:
                                     (addnsub_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                                   
+
 
     assign zero_wire_clr =  (accum_sload_aclr == "ACLR3")? aclr3:
                             (accum_sload_aclr == "UNUSED")? 1'b0:
                             (accum_sload_aclr == "ACLR0")? aclr0:
                             (accum_sload_aclr == "ACLR1")? aclr1:
                             (accum_sload_aclr == "ACLR2")? aclr2: 1'b0;
-                           
+
     assign accum_sload_upper_data_wire_clr =  (accum_sload_upper_data_aclr == "ACLR3")? aclr3:
                             (accum_sload_upper_data_aclr == "UNUSED")? 1'b0:
                             (accum_sload_upper_data_aclr == "ACLR0")? aclr0:
                             (accum_sload_upper_data_aclr == "ACLR1")? aclr1:
                             (accum_sload_upper_data_aclr == "ACLR2")? aclr2: 1'b0;
-                           
+
     assign zero_pipe_wire_clr =  (accum_sload_pipeline_aclr == "ACLR3")? aclr3:
                             (accum_sload_pipeline_aclr == "UNUSED")? 1'b0:
                             (accum_sload_pipeline_aclr == "ACLR0")? aclr0:
                             (accum_sload_pipeline_aclr == "ACLR1")? aclr1:
                             (accum_sload_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                                
+
     assign accum_sload_upper_data_pipe_wire_clr =  (accum_sload_upper_data_pipeline_aclr == "ACLR3")? aclr3:
                             (accum_sload_upper_data_pipeline_aclr == "UNUSED")? 1'b0:
                             (accum_sload_upper_data_pipeline_aclr == "ACLR0")? aclr0:
                             (accum_sload_upper_data_pipeline_aclr == "ACLR1")? aclr1:
                             (accum_sload_upper_data_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                                
+
     assign sign_a_wire_clr =(sign_aclr_a == "ACLR3")? aclr3:
                             (sign_aclr_a == "UNUSED")? 1'b0:
                             (sign_aclr_a == "ACLR0")? aclr0:
                             (sign_aclr_a == "ACLR1")? aclr1:
                             (sign_aclr_a == "ACLR2")? aclr2: 1'b0;
-                        
+
 
     assign sign_b_wire_clr =    (sign_aclr_b == "ACLR3")? aclr3:
                                 (sign_aclr_b == "UNUSED")? 1'b0:
                                 (sign_aclr_b == "ACLR0")? aclr0:
                                 (sign_aclr_b == "ACLR1")? aclr1:
                                 (sign_aclr_b == "ACLR2")? aclr2: 1'b0;
-                            
+
 
 
 
@@ -33027,28 +33027,28 @@ module altmult_accum (  dataa,
                             (sign_pipeline_aclr_a == "ACLR0")? aclr0:
                             (sign_pipeline_aclr_a == "ACLR1")? aclr1:
                             (sign_pipeline_aclr_a == "ACLR2")? aclr2: 1'b0;
-                            
+
 
     assign sign_pipe_b_wire_clr = (sign_pipeline_aclr_b == "ACLR3")? aclr3:
                             (sign_pipeline_aclr_b == "UNUSED")? 1'b0:
                             (sign_pipeline_aclr_b == "ACLR0")? aclr0:
                             (sign_pipeline_aclr_b == "ACLR1")? aclr1:
                             (sign_pipeline_aclr_b == "ACLR2")? aclr2: 1'b0;
-                            
+
 
     assign multiplier_wire_clr = (multiplier_aclr == "ACLR3")? aclr3:
                             (multiplier_aclr == "UNUSED")? 1'b0:
                             (multiplier_aclr == "ACLR0")? aclr0:
                             (multiplier_aclr == "ACLR1")? aclr1:
                             (multiplier_aclr == "ACLR2")? aclr2: 1'b0;
-                             
+
     assign output_wire_clr =(output_aclr == "ACLR3")? aclr3:
                             (output_aclr == "UNUSED")? 1'b0:
                             (output_aclr == "ACLR0")? aclr0:
                             (output_aclr == "ACLR1")? aclr1:
                             (output_aclr == "ACLR2")? aclr2: 1'b0;
-                            
-                            
+
+
     assign mult_pipe_wire_clr  = (multiplier_reg == "UNREGISTERED")? aclr0:
                             multiplier_wire_clr;
 
@@ -33057,37 +33057,37 @@ module altmult_accum (  dataa,
                             (mult_round_aclr == "ACLR0")? aclr0:
                             (mult_round_aclr == "ACLR1")? aclr1:
                             (mult_round_aclr == "ACLR2")? aclr2: 1'b0;
-                            
+
     assign mult_saturation_wire_clr = (mult_saturation_aclr == "ACLR3")? aclr3:
                             (mult_saturation_aclr == "UNUSED")? 1'b0:
                             (mult_saturation_aclr == "ACLR0")? aclr0:
                             (mult_saturation_aclr == "ACLR1")? aclr1:
                             (mult_saturation_aclr == "ACLR2")? aclr2: 1'b0;
-                            
+
     assign accum_round_wire_clr = (accum_round_aclr == "ACLR3")? aclr3:
                             (accum_round_aclr == "UNUSED")? 1'b0:
                             (accum_round_aclr == "ACLR0")? aclr0:
                             (accum_round_aclr == "ACLR1")? aclr1:
                             (accum_round_aclr == "ACLR2")? aclr2: 1'b0;
-                             
+
     assign accum_round_pipe_wire_clr = (accum_round_pipeline_aclr == "ACLR3")? aclr3:
                             (accum_round_pipeline_aclr == "UNUSED")? 1'b0:
                             (accum_round_pipeline_aclr == "ACLR0")? aclr0:
                             (accum_round_pipeline_aclr == "ACLR1")? aclr1:
                             (accum_round_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                            
+
     assign accum_saturation_wire_clr = (accum_saturation_aclr == "ACLR3")? aclr3:
                             (accum_saturation_aclr == "UNUSED")? 1'b0:
                             (accum_saturation_aclr == "ACLR0")? aclr0:
                             (accum_saturation_aclr == "ACLR1")? aclr1:
                             (accum_saturation_aclr == "ACLR2")? aclr2: 1'b0;
-                            
+
     assign accum_saturation_pipe_wire_clr = (accum_saturation_pipeline_aclr == "ACLR3")? aclr3:
                             (accum_saturation_pipeline_aclr == "UNUSED")? 1'b0:
                             (accum_saturation_pipeline_aclr == "ACLR0")? aclr0:
                             (accum_saturation_pipeline_aclr == "ACLR1")? aclr1:
                             (accum_saturation_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                              
+
     // ------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult_a)
     // Signal Registered : dataa
@@ -33114,7 +33114,7 @@ module altmult_accum (  dataa,
         begin
             if (input_source_a == "DATAA")
                 mult_a_tmp = {dataa, {(diff_width_a){1'b0}}};
-            else if ((input_source_a == "SCANA") || (sourcea == 1)) 
+            else if ((input_source_a == "SCANA") || (sourcea == 1))
                 mult_a_tmp = {scanina, {(diff_width_a){1'b0}}};
             else
                 mult_a_tmp = {dataa, {(diff_width_a){1'b0}}};
@@ -33142,7 +33142,7 @@ module altmult_accum (  dataa,
     end
 
 
-    // ------------------------------------------------------------------------                                                                                                                                    
+    // ------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult_b)
     // Signal Registered : datab
     //
@@ -33152,14 +33152,14 @@ module altmult_accum (  dataa,
     //        input_reg_b is unregistered and datab changes value
     // ------------------------------------------------------------------------
     assign mult_b_wire = (input_reg_b == "UNREGISTERED")? mult_b_tmp : mult_b_reg;
-    
+
     always @ (datab or sourceb or scaninb)
     begin
         if (int_width_b == width_b)
         begin
             if (input_source_b == "DATAB")
                 mult_b_tmp = datab;
-            else if ((input_source_b == "SCANB") || (sourceb == 1)) 
+            else if ((input_source_b == "SCANB") || (sourceb == 1))
                 mult_b_tmp = scaninb;
             else
                 mult_b_tmp = datab;
@@ -33168,7 +33168,7 @@ module altmult_accum (  dataa,
         begin
             if (input_source_b == "DATAB")
                 mult_b_tmp = {datab, {(diff_width_b){1'b0}}};
-        else if ((input_source_b == "SCANB") || (sourceb == 1)) 
+        else if ((input_source_b == "SCANB") || (sourceb == 1))
                 mult_b_tmp = {scaninb, {(diff_width_b){1'b0}}};
             else
                 mult_b_tmp = {datab, {(diff_width_b){1'b0}}};
@@ -33262,7 +33262,7 @@ module altmult_accum (  dataa,
 
     assign sload_upper_data_wire = (accum_sload_upper_data_reg == "UNREGISTERED")? accum_sload_upper_data_int : sload_upper_data_reg;
 
-                                
+
     always @(posedge accum_sload_upper_data_wire_clk or posedge accum_sload_upper_data_wire_clr)
     begin
         if (accum_sload_upper_data_wire_clr == 1)
@@ -33299,7 +33299,7 @@ module altmult_accum (  dataa,
 
     end
 
-                                
+
     always @(posedge accum_sload_upper_data_pipe_wire_clk or posedge accum_sload_upper_data_pipe_wire_clr)
     begin
         if (accum_sload_upper_data_pipe_wire_clr == 1)
@@ -33319,7 +33319,7 @@ module altmult_accum (  dataa,
         begin
             if(int_width_result > width_result)
             begin
-                
+
                 if(sign_a_int | sign_b_int)
                 begin
                     sload_upper_data_pipe_wire[int_width_result - 1 : 0] = {int_width_result{sload_upper_data_latent[width_upper_data-1]}};
@@ -33350,7 +33350,7 @@ module altmult_accum (  dataa,
                     for(i4 = int_extra_width; i4 < sload_for_limit; i4 = i4 + 1)
                     begin
                         sload_upper_data_pipe_wire[i4] = sload_upper_data_latent[i4];
-                    end                    
+                    end
                     for(i4 = 0; i4 < int_extra_width; i4 = i4 + 1)
                     begin
                         sload_upper_data_pipe_wire[i4] = 1'b0;
@@ -33384,7 +33384,7 @@ module altmult_accum (  dataa,
                     for(i4 = 0; i4 < int_extra_width; i4 = i4 + 1)
                     begin
                         sload_upper_data_pipe_wire[i4] = 1'b0;
-                    end                    
+                    end
                 end
             end
         end
@@ -33423,7 +33423,7 @@ module altmult_accum (  dataa,
                     for(i4 = int_extra_width; i4 < sload_for_limit; i4 = i4 + 1)
                     begin
                         sload_upper_data_pipe_wire[i4] = sload_upper_data_pipe_reg[i4];
-                    end                    
+                    end
                     for(i4 = 0; i4 < int_extra_width; i4 = i4 + 1)
                     begin
                         sload_upper_data_pipe_wire[i4] = 1'b0;
@@ -33457,12 +33457,12 @@ module altmult_accum (  dataa,
                     for(i4 = 0; i4 < int_extra_width; i4 = i4 + 1)
                     begin
                         sload_upper_data_pipe_wire[i4] = 1'b0;
-                    end                    
+                    end
                 end
             end
         end
     end
-    
+
     // ----------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set sign_a_reg)
     // Signal Registered : signa
@@ -33552,7 +33552,7 @@ module altmult_accum (  dataa,
     // NOTE : The combinatorial block will be executed if
     //        mult_round_reg is unregistered and mult_round changes value
     // ----------------------------------------------------------------------------
-    
+
     assign mult_round_int = (mult_round_reg == "UNREGISTERED")? mult_round : mult_round_tmp;
 
     always @(posedge mult_round_wire_clk or posedge mult_round_wire_clr)
@@ -33572,7 +33572,7 @@ module altmult_accum (  dataa,
     // NOTE : The combinatorial block will be executed if
     //        mult_saturation_reg is unregistered and mult_saturation changes value
     // ----------------------------------------------------------------------------
-    
+
     assign mult_saturation_int = (mult_saturation_reg == "UNREGISTERED")? mult_saturation : mult_saturation_tmp;
 
     always @(posedge mult_saturation_wire_clk or posedge mult_saturation_wire_clr)
@@ -33582,7 +33582,7 @@ module altmult_accum (  dataa,
         else if ((mult_saturation_wire_clk == 1) && (mult_saturation_wire_en == 1))
             mult_saturation_tmp <= mult_saturation;
     end
-    
+
     // ----------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set accum_round)
     // Signal Registered : accum_round
@@ -33592,7 +33592,7 @@ module altmult_accum (  dataa,
     // NOTE : The combinatorial block will be executed if
     //        accum_round_reg is unregistered and accum_round changes value
     // ----------------------------------------------------------------------------
-    
+
     assign accum_round_tmp1_wire = (accum_round_reg == "UNREGISTERED")? ((is_stratixiii == 1) ? accum_sload : accum_round) : accum_round_tmp1;
 
     always @(posedge accum_round_wire_clk or posedge accum_round_wire_clr)
@@ -33617,7 +33617,7 @@ module altmult_accum (  dataa,
     // NOTE : The combinatorial block will be executed if
     //        accum_round_pipeline_reg is unregistered and accum_round_tmp1_wire changes value
     // ----------------------------------------------------------------------------
-    
+
     assign accum_round_int = (accum_round_pipeline_reg == "UNREGISTERED")? accum_round_tmp1_wire : accum_round_tmp2;
 
     always @(posedge accum_round_pipe_wire_clk or posedge accum_round_pipe_wire_clr)
@@ -33627,7 +33627,7 @@ module altmult_accum (  dataa,
         else if ((accum_round_pipe_wire_clk == 1) && (accum_round_pipe_wire_en == 1))
             accum_round_tmp2 <= accum_round_tmp1_wire;
     end
-    
+
 
     // ----------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set accum_saturation)
@@ -33638,7 +33638,7 @@ module altmult_accum (  dataa,
     // NOTE : The combinatorial block will be executed if
     //        accum_saturation_reg is unregistered and accum_saturation changes value
     // ----------------------------------------------------------------------------
-    
+
     assign accum_saturation_tmp1_wire = (accum_saturation_reg == "UNREGISTERED")? accum_saturation : accum_saturation_tmp1;
 
     always @(posedge accum_saturation_wire_clk or posedge accum_saturation_wire_clr)
@@ -33658,7 +33658,7 @@ module altmult_accum (  dataa,
     // NOTE : The combinatorial block will be executed if
     //        accum_saturation_pipeline_reg is unregistered and accum_saturation_tmp1_wire changes value
     // ----------------------------------------------------------------------------
-    
+
     assign accum_saturation_int = (accum_saturation_pipeline_reg == "UNREGISTERED")? accum_saturation_tmp1_wire : accum_saturation_tmp2;
 
     always @(posedge accum_saturation_pipe_wire_clk or posedge accum_saturation_pipe_wire_clr)
@@ -33668,8 +33668,8 @@ module altmult_accum (  dataa,
         else if ((accum_saturation_pipe_wire_clk == 1) && (accum_saturation_pipe_wire_en == 1))
             accum_saturation_tmp2 <= accum_saturation_tmp1_wire;
     end
-    
-        
+
+
     // ------------------------------------------------------------------------------------------------------
     // This block checks if the two numbers to be multiplied (mult_a/mult_b) is to be interpreted
     // as a negative number or not. If so, then two's complement is performed.
@@ -33690,14 +33690,14 @@ module altmult_accum (  dataa,
         temp_mult        = (neg_a ^ neg_b) ? (temp_mult_zero - temp_mult_1) : temp_mult_1;
 
     end
-     
+
     always @(temp_mult or mult_saturation_int or mult_round_int)
     begin
 
         if (is_stratixii == 1)
         begin
             // StratixII rounding support
-        
+
             // This is based on both input is in Q1.15 format
 
             if ((multiplier_rounding == "YES") ||
@@ -33713,7 +33713,7 @@ module altmult_accum (  dataa,
 
             // StratixII saturation support
 
-            if ((multiplier_saturation == "YES") || 
+            if ((multiplier_saturation == "YES") ||
                 (( multiplier_saturation == "VARIABLE") && (mult_saturation_int == 1)))
             begin
                 mult_saturate_overflow = (mult_round_out[int_width_a + int_width_b - 1] == 0 && mult_round_out[int_width_a + int_width_b - 2] == 1);
@@ -33745,12 +33745,12 @@ module altmult_accum (  dataa,
                 mult_saturate_out = mult_round_out;
                 mult_saturate_overflow = 0;
             end
-        
+
             if ((multiplier_rounding == "YES") ||
                 ((multiplier_rounding == "VARIABLE") && (mult_round_int == 1)))
             begin
                     mult_result = mult_saturate_out;
-                    
+
                     for (i = mult_round_for_ini; i >= 0; i = i - 1)
                     begin
                         mult_result[i] = 1'b0;
@@ -33761,7 +33761,7 @@ module altmult_accum (  dataa,
                     mult_result = mult_saturate_out;
             end
         end
-        
+
         mult_final_out = (is_stratixii == 0) ?
                             temp_mult : mult_result;
 
@@ -33777,7 +33777,7 @@ module altmult_accum (  dataa,
     // Both registers have the same asynchronous signal, posedge multiplier_wire_clr
     // ---------------------------------------------------------------------------------------
     assign mult_is_saturated_wire = (multiplier_reg == "UNREGISTERED")? mult_is_saturated_latent : mult_is_saturated_reg;
-    
+
     always @(posedge multiplier_wire_clk or posedge multiplier_wire_clr)
     begin
         if (multiplier_wire_clr == 1)
@@ -33831,10 +33831,10 @@ module altmult_accum (  dataa,
         begin
             temp_sum = 0;
             accum_result = 0;
-            
+
             result_int = (is_stratixii == 0) ?
                             temp_sum[int_width_result -1 : 0] : accum_result;
-            
+
             overflow_int = 0;
             accum_saturate_overflow = 0;
             mult_is_saturated_int = 0;
@@ -33844,20 +33844,20 @@ module altmult_accum (  dataa,
                 accum_saturate_pipe[i3] = 0;
                 mult_is_saturated_pipe[i3] = 0;
             end
-            
+
             flag = ~flag;
-            
+
         end
-        else if (output_wire_clk ==1) 
+        else if (output_wire_clk ==1)
         begin
-                
+
         if (output_wire_en ==1)
         begin
             if (extra_accumulator_latency == 0)
             begin
                 mult_is_saturated_int = mult_is_saturated_wire;
             end
-        
+
             if (multiplier_reg == "UNREGISTERED")
             begin
                 if (int_width_extra_bit > 0) begin
@@ -33922,7 +33922,7 @@ module altmult_accum (  dataa,
                 begin
                     overflow_tmp_int = (mult_res_out [int_width_a+int_width_b -1] ~^ sload_upper_data_pipe_wire [int_width_result-1]) ^ (~addsub_int);
                     overflow_int     =  overflow_tmp_int & (sload_upper_data_pipe_wire [int_width_result -1] ^ temp_sum[int_width_result -1]);
-                end                
+                end
             end
             else
             begin
@@ -33932,9 +33932,9 @@ module altmult_accum (  dataa,
             if (is_stratixii == 1)
             begin
                 // StratixII rounding support
-            
+
                 // This is based on both input is in Q1.15 format
-            
+
                 if ((accumulator_rounding == "YES") ||
                     ((accumulator_rounding == "VARIABLE") && (accum_round_int == 1)))
                 begin
@@ -33947,11 +33947,11 @@ module altmult_accum (  dataa,
 
                 // StratixII saturation support
 
-                if ((accumulator_saturation == "YES") || 
+                if ((accumulator_saturation == "YES") ||
                     ((accumulator_saturation == "VARIABLE") && (accum_saturation_int == 1)))
                 begin
                     accum_result_sign_bits = accum_round_out[int_width_result-1 : int_width_a + int_width_b - 2];
-                    
+
                     if ( (((&accum_result_sign_bits) | (|accum_result_sign_bits) | (^accum_result_sign_bits)) == 0) ||
                         (((&accum_result_sign_bits) & (|accum_result_sign_bits) & !(^accum_result_sign_bits)) == 1))
                     begin
@@ -33969,7 +33969,7 @@ module altmult_accum (  dataa,
                     end
                     else
                     begin
-                        
+
                         for (i = (int_width_result - 1); i >= (int_width_a + int_width_b - 2); i = i - 1)
                         begin
                             accum_saturate_out[i] = accum_round_out[int_width_result-1];
@@ -33980,7 +33980,7 @@ module altmult_accum (  dataa,
                         begin
                             accum_saturate_out[i] = ~accum_round_out[int_width_result -1];
                         end
-                        
+
                         for (i = sat_for_ini; i >= 0; i = i - 1)
                         begin
                             accum_saturate_out[i] = 1'b0;
@@ -33993,7 +33993,7 @@ module altmult_accum (  dataa,
                     accum_saturate_out = accum_round_out;
                     accum_saturate_overflow = 0;
                 end
-            
+
                 if ((accumulator_rounding == "YES") ||
                     ((accumulator_rounding == "VARIABLE") && (accum_round_int == 1)))
                 begin
@@ -34009,18 +34009,18 @@ module altmult_accum (  dataa,
                     accum_result = accum_saturate_out;
                 end
             end
-                
+
             result_int = (is_stratixii == 0) ?
                             temp_sum[int_width_result -1 : 0] : accum_result;
 
             flag = ~flag;
         end
-        
-        end    
+
+        end
     end
-    
+
     always @ (posedge flag or negedge flag)
-    begin        
+    begin
         if (extra_accumulator_latency == 0)
         begin
             result   <= result_int[width_result - 1 + int_extra_width : int_extra_width];
@@ -34030,16 +34030,16 @@ module altmult_accum (  dataa,
         else
         begin
             result_pipe [head_result] <= {overflow_int, result_int[width_result - 1 + int_extra_width : int_extra_width]};
-            //mult_is_saturated_pipe[head_result] = mult_is_saturated_wire;            
+            //mult_is_saturated_pipe[head_result] = mult_is_saturated_wire;
             accum_saturate_pipe[head_result] <= accum_saturate_overflow;
             head_result               <= (head_result +1) % (extra_accumulator_latency + 1);
-            mult_is_saturated_int     <= mult_is_saturated_wire;  
+            mult_is_saturated_int     <= mult_is_saturated_wire;
         end
-        
+
     end
 
     assign head_result_wire = head_result[31:0];
-    
+
     always @ (head_result_wire or result_pipe[head_result_wire])
     begin
         if (extra_accumulator_latency != 0)
@@ -34047,7 +34047,7 @@ module altmult_accum (  dataa,
             result_full <= result_pipe[head_result_wire];
         end
     end
-    
+
     always @ (accum_saturate_pipe[head_result_wire] or head_result_wire)
     begin
         if (extra_accumulator_latency != 0)
@@ -34080,31 +34080,31 @@ endmodule  // end of ALTMULT_ACCUM
 //--------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
-module altmult_add (    dataa, 
+module altmult_add (    dataa,
                         datab,
                         datac,
                         scanina,
                         scaninb,
                         sourcea,
                         sourceb,
-                        clock3, 
-                        clock2, 
-                        clock1, 
-                        clock0, 
-                        aclr3, 
-                        aclr2, 
-                        aclr1, 
-                        aclr0, 
-                        ena3, 
-                        ena2, 
-                        ena1, 
-                        ena0, 
-                        signa, 
-                        signb, 
-                        addnsub1, 
-                        addnsub3, 
-                        result, 
-                        scanouta, 
+                        clock3,
+                        clock2,
+                        clock1,
+                        clock0,
+                        aclr3,
+                        aclr2,
+                        aclr1,
+                        aclr0,
+                        ena3,
+                        ena2,
+                        ena1,
+                        ena0,
+                        signa,
+                        signb,
+                        addnsub1,
+                        addnsub3,
+                        result,
+                        scanouta,
                         scanoutb,
                         mult01_round,
                         mult23_round,
@@ -34132,7 +34132,7 @@ module altmult_add (    dataa,
 		             	coefsel1,
 			            coefsel2,
 			            coefsel3);
-			            
+
 
     // ---------------------
     // PARAMETER DECLARATION
@@ -34173,7 +34173,7 @@ module altmult_add (    dataa,
     parameter signed_aclr_a              = "ACLR3";
     parameter signed_pipeline_register_a = "CLOCK0";
     parameter signed_pipeline_aclr_a     = "ACLR3";
-    
+
     parameter scanouta_register = "UNREGISTERED";
     parameter scanouta_aclr = "NONE";
 
@@ -34205,16 +34205,16 @@ module altmult_add (    dataa,
     //C inputs
     parameter input_register_c0	= "CLOCK0";
 	parameter input_aclr_c0		= "ACLR0";
-	
+
    	parameter input_register_c1	= "CLOCK0";
    	parameter input_aclr_c1	 	= "ACLR0";
-	
+
 	parameter input_register_c2	= "CLOCK0";
     parameter input_aclr_c2		= "ACLR0";
-	
+
 	parameter input_register_c3	= "CLOCK0";
 	parameter input_aclr_c3		= "ACLR0";
-	
+
     // multiplier parameters
 
     parameter multiplier_register0 = "CLOCK0";
@@ -34231,7 +34231,7 @@ module altmult_add (    dataa,
     parameter addnsub_multiplier_aclr1              = "ACLR3";
     parameter addnsub_multiplier_pipeline_register1 = "CLOCK0";
     parameter addnsub_multiplier_pipeline_aclr1     = "ACLR3";
-   
+
     parameter port_addnsub3                         = "PORT_CONNECTIVITY";
     parameter addnsub_multiplier_register3          = "CLOCK0";
     parameter addnsub_multiplier_aclr3              = "ACLR3";
@@ -34255,7 +34255,7 @@ module altmult_add (    dataa,
     parameter mult23_round_aclr                     = "ACLR3";
     parameter mult23_saturation_register            = "CLOCK0";
     parameter mult23_saturation_aclr                = "ACLR3";
-    
+
     // StratixII parameters
     parameter multiplier01_rounding = "NO";
     parameter multiplier01_saturation = "NO";
@@ -34267,7 +34267,7 @@ module altmult_add (    dataa,
     parameter port_mult1_is_saturated = "UNUSED";
     parameter port_mult2_is_saturated = "UNUSED";
     parameter port_mult3_is_saturated = "UNUSED";
-    
+
     // Stratix III parameters
     // Rounding parameters
     parameter output_rounding = "NO";
@@ -34277,7 +34277,7 @@ module altmult_add (    dataa,
     parameter output_round_aclr = "NONE";
     parameter output_round_pipeline_register = "UNREGISTERED";
     parameter output_round_pipeline_aclr = "NONE";
-    
+
     parameter chainout_rounding = "NO";
     parameter chainout_round_register = "UNREGISTERED";
     parameter chainout_round_aclr = "NONE";
@@ -34285,7 +34285,7 @@ module altmult_add (    dataa,
     parameter chainout_round_pipeline_aclr = "NONE";
     parameter chainout_round_output_register = "UNREGISTERED";
     parameter chainout_round_output_aclr = "NONE";
-    
+
     // saturation parameters
     parameter port_output_is_overflow = "PORT_UNUSED";
     parameter port_chainout_sat_is_overflow = "PORT_UNUSED";
@@ -34296,7 +34296,7 @@ module altmult_add (    dataa,
     parameter output_saturate_aclr = "NONE";
     parameter output_saturate_pipeline_register = "UNREGISTERED";
     parameter output_saturate_pipeline_aclr = "NONE";
-    
+
     parameter chainout_saturation = "NO";
     parameter chainout_saturate_register = "UNREGISTERED";
     parameter chainout_saturate_aclr = "NONE";
@@ -34304,7 +34304,7 @@ module altmult_add (    dataa,
     parameter chainout_saturate_pipeline_aclr = "NONE";
     parameter chainout_saturate_output_register = "UNREGISTERED";
     parameter chainout_saturate_output_aclr = "NONE";
-    
+
     // chainout parameters
     parameter chainout_adder = "NO";
     parameter chainout_register = "UNREGISTERED";
@@ -34327,7 +34327,7 @@ module altmult_add (    dataa,
     parameter shift_right_pipeline_aclr = "NONE";
     parameter shift_right_output_register = "UNREGISTERED";
     parameter shift_right_output_aclr = "NONE";
-    
+
     // loopback parameters
     parameter zero_loopback_register = "UNREGISTERED";
     parameter zero_loopback_aclr = "NONE";
@@ -34343,15 +34343,15 @@ module altmult_add (    dataa,
     parameter accum_sload_pipeline_aclr = "NONE";
     parameter accum_direction = "ADD";
     parameter accumulator = "NO";
-	
+
 	//StratixV parameters
   	parameter preadder_mode	= "SIMPLE";
   	parameter loadconst_value = 0;
   	parameter width_coef = 0;
-  	
+
   	parameter loadconst_control_register = "CLOCK0";
   	parameter loadconst_control_aclr	= "ACLR0";
- 	
+
 	parameter coefsel0_register = "CLOCK0";
   	parameter coefsel1_register	= "CLOCK0";
   	parameter coefsel2_register	= "CLOCK0";
@@ -34360,17 +34360,17 @@ module altmult_add (    dataa,
    	parameter coefsel1_aclr	= "ACLR0";
 	parameter coefsel2_aclr	= "ACLR0";
    	parameter coefsel3_aclr	= "ACLR0";
-	
+
    	parameter preadder_direction_0	= "ADD";
 	parameter preadder_direction_1	= "ADD";
 	parameter preadder_direction_2	= "ADD";
 	parameter preadder_direction_3	= "ADD";
-	
+
 	parameter systolic_delay1 = "UNREGISTERED";
 	parameter systolic_delay3 = "UNREGISTERED";
 	parameter systolic_aclr1 = "NONE";
 	parameter systolic_aclr3 = "NONE";
-	
+
 	//coefficient storage
 	parameter coef0_0 = 0;
 	parameter coef0_1 = 0;
@@ -34380,7 +34380,7 @@ module altmult_add (    dataa,
 	parameter coef0_5 = 0;
 	parameter coef0_6 = 0;
 	parameter coef0_7 = 0;
-	
+
 	parameter coef1_0 = 0;
 	parameter coef1_1 = 0;
 	parameter coef1_2 = 0;
@@ -34389,7 +34389,7 @@ module altmult_add (    dataa,
 	parameter coef1_5 = 0;
 	parameter coef1_6 = 0;
 	parameter coef1_7 = 0;
-	
+
 	parameter coef2_0 = 0;
 	parameter coef2_1 = 0;
 	parameter coef2_2 = 0;
@@ -34398,7 +34398,7 @@ module altmult_add (    dataa,
 	parameter coef2_5 = 0;
 	parameter coef2_6 = 0;
 	parameter coef2_7 = 0;
-	
+
 	parameter coef3_0 = 0;
 	parameter coef3_1 = 0;
 	parameter coef3_2 = 0;
@@ -34408,17 +34408,17 @@ module altmult_add (    dataa,
 	parameter coef3_6 = 0;
 	parameter coef3_7 = 0;
     // output parameters
-  
+
     parameter output_register = "CLOCK0";
     parameter output_aclr     = "ACLR3";
- 
+
     // general setting parameters
 
     parameter extra_latency                  = 0;
     parameter dedicated_multiplier_circuitry = "AUTO";
     parameter dsp_block_balancing            = "AUTO";
     parameter intended_device_family         = "Stratix";
-    
+
     // ----------------
     // PORT DECLARATION
     // ----------------
@@ -34433,7 +34433,7 @@ module altmult_add (    dataa,
 
     input [number_of_multipliers -1 : 0] sourcea;
     input [number_of_multipliers -1 : 0] sourceb;
- 
+
     // clock ports
     input clock3;
     input clock2;
@@ -34465,7 +34465,7 @@ module altmult_add (    dataa,
     input mult23_saturation;
     input addnsub1_round;
     input addnsub3_round;
- 
+
     // Stratix III only input ports
     input output_round;
     input chainout_round;
@@ -34483,7 +34483,7 @@ module altmult_add (    dataa,
 	input [2:0]coefsel1;
 	input [2:0]coefsel2;
 	input [2:0]coefsel3;
-	
+
     // output ports
     output [width_result -1 : 0] result;
     output [width_a -1 : 0] scanouta;
@@ -34493,8 +34493,8 @@ module altmult_add (    dataa,
     output mult0_is_saturated;
     output mult1_is_saturated;
     output mult2_is_saturated;
-    output mult3_is_saturated; 
-    
+    output mult3_is_saturated;
+
     // Stratix III only output ports
     output overflow;
     output chainout_sat_overflow;
@@ -34506,13 +34506,13 @@ module altmult_add (    dataa,
     // -----------------------------------
     // Represent the internal used width_a
     parameter int_width_c = ((preadder_mode == "INPUT" )? width_c: 1);
-    
+
     parameter int_width_preadder = ((preadder_mode == "INPUT" || preadder_mode == "SQUARE" || preadder_mode == "COEF" )?((width_a > width_b)? width_a + 1 : width_b + 1):width_a);
-    
+
     parameter int_width_a = ((preadder_mode == "INPUT" || preadder_mode == "SQUARE" || preadder_mode == "COEF" )?((width_a > width_b)? width_a + 1 : width_b + 1):
     						((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO") &&
                             (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO") &&
-                            (output_rounding == "NO") && (output_saturation == "NO") && 
+                            (output_rounding == "NO") && (output_saturation == "NO") &&
                             (chainout_rounding == "NO") && (chainout_saturation == "NO") &&
                             (chainout_adder == "NO") && (input_source_b0 != "LOOPBACK"))? width_a:
                             (width_a < 18)? 18 : width_a);
@@ -34530,117 +34530,117 @@ module altmult_add (    dataa,
                                       (preadder_mode == "INPUT") ? int_width_c :
                                       (preadder_mode == "CONSTANT" || preadder_mode == "COEF") ? width_coef: int_width_b);
 
-    //Represent the internally used width_result                              
+    //Represent the internally used width_result
     parameter int_width_result = (((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO") &&
                                     (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO") &&
                                     (output_rounding == "NO") && (output_saturation == "NO")
-                                    && (chainout_rounding == "NO") && (chainout_saturation == "NO") && 
+                                    && (chainout_rounding == "NO") && (chainout_saturation == "NO") &&
                                     (chainout_adder == "NO") && (shift_mode == "NO"))? width_result:
                                     (shift_mode != "NO") ? 64 :
                                     (chainout_adder == "YES") ? 44 :
-                                    (width_result > (int_width_a + int_width_b))? 
+                                    (width_result > (int_width_a + int_width_b))?
                                     (width_result + width_result - int_width_a - int_width_b):
-                                    int_width_a + int_width_b);     
-                                    
+                                    int_width_a + int_width_b);
+
     parameter mult_b_pre_width = int_width_b + 19;
-                                
-    // Represent the internally used width_result                                  
+
+    // Represent the internally used width_result
     parameter int_mult_diff_bit = (((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO") &&
-                                    (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO") 
+                                    (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO")
                                     && (output_rounding == "NO") && (output_saturation == "NO") &&
-                                    (chainout_rounding == "NO") && (chainout_saturation == "NO") && 
+                                    (chainout_rounding == "NO") && (chainout_saturation == "NO") &&
                                     (chainout_adder == "NO"))? 0:
                                     (chainout_adder == "YES") ? ((width_result > width_a + width_b + 8) ? 0: (int_width_a - width_a + int_width_b - width_b)) :
                                     (int_width_a - width_a + int_width_b - width_b));
-                                    
+
     parameter int_mult_diff_bit_loopbk = (int_width_result > width_result)? (int_width_result - width_result) :
                                             (width_result - int_width_result);
-                                    
+
     parameter sat_ini_value = (((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO"))? 3:
-                                int_width_a + int_width_b - 3);   
+                                int_width_a + int_width_b - 3);
 
     parameter round_position = ((output_rounding != "NO") || (output_saturate_type == "SYMMETRIC")) ?
-                                (input_source_b0 == "LOOPBACK")? 18 : 
+                                (input_source_b0 == "LOOPBACK")? 18 :
                                 ((width_a + width_b) > width_result)?
                                 (int_width_a + int_width_b - width_msb - (width_a + width_b - width_result)) :
                                 ((width_a + width_b) == width_result)?
-                                (int_width_a + int_width_b - width_msb): 
+                                (int_width_a + int_width_b - width_msb):
                                 (int_width_a + int_width_b - width_msb + (width_result - width_msb) + (width_msb - width_a - width_b)):
                                 2;
-                                
+
     parameter chainout_round_position = ((chainout_rounding != "NO") || (output_saturate_type == "SYMMETRIC")) ?
-                                (width_result >= int_width_result)? width_result - width_msb : 
+                                (width_result >= int_width_result)? width_result - width_msb :
                                 (width_result - width_msb > 0)? width_result + int_mult_diff_bit - width_msb:
-                                0 : 2; 
-                                                                
-    parameter saturation_position = (output_saturation != "NO") ? (chainout_saturation == "NO")?  
-                                ((width_a + width_b) > width_result)? 
+                                0 : 2;
+
+    parameter saturation_position = (output_saturation != "NO") ? (chainout_saturation == "NO")?
+                                ((width_a + width_b) > width_result)?
                                 (int_width_a + int_width_b - width_saturate_sign - (width_a + width_b - width_result)) :
                                 ((width_a + width_b) == width_result)?
-                                (int_width_a + int_width_b - width_saturate_sign): 
+                                (int_width_a + int_width_b - width_saturate_sign):
                                 (int_width_a + int_width_b - width_saturate_sign + (width_result - width_saturate_sign) + (width_saturate_sign - width_a - width_b)): //2;
-                                (width_result >= int_width_result)? width_result - width_saturate_sign : 
+                                (width_result >= int_width_result)? width_result - width_saturate_sign :
                                 (width_result - width_saturate_sign > 0)? width_result + int_mult_diff_bit - width_saturate_sign:
                                 0 : 2;
-    
+
     parameter chainout_saturation_position = (chainout_saturation != "NO") ?
-                                (width_result >= int_width_result)? width_result - width_saturate_sign : 
+                                (width_result >= int_width_result)? width_result - width_saturate_sign :
                                 (width_result - width_saturate_sign > 0)? width_result + int_mult_diff_bit - width_saturate_sign:
-                                0 : 2; 
-                                                
-    parameter result_msb_stxiii = ((number_of_multipliers == 1) && (width_result > width_a + width_b))? 
-                                (width_a + width_b - 1): 
+                                0 : 2;
+
+    parameter result_msb_stxiii = ((number_of_multipliers == 1) && (width_result > width_a + width_b))?
+                                (width_a + width_b - 1):
                                 (((number_of_multipliers == 2) || (input_source_b0 == "LOOPBACK")) && (width_result > width_a + width_b + 1))?
                                 (width_a + width_b):
                                 ((number_of_multipliers > 2) && (width_result > width_a + width_b + 2))?
                                 (width_a + width_b + 1):
                                 (width_result - 1);
 
-    parameter result_msb = (width_a + width_b - 1); 
-                                  
+    parameter result_msb = (width_a + width_b - 1);
+
     parameter shift_partition = (shift_mode == "NO") ? 1 : (int_width_result / 2);
     parameter shift_msb = (shift_mode == "NO") ? 1 : (int_width_result - 1);
     parameter sat_msb = (int_width_a + int_width_b - 1);
     parameter chainout_sat_msb = (int_width_result - 1);
 
-    parameter chainout_input_a = (width_a < 18) ? (18 - width_a) : 
-                                                1; 
-                                                
-    parameter chainout_input_b = (width_b < 18) ? (18 - width_b) : 
-                                                1; 
-   
+    parameter chainout_input_a = (width_a < 18) ? (18 - width_a) :
+                                                1;
+
+    parameter chainout_input_b = (width_b < 18) ? (18 - width_b) :
+                                                1;
+
     parameter mult_res_pad = (int_width_result > int_width_a + int_width_b)? (int_width_result - int_width_a - int_width_b) :
-                                                1;                                                                                                            
-                                                            
+                                                1;
+
     parameter result_pad = ((width_result - 1 + int_mult_diff_bit) > int_width_result)? (width_result + 1 + int_mult_diff_bit - int_width_result) :
-                                                1;               
-                                             
-    parameter result_stxiii_pad = (width_result > width_a + width_b)? 
-                                                (width_result - width_a - width_b) :   1;                                               
-                                                                              
-    parameter loopback_input_pad = (int_width_b > width_b)? (int_width_b - width_b) : 1; 
-                                                                              
+                                                1;
+
+    parameter result_stxiii_pad = (width_result > width_a + width_b)?
+                                                (width_result - width_a - width_b) :   1;
+
+    parameter loopback_input_pad = (int_width_b > width_b)? (int_width_b - width_b) : 1;
+
     parameter loopback_lower_bound = (int_width_b > width_b)? width_b : 0 ;
-    
+
     parameter accum_width = (int_width_a + int_width_b < 44)? 44: int_width_a + int_width_b;
-    
+
     parameter feedback_width = ((accum_width + int_mult_diff_bit) < 2*int_width_result)? accum_width + int_mult_diff_bit : 2*int_width_result;
 
     parameter lower_range = ((2*int_width_result - 1) < (int_width_a + int_width_b)) ? int_width_result : int_width_a + int_width_b;
-    
+
     parameter addsub1_clr = ((port_addnsub1 == "PORT_USED") || ((port_addnsub1 == "PORT_CONNECTIVITY")&&(multiplier1_direction== "UNUSED")))? 1 : 0;
-    
+
     parameter addsub3_clr = ((port_addnsub3 == "PORT_USED") || ((port_addnsub3 == "PORT_CONNECTIVITY")&&(multiplier3_direction== "UNUSED")))? 1 : 0;
-    
+
     parameter lsb_position = 36 - width_a - width_b;
-    
+
     parameter extra_sign_bit_width = (port_signa == "PORT_USED" || port_signb == "PORT_USED")? accum_width - width_result - lsb_position :
                                 (representation_a == "UNSIGNED" && representation_b == "UNSIGNED")? accum_width - width_result - lsb_position:
                                 accum_width - width_result + 1 - lsb_position;
-    
+
     parameter bit_position = accum_width - lsb_position - extra_sign_bit_width - 1;
 
-    
+
 
 // LOCAL_PARAMETERS_END
 
@@ -34649,8 +34649,8 @@ module altmult_add (    dataa,
     // -----------------------------------
     // Represent the number of bits needed to be rounded in multiplier where the
     // value 17 here refers to the 2 sign bits and the 15 wanted bits for rounding
-    `define MULT_ROUND_BITS  (((multiplier01_rounding == "NO") && (multiplier23_rounding == "NO"))? 1 : (int_width_a + int_width_b) - 17) 
-    
+    `define MULT_ROUND_BITS  (((multiplier01_rounding == "NO") && (multiplier23_rounding == "NO"))? 1 : (int_width_a + int_width_b) - 17)
+
     // Represent the number of bits needed to be rounded in adder where the
     // value 18 here refers to the 3 sign bits and the 15 wanted bits for rounding.
     `define ADDER_ROUND_BITS (((adder1_rounding == "NO") && (adder3_rounding == "NO"))? 1 :(int_width_a + int_width_b) - 17)
@@ -34660,7 +34660,7 @@ module altmult_add (    dataa,
 
     // Represent the range for shift mode
     `define SHIFT_MODE_WIDTH (shift_mode != "NO")? 31 : width_result - 1
-    
+
     // Represent the range for loopback input
     `define LOOPBACK_WIRE_WIDTH (input_source_b0 == "LOOPBACK")? (width_a + 18) : (int_width_result < width_a + 18) ? (width_a + 18) : int_width_result
     // ---------------
@@ -34670,7 +34670,7 @@ module altmult_add (    dataa,
     reg  [2*int_width_result - 1 :0] temp_sum;
     reg  [2*int_width_result : 0] mult_res_ext;
     reg  [2*int_width_result - 1 : 0] temp_sum_reg;
-    
+
     reg  [4 * int_width_a -1 : 0] mult_a_reg;
     reg  [4 * int_width_b -1 : 0] mult_b_reg;
     reg  [int_width_c -1 : 0] mult_c_reg;
@@ -34685,7 +34685,7 @@ module altmult_add (    dataa,
     reg  [4 * (int_width_a + int_width_b) -1:0] mult_res_reg;
     reg  [(int_width_a + int_width_b - 1) :0] mult_res_temp;
 
-   
+
     reg sign_a_pipe_reg;
     reg sign_a_reg;
     reg sign_b_pipe_reg;
@@ -34695,7 +34695,7 @@ module altmult_add (    dataa,
     reg addsub1_pipe_reg;
 
     reg addsub3_reg;
-    reg addsub3_pipe_reg;  
+    reg addsub3_pipe_reg;
 
 
     // StratixII features related internal reg type
@@ -34741,7 +34741,7 @@ module altmult_add (    dataa,
     reg [int_width_result : 0] adder3_result;
     reg addnsub3_round_reg;
     reg addnsub3_round_pipe_reg;
-    
+
     // Stratix III only internal registers
     reg outround_reg;
     reg outround_pipe_reg;
@@ -34787,7 +34787,7 @@ module altmult_add (    dataa,
     reg [int_width_result: 0] chout_shftrot_reg;
     reg [int_width_result: 0] loopback_wire_reg;
     reg [int_width_result: 0] loopback_wire_latency;
-    
+
     reg overflow_status;
     reg overflow_stat_reg;
     reg [extra_latency : 0] overflow_stat_pipe_reg;
@@ -34805,7 +34805,7 @@ module altmult_add (    dataa,
 
     reg overflow_checking;
     reg round_checking;
-    
+
     reg [accum_width + int_mult_diff_bit : 0] accum_res_temp;
     reg [accum_width + int_mult_diff_bit : 0] accum_res;
     reg [accum_width + int_mult_diff_bit : 0] acc_feedback_temp;
@@ -34823,7 +34823,7 @@ module altmult_add (    dataa,
     wire unsigned_sub3_overflow_wire;
 
     wire [mult_b_pre_width - 1 : 0] loopback_wire_temp;
-    
+
     // StratixV internal register
     reg [2:0]coeffsel_a_reg;
     reg [2:0]coeffsel_b_reg;
@@ -34837,27 +34837,27 @@ module altmult_add (    dataa,
     reg [(int_width_a + int_width_b + 1) -1 : 0] preadder1_result;
     reg [(int_width_a + int_width_b + 1) -1 : 0] preadder2_result;
     reg [(int_width_a + int_width_b + 1) -1 : 0] preadder3_result;
-    
+
     reg  [(int_width_a + int_width_b) -1:0] preadder_res_0;
     reg  [(int_width_a + int_width_b) -1:0] preadder_res_1;
     reg  [(int_width_a + int_width_b) -1:0] preadder_res_2;
     reg  [(int_width_a + int_width_b) -1:0] preadder_res_3;
-    
+
     reg  [(int_width_a + int_width_b) -1:0] mult_res_reg_0;
     reg  [(int_width_a + int_width_b) -1:0] mult_res_reg_2;
     reg  [2*int_width_result - 1: 0] adder1_res_reg_0;
     reg  [2*int_width_result - 1: 0] adder1_res_reg_1;
     reg  [(width_chainin) -1:0] chainin_reg;
     reg  [2*int_width_result - 1: 0] round_sat_in_reg;
-   
+
 
     //-----------------
     // TRI DECLARATION
     //-----------------
     tri0 signa_z;
-    tri0 signb_z;  
+    tri0 signb_z;
     tri1 addnsub1_z;
-    tri1 addnsub3_z; 
+    tri1 addnsub3_z;
     tri0  [4 * int_width_a -1 : 0] dataa_int;
     tri0  [4 * int_width_b -1 : 0] datab_int;
     tri0  [int_width_c -1 : 0] datac_int;
@@ -34869,7 +34869,7 @@ module altmult_add (    dataa,
     reg  [4 * int_width_b -1 : 0] datab_reg;
     tri0  [int_width_a - 1 : 0] scanina_z;
     tri0  [int_width_b - 1 : 0] scaninb_z;
-    
+
     // Stratix III signals
     tri0 outround_int;
     tri0 chainout_round_int;
@@ -34881,7 +34881,7 @@ module altmult_add (    dataa,
     tri0 zeroloopback_int;
     tri0 accumsload_int;
     tri0 [width_chainin - 1 : 0] chainin_int;
-    
+
     // Stratix V signals
     //tri0 loadconst_int;
     //tri0 negate_int;
@@ -34890,7 +34890,7 @@ module altmult_add (    dataa,
     tri0 [2:0]coeffsel_b_int;
     tri0 [2:0]coeffsel_c_int;
     tri0 [2:0]coeffsel_d_int;
-    
+
     // Tri wire for clear signal
     tri0 input_reg_a0_wire_clr;
     tri0 input_reg_a1_wire_clr;
@@ -34901,12 +34901,12 @@ module altmult_add (    dataa,
     tri0 input_reg_b1_wire_clr;
     tri0 input_reg_b2_wire_clr;
     tri0 input_reg_b3_wire_clr;
-	
+
     tri0 input_reg_c0_wire_clr;
     tri0 input_reg_c1_wire_clr;
     tri0 input_reg_c2_wire_clr;
     tri0 input_reg_c3_wire_clr;
-    
+
     tri0 sign_reg_a_wire_clr;
     tri0 sign_pipe_a_wire_clr;
 
@@ -34918,7 +34918,7 @@ module altmult_add (    dataa,
 
     tri0 addsub3_reg_wire_clr;
     tri0 addsub3_pipe_wire_clr;
-    
+
     // Stratix III only aclr signals
     tri0 outround_reg_wire_clr;
     tri0 outround_pipe_wire_clr;
@@ -34945,15 +34945,15 @@ module altmult_add (    dataa,
     tri0 accumsload_reg_wire_clr;
     tri0 accumsload_pipe_wire_clr;
     // end Stratix III only aclr signals
-	
+
     // Stratix V only aclr signals
     tri0 coeffsela_reg_wire_clr;
     tri0 coeffselb_reg_wire_clr;
     tri0 coeffselc_reg_wire_clr;
     tri0 coeffseld_reg_wire_clr;
-    
+
     // end Stratix V only aclr signals
-    
+
     tri0 multiplier_reg0_wire_clr;
     tri0 multiplier_reg1_wire_clr;
     tri0 multiplier_reg2_wire_clr;
@@ -34961,23 +34961,23 @@ module altmult_add (    dataa,
 
     tri0 addnsub1_round_wire_clr;
     tri0 addnsub1_round_pipe_wire_clr;
-    
+
     tri0 addnsub3_round_wire_clr;
     tri0 addnsub3_round_pipe_wire_clr;
-    
+
     tri0 mult01_round_wire_clr;
     tri0 mult01_saturate_wire_clr;
-    
+
     tri0 mult23_round_wire_clr;
     tri0 mult23_saturate_wire_clr;
-    
+
     tri0 output_reg_wire_clr;
 
     tri0 [3 : 0] sourcea_wire;
     tri0 [3 : 0] sourceb_wire;
 
 
-    
+
     // Tri wire for enable signal
 
     tri1 input_reg_a0_wire_en;
@@ -34989,7 +34989,7 @@ module altmult_add (    dataa,
     tri1 input_reg_b1_wire_en;
     tri1 input_reg_b2_wire_en;
     tri1 input_reg_b3_wire_en;
-	
+
     tri1 input_reg_c0_wire_en;
     tri1 input_reg_c1_wire_en;
     tri1 input_reg_c2_wire_en;
@@ -35033,15 +35033,15 @@ module altmult_add (    dataa,
     tri1 accumsload_reg_wire_en;
     tri1 accumsload_pipe_wire_en;
     // end Stratix III only ena signals
-	
+
     // Stratix V only ena signals
     tri1 coeffsela_reg_wire_en;
     tri1 coeffselb_reg_wire_en;
     tri1 coeffselc_reg_wire_en;
     tri1 coeffseld_reg_wire_en;
-    
+
     // end Stratix V only ena signals
-    
+
     tri1 multiplier_reg0_wire_en;
     tri1 multiplier_reg1_wire_en;
     tri1 multiplier_reg2_wire_en;
@@ -35049,16 +35049,16 @@ module altmult_add (    dataa,
 
     tri1 addnsub1_round_wire_en;
     tri1 addnsub1_round_pipe_wire_en;
-    
+
     tri1 addnsub3_round_wire_en;
     tri1 addnsub3_round_pipe_wire_en;
-    
+
     tri1 mult01_round_wire_en;
     tri1 mult01_saturate_wire_en;
-    
+
     tri1 mult23_round_wire_en;
     tri1 mult23_saturate_wire_en;
-        
+
     tri1 output_reg_wire_en;
 
     tri0 mult0_source_scanin_en;
@@ -35082,7 +35082,7 @@ module altmult_add (    dataa,
     wire input_reg_b1_wire_clk;
     wire input_reg_b2_wire_clk;
     wire input_reg_b3_wire_clk;
-    
+
     wire input_reg_c0_wire_clk;
     wire input_reg_c1_wire_clk;
     wire input_reg_c2_wire_clk;
@@ -35099,7 +35099,7 @@ module altmult_add (    dataa,
 
     wire addsub3_reg_wire_clk;
     wire addsub3_pipe_wire_clk;
-    
+
     // Stratix III only clock signals
     wire outround_reg_wire_clk;
     wire outround_pipe_wire_clk;
@@ -35119,14 +35119,14 @@ module altmult_add (    dataa,
     wire rotate_out_reg_wire_clk;
     wire shiftr_reg_wire_clk;
     wire shiftr_pipe_wire_clk;
-    wire shiftr_out_reg_wire_clk;    
+    wire shiftr_out_reg_wire_clk;
     wire zeroloopback_reg_wire_clk;
     wire zeroloopback_pipe_wire_clk;
     wire zeroloopback_out_wire_clk;
     wire accumsload_reg_wire_clk;
     wire accumsload_pipe_wire_clk;
     // end Stratix III only clock signals
-    
+
     //Stratix V only clock signals
     wire coeffsela_reg_wire_clk;
     wire coeffselb_reg_wire_clk;
@@ -35137,20 +35137,20 @@ module altmult_add (    dataa,
     wire [26:0] coeffsel_b_pre;
     wire [26:0] coeffsel_c_pre;
     wire [26:0] coeffsel_d_pre;
-    
+
     // For fixing warning,
     wire systolic1_reg_wire_clk, systolic3_reg_wire_clk;
     wire systolic1_reg_wire_clr, systolic3_reg_wire_clr;
     wire systolic1_reg_wire_en, systolic3_reg_wire_en;
     // end Stratix V only clock signals
-     
+
     wire multiplier_reg0_wire_clk;
     wire multiplier_reg1_wire_clk;
     wire multiplier_reg2_wire_clk;
     wire multiplier_reg3_wire_clk;
 
     wire output_reg_wire_clk;
-    
+
     wire addnsub1_round_wire_clk;
     wire addnsub1_round_pipe_wire_clk;
     wire addnsub1_round_wire;
@@ -35161,7 +35161,7 @@ module altmult_add (    dataa,
     wire addnsub3_round_wire;
     wire addnsub3_round_pipe_wire;
     wire addnsub3_round_pre;
-    
+
     wire mult01_round_wire_clk;
     wire mult01_saturate_wire_clk;
     wire mult23_round_wire_clk;
@@ -35176,13 +35176,13 @@ module altmult_add (    dataa,
     wire mult23_saturate_wire;
     wire [3 : 0] mult_is_saturate_vec;
     wire [3 : 0] mult_saturate_overflow_vec;
-    
+
     wire [4 * int_width_a -1 : 0] mult_a_pre;
     wire [4 * int_width_b -1 : 0] mult_b_pre;
     wire [int_width_c -1 : 0] mult_c_pre;
 
     wire [int_width_a -1 : 0] scanouta;
-    wire [int_width_b -1 : 0] scanoutb; 
+    wire [int_width_b -1 : 0] scanoutb;
 
     wire sign_a_int;
     wire sign_b_int;
@@ -35205,7 +35205,7 @@ module altmult_add (    dataa,
 
     wire ena_aclr_signa_wire;
     wire ena_aclr_signb_wire;
-  
+
     wire [int_width_a -1 : 0] i_scanina;
     wire [int_width_b -1 : 0] i_scaninb;
 
@@ -35215,7 +35215,7 @@ module altmult_add (    dataa,
     reg [(2*int_width_result - 1): 0] result_pipe [extra_latency : 0];
     reg [(2*int_width_result - 1): 0] result_pipe1 [extra_latency : 0];
     reg [31:0] head_result;
-    integer head_result_int; 
+    integer head_result_int;
 
     // Stratix III only wires
     wire outround_wire;
@@ -35251,13 +35251,13 @@ module altmult_add (    dataa,
     wire [int_width_result - 1: 0] loopback_out_wire_feedback;
     reg [int_width_result: 0] loopback_wire;
     wire [2*int_width_result - 1: 0] acc_feedback;
-    
+
     wire [width_result - 1 : 0] result_stxiii;
     wire [width_result - 1 : 0] result_stxiii_ext;
-    
-    wire  [width_result - 1 : 0] result_ext; 
+
+    wire  [width_result - 1 : 0] result_ext;
     wire  [width_result - 1 : 0] result_stxii_ext;
-    
+
     // StratixV only wires
     wire [width_result - 1 : 0]accumsload_sel;
     wire [63 : 0]load_const_value;
@@ -35287,21 +35287,21 @@ module altmult_add (    dataa,
     wire [result_pad + int_width_result - int_mult_diff_bit : 0] result_stxiii_temp3;
     wire [result_pad + int_width_result - 1 - int_mult_diff_bit : 0] result_stxii_ext_temp;
     wire [result_pad + int_width_result - 1 - int_mult_diff_bit : 0] result_stxii_ext_temp2;
-    
+
     wire stratixii_block;
     wire stratixiii_block;
 	wire stratixv_block;
 	wire altera_mult_add_block;
-    
+
     //accumulator overflow fix
     integer x;
     integer i;
-    
+
     reg and_sign_wire;
     reg or_sign_wire;
     reg [extra_sign_bit_width - 1 : 0] extra_sign_bits;
     reg msb;
-    
+
     // -------------------
     // INTEGER DECLARATION
     // -------------------
@@ -35319,7 +35319,7 @@ module altmult_add (    dataa,
     integer sat_all_bit_cnt;
     integer cho_sat_all_bit_cnt;
     integer lpbck_cnt;
-    integer overflow_status_bit_pos; 
+    integer overflow_status_bit_pos;
 
     // ------------------------
     // COMPONENT INSTANTIATIONS
@@ -35327,45 +35327,45 @@ module altmult_add (    dataa,
     ALTERA_DEVICE_FAMILIES dev ();
 
 
-    // -----------------------------------------------------------------------------    
-    // This block checks if the two numbers to be multiplied (mult_a/mult_b) is to 
-    // be interpreted as a negative number or not. If so, then two's complement is 
+    // -----------------------------------------------------------------------------
+    // This block checks if the two numbers to be multiplied (mult_a/mult_b) is to
+    // be interpreted as a negative number or not. If so, then two's complement is
     // performed.
-    // The numbers are then multipled. The sign of the result (positive or negative) 
+    // The numbers are then multipled. The sign of the result (positive or negative)
     // is determined based on the sign of the two input numbers
     // ------------------------------------------------------------------------------
-    
+
     function [(int_width_a + int_width_b - 1):0] do_multiply;
         input [32 : 0] multiplier;
         input signa_wire;
         input signb_wire;
     begin:MULTIPLY
-   
+
         reg [int_width_a + int_width_b -1 :0] temp_mult_zero;
         reg [int_width_a + int_width_b -1 :0] temp_mult;
-        reg [int_width_a -1 :0]        op_a; 
-        reg [int_width_b -1 :0]        op_b; 
-        reg [int_width_a -1 :0]        op_a_int; 
-        reg [int_width_b -1 :0]        op_b_int; 
+        reg [int_width_a -1 :0]        op_a;
+        reg [int_width_b -1 :0]        op_b;
+        reg [int_width_a -1 :0]        op_a_int;
+        reg [int_width_b -1 :0]        op_b_int;
         reg neg_a;
         reg neg_b;
         reg temp_mult_signed;
 
         temp_mult_zero = 0;
         temp_mult = 0;
-	
-        op_a = mult_a_wire >> (multiplier * int_width_a); 
-        op_b = mult_b_wire >> (multiplier * int_width_b); 
-     
+
+        op_a = mult_a_wire >> (multiplier * int_width_a);
+        op_b = mult_b_wire >> (multiplier * int_width_b);
+
         neg_a = op_a[int_width_a-1] & (signa_wire);
         neg_b = op_b[int_width_b-1] & (signb_wire);
 
         op_a_int = (neg_a == 1) ? (~op_a + 1) : op_a;
         op_b_int = (neg_b == 1) ? (~op_b + 1) : op_b;
-      
+
         temp_mult = op_a_int * op_b_int;
         temp_mult = (neg_a ^ neg_b) ? (temp_mult_zero - temp_mult) : temp_mult;
-       
+
         do_multiply = temp_mult;
     end
     endfunction
@@ -35375,92 +35375,92 @@ module altmult_add (    dataa,
         input signa_wire;
         input signb_wire;
     begin:MULTIPLY
-   
+
         reg [int_width_a + int_width_b -1 :0] temp_mult_zero;
         reg [int_width_a + int_width_b -1 :0] temp_mult;
-        reg [int_width_a -1 :0]        op_a; 
-        reg [int_width_b -1 :0]        op_b; 
-        reg [int_width_a -1 :0]        op_a_int; 
-        reg [int_width_b -1 :0]        op_b_int; 
+        reg [int_width_a -1 :0]        op_a;
+        reg [int_width_b -1 :0]        op_b;
+        reg [int_width_a -1 :0]        op_a_int;
+        reg [int_width_b -1 :0]        op_b_int;
         reg neg_a;
         reg neg_b;
         reg temp_mult_signed;
 
         temp_mult_zero = 0;
         temp_mult = 0;
-        
-        op_a = mult_a_wire >> (multiplier * int_width_a); 
-        op_b = mult_b_wire >> (multiplier * int_width_b + (int_width_b - width_b)); 
-        
+
+        op_a = mult_a_wire >> (multiplier * int_width_a);
+        op_b = mult_b_wire >> (multiplier * int_width_b + (int_width_b - width_b));
+
         if(int_width_b > width_b)
             op_b[int_width_b - 1: loopback_lower_bound] = ({(loopback_input_pad){(op_b[width_b - 1])& (sign_b_pipe_wire)}});
-     
+
         neg_a = op_a[int_width_a-1] & (signa_wire);
         neg_b = op_b[int_width_b-1] & (signb_wire);
 
         op_a_int = (neg_a == 1) ? (~op_a + 1) : op_a;
         op_b_int = (neg_b == 1) ? (~op_b + 1) : op_b;
-      
+
         temp_mult = op_a_int * op_b_int;
         temp_mult = (neg_a ^ neg_b) ? (temp_mult_zero - temp_mult) : temp_mult;
-       
+
         do_multiply_loopback = temp_mult;
     end
     endfunction
-	
+
     function [(int_width_a + int_width_b  - 1):0] do_multiply_stratixv;
         input [32 : 0] multiplier;
         input signa_wire;
         input signb_wire;
     begin:MULTIPLY_STRATIXV
-   
+
         reg [int_width_a + int_width_multiply_b -1 :0] temp_mult_zero;
         reg [int_width_a + int_width_b -1 :0] temp_mult;
-        reg [int_width_a -1 :0]        op_a; 
-        reg [int_width_multiply_b -1 :0]        op_b; 
-        reg [int_width_a -1 :0]        op_a_int; 
-        reg [int_width_multiply_b -1 :0]        op_b_int; 
+        reg [int_width_a -1 :0]        op_a;
+        reg [int_width_multiply_b -1 :0]        op_b;
+        reg [int_width_a -1 :0]        op_a_int;
+        reg [int_width_multiply_b -1 :0]        op_b_int;
         reg neg_a;
         reg neg_b;
         reg temp_mult_signed;
 
         temp_mult_zero = 0;
         temp_mult = 0;
-	
-        op_a = preadder_sum1a; 
-        op_b = preadder_sum2a; 
-     
+
+        op_a = preadder_sum1a;
+        op_b = preadder_sum2a;
+
         neg_a = op_a[int_width_a-1] & (signa_wire);
         neg_b = op_b[int_width_multiply_b-1] & (signb_wire);
 
         op_a_int = (neg_a == 1) ? (~op_a + 1) : op_a;
         op_b_int = (neg_b == 1) ? (~op_b + 1) : op_b;
-      
+
         temp_mult = op_a_int * op_b_int;
         temp_mult = (neg_a ^ neg_b) ? (temp_mult_zero - temp_mult) : temp_mult;
-       
+
         do_multiply_stratixv = temp_mult;
     end
     endfunction
-   
-    
-// -----------------------------------------------------------------------------    
-    // This block checks if the two numbers to be added (mult_a/mult_b) is to 
-    // be interpreted as a negative number or not. If so, then two's complement is 
+
+
+// -----------------------------------------------------------------------------
+    // This block checks if the two numbers to be added (mult_a/mult_b) is to
+    // be interpreted as a negative number or not. If so, then two's complement is
     // performed.
-    // The 1st number subtracts the 2nd number. The sign of the result (positive or negative) 
+    // The 1st number subtracts the 2nd number. The sign of the result (positive or negative)
     // is determined based on the sign of the two input numbers
     // ------------------------------------------------------------------------------
-    
+
     function [2*int_width_result:0] do_sub1_level1;
         input [32:0] adder;
         input signa_wire;
         input signb_wire;
     begin:SUB_LV1
-   
+
         reg [2*int_width_result - 1 :0] temp_sub;
-        reg [2*int_width_result - 1 :0] op_a; 
-        reg [2*int_width_result - 1 :0] op_b; 
+        reg [2*int_width_result - 1 :0] op_a;
+        reg [2*int_width_result - 1 :0] op_b;
 
         temp_sub = 0;
         unsigned_sub1_overflow = 0;
@@ -35470,17 +35470,17 @@ module altmult_add (    dataa,
         begin
             op_a = temp_sum;
             op_b = mult_res_ext;
-            op_a[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_a[int_width_result - 1] & (signa_wire | signb_wire)}}; 
-            op_b[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_b[int_width_result - 1] & (signa_wire | signb_wire)}};  
+            op_a[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_a[int_width_result - 1] & (signa_wire | signb_wire)}};
+            op_b[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_b[int_width_result - 1] & (signa_wire | signb_wire)}};
         end
         else
         begin
-            op_a = adder1_sum; 
+            op_a = adder1_sum;
             op_b = mult_res_ext;
-            op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}}; 
-            op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};  
+            op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}};
+            op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};
         end
-     
+
         temp_sub = op_a - op_b;
         if(temp_sub[2*int_width_result - 1] == 1)
         begin
@@ -35488,17 +35488,17 @@ module altmult_add (    dataa,
         end
         do_sub1_level1 = temp_sub;
     end
-    endfunction 
-    
+    endfunction
+
     function [2*int_width_result - 1:0] do_add1_level1;
         input [32:0] adder;
         input signa_wire;
         input signb_wire;
     begin:ADD_LV1
-   
+
         reg [2*int_width_result - 1 :0] temp_add;
-        reg [2*int_width_result - 1 :0] op_a; 
-        reg [2*int_width_result - 1 :0] op_b; 
+        reg [2*int_width_result - 1 :0] op_a;
+        reg [2*int_width_result - 1 :0] op_b;
 
         temp_add = 0;
 
@@ -35506,49 +35506,49 @@ module altmult_add (    dataa,
         begin
             op_a = temp_sum;
             op_b = mult_res_ext;
-            op_a[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_a[int_width_result - 1] & (signa_wire | signb_wire)}}; 
-            op_b[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_b[int_width_result - 1] & (signa_wire | signb_wire)}}; 
+            op_a[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_a[int_width_result - 1] & (signa_wire | signb_wire)}};
+            op_b[2*int_width_result - 1:int_width_result] = {(2*int_width_result - int_width_result){op_b[int_width_result - 1] & (signa_wire | signb_wire)}};
         end
         else
         begin
-            op_a = adder1_sum; 
+            op_a = adder1_sum;
             op_b = mult_res_ext;
-            op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}}; 
-            op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}}; 
+            op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}};
+            op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};
         end
-        
+
         temp_add = op_a + op_b + chainin_register1;
         do_add1_level1 = temp_add;
     end
-    endfunction    
-          
-    // -----------------------------------------------------------------------------    
-    // This block checks if the two numbers to be added (mult_a/mult_b) is to 
-    // be interpreted as a negative number or not. If so, then two's complement is 
+    endfunction
+
+    // -----------------------------------------------------------------------------
+    // This block checks if the two numbers to be added (mult_a/mult_b) is to
+    // be interpreted as a negative number or not. If so, then two's complement is
     // performed.
-    // The 1st number subtracts the 2nd number. The sign of the result (positive or negative) 
+    // The 1st number subtracts the 2nd number. The sign of the result (positive or negative)
     // is determined based on the sign of the two input numbers
     // ------------------------------------------------------------------------------
-    
+
     function [2*int_width_result - 1:0] do_sub3_level1;
         input [32:0] adder;
         input signa_wire;
         input signb_wire;
     begin:SUB3_LV1
-   
+
         reg [2*int_width_result - 1 :0] temp_sub;
-        reg [2*int_width_result - 1 :0] op_a; 
-        reg [2*int_width_result - 1 :0] op_b; 
+        reg [2*int_width_result - 1 :0] op_a;
+        reg [2*int_width_result - 1 :0] op_b;
 
         temp_sub = 0;
         unsigned_sub3_overflow = 0;
 
-        op_a = adder3_sum; 
+        op_a = adder3_sum;
         op_b = mult_res_ext;
-        
-        op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}}; 
-        op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};  
-        
+
+        op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}};
+        op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};
+
         temp_sub = op_a - op_b ;
         if(temp_sub[2*int_width_result - 1] == 1)
         begin
@@ -35556,83 +35556,83 @@ module altmult_add (    dataa,
         end
         do_sub3_level1 = temp_sub;
     end
-    endfunction 
-    
+    endfunction
+
     function [2*int_width_result - 1:0] do_add3_level1;
         input [32:0] adder;
         input signa_wire;
         input signb_wire;
         begin:ADD3_LV1
-   
+
         reg [2*int_width_result - 1 :0] temp_add;
-        reg [2*int_width_result - 1 :0] op_a; 
-        reg [2*int_width_result - 1 :0] op_b; 
+        reg [2*int_width_result - 1 :0] op_a;
+        reg [2*int_width_result - 1 :0] op_b;
 
         temp_add = 0;
 
-        op_a = adder3_sum; 
+        op_a = adder3_sum;
         op_b = mult_res_ext;
-        
-        op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}}; 
-        op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};  
-        
+
+        op_a[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_a[lower_range - 1] & (signa_wire | signb_wire)}};
+        op_b[2*int_width_result - 1:lower_range] = {(2*int_width_result - lower_range){op_b[lower_range - 1] & (signa_wire | signb_wire)}};
+
         temp_add = op_a + op_b;
         do_add3_level1 = temp_add;
     end
-    endfunction    
-    
-// -----------------------------------------------------------------------------    
-    // This block checks if the two numbers to be added (data_a/data_b) is to 
-    // be interpreted as a negative number or not. If so, then two's complement is 
+    endfunction
+
+// -----------------------------------------------------------------------------
+    // This block checks if the two numbers to be added (data_a/data_b) is to
+    // be interpreted as a negative number or not. If so, then two's complement is
     // performed.
-    // The 1st number subtracts the 2nd number. The sign of the result (positive or negative) 
+    // The 1st number subtracts the 2nd number. The sign of the result (positive or negative)
     // is determined based on the sign of the two input numbers
     // ------------------------------------------------------------------------------
-    
+
     function [2*int_width_result - 1:0] do_preadder_sub;
         input [32:0] adder;
         input signa_wire;
         input signb_wire;
     begin:PREADDER_SUB
-   
+
         reg [2*int_width_result - 1 :0] temp_sub;
-        reg [2*int_width_result - 1 :0] op_a; 
-        reg [2*int_width_result - 1 :0] op_b; 
+        reg [2*int_width_result - 1 :0] op_a;
+        reg [2*int_width_result - 1 :0] op_b;
 
         temp_sub = 0;
 
-        op_a = mult_a_wire >> (adder * int_width_a); 
-   		op_b = mult_b_wire >> (adder * int_width_b); 
-        op_a[2*int_width_result - 1:width_a] = {(2*int_width_result - width_a){op_a[width_a - 1] & (signa_wire | signb_wire)}}; 
-        op_b[2*int_width_result - 1:width_b] = {(2*int_width_result - width_b){op_b[width_b - 1] & (signa_wire | signb_wire)}};  
+        op_a = mult_a_wire >> (adder * int_width_a);
+   		op_b = mult_b_wire >> (adder * int_width_b);
+        op_a[2*int_width_result - 1:width_a] = {(2*int_width_result - width_a){op_a[width_a - 1] & (signa_wire | signb_wire)}};
+        op_b[2*int_width_result - 1:width_b] = {(2*int_width_result - width_b){op_b[width_b - 1] & (signa_wire | signb_wire)}};
 
         temp_sub = op_a - op_b;
 	    do_preadder_sub = temp_sub;
     end
-    endfunction 
-    
+    endfunction
+
     function [2*int_width_result - 1:0] do_preadder_add;
         input [32:0] adder;
         input signa_wire;
         input signb_wire;
     begin:PREADDER_ADD
-   
+
         reg [2*int_width_result - 1 :0] temp_add;
-        reg [2*int_width_result - 1 :0] op_a; 
-        reg [2*int_width_result - 1 :0] op_b; 
+        reg [2*int_width_result - 1 :0] op_a;
+        reg [2*int_width_result - 1 :0] op_b;
 
         temp_add = 0;
 
-        op_a = mult_a_wire >> (adder * int_width_a); 
-   		op_b = mult_b_wire >> (adder * int_width_b); 
-        op_a[2*int_width_result - 1:width_a] = {(2*int_width_result - width_a){op_a[width_a - 1] & (signa_wire | signb_wire)}}; 
-        op_b[2*int_width_result - 1:width_b] = {(2*int_width_result - width_b){op_b[width_b - 1] & (signa_wire | signb_wire)}}; 
-        
+        op_a = mult_a_wire >> (adder * int_width_a);
+   		op_b = mult_b_wire >> (adder * int_width_b);
+        op_a[2*int_width_result - 1:width_a] = {(2*int_width_result - width_a){op_a[width_a - 1] & (signa_wire | signb_wire)}};
+        op_b[2*int_width_result - 1:width_b] = {(2*int_width_result - width_b){op_b[width_b - 1] & (signa_wire | signb_wire)}};
+
         temp_add = op_a + op_b;
         do_preadder_add = temp_add;
     end
-    endfunction  
-    
+    endfunction
+
     // --------------------------------------------------------------
     // initialization block of all the internal signals and registers
     // --------------------------------------------------------------
@@ -35645,17 +35645,17 @@ module altmult_add (    dataa,
 				$display("Time: %0t  Instance: %m", $time);
 				$stop;
 		end
-		
-		//Legality check, block new family from running pre_layout simulation using altera_mf (family with altera_mult_add flow) 
+
+		//Legality check, block new family from running pre_layout simulation using altera_mf (family with altera_mult_add flow)
 		if(dev.FEATURE_FAMILY_HAS_ALTERA_MULT_ADD_FLOW(intended_device_family) == 1)
-		begin 
+		begin
 			if(accumulator != "NO")
 			begin
 				$display ("Error: Accumulator mode is not supported in altera_mf for %s device family", intended_device_family);
 				$display("Time: %0t  Instance: %m", $time);
 				$stop;
 			end
-		
+
 			if(port_addnsub1 != "PORT_UNUSED" || port_addnsub3 != "PORT_UNUSED")
 			begin
 				$display ("Error: Dynamic adder is not supported in altera_mf for %s device family", intended_device_family);
@@ -35708,7 +35708,7 @@ module altmult_add (    dataa,
 				$display ("Error: Saturation is not supported in altera_mf for %s device family", intended_device_family);
 				$display("Time: %0t  Instance: %m", $time);
 				$stop;
-			end	
+			end
 			if(shift_mode != "NO")
 			begin
 				$display ("Error: Shift is not supported in altera_mf for %s device family", intended_device_family);
@@ -35729,14 +35729,14 @@ module altmult_add (    dataa,
         begin
             $display("Altmult_add does not currently support NUMBER_OF_MULTIPLIERS > 4");
             $stop;
-        end        
+        end
         if (number_of_multipliers <= 0)
         begin
             $display("NUMBER_OF_MULTIPLIERS must be greater than 0.");
             $stop;
-        end        
-       
-       
+        end
+
+
         if (width_a <= 0)
         begin
             $display("Error: width_a must be greater than 0.");
@@ -35908,8 +35908,8 @@ module altmult_add (    dataa,
             $stop;
         end
 
-        if ((dedicated_multiplier_circuitry != "AUTO") && 
-            (dedicated_multiplier_circuitry != "YES") && 
+        if ((dedicated_multiplier_circuitry != "AUTO") &&
+            (dedicated_multiplier_circuitry != "YES") &&
             (dedicated_multiplier_circuitry != "NO"))
         begin
             $display("Error: The DEDICATED_MULTIPLIER_CIRCUITRY parameter is set to an illegal value.");
@@ -35925,7 +35925,7 @@ module altmult_add (    dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((dev.FEATURE_FAMILY_BASE_STRATIXII(intended_device_family) == 0) &&
             ((adder1_rounding == "YES") || (adder3_rounding == "YES") ||
             (adder1_rounding == "VARIABLE") || (adder3_rounding == "VARIABLE")))
@@ -35943,10 +35943,10 @@ module altmult_add (    dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO") &&
             (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO")
-            && (output_saturation == "NO") && (output_rounding == "NO") && (chainout_rounding == "NO") 
+            && (output_saturation == "NO") && (output_rounding == "NO") && (chainout_rounding == "NO")
             && (chainout_saturation == "NO") && (chainout_adder =="NO") && (shift_mode == "NO"))
         begin
             if (int_width_result != width_result)
@@ -35955,14 +35955,14 @@ module altmult_add (    dataa,
                 $display("Time: %0t  Instance: %m", $time);
                 $stop;
             end
-            
+
             if (int_mult_diff_bit != 0)
             begin
                 $display ("Error: Internal parameter setting of int_mult_diff_bit is illegal");
                 $display("Time: %0t  Instance: %m", $time);
                 $stop;
             end
-        
+
         end
         else
         begin
@@ -35973,8 +35973,8 @@ module altmult_add (    dataa,
                 $display("Time: %0t  Instance: %m", $time);
                 $stop;
             end
-           
-            
+
+
             if (((width_b < 18) && (int_width_b != 18)) ||
                 ((width_b >= 18) && (int_width_b != width_b)))
             begin
@@ -35982,7 +35982,7 @@ module altmult_add (    dataa,
                 $display("Time: %0t  Instance: %m", $time);
                 $stop;
             end
-                      
+
             if ((chainout_adder == "NO") && (shift_mode == "NO"))
             begin
                 if ((int_width_result > (int_width_a + int_width_b)))
@@ -36001,7 +36001,7 @@ module altmult_add (    dataa,
                         $display("Time: %0t  Instance: %m", $time);
                         $stop;
                     end
-    
+
                 if ((int_mult_diff_bit != (int_width_a - width_a + int_width_b - width_b)))
                 begin
                     $display ("Error: Internal parameter setting of int_mult_diff_bit is illegal");
@@ -36010,7 +36010,7 @@ module altmult_add (    dataa,
                 end
             end
         end
-        
+
         // Stratix III parameters checking
         if ((dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 0) && ((output_rounding == "YES") ||
             (output_rounding == "VARIABLE") || (chainout_rounding == "YES") || (chainout_rounding == "VARIABLE")))
@@ -36019,7 +36019,7 @@ module altmult_add (    dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 0) && ((output_saturation == "YES") ||
             (output_saturation == "VARIABLE") || (chainout_saturation == "YES") || (chainout_saturation == "VARIABLE")))
         begin
@@ -36027,77 +36027,77 @@ module altmult_add (    dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 0) && (input_source_b0 == "LOOPBACK"))
         begin
             $display ("Error: Loopback mode is not supported for %s device family", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 0) && (chainout_adder == "YES"))
         begin
             $display("Error: Chainout mode is not supported for %s device family", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 0) && (shift_mode != "NO"))
         begin
             $display ("Error: shift and rotate modes are not supported for %s device family", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 0) && (accumulator == "YES"))
         begin
             $display ("Error: Accumulator mode is not supported for %s device family", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((output_rounding != "YES") && (output_rounding != "NO") && (output_rounding != "VARIABLE"))
         begin
             $display ("Error: The OUTPUT_ROUNDING parameter is set to an invalid value");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((chainout_rounding != "YES") && (chainout_rounding != "NO") && (chainout_rounding != "VARIABLE"))
         begin
             $display ("Error: The CHAINOUT_ROUNDING parameter is set to an invalid value");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((output_saturation != "YES") && (output_saturation != "NO") && (output_saturation != "VARIABLE"))
         begin
             $display ("Error: The OUTPUT_SATURATION parameter is set to an invalid value");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((chainout_saturation != "YES") && (chainout_saturation != "NO") && (chainout_saturation != "VARIABLE"))
         begin
             $display ("Error: The CHAINOUT_SATURATION parameter is set to an invalid value");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((output_rounding != "NO") && ((output_round_type != "NEAREST_INTEGER") && (output_round_type != "NEAREST_EVEN")))
         begin
             $display ("Error: The OUTPUT_ROUND_TYPE parameter is set to an invalid value");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((output_saturation != "NO") && ((output_saturate_type != "ASYMMETRIC") && (output_saturate_type != "SYMMETRIC")))
         begin
             $display ("Error: The OUTPUT_SATURATE_TYPE parameter is set to an invalid value");
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if ((shift_mode != "NO") && (shift_mode != "LEFT") && (shift_mode != "RIGHT") && (shift_mode != "ROTATION") &&
             (shift_mode != "VARIABLE"))
         begin
@@ -36105,7 +36105,7 @@ module altmult_add (    dataa,
             $display("Time: %0t  Instance: %m", $time);
             $stop;
         end
-        
+
         if (accumulator == "YES")
         begin
             if ((accum_direction != "ADD") && (accum_direction != "SUB"))
@@ -36115,7 +36115,7 @@ module altmult_add (    dataa,
                 $stop;
             end
         end
-        
+
         if (dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) == 1)
         begin
             if ((output_rounding == "YES") && (accumulator == "YES"))
@@ -36124,7 +36124,7 @@ module altmult_add (    dataa,
                 $display("Time: %0t  Instance: %m", $time);
                 $stop;
             end
-            
+
             if ((chainout_adder == "YES") && (output_rounding != "NO"))
             begin
                 $display ("Error: In chainout mode, output rounding cannot be turned on");
@@ -36132,46 +36132,46 @@ module altmult_add (    dataa,
                 $stop;
             end
         end
-     
-              
+
+
         temp_sum_reg = 0;
-        mult_a_reg = 0; 
+        mult_a_reg = 0;
         mult_b_reg   = 0;
         mult_c_reg   = 0;
         mult_res_reg = 0;
 
-        sign_a_reg  =   ((port_signa == "PORT_CONNECTIVITY")? 
+        sign_a_reg  =   ((port_signa == "PORT_CONNECTIVITY")?
                         (representation_a != "UNUSED" ? (representation_a == "SIGNED" ? 1 : 0) : 0) :
                         (port_signa == "PORT_USED")? 0 :
                         (port_signa == "PORT_UNUSED")? (representation_a == "SIGNED" ? 1 : 0) : 0);
-                        
+
         sign_a_pipe_reg =   ((port_signa == "PORT_CONNECTIVITY")?
                             (representation_a != "UNUSED" ? (representation_a == "SIGNED" ? 1 : 0) : 0) :
                             (port_signa == "PORT_USED")? 0 :
                             (port_signa == "PORT_UNUSED")? (representation_a == "SIGNED" ? 1 : 0) : 0);
-                             
+
         sign_b_reg  =   ((port_signb == "PORT_CONNECTIVITY")?
                         (representation_b != "UNUSED" ? (representation_b == "SIGNED" ? 1 : 0) : 0) :
                         (port_signb == "PORT_USED")? 0 :
                         (port_signb == "PORT_UNUSED")? (representation_b == "SIGNED" ? 1 : 0) : 0);
-                         
+
         sign_b_pipe_reg =   ((port_signb == "PORT_CONNECTIVITY")?
                             (representation_b != "UNUSED" ? (representation_b == "SIGNED" ? 1 : 0) : 0) :
                             (port_signb == "PORT_USED")? 0 :
-                            (port_signb == "PORT_UNUSED")? (representation_b == "SIGNED" ? 1 : 0) : 0);  
-            
+                            (port_signb == "PORT_UNUSED")? (representation_b == "SIGNED" ? 1 : 0) : 0);
+
         addsub1_reg  =  ((port_addnsub1 == "PORT_CONNECTIVITY")?
                         (multiplier1_direction != "UNUSED" ? (multiplier1_direction == "ADD" ? 1 : 0) : 0) :
                         (port_addnsub1 == "PORT_USED")? 0 :
                         (port_addnsub1 == "PORT_UNUSED")? (multiplier1_direction == "ADD" ? 1 : 0) : 0);
-            
-        addsub1_pipe_reg = addsub1_reg; 
-        
+
+        addsub1_pipe_reg = addsub1_reg;
+
         addsub3_reg  =  ((port_addnsub3 == "PORT_CONNECTIVITY")?
                         (multiplier3_direction != "UNUSED" ? (multiplier3_direction == "ADD" ? 1 : 0) : 0) :
                         (port_addnsub3 == "PORT_USED")? 0 :
                         (port_addnsub3 == "PORT_UNUSED")? (multiplier3_direction == "ADD" ? 1 : 0) : 0);
-                        
+
         addsub3_pipe_reg = addsub3_reg;
 
         // StratixII related reg type initialization
@@ -36190,7 +36190,7 @@ module altmult_add (    dataa,
         mult_saturate_overflow_reg [2] = 0;
         mult_saturate_overflow_reg [1] = 0;
         mult_saturate_overflow_reg [0] = 0;
-        
+
         mult_saturate_overflow_pipe_reg [3] = 0;
         mult_saturate_overflow_pipe_reg [2] = 0;
         mult_saturate_overflow_pipe_reg [1] = 0;
@@ -36242,7 +36242,7 @@ module altmult_add (    dataa,
         shift_rot_result = 0;
         acc_feedback_reg = 0;
         chout_shftrot_reg = 0;
-    
+
         overflow_status = 0;
         overflow_stat_reg = 0;
         chainout_overflow_status = 0;
@@ -36257,7 +36257,7 @@ module altmult_add (    dataa,
         unsigned_sub3_overflow_reg = 0;
         unsigned_sub1_overflow_mult_reg = 0;
         unsigned_sub3_overflow_mult_reg = 0;
-        
+
         preadder_sum1a = 0;
         preadder_sum2a = 0;
         preadder_res_0 = 0;
@@ -36272,7 +36272,7 @@ module altmult_add (    dataa,
         adder1_res_reg_1 = 0;
 		round_sat_in_reg = 0;
 		chainin_reg = 0;
-		
+
         for ( num_stor = extra_latency; num_stor >= 0; num_stor = num_stor - 1 )
         begin
             result_pipe[num_stor] = {int_width_result{1'b0}};
@@ -36282,7 +36282,7 @@ module altmult_add (    dataa,
             unsigned_sub3_overflow_pipe_reg <= 1'b0;
             accum_overflow_stat_pipe_reg = 1'b0;
         end
-        
+
         for (lpbck_cnt = 0; lpbck_cnt <= int_width_result; lpbck_cnt = lpbck_cnt+1)
         begin
             loopback_wire_reg[lpbck_cnt] = 1'b0;
@@ -36292,12 +36292,12 @@ module altmult_add (    dataa,
 
     assign stratixii_block = dev.FEATURE_FAMILY_BASE_STRATIXII(intended_device_family) || (stratixiii_block && (dedicated_multiplier_circuitry=="NO"));
     assign stratixiii_block = dev.FEATURE_FAMILY_STRATIXIII(intended_device_family) && (dedicated_multiplier_circuitry!="NO");
-	
+
 	//SPR 356362: Force stratixv_block to false as StratixV does not support simulation atom
     assign stratixv_block = dev.FEATURE_FAMILY_STRATIXV(intended_device_family) && (dedicated_multiplier_circuitry!="NO") && 1'b0;
-	
+
     assign altera_mult_add_block = dev.FEATURE_FAMILY_HAS_ALTERA_MULT_ADD_FLOW(intended_device_family);
-	
+
     assign signa_z = signa;
     assign signb_z = signb;
     assign addnsub1_z = addnsub1;
@@ -36310,8 +36310,8 @@ module altmult_add (    dataa,
         dataa_reg[(number_of_multipliers * width_a) - 1:0] = dataa[(number_of_multipliers* width_a) -1:0];
         datab_reg[(number_of_multipliers * width_b) - 1:0] = datab[(number_of_multipliers * width_b) - 1:0];
     end
-     
-    assign new_dataa_int[int_width_a - 1:int_width_a - width_a] = (number_of_multipliers >= 1) ? 
+
+    assign new_dataa_int[int_width_a - 1:int_width_a - width_a] = (number_of_multipliers >= 1) ?
                                                                     dataa_reg[width_a - 1:0]: {width_a{1'b0}};
 
     assign chainout_new_dataa_temp =  ((sign_a_int == 1) ?
@@ -36322,10 +36322,10 @@ module altmult_add (    dataa,
                                                         (((number_of_multipliers >= 1) && (width_result > width_a + width_b + 8) && (width_a < 18)) ?
                                                         chainout_new_dataa_temp[int_width_a - 1 : 0] :
                                                         {int_width_a{1'b0}}) : {int_width_a{1'b0}};
-                                                                  
-    assign new_dataa_int[(2 * int_width_a) - 1: (2 * int_width_a) - width_a] = (number_of_multipliers >= 2)? 
+
+    assign new_dataa_int[(2 * int_width_a) - 1: (2 * int_width_a) - width_a] = (number_of_multipliers >= 2)?
                                                                                 dataa_reg[(2 * width_a) - 1: width_a] : {width_a{1'b0}};
-   
+
     assign chainout_new_dataa_temp2 = ((sign_a_int == 1) ?
                                     {{(chainout_input_a) {dataa_reg[(2*width_a) - 1]}}, dataa_reg[(2*width_a) - 1:width_a]} :
                                     {{(chainout_input_a) {1'b0}}, dataa_reg[(2*width_a) - 1:width_a]});
@@ -36334,10 +36334,10 @@ module altmult_add (    dataa,
                                                                         (((number_of_multipliers >= 2) && (width_result > width_a + width_b + 8) && (width_a < 18)) ?
                                                                         chainout_new_dataa_temp2[int_width_a - 1 : 0] :
                                                                         {int_width_a{1'b0}}) : {int_width_a{1'b0}};
-                                                                        
-    assign new_dataa_int[(3 * int_width_a) - 1: (3 * int_width_a) - width_a] = (number_of_multipliers >= 3)? 
+
+    assign new_dataa_int[(3 * int_width_a) - 1: (3 * int_width_a) - width_a] = (number_of_multipliers >= 3)?
                                                                                 dataa_reg[(3 * width_a) - 1:(2 * width_a)] : {width_a{1'b0}};
-                                                                                
+
     assign chainout_new_dataa_temp3 = ((sign_a_int == 1) ?
                                         {{(chainout_input_a) {dataa_reg[(3*width_a) - 1]}}, dataa_reg[(3*width_a) - 1:(2*width_a)]} :
                                         {{(chainout_input_a) {1'b0}}, dataa_reg[(3*width_a) - 1:(2*width_a)]});
@@ -36347,9 +36347,9 @@ module altmult_add (    dataa,
                                                                             chainout_new_dataa_temp3[int_width_a - 1 : 0]:
                                                                             {int_width_a{1'b0}}) : {int_width_a{1'b0}};
 
-    assign new_dataa_int[(4 * int_width_a) - 1: (4 * int_width_a) - width_a] = (number_of_multipliers >= 4) ? 
+    assign new_dataa_int[(4 * int_width_a) - 1: (4 * int_width_a) - width_a] = (number_of_multipliers >= 4) ?
                                                                                 dataa_reg[(4 * width_a) - 1:(3 * width_a)] : {width_a{1'b0}};
-                                                                                
+
     assign chainout_new_dataa_temp4 = ((sign_a_int == 1) ?
                                     {{(chainout_input_a) {dataa_reg[(4*width_a) - 1]}}, dataa_reg[(4*width_a) - 1:(3*width_a)]} :
                                     {{(chainout_input_a) {1'b0}}, dataa_reg[(4*width_a) - 1:(3*width_a)]});
@@ -36359,43 +36359,43 @@ module altmult_add (    dataa,
                                                                             chainout_new_dataa_temp4[int_width_a - 1 : 0]:
                                                                             {int_width_a{1'b0}}) : {int_width_a{1'b0}};
 
-    assign new_datab_int[int_width_b - 1:int_width_b - width_b] = (number_of_multipliers >= 1) ? 
+    assign new_datab_int[int_width_b - 1:int_width_b - width_b] = (number_of_multipliers >= 1) ?
                                                                     datab_reg[width_b - 1:0]: {width_b{1'b0}};
-                                                                    
+
     assign chainout_new_datab_temp = ((sign_b_int == 1) ?
                                     {{(chainout_input_b) {datab_reg[width_b - 1]}}, datab_reg[width_b - 1:0]} :
                                     {{(chainout_input_b) {1'b0}}, datab_reg[width_b - 1:0]});
 
     assign chainout_new_datab_int[int_width_b -1:0] = ((chainout_adder == "YES") && stratixiii_block == 1) ?
-                                                        (((number_of_multipliers >= 1) && (width_result > width_a + width_b + 8) && (width_b < 18)) ? 
+                                                        (((number_of_multipliers >= 1) && (width_result > width_a + width_b + 8) && (width_b < 18)) ?
                                                         chainout_new_datab_temp[int_width_b -1:0]:
                                                         {int_width_b{1'b0}}) : {int_width_b{1'b0}};
-                                                                  
-    assign new_datab_int[(2 * int_width_b) - 1: (2 * int_width_b) - width_b] = (number_of_multipliers >= 2)? 
+
+    assign new_datab_int[(2 * int_width_b) - 1: (2 * int_width_b) - width_b] = (number_of_multipliers >= 2)?
                                                                                 datab_reg[(2 * width_b) - 1:width_b]:{width_b{1'b0}};
-                                                                                
+
     assign chainout_new_datab_temp2 = ((sign_b_int == 1) ?
                                     {{(chainout_input_b) {datab_reg[(2*width_b) - 1]}}, datab_reg[(2*width_b) - 1:width_b]} :
                                     {{(chainout_input_b) {1'b0}}, datab_reg[(2*width_b) - 1:width_b]});
 
     assign chainout_new_datab_int[(2*int_width_b) -1:int_width_b] = ((chainout_adder == "YES") && stratixiii_block == 1) ?
-                                                                        (((number_of_multipliers >= 2) && (width_result > width_a + width_b + 8) && (width_b < 18)) ? 
+                                                                        (((number_of_multipliers >= 2) && (width_result > width_a + width_b + 8) && (width_b < 18)) ?
                                                                         chainout_new_datab_temp2[int_width_b -1:0]:
                                                                         {int_width_b{1'b0}}) : {int_width_b{1'b0}};
 
-    assign new_datab_int[(3 * int_width_b) - 1: (3 * int_width_b) - width_b] = (number_of_multipliers >= 3)? 
+    assign new_datab_int[(3 * int_width_b) - 1: (3 * int_width_b) - width_b] = (number_of_multipliers >= 3)?
                                                                                 datab_reg[(3 * width_b) - 1:(2 * width_b)] : {width_b{1'b0}};
-                                                                                
+
     assign chainout_new_datab_temp3 = ((sign_b_int == 1) ?
                                     {{(chainout_input_b) {datab_reg[(3*width_b) - 1]}}, datab_reg[(3*width_b) - 1:(2*width_b)]} :
                                     {{(chainout_input_b) {1'b0}}, datab_reg[(3*width_b) - 1:(2*width_b)]});
 
     assign chainout_new_datab_int[(3*int_width_b) -1:(2*int_width_b)] = ((chainout_adder == "YES") && stratixiii_block == 1) ?
-                                                                        (((number_of_multipliers >= 3) && (width_result > width_a + width_b + 8) && (width_b < 18)) ? 
+                                                                        (((number_of_multipliers >= 3) && (width_result > width_a + width_b + 8) && (width_b < 18)) ?
                                                                         chainout_new_datab_temp3[int_width_b -1:0]:
                                                                         {int_width_b{1'b0}}) : {int_width_b{1'b0}};
 
-    assign new_datab_int[(4 * int_width_b) - 1: (4 * int_width_b) - width_b] = (number_of_multipliers >= 4) ? 
+    assign new_datab_int[(4 * int_width_b) - 1: (4 * int_width_b) - width_b] = (number_of_multipliers >= 4) ?
                                                                                 datab_reg[(4 * width_b) - 1:(3 * width_b)] : {width_b{1'b0}};
 
     assign chainout_new_datab_temp4 = ((sign_b_int == 1) ?
@@ -36403,32 +36403,32 @@ module altmult_add (    dataa,
                                     {{(chainout_input_b) {1'b0}}, datab_reg[(4*width_b) - 1:(3*width_b)]});
 
     assign chainout_new_datab_int[(4*int_width_b) -1:(3*int_width_b)] = ((chainout_adder == "YES") && stratixiii_block == 1) ?
-                                                                        (((number_of_multipliers >= 4) && (width_result > width_a + width_b + 8) && (width_b < 18)) ? 
+                                                                        (((number_of_multipliers >= 4) && (width_result > width_a + width_b + 8) && (width_b < 18)) ?
                                                                         chainout_new_datab_temp4[int_width_b -1:0]:
                                                                         {int_width_b{1'b0}}) : {int_width_b{1'b0}};
 
     assign dataa_int[number_of_multipliers * int_width_a-1:0] = (((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO") &&
                                                                 (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO") &&
                                                                 (output_rounding == "NO") && (output_saturation == "NO") &&
-                                                                (chainout_rounding == "NO") && (chainout_saturation == "NO") && (chainout_adder == "NO") && (input_source_b0 != "LOOPBACK"))? 
+                                                                (chainout_rounding == "NO") && (chainout_saturation == "NO") && (chainout_adder == "NO") && (input_source_b0 != "LOOPBACK"))?
                                                                 dataa[number_of_multipliers * width_a - 1:0]:
-                                                                ((width_a < 18) ? 
+                                                                ((width_a < 18) ?
                                                                 (((chainout_adder == "YES") && (width_result > width_a + width_b + 8)) ?
                                                                 chainout_new_dataa_int[number_of_multipliers * int_width_a-1:0] :
-                                                                new_dataa_int[number_of_multipliers * int_width_a-1:0]) : dataa[number_of_multipliers * width_a - 1:0])); 
-   
+                                                                new_dataa_int[number_of_multipliers * int_width_a-1:0]) : dataa[number_of_multipliers * width_a - 1:0]));
+
     assign datab_int[number_of_multipliers * int_width_b-1:0] = (((multiplier01_saturation == "NO") && (multiplier23_saturation == "NO") &&
                                                                 (multiplier01_rounding == "NO") && (multiplier23_rounding == "NO") &&
                                                                 (output_rounding == "NO") && (output_saturation == "NO") &&
-                                                                (chainout_rounding == "NO") && (chainout_saturation == "NO") && (chainout_adder == "NO") && (input_source_b0 != "LOOPBACK"))? 
+                                                                (chainout_rounding == "NO") && (chainout_saturation == "NO") && (chainout_adder == "NO") && (input_source_b0 != "LOOPBACK"))?
                                                                 datab[number_of_multipliers * width_b - 1:0]:
-                                                                ((width_b < 18)? 
+                                                                ((width_b < 18)?
                                                                 (((chainout_adder == "YES") && (width_result > width_a + width_b + 8)) ?
                                                                 chainout_new_datab_int[number_of_multipliers * int_width_b-1:0] :
-                                                                new_datab_int[number_of_multipliers * int_width_b - 1:0]) : datab[number_of_multipliers * width_b - 1:0])); 
-	
+                                                                new_datab_int[number_of_multipliers * int_width_b - 1:0]) : datab[number_of_multipliers * width_b - 1:0]));
+
 	assign datac_int[int_width_c-1:0] = ((stratixv_block == 1 && (preadder_mode == "INPUT"))? datac[int_width_c - 1:0]: 0);
-    
+
     assign addnsub1_round_pre = addnsub1_round;
     assign addnsub3_round_pre = addnsub3_round;
     assign mult01_round_pre = mult01_round;
@@ -36437,7 +36437,7 @@ module altmult_add (    dataa,
     assign mult23_saturate_pre = mult23_saturation;
 
     // ---------------------------------------------------------
-    // This block updates the output port for each multiplier's 
+    // This block updates the output port for each multiplier's
     // saturation port only if port_mult0_is_saturated is set to used
     // ---------------------------------------------------------
 
@@ -36455,8 +36455,8 @@ module altmult_add (    dataa,
                                 (port_mult3_is_saturated == "USED")? mult_is_saturate_vec[3]: 1'bz;
 
     assign sourcea_wire[number_of_multipliers - 1 : 0] = sourcea[number_of_multipliers - 1 : 0];
-    
-    assign sourceb_wire[number_of_multipliers - 1 : 0] = sourceb[number_of_multipliers - 1 : 0]; 
+
+    assign sourceb_wire[number_of_multipliers - 1 : 0] = sourceb[number_of_multipliers - 1 : 0];
 
 
     // ---------------------------------------------------------
@@ -36498,14 +36498,14 @@ module altmult_add (    dataa,
                                     (input_register_b0 == "CLOCK1")? clock1:
                                     (input_register_b0 == "CLOCK2")? clock2:
                                     (input_register_b0 == "CLOCK3")? clock3: 1'b0;
-                                 
+
 
     assign input_reg_b1_wire_clk =  (input_register_b1 == "CLOCK0")? clock0:
                                     (input_register_b1 == "UNREGISTERED")? 1'b0:
                                     (input_register_b1 == "CLOCK1")? clock1:
                                     (input_register_b1 == "CLOCK2")? clock2:
                                     (input_register_b1 == "CLOCK3")? clock3: 1'b0;
-                                   
+
 
     assign input_reg_b2_wire_clk =  (input_register_b2 == "CLOCK0")? clock0:
                                     (input_register_b2 == "UNREGISTERED")? 1'b0:
@@ -36519,18 +36519,18 @@ module altmult_add (    dataa,
                                     (input_register_b3 == "CLOCK1")? clock1:
                                     (input_register_b3 == "CLOCK2")? clock2:
                                     (input_register_b3 == "CLOCK3")? clock3: 1'b0;
-                                   
+
 	assign input_reg_c0_wire_clk =  (input_register_c0 == "CLOCK0")? clock0:
                                     (input_register_c0 == "UNREGISTERED")? 1'b0:
                                     (input_register_c0 == "CLOCK1")? clock1:
                                     (input_register_c0 == "CLOCK2")? clock2: 1'b0;
-                                 
+
 
     assign input_reg_c1_wire_clk =  (input_register_c1 == "CLOCK0")? clock0:
                                     (input_register_c1 == "UNREGISTERED")? 1'b0:
                                     (input_register_c1 == "CLOCK1")? clock1:
                                     (input_register_c1 == "CLOCK2")? clock2: 1'b0;
-                                   
+
 
     assign input_reg_c2_wire_clk =  (input_register_c2 == "CLOCK0")? clock0:
                                     (input_register_c2 == "UNREGISTERED")? 1'b0:
@@ -36541,38 +36541,38 @@ module altmult_add (    dataa,
     assign input_reg_c3_wire_clk =  (input_register_c3 == "CLOCK0")? clock0:
                                     (input_register_c3 == "UNREGISTERED")? 1'b0:
                                     (input_register_c3 == "CLOCK1")? clock1:
-                                    (input_register_c3 == "CLOCK2")? clock2: 1'b0;	                            
+                                    (input_register_c3 == "CLOCK2")? clock2: 1'b0;
 
     assign addsub1_reg_wire_clk =   (addnsub_multiplier_register1 == "CLOCK0")? clock0:
-                                    (addnsub_multiplier_register1 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_register1 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_register1 == "CLOCK1")? clock1:
                                     (addnsub_multiplier_register1 == "CLOCK2")? clock2:
                                     (addnsub_multiplier_register1 == "CLOCK3")? clock3: 1'b0;
-                                    
+
 
     assign addsub1_pipe_wire_clk =  (addnsub_multiplier_pipeline_register1 == "CLOCK0")? clock0:
-                                    (addnsub_multiplier_pipeline_register1 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_pipeline_register1 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_pipeline_register1 == "CLOCK1")? clock1:
                                     (addnsub_multiplier_pipeline_register1 == "CLOCK2")? clock2:
                                     (addnsub_multiplier_pipeline_register1 == "CLOCK3")? clock3: 1'b0;
-                              
-                                    
+
+
 
     assign addsub3_reg_wire_clk =   (addnsub_multiplier_register3 == "CLOCK0")? clock0:
-                                    (addnsub_multiplier_register3 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_register3 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_register3 == "CLOCK1")? clock1:
                                     (addnsub_multiplier_register3 == "CLOCK2")? clock2:
                                     (addnsub_multiplier_register3 == "CLOCK3")? clock3: 1'b0;
-                                  
-                        
+
+
 
     assign addsub3_pipe_wire_clk =  (addnsub_multiplier_pipeline_register3 == "CLOCK0")? clock0:
-                                    (addnsub_multiplier_pipeline_register3 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_pipeline_register3 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_pipeline_register3 == "CLOCK1")? clock1:
                                     (addnsub_multiplier_pipeline_register3 == "CLOCK2")? clock2:
                                     (addnsub_multiplier_pipeline_register3 == "CLOCK3")? clock3: 1'b0;
-                                   
-                                   
+
+
 
 
     assign sign_reg_a_wire_clk =    (signed_register_a == "CLOCK0")? clock0:
@@ -36580,31 +36580,31 @@ module altmult_add (    dataa,
                                     (signed_register_a == "CLOCK1")? clock1:
                                     (signed_register_a == "CLOCK2")? clock2:
                                     (signed_register_a == "CLOCK3")? clock3: 1'b0;
-                                  
+
 
 
     assign sign_pipe_a_wire_clk =   (signed_pipeline_register_a == "CLOCK0")? clock0:
-                                    (signed_pipeline_register_a == "UNREGISTERED")? 1'b0: 
+                                    (signed_pipeline_register_a == "UNREGISTERED")? 1'b0:
                                     (signed_pipeline_register_a == "CLOCK1")? clock1:
                                     (signed_pipeline_register_a == "CLOCK2")? clock2:
                                     (signed_pipeline_register_a == "CLOCK3")? clock3: 1'b0;
-                                  
-                                
+
+
 
     assign sign_reg_b_wire_clk =    (signed_register_b == "CLOCK0")? clock0:
                                     (signed_register_b == "UNREGISTERED")? 1'b0:
                                     (signed_register_b == "CLOCK1")? clock1:
                                     (signed_register_b == "CLOCK2")? clock2:
                                     (signed_register_b == "CLOCK3")? clock3: 1'b0;
-                                  
-                                
+
+
 
     assign sign_pipe_b_wire_clk =   (signed_pipeline_register_b == "CLOCK0")? clock0:
-                                    (signed_pipeline_register_b == "UNREGISTERED")? 1'b0: 
+                                    (signed_pipeline_register_b == "UNREGISTERED")? 1'b0:
                                     (signed_pipeline_register_b == "CLOCK1")? clock1:
                                     (signed_pipeline_register_b == "CLOCK2")? clock2:
                                     (signed_pipeline_register_b == "CLOCK3")? clock3: 1'b0;
-                              
+
 
 
     assign multiplier_reg0_wire_clk =   (multiplier_register0 == "CLOCK0")? clock0:
@@ -36612,7 +36612,7 @@ module altmult_add (    dataa,
                                         (multiplier_register0 == "CLOCK1")? clock1:
                                         (multiplier_register0 == "CLOCK2")? clock2:
                                         (multiplier_register0 == "CLOCK3")? clock3: 1'b0;
-                                      
+
 
 
     assign multiplier_reg1_wire_clk =   (multiplier_register1 == "CLOCK0")? clock0:
@@ -36620,7 +36620,7 @@ module altmult_add (    dataa,
                                         (multiplier_register1 == "CLOCK1")? clock1:
                                         (multiplier_register1 == "CLOCK2")? clock2:
                                         (multiplier_register1 == "CLOCK3")? clock3: 1'b0;
-                                   
+
 
     assign multiplier_reg2_wire_clk =   (multiplier_register2 == "CLOCK0")? clock0:
                                         (multiplier_register2 == "UNREGISTERED")? 1'b0:
@@ -36639,60 +36639,60 @@ module altmult_add (    dataa,
 
 
     assign output_reg_wire_clk =    (output_register == "CLOCK0")? clock0:
-                                    (output_register == "UNREGISTERED")? 1'b0: 
+                                    (output_register == "UNREGISTERED")? 1'b0:
                                     (output_register == "CLOCK1")? clock1:
                                     (output_register == "CLOCK2")? clock2:
                                     (output_register == "CLOCK3")? clock3: 1'b0;
-                                 
+
 
     assign addnsub1_round_wire_clk =    (addnsub1_round_register == "CLOCK0")? clock0:
-                                        (addnsub1_round_register == "UNREGISTERED")? 1'b0: 
+                                        (addnsub1_round_register == "UNREGISTERED")? 1'b0:
                                         (addnsub1_round_register == "CLOCK1")? clock1:
                                         (addnsub1_round_register == "CLOCK2")? clock2:
                                         (addnsub1_round_register == "CLOCK3")? clock3: 1'b0;
-                                     
-                                     
+
+
     assign addnsub1_round_pipe_wire_clk =   (addnsub1_round_pipeline_register == "CLOCK0")? clock0:
-                                            (addnsub1_round_pipeline_register == "UNREGISTERED")? 1'b0: 
+                                            (addnsub1_round_pipeline_register == "UNREGISTERED")? 1'b0:
                                             (addnsub1_round_pipeline_register == "CLOCK1")? clock1:
                                             (addnsub1_round_pipeline_register == "CLOCK2")? clock2:
                                             (addnsub1_round_pipeline_register == "CLOCK3")? clock3: 1'b0;
-                                          
+
 
     assign addnsub3_round_wire_clk =    (addnsub3_round_register == "CLOCK0")? clock0:
-                                        (addnsub3_round_register == "UNREGISTERED")? 1'b0: 
+                                        (addnsub3_round_register == "UNREGISTERED")? 1'b0:
                                         (addnsub3_round_register == "CLOCK1")? clock1:
                                         (addnsub3_round_register == "CLOCK2")? clock2:
                                         (addnsub3_round_register == "CLOCK3")? clock3: 1'b0;
-                                     
+
     assign addnsub3_round_pipe_wire_clk =   (addnsub3_round_pipeline_register == "CLOCK0")? clock0:
-                                            (addnsub3_round_pipeline_register == "UNREGISTERED")? 1'b0: 
+                                            (addnsub3_round_pipeline_register == "UNREGISTERED")? 1'b0:
                                             (addnsub3_round_pipeline_register == "CLOCK1")? clock1:
                                             (addnsub3_round_pipeline_register == "CLOCK2")? clock2:
                                             (addnsub3_round_pipeline_register == "CLOCK3")? clock3: 1'b0;
-                                          
+
     assign mult01_round_wire_clk =  (mult01_round_register == "CLOCK0")? clock0:
-                                    (mult01_round_register == "UNREGISTERED")? 1'b0: 
+                                    (mult01_round_register == "UNREGISTERED")? 1'b0:
                                     (mult01_round_register == "CLOCK1")? clock1:
                                     (mult01_round_register == "CLOCK2")? clock2:
                                     (mult01_round_register == "CLOCK3")? clock3: 1'b0;
-                                   
-                                   
+
+
     assign mult01_saturate_wire_clk =   (mult01_saturation_register == "CLOCK0")? clock0:
-                                        (mult01_saturation_register == "UNREGISTERED")? 1'b0: 
+                                        (mult01_saturation_register == "UNREGISTERED")? 1'b0:
                                         (mult01_saturation_register == "CLOCK1")? clock1:
                                         (mult01_saturation_register == "CLOCK2")? clock2:
                                         (mult01_saturation_register == "CLOCK3")? clock3: 1'b0;
-                                      
-                                   
+
+
     assign mult23_round_wire_clk =  (mult23_round_register == "CLOCK0")? clock0:
-                                    (mult23_round_register == "UNREGISTERED")? 1'b0: 
+                                    (mult23_round_register == "UNREGISTERED")? 1'b0:
                                     (mult23_round_register == "CLOCK1")? clock1:
                                     (mult23_round_register == "CLOCK2")? clock2:
                                     (mult23_round_register == "CLOCK3")? clock3: 1'b0;
-                                   
+
     assign mult23_saturate_wire_clk =   (mult23_saturation_register == "CLOCK0")? clock0:
-                                        (mult23_saturation_register == "UNREGISTERED")? 1'b0: 
+                                        (mult23_saturation_register == "UNREGISTERED")? 1'b0:
                                         (mult23_saturation_register == "CLOCK1")? clock1:
                                         (mult23_saturation_register == "CLOCK2")? clock2:
                                         (mult23_saturation_register == "CLOCK3")? clock3: 1'b0;
@@ -36702,7 +36702,7 @@ module altmult_add (    dataa,
                                     (output_round_register == "CLOCK1") ? clock1:
                                     (output_round_register == "CLOCK2") ? clock2:
                                     (output_round_register == "CLOCK3") ? clock3 : 1'b0;
-                                    
+
     assign outround_pipe_wire_clk = (output_round_pipeline_register == "CLOCK0") ? clock0:
                                     (output_round_pipeline_register == "UNREGISTERED") ? 1'b0:
                                     (output_round_pipeline_register == "CLOCK1") ? clock1:
@@ -36732,7 +36732,7 @@ module altmult_add (    dataa,
                                     (output_saturate_register == "CLOCK1") ? clock1:
                                     (output_saturate_register == "CLOCK2") ? clock2:
                                     (output_saturate_register == "CLOCK3") ? clock3 : 1'b0;
-                                    
+
     assign outsat_pipe_wire_clk =   (output_saturate_pipeline_register == "CLOCK0") ? clock0:
                                     (output_saturate_pipeline_register == "UNREGISTERED") ? 1'b0:
                                     (output_saturate_pipeline_register == "CLOCK1") ? clock1:
@@ -36804,7 +36804,7 @@ module altmult_add (    dataa,
                                     (shift_right_pipeline_register == "CLOCK1") ? clock1:
                                     (shift_right_pipeline_register == "CLOCK2") ? clock2:
                                     (shift_right_pipeline_register == "CLOCK3") ? clock3 : 1'b0;
-                                    
+
     assign shiftr_out_reg_wire_clk =    (shift_right_output_register == "CLOCK0") ? clock0:
                                         (shift_right_output_register == "UNREGISTERED") ? 1'b0:
                                         (shift_right_output_register == "CLOCK1") ? clock1:
@@ -36840,144 +36840,144 @@ module altmult_add (    dataa,
                                         (accum_sload_pipeline_register == "CLOCK1") ? clock1 :
                                         (accum_sload_pipeline_register == "CLOCK2") ? clock2 :
                                         (accum_sload_pipeline_register == "CLOCK3") ? clock3 : 1'b0;
-                                    
+
 	assign coeffsela_reg_wire_clk =  (coefsel0_register == "CLOCK0") ? clock0 :
                                      (coefsel0_register == "UNREGISTERED") ? 1'b0:
                                      (coefsel0_register == "CLOCK1") ? clock1 :
-                                     (coefsel0_register == "CLOCK2") ? clock2 : 1'b0;                                                                           
-                                     
+                                     (coefsel0_register == "CLOCK2") ? clock2 : 1'b0;
+
 	assign coeffselb_reg_wire_clk =  (coefsel1_register == "CLOCK0") ? clock0 :
                                      (coefsel1_register == "UNREGISTERED") ? 1'b0:
                                      (coefsel1_register == "CLOCK1") ? clock1 :
-                                     (coefsel1_register == "CLOCK2") ? clock2 : 1'b0;                                                                                                                
-                                     
+                                     (coefsel1_register == "CLOCK2") ? clock2 : 1'b0;
+
 	assign coeffselc_reg_wire_clk =  (coefsel2_register == "CLOCK0") ? clock0 :
                                      (coefsel2_register == "UNREGISTERED") ? 1'b0:
                                      (coefsel2_register == "CLOCK1") ? clock1 :
-                                     (coefsel2_register == "CLOCK2") ? clock2 : 1'b0;                                                                           
-                                     
+                                     (coefsel2_register == "CLOCK2") ? clock2 : 1'b0;
+
 	assign coeffseld_reg_wire_clk =  (coefsel3_register == "CLOCK0") ? clock0 :
                                      (coefsel3_register == "UNREGISTERED") ? 1'b0:
                                      (coefsel3_register == "CLOCK1") ? clock1 :
-                                     (coefsel3_register == "CLOCK2") ? clock2 : 1'b0;                                                                                                                                                     
+                                     (coefsel3_register == "CLOCK2") ? clock2 : 1'b0;
 
 	assign systolic1_reg_wire_clk =  (systolic_delay1 == "CLOCK0") ? clock0 :
                                      (systolic_delay1 == "UNREGISTERED") ? 1'b0:
                                      (systolic_delay1 == "CLOCK1") ? clock1 :
-                                     (systolic_delay1 == "CLOCK2") ? clock2 : 1'b0;                                                                                                                                                                                          
+                                     (systolic_delay1 == "CLOCK2") ? clock2 : 1'b0;
 
 	assign systolic3_reg_wire_clk =  (systolic_delay3 == "CLOCK0") ? clock0 :
                                      (systolic_delay3 == "UNREGISTERED") ? 1'b0:
                                      (systolic_delay3 == "CLOCK1") ? clock1 :
-                                     (systolic_delay3 == "CLOCK2") ? clock2 : 1'b0;                                                                                                                                                                                                                               
-                                     
+                                     (systolic_delay3 == "CLOCK2") ? clock2 : 1'b0;
+
     // ----------------------------------------------------------------
     // This block updates the internal clock enable signals accordingly
     // every time the global clock enable signal changes state
     // ----------------------------------------------------------------
-  
-    
+
+
     assign input_reg_a0_wire_en =   (input_register_a0 == "CLOCK0")? ena0:
-                                    (input_register_a0 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_a0 == "UNREGISTERED")? 1'b1:
                                     (input_register_a0 == "CLOCK1")? ena1:
                                     (input_register_a0 == "CLOCK2")? ena2:
                                     (input_register_a0 == "CLOCK3")? ena3: 1'b1;
-                                   
+
 
 
     assign input_reg_a1_wire_en =   (input_register_a1 == "CLOCK0")? ena0:
-                                    (input_register_a1 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_a1 == "UNREGISTERED")? 1'b1:
                                     (input_register_a1 == "CLOCK1")? ena1:
                                     (input_register_a1 == "CLOCK2")? ena2:
                                     (input_register_a1 == "CLOCK3")? ena3: 1'b1;
 
 
     assign input_reg_a2_wire_en =   (input_register_a2 == "CLOCK0")? ena0:
-                                    (input_register_a2 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_a2 == "UNREGISTERED")? 1'b1:
                                     (input_register_a2 == "CLOCK1")? ena1:
                                     (input_register_a2 == "CLOCK2")? ena2:
                                     (input_register_a2 == "CLOCK3")? ena3: 1'b1;
 
 
     assign input_reg_a3_wire_en =   (input_register_a3 == "CLOCK0")? ena0:
-                                    (input_register_a3 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_a3 == "UNREGISTERED")? 1'b1:
                                     (input_register_a3 == "CLOCK1")? ena1:
                                     (input_register_a3 == "CLOCK2")? ena2:
                                     (input_register_a3 == "CLOCK3")? ena3: 1'b1;
 
 
     assign input_reg_b0_wire_en =   (input_register_b0 == "CLOCK0")? ena0:
-                                    (input_register_b0 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_b0 == "UNREGISTERED")? 1'b1:
                                     (input_register_b0 == "CLOCK1")? ena1:
                                     (input_register_b0 == "CLOCK2")? ena2:
                                     (input_register_b0 == "CLOCK3")? ena3: 1'b1;
-                                    
+
 
 
     assign input_reg_b1_wire_en =   (input_register_b1 == "CLOCK0")? ena0:
-                                    (input_register_b1 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_b1 == "UNREGISTERED")? 1'b1:
                                     (input_register_b1 == "CLOCK1")? ena1:
                                     (input_register_b1 == "CLOCK2")? ena2:
                                     (input_register_b1 == "CLOCK3")? ena3: 1'b1;
 
 
     assign input_reg_b2_wire_en =   (input_register_b2 == "CLOCK0")? ena0:
-                                    (input_register_b2 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_b2 == "UNREGISTERED")? 1'b1:
                                     (input_register_b2 == "CLOCK1")? ena1:
                                     (input_register_b2 == "CLOCK2")? ena2:
                                     (input_register_b2 == "CLOCK3")? ena3: 1'b1;
 
     assign input_reg_b3_wire_en =   (input_register_b3 == "CLOCK0")? ena0:
-                                    (input_register_b3 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_b3 == "UNREGISTERED")? 1'b1:
                                     (input_register_b3 == "CLOCK1")? ena1:
                                     (input_register_b3 == "CLOCK2")? ena2:
                                     (input_register_b3 == "CLOCK3")? ena3: 1'b1;
 
 	assign input_reg_c0_wire_en =   (input_register_c0 == "CLOCK0")? ena0:
-                                    (input_register_c0 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_c0 == "UNREGISTERED")? 1'b1:
                                     (input_register_c0 == "CLOCK1")? ena1:
-                                    (input_register_c0 == "CLOCK2")? ena2: 1'b1;                            
+                                    (input_register_c0 == "CLOCK2")? ena2: 1'b1;
 
     assign input_reg_c1_wire_en =   (input_register_c1 == "CLOCK0")? ena0:
-                                    (input_register_c1 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_c1 == "UNREGISTERED")? 1'b1:
                                     (input_register_c1 == "CLOCK1")? ena1:
                                     (input_register_c1 == "CLOCK2")? ena2: 1'b1;
 
     assign input_reg_c2_wire_en =   (input_register_c2 == "CLOCK0")? ena0:
-                                    (input_register_c2 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_c2 == "UNREGISTERED")? 1'b1:
                                     (input_register_c2 == "CLOCK1")? ena1:
                                     (input_register_c2 == "CLOCK2")? ena2: 1'b1;
 
     assign input_reg_c3_wire_en =   (input_register_c3 == "CLOCK0")? ena0:
-                                    (input_register_c3 == "UNREGISTERED")? 1'b1: 
+                                    (input_register_c3 == "UNREGISTERED")? 1'b1:
                                     (input_register_c3 == "CLOCK1")? ena1:
-                                    (input_register_c3 == "CLOCK2")? ena2: 1'b1;                                    
+                                    (input_register_c3 == "CLOCK2")? ena2: 1'b1;
 
     assign addsub1_reg_wire_en =    (addnsub_multiplier_register1 == "CLOCK0")? ena0:
-                                    (addnsub_multiplier_register1 == "UNREGISTERED")? 1'b1: 
+                                    (addnsub_multiplier_register1 == "UNREGISTERED")? 1'b1:
                                     (addnsub_multiplier_register1 == "CLOCK1")? ena1:
                                     (addnsub_multiplier_register1 == "CLOCK2")? ena2:
                                     (addnsub_multiplier_register1 == "CLOCK3")? ena3: 1'b1;
-                                    
+
 
 
     assign addsub1_pipe_wire_en =   (addnsub_multiplier_pipeline_register1 == "CLOCK0")? ena0:
-                                    (addnsub_multiplier_pipeline_register1 == "UNREGISTERED")? 1'b1: 
+                                    (addnsub_multiplier_pipeline_register1 == "UNREGISTERED")? 1'b1:
                                     (addnsub_multiplier_pipeline_register1 == "CLOCK1")? ena1:
                                     (addnsub_multiplier_pipeline_register1 == "CLOCK2")? ena2:
                                     (addnsub_multiplier_pipeline_register1 == "CLOCK3")? ena3: 1'b1;
 
 
     assign addsub3_reg_wire_en =    (addnsub_multiplier_register3 == "CLOCK0")? ena0:
-                                    (addnsub_multiplier_register3 == "UNREGISTERED")? 1'b1: 
+                                    (addnsub_multiplier_register3 == "UNREGISTERED")? 1'b1:
                                     (addnsub_multiplier_register3 == "CLOCK1")? ena1:
                                     (addnsub_multiplier_register3 == "CLOCK2")? ena2:
                                     (addnsub_multiplier_register3 == "CLOCK3")? ena3: 1'b1;
-                                    
+
 
 
     assign addsub3_pipe_wire_en =   (addnsub_multiplier_pipeline_register3 == "CLOCK0")? ena0:
-                                    (addnsub_multiplier_pipeline_register3 == "UNREGISTERED")? 1'b1: 
+                                    (addnsub_multiplier_pipeline_register3 == "UNREGISTERED")? 1'b1:
                                     (addnsub_multiplier_pipeline_register3 == "CLOCK1")? ena1:
                                     (addnsub_multiplier_pipeline_register3 == "CLOCK2")? ena2:
                                     (addnsub_multiplier_pipeline_register3 == "CLOCK3")? ena3: 1'b1;
@@ -36985,54 +36985,54 @@ module altmult_add (    dataa,
 
 
     assign sign_reg_a_wire_en =     (signed_register_a == "CLOCK0")? ena0:
-                                    (signed_register_a == "UNREGISTERED")? 1'b1: 
+                                    (signed_register_a == "UNREGISTERED")? 1'b1:
                                     (signed_register_a == "CLOCK1")? ena1:
                                     (signed_register_a == "CLOCK2")? ena2:
                                     (signed_register_a == "CLOCK3")? ena3: 1'b1;
-                                    
+
 
 
     assign sign_pipe_a_wire_en =    (signed_pipeline_register_a == "CLOCK0")? ena0:
-                                    (signed_pipeline_register_a == "UNREGISTERED")? 1'b1: 
+                                    (signed_pipeline_register_a == "UNREGISTERED")? 1'b1:
                                     (signed_pipeline_register_a == "CLOCK1")? ena1:
                                     (signed_pipeline_register_a == "CLOCK2")? ena2:
                                     (signed_pipeline_register_a == "CLOCK3")? ena3: 1'b1;
-                                  
+
 
 
     assign sign_reg_b_wire_en =     (signed_register_b == "CLOCK0")? ena0:
-                                    (signed_register_b == "UNREGISTERED")? 1'b1: 
+                                    (signed_register_b == "UNREGISTERED")? 1'b1:
                                     (signed_register_b == "CLOCK1")? ena1:
                                     (signed_register_b == "CLOCK2")? ena2:
                                     (signed_register_b == "CLOCK3")? ena3: 1'b1;
-                                  
+
 
 
     assign sign_pipe_b_wire_en =    (signed_pipeline_register_b == "CLOCK0")? ena0:
-                                    (signed_pipeline_register_b == "UNREGISTERED")? 1'b1: 
+                                    (signed_pipeline_register_b == "UNREGISTERED")? 1'b1:
                                     (signed_pipeline_register_b == "CLOCK1")? ena1:
                                     (signed_pipeline_register_b == "CLOCK2")? ena2:
                                     (signed_pipeline_register_b == "CLOCK3")? ena3: 1'b1;
-                                  
+
 
 
     assign multiplier_reg0_wire_en =    (multiplier_register0 == "CLOCK0")? ena0:
-                                        (multiplier_register0 == "UNREGISTERED")? 1'b1: 
+                                        (multiplier_register0 == "UNREGISTERED")? 1'b1:
                                         (multiplier_register0 == "CLOCK1")? ena1:
                                         (multiplier_register0 == "CLOCK2")? ena2:
                                         (multiplier_register0 == "CLOCK3")? ena3: 1'b1;
-                                      
+
 
 
     assign multiplier_reg1_wire_en =    (multiplier_register1 == "CLOCK0")? ena0:
-                                        (multiplier_register1 == "UNREGISTERED")? 1'b1: 
+                                        (multiplier_register1 == "UNREGISTERED")? 1'b1:
                                         (multiplier_register1 == "CLOCK1")? ena1:
                                         (multiplier_register1 == "CLOCK2")? ena2:
                                         (multiplier_register1 == "CLOCK3")? ena3: 1'b1;
 
 
     assign multiplier_reg2_wire_en =    (multiplier_register2 == "CLOCK0")? ena0:
-                                        (multiplier_register2 == "UNREGISTERED")? 1'b1: 
+                                        (multiplier_register2 == "UNREGISTERED")? 1'b1:
                                         (multiplier_register2 == "CLOCK1")? ena1:
                                         (multiplier_register2 == "CLOCK2")? ena2:
                                         (multiplier_register2 == "CLOCK3")? ena3: 1'b1;
@@ -37040,7 +37040,7 @@ module altmult_add (    dataa,
 
 
     assign multiplier_reg3_wire_en =    (multiplier_register3 == "CLOCK0")? ena0:
-                                        (multiplier_register3 == "UNREGISTERED")? 1'b1: 
+                                        (multiplier_register3 == "UNREGISTERED")? 1'b1:
                                         (multiplier_register3 == "CLOCK1")? ena1:
                                         (multiplier_register3 == "CLOCK2")? ena2:
                                         (multiplier_register3 == "CLOCK3")? ena3: 1'b1;
@@ -37048,74 +37048,74 @@ module altmult_add (    dataa,
 
 
     assign output_reg_wire_en =     (output_register == "CLOCK0")? ena0:
-                                    (output_register == "UNREGISTERED")? 1'b1: 
+                                    (output_register == "UNREGISTERED")? 1'b1:
                                     (output_register == "CLOCK1")? ena1:
                                     (output_register == "CLOCK2")? ena2:
                                     (output_register == "CLOCK3")? ena3: 1'b1;
-                                 
+
 
     assign addnsub1_round_wire_en =     (addnsub1_round_register == "CLOCK0")? ena0:
-                                        (addnsub1_round_register == "UNREGISTERED")? 1'b1: 
+                                        (addnsub1_round_register == "UNREGISTERED")? 1'b1:
                                         (addnsub1_round_register == "CLOCK1")? ena1:
                                         (addnsub1_round_register == "CLOCK2")? ena2:
                                         (addnsub1_round_register == "CLOCK3")? ena3: 1'b1;
-                                    
-                                     
+
+
     assign addnsub1_round_pipe_wire_en =    (addnsub1_round_pipeline_register == "CLOCK0")? ena0:
-                                            (addnsub1_round_pipeline_register == "UNREGISTERED")? 1'b1: 
+                                            (addnsub1_round_pipeline_register == "UNREGISTERED")? 1'b1:
                                             (addnsub1_round_pipeline_register == "CLOCK1")? ena1:
                                             (addnsub1_round_pipeline_register == "CLOCK2")? ena2:
                                             (addnsub1_round_pipeline_register == "CLOCK3")? ena3: 1'b1;
-                                         
+
 
     assign addnsub3_round_wire_en = (addnsub3_round_register == "CLOCK0")? ena0:
-                                    (addnsub3_round_register == "UNREGISTERED")? 1'b1: 
+                                    (addnsub3_round_register == "UNREGISTERED")? 1'b1:
                                     (addnsub3_round_register == "CLOCK1")? ena1:
                                     (addnsub3_round_register == "CLOCK2")? ena2:
                                     (addnsub3_round_register == "CLOCK3")? ena3: 1'b1;
-                                    
-                                     
+
+
     assign addnsub3_round_pipe_wire_en =    (addnsub3_round_pipeline_register == "CLOCK0")? ena0:
                                             (addnsub3_round_pipeline_register == "UNREGISTERED")? 1'b1:
                                             (addnsub3_round_pipeline_register == "CLOCK1")? ena1:
                                             (addnsub3_round_pipeline_register == "CLOCK2")? ena2:
                                             (addnsub3_round_pipeline_register == "CLOCK3")? ena3: 1'b1;
-                                        
-                                          
+
+
     assign mult01_round_wire_en =   (mult01_round_register == "CLOCK0")? ena0:
-                                    (mult01_round_register == "UNREGISTERED")? 1'b1: 
+                                    (mult01_round_register == "UNREGISTERED")? 1'b1:
                                     (mult01_round_register == "CLOCK1")? ena1:
                                     (mult01_round_register == "CLOCK2")? ena2:
                                     (mult01_round_register == "CLOCK3")? ena3: 1'b1;
-                                  
-                                   
+
+
     assign mult01_saturate_wire_en =    (mult01_saturation_register == "CLOCK0")? ena0:
-                                        (mult01_saturation_register == "UNREGISTERED")? 1'b1: 
+                                        (mult01_saturation_register == "UNREGISTERED")? 1'b1:
                                         (mult01_saturation_register == "CLOCK1")? ena1:
                                         (mult01_saturation_register == "CLOCK2")? ena2:
                                         (mult01_saturation_register == "CLOCK3")? ena3: 1'b1;
-                                     
-                                   
+
+
     assign mult23_round_wire_en =   (mult23_round_register == "CLOCK0")? ena0:
-                                    (mult23_round_register == "UNREGISTERED")? 1'b1: 
+                                    (mult23_round_register == "UNREGISTERED")? 1'b1:
                                     (mult23_round_register == "CLOCK1")? ena1:
                                     (mult23_round_register == "CLOCK2")? ena2:
                                     (mult23_round_register == "CLOCK3")? ena3: 1'b1;
-                                  
-                                   
+
+
     assign mult23_saturate_wire_en =    (mult23_saturation_register == "CLOCK0")? ena0:
-                                        (mult23_saturation_register == "UNREGISTERED")? 1'b1:       
+                                        (mult23_saturation_register == "UNREGISTERED")? 1'b1:
                                         (mult23_saturation_register == "CLOCK1")? ena1:
                                         (mult23_saturation_register == "CLOCK2")? ena2:
                                         (mult23_saturation_register == "CLOCK3")? ena3: 1'b1;
-                                              
+
 
     assign outround_reg_wire_en =  (output_round_register == "CLOCK0") ? ena0:
                                     (output_round_register == "UNREGISTERED") ? 1'b1:
                                     (output_round_register == "CLOCK1") ? ena1:
                                     (output_round_register == "CLOCK2") ? ena2:
                                     (output_round_register == "CLOCK3") ? ena3 : 1'b1;
-                                    
+
     assign outround_pipe_wire_en = (output_round_pipeline_register == "CLOCK0") ? ena0:
                                     (output_round_pipeline_register == "UNREGISTERED") ? 1'b1:
                                     (output_round_pipeline_register == "CLOCK1") ? ena1:
@@ -37145,7 +37145,7 @@ module altmult_add (    dataa,
                                     (output_saturate_register == "CLOCK1") ? ena1:
                                     (output_saturate_register == "CLOCK2") ? ena2:
                                     (output_saturate_register == "CLOCK3") ? ena3 : 1'b1;
-                                    
+
     assign outsat_pipe_wire_en =   (output_saturate_pipeline_register == "CLOCK0") ? ena0:
                                     (output_saturate_pipeline_register == "UNREGISTERED") ? 1'b1:
                                     (output_saturate_pipeline_register == "CLOCK1") ? ena1:
@@ -37217,7 +37217,7 @@ module altmult_add (    dataa,
                                     (shift_right_pipeline_register == "CLOCK1") ? ena1:
                                     (shift_right_pipeline_register == "CLOCK2") ? ena2:
                                     (shift_right_pipeline_register == "CLOCK3") ? ena3 : 1'b1;
-                                    
+
     assign shiftr_out_reg_wire_en =     (shift_right_output_register == "CLOCK0") ? ena0:
                                         (shift_right_output_register == "UNREGISTERED") ? 1'b1:
                                         (shift_right_output_register == "CLOCK1") ? ena1:
@@ -37257,291 +37257,291 @@ module altmult_add (    dataa,
 	assign coeffsela_reg_wire_en =  (coefsel0_register == "CLOCK0") ? ena0:
                                     (coefsel0_register == "UNREGISTERED") ? 1'b1:
                                     (coefsel0_register == "CLOCK1") ? ena1:
-                                    (coefsel0_register == "CLOCK2") ? ena2: 1'b1;                                                                            
-                                    
+                                    (coefsel0_register == "CLOCK2") ? ena2: 1'b1;
+
 	assign coeffselb_reg_wire_en =  (coefsel1_register == "CLOCK0") ? ena0:
                                     (coefsel1_register == "UNREGISTERED") ? 1'b1:
                                     (coefsel1_register == "CLOCK1") ? ena1:
-                                    (coefsel1_register == "CLOCK2") ? ena2: 1'b1;                                                                            
-                                    
+                                    (coefsel1_register == "CLOCK2") ? ena2: 1'b1;
+
 	assign coeffselc_reg_wire_en =  (coefsel2_register == "CLOCK0") ? ena0:
                                     (coefsel2_register == "UNREGISTERED") ? 1'b1:
                                     (coefsel2_register == "CLOCK1") ? ena1:
-                                    (coefsel2_register == "CLOCK2") ? ena2: 1'b1;                                                                            
-                                    
+                                    (coefsel2_register == "CLOCK2") ? ena2: 1'b1;
+
 	assign coeffseld_reg_wire_en =  (coefsel3_register == "CLOCK0") ? ena0:
                                     (coefsel3_register == "UNREGISTERED") ? 1'b1:
                                     (coefsel3_register == "CLOCK1") ? ena1:
-                                    (coefsel3_register == "CLOCK2") ? ena2: 1'b1;                                                                                                                                                                                        
+                                    (coefsel3_register == "CLOCK2") ? ena2: 1'b1;
 
 	assign systolic1_reg_wire_en =  (systolic_delay1 == "CLOCK0") ? ena0:
                                     (systolic_delay1 == "UNREGISTERED") ? 1'b1:
                                     (systolic_delay1 == "CLOCK1") ? ena1:
-                                    (systolic_delay1 == "CLOCK2") ? ena2: 1'b1;                                                                                                                                                                                        
-                                    
+                                    (systolic_delay1 == "CLOCK2") ? ena2: 1'b1;
+
 	assign systolic3_reg_wire_en =  (systolic_delay3 == "CLOCK0") ? ena0:
                                     (systolic_delay3 == "UNREGISTERED") ? 1'b1:
                                     (systolic_delay3 == "CLOCK1") ? ena1:
-                                    (systolic_delay3 == "CLOCK2") ? ena2: 1'b1;                                                                                                                                                                                                                            
-                                    
-                                                                                                            
+                                    (systolic_delay3 == "CLOCK2") ? ena2: 1'b1;
+
+
     // ---------------------------------------------------------
     // This block updates the internal clear signals accordingly
     // every time the global clear signal changes state
     // ---------------------------------------------------------
 
-    assign input_reg_a0_wire_clr =  (input_aclr_a0 == "ACLR3")? aclr3: 
-                                    (input_aclr_a0 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_a0_wire_clr =  (input_aclr_a0 == "ACLR3")? aclr3:
+                                    (input_aclr_a0 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_a0 == "ACLR0")? aclr0:
                                     (input_aclr_a0 == "ACLR1")? aclr1:
                                     (input_aclr_a0 == "ACLR2")? aclr2: 1'b0;
-                                    
 
 
-    assign input_reg_a1_wire_clr =  (input_aclr_a1 == "ACLR3")? aclr3: 
-                                    (input_aclr_a1 == "UNREGISTERED")? 1'b0: 
+
+    assign input_reg_a1_wire_clr =  (input_aclr_a1 == "ACLR3")? aclr3:
+                                    (input_aclr_a1 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_a1 == "ACLR0")? aclr0:
                                     (input_aclr_a1 == "ACLR1")? aclr1:
                                     (input_aclr_a1 == "ACLR2")? aclr2: 1'b0;
 
 
-    assign input_reg_a2_wire_clr =  (input_aclr_a2 == "ACLR3")? aclr3: 
-                                    (input_aclr_a2 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_a2_wire_clr =  (input_aclr_a2 == "ACLR3")? aclr3:
+                                    (input_aclr_a2 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_a2 == "ACLR0")? aclr0:
                                     (input_aclr_a2 == "ACLR1")? aclr1:
                                     (input_aclr_a2 == "ACLR2")? aclr2: 1'b0;
 
 
 
-    assign input_reg_a3_wire_clr =  (input_aclr_a3 == "ACLR3")? aclr3: 
-                                    (input_aclr_a3 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_a3_wire_clr =  (input_aclr_a3 == "ACLR3")? aclr3:
+                                    (input_aclr_a3 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_a3 == "ACLR0")? aclr0:
                                     (input_aclr_a3 == "ACLR1")? aclr1:
                                     (input_aclr_a3 == "ACLR2")? aclr2: 1'b0;
 
 
-    assign input_reg_b0_wire_clr =  (input_aclr_b0 == "ACLR3")? aclr3: 
-                                    (input_aclr_b0 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_b0_wire_clr =  (input_aclr_b0 == "ACLR3")? aclr3:
+                                    (input_aclr_b0 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_b0 == "ACLR0")? aclr0:
                                     (input_aclr_b0 == "ACLR1")? aclr1:
                                     (input_aclr_b0 == "ACLR2")? aclr2: 1'b0;
 
 
-    assign input_reg_b1_wire_clr =  (input_aclr_b1 == "ACLR3")? aclr3: 
-                                    (input_aclr_b1 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_b1_wire_clr =  (input_aclr_b1 == "ACLR3")? aclr3:
+                                    (input_aclr_b1 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_b1 == "ACLR0")? aclr0:
                                     (input_aclr_b1 == "ACLR1")? aclr1:
                                     (input_aclr_b1 == "ACLR2")? aclr2: 1'b0;
 
 
-    assign input_reg_b2_wire_clr =  (input_aclr_b2 == "ACLR3")? aclr3: 
-                                    (input_aclr_b2 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_b2_wire_clr =  (input_aclr_b2 == "ACLR3")? aclr3:
+                                    (input_aclr_b2 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_b2 == "ACLR0")? aclr0:
                                     (input_aclr_b2 == "ACLR1")? aclr1:
                                     (input_aclr_b2 == "ACLR2")? aclr2: 1'b0;
 
 
 
-    assign input_reg_b3_wire_clr =  (input_aclr_b3 == "ACLR3")? aclr3: 
-                                    (input_aclr_b3 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_b3_wire_clr =  (input_aclr_b3 == "ACLR3")? aclr3:
+                                    (input_aclr_b3 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_b3 == "ACLR0")? aclr0:
                                     (input_aclr_b3 == "ACLR1")? aclr1:
                                     (input_aclr_b3 == "ACLR2")? aclr2: 1'b0;
 
-	assign input_reg_c0_wire_clr =  (input_aclr_c0 == "UNREGISTERED")? 1'b0: 
+	assign input_reg_c0_wire_clr =  (input_aclr_c0 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_c0 == "ACLR0")? aclr0:
                                     (input_aclr_c0 == "ACLR1")? aclr1: 1'b0;
 
-    assign input_reg_c1_wire_clr =  (input_aclr_c1 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_c1_wire_clr =  (input_aclr_c1 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_c1 == "ACLR0")? aclr0:
                                     (input_aclr_c1 == "ACLR1")? aclr1: 1'b0;
 
-    assign input_reg_c2_wire_clr =  (input_aclr_c2 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_c2_wire_clr =  (input_aclr_c2 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_c2 == "ACLR0")? aclr0:
                                     (input_aclr_c2 == "ACLR1")? aclr1: 1'b0;
 
-    assign input_reg_c3_wire_clr =  (input_aclr_c3 == "UNREGISTERED")? 1'b0: 
+    assign input_reg_c3_wire_clr =  (input_aclr_c3 == "UNREGISTERED")? 1'b0:
                                     (input_aclr_c3 == "ACLR0")? aclr0:
                                     (input_aclr_c3 == "ACLR1")? aclr1: 1'b0;
 
 
     assign addsub1_reg_wire_clr =   (addnsub_multiplier_aclr1 == "ACLR3")? aclr3:
-                                    (addnsub_multiplier_aclr1 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_aclr1 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_aclr1 == "ACLR0")? aclr0:
                                     (addnsub_multiplier_aclr1 == "ACLR1")? aclr1:
                                     (addnsub_multiplier_aclr1 == "ACLR2")? aclr2: 1'b0;
-                                  
+
 
 
     assign addsub1_pipe_wire_clr =  (addnsub_multiplier_pipeline_aclr1 == "ACLR3")? aclr3:
-                                    (addnsub_multiplier_pipeline_aclr1 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_pipeline_aclr1 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_pipeline_aclr1 == "ACLR0")? aclr0:
                                     (addnsub_multiplier_pipeline_aclr1 == "ACLR1")? aclr1:
                                     (addnsub_multiplier_pipeline_aclr1 == "ACLR2")? aclr2: 1'b0;
-                                   
+
 
 
 
     assign addsub3_reg_wire_clr =   (addnsub_multiplier_aclr3 == "ACLR3")? aclr3:
-                                    (addnsub_multiplier_aclr3 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_aclr3 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_aclr3 == "ACLR0")? aclr0:
                                     (addnsub_multiplier_aclr3 == "ACLR1")? aclr1:
                                     (addnsub_multiplier_aclr3 == "ACLR2")? aclr2: 1'b0;
-                                  
+
 
 
     assign addsub3_pipe_wire_clr =  (addnsub_multiplier_pipeline_aclr3 == "ACLR3")? aclr3:
-                                    (addnsub_multiplier_pipeline_aclr3 == "UNREGISTERED")? 1'b0: 
+                                    (addnsub_multiplier_pipeline_aclr3 == "UNREGISTERED")? 1'b0:
                                     (addnsub_multiplier_pipeline_aclr3 == "ACLR0")? aclr0:
                                     (addnsub_multiplier_pipeline_aclr3 == "ACLR1")? aclr1:
                                     (addnsub_multiplier_pipeline_aclr3 == "ACLR2")? aclr2: 1'b0;
-                                   
+
 
 
 
     assign sign_reg_a_wire_clr =    (signed_aclr_a == "ACLR3")? aclr3:
-                                    (signed_aclr_a == "UNREGISTERED")? 1'b0: 
+                                    (signed_aclr_a == "UNREGISTERED")? 1'b0:
                                     (signed_aclr_a == "ACLR0")? aclr0:
                                     (signed_aclr_a == "ACLR1")? aclr1:
                                     (signed_aclr_a == "ACLR2")? aclr2: 1'b0;
-                                  
+
 
 
     assign sign_pipe_a_wire_clr =   (signed_pipeline_aclr_a == "ACLR3")? aclr3:
-                                    (signed_pipeline_aclr_a == "UNREGISTERED")? 1'b0: 
+                                    (signed_pipeline_aclr_a == "UNREGISTERED")? 1'b0:
                                     (signed_pipeline_aclr_a == "ACLR0")? aclr0:
                                     (signed_pipeline_aclr_a == "ACLR1")? aclr1:
                                     (signed_pipeline_aclr_a == "ACLR2")? aclr2: 1'b0;
-                                  
+
 
 
     assign sign_reg_b_wire_clr =    (signed_aclr_b == "ACLR3")? aclr3:
-                                    (signed_aclr_b == "UNREGISTERED")? 1'b0: 
+                                    (signed_aclr_b == "UNREGISTERED")? 1'b0:
                                     (signed_aclr_b == "ACLR0")? aclr0:
                                     (signed_aclr_b == "ACLR1")? aclr1:
                                     (signed_aclr_b == "ACLR2")? aclr2: 1'b0;
-                                  
+
 
 
     assign sign_pipe_b_wire_clr =   (signed_pipeline_aclr_b == "ACLR3")? aclr3:
-                                    (signed_pipeline_aclr_b == "UNREGISTERED")? 1'b0: 
+                                    (signed_pipeline_aclr_b == "UNREGISTERED")? 1'b0:
                                     (signed_pipeline_aclr_b == "ACLR0")? aclr0:
                                     (signed_pipeline_aclr_b == "ACLR1")? aclr1:
                                     (signed_pipeline_aclr_b == "ACLR2")? aclr2: 1'b0;
-                                  
+
 
 
 
     assign multiplier_reg0_wire_clr =   (multiplier_aclr0 == "ACLR3")? aclr3:
-                                        (multiplier_aclr0 == "UNREGISTERED")? 1'b0: 
+                                        (multiplier_aclr0 == "UNREGISTERED")? 1'b0:
                                         (multiplier_aclr0 == "ACLR0")? aclr0:
                                         (multiplier_aclr0 == "ACLR1")? aclr1:
                                         (multiplier_aclr0 == "ACLR2")? aclr2: 1'b0;
-                                      
+
 
 
     assign multiplier_reg1_wire_clr =   (multiplier_aclr1 == "ACLR3")? aclr3:
-                                        (multiplier_aclr1 == "UNREGISTERED")? 1'b0: 
+                                        (multiplier_aclr1 == "UNREGISTERED")? 1'b0:
                                         (multiplier_aclr1 == "ACLR0")? aclr0:
                                         (multiplier_aclr1 == "ACLR1")? aclr1:
                                         (multiplier_aclr1 == "ACLR2")? aclr2: 1'b0;
-                                      
+
 
 
     assign multiplier_reg2_wire_clr =   (multiplier_aclr2 == "ACLR3")? aclr3:
-                                        (multiplier_aclr2 == "UNREGISTERED")? 1'b0: 
+                                        (multiplier_aclr2 == "UNREGISTERED")? 1'b0:
                                         (multiplier_aclr2 == "ACLR0")? aclr0:
                                         (multiplier_aclr2 == "ACLR1")? aclr1:
                                         (multiplier_aclr2 == "ACLR2")? aclr2: 1'b0;
-                                      
+
 
 
 
     assign multiplier_reg3_wire_clr =   (multiplier_aclr3 == "ACLR3")? aclr3:
-                                        (multiplier_aclr3 == "UNREGISTERED")? 1'b0: 
+                                        (multiplier_aclr3 == "UNREGISTERED")? 1'b0:
                                         (multiplier_aclr3 == "ACLR0")? aclr0:
                                         (multiplier_aclr3 == "ACLR1")? aclr1:
                                         (multiplier_aclr3 == "ACLR2")? aclr2: 1'b0;
-                                      
+
 
 
 
     assign output_reg_wire_clr =    (output_aclr == "ACLR3")? aclr3:
-                                    (output_aclr == "UNREGISTERED")? 1'b0: 
+                                    (output_aclr == "UNREGISTERED")? 1'b0:
                                     (output_aclr == "ACLR0")? aclr0:
                                     (output_aclr == "ACLR1")? aclr1:
                                     (output_aclr == "ACLR2")? aclr2: 1'b0;
-                                 
-                                 
+
+
 
     assign addnsub1_round_wire_clr =    (addnsub1_round_aclr == "ACLR3")? aclr3:
-                                        (addnsub1_round_register == "UNREGISTERED")? 1'b0: 
+                                        (addnsub1_round_register == "UNREGISTERED")? 1'b0:
                                         (addnsub1_round_aclr == "ACLR0")? aclr0:
                                         (addnsub1_round_aclr == "ACLR1")? aclr1:
                                         (addnsub1_round_aclr == "ACLR2")? aclr2: 1'b0;
-                                     
-                                     
-                                     
+
+
+
     assign addnsub1_round_pipe_wire_clr =   (addnsub1_round_pipeline_aclr == "ACLR3")? aclr3:
-                                            (addnsub1_round_pipeline_register == "UNREGISTERED")? 1'b0: 
+                                            (addnsub1_round_pipeline_register == "UNREGISTERED")? 1'b0:
                                             (addnsub1_round_pipeline_aclr == "ACLR0")? aclr0:
                                             (addnsub1_round_pipeline_aclr == "ACLR1")? aclr1:
                                             (addnsub1_round_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                                          
-                                            
+
+
 
     assign addnsub3_round_wire_clr =    (addnsub3_round_aclr == "ACLR3")? aclr3:
-                                        (addnsub3_round_register == "UNREGISTERED")? 1'b0: 
+                                        (addnsub3_round_register == "UNREGISTERED")? 1'b0:
                                         (addnsub3_round_aclr == "ACLR0")? aclr0:
                                         (addnsub3_round_aclr == "ACLR1")? aclr1:
                                         (addnsub3_round_aclr == "ACLR2")? aclr2: 1'b0;
-                                     
-                                     
-                                     
+
+
+
     assign addnsub3_round_pipe_wire_clr =   (addnsub3_round_pipeline_aclr == "ACLR3")? aclr3:
-                                            (addnsub3_round_pipeline_register == "UNREGISTERED")? 1'b0: 
+                                            (addnsub3_round_pipeline_register == "UNREGISTERED")? 1'b0:
                                             (addnsub3_round_pipeline_aclr == "ACLR0")? aclr0:
                                             (addnsub3_round_pipeline_aclr == "ACLR1")? aclr1:
                                             (addnsub3_round_pipeline_aclr == "ACLR2")? aclr2: 1'b0;
-                                          
-                                          
-                                          
+
+
+
     assign mult01_round_wire_clr =  (mult01_round_aclr == "ACLR3")? aclr3:
-                                    (mult01_round_register == "UNREGISTERED")? 1'b0: 
+                                    (mult01_round_register == "UNREGISTERED")? 1'b0:
                                     (mult01_round_aclr == "ACLR0")? aclr0:
                                     (mult01_round_aclr == "ACLR1")? aclr1:
                                     (mult01_round_aclr == "ACLR2")? aclr2: 1'b0;
-                                   
-                                   
-                                   
+
+
+
     assign mult01_saturate_wire_clr =   (mult01_saturation_aclr == "ACLR3")? aclr3:
-                                        (mult01_saturation_register == "UNREGISTERED")? 1'b0: 
+                                        (mult01_saturation_register == "UNREGISTERED")? 1'b0:
                                         (mult01_saturation_aclr == "ACLR0")? aclr0:
                                         (mult01_saturation_aclr == "ACLR1")? aclr1:
                                         (mult01_saturation_aclr == "ACLR2")? aclr2: 1'b0;
-                                      
-                                                                        
-                                   
+
+
+
     assign mult23_round_wire_clr =  (mult23_round_aclr == "ACLR3")? aclr3:
-                                    (mult23_round_register == "UNREGISTERED")? 1'b0: 
+                                    (mult23_round_register == "UNREGISTERED")? 1'b0:
                                     (mult23_round_aclr == "ACLR0")? aclr0:
                                     (mult23_round_aclr == "ACLR1")? aclr1:
                                     (mult23_round_aclr == "ACLR2")? aclr2: 1'b0;
-                                  
-                                       
-                                   
+
+
+
     assign mult23_saturate_wire_clr =   (mult23_saturation_aclr == "ACLR3")? aclr3:
-                                        (mult23_saturation_register == "UNREGISTERED")? 1'b0: 
+                                        (mult23_saturation_register == "UNREGISTERED")? 1'b0:
                                         (mult23_saturation_aclr == "ACLR0")? aclr0:
                                         (mult23_saturation_aclr == "ACLR1")? aclr1:
                                         (mult23_saturation_aclr == "ACLR2")? aclr2: 1'b0;
-                                      
+
     assign outround_reg_wire_clr =  (output_round_aclr == "ACLR0") ? aclr0:
                                     (output_round_aclr == "NONE") ? 1'b0:
                                     (output_round_aclr == "ACLR1") ? aclr1:
                                     (output_round_aclr == "ACLR2") ? aclr2:
                                     (output_round_aclr == "ACLR3") ? aclr3 : 1'b0;
-                                    
+
     assign outround_pipe_wire_clr = (output_round_pipeline_aclr == "ACLR0") ? aclr0:
                                     (output_round_pipeline_aclr == "NONE") ? 1'b0:
                                     (output_round_pipeline_aclr == "ACLR1") ? aclr1:
@@ -37571,7 +37571,7 @@ module altmult_add (    dataa,
                                     (output_saturate_aclr == "ACLR1") ? aclr1:
                                     (output_saturate_aclr == "ACLR2") ? aclr2:
                                     (output_saturate_aclr == "ACLR3") ? aclr3 : 1'b0;
-                                    
+
     assign outsat_pipe_wire_clr = (output_saturate_pipeline_aclr == "ACLR0") ? aclr0:
                                     (output_saturate_pipeline_aclr == "NONE") ? 1'b0:
                                     (output_saturate_pipeline_aclr == "ACLR1") ? aclr1:
@@ -37643,7 +37643,7 @@ module altmult_add (    dataa,
                                     (shift_right_pipeline_aclr == "ACLR1") ? aclr1:
                                     (shift_right_pipeline_aclr == "ACLR2") ? aclr2:
                                     (shift_right_pipeline_aclr == "ACLR3") ? aclr3 : 1'b0;
-                                    
+
     assign shiftr_out_reg_wire_clr =    (shift_right_output_aclr == "ACLR0") ? aclr0:
                                         (shift_right_output_aclr == "NONE") ? 1'b0:
                                         (shift_right_output_aclr == "ACLR1") ? aclr1:
@@ -37679,30 +37679,30 @@ module altmult_add (    dataa,
                                         (accum_sload_pipeline_aclr == "ACLR1") ? aclr1 :
                                         (accum_sload_pipeline_aclr == "ACLR2") ? aclr2 :
                                         (accum_sload_pipeline_aclr == "ACLR3") ? aclr3 : 1'b0;
-                                   
+
 	assign coeffsela_reg_wire_clr =  (coefsel0_aclr == "ACLR0") ? aclr0 :
                                      (coefsel0_aclr == "NONE") ? 1'b0:
-                                     (coefsel0_aclr == "ACLR1") ? aclr1 : 1'b0;                                                                             
-                                     
+                                     (coefsel0_aclr == "ACLR1") ? aclr1 : 1'b0;
+
 	assign coeffselb_reg_wire_clr =  (coefsel1_aclr == "ACLR0") ? aclr0 :
                                      (coefsel1_aclr == "NONE") ? 1'b0:
-                                     (coefsel1_aclr == "ACLR1") ? aclr1 : 1'b0;                                                                             
-                                     
+                                     (coefsel1_aclr == "ACLR1") ? aclr1 : 1'b0;
+
 	assign coeffselc_reg_wire_clr =  (coefsel2_aclr == "ACLR0") ? aclr0 :
                                      (coefsel2_aclr == "NONE") ? 1'b0:
-                                     (coefsel2_aclr == "ACLR1") ? aclr1 : 1'b0;  
-                                     
+                                     (coefsel2_aclr == "ACLR1") ? aclr1 : 1'b0;
+
 	assign coeffseld_reg_wire_clr =  (coefsel3_aclr == "ACLR0") ? aclr0 :
                                      (coefsel3_aclr == "NONE") ? 1'b0:
-                                     (coefsel3_aclr == "ACLR1") ? aclr1 : 1'b0;                                                                                                                                                        
-                                     
+                                     (coefsel3_aclr == "ACLR1") ? aclr1 : 1'b0;
+
 	assign systolic1_reg_wire_clr =  (systolic_aclr1 == "ACLR0") ? aclr0 :
                                      (systolic_aclr1 == "NONE") ? 1'b0:
-                                     (systolic_aclr1 == "ACLR1") ? aclr1 : 1'b0;                                                                                                                                                                                             
-                                     
+                                     (systolic_aclr1 == "ACLR1") ? aclr1 : 1'b0;
+
 	assign systolic3_reg_wire_clr =  (systolic_aclr3 == "ACLR0") ? aclr0 :
                                      (systolic_aclr3 == "NONE") ? 1'b0:
-                                     (systolic_aclr3 == "ACLR1") ? aclr1 : 1'b0;                                                                                                                                                                                                                                  
+                                     (systolic_aclr3 == "ACLR1") ? aclr1 : 1'b0;
 
     // -------------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult_a[int_width_a-1:0])
@@ -37759,7 +37759,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        input_register_a2 is unregistered and mult_a_pre[(3*int_width_a)-1:2*int_width_a] changes value
     // -------------------------------------------------------------------------------------------------
-    assign  mult_a_wire[(3*int_width_a)-1 : 2*int_width_a ] = (input_register_a2 == "UNREGISTERED")? 
+    assign  mult_a_wire[(3*int_width_a)-1 : 2*int_width_a ] = (input_register_a2 == "UNREGISTERED")?
                             mult_a_pre[(3*int_width_a)-1 : 2*int_width_a]: mult_a_reg[(3*int_width_a)-1 : 2*int_width_a ];
 
 
@@ -37794,7 +37794,7 @@ module altmult_add (    dataa,
 
     end
 
- 
+
     // -------------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult_b[int_width_b-1:0])
     // Signal Registered : mult_b_pre[int_width_b-1:0]
@@ -37828,11 +37828,11 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        input_register_b1 is unregistered and mult_b_pre[(2*int_width_b)-1:int_width_b] changes value
     // -----------------------------------------------------------------------------------------------
-    assign mult_b_wire[(2*int_width_b)-1:int_width_b] = (input_register_b1 == "UNREGISTERED")? 
+    assign mult_b_wire[(2*int_width_b)-1:int_width_b] = (input_register_b1 == "UNREGISTERED")?
                                     mult_b_pre[(2*int_width_b)-1:int_width_b]: mult_b_reg[(2*int_width_b)-1:int_width_b];
 
 
-    
+
     always @(posedge input_reg_b1_wire_clk or posedge input_reg_b1_wire_clr)
     begin
             if (input_reg_b1_wire_clr == 1)
@@ -37853,10 +37853,10 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        input_register_b2 is unregistered and mult_b_pre[(3*int_width_b)-1:2*int_width_b] changes value
     // -------------------------------------------------------------------------------------------------
-    assign mult_b_wire[(3*int_width_b)-1:2*int_width_b] = (input_register_b2 == "UNREGISTERED")? 
+    assign mult_b_wire[(3*int_width_b)-1:2*int_width_b] = (input_register_b2 == "UNREGISTERED")?
                                 mult_b_pre[(3*int_width_b)-1:2*int_width_b]: mult_b_reg[(3*int_width_b)-1:2*int_width_b];
 
-    
+
     always @(posedge input_reg_b2_wire_clk or posedge input_reg_b2_wire_clr)
     begin
             if (input_reg_b2_wire_clr == 1)
@@ -37877,7 +37877,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        input_register_b3 is unregistered and mult_b_pre[(4*int_width_b)-1:3*int_width_b] changes value
     // -------------------------------------------------------------------------------------------------
-    assign mult_b_wire[(4*int_width_b)-1:3*int_width_b] = (input_register_b3 == "UNREGISTERED")? 
+    assign mult_b_wire[(4*int_width_b)-1:3*int_width_b] = (input_register_b3 == "UNREGISTERED")?
                                 mult_b_pre[(4*int_width_b)-1:3*int_width_b]: mult_b_reg[(4*int_width_b)-1:3*int_width_b];
 
 
@@ -37889,7 +37889,7 @@ module altmult_add (    dataa,
                 mult_b_reg[(4*int_width_b)-1:3*int_width_b] <= mult_b_pre[(4*int_width_b)-1:3*int_width_b];
 
     end
-	
+
     // -------------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult_c[int_width_c-1:0])
     // Signal Registered : mult_c_pre[int_width_c-1:0]
@@ -37911,7 +37911,7 @@ module altmult_add (    dataa,
             else if ((input_reg_c0_wire_clk == 1) && (input_reg_c0_wire_en == 1))
                 mult_c_reg[int_width_c-1:0] <= mult_c_pre[int_width_c-1:0];
     end
-    
+
     // -------------------------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult01_round_wire)
     // Signal Registered : mult01_round_pre
@@ -37922,7 +37922,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        mult01_round_register is unregistered and mult01_round changes value
     // -------------------------------------------------------------------------------------------------
-    assign mult01_round_wire = (mult01_round_register == "UNREGISTERED")? 
+    assign mult01_round_wire = (mult01_round_register == "UNREGISTERED")?
                                 mult01_round_pre : mult01_round_reg;
 
     always @(posedge mult01_round_wire_clk or posedge mult01_round_wire_clr)
@@ -37933,7 +37933,7 @@ module altmult_add (    dataa,
                 mult01_round_reg <= mult01_round_pre;
 
     end
-    
+
     // -------------------------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult01_saturate_wire)
     // Signal Registered : mult01_saturation_pre
@@ -37944,7 +37944,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        mult01_saturation_register is unregistered and mult01_saturate_pre changes value
     // -------------------------------------------------------------------------------------------------
-    assign mult01_saturate_wire = (mult01_saturation_register == "UNREGISTERED")? 
+    assign mult01_saturate_wire = (mult01_saturation_register == "UNREGISTERED")?
                                     mult01_saturate_pre : mult01_saturate_reg;
 
     always @(posedge mult01_saturate_wire_clk or posedge mult01_saturate_wire_clr)
@@ -37966,7 +37966,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        mult23_round_register is unregistered and mult23_round_pre changes value
     // -------------------------------------------------------------------------------------------------
-    assign mult23_round_wire = (mult23_round_register == "UNREGISTERED")? 
+    assign mult23_round_wire = (mult23_round_register == "UNREGISTERED")?
                                 mult23_round_pre : mult23_round_reg;
 
     always @(posedge mult23_round_wire_clk or posedge mult23_round_wire_clr)
@@ -37977,7 +37977,7 @@ module altmult_add (    dataa,
                 mult23_round_reg <= mult23_round_pre;
 
     end
-   
+
     // -------------------------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set mult23_saturate_wire)
     // Signal Registered : mult23_round_pre
@@ -37988,7 +37988,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        mult23_saturation_register is unregistered and mult23_saturation_pre changes value
     // -------------------------------------------------------------------------------------------------
-    assign mult23_saturate_wire =   (mult23_saturation_register == "UNREGISTERED")? 
+    assign mult23_saturate_wire =   (mult23_saturation_register == "UNREGISTERED")?
                                     mult23_saturate_pre : mult23_saturate_reg;
 
     always @(posedge mult23_saturate_wire_clk or posedge mult23_saturate_wire_clr)
@@ -37999,7 +37999,7 @@ module altmult_add (    dataa,
                 mult23_saturate_reg <= mult23_saturate_pre;
 
     end
-    
+
     // ---------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set addnsub1_round_wire)
     // Signal Registered : addnsub1_round_pre
@@ -38010,9 +38010,9 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        addnsub1_round_register is unregistered and addnsub1_round_pre changes value
     // ---------------------------------------------------------------------------------
-    assign addnsub1_round_wire =    (addnsub1_round_register=="UNREGISTERED")? 
+    assign addnsub1_round_wire =    (addnsub1_round_register=="UNREGISTERED")?
                                     addnsub1_round_pre : addnsub1_round_reg;
-    
+
     always @(posedge addnsub1_round_wire_clk or posedge addnsub1_round_wire_clr)
     begin
             if (addnsub1_round_wire_clr == 1)
@@ -38020,7 +38020,7 @@ module altmult_add (    dataa,
             else if ((addnsub1_round_wire_clk == 1) && (addnsub1_round_wire_en == 1))
                 addnsub1_round_reg <= addnsub1_round_pre;
     end
-    
+
     // ---------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set addnsub1_round_pipe_wire)
     // Signal Registered : addnsub1_round_wire
@@ -38031,9 +38031,9 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        addnsub1_round_pipeline_register is unregistered and addnsub1_round_wire changes value
     // ---------------------------------------------------------------------------------
-    assign addnsub1_round_pipe_wire = (addnsub1_round_pipeline_register=="UNREGISTERED")? 
+    assign addnsub1_round_pipe_wire = (addnsub1_round_pipeline_register=="UNREGISTERED")?
                                         addnsub1_round_wire : addnsub1_round_pipe_reg;
-   
+
     always @(posedge addnsub1_round_pipe_wire_clk or posedge addnsub1_round_pipe_wire_clr)
     begin
             if (addnsub1_round_pipe_wire_clr == 1)
@@ -38041,7 +38041,7 @@ module altmult_add (    dataa,
             else if ((addnsub1_round_pipe_wire_clk == 1) && (addnsub1_round_pipe_wire_en == 1))
                 addnsub1_round_pipe_reg <= addnsub1_round_wire;
     end
-    
+
     // ---------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set addnsub3_round_wire)
     // Signal Registered : addnsub3_round_pre
@@ -38052,9 +38052,9 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        addnsub3_round_register is unregistered and addnsub3_round_pre changes value
     // ---------------------------------------------------------------------------------
-    assign addnsub3_round_wire = (addnsub3_round_register=="UNREGISTERED")? 
+    assign addnsub3_round_wire = (addnsub3_round_register=="UNREGISTERED")?
                                     addnsub3_round_pre : addnsub3_round_reg;
-    
+
     always @(posedge addnsub3_round_wire_clk or posedge addnsub3_round_wire_clr)
     begin
             if (addnsub3_round_wire_clr == 1)
@@ -38062,7 +38062,7 @@ module altmult_add (    dataa,
             else if ((addnsub3_round_wire_clk == 1) && (addnsub3_round_wire_en == 1))
                 addnsub3_round_reg <= addnsub3_round_pre;
     end
-    
+
     // ---------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set addnsub3_round_pipe_wire)
     // Signal Registered : addnsub3_round_wire
@@ -38073,9 +38073,9 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        addnsub3_round_pipeline_register is unregistered and addnsub3_round_wire changes value
     // ---------------------------------------------------------------------------------
-    assign addnsub3_round_pipe_wire = (addnsub3_round_pipeline_register=="UNREGISTERED")? 
+    assign addnsub3_round_pipe_wire = (addnsub3_round_pipeline_register=="UNREGISTERED")?
                                         addnsub3_round_wire : addnsub3_round_pipe_reg;
-   
+
     always @(posedge addnsub3_round_pipe_wire_clk or posedge addnsub3_round_pipe_wire_clr)
     begin
             if (addnsub3_round_pipe_wire_clr == 1)
@@ -38083,8 +38083,8 @@ module altmult_add (    dataa,
             else if ((addnsub3_round_pipe_wire_clk == 1) && (addnsub3_round_pipe_wire_en == 1))
                 addnsub3_round_pipe_reg <= addnsub3_round_wire;
     end
-    
-   
+
+
     // ---------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set addsub1_reg)
     // Signal Registered : addsub1_int
@@ -38096,7 +38096,7 @@ module altmult_add (    dataa,
     //        addnsub_multiplier_register1 is unregistered and addsub1_int changes value
     // ---------------------------------------------------------------------------------
     assign addsub1_wire = (addnsub_multiplier_register1=="UNREGISTERED")? addsub1_int : addsub1_reg;
-    
+
     always @(posedge addsub1_reg_wire_clk or posedge addsub1_reg_wire_clr)
     begin
             if ((addsub1_reg_wire_clr == 1) && (addsub1_clr == 1))
@@ -38117,14 +38117,14 @@ module altmult_add (    dataa,
     //        addnsub_multiplier_pipeline_register1 is unregistered and addsub1_reg changes value
     // ------------------------------------------------------------------------------------------
 
-    assign addsub1_pipe_wire = (addnsub_multiplier_pipeline_register1 == "UNREGISTERED")? 
+    assign addsub1_pipe_wire = (addnsub_multiplier_pipeline_register1 == "UNREGISTERED")?
                                 addsub1_wire : addsub1_pipe_reg;
     always @(posedge addsub1_pipe_wire_clk or posedge addsub1_pipe_wire_clr)
     begin
             if ((addsub1_pipe_wire_clr == 1) && (addsub1_clr == 1))
                 addsub1_pipe_reg <= 0;
             else if ((addsub1_pipe_wire_clk == 1) && (addsub1_pipe_wire_en == 1))
-                addsub1_pipe_reg <= addsub1_wire;        
+                addsub1_pipe_reg <= addsub1_wire;
     end
 
 
@@ -38138,10 +38138,10 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        addnsub_multiplier_register3 is unregistered and addsub3_int changes value
     // ---------------------------------------------------------------------------------
-    assign addsub3_wire = (addnsub_multiplier_register3=="UNREGISTERED")? 
+    assign addsub3_wire = (addnsub_multiplier_register3=="UNREGISTERED")?
                                 addsub3_int : addsub3_reg;
 
-    
+
     always @(posedge addsub3_reg_wire_clk or posedge addsub3_reg_wire_clr)
     begin
             if ((addsub3_reg_wire_clr == 1) && (addsub3_clr == 1))
@@ -38161,7 +38161,7 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        addnsub_multiplier_pipeline_register3 is unregistered and addsub3_reg changes value
     // ------------------------------------------------------------------------------------------
-    assign addsub3_pipe_wire = (addnsub_multiplier_pipeline_register3 == "UNREGISTERED")? 
+    assign addsub3_pipe_wire = (addnsub_multiplier_pipeline_register3 == "UNREGISTERED")?
                                 addsub3_wire  : addsub3_pipe_reg;
 
     always @(posedge addsub3_pipe_wire_clk or posedge addsub3_pipe_wire_clr)
@@ -38480,13 +38480,13 @@ module altmult_add (    dataa,
     // NOTE : The combinatorial block will be executed if
     //        scanouta_register is unregistered and mult_a_wire changes value
     // ------------------------------------------------------------------------------
-    
-    assign scanouta_wire[int_width_a -1 : 0] =  (scanouta_register == "UNREGISTERED")?        
+
+    assign scanouta_wire[int_width_a -1 : 0] =  (scanouta_register == "UNREGISTERED")?
                                                 (chainout_adder == "YES" && (width_result > width_a + width_b + 8))?
-                                                mult_a_wire[(number_of_multipliers * int_width_a) - 1 -  (int_width_a - width_a) : ((number_of_multipliers-1) * int_width_a)]: 
-                                                mult_a_wire[(number_of_multipliers * int_width_a) - 1 : ((number_of_multipliers-1) * int_width_a) + (int_width_a - width_a)]: 
-                                                scanouta_reg;             
-                                                
+                                                mult_a_wire[(number_of_multipliers * int_width_a) - 1 -  (int_width_a - width_a) : ((number_of_multipliers-1) * int_width_a)]:
+                                                mult_a_wire[(number_of_multipliers * int_width_a) - 1 : ((number_of_multipliers-1) * int_width_a) + (int_width_a - width_a)]:
+                                                scanouta_reg;
+
     always @(posedge scanouta_reg_wire_clk or posedge scanouta_reg_wire_clr)
 
     begin
@@ -38496,7 +38496,7 @@ module altmult_add (    dataa,
                 if(chainout_adder == "YES" && (width_result > width_a + width_b + 8))
                     scanouta_reg[int_width_a - 1 : 0] <= mult_a_wire[(number_of_multipliers * int_width_a) - 1 -  (int_width_a - width_a) : ((number_of_multipliers-1) * int_width_a)];
                 else
-                scanouta_reg[int_width_a -1 : 0] <= mult_a_wire[(number_of_multipliers * int_width_a) - 1 : ((number_of_multipliers-1) * int_width_a) + (int_width_a - width_a)];  
+                scanouta_reg[int_width_a -1 : 0] <= mult_a_wire[(number_of_multipliers * int_width_a) - 1 : ((number_of_multipliers-1) * int_width_a) + (int_width_a - width_a)];
     end
 
     // ------------------------------------------------------------------------------
@@ -38745,7 +38745,7 @@ module altmult_add (    dataa,
             else if ((accumsload_pipe_wire_clk == 1) && (accumsload_pipe_wire_en == 1))
                 accumsload_pipe_reg <= accumsload_wire;
     end
-    
+
     // ------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set coeffsela_reg/wire)
     // Signal Registered : coeffsel_a_int
@@ -38765,7 +38765,7 @@ module altmult_add (    dataa,
             else if ((coeffsela_reg_wire_clk == 1) && (coeffsela_reg_wire_en == 1))
                 coeffsel_a_reg <= coeffsel_a_int;
     end
-    
+
     // ------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set coeffselb_reg/wire)
     // Signal Registered : coeffsel_b_int
@@ -38785,7 +38785,7 @@ module altmult_add (    dataa,
             else if ((coeffselb_reg_wire_clk == 1) && (coeffselb_reg_wire_en == 1))
                 coeffsel_b_reg <= coeffsel_b_int;
     end
-    
+
     // ------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set coeffselc_reg/wire)
     // Signal Registered : coeffsel_c_int
@@ -38805,7 +38805,7 @@ module altmult_add (    dataa,
             else if ((coeffselc_reg_wire_clk == 1) && (coeffselc_reg_wire_en == 1))
                 coeffsel_c_reg <= coeffsel_c_int;
     end
-    
+
     // ------------------------------------------------------------------------------
     // This block contains 1 register and 1 combinatorial block (to set coeffseld_reg/wire)
     // Signal Registered : coeffsel_d_int
@@ -38825,10 +38825,10 @@ module altmult_add (    dataa,
             else if ((coeffseld_reg_wire_clk == 1) && (coeffseld_reg_wire_en == 1))
                 coeffsel_d_reg <= coeffsel_d_int;
     end
-    
+
     //This will perform the Preadder mode in StratixV
     // --------------------------------------------------------
-    // This block basically calls the task do_preadder_sub/add() to set 
+    // This block basically calls the task do_preadder_sub/add() to set
     // the value of preadder_res_0[2*int_width_result - 1:0]
     // sign_a_reg or sign_b_reg will trigger the task call.
     // --------------------------------------------------------
@@ -38836,9 +38836,9 @@ module altmult_add (    dataa,
 
     always @(preadder_res_0)
     begin
-	preadder0_result  <= preadder_res_0; 
+	preadder0_result  <= preadder_res_0;
     end
-   
+
     always @(mult_a_wire[(int_width_a *1) -1 : (int_width_a*0)] or mult_b_wire[(int_width_b  *1) -1 : (int_width_b *0)] or
             sign_a_wire )
     begin
@@ -38847,12 +38847,12 @@ module altmult_add (    dataa,
 			if(preadder_direction_0 == "ADD")
 		        preadder_res_0 = do_preadder_add (0, sign_a_wire, sign_a_wire);
 			else
-				preadder_res_0 = do_preadder_sub (0, sign_a_wire, sign_a_wire);	
+				preadder_res_0 = do_preadder_sub (0, sign_a_wire, sign_a_wire);
 		end
     end
-    
+
     // --------------------------------------------------------
-    // This block basically calls the task do_preadder_sub/add() to set 
+    // This block basically calls the task do_preadder_sub/add() to set
     // the value of preadder_res_1[2*int_width_result - 1:0]
     // sign_a_reg or sign_b_reg will trigger the task call.
     // --------------------------------------------------------
@@ -38860,9 +38860,9 @@ module altmult_add (    dataa,
 
     always @(preadder_res_1)
     begin
-	preadder1_result  <= preadder_res_1; 
+	preadder1_result  <= preadder_res_1;
     end
-   
+
     always @(mult_a_wire[(int_width_a *2) -1 : (int_width_a*1)] or mult_b_wire[(int_width_b  *2) -1 : (int_width_b *1)] or
             sign_a_wire )
     begin
@@ -38871,12 +38871,12 @@ module altmult_add (    dataa,
 			if(preadder_direction_1 == "ADD")
 		        preadder_res_1 = do_preadder_add (1, sign_a_wire, sign_a_wire);
 			else
-				preadder_res_1 = do_preadder_sub (1, sign_a_wire, sign_a_wire);	
+				preadder_res_1 = do_preadder_sub (1, sign_a_wire, sign_a_wire);
 		end
     end
-    
+
     // --------------------------------------------------------
-    // This block basically calls the task do_preadder_sub/add() to set 
+    // This block basically calls the task do_preadder_sub/add() to set
     // the value of preadder_res_2[2*int_width_result - 1:0]
     // sign_a_reg or sign_b_reg will trigger the task call.
     // --------------------------------------------------------
@@ -38884,9 +38884,9 @@ module altmult_add (    dataa,
 
     always @(preadder_res_2)
     begin
-	preadder2_result  <= preadder_res_2; 
+	preadder2_result  <= preadder_res_2;
     end
-   
+
     always @(mult_a_wire[(int_width_a *3) -1 : (int_width_a*2)] or mult_b_wire[(int_width_b  *3) -1 : (int_width_b *2)] or
             sign_a_wire )
     begin
@@ -38895,12 +38895,12 @@ module altmult_add (    dataa,
 			if(preadder_direction_2 == "ADD")
 		        preadder_res_2 = do_preadder_add (2, sign_a_wire, sign_a_wire);
 			else
-				preadder_res_2 = do_preadder_sub (2, sign_a_wire, sign_a_wire);	
+				preadder_res_2 = do_preadder_sub (2, sign_a_wire, sign_a_wire);
 		end
     end
-    
+
     // --------------------------------------------------------
-    // This block basically calls the task do_preadder_sub/add() to set 
+    // This block basically calls the task do_preadder_sub/add() to set
     // the value of preadder_res_3[2*int_width_result - 1:0]
     // sign_a_reg or sign_b_reg will trigger the task call.
     // --------------------------------------------------------
@@ -38908,9 +38908,9 @@ module altmult_add (    dataa,
 
     always @(preadder_res_3)
     begin
-	preadder3_result  <= preadder_res_3; 
+	preadder3_result  <= preadder_res_3;
     end
-   
+
     always @(mult_a_wire[(int_width_a *4) -1 : (int_width_a*3)] or mult_b_wire[(int_width_b  *4) -1 : (int_width_b *3)] or
             sign_a_wire)
     begin
@@ -38922,36 +38922,36 @@ module altmult_add (    dataa,
 				preadder_res_3 = do_preadder_sub (3, sign_a_wire, sign_a_wire);
 		end
     end
-    
-  
+
+
     // --------------------------------------------------------
-    // This block basically calls the task do_multiply() to set 
+    // This block basically calls the task do_multiply() to set
     // the value of mult_res_0[(int_width_a + int_width_b) -1 :0]
     //
-    // If multiplier_register0 is registered, the call of the task 
-    // will be triggered by a posedge multiplier_reg0_wire_clk. 
+    // If multiplier_register0 is registered, the call of the task
+    // will be triggered by a posedge multiplier_reg0_wire_clk.
     // It also has an asynchronous clear signal multiplier_reg0_wire_clr
     //
-    // If multiplier_register0 is unregistered, a change of value 
-    // in either mult_a[int_width_a-1:0], mult_b[int_width_a-1:0], 
+    // If multiplier_register0 is unregistered, a change of value
+    // in either mult_a[int_width_a-1:0], mult_b[int_width_a-1:0],
     // sign_a_reg or sign_b_reg will trigger the task call.
     // --------------------------------------------------------
     assign mult_res_wire[(int_width_a + int_width_b - 1) :0] =  ((multiplier_register0 == "UNREGISTERED") || (stratixiii_block == 1) || (stratixv_block == 1))?
-                                                                mult0_result[(int_width_a + int_width_b - 1) :0] : 
+                                                                mult0_result[(int_width_a + int_width_b - 1) :0] :
                                                                 mult_res_reg[(int_width_a + int_width_b - 1) :0];
 
     assign mult_saturate_overflow_vec[0] =  (multiplier_register0 == "UNREGISTERED")?
                                             mult0_saturate_overflow : mult_saturate_overflow_reg[0];
-                                                 
+
 
     // This always block is to perform the rounding and saturation operations (StratixII only)
     always @(mult_res_0 or mult01_round_wire or mult01_saturate_wire)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             // -------------------------------------------------------
-            // Stratix II Rounding support 
-            // This block basically carries out the rounding for the 
+            // Stratix II Rounding support
+            // This block basically carries out the rounding for the
             // mult_res_0. The equation to get the mult0_round_out is
             // obtained from the Stratix II Mac FFD which is below:
             // round_adder_constant = (1 << (wfraction - wfraction_round - 1))
@@ -38959,7 +38959,7 @@ module altmult_add (    dataa,
             // For Stratix II rounding, we round up the bits to 15 bits
             // or in another word wfraction_round = 15.
             // --------------------------------------------------------
-        
+
             if ((multiplier01_rounding == "YES") ||
                 ((multiplier01_rounding == "VARIABLE") && (mult01_round_wire == 1)))
             begin
@@ -38969,25 +38969,25 @@ module altmult_add (    dataa,
             begin
                 mult0_round_out[(int_width_a + int_width_b) -1 :0] = mult_res_0[(int_width_a + int_width_b) -1 :0];
             end
-            
+
             mult0_round_out[((int_width_a + int_width_b) + 2) : (int_width_a + int_width_b)] = {2{1'b0}};
 
             // -------------------------------------------------------
             // Stratix II Saturation support
             // This carries out the saturation for mult0_round_out.
-            // The equation to get the saturated result is obtained 
+            // The equation to get the saturated result is obtained
             // from Stratix II MAC FFD which is below:
             // satoverflow = 1 if sign bit is different
             // satvalue[wtotal-1 : wfraction] = roundout[wtotal-1]
             // satvalue[wfraction-1 : 0] = !roundout[wtotal-1]
             // -------------------------------------------------------
 
-            if ((multiplier01_saturation == "YES") || 
+            if ((multiplier01_saturation == "YES") ||
                 (( multiplier01_saturation == "VARIABLE") && (mult01_saturate_wire == 1)))
             begin
-                
+
                 mult0_saturate_overflow_stat = (~mult0_round_out[int_width_a + int_width_b - 1]) && mult0_round_out[int_width_a + int_width_b - 2];
-                
+
                 if (mult0_saturate_overflow_stat == 0)
                 begin
                     mult0_saturate_out = mult0_round_out;
@@ -38995,7 +38995,7 @@ module altmult_add (    dataa,
                 end
                 else
                 begin
-                    
+
                     // We are doing Q2.31 saturation
                     for (num_bit_mult0 = (int_width_a + int_width_b - 1); num_bit_mult0 >= (int_width_a + int_width_b - 2); num_bit_mult0 = num_bit_mult0 - 1)
                     begin
@@ -39006,9 +39006,9 @@ module altmult_add (    dataa,
                     begin
                         mult0_saturate_out[num_bit_mult0] = ~mult0_round_out[int_width_a + int_width_b - 1];
                     end
-                    
+
                     mult0_saturate_out[2 : 0] = mult0_round_out[2:0];
-                    
+
                     mult0_saturate_overflow = mult0_saturate_overflow_stat;
                 end
             end
@@ -39017,7 +39017,7 @@ module altmult_add (    dataa,
                 mult0_saturate_out = mult0_round_out;
                 mult0_saturate_overflow = 1'b0;
             end
-        
+
             if ((multiplier01_rounding == "YES") ||
                 ((multiplier01_rounding  == "VARIABLE") && (mult01_round_wire == 1)))
             begin
@@ -39026,14 +39026,14 @@ module altmult_add (    dataa,
                 begin
                     mult0_saturate_out[num_bit_mult0] = 1'b0;
                 end
-            
+
             end
         end
     end
 
     always @(mult0_saturate_out or mult_res_0 or systolic_register1)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             mult0_result <= mult0_saturate_out[(int_width_a + int_width_b) -1 :0];
         end
@@ -39046,19 +39046,19 @@ module altmult_add (    dataa,
         end
         else
         begin
-            mult0_result  <= mult_res_0; 
+            mult0_result  <= mult_res_0;
         end
-        
+
     end
-	
+
     assign systolic_register1 = (systolic_delay1 == "UNREGISTERED")? mult_res_0
                                 : mult_res_reg_0;
     always @(posedge systolic1_reg_wire_clk or posedge systolic1_reg_wire_clr)
     begin
         if (stratixv_block == 1)
         begin
-            if (systolic1_reg_wire_clr == 1) 
-            begin 
+            if (systolic1_reg_wire_clr == 1)
+            begin
                 mult_res_reg_0[(int_width_a + int_width_b) -1 :0] <= 0;
             end
             else if ((systolic1_reg_wire_clk == 1) && (systolic1_reg_wire_en == 1))
@@ -39067,15 +39067,15 @@ module altmult_add (    dataa,
             end
         end
 	end
-	
+
 	assign chainin_register1 = (systolic_delay1 == "UNREGISTERED")? 0
                                 : chainin_reg;
     always @(posedge systolic1_reg_wire_clk or posedge systolic1_reg_wire_clr)
     begin
         if (stratixv_block == 1)
         begin
-            if (systolic1_reg_wire_clr == 1) 
-            begin 
+            if (systolic1_reg_wire_clr == 1)
+            begin
                 chainin_reg[(width_chainin) -1 :0] <= 0;
             end
             else if ((systolic1_reg_wire_clk == 1) && (systolic1_reg_wire_en == 1))
@@ -39084,15 +39084,15 @@ module altmult_add (    dataa,
             end
         end
 	end
-   
+
     // this block simulates the pipeline register after the multiplier (for non-StratixIII families)
     // and the pipeline register after the 1st level adder (for Stratix III)
     always @(posedge multiplier_reg0_wire_clk or posedge multiplier_reg0_wire_clr)
     begin
         if (stratixiii_block == 0 && stratixv_block == 0)
         begin
-            if (multiplier_reg0_wire_clr == 1) 
-            begin 
+            if (multiplier_reg0_wire_clr == 1)
+            begin
                 mult_res_reg[(int_width_a + int_width_b) -1 :0] <= 0;
                 mult_saturate_overflow_reg[0] <= 0;
             end
@@ -39100,7 +39100,7 @@ module altmult_add (    dataa,
             begin
                 if (stratixii_block == 0)
                     mult_res_reg[(int_width_a + int_width_b) - 1 : 0] <= mult_res_0[(int_width_a + int_width_b) -1 :0];
-                else 
+                else
                 begin
                     mult_res_reg[(int_width_a + int_width_b - 1) : 0] <= mult0_result;
                     mult_saturate_overflow_reg[0] <= mult0_saturate_overflow;
@@ -39152,26 +39152,26 @@ module altmult_add (    dataa,
 				preadder_sum2a = preadder_res_wire[int_width_preadder - 1:0];
 			end
 			else
-			begin 
+			begin
 				preadder_sum1a = mult_a_wire >> (0 * width_a);
 				preadder_sum2a = mult_b_wire >> (0 * width_b);
-			end	
+			end
 	    	mult_res_0 = do_multiply_stratixv(0, sign_a_wire, sign_b_wire);
 	    end
     	else
 	        mult_res_0 = do_multiply (0, sign_a_wire, sign_b_wire);
     end
-  
+
     // ------------------------------------------------------------------------
-    // This block basically calls the task do_multiply() to set the value of 
+    // This block basically calls the task do_multiply() to set the value of
     // mult_res_1[(int_width_a + int_width_b) -1 :0]
     //
-    // If multiplier_register1 is registered, the call of the task 
-    // will be triggered by a posedge multiplier_reg1_wire_clk. 
+    // If multiplier_register1 is registered, the call of the task
+    // will be triggered by a posedge multiplier_reg1_wire_clk.
     // It also has an asynchronous clear signal multiplier_reg1_wire_clr
     //
-    // If multiplier_register1 is unregistered, a change of value 
-    // in either mult_a[(2*int_width_a)-1:int_width_a], mult_b[(2*int_width_a)-1:int_width_a], 
+    // If multiplier_register1 is unregistered, a change of value
+    // in either mult_a[(2*int_width_a)-1:int_width_a], mult_b[(2*int_width_a)-1:int_width_a],
     // sign_a_reg or sign_b_reg will trigger the task call.
     // -----------------------------------------------------------------------
 
@@ -39181,16 +39181,16 @@ module altmult_add (    dataa,
 
     assign mult_saturate_overflow_vec[1] =  (multiplier_register1 == "UNREGISTERED")?
                                             mult1_saturate_overflow : mult_saturate_overflow_reg[1];
-   
+
 
     // This always block is to perform the rounding and saturation operations (StratixII only)
     always @(mult_res_1 or mult01_round_wire or mult01_saturate_wire)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             // -------------------------------------------------------
-            // Stratix II Rounding support 
-            // This block basically carries out the rounding for the 
+            // Stratix II Rounding support
+            // This block basically carries out the rounding for the
             // mult_res_1. The equation to get the mult1_round_out is
             // obtained from the Stratix II Mac FFD which is below:
             // round_adder_constant = (1 << (wfraction - wfraction_round - 1))
@@ -39198,7 +39198,7 @@ module altmult_add (    dataa,
             // For Stratix II rounding, we round up the bits to 15 bits
             // or in another word wfraction_round = 15.
             // --------------------------------------------------------
-        
+
             if ((multiplier01_rounding == "YES") ||
                 ((multiplier01_rounding == "VARIABLE") && (mult01_round_wire == 1)))
             begin
@@ -39208,14 +39208,14 @@ module altmult_add (    dataa,
             begin
                 mult1_round_out[(int_width_a + int_width_b) -1 :0] = mult_res_1[(int_width_a + int_width_b) -1 :0];
             end
-            
+
             mult1_round_out[((int_width_a + int_width_b) + 2) : (int_width_a + int_width_b)] = {2{1'b0}};
 
 
             // -------------------------------------------------------
             // Stratix II Saturation support
             // This carries out the saturation for mult1_round_out.
-            // The equation to get the saturated result is obtained 
+            // The equation to get the saturated result is obtained
             // from Stratix II MAC FFD which is below:
             // satoverflow = 1 if sign bit is different
             // satvalue[wtotal-1 : wfraction] = roundout[wtotal-1]
@@ -39223,7 +39223,7 @@ module altmult_add (    dataa,
             // -------------------------------------------------------
 
 
-            if ((multiplier01_saturation == "YES") || 
+            if ((multiplier01_saturation == "YES") ||
                 (( multiplier01_saturation == "VARIABLE") && (mult01_saturate_wire == 1)))
             begin
                 mult1_saturate_overflow_stat = (~mult1_round_out[int_width_a + int_width_b - 1]) && mult1_round_out[int_width_a + int_width_b - 2];
@@ -39235,7 +39235,7 @@ module altmult_add (    dataa,
                 end
                 else
                 begin
-                    // We are doing Q2.31 saturation. Thus we would insert additional bit 
+                    // We are doing Q2.31 saturation. Thus we would insert additional bit
                     // for the LSB
                     for (num_bit_mult1 = (int_width_a + int_width_b - 1); num_bit_mult1 >= (int_width_a + int_width_b - 2); num_bit_mult1 = num_bit_mult1 - 1)
                     begin
@@ -39246,7 +39246,7 @@ module altmult_add (    dataa,
                     begin
                         mult1_saturate_out[num_bit_mult1] = ~mult1_round_out[int_width_a + int_width_b - 1];
                     end
-                    
+
                     mult1_saturate_out[2:0] = mult1_round_out[2:0];
                     mult1_saturate_overflow = mult1_saturate_overflow_stat;
                 end
@@ -39256,7 +39256,7 @@ module altmult_add (    dataa,
                 mult1_saturate_out = mult1_round_out;
                 mult1_saturate_overflow = 1'b0;
             end
-        
+
             if ((multiplier01_rounding == "YES") ||
                 ((multiplier01_rounding  == "VARIABLE") && (mult01_round_wire == 1)))
             begin
@@ -39265,20 +39265,20 @@ module altmult_add (    dataa,
                 begin
                     mult1_saturate_out[num_bit_mult1] = 1'b0;
                 end
-            
+
             end
         end
     end
-    
+
     always @(mult1_saturate_out or mult_res_1)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             mult1_result <= mult1_saturate_out[(int_width_a + int_width_b) -1 :0];
         end
         else
         begin
-            mult1_result  <= mult_res_1; 
+            mult1_result  <= mult_res_1;
         end
     end
 
@@ -39295,9 +39295,9 @@ module altmult_add (    dataa,
             end
             else if ((multiplier_reg1_wire_clk == 1) && (multiplier_reg1_wire_en == 1))
                 if (stratixii_block == 0)
-                    mult_res_reg[((int_width_a + int_width_b) *2) -1 : (int_width_a + int_width_b)] <= 
+                    mult_res_reg[((int_width_a + int_width_b) *2) -1 : (int_width_a + int_width_b)] <=
                                             mult_res_1[(int_width_a + int_width_b) -1 :0];
-                else 
+                else
                 begin
                     mult_res_reg[((int_width_a + int_width_b) *2) -1 : (int_width_a + int_width_b)] <=  mult1_result;
                     mult_saturate_overflow_reg[1] <= mult1_saturate_overflow;
@@ -39306,7 +39306,7 @@ module altmult_add (    dataa,
     end
 
 
-    always @(mult_a_wire[(int_width_a *2) -1 : (int_width_a*1)] or mult_b_wire[(int_width_b  *2) -1 : (int_width_b *1)] or 
+    always @(mult_a_wire[(int_width_a *2) -1 : (int_width_a*1)] or mult_b_wire[(int_width_b  *2) -1 : (int_width_b *1)] or
             preadder_res_wire[(((int_width_preadder) *2) - 1) : (int_width_preadder)] or sign_a_wire or sign_b_wire)
     begin
     	if(stratixv_block)
@@ -39329,34 +39329,34 @@ module altmult_add (    dataa,
 				preadder_sum2a = preadder_res_wire[(((int_width_preadder) *2) - 1) : (int_width_preadder)];
 			end
 			else
-			begin 
+			begin
 				preadder_sum1a = mult_a_wire >> (1 * int_width_a);
 				preadder_sum2a = mult_b_wire >> (1 * int_width_b);
-			end	
+			end
 	    	mult_res_1 = do_multiply_stratixv(1, sign_a_wire, sign_b_wire);
 	    end
         else if(input_source_b0 == "LOOPBACK")
             mult_res_1 = do_multiply_loopback (1, sign_a_wire, sign_b_wire);
         else
-            mult_res_1 = do_multiply (1, sign_a_wire, sign_b_wire);      
+            mult_res_1 = do_multiply (1, sign_a_wire, sign_b_wire);
     end
 
 
     // ----------------------------------------------------------------------------
-    // This block basically calls the task do_multiply() to set the value of 
+    // This block basically calls the task do_multiply() to set the value of
     // mult_res_2[(int_width_a + int_width_b) -1 :0]
-    // 
-    // If multiplier_register2 is registered, the call of the task 
-    // will be triggered by a posedge multiplier_reg2_wire_clk. 
+    //
+    // If multiplier_register2 is registered, the call of the task
+    // will be triggered by a posedge multiplier_reg2_wire_clk.
     // It also has an asynchronous clear signal multiplier_reg2_wire_clr
     //
-    // If multiplier_register2 is unregistered, a change of value 
-    // in either mult_a[(3*int_width_a)-1:2*int_width_a], mult_b[(3*int_width_a)-1:2*int_width_a], 
+    // If multiplier_register2 is unregistered, a change of value
+    // in either mult_a[(3*int_width_a)-1:2*int_width_a], mult_b[(3*int_width_a)-1:2*int_width_a],
     // sign_a_reg or sign_b_reg will trigger the task call.
     // ---------------------------------------------------------------------------
 
     assign mult_res_wire[((int_width_a + int_width_b) *3) -1 : (2*(int_width_a + int_width_b))] =  ((multiplier_register2 == "UNREGISTERED") || (stratixiii_block == 1) || (stratixv_block == 1))?
-                                                                                            mult2_result[(int_width_a + int_width_b) -1 :0] : 
+                                                                                            mult2_result[(int_width_a + int_width_b) -1 :0] :
                                                         mult_res_reg[((int_width_a + int_width_b) *3) -1 : (2*(int_width_a + int_width_b))];
 
     assign mult_saturate_overflow_vec[2] =  (multiplier_register2 == "UNREGISTERED")?
@@ -39365,11 +39365,11 @@ module altmult_add (    dataa,
     // This always block is to perform the rounding and saturation operations (StratixII only)
     always @(mult_res_2 or mult23_round_wire or mult23_saturate_wire)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             // -------------------------------------------------------
-            // Stratix II Rounding support 
-            // This block basically carries out the rounding for the 
+            // Stratix II Rounding support
+            // This block basically carries out the rounding for the
             // mult_res_2. The equation to get the mult2_round_out is
             // obtained from the Stratix II Mac FFD which is below:
             // round_adder_constant = (1 << (wfraction - wfraction_round - 1))
@@ -39377,7 +39377,7 @@ module altmult_add (    dataa,
             // For Stratix II rounding, we round up the bits to 15 bits
             // or in another word wfraction_round = 15.
             // --------------------------------------------------------
-        
+
             if ((multiplier23_rounding == "YES") ||
                 ((multiplier23_rounding == "VARIABLE") && (mult23_round_wire == 1)))
             begin
@@ -39387,13 +39387,13 @@ module altmult_add (    dataa,
             begin
                 mult2_round_out[(int_width_a + int_width_b) -1 :0] = mult_res_2[(int_width_a + int_width_b) -1 :0];
             end
-            
+
             mult2_round_out[((int_width_a + int_width_b) + 2) : (int_width_a + int_width_b)] = {2{1'b0}};
 
             // -------------------------------------------------------
             // Stratix II Saturation support
             // This carries out the saturation for mult2_round_out.
-            // The equation to get the saturated result is obtained 
+            // The equation to get the saturated result is obtained
             // from Stratix II MAC FFD which is below:
             // satoverflow = 1 if sign bit is different
             // satvalue[wtotal-1 : wfraction] = roundout[wtotal-1]
@@ -39401,11 +39401,11 @@ module altmult_add (    dataa,
             // -------------------------------------------------------
 
 
-            if ((multiplier23_saturation == "YES") || 
+            if ((multiplier23_saturation == "YES") ||
                 (( multiplier23_saturation == "VARIABLE") && (mult23_saturate_wire == 1)))
             begin
                 mult2_saturate_overflow_stat = (~mult2_round_out[int_width_a + int_width_b - 1]) && mult2_round_out[int_width_a + int_width_b - 2];
-            
+
                 if (mult2_saturate_overflow_stat == 0)
                 begin
                     mult2_saturate_out = mult2_round_out;
@@ -39413,7 +39413,7 @@ module altmult_add (    dataa,
                 end
                 else
                 begin
-                    // We are doing Q2.31 saturation. Thus we would insert additional bit 
+                    // We are doing Q2.31 saturation. Thus we would insert additional bit
                     // for the LSB
                     for (num_bit_mult2 = (int_width_a + int_width_b - 1); num_bit_mult2 >= (int_width_a + int_width_b - 2); num_bit_mult2 = num_bit_mult2 - 1)
                     begin
@@ -39424,7 +39424,7 @@ module altmult_add (    dataa,
                     begin
                         mult2_saturate_out[num_bit_mult2] = ~mult2_round_out[int_width_a + int_width_b - 1];
                     end
-                    
+
                     mult2_saturate_out[2:0] = mult2_round_out[2:0];
                     mult2_saturate_overflow = mult2_saturate_overflow_stat;
                 end
@@ -39434,7 +39434,7 @@ module altmult_add (    dataa,
                 mult2_saturate_out = mult2_round_out;
                 mult2_saturate_overflow = 1'b0;
             end
-        
+
             if ((multiplier23_rounding == "YES") ||
                 ((multiplier23_rounding  == "VARIABLE") && (mult23_round_wire == 1)))
             begin
@@ -39443,14 +39443,14 @@ module altmult_add (    dataa,
                 begin
                     mult2_saturate_out[num_bit_mult2] = 1'b0;
                 end
-            
+
             end
         end
     end
 
     always @(mult2_saturate_out or mult_res_2 or systolic_register3)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             mult2_result <= mult2_saturate_out[(int_width_a + int_width_b) -1 :0];
         end
@@ -39463,18 +39463,18 @@ module altmult_add (    dataa,
         end
         else
         begin
-            mult2_result  <= mult_res_2; 
+            mult2_result  <= mult_res_2;
         end
     end
-	
+
     assign systolic_register3 = (systolic_delay3 == "UNREGISTERED")? mult_res_2
                                 : mult_res_reg_2;
     always @(posedge systolic3_reg_wire_clk or posedge systolic3_reg_wire_clr)
     begin
         if (stratixv_block == 1)
         begin
-            if (systolic3_reg_wire_clr == 1) 
-            begin 
+            if (systolic3_reg_wire_clr == 1)
+            begin
                 mult_res_reg_2[(int_width_a + int_width_b) -1 :0] <= 0;
             end
             else if ((systolic3_reg_wire_clk == 1) && (systolic3_reg_wire_en == 1))
@@ -39483,7 +39483,7 @@ module altmult_add (    dataa,
             end
         end
 	end
-	
+
     // simulate the register after the multiplier (for non-Stratix III families)
     // and simulate the register after the 1st adder for Stratix III family
     always @(posedge multiplier_reg2_wire_clk or posedge multiplier_reg2_wire_clr)
@@ -39497,9 +39497,9 @@ module altmult_add (    dataa,
             end
             else if ((multiplier_reg2_wire_clk == 1) && (multiplier_reg2_wire_en == 1))
                 if (stratixii_block == 0)
-                    mult_res_reg[((int_width_a + int_width_b) *3) -1 : (2*(int_width_a + int_width_b))] <= 
+                    mult_res_reg[((int_width_a + int_width_b) *3) -1 : (2*(int_width_a + int_width_b))] <=
                             mult_res_2[(int_width_a + int_width_b) -1 :0];
-                else 
+                else
                 begin
                     mult_res_reg[((int_width_a + int_width_b) *3) -1 : (2*(int_width_a + int_width_b))] <=  mult2_result;
                     mult_saturate_overflow_reg[2] <= mult2_saturate_overflow;
@@ -39543,10 +39543,10 @@ module altmult_add (    dataa,
 				preadder_sum2a = preadder_res_wire[((int_width_preadder) *3) -1 : (2*(int_width_preadder))];
 			end
 			else
-			begin 
+			begin
 				preadder_sum1a = mult_a_wire >> (2 * int_width_a);
 				preadder_sum2a = mult_b_wire >> (2 * int_width_b);
-			end	
+			end
     		mult_res_2 = do_multiply_stratixv (2, sign_a_wire, sign_b_wire);
     	end
     	else
@@ -39557,15 +39557,15 @@ module altmult_add (    dataa,
 
 
     // ----------------------------------------------------------------------------
-    // This block basically calls the task do_multiply() to set the value of 
+    // This block basically calls the task do_multiply() to set the value of
     // mult_res_3[(int_width_a + int_width_b) -1 :0]
     //
-    // If multiplier_register3 is registered, the call of the task 
-    // will be triggered by a posedge multiplier_reg3_wire_clk. 
+    // If multiplier_register3 is registered, the call of the task
+    // will be triggered by a posedge multiplier_reg3_wire_clk.
     // It also has an asynchronous clear signal multiplier_reg3_wire_clr
     //
-    // If multiplier_register3 is unregistered, a change of value 
-    // in either mult_a[(4*int_width_a)-1:3*int_width_a], mult_b[(4*int_width_a)-1:3*int_width_a], 
+    // If multiplier_register3 is unregistered, a change of value
+    // in either mult_a[(4*int_width_a)-1:3*int_width_a], mult_b[(4*int_width_a)-1:3*int_width_a],
     // sign_a_reg or sign_b_reg will trigger the task call.
     // ---------------------------------------------------------------------------
 
@@ -39575,15 +39575,15 @@ module altmult_add (    dataa,
 
     assign mult_saturate_overflow_vec[3] =  (multiplier_register3 == "UNREGISTERED")?
                                             mult3_saturate_overflow : mult_saturate_overflow_reg[3];
-   
+
     // This always block is to perform the rounding and saturation operations (StratixII only)
     always @(mult_res_3 or mult23_round_wire or mult23_saturate_wire)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             // -------------------------------------------------------
-            // Stratix II Rounding support 
-            // This block basically carries out the rounding for the 
+            // Stratix II Rounding support
+            // This block basically carries out the rounding for the
             // mult_res_3. The equation to get the mult3_round_out is
             // obtained from the Stratix II Mac FFD which is below:
             // round_adder_constant = (1 << (wfraction - wfraction_round - 1))
@@ -39591,7 +39591,7 @@ module altmult_add (    dataa,
             // For Stratix II rounding, we round up the bits to 15 bits
             // or in another word wfraction_round = 15.
             // --------------------------------------------------------
-        
+
             if ((multiplier23_rounding == "YES") ||
                 ((multiplier23_rounding == "VARIABLE") && (mult23_round_wire == 1)))
             begin
@@ -39601,13 +39601,13 @@ module altmult_add (    dataa,
             begin
                 mult3_round_out[(int_width_a + int_width_b) -1 :0] = mult_res_3[(int_width_a + int_width_b) -1 :0];
             end
-            
+
             mult3_round_out[((int_width_a + int_width_b) + 2) : (int_width_a + int_width_b)] = {2{1'b0}};
 
             // -------------------------------------------------------
             // Stratix II Saturation support
             // This carries out the saturation for mult3_round_out.
-            // The equation to get the saturated result is obtained 
+            // The equation to get the saturated result is obtained
             // from Stratix II MAC FFD which is below:
             // satoverflow = 1 if sign bit is different
             // satvalue[wtotal-1 : wfraction] = roundout[wtotal-1]
@@ -39615,7 +39615,7 @@ module altmult_add (    dataa,
             // -------------------------------------------------------
 
 
-            if ((multiplier23_saturation == "YES") || 
+            if ((multiplier23_saturation == "YES") ||
                 (( multiplier23_saturation == "VARIABLE") && (mult23_saturate_wire == 1)))
             begin
                 mult3_saturate_overflow_stat = (~mult3_round_out[int_width_a + int_width_b - 1]) && mult3_round_out[int_width_a + int_width_b - 2];
@@ -39637,7 +39637,7 @@ module altmult_add (    dataa,
                     begin
                         mult3_saturate_out[num_bit_mult3] = ~mult3_round_out[int_width_a + int_width_b - 1];
                     end
-                    
+
                     mult3_saturate_out[2:0] = mult3_round_out[2:0];
                     mult3_saturate_overflow = mult3_saturate_overflow_stat;
                 end
@@ -39647,7 +39647,7 @@ module altmult_add (    dataa,
                 mult3_saturate_out = mult3_round_out;
                 mult3_saturate_overflow = 1'b0;
             end
-        
+
             if ((multiplier23_rounding == "YES") ||
                 ((multiplier23_rounding  == "VARIABLE") && (mult23_round_wire == 1)))
             begin
@@ -39656,14 +39656,14 @@ module altmult_add (    dataa,
                 begin
                     mult3_saturate_out[num_bit_mult3] = 1'b0;
                 end
-            
+
             end
         end
     end
 
     always @(mult3_saturate_out or mult_res_3)
     begin
-        if (stratixii_block) 
+        if (stratixii_block)
         begin
             mult3_result <= mult3_saturate_out[(int_width_a + int_width_b) -1 :0];
         end
@@ -39686,9 +39686,9 @@ module altmult_add (    dataa,
             end
             else if ((multiplier_reg3_wire_clk == 1) && (multiplier_reg3_wire_en == 1))
                 if (stratixii_block == 0)
-                    mult_res_reg[((int_width_a + int_width_b) *4) -1 : (3*(int_width_a + int_width_b))] <= 
+                    mult_res_reg[((int_width_a + int_width_b) *4) -1 : (3*(int_width_a + int_width_b))] <=
                             mult_res_3[(int_width_a + int_width_b) -1 :0];
-                else 
+                else
                 begin
                     mult_res_reg[((int_width_a + int_width_b) *4) -1: 3*(int_width_a + int_width_b)] <=  mult3_result;
                     mult_saturate_overflow_reg[3] <= mult3_saturate_overflow;
@@ -39697,7 +39697,7 @@ module altmult_add (    dataa,
     end
 
 
-    
+
 
     always @(mult_a_wire[(int_width_a *4) -1 : (int_width_a*3)] or mult_b_wire[(int_width_b  *4) -1 : (int_width_b *3)] or
             preadder_res_wire[((int_width_preadder) *4) -1 : 3*(int_width_preadder)] or sign_a_wire or sign_b_wire)
@@ -39722,16 +39722,16 @@ module altmult_add (    dataa,
 				preadder_sum2a = preadder_res_wire[((int_width_preadder) *4) -1 : 3*(int_width_preadder)];
 			end
 			else
-			begin 
+			begin
 				preadder_sum1a = mult_a_wire >> (3 * int_width_a);
 				preadder_sum2a = mult_b_wire >> (3 * int_width_b);
-			end	
+			end
     		mult_res_3 = do_multiply_stratixv (3, sign_a_wire, sign_b_wire);
     	end
     	else
         	mult_res_3 = do_multiply (3, sign_a_wire, sign_b_wire);
     end
-    
+
     //------------------------------
     // Assign statements for coefficient storage
     //------------------------------
@@ -39742,7 +39742,7 @@ module altmult_add (    dataa,
     						(coeffsel_a_wire == 4)? coef0_4 :
     						(coeffsel_a_wire == 5)? coef0_5 :
     						(coeffsel_a_wire == 6)? coef0_6 : coef0_7 ;
-    						
+
 	assign coeffsel_b_pre = (coeffsel_b_wire == 0)? coef1_0 :
     						(coeffsel_b_wire == 1)? coef1_1 :
     						(coeffsel_b_wire == 2)? coef1_2 :
@@ -39750,7 +39750,7 @@ module altmult_add (    dataa,
     						(coeffsel_b_wire == 4)? coef1_4 :
     						(coeffsel_b_wire == 5)? coef1_5 :
     						(coeffsel_b_wire == 6)? coef1_6 : coef1_7 ;
-    						
+
 	assign coeffsel_c_pre = (coeffsel_c_wire == 0)? coef2_0 :
     						(coeffsel_c_wire == 1)? coef2_1 :
     						(coeffsel_c_wire == 2)? coef2_2 :
@@ -39758,39 +39758,39 @@ module altmult_add (    dataa,
     						(coeffsel_c_wire == 4)? coef2_4 :
     						(coeffsel_c_wire == 5)? coef2_5 :
     						(coeffsel_c_wire == 6)? coef2_6 : coef2_7 ;
-    						
+
 	assign coeffsel_d_pre = (coeffsel_d_wire == 0)? coef3_0 :
     						(coeffsel_d_wire == 1)? coef3_1 :
     						(coeffsel_d_wire == 2)? coef3_2 :
     						(coeffsel_d_wire == 3)? coef3_3 :
     						(coeffsel_d_wire == 4)? coef3_4 :
     						(coeffsel_d_wire == 5)? coef3_5 :
-    						(coeffsel_d_wire == 6)? coef3_6 : coef3_7 ;    						    						    						
+    						(coeffsel_d_wire == 6)? coef3_6 : coef3_7 ;
     //------------------------------
     // Continuous assign statements
     //------------------------------
 
     // Clock in all the A input registers
-    assign i_scanina = (stratixii_block == 0)? 
+    assign i_scanina = (stratixii_block == 0)?
                             dataa_int[int_width_a-1:0] : scanina_z;
-                                            
+
     assign mult_a_pre[int_width_a-1:0] =    (stratixv_block == 1)? dataa_int[width_a-1:0]:
                                             (input_source_a0 == "DATAA")? dataa_int[int_width_a-1:0] :
                                             (input_source_a0 == "SCANA")? i_scanina :
                                             (sourcea_wire[0] == 1)? scanina_z : dataa_int[int_width_a-1:0];
 
-    assign mult_a_pre[(2*int_width_a)-1:int_width_a] =  (stratixv_block == 1)? dataa_int[(2*width_a)-1:width_a] : 
-                                                        (input_source_a1 == "DATAA")?dataa_int[(2*int_width_a)-1:int_width_a] : 
+    assign mult_a_pre[(2*int_width_a)-1:int_width_a] =  (stratixv_block == 1)? dataa_int[(2*width_a)-1:width_a] :
+                                                        (input_source_a1 == "DATAA")?dataa_int[(2*int_width_a)-1:int_width_a] :
                                                         (input_source_a1 == "SCANA")? mult_a_wire[int_width_a-1:0] :
                                                         (sourcea_wire[1] == 1)? mult_a_wire[int_width_a-1:0] : dataa_int[(2*int_width_a)-1:int_width_a];
 
-    assign mult_a_pre[(3*int_width_a)-1:2*int_width_a] =    (stratixv_block == 1)? dataa_int[(3*width_a)-1:2*width_a]: 
-                                                            (input_source_a2 == "DATAA") ?dataa_int[(3*int_width_a)-1:2*int_width_a]: 
+    assign mult_a_pre[(3*int_width_a)-1:2*int_width_a] =    (stratixv_block == 1)? dataa_int[(3*width_a)-1:2*width_a]:
+                                                            (input_source_a2 == "DATAA") ?dataa_int[(3*int_width_a)-1:2*int_width_a]:
                                                             (input_source_a2 == "SCANA")? mult_a_wire[(2*int_width_a)-1:int_width_a] :
                                                             (sourcea_wire[2] == 1)? mult_a_wire[(2*int_width_a)-1:int_width_a] : dataa_int[(3*int_width_a)-1:2*int_width_a];
 
-    assign mult_a_pre[(4*int_width_a)-1:3*int_width_a] =    (stratixv_block == 1)? dataa_int[(4*width_a)-1:3*width_a] : 
-                                                            (input_source_a3 == "DATAA") ?dataa_int[(4*int_width_a)-1:3*int_width_a] : 
+    assign mult_a_pre[(4*int_width_a)-1:3*int_width_a] =    (stratixv_block == 1)? dataa_int[(4*width_a)-1:3*width_a] :
+                                                            (input_source_a3 == "DATAA") ?dataa_int[(4*int_width_a)-1:3*int_width_a] :
                                                             (input_source_a3 == "SCANA")? mult_a_wire[(3*int_width_a)-1:2*int_width_a] :
                                                             (sourcea_wire[3] == 1)? mult_a_wire[(3*int_width_a)-1:2*int_width_a] : dataa_int[(4*int_width_a)-1:3*int_width_a];
 
@@ -39798,7 +39798,7 @@ module altmult_add (    dataa,
                         mult_a_wire[(number_of_multipliers * int_width_a) - 1 : ((number_of_multipliers-1) * int_width_a) + (int_width_a - width_a)]
                         : scanouta_wire[int_width_a - 1: 0];
 
-    assign scanoutb = (altera_mult_add_block == 1) ? 'bz : (chainout_adder == "YES" && (width_result > width_a + width_b + 8))? 
+    assign scanoutb = (altera_mult_add_block == 1) ? 'bz : (chainout_adder == "YES" && (width_result > width_a + width_b + 8))?
                         mult_b_wire[(number_of_multipliers * int_width_b) - 1  - (int_width_b - width_b) : ((number_of_multipliers-1) * int_width_b)]:
                         mult_b_wire[(number_of_multipliers * int_width_b) - 1 : ((number_of_multipliers-1) * int_width_b) + (int_width_b - width_b)];
 
@@ -39809,45 +39809,45 @@ module altmult_add (    dataa,
     assign loopback_wire_temp = {{int_width_b{1'b0}}, loopback_wire[`LOOPBACK_WIRE_WIDTH : width_a]};
 
     assign mult_b_pre_temp = (input_source_b0 == "LOOPBACK") ? loopback_wire_temp[int_width_b - 1 : 0] : datab_int[int_width_b-1:0];
-    
+
     assign mult_b_pre[int_width_b-1:0] =    (stratixv_block == 1)? datab_int[width_b-1:0]:
                                             (input_source_b0 == "DATAB")? datab_int[int_width_b-1:0] :
                                             (input_source_b0 == "SCANB")? ((mult0_source_scanin_en == 1'b0)? i_scaninb : datab_int[int_width_b-1:0]) :
-                                            (sourceb_wire[0] == 1)? scaninb_z : 
+                                            (sourceb_wire[0] == 1)? scaninb_z :
                                             mult_b_pre_temp[int_width_b-1:0];
-	
+
     assign mult_b_pre[(2*int_width_b)-1:int_width_b] =  (stratixv_block == 1)? datab_int[(2*width_b)-1 : width_b ]:
-                                                        (input_source_b1 == "DATAB") ? 
+                                                        (input_source_b1 == "DATAB") ?
                                                         ((input_source_b0 == "LOOPBACK") ? datab_int[int_width_b -1 :0] :
-                                                        datab_int[(2*int_width_b)-1 : int_width_b ]): 
-                                                        (input_source_b1 == "SCANB")? 
-                                                        (stratixiii_block == 1 || stratixv_block == 1) ? mult_b_wire[int_width_b -1 : 0] : 
+                                                        datab_int[(2*int_width_b)-1 : int_width_b ]):
+                                                        (input_source_b1 == "SCANB")?
+                                                        (stratixiii_block == 1 || stratixv_block == 1) ? mult_b_wire[int_width_b -1 : 0] :
                                                         ((mult1_source_scanin_en == 1'b0)? mult_b_wire[int_width_b -1 : 0] : datab_int[(2*int_width_b)-1 : int_width_b ]) :
-                                                        (sourceb_wire[1] == 1)? mult_b_wire[int_width_b -1 : 0] : 
+                                                        (sourceb_wire[1] == 1)? mult_b_wire[int_width_b -1 : 0] :
                                                         datab_int[(2*int_width_b)-1 : int_width_b ];
 
     assign mult_b_pre[(3*int_width_b)-1:2*int_width_b] =    (stratixv_block == 1)?datab_int[(3*width_b)-1:2*width_b]:
-                                                            (input_source_b2 == "DATAB") ? 
+                                                            (input_source_b2 == "DATAB") ?
                                                             ((input_source_b0 == "LOOPBACK") ? datab_int[(2*int_width_b)-1: int_width_b]:
-                                                            datab_int[(3*int_width_b)-1:2*int_width_b]) : 
-                                                            (input_source_b2 == "SCANB")? 
+                                                            datab_int[(3*int_width_b)-1:2*int_width_b]) :
+                                                            (input_source_b2 == "SCANB")?
                                                             (stratixiii_block == 1 || stratixv_block == 1) ?  mult_b_wire[(2*int_width_b)-1:int_width_b] :
                                                             ((mult2_source_scanin_en == 1'b0)? mult_b_wire[(2*int_width_b)-1:int_width_b] : datab_int[(3*int_width_b)-1:2*int_width_b]) :
                                                             (sourceb_wire[2] == 1)? mult_b_wire[(2*int_width_b)-1:int_width_b] :
                                                             datab_int[(3*int_width_b)-1:2*int_width_b];
 
     assign mult_b_pre[(4*int_width_b)-1:3*int_width_b] =    (stratixv_block == 1)?datab_int[(4*width_b)-1:3*width_b]:
-                                                            (input_source_b3 == "DATAB") ? 
+                                                            (input_source_b3 == "DATAB") ?
                                                             ((input_source_b0 == "LOOPBACK") ? datab_int[(3*int_width_b) - 1: 2*int_width_b] :
-                                                            datab_int[(4*int_width_b)-1:3*int_width_b]) : 
-                                                            (input_source_b3 == "SCANB")? 
+                                                            datab_int[(4*int_width_b)-1:3*int_width_b]) :
+                                                            (input_source_b3 == "SCANB")?
                                                             (stratixiii_block == 1 || stratixv_block == 1) ? mult_b_wire[(3*int_width_b)-1:2*int_width_b] :
                                                             ((mult3_source_scanin_en == 1'b0)? mult_b_wire[(3*int_width_b)-1:2*int_width_b] : datab_int[(4*int_width_b)-1:3*int_width_b]):
                                                             (sourceb_wire[3] == 1)? mult_b_wire[(3*int_width_b)-1:2*int_width_b] :
                                                             datab_int[(4*int_width_b)-1:3*int_width_b];
-                                                            
+
     assign mult_c_pre[int_width_c-1:0] =    (stratixv_block == 1 && (preadder_mode =="INPUT"))? datac_int[int_width_c-1:0]: 0;
-                                                                      
+
 
     // clock in all the control signals
     assign addsub1_int =    ((port_addnsub1 == "PORT_CONNECTIVITY")?
@@ -39872,40 +39872,40 @@ module altmult_add (    dataa,
 
     assign outround_int = ((output_rounding == "VARIABLE") ? (output_round)
                             : ((output_rounding == "YES") ? 1'b1 : 1'b0));
-    
+
     assign chainout_round_int = ((chainout_rounding == "VARIABLE") ? chainout_round : ((chainout_rounding == "YES") ? 1'b1 : 1'b0));
 
     assign outsat_int = ((output_saturation == "VARIABLE") ? output_saturate : ((output_saturation == "YES") ? 1'b1 : 1'b0));
-    
+
     assign chainout_sat_int = ((chainout_saturation == "VARIABLE") ? chainout_saturate : ((chainout_saturation == "YES") ? 1'b1 : 1'b0));
-    
+
     assign zerochainout_int = (chainout_adder == "YES")? zero_chainout : 1'b0;
-    
+
     assign rotate_int = (shift_mode == "VARIABLE") ? rotate : 1'b0;
-    
+
     assign shiftr_int = (shift_mode == "VARIABLE") ? shift_right : 1'b0;
-    
+
     assign zeroloopback_int = (input_source_b0 == "LOOPBACK") ? zero_loopback : 1'b0;
-    
+
     assign accumsload_int = (stratixv_block == 1)? accum_sload :
-    						(accumulator == "YES") ? 
+    						(accumulator == "YES") ?
                             (((output_rounding == "VARIABLE") && (chainout_adder == "NO")) ? output_round : accum_sload)
                             : 1'b0;
-                            
+
     assign chainin_int = chainin;
-    
+
     assign coeffsel_a_int =  (stratixv_block == 1) ?coefsel0: 3'bx;
-    
+
     assign coeffsel_b_int =  (stratixv_block == 1) ?coefsel1: 3'bx;
-    
+
     assign coeffsel_c_int =  (stratixv_block == 1) ?coefsel2: 3'bx;
-    
+
     assign coeffsel_d_int =  (stratixv_block == 1) ?coefsel3: 3'bx;
-    
+
     // -----------------------------------------------------------------
     // This is the main block that performs the addition and subtraction
     // -----------------------------------------------------------------
-    
+
     // need to do MSB extension for cases where the result width is > width_a + width_b
     // for Stratix III family only
     assign result_stxiii_temp = ((width_result - 1 + int_mult_diff_bit) > int_width_result)? ((sign_a_pipe_wire|sign_b_pipe_wire)?
@@ -39917,24 +39917,24 @@ module altmult_add (    dataa,
                             {{(result_pad){temp_sum_reg[2*int_width_result - 1]}}, temp_sum_reg[int_width_result:int_mult_diff_bit]}:
                             {{(result_pad){1'b0}}, temp_sum_reg[int_width_result:int_mult_diff_bit]}):
                             temp_sum_reg[width_result - 1 + int_mult_diff_bit:int_mult_diff_bit];
-                            
+
     assign result_stxiii_temp3 = ((width_result - 1 + int_mult_diff_bit) > int_width_result)? ((sign_a_pipe_wire|sign_b_pipe_wire)?
                             {{(result_pad){round_sat_blk_res[2*int_width_result - 1]}}, round_sat_blk_res[int_width_result:int_mult_diff_bit]}:
                             {{(result_pad){1'b0}}, round_sat_blk_res[int_width_result :int_mult_diff_bit]}):
                             round_sat_blk_res[width_result - 1 + int_mult_diff_bit : int_mult_diff_bit];
-                            
+
     assign result_stxiii =  (stratixiii_block == 1 || stratixv_block == 1) ?
                             ((shift_mode != "NO") ? shift_rot_result[`SHIFT_MODE_WIDTH:0] :
                             (chainout_adder == "YES") ? chainout_final_out[width_result - 1 + int_mult_diff_bit: int_mult_diff_bit] :
-                            ((((width_a < 36 && width_b < 36) || ((width_a >= 36 || width_b >= 36) && extra_latency == 0)) && output_register == "UNREGISTERED")?  
-                            ((input_source_b0 == "LOOPBACK") ? loopback_out_wire[int_width_result - 1 : 0] :                
+                            ((((width_a < 36 && width_b < 36) || ((width_a >= 36 || width_b >= 36) && extra_latency == 0)) && output_register == "UNREGISTERED")?
+                            ((input_source_b0 == "LOOPBACK") ? loopback_out_wire[int_width_result - 1 : 0] :
                             result_stxiii_temp3[width_result - 1 : 0]) :
                             (extra_latency != 0 && output_register == "UNREGISTERED" && (width_a > 36 || width_b > 36))?
                             result_stxiii_temp2[width_result - 1 : 0] :
-                            (input_source_b0 == "LOOPBACK") ? loopback_out_wire[int_width_result - 1 : 0] :                                       
+                            (input_source_b0 == "LOOPBACK") ? loopback_out_wire[int_width_result - 1 : 0] :
                             result_stxiii_temp[width_result - 1 : 0])) : {(width_result){1'b0}};
-                            
-                            
+
+
     assign result_stxiii_ext = (stratixiii_block == 1 || stratixv_block == 1) ?
                                 (((chainout_adder == "YES") || (accumulator == "YES") || (input_source_b0 == "LOOPBACK")) ?
                                 result_stxiii :
@@ -39951,43 +39951,43 @@ module altmult_add (    dataa,
                                 {{(result_stxiii_pad){1'b0}}, result_stxiii[result_msb_stxiii : 0]} :
                                 {{(result_stxiii_pad){result_stxiii[result_msb_stxiii]}}, result_stxiii[result_msb_stxiii : 0]}) :
                                 result_stxiii) : {width_result {1'b0}};
-    
+
     assign result_ext = (output_register == "UNREGISTERED")?
                         temp_sum[width_result - 1 :0]: temp_sum_reg[width_result - 1 : 0];
-                                                                    
-                               
+
+
     assign result_stxii_ext_temp = ((width_result - 1 + int_mult_diff_bit) > int_width_result)? ((sign_a_pipe_wire|sign_b_pipe_wire)?
-                            {{(result_pad){temp_sum[int_width_result]}}, temp_sum[int_width_result - 1:int_mult_diff_bit]}: 
-                            {{(result_pad){1'b0}}, temp_sum[int_width_result - 1 :int_mult_diff_bit]}):    
+                            {{(result_pad){temp_sum[int_width_result]}}, temp_sum[int_width_result - 1:int_mult_diff_bit]}:
+                            {{(result_pad){1'b0}}, temp_sum[int_width_result - 1 :int_mult_diff_bit]}):
                             temp_sum[width_result - 1 + int_mult_diff_bit : int_mult_diff_bit];
-                         
+
     assign result_stxii_ext_temp2 = ((width_result - 1 + int_mult_diff_bit) > int_width_result)? ((sign_a_pipe_wire|sign_b_pipe_wire)?
-                            {{(result_pad){temp_sum_reg[int_width_result]}}, temp_sum_reg[int_width_result - 1:int_mult_diff_bit]}: 
-                            {{(result_pad){1'b0}}, temp_sum_reg[int_width_result - 1:int_mult_diff_bit]}): 
+                            {{(result_pad){temp_sum_reg[int_width_result]}}, temp_sum_reg[int_width_result - 1:int_mult_diff_bit]}:
+                            {{(result_pad){1'b0}}, temp_sum_reg[int_width_result - 1:int_mult_diff_bit]}):
                             temp_sum_reg[width_result - 1 + int_mult_diff_bit:int_mult_diff_bit];
-                                                      
+
     assign result_stxii_ext = (stratixii_block == 0)? result_ext:
                             ( adder3_rounding != "NO" | multiplier01_rounding != "NO" | multiplier23_rounding != "NO" | output_rounding != "NO"| adder1_rounding != "NO" )?
                             (output_register == "UNREGISTERED")?
                             result_stxii_ext_temp[width_result - 1 : 0] :
                             result_stxii_ext_temp2[width_result - 1 : 0] : result_ext;
-                                                  
+
     assign result = (stratixv_block == 1 ) ? result_stxiii:
                     (stratixiii_block == 1) ?  result_stxiii_ext :
-                    (width_result > (width_a + width_b))? result_stxii_ext : 
-                    (output_register == "UNREGISTERED")? 
-                    temp_sum[width_result - 1 + int_mult_diff_bit : int_mult_diff_bit]: 
-                    temp_sum_reg[width_result - 1 + int_mult_diff_bit:int_mult_diff_bit]; 
+                    (width_result > (width_a + width_b))? result_stxii_ext :
+                    (output_register == "UNREGISTERED")?
+                    temp_sum[width_result - 1 + int_mult_diff_bit : int_mult_diff_bit]:
+                    temp_sum_reg[width_result - 1 + int_mult_diff_bit:int_mult_diff_bit];
 
     assign mult_is_saturate_vec =   (output_register == "UNREGISTERED")?
-                                    mult_saturate_overflow_vec: mult_saturate_overflow_pipe_reg;                                      
-    
-    always@(posedge input_reg_a0_wire_clk or posedge multiplier_reg0_wire_clk)      
+                                    mult_saturate_overflow_vec: mult_saturate_overflow_pipe_reg;
+
+    always@(posedge input_reg_a0_wire_clk or posedge multiplier_reg0_wire_clk)
     begin
     if(stratixiii_block == 1)
         if (extra_latency !=0 && output_register == "UNREGISTERED" && (width_a > 36 || width_b > 36))
         begin
-            if ((multiplier_register0 != "UNREGISTERED") || (input_register_a0 !="UNREGISTERED")) 
+            if ((multiplier_register0 != "UNREGISTERED") || (input_register_a0 !="UNREGISTERED"))
                 if (((multiplier_reg0_wire_clk  == 1) && (multiplier_reg0_wire_en == 1)) ||  ((input_reg_a0_wire_clk === 1'b1) && (input_reg_a0_wire_en == 1)))
                 begin
                     result_pipe [head_result] <= round_sat_blk_res[2*int_width_result - 1 :0];
@@ -39998,7 +39998,7 @@ module altmult_add (    dataa,
                 end
         end
     end
-                              
+
     always @(posedge output_reg_wire_clk or posedge output_reg_wire_clr)
     begin
         if (stratixiii_block == 0 && stratixv_block == 0)
@@ -40006,19 +40006,19 @@ module altmult_add (    dataa,
             if (output_reg_wire_clr == 1)
             begin
                 temp_sum_reg <= {(2*int_width_result){1'b0}};
-                
+
                 for ( num_stor = extra_latency; num_stor >= 0; num_stor = num_stor - 1 )
                 begin
                     result_pipe[num_stor] <= {int_width_result{1'b0}};
                 end
-                
+
                 mult_saturate_overflow_pipe_reg <= {4{1'b0}};
-                
+
                 head_result <= 0;
             end
             else if ((output_reg_wire_clk ==1) && (output_reg_wire_en ==1))
             begin
-                
+
                 if (extra_latency == 0)
                 begin
                     temp_sum_reg[int_width_result :0] <= temp_sum[int_width_result-1 :0];
@@ -40051,15 +40051,15 @@ module altmult_add (    dataa,
                         unsigned_sub3_overflow_pipe_reg <= 1'b0;
                     end
                     head_result <= 0;
-                    
-                    if (accumulator == "YES") 
+
+                    if (accumulator == "YES")
                         acc_feedback_reg <= {2*int_width_result{1'b0}};
-                        
+
                     if (input_source_b0 == "LOOPBACK")
                         loopback_wire_reg <= {int_width_result {1'b0}};
-                        
-                end               
-                                  
+
+                end
+
                 else if ((output_reg_wire_clk ==1) && (output_reg_wire_en ==1))
                 begin
                     if (extra_latency == 0)
@@ -40075,15 +40075,15 @@ module altmult_add (    dataa,
                             unsigned_sub3_overflow_reg <= unsigned_sub3_overflow_mult_reg;
                         else
                             unsigned_sub3_overflow_reg <= unsigned_sub3_overflow;
-                            
-                        if(stratixv_block)   
+
+                        if(stratixv_block)
                         begin
                             if (accumulator == "YES") //|| accum_wire == 1)
                             begin
                     	        acc_feedback_reg <= round_sat_in_result[2*int_width_result-1 : 0];
                             end
                         end
-                         
+
                     end
                     else
                     begin
@@ -40094,19 +40094,19 @@ module altmult_add (    dataa,
                             unsigned_sub1_overflow_pipe_reg [head_result] <= unsigned_sub1_overflow_mult_reg;
                         else
                             unsigned_sub1_overflow_pipe_reg [head_result] <= unsigned_sub1_overflow;
-                        
-                        if(multiplier_register2 != "UNREGISTERED") 
+
+                        if(multiplier_register2 != "UNREGISTERED")
                             unsigned_sub3_overflow_pipe_reg [head_result] <= unsigned_sub3_overflow_mult_reg;
-                        else   
+                        else
                             unsigned_sub3_overflow_pipe_reg [head_result] <= unsigned_sub3_overflow;
-                        
+
                         head_result <= (head_result +1) % (extra_latency + 1);
                     end
                     if (accumulator == "YES") //|| accum_wire == 1)
                     begin
                     	acc_feedback_reg <= round_sat_blk_res[2*int_width_result-1 : 0];
                     end
-                    
+
                     loopback_wire_reg <= round_sat_blk_res[int_width_result + (int_width_b - width_b) - 1 : int_width_b - width_b];
 
                 end
@@ -40128,7 +40128,7 @@ module altmult_add (    dataa,
                         acc_feedback_reg <= round_sat_blk_res[2*int_width_result-1 : 0];
                     end
                 end
-                
+
                 if (output_reg_wire_clr == 1 )
                 begin
                     temp_sum_reg <= {(2*int_width_result){1'b0}};
@@ -40143,13 +40143,13 @@ module altmult_add (    dataa,
                         unsigned_sub3_overflow_pipe_reg <= 1'b0;
                     end
                     head_result <= 0;
-                    
+
                     if (accumulator == "YES" )
                         acc_feedback_reg <= {2*int_width_result{1'b0}};
-                        
+
                     if (input_source_b0 == "LOOPBACK")
-                        loopback_wire_reg <= {int_width_result {1'b0}};                 
-                end               
+                        loopback_wire_reg <= {int_width_result {1'b0}};
+                end
                 else if ((output_reg_wire_clk ==1) && (output_reg_wire_en ==1))
                 begin
                     if (extra_latency == 0)
@@ -40160,7 +40160,7 @@ module altmult_add (    dataa,
                             unsigned_sub1_overflow_reg <= unsigned_sub1_overflow_mult_reg;
                         else
                             unsigned_sub1_overflow_reg <= unsigned_sub1_overflow;
-                            
+
                         if(multiplier_register2 != "UNREGISTERED")
                         unsigned_sub3_overflow_reg <= unsigned_sub3_overflow_mult_reg;
                         else
@@ -40179,29 +40179,29 @@ module altmult_add (    dataa,
                             unsigned_sub3_overflow_pipe_reg <= unsigned_sub1_overflow_mult_reg;
                         else
                             unsigned_sub3_overflow_pipe_reg <= unsigned_sub1_overflow;
-                        
+
                         head_result <= (head_result +1) % (extra_latency + 1);
                     end
                 end
-                
+
             end
         end
     end
 
     assign head_result_wire = head_result[31:0];
-    
+
     always @(head_result_wire or result_pipe[head_result_wire])
     begin
         if (extra_latency != 0)
             temp_sum_reg[2*int_width_result - 1 :0] <= result_pipe[head_result_wire];
     end
-    
+
     always @(head_result_wire or result_pipe1[head_result_wire])
     begin
         if (extra_latency != 0)
             loopback_wire_latency <= result_pipe1[head_result_wire];
     end
-    
+
     always @(head_result_wire or overflow_stat_pipe_reg[head_result_wire])
     begin
         if (extra_latency != 0)
@@ -40213,7 +40213,7 @@ module altmult_add (    dataa,
         if (extra_latency != 0)
             accum_overflow_reg <= accum_overflow_stat_pipe_reg[head_result_wire];
     end
-    
+
     always @(head_result_wire or unsigned_sub1_overflow_pipe_reg[head_result_wire])
     begin
         if (extra_latency != 0)
@@ -40241,24 +40241,24 @@ module altmult_add (    dataa,
                 mult_res_temp = mult_res_wire >> (num_mult * (int_width_a + int_width_b));
                 mult_res_ext = ((int_width_result > (int_width_a + int_width_b))?
                                 {{(mult_res_pad)
-                                {mult_res_temp [int_width_a + int_width_b - 1] & 
+                                {mult_res_temp [int_width_a + int_width_b - 1] &
                                 (sign_a_pipe_wire | sign_b_pipe_wire)}}, mult_res_temp}:mult_res_temp);
-                
+
                 if (num_mult == 0)
                     temp_sum = do_add1_level1(0, sign_a_wire, sign_b_wire);
-                
+
                 else if (num_mult == 1)
                 begin
                     if (addsub1_pipe_wire)
                         temp_sum = do_add1_level1(0, sign_a_wire, sign_b_wire);
                     else
                         temp_sum = do_sub1_level1(0, sign_a_wire, sign_b_wire);
-                                            
+
                     if (stratixii_block == 1)
                     begin
                         // -------------------------------------------------------
-                        // Stratix II Rounding support 
-                        // This block basically carries out the rounding for the 
+                        // Stratix II Rounding support
+                        // This block basically carries out the rounding for the
                         // temp_sum. The equation to get the roundout for adder1 and
                         // adder3 is obtained from the Stratix II Mac FFD which is below:
                         // round_adder_constant = (1 << (wfraction - wfraction_round - 1))
@@ -40266,7 +40266,7 @@ module altmult_add (    dataa,
                         // For Stratix II rounding, we round up the bits to 15 bits
                         // or in another word wfraction_round = 15.
                         // --------------------------------------------------------
-        
+
                         if ((adder1_rounding == "YES") ||
                             ((adder1_rounding == "VARIABLE") && (addnsub1_round_pipe_wire == 1)))
                         begin
@@ -40282,7 +40282,7 @@ module altmult_add (    dataa,
                         begin
                             adder1_round_out = temp_sum;
                         end
-        
+
                             adder1_result = adder1_round_out;
                     end
 
@@ -40290,27 +40290,27 @@ module altmult_add (    dataa,
                     begin
                         temp_sum = adder1_result;
                     end
-                    
+
                 end
-                
+
                 else if (num_mult == 2)
                 begin
                     if (stratixii_block == 1)
                     begin
-                        adder2_result = mult_res_ext; 
+                        adder2_result = mult_res_ext;
                         temp_sum = adder2_result;
                     end
                     else
                         temp_sum = do_add1_level1(0, sign_a_wire, sign_b_wire);
-                end 
+                end
                 else if (num_mult == 3 || ((number_of_multipliers == 3) && ((adder3_rounding == "YES") ||
                 ((adder3_rounding == "VARIABLE") && (addnsub3_round_pipe_wire == 1)))))
                 begin
                     if (addsub3_pipe_wire && num_mult == 3)
                         temp_sum = do_add1_level1(0, sign_a_wire, sign_b_wire);
                     else
-                        temp_sum = do_sub1_level1(0, sign_a_wire, sign_b_wire);  
-                    
+                        temp_sum = do_sub1_level1(0, sign_a_wire, sign_b_wire);
+
                     if (stratixii_block == 1)
                     begin
                         // StratixII rounding support
@@ -40319,14 +40319,14 @@ module altmult_add (    dataa,
                         if ((adder3_rounding == "YES") ||
                             ((adder3_rounding == "VARIABLE") && (addnsub3_round_pipe_wire == 1)))
                         begin
-                             
+
                             adder3_round_out = temp_sum + ( 1 << (`ADDER_ROUND_BITS - 1));
 
                             for (j = (`ADDER_ROUND_BITS - 1); j >= 0; j = j - 1)
                                 begin
                                 adder3_round_out[j] = 1'b0;
                                 end
- 
+
                         end
                         else
                         begin
@@ -40350,12 +40350,12 @@ module altmult_add (    dataa,
                     end
                 end
             end
-            
+
             if ((number_of_multipliers == 3 || number_of_multipliers == 2) && (stratixii_block == 1))
             begin
                 temp_sum = adder1_result;
                 mult_res_ext = adder2_result;
-                temp_sum = (number_of_multipliers == 3)? do_add1_level1(0, sign_a_wire, sign_b_wire) : adder1_result;  
+                temp_sum = (number_of_multipliers == 3)? do_add1_level1(0, sign_a_wire, sign_b_wire) : adder1_result;
                 if ((addsub1_pipe_wire == 0) && (sign_a_wire == 0) && (sign_b_wire == 0))
                 begin
                     if (number_of_multipliers == 3)
@@ -40365,16 +40365,16 @@ module altmult_add (    dataa,
                             temp_sum[j] = 0;
                         end
                     end
-                    else 
+                    else
                     begin
-                        for (j = int_width_a + int_width_b + 1; j < int_width_result; j = j +1) 
+                        for (j = int_width_a + int_width_b + 1; j < int_width_result; j = j +1)
                         begin
                             temp_sum[j] = 0;
                         end
                     end
                 end
             end
-        end     
+        end
     end
 
     // this block simulates the 1st level adder in Stratix III
@@ -40390,7 +40390,7 @@ module altmult_add (    dataa,
                 mult_res_temp = mult_res_wire >> (num_mult * (int_width_a + int_width_b));
                 mult_res_ext = ((int_width_result > (int_width_a + int_width_b))?
                                 {{(mult_res_pad)
-                                {mult_res_temp [int_width_a + int_width_b - 1] & 
+                                {mult_res_temp [int_width_a + int_width_b - 1] &
                                 (sign_a_wire | sign_b_wire)}}, mult_res_temp}:mult_res_temp);
 
                 if (num_mult == 0)
@@ -40404,9 +40404,9 @@ module altmult_add (    dataa,
                 else if (num_mult == 1)
                 begin
                     if (multiplier1_direction == "ADD")
-                        adder1_sum = do_add1_level1 (0, sign_a_wire, sign_b_wire);  
+                        adder1_sum = do_add1_level1 (0, sign_a_wire, sign_b_wire);
                     else
-                        adder1_sum = do_sub1_level1  (0, sign_a_wire, sign_b_wire);  
+                        adder1_sum = do_sub1_level1  (0, sign_a_wire, sign_b_wire);
                 end
                 else if (num_mult == 2)
                 begin
@@ -40419,40 +40419,40 @@ module altmult_add (    dataa,
                 else if (num_mult == 3)
                 begin
                     if (multiplier3_direction == "ADD")
-                        adder3_sum = do_add3_level1 (0, sign_a_wire, sign_b_wire);  
-                    else 
-                        adder3_sum = do_sub3_level1  (0, sign_a_wire, sign_b_wire); 
+                        adder3_sum = do_add3_level1 (0, sign_a_wire, sign_b_wire);
+                    else
+                        adder3_sum = do_sub3_level1  (0, sign_a_wire, sign_b_wire);
                 end
-            end        
-        end     
+            end
+        end
     end
 
     // figure out which signal feeds into the 2nd adder/accumulator for Stratix III
     assign adder1_res_wire = (multiplier_register0 == "UNREGISTERED")? adder1_sum: adder1_reg;
     assign adder3_res_wire = (multiplier_register2 == "UNREGISTERED")? adder3_sum: adder3_reg;
     assign unsigned_sub1_overflow_wire = (output_register == "UNREGISTERED")? (multiplier_register0 != "UNREGISTERED")?
-                                                        unsigned_sub1_overflow_mult_reg : unsigned_sub1_overflow 
+                                                        unsigned_sub1_overflow_mult_reg : unsigned_sub1_overflow
                                                         : unsigned_sub1_overflow_reg;
     assign unsigned_sub3_overflow_wire = (output_register == "UNREGISTERED")? (multiplier_register2 != "UNREGISTERED")?
                                                         unsigned_sub3_overflow_mult_reg : unsigned_sub3_overflow
                                                         : unsigned_sub3_overflow_reg;
-    assign acc_feedback[(2*int_width_result - 1) : 0] = (accumulator == "YES") ? 
+    assign acc_feedback[(2*int_width_result - 1) : 0] = (accumulator == "YES") ?
                                                         ((output_register == "UNREGISTERED") ? (round_sat_blk_res[2*int_width_result - 1 : 0] & ({2*int_width_result{~accumsload_pipe_wire}})) :
                                                         ((stratixv_block)?(acc_feedback_reg[2*int_width_result - 1 : 0] & ({2*int_width_result{~accumsload_wire}})):(acc_feedback_reg[2*int_width_result - 1 : 0] & ({2*int_width_result{~accumsload_pipe_wire}})))) :
                                                         0;
-                                                        
+
 	assign load_const_value = ((loadconst_value > 63) ||(loadconst_value < 0) ) ?   0: (1 << loadconst_value);
-    
-    assign accumsload_sel = (accumsload_wire) ? load_const_value : acc_feedback ;   
-    
+
+    assign accumsload_sel = (accumsload_wire) ? load_const_value : acc_feedback ;
+
     assign adder1_systolic_register0 = (systolic_delay3 == "UNREGISTERED")? adder1_res_wire
                                 : adder1_res_reg_0;
     always @(posedge systolic3_reg_wire_clk or posedge systolic3_reg_wire_clr)
     begin
         if (stratixv_block == 1)
         begin
-            if (systolic3_reg_wire_clr == 1) 
-            begin 
+            if (systolic3_reg_wire_clr == 1)
+            begin
                 adder1_res_reg_0[2*int_width_result - 1: 0] <= 0;
             end
             else if ((systolic3_reg_wire_clk == 1) && (systolic3_reg_wire_en == 1))
@@ -40460,16 +40460,16 @@ module altmult_add (    dataa,
                 adder1_res_reg_0[2*int_width_result - 1: 0] <= adder1_res_wire;
             end
         end
-	end       
-	
+	end
+
 	assign adder1_systolic_register1 = (systolic_delay3 == "UNREGISTERED")? adder1_res_wire
                                 : adder1_res_reg_1;
     always @(posedge output_reg_wire_clk or posedge output_reg_wire_clr)
     begin
         if (stratixv_block == 1)
         begin
-            if (output_reg_wire_clr == 1) 
-            begin 
+            if (output_reg_wire_clr == 1)
+            begin
                 adder1_res_reg_1[2*int_width_result - 1: 0] <= 0;
             end
             else if ((output_reg_wire_clk == 1) && (output_reg_wire_en == 1))
@@ -40477,19 +40477,19 @@ module altmult_add (    dataa,
                 adder1_res_reg_1[2*int_width_result - 1: 0] <= adder1_systolic_register0;
             end
         end
-	end  	                                               
-    
+	end
+
 	assign adder1_systolic = (number_of_multipliers == 2)? adder1_res_wire : adder1_systolic_register1;
-	
+
     // 2nd stage adder/accumulator in Stratix III
     always @(adder1_res_wire[int_width_result - 1 : 0] or adder3_res_wire[int_width_result - 1 : 0] or sign_a_wire or sign_b_wire or accumsload_sel or adder1_systolic or
                 acc_feedback[2*int_width_result - 1 : 0] or adder1_res_wire or adder3_res_wire or mult_res_0 or mult_res_1 or mult_res_2 or mult_res_3)
     begin
         if (stratixiii_block || stratixv_block)
-        begin                              
+        begin
             adder1_res_ext = adder1_res_wire;
             adder3_res_ext = adder3_res_wire;
-            
+
             if (stratixv_block)
             begin
                 if(accumsload_wire)
@@ -40506,7 +40506,7 @@ module altmult_add (    dataa,
             end
             else if (accumulator == "NO")
             begin
-                round_sat_in_result =  adder1_res_wire + adder3_res_ext;          
+                round_sat_in_result =  adder1_res_wire + adder3_res_ext;
             end
             else if ((accumulator == "YES") && (accum_direction == "ADD"))
             begin
@@ -40518,7 +40518,7 @@ module altmult_add (    dataa,
             end
         end
     end
- 
+
     always @(adder1_res_wire[int_width_result - 1 : 0] or adder3_res_wire[int_width_result - 1 : 0] or sign_a_pipe_wire or sign_b_pipe_wire or
                 acc_feedback[2*int_width_result - 1 : 0] or adder1_res_ext or adder3_res_ext)
     begin
@@ -40529,14 +40529,14 @@ module altmult_add (    dataa,
         begin
             for(i = 2*int_width_result - 1; i >= 0; i = i - 1)
                 acc_feedback_temp[i] = acc_feedback[i];
-            
+
             for(i = accum_width - 1; i >= 2*int_width_result; i = i - 1)
                 acc_feedback_temp[i] = acc_feedback[2*int_width_result - 1];
         end
-        
+
         if(accum_width + int_mult_diff_bit < 2*int_width_result - 1)
             for(i = accum_width + int_mult_diff_bit; i >= 0; i = i - 1)
-            begin 
+            begin
                 adder1_res_ext[i] = adder1_res_wire[i];
                 adder3_res_temp[i] = adder3_res_wire[i];
             end
@@ -40547,7 +40547,7 @@ module altmult_add (    dataa,
                 adder1_res_ext[i] = adder1_res_wire[i];
                 adder3_res_temp[i] = adder3_res_wire[i];
             end
-            
+
             for(i = accum_width + int_mult_diff_bit - 1; i >= 2*int_width_result; i = i - 1)
             begin
                 if(sign_a_pipe_wire == 1'b1 || sign_b_pipe_wire == 1'b1)
@@ -40555,57 +40555,57 @@ module altmult_add (    dataa,
                     adder1_res_ext[i] = adder1_res_wire[2*int_width_result - 1];
                     adder3_res_temp[i] = adder3_res_wire[2*int_width_result - 1];
                 end
-                else 
+                else
                 begin
                     adder1_res_ext[i] = 0;
                     adder3_res_temp[i] = 0;
                 end
             end
         end
-        
-        
+
+
         if(sign_a_pipe_wire == 1'b1 || sign_b_pipe_wire == 1'b1)
-        begin              
+        begin
             if(acc_feedback_temp[accum_width - 1 + int_mult_diff_bit] == 1'b1)
                 acc_feedback_temp[accum_width + int_mult_diff_bit ] = 1'b1;
             else
-                acc_feedback_temp[accum_width + int_mult_diff_bit ] = 1'b0;            
+                acc_feedback_temp[accum_width + int_mult_diff_bit ] = 1'b0;
         end
-        else 
-        begin
-            acc_feedback_temp[accum_width + int_mult_diff_bit ] = 1'b0;       
-        end     
-        
-        if(accum_direction == "ADD")
-            accum_res_temp[accum_width + int_mult_diff_bit : 0] = adder1_res_ext[accum_width - 1 + int_mult_diff_bit : 0]  + adder3_res_temp[accum_width - 1 + int_mult_diff_bit : 0] ;    
         else
-            accum_res_temp = acc_feedback_temp[accum_width - 1 + int_mult_diff_bit : 0]  - adder1_res_ext[accum_width - 1 + int_mult_diff_bit : 0] ;   
-        
+        begin
+            acc_feedback_temp[accum_width + int_mult_diff_bit ] = 1'b0;
+        end
+
+        if(accum_direction == "ADD")
+            accum_res_temp[accum_width + int_mult_diff_bit : 0] = adder1_res_ext[accum_width - 1 + int_mult_diff_bit : 0]  + adder3_res_temp[accum_width - 1 + int_mult_diff_bit : 0] ;
+        else
+            accum_res_temp = acc_feedback_temp[accum_width - 1 + int_mult_diff_bit : 0]  - adder1_res_ext[accum_width - 1 + int_mult_diff_bit : 0] ;
+
         if(sign_a_pipe_wire == 1'b1 || sign_b_pipe_wire == 1'b1)
         begin
             if(accum_res_temp[accum_width - 1 + int_mult_diff_bit] == 1'b1)
-                accum_res_temp[accum_width + int_mult_diff_bit ] = 1'b1; 
+                accum_res_temp[accum_width + int_mult_diff_bit ] = 1'b1;
             else
-                accum_res_temp[accum_width + int_mult_diff_bit ] = 1'b0; 
-            
+                accum_res_temp[accum_width + int_mult_diff_bit ] = 1'b0;
+
             if(adder3_res_temp[accum_width - 1 + int_mult_diff_bit] == 1'b1)
-                adder3_res_temp[accum_width + int_mult_diff_bit ] = 1'b1; 
+                adder3_res_temp[accum_width + int_mult_diff_bit ] = 1'b1;
             else
-                adder3_res_temp[accum_width + int_mult_diff_bit ] = 1'b0; 
+                adder3_res_temp[accum_width + int_mult_diff_bit ] = 1'b0;
         end
-        /*else 
+        /*else
         begin
-            accum_res_temp[accum_width + int_mult_diff_bit ] = 1'b0; 
-        end*/     
-        
+            accum_res_temp[accum_width + int_mult_diff_bit ] = 1'b0;
+        end*/
+
         if(accum_direction == "ADD")
             accum_res = acc_feedback_temp[accum_width + int_mult_diff_bit  : 0] + accum_res_temp[accum_width + int_mult_diff_bit : 0 ];
         else
-            accum_res = accum_res_temp[accum_width + int_mult_diff_bit  : 0] - adder3_res_temp[accum_width + int_mult_diff_bit : 0 ];  
-            
+            accum_res = accum_res_temp[accum_width + int_mult_diff_bit  : 0] - adder3_res_temp[accum_width + int_mult_diff_bit : 0 ];
+
         or_sign_wire = 1'b0;
         and_sign_wire = 1'b0;
-            
+
         if(extra_sign_bit_width >= 1)
         begin
             and_sign_wire = 1'b1;
@@ -40619,7 +40619,7 @@ module altmult_add (    dataa,
                     and_sign_wire = 1'b0;
             end
         end
-        
+
         if(port_signa == "PORT_USED" || port_signb == "PORT_USED")
         begin
             if(sign_a_pipe_wire == 1'b1 || sign_b_pipe_wire == 1'b1)
@@ -40713,7 +40713,7 @@ module altmult_add (    dataa,
                 accum_overflow = 1'b0;
         end
     end
-                    
+
     always @(posedge output_reg_wire_clk or posedge output_reg_wire_clr)
     begin
         if (stratixiii_block == 1 || stratixv_block == 1)
@@ -40725,7 +40725,7 @@ module altmult_add (    dataa,
                     accum_overflow_stat_pipe_reg <= 1'b0;
                     accum_overflow_reg <= 1'b0;
                 end
-                head_result <= 0;    
+                head_result <= 0;
             end
             else if ((output_reg_wire_clk ==1) && (output_reg_wire_en ==1))
             begin
@@ -40737,11 +40737,11 @@ module altmult_add (    dataa,
                 begin
                     accum_overflow_stat_pipe_reg [head_result] <= accum_overflow;
                     head_result <= (head_result +1) % (extra_latency + 1);
-                end    
+                end
             end
         end
-    end      
-                    
+    end
+
     // model the saturation and rounding block in Stratix III
     // the rounding block feeds into the saturation block
     always @(round_sat_in_result[int_width_result : 0] or outround_pipe_wire or outsat_pipe_wire or sign_a_int or sign_b_int or adder3_res_ext or adder1_res_ext or acc_feedback or round_sat_in_result)
@@ -40763,7 +40763,7 @@ module altmult_add (    dataa,
                         if (output_round_type == "NEAREST_INTEGER") // round to nearest integer
                         begin
                             round_block_result = round_sat_in_result + (1 << (round_position));
-                        end 
+                        end
                         else
                         begin // round to nearest even
                             stick_bits_or = 0;
@@ -40793,7 +40793,7 @@ module altmult_add (    dataa,
                     // if unsigned number comes into the rounding & saturation block, X the entire output since unsigned numbers
                     // are invalid
                     if ((sign_a_int == 0) && (sign_b_int == 0) &&
-                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) || 
+                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) ||
                         ((representation_a != "UNUSED") && (representation_b != "UNUSED"))))
                     begin
                         for (sat_all_bit_cnt = 0; sat_all_bit_cnt <= int_width_result; sat_all_bit_cnt = sat_all_bit_cnt + 1)
@@ -40801,7 +40801,7 @@ module altmult_add (    dataa,
                             round_block_result[sat_all_bit_cnt] = 1'bx;
                         end
                     end
-                    
+
                     // force the LSBs beyond the rounding position to "X"
                     if(accumulator == "NO" && input_source_b0 != "LOOPBACK")
                     begin
@@ -40810,13 +40810,13 @@ module altmult_add (    dataa,
                             round_block_result[rnd_bit_cnt] = 1'bx;
                         end
                     end
-                    
+
                     round_happen = 1;
                 end
                 else
                     round_block_result = round_sat_in_result;
-            end            
-                      
+            end
+
             // prevent the previous overflow_status being taken into consideration when determining the overflow
             if ((overflow_status == 1'b1) && (port_output_is_overflow == "PORT_UNSUED"))
                 overflow_status_bit_pos = int_width_a + int_width_b - 1;
@@ -40824,8 +40824,8 @@ module altmult_add (    dataa,
                 overflow_status_bit_pos = int_width_result + int_mult_diff_bit - 1;
             else
                 overflow_status_bit_pos = int_width_result + 1;
-            
-            
+
+
             // Saturation part
             if (output_saturation == "NO")
                 sat_block_result = round_block_result;
@@ -40838,28 +40838,28 @@ module altmult_add (    dataa,
                     if (round_block_result[2*int_width_result - 1] == 1'b0) // carry bit is 0 - positive number
                     begin
                         for (sat_bit_cnt = (int_width_result); sat_bit_cnt >= (saturation_position); sat_bit_cnt = sat_bit_cnt - 1)
-                        begin                            
+                        begin
                             if (sat_bit_cnt != overflow_status_bit_pos)
                             begin
                                 overflow_status = overflow_status | round_block_result[sat_bit_cnt];
                             end
                         end
                     end
-                    
+
                     else // carry bit is 1 - negative number
                     begin
                         for (sat_bit_cnt = (int_width_result); sat_bit_cnt >= (saturation_position); sat_bit_cnt = sat_bit_cnt - 1)
                         begin
                             if (sat_bit_cnt != overflow_status_bit_pos)
-                            begin 
+                            begin
                                 overflow_status = overflow_status | (~round_block_result[sat_bit_cnt]);
                             end
                         end
-                        
-                        if ((output_saturate_type == "SYMMETRIC") && (overflow_status == 1'b0)) 
+
+                        if ((output_saturate_type == "SYMMETRIC") && (overflow_status == 1'b0))
                         begin
                             overflow_status = 1'b1;
-                            if (round_happen == 1) 
+                            if (round_happen == 1)
                                 for (sat_bit_cnt = (saturation_position - 1); sat_bit_cnt >= (round_position); sat_bit_cnt = sat_bit_cnt - 1)
                                 begin
                                     overflow_status = overflow_status & (~(round_block_result [sat_bit_cnt]));
@@ -40868,24 +40868,24 @@ module altmult_add (    dataa,
                                 for (sat_bit_cnt = (saturation_position - 1); sat_bit_cnt >= 0 ; sat_bit_cnt = sat_bit_cnt - 1)
                             begin
                                     overflow_status = overflow_status & (~(round_block_result [sat_bit_cnt]));
-                            end    
+                            end
                         end
                     end
-                        
+
                     if (overflow_status == 1'b1)
                     begin
                         if (round_block_result[2*int_width_result - 1] == 1'b0) // positive number
                         begin
                             if (port_output_is_overflow == "PORT_UNUSED") // set the overflow status to the MSB of the results
                                 sat_block_result[int_width_a + int_width_b - 1] = overflow_status;
-                            else if (accumulator == "NO") 
+                            else if (accumulator == "NO")
                                 sat_block_result[int_width_a + int_width_b - 1] = 1'bx;
 
                             for (sat_bit_cnt = (int_width_a + int_width_b); sat_bit_cnt >= (saturation_position); sat_bit_cnt = sat_bit_cnt - 1)
                             begin
                                 sat_block_result[sat_bit_cnt] = 1'b0;  // set the leading bits on the left of the saturation position to 0
-                            end 
-                            
+                            end
+
                             // if rounding is used, the LSBs after the rounding position should be "X-ed", from above
                             if ((round_happen == 1))
                             begin
@@ -40901,20 +40901,20 @@ module altmult_add (    dataa,
                                     sat_block_result[sat_bit_cnt] = 1'b1; // set the trailing bits on the right of the saturation position to 1
                                 end
                             end
-                            sat_block_result = {{(2*int_width_result - int_width_a - int_width_b){1'b0}}, sat_block_result[int_width_a + int_width_b : 0]};                                                                                                                 
-                        end                          
+                            sat_block_result = {{(2*int_width_result - int_width_a - int_width_b){1'b0}}, sat_block_result[int_width_a + int_width_b : 0]};
+                        end
                         else // negative number
                         begin
                             if (port_output_is_overflow == "PORT_UNUSED") // set the overflow status to the MSB of the results
                                 sat_block_result[int_width_a + int_width_b - 1] = overflow_status;
-                            else if (accumulator == "NO") 
+                            else if (accumulator == "NO")
                                 sat_block_result[int_width_a + int_width_b - 1] = 1'bx;
 
                             for (sat_bit_cnt = (int_width_a + int_width_b); sat_bit_cnt >= saturation_position; sat_bit_cnt = sat_bit_cnt - 1)
                             begin
                                 sat_block_result[sat_bit_cnt] = 1'b1; // set the sign bits to 1
                             end
-                            
+
                             // if rounding is used, the LSBs after the rounding position should be "X-ed", from above
                             if ((output_rounding != "NO") && (output_saturate_type == "SYMMETRIC"))
                             begin
@@ -40922,7 +40922,7 @@ module altmult_add (    dataa,
                                 begin
                                     sat_block_result[sat_bit_cnt] = 1'b0; // set all bits to 0
                                 end
-                                
+
                                 if (accumulator == "NO")
                                     for (sat_bit_cnt = (round_position - 1); sat_bit_cnt >= 0; sat_bit_cnt = sat_bit_cnt - 1)
                                     begin
@@ -40941,29 +40941,29 @@ module altmult_add (    dataa,
                                     sat_block_result[sat_bit_cnt] = 1'b0; // set all bits to 0
                                 end
                             end
-                            
+
                             if ((output_rounding != "NO") && (output_saturate_type == "SYMMETRIC"))
                                 sat_block_result[round_position] = 1'b1;
                             else if (output_saturate_type == "SYMMETRIC")
-                                sat_block_result[int_mult_diff_bit] = 1'b1;                      
-                            
-                            sat_block_result = {{(2*int_width_result - int_width_a - int_width_b){1'b1}}, sat_block_result[int_width_a + int_width_b : 0]}; 
-       
+                                sat_block_result[int_mult_diff_bit] = 1'b1;
+
+                            sat_block_result = {{(2*int_width_result - int_width_a - int_width_b){1'b1}}, sat_block_result[int_width_a + int_width_b : 0]};
+
                         end
                     end
                     else
                     begin
                         sat_block_result = round_block_result;
-                        
+
                         if (port_output_is_overflow == "PORT_UNUSED" && chainout_adder == "NO" && (output_saturation == "VARIABLE") && (outsat_pipe_wire == 1)) // set the overflow status to the MSB of the results
                             sat_block_result[int_width_result + int_mult_diff_bit - 1] = overflow_status;
-                            
+
                         if (sat_block_result[sat_msb] == 1'b1) // negative number - checking for a special case
                         begin
                             if (output_saturate_type == "SYMMETRIC")
                             begin
                                 sat_bits_or = 0;
-                                
+
                                 for (sat_bit_cnt = (int_width_a + int_width_b - 2); sat_bit_cnt >= round_position; sat_bit_cnt = sat_bit_cnt - 1)
                                 begin
                                     sat_bits_or = sat_bits_or | sat_block_result[sat_bit_cnt];
@@ -40976,7 +40976,7 @@ module altmult_add (    dataa,
                     // if unsigned number comes into the rounding & saturation block, X the entire output since unsigned numbers
                     // are invalid
                     if ((sign_a_int == 0) && (sign_b_int == 0) &&
-                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) || 
+                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) ||
                         ((representation_a != "UNUSED") && (representation_b != "UNUSED"))))
                     begin
                         for (sat_all_bit_cnt = 0; sat_all_bit_cnt <= int_width_result; sat_all_bit_cnt = sat_all_bit_cnt + 1)
@@ -40986,7 +40986,7 @@ module altmult_add (    dataa,
                     end
                 end
                 else if ((output_saturation == "VARIABLE") && (outsat_pipe_wire == 0))
-                begin 
+                begin
                     sat_block_result = round_block_result;
                     overflow_status = 0;
                 end
@@ -40995,20 +40995,20 @@ module altmult_add (    dataa,
             end
         end
     end
-    
+
     always @(sat_block_result)
     begin
         round_sat_blk_res <= sat_block_result;
     end
 
     assign overflow = (accumulator !="NO" && output_saturation =="NO")?
-                                (output_register == "UNREGISTERED")? 
+                                (output_register == "UNREGISTERED")?
                                 accum_overflow : accum_overflow_reg :
                                 (output_register == "UNREGISTERED")? overflow_status : overflow_stat_reg;
-    
+
     // model the chainout mode of Stratix III
-    assign chainout_adder_in_wire[int_width_result - 1 : 0] =   (chainout_adder == "YES") ? 
-                                                                ((output_register == "UNREGISTERED") ? 
+    assign chainout_adder_in_wire[int_width_result - 1 : 0] =   (chainout_adder == "YES") ?
+                                                                ((output_register == "UNREGISTERED") ?
                                                                     round_sat_blk_res[int_width_result - 1 : 0] : chout_shftrot_reg[int_width_result - 1 : 0]) : 0;
 
     assign chainout_add_result[int_width_result : 0] = (chainout_adder == "YES") ? ((chainout_adder_in_wire[int_width_result - 1 : 0] + chainin_int[width_chainin-1 : 0])) : 0;
@@ -41034,7 +41034,7 @@ module altmult_add (    dataa,
                         begin
                             round_checking = 1'b1;
                             chainout_round_block_result = chainout_add_result + (1 << (chainout_round_position));
-                        end 
+                        end
                         else
                         begin // round to nearest even
                             cho_stick_bits_or = 0;
@@ -41061,11 +41061,11 @@ module altmult_add (    dataa,
                     end
                     else // guard bit is 0, don't round
                         chainout_round_block_result = chainout_add_result;
-  
+
                     // if unsigned number comes into the rounding & saturation block, X the entire output since unsigned numbers
                     // are invalid
                     if ((sign_a_int == 0) && (sign_b_int == 0) &&
-                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) || 
+                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) ||
                         ((representation_a != "UNUSED") && (representation_b != "UNUSED"))))
                     begin
                         for (cho_sat_all_bit_cnt = 0; cho_sat_all_bit_cnt <= int_width_result; cho_sat_all_bit_cnt = cho_sat_all_bit_cnt + 1)
@@ -41073,7 +41073,7 @@ module altmult_add (    dataa,
                             chainout_round_block_result[cho_sat_all_bit_cnt] = 1'bx;
                         end
                     end
-                    
+
                     // force the LSBs beyond the rounding position to "X"
                     if(accumulator == "NO")
                         for (cho_rnd_bit_cnt = (chainout_round_position - 1); cho_rnd_bit_cnt >= 0; cho_rnd_bit_cnt = cho_rnd_bit_cnt - 1)
@@ -41085,13 +41085,13 @@ module altmult_add (    dataa,
                         begin
                             chainout_round_block_result[cho_rnd_bit_cnt] = 1'b1;
                         end
-    
+
                     cho_round_happen = 1;
                 end
                 else
                     chainout_round_block_result = chainout_add_result;
             end
-            
+
             // Saturation part
             if (chainout_saturation == "NO")
                 chainout_sat_block_result = chainout_round_block_result;
@@ -41118,12 +41118,12 @@ module altmult_add (    dataa,
                         begin
                             chainout_overflow_status = chainout_overflow_status | (~chainout_round_block_result[cho_sat_bit_cnt]);
                         end
-                        
-                        if ((output_saturate_type == "SYMMETRIC") && (chainout_overflow_status == 1'b0)) 
+
+                        if ((output_saturate_type == "SYMMETRIC") && (chainout_overflow_status == 1'b0))
                         begin
                             chainout_overflow_status = 1'b1;
                             if (cho_round_happen)
-                            begin 
+                            begin
                                 for (cho_sat_bit_cnt = (chainout_saturation_position - 1); cho_sat_bit_cnt >= (chainout_round_position); cho_sat_bit_cnt = cho_sat_bit_cnt - 1)
                                 begin
                                     chainout_overflow_status = chainout_overflow_status & (~(chainout_round_block_result [cho_sat_bit_cnt]));
@@ -41136,9 +41136,9 @@ module altmult_add (    dataa,
                                     chainout_overflow_status = chainout_overflow_status & (~(chainout_round_block_result [cho_sat_bit_cnt]));
                                 end
                             end
-                        end    
+                        end
                     end
-                        
+
                     if (chainout_overflow_status == 1'b1)
                     begin
                         if((((chainout_rounding == "VARIABLE") && (chainout_round_out_wire == 1)) || (chainout_rounding == "YES")) && round_checking == 1'b1 && width_saturate_sign == 1 && width_result == `RESULT_WIDTH)
@@ -41154,10 +41154,10 @@ module altmult_add (    dataa,
                                 begin
                                     chainout_sat_block_result[cho_sat_bit_cnt] = 1'b0;  // set the leading bits on the left of the saturation position to 0
                                 end
-                            
+
                                 // if rounding is used, the LSBs after the rounding position should be "X-ed", from above
                                 if ((cho_round_happen))
-                                begin 
+                                begin
                                     for (cho_sat_bit_cnt = (chainout_saturation_position - 1); cho_sat_bit_cnt >= 0; cho_sat_bit_cnt = cho_sat_bit_cnt - 1)
                                     begin
                                         chainout_sat_block_result[cho_sat_bit_cnt] = 1'b1; // set the trailing bits on the right of the saturation position to 1
@@ -41182,7 +41182,7 @@ module altmult_add (    dataa,
                                 begin
                                     chainout_sat_block_result[cho_sat_bit_cnt] = 1'b1; // set the sign bits to 1
                                 end
-                            
+
                                 // if rounding is used, the LSBs after the rounding position should be "X-ed", from above
                                 if ((chainout_rounding != "NO") && (output_saturate_type == "SYMMETRIC"))
                                 begin
@@ -41190,7 +41190,7 @@ module altmult_add (    dataa,
                                     begin
                                         chainout_sat_block_result[cho_sat_bit_cnt] = 1'b0;
                                     end
-                                
+
                                     if(accumulator == "NO")
                                         for (cho_sat_bit_cnt = (chainout_round_position - 1); cho_sat_bit_cnt >= 0; cho_sat_bit_cnt = cho_sat_bit_cnt - 1)
                                         begin
@@ -41201,7 +41201,7 @@ module altmult_add (    dataa,
                                         begin
                                             chainout_sat_block_result[cho_sat_bit_cnt] = 1'b0;
                                         end
-                                    
+
                                 end
                                 else
                                 begin
@@ -41230,10 +41230,10 @@ module altmult_add (    dataa,
                             begin
                                 chainout_sat_block_result[cho_sat_bit_cnt] = 1'b0;  // set the leading bits on the left of the saturation position to 0
                             end
-                            
+
                             // if rounding is used, the LSBs after the rounding position should be "X-ed", from above
                             if ((cho_round_happen))
-                            begin 
+                            begin
                                 for (cho_sat_bit_cnt = (chainout_saturation_position - 1); cho_sat_bit_cnt >= 0; cho_sat_bit_cnt = cho_sat_bit_cnt - 1)
                                 begin
                                     chainout_sat_block_result[cho_sat_bit_cnt] = 1'b1; // set the trailing bits on the right of the saturation position to 1
@@ -41258,7 +41258,7 @@ module altmult_add (    dataa,
                             begin
                                 chainout_sat_block_result[cho_sat_bit_cnt] = 1'b1; // set the sign bits to 1
                             end
-                            
+
                             // if rounding is used, the LSBs after the rounding position should be "X-ed", from above
                             if ((cho_round_happen) || (output_saturate_type == "SYMMETRIC"))
                             begin
@@ -41266,7 +41266,7 @@ module altmult_add (    dataa,
                                 begin
                                     chainout_sat_block_result[cho_sat_bit_cnt] = 1'b0;
                                 end
-                                
+
                                 for (cho_sat_bit_cnt = (chainout_round_position - 1); cho_sat_bit_cnt >= 0; cho_sat_bit_cnt = cho_sat_bit_cnt - 1)
                                 begin
                                     chainout_sat_block_result[cho_sat_bit_cnt] = 1'b0;
@@ -41289,13 +41289,13 @@ module altmult_add (    dataa,
                     end
                     else
                     begin
-                        chainout_sat_block_result = chainout_round_block_result;                      
+                        chainout_sat_block_result = chainout_round_block_result;
                         if (chainout_sat_block_result[chainout_sat_msb] == 1'b1) // negative number - checking for a special case
                         begin
                             if (output_saturate_type == "SYMMETRIC")
                             begin
                                 cho_sat_bits_or = 0;
-                                
+
                                 for (cho_sat_bit_cnt = (int_width_result - 2); cho_sat_bit_cnt >= chainout_round_position; cho_sat_bit_cnt = cho_sat_bit_cnt - 1)
                                 begin
                                     cho_sat_bits_or = cho_sat_bits_or | chainout_sat_block_result[cho_sat_bit_cnt];
@@ -41311,7 +41311,7 @@ module altmult_add (    dataa,
                     // if unsigned number comes into the rounding & saturation block, X the entire output since unsigned numbers
                     // are invalid
                     if ((sign_a_int == 0) && (sign_b_int == 0) &&
-                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) || 
+                        (((port_signa == "PORT_USED") && (port_signb == "PORT_USED" )) ||
                         ((representation_a != "UNUSED") && (representation_b != "UNUSED"))))
                     begin
                         for (cho_sat_all_bit_cnt = 0; cho_sat_all_bit_cnt <= int_width_result; cho_sat_all_bit_cnt = cho_sat_all_bit_cnt + 1)
@@ -41348,18 +41348,18 @@ module altmult_add (    dataa,
         end
     end
 
-    assign chainout_output_wire[int_width_result:0] = (chainout_register == "UNREGISTERED") ? 
+    assign chainout_output_wire[int_width_result:0] = (chainout_register == "UNREGISTERED") ?
                                                         chainout_rnd_sat_blk_res[int_width_result-1:0] : chainout_output_reg[int_width_result-1:0];
 
     always @(zerochainout_wire or chainout_output_wire[int_width_result:0])
     begin
         chainout_final_out <= chainout_output_wire & {(int_width_result){~zerochainout_wire}};
     end
-    
+
     // model the shift & rotate block in Stratix III
-    assign shift_rot_blk_in_wire[int_width_result - 1: 0] = (shift_mode != "NO") ? ((output_register == "UNREGISTERED") ? 
+    assign shift_rot_blk_in_wire[int_width_result - 1: 0] = (shift_mode != "NO") ? ((output_register == "UNREGISTERED") ?
                                                             round_sat_blk_res[int_width_result - 1 : 0] : chout_shftrot_reg[int_width_result - 1: 0]) : 0;
-                                                            
+
 
     always @(shift_rot_blk_in_wire[int_width_result - 1:0] or shiftr_out_wire or rotate_out_wire)
     begin
@@ -41384,13 +41384,13 @@ module altmult_add (    dataa,
     end
 
     // loopback path
-    assign loopback_out_wire[int_width_result - 1:0] = (output_register == "UNREGISTERED") ? 
-                                round_sat_blk_res[int_width_result + (int_width_b - width_b) - 1 : int_width_b - width_b] : 
+    assign loopback_out_wire[int_width_result - 1:0] = (output_register == "UNREGISTERED") ?
+                                round_sat_blk_res[int_width_result + (int_width_b - width_b) - 1 : int_width_b - width_b] :
                                 (extra_latency == 0)? loopback_wire_reg[int_width_result - 1 : 0] : loopback_wire_latency[int_width_result - 1 : 0];
- 
-    assign loopback_out_wire_feedback [int_width_result - 1:0] = (output_register == "UNREGISTERED") ? 
+
+    assign loopback_out_wire_feedback [int_width_result - 1:0] = (output_register == "UNREGISTERED") ?
                                 round_sat_blk_res[int_width_result + (int_width_b - width_b) - 1 : int_width_b - width_b] : loopback_wire_reg[int_width_result - 1 : 0];
- 
+
     always @(loopback_out_wire_feedback[int_width_result - 1:0] or zeroloopback_out_wire)
     begin
         loopback_wire[int_width_result -1:0] <= {(int_width_result){~zeroloopback_out_wire}} & loopback_out_wire_feedback[int_width_result - 1:0];
@@ -41687,7 +41687,7 @@ module altfp_mult (
             $display("ERROR: denormal_support value must be \"YES\" or \"NO\"!");
             $finish;
         end
-        
+
         if (reduced_functionality != "NO")
         begin
             $display("Info: The Clearbox support is available for reduced functionality Floating Point Multiplier.");
@@ -41705,7 +41705,7 @@ module altfp_mult (
         zero_bit = 1'b0;
         denormal_bit = 1'b0;
         indefinite_bit = 1'b0;
-        nan_bit = 1'b0;            
+        nan_bit = 1'b0;
         mant_result = {((2 * width_man) + 2){1'b0}};
         exp_dataa = 0;
         exp_datab = 0;
@@ -41910,7 +41910,7 @@ module altfp_mult (
                         end
                     end
                 end
-                // If the mantissa of the result is 10.00.. after rounding, right shift the 
+                // If the mantissa of the result is 10.00.. after rounding, right shift the
                 // mantissa of the result by 1 bit and increase the exponent of the result by 1.
                 if (mant_result[(2 * width_man) + 1] == 1'b1)
                 begin
@@ -42028,7 +42028,7 @@ module altfp_mult (
         end // end of if (no_multiply == 1'b0)
         // Get result's sign bit
         temp_result[WIDTH_MAN_EXP] = dataa[WIDTH_MAN_EXP] ^ datab[WIDTH_MAN_EXP];
-        
+
     end // MULTIPLY_FP
 
     // Pipelining registers.
@@ -42163,7 +42163,7 @@ module altsqrt (
             $finish;
         end
         pipe_ptr = 0;
-        
+
         for (i = 0; i < (pipeline + 1); i = i + 1)
         begin
             q_pipeline[i] <= 0;
@@ -42270,7 +42270,7 @@ module altsqrt (
             end
         end
         else if (ena == 1)
-        begin          
+        begin
             remainder_pipeline[pipe_ptr] <= r_temp[(r_port_width - 1) : 0];
             q_pipeline[pipe_ptr] <= q_temp;
 
@@ -42282,7 +42282,7 @@ module altsqrt (
 // CONTINOUS ASSIGNMENT
     assign q = (pipeline > 0) ? q_pipeline[pipe_ptr] : q_temp;
     assign remainder = (pipeline > 0) ? remainder_pipeline[pipe_ptr] : r_temp[(r_port_width - 1) : 0];
-    
+
 endmodule //altsqrt
 // END OF MODULE
 
@@ -42375,7 +42375,7 @@ reg clk_check;
 reg [1:0] next_clk_check;
 
 reg init;
-    
+
 real pll_last_rising_edge;
 real pll_last_falling_edge;
 real actual_clk_cycle;
@@ -42742,7 +42742,7 @@ begin
                     pll_lock = 0;
                     $display ($realtime, "ps Warning: altclklock out of lock.");
                     $display ("Instance: %m");
-                    
+
                     start_lock_count = 1;
 
                     stop_lock_count = 0;
@@ -42848,7 +42848,7 @@ begin
                         pll_lock = 0;
                         $display ($realtime, "ps Warning: altclklock out of lock.");
                         $display ("Instance: %m");
-                        
+
                         start_lock_count = 1;
 
                         stop_lock_count = 0;
@@ -43318,7 +43318,7 @@ begin
     // to '1', otherwise '0'
     dataout_h_tmp = (power_up_high == "ON") ? {width{1'b1}} : {width{1'b0}};
     dataout_l_tmp = (power_up_high == "ON") ? {width{1'b1}} : {width{1'b0}};
-    datain_latched = (power_up_high == "ON") ? {width{1'b1}} : {width{1'b0}};   
+    datain_latched = (power_up_high == "ON") ? {width{1'b1}} : {width{1'b0}};
 end
 
 // input reference clock, sample data
@@ -43456,7 +43456,7 @@ begin
                         datain_latched <= datain;
                     end
                 end
-            end 
+            end
         end
         else
         begin
@@ -43485,7 +43485,7 @@ endmodule // altddio_in
 // Description      : Double Data Rate (DDR) output behavioural model.
 //                    Transmits data on both edges of the reference clock.
 //
-// Limitations      : Not available for MAX device families.                    
+// Limitations      : Not available for MAX device families.
 //
 // Expected results : Double data rate output on dataout.
 //
@@ -43564,7 +43564,7 @@ begin
     is_stratix = dev.FEATURE_FAMILY_STRATIX(intended_device_family);
     is_maxii = dev.FEATURE_FAMILY_MAXII(intended_device_family);
     is_inverted_output_ddio = dev.FEATURE_FAMILY_HAS_INVERTED_OUTPUT_DDIO(intended_device_family);
-    
+
     // Begin of parameter checking
     if (width <= 0)
     begin
@@ -43692,7 +43692,7 @@ begin
             oe_reg_ext <= oe_rgd;
         end
 
-		dataout_tmp <= dataout_l;			
+		dataout_tmp <= dataout_l;
     end
 end
 
@@ -43703,7 +43703,7 @@ begin
     if (output_enable == 1'b1)
     begin
         dataout = dataout_tmp;
-    end    
+    end
     else // output is disabled
         dataout = {width{1'bZ}};
 end
@@ -43917,7 +43917,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
 
 // LOCAL_PARAMETERS_BEGIN
 
-    parameter i_byte_size = ((byte_size == 0) && (width_byteena != 0)) ? 
+    parameter i_byte_size = ((byte_size == 0) && (width_byteena != 0)) ?
                             ((((width / width_byteena) == 5) || (width / width_byteena == 10) || (width / width_byteena == 8) || (width / width_byteena == 9)) ? width / width_byteena : 5 )
                             : byte_size;
     parameter is_lutram = ((ram_block_type == "LUTRAM") || (ram_block_type == "MLAB"))? 1 : 0;
@@ -43975,7 +43975,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
     reg is_stxv_style_ram;
     reg is_rising_edge_write_ena;
     reg is_write_at_low_clock;
-	
+
 // INTERNAL WIRE DECLARATION
     wire aclr_on_wraddress;
     wire aclr_on_wrcontrol;
@@ -44034,13 +44034,13 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
 
         is_stxiii_style_ram = dev.FEATURE_FAMILY_STRATIXIII(intended_device_family);
         is_stxv_style_ram = dev.FEATURE_FAMILY_STRATIXV(intended_device_family);
-	is_rising_edge_write_ena = dev.FEATURE_FAMILY_STRATIXV(intended_device_family) 
-			|| dev.FEATURE_FAMILY_ARRIAV(intended_device_family) 
+	is_rising_edge_write_ena = dev.FEATURE_FAMILY_STRATIXV(intended_device_family)
+			|| dev.FEATURE_FAMILY_ARRIAV(intended_device_family)
 			|| dev.FEATURE_FAMILY_ARRIA10(intended_device_family);
 
         is_write_at_low_clock = ((wrcontrol_reg == "INCLOCK") &&
-				(((lpm_hint == "USE_EAB=ON") && (use_eab != "OFF")) || 
-				(use_eab == "ON") || 
+				(((lpm_hint == "USE_EAB=ON") && (use_eab != "OFF")) ||
+				(use_eab == "ON") ||
 				(is_lutram == 1))) &&
 				(is_rising_edge_write_ena != 1)?
 				1 : 0;
@@ -44066,7 +44066,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
             $display("Warning: %s device family does not have read control (rden). Parameter rdcontrol_aclr will be ignored.", intended_device_family);
             $display ("Time: %0t  Instance: %m", $time);
         end
-        
+
         if ((rdaddress_aclr == "ON") && ((is_stxv_style_ram == 1) || (is_stxiii_style_ram == 1)) && (read_during_write_mode_mixed_ports == "OLD_DATA"))
         begin
             $display("Warning: rdaddress_aclr cannot be turned on when it is %s with read_during_write_mode_mixed_ports = OLD_DATA", intended_device_family);
@@ -44078,7 +44078,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
             $display("Warning: wrcontrol_reg can only be INCLOCK for %s device family", intended_device_family);
             $display ("Time: %0t  Instance: %m", $time);
         end
-        
+
         if (((((width / width_byteena) == 5) || (width / width_byteena == 10) || (width / width_byteena == 8) || (width / width_byteena == 9)) && (byte_size == 0)) && ((is_stxv_style_ram == 1) || (is_stxiii_style_ram == 1)))
         begin
             $display("Warning : byte_size (width / width_byteena) should be in 5,8,9 or 10. It will be default to 5.");
@@ -44117,7 +44117,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
         wraddress_at_low = 0;
         wraddress_at_high = 0;
         i_old_data = 0;
-        
+
         rden_low_output_0 = 0;
         first_clk_rising_edge = 1;
     end
@@ -44192,7 +44192,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
                     i_byteena_mask_x[iter_byteena] <= ((i_byteena[iter_byteena/i_byte_size]) || (i_byteena[iter_byteena/i_byte_size] == 1'b0)) ? 1'bx : 1'b0;
                 end
             end
-            
+
         end
 
         if ((aclr == 1) && (outdata_aclr == "ON") && (outdata_reg == "INCLOCK") )
@@ -44202,7 +44202,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
             begin
                 if ((wren_tmp == 1) && (wraddress_tmp == rdaddress_tmp))
                 begin
-                    if (i_read_during_write == "NEW_DATA") 
+                    if (i_read_during_write == "NEW_DATA")
                         i_lutram_output_reg_inclk <=  (i_read_during_write == "NEW_DATA") ? mem_data[rdaddress_tmp] :
                                         ((rdaddress_tmp == wraddress_tmp) && wren_tmp) ?
                                         mem_data[rdaddress_tmp] ^ i_byteena_mask_x : mem_data[rdaddress_tmp];
@@ -44213,7 +44213,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
                 end
                 else if ((!first_clk_rising_edge) || (i_read_during_write != "OLD_DATA"))
                     i_lutram_output_reg_inclk <= mem_data[rdaddress_tmp];
-            
+
                 first_clk_rising_edge <= 0;
             end
     end
@@ -44255,7 +44255,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
             begin
             i_byteena_mask_at_low <= i_byteena_mask;
         end
-        
+
         if (inclocken == 1)
             rdaddress_at_inclock_low <= rdaddress_at_inclock;
 
@@ -44286,7 +44286,7 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
             mem_output_at_outclock <= mem_output;
             i_lutram_output_reg_outclk <= mem_data[rdaddress_tmp];
         end
-            
+
     end
 
     // Asynchronous Logic
@@ -44356,13 +44356,13 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
                         ((is_write_at_low_clock == 1) ?
                         ((aclr_on_wrcontrol == 1) ?
                         1'b0 : wren_at_low)
-                        : ((aclr_on_wrcontrol == 1) ? 
+                        : ((aclr_on_wrcontrol == 1) ?
                         1'b0 : wren_at_high))
                         : wren);
 
     assign rdaddress_tmp = ((rdaddress_reg == "INCLOCK") ?
                             ((((is_stxv_style_ram == 1) || (is_stxiii_style_ram == 1)) && (i_read_during_write == "OLD_DATA")) ?
-                            rdaddress_at_inclock_low : 
+                            rdaddress_at_inclock_low :
                             ((aclr_on_rdaddress == 1) ?
                             {widthad{1'b0}} : rdaddress_at_inclock))
                             : ((rdaddress_reg == "OUTCLOCK") ?
@@ -44387,13 +44387,13 @@ module altdpram (wren, data, wraddress, inclock, inclocken, rden, rdaddress,
                                 {width{1'b0}} : previous_read_data));
 
     assign i_lutram_output_unreg = mem_data[rdaddress_tmp];
-    
-    assign i_lutram_output = ((outdata_reg == "INCLOCK")) ? 
-                                i_lutram_output_reg_inclk : 
+
+    assign i_lutram_output = ((outdata_reg == "INCLOCK")) ?
+                                i_lutram_output_reg_inclk :
                                 ((outdata_reg == "OUTCLOCK") ? i_lutram_output_reg_outclk : i_lutram_output_unreg);
-    
+
     assign q = (aclr_on_outdata == 1) ? {width{1'b0}} :
-                ((is_stxv_style_ram) || (is_stxiii_style_ram == 1)) ?  i_lutram_output : 
+                ((is_stxv_style_ram) || (is_stxiii_style_ram == 1)) ?  i_lutram_output :
                 ((outdata_reg == "OUTCLOCK") ? mem_output_at_outclock : ((outdata_reg == "INCLOCK") ?
                 mem_output_at_inclock : mem_output));
 
@@ -44503,28 +44503,28 @@ module altsyncram   (
     parameter lpm_type                           = "altsyncram";
 
     parameter implement_in_les                 = "OFF";
-    
+
     parameter power_up_uninitialized            = "FALSE";
-    
+
 // SIMULATION_ONLY_PARAMETERS_BEGIN
 
     parameter sim_show_memory_data_in_port_b_layout  = "OFF";
 
 // SIMULATION_ONLY_PARAMETERS_END
-    
+
 // LOCAL_PARAMETERS_BEGIN
-    
+
     parameter is_lutram = ((ram_block_type == "LUTRAM") || (ram_block_type == "MLAB"))? 1 : 0;
-    
-    parameter is_bidir_and_wrcontrol_addb_clk0 =    (((operation_mode == "BIDIR_DUAL_PORT") && (address_reg_b == "CLOCK0"))? 
+
+    parameter is_bidir_and_wrcontrol_addb_clk0 =    (((operation_mode == "BIDIR_DUAL_PORT") && (address_reg_b == "CLOCK0"))?
                                                     1 : 0);
 
-    parameter is_bidir_and_wrcontrol_addb_clk1 =    (((operation_mode == "BIDIR_DUAL_PORT") && (address_reg_b == "CLOCK1"))? 
+    parameter is_bidir_and_wrcontrol_addb_clk1 =    (((operation_mode == "BIDIR_DUAL_PORT") && (address_reg_b == "CLOCK1"))?
                                                     1 : 0);
 
-    parameter check_simultaneous_read_write =   (((operation_mode == "BIDIR_DUAL_PORT") || (operation_mode == "DUAL_PORT")) && 
-                                                ((ram_block_type == "M-RAM") || 
-                                                    (ram_block_type == "MEGARAM") || 
+    parameter check_simultaneous_read_write =   (((operation_mode == "BIDIR_DUAL_PORT") || (operation_mode == "DUAL_PORT")) &&
+                                                ((ram_block_type == "M-RAM") ||
+                                                    (ram_block_type == "MEGARAM") ||
                                                     ((ram_block_type == "AUTO") && ((read_during_write_mode_mixed_ports == "DONT_CARE") || (read_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE"))) ||
                                                     ((is_lutram == 1) && ((read_during_write_mode_mixed_ports != "OLD_DATA") || (outdata_reg_b == "UNREGISTERED")))))? 1 : 0;
 
@@ -44533,7 +44533,7 @@ module altsyncram   (
     parameter dual_port_addreg_b_clk1 = (((operation_mode == "DUAL_PORT") && (address_reg_b == "CLOCK1"))? 1: 0);
 
     parameter i_byte_size_tmp = (width_byteena_a > 1)? width_a / width_byteena_a : 8;
-    
+
     parameter i_lutram_read = (((is_lutram == 1) && (read_during_write_mode_port_a == "DONT_CARE")) ||
                                 ((is_lutram == 1) && (outdata_reg_a == "UNREGISTERED") && (operation_mode == "SINGLE_PORT")))? 1 : 0;
 
@@ -44542,66 +44542,66 @@ module altsyncram   (
    parameter family_arriav = ((intended_device_family == "Arria V") || (intended_device_family == "ARRIA V") || (intended_device_family == "arria v") || (intended_device_family == "ArriaV") || (intended_device_family == "ARRIAV") || (intended_device_family == "arriav") || (intended_device_family == "Arria V (GS)") || (intended_device_family == "ARRIA V (GS)") || (intended_device_family == "arria v (gs)") || (intended_device_family == "ArriaV(GS)") || (intended_device_family == "ARRIAV(GS)") || (intended_device_family == "arriav(gs)") || (intended_device_family == "Arria V (GX)") || (intended_device_family == "ARRIA V (GX)") || (intended_device_family == "arria v (gx)") || (intended_device_family == "ArriaV(GX)") || (intended_device_family == "ARRIAV(GX)") || (intended_device_family == "arriav(gx)") || (intended_device_family == "Arria V (GS/GX)") || (intended_device_family == "ARRIA V (GS/GX)") || (intended_device_family == "arria v (gs/gx)") || (intended_device_family == "ArriaV(GS/GX)") || (intended_device_family == "ARRIAV(GS/GX)") || (intended_device_family == "arriav(gs/gx)") || (intended_device_family == "Arria V (GX/GS)") || (intended_device_family == "ARRIA V (GX/GS)") || (intended_device_family == "arria v (gx/gs)") || (intended_device_family == "ArriaV(GX/GS)") || (intended_device_family == "ARRIAV(GX/GS)") || (intended_device_family == "arriav(gx/gs)")) ? 1 : 0;
 
    parameter family_cyclonev = ((intended_device_family == "Cyclone V") || (intended_device_family == "CYCLONE V") || (intended_device_family == "cyclone v") || (intended_device_family == "CycloneV") || (intended_device_family == "CYCLONEV") || (intended_device_family == "cyclonev") || (intended_device_family == "Cyclone V (GS)") || (intended_device_family == "CYCLONE V (GS)") || (intended_device_family == "cyclone v (gs)") || (intended_device_family == "CycloneV(GS)") || (intended_device_family == "CYCLONEV(GS)") || (intended_device_family == "cyclonev(gs)") || (intended_device_family == "Cyclone V (GX)") || (intended_device_family == "CYCLONE V (GX)") || (intended_device_family == "cyclone v (gx)") || (intended_device_family == "CycloneV(GX)") || (intended_device_family == "CYCLONEV(GX)") || (intended_device_family == "cyclonev(gx)") || (intended_device_family == "Cyclone V (GS/GX)") || (intended_device_family == "CYCLONE V (GS/GX)") || (intended_device_family == "cyclone v (gs/gx)") || (intended_device_family == "CycloneV(GS/GX)") || (intended_device_family == "CYCLONEV(GS/GX)") || (intended_device_family == "cyclonev(gs/gx)") || (intended_device_family == "Cyclone V (GX/GS)") || (intended_device_family == "CYCLONE V (GX/GS)") || (intended_device_family == "cyclone v (gx/gs)") || (intended_device_family == "CycloneV(GX/GS)") || (intended_device_family == "CYCLONEV(GX/GS)") || (intended_device_family == "cyclonev(gx/gs)")) ? 1 : 0;
-   
+
    parameter family_base_arriav = ((family_arriav == 1) || (family_cyclonev == 1)) ? 1 : 0 ;
 
    parameter family_arria10 = ((intended_device_family == "Arria 10") || (intended_device_family == "ARRIA 10") || (intended_device_family == "arria 10") || (intended_device_family == "Arria10") || (intended_device_family == "ARRIA10") || (intended_device_family == "arria10")) ? 1 : 0;
-   
+
    parameter family_arriavi = ((intended_device_family == "Arria VI") || (intended_device_family == "ARRIA VI") || (intended_device_family == "arria vi") || (intended_device_family == "ArriaVI") || (intended_device_family == "ARRIAVI") || (intended_device_family == "arriavi") || (intended_device_family == "arria vi")) ? 1 : 0;
 
    parameter family_nightfury = ((intended_device_family == "Nightfury") || (intended_device_family == "NIGHTFURY") || (intended_device_family == "nightfury") || (intended_device_family == "Night Fury")  || (intended_device_family == "NIGHT FURY") || (intended_device_family == "night fury") || (family_arriavi == 1) || (family_arria10 == 1)) ? 1 : 0;
-   
+
    parameter family_arriavgz = ((intended_device_family == "Arria V GZ") || (intended_device_family == "ARRIA V GZ") || (intended_device_family == "arria v gz") || (intended_device_family == "ArriaVGZ")  || (intended_device_family == "ARRIAVGZ")  || (intended_device_family == "arriavgz")) ? 1 : 0;
 
    parameter family_stratixv = ((intended_device_family == "Stratix V") || (intended_device_family == "STRATIX V") || (intended_device_family == "stratix v") || (intended_device_family == "StratixV") || (intended_device_family == "STRATIXV") || (intended_device_family == "stratixv") || (intended_device_family == "Stratix V (GS)") || (intended_device_family == "STRATIX V (GS)") || (intended_device_family == "stratix v (gs)") || (intended_device_family == "StratixV(GS)") || (intended_device_family == "STRATIXV(GS)") || (intended_device_family == "stratixv(gs)") || (intended_device_family == "Stratix V (GX)") || (intended_device_family == "STRATIX V (GX)") || (intended_device_family == "stratix v (gx)") || (intended_device_family == "StratixV(GX)") || (intended_device_family == "STRATIXV(GX)") || (intended_device_family == "stratixv(gx)") || (intended_device_family == "Stratix V (GS/GX)") || (intended_device_family == "STRATIX V (GS/GX)") || (intended_device_family == "stratix v (gs/gx)") || (intended_device_family == "StratixV(GS/GX)") || (intended_device_family == "STRATIXV(GS/GX)") || (intended_device_family == "stratixv(gs/gx)") || (intended_device_family == "Stratix V (GX/GS)") || (intended_device_family == "STRATIX V (GX/GS)") || (intended_device_family == "stratix v (gx/gs)") || (intended_device_family == "StratixV(GX/GS)") || (intended_device_family == "STRATIXV(GX/GS)") || (intended_device_family == "stratixv(gx/gs)") || (family_base_arriav == 1)  || (family_nightfury == 1) || (family_arriavgz == 1)) ? 1 : 0;
-    
+
    parameter family_hardcopyiv = ((intended_device_family == "HardCopy IV") || (intended_device_family == "HARDCOPY IV") || (intended_device_family == "hardcopy iv") || (intended_device_family == "HardCopyIV") || (intended_device_family == "HARDCOPYIV") || (intended_device_family == "hardcopyiv") || (intended_device_family == "HardCopy IV (GX)") || (intended_device_family == "HARDCOPY IV (GX)") || (intended_device_family == "hardcopy iv (gx)") || (intended_device_family == "HardCopy IV (E)") || (intended_device_family == "HARDCOPY IV (E)") || (intended_device_family == "hardcopy iv (e)") || (intended_device_family == "HardCopyIV(GX)") || (intended_device_family == "HARDCOPYIV(GX)") || (intended_device_family == "hardcopyiv(gx)") || (intended_device_family == "HardCopyIV(E)") || (intended_device_family == "HARDCOPYIV(E)") || (intended_device_family == "hardcopyiv(e)") || (intended_device_family == "HCXIV") || (intended_device_family == "hcxiv") || (intended_device_family == "HardCopy IV (GX/E)") || (intended_device_family == "HARDCOPY IV (GX/E)") || (intended_device_family == "hardcopy iv (gx/e)") || (intended_device_family == "HardCopy IV (E/GX)") || (intended_device_family == "HARDCOPY IV (E/GX)") || (intended_device_family == "hardcopy iv (e/gx)") || (intended_device_family == "HardCopyIV(GX/E)") || (intended_device_family == "HARDCOPYIV(GX/E)") || (intended_device_family == "hardcopyiv(gx/e)") || (intended_device_family == "HardCopyIV(E/GX)") || (intended_device_family == "HARDCOPYIV(E/GX)") || (intended_device_family == "hardcopyiv(e/gx)")) ? 1 : 0 ;
-   
+
    parameter family_hardcopyiii = ((intended_device_family == "HardCopy III") || (intended_device_family == "HARDCOPY III") || (intended_device_family == "hardcopy iii") || (intended_device_family == "HardCopyIII") || (intended_device_family == "HARDCOPYIII") || (intended_device_family == "hardcopyiii") || (intended_device_family == "HCX") || (intended_device_family == "hcx")) ? 1 : 0;
-   
+
    parameter family_hardcopyii = ((intended_device_family == "HardCopy II") || (intended_device_family == "HARDCOPY II") || (intended_device_family == "hardcopy ii") || (intended_device_family == "HardCopyII") || (intended_device_family == "HARDCOPYII") || (intended_device_family == "hardcopyii") || (intended_device_family == "Fusion") || (intended_device_family == "FUSION") || (intended_device_family == "fusion")) ? 1 : 0 ;
-   
+
    parameter family_arriaiigz = ((intended_device_family == "Arria II GZ") || (intended_device_family == "ARRIA II GZ") || (intended_device_family == "arria ii gz") || (intended_device_family == "ArriaII GZ") || (intended_device_family == "ARRIAII GZ") || (intended_device_family == "arriaii gz") || (intended_device_family == "Arria IIGZ") || (intended_device_family == "ARRIA IIGZ") || (intended_device_family == "arria iigz") || (intended_device_family == "ArriaIIGZ") || (intended_device_family == "ARRIAIIGZ") || (intended_device_family == "arriaii gz")) ? 1 : 0 ;
    parameter family_arriaiigx = ((intended_device_family == "Arria II GX") || (intended_device_family == "ARRIA II GX") || (intended_device_family == "arria ii gx") || (intended_device_family == "ArriaIIGX") || (intended_device_family == "ARRIAIIGX") || (intended_device_family == "arriaiigx") || (intended_device_family == "Arria IIGX") || (intended_device_family == "ARRIA IIGX") || (intended_device_family == "arria iigx") || (intended_device_family == "ArriaII GX") || (intended_device_family == "ARRIAII GX") || (intended_device_family == "arriaii gx") || (intended_device_family == "Arria II") || (intended_device_family == "ARRIA II") || (intended_device_family == "arria ii") || (intended_device_family == "ArriaII") || (intended_device_family == "ARRIAII") || (intended_device_family == "arriaii") || (intended_device_family == "Arria II (GX/E)") || (intended_device_family == "ARRIA II (GX/E)") || (intended_device_family == "arria ii (gx/e)") || (intended_device_family == "ArriaII(GX/E)") || (intended_device_family == "ARRIAII(GX/E)") || (intended_device_family == "arriaii(gx/e)") || (intended_device_family == "PIRANHA") || (intended_device_family == "piranha")) ? 1 : 0 ;
 
    parameter family_stratixiii = ((intended_device_family == "Stratix III") || (intended_device_family == "STRATIX III") || (intended_device_family == "stratix iii") || (intended_device_family == "StratixIII") || (intended_device_family == "STRATIXIII") || (intended_device_family == "stratixiii") || (intended_device_family == "Titan") || (intended_device_family == "TITAN") || (intended_device_family == "titan") || (intended_device_family == "SIII") || (intended_device_family == "siii") || (intended_device_family == "Stratix IV") || (intended_device_family == "STRATIX IV") || (intended_device_family == "stratix iv") || (intended_device_family == "TGX") || (intended_device_family == "tgx") || (intended_device_family == "StratixIV") || (intended_device_family == "STRATIXIV") || (intended_device_family == "stratixiv") || (intended_device_family == "Stratix IV (GT)") || (intended_device_family == "STRATIX IV (GT)") || (intended_device_family == "stratix iv (gt)") || (intended_device_family == "Stratix IV (GX)") || (intended_device_family == "STRATIX IV (GX)") || (intended_device_family == "stratix iv (gx)") || (intended_device_family == "Stratix IV (E)") || (intended_device_family == "STRATIX IV (E)") || (intended_device_family == "stratix iv (e)") || (intended_device_family == "StratixIV(GT)") || (intended_device_family == "STRATIXIV(GT)") || (intended_device_family == "stratixiv(gt)") || (intended_device_family == "StratixIV(GX)") || (intended_device_family == "STRATIXIV(GX)") || (intended_device_family == "stratixiv(gx)") || (intended_device_family == "StratixIV(E)") || (intended_device_family == "STRATIXIV(E)") || (intended_device_family == "stratixiv(e)") || (intended_device_family == "StratixIIIGX") || (intended_device_family == "STRATIXIIIGX") || (intended_device_family == "stratixiiigx") || (intended_device_family == "Stratix IV (GT/GX/E)") || (intended_device_family == "STRATIX IV (GT/GX/E)") || (intended_device_family == "stratix iv (gt/gx/e)") || (intended_device_family == "Stratix IV (GT/E/GX)") || (intended_device_family == "STRATIX IV (GT/E/GX)") || (intended_device_family == "stratix iv (gt/e/gx)") || (intended_device_family == "Stratix IV (E/GT/GX)") || (intended_device_family == "STRATIX IV (E/GT/GX)") || (intended_device_family == "stratix iv (e/gt/gx)") || (intended_device_family == "Stratix IV (E/GX/GT)") || (intended_device_family == "STRATIX IV (E/GX/GT)") || (intended_device_family == "stratix iv (e/gx/gt)") || (intended_device_family == "StratixIV(GT/GX/E)") || (intended_device_family == "STRATIXIV(GT/GX/E)") || (intended_device_family == "stratixiv(gt/gx/e)") || (intended_device_family == "StratixIV(GT/E/GX)") || (intended_device_family == "STRATIXIV(GT/E/GX)") || (intended_device_family == "stratixiv(gt/e/gx)") || (intended_device_family == "StratixIV(E/GX/GT)") || (intended_device_family == "STRATIXIV(E/GX/GT)") || (intended_device_family == "stratixiv(e/gx/gt)") || (intended_device_family == "StratixIV(E/GT/GX)") || (intended_device_family == "STRATIXIV(E/GT/GX)") || (intended_device_family == "stratixiv(e/gt/gx)") || (intended_device_family == "Stratix IV (GX/E)") || (intended_device_family == "STRATIX IV (GX/E)") || (intended_device_family == "stratix iv (gx/e)") || (intended_device_family == "StratixIV(GX/E)") || (intended_device_family == "STRATIXIV(GX/E)") || (intended_device_family == "stratixiv(gx/e)") || (family_arriaiigx == 1) || (family_hardcopyiv == 1) || (family_hardcopyiii == 1) || (family_stratixv == 1) || (family_arriaiigz == 1) || (family_base_arriav == 1)) ? 1 : 0 ;
-   
+
    parameter family_zippleback = ((intended_device_family == "MAX 10 FPGA") || (intended_device_family == "max 10 fpga") || (intended_device_family == "Zippleback") || (intended_device_family == "ZIPPLEBACK")|| (intended_device_family == "zippleback")|| (intended_device_family == "MAX10FPGA")|| (intended_device_family == "max10fpga")|| (intended_device_family == "MAX 10 FPGA (DA/DF/DC/SF/SC)")|| (intended_device_family == "max 10 fpga (da/df/dc/sf/sc)")|| (intended_device_family == "MAX10FPGA(DA/DF/DC/SF/SC)")|| (intended_device_family == "max10fpga(da/df/dc/sf/sc)")|| (intended_device_family == "MAX 10 FPGA (DA)")|| (intended_device_family == "max 10 fpga (da)")|| (intended_device_family == "MAX10FPGA(DA)")|| (intended_device_family == "max10fpga(da)")|| (intended_device_family == "MAX 10 FPGA (DF)")|| (intended_device_family == "max 10 fpga (df)")|| (intended_device_family == "MAX10FPGA(DF)")|| (intended_device_family == "max10fpga(df)")|| (intended_device_family == "MAX 10 FPGA (DC)")|| (intended_device_family == "max 10 fpga (dc)")|| (intended_device_family == "MAX10FPGA(DC)")|| (intended_device_family == "max10fpga(dc)")|| (intended_device_family == "MAX 10 FPGA (SF)")|| (intended_device_family == "max 10 fpga (sf)")|| (intended_device_family == "MAX10FPGA(SF)")|| (intended_device_family == "max10fpga(sf)")|| (intended_device_family == "MAX 10 FPGA (SC)")|| (intended_device_family == "max 10 fpga (sc)")|| (intended_device_family == "MAX10FPGA(SC)")|| (intended_device_family == "max10fpga(sc)")) ? 1 : 0 ;
-   
+
    parameter family_cycloneiii = ((intended_device_family == "Cyclone III") || (intended_device_family == "CYCLONE III") || (intended_device_family == "cyclone iii") || (intended_device_family == "CycloneIII") || (intended_device_family == "CYCLONEIII") || (intended_device_family == "cycloneiii") || (intended_device_family == "Barracuda") || (intended_device_family == "BARRACUDA") || (intended_device_family == "barracuda") || (intended_device_family == "Cuda") || (intended_device_family == "CUDA") || (intended_device_family == "cuda") || (intended_device_family == "CIII") || (intended_device_family == "ciii") || (intended_device_family == "Cyclone III LS") || (intended_device_family == "CYCLONE III LS") || (intended_device_family == "cyclone iii ls") || (intended_device_family == "CycloneIIILS") || (intended_device_family == "CYCLONEIIILS") || (intended_device_family == "cycloneiiils") || (intended_device_family == "Cyclone III LPS") || (intended_device_family == "CYCLONE III LPS") || (intended_device_family == "cyclone iii lps") || (intended_device_family == "Cyclone LPS") || (intended_device_family == "CYCLONE LPS") || (intended_device_family == "cyclone lps") || (intended_device_family == "CycloneLPS") || (intended_device_family == "CYCLONELPS") || (intended_device_family == "cyclonelps") || (intended_device_family == "Tarpon") || (intended_device_family == "TARPON") || (intended_device_family == "tarpon") || (intended_device_family == "Cyclone IIIE") || (intended_device_family == "CYCLONE IIIE") || (intended_device_family == "cyclone iiie") || (intended_device_family == "Cyclone IV GX") || (intended_device_family == "CYCLONE IV GX") || (intended_device_family == "cyclone iv gx") || (intended_device_family == "Cyclone IVGX") || (intended_device_family == "CYCLONE IVGX") || (intended_device_family == "cyclone ivgx") || (intended_device_family == "CycloneIV GX") || (intended_device_family == "CYCLONEIV GX") || (intended_device_family == "cycloneiv gx") || (intended_device_family == "CycloneIVGX") || (intended_device_family == "CYCLONEIVGX") || (intended_device_family == "cycloneivgx") || (intended_device_family == "Cyclone IV") || (intended_device_family == "CYCLONE IV") || (intended_device_family == "cyclone iv") || (intended_device_family == "CycloneIV") || (intended_device_family == "CYCLONEIV") || (intended_device_family == "cycloneiv") || (intended_device_family == "Cyclone IV (GX)") || (intended_device_family == "CYCLONE IV (GX)") || (intended_device_family == "cyclone iv (gx)") || (intended_device_family == "CycloneIV(GX)") || (intended_device_family == "CYCLONEIV(GX)") || (intended_device_family == "cycloneiv(gx)") || (intended_device_family == "Cyclone III GX") || (intended_device_family == "CYCLONE III GX") || (intended_device_family == "cyclone iii gx") || (intended_device_family == "CycloneIII GX") || (intended_device_family == "CYCLONEIII GX") || (intended_device_family == "cycloneiii gx") || (intended_device_family == "Cyclone IIIGX") || (intended_device_family == "CYCLONE IIIGX") || (intended_device_family == "cyclone iiigx") || (intended_device_family == "CycloneIIIGX") || (intended_device_family == "CYCLONEIIIGX") || (intended_device_family == "cycloneiiigx") || (intended_device_family == "Cyclone III GL") || (intended_device_family == "CYCLONE III GL") || (intended_device_family == "cyclone iii gl") || (intended_device_family == "CycloneIII GL") || (intended_device_family == "CYCLONEIII GL") || (intended_device_family == "cycloneiii gl") || (intended_device_family == "Cyclone IIIGL") || (intended_device_family == "CYCLONE IIIGL") || (intended_device_family == "cyclone iiigl") || (intended_device_family == "CycloneIIIGL") || (intended_device_family == "CYCLONEIIIGL") || (intended_device_family == "cycloneiiigl") || (intended_device_family == "Stingray") || (intended_device_family == "STINGRAY") || (intended_device_family == "stingray") || (intended_device_family == "Cyclone IV E") || (intended_device_family == "CYCLONE IV E") || (intended_device_family == "cyclone iv e") || (intended_device_family == "CycloneIV E") || (intended_device_family == "CYCLONEIV E") || (intended_device_family == "cycloneiv e") || (intended_device_family == "Cyclone IVE") || (intended_device_family == "CYCLONE IVE") || (intended_device_family == "cyclone ive") || (intended_device_family == "CycloneIVE") || (intended_device_family == "CYCLONEIVE") || (intended_device_family == "cycloneive") || family_zippleback) ? 1 : 0 ;
 
    parameter family_cyclone = ((intended_device_family == "Cyclone") || (intended_device_family == "CYCLONE") || (intended_device_family == "cyclone") || (intended_device_family == "ACEX2K") || (intended_device_family == "acex2k") || (intended_device_family == "ACEX 2K") || (intended_device_family == "acex 2k") || (intended_device_family == "Tornado") || (intended_device_family == "TORNADO") || (intended_device_family == "tornado")) ? 1 : 0 ;
-   
+
    parameter family_base_cycloneii = ((intended_device_family == "Cyclone II") || (intended_device_family == "CYCLONE II") || (intended_device_family == "cyclone ii") || (intended_device_family == "Cycloneii") || (intended_device_family == "CYCLONEII") || (intended_device_family == "cycloneii") || (intended_device_family == "Magellan") || (intended_device_family == "MAGELLAN") || (intended_device_family == "magellan")) ? 1 : 0 ;
-   
+
    parameter family_cycloneii = ((family_base_cycloneii == 1) || (family_cycloneiii == 1)) ? 1 : 0 ;
-   
+
    parameter family_base_stratix = ((intended_device_family == "Stratix") || (intended_device_family == "STRATIX") || (intended_device_family == "stratix") || (intended_device_family == "Yeager") || (intended_device_family == "YEAGER") || (intended_device_family == "yeager") || (intended_device_family == "Stratix GX") || (intended_device_family == "STRATIX GX") || (intended_device_family == "stratix gx") || (intended_device_family == "Stratix-GX") || (intended_device_family == "STRATIX-GX") || (intended_device_family == "stratix-gx") || (intended_device_family == "StratixGX") || (intended_device_family == "STRATIXGX") || (intended_device_family == "stratixgx") || (intended_device_family == "Aurora") || (intended_device_family == "AURORA") || (intended_device_family == "aurora")) ? 1 : 0 ;
-   
+
    parameter family_base_stratixii = ((intended_device_family == "Stratix II") || (intended_device_family == "STRATIX II") || (intended_device_family == "stratix ii") || (intended_device_family == "StratixII") || (intended_device_family == "STRATIXII") || (intended_device_family == "stratixii") || (intended_device_family == "Armstrong") || (intended_device_family == "ARMSTRONG") || (intended_device_family == "armstrong") || (intended_device_family == "Stratix II GX") || (intended_device_family == "STRATIX II GX") || (intended_device_family == "stratix ii gx") || (intended_device_family == "StratixIIGX") || (intended_device_family == "STRATIXIIGX") || (intended_device_family == "stratixiigx") || (intended_device_family == "Arria GX") || (intended_device_family == "ARRIA GX") || (intended_device_family == "arria gx") || (intended_device_family == "ArriaGX") || (intended_device_family == "ARRIAGX") || (intended_device_family == "arriagx") || (intended_device_family == "Stratix II GX Lite") || (intended_device_family == "STRATIX II GX LITE") || (intended_device_family == "stratix ii gx lite") || (intended_device_family == "StratixIIGXLite") || (intended_device_family == "STRATIXIIGXLITE") || (intended_device_family == "stratixiigxlite") || (family_hardcopyii == 1)) ? 1 : 0 ;
-   
+
    parameter family_has_lutram = ((family_stratixiii == 1) || (family_stratixv == 1) || (family_base_arriav == 1) || (family_nightfury == 1)) ? 1 : 0 ;
    parameter family_has_stratixv_style_ram = ((family_base_arriav == 1) || (family_stratixv == 1) || (family_nightfury == 1)) ? 1 : 0 ;
    parameter family_has_stratixiii_style_ram = ((family_stratixiii == 1) || (family_cycloneiii == 1)) ? 1 : 0;
 
    parameter family_has_m512 = (((intended_device_family == "StratixHC") || (family_base_stratix == 1) || (family_base_stratixii == 1)) && (family_hardcopyii == 0)) ? 1 : 0;
-   
+
    parameter family_has_megaram = (((intended_device_family == "StratixHC") || (family_base_stratix == 1) || (family_base_stratixii == 1) || (family_stratixiii == 1)) && (family_arriaiigx == 0) && (family_stratixv == 0) && (family_base_arriav == 0)) ? 1 : 0 ;
 
    parameter family_has_stratixi_style_ram = ((intended_device_family == "StratixHC") || (family_base_stratix == 1) || (family_cyclone == 1)) ? 1 : 0;
-   
-   parameter is_write_on_positive_edge = (((ram_block_type == "M-RAM") || (ram_block_type == "MEGARAM")) || (ram_block_type == "M9K") || (ram_block_type == "M20K") || (ram_block_type == "M10K") || (ram_block_type == "M144K") || ((family_has_stratixv_style_ram == 1) && (is_lutram == 1)) || (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) && (ram_block_type == "AUTO"))) ? 1 : 0; 
+
+   parameter is_write_on_positive_edge = (((ram_block_type == "M-RAM") || (ram_block_type == "MEGARAM")) || (ram_block_type == "M9K") || (ram_block_type == "M20K") || (ram_block_type == "M10K") || (ram_block_type == "M144K") || ((family_has_stratixv_style_ram == 1) && (is_lutram == 1)) || (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) && (ram_block_type == "AUTO"))) ? 1 : 0;
 
    parameter lutram_single_port_fast_read = ((is_lutram == 1) && ((read_during_write_mode_port_a == "DONT_CARE") || (outdata_reg_a == "UNREGISTERED")) && (operation_mode == "SINGLE_PORT")) ? 1 : 0;
-            
+
    parameter lutram_dual_port_fast_read = ((is_lutram == 1) && ((read_during_write_mode_mixed_ports == "NEW_DATA") || (read_during_write_mode_mixed_ports == "DONT_CARE") || (read_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE") || ((read_during_write_mode_mixed_ports == "OLD_DATA") && (outdata_reg_b == "UNREGISTERED")))) ? 1 : 0;
-            
+
    parameter s3_address_aclr_a =  ((family_has_stratixv_style_ram || family_stratixiii) && (is_lutram != 1) && (outdata_reg_a != "CLOCK0") && (outdata_reg_a != "CLOCK1")) ? 1 : 0;
 
    parameter s3_address_aclr_b =  ((family_has_stratixv_style_ram || family_stratixiii) && (is_lutram != 1) && (outdata_reg_b != "CLOCK0") && (outdata_reg_b != "CLOCK1")) ? 1 : 0;
 
    parameter i_address_aclr_family_a = ((((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) && (operation_mode != "ROM")) || (family_base_stratixii == 1 || family_base_cycloneii == 1)) ? 1 : 0;
-    
+
    parameter i_address_aclr_family_b = ((((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) && (operation_mode != "DUAL_PORT")) || ((is_lutram == 1) && (operation_mode == "DUAL_PORT") && (read_during_write_mode_mixed_ports == "OLD_DATA")) || (family_base_stratixii == 1 || family_base_cycloneii == 1)) ? 1 : 0;
 
 // LOCAL_PARAMETERS_END
@@ -44683,12 +44683,12 @@ module altsyncram   (
     reg [width_b-1:0] i_byteena_mask_reg_b;
     reg [widthad_a-1:0] i_address_reg_a;
     reg [widthad_b-1:0] i_address_reg_b;
-	
+
 	reg [width_b-1:0] i_q_ecc_reg_b;
     reg [width_b-1:0] i_q_ecc_tmp_b;
-	
+
     reg [widthad_a-1:0] i_original_address_a;
-    
+
     reg [width_a-1:0] i_byteena_mask_reg_a_tmp;
     reg [width_b-1:0] i_byteena_mask_reg_b_tmp;
     reg [width_a-1:0] i_byteena_mask_reg_a_out;
@@ -44725,10 +44725,10 @@ module altsyncram   (
 
     reg same_clock_pulse0;
     reg same_clock_pulse1;
-    
+
     reg [width_b - 1 : 0] i_original_data_b;
     reg [width_a - 1 : 0] i_original_data_a;
-    
+
     reg i_address_aclr_a_flag;
     reg i_address_aclr_a_prev;
     reg i_address_aclr_b_flag;
@@ -44746,7 +44746,7 @@ module altsyncram   (
     reg [21*8:0] cread_during_write_mode_mixed_ports;
     reg [7*8:0] i_ram_block_type;
     integer i_byte_size;
-    
+
     wire i_good_to_write_a;
     wire i_good_to_write_b;
     reg i_good_to_write_a2;
@@ -44772,7 +44772,7 @@ module altsyncram   (
     wire i_outdata_clken_a;
     wire i_outdata_clken_b;
     wire i_outlatch_clken_a;
-    wire i_outlatch_clken_b;	
+    wire i_outlatch_clken_b;
     wire i_clocken0;
     wire i_clocken1_b;
     wire i_clocken0_b;
@@ -44822,7 +44822,7 @@ module altsyncram   (
     integer k2;
     integer k3;
     integer k4;
-    
+
     // For temporary calculation
     integer i_div_wa;
     integer i_div_wb;
@@ -44851,11 +44851,11 @@ module altsyncram   (
 
     initial
     begin
-		
+
 
         i_numwords_a = (numwords_a != 0) ? numwords_a : (1 << widthad_a);
         i_numwords_b = (numwords_b != 0) ? numwords_b : (1 << widthad_b);
-        
+
         if (family_has_stratixv_style_ram == 1)
         begin
             if ((((is_lutram == 1) || (ram_block_type == "M10K")) && (family_base_arriav == 1)) ||
@@ -44884,20 +44884,20 @@ module altsyncram   (
             else
                 i_ram_block_type = ram_block_type;
         end
-	
+
         if ((family_cyclone == 1) || (family_cycloneii == 1))
             cread_during_write_mode_mixed_ports = "OLD_DATA";
         else if (read_during_write_mode_mixed_ports == "UNUSED")
             cread_during_write_mode_mixed_ports = "DONT_CARE";
         else
             cread_during_write_mode_mixed_ports = read_during_write_mode_mixed_ports;
-            
+
         i_byte_size = (byte_size > 0) ? byte_size
                         : ((((family_has_stratixi_style_ram == 1) || family_cycloneiii == 1) && (i_byte_size_tmp != 8) && (i_byte_size_tmp != 9)) ||
                             (((family_base_stratixii == 1) || (family_base_cycloneii == 1)) && (i_byte_size_tmp != 1) && (i_byte_size_tmp != 2) && (i_byte_size_tmp != 4) && (i_byte_size_tmp != 8) && (i_byte_size_tmp != 9)) ||
                             (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) && (i_byte_size_tmp != 5) && (i_byte_size_tmp !=10) && (i_byte_size_tmp != 8) && (i_byte_size_tmp != 9))) ?
                             8 : i_byte_size_tmp;
-            
+
         // Parameter Checking
         if ((operation_mode != "BIDIR_DUAL_PORT") && (operation_mode != "SINGLE_PORT") &&
             (operation_mode != "DUAL_PORT") && (operation_mode != "ROM"))
@@ -44913,14 +44913,14 @@ module altsyncram   (
             $display("Warning: RAM_BLOCK_TYPE HAS AN INVALID VALUE. IT CAN ONLY BE M10K, LUTRAM OR AUTO for %s device family. This parameter will take AUTO as its value", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
-        
+
         if ((family_base_arriav != 1) && (family_stratixv == 1) &&
             (ram_block_type != "M20K") && (is_lutram != 1) && (ram_block_type != "AUTO"))
         begin
             $display("Warning: RAM_BLOCK_TYPE HAS AN INVALID VALUE. IT CAN ONLY BE M20K, LUTRAM OR AUTO for %s device family. This parameter will take AUTO as its value", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
-        
+
         if ((family_stratixv != 1) && (family_stratixiii == 1) &&
             (ram_block_type != "M9K") && (ram_block_type != "M144K") && (is_lutram != 1) &&
             (ram_block_type != "AUTO") && (((ram_block_type == "M-RAM") || (ram_block_type == "MEGARAM")) != 1))
@@ -44928,7 +44928,7 @@ module altsyncram   (
             $display("Warning: RAM_BLOCK_TYPE HAS AN INVALID VALUE. IT CAN ONLY BE M9K, M144K, LUTRAM OR AUTO for %s device family. This parameter will take AUTO as its value", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
-        
+
         if (i_ram_block_type != ram_block_type)
         begin
             $display("Warning: RAM block type is assumed as %s", i_ram_block_type);
@@ -44938,20 +44938,20 @@ module altsyncram   (
 
         if ((cread_during_write_mode_mixed_ports != "DONT_CARE") &&
             (cread_during_write_mode_mixed_ports != "CONSTRAINED_DONT_CARE") &&
-            (cread_during_write_mode_mixed_ports != "OLD_DATA") && 
+            (cread_during_write_mode_mixed_ports != "OLD_DATA") &&
             (cread_during_write_mode_mixed_ports != "NEW_DATA"))
         begin
             $display("Error: Invalid value for read_during_write_mode_mixed_ports parameter. It has to be OLD_DATA or DONT_CARE or CONSTRAINED_DONT_CARE or NEW_DATA");
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
+
         if ((cread_during_write_mode_mixed_ports != read_during_write_mode_mixed_ports) && ((operation_mode != "SINGLE_PORT") && (operation_mode != "ROM")))
         begin
             $display("Warning: read_during_write_mode_mixed_ports is assumed as %s", cread_during_write_mode_mixed_ports);
             $display("Time: %0t  Instance: %m", $time);
         end
-        
+
         if ((is_lutram != 1) && (cread_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE"))
         begin
             $display("Warning: read_during_write_mode_mixed_ports cannot be set to CONSTRAINED_DONT_CARE for non-LUTRAM ram block type. This will cause incorrect simulation result.");
@@ -44979,7 +44979,7 @@ module altsyncram   (
         end
 
         if ((i_byte_size != 8) && (i_byte_size != 9) && (i_byte_size != 1) &&
-            (i_byte_size != 2) && (i_byte_size != 4) && 
+            (i_byte_size != 2) && (i_byte_size != 4) &&
             ((family_base_stratixii == 1) || (family_base_cycloneii == 1)))
         begin
             $display("Error: byte_size has to be either 1, 2, 4, 8 or 9 for %s device family", intended_device_family);
@@ -45116,22 +45116,22 @@ module altsyncram   (
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
+
         if (((family_has_m512) == 0) && (i_ram_block_type == "M512"))
         begin
             $display("Error: M512 value for RAM_BLOCK_TYPE parameter is not supported in %s device family", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
-        if (((family_has_megaram) == 0) && 
+
+        if (((family_has_megaram) == 0) &&
             ((i_ram_block_type == "M-RAM") || (i_ram_block_type == "MEGARAM")))
         begin
             $display("Error: MEGARAM value for RAM_BLOCK_TYPE parameter is not supported in %s device family", intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
+
         if (((init_file == "UNUSED") || (init_file == "")) &&
             (operation_mode == "ROM"))
         begin
@@ -45184,93 +45184,93 @@ module altsyncram   (
             $display("Time: %0t  Instance: %m", $time);
         end
 // SPR 249576: Enable don't care as RDW setting in MegaFunctions - eliminates checking for ram_block_type = "AUTO"
-        if (!((is_lutram == 1) || ((i_ram_block_type == "AUTO") && (family_has_lutram == 1)) || 
-            ((i_ram_block_type != "AUTO") && ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)))) && 
+        if (!((is_lutram == 1) || ((i_ram_block_type == "AUTO") && (family_has_lutram == 1)) ||
+            ((i_ram_block_type != "AUTO") && ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)))) &&
             (operation_mode != "SINGLE_PORT") && (read_during_write_mode_port_a == "DONT_CARE"))
         begin
-            $display("Error: %s value for read_during_write_mode_port_a is not supported in %s device family for %s ram block type in %s operation_mode", 
+            $display("Error: %s value for read_during_write_mode_port_a is not supported in %s device family for %s ram block type in %s operation_mode",
                 read_during_write_mode_port_a, intended_device_family, i_ram_block_type, operation_mode);
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
-        if ((is_lutram != 1) && (i_ram_block_type != "AUTO") && 
+
+        if ((is_lutram != 1) && (i_ram_block_type != "AUTO") &&
             ((read_during_write_mode_mixed_ports == "NEW_DATA") || (read_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE")))
         begin
             $display("Error: %s value for read_during_write_mode_mixed_ports is not supported in %s RAM block type", read_during_write_mode_mixed_ports, i_ram_block_type);
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
+
         if ((operation_mode == "DUAL_PORT") && (outdata_reg_b != "CLOCK0") && (is_lutram == 1) && (read_during_write_mode_mixed_ports == "OLD_DATA"))
         begin
             $display("Warning: Value for read_during_write_mode_mixed_ports of instance is not honoured in DUAL PORT operation mode when output registers are not clocked by clock0 for LUTRAM.");
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((indata_aclr_a != "NONE") && (indata_aclr_a != "UNUSED")))
         begin
             $display("Warning: %s value for indata_aclr_a is not supported in %s device family. The aclr to data_a registers will be ignored.", indata_aclr_a, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((wrcontrol_aclr_a != "NONE") && (wrcontrol_aclr_a != "UNUSED")))
         begin
             $display("Warning: %s value for wrcontrol_aclr_a is not supported in %s device family. The aclr to write control registers of port A will be ignored.", wrcontrol_aclr_a, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((byteena_aclr_a != "NONE") && (byteena_aclr_a != "UNUSED")))
         begin
             $display("Warning: %s value for byteena_aclr_a is not supported in %s device family. The aclr to byteena_a registers will be ignored.", byteena_aclr_a, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((address_aclr_a != "NONE") && (address_aclr_a != "UNUSED")) && (operation_mode != "ROM"))
         begin
             $display("Warning: %s value for address_aclr_a is not supported for write port in %s device family. The aclr to address_a registers will be ignored.", byteena_aclr_a, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((indata_aclr_b != "NONE") && (indata_aclr_b != "UNUSED")))
         begin
             $display("Warning: %s value for indata_aclr_b is not supported in %s device family. The aclr to data_b registers will be ignored.", indata_aclr_b, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((rdcontrol_aclr_b != "NONE") && (rdcontrol_aclr_b != "UNUSED")))
         begin
             $display("Warning: %s value for rdcontrol_aclr_b is not supported in %s device family. The aclr to read control registers will be ignored.", rdcontrol_aclr_b, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((wrcontrol_aclr_b != "NONE") && (wrcontrol_aclr_b != "UNUSED")))
         begin
             $display("Warning: %s value for wrcontrol_aclr_b is not supported in %s device family. The aclr to write control registers will be ignored.", wrcontrol_aclr_b, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
 
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((byteena_aclr_b != "NONE") && (byteena_aclr_b != "UNUSED")))
         begin
             $display("Warning: %s value for byteena_aclr_b is not supported in %s device family. The aclr to byteena_a register will be ignored.", byteena_aclr_b, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
-        
-        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) 
+
+        if (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
             && ((address_aclr_b != "NONE") && (address_aclr_b != "UNUSED")) && (operation_mode == "BIDIR_DUAL_PORT"))
         begin
             $display("Warning: %s value for address_aclr_b is not supported for write port in %s device family. The aclr to address_b registers will be ignored.", address_aclr_b, intended_device_family);
             $display("Time: %0t  Instance: %m", $time);
         end
-    
+
         if ((is_lutram == 1) && (read_during_write_mode_mixed_ports == "OLD_DATA")
             && ((address_aclr_b != "NONE") && (address_aclr_b != "UNUSED")) && (operation_mode == "DUAL_PORT"))
         begin
@@ -45314,7 +45314,7 @@ module altsyncram   (
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
- 
+
 		if ((i_ram_block_type != "M20K") && (ecc_pipeline_stage_enabled == "TRUE"))
         begin
             $display("Error: %s value for ecc_pipeline_stage_enabled is not supported in %s ram block type.", ecc_pipeline_stage_enabled, i_ram_block_type);
@@ -45327,22 +45327,22 @@ module altsyncram   (
             $display("Error: %s value for ecc_pipeline_stage_enabled is not supported when output_reg_b is set to %s.", ecc_pipeline_stage_enabled, outdata_reg_b);
             $display("Time: %0t  Instance: %m", $time);
             $finish;
-        end		
-		
+        end
+
 		//Setting this to only warning because in synthesis it will ignore the ecc_pipeline_stage_enabled parameter when enable_ecc is set to false
 		if((ecc_pipeline_stage_enabled == "TRUE") && (enable_ecc != "TRUE"))
 		begin
             $display("Warning: %s value for ecc_pipeline_stage_enabled is not supported when enable_ecc is set to %s", ecc_pipeline_stage_enabled, enable_ecc);
             $display("Time: %0t  Instance: %m", $time);
 		end
-		
+
         if (((i_ram_block_type == "M20K") || (i_ram_block_type == "M144K")) && (enable_ecc == "TRUE") && (read_during_write_mode_mixed_ports == "OLD_DATA"))
         begin
             $display("Error : ECC is not supported for read-before-write mode.");
             $display("Time: %0t  Instance: %m", $time);
             $finish;
         end
-        
+
         if (operation_mode != "DUAL_PORT")
         begin
             if ((outdata_reg_a != "CLOCK0") && (outdata_reg_a != "CLOCK1") && (outdata_reg_a != "UNUSED")  && (outdata_reg_a != "UNREGISTERED"))
@@ -45361,7 +45361,7 @@ module altsyncram   (
                 $display("Time: %0t  Instance: %m", $time);
                 $finish;
             end
-    
+
             if ((outdata_reg_b != "CLOCK0") && (outdata_reg_b != "CLOCK1") && (outdata_reg_b != "UNUSED") && (outdata_reg_b != "UNREGISTERED"))
             begin
                 $display("Error: %s value for outdata_reg_b is not supported.", outdata_reg_b);
@@ -45375,21 +45375,21 @@ module altsyncram   (
                 $display("Time: %0t  Instance: %m", $time);
                 $finish;
             end
-    
+
             if ((indata_reg_b != "CLOCK0") && (indata_reg_b != "CLOCK1") && (indata_reg_b != "UNUSED") && (operation_mode == "BIDIR_DUAL_PORT"))
             begin
                 $display("Error: %s value for indata_reg_b is not supported.", indata_reg_b);
                 $display("Time: %0t  Instance: %m", $time);
                 $finish;
             end
-    
+
             if ((wrcontrol_wraddress_reg_b != "CLOCK0") && (wrcontrol_wraddress_reg_b != "CLOCK1") && (wrcontrol_wraddress_reg_b != "UNUSED") && (operation_mode == "BIDIR_DUAL_PORT"))
             begin
                 $display("Error: %s value for wrcontrol_wraddress_reg_b is not supported.", wrcontrol_wraddress_reg_b);
                 $display("Time: %0t  Instance: %m", $time);
                 $finish;
             end
-    
+
             if ((byteena_reg_b != "CLOCK0") && (byteena_reg_b != "CLOCK1") && (byteena_reg_b != "UNUSED") && (operation_mode == "BIDIR_DUAL_PORT"))
             begin
                 $display("Error: %s value for byteena_reg_b is not supported.", byteena_reg_b);
@@ -45418,7 +45418,7 @@ module altsyncram   (
                 wa_mult_x = {width_a{1'b0}};
                 for (i = 0; i < (1 << widthad_a); i = i + 1)
                     mem_data[i] = wa_mult_x;
-                    
+
                 if (enable_mem_data_b_reading)
                 begin
                     for (i = 0; i < (1 << widthad_b); i = i + 1)
@@ -45429,9 +45429,9 @@ module altsyncram   (
             else if (((i_ram_block_type == "M-RAM") ||
                 (i_ram_block_type == "MEGARAM") ||
                 ((i_ram_block_type == "AUTO") && ((cread_during_write_mode_mixed_ports == "DONT_CARE") || (cread_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE"))) ||
-                (family_hardcopyii == 1) || 
-                (family_hardcopyiii == 1) || 
-                (family_hardcopyiv == 1) || 
+                (family_hardcopyii == 1) ||
+                (family_hardcopyiii == 1) ||
+                (family_hardcopyiv == 1) ||
                 (power_up_uninitialized == "TRUE") ) && (implement_in_les == "OFF"))
             begin
                 wa_mult_x = {width_a{1'bx}};
@@ -45449,7 +45449,7 @@ module altsyncram   (
                 wa_mult_x = {width_a{1'b0}};
                 for (i = 0; i < (1 << widthad_a); i = i + 1)
                     mem_data[i] = wa_mult_x;
-                    
+
                 if (enable_mem_data_b_reading)
                 begin
                     for (i = 0; i < (1 << widthad_b); i = i + 1)
@@ -45464,7 +45464,7 @@ module altsyncram   (
             wa_mult_x = {width_a{1'b0}};
             for (i = 0; i < (1 << widthad_a); i = i + 1)
                 mem_data[i] = wa_mult_x;
-                
+
             for (i = 0; i < (1 << widthad_b); i = i + 1)
                 mem_data_b[i] = {width_b{1'b0}};
 
@@ -45504,9 +45504,9 @@ module altsyncram   (
             begin
                 mem.convert_to_ver_file(init_file, width_a, ram_initf);
                 $readmemh(ram_initf, mem_data);
-                
+
                 if (enable_mem_data_b_reading)
-                begin                
+                begin
                     for (i = 0; i < (i_numwords_a * width_a); i = i + 1)
                     begin
                         temp_wa = mem_data[i / width_a];
@@ -45528,14 +45528,14 @@ module altsyncram   (
         i_outdata_aclr_b_prev = 0;
         i_address_aclr_a_prev = 0;
         i_address_aclr_b_prev = 0;
-        
+
         i_force_reread_a = 0;
         i_force_reread_a1 = 0;
         i_force_reread_b = 0;
         i_force_reread_b1 = 0;
         i_force_reread_a_signal = 0;
         i_force_reread_b_signal = 0;
-        
+
         // Initialize internal registers/signals
         i_data_reg_a = 0;
         i_data_reg_b = 0;
@@ -45561,7 +45561,7 @@ module altsyncram   (
         i_byteena_mask_reg_b = (family_has_stratixv_style_ram == 1)? {width_a{1'b0}} : {width_a{1'b1}};
         i_byteena_mask_reg_a_out = (family_has_stratixv_style_ram == 1)? {width_a{1'b0}} : {width_a{1'b1}};
         i_byteena_mask_reg_b_out = (family_has_stratixv_style_ram == 1)? {width_a{1'b0}} : {width_a{1'b1}};
-		
+
         if ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))
         begin
             i_rden_reg_a = 0;
@@ -45572,12 +45572,12 @@ module altsyncram   (
             i_rden_reg_a = 1;
             i_rden_reg_b = 1;
         end
-        
+
 
 
         if (((i_ram_block_type == "M-RAM") ||
                 (i_ram_block_type == "MEGARAM") ||
-                ((i_ram_block_type == "AUTO") && ((cread_during_write_mode_mixed_ports == "DONT_CARE") || (cread_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE")))) && 
+                ((i_ram_block_type == "AUTO") && ((cread_during_write_mode_mixed_ports == "DONT_CARE") || (cread_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE")))) &&
                 (family_has_stratixv_style_ram != 1) && (family_has_stratixiii_style_ram != 1))
         begin
             i_q_tmp_a = {width_a{1'bx}};
@@ -45589,7 +45589,7 @@ module altsyncram   (
         end
         else
         begin
-            if (is_lutram == 1) 
+            if (is_lutram == 1)
             begin
                 i_q_tmp_a = mem_data[0];
                 i_q_tmp2_a = mem_data[0];
@@ -45623,7 +45623,7 @@ module altsyncram   (
         same_clock_pulse1 = 1'b0;
 
         i_byteena_count = 0;
-        
+
         if (((family_hardcopyii == 1)) &&
             (ram_block_type == "M4K") && (operation_mode != "SINGLE_PORT"))
         begin
@@ -45659,16 +45659,16 @@ module altsyncram   (
                                             clocken0 : 1'b1;
 
     // port a output latch clock enable assignments:
-    assign i_outlatch_clken_a              = ((clock_enable_output_b == "NORMAL") && (outdata_reg_a == "UNREGISTERED") && (outdata_reg_b == "CLOCK0") && 
+    assign i_outlatch_clken_a              = ((clock_enable_output_b == "NORMAL") && (outdata_reg_a == "UNREGISTERED") && (outdata_reg_b == "CLOCK0") &&
 											(operation_mode == "BIDIR_DUAL_PORT") && (family_has_stratixv_style_ram == 1))?
                                             clocken0 : 1'b1;
     // port b clock enable assignments:
-    assign i_outlatch_clken_b              = ((clock_enable_output_a == "NORMAL") && (outdata_reg_b == "UNREGISTERED") && 
+    assign i_outlatch_clken_b              = ((clock_enable_output_a == "NORMAL") && (outdata_reg_b == "UNREGISTERED") &&
 											(operation_mode == "BIDIR_DUAL_PORT") && (family_has_stratixv_style_ram == 1))?
-											(((address_reg_b == "CLOCK0") && (outdata_reg_a == "CLOCK0")) ? clocken0 : 
+											(((address_reg_b == "CLOCK0") && (outdata_reg_a == "CLOCK0")) ? clocken0 :
 											(((address_reg_b == "CLOCK1") && (outdata_reg_a == "CLOCK1")) ? clocken1 : 1'b1))
 											: 1'b1;
-											
+
     assign i_clocken0                     = (clock_enable_input_a == "BYPASS") ?
                                             1'b1 : (clock_enable_input_a == "NORMAL") ?
                                             clocken0 : clocken2;
@@ -45686,7 +45686,7 @@ module altsyncram   (
                                             1'b1 : ((clock_enable_core_a == "USE_INPUT_CLKEN") ?
                                             i_clocken0 : ((clock_enable_core_a == "NORMAL") ?
                                             clocken0 : clocken2)));
-    
+
     assign i_core_clocken0_b              = (((family_has_stratixv_style_ram != 1) && (family_has_stratixiii_style_ram != 1))) ?
                                             i_clocken0_b : ((clock_enable_core_b == "BYPASS") ?
                                             1'b1 : ((clock_enable_core_b == "USE_INPUT_CLKEN") ?
@@ -45707,10 +45707,10 @@ module altsyncram   (
     // port a clear assigments:
 
     assign i_indata_aclr_a    = (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) ||
-                                (family_base_stratixii == 1 || family_base_cycloneii == 1)) ? 
+                                (family_base_stratixii == 1 || family_base_cycloneii == 1)) ?
                                 1'b0 : ((indata_aclr_a == "CLEAR0") ? aclr0 : 1'b0);
     assign i_address_aclr_a   = (address_aclr_a == "CLEAR0") ? aclr0 : 1'b0;
-    assign i_wrcontrol_aclr_a = (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) || 
+    assign i_wrcontrol_aclr_a = (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) ||
                                 (family_base_stratixii == 1 || family_base_cycloneii == 1))?
                                 1'b0 : ((wrcontrol_aclr_a == "CLEAR0") ? aclr0 : 1'b0);
     assign i_byteena_aclr_a   = (((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)) ||
@@ -45751,39 +45751,39 @@ module altsyncram   (
 
     assign i_byteena_a = byteena_a;
     assign i_byteena_b = byteena_b;
-    
-    
+
+
     // Ready to write setting
-    
+
     assign i_good_to_write_a = (((is_bidir_and_wrcontrol_addb_clk0 == 1) || (dual_port_addreg_b_clk0 == 1)) && (i_core_clocken0_b) && (~clock0)) ?
                                     1'b1 : (((is_bidir_and_wrcontrol_addb_clk1 == 1) || (dual_port_addreg_b_clk1 == 1)) && (i_core_clocken1_b) && (~clock1)) ?
                                     1'b1 : i_good_to_write_a2;
-                                    
+
     assign i_good_to_write_b = ((i_core_clocken0_b) && (~clock0)) ? 1'b1 : i_good_to_write_b2;
-    
+
     always @(i_good_to_write_a)
     begin
         i_good_to_write_a2 = i_good_to_write_a;
     end
-    
+
     always @(i_good_to_write_b)
     begin
         i_good_to_write_b2 = i_good_to_write_b;
     end
-    
-     
+
+
     // Port A inputs registered : indata, address, byeteena, wren
     // Aclr status flags get updated here for M-RAM ram_block_type
 
     always @(posedge clock0)
     begin
-    
+
         if (i_force_reread_a && i_outlatch_clken_a)
         begin
             i_force_reread_a_signal <= ~ i_force_reread_a_signal;
             i_force_reread_a <= 0;
         end
-        
+
         if (i_force_reread_b && ((is_bidir_and_wrcontrol_addb_clk0 == 1) || (dual_port_addreg_b_clk0 == 1)) && i_outlatch_clken_b)
         begin
             i_force_reread_b_signal <= ~ i_force_reread_b_signal;
@@ -45833,7 +45833,7 @@ module altsyncram   (
             if (((family_has_stratixv_style_ram == 1) || (family_stratixiii == 1)) && (is_lutram != 1))
             begin
                 good_to_go_a <= 1;
-                
+
                 i_rden_reg_a <= rden_a;
 
                 if (i_wrcontrol_aclr_a)
@@ -45847,7 +45847,7 @@ module altsyncram   (
         else
             i_nmram_write_a <= 1'b0;
 
-        if (i_core_clocken_b)    
+        if (i_core_clocken_b)
             i_address_aclr_b_flag <= 0;
 
         if (is_lutram)
@@ -45866,7 +45866,7 @@ module altsyncram   (
         begin
 
             // Port A inputs
-            
+
             if (i_indata_aclr_a)
                 i_data_reg_a <= 0;
             else
@@ -45886,7 +45886,7 @@ module altsyncram   (
             end
             else
             begin
-               
+
                 if (width_byteena_a == 1)
                 begin
                     i_byteena_mask_reg_a <= {width_a{i_byteena_a[0]}};
@@ -45902,16 +45902,16 @@ module altsyncram   (
                         i_byteena_mask_reg_a_out[k] <= (i_byteena_a[k/i_byte_size])? 1'b0: 1'bx;
                         i_byteena_mask_reg_a_x[k] <= ((i_byteena_a[k/i_byte_size]) || (i_byteena_a[k/i_byte_size] == 1'b0))? 1'b0: 1'bx;
                     end
-               
+
             end
 
-            if (((family_has_stratixv_style_ram == 0) && (family_stratixiii == 0)) || 
+            if (((family_has_stratixv_style_ram == 0) && (family_stratixiii == 0)) ||
                 (is_lutram == 1))
             begin
                 good_to_go_a <= 1;
-            
+
                 i_rden_reg_a <= rden_a;
-                
+
                 if (i_wrcontrol_aclr_a)
                     i_wren_reg_a <= 0;
                 else
@@ -45921,8 +45921,8 @@ module altsyncram   (
             end
 
         end
-        
-        
+
+
         if (i_indata_aclr_a)
             i_data_reg_a <= 0;
 
@@ -45936,8 +45936,8 @@ module altsyncram   (
             i_byteena_mask_reg_a_x <= 0;
             i_byteena_mask_reg_a_out_b <= {width_a{1'bx}};
         end
-        
-        
+
+
         // Port B
 
         if (is_bidir_and_wrcontrol_addb_clk0)
@@ -45948,9 +45948,9 @@ module altsyncram   (
                 if ((family_has_stratixv_style_ram == 1) || (family_stratixiii == 1))
                 begin
                     good_to_go_b <= 1;
-                    
+
                     i_rden_reg_b <= rden_b;
-    
+
                     if (i_wrcontrol_aclr_b)
                         i_wren_reg_b <= 0;
                     else
@@ -45958,9 +45958,9 @@ module altsyncram   (
                         i_wren_reg_b <= wren_b;
                     end
                 end
-                
+
                 i_read_flag_b <= ~i_read_flag_b;
-                    
+
                 if (is_write_on_positive_edge == 1)
                 begin
                     if (i_wren_reg_b || wren_b)
@@ -45971,12 +45971,12 @@ module altsyncram   (
                 end
                 else
                     i_nmram_write_b <= 1'b1;
-            
+
             end
             else
                 i_nmram_write_b <= 1'b0;
-                
-                
+
+
             if ((clock_enable_input_b == "BYPASS") ||
                 ((clock_enable_input_b == "NORMAL") && clocken0) ||
                 ((clock_enable_input_b == "ALTERNATE") && clocken2))
@@ -45988,14 +45988,14 @@ module altsyncram   (
                     i_data_reg_b <= 0;
                 else
                     i_data_reg_b <= data_b;
-        
+
 
                 if ((family_has_stratixv_style_ram == 0) && (family_stratixiii == 0))
                 begin
                     good_to_go_b <= 1;
-                
+
                     i_rden_reg_b <= rden_b;
-    
+
                     if (i_wrcontrol_aclr_b)
                         i_wren_reg_b <= 0;
                     else
@@ -46018,7 +46018,7 @@ module altsyncram   (
                 end
                 else
                 begin
-                   
+
                     if (width_byteena_b == 1)
                     begin
                         i_byteena_mask_reg_b <= {width_b{i_byteena_b[0]}};
@@ -46034,12 +46034,12 @@ module altsyncram   (
                             i_byteena_mask_reg_b_out[k2] <= (i_byteena_b[k2/i_byte_size])? 1'b0 : 1'bx;
                             i_byteena_mask_reg_b_x[k2] <= ((i_byteena_b[k2/i_byte_size]) || (i_byteena_b[k2/i_byte_size] == 1'b0))? 1'b0 : 1'bx;
                         end
-                    
+
                 end
 
             end
-            
-            
+
+
             if (i_indata_aclr_b)
                 i_data_reg_b <= 0;
 
@@ -46057,7 +46057,7 @@ module altsyncram   (
                 i_byteena_mask_reg_b_out_a <= {width_b{1'bx}};
             end
         end
-            
+
         if (dual_port_addreg_b_clk0)
         begin
             if (i_address_aclr_b && (i_address_aclr_family_b == 0))
@@ -46068,16 +46068,16 @@ module altsyncram   (
                 if (((family_has_stratixv_style_ram == 1) || (family_stratixiii == 1)) && !is_lutram)
                 begin
                     good_to_go_b <= 1;
-                    
+
                     if (i_rdcontrol_aclr_b)
                         i_rden_reg_b <= 1'b1;
                     else
                         i_rden_reg_b <= rden_b;
                 end
-                
+
                 i_read_flag_b <= ~ i_read_flag_b;
             end
-            
+
             if ((clock_enable_input_b == "BYPASS") ||
                 ((clock_enable_input_b == "NORMAL") && clocken0) ||
                 ((clock_enable_input_b == "ALTERNATE") && clocken2))
@@ -46085,7 +46085,7 @@ module altsyncram   (
                 if (((family_has_stratixv_style_ram == 0) && (family_stratixiii == 0)) || is_lutram)
                 begin
                     good_to_go_b <= 1;
-                
+
                     if (i_rdcontrol_aclr_b)
                         i_rden_reg_b <= 1'b1;
                     else
@@ -46098,8 +46098,8 @@ module altsyncram   (
                     i_address_reg_b <= address_b;
 
             end
-            
-            
+
+
             if (i_rdcontrol_aclr_b)
                 i_rden_reg_b <= 1'b1;
 
@@ -46113,7 +46113,7 @@ module altsyncram   (
 
     always @(negedge clock0)
     begin
-       
+
         if (clock1)
             same_clock_pulse0 <= 1'b0;
 
@@ -46122,12 +46122,12 @@ module altsyncram   (
             if (i_nmram_write_a == 1'b1)
             begin
                 i_write_flag_a <= ~ i_write_flag_a;
-                
+
                 if (is_lutram)
                     i_read_flag_a <= ~i_read_flag_a;
-            end 
+            end
 
-            
+
             if (is_bidir_and_wrcontrol_addb_clk0)
             begin
                 if (i_nmram_write_b == 1'b1)
@@ -46153,13 +46153,13 @@ module altsyncram   (
             i_force_reread_b_signal <= ~ i_force_reread_b_signal;
             i_force_reread_b <= 0;
         end
-        
+
         if (clock0)
             same_clock_pulse1 <= 1'b1;
         else
             same_clock_pulse1 <= 1'b0;
 
-        if (i_core_clocken_b)    
+        if (i_core_clocken_b)
             i_address_aclr_b_flag <= 0;
 
         if (is_bidir_and_wrcontrol_addb_clk1)
@@ -46168,13 +46168,13 @@ module altsyncram   (
             if (i_core_clocken1_b)
             begin
                 i_read_flag_b <= ~i_read_flag_b;
-    
+
                 if ((family_has_stratixv_style_ram == 1) || (family_stratixiii == 1))
                 begin
                     good_to_go_b <= 1;
-                    
+
                     i_rden_reg_b <= rden_b;
-    
+
                     if (i_wrcontrol_aclr_b)
                         i_wren_reg_b <= 0;
                     else
@@ -46182,7 +46182,7 @@ module altsyncram   (
                         i_wren_reg_b <= wren_b;
                     end
                 end
-                
+
                 if (is_write_on_positive_edge == 1)
                 begin
                     if (i_wren_reg_b || wren_b)
@@ -46196,15 +46196,15 @@ module altsyncram   (
             end
             else
                 i_nmram_write_b <= 1'b0;
-                
-        
+
+
             if ((clock_enable_input_b == "BYPASS") ||
                 ((clock_enable_input_b == "NORMAL") && clocken1) ||
                 ((clock_enable_input_b == "ALTERNATE") && clocken3))
             begin
-                
+
                 // Port B inputs
-                
+
                 if (address_reg_b == "CLOCK1")
                 begin
                     if (i_indata_aclr_b)
@@ -46216,9 +46216,9 @@ module altsyncram   (
                 if ((family_has_stratixv_style_ram == 0) && (family_stratixiii == 0))
                 begin
                     good_to_go_b <= 1;
-    
+
                     i_rden_reg_b <= rden_b;
-    
+
                     if (i_wrcontrol_aclr_b)
                         i_wren_reg_b <= 0;
                     else
@@ -46256,12 +46256,12 @@ module altsyncram   (
                             i_byteena_mask_reg_b_out[k2] <= (i_byteena_b[k2/i_byte_size])? 1'b0 : 1'bx;
                             i_byteena_mask_reg_b_x[k2] <= ((i_byteena_b[k2/i_byte_size]) || (i_byteena_b[k2/i_byte_size] == 1'b0))? 1'b0 : 1'bx;
                         end
-                
+
                 end
 
             end
-            
-            
+
+
             if (i_indata_aclr_b)
                 i_data_reg_b <= 0;
 
@@ -46295,7 +46295,7 @@ module altsyncram   (
                 if (((family_has_stratixv_style_ram == 1) || (family_stratixiii == 1)) && !is_lutram)
                 begin
                     good_to_go_b <= 1;
-                    
+
                     if (i_rdcontrol_aclr_b)
                     begin
                         i_rden_reg_b <= 1'b1;
@@ -46308,7 +46308,7 @@ module altsyncram   (
 
                 i_read_flag_b <= ~i_read_flag_b;
             end
-            
+
             if ((clock_enable_input_b == "BYPASS") ||
                 ((clock_enable_input_b == "NORMAL") && clocken1) ||
                 ((clock_enable_input_b == "ALTERNATE") && clocken3))
@@ -46316,7 +46316,7 @@ module altsyncram   (
                 if (((family_has_stratixv_style_ram == 0) && (family_stratixiii == 0)) || is_lutram)
                 begin
                     good_to_go_b <= 1;
-                
+
                     if (i_rdcontrol_aclr_b)
                     begin
                         i_rden_reg_b <= 1'b1;
@@ -46326,34 +46326,34 @@ module altsyncram   (
                         i_rden_reg_b <= rden_b;
                     end
                 end
-    
+
                 if (i_address_aclr_b && (i_address_aclr_family_b == 0))
                     i_address_reg_b <= 0;
                 else if (!addressstall_b)
                     i_address_reg_b <= address_b;
 
             end
-            
-            
+
+
             if (i_rdcontrol_aclr_b)
                 i_rden_reg_b <= 1'b1;
 
             if (i_address_aclr_b && (i_address_aclr_family_b == 0))
                 i_address_reg_b <= 0;
-                
+
         end
 
     end
 
     always @(negedge clock1)
     begin
-       
+
         if (clock0)
             same_clock_pulse1 <= 1'b0;
-            
+
         if (is_write_on_positive_edge == 0)
         begin
-           
+
             if (is_bidir_and_wrcontrol_addb_clk1)
             begin
                 if (i_nmram_write_b == 1'b1)
@@ -46367,7 +46367,7 @@ module altsyncram   (
         end
 
     end
-    
+
     always @(posedge i_address_aclr_b)
     begin
         if ((is_lutram == 1) && (operation_mode == "DUAL_PORT") && (i_address_aclr_family_b == 0))
@@ -46379,21 +46379,21 @@ module altsyncram   (
         if ((is_lutram == 1) && (operation_mode == "ROM") && (i_address_aclr_family_a == 0))
             i_read_flag_a <= ~i_read_flag_a;
     end
-    
+
     always @(posedge i_outdata_aclr_a)
     begin
-        if (((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) && 
+        if (((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) &&
             ((outdata_reg_a != "CLOCK0") && (outdata_reg_a != "CLOCK1")))
             i_read_flag_a <= ~i_read_flag_a;
     end
 
     always @(posedge i_outdata_aclr_b)
     begin
-        if (((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) && 
+        if (((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) &&
             ((outdata_reg_b != "CLOCK0") && (outdata_reg_b != "CLOCK1")))
             i_read_flag_b <= ~i_read_flag_b;
     end
-    
+
     // Port A writting -------------------------------------------------------------
 
     always @(posedge i_write_flag_a or negedge i_write_flag_a)
@@ -46432,7 +46432,7 @@ module altsyncram   (
                     if (i_byteena_mask_reg_a != {width_a{1'b1}})
                     begin
                         mem_data[i_address_reg_a] = {width_a{1'bx}};
-                        
+
                         if (enable_mem_data_b_reading)
                         begin
                             j3 = i_address_reg_a * width_a;
@@ -46454,7 +46454,7 @@ module altsyncram   (
                         wa_mult_x_ii = {width_a{1'bx}};
                         for (i4 = 0; i4 < i_numwords_a; i4 = i4 + 1)
                             mem_data[i4] = wa_mult_x_ii;
-                            
+
                         if (enable_mem_data_b_reading)
                         begin
                             for (i4 = 0; i4 < i_numwords_b; i4 = i4 + 1)
@@ -46471,17 +46471,17 @@ module altsyncram   (
                     i_original_address_a = i_address_reg_a;
                     i_data_write_time_a = $time;
                     temp_wa = mem_data[i_address_reg_a];
-                    
+
                     port_a_bit_count_low = i_address_reg_a * width_a;
                     port_b_bit_count_low = i_address_reg_b * width_b;
                     port_b_bit_count_high = port_b_bit_count_low + width_b;
-                    
+
                     for (i5 = 0; i5 < width_a; i5 = i5 + 1)
                     begin
                         i_byteena_count = port_a_bit_count_low % width_b;
 
                         if ((port_a_bit_count_low >= port_b_bit_count_low) && (port_a_bit_count_low < port_b_bit_count_high) &&
-                            ((i_core_clocken0_b_reg && (is_bidir_and_wrcontrol_addb_clk0 == 1)) || (i_core_clocken1_b_reg && (is_bidir_and_wrcontrol_addb_clk1 == 1))) && 
+                            ((i_core_clocken0_b_reg && (is_bidir_and_wrcontrol_addb_clk0 == 1)) || (i_core_clocken1_b_reg && (is_bidir_and_wrcontrol_addb_clk1 == 1))) &&
                             (i_wren_reg_b) && ((same_clock_pulse0 && same_clock_pulse1) || (address_reg_b == "CLOCK0")) &&
                             (i_byteena_mask_reg_b[i_byteena_count]) && (i_byteena_mask_reg_a[i5]))
                             temp_wa[i5] = {1'bx};
@@ -46503,7 +46503,7 @@ module altsyncram   (
                     if (((cread_during_write_mode_mixed_ports == "OLD_DATA") && (is_write_on_positive_edge == 1) && (address_reg_b == "CLOCK0")) ||
                         ((lutram_dual_port_fast_read == 1) && (operation_mode == "DUAL_PORT")))
                         i_read_flag_b = ~i_read_flag_b;
-                        
+
                     if ((read_during_write_mode_port_a == "OLD_DATA") ||
                         ((is_lutram == 1) && (read_during_write_mode_port_a == "DONT_CARE")))
                         i_read_flag_a = ~i_read_flag_a;
@@ -46523,7 +46523,7 @@ module altsyncram   (
 
             if ((i_wren_reg_b) && (i_good_to_write_b))
             begin
-            
+
                 i_aclr_flag_b = 0;
 
                 // RAM content is following width_a
@@ -46535,7 +46535,7 @@ module altsyncram   (
                     begin
                         if (enable_mem_data_b_reading)
                             mem_data_b[i_address_reg_b] = {width_b{1'bx}};
-                       
+
                         if (width_a == width_b)
                             mem_data[i_address_reg_b] = {width_b{1'bx}};
                         else
@@ -46558,7 +46558,7 @@ module altsyncram   (
                     begin
                         if (enable_mem_data_b_reading)
                             mem_data_b[i_address_reg_b] = {width_b{1'bx}};
-                        
+
                         if (width_a == width_b)
                             mem_data[i_address_reg_b] = {width_b{1'bx}};
                         else
@@ -46580,7 +46580,7 @@ module altsyncram   (
                 begin
                     if (i_address_reg_b != 0)
                     begin
-                        
+
                         if (enable_mem_data_b_reading)
                         begin
                             for (i2 = 0; i2 < i_numwords_b; i2 = i2 + 1)
@@ -46588,7 +46588,7 @@ module altsyncram   (
                                 mem_data_b[i2] = {width_b{1'bx}};
                             end
                         end
-                        
+
                         wa_mult_x_iii = {width_a{1'bx}};
                         for (i2 = 0; i2 < i_numwords_a; i2 = i2 + 1)
                         begin
@@ -46603,13 +46603,13 @@ module altsyncram   (
                         port_b_bit_count_low = i_address_reg_b * width_b;
                         port_a_bit_count_low = i_address_reg_a * width_a;
                         port_a_bit_count_high = port_a_bit_count_low + width_a;
-                        
+
                         for (i2 = 0; i2 < width_b; i2 = i2 + 1)
                         begin
                             port_b_bit_count_high = port_b_bit_count_low + i2;
                             temp_wa = mem_data[port_b_bit_count_high / width_a];
                             i_original_data_b[i2] = temp_wa[port_b_bit_count_high % width_a];
-                            
+
                             if ((port_b_bit_count_high >= port_a_bit_count_low) && (port_b_bit_count_high < port_a_bit_count_high) &&
                                 ((same_clock_pulse0 && same_clock_pulse1) || (address_reg_b == "CLOCK0")) &&
                                 (i_core_clocken_a_reg) && (i_wren_reg_a) &&
@@ -46617,7 +46617,7 @@ module altsyncram   (
                                 temp_wa[port_b_bit_count_high % width_a] = {1'bx};
                             else if (i_byteena_mask_reg_b[i2])
                                 temp_wa[port_b_bit_count_high % width_a] = i_data_reg_b[i2];
-                            
+
                             mem_data[port_b_bit_count_high / width_a] = temp_wa;
                             temp_wb[i2] = temp_wa[port_b_bit_count_high % width_a];
                         end
@@ -46627,14 +46627,14 @@ module altsyncram   (
 
                     if ((read_during_write_mode_port_b == "OLD_DATA") && (is_write_on_positive_edge == 1))
                         i_read_flag_b = ~i_read_flag_b;
-                        
+
                     if ((cread_during_write_mode_mixed_ports == "OLD_DATA")&& (address_reg_b == "CLOCK0") && (is_write_on_positive_edge == 1))
                         i_read_flag_a = ~i_read_flag_a;
 
                 end
 
             end
-            
+
         end
     end
 
@@ -46651,7 +46651,7 @@ module altsyncram   (
             begin
 
                 if (((i_ram_block_type == "M-RAM") || (i_ram_block_type == "MEGARAM") ||
-                        ((i_ram_block_type == "AUTO") && ((cread_during_write_mode_mixed_ports == "DONT_CARE") || (cread_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE")))) && 
+                        ((i_ram_block_type == "AUTO") && ((cread_during_write_mode_mixed_ports == "DONT_CARE") || (cread_during_write_mode_mixed_ports == "CONSTRAINED_DONT_CARE")))) &&
                     (operation_mode != "ROM") &&
                     ((family_has_stratixv_style_ram == 0) && (family_has_stratixiii_style_ram == 0)))
                     i_q_tmp2_a = {width_a{1'bx}};
@@ -46690,7 +46690,7 @@ module altsyncram   (
                                 end
                                 else
                                     if (is_lutram)
-                                        i_q_tmp2_a = mem_data[i_address_reg_a]; 
+                                        i_q_tmp2_a = mem_data[i_address_reg_a];
                                     else
                                         i_q_tmp2_a = i_data_reg_a ^ i_byteena_mask_reg_a_out;
                         end
@@ -46706,10 +46706,10 @@ module altsyncram   (
                         if (is_bidir_and_wrcontrol_addb_clk0 || (same_clock_pulse0 && same_clock_pulse1))
                         begin
                             // B write, A read
-                        if ((i_wren_reg_b & ~i_wren_reg_a) & 
-                            ((((is_bidir_and_wrcontrol_addb_clk0 & i_clocken0_b) || 
+                        if ((i_wren_reg_b & ~i_wren_reg_a) &
+                            ((((is_bidir_and_wrcontrol_addb_clk0 & i_clocken0_b) ||
                             (is_bidir_and_wrcontrol_addb_clk1 & i_clocken1_b)) && ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1))) ||
-                            (((is_bidir_and_wrcontrol_addb_clk0 & i_core_clocken0_b) || 
+                            (((is_bidir_and_wrcontrol_addb_clk0 & i_core_clocken0_b) ||
                             (is_bidir_and_wrcontrol_addb_clk1 & i_core_clocken1_b)) && ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)))))
                             begin
                                 add_reg_a_mult_wa = i_address_reg_a * width_a;
@@ -46745,7 +46745,7 @@ module altsyncram   (
                                             if ((i3 >= add_reg_b_mult_wb) &&
                                                 (i3 <= (add_reg_b_mult_wb_pl_wb - 1)))
                                             begin
-                                            
+
                                                 if (cread_during_write_mode_mixed_ports == "OLD_DATA")
                                                 begin
                                                     i_byteena_count = i3 - add_reg_b_mult_wb;
@@ -46758,18 +46758,18 @@ module altsyncram   (
                                                     i_q_tmp2_a_idx = (i3 - add_reg_a_mult_wa);
                                                     i_q_tmp2_a[i_q_tmp2_a_idx] = i_q_tmp2_a[i_q_tmp2_a_idx] ^ i_byteena_mask_reg_b_out_a[i_byteena_count];
                                                 end
-                                                
+
                                             end
                                         end
                             end
                         end
                     end
                 end
-                
+
                 if ((is_lutram == 1) && i_address_aclr_a && (i_address_aclr_family_a == 0) && (operation_mode == "ROM"))
                     i_q_tmp2_a = mem_data[0];
-                
-                if (((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) && 
+
+                if (((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) &&
                     (is_lutram != 1) &&
                     (i_outdata_aclr_a || i_force_reread_a) &&
                     (outdata_reg_a != "CLOCK0") && (outdata_reg_a != "CLOCK1"))
@@ -46795,9 +46795,9 @@ module altsyncram   (
                 $display("Time: %0t  Instance: %m", $time);
             end
         end
-        else 
+        else
             begin
-                if (i_outdata_aclr_a_prev && ~ i_outdata_aclr_a && 
+                if (i_outdata_aclr_a_prev && ~ i_outdata_aclr_a &&
                     (family_has_stratixiii_style_ram == 1) &&
                     (is_lutram != 1))
                 begin
@@ -46832,7 +46832,7 @@ module altsyncram   (
                 if (i_outdata_aclr_a)
                     i_q_reg_a <= 0;
                 else if (i_outdata_clken_a)
-                begin           
+                begin
                     i_q_reg_a <= i_q_tmp_a;
                     if (i_core_clocken_a)
                     i_address_aclr_a_flag <= 0;
@@ -46848,7 +46848,7 @@ module altsyncram   (
                 if (i_outdata_aclr_a)
                     i_q_reg_a <= 0;
                 else if (i_outdata_clken_a)
-                begin           
+                begin
                     if ((i_address_aclr_a_flag == 1) &&
                         (family_has_stratixv_style_ram || family_stratixiii) && (is_lutram != 1))
                         i_q_reg_a <= 'bx;
@@ -46888,7 +46888,7 @@ module altsyncram   (
         begin
             if (~good_to_go_b && (is_lutram == 0))
             begin
-                
+
                 if ((check_simultaneous_read_write == 1) &&
                     ((family_has_stratixv_style_ram == 0) && (family_has_stratixiii_style_ram == 0)) &&
                     (family_cycloneii == 0))
@@ -46905,7 +46905,7 @@ module altsyncram   (
                     begin
 
                         // read from memory or flow through for write cycle
-                        if (i_wren_reg_b && (((is_bidir_and_wrcontrol_addb_clk0 == 1) && i_core_clocken0_b) || 
+                        if (i_wren_reg_b && (((is_bidir_and_wrcontrol_addb_clk0 == 1) && i_core_clocken0_b) ||
                             ((is_bidir_and_wrcontrol_addb_clk1 == 1) && i_core_clocken1_b)))
                         begin
                             if (read_during_write_mode_port_b == "NEW_DATA_NO_NBE_READ")
@@ -46914,8 +46914,8 @@ module altsyncram   (
                             else if (read_during_write_mode_port_b == "NEW_DATA_WITH_NBE_READ")
                                 temp_wb = (i_data_reg_b & i_byteena_mask_reg_b) | (mem_data[i_address_reg_b] & ~i_byteena_mask_reg_b) ^ i_byteena_mask_reg_b_x;
                             else if (read_during_write_mode_port_b == "OLD_DATA")
-                                temp_wb = i_original_data_b; 
-                            else 
+                                temp_wb = i_original_data_b;
+                            else
                                 temp_wb = {width_b{1'bx}};
                         end
                         else if ((i_data_write_time_a == $time) && (operation_mode == "DUAL_PORT")  &&
@@ -46939,7 +46939,7 @@ module altsyncram   (
                                     temp_wb = mem_data[i_address_reg_b];
                             end
                             else
-                                temp_wb = mem_data[i_address_reg_b];              
+                                temp_wb = mem_data[i_address_reg_b];
                         end
                         else
                             temp_wb = mem_data[i_address_reg_b];
@@ -46950,7 +46950,7 @@ module altsyncram   (
                                 (is_bidir_and_wrcontrol_addb_clk0 == 1) || (same_clock_pulse0 && same_clock_pulse1))
                             begin
                                 // A write, B read
-                                if ((i_wren_reg_a & ~i_wren_reg_b) && 
+                                if ((i_wren_reg_a & ~i_wren_reg_b) &&
                                     ((i_clocken0 && ((family_has_stratixv_style_ram == 0) && (family_has_stratixiii_style_ram == 0))) ||
                                     (i_core_clocken_a && ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)))))
                                 begin
@@ -46986,8 +46986,8 @@ module altsyncram   (
                             temp_wa2b = mem_data[j2_plus_i5 / width_a];
                             temp_wb[i5] = temp_wa2b[j2_plus_i5 % width_a];
                         end
-                        
-                        if (i_wren_reg_b && ((is_bidir_and_wrcontrol_addb_clk0 && i_core_clocken0_b) || 
+
+                        if (i_wren_reg_b && ((is_bidir_and_wrcontrol_addb_clk0 && i_core_clocken0_b) ||
                             (is_bidir_and_wrcontrol_addb_clk1 && i_core_clocken1_b)))
                         begin
                             if (read_during_write_mode_port_b == "NEW_DATA_NO_NBE_READ")
@@ -46996,7 +46996,7 @@ module altsyncram   (
                                 temp_wb = (i_data_reg_b & i_byteena_mask_reg_b) | (temp_wb & ~i_byteena_mask_reg_b) ^ i_byteena_mask_reg_b_x;
                             else if (read_during_write_mode_port_b == "OLD_DATA")
                                 temp_wb = i_original_data_b;
-                            else 
+                            else
                                 temp_wb = {width_b{1'bx}};
                         end
                         else if ((i_data_write_time_a == $time) &&  (operation_mode == "DUAL_PORT") &&
@@ -47027,7 +47027,7 @@ module altsyncram   (
                                 end
                                 else
                                     temp_wa2b = mem_data[j2_plus_i5_div_a];
-              
+
                                 temp_wb[i5] = temp_wa2b[j2_plus_i5 % width_a];
                             end
                         end
@@ -47038,16 +47038,16 @@ module altsyncram   (
                                 ((wrcontrol_wraddress_reg_b == "CLOCK0") & is_bidir_and_wrcontrol_addb_clk0) || (same_clock_pulse0 && same_clock_pulse1))
                             begin
                                 // A write, B read
-                                if ((i_wren_reg_a & ~i_wren_reg_b) && 
+                                if ((i_wren_reg_a & ~i_wren_reg_b) &&
                                     ((i_clocken0 && ((family_has_stratixv_style_ram == 0) && (family_has_stratixiii_style_ram == 0))) ||
                                     (i_core_clocken_a && ((family_has_stratixv_style_ram == 1) || (family_has_stratixiii_style_ram == 1)))))
                                 begin
-                                
+
                                     for (i5=0; i5<width_b; i5=i5+1)
                                     begin
                                         j2_plus_i5 = j2 + i5;
                                         j2_plus_i5_div_a = j2_plus_i5 / width_a;
-                                        
+
                                         // if A write to the same Ram address B is reading from
                                         if (j2_plus_i5_div_a == i_address_reg_a)
                                         begin
@@ -47063,21 +47063,21 @@ module altsyncram   (
 													temp_wa2b = temp_wa2b ^ i_byteena_mask_reg_a_out_b;
                                                 end
                                             end
-                                                
+
                                             temp_wb[i5] = temp_wa2b[j2_plus_i5 % width_a];
                                         end
-                                            
+
                                     end
                                 end
                             end
                         end
-                    end 
+                    end
                     //end of width_a != width_b
-                    
+
                     i_q_tmp2_b = temp_wb;
 
                 end
-                
+
                 if ((is_lutram == 1) && i_address_aclr_b && (i_address_aclr_family_b == 0) && (operation_mode == "DUAL_PORT"))
                 begin
                     for (init_i = 0; init_i < width_b; init_i = init_i + 1)
@@ -47098,8 +47098,8 @@ module altsyncram   (
                         i_q_tmp2_b[i5] = temp_wa2b[j2_plus_i5 % width_a];
                     end
                 end
-                
-                if ((i_outdata_aclr_b || i_force_reread_b) && 
+
+                if ((i_outdata_aclr_b || i_force_reread_b) &&
                     ((family_has_stratixv_style_ram == 1) || (family_cycloneiii == 1)) &&
                     (is_lutram != 1) &&
                     (outdata_reg_b != "CLOCK0") && (outdata_reg_b != "CLOCK1"))
@@ -47129,7 +47129,7 @@ module altsyncram   (
         else
             if (operation_mode == "BIDIR_DUAL_PORT")
             begin
-            
+
                 if (i_outdata_aclr_b_prev && ~ i_outdata_aclr_b && (family_has_stratixiii_style_ram == 1) && (is_lutram != 1))
                 begin
                     i_outdata_aclr_b_prev <= i_outdata_aclr_b;
@@ -47156,15 +47156,15 @@ module altsyncram   (
                 end
                 else if ((i_force_reread_b1 == 0) && !(i_address_aclr_b_prev && ~i_address_aclr_b && (i_address_aclr_family_b == 0) && s3_address_aclr_b))
                 begin
-		
-		
+
+
                 if ((is_lutram == 1) && (is_write_on_positive_edge) && (cread_during_write_mode_mixed_ports == "OLD_DATA") && (width_a == width_b) && (i_address_reg_a == i_address_reg_b) && i_wren_reg_a && i_rden_reg_b)
                     i_q_tmp_b <= i_original_data_a;
 		else
                     i_q_tmp_b <= i_q_tmp2_b;
                 end
             end
-        
+
         if ((i_outdata_aclr_b) && (s3_address_aclr_b))
         begin
             i_q_tmp_b <= {width_b{1'b0}};
@@ -47229,7 +47229,7 @@ module altsyncram   (
                     if ((is_lutram == 1) && (cread_during_write_mode_mixed_ports == "OLD_DATA"))
                         i_q_reg_b <= i_q_output_latch;
                     else
-                    begin           
+                    begin
                         if ((i_address_aclr_b_flag == 1) && (family_has_stratixv_style_ram || family_stratixiii) &&
                             (is_lutram != 1))
                             i_q_reg_b <= 'bx;
@@ -47266,7 +47266,7 @@ module altsyncram   (
 		end
 	end
 	endgenerate
-	
+
     // Latch for address aclr till outclock enabled
     always @(posedge i_address_aclr_b or posedge i_outdata_aclr_b)
         if (i_outdata_aclr_b)
@@ -47299,51 +47299,51 @@ endmodule // ALTSYNCRAM
 // Description      : Triple-Port RAM megafunction. This megafunction implements
 //                    RAM with 1 write port and 2 read ports.
 //
-// Limitation       : This megafunction is provided only for backward 
-//                    compatibility in Stratix designs; instead, Altera® 
+// Limitation       : This megafunction is provided only for backward
+//                    compatibility in Stratix designs; instead, Altera®
 //                    recommends using the altsyncram megafunction.
 //
-//                    In MAX 3000, and MAX 7000 devices, 
-//                    or if the USE_EAB paramter is set to "OFF", uses one 
+//                    In MAX 3000, and MAX 7000 devices,
+//                    or if the USE_EAB paramter is set to "OFF", uses one
 //                    logic cell (LCs) per memory bit.
 //
 //
-// Results expected : The alt3pram function represents asynchronous memory 
+// Results expected : The alt3pram function represents asynchronous memory
 //                    or memory with synchronous inputs and/or outputs.
 //                    (note: ^ below indicates posedge)
 //
 //                    [ Synchronous Write to Memory (all inputs registered) ]
-//                    inclock    inclocken    wren    Function   
-//                      X           L           L     No change. 
-//                     not ^        H           H     No change. 
-//                      ^           L           X     No change. 
-//                      ^           H           H     The memory location 
-//                                                    pointed to by wraddress[] 
-//                                                    is loaded with data[]. 
+//                    inclock    inclocken    wren    Function
+//                      X           L           L     No change.
+//                     not ^        H           H     No change.
+//                      ^           L           X     No change.
+//                      ^           H           H     The memory location
+//                                                    pointed to by wraddress[]
+//                                                    is loaded with data[].
 //
-//                    [ Synchronous Read from Memory ] 
-//                    inclock  inclocken  rden_a/rden_b  Function  
-//                       X         L            L        No change. 
-//                     not ^       H            H        No change. 
-//                       ^         L            X        No change. 
-//                       ^         H            H        The q_a[]/q_b[]port 
-//                                                       outputs the contents of 
-//                                                       the memory location. 
+//                    [ Synchronous Read from Memory ]
+//                    inclock  inclocken  rden_a/rden_b  Function
+//                       X         L            L        No change.
+//                     not ^       H            H        No change.
+//                       ^         L            X        No change.
+//                       ^         H            H        The q_a[]/q_b[]port
+//                                                       outputs the contents of
+//                                                       the memory location.
 //
 //                   [ Asynchronous Memory Operations ]
-//                   wren     Function  
-//                    L       No change. 
-//                    H       The memory location pointed to by wraddress[] is 
+//                   wren     Function
+//                    L       No change.
+//                    H       The memory location pointed to by wraddress[] is
 //                            loaded with data[] and controlled by wren.
-//                            The output q_a[] is asynchronous and reflects 
-//                            the memory location pointed to by rdaddress_a[]. 
+//                            The output q_a[] is asynchronous and reflects
+//                            the memory location pointed to by rdaddress_a[].
 //
 //-----------------------------------------------------------------------------+
 
 `timescale 1 ps / 1 ps
 
-module alt3pram (wren, data, wraddress, inclock, inclocken, 
-                rden_a, rden_b, rdaddress_a, rdaddress_b, 
+module alt3pram (wren, data, wraddress, inclock, inclocken,
+                rden_a, rden_b, rdaddress_a, rdaddress_b,
                 outclock, outclocken, aclr, qa, qb);
 
     // ---------------------
@@ -47356,7 +47356,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     parameter lpm_file         = "UNUSED";      // name of hex file
     parameter lpm_hint         = "USE_EAB=ON";  // non-LPM parameters (Altera)
     parameter indata_reg       = "UNREGISTERED";// clock used by data[] port
-    parameter indata_aclr      = "ON";         // aclr affects data[]? 
+    parameter indata_aclr      = "ON";         // aclr affects data[]?
     parameter write_reg        = "UNREGISTERED";// clock used by wraddress & wren
     parameter write_aclr       = "ON";         // aclr affects wraddress?
     parameter rdaddress_reg_a  = "UNREGISTERED";// clock used by readdress_a
@@ -47380,22 +47380,22 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     // the following behaviour come in effect when RAM is implemented in EAB/ESB
 
     // This is the flag to indicate if the memory is constructed using EAB/ESB:
-    //     A write request requires both rising and falling edge of the clock 
-    //     to complete. First the data will be clocked in (registered) at the 
-    //     rising edge and will not be written into the ESB/EAB memory until 
+    //     A write request requires both rising and falling edge of the clock
+    //     to complete. First the data will be clocked in (registered) at the
+    //     rising edge and will not be written into the ESB/EAB memory until
     //     the falling edge appears on the the write clock.
     //     No such restriction if the memory is constructed using LCs.
-    reg write_at_low_clock; // initialize at initial block 
+    reg write_at_low_clock; // initialize at initial block
 
-                                    
-    // The read ports will not hold any value (zero) if rden is low. This 
+
+    // The read ports will not hold any value (zero) if rden is low. This
     //     behavior only apply to memory constructed using EAB/ESB, but not LCs.
     reg rden_low_output_0;
-                                    
+
     // ----------------
     // PORT DECLARATION
     // ----------------
-   
+
     // data input ports
     input [width-1:0]      data;
 
@@ -47445,7 +47445,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
 
     reg  [widthad-1:0]     i_wraddress_hi;
     reg  [widthad-1:0]     i_wraddress_lo;
-    
+
     reg  [widthad-1:0]     i_rdaddress_reg_a;
     reg  [widthad-1:0]     i_rdaddress_reg_a_dly;
     wire [widthad-1:0]     i_rdaddress_tmp_a;
@@ -47471,7 +47471,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
 
     wire                   i_non_stratix_inclock;  // inclock signal for non-Stratix families
     wire                   i_non_stratix_outclock; // inclock signal for non-Stratix families
-    
+
     reg                    feature_family_stratix;
 
     // -------------------
@@ -47481,7 +47481,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     integer                i_numwords;
     integer                new_data;
     integer                tmp_new_data;
-    
+
 
     // --------------------------------
     // Tri-State and Buffer DECLARATION
@@ -47494,7 +47494,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     tri1                   rden_a;
     tri1                   rden_b;
     tri0                   aclr;
-               
+
     // ------------------------
     // COMPONENT INSTANTIATIONS
     // ------------------------
@@ -47629,10 +47629,10 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
         feature_family_stratix = dev.FEATURE_FAMILY_STRATIX(intended_device_family);
 
         // Check for invalid parameters
-        
+
         write_at_low_clock = ((write_reg == "INCLOCK") &&
                                     (eva.GET_PARAMETER_VALUE(lpm_hint, "USE_EAB") == "ON")) ? 1 : 0;
-                                    
+
         if (width <= 0)
         begin
             $display("Error: width parameter must be greater than 0.");
@@ -47658,7 +47658,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
                     mem_data[i] = 0;
         else
         begin
-        
+
 	mem.convert_to_ver_file(lpm_file, width, ram_initf);
         $readmemh(ram_initf, mem_data);
 
@@ -47677,7 +47677,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
         // Initialize integer
         new_data = 0;
         tmp_new_data = 0;
-        
+
         rden_low_output_0 = 0;
 
     end
@@ -47685,7 +47685,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     // ------------------------
     // ALWAYS CONSTRUCT BLOCK
     // ------------------------
-    
+
     // The following always blocks are used to implement the alt3pram behavior for
     // device families other than Stratix/Stratix II/Stratix GX and Cyclone.
 
@@ -47694,7 +47694,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     //=========
 
     // At posedge of the write clock:
-    // All input ports values (data, address and control) are 
+    // All input ports values (data, address and control) are
     // clocked in from physical ports to internal variables
     //     Write Cycle: i_*_hi
     //     Read  Cycle: i_*_reg
@@ -47716,7 +47716,7 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
                 i_wren_hi <= 0;
             end
             else if (inclocken == 1)
-            begin       
+            begin
                 i_wraddress_hi <= wraddress;
                 i_wren_hi <= wren;
             end
@@ -47758,8 +47758,8 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
 
     // At negedge of the write clock:
     // Write Cycle: since internally data only completed written on memory
-    //              at the falling edge of write clock, the "write" related 
-    //              data, address and controls need to be shift to another 
+    //              at the falling edge of write clock, the "write" related
+    //              data, address and controls need to be shift to another
     //              varibles (i_*_hi -> i_*_lo) during falling edge.
     always @(negedge i_non_stratix_inclock)
     begin
@@ -47787,10 +47787,10 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     end  // End of always block: @(negedge inclock)
 
 
-    // At posedge of read clock: 
+    // At posedge of read clock:
     // Read Cycle: This block is valid only if the operating mode is
-    //             in "Seperate Clock Mode". All read data, address 
-    //             and control are clocked out from internal vars 
+    //             in "Seperate Clock Mode". All read data, address
+    //             and control are clocked out from internal vars
     //             (i_*_reg) to output port.
     always @(posedge i_non_stratix_outclock)
     begin
@@ -47873,29 +47873,29 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
             begin
                 mem_data[i_wraddress_tmp] <= i_data_tmp;
             end
-        
-        tmp_new_data <= ~tmp_new_data;  
-            
-        end        
+
+        tmp_new_data <= ~tmp_new_data;
+
+        end
     end
 
     always @(tmp_new_data)
     begin
-    
+
         new_data <= 0;
     end
 
         // Triple-Port Ram (alt3pram) has one write port and two read ports (a and b)
         // Below is the operation to read data from internal memory (mem_data[])
         // to the output port (i_qa_tmp or i_qb_tmp)
-        // Note: i_q*_tmp will serve as the var directly link to the physical 
-        //       output port q* if alt3pram is operate in "Shared Clock Mode", 
+        // Note: i_q*_tmp will serve as the var directly link to the physical
+        //       output port q* if alt3pram is operate in "Shared Clock Mode",
         //       else data read from i_q*_tmp will need to be latched to i_q*_reg
         //       through outclock before it is fed to the output port q* (qa or qb).
 
-    always @(posedge new_data or negedge new_data or 
-            posedge i_rden_tmp_a or negedge i_rden_tmp_a or 
-            i_rdaddress_tmp_a) 
+    always @(posedge new_data or negedge new_data or
+            posedge i_rden_tmp_a or negedge i_rden_tmp_a or
+            i_rdaddress_tmp_a)
     begin
 
         if (i_rden_tmp_a == 1)
@@ -47905,8 +47905,8 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
 
     end
 
-    always @(posedge new_data or negedge new_data or 
-            posedge i_rden_tmp_b or negedge i_rden_tmp_b or 
+    always @(posedge new_data or negedge new_data or
+            posedge i_rden_tmp_b or negedge i_rden_tmp_b or
             i_rdaddress_tmp_b)
     begin
 
@@ -47923,28 +47923,28 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
     //=======
 
     assign  i_wraddress_reg   = ((aclr == 1) && (write_aclr == "ON")) ?
-                                    {widthad{1'b0}} : (write_at_low_clock ? 
+                                    {widthad{1'b0}} : (write_at_low_clock ?
                                         i_wraddress_lo : i_wraddress_hi);
 
     assign  i_wren_reg        = ((aclr == 1) && (write_aclr == "ON")) ?
-                                    1'b0 : ((write_at_low_clock) ? 
+                                    1'b0 : ((write_at_low_clock) ?
                                         i_wren_lo : i_wren_hi);
 
     assign  i_data_reg        = ((aclr == 1) && (indata_aclr == "ON")) ?
-                                    {width{1'b0}} : ((write_at_low_clock) ? 
+                                    {width{1'b0}} : ((write_at_low_clock) ?
                                         i_data_lo : i_data_hi);
 
     assign  i_wraddress_tmp   = ((aclr == 1) && (write_aclr == "ON")) ?
-                                    {widthad{1'b0}} : ((write_reg == "INCLOCK") ? 
+                                    {widthad{1'b0}} : ((write_reg == "INCLOCK") ?
                                         i_wraddress_reg : wraddress);
-    
+
     assign  i_rdaddress_tmp_a = ((aclr == 1) && (rdaddress_aclr_a == "ON")) ?
-                                    {widthad{1'b0}} : (((rdaddress_reg_a == "INCLOCK") || 
+                                    {widthad{1'b0}} : (((rdaddress_reg_a == "INCLOCK") ||
                                         (rdaddress_reg_a == "OUTCLOCK")) ?
                                         i_rdaddress_reg_a_dly : rdaddress_a);
 
     assign  i_rdaddress_tmp_b = ((aclr == 1) && (rdaddress_aclr_b == "ON")) ?
-                                    {widthad{1'b0}} : (((rdaddress_reg_b == "INCLOCK") || 
+                                    {widthad{1'b0}} : (((rdaddress_reg_b == "INCLOCK") ||
                                         (rdaddress_reg_b == "OUTCLOCK")) ?
                                         i_rdaddress_reg_b_dly : rdaddress_b);
 
@@ -47953,19 +47953,19 @@ module alt3pram (wren, data, wraddress, inclock, inclocken,
                                         i_wren_reg : wren);
 
     assign  i_rden_tmp_a      = ((aclr == 1) && (rdcontrol_aclr_a == "ON")) ?
-                                    1'b0 : (((rdcontrol_reg_a == "INCLOCK") || 
+                                    1'b0 : (((rdcontrol_reg_a == "INCLOCK") ||
                                         (rdcontrol_reg_a == "OUTCLOCK")) ?
                                         i_rden_reg_a : rden_a);
 
     assign  i_rden_tmp_b      = ((aclr == 1) && (rdcontrol_aclr_b == "ON")) ?
-                                    1'b0 : (((rdcontrol_reg_b == "INCLOCK") || 
+                                    1'b0 : (((rdcontrol_reg_b == "INCLOCK") ||
                                         (rdcontrol_reg_b == "OUTCLOCK")) ?
                                         i_rden_reg_b : rden_b);
 
     assign  i_data_tmp        = ((aclr == 1) && (indata_aclr == "ON")) ?
                                     {width{1'b0}} : ((indata_reg == "INCLOCK") ?
                                         i_data_reg : data);
-    
+
     assign  qa                = (feature_family_stratix == 1) ?
                                 i_qa_stratix :
                                 (((aclr == 1) && (outdata_aclr_a == "ON")) ?
@@ -47997,7 +47997,7 @@ endmodule // end of ALT3PRAM
 //
 // Module Name     :  parallel_add
 //
-// Description     :  Parameterized parallel adder megafunction. The data input 
+// Description     :  Parameterized parallel adder megafunction. The data input
 //                    is a concatenated group of input words.  The size
 //                    parameter indicates the number of 'width'-bit words.
 //
@@ -48006,7 +48006,7 @@ endmodule // end of ALT3PRAM
 //                    parameter.  The shift amount is multiplied by the word
 //                    index, with the least significant word being word 0.
 //                    The shift for word I is (shift * I).
-//                   
+//
 //                    The most significant word can be subtracted from the total
 //                    by setting the msw_subtract parameter to 1.
 //                    If the result width is less than is required to show the
@@ -48031,7 +48031,7 @@ module parallel_add (
     aclr,
     clken,
     result);
-    
+
     parameter width = 4;        // Required
     parameter size = 2;         // Required
     parameter widthr = 4;       // Required
@@ -48048,7 +48048,7 @@ module parallel_add (
     // The +30 is there only to simplify the test generator, which occasionally asks
     // for output widths far in excess of what is needed.  The excess is always less than 30.
     `define max_precision (width+size+shift*(size-1)+30)    // Result will not overflow this size
-    
+
     // INPUT PORT DECLARATION
     input [width*size-1:0] data;  // Required port
     input clock;                // Required port
@@ -48076,7 +48076,7 @@ module parallel_add (
     integer ni;
     integer best_result_width;
     integer pipe_ptr;
-    
+
     // Note: The recommended value for WIDTHR parameter,
     //       the width of addition result, for full
     //       precision is:
@@ -48086,7 +48086,7 @@ module parallel_add (
     //                                (2^SHIFT)-1
     //
     // Use CALC_PADD_WIDTHR(WIDTH, SIZE, SHIFT):
-    // DEFINE CALC_PADD_WIDTHR(w, z, s) = (s == 0) ? CEIL(LOG2(z*((2^w)-1))) : 
+    // DEFINE CALC_PADD_WIDTHR(w, z, s) = (s == 0) ? CEIL(LOG2(z*((2^w)-1))) :
     //                                                  CEIL(LOG2(((2^w)-1) * (2^(z*s)-1) / ((2^s)-1)));
     function integer ceil_log2;
         input [`max_precision-1:0] input_num;
@@ -48118,9 +48118,9 @@ module parallel_add (
         else
             best_result_width = ceil_log2( ((1<<width)-1) * ((1 << (size*shift))-1)
                                             / ((1 << shift)-1));
-        
+
         imsb_align = (result_alignment == "MSB" && widthr < best_result_width) ? 1 : 0;
-                
+
         // Clear the pipeline array
         for (ni=0; ni< pipeline +1; ni=ni+1)
             resultpipe[ni] = 0;
@@ -48136,19 +48136,19 @@ module parallel_add (
         begin
             // Get input word to add to total
             idata_word = (data >> (ni * width));
-            
+
             // If signed and negative, pad MSB with ones to sign extend the input data
             if ((representation != "UNSIGNED") && (idata_word[width-1] == 1'b1))
                 idata_extended = ({{(`max_precision-width-2){1'b1}}, idata_word} << (shift*ni));
             else
                 idata_extended = (idata_word << (shift*ni));    // zero padding is automatic
-            
+
             // Add to total
             if ((msw_subtract == "YES") && (ni == (size-1)))
                 tmp_result = tmp_result - idata_extended;
             else
                 tmp_result = tmp_result + idata_extended;
-        end        
+        end
     end
 
     // Pipeline model
@@ -48184,7 +48184,7 @@ endmodule  // end of PARALLEL_ADD
 //
 // Description     :  Single Clock FIFO
 //
-// Limitation      :  
+// Limitation      :
 //
 // Results expected:
 //
@@ -48194,17 +48194,17 @@ endmodule  // end of PARALLEL_ADD
 `timescale 1 ps / 1 ps
 
 // MODULE DECLARATION
-module scfifo ( data, 
-                clock, 
-                wrreq, 
-                rdreq, 
-                aclr, 
+module scfifo ( data,
+                clock,
+                wrreq,
+                rdreq,
+                aclr,
                 sclr,
-                q, 
-                usedw, 
-                full, 
-                empty, 
-                almost_full, 
+                q,
+                usedw,
+                full,
+                empty,
+                almost_full,
                 almost_empty);
 
 // GLOBAL PARAMETER DECLARATION
@@ -48222,7 +48222,7 @@ module scfifo ( data,
     parameter add_ram_output_register = "OFF";
     parameter almost_full_value       = 0;
     parameter almost_empty_value      = 0;
-    parameter maximum_depth           = 0;    
+    parameter maximum_depth           = 0;
 
 // LOCAL_PARAMETERS_BEGIN
 
@@ -48253,7 +48253,7 @@ module scfifo ( data,
     reg [lpm_widthu-1:0] count_id;
     reg [lpm_widthu-1:0] read_id;
     reg [lpm_widthu-1:0] write_id;
-    
+
     wire valid_rreq;
     reg valid_wreq;
     reg write_flag;
@@ -48266,17 +48266,17 @@ module scfifo ( data,
     reg set_q_to_x;
     reg set_q_to_x_by_empty;
 
-    reg [lpm_widthu-1:0] write_latency1; 
-    reg [lpm_widthu-1:0] write_latency2; 
-    reg [lpm_widthu-1:0] write_latency3; 
+    reg [lpm_widthu-1:0] write_latency1;
+    reg [lpm_widthu-1:0] write_latency2;
+    reg [lpm_widthu-1:0] write_latency3;
     integer wrt_count;
-        
-    reg empty_latency1; 
-    reg empty_latency2; 
-    
+
+    reg empty_latency1;
+    reg empty_latency2;
+
     reg [(1<<lpm_widthu)-1:0] data_ready;
     reg [(1<<lpm_widthu)-1:0] data_shown;
-    
+
 // INTERNAL TRI DECLARATION
     tri0 aclr;
 
@@ -48290,7 +48290,7 @@ module scfifo ( data,
     initial
     begin
 
-        stratix_family = (dev.FEATURE_FAMILY_STRATIX(intended_device_family));    
+        stratix_family = (dev.FEATURE_FAMILY_STRATIX(intended_device_family));
         if (lpm_width <= 0)
         begin
             $display ("Error! LPM_WIDTH must be greater than 0.");
@@ -48308,9 +48308,9 @@ module scfifo ( data,
         end
         if((add_ram_output_register != "ON") && (add_ram_output_register != "OFF"))
         begin
-            $display ("Error! add_ram_output_register must be ON or OFF.");          
+            $display ("Error! add_ram_output_register must be ON or OFF.");
             $display ("Time: %0t  Instance: %m", $time);
-        end         
+        end
         for (i = 0; i < (1<<lpm_widthu); i = i + 1)
         begin
             if (dev.FEATURE_FAMILY_HAS_STRATIXIII_STYLE_RAM(intended_device_family))
@@ -48332,23 +48332,23 @@ module scfifo ( data,
         begin
             if ((add_ram_output_register == "ON") || (use_eab == "OFF"))
                 tmp_q <= {lpm_width{1'b0}};
-            else    
+            else
                 tmp_q <= {lpm_width{1'bx}};
         end
         else
             tmp_q <= {lpm_width{1'b0}};
-            
+
         write_flag <= 1'b0;
         count_id <= 0;
         read_id <= 0;
         write_id <= 0;
         full_flag <= 1'b0;
         empty_flag <= 1'b1;
-        empty_latency1 <= 1'b1; 
-        empty_latency2 <= 1'b1;                 
+        empty_latency1 <= 1'b1;
+        empty_latency2 <= 1'b1;
         set_q_to_x <= 1'b0;
         set_q_to_x_by_empty <= 1'b0;
-        wrt_count <= 0;        
+        wrt_count <= 0;
 
         if (almost_full_value == 0)
             almost_full_flag <= 1'b1;
@@ -48374,7 +48374,7 @@ module scfifo ( data,
     end
 
     always @(posedge clock or posedge aclr)
-    begin        
+    begin
         if (aclr)
         begin
             if (add_ram_output_register == "ON")
@@ -48397,19 +48397,19 @@ module scfifo ( data,
             count_id <= 0;
             full_flag <= 1'b0;
             empty_flag <= 1'b1;
-            empty_latency1 <= 1'b1; 
+            empty_latency1 <= 1'b1;
             empty_latency2 <= 1'b1;
             set_q_to_x <= 1'b0;
             set_q_to_x_by_empty <= 1'b0;
             wrt_count <= 0;
-            
+
             if (almost_full_value > 0)
                 almost_full_flag <= 1'b0;
             if (almost_empty_value > 0)
                 almost_empty_flag <= 1'b1;
 
             write_id <= 0;
-            
+
             if ((use_eab == "ON") && (stratix_family) && ((showahead_speed) || (showahead_area) || (legacy_speed)))
             begin
                 write_latency1 <= 1'bx;
@@ -48419,7 +48419,7 @@ module scfifo ( data,
                     tmp_q <= {lpm_width{1'b0}};
                 else
                     tmp_q <= {lpm_width{1'bX}};
-            end            
+            end
         end
         else
         begin
@@ -48434,7 +48434,7 @@ module scfifo ( data,
                 count_id <= 0;
                 full_flag <= 1'b0;
                 empty_flag <= 1'b1;
-                empty_latency1 <= 1'b1; 
+                empty_latency1 <= 1'b1;
                 empty_latency2 <= 1'b1;
                 set_q_to_x <= 1'b0;
                 set_q_to_x_by_empty <= 1'b0;
@@ -48463,20 +48463,20 @@ module scfifo ( data,
                 begin
                     write_latency1 <= 1'bx;
                     write_latency2 <= 1'bx;
-                    data_shown <= {lpm_width{1'b0}};                    
+                    data_shown <= {lpm_width{1'b0}};
                     if (add_ram_output_register == "ON")
                         tmp_q <= {lpm_width{1'b0}};
                     else
                         tmp_q <= {lpm_width{1'bX}};
-                end            
+                end
             end
-            else 
+            else
             begin
-                //READ operation    
+                //READ operation
                 if (valid_rreq)
                 begin
                     if (!(set_q_to_x || set_q_to_x_by_empty))
-                    begin  
+                    begin
                         if (!valid_wreq)
                             wrt_count <= wrt_count - 1;
 
@@ -48488,7 +48488,7 @@ module scfifo ( data,
                                 count_id <= {lpm_widthu{1'b1}};
                             else
                                 count_id <= count_id - 1;
-                        end                
+                        end
 
                         if ((use_eab == "ON") && stratix_family && (showahead_speed || showahead_area || legacy_speed))
                         begin
@@ -48541,7 +48541,7 @@ module scfifo ( data,
                         begin
                             if (lpm_showahead == "ON")
                             begin
-                                if ((use_eab == "ON") && stratix_family && (showahead_speed || showahead_area))                        
+                                if ((use_eab == "ON") && stratix_family && (showahead_speed || showahead_area))
                                 begin
                                     if (showahead_speed)
                                     begin
@@ -48575,7 +48575,7 @@ module scfifo ( data,
                                                 data_shown[0] <= 1'b0;
                                                 data_ready[0] <= 1'b0;
                                             end
-                                        end                            
+                                        end
                                     end
                                 end
                                 else
@@ -48592,7 +48592,7 @@ module scfifo ( data,
                                             end
                                             else
                                                 tmp_q <= {lpm_width{1'bX}};
-                                    end 
+                                    end
                                     else
                                         tmp_q <= mem_data[0];
                                 end
@@ -48613,7 +48613,7 @@ module scfifo ( data,
                                     else
                                     begin
                                         tmp_q <= {lpm_width{1'bX}};
-                                    end                                  
+                                    end
                                 end
                                 else
                                     tmp_q <= mem_data[read_id];
@@ -48708,13 +48708,13 @@ module scfifo ( data,
                                     else
                                     begin
                                         tmp_q <= {lpm_width{1'bX}};
-                                    end                                
+                                    end
                                 end
                                 else
                                     tmp_q <= mem_data[read_id];
                             end
 
-                            read_id <= read_id + 1;            
+                            read_id <= read_id + 1;
                         end
                     end
                 end
@@ -48734,7 +48734,7 @@ module scfifo ( data,
                         begin
                             mem_data[write_id] <= data;
                             write_flag <= 1'b1;
-    
+
                             if (!((use_eab == "ON") && stratix_family && (showahead_speed || showahead_area || legacy_speed)))
                             begin
                                 empty_flag <= 1'b0;
@@ -48743,46 +48743,46 @@ module scfifo ( data,
                             begin
                                 empty_latency1 <= 1'b0;
                             end
-    
-                            if (!valid_rreq)                
+
+                            if (!valid_rreq)
                                 wrt_count <= wrt_count + 1;
-    
+
                             if (!valid_rreq)
                             begin
                                 if (count_id >= (1 << lpm_widthu) - 1)
                                     count_id <= 0;
                                 else
-                                    count_id <= count_id + 1;               
+                                    count_id <= count_id + 1;
                             end
                             else
                             begin
                                 if (allow_rwcycle_when_full == "OFF")
                                     full_flag <= 1'b0;
                             end
-    
+
                             if (!(stratix_family) || (stratix_family && !(showahead_speed || showahead_area || legacy_speed)))
-                            begin                
+                            begin
                                 if (!valid_rreq)
                                     if ((count_id == lpm_numwords - 1) && (empty_flag == 1'b0))
                                         full_flag <= 1'b1;
                             end
                             else
-                            begin   
+                            begin
                                 if (!valid_rreq)
                                     if (count_id == lpm_numwords - 1)
                                         full_flag <= 1'b1;
                             end
-    
+
                             if (lpm_showahead == "ON")
                             begin
                                 if ((use_eab == "ON") && stratix_family && (showahead_speed || showahead_area))
                                 begin
-                                    write_latency1 <= write_id;                    
+                                    write_latency1 <= write_id;
                                     data_shown[write_id] <= 1'b1;
                                     data_ready[write_id] <= 1'bx;
                                 end
                                 else
-                                begin 
+                                begin
                                     if ((use_eab == "OFF") && stratix_family && (count_id == 0) && (!full_flag))
                                     begin
                                         tmp_q <= data;
@@ -48798,16 +48798,16 @@ module scfifo ( data,
                             end
                             else
                             begin
-                                if ((use_eab == "ON") && stratix_family && legacy_speed) 
+                                if ((use_eab == "ON") && stratix_family && legacy_speed)
                                 begin
-                                    write_latency1 <= write_id;                    
+                                    write_latency1 <= write_id;
                                     data_shown[write_id] <= 1'b1;
                                     data_ready[write_id] <= 1'bx;
                                 end
                             end
                         end
-                    end   
-                end    
+                    end
+                end
 
                 if (almost_full_value == 0)
                     almost_full_flag <= 1'b1;
@@ -48856,21 +48856,21 @@ module scfifo ( data,
                     write_latency3 <= write_latency2;
                     if (write_latency3 !== write_latency2)
                         data_ready[write_latency2] <= 1'b1;
-                                    
+
                     empty_latency2 <= empty_latency1;
 
                     if (data_shown[write_latency2]==1'b1)
                     begin
                         if ((read_id == write_latency2) || aclr || sclr)
                         begin
-                            if (!(aclr === 1'b1) && !(sclr === 1'b1))                        
+                            if (!(aclr === 1'b1) && !(sclr === 1'b1))
                             begin
                                 if (write_latency2 !== 1'bx)
                                 begin
                                     tmp_q <= mem_data[write_latency2];
                                     data_shown[write_latency2] <= 1'b0;
                                     data_ready[write_latency2] <= 1'b0;
-    
+
                                     if (!valid_rreq)
                                         empty_flag <= empty_latency2;
                                 end
@@ -48903,7 +48903,7 @@ module scfifo ( data,
                                 end
                             end
                         end
-                    end                            
+                    end
                 end
                 else
                 begin
@@ -48970,7 +48970,7 @@ module scfifo ( data,
                 almost_empty_flag = 1'b1;
     end
 
-// CONTINOUS ASSIGNMENT   
+// CONTINOUS ASSIGNMENT
     assign q = (set_q_to_x || set_q_to_x_by_empty)? {lpm_width{1'bX}} : tmp_q;
     assign full = (set_q_to_x || set_q_to_x_by_empty)? 1'bX : full_flag;
     assign empty = (set_q_to_x || set_q_to_x_by_empty)? 1'bX : empty_flag;
@@ -48980,7 +48980,7 @@ module scfifo ( data,
 
 endmodule // scfifo
 // END OF MODULE
-    
+
 //--------------------------------------------------------------------------
 // Module Name      : altshift_taps
 //
@@ -49057,7 +49057,7 @@ module altshift_taps (shiftin, clock, clken, aclr, shiftout, taps);
     initial
     begin
         head = 0;
-        if (power_up_state == "CLEARED") 
+        if (power_up_state == "CLEARED")
         begin
             shiftout = 0;
             shiftout_tmp = 0;
@@ -49083,7 +49083,7 @@ module altshift_taps (shiftin, clock, clken, aclr, shiftout, taps);
 
             head = 0;
             shiftout_tmp = 0;
-            taps_tmp = 0;        
+            taps_tmp = 0;
         end
         else
         begin
@@ -49092,9 +49092,9 @@ module altshift_taps (shiftin, clock, clken, aclr, shiftout, taps);
                 contents[head] = shiftin;
                 head = (head + 1) % TOTAL_TAP_DISTANCE;
                 shiftout_tmp = contents[head];
-            
+
                 taps_tmp = 0;
-            
+
                 for (k=0; k < number_of_taps; k=k+1)
                 begin
                     place = (((number_of_taps - k - 1) * tap_distance) + head ) %
@@ -49148,11 +49148,11 @@ module a_graycounter (clock, cnt_en, clk_en, updown, aclr, sclr,
     input  updown;
     input  aclr;
     input  sclr;
-            
+
 // OUTPUT PORT DECLARATION
     output [width-1:0] q;
     output [width-1:0] qbin;
-          
+
 // INTERNAL REGISTERS DECLARATION
     reg [width-1:0] cnt;
 
@@ -49175,12 +49175,12 @@ module a_graycounter (clock, cnt_en, clk_en, updown, aclr, sclr,
             $display ("Error! WIDTH of a_greycounter must be greater than 0.");
             $display ("Time: %0t  Instance: %m", $time);
         end
-        cnt = pvalue;             
+        cnt = pvalue;
     end
 
 // ALWAYS CONSTRUCT BLOCK
     always @(posedge aclr or posedge clock)
-    begin                     
+    begin
         if (aclr)
             cnt <= pvalue;
         else
@@ -49212,7 +49212,7 @@ endmodule // a_graycounter
 //
 // Module Name     :  altsquare
 //
-// Description     :  Parameterized integer square megafunction. 
+// Description     :  Parameterized integer square megafunction.
 //                    The input data can be signed or unsigned, and the output
 //                    can be pipelined.
 //
@@ -49246,7 +49246,7 @@ module altsquare (
     input clock;
     input ena;
     input aclr;
-    
+
     // OUTPUT PORT DECLARATION
     output [result_width - 1 : 0] result;
 
@@ -49275,7 +49275,7 @@ module altsquare (
     initial
     begin : INITIALIZE
         if(data_width < 1)
-        begin 
+        begin
             $display("data_width (%d) must be greater than 0.(ERROR)\n", data_width);
             $display ("Time: %0t  Instance: %m", $time);
             $finish;
@@ -49344,14 +49344,14 @@ endmodule // altsquare
 //
 // Module Name : altera_std_synchronizer
 //
-// Description : Single bit clock domain crossing synchronizer. 
+// Description : Single bit clock domain crossing synchronizer.
 //               Composed of two or more flip flops connected in series.
-//               Random metastable condition is simulated when the 
+//               Random metastable condition is simulated when the
 //               __ALTERA_STD__METASTABLE_SIM macro is defined.
-//               Use +define+__ALTERA_STD__METASTABLE_SIM argument 
-//               on the Verilog simulator compiler command line to 
+//               Use +define+__ALTERA_STD__METASTABLE_SIM argument
+//               on the Verilog simulator compiler command line to
 //               enable this mode. In addition, dfine the macro
-//               __ALTERA_STD__METASTABLE_SIM_VERBOSE to get console output 
+//               __ALTERA_STD__METASTABLE_SIM_VERBOSE to get console output
 //               with every metastable event generated in the synchronizer.
 //
 // Copyright (C) Altera Corporation 2009, All Rights Reserved
@@ -49360,35 +49360,35 @@ endmodule // altsquare
 `timescale 1ns / 1ns
 
 module altera_std_synchronizer (
-                                clk, 
-                                reset_n, 
-                                din, 
+                                clk,
+                                reset_n,
+                                din,
                                 dout
                                 );
 
     // GLOBAL PARAMETER DECLARATION
     parameter depth = 3; // This value must be >= 2 !
-     
-  
-    // INPUT PORT DECLARATION 
+
+
+    // INPUT PORT DECLARATION
     input   clk;
-    input   reset_n;    
+    input   reset_n;
     input   din;
 
-    // OUTPUT PORT DECLARATION 
+    // OUTPUT PORT DECLARATION
     output  dout;
 
     // QuartusII synthesis directives:
     //     1. Preserve all registers ie. do not touch them.
     //     2. Do not merge other flip-flops with synchronizer flip-flops.
     // QuartusII TimeQuest directives:
-    //     1. Identify all flip-flops in this module as members of the synchronizer 
+    //     1. Identify all flip-flops in this module as members of the synchronizer
     //        to enable automatic metastability MTBF analysis.
     //     2. Cut all timing paths terminating on data input pin of the first flop din_s1.
 
     (* altera_attribute = {"-name SYNCHRONIZER_IDENTIFICATION FORCED_IF_ASYNCHRONOUS; -name DONT_MERGE_REGISTER ON; -name PRESERVE_REGISTER ON; -name SDC_STATEMENT \"set_false_path -to [get_keepers {*altera_std_synchronizer:*|din_s1}]\" "} *) reg din_s1;
 
-    (* altera_attribute = {"-name SYNCHRONIZER_IDENTIFICATION FORCED_IF_ASYNCHRONOUS; -name DONT_MERGE_REGISTER ON; -name PRESERVE_REGISTER ON"} *) reg [depth-2:0] dreg;    
+    (* altera_attribute = {"-name SYNCHRONIZER_IDENTIFICATION FORCED_IF_ASYNCHRONOUS; -name DONT_MERGE_REGISTER ON; -name PRESERVE_REGISTER ON"} *) reg [depth-2:0] dreg;
 
     //synthesis translate_off
     initial begin
@@ -49401,10 +49401,10 @@ module altera_std_synchronizer (
     // and non-metastable simulation or a D flop with a method to inject random
     // metastable events resulting in random delay of [0,1] cycles
 
-   
+
 `ifdef __ALTERA_STD__METASTABLE_SIM
 
-    reg[31:0]  RANDOM_SEED = 123456;      
+    reg[31:0]  RANDOM_SEED = 123456;
     wire  next_din_s1;
     wire  dout;
     reg   din_last;
@@ -49414,7 +49414,7 @@ module altera_std_synchronizer (
     initial begin
         $display("%m: Info: Metastable event injection simulation mode enabled");
     end
-   
+
     always @(posedge clk) begin
         if (reset_n == 0)
             random <= $random(RANDOM_SEED);
@@ -49422,34 +49422,34 @@ module altera_std_synchronizer (
             random <= $random;
     end
 
-    assign next_din_s1 = (din_last ^ din) ? random : din;   
+    assign next_din_s1 = (din_last ^ din) ? random : din;
 
     always @(posedge clk or negedge reset_n) begin
-        if (reset_n == 0) 
+        if (reset_n == 0)
             din_last <= 1'b0;
         else
             din_last <= din;
     end
 
     always @(posedge clk or negedge reset_n) begin
-        if (reset_n == 0) 
+        if (reset_n == 0)
             din_s1 <= 1'b0;
         else
             din_s1 <= next_din_s1;
     end
-   
-`else 
 
-    //synthesis translate_on   
+`else
+
+    //synthesis translate_on
 
     always @(posedge clk or negedge reset_n) begin
-        if (reset_n == 0) 
+        if (reset_n == 0)
             din_s1 <= 1'b0;
         else
             din_s1 <= din;
     end
 
-    //synthesis translate_off      
+    //synthesis translate_off
 
 `endif
 
@@ -49460,7 +49460,7 @@ module altera_std_synchronizer (
             $display("%m: Verbose Info: metastable event @ time %t", $time);
             ->metastable_event;
         end
-    end      
+    end
 `endif
 
     //synthesis translate_on
@@ -49471,14 +49471,14 @@ module altera_std_synchronizer (
     generate
         if (depth < 3) begin
             always @(posedge clk or negedge reset_n) begin
-                if (reset_n == 0) 
-                    dreg <= {depth-1{1'b0}};      
+                if (reset_n == 0)
+                    dreg <= {depth-1{1'b0}};
                 else
                     dreg <= din_s1;
-            end     
+            end
         end else begin
             always @(posedge clk or negedge reset_n) begin
-                if (reset_n == 0) 
+                if (reset_n == 0)
                     dreg <= {depth-1{1'b0}};
                 else
                     dreg <= {dreg[depth-3:0], din_s1};
@@ -49487,10 +49487,10 @@ module altera_std_synchronizer (
     endgenerate
 
     assign dout = dreg[depth-2];
-   
+
 endmodule  // altera_std_synchronizer
 // END OF MODULE
-                        
+
 
 // START_FILE_HEADER ----------------------------------------------------------
 //
@@ -49508,10 +49508,10 @@ endmodule  // altera_std_synchronizer
 //
 // Module Name : altera_std_synchronizer_bundle
 //
-// Description : Bundle of bit synchronizers. 
-//               WARNING: only use this to synchronize a bundle of 
-//               *independent* single bit signals or a Gray encoded 
-//               bus of signals. Also remember that pulses entering 
+// Description : Bundle of bit synchronizers.
+//               WARNING: only use this to synchronize a bundle of
+//               *independent* single bit signals or a Gray encoded
+//               bus of signals. Also remember that pulses entering
 //               the synchronizer will be swallowed upon a metastable
 //               condition if the pulse width is shorter than twice
 //               the synchronizing clock period.
@@ -49526,8 +49526,8 @@ module altera_std_synchronizer_bundle  (
                                         );
     // GLOBAL PARAMETER DECLARATION
     parameter width = 1;
-    parameter depth = 3;   
-   
+    parameter depth = 3;
+
     // INPUT PORT DECLARATION
     input clk;
     input reset_n;
@@ -49535,26 +49535,26 @@ module altera_std_synchronizer_bundle  (
 
     // OUTPUT PORT DECLARATION
     output [width-1:0] dout;
-   
+
     generate
         genvar i;
         for (i=0; i<width; i=i+1)
         begin : sync
             altera_std_synchronizer #(.depth(depth))
                                     u  (
-                                        .clk(clk), 
-                                        .reset_n(reset_n), 
-                                        .din(din[i]), 
+                                        .clk(clk),
+                                        .reset_n(reset_n),
+                                        .din(din[i]),
                                         .dout(dout[i])
                                         );
         end
     endgenerate
-   
+
 endmodule // altera_std_synchronizer_bundle
 // END OF MODULE
 
 module  alt_cal
-        ( 
+        (
         busy,
         cal_error,
         clock,
@@ -49656,7 +49656,7 @@ endmodule //alt_cal
 
 
 module  alt_cal_mm
-        ( 
+        (
         busy,
         cal_error,
         clock,
@@ -49781,7 +49781,7 @@ endmodule //alt_cal
 
 
 module  alt_cal_c3gxb
-        ( 
+        (
         busy,
         cal_error,
         clock,
@@ -49881,7 +49881,7 @@ endmodule
 
 
 module  alt_cal_sv
-        ( 
+        (
         busy,
         clock,
         dprio_addr,
@@ -49978,7 +49978,7 @@ endmodule
 
 
 module  alt_cal_av
-        ( 
+        (
         busy,
         clock,
         dprio_addr,
@@ -50078,7 +50078,7 @@ endmodule
 //
 // Description : Simulation model for Stratix IV ADCE
 //
-// Limitation  : Currently, only apllies for Stratix IV 
+// Limitation  : Currently, only apllies for Stratix IV
 //
 // Copyright (c) Altera Corporation 1997-2009
 // All rights reserved
@@ -50123,7 +50123,7 @@ module alt_aeq_s4
   output                            timeout,
   input [7*number_of_channels-1:0]  testbuses,
   output [4*number_of_channels-1:0] testbus_sels,
-  
+
 // SHOW_ERRORS option
   output [number_of_channels-1:0]   conv_error,
   output [number_of_channels-1:0]   error
@@ -50133,10 +50133,10 @@ module alt_aeq_s4
 //********************************************************************************
 // DECLARATIONS
 //********************************************************************************
-  
+
   reg [7:0] busy_counter; // 256 cycles
 
-  assign 
+  assign
     dprio_addr = {16{1'b0}},
     dprio_data = {16{1'b0}},
     dprio_rden = 1'b0,
@@ -50149,7 +50149,7 @@ module alt_aeq_s4
     conv_error = {number_of_channels{1'b0}},
     timeout    = 1'b0,
     testbus_sels = {4*number_of_channels{1'b0}};
-    
+
   always @ (posedge reconfig_clk) begin
     if (aclr) begin
       busy_counter <= 8'h0;
@@ -50164,7 +50164,7 @@ module alt_aeq_s4
       busy_counter <= busy_counter - 1'b1;
     end
   end
-  
+
 
 endmodule
 
@@ -50175,13 +50175,13 @@ endmodule
 //
 // Description : Simulation model for Stratix IV Eye Monitor (EyeQ)
 //
-// Limitation  : Currently, only apllies for Stratix IV 
+// Limitation  : Currently, only apllies for Stratix IV
 //
 // Copyright (c) Altera Corporation 1997-2009
 // All rights reserved
 //
 //-------------------------------------------------------------------
-module alt_eyemon 
+module alt_eyemon
 #(
   parameter channel_address_width = 3,
   parameter lpm_type = "alt_eyemon",
@@ -50200,7 +50200,7 @@ module alt_eyemon
   parameter ireg_chaddr_width = channel_address_width,
   parameter ireg_wdaddr_width = 2, // width of 2 - only need to address 4 registers
   parameter ireg_data_width   = 16,
-  
+
   parameter ST_IDLE  = 2'd0,
   parameter ST_WRITE = 2'd1,
   parameter ST_READ  = 2'd2
@@ -50264,9 +50264,9 @@ initial begin
   reg_ctrlstatus   = 'b0;
   reg_wdaddress    = 'b0;
 end
-// synopsys translate_on  
+// synopsys translate_on
 
-  assign 
+  assign
     o_dprio_wren = 1'b0,
     o_dprio_rden = 1'b0,
     o_dprio_addr = {dprio_addr_width{1'b0}},
@@ -50287,7 +50287,7 @@ end
       state0q <= state;
     end
   end
-  
+
 
   always @ (posedge i_avmm_clk) begin
     if (~i_resetn) begin
@@ -50310,8 +50310,8 @@ end
     o_avmm_swaitrequest = 1'b0;
     reg_write = 1'b0;
     reg_read = 1'b0;
-   
-    case (state0q) 
+
+    case (state0q)
       ST_WRITE: begin
         // check busy and discard the write data if we are busy
         o_avmm_swaitrequest = 1'b0;
@@ -50326,7 +50326,7 @@ end
       default: begin //ST_IDLE: begin
         // effectively priority encoded - if read and write both asserted (error condition), reads will take precedence
         // this ensures non-destructive behaviour
-        if (i_avmm_sread) begin 
+        if (i_avmm_sread) begin
           o_avmm_swaitrequest = 1'b1;
           reg_read = 1'b1;
           state = ST_READ;
@@ -50409,7 +50409,7 @@ end
       end
     end
 
-  // write select for register file 
+  // write select for register file
     if (reg_write) begin
       if (i_avmm_saddress == 'h0) begin
         reg_ctrlstatus[1] = i_avmm_swritedata[1];
@@ -50434,7 +50434,7 @@ end
         end else begin
           reg_ctrlstatus[15] = 1'b0; // do not assert busy
           reg_ctrlstatus[14] = i_avmm_swritedata[14] ? 1'b0 : reg_ctrlstatus0q[14]; // clear error
-          reg_ctrlstatus[13] = i_avmm_swritedata[13] ? 1'b0 : reg_ctrlstatus0q[13]; // clear error        
+          reg_ctrlstatus[13] = i_avmm_swritedata[13] ? 1'b0 : reg_ctrlstatus0q[13]; // clear error
         end
       end else if (i_avmm_saddress == 'h1) begin
         reg_chaddress = i_avmm_swritedata;
@@ -50443,7 +50443,7 @@ end
       end else if (i_avmm_saddress == 'h3) begin
         reg_data = i_avmm_swritedata[ireg_data_width-1:0];
       end
-      
+
       // do nothing if not a valid address
     end
   end
@@ -50455,13 +50455,13 @@ endmodule
 //
 // Description : Simulation model for Stratix IV DFE
 //
-// Limitation  : Currently, only apllies for Stratix IV 
+// Limitation  : Currently, only apllies for Stratix IV
 //
 // Copyright (c) Altera Corporation 1997-2009
 // All rights reserved
 //
 //-------------------------------------------------------------------
-module alt_dfe 
+module alt_dfe
 #(
   parameter channel_address_width = 3,
   parameter lpm_type = "alt_dfe",
@@ -50480,7 +50480,7 @@ module alt_dfe
   parameter ireg_chaddr_width = channel_address_width,
   parameter ireg_wdaddr_width = 2, // width of 2 - only need to address 4 registers
   parameter ireg_data_width   = 16,
-  
+
   parameter ST_IDLE  = 2'd0,
   parameter ST_WRITE = 2'd1,
   parameter ST_READ  = 2'd2
@@ -50543,9 +50543,9 @@ initial begin
   reg_ctrlstatus   = 'b0;
   reg_wdaddress    = 'b0;
 end
-// synopsys translate_on  
+// synopsys translate_on
 
-  assign 
+  assign
     o_dprio_wren = 1'b0,
     o_dprio_rden = 1'b0,
     o_dprio_addr = {dprio_addr_width{1'b0}},
@@ -50566,7 +50566,7 @@ end
       state0q <= state;
     end
   end
-  
+
 
   always @ (posedge i_avmm_clk) begin
     if (~i_resetn) begin
@@ -50589,8 +50589,8 @@ end
     o_avmm_swaitrequest = 1'b0;
     reg_write = 1'b0;
     reg_read = 1'b0;
-   
-    case (state0q) 
+
+    case (state0q)
       ST_WRITE: begin
         // check busy and discard the write data if we are busy
         o_avmm_swaitrequest = 1'b0;
@@ -50605,7 +50605,7 @@ end
       default: begin //ST_IDLE: begin
         // effectively priority encoded - if read and write both asserted (error condition), reads will take precedence
         // this ensures non-destructive behaviour
-        if (i_avmm_sread) begin 
+        if (i_avmm_sread) begin
           o_avmm_swaitrequest = 1'b1;
           reg_read = 1'b1;
           state = ST_READ;
@@ -50691,7 +50691,7 @@ end
       end
     end
 
-  // write select for register file 
+  // write select for register file
     if (reg_write) begin
       if (i_avmm_saddress == 'h0) begin
         reg_ctrlstatus[1] = i_avmm_swritedata[1];
@@ -50718,7 +50718,7 @@ end
         end else begin
           reg_ctrlstatus[15] = 1'b0; // do not assert busy
           reg_ctrlstatus[14] = i_avmm_swritedata[14] ? 1'b0 : reg_ctrlstatus0q[14]; // clear error
-          reg_ctrlstatus[13] = i_avmm_swritedata[13] ? 1'b0 : reg_ctrlstatus0q[13]; // clear error        
+          reg_ctrlstatus[13] = i_avmm_swritedata[13] ? 1'b0 : reg_ctrlstatus0q[13]; // clear error
         end
       end else if (i_avmm_saddress == 'h1) begin
         reg_chaddress = i_avmm_swritedata;
@@ -50727,7 +50727,7 @@ end
       end else if (i_avmm_saddress == 'h3) begin
         reg_data = i_avmm_swritedata[ireg_data_width-1:0];
       end
-      
+
       // do nothing if not a valid address
     end
   end
@@ -50797,7 +50797,7 @@ endmodule
 // an error message.
 // Values with more bits than specified length will be truncated.
 // Length for IR scans are ignored. They however should be factored in when
-// calculating SLD_NODE_TOTAl_LENGTH.                  
+// calculating SLD_NODE_TOTAl_LENGTH.
 //
 // Results expected    :
 //
@@ -50810,7 +50810,7 @@ endmodule
 // MODULE DECLARATION
 module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
 
-    
+
     // GLOBAL PARAMETER DECLARATION
     parameter sld_node_ir_width = 1;
     parameter sld_node_n_scan = 0;
@@ -50820,22 +50820,22 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
     // INPUT PORTS
     input     jtag_usr1;
     input     tdo;
-    
+
     // OUTPUT PORTS
     output    tck;
     output    tms;
     output    tdi;
-    
+
     // CONSTANT DECLARATIONS
 `define DECODED_SCANS_LENGTH (sld_node_total_length + ((sld_node_n_scan * `DEFAULT_BIT_LENGTH) * 2) + (sld_node_n_scan * `TYPE_BIT_LENGTH) - 1)
 `define DEFAULT_SCAN_LENGTH (sld_node_n_scan * `DEFAULT_BIT_LENGTH)
 `define TYPE_SCAN_LENGTH (sld_node_n_scan * `TYPE_BIT_LENGTH) - 1
-    
+
     // INTEGER DECLARATION
     integer   char_idx;       // character_loop index
     integer   value_idx;      // decoding value index
-    integer   value_idx_old;  // previous decoding value index   
-    integer   value_idx_cur;  // reading/outputing value index   
+    integer   value_idx_old;  // previous decoding value index
+    integer   value_idx_cur;  // reading/outputing value index
     integer   length_idx;     // decoding length index
     integer   length_idx_old; // previous decoding length index
     integer   length_idx_cur; // reading/outputing length index
@@ -50847,19 +50847,19 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
     integer   time_idx_old;   // previous decoding time index
     integer   time_idx_cur;   // reading/outputing time index
 
-    // REGISTERS         
+    // REGISTERS
     reg [ `DEFAULT_SCAN_LENGTH - 1 : 0 ]    scan_length;
     // register for the 32-bit length values
     reg [ sld_node_total_length  - 1 : 0 ]  scan_values;
-    // register for values   
+    // register for values
     reg [ `TYPE_SCAN_LENGTH : 0 ]           scan_type;
-    // register for 4-bit type 
+    // register for 4-bit type
     reg [ `DEFAULT_SCAN_LENGTH - 1 : 0 ]    scan_time;
     // register to hold time values
-    reg [15 : 0]                            two_character; 
+    reg [15 : 0]                            two_character;
     // two ascii characters. Used in decoding
     reg [2 : 0]                             c_state;
-    // the current state register 
+    // the current state register
     reg [3 : 0]                             hex_value;
     // temporary value to hold hex value of ascii character
     reg [31 : 0]                             last_length;
@@ -50868,21 +50868,21 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
     // register to hold tms value before its clocked
     reg                                     tdi_reg;
     // register to hold tdi vale before its clocked
-    
+
     // OUTPUT REGISTERS
     reg    tms;
     reg    tck;
     reg    tdi;
 
     // input registers
-    
+
     // LOCAL TIME DECLARATION
-    
+
     // FUNCTION DECLARATION
-    
-    // hexToBits - takes in a hexadecimal character and 
+
+    // hexToBits - takes in a hexadecimal character and
     // returns the 4-bit value of the character.
-    // Returns 0 if character is not a hexadeciaml character    
+    // Returns 0 if character is not a hexadeciaml character
     function [3 : 0]  hexToBits;
         input [7 : 0] character;
         begin
@@ -50893,7 +50893,7 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                 "3" : hexToBits = 4'b0011;
                 "4" : hexToBits = 4'b0100;
                 "5" : hexToBits = 4'b0101;
-                "6" : hexToBits = 4'b0110;                    
+                "6" : hexToBits = 4'b0110;
                 "7" : hexToBits = 4'b0111;
                 "8" : hexToBits = 4'b1000;
                 "9" : hexToBits = 4'b1001;
@@ -50902,68 +50902,68 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                 "B" : hexToBits = 4'b1011;
                 "b" : hexToBits = 4'b1011;
                 "C" : hexToBits = 4'b1100;
-                "c" : hexToBits = 4'b1100;          
+                "c" : hexToBits = 4'b1100;
                 "D" : hexToBits = 4'b1101;
                 "d" : hexToBits = 4'b1101;
                 "E" : hexToBits = 4'b1110;
                 "e" : hexToBits = 4'b1110;
                 "F" : hexToBits = 4'b1111;
-                "f" : hexToBits = 4'b1111;          
+                "f" : hexToBits = 4'b1111;
                 default :
-                    begin 
+                    begin
                         hexToBits = 4'b0000;
                         $display("%s is not a hexadecimal value",character);
                     end
-            endcase        
+            endcase
         end
     endfunction
-    
+
     // TASK DECLARATIONS
-    
-    // clocks tck 
+
+    // clocks tck
     task clock_tck;
         input in_tms;
-        input in_tdi;    
+        input in_tdi;
         begin : clock_tck_tsk
             #(`CLK_PERIOD/2) tck <= ~tck;
             tms <= in_tms;
-            tdi <= in_tdi;        
+            tdi <= in_tdi;
             #(`CLK_PERIOD/2) tck <= ~tck;
         end // clock_tck_tsk
     endtask // clock_tck
-    
-    // move tap controller from dr/ir shift state to ir/dr update state    
+
+    // move tap controller from dr/ir shift state to ir/dr update state
     task goto_update_state;
         begin : goto_update_state_tsk
-            // get into e1(i/d)r state 
+            // get into e1(i/d)r state
             tms_reg = 1'b1;
             clock_tck(tms_reg,tdi_reg);
             // get into u(i/d)r state
             tms_reg = 1'b1;
-            clock_tck(tms_reg,tdi_reg);        
+            clock_tck(tms_reg,tdi_reg);
         end // goto_update_state_tsk
     endtask // goto_update_state
-    
-    // resets the jtag TAP controller by holding tms high 
+
+    // resets the jtag TAP controller by holding tms high
     // for 6 tck cycles
-    task reset_jtag;    
-        integer idx;    
+    task reset_jtag;
+        integer idx;
         begin
             for (idx = 0; idx < 6; idx= idx + 1)
                 begin
-                    tms_reg = 1'b1;          
+                    tms_reg = 1'b1;
                     clock_tck(tms_reg,tdi_reg);
                 end
             // get into rti state
-            tms_reg = 1'b0;        
+            tms_reg = 1'b0;
             clock_tck(tms_reg,tdi_reg);
-            jtag_ir_usr1;        
+            jtag_ir_usr1;
         end
     endtask // reset_jtag
-    
+
     // sends a jtag_usr0 intsruction
     task jtag_ir_usr0;
-        integer i;    
+        integer i;
         begin : jtag_ir_usr0_tsk
             // get into drs state
             tms_reg = 1'b1;
@@ -50980,13 +50980,13 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
             // shift in data i.e usr0 instruction
             // usr1 = 0x0E = 0b00 0000 1100
             for ( i = 0; i < 2; i = i + 1)
-                begin :ir_usr0_loop1          
+                begin :ir_usr0_loop1
                     tdi_reg = 1'b0;
                     tms_reg = 1'b0;
                     clock_tck(tms_reg,tdi_reg);
                 end // ir_usr0_loop1
             for ( i = 0; i < 2; i = i + 1)
-                begin :ir_usr0_loop2          
+                begin :ir_usr0_loop2
                     tdi_reg = 1'b1;
                     tms_reg = 1'b0;
                     clock_tck(tms_reg,tdi_reg);
@@ -51001,16 +51001,16 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
             // done  with 00 0000
             // get into e1ir state
             tms_reg = 1'b1;
-            clock_tck(tms_reg,tdi_reg);        
+            clock_tck(tms_reg,tdi_reg);
             // get into uir state
             tms_reg = 1'b1;
-            clock_tck(tms_reg,tdi_reg);        
+            clock_tck(tms_reg,tdi_reg);
         end // jtag_ir_usr0_tsk
     endtask // jtag_ir_usr0
 
     // sends a jtag_usr1 intsruction
     task jtag_ir_usr1;
-        integer i;    
+        integer i;
         begin : jtag_ir_usr1_tsk
             // get into drs state
             tms_reg = 1'b1;
@@ -51030,7 +51030,7 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
             tms_reg = 1'b0;
             clock_tck(tms_reg,tdi_reg);
             for ( i = 0; i < 3; i = i + 1)
-                begin :ir_usr1_loop1          
+                begin :ir_usr1_loop1
                     tdi_reg = 1'b1;
                     tms_reg = 1'b0;
                     clock_tck(tms_reg,tdi_reg);
@@ -51052,10 +51052,10 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
             clock_tck(tms_reg,tdi_reg);
         end // jtag_ir_usr1_tsk
     endtask // jtag_ir_usr1
-    
+
     // sends a force_ir_capture instruction to the node
     task send_force_ir_capture;
-        integer i;    
+        integer i;
         begin : send_force_ir_capture_tsk
             goto_dr_shift_state;
             // start shifting in the instruction
@@ -51080,10 +51080,10 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                     tms_reg = 1'b0;
                     clock_tck(tms_reg,tdi_reg);
                 end
-            goto_update_state;        
-        end // send_force_ir_capture_tsk    
+            goto_update_state;
+        end // send_force_ir_capture_tsk
     endtask // send_forse_ir_capture
-    
+
     // puts the JTAG tap controller in DR shift state
     task goto_dr_shift_state;
         begin : goto_dr_shift_state_tsk
@@ -51095,17 +51095,17 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
             clock_tck(tms_reg,tdi_reg);
             // get into sdr state
             tms_reg = 1'b0;
-            clock_tck(tms_reg,tdi_reg);        
-        end // goto_dr_shift_state_tsk    
+            clock_tck(tms_reg,tdi_reg);
+        end // goto_dr_shift_state_tsk
     endtask // goto_dr_shift_state
-    
+
     // performs a virtual_ir_scan
     task v_ir_scan;
-        input [`DEFAULT_BIT_LENGTH - 1 : 0] length;    
-        integer i;    
+        input [`DEFAULT_BIT_LENGTH - 1 : 0] length;
+        integer i;
         begin : v_ir_scan_tsk
             // if we are not in usr1 then go to usr1 state
-            if (jtag_usr1 == 1'b0)      
+            if (jtag_usr1 == 1'b0)
                 begin
                     jtag_ir_usr1;
                 end
@@ -51113,11 +51113,11 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
             send_force_ir_capture;
             // shift in the ir value
             goto_dr_shift_state;
-            value_idx_cur = value_idx_cur - length;        
+            value_idx_cur = value_idx_cur - length;
             for ( i = 0; i < length; i = i + 1)
                 begin
                     tms_reg = 1'b0;
-                    tdi_reg = scan_values[value_idx_cur + i];        
+                    tdi_reg = scan_values[value_idx_cur + i];
                     clock_tck(tms_reg,tdi_reg);
                 end
             // pad with zeros if necessary
@@ -51125,26 +51125,26 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                 begin : zero_padding
                     tdi_reg = 1'b0;
                     tms_reg = 1'b0;
-                    clock_tck(tms_reg,tdi_reg);          
+                    clock_tck(tms_reg,tdi_reg);
                 end //zero_padding
             tdi_reg = 1'b1;
             goto_update_state;
-        end // v_ir_scan_tsk 
+        end // v_ir_scan_tsk
     endtask // v_ir_scan
 
     // performs a virtual dr scan
     task v_dr_scan;
-        input [`DEFAULT_BIT_LENGTH - 1 : 0] length;    
-        integer                             i;    
+        input [`DEFAULT_BIT_LENGTH - 1 : 0] length;
+        integer                             i;
         begin : v_dr_scan_tsk
             // if we are in usr1 then go to usr0 state
-            if (jtag_usr1 == 1'b1)      
+            if (jtag_usr1 == 1'b1)
                 begin
                     jtag_ir_usr0;
                 end
             // shift in the dr value
             goto_dr_shift_state;
-            value_idx_cur = value_idx_cur - length;        
+            value_idx_cur = value_idx_cur - length;
             for ( i = 0; i < length - 1; i = i + 1)
                 begin
                     tms_reg = 1'b0;
@@ -51152,42 +51152,42 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                     clock_tck(tms_reg,tdi_reg);
                 end
             // last bit is clocked together with state transition
-            tdi_reg = scan_values[value_idx_cur + i];        
+            tdi_reg = scan_values[value_idx_cur + i];
             goto_update_state;
         end // v_dr_scan_tsk
     endtask // v_dr_scan
-    
-    initial 
-        begin : sim_model      
+
+    initial
+        begin : sim_model
             // initialize output registers
             tck = 1'b1;
             tms = 1'b0;
-            tdi = 1'b0;      
+            tdi = 1'b0;
             // initialize variables
             tms_reg = 1'b0;
-            tdi_reg = 1'b0;      
+            tdi_reg = 1'b0;
             two_character = 'b0;
-            last_length_idx = 0;      
-            value_idx = 0;      
-            value_idx_old = 0;      
-            length_idx = 0;      
+            last_length_idx = 0;
+            value_idx = 0;
+            value_idx_old = 0;
+            length_idx = 0;
             length_idx_old = 0;
             type_idx = 0;
             type_idx_old = 0;
             time_idx = 0;
-            time_idx_old = 0;      
+            time_idx_old = 0;
             scan_length = 'b0;
             scan_values = 'b0;
             scan_type = 'b0;
-            scan_time = 'b0;      
+            scan_time = 'b0;
             last_length = 'b0;
             hex_value = 'b0;
-            c_state = `STARTSTATE;      
+            c_state = `STARTSTATE;
             // initialize current indices
             value_idx_cur = sld_node_total_length;
             type_idx_cur = `TYPE_SCAN_LENGTH;
             time_idx_cur = `DEFAULT_SCAN_LENGTH;
-            length_idx_cur = `DEFAULT_SCAN_LENGTH;      
+            length_idx_cur = `DEFAULT_SCAN_LENGTH;
             for(char_idx = 0;two_character != "((";char_idx = char_idx + 8)
                 begin : character_loop
                     // convert two characters to equivalent 16-bit value
@@ -51206,22 +51206,22 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                     two_character[12] = sld_node_sim_action[char_idx+12];
                     two_character[13] = sld_node_sim_action[char_idx+13];
                     two_character[14] = sld_node_sim_action[char_idx+14];
-                    two_character[15] = sld_node_sim_action[char_idx+15];        
+                    two_character[15] = sld_node_sim_action[char_idx+15];
                     // use state machine to decode
                     case (c_state)
                         `STARTSTATE :
-                            begin 
+                            begin
                                 if (two_character[15 : 8] != ")")
-                                    begin 
+                                    begin
                                         c_state = `LENGTHSTATE;
                                     end
-                            end 
+                            end
                         `LENGTHSTATE :
                             begin
                                 if (two_character[7 : 0] == ",")
                                     begin
-                                        length_idx = length_idx_old + 32;              
-                                        length_idx_old = length_idx;              
+                                        length_idx = length_idx_old + 32;
+                                        length_idx_old = length_idx;
                                         c_state = `VALUESTATE;
                                     end
                                 else
@@ -51230,13 +51230,13 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                                         scan_length [ length_idx] = hex_value[0];
                                         scan_length [ length_idx + 1] = hex_value[1];
                                         scan_length [ length_idx + 2] = hex_value[2];
-                                        scan_length [ length_idx + 3] = hex_value[3];              
+                                        scan_length [ length_idx + 3] = hex_value[3];
                                         last_length [ last_length_idx] = hex_value[0];
                                         last_length [ last_length_idx + 1] = hex_value[1];
                                         last_length [ last_length_idx + 2] = hex_value[2];
-                                        last_length [ last_length_idx + 3] = hex_value[3];              
+                                        last_length [ last_length_idx + 3] = hex_value[3];
                                         length_idx = length_idx + 4;
-                                        last_length_idx = last_length_idx + 4;              
+                                        last_length_idx = last_length_idx + 4;
                                     end
                             end
                         `VALUESTATE :
@@ -51244,10 +51244,10 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                                 if (two_character[7 : 0] == ",")
                                     begin
                                         value_idx = value_idx_old + last_length;
-                                        value_idx_old = value_idx;              
+                                        value_idx_old = value_idx;
                                         last_length = 'b0; // reset the last length value
-                                        last_length_idx = 0; // reset index for length                
-                                        c_state = `TYPESTATE;  
+                                        last_length_idx = 0; // reset index for length
+                                        c_state = `TYPESTATE;
                                     end
                                 else
                                     begin
@@ -51255,16 +51255,16 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                                         scan_values [ value_idx] = hex_value[0];
                                         scan_values [ value_idx + 1] = hex_value[1];
                                         scan_values [ value_idx + 2] = hex_value[2];
-                                        scan_values [ value_idx + 3] = hex_value[3];              
-                                        value_idx = value_idx + 4;              
+                                        scan_values [ value_idx + 3] = hex_value[3];
+                                        value_idx = value_idx + 4;
                                     end
                             end
                         `TYPESTATE :
                             begin
                                 if (two_character[7 : 0] == ",")
                                     begin
-                                        type_idx = type_idx + 4;              
-                                        c_state = `TIMESTATE;              
+                                        type_idx = type_idx + 4;
+                                        c_state = `TIMESTATE;
                                     end
                                 else
                                     begin
@@ -51276,11 +51276,11 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                                     end
                             end
                         `TIMESTATE :
-                            begin 
+                            begin
                                 if (two_character[7 : 0] == "(")
                                     begin
                                         time_idx = time_idx_old + 32;
-                                        time_idx_old = time_idx;              
+                                        time_idx_old = time_idx;
                                         c_state = `STARTSTATE;
                                     end
                                 else
@@ -51290,21 +51290,21 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                                         scan_time [ time_idx + 1] = hex_value[1];
                                         scan_time [ time_idx + 2] = hex_value[2];
                                         scan_time [ time_idx + 3] = hex_value[3];
-                                        time_idx = time_idx + 4;              
+                                        time_idx = time_idx + 4;
                                     end
                             end
                         default :
-                            c_state = `STARTSTATE;          
+                            c_state = `STARTSTATE;
                     endcase
-                end // block: character_loop             
+                end // block: character_loop
             # (`CLK_PERIOD/2);
             begin : execute
-                integer write_scan_idx;    
-                integer tempLength_idx;          
-                reg [`TYPE_BIT_LENGTH - 1 : 0] tempType;        
-                reg [`DEFAULT_BIT_LENGTH - 1 : 0 ] tempLength;                    
+                integer write_scan_idx;
+                integer tempLength_idx;
+                reg [`TYPE_BIT_LENGTH - 1 : 0] tempType;
+                reg [`DEFAULT_BIT_LENGTH - 1 : 0 ] tempLength;
                 reg [`DEFAULT_BIT_LENGTH - 1 : 0 ] tempTime;
-                reg [`TIME_BIT_LENGTH - 1 : 0 ] delayTime;                    
+                reg [`TIME_BIT_LENGTH - 1 : 0 ] delayTime;
                 reset_jtag;
                 for (write_scan_idx = 0; write_scan_idx < sld_node_n_scan; write_scan_idx = write_scan_idx + 1)
                     begin : all_scans_loop
@@ -51312,29 +51312,29 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                         tempType[2] = scan_type[type_idx_cur - 1];
                         tempType[1] = scan_type[type_idx_cur - 2];
                         tempType[0] = scan_type[type_idx_cur - 3];
-                        time_idx_cur = time_idx_cur - `DEFAULT_BIT_LENGTH;            
+                        time_idx_cur = time_idx_cur - `DEFAULT_BIT_LENGTH;
                         length_idx_cur = length_idx_cur - `DEFAULT_BIT_LENGTH;
                         for (tempLength_idx = 0; tempLength_idx < `DEFAULT_BIT_LENGTH; tempLength_idx = tempLength_idx + 1)
                             begin : get_scan_time
-                                tempTime[tempLength_idx] = scan_time[time_idx_cur + tempLength_idx];                
+                                tempTime[tempLength_idx] = scan_time[time_idx_cur + tempLength_idx];
                             end // get_scan_time
                             delayTime =(`DELAY_RESOLUTION * `CLK_PERIOD * tempTime);
-                            # delayTime;            
+                            # delayTime;
                         if (tempType == `V_IR_SCAN_TYPE)
                             begin
                                 for (tempLength_idx = 0; tempLength_idx < `DEFAULT_BIT_LENGTH; tempLength_idx = tempLength_idx + 1)
                                     begin : ir_get_length
-                                        tempLength[tempLength_idx] = scan_length[length_idx_cur + tempLength_idx];                
+                                        tempLength[tempLength_idx] = scan_length[length_idx_cur + tempLength_idx];
                                     end // ir_get_length
                                 v_ir_scan(tempLength);
-                            end 
+                            end
                         else
                             begin
                                 if (tempType == `V_DR_SCAN_TYPE)
-                                    begin                
+                                    begin
                                         for (tempLength_idx = 0; tempLength_idx < `DEFAULT_BIT_LENGTH; tempLength_idx = tempLength_idx + 1)
                                             begin : dr_get_length
-                                                tempLength[tempLength_idx] = scan_length[length_idx_cur + tempLength_idx];                
+                                                tempLength[tempLength_idx] = scan_length[length_idx_cur + tempLength_idx];
                                             end // dr_get_length
                                         v_dr_scan(tempLength);
                                     end
@@ -51344,15 +51344,15 @@ module signal_gen (tck,tms,tdi,jtag_usr1,tdo);
                                     end
                             end
                         type_idx_cur = type_idx_cur - 4;
-                    end // all_scans_loop            
+                    end // all_scans_loop
                 //get into tlr state
                 for (tempLength_idx = 0; tempLength_idx < 6; tempLength_idx= tempLength_idx + 1)
                     begin
-                        tms_reg = 1'b1;          
+                        tms_reg = 1'b1;
                         clock_tck(tms_reg,tdi_reg);
                     end
-            end //execute      
-        end // block: sim_model     
+            end //execute
+        end // block: sim_model
 endmodule // signal_gen
 
 // END OF MODULE
@@ -51399,19 +51399,19 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
     output    jtag_tdi;  // tdi signal from jtag
     output    jtag_state_tlr;   // tlr state
     output    jtag_state_rti;   // rti state
-    output    jtag_state_drs;   // select dr scan state    
+    output    jtag_state_drs;   // select dr scan state
     output    jtag_state_cdr;   // capture dr state
-    output    jtag_state_sdr;   // shift dr state    
+    output    jtag_state_sdr;   // shift dr state
     output    jtag_state_e1dr;  // exit1 dr state
     output    jtag_state_pdr;   // pause dr state
-    output    jtag_state_e2dr;  // exit2 dr state 
+    output    jtag_state_e2dr;  // exit2 dr state
     output    jtag_state_udr;   // update dr state
     output    jtag_state_irs;   // select ir scan state
     output    jtag_state_cir;   // capture ir state
     output    jtag_state_sir;   // shift ir state
     output    jtag_state_e1ir;  // exit1 ir state
     output    jtag_state_pir;   // pause ir state
-    output    jtag_state_e2ir;  // exit2 ir state    
+    output    jtag_state_e2ir;  // exit2 ir state
     output    jtag_state_uir;   // update ir state
     output    jtag_usr1;        // jtag has usr1 instruction
 
@@ -51433,7 +51433,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
     // the ir shift register
     reg [ ir_register_width - 1 : 0] ir_srl_hold;
     // the ir shift register
-    
+
     // INTERNAL WIRES
     wire [ 4 : 0 ] cState_tmp;
     wire [ ir_register_width - 1 : 0] ir_srl_tmp;
@@ -51442,29 +51442,29 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
     // OUTPUT REGISTERS
     reg   jtag_state_tlr;   // tlr state
     reg   jtag_state_rti;   // rti state
-    reg   jtag_state_drs;   // select dr scan state    
+    reg   jtag_state_drs;   // select dr scan state
     reg   jtag_state_cdr;   // capture dr state
-    reg   jtag_state_sdr;   // shift dr state    
+    reg   jtag_state_sdr;   // shift dr state
     reg   jtag_state_e1dr;  // exit1 dr state
     reg   jtag_state_pdr;   // pause dr state
-    reg   jtag_state_e2dr;  // exit2 dr state 
+    reg   jtag_state_e2dr;  // exit2 dr state
     reg   jtag_state_udr;   // update dr state
     reg   jtag_state_irs;   // select ir scan state
     reg   jtag_state_cir;   // capture ir state
     reg   jtag_state_sir;   // shift ir state
     reg   jtag_state_e1ir;  // exit1 ir state
     reg   jtag_state_pir;   // pause ir state
-    reg   jtag_state_e2ir;  // exit2 ir state    
+    reg   jtag_state_e2ir;  // exit2 ir state
     reg   jtag_state_uir;   // update ir state
-    
 
-    // INITIAL STATEMENTS    
+
+    // INITIAL STATEMENTS
     initial
         begin
             // initialize state registers
             cState = `INIT_ST;
-            nState = `TLR_ST;      
-        end 
+            nState = `TLR_ST;
+        end
 
     // State Register block
     always @ (posedge tck or posedge jtag_reset_i)
@@ -51475,14 +51475,14 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                     ir_srl <= 'b0;
                     tdo_reg <= 1'b0;
                     tdo_rom_reg <= 1'b0;
-                    jtag_usr1_reg <= 1'b0;        
+                    jtag_usr1_reg <= 1'b0;
                 end
             else
                 begin
                     // in capture ir, set-up tdo_rom_reg
                     // to generate 010101...
                     if(cState_tmp == `CIR_ST)
-                        begin                    
+                        begin
                             tdo_rom_reg <= 1'b0;
                         end
                     else
@@ -51491,7 +51491,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                             if (cState_tmp == `SIR_ST)
                                 begin
                                     tdo_rom_reg <= ~tdo_rom_reg;
-                                    tdo_reg <= tdo_rom_reg;              
+                                    tdo_reg <= tdo_rom_reg;
                                     ir_srl <= ir_srl_tmp >> 1;
                                     ir_srl[ir_register_width - 1] <= tdi;
                                 end
@@ -51505,23 +51505,23 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                         begin
                             if (ir_srl_hold == `JTAG_USR1_INSTR)
                                 begin
-                                    jtag_usr1_reg <= 1'b1;                
+                                    jtag_usr1_reg <= 1'b1;
                                 end
                             else
                                 begin
                                     jtag_usr1_reg <= 1'b0;
-                                end              
+                                end
                         end
                     cState <= nState;
                 end
-        end // stateReg               
+        end // stateReg
 
     // hold register
     always @ (negedge tck or posedge jtag_reset_i)
         begin : holdReg
             if (jtag_reset_i)
                 begin
-                    ir_srl_hold <= 'b0;        
+                    ir_srl_hold <= 'b0;
                 end
             else
                 begin
@@ -51530,7 +51530,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                             ir_srl_hold <= ir_srl;
                         end
                 end
-        end // holdReg               
+        end // holdReg
 
     // next state logic
     always @(cState or tms)
@@ -51546,7 +51546,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                             end
                         else
                             begin
-                                jtag_reset_i = 1'b1;            
+                                jtag_reset_i = 1'b1;
                             end
                     end
                 `RTI_ST :
@@ -51554,7 +51554,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                         if (tms)
                             begin
                                 nState = `DRS_ST;
-                            end          
+                            end
                     end
                 `DRS_ST :
                     begin
@@ -51624,7 +51624,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                             begin
                                 nState = `RTI_ST;
                             end
-                    end          
+                    end
                 `IRS_ST :
                     begin
                         if (tms)
@@ -51683,7 +51683,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                                 nState = `SIR_ST;
                             end
                     end
-                `UIR_ST : 
+                `UIR_ST :
                     begin
                         if (tms)
                             begin
@@ -51702,7 +51702,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
                     begin
                         $display("Tap Controller State machine error");
                         $display ("Time: %0t  Instance: %m", $time);
-                        nState = `TLR_ST;          
+                        nState = `TLR_ST;
                     end
             endcase
         end // stateTrans
@@ -51710,22 +51710,22 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
     // Output logic
     always @ (cState)
         begin : output_logic
-            jtag_state_tlr <= 1'b0;  
-            jtag_state_rti <= 1'b0;  
-            jtag_state_drs <= 1'b0;  
-            jtag_state_cdr <= 1'b0;  
-            jtag_state_sdr <= 1'b0;  
-            jtag_state_e1dr <= 1'b0; 
-            jtag_state_pdr <= 1'b0;  
-            jtag_state_e2dr <= 1'b0; 
-            jtag_state_udr <= 1'b0;  
-            jtag_state_irs <= 1'b0;  
-            jtag_state_cir <= 1'b0;  
-            jtag_state_sir <= 1'b0;  
-            jtag_state_e1ir <= 1'b0; 
-            jtag_state_pir <= 1'b0;  
-            jtag_state_e2ir <= 1'b0; 
-            jtag_state_uir <= 1'b0;  
+            jtag_state_tlr <= 1'b0;
+            jtag_state_rti <= 1'b0;
+            jtag_state_drs <= 1'b0;
+            jtag_state_cdr <= 1'b0;
+            jtag_state_sdr <= 1'b0;
+            jtag_state_e1dr <= 1'b0;
+            jtag_state_pdr <= 1'b0;
+            jtag_state_e2dr <= 1'b0;
+            jtag_state_udr <= 1'b0;
+            jtag_state_irs <= 1'b0;
+            jtag_state_cir <= 1'b0;
+            jtag_state_sir <= 1'b0;
+            jtag_state_e1ir <= 1'b0;
+            jtag_state_pir <= 1'b0;
+            jtag_state_e2ir <= 1'b0;
+            jtag_state_uir <= 1'b0;
             case (cState)
                 `TLR_ST :
                     begin
@@ -51800,7 +51800,7 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
         end // output_logic
     // temporary values
     assign ir_srl_tmp = ir_srl;
-    assign cState_tmp = cState;    
+    assign cState_tmp = cState;
 
     // Pipe through signals
     assign tdo = tdo_reg;
@@ -51808,12 +51808,12 @@ module jtag_tap_controller (tck,tms,tdi,jtag_tdo,tdo,jtag_tck,jtag_tms,jtag_tdi,
     assign jtag_tdi = tdi;
     assign jtag_tms = tms;
     assign jtag_usr1 = jtag_usr1_reg;
-    
+
 endmodule
 // END OF MODULE
 
 
-    
+
 //START_MODULE_NAME------------------------------------------------------------
 // Module Name         : dummy_hub
 //
@@ -51850,7 +51850,7 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
     parameter sld_node_ir_width = 16;
 
     // INPUT PORTS
-    
+
     input   jtag_tck;       // tck signal from tap controller
     input   jtag_tdi;       // tdi signal from tap controller
     input   jtag_tms;       // tms signal from tap controller
@@ -51897,17 +51897,17 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
     output   dummy_state_uir;    // uir state signal to world
     output   virtual_state_cdr;  // virtual cdr state signal
     output   virtual_state_sdr;  // virtual sdr state signal
-    output   virtual_state_e1dr; // virtual e1dr state signal 
-    output   virtual_state_pdr;  // virtula pdr state signal 
-    output   virtual_state_e2dr; // virtual e2dr state signal 
+    output   virtual_state_e1dr; // virtual e1dr state signal
+    output   virtual_state_pdr;  // virtula pdr state signal
+    output   virtual_state_e2dr; // virtual e2dr state signal
     output   virtual_state_udr;  // virtual udr state signal
-    output   virtual_state_cir;  // virtual cir state signal 
+    output   virtual_state_cir;  // virtual cir state signal
     output   virtual_state_uir;  // virtual uir state signal
     output [sld_node_ir_width - 1 : 0] virtual_ir_in;      // parallel output to user design
 
 
-`define SLD_NODE_IR_WIDTH_I sld_node_ir_width + `NUM_SELECTION_BITS // internal ir width    
-   
+`define SLD_NODE_IR_WIDTH_I sld_node_ir_width + `NUM_SELECTION_BITS // internal ir width
+
     // INTERNAL REGISTERS
     reg   capture_ir;    // signals force_ir_capture instruction
     reg   jtag_tdo_reg;  // register for jtag_tdo
@@ -51915,26 +51915,26 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
     reg   dummy_tck_reg; // register for dummy_tck.
     reg  [`SLD_NODE_IR_WIDTH_I - 1 : 0] ir_srl; // ir shift register
     wire [`SLD_NODE_IR_WIDTH_I - 1 : 0] ir_srl_tmp; // ir shift register
-    reg  [`SLD_NODE_IR_WIDTH_I - 1 : 0] ir_srl_hold; //hold register for ir shift register  
+    reg  [`SLD_NODE_IR_WIDTH_I - 1 : 0] ir_srl_hold; //hold register for ir shift register
 
     // OUTPUT REGISTERS
-    reg [sld_node_ir_width - 1 : 0]     virtual_ir_in;     
-    
-    // INITIAL STATEMENTS 
+    reg [sld_node_ir_width - 1 : 0]     virtual_ir_in;
+
+    // INITIAL STATEMENTS
     always @ (posedge jtag_tck or posedge jtag_state_tlr)
         begin : simulation_logic
             if (jtag_state_tlr) // asynchronous active high reset
                 begin : active_hi_async_reset
                     ir_srl <= 'b0;
                     jtag_tdo_reg <= 1'b0;
-                    dummy_tdi_reg <= 1'b0;        
+                    dummy_tdi_reg <= 1'b0;
                 end  // active_hi_async_reset
             else
                 begin : rising_edge_jtag_tck
-                    // logic for shifting in data and piping data through        
+                    // logic for shifting in data and piping data through
                     // logic for muxing inputs to outputs and otherwise
                     if (jtag_usr1 && jtag_state_sdr)
-                        begin : shift_in_out_usr1              
+                        begin : shift_in_out_usr1
                             jtag_tdo_reg <= ir_srl_tmp[0];
                             ir_srl <= ir_srl_tmp >> 1;
                             ir_srl[`SLD_NODE_IR_WIDTH_I - 1] <= jtag_tdi;
@@ -51948,7 +51948,7 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
                             else
                                 begin
                                     if (capture_ir && jtag_state_sdr)
-                                        begin : shift_in_out_usr0                
+                                        begin : shift_in_out_usr0
                                             jtag_tdo_reg <= ir_srl_tmp[0];
                                             ir_srl <= ir_srl_tmp >> 1;
                                             ir_srl[`SLD_NODE_IR_WIDTH_I - 1] <= jtag_tdi;
@@ -51962,7 +51962,7 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
                                                 end // pipe_through
                                         end
                                 end
-                        end                          
+                        end
                 end // rising_edge_jtag_tck
         end // simulation_logic
 
@@ -51994,8 +51994,8 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
                         end
                 end  // rising_edge_jtag_tck
         end // capture_ir_logic
-    
-    // outputs -  rising edge of clock  
+
+    // outputs -  rising edge of clock
     always @ (posedge jtag_tck or posedge jtag_state_tlr)
         begin : parallel_ir_out
             if (jtag_state_tlr)
@@ -52007,7 +52007,7 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
                     virtual_ir_in <= ir_srl_hold[`SLD_NODE_IR_WIDTH_I - 2 : `NUM_SELECTION_BITS - 1];
                 end
         end
-    
+
     // outputs -  falling edge of clock, separated for clarity
     always @ (negedge jtag_tck or posedge jtag_state_tlr)
         begin : shift_reg_hold
@@ -52029,9 +52029,9 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
         begin : gen_tck
             dummy_tck_reg <= jtag_tck;
         end // gen_tck
-    // temporary signals    
+    // temporary signals
     assign ir_srl_tmp = ir_srl;
-    
+
     // Pipe through signals
     assign dummy_state_tlr    = jtag_state_tlr;
     assign dummy_state_rti    = jtag_state_rti;
@@ -52063,10 +52063,10 @@ module dummy_hub (jtag_tck,jtag_tdi,jtag_tms,jtag_usr1,jtag_state_tlr,jtag_state
     assign virtual_state_cdr  = (! jtag_usr1) && jtag_state_cdr && ir_srl_hold[`SLD_NODE_IR_WIDTH_I - 1];
 
     // registered output
-    assign jtag_tdo = jtag_tdo_reg;              
-    assign dummy_tdi = dummy_tdi_reg;    
+    assign jtag_tdo = jtag_tdo_reg;
+    assign dummy_tdi = dummy_tdi_reg;
     assign dummy_tck = dummy_tck_reg;
-    
+
 endmodule
 // END OF MODULE
 
@@ -52099,7 +52099,7 @@ module sld_virtual_jtag (tdo,ir_out,tck,tdi,ir_in,virtual_state_cdr,virtual_stat
                         tms);
 
 
-    // GLOBAL PARAMETER DECLARATION    
+    // GLOBAL PARAMETER DECLARATION
     parameter lpm_type = "SLD_VIRTUAL_JTAG"; // required by coding standard
     parameter lpm_hint = "SLD_VIRTUAL_JTAG"; // required by coding standard
     parameter sld_auto_instance_index = "NO"; //Yes if auto index is desired and no otherwise
@@ -52116,8 +52116,8 @@ module sld_virtual_jtag (tdo,ir_out,tck,tdi,ir_in,virtual_state_cdr,virtual_stat
     defparam  user_input.sld_node_sim_action = sld_sim_action;
     defparam  jtag.ir_register_width = 10 ;  // compilation fails if defined constant is used
     defparam  hub.sld_node_ir_width = sld_ir_width;
-    
-    
+
+
     // INPUT PORTS DECLARATION
     input   tdo;  // tdo signal into megafunction
     input [sld_ir_width - 1 : 0] ir_out;// parallel ir data into megafunction
@@ -52134,23 +52134,23 @@ module sld_virtual_jtag (tdo,ir_out,tck,tdi,ir_in,virtual_state_cdr,virtual_stat
     output   virtual_state_cir; // cir state signal of megafunction
     output   virtual_state_uir; // uir state signal of megafunction
     output   jtag_state_tlr;    // Test, Logic, Reset state
-    output   jtag_state_rti;    // Run, Test, Idle state 
+    output   jtag_state_rti;    // Run, Test, Idle state
     output   jtag_state_sdrs;   // Select DR scan state
     output   jtag_state_cdr;    // capture DR state
-    output   jtag_state_sdr;    // Shift DR state 
+    output   jtag_state_sdr;    // Shift DR state
     output   jtag_state_e1dr;   // exit 1 dr state
-    output   jtag_state_pdr;    // pause dr state 
+    output   jtag_state_pdr;    // pause dr state
     output   jtag_state_e2dr;   // exit 2 dr state
-    output   jtag_state_udr;    // update dr state 
+    output   jtag_state_udr;    // update dr state
     output   jtag_state_sirs;   // Select IR scan state
     output   jtag_state_cir;    // capture IR state
-    output   jtag_state_sir;    // shift IR state 
+    output   jtag_state_sir;    // shift IR state
     output   jtag_state_e1ir;   // exit 1 IR state
     output   jtag_state_pir;    // pause IR state
-    output   jtag_state_e2ir;   // exit 2 IR state 
+    output   jtag_state_e2ir;   // exit 2 IR state
     output   jtag_state_uir;    // update IR state
     output   tms;               // tms signal
-    output [sld_ir_width - 1 : 0] ir_in; // paraller ir data from megafunction    
+    output [sld_ir_width - 1 : 0] ir_in; // paraller ir data from megafunction
 
     // connecting wires
     wire   tck_i;
@@ -52178,9 +52178,9 @@ module sld_virtual_jtag (tdo,ir_out,tck,tdi,ir_in,virtual_state_cdr,virtual_stat
     wire   jtag_state_pir_i;
     wire   jtag_state_e2ir_i;
     wire   jtag_state_uir_i;
-    
-    
-    // COMPONENT INSTANTIATIONS 
+
+
+    // COMPONENT INSTANTIATIONS
     // generates input to jtag controller
     signal_gen user_input (tck_i,tms_i,tdi_i,jtag_usr1_i,tdo_i);
 
@@ -52197,7 +52197,7 @@ module sld_virtual_jtag (tdo,ir_out,tck,tdi,ir_in,virtual_state_cdr,virtual_stat
                                 jtag_state_e2ir_i,jtag_state_uir_i,
                                 jtag_usr1_i);
 
-    // the HUB 
+    // the HUB
     dummy_hub hub (jtag_tck_i,jtag_tdi_i,jtag_tms_i,jtag_usr1_i,
                     jtag_state_tlr_i,jtag_state_rti_i,jtag_state_drs_i,
                     jtag_state_cdr_i,jtag_state_sdr_i,jtag_state_e1dr_i,

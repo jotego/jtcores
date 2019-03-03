@@ -39,7 +39,7 @@ module jt1943_colmix(
     input   [3:0]   prom_din,
 
     input           LVBL,
-    input           LHBL,   
+    input           LHBL,
 
     output  [3:0]   red,
     output  [3:0]   green,
@@ -69,7 +69,7 @@ always @(*) begin
     pixel_mux[7:6] = selbus[3:2];
 end
 
-always @(posedge clk) if(cen6) begin   
+always @(posedge clk) if(cen6) begin
     prom_addr <= (LVBL&&LHBL) ? pixel_mux : 8'd0;
 end
 

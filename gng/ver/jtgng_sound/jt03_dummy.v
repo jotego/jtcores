@@ -6,16 +6,16 @@ module jt03 (
     input           addr,
     input           cs_n,
     input           wr_n,
-    
+
     output  [7:0]   dout,
     output          irq_n,
     // Separated output
     output          [ 7:0] psg_A,
     output          [ 7:0] psg_B,
     output          [ 7:0] psg_C,
-    output  signed  [15:0] fm_snd,    
+    output  signed  [15:0] fm_snd,
     // combined output
-    output          [ 9:0] psg_snd,        
+    output          [ 9:0] psg_snd,
     output  signed  [15:0]  snd,
     output          snd_sample
 );
@@ -34,7 +34,7 @@ always @(posedge clk) if(cen) begin
         if( !addr ) selection <= din;
         `ifdef DUMMY_PRINTALL
             if(  addr ) $display("%X, %X", selection, din );
-        `else    
+        `else
             if(  addr && selection>=8'h20) $display("%X, %X", selection, din );
         `endif
     end
