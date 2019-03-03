@@ -25,6 +25,7 @@ module jtgng_mist_base(
     input           cen12,
     input           sdram_re,
     // Base video
+    input   [1:0]   osd_rotate,
     input   [3:0]   game_r,
     input   [3:0]   game_g,
     input   [3:0]   game_b,
@@ -196,6 +197,8 @@ osd #(0,0,4) osd (
    .SPI_DI     ( SPI_DI       ),
    .SPI_SCK    ( SPI_SCK      ),
    .SPI_SS3    ( SPI_SS3      ),
+
+   .rotate     ( osd_rotate   ),
 
    .R_in       ( scandoubler_disable ? { game_r, game_r[3:2] } : board_r ),
    .G_in       ( scandoubler_disable ? { game_g, game_g[3:2] } : board_g ),
