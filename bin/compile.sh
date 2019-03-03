@@ -52,7 +52,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # Recompile
     cd $JTGNG_ROOT/${PRJ:2}/mist
     quartus_sh --flow compile $PRJ
-    if $?; then
+    if [ $? ]; then
         echo "ERROR while compiling the project. Aborting"
         exit 1
     fi
@@ -69,10 +69,11 @@ if [ ! -e $RBF ]; then
     exit 1
 fi
 cp $RBF $RELEASE.rbf
-zip --update releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $*
+zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $*
+rm $RELEASE.rbf
 
 if [ -e rom/${PRJ:2}/build_rom.ini ]; then
-    zip releases/$RELEASE.zip rom/build_rom.sh rom/${PRJ:2}/build_rom.ini
+    zip --junk-paths releases/$RELEASE.zip rom/build_rom.sh rom/${PRJ:2}/build_rom.ini
 fi
 
 # Add to git
