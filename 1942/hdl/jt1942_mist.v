@@ -107,7 +107,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .cen12          ( cen12         ),
     .sdram_re       ( sdram_re      ),
     // Base video
-    .osd_rotate     ( { status[11], 1'b1 } ),
+    .osd_rotate     ( { dip_flip, 1'b1 } ),
     .game_r         ( red           ),
     .game_g         ( green         ),
     .game_b         ( blue          ),
@@ -180,11 +180,7 @@ jtgng_cen #(.CLK_SPEED(12)) u_cen(
 
 wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-wire game_pause;
-
-reg game_rst;
-always @(negedge clk_rgb)
-    game_rst <= downloading | rst | rst_req;
+wire game_pause, game_rst;
 
 jt1942_game u_game(
     .rst         ( game_rst      ),
@@ -244,6 +240,11 @@ assign AUDIO_R = AUDIO_L;
 
 jtgng_board u_board(
     .rst            ( rst             ),
+    .game_rst       ( game_rst        ),
+    .dip_flip       ( dip_flip        ),
+    .rst_req        ( rst_req         ),
+    .downloading    ( downloading     ),
+
     .clk_rgb        ( clk_rgb         ),
     .clk_dac        ( clk_rom         ),
     // audio

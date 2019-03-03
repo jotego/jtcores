@@ -173,6 +173,8 @@ wire cpu_cen, main_cs;
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [12:0] obj_AB;
 
+//wire video_flip = dip_flip ^ flip; // Original 1943 did not have this DIP bit.
+
 `ifndef NOMAIN
 jt1943_main u_main(
     .rst        ( rst_game      ),

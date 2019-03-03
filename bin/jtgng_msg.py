@@ -17,11 +17,11 @@ ascii_conv = {
     'M':0x4d, 'N':0x4e, 'O':0x4f, 'P':0x50, 'Q':0x51, 'R':0x52,
     'S':0x53, 'T':0x54, 'U':0x55, 'V':0x56, 'W':0x57, 'X':0x58,
     'Y':0x59, 'Z':0x5a,
-    ' ':0x70
+    ' ':0x20
 }
 
-char_ram = [ 0x70 for x in range(0x400) ]
-row=31
+char_ram = [ 0x20 for x in range(0x400) ]
+row=0
 
 def save_hex(filename, data):
     with open(filename,"w") as f:
@@ -39,9 +39,9 @@ def print_char( msg ):
     global row
     pos = row
     for a in msg:
-        char_ram[pos] = ascii_conv[a.lower()]
-        pos = pos+32
-    row = row-1
+        char_ram[pos] = ascii_conv[a]
+        pos = pos+1
+    row = row+32
 
 r_g  = [ 0 for x in range(256) ]
 blue = [ 0 for x in range(256) ]
@@ -62,25 +62,27 @@ print_char("  http://patreon.com/topapate   ")
 print_char("                                ")
 print_char("      Thanks to my patrons:     ")
 print_char("                                ")
-print_char("  Suvodip Mitra                 ")
-print_char("  Carlos Hasan                  ")
-print_char("  Michael's Workshop            ")
-print_char("  SmokeMonster - Youtube chan!  ")
-print_char("  Oscar Laguna Garcia           ")
-print_char("  Andrew Moore                  ")
-print_char("  Ultrarobotninja               ")
-print_char("  sweetlilmre                   ")
-print_char("  Bruno Silva                   ")
+print_char(" Andrew Moore                   ")
+print_char(" Bruno Silva                    ")
+print_char(" Carlos Hasan                   ")
+print_char(" Michael's Workshop             ")
+print_char(" Oscar Laguna Garcia            ")
+print_char(" SmokeMonster - YouTube channel ")
+print_char(" Suvodip Mitra                  ")
+print_char(" Sweetlilmre                    ")
+print_char(" Ultrarobotninja                ")
 print_char("                                ")
 print_char("                                ")
-print_char("  Hardware Support From:        ")
+print_char("  Hardware support from:        ")
 print_char("                                ")
 print_char("           Manuferhi            ")
 print_char("        Antonio Villena         ")
 print_char("  Ricardo Saraiva-Retroshop.pt  ")
 print_char("                                ")
-print_char("  Greetings to Alexey Melnikov! ")
+print_char("          Greeting to           ")
+print_char("       Alexey Melnikov!         ")
 print_char("    and Szombathelyi Gyorgy     ")
+print_char("                                ")
 print_char("                                ")
 
 save_hex( os.environ['JTGNG_ROOT']+"/gng/mist/msg.hex", char_ram )

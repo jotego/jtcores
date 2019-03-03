@@ -63,12 +63,12 @@ localparam CONF_STR = {
         "O8,FM ,ON,OFF;", // 14
         "O9,Screen filter,ON,OFF;", // 24
         "OA,Invincibility,OFF,ON;", // 24
-        "OB,Flip screen,OFF,ON;", // 22
+       // "OB,Flip screen,OFF,ON;", // 22
         "TF,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+6+42+20+15+14*2+24+24+22+30;
+localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
 
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -141,6 +141,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
     .cen12          ( cen12         ),
     .sdram_re       ( sdram_re      ),
     // Base video
+    .osd_rotate     ( { dip_flip, 1'b1 } ),
     .game_r         ( red           ),
     .game_g         ( green         ),
     .game_b         ( blue          ),
@@ -213,10 +214,7 @@ wire [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-
-reg game_rst;
-always @(negedge clk_rgb)
-    game_rst <= downloading | rst | rst_req;
+wire game_rst;
 
 //`ifdef SIMULATION
 //reg autofire=1'b0;
@@ -289,6 +287,11 @@ assign AUDIO_R = AUDIO_L;
 
 jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
     .rst            ( rst             ),
+    .game_rst       ( game_rst        ),
+    .dip_flip       ( dip_flip        ),
+    .rst_req        ( rst_req         ),
+    .downloading    ( downloading     ),
+
     .clk_rgb        ( clk_rgb         ),
     .clk_dac        ( clk_rom         ),
     // audio

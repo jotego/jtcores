@@ -50,26 +50,37 @@ always @(posedge clk) if(cen3) begin
     snd_int_last <= snd_int;
 end
 
+reg reset_n=1'b0;
+
 // interrupt latch
 reg int_n;
 wire iorq_n;
 always @(posedge clk)
-    if( rst ) int_n <= 1'b1;
+    if( !reset_n ) int_n <= 1'b1;
     else if(cen3) begin
         if(!iorq_n) int_n <= 1'b1;
         else if( snd_int_edge ) int_n <= 1'b0;
     end
 
-wire [15:0] A;
 
-reg reset_n=1'b0;
+// local reset
+reg [3:0] rst_cnt;
 
-always @(posedge clk) if(cen3)
-    reset_n <= ~( rst | ~sres_b );
+always @(negedge clk)
+    if( rst | ~sres_b ) begin
+        rst_cnt <= 'd0;
+        reset_n <= 1'b0;
+    end else begin
+        if( rst_cnt != ~4'b0 ) begin
+            reset_n <= 1'b0;
+            rst_cnt <= rst_cnt + 'd1;
+        end else reset_n <= 1'b1;
+    end
 
 reg rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs, SECWR_cs;
 
 reg [7:0] latch;
+wire [15:0] A;
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -78,7 +89,7 @@ always @(*) begin
     fm0_cs   = 1'b0;
     fm1_cs   = 1'b0;
     SECWR_cs = 1'b0;
-    /*if(!mreq_n)*/ casez(A[15:13])
+    if(!mreq_n) casez(A[15:13])
         3'b0??: rom_cs   = 1'b1;
         3'b110:
             case( A[12:11] )
@@ -97,7 +108,7 @@ end
 
 reg [1:0] cs_wait;
 always @(posedge clk)
-    if( rst )
+    if( !reset_n )
         cs_wait <= 2'b11;
     else if(cen3) begin
         cs_wait <= { cs_wait[0], ~(fm0_cs|fm1_cs) };
@@ -106,7 +117,7 @@ always @(posedge clk)
 wire wait_n = ~cs_wait[1] | cs_wait[0];
 
 always @(posedge clk)
-if( rst ) begin
+if( !reset_n ) begin
     latch <= 8'd0;
 end else if(cen3) begin
     if( main_latch_cs ) latch <= main_dout;
@@ -239,11 +250,11 @@ wire        [10:0] psg01 = psg0_snd + psg1_snd;
 wire signed [10:0] psg2x; // DC-removed version of psg01
 
 jt49_dcrm2 #(.sw(11)) u_dcrm (
-    .clk    (  clk    ),
-    .cen    (  cen1p5 ),
-    .rst    (  rst    ),
-    .din    (  psg01  ),
-    .dout   (  psg2x  )
+    .clk    ( clk      ),
+    .cen    ( cen1p5   ),
+    .rst    ( !reset_n ),
+    .din    ( psg01    ),
+    .dout   ( psg2x    )
 );
 
 wire signed [7:0] psg_gain = enable_psg ? 8'h80 : 8'h0;

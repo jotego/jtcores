@@ -1,0 +1,149 @@
+JT1943 FPGA clone of 1943 arcade faithful to original hardware
+==============================================================
+
+Please, read the main README file too.
+
+You have just got an expensive $500 PCB according to eBay. You have in your hands
+a faithful conversion of the circuits on the 1943 PCB to FPGA. If you come from
+the emulation world here are some of the things different from emulators:
+
+-Real CPU/GPU bus sharing with delays
+-Sprites handled with DMA exactly as in the original hardware
+-Palettes determined by the original PROMs
+-Graphics priority handled by the original PROM
+-No lag between image and input. Data is being sent to the screen in real time.
+-3 button input (although the game seems to use only two buttons)
+
+These technical aspects mean that the game play will be different from an emulator
+in a number of ways and that some hardware tricks that were not emulated will work
+here as in the original hardware.
+
+GAME PLAY
+=========
+
+It is obvious what you have to do except:
+
+-Press fire 1 and 2 to roll
+-Hold the coin button during power up to test mode in order to be
+ able to access al test options
+-Hold fire 1 at the end of an air carrier phase to receive a weapon at the
+ beginning of the next phase
+
+CREDITS
+=======
+
+Brought to you by Jose Tejada, aka jotego. Meet me in twitter @topapate
+Checkout my patreon page here: http://patreon.com/topapate
+
+Special thanks to all March '19 patrons.
+
+Tier +3 Patrons Thanks!!
+========================
+Alan Steremberg
+albconde
+Andrew Moore
+Andyways
+Blue1597
+Brian Sallee
+Bruno Silva
+Carl Hagström
+Carlos Del Alamo
+Christian Bailey
+crashman
+Dag J.
+Daniel Hochman
+DarkStar7
+Darren Newman
+Dave Ross
+Diego Losada Somoza
+Don Gafford
+Duane Hembrick
+Dustin Hubbard
+Ed Balan
+Eoin Gibney
+Fay Dek
+Filip Kindt
+Frank Wolf
+Fred Fryolator
+Fredrik Berglind
+Funkycochise
+furrtek
+Geert Oost 
+Gonzalo López
+Gregory Hogan
+Gus Marruedo
+Jacob Proctor
+James DeRose
+Jan Beta
+Javier Martínez
+JD
+Jeremy Glass
+Jérôme Moreau
+Joe Kalwitz
+Johannes Reß
+John Klimek
+Joshua Witt
+Jo Tomiyori
+Keith Kelly
+Kevin Bidwell
+Leslie Law
+loloC2C
+Mads Troest
+Mahen
+Manuel
+Manuel Antoni
+Manuel Astudillo
+Manuel Fernández
+Manuelfx
+Marcos
+Marco Tavian
+Mark Kohler (NML32)
+Mary Marshall
+Matt Charlesworth
+Matthew Coyne
+Matthew Langtry
+Michael Stegen
+Michael's Workshop
+Michael Troelsen
+Miguel Angel Rodriguez Jodar
+Mike Holzinger
+Name
+Neil Maguire
+Nicolas Hamel
+Obiwantje
+Oliver Jaksch
+Oliver Wndmth
+Oscar Laguna Garcia
+Oscar López Sierra
+Owlnonymous
+Peter Edwards
+Phillip McMahon
+Popov
+Porkchop Express
+PsyFX
+QcRetro
+remowilliams
+RetroShop.pt
+Rinpoe
+robert fisher
+Rob Young
+Roland
+Rysha
+Salvador Perugorria Lorente
+Scott Redepenning
+Scralings
+SJohansson
+SmokeMonster
+StalkS
+Stephen Marshall
+Stephen Nuthall
+Suvodip Mitra
+Thomas Tahsin-Bey
+Tommaso Mauro Tautonico
+Travis Brown
+type78
+Ultrarobotninja
+Víctor Gomariz Ladrón de Guevara
+Violeta Martin Fernandez
+Vorvek
+

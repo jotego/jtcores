@@ -18,6 +18,12 @@
 
 module jtgng_board(
     output  reg       rst,
+    output  reg       game_rst,
+    // reset forcing signals:
+    input             dip_flip, // A change in dip_flip implies a reset
+    input             downloading,
+    input             rst_req,
+
     input             clk_dac,
     input             clk_rgb,
     input             clk_vga,
@@ -46,9 +52,9 @@ module jtgng_board(
     output reg [9:0]  game_joystick2,
     output reg [1:0]  game_coin,
     output reg [1:0]  game_start,
-    output reg        game_pause,
-    output reg        soft_rst
+    output reg        game_pause
 );
+
 
 parameter SIGNED_SND=1'b0;
 parameter THREE_BUTTONS=0;
@@ -61,6 +67,21 @@ always @(posedge clk_rgb) // if(cen6)
         rst <= 1'b1;
         rst_cnt <= rst_cnt + 8'd1;
     end else rst <= 1'b0;
+
+reg soft_rst;
+reg last_dip_flip;
+reg [7:0] game_rst_cnt=8'd0;
+always @(negedge clk_rgb) begin
+    last_dip_flip <= dip_flip;
+    if( downloading | rst | rst_req | (last_dip_flip!=dip_flip) | soft_rst ) begin
+        game_rst_cnt <= 8'd0;
+        game_rst     <= 1'b1;
+    end
+    if( game_rst_cnt != ~8'b0 ) begin
+        game_rst <= 1'b1;
+        game_rst_cnt <= game_rst_cnt + 8'd1;
+    end else game_rst <= 1'b0;
+end
 
 `ifndef SIMULATION
 `ifndef NOSOUND

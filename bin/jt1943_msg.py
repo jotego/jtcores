@@ -19,7 +19,7 @@ ascii_conv = {
     'y':0xb2, 'z':0xb3, '@':0xd8
 }
 
-char_ram = [ 0x70 for x in range(0x400) ]
+char_ram = [ 0x24 for x in range(0x400) ]
 row=31
 
 def save_hex(filename, data):

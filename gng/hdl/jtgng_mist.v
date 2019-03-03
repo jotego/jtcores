@@ -195,10 +195,7 @@ wire signed [15:0] ym_snd;
 
 wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-
-reg game_rst;
-always @(negedge clk_rgb)
-    game_rst <= downloading | rst | rst_req;
+wire game_rst;
 
 jtgng_game game(
     .rst         ( game_rst      ),
@@ -251,6 +248,11 @@ assign AUDIO_R = AUDIO_L;
 
 jtgng_board #(.SIGNED_SND(1'b1))u_board(
     .rst            ( rst             ),
+    .game_rst       ( game_rst        ),
+    .dip_flip       ( 1'b0            ),
+    .rst_req        ( rst_req         ),
+    .downloading    ( downloading     ),
+
     .clk_rgb        ( clk_rgb         ),
     .clk_dac        ( clk_rom         ),
     // audio
