@@ -19,7 +19,7 @@
 --   specific prior written agreement from the author.
 --
 -- * License is granted for non-commercial use only.  A fee may not be charged
---   for redistributions as source code or in synthesized/hardware form without 
+--   for redistributions as source code or in synthesized/hardware form without
 --   specific prior written agreement from the author.
 --
 -- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -48,11 +48,11 @@ generic (filter_length : positive := 8);
 port(
 	CLK			:	in	std_logic;
 	nRESET		:	in	std_logic;
-	
+
 	-- PS/2 interface (could be bi-dir)
 	PS2_CLK		:	in	std_logic;
 	PS2_DATA	:	in	std_logic;
-	
+
 	-- Byte-wide data interface - only valid for one clock
 	-- so must be latched externally if required
 	DATA		:	out	std_logic_vector(7 downto 0);
@@ -86,7 +86,7 @@ begin
 			ps2_dat_in <= PS2_DATA;
 			clk_filter <= PS2_CLK & clk_filter(clk_filter'high downto 1);
 			clk_edge <= '0';
-			
+
 			if clk_filter = filter_t'(others => '1') then
 				-- Filtered clock is high
 				ps2_clk_in <= '1';
@@ -96,10 +96,10 @@ begin
 					clk_edge <= '1';
 				end if;
 				ps2_clk_in <= '0';
-			end if;	
+			end if;
 		end if;
 	end process;
-	
+
 	-- Shift in keyboard data
 	process(nRESET,CLK)
 	begin
@@ -114,13 +114,13 @@ begin
 			-- Clear flags
 			VALID <= '0';
 			ERROR <= '0';
-		
+
 			if clk_edge = '1' then
 				-- We have a new bit from the keyboard for processing
 				if bit_count = 0 then
 					-- Idle state, check for start bit (0) only and don't
 					-- start counting bits until we get it
-					
+
 					parity <= '0';
 
 					if ps2_dat_in = '0' then

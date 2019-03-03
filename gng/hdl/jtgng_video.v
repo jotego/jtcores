@@ -27,6 +27,7 @@ module jtgng_video(
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
+    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
@@ -85,6 +86,7 @@ jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .H128       ( H[7:0]        ),
     .char_cs    ( char_cs       ),
     .flip       ( flip          ),
+    .pause      ( pause         ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
     .rd         ( RnW           ),

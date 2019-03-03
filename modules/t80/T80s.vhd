@@ -144,7 +144,7 @@ architecture rtl of T80s is
             DIR        : in  std_logic_vector(211 downto 0) := (others => '0') -- IFF2, IFF1, IM, IY, HL', DE', BC', IX, HL, DE, BC, PC, SP, R, I, F', A', F, A
         );
     end component;
-    
+
 	signal IntCycle_n	: std_logic;
 	signal NoRead		: std_logic;
 	signal Write		: std_logic;

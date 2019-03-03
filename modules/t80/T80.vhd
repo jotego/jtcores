@@ -128,7 +128,7 @@ entity T80 is
 end T80;
 
 architecture rtl of T80 is
-    component T80_MCode 
+    component T80_MCode
         generic(
             Mode   : integer := 0;
             Flag_C : integer := 0;
@@ -226,7 +226,7 @@ architecture rtl of T80 is
             Q               : out std_logic_vector(7 downto 0);
             F_Out           : out std_logic_vector(7 downto 0)
         );
-    end component;    
+    end component;
 
     component T80_Reg
         port(

@@ -228,6 +228,7 @@ jtgng_video u_video(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
+    .pause      ( !dip_pause    ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),

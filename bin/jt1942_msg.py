@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Message in the pause menu
+import os
 
 ascii_conv = {
     '0':0, '1':1, '2':2, '3':3, '4':4, '5':5,
@@ -48,13 +49,13 @@ for col in range(256):
 
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("                                ") 
+print_char("                                ")
 print_char("                                ")
 print_char("      1942 clone for fpga       ")
 print_char("    brought to you by jotego.   ")
 print_char("  http://patreon.com/topapate   ")
 print_char("                                ")
-print_char("       thanks to my patrons     ") 
+print_char("       thanks to my patrons     ")
 print_char("                                ")
 print_char("  directors: scralings          ")
 print_char("             suvodip mitra      ")
@@ -73,9 +74,10 @@ print_char("           Manuferhi            ")
 print_char("        Antonio Villena         ")
 print_char("  Ricardo Saraiva-Retroshop.pt  ")
 print_char("                                ")
-print_char("  Greetings to Alexey Melnikov! ")
+print_char("  Greetings to Alexey Melnikov, ")
+print_char("  Gyurco for his MiST Support   ")
 print_char("    and AmigaWave YT channel!   ")
 print_char("                                ")
 
-save_hex( "../1942/mister/1942_msg.hex", char_ram )
-save_bin( "../1942/ver/game/1942_msg.bin", char_ram )
+save_hex( os.environ['JTGNG_ROOT']+"/1942/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG_ROOT']+"/1942/ver/game/msg.bin", char_ram )

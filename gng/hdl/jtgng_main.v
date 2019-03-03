@@ -228,7 +228,7 @@ mc6809 u_cpu (
     .RnW     ( RnW     ),
     .BS      ( BS      ),
     .BA      ( BA      ),
-    .nIRQ    ( nIRQ | dip_pause ),
+    .nIRQ    ( nIRQ | ~dip_pause ),
     .nFIRQ   ( 1'b1    ),
     .nNMI    ( 1'b1    ),
     .EXTAL   ( EXTAL   ),

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Message in the pause menu
+import os
 
 ascii_conv = {
     '0':0, '1':1, '2':2, '3':3, '4':4, '5':5,
@@ -72,16 +73,16 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
+print_char("  Hardware Support From:        ")
 print_char("                                ")
+print_char("           Manuferhi            ")
+print_char("        Antonio Villena         ")
+print_char("  Ricardo Saraiva-Retroshop.pt  ")
 print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
+print_char("  Greetings to Alexey Melnikov, ")
+print_char("  & Gyurco for his MiST Support ")
 print_char("                                ")
 print_char("                                ")
 
-save_hex( "../1943/mist/1943_msg.hex", char_ram )
-save_bin( "../1943/ver/game/1943_msg.bin", char_ram )
+save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG_ROOT']+"/1943/ver/game/msg.bin", char_ram )

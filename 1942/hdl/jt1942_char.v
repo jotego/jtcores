@@ -77,7 +77,7 @@ jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_high(
     .q      ( mem_high )
 );
 
-jtgng_ram #(.aw(10),.synfile("1942_msg.hex"),.simfile("1942_msg.bin")) u_ram_msg(
+jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( 8'd0     ),

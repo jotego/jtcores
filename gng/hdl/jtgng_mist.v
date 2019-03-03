@@ -87,7 +87,7 @@ wire          rst_req   = status[32'hf];
 wire [1:0]    dip_level = ~status[3:2];
 wire [1:0]    dip_lives = ~status[10:9];
 wire [1:0]    dip_bonus = 2'b11;
-wire          dip_pause = status[1] | game_pause;
+wire          dip_pause = !(status[1] | game_pause); // DIPs are active low
 wire          dip_test  = ~status[4];
 wire          enable_psg = ~status[7], enable_fm = ~status[8];
 

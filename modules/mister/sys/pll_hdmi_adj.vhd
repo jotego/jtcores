@@ -22,7 +22,7 @@ ENTITY pll_hdmi_adj IS
     -- Scaler
     llena         : IN  std_logic; -- 0=Disabled 1=Enabled
     lltune        : IN  unsigned(15 DOWNTO 0); -- Outputs from scaler
-    
+
     -- Signals from reconfig commands
     i_waitrequest : OUT std_logic;
     i_write       : IN  std_logic;
@@ -34,7 +34,7 @@ ENTITY pll_hdmi_adj IS
     o_write       : OUT std_logic;
     o_address     : OUT unsigned(5 DOWNTO 0);
     o_writedata   : OUT unsigned(31 DOWNTO 0);
-    
+
     ------------------------------------
     clk           : IN  std_logic;
     reset_na      : IN  std_logic
@@ -42,7 +42,7 @@ ENTITY pll_hdmi_adj IS
 
 BEGIN
 
-  
+
 END ENTITY pll_hdmi_adj;
 
 --##############################################################################
@@ -69,7 +69,7 @@ BEGIN
   ----------------------------------------------------------------------------
   -- 000010 : Start reg "Write either 0 or 1 to start fractional PLL reconf.
   -- 000111 : M counter Fractional Value
-  
+
   Comb:PROCESS(i_write,i_address,
                i_writedata,pwrite,paddress,pdata) IS
   BEGIN
@@ -83,9 +83,9 @@ BEGIN
       o_writedata<=pdata;
     END IF;
   END PROCESS Comb;
-  
+
   i_waitrequest<=o_waitrequest WHEN state=sIDLE ELSE '0';
-    
+
   ----------------------------------------------------------------------------
   Schmurtz:PROCESS(clk,reset_na) IS
     VARIABLE off,ofp : natural RANGE 0 TO 63;
@@ -100,11 +100,11 @@ BEGIN
         mfrac_mem<=i_writedata;
         modo<='1';
       END IF;
-      
+
       lltune_sync<=lltune; -- <ASYNC>
       lltune_sync2<=lltune_sync;
       lltune_sync3<=lltune_sync2;
-      
+
       off:=to_integer('0' & lltune_sync(4 DOWNTO 0));
       ofp:=to_integer('0' & lltune_sync(12 DOWNTO 8));
 
@@ -118,7 +118,7 @@ BEGIN
           cpt<=0;
           IF lltune_sync3(15)/=lltune_sync2(15) AND llena='1' THEN
 
-            IF llena='0' THEN 
+            IF llena='0' THEN
               -- Recover original freq when disabling low lag mode
               phm<='0';
               IF modo='1' THEN
@@ -126,7 +126,7 @@ BEGIN
                 up<='1';
                 modo<='0';
               END IF;
-              
+
             ELSIF phm='0' AND fcpt=2 THEN
               -- Frequency adjust
               IF off<10 THEN off:=10; END IF;
@@ -139,7 +139,7 @@ BEGIN
                 tstate<=sADJ;
               END IF;
               cptx<=0;
-              
+
             ELSIF phm='1' THEN
               -- Phase adjust
               IF ofp<5 THEN ofp:=5; END IF;
@@ -176,7 +176,7 @@ BEGIN
               END IF;
             END IF;
           END IF;
-          
+
         WHEN sADJ =>
           IF sign='0' THEN
             mfrac<=mfrac + diff(31 DOWNTO 8);
@@ -187,7 +187,7 @@ BEGIN
             up<='1';
             tstate<=sADJ2;
           END IF;
-          
+
         WHEN sADJ2 =>
           cpt<=cpt+1;
           IF cpt=1023 THEN
@@ -195,9 +195,9 @@ BEGIN
           ELSE
             tstate<=sADJ;
           END IF;
-          
+
       END CASE;
-      
+
       ------------------------------------------------------
       CASE state IS
         WHEN sIDLE =>
@@ -209,19 +209,19 @@ BEGIN
             paddress<="000111";
             pwrite<='1';
           END IF;
-          
+
         WHEN sW1 =>
           IF pwrite='1' AND o_waitrequest='0' THEN
             state<=sW2;
             pwrite<='0';
           END IF;
-          
+
         WHEN sW2 =>
           pdata<=x"0000_0001";
           paddress<="000010";
           pwrite<='1';
           state<=sW3;
-          
+
         WHEN sW3 =>
           IF pwrite='1' AND o_waitrequest='0' THEN
             pwrite<='0';
@@ -231,9 +231,9 @@ BEGIN
 
     END IF;
   END PROCESS Schmurtz;
-  
+
   ----------------------------------------------------------------------------
 
-  
+
 END ARCHITECTURE rtl;
 
