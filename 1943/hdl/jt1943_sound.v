@@ -131,7 +131,7 @@ wire [7:0] ram_dout, dout, rom_data0, rom_data1;
 
 jtgng_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
-    .cen    ( 1'b1     ),
+    .cen    ( cen3     ),
     .data   ( dout     ),
     .addr   ( A[10:0]  ),
     .we     ( RAM_we   ),

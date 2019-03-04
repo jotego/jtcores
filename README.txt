@@ -78,6 +78,27 @@ The game itself in module jtgng_game. It is written using an arbitrary clock (ac
 
 The video output is a 256x256 screen. That is what you get from jtgng_game in a signal format that replicates the original hardware. jtgng_mist instantiates a module called jtgng_vga that converts the image to a standard VGA resolution without losing frame speed.
 
+Keyboard (MiST, ZX-UNO)
+=======================
+
+On MiSTer keyboard control is configured through the OSD.
+
+For MiST and MiSTer: games can be controlled with both game pads and keyboard. The keyboard follows the same layout as MAME's default.
+
+    F3      Game reset
+    P       Pause
+    1,2     1P, 2P start buttons
+    5,6     Left and right coin inputs
+
+    cursors 1P direction
+    CTRL    1P button 1
+    ALT     1P button 2
+    space   1P button 3
+
+    R,F,G,D 2P direction
+    Q,S,A   2P buttons 3,2 and 1
+
+
 ROM Generation
 ==============
 

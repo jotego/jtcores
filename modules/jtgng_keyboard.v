@@ -80,6 +80,13 @@ always @(posedge clk) begin
                     9'h1_6b: key_joy1[1] <= !key_released;   // Left
                     9'h1_74: key_joy1[0] <= !key_released;   // Right
                     // second joystick
+                    9'h0_15: key_joy2[6] <= !key_released;   // Button 3
+                    9'h0_1b: key_joy2[5] <= !key_released;   // Button 2
+                    9'h0_1c: key_joy2[4] <= !key_released;   // Button 1
+                    9'h0_2d: key_joy2[3] <= !key_released;   // Up
+                    9'h0_2b: key_joy2[2] <= !key_released;   // Down
+                    9'h0_23: key_joy2[1] <= !key_released;   // Left
+                    9'h0_34: key_joy2[0] <= !key_released;   // Right
                     // coins
                     9'h2e: key_coin[0] <= !key_released;  // 1st coin
                     9'h36: key_coin[1] <= !key_released;  // 2nd coin
