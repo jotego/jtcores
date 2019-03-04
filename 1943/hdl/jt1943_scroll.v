@@ -61,7 +61,7 @@ wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Correc
 reg  [ 4:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC, PIC2,SH2;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
-reg  [15:0] hpos, SP; // called "SP" on the schematics
+reg  [15:0] hpos, SP=16'd0; // called "SP" on the schematics
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
