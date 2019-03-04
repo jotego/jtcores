@@ -311,7 +311,7 @@ jt1943_video u_video(
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_dout      ),
-    .main_ram   ( main_ram      ),
+    .obj_DB     ( main_ram      ),
     .obj_AB     ( obj_AB        ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),

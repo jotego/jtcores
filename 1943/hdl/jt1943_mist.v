@@ -93,14 +93,16 @@ wire dip_flip = status[32'hb];
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire game_pause;
-//`ifdef SIMULATION
-//wire dip_pause = 1'b0; // ~status[1];
-//`else
+`ifdef SIMULATION
+wire dip_pause = 1'b1; // ~status[1];
+initial if(!dip_pause) $display("INFO: DIP pause enabled");
+`else
 wire dip_pause = ~status[1] & ~game_pause;
-//`endif
+`endif
 
 `ifdef SIMULATION
 wire dip_test  = 1'b1;
+initial if(!dip_test) $display("INFO: DIP test mode enabled");
 `else
 wire dip_test  = ~status[4];
 `endif
@@ -216,13 +218,13 @@ wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
 
-//`ifdef SIMULATION
-//reg autofire=1'b0;
-//always @(negedge vs) autofire<=~autofire;
-//assign game_joystick1[4] = autofire;
-//assign game_joystick1[3:0] = ~4'd0;
-//assign game_joystick1[6:5] = ~2'd0;
-//`endif
+`ifdef SIMULATION
+    reg autofire=1'b0;
+    always @(negedge vs) autofire<=~autofire;
+    assign game_joystick1[4] = autofire;
+    assign game_joystick1[3:0] = ~4'd0;
+    assign game_joystick1[6:5] = ~2'd0;
+`endif
 
 jt1943_game u_game(
     .rst         ( game_rst      ),
@@ -314,8 +316,8 @@ jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
     // joystick
     .ps2_kbd_clk    ( ps2_kbd_clk     ),
     .ps2_kbd_data   ( ps2_kbd_data    ),
-    .board_joystick1( joystick1[8:0]  ),
-    .board_joystick2( joystick2[8:0]  ),
+    .board_joystick1( joystick1[9:0]  ),
+    .board_joystick2( joystick2[9:0]  ),
 `ifndef SIMULATION
     .game_joystick1 ( game_joystick1  ),
 `endif

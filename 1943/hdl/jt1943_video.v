@@ -59,8 +59,7 @@ module jt1943_video(
     input       [15:0]  objrom_data,
     // shared bus
     output      [12:0]  obj_AB,
-    input        [7:0]  DB,
-    input        [7:0]  main_ram,
+    input        [7:0]  obj_DB,
     input               OKOUT,
     output              bus_req,   // Request bus
     input               bus_ack,   // bus acknowledge
@@ -269,7 +268,7 @@ jt1943_obj u_obj(
     .flip           ( flip      ),
     // CPU bus
     .AB             ( obj_AB    ),
-    .DB             ( main_ram  ),
+    .DB             ( obj_DB    ),
     // shared bus
     .OKOUT          ( OKOUT     ),
     .bus_req        ( bus_req   ),        // Request bus
