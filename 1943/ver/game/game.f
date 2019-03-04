@@ -1,3 +1,4 @@
+test_inputs.v
 ../../hdl/jt1943_char.v
 ../../hdl/jt1943_colmix.v
 ../../hdl/jt1943_game.v

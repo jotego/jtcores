@@ -1,3 +1,3 @@
 #!/bin/bash
 
-../../../bin/sim.sh $* -sysname 1943 
+../../../bin/sim.sh -mist $* -sysname 1943 

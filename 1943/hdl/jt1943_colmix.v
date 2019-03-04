@@ -59,12 +59,25 @@ wire obj_blank  = |(~obj_pxl[3:0]);
 wire scr1_blank = |(~scr1_pxl[3:0]);
 wire [7:0] seladdr = { 3'b0, char_blank, obj_blank, obj_pxl[7:6], scr1_blank };
 
+reg [3:0] char_pxl_1;
+reg [5:0] scr1_pxl_1;
+reg [5:0] scr2_pxl_1;
+reg [7:0] obj_pxl_1;
+
+// latch for one clock cycle to wait for the selbus signal
+always @(posedge clk) if(cen6) begin
+    char_pxl_1  <= char_pxl;
+    scr1_pxl_1  <= scr1_pxl;
+    scr2_pxl_1  <= scr2_pxl;
+    obj_pxl_1   <= obj_pxl;
+end
+
 always @(*) begin
     case( selbus[1:0] )
-        2'b00: pixel_mux[5:0] = scr2_pxl;
-        2'b01: pixel_mux[5:0] = scr1_pxl;
-        2'b10: pixel_mux[5:0] =  obj_pxl[5:0];
-        2'b11: pixel_mux[5:0] = { 2'b0, char_pxl };
+        2'b00: pixel_mux[5:0] = scr2_pxl_1;
+        2'b01: pixel_mux[5:0] = scr1_pxl_1;
+        2'b10: pixel_mux[5:0] =  obj_pxl_1[5:0];
+        2'b11: pixel_mux[5:0] = { 2'b0, char_pxl_1 };
     endcase // selbus[1:0]
     pixel_mux[7:6] = selbus[3:2];
 end

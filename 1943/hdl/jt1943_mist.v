@@ -94,15 +94,19 @@ wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire game_pause;
 `ifdef SIMULATION
-wire dip_pause = 1'b1; // ~status[1];
-initial if(!dip_pause) $display("INFO: DIP pause enabled");
+    wire dip_pause = 1'b1; // ~status[1];
+    initial if(!dip_pause) $display("INFO: DIP pause enabled");
 `else
 wire dip_pause = ~status[1] & ~game_pause;
 `endif
 
 `ifdef SIMULATION
-wire dip_test  = 1'b1;
-initial if(!dip_test) $display("INFO: DIP test mode enabled");
+    `ifdef DIP_TEST
+    wire dip_test  = 1'b0;
+    `else 
+    wire dip_test  = 1'b1;
+    `endif
+    initial if(!dip_test) $display("INFO: DIP test mode enabled");
 `else
 wire dip_test  = ~status[4];
 `endif
@@ -219,11 +223,17 @@ wire [1:0] game_coin, game_start;
 wire game_rst;
 
 `ifdef SIMULATION
-    reg autofire=1'b0;
-    always @(negedge vs) autofire<=~autofire;
-    assign game_joystick1[4] = autofire;
-    assign game_joystick1[3:0] = ~4'd0;
-    assign game_joystick1[6:5] = ~2'd0;
+    test_inputs u_test_inputs(
+        .loop_rst       ( loop_rst            ),
+        .LVBL           ( LVBL                ),
+        .game_joystick1 ( game_joystick1[6:0] ),
+        .button_1p      ( game_start[0]       ),
+        .coin_left      ( game_coin[0]        )
+    );
+    assign game_start[1] = 1'b1;
+    assign game_coin[1]  = 1'b1;
+    assign game_joystick2 = ~10'd0;
+    assign game_joystick1[9:7] = 3'b111;
 `endif
 
 jt1943_game u_game(
@@ -320,10 +330,10 @@ jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
     .board_joystick2( joystick2[9:0]  ),
 `ifndef SIMULATION
     .game_joystick1 ( game_joystick1  ),
-`endif
     .game_joystick2 ( game_joystick2  ),
     .game_coin      ( game_coin       ),
     .game_start     ( game_start      ),
+`endif
     .game_pause     ( game_pause      )
 );
 endmodule // jtgng_mist
