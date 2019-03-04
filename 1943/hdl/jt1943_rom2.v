@@ -20,8 +20,6 @@ module jt1943_rom2(
     input               rst,
     input               clk,
     input               cen12, // 12 MHz
-    input       [ 2:0]  H,
-    input               Hsub,
     input               LHBL,
     input               LVBL,
     output  reg         sdram_re, // any edge (rising or falling)
@@ -50,13 +48,6 @@ module jt1943_rom2(
     output  reg [21:0]  sdram_addr,
     input       [31:0]  data_read
 );
-
-wire [3:0] rd_state = { H, Hsub }; // +4'd1;
-
-// H is used to align with the pixel transfers
-// the SDRAM-read state machine will start at roughly pixel 0 (of each 8-pixel tuple)
-// the difference in time is less than 1/2 clk24 cycle
-// this avoids data coming at unexpected time.
 
 reg  [15:0] scr_aux;
 reg main_lsb, snd_lsb;

@@ -30,7 +30,7 @@ module jt1943_prom_we(
     output reg [12:0]    prom_we
 );
 
-localparam SNDADDR=22'h14_000*2, CHARADDR=22'h18_000*2,
+localparam SNDADDR=22'h14_000<<1, CHARADDR=22'h18_000*2,
     SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2, MAP1ADDR=22'h1C_000<<1,
     OBJADDR=22'h4C_000<<1;
 wire [21:0] scr_start = ioctl_addr - SCR1ADDR;

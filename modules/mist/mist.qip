@@ -17,3 +17,5 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) ps2_intf.v
 
 set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) jtgng_pll0.qip]
 set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) jtgng_pll1.qip]
+
+set_global_assignment -name SDC_FILE [file join $::quartus(qip_path) mist_io.sdc]

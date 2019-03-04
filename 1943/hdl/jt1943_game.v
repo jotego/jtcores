@@ -160,7 +160,7 @@ wire prom_13a_we = prom_we[ 4];
 wire prom_14a_we = prom_we[ 5];
 wire prom_12c_we = prom_we[ 6];
 wire prom_7f_we  = prom_we[ 7];
-wire prom_4b_we  = prom_we[ 8];
+// wire prom_4b_we  = prom_we[ 8]; // Video timing. Unused.
 wire prom_7c_we  = prom_we[ 9];
 wire prom_8c_we  = prom_we[10];
 wire prom_6l_we  = prom_we[11];
@@ -251,6 +251,7 @@ jt1943_sound u_sound (
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
+    .main_cen       ( cpu_cen        ),
     .sres_b         ( sres_b         ),
     .main_dout      ( cpu_dout       ),
     .main_latch_cs  ( snd_latch_cs   ),
@@ -348,8 +349,6 @@ jt1943_rom2 u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen12       ( cen12         ),
-    .H           ( H[2:0]        ),
-    .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
     .sdram_re    ( sdram_re      ),

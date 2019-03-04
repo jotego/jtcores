@@ -77,7 +77,7 @@ always @(posedge clk) if(cen6) begin
         default:;
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
-        obj_addr <= (!vinzone || objcnt==5'd0) ? 'd0 :
+        obj_addr <= (!vinzone || objcnt==5'd0) ? 17'd0 :
             { ADhigh, ADlow, VB[3:0],  pxlcnt[3:2] };
     end
 end
@@ -109,7 +109,7 @@ always @(posedge clk) if(cen6) begin
         objpal <= objpal0;
         posx1  <= objx;
     end else begin
-        posx1  <= posx1 + 'b1;
+        posx1  <= posx1 + 9'b1;
     end
     if( pxlcnt == 4'd6 ) vinzone2 <= vinzone;
     case( pxlcnt[1:0] )

@@ -23,6 +23,7 @@ module jt1943_sound(
     input           clk,    // 24   MHz
     input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
     input           cen1p5, //  1.5 MHz
+    input           main_cen, // clock enable of main CPU
     input           rst,
     // Interface with main CPU
     input           sres_b,
@@ -119,7 +120,7 @@ wire wait_n = ~cs_wait[1] | cs_wait[0];
 always @(posedge clk)
 if( !reset_n ) begin
     latch <= 8'd0;
-end else if(cen3) begin
+end else if(main_cen) begin
     if( main_latch_cs ) latch <= main_dout;
 end
 

@@ -147,6 +147,8 @@ always @(posedge clk)
             coin_cnt <= |cpu_dout[1:0];
             bank     <= cpu_dout[4:2];
             `ifdef SIMULATION
+                if (!cpu_dout[5])
+                    $display("INFO: Sound CPU reset");
                 if(cpu_dout[4:2]!=bank)
                     $display("INFO: Bank changed to %d", cpu_dout[4:2]);
             `endif

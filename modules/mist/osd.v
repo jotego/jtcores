@@ -158,9 +158,9 @@ always @(posedge clk_sys) begin
 end
 
 // area in which OSD is being displayed
-wire [9:0] h_osd_start = ((dsp_width - OSD_WIDTH)>> 1) + OSD_X_OFFSET;
+wire [9:0] h_osd_start = ((dsp_width - OSD_WIDTH)>> 10'd1) + OSD_X_OFFSET;
 wire [9:0] h_osd_end   = h_osd_start + OSD_WIDTH;
-wire [9:0] v_osd_start = ((dsp_height- (OSD_HEIGHT<<doublescan))>> 1) + OSD_Y_OFFSET;
+wire [9:0] v_osd_start = ((dsp_height- (OSD_HEIGHT<<doublescan))>> 10'd1) + OSD_Y_OFFSET;
 wire [9:0] v_osd_end   = v_osd_start + (OSD_HEIGHT<<doublescan);
 wire [9:0] osd_hcnt    = h_cnt - h_osd_start;
 wire [9:0] osd_vcnt    = v_cnt - v_osd_start;
