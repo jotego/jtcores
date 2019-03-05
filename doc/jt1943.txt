@@ -13,6 +13,7 @@ the emulation world here are some of the things different from emulators:
 -Graphics priority handled by the original PROM
 -No lag between image and input. Data is being sent to the screen in real time.
 -3 button input (although the game seems to use only two buttons)
+-Sound sampling rate: 41.663 kHz (original, 125/3 kHz)
 
 These technical aspects mean that the game play will be different from an emulator
 in a number of ways and that some hardware tricks that were not emulated will work

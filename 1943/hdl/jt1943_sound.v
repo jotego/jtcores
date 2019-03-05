@@ -97,6 +97,7 @@ always @(*) begin
                 2'd0: ram_cs   = 1'b1;
                 2'd1: latch_cs = 1'b1;
                 2'd3: SECWR_cs = 1'b1;
+                default:;
             endcase
         3'b111: begin
             fm0_cs = ~A[1];
