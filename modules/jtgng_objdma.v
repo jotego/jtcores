@@ -39,6 +39,15 @@ reg [1:0] bus_state;
 localparam ST_IDLE=2'd0, ST_WAIT=2'd1,ST_BUSY=2'd2;
 localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 
+// Ghosts'n Goblins copy only 'h180 objects as per schematics
+// 1943 copy more, but it is not clear what the limit is.
+// There is enough time during the vertical blank to copy the whole
+// buffer at 6MHz, so the GnG limitation may have been set to
+// give more time to the main CPU.
+// It takes 170us to copy the whole ('h1FF) buffer
+
+parameter OBJMAX=9'h180;
+
 reg mem_sel;
 
 always @(posedge clk)
@@ -59,7 +68,7 @@ always @(posedge clk)
                 blen      <= 1'b1;
                 bus_state <= ST_BUSY;
             end
-            ST_BUSY: if( AB==9'h180 ) begin
+            ST_BUSY: if( AB==OBJMAX ) begin
                 bus_req <= 1'b0;
                 blen    <= 1'b0;
                 bus_state <= ST_IDLE;

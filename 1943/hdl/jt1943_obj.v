@@ -67,7 +67,7 @@ always @(posedge clk) if(cen6) begin
 end
 
 // DMA to 6809 RAM memory to copy the sprite data
-jtgng_objdma u_dma(
+jtgng_objdma #(.OBJMAX(9'h1FF)) u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen6       ( cen6      ),    //  6 MHz
