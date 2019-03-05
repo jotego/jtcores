@@ -98,7 +98,7 @@ always @(*)
         dataB = blank;
     end
 
-jtgng_ram #(.aw(8),.dw(dw),.cen_rd(1)) lineA_buf(
+jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
     .clk     ( clk             ),
     .cen     ( cen6            ),
     .addr    ( addrA           ),
@@ -107,7 +107,7 @@ jtgng_ram #(.aw(8),.dw(dw),.cen_rd(1)) lineA_buf(
     .q       ( lineA_q         )
 );
 
-jtgng_ram #(.aw(8),.dw(dw),.cen_rd(1)) lineB_buf(
+jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
     .clk     ( clk             ),
     .cen     ( cen6            ),
     .addr    ( addrB           ),

@@ -46,13 +46,12 @@ reg [7:0] ADlow;
 reg [3:0] objpal0, objpal;
 reg [2:0] ADhigh;
 reg [7:0] objy;
-reg [8:0] objx, posx1;
+reg [8:0] objx, posx1, posx2;
 reg [7:0] VB;
 wire [7:0] posy;
 reg  hover;
 reg vinzone;
 reg vinzone2;
-
 
 
 always @(*) begin
@@ -95,9 +94,10 @@ wire [7:0] pal_addr = { objpal, new_col };
 wire [7:0] prom_dout;
 
 always @(posedge clk ) if(cen6) begin
+    posx2 <= posx1; // 1-clk delay to match the PROM data
     if( OBJON ) begin
         new_pxl <= prom_dout;
-        posx    <= posx1;
+        posx    <= posx2;
     end else begin
         new_pxl <= 4'hf;
         posx    <= 9'h100;
