@@ -94,7 +94,7 @@ if [ $ZIP = TRUE ]; then
     }
 
     add_ifexists doc/$PRJ.txt
-    add_ifexists rom/${PRJ:2}/build_rom.bat
+    add_ifexists rom/build_rom_${PRJ:2}.bat
 fi
 
 # Add to git
