@@ -120,7 +120,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
 
 // Clock must be faster than 6MHz so selbus is ready for the next
 // 6MHz clock cycle:
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c"),.cen_rd(1)) u_selbus(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
