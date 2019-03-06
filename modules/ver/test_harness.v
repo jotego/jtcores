@@ -46,6 +46,7 @@ module test_harness(
 
 parameter sdram_instance = 1, GAME_ROMNAME="_PASS ROM NAME to test_harness_";
 parameter TX_LEN = 207;
+parameter CLK_SPEED=12;
 
 ////////////////////////////////////////////////////////////////////
 // video output dump
@@ -119,8 +120,6 @@ always @(posedge clk_rom) begin
     clk_cnt <= clk_cnt + 4'd1;
 end
 
-parameter clk_speed=12;
-
 reg rst_base=1'b1;
 
 initial begin
@@ -142,7 +141,7 @@ always @(negedge clk or posedge rst_base)
     end
 
 
-jtgng_cen #(.CLK_SPEED(clk_speed)) u_cen(
+jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk    ),
     .cen12  ( cen12  ),
     .cen6   ( cen6   ),

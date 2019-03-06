@@ -20,11 +20,24 @@ reg [3:0] div=5'd0;
 
 initial c1=1'b0;
 
-always @(posedge c2) begin
-    div <= div=='d8 ? 'd0 : div+'d1;
-    if ( div=='d0 ) c1 <= 1'b0;
-    if ( div=='d4 ) c1 <= 1'b1;
-end
+`ifndef CLK24
+    always @(posedge c2) begin
+        div <= div=='d8 ? 'd0 : div+'d1;
+        if ( div=='d0 ) c1 <= 1'b0;
+        if ( div=='d4 ) c1 <= 1'b1;
+
+    end
+`else 
+    always @(posedge c2) begin
+        div <= div=='d8 ? 'd0 : div+'d1;
+        case( div )
+            5'd0: c1 <= 1'b0;
+            5'd2: c1 <= 1'b1;
+            5'd4: c1 <= 1'b0;
+            5'd7: c1 <= 1'b1;
+        endcase
+    end
+`endif
 
 assign #2.5 c3 = c2;
 

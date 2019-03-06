@@ -50,6 +50,7 @@ module jt1942_mist(
     output          LED
 );
 
+parameter CLK_SPEED=12;
 
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
@@ -167,7 +168,7 @@ jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
 );
 
 
-jtgng_cen #(.CLK_SPEED(12)) u_cen(
+jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk_rgb   ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),

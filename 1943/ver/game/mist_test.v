@@ -84,8 +84,14 @@ wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS,
 
 wire [5:0] VGA_R, VGA_G, VGA_B;
 
+`ifdef CLK24
+    parameter CLK_SPEED=24;
+`else
+    parameter CLK_SPEED=12;
+`endif
+
 test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
-    .TX_LEN(887808)) u_harness(
+    .TX_LEN(887808), .CLK_SPEED(CLK_SPEED) ) u_harness(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .clk27       ( clk27         ),
@@ -123,7 +129,7 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
 );
 
 
-jt1943_mist UUT(
+jt1943_mist #(.CLK_SPEED(CLK_SPEED)) UUT(
     .CLOCK_27   ( { 1'b0, clk27 }),
     .VGA_R      ( VGA_R     ),
     .VGA_G      ( VGA_G     ),
