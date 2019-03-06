@@ -66,6 +66,7 @@ wire [15:0] video_dump = { 2'b0,VS,HS, red, green, blue  };
 always @(posedge clk) if(cen6 && frame_cnt>=`VIDEO_START ) begin
     $fwrite(fvideo,"%u", video_dump);
 end
+
 `endif
 
 ////////////////////////////////////////////////////////////////////
@@ -86,11 +87,14 @@ reg frames_done=1'b1;
 wire spi_done;
 integer fincnt;
 
-reg clk_rom;
-initial begin
-    clk_rom=1'b0;
-    forever clk_rom = #(10.417/2) ~clk_rom; // 96 MHz
-end
+wire clk_rom;
+jtgng_pll0 u_pll(
+    .inclk0 ( 1'b0    ),
+    .c1     ( clk     ),      // 12
+    .c2     ( clk_rom )      // 96
+    // output       c3,     // 96 (shifted by -2.5ns)
+    // output   locked
+);
 
 ////////////////////////////////////////////////////////////////////
 always @(posedge clk)
@@ -116,17 +120,6 @@ always @(posedge clk_rom) begin
 end
 
 parameter clk_speed=12;
-
-always @(*)
-    case(clk_speed)
-        24: clk = clk_cnt[1];
-        12: clk = clk_cnt[2];
-        6:  clk = clk_cnt[3];
-        default: begin
-            $display("ERROR: Invalid value of clk_speed");
-            $finish;
-        end
-    endcase // clk_speedendcase
 
 reg rst_base=1'b1;
 
