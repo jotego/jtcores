@@ -38,6 +38,7 @@ Modules
 The FPGA clone uses the following modules:
 
 JT12: For YM2203 sound synthesis. From the same author.
+JTFRAME: A common framework for MiST arcades. From the same author.
 MC6809 from Greg Miller
 T80: originally from Daniel Wallner, with edits from Alexey Melnikov (Mister)
 hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author

@@ -153,6 +153,7 @@ u_frame(
     .clk_rom        ( clk_rom        ),
     .cen12          ( cen12          ),
     .cen6           ( cen6           ),
+    .status         ( status         ),
     // Base video
     .osd_rotate     ( { dip_flip, 1'b1 } ),
     .game_r         ( red            ),

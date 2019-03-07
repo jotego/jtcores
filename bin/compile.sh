@@ -1,5 +1,21 @@
 #!/bin/bash
 
+function show_usage() {
+    cat << EOF
+JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
+    First argument is the project name, like jtgng, or jt1943
+
+    -skip   skips compilation and goes directly to prepare the release file
+            using the RBF file available.
+    -git    adds the release file to git
+    -prog   programs the FPGA
+    -zip    all arguments from that point on will be used as inputs to the
+            zip file. All files must be referred to $JTGNG_ROOT path
+    -help   displays this message
+EOF
+   exit 0
+}
+
 # Is the root folder environment variable set
 
 if [ "$JTGNG_ROOT" = "" ]; then
@@ -12,11 +28,15 @@ fi
 PRJ=$1
 shift
 
-if [ "$PRJ" = "" ]; then
-    echo "ERROR: Missing project name."
-    echo "Usage: compile.sh project_name "
-    exit 1
-fi
+case "$PRJ" in
+    "")
+        echo "ERROR: Missing project name."
+        echo "Usage: compile.sh project_name "
+        exit 1;;
+    "-help")
+        show_usage;;
+esac
+
 
 ZIP=TRUE
 GIT=FALSE
@@ -34,19 +54,7 @@ while [ $# -gt 0 ]; do
             SKIP_COMPILE=TRUE;;
         "-zip") shift; break;;
         "-help")
-        cat << EOF
-JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
-    First argument is the project name, like jtgng, or jt1943
-
-    -skip   skips compilation and goes directly to prepare the release file
-            using the RBF file available.
-    -git    adds the release file to git
-    -prog   programs the FPGA
-    -zip    all arguments from that point on will be used as inputs to the
-            zip file. All files must be referred to $JTGNG_ROOT path
-    -help   displays this message
-EOF
-            exit 0;;
+            show_usage;;
         *)  echo "ERROR: Unknown option $1";
             exit 1;;
     esac
@@ -104,7 +112,7 @@ if [ $GIT = TRUE ]; then
 fi
 
 if [ $PROG = TRUE ]; then
-    quartus_pgm -c "USB-Blaster(Altera) [1-1.2]" ${PRJ:2}/mist/$PRJ.cdf
+    quartus_pgm -c "USB-Blaster(Altera) [1-1.2]" $JTGNG_ROOT/${PRJ:2}/mist/$PRJ.cdf
 fi
 
 echo completed at $(date)
