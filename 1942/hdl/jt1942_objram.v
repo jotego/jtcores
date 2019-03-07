@@ -18,6 +18,8 @@
 
 // 1942 Object Data RAM
 
+`timescale 1ns/1ps
+
 module jt1942_objram(
     input              rst,
     input              clk,

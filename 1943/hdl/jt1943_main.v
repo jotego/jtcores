@@ -18,6 +18,8 @@
 
 // 1943: Main CPU
 
+`timescale 1ns/1ps
+
 module jt1943_main(
     input              clk,
     input              cen6,   // 6MHz

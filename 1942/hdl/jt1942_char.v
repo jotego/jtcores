@@ -19,6 +19,8 @@
 // 1942 Character Generation CHARA-GENE
 // Schematics pages 7/8
 
+`timescale 1ns/1ps
+
 module jt1942_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz

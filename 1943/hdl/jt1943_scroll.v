@@ -19,6 +19,8 @@
 // 1943 Scroll Generation
 // Schematics pages 8/15...
 
+`timescale 1ns/1ps
+
 module jt1943_scroll(
     input              rst,
     input              clk,  // >12 MHz

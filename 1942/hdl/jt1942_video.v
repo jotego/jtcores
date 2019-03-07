@@ -16,6 +16,8 @@
     Version: 1.0
     Date: 20-1-2019 */
 
+`timescale 1ns/1ps
+
 module jt1942_video(
     input               rst,
     input               clk,

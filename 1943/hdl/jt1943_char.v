@@ -18,6 +18,8 @@
 
 // 1943 Character Generation
 
+`timescale 1ns/1ps
+
 module jt1943_char(
     input            clk,    // 24 MHz
     input            cen6  /* synthesis direct_enable = 1 */,   //  6 MHz

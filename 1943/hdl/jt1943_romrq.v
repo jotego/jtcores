@@ -16,6 +16,8 @@
     Version: 1.0
     Date: 28-2-2019 */
 
+`timescale 1ns/1ps
+
 module jt1943_romrq #(parameter AW=18, DW=8, INVERT_A0=0 )(
     input               rst,
     input               clk,

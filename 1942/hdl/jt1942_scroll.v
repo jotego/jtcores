@@ -19,6 +19,8 @@
 // 1942 Scroll Generation
 // Schematics pages 02A-1/8, 2/8, 3/8
 
+`timescale 1ns/1ps
+
 module jt1942_scroll(
     input              clk,     // 24 MHz
     input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz

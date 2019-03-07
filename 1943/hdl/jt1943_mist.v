@@ -16,6 +16,8 @@
     Version: 1.0
     Date: 22-2-2019 */
 
+`timescale 1ns/1ps
+
 module jt1943_mist(
     input   [1:0]   CLOCK_27,
     output  [5:0]   VGA_R,
@@ -71,7 +73,7 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
 
-wire          rst, clk_rgb, clk_vga, clk_rom;
+wire          rst, clk_rgb, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
@@ -162,7 +164,6 @@ u_frame(
     .vs             ( vs             ),
     // VGA
     .en_mixing      ( ~status[9]     ),
-    .clk_vga        ( clk_vga        ),
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
     .VGA_B          ( VGA_B          ),

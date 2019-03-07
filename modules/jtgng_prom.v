@@ -68,9 +68,19 @@ initial begin
 end
 `endif
 
-always @(posedge clk) begin
-    if( !cen_rd || cen ) q <= mem[rd_addr];
-    if( we) mem[wr_addr] <= data; // no clock enable for writtings to allow correct operation during SPI downloading.
-end
+// no clock enable for writtings to allow correct operation during SPI downloading.
+generate
+    if( cen_rd )
+        always @(posedge clk) begin
+            if( cen ) q <= mem[rd_addr];
+            if( we ) mem[wr_addr] <= data;
+        end
+    else
+        always @(posedge clk) begin
+            q <= mem[rd_addr];
+            if( we ) mem[wr_addr] <= data;
+        end
+endgenerate
+
 
 endmodule // jtgng_ram

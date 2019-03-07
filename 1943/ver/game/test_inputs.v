@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module test_inputs(
     input   loop_rst,
     input   LVBL,

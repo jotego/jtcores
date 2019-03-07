@@ -16,14 +16,16 @@
     Version: 1.0
     Date: 20-1-2019 */
 
+`timescale 1ns/1ps
+
 module jt1942_game(
     input           rst,
     input           clk_rom,
     input           clk,        // 24   MHz
-    input           cen12,      // 12   MHz
-    input           cen6,       //  6   MHz
-    input           cen3,       //  3   MHz
-    input           cen1p5,     //  1.5 MHz
+    output          cen12,      // 12   MHz
+    output          cen6,       //  6   MHz
+    output          cen3,       //  3   MHz
+    output          cen1p5,     //  1.5 MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -71,6 +73,8 @@ module jt1942_game(
     output          sample
 );
 
+parameter CLK_SPEED=12;
+
 wire [8:0] V;
 wire [8:0] H;
 wire HINIT;
@@ -91,6 +95,14 @@ reg rst_game;
 
 always @(negedge clk)
     rst_game <= rst || !rom_ready;
+
+jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
+    .clk    ( clk       ),
+    .cen12  ( cen12     ),
+    .cen6   ( cen6      ),
+    .cen3   ( cen3      ),
+    .cen1p5 ( cen1p5    )
+);
 
 jtgng_timer u_timer(
     .clk       ( clk      ),

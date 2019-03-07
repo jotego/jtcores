@@ -19,6 +19,8 @@
 
 // 1942 Object Generation
 
+`timescale 1ns/1ps
+
 module jt1942_objtiming(
     input              rst,
     input              clk,

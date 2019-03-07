@@ -104,7 +104,7 @@ case "$1" in
         else
             MIST="-F ../../../modules/jtframe/hdl/mist/mist.f"
         fi
-        MIST="$MIST ../../hdl/jt${SYSNAME}_mist.v"
+        MIST="../../../modules/jtframe/hdl/mist/mist_test.v ../../hdl/jt${SYSNAME}_mist.v $MIST mist_dump.v"
         ;;
     "-nosnd")
         FASTSIM="$FASTSIM ${MACROPREFIX}NOSOUND";;
@@ -236,11 +236,11 @@ if [ "$EXTRA" != "" ]; then
     echo Verilog macros: "$EXTRA"
 fi
 
-EXTRA="$EXTRA ${MACROPREFIX}MEM_CHECK_TIME=$MEM_CHECK_TIME"
+EXTRA="$EXTRA ${MACROPREFIX}MEM_CHECK_TIME=$MEM_CHECK_TIME ${MACROPREFIX}SYSTOP=jt${SYSNAME}_mist"
 
 case $SIMULATOR in
 iverilog)   
-    iverilog -g2005-sv $MIST ${TOP}.v \
+    iverilog -g2005-sv $MIST \
         -f game.f $PERCORE \
         $(add_dir ../../../modules/ver sim.f ) \
         ../../../modules/tv80/*.v  \
@@ -249,9 +249,9 @@ iverilog)
         $MAXFRAME -DIVERILOG $EXTRA \
     && sim -lxt;;
 ncverilog)
-    ncverilog +access+r +nc64bit ${TOP}.v +define+NCVERILOG \
+    ncverilog +access+r +nc64bit +define+NCVERILOG \
         -f game.f $PERCORE \
-        -F ../../../modules/ver/sim.f $MIST \
+        -F ../../../modules/ver/sim.f -disable_sem2009 $MIST \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME \
