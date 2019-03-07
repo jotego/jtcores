@@ -100,9 +100,9 @@ case "$1" in
     "-mist")
         TOP=mist_test
         if [ $SIMULATOR == iverilog ]; then
-            MIST=$(add_dir ../../../modules/mist mist_iverilog.f)
+            MIST=$(add_dir ../../../modules/jtframe/hdl/mist/mist mist_iverilog.f)
         else
-            MIST="-F ../../../modules/mist/mist.f"
+            MIST="-F ../../../modules/jtframe/hdl/mist/mist.f"
         fi
         MIST="$MIST ../../hdl/jt${SYSNAME}_mist.v"
         ;;

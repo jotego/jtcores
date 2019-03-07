@@ -7,3 +7,6 @@
 [submodule "modules/ZX-Spectrum_MISTer"]
 	path = modules/ZX-Spectrum_MISTer
 	url = git@github.com:MiSTer-devel/ZX-Spectrum_MISTer.git
+[submodule "modules/jtframe"]
+	path = modules/jtframe
+	url = https://github.com/jotego/jtframe

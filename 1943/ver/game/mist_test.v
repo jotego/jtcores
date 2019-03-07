@@ -125,7 +125,14 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("../../../rom/JT1943.rom"),
     .SDRAM_nCS   ( SDRAM_nCS ),
     .SDRAM_BA    ( SDRAM_BA  ),
     .SDRAM_CLK   ( SDRAM_CLK ),
-    .SDRAM_CKE   ( SDRAM_CKE )
+    .SDRAM_CKE   ( SDRAM_CKE ),
+    // unused
+    .H0          ( 1'bz      ),
+    .autorefresh ( 1'bz      ),
+    .sdram_addr  ( 22'bz     ),
+    .data_read   (),
+    .loop_rst    (),
+    .ioctl_wr    ()
 );
 
 

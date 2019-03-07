@@ -74,9 +74,6 @@ localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
 wire          rst, clk_rgb, clk_vga, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
-wire          ps2_kbd_clk, ps2_kbd_data;
-wire [ 5:0]   board_r, board_g, board_b;
-wire          board_hsync, board_vsync, hs, vs;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
 wire          loop_rst, autorefresh, sdram_re;
@@ -129,6 +126,13 @@ wire [3:0] red;
 wire [3:0] green;
 wire [3:0] blue;
 
+wire LHBL, LVBL, hs, vs;
+wire [15:0] snd;
+
+wire [9:0] game_joystick1, game_joystick2;
+wire [1:0] game_coin, game_start;
+wire game_rst;
+
 // play level
 always @(*)
     case( status[3:2] )
@@ -138,90 +142,84 @@ always @(*)
         2'b11: dip_level = 4'b0000; // very hard
     endcase // status[3:2]
 
-
-jtgng_mist_base #(.CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN)) u_base(
-    .rst            ( rst           ),
-    .clk_rgb        ( clk_rgb       ),
-    .clk_vga        ( clk_vga       ),
-    .clk_rom        ( clk_rom       ),
-    .SDRAM_CLK      ( SDRAM_CLK     ),
-    .cen12          ( cen12         ),
-    .sdram_re       ( sdram_re      ),
+jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
+    .CLK_SPEED(CLK_SPEED),
+    .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
+u_frame(
+    .CLOCK_27       ( CLOCK_27       ),
+    .clk_rgb        ( clk_rgb        ),
+    .clk_rom        ( clk_rom        ),
+    .cen12          ( cen12          ),
+    .cen6           ( cen6           ),
     // Base video
     .osd_rotate     ( { dip_flip, 1'b1 } ),
-    .game_r         ( red           ),
-    .game_g         ( green         ),
-    .game_b         ( blue          ),
-    .board_r        ( board_r       ),
-    .board_g        ( board_g       ),
-    .board_b        ( board_b       ),
-    .board_hsync    ( board_hsync   ),
-    .board_vsync    ( board_vsync   ),
-    .hs             ( hs            ),
-    .vs             ( vs            ),
+    .game_r         ( red            ),
+    .game_g         ( green          ),
+    .game_b         ( blue           ),
+    .LHBL           ( LHBL           ),
+    .LVBL           ( LVBL           ),
+    .hs             ( hs             ),
+    .vs             ( vs             ),
     // VGA
-    .CLOCK_27       ( CLOCK_27      ),
-    .VGA_R          ( VGA_R         ),
-    .VGA_G          ( VGA_G         ),
-    .VGA_B          ( VGA_B         ),
-    .VGA_HS         ( VGA_HS        ),
-    .VGA_VS         ( VGA_VS        ),
+    .en_mixing      ( ~status[9]     ),
+    .clk_vga        ( clk_vga        ),
+    .VGA_R          ( VGA_R          ),
+    .VGA_G          ( VGA_G          ),
+    .VGA_B          ( VGA_B          ),
+    .VGA_HS         ( VGA_HS         ),
+    .VGA_VS         ( VGA_VS         ),
     // SDRAM interface
-    .SDRAM_DQ       ( SDRAM_DQ      ),
-    .SDRAM_A        ( SDRAM_A       ),
-    .SDRAM_DQML     ( SDRAM_DQML    ),
-    .SDRAM_DQMH     ( SDRAM_DQMH    ),
-    .SDRAM_nWE      ( SDRAM_nWE     ),
-    .SDRAM_nCAS     ( SDRAM_nCAS    ),
-    .SDRAM_nRAS     ( SDRAM_nRAS    ),
-    .SDRAM_nCS      ( SDRAM_nCS     ),
-    .SDRAM_BA       ( SDRAM_BA      ),
-    .SDRAM_CKE      ( SDRAM_CKE     ),
+    .SDRAM_CLK      ( SDRAM_CLK      ),
+    .SDRAM_DQ       ( SDRAM_DQ       ),
+    .SDRAM_A        ( SDRAM_A        ),
+    .SDRAM_DQML     ( SDRAM_DQML     ),
+    .SDRAM_DQMH     ( SDRAM_DQMH     ),
+    .SDRAM_nWE      ( SDRAM_nWE      ),
+    .SDRAM_nCAS     ( SDRAM_nCAS     ),
+    .SDRAM_nRAS     ( SDRAM_nRAS     ),
+    .SDRAM_nCS      ( SDRAM_nCS      ),
+    .SDRAM_BA       ( SDRAM_BA       ),
+    .SDRAM_CKE      ( SDRAM_CKE      ),
     // SPI interface to arm io controller
-    .SPI_DO         ( SPI_DO        ),
-    .SPI_DI         ( SPI_DI        ),
-    .SPI_SCK        ( SPI_SCK       ),
-    .SPI_SS2        ( SPI_SS2       ),
-    .SPI_SS3        ( SPI_SS3       ),
-    .SPI_SS4        ( SPI_SS4       ),
-    .CONF_DATA0     ( CONF_DATA0    ),
-    // control
-    .status         ( status        ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
-    .ps2_kbd_clk    ( ps2_kbd_clk   ),
-    .ps2_kbd_data   ( ps2_kbd_data  ),
+    .SPI_DO         ( SPI_DO         ),
+    .SPI_DI         ( SPI_DI         ),
+    .SPI_SCK        ( SPI_SCK        ),
+    .SPI_SS2        ( SPI_SS2        ),
+    .SPI_SS3        ( SPI_SS3        ),
+    .SPI_SS4        ( SPI_SS4        ),
+    .CONF_DATA0     ( CONF_DATA0     ),
     // ROM
-    .ioctl_addr     ( ioctl_addr    ),
-    .ioctl_data     ( ioctl_data    ),
-    .ioctl_wr       ( ioctl_wr      ),
-    .prog_addr      ( prog_addr     ),
-    .prog_data      ( prog_data     ),
-    .prog_mask      ( prog_mask     ),
-    .prog_we        ( prog_we       ),
-    .downloading    ( downloading   ),
-    .loop_rst       ( loop_rst      ),
-    .autorefresh    ( autorefresh   ),
-    .sdram_addr     ( sdram_addr    ),
-    .data_read      ( data_read     )
+    .ioctl_addr     ( ioctl_addr     ),
+    .ioctl_data     ( ioctl_data     ),
+    .ioctl_wr       ( ioctl_wr       ),
+    .prog_addr      ( prog_addr      ),
+    .prog_data      ( prog_data      ),
+    .prog_mask      ( prog_mask      ),
+    .prog_we        ( prog_we        ),
+    .downloading    ( downloading    ),
+    // ROM access from game
+    .loop_rst       ( loop_rst       ),
+    .autorefresh    ( autorefresh    ),
+    .sdram_addr     ( sdram_addr     ),
+    .sdram_re       ( sdram_re       ),
+    .data_read      ( data_read      ),
+//////////// board
+    .rst            ( rst            ),
+    .game_rst       ( game_rst       ),
+    // reset forcing signals:
+    .dip_flip       ( dip_flip       ),
+    .rst_req        ( rst_req        ),
+    // Sound
+    .snd            ( snd            ),
+    .AUDIO_L        ( AUDIO_L        ),
+    .AUDIO_R        ( AUDIO_R        ),    
+    // joystick
+    .game_joystick1 ( game_joystick1 ),
+    .game_joystick2 ( game_joystick2 ),
+    .game_coin      ( game_coin      ),
+    .game_start     ( game_start     ),
+    .game_pause     ( game_pause     )        
 );
-
-
-jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
-    .clk    ( clk_rgb   ),
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
-);
-
-wire LHBL;
-wire LVBL;
-wire [15:0] snd;
-
-wire [9:0] game_joystick1, game_joystick2;
-wire [1:0] game_coin, game_start;
-wire game_rst;
 
 `ifdef SIMULATION
     test_inputs u_test_inputs(
@@ -237,7 +235,8 @@ wire game_rst;
     assign game_joystick1[9:7] = 3'b111;
 `endif
 
-jt1943_game u_game(
+jt1943_game #(.CLK_SPEED(CLK_SPEED))
+u_game(
     .rst         ( game_rst      ),
     .clk_rom     ( clk_rom       ),
     .clk         ( clk_rgb       ),
@@ -296,45 +295,4 @@ jt1943_game u_game(
     .sample      (                )
 );
 
-assign AUDIO_R = AUDIO_L;
-
-jtgng_board #(.SIGNED_SND(1'b1),.THREE_BUTTONS(1)) u_board(
-    .rst            ( rst             ),
-    .game_rst       ( game_rst        ),
-    .dip_flip       ( dip_flip        ),
-    .rst_req        ( rst_req         ),
-    .downloading    ( downloading     ),
-
-    .clk_rgb        ( clk_rgb         ),
-    .clk_dac        ( clk_rom         ),
-    // audio
-    .snd            ( snd             ),
-    .snd_pwm        ( AUDIO_L         ),
-    // VGA
-    .cen6           ( cen6            ),
-    .clk_vga        ( clk_vga         ),
-    .en_mixing      ( ~status[9]      ),
-    .game_r         ( red             ),
-    .game_g         ( green           ),
-    .game_b         ( blue            ),
-    .LHBL           ( LHBL            ),
-    .LVBL           ( LVBL            ),
-    .vga_r          ( board_r         ),
-    .vga_g          ( board_g         ),
-    .vga_b          ( board_b         ),
-    .vga_hsync      ( board_hsync     ),
-    .vga_vsync      ( board_vsync     ),
-    // joystick
-    .ps2_kbd_clk    ( ps2_kbd_clk     ),
-    .ps2_kbd_data   ( ps2_kbd_data    ),
-    .board_joystick1( joystick1[9:0]  ),
-    .board_joystick2( joystick2[9:0]  ),
-`ifndef SIMULATION
-    .game_joystick1 ( game_joystick1  ),
-    .game_joystick2 ( game_joystick2  ),
-    .game_coin      ( game_coin       ),
-    .game_start     ( game_start      ),
-`endif
-    .game_pause     ( game_pause      )
-);
 endmodule // jtgng_mist

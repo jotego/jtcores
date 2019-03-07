@@ -18,12 +18,12 @@
 
 module jt1943_game(
     input           rst,
-    input           clk,        // 24   MHz
+    input           clk,        // 24  or 12  MHz
     input           clk_rom,    // SDRAM clock
-    input           cen12,      // 12   MHz
-    input           cen6,       //  6   MHz
-    input           cen3,       //  3   MHz
-    input           cen1p5,     //  1.5 MHz
+    output          cen12,      // 12   MHz
+    output          cen6,       //  6   MHz
+    output          cen3,       //  3   MHz
+    output          cen1p5,     //  1.5 MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -75,6 +75,8 @@ module jt1943_game(
     output          sample
 );
 
+parameter CLK_SPEED=12;
+
 wire [8:0] V;
 wire [8:0] H;
 wire HINIT;
@@ -83,7 +85,7 @@ wire [12:0] cpu_AB;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout;
-wire [ 7:0] chram_dout,scram_dout;
+wire [ 7:0] chram_dout;
 wire rd;
 wire rom_ready;
 
@@ -95,6 +97,15 @@ reg rst_game;
 
 always @(negedge clk)
     rst_game <= rst || !rom_ready;
+
+jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
+    .clk    ( clk       ),
+    .cen12  ( cen12     ),
+    .cen6   ( cen6      ),
+    .cen3   ( cen3      ),
+    .cen1p5 ( cen1p5    )
+);
+
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -117,20 +128,18 @@ jtgng_timer u_timer(
 wire wr_n, rd_n;
 // sound
 wire sres_b;
-wire [7:0] snd_latch, scrposv, main_ram;
-
-wire [1:0] scr1pos_cs, scr2pos_cs;
+wire [7:0] scrposv, main_ram;
 
 // ROM data
 wire [17:0]  main_addr;
 wire [16:0]  obj_addr;
 wire [16:0]  scr1_addr;
-wire [14:0]  snd_addr, scr2_addr;
+wire [14:0]  scr2_addr;
 wire [13:0]  char_addr, map1_addr, map2_addr;
-wire [ 7:0]  main_dout, snd_dout;
+wire [ 7:0]  main_dout;
 wire [15:0]  char_dout, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
 
-wire snd_latch_cs, snd_int;
+wire snd_latch_cs;
 wire char_wait_n;
 
 wire [12:0] prom_we;
@@ -266,7 +275,6 @@ jt1943_sound u_sound (
     .snd            ( snd            )
 );
 `else
-assign snd_addr = 15'd0;
 assign snd = 9'd0;
 `endif
 
