@@ -103,7 +103,7 @@ wire dip_pause = ~status[1] & ~game_pause;
 `ifdef SIMULATION
     `ifdef DIP_TEST
     wire dip_test  = 1'b0;
-    `else 
+    `else
     wire dip_test  = 1'b1;
     `endif
     initial if(!dip_test) $display("INFO: DIP test mode enabled");
@@ -214,13 +214,13 @@ u_frame(
     // Sound
     .snd            ( snd            ),
     .AUDIO_L        ( AUDIO_L        ),
-    .AUDIO_R        ( AUDIO_R        ),    
+    .AUDIO_R        ( AUDIO_R        ),
     // joystick
     .game_joystick1 ( game_joystick1 ),
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     )        
+    .game_pause     ( game_pause     )
 );
 
 `ifdef SIMULATION

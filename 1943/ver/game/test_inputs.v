@@ -15,12 +15,12 @@ integer framecnt=0;
 
 always @(negedge loop_rst)
     $display("INFO: loop_rst over.");
-        
+
 always @(negedge LVBL)
     if( loop_rst ) begin
         game_joystick1 <= ~7'd0;
         button_1p      <= 1'b1;
-        coin_left      <= 1'b0;        
+        coin_left      <= 1'b0;
     end else begin
         framecnt <= framecnt + 1;
         case( framecnt>>3 )
@@ -33,7 +33,7 @@ always @(negedge LVBL)
                 game_joystick1[DOWN] <= 1'b1;
                 game_joystick1[FIRE] <= 1'b0;
             end
-            9: game_joystick1[FIRE] <= 1'b1;            
+            9: game_joystick1[FIRE] <= 1'b1;
         endcase // framecnt
     end
 

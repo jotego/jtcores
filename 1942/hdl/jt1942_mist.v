@@ -177,13 +177,13 @@ u_frame(
     // Sound
     .snd            ( { snd, 7'd0 }  ),
     .AUDIO_L        ( AUDIO_L        ),
-    .AUDIO_R        ( AUDIO_R        ),    
+    .AUDIO_R        ( AUDIO_R        ),
     // joystick
     .game_joystick1 ( game_joystick1 ),
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     )        
+    .game_pause     ( game_pause     )
 );
 
 jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
