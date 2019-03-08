@@ -74,7 +74,9 @@ module jt1943_game(
     output          coin_cnt,
     // Sound output
     output  [15:0]  snd,
-    output          sample
+    output          sample,
+    // Debug
+    input   [3:0]   gfx_en
 );
 
 parameter CLK_SPEED=12;
@@ -352,7 +354,9 @@ jt1943_video u_video(
     .prom_12m_we( prom_12m_we   ),
     // obj proms
     .prom_7c_we ( prom_7c_we    ),
-    .prom_8c_we ( prom_8c_we    )
+    .prom_8c_we ( prom_8c_we    ),
+    // Debug
+    .gfx_en     ( gfx_en        )
 );
 
 jt1943_rom2 u_rom (

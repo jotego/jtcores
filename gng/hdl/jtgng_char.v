@@ -83,11 +83,7 @@ always @(*) begin
     dout_high = pause ? 8'h2    : mem_high;
 end
 
-reg sel_scan_last;
 assign MRDY_b = !( char_cs && sel_scan ); // halt CPU
-
-always @(posedge clk) if(cen6)
-    sel_scan_last <= sel_scan;
 
 reg [7:0] addr_lsb;
 reg char_hflip;

@@ -111,11 +111,7 @@ jtgng_ram #(.aw(10),.cen_rd(1)) u_ram_high(
     .q      ( dout_high)
 );
 
-reg sel_scan_last;
 assign MRDY_b = !( scr_cs && sel_scan ); // halt CPU
-
-always @(posedge clk) if(cen6)
-    sel_scan_last <= sel_scan;
 
 reg scr_hflip;
 reg [7:0] addr_lsb;

@@ -109,13 +109,14 @@ wire game_pause, game_rst;
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .CLK_SPEED(CLK_SPEED),
-    .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
+    .SIGNED_SND(1'b0), .THREE_BUTTONS(1'b0))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),
     .clk_rgb        ( clk_rgb        ),
     .clk_rom        ( clk_rom        ),
     .cen12          ( cen12          ),
     .cen6           ( cen6           ),
+    .status         ( status         ),
     // Base video
     .osd_rotate     ( { dip_flip, 1'b1 } ),
     .game_r         ( red            ),
@@ -176,13 +177,13 @@ u_frame(
     // Sound
     .snd            ( { snd, 7'd0 }  ),
     .AUDIO_L        ( AUDIO_L        ),
-    .AUDIO_R        ( AUDIO_R        ),    
+    .AUDIO_R        ( AUDIO_R        ),
     // joystick
     .game_joystick1 ( game_joystick1 ),
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     )        
+    .game_pause     ( game_pause     )
 );
 
 jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
