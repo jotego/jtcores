@@ -92,7 +92,7 @@ assign AB[4:2] = 3'b0;
 
 
 // Parse sprite data per line
-jtgng_objbuf u_buf(
+jtgng_objbuf #(.OBJMAX(10'h1FF)) u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -120,7 +120,11 @@ jt1943_objdraw u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
+`ifndef OBJTEST
     .OBJON          ( OBJON         ),
+`else 
+    .OBJON          ( 1'b1          ),
+`endif
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),

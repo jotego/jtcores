@@ -95,10 +95,23 @@ always @(posedge clk)
 
 
 wire [9:0]  wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 10'd0;
-wire [7:0]  ram_din = mem_sel==MEM_PREBUF ? DB : 8'd0;
 wire        ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
-jtgng_dual_ram #(.aw(10)) objram (
+`ifndef OBJTEST
+wire [7:0]  ram_din = mem_sel==MEM_PREBUF ? DB : 8'd0;
+`else 
+wire [7:0] ram_din;
+jtgng_ram #(.aw(9),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
+    .clk        ( clk       ),
+    .cen        ( 1'b1      ),
+    .addr       ( AB        ),
+    .data       ( 9'd0      ),
+    .we         ( 1'b0      ),
+    .q          ( ram_din   )
+);
+`endif
+
+jtgng_dual_ram #(.aw(10)) u_objram (
     .clk        ( clk               ),
     .clk_en     ( cen6              ),
     .data       ( ram_din           ),

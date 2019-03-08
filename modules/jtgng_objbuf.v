@@ -36,6 +36,11 @@ module jtgng_objbuf(
     output reg          line
 );
 
+parameter OBJMAX=10'h180;
+parameter OBJMAX_LINE = 5'd24;
+
+localparam LIMIT = 5'd31-OBJMAX_LINE;
+
 // sprite buffer
 reg          fill;
 reg  [4:0]   post_scan;
@@ -46,14 +51,14 @@ wire [7:0] q_a, q_b;
 assign objbuf_data = line==lineA ? q_b : q_a;
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
-reg [1:0] trf_state, trf_next;
+reg trf_state;
 
 always @(posedge clk) if(cen6) begin
     if( HINIT ) VF <= {8{flip}} ^ V;
 end
 //wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
-localparam SEARCH=2'd1, WAIT=2'd2, TRANSFER=2'd3, FILL=2'd0;
+localparam SEARCH=1'b0, TRANSFER=1'b1;
 
 always @(posedge clk)
     if( rst )
@@ -62,6 +67,7 @@ always @(posedge clk)
         if( HINIT ) line <= ~line;
     end
 
+reg pre_scan_msb;
 
 always @(posedge clk)
     if( rst ) begin
@@ -71,74 +77,45 @@ always @(posedge clk)
     else if(cen6) begin
         case( trf_state )
             SEARCH: begin
-                if( !LVBL ) begin
-                    pre_scan <= 9'd2;
+                line_obj_we <= 1'b0;
+                if( !LVBL || fill ) begin
+                    {pre_scan_msb, pre_scan} <= 10'd2;
                     post_scan<= 5'd31; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphich clash
-                    fill <= 1'd0;
+                    if(HINIT) fill <= 1'd0;
                 end
                 else begin
-                    line_obj_we <= 1'b0;
                     if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
                         pre_scan[1:0] <= 2'd0;
-                        trf_next  <= TRANSFER;
-                        trf_state <= WAIT;
+                        line_obj_we <= 1'b1;
+                        trf_state <= TRANSFER;
                     end
                     else begin
-                        if( pre_scan>=9'h17E ) begin
-                            trf_next  <= FILL;
-                            trf_state <= WAIT;
-                            pre_scan <= 9'h180;
+                        if( {pre_scan_msb,pre_scan}>=OBJMAX ) begin
                             fill <= 1'b1;
                         end else begin
-                            pre_scan <= pre_scan + 9'd4;
-                            trf_state <= WAIT;
-                            trf_next  <= SEARCH;
+                            {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 10'd4;
                         end
                     end
                 end
             end
-            WAIT: begin
-                trf_state <= trf_next;
-                if( trf_next==TRANSFER || trf_next==FILL ) line_obj_we <= 1'b1;
-            end
             TRANSFER: begin
-                line_obj_we <= 1'b0;
-                if( post_scan == 5'h07 ) begin // Transfer done before the end of the line
-                    if( HINIT ) begin
-                        trf_state <= SEARCH;
-                        pre_scan <= 9'd2;
-                        post_scan <= 5'd31;
-                        fill <= 1'd0;
-                    end
+                // line_obj_we <= 1'b0;
+                if( post_scan == LIMIT ) begin // Transfer done before the end of the line
+                    line_obj_we <= 1'b0;
+                    trf_state <= SEARCH;
+                    fill <= 1'd1;
                 end
                 else
                 if( pre_scan[1:0]==2'b11 ) begin
                     post_scan <= post_scan-1'b1;
                     pre_scan <= pre_scan + 9'd3;
-                    trf_state <= WAIT;
-                    trf_next  <= SEARCH;
+                    trf_state  <= SEARCH;
+                    line_obj_we <= 1'b0;
                 end
                 else begin
                     pre_scan[1:0] <= pre_scan[1:0]+1'b1;
-                    trf_state <= WAIT;
-                end
-            end
-            FILL: begin
-                trf_state <= WAIT;
-                if( &pre_scan[1:0] && post_scan==5'd8 ) begin
-                    post_scan<= 5'd31;
-                    pre_scan <= 9'd2;
-                    trf_next <= SEARCH;
-                    line_obj_we <= 1'b0;
-                    fill <= 1'd0;
-                end
-                else begin
-                    if( pre_scan[1:0]==2'b11 ) post_scan <= post_scan - 1'b1;
-                    pre_scan <= pre_scan + 1'b1;
-                    trf_next <= FILL;
-                    line_obj_we <= 1'b0;
                 end
             end
         endcase
@@ -149,19 +126,21 @@ reg we_a, we_b;
 reg [7:0] data_a, data_b;
 
 always @(*) begin
-    data_a = fill ? 8'hf8 : ram_dout;
-    data_b = fill ? 8'hf8 : ram_dout;
     if( line == lineA ) begin
         address_a = { post_scan, pre_scan[1:0] };
         address_b = hscan;
-        we_a = line_obj_we;
-        we_b = 1'b0;
+        data_a    = ram_dout;
+        data_b    = 8'hf8;
+        we_a      = line_obj_we;
+        we_b      = 1'b1;
     end
     else begin
         address_a = hscan;
         address_b = { post_scan, pre_scan[1:0] };
-        we_a = 1'b0;
-        we_b = line_obj_we;
+        data_a    = 8'hf8;
+        data_b    = ram_dout;
+        we_a      = 1'b1;
+        we_b      = line_obj_we;
     end
 end
 
