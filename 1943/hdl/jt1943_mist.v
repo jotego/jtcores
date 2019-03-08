@@ -134,6 +134,7 @@ wire [15:0] snd;
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
+wire [3:0] gfx_en;
 
 // play level
 always @(*)
@@ -220,7 +221,9 @@ u_frame(
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     )
+    .game_pause     ( game_pause     ),
+    // Debug
+    .gfx_en         ( gfx_en         )
 );
 
 `ifdef SIMULATION
@@ -294,7 +297,9 @@ u_game(
     .coin_cnt    ( coin_cnt       ),
     // sound
     .snd         ( snd            ),
-    .sample      (                )
+    .sample      (                ),
+    // Debug
+    .gfx_en      ( gfx_en         )
 );
 
 endmodule // jtgng_mist

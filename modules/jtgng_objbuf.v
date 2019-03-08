@@ -36,6 +36,8 @@ module jtgng_objbuf(
     output reg          line
 );
 
+parameter OBJMAX=9'h180;
+
 // sprite buffer
 reg          fill;
 reg  [4:0]   post_scan;
@@ -86,10 +88,10 @@ always @(posedge clk)
                         trf_state <= WAIT;
                     end
                     else begin
-                        if( pre_scan>=9'h17E ) begin
+                        if( pre_scan>=(OBJMAX-9'h2) ) begin
                             trf_next  <= FILL;
                             trf_state <= WAIT;
-                            pre_scan <= 9'h180;
+                            pre_scan <= OBJMAX;
                             fill <= 1'b1;
                         end else begin
                             pre_scan <= pre_scan + 9'd4;

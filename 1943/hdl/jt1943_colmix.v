@@ -45,7 +45,9 @@ module jt1943_colmix(
 
     output  [3:0]   red,
     output  [3:0]   green,
-    output  [3:0]   blue
+    output  [3:0]   blue,
+    // Debug
+    input   [3:0]   gfx_en
 );
 
 wire [7:0] dout_rg;
@@ -56,10 +58,10 @@ reg [7:0] pixel_mux;
 reg [7:0] prom_addr;
 wire [3:0] selbus;
 
-wire char_blank = |(~char_pxl);
-wire obj_blank  = |(~obj_pxl[3:0]);
-wire scr1_blank = |(~scr1_pxl[3:0]);
-wire [7:0] seladdr = { 3'b0, char_blank, obj_blank, obj_pxl[7:6], scr1_blank };
+wire char_blank_b = gfx_en[0] & |(~char_pxl);
+wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
+wire scr1_blank_b = gfx_en[1] & |(~scr1_pxl[3:0]);
+wire [7:0] seladdr = { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
 
 reg [3:0] char_pxl_1;
 reg [5:0] scr1_pxl_1;
