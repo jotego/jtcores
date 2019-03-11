@@ -242,7 +242,7 @@ case $SIMULATOR in
 iverilog)   
     iverilog -g2005-sv $MIST \
         -f game.f $PERCORE \
-        $(add_dir ../../../modules/ver sim.f ) \
+        $(add_dir ../../../modules/jtframe/hdl/ver/sim.f ) \
         ../../../modules/tv80/*.v  \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
         $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
@@ -251,7 +251,7 @@ iverilog)
 ncverilog)
     ncverilog +access+r +nc64bit +define+NCVERILOG \
         -f game.f $PERCORE \
-        -F ../../../modules/ver/sim.f -disable_sem2009 $MIST \
+        -F ../../../modules/jtframe/hdl/ver/sim.f -disable_sem2009 $MIST \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
         $DUMP $LOADROM $FASTSIM \
         $MAXFRAME \

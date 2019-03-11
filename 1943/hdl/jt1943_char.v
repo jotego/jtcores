@@ -108,6 +108,15 @@ always @(posedge clk) if(cpu_cen)
 reg [15:0] chd;
 reg [4:0] char_attr0, char_attr2;
 
+// Character data delay
+// clock count      stage
+// 0                Read shared memory
+// 1                set SDRAM request
+// 1+8              pixel data into chd
+// 2+8              data into char_col
+// 3+8              data read from PROM -> output
+// Total = 5 (+8) pixels
+
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading

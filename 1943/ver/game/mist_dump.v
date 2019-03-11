@@ -1,6 +1,9 @@
 `timescale 1ns/1ps
 
-module mist_dump;
+module mist_dump(
+    input           VGA_VS,
+    input   [31:0]  frame_cnt
+);
 
 `ifdef DUMP
 `ifndef NCVERILOG // iVerilog:

@@ -127,10 +127,16 @@ end
 reg [3:0] w,x,y,z;
 reg [3:0] scr_attr2, scr_col0, scr_pal0;
 
+// Character data delay
+// clock count      stage
+// -1               Assign map address
+// 1                read map data
+// 5                read tile rom data
+// 6                assign to scr_col
+// 7                read from PROM
+// Total delay = 1 (+8) pixels
+
 always @(posedge clk) if(cen6) begin
-    // new tile starts 8+5=13 pixels off
-    // 8 pixels from delay in ROM reading
-    // 4 pixels from processing the x,y,z and attr info.
     if( HS[1:0]==2'd1 ) begin
             { z,y,x,w } <= scrom_data;
             scr_hflip   <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.

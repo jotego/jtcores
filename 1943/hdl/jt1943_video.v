@@ -100,10 +100,11 @@ wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 
-localparam scrchr_off = 8'd4;
+localparam chr_off = 8'd4;
+localparam scr_off = 8'd12;
 
 `ifndef NOCHAR
-jt1943_char #(.HOFFSET(scrchr_off)) u_char (
+jt1943_char #(.HOFFSET(chr_off)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -135,7 +136,7 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1943_scroll #(.HOFFSET(scrchr_off),
+jt1943_scroll #(.HOFFSET(scr_off),
     .SIMFILE_MSB("../../../rom/1943/bm9.6l"),
     .SIMFILE_LSB("../../../rom/1943/bm10.7l")
 ) u_scroll1 (
@@ -175,7 +176,7 @@ jt1943_scroll #(.HOFFSET(scrchr_off),
 
 wire [1:0] scr2_nc; // not connected bits of the address
 
-jt1943_scroll #(.HOFFSET(scrchr_off),
+jt1943_scroll #(.HOFFSET(scr_off),
     .SIMFILE_MSB("../../../rom/1943/bm11.12l"),
     .SIMFILE_LSB("../../../rom/1943/bm12.12m"),
     .AS8MASK(1'b0)
