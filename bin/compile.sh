@@ -28,7 +28,7 @@ fi
 PRJ=$1
 shift
 
-case "jt$PRJ" in
+case "$PRJ" in
     "")
         echo "ERROR: Missing project name."
         echo "Usage: compile.sh project_name "
@@ -84,7 +84,7 @@ fi
 if [ $ZIP = TRUE ]; then
     # Rename output file
     cd $JTGNG_ROOT
-    RELEASE=${PRJ}_mist_$(date +"%Y%m%d")
+    RELEASE=jt${PRJ}_mist_$(date +"%Y%m%d")
     RBF=$PRJ/mist/jt$PRJ.rbf
     if [ ! -e $RBF ]; then
         echo "ERROR: file $RBF does not exist. You need to recompile."
