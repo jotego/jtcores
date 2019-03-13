@@ -27,9 +27,9 @@ FIRMONLY=NOFIRMONLY
 MAXFRAME=
 SIM_MS=1
 SIMULATOR=iverilog
-FASTSIM=
 TOP=game_test
 MIST=
+MIST_PLL=fast_pll.f
 MACROPREFIX=-D
 EXTRA=
 ARGNUMBER=1
@@ -54,7 +54,7 @@ function find_core_name {
             echo $2
         fi
         shift
-    done    
+    done
 }
 
 # Which core is this for?
@@ -72,7 +72,7 @@ case "$SYSNAME" in
 esac
 # switch to NCVerilog if available
 if which ncverilog; then
-    SIMULATOR=ncverilog        
+    SIMULATOR=ncverilog
     MACROPREFIX="+define+"
 fi
 
@@ -106,14 +106,18 @@ case "$1" in
         fi
         MIST="../../../modules/jtframe/hdl/mist/mist_test.v ../../hdl/jt${SYSNAME}_mist.v $MIST mist_dump.v"
         ;;
+    "-slowpll")
+        echo "INFO: Simulation will use the slow PLL model"
+        MIST_PLL=altera_pll.f
+        ;;
     "-nosnd")
-        FASTSIM="$FASTSIM ${MACROPREFIX}NOSOUND";;
+        EXTRA="$EXTRA ${MACROPREFIX}NOSOUND";;
     "-nocolmix")
-        FASTSIM="$FASTSIM ${MACROPREFIX}NOCOLMIX";;
+        EXTRA="$EXTRA ${MACROPREFIX}NOCOLMIX";;
     "-noscr")
-        FASTSIM="$FASTSIM ${MACROPREFIX}NOSCR";;
+        EXTRA="$EXTRA ${MACROPREFIX}NOSCR";;
     "-nochar")
-        FASTSIM="$FASTSIM ${MACROPREFIX}NOCHAR";;
+        EXTRA="$EXTRA ${MACROPREFIX}NOCHAR";;
     "-time")
         shift
         if [ "$1" = "" ]; then
@@ -128,7 +132,7 @@ case "$1" in
         echo Firmware dump only
         ;;
     "-t")
-        # is there a file name?        
+        # is there a file name?
         if [[ "${2:0:1}" != "-" && $# -gt 1  ]]; then
             shift
             FIRMWARE=$1
@@ -139,10 +143,10 @@ case "$1" in
         LOADROM="${MACROPREFIX}TESTROM ${MACROPREFIX}FIRMWARE_SIM"
         if ! z80asm $FIRMWARE -o test.bin -l; then
             exit 1
-        fi        
+        fi
         ;;
     "-t2")
-        # is there a file name?        
+        # is there a file name?
         if [[ "${2:0:1}" != "-" && $# -gt 1  ]]; then
             shift
             FIRMWARE2=$1
@@ -153,8 +157,8 @@ case "$1" in
         LOADROM=${MACROPREFIX}TESTROM
         if ! z80asm $FIRMWARE2 -o test2.bin -l; then
             exit 1
-        fi        
-        ;;        
+        fi
+        ;;
     "-info")
         RAM_INFO=RAM_INFO
         echo RAM information enabled
@@ -178,7 +182,7 @@ case "$1" in
     "-lint")
         SIMULATOR=verilator;;
     "-nc")
-        SIMULATOR=ncverilog        
+        SIMULATOR=ncverilog
         MACROPREFIX="+define+"
         if [ $ARGNUMBER != 1 ]; then
             echo "ERROR: -nc must be the first argument so macros get defined correctly"
@@ -188,27 +192,30 @@ case "$1" in
     "-help")
         cat << EOF
 JT_GNG simulation tool. (c) Jose Tejada 2019, @topapate
-    -mist   Use MiST setup for simulation, instead of using directly the
-            game module. This is slower but more informative.
-    -video  Enable video output
-    -lint   Run verilator as lint tool
-    -nc     Select NCVerilog as the simulator
-    -load   Load the ROM file using the SPI communication. Slower.
-    -t      Compile and load test file for main CPU. It can be used with the
-            name of an assembly language file.
-    -t2     Same as -t but for the sound CPU
-    -nochar Disable CHAR hardware. Faster simulation.
-    -noscr  Disable SCROLL hardware. Faster simulation.
-    -nosnd  Disable SOUND hardware. Speeds up simulation a lot!
-    -w      Save a small set of signals for scope verification
-    -deep   Save all signals for scope verification
-    -frame  Number of frames to simulate
-    -time   Number of milliseconds to simulate
-    -d      Add specific Verilog macros for the simulation. Common options
+    -mist     Use MiST setup for simulation, instead of using directly the
+              game module. This is slower but more informative.
+    -video    Enable video output
+    -lint     Run verilator as lint tool
+    -nc       Select NCVerilog as the simulator
+    -load     Load the ROM file using the SPI communication. Slower.
+    -t        Compile and load test file for main CPU. It can be used with the
+              name of an assembly language file.
+    -t2       Same as -t but for the sound CPU
+    -nochar   Disable CHAR hardware. Faster simulation.
+    -noscr    Disable SCROLL hardware. Faster simulation.
+    -nosnd    Disable SOUND hardware. Speeds up simulation a lot!
+    -w        Save a small set of signals for scope verification
+    -deep     Save all signals for scope verification
+    -frame    Number of frames to simulate
+    -time     Number of milliseconds to simulate
+    -slowpll  Simulate using Altera's model for PLLs
+    -d        Add specific Verilog macros for the simulation. Common options
         VIDEO_START=X   video output will start on frame X
-        TESTSCR1        disable scroll control by the CPU and scroll the 
+        TESTSCR1        disable scroll control by the CPU and scroll the
                         background automatically. It can be used together with
                         NOMAIN macro
+        SDRAM_DELAY=X   ns delay for SDRAM_CLK (cannot use with -slowpll)
+        BASE_CLK=X      Base period for game clock (cannot use with -slowpll)
 EOF
         exit 0
         ;;
@@ -224,10 +231,10 @@ if [ $FIRMONLY = FIRMONLY ]; then exit 0; fi
 function clear_hex_file {
     cnt=0
     rm -f $1.hex
-    while [ $cnt -lt $2 ]; do 
+    while [ $cnt -lt $2 ]; do
         echo 0 >> $1.hex
         cnt=$((cnt+1))
-    done    
+    done
 }
 
 clear_hex_file obj_buf  128
@@ -238,14 +245,21 @@ fi
 
 EXTRA="$EXTRA ${MACROPREFIX}MEM_CHECK_TIME=$MEM_CHECK_TIME ${MACROPREFIX}SYSTOP=jt${SYSNAME}_mist"
 
+# Add the PLL
+if [[ $SIMULATOR == iverilog && $TOP == mist_test ]]; then
+    MIST="$MIST $(add_dir ../../../modules/jtframe/hdl/mist/mist $MIST_PLL)"
+else
+    MIST="$MIST -F ../../../modules/jtframe/hdl/mist/$MIST_PLL"
+fi
+
 case $SIMULATOR in
-iverilog)   
+iverilog)
     iverilog -g2005-sv $MIST \
         -f game.f $PERCORE \
         $(add_dir ../../../modules/jtframe/hdl/ver/sim.f ) \
         ../../../modules/tv80/*.v  \
         -s $TOP -o sim -DSIM_MS=$SIM_MS -DSIMULATION \
-        $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM $FASTSIM \
+        $DUMP -D$CHR_DUMP -D$RAM_INFO -D$VGACONV $LOADROM \
         $MAXFRAME -DIVERILOG $EXTRA \
     && sim -lxt;;
 ncverilog)
@@ -253,7 +267,7 @@ ncverilog)
         -f game.f $PERCORE \
         -F ../../../modules/jtframe/hdl/ver/sim.f -disable_sem2009 $MIST \
         +define+SIM_MS=$SIM_MS +define+SIMULATION \
-        $DUMP $LOADROM $FASTSIM \
+        $DUMP $LOADROM \
         $MAXFRAME \
         -ncvhdl_args,-V93 ../../../modules/t80/T80{pa,_ALU,_Reg,_MCode,""}.vhd \
         ../../../modules/tv80/*.v \
