@@ -130,7 +130,7 @@ u_frame(
     .clk_rgb        ( clk_rgb        ),
     .clk_rom        ( clk_rom        ),
     .cen12          ( cen12          ),
-    .cen6           ( cen6           ),
+    .pxl_cen        ( cen6           ),
     .status         ( status         ),
     // Base video
     .osd_rotate     ( 2'b0           ),
