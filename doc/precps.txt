@@ -1,0 +1,24 @@
+1942,           Z80,    AY,         1984
+Higemaru,       Z80,    AY,         1984
+Vulgus,         Z80,    AY,         1984
+Son Son,        6809,   AY,         1984
+Exed Exes,      Z80,    AY,         1985
+GnG,            6809,   FM,         1985
+Commando,       Z80,    FM,         1985
+Gun Smoke,      Z80,    FM,         1985
+Side Arms,      Z80,    FM,         1986
+Speed Rumbler,  6809,   FM,         1986
+Black Tiger,    Z80,    FM,         1987
+1943,           Z80,    FM,         1987
+Avengers,       Z80,    FM+MSM5205, 1987
+Legendary Wings,Z80,    FM+MSM5205, 1986
+Trojan,         Z80,    FM+MSM5205, 1986
+Section Z,      Z80,    FM+MSM5205, 1985
+Bionic Commando,68000,  FM,         1987
+F-1 Dream,      68000,  FM,         1988
+Last Duel,      68000,  FM,         1988
+LED Storm,      68000,  FM+MSM6295, 1989
+Street Fighter, 68000,  YM2151+6205,1987
+Tiger Road,     68000,  FM,         1987
+
+
