@@ -17,8 +17,8 @@ test_inputs.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_clk_ram.v
 ../../../modules/jtgng_dual_ram.v
-../../../modules/jtgng_ram.v
-../../../modules/jtgng_prom.v
+../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v

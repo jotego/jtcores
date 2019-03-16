@@ -1,3 +1,4 @@
 #!/bin/bash
 
-../../../bin/sim.sh -mist $* -sysname 1943 
+../../../modules/jtframe/bin/sim.sh -mist $* -sysname 1943 \
+    -modules ../../../modules 
