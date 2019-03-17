@@ -4,4 +4,4 @@
 # example:
 # gotest.sh -frame 75 -video -nosnd -d VIDEO_START=73 -deep
 
-go.sh $* -mist -d DIP_TEST -nosnd
+go.sh $* -mist -d DIP_TEST -nosnd -d SIM_INPUTS
