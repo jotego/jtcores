@@ -3,9 +3,7 @@ import png
 import sys
 pr=sys.stdout.write
 
-avatar=png.Reader("phillip_mcmahon.png")
-l=avatar.read()
-bmp=list(l[2])  # rows and columns
+
 
 # for row in bmp:
 #     for col in row:
@@ -36,6 +34,12 @@ bufpos=0
 
 mapxy=bytearray(32*4)
 
+def read_bmp(filename):
+    avatar=png.Reader(filename)
+    l=avatar.read()
+    bmp=list(l[2])  # rows and columns
+    return bmp
+
 # 1943 colour palettes
 def show_palettes():
     muxsel=bytearray( file("../rom/1943/bm4.12c","rb").read(32)     )
@@ -63,11 +67,11 @@ objcnt=0
 offsetx = 40
 offsety = 40
 
-def dump_block( rowc, colc, bmp, pal ):
-    global bufpos, objcnt
+def dump_block( rowc, colc, bmp, pal, palidx ):
+    global bufpos, objcnt, offsety, offsetx
     print("%2d: %d,%d" % (objcnt,rowc,colc))
     mapxy[objcnt*4  ] = objcnt  # address
-    mapxy[objcnt*4+1] = 0       # PAL
+    mapxy[objcnt*4+1] = palidx  # PAL
     mapxy[objcnt*4+2] = rowc+offsety    # Y
     mapxy[objcnt*4+3] = colc+offsetx    # X
 
@@ -90,8 +94,9 @@ def dump_block( rowc, colc, bmp, pal ):
         r+=1
 
 # convert bitmap to OBJ, size must be multiple of 16x16
-def convert_bmp(bmp, pal):
-    print "BMP size = %d, %d" % (len(bmp), len(bmp[0]))
+def convert_bmp(bmp, pal, palidx):
+    global offsety
+    print "BMP size = %d, %d" % (len(bmp), len(bmp[0])/4)
     if len(bmp)%16!=0 or len(bmp[0])%16!=0:
         print "Error: BMP size is not a multiple of 16"
         exit(1)
@@ -99,9 +104,10 @@ def convert_bmp(bmp, pal):
     while rowc<len(bmp):
         colc=0
         while(colc< (len(bmp[0])>>2)):
-            dump_block(rowc, colc, bmp, pal)
+            dump_block(rowc, colc, bmp, pal, palidx)
             colc = colc+16
         rowc=rowc+16
+    offsety+=len(bmp)
 
 
 # shows the Bitmap alpha channel on screen
@@ -134,8 +140,21 @@ def get_pal(bmp):
         j+=1
     return pal
 
-pal=get_pal(bmp)
-convert_bmp(bmp, pal)
+######################################################################################3
+## Conversion
+
+#patrons=["phillip_mcmahon.png","scralings_48.png","sascha.png","brian_sallee.png"]
+patrons=["brian_sallee.png"]
+png_path="../1943/patrons/"
+pal_list=list()
+
+for p in patrons:
+    p=png_path+p
+    print p
+    bmp=read_bmp( p )
+    pal=get_pal(bmp)
+    convert_bmp(bmp, pal, len(pal_list))
+    pal_list.append(pal)
 
     
 # dump the new ROM files
@@ -160,15 +179,19 @@ for k in range(32):
 
 # Palette
 f0=open("../1943/mist/avatar_pal.hex","w")
-k=0
-for k in pal:
-    colour = pal[k]
-    # print colour
-    # print k
-    colour = (k[0]<<8)|(k[1]<<4)|k[0]
-    colour &= 0xfff
-    f0.write("%X\n" % colour )
-# Transparency, really this is a 'don't care'
-f0.write("0\n")
+for pal in pal_list:
+    cnt=0
+    for k in pal:
+        colour = pal[k]
+        # print colour
+        # print k
+        colour = (k[0]<<8)|(k[1]<<4)|k[0]
+        colour &= 0xfff
+        f0.write("%X\n" % colour )
+        cnt+=1
+    # Fill up to 16 colours, the last one is always transparent
+    while cnt<16:
+        f0.write("0\n")
+        cnt+=1
 
 print("Only %d bytes actually used" % bufpos )
