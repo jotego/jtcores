@@ -80,7 +80,7 @@ always @(posedge clk_rom) begin
         end
         else if(ioctl_addr < ROMEND) begin // OBJ
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16],
-                scr_start[14:6], scr_start[4:1], scr_start[5], scr_start[0] };
+                scr_start[14:6], scr_start[4:1], scr_start[5], scr_start[0] }; // bit order swapped to increase cache hits
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
         else begin // PROMs

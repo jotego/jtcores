@@ -22,6 +22,7 @@ module jtgng_objdma(
     input              cen6,    //  6 MHz
     // screen
     input              LVBL,
+    input              pause,
     // shared bus
     output  reg [ 8:0] AB,
     input       [ 7:0] DB,
@@ -31,7 +32,7 @@ module jtgng_objdma(
     output  reg        blen,     // bus line counter enable
     // output data
     input       [8:0]  pre_scan,
-    output      [7:0]  ram_dout
+    output  reg [7:0]  ram_dout
 );
 
 reg [1:0] bus_state;
@@ -111,6 +112,8 @@ jtgng_ram #(.aw(9),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
 );
 `endif
 
+wire [7:0] buf_data;
+
 jtgng_dual_ram #(.aw(10)) u_objram (
     .clk        ( clk               ),
     .clk_en     ( cen6              ),
@@ -118,9 +121,22 @@ jtgng_dual_ram #(.aw(10)) u_objram (
     .rd_addr    ( {1'b0, pre_scan } ),
     .wr_addr    ( wr_addr           ),
     .we         ( ram_we            ),
-    .q          ( ram_dout          )
+    .q          ( buf_data          )
 );
 
+// Pause objects
+wire [7:0] avatar_data;
 
+jtgng_ram #(.aw(10), .synfile("avatar_xy.hex"),.cen_rd(1))u_avatars(
+    .clk    ( clk           ),
+    .cen    ( pause         ),  // tiny power saving when not in pause
+    .data   ( 8'd0          ),
+    .addr   ( {1'b0, pre_scan } ),
+    .we     ( 1'b0          ),
+    .q      ( avatar_data   )
+);
+
+always @(*)
+    ram_dout = pause ? avatar_data : buf_data;
 
 endmodule // load

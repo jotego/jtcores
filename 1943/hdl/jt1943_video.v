@@ -273,6 +273,7 @@ jt1943_obj u_obj(
     .V              ( V         ),
     .H              ( H         ),
     .flip           ( flip      ),
+    .pause          ( pause     ),
     // CPU bus
     .AB             ( obj_AB    ),
     .DB             ( obj_DB    ),

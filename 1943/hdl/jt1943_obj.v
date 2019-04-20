@@ -31,6 +31,7 @@ module jt1943_obj(
     input   [ 7:0]     V,
     input   [ 8:0]     H,
     input              flip,
+    input              pause,
     // shared bus
     output      [12:0] AB,
     input        [7:0] DB,
@@ -75,6 +76,7 @@ jtgng_objdma #(.OBJMAX(9'h1FF)) u_dma(
     .cen6       ( cen6      ),    //  6 MHz
     // screen
     .LVBL       ( LVBL      ),
+    .pause      ( pause     ),
     // shared bus
     .AB         ( {AB[11:5], AB[1:0]} ), // 9bits
     .DB         ( DB        ),
@@ -128,6 +130,7 @@ jt1943_objdraw u_draw(
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
+    .pause          ( pause         ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),
