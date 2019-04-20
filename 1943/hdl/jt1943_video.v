@@ -233,6 +233,7 @@ jt1943_colmix u_colmix (
     .cen6       ( cen6          ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
+    .pause      ( pause         ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
     .scr1_pxl   ( scr1_pxl      ),

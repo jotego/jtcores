@@ -42,12 +42,13 @@ module jt1943_colmix(
 
     input           LVBL,
     input           LHBL,
+    input           pause,
 
-    output  [3:0]   red,
-    output  [3:0]   green,
-    output  [3:0]   blue,
+    output reg [3:0] red,
+    output reg [3:0] green,
+    output reg [3:0] blue,
     // Debug
-    input   [3:0]   gfx_en
+    input      [3:0] gfx_en
 );
 
 wire [7:0] dout_rg;
@@ -90,16 +91,17 @@ always @(posedge clk) if(cen6) begin
     prom_addr <= (LVBL&&LHBL) ? pixel_mux : 8'd0;
 end
 
-
 // palette ROM
+wire [3:0] pal_red, pal_green, pal_blue;
+
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm1.12a")) u_red(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
     .rd_addr( prom_addr   ),
     .wr_addr( prog_addr   ),
-    .we     ( prom_12a_we  ),
-    .q      ( red         )
+    .we     ( prom_12a_we ),
+    .q      ( pal_red     )
 );
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm2.13a")) u_green(
@@ -108,8 +110,8 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm2.13a")) u_green(
     .data   ( prom_din    ),
     .rd_addr( prom_addr   ),
     .wr_addr( prog_addr   ),
-    .we     ( prom_13a_we  ),
-    .q      ( green       )
+    .we     ( prom_13a_we ),
+    .q      ( pal_green   )
 );
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
@@ -119,7 +121,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
     .rd_addr( prom_addr   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_14a_we ),
-    .q      ( blue        )
+    .q      ( pal_blue    )
 );
 
 // Clock must be faster than 6MHz so selbus is ready for the next
@@ -133,5 +135,25 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c"),.cen_rd(1)) u_s
     .we     ( prom_12c_we ),
     .q      ( selbus      )
 );
+
+// Objects have their own palette during pause
+wire [11:0] avatar_pal;
+
+jtgng_ram #(.dw(12),.aw(6), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
+    .clk    ( clk           ),
+    .cen    ( pause         ),  // tiny power saving when not in pause
+    .data   ( 12'd0         ),
+    .addr   ( prom_addr[5:0]),
+    .we     ( 1'b0          ),
+    .q      ( avatar_pal    )
+);
+
+reg [1:0] obj_sel;
+
+always @(posedge clk) begin
+    obj_sel[0] <= selbus[1:0]==2'b10;
+    obj_sel[1] <= obj_sel[0];
+    { red, green, blue } <= pause && obj_sel[1] ? avatar_pal : {pal_red, pal_green, pal_blue};
+end
 
 endmodule // jtgng_colmix

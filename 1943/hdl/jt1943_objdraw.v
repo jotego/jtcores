@@ -96,10 +96,13 @@ assign new_col = { w[3],x[3],y[3],z[3] };
 wire [7:0] pal_addr = { objpal, new_col };
 wire [7:0] prom_dout;
 
+wire [15:0] avatar_data;
+reg  [ 7:0] avatar_pxl;
+
 always @(posedge clk ) if(cen6) begin
     posx2 <= posx1; // 1-clk delay to match the PROM data
     if( OBJON ) begin
-        new_pxl <= prom_dout;
+        new_pxl <= pause ? avatar_pxl : prom_dout;
         posx    <= posx2;
     end else begin
         new_pxl <= 4'hf;
@@ -108,8 +111,6 @@ always @(posedge clk ) if(cen6) begin
 end
 
 // Alternative Objects during pause
-wire [15:0] avatar_data;
-
 jtgng_ram #(.dw(16), .aw(10), .synfile("avatar.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
@@ -118,6 +119,10 @@ jtgng_ram #(.dw(16), .aw(10), .synfile("avatar.hex"),.cen_rd(1))u_avatars(
     .we     ( 1'b0          ),
     .q      ( avatar_data   )
 );
+
+// avatar image does not use the PROMs here
+always @(posedge clk) if(cen6)
+    avatar_pxl <= pal_addr;
 
 
 always @(posedge clk) if(cen6) begin
