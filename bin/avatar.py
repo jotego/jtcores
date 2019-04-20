@@ -53,11 +53,10 @@ def show_palettes():
                 print("%d,%d -> %d, %d, %d" %(palmsb, pallsb, rpal[idx], gpal[idx], bpal[idx]) )
 
 def break_4pixels( bit, pixel ):
-    pixel &= 15
-    zy = ( (pixel&8)<<4 ) | (pixel&4)
-    xw = ( (pixel&2)<<4 ) | (pixel&1)
-    zy <<= bit
-    xw <<= bit
+    zy = ( (pixel&8)<<1 ) | ((pixel&4)>>2)
+    xw = ( (pixel&2)<<3 ) |  (pixel&1)
+    zy <<= (3-bit)
+    xw <<= (3-bit)
     return (zy,xw)
 
 objcnt=0
@@ -82,8 +81,7 @@ def dump_block( rowc, colc, bmp, pal ):
                 pxl=pal[(bmp[r][c4]>>4, bmp[r][c4+1]>>4, bmp[r][c4+2]>>4)]
             else:
                 pxl=15
-            #(zy,xw) = break_4pixels( c%4, pxl )
-            (zy,xw) = break_4pixels( c%4, 15 )
+            (zy,xw) = break_4pixels( c%4, pxl )
             bufzy[bufpos] |= zy&255; 
             bufxw[bufpos] |= xw&255; 
             if( c%4 == 3 ):
