@@ -69,7 +69,7 @@ offsety = 40
 
 def dump_block( rowc, colc, bmp, pal, palidx ):
     global bufpos, objcnt, offsety, offsetx
-    print("%2d: %d,%d" % (objcnt,rowc,colc))
+    print("%2d: %d,%d" % (objcnt,colc,rowc))
     mapxy[objcnt*4  ] = objcnt  # address
     mapxy[objcnt*4+1] = palidx  # PAL
     mapxy[objcnt*4+2] = rowc+offsety    # Y
@@ -85,13 +85,19 @@ def dump_block( rowc, colc, bmp, pal, palidx ):
                 pxl=pal[(bmp[r][c4]>>4, bmp[r][c4+1]>>4, bmp[r][c4+2]>>4)]
             else:
                 pxl=15
+            #pr("%X"%pxl)
             (zy,xw) = break_4pixels( c%4, pxl )
-            bufzy[bufpos] |= zy&255; 
-            bufxw[bufpos] |= xw&255; 
+            if(c%4==0):
+                bufzy[bufpos] = zy; 
+                bufxw[bufpos] = xw; 
+            else:
+                bufzy[bufpos] |= zy&255; 
+                bufxw[bufpos] |= xw&255; 
             if( c%4 == 3 ):
                 bufpos+=1
             c+=1
         r+=1
+        #pr("\n")
 
 # convert bitmap to OBJ, size must be multiple of 16x16
 def convert_bmp(bmp, pal, palidx):
@@ -127,17 +133,20 @@ def show_mask():
 # position 15 is reserved for alpha
 def get_pal(bmp):
     curpal=set()
+    palorig=set()
     for k in range(len(bmp)):
         j=0
         while j<len(bmp[0]):
             if(bmp[k][j+3]>0):
-                curpal.add( (bmp[k][j]>>4, bmp[k][j+1]>>4, bmp[k][j+2]>>4)  )
+                curpal.add ( (bmp[k][j]>>4, bmp[k][j+1]>>4, bmp[k][j+2]>>4)  )
+                palorig.add( (bmp[k][j], bmp[k][j+1], bmp[k][j+2])  )
             j+=4
     j=0
     pal=dict()
     for k in curpal:
         pal[k]=j
         j+=1
+    print( "\tPalette conversion %d to %d" % (len(palorig),len(pal)))
     return pal
 
 ######################################################################################3
@@ -153,6 +162,7 @@ for p in patrons:
     print p
     bmp=read_bmp( p )
     pal=get_pal(bmp)
+    print("\t%d colours" % len(pal))
     convert_bmp(bmp, pal, len(pal_list))
     pal_list.append(pal)
 
@@ -165,17 +175,17 @@ for k in range(bufpos):
     x = bufzy[k]<<8
     x |= bufxw[k]
     x &= 0xffff
-    f0.write("%X\n" % x )
+    f0.write("%4X\n" % x )
 
 # Map
 f0=open("../1943/mist/avatar_xy.hex","w")
 k=0
 for k in range(32):
     k4 = k*4
-    f0.write( "%X\n" % (mapxy[k4  ]&255) )
-    f0.write( "%X\n" % (mapxy[k4+1]&255) )
-    f0.write( "%X\n" % (mapxy[k4+2]&255) )
-    f0.write( "%X\n" % (mapxy[k4+3]&255) )
+    f0.write( "%2X\n" % (mapxy[k4  ]&255) )
+    f0.write( "%2X\n" % (mapxy[k4+1]&255) )
+    f0.write( "%2X\n" % (mapxy[k4+2]&255) )
+    f0.write( "%2X\n" % (mapxy[k4+3]&255) )
 
 # Palette
 f0=open("../1943/mist/avatar_pal.hex","w")
@@ -185,7 +195,7 @@ for pal in pal_list:
         colour = pal[k]
         # print colour
         # print k
-        colour = (k[0]<<8)|(k[1]<<4)|k[0]
+        colour = (k[0]<<8)|(k[1]<<4)|k[2]
         colour &= 0xfff
         f0.write("%X\n" % colour )
         cnt+=1

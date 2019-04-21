@@ -124,6 +124,7 @@ jtgng_dual_ram #(.aw(10)) u_objram (
     .q          ( buf_data          )
 );
 
+`ifdef AVATARS
 // Pause objects
 wire [7:0] avatar_data;
 
@@ -138,5 +139,8 @@ jtgng_ram #(.aw(10), .synfile("avatar_xy.hex"),.cen_rd(1))u_avatars(
 
 always @(*)
     ram_dout = pause ? avatar_data : buf_data;
+`else 
+always @(*) ram_dout = buf_data;
+`endif
 
 endmodule // load

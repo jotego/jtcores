@@ -63,7 +63,7 @@ localparam CONF_STR = {
         "O7,PSG ,ON,OFF;", // 15
         "O8,FM  ,ON,OFF;", // 15
         "O9A,Lives,3,4,5,6;", // 18
-        "OB,Screen filter,OFF,ON;", // 24
+        "OB,Screen filter,ON,OFF;", // 24
         "TF,Reset;", // 9
         "V,http://patreon.com/topapate;" // 30
 };

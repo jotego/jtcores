@@ -122,7 +122,7 @@ jtgng_ram #(.dw(16), .aw(11), .synfile("avatar.hex"),.cen_rd(1))u_avatars(
 
 // avatar image does not use the PROMs here
 always @(posedge clk) if(cen6)
-    avatar_pxl <= pal_addr;
+    avatar_pxl <= { objpal, z[3], y[3], x[3], w[3] };
 
 
 always @(posedge clk) if(cen6) begin

@@ -2,6 +2,7 @@
 
 module mist_dump(
     input           VGA_VS,
+    input           led,
     input   [31:0]  frame_cnt
 );
 

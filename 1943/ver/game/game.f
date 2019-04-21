@@ -12,10 +12,7 @@ test_inputs.v
 ../../hdl/jt1943_romrq.v
 ../../hdl/jt1943_obj.v
 ../../hdl/jt1943_objdraw.v
-../../../modules/jtframe/hdl/video/jtgng_vga.v
-../../../modules/jtframe/hdl/video/jtgng_vgapxl.v
 ../../../modules/jtgng_cen.v
-../../../modules/jtgng_dual_clk_ram.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
