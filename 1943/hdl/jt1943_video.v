@@ -216,7 +216,7 @@ jt1943_scroll #(.HOFFSET(scr_off),
     .scr_pxl      ( scr2_pxl      )
 );
 `else
-assign scr1_pxl  = ~6'h0;
+assign scr1_pxl  = 6'h31;
 assign scr1_addr = 17'h0;
 assign map1_addr = 14'h0;
 

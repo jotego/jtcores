@@ -126,19 +126,68 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 
 `ifdef AVATARS
 // Pause objects
-wire [7:0] avatar_data;
 
-jtgng_ram #(.aw(10), .synfile("avatar_xy.hex"),.cen_rd(1))u_avatars(
+// jtgng_ram #(.aw(10), .synfile("avatar_xy.hex"),.cen_rd(1))u_avatars(
+//     .clk    ( clk           ),
+//     .cen    ( pause         ),  // tiny power saving when not in pause
+//     .data   ( 8'd0          ),
+//     .addr   ( {1'b0, pre_scan } ),
+//     .we     ( 1'b0          ),
+//     .q      ( avatar_data   )
+// );
+wire [7:0] avatar_id;
+reg [7:0] avatar_data;
+reg [10:0] avatar_cnt=0;
+wire [2:0] avatar_idx= avatar_cnt[10:8];
+
+jtgng_ram #(.aw(7), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
     .data   ( 8'd0          ),
-    .addr   ( {1'b0, pre_scan } ),
+    .addr   ( {avatar_idx, pre_scan[5:2] } ),
     .we     ( 1'b0          ),
-    .q      ( avatar_data   )
+    .q      ( avatar_id   )
 );
 
-always @(*)
+reg lastLVBL;
+always @(posedge clk) begin
+    lastLVBL <= LVBL;
+    if( !LVBL && lastLVBL ) avatar_cnt<=avatar_cnt+1;
+end
+
+reg [7:0] avatar_y, avatar_x;
+
+always @(posedge clk) begin
+    if(pre_scan[8:6]==3'd0) begin
+        case( pre_scan[5:2] )
+            4'd0,4'd1,4'd2: avatar_y <= avatar_cnt;
+            4'd3,4'd4,4'd5: avatar_y <= avatar_cnt + 8'h10;
+            4'd6,4'd7,4'd8: avatar_y <= avatar_cnt + 8'h20;
+            default: avatar_y <= 8'hf8;
+        endcase
+        case( pre_scan[5:2] )
+            4'd0,4'd3,4'd6: avatar_x <= 8'h10;
+            4'd1,4'd4,4'd7: avatar_x <= 8'h10 + 8'h10;
+            4'd2,4'd5,4'd8: avatar_x <= 8'h10 + 8'h20;
+            default: avatar_x <= 8'hf8;
+        endcase
+    end
+    else begin
+        avatar_y <= 8'hf8;
+        avatar_x <= 8'hf8;
+    end
+end
+
+always @(*) begin
+    case( pre_scan[1:0] )
+        2'd0: avatar_data = pre_scan[8:6]==3'd0 ? avatar_id : 8'd63;
+        2'd1: avatar_data = { 5'd0, avatar_idx }; // palette index, one palette per avatar
+        2'd2: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_y;
+        2'd3: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_x;
+    endcase
     ram_dout = pause ? avatar_data : buf_data;
+end
+
 `else 
 always @(*) ram_dout = buf_data;
 `endif

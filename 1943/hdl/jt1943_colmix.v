@@ -138,12 +138,14 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c"),.cen_rd(1)) u_s
 
 // Objects have their own palette during pause
 wire [11:0] avatar_pal;
+reg [1:0] avatar_msb[0:2];
+wire [7:0] avatar_addr = { avatar_msb[2], prom_addr[5:0] };
 
-jtgng_ram #(.dw(12),.aw(6), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
+jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
     .data   ( 12'd0         ),
-    .addr   ( prom_addr[5:0]),
+    .addr   ( avatar_addr   ),
     .we     ( 1'b0          ),
     .q      ( avatar_pal    )
 );
@@ -153,6 +155,10 @@ reg [1:0] obj_sel;
 always @(posedge clk) if(cen6) begin
     obj_sel[0] <= selbus[1:0]==2'b10;
     obj_sel[1] <= obj_sel[0];
+    // copy the OBJ palette address
+    avatar_msb[0] <= obj_pxl[7:6];
+    avatar_msb[1] <= avatar_msb[0];
+    avatar_msb[2] <= avatar_msb[1];
 end
 
 always @(posedge clk) begin

@@ -29,8 +29,8 @@ maxobj=64
 bufzy=bytearray(maxobj*16*16/4)
 bufxw=bytearray(maxobj*16*16/4)
 for x in range(len(bufzy)):
-    bufzy[x] = 0
-    bufxw[x] = 0
+    bufzy[x] = 0xff
+    bufxw[x] = 0xff
 bufpos=0
 
 mapxy=bytearray(maxobj*4)
@@ -65,16 +65,18 @@ def break_4pixels( bit, pixel ):
     return (zy,xw)
 
 objcnt=0
-offsetx = 40
-offsety = 40
+offsetx = 20
+offsety = 8
+verbose=0
+
 
 def dump_block( rowc, colc, bmp, pal, palidx ):
-    global bufpos, objcnt, offsety, offsetx
-    print("%2d: %d,%d" % (objcnt,colc,rowc))
+    global bufpos, objcnt, offsety, offsetx, verbose
+    pr("\t%2d: %2d,%2d" % (objcnt,colc,rowc))
     mapxy[objcnt*4  ] = objcnt  # address
     mapxy[objcnt*4+1] = palidx  # PAL
-    mapxy[objcnt*4+2] = rowc+offsety    # Y
-    mapxy[objcnt*4+3] = colc+offsetx    # X
+    mapxy[objcnt*4+2] = (rowc+offsety)&255    # Y
+    mapxy[objcnt*4+3] = (colc+offsetx)&255    # X
 
     objcnt+=1
     r=rowc
@@ -82,11 +84,12 @@ def dump_block( rowc, colc, bmp, pal, palidx ):
         c=colc
         while c<colc+16:
             c4=c<<2
-            #if(bmp[r][c4+3]!=0):
-            pxl=pal[(bmp[r][c4]>>4, bmp[r][c4+1]>>4, bmp[r][c4+2]>>4)]
-            #else:
-            #    pxl=15
-            #pr("%X"%pxl)
+            if(bmp[r][c4+3]!=0):
+                pxl=pal[(bmp[r][c4]>>4, bmp[r][c4+1]>>4, bmp[r][c4+2]>>4)]
+            else:
+                pxl=15
+            if(verbose):
+                pr("%X"%pxl)
             (zy,xw) = break_4pixels( c%4, pxl )
             if(c%4==0):
                 bufzy[bufpos] = zy; 
@@ -98,12 +101,13 @@ def dump_block( rowc, colc, bmp, pal, palidx ):
                 bufpos+=1
             c+=1
         r+=1
-        #pr("\n")
+        if(verbose):
+            pr("\n")
 
 # convert bitmap to OBJ, size must be multiple of 16x16
 def convert_bmp(bmp, pal, palidx):
     global offsety
-    print "BMP size = %d, %d" % (len(bmp), len(bmp[0])/4)
+    print "\tBMP size = %d, %d" % (len(bmp), len(bmp[0])/4)
     if len(bmp)%16!=0 or len(bmp[0])%16!=0:
         print "Error: BMP size is not a multiple of 16"
         exit(1)
@@ -114,6 +118,7 @@ def convert_bmp(bmp, pal, palidx):
             dump_block(rowc, colc, bmp, pal, palidx)
             colc = colc+16
         rowc=rowc+16
+        pr("\n")
     offsety+=len(bmp)
 
 
@@ -138,7 +143,7 @@ def get_pal(bmp):
     for k in range(len(bmp)):
         j=0
         while j<len(bmp[0]):
-            if(bmp[k][j+3]>0):
+            if(bmp[k][j+3]!=0):
                 curpal.add ( (bmp[k][j]>>4, bmp[k][j+1]>>4, bmp[k][j+2]>>4)  )
                 palorig.add( (bmp[k][j], bmp[k][j+1], bmp[k][j+2])  )
             j+=4
@@ -147,8 +152,11 @@ def get_pal(bmp):
     for k in curpal:
         pal[k]=j
         j+=1
-    print "Original:"
-    print palorig
+    if verbose:
+        print "Original:"
+        print palorig
+        print "Converted"
+        print pal
     print( "\tPalette conversion %d to %d" % (len(palorig),len(pal)))
     return pal
 
@@ -156,20 +164,19 @@ def get_pal(bmp):
 ## Conversion
 
 #patrons=["phillip_mcmahon.png","scralings_48.png","sascha.png","brian_sallee.png","tomiyori.png","gato.png","dustin.png"]
-# Bien: "phillip_mcmahon.png",  brian_sallee   sascha tomiyori mahe hubbard suv
-# Mal:        
-#   "scralings_48.png"
-patrons=["suv.png"]
+# Bien: "phillip_mcmahon.png",  brian_sallee   sascha tomiyori mahe hubbard suv scralings_48
+patrons=["scralings_48", "suv", "mahe", "tomiyori", "brian_sallee", "sascha", "phillip_mcmahon", "hubbard"]
 png_path="../1943/patrons/"
 pal_list=list()
 
 for p in patrons:
-    p=png_path+p
+    p=png_path+p+".png"
     print p
     bmp=read_bmp( p )
     pal=get_pal(bmp)
-    print("\t%d colours" % len(pal))
-    convert_bmp(bmp, pal, len(pal_list))
+    palidx = len(pal_list)
+    print("\t%d colours. PAL index %d" % (len(pal), palidx) )
+    convert_bmp(bmp, pal, palidx )
     pal_list.append(pal)
 
     
@@ -196,18 +203,74 @@ for k in range(len(mapxy)>>2):
 # Palette
 f0=open("../1943/mist/avatar_pal.hex","w")
 for pal in pal_list:
-    cnt=0
+    palbuf=[]
+    for k in range(16):
+        palbuf.append(0)
     for k in pal:
-        colour = pal[k]
-        # print colour
-        # print k
-        colour = (k[0]<<8)|(k[1]<<4)|k[2]
-        colour &= 0xfff
-        f0.write("%X\n" % colour )
-        cnt+=1
-    # Fill up to 16 colours, the last one is always transparent
-    while cnt<16:
-        f0.write("0\n")
-        cnt+=1
+        idx = pal[k]
+        #print idx
+        #print k
+        palbuf[idx] = (k[0]<<8)|(k[1]<<4)|k[2]
+        #print palbuf[idx]
+    for k in range(16):
+        f0.write("%X\n" % palbuf[k] )
+
 
 print("Only %d bytes actually used" % bufpos )
+
+# Final Map
+map9x9 = [  # Scralings
+     0, 1, 2,
+     3, 4, 5, 
+     6, 7, 8,
+        #unused
+        63,63,63,63,63,63,63,
+    # Suv
+     9,10,11,
+    12,13,14,
+    15,16,17,
+        #unused
+        63,63,63,63,63,63,63,
+    # Mahe
+    18,63,63,
+    63,18,63,
+    63,63,18,
+        #unused
+        63,63,63,63,63,63,63,
+    # Tomiyori
+    19,20,21,
+    22,23,24,
+    63,63,63,
+        #unused
+        63,63,63,63,63,63,63,
+    # Brian
+    25,26,27,
+    28,29,30,
+    31,32,33,
+        #unused
+        63,63,63,63,63,63,63,
+    # Sascha
+    34,35,36,
+    37,38,39,
+    40,41,42,
+        #unused
+        63,63,63,63,63,63,63,
+    # McMahon
+    43,44,45,
+    46,47,48,
+    63,63,63,
+        #unused
+        63,63,63,63,63,63,63,
+    # Hubbard
+    49,50,51,
+    52,53,54,
+    55,56,57,
+        #unused
+        63,63,63,63,63,63,63,
+]
+
+f0=open("../1943/mist/avatar_obj.hex","w")
+for k in map9x9:
+    f0.write("%X\n" % k)
+
+print("Map 9x9 size = %d" % len(map9x9) )

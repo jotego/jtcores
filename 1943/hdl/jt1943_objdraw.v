@@ -111,11 +111,11 @@ always @(posedge clk ) if(cen6) begin
 end
 
 // Alternative Objects during pause
-jtgng_ram #(.dw(16), .aw(11), .synfile("avatar.hex"),.cen_rd(1))u_avatars(
+jtgng_ram #(.dw(16), .aw(12), .synfile("avatar.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk            ),
     .cen    ( pause          ),  // tiny power saving when not in pause
     .data   ( 16'd0          ),
-    .addr   ( obj_addr[10:0] ),
+    .addr   ( obj_addr[11:0] ),
     .we     ( 1'b0           ),
     .q      ( avatar_data    )
 );
