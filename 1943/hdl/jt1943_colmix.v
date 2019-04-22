@@ -150,9 +150,12 @@ jtgng_ram #(.dw(12),.aw(6), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
 
 reg [1:0] obj_sel;
 
-always @(posedge clk) begin
+always @(posedge clk) if(cen6) begin
     obj_sel[0] <= selbus[1:0]==2'b10;
     obj_sel[1] <= obj_sel[0];
+end
+
+always @(posedge clk) begin
     { red, green, blue } <= pause && obj_sel[1] ? avatar_pal : {pal_red, pal_green, pal_blue};
 end
 

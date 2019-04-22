@@ -20,3 +20,6 @@ check_hex_file avatar_xy.hex
 check_hex_file avatar_pal.hex
 
 go.sh $* -frame 1 -video -mist -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR -d AVATARS
+for i in *png; do
+    convert $i -crop 290x260+50+0 -rotate -90 -resize 300%x300% $i
+done

@@ -25,14 +25,15 @@ pr=sys.stdout.write
 # One object is 16x16 pixels
 
 # output arrays
-bufzy=bytearray(32*16*16/4)
-bufxw=bytearray(32*16*16/4)
+maxobj=64
+bufzy=bytearray(maxobj*16*16/4)
+bufxw=bytearray(maxobj*16*16/4)
 for x in range(len(bufzy)):
     bufzy[x] = 0
     bufxw[x] = 0
 bufpos=0
 
-mapxy=bytearray(32*4)
+mapxy=bytearray(maxobj*4)
 
 def read_bmp(filename):
     avatar=png.Reader(filename)
@@ -81,10 +82,10 @@ def dump_block( rowc, colc, bmp, pal, palidx ):
         c=colc
         while c<colc+16:
             c4=c<<2
-            if(bmp[r][c4+3]>0):
-                pxl=pal[(bmp[r][c4]>>4, bmp[r][c4+1]>>4, bmp[r][c4+2]>>4)]
-            else:
-                pxl=15
+            #if(bmp[r][c4+3]!=0):
+            pxl=pal[(bmp[r][c4]>>4, bmp[r][c4+1]>>4, bmp[r][c4+2]>>4)]
+            #else:
+            #    pxl=15
             #pr("%X"%pxl)
             (zy,xw) = break_4pixels( c%4, pxl )
             if(c%4==0):
@@ -146,14 +147,19 @@ def get_pal(bmp):
     for k in curpal:
         pal[k]=j
         j+=1
+    print "Original:"
+    print palorig
     print( "\tPalette conversion %d to %d" % (len(palorig),len(pal)))
     return pal
 
 ######################################################################################3
 ## Conversion
 
-#patrons=["phillip_mcmahon.png","scralings_48.png","sascha.png","brian_sallee.png"]
-patrons=["brian_sallee.png"]
+#patrons=["phillip_mcmahon.png","scralings_48.png","sascha.png","brian_sallee.png","tomiyori.png","gato.png","dustin.png"]
+# Bien: "phillip_mcmahon.png",  brian_sallee   sascha tomiyori mahe hubbard suv
+# Mal:        
+#   "scralings_48.png"
+patrons=["suv.png"]
 png_path="../1943/patrons/"
 pal_list=list()
 
@@ -171,7 +177,7 @@ for p in patrons:
 
 # Graphics
 f0=open("../1943/mist/avatar.hex","w")
-for k in range(bufpos):
+for k in range(len(bufzy)):
     x = bufzy[k]<<8
     x |= bufxw[k]
     x &= 0xffff
@@ -180,7 +186,7 @@ for k in range(bufpos):
 # Map
 f0=open("../1943/mist/avatar_xy.hex","w")
 k=0
-for k in range(32):
+for k in range(len(mapxy)>>2):
     k4 = k*4
     f0.write( "%2X\n" % (mapxy[k4  ]&255) )
     f0.write( "%2X\n" % (mapxy[k4+1]&255) )
