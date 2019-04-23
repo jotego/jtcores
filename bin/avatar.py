@@ -3,7 +3,7 @@ import png
 import sys
 pr=sys.stdout.write
 
-
+jtgng_path=os.environ['JTGNG_ROOT']
 
 # for row in bmp:
 #     for col in row:
@@ -43,10 +43,10 @@ def read_bmp(filename):
 
 # 1943 colour palettes
 def show_palettes():
-    muxsel=bytearray( file("../rom/1943/bm4.12c","rb").read(32)     )
-    rpal  =bytearray( file("../rom/1943/bm1.12a","rb").read(256)    )
-    gpal  =bytearray( file("../rom/1943/bm2.13a","rb").read(256)    )
-    bpal  =bytearray( file("../rom/1943/bm3.14a","rb").read(256)    )
+    muxsel=bytearray( file(jtgng_path+"/rom/1943/bm4.12c","rb").read(32)     )
+    rpal  =bytearray( file(jtgng_path+"/rom/1943/bm1.12a","rb").read(256)    )
+    gpal  =bytearray( file(jtgng_path+"/rom/1943/bm2.13a","rb").read(256)    )
+    bpal  =bytearray( file(jtgng_path+"/rom/1943/bm3.14a","rb").read(256)    )
 
     # Dump all object palettes
     for palmsb in range(4):
@@ -166,7 +166,7 @@ def get_pal(bmp):
 #patrons=["phillip_mcmahon.png","scralings_48.png","sascha.png","brian_sallee.png","tomiyori.png","gato.png","dustin.png"]
 # Bien: "phillip_mcmahon.png",  brian_sallee   sascha tomiyori mahe hubbard suv scralings_48
 patrons=["scralings_48", "suv", "mahe", "tomiyori", "brian_sallee", "sascha", "phillip_mcmahon", "hubbard"]
-png_path="../1943/patrons/"
+png_path=jtgng_path+"/1943/patrons/"
 pal_list=list()
 
 for p in patrons:
@@ -183,7 +183,7 @@ for p in patrons:
 # dump the new ROM files
 
 # Graphics
-f0=open("../1943/mist/avatar.hex","w")
+f0=open(jtgng_path+"/1943/mist/avatar.hex","w")
 for k in range(len(bufzy)):
     x = bufzy[k]<<8
     x |= bufxw[k]
@@ -191,7 +191,7 @@ for k in range(len(bufzy)):
     f0.write("%4X\n" % x )
 
 # Map
-f0=open("../1943/mist/avatar_xy.hex","w")
+f0=open(jtgng_path+"/1943/mist/avatar_xy.hex","w")
 k=0
 for k in range(len(mapxy)>>2):
     k4 = k*4
@@ -201,7 +201,7 @@ for k in range(len(mapxy)>>2):
     f0.write( "%2X\n" % (mapxy[k4+3]&255) )
 
 # Palette
-f0=open("../1943/mist/avatar_pal.hex","w")
+f0=open(jtgng_path+"/1943/mist/avatar_pal.hex","w")
 for pal in pal_list:
     palbuf=[]
     for k in range(16):
@@ -269,7 +269,7 @@ map9x9 = [  # Scralings
         63,63,63,63,63,63,63,
 ]
 
-f0=open("../1943/mist/avatar_obj.hex","w")
+f0=open(jtgng_path+"/1943/mist/avatar_obj.hex","w")
 for k in map9x9:
     f0.write("%X\n" % k)
 

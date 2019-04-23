@@ -37,7 +37,9 @@ module jt1943_char(
     input            wr_n,
     output           wait_n,
     output  [ 3:0]   char_pxl,
+    // Pause screen
     input            pause,
+    input   [2:0]    avatar_idx,
     // Palette PROM F1
     input   [ 7:0]   prog_addr,
     input            prom_7f_we,
@@ -59,7 +61,7 @@ wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && char_cs && !wr_n;
-wire [7:0] mem_low, mem_high, mem_msg;
+wire [7:0] mem_low, mem_high, mem_msg, mem_msg_av;
 wire we_low  = we && !AB[10];
 wire we_high = we &&  AB[10];
 reg [7:0] dout_low, dout_high;
@@ -83,17 +85,35 @@ jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_high(
     .q      ( mem_high )
 );
 
+// Pause screen message
+wire cen_pause = cen6 & pause;
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
-    .clk    ( clk      ),
-    .cen    ( cen6     ),
-    .data   ( 8'd0     ),
-    .addr   ( scan     ),
-    .we     ( 1'b0     ),
-    .q      ( mem_msg  )
+    .clk    ( clk       ),
+    .cen    ( cen_pause ),
+    .data   ( 8'd0      ),
+    .addr   ( scan      ),
+    .we     ( 1'b0      ),
+    .q      ( mem_msg   )
 );
 
+wire [7:0] av_scan = { avatar_idx, scan[9:5] };
+
+jtgng_ram #(.aw(8),.synfile("msg_av.hex")) u_ram_msg_av(
+    .clk    ( clk         ),
+    .cen    ( cen_pause   ),
+    .data   ( 8'd0        ),
+    .addr   ( av_scan     ),
+    .we     ( 1'b0        ),
+    .q      ( mem_msg_av  )
+);
+
+reg       av_col;
+reg [7:0] msg_sel;
+
 always @(*) begin
-    dout_low  = pause ? mem_msg : mem_low;
+    av_col    = scan[4:0] == 5'd9;
+    msg_sel   = av_col ? mem_msg_av : mem_msg;
+    dout_low  = pause ? msg_sel : mem_low;
     dout_high = pause ? 8'h2    : mem_high;
 end
 

@@ -31,7 +31,9 @@ module jt1943_obj(
     input   [ 7:0]     V,
     input   [ 8:0]     H,
     input              flip,
+    // Pause screen
     input              pause,
+    output  [ 2:0]     avatar_idx,
     // shared bus
     output      [12:0] AB,
     input        [7:0] DB,
@@ -71,22 +73,23 @@ end
 
 // DMA to 6809 RAM memory to copy the sprite data
 jtgng_objdma #(.OBJMAX(9'h1FF)) u_dma(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen6       ( cen6      ),    //  6 MHz
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .cen6       ( cen6       ),    //  6 MHz
     // screen
-    .LVBL       ( LVBL      ),
-    .pause      ( pause     ),
+    .LVBL       ( LVBL       ),
+    .pause      ( pause      ),
+    .avatar_idx ( avatar_idx ),
     // shared bus
     .AB         ( {AB[11:5], AB[1:0]} ), // 9bits
-    .DB         ( DB        ),
-    .OKOUT      ( OKOUT     ),
-    .bus_req    ( bus_req   ),  // Request bus
-    .bus_ack    ( bus_ack   ),  // bus acknowledge
-    .blen       ( blen      ),  // bus line counter enable
+    .DB         ( DB         ),
+    .OKOUT      ( OKOUT      ),
+    .bus_req    ( bus_req    ),  // Request bus
+    .bus_ack    ( bus_ack    ),  // bus acknowledge
+    .blen       ( blen       ),  // bus line counter enable
     // output data
-    .pre_scan   ( pre_scan  ),
-    .ram_dout   ( ram_dout  )
+    .pre_scan   ( pre_scan   ),
+    .ram_dout   ( ram_dout   )
 );
 
 assign AB[ 12] = 1'b1;

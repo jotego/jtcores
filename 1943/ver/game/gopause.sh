@@ -18,6 +18,7 @@ function check_hex_file {
 check_hex_file avatar.hex
 check_hex_file avatar_xy.hex
 check_hex_file avatar_pal.hex
+check_hex_file avatar_obj.hex
 
 if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR -d AVATARS; then
     exit 1

@@ -25,14 +25,11 @@ row=31
 def save_hex(filename, data):
     with open(filename,"w") as f:
         for k in data:
-            f.write( "%X" % k )
-            f.write( "\n" )
-        f.close()
+            f.write( "%X\n" % k )
 
 def save_bin(filename, data):
     with open(filename,"wb") as f:
         f.write( bytearray(data) )
-        f.close()
 
 def print_char( msg ):
     global row
@@ -76,7 +73,7 @@ print_char("    Victor Gomariz L. de G.     ")
 
 def convert_buf( buf, k, msg ):
     for cnt in range(len(msg)):
-        buf[k] = msg[cnt]
+        buf[k] = ascii_conv[ msg[cnt] ]
         k+=1
     return k
 
@@ -85,3 +82,17 @@ def convert_buf( buf, k, msg ):
 
 save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG_ROOT']+"/1943/ver/game/msg.bin", char_ram )
+
+#           00000000000000001111111111111111
+#           0123456789ABCDEF0123456789ABCDEF
+av_buf=bytearray(32*8)
+av_pos=0
+av_pos=convert_buf(av_buf,av_pos,"            Scralings           ")
+av_pos=convert_buf(av_buf,av_pos,"            Suverman            ")
+av_pos=convert_buf(av_buf,av_pos,"          Frederic Mahe         ")
+av_pos=convert_buf(av_buf,av_pos,"            Jo Tomiyori         ")
+av_pos=convert_buf(av_buf,av_pos,"           Brian Sallee         ")
+av_pos=convert_buf(av_buf,av_pos,"             FULLSET            ")
+av_pos=convert_buf(av_buf,av_pos,"         Phillip McMahon        ")
+av_pos=convert_buf(av_buf,av_pos,"          Dustin Hubbard        ")
+save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg_av.hex", av_buf )

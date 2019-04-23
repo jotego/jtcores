@@ -23,6 +23,7 @@ module jtgng_objdma(
     // screen
     input              LVBL,
     input              pause,
+    output      [ 2:0] avatar_idx,
     // shared bus
     output  reg [ 8:0] AB,
     input       [ 7:0] DB,
@@ -135,10 +136,10 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 //     .we     ( 1'b0          ),
 //     .q      ( avatar_data   )
 // );
-wire [7:0] avatar_id;
-reg [7:0] avatar_data;
-reg [10:0] avatar_cnt=0;
-wire [2:0] avatar_idx= avatar_cnt[10:8];
+wire [ 7:0] avatar_id;
+reg  [ 7:0] avatar_data;
+reg  [10:0] avatar_cnt = 0;
+assign      avatar_idx = avatar_cnt[10:8];
 
 jtgng_ram #(.aw(7), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
@@ -190,6 +191,7 @@ end
 
 `else 
 always @(*) ram_dout = buf_data;
+assign avatar_idx = 3'd0;
 `endif
 
 endmodule // load
