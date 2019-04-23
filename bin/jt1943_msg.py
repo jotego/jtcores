@@ -74,6 +74,12 @@ print_char("    SmokeMonster                ")
 print_char("    Ultrarobotninja             ")
 print_char("    Victor Gomariz L. de G.     ")
 
+def convert_buf( buf, k, msg ):
+    for cnt in range(len(msg)):
+        buf[k] = msg[cnt]
+        k+=1
+    return k
+
 # Patreons with Avatar:
 # Scralings, Suverman, Frederic Mahe, Jo Tomiyori, Brian Sallee, FULLSET, Phillip McMahon, Dustin Hubbard
 
