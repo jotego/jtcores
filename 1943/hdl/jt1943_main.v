@@ -187,7 +187,7 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
+wire [12:0] RAM_addr = blcnten ? obj_AB : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13),.cen_rd(0)) RAM(

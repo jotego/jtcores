@@ -214,6 +214,12 @@ for pal in pal_list:
         #print palbuf[idx]
     for k in range(16):
         f0.write("%X\n" % palbuf[k] )
+# fill in with zeroes the rest of available palettes
+k=len(pal_list)
+while k<16:
+    for j in range(16):
+        f0.write("0\n")
+    k=k+1
 
 
 print("Only %d bytes actually used" % bufpos )
