@@ -57,16 +57,8 @@ always @(posedge clk_rom) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
         if(ioctl_addr < MAP1ADDR) begin
-            // if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR) begin // Sound ROM
-            //     prom_we0   <= 13'h10_00;
-            //     set_strobe <= 1'b1;
-            //     prog_we    <= 1'b0; // Do not write this on the SDRAM
-            //     prog_addr  <= ioctl_addr - SNDADDR;
-            //     prog_mask <= 2'b11;
-            // end else begin // Main ROM, CHAR ROM
-                prog_addr <= {1'b0, ioctl_addr[21:1]};
-                prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
-            // end
+            prog_addr <= {1'b0, ioctl_addr[21:1]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
         end
         else if(ioctl_addr < SCR1ADDR) begin // MAP1+MAP2
             // MAP data is reordered so reads hit consequitive addresses

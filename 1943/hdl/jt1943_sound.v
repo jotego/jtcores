@@ -35,10 +35,6 @@ module jt1943_sound(
     // Sound control
     input           enable_psg,
     input           enable_fm,
-    // PROM 4K
-    input   [14:0]  prog_addr,
-    input           prom_4k_we,
-    input   [7:0]   prom_din,
     // ROM
     input   [ 7:0]  rom_data,
     output  [14:0]  rom_addr,
@@ -153,30 +149,6 @@ jtgng_ram #(.aw(11)) u_ram(
     .we     ( RAM_we   ),
     .q      ( ram_dout )
 );
-
-// full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-// jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
-//     .clk    ( clk               ),
-//     .cen    ( cen3              ),
-//     .data   ( prom_din          ),
-//     .rd_addr( A[13:0]           ),
-//     .wr_addr( prog_addr[13:0]   ),
-//     .we     ( prom_4k_we & !prog_addr[14] ),
-//     .q      ( rom_data0   )
-// );
-// 
-// // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-// jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
-//     .clk    ( clk               ),
-//     .cen    ( cen3              ),
-//     .data   ( prom_din          ),
-//     .rd_addr( A[13:0]           ),
-//     .wr_addr( prog_addr[13:0]   ),
-//     .we     ( prom_4k_we & prog_addr[14]  ),
-//     .q      ( rom_data1   )
-// );
-// 
-// assign rom_data = A[14] ? rom_data1 : rom_data0;
 
 reg [7:0] din;
 wire [7:0] fm1_dout, fm0_dout, security;

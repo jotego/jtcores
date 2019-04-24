@@ -275,16 +275,13 @@ jt1943_sound u_sound (
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
     .snd_int        ( V[5]           ),
-    // PROM 4K
-    .prog_addr      ( prog_addr[14:0]),
-    .prom_4k_we     ( prom_4k_we     ),
-    .prom_din       ( prog_data      ),
-    .snd            ( snd            ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_dout       ),
     .rom_cs         ( snd_cs         ),
-    .rom_req        ( snd_wait       )
+    .rom_req        ( snd_wait       ),
+    // Sound
+    .snd            ( snd            )
 );
 `else
 assign snd = 9'd0;
