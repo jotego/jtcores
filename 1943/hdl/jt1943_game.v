@@ -86,10 +86,11 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
-wire char_cs;
+wire char_cs, snd_cs;
 wire flip;
-wire [7:0] cpu_dout;
+wire [ 7:0] cpu_dout, snd_dout;
 wire [ 7:0] chram_dout;
+wire [14:0] snd_addr;
 wire rd;
 wire rom_ready;
 
@@ -258,6 +259,8 @@ assign sres_b = 'b1;
 assign cpu_dout = 'b0;
 `endif
 
+wire snd_wait;
+
 `ifndef NOSOUND
 jt1943_sound u_sound (
     .rst            ( rst_game       ),
@@ -276,7 +279,12 @@ jt1943_sound u_sound (
     .prog_addr      ( prog_addr[14:0]),
     .prom_4k_we     ( prom_4k_we     ),
     .prom_din       ( prog_data      ),
-    .snd            ( snd            )
+    .snd            ( snd            ),
+    // ROM
+    .rom_addr       ( snd_addr       ),
+    .rom_data       ( snd_dout       ),
+    .rom_cs         ( snd_cs         ),
+    .rom_req        ( snd_wait       )
 );
 `else
 assign snd = 9'd0;
@@ -371,9 +379,14 @@ jt1943_rom2 u_rom (
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
     .sdram_re    ( sdram_re      ),
+
     .main_cs     ( main_cs       ),
+    .snd_cs      ( snd_cs        ),
+    .snd_wait    ( snd_wait      ),
+
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
+    .snd_addr    ( snd_addr      ), //  32 kB
     .obj_addr    ( obj_addr      ),  // 256 kB
     .scr1_addr   ( scr1_addr     ), // 256 kB (16-bit words)
     .scr2_addr   ( scr2_addr     ), //  64 kB
@@ -382,6 +395,7 @@ jt1943_rom2 u_rom (
 
     .char_dout   ( char_dout     ),
     .main_dout   ( main_dout     ),
+    .snd_dout    ( snd_dout      ),
     .obj_dout    ( obj_dout      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),

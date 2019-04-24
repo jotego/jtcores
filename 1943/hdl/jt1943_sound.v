@@ -39,11 +39,15 @@ module jt1943_sound(
     input   [14:0]  prog_addr,
     input           prom_4k_we,
     input   [7:0]   prom_din,
+    // ROM
+    input   [ 7:0]  rom_data,
+    output  [14:0]  rom_addr,
+    output reg      rom_cs,
+    input           rom_req,
     // Sound output
     output  [15:0]  snd
 );
 
-wire [7:0]  rom_data;
 wire mreq_n;
 
 // posedge of snd_int
@@ -58,7 +62,7 @@ reg reset_n=1'b0;
 // interrupt latch
 reg int_n;
 wire iorq_n;
-always @(posedge clk)
+always @(posedge clk or negedge reset_n)
     if( !reset_n ) int_n <= 1'b1;
     else if(cen3) begin
         if(!iorq_n) int_n <= 1'b1;
@@ -80,10 +84,11 @@ always @(negedge clk)
         end else reset_n <= 1'b1;
     end
 
-reg rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs, SECWR_cs;
+reg fm1_cs, fm0_cs, latch_cs, ram_cs, SECWR_cs;
 
 reg [7:0] latch;
 wire [15:0] A;
+assign rom_addr = A[14:0];
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -110,17 +115,24 @@ always @(*) begin
 end
 
 
-reg [1:0] cs_wait;
-always @(posedge clk)
-    if( !reset_n )
-        cs_wait <= 2'b11;
-    else if(cen3) begin
-        cs_wait <= { cs_wait[0], ~(fm0_cs|fm1_cs) };
+reg [1:0] fm_wait, rom_wait;
+reg wait_n;
+always @(posedge clk or negedge reset_n)
+    if( !reset_n ) begin
+        fm_wait  <= 2'b11;
+        rom_wait <= 2'b11;
+    end else if(cen3) begin
+        fm_wait  <= {  fm_wait[0], fm0_cs|fm1_cs };
+        rom_wait <= { rom_wait[0], rom_cs };
     end // else if(cen3)
 
-wire wait_n = ~cs_wait[1] | cs_wait[0];
+always @(posedge clk or negedge reset_n)
+    if( !reset_n )
+        wait_n <= 1'b1;
+    else
+        wait_n <= ~|{fm_wait,rom_wait&{2{rom_req}}};
 
-always @(posedge clk)
+always @(posedge clk or negedge reset_n)
 if( !reset_n ) begin
     latch <= 8'd0;
 end else if(main_cen) begin
@@ -143,28 +155,28 @@ jtgng_ram #(.aw(11)) u_ram(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
-    .clk    ( clk               ),
-    .cen    ( cen3              ),
-    .data   ( prom_din          ),
-    .rd_addr( A[13:0]           ),
-    .wr_addr( prog_addr[13:0]   ),
-    .we     ( prom_4k_we & !prog_addr[14] ),
-    .q      ( rom_data0   )
-);
-
-// full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
-    .clk    ( clk               ),
-    .cen    ( cen3              ),
-    .data   ( prom_din          ),
-    .rd_addr( A[13:0]           ),
-    .wr_addr( prog_addr[13:0]   ),
-    .we     ( prom_4k_we & prog_addr[14]  ),
-    .q      ( rom_data1   )
-);
-
-assign rom_data = A[14] ? rom_data1 : rom_data0;
+// jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
+//     .clk    ( clk               ),
+//     .cen    ( cen3              ),
+//     .data   ( prom_din          ),
+//     .rd_addr( A[13:0]           ),
+//     .wr_addr( prog_addr[13:0]   ),
+//     .we     ( prom_4k_we & !prog_addr[14] ),
+//     .q      ( rom_data0   )
+// );
+// 
+// // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
+// jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
+//     .clk    ( clk               ),
+//     .cen    ( cen3              ),
+//     .data   ( prom_din          ),
+//     .rd_addr( A[13:0]           ),
+//     .wr_addr( prog_addr[13:0]   ),
+//     .we     ( prom_4k_we & prog_addr[14]  ),
+//     .q      ( rom_data1   )
+// );
+// 
+// assign rom_data = A[14] ? rom_data1 : rom_data0;
 
 reg [7:0] din;
 wire [7:0] fm1_dout, fm0_dout, security;

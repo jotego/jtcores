@@ -153,7 +153,7 @@ jtgng_ram #(.aw(7), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
 reg lastLVBL;
 always @(posedge clk) begin
     lastLVBL <= LVBL;
-    if( !LVBL && lastLVBL ) avatar_cnt<=avatar_cnt+1;
+    if( !LVBL && lastLVBL ) avatar_cnt<=avatar_cnt+11'd1;
 end
 
 reg [7:0] avatar_y, avatar_x;
@@ -161,9 +161,9 @@ reg [7:0] avatar_y, avatar_x;
 always @(posedge clk) begin
     if(pre_scan[8:6]==3'd0) begin
         case( pre_scan[5:2] )
-            4'd0,4'd1,4'd2: avatar_y <= ~avatar_cnt;
-            4'd3,4'd4,4'd5: avatar_y <= ~avatar_cnt + 8'h10;
-            4'd6,4'd7,4'd8: avatar_y <= ~avatar_cnt + 8'h20;
+            4'd0,4'd1,4'd2: avatar_y <= ~avatar_cnt[7:0];
+            4'd3,4'd4,4'd5: avatar_y <= ~avatar_cnt[7:0] + 8'h10;
+            4'd6,4'd7,4'd8: avatar_y <= ~avatar_cnt[7:0] + 8'h20;
             default: avatar_y <= 8'hf8;
         endcase
         case( pre_scan[5:2] )
