@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import png
 import sys
+import os
 pr=sys.stdout.write
 
 jtgng_path=os.environ['JTGNG_ROOT']

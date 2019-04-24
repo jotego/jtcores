@@ -76,7 +76,7 @@ always @(negedge clk)
     end else begin
         if( rst_cnt != ~4'b0 ) begin
             reset_n <= 1'b0;
-            rst_cnt <= rst_cnt + 'd1;
+            rst_cnt <= rst_cnt + 4'd1;
         end else reset_n <= 1'b1;
     end
 
@@ -139,7 +139,7 @@ wire rd_n;
 wire wr_n;
 
 wire RAM_we = ram_cs && !wr_n;
-wire [7:0] ram_dout, dout, rom_data0, rom_data1;
+wire [7:0] ram_dout, dout;
 
 jtgng_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),

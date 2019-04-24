@@ -87,7 +87,7 @@ always @(posedge clk) if(cen12) begin
 end
 
 reg [7:0] data_sel;
-wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req;
+wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req;
 wire [17:0] main_addr_req;
 wire [14:0]  snd_addr_req;
 wire [13:0] char_addr_req;
@@ -240,6 +240,10 @@ end else if(cen12) begin
             sdram_addr <= { 4'd0, main_addr_req[17:1] };
             data_sel   <= 'b1;
         end
+        snd_req: begin
+            sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
+            data_sel   <= 'b1000_0000;
+        end
         map1_req: begin
             sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
             data_sel   <= 'b100;
@@ -263,10 +267,6 @@ end else if(cen12) begin
         obj_req: begin
             sdram_addr <= obj_offset + { 5'b0, obj_addr_req };
             data_sel   <= 'b100_0000;
-        end
-        snd_req: begin
-            sdram_addr <= snd_offset + { 8'b0, snd_addr_req[14:1] };
-            data_sel   <= 'b1000_0000;
         end
         default: data_sel <= 'b0;
     endcase
