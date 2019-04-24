@@ -122,7 +122,7 @@ jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( snd_addr        ),
-    .addr_ok  ( snd_cs          ),
+    .addr_ok  ( 1          ),
     .addr_req ( snd_addr_req    ),
     .din      ( data_read       ),
     .dout     ( snd_dout        ),

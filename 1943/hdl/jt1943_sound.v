@@ -128,6 +128,16 @@ always @(posedge clk or negedge reset_n)
     else
         wait_n <= ~|{fm_wait,rom_wait&{2{rom_req}}};
 
+// reg [1:0] cs_wait;
+// always @(posedge clk)
+//     if( !reset_n )
+//         cs_wait <= 2'b11;
+//     else if(cen3) begin
+//         cs_wait <= { cs_wait[0], ~(fm0_cs|fm1_cs) };
+//     end // else if(cen3)
+// 
+// wire wait_n = ~cs_wait[1] | cs_wait[0];
+
 always @(posedge clk or negedge reset_n)
 if( !reset_n ) begin
     latch <= 8'd0;
