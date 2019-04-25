@@ -49,7 +49,7 @@ module jt1943_rom2(
     output      [15:0]  scr2_dout,
     output  reg         ready,
 
-    output  reg         snd_ok,
+    output              snd_ok,
     // ROM interface
     input               downloading,
     input               loop_rst,
