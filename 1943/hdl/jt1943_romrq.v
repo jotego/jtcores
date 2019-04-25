@@ -23,10 +23,11 @@ module jt1943_romrq #(parameter AW=18, DW=8, INVERT_A0=0 )(
     input               clk,
     input               cen,
     input [AW-1:0]      addr,
-    input               addr_ok,
+    input               addr_ok,    // signals that value in addr is valid
     input [31:0]        din,
     input               we,
     output reg          req,
+    output reg          data_ok,    // strobe that signals that data is ready
     output reg [AW-1:0] addr_req,
     output reg [DW-1:0] dout
 );
@@ -53,9 +54,10 @@ end
 
 always @(posedge clk)
     if( rst ) begin
-        init <= 1'b1;
-        deleterus <= 1'b0;
+        init      <= 1'b1;
+        deleterus <= 1'b0;  // signals which cached data is to be overwritten next time
     end else if(cen) begin
+        data_ok <= !addr_ok || hit0 || hit1 || we;
         if( we ) begin
             if( init ) begin
                 cached_data0 <= din;
@@ -75,6 +77,7 @@ always @(posedge clk)
             init        <= 1'b0;
         end
     end
+
 always @(*) begin
     subaddr[1] <= addr[1];
     if( INVERT_A0 )

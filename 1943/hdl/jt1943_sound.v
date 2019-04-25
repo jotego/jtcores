@@ -39,7 +39,7 @@ module jt1943_sound(
     input   [ 7:0]  rom_data,
     output  [14:0]  rom_addr,
     output reg      rom_cs,
-    input           rom_req,
+    input           rom_ok,
     // Sound output
     output  [15:0]  snd
 );
@@ -64,7 +64,6 @@ always @(posedge clk or negedge reset_n)
         if(!iorq_n) int_n <= 1'b1;
         else if( snd_int_edge ) int_n <= 1'b0;
     end
-
 
 // local reset
 reg [3:0] rst_cnt;
@@ -113,20 +112,31 @@ end
 
 reg [1:0] fm_wait, rom_wait;
 reg wait_n;
+wire fmx_cs = fm0_cs|fm1_cs;
+wire fm_lock = |fm_wait;
+
 always @(posedge clk or negedge reset_n)
     if( !reset_n ) begin
         fm_wait  <= 2'b11;
         rom_wait <= 2'b11;
     end else if(cen3) begin
-        fm_wait  <= {  fm_wait[0], fm0_cs|fm1_cs };
+        fm_wait  <= {  fm_wait[0], fmx_cs };
         rom_wait <= { rom_wait[0], rom_cs };
     end // else if(cen3)
+
+reg last_rom_cs;
+wire rom_cs_posedge = !last_rom_cs && rom_cs;
 
 always @(posedge clk or negedge reset_n)
     if( !reset_n )
         wait_n <= 1'b1;
-    else
-        wait_n <= ~|{fm_wait,rom_wait&{2{rom_req}}};
+    else begin
+        last_rom_cs <= rom_cs;
+        if( fm_lock || rom_cs_posedge || (rom_cs && !rom_ok) ) 
+            wait_n <= 1'b0;
+        if( (fmx_cs && !fm_lock) || (!rom_cs_posedge && rom_cs && rom_ok) )
+            wait_n <= 1'b1;
+    end
 
 // reg [1:0] cs_wait;
 // always @(posedge clk)

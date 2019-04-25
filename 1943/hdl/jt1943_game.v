@@ -259,7 +259,7 @@ assign sres_b = 'b1;
 assign cpu_dout = 'b0;
 `endif
 
-wire snd_wait;
+wire snd_ok;
 
 `ifndef NOSOUND
 jt1943_sound u_sound (
@@ -279,7 +279,7 @@ jt1943_sound u_sound (
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_dout       ),
     .rom_cs         ( snd_cs         ),
-    .rom_req        ( snd_wait       ),
+    .rom_ok         ( snd_ok         ),
     // Sound
     .snd            ( snd            )
 );
@@ -379,7 +379,7 @@ jt1943_rom2 u_rom (
 
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
-    .snd_wait    ( snd_wait      ),
+    .snd_ok    ( snd_ok      ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
