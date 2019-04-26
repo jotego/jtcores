@@ -49,6 +49,7 @@ module jt1943_rom2(
     output      [15:0]  scr2_dout,
     output  reg         ready,
 
+    output              main_ok,
     output              snd_ok,
     // ROM interface
     input               downloading,
@@ -102,7 +103,7 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .clk      ( clk             ),
     .cen      ( cen12           ),
     .addr     ( main_addr       ),
-    .addr_ok  ( 1'b1            ), // it could be main_cs instead of 1'b1
+    .addr_ok  ( main_cs         ), // it could be main_cs instead of 1'b1
         // but that would not allow the main CPU to run at 6MHz
         // because the main_cs signal is delayed with respect to the
         // address bus. There is a delay of 250ns (SDRAM CLK=108MHz) from
@@ -113,7 +114,7 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .din      ( data_read       ),
     .dout     ( main_dout       ),
     .req      ( main_req        ),
-    .data_ok  (                 ),
+    .data_ok  ( main_ok         ),
     .we       ( data_sel[0]     )
 );
 

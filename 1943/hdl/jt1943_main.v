@@ -65,9 +65,10 @@ module jt1943_main(
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
     // ROM access
-    output  reg        main_cs,
+    output  reg        rom_cs,
     output  reg [17:0] rom_addr,
     input       [ 7:0] rom_data,
+    input              rom_ok,
     // DIP switches
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
@@ -84,7 +85,7 @@ assign cpu_cen = cen6;
 assign bus_ack = ~busak_n;
 
 always @(*) begin
-    main_cs       = 1'b0;
+    rom_cs       = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
     scrposv_cs    = 1'b0;
@@ -98,8 +99,8 @@ always @(*) begin
     OKOUT         = 1'b0;
     SECWR_cs      = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b0??: main_cs = 1'b1;
-        3'b10?: main_cs = 1'b1; // bank
+        3'b0??: rom_cs = 1'b1;
+        3'b10?: rom_cs = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // Part 11B
@@ -205,7 +206,7 @@ wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
 
 always @(*)
-    case( {ram_cs, char_cs, main_cs, in_cs} )
+    case( {ram_cs, char_cs, rom_cs, in_cs} )
         4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
                             ram_dout;
         4'b01_00: cpu_din = char_dout;
@@ -244,7 +245,23 @@ always @(posedge clk)
     end
 
 reg [1:0] mem_wait_n;
-wire wait_n = char_wait_n & mem_wait_n[0];
+//wire wait_n = char_wait_n & mem_wait_n[0];
+reg wait_n;
+reg last_rom_cs, last_chwait_n;
+wire rom_cs_posedge = !last_rom_cs && rom_cs;
+wire chwait_posedge = !last_chwait_n && char_wait_n;
+
+always @(posedge clk or negedge reset_n)
+    if( !reset_n )
+        wait_n <= 1'b1;
+    else begin
+        last_rom_cs <= rom_cs;
+        last_chwait_n <= char_wait_n;
+        if( !char_wait_n || rom_cs_posedge || (rom_cs && !rom_ok) ) 
+            wait_n <= 1'b0;
+        if( (chwait_posedge && !rom_cs) || (!rom_cs_posedge && rom_cs && rom_ok) )
+            wait_n <= 1'b1;
+    end
 
 // The PCB has a slow down mechanism for the main CPU
 // is loses one clock cycle at the beginning of every machine cycle

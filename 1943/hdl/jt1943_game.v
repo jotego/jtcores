@@ -196,6 +196,7 @@ jt1943_main u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .char_wait_n( char_wait_n   ),
+    .rom_ok     ( main_ok       ),
     // sound
     .sres_b       ( sres_b        ),
     .snd_latch_cs ( snd_latch_cs  ),
@@ -228,7 +229,7 @@ jt1943_main u_main(
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
     // ROM
-    .main_cs    ( main_cs       ),
+    .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_dout     ),
     // Cabinet input
@@ -259,7 +260,7 @@ assign sres_b = 'b1;
 assign cpu_dout = 'b0;
 `endif
 
-wire snd_ok;
+wire snd_ok, main_ok;
 
 `ifndef NOSOUND
 jt1943_sound u_sound (
@@ -378,8 +379,9 @@ jt1943_rom2 u_rom (
     .sdram_re    ( sdram_re      ),
 
     .main_cs     ( main_cs       ),
+    .main_ok     ( main_ok       ),
     .snd_cs      ( snd_cs        ),
-    .snd_ok    ( snd_ok      ),
+    .snd_ok      ( snd_ok        ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
