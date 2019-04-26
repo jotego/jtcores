@@ -186,6 +186,7 @@ wire CHON, OBJON, SC2ON, SC1ON;
 wire cpu_cen, main_cs;
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [12:0] obj_AB;
+wire snd_ok, main_ok;
 
 //wire video_flip = dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
@@ -259,8 +260,6 @@ assign cpu_AB = 'b0;
 assign sres_b = 'b1;
 assign cpu_dout = 'b0;
 `endif
-
-wire snd_ok, main_ok;
 
 `ifndef NOSOUND
 jt1943_sound u_sound (

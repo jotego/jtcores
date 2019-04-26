@@ -162,8 +162,11 @@ always @(posedge clk)
         end
     end
 
-always @(negedge clk)
-    t80_rst_n <= ~rst;
+jt12_rst u_rst(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .rst_n  ( t80_rst_n )
+);
 
 reg [7:0] cabinet_input;
 wire [7:0] security;
@@ -251,30 +254,25 @@ reg last_rom_cs, last_chwait_n;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
 wire chwait_posedge = !last_chwait_n && char_wait_n;
 
-always @(posedge clk or negedge reset_n)
-    if( !reset_n )
+always @(posedge clk or negedge t80_rst_n)
+    if( !t80_rst_n ) begin
         wait_n <= 1'b1;
-    else begin
+        mem_wait_n[0] <= 1'b1;
+    end else begin
         last_rom_cs <= rom_cs;
         last_chwait_n <= char_wait_n;
-        if( !char_wait_n || rom_cs_posedge || (rom_cs && !rom_ok) ) 
+        if(cpu_cen) mem_wait_n[1] <= mem_wait_n[0];
+        if( !char_wait_n || rom_cs_posedge || (rom_cs && !rom_ok) ) begin
+            // The PCB has a slow down mechanism for the main CPU
+            // it loses one clock cycle at the beginning of every machine cycle
+            mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
             wait_n <= 1'b0;
-        if( (chwait_posedge && !rom_cs) || (!rom_cs_posedge && rom_cs && rom_ok) )
+        end
+        if( (!rom_cs && !char_cs && mem_wait_n[1]  ) || 
+            ( char_cs && chwait_posedge ) ||
+            ( rom_cs && !rom_cs_posedge && rom_ok       )    )
             wait_n <= 1'b1;
     end
-
-// The PCB has a slow down mechanism for the main CPU
-// is loses one clock cycle at the beginning of every machine cycle
-always @(posedge clk)
-    if(rst)
-        mem_wait_n[0] <= 1'b1;
-    else // do not clock gate this!
-        mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
-            // signal was not in the original schematics. Bug?
-
-always @(posedge clk) if(cpu_cen) mem_wait_n[1] <= mem_wait_n[0];
-
-
 
 jt1943_security u_security(
     .clk    ( clk      ),
