@@ -39,7 +39,7 @@ module jt1943_main(
     output  reg        char_cs,
     output  reg        CHON,    // 1 enables character output
     output             cpu_cen,
-    input              char_wait_n,
+    input              char_wait,
     // scroll
     output  reg [7:0]  scrposv,
     output  reg [1:0]  scr1posh_cs,
@@ -76,7 +76,7 @@ module jt1943_main(
 );
 
 wire [15:0] A;
-reg t80_rst_n;
+wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
 reg SECWR_cs;
 
@@ -250,9 +250,9 @@ always @(posedge clk)
 reg [1:0] mem_wait_n;
 //wire wait_n = char_wait_n & mem_wait_n[0];
 reg wait_n;
-reg last_rom_cs, last_chwait_n;
+reg last_rom_cs, last_chwait;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
-wire chwait_posedge = !last_chwait_n && char_wait_n;
+wire chwait_posedge = !last_chwait && char_wait;
 
 always @(posedge clk or negedge t80_rst_n)
     if( !t80_rst_n ) begin
@@ -260,18 +260,18 @@ always @(posedge clk or negedge t80_rst_n)
         mem_wait_n[0] <= 1'b1;
     end else begin
         last_rom_cs <= rom_cs;
-        last_chwait_n <= char_wait_n;
+        last_chwait <= char_wait;
+        mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
         if(cpu_cen) mem_wait_n[1] <= mem_wait_n[0];
-        if( !char_wait_n || rom_cs_posedge || (rom_cs && !rom_ok) ) begin
+        if( (char_wait&&char_cs) || rom_cs_posedge || !mem_wait_n[1]) begin
             // The PCB has a slow down mechanism for the main CPU
             // it loses one clock cycle at the beginning of every machine cycle
-            mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
             wait_n <= 1'b0;
         end
-        if( (!rom_cs && !char_cs && mem_wait_n[1]  ) || 
-            ( char_cs && chwait_posedge ) ||
-            ( rom_cs && !rom_cs_posedge && rom_ok       )    )
-            wait_n <= 1'b1;
+        else begin
+            if( rom_ok )
+                wait_n <= 1'b1;
+        end
     end
 
 jt1943_security u_security(

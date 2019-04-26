@@ -98,6 +98,8 @@ wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
+wire blank_b = LVBL && LHBL;
+
 jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
     .clk      ( clk             ),

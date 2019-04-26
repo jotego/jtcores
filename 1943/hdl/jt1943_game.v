@@ -145,7 +145,7 @@ wire [ 7:0]  main_dout;
 wire [15:0]  char_dout, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
 
 wire snd_latch_cs;
-wire char_wait_n;
+wire char_wait;
 
 wire [12:0] prom_we;
 
@@ -196,7 +196,7 @@ jt1943_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .char_wait_n( char_wait_n   ),
+    .char_wait( char_wait     ),
     .rom_ok     ( main_ok       ),
     // sound
     .sres_b       ( sres_b        ),
@@ -311,7 +311,7 @@ jt1943_video u_video(
     .chram_dout ( chram_dout    ),
     .char_addr  ( char_addr     ), // CHAR ROM
     .char_data  ( char_dout     ),
-    .char_wait_n( char_wait_n   ),
+    .char_wait  ( char_wait     ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
     .scr1posh_cs( scr1posh_cs   ),

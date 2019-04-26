@@ -38,7 +38,7 @@ module jt1943_video(
     output      [ 7:0]  chram_dout,
     output      [13:0]  char_addr,
     input       [15:0]  char_data,
-    output              char_wait_n,
+    output              char_wait,
     // SCROLL - ROM
     input               SC1ON,
     input               SC2ON,
@@ -121,7 +121,7 @@ jt1943_char #(.HOFFSET(chr_off)) u_char (
     .dout       ( chram_dout    ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
-    .wait_n     ( char_wait_n   ),
+    .cpu_wait   ( char_wait     ),
     .char_pxl   ( char_pxl      ),
     // Pause screen
     .pause      ( pause         ),

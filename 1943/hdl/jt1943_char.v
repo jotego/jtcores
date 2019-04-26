@@ -35,7 +35,7 @@ module jt1943_char(
     output  [ 7:0]   dout,
     input            rd_n,
     input            wr_n,
-    output           wait_n,
+    output           cpu_wait,
     output  [ 3:0]   char_pxl,
     // Pause screen
     input            pause,
@@ -57,7 +57,8 @@ reg [1:0] char_col;
 wire [8:0] Hfix_prev = H+HOFFSET;
 wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
 
-wire sel_scan = ~Hfix[2];
+reg sel_scan;
+// wire sel_scan = ~Hfix[2];
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && char_cs && !wr_n;
@@ -118,11 +119,15 @@ always @(*) begin
 end
 
 // The original board gates the CPU clock instead of using wait_n
-reg latch_wait_n = 1'b1;
-assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
-
-always @(posedge clk) if(cpu_cen)
-    latch_wait_n <= !( char_cs && sel_scan );
+// assign wait_n = !( char_cs && sel_scan ); // hold CPU
+assign cpu_wait = sel_scan;
+always @(posedge clk)
+    if(cen6) begin
+        if( Hfix[2:0] == 3'b111 )
+            sel_scan <= 1'b1;
+        if( Hfix[2:0] == 3'b011 )
+            sel_scan <= 1'b0;
+    end
 
 // Draw pixel on screen
 reg [15:0] chd;

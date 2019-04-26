@@ -132,10 +132,12 @@ always @(posedge clk or negedge reset_n)
         wait_n <= 1'b1;
     else begin
         last_rom_cs <= rom_cs;
-        if( fm_lock || rom_cs_posedge || (rom_cs && !rom_ok) ) 
+        if( fm_lock || rom_cs_posedge  ) 
             wait_n <= 1'b0;
-        if( (fmx_cs && !fm_lock) || (!rom_cs_posedge && rom_cs && rom_ok) )
-            wait_n <= 1'b1;
+        else begin
+            if( !rom_cs || (rom_cs && rom_ok) )
+                wait_n <= 1'b1;
+        end
     end
 
 // reg [1:0] cs_wait;
