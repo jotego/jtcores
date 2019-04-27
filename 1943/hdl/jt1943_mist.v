@@ -145,6 +145,10 @@ always @(*)
         2'b11: dip_level = 4'b0000; // very hard
     endcase // status[3:2]
 
+reg LHBL_dly;
+always @(posedge clk_rgb)
+    if(cen6) LHBL_dly <= LHBL;
+
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .CLK_SPEED(CLK_SPEED),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
@@ -160,7 +164,7 @@ u_frame(
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
-    .LHBL           ( LHBL           ),
+    .LHBL           ( LHBL_dly       ),
     .LVBL           ( LVBL           ),
     .hs             ( hs             ),
     .vs             ( vs             ),

@@ -41,7 +41,7 @@ module jt1943_rom2(
 
     output      [15:0]  char_dout,
     output      [ 7:0]  main_dout,
-    output      [ 7:0]   snd_dout,
+    // output      [ 7:0]   snd_dout,
     output      [15:0]   obj_dout,
     output      [15:0]  map1_dout,
     output      [15:0]  map2_dout,
@@ -50,7 +50,7 @@ module jt1943_rom2(
     output  reg         ready,
 
     output              main_ok,
-    output              snd_ok,
+    // output              snd_ok,
     // ROM interface
     input               downloading,
     input               loop_rst,
@@ -87,10 +87,10 @@ always @(posedge clk) if(cen12) begin
         sdram_re <= ~sdram_re;
 end
 
-reg [7:0] data_sel;
-wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req;
+reg [6:0] data_sel;
+wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req; //, snd_req;
 wire [17:0] main_addr_req;
-wire [14:0]  snd_addr_req;
+// wire [14:0]  snd_addr_req;
 wire [13:0] char_addr_req;
 wire [16:0] obj_addr_req;
 wire [16:0] scr1_addr_req;
@@ -115,19 +115,19 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
 );
 
 
-jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
-    .rst      ( rst             ),
-    .clk      ( clk             ),
-    .cen      ( cen12           ),
-    .addr     ( snd_addr        ),
-    .addr_ok  ( snd_cs          ),
-    .addr_req ( snd_addr_req    ),
-    .din      ( data_read       ),
-    .dout     ( snd_dout        ),
-    .req      ( snd_req         ),
-    .data_ok  ( snd_ok          ),
-    .we       ( data_sel[7]     )
-);
+// jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
+//     .rst      ( rst             ),
+//     .clk      ( clk             ),
+//     .cen      ( cen12           ),
+//     .addr     ( snd_addr        ),
+//     .addr_ok  ( snd_cs          ),
+//     .addr_req ( snd_addr_req    ),
+//     .din      ( data_read       ),
+//     .dout     ( snd_dout        ),
+//     .req      ( snd_req         ),
+//     .data_ok  ( snd_ok          ),
+//     .we       ( data_sel[7]     )
+// );
 
 jt1943_romrq #(.AW(14),.DW(16)) u_char(
     .rst      ( rst             ),
@@ -236,10 +236,10 @@ end else if(cen12) begin
             sdram_addr <= { 4'd0, main_addr_req[17:1] };
             data_sel   <= 'b1;
         end
-        snd_req: begin
-            sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
-            data_sel   <= 'b1000_0000;
-        end
+        // snd_req: begin
+        //     sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
+        //     data_sel   <= 'b1000_0000;
+        // end
         map1_req: begin
             sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
             data_sel   <= 'b100;

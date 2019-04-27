@@ -81,8 +81,44 @@ def convert_buf( buf, k, msg ):
 # Patreons with Avatar:
 # Scralings, Suverman, Frederic Mahe, Jo Tomiyori, Brian Sallee, FULLSET, Phillip McMahon, Dustin Hubbard
 
+save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg_mister.hex", char_ram )
+
+# Message for MiST (no Avatars)
+row=31
+#           00000000001111111111222222222233
+#           01234567890123456789012345678901
+print_char("                                ") 
+print_char("      1943 clone for FPGA       ")
+print_char("    brought to you by jotego.   ")
+print_char("  http://patreon.com/topapate   ")
+print_char("                                ")
+print_char("       Thanks to my patrons     ") 
+print_char("                                ")
+print_char("    Andrew Moore                ")
+print_char("    Andyways                    ")
+print_char("    Dave Ross                   ")
+print_char("    Don Gafford                 ")
+print_char("    Leslie Law                  ")
+print_char("    Mary Marshall               ")
+print_char("    Mark Kohler (NML32)         ")
+print_char("    Matthew Coyne               ")
+print_char("    Oliver Jaksch               ")
+print_char("    Oscar Laguna Garcia         ")
+print_char("    Roman Buser                 ")
+print_char("    SmokeMonster                ")
+print_char("    Ultrarobotninja             ")
+print_char("    Victor Gomariz L. de G.     ")
+print_char("    Scralings                   ")
+print_char("    Suverman                    ")
+print_char("    Frederic Mahe               ")
+print_char("    Jo Tomiyori                 ")
+print_char("    Brian Sallee                ")
+print_char("    FULLSET                     ")
+print_char("    Phillip McMahon             ")
+print_char("    Dustin Hubbard              ")
 save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG_ROOT']+"/1943/ver/game/msg.bin", char_ram )
+
 
 #           00000000000000001111111111111111
 #           0123456789ABCDEF0123456789ABCDEF

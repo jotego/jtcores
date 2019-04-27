@@ -88,6 +88,7 @@ jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_high(
 
 // Pause screen message
 wire cen_pause = cen6 & pause;
+
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
     .clk    ( clk       ),
     .cen    ( cen_pause ),
@@ -97,6 +98,7 @@ jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
     .q      ( mem_msg   )
 );
 
+`ifdef AVATARS
 wire [7:0] av_scan = { avatar_idx, scan[9:5] };
 
 jtgng_ram #(.aw(8),.synfile("msg_av.hex")) u_ram_msg_av(
@@ -108,12 +110,18 @@ jtgng_ram #(.aw(8),.synfile("msg_av.hex")) u_ram_msg_av(
     .q      ( mem_msg_av  )
 );
 
+always @(*) begin
+    av_col    = scan[4:0] == 5'd9;
+    msg_sel   = av_col ? mem_msg_av : mem_msg;
+end
+`else 
+always @(*) msg_sel = mem_msg;
+`endif
+
 reg       av_col;
 reg [7:0] msg_sel;
 
 always @(*) begin
-    av_col    = scan[4:0] == 5'd9;
-    msg_sel   = av_col ? mem_msg_av : mem_msg;
     dout_low  = pause ? msg_sel : mem_low;
     dout_high = pause ? 8'h2    : mem_high;
 end

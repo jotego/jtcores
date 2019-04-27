@@ -86,11 +86,10 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
-wire char_cs, snd_cs;
+wire char_cs;
 wire flip;
-wire [ 7:0] cpu_dout, snd_dout;
+wire [ 7:0] cpu_dout;
 wire [ 7:0] chram_dout;
-wire [14:0] snd_addr;
 wire rd;
 wire rom_ready;
 
@@ -186,7 +185,7 @@ wire CHON, OBJON, SC2ON, SC1ON;
 wire cpu_cen, main_cs;
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [12:0] obj_AB;
-wire snd_ok, main_ok;
+wire main_ok;
 
 //wire video_flip = dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
@@ -275,11 +274,10 @@ jt1943_sound u_sound (
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
     .snd_int        ( V[5]           ),
-    // ROM
-    .rom_addr       ( snd_addr       ),
-    .rom_data       ( snd_dout       ),
-    .rom_cs         ( snd_cs         ),
-    .rom_ok         ( snd_ok         ),
+    // PROM 4K
+    .prog_addr      ( prog_addr[14:0]),
+    .prom_4k_we     ( prom_4k_we     ),
+    .prom_din       ( prog_data      ),
     // Sound
     .snd            ( snd            )
 );
@@ -379,12 +377,9 @@ jt1943_rom2 u_rom (
 
     .main_cs     ( main_cs       ),
     .main_ok     ( main_ok       ),
-    .snd_cs      ( snd_cs        ),
-    .snd_ok      ( snd_ok        ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
-    .snd_addr    ( snd_addr      ), //  32 kB
     .obj_addr    ( obj_addr      ),  // 256 kB
     .scr1_addr   ( scr1_addr     ), // 256 kB (16-bit words)
     .scr2_addr   ( scr2_addr     ), //  64 kB
@@ -393,7 +388,6 @@ jt1943_rom2 u_rom (
 
     .char_dout   ( char_dout     ),
     .main_dout   ( main_dout     ),
-    .snd_dout    ( snd_dout      ),
     .obj_dout    ( obj_dout      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),

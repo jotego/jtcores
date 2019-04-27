@@ -1,6 +1,8 @@
 #!/bin/bash
 # Show the pause screen
 
+../../../bin/jt1943_msg.py
+
 function check_hex_file {
     if [ ! -e $1 ]; then
         if [ ! -e ../../mist/$1 ]; then
