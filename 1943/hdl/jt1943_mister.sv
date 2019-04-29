@@ -278,7 +278,7 @@ wire         read_req;
 wire [31:0]  data_read;
 wire [21:0]  sdram_addr;
 
-wire         sdram_re;
+wire         sdram_sync, sdram_req;
 
 
 jtgng_sdram u_sdram(
@@ -286,7 +286,8 @@ jtgng_sdram u_sdram(
     .clk        ( clk_rom       ), // 108 MHz
     .loop_rst   ( loop_rst      ),
     .autorefresh( autorefresh   ),
-    .read_req   ( sdram_re      ),    // read enable, active on both edges
+    .read_sync  ( sdram_sync    ),    // read enable, active on both edges
+    .read_req   ( sdram_req     ),    // read enable, active on both edges
     .data_read  ( data_read     ),
     .sdram_addr ( sdram_addr    ),
     // ROM-load interface
@@ -364,7 +365,8 @@ jt1943_game #(.CLK_SPEED(24)) game
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .sdram_re    ( sdram_re      ),
+    .sdram_sync  ( sdram_sync    ),
+    .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
 

@@ -39,8 +39,8 @@ module jtgng_game(
     // SDRAM interface
     input           downloading,
     input           loop_rst,
-    output          autorefresh,
-    output          sdram_re,
+    output          sdram_sync,
+    output          sdram_req,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
     // DEBUG
@@ -284,7 +284,8 @@ jtgng_rom u_rom (
     .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_re    ( sdram_re      ),
+    .sdram_req   ( sdram_req     ),
+    .sdram_sync  ( sdram_sync    ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
@@ -301,7 +302,6 @@ jtgng_rom u_rom (
     // SDRAM interface
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .autorefresh ( autorefresh   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

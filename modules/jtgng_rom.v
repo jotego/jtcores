@@ -24,7 +24,7 @@ module jtgng_rom(
     input               Hsub,
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_re, // any edge (rising or falling)
+    output  reg         sdram_sync, // any edge (rising or falling)
         // means a read request
 
     input       [12:0]  char_addr,
@@ -42,7 +42,7 @@ module jtgng_rom(
     // ROM interface
     input               downloading,
     input               loop_rst,
-    output  reg         autorefresh,
+    output  reg         sdram_req,
     output  reg [21:0]  sdram_addr,
     input       [15:0]  data_read
 );
@@ -80,10 +80,10 @@ wire  scr_rq = rd_state[2:1] == 2'b11;
 
 always @(posedge clk) if(cen12) begin
     if( loop_rst || downloading )
-        sdram_re <= 1'b0;   // start strobing before ready signal
+        sdram_sync <= 1'b0;   // start strobing before ready signal
             // because first data must be read before that signal.
     else
-        sdram_re <= ~sdram_re;
+        sdram_sync <= ~sdram_sync;
 end
 
 // 0, 8:        sound
@@ -95,8 +95,8 @@ end
 always @(posedge clk)
 if( loop_rst || downloading ) begin
     //rd_state    <= { H,1'b1 };
-    autorefresh <= 1'b0;
     sdram_addr <= {(addr_w+col_w){1'b0}};
+    sdram_req <=  1'b0;
     snd_dout  <=  8'd0;
     main_dout <=  8'd0;
     char_dout <= 16'd0;
@@ -137,7 +137,7 @@ end else if(cen12) begin
         4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
         default:;
     endcase
-    autorefresh <= !LVBL && (char_rq || scr_rq); // rd_state==4'd14;
+    sdram_req <= !( !LVBL && (char_rq || scr_rq) ); // rd_state==4'd14;
 end
 
 endmodule // jtgng_rom

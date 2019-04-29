@@ -42,8 +42,8 @@ module jt1942_game(
     // SDRAM interface
     input           downloading,
     input           loop_rst,
-    output          autorefresh,
-    output          sdram_re,
+    output          sdram_req,
+    output          sdram_sync,
     output  [21:0]  sdram_addr,
     input   [15:0]  data_read,
 
@@ -306,7 +306,7 @@ jtgng_rom #(
     .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_re    ( sdram_re      ),
+    .sdram_sync  ( sdram_sync    ),
 
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
@@ -323,7 +323,7 @@ jtgng_rom #(
     // SDRAM interface
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .autorefresh ( autorefresh   ),
+    .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

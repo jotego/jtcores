@@ -1,6 +1,10 @@
 `timescale 1ns/1ps
 
-module mist_dump;
+module mist_dump(
+    input           VGA_VS,
+    input           led,
+    input   [31:0]  frame_cnt
+);
 
 `ifdef DUMP
 `ifndef NCVERILOG // iVerilog:
@@ -22,12 +26,6 @@ module mist_dump;
             $dumpvars(0,mist_test);
         `else
             $dumpvars(1,mist_test.UUT.u_game.u_main);
-            //$dumpvars(0,mist_test.UUT.u_game.u_video.u_obj);
-            //$dumpvars(1,mist_test.UUT.u_rom);
-            //$dumpoff;
-            //$dumpvars(1,mist_test.UUT.u_video);
-            //$dumpvars(1,mist_test.UUT.u_video.u_char);
-            //$dumpvars(0,UUT.chargen);
         `endif
         $dumpon;
     end
@@ -43,21 +41,9 @@ module mist_dump;
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
         `else
-            //$shm_probe(UUT.u_game.u_main,"A");
-            //$shm_probe(UUT.u_game.u_video.u_obj,"AS");
-            //$shm_probe(UUT.u_game.u_video.u_colmix,"AS");
             $shm_probe(UUT.u_game.u_prom_we,"AS");
             $shm_probe(UUT.u_base.u_sdram,"AS");
-            //$shm_probe(UUT.u_scandoubler,"AS");
-            `ifndef NOSOUND
-            $shm_probe(UUT.u_game.u_sound,"A");
-            `endif
         `endif
-        // $shm_probe(UUT.u_video,"A");
-        // $shm_probe(UUT.u_video.u_obj,"AS");
-        // #280_000_000
-        // #280_000_000
-        // $shm_probe(UUT.u_sound.u_cpu,"AS");
     end
 `endif
 `endif

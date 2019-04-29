@@ -10,18 +10,14 @@
 ../../hdl/jt1942_objram.v
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
-../../../modules/jtgng_vga.v
-../../../modules/jtgng_vgapxl.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_cen.v
-../../../modules/jtgng_dual_clk_ram.v
 ../../../modules/jtgng_dual_ram.v
-../../../modules/jtgng_ram.v
+../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtgng_rom.v
-../../../modules/jtgng_prom.v
+../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
-../../../modules/mist/data_io.v
-../../../modules/ver/noise_gen.v
+../../../modules/jtframe/hdl/ver/noise_gen.v
 

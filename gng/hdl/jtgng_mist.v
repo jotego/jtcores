@@ -120,7 +120,7 @@ always @(posedge clk_rom) begin
 end
 
 wire [3:0] red, green, blue;
-wire sdram_re;
+wire sdram_req, sdram_sync;
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .CLK_SPEED(CLK_SPEED),
@@ -179,9 +179,9 @@ u_frame(
     .downloading    ( downloading    ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
-    .autorefresh    ( autorefresh    ),
     .sdram_addr     ( sdram_addr     ),
-    .sdram_re       ( sdram_re       ),
+    .sdram_sync     ( sdram_sync     ),
+    .sdram_req      ( sdram_req      ),
     .data_read      ( data_read      ),
 //////////// board
     .rst            ( rst            ),
@@ -224,8 +224,8 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .autorefresh ( autorefresh   ),
-    .sdram_re    ( sdram_re      ),
+    .sdram_sync  ( sdram_sync    ),
+    .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // DEBUG

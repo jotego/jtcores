@@ -78,7 +78,7 @@ wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
-wire          loop_rst, autorefresh, sdram_re;
+wire          loop_rst, sdram_sync;
 wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
@@ -206,9 +206,9 @@ u_frame(
     .downloading    ( downloading    ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
-    .autorefresh    ( autorefresh    ),
     .sdram_addr     ( sdram_addr     ),
-    .sdram_re       ( sdram_re       ),
+    .sdram_sync     ( sdram_sync     ),
+    .sdram_req      ( sdram_req      ),
     .data_read      ( data_read      ),
 //////////// board
     .rst            ( rst            ),
@@ -283,7 +283,8 @@ u_game(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .sdram_re    ( sdram_re      ),
+    .sdram_sync  ( sdram_sync    ),
+    .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     // Cheat
