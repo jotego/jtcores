@@ -16,6 +16,15 @@ if [ ! -e ../../../rom/1943/bm05.4k.lsb ]; then
     fi
 fi
 
+MIST=-mist
+for k in $*; do
+    if [ "$k" = -mister ]; then
+        echo "MiSTer setup chosen."
+        MIST=$k
+    fi
+done
+
+
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh -mist $* -sysname 1943 \
+../../../modules/jtframe/bin/sim.sh $MIST $* -sysname 1943 \
     -modules ../../../modules 

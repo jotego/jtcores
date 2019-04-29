@@ -254,10 +254,15 @@ reg last_rom_cs, last_chwait;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
 wire chwait_posedge = !last_chwait && char_wait;
 
+reg char_free, rom_free, mem_free;
+
 always @(posedge clk or negedge t80_rst_n)
     if( !t80_rst_n ) begin
         wait_n <= 1'b1;
         mem_wait_n[0] <= 1'b1;
+        char_free <= 1'b0;
+        rom_free  <= 1'b0;
+        mem_free  <= 1'b0;
     end else begin
         last_rom_cs <= rom_cs;
         last_chwait <= char_wait;
@@ -266,11 +271,24 @@ always @(posedge clk or negedge t80_rst_n)
         if( (char_wait&&char_cs) || rom_cs_posedge || !mem_wait_n[1]) begin
             // The PCB has a slow down mechanism for the main CPU
             // it loses one clock cycle at the beginning of every machine cycle
+            if( char_wait&&char_cs ) char_free <= 1'b1;
+            if( rom_cs_posedge ) rom_free  <= 1'b1;
+            if( !mem_wait_n ) mem_free  <= 1'b1;
             wait_n <= 1'b0;
         end
         else begin
-            if( rom_ok )
+            if( rom_ok     && rom_free  ) begin
                 wait_n <= 1'b1;
+                rom_free <= 1'b0;
+            end
+            if( !char_wait && char_free ) begin
+                wait_n <= 1'b1;
+                char_free <= 1'b0;
+            end
+            if( mem_wait_n[1] && mem_free ) begin
+                wait_n <= 1'b1;
+                mem_free <= 1'b0;
+            end
         end
     end
 
