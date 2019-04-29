@@ -273,7 +273,6 @@ wire [ 7:0]  prog_data;
 wire [ 1:0]  prog_mask;
 
 wire         loop_rst;
-wire         autorefresh;
 wire         read_req;
 wire [31:0]  data_read;
 wire [21:0]  sdram_addr;
@@ -285,7 +284,6 @@ jtgng_sdram u_sdram(
     .rst        ( RESET         ),
     .clk        ( clk_rom       ), // 108 MHz
     .loop_rst   ( loop_rst      ),
-    .autorefresh( autorefresh   ),
     .read_sync  ( sdram_sync    ),    // read enable, active on both edges
     .read_req   ( sdram_req     ),    // read enable, active on both edges
     .data_read  ( data_read     ),
