@@ -158,24 +158,35 @@ jtgng_ram #(.aw(11)) u_ram(
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
+// latch program signals
+reg [14:0]  prog_latch_addr;
+reg [7:0]   prog_latch_din;
+reg         prog_latch_we;
+
+always @(posedge clk) begin
+    prog_latch_addr <= prog_addr; 
+    prog_latch_din  <= prom_din;
+    prog_latch_we   <= prom_4k_we;
+end
+
+
 jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
     .clk    ( clk               ),
     .cen    ( cen3              ),
-    .data   ( prom_din          ),
+    .data   ( prog_latch_din          ),
     .rd_addr( A[13:0]           ),
-    .wr_addr( prog_addr[13:0]   ),
-    .we     ( prom_4k_we & !prog_addr[14] ),
+    .wr_addr( prog_latch_addr[13:0]   ),
+    .we     ( prog_latch_we & !prog_latch_addr[14] ),
     .q      ( rom_data0   )
 );
 
-// full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
 jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
     .clk    ( clk               ),
     .cen    ( cen3              ),
-    .data   ( prom_din          ),
+    .data   ( prog_latch_din          ),
     .rd_addr( A[13:0]           ),
-    .wr_addr( prog_addr[13:0]   ),
-    .we     ( prom_4k_we & prog_addr[14]  ),
+    .wr_addr( prog_latch_addr[13:0]   ),
+    .we     ( prog_latch_we & prog_latch_addr[14]  ),
     .q      ( rom_data1   )
 );
 

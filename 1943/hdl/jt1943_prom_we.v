@@ -35,8 +35,20 @@ module jt1943_prom_we(
 localparam SNDADDR=22'h14_000<<1, CHARADDR=22'h18_000*2,
     SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2, MAP1ADDR=22'h1C_000<<1,
     OBJADDR=22'h4C_000<<1;
-wire [21:0] scr_start = ioctl_addr - SCR1ADDR;
-wire [21:0] map_start = ioctl_addr - MAP1ADDR;
+
+// latch signals that come from a different dommain
+reg [21:0]    latched_addr;
+reg [ 7:0]    latched_data;
+reg           latched_wr;
+
+always @(posedge clk_rom) begin
+    latched_addr <= ioctl_addr; 
+    latched_data <= ioctl_data;
+    latched_wr   <= ioctl_wr;
+end
+
+wire [21:0] scr_start = latched_addr - SCR1ADDR;
+wire [21:0] map_start = latched_addr - MAP1ADDR;
 
 reg set_strobe, set_done;
 reg [12:0] prom_we0;
@@ -53,41 +65,41 @@ end
 
 always @(posedge clk_rom) begin
     if( set_done ) set_strobe <= 1'b0;
-    if ( ioctl_wr ) begin
+    if ( latched_wr ) begin
         prog_we   <= 1'b1;
-        prog_data <= ioctl_data;
-        if(ioctl_addr < MAP1ADDR) begin
-            if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR) begin // Sound ROM
+        prog_data <= latched_data;
+        if(latched_addr < MAP1ADDR) begin
+            if(latched_addr>=SNDADDR && latched_addr<CHARADDR) begin // Sound ROM
                 prom_we0   <= 13'h10_00;
                 set_strobe <= 1'b1;
                 prog_we    <= 1'b0; // Do not write this on the SDRAM
-                prog_addr  <= ioctl_addr - SNDADDR;
+                prog_addr  <= latched_addr - SNDADDR;
                 prog_mask <= 2'b11;
             end else begin // Main ROM, CHAR ROM
-                prog_addr <= {1'b0, ioctl_addr[21:1]};
-                prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+                prog_addr <= {1'b0, latched_addr[21:1]};
+                prog_mask <= {latched_addr[0], ~latched_addr[0]};
             end
         end
-        else if(ioctl_addr < SCR1ADDR) begin // MAP1+MAP2
+        else if(latched_addr < SCR1ADDR) begin // MAP1+MAP2
             // MAP data is reordered so reads hit consequitive addresses
             // this optimizes cache usage.
             prog_addr <= MAP1ADDR[21:1] + {map_start[21:5], map_start[3:1], map_start[4]};
             prog_mask <= {map_start[0], ~map_start[0]};
         end
-        else if(ioctl_addr < OBJADDR) begin // SCR
+        else if(latched_addr < OBJADDR) begin // SCR
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], scr_start[14:0]};
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
-        else if(ioctl_addr < ROMEND) begin // OBJ
+        else if(latched_addr < ROMEND) begin // OBJ
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16],
                 scr_start[14:6], scr_start[4:1], scr_start[5], scr_start[0] }; // bit order swapped to increase cache hits
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
         else begin // PROMs
-            prog_addr <= { 3'h7, ioctl_addr[18:0] };
+            prog_addr <= { 3'h7, latched_addr[18:0] };
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            case(ioctl_addr[11:8])
+            case(latched_addr[11:8])
                 4'h0: prom_we0 <= 13'h0_01;    //
                 4'h1: prom_we0 <= 13'h0_02;    //
                 4'h2: prom_we0 <= 13'h0_04;    //
