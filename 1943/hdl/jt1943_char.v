@@ -88,6 +88,7 @@ jtgng_ram #(.aw(10),.simfile("zeros1k.bin")) u_ram_high(
 
 // Pause screen message
 wire cen_pause = cen6 & pause;
+reg [7:0] msg_sel;
 
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
     .clk    ( clk       ),
@@ -119,7 +120,6 @@ always @(*) msg_sel = mem_msg;
 `endif
 
 reg       av_col;
-reg [7:0] msg_sel;
 
 always @(*) begin
     dout_low  = pause ? msg_sel : mem_low;
