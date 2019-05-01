@@ -252,7 +252,6 @@ reg [1:0] mem_wait_n;
 reg wait_n;
 reg last_rom_cs, last_chwait;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
-wire chwait_posedge = !last_chwait && char_wait;
 
 reg char_free, rom_free, mem_free;
 reg char_clr, rom_clr, mem_clr;
