@@ -43,7 +43,7 @@ module jt1943_sound(
     output  [15:0]  snd
 );
 
-wire [14:0] rom_addr;
+// wire [14:0] rom_addr;
 reg         rom_cs;
 wire        mreq_n;
 wire [7:0]  rom_data;
@@ -85,7 +85,7 @@ reg fm1_cs, fm0_cs, latch_cs, ram_cs, SECWR_cs;
 
 reg [7:0] latch;
 wire [15:0] A;
-assign rom_addr = A[14:0];
+// assign rom_addr = A[14:0];
 
 always @(*) begin
     rom_cs   = 1'b0;

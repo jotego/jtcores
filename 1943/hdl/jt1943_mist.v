@@ -73,7 +73,7 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
 
-wire          rst, clk_rgb, clk_rom;
+wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
@@ -147,7 +147,7 @@ always @(*)
     endcase // status[3:2]
 
 reg LHBL_dly;
-always @(posedge clk_rgb)
+always @(posedge clk_sys)
     if(cen6) LHBL_dly <= LHBL;
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
@@ -155,7 +155,7 @@ jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),
-    .clk_rgb        ( clk_rgb        ),
+    .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .cen12          ( cen12          ),
     .pxl_cen        ( cen6           ),
@@ -251,7 +251,7 @@ jt1943_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
     .rst         ( game_rst      ),
     .clk_rom     ( clk_rom       ),
-    .clk         ( clk_rgb       ),
+    .clk         ( clk_sys       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),

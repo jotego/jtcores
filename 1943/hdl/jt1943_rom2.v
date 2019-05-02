@@ -29,11 +29,11 @@ module jt1943_rom2(
     output  reg         sdram_req,
 
     input               main_cs,
-    input               snd_cs,
+    //input               snd_cs,
 
     input       [13:0]  char_addr, //  32 kB
     input       [17:0]  main_addr, // 160 kB, addressed as 8-bit words
-    input       [14:0]   snd_addr, //  32 kB
+    //input       [14:0]   snd_addr, //  32 kB
     input       [16:0]  obj_addr,  // 256 kB
     input       [16:0]  scr1_addr, // 256 kB (16-bit words)
     input       [14:0]  scr2_addr, //  64 kB
