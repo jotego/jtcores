@@ -50,7 +50,7 @@ module jtgng_mist(
     output          LED
 );
 
-parameter CLK_SPEED=12;
+parameter CLK_SPEED=48;
 
 localparam CONF_STR = {
     //   000000000111111111122222222223

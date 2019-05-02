@@ -252,9 +252,14 @@ reg [1:0] mem_wait_n;
 reg wait_n;
 reg last_rom_cs, last_chwait;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
-wire chwait_posedge = !last_chwait && char_wait;
 
 reg char_free, rom_free, mem_free;
+reg char_clr, rom_clr, mem_clr;
+always @(*) begin
+    char_clr = !char_free || (!char_wait     && char_free);
+    rom_clr  = !rom_free  || ( rom_ok        && rom_free );
+    mem_clr  = !mem_free  || ( mem_wait_n[0] && mem_free );
+end
 
 always @(posedge clk or negedge t80_rst_n)
     if( !t80_rst_n ) begin
@@ -266,29 +271,23 @@ always @(posedge clk or negedge t80_rst_n)
     end else begin
         last_rom_cs <= rom_cs;
         last_chwait <= char_wait;
-        mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
-        if(cpu_cen) mem_wait_n[1] <= mem_wait_n[0];
-        if( (char_wait&&char_cs) || rom_cs_posedge || !mem_wait_n[1]) begin
+        if(cpu_cen) begin
+            mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
+            mem_wait_n[1] <= mem_wait_n[0];
+        end
+        if( (char_wait&&char_cs) || rom_cs_posedge || !mem_wait_n[0]) begin
             // The PCB has a slow down mechanism for the main CPU
             // it loses one clock cycle at the beginning of every machine cycle
             if( char_wait&&char_cs ) char_free <= 1'b1;
             if( rom_cs_posedge ) rom_free  <= 1'b1;
-            if( !mem_wait_n ) mem_free  <= 1'b1;
+            if( !mem_wait_n[0] ) mem_free  <= 1'b1;
             wait_n <= 1'b0;
         end
         else begin
-            if( rom_ok     && rom_free  ) begin
-                wait_n <= 1'b1;
-                rom_free <= 1'b0;
-            end
-            if( !char_wait && char_free ) begin
-                wait_n <= 1'b1;
-                char_free <= 1'b0;
-            end
-            if( mem_wait_n[1] && mem_free ) begin
-                wait_n <= 1'b1;
-                mem_free <= 1'b0;
-            end
+            wait_n    <= char_clr & rom_clr & mem_clr;
+            rom_free  <= !rom_clr;
+            char_free <= !char_clr;
+            mem_free  <= !mem_clr;
         end
     end
 

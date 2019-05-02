@@ -93,6 +93,7 @@ wire dip_flip = status[32'hb];
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire game_pause;
+wire sdram_req;
 `ifdef SIMULATION
     wire dip_pause = 1'b1; // ~status[1];
     initial if(!dip_pause) $display("INFO: DIP pause enabled");
