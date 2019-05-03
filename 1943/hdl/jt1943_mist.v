@@ -52,7 +52,7 @@ module jt1943_mist(
     output          LED
 );
 
-parameter CLK_SPEED=48;
+localparam CLK_SPEED=48;
 
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
