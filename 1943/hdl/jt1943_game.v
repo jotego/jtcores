@@ -44,7 +44,6 @@ module jt1943_game(
     // SDRAM interface
     input           downloading,
     input           loop_rst,
-    output          sdram_sync,
     output          sdram_req,
     output  [21:0]  sdram_addr,
     input   [31:0]  data_read,
@@ -376,7 +375,6 @@ jt1943_rom2 u_rom (
     .cen12       ( cen12         ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_sync  ( sdram_sync    ),
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),

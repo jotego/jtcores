@@ -52,7 +52,6 @@ always @(*) begin
     req = init || ( !(hit0 || hit1) && addr_ok && !we);
 end
 
-reg [1:0] we_sr;
 reg [1:0] ok_sr;
 
 always @(posedge clk)
@@ -64,7 +63,6 @@ always @(posedge clk)
         ok_sr[0] <= addr_ok && !we && ( hit0 || hit1 );
         { data_ok, ok_sr[1] } <= ok_sr;
         // delay by one clock cycle to catch the full data output
-        we_sr <= { we_sr[0], we };
         if( we ) begin
             if( init ) begin
                 cached_data0 <= din;
