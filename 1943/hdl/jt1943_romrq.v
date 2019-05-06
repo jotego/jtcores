@@ -65,7 +65,7 @@ always @(posedge clk)
         { data_ok, ok_sr[1] } <= ok_sr;
         // delay by one clock cycle to catch the full data output
         we_sr <= { we_sr[0], we };
-        if( we_sr[1] ) begin
+        if( we ) begin
             if( init ) begin
                 cached_data0 <= din;
                 cached_addr0 <= addr_req;

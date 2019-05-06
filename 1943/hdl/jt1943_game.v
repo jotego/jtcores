@@ -48,6 +48,8 @@ module jt1943_game(
     output          sdram_req,
     output  [21:0]  sdram_addr,
     input   [31:0]  data_read,
+    input           data_rdy,
+    input           sdram_ack,
 
     // ROM LOAD
     input   [21:0]  ioctl_addr,
@@ -196,7 +198,7 @@ jt1943_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .char_wait( char_wait     ),
+    .char_wait  ( char_wait     ),
     .rom_ok     ( main_ok       ),
     // sound
     .sres_b       ( sres_b        ),
@@ -376,6 +378,8 @@ jt1943_rom2 u_rom (
     .LVBL        ( LVBL          ),
     .sdram_sync  ( sdram_sync    ),
     .sdram_req   ( sdram_req     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
 
     .main_cs     ( main_cs       ),
     .main_ok     ( main_ok       ),
