@@ -49,7 +49,7 @@ module jt1943_game(
     input   [31:0]  data_read,
     input           data_rdy,
     input           sdram_ack,
-
+    output          refresh_en,
     // ROM LOAD
     input   [21:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -404,7 +404,8 @@ jt1943_rom2 u_rom (
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
+    .data_read   ( data_read     ),
+    .refresh_en  ( refresh_en    )
 );
 
 endmodule // jtgng

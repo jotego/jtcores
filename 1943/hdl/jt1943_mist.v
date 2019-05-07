@@ -137,6 +137,7 @@ wire [1:0] game_coin, game_start;
 wire game_rst;
 wire data_rdy, sdram_ack;
 wire [3:0] gfx_en;
+wire refresh_en;
 
 // play level
 always @(*)
@@ -212,6 +213,7 @@ u_frame(
     .sdram_ack      ( sdram_ack      ),
     .data_read      ( data_read      ),
     .data_rdy       ( data_rdy       ),
+    .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
     .rst_n          (                ), // unused
@@ -290,6 +292,7 @@ u_game(
     .data_read   ( data_read     ),
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
+    .refresh_en  ( refresh_en    ),
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches

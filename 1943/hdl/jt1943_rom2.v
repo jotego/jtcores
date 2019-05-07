@@ -26,6 +26,7 @@ module jt1943_rom2(
     input               LVBL,
         // means a read request
     output  reg         sdram_req,
+    output  reg         refresh_en,
     input               data_rdy,   // from SDRAM controller        
     input               sdram_ack,
     input               main_cs,
@@ -92,6 +93,9 @@ wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
 wire blank_b = LVBL && LHBL;
+
+always @(posedge clk)
+    refresh_en <= !LVBL;
 
 jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
@@ -238,37 +242,37 @@ end else begin
         sdram_req <= main_req | map1_req | map2_req | scr1_req | scr2_req 
             | char_req | obj_req;
         case( 1'b1 )
-            main_req: begin
-                sdram_addr <= { 4'd0, main_addr_req[17:1] };
-                pre_sel   <= 'b1;
-            end
             // snd_req: begin
             //     sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
             //     pre_sel   <= 'b1000_0000;
             // end
-            map1_req: begin
-                sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
-                pre_sel   <= 'b100;
-            end
             scr1_req: begin
                 sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
                 pre_sel   <= 'b1_0000;
-            end
-            map2_req: begin
-                sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
-                pre_sel   <= 'b1000;
             end
             scr2_req: begin
                 sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
                 pre_sel   <= 'b10_0000;
             end
-            char_req: begin
-                sdram_addr <= char_offset + { 8'b0, char_addr_req };
-                pre_sel   <= 'b10;
+            map1_req: begin
+                sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
+                pre_sel   <= 'b100;
+            end
+            map2_req: begin
+                sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
+                pre_sel   <= 'b1000;
             end
             obj_req: begin
                 sdram_addr <= obj_offset + { 5'b0, obj_addr_req };
                 pre_sel   <= 'b100_0000;
+            end
+            main_req: begin
+                sdram_addr <= { 4'd0, main_addr_req[17:1] };
+                pre_sel   <= 'b1;
+            end
+            char_req: begin
+                sdram_addr <= char_offset + { 8'b0, char_addr_req };
+                pre_sel   <= 'b10;
             end
             default: pre_sel <= 'b0;
         endcase
