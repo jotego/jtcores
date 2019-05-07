@@ -290,6 +290,7 @@ assign snd = 9'd0;
 jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
