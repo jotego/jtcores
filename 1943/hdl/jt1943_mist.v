@@ -152,7 +152,6 @@ always @(posedge clk_sys)
     if(cen6) LHBL_dly <= LHBL;
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
-    .CLK_SPEED(CLK_SPEED),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),

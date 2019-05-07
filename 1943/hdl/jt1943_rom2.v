@@ -24,7 +24,6 @@ module jt1943_rom2(
     input               cen12, // 12 MHz
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_sync, // any edge (rising or falling)
         // means a read request
     output  reg         sdram_req,
     input               data_rdy,   // from SDRAM controller        
@@ -81,16 +80,6 @@ localparam addr_w = 13, data_w = 16;
 reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
 wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req; //, snd_req;
-
-always @(posedge clk) if(1'b1 ) begin
-    if( loop_rst || downloading ) begin
-        sdram_sync <= 1'b0;   // start strobing before ready signal
-            // because first data must be read before that signal.
-        sdram_sync <= 1'b0;
-    end else begin
-        sdram_sync <= ~sdram_sync;
-    end
-end
 
 reg [6:0] data_sel;
 wire [17:0] main_addr_req;
