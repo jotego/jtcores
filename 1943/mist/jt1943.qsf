@@ -165,8 +165,6 @@ set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
 set_global_assignment -name VERILOG_FILE ../hdl/jt1943_mist.v
 set_global_assignment -name QIP_FILE ../hdl/jt1943.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/jt49/hdl/jt49.qip
-set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
-set_global_assignment -name VERILOG_MACRO "NOMAIN=<None>"
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[12]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[11]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[10]
