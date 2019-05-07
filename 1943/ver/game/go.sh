@@ -26,5 +26,5 @@ done
 
 
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh $MIST $* -sysname 1943 \
-    -modules ../../../modules 
+../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=887808 -sysname 1943 \
+    -modules ../../../modules $*
