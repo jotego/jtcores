@@ -135,8 +135,9 @@ wire [15:0] snd;
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
-wire data_rdy, sdram_ack;
 wire [3:0] gfx_en;
+// SDRAM
+wire data_rdy, sdram_ack;
 wire refresh_en;
 
 // play level

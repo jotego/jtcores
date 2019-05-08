@@ -272,28 +272,32 @@ wire [21:0]  prog_addr;
 wire [ 7:0]  prog_data;
 wire [ 1:0]  prog_mask;
 
+// SDRAM
 wire         loop_rst;
-wire         read_req;
+wire         sdram_req;
 wire [31:0]  data_read;
 wire [21:0]  sdram_addr;
-
-wire         sdram_sync, sdram_req;
+wire         data_rdy;
+wire         sdram_ack;
+wire         refresh_en;
 
 
 jtgng_sdram u_sdram(
     .rst        ( RESET         ),
     .clk        ( clk_rom       ), // 108 MHz
     .loop_rst   ( loop_rst      ),
-    .read_sync  ( sdram_sync    ),    // read enable, active on both edges
-    .read_req   ( sdram_req     ),    // read enable, active on both edges
+    .read_req   ( sdram_req     ),
     .data_read  ( data_read     ),
-    .sdram_addr ( sdram_addr    ),
+    .data_rdy   ( data_rdy      ),
+    .refresh_en ( refresh_en    ),
     // ROM-load interface
     .downloading( downloading   ),
     .prog_we    ( prog_we       ),
     .prog_addr  ( prog_addr     ),
     .prog_data  ( prog_data     ),
     .prog_mask  ( prog_mask     ),
+    .sdram_addr ( sdram_addr    ),
+    .sdram_ack  ( sdram_ack     ),
     // SDRAM interface
     .SDRAM_DQ   ( SDRAM_DQ      ),
     .SDRAM_A    ( SDRAM_A       ),
@@ -361,12 +365,14 @@ jt1943_game #(.CLK_SPEED(24)) game
     .prog_we     ( prog_we          ),
 
     // ROM load
-    .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
-    .sdram_sync  ( sdram_sync    ),
-    .sdram_req   ( sdram_req     ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
+    .downloading ( downloading    ),
+    .loop_rst    ( loop_rst       ),
+    .sdram_req   ( sdram_req      ),
+    .sdram_addr  ( sdram_addr     ),
+    .data_read   ( data_read      ),
+    .sdram_ack   ( sdram_ack      ),
+    .data_rdy    ( data_rdy       ),
+    .refresh_en  ( refresh_en     ),
 
     .cheat_invincible( status[10] ),
 
