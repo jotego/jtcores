@@ -1,0 +1,12 @@
+#
+# please keep this file read-only!
+# Quartus changes this file everytime revision is switched, 
+# and it will be marked as changed with every commit.
+#
+
+QUARTUS_VERSION = "13.1"
+DATE = "23:13:02  April 27, 2017"
+
+# Revisions
+
+PROJECT_REVISION = "Arcade-1943_Q13"
