@@ -120,6 +120,7 @@ wire pll_locked;
 
 pll pll(
     .refclk     ( CLK_50M    ),
+    .rst        ( 1'b0       ),
     .locked     ( pll_locked ),
     .outclk_0   ( clk_sys    ),
     .outclk_1   ( SDRAM_CLK  )

@@ -357,6 +357,16 @@ set_location_assignment PIN_W24 -to SW[1]
 set_location_assignment PIN_W21 -to SW[2]
 set_location_assignment PIN_W20 -to SW[3]
 
+#################################################################
+## PLL location
+#######################
+
+set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[0].gpll"
+set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[1].gpll"
+
+################################################
+## Design files
+
 set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:../../modules/jtframe/hdl/mister/sys/build_id.tcl"
 
 set_global_assignment -name CDF_FILE jtag.cdf
