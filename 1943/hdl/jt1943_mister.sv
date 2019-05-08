@@ -93,14 +93,6 @@ module emu
     output        SDRAM_nWE
 );
 
-assign LED_USER  = downloading;
-assign LED_DISK  = 0;
-assign LED_POWER = 0;
-
-assign HDMI_ARX = status[1] ? 8'd16 : status[2] ? 8'd4 : 8'd3;
-assign HDMI_ARY = status[1] ? 8'd9  : status[2] ? 8'd3 : 8'd4;
-
-
 `include "build_id.v" 
 localparam CONF_STR = {
     "A.1943;;", 
@@ -122,17 +114,15 @@ localparam CONF_STR = {
 
 ////////////////////   CLOCKS   ///////////////////
 
-wire clk_sys, clk_rom;
+wire clk_sys;
 wire cen12, cen6, cen3, cen1p5;
 wire pll_locked;
 
-pll pll
-(
+pll pll(
     .refclk     ( CLK_50M    ),
     .locked     ( pll_locked ),
-    .outclk_0   ( clk_rom    ),
-    .outclk_1   ( SDRAM_CLK  ),
-    .outclk_2   ( clk_sys    )  // 24 MHz
+    .outclk_0   ( clk_sys    ),
+    .outclk_1   ( SDRAM_CLK  )
 );
 
 ///////////////////////////////////////////////////
@@ -151,26 +141,46 @@ wire [15:0] joy_0, joy_1;
 wire        forced_scandoubler;
 wire        downloading;
 
+assign LED_USER  = downloading;
+assign LED_DISK  = 0;
+assign LED_POWER = 0;
+
+assign HDMI_ARX = status[1] ? 8'd16 : status[2] ? 8'd4 : 8'd3;
+assign HDMI_ARY = status[1] ? 8'd9  : status[2] ? 8'd3 : 8'd4;
+
 hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 (
-    .clk_sys(clk_sys),
-    .HPS_BUS(HPS_BUS),
+    .clk_sys    ( clk_sys       ),
+    .HPS_BUS    ( HPS_BUS       ),
 
-    .conf_str(CONF_STR),
+    .conf_str   ( CONF_STR      ),
 
-    .buttons(buttons),
-    .status(status),
+    .buttons    ( buttons       ),
+    .status     ( status        ),
     .forced_scandoubler(forced_scandoubler),
 
     .ioctl_download(downloading),
-    .ioctl_wr(ioctl_wr),
-    .ioctl_addr(ioctl_addr),
-    .ioctl_dout(ioctl_data),
+    .ioctl_wr   ( ioctl_wr      ),
+    .ioctl_addr ( ioctl_addr    ),
+    .ioctl_dout ( ioctl_data    ),
 
-    .joystick_0(joy_0),
-    .joystick_1(joy_1),
-    .ps2_key(ps2_key)
+    .joystick_0 ( joy_0         ),
+    .joystick_1 ( joy_1         ),
+    .ps2_key    ( ps2_key       )
 );
+
+
+reg btn_one_player = 0;
+reg btn_two_players = 0;
+reg btn_left = 0;
+reg btn_right = 0;
+reg btn_down = 0;
+reg btn_up = 0;
+reg btn_fire1 = 0;
+reg btn_fire2 = 0;
+reg btn_coin  = 0;
+reg btn_pause = 0;
+reg btn_test  = 0;
 
 wire       pressed = ps2_key[9];
 wire [7:0] code    = ps2_key[7:0];
@@ -195,18 +205,6 @@ always @(posedge clk_sys) begin
         endcase
     end
 end
-
-reg btn_one_player = 0;
-reg btn_two_players = 0;
-reg btn_left = 0;
-reg btn_right = 0;
-reg btn_down = 0;
-reg btn_up = 0;
-reg btn_fire1 = 0;
-reg btn_fire2 = 0;
-reg btn_coin  = 0;
-reg btn_pause = 0;
-reg btn_test  = 0;
 
 wire [15:0] joy = joy_0 | joy_1;
 
@@ -237,6 +235,7 @@ wire hblank, vblank;
 wire hs, vs;
 wire [3:0] r,g,b;
 
+`ifndef SIMULATION
 arcade_rotate_fx #(256,224,12,1) arcade_video
 (
     .*,
@@ -253,6 +252,15 @@ arcade_rotate_fx #(256,224,12,1) arcade_video
     .fx(status[5:3]),
     .no_rotate(status[2])
 );
+`else 
+    assign VGA_VS = vs;
+    assign VGA_HS = hs;
+    assign VGA_R  = r;
+    assign VGA_G  = g;
+    assign VGA_B  = b;
+    assign VGA_CE = cen6;
+    assign VGA_CLK= clk_sys;
+`endif
 
 ///////////////////////////////////////////////////////////////////
 
@@ -284,7 +292,7 @@ wire         refresh_en;
 
 jtgng_sdram u_sdram(
     .rst        ( RESET         ),
-    .clk        ( clk_rom       ), // 108 MHz
+    .clk        ( clk_sys       ), // 108 MHz
     .loop_rst   ( loop_rst      ),
     .read_req   ( sdram_req     ),
     .data_read  ( data_read     ),
@@ -328,67 +336,71 @@ always @(*)
         2'b11: dip_level = 4'b0000; // very hard
     endcase // status[3:2]
 
-jt1943_game #(.CLK_SPEED(24)) game
+jt1943_game #(.CLK_SPEED(48)) game
 (
-    .rst           ( reset      ),
+    .rst           ( reset           ),
 
-    .clk_rom       ( clk_rom    ),
-    .clk           ( clk_sys    ),
-    .cen12         ( cen12      ),
-    .cen6          ( cen6       ),
-    .cen3          ( cen3       ),
-    .cen1p5        ( cen1p5     ),
+    .clk_rom       ( clk_sys         ),
+    .clk           ( clk_sys         ),
+    .cen12         ( cen12           ),
+    .cen6          ( cen6            ),
+    .cen3          ( cen3            ),
+    .cen1p5        ( cen1p5          ),
 
-    .red           ( r          ),
-    .green         ( g          ),
-    .blue          ( b          ),
-    .LHBL          ( hblank     ),
-    .LVBL          ( vblank     ),
-    .HS            ( hs         ),
-    .VS            ( vs         ),
+    .red           ( r               ),
+    .green         ( g               ),
+    .blue          ( b               ),
+    .LHBL          ( hblank          ),
+    .LVBL          ( vblank          ),
+    .HS            ( hs              ),
+    .VS            ( vs              ),
 
-    .start_button(~{m_start2,m_start1}),
-    .coin_input(~{1'b0,m_coin}),
-    .joystick1(~{1'b0, m_jump,m_fire,m_up,m_down,m_left,m_right}),
-    .joystick2(~{1'b0, m_jump,m_fire,m_up,m_down,m_left,m_right}),
+    .start_button  ( ~{m_start2,m_start1}),
+    .coin_input    ( ~{1'b0,m_coin}      ),
+    .joystick1     ( ~{1'b0, m_jump,m_fire,m_up,m_down,m_left,m_right}),
+    .joystick2     ( ~{1'b0, m_jump,m_fire,m_up,m_down,m_left,m_right}),
 
     // Sound control
-    .enable_fm   ( 1'b1           ),
-    .enable_psg  ( 1'b1           ),
+    .enable_fm    ( 1'b1             ),
+    .enable_psg   ( 1'b1             ),
     // PROM programming
-    .ioctl_addr  ( ioctl_addr[21:0] ),
-    .ioctl_data  ( ioctl_data       ),
-    .ioctl_wr    ( ioctl_wr         ),
-    .prog_addr   ( prog_addr        ),
-    .prog_data   ( prog_data        ),
-    .prog_mask   ( prog_mask        ),
-    .prog_we     ( prog_we          ),
+    .ioctl_addr   ( ioctl_addr[21:0] ),
+    .ioctl_data   ( ioctl_data       ),
+    .ioctl_wr     ( ioctl_wr         ),
+    .prog_addr    ( prog_addr        ),
+    .prog_data    ( prog_data        ),
+    .prog_mask    ( prog_mask        ),
+    .prog_we      ( prog_we          ),
 
     // ROM load
-    .downloading ( downloading    ),
-    .loop_rst    ( loop_rst       ),
-    .sdram_req   ( sdram_req      ),
-    .sdram_addr  ( sdram_addr     ),
-    .data_read   ( data_read      ),
-    .sdram_ack   ( sdram_ack      ),
-    .data_rdy    ( data_rdy       ),
-    .refresh_en  ( refresh_en     ),
+    .downloading  ( downloading      ),
+    .loop_rst     ( loop_rst         ),
+    .sdram_req    ( sdram_req        ),
+    .sdram_addr   ( sdram_addr       ),
+    .data_read    ( data_read        ),
+    .sdram_ack    ( sdram_ack        ),
+    .data_rdy     ( data_rdy         ),
+    .refresh_en   ( refresh_en       ),
 
-    .cheat_invincible( status[10] ),
+    .cheat_invincible( status[10]    ),
 
-    .dip_test    ( ~btn_test      ),
-    .dip_pause   ( ~pause         ),
-    .dip_upright ( dip_upright    ),
-    .dip_credits2p( dip_credits2p ),
-    .dip_level   ( dip_level      ),
-    .dip_demosnd ( dip_demosnd    ),
-    .dip_continue( dip_continue   ),
-    .dip_price2  ( dip_price2     ),
-    .dip_price1  ( dip_price1     ),
-    .dip_flip    ( 1'b0           ),
+    .dip_test     ( ~btn_test        ),
+    .dip_pause    ( ~pause           ),
+    .dip_upright  ( dip_upright      ),
+    .dip_credits2p( dip_credits2p    ),
+    .dip_level    ( dip_level        ),
+    .dip_demosnd  ( dip_demosnd      ),
+    .dip_continue ( dip_continue     ),
+    .dip_price2   ( dip_price2       ),
+    .dip_price1   ( dip_price1       ),
+    .dip_flip     ( 1'b0             ),
 
-    .snd         ( AUDIO_L        ),
-    .gfx_en      ( ~4'b0          )
+    .snd          ( AUDIO_L          ),
+    .gfx_en       ( ~4'b0            ),
+
+    // unconnected
+    .coin_cnt     (                  ),
+    .sample       (                  )
 );
 
 assign AUDIO_R = AUDIO_L;
