@@ -221,6 +221,7 @@ wire m_start1 = btn_one_player  | joy[6];
 wire m_start2 = btn_two_players | joy[7];
 wire m_coin   = btn_coin        | joy[8];
 
+`ifndef NOMAIN
 reg pause = 0;
 always @(posedge clk_sys) begin
     reg old_pause;
@@ -229,6 +230,9 @@ always @(posedge clk_sys) begin
     if(~old_pause & m_pause) pause <= ~pause;
     if(status[0] | buttons[1]) pause <= 0;
 end
+`else 
+wire pause = 1;  // fast synthesis, NO CPUs
+`endif
 
 ///////////////////////////////////////////////////////////////////
 
