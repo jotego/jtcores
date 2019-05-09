@@ -394,6 +394,5 @@ set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
-set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
-set_global_assignment -name VERILOG_MACRO "NOMAIN=<None>"
+set_global_assignment -name VERILOG_MACRO "AVATARS=<None>"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

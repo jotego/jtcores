@@ -207,19 +207,28 @@ always @(posedge clk_sys) begin
     end
 end
 
-wire [15:0] joy = joy_0 | joy_1;
+wire m_up, m_down, m_left, m_right, m_fire, m_jump, m_pause;
+wire m_start1, m_start2, m_coin;
+wire m2_up, m2_down, m2_left, m2_right, m2_fire, m2_jump;
 
-wire m_up     = btn_up    | joy[3];
-wire m_down   = btn_down  | joy[2];
-wire m_left   = btn_left  | joy[1];
-wire m_right  = btn_right | joy[0];
-wire m_fire   = btn_fire1 | joy[4];
-wire m_jump   = btn_fire2 | joy[5];
-wire m_pause  = btn_pause | joy[9];
-
-wire m_start1 = btn_one_player  | joy[6];
-wire m_start2 = btn_two_players | joy[7];
-wire m_coin   = btn_coin        | joy[8];
+always @(posedge clk_sys) begin
+    m_up     <= ~(btn_up    | joy_0[3]);
+    m_down   <= ~(btn_down  | joy_0[2]);
+    m_left   <= ~(btn_left  | joy_0[1]);
+    m_right  <= ~(btn_right | joy_0[0]);
+    m_fire   <= ~(btn_fire1 | joy_0[4]);
+    m_jump   <= ~(btn_fire2 | joy_0[5]);
+    m_pause  <= ~(btn_pause | joy_0[9]);
+    m_start1 <= ~(btn_one_player  | joy_0[6]);
+    m_start2 <= ~(btn_two_players | joy_0[7]);
+    m_coin   <= ~(btn_coin        | joy_0[8]);
+    m2_up    <= ~joy_1[3];
+    m2_down  <= ~joy_1[2];
+    m2_left  <= ~joy_1[1];
+    m2_right <= ~joy_1[0];
+    m2_fire  <= ~joy_1[4];
+    m2_jump  <= ~joy_1[5];
+end
 
 `ifndef NOMAIN
 reg pause = 0;
@@ -228,7 +237,7 @@ always @(posedge clk_sys) begin
     
     old_pause <= m_pause;
     if(~old_pause & m_pause) pause <= ~pause;
-    if(status[0] | buttons[1]) pause <= 0;
+    if(status[0] | buttons[1]) pause <= 1;
 end
 `else 
 wire pause = 1;  // fast synthesis, NO CPUs
@@ -278,8 +287,6 @@ wire reset = RESET | status[0] | buttons[1];
 //     else rstsr <= { rstsr[0], 1'b0 };
 // end
 
-
-
 wire         prog_we;
 wire [21:0]  prog_addr;
 wire [ 7:0]  prog_data;
@@ -293,7 +300,6 @@ wire [21:0]  sdram_addr;
 wire         data_rdy;
 wire         sdram_ack;
 wire         refresh_en;
-
 
 jtgng_sdram u_sdram(
     .rst        ( RESET         ),
@@ -333,12 +339,12 @@ wire [2:0] dip_price2 = 3'b100;
 wire [2:0] dip_price1 = ~3'b0;
 
 // play level
-always @(*)
+always @(posedge clk_sys)
     case( status[13:12] )
-        2'b00: dip_level = 4'b0111; // normal
-        2'b01: dip_level = 4'b1111; // easy
-        2'b10: dip_level = 4'b0011; // hard
-        2'b11: dip_level = 4'b0000; // very hard
+        2'b00: dip_level <= 4'b0111; // normal
+        2'b01: dip_level <= 4'b1111; // easy
+        2'b10: dip_level <= 4'b0011; // hard
+        2'b11: dip_level <= 4'b0000; // very hard
     endcase // status[3:2]
 
 jt1943_game #(.CLK_SPEED(48)) game
@@ -360,10 +366,10 @@ jt1943_game #(.CLK_SPEED(48)) game
     .HS            ( hs              ),
     .VS            ( vs              ),
 
-    .start_button  ( ~{m_start2,m_start1}),
-    .coin_input    ( ~{1'b0,m_coin}      ),
-    .joystick1     ( ~{1'b0, m_jump,m_fire,m_up,m_down,m_left,m_right}),
-    .joystick2     ( ~{1'b0, m_jump,m_fire,m_up,m_down,m_left,m_right}),
+    .start_button  ( {m_start2, m_start1} ),
+    .coin_input    ( {1'b0, m_coin}       ),
+    .joystick1     ( {1'b0, m_jump, m_fire, m_up, m_down, m_left, m_right} ),
+    .joystick2     ( {1'b0, m2_jump, m2_fire, m2_up, m2_down, m2_left, m2_right} ),
 
     // Sound control
     .enable_fm    ( 1'b1             ),
@@ -390,7 +396,7 @@ jt1943_game #(.CLK_SPEED(48)) game
     .cheat_invincible( status[10]    ),
 
     .dip_test     ( ~btn_test        ),
-    .dip_pause    ( ~pause           ),
+    .dip_pause    ( pause            ),
     .dip_upright  ( dip_upright      ),
     .dip_credits2p( dip_credits2p    ),
     .dip_level    ( dip_level        ),
