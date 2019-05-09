@@ -52,7 +52,7 @@ module jt1943_mist(
     output          LED
 );
 
-parameter CLK_SPEED=12;
+localparam CLK_SPEED=48;
 
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
@@ -73,12 +73,12 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
 
-wire          rst, clk_rgb, clk_rom;
+wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
-wire          loop_rst, sdram_sync;
+wire          loop_rst;
 wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
@@ -136,6 +136,9 @@ wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
 wire [3:0] gfx_en;
+// SDRAM
+wire data_rdy, sdram_ack;
+wire refresh_en;
 
 // play level
 always @(*)
@@ -147,15 +150,14 @@ always @(*)
     endcase // status[3:2]
 
 reg LHBL_dly;
-always @(posedge clk_rgb)
+always @(posedge clk_sys)
     if(cen6) LHBL_dly <= LHBL;
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
-    .CLK_SPEED(CLK_SPEED),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),
-    .clk_rgb        ( clk_rgb        ),
+    .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .cen12          ( cen12          ),
     .pxl_cen        ( cen6           ),
@@ -208,9 +210,11 @@ u_frame(
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
-    .sdram_sync     ( sdram_sync     ),
     .sdram_req      ( sdram_req      ),
+    .sdram_ack      ( sdram_ack      ),
     .data_read      ( data_read      ),
+    .data_rdy       ( data_rdy       ),
+    .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
     .rst_n          (                ), // unused
@@ -251,7 +255,7 @@ jt1943_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
     .rst         ( game_rst      ),
     .clk_rom     ( clk_rom       ),
-    .clk         ( clk_rgb       ),
+    .clk         ( clk_sys       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
@@ -284,10 +288,12 @@ u_game(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .sdram_sync  ( sdram_sync    ),
     .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
+    .refresh_en  ( refresh_en    ),
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches

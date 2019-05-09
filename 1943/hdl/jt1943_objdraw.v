@@ -149,8 +149,7 @@ end
 
 
 jtgng_prom #(.aw(8),.dw(4),
-    .simfile("../../../rom/1943/bm7.7c"),
-    .cen_rd(1)
+    .simfile("../../../rom/1943/bm7.7c")
 ) u_prom_msb(
     .clk    ( clk            ),
     .cen    ( cen6           ),
@@ -162,8 +161,7 @@ jtgng_prom #(.aw(8),.dw(4),
 );
 
 jtgng_prom #(.aw(8),.dw(4),
-    .simfile("../../../rom/1943/bm8.8c"),
-    .cen_rd(1)
+    .simfile("../../../rom/1943/bm8.8c")
 ) u_prom_lsb(
     .clk    ( clk            ),
     .cen    ( cen6           ),

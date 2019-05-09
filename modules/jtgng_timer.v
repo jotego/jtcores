@@ -89,6 +89,8 @@ always @(posedge clk)
     if( rst ) begin
         LVBL <= 1'b0;
         LVBL_obj <= 1'b0;
+        VS <= 1'b0;
+        HS <= 1'b0;
     end
     else if(cen6) begin
         if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;

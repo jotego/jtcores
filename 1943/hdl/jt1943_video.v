@@ -21,6 +21,7 @@
 module jt1943_video(
     input               rst,
     input               clk,
+    input               cen12,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -240,6 +241,7 @@ assign map2_addr = 14'h0;
 jt1943_colmix u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),

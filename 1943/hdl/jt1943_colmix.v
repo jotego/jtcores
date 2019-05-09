@@ -24,6 +24,7 @@
 module jt1943_colmix(
     input           rst,
     input           clk,    // 24 MHz
+    input           cen12,
     input           cen6 /* synthesis direct_enable = 1 */,
     // Synchronization
     //input [2:0]       H,
@@ -62,7 +63,11 @@ wire [3:0] selbus;
 wire char_blank_b = gfx_en[0] & |(~char_pxl);
 wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 wire scr1_blank_b = gfx_en[1] & |(~scr1_pxl[3:0]);
-wire [7:0] seladdr = { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
+reg [7:0] seladdr;
+
+always @(posedge clk) begin
+    seladdr <= { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
+end
 
 reg [3:0] char_pxl_1;
 reg [5:0] scr1_pxl_1;
@@ -77,14 +82,14 @@ always @(posedge clk) if(cen6) begin
     obj_pxl_1   <= obj_pxl;
 end
 
-always @(*) begin
+always @(posedge clk) if(cen12) begin
     case( selbus[1:0] )
-        2'b00: pixel_mux[5:0] = scr2_pxl_1;
-        2'b01: pixel_mux[5:0] = scr1_pxl_1;
-        2'b10: pixel_mux[5:0] =  obj_pxl_1[5:0];
-        2'b11: pixel_mux[5:0] = { 2'b0, char_pxl_1 };
+        2'b00: pixel_mux[5:0] <= scr2_pxl_1;
+        2'b01: pixel_mux[5:0] <= scr1_pxl_1;
+        2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
+        2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
     endcase // selbus[1:0]
-    pixel_mux[7:6] = selbus[3:2];
+    pixel_mux[7:6] <= selbus[3:2];
 end
 
 always @(posedge clk) if(cen6) begin
@@ -126,7 +131,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
 
 // Clock must be faster than 6MHz so selbus is ready for the next
 // 6MHz clock cycle:
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c"),.cen_rd(1)) u_selbus(
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -136,6 +141,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c"),.cen_rd(1)) u_s
     .q      ( selbus      )
 );
 
+`ifdef AVATARS
 // Objects have their own palette during pause
 wire [11:0] avatar_pal;
 reg [1:0] avatar_msb[0:2];
@@ -161,8 +167,15 @@ always @(posedge clk) if(cen6) begin
     avatar_msb[2] <= avatar_msb[1];
 end
 
-always @(posedge clk) begin
+always @(posedge clk) if(cen12) begin
     { red, green, blue } <= pause && obj_sel[1] ? avatar_pal : {pal_red, pal_green, pal_blue};
 end
+`else
+always @(*) begin
+    red   = pal_red;
+    blue  = pal_blue;
+    green = pal_green;
+end
+`endif
 
 endmodule // jtgng_colmix

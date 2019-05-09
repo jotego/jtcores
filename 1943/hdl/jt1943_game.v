@@ -44,11 +44,12 @@ module jt1943_game(
     // SDRAM interface
     input           downloading,
     input           loop_rst,
-    output          sdram_sync,
     output          sdram_req,
     output  [21:0]  sdram_addr,
     input   [31:0]  data_read,
-
+    input           data_rdy,
+    input           sdram_ack,
+    output          refresh_en,
     // ROM LOAD
     input   [21:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -196,7 +197,7 @@ jt1943_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .char_wait( char_wait     ),
+    .char_wait  ( char_wait     ),
     .rom_ok     ( main_ok       ),
     // sound
     .sres_b       ( sres_b        ),
@@ -289,6 +290,7 @@ assign snd = 9'd0;
 jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
@@ -374,8 +376,9 @@ jt1943_rom2 u_rom (
     .cen12       ( cen12         ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_sync  ( sdram_sync    ),
     .sdram_req   ( sdram_req     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
 
     .main_cs     ( main_cs       ),
     .main_ok     ( main_ok       ),
@@ -401,7 +404,8 @@ jt1943_rom2 u_rom (
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
+    .data_read   ( data_read     ),
+    .refresh_en  ( refresh_en    )
 );
 
 endmodule // jtgng

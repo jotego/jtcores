@@ -99,6 +99,8 @@ jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
     .q      ( mem_msg   )
 );
 
+reg [7:0] msg_sel;
+reg       av_col;
 `ifdef AVATARS
 wire [7:0] av_scan = { avatar_idx, scan[9:5] };
 
@@ -118,8 +120,6 @@ end
 `else 
 always @(*) msg_sel = mem_msg;
 `endif
-
-reg       av_col;
 
 always @(*) begin
     dout_low  = pause ? msg_sel : mem_low;

@@ -24,16 +24,17 @@ module jt1943_rom2(
     input               cen12, // 12 MHz
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_sync, // any edge (rising or falling)
         // means a read request
     output  reg         sdram_req,
-
+    output  reg         refresh_en,
+    input               data_rdy,   // from SDRAM controller        
+    input               sdram_ack,
     input               main_cs,
-    input               snd_cs,
+    //input               snd_cs,
 
     input       [13:0]  char_addr, //  32 kB
     input       [17:0]  main_addr, // 160 kB, addressed as 8-bit words
-    input       [14:0]   snd_addr, //  32 kB
+    //input       [14:0]   snd_addr, //  32 kB
     input       [16:0]  obj_addr,  // 256 kB
     input       [16:0]  scr1_addr, // 256 kB (16-bit words)
     input       [14:0]  scr2_addr, //  64 kB
@@ -81,19 +82,6 @@ reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
 wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req; //, snd_req;
 
-always @(posedge clk) if(cen12) begin
-    if( loop_rst || downloading ) begin
-        sdram_sync <= 1'b0;   // start strobing before ready signal
-            // because first data must be read before that signal.
-        sdram_req  <= 1'b0;
-        sdram_sync <= 1'b0;
-    end else begin
-        sdram_sync <= ~sdram_sync;
-        sdram_req  <= main_req | char_req | 
-            map1_req | map2_req | scr1_req | scr2_req | obj_req;
-    end
-end
-
 reg [6:0] data_sel;
 wire [17:0] main_addr_req;
 // wire [14:0]  snd_addr_req;
@@ -106,10 +94,13 @@ wire [13:0] map2_addr_req;
 
 wire blank_b = LVBL && LHBL;
 
+always @(posedge clk)
+    refresh_en <= !LVBL;
+
 jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( main_addr       ),
     .addr_ok  ( main_cs         ),
     .addr_req ( main_addr_req   ),
@@ -124,7 +115,7 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
 // jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
 //     .rst      ( rst             ),
 //     .clk      ( clk             ),
-//     .cen      ( cen12           ),
+//     .cen      ( 1'b1            ),
 //     .addr     ( snd_addr        ),
 //     .addr_ok  ( snd_cs          ),
 //     .addr_req ( snd_addr_req    ),
@@ -138,7 +129,7 @@ jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
 jt1943_romrq #(.AW(14),.DW(16)) u_char(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( char_addr       ),
     .addr_ok  ( LVBL            ),
     .addr_req ( char_addr_req   ),
@@ -152,7 +143,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_char(
 jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( map1_addr       ),
     .addr_ok  ( LVBL            ),
     .addr_req ( map1_addr_req   ),
@@ -166,7 +157,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map1(
 jt1943_romrq #(.AW(14),.DW(16)) u_map2(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( map2_addr       ),
     .addr_ok  ( LVBL            ),
     .addr_req ( map2_addr_req   ),
@@ -180,7 +171,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map2(
 jt1943_romrq #(.AW(17),.DW(16)) u_scr1(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( scr1_addr       ),
     .addr_ok  ( LVBL            ),
     .addr_req ( scr1_addr_req   ),
@@ -194,7 +185,7 @@ jt1943_romrq #(.AW(17),.DW(16)) u_scr1(
 jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( scr2_addr       ),
     .addr_ok  ( LVBL            ),
     .addr_req ( scr2_addr_req   ),
@@ -208,7 +199,7 @@ jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
 jt1943_romrq #(.AW(17),.DW(16)) u_obj(
     .rst      ( rst             ),
     .clk      ( clk             ),
-    .cen      ( cen12           ),
+    .cen      ( 1'b1            ),
     .addr     ( obj_addr        ),
     .addr_ok  ( 1'b1            ),
     .addr_req ( obj_addr_req    ),
@@ -230,48 +221,62 @@ always @(posedge LVBL) begin
 end
 `endif
 
+reg [6:0] pre_sel;
+
 always @(posedge clk)
 if( loop_rst || downloading ) begin
     sdram_addr <= {(addr_w+col_w){1'b0}};
     ready_cnt <=  4'd0;
     ready     <=  1'b0;
-end else if(cen12) begin
+    sdram_req <=  1'b0;
+    pre_sel   <=  7'd0;
+end else begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
-    case( 1'b1 )
-        main_req: begin
-            sdram_addr <= { 4'd0, main_addr_req[17:1] };
-            data_sel   <= 'b1;
-        end
-        // snd_req: begin
-        //     sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
-        //     data_sel   <= 'b1000_0000;
-        // end
-        map1_req: begin
-            sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
-            data_sel   <= 'b100;
-        end
-        scr1_req: begin
-            sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
-            data_sel   <= 'b1_0000;
-        end
-        map2_req: begin
-            sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
-            data_sel   <= 'b1000;
-        end
-        scr2_req: begin
-            sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
-            data_sel   <= 'b10_0000;
-        end
-        char_req: begin
-            sdram_addr <= char_offset + { 8'b0, char_addr_req };
-            data_sel   <= 'b10;
-        end
-        obj_req: begin
-            sdram_addr <= obj_offset + { 5'b0, obj_addr_req };
-            data_sel   <= 'b100_0000;
-        end
-        default: data_sel <= 'b0;
-    endcase
+    if( data_rdy ) begin
+        data_sel <= pre_sel;
+        pre_sel  <= 7'd0;
+    end else data_sel <= 7'd0;
+    if( sdram_ack ) sdram_req <= 1'b0;
+    // accept a new request
+    if( pre_sel==7'd0 ) begin
+        sdram_req <= main_req | map1_req | map2_req | scr1_req | scr2_req 
+            | char_req | obj_req;
+        case( 1'b1 )
+            // snd_req: begin
+            //     sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
+            //     pre_sel   <= 'b1000_0000;
+            // end
+            scr1_req: begin
+                sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
+                pre_sel   <= 'b1_0000;
+            end
+            scr2_req: begin
+                sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
+                pre_sel   <= 'b10_0000;
+            end
+            map1_req: begin
+                sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
+                pre_sel   <= 'b100;
+            end
+            map2_req: begin
+                sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
+                pre_sel   <= 'b1000;
+            end
+            obj_req: begin
+                sdram_addr <= obj_offset + { 5'b0, obj_addr_req };
+                pre_sel   <= 'b100_0000;
+            end
+            main_req: begin
+                sdram_addr <= { 4'd0, main_addr_req[17:1] };
+                pre_sel   <= 'b1;
+            end
+            char_req: begin
+                sdram_addr <= char_offset + { 8'b0, char_addr_req };
+                pre_sel   <= 'b10;
+            end
+            default: pre_sel <= 'b0;
+        endcase
+    end
 end
 
 endmodule // jtgng_rom
