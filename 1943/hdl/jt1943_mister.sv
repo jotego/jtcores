@@ -142,9 +142,9 @@ wire [15:0] joy_0, joy_1;
 wire        forced_scandoubler;
 wire        downloading;
 
-assign LED_USER  = downloading;
-assign LED_DISK  = 0;
-assign LED_POWER = 0;
+assign LED_USER  = { 1'b0, downloading };
+assign LED_DISK  = 2'b0;
+assign LED_POWER = 2'b0;
 
 assign HDMI_ARX = status[1] ? 8'd16 : status[2] ? 8'd4 : 8'd3;
 assign HDMI_ARY = status[1] ? 8'd9  : status[2] ? 8'd3 : 8'd4;
@@ -265,14 +265,14 @@ arcade_rotate_fx #(256,224,12,1) arcade_video
 
 ///////////////////////////////////////////////////////////////////
 
-// wire reset = RESET | status[0] | buttons[1];
-reg [1:0] rstsr;
-wire reset = rstsr[1];
-
-always @(negedge clk_sys) begin
-    if( RESET || status[0] || buttons[1] || !pll_locked ) rstsr <= 2'b11;
-    else rstsr <= { rstsr[0], 1'b0 };
-end
+wire reset = RESET | status[0] | buttons[1];
+// reg [1:0] rstsr;
+// wire reset = rstsr[1];
+// 
+// always @(negedge clk_sys) begin
+//     if( RESET || status[0] || buttons[1] || !pll_locked ) rstsr <= 2'b11;
+//     else rstsr <= { rstsr[0], 1'b0 };
+// end
 
 
 
@@ -293,7 +293,7 @@ wire         refresh_en;
 
 jtgng_sdram u_sdram(
     .rst        ( RESET         ),
-    .clk        ( clk_sys       ), // 108 MHz
+    .clk        ( clk_sys       ), // 48 MHz
     .loop_rst   ( loop_rst      ),
     .read_req   ( sdram_req     ),
     .data_read  ( data_read     ),
