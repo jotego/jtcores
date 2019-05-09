@@ -169,6 +169,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to AUDIO_*
 #============================================================
 # SDRAM
 #============================================================
+set_location_assignment PIN_AD20 -to SDRAM_CLK
 set_location_assignment PIN_Y11 -to SDRAM_A[0]
 set_location_assignment PIN_AA26 -to SDRAM_A[1]
 set_location_assignment PIN_AA13 -to SDRAM_A[2]
