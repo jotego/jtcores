@@ -21,14 +21,9 @@
 module jt1943_rom2(
     input               rst,
     input               clk,
-    input               cen12, // 12 MHz
     input               LHBL,
     input               LVBL,
         // means a read request
-    output  reg         sdram_req,
-    output  reg         refresh_en,
-    input               data_rdy,   // from SDRAM controller        
-    input               sdram_ack,
     input               main_cs,
     //input               snd_cs,
 
@@ -53,15 +48,16 @@ module jt1943_rom2(
 
     output              main_ok,
     // output              snd_ok,
-    // ROM interface
+    // SDRAM controller interface
+    input               data_rdy,
+    input               sdram_ack,
     input               downloading,
     input               loop_rst,
+    output  reg         sdram_req,
+    output  reg         refresh_en,
     output  reg [21:0]  sdram_addr,
     input       [31:0]  data_read
 );
-
-reg  [15:0] scr_aux;
-reg main_lsb, snd_lsb;
 
 // Main code
 // bme01.12d -> 32kB
@@ -92,7 +88,7 @@ wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
-wire blank_b = LVBL && LHBL;
+// wire blank_b = LVBL && LHBL;
 
 always @(posedge clk)
     refresh_en <= !LVBL;

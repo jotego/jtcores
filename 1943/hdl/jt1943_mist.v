@@ -153,13 +153,33 @@ reg LHBL_dly;
 always @(posedge clk_sys)
     if(cen6) LHBL_dly <= LHBL;
 
+// PLL's
+// 24 MHz or 12 MHz base clock
+wire clk_vga_in, pll_locked;
+jtgng_pll0 u_pll_game (
+    .inclk0 ( CLOCK_27[0] ),
+    .c1     ( clk_rom     ), // 48 MHz
+    .c2     ( SDRAM_CLK   ),
+    .c3     ( clk_vga_in  ),
+    .locked ( pll_locked  )
+);
+
+// assign SDRAM_CLK = clk_rom;
+assign clk_sys   = clk_rom;
+
+jtgng_pll1 u_pll_vga (
+    .inclk0 ( clk_vga_in ),
+    .c0     ( clk_vga    ) // 25
+);
+
+
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
-    .cen12          ( cen12          ),
+    .clk_vga        ( clk_vga        ),
     .pxl_cen        ( cen6           ),
     .status         ( status         ),
     // Base video

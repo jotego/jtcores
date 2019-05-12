@@ -43,9 +43,11 @@ module jt1942_game(
     input           downloading,
     input           loop_rst,
     output          sdram_req,
-    output          sdram_sync,
     output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
+    input   [31:0]  data_read,
+    input           data_rdy,
+    input           sdram_ack,
+    output          refresh_en,
 
     // ROM LOAD
     input   [21:0]  ioctl_addr,

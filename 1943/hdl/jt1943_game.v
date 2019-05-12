@@ -373,12 +373,8 @@ jt1943_video u_video(
 jt1943_rom2 u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .cen12       ( cen12         ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_req   ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
 
     .main_cs     ( main_cs       ),
     .main_ok     ( main_ok       ),
@@ -401,6 +397,9 @@ jt1943_rom2 u_rom (
 
     .ready       ( rom_ready     ),
     // SDRAM interface
+    .sdram_req   ( sdram_req     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),

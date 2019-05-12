@@ -54,8 +54,6 @@ reg [7:0] VB;
 wire [7:0] posy;
 reg  hover;
 reg vinzone;
-reg vinzone2;
-
 
 always @(*) begin
     VB = VF-objy;
@@ -124,6 +122,8 @@ jtgng_ram #(.dw(16), .aw(12), .synfile("avatar.hex"),.cen_rd(1))u_avatars(
 // avatar image does not use the PROMs here
 always @(posedge clk) if(cen6)
     avatar_pxl <= { objpal, z[3], y[3], x[3], w[3] };
+`else
+assign avatar_data=16'd0;
 `endif
 
 
@@ -134,7 +134,6 @@ always @(posedge clk) if(cen6) begin
     end else begin
         posx1  <= posx1 + 9'b1;
     end
-    if( pxlcnt == 4'd6 ) vinzone2 <= vinzone;
     case( pxlcnt[1:0] )
         2'd3:  // new data starts at count 7
                 {z,y,x,w} <= pause ? avatar_data : objrom_data;

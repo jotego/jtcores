@@ -106,15 +106,36 @@ wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_pause, game_rst;
 
+// SDRAM
+wire data_rdy, sdram_ack;
+wire refresh_en;
+
+// PLL's
+// 24 MHz or 12 MHz base clock
+wire clk_vga_in, pll_locked;
+jtgng_pll0 u_pll_game (
+    .inclk0 ( CLOCK_27[0] ),
+    .c1     ( clk_rom     ), // 48 MHz
+    .c2     ( SDRAM_CLK   ),
+    .c3     ( clk_vga_in  ),
+    .locked ( pll_locked  )
+);
+
+// assign SDRAM_CLK = clk_rom;
+assign clk_sys   = clk_rom;
+
+jtgng_pll1 u_pll_vga (
+    .inclk0 ( clk_vga_in ),
+    .c0     ( clk_vga    ) // 25
+);
+
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
-    .CLK_SPEED(CLK_SPEED),
     .SIGNED_SND(1'b0), .THREE_BUTTONS(1'b0))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),
     .clk_rgb        ( clk_rgb        ),
     .clk_rom        ( clk_rom        ),
-    .cen12          ( cen12          ),
     .pxl_cen        ( cen6           ),
     .status         ( status         ),
     // Base video
@@ -164,10 +185,12 @@ u_frame(
     .downloading    ( downloading    ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
-    .sdram_req      ( sdram_req      ),
     .sdram_addr     ( sdram_addr     ),
-    .sdram_sync     ( sdram_sync     ),
+    .sdram_req      ( sdram_req      ),
+    .sdram_ack      ( sdram_ack      ),
     .data_read      ( data_read      ),
+    .data_rdy       ( data_rdy       ),
+    .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
     .game_rst       ( game_rst       ),
@@ -216,13 +239,14 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
 
-    // ROM load
-    .downloading ( downloading     ),
-    .loop_rst    ( loop_rst        ),
-    .sdram_req   ( sdram_req       ),
-    .sdram_sync  ( sdram_sync      ),
-    .sdram_addr  ( sdram_addr      ),
-    .data_read   ( data_read[15:0] ),
+    // ROM access from game
+    .loop_rst       ( loop_rst       ),
+    .sdram_addr     ( sdram_addr     ),
+    .sdram_req      ( sdram_req      ),
+    .sdram_ack      ( sdram_ack      ),
+    .data_read      ( data_read      ),
+    .data_rdy       ( data_rdy       ),
+    .refresh_en     ( refresh_en     ),
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches

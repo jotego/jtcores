@@ -99,7 +99,6 @@ jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_ram_msg(
     .q      ( mem_msg   )
 );
 
-reg [7:0] msg_sel;
 reg       av_col;
 `ifdef AVATARS
 wire [7:0] av_scan = { avatar_idx, scan[9:5] };
