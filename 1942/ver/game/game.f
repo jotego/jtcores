@@ -10,11 +10,12 @@
 ../../hdl/jt1942_objram.v
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
+../../../1943/hdl/jt1943_romrq.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
-../../../modules/jtgng_rom.v
+../../../modules/jtgng_rom2.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v

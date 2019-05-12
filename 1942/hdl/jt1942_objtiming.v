@@ -64,8 +64,7 @@ always @(posedge clk)
     end
 
 jtgng_prom #(.aw(8),.dw(2),
-    .simfile("../../../rom/1942/sb-9.m11"),
-    .cen_rd(1)
+    .simfile("../../../rom/1942/sb-9.m11")
     ) u_prom_m11(
     .clk    ( clk            ),
     .cen    ( cen6           ),

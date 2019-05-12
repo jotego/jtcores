@@ -24,8 +24,7 @@ for k in $*; do
     fi
 done
 
-
+export GAME_ROM_PATH=../../../rom/JT1943.rom
 # Generic simulation script from JTFRAME
-# ROM LENGTH 887808
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=887808 -sysname 1943 \
     -modules ../../../modules $*

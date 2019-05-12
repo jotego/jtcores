@@ -294,7 +294,7 @@ jt1942_video u_video(
     .prom_m11_we( prom_m11_we   )
 );
 
-jtgng_rom #(
+jtgng_rom2 #(
     .snd_offset (22'h0A000),
     .char_offset(22'h0C000),
     .scr_offset (22'h0D000),
@@ -303,12 +303,8 @@ jtgng_rom #(
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .cen12       ( cen12         ),
-    .H           ( H[2:0]        ),
-    .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_sync  ( sdram_sync    ),
 
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),
@@ -323,11 +319,14 @@ jtgng_rom #(
     .scr_dout    ( scr_data      ),
     .ready       ( rom_ready     ),
     // SDRAM interface
+    .sdram_req   ( sdram_req     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
+    .data_read   ( data_read     ),
+    .refresh_en  ( refresh_en    )
 );
 
 endmodule // jtgng

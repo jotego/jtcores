@@ -23,7 +23,7 @@ module jt1943_rom2(
     input               clk,
     input               LHBL,
     input               LVBL,
-        // means a read request
+
     input               main_cs,
     //input               snd_cs,
 

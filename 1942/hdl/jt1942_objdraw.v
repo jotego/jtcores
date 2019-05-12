@@ -149,8 +149,7 @@ always @(posedge clk ) if(cen6) begin
 end
 
 jtgng_prom #(.aw(8),.dw(4),
-    .simfile("../../../rom/1942/sb-8.k3"),
-    .cen_rd(1)
+    .simfile("../../../rom/1942/sb-8.k3")
 ) u_prom_k3(
     .clk    ( clk            ),
     .cen    ( cen6           ),

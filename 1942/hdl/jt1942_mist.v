@@ -52,7 +52,7 @@ module jt1942_mist(
     output          LED
 );
 
-parameter CLK_SPEED=12;
+localparam CLK_SPEED=48;
 
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
@@ -73,7 +73,7 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 8+16+6+42+20+18+36+15+24+24+22+30;
 
-wire          rst, clk_rgb, clk_rom;
+wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
@@ -102,7 +102,7 @@ wire [3:0] blue;
 wire LHBL, LVBL;
 wire [8:0] snd;
 
-wire [5:0] game_joystick1, game_joystick2;
+wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_pause, game_rst;
 
@@ -134,7 +134,7 @@ jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b0), .THREE_BUTTONS(1'b0))
 u_frame(
     .CLOCK_27       ( CLOCK_27       ),
-    .clk_rgb        ( clk_rgb        ),
+    .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .pxl_cen        ( cen6           ),
     .status         ( status         ),
@@ -212,7 +212,7 @@ u_frame(
 jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .rst         ( game_rst      ),
     .clk_rom     ( clk_rom       ),
-    .clk         ( clk_rgb       ),
+    .clk         ( clk_sys       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
@@ -225,10 +225,10 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
-    .start_button( game_start     ),
-    .coin_input  ( game_coin      ),
-    .joystick1   ( game_joystick1 ),
-    .joystick2   ( game_joystick2 ),
+    .start_button( game_start          ),
+    .coin_input  ( game_coin           ),
+    .joystick1   ( game_joystick1[5:0] ),
+    .joystick2   ( game_joystick2[5:0] ),
 
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
