@@ -53,16 +53,16 @@ always @(*) begin
     req = init || ( !(hit0 || hit1) && addr_ok && !we);
 end
 
-reg [1:0] ok_sr;
+// reg [1:0] ok_sr;
 
 always @(posedge clk)
     if( rst ) begin
         init      <= 1'b1;
         deleterus <= 1'b0;  // signals which cached data is to be overwritten next time
     end else begin
-        //data_ok <= !addr_ok || (addr_ok && ( hit0 || hit1 )) || we;
-        ok_sr[0] <= addr_ok && !we && ( hit0 || hit1 );
-        { data_ok, ok_sr[1] } <= ok_sr;
+        data_ok <= addr_ok && !we && ( hit0 || hit1 );
+        //ok_sr[0] <= addr_ok && !we && ( hit0 || hit1 );
+        // { data_ok, ok_sr[1] } <= ok_sr;
         // delay by one clock cycle to catch the full data output
         if( we && din_ok ) begin
             if( init ) begin
