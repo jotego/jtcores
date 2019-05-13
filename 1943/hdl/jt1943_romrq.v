@@ -60,7 +60,8 @@ always @(posedge clk)
         init      <= 1'b1;
         deleterus <= 1'b0;  // signals which cached data is to be overwritten next time
     end else begin
-        data_ok <= addr_ok && !we && ( hit0 || hit1 );
+        // data_ok <= addr_ok && !we && ( hit0 || hit1 );
+        data_ok <= addr_ok && ( hit0 || hit1 || (din_ok&&we));
         //ok_sr[0] <= addr_ok && !we && ( hit0 || hit1 );
         // { data_ok, ok_sr[1] } <= ok_sr;
         // delay by one clock cycle to catch the full data output
@@ -92,7 +93,11 @@ always @(*) begin
         subaddr[0] <=  addr[0];
 end
 
-wire [31:0] data_mux = hit0 ? cached_data0 : cached_data1;
+// data_mux selects one of two cache registers
+// but if we are getting fresh data, it selects directly the new data
+// this saves one clock cycle at the expense of more LUTs
+wire [31:0] data_mux = (we&&din_ok) ? din :
+    (hit0 ? cached_data0 : cached_data1);
 
 generate
     if(DW==8) begin

@@ -88,10 +88,15 @@ wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
+wire char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok;
+//wire newref = 
+//    &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
+
 // wire blank_b = LVBL && LHBL;
 
 always @(posedge clk)
-    refresh_en <= !LVBL;
+    // refresh_en <= !LVBL;
+    refresh_en <= &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
 
 jt1943_romrq #(.AW(18),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
@@ -135,7 +140,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_char(
     .din_ok   ( data_rdy        ),
     .dout     ( char_dout       ),
     .req      ( char_req        ),
-    .data_ok  (                 ),
+    .data_ok  ( char_ok         ),
     .we       ( data_sel[1]     )
 );
 
@@ -150,7 +155,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .din_ok   ( data_rdy        ),
     .dout     ( map1_dout       ),
     .req      ( map1_req        ),
-    .data_ok  (                 ),
+    .data_ok  ( map1_ok         ),
     .we       ( data_sel[2]     )
 );
 
@@ -165,7 +170,7 @@ jt1943_romrq #(.AW(14),.DW(16)) u_map2(
     .din_ok   ( data_rdy        ),
     .dout     ( map2_dout       ),
     .req      ( map2_req        ),
-    .data_ok  (                 ),
+    .data_ok  ( map2_ok         ),
     .we       ( data_sel[3]     )
 );
 
@@ -180,7 +185,7 @@ jt1943_romrq #(.AW(17),.DW(16)) u_scr1(
     .din_ok   ( data_rdy        ),
     .dout     ( scr1_dout       ),
     .req      ( scr1_req        ),
-    .data_ok  (                 ),
+    .data_ok  ( scr1_ok         ),
     .we       ( data_sel[4]     )
 );
 
@@ -195,7 +200,7 @@ jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
     .din_ok   ( data_rdy        ),
     .dout     ( scr2_dout       ),
     .req      ( scr2_req        ),
-    .data_ok  (                 ),
+    .data_ok  ( scr2_ok         ),
     .we       ( data_sel[5]     )
 );
 
@@ -210,7 +215,7 @@ jt1943_romrq #(.AW(17),.DW(16)) u_obj(
     .din_ok   ( data_rdy        ),
     .dout     ( obj_dout        ),
     .req      ( obj_req         ),
-    .data_ok  (                 ),
+    .data_ok  ( obj_ok          ),
     .we       ( data_sel[6]     )
 );
 
