@@ -201,6 +201,8 @@ jt1942_main u_main(
     .cpu_AB     ( cpu_AB        ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
+    // SDRAM / ROM access
+    .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),
     // Cabinet input
@@ -232,6 +234,7 @@ jt1942_sound u_sound (
     .main_latch0_cs ( snd_latch0_cs  ),
     .main_latch1_cs ( snd_latch1_cs  ),
     .snd_int        ( snd_int        ),
+    .rom_cs         ( snd_cs         ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .snd            ( snd            )
@@ -305,6 +308,9 @@ jtgng_rom2 #(
     .clk         ( clk           ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
+
+    .main_cs     ( main_cs       ),
+    .snd_cs      ( snd_cs        ),
 
     .char_addr   ( {1'b0,char_addr} ),
     .main_addr   ( main_addr     ),

@@ -25,6 +25,7 @@ module jt1943_romrq #(parameter AW=18, DW=8, INVERT_A0=0 )(
     input [AW-1:0]      addr,
     input               addr_ok,    // signals that value in addr is valid
     input [31:0]        din,
+    input               din_ok,
     input               we,
     output reg          req,
     output reg          data_ok,    // strobe that signals that data is ready
@@ -63,7 +64,7 @@ always @(posedge clk)
         ok_sr[0] <= addr_ok && !we && ( hit0 || hit1 );
         { data_ok, ok_sr[1] } <= ok_sr;
         // delay by one clock cycle to catch the full data output
-        if( we ) begin
+        if( we && din_ok ) begin
             if( init ) begin
                 cached_data0 <= din;
                 cached_addr0 <= addr_req;

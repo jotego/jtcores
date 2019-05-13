@@ -33,6 +33,7 @@ module jt1942_sound(
     input           main_latch1_cs,
     input           snd_int,
     // ROM access
+    output  reg     rom_cs,
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
     // Sound output
@@ -64,7 +65,7 @@ reg reset_n=1'b0;
 always @(posedge clk) if(cen3)
     reset_n <= ~( rst | ~sres_b );
 
-reg rom_cs, ay1_cs, ay0_cs, latch_cs, ram_cs;
+reg ay1_cs, ay0_cs, latch_cs, ram_cs;
 
 reg [7:0] AH;
 

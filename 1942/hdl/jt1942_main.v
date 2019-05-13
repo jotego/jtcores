@@ -57,6 +57,7 @@ module jt1942_main(
     output             rd_n,
     output             wr_n,
     // ROM access
+    output  reg        rom_cs,
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     // DIP switches
@@ -73,12 +74,12 @@ module jt1942_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
-reg main_cs, in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
+reg in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
 
 wire mreq_n;
 
 always @(*) begin
-    main_cs       = 1'b0;
+    rom_cs        = 1'b0;
     ram_cs        = 1'b0;
     snd_latch0_cs = 1'b0;
     snd_latch1_cs = 1'b0;
@@ -90,9 +91,10 @@ always @(*) begin
     scr_cs        = 1'b0;
     brt_cs        = 1'b0;
     obj_cs        = 1'b0;
+    rom_cs        = 1'b0;
     casez(A[15:13])
-        3'b0??: main_cs = 1'b1;
-        3'b10?: main_cs = 1'b1; // bank
+        3'b0??: rom_cs  = 1'b1;
+        3'b10?: rom_cs  = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
                 2'b00: // COCS
@@ -204,7 +206,7 @@ always @(*)
     if( irq_ack ) // Interrupt address
         cpu_din = irq_vector;
     else
-    case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
+    case( {ram_cs, char_cs, scr_cs, rom_cs , in_cs} )
         5'b10_000: cpu_din =  (cheat_invincible && A==16'he0a5) ? 8'h2 : ram_dout;
         5'b01_000: cpu_din = char_dout;
         5'b00_100: cpu_din =  scr_dout;
