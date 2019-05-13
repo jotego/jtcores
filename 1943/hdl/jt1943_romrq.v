@@ -60,11 +60,7 @@ always @(posedge clk)
         init      <= 1'b1;
         deleterus <= 1'b0;  // signals which cached data is to be overwritten next time
     end else begin
-        // data_ok <= addr_ok && !we && ( hit0 || hit1 );
         data_ok <= addr_ok && ( hit0 || hit1 || (din_ok&&we));
-        //ok_sr[0] <= addr_ok && !we && ( hit0 || hit1 );
-        // { data_ok, ok_sr[1] } <= ok_sr;
-        // delay by one clock cycle to catch the full data output
         if( we && din_ok ) begin
             if( init ) begin
                 cached_data0 <= din;
