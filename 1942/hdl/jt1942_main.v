@@ -92,7 +92,7 @@ always @(*) begin
     brt_cs        = 1'b0;
     obj_cs        = 1'b0;
     rom_cs        = 1'b0;
-    casez(A[15:13])
+    if( !mreq_n ) casez(A[15:13])
         3'b0??: rom_cs  = 1'b1;
         3'b10?: rom_cs  = 1'b1; // bank
         3'b110: // cscd
