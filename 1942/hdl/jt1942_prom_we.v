@@ -32,8 +32,44 @@ module jt1942_prom_we(
     output reg [9:0]     prom_we
 );
 
-localparam OBJADDR = 22'h1A000;
-wire [21:0] obj_addr = ioctl_addr - OBJADDR;
+// srb-03.m3  main    0x00000
+// srb-04.m4  main    0x04000
+// srb-05.m5  main    0x08000
+// srb-06.m6  main    0x0c000
+// srb-06.m6  main    0x0e000
+// srb-07.m7  main    0x10000
+// sr-01.c11  sound   0x14000
+// sr-02.f2   char    0x18000
+// sr-10.a3   scr     0x1A000
+// sr-11.a4   scr     0x1C000
+// sr-08.a1   scr     0x1E000
+// sr-09.a2   scr     0x20000
+// sr-12.a5   scr **  0x22000
+// sr-13.a6   scr **  0x24000
+// sr-12.a5   scr - filling
+// sr-13.a6   scr - filling
+// sr-14.l1   obj     0x2A000
+// sr-16.n1   obj     0x2E000
+// sr-15.l2   obj     0x32000
+// sr-17.n2   obj     0x36000
+// PROMs
+// sb-1.k6            0x3A000
+// sb-2.d1
+// sb-3.d2
+// sb-4.d6
+// sb-5.e8
+// sb-6.e9
+// sb-7.e10
+// sb-0.f1
+// sb-8.k3
+// sb-9.m11
+
+localparam SCRADDR = 22'h1A000, 
+           SCRUPPER= 22'h22000,
+           OBJADDR = 22'h2A000,
+           PROMADDR= 22'h3A000;
+wire [21:0] scr_addr  = ioctl_addr - SCRADDR;
+wire [21:0] scrupper  = ioctl_addr - SCRUPPER;
 
 reg set_strobe, set_done;
 reg [9:0] prom_we0;
@@ -48,18 +84,34 @@ always @(posedge clk_rgb) begin
     end
 end
 
+`ifdef SIMULATION
+wire [3:0] region = { 
+    ioctl_addr < PROMADDR, ioctl_addr < OBJADDR,
+    ioctl_addr < SCRUPPER, ioctl_addr < SCRADDR };
+`endif
+
 always @(posedge clk_rom) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
-        if(ioctl_addr < OBJADDR) begin
+        if(ioctl_addr < SCRADDR) begin // regular copy
             prog_addr <= {1'b0, ioctl_addr[21:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
         end
-        else if(ioctl_addr < (OBJADDR+22'h20_000)) begin
-            prog_addr <= OBJADDR[17:1] + {obj_addr[16:15], obj_addr[13:0]};
-            prog_mask <= {obj_addr[14], ~obj_addr[14]};
+        else if(ioctl_addr < SCRUPPER ) begin // alternate bytes
+            // but only even address
+            prog_addr <= SCRADDR[17:1] + {scr_addr[16:15], scr_addr[13:0], 1'b0 };
+            prog_mask <= {scr_addr[14], ~scr_addr[14]};
+        end
+        else if(ioctl_addr < OBJADDR ) begin // both bytes with same information
+            // but only odd address
+            prog_addr <= SCRADDR[17:1] + {scrupper[16:15], scrupper[13:0], 1'b1 };
+            prog_mask <= {scrupper[14], ~scrupper[14]};
+        end        
+        else if(ioctl_addr < PROMADDR ) begin // alternate bytes
+            prog_addr <= SCRADDR[17:1] + {scr_addr[16:15], scr_addr[13:0]};
+            prog_mask <= {scr_addr[14], ~scr_addr[14]};
         end
         else begin // PROMs
             prog_addr <= { 4'hF, ioctl_addr[17:0] };
