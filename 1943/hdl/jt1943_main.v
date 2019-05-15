@@ -247,10 +247,12 @@ always @(posedge clk)
             if ( int_rqb_negedge ) int_n <= 1'b0;
     end
 
+/////////////////////////////////////////////////////////////////
+// wait_n generation
 reg [1:0] mem_wait_n;
 //wire wait_n = char_wait_n & mem_wait_n[0];
 reg wait_n;
-reg last_rom_cs, last_chwait;
+reg last_rom_cs;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
 
 reg char_free, rom_free, mem_free;
@@ -270,7 +272,6 @@ always @(posedge clk or negedge t80_rst_n)
         mem_free  <= 1'b0;
     end else begin
         last_rom_cs <= rom_cs;
-        last_chwait <= char_wait;
         if(cpu_cen) begin
             mem_wait_n[0] <= !mem_wait_n[1] ? 1'b1 : m1_n; // & mreq_n; // mreq_n
             mem_wait_n[1] <= mem_wait_n[0];

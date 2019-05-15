@@ -33,7 +33,7 @@ module jt1942_char(
     input   [ 7:0]   din,
     output  [ 7:0]   dout,
     input            rd_n,
-    output           wait_n,
+    output           busy,  // bus busy
     output [3:0]     char_pxl,
     input            pause,
     // Palette PROM F1
@@ -52,6 +52,7 @@ reg [1:0] char_col;
 wire [7:0] Hfix = H128 + HOFFSET; // Corrects pixel output offset
 
 wire sel_scan = ~Hfix[2];
+assign busy = sel_scan; // CPU access forbidden during this time
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && char_cs && rd_n;
@@ -92,12 +93,6 @@ always @(*) begin
     dout_low  = pause ? mem_msg : mem_low;
     dout_high = pause ? 8'h2    : mem_high;
 end
-
-reg latch_wait_n = 1'b1;
-assign wait_n = !( char_cs && sel_scan ) && latch_wait_n; // hold CPU
-
-always @(posedge clk) if(cen3)
-    latch_wait_n <= !( char_cs && sel_scan );
 
 // Draw pixel on screen
 reg [15:0] chd;

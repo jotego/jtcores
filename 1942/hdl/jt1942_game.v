@@ -20,6 +20,7 @@
 
 module jt1942_game(
     input           rst,
+    input           rst_n,
     input           clk_rom,
     input           clk,        // 24   MHz
     output          cen12,      // 12   MHz
@@ -88,6 +89,7 @@ wire [7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire rd;
 wire rom_ready;
+wire main_ok, snd_ok;
 
 assign sample=1'b1;
 
@@ -143,7 +145,7 @@ wire  [16:0]  main_addr;
 wire  [14:0]  snd_addr;
 
 wire snd_latch0_cs, snd_latch1_cs, snd_int;
-wire char_wait_n, scr_wait_n;
+wire char_busy, scr_busy;
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
@@ -179,11 +181,6 @@ jt1942_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .char_wait_n( char_wait_n   ),
-    .scr_wait_n ( scr_wait_n    ),
-    .char_dout  ( chram_dout    ),
-    .scr_dout   ( scram_dout    ),
-    .scr_br     ( scr_br        ),
     // sound
     .sres_b        ( sres_b        ),
     .snd_latch0_cs ( snd_latch0_cs ),
@@ -192,8 +189,16 @@ jt1942_main u_main(
 
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
+    // Char
     .char_cs    ( char_cs       ),
+    .char_busy  ( char_busy     ),
+    .char_dout  ( chram_dout    ),
+    // Scroll
     .scr_cs     ( scr_cs        ),
+    .scr_busy   ( scr_busy      ),
+    .scr_dout   ( scram_dout    ),
+    // video (other)
+    .scr_br     ( scr_br        ),
     .scrpos_cs  ( scrpos_cs     ),
     .obj_cs     ( obj_cs        ),
     .flip       ( flip          ),
@@ -205,6 +210,7 @@ jt1942_main u_main(
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),
+    .rom_ok     ( main_ok       ),
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
@@ -237,11 +243,13 @@ jt1942_sound u_sound (
     .rom_cs         ( snd_cs         ),
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
+    .rom_ok         ( snd_ok         ),
     .snd            ( snd            )
 );
 `else
 assign snd_addr = 15'd0;
 assign snd = 9'd0;
+assign snd_cs = 1'b0;
 `endif
 
 jt1942_video u_video(
@@ -262,14 +270,14 @@ jt1942_video u_video(
     .chram_dout ( chram_dout    ),
     .char_addr  ( char_addr     ), // CHAR ROM
     .char_data  ( char_data     ),
-    .char_wait_n( char_wait_n   ),
+    .char_busy  ( char_busy     ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
-    .scr_wait_n ( scr_wait_n    ),
+    .scr_busy   ( scr_busy      ),
     .scr_br     ( scr_br        ),
     // OBJ
     .obj_cs     ( obj_cs        ),
@@ -297,14 +305,20 @@ jt1942_video u_video(
     .prom_m11_we( prom_m11_we   )
 );
 
-jtgng_rom2 #(
-    .snd_offset (22'h0A000),
-    .char_offset(22'h0C000),
-    .scr_offset (22'h0D000),
-    .scr2_offset(22'h04000),
-    .obj_offset (22'h15000)
+wire [7:0] nc;
+
+jtframe_rom #(
+    .SND_OFFSET (22'h0A000),
+    .CHAR_OFFSET(22'h0C000),
+    .SCR1_OFFSET(22'h0D000),
+    .OBJ_OFFSET (22'h15000),
+    .MAIN_AW    ( 17      ),
+    .SND_AW     ( 15      ),
+    .CHAR_AW    ( 12      ),
+    .SCR1_AW    ( 15      ),
+    .OBJ_AW     ( 15      )
 ) u_rom (
-    .rst         ( rst           ),
+    .rst_n       ( rst_n         ),
     .clk         ( clk           ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
@@ -312,18 +326,24 @@ jtgng_rom2 #(
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
 
-    .char_addr   ( {1'b0,char_addr} ),
+    .main_ok     ( main_ok       ),
+    .snd_ok      ( snd_ok        ),
+
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
-    .obj_addr    ( {1'd0, obj_addr} ), // 15:0 for ROM
-    .scr_addr    ( scr_addr      ),
+    .char_addr   ( char_addr     ),
+    .scr1_addr   ( scr_addr      ),
+    .obj_addr    ( obj_addr      ),
 
-    .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    ( snd_data      ),
+    .char_dout   ( char_data     ),
+    .scr1_dout   ( {nc, scr_data} ),
     .obj_dout    ( obj_data      ),
-    .scr_dout    ( scr_data      ),
     .ready       ( rom_ready     ),
+    // Unused
+    .scr2_addr   (               ),
+    .scr2_dout   (               ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),

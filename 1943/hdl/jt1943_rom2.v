@@ -71,9 +71,6 @@ parameter scr2_offset = 22'h44_000; // 14k/l 64kB
 parameter  obj_offset = 22'h4C_000; // 10a/c, 11a/c, 12a/c, 14a/c 256kB
 // 6C_000 = ROM LEN
 
-localparam col_w = 9, row_w = 13;
-localparam addr_w = 13, data_w = 16;
-
 reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
 wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req; //, snd_req;
@@ -232,7 +229,7 @@ end
 
 always @(posedge clk)
 if( loop_rst || downloading ) begin
-    sdram_addr <= {(addr_w+col_w){1'b0}};
+    sdram_addr <=  'd0;
     ready_cnt <=  4'd0;
     ready     <=  1'b0;
     sdram_req <=  1'b0;

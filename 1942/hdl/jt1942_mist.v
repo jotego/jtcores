@@ -73,7 +73,7 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 8+16+6+42+20+18+36+15+24+24+22+30;
 
-wire          rst, clk_sys, clk_rom;
+wire          rst, rst_n, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
@@ -136,6 +136,8 @@ u_frame(
     .CLOCK_27       ( CLOCK_27       ),
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
+    .clk_vga        ( clk_vga        ),
+    .pll_locked     ( pll_locked     ),
     .pxl_cen        ( cen6           ),
     .status         ( status         ),
     // Base video
@@ -193,6 +195,7 @@ u_frame(
     .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
+    .rst_n          ( rst_n          ),
     .game_rst       ( game_rst       ),
     // reset forcing signals:
     .dip_flip       ( dip_flip       ),
@@ -206,11 +209,15 @@ u_frame(
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     )
+    .game_pause     ( game_pause     ),
+    .game_service   (                ),
+    // Unused
+    .gfx_en         (                )
 );
 
 jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .rst         ( game_rst      ),
+    .rst_n       ( rst_n         ),
     .clk_rom     ( clk_rom       ),
     .clk         ( clk_sys       ),
     .cen12       ( cen12         ),
@@ -231,6 +238,7 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .joystick2   ( game_joystick2[5:0] ),
 
     // PROM programming
+    .downloading ( downloading    ),
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_data  ( ioctl_data     ),
     .ioctl_wr    ( ioctl_wr       ),

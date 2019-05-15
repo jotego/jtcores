@@ -36,9 +36,12 @@ module jt1942_sound(
     output  reg     rom_cs,
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
+    input           rom_ok,
     // Sound output
     output reg [ 8:0]  snd
 );
+
+wire mreq_n;
 
 // posedge of snd_int
 reg snd_int_last;
@@ -75,7 +78,7 @@ always @(*) begin
     latch_cs = 1'b0;
     ay0_cs   = 1'b0;
     ay1_cs   = 1'b0;
-    casez(A[15:13])
+    if( !mreq_n ) casez(A[15:13])
         3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
@@ -93,7 +96,22 @@ always @(posedge clk)
         cs_wait <= { cs_wait[0], ~(ay0_cs|ay1_cs) };
     end // else if(cen3)
 
-wire wait_n = ~cs_wait[1] | cs_wait[0];
+wire rom_wait_n;
+wire wait_n = (~cs_wait[1] | cs_wait[0]) & rom_wait_n;
+
+jtframe_z80wait #(1) u_wait(
+    .rst_n      ( reset_n   ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cen3      ),
+    // manage access to shared memory
+    .dev_cs     ( 1'b0      ),
+    .dev_busy   ( 1'b0      ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    ),
+
+    .wait_n     ( rom_wait_n )
+);
 
 reg [7:0] latch0, latch1;
 
@@ -169,6 +187,7 @@ T80s u_cpu(
     .IORQ_n     ( iorq_n      ),
     .NMI_n      ( 1'b1        ),
     .BUSRQ_n    ( 1'b1        ),
+    .MREQ_n     ( mreq_n      ),
     .out0       ( 1'b0        )
 );
 `else
@@ -187,7 +206,7 @@ tv80s #(.Mode(0)) u_cpu (
     .dout   (dout    ),
     .iorq_n ( iorq_n ),
     // unused
-    .mreq_n (),
+    .mreq_n (mreq_n  ),
     .m1_n   (),
     .busak_n(),
     .halt_n (),
@@ -217,6 +236,11 @@ jt49_bus u_ay0( // note that input ports are not multiplexed
     .sel    ( 1'b0      ),
     .dout   ( ay0_dout  ),
     .sound  ( sound0    ),
+    // unused
+    .IOA_in ( 8'h0      ),
+    .IOA_out(           ),
+    .IOB_in ( 8'h0      ),
+    .IOB_out(           ),
     .A(), .B(), .C() // unused outputs
 );
 

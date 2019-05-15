@@ -25,11 +25,7 @@ module jt1942_main(
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     input              rst,
-    input              [7:0] char_dout,
     output             [7:0] cpu_dout,
-    output  reg        char_cs,
-    input              char_wait_n,
-    input              scr_wait_n,
     output  reg        flip,
     input   [7:0]      V,
     input              LHBL,
@@ -38,9 +34,14 @@ module jt1942_main(
     output  reg        snd_int,
     output  reg        snd_latch0_cs,
     output  reg        snd_latch1_cs,
+    // Char
+    output  reg        char_cs,
+    input              char_busy,
+    input              [7:0] char_dout,
     // scroll
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
+    input              scr_busy,
     output  reg [1:0]  scrpos_cs,
     output  reg [2:0]  scr_br,
     // cheat!
@@ -60,6 +61,7 @@ module jt1942_main(
     output  reg        rom_cs,
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
+    input              rom_ok,
     // DIP switches
     input              dip_flip,    // Not a DIP in the original board ;-)
     input    [7:0]     dipsw_a,
@@ -249,7 +251,19 @@ always @(posedge clk)
         else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
     end
 
-wire wait_n = scr_wait_n & char_wait_n;
+jtframe_z80wait #(2) u_wait(
+    .rst_n      ( t80_rst_n ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cen3      ),
+    // manage access to shared memory
+    .dev_cs     ( { scr_cs, char_cs }     ),
+    .dev_busy   ( { scr_busy, char_busy } ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    ),
+
+    .wait_n     ( wait_n    )
+);
 
 `ifdef SIMULATION
 `define Z80_ALT_CPU
