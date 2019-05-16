@@ -72,7 +72,14 @@ always @(*) begin
 end
 
 wire [8:0] scan = { HS[8:4], VF[7:4] };
-wire sel_scan = ~HS[2];
+reg sel_scan;
+always @(posedge clk)
+    if(cen6) begin
+        if( HS[2:0] == 3'b111 )
+            sel_scan <= 1'b1;
+        if( HS[2:0] == 3'b011 )
+            sel_scan <= 1'b0;
+    end
 assign busy = sel_scan;
 wire [8:0]  addr = sel_scan ? scan : { AB[9:5], AB[3:0]}; // AB[4] selects between low and high RAM
 wire we = !sel_scan && scr_cs && !wr_n;

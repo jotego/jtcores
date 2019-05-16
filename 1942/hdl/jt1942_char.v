@@ -51,7 +51,15 @@ reg [1:0] char_col;
 
 wire [7:0] Hfix = H128 + HOFFSET; // Corrects pixel output offset
 
-wire sel_scan = ~Hfix[2];
+reg sel_scan;
+always @(posedge clk)
+    if(cen6) begin
+        if( Hfix[2:0] == 3'b111 )
+            sel_scan <= 1'b1;
+        if( Hfix[2:0] == 3'b011 )
+            sel_scan <= 1'b0;
+    end
+
 assign busy = sel_scan; // CPU access forbidden during this time
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
