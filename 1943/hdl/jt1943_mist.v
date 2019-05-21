@@ -50,6 +50,10 @@ module jt1943_mist(
     output          AUDIO_R,
     // user LED
     output          LED
+    `ifdef SIMULATION
+    ,output          sim_pxl_cen,
+    output          sim_pxl_clk
+    `endif    
 );
 
 localparam CLK_SPEED=48;
@@ -155,7 +159,7 @@ always @(posedge clk_sys)
 
 // PLL's
 // 24 MHz or 12 MHz base clock
-wire clk_vga_in, pll_locked;
+wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
     .inclk0 ( CLOCK_27[0] ),
     .c1     ( clk_rom     ), // 48 MHz
@@ -171,6 +175,35 @@ jtgng_pll1 u_pll_vga (
     .inclk0 ( clk_vga_in ),
     .c0     ( clk_vga    ) // 25
 );
+
+wire [5:0] vga_r, vga_g, vga_b;
+wire vga_hsync, vga_vsync;
+
+jtgng_vga u_scandoubler (
+    .clk_rgb    ( clk_sys       ),
+    .cen6       ( cen6          ), //  6 MHz
+    .clk_vga    ( clk_vga       ), // 25 MHz
+    .rst        ( rst           ),
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
+    .en_mixing  ( ~status[9]    ),
+    .vga_red    ( vga_r[5:1]    ),
+    .vga_green  ( vga_g[5:1]    ),
+    .vga_blue   ( vga_b[5:1]    ),
+    .vga_hsync  ( vga_hsync     ),
+    .vga_vsync  ( vga_vsync     )
+);
+
+// convert 5-bit colour to 6-bit colour
+assign vga_r[0] = vga_r[5];
+assign vga_g[0] = vga_g[5];
+assign vga_b[0] = vga_b[5];
+
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
 
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
@@ -191,8 +224,13 @@ u_frame(
     .LVBL           ( LVBL           ),
     .hs             ( hs             ),
     .vs             ( vs             ),
-    // VGA
-    .en_mixing      ( ~status[9]     ),
+    // VGA video (without OSD)
+    .vga_r          ( vga_r          ),
+    .vga_g          ( vga_g          ),
+    .vga_b          ( vga_b          ),
+    .vga_hsync      ( vga_hsync      ),
+    .vga_vsync      ( vga_vsync      ),  
+    // MiST VGA pins
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
     .VGA_B          ( VGA_B          ),
