@@ -51,8 +51,10 @@ module jt1943_mist(
     // user LED
     output          LED
     `ifdef SIMULATION
-    ,output          sim_pxl_cen,
-    output          sim_pxl_clk
+    ,output         sim_pxl_cen,
+    output          sim_pxl_clk,
+    output          sim_vs,
+    output          sim_hs
     `endif    
 );
 
@@ -308,6 +310,9 @@ u_frame(
     assign game_joystick2 = ~10'd0;
     assign game_joystick1[9:7] = 3'b111;
 `endif
+
+assign sim_vs = vs;
+assign sim_hs = hs;
 
 jt1943_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
