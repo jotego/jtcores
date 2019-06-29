@@ -91,7 +91,6 @@ wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 wire          coin_cnt;
 
-assign LED = ~downloading; // | coin_cnt | rst;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
 wire dip_flip = status[32'hb];
@@ -211,11 +210,10 @@ assign sim_pxl_cen = cen6;
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
-    .CLOCK_27       ( CLOCK_27       ),
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .clk_vga        ( clk_vga        ),
-    .pxl_cen        ( cen6           ),
+    .pll_locked     ( pll_locked     ),
     .status         ( status         ),
     // Base video
     .osd_rotate     ( { dip_flip, 1'b1 } ),
@@ -279,6 +277,7 @@ u_frame(
     .rst            ( rst            ),
     .rst_n          (                ), // unused
     .game_rst       ( game_rst       ),
+    .game_rst_n     (                ),
     // reset forcing signals:
     .dip_flip       ( dip_flip       ),
     .rst_req        ( rst_req        ),
@@ -293,6 +292,7 @@ u_frame(
     .game_start     ( game_start     ),
     .game_pause     ( game_pause     ),
     .game_service   (                ), // unused
+    .LED            ( LED            ),
     // Debug
     .gfx_en         ( gfx_en         )
 );

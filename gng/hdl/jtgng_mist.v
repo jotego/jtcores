@@ -48,6 +48,12 @@ module jtgng_mist(
     output          AUDIO_R,
     // user LED
     output          LED
+    `ifdef SIMULATION
+    ,output         sim_pxl_cen,
+    output          sim_pxl_clk,
+    output          sim_vs,
+    output          sim_hs
+    `endif       
 );
 
 parameter CLK_SPEED=48;
@@ -70,7 +76,7 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = 7+16+6+42+20+15+15+18+24+9+30;
 
-wire          rst, clk_rgb, clk_vga, clk_rom;
+wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire          ps2_kbd_clk, ps2_kbd_data;
@@ -92,6 +98,7 @@ wire [1:0]    dip_bonus = 2'b11;
 wire          dip_pause = !(status[1] | game_pause); // DIPs are active low
 wire          dip_test  = ~status[4];
 wire          enable_psg = ~status[7], enable_fm = ~status[8];
+wire          en_mixing = ~status['hb];
 
 
 wire LHBL, LVBL;
@@ -100,8 +107,6 @@ wire signed [15:0] snd;
 wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
-
-assign LED = ~downloading | coin_cnt | rst;
 
 reg  [21:0]   prog_addr;
 reg  [ 7:0]   prog_data;
@@ -122,15 +127,63 @@ end
 wire [3:0] red, green, blue;
 wire sdram_req, sdram_sync;
 
+// PLL's
+// 24 MHz or 12 MHz base clock
+wire clk_vga_in, clk_vga, pll_locked;
+jtgng_pll0 u_pll_game (
+    .inclk0 ( CLOCK_27[0] ),
+    .c1     ( clk_rom     ), // 48 MHz
+    .c2     ( SDRAM_CLK   ),
+    .c3     ( clk_vga_in  ),
+    .locked ( pll_locked  )
+);
+
+// assign SDRAM_CLK = clk_rom;
+assign clk_sys   = clk_rom;
+
+jtgng_pll1 u_pll_vga (
+    .inclk0 ( clk_vga_in ),
+    .c0     ( clk_vga    ) // 25
+);
+
+wire [5:0] vga_r, vga_g, vga_b;
+wire vga_hsync, vga_vsync;
+
+jtgng_vga u_scandoubler (
+    .clk_rgb    ( clk_sys       ),
+    .cen6       ( cen6          ), //  6 MHz
+    .clk_vga    ( clk_vga       ), // 25 MHz
+    .rst        ( rst           ),
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
+    .en_mixing  ( en_mixing     ),
+    .vga_red    ( vga_r[5:1]    ),
+    .vga_green  ( vga_g[5:1]    ),
+    .vga_blue   ( vga_b[5:1]    ),
+    .vga_hsync  ( vga_hsync     ),
+    .vga_vsync  ( vga_vsync     )
+);
+
+// convert 5-bit colour to 6-bit colour
+assign vga_r[0] = vga_r[5];
+assign vga_g[0] = vga_g[5];
+assign vga_b[0] = vga_b[5];
+
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
+assign sim_vs = vs;
+assign sim_hs = hs;
+
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
-    .CLK_SPEED(CLK_SPEED),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b0))
 u_frame(
-    .CLOCK_27       ( CLOCK_27       ),
-    .clk_rgb        ( clk_rgb        ),
+    .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
-    .cen12          ( cen12          ),
-    .pxl_cen        ( cen6           ),
+    .clk_vga        ( clk_vga        ),
+    .pll_locked     ( pll_locked     ),
     .status         ( status         ),
     // Base video
     .osd_rotate     ( 2'b0           ),
@@ -142,7 +195,6 @@ u_frame(
     .hs             ( hs             ),
     .vs             ( vs             ),
     // VGA
-    .en_mixing      ( ~status['hb]   ),
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
     .VGA_B          ( VGA_B          ),
@@ -198,12 +250,16 @@ u_frame(
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     )
+    .game_pause     ( game_pause     ),
+    .game_service   (                ), // unused
+    .LED            ( LED            ),
+    // Debug
+    .gfx_en         (                )
 );
 
 jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     .rst         ( game_rst      ),
-    .clk         ( clk_rgb       ),
+    .clk         ( clk_sys       ),
 	.cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
