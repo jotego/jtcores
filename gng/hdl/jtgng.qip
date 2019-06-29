@@ -1,4 +1,4 @@
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtgng_mist.v    ]
+set_global_assignment -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtgng_mist.sv    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtgng_main.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtgng_game.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtgng_colmix.v  ]

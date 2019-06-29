@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function rom_len {
-    echo $(printf "%05Xh" $(du --bytes jtcommando.rom | cut -f 1))
+    echo $(printf "%05Xh" $(du --bytes JTCOMMANDO.rom | cut -f 1))
 }
 
 function dump {
@@ -12,12 +12,12 @@ function dump {
             echo cannot find file $i
             exit 1
         fi
-        cat $i >> jtcommando.rom
+        cat $i >> JTCOMMANDO.rom
     done
 }
 
-rm -f jtcommando.rom
-touch jtcommando.rom
+rm -f JTCOMMANDO.rom
+touch JTCOMMANDO.rom
 
 dump "MAIN        " cm04.9m cm03.8m
 dump "SOUND       " cm02.9f

@@ -61,15 +61,17 @@ module jtcommando_game(
     input           dip_pause, // Not a DIP on the original PCB
     input   [ 1:0]  dip_lives,
     input   [ 1:0]  dip_level,
-    input   [ 1:0]  dip_bonus,
-    input           dip_game_mode,
-    input           dip_attract_snd,
-    input           dip_upright,
+    input   [ 1:0]  dip_start,
+    input   [ 1:0]  dip_price1,
+    input   [ 1:0]  dip_price2,
+    input   [ 2:0]  dip_bonus,
+    input   [ 1:0]  dip_upright,
+    input           dip_flip,
     // Sound output
-    input           enable_psg,
-    input           enable_fm,
-    output  signed [15:0] ym_snd,
-    output          sample
+    output  [15:0]  snd,
+    output          sample,
+    // Debug
+    input   [3:0]   gfx_en
 );
 
 parameter CLK_SPEED=12;
@@ -158,7 +160,7 @@ wire [7:0] snd_latch;
 wire scr_cs, scrpos_cs;
 
 wire [5:0] prom_we;
-
+/*
 jtgng_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -273,29 +275,31 @@ jtgng_video u_video(
     .blcnten    ( blcnten       ), // bus line counter enable
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_dout      ),
+    // PROMs
+    .prog_addr  ( prog_addr     ),
+    .prom_1d_we ( prom_1d_we    ),
+    .prom_2d_we ( prom_2d_we    ),
+    .prom_3d_we ( prom_3d_we    ),
+    .prom_din   ( prom_din      ),    
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
     .LVBL_obj   ( LVBL_obj      ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
-    .enable_char( enable_char   ),
-    .enable_obj ( enable_obj    ),
-    .enable_scr ( enable_scr    ),
+    .gfx_en     ( gfx_en        ),
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
 );
 
-assign scr_dout[23:16] = 8'd0; // fix me!
-
+*/
 // 
 jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
-    .char_offset( 22'h0E000 ),
-    .scr1_offset( 22'h10000 ),
-    .obj_offset(  22'h20000 )
-
+    .snd_offset ( 22'h0_C000 >> 1 ),
+    .char_offset( 22'h1_0000 >> 1 ),
+    .scr1_offset( 22'h1_4000 >> 1 ),
+    .scr2_offset( (22'h1_4000 >> 1) + 22'h0_C000 ),
+    .obj_offset ( (22'h1_4000 >> 1) + 22'h1_4000 )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -312,7 +316,7 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( 15'd0         ),
+    .scr2_addr   ( scr_addr      ),
     .map1_addr   ( 14'd0         ),
     .map2_addr   ( 14'd0         ),
 
@@ -322,8 +326,8 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .obj_dout    ( obj_dout      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( scr_dout[15:0]      ), // fix me!
-    .scr2_dout   (               ),
+    .scr1_dout   ( scr_dout[15:0]  ),
+    .scr2_dout   ( scr_dout[23:16] ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface
@@ -338,8 +342,7 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
 );
 
 jtcommando_prom_we u_prom_we(
-    .clk_rom     ( clk_rom       ),
-    .clk_rgb     ( clk           ),
+    .clk         ( clk           ),
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),

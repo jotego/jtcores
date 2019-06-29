@@ -19,8 +19,7 @@
 `timescale 1ns/1ps
 
 module jtcommando_prom_we(
-    input                clk_rom,
-    input                clk_rgb,
+    input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
@@ -44,13 +43,28 @@ module jtcommando_prom_we(
 // PROMs        starts at 50000h
 // length 5_0600h
 
+`ifdef SIMULATION
+wire region0_main  = ioctl_addr < 22'h0c000;
+wire region1_snd   = ioctl_addr < 22'h10000;
+wire region2_char  = ioctl_addr < 22'h14000;
+wire region3_scrx  = ioctl_addr < 22'h20000;
+wire region4_scrz  = ioctl_addr < 22'h28000;
+wire region5_objzy = ioctl_addr < 22'h34000;
+wire region6_scry  = ioctl_addr < 22'h3c000;
+wire region7_scrz2 = ioctl_addr < 22'h44000;
+wire region8_objxw = ioctl_addr < 22'h50000;
+`endif
+
+
 localparam 
     SNDADDR  = 22'h0_C000, 
     CHARADDR = 22'h1_0000,
+
     SCRXADDR = 22'h1_4000,  // LSB: 01_0100_
     OBJZADDR = 22'h2_8000,
     SCRYADDR = 22'h3_4000,  // MSB: 11_0100_
     OBJXADDR = 22'h4_4000,
+
     PROMS    = 22'h5_0000,
     ROMEND   = 22'h5_0600;
 wire [21:0] scr_offset = ioctl_addr - SCRXADDR;
@@ -60,7 +74,7 @@ wire scr_region = (ioctl_addr>=SCRXADDR&& ioctl_addr<OBJZADDR) ||
 reg set_strobe, set_done;
 reg [12:0] prom_we0;
 
-always @(posedge clk_rgb) begin
+always @(posedge clk) begin
     prom_we <= 'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
@@ -70,7 +84,7 @@ always @(posedge clk_rgb) begin
     end
 end
 
-always @(posedge clk_rom) begin
+always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
