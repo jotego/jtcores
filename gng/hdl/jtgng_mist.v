@@ -107,6 +107,10 @@ wire signed [15:0] snd;
 wire [5:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
+wire [3:0] gfx_en;
+// SDRAM
+wire data_rdy, sdram_ack;
+wire refresh_en;
 
 reg  [21:0]   prog_addr;
 reg  [ 7:0]   prog_data;
@@ -232,9 +236,11 @@ u_frame(
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
-    .sdram_sync     ( sdram_sync     ),
     .sdram_req      ( sdram_req      ),
+    .sdram_ack      ( sdram_ack      ),
     .data_read      ( data_read      ),
+    .data_rdy       ( data_rdy       ),
+    .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
     .game_rst       ( game_rst       ),
@@ -280,10 +286,12 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .sdram_sync  ( sdram_sync    ),
     .sdram_req   ( sdram_req     ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
+    .refresh_en  ( refresh_en    ),
     // DEBUG
     .enable_char ( 1'b1          ),
     .enable_scr  ( 1'b1          ),

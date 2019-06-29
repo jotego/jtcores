@@ -370,6 +370,8 @@ jt1943_video u_video(
     .gfx_en     ( gfx_en        )
 );
 
+// Sound is not used through the ROM interface because there is not enough banwidth
+// when all the scroll ROMs have to be accessed
 jt1943_rom2 u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -377,10 +379,13 @@ jt1943_rom2 u_rom (
     .LVBL        ( LVBL          ),
 
     .main_cs     ( main_cs       ),
+    .snd_cs      ( 1'b0          ),
     .main_ok     ( main_ok       ),
+    .snd_ok      (               ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
+    .snd_addr    ( 15'd0         ),
     .obj_addr    ( obj_addr      ),  // 256 kB
     .scr1_addr   ( scr1_addr     ), // 256 kB (16-bit words)
     .scr2_addr   ( scr2_addr     ), //  64 kB
@@ -389,6 +394,7 @@ jt1943_rom2 u_rom (
 
     .char_dout   ( char_dout     ),
     .main_dout   ( main_dout     ),
+    .snd_dout    (               ),
     .obj_dout    ( obj_dout      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),

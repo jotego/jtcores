@@ -39,10 +39,12 @@ module jtgng_game(
     // SDRAM interface
     input           downloading,
     input           loop_rst,
-    output          sdram_sync,
     output          sdram_req,
     output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
+    input   [31:0]  data_read,
+    input           data_rdy,
+    input           sdram_ack,
+    output          refresh_en,
     // DEBUG
     input           enable_char,
     input           enable_obj,
@@ -276,34 +278,52 @@ jtgng_video u_video(
     .blue       ( blue          )
 );
 
-jtgng_rom u_rom (
+assign scr_dout[23:16] = 8'd0; // fix me!
+
+jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
+    .char_offset( 22'h0E000 ),
+    .scr1_offset( 22'h10000 ),
+    .obj_offset(  22'h20000 )
+
+) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .cen12       ( cen12         ),
-    .H           ( H[2:0]        ),
-    .Hsub        ( Hsub          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
-    .sdram_req   ( sdram_req     ),
-    .sdram_sync  ( sdram_sync    ),
+
+    .main_cs     ( main_cs       ),
+    .snd_cs      ( snd_cs        ),
+    .main_ok     ( main_ok       ),
+    .snd_ok      ( snd_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
-    .scr_addr    ( scr_addr      ),
+    .scr1_addr   ( scr_addr      ),
+    .scr2_addr   ( 15'd0         ),
+    .map1_addr   ( 14'd0         ),
+    .map2_addr   ( 14'd0         ),
 
-    .char_dout   ( chrom_data    ),
+    .char_dout   ( char_dout     ),
     .main_dout   ( main_dout     ),
     .snd_dout    ( snd_dout      ),
     .obj_dout    ( obj_dout      ),
-    .scr_dout    ( scr_dout      ),
+    .map1_dout   (               ),
+    .map2_dout   (               ),
+    .scr1_dout   ( scr_dout[15:0]      ), // fix me!
+    .scr2_dout   (               ),
+
     .ready       ( rom_ready     ),
     // SDRAM interface
+    .sdram_req   ( sdram_req     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
+    .data_read   ( data_read     ),
+    .refresh_en  ( refresh_en    )
 );
 
 endmodule // jtgng
