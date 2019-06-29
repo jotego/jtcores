@@ -25,6 +25,7 @@ gng/ver/game/ncverilog.*
 rom/1942/*
 rom/1943*/*
 rom/gngroms/*
+rom/commando/*
 rom/*zip
 *.smsg
 *.summary
