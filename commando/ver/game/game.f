@@ -10,9 +10,14 @@
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtgng_cen.v
-../../../modules/jtgng_dual_ram.v
-../../../modules/jtgng_objbuf.v
+../../../modules/jtgng_char.v
+../../../modules/jtgng_scroll.v
+../../../modules/jtgng_obj.v
 ../../../modules/jtgng_objdma.v
+../../../modules/jtgng_objbuf.v
+../../../modules/jtgng_objdraw.v
 ../../../modules/jtgng_objpxl.v
+../../../modules/jtgng_sh.v
+../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_true_dual_ram.v

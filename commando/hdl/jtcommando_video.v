@@ -62,19 +62,15 @@ module jtcommando_video(
     input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
-    input       [2:0]   gfx_en,
+    input       [3:0]   gfx_en,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue
 );
 
-wire [3:0] chr_pal;
-wire [1:0] chr_col;
+wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
-wire scrwin;
-wire [2:0] scr_col;
-wire [2:0] scr_pal;
-wire [3:0] cc;
+wire [6:0] scr_pxl;
 
 localparam scrchr_off = 8'd5;
 
@@ -95,8 +91,8 @@ jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .MRDY_b     ( char_mrdy     ),
     .char_addr  ( char_addr     ),
     .chrom_data ( chrom_data    ),
-    .char_col   ( chr_col       ),
-    .char_pal   ( chr_pal       )
+    .char_col   ( char_pxl[1:0] ),
+    .char_pal   ( char_pxl[5:2] )
 );
 `else
 assign char_mrdy = 1'b1;
@@ -118,10 +114,10 @@ jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .rd         ( RnW           ),
     .MRDY_b     ( scr_mrdy      ),
     .scr_addr   ( scr_addr      ),
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( scr_pal       ),
+    .scr_col    ( scr_pxl[2:0]  ),
+    .scr_pal    ( scr_pxl[5:3]  ),
     .scrom_data ( scrom_data    ),
-    .scrwin     ( scrwin        )
+    .scrwin     ( scr_pxl[6]    )
 );
 `else
 assign scr_mrdy = 1'b1;

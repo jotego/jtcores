@@ -73,12 +73,22 @@ wire HINIT;
 wire [12:0] cpu_AB;
 wire char_cs;
 wire flip;
-wire [7:0] cpu_dout, char_dout;
+wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd;
 wire char_mrdy, scr_mrdy;
+// ROM data
+wire [15:0] char_data;
+wire [23:0] scr_data;
+wire [15:0] obj_data;
+wire [ 7:0] main_data;
+wire [ 7:0] snd_data;
+// ROM address
+wire [16:0] main_addr;
+wire [14:0] snd_addr;
 wire [12:0] char_addr;
-wire [ 7:0] chram_dout,scram_dout;
-wire [15:0] chrom_data;
+wire [14:0] scr_addr;
+wire [15:0] obj_addr;
+
 wire rom_ready;
 
 reg rst_game=1'b1;
@@ -123,17 +133,12 @@ jtgng_timer u_timer(
 wire RnW;
 wire [3:0] char_pal;
 
-wire [14:0] scr_addr;
-wire [23:0] scr_dout;
-
 wire [3:0] cc;
 wire blue_cs;
 wire redgreen_cs;
 wire [ 5:0] obj_pxl;
 
 wire bus_ack, bus_req;
-wire [16:0] main_addr;
-wire [ 7:0] main_dout;
 wire [15:0] sdram_din;
 wire [12:0] wr_row;
 wire [ 8:0] wr_col;
@@ -158,8 +163,8 @@ jtgng_main u_main(
     .soft_rst   ( soft_rst      ),
     .ch_mrdy    ( char_mrdy     ),
     .scr_mrdy   ( scr_mrdy      ),
-    .char_dout  ( chram_dout    ),
-    .scr_dout   ( scram_dout    ),
+    .char_dout  ( char_dout     ),
+    .scr_dout   ( scr_dout      ),
     // bus sharing
     .ram_dout   ( main_ram      ),
     .obj_AB     ( obj_AB        ),
@@ -183,7 +188,7 @@ jtgng_main u_main(
     .cpu_AB     ( cpu_AB        ),
     .RnW        ( RnW           ),
     .rom_addr   ( main_addr     ),
-    .rom_dout   ( main_dout     ),
+    .rom_dout   ( main_data     ),
     .start_button( start_button ),
     .coin_input ( coin_input    ),
     .joystick1  ( joystick1     ),
@@ -199,11 +204,6 @@ jtgng_main u_main(
     .dip_upright    ( dip_upright     )
 );
 
-wire [15:0] obj_addr;
-wire [15:0] obj_dout;
-
-wire [14:0] snd_addr;
-wire [ 7:0] snd_dout;
 `ifndef NOSOUND
 jtgng_sound u_sound (
     .clk            ( clk        ),
@@ -215,7 +215,7 @@ jtgng_sound u_sound (
     .snd_latch      ( snd_latch  ),
     .V32            ( V[5]       ),
     .rom_addr       ( snd_addr   ),
-    .rom_dout       ( snd_dout   ),
+    .rom_dout       ( snd_data   ),
     .rom_cs         (            ),
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
@@ -242,16 +242,16 @@ jtgng_video u_video(
     .pause      ( !dip_pause    ),
     // CHAR
     .char_cs    ( char_cs       ),
-    .chram_dout ( chram_dout    ),
+    .chram_dout ( char_dout     ),
     .char_mrdy  ( char_mrdy     ),
     .char_addr  ( char_addr     ),
-    .chrom_data ( chrom_data    ),
+    .chrom_data ( char_data     ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
-    .scram_dout ( scram_dout    ),
+    .scram_dout ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_dout      ),
+    .scrom_data ( scr_data      ),
     .scr_mrdy   ( scr_mrdy      ),
     // OBJ
     .HINIT      ( HINIT         ),
@@ -262,7 +262,7 @@ jtgng_video u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_dout      ),
+    .objrom_data( obj_data      ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
@@ -278,7 +278,7 @@ jtgng_video u_video(
     .blue       ( blue          )
 );
 
-assign scr_dout[23:16] = 8'd0; // fix me!
+wire [7:0] scr_nc; // no connect
 
 jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .char_offset( 22'h0E000 ),
@@ -301,18 +301,18 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( 15'd0         ),
+    .scr2_addr   ( scr_addr      ),
     .map1_addr   ( 14'd0         ),
     .map2_addr   ( 14'd0         ),
 
-    .char_dout   ( char_dout     ),
-    .main_dout   ( main_dout     ),
-    .snd_dout    ( snd_dout      ),
-    .obj_dout    ( obj_dout      ),
+    .char_dout   ( char_data     ),
+    .main_dout   ( main_data     ),
+    .snd_dout    ( snd_data      ),
+    .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( scr_dout[15:0]      ), // fix me!
-    .scr2_dout   (               ),
+    .scr1_dout   ( scr_data[15:0]),
+    .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface

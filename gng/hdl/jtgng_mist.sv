@@ -74,7 +74,7 @@ localparam CONF_STR = {
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 7+16+6+42+20+15+15+18+24+9+30;
+localparam CONF_STR_LEN = $size(CONF_STR)>>>3; // System verilog is only used for this line!
 
 wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -83,7 +83,7 @@ wire          ps2_kbd_clk, ps2_kbd_data;
 wire [ 5:0]   board_r, board_g, board_b;
 wire          board_hsync, board_vsync, hs, vs;
 wire [21:0]   sdram_addr;
-wire [15:0]   data_read;
+wire [31:0]   data_read;
 wire          loop_rst, autorefresh, H0;
 wire          downloading;
 wire [21:0]   ioctl_addr;
@@ -104,7 +104,7 @@ wire          en_mixing = ~status['hb];
 wire LHBL, LVBL;
 wire signed [15:0] snd;
 
-wire [5:0] game_joystick1, game_joystick2;
+wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
 wire [3:0] gfx_en;
@@ -280,8 +280,8 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
 
     .start_button( game_start     ),
     .coin_input  ( game_coin      ),
-    .joystick1   ( game_joystick1 ),
-    .joystick2   ( game_joystick2 ),
+    .joystick1   ( game_joystick1[5:0] ),
+    .joystick2   ( game_joystick2[5:0] ),
 
     // ROM load
     .downloading ( downloading   ),
