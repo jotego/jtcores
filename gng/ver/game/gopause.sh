@@ -13,10 +13,11 @@ function check_hex_file {
     fi
 }
 
-if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR; then
+if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR -d BYPASS_OSD; then
     exit 1
 fi
 
+exit 0
 for i in *png; do
-    convert $i -crop 290x260+50+0 -rotate -90 -resize 300%x300% $i
+    convert $i -crop 290x260+50+0 -resize 300%x300% $i
 done

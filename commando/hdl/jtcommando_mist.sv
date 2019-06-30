@@ -95,12 +95,7 @@ wire dip_flip = status[32'hb];
 
 wire game_pause;
 wire sdram_req;
-`ifdef SIMULATION
-    wire dip_pause = 1'b1; // ~status[1];
-    initial if(!dip_pause) $display("INFO: DIP pause enabled");
-`else
 wire dip_pause = ~status[1] & ~game_pause;
-`endif
 
 `ifdef SIMULATION
     `ifdef DIP_TEST
@@ -161,7 +156,7 @@ jtgng_pll1 u_pll_vga (
 
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
-/*
+
 jtgng_vga u_scandoubler (
     .clk_rgb    ( clk_sys       ),
     .cen6       ( cen6          ), //  6 MHz
@@ -179,7 +174,7 @@ jtgng_vga u_scandoubler (
     .vga_hsync  ( vga_hsync     ),
     .vga_vsync  ( vga_vsync     )
 );
-*/
+
 // convert 5-bit colour to 6-bit colour
 assign vga_r[0] = vga_r[5];
 assign vga_g[0] = vga_g[5];

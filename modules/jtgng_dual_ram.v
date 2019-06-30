@@ -33,8 +33,12 @@ integer f, readcnt;
 initial
 if( simfile != "" ) begin
     f=$fopen(simfile,"rb");
-    readcnt=$fread( mem, f );
-    $fclose(f);
+    if( f==0 ) begin
+        $display("WARNING: %m cannot find file %s",simfile);
+    end else begin
+        readcnt=$fread( mem, f );
+        $fclose(f);
+    end
     end
 else begin
     for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )

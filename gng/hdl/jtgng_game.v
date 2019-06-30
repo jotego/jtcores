@@ -154,6 +154,7 @@ wire [7:0] snd_latch;
 
 wire scr_cs, scrpos_cs;
 
+`ifndef NOMAIN
 jtgng_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -203,6 +204,16 @@ jtgng_main u_main(
     .dip_attract_snd( dip_attract_snd ),
     .dip_upright    ( dip_upright     )
 );
+`else 
+assign main_addr   = 17'd0;
+assign char_cs     = 1'b0;
+assign scr_cs      = 1'b0;
+assign scrpos_cs   = 1'b0;
+assign blue_cs     = 1'b0;
+assign redgreen_cs = 1'b0;
+assign bus_ack     = 1'b0;
+assign flip        = 1'b0;
+`endif
 
 `ifndef NOSOUND
 jtgng_sound u_sound (

@@ -10,9 +10,19 @@ MIST=-mist
 for k in $*; do
     if [ "$k" = -mister ]; then
         echo "MiSTer setup chosen."
-        MIST=$k
+        MIST=-mister
     fi
 done
+
+# Create default palette files
+if [[ ! -e rg_ram.hex || ! -e b_ram.hex ]]; then
+    cnt=0;
+    while [ $cnt != 256 ]; do
+        echo FF >> rg_ram.hex
+        echo  0 >> b_ram.hex
+        cnt=$((cnt+1))
+    done
+fi
 
 export GAME_ROM_PATH=../../../rom/JTCOMMANDO.rom
 export MEM_CHECK_TIME=90_000_000

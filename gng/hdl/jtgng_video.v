@@ -122,7 +122,12 @@ jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .scrwin     ( scrwin        )
 );
 `else
-assign scr_mrdy = 1'b1;
+assign scr_mrdy   = 1'b1;
+assign scr_col    = 3'd0;
+assign scr_pal    = 3'd0;
+assign scrwin     = 1'd0;
+assign scr_addr   = 15'd0;
+assign scram_dout = 8'd0;
 `endif
 
 `ifndef NOCOLMIX

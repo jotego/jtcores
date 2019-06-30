@@ -166,6 +166,7 @@ wire [7:0] snd_latch;
 wire scr_cs, scrpos_cs;
 
 wire [5:0] prom_we;
+`ifndef NOMAIN
 /*
 jtgng_main u_main(
     .clk        ( clk           ),
@@ -217,6 +218,9 @@ jtgng_main u_main(
     .dip_upright    ( dip_upright     )
 );
 */
+`else 
+assign flip = 1'b0;
+`endif
 /*
 `ifndef NOSOUND
 jtgng_sound u_sound (
@@ -245,6 +249,7 @@ assign ym_snd   = 16'b0;
 jtcommando_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_AB     ( cpu_AB[10:0]  ),

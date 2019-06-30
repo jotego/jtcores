@@ -19,6 +19,7 @@
 module jtcommando_video(
     input               rst,
     input               clk,
+    input               cen12,
     input               cen6,
     input               cen3,
     input       [10:0]  cpu_AB,
@@ -120,7 +121,10 @@ jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .scrwin     ( scr_pxl[6]    )
 );
 `else
-assign scr_mrdy = 1'b1;
+assign scr_mrdy   = 1'b1;
+assign scr_pxl    = 7'd0;
+assign scr_addr   = 15'd0;
+assign scram_dout = 8'd0;
 `endif
 
 `ifndef NOCOLMIX
