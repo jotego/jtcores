@@ -94,7 +94,7 @@ wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [16:0] main_addr;
+wire [15:0] main_addr;
 wire [14:0] snd_addr;
 wire [12:0] char_addr;
 wire [14:0] scr_addr;
@@ -172,56 +172,64 @@ wire [5:0] prom_we;
 `ifndef NOMAIN
 
 jtcommando_main u_main(
+    .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
-    .rst        ( rst_game      ),
-    .soft_rst   ( soft_rst      ),
-    .ch_mrdy    ( char_mrdy     ),
-    .scr_mrdy   ( scr_mrdy      ),
-    .char_dout  ( chram_dout    ),
-    .scr_dout   ( scram_dout    ),
-    // bus sharing
-    .ram_dout   ( main_ram      ),
-    .obj_AB     ( obj_AB        ),
-    .OKOUT      ( OKOUT         ),
-    .blcnten    ( blcnten       ),
-    .bus_req    ( bus_req       ),
-    .bus_ack    ( bus_ack       ),
+    .cpu_cen    ( cpu_cen       ),
+    // Timing
+    .flip       ( flip          ),
+    .V          ( V             ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
 
-    .LVBL       ( LVBL          ),
-    .main_cs    ( main_cs       ),
+    // Characters
+    .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
-    .scr_cs     ( scr_cs        ),
+    .char_wait  ( ~char_mrdy    ),
+    // scroll
     .scrpos_cs  ( scrpos_cs     ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
-    .flip       ( flip          ),
-    .cpu_AB     ( cpu_AB        ),
-    .RnW        ( RnW           ),
-    .rom_addr   ( main_addr     ),
-    .rom_dout   ( main_dout     ),
-    .start_button( start_button ),
-    .coin_input ( coin_input    ),
+    .scr_wait   ( ~scr_mrdy     ),
+    .scr_dout   ( scram_dout    ),
+    .scr_cs     ( scr_cs        ),
+    // cabinet I/O
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
+    .start_button( start_button ),
+    .coin_input ( coin_input    ),
+    // bus sharing
+    .cpu_AB     ( cpu_AB        ),
+    .ram_dout   ( main_ram      ),
+    .obj_AB     ( obj_AB        ),
+    .rd_n       ( cpu_rdn       ),
+    .wr_n       ( cpu_wrn       ),
+    .OKOUT      ( OKOUT         ),
+    .bus_req    ( bus_req       ),
+    .bus_ack    ( bus_ack       ),
+    .blcnten    ( blcnten       ),
+
+    .RnW        ( RnW           ),
+    // ROM access
+    .rom_cs     ( main_cs       ),
+    .rom_addr   ( main_addr     ),
+    .rom_dout   ( main_data     ),
+    .rom_ok     ( main_ok       ),
+    // PROM 6L (interrupts)
+    .prog_addr  ( prog_addr     ),
+    .prom_6l_we ( prom_6l_we    ),
+    .prog_din   ( prog_din      ),
     // DIP switches
-    .dip_pause      ( dip_pause       ),
-    .dip_flip       ( 1'b0            ),
-    .dip_lives      ( dip_lives       ),
-    .dip_level      ( dip_level       ),
-    .dip_bonus      ( dip_bonus       ),
-    .dip_game_mode  ( dip_game_mode   ),
-    .dip_attract_snd( dip_attract_snd ),
-    .dip_upright    ( dip_upright     )
+    .dip_pause  ( dip_pause     ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
 );
 `else 
-assign main_addr   = 17'd0;
+assign main_addr   = 16'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
 assign scrpos_cs   = 1'b0;
@@ -315,7 +323,7 @@ jtcommando_video u_video(
 
 wire [7:0] scr_nc; // no connect
 
-jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
+jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
     .snd_offset ( 22'h0_C000 >> 1 ),
     .char_offset( 22'h1_0000 >> 1 ),
     .scr1_offset( 22'h1_4000 >> 1 ),

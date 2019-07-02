@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name arcade)(type Legacy)(uri /home/jtejada/github/jt_gng/modules/jtframe/kicad/arcade.lib)(options "")(descr ""))
+  (lib (name jt74xx)(type Legacy)(uri /home/jtejada/github/jt_gng/modules/jtframe/kicad/jt74xx.lib)(options "")(descr ""))
+)
