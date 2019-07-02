@@ -170,8 +170,8 @@ wire scr_cs, scrpos_cs;
 
 wire [5:0] prom_we;
 `ifndef NOMAIN
-/*
-jtgng_main u_main(
+
+jtcommando_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -220,7 +220,6 @@ jtgng_main u_main(
     .dip_attract_snd( dip_attract_snd ),
     .dip_upright    ( dip_upright     )
 );
-*/
 `else 
 assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
