@@ -81,6 +81,7 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
+wire snd_cs;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, chram_dout, scram_dout;
@@ -99,11 +100,13 @@ wire [12:0] char_addr;
 wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 
-
 wire rom_ready;
+wire main_ok, snd_ok;
 
 reg rst_game=1'b1;
 reg rst_aux;
+
+assign sample = 1'b0;
 
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),    // 12 MHz
@@ -219,33 +222,45 @@ jtgng_main u_main(
 );
 */
 `else 
-assign flip = 1'b0;
+assign main_addr   = 17'd0;
+assign char_cs     = 1'b0;
+assign scr_cs      = 1'b0;
+assign scrpos_cs   = 1'b0;
+assign blue_cs     = 1'b0;
+assign redgreen_cs = 1'b0;
+assign bus_ack     = 1'b0;
+assign flip        = 1'b0;
+assign RnW         = 1'b1;
 `endif
-/*
+
 `ifndef NOSOUND
-jtgng_sound u_sound (
-    .clk            ( clk        ),
-    .cen3           ( cen3       ),
-    .cen1p5         ( cen1p5     ),
-    .rst            ( rst_game   ),
-    .soft_rst       ( soft_rst   ),
-    .sres_b         ( sres_b     ),
-    .snd_latch      ( snd_latch  ),
-    .V32            ( V[5]       ),
-    .rom_addr       ( snd_addr   ),
-    .rom_dout       ( snd_dout   ),
-    .rom_cs         (            ),
-    .enable_psg     ( enable_psg ),
-    .enable_fm      ( enable_fm  ),
-    .ym_snd         ( ym_snd     ),
-    .sample         ( sample     )
+jtcommando_sound u_sound (
+    .clk            ( clk          ),
+    .cen3           ( cen3         ),
+    .cen1p5         ( cen1p5       ),
+    .main_cen       ( cen3         ), // fix!
+    // Interface with main CPU
+    .sres_b         ( sres_b       ),
+    .main_dout      ( cpu_dout     ),
+    .main_latch_cs  ( snd_latch_cs ),
+    .snd_int        ( snd_int      ),
+    // Sound control
+    .enable_psg     ( enable_psg   ),
+    .enable_fm      ( enable_fm    ),
+    // ROM
+    .rom_addr       ( snd_addr     ),
+    .rom_data       ( snd_data     ),
+    .rom_cs         ( snd_cs       ),
+    .rom_ok         ( snd_ok       ),
+    // sound output
+    .snd            ( snd          )
 );
 `else
 assign snd_addr = 15'd0;
-assign sample   = 1'b0;
-assign ym_snd   = 16'b0;
+assign snd_cs   = 1'b0;
+assign snd      = 16'b0;
 `endif
-*/
+
 jtcommando_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),

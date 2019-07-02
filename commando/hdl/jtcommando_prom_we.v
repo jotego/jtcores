@@ -35,39 +35,44 @@ module jtcommando_prom_we(
 // SOUND        starts at 0C000h
 // CHAR         starts at 10000h
 // SCROLL X     starts at 14000h
-// SCROLL Z     starts at 20000h
-// Objects ZY   starts at 28000h
-// SCROLL Y     starts at 34000h
-// SCROLL Z     starts at 3C000h
-// Objects XW   starts at 44000h
-// PROMs        starts at 50000h
-// length 5_0600h
-
-`ifdef SIMULATION
-wire region0_main  = ioctl_addr < 22'h0c000;
-wire region1_snd   = ioctl_addr < 22'h10000;
-wire region2_char  = ioctl_addr < 22'h14000;
-wire region3_scrx  = ioctl_addr < 22'h20000;
-wire region4_scrz  = ioctl_addr < 22'h28000;
-wire region5_objzy = ioctl_addr < 22'h34000;
-wire region6_scry  = ioctl_addr < 22'h3c000;
-wire region7_scrz2 = ioctl_addr < 22'h44000;
-wire region8_objxw = ioctl_addr < 22'h50000;
-`endif
-
+// SCROLL Z     starts at 1C000h
+// Objects ZY   starts at 24000h
+// SCROLL Y     starts at 30000h
+// SCROLL Z     starts at 38000h
+// Objects XW   starts at 40000h
+// PROMs        starts at 4C000h
+// ROM length 4C600h
 
 localparam 
     SNDADDR  = 22'h0_C000, 
     CHARADDR = 22'h1_0000,
 
-    SCRXADDR = 22'h1_4000,  // LSB: 01_0100_
-    OBJZADDR = 22'h2_8000,
-    SCRYADDR = 22'h3_4000,  // MSB: 11_0100_
-    OBJXADDR = 22'h4_4000,
+    SCRXADDR = 22'h1_4000,
+    SCRZADDR = 22'h1_C000,
+    SCRYADDR = 22'h2_4000,
+    SCRZADDR2= 22'h2_C000,
 
-    PROMS    = 22'h5_0000,
-    ROMEND   = 22'h5_0600;
-wire [21:0] scr_offset = ioctl_addr - SCRXADDR;
+    OBJZADDR = 22'h3_4000,
+    OBJXADDR = 22'h4_0000,
+
+    PROMS    = 22'h4_c000,
+    ROMEND   = 22'h4_c600;
+
+`ifdef SIMULATION
+wire region0_main  = ioctl_addr < SNDADDR;
+wire region1_snd   = ioctl_addr < CHARADDR;
+wire region2_char  = ioctl_addr < SCRXADDR;
+wire region3_scrx  = ioctl_addr < SCRZADDR;
+wire region4_scrz  = ioctl_addr < SCRYADDR;
+wire region5_scry  = ioctl_addr < SCRZADDR2;
+wire region6_scrz2 = ioctl_addr < OBJZADDR;
+wire region7_objzy = ioctl_addr < OBJXADDR;
+wire region8_objxw = ioctl_addr < PROMS;
+`endif
+
+// offset the SDRAM programming address by 
+reg [16:0] scr_offset=18'd0, obj_offset=18'd0;
+
 wire scr_region = (ioctl_addr>=SCRXADDR&& ioctl_addr<OBJZADDR) ||
     (ioctl_addr>=SCRYADDR && ioctl_addr<OBJXADDR);
 
@@ -92,12 +97,19 @@ always @(posedge clk) begin
         if(ioctl_addr < SCRXADDR) begin // Main ROM, CHAR ROM
             prog_addr <= {1'b0, ioctl_addr[21:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            scr_offset <= 17'd0;
         end
-        else if(ioctl_addr < PROMS) begin            
-            prog_mask <= { scr_offset[16], ~scr_offset[16]};
-            prog_addr <= SCRXADDR[21:1] + (
-                scr_region ? {scr_offset[21:5], scr_offset[3:0], scr_offset[4] } // bit order swapped to increase cache hits
-                    : scr_offset );
+        else if(ioctl_addr < OBJZADDR ) begin            
+            prog_mask <= scr_offset[16] ? 2'b10 : 2'b01;
+            prog_addr <= SCRXADDR[21:1] +
+                { 6'd0, scr_offset[15:5], scr_offset[3:0], scr_offset[4] }; // bit order swapped to increase cache hits
+            scr_offset <= scr_offset+17'd1;
+            obj_offset <= 17'd0;
+        end
+        else if(ioctl_addr < PROMS ) begin
+            prog_mask <= obj_offset[16:14]>=3'b011 ? 2'b10 : 2'b01;
+            prog_addr <= OBJZADDR[21:1] + { 6'd0, obj_offset[15:0] };
+            obj_offset <= obj_offset+17'd1;
         end
         else begin // PROMs
             prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };

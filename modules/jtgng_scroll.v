@@ -46,15 +46,6 @@ assign scr_pal = scr_pal0;
 assign scr_col = scr_col0;
 assign scrwin  = scrwin0;
 
-// align with sprites
-// jtgng_sh #(.width(7), .stages(4)) u_sh (
-//     .clk    ( clk    ),
-//     .clk_en ( cen6   ),
-//     .din    ( {scrwin0, scr_pal0, scr_col0} ),
-//     .drop   ( {scrwin,  scr_pal,  scr_col } )
-// );
-
-
 parameter Hoffset=9'd5;
 
 wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
@@ -93,7 +84,7 @@ end
 wire [7:0] dout_low, dout_high;
 assign dout = AB[10] ? dout_high : dout_low;
 
-jtgng_ram #(.aw(10),.cen_rd(1)) u_ram_low(
+jtgng_ram #(.aw(10),.cen_rd(1),.simfile("scrlow.bin")) u_ram_low(
     .clk    ( clk      ),
     .cen    ( cen6     ),
     .data   ( din      ),

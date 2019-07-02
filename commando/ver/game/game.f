@@ -2,6 +2,7 @@
 ../../hdl/jtcommando_game.v
 ../../hdl/jtcommando_prom_we.v
 ../../hdl/jtcommando_video.v
+../../hdl/jtcommando_sound.v
 ../../../1943/hdl/jt1943_rom2.v
 ../../../1943/hdl/jt1943_romrq.v
 ../../../modules/jt12/hdl/jt12_rst.v

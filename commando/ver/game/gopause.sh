@@ -24,7 +24,7 @@ function check_hex_file {
 
 # use -d AVATARS to add AVATAS to simulation:
 if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd \
-    -d NOMAIN -d ALWAYS_PAUSE -d NOSCR -d SCANDOUBLER_DISABLE; then
+    -d NOMAIN -d NOSOUND -d ALWAYS_PAUSE -d SCANDOUBLER_DISABLE; then
     exit 1
 fi
 

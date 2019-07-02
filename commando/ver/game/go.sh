@@ -15,8 +15,13 @@ for k in $*; do
 done
 
 export GAME_ROM_PATH=../../../rom/JTCOMMANDO.rom
-export MEM_CHECK_TIME=90_000_000
+export MEM_CHECK_TIME=86_000_000
+GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
+
+# create scroll RAM files with initial value for simulation
+make
 
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=887808 -sysname commando \
-    -modules ../../../modules $*
+echo "Game ROM length: " $GAME_ROM_LEN
+../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN\
+    -sysname commando -modules ../../../modules $*

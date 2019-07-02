@@ -213,6 +213,7 @@ assign blue_cs     = 1'b0;
 assign redgreen_cs = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
+assign RnW         = 1'b1;
 `endif
 
 `ifndef NOSOUND
