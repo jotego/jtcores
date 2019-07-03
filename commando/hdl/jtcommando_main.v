@@ -46,14 +46,14 @@ module jtcommando_main(
     input   [7:0]      scr_dout,
     output             scr_cs,
     // cabinet I/O
-    input   [6:0]      joystick1,
-    input   [6:0]      joystick2,
+    input   [5:0]      joystick1,
+    input   [5:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
-    input   [12:0]     obj_AB,
+    input   [ 8:0]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
     input              bus_req,  // Request bus
@@ -61,7 +61,7 @@ module jtcommando_main(
     input              blcnten,  // bus line counter enable
     // ROM access
     output  reg        rom_cs,
-    output  reg [15:0] rom_addr,
+    output      [15:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
     // PROM 6L (interrupts)
@@ -137,7 +137,6 @@ jt12_rst u_rst(
 );
 
 reg [7:0] cabinet_input;
-wire [7:0] security;
 
 always @(*)
     case( A[2:0] )
@@ -146,11 +145,10 @@ always @(*)
                      1'b1,
                      1'b1,
                      start_button }; // START
-        3'd1: cabinet_input = { 1'b1, joystick1 };
-        3'd2: cabinet_input = { 1'b1, joystick2 };
+        3'd1: cabinet_input = { 2'b1, joystick1 };
+        3'd2: cabinet_input = { 2'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
-        3'd7: cabinet_input = security;
         default: cabinet_input = 8'hff;
     endcase
 
@@ -159,7 +157,7 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-wire [12:0] RAM_addr = blcnten ? obj_AB : cpu_AB;
+wire [12:0] RAM_addr = blcnten ? {4'b1111, obj_AB} : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13),.cen_rd(0)) RAM(

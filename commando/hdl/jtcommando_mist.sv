@@ -90,29 +90,18 @@ wire          ioctl_wr;
 wire          coin_cnt;
 
 wire rst_req = status[32'hf];
-wire cheat_invincible = status[32'd10];
-wire dip_flip = status[32'hb];
 
 wire game_pause;
 wire sdram_req;
 wire dip_pause = ~status[1] & ~game_pause;
 
-`ifdef SIMULATION
-    `ifdef DIP_TEST
-    wire dip_test  = 1'b0;
-    `else
-    wire dip_test  = 1'b1;
-    `endif
-    initial if(!dip_test) $display("INFO: DIP test mode enabled");
-`else
-wire dip_test  = ~status[4];
-`endif
-
 wire dip_upright = 1'b1;
-wire [1:0] dip_level  = status[4:3];
-wire [1:0] dip_start  = status[6:5];
-wire [2:0] dip_price1 = 2'b00;
-wire [2:0] dip_price2 = 2'b11;
+wire       dip_level  = status[2];
+wire [1:0] dip_start  = status[4:3];
+wire [1:0] dip_lives  = status[6:5];
+wire [1:0] dip_price1 = 2'b00;
+wire [1:0] dip_price2 = 2'b11;
+wire       dip_flip   = status[12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -180,9 +169,10 @@ assign vga_r[0] = vga_r[5];
 assign vga_g[0] = vga_g[5];
 assign vga_b[0] = vga_b[5];
 
+`ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
-
+`endif
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b0))
@@ -317,14 +307,16 @@ u_game(
     .data_rdy    ( data_rdy      ),
     .refresh_en  ( refresh_en    ),
     // DIP switches
-    .dip_start   ( dip_start      ),
     .dip_pause   ( dip_pause      ),
-    .dip_upright ( 2'b00          ), // upright, one joystick
+    .dip_lives   ( dip_lives      ),
     .dip_level   ( dip_level      ),
-    .dip_price2  ( 2'b11          ),
+    .dip_start   ( dip_start      ),
     .dip_price1  ( 2'b11          ),
-    .dip_flip    ( dip_flip       ),
+    .dip_price2  ( 2'b11          ),
     .dip_bonus   ( 3'b111         ),
+    .dip_upright ( 2'b00          ), // upright, one joystick
+    .dip_demosnd ( 1'b0           ),
+    .dip_flip    ( dip_flip       ),
     // sound
     .snd         ( snd            ),
     .sample      (                ),

@@ -60,12 +60,13 @@ module jtcommando_game(
     // DIP switches
     input           dip_pause, // Not a DIP on the original PCB
     input   [ 1:0]  dip_lives,
-    input   [ 1:0]  dip_level,
+    input           dip_level,
     input   [ 1:0]  dip_start,
     input   [ 1:0]  dip_price1,
     input   [ 1:0]  dip_price2,
     input   [ 2:0]  dip_bonus,
     input   [ 1:0]  dip_upright,
+    input           dip_demosnd,
     input           dip_flip,
     // Sound output
     output  [15:0]  snd,
@@ -85,7 +86,7 @@ wire snd_cs;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, chram_dout, scram_dout;
-wire rd;
+wire rd, cpu_cen;
 wire char_mrdy, scr_mrdy;
 // ROM data
 wire [15:0] char_data;
@@ -164,19 +165,22 @@ wire [7:0] main_ram;
 wire blcnten;
 // sound
 wire sres_b;
-wire [7:0] snd_latch;
+wire snd_latch_cs;
 
 wire scr_cs, scrpos_cs;
 
 wire [5:0] prom_we;
+wire prom_1d, prom_2d, prom_3d, prom_1h, prom_6l, prom_6e;
+
 `ifndef NOMAIN
+wire [7:0] dipsw_a = { dip_price1, dip_price2, dip_lives, dip_start };
+wire [7:0] dipsw_b = { dip_upright, dip_flip, dip_level, dip_demosnd, dip_bonus };
 
 jtcommando_main u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .cen1p5     ( cen1p5        ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
@@ -185,7 +189,7 @@ jtcommando_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .sres_b     ( sres_b        ),
-    .snd_latch  ( snd_latch     ),
+    .snd_latch_cs( snd_latch_cs ),
 
     // Characters
     .char_dout  ( chram_dout    ),
@@ -206,8 +210,6 @@ jtcommando_main u_main(
     .cpu_AB     ( cpu_AB        ),
     .ram_dout   ( main_ram      ),
     .obj_AB     ( obj_AB        ),
-    .rd_n       ( cpu_rdn       ),
-    .wr_n       ( cpu_wrn       ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
@@ -217,12 +219,12 @@ jtcommando_main u_main(
     // ROM access
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
-    .rom_dout   ( main_data     ),
+    .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
     // PROM 6L (interrupts)
-    .prog_addr  ( prog_addr     ),
-    .prom_6l_we ( prom_6l_we    ),
-    .prog_din   ( prog_din      ),
+    .prog_addr  ( prog_addr[7:0]),
+    .prom_6l_we ( prom_6l       ),
+    .prog_din   ( prog_data[3:0]),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
@@ -306,9 +308,9 @@ jtcommando_video u_video(
     .objrom_data( obj_data      ),
     // PROMs
     .prog_addr  ( prog_addr[7:0]),
-    .prom_1d_we ( prom_1d_we    ),
-    .prom_2d_we ( prom_2d_we    ),
-    .prom_3d_we ( prom_3d_we    ),
+    .prom_1d_we ( prom_1d       ),
+    .prom_2d_we ( prom_2d       ),
+    .prom_3d_we ( prom_3d       ),
     .prom_din   ( prog_data[3:0]),    
     // Color Mix
     .LHBL       ( LHBL          ),
