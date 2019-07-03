@@ -74,7 +74,7 @@ module jt1943_rom2 #(parameter char_aw=14, main_aw=18, obj_aw=17, scr1_aw=17,
 
 reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
-wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req; //, snd_req;
+wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req;
 
 reg [7:0] data_sel;
 wire [main_aw-1:0] main_addr_req;

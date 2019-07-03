@@ -32,7 +32,6 @@ module jtcommando_video(
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
-    output              char_mrdy,
     output      [12:0]  char_addr,
     input       [15:0]  chrom_data,
     // SCROLL - ROM
@@ -41,7 +40,6 @@ module jtcommando_video(
     output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,
-    output              scr_mrdy,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -76,7 +74,7 @@ wire [6:0] scr_pxl;
 localparam scrchr_off = 8'd5;
 
 `ifndef NOCHAR
-jtgng_char #(.Hoffset(scrchr_off)) u_char (
+jtgng_char #(.Hoffset(scrchr_off), .CPU_FIRST(1)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -89,7 +87,7 @@ jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
     .rd         ( RnW           ),
-    .MRDY_b     ( char_mrdy     ),
+    .MRDY_b     (               ),
     .char_addr  ( char_addr     ),
     .chrom_data ( chrom_data    ),
     .char_col   ( char_pxl[1:0] ),
@@ -100,7 +98,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
+jtgng_scroll #(.Hoffset(scrchr_off), .CPU_FIRST(1)) u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -113,7 +111,7 @@ jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .din        ( cpu_dout      ),
     .dout       ( scram_dout    ),
     .rd         ( RnW           ),
-    .MRDY_b     ( scr_mrdy      ),
+    .MRDY_b     (               ),
     .scr_addr   ( scr_addr      ),
     .scr_col    ( scr_pxl[2:0]  ),
     .scr_pal    ( scr_pxl[5:3]  ),

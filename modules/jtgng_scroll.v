@@ -39,6 +39,9 @@ module jtgng_scroll(
     output             scrwin
 );
 
+parameter CPU_FIRST = 0;
+parameter Hoffset=9'd5;
+
 reg [2:0] scr_pal0, scr_col0;
 reg scrwin0;
 
@@ -46,7 +49,6 @@ assign scr_pal = scr_pal0;
 assign scr_col = scr_col0;
 assign scrwin  = scrwin0;
 
-parameter Hoffset=9'd5;
 
 wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
 reg  [ 8:0] HS, VS;
@@ -65,7 +67,13 @@ always @(*) begin
 end
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
-wire sel_scan = ~HS[2];
+reg sel_scan;
+
+always @(*) begin
+    // Commando does not allow for CPU accesses during the frame
+    sel_scan = CPU_FIRST ? ~scr_cs : ~HS[2];
+end
+
 wire [9:0]  addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && scr_cs && !rd;
 wire we_low  = we && !AB[10];

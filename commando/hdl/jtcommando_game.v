@@ -87,7 +87,6 @@ wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, chram_dout, scram_dout;
 wire rd, cpu_cen;
-wire char_mrdy, scr_mrdy;
 // ROM data
 wire [15:0] char_data;
 wire [23:0] scr_data;
@@ -195,10 +194,8 @@ jtcommando_main u_main(
     .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
-    .char_wait  ( ~char_mrdy    ),
     // scroll
     .scrpos_cs  ( scrpos_cs     ),
-    .scr_wait   ( ~scr_mrdy     ),
     .scr_dout   ( scram_dout    ),
     .scr_cs     ( scr_cs        ),
     // cabinet I/O
@@ -254,8 +251,8 @@ jtcommando_sound u_sound (
     .main_latch_cs  ( snd_latch_cs ),
     .snd_int        ( snd_int      ),
     // Sound control
-    .enable_psg     ( enable_psg   ),
-    .enable_fm      ( enable_fm    ),
+    .enable_psg     ( 1'b1         ),
+    .enable_fm      ( 1'b1         ),
     // ROM
     .rom_addr       ( snd_addr     ),
     .rom_data       ( snd_data     ),
@@ -286,7 +283,6 @@ jtcommando_video u_video(
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
-    .char_mrdy  ( char_mrdy     ),
     .char_addr  ( char_addr     ),
     .chrom_data ( char_data     ),
     // SCROLL - ROM
@@ -295,7 +291,6 @@ jtcommando_video u_video(
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
-    .scr_mrdy   ( scr_mrdy      ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),

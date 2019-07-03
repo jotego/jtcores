@@ -38,10 +38,17 @@ module jtgng_char(
 );
 
 parameter Hoffset=8'd5;
+parameter CPU_FIRST = 0;
 
 wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
 
-wire sel_scan = ~Hfix[2];
+reg sel_scan;
+
+always @(*) begin
+    // Commando does not allow for CPU accesses during the frame
+    sel_scan = CPU_FIRST ? ~char_cs : ~Hfix[2];
+end
+
 wire [9:0] scan = { {10{flip}}^{V128[7:3],Hfix[7:3]}};
 wire [9:0] addr = sel_scan ? scan : AB[9:0];
 wire [7:0] mem_low, mem_high, mem_msg;

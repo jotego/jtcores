@@ -95,7 +95,7 @@ wire game_pause;
 wire sdram_req;
 wire dip_pause = ~status[1] & ~game_pause;
 
-wire dip_upright = 1'b1;
+wire dip_upright = 2'b00;
 wire       dip_level  = status[2];
 wire [1:0] dip_start  = status[4:3];
 wire [1:0] dip_lives  = status[6:5];
@@ -264,8 +264,10 @@ u_frame(
     .gfx_en         ( gfx_en         )
 );
 
+`ifdef SIMULATION
 assign sim_vs = vs;
 assign sim_hs = hs;
+`endif
 
 jtcommando_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
@@ -311,10 +313,10 @@ u_game(
     .dip_lives   ( dip_lives      ),
     .dip_level   ( dip_level      ),
     .dip_start   ( dip_start      ),
-    .dip_price1  ( 2'b11          ),
-    .dip_price2  ( 2'b11          ),
+    .dip_price1  ( dip_price1     ),
+    .dip_price2  ( dip_price2     ),
     .dip_bonus   ( 3'b111         ),
-    .dip_upright ( 2'b00          ), // upright, one joystick
+    .dip_upright ( dip_upright    ), // upright, one joystick
     .dip_demosnd ( 1'b0           ),
     .dip_flip    ( dip_flip       ),
     // sound

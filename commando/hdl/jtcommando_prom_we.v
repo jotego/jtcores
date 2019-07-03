@@ -73,9 +73,6 @@ wire region8_objxw = ioctl_addr < PROMS;
 // offset the SDRAM programming address by 
 reg [16:0] scr_offset=18'd0, obj_offset=18'd0;
 
-wire scr_region = (ioctl_addr>=SCRXADDR&& ioctl_addr<OBJZADDR) ||
-    (ioctl_addr>=SCRYADDR && ioctl_addr<OBJXADDR);
-
 reg set_strobe, set_done;
 reg [12:0] prom_we0;
 

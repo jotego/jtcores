@@ -39,12 +39,10 @@ module jtcommando_main(
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
     output  reg        char_cs,
-    input              char_wait,
     // scroll
     output  reg        scrpos_cs,
-    input              scr_wait,
     input   [7:0]      scr_dout,
-    output             scr_cs,
+    output  reg        scr_cs,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -93,6 +91,7 @@ always @(*) begin
     misc_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
+    scr_cs        = 1'b0;
     scrpos_cs     = 1'b0;
     OKOUT         = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
@@ -101,17 +100,18 @@ always @(*) begin
             case(A[12:11])
                 2'b00:
                     in_cs = 1'b1;
-                2'b01:
+                2'b01: // CB_CS
                     casez(A[3:0])
-                        4'b000: snd_latch_cs = 1'b1;
-                        4'b100: misc_cs      = 1'b1;
-                        4'b110: OKOUT        = 1'b1;
+                        4'b0_000: snd_latch_cs = 1'b1;
+                        4'b0_100: misc_cs      = 1'b1;
+                        4'b0_110: OKOUT        = 1'b1;
+                        4'b1_???: scrpos_cs    = 1'b1;
                         default:;
                     endcase
-                2'b10: // D0CS (D phi CS on schematics)
+                2'b10: // D0_CS (D phi CS on schematics)
                     char_cs = 1'b1; // D0CS
-                2'b11: // D8CS
-                    scrpos_cs = 1'b1;
+                2'b11: // D8_CS
+                    scr_cs = 1'b1;
             endcase
         3'b111: ram_cs = 1'b1;
     endcase
@@ -191,57 +191,31 @@ always @(*)
 
 assign rom_addr = A;
 
-///////////////////////////////////////////////////////////////////
-// interrupt generation. Schematics page 5/9, parts 12J and 14K
-reg int_rqb, int_rqb_last;
-wire int_middle = V[7:5]!=3'd3;
-wire int_rqb_negedge = !int_rqb && int_rqb_last;
-
-always @(posedge clk)
-    if(rst) begin
-        int_n <= 1'b1;
-    end else if(cpu_cen) begin
-        int_rqb_last <= int_rqb;
-        int_rqb <= LVBL && int_middle;
-        if( irq_ack )
-            int_n <= 1'b1;
-        else
-            if ( int_rqb_negedge ) int_n <= 1'b0;
-    end
-
 /////////////////////////////////////////////////////////////////
 // wait_n generation
 reg wait_n;
 reg last_rom_cs;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
 
-reg char_free, scr_free, rom_free;
-reg char_clr, scr_clr, rom_clr;
+reg rom_free;
+reg rom_clr;
 always @(*) begin
-    char_clr = !char_free || (!char_wait     && char_free);
     rom_clr  = !rom_free  || ( rom_ok        && rom_free );
-    scr_clr  = !scr_free  || ( !scr_wait     && scr_free );
 end
 
 always @(posedge clk or negedge t80_rst_n)
     if( !t80_rst_n ) begin
         wait_n <= 1'b1;
-        char_free <= 1'b0;
         rom_free  <= 1'b0;
-        scr_free  <= 1'b0;
     end else begin
         last_rom_cs <= rom_cs;
-        if( (char_wait&&char_cs) || rom_cs_posedge ) begin
-            if( char_wait&&char_cs ) char_free <= 1'b1;
-            if( scr_wait &&scr_cs  ) scr_free  <= 1'b1;
+        if( rom_cs_posedge ) begin
             if( rom_cs_posedge ) rom_free  <= 1'b1;
             wait_n <= 1'b0;
         end
         else begin
-            wait_n    <= char_clr & rom_clr & scr_clr;
+            wait_n    <= rom_clr;
             rom_free  <= !rom_clr;
-            char_free <= !char_clr;
-            scr_free  <= !scr_clr;
         end
     end
 
