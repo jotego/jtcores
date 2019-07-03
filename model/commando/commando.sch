@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:commando-cache
 EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
@@ -782,4 +783,83 @@ Wire Wire Line
 	3950 7250 3650 7250
 Text GLabel 3650 7250 0    50   Input ~ 0
 CLK12
+Text GLabel 9850 7500 2    50   Input ~ 0
+V[0]
+Wire Wire Line
+	9850 7500 9850 7600
+Connection ~ 9850 7600
+Text GLabel 11150 7100 2    50   Input ~ 0
+V[1]
+Wire Wire Line
+	11150 7100 11100 7100
+Text GLabel 11150 7200 2    50   Input ~ 0
+V[2]
+Wire Wire Line
+	11150 7200 11100 7200
+Text GLabel 11150 7300 2    50   Input ~ 0
+V[3]
+Wire Wire Line
+	11150 7300 11100 7300
+Text GLabel 11150 7400 2    50   Input ~ 0
+V[4]
+Wire Wire Line
+	11150 7400 11100 7400
+Text GLabel 12900 7100 2    50   Input ~ 0
+V[5]
+Wire Wire Line
+	12900 7100 12850 7100
+Text GLabel 12900 7200 2    50   Input ~ 0
+V[6]
+Wire Wire Line
+	12900 7200 12850 7200
+Text GLabel 12900 7300 2    50   Input ~ 0
+V[7]
+Wire Wire Line
+	12900 7300 12850 7300
+Text GLabel 12900 7400 2    50   Input ~ 0
+V[8]
+Wire Wire Line
+	12900 7400 12850 7400
+$Comp
+L arcade:rpullup pu1
+U 1 1 5D20B69F
+P 3250 3350
+F 0 "pu1" H 3328 3640 50  0000 L CNN
+F 1 "rpullup" H 3328 3549 50  0000 L CNN
+F 2 "" H 3050 3350 50  0001 C CNN
+F 3 "" H 3050 3350 50  0001 C CNN
+	1    3250 3350
+	1    0    0    -1  
+$EndComp
+Text Label 3250 3450 0    50   ~ 0
+VDD
+Wire Wire Line
+	3250 3450 3250 3350
+$Comp
+L arcade:rpulldown pd1
+U 1 1 5D212F11
+P 3850 3350
+F 0 "pd1" H 3928 3640 50  0000 L CNN
+F 1 "rpulldown" H 3928 3549 50  0000 L CNN
+F 2 "" H 3650 3350 50  0001 C CNN
+F 3 "" H 3650 3350 50  0001 C CNN
+	1    3850 3350
+	1    0    0    -1  
+$EndComp
+Text Label 3850 3450 0    50   ~ 0
+VSS
+Wire Wire Line
+	3850 3450 3850 3350
+Wire Wire Line
+	6750 7900 6800 7900
+Text Label 6750 7900 2    50   ~ 0
+X6M
+Wire Wire Line
+	8500 7400 9400 7400
+Text Label 8900 7400 0    50   ~ 0
+VDD
+Text Label 9400 8000 0    50   ~ 0
+VDD
+Text Label 8500 8000 0    50   ~ 0
+VDD
 $EndSCHEMATC

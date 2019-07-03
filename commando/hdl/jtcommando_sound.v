@@ -23,7 +23,7 @@
 
 module jtcommando_sound(
     input           rst,
-    input           clk,    // 24   MHz
+    input           clk,
     input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
     input           cen1p5, //  1.5 MHz
     input           main_cen, // clock enable of main CPU

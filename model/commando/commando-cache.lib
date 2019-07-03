@@ -1,6 +1,32 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
+# arcade_rpulldown
+#
+DEF arcade_rpulldown pd 0 40 Y Y 1 F N
+F0 "pd" 150 550 50 H V C CNN
+F1 "arcade_rpulldown" -100 350 50 V V C CNN
+F2 "" -200 0 50 H I C CNN
+F3 "" -200 0 50 H I C CNN
+DRAW
+S -50 500 50 200 0 1 0 f
+X x 1 0 0 200 U 50 50 1 0 W
+ENDDRAW
+ENDDEF
+#
+# arcade_rpullup
+#
+DEF arcade_rpullup pu 0 40 Y Y 1 F N
+F0 "pu" 150 550 50 H V C CNN
+F1 "arcade_rpullup" -100 350 50 V V C CNN
+F2 "" -200 0 50 H I C CNN
+F3 "" -200 0 50 H I C CNN
+DRAW
+S -50 500 50 200 0 1 0 f
+X x 1 0 0 200 U 50 50 1 0 W
+ENDDRAW
+ENDDEF
+#
 # jt74xx_74LS04
 #
 DEF jt74xx_74LS04 U 0 40 Y Y 7 L N

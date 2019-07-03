@@ -83,7 +83,7 @@ wire rd_n, wr_n;
 assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = cen6;
+assign cpu_cen = cen3;
 assign bus_ack = ~busak_n;
 
 always @(*) begin
