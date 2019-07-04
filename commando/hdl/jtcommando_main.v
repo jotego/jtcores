@@ -95,7 +95,7 @@ always @(*) begin
     scrpos_cs     = 1'b0;
     OKOUT         = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
-        default: rom_cs = 1'b1; // 48 kB
+        3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
         3'b110: // cs_cd
             case(A[12:11])
                 2'b00:
@@ -176,6 +176,10 @@ wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
 wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
 
+// OP-code bits are shuffled
+wire [7:0] rom_opcode = A==16'd0 ? rom_data : 
+    {rom_data[3:1], rom_data[4], rom_data[7:5], rom_data[0] };
+
 always @(*)
     if( irq_ack ) // Interrupt address
         cpu_din = irq_vector;
@@ -184,7 +188,7 @@ always @(*)
         4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
                             ram_dout;
         4'b01_00: cpu_din = char_dout;
-        4'b00_10: cpu_din = rom_data;
+        4'b00_10: cpu_din = !m1_n ? rom_opcode : rom_data;
         4'b00_01: cpu_din = cabinet_input;
         default:  cpu_din = rom_data;
     endcase

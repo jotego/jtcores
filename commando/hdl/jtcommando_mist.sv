@@ -95,7 +95,7 @@ wire game_pause;
 wire sdram_req;
 wire dip_pause = ~status[1] & ~game_pause;
 
-wire dip_upright = 2'b00;
+wire [1:0] dip_upright = 2'b00;
 wire       dip_level  = status[2];
 wire [1:0] dip_start  = status[4:3];
 wire [1:0] dip_lives  = status[6:5];

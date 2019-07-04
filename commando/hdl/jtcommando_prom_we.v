@@ -71,13 +71,13 @@ wire region8_objxw = ioctl_addr < PROMS;
 `endif
 
 // offset the SDRAM programming address by 
-reg [16:0] scr_offset=18'd0, obj_offset=18'd0;
+reg [16:0] scr_offset=17'd0, obj_offset=17'd0;
 
 reg set_strobe, set_done;
-reg [12:0] prom_we0;
+reg [5:0] prom_we0;
 
 always @(posedge clk) begin
-    prom_we <= 'd0;
+    prom_we <= 6'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
