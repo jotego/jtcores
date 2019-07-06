@@ -176,9 +176,13 @@ wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
 wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
 
+`ifndef TESTROM
 // OP-code bits are shuffled
 wire [7:0] rom_opcode = A==16'd0 ? rom_data : 
     {rom_data[3:1], rom_data[4], rom_data[7:5], rom_data[0] };
+`else 
+wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
+`endif
 
 always @(*)
     if( irq_ack ) // Interrupt address
@@ -241,7 +245,7 @@ always @(posedge clk)
         snd_int <= 1'b1;
         int_n   <= 1'b1;
     end else if(cen3) begin // H1 == cen3
-        // Schematic L5 - sound interrupter
+        // Schematic 7L - sound interrupter
         snd_int <= int_ctrl[2];
         // Schematic L6, L5 - main CPU interrupter
         LHBL_old<=LHBL;
