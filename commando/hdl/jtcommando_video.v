@@ -185,6 +185,7 @@ jtgng_obj u_obj (
 `else
 assign obj_pxl = 6'd0;
 assign obj_addr = 16'd0;
-assign bus_req = 1'b1;
+assign bus_req = 1'b0;
+assign blcnten = 1'b0;
 `endif
 endmodule // jtcommando_video
