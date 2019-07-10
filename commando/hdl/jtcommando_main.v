@@ -39,10 +39,12 @@ module jtcommando_main(
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
     output  reg        char_cs,
+    input              char_busy,
     // scroll
     output  reg        scrpos_cs,
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
+    input              scr_busy,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -96,11 +98,11 @@ always @(*) begin
     OKOUT         = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
         3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
-        3'b110: // cs_cd
+        3'b110: // CXXX, DXXX
             case(A[12:11])
-                2'b00:
+                2'b00: // C0
                     in_cs = 1'b1;
-                2'b01: // CB_CS
+                2'b01: // C8
                     casez(A[3:0])
                         4'b0_000: snd_latch_cs = 1'b1;
                         4'b0_100: misc_cs      = 1'b1;
@@ -108,9 +110,9 @@ always @(*) begin
                         4'b1_???: scrpos_cs    = 1'b1;
                         default:;
                     endcase
-                2'b10: // D0_CS (D phi CS on schematics)
+                2'b10: // D0
                     char_cs = 1'b1; // D0CS
-                2'b11: // D8_CS
+                2'b11: // D8
                     scr_cs = 1'b1;
             endcase
         3'b111: ram_cs = 1'b1;
@@ -201,31 +203,21 @@ assign rom_addr = A;
 
 /////////////////////////////////////////////////////////////////
 // wait_n generation
-reg wait_n;
-reg last_rom_cs;
-wire rom_cs_posedge = !last_rom_cs && rom_cs;
+wire wait_n;
 
-reg rom_free;
-reg rom_clr;
-always @(*) begin
-    rom_clr  = !rom_free  || ( rom_ok        && rom_free );
-end
+jtframe_z80wait #(2) u_wait(
+    .rst_n      ( t80_rst_n ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cen3      ),
+    // manage access to shared memory
+    .dev_cs     ( { scr_cs, char_cs }     ),
+    .dev_busy   ( { scr_busy, char_busy } ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    ),
 
-always @(posedge clk or negedge t80_rst_n)
-    if( !t80_rst_n ) begin
-        wait_n <= 1'b1;
-        rom_free  <= 1'b0;
-    end else begin
-        last_rom_cs <= rom_cs;
-        if( rom_cs_posedge ) begin
-            if( rom_cs_posedge ) rom_free  <= 1'b1;
-            wait_n <= 1'b0;
-        end
-        else begin
-            wait_n    <= rom_clr;
-            rom_free  <= !rom_clr;
-        end
-    end
+    .wait_n     ( wait_n    )
+);
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
     .clk    ( clk          ),

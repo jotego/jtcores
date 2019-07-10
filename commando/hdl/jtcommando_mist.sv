@@ -63,7 +63,7 @@ localparam CLK_SPEED=48;
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
     //   12345678901234567890123456789012345678901234567890
-        "JTCommando;;", //8
+        "JTCOMMANDO;;", //8
         "O1,Pause,OFF,ON;", // 16
         "F,rom;", // 6
         "O2,Difficulty,Hard,Normal;", // 42

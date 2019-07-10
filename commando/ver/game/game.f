@@ -11,6 +11,7 @@
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_scroll.v

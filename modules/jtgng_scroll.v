@@ -30,6 +30,7 @@ module jtgng_scroll(
     output      [ 7:0] dout,
     input              rd,
     output             MRDY_b,
+    output             busy,
 
     // ROM
     output reg  [14:0] scr_addr,
@@ -39,7 +40,6 @@ module jtgng_scroll(
     output             scrwin
 );
 
-parameter CPU_FIRST = 0;
 parameter Hoffset=9'd5;
 
 reg [2:0] scr_pal0, scr_col0;
@@ -67,12 +67,8 @@ always @(*) begin
 end
 
 wire [9:0] scan = { HS[8:4], VS[8:4] };
-reg sel_scan;
-
-always @(*) begin
-    // Commando does not allow for CPU accesses during the frame
-    sel_scan = CPU_FIRST ? ~scr_cs : ~HS[2];
-end
+wire sel_scan = ~HS[2];
+assign busy = sel_scan;
 
 wire [9:0]  addr = sel_scan ? scan : AB[9:0];
 wire we = !sel_scan && scr_cs && !rd;

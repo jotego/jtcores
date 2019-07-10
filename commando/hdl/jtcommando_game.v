@@ -165,6 +165,7 @@ wire blcnten;
 // sound
 wire sres_b;
 wire snd_latch_cs;
+wire char_busy, scr_busy;
 
 wire scr_cs, scrpos_cs;
 
@@ -194,10 +195,12 @@ jtcommando_main u_main(
     .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
+    .char_busy  ( char_busy     ),
     // scroll
     .scrpos_cs  ( scrpos_cs     ),
     .scr_dout   ( scram_dout    ),
     .scr_cs     ( scr_cs        ),
+    .scr_busy   ( scr_busy      ),
     // cabinet I/O
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
@@ -285,12 +288,14 @@ jtcommando_video u_video(
     .chram_dout ( chram_dout    ),
     .char_addr  ( char_addr     ),
     .chrom_data ( char_data     ),
+    .char_busy  ( char_busy     ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
+    .scr_busy   ( scr_busy      ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
@@ -324,8 +329,8 @@ jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
     .snd_offset ( 22'h0_C000 >> 1 ),
     .char_offset( 22'h1_0000 >> 1 ),
     .scr1_offset( 22'h1_4000 >> 1 ),
-    .scr2_offset( (22'h1_4000 >> 1) + 22'h0_C000 ),
-    .obj_offset ( (22'h1_4000 >> 1) + 22'h1_4000 )
+    .scr2_offset( (22'h1_4000 >> 1) + 22'h0_8000 ),
+    .obj_offset ( (22'h1_4000 >> 1) + 22'h1_0000 )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),

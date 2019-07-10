@@ -77,7 +77,7 @@ localparam CONF_STR = {
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
+localparam CONF_STR_LEN = $size(CONF_STR)/8;
 
 wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;

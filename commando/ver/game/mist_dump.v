@@ -22,15 +22,19 @@ module mist_dump(
         $dumpon;
     end
     `else
-    initial begin
-        $display("DUMP starts");
-        `ifdef DEEPDUMP
-            $dumpvars(0,mist_test);
+        `ifndef DUMP_START
+        always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
         `else
-            $dumpvars(1,mist_test.UUT.u_game.u_main);
+            initial begin
         `endif
-        $dumpon;
-    end
+            $display("DUMP starts");
+            `ifdef DEEPDUMP
+                $dumpvars(0,mist_test);
+            `else
+                $dumpvars(1,mist_test.UUT.u_game.u_main);
+            `endif
+            $dumpon;
+        end
     `endif
 `else // NCVERILOG
     `ifndef VIDEO_START
