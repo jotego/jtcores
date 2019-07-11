@@ -22,7 +22,7 @@ module mist_dump(
         $dumpon;
     end
     `else
-        `ifndef DUMP_START
+        `ifdef DUMP_START
         always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
         `else
             initial begin

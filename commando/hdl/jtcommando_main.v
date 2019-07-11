@@ -128,7 +128,7 @@ always @(posedge clk)
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
             flip     <= cpu_dout[7];
-            sres_b   <= ~cpu_dout[4]; // inverted through M54532
+            sres_b   <= ~cpu_dout[4]; // inverted through NPN
         end
     end
 

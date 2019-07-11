@@ -163,7 +163,7 @@ wire OKOUT;
 wire [7:0] main_ram;
 wire blcnten;
 // sound
-wire sres_b;
+wire sres_b, snd_int;
 wire snd_latch_cs;
 wire char_busy, scr_busy;
 
@@ -189,8 +189,8 @@ jtcommando_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .sres_b     ( sres_b        ),
+    .snd_int    ( snd_int       ),
     .snd_latch_cs( snd_latch_cs ),
-
     // Characters
     .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),

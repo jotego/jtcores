@@ -45,7 +45,7 @@ module jtcommando_sound(
     output  [15:0]  snd
 );
 
-wire        mreq_n;
+wire        mreq_n, rfsh_n;
 
 // posedge of snd_int
 reg snd_int_last;
@@ -80,6 +80,13 @@ always @(negedge clk)
         end else reset_n <= 1'b1;
     end
 
+`ifdef SIMULATION
+always @(posedge sres_b) if($time>100) begin
+    $display("INFO: Sound reset released at time %d", $time);
+    $dumpvars(0,mist_test);
+end
+`endif
+
 reg fm1_cs, fm0_cs, latch_cs, ram_cs;
 
 reg [7:0] latch;
@@ -92,7 +99,7 @@ always @(*) begin
     latch_cs = 1'b0;
     fm0_cs   = 1'b0;
     fm1_cs   = 1'b0;
-    if(!mreq_n) 
+    if( rfsh_n && !mreq_n) 
         casez(A[15:13])
             3'b00?: rom_cs   = 1'b1;
             3'b010: ram_cs   = 1'b1;
@@ -197,6 +204,7 @@ T80s u_cpu(
     .MREQ_n     ( mreq_n      ),
     .NMI_n      ( 1'b1        ),
     .BUSRQ_n    ( 1'b1        ),
+    .RFSH_n     ( rfsh_n      ),
     .out0       ( 1'b0        )
 );
 `else
@@ -219,7 +227,7 @@ tv80s #(.Mode(0)) u_cpu (
     .m1_n   (),
     .busak_n(),
     .halt_n (),
-    .rfsh_n ()
+    .rfsh_n ( rfsh_n )
 );
 `endif
 
