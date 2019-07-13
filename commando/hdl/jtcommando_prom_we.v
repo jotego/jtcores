@@ -74,7 +74,7 @@ wire region8_objxw = ioctl_addr < PROMS;
 reg [16:0] scr_offset=17'd0, obj_offset=17'd0;
 
 reg set_strobe, set_done;
-reg [5:0] prom_we0;
+reg [5:0] prom_we0 = 6'd0;
 
 always @(posedge clk) begin
     prom_we <= 6'd0;
@@ -96,15 +96,15 @@ always @(posedge clk) begin
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             scr_offset <= 17'd0;
         end
-        else if(ioctl_addr < OBJZADDR ) begin            
+        else if(ioctl_addr < OBJZADDR ) begin // Scroll    
             prog_mask <= scr_offset[16] ? 2'b10 : 2'b01;
             prog_addr <= SCRXADDR[21:1] +
                 { 6'd0, scr_offset[15:5], scr_offset[3:0], scr_offset[4] }; // bit order swapped to increase cache hits
             scr_offset <= scr_offset+17'd1;
             obj_offset <= 17'd0;
         end
-        else if(ioctl_addr < PROMS ) begin
-            prog_mask <= obj_offset[16:14]>=3'b011 ? 2'b10 : 2'b01;
+        else if(ioctl_addr < PROMS ) begin // Objects
+            prog_mask <= obj_offset[16:14]<3'b011 ? 2'b10 : 2'b01;
             prog_addr <= OBJZADDR[21:1] + { 6'd0, obj_offset[15:0] };
             obj_offset <= obj_offset+17'd1;
         end

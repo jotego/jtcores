@@ -17,6 +17,8 @@ module mist_dump(
     always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
         $display("DUMP starts");
         $dumpvars(0,mist_test.UUT.u_game.u_prom_we);
+        $dumpvars(0,mist_test.UUT.u_game.u_video);
+        $dumpvars(0,mist_test.UUT.u_game.u_video.u_colmix);
         $dumpvars(0,mist_test.UUT.u_frame.u_board.u_sdram);
         // $dumpvars(0,mist_test);
         $dumpon;

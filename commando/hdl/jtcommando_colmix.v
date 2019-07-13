@@ -62,20 +62,9 @@ wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 
 always @(posedge clk) if(cen12) begin
     casez( {char_blank_b, obj_blank_b} )
-        2'b00: pixel_mux[5:0] <= scr_pxl[5:0];
-        2'b01: pixel_mux[5:0] <= obj_pxl;
-        2'b1?: pixel_mux[5:0] <= char_pxl;
-    endcase // selbus[1:0]
-    case( { scr_pxl[6], char_blank_b, obj_blank_b } )
-        3'd0: pixel_mux[7:6] <= 2'd0;
-        3'd1: pixel_mux[7:6] <= 2'd2;
-        3'd2: pixel_mux[7:6] <= 2'd3;
-        3'd3: pixel_mux[7:6] <= 2'd3;
-
-        3'd4: pixel_mux[7:6] <= 2'd1;
-        3'd5: pixel_mux[7:6] <= 2'd2;
-        3'd6: pixel_mux[7:6] <= 2'd3;
-        3'd7: pixel_mux[7:6] <= 2'd3;        
+        2'b00: pixel_mux <= { 1'b0, scr_pxl[6:0] }; // background
+        2'b01: pixel_mux <= { 2'd1, obj_pxl      }; // objects
+        2'b1?: pixel_mux <= { 2'd3, char_pxl     }; // characters
     endcase
 end
 
