@@ -71,7 +71,8 @@ wire region8_objxw = ioctl_addr < PROMS;
 `endif
 
 // offset the SDRAM programming address by 
-reg [16:0] scr_offset=17'd0, obj_offset=17'd0;
+reg [16:0] scr_offset=17'd0;
+reg [15:0] obj_offset=16'd0;
 
 reg set_strobe, set_done;
 reg [5:0] prom_we0 = 6'd0;
@@ -85,6 +86,8 @@ always @(posedge clk) begin
         set_done <= 1'b0;
     end
 end
+
+reg obj_part;
 
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
@@ -101,12 +104,19 @@ always @(posedge clk) begin
             prog_addr <= SCRXADDR[21:1] +
                 { 6'd0, scr_offset[15:5], scr_offset[3:0], scr_offset[4] }; // bit order swapped to increase cache hits
             scr_offset <= scr_offset+17'd1;
-            obj_offset <= 17'd0;
+            obj_offset <= 16'd0;
+            obj_part   <= 1'b0;
         end
         else if(ioctl_addr < PROMS ) begin // Objects
-            prog_mask <= obj_offset[16:14]<3'b011 ? 2'b10 : 2'b01;
-            prog_addr <= OBJZADDR[21:1] + { 6'd0, obj_offset[15:0] };
-            obj_offset <= obj_offset+17'd1;
+            if(!obj_part) prog_mask <= 2'b01;
+            if( obj_offset == 16'hBFFF ) begin
+                obj_offset <= 16'd0;
+                prog_mask  <= 2'b10;
+                obj_part   <= 1'b1;
+            end else begin
+                obj_offset <= obj_offset+16'd1;
+            end
+            prog_addr <= OBJZADDR[21:1] + { 7'd0, obj_offset };
         end
         else begin // PROMs
             prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };

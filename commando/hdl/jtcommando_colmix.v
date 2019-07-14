@@ -63,7 +63,7 @@ wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 always @(posedge clk) if(cen12) begin
     casez( {char_blank_b, obj_blank_b} )
         2'b00: pixel_mux <= { 1'b0, scr_pxl[6:0] }; // background
-        2'b01: pixel_mux <= { 2'd1, obj_pxl      }; // objects
+        2'b01: pixel_mux <= { 2'd2, obj_pxl      }; // objects
         2'b1?: pixel_mux <= { 2'd3, char_pxl     }; // characters
     endcase
 end
