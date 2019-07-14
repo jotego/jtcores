@@ -63,12 +63,12 @@ localparam CLK_SPEED=48;
 localparam CONF_STR = {
     //   00000000011111111112222222222333333333344444444445
     //   12345678901234567890123456789012345678901234567890
-        "JTCOMMANDO;;", //8
+        "JTCOM;;", //8
         "O1,Pause,OFF,ON;", // 16
         "F,rom;", // 6
         "O2,Difficulty,Hard,Normal;", // 42
-        "O43,Start level,8,2,4,6;", // 20
-        "O65,Lives,3,2,4,5;", // 20
+        "O34,Start level,1,3,5,7;", // 20
+        "O56,Lives,3,2,4,5;", // 20
         "O9,Screen filter,ON,OFF;", // 24
         "OB,Flip screen,OFF,ON;", // 22
         "TF,RST ,OFF,ON;", // 15
@@ -97,11 +97,11 @@ wire dip_pause = ~status[1] & ~game_pause;
 
 wire [1:0] dip_upright = 2'b00;
 wire       dip_level  = status[2];
-wire [1:0] dip_start  = status[4:3];
+wire [1:0] dip_start  = ~status[4:3];
 wire [1:0] dip_lives  = status[6:5];
 wire [1:0] dip_price1 = 2'b00;
 wire [1:0] dip_price2 = 2'b11;
-wire       dip_flip   = status[12];
+wire       dip_flip   = status[11];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;

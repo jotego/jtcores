@@ -73,7 +73,7 @@ wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
 wire [6:0] scr_pxl;
 
-localparam scrchr_off = 8'd5;
+localparam scrchr_off = 8'd7; //8'd5;
 
 `ifndef NOCHAR
 jtgng_char #(.Hoffset(scrchr_off)) u_char (

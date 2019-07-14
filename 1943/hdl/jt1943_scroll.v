@@ -184,4 +184,4 @@ jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
     .q      ( scr_pxl[3:0]   )
 );
 
-endmodule // jtgng_scroll
+endmodule

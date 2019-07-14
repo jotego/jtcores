@@ -195,4 +195,4 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
 );
 
 
-endmodule // jtgng_scroll
+endmodule

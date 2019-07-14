@@ -100,23 +100,23 @@ always @(posedge clk) begin
             scr_offset <= 17'd0;
         end
         else if(ioctl_addr < OBJZADDR ) begin // Scroll    
-            prog_mask <= scr_offset[16] ? 2'b10 : 2'b01;
+            prog_mask <= scr_offset[16] ? 2'b01 : 2'b10;
             prog_addr <= SCRXADDR[21:1] +
-                { 6'd0, scr_offset[15:5], scr_offset[3:0], scr_offset[4] }; // bit order swapped to increase cache hits
+                // { 6'd0, scr_offset[15:5], scr_offset[3:0], scr_offset[4] }; // bit order swapped to increase cache hits
+                { 6'd0, scr_offset[15:0] }; // original bit order
             scr_offset <= scr_offset+17'd1;
             obj_offset <= 16'd0;
             obj_part   <= 1'b0;
         end
         else if(ioctl_addr < PROMS ) begin // Objects
-            if(!obj_part) prog_mask <= 2'b01;
+            prog_mask <= obj_part ? 2'b10 : 2'b01;
             if( obj_offset == 16'hBFFF ) begin
                 obj_offset <= 16'd0;
-                prog_mask  <= 2'b10;
                 obj_part   <= 1'b1;
             end else begin
                 obj_offset <= obj_offset+16'd1;
             end
-            prog_addr <= OBJZADDR[21:1] + { 7'd0, obj_offset };
+            prog_addr <= (OBJZADDR>>1) + { 6'd0, obj_offset };
         end
         else begin // PROMs
             prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };
@@ -136,7 +136,8 @@ always @(posedge clk) begin
         end
     end
     else begin
-        prog_we <= 1'b0;
+        prog_we  <= 1'b0;
+        prom_we0 <= 6'd0;
     end
 end
 

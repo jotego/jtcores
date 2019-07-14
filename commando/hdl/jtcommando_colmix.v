@@ -60,11 +60,14 @@ wire [3:0] selbus;
 wire char_blank_b = gfx_en[0] & |(~char_pxl[1:0]);
 wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 
+// The background can never be above the objects
+// The brige section that covers the soldiers when passing through
+// is drawn using objects too.
 always @(posedge clk) if(cen12) begin
     casez( {char_blank_b, obj_blank_b} )
-        2'b00: pixel_mux <= { 1'b0, scr_pxl[6:0] }; // background
-        2'b01: pixel_mux <= { 2'd2, obj_pxl      }; // objects
-        2'b1?: pixel_mux <= { 2'd3, char_pxl     }; // characters
+        2'b00: pixel_mux <= { 1'b0, scr_pxl  }; // background
+        2'b01: pixel_mux <= { 2'd2, obj_pxl  }; // objects
+        2'b1?: pixel_mux <= { 2'd3, char_pxl }; // characters
     endcase
 end
 
