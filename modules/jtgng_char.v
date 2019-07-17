@@ -39,7 +39,7 @@ module jtgng_char(
     output reg [ 1:0] char_col
 );
 
-parameter Hoffset=8'd5;
+parameter Hoffset=8'd4;
 
 wire [7:0] Hfix = H128 + Hoffset; // Corrects pixel output offset
 

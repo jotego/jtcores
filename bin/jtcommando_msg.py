@@ -19,7 +19,9 @@ ascii_conv = {
 }
 
 char_ram = [ 0x20 for x in range(0x400) ]
-row=0
+# Start from the top right corner of the horizontal screen
+# as this hardware is rotated
+row=31
 
 def save_hex(filename, data):
     with open(filename,"w") as f:
@@ -38,6 +40,7 @@ def print_char( msg ):
     pos = row
     for a in msg:
         char_ram[pos] = ascii_conv[a]
+        #print "pos %X <- %c" % ( pos, chr(char_ram[pos]))
         pos = pos+32
     row = row-1
 
