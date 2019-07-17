@@ -200,4 +200,4 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
 );
 
 
-endmodule // jtgng_char
+endmodule

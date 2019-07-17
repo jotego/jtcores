@@ -32,6 +32,7 @@ module jtcommando_video(
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
+    input               char_ok,
     output      [12:0]  char_addr,
     input       [15:0]  chrom_data,
     output              char_busy,
@@ -40,7 +41,8 @@ module jtcommando_video(
     input               scrpos_cs,
     output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
-    input       [23:0]  scrom_data,
+    input       [23:0]  scr_data,
+    input               scr_ok,
     output              scr_busy,
     // OBJ
     input               HINIT,
@@ -73,10 +75,11 @@ wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
 wire [6:0] scr_pxl;
 
-localparam scrchr_off = 8'd7; //8'd5;
+localparam scr_off = 8'd0; //8'd5;
+localparam chr_off = 8'd0;
 
 `ifndef NOCHAR
-jtgng_char #(.Hoffset(scrchr_off)) u_char (
+jtgng_char #(.Hoffset(chr_off)) u_char (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -92,7 +95,8 @@ jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .MRDY_b     (               ),
     .busy       ( char_busy     ),
     .char_addr  ( char_addr     ),
-    .chrom_data ( chrom_data    ),
+    .rom_data   ( chrom_data    ),
+    .rom_ok     ( char_ok       ),
     .char_col   ( char_pxl[1:0] ),
     .char_pal   ( char_pxl[5:2] )
 );
@@ -101,7 +105,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
+jtgng_scroll #(.Hoffset(scr_off)) u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -119,7 +123,8 @@ jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
     .scr_addr   ( scr_addr      ),
     .scr_col    ( scr_pxl[2:0]  ),
     .scr_pal    ( scr_pxl[5:3]  ),
-    .scrom_data ( scrom_data    ),
+    .rom_data   ( scr_data      ),
+    .rom_ok     ( scr_ok        ),
     .scrwin     ( scr_pxl[6]    )
 );
 `else
@@ -130,7 +135,7 @@ assign scram_dout = 8'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtcommando_colmix u_colmix (
+jtcommando_colmix #(.CHAR_DLY(3), .SCR_DLY(3)) u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),

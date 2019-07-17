@@ -33,7 +33,8 @@ module jtgng_char(
     input            pause,
     // ROM
     output reg [12:0] char_addr,
-    input  [15:0] chrom_data,
+    input      [15:0] rom_data,
+    input             rom_ok,
     output reg [ 3:0] char_pal,
     output reg [ 1:0] char_col
 );
@@ -97,6 +98,13 @@ reg [15:0] chd;
 reg [4:0] char_attr0, char_attr1;
 reg [3:0] char_attr2;
 
+reg [15:0] good_data;
+
+// avoid getting the data too early
+always @(posedge clk) begin
+    if( Hfix[2:0]>3'd2 && rom_ok ) good_data <= rom_data;
+end
+
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
@@ -112,7 +120,7 @@ always @(posedge clk) if(cen6) begin
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
         3'd2: begin
-            chd <= !char_hflip ? {chrom_data[7:0],chrom_data[15:8]} : chrom_data;
+            chd <= !char_hflip ? {good_data[7:0],good_data[15:8]} : good_data;
             char_hflip <= char_attr1[4] ^ flip;
             char_attr2 <= char_attr1[3:0];
         end

@@ -27,14 +27,15 @@ module jtgng_scroll(
     input              scrpos_cs,
     input              flip,
     input       [ 7:0] din,
-    output      [ 7:0] dout,
+    output reg  [ 7:0] dout,
     input              rd,
     output             MRDY_b,
     output             busy,
 
     // ROM
     output reg  [14:0] scr_addr,
-    input       [23:0] scrom_data,
+    input       [23:0] rom_data,
+    input              rom_ok,
     output      [ 2:0] scr_pal,
     output      [ 2:0] scr_col,
     output             scrwin
@@ -86,7 +87,13 @@ always @(posedge clk) if(cen6) begin
 end
 
 wire [7:0] dout_low, dout_high;
-assign dout = AB[10] ? dout_high : dout_low;
+always @(posedge clk) begin : dout_latch
+    reg last_AB10, last_sel;
+    last_sel  <= sel_scan;
+    last_AB10 <= AB[10];
+    if( !last_sel )
+        dout <= last_AB10 ? dout_high : dout_low;
+end
 
 jtgng_ram #(.aw(10),.cen_rd(1),.simfile("scrlow.bin")) u_ram_low(
     .clk    ( clk      ),
@@ -129,12 +136,18 @@ end
 reg [7:0] x,y,z;
 reg [3:0] scr_attr2;
 
+reg [23:0] good_data;
+always @(posedge clk) begin
+    if( HS[2:0] > 3'd2 && rom_ok )
+        good_data <= rom_data;
+end
+
 always @(posedge clk) if(cen6) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
     if( HS[2:0]==3'd2 ) begin
-            { z,y,x } <= scrom_data;
+            { z,y,x } <= good_data;
             scr_hflip <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
             scr_attr2 <= scr_attr1[3:0];
         end

@@ -89,7 +89,7 @@ wire [7:0] cpu_dout, chram_dout, scram_dout;
 wire rd, cpu_cen;
 // ROM data
 wire [15:0] char_data;
-reg  [23:0] scr_data;
+wire [23:0] scr_data;
 wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
@@ -270,6 +270,9 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
+wire scr1_ok, scr2_ok, char_ok;
+wire scr_ok = scr1_ok & scr2_ok;
+
 jtcommando_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -289,12 +292,14 @@ jtcommando_video u_video(
     .char_addr  ( char_addr     ),
     .chrom_data ( char_data     ),
     .char_busy  ( char_busy     ),
+    .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_data      ),
+    .scr_data   ( scr_data      ),
+    .scr_ok     ( scr_ok        ),
     .scr_busy   ( scr_busy      ),
     // OBJ
     .HINIT      ( HINIT         ),
@@ -323,18 +328,7 @@ jtcommando_video u_video(
     .blue       ( blue          )
 );
 
-wire [31:0] scr_aux; // no connect
-wire scr1_ok, scr2_ok;
-
-always @(posedge clk) begin
-    if( scr1_ok && scr2_ok ) 
-        scr_data <= scr_aux[23:0];
-        // scr_data <= { scr_aux[23:16], scr_aux[7:0], scr_aux[15:8] };
-        // peor scr_data <= { scr_aux[7:0], scr_aux[15:8], scr_aux[23:16] };
-        // scr_data <= { scr_aux[7:0], scr_aux[23:16], scr_aux[15:8] };
-        // scr_data <= { scr_aux[15:8], scr_aux[7:0], scr_aux[23:16] };
-        // scr_data <= { scr_aux[15:8], scr_aux[23:16], scr_aux[7:0] };
-end
+wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
@@ -355,6 +349,7 @@ jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
     .snd_ok      ( snd_ok        ),
     .scr1_ok     ( scr1_ok       ),
     .scr2_ok     ( scr2_ok       ),
+    .char_ok     ( char_ok       ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
@@ -371,8 +366,8 @@ jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
     .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( scr_aux[15:0] ),
-    .scr2_dout   ( scr_aux[31:16]),
+    .scr1_dout   ( scr_data[15:0] ),
+    .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface

@@ -143,4 +143,4 @@ jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
     .obj_pxl        ( obj_pxl       )
 );
 
-endmodule // jtgng_char
+endmodule

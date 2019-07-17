@@ -49,6 +49,8 @@ module jtcommando_colmix(
     input      [3:0] gfx_en
 );
 
+parameter CHAR_DLY=1, SCR_DLY=1;
+
 wire [7:0] dout_rg;
 wire [3:0] dout_b;
 
@@ -57,7 +59,25 @@ reg [7:0] pixel_mux;
 reg [7:0] prom_addr;
 wire [3:0] selbus;
 
-wire char_blank_b = gfx_en[0] & |(~char_pxl[1:0]);
+wire [5:0] char_dly;
+wire [6:0] scr_dly;
+
+jtgng_sh #(.width(6), .stages(CHAR_DLY)) sh_char(
+    .clk    ( clk        ),
+    .clk_en ( cen6       ),
+    .din    ( char_pxl   ),
+    .drop   ( char_dly   )
+);
+
+jtgng_sh #(.width(7), .stages(CHAR_DLY)) sh_scr(
+    .clk    ( clk        ),
+    .clk_en ( cen6       ),
+    .din    ( scr_pxl    ),
+    .drop   ( scr_dly    )
+);
+
+
+wire char_blank_b = gfx_en[0] & |(~char_dly[1:0]);
 wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 
 // The background can never be above the objects
@@ -65,14 +85,18 @@ wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 // is drawn using objects too.
 always @(posedge clk) if(cen12) begin
     casez( {char_blank_b, obj_blank_b} )
-        2'b00: pixel_mux <= { 1'b0, scr_pxl  }; // background
+        2'b00: pixel_mux <= { 1'b0, scr_dly  }; // background
         2'b01: pixel_mux <= { 2'd2, obj_pxl  }; // objects
-        2'b1?: pixel_mux <= { 2'd3, char_pxl }; // characters
+        2'b1?: pixel_mux <= { 2'd3, char_dly }; // characters
     endcase
 end
 
+// Delay the register of the blanking so all data can be processed
+reg [1:0] blanking;
+
 always @(posedge clk) if(cen6) begin
-    prom_addr <= (LVBL&&LHBL) ? pixel_mux : 8'd0;
+    blanking <= { LVBL&&LHBL, blanking[1] };
+    prom_addr <= blanking[0] ? pixel_mux : 8'd0;
 end
 
 // palette ROM

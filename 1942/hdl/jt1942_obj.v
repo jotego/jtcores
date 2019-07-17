@@ -166,4 +166,4 @@ jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     .obj_pxl        ( obj_pxl       )
 );
 
-endmodule // jtgng_char
+endmodule

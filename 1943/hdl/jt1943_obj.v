@@ -168,4 +168,4 @@ jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
     .obj_pxl        ( obj_pxl       )
 );
 
-endmodule // jtgng_char
+endmodule

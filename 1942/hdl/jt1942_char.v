@@ -155,4 +155,4 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-0.f1")) u_vprom(
 );
 
 
-endmodule // jtgng_char
+endmodule
