@@ -47,6 +47,7 @@ module emu
     output        VGA_HS,
     output        VGA_VS,
     output        VGA_DE,    // = ~(VBlank | HBlank)
+    output        VGA_F1,
 
     //Base video clock. Usually equals to CLK_SYS.
     output        HDMI_CLK,
@@ -111,6 +112,8 @@ localparam CONF_STR = {
     "J,Fire,Bomb,Start 1P,Start 2P,Coin,Pause;",
     "V,v",`BUILD_DATE, " http://patreon.com/topapate;"
 };
+
+assign VGA_F1=1'b0;
 
 ////////////////////   CLOCKS   ///////////////////
 
