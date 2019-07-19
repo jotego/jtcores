@@ -250,7 +250,7 @@ wire pause = 1;  // fast synthesis, NO CPUs
 
 wire dip_pause =  ~pause;
 wire [1:0] dip_lives=2'b10;
-wire [1:0] dip_level=2'b11;
+wire       dip_level=1'b1;
 
 ///////////////////////////////////////////////////////////////////
 
@@ -340,21 +340,10 @@ jtgng_sdram u_sdram(
 );
 
 wire dip_upright = 1'b1;
-wire dip_credits2p = 1'b1;
-reg [3:0] dip_level;
 wire dip_demosnd = 1'b0;
 wire dip_flip     = status[32'd6];
 wire [2:0] dip_price2 = 3'b100;
 wire [2:0] dip_price1 = ~3'b0;
-
-// play level
-always @(posedge clk_sys)
-    case( status[13:12] )
-        2'b00: dip_level <= 4'b0111; // normal
-        2'b01: dip_level <= 4'b1111; // easy
-        2'b10: dip_level <= 4'b0011; // hard
-        2'b11: dip_level <= 4'b0000; // very hard
-    endcase // status[3:2]
 
 jtcommando_game #(.CLK_SPEED(48)) game
 (
