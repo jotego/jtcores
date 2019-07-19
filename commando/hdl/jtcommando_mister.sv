@@ -355,7 +355,6 @@ jtcommando_game #(.CLK_SPEED(48)) game
 (
     .rst           ( reset           ),
 
-    .clk_rom       ( clk_sys         ),
     .clk           ( clk_sys         ),
     .cen12         ( cen12           ),
     .cen6          ( cen6            ),
@@ -375,9 +374,6 @@ jtcommando_game #(.CLK_SPEED(48)) game
     .joystick1     ( {1'b0, m_jump, m_fire, m_up, m_down, m_left, m_right} ),
     .joystick2     ( {1'b0, m2_jump, m2_fire, m2_up, m2_down, m2_left, m2_right} ),
 
-    // Sound control
-    .enable_fm    ( 1'b1             ),
-    .enable_psg   ( 1'b1             ),
     // PROM programming
     .ioctl_addr   ( ioctl_addr[21:0] ),
     .ioctl_data   ( ioctl_data       ),
@@ -396,8 +392,6 @@ jtcommando_game #(.CLK_SPEED(48)) game
     .sdram_ack    ( sdram_ack        ),
     .data_rdy     ( data_rdy         ),
     .refresh_en   ( refresh_en       ),
-
-    .cheat_invincible( status[10]    ),
 
     // DIP switches
     .dip_pause    ( dip_pause        ),
