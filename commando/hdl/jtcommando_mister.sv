@@ -101,7 +101,8 @@ localparam CONF_STR = {
     "F,rom;",
     "O1,Aspect Ratio,Original,Wide;",
     "O2,Orientation,Vert,Horz;",
-    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",  
+    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+
     "O6,Flip,OFF,ON",
     "-;",
     "OCD,Difficulty,Normal,Easy,Hard,Very hard;",
@@ -146,7 +147,7 @@ wire [15:0] joy_0, joy_1;
 wire        forced_scandoubler;
 wire        downloading;
 
-assign LED_USER  = { 1'b0, downloading };
+assign LED_USER  = downloading;
 assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;
 
@@ -246,6 +247,10 @@ end
 `else 
 wire pause = 1;  // fast synthesis, NO CPUs
 `endif
+
+wire dip_pause =  ~pause;
+wire [1:0] dip_lives=2'b10;
+wire [1:0] dip_level=2'b11;
 
 ///////////////////////////////////////////////////////////////////
 
