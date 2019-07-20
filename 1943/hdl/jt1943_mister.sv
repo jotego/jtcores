@@ -107,7 +107,7 @@ localparam CONF_STR = {
     "F,rom;",
     "O1,Aspect Ratio,Original,Wide;",
     "O2,Orientation,Vert,Horz;",
-    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",  
+    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     "-;",
     "OCD,Difficulty,Normal,Easy,Hard,Very hard;",
     // "O67,Lives,3,1,2,5;",

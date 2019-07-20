@@ -102,14 +102,13 @@ module emu
 
 `include "build_id.v" 
 localparam CONF_STR = {
-    "A.COMMANDO;;", 
+    "A.COM;;", 
     "-;",
     "F,rom;",
     "O1,Aspect Ratio,Original,Wide;",
     "O2,Orientation,Vert,Horz;",
     "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 
-    "O6,Flip,OFF,ON",
     "-;",
     "OCD,Difficulty,Normal,Easy,Hard,Very hard;",
     // "O67,Lives,3,1,2,5;",
@@ -346,7 +345,7 @@ jtgng_sdram u_sdram(
 
 wire [1:0] dip_upright = 2'b00;
 wire dip_demosnd = 1'b0;
-wire dip_flip     = status[32'd6];
+wire dip_flip    = 1'b0;
 wire [1:0] dip_price2 = 2'b11;
 wire [1:0] dip_price1 = 2'b11;
 
@@ -398,7 +397,7 @@ jtcommando_game #(.CLK_SPEED(48)) game
     .refresh_en   ( refresh_en       ),
 
     // DIP switches
-    .dip_pause    ( ~pause           ),
+    .dip_pause    ( pause            ),
     .dip_lives    ( dip_lives        ),
     .dip_level    ( dip_level        ),
     .dip_start    ( 2'b11            ),

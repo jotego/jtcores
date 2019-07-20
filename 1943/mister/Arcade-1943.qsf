@@ -384,7 +384,6 @@ set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
-set_global_assignment -name SYSTEMVERILOG_FILE ../hdl/jt1943_mister.sv
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/pll.qip
 set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/sys.qip
@@ -392,6 +391,7 @@ set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/jtgng_sdram.v
 set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
+set_global_assignment -name SYSTEMVERILOG_FILE ../hdl/jt1943_mister.sv
 set_global_assignment -name QIP_FILE ../hdl/jt1943.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/jt49/hdl/jt49.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
