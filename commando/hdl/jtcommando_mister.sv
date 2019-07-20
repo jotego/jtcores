@@ -92,6 +92,12 @@ module emu
     output        SDRAM_nCAS,
     output        SDRAM_nRAS,
     output        SDRAM_nWE
+    `ifdef SIMULATION
+    ,output         sim_pxl_cen,
+    output          sim_pxl_clk,
+    output          sim_vs,
+    output          sim_hs
+    `endif
 );
 
 `include "build_id.v" 
@@ -212,9 +218,9 @@ always @(posedge clk_sys) begin
     end
 end
 
-wire m_up, m_down, m_left, m_right, m_fire, m_jump, m_pause;
-wire m_start1, m_start2, m_coin;
-wire m2_up, m2_down, m2_left, m2_right, m2_fire, m2_jump;
+reg m_up, m_down, m_left, m_right, m_fire, m_jump, m_pause;
+reg m_start1, m_start2, m_coin;
+reg m2_up, m2_down, m2_left, m2_right, m2_fire, m2_jump;
 
 always @(posedge clk_sys) begin
     m_up     <= ~(btn_up    | joy_0[3]);
@@ -248,7 +254,6 @@ end
 wire pause = 1;  // fast synthesis, NO CPUs
 `endif
 
-wire dip_pause =  ~pause;
 wire [1:0] dip_lives=2'b10;
 wire       dip_level=1'b1;
 
@@ -339,11 +344,16 @@ jtgng_sdram u_sdram(
     .SDRAM_CKE  ( SDRAM_CKE     ) 
 );
 
-wire dip_upright = 1'b1;
+wire [1:0] dip_upright = 2'b00;
 wire dip_demosnd = 1'b0;
 wire dip_flip     = status[32'd6];
-wire [2:0] dip_price2 = 3'b100;
-wire [2:0] dip_price1 = ~3'b0;
+wire [1:0] dip_price2 = 2'b11;
+wire [1:0] dip_price1 = 2'b11;
+
+`ifdef SIMULATION
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
+`endif
 
 jtcommando_game #(.CLK_SPEED(48)) game
 (
@@ -365,8 +375,8 @@ jtcommando_game #(.CLK_SPEED(48)) game
 
     .start_button  ( {m_start2, m_start1} ),
     .coin_input    ( {1'b0, m_coin}       ),
-    .joystick1     ( {1'b0, m_jump, m_fire, m_up, m_down, m_left, m_right} ),
-    .joystick2     ( {1'b0, m2_jump, m2_fire, m2_up, m2_down, m2_left, m2_right} ),
+    .joystick1     ( {m_jump, m_fire, m_up, m_down, m_left, m_right} ),
+    .joystick2     ( {m2_jump, m2_fire, m2_up, m2_down, m2_left, m2_right} ),
 
     // PROM programming
     .ioctl_addr   ( ioctl_addr[21:0] ),
@@ -388,10 +398,10 @@ jtcommando_game #(.CLK_SPEED(48)) game
     .refresh_en   ( refresh_en       ),
 
     // DIP switches
-    .dip_pause    ( dip_pause        ),
+    .dip_pause    ( ~pause           ),
     .dip_lives    ( dip_lives        ),
     .dip_level    ( dip_level        ),
-    .dip_start    ( dip_start        ),
+    .dip_start    ( 2'b11            ),
     .dip_price1   ( dip_price1       ),
     .dip_price2   ( dip_price2       ),
     .dip_bonus    ( 3'b111           ),

@@ -92,6 +92,12 @@ module emu
     output        SDRAM_nCAS,
     output        SDRAM_nRAS,
     output        SDRAM_nWE
+    `ifdef SIMULATION
+    ,output         sim_pxl_cen,
+    output          sim_pxl_clk,
+    output          sim_vs,
+    output          sim_hs
+    `endif
 );
 
 `include "build_id.v" 
@@ -145,7 +151,7 @@ wire [15:0] joy_0, joy_1;
 wire        forced_scandoubler;
 wire        downloading;
 
-assign LED_USER  = { 1'b0, downloading };
+assign LED_USER  = downloading;
 assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;
 
@@ -210,9 +216,9 @@ always @(posedge clk_sys) begin
     end
 end
 
-wire m_up, m_down, m_left, m_right, m_fire, m_jump, m_pause;
-wire m_start1, m_start2, m_coin;
-wire m2_up, m2_down, m2_left, m2_right, m2_fire, m2_jump;
+reg m_up, m_down, m_left, m_right, m_fire, m_jump, m_pause;
+reg m_start1, m_start2, m_coin;
+reg m2_up, m2_down, m2_left, m2_right, m2_fire, m2_jump;
 
 always @(posedge clk_sys) begin
     m_up     <= ~(btn_up    | joy_0[3]);
@@ -349,6 +355,11 @@ always @(posedge clk_sys)
         2'b10: dip_level <= 4'b0011; // hard
         2'b11: dip_level <= 4'b0000; // very hard
     endcase // status[3:2]
+
+`ifdef SIMULATION
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
+`endif
 
 jt1943_game #(.CLK_SPEED(48)) game
 (

@@ -23,7 +23,7 @@ function check_hex_file {
 # check_hex_file avatar_obj.hex
 
 # use -d AVATARS to add AVATAS to simulation:
-if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd \
+if ! go.sh -frame 1 $*  -video -d DIP_TEST -nosnd \
     -d NOMAIN -d NOSOUND -d ALWAYS_PAUSE -d SCANDOUBLER_DISABLE; then
     exit 1
 fi

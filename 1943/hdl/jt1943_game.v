@@ -90,10 +90,20 @@ wire HINIT;
 wire [12:0] cpu_AB;
 wire char_cs;
 wire flip;
-wire [ 7:0] cpu_dout;
-wire [ 7:0] chram_dout;
+wire [7:0] cpu_dout, chram_dout;
 wire rd;
+// ROM data
+wire [15:0]  char_data, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
+wire [ 7:0]  main_data;
+// ROM address
+wire [17:0]  main_addr;
+wire [13:0]  char_addr, map1_addr, map2_addr;
+wire [16:0]  obj_addr;
+wire [16:0]  scr1_addr;
+wire [14:0]  scr2_addr;
+
 wire rom_ready;
+wire main_ok;
 
 assign sample=1'b1;
 
@@ -136,17 +146,16 @@ wire wr_n, rd_n;
 wire sres_b;
 wire [7:0] scrposv, main_ram;
 
-// ROM data
-wire [17:0]  main_addr;
-wire [16:0]  obj_addr;
-wire [16:0]  scr1_addr;
-wire [14:0]  scr2_addr;
-wire [13:0]  char_addr, map1_addr, map2_addr;
-wire [ 7:0]  main_dout;
-wire [15:0]  char_dout, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
-
 wire snd_latch_cs;
 wire char_wait;
+
+wire [1:0] scr1posh_cs, scr2posh_cs;
+
+wire CHON, OBJON, SC2ON, SC1ON;
+wire cpu_cen, main_cs;
+// OBJ
+wire OKOUT, blcnten, bus_req, bus_ack;
+wire [12:0] obj_AB;
 
 wire [12:0] prom_we;
 
@@ -181,14 +190,6 @@ wire prom_8c_we  = prom_we[10];
 wire prom_6l_we  = prom_we[11];
 wire prom_4k_we  = prom_we[12];
 
-wire [1:0] scr1posh_cs, scr2posh_cs;
-
-wire CHON, OBJON, SC2ON, SC1ON;
-wire cpu_cen, main_cs;
-wire OKOUT, blcnten, bus_req, bus_ack;
-wire [12:0] obj_AB;
-wire main_ok;
-
 //wire video_flip = dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
 `ifndef NOMAIN
@@ -197,19 +198,20 @@ jt1943_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .char_wait  ( char_wait     ),
-    .rom_ok     ( main_ok       ),
+    .cpu_cen    ( cpu_cen       ),
+    // Timing
+    .flip       ( flip          ),
+    .V          ( V             ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
     // sound
     .sres_b       ( sres_b        ),
     .snd_latch_cs ( snd_latch_cs  ),
-
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .cpu_dout   ( cpu_dout      ),
     // CHAR
-    .cpu_cen    ( cpu_cen       ),
-    .char_cs    ( char_cs       ),
     .char_dout  ( chram_dout    ),
+    .cpu_dout   ( cpu_dout      ),
+    .char_cs    ( char_cs       ),
+    .char_wait  ( char_wait     ),
     .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
@@ -218,22 +220,21 @@ jt1943_main u_main(
     .SC1ON      ( SC1ON         ),
     .SC2ON      ( SC2ON         ),
     // OBJ - bus sharing
-    .OBJON      ( OBJON         ),
-    .flip       ( flip          ),
-    .V          ( V             ),
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
-    .rd_n       ( rd_n          ),
-    .wr_n       ( wr_n          ),
     .ram_dout   ( main_ram      ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
+    .rd_n       ( rd_n          ),
+    .wr_n       ( wr_n          ),
+    .OBJON      ( OBJON         ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
-    .rom_data   ( main_dout     ),
+    .rom_data   ( main_data     ),
+    .rom_ok     ( main_ok       ),
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
@@ -268,6 +269,7 @@ jt1943_sound u_sound (
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
+    // Interface with main CPU
     .main_cen       ( cpu_cen        ),
     .sres_b         ( sres_b         ),
     .main_dout      ( cpu_dout       ),
@@ -280,7 +282,7 @@ jt1943_sound u_sound (
     .prog_addr      ( prog_addr[14:0]),
     .prom_4k_we     ( prom_4k_we     ),
     .prom_din       ( prog_data      ),
-    // Sound
+    // sound output
     .snd            ( snd            )
 );
 `else
@@ -310,8 +312,8 @@ jt1943_video u_video(
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
-    .char_addr  ( char_addr     ), // CHAR ROM
-    .char_data  ( char_dout     ),
+    .char_addr  ( char_addr     ),
+    .char_data  ( char_data     ),
     .char_wait  ( char_wait     ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
@@ -332,14 +334,14 @@ jt1943_video u_video(
     // OBJ
     .OBJON      ( OBJON         ),
     .HINIT      ( HINIT         ),
+    .obj_AB     ( obj_AB        ),
+    .obj_DB     ( main_ram      ),
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_dout      ),
-    .obj_DB     ( main_ram      ),
-    .obj_AB     ( obj_AB        ),
     .OKOUT      ( OKOUT         ),
-    .blcnten    ( blcnten       ),
-    .bus_req    ( bus_req       ),
-    .bus_ack    ( bus_ack       ),
+    .bus_req    ( bus_req       ), // Request bus
+    .bus_ack    ( bus_ack       ), // bus acknowledge
+    .blcnten    ( blcnten       ), // bus line counter enable
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
@@ -392,8 +394,8 @@ jt1943_rom2 u_rom (
     .map1_addr   ( map1_addr     ), //  32 kB
     .map2_addr   ( map2_addr     ), //  32 kB
 
-    .char_dout   ( char_dout     ),
-    .main_dout   ( main_dout     ),
+    .char_dout   ( char_data     ),
+    .main_dout   ( main_data     ),
     .snd_dout    (               ),
     .obj_dout    ( obj_dout      ),
     .map1_dout   ( map1_dout     ),
@@ -413,4 +415,4 @@ jt1943_rom2 u_rom (
     .refresh_en  ( refresh_en    )
 );
 
-endmodule // jtgng
+endmodule

@@ -16,12 +16,13 @@
     Version: 1.0
     Date: 29-6-2019 */
 
+`timescale 1ns/1ps
+
 module jtcommando_game(
     input           rst,
-    input           soft_rst,
     input           clk,        // 24   MHz
     output          cen12,      // 12   MHz
-	output          cen6,       //  6   MHz
+    output          cen6,       //  6   MHz
     output          cen3,       //  3   MHz
     output          cen1p5,     //  1.5 MHz
     output   [3:0]  red,
@@ -53,10 +54,6 @@ module jtcommando_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
-    // DEBUG
-    input           enable_char,
-    input           enable_obj,
-    input           enable_scr,
     // DIP switches
     input           dip_pause, // Not a DIP on the original PCB
     input   [ 1:0]  dip_lives,
@@ -103,26 +100,39 @@ wire [15:0] obj_addr;
 wire rom_ready;
 wire main_ok, snd_ok;
 
+assign sample=1'b1;
+
+`ifdef MISTER
+
+reg rst_game;
+
+always @(negedge clk)
+    rst_game <= rst || !rom_ready;
+
+`else
+
 reg rst_game=1'b1;
-reg rst_aux;
 
-assign sample = 1'b0;
-
-jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
-    .clk    ( clk       ),    // 12 MHz
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
-);
-
-always @(posedge clk)
+always @(posedge clk) begin : rstgame_gen
+    reg rst_aux;
     if( rst || !rom_ready ) begin
         {rst_game,rst_aux} <= 2'b11;
     end
     else begin
         {rst_game,rst_aux} <= {rst_aux, downloading };
     end
+end
+
+`endif
+
+jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
+    .clk    ( clk       ),
+    .cen12  ( cen12     ),
+    .cen6   ( cen6      ),
+    .cen3   ( cen3      ),
+    .cen1p5 ( cen1p5    )
+);
+
 
 wire LHBL_obj, LVBL_obj, Hsub;
 
@@ -145,32 +155,44 @@ jtgng_timer u_timer(
 );
 
 wire RnW;
-wire [3:0] char_pal;
-
-wire [3:0] cc;
-wire blue_cs;
-wire redgreen_cs;
-wire [ 5:0] obj_pxl;
-
-wire bus_ack, bus_req;
-wire [15:0] sdram_din;
-wire [12:0] wr_row;
-wire [ 8:0] wr_col;
-wire        main_cs;
-// OBJ
-wire [ 8:0] obj_AB;
-wire OKOUT;
-wire [7:0] main_ram;
-wire blcnten;
 // sound
 wire sres_b, snd_int;
 wire snd_latch_cs;
+
+wire        main_cs;
+// OBJ
+wire OKOUT, blcnten, bus_req, bus_ack;
+wire [ 8:0] obj_AB;
+wire [7:0] main_ram;
 wire char_busy, scr_busy;
+
+wire [5:0] prom_we;
+
+jtcommando_prom_we u_prom_we(
+    .clk         ( clk           ),
+    .downloading ( downloading   ),
+
+    .ioctl_wr    ( ioctl_wr      ),
+    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_data  ( ioctl_data    ),
+
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       ),
+
+    .prom_we     ( prom_we       )
+);
+
+wire prom_1d = prom_we[0];
+wire prom_2d = prom_we[1];
+wire prom_3d = prom_we[2];
+wire prom_1h = prom_we[3];
+wire prom_6l = prom_we[4];
+wire prom_6e = prom_we[5];
 
 wire scr_cs, scrpos_cs;
 
-wire [5:0] prom_we;
-wire prom_1d, prom_2d, prom_3d, prom_1h, prom_6l, prom_6e;
 
 `ifndef NOMAIN
 wire [7:0] dipsw_a = { dip_price1, dip_price2, dip_lives, dip_start };
@@ -188,39 +210,39 @@ jtcommando_main u_main(
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // sound
-    .sres_b     ( sres_b        ),
-    .snd_int    ( snd_int       ),
-    .snd_latch_cs( snd_latch_cs ),
-    // Characters
+    .sres_b       ( sres_b        ),
+    .snd_latch_cs ( snd_latch_cs  ),
+    .snd_int      ( snd_int       ),
+    // CHAR
     .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
-    // scroll
+    // SCROLL
     .scrpos_cs  ( scrpos_cs     ),
     .scr_dout   ( scram_dout    ),
     .scr_cs     ( scr_cs        ),
     .scr_busy   ( scr_busy      ),
-    // cabinet I/O
-    .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),
-    .start_button( start_button ),
-    .coin_input ( coin_input    ),
-    // bus sharing
+    // OBJ - bus sharing
+    .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
     .ram_dout   ( main_ram      ),
-    .obj_AB     ( obj_AB        ),
     .OKOUT      ( OKOUT         ),
+    .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
-    .blcnten    ( blcnten       ),
-
-    .RnW        ( RnW           ),
-    // ROM access
+    // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
+    // Cabinet input
+    .start_button( start_button ),
+    .coin_input  ( coin_input   ),
+    .joystick1   ( joystick1    ),
+    .joystick2   ( joystick2    ),
+
+    .RnW        ( RnW           ),
     // PROM 6L (interrupts)
     .prog_addr  ( prog_addr[7:0]),
     .prom_6l_we ( prom_6l       ),
@@ -230,13 +252,11 @@ jtcommando_main u_main(
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
-`else 
+`else
 assign main_addr   = 16'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
 assign scrpos_cs   = 1'b0;
-assign blue_cs     = 1'b0;
-assign redgreen_cs = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
@@ -244,25 +264,26 @@ assign RnW         = 1'b1;
 
 `ifndef NOSOUND
 jtcommando_sound u_sound (
-    .clk            ( clk          ),
-    .cen3           ( cen3         ),
-    .cen1p5         ( cen1p5       ),
-    .main_cen       ( cen3         ), // fix!
+    .rst            ( rst_game       ),
+    .clk            ( clk            ),
+    .cen3           ( cen3           ),
+    .cen1p5         ( cen1p5         ),
     // Interface with main CPU
-    .sres_b         ( sres_b       ),
-    .main_dout      ( cpu_dout     ),
-    .main_latch_cs  ( snd_latch_cs ),
-    .snd_int        ( snd_int      ),
-    // Sound control
-    .enable_psg     ( 1'b1         ),
-    .enable_fm      ( 1'b1         ),
+    .main_cen       ( cpu_cen        ),
+    .sres_b         ( sres_b         ),
+    .main_dout      ( cpu_dout       ),
+    .main_latch_cs  ( snd_latch_cs   ),
+    .snd_int        ( snd_int        ),
+    // sound control
+    .enable_psg     ( 1'b1           ),
+    .enable_fm      ( 1'b1           ),
     // ROM
-    .rom_addr       ( snd_addr     ),
-    .rom_data       ( snd_data     ),
-    .rom_cs         ( snd_cs       ),
-    .rom_ok         ( snd_ok       ),
+    .rom_addr       ( snd_addr       ),
+    .rom_data       ( snd_data       ),
+    .rom_cs         ( snd_cs         ),
+    .rom_ok         ( snd_ok         ),
     // sound output
-    .snd            ( snd          )
+    .snd            ( snd            )
 );
 `else
 assign snd_addr = 15'd0;
@@ -305,18 +326,18 @@ jtcommando_video u_video(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
+    .obj_addr   ( obj_addr      ),
+    .objrom_data( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
-    .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
     // PROMs
     .prog_addr  ( prog_addr[7:0]),
     .prom_1d_we ( prom_1d       ),
     .prom_2d_we ( prom_2d       ),
     .prom_3d_we ( prom_3d       ),
-    .prom_din   ( prog_data[3:0]),    
+    .prom_din   ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
@@ -381,27 +402,4 @@ jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
     .refresh_en  ( refresh_en    )
 );
 
-jtcommando_prom_we u_prom_we(
-    .clk         ( clk           ),
-    .downloading ( downloading   ),
-
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_data  ( ioctl_data    ),
-
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-
-    .prom_we     ( prom_we       )
-);
-
-assign prom_1d = prom_we[0];
-assign prom_2d = prom_we[1];
-assign prom_3d = prom_we[2];
-assign prom_1h = prom_we[3];
-assign prom_6l = prom_we[4];
-assign prom_6e = prom_we[5];
-
-endmodule // jtgng
+endmodule

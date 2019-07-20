@@ -81,10 +81,12 @@ always @(negedge clk)
     end
 
 `ifdef SIMULATION
+`ifndef MISTER
 always @(posedge sres_b) if($time>100) begin
     $display("INFO: Sound reset released at time %d", $time);
     $dumpvars(0,mist_test);
 end
+`endif
 `endif
 
 reg fm1_cs, fm0_cs, latch_cs, ram_cs;
