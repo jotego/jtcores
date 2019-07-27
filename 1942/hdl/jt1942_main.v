@@ -251,6 +251,8 @@ always @(posedge clk)
         else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
     end
 
+wire wait_n;
+
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),

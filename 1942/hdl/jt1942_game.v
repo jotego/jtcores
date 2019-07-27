@@ -130,6 +130,7 @@ wire wr_n, rd_n;
 wire sres_b;
 wire [7:0] snd_latch;
 
+wire main_cs, snd_cs;
 wire scr_cs, obj_cs;
 wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
