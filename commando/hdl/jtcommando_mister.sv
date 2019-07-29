@@ -1,5 +1,5 @@
 //============================================================================
-//  Arcade: Commando  by Jose Tejada Gomez. Twitter: @topapate 
+//  Arcade: Commando  by Jose Tejada Gomez. Twitter: @topapate
 //
 //  Port to MiSTer
 //  Thanks to Sorgelig for his continuous support
@@ -80,6 +80,8 @@ module emu
     output [15:0] AUDIO_R,
     output        AUDIO_S,   // 1 - signed audio samples, 0 - unsigned
 
+    output  [1:0] ROTATE,
+
     //SDRAM interface with lower latency
     output        SDRAM_CLK,
     output        SDRAM_CKE,
@@ -100,9 +102,9 @@ module emu
     `endif
 );
 
-`include "build_id.v" 
+`include "build_id.v"
 localparam CONF_STR = {
-    "A.COM;;", 
+    "A.COM;;",
     "-;",
     "F,rom;",
     "O1,Aspect Ratio,Original,Wide;",
@@ -114,6 +116,7 @@ localparam CONF_STR = {
     // "O67,Lives,3,1,2,5;",
     // "O89,Bonus,30/100,30/80,20/100,20/80;",
     "OA,Invulnerability,No,Yes;",
+    "OB,Flip screen,OFF,ON;",
     "-;",
     "R0,Reset;",
     "J,Fire,Bomb,Start 1P,Start 2P,Coin,Pause;",
@@ -198,7 +201,7 @@ wire [7:0] code    = ps2_key[7:0];
 always @(posedge clk_sys) begin
     reg old_state;
     old_state <= ps2_key[10];
-    
+
     if(old_state != ps2_key[10]) begin
         case(code)
             'h75: btn_up         <= pressed; // up
@@ -244,12 +247,12 @@ end
 reg pause = 0;
 always @(posedge clk_sys) begin
     reg old_pause;
-    
+
     old_pause <= m_pause;
     if(~old_pause & m_pause) pause <= ~pause;
     if(status[0] | buttons[1]) pause <= 1;
 end
-`else 
+`else
 wire pause = 1;  // fast synthesis, NO CPUs
 `endif
 
@@ -275,11 +278,11 @@ arcade_rotate_fx #(256,224,12,1) arcade_video
     .VBlank(~vblank),
     .HSync(hs),
     .VSync(vs),
-    
+
     .fx(status[5:3]),
     .no_rotate(status[2])
 );
-`else 
+`else
     assign VGA_VS = vs;
     assign VGA_HS = hs;
     assign VGA_R  = r;
@@ -294,7 +297,7 @@ arcade_rotate_fx #(256,224,12,1) arcade_video
 wire reset = RESET | status[0] | buttons[1];
 // reg [1:0] rstsr;
 // wire reset = rstsr[1];
-// 
+//
 // always @(negedge clk_sys) begin
 //     if( RESET || status[0] || buttons[1] || !pll_locked ) rstsr <= 2'b11;
 //     else rstsr <= { rstsr[0], 1'b0 };
@@ -340,14 +343,16 @@ jtgng_sdram u_sdram(
     .SDRAM_nRAS ( SDRAM_nRAS    ),
     .SDRAM_nCS  ( SDRAM_nCS     ),
     .SDRAM_BA   ( SDRAM_BA      ),
-    .SDRAM_CKE  ( SDRAM_CKE     ) 
+    .SDRAM_CKE  ( SDRAM_CKE     )
 );
 
 wire [1:0] dip_upright = 2'b00;
 wire dip_demosnd = 1'b0;
-wire dip_flip    = 1'b0;
+wire dip_flip    = status[32'hb];
 wire [1:0] dip_price2 = 2'b11;
 wire [1:0] dip_price1 = 2'b11;
+
+assign ROTATE = { dip_flip, 1'b1 };
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;

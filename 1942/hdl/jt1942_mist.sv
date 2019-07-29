@@ -187,7 +187,7 @@ u_frame(
     .vga_g          ( vga_g          ),
     .vga_b          ( vga_b          ),
     .vga_hsync      ( vga_hsync      ),
-    .vga_vsync      ( vga_vsync      ),  
+    .vga_vsync      ( vga_vsync      ),
     // MiST VGA pins
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
