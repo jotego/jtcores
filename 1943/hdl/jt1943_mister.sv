@@ -264,19 +264,37 @@ wire [3:0] r,g,b;
 `ifndef SIMULATION
 arcade_rotate_fx #(256,224,12,1) arcade_video
 (
-    .*,
+    .clk_video  ( clk_sys   ),
+    .ce_pix     ( cen6      ),
 
-    .clk_video(clk_sys),
-    .ce_pix(cen6),
+    .RGB_in     ( {r,g,b}   ),
+    .HBlank     ( ~hblank   ),
+    .VBlank     ( ~vblank   ),
+    .HSync      ( hs        ),
+    .VSync      ( vs        ),
 
-    .RGB_in({r,g,b}),
-    .HBlank(~hblank),
-    .VBlank(~vblank),
-    .HSync(hs),
-    .VSync(vs),
+    .VGA_CLK    (  VGA_CLK  ),
+    .VGA_CE     (  VGA_CE   ),
+    .VGA_R      (  VGA_R    ),
+    .VGA_G      (  VGA_G    ),
+    .VGA_B      (  VGA_B    ),
+    .VGA_HS     (  VGA_HS   ),
+    .VGA_VS     (  VGA_VS   ),
+    .VGA_DE     (  VGA_DE   ),
 
-    .fx(status[5:3]),
-    .no_rotate(status[2])
+    .HDMI_CLK   (  HDMI_CLK ),
+    .HDMI_CE    (  HDMI_CE  ),
+    .HDMI_R     (  HDMI_R   ),
+    .HDMI_G     (  HDMI_G   ),
+    .HDMI_B     (  HDMI_B   ),
+    .HDMI_HS    (  HDMI_HS  ),
+    .HDMI_VS    (  HDMI_VS  ),
+    .HDMI_DE    (  HDMI_DE  ),
+    .HDMI_SL    (  HDMI_SL  ),
+
+    .fx                ( status[5:3]        ),
+    .forced_scandoubler( forced_scandoubler ),
+    .no_rotate         ( status[2]          )
 );
 `else
     assign VGA_VS = vs;
