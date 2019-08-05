@@ -37,6 +37,7 @@ module jt1942_video(
     output      [11:0]  char_addr,
     input       [15:0]  char_data,
     output              char_busy,
+    input               char_ok,
     // SCROLL - ROM
     input               scr_cs,
     input       [ 1:0]  scrpos_cs,

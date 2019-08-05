@@ -103,7 +103,7 @@ wire [16:0]  scr1_addr;
 wire [14:0]  scr2_addr;
 
 wire rom_ready;
-wire main_ok;
+wire main_ok, char_ok;
 
 assign sample=1'b1;
 
@@ -315,6 +315,7 @@ jt1943_video u_video(
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
     .char_wait  ( char_wait     ),
+    .char_ok    ( char_ok       ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
     .scr1posh_cs( scr1posh_cs   ),
@@ -384,6 +385,7 @@ jt1943_rom2 u_rom (
     .snd_cs      ( 1'b0          ),
     .main_ok     ( main_ok       ),
     .snd_ok      (               ),
+    .char_ok     ( char_ok       ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words

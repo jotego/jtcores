@@ -89,7 +89,7 @@ wire [7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire rd;
 wire rom_ready;
-wire main_ok, snd_ok;
+wire main_ok, snd_ok, char_ok;
 
 assign sample=1'b1;
 
@@ -271,6 +271,7 @@ jt1942_video u_video(
     .chram_dout ( chram_dout    ),
     .char_addr  ( char_addr     ), // CHAR ROM
     .char_data  ( char_data     ),
+    .char_ok    ( char_ok       ),
     .char_busy  ( char_busy     ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
@@ -329,6 +330,7 @@ jtframe_rom #(
 
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
+    .char_ok     ( char_ok       ),
 
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
