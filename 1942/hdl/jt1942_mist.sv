@@ -61,20 +61,18 @@ module jt1942_mist(
 localparam CLK_SPEED=48;
 
 localparam CONF_STR = {
-    //   00000000011111111112222222222333333333344444444445
-    //   12345678901234567890123456789012345678901234567890
-        "JT1942;;", //8
-        "O1,Pause,OFF,ON;", // 16
-        "F,rom;", // 6
-        "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
-        "O4,Test mode,OFF,ON;", // 20
-        "O56,Lives,2,1,3,5;", // 18
-        "O78,Bonus,30/100,30/80,20/100,20/80;", // 36
-        "O9,Screen filter,ON,OFF;", // 24
-        "OA,Invincibility,OFF,ON;", // 24
-        "OB,Flip screen,OFF,ON;", // 22
-        "TF,RST ,OFF,ON;", // 15
-        "V,http://patreon.com/topapate;" // 30
+        "JT1942;;",
+        "O1,Pause,OFF,ON;",
+        "F,rom;",
+        "O23,Difficulty,Normal,Easy,Hard,Very hard;",
+        "O4,Test mode,OFF,ON;",
+        "O56,Lives,2,1,3,5;",
+        "O78,Bonus,30/100,30/80,20/100,20/80;",
+        "O9,Screen filter,ON,OFF;",
+        "OA,Invincibility,OFF,ON;",
+        "OB,Flip screen,OFF,ON;",
+        "TF,RST ,OFF,ON;",
+        "V,http://patreon.com/topapate;"
 };
 
 localparam CONF_STR_LEN = $size(CONF_STR)/8;
@@ -163,6 +161,8 @@ assign vga_b[0] = vga_b[5];
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
+assign sim_vs = vs;
+assign sim_hs = hs;
 `endif
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
@@ -287,13 +287,13 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .prog_we     ( prog_we        ),
 
     // ROM access from game
-    .loop_rst       ( loop_rst       ),
-    .sdram_addr     ( sdram_addr     ),
-    .sdram_req      ( sdram_req      ),
-    .sdram_ack      ( sdram_ack      ),
-    .data_read      ( data_read      ),
-    .data_rdy       ( data_rdy       ),
-    .refresh_en     ( refresh_en     ),
+    .loop_rst    ( loop_rst       ),
+    .sdram_addr  ( sdram_addr     ),
+    .sdram_req   ( sdram_req      ),
+    .sdram_ack   ( sdram_ack      ),
+    .data_read   ( data_read      ),
+    .data_rdy    ( data_rdy       ),
+    .refresh_en  ( refresh_en     ),
     // Cheat
     .cheat_invincible( cheat_invincible ),
     // DIP switches

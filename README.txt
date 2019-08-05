@@ -1,12 +1,11 @@
 JT_GNG FPGA Clone of early CAPCOM arcade games by Jose Tejada (@topapate)
 =========================================================================
 
-
 You can show your appreciation through
     * Patreon: https://patreon.com/topapate
     * Paypal: https://paypal.me/topapate
 
-Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST is here to the rescue.
+Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST(er) is here to the rescue.
 
 What you get with this is an extremely accurate (allegedly 100% accurate) clone of the original hardware. You will notice differences from MAME if you compare. For instance, on Ghosts'n Goblins try resetting it and compare those screens for a start! Original hardware handled sound and graphics in a different way from the emulator. There were delays in CPU bus access and other details that will make the experience different from an emulator.
 
@@ -14,10 +13,12 @@ I hope you will have as much fun with it as I had it while making it!
 
 Supported Games
 ===============
+In chronological order:
 
-* 1942
-* Ghosts'n Goblins (MiSTer port https://github.com/MiSTer-devel/Arcade-GnG_MiSTer)
-* 1943 (see separate readme file 1943.txt)
+* 1942     (see doc/jt1942.txt)
+* Commando (see doc/jtcommando.txt)
+* Ghosts'n Goblins
+* 1943     (see doc/jt1943.txt)
 
 How to continue the game
 ========================
@@ -161,3 +162,29 @@ Patreon supporters for 1942 core
     SmokeMonster
 
 Thank you all!
+
++--------------------------------------------------------------------------------+
+|oooooooooooooooooooooooooooooooooo+++++++++++ooooooooooooooooooooooooooooooooooo|
+|ooooooooooooooooooooooooooooooooo+. .    . .+ooooooooooooooooooooooooooooooooooo|
+|ooooooooooooooooooooooooooooooooo~         :o++ooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooo+ooo+.        .++.:oo+oo+oooooo+o+oo+oooooo++ooooooo|
+|ooooooooooooooooooooooooo+.......          .. .............................:oooo|
+|oooooooooooooooooooooooo+.                                                .+o+oo|
+|oooooooooooooooooooooooo:                                                 :o:.+o|
+|ooooooooooooooooooooooo+.                                                .++.:oo|
+|ooooooooooooooooooooooo:.....           ...........          ....... ....:o~.+oo|
+|oooooooooooooooooooooooo+++++~         ~+++:++:++++.         ++++++++++++++.+ooo|
+|oooooooooooooooooooooooooo+:~         .++.~:::::::.         .o+.~:::::::::::+ooo|
+|oooooooooooooooooooooooooooo:         :o~.+oooooo+.         ++.~oooooooooooooooo|
+|ooo~........~oooooooooooooo+.        .++.:ooooooo+         ~o:.+oooooooooooooooo|
+|oo:         ~o++ooooooooooo.         +o~.ooooooo+.        .++.~ooooooooooooooooo|
+|oo.         :+.:ooooooooo+.         ~o+.+ooooooo:         ~o:.+ooooooooooooooooo|
+|oo.         ...~:::::::..          .++.~ooooooo+.        .o+.:oooooooooooooooooo|
+|oo~                               ~o+..+ooooooo~         +o~.+oooooooooooooooooo|
+|oo+.                           .~+o+..+ooooooo+.        .o+.+ooooooooooooooooooo|
+|oooo~.                       .:+o+..:+oooooooo.         +o..oooooooooooooooooooo|
+|ooooo+:...              ..~:+++:..:+ooooooooo+         .o+.+oooooooooooooooooooo|
+|ooooooo+++::::::::::++++++++~~.~++ooooooooooo+:+:::::+:++.~ooooooooooooooooooooo|
+|ooooooooo+++:::::::::~:~~~~:++oooooooooooooooooo+::::~::~.+ooooooooooooooooooooo|
+|oooooooooooooo+o+oo++++o+ooooooooooooooooooooooo+o+++o++o+oooooooooooooooooooooo|
++--------------------------------------------------------------------------------+
