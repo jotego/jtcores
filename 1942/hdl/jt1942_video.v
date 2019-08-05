@@ -77,28 +77,67 @@ wire [5:0] scr_pxl;
 localparam scrchr_off = 8'd4;
 
 `ifndef NOCHAR
-jt1942_char #(.HOFFSET(scrchr_off)) u_char (
+wire [7:0] char_msg_low;
+wire [7:0] char_msg_high = 8'h2;
+wire [9:0] char_scan;
+wire [5:0] char_pal;
+wire [1:0] char_col;
+
+jtgng_char #(
+    .HOFFSET (scrchr_off),
+    .ROM_AW  (12),
+    .IDMSB1  ( 7),
+    .IDMSB0  ( 7),
+    .VFLIP   ( 6),
+    .PALW    ( 6),
+    .HFLIP_EN( 0)    // 1942 does not have character H flip
+) u_char (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H128       ( H[7:0]        ),
-    .char_cs    ( char_cs       ),
+    .V          ( V             ),
+    .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
-    .rd_n       ( rd_n          ),
+    // Bus arbitrion
+    .char_cs    ( char_cs       ),
+    .wr_n       ( wr_n          ),
+    .MRDY_b     (               ),
     .busy       ( char_busy     ),
-    .char_pxl   ( char_pxl      ),
+    // Pause screen
     .pause      ( pause         ),
-    // Palette PROM F1
-    .prog_addr  ( prog_addr     ),
-    .prom_din   ( prog_din      ),
-    .prom_f1_we ( prom_f1_we    ),
+    .scan       ( char_scan     ),
+    .msg_low    ( char_msg_low  ),
+    .msg_high   ( char_msg_high ),
     // ROM
     .char_addr  ( char_addr     ),
-    .char_data  ( char_data     )
+    .rom_data   ( char_data     ),
+    .rom_ok     ( char_ok       ),
+    // Pixel output
+    .char_col   ( char_col      ),
+    .char_pal   ( char_pal      )
+);
+
+jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+    .clk    ( clk          ),
+    .cen    ( cen6         ),
+    .data   ( 8'd0         ),
+    .addr   ( char_scan    ),
+    .we     ( 1'b0         ),
+    .q      ( char_msg_low )
+);
+
+// palette ROM
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-0.f1")) u_vprom(
+    .clk    ( clk                 ),
+    .cen    ( cen6                ),
+    .data   ( prog_din            ),
+    .rd_addr( {char_pal,char_col} ),
+    .wr_addr( prog_addr           ),
+    .we     ( prom_f1_we          ),
+    .q      ( char_pxl            )
 );
 `else
 assign char_wait_n = 1'b1;

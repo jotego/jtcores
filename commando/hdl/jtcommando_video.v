@@ -79,26 +79,47 @@ localparam scr_off = 8'd7; //8'd5;
 localparam chr_off = 8'd5;
 
 `ifndef NOCHAR
+
+wire [7:0] char_msg_low;
+wire [7:0] char_msg_high = 8'h2;
+wire [9:0] char_scan;
+
 jtgng_char #(.Hoffset(chr_off)) u_char (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H128       ( H[7:0]        ),
-    .char_cs    ( char_cs       ),
+    .V          ( V             ),
+    .H          ( H[7:0]        ),
     .flip       ( flip          ),
-    .pause      ( pause         ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
-    .rd         ( RnW           ),
+    // Bus arbitrion
+    .char_cs    ( char_cs       ),
+    .wr_n       ( RnW           ),
     .MRDY_b     (               ),
     .busy       ( char_busy     ),
+    // Pause screen
+    .pause      ( pause         ),
+    .scan       ( char_scan     ),
+    .msg_low    ( char_msg_low  ),
+    .msg_high   ( char_msg_high ),
+    // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( chrom_data    ),
     .rom_ok     ( char_ok       ),
+    // Pixel output
     .char_col   ( char_pxl[1:0] ),
     .char_pal   ( char_pxl[5:2] )
+);
+
+jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+    .clk    ( clk          ),
+    .cen    ( cen6         ),
+    .data   ( 8'd0         ),
+    .addr   ( char_scan    ),
+    .we     ( 1'b0         ),
+    .q      ( char_msg_low )
 );
 `else
 assign char_mrdy = 1'b1;

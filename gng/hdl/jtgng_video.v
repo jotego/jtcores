@@ -31,9 +31,10 @@ module jtgng_video(
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
+    input               char_ok,
     output              char_mrdy,
     output      [12:0]  char_addr,
-    input       [15:0]  chrom_data,
+    input       [15:0]  char_data,
     // SCROLL - ROM
     input               scr_cs,
     input               scrpos_cs,
@@ -66,8 +67,8 @@ module jtgng_video(
     output      [3:0]   blue
 );
 
-wire [3:0] chr_pal;
-wire [1:0] chr_col;
+wire [3:0] char_pal;
+wire [1:0] char_col;
 wire [5:0] obj_pxl;
 wire scrwin;
 wire [2:0] scr_col;
@@ -77,25 +78,49 @@ wire [3:0] cc;
 localparam scrchr_off = 8'd5;
 
 `ifndef NOCHAR
+
+wire [7:0] char_msg_low;
+wire [7:0] char_msg_high = 8'h2;
+wire [9:0] char_scan;
+
 jtgng_char #(.Hoffset(scrchr_off)) u_char (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cen6          ),
     .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H128       ( H[7:0]        ),
-    .char_cs    ( char_cs       ),
+    .V          ( V             ),
+    .H          ( H[7:0]        ),
     .flip       ( flip          ),
-    .pause      ( pause         ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
-    .rd         ( RnW           ),
+    // Bus arbitrion
+    .char_cs    ( char_cs       ),
+    .wr_n       ( RnW           ),
     .MRDY_b     ( char_mrdy     ),
+    .busy       (               ),
+    // Pause screen
+    .pause      ( pause         ),
+    .scan       ( char_scan     ),
+    .msg_low    ( char_msg_low  ),
+    .msg_high   ( char_msg_high ),
+    // ROM
     .char_addr  ( char_addr     ),
-    .chrom_data ( chrom_data    ),
+    .rom_data   ( char_data     ),
+    .rom_ok     ( char_ok       ),
+    // Pixel output
     .char_col   ( chr_col       ),
     .char_pal   ( chr_pal       )
 );
+
+jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+    .clk    ( clk          ),
+    .cen    ( cen6         ),
+    .data   ( 8'd0         ),
+    .addr   ( char_scan    ),
+    .we     ( 1'b0         ),
+    .q      ( char_msg_low )
+);
+
 `else
 assign char_mrdy = 1'b1;
 `endif
@@ -136,8 +161,8 @@ jtgng_colmix u_colmix (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     // characters
-    .chr_col    ( chr_col       ),
-    .chr_pal    ( chr_pal       ),
+    .chr_col    ( char_col      ),
+    .chr_pal    ( char_pal      ),
     // scroll
     .scr_col    ( scr_col       ),
     .scr_pal    ( scr_pal       ),

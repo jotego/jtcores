@@ -39,6 +39,7 @@ module jt1943_video(
     output      [ 7:0]  chram_dout,
     output      [13:0]  char_addr,
     input       [15:0]  char_data,
+    input               char_ok,
     output              char_wait,
     // SCROLL - ROM
     input               SC1ON,
@@ -113,34 +114,63 @@ wire obj_pause=1'b0;
 `endif
 
 `ifndef NOCHAR
-jt1943_char #(.HOFFSET(chr_off)) u_char (
+wire [7:0] char_msg_low;
+wire [7:0] char_msg_high = 8'h2;
+wire [9:0] char_scan;
+wire [4:0] char_pal;
+wire [1:0] char_col;
+
+jtgng_char #(
+    .HOFFSET (chr_off),
+    .ROM_AW  (14),
+    .IDMSB1  ( 7),
+    .IDMSB0  ( 5),
+    .PALW    ( 5),
+    .VFLIP_EN( 0),
+    .HFLIP_EN( 0)    // 1942 does not have character H flip
+) u_char (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H          ( H             ),
-    .char_cs    ( char_cs       ),
-    .CHON       ( CHON          ),
+    .V          ( V             ),
+    .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
-    .rd_n       ( rd_n          ),
+    // Bus arbitrion
+    .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
-    .cpu_wait   ( char_wait     ),
-    .char_pxl   ( char_pxl      ),
+    .busy       ( char_wait     ),
     // Pause screen
     .pause      ( pause         ),
-    .avatar_idx ( avatar_idx    ),
-    // Palette PROM F1
-    .prog_addr  ( prog_addr     ),
-    .prom_din   ( prog_din      ),
-    .prom_7f_we ( prom_7f_we    ),
+    .scan       ( char_scan     ),
+    .msg_low    ( char_msg_low  ),
+    .msg_high   ( char_msg_high ),    
     // ROM
     .char_addr  ( char_addr     ),
-    .char_data  ( char_data     )
+    .rom_data   ( char_data     ),
+    .rom_ok     ( char_ok       ),
+    // Pixel output
+    .char_col   ( char_col      ),
+    .char_pal   ( char_pal      )
 );
+
+// palette ROM
+wire [7:0] char_prom_addr = {1'b0, char_pal,char_col };
+wire [3:0] char_prom_data;
+assign char_pxl = (CHON | pause) ? char_prom_data : 4'hF;
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din       ),
+    .rd_addr( char_prom_addr ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_7f_we     ),
+    .q      ( char_prom_data )
+);
+
 `else
 assign char_wait_n = 1'b1;
 assign char_pxl = 4'hf;

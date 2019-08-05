@@ -1,4 +1,3 @@
-../../hdl/jt1942_char.v
 ../../hdl/jt1942_colmix.v
 ../../hdl/jt1942_game.v
 ../../hdl/jt1942_main.v
@@ -21,5 +20,6 @@
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
+../../../modules/jtgng_char.v
 ../../../modules/jtframe/hdl/ver/noise_gen.v
 

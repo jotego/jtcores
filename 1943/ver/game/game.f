@@ -1,4 +1,3 @@
-../../hdl/jt1943_char.v
 ../../hdl/jt1943_colmix.v
 ../../hdl/jt1943_game.v
 ../../hdl/jt1943_main.v
@@ -22,5 +21,6 @@
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_timer.v
+../../../modules/jtgng_char.v
 ../../../modules/jtgng_true_dual_ram.v
 test_inputs.v
