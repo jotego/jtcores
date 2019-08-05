@@ -84,7 +84,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high = 8'h2;
 wire [9:0] char_scan;
 
-jtgng_char #(.Hoffset(chr_off)) u_char (
+jtgng_char #(.HOFFSET(chr_off)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cen6          ),

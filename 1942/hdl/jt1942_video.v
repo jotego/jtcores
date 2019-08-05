@@ -95,7 +95,7 @@ jtgng_char #(
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cen6          ),
-    .AB         ( cpu_AB[10:0]  ),
+    .AB         ( cpu_AB        ),
     .V          ( V             ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
