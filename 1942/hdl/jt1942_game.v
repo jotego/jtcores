@@ -89,6 +89,7 @@ wire [7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire rd;
 wire rom_ready;
+wire cpu_cen;
 wire main_ok, snd_ok, char_ok;
 
 assign sample=1'b1;
@@ -132,8 +133,8 @@ wire [7:0] snd_latch;
 
 wire main_cs, snd_cs;
 wire scr_cs, obj_cs;
-wire [1:0] scrpos_cs;
 wire [2:0] scr_br;
+wire [8:0] scr_hpos;
 
 // ROM data
 wire  [11:0]  char_addr;
@@ -182,6 +183,7 @@ jt1942_main u_main(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
+    .cpu_cen    ( cpu_cen       ),
     // sound
     .sres_b        ( sres_b        ),
     .snd_latch0_cs ( snd_latch0_cs ),
@@ -198,9 +200,9 @@ jt1942_main u_main(
     .scr_cs     ( scr_cs        ),
     .scr_busy   ( scr_busy      ),
     .scr_dout   ( scram_dout    ),
+    .scr_hpos   ( scr_hpos      ),
     // video (other)
     .scr_br     ( scr_br        ),
-    .scrpos_cs  ( scrpos_cs     ),
     .obj_cs     ( obj_cs        ),
     .flip       ( flip          ),
     .V          ( V[7:0]        ),
@@ -258,6 +260,7 @@ jt1942_video u_video(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
+    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
@@ -275,12 +278,12 @@ jt1942_video u_video(
     .char_busy  ( char_busy     ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
     .scr_busy   ( scr_busy      ),
     .scr_br     ( scr_br        ),
+    .scr_hpos   ( scr_hpos      ),
     // OBJ
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),

@@ -14,6 +14,7 @@
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_char.v
+../../../modules/jtgng_tilemap.v
 ../../../modules/jtgng_scroll.v
 ../../../modules/jtgng_obj.v
 ../../../modules/jtgng_objdma.v

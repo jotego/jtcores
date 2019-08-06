@@ -23,6 +23,7 @@ module jtgng_main(
     input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
     input              cen3,   // 3MHz
     input              cen1p5,   // 1.5MHz
+    output             cpu_cen,
     input              rst,
     input              soft_rst,
     input              ch_mrdy,
@@ -41,7 +42,8 @@ module jtgng_main(
     input              scr_mrdy,
     input   [7:0]      scr_dout,
     output             scr_cs,
-    output             scrpos_cs,
+    output reg [8:0]   scr_hpos,
+    output reg [8:0]   scr_vpos,    
     // cabinet I/O
     input   [ 1:0]     start_button,
     input   [ 1:0]     coin_input,
@@ -74,9 +76,11 @@ wire [15:0] A;
 wire MRDY_b = ch_mrdy & scr_mrdy;
 reg nRESET;
 wire in_cs;
-wire sound_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
+wire sound_cs, scrpos_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
 
 reg [11:0] map_cs;
+
+assign cpu_cen = cen3;
 
 assign {
     sound_cs, OKOUT, scrpos_cs,   scr_cs,
@@ -102,6 +106,17 @@ always @(*)
         8'b1???_????: map_cs = 12'h001; // ROMs
         default:      map_cs = 12'h000;
     endcase
+
+// SCROLL H/V POSITION
+always @(posedge clk) if(cpu_cen) begin
+    if( scrpos_cs && A[3])
+    case(A[1:0])
+        2'd0: scr_hpos[7:0] <= cpu_dout;
+        2'd1: scr_hpos[8]   <= cpu_dout[0];
+        2'd2: scr_vpos[7:0] <= cpu_dout;
+        2'd3: scr_vpos[8]   <= cpu_dout[0];
+    endcase
+end
 
 // special registers
 reg [2:0] bank;

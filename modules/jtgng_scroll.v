@@ -16,32 +16,41 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_scroll(
+module jtgng_scroll #(parameter 
+    ROM_AW   = 15,
+    MAP_AW   = 10,
+    PALW     = 4,
+    HOFFSET  = 9'd5,
+    // bit field information
+    IDMSB1   = 7,   // MSB of tile ID is
+    IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
+    VFLIP    = 5,
+    HFLIP    = 4
+) (
     input              clk,     // 24 MHz
-    input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
-    input              cen3,
-    input       [10:0] AB,
-    input       [ 7:0] V128, // V128-V1
+    input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
+    input              cpu_cen,
+    input              Asel,
+    input [MAP_AW-1:0] AB,
+    input       [ 7:0] V, // V128-V1
     input       [ 8:0] H, // H256-H1
+    input       [ 8:0] hpos,
+    input       [ 8:0] vpos,
     input              scr_cs,
-    input              scrpos_cs,
     input              flip,
     input       [ 7:0] din,
     output reg  [ 7:0] dout,
-    input              rd,
+    input              wr_n,
     output             MRDY_b,
     output             busy,
 
     // ROM
-    output reg  [14:0] scr_addr,
-    input       [23:0] rom_data,
-    input              rom_ok,
-    output      [ 2:0] scr_pal,
-    output      [ 2:0] scr_col,
-    output             scrwin
+    output reg  [ROM_AW-1:0] scr_addr,
+    input       [23:0]       rom_data,
+    input                    rom_ok,
+    output  [PALW-1:0]       scr_pal,
+    output      [ 2:0]       scr_col
 );
-
-parameter Hoffset=9'd5;
 
 reg [2:0] scr_pal0, scr_col0;
 reg scrwin0;
@@ -51,11 +60,10 @@ assign scr_col = scr_col0;
 assign scrwin  = scrwin0;
 
 
-wire [8:0] Hfix = H + Hoffset; // Corrects pixel output offset
+wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS, VS;
-wire [ 7:0] VF = {8{flip}}^V128;
+wire [ 7:0] VF = {8{flip}}^V;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
-reg  [ 8:0] hpos=9'd0, vpos=9'd0;
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
@@ -67,74 +75,53 @@ always @(*) begin
     HS[2:0] = HSaux ^ {3{flip}};
 end
 
-wire [9:0] scan = { HS[8:4], VS[8:4] };
-wire sel_scan = ~HS[2];
-assign busy = sel_scan;
-
-wire [9:0]  addr = sel_scan ? scan : AB[9:0];
-wire we = !sel_scan && scr_cs && !rd;
-wire we_low  = we && !AB[10];
-wire we_high = we &&  AB[10];
-
-always @(posedge clk) if(cen6) begin
-    if( scrpos_cs && AB[3])
-    case(AB[1:0])
-        2'd0: hpos[7:0] <= din;
-        2'd1: hpos[8]   <= din[0];
-        2'd2: vpos[7:0] <= din;
-        2'd3: vpos[8]   <= din[0];
-    endcase
-end
-
 wire [7:0] dout_low, dout_high;
-always @(posedge clk) begin : dout_latch
-    reg last_AB10, last_sel;
-    last_sel  <= sel_scan;
-    last_AB10 <= AB[10];
-    if( !last_sel )
-        dout <= last_AB10 ? dout_high : dout_low;
-end
 
-jtgng_ram #(.aw(10),.cen_rd(1),.simfile("scrlow.bin")) u_ram_low(
-    .clk    ( clk      ),
-    .cen    ( cen6     ),
-    .data   ( din      ),
-    .addr   ( addr     ),
-    .we     ( we_low   ),
-    .q      ( dout_low )
+jtgng_tilemap #(.AW(10),.HOFFSET(HOFFSET)) u_tilemap(
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+    .Asel       ( Asel      ),
+    .AB         ( AB        ),
+    .V          ( VS[8:1]   ),
+    .H          ( HS[8:1]   ),
+    .flip       ( flip      ),
+    .din        ( din       ),
+    .dout       ( dout      ),
+    // Bus arbitrion
+    .cs         ( scr_cs    ),
+    .wr_n       ( wr_n      ),
+    .MRDY_b     ( MRDY_b    ),
+    .busy       ( busy      ),
+    // Pause screen -unused for scroll-
+    .pause      ( 1'b0      ),
+    .scan       (           ),
+    .msg_low    ( 8'd0      ),
+    .msg_high   ( 8'd0      ),
+    // Current tile
+    .dout_low   ( dout_low  ),
+    .dout_high  ( dout_high )
 );
-
-jtgng_ram #(.aw(10),.cen_rd(1)) u_ram_high(
-    .clk    ( clk      ),
-    .cen    ( cen6     ),
-    .data   ( din      ),
-    .addr   ( addr     ),
-    .we     ( we_high  ),
-    .q      ( dout_high)
-);
-
-assign MRDY_b = !( scr_cs && sel_scan ); // halt CPU
 
 reg scr_hflip;
 reg [7:0] addr_lsb;
 
-reg [4:0] scr_attr0, scr_attr1;
+reg [PALW:0] scr_attr0, scr_attr1; // MSB is tile H flip
 
 // Set input for ROM reading
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(pxl_cen) begin
     if( HS[2:0]==3'd1 ) begin // dout_high/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr1 <= scr_attr0;
-        scr_attr0 <= dout_high[4:0];
-        scr_addr  <= {   dout_high[7:6], dout_low, // AS
-                        HS[3]^dout_high[4] /*scr_hflip*/,
-                        {4{dout_high[5] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
+        scr_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
+        scr_addr  <= {   dout_high[IDMSB1:IDMSB0], dout_low, // AS
+                        HS[3]^dout_high[HFLIP] /*scr_hflip*/,
+                        {4{dout_high[VFLIP] /*vflip*/}}^VS[3:0] /*vert_addr*/ };
     end
 end
 
 // Draw pixel on screen
 reg [7:0] x,y,z;
-reg [3:0] scr_attr2;
+reg [PALW-1:0] scr_attr2;
 
 reg [23:0] good_data;
 always @(posedge clk) begin
@@ -142,7 +129,7 @@ always @(posedge clk) begin
         good_data <= rom_data;
 end
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
@@ -165,8 +152,7 @@ always @(posedge clk) if(cen6) begin
             end
         end
     scr_col0  <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-    scr_pal0  <= scr_attr2[2:0];
-    scrwin0   <= scr_attr2[3];
+    scr_pal0  <= scr_attr2[PALW-1:0]; // MSB in G&G is "scrwin" = scroll wins over sprite
 end
 
 endmodule // jtgng_scroll

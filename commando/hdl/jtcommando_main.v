@@ -41,10 +41,11 @@ module jtcommando_main(
     output  reg        char_cs,
     input              char_busy,
     // scroll
-    output  reg        scrpos_cs,
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
+    output reg [8:0]   scr_hpos,
+    output reg [8:0]   scr_vpos,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -76,7 +77,7 @@ module jtcommando_main(
 
 wire [15:0] A;
 wire t80_rst_n;
-reg in_cs, ram_cs, misc_cs, scrposv_cs, gfxen_cs;
+reg in_cs, ram_cs, misc_cs, scrpos_cs, gfxen_cs;
 reg SECWR_cs;
 wire rd_n, wr_n;
 
@@ -116,6 +117,17 @@ always @(*) begin
                     scr_cs = 1'b1;
             endcase
         3'b111: ram_cs = 1'b1;
+    endcase
+end
+
+// SCROLL H/V POSITION
+always @(posedge clk) if(cpu_cen) begin
+    if( scrpos_cs && A[3])
+    case(A[1:0])
+        2'd0: scr_hpos[7:0] <= cpu_dout;
+        2'd1: scr_hpos[8]   <= cpu_dout[0];
+        2'd2: scr_vpos[7:0] <= cpu_dout;
+        2'd3: scr_vpos[8]   <= cpu_dout[0];
     endcase
 end
 

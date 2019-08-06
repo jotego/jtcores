@@ -23,6 +23,7 @@ module jt1942_video(
     input               clk,
     input               cen6,
     input               cen3,
+    input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
@@ -40,12 +41,12 @@ module jt1942_video(
     input               char_ok,
     // SCROLL - ROM
     input               scr_cs,
-    input       [ 1:0]  scrpos_cs,
     output              scr_busy,
     output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,
     input       [ 2:0]  scr_br,
+    input       [ 8:0]  scr_hpos,
     // OBJ
     input               obj_cs,
     input               HINIT,
@@ -95,7 +96,7 @@ jtgng_char #(
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
     .V          ( V             ),
     .H          ( H[7:0]        ),
@@ -146,36 +147,80 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1942_scroll #(.HOFFSET(scrchr_off)) u_scroll (
+wire [2:0] scr_col;
+wire [4:0] scr_pal;
+
+jtgng_scroll #(.HOFFSET(scrchr_off)
+    .ROM_AW  (14),
+    .IDMSB1  ( 7),
+    .IDMSB0  ( 7),
+    .VFLIP   ( 6),
+    .HFLIP   ( 5),
+    .PALW    ( 5)
+) u_scroll (
     .clk          ( clk           ),
-    .cen6         ( cen6          ),
-    .cen3         ( cen3          ),
-    .AB           ( cpu_AB[9:0]   ),
-    .V128         ( V[7:0]        ),
+    .pxl_cen      ( cen6          ),
+    .cpu_cen      ( cpu_cen       ),
+    // screen position
     .H            ( H             ),
-    .scr_cs       ( scr_cs        ),
-    .scrpos_cs    ( scrpos_cs     ),
-    .busy         ( scr_busy      ),
+    .V            ( V[7:0]        ),
+    .hpos         ( scr_hpos      ),
     .flip         ( flip          ),
+    // bus arbitrion
+    .Asel         ( cpu_AB[4]     ),
+    .AB           ( cpu_AB[9:0]   ),
+    .scr_cs       ( scr_cs        ),
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),
-    .rd_n         ( rd_n          ),
     .wr_n         ( wr_n          ),
-    // Palette PROMs D1, D2
-    .scr_br       ( scr_br        ),
-    .prog_addr    ( prog_addr     ),
-    .prom_d1_we   ( prom_d1_we    ),
-    .prom_d2_we   ( prom_d2_we    ),
-    .prom_d6_we   ( prom_d6_we    ),
-    .prom_din     ( prog_din      ),
-
+    .MRDY_b       (               ),
+    .busy         ( scr_busy      ),
     // ROM
     .scr_addr     ( scr_addr[13:0]),
-    .scrom_data   ( scrom_data    ),
-    .scr_pxl      ( scr_pxl       )
+    .rom_data     ( scrom_data    ),
+    .rom_ok       ( scr_ok        ),
+    // pixel
+    .scr_col      ( scr_col       ),
+    .scr_pal      ( scr_pal       )
 );
+
+wire [7:0] scr_pal_addr;
+assign scr_pal_addr[7] = 1'b0;
+assign scr_pal_addr[6:4] = scr_br[2:0];
+
+
 assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
     // leave bit 14 to maintain the same ROM interface as with GnG
+// Scroll palette PROMs
+jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din[1:0]  ),
+    .rd_addr( scr_pal_addr   ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d1_we     ),
+    .q      ( scr_pxl[5:4]   )
+);
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din       ),
+    .rd_addr( scr_pal_addr   ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d2_we     ),
+    .q      ( scr_pxl[3:0]   )
+);
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din       ),
+    .rd_addr( {scr_pal, scr_col} ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d6_we     ),
+    .q      ( scr_pal_addr[3:0]  )
+);
 `else
 assign scr_wait_n = 1'b1;
 assign scr_pxl = ~6'h0;

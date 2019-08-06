@@ -24,6 +24,7 @@ module jt1942_main(
     input              clk,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
+    output             cpu_cen,
     input              rst,
     output             [7:0] cpu_dout,
     output  reg        flip,
@@ -42,8 +43,8 @@ module jt1942_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output  reg [1:0]  scrpos_cs,
     output  reg [2:0]  scr_br,
+    output  reg [8:0]  scr_hpos,
     // cheat!
     input              cheat_invincible,
     // Object
@@ -77,8 +78,10 @@ wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
 reg in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
+reg [1:0]  scrpos_cs;
 
 wire mreq_n;
+assign cpu_cen = cen3;
 
 always @(*) begin
     rom_cs        = 1'b0;
@@ -120,6 +123,12 @@ always @(*) begin
             endcase
         3'b111: ram_cs = A[12]==1'b0; // csef
     endcase
+end
+
+// SCROLL H/V POSITION
+always @(posedge clk) if(cpu_cen) begin
+    if( scrpos_cs[1] ) scr_hpos[8]   <= cpu_dout[0];
+    if( scrpos_cs[0] ) scr_hpos[7:0] <= cpu_dout;
 end
 
 // special registers
@@ -256,7 +265,7 @@ wire wait_n;
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
-    .cpu_cen    ( cen3      ),
+    .cpu_cen    ( cpu_cen   ),
     // manage access to shared memory
     .dev_cs     ( { scr_cs, char_cs }     ),
     .dev_busy   ( { scr_busy, char_busy } ),

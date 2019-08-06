@@ -1,7 +1,6 @@
 ../../hdl/jt1942_colmix.v
 ../../hdl/jt1942_game.v
 ../../hdl/jt1942_main.v
-../../hdl/jt1942_scroll.v
 ../../hdl/jt1942_sound.v
 ../../hdl/jt1942_video.v
 ../../hdl/jt1942_prom_we.v
@@ -21,5 +20,7 @@
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
+../../../modules/jtgng_scroll.v
+../../../modules/jtgng_tilemap.v
 ../../../modules/jtframe/hdl/ver/noise_gen.v
 

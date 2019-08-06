@@ -21,6 +21,7 @@ module jtgng_video(
     input               clk,
     input               cen6,
     input               cen3,
+    input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
@@ -42,6 +43,8 @@ module jtgng_video(
     output      [14:0]  scr_addr,
     input       [23:0]  scrom_data,
     output              scr_mrdy,
+    input       [ 8:0]  scr_hpos,
+    input       [ 8:0]  scr_vpos,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -83,10 +86,10 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high = 8'h2;
 wire [9:0] char_scan;
 
-jtgng_char #(.Hoffset(scrchr_off)) u_char (
+jtgng_char #(.HOFFSET(scrchr_off)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V             ),
     .H          ( H[7:0]        ),
@@ -126,25 +129,32 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.Hoffset(scrchr_off)) u_scroll (
+jtgng_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .clk        ( clk           ),
     .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
-    .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
+    .cpu_cen    ( cpu_cen       ),
+    // screen position
     .H          ( H             ),
-    .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
+    .V          ( V[7:0]        ),
+    .hpos       ( scr_hpos      ),
+    .vpos       ( scr_vpos      ),
     .flip       ( flip          ),
+    // bus arbitrion
+    .Asel       ( cpu_AB[10]    ),
+    .AB         ( cpu_AB[9:0]   ),
+    .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
     .dout       ( scram_dout    ),
-    .rd         ( RnW           ),
-    .MRDY_b     ( scr_mrdy      ),
+    .wr_n       ( RnW           ),
+    .MRDY_b     (               ),
+    .busy       ( scr_busy      ),
+    // ROM
     .scr_addr   ( scr_addr      ),
+    .rom_data   ( scr_data      ),
+    .rom_ok     ( scr_ok        ),
+    // pixel output
     .scr_col    ( scr_col       ),
-    .scr_pal    ( scr_pal       ),
-    .scrom_data ( scrom_data    ),
-    .scrwin     ( scrwin        )
+    .scr_pal    ( { scrwin, scr_pal } )
 );
 `else
 assign scr_mrdy   = 1'b1;

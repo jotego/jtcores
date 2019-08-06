@@ -90,6 +90,7 @@ wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 
 wire rom_ready;
+wire cpu_cen;
 
 reg rst_game=1'b1;
 reg rst_aux;
@@ -152,7 +153,8 @@ wire blcnten;
 wire sres_b;
 wire [7:0] snd_latch;
 
-wire scr_cs, scrpos_cs;
+wire scr_cs;
+wire [8:0] scr_hpos, scr_vpos;
 
 `ifndef NOMAIN
 jtgng_main u_main(
@@ -160,12 +162,9 @@ jtgng_main u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
+    .cpu_cen    ( cpu_cen       ),
     .rst        ( rst_game      ),
     .soft_rst   ( soft_rst      ),
-    .ch_mrdy    ( char_mrdy     ),
-    .scr_mrdy   ( scr_mrdy      ),
-    .char_dout  ( char_dout     ),
-    .scr_dout   ( scr_dout      ),
     // bus sharing
     .ram_dout   ( main_ram      ),
     .obj_AB     ( obj_AB        ),
@@ -176,13 +175,20 @@ jtgng_main u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
+    // CHAR
+    .char_dout  ( char_dout     ),
+    .cpu_dout   ( cpu_dout      ),
+    .char_cs    ( char_cs       ),
+    .ch_mrdy    ( char_mrdy     ),
+    // SCROLL
+    .scr_dout   ( scr_dout      ),
+    .scr_cs     ( scr_cs        ),
+    .scr_mrdy   ( scr_mrdy      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
 
     .LVBL       ( LVBL          ),
     .main_cs    ( main_cs       ),
-    .cpu_dout   ( cpu_dout      ),
-    .char_cs    ( char_cs       ),
-    .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
     .flip       ( flip          ),
@@ -208,12 +214,13 @@ jtgng_main u_main(
 assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
-assign scrpos_cs   = 1'b0;
 assign blue_cs     = 1'b0;
 assign redgreen_cs = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
+assign scr_hpos    = 9'd0;
+assign scr_vpos    = 9'd0;
 `endif
 
 `ifndef NOSOUND
@@ -245,6 +252,7 @@ jtgng_video u_video(
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
+    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
@@ -265,6 +273,8 @@ jtgng_video u_video(
     .scr_addr   ( scr_addr      ),
     .scrom_data ( scr_data      ),
     .scr_mrdy   ( scr_mrdy      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),    
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),

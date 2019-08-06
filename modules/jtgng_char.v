@@ -59,44 +59,33 @@ module jtgng_char #(parameter
     output reg [     1:0]   char_col
 );
 
+wire [7:0] dout_low, dout_high;
 wire [7:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 
-wire sel_scan = ~Hfix[2];
-assign busy = sel_scan;
-
-assign scan = { {10{flip}}^{V[7:3],Hfix[7:3]}};
-wire [9:0] addr = sel_scan ? scan : AB[9:0];
-wire [7:0] mem_low, mem_high, mem_msg;
-wire we = !sel_scan && char_cs && !wr_n;
-wire we_low  = we && !AB[10];
-wire we_high = we &&  AB[10];
-reg [7:0] dout_low, dout_high;
-assign dout = AB[10] ? dout_high : dout_low;
-
-jtgng_ram #(.aw(10)) u_ram_low(
-    .clk    ( clk      ),
-    .cen    ( cpu_cen  ),
-    .data   ( din      ),
-    .addr   ( addr     ),
-    .we     ( we_low   ),
-    .q      ( mem_low  )
+jtgng_tilemap #(.AW(10),.HOFFSET(HOFFSET)) u_tilemap(
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+    .Asel       ( AB[10]    ),
+    .AB         ( AB[9:0]   ),
+    .V          ( V         ),
+    .H          ( Hfix      ),
+    .flip       ( flip      ),
+    .din        ( din       ),
+    .dout       ( dout      ),
+    // Bus arbitrion
+    .cs         ( char_cs   ),
+    .wr_n       ( wr_n      ),
+    .MRDY_b     ( MRDY_b    ),
+    .busy       ( busy      ),
+    // Pause screen
+    .pause      ( pause     ),
+    .scan       ( scan      ),
+    .msg_low    ( msg_low   ),
+    .msg_high   ( msg_high  ),
+    // Current tile
+    .dout_low   ( dout_low  ),
+    .dout_high  ( dout_high )
 );
-
-jtgng_ram #(.aw(10)) u_ram_high(
-    .clk    ( clk      ),
-    .cen    ( cpu_cen  ),
-    .data   ( din      ),
-    .addr   ( addr     ),
-    .we     ( we_high  ),
-    .q      ( mem_high )
-);
-
-always @(*) begin
-    dout_low  = pause ? msg_low  : mem_low;
-    dout_high = pause ? msg_high : mem_high;
-end
-
-assign MRDY_b = !( char_cs && sel_scan ); // halt CPU
 
 reg [7:0] addr_lsb;
 reg char_hflip;

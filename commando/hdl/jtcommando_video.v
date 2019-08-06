@@ -22,6 +22,7 @@ module jtcommando_video(
     input               cen12,
     input               cen6,
     input               cen3,
+    input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
@@ -38,12 +39,13 @@ module jtcommando_video(
     output              char_busy,
     // SCROLL - ROM
     input               scr_cs,
-    input               scrpos_cs,
     output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
+    input       [ 8:0]  scr_hpos,
+    input       [ 8:0]  scr_vpos,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -87,7 +89,7 @@ wire [9:0] char_scan;
 jtgng_char #(.HOFFSET(chr_off)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V             ),
     .H          ( H[7:0]        ),
@@ -126,27 +128,32 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.Hoffset(scr_off)) u_scroll (
+jtgng_scroll #(.HOFFSET(scr_off)) u_scroll (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
-    .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
+    // screen position
     .H          ( H             ),
-    .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
+    .V          ( V[7:0]        ),
+    .hpos       ( scr_hpos      ),
+    .vpos       ( scr_vpos      ),
     .flip       ( flip          ),
+    // bus arbitrion
+    .Asel       ( cpu_AB[10]    ),
+    .AB         ( cpu_AB[9:0]   ),
+    .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
     .dout       ( scram_dout    ),
-    .rd         ( RnW           ),
+    .wr_n       ( RnW           ),
     .MRDY_b     (               ),
     .busy       ( scr_busy      ),
+    // ROM
     .scr_addr   ( scr_addr      ),
-    .scr_col    ( scr_pxl[2:0]  ),
-    .scr_pal    ( scr_pxl[5:3]  ),
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
-    .scrwin     ( scr_pxl[6]    )
+    // pixel
+    .scr_col    ( scr_pxl[2:0]  ),
+    .scr_pal    ( scr_pxl[6:3]  )
 );
 `else
 assign scr_mrdy   = 1'b1;

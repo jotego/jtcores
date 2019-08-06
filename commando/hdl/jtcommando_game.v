@@ -191,7 +191,8 @@ wire prom_1h = prom_we[3];
 wire prom_6l = prom_we[4];
 wire prom_6e = prom_we[5];
 
-wire scr_cs, scrpos_cs;
+wire scr_cs;
+wire [8:0] scr_hpos, scr_vpos;
 
 
 `ifndef NOMAIN
@@ -219,10 +220,11 @@ jtcommando_main u_main(
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
     // SCROLL
-    .scrpos_cs  ( scrpos_cs     ),
     .scr_dout   ( scram_dout    ),
     .scr_cs     ( scr_cs        ),
     .scr_busy   ( scr_busy      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -256,10 +258,11 @@ jtcommando_main u_main(
 assign main_addr   = 16'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
-assign scrpos_cs   = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
+assign scr_hpos    = 9'd0;
+assign scr_vpos    = 9'd0;
 `endif
 
 `ifndef NOSOUND
@@ -300,6 +303,7 @@ jtcommando_video u_video(
     .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
+    .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
@@ -316,12 +320,13 @@ jtcommando_video u_video(
     .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scram_dout    ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_ok     ( scr_ok        ),
     .scr_busy   ( scr_busy      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
