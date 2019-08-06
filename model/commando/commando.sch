@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
-Sheet 1 1
+Sheet 1 2
 Title ""
 Date ""
 Rev ""
@@ -862,4 +862,10 @@ Text Label 9400 8000 0    50   ~ 0
 VDD
 Text Label 8500 8000 0    50   ~ 0
 VDD
+$Sheet
+S 9600 1100 1300 1100
+U 5D4A5235
+F0 "SCROLLH" 50
+F1 "scrollh.sch" 50
+$EndSheet
 $EndSCHEMATC
