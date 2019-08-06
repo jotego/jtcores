@@ -1,5 +1,5 @@
 //============================================================================
-//  Arcade: 1942  by Jose Tejada Gomez. Twitter: @topapate
+//  Arcade: Ghosts'n'Goblins  by Jose Tejada Gomez. Twitter: @topapate 
 //
 //  Port to MiSTer
 //  Copyright (C) 2019 Sorgelig
@@ -93,23 +93,23 @@ assign LED_POWER = 0;
 assign HDMI_ARX = status[1] ? 8'd16 : 8'd4;
 assign HDMI_ARY = status[1] ? 8'd9  : 8'd3;
 
-`include "build_id.v"
+`include "build_id.v" 
 localparam CONF_STR1 = {
-    "A.JT1942;;",
+    "A.GnG;;", 
     "-;",
-    "O1,Pause,OFF,ON;",
-    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    "F,rom;",
+    "O1,Aspect Ratio,Original,Wide;",
+    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", 
     "-;",
-    "OF,Coin-free play,Yes,No;",
+    "OF,Test mode,No,Yes;",
     "O89,Lives,3,4,5,7;",
     "OAB,+1 Life,20K 70K Every 70K,30K 80K Every 80K,20K and 80K Only,30K and 80K Only;",
     "OCD,Difficulty,Normal,Easy,Hard,Very Hard;"
 };
 
 localparam CONF_STR2 = {
-    "E,Invulnerable,No,Yes;",
+//  "E,Invulnerable,No,Yes;",
     "-;",
-    "O2,Flip screen,OFF,ON;",
     "O6,PSG,Enabled,Disabled;",
     "O7,FM,Enabled,Disabled;",
     "-;",
@@ -120,24 +120,23 @@ localparam CONF_STR2 = {
 
 ////////////////////   CLOCKS   ///////////////////
 
-wire clk_sys;
+wire clk_sys, pll_locked;
 
 pll pll
 (
-    .refclk(CLK_50M),
-    .outclk_0(clk_sys)
+    .refclk     ( CLK_50M    ),
+    .rst        ( 1'b0       ),
+    .locked     ( pll_locked ),
+    .outclk_0   ( clk_sys    ), // 48 MHz
+    .outclk_1   (            )
 );
 
-reg ce_6, ce_3, ce_1p5;
+reg cen6, cen3, cen1p5;
+
+reg pxl_cen=1'b0;
 always @(negedge clk_sys) begin
-    reg [3:0] div;
-
-    div <= div + 1'd1;
-    ce_6 <= !div[1:0];
-    ce_3 <= !div[2:0];
-    ce_1p5 <= !div[3:0];
+    pxl_cen <= ~pxl_cen;
 end
-
 
 ///////////////////////////////////////////////////
 
@@ -147,7 +146,7 @@ wire  [1:0] buttons;
 wire        ioctl_download;
 wire        ioctl_wr;
 wire [24:0] ioctl_addr;
-wire [15:0] ioctl_dout;
+wire  [7:0] ioctl_dout;
 
 wire [10:0] ps2_key;
 
@@ -155,7 +154,7 @@ wire  [8:0] joy_0, joy_1;
 
 wire        forced_scandoubler;
 
-hps_io #(.STRLEN(($size(CONF_STR1)>>3) + ($size(CONF_STR2)>>3) + 1),.WIDE(1)) hps_io
+hps_io #(.STRLEN(($size(CONF_STR1)>>3) + ($size(CONF_STR2)>>3) + 1)) hps_io
 (
     .clk_sys(clk_sys),
     .HPS_BUS(HPS_BUS),
@@ -178,25 +177,6 @@ hps_io #(.STRLEN(($size(CONF_STR1)>>3) + ($size(CONF_STR2)>>3) + 1),.WIDE(1)) hp
 
 wire       pressed = ps2_key[9];
 wire [7:0] code    = ps2_key[7:0];
-always @(posedge clk_sys) begin
-    reg old_state;
-    old_state <= ps2_key[10];
-
-    if(old_state != ps2_key[10]) begin
-        case(code)
-            'h75: btn_up            <= pressed; // up
-            'h72: btn_down          <= pressed; // down
-            'h6B: btn_left          <= pressed; // left
-            'h74: btn_right         <= pressed; // right
-            'h05: btn_one_player    <= pressed; // F1
-            'h06: btn_two_players   <= pressed; // F2
-            'h04: btn_coin          <= pressed; // F3
-            'h14: btn_fire1         <= pressed; // ctrl
-            'h11: btn_fire1         <= pressed; // alt
-            'h29: btn_fire2         <= pressed; // Space
-        endcase
-    end
-end
 
 reg btn_one_player = 0;
 reg btn_two_players = 0;
@@ -207,8 +187,30 @@ reg btn_up = 0;
 reg btn_fire1 = 0;
 reg btn_fire2 = 0;
 reg btn_coin  = 0;
+reg btn_pause = 0;
 
-wire [8:0] joy = joy_0 | joy_1;
+always @(posedge clk_sys) begin
+    reg old_state;
+    old_state <= ps2_key[10];
+    
+    if(old_state != ps2_key[10]) begin
+        case(code)
+            'h75: btn_up            <= pressed; // up
+            'h72: btn_down          <= pressed; // down
+            'h6B: btn_left              <= pressed; // left
+            'h74: btn_right         <= pressed; // right
+            'h05: btn_one_player    <= pressed; // F1
+            'h06: btn_two_players   <= pressed; // F2
+            'h04: btn_coin              <= pressed; // F3
+            'h0C: btn_pause     <= pressed; // F4
+            'h14: btn_fire1             <= pressed; // ctrl
+            'h11: btn_fire1             <= pressed; // alt
+            'h29: btn_fire2         <= pressed; // Space
+        endcase
+    end
+end
+
+wire [9:0] joy = joy_0 | joy_1;
 
 wire m_up     = btn_up    | joy[3];
 wire m_down   = btn_down  | joy[2];
@@ -216,11 +218,20 @@ wire m_left   = btn_left  | joy[1];
 wire m_right  = btn_right | joy[0];
 wire m_fire   = btn_fire1 | joy[4];
 wire m_jump   = btn_fire2 | joy[5];
+wire m_pause  = btn_pause | joy[9];
 
 wire m_start1 = btn_one_player  | joy[6];
 wire m_start2 = btn_two_players | joy[7];
 wire m_coin   = btn_coin        | joy[8];
 
+reg pause = 0;
+always @(posedge clk_sys) begin
+    reg old_pause;
+    
+    old_pause <= m_pause;
+    if(~old_pause & m_pause) pause <= ~pause;
+    if(status[0] | buttons[1]) pause <= 0;
+end
 
 ///////////////////////////////////////////////////////////////////
 
@@ -241,89 +252,72 @@ assign HDMI_SL  = sl[1:0];
 
 wire [2:0] scale = status[5:3];
 wire [2:0] sl = scale ? scale - 1'd1 : 3'd0;
-wire       scandoubler = (scale || forced_scandoubler);
+wire       scandoubler = (scale || forced_scandoubler); 
+
+wire [1:0]    dip_level = ~status[13:12];
+wire [1:0]    dip_lives = ~status[9:8];
+wire [1:0]    dip_bonus = ~status[11:10];
+wire          dip_test  = ~status[15];
 
 video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
 (
     .*,
-    .clk_sys(VGA_CLK),
-    .ce_pix(ce_6),
-    .ce_pix_out(VGA_CE),
+    .clk_sys   ( VGA_CLK    ),
+    .ce_pix    ( pxl_cen    ),
+    .ce_pix_out( VGA_CE     ),
 
-    .scanlines(0),
-    .hq2x(scale==1),
-    .mono(0),
-
-    .HBlank(~HBlank),
-    .VBlank(~VBlank)
+    .scanlines ( 0          ),
+    .hq2x      ( scale==1   ),
+    .mono      ( 0          ),
+    
+    .HBlank    ( ~HBlank    ),
+    .VBlank    ( ~VBlank    )
 );
 
-wire [9:0] prom_we;
-jt1942_prom_we u_prom_we(
-    .downloading    ( ioctl_download & ioctl_wr),
-    .romload_addr   ( romload_addr   ),
-    .prom_we        ( prom_we        )
-);
-
-wire [15:0] rom_data;
-wire [21:0] rom_addr;
-
-jtgng_prom #(.dw(16), .aw(17)) u_rom(
-    .clk    ( clk_sys          ),
-    .cen    ( 1'b1             ),
-    .data   ( ioctl_dout       ),
-    .rd_addr( rom_addr[16:0]   ),
-    .wr_addr( ioctl_addr[16:0] ),
-    .we     ( ioctl_wr         ),
-    .q      ( rom_data         )
-);
-
-assign ROTATE = 2'b01;
-
-jt1942_game game
+jtgng_game u_game
 (
-    .rst(RESET ),
+    .rst(RESET | ioctl_download),
     .soft_rst(status[0] | buttons[1]),
-    .clk(clk_sys),
-    .cen6(ce_6),
-    .cen3(ce_3),
-    .cen1p5(ce_1p5),
-    .red(R),
-    .green(G),
-    .blue(B),
-    .LHBL(HBlank),
-    .LVBL(VBlank),
-    .HS(HSync),
-    .VS(VSync),
+    .clk        ( clk_sys   ),
+    .cen12      (           ),
+    .cen6       ( cen6      ),
+    .cen3       ( cen3      ),
+    .cen1p5     ( cen1p5    ),
+    .red        ( R         ),
+    .green      ( G         ),
+    .blue       ( B         ),
+    .LHBL       ( HBlank    ),
+    .LVBL       ( VBlank    ),
+    .HS         ( HSync     ),
+    .VS         ( VSync     ),
 
-    .joystick1(~{m_coin,m_start1,m_jump,m_fire,m_up,m_down,m_left,m_right}),
-    .joystick2(~{1'b0,  m_start2,m_jump,m_fire,m_up,m_down,m_left,m_right}),
+    .joystick1  (~{m_jump,m_fire,m_up,m_down,m_left,m_right}),
+    .joystick2  (~{m_jump,m_fire,m_up,m_down,m_left,m_right}),
+    .start_button(~{m_start2,m_start1}),
+    .coin_input (~{1'b0,m_coin}),
 
-    // SDRAM interface
-    .downloading  ( ioctl_download ),
-    .loop_rst     ( ioctl_download ),
-    .sdram_addr   ( rom_addr[21:0] ),
-    .data_read    ( rom_data       ),
+    .romload_clk    ( clk_sys          ),
+    .romload_wr     ( ioctl_wr         ),
+    .romload_addr   ( ioctl_addr[18:0] ),
+    .romload_data   ( ioctl_dout       ),
 
-    // PROM programming
-    .prog_addr    ( ioctl_addr[7:0]),
-    .prog_din     ( ioctl_dout[3:0]),
-    .prom_k6_we   ( prom_we[0]     ),
-    .prom_d1_we   ( prom_we[1]     ),
-    .prom_d2_we   ( prom_we[2]     ),
-    .prom_d6_we   ( prom_we[3]     ),
-    .prom_e8_we   ( prom_we[4]     ),
-    .prom_e9_we   ( prom_we[5]     ),
-    .prom_e10_we  ( prom_we[6]     ),
-    .prom_f1_we   ( prom_we[7]     ),
-    .prom_k3_we   ( prom_we[8]     ),
-    .prom_m11_we  ( prom_we[9]     ),
+    .enable_char    ( 1                ),
+    .enable_scr     ( 1                ),
+    .enable_obj     ( 1                ),
 
-    .dipsw_a     ( 8'hff         ),
-    .dip_pause   ( ~status[1]    ),
-    .dip_level   ( ~status[3:2]  ),
-    .dip_test    ( ~status[4]    ),
-    .snd         ( AUDIO_L        )
+//  .dipsw({~inv_ena | ~status[14],~status[13:12],~status[11:10],1'b0,~status[9:8],4'h5,{4{status[15]}}}),
+    // DIP switches
+    .dip_pause      ( ~pause     ),
+    .dip_lives      ( dip_lives  ),
+    .dip_level      ( dip_level  ),
+    .dip_bonus      ( dip_bonus  ),
+    .dip_game_mode  ( dip_test   ),
+    .dip_upright    ( 1'b1       ),
+    .dip_attract_snd( 1'b0       ), // 0 for sound
+
+    .enable_psg     ( ~status[6] ),
+    .enable_fm      ( ~status[7] ),
+    .ym_snd         ( AUDIO_L    )
 );
 
 assign AUDIO_R = AUDIO_L;
@@ -339,9 +333,8 @@ always @(posedge clk_sys) begin
         if(ioctl_addr == 2) flg[2] <= (ioctl_dout == 'h00);
         if(ioctl_addr == 3) flg[3] <= (ioctl_dout == 'h80);
     end
-
+    
     inv_ena <= &flg;
 end
-
 
 endmodule

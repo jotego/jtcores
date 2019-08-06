@@ -19,7 +19,7 @@
 module jtgng_game(
     input           rst,
     input           soft_rst,
-    input           clk,        // 24   MHz
+    input           clk,
     output          cen12,      // 12   MHz
 	output          cen6,       //  6   MHz
     output          cen3,       //  3   MHz
@@ -64,7 +64,7 @@ module jtgng_game(
     output          sample
 );
 
-parameter CLK_SPEED=12;
+parameter CLK_SPEED=48;
 
 wire [8:0] V;
 wire [8:0] H;
