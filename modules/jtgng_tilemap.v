@@ -21,48 +21,71 @@
 `timescale 1ns/1ps
 
 module jtgng_tilemap #(parameter 
-    AW       = 10,
-    HOFFSET  = 8'd4
+    HOFFSET  = 8'd4,
+    SELBIT   = 2,
+    INVERT_SCAN = 0
 ) (
     input            clk,
     input            cpu_cen /* synthesis direct_enable = 1 */,
     input            Asel,  // This is the address bit that selects
                             // between the low and high tile map
-    input   [AW-1:0] AB,
-    input   [ 7:0]   V,
-    input   [ 7:0]   H,
+    input      [9:0] AB,
+    input      [7:0] V,
+    input      [7:0] H,
     input            flip,
-    input   [ 7:0]   din,
-    output  [ 7:0]   dout,
+    input      [7:0] din,
+    output reg [7:0] dout,
     // Bus arbitrion
     input            cs,
     input            wr_n,
-    output           MRDY_b,
-    output           busy,
+    output reg       MRDY_b,
+    output reg       busy,
     // Pause screen
     input            pause,
-    output  [ 9:0]   scan,
-    input   [ 7:0]   msg_low,
-    input   [ 7:0]   msg_high,
+    output     [9:0] scan,
+    input      [7:0] msg_low,
+    input      [7:0] msg_high,
     // Current tile
     output reg [7:0] dout_low,
     output reg [7:0] dout_high
 );
 
-wire sel_scan = ~H[2];
-assign busy = sel_scan;
+wire sel_scan = ~H[SELBIT];
 
-assign scan = { {10{flip}}^{V[7:3],H[7:3]}};
-wire [9:0] addr = sel_scan ? scan : AB;
-wire [7:0] mem_low, mem_high, mem_msg;
-wire we = !sel_scan && cs && !wr_n;
-wire we_low  = we && !Asel;
-wire we_high = we &&  Asel;
-assign dout = Asel ? dout_high : dout_low;
+assign scan = INVERT_SCAN ? { {10{flip}}^{H[7:3],V[7:3]}} 
+        : { {10{flip}}^{V[7:3],H[7:3]}};
+reg [9:0] addr;
+reg we_low, we_high;
+wire [7:0] mem_low, mem_high;
+
+always @(posedge clk) begin : mem_mux
+    reg last_Asel, last_scan;
+
+    if( sel_scan ) begin
+        addr    <= scan;
+        we_low  <= 1'b0;
+        we_high <= 1'b0;
+    end else begin
+        addr    <= AB;
+        we_low  <= cs && !wr_n && !Asel;
+        we_high <= cs && !wr_n &&  Asel;
+    end
+
+    // Output latch
+    last_scan <= sel_scan;
+    last_Asel <= Asel;
+    if( !last_scan && !sel_scan )
+        dout <= last_Asel ? dout_high : dout_low;
+
+    // Bus arbitrion
+    MRDY_b <= !( cs && sel_scan ); // halt CPU
+    busy   <= sel_scan;
+end
+
 
 jtgng_ram #(.aw(10)) u_ram_low(
     .clk    ( clk      ),
-    .cen    ( cpu_cen  ),
+    .cen    ( 1'b1     ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_low   ),
@@ -71,7 +94,7 @@ jtgng_ram #(.aw(10)) u_ram_low(
 
 jtgng_ram #(.aw(10)) u_ram_high(
     .clk    ( clk      ),
-    .cen    ( cpu_cen  ),
+    .cen    ( 1'b1     ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_high  ),
@@ -83,6 +106,5 @@ always @(*) begin
     dout_high = pause ? msg_high : mem_high;
 end
 
-assign MRDY_b = !( cs && sel_scan ); // halt CPU
 
 endmodule

@@ -62,7 +62,7 @@ module jtgng_char #(parameter
 wire [7:0] dout_low, dout_high;
 wire [7:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 
-jtgng_tilemap #(.AW(10),.HOFFSET(HOFFSET)) u_tilemap(
+jtgng_tilemap #(.HOFFSET(HOFFSET)) u_tilemap(
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
     .Asel       ( AB[10]    ),

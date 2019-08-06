@@ -150,7 +150,8 @@ assign char_pxl = 4'hf;
 wire [2:0] scr_col;
 wire [4:0] scr_pal;
 
-jtgng_scroll #(.HOFFSET(scrchr_off)
+jtgng_scroll #(
+    .HOFFSET(scrchr_off),
     .ROM_AW  (14),
     .IDMSB1  ( 7),
     .IDMSB0  ( 7),
@@ -168,7 +169,7 @@ jtgng_scroll #(.HOFFSET(scrchr_off)
     .flip         ( flip          ),
     // bus arbitrion
     .Asel         ( cpu_AB[4]     ),
-    .AB           ( cpu_AB[9:0]   ),
+    .AB           ( { cpu_AB[10:5], cpu_AB[3:0] } ),
     .scr_cs       ( scr_cs        ),
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),

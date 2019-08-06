@@ -18,7 +18,6 @@
 
 module jtgng_scroll #(parameter 
     ROM_AW   = 15,
-    MAP_AW   = 10,
     PALW     = 4,
     HOFFSET  = 9'd5,
     // bit field information
@@ -31,15 +30,15 @@ module jtgng_scroll #(parameter
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
     input              cpu_cen,
     input              Asel,
-    input [MAP_AW-1:0] AB,
-    input       [ 7:0] V, // V128-V1
-    input       [ 8:0] H, // H256-H1
-    input       [ 8:0] hpos,
-    input       [ 8:0] vpos,
+    input        [9:0] AB,
+    input        [7:0] V, // V128-V1
+    input        [8:0] H, // H256-H1
+    input        [8:0] hpos,
+    input        [8:0] vpos,
     input              scr_cs,
     input              flip,
-    input       [ 7:0] din,
-    output reg  [ 7:0] dout,
+    input        [7:0] din,
+    output       [7:0] dout,
     input              wr_n,
     output             MRDY_b,
     output             busy,
@@ -48,17 +47,9 @@ module jtgng_scroll #(parameter
     output reg  [ROM_AW-1:0] scr_addr,
     input       [23:0]       rom_data,
     input                    rom_ok,
-    output  [PALW-1:0]       scr_pal,
-    output      [ 2:0]       scr_col
+    output reg [PALW-1:0]    scr_pal,
+    output reg     [ 2:0]    scr_col
 );
-
-reg [2:0] scr_pal0, scr_col0;
-reg scrwin0;
-
-assign scr_pal = scr_pal0;
-assign scr_col = scr_col0;
-assign scrwin  = scrwin0;
-
 
 wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 reg  [ 8:0] HS, VS;
@@ -77,14 +68,14 @@ end
 
 wire [7:0] dout_low, dout_high;
 
-jtgng_tilemap #(.AW(10),.HOFFSET(HOFFSET)) u_tilemap(
+jtgng_tilemap #(.HOFFSET(HOFFSET), .SELBIT(1), .INVERT_SCAN(1)) u_tilemap(
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
     .Asel       ( Asel      ),
     .AB         ( AB        ),
     .V          ( VS[8:1]   ),
     .H          ( HS[8:1]   ),
-    .flip       ( flip      ),
+    .flip       ( 1'b0      ),  // Flip is already done on HS and VS
     .din        ( din       ),
     .dout       ( dout      ),
     // Bus arbitrion
@@ -135,8 +126,8 @@ always @(posedge clk) if(pxl_cen) begin
     // 4 pixels from processing the x,y,z and attr info.
     if( HS[2:0]==3'd2 ) begin
             { z,y,x } <= good_data;
-            scr_hflip <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
-            scr_attr2 <= scr_attr1[3:0];
+            scr_hflip <= scr_attr1[PALW] ^ flip; // must be ready when z,y,x are.
+            scr_attr2 <= scr_attr1[PALW-1:0];
         end
     else
         begin
@@ -151,8 +142,8 @@ always @(posedge clk) if(pxl_cen) begin
                 z <= {z[6:0], 1'b0};
             end
         end
-    scr_col0  <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
-    scr_pal0  <= scr_attr2[PALW-1:0]; // MSB in G&G is "scrwin" = scroll wins over sprite
+    scr_col <= scr_hflip ? { x[0], y[0], z[0] } : { x[7], y[7], z[7] };
+    scr_pal <= scr_attr2[PALW-1:0]; // MSB in G&G is "scrwin" = scroll wins over sprite
 end
 
 endmodule // jtgng_scroll
