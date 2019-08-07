@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
-Sheet 1 2
+Sheet 1 3
 Title ""
 Date ""
 Rev ""
@@ -102,9 +102,9 @@ Wire Wire Line
 Wire Wire Line
 	3750 7150 3950 7150
 Text Label 4250 7550 0    50   ~ 0
-VDD
+TIEHI
 Text Label 4250 6950 0    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	5250 7900 4700 7900
 Wire Wire Line
@@ -156,15 +156,15 @@ Connection ~ 5250 7300
 Wire Wire Line
 	5250 7300 5250 7400
 Text Label 5250 7250 1    50   ~ 0
-VSS
+TIELO
 Wire Wire Line
 	6800 7100 6800 7200
 Text Label 6800 7100 2    50   ~ 0
-VSS
+TIELO
 Text Label 6800 7400 2    50   ~ 0
-VSS
+TIELO
 Text Label 6800 7300 2    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	6250 7600 6500 7600
 Wire Wire Line
@@ -224,9 +224,9 @@ Wire Wire Line
 	5000 8700 6600 8700
 Connection ~ 6600 8700
 Text Label 6800 8100 2    50   ~ 0
-VDD
+TIEHI
 Text Label 5250 8100 2    50   ~ 0
-VDD
+TIEHI
 Text Label 4400 7850 0    50   ~ 0
 X6M
 Wire Wire Line
@@ -283,9 +283,9 @@ Connection ~ 9850 7300
 Wire Wire Line
 	9850 7300 9850 7400
 Text Label 10050 7100 2    50   ~ 0
-VDD
+TIEHI
 Text Label 10100 7200 2    50   ~ 0
-VSS
+TIELO
 Wire Wire Line
 	11100 7600 11100 7800
 Wire Wire Line
@@ -305,18 +305,18 @@ Wire Wire Line
 	11100 8450 9850 8450
 Connection ~ 9850 8450
 Text Label 10100 8100 2    50   ~ 0
-VDD
+TIEHI
 Text Label 11850 8100 2    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	11850 7100 11850 7200
 Connection ~ 11850 7200
 Wire Wire Line
 	11850 7200 11850 7300
 Text Label 11850 7100 2    50   ~ 0
-VDD
+TIEHI
 Text Label 11850 7400 2    50   ~ 0
-VSS
+TIELO
 $Comp
 L jt74xx:74LS04 2N1
 U 6 1 5D1C0B4B
@@ -359,7 +359,7 @@ $EndComp
 Wire Wire Line
 	2900 6550 2800 6550
 Text Label 2800 6550 2    50   ~ 0
-VSS
+TIELO
 Wire Wire Line
 	3300 6550 3300 8100
 Wire Wire Line
@@ -525,9 +525,9 @@ Wire Wire Line
 Wire Wire Line
 	6900 3300 7450 3300
 Text Label 7750 2900 2    50   ~ 0
-VDD
+TIEHI
 Text Label 7750 3500 0    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	4550 7150 5300 7150
 Wire Wire Line
@@ -588,11 +588,11 @@ $EndComp
 Wire Wire Line
 	8300 5300 8300 5000
 Text Label 8300 5100 3    50   ~ 0
-VDD
+TIEHI
 Text Label 8300 5900 3    50   ~ 0
-VDD
+TIEHI
 Text Label 8300 4400 0    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	7300 3200 7300 4700
 Wire Wire Line
@@ -638,9 +638,9 @@ Wire Wire Line
 Text Label 9000 4700 2    50   ~ 0
 X6M
 Text Label 9400 4400 0    50   ~ 0
-VDD
+TIEHI
 Text Label 9400 5000 3    50   ~ 0
-VDD
+TIEHI
 $Comp
 L jt74xx:74LS74 5M1
 U 2 1 5D2377A4
@@ -657,9 +657,9 @@ Wire Wire Line
 Wire Wire Line
 	12300 4800 9700 4800
 Text Label 12000 4650 0    50   ~ 0
-VDD
+TIEHI
 Text Label 12000 4050 0    50   ~ 0
-VDD
+TIEHI
 Text GLabel 11500 4250 0    50   Output ~ 0
 LVBL
 Wire Wire Line
@@ -692,7 +692,7 @@ Wire Wire Line
 Wire Wire Line
 	12400 5600 12300 5600
 Text Label 12400 5500 0    50   ~ 0
-VSS
+TIELO
 $Comp
 L jt74xx:74LS10 4L1
 U 2 1 5D24B5F1
@@ -754,7 +754,7 @@ Connection ~ 13850 5000
 Wire Wire Line
 	13850 5000 13850 5100
 Text Label 13850 4900 0    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	13900 5200 13850 5200
 Wire Wire Line
@@ -831,8 +831,6 @@ F 3 "" H 3050 3350 50  0001 C CNN
 	1    3250 3350
 	1    0    0    -1  
 $EndComp
-Text Label 3250 3450 0    50   ~ 0
-VDD
 Wire Wire Line
 	3250 3450 3250 3350
 $Comp
@@ -846,8 +844,6 @@ F 3 "" H 3650 3350 50  0001 C CNN
 	1    3850 3350
 	1    0    0    -1  
 $EndComp
-Text Label 3850 3450 0    50   ~ 0
-VSS
 Wire Wire Line
 	3850 3450 3850 3350
 Wire Wire Line
@@ -857,15 +853,34 @@ X6M
 Wire Wire Line
 	8500 7400 9400 7400
 Text Label 8900 7400 0    50   ~ 0
-VDD
+TIEHI
 Text Label 9400 8000 0    50   ~ 0
-VDD
+TIEHI
 Text Label 8500 8000 0    50   ~ 0
-VDD
+TIEHI
 $Sheet
 S 9600 1100 1300 1100
 U 5D4A5235
 F0 "SCROLLH" 50
 F1 "scrollh.sch" 50
+$EndSheet
+Text GLabel 3250 3450 3    50   Output ~ 0
+TIEHI
+Text GLabel 3850 3450 3    50   Output ~ 0
+TIELO
+Wire Wire Line
+	4700 7350 4700 6550
+Wire Wire Line
+	4700 6550 3600 6550
+Connection ~ 4700 7350
+Text GLabel 3600 5450 1    50   Output ~ 0
+CLK6
+Wire Wire Line
+	3600 5550 3600 5450
+$Sheet
+S 11000 1100 1150 1100
+U 5D53F0BE
+F0 "CHARACTER VIDEO RAM" 50
+F1 "CHAR_RAM.sch" 50
 $EndSheet
 $EndSCHEMATC

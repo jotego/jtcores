@@ -68,9 +68,16 @@ end
 
 wire [7:0] dout_low, dout_high;
 
-jtgng_tilemap #(.HOFFSET(HOFFSET), .SELBIT(1), .INVERT_SCAN(1)) u_tilemap(
+localparam DATAREAD = 3'd1;
+
+jtgng_tilemap #(
+    .HOFFSET    ( HOFFSET ),
+    .SELBIT     ( 1       ),
+    .INVERT_SCAN( 1       ),
+    .DATAREAD   ( DATAREAD)
+) u_tilemap(
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .pxl_cen    ( pxl_cen   ),
     .Asel       ( Asel      ),
     .AB         ( AB        ),
     .V          ( VS[8:1]   ),
@@ -100,7 +107,7 @@ reg [PALW:0] scr_attr0, scr_attr1; // MSB is tile H flip
 
 // Set input for ROM reading
 always @(posedge clk) if(pxl_cen) begin
-    if( HS[2:0]==3'd1 ) begin // dout_high/low data corresponds to this tile
+    if( HS[2:0]==DATAREAD ) begin // dout_high/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         scr_attr1 <= scr_attr0;
         scr_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
@@ -116,7 +123,7 @@ reg [PALW-1:0] scr_attr2;
 
 reg [23:0] good_data;
 always @(posedge clk) begin
-    if( HS[2:0] > 3'd2 && rom_ok )
+    if( HS[2:0] > (DATAREAD+3'd1) && rom_ok )
         good_data <= rom_data;
 end
 
@@ -124,7 +131,7 @@ always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( HS[2:0]==3'd2 ) begin
+    if( HS[2:0]==DATAREAD ) begin
             { z,y,x } <= good_data;
             scr_hflip <= scr_attr1[PALW] ^ flip; // must be ready when z,y,x are.
             scr_attr2 <= scr_attr1[PALW-1:0];

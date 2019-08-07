@@ -4,7 +4,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 2
+Sheet 2 3
 Title ""
 Date ""
 Rev ""
@@ -60,7 +60,7 @@ Wire Wire Line
 Wire Wire Line
 	7650 2650 7650 2800
 Text Label 7300 2650 0    50   ~ 0
-VDD
+TIEHI
 Wire Wire Line
 	7650 1300 7250 1300
 Wire Wire Line
@@ -68,7 +68,7 @@ Wire Wire Line
 Wire Wire Line
 	7250 1500 7350 1500
 Text Label 7250 1300 0    50   ~ 0
-VDD
+TIEHI
 $Comp
 L jt74xx:74LS04 9E1
 U 6 1 5D4A5769
@@ -84,16 +84,12 @@ Wire Wire Line
 	7100 1600 7350 1600
 Wire Wire Line
 	6500 1600 6150 1600
-Text GLabel 6150 1600 0    50   Input ~ 0
-H1
 Wire Wire Line
 	7950 1500 8450 1500
 Text Label 8200 1500 0    50   ~ 0
 phiSC
 Wire Wire Line
 	7950 3000 9050 3000
-Wire Wire Line
-	8000 3200 8650 3200
 Wire Wire Line
 	8650 2250 8650 3200
 Connection ~ 8650 3200
@@ -126,7 +122,7 @@ Connection ~ 8850 3700
 Wire Wire Line
 	8850 3700 9000 3700
 Text GLabel 9750 3700 2    50   Input ~ 0
-DBCS
+D8CS
 Wire Wire Line
 	9750 3700 9600 3700
 $Comp
@@ -241,9 +237,9 @@ Connection ~ 2150 4800
 Wire Wire Line
 	2150 4800 2150 4900
 Text Label 2150 4700 2    50   ~ 0
-VSS
+TIELO
 Text Label 2200 4200 2    50   ~ 0
-VSS
+TIELO
 Text GLabel 3550 3900 2    50   Input ~ 0
 SH[8]
 Wire Wire Line
@@ -347,9 +343,9 @@ SH[0]
 Wire Wire Line
 	7400 5300 7400 5400
 Text Label 7400 5350 3    50   ~ 0
-VSS
+TIELO
 Text Label 7400 5200 2    50   ~ 0
-VDD
+TIEHI
 $Comp
 L jt74xx:74LS175 8D1
 U 1 1 5D4D24F6
@@ -380,7 +376,7 @@ Wire Wire Line
 Wire Wire Line
 	8750 5300 8900 5300
 Text Label 8900 5600 2    50   ~ 0
-VDD
+TIEHI
 $Comp
 L jt74xx:74LS08 8E1
 U 4 1 5D4D86BD
@@ -397,7 +393,7 @@ Wire Wire Line
 Wire Wire Line
 	8500 5500 8900 5500
 Text Label 8400 6400 2    50   ~ 0
-VDD
+TIEHI
 Text GLabel 8600 6400 2    50   Input ~ 0
 CLK6
 Wire Wire Line
@@ -413,7 +409,7 @@ Wire Wire Line
 Text GLabel 10050 5400 2    50   Input ~ 0
 S2H
 Text GLabel 8950 4300 2    50   Input ~ 0
-~S7H
+S7Hb
 Wire Wire Line
 	8650 4900 8650 4300
 Wire Wire Line
@@ -598,7 +594,7 @@ Wire Wire Line
 Wire Wire Line
 	5150 1300 5150 1050
 Wire Wire Line
-	5500 1300 5500 1050
+	5500 1300 5500 1100
 Text GLabel 4450 1050 1    50   Input ~ 0
 H[3]
 Text GLabel 4800 1050 1    50   Input ~ 0
@@ -688,7 +684,7 @@ Wire Wire Line
 Wire Wire Line
 	4450 4400 4550 4400
 Text Label 4550 5400 2    50   ~ 0
-VSS
+TIELO
 $Comp
 L jt74xx:74LS04 9E1
 U 3 1 5D5634F2
@@ -760,7 +756,7 @@ POS1
 Text Label 1850 6100 2    50   ~ 0
 POS0
 Text Label 1850 6200 2    50   ~ 0
-VDD
+TIEHI
 Text GLabel 1700 5600 0    50   Input ~ 0
 DB[0]
 Wire Wire Line
@@ -796,9 +792,9 @@ Wire Wire Line
 Text GLabel 1150 4100 0    50   Input ~ 0
 DB[0]
 Text Label 1450 4500 3    50   ~ 0
-VDD
+TIEHI
 Text Label 1450 3900 0    50   ~ 0
-VDD
+TIEHI
 Text GLabel 900  2150 1    50   Input ~ 0
 AB[3]
 Wire Wire Line
@@ -821,7 +817,7 @@ Wire Wire Line
 	700  2300 700  2150
 Connection ~ 700  2300
 Text GLabel 700  2150 1    50   Input ~ 0
-CBCS
+C8CS
 $Comp
 L jt74xx:74LS08 8E1
 U 3 1 5D5EDBD7
@@ -896,4 +892,21 @@ Wire Wire Line
 Connection ~ 2150 1200
 Wire Wire Line
 	2150 1200 2200 1200
+Text GLabel 7550 5700 0    50   Input ~ 0
+TIEHI
+Text GLabel 7550 5800 0    50   Input ~ 0
+TIELO
+Wire Wire Line
+	5500 1100 6150 1100
+Wire Wire Line
+	6150 1100 6150 1600
+Connection ~ 5500 1100
+Wire Wire Line
+	5500 1100 5500 1050
+Wire Wire Line
+	7950 3200 8650 3200
+Text Label 7650 2150 0    50   ~ 0
+cen_clrn
+Text Label 7750 3700 0    50   ~ 0
+SCREN_clrn
 $EndSCHEMATC

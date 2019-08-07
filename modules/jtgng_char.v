@@ -62,9 +62,14 @@ module jtgng_char #(parameter
 wire [7:0] dout_low, dout_high;
 wire [7:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 
-jtgng_tilemap #(.HOFFSET(HOFFSET)) u_tilemap(
+localparam DATAREAD = 3'd1;
+
+jtgng_tilemap #(
+    .HOFFSET ( HOFFSET  ),
+    .DATAREAD( DATAREAD )
+) u_tilemap(
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .pxl_cen    ( pxl_cen   ),
     .Asel       ( AB[10]    ),
     .AB         ( AB[9:0]   ),
     .V          ( V         ),
@@ -100,7 +105,7 @@ reg [15:0] good_data;
 
 // avoid getting the data too early
 always @(posedge clk) begin
-    if( Hfix[2:0]>3'd2 && rom_ok ) good_data <= rom_data;
+    if( Hfix[2:0]>(DATAREAD+3'd1) && rom_ok ) good_data <= rom_data;
 end
 
 // avoid errors if *FLIP_EN is assigned 0 or 1 (i.e. 32'd0, 32'd1)
@@ -111,7 +116,7 @@ always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( Hfix[2:0]==3'd1 ) begin // read data from memory when the CPU is forbidden to write on it
+    if( Hfix[2:0]==DATAREAD ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
         char_attr1 <= char_attr0;
         char_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
@@ -121,12 +126,12 @@ always @(posedge clk) if(pxl_cen) begin
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
-        3'd2: begin
+        (DATAREAD+3'd1): begin
             chd <= !char_hflip ? {good_data[7:0],good_data[15:8]} : good_data;
             char_hflip <= (char_attr1[PALW] & hflip_en) ^ flip;
             char_attr2 <= char_attr1[PALW-1:0];
         end
-        3'd6:
+        (DATAREAD+3'd5):
             chd[7:0] <= chd[15:8];
         default:
             begin
