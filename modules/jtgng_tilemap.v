@@ -21,14 +21,13 @@
 //////////////////////
 // Original board behaviour
 // Commando / G&G
-// Scroll: when CPU tries to access wait hold the CPU until H==4, then
-//         release the CPU and keep the CPU in control of the bus until
+// Scroll: when CPU tries to access hold the CPU until H==4, then
+//         release the CPU and keep it in control of the bus until
 //         the CPU releases the CS signal
 
 `timescale 1ns/1ps
 
 module jtgng_tilemap #(parameter 
-    HOFFSET     = 8'd4,
     SELBIT      = 2,
     INVERT_SCAN = 0,
     DATAREAD    = 3'd2
@@ -46,8 +45,8 @@ module jtgng_tilemap #(parameter
     // Bus arbitrion
     input            cs,
     input            wr_n,
-    output reg       MRDY_b,
-    output           busy,
+    output           MRDY_b,
+    output reg       busy,
     // Pause screen
     input            pause,
     output     [9:0] scan,
@@ -58,7 +57,7 @@ module jtgng_tilemap #(parameter
     output reg [7:0] dout_high
 );
 
-reg sel_scan = 1'b1;
+reg scan_sel = 1'b1;
 
 assign scan = INVERT_SCAN ? { {10{flip}}^{H[7:3],V[7:3]}} 
         : { {10{flip}}^{V[7:3],H[7:3]}};
@@ -66,26 +65,27 @@ reg [9:0] addr;
 reg we_low, we_high;
 wire [7:0] mem_low, mem_high;
 
-assign busy = ~MRDY_b;
+assign MRDY_b = ~busy;
 
-always @(posedge clk) if( pxl_cen ) begin
-    if ( cs ) begin
-        if( sel_scan ) begin
-            MRDY_b <= 1'b0;
-            if( H[2:0]==DATAREAD ) begin
-                sel_scan <= 1'b0;
-            end
-        end
-    end
-    else sel_scan <= 1'b1;
-    if(!sel_scan)
-        MRDY_b <= 1'b1;
+always @(posedge clk) begin : busy_latch
+    reg last_H0;
+    last_H0 <= H[0];
+    if( cs && scan_sel)
+        busy <= 1'b1;
+    else if(H[0] && !last_H0) busy <= 1'b0;
+end
+
+always @(posedge clk) if(pxl_cen) begin : scan_select
+    if( !cs )
+        scan_sel <= 1'b1;
+    else if(H[2:0]==DATAREAD)
+        scan_sel <= 1'b0;
 end
 
 always @(posedge clk) begin : mem_mux
     reg last_Asel, last_scan;
 
-    if( sel_scan ) begin
+    if( scan_sel ) begin
         addr    <= scan;
         we_low  <= 1'b0;
         we_high <= 1'b0;
@@ -96,12 +96,11 @@ always @(posedge clk) begin : mem_mux
     end
 
     // Output latch
-    last_scan <= sel_scan;
+    last_scan <= scan_sel;
     last_Asel <= Asel;
-    if( !last_scan && !sel_scan )
+    if( !last_scan && !scan_sel )
         dout <= last_Asel ? dout_high : dout_low;
 end
-
 
 jtgng_ram #(.aw(10)) u_ram_low(
     .clk    ( clk      ),

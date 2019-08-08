@@ -102,7 +102,7 @@ wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 
-localparam chr_off = 8'd4;
+localparam chr_off = 8'd0;
 localparam scr_off = 8'd12;
 
 wire [2:0] avatar_idx;

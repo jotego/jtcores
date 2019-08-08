@@ -23,7 +23,7 @@
 module jtgng_char #(parameter 
     ROM_AW   = 13, 
     PALW     = 4,
-    HOFFSET  = 8'd4,
+    HOFFSET  = 8'd0,
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
@@ -65,7 +65,6 @@ wire [7:0] Hfix = H + HOFFSET; // Corrects pixel output offset
 localparam DATAREAD = 3'd1;
 
 jtgng_tilemap #(
-    .HOFFSET ( HOFFSET  ),
     .DATAREAD( DATAREAD )
 ) u_tilemap(
     .clk        ( clk       ),

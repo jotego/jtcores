@@ -19,7 +19,7 @@
 module jtgng_scroll #(parameter 
     ROM_AW   = 15,
     PALW     = 4,
-    HOFFSET  = 9'd5,
+    HOFFSET  = 9'd0,
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
@@ -71,7 +71,6 @@ wire [7:0] dout_low, dout_high;
 localparam DATAREAD = 3'd1;
 
 jtgng_tilemap #(
-    .HOFFSET    ( HOFFSET ),
     .SELBIT     ( 1       ),
     .INVERT_SCAN( 1       ),
     .DATAREAD   ( DATAREAD)
@@ -131,7 +130,7 @@ always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
     // 4 pixels from processing the x,y,z and attr info.
-    if( HS[2:0]==DATAREAD ) begin
+    if( HS[2:0]==(DATAREAD+3'd1) ) begin
             { z,y,x } <= good_data;
             scr_hflip <= scr_attr1[PALW] ^ flip; // must be ready when z,y,x are.
             scr_attr2 <= scr_attr1[PALW-1:0];
