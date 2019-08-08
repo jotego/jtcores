@@ -54,7 +54,7 @@ wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 reg trf_state;
 
 always @(posedge clk) if(cen6) begin
-    if( HINIT ) VF <= {8{flip}} ^ V;
+    if( HINIT ) VF <= {8{flip}} ^ (V - 8'd1 );
 end
 //wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
