@@ -18,9 +18,9 @@
 
 // 2-word tile memory
 
-//////////////////////
+//////////////////////////////////////////////////////////////////
 // Original board behaviour
-// Commando / G&G
+// Commando / G&G / 1942 / 1943
 // Scroll: when CPU tries to access hold the CPU until H==4, then
 //         release the CPU and keep it in control of the bus until
 //         the CPU releases the CS signal
