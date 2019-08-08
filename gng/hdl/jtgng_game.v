@@ -45,6 +45,14 @@ module jtgng_game(
     input           data_rdy,
     input           sdram_ack,
     output          refresh_en,
+    // ROM LOAD
+    input   [21:0]  ioctl_addr,
+    input   [ 7:0]  ioctl_data,
+    input           ioctl_wr,
+    output  [21:0]  prog_addr,
+    output  [ 7:0]  prog_data,
+    output  [ 1:0]  prog_mask,
+    output          prog_we,
     // DEBUG
     input           enable_char,
     input           enable_obj,
@@ -155,6 +163,22 @@ wire [7:0] snd_latch;
 
 wire scr_cs;
 wire [8:0] scr_hpos, scr_vpos;
+
+jtgng_prom_we u_prom_we(
+    .clk         ( clk           ),
+    .downloading ( downloading   ),
+
+    .ioctl_wr    ( ioctl_wr      ),
+    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_data  ( ioctl_data    ),
+
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       ),
+
+    .prom_we     ( prom_we       )
+);
 
 `ifndef NOMAIN
 jtgng_main u_main(
@@ -303,10 +327,11 @@ jtgng_video u_video(
 wire [7:0] scr_nc; // no connect
 
 jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
-    .char_offset( 22'h0E000 ),
-    .scr1_offset( 22'h10000 ),
-    .obj_offset(  22'h20000 )
-
+    .snd_offset ( 22'h0_C000 >> 1 ),
+    .char_offset( 22'h1_0000 >> 1 ),
+    .scr1_offset( 22'h1_4000 >> 1 ),
+    .scr2_offset( (22'h1_4000 >> 1) + 22'h0_8000 ),
+    .obj_offset ( (22'h1_4000 >> 1) + 22'h1_0000 )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -317,6 +342,9 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .snd_cs      ( snd_cs        ),
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
+    .scr1_ok     ( scr1_ok       ),
+    .scr2_ok     ( scr2_ok       ),
+    .char_ok     ( char_ok       ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
@@ -333,7 +361,7 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( scr_data[15:0]),
+    .scr1_dout   ( scr_data[15:0] ),
     .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
 
     .ready       ( rom_ready     ),
@@ -347,5 +375,6 @@ jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
     .data_read   ( data_read     ),
     .refresh_en  ( refresh_en    )
 );
+
 
 endmodule // jtgng

@@ -312,44 +312,50 @@ jt1942_video u_video(
 
 wire [7:0] nc;
 
-jtframe_rom #(
-    .SND_OFFSET (22'h0A000),
-    .CHAR_OFFSET(22'h0C000),
-    .SCR1_OFFSET(22'h0D000),
-    .OBJ_OFFSET (22'h15000),
-    .MAIN_AW    ( 17      ),
-    .SND_AW     ( 15      ),
-    .CHAR_AW    ( 12      ),
-    .SCR1_AW    ( 15      ),
-    .OBJ_AW     ( 15      )
+jt1943_rom2 #(
+    .snd_offset (22'h0A000),
+    .char_offset(22'h0C000),
+    .scr1_offset(22'h0D000),
+    .scr2_offset(22'h0D000+22'h1000),
+    .obj_offset (22'h15000),
+    .main_aw    ( 17      ),
+    .snd_aw     ( 15      ),
+    .char_aw    ( 12      ),
+    .scr1_aw    ( 15      ),
+    .obj_aw     ( 15      )
 ) u_rom (
-    .rst_n       ( rst_n         ),
+    .rst_n       ( rst           ),
     .clk         ( clk           ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
 
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
-
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
+    .scr1_ok     ( scr1_ok       ),
+    .scr2_ok     ( scr2_ok       ),
     .char_ok     ( char_ok       ),
 
+    .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
-    .char_addr   ( char_addr     ),
-    .scr1_addr   ( scr_addr      ),
     .obj_addr    ( obj_addr      ),
+    .scr1_addr   ( scr_addr      ),
+    .scr2_addr   ( scr_addr      ),
+    .map1_addr   ( 14'd0         ),
+    .map2_addr   ( 14'd0         ),
 
+    .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    ( snd_data      ),
-    .char_dout   ( char_data     ),
-    .scr1_dout   ( {nc, scr_data} ),
     .obj_dout    ( obj_data      ),
+    .map1_dout   (               ),
+    .map2_dout   (               ),
+    .scr1_dout   ( scr_data[15:0] ),
+    .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
+
     .ready       ( rom_ready     ),
-    // Unused
-    .scr2_addr   (               ),
-    .scr2_dout   (               ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
@@ -361,4 +367,4 @@ jtframe_rom #(
     .refresh_en  ( refresh_en    )
 );
 
-endmodule // jtgng
+endmodule

@@ -8,9 +8,9 @@
 ../../hdl/jt1942_objram.v
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
+../../../1943/hdl/jt1943_rom2.v
+../../../1943/hdl/jt1943_romrq.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
-../../../modules/jtframe/hdl/sdram/jtframe_rom.v
-../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
