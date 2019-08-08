@@ -37,10 +37,6 @@ module jtgng_colmix(
     input           scrwin,
     // objects
     input [5:0]     obj_pxl,
-    // Debug
-    input           enable_char,
-    input           enable_obj,
-    input           enable_scr,
     // CPU inteface
     input [7:0]     AB,
     input           blue_cs,

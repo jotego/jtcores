@@ -148,7 +148,7 @@ jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
 );
 
 // Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(6), .stages(4)) u_sh(
+jtgng_sh #(.width(6), .stages(3)) u_sh(
     .clk            ( clk           ),
     .clk_en         ( cen6          ),
     .din            ( obj_pxl0      ),

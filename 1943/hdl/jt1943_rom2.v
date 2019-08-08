@@ -21,6 +21,7 @@
 module jt1943_rom2 #(parameter 
     char_aw  = 14,
     main_aw  = 18,
+     snd_aw  = 15,
      obj_aw  = 17,
     scr1_aw  = 17,
   snd_offset = 22'h14_000, // bm05.4k,  32kB
@@ -119,7 +120,7 @@ jt1943_romrq #(.AW(main_aw),.INVERT_A0(1)) u_main(
 );
 
 
-jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
+jt1943_romrq #(.AW(snd_aw),.INVERT_A0(1)) u_snd(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( 1'b1            ),

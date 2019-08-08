@@ -324,7 +324,7 @@ jt1943_rom2 #(
     .scr1_aw    ( 15      ),
     .obj_aw     ( 15      )
 ) u_rom (
-    .rst_n       ( rst           ),
+    .rst         ( rst           ),
     .clk         ( clk           ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
