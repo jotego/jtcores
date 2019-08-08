@@ -24,7 +24,7 @@ if [[ ! -e rg_ram.hex || ! -e b_ram.hex ]]; then
     done
 fi
 
-export GAME_ROM_PATH=../../../rom/JTCOMMANDO.rom
+export GAME_ROM_PATH=../../../rom/JTGNG.rom
 export MEM_CHECK_TIME=90_000_000
 
 # Generic simulation script from JTFRAME

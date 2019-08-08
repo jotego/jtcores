@@ -27,36 +27,34 @@ module jtgng_prom_we(
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
-    output reg           prog_we,
-    output reg [ 5:0]    prom_we
+    output reg           prog_we
+    // output reg [ 5:0]    prom_we
 );
-
-// MAIN         starts at 00000h
-// SOUND        starts at 0C000h
-// CHAR         starts at 10000h
-// SCROLL X     starts at 14000h
-// SCROLL Z     starts at 1C000h
-// Objects ZY   starts at 24000h
-// SCROLL Y     starts at 30000h
-// SCROLL Z     starts at 38000h
-// Objects XW   starts at 40000h
-// PROMs        starts at 4C000h
-// ROM length 4C600h
+//                     Starts at
+// MAIN                   00000h
+// CHAR                   14000h
+// SOUND                  18000h
+// SCROLL X               20000h
+// SCROLL Z               28000h
+// SCROLL Y               30000h
+// SCROLL Y(2)            38000h
+// Objects ZY             40000h
+// Objects XW             50000h
+// ROM length 60000h
 
 localparam 
-    SNDADDR  = 22'h0_C000, 
-    CHARADDR = 22'h1_0000,
+    CHARADDR = 22'h1_4000,
+    SNDADDR  = 22'h1_8000, 
 
-    SCRXADDR = 22'h1_4000,
-    SCRZADDR = 22'h1_C000,
-    SCRYADDR = 22'h2_4000,
-    SCRZADDR2= 22'h2_C000,
+    SCRXADDR = 22'h2_0000,
+    SCRZADDR = 22'h2_8000,
+    SCRYADDR = 22'h3_0000,
+    SCRZADDR2= 22'h3_8000,
 
-    OBJZADDR = 22'h3_4000,
-    OBJXADDR = 22'h4_0000,
+    OBJZADDR = 22'h4_0000,
+    OBJXADDR = 22'h5_0000,
 
-    PROMS    = 22'h4_c000,
-    ROMEND   = 22'h4_c600;
+    ROMEND   = 22'h6_0000;
 
 `ifdef SIMULATION
 wire region0_main  = ioctl_addr < SNDADDR;
@@ -67,77 +65,52 @@ wire region4_scrz  = ioctl_addr < SCRYADDR;
 wire region5_scry  = ioctl_addr < SCRZADDR2;
 wire region6_scrz2 = ioctl_addr < OBJZADDR;
 wire region7_objzy = ioctl_addr < OBJXADDR;
-wire region8_objxw = ioctl_addr < PROMS;
+wire region8_objxw = ioctl_addr < ROMEND;
 `endif
 
 // offset the SDRAM programming address by 
-reg [16:0] scr_offset=17'd0;
+reg [14:0] scr_offset=17'd0;
 reg [15:0] obj_offset=16'd0;
 
-reg set_strobe, set_done;
-reg [5:0] prom_we0 = 6'd0;
+// reg set_strobe, set_done;
+// reg [5:0] prom_we0 = 6'd0;
+// 
+// always @(posedge clk) begin
+//     prom_we <= 6'd0;
+//     if( set_strobe ) begin
+//         prom_we <= prom_we0;
+//         set_done <= 1'b1;
+//     end else if(set_done) begin
+//         set_done <= 1'b0;
+//     end
+// end
 
 always @(posedge clk) begin
-    prom_we <= 6'd0;
-    if( set_strobe ) begin
-        prom_we <= prom_we0;
-        set_done <= 1'b1;
-    end else if(set_done) begin
-        set_done <= 1'b0;
-    end
-end
-
-reg obj_part;
-
-always @(posedge clk) begin
-    if( set_done ) set_strobe <= 1'b0;
+    // if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
-        if(ioctl_addr < SCRXADDR) begin // Main ROM, CHAR ROM
+        if(ioctl_addr < SCRXADDR) begin // Main ROM, Sound, CHAR ROM (regular copy)
             prog_addr <= {1'b0, ioctl_addr[21:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             scr_offset <= 17'd0;
         end
         else if(ioctl_addr < OBJZADDR ) begin // Scroll    
-            prog_mask <= scr_offset[16] ? 2'b01 : 2'b10;
+            prog_mask <= ioctl_addr[15] ? 2'b01 : 2'b10;
             prog_addr <= SCRXADDR[21:1] +
-                // { 6'd0, scr_offset[15:5], scr_offset[3:0], scr_offset[4] }; // bit order swapped to increase cache hits
-                { 6'd0, scr_offset[15:0] }; // original bit order
-            scr_offset <= scr_offset+17'd1;
+                { 6'd0, ioctl_addr[16], scr_offset }; // original bit order
+            scr_offset <= scr_offset+14'd1;
             obj_offset <= 16'd0;
-            obj_part   <= 1'b0;
         end
-        else if(ioctl_addr < PROMS ) begin // Objects
-            prog_mask <= obj_part ? 2'b10 : 2'b01;
-            if( obj_offset == 16'hBFFF ) begin
-                obj_offset <= 16'd0;
-                obj_part   <= 1'b1;
-            end else begin
-                obj_offset <= obj_offset+16'd1;
-            end
-            prog_addr <= (OBJZADDR>>1) + { 6'd0, obj_offset };
-        end
-        else begin // PROMs
-            prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };
-            prog_we   <= 1'b0;
-            prog_mask <= 2'b11;
-            prom_we0 <= 6'd0;
-            case(ioctl_addr[10:8])
-                3'h0: prom_we0[0] <= 1'b1;
-                3'h1: prom_we0[1] <= 1'b1;
-                3'h2: prom_we0[2] <= 1'b1;
-                3'h3: prom_we0[3] <= 1'b1;
-                3'h4: prom_we0[4] <= 1'b1;
-                3'h5: prom_we0[5] <= 1'b1;
-                default:;
-            endcase
-            set_strobe <= 1'b1;
+        else if(ioctl_addr < ROMEND ) begin // Objects
+            prog_mask  <= ioctl_addr[16] ? 2'b10 : 2'b01;
+            prog_addr  <= (OBJZADDR>>1) + { 6'd0, obj_offset };
+            obj_offset <= obj_offset+16'd1;
         end
     end
     else begin
         prog_we  <= 1'b0;
-        prom_we0 <= 6'd0;
+        // prom_we0 <= 6'd0;
     end
 end
 

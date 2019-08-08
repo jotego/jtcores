@@ -49,15 +49,22 @@ module jtgng_colmix(
     input           LVBL,
     input           LHBL,
 
-    output  reg [3:0]   red,
-    output  reg [3:0]   green,
-    output  reg [3:0]   blue
+    output reg [3:0] red,
+    output reg [3:0] green,
+    output reg [3:0] blue,
+    // Debug
+    input      [3:0] gfx_en
 );
 
 wire [7:0] dout_rg;
 wire [3:0] dout_b;
 
 reg [7:0] pixel_mux;
+
+wire enable_char = gfx_en[0];
+wire enable_scr  = gfx_en[1];
+wire enable_obj  = gfx_en[3];
+
 always @(posedge clk) if(cen6) begin
     if( chr_col==2'b11 || !enable_char ) begin
         // Object or scroll

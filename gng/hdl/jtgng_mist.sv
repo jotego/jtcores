@@ -59,8 +59,6 @@ module jtgng_mist(
 parameter CLK_SPEED=48;
 
 localparam CONF_STR = {
-    //   000000000111111111122222222223
-    //   123456789012345678901234567890
         "JTGNG;;", // 7
         "O1,Pause,OFF,ON;", // 16
         "F,rom;", // 6
@@ -74,7 +72,7 @@ localparam CONF_STR = {
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = $size(CONF_STR)>>>3; // System verilog is only used for this line!
+localparam CONF_STR_LEN = $size(CONF_STR)/8; // System verilog is only used for this line!
 
 wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -88,6 +86,7 @@ wire          loop_rst, autorefresh, H0;
 wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
+wire          ioctl_wr;
 wire          coin_cnt = 1'b0; // To do: check if GnG provided this output
 
 wire          game_pause;
@@ -106,33 +105,21 @@ wire signed [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-wire game_rst;
+wire       game_rst;
 wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
 wire refresh_en;
 
-reg  [21:0]   prog_addr;
-reg  [ 7:0]   prog_data;
-reg  [ 1:0]   prog_mask;
-reg           prog_we = 1'b0;
-wire          ioctl_wr;
-
-always @(posedge clk_rom) begin
-    if ( ioctl_wr ) begin
-        prog_addr <= { 1'b0, ioctl_addr[21:1] };
-        prog_data <= ioctl_data;
-        prog_mask <= { ioctl_addr[0], ~ioctl_addr[0] };
-        prog_we   <= 1'b1;
-    end
-    else prog_we <= 1'b0;
-end
+wire [21:0]   prog_addr;
+wire [ 7:0]   prog_data;
+wire [ 1:0]   prog_mask;
+wire          prog_we;
 
 wire [3:0] red, green, blue;
 wire sdram_req, sdram_sync;
 
-// PLL's
-// 24 MHz or 12 MHz base clock
+// 48 MHz clock, original PCB was 6 MHz
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
     .inclk0 ( CLOCK_27[0] ),
@@ -283,6 +270,15 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     .joystick1   ( game_joystick1[5:0] ),
     .joystick2   ( game_joystick2[5:0] ),
 
+    // PROM programming
+    .ioctl_addr  ( ioctl_addr     ),
+    .ioctl_data  ( ioctl_data     ),
+    .ioctl_wr    ( ioctl_wr       ),
+    .prog_addr   ( prog_addr      ),
+    .prog_data   ( prog_data      ),
+    .prog_mask   ( prog_mask      ),
+    .prog_we     ( prog_we        ),
+
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
@@ -292,10 +288,6 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
     .refresh_en  ( refresh_en    ),
-    // DEBUG
-    .enable_char ( 1'b1          ),
-    .enable_scr  ( 1'b1          ),
-    .enable_obj  ( 1'b1          ),
     // DIP switches
     .dip_pause      ( dip_pause  ),
     .dip_lives      ( dip_lives  ),
@@ -308,7 +300,9 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     .enable_psg  ( enable_psg    ),
     .enable_fm   ( enable_fm     ),
     .ym_snd      ( snd           ),
-    .sample      (               )
+    .sample      (               ),
+    // Debug
+    .gfx_en      ( gfx_en         )
 );
 
 endmodule // jtgng_mist

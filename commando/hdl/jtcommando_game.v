@@ -82,7 +82,7 @@ wire [12:0] cpu_AB;
 wire snd_cs;
 wire char_cs;
 wire flip;
-wire [7:0] cpu_dout, chram_dout, scram_dout;
+wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 // ROM data
 wire [15:0] char_data;
@@ -215,12 +215,12 @@ jtcommando_main u_main(
     .snd_latch_cs ( snd_latch_cs  ),
     .snd_int      ( snd_int       ),
     // CHAR
-    .char_dout  ( chram_dout    ),
+    .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
     // SCROLL
-    .scr_dout   ( scram_dout    ),
+    .scr_dout   ( scr_dout      ),
     .scr_cs     ( scr_cs        ),
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
@@ -313,14 +313,14 @@ jtcommando_video u_video(
     .pause      ( !dip_pause    ),
     // CHAR
     .char_cs    ( char_cs       ),
-    .chram_dout ( chram_dout    ),
+    .char_dout  ( char_dout     ),
     .char_addr  ( char_addr     ),
     .chrom_data ( char_data     ),
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scram_dout ( scram_dout    ),
+    .scram_dout ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_ok     ( scr_ok        ),
@@ -349,6 +349,7 @@ jtcommando_video u_video(
     .LVBL       ( LVBL          ),
     .LVBL_obj   ( LVBL_obj      ),
     .gfx_en     ( gfx_en        ),
+    // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
@@ -357,7 +358,11 @@ jtcommando_video u_video(
 wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
-jt1943_rom2 #(.char_aw(13),.main_aw(16),.obj_aw(16),.scr1_aw(15),
+jt1943_rom2 #(
+    .char_aw    ( 13              ),
+    .main_aw    ( 16              ),
+    .obj_aw     ( 16              ),
+    .scr1_aw    ( 15              ),
     .snd_offset ( 22'h0_C000 >> 1 ),
     .char_offset( 22'h1_0000 >> 1 ),
     .scr1_offset( 22'h1_4000 >> 1 ),

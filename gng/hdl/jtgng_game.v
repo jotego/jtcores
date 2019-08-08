@@ -53,10 +53,6 @@ module jtgng_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
-    // DEBUG
-    input           enable_char,
-    input           enable_obj,
-    input           enable_scr,
     // DIP switches
     input           dip_pause, // Not a DIP on the original PCB
     input   [ 1:0]  dip_lives,
@@ -69,7 +65,9 @@ module jtgng_game(
     input           enable_psg,
     input           enable_fm,
     output  signed [15:0] ym_snd,
-    output          sample
+    output          sample,
+    // Debug
+    input   [ 3:0]  gfx_en
 );
 
 parameter CLK_SPEED=48;
@@ -175,9 +173,7 @@ jtgng_prom_we u_prom_we(
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-
-    .prom_we     ( prom_we       )
+    .prog_we     ( prog_we       )
 );
 
 `ifndef NOMAIN
@@ -286,16 +282,16 @@ jtgng_video u_video(
     .pause      ( !dip_pause    ),
     // CHAR
     .char_cs    ( char_cs       ),
-    .chram_dout ( char_dout     ),
+    .char_dout  ( char_dout     ),
     .char_mrdy  ( char_mrdy     ),
     .char_addr  ( char_addr     ),
-    .chrom_data ( char_data     ),
+    .char_data  ( char_data     ),
+    .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scrpos_cs  ( scrpos_cs     ),
     .scram_dout ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scr_data      ),
+    .scr_data   ( scr_data      ),
     .scr_mrdy   ( scr_mrdy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),    
@@ -303,22 +299,22 @@ jtgng_video u_video(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
+    .obj_addr   ( obj_addr      ),
+    .objrom_data( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
-    .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
     .LVBL_obj   ( LVBL_obj      ),
+    .gfx_en     ( gfx_en        ),
+    // Palette RAM
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
-    .enable_char( enable_char   ),
-    .enable_obj ( enable_obj    ),
-    .enable_scr ( enable_scr    ),
+    // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
@@ -326,12 +322,16 @@ jtgng_video u_video(
 
 wire [7:0] scr_nc; // no connect
 
-jt1943_rom2 #(.char_aw(13),.main_aw(17),.obj_aw(16),.scr1_aw(15),
-    .snd_offset ( 22'h0_C000 >> 1 ),
-    .char_offset( 22'h1_0000 >> 1 ),
-    .scr1_offset( 22'h1_4000 >> 1 ),
-    .scr2_offset( (22'h1_4000 >> 1) + 22'h0_8000 ),
-    .obj_offset ( (22'h1_4000 >> 1) + 22'h1_0000 )
+jt1943_rom2 #(
+    .char_aw    ( 13              ),
+    .main_aw    ( 17              ),
+    .obj_aw     ( 16              ),
+    .scr1_aw    ( 15              ),
+    .snd_offset ( 22'h1_8000 >> 1 ),
+    .char_offset( 22'h1_4000 >> 1 ),
+    .scr1_offset( 22'h2_0000 >> 1 ),
+    .scr2_offset( (22'h2_0000 >> 1) + 22'h0_8000 ),
+    .obj_offset ( 22'h4_0000 >> 1 )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),

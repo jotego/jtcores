@@ -31,7 +31,7 @@ module jtgng_video(
     input               pause,
     // CHAR
     input               char_cs,
-    output      [ 7:0]  chram_dout,
+    output      [ 7:0]  char_dout,
     input               char_ok,
     output              char_mrdy,
     output      [12:0]  char_addr,
@@ -41,7 +41,8 @@ module jtgng_video(
     input               scrpos_cs,
     output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
-    input       [23:0]  scrom_data,
+    input       [23:0]  scr_data,
+    input               scr_ok,
     output              scr_mrdy,
     input       [ 8:0]  scr_hpos,
     input       [ 8:0]  scr_vpos,
@@ -62,9 +63,7 @@ module jtgng_video(
     input               LHBL_obj,
     input               blue_cs,
     input               redgreen_cs,
-    input               enable_char,
-    input               enable_obj,
-    input               enable_scr,
+    input       [3:0]   gfx_en,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue
@@ -95,7 +94,7 @@ jtgng_char #(.HOFFSET(scrchr_off)) u_char (
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
-    .dout       ( chram_dout    ),
+    .dout       ( char_dout    ),
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
@@ -111,8 +110,8 @@ jtgng_char #(.HOFFSET(scrchr_off)) u_char (
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
-    .char_col   ( chr_col       ),
-    .char_pal   ( chr_pal       )
+    .char_col   ( char_col      ),
+    .char_pal   ( char_pal      )
 );
 
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
@@ -131,7 +130,7 @@ assign char_mrdy = 1'b1;
 `ifndef NOSCR
 jtgng_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
+    .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
@@ -180,9 +179,7 @@ jtgng_colmix u_colmix (
     // objects
     .obj_pxl    ( obj_pxl       ),
     // DEBUG
-    .enable_char( enable_char   ),
-    .enable_obj ( enable_obj    ),
-    .enable_scr ( enable_scr    ),
+    .gfx_en     ( gfx_en        ),
     // CPU interface
     .AB         ( cpu_AB[7:0]   ),
     .blue_cs    ( blue_cs       ),

@@ -61,8 +61,6 @@ module jtcommando_mist(
 localparam CLK_SPEED=48;
 
 localparam CONF_STR = {
-    //   00000000011111111112222222222333333333344444444445
-    //   12345678901234567890123456789012345678901234567890
         "JTCOM;;", //8
         "O1,Pause,OFF,ON;", // 16
         "F,rom;", // 6
@@ -75,7 +73,7 @@ localparam CONF_STR = {
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = $size(CONF_STR)>>>3; // System verilog is only used for this line!
+localparam CONF_STR_LEN = $size(CONF_STR)/8; // System verilog is only used for this line!
 
 wire          rst, clk_sys;
 wire          cen12, cen6, cen3, cen1p5;
@@ -89,35 +87,36 @@ wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 wire          coin_cnt;
 
-wire rst_req = status[32'hf];
+wire          rst_req = status[32'hf];
 
-wire game_pause;
-wire sdram_req;
-wire dip_pause = ~status[1] & ~game_pause;
+wire          game_pause;
+wire          sdram_req;
+wire          dip_pause = ~status[1] & ~game_pause;
 
-wire [1:0] dip_upright = 2'b00;
-wire       dip_level  = status[2];
-wire [1:0] dip_start  = ~status[4:3];
-wire [1:0] dip_lives  = ~status[6:5];
-wire [1:0] dip_price1 = 2'b00;
-wire [1:0] dip_price2 = 2'b11;
-wire       dip_flip   = status[11];
+wire [1:0]    dip_upright = 2'b00;
+wire          dip_level  = status[2];
+wire [1:0]    dip_start  = ~status[4:3];
+wire [1:0]    dip_lives  = ~status[6:5];
+wire [1:0]    dip_price1 = 2'b00;
+wire [1:0]    dip_price2 = 2'b11;
+wire          dip_flip   = status[11];
+wire          en_mixing  = ~status[9];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
 wire          prog_we;
 
-wire [3:0] red;
-wire [3:0] green;
-wire [3:0] blue;
+wire [3:0]    red;
+wire [3:0]    green;
+wire [3:0]    blue;
 
 wire LHBL, LVBL, hs, vs;
 wire [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-wire game_rst;
+wire       game_rst;
 wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
@@ -127,16 +126,17 @@ reg LHBL_dly;
 always @(posedge clk_sys)
     if(cen6) LHBL_dly <= LHBL;
 
-// PLL's
-// 24 MHz or 12 MHz base clock
+// 48 MHz clock, original PCB was 6 MHz
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_sys     ), // 48 MHz
+    .c1     ( clk_rom     ), // 48 MHz
     .c2     ( SDRAM_CLK   ),
     .c3     ( clk_vga_in  ),
     .locked ( pll_locked  )
 );
+
+assign clk_sys   = clk_rom;
 
 jtgng_pll1 u_pll_vga (
     .inclk0 ( clk_vga_in ),
@@ -156,7 +156,7 @@ jtgng_vga u_scandoubler (
     .blue       ( blue          ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[9]    ),
+    .en_mixing  ( en_mixing     ),
     .vga_red    ( vga_r[5:1]    ),
     .vga_green  ( vga_g[5:1]    ),
     .vga_blue   ( vga_b[5:1]    ),

@@ -32,7 +32,7 @@ module jtcommando_video(
     input               pause,
     // CHAR
     input               char_cs,
-    output      [ 7:0]  chram_dout,
+    output      [ 7:0]  char_dout,
     input               char_ok,
     output      [12:0]  char_addr,
     input       [15:0]  chrom_data,
@@ -95,7 +95,7 @@ jtgng_char #(.HOFFSET(chr_off)) u_char (
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
-    .dout       ( chram_dout    ),
+    .dout       ( char_dout     ),
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
