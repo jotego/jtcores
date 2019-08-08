@@ -242,9 +242,11 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
 );
 
 // interrupt generation
-reg int_n, LHBL_old;
+reg int_n;
 
-always @(posedge clk)
+always @(posedge clk) : begin irq_gen
+    reg LHBL_old, ;
+
     if (rst) begin
         snd_int <= 1'b1;
         int_n   <= 1'b1;
@@ -255,8 +257,9 @@ always @(posedge clk)
         LHBL_old<=LHBL;
         if( irq_ack )
             int_n <= 1'b1;
-        else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
+        else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0 | ~dip_pause;
     end
+end
 
 ///////////////////////////////////////////////////////////////////
 

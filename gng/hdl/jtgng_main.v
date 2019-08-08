@@ -227,7 +227,7 @@ always @(posedge clk) if(cen6) begin
     if( {BS,BA}==2'b10 )
         nIRQ <= 1'b1;
     else
-        if(last_LVBL && !LVBL ) nIRQ<=1'b0; // when LVBL goes low
+        if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
 end
 
 
@@ -243,7 +243,7 @@ mc6809 u_cpu (
     .RnW     ( RnW     ),
     .BS      ( BS      ),
     .BA      ( BA      ),
-    .nIRQ    ( nIRQ | ~dip_pause ),
+    .nIRQ    ( nIRQ    ),
     .nFIRQ   ( 1'b1    ),
     .nNMI    ( 1'b1    ),
     .EXTAL   ( EXTAL   ),
