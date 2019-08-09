@@ -163,10 +163,12 @@ assign vga_r[0] = vga_r[5];
 assign vga_g[0] = vga_g[5];
 assign vga_b[0] = vga_b[5];
 
+`ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
 assign sim_vs = vs;
 assign sim_hs = hs;
+`endif
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b0))

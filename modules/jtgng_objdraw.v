@@ -84,7 +84,7 @@ always @(posedge clk) if(cen6) begin
             hover     <= objbuf_data[0];
         end
         4'd2: begin
-            objy <= (objbuf_data-8'd2);
+            objy <= objbuf_data;
         end
         4'd3: begin
             objx <= objbuf_data;

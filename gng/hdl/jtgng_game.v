@@ -77,6 +77,7 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
+wire snd_cs;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
@@ -96,6 +97,7 @@ wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 
 wire rom_ready;
+wire main_ok, snd_ok;
 wire cpu_cen;
 
 reg rst_game=1'b1;
@@ -253,11 +255,14 @@ jtgng_sound u_sound (
     .sres_b         ( sres_b     ),
     .snd_latch      ( snd_latch  ),
     .V32            ( V[5]       ),
-    .rom_addr       ( snd_addr   ),
-    .rom_dout       ( snd_data   ),
-    .rom_cs         (            ),
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
+    // ROM
+    .rom_addr       ( snd_addr   ),
+    .rom_dout       ( snd_data   ),
+    .rom_cs         ( snd_cs     ),
+    .rom_ok         ( snd_ok     ),
+    // sound output
     .ym_snd         ( ym_snd     ),
     .sample         ( sample     )
 );
@@ -266,6 +271,9 @@ assign snd_addr = 15'd0;
 assign sample   = 1'b0;
 assign ym_snd   = 16'b0;
 `endif
+
+wire scr1_ok, scr2_ok, char_ok;
+wire scr_ok = scr1_ok & scr2_ok;
 
 jtgng_video u_video(
     .rst        ( rst           ),
@@ -294,7 +302,8 @@ jtgng_video u_video(
     .scr_data   ( scr_data      ),
     .scr_mrdy   ( scr_mrdy      ),
     .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),    
+    .scr_vpos   ( scr_vpos      ),
+    .scr_ok     ( scr_ok        ),    
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
