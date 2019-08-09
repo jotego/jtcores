@@ -53,10 +53,9 @@ wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 reg trf_state;
 
-always @(posedge clk) if(cen6) begin
-    if( HINIT ) VF <= {8{flip}} ^ (V - 8'd1 );
+always @(posedge clk) begin
+    VF <= {8{flip}} ^ V;
 end
-//wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
 localparam SEARCH=1'b0, TRANSFER=1'b1;
 
@@ -68,6 +67,8 @@ always @(posedge clk)
     end
 
 reg pre_scan_msb;
+
+wire [7:0] Vsum = ram_dout + (~VF + { {6{~flip}}, 2'b10 });
 
 always @(posedge clk)
     if( rst ) begin
@@ -86,7 +87,8 @@ always @(posedge clk)
                     if(HINIT) fill <= 1'd0;
                 end
                 else begin
-                    if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
+                    //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
+                    if( &Vsum[7:4] ) begin
                         pre_scan[1:0] <= 2'd0;
                         line_obj_we <= 1'b1;
                         trf_state <= TRANSFER;

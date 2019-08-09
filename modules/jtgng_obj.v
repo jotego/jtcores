@@ -112,6 +112,7 @@ jtgng_objdraw u_draw(
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
+    .flip           ( flip          ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),

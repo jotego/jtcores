@@ -24,6 +24,7 @@ module jtgng_objdraw(
     input       [7:0]  VF,
     input       [3:0]  pxlcnt,
     output reg  [8:0]  posx,
+    input              flip,
     // per-line sprite data
     input       [4:0]  objcnt,
     input       [7:0]  objbuf_data,
@@ -60,9 +61,12 @@ end
 jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .clk_en(cen6), .din(objpal), .drop(pospal));
 jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .clk_en(cen6), .din(vinzone), .drop(vinzone2));
 
+wire [7:0] Vsum = (VF + { {7{~flip}}, 1'b1})+objy;
+
 always @(*) begin
     VB = VF-objy;
-    vinzone = (VF>=objy) && (VF<(objy+8'd16));
+    //vinzone = (VF>=objy) && (VF<(objy+8'd16));
+    vinzone = &Vsum[7:4];
 end
 
 always @(posedge clk) if(cen6) begin
@@ -85,7 +89,7 @@ always @(posedge clk) if(cen6) begin
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
         obj_addr <= (!vinzone || objcnt==5'd0) ? 16'd0 :
-            { ADhigh, ADlow, pxlcnt[3]^obj_hflip, VB[3:0]^{4{obj_vflip}}, pxlcnt[2]^obj_hflip };
+            { ADhigh, ADlow, pxlcnt[3]^obj_hflip, Vsum[3:0]^{4{~obj_vflip}}, pxlcnt[2]^obj_hflip };
     end
 end
 
