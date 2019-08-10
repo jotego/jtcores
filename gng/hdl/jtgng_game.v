@@ -273,6 +273,7 @@ jtgng_sound u_sound (
 assign snd_addr = 15'd0;
 assign sample   = 1'b0;
 assign ym_snd   = 16'b0;
+assign snd_cs   = 1'b0;
 `endif
 
 wire scr1_ok, scr2_ok, char_ok;

@@ -96,13 +96,13 @@ always @(*) begin
     char_cs     = 1'b0;
     bank_cs     = 1'b0;
     rom_cs      = 1'b0;
-    if( (E || Q || !MRDY) && nRESET ) case(A[15:13])
+    if( /* (E || Q || !MRDY) && */ nRESET ) case(A[15:13])
         3'b000: ram_cs = 1'b1;
         3'b001: case( A[12:11])
                 2'd0: char_cs = 1'b1;
                 2'd1: scr_cs  = 1'b1;
                 2'd2: in_cs   = 1'b1;
-                2'd3: case( A[10:9] )
+                2'd3: case( A[10:8] )
                     3'd0: redgreen_cs = 1'b1;
                     3'd1: blue_cs     = 1'b1;
                     3'd2: sound_cs    = 1'b1;
