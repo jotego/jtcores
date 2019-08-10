@@ -26,28 +26,28 @@ module jtgng_main(
     output             cpu_cen,
     input              rst,
     input              LVBL,   // vertical blanking when 0
-    output             blue_cs,
-    output             redgreen_cs,
+    output  reg        blue_cs,
+    output  reg        redgreen_cs,
     output  reg        flip,
     // Sound
     output  reg        sres_b, // Z80 reset
     output  reg [7:0]  snd_latch,
     // Characters
-    input              [7:0] char_dout,
-    output             [7:0] cpu_dout,
-    output             char_cs,
+    input       [7:0]  char_dout,
+    output      [7:0]  cpu_dout,
+    output  reg        char_cs,
     input              char_busy,
     // scroll
-    input   [7:0]      scr_dout,
-    output             scr_cs,
+    input       [7:0]  scr_dout,
+    output  reg        scr_cs,
     input              scr_busy,
-    output reg [8:0]   scr_hpos,
-    output reg [8:0]   scr_vpos,    
+    output  reg [8:0]  scr_hpos,
+    output  reg [8:0]  scr_vpos,    
     // cabinet I/O
-    input   [ 1:0]     start_button,
-    input   [ 1:0]     coin_input,
-    input   [ 5:0]     joystick1,
-    input   [ 5:0]     joystick2,
+    input       [1:0]  start_button,
+    input       [1:0]  coin_input,
+    input       [5:0]  joystick1,
+    input       [5:0]  joystick2,
     // BUS sharing
     output             bus_ack,
     input              bus_req,
@@ -55,10 +55,10 @@ module jtgng_main(
     input   [ 8:0]     obj_AB,
     output  [12:0]     cpu_AB,
     output             RnW,
-    output             OKOUT,
+    output reg         OKOUT,
     output  [7:0]      ram_dout,
     // ROM access
-    output             rom_cs,
+    output  reg        rom_cs,
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
@@ -74,64 +74,82 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire MRDY;
-reg nRESET;
-wire in_cs;
-wire sound_cs, scrpos_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
+wire MRDY, E, Q;
+wire nRESET;
+reg in_cs, sound_cs, scrpos_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
 
-reg [11:0] map_cs;
 
 assign cpu_cen = cen3;
 
-assign {
-    sound_cs, OKOUT, scrpos_cs,   scr_cs,
-    in_cs,  blue_cs, redgreen_cs, flip_cs,
-    ram_cs, char_cs, bank_cs,     rom_cs } = map_cs;
-
 reg [7:0] AH;
 
-always @(*)
-    casez(A[15:8])
-        8'b0011_1010: map_cs = 12'h800; // 3A00-3AFF, sound
-        8'b0011_1100: map_cs = 12'h400; // OKOUT
-        8'b0011_1011: map_cs = 12'h200; // 3B00-3BFF Scroll position
-        8'b0010_1???: map_cs = 12'h100; // 2800-2FFF    Scroll
-        8'b0011_0???: map_cs = 12'h080; // 3000-37FF input
-        8'b0011_1001: map_cs = 12'h040; // 3900-39FF, blue
-        8'b0011_1000: map_cs = 12'h020; // 3800-38FF, Red, green
-        8'b0011_1101: map_cs = 12'h010; // 3D?? flip
-        8'b000?_????: map_cs = 12'h008; // 0000-1FFF, RAM
-        8'b0010_0???: map_cs = 12'h004; // 2000-27FF Char
-        8'b0011_1110: map_cs = 12'h002; // 3E00-3EFF bank
-        8'b01??_????: map_cs = 12'h001; // ROMs
-        8'b1???_????: map_cs = 12'h001; // ROMs
-        default:      map_cs = 12'h000;
-    endcase
-
-// SCROLL H/V POSITION
-always @(posedge clk) if(cpu_cen) begin
-    if( scrpos_cs && A[3])
-    case(A[1:0])
-        2'd0: scr_hpos[7:0] <= cpu_dout;
-        2'd1: scr_hpos[8]   <= cpu_dout[0];
-        2'd2: scr_vpos[7:0] <= cpu_dout;
-        2'd3: scr_vpos[8]   <= cpu_dout[0];
+always @(*) begin
+    sound_cs    = 1'b0; 
+    OKOUT       = 1'b0; 
+    scrpos_cs   = 1'b0; 
+    scr_cs      = 1'b0;
+    in_cs       = 1'b0;
+    blue_cs     = 1'b0;
+    redgreen_cs = 1'b0;
+    flip_cs     = 1'b0; 
+    ram_cs      = 1'b0;
+    char_cs     = 1'b0;
+    bank_cs     = 1'b0;
+    rom_cs      = 1'b0;
+    if( (E || Q || !MRDY) && nRESET ) case(A[15:13])
+        3'b000: ram_cs = 1'b1;
+        3'b001: case( A[12:11])
+                2'd0: char_cs = 1'b1;
+                2'd1: scr_cs  = 1'b1;
+                2'd2: in_cs   = 1'b1;
+                2'd3: case( A[10:9] )
+                    3'd0: redgreen_cs = 1'b1;
+                    3'd1: blue_cs     = 1'b1;
+                    3'd2: sound_cs    = 1'b1;
+                    3'd3: scrpos_cs   = 1'b1;
+                    3'd4: OKOUT       = 1'b1;
+                    3'd5: flip_cs     = 1'b1;
+                    3'd6: bank_cs     = 1'b1;
+                    default:;
+                endcase
+            endcase
+        default: rom_cs = 1'b1;
     endcase
 end
 
+// SCROLL H/V POSITION
+always @(posedge clk or negedge nRESET) 
+    if( !nRESET ) begin
+        scr_hpos <= 8'd0;
+        scr_vpos <= 8'd0;
+    end else if(cpu_cen) begin
+        if( scrpos_cs && A[3])
+        case(A[1:0])
+            2'd0: scr_hpos[7:0] <= cpu_dout;
+            2'd1: scr_hpos[8]   <= cpu_dout[0];
+            2'd2: scr_vpos[7:0] <= cpu_dout;
+            2'd3: scr_vpos[8]   <= cpu_dout[0];
+        endcase
+    end
+
 // special registers
 reg [2:0] bank;
-always @(posedge clk)
-    if( rst ) begin
-        nRESET <= 1'b0;
+always @(posedge clk or negedge nRESET)
+    if( !nRESET ) begin
         bank   <= 3'd0;
     end
     else if(cen6) begin
         if( bank_cs && !RnW ) begin
             bank <= cpu_dout[2:0];
         end
-        else nRESET <= ~rst;
     end
+
+// CPU reset
+jt12_rst u_rst(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .rst_n  ( nRESET    )
+);
 
 localparam coinw = 4;
 reg [coinw-1:0] coin_cnt1, coin_cnt2;
@@ -246,11 +264,10 @@ jtframe_z80wait #(2) u_wait(
 );
 
 
-`ifndef ALT6809
 // cycle accurate core
 wire EXTAL = ~(clk &cen6);
 wire [111:0] RegData;
-wire E;
+
 mc6809 u_cpu (
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),
@@ -269,7 +286,7 @@ mc6809 u_cpu (
     // unused:
     .XTAL    ( 1'b0    ),
     .E       ( E       ),
-    .Q(),
+    .Q       ( Q       ),
     .RegData ( RegData )
     //.AVMA()
 );
@@ -301,30 +318,6 @@ always @(negedge E) begin
         last_ticks <= ticks;
     end
 end
-`endif
-`else
-// This is cpu09I_128a.vhd core
-// but it doesn't seem to work fine
-cpu09 u_cpu(
-    .clk     ( clk       ),
-    .ce      ( cen1p5    ),
-    .rst     ( rst       ),
-    .ba      ( BA        ),
-    .bs      ( BS        ),
-    .addr    (  A        ),
-    .rw      ( RnW       ),
-    .data_out( cpu_dout  ),
-    .data_in ( cpu_din   ),
-    .irq     ( ~nIRQ     ),
-    .firq    ( 1'b0      ),
-    .nmi     ( 1'b0      ),
-    .halt    ( bus_req   ),
-    // unused outputs
-    .vma     (           ),
-    .lic_out (           ),
-    .ifetch  (           ),
-    .opfetch (           )
-);
 `endif
 
 endmodule // jtgng_main

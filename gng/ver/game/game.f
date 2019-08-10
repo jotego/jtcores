@@ -25,4 +25,5 @@
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
+../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v

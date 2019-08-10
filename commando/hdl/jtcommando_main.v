@@ -88,7 +88,7 @@ assign cpu_cen = cen3;
 assign bus_ack = ~busak_n;
 
 always @(*) begin
-    rom_cs       = 1'b0;
+    rom_cs        = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
     misc_cs       = 1'b0;
