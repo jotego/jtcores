@@ -18,7 +18,6 @@
 
 module jtgng_game(
     input           rst,
-    input           soft_rst,
     input           clk,
     output          cen12,      // 12   MHz
 	output          cen6,       //  6   MHz
@@ -82,7 +81,7 @@ wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd;
-wire char_mrdy, scr_mrdy;
+wire char_busy, scr_busy;
 // ROM data
 wire [15:0] char_data;
 wire [23:0] scr_data;
@@ -180,20 +179,16 @@ jtgng_prom_we u_prom_we(
 
 `ifndef NOMAIN
 jtgng_main u_main(
+    .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
     .cpu_cen    ( cpu_cen       ),
-    .rst        ( rst_game      ),
-    .soft_rst   ( soft_rst      ),
-    // bus sharing
-    .ram_dout   ( main_ram      ),
-    .obj_AB     ( obj_AB        ),
-    .OKOUT      ( OKOUT         ),
-    .blcnten    ( blcnten       ),
-    .bus_req    ( bus_req       ),
-    .bus_ack    ( bus_ack       ),
+    // Timing
+    .flip       ( flip          ),
+    .LVBL       ( LVBL          ),
+
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
@@ -201,23 +196,31 @@ jtgng_main u_main(
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
-    .ch_mrdy    ( char_mrdy     ),
+    .char_busy  ( char_busy     ),
     // SCROLL
     .scr_dout   ( scr_dout      ),
     .scr_cs     ( scr_cs        ),
-    .scr_mrdy   ( scr_mrdy      ),
+    .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
+    // bus sharing
+    .ram_dout   ( main_ram      ),
+    .obj_AB     ( obj_AB        ),
+    .OKOUT      ( OKOUT         ),
+    .blcnten    ( blcnten       ),
+    .bus_req    ( bus_req       ),
+    .bus_ack    ( bus_ack       ),
 
-    .LVBL       ( LVBL          ),
-    .main_cs    ( main_cs       ),
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
-    .flip       ( flip          ),
     .cpu_AB     ( cpu_AB        ),
     .RnW        ( RnW           ),
+    // ROM
+    .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
-    .rom_dout   ( main_data     ),
+    .rom_data   ( main_data     ),
+    .rom_ok     ( main_ok       ),
+    // Cabinet input
     .start_button( start_button ),
     .coin_input ( coin_input    ),
     .joystick1  ( joystick1     ),
@@ -243,23 +246,23 @@ assign flip        = 1'b0;
 assign RnW         = 1'b1;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
+assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
 jtgng_sound u_sound (
+    .rst            ( rst_game   ),
+    .sres_b         ( sres_b     ),
     .clk            ( clk        ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),
-    .rst            ( rst_game   ),
-    .soft_rst       ( soft_rst   ),
-    .sres_b         ( sres_b     ),
     .snd_latch      ( snd_latch  ),
     .V32            ( V[5]       ),
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
     // ROM
     .rom_addr       ( snd_addr   ),
-    .rom_dout       ( snd_data   ),
+    .rom_data       ( snd_data   ),
     .rom_cs         ( snd_cs     ),
     .rom_ok         ( snd_ok     ),
     // sound output
@@ -291,7 +294,7 @@ jtgng_video u_video(
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
-    .char_mrdy  ( char_mrdy     ),
+    .char_busy  ( char_busy     ),
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
     .char_ok    ( char_ok       ),
@@ -300,7 +303,7 @@ jtgng_video u_video(
     .scram_dout ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
-    .scr_mrdy   ( scr_mrdy      ),
+    .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),    

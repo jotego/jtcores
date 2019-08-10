@@ -102,7 +102,7 @@ wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 
-localparam chr_off = 8'd0;
+localparam chr_off = 8'd6;
 localparam scr_off = 8'd12;
 
 wire [2:0] avatar_idx;
@@ -193,10 +193,10 @@ jt1943_scroll #(.HOFFSET(scr_off),
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else
-    .SCxON        ( 1'b1          ),
-    .vpos         ( 8'd0          ),
-    .flip         ( 1'b0          ),
+    `else // TEST:
+        .SCxON        ( 1'b1          ),
+        .vpos         ( 8'd0          ),
+        .flip         ( 1'b0          ),
     `endif
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
@@ -234,10 +234,10 @@ jt1943_scroll #(.HOFFSET(scr_off),
     .SCxON        ( SC2ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else
-    .SCxON        ( 1'b1          ),
-    .vpos         ( 8'd0          ),
-    .flip         ( 1'b0          ),
+    `else // TEST
+        .SCxON        ( 1'b1          ),
+        .vpos         ( 8'd0          ),
+        .flip         ( 1'b0          ),
     `endif
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),

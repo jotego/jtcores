@@ -17,22 +17,24 @@
     Date: 27-10-2017 */
 
 module jtgng_sound(
-    input   clk,    // 24   MHz
+    input   rst,
+    input   clk,
     input   cen3,   //  3   MHz
     input   cen1p5, //  1.5 MHz
-    input   rst,
-    input   soft_rst,
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
     input           V32,
-    // ROM access
-    output  [14:0]  rom_addr,
-    output          rom_cs,
-    input   [ 7:0]  rom_dout,
-    // Sound output
+    // Sound control
     input   enable_psg,
     input   enable_fm,
+    // ROM
+    output  [14:0]  rom_addr,
+    output          rom_cs,
+    input   [ 7:0]  rom_data,
+    input           rom_ok,
+
+    // Sound output
     output  signed [15:0] ym_snd,
     output  sample
 );
@@ -43,7 +45,7 @@ assign rom_addr = A[14:0];
 reg reset_n=1'b0;
 
 always @(posedge clk) if(cen3)
-    reset_n <= ~( rst | soft_rst | ~sres_b );
+    reset_n <= ~( rst | ~sres_b );
 
 wire fm1_cs,fm0_cs, latch_cs, ram_cs;
 reg [4:0] map_cs;
@@ -82,7 +84,7 @@ reg [7:0] din;
 always @(*)
     case( {latch_cs, rom_cs,ram_cs } )
         3'b1_00:  din = snd_latch;
-        3'b0_10:  din = rom_dout;
+        3'b0_10:  din = rom_data;
         3'b0_01:  din = ram_dout;
         default:  din = 8'd0;
     endcase // {latch_cs,rom_cs,ram_cs}

@@ -70,7 +70,7 @@ localparam CONF_STR = {
         "O78,Bonus,30/100,30/80,20/100,20/80;",
         "O9,Screen filter,ON,OFF;",
         "OA,Invincibility,OFF,ON;",
-        "OB,Flip screen,OFF,ON;",
+        //"OB,Flip screen,OFF,ON;",
         "TF,RST ,OFF,ON;",
         "V,http://patreon.com/topapate;"
 };

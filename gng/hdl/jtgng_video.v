@@ -33,17 +33,16 @@ module jtgng_video(
     input               char_cs,
     output      [ 7:0]  char_dout,
     input               char_ok,
-    output              char_mrdy,
+    output              char_busy,
     output      [12:0]  char_addr,
     input       [15:0]  char_data,
     // SCROLL - ROM
     input               scr_cs,
-    input               scrpos_cs,
     output      [ 7:0]  scram_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scr_data,
     input               scr_ok,
-    output              scr_mrdy,
+    output              scr_busy,
     input       [ 8:0]  scr_hpos,
     input       [ 8:0]  scr_vpos,
     // OBJ
@@ -98,8 +97,7 @@ jtgng_char #(.HOFFSET(scrchr_off)) u_char (
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
-    .MRDY_b     ( char_mrdy     ),
-    .busy       (               ),
+    .busy       ( char_busy     ),
     // Pause screen
     .pause      ( pause         ),
     .scan       ( char_scan     ),
@@ -145,7 +143,6 @@ jtgng_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .din        ( cpu_dout      ),
     .dout       ( scram_dout    ),
     .wr_n       ( RnW           ),
-    .MRDY_b     (               ),
     .busy       ( scr_busy      ),
     // ROM
     .scr_addr   ( scr_addr      ),
@@ -156,7 +153,7 @@ jtgng_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .scr_pal    ( { scrwin, scr_pal } )
 );
 `else
-assign scr_mrdy   = 1'b1;
+assign scr_busy   = 1'b1;
 assign scr_col    = 3'd0;
 assign scr_pal    = 3'd0;
 assign scrwin     = 1'd0;

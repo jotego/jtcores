@@ -40,7 +40,6 @@ reg [7:0] ADlow;
 reg [1:0] objpal;
 reg [1:0] ADhigh;
 reg [7:0] objy, objx;
-// reg [7:0] VB;
 wire [7:0] posy;
 wire [8:0] objx2;
 reg obj_vflip, obj_hflip, hover;
@@ -68,8 +67,6 @@ always @(*) begin
     // 2's complement of VF plus object's Y, i.e. a subtraction
     // but flip is used to make it work with flipped screens
     // This is the same formula used on the schematics
-    // VB = VF-objy;
-    //vinzone = (VF>=objy) && (VF<(objy+8'd16));
     vinzone = &Vsum[7:4];
 end
 

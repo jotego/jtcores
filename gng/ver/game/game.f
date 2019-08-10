@@ -17,6 +17,7 @@
 ../../../modules/mc6809/mc6809.v
 ../../../modules/mc6809/mc6809i.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_rom.v

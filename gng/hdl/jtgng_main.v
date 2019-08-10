@@ -25,23 +25,22 @@ module jtgng_main(
     input              cen1p5,   // 1.5MHz
     output             cpu_cen,
     input              rst,
-    input              soft_rst,
-    input              ch_mrdy,
-    input              [7:0] char_dout,
     input              LVBL,   // vertical blanking when 0
-    output             [7:0] cpu_dout,
-    output             main_cs,
-    output             char_cs,
     output             blue_cs,
     output             redgreen_cs,
     output  reg        flip,
     // Sound
     output  reg        sres_b, // Z80 reset
     output  reg [7:0]  snd_latch,
+    // Characters
+    input              [7:0] char_dout,
+    output             [7:0] cpu_dout,
+    output             char_cs,
+    input              char_busy,
     // scroll
-    input              scr_mrdy,
     input   [7:0]      scr_dout,
     output             scr_cs,
+    input              scr_busy,
     output reg [8:0]   scr_hpos,
     output reg [8:0]   scr_vpos,    
     // cabinet I/O
@@ -59,8 +58,10 @@ module jtgng_main(
     output             OKOUT,
     output  [7:0]      ram_dout,
     // ROM access
+    output             rom_cs,
     output  reg [16:0] rom_addr,
-    input       [ 7:0] rom_dout,
+    input       [ 7:0] rom_data,
+    input              rom_ok,
     // DIP switches
     input              dip_pause,
     input              dip_flip,
@@ -73,7 +74,7 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire MRDY_b = ch_mrdy & scr_mrdy;
+wire MRDY;
 reg nRESET;
 wire in_cs;
 wire sound_cs, scrpos_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
@@ -85,7 +86,7 @@ assign cpu_cen = cen3;
 assign {
     sound_cs, OKOUT, scrpos_cs,   scr_cs,
     in_cs,  blue_cs, redgreen_cs, flip_cs,
-    ram_cs, char_cs, bank_cs,     main_cs } = map_cs;
+    ram_cs, char_cs, bank_cs,     rom_cs } = map_cs;
 
 reg [7:0] AH;
 
@@ -129,7 +130,7 @@ always @(posedge clk)
         if( bank_cs && !RnW ) begin
             bank <= cpu_dout[2:0];
         end
-        else nRESET <= ~(rst | soft_rst);
+        else nRESET <= ~rst;
     end
 
 localparam coinw = 4;
@@ -196,13 +197,13 @@ jtgng_ram #(.aw(13)) RAM(
 reg [7:0] cpu_din;
 
 always @(*)
-    case( {ram_cs, char_cs, scr_cs, main_cs, in_cs} )
+    case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
         5'b10_000: cpu_din =  ram_dout;
         5'b01_000: cpu_din = char_dout;
         5'b00_100: cpu_din =  scr_dout;
-        5'b00_010: cpu_din =  rom_dout;
+        5'b00_010: cpu_din =  rom_data;
         5'b00_001: cpu_din =  cabinet_input;
-        default:   cpu_din =  rom_dout;
+        default:   cpu_din =  rom_data;
     endcase
 
 always @(A,bank) begin
@@ -230,6 +231,20 @@ always @(posedge clk) if(cen6) begin
         if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
 end
 
+jtframe_z80wait #(2) u_wait(
+    .rst_n      ( nRESET    ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+    // manage access to shared memory
+    .dev_cs     ( { scr_cs, char_cs }     ),
+    .dev_busy   ( { scr_busy, char_busy } ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    ),
+
+    .wait_n     ( MRDY      )
+);
+
 
 `ifndef ALT6809
 // cycle accurate core
@@ -249,7 +264,7 @@ mc6809 u_cpu (
     .EXTAL   ( EXTAL   ),
     .nHALT   ( ~bus_req),
     .nRESET  ( nRESET  ),
-    .MRDY    ( MRDY_b  ),
+    .MRDY    ( MRDY    ),
     .nDMABREQ( 1'b1    ),
     // unused:
     .XTAL    ( 1'b0    ),

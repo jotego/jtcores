@@ -187,6 +187,12 @@ u_frame(
     .LVBL           ( LVBL           ),
     .hs             ( hs             ),
     .vs             ( vs             ),
+    // VGA video (without OSD)
+    .vga_r          ( vga_r          ),
+    .vga_g          ( vga_g          ),
+    .vga_b          ( vga_b          ),
+    .vga_hsync      ( vga_hsync      ),
+    .vga_vsync      ( vga_vsync      ),  
     // VGA
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
@@ -249,7 +255,7 @@ u_frame(
     .game_service   (                ), // unused
     .LED            ( LED            ),
     // Debug
-    .gfx_en         (                )
+    .gfx_en         ( gfx_en         )
 );
 
 jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(

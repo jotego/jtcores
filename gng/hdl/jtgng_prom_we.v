@@ -69,7 +69,7 @@ wire region8_objxw = ioctl_addr < ROMEND;
 `endif
 
 // offset the SDRAM programming address by 
-reg [14:0] scr_offset=17'd0;
+reg [14:0] scr_offset=15'd0;
 reg [15:0] obj_offset=16'd0;
 
 // reg set_strobe, set_done;
@@ -93,7 +93,7 @@ always @(posedge clk) begin
         if(ioctl_addr < SCRXADDR) begin // Main ROM, Sound, CHAR ROM (regular copy)
             prog_addr <= {1'b0, ioctl_addr[21:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
-            scr_offset <= 17'd0;
+            scr_offset <= 15'd0;
         end
         else if(ioctl_addr < OBJZADDR ) begin // Scroll    
             prog_mask <= ioctl_addr[15] ? 2'b01 : 2'b10;

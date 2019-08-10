@@ -190,7 +190,10 @@ wire prom_8c_we  = prom_we[10];
 wire prom_6l_we  = prom_we[11];
 wire prom_4k_we  = prom_we[12];
 
-//wire video_flip = dip_flip ^ flip; // Original 1943 did not have this DIP bit.
+reg video_flip;
+
+always @(posedge clk)
+    video_flip <= dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
 `ifndef NOMAIN
 jt1943_main u_main(
@@ -306,7 +309,7 @@ jt1943_video u_video(
     .pause      ( 1'b1          ),
     .flip       ( 1'b0          ),
 `else
-    .flip       ( flip          ),
+    .flip       ( video_flip    ),
     .pause      ( ~dip_pause    ),
 `endif
     // CHAR
