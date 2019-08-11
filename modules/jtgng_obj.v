@@ -38,7 +38,7 @@ module jtgng_obj(
     // SDRAM interface
     output      [15:0] obj_addr,
     input       [15:0] objrom_data,
-    input              obj_ok,
+    input              rom_ok,
     // pixel output
     output       [5:0] obj_pxl
 );

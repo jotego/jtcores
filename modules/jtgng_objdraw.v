@@ -39,7 +39,6 @@ module jtgng_objdraw(
 reg [7:0] ADlow;
 reg [1:0] objpal;
 reg [1:0] ADhigh;
-reg [7:0] objy;
 reg [8:0] objx;
 reg obj_vflip, obj_hflip, hover;
 wire posvflip;
@@ -51,12 +50,13 @@ reg poshflip2;
 reg [7:0] Vsum;
 
 always @(*) begin
-    Vsum = (~VF + { {7{~flip}}, 1'b1})+objy; // this is equivalent to
+    Vsum = (~VF + { {7{~flip}}, 1'b1})+objbuf_data; // this is equivalent to
     // 2's complement of VF plus object's Y, i.e. a subtraction
     // but flip is used to make it work with flipped screens
     // This is the same formula used on the schematics
-    vinzone = &Vsum[7:4];
 end
+
+reg [3:0] Vobj;
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt[3:0] )
@@ -68,8 +68,9 @@ always @(posedge clk) if(cen6) begin
             obj_hflip <= objbuf_data[2];
             hover     <= objbuf_data[0];
         end
-        4'd2: begin
-            objy <= objbuf_data;
+        4'd2: begin // Object Y is on objbuf_data at this step
+            Vobj    <= Vsum;
+            vinzone <= &Vsum[7:4];
         end
         4'd3: begin
             objx <= { hover, objbuf_data };
@@ -78,7 +79,7 @@ always @(posedge clk) if(cen6) begin
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
         obj_addr <= (!vinzone || objcnt==5'd0) ? 16'd0 :
-            { ADhigh, ADlow, Vsum[3:0]^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+            { ADhigh, ADlow, Vobj[3:0]^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
     end
 end
 

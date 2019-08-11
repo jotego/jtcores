@@ -222,7 +222,7 @@ jtgng_obj u_obj (
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .objrom_data( objrom_data ),
-    .obj_ok     ( obj_ok      ),
+    .rom_ok     ( obj_ok      ),
     // pixel data
     .obj_pxl    ( obj_pxl     )
 );
