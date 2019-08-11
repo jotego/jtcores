@@ -41,8 +41,11 @@ module mist_dump(
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
         `else
-            $shm_probe(UUT.u_game.u_prom_we,"AS");
-            $shm_probe(UUT.u_base.u_sdram,"AS");
+            // $shm_probe(UUT.u_game.u_prom_we,"AS");
+            // $shm_probe(UUT.u_base.u_sdram,"AS");
+            $shm_probe(UUT.u_game.u_main,"A");
+            $shm_probe(UUT.u_game,"A");
+            $shm_probe(UUT.u_game.u_video.u_char,"AS");
         `endif
     end
 `endif

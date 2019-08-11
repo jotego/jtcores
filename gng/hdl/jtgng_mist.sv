@@ -258,7 +258,7 @@ u_frame(
     .gfx_en         ( gfx_en         )
 );
 
-jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
+jtgng_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .rst         ( game_rst      ),
     .clk         ( clk_sys       ),
     .cen12       ( cen12         ),

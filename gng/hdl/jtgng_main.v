@@ -42,7 +42,7 @@ module jtgng_main(
     output  reg        scr_cs,
     input              scr_busy,
     output  reg [8:0]  scr_hpos,
-    output  reg [8:0]  scr_vpos,    
+    output  reg [8:0]  scr_vpos,
     // cabinet I/O
     input       [1:0]  start_button,
     input       [1:0]  coin_input,
@@ -76,7 +76,7 @@ module jtgng_main(
 wire [15:0] A;
 wire MRDY, E, Q;
 wire nRESET;
-reg in_cs, sound_cs, scrpos_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
+reg sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
 
 //`ifdef SIMULATION
 //reg dump_on = 1'b0;
@@ -96,14 +96,14 @@ assign cpu_cen = cen3;
 reg [7:0] AH;
 
 always @(*) begin
-    sound_cs    = 1'b0; 
-    OKOUT       = 1'b0; 
-    scrpos_cs   = 1'b0; 
+    sound_cs    = 1'b0;
+    OKOUT       = 1'b0;
+    scrpos_cs   = 1'b0;
     scr_cs      = 1'b0;
     in_cs       = 1'b0;
     blue_cs     = 1'b0;
     redgreen_cs = 1'b0;
-    flip_cs     = 1'b0; 
+    flip_cs     = 1'b0;
     ram_cs      = 1'b0;
     char_cs     = 1'b0;
     bank_cs     = 1'b0;
@@ -130,7 +130,7 @@ always @(*) begin
 end
 
 // SCROLL H/V POSITION
-always @(posedge clk or negedge nRESET) 
+always @(posedge clk or negedge nRESET)
     if( !nRESET ) begin
         scr_hpos <= 8'd0;
         scr_vpos <= 8'd0;
@@ -215,7 +215,7 @@ assign cpu_AB = A[12:0];
 wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
-jtgng_ram #(.aw(13)) RAM(
+jtgng_ram #(.aw(13)) u_ram(
     .clk        ( clk       ),
     .cen        ( cen6      ),
     .addr       ( RAM_addr  ),

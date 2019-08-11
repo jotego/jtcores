@@ -104,7 +104,7 @@ end
 
 jtgng_ram #(.aw(10)) u_ram_low(
     .clk    ( clk      ),
-    .cen    ( 1'b1     ),
+    .cen    ( pxl_cen  ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_low   ),
@@ -113,7 +113,7 @@ jtgng_ram #(.aw(10)) u_ram_low(
 
 jtgng_ram #(.aw(10)) u_ram_high(
     .clk    ( clk      ),
-    .cen    ( 1'b1     ),
+    .cen    ( pxl_cen  ),
     .data   ( din      ),
     .addr   ( addr     ),
     .we     ( we_high  ),

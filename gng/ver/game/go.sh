@@ -1,8 +1,8 @@
 #!/bin/bash
 
 for i in ../../mist/*hex; do
-    if [ ! -e $(basename $i) ]; then
-        if [ -e "$i" ]; then ln -s $i; fi
+    if [ ! -e $(basename "$i") ]; then
+        if [ -e "$i" ]; then ln -s "$i"; fi
     fi
 done
 
