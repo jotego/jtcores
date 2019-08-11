@@ -134,7 +134,7 @@ always @(posedge clk or negedge nRESET)
     if( !nRESET ) begin
         scr_hpos <= 8'd0;
         scr_vpos <= 8'd0;
-    end else if(cpu_cen) begin
+    end else if(cen6) begin
         if( scrpos_cs && A[3])
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;

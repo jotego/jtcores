@@ -120,6 +120,10 @@ wire [3:0] gfx_en;
 wire data_rdy, sdram_ack;
 wire refresh_en;
 
+reg LHBL_dly;
+always @(posedge clk_sys)
+    if(cen6) LHBL_dly <= LHBL;
+
 // 48 MHz clock, original PCB was 6 MHz
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (

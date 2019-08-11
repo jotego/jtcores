@@ -27,6 +27,7 @@
 module jtgng_colmix(
     input           rst,
     input           clk,    // 24 MHz
+    input           cen12,
     input           cen6 /* synthesis direct_enable = 1 */,
     // Synchronization
     //input [2:0]       H,

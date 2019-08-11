@@ -44,7 +44,6 @@ module jtgng_char #(parameter
     // Bus arbitrion
     input            char_cs,
     input            wr_n,
-    output           MRDY_b,
     output           busy,
     // Pause screen
     input            pause,
@@ -79,7 +78,6 @@ jtgng_tilemap #(
     // Bus arbitrion
     .cs         ( char_cs   ),
     .wr_n       ( wr_n      ),
-    .MRDY_b     ( MRDY_b    ),
     .busy       ( busy      ),
     // Pause screen
     .pause      ( pause     ),

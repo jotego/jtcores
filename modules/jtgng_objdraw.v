@@ -32,33 +32,21 @@ module jtgng_objdraw(
     output  reg [15:0] obj_addr,
     input       [15:0] objrom_data,
     // pixel data
-    output      [1:0]  pospal,
+    output reg  [1:0]  pospal,
     output reg  [3:0]  new_pxl
 );
 
 reg [7:0] ADlow;
 reg [1:0] objpal;
 reg [1:0] ADhigh;
-reg [7:0] objy, objx;
-wire [7:0] posy;
-wire [8:0] objx2;
+reg [7:0] objy;
+reg [8:0] objx;
 reg obj_vflip, obj_hflip, hover;
-wire posvflip, poshflip;
+wire posvflip;
+reg  poshflip;
 reg vinzone;
-wire vinzone2;
-
-jtgng_sh #(.width(8), .stages(3)) sh_objy (.clk(clk), .clk_en(cen6), .din(objy), .drop(posy));
-jtgng_sh #(.width(9), .stages(3)) sh_objx (.clk(clk), .clk_en(cen6), .din({hover,objx}), .drop(objx2));
-//jtgng_sh #(.width(1), .stages(4)) sh_objv (.clk(clk), .clk_en(cen6), .din(obj_vflip), .drop(posvflip));
-jtgng_sh #(.width(1), .stages(5)) sh_objh (.clk(clk), .clk_en(cen6), .din(obj_hflip), .drop(poshflip));
 
 reg poshflip2;
-always @(posedge clk) if(cen6) begin
-    poshflip2 <= poshflip;
-end
-
-jtgng_sh #(.width(2), .stages(7)) sh_objp (.clk(clk), .clk_en(cen6), .din(objpal), .drop(pospal));
-jtgng_sh #(.width(1), .stages(4)) sh_objz (.clk(clk), .clk_en(cen6), .din(vinzone), .drop(vinzone2));
 
 reg [7:0] Vsum;
 
@@ -84,13 +72,13 @@ always @(posedge clk) if(cen6) begin
             objy <= objbuf_data;
         end
         4'd3: begin
-            objx <= objbuf_data;
+            objx <= { hover, objbuf_data };
         end
         default:;
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
         obj_addr <= (!vinzone || objcnt==5'd0) ? 16'd0 :
-            { ADhigh, ADlow, pxlcnt[3]^obj_hflip, Vsum[3:0]^{4{~obj_vflip}}, pxlcnt[2]^obj_hflip };
+            { ADhigh, ADlow, Vsum[3:0]^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
     end
 end
 
@@ -98,15 +86,29 @@ end
 // ROM data depacking
 
 reg [3:0] z,y,x,w;
+reg [8:0] posx1;
+reg [1:0] objpal1;
 
 always @(posedge clk) if(cen6) begin
     new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
-    posx    <= pxlcnt[3:0]==4'h8 ? objx2 : posx + 1'b1;
-    case( pxlcnt[3:0] )
-        4'd3,4'd7,4'd11,4'd15:  // new data
-                {z,y,x,w} <= vinzone2 ? objrom_data[15:0] : 16'hffff;
+    posx    <= posx1;
+    pospal  <= objpal1;
+end
+
+always @(posedge clk) if(cen6) begin
+    if( pxlcnt[3:0]==4'h7 ) begin
+        objpal1   <= objpal;
+        poshflip2 <= obj_hflip;
+        posx1     <= objx;
+    end else begin
+        posx1     <= posx1 + 9'b1;
+    end
+    case( pxlcnt[1:0] )
+        2'd3:  begin // new data
+                {z,y,x,w} <= objrom_data;
+            end
         default:
-            if( poshflip ) begin
+            if( poshflip2 ) begin
                 z <= z >> 1;
                 y <= y >> 1;
                 x <= x >> 1;

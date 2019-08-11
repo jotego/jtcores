@@ -19,6 +19,7 @@
 module jtgng_video(
     input               rst,
     input               clk,
+    input               cen12,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -55,14 +56,17 @@ module jtgng_video(
     output              blcnten,    // bus line counter enable
     output      [15:0]  obj_addr,
     input       [15:0]  objrom_data,
+    input               obj_ok,
     // Color Mix
     input               LVBL,
     input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
+    // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
     input       [3:0]   gfx_en,
+    // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue
@@ -76,7 +80,8 @@ wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
 
-localparam scrchr_off = 8'd5;
+localparam scr_off = 8'd5; //8'd5;
+localparam chr_off = 8'd5;
 
 `ifndef NOCHAR
 
@@ -84,7 +89,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high = 8'h2;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(scrchr_off)) u_char (
+jtgng_char #(.HOFFSET(chr_off)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -93,7 +98,7 @@ jtgng_char #(.HOFFSET(scrchr_off)) u_char (
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
-    .dout       ( char_dout    ),
+    .dout       ( char_dout     ),
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
@@ -120,13 +125,14 @@ jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
     .we     ( 1'b0         ),
     .q      ( char_msg_low )
 );
-
 `else
 assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.HOFFSET(scrchr_off)) u_scroll (
+wire [14:0] scr_addr2;
+assign scr_addr = gfx_en[1] ? scr_addr2 : 15'd0;
+jtgng_scroll #(.HOFFSET(scr_off)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -145,7 +151,7 @@ jtgng_scroll #(.HOFFSET(scrchr_off)) u_scroll (
     .wr_n       ( RnW           ),
     .busy       ( scr_busy      ),
     // ROM
-    .scr_addr   ( scr_addr      ),
+    .scr_addr   ( scr_addr2     ),
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
     // pixel output
@@ -165,6 +171,7 @@ assign scram_dout = 8'd0;
 jtgng_colmix u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     // characters
     .chr_col    ( char_col      ),
@@ -215,6 +222,7 @@ jtgng_obj u_obj (
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .objrom_data( objrom_data ),
+    .obj_ok     ( obj_ok      ),
     // pixel data
     .obj_pxl    ( obj_pxl     )
 );

@@ -116,7 +116,7 @@ always @(posedge clk) begin
             end else begin
                 obj_offset <= obj_offset+16'd1;
             end
-            prog_addr <= (OBJZADDR>>1) + { 6'd0, obj_offset };
+            prog_addr <= (OBJZADDR>>1) + { 6'd0, {obj_offset[15:6], obj_offset[4:1], obj_offset[5], obj_offset[0] } };
         end
         else begin // PROMs
             prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };

@@ -40,7 +40,6 @@ module jtgng_scroll #(parameter
     input        [7:0] din,
     output       [7:0] dout,
     input              wr_n,
-    output             MRDY_b,
     output             busy,
 
     // ROM
@@ -60,7 +59,7 @@ wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
 
-always @(*) begin
+always @(posedge clk) begin
     VS = vpos + {1'b0, VF};
     { HS[8:3], HSaux } = hpos + { ~Hfix[8], H7, HF[6:0]};
     HS[2:0] = HSaux ^ {3{flip}};
@@ -87,7 +86,6 @@ jtgng_tilemap #(
     // Bus arbitrion
     .cs         ( scr_cs    ),
     .wr_n       ( wr_n      ),
-    .MRDY_b     ( MRDY_b    ),
     .busy       ( busy      ),
     // Pause screen -unused for scroll-
     .pause      ( 1'b0      ),

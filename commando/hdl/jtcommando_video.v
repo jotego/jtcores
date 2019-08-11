@@ -34,9 +34,9 @@ module jtcommando_video(
     input               char_cs,
     output      [ 7:0]  char_dout,
     input               char_ok,
+    output              char_busy,
     output      [12:0]  char_addr,
     input       [15:0]  chrom_data,
-    output              char_busy,
     // SCROLL - ROM
     input               scr_cs,
     output      [ 7:0]  scram_dout,
@@ -68,6 +68,7 @@ module jtcommando_video(
     input               LHBL,
     input               LHBL_obj,
     input       [3:0]   gfx_en,
+    // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue
@@ -99,7 +100,6 @@ jtgng_char #(.HOFFSET(chr_off)) u_char (
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
-    .MRDY_b     (               ),
     .busy       ( char_busy     ),
     // Pause screen
     .pause      ( pause         ),
@@ -145,13 +145,12 @@ jtgng_scroll #(.HOFFSET(scr_off)) u_scroll (
     .din        ( cpu_dout      ),
     .dout       ( scram_dout    ),
     .wr_n       ( RnW           ),
-    .MRDY_b     (               ),
     .busy       ( scr_busy      ),
     // ROM
     .scr_addr   ( scr_addr      ),
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
-    // pixel
+    // pixel output
     .scr_col    ( scr_pxl[2:0]  ),
     .scr_pal    ( scr_pxl[6:3]  )
 );

@@ -45,7 +45,6 @@ module jtgng_tilemap #(parameter
     // Bus arbitrion
     input            cs,
     input            wr_n,
-    output           MRDY_b,
     output reg       busy,
     // Pause screen
     input            pause,
@@ -64,8 +63,6 @@ assign scan = INVERT_SCAN ? { {10{flip}}^{H[7:3],V[7:3]}}
 reg [9:0] addr;
 reg we_low, we_high;
 wire [7:0] mem_low, mem_high;
-
-assign MRDY_b = ~busy;
 
 always @(posedge clk) begin : busy_latch
     reg last_H0;

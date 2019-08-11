@@ -104,7 +104,8 @@ always @(posedge clk) begin
         end
         else if(ioctl_addr < ROMEND ) begin // Objects
             prog_mask  <= ioctl_addr[16] ? 2'b10 : 2'b01;
-            prog_addr  <= (OBJZADDR>>1) + { 6'd0, obj_offset };
+            prog_addr  <= (OBJZADDR>>1) + 
+                { 6'd0, {obj_offset[15:6], obj_offset[4:1], obj_offset[5], obj_offset[0] } };
             obj_offset <= obj_offset+16'd1;
         end
     end

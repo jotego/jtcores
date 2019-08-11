@@ -64,6 +64,7 @@ module jt1943_rom2 #(parameter
     output              scr1_ok,
     output              scr2_ok,
     output              char_ok,
+    output              obj_ok,
     // SDRAM controller interface
     input               data_rdy,
     input               sdram_ack,
@@ -94,7 +95,7 @@ wire [14:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
-wire map1_ok, map2_ok, obj_ok;
+wire map1_ok, map2_ok;
 //wire newref = 
 //    &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
 

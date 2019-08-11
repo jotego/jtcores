@@ -83,7 +83,7 @@ always @(posedge clk)
                     {pre_scan_msb, pre_scan} <= 10'd2;
                     post_scan<= 5'd31; // store obj data in reverse order
                     // so we can print them in straight order while taking
-                    // advantage of horizontal blanking to avoid graphich clash
+                    // advantage of horizontal blanking to avoid graphic clash
                     if(HINIT) fill <= 1'd0;
                 end
                 else begin

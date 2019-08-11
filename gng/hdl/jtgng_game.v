@@ -291,12 +291,13 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr1_ok, scr2_ok, char_ok;
+wire char_ok, scr1_ok, scr2_ok, obj_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
 jtgng_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
@@ -329,6 +330,7 @@ jtgng_video u_video(
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_data      ),
+    .obj_ok     ( obj_ok        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -374,6 +376,7 @@ jt1943_rom2 #(
     .scr1_ok     ( scr1_ok       ),
     .scr2_ok     ( scr2_ok       ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
