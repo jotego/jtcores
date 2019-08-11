@@ -16,11 +16,13 @@
     Version: 1.0
     Date: 27-10-2017 */
 
+`timescale 1ns/1ps
+
 module jtgng_game(
     input           rst,
     input           clk,
     output          cen12,      // 12   MHz
-	output          cen6,       //  6   MHz
+    output          cen6,       //  6   MHz
     output          cen3,       //  3   MHz
     output          cen1p5,     //  1.5 MHz
     output   [3:0]  red,
@@ -61,10 +63,10 @@ module jtgng_game(
     input           dip_attract_snd,
     input           dip_upright,
     // Sound output
+    output  signed [15:0] snd,
+    output          sample,
     input           enable_psg,
     input           enable_fm,
-    output  signed [15:0] ym_snd,
-    output          sample,
     // Debug
     input   [ 3:0]  gfx_en
 );
@@ -82,6 +84,7 @@ wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
+
 // ROM data
 wire [15:0] char_data;
 wire [23:0] scr_data;
@@ -122,7 +125,7 @@ end
 `endif
 
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
-    .clk    ( clk       ),    // 12 MHz
+    .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
@@ -214,18 +217,17 @@ jtgng_main u_main(
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
-    // bus sharing
-    .ram_dout   ( main_ram      ),
+    // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
+    .cpu_AB     ( cpu_AB        ),
+    .ram_dout   ( main_ram      ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
-
+    // Palette RAM
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
-    .cpu_AB     ( cpu_AB        ),
-    .RnW        ( RnW           ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -236,6 +238,8 @@ jtgng_main u_main(
     .coin_input ( coin_input    ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
+
+    .RnW        ( RnW           ),
     // DIP switches
     .dip_pause      ( dip_pause       ),
     .dip_flip       ( 1'b0            ),
@@ -246,7 +250,7 @@ jtgng_main u_main(
     .dip_attract_snd( dip_attract_snd ),
     .dip_upright    ( dip_upright     )
 );
-`else 
+`else
 assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
@@ -277,14 +281,14 @@ jtgng_sound u_sound (
     .rom_cs         ( snd_cs     ),
     .rom_ok         ( snd_ok     ),
     // sound output
-    .ym_snd         ( ym_snd     ),
+    .ym_snd         ( snd        ),
     .sample         ( sample     )
 );
 `else
 assign snd_addr = 15'd0;
 assign sample   = 1'b0;
-assign ym_snd   = 16'b0;
 assign snd_cs   = 1'b0;
+assign snd      = 16'b0;
 `endif
 
 wire scr1_ok, scr2_ok, char_ok;
@@ -306,9 +310,9 @@ jtgng_video u_video(
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
-    .char_busy  ( char_busy     ),
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
+    .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
@@ -318,7 +322,7 @@ jtgng_video u_video(
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
-    .scr_ok     ( scr_ok        ),    
+    .scr_ok     ( scr_ok        ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
@@ -346,6 +350,7 @@ jtgng_video u_video(
 
 wire [7:0] scr_nc; // no connect
 
+// Scroll data: Z, Y, X
 jt1943_rom2 #(
     .char_aw    ( 13              ),
     .main_aw    ( 17              ),

@@ -20,7 +20,7 @@
 
 module jtcommando_game(
     input           rst,
-    input           clk,        // 24   MHz
+    input           clk,
     output          cen12,      // 12   MHz
     output          cen6,       //  6   MHz
     output          cen3,       //  3   MHz
@@ -66,7 +66,7 @@ module jtcommando_game(
     input           dip_demosnd,
     input           dip_flip,
     // Sound output
-    output  [15:0]  snd,
+    output  signed [15:0] snd,
     output          sample,
     // Debug
     input   [3:0]   gfx_en
@@ -84,6 +84,8 @@ wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
+wire char_busy, scr_busy;
+
 // ROM data
 wire [15:0] char_data;
 wire [23:0] scr_data;
@@ -133,7 +135,6 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-
 wire LHBL_obj, LVBL_obj, Hsub;
 
 jtgng_timer u_timer(
@@ -164,7 +165,6 @@ wire        main_cs;
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
 wire [7:0] main_ram;
-wire char_busy, scr_busy;
 
 wire [5:0] prom_we;
 
@@ -263,6 +263,7 @@ assign flip        = 1'b0;
 assign RnW         = 1'b1;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
+assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
@@ -323,10 +324,10 @@ jtcommando_video u_video(
     .scram_dout ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
-    .scr_ok     ( scr_ok        ),
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
+    .scr_ok     ( scr_ok        ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),

@@ -69,7 +69,7 @@ localparam CONF_STR = {
         "O56,Lives,3,2,4,5;", // 20
         "O9,Screen filter,ON,OFF;", // 24
         "OB,Flip screen,OFF,ON;", // 22
-        "TF,RST ,OFF,ON;", // 15
+        "TF,Reset;", // 9
         "V,http://patreon.com/topapate;" // 30
 };
 
@@ -87,9 +87,8 @@ wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 wire          coin_cnt;
 
-wire          rst_req = status[32'hf];
-
 wire          game_pause;
+wire          rst_req = status[32'hf];
 wire          sdram_req;
 wire          dip_pause = ~status[1] & ~game_pause;
 
@@ -107,12 +106,10 @@ wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
 wire          prog_we;
 
-wire [3:0]    red;
-wire [3:0]    green;
-wire [3:0]    blue;
+wire [ 3:0]   red, green, blue;
 
 wire LHBL, LVBL, hs, vs;
-wire [15:0] snd;
+wire signed [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
@@ -170,6 +167,8 @@ assign vga_b[0] = vga_b[5];
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
+assign sim_vs      = vs;
+assign sim_hs      = hs;
 `endif
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
@@ -262,11 +261,6 @@ u_frame(
     .gfx_en         ( gfx_en         )
 );
 
-`ifdef SIMULATION
-assign sim_vs = vs;
-assign sim_hs = hs;
-`endif
-
 jtcommando_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
     .rst         ( game_rst      ),
@@ -298,14 +292,14 @@ u_game(
     .prog_we     ( prog_we        ),
 
     // ROM load
-    .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
-    .sdram_req   ( sdram_req     ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
-    .refresh_en  ( refresh_en    ),
+    .downloading ( downloading    ),
+    .loop_rst    ( loop_rst       ),
+    .sdram_req   ( sdram_req      ),
+    .sdram_addr  ( sdram_addr     ),
+    .data_read   ( data_read      ),
+    .sdram_ack   ( sdram_ack      ),
+    .data_rdy    ( data_rdy       ),
+    .refresh_en  ( refresh_en     ),
     // DIP switches
     .dip_pause   ( dip_pause      ),
     .dip_lives   ( dip_lives      ),

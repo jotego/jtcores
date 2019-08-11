@@ -16,6 +16,8 @@
     Version: 1.0
     Date: 27-10-2017 */
 
+`timescale 1ns/1ps
+
 module jtgng_mist(
     input   [1:0]   CLOCK_27,
     output  [5:0]   VGA_R,
@@ -99,7 +101,14 @@ wire          dip_test  = ~status[4];
 wire          enable_psg = ~status[7], enable_fm = ~status[8];
 wire          en_mixing = ~status['hb];
 
+wire [21:0]   prog_addr;
+wire [ 7:0]   prog_data;
+wire [ 1:0]   prog_mask;
+wire          prog_we;
 
+wire [ 3:0]   red, green, blue;
+
+wire sdram_req, sdram_sync;
 wire LHBL, LVBL;
 wire signed [15:0] snd;
 
@@ -110,14 +119,6 @@ wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
 wire refresh_en;
-
-wire [21:0]   prog_addr;
-wire [ 7:0]   prog_data;
-wire [ 1:0]   prog_mask;
-wire          prog_we;
-
-wire [3:0] red, green, blue;
-wire sdram_req, sdram_sync;
 
 // 48 MHz clock, original PCB was 6 MHz
 wire clk_vga_in, clk_vga, pll_locked;
@@ -163,8 +164,8 @@ assign vga_b[0] = vga_b[5];
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
-assign sim_vs = vs;
-assign sim_hs = hs;
+assign sim_vs      = vs;
+assign sim_hs      = hs;
 `endif
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
@@ -190,7 +191,7 @@ u_frame(
     .vga_b          ( vga_b          ),
     .vga_hsync      ( vga_hsync      ),
     .vga_vsync      ( vga_vsync      ),  
-    // VGA
+    // MiST VGA pins
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
     .VGA_B          ( VGA_B          ),
@@ -235,7 +236,9 @@ u_frame(
     .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
+    .rst_n          (                ), // unused
     .game_rst       ( game_rst       ),
+    .game_rst_n     (                ),
     // reset forcing signals:
     .dip_flip       ( 1'b0           ),
     .rst_req        ( rst_req        ),
@@ -258,7 +261,7 @@ u_frame(
 jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     .rst         ( game_rst      ),
     .clk         ( clk_sys       ),
-	.cen12       ( cen12         ),
+    .cen12       ( cen12         ),
     .cen6        ( cen6          ),
     .cen3        ( cen3          ),
     .cen1p5      ( cen1p5        ),
@@ -285,27 +288,27 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) game(
     .prog_we     ( prog_we        ),
 
     // ROM load
-    .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
-    .sdram_req   ( sdram_req     ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
-    .refresh_en  ( refresh_en    ),
+    .downloading ( downloading    ),
+    .loop_rst    ( loop_rst       ),
+    .sdram_req   ( sdram_req      ),
+    .sdram_addr  ( sdram_addr     ),
+    .data_read   ( data_read      ),
+    .sdram_ack   ( sdram_ack      ),
+    .data_rdy    ( data_rdy       ),
+    .refresh_en  ( refresh_en     ),
     // DIP switches
-    .dip_pause      ( dip_pause  ),
-    .dip_lives      ( dip_lives  ),
-    .dip_level      ( dip_level  ),
-    .dip_bonus      ( dip_bonus  ),
-    .dip_game_mode  ( dip_test   ),
-    .dip_upright    ( 1'b1       ),
-    .dip_attract_snd( 1'b1       ), // 0 for sound
+    .dip_pause      ( dip_pause   ),
+    .dip_lives      ( dip_lives   ),
+    .dip_level      ( dip_level   ),
+    .dip_bonus      ( dip_bonus   ),
+    .dip_game_mode  ( dip_test    ),
+    .dip_upright    ( 1'b1        ),
+    .dip_attract_snd( 1'b1        ), // 0 for sound
     // sound
-    .enable_psg  ( enable_psg    ),
-    .enable_fm   ( enable_fm     ),
-    .ym_snd      ( snd           ),
-    .sample      (               ),
+    .snd         ( snd            ),
+    .sample      (                ),
+    .enable_psg  ( enable_psg     ),
+    .enable_fm   ( enable_fm      ),
     // Debug
     .gfx_en      ( gfx_en         )
 );
