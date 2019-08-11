@@ -107,12 +107,25 @@ always @(posedge clk) if(cen3) begin
     end
 end
 
+reg last_rom_cs, rom_lock;
+reg wait_n;
+
+always @(posedge clk or negedge reset_n)
+    if( !reset_n )
+        wait_n <= 1'b1;
+    else begin
+        last_rom_cs <= rom_cs;
+        if( rom_cs && !last_rom_cs ) rom_lock <= 1'b1;
+        if( rom_ok ) rom_lock <= 1'b0;
+        wait_n <= !rom_lock;
+    end
+
 `ifdef SIMULATION
 tv80s #(.Mode(0)) u_cpu (
     .reset_n(reset_n ),
     .clk    (clk     ), // 3 MHz, clock gated
     .cen    (cen3    ),
-    .wait_n (1'b1    ),
+    .wait_n (wait_n  ),
     .int_n  (int_n   ),
     .nmi_n  (1'b1    ),
     .busrq_n(1'b1    ),

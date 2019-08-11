@@ -78,6 +78,18 @@ wire MRDY, E, Q;
 wire nRESET;
 reg in_cs, sound_cs, scrpos_cs, ram_cs, bank_cs, screpos_cs, flip_cs;
 
+//`ifdef SIMULATION
+//reg dump_on = 1'b0;
+//always @(posedge bank_cs/*, posedge scr_cs, posedge char_cs*/) begin
+//    if( !dump_on ) begin
+//        dump_on <= 1'b1;
+//        $display("DUMP starts because of CS edge");
+//        $dumpfile("test.lxt");
+//        $dumpvars(0,mist_test);
+//        $dumpon;
+//    end
+//end
+//`endif
 
 assign cpu_cen = cen3;
 

@@ -80,7 +80,7 @@ wire snd_cs;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd;
+wire rd, cpu_cen;
 wire char_busy, scr_busy;
 // ROM data
 wire [15:0] char_data;
@@ -97,10 +97,29 @@ wire [15:0] obj_addr;
 
 wire rom_ready;
 wire main_ok, snd_ok;
-wire cpu_cen;
+
+`ifdef MISTER
+
+reg rst_game;
+
+always @(negedge clk)
+    rst_game <= rst || !rom_ready;
+
+`else
 
 reg rst_game=1'b1;
-reg rst_aux;
+
+always @(posedge clk) begin : rstgame_gen
+    reg rst_aux;
+    if( rst || !rom_ready ) begin
+        {rst_game,rst_aux} <= 2'b11;
+    end
+    else begin
+        {rst_game,rst_aux} <= {rst_aux, downloading };
+    end
+end
+
+`endif
 
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),    // 12 MHz
@@ -109,14 +128,6 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
-
-always @(posedge clk)
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
 
 wire LHBL_obj, LVBL_obj, Hsub;
 
@@ -388,6 +399,5 @@ jt1943_rom2 #(
     .data_read   ( data_read     ),
     .refresh_en  ( refresh_en    )
 );
-
 
 endmodule // jtgng

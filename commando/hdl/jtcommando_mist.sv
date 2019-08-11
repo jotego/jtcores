@@ -130,13 +130,11 @@ always @(posedge clk_sys)
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rom     ), // 48 MHz
+    .c1     ( clk_sys     ), // 48 MHz
     .c2     ( SDRAM_CLK   ),
     .c3     ( clk_vga_in  ),
     .locked ( pll_locked  )
 );
-
-assign clk_sys   = clk_rom;
 
 jtgng_pll1 u_pll_vga (
     .inclk0 ( clk_vga_in ),

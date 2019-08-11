@@ -74,7 +74,7 @@ localparam CONF_STR = {
 
 localparam CONF_STR_LEN = $size(CONF_STR)/8; // System verilog is only used for this line!
 
-wire          rst, clk_sys, clk_rom;
+wire          rst, clk_sys;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire          ps2_kbd_clk, ps2_kbd_data;
@@ -123,14 +123,11 @@ wire sdram_req, sdram_sync;
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
     .inclk0 ( CLOCK_27[0] ),
-    .c1     ( clk_rom     ), // 48 MHz
+    .c1     ( clk_sys     ), // 48 MHz
     .c2     ( SDRAM_CLK   ),
     .c3     ( clk_vga_in  ),
     .locked ( pll_locked  )
 );
-
-// assign SDRAM_CLK = clk_rom;
-assign clk_sys   = clk_rom;
 
 jtgng_pll1 u_pll_vga (
     .inclk0 ( clk_vga_in ),
@@ -174,7 +171,7 @@ jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b0))
 u_frame(
     .clk_sys        ( clk_sys        ),
-    .clk_rom        ( clk_rom        ),
+    .clk_rom        ( clk_sys        ),
     .clk_vga        ( clk_vga        ),
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
