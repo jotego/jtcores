@@ -310,7 +310,7 @@ jt1942_video u_video(
     .prom_m11_we( prom_m11_we   )
 );
 
-wire [7:0] nc;
+wire [7:0] scr_nc;
 
 jt1943_rom2 #(
     .snd_offset (22'h0A000),

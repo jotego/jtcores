@@ -106,7 +106,6 @@ jtgng_char #(
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
-    .MRDY_b     (               ),
     .busy       ( char_busy     ),
     // Pause screen
     .pause      ( pause         ),
@@ -174,7 +173,6 @@ jtgng_scroll #(
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),
     .wr_n         ( wr_n          ),
-    .MRDY_b       (               ),
     .busy         ( scr_busy      ),
     // ROM
     .scr_addr     ( scr_addr[13:0]),

@@ -97,7 +97,7 @@ always @(*) begin
     brt_cs        = 1'b0;
     obj_cs        = 1'b0;
     rom_cs        = 1'b0;
-    if( !mreq_n ) casez(A[15:13])
+    if( rfsh_n && !mreq_n ) casez(A[15:13])
         3'b0??: rom_cs  = 1'b1;
         3'b10?: rom_cs  = 1'b1; // bank
         3'b110: // cscd
@@ -334,6 +334,7 @@ T80s u_cpu(
     .MREQ_n     ( mreq_n      ),
     .NMI_n      ( 1'b1        ),
     .BUSRQ_n    ( 1'b1        ),
+    .RFSH_n     ( rfsh_n      ),
     .out0       ( 1'b0        )
 );
 `else
@@ -353,11 +354,11 @@ tv80s #(.Mode(0)) u_cpu (
     .dout   ( cpu_dout   ),
     .iorq_n ( iorq_n     ),
     .m1_n   ( m1_n       ),
+    .rfsh_n ( rfsh_n     ),
     .mreq_n ( mreq_n     ),
     // unused
     .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
+    .halt_n ()
 );
 `endif
 endmodule // jtgng_main
