@@ -22,5 +22,7 @@
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
+../../../modules/jtgng_tilemap.v
+../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 test_inputs.v

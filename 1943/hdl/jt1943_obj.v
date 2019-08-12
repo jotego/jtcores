@@ -154,7 +154,7 @@ jt1943_objdraw u_draw(
 // line buffers for pixel data
 // obj_dly is not object pixel delay with respect to background
 // instead, it is the internal delay from previous stages
-wire [5:0] obj_pxl0;
+wire [7:0] obj_pxl0;
 
 jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
     .rst            ( rst           ),
@@ -174,7 +174,7 @@ jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
 );
 
 // Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(6), .stages(2)) u_sh(
+jtgng_sh #(.width(8), .stages(2)) u_sh(
     .clk            ( clk           ),
     .clk_en         ( cen6          ),
     .din            ( obj_pxl0      ),
