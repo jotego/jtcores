@@ -43,6 +43,7 @@ module jtgng_main(
     input              scr_busy,
     output  reg [8:0]  scr_hpos,
     output  reg [8:0]  scr_vpos,
+    input              scr_holdn,
     // cabinet I/O
     input       [1:0]  start_button,
     input       [1:0]  coin_input,
@@ -135,7 +136,7 @@ always @(posedge clk or negedge nRESET)
         scr_hpos <= 8'd0;
         scr_vpos <= 8'd0;
     end else if(cen6) begin
-        if( scrpos_cs && A[3])
+        if( scrpos_cs && A[3] && scr_holdn)
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;
             2'd1: scr_hpos[8]   <= cpu_dout[0];

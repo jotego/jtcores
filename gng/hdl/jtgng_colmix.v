@@ -67,8 +67,8 @@ wire enable_obj  = gfx_en[3];
 always @(posedge clk) if(cen6) begin
     if( chr_col==2'b11 || !enable_char ) begin
         // Object or scroll
-        if( enable_scr && &obj_pxl[3:0] || !enable_obj || (scrwin&&scr_col!=3'd0) )
-            pixel_mux <= {2'b00, scr_pal, scr_col }; // scroll wins
+        if( (&obj_pxl[3:0]) || !enable_obj || (scrwin&&scr_col!=3'd0) )
+            pixel_mux <= enable_scr ? {2'b00, scr_pal, scr_col } : 8'hff; // scroll wins
         else
             pixel_mux <= {2'b01, obj_pxl }; // object wins
     end

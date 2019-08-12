@@ -130,8 +130,6 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-wire [14:0] scr_addr2;
-assign scr_addr = gfx_en[1] ? scr_addr2 : 15'd0;
 jtgng_scroll #(.HOFFSET(scr_off)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -151,7 +149,7 @@ jtgng_scroll #(.HOFFSET(scr_off)) u_scroll (
     .wr_n       ( RnW           ),
     .busy       ( scr_busy      ),
     // ROM
-    .scr_addr   ( scr_addr2     ),
+    .scr_addr   ( scr_addr      ),
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
     // pixel output

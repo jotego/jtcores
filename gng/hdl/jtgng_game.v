@@ -217,6 +217,7 @@ jtgng_main u_main(
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
+    .scr_holdn  ( gfx_en[2]     ), // hold scroll latches
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
