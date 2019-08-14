@@ -18,7 +18,8 @@
 
 module jtgng_obj(
     input              rst,
-    input              clk,     // 24 MHz
+    input              clk,
+    input              cen12,
     input              cen6,    //  6 MHz
     // screen
     input              HINIT,
@@ -84,6 +85,7 @@ jtgng_objdma u_dma(
 jtgng_objbuf u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
+    .cen12          ( cen12         ),
     .cen6           ( cen6          ),    //  6 MHz
     // screen
     .HINIT          ( HINIT         ),
@@ -149,8 +151,10 @@ jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
     .obj_pxl        ( obj_pxl0      )
 );
 
+//always @(posedge clk) if(cen6) obj_pxl<=obj_pxl0;
+
 // Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(6), .stages(3)) u_sh(
+jtgng_sh #(.width(6), .stages(2)) u_sh(
     .clk            ( clk           ),
     .clk_en         ( cen6          ),
     .din            ( obj_pxl0      ),

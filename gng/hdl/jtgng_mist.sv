@@ -68,7 +68,7 @@ localparam CONF_STR = {
         "O4,Test mode,OFF,ON;", // 20
         "O7,PSG ,ON,OFF;", // 15
         "O8,FM  ,ON,OFF;", // 15
-        "O9A,Lives,3,4,5,6;", // 18
+        "O9A,Lives,3,4,5,7;", // 18
         "OB,Screen filter,ON,OFF;", // 24
         "TF,Reset;", // 9
         "V,http://patreon.com/topapate;" // 30
@@ -119,10 +119,6 @@ wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
 wire refresh_en;
-
-reg LHBL_dly;
-always @(posedge clk_sys)
-    if(cen6) LHBL_dly <= LHBL;
 
 // 48 MHz clock, original PCB was 6 MHz
 wire clk_vga_in, clk_vga, pll_locked;

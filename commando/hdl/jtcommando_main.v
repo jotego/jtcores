@@ -108,7 +108,7 @@ always @(*) begin
                         4'b0_000: snd_latch_cs = 1'b1;
                         4'b0_100: misc_cs      = 1'b1;
                         4'b0_110: OKOUT        = 1'b1;
-                        4'b1_???: scrpos_cs    = 1'b1;
+                        4'b1_???: scrpos_cs    = 1'b1;  // C808-C80F
                         default:;
                     endcase
                 2'b10: // D0
@@ -222,7 +222,6 @@ jtframe_z80wait #(2) u_wait(
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
     // manage access to shared memory
-    .dev_cs     ( { scr_cs, char_cs }     ),
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),

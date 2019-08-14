@@ -69,40 +69,43 @@ always @(posedge clk) begin : busy_latch
     last_H0 <= H[0];
     if( cs && scan_sel)
         busy <= 1'b1;
-    else if(H[0] && !last_H0) busy <= 1'b0;
+    else if( !H[0] && last_H0) busy <= 1'b0;
 end
 
-always @(posedge clk) if(pxl_cen) begin : scan_select
+always @(posedge clk) begin : scan_select
     if( !cs )
         scan_sel <= 1'b1;
     else if(H[2:0]==DATAREAD)
         scan_sel <= 1'b0;
 end
 
+reg [7:0] dlatch;
+reg last_scan;
+
 always @(posedge clk) begin : mem_mux
-    reg last_Asel, last_scan;
+    reg last_Asel;
 
     if( scan_sel ) begin
-        addr    <= scan;
-        we_low  <= 1'b0;
-        we_high <= 1'b0;
+        addr      <= scan;
+        we_low    <= 1'b0;
+        we_high   <= 1'b0;
     end else begin
-        addr    <= AB;
-        we_low  <= cs && !wr_n && !Asel;
-        we_high <= cs && !wr_n &&  Asel;
+        addr      <= AB;
+        we_low    <= cs && !wr_n && !Asel;
+        we_high   <= cs && !wr_n &&  Asel;
+        dlatch    <= din;
+        last_Asel <= Asel;
     end
 
     // Output latch
     last_scan <= scan_sel;
-    last_Asel <= Asel;
-    if( !last_scan && !scan_sel )
-        dout <= last_Asel ? dout_high : dout_low;
+    dout <= last_Asel ? mem_high : mem_low;
 end
 
 jtgng_ram #(.aw(10)) u_ram_low(
     .clk    ( clk      ),
-    .cen    ( pxl_cen  ),
-    .data   ( din      ),
+    .cen    ( 1'b1     ),
+    .data   ( dlatch   ),
     .addr   ( addr     ),
     .we     ( we_low   ),
     .q      ( mem_low  )
@@ -110,17 +113,18 @@ jtgng_ram #(.aw(10)) u_ram_low(
 
 jtgng_ram #(.aw(10)) u_ram_high(
     .clk    ( clk      ),
-    .cen    ( pxl_cen  ),
-    .data   ( din      ),
+    .cen    ( 1'b1     ),
+    .data   ( dlatch   ),
     .addr   ( addr     ),
     .we     ( we_high  ),
     .q      ( mem_high )
 );
 
 always @(posedge clk) begin
-    dout_low  = pause ? msg_low  : mem_low;
-    dout_high = pause ? msg_high : mem_high;
+    if(last_scan) begin
+        dout_low  = pause ? msg_low  : mem_low;
+        dout_high = pause ? msg_high : mem_high;
+    end
 end
-
 
 endmodule

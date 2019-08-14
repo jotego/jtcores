@@ -115,7 +115,7 @@ if [ $GIT = TRUE ]; then
 fi
 
 if [ $PROG = TRUE ]; then
-    quartus_pgm -c "USB-Blaster(Altera) [1-1.2]" $JTGNG_ROOT/$PRJ/mist/jt$PRJ.cdf
+    quartus_pgm -c "USB-Blaster(Altera) [1-1.2.4]" $JTGNG_ROOT/$PRJ/mist/jt$PRJ.cdf
 fi
 
 echo completed at $(date)

@@ -78,8 +78,11 @@ wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
 wire [6:0] scr_pxl;
 
-localparam scr_off = 8'd7; //8'd5;
-localparam chr_off = 8'd5;
+// Delays
+// SCR  OBJ ALIGN   SCR     OBJ
+//  9    1   OK    1 top     OK
+localparam scr_off = 8'd0; //8'd5;
+localparam chr_off = 8'd0;
 
 `ifndef NOCHAR
 
@@ -198,6 +201,7 @@ assign green= 4'd0;
 jtgng_obj u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
+    .cen12      ( cen12       ),
     .cen6       ( cen6        ),
     .AB         ( obj_AB      ),
     .DB         ( main_ram    ),

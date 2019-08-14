@@ -62,6 +62,7 @@ module jtgng_video(
     input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
+    output              LHBL_dly,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -80,8 +81,8 @@ wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
 
-localparam scr_off = 8'd5; //8'd5;
-localparam chr_off = 8'd5;
+// same offset for CHAR and SCR
+localparam char_off = 8'd0;
 
 `ifndef NOCHAR
 
@@ -89,7 +90,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high = 8'h2;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(chr_off)) u_char (
+jtgng_char #(.HOFFSET(char_off)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -130,7 +131,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.HOFFSET(scr_off)) u_scroll (
+jtgng_scroll #(.HOFFSET(char_off)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -189,6 +190,7 @@ jtgng_colmix u_colmix (
     .DB         ( cpu_dout      ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
+    .LHBL_dly   ( LHBL_dly      ),
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
@@ -199,10 +201,10 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
-
 jtgng_obj u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
+    .cen12      ( cen12       ),
     .cen6       ( cen6        ),
     .AB         ( obj_AB      ),
     .DB         ( main_ram    ),

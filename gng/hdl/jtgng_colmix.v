@@ -47,6 +47,7 @@ module jtgng_colmix(
     input [7:0]     DB,
     input           LVBL,
     input           LHBL,
+    output          LHBL_dly,
 
     output reg [3:0] red,
     output reg [3:0] green,
@@ -62,12 +63,13 @@ reg [7:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
 wire enable_scr  = gfx_en[1];
+wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
 always @(posedge clk) if(cen6) begin
     if( chr_col==2'b11 || !enable_char ) begin
         // Object or scroll
-        if( (&obj_pxl[3:0]) || !enable_obj || (scrwin&&scr_col!=3'd0) )
+        if( obj_blank || !enable_obj || (scrwin&&scr_col!=3'd0) )
             pixel_mux <= enable_scr ? {2'b00, scr_pal, scr_col } : 8'hff; // scroll wins
         else
             pixel_mux <= {2'b01, obj_pxl }; // object wins
@@ -80,6 +82,13 @@ end
 wire we_rg = !LVBL && redgreen_cs;
 wire we_b  = !LVBL && blue_cs;
 
+//jtgng_sh #(.width(1), .stages(5)) u_sh(
+//    .clk            ( clk           ),
+//    .clk_en         ( cen6          ),
+//    .din            ( LHBL          ),
+//    .drop           ( LHBL_dly      )
+//);
+assign LHBL_dly = LHBL;
 
 always @(posedge clk) if (cen6)
     {red, green, blue } <= (LVBL&&LHBL)? { dout_rg, dout_b } : 12'd0;

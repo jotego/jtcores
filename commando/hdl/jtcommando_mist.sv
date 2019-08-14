@@ -64,9 +64,9 @@ localparam CONF_STR = {
         "JTCOM;;", //8
         "O1,Pause,OFF,ON;", // 16
         "F,rom;", // 6
-        "O2,Difficulty,Hard,Normal;", // 42
-        "O34,Start level,1,3,5,7;", // 20
-        "O56,Lives,3,2,4,5;", // 20
+        "O2,Difficulty,Normal,Hard;", // 42
+        "O34,Start level,1,5,3,7;", // 20
+        "O56,Lives,3,4,2,5;", // 20
         "O9,Screen filter,ON,OFF;", // 24
         "OB,Flip screen,OFF,ON;", // 22
         "TF,Reset;", // 9
@@ -93,7 +93,7 @@ wire          sdram_req;
 wire          dip_pause = ~status[1] & ~game_pause;
 
 wire [1:0]    dip_upright = 2'b00;
-wire          dip_level  = status[2];
+wire          dip_level  = ~status[2];
 wire [1:0]    dip_start  = ~status[4:3];
 wire [1:0]    dip_lives  = ~status[6:5];
 wire [1:0]    dip_price1 = 2'b00;
