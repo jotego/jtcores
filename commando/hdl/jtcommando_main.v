@@ -121,14 +121,19 @@ always @(*) begin
 end
 
 // SCROLL H/V POSITION
-always @(posedge clk) if(cpu_cen) begin
-    if( scrpos_cs && A[3])
-    case(A[1:0])
-        2'd0: scr_hpos[7:0] <= cpu_dout;
-        2'd1: scr_hpos[8]   <= cpu_dout[0];
-        2'd2: scr_vpos[7:0] <= cpu_dout;
-        2'd3: scr_vpos[8]   <= cpu_dout[0];
-    endcase
+always @(posedge clk, negedge t80_rst_n) begin
+    if( !t80_rst_n ) begin
+        scr_hpos <= 9'd0;
+        scr_vpos <= 9'd0;
+    end else if(cpu_cen) begin
+        if( scrpos_cs && A[3])
+        case(A[1:0])
+            2'd0: scr_hpos[7:0] <= cpu_dout;
+            2'd1: scr_hpos[8]   <= cpu_dout[0];
+            2'd2: scr_vpos[7:0] <= cpu_dout;
+            2'd3: scr_vpos[8]   <= cpu_dout[0];
+        endcase
+    end
 end
 
 // special registers
@@ -202,12 +207,13 @@ always @(*)
     if( irq_ack ) // Interrupt address
         cpu_din = irq_vector;
     else
-    case( {ram_cs, char_cs, rom_cs, in_cs} )
-        4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
+    case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
+        5'b100_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
                             ram_dout;
-        4'b01_00: cpu_din = char_dout;
-        4'b00_10: cpu_din = !m1_n ? rom_opcode : rom_data;
-        4'b00_01: cpu_din = cabinet_input;
+        5'b010_00: cpu_din = char_dout;
+        5'b001_00: cpu_din = scr_dout;
+        5'b000_10: cpu_din = !m1_n ? rom_opcode : rom_data;
+        5'b000_01: cpu_din = cabinet_input;
         default:  cpu_din = rom_data;
     endcase
 

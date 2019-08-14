@@ -29,4 +29,4 @@ make
 # Generic simulation script from JTFRAME
 echo "Game ROM length: " $GAME_ROM_LEN
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN\
-    -sysname commando -modules ../../../modules -d SCANDOUBLER_DISABLE $*
+    -sysname commando -modules ../../../modules -d SCANDOUBLER_DISABLE=1 $*

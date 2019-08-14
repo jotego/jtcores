@@ -69,6 +69,7 @@ jtgng_objdma u_dma(
     .cen6       ( cen6      ),    //  6 MHz
     // screen
     .LVBL       ( LVBL      ),
+    .pause      ( 1'b0      ),
     // shared bus
     .AB         ( AB        ),
     .DB         ( DB        ),
