@@ -25,7 +25,7 @@ module jtgng_scroll #(parameter
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
     VFLIP    = 5,
     HFLIP    = 4,
-    SCANW    = 10   // Tile map bit width
+    SCANW    = 10   // Tile map bit width, normally 10 bits, 9 bits for 1942
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz

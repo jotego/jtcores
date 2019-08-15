@@ -109,9 +109,11 @@ always @(posedge clk_rom) begin
             scr_offset <= scr_offset+16'd1;
         end        
         else if(ioctl_addr < PROMADDR ) begin // objects
+            //**************************************************
             prog_mask  <= scr_offset[14] ? 2'b10 : 2'b01;
             prog_addr <= (OBJADDR>>1) + {scr_offset[15], 
-                scr_offset[13:6], ~scr_offset[5], scr_offset[4:0] };
+                scr_offset[13:0] };
+            //**************************************************
             scr_offset <= scr_offset+16'd1;
         end
         else begin // PROMs
