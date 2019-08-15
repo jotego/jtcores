@@ -52,10 +52,6 @@ reg VINZONE;
 reg [1:0] vlen;
 reg VINcmp, VINlen, Veq, Vlt; // Vgt;
 
-always @(posedge clk) if(cen6) begin
-    if(pxlcnt[2:0]==3'b0 ) V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
-end
-
 // signal aliases
 wire [7:0] next_AD    = objbuf_data0;
 wire [1:0] next_vlen  = objbuf_data1[7:6];
@@ -86,23 +82,28 @@ end
 
 reg [14:0] pre_addr;
 reg VINZONE2, VINZONE3;
-reg [8:0] posx0, posx1;
+reg [8:0] objx, posx1;
 reg [3:0] CD2;
 
-always @(posedge clk) if( cen6 ) begin
-    if( pxlcnt[3:0] == 4'd7 )begin
-        pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
-        case( next_vlen )
-            2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
-            2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
-            2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
-            2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
-        endcase
-        pre_addr[4:1] <= ~LVBETA[3:0];
-        VINZONE2 <= VINZONE;
-        posx0 <= { next_hover, next_x };
-        CD2   <= next_CD;
-    end
+localparam [3:0] DATAREAD = 4'h7;
+
+always @(posedge clk) if(cen6) begin
+    case( pxlcnt )
+        4'd0: V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
+        DATAREAD: begin
+            pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
+            case( next_vlen )
+                2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
+                2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
+                2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
+                2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
+            endcase
+            pre_addr[4:1] <= ~LVBETA[3:0];
+            VINZONE2 <= VINZONE;
+            objx <= { next_hover, next_x };
+            CD2   <= next_CD;
+        end
+    endcase
 end
 
 assign obj_addr[14:6] = pre_addr[14:6];
@@ -115,19 +116,18 @@ reg  [3:0] z,y,x,w;
 reg  [3:0] obj_wxyz;
 wire [7:0] pal_addr = { CD, obj_wxyz};
 
-wire [3:0] rom_at = 4'hc;
 
 always @(posedge clk) if(cen6) begin
     obj_wxyz <= {w[3],x[3],y[3],z[3]};
-    if( pxlcnt == (rom_at+4'h2) ) begin //
+    if( pxlcnt == (DATAREAD+4'h1) ) begin //
         CD       <= CD2;
         VINZONE3 <= VINZONE2;
+        posx1<=objx;
+    end else begin
+        posx1 <= posx1 + 9'b1;
     end
-    if( pxlcnt == rom_at+4'h2 )
-        posx1<=posx0;
-    else posx1 <= posx1 + 9'b1;
-    if( pxlcnt[1:0] == rom_at[1:0] )
-        {z,y,x,w} <= objrom_data[15:0];
+    if( pxlcnt[1:0] == DATAREAD[1:0] )
+        {z,y,x,w} <= objrom_data;
     else begin
         z <= z << 1;
         y <= y << 1;
