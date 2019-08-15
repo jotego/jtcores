@@ -142,7 +142,7 @@ wire  [14:0]  obj_addr;
 wire  [15:0]  char_data, obj_data;
 wire  [ 7:0]  main_data, snd_data;
 wire  [23:0]  scr_data;
-wire  [14:0]  scr_addr;
+wire  [13:0]  scr_addr;
 wire  [16:0]  main_addr;
 wire  [14:0]  snd_addr;
 
@@ -255,6 +255,9 @@ assign snd = 9'd0;
 assign snd_cs = 1'b0;
 `endif
 
+wire scr1_ok, scr2_ok;
+wire scr_ok = scr1_ok & scr2_ok;
+
 jt1942_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -284,6 +287,7 @@ jt1942_video u_video(
     .scr_busy   ( scr_busy      ),
     .scr_br     ( scr_br        ),
     .scr_hpos   ( scr_hpos      ),
+    .scr_ok     ( scr_ok        ),
     // OBJ
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
@@ -315,13 +319,13 @@ wire [7:0] scr_nc;
 jt1943_rom2 #(
     .snd_offset (22'h0A000),
     .char_offset(22'h0C000),
-    .scr1_offset(22'h0D000),
-    .scr2_offset(22'h0D000+22'h1000),
+    .scr1_offset(22'h1A000>>1),
+    .scr2_offset(22'h22000>>1),
     .obj_offset (22'h15000),
     .main_aw    ( 17      ),
     .snd_aw     ( 15      ),
     .char_aw    ( 12      ),
-    .scr1_aw    ( 15      ),
+    .scr1_aw    ( 14      ),
     .obj_aw     ( 15      )
 ) u_rom (
     .rst         ( rst           ),
@@ -349,11 +353,22 @@ jt1943_rom2 #(
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    ( snd_data      ),
-    .obj_dout    ( obj_data      ),
+    .obj_dout    ( { obj_data[7:0], obj_data[15:8]} ),
     .map1_dout   (               ),
     .map2_dout   (               ),
     .scr1_dout   ( scr_data[15:0] ),
     .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
+    //.scr1_dout   ( { scr_data[7:0], scr_data[15:8] } ),
+    //.scr2_dout   ( { scr_nc, scr_data[23:16]       } ),
+    
+    //.scr1_dout   ( { scr_data[23:16], scr_data[7:0] } ),
+    //.scr2_dout   ( { scr_nc, scr_data[15:8]       } ),
+    //.scr1_dout   ( { scr_data[7:0], scr_data[23:16] } ),
+    //.scr2_dout   ( { scr_nc, scr_data[15:8]       } ),
+    //.scr1_dout   ( { scr_data[15:8], scr_data[23:16] } ),
+    //.scr2_dout   ( { scr_nc, scr_data[7:0]       } ),
+    //.scr1_dout   ( { scr_data[23:16], scr_data[15:8] } ),
+    //.scr2_dout   ( { scr_nc, scr_data[7:0]       } ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface

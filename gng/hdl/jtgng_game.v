@@ -397,7 +397,7 @@ jt1943_rom2 #(
     .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( { scr_data[7:0], scr_data[15:8] } ),
+    .scr1_dout   ( scr_data[15:0]),
     .scr2_dout   ( { scr_nc, scr_data[23:16]       } ),
 
     .ready       ( rom_ready     ),

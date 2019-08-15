@@ -30,13 +30,14 @@
 module jtgng_tilemap #(parameter 
     SELBIT      = 2,
     INVERT_SCAN = 0,
-    DATAREAD    = 3'd2
+    DATAREAD    = 3'd2,
+    SCANW       = 10
 ) (
     input            clk,
     input            pxl_cen /* synthesis direct_enable = 1 */,
     input            Asel,  // This is the address bit that selects
                             // between the low and high tile map
-    input      [9:0] AB,
+    input      [SCANW-1:0] AB,
     input      [7:0] V,
     input      [7:0] H,
     input            flip,
@@ -48,7 +49,7 @@ module jtgng_tilemap #(parameter
     output reg       busy,
     // Pause screen
     input            pause,
-    output     [9:0] scan,
+    output     [SCANW-1:0] scan,
     input      [7:0] msg_low,
     input      [7:0] msg_high,
     // Current tile
@@ -58,9 +59,9 @@ module jtgng_tilemap #(parameter
 
 reg scan_sel = 1'b1;
 
-assign scan = INVERT_SCAN ? { {10{flip}}^{H[7:3],V[7:3]}} 
-        : { {10{flip}}^{V[7:3],H[7:3]}};
-reg [9:0] addr;
+assign scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}} 
+        : { {SCANW{flip}}^{V[7:3],H[7:3]}}) >> (10-SCANW);
+reg [SCANW-1:0] addr;
 reg we_low, we_high;
 wire [7:0] mem_low, mem_high;
 
@@ -102,7 +103,7 @@ always @(posedge clk) begin : mem_mux
     dout <= last_Asel ? mem_high : mem_low;
 end
 
-jtgng_ram #(.aw(10)) u_ram_low(
+jtgng_ram #(.aw(SCANW)) u_ram_low(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dlatch   ),
@@ -111,7 +112,7 @@ jtgng_ram #(.aw(10)) u_ram_low(
     .q      ( mem_low  )
 );
 
-jtgng_ram #(.aw(10)) u_ram_high(
+jtgng_ram #(.aw(SCANW)) u_ram_high(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dlatch   ),

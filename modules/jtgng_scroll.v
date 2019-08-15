@@ -24,13 +24,14 @@ module jtgng_scroll #(parameter
     IDMSB1   = 7,   // MSB of tile ID is
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
     VFLIP    = 5,
-    HFLIP    = 4
+    HFLIP    = 4,
+    SCANW    = 10   // Tile map bit width
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
     input              cpu_cen,
     input              Asel,
-    input        [9:0] AB,
+    input  [SCANW-1:0] AB,
     input        [7:0] V, // V128-V1
     input        [8:0] H, // H256-H1
     input        [8:0] hpos,
@@ -69,16 +70,19 @@ wire [7:0] dout_low, dout_high;
 
 localparam DATAREAD = 3'd1;
 
+wire [7:0] Vtilemap = SCANW==10 ? VS[8:1] : VS[7:0];
+
 jtgng_tilemap #(
-    .SELBIT     ( 1       ),
-    .INVERT_SCAN( 1       ),
-    .DATAREAD   ( DATAREAD)
+    .SELBIT     ( 1         ),
+    .INVERT_SCAN( 1         ),
+    .DATAREAD   ( DATAREAD  ),
+    .SCANW      ( SCANW     )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .Asel       ( Asel      ),
     .AB         ( AB        ),
-    .V          ( VS[8:1]   ),
+    .V          ( Vtilemap  ),
     .H          ( HS[8:1]   ),
     .flip       ( 1'b0      ),  // Flip is already done on HS and VS
     .din        ( din       ),

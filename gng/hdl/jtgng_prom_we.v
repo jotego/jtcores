@@ -96,8 +96,8 @@ always @(posedge clk) begin
             scr_offset <= 15'd0;
         end
         else if(ioctl_addr < OBJZADDR ) begin // Scroll    
-            prog_mask <= ioctl_addr[15] ? 2'b01 : 2'b10;
-            prog_addr <= SCRXADDR[21:1] +
+            prog_mask <= ioctl_addr[15] ? 2'b10 : 2'b01;
+            prog_addr <= (SCRXADDR>>1) +
                 { 6'd0, ioctl_addr[16], scr_offset }; // original bit order
             scr_offset <= scr_offset+14'd1;
             obj_offset <= 16'd0;

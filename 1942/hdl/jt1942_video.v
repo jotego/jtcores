@@ -43,10 +43,11 @@ module jt1942_video(
     input               scr_cs,
     output              scr_busy,
     output      [ 7:0]  scram_dout,
-    output      [14:0]  scr_addr,
+    output      [13:0]  scr_addr,
     input       [23:0]  scrom_data,
     input       [ 2:0]  scr_br,
     input       [ 8:0]  scr_hpos,
+    input               scr_ok,
     // OBJ
     input               obj_cs,
     input               HINIT,
@@ -76,7 +77,7 @@ module jt1942_video(
 wire [3:0] char_pxl, obj_pxl;
 wire [5:0] scr_pxl;
 
-localparam scrchr_off = 8'd4;
+localparam scrchr_off = 8'd0;
 
 `ifndef NOCHAR
 wire [7:0] char_msg_low;
@@ -156,7 +157,8 @@ jtgng_scroll #(
     .IDMSB0  ( 7),
     .VFLIP   ( 6),
     .HFLIP   ( 5),
-    .PALW    ( 5)
+    .PALW    ( 5),
+    .SCANW   ( 9)
 ) u_scroll (
     .clk          ( clk           ),
     .pxl_cen      ( cen6          ),
@@ -168,14 +170,14 @@ jtgng_scroll #(
     .flip         ( flip          ),
     // bus arbitrion
     .Asel         ( cpu_AB[4]     ),
-    .AB           ( { cpu_AB[10:5], cpu_AB[3:0] } ),
+    .AB           ( { 1'b0, cpu_AB[9:5], cpu_AB[3:0] } ),
     .scr_cs       ( scr_cs        ),
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),
     .wr_n         ( wr_n          ),
     .busy         ( scr_busy      ),
     // ROM
-    .scr_addr     ( scr_addr[13:0]),
+    .scr_addr     ( scr_addr      ),
     .rom_data     ( scrom_data    ),
     .rom_ok       ( scr_ok        ),
     // pixel
@@ -187,9 +189,6 @@ wire [7:0] scr_pal_addr;
 assign scr_pal_addr[7] = 1'b0;
 assign scr_pal_addr[6:4] = scr_br[2:0];
 
-
-assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
-    // leave bit 14 to maintain the same ROM interface as with GnG
 // Scroll palette PROMs
 jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .clk    ( clk            ),
