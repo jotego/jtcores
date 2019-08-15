@@ -83,7 +83,7 @@ jt1942_objram u_ram(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
-    .cen3           ( cen3          ),    //  3 MHz
+    .cen3           ( cen3          ),
     // Timings
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),

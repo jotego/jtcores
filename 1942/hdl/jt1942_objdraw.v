@@ -108,7 +108,8 @@ end
 
 assign obj_addr[14:6] = pre_addr[14:6];
 assign obj_addr[ 4:1] = pre_addr[ 4:1];
-assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
+//assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
+assign { obj_addr[5], obj_addr[0] } = { pxlcnt[3]^~pxlcnt[2], ~pxlcnt[2]};
 
 // ROM data depacking
 
