@@ -103,9 +103,9 @@ always @(*) begin
         3'b10?: rom_cs = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
-                2'b00: // Part 11B
+                2'b00: // 0xC000 part 11B
                     in_cs = 1'b1;
-                2'b01:
+                2'b01: // 0xC800
                     casez(A[2:0])
                         3'b000: snd_latch_cs = 1'b1;
                         3'b100: bank_cs      = 1'b1;
