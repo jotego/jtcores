@@ -144,9 +144,9 @@ jtgng_timer u_timer(
 wire wr_n, rd_n;
 // sound
 wire sres_b;
+wire [7:0] snd_latch;
 wire [7:0] scrposv, main_ram;
 
-wire snd_latch_cs;
 wire char_wait;
 
 wire [1:0] scr1posh_cs, scr2posh_cs;
@@ -208,8 +208,8 @@ jt1943_main u_main(
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // sound
-    .sres_b       ( sres_b        ),
-    .snd_latch_cs ( snd_latch_cs  ),
+    .sres_b     ( sres_b        ),
+    .snd_latch  ( snd_latch     ),
     // CHAR
     .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),
@@ -267,26 +267,54 @@ assign cpu_dout = 'b0;
 `endif
 
 `ifndef NOSOUND
-jt1943_sound u_sound (
-    .rst            ( rst_game       ),
-    .clk            ( clk            ),
-    .cen3           ( cen3           ),
-    .cen1p5         ( cen1p5         ),
+reg  [ 7:0] snd_data;
+wire [ 7:0] snd_data0, snd_data1;
+wire [14:0] snd_addr;
+always @(posedge clk)
+    snd_data <= snd_addr[14] ? snd_data1 : snd_data0;
+
+jtgng_sound u_sound (
+    .rst            ( rst_game   ),
+    .clk            ( clk        ),
+    .cen3           ( cen3       ),
+    .cen1p5         ( cen1p5     ),
     // Interface with main CPU
-    .main_cen       ( cpu_cen        ),
-    .sres_b         ( sres_b         ),
-    .main_dout      ( cpu_dout       ),
-    .main_latch_cs  ( snd_latch_cs   ),
+    .sres_b         ( sres_b     ),
+    .snd_latch      ( snd_latch  ),
+    .snd_int        ( V[5]       ),
     // sound control
-    .enable_psg     ( enable_psg     ),
-    .enable_fm      ( enable_fm      ),
-    .snd_int        ( V[5]           ),
-    // PROM 4K
-    .prog_addr      ( prog_addr[14:0]),
-    .prom_4k_we     ( prom_4k_we     ),
-    .prom_din       ( prog_data      ),
+    .enable_psg     ( enable_psg ),
+    .enable_fm      ( enable_fm  ),
+    // ROM
+    .rom_addr       ( snd_addr   ),
+    .rom_data       ( snd_data   ),
+    .rom_cs         ( snd_cs     ),
+    .rom_ok         ( snd_ok     ),
     // sound output
-    .snd            ( snd            )
+    .ym_snd         ( snd        ),
+    .sample         ( sample     )
+);
+
+// full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
+// separated in two modules to make implementation easier
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
+    .clk    ( clk               ),
+    .cen    ( cen3              ),
+    .data   ( prog_data         ),
+    .rd_addr( snd_addr[13:0]    ),
+    .wr_addr( prog_addr[13:0]   ),
+    .we     ( prom_4k_we & !prog_addr[14] ),
+    .q      ( snd_data0         )
+);
+
+jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
+    .clk    ( clk               ),
+    .cen    ( cen3              ),
+    .data   ( prog_data         ),
+    .rd_addr( snd_addr[13:0]    ),
+    .wr_addr( prog_addr[13:0]   ),
+    .we     ( prom_4k_we & prog_addr[14]  ),
+    .q      ( snd_data1         )
 );
 `else
 assign snd = 9'd0;

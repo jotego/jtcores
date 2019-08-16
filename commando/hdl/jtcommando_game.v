@@ -158,7 +158,7 @@ jtgng_timer u_timer(
 wire RnW;
 // sound
 wire sres_b, snd_int;
-wire snd_latch_cs;
+wire [7:0] snd_latch;
 
 wire        main_cs;
 // OBJ
@@ -211,9 +211,9 @@ jtcommando_main u_main(
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // sound
-    .sres_b       ( sres_b        ),
-    .snd_latch_cs ( snd_latch_cs  ),
-    .snd_int      ( snd_int       ),
+    .sres_b     ( sres_b        ),
+    .snd_latch  ( snd_latch     ),
+    .snd_int    ( snd_int       ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -267,16 +267,14 @@ assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
-jtcommando_sound u_sound (
+jtgng_sound #(.BIGROM(0)) u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
     // Interface with main CPU
-    .main_cen       ( cpu_cen        ),
     .sres_b         ( sres_b         ),
-    .main_dout      ( cpu_dout       ),
-    .main_latch_cs  ( snd_latch_cs   ),
+    .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
     // sound control
     .enable_psg     ( 1'b1           ),
@@ -287,7 +285,7 @@ jtcommando_sound u_sound (
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .snd            ( snd            )
+    .ym_snd         ( snd            )
 );
 `else
 assign snd_addr = 15'd0;

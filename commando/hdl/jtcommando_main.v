@@ -34,10 +34,10 @@ module jtcommando_main(
     // Sound
     output  reg        sres_b, // sound reset
     output  reg        snd_int,
-    output  reg        snd_latch_cs,
+    output  reg  [7:0] snd_latch,
     // Characters
-    input              [7:0] char_dout,
-    output             [7:0] cpu_dout,
+    input        [7:0] char_dout,
+    output       [7:0] cpu_dout,
     output  reg        char_cs,
     input              char_busy,
     // scroll
@@ -77,7 +77,7 @@ module jtcommando_main(
 
 wire [15:0] A;
 wire t80_rst_n;
-reg in_cs, ram_cs, misc_cs, scrpos_cs, gfxen_cs;
+reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
 reg SECWR_cs;
 wire rd_n, wr_n;
 
@@ -146,6 +146,9 @@ always @(posedge clk)
         if( misc_cs  && !wr_n ) begin
             flip     <= cpu_dout[7];
             sres_b   <= ~cpu_dout[4]; // inverted through NPN
+        end
+        if( snd_latch_cs && !wr_n ) begin
+            snd_latch <= cpu_dout;
         end
     end
 

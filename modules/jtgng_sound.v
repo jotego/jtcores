@@ -24,13 +24,13 @@ module jtgng_sound(
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
-    input           V32,
+    input           snd_int,
     // Sound control
     input   enable_psg,
     input   enable_fm,
     // ROM
     output  [14:0]  rom_addr,
-    output          rom_cs,
+    output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
 
@@ -39,29 +39,66 @@ module jtgng_sound(
     output  sample
 );
 
+parameter BIGROM=1;
+
 wire [15:0] A;
 assign rom_addr = A[14:0];
 
-reg reset_n=1'b0;
+reg fm1_cs,fm0_cs, latch_cs, ram_cs;
+// reg [4:0] map_cs;
+// 
+// assign { rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs } = map_cs;
+// 
+// reg [7:0] AH;
+// 
+// always @(*)
+//     casez(A[15:11])
+//         5'b0???_?: map_cs = 5'h10; // 0000-7FFF, ROM
+//         5'b1100_0: map_cs = 5'h1;  // C000-C7FF, RAM
+//         5'b1100_1: map_cs = 5'h2;  // C800-C8FF, Sound latch
+//         5'b1110_0: map_cs = A[1] ? 5'h8 : 5'h4; // E000-E0FF, Yamaha
+//         default: map_cs = 5'h0;
+//     endcase
 
-always @(posedge clk) if(cen3)
-    reset_n <= ~( rst | ~sres_b );
+wire mreq_n, rfsh_n;
 
-wire fm1_cs,fm0_cs, latch_cs, ram_cs;
-reg [4:0] map_cs;
-
-assign { rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs } = map_cs;
-
-reg [7:0] AH;
-
-always @(*)
-    casez(A[15:11])
-        5'b0???_?: map_cs = 5'h10; // 0000-7FFF, ROM
-        5'b1100_0: map_cs = 5'h1;  // C000-C7FF, RAM
-        5'b1100_1: map_cs = 5'h2;  // C800-C8FF, Sound latch
-        5'b1110_0: map_cs = A[1] ? 5'h8 : 5'h4; // E000-E0FF, Yamaha
-        default: map_cs = 5'h0;
-    endcase
+always @(*) begin
+    rom_cs   = 1'b0;
+    ram_cs   = 1'b0;
+    latch_cs = 1'b0;
+    fm0_cs   = 1'b0;
+    fm1_cs   = 1'b0;
+    if( rfsh_n && !mreq_n) 
+        if( BIGROM ) begin
+            // Memory map for: GnG, Gun Smoke, 1943
+            casez(A[15:13])
+                3'b0??: rom_cs   = 1'b1;
+                3'b110: if(A[11])
+                            latch_cs = 1'b1;
+                        else
+                            ram_cs   = 1'b1;
+                        // 1943 has the security device mapped at A[12:11]==2'b11
+                        // but it doesn't use it at all. So I am leaving it out.
+                3'b111: begin
+                    fm0_cs = ~A[1];
+                    fm1_cs =  A[1];
+                end
+                default:;
+            endcase
+        end else begin
+            // Memory map for Commando
+            casez(A[15:13])
+                3'b00?: rom_cs   = 1'b1;
+                3'b010: ram_cs   = 1'b1;
+                3'b011: latch_cs = 1'b1;
+                3'b100: begin
+                    fm0_cs = ~A[1];
+                    fm1_cs =  A[1];
+                end
+                default:;
+            endcase
+        end
+end
 
 
 wire rd_n;
@@ -82,96 +119,97 @@ jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
 reg [7:0] din;
 
 always @(*)
-    case( {latch_cs, rom_cs,ram_cs } )
-        3'b1_00:  din = snd_latch;
-        3'b0_10:  din = rom_data;
-        3'b0_01:  din = ram_dout;
-        default:  din = 8'd0;
+    case( 1'b1 )
+        // Real hardware cannot read data from FM chips:
+        // fm1_cs:   din = fm1_dout;
+        // fm0_cs:   din = fm0_dout;
+        latch_cs: din = snd_latch;
+        ram_cs:   din = ram_dout;
+        default:  din = rom_data;
     endcase // {latch_cs,rom_cs,ram_cs}
 
-    reg int_n;
-
-reg lastV32;
-reg [4:0] int_n2;
-
+// posedge of snd_int
+reg snd_int_last;
+wire snd_int_edge = !snd_int_last && snd_int;
 always @(posedge clk) if(cen3) begin
-    lastV32 <= V32;
-    if ( !V32 && lastV32 ) begin
-        { int_n, int_n2 } <= 6'b0;
-    end
-    else begin
-        if( ~&int_n2 )
-            int_n2 <= int_n2+5'd1;
-        else
-            int_n <= 1'b1;
-    end
+    snd_int_last <= snd_int;
 end
 
-reg last_rom_cs, rom_lock;
+reg reset_n=1'b0;
+
+// interrupt latch
+reg int_n;
+wire iorq_n;
+always @(posedge clk or negedge reset_n)
+    if( !reset_n ) int_n <= 1'b1;
+    else if(cen3) begin
+        if(!iorq_n) int_n <= 1'b1;
+        else if( snd_int_edge ) int_n <= 1'b0;
+    end
+
+// local reset
+reg [3:0] rst_cnt;
+
+always @(negedge clk)
+    if( rst | ~sres_b ) begin
+        rst_cnt <= 'd0;
+        reset_n <= 1'b0;
+    end else begin
+        if( rst_cnt != ~4'b0 ) begin
+            reset_n <= 1'b0;
+            rst_cnt <= rst_cnt + 4'd1;
+        end else reset_n <= 1'b1;
+    end
+
+// Wait_n generation
+
+reg [1:0] fm_wait;
 reg wait_n;
+wire fmx_cs = fm0_cs|fm1_cs;
+reg last_fmx_cs;
+wire fmx_cs_posedge = !last_fmx_cs && fmx_cs;
+wire fm_lock = |fm_wait;
+
+always @(posedge clk or negedge reset_n)
+    if( !reset_n ) begin
+        fm_wait  <= 2'b11;
+    end else if(cen3) begin
+        fm_wait  <= {  fm_wait[0], fmx_cs_posedge };
+    end // else if(cen3)
+
+reg last_rom_cs, rom_lock;
 
 always @(posedge clk or negedge reset_n)
     if( !reset_n )
         wait_n <= 1'b1;
     else begin
+        last_fmx_cs <= fmx_cs;
         last_rom_cs <= rom_cs;
         if( rom_cs && !last_rom_cs ) rom_lock <= 1'b1;
         if( rom_ok ) rom_lock <= 1'b0;
-        wait_n <= !rom_lock;
+        wait_n <= !fm_lock && !rom_lock;
     end
 
-`ifdef SIMULATION
-tv80s #(.Mode(0)) u_cpu (
-    .reset_n(reset_n ),
-    .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (cen3    ),
-    .wait_n (wait_n  ),
-    .int_n  (int_n   ),
-    .nmi_n  (1'b1    ),
-    .busrq_n(1'b1    ),
-    .rd_n   (rd_n    ),
-    .wr_n   (wr_n    ),
-    .A      (A       ),
-    .di     (din     ),
-    .dout   (dout    ),
-    // unused
-    .iorq_n (),
-    .mreq_n (),
-    .m1_n   (),
-    .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
+jtframe_z80 u_cpu(
+    .rst_n      ( reset_n     ),
+    .clk        ( clk         ),
+    .cen        ( cen3        ),
+    .wait_n     ( wait_n      ),
+    .int_n      ( int_n       ),
+    .nmi_n      ( 1'b1        ),
+    .busrq_n    ( 1'b1        ),
+    .m1_n       (             ),
+    .mreq_n     ( mreq_n      ),
+    .iorq_n     (             ),
+    .rd_n       ( rd_n        ),
+    .wr_n       ( wr_n        ),
+    .rfsh_n     ( rfsh_n      ),
+    .halt_n     (             ),
+    .busak_n    (             ),
+    .A          ( A           ),
+    .din        ( din         ),
+    .dout       ( dout        )
 );
-`else
-T80pa u_cpu(
-    .RESET_n    ( reset_n ),
-    .CLK        ( clk     ),
-    .CEN_p      ( cen3    ),
-    .CEN_n      ( 1'b1    ),
-    .WAIT_n     ( 1'b1    ),
-    .INT_n      ( int_n   ),
-    .NMI_n      ( 1'b1    ),
-    .BUSRQ_n    ( 1'b1    ),
-    .RD_n       ( rd_n    ),
-    .WR_n       ( wr_n    ),
-    .A          ( A       ),
-    .DI         ( din     ),
-    .DO         ( dout    ),
-    // unused
-    .DIRSET     ( 1'b0    ),
-    .DIR        ( 212'b0  ),
-    .OUT0       ( 1'b0    ),
-    .RFSH_n     (),
-    .IORQ       (),
-    .M1_n       (),
-    .BUSAK_n    (),
-    .HALT_n     (),
-    .MREQ_n     (),
-    .Stop       (),
-    .REG        ()
-);
-`endif
-
 
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;

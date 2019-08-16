@@ -32,7 +32,7 @@ module jt1943_main(
     input              LVBL,
     // Sound
     output  reg        sres_b, // sound reset
-    output  reg        snd_latch_cs,
+    output  reg [7:0]  snd_latch,
     // Characters
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
@@ -77,7 +77,7 @@ module jt1943_main(
 
 wire [15:0] A;
 wire t80_rst_n;
-reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
+reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
 reg SECWR_cs;
 
 wire mreq_n, rfsh_n, busak_n;
@@ -156,6 +156,7 @@ always @(posedge clk)
                     $display("INFO: Bank changed to %d", cpu_dout[4:2]);
             `endif
         end
+        if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) scrposv <= cpu_dout;
         if( gfxen_cs ) begin
             {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];

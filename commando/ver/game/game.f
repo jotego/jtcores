@@ -1,6 +1,5 @@
 ../../hdl/jtcommando_game.v
 ../../hdl/jtcommando_main.v
-../../hdl/jtcommando_sound.v
 ../../hdl/jtcommando_video.v
 ../../hdl/jtcommando_colmix.v
 ../../hdl/jtcommando_prom_we.v
@@ -12,6 +11,7 @@
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
+../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_tilemap.v
@@ -23,5 +23,6 @@
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_dual_ram.v
+../../../modules/jtgng_sound.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_true_dual_ram.v

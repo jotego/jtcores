@@ -8,15 +8,16 @@
 ../../hdl/jt1943_romrq.v
 ../../hdl/jt1943_scroll.v
 ../../hdl/jt1943_security.v
-../../hdl/jt1943_sound.v
 ../../hdl/jt1943_video.v
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
+../../../modules/jtgng_sound.v
 ../../../modules/jtgng_objbuf.v
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objpxl.v

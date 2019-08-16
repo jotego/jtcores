@@ -270,12 +270,14 @@ assign cpu_cen     = cen3;
 `ifndef NOSOUND
 jtgng_sound u_sound (
     .rst            ( rst_game   ),
-    .sres_b         ( sres_b     ),
     .clk            ( clk        ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),
+    // Interface with main CPU
+    .sres_b         ( sres_b     ),
     .snd_latch      ( snd_latch  ),
-    .V32            ( V[5]       ),
+    .snd_int        ( V[5]       ),
+    // sound control
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
     // ROM
