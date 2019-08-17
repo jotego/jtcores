@@ -114,8 +114,8 @@ jtgng_char #(.HOFFSET(chr_off)) u_char (
     .rom_data   ( chrom_data    ),
     .rom_ok     ( char_ok       ),
     // Pixel output
-    .char_col   ( char_pxl[1:0] ),
-    .char_pal   ( char_pxl[5:2] )
+    .char_on    ( 1'b1          ),
+    .char_pxl   ( char_pxl      )
 );
 
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(

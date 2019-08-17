@@ -30,7 +30,9 @@ module jtgng_char #(parameter
     VFLIP    = 5,
     HFLIP    = 4,
     VFLIP_EN = 1, // 1 for enable VFLIP bit
-    HFLIP_EN = 1  // 1 for enable HFLIP bit
+    HFLIP_EN = 1, // 1 for enable HFLIP bit
+    PALETTE  = 0, // 1 if the palette PROM is used
+    PALETTE_SIMFILE = "../../../rom/1943/bm5.7f" // only for simulation
 ) (
     input            clk,
     input            pxl_cen  /* synthesis direct_enable = 1 */,
@@ -50,13 +52,24 @@ module jtgng_char #(parameter
     output  [ 9:0]   scan,
     input   [ 7:0]   msg_low,
     input   [ 7:0]   msg_high,
+    // PROM access
+    input   [ 7:0]   prog_addr,
+    input   [ 3:0]   prog_din,
+    input            prom_we,
     // ROM
     output reg [ROM_AW-1:0] char_addr,
     input      [15:0]       rom_data,
     input                   rom_ok,
-    output reg [PALW-1:0]   char_pal,
-    output reg [     1:0]   char_col
+    // Output pixel
+    input                   char_on,    // low makes the output FF
+    output reg [ (PALETTE?3:PALW+1):0] char_pxl
 );
+
+localparam CHARW = PALETTE?4:PALW+2;
+
+reg [PALW-1:0] char_pal;
+reg [     1:0] char_col;
+
 
 wire [7:0] dout_low, dout_high;
 wire [7:0] Hfix = H + HOFFSET; // Corrects pixel output offset
@@ -146,5 +159,26 @@ always @(posedge clk) if(pxl_cen) begin
     char_col <= char_hflip ? { chd[0], chd[4] } : { chd[3], chd[7] };
     char_pal <= char_attr2;
 end
+
+generate
+    if( PALETTE==0 ) begin
+        // Add the same delay as if there was a palette PROM
+        always @(posedge clk) if(pxl_cen)
+            char_pxl <= (char_on|pause) ? {char_pal, char_col} : {CHARW{1'b1}};
+    end else begin
+        wire [7:0] colour_addr = { {6-PALW{1'b0}}, char_pal, char_col };
+        wire [3:0] prom_data;
+        jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_SIMFILE)) u_vprom(
+            .clk    ( clk            ),
+            .cen    ( pxl_cen        ),
+            .data   ( prog_din       ),
+            .rd_addr( colour_addr    ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_we        ),
+            .q      ( prom_data      )
+        );
+        always @(*) char_pxl = (char_on|pause) ? prom_data : 4'hF;
+    end
+endgenerate
 
 endmodule // jtgng_char

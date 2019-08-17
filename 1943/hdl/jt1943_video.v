@@ -127,7 +127,9 @@ jtgng_char #(
     .IDMSB0  ( 5),
     .PALW    ( 5),
     .VFLIP_EN( 0),
-    .HFLIP_EN( 0)    // 1942 does not have character H flip
+    .HFLIP_EN( 0),   // 1942 does not have character H flip
+    .PALETTE ( 1),
+    .PALETTE_SIMFILE("../../../rom/1943/bm5.7f")
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -147,29 +149,33 @@ jtgng_char #(
     .scan       ( char_scan     ),
     .msg_low    ( char_msg_low  ),
     .msg_high   ( char_msg_high ),    
+    // PROM access
+    .prog_addr  ( prog_addr     ),
+    .prog_din   ( prog_din      ),
+    .prom_we    ( prom_7f_we    ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
-    .char_col   ( char_col      ),
-    .char_pal   ( char_pal      )
+    .char_on    ( CHON          ),
+    .char_pxl   ( char_pxl      )
 );
 
 // palette ROM
-wire [7:0] char_prom_addr = {1'b0, char_pal,char_col };
-wire [3:0] char_prom_data;
-assign char_pxl = (CHON | pause) ? char_prom_data : 4'hF;
-
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prog_din       ),
-    .rd_addr( char_prom_addr ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_7f_we     ),
-    .q      ( char_prom_data )
-);
+// wire [7:0] char_prom_addr = {1'b0, char_pal,char_col };
+// wire [3:0] char_prom_data;
+// assign char_pxl = (CHON | pause) ? char_prom_data : 4'hF;
+// 
+// jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
+//     .clk    ( clk            ),
+//     .cen    ( cen6           ),
+//     .data   ( prog_din       ),
+//     .rd_addr( char_prom_addr ),
+//     .wr_addr( prog_addr      ),
+//     .we     ( prom_7f_we     ),
+//     .q      ( char_prom_data )
+// );
 
 `else
 assign char_wait_n = 1'b1;
