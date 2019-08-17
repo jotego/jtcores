@@ -28,6 +28,8 @@ module jtgng_sound(
     // Sound control
     input   enable_psg,
     input   enable_fm,
+    input   [7:0]   psg_gain,
+    input   [7:0]    fm_gain,
     // ROM
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
@@ -200,7 +202,7 @@ jtframe_z80 u_cpu(
     .busrq_n    ( 1'b1        ),
     .m1_n       (             ),
     .mreq_n     ( mreq_n      ),
-    .iorq_n     (             ),
+    .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
     .rfsh_n     ( rfsh_n      ),
@@ -228,8 +230,8 @@ jt49_dcrm2 #(.sw(11)) u_dcrm (
     .dout   (  psg2x  )
 );
 
-wire signed [7:0] psg_gain = enable_psg ? 8'hd0 : 8'h0;
-wire signed [7:0]  fm_gain = enable_fm  ? 8'h06 : 8'h0;
+wire signed [7:0] psg_gain2 = enable_psg ? psg_gain : 8'h0;
+wire signed [7:0]  fm_gain2 = enable_fm  ?  fm_gain : 8'h0;
 
 jt12_mixer #(.w0(16),.w1(16),.w2(13),.w3(8),.wout(16)) u_mixer(
     .clk    ( clk          ),

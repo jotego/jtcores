@@ -280,6 +280,8 @@ jtgng_sound u_sound (
     // sound control
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
+    .psg_gain       ( 8'hD8      ),
+    .fm_gain        ( 8'h08      ),
     // ROM
     .rom_addr       ( snd_addr   ),
     .rom_data       ( snd_data   ),
