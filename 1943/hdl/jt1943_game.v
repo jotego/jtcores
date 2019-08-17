@@ -291,7 +291,7 @@ jtgng_sound u_sound (
     .rom_addr       ( snd_addr   ),
     .rom_data       ( snd_data   ),
     .rom_cs         ( snd_cs     ),
-    .rom_ok         ( snd_ok     ),
+    .rom_ok         ( 1'b1       ),
     // sound output
     .ym_snd         ( snd        ),
     .sample         ( sample     )

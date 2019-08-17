@@ -86,7 +86,6 @@ jtgng_objdma u_dma(
 jtgng_objbuf u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen12          ( cen12         ),
     .cen6           ( cen6          ),    //  6 MHz
     // screen
     .HINIT          ( HINIT         ),

@@ -19,7 +19,6 @@
 module jtgng_objbuf(
     input               rst,
     input               clk,     // 24 MHz
-    input               cen12,
     input               cen6,    //  6 MHz
     // screen
     input               HINIT,
@@ -128,7 +127,7 @@ reg [6:0] address_a, address_b;
 reg we_a, we_b;
 reg [7:0] data_a, data_b;
 
-always @(posedge clk) if(cen12) begin
+always @(*) begin
     if( line == lineA ) begin
         address_a = { post_scan, pre_scan[1:0] };
         address_b = hscan;
@@ -147,7 +146,7 @@ always @(posedge clk) if(cen12) begin
     end
 end
 
-jtgng_ram #(.aw(7),.simfile("obj_buf.hex"),.cen_rd(0)) objbuf_a(
+jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
     .clk   ( clk       ),
     .cen   ( cen6      ),
     .addr  ( address_a ),
@@ -156,7 +155,7 @@ jtgng_ram #(.aw(7),.simfile("obj_buf.hex"),.cen_rd(0)) objbuf_a(
     .q     ( q_a       )
 );
 
-jtgng_ram #(.aw(7),.simfile("obj_buf.hex"),.cen_rd(0)) objbuf_b(
+jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_b(
     .clk   ( clk       ),
     .cen   ( cen6      ),
     .addr  ( address_b ),
