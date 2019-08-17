@@ -298,7 +298,14 @@ assign snd      = 16'b0;
 wire scr1_ok, scr2_ok, char_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
-jtcommando_video u_video(
+jtgng_video #(
+    .OBJ_PAL      (2'b10),
+    .PALETTE_PROM (1),
+    .SCRWIN       (0),
+    .PALETTE_RED  ("../../../rom/commando/vtb1.1d"),
+    .PALETTE_GREEN("../../../rom/commando/vtb2.2d"),
+    .PALETTE_BLUE ("../../../rom/commando/vtb3.3d")
+) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
@@ -316,12 +323,12 @@ jtcommando_video u_video(
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
     .char_addr  ( char_addr     ),
-    .chrom_data ( char_data     ),
+    .char_data  ( char_data     ),
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scram_dout ( scr_dout      ),
+    .scr_dout   ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_busy   ( scr_busy      ),
@@ -339,11 +346,11 @@ jtcommando_video u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // PROMs
-    .prog_addr  ( prog_addr[7:0]),
-    .prom_1d_we ( prom_1d       ),
-    .prom_2d_we ( prom_2d       ),
-    .prom_3d_we ( prom_3d       ),
-    .prom_din   ( prog_data[3:0]),
+    .prog_addr    ( prog_addr[7:0]),
+    .prom_red_we  ( prom_1d       ),
+    .prom_green_we( prom_2d       ),
+    .prom_blue_we ( prom_3d       ),
+    .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),

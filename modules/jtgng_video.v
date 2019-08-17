@@ -39,7 +39,7 @@ module jtgng_video(
     input       [15:0]  char_data,
     // SCROLL - ROM
     input               scr_cs,
-    output      [ 7:0]  scram_dout,
+    output      [ 7:0]  scr_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scr_data,
     input               scr_ok,
@@ -63,6 +63,12 @@ module jtgng_video(
     input               LHBL,
     input               LHBL_obj,
     output              LHBL_dly,
+    // Palette PROMs
+    input       [7:0]   prog_addr,
+    input               prom_red_we,
+    input               prom_green_we,
+    input               prom_blue_we,
+    input       [3:0]   prom_din,  
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -73,8 +79,17 @@ module jtgng_video(
     output      [3:0]   blue
 );
 
-wire [3:0] char_pal;
-wire [1:0] char_col;
+// parameters from jtgng_colmix:
+parameter SCRWIN        = 1,
+          PALETTE_PROM  = 0,
+          PALETTE_RED   = "",
+          PALETTE_GREEN = "",
+          PALETTE_BLUE  = "";
+parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
+    // These two bits mark the region of the palette RAM/PROM where
+    // palettes for objects are stored
+
+wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
 wire scrwin;
 wire [2:0] scr_col;
@@ -115,7 +130,7 @@ jtgng_char #(.HOFFSET(char_off)) u_char (
     .rom_ok     ( char_ok       ),
     // Pixel output
     .char_on    ( 1'b1          ),
-    .char_pxl   ( {char_pal, char_col} )
+    .char_pxl   ( char_pxl      )
 );
 
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
@@ -146,7 +161,7 @@ jtgng_scroll #(.HOFFSET(char_off)) u_scroll (
     .AB         ( cpu_AB[9:0]   ),
     .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
-    .dout       ( scram_dout    ),
+    .dout       ( scr_dout      ),
     .wr_n       ( RnW           ),
     .busy       ( scr_busy      ),
     // ROM
@@ -163,42 +178,7 @@ assign scr_col    = 3'd0;
 assign scr_pal    = 3'd0;
 assign scrwin     = 1'd0;
 assign scr_addr   = 15'd0;
-assign scram_dout = 8'd0;
-`endif
-
-`ifndef NOCOLMIX
-jtgng_colmix u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
-    // characters
-    .chr_col    ( char_col      ),
-    .chr_pal    ( char_pal      ),
-    // scroll
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( scr_pal       ),
-    .scrwin     ( scrwin        ),
-    // objects
-    .obj_pxl    ( obj_pxl       ),
-    // DEBUG
-    .gfx_en     ( gfx_en        ),
-    // CPU interface
-    .AB         ( cpu_AB[7:0]   ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
-    .DB         ( cpu_dout      ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
-);
-`else
-assign  red = 4'd0;
-assign blue = 4'd0;
-assign green= 4'd0;
+assign scr_dout   = 8'd0;
 `endif
 
 jtgng_obj u_obj (
@@ -226,5 +206,53 @@ jtgng_obj u_obj (
     // pixel data
     .obj_pxl    ( obj_pxl     )
 );
+
+`ifndef NOCOLMIX
+jtgng_colmix #(
+    .SCRWIN       ( SCRWIN       ),
+    .OBJ_PAL      ( OBJ_PAL      ),
+    .PALETTE_PROM ( PALETTE_PROM ),
+    .PALETTE_RED  ( PALETTE_RED  ),
+    .PALETTE_GREEN( PALETTE_GREEN),
+    .PALETTE_BLUE ( PALETTE_BLUE )
+)u_colmix (
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen12      ( cen12         ),
+    .cen6       ( cen6          ),
+
+    .char_pxl   ( char_pxl      ),
+    .scr_pxl    ( {scrwin, scr_pal, scr_col} ),
+    .obj_pxl    ( obj_pxl       ),
+    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL          ),
+    .LHBL_dly   ( LHBL_dly      ),
+
+    // PROMs
+    .prog_addr    ( prog_addr     ),
+    .prom_red_we  ( prom_red_we   ),
+    .prom_green_we( prom_green_we ),
+    .prom_blue_we ( prom_blue_we  ),
+    .prom_din     ( prom_din      ),    
+
+    // DEBUG
+    .gfx_en     ( gfx_en        ),
+
+    // CPU interface
+    .AB         ( cpu_AB[7:0]   ),
+    .blue_cs    ( blue_cs       ),
+    .redgreen_cs( redgreen_cs   ),
+    .DB         ( cpu_dout      ),
+
+    // colour output
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          )
+);
+`else
+assign  red = 4'd0;
+assign blue = 4'd0;
+assign green= 4'd0;
+`endif
 
 endmodule // jtgng_video

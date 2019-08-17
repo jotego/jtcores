@@ -1,10 +1,10 @@
 ../../hdl/jtgng_colmix.v
 ../../hdl/jtgng_game.v
 ../../hdl/jtgng_main.v
-../../hdl/jtgng_video.v
 ../../hdl/jtgng_prom_we.v
 ../../../1943/hdl/jt1943_rom2.v
 ../../../1943/hdl/jt1943_romrq.v
+../../../modules/jtgng_video.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_tilemap.v
 ../../../modules/jtgng_obj.v

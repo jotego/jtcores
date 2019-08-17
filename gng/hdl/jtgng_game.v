@@ -324,7 +324,7 @@ jtgng_video u_video(
     .char_ok    ( char_ok       ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
-    .scram_dout ( scr_dout      ),
+    .scr_dout   ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_busy   ( scr_busy      ),

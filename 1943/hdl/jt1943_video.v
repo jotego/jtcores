@@ -162,21 +162,14 @@ jtgng_char #(
     .char_pxl   ( char_pxl      )
 );
 
-// palette ROM
-// wire [7:0] char_prom_addr = {1'b0, char_pal,char_col };
-// wire [3:0] char_prom_data;
-// assign char_pxl = (CHON | pause) ? char_prom_data : 4'hF;
-// 
-// jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm5.7f")) u_vprom(
-//     .clk    ( clk            ),
-//     .cen    ( cen6           ),
-//     .data   ( prog_din       ),
-//     .rd_addr( char_prom_addr ),
-//     .wr_addr( prog_addr      ),
-//     .we     ( prom_7f_we     ),
-//     .q      ( char_prom_data )
-// );
-
+jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+    .clk    ( clk          ),
+    .cen    ( cen6         ),
+    .data   ( 8'd0         ),
+    .addr   ( char_scan    ),
+    .we     ( 1'b0         ),
+    .q      ( char_msg_low )
+);
 `else
 assign char_wait_n = 1'b1;
 assign char_pxl = 4'hf;
