@@ -63,6 +63,7 @@ module jtgng_video(
     input               LHBL,
     input               LHBL_obj,
     output              LHBL_dly,
+    output              LVBL_dly,
     // Palette PROMs
     input       [7:0]   prog_addr,
     input               prom_red_we,
@@ -96,16 +97,13 @@ wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
 
-// same offset for CHAR and SCR
-localparam char_off = 8'd0;
-
 `ifndef NOCHAR
 
 wire [7:0] char_msg_low;
 wire [7:0] char_msg_high = 8'h2;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(char_off)) u_char (
+jtgng_char #(.HOFFSET(1)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -146,7 +144,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.HOFFSET(char_off)) u_scroll (
+jtgng_scroll #(.HOFFSET(0)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -227,6 +225,7 @@ jtgng_colmix #(
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
     .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
 
     // PROMs
     .prog_addr    ( prog_addr     ),

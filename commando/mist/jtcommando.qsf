@@ -197,6 +197,8 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_D
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQMH
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[0]
 set_global_assignment -name VERILOG_MACRO "MIST=<None>"
+set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
+set_global_assignment -name VERILOG_MACRO "JTFRAME_SCAN2X=<None>"
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll1.qip
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll0.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../hdl/jtcommando_mist.sv
@@ -204,6 +206,7 @@ set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mist/mist.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
+set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtframe_scan2x.v
 set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
 set_global_assignment -name QIP_FILE ../hdl/jtcommando.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/jt49/hdl/jt49.qip

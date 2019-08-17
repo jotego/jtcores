@@ -109,7 +109,7 @@ wire          prog_we;
 wire [ 3:0]   red, green, blue;
 
 wire sdram_req, sdram_sync;
-wire LHBL, LVBL;
+wire LHBL, LVBL, LHBL_dly;
 wire signed [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
@@ -138,28 +138,46 @@ jtgng_pll1 u_pll_vga (
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
 
-jtgng_vga u_scandoubler (
-    .clk_rgb    ( clk_sys       ),
-    .cen6       ( cen6          ), //  6 MHz
-    .clk_vga    ( clk_vga       ), // 25 MHz
-    .rst        ( rst           ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .en_mixing  ( en_mixing     ),
-    .vga_red    ( vga_r[5:1]    ),
-    .vga_green  ( vga_g[5:1]    ),
-    .vga_blue   ( vga_b[5:1]    ),
-    .vga_hsync  ( vga_hsync     ),
-    .vga_vsync  ( vga_vsync     )
-);
+// jtgng_vga u_scandoubler (
+//     .clk_rgb    ( clk_sys       ),
+//     .cen6       ( cen6          ), //  6 MHz
+//     .clk_vga    ( clk_vga       ), // 25 MHz
+//     .rst        ( rst           ),
+//     .red        ( red           ),
+//     .green      ( green         ),
+//     .blue       ( blue          ),
+//     .LHBL       ( LHBL_dly      ),
+//     .LVBL       ( LVBL          ),
+//     .en_mixing  ( en_mixing     ),
+//     .vga_red    ( vga_r[5:1]    ),
+//     .vga_green  ( vga_g[5:1]    ),
+//     .vga_blue   ( vga_b[5:1]    ),
+//     .vga_hsync  ( vga_hsync     ),
+//     .vga_vsync  ( vga_vsync     )
+// );
+// 
+// // convert 5-bit colour to 6-bit colour
+// assign vga_r[0] = vga_r[5];
+// assign vga_g[0] = vga_g[5];
+// assign vga_b[0] = vga_b[5];
 
-// convert 5-bit colour to 6-bit colour
-assign vga_r[0] = vga_r[5];
-assign vga_g[0] = vga_g[5];
-assign vga_b[0] = vga_b[5];
+wire [11:0] rgbx2;
+wire rst_n;
+
+jtframe_scan2x #(.DW(12), .HLEN(384)) u_scan2x(
+    .rst_n      ( rst_n     ),
+    .clk        ( clk_sys   ),
+    .base_cen   ( cen6      ),
+    .basex2_cen ( cen12     ),
+    .base_pxl   ( {red, green, blue } ),
+    .x2_pxl     ( rgbx2     ),
+    .HS         ( hs        ),
+    .x2_HS      ( vga_hsync )
+);
+assign vga_vsync = vs;
+assign vga_r = { rgbx2[11:8], rgbx2[11:10] };
+assign vga_g = { rgbx2[ 7:4], rgbx2[ 7: 6] };
+assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
@@ -181,7 +199,7 @@ u_frame(
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
-    .LHBL           ( LHBL           ),
+    .LHBL           ( LHBL_dly       ),
     .LVBL           ( LVBL           ),
     .hs             ( hs             ),
     .vs             ( vs             ),
@@ -236,7 +254,7 @@ u_frame(
     .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
-    .rst_n          (                ), // unused
+    .rst_n          ( rst_n          ), // unused
     .game_rst       ( game_rst       ),
     .game_rst_n     (                ),
     // reset forcing signals:
@@ -269,6 +287,7 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .green       ( green         ),
     .blue        ( blue          ),
     .LHBL        ( LHBL          ),
+    .LHBL_dly    ( LHBL_dly      ),
     .LVBL        ( LVBL          ),
     .HS          ( hs            ),
     .VS          ( vs            ),

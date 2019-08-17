@@ -28,8 +28,8 @@ module jtcommando_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
+    output          LHBL_dly,
+    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -68,6 +68,8 @@ module jtcommando_game(
     // Sound output
     output  signed [15:0] snd,
     output          sample,
+    input           enable_psg,
+    input           enable_fm,
     // Debug
     input   [3:0]   gfx_en
 );
@@ -277,8 +279,8 @@ jtgng_sound #(.BIGROM(0)) u_sound (
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
     // sound control
-    .enable_psg     ( 1'b1           ),
-    .enable_fm      ( 1'b1           ),
+    .enable_psg     ( enable_psg     ),
+    .enable_fm      ( enable_fm      ),
     .psg_gain       ( 8'h78          ),
     .fm_gain        ( 8'h10          ),
     // ROM
@@ -353,9 +355,11 @@ jtgng_video #(
     .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
+    .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

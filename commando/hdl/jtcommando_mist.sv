@@ -67,6 +67,8 @@ localparam CONF_STR = {
         "O2,Difficulty,Normal,Hard;", // 42
         "O34,Start level,1,5,3,7;", // 20
         "O56,Lives,3,4,2,5;", // 20
+        "O7,PSG ,ON,OFF;", // 15
+        "O8,FM  ,ON,OFF;", // 15
         "O9,Screen filter,ON,OFF;", // 24
         "OB,Flip screen,OFF,ON;", // 22
         "TF,Reset;", // 9
@@ -99,6 +101,7 @@ wire [1:0]    dip_lives  = ~status[6:5];
 wire [1:0]    dip_price1 = 2'b00;
 wire [1:0]    dip_price2 = 2'b11;
 wire          dip_flip   = status[11];
+wire          enable_psg = ~status[7], enable_fm = ~status[8];
 wire          en_mixing  = ~status[9];
 
 wire [21:0]   prog_addr;
@@ -119,10 +122,6 @@ wire [3:0] gfx_en;
 wire data_rdy, sdram_ack;
 wire refresh_en;
 
-reg LHBL_dly;
-always @(posedge clk_sys)
-    if(cen6) LHBL_dly <= LHBL;
-
 // 48 MHz clock, original PCB was 6 MHz
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
@@ -141,6 +140,7 @@ jtgng_pll1 u_pll_vga (
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
 
+`ifndef JTFRAME_SCAN2X
 jtgng_vga u_scandoubler (
     .clk_rgb    ( clk_sys       ),
     .cen6       ( cen6          ), //  6 MHz
@@ -163,6 +163,25 @@ jtgng_vga u_scandoubler (
 assign vga_r[0] = vga_r[5];
 assign vga_g[0] = vga_g[5];
 assign vga_b[0] = vga_b[5];
+`else
+wire [11:0] rgbx2;
+wire rst_n;
+
+jtframe_scan2x #(.DW(12), .HLEN(384)) u_scan2x(
+    .rst_n      ( rst_n     ),
+    .clk        ( clk_sys   ),
+    .base_cen   ( cen6      ),
+    .basex2_cen ( cen12     ),
+    .base_pxl   ( {red, green, blue } ),
+    .x2_pxl     ( rgbx2     ),
+    .HS         ( hs        ),
+    .x2_HS      ( vga_hsync )
+);
+assign vga_vsync = vs;
+assign vga_r = { rgbx2[11:8], rgbx2[11:10] };
+assign vga_g = { rgbx2[ 7:4], rgbx2[ 7: 6] };
+assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
+`endif
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
@@ -184,7 +203,7 @@ u_frame(
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
-    .LHBL           ( LHBL_dly       ),
+    .LHBL           ( LHBL           ),
     .LVBL           ( LVBL           ),
     .hs             ( hs             ),
     .vs             ( vs             ),
@@ -239,7 +258,7 @@ u_frame(
     .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
-    .rst_n          (                ), // unused
+    .rst_n          ( rst_n          ), // unused
     .game_rst       ( game_rst       ),
     .game_rst_n     (                ),
     // reset forcing signals:
@@ -272,8 +291,8 @@ u_game(
     .red         ( red           ),
     .green       ( green         ),
     .blue        ( blue          ),
-    .LHBL        ( LHBL          ),
-    .LVBL        ( LVBL          ),
+    .LHBL_dly    ( LHBL          ),
+    .LVBL_dly    ( LVBL          ),
     .HS          ( hs            ),
     .VS          ( vs            ),
 
@@ -314,6 +333,8 @@ u_game(
     // sound
     .snd         ( snd            ),
     .sample      (                ),
+    .enable_psg  ( enable_psg     ),
+    .enable_fm   ( enable_fm      ),
     // Debug
     .gfx_en      ( gfx_en         )
 );

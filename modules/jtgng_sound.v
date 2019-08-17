@@ -240,9 +240,9 @@ jt12_mixer #(.w0(16),.w1(16),.w2(13),.w3(8),.wout(16)) u_mixer(
     .ch1    ( fm1_snd      ),
     .ch2    ( {psg2x, 2'b0}),
     .ch3    ( 8'd0         ),
-    .gain0  ( fm_gain      ), // unity gain for FM
-    .gain1  ( fm_gain      ),
-    .gain2  ( psg_gain     ), // larger gain for PSG
+    .gain0  ( fm_gain2     ),
+    .gain1  ( fm_gain2     ),
+    .gain2  ( psg_gain2    ),
     .gain3  ( 8'd0         ),
     .mixed  ( ym_snd       )
 );

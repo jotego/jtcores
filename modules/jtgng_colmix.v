@@ -36,7 +36,8 @@ module jtgng_colmix(
     input [5:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output           LHBL_dly,
+    output  reg      LHBL_dly,
+    output  reg      LVBL_dly,
     // Palette PROMs and object priority
     input   [7:0]    prog_addr,
     input            prom_red_we,
@@ -65,9 +66,6 @@ parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
 
-wire [7:0] dout_rg;
-wire [3:0] dout_b;
-
 reg [7:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
@@ -94,22 +92,30 @@ always @(posedge clk) if(cen12) begin
     end
 end
 
+wire [1:0] pre_BL;
+
+jtgng_sh #(.width(2),.stages(4)) u_hb_dly(
+    .clk    ( clk      ),
+    .clk_en ( cen6     ),
+    .din    ( {LHBL, LVBL}     ),
+    .drop   ( pre_BL   )
+);
+
+always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
+
+wire [3:0] pal_red, pal_green, pal_blue;
+
 ////////////////////// Palette can be in RAM or in PROMs:
 generate
 
 if( PALETTE_PROM==1) begin
     // palette is in PROM
-    wire [3:0] pal_red, pal_green, pal_blue;
-    reg [7:0] prom_addr;
-
-    always @(*)
-        prom_addr = (LVBL&&LHBL) ? pixel_mux : 8'd0;
 
     jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
         .clk    ( clk          ),
-        .cen    ( cen6         ),
+        .cen    ( 1'b1         ),
         .data   ( prom_din     ),
-        .rd_addr( prom_addr    ),
+        .rd_addr( pixel_mux    ),
         .wr_addr( prog_addr    ),
         .we     ( prom_red_we  ),
         .q      ( pal_red      )
@@ -117,9 +123,9 @@ if( PALETTE_PROM==1) begin
 
     jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
         .clk    ( clk          ),
-        .cen    ( cen6         ),
+        .cen    ( 1'b1         ),
         .data   ( prom_din     ),
-        .rd_addr( prom_addr    ),
+        .rd_addr( pixel_mux    ),
         .wr_addr( prog_addr    ),
         .we     ( prom_green_we),
         .q      ( pal_green    )
@@ -127,26 +133,18 @@ if( PALETTE_PROM==1) begin
 
     jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
         .clk    ( clk          ),
-        .cen    ( cen6         ),
+        .cen    ( 1'b1         ),
         .data   ( prom_din     ),
-        .rd_addr( prom_addr    ),
+        .rd_addr( pixel_mux    ),
         .wr_addr( prog_addr    ),
         .we     ( prom_blue_we ),
         .q      ( pal_blue     )
     );
 
-    always @(posedge clk) if (cen6)
-        {red, green, blue } <= (LVBL&&LHBL)? { pal_red, pal_green, pal_blue } : 12'd0;
-
 end else begin
     // Palette is in RAM
     wire we_rg = !LVBL && redgreen_cs;
     wire we_b  = !LVBL && blue_cs;
-
-    assign LHBL_dly = LHBL;
-
-    always @(posedge clk) if (cen6)
-        {red, green, blue } <= (LVBL&&LHBL)? { dout_rg, dout_b } : 12'd0;
 
     jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
         .clk        ( clk         ),
@@ -155,7 +153,7 @@ end else begin
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( AB          ),
         .we         ( we_rg       ),
-        .q          ( dout_rg     )
+        .q          ( {pal_red, pal_green}     )
     );
 
     jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
@@ -165,10 +163,13 @@ end else begin
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( AB          ),
         .we         ( we_b        ),
-        .q          ( dout_b      )
+        .q          ( pal_blue    )
     );
-end
 
+end
 endgenerate
+
+always @(posedge clk) if (cen6)
+    {red, green, blue } <= pre_BL==2'b11 ? { pal_red, pal_green, pal_blue }: 12'd0;
 
 endmodule // jtgng_colmix

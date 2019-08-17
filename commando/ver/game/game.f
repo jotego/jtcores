@@ -10,6 +10,7 @@
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+../../../modules/jtframe/hdl/video/jtframe_scan2x.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_video.v
 ../../../modules/jtgng_colmix.v

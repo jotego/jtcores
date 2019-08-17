@@ -29,8 +29,9 @@ module jtgng_game(
     output   [3:0]  green,
     output   [3:0]  blue,
     output          LHBL,
-    output          LHBL_dly,
     output          LVBL,
+    output          LHBL_dly,
+    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -344,10 +345,11 @@ jtgng_video u_video(
     .blcnten    ( blcnten       ), // bus line counter enable
     // Color Mix
     .LHBL       ( LHBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
     .LVBL       ( LVBL          ),
+    .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
     .gfx_en     ( gfx_en        ),
     // Palette RAM
     .blue_cs    ( blue_cs       ),

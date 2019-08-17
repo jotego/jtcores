@@ -55,38 +55,49 @@ for col in range(256):
 
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("   00                      00   ")
-print_char("   01                      01   ")
-print_char("   02    commando FPGA clone    ")
-print_char("   03 brought to you by jotego. ")
-print_char("   04   patreon.com/topapate    ")
-print_char("   05                      05   ")
-print_char("   06    thanks to my patrons   ")
-print_char("   07                      07   ")
-print_char("   08                      08   ")
-print_char("   09  BETA VERSION        09   ")
-print_char("   0A                      0A   ")
-print_char("   0B                      0B   ")
-print_char("   0C     DO NOT DISTRIBUTE     ")
-print_char("   0D                      0D   ")
-print_char("   0E                      0E   ")
-print_char("   0F   001111111111222222222233")
-print_char("   10   890123456789012345678901")
-print_char("   11                      11   ")
-print_char("   12                      12   ")
-print_char("   13                      13   ")
-print_char("   14                      14   ")
-print_char("   15                      15   ")
-print_char("   16                      16   ")
-print_char("   17                      17   ")
-print_char("   18                      18   ")
-print_char("   19                      19   ")
-print_char("   1A                      1A   ")
-print_char("   1B                      1B   ")
-print_char("   1C                      1C   ")
-print_char("   1D                      1D   ")
-print_char("   1E                      1E   ")
-print_char("   1F                      1F   ")
+print_char("    Commando clone for FPGA     ")
+print_char("    brought to you by jotego.   ")
+print_char("  http.//patreon.com/topapate   ")
+print_char("                                ")
+print_char("       Thanks to my patrons     ") 
+print_char("                                ")
+print_char("    Andrew Moore                ")
+print_char("    Andyways                    ")
+print_char("    Dave Ross                   ")
+print_char("    Don Gafford                 ")
+print_char("    Leslie Law                  ")
+print_char("    Mary Marshall               ")
+print_char("    Matthew Young               ")
+print_char("    Oliver Jaksch               ")
+print_char("    Oscar Laguna Garcia         ")
+print_char("    Roman Buser                 ")
+print_char("    SmokeMonster                ")
+print_char("    Steven Wilson               ")
+print_char("    Ultrarobotninja             ")
+print_char("    Victor Gomariz L. de G.     ")
+print_char("    William Clemens             ") # Declined the Avatar
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+
+# Avatars:
+# Daniel Bauza
+# Brian Sallee
+# Dustin Hubbard
+# Frederic Mahe
+# Jo Tomiyori
+# Phillip McMahon
+# Scralings
+# Sembiance
+# Suvodip Mitra
 
 save_hex( os.environ['JTGNG_ROOT']+"/commando/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG_ROOT']+"/commando/ver/game/msg.bin", char_ram )
