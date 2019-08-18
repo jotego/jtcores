@@ -329,6 +329,7 @@ jt1943_rom2 #(
     .snd_aw     ( 15      ),
     .char_aw    ( 12      ),
     .scr1_aw    ( 14      ),
+    .scr2_aw    ( 14      ),
     .obj_aw     ( 15      )
 ) u_rom (
     .rst         ( rst           ),

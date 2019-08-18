@@ -24,6 +24,7 @@ module jt1943_rom2 #(parameter
      snd_aw  = 15,
      obj_aw  = 17,
     scr1_aw  = 17,
+    scr2_aw  = 15,
   snd_offset = 22'h14_000, // bm05.4k,  32kB
  char_offset = 22'h18_000, // bm04.5h,  32kB
  map1_offset = 22'h1C_000, // bm14.5f,  32kB
@@ -42,10 +43,10 @@ module jt1943_rom2 #(parameter
 
     input       [char_aw-1:0]  char_addr, //  32 kB
     input       [main_aw-1:0]  main_addr, // 160 kB, addressed as 8-bit words
-    input       [14:0]   snd_addr, //  32 kB
-    input       [obj_aw-1:0]   obj_addr,  // 256 kB
+    input       [ snd_aw-1:0]   snd_addr, //  32 kB
+    input       [ obj_aw-1:0]   obj_addr,  // 256 kB
     input       [scr1_aw-1:0]  scr1_addr, // 256 kB (16-bit words)
-    input       [14:0]  scr2_addr, //  64 kB
+    input       [scr2_aw-1:0]  scr2_addr, //  64 kB
     input       [13:0]  map1_addr, //  32 kB
     input       [13:0]  map2_addr, //  32 kB
 
@@ -87,11 +88,11 @@ wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_re
 
 reg [7:0] data_sel;
 wire [main_aw-1:0] main_addr_req;
-wire [14:0]  snd_addr_req;
+wire [ snd_aw-1:0]  snd_addr_req;
 wire [char_aw-1:0] char_addr_req;
-wire [obj_aw-1:0] obj_addr_req;
+wire [ obj_aw-1:0]  obj_addr_req;
 wire [scr1_aw-1:0] scr1_addr_req;
-wire [14:0] scr2_addr_req;
+wire [scr2_aw-1:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
@@ -196,7 +197,7 @@ jt1943_romrq #(.AW(scr1_aw),.DW(16)) u_scr1(
     .we       ( data_sel[4]     )
 );
 
-jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
+jt1943_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( 1'b1            ),
