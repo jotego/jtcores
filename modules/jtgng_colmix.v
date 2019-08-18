@@ -27,7 +27,6 @@
 module jtgng_colmix(
     input            rst,
     input            clk,
-    input            cen12,
     input            cen6 /* synthesis direct_enable = 1 */,
 
     // pixel input from generator modules
@@ -79,7 +78,7 @@ wire enable_obj  = gfx_en[3];
 wire scrwin = SCRWIN ? scr_pxl[6] : 1'b0;
 wire [7:0] scr_mux = SCRWIN ? {2'b00, scr_pxl[5:0] } : {1'b0, scr_pxl};
 
-always @(posedge clk) if(cen12) begin
+always @(posedge clk) if(cen6) begin
     if( char_pxl[1:0]==2'b11 || !enable_char ) begin
         // Object or scroll
         if( obj_blank || !enable_obj || (scrwin&&scr_pxl[2:0]!=3'd0) )
@@ -94,7 +93,7 @@ end
 
 wire [1:0] pre_BL;
 
-jtgng_sh #(.width(2),.stages(4)) u_hb_dly(
+jtgng_sh #(.width(2),.stages(5)) u_hb_dly(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
     .din    ( {LHBL, LVBL}     ),

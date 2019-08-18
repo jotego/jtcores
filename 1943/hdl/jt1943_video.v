@@ -73,6 +73,8 @@ module jt1943_video(
     input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
+    output              LHBL_dly,
+    output              LVBL_dly,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue,
@@ -98,12 +100,11 @@ module jt1943_video(
     input       [3:0]   gfx_en
 );
 
+localparam SCR_OFFSET=4;
+
 wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
-
-localparam chr_off = 8'd6;
-localparam scr_off = 8'd12;
 
 wire [2:0] avatar_idx;
 
@@ -121,13 +122,13 @@ wire [4:0] char_pal;
 wire [1:0] char_col;
 
 jtgng_char #(
-    .HOFFSET (chr_off),
+    .HOFFSET ( 0),
     .ROM_AW  (14),
     .IDMSB1  ( 7),
     .IDMSB0  ( 5),
     .PALW    ( 5),
     .VFLIP_EN( 0),
-    .HFLIP_EN( 0),   // 1942 does not have character H flip
+    .HFLIP_EN( 0),   // 1943 does not have character H/V flip
     .PALETTE ( 1),
     .PALETTE_SIMFILE("../../../rom/1943/bm5.7f")
 ) u_char (
@@ -176,7 +177,8 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1943_scroll #(.HOFFSET(scr_off),
+jt1943_scroll #(
+    .HOFFSET(SCR_OFFSET),
     .SIMFILE_MSB("../../../rom/1943/bm9.6l"),
     .SIMFILE_LSB("../../../rom/1943/bm10.7l")
 ) u_scroll1 (
@@ -216,7 +218,7 @@ jt1943_scroll #(.HOFFSET(scr_off),
 
 wire [1:0] scr2_nc; // not connected bits of the address
 
-jt1943_scroll #(.HOFFSET(scr_off),
+jt1943_scroll #(.HOFFSET(SCR_OFFSET),
     .SIMFILE_MSB("../../../rom/1943/bm11.12l"),
     .SIMFILE_LSB("../../../rom/1943/bm12.12m"),
     .AS8MASK(1'b0)
@@ -265,41 +267,6 @@ assign scr2_addr = 17'h0;
 assign map2_addr = 14'h0;
 `endif
 
-
-`ifndef NOCOLMIX
-jt1943_colmix u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    .pause      ( obj_pause     ),
-    // pixel input from generator modules
-    .char_pxl   ( char_pxl      ),        // character color code
-    .scr1_pxl   ( scr1_pxl      ),
-    .scr2_pxl   ( scr2_pxl      ),
-    .obj_pxl    ( obj_pxl       ),
-    // Palette and priority PROMs
-    .prog_addr  ( prog_addr     ),
-    .prom_12a_we( prom_12a_we   ),
-    .prom_13a_we( prom_13a_we   ),
-    .prom_14a_we( prom_14a_we   ),
-    .prom_12c_we( prom_12c_we   ),
-    .prom_din   ( prog_din      ),
-    // output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
-    // debug
-    .gfx_en     ( gfx_en        )
-);
-`else
-assign  red = 4'd0;
-assign blue = 4'd0;
-assign green= 4'd0;
-`endif
-
 `ifndef NOOBJ
 jt1943_obj u_obj(
     .rst            ( rst        ),
@@ -342,6 +309,44 @@ assign prog_addr = 'd0;
 assign obj_pxl   = ~'d0;
 assign bus_req   = 'b0;
 assign blcnten   = 'b0;
+`endif
+
+`ifndef NOCOLMIX
+jt1943_colmix #(
+    .BLANK_OFFSET(8)
+) u_colmix (
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen12      ( cen12         ),
+    .cen6       ( cen6          ),
+    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL          ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
+    .pause      ( obj_pause     ),
+    // pixel input from generator modules
+    .char_pxl   ( char_pxl      ),        // character color code
+    .scr1_pxl   ( scr1_pxl      ),
+    .scr2_pxl   ( scr2_pxl      ),
+    .obj_pxl    ( obj_pxl       ),
+    // Palette and priority PROMs
+    .prog_addr  ( prog_addr     ),
+    .prom_12a_we( prom_12a_we   ),
+    .prom_13a_we( prom_13a_we   ),
+    .prom_14a_we( prom_14a_we   ),
+    .prom_12c_we( prom_12c_we   ),
+    .prom_din   ( prog_din      ),
+    // output
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          ),
+    // debug
+    .gfx_en     ( gfx_en        )
+);
+`else
+assign  red = 4'd0;
+assign blue = 4'd0;
+assign green= 4'd0;
 `endif
 
 endmodule // jtgng_video

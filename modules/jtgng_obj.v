@@ -19,7 +19,6 @@
 module jtgng_obj(
     input              rst,
     input              clk,
-    input              cen12,
     input              cen6,    //  6 MHz
     // screen
     input              HINIT,

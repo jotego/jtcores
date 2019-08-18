@@ -31,6 +31,8 @@ module jt1943_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
+    output          LHBL_dly,
+    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -378,12 +380,11 @@ jt1943_video u_video(
     .blcnten    ( blcnten       ), // bus line counter enable
     // Color Mix
     .LHBL       ( LHBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
+    .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),
@@ -403,7 +404,11 @@ jt1943_video u_video(
     .prom_7c_we ( prom_7c_we    ),
     .prom_8c_we ( prom_8c_we    ),
     // Debug
-    .gfx_en     ( gfx_en        )
+    .gfx_en     ( gfx_en        ),
+    // Pixel Output
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          )
 );
 
 // Sound is not used through the ROM interface because there is not enough banwidth

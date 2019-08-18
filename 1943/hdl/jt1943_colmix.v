@@ -26,8 +26,6 @@ module jt1943_colmix(
     input           clk,    // 24 MHz
     input           cen12,
     input           cen6 /* synthesis direct_enable = 1 */,
-    // Synchronization
-    //input [2:0]       H,
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code
     input [5:0]     scr1_pxl,
@@ -43,6 +41,8 @@ module jt1943_colmix(
 
     input           LVBL,
     input           LHBL,
+    output  reg     LHBL_dly,
+    output  reg     LVBL_dly,
     input           pause,
 
     output reg [3:0] red,
@@ -52,22 +52,18 @@ module jt1943_colmix(
     input      [3:0] gfx_en
 );
 
+parameter BLANK_OFFSET=4;
+
 wire [7:0] dout_rg;
 wire [3:0] dout_b;
 
 reg [7:0] pixel_mux;
-
-reg [7:0] prom_addr;
 wire [3:0] selbus;
 
 wire char_blank_b = gfx_en[0] & |(~char_pxl);
 wire obj_blank_b  = gfx_en[3] & |(~obj_pxl[3:0]);
 wire scr1_blank_b = gfx_en[1] & |(~scr1_pxl[3:0]);
 reg [7:0] seladdr;
-
-always @(posedge clk) begin
-    seladdr <= { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
-end
 
 reg [3:0] char_pxl_1;
 reg [5:0] scr1_pxl_1;
@@ -80,9 +76,10 @@ always @(posedge clk) if(cen6) begin
     scr1_pxl_1  <= scr1_pxl;
     scr2_pxl_1  <= scr2_pxl;
     obj_pxl_1   <= obj_pxl;
+    seladdr     <= { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
 end
 
-always @(posedge clk) if(cen12) begin
+always @(posedge clk) if(cen6) begin
     case( selbus[1:0] )
         2'b00: pixel_mux[5:0] <= scr2_pxl_1;
         2'b01: pixel_mux[5:0] <= scr1_pxl_1;
@@ -92,18 +89,25 @@ always @(posedge clk) if(cen12) begin
     pixel_mux[7:6] <= selbus[3:2];
 end
 
-always @(posedge clk) if(cen6) begin
-    prom_addr <= (LVBL&&LHBL) ? pixel_mux : 8'd0;
-end
+wire [1:0] pre_BL;
+
+jtgng_sh #(.width(2),.stages(BLANK_OFFSET-1)) u_hb_dly(
+    .clk    ( clk      ),
+    .clk_en ( cen6     ),
+    .din    ( {LHBL, LVBL}     ),
+    .drop   ( pre_BL   )
+);
+
+always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
 
 // palette ROM
 wire [3:0] pal_red, pal_green, pal_blue;
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm1.12a")) u_red(
     .clk    ( clk         ),
-    .cen    ( cen6        ),
+    .cen    ( 1'b1        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_12a_we ),
     .q      ( pal_red     )
@@ -111,9 +115,9 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm1.12a")) u_red(
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm2.13a")) u_green(
     .clk    ( clk         ),
-    .cen    ( cen6        ),
+    .cen    ( 1'b1        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_13a_we ),
     .q      ( pal_green   )
@@ -121,9 +125,9 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm2.13a")) u_green(
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
     .clk    ( clk         ),
-    .cen    ( cen6        ),
+    .cen    ( 1'b1        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_14a_we ),
     .q      ( pal_blue    )
@@ -133,7 +137,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
 // 6MHz clock cycle:
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
     .clk    ( clk         ),
-    .cen    ( cen6        ),
+    .cen    ( 1'b1        ),
     .data   ( prom_din    ),
     .rd_addr( seladdr     ),
     .wr_addr( prog_addr   ),
@@ -141,11 +145,12 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
     .q      ( selbus      )
 );
 
+
 `ifdef AVATARS
-// Objects have their own palette during pause
 wire [11:0] avatar_pal;
+// Objects have their own palette during pause
 reg [1:0] avatar_msb[0:2];
-wire [7:0] avatar_addr = { avatar_msb[2], prom_addr[5:0] };
+wire [7:0] avatar_addr = { avatar_msb[2], pixel_mux[5:0] };
 
 jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
@@ -166,16 +171,16 @@ always @(posedge clk) if(cen6) begin
     avatar_msb[1] <= avatar_msb[0];
     avatar_msb[2] <= avatar_msb[1];
 end
-
-always @(posedge clk) if(cen12) begin
-    { red, green, blue } <= pause && obj_sel[1] ? avatar_pal : {pal_red, pal_green, pal_blue};
-end
-`else
-always @(*) begin
-    red   = pal_red;
-    blue  = pal_blue;
-    green = pal_green;
-end
+`else 
+wire [11:0] avatar_pal = {pal_red, pal_green, pal_blue};
+wire [1:0] obj_sel = 2'b00;
 `endif
+
+always @(posedge clk) if(cen6) begin
+    { red, green, blue } <= 
+        pre_BL==2'b11 ?
+            ( pause && obj_sel[1] ? avatar_pal : {pal_red, pal_green, pal_blue} ) :
+            12'd0; // blanking
+end
 
 endmodule // jtgng_colmix

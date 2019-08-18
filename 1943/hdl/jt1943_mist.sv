@@ -134,7 +134,7 @@ wire [3:0] red;
 wire [3:0] green;
 wire [3:0] blue;
 
-wire LHBL, LVBL, hs, vs;
+wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
 wire [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
@@ -153,10 +153,6 @@ always @(*)
         2'b10: dip_level = 4'b0011; // hard
         2'b11: dip_level = 4'b0000; // very hard
     endcase // status[3:2]
-
-reg LHBL_dly;
-always @(posedge clk_sys)
-    if(cen6) LHBL_dly <= LHBL;
 
 // PLL's
 // 24 MHz or 12 MHz base clock
@@ -180,6 +176,7 @@ jtgng_pll1 u_pll_vga (
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
 
+`ifndef JTFRAME_SCAN2X
 jtgng_vga u_scandoubler (
     .clk_rgb    ( clk_sys       ),
     .cen6       ( cen6          ), //  6 MHz
@@ -188,9 +185,9 @@ jtgng_vga u_scandoubler (
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[9]    ),
+    .LHBL       ( LHBL_dly      ),
+    .LVBL       ( LVBL_dly      ),
+    .en_mixing  ( en_mixing     ),
     .vga_red    ( vga_r[5:1]    ),
     .vga_green  ( vga_g[5:1]    ),
     .vga_blue   ( vga_b[5:1]    ),
@@ -202,6 +199,25 @@ jtgng_vga u_scandoubler (
 assign vga_r[0] = vga_r[5];
 assign vga_g[0] = vga_g[5];
 assign vga_b[0] = vga_b[5];
+`else
+wire [11:0] rgbx2;
+wire rst_n;
+
+jtframe_scan2x #(.DW(12), .HLEN(9'd384)) u_scan2x(
+    .rst_n      ( rst_n     ),
+    .clk        ( clk_sys   ),
+    .base_cen   ( cen6      ),
+    .basex2_cen ( cen12     ),
+    .base_pxl   ( {red, green, blue } ),
+    .x2_pxl     ( rgbx2     ),
+    .HS         ( hs        ),
+    .x2_HS      ( vga_hsync )
+);
+assign vga_vsync = vs;
+assign vga_r = { rgbx2[11:8], rgbx2[11:10] };
+assign vga_g = { rgbx2[ 7:4], rgbx2[ 7: 6] };
+assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
+`endif
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
@@ -276,7 +292,7 @@ u_frame(
     .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
-    .rst_n          (                ), // unused
+    .rst_n          ( rst_n          ), // unused
     .game_rst       ( game_rst       ),
     .game_rst_n     (                ),
     // reset forcing signals:
@@ -329,6 +345,8 @@ u_game(
     .blue        ( blue          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
+    .LHBL_dly    ( LHBL_dly      ),
+    .LVBL_dly    ( LVBL_dly      ),
     .HS          ( hs            ),
     .VS          ( vs            ),
 

@@ -182,7 +182,6 @@ assign scr_dout   = 8'd0;
 jtgng_obj u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .cen12      ( cen12       ),
     .cen6       ( cen6        ),
     .AB         ( obj_AB      ),
     .DB         ( main_ram    ),
@@ -216,7 +215,6 @@ jtgng_colmix #(
 )u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
     .cen6       ( cen6          ),
 
     .char_pxl   ( char_pxl      ),

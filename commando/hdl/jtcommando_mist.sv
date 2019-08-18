@@ -111,7 +111,8 @@ wire          prog_we;
 
 wire [ 3:0]   red, green, blue;
 
-wire LHBL, LVBL, hs, vs;
+wire LHBL, LVBL, LHBL_dly, LVBL_dly;
+wire hs, vs;
 wire signed [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
@@ -149,8 +150,8 @@ jtgng_vga u_scandoubler (
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL_dly      ),
+    .LVBL       ( LVBL_dly      ),
     .en_mixing  ( en_mixing     ),
     .vga_red    ( vga_r[5:1]    ),
     .vga_green  ( vga_g[5:1]    ),

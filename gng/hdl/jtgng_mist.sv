@@ -64,7 +64,7 @@ localparam CONF_STR = {
         "JTGNG;;", // 7
         "O1,Pause,OFF,ON;", // 16
         "F,rom;", // 6
-        "O23,Difficulty,easy,normal,hard,very hard;", // 42
+        "O23,Difficulty,normal,easy,hard,very hard;", // 42
         "O4,Test mode,OFF,ON;", // 20
         "O7,PSG ,ON,OFF;", // 15
         "O8,FM  ,ON,OFF;", // 15
@@ -109,7 +109,7 @@ wire          prog_we;
 wire [ 3:0]   red, green, blue;
 
 wire sdram_req, sdram_sync;
-wire LHBL, LVBL, LHBL_dly;
+wire LHBL, LVBL, LHBL_dly, LVBL_dly;
 wire signed [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
@@ -138,29 +138,30 @@ jtgng_pll1 u_pll_vga (
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
 
-// jtgng_vga u_scandoubler (
-//     .clk_rgb    ( clk_sys       ),
-//     .cen6       ( cen6          ), //  6 MHz
-//     .clk_vga    ( clk_vga       ), // 25 MHz
-//     .rst        ( rst           ),
-//     .red        ( red           ),
-//     .green      ( green         ),
-//     .blue       ( blue          ),
-//     .LHBL       ( LHBL_dly      ),
-//     .LVBL       ( LVBL          ),
-//     .en_mixing  ( en_mixing     ),
-//     .vga_red    ( vga_r[5:1]    ),
-//     .vga_green  ( vga_g[5:1]    ),
-//     .vga_blue   ( vga_b[5:1]    ),
-//     .vga_hsync  ( vga_hsync     ),
-//     .vga_vsync  ( vga_vsync     )
-// );
-// 
-// // convert 5-bit colour to 6-bit colour
-// assign vga_r[0] = vga_r[5];
-// assign vga_g[0] = vga_g[5];
-// assign vga_b[0] = vga_b[5];
+`ifndef JTFRAME_SCAN2X
+jtgng_vga u_scandoubler (
+    .clk_rgb    ( clk_sys       ),
+    .cen6       ( cen6          ), //  6 MHz
+    .clk_vga    ( clk_vga       ), // 25 MHz
+    .rst        ( rst           ),
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          ),
+    .LHBL       ( LHBL_dly      ),
+    .LVBL       ( LVBL_dly      ),
+    .en_mixing  ( en_mixing     ),
+    .vga_red    ( vga_r[5:1]    ),
+    .vga_green  ( vga_g[5:1]    ),
+    .vga_blue   ( vga_b[5:1]    ),
+    .vga_hsync  ( vga_hsync     ),
+    .vga_vsync  ( vga_vsync     )
+);
 
+// convert 5-bit colour to 6-bit colour
+assign vga_r[0] = vga_r[5];
+assign vga_g[0] = vga_g[5];
+assign vga_b[0] = vga_b[5];
+`else
 wire [11:0] rgbx2;
 wire rst_n;
 
@@ -178,6 +179,7 @@ assign vga_vsync = vs;
 assign vga_r = { rgbx2[11:8], rgbx2[11:10] };
 assign vga_g = { rgbx2[ 7:4], rgbx2[ 7: 6] };
 assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
+`endif
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
@@ -287,8 +289,9 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .green       ( green         ),
     .blue        ( blue          ),
     .LHBL        ( LHBL          ),
-    .LHBL_dly    ( LHBL_dly      ),
     .LVBL        ( LVBL          ),
+    .LHBL_dly    ( LHBL_dly      ),
+    .LVBL_dly    ( LVBL_dly      ),
     .HS          ( hs            ),
     .VS          ( vs            ),
 
