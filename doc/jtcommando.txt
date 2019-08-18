@@ -13,7 +13,7 @@ the emulation world here are some of the things different from emulators:
 -Graphics priority handled according to the original PROM
 -No lag between image and input. Data is being sent to the screen in real time.
 -No lag between sound and image. All hardware runs in parallel with no time multiplexing.
--Sound sampling rate: 41.663 kHz (original, 125/3 kHz)
+-Sound sampling rate: 41.663 kHz (i.e. exactly the original, 125/3 kHz)
 
 These technical aspects mean that the game play will be different from an emulator
 in a number of ways and that some hardware tricks that were not emulated will work
@@ -26,6 +26,10 @@ The ROM Master, aka Bruno Silva, has provided us with a .bat file to generate th
 BETA RELEASE
 ============
 The beta was release on the 20th of July of 2019 to patrons. It has some graphical issues, likely to be due to a problem in the bus arbitrion implementation. These will be fixed in the final -and public- release.
+
+TEST MODE
+=========
+To enter test mode press several times the shot button while the initial legal message is being displayed.
 
 CREDITS
 =======
@@ -74,7 +78,7 @@ Eoin Gibney
 Fabio
 Fay Dek
 Filip Kindt
-FRANCISCO JAVIER FUENTES MORENO
+Francisco Javier Fuentes Moreno
 Frank Wolf
 Fred Fryolator
 Fredrik Berglind

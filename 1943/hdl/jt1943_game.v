@@ -75,6 +75,7 @@ module jt1943_game(
     input   [2:0]   dip_price2,
     input   [2:0]   dip_price1,
     input           dip_flip,
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     output          coin_cnt,
     // Sound output
     output  [15:0]  snd,
@@ -275,6 +276,16 @@ wire [14:0] snd_addr;
 always @(posedge clk)
     snd_data <= snd_addr[14] ? snd_data1 : snd_data0;
 
+reg [7:0] psg_gain;
+always @(posedge clk) begin
+    case( dip_fxlevel )
+        2'd0: psg_gain <= 8'h1F;
+        2'd1: psg_gain <= 8'h3F;
+        2'd2: psg_gain <= 8'h7F;
+        2'd3: psg_gain <= 8'hFF;
+    endcase // dip_fxlevel
+end
+
 jtgng_sound u_sound (
     .rst            ( rst_game   ),
     .clk            ( clk        ),
@@ -287,8 +298,7 @@ jtgng_sound u_sound (
     // sound control
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
-    .psg_gain       ( 8'h80      ),
-    .fm_gain        ( 8'h14      ),
+    .psg_gain       ( psg_gain   ),
     // ROM
     .rom_addr       ( snd_addr   ),
     .rom_data       ( snd_data   ),

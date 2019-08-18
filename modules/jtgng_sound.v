@@ -29,7 +29,6 @@ module jtgng_sound(
     input   enable_psg,
     input   enable_fm,
     input   [7:0]   psg_gain,
-    input   [7:0]    fm_gain,
     // ROM
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
@@ -41,7 +40,8 @@ module jtgng_sound(
     output  sample
 );
 
-parameter BIGROM=1;
+parameter       BIGROM=1;
+parameter [7:0] FM_GAIN=8'h20;
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
@@ -215,7 +215,7 @@ jtframe_z80 u_cpu(
 
 wire signed [15:0] fm0_snd,  fm1_snd;
 wire        [ 9:0] psg0_snd, psg1_snd;
-wire        [10:0] psg01 = psg0_snd + psg1_snd;
+wire        [10:0] psg01 = {1'b0,psg0_snd} + {1'b0,psg1_snd};
 // wire signed [15:0]
 //     psg0_signed = {1'b0, psg0_snd, 4'b0 },
 //     psg1_signed = {1'b0, psg1_snd, 4'b0 };
@@ -231,14 +231,14 @@ jt49_dcrm2 #(.sw(11)) u_dcrm (
 );
 
 wire signed [7:0] psg_gain2 = enable_psg ? psg_gain : 8'h0;
-wire signed [7:0]  fm_gain2 = enable_fm  ?  fm_gain : 8'h0;
+wire signed [7:0]  fm_gain2 = enable_fm  ?  FM_GAIN : 8'h0;
 
-jt12_mixer #(.w0(16),.w1(16),.w2(13),.w3(8),.wout(16)) u_mixer(
+jt12_mixer #(.w0(16),.w1(16),.w2(15),.w3(8),.wout(16)) u_mixer(
     .clk    ( clk          ),
     .cen    ( cen1p5       ),
     .ch0    ( fm0_snd      ),
     .ch1    ( fm1_snd      ),
-    .ch2    ( {psg2x, 2'b0}),
+    .ch2    ( {psg2x, 4'b0}),
     .ch3    ( 8'd0         ),
     .gain0  ( fm_gain2     ),
     .gain1  ( fm_gain2     ),

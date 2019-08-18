@@ -70,6 +70,7 @@ localparam CONF_STR = {
         "O8,FM  ,ON,OFF;", // 15
         "O9A,Lives,3,4,5,7;", // 18
         "OB,Screen filter,ON,OFF;", // 24
+        "OCD,FX volume, very high, high, low, very low;",
         "TF,Reset;", // 9
         "V,http://patreon.com/topapate;" // 30
 };
@@ -92,14 +93,15 @@ wire          ioctl_wr;
 wire          coin_cnt = 1'b0; // To do: check if GnG provided this output
 
 wire          game_pause;
-wire          rst_req   = status[32'hf];
-wire [1:0]    dip_level = ~status[3:2];
-wire [1:0]    dip_lives = ~status[10:9];
-wire [1:0]    dip_bonus = 2'b11;
-wire          dip_pause = !(status[1] | game_pause); // DIPs are active low
-wire          dip_test  = ~status[4];
-wire          enable_psg = ~status[7], enable_fm = ~status[8];
-wire          en_mixing = ~status['hb];
+wire          rst_req     = status[32'hf];
+wire [1:0]    dip_level   = ~status[3:2];
+wire [1:0]    dip_lives   = ~status[10:9];
+wire [1:0]    dip_bonus   = 2'b11;
+wire          dip_pause   = !(status[1] | game_pause); // DIPs are active low
+wire          dip_test    = ~status[4];
+wire          enable_psg  = ~status[7], enable_fm = ~status[8];
+wire          en_mixing   = ~status['hb];
+wire [1:0]    dip_fxlevel = ~status[13:12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -326,6 +328,7 @@ jtgng_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .dip_game_mode  ( dip_test    ),
     .dip_upright    ( 1'b1        ),
     .dip_attract_snd( 1'b1        ), // 0 for sound
+    .dip_fxlevel    ( dip_fxlevel ),
     // sound
     .snd         ( snd            ),
     .sample      (                ),

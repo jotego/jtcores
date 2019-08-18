@@ -73,7 +73,9 @@ module jt1942_game(
     output          coin_cnt,
     // Sound output
     output  [8:0]   snd,
-    output          sample
+    output          sample,
+    // Debug
+    input   [ 3:0]  gfx_en
 );
 
 parameter CLK_SPEED=12;
@@ -300,6 +302,7 @@ jt1942_video u_video(
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),
+    .gfx_en     ( gfx_en        ),
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),

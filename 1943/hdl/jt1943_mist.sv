@@ -73,6 +73,7 @@ localparam CONF_STR = {
         "O9,Screen filter,ON,OFF;", // 24
         "OA,Invincibility,OFF,ON;", // 24
         "OB,Flip screen,OFF,ON;", // 22
+        "OCD,FX volume, high, very high, very low, low;",
         "TF,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
 };
@@ -117,13 +118,14 @@ wire dip_pause = ~status[1] & ~game_pause;
 wire dip_test  = ~status[4];
 `endif
 
-wire dip_upright = 1'b1;
-wire dip_credits2p = 1'b1;
-reg [3:0] dip_level;
-wire dip_demosnd = 1'b1;
-wire dip_continue = 1'b1;
-wire [2:0] dip_price2 = 3'b100;
-wire [2:0] dip_price1 = ~3'b0;
+wire          dip_upright = 1'b1;
+wire          dip_credits2p = 1'b1;
+reg  [3:0]    dip_level;
+wire          dip_demosnd = 1'b1;
+wire          dip_continue = 1'b1;
+wire [2:0]    dip_price2 = 3'b100;
+wire [2:0]    dip_price1 = ~3'b0;
+wire [1:0]    dip_fxlevel = 2'b10 ^ status[13:12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -389,6 +391,7 @@ u_game(
     .dip_price2  ( dip_price2     ),
     .dip_price1  ( dip_price1     ),
     .dip_flip    ( dip_flip       ),
+    .dip_fxlevel ( dip_fxlevel    ),
 
     .coin_cnt    ( coin_cnt       ),
     // sound

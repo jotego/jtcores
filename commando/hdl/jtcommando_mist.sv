@@ -71,6 +71,7 @@ localparam CONF_STR = {
         "O8,FM  ,ON,OFF;", // 15
         "O9,Screen filter,ON,OFF;", // 24
         "OB,Flip screen,OFF,ON;", // 22
+        "OCD,FX volume, high, very high, very low, low;",
         "TF,Reset;", // 9
         "V,http://patreon.com/topapate;" // 30
 };
@@ -103,6 +104,7 @@ wire [1:0]    dip_price2 = 2'b11;
 wire          dip_flip   = status[11];
 wire          enable_psg = ~status[7], enable_fm = ~status[8];
 wire          en_mixing  = ~status[9];
+wire [1:0]    dip_fxlevel = 2'b10 ^ status[13:12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -331,6 +333,7 @@ u_game(
     .dip_upright ( dip_upright    ), // upright, one joystick
     .dip_demosnd ( 1'b0           ),
     .dip_flip    ( dip_flip       ),
+    .dip_fxlevel ( dip_fxlevel    ),
     // sound
     .snd         ( snd            ),
     .sample      (                ),

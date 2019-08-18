@@ -71,7 +71,9 @@ module jt1942_video(
     input               prom_e9_we,
     input               prom_e10_we,
     input               prom_k3_we,
-    input               prom_m11_we
+    input               prom_m11_we,
+    // Debug
+    input       [3:0]   gfx_en
 );
 
 wire [3:0] char_pxl, obj_pxl;
@@ -219,34 +221,6 @@ assign scr_wait_n = 1'b1;
 assign scr_pxl = ~6'h0;
 `endif
 
-`ifndef NOCOLMIX
-jt1942_colmix u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    // pixel input from generator modules
-    .char_pxl   ( char_pxl      ),        // character color code
-    .scr_pxl    ( scr_pxl       ),
-    .obj_pxl    ( obj_pxl       ),
-    // Palette PROMs E8, E9, E10
-    .prog_addr  ( prog_addr     ),
-    .prom_e8_we ( prom_e8_we    ),
-    .prom_e9_we ( prom_e9_we    ),
-    .prom_e10_we( prom_e10_we   ),
-    .prom_din   ( prog_din      ),
-    // output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
-);
-`else
-assign  red = 4'd0;
-assign blue = 4'd0;
-assign green= 4'd0;
-`endif
-
 jt1942_obj u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
@@ -275,5 +249,37 @@ jt1942_obj u_obj(
     // pixel output
     .obj_pxl        ( obj_pxl   )
 );
+
+`ifndef NOCOLMIX
+jt1942_colmix u_colmix (
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen6       ( cen6          ),
+    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL          ),
+    // pixel input from generator modules
+    .char_pxl   ( char_pxl      ),        // character color code
+    .scr_pxl    ( scr_pxl       ),
+    .obj_pxl    ( obj_pxl       ),
+    // Palette PROMs E8, E9, E10
+    .prog_addr  ( prog_addr     ),
+    .prom_e8_we ( prom_e8_we    ),
+    .prom_e9_we ( prom_e9_we    ),
+    .prom_e10_we( prom_e10_we   ),
+    .prom_din   ( prog_din      ),
+
+    // DEBUG
+    .gfx_en     ( gfx_en        ),
+
+    // output
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          )
+);
+`else
+assign  red = 4'd0;
+assign blue = 4'd0;
+assign green= 4'd0;
+`endif
 
 endmodule // jtgng_video

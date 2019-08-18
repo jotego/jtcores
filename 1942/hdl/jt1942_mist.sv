@@ -108,6 +108,7 @@ wire [8:0] snd;
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
 wire game_pause, game_rst;
+wire [3:0] gfx_en;
 
 // SDRAM
 wire data_rdy, sdram_ack;
@@ -250,8 +251,8 @@ u_frame(
     .game_pause     ( game_pause     ),
     .game_service   (                ),
     .LED            ( LED            ),
-    // Unused
-    .gfx_en         (                )
+    // Debug
+    .gfx_en         ( gfx_en         )
 );
 
 jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
@@ -308,7 +309,9 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .coin_cnt    ( coin_cnt      ),
     // sound
     .snd         ( snd           ),
-    .sample      (               )
+    .sample      (               ),
+    // Debug
+    .gfx_en      ( gfx_en         )
 );
 
 endmodule // jtgng_mist
