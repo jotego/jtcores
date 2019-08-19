@@ -159,9 +159,10 @@ wire [ 3:0] gfx_en;
 
 wire        forced_scandoubler;
 wire        downloading, game_rst, rst, rst_n;
-wire        rst_req  = RESET | status[0] | buttons[1];
-wire        dip_flip = status[32'hb];
-wire        dip_test = ~status[4];
+wire        rst_req   = RESET | status[0] | buttons[1];
+wire        dip_flip  = status[32'hb];
+wire        dip_test  = ~status[4];
+wire        enable_fm = ~status[8], enable_psg = ~status[7];
 
 assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;
@@ -343,19 +344,19 @@ jt1943_game #(.CLK_SPEED(48)) u_game
     .red           ( r               ),
     .green         ( g               ),
     .blue          ( b               ),
-    .LHBL          ( hblank          ),
-    .LVBL          ( vblank          ),
+    .LHBL_dly      ( hblank          ),
+    .LVBL_dly      ( vblank          ),
     .HS            ( hs              ),
     .VS            ( vs              ),
 
-    .start_button  ( {m_start2, m_start1} ),
-    .coin_input    ( {1'b0, m_coin}       ),
-    .joystick1     ( {1'b0, m_jump, m_fire, m_up, m_down, m_left, m_right} ),
-    .joystick2     ( {1'b0, m2_jump, m2_fire, m2_up, m2_down, m2_left, m2_right} ),
+    .start_button  ( game_start      ),
+    .coin_input    ( game_coin       ),
+    .joystick1     ( game_joystick1[6:0] ),
+    .joystick2     ( game_joystick2[6:0] ),
 
     // Sound control
-    .enable_fm    ( 1'b1             ),
-    .enable_psg   ( 1'b1             ),
+    .enable_fm    ( enable_fm        ),
+    .enable_psg   ( enable_psg       ),
     // PROM programming
     .ioctl_addr   ( ioctl_addr[21:0] ),
     .ioctl_data   ( ioctl_data       ),

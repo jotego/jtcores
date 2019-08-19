@@ -82,7 +82,7 @@ wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
-wire          loop_rst, sdram_sync, sdram_req;
+wire          loop_rst;
 wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
@@ -107,8 +107,9 @@ wire [8:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-wire game_pause, game_rst;
+wire       game_pause, game_rst;
 wire [3:0] gfx_en;
+wire       sdram_req;
 
 // SDRAM
 wire data_rdy, sdram_ack;
@@ -278,7 +279,6 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .joystick2   ( game_joystick2[5:0] ),
 
     // PROM programming
-    .downloading ( downloading    ),
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_data  ( ioctl_data     ),
     .ioctl_wr    ( ioctl_wr       ),
@@ -286,32 +286,31 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .prog_data   ( prog_data      ),
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
-
-    // ROM access from game
-    .loop_rst    ( loop_rst       ),
-    .sdram_addr  ( sdram_addr     ),
-    .sdram_req   ( sdram_req      ),
-    .sdram_ack   ( sdram_ack      ),
-    .data_read   ( data_read      ),
-    .data_rdy    ( data_rdy       ),
-    .refresh_en  ( refresh_en     ),
-    // Cheat
-    .cheat_invincible( cheat_invincible ),
+    // ROM load
+    .downloading ( downloading   ),
+    .loop_rst    ( loop_rst      ),
+    .sdram_req   ( sdram_req     ),
+    .sdram_addr  ( sdram_addr    ),
+    .data_read   ( data_read     ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_rdy    ( data_rdy      ),
+    .refresh_en  ( refresh_en    ),
     // DIP switches
-    .dip_flip    ( dip_flip      ),
+    .dip_test    ( ~status[4]     ),
     .dip_pause   ( ~(status[1]|game_pause)   ),
-    .dip_level   ( ~status[3:2]  ),
-    .dip_test    ( ~status[4]    ),
-    .dip_upright ( 1'b0          ),
-    .dip_planes  ( ~status[6:5]  ),
-    .dip_price   ( 3'b111        ), // 1 credit, 1 coin
-    .dip_bonus   ( ~status[8:7]  ),
-    .coin_cnt    ( coin_cnt      ),
+    .dip_upright ( 1'b0           ),
+    .dip_planes  ( ~status[6:5]   ),
+    .dip_level   ( ~status[3:2]   ),
+    .dip_price   ( 3'b111         ), // 1 credit, 1 coin
+    .dip_bonus   ( ~status[8:7]   ),
+    .dip_flip    ( dip_flip       ),
+
+    .coin_cnt    ( coin_cnt       ),
     // sound
-    .snd         ( snd           ),
-    .sample      (               ),
+    .snd         ( snd            ),
+    .sample      (                ),
     // Debug
     .gfx_en      ( gfx_en         )
 );
 
-endmodule // jtgng_mist
+endmodule

@@ -220,6 +220,8 @@ assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
+assign sim_vs = vs;
+assign sim_hs = hs;
 `endif
 
 jtframe_mist #( .CONF_STR(CONF_STR),
@@ -328,7 +330,6 @@ u_frame(
     assign sim_hs = hs;
 `endif
 
-
 jt1943_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
     .rst         ( game_rst      ),
@@ -348,8 +349,8 @@ u_game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
-    .start_button( game_start     ),
-    .coin_input  ( game_coin      ),
+    .start_button( game_start          ),
+    .coin_input  ( game_coin           ),
     .joystick1   ( game_joystick1[6:0] ),
     .joystick2   ( game_joystick2[6:0] ),
 
@@ -395,4 +396,4 @@ u_game(
     .gfx_en      ( gfx_en         )
 );
 
-endmodule // jtgng_mist
+endmodule
