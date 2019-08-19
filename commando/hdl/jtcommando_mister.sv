@@ -292,6 +292,13 @@ arcade_rotate_fx #(256,224,12,1) arcade_video
     assign VGA_CLK= clk_sys;
 `endif
 
+`ifdef SIMULATION
+assign sim_hs = hs;
+assign sim_vs = vs;
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
+`endif
+
 ///////////////////////////////////////////////////////////////////
 
 wire reset = RESET | status[0] | buttons[1];

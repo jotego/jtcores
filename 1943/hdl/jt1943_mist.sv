@@ -71,14 +71,11 @@ localparam CONF_STR = {
         "O7,PSG,ON,OFF;", // 14
         "O8,FM ,ON,OFF;", // 14
         "O9,Screen filter,ON,OFF;", // 24
-        "OA,Invincibility,OFF,ON;", // 24
-        "OB,Flip screen,OFF,ON;", // 22
+        // "OB,Flip screen,OFF,ON;", // 22
         "OCD,FX volume, high, very high, very low, low;",
         "TF,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
 };
-
-localparam CONF_STR_LEN = $size(CONF_STR)/8;
 
 wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -93,7 +90,6 @@ wire          ioctl_wr;
 wire          coin_cnt;
 
 wire rst_req = status[32'hf];
-wire cheat_invincible = status[32'd10];
 wire dip_flip = status[32'hb];
 
 wire enable_fm = ~status[8], enable_psg = ~status[7];
@@ -118,14 +114,14 @@ wire dip_pause = ~status[1] & ~game_pause;
 wire dip_test  = ~status[4];
 `endif
 
-wire          dip_upright = 1'b1;
-wire          dip_credits2p = 1'b1;
-reg  [3:0]    dip_level;
-wire          dip_demosnd = 1'b1;
-wire          dip_continue = 1'b1;
-wire [2:0]    dip_price2 = 3'b100;
-wire [2:0]    dip_price1 = ~3'b0;
-wire [1:0]    dip_fxlevel = 2'b10 ^ status[13:12];
+wire       dip_upright   = 1'b1;
+wire       dip_credits2p = 1'b1;
+wire       dip_demosnd   = 1'b0;
+wire       dip_continue  = 1'b1;
+wire [2:0] dip_price2    = 3'b100;
+wire [2:0] dip_price1    = ~3'b0;
+reg  [3:0] dip_level;
+wire [1:0] dip_fxlevel = 2'b10 ^ status[13:12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -226,7 +222,7 @@ assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
 `endif
 
-jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
+jtframe_mist #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .clk_sys        ( clk_sys        ),
@@ -378,8 +374,6 @@ u_game(
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
     .refresh_en  ( refresh_en    ),
-    // Cheat
-    .cheat_invincible( cheat_invincible ),
     // DIP switches
     .dip_test    ( dip_test       ),
     .dip_pause   ( dip_pause      ),

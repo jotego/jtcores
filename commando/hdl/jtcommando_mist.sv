@@ -76,8 +76,6 @@ localparam CONF_STR = {
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = $size(CONF_STR)/8; // System verilog is only used for this line!
-
 wire          rst, clk_sys;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
@@ -193,7 +191,7 @@ assign sim_vs      = vs;
 assign sim_hs      = hs;
 `endif
 
-jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
+jtframe_mist #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b0))
 u_frame(
     .clk_sys        ( clk_sys        ),

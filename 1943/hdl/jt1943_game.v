@@ -61,8 +61,6 @@ module jt1943_game(
     output  [ 1:0]  prog_mask,
     output          prog_we,
 
-    // cheat
-    input           cheat_invincible,
     // DIP Switch A
     input           dip_test,
     input           dip_pause,
@@ -246,8 +244,6 @@ jt1943_main u_main(
     .coin_input  ( coin_input   ),
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
-    // Cheat
-    .cheat_invincible( cheat_invincible ),
     // DIP switches
     .dipsw_a    ( {dip_test, dip_pause, dip_upright, dip_credits2p, dip_level } ),
     .dipsw_b    ( {dip_demosnd, dip_continue, dip_price2, dip_price1} ),

@@ -386,7 +386,7 @@ set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/pll.qip
 set_global_assignment -name CDF_FILE jtag.cdf
-set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/sys.qip
+set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/mister.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/jtgng_sdram.v

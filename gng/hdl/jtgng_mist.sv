@@ -190,7 +190,7 @@ assign sim_vs      = vs;
 assign sim_hs      = hs;
 `endif
 
-jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
+jtframe_mist #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b0))
 u_frame(
     .clk_sys        ( clk_sys        ),

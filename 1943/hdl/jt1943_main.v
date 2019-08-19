@@ -46,8 +46,6 @@ module jt1943_main(
     output  reg [1:0]  scr2posh_cs,
     output  reg        SC1ON,
     output  reg        SC2ON,
-    // cheat!
-    input              cheat_invincible,
     output  reg        OBJON,
     // cabinet I/O
     input   [6:0]      joystick1,
@@ -211,8 +209,7 @@ wire irq_ack = !iorq_n && !m1_n;
 
 always @(*)
     case( {ram_cs, char_cs, rom_cs, in_cs} )
-        4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
-                            ram_dout;
+        4'b10_00: cpu_din = ram_dout;
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;
         4'b00_01: cpu_din = cabinet_input;
