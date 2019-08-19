@@ -388,7 +388,7 @@ jt1943_game #(.CLK_SPEED(48)) u_game
     .dip_fxlevel  ( dip_fxlevel      ),
 
     .snd          ( AUDIO_L          ),
-    .gfx_en       ( ~4'b0            ),
+    .gfx_en       ( gfx_en           ),
 
     // unconnected
     .coin_cnt     (                  ),
