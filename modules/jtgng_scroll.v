@@ -51,7 +51,7 @@ module jtgng_scroll #(parameter
     output reg     [ 2:0]    scr_col
 );
 
-wire [8:0] Hfix = H + HOFFSET; // Corrects pixel output offset
+wire [8:0] Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
 reg  [ 8:0] HS, VS;
 wire [ 7:0] VF = {8{flip}}^V;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];

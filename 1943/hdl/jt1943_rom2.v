@@ -265,15 +265,15 @@ end else begin
         data_sel <= 'd0;
         case( 1'b1 )
             !data_sel[7] & snd_req: begin
-                sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
+                sdram_addr <= snd_offset + { {22-snd_aw{1'b0}}, snd_addr_req[14:1] };
                 data_sel[7] <= 1'b1;
             end
             !data_sel[4] & scr1_req: begin
-                sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
+                sdram_addr <= scr1_offset + { {22-scr1_aw{1'b0}}, scr1_addr_req };
                 data_sel[4] <= 1'b1;
             end
             !data_sel[5] & scr2_req: begin
-                sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
+                sdram_addr <= scr2_offset + { {22-scr2_aw{1'b0}}, scr2_addr_req };
                 data_sel[5] <= 1'b1;
             end
             !data_sel[2] & map1_req: begin

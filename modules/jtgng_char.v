@@ -72,7 +72,7 @@ reg [     1:0] char_col;
 
 
 wire [7:0] dout_low, dout_high;
-wire [7:0] Hfix = H + HOFFSET; // Corrects pixel output offset
+wire [7:0] Hfix = H + HOFFSET[7:0]; // Corrects pixel output offset
 
 localparam DATAREAD = 3'd1;
 

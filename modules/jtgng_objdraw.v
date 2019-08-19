@@ -69,7 +69,7 @@ always @(posedge clk) if(cen6) begin
             hover     <= objbuf_data[0];
         end
         4'd2: begin // Object Y is on objbuf_data at this step
-            Vobj    <= Vsum;
+            Vobj    <=  Vsum[3:0];
             vinzone <= &Vsum[7:4];
         end
         4'd3: begin
@@ -79,7 +79,7 @@ always @(posedge clk) if(cen6) begin
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
         obj_addr <= (!vinzone || objcnt==5'd0) ? 16'd0 :
-            { ADhigh, ADlow, Vobj[3:0]^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+            { ADhigh, ADlow, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
     end
 end
 

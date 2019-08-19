@@ -378,6 +378,7 @@ jt1943_rom2 #(
     .main_aw    ( 17              ),
     .obj_aw     ( 16              ),
     .scr1_aw    ( 15              ),
+    .scr2_aw    ( 15              ),
     .snd_offset ( 22'h1_8000 >> 1 ),
     .char_offset( 22'h1_4000 >> 1 ),
     .scr1_offset( 22'h2_0000 >> 1 ),
