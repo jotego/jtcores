@@ -73,11 +73,12 @@ localparam CONF_STR = {
         "O9,Screen filter,ON,OFF;", // 24
         "OA,Invincibility,OFF,ON;", // 24
        // "OB,Flip screen,OFF,ON;", // 22
+        "OC,Rotate controls,OFF,ON;", // 26
         "TF,RST ,OFF,ON;", // 15
         "V,http://patreon.com/topapate;" // 30
 };
 
-localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+15+30;
+localparam CONF_STR_LEN = 8+16+6+42+20+14*2+24+24+26+15+30;
 
 wire          rst, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -94,7 +95,7 @@ wire          coin_cnt;
 wire rst_req = status[32'hf];
 wire cheat_invincible = status[32'd10];
 wire dip_flip = status[32'hb];
-
+wire rot_control = status[32'hc];
 wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire game_pause;
@@ -206,6 +207,10 @@ assign vga_b[0] = vga_b[5];
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
 
+wire [9:0] joy1_adj = { game_joystick1[9:4], ~rot_control ? game_joystick1[3:0] :
+  { game_joystick1[0], game_joystick1[1], game_joystick1[3], game_joystick1[2] } };
+wire [9:0] joy2_adj = { game_joystick2[9:4], ~rot_control ? game_joystick2[3:0] :
+  { game_joystick2[0], game_joystick2[1], game_joystick2[3], game_joystick2[2] } };
 
 jtframe_mist #( .CONF_STR(CONF_STR), .CONF_STR_LEN(CONF_STR_LEN),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
@@ -216,7 +221,7 @@ u_frame(
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
     // Base video
-    .osd_rotate     ( { dip_flip, 1'b1 } ),
+    .osd_rotate     ( { dip_flip, ~rot_control } ),
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
@@ -331,10 +336,10 @@ u_game(
     .HS          ( hs            ),
     .VS          ( vs            ),
 
-    .start_button( game_start     ),
-    .coin_input  ( game_coin      ),
-    .joystick1   ( game_joystick1[6:0] ),
-    .joystick2   ( game_joystick2[6:0] ),
+    .start_button( game_start    ),
+    .coin_input  ( game_coin     ),
+    .joystick1   ( joy1_adj      ),
+    .joystick2   ( joy2_adj      ),
 
     // Sound control
     .enable_fm   ( enable_fm      ),
