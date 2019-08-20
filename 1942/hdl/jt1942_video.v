@@ -79,8 +79,6 @@ module jt1942_video(
 wire [3:0] char_pxl, obj_pxl;
 wire [5:0] scr_pxl;
 
-localparam scrchr_off = 8'd0;
-
 `ifndef NOCHAR
 wire [7:0] char_msg_low;
 wire [7:0] char_msg_high = 8'h2;
@@ -89,7 +87,7 @@ wire [5:0] char_pal;
 wire [1:0] char_col;
 
 jtgng_char #(
-    .HOFFSET (scrchr_off),
+    .HOFFSET (8'd0),
     .ROM_AW  (12),
     .IDMSB1  ( 7),
     .IDMSB0  ( 7),
@@ -148,7 +146,7 @@ wire [2:0] scr_col;
 wire [4:0] scr_pal;
 
 jtgng_scroll #(
-    .HOFFSET(scrchr_off),
+    .HOFFSET(9'd0),
     .ROM_AW  (14),
     .IDMSB1  ( 7),
     .IDMSB0  ( 7),
