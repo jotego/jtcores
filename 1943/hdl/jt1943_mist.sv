@@ -90,38 +90,9 @@ wire          ioctl_wr;
 wire          coin_cnt;
 
 wire rst_req = status[32'hf];
-wire dip_flip = status[32'hb];
-
-wire enable_fm = ~status[8], enable_psg = ~status[7];
 
 wire game_pause;
 wire sdram_req;
-`ifdef SIMULATION
-    wire dip_pause = 1'b1; // ~status[1];
-    initial if(!dip_pause) $display("INFO: DIP pause enabled");
-`else
-wire dip_pause = ~status[1] & ~game_pause;
-`endif
-
-`ifdef SIMULATION
-    `ifdef DIP_TEST
-    wire dip_test  = 1'b0;
-    `else
-    wire dip_test  = 1'b1;
-    `endif
-    initial if(!dip_test) $display("INFO: DIP test mode enabled");
-`else
-wire dip_test  = ~status[4];
-`endif
-
-wire       dip_upright   = 1'b1;
-wire       dip_credits2p = 1'b1;
-wire       dip_demosnd   = 1'b0;
-wire       dip_continue  = 1'b1;
-wire [2:0] dip_price2    = 3'b100;
-wire [2:0] dip_price1    = ~3'b0;
-reg  [3:0] dip_level;
-wire [1:0] dip_fxlevel = 2'b10 ^ status[13:12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -143,14 +114,6 @@ wire [3:0] gfx_en;
 wire data_rdy, sdram_ack;
 wire refresh_en;
 
-// play level
-always @(*)
-    case( status[3:2] )
-        2'b00: dip_level = 4'b0111; // normal
-        2'b01: dip_level = 4'b1111; // easy
-        2'b10: dip_level = 4'b0011; // hard
-        2'b11: dip_level = 4'b0000; // very hard
-    endcase // status[3:2]
 
 // PLL's
 // 24 MHz or 12 MHz base clock
@@ -169,6 +132,31 @@ assign clk_sys   = clk_rom;
 jtgng_pll1 u_pll_vga (
     .inclk0 ( clk_vga_in ),
     .c0     ( clk_vga    ) // 25
+);
+
+wire [7:0] dipsw_a, dipsw_b;
+wire [1:0] dip_fxlevel;
+wire       enable_fm, enable_psg;
+wire       dip_pause, dip_flip;
+wire [1:0] rotate;
+wire       en_mixing; // MiST
+wire [1:0] scanlines; // MiSTer
+
+jt1943_dip u_dip(
+    .clk        ( clk_sys       ),
+    .status     ( status        ),
+    .enable_fm  ( enable_fm     ),
+    .enable_psg ( enable_psg    ),
+    .game_pause ( game_pause    ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       ),
+    .dip_pause  ( dip_pause     ),
+    .dip_flip   ( dip_flip      ),
+    .dip_fxlevel( dip_fxlevel   ),
+    // screen
+    .rotate     ( rotate        ),
+    .en_mixing  ( en_mixing     ),
+    .scanlines  ( scanlines     )
 );
 
 wire [5:0] vga_r, vga_g, vga_b;
@@ -224,6 +212,7 @@ assign sim_vs = vs;
 assign sim_hs = hs;
 `endif
 
+
 jtframe_mist #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
@@ -233,7 +222,7 @@ u_frame(
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
     // Base video
-    .osd_rotate     ( { dip_flip, 1'b1 } ),
+    .osd_rotate     ( rotate         ),
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
@@ -333,7 +322,6 @@ u_frame(
 jt1943_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
     .rst         ( game_rst      ),
-    .clk_rom     ( clk_rom       ),
     .clk         ( clk_sys       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
@@ -375,25 +363,21 @@ u_game(
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
     .refresh_en  ( refresh_en    ),
-    // DIP switches
-    .dip_test    ( dip_test       ),
-    .dip_pause   ( dip_pause      ),
-    .dip_upright ( dip_upright    ),
-    .dip_credits2p( dip_credits2p ),
-    .dip_level   ( dip_level      ),
-    .dip_demosnd ( dip_demosnd    ),
-    .dip_continue( dip_continue   ),
-    .dip_price2  ( dip_price2     ),
-    .dip_price1  ( dip_price1     ),
-    .dip_flip    ( dip_flip       ),
-    .dip_fxlevel ( dip_fxlevel    ),
 
-    .coin_cnt    ( coin_cnt       ),
+    // Standard DIP
+    .dipsw_a     ( dipsw_a       ),
+    .dipsw_b     ( dipsw_b       ),
+    // Non-standard
+    .dip_flip    ( dip_flip      ),
+    .dip_pause   ( dip_pause     ),
+    .dip_fxlevel ( dip_fxlevel   ),  
+
+    .coin_cnt    ( coin_cnt      ),
     // sound
-    .snd         ( snd            ),
-    .sample      (                ),
+    .snd         ( snd           ),
+    .sample      (               ),
     // Debug
-    .gfx_en      ( gfx_en         )
+    .gfx_en      ( gfx_en        )
 );
 
 endmodule

@@ -21,7 +21,6 @@
 module jt1943_game(
     input           rst,
     input           clk,        // 24  or 12  MHz
-    input           clk_rom,    // SDRAM clock
     output          cen12,      // 12   MHz
     output          cen6,       //  6   MHz
     output          cen3,       //  3   MHz
@@ -61,17 +60,10 @@ module jt1943_game(
     output  [ 1:0]  prog_mask,
     output          prog_we,
 
-    // DIP Switch A
-    input           dip_test,
+    // DIP Switches
+    input   [7:0]   dipsw_a,
+    input   [7:0]   dipsw_b,
     input           dip_pause,
-    input           dip_upright,
-    input           dip_credits2p,
-    input   [3:0]   dip_level, // difficulty level
-    // DIP Switch B
-    input           dip_demosnd,
-    input           dip_continue,
-    input   [2:0]   dip_price2,
-    input   [2:0]   dip_price1,
     input           dip_flip,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     output          coin_cnt,
@@ -161,8 +153,7 @@ wire [12:0] obj_AB;
 wire [12:0] prom_we;
 
 jt1943_prom_we u_prom_we(
-    .clk_rom     ( clk_rom       ),
-    .clk_rgb     ( clk           ),
+    .clk         ( clk           ),
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
@@ -245,8 +236,8 @@ jt1943_main u_main(
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
     // DIP switches
-    .dipsw_a    ( {dip_test, dip_pause, dip_upright, dip_credits2p, dip_level } ),
-    .dipsw_b    ( {dip_demosnd, dip_continue, dip_price2, dip_price1} ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       ),
     .coin_cnt   ( coin_cnt      )
 );
 `else

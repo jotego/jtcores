@@ -146,6 +146,34 @@ pll pll(
 
 wire [31:0] status;
 wire [ 1:0] buttons;
+wire        game_pause;
+
+wire [7:0] dipsw_a, dipsw_b;
+wire [1:0] dip_fxlevel;
+wire       enable_fm, enable_psg;
+wire       dip_pause, dip_flip;
+wire       vertical_n;
+wire [1:0] scanlines; // MiSTer
+
+jt1943_dip u_dip(
+    .clk        ( clk_sys       ),
+    .status     ( status        ),
+    .enable_fm  ( enable_fm     ),
+    .enable_psg ( enable_psg    ),
+    .game_pause ( game_pause    ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       ),
+    .dip_pause  ( dip_pause     ),
+    .dip_flip   ( dip_flip      ),
+    .dip_fxlevel( dip_fxlevel   ),
+    // screen
+    .hdmi_arx   ( HDMI_ARX      ),
+    .hdmi_ary   ( HDMI_ARY      ),
+    .rotate     ( ROTATE        ),
+    .vertical_n ( vertical_n    ),
+    .scanlines  ( scanlines     )
+);
+
 
 wire        ioctl_wr;
 wire [21:0] ioctl_addr;
@@ -153,16 +181,12 @@ wire [ 7:0] ioctl_data;
 
 wire [ 9:0] game_joystick1, game_joystick2;
 wire [ 1:0] game_coin, game_start;
-wire        game_pause;
-wire        dip_pause = ~game_pause;
 wire [ 3:0] gfx_en;
 
 wire        forced_scandoubler;
 wire        downloading, game_rst, rst, rst_n;
 wire        rst_req   = RESET | status[0] | buttons[1];
-wire        dip_flip  = status[32'hb];
-wire        dip_test  = ~status[4];
-wire        enable_fm = ~status[8], enable_psg = ~status[7];
+
 
 assign LED_DISK  = 2'b0;
 assign LED_POWER = 2'b0;
@@ -180,13 +204,6 @@ wire         prog_we;
 wire [21:0]  prog_addr;
 wire [ 7:0]  prog_data;
 wire [ 1:0]  prog_mask;
-
-wire       orientation = status[20];
-wire       widescreen  = status[21];
-wire [1:0] scanlines   = status[23:22];
-
-assign HDMI_ARX = widescreen ? 8'd16 : orientation ? 8'd4 : 8'd3;
-assign HDMI_ARY = widescreen ? 8'd9  : orientation ? 8'd3 : 8'd4;
 
 jtframe_mister #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
@@ -286,7 +303,7 @@ arcade_rotate_fx #(256,224,12,1) u_rotate_fx
 
     .fx                ( scanlines          ),
     .forced_scandoubler( forced_scandoubler ),
-    .no_rotate         ( orientation        )
+    .no_rotate         ( vertical_n         )
 );
 `else
     assign VGA_VS = vs;
@@ -306,25 +323,8 @@ assign sim_pxl_cen = cen6;
 `endif
 
 ///////////////////////////////////////////////////////////////////
-wire       dip_upright   = 1'b1;
-wire       dip_credits2p = 1'b1;
-wire       dip_demosnd   = 1'b0;
-wire       dip_continue  = 1'b1;
-wire [2:0] dip_price2    = 3'b100;
-wire [2:0] dip_price1    = ~3'b0;
-reg  [3:0] dip_level;
-wire [1:0] dip_fxlevel = 2'b10 ^ status[13:12];
 
-// play level
-always @(posedge clk_sys)
-    case( status[3:2] )
-        2'b00: dip_level <= 4'b0111; // normal
-        2'b01: dip_level <= 4'b1111; // easy
-        2'b10: dip_level <= 4'b0011; // hard
-        2'b11: dip_level <= 4'b0000; // very hard
-    endcase // status[3:2]
 
-assign ROTATE = 2'b01;
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
@@ -333,8 +333,6 @@ assign sim_pxl_cen = cen6;
 jt1943_game #(.CLK_SPEED(48)) u_game
 (
     .rst           ( game_rst        ),
-
-    .clk_rom       ( clk_sys         ),
     .clk           ( clk_sys         ),
     .cen12         ( cen12           ),
     .cen6          ( cen6            ),
@@ -376,17 +374,13 @@ jt1943_game #(.CLK_SPEED(48)) u_game
     .data_rdy     ( data_rdy         ),
     .refresh_en   ( refresh_en       ),
 
-    .dip_test     ( dip_test         ),
-    .dip_pause    ( dip_pause        ),
-    .dip_upright  ( dip_upright      ),
-    .dip_credits2p( dip_credits2p    ),
-    .dip_level    ( dip_level        ),
-    .dip_demosnd  ( dip_demosnd      ),
-    .dip_continue ( dip_continue     ),
-    .dip_price2   ( dip_price2       ),
-    .dip_price1   ( dip_price1       ),
+    // Standard DIP
+    .dipsw_a      ( dipsw_a          ),
+    .dipsw_b      ( dipsw_b          ),
+    // Non-standard
     .dip_flip     ( dip_flip         ),
-    .dip_fxlevel  ( dip_fxlevel      ),
+    .dip_pause    ( dip_pause        ),
+    .dip_fxlevel  ( dip_fxlevel      ),  
 
     .snd          ( AUDIO_L          ),
     .gfx_en       ( gfx_en           ),

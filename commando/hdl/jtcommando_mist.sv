@@ -91,8 +91,9 @@ wire          coin_cnt;
 wire          game_pause;
 wire          rst_req = status[32'hf];
 wire          sdram_req;
-wire          dip_pause = ~status[1] & ~game_pause;
 
+// DIP
+wire          dip_pause = ~status[1] & ~game_pause;
 wire [1:0]    dip_upright = 2'b00;
 wire          dip_level  = ~status[2];
 wire [1:0]    dip_start  = ~status[4:3];

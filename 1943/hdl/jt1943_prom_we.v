@@ -19,8 +19,7 @@
 `timescale 1ns/1ps
 
 module jt1943_prom_we(
-    input                clk_rom,
-    input                clk_rgb,
+    input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
@@ -41,7 +40,7 @@ wire [21:0] map_start = ioctl_addr - MAP1ADDR;
 reg set_strobe, set_done;
 reg [12:0] prom_we0;
 
-always @(posedge clk_rgb) begin
+always @(posedge clk) begin
     prom_we <= 'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
@@ -51,7 +50,7 @@ always @(posedge clk_rgb) begin
     end
 end
 
-always @(posedge clk_rom) begin
+always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
