@@ -44,13 +44,13 @@ module jt1943_dip(
 assign     en_mixing     = ~status[9];
 
 assign     dip_flip      = status[32'hb];
-wire       enable_fm     = ~status[8], enable_psg = ~status[7];
+assign     enable_fm     = ~status[8], enable_psg = ~status[7];
 
 `ifdef SIMULATION
-    wire dip_pause = 1'b1; // avoid having the main CPU halted in simulation
+    assign dip_pause = 1'b1; // avoid having the main CPU halted in simulation
     initial if(!dip_pause) $display("WARNING: DIP pause enabled");
 `else
-wire dip_pause = ~status[1] & ~game_pause;
+assign dip_pause = ~status[1] & ~game_pause;
 `endif
 
 `ifdef SIMULATION
