@@ -108,19 +108,20 @@ module emu
 `include "build_id.v"
 localparam CONF_STR = {
     "JT1943;;",
+    "O1,Pause,OFF,ON;",
     "-;",
     "F,rom;",
-    "OL,Aspect Ratio,Original,Wide;", // L=21
-    "OK,Orientation,Vert,Horz;",      // K=20
-    "OMN,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", // 22,23
+    "O2,Aspect Ratio,Original,Wide;",
+    "O5,Orientation,Vert,Horz;",
+    "O34,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    "O6,Test mode,OFF,ON;",
+    "O7,PSG,ON,OFF;",
+    "O8,FM ,ON,OFF;",
+    // "O9,Screen filter,ON,OFF;",
+    "OAB,FX volume, high, very high, very low, low;",
+    // "OC,Flip screen,OFF,ON;",
     "-;",
-    "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
-    "O4,Test mode,OFF,ON;", // 20
-    "O7,PSG,ON,OFF;", // 14
-    "O8,FM ,ON,OFF;", // 14
-    "OCD,FX volume, high, very high, very low, low;",
-    // "OB,Flip screen,OFF,ON;",
-    "-;",
+    "OGH,Difficulty,Normal,Easy,Hard,Very hard;",
     "R0,Reset;",
     "J,Fire,Bomb,Start 1P,Start 2P,Coin,Pause;",
     "V,v",`BUILD_DATE, " http://patreon.com/topapate;"
@@ -146,34 +147,13 @@ pll pll(
 
 wire [31:0] status;
 wire [ 1:0] buttons;
-wire        game_pause;
 
 wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
-wire       dip_pause, dip_flip;
+wire       dip_pause, dip_flip, dip_test;
 wire       vertical_n;
 wire [1:0] scanlines; // MiSTer
-
-jt1943_dip u_dip(
-    .clk        ( clk_sys       ),
-    .status     ( status        ),
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
-    .game_pause ( game_pause    ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       ),
-    .dip_pause  ( dip_pause     ),
-    .dip_flip   ( dip_flip      ),
-    .dip_fxlevel( dip_fxlevel   ),
-    // screen
-    .hdmi_arx   ( HDMI_ARX      ),
-    .hdmi_ary   ( HDMI_ARY      ),
-    .rotate     ( ROTATE        ),
-    .vertical_n ( vertical_n    ),
-    .scanlines  ( scanlines     )
-);
-
 
 wire        ioctl_wr;
 wire [21:0] ioctl_addr;
@@ -250,16 +230,25 @@ u_frame(
     .game_rst       ( game_rst       ),
     .game_rst_n     (                ),
     // reset forcing signals:
-    .dip_flip       ( dip_flip       ),
     .rst_req        ( rst_req        ),
     // joystick
     .game_joystick1 ( game_joystick1 ),
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     ),
     .game_service   (                ), // unused
     .LED            ( LED_USER       ),
+    // DIP and OSD settings
+    .enable_fm      ( enable_fm      ),
+    .enable_psg     ( enable_psg     ),
+    .dip_test       ( dip_test       ),
+    .dip_pause      ( dip_pause      ),
+    .dip_flip       ( dip_flip       ),
+    .dip_fxlevel    ( dip_fxlevel    ),
+    // screen
+    .rotate         ( ROTATE         ),
+    .en_mixing      (                ),
+    .scanlines      ( scanlines      ),
     // Debug
     .gfx_en         ( gfx_en         )
 );
@@ -374,12 +363,11 @@ jt1943_game #(.CLK_SPEED(48)) u_game
     .data_rdy     ( data_rdy         ),
     .refresh_en   ( refresh_en       ),
 
-    // Standard DIP
-    .dipsw_a      ( dipsw_a          ),
-    .dipsw_b      ( dipsw_b          ),
-    // Non-standard
-    .dip_flip     ( dip_flip         ),
+    // DIP switches
+    .status       ( status           ),
     .dip_pause    ( dip_pause        ),
+    .dip_flip     ( dip_flip         ),
+    .dip_test     ( dip_test         ),
     .dip_fxlevel  ( dip_fxlevel      ),  
 
     .snd          ( AUDIO_L          ),

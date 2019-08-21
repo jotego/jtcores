@@ -39,9 +39,6 @@ module jt1943_game(
     input   [ 1:0]  coin_input,
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
-    input           enable_fm,
-    input           enable_psg,
-
     // SDRAM interface
     input           downloading,
     input           loop_rst,
@@ -61,15 +58,17 @@ module jt1943_game(
     output          prog_we,
 
     // DIP Switches
-    input   [7:0]   dipsw_a,
-    input   [7:0]   dipsw_b,
+    input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
     input           dip_flip,
+    input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     output          coin_cnt,
     // Sound output
     output  [15:0]  snd,
     output          sample,
+    input           enable_fm,
+    input           enable_psg,
     // Debug
     input   [3:0]   gfx_en
 );
@@ -94,6 +93,7 @@ wire [13:0]  char_addr, map1_addr, map2_addr;
 wire [16:0]  obj_addr;
 wire [16:0]  scr1_addr;
 wire [14:0]  scr2_addr;
+wire [ 7:0]  dipsw_a, dipsw_b;
 
 wire rom_ready;
 wire main_ok, char_ok;
@@ -115,6 +115,14 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen1p5 ( cen1p5    )
 );
 
+jt1943_dip u_dip(
+    .clk        ( clk           ),
+    .status     ( status        ),
+    .dip_pause  ( dip_pause     ),
+    .dip_test   ( dip_test      ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
+);
 
 jtgng_timer u_timer(
     .clk       ( clk      ),

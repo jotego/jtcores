@@ -1,6 +1,7 @@
 ../../hdl/jtcommando_game.v
 ../../hdl/jtcommando_main.v
 ../../hdl/jtcommando_prom_we.v
+../../hdl/jtcommando_dip.v
 ../../../1943/hdl/jt1943_rom2.v
 ../../../1943/hdl/jt1943_romrq.v
 ../../../modules/jt12/hdl/jt12_rst.v
@@ -10,7 +11,6 @@
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
-../../../modules/jtframe/hdl/video/jtframe_scan2x.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_video.v
 ../../../modules/jtgng_colmix.v

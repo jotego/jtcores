@@ -28,6 +28,8 @@ module jtcommando_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
+    output          LHBL,
+    output          LVBL,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -55,17 +57,11 @@ module jtcommando_game(
     output  [ 1:0]  prog_mask,
     output          prog_we,
     // DIP switches
-    input           dip_pause, // Not a DIP on the original PCB
-    input   [ 1:0]  dip_lives,
-    input           dip_level,
-    input   [ 1:0]  dip_start,
-    input   [ 1:0]  dip_price1,
-    input   [ 1:0]  dip_price2,
-    input   [ 2:0]  dip_bonus,
-    input   [ 1:0]  dip_upright,
-    input           dip_demosnd,
+    input   [7:0]   dipsw_a,
+    input   [7:0]   dipsw_b,
+    input           dip_pause,
     input           dip_flip,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     // Sound output
     output  signed [15:0] snd,
     output          sample,
@@ -199,8 +195,6 @@ wire [8:0] scr_hpos, scr_vpos;
 
 
 `ifndef NOMAIN
-wire [7:0] dipsw_a = { dip_price1, dip_price2, dip_lives, dip_start };
-wire [7:0] dipsw_b = { dip_upright, dip_flip, dip_level, dip_demosnd, dip_bonus };
 
 jtcommando_main u_main(
     .rst        ( rst_game      ),

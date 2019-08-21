@@ -55,26 +55,29 @@ module jt1943_mist(
     output          sim_pxl_clk,
     output          sim_vs,
     output          sim_hs
-    `endif    
+    `endif
 );
 
 localparam CLK_SPEED=48;
 
 localparam CONF_STR = {
-    //   00000000011111111112222222222333333333344444444445
-    //   12345678901234567890123456789012345678901234567890
-        "JT1943;;", //8
-        "O1,Pause,OFF,ON;", // 16
-        "F,rom;", // 6
-        "O23,Difficulty,Normal,Easy,Hard,Very hard;", // 42
-        "O4,Test mode,OFF,ON;", // 20
-        "O7,PSG,ON,OFF;", // 14
-        "O8,FM ,ON,OFF;", // 14
-        "O9,Screen filter,ON,OFF;", // 24
-        // "OB,Flip screen,OFF,ON;", // 22
-        "OCD,FX volume, high, very high, very low, low;",
-        "TF,RST ,OFF,ON;", // 15
-        "V,http://patreon.com/topapate;" // 30
+    "JT1943;;", //8
+    "O1,Pause,OFF,ON;",
+    // "-;",
+    "F,rom;",
+    // "O2,Aspect Ratio,Original,Wide;",
+    // "O5,Orientation,Vert,Horz;",
+    // "O34,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    "O6,Test mode,OFF,ON;",
+    "O7,PSG,ON,OFF;",
+    "O8,FM ,ON,OFF;",
+    "O9,Screen filter,ON,OFF;",
+    "OAB,FX volume, high, very high, very low, low;",
+    // "OC,Flip screen,OFF,ON;",
+    // "-;",
+    "OGH,Difficulty,Normal,Easy,Hard,Very hard;",
+    "T0,RST;", // 15
+    "V,http://patreon.com/topapate;" // 30
 };
 
 wire          rst, clk_sys, clk_rom;
@@ -89,9 +92,8 @@ wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 wire          coin_cnt;
 
-wire rst_req = status[32'hf];
+wire rst_req = status[0];
 
-wire game_pause;
 wire sdram_req;
 
 wire [21:0]   prog_addr;
@@ -141,23 +143,6 @@ wire       dip_pause, dip_flip;
 wire [1:0] rotate;
 wire       en_mixing; // MiST
 wire [1:0] scanlines; // MiSTer
-
-jt1943_dip u_dip(
-    .clk        ( clk_sys       ),
-    .status     ( status        ),
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
-    .game_pause ( game_pause    ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       ),
-    .dip_pause  ( dip_pause     ),
-    .dip_flip   ( dip_flip      ),
-    .dip_fxlevel( dip_fxlevel   ),
-    // screen
-    .rotate     ( rotate        ),
-    .en_mixing  ( en_mixing     ),
-    .scanlines  ( scanlines     )
-);
 
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
@@ -222,7 +207,6 @@ u_frame(
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
     // Base video
-    .osd_rotate     ( rotate         ),
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
@@ -235,7 +219,7 @@ u_frame(
     .vga_g          ( vga_g          ),
     .vga_b          ( vga_b          ),
     .vga_hsync      ( vga_hsync      ),
-    .vga_vsync      ( vga_vsync      ),  
+    .vga_vsync      ( vga_vsync      ),
     // MiST VGA pins
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
@@ -285,7 +269,6 @@ u_frame(
     .game_rst       ( game_rst       ),
     .game_rst_n     (                ),
     // reset forcing signals:
-    .dip_flip       ( dip_flip       ),
     .rst_req        ( rst_req        ),
     // Sound
     .snd            ( snd            ),
@@ -296,9 +279,19 @@ u_frame(
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     ),
     .game_service   (                ), // unused
     .LED            ( LED            ),
+    // DIP and OSD settings
+    .enable_fm      ( enable_fm      ),
+    .enable_psg     ( enable_psg     ),
+    .dip_test       ( dip_test       ),
+    .dip_pause      ( dip_pause      ),
+    .dip_flip       ( dip_flip       ),
+    .dip_fxlevel    ( dip_fxlevel    ),
+    // screen
+    .rotate         (                ),
+    .en_mixing      (                ),
+    .scanlines      ( scanlines      ),    
     // Debug
     .gfx_en         ( gfx_en         )
 );
@@ -364,12 +357,11 @@ u_game(
     .data_rdy    ( data_rdy      ),
     .refresh_en  ( refresh_en    ),
 
-    // Standard DIP
-    .dipsw_a     ( dipsw_a       ),
-    .dipsw_b     ( dipsw_b       ),
-    // Non-standard
-    .dip_flip    ( dip_flip      ),
+    // DIP switches
+    .status      ( status        ),
     .dip_pause   ( dip_pause     ),
+    .dip_flip    ( dip_flip      ),
+    .dip_test    ( dip_test      ),
     .dip_fxlevel ( dip_fxlevel   ),  
 
     .coin_cnt    ( coin_cnt      ),

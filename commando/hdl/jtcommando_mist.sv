@@ -55,7 +55,7 @@ module jtcommando_mist(
     output          sim_pxl_clk,
     output          sim_vs,
     output          sim_hs
-    `endif    
+    `endif
 );
 
 localparam CLK_SPEED=48;
@@ -66,10 +66,12 @@ localparam CONF_STR = {
         "F,rom;", // 6
         "O2,Difficulty,Normal,Hard;", // 42
         "O34,Start level,1,5,3,7;", // 20
-        "O56,Lives,3,4,2,5;", // 20
-        "O7,PSG ,ON,OFF;", // 15
-        "O8,FM  ,ON,OFF;", // 15
-        "O9,Screen filter,ON,OFF;", // 24
+        "OGH,Lives,3,4,2,5;", // 20
+
+        //"O4,Test mode,OFF,ON;",
+        "O7,PSG,ON,OFF;",
+        "O8,FM ,ON,OFF;",
+        "O9,Screen filter,ON,OFF;",
         "OB,Flip screen,OFF,ON;", // 22
         "OCD,FX volume, high, very high, very low, low;",
         "TF,Reset;", // 9
@@ -91,19 +93,6 @@ wire          coin_cnt;
 wire          game_pause;
 wire          rst_req = status[32'hf];
 wire          sdram_req;
-
-// DIP
-wire          dip_pause = ~status[1] & ~game_pause;
-wire [1:0]    dip_upright = 2'b00;
-wire          dip_level  = ~status[2];
-wire [1:0]    dip_start  = ~status[4:3];
-wire [1:0]    dip_lives  = ~status[6:5];
-wire [1:0]    dip_price1 = 2'b00;
-wire [1:0]    dip_price2 = 2'b11;
-wire          dip_flip   = status[11];
-wire          enable_psg = ~status[7], enable_fm = ~status[8];
-wire          en_mixing  = ~status[9];
-wire [1:0]    dip_fxlevel = 2'b10 ^ status[13:12];
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -137,6 +126,22 @@ jtgng_pll0 u_pll_game (
 jtgng_pll1 u_pll_vga (
     .inclk0 ( clk_vga_in ),
     .c0     ( clk_vga    ) // 25
+);
+
+wire [7:0] dipsw_a, dipsw_b;
+wire [1:0] dip_fxlevel;
+wire       enable_fm, enable_psg;
+wire       dip_pause, dip_flip;
+wire [1:0] rotate;
+wire       en_mixing; // MiST
+wire [1:0] scanlines; // MiSTer
+
+jtcommando_dip u_dip(
+    .clk        ( clk_sys       ),
+    .status     ( status        ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       ),
+    .dip_flip   ( dip_flip      )
 );
 
 wire [5:0] vga_r, vga_g, vga_b;
@@ -214,7 +219,7 @@ u_frame(
     .vga_g          ( vga_g          ),
     .vga_b          ( vga_b          ),
     .vga_hsync      ( vga_hsync      ),
-    .vga_vsync      ( vga_vsync      ),  
+    .vga_vsync      ( vga_vsync      ),
     // MiST VGA pins
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
@@ -264,7 +269,6 @@ u_frame(
     .game_rst       ( game_rst       ),
     .game_rst_n     (                ),
     // reset forcing signals:
-    .dip_flip       ( dip_flip       ),
     .rst_req        ( rst_req        ),
     // Sound
     .snd            ( snd            ),
@@ -275,9 +279,19 @@ u_frame(
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     ),
     .game_service   (                ), // unused
     .LED            ( LED            ),
+    // DIP and OSD settings
+    .enable_fm      ( enable_fm      ),
+    .enable_psg     ( enable_psg     ),
+    .game_pause     ( game_pause     ),
+    .dip_pause      ( dip_pause      ),
+    .dip_flip       ( dip_flip       ),
+    .dip_fxlevel    ( dip_fxlevel    ),
+    // screen
+    .rotate         ( rotate         ),
+    .en_mixing      ( en_mixing      ),
+    .scanlines      ( scanlines      ),
     // Debug
     .gfx_en         ( gfx_en         )
 );
@@ -321,18 +335,15 @@ u_game(
     .sdram_ack   ( sdram_ack      ),
     .data_rdy    ( data_rdy       ),
     .refresh_en  ( refresh_en     ),
-    // DIP switches
-    .dip_pause   ( dip_pause      ),
-    .dip_lives   ( dip_lives      ),
-    .dip_level   ( dip_level      ),
-    .dip_start   ( dip_start      ),
-    .dip_price1  ( dip_price1     ),
-    .dip_price2  ( dip_price2     ),
-    .dip_bonus   ( 3'b111         ),
-    .dip_upright ( dip_upright    ), // upright, one joystick
-    .dip_demosnd ( 1'b0           ),
-    .dip_flip    ( dip_flip       ),
-    .dip_fxlevel ( dip_fxlevel    ),
+
+    // Standard DIP
+    .dipsw_a     ( dipsw_a       ),
+    .dipsw_b     ( dipsw_b       ),
+    // Non-standard
+    .dip_flip    ( dip_flip      ),
+    .dip_pause   ( dip_pause     ),
+    .dip_fxlevel ( dip_fxlevel   ),
+
     // sound
     .snd         ( snd            ),
     .sample      (                ),

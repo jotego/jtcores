@@ -18,36 +18,29 @@
 
 `timescale 1ns/1ps
 
-module jt1943_dip(
-    input           clk,
-    input   [31:0]  status,
-    // non standard:
-    input           dip_pause,
-    input           dip_test,
+module jtcommando_dip(
+    input              clk,
+    input      [31:0]  status,
 
-    output  [ 7:0]  dipsw_a,
-    output  [ 7:0]  dipsw_b
+    output reg [ 7:0]  dipsw_a,
+    output reg [ 7:0]  dipsw_b,
+    // non standard:
+    input              dip_flip
 );
 
-wire       dip_upright   = 1'b1;
-wire       dip_credits2p = 1'b1;
-wire       dip_demosnd   = 1'b0;
-wire       dip_continue  = 1'b1;
-wire [2:0] dip_price2    = 3'b100;
-wire [2:0] dip_price1    = ~3'b0;
-reg  [3:0] dip_level;
+// Commando specific:
+wire [1:0]    dip_upright = 2'b00;
+wire          dip_level  = ~status[2];
+wire [1:0]    dip_start  = ~status[4:3];
+wire [1:0]    dip_lives  = ~status[6:5];
+wire [1:0]    dip_price1 = 2'b00;
+wire [1:0]    dip_price2 = 2'b11;
+wire [2:0]    dip_bonus  = 3'b111;
+wire          dip_demosnd= 1'b0;
 
-// play level
-always @(posedge clk)
-    case( status[17:16] )
-        2'b00: dip_level <= 4'b0111; // normal
-        2'b01: dip_level <= 4'b1111; // easy
-        2'b10: dip_level <= 4'b0011; // hard
-        2'b11: dip_level <= 4'b0000; // very hard
-    endcase
-
-
-assign dipsw_a = {dip_test, dip_pause, dip_upright, dip_credits2p, dip_level };
-assign dipsw_b = {dip_demosnd, dip_continue, dip_price2, dip_price1};
+always @(posedge clk) begin
+    dipsw_a <= { dip_price1, dip_price2, dip_lives, dip_start };
+    dipsw_b <= { dip_upright, dip_flip, dip_level, dip_demosnd, dip_bonus };
+end
 
 endmodule
