@@ -91,7 +91,7 @@ assign     vertical_n  = status[20];
 wire       widescreen  = status[21];
 assign     scanlines   = status[23:22];
 
-assign rotate = { dip_flip, ~vertical_n };
+assign rotate = { dip_flip, vertical_n };
 
 // only for MiSTer
 assign hdmi_arx = widescreen ? 8'd16 : vertical_n ? 8'd4 : 8'd3;
