@@ -8,6 +8,7 @@
 ../../hdl/jt1942_objram.v
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
+../../hdl/jt1942_dip.v
 ../../../1943/hdl/jt1943_rom2.v
 ../../../1943/hdl/jt1943_romrq.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v

@@ -65,13 +65,8 @@ module jtgng_main(
     input              rom_ok,
     // DIP switches
     input              dip_pause,
-    input              dip_flip,
-    input  [1:0]       dip_lives,
-    input  [1:0]       dip_level,
-    input  [1:0]       dip_bonus,
-    input              dip_game_mode,
-    input              dip_attract_snd,
-    input              dip_upright
+    input  [7:0]       dipsw_a,
+    input  [7:0]       dipsw_b
 );
 
 wire [15:0] A;
@@ -193,8 +188,6 @@ always @(posedge clk)
     end
 
 reg [7:0] cabinet_input;
-wire [7:0] dipsw_a = { dip_flip, dip_game_mode, dip_attract_snd, 5'h1F /* 1 coin, 1 credit */ };
-wire [7:0] dipsw_b = { dip_level, dip_bonus, dip_upright, dip_lives };
 
 always @(*)
     case( cpu_AB[3:0])

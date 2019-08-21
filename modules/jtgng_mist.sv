@@ -14,11 +14,17 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-10-2017 */
+    Date: 22-2-2019 */
 
 `timescale 1ns/1ps
 
-module jt1942_mist(
+// This is the MiST top level
+// It will instantiate the appropriate game core according
+// to the macro GAMETOP
+// It will get the config string for the microcontroller
+// from the include file conf_str.v
+
+module `MISTTOP(
     input   [1:0]   CLOCK_27,
     output  [5:0]   VGA_R,
     output  [5:0]   VGA_G,
@@ -60,20 +66,11 @@ module jt1942_mist(
 
 localparam CLK_SPEED=48;
 
-localparam CONF_STR = {
-        "JT1942;;",
-        "O1,Pause,OFF,ON;",
-        "F,rom;",
-        "O23,Difficulty,Normal,Easy,Hard,Very hard;",
-        "O4,Test mode,OFF,ON;",
-        "O56,Lives,2,1,3,5;",
-        "O78,Bonus,30/100,30/80,20/100,20/80;",
-        "O9,Screen filter,ON,OFF;",
-        "OA,Invincibility,OFF,ON;",
-        "OB,Flip screen,OFF,ON;",
-        "TF,RST ,OFF,ON;",
-        "V,http://patreon.com/topapate;"
-};
+`ifdef SIMULATION
+localparam CONF_STR="JTGNG;;";
+`else
+`include "conf_str.v"
+`endif
 
 wire          rst, rst_n, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
@@ -85,11 +82,10 @@ wire          downloading;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
-wire          coin_cnt;
 
-wire rst_req = status[32'hf];
-wire cheat_invincible = status[32'd10];
-wire dip_flip = status[32'hb];
+wire rst_req = status[0];
+
+wire sdram_req;
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
@@ -100,18 +96,17 @@ wire [3:0] red;
 wire [3:0] green;
 wire [3:0] blue;
 
-wire LHBL, LVBL, hs, vs;
-wire [8:0] snd;
+wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
+wire [15:0] snd;
 
 wire [9:0] game_joystick1, game_joystick2;
 wire [1:0] game_coin, game_start;
-wire       game_pause, game_rst;
+wire game_rst;
 wire [3:0] gfx_en;
-wire       sdram_req;
-
 // SDRAM
 wire data_rdy, sdram_ack;
 wire refresh_en;
+
 
 // PLL's
 // 24 MHz or 12 MHz base clock
@@ -132,9 +127,18 @@ jtgng_pll1 u_pll_vga (
     .c0     ( clk_vga    ) // 25
 );
 
+wire [7:0] dipsw_a, dipsw_b;
+wire [1:0] dip_fxlevel;
+wire       enable_fm, enable_psg;
+wire       dip_pause, dip_flip, dip_test;
+wire [1:0] rotate;
+wire       en_mixing; // MiST
+wire [1:0] scanlines; // MiSTer
+
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
 
+`ifndef JTFRAME_SCAN2X
 jtgng_vga u_scandoubler (
     .clk_rgb    ( clk_sys       ),
     .cen6       ( cen6          ), //  6 MHz
@@ -143,9 +147,9 @@ jtgng_vga u_scandoubler (
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
-    .en_mixing  ( ~status[9]    ),
+    .LHBL       ( LHBL_dly      ),
+    .LVBL       ( LVBL_dly      ),
+    .en_mixing  ( en_mixing     ),
     .vga_red    ( vga_r[5:1]    ),
     .vga_green  ( vga_g[5:1]    ),
     .vga_blue   ( vga_b[5:1]    ),
@@ -157,6 +161,24 @@ jtgng_vga u_scandoubler (
 assign vga_r[0] = vga_r[5];
 assign vga_g[0] = vga_g[5];
 assign vga_b[0] = vga_b[5];
+`else
+wire [11:0] rgbx2;
+
+jtframe_scan2x #(.DW(12), .HLEN(9'd384)) u_scan2x(
+    .rst_n      ( rst_n     ),
+    .clk        ( clk_sys   ),
+    .base_cen   ( cen6      ),
+    .basex2_cen ( cen12     ),
+    .base_pxl   ( {red, green, blue } ),
+    .x2_pxl     ( rgbx2     ),
+    .HS         ( hs        ),
+    .x2_HS      ( vga_hsync )
+);
+assign vga_vsync = vs;
+assign vga_r = { rgbx2[11:8], rgbx2[11:10] };
+assign vga_g = { rgbx2[ 7:4], rgbx2[ 7: 6] };
+assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
+`endif
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
@@ -165,8 +187,9 @@ assign sim_vs = vs;
 assign sim_hs = hs;
 `endif
 
+
 jtframe_mist #( .CONF_STR(CONF_STR),
-    .SIGNED_SND(1'b0), .THREE_BUTTONS(1'b0))
+    .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
@@ -174,11 +197,10 @@ u_frame(
     .pll_locked     ( pll_locked     ),
     .status         ( status         ),
     // Base video
-    .osd_rotate     ( { dip_flip, 1'b1 } ),
     .game_r         ( red            ),
     .game_g         ( green          ),
     .game_b         ( blue           ),
-    .LHBL           ( LHBL           ),
+    .LHBL           ( LHBL_dly       ),
     .LVBL           ( LVBL           ),
     .hs             ( hs             ),
     .vs             ( vs             ),
@@ -233,13 +255,13 @@ u_frame(
     .refresh_en     ( refresh_en     ),
 //////////// board
     .rst            ( rst            ),
-    .rst_n          ( rst_n          ),
+    .rst_n          ( rst_n          ), // unused
     .game_rst       ( game_rst       ),
+    .game_rst_n     (                ),
     // reset forcing signals:
-    .dip_flip       ( dip_flip       ),
     .rst_req        ( rst_req        ),
     // Sound
-    .snd            ( { snd, 7'd0 }  ),
+    .snd            ( snd            ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     // joystick
@@ -247,17 +269,44 @@ u_frame(
     .game_joystick2 ( game_joystick2 ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
-    .game_pause     ( game_pause     ),
-    .game_service   (                ),
+    .game_service   (                ), // unused
     .LED            ( LED            ),
+    // DIP and OSD settings
+    .enable_fm      ( enable_fm      ),
+    .enable_psg     ( enable_psg     ),
+    .dip_test       ( dip_test       ),
+    .dip_pause      ( dip_pause      ),
+    .dip_flip       ( dip_flip       ),
+    .dip_fxlevel    ( dip_fxlevel    ),
+    // screen
+    .rotate         (                ),
+    .en_mixing      (                ),
+    .scanlines      ( scanlines      ),    
     // Debug
     .gfx_en         ( gfx_en         )
 );
 
-jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
+`ifdef SIMULATION
+`ifdef TESTINPUTS
+    test_inputs u_test_inputs(
+        .loop_rst       ( loop_rst            ),
+        .LVBL           ( LVBL                ),
+        .game_joystick1 ( game_joystick1[6:0] ),
+        .button_1p      ( game_start[0]       ),
+        .coin_left      ( game_coin[0]        )
+    );
+    assign game_start[1] = 1'b1;
+    assign game_coin[1]  = 1'b1;
+    assign game_joystick2 = ~10'd0;
+    assign game_joystick1[9:7] = 3'b111;
+    assign sim_vs = vs;
+    assign sim_hs = hs;
+`endif
+`endif
+
+`GAMETOP #(.CLK_SPEED(CLK_SPEED))
+u_game(
     .rst         ( game_rst      ),
-    .rst_n       ( rst_n         ),
-    .clk_rom     ( clk_rom       ),
     .clk         ( clk_sys       ),
     .cen12       ( cen12         ),
     .cen6        ( cen6          ),
@@ -268,14 +317,19 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .blue        ( blue          ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
+    .LHBL_dly    ( LHBL_dly      ),
+    .LVBL_dly    ( LVBL_dly      ),
     .HS          ( hs            ),
     .VS          ( vs            ),
 
     .start_button( game_start          ),
     .coin_input  ( game_coin           ),
-    .joystick1   ( game_joystick1[5:0] ),
-    .joystick2   ( game_joystick2[5:0] ),
+    .joystick1   ( game_joystick1[6:0] ),
+    .joystick2   ( game_joystick2[6:0] ),
 
+    // Sound control
+    .enable_fm   ( enable_fm      ),
+    .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_data  ( ioctl_data     ),
@@ -284,6 +338,7 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .prog_data   ( prog_data      ),
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
+
     // ROM load
     .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
@@ -293,22 +348,19 @@ jt1942_game #(.CLK_SPEED(CLK_SPEED)) u_game(
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
     .refresh_en  ( refresh_en    ),
-    // DIP switches
-    .dip_test    ( ~status[4]     ),
-    .dip_pause   ( ~(status[1]|game_pause)   ),
-    .dip_upright ( 1'b0           ),
-    .dip_planes  ( ~status[6:5]   ),
-    .dip_level   ( ~status[3:2]   ),
-    .dip_price   ( 3'b111         ), // 1 credit, 1 coin
-    .dip_bonus   ( ~status[8:7]   ),
-    .dip_flip    ( dip_flip       ),
 
-    .coin_cnt    ( coin_cnt       ),
+    // DIP switches
+    .status      ( status        ),
+    .dip_pause   ( dip_pause     ),
+    .dip_flip    ( dip_flip      ),
+    .dip_test    ( dip_test      ),
+    .dip_fxlevel ( dip_fxlevel   ),  
+
     // sound
-    .snd         ( snd            ),
-    .sample      (                ),
+    .snd         ( snd           ),
+    .sample      (               ),
     // Debug
-    .gfx_en      ( gfx_en         )
+    .gfx_en      ( gfx_en        )
 );
 
 endmodule

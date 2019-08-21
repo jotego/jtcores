@@ -201,9 +201,11 @@ set_global_assignment -name VERILOG_MACRO "MIST=<None>"
 # set_global_assignment -name VERILOG_MACRO "JTFRAME_SCAN2X=<None>"
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtframe_scan2x.v
 
+set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1943_game"
+set_global_assignment -name VERILOG_MACRO "MISTTOP=jt1943_mist"
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll0.qip
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll1.qip
-set_global_assignment -name SYSTEMVERILOG_FILE ../hdl/jt1943_mist.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mist.sv
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mist/mist.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v

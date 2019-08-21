@@ -1,6 +1,7 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtcommando_game.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtcommando_main.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtcommando_prom_we.v   ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtcommando_dip.v   ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_rom2.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_romrq.v     ]

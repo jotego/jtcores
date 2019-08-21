@@ -165,7 +165,7 @@ jtgng_scroll #(
     .flip         ( flip          ),
     // bus arbitrion
     .Asel         ( cpu_AB[4]     ),
-    .AB           ( { 1'b0, cpu_AB[9:5], cpu_AB[3:0] } ),
+    .AB           ( { cpu_AB[9:5], cpu_AB[3:0] } ),
     .scr_cs       ( scr_cs        ),
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),

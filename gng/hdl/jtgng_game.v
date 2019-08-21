@@ -57,13 +57,10 @@ module jtgng_game(
     output  [ 1:0]  prog_mask,
     output          prog_we,
     // DIP switches
-    input           dip_pause, // Not a DIP on the original PCB
-    input   [ 1:0]  dip_lives,
-    input   [ 1:0]  dip_level,
-    input   [ 1:0]  dip_bonus,
-    input           dip_game_mode,
-    input           dip_attract_snd,
-    input           dip_upright,
+    input   [31:0]  status,     // only bits 31:16 are looked at
+    input           dip_pause,
+    input           dip_flip,
+    input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     // Sound output
     output  signed [15:0] snd,
@@ -100,6 +97,7 @@ wire [14:0] snd_addr;
 wire [12:0] char_addr;
 wire [14:0] scr_addr;
 wire [15:0] obj_addr;
+wire [ 7:0] dipsw_a, dipsw_b;
 
 wire rom_ready;
 wire main_ok, snd_ok;
@@ -133,6 +131,15 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
+);
+
+jtgng_dip u_dip(
+    .clk        ( clk           ),
+    .status     ( status        ),
+    .dip_pause  ( dip_pause     ),
+    .dip_test   ( dip_test      ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
 );
 
 wire LHBL_obj, LVBL_obj, Hsub;
@@ -246,14 +253,9 @@ jtgng_main u_main(
 
     .RnW        ( RnW           ),
     // DIP switches
-    .dip_pause      ( dip_pause       ),
-    .dip_flip       ( 1'b0            ),
-    .dip_lives      ( dip_lives       ),
-    .dip_level      ( dip_level       ),
-    .dip_bonus      ( dip_bonus       ),
-    .dip_game_mode  ( dip_game_mode   ),
-    .dip_attract_snd( dip_attract_snd ),
-    .dip_upright    ( dip_upright     )
+    .dip_pause  ( dip_pause     ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
 );
 `else
 assign main_addr   = 17'd0;

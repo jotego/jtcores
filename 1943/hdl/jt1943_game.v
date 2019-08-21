@@ -63,7 +63,6 @@ module jt1943_game(
     input           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
-    output          coin_cnt,
     // Sound output
     output  [15:0]  snd,
     output          sample,
@@ -246,7 +245,7 @@ jt1943_main u_main(
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
-    .coin_cnt   ( coin_cnt      )
+    .coin_cnt   (               )
 );
 `else
 assign scr1posh_cs = 'b0;
@@ -268,6 +267,8 @@ assign cpu_dout = 'b0;
 reg  [ 7:0] snd_data;
 wire [ 7:0] snd_data0, snd_data1;
 wire [14:0] snd_addr;
+wire        snd_cs;     // unused at this level
+
 always @(posedge clk)
     snd_data <= snd_addr[14] ? snd_data1 : snd_data0;
 

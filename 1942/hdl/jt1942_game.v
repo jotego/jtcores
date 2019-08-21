@@ -32,13 +32,15 @@ module jt1942_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
+    output          LHBL_dly,
+    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 5:0]  joystick1,
-    input   [ 5:0]  joystick2,
+    input   [ 6:0]  joystick1, // MSB unused
+    input   [ 6:0]  joystick2, // MSB unused
 
     // SDRAM interface
     input           downloading,
@@ -60,20 +62,17 @@ module jt1942_game(
     output          prog_we,
     // cheat
     input           cheat_invincible,
-    // DIP Switch A
+    // DIP switches
+    input   [31:0]  status,     // only bits 31:16 are looked at
+    input           dip_pause,
     input           dip_flip,
-    input   [1:0]   dip_planes,
-    input   [1:0]   dip_bonus,
-    input           dip_upright,
-    input   [2:0]   dip_price,
-    // DIP Switch B
-    input           dip_pause,   // DWB - bit 7
-    input   [1:0]   dip_level, // difficulty level
     input           dip_test,
-    output          coin_cnt,
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     // Sound output
-    output  [8:0]   snd,
+    output  [15:0]  snd,
     output          sample,
+    input           enable_psg, // unused
+    input           enable_fm,  // unused
     // Debug
     input   [ 3:0]  gfx_en
 );
@@ -87,8 +86,9 @@ wire HINIT;
 wire [12:0] cpu_AB;
 wire char_cs;
 wire flip;
-wire [7:0] cpu_dout, char_dout;
+wire [ 7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
+wire [ 7:0] dipsw_a, dipsw_b;
 wire rd;
 wire rom_ready;
 wire cpu_cen;
@@ -109,6 +109,16 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
+);
+
+jt1942_dip u_dip(
+    .clk        ( clk           ),
+    .status     ( status        ),
+    .dip_pause  ( dip_pause     ),
+    .dip_test   ( dip_test      ),
+    .dip_flip   ( dip_flip      ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       )
 );
 
 jtgng_timer u_timer(
@@ -219,8 +229,8 @@ jt1942_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),
+    .joystick1   ( joystick1[5:0] ),
+    .joystick2   ( joystick2[5:0] ),
     // PROM K6
     .prog_addr  ( prog_addr[7:0]),
     .prom_k6_we ( prom_k6_we    ),
@@ -229,12 +239,15 @@ jt1942_main u_main(
     .cheat_invincible( cheat_invincible ),
     // DIP switches
     .dip_flip   ( dip_flip      ),
-    .dipsw_a    ( {dip_planes, dip_bonus, dip_upright, dip_price } ),
-    .dipsw_b    ( {dip_pause, dip_level, 1'b1, dip_test, 3'd7}     ),
+    .dipsw_a    ( dipsw_a       ),
+    .dipsw_b    ( dipsw_b       ),
     .coin_cnt   ( coin_cnt      )
 );
 
 `ifndef NOSOUND
+wire [8:0] psg_snd;
+assign snd = { 1'b0, psg_snd, 6'd0 };
+
 jt1942_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
@@ -249,7 +262,7 @@ jt1942_sound u_sound (
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_ok         ( snd_ok         ),
-    .snd            ( snd            )
+    .snd            ( psg_snd        )
 );
 `else
 assign snd_addr = 15'd0;
@@ -259,6 +272,9 @@ assign snd_cs = 1'b0;
 
 wire scr1_ok, scr2_ok;
 wire scr_ok = scr1_ok & scr2_ok;
+
+assign LHBL_dly = LHBL;
+assign LVBL_dly = LVBL;
 
 jt1942_video u_video(
     .rst        ( rst           ),

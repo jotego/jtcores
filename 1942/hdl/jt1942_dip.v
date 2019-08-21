@@ -18,7 +18,7 @@
 
 `timescale 1ns/1ps
 
-module jtcommando_dip(
+module jt1942_dip(
     input              clk,
     input      [31:0]  status,
 
@@ -31,18 +31,16 @@ module jtcommando_dip(
 );
 
 // Commando specific:
-wire [1:0]    dip_upright = 2'b00;
-wire          dip_level  = ~status[16];
-wire [1:0]    dip_start  = ~status[18:17];
-wire [1:0]    dip_lives  = ~status[20:19];
-wire [1:0]    dip_price1 = 2'b00;
-wire [1:0]    dip_price2 = 2'b11;
-wire [2:0]    dip_bonus  = 3'b111;
-wire          dip_demosnd= 1'b0;
+wire          dip_upright = 1'b1;
+wire [1:0]    dip_bonus   = ~status[17:16];
+wire [1:0]    dip_level   = ~status[21:20];
+wire [1:0]    dip_lives   = ~status[19:18];
+wire [2:0]    dip_price   = 3'b111;
+wire          dip_demosnd = 1'b1;
 
 always @(posedge clk) begin
-    dipsw_a <= { dip_price1, dip_price2, dip_lives, dip_start };
-    dipsw_b <= { dip_upright, dip_flip, dip_level, dip_demosnd, dip_bonus };
+    dipsw_a <= { dip_lives, dip_bonus, dip_upright, dip_price };
+    dipsw_b <= { dip_pause, dip_level, 1'b1, dip_test, 3'd7   };
 end
 
 endmodule
