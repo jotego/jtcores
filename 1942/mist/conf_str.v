@@ -1,7 +1,7 @@
 // 1942
 
 localparam CONF_STR = {
-    "JTCOM;;",
+    "JT1942;;", // Remember to change the core name when you copy the file
     "O1,Pause,OFF,ON;",
     // "-;",
     "F,rom;",

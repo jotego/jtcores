@@ -1,5 +1,5 @@
 localparam CONF_STR = {
-    "JT1943;;", //8
+    "JT1943;;", // Remember to change the core name when you copy the file
     "O1,Pause,OFF,ON;",
     // "-;",
     "F,rom;",

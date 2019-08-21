@@ -20,8 +20,6 @@
 
 module jt1942_game(
     input           rst,
-    input           rst_n,
-    input           clk_rom,
     input           clk,        // 24   MHz
     output          cen12,      // 12   MHz
     output          cen6,       //  6   MHz
@@ -163,7 +161,7 @@ wire char_busy, scr_busy;
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .clk_rom     ( clk_rom       ),
+    .clk_rom     ( clk           ),
     .clk_rgb     ( clk           ),
     .downloading ( downloading   ),
 

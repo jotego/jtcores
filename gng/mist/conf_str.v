@@ -1,7 +1,7 @@
 // Ghosts'n Goblins
 
 localparam CONF_STR = {
-    "JTCOM;;",
+    "JTGNG;;", // Remember to change the core name when you copy the file
     "O1,Pause,OFF,ON;",
     // "-;",
     "F,rom;",

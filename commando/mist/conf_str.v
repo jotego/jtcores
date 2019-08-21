@@ -1,5 +1,7 @@
+// Commando
+
 localparam CONF_STR = {
-    "JTCOM;;",
+    "JTCOM;;", // Remember to change the core name when you copy the file
     "O1,Pause,OFF,ON;",
     // "-;",
     "F,rom;",
