@@ -106,26 +106,7 @@ module emu
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV
 
 `include "build_id.v"
-localparam CONF_STR = {
-    "JT1943;;",
-    "O1,Pause,OFF,ON;",
-    "-;",
-    "F,rom;",
-    "O2,Aspect Ratio,Original,Wide;",
-    "O5,Orientation,Vert,Horz;",
-    "O34,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
-    "O6,Test mode,OFF,ON;",
-    "O7,PSG,ON,OFF;",
-    "O8,FM ,ON,OFF;",
-    // "O9,Screen filter,ON,OFF;",
-    "OAB,FX volume, high, very high, very low, low;",
-    // "OC,Flip screen,OFF,ON;",
-    "-;",
-    "OGH,Difficulty,Normal,Easy,Hard,Very hard;",
-    "R0,Reset;",
-    "J,Fire,Bomb,Start 1P,Start 2P,Coin,Pause;",
-    "V,v",`BUILD_DATE, " http://patreon.com/topapate;"
-};
+`include "conf_str.v"
 
 assign VGA_F1=1'b0;
 
@@ -319,7 +300,7 @@ assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
 `endif
 
-jt1943_game #(.CLK_SPEED(48)) u_game
+`GAMETOP #(.CLK_SPEED(48)) u_game
 (
     .rst           ( game_rst        ),
     .clk           ( clk_sys         ),
