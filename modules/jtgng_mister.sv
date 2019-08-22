@@ -1,5 +1,5 @@
 //============================================================================
-//  Arcade: 1943  by Jose Tejada Gomez. Twitter: @topapate
+//  Arcade: CAPCOM pre-CPS hardware  by Jose Tejada Gomez. Twitter: @topapate
 //
 //  Port to MiSTer
 //  Thanks to Sorgelig for his continuous support
@@ -241,40 +241,67 @@ wire hs, vs;
 wire [3:0] r,g,b;
 
 `ifndef SIMULATION
-arcade_rotate_fx #(256,224,12,1) u_rotate_fx
-(
-    .clk_video  ( clk_sys   ),
-    .ce_pix     ( cen6      ),
-
-    .RGB_in     ( {r,g,b}   ),
-    .HBlank     ( ~hblank   ),
-    .VBlank     ( ~vblank   ),
-    .HSync      ( hs        ),
-    .VSync      ( vs        ),
-
-    .VGA_CLK    (  VGA_CLK  ),
-    .VGA_CE     (  VGA_CE   ),
-    .VGA_R      (  VGA_R    ),
-    .VGA_G      (  VGA_G    ),
-    .VGA_B      (  VGA_B    ),
-    .VGA_HS     (  VGA_HS   ),
-    .VGA_VS     (  VGA_VS   ),
-    .VGA_DE     (  VGA_DE   ),
-
-    .HDMI_CLK   (  HDMI_CLK ),
-    .HDMI_CE    (  HDMI_CE  ),
-    .HDMI_R     (  HDMI_R   ),
-    .HDMI_G     (  HDMI_G   ),
-    .HDMI_B     (  HDMI_B   ),
-    .HDMI_HS    (  HDMI_HS  ),
-    .HDMI_VS    (  HDMI_VS  ),
-    .HDMI_DE    (  HDMI_DE  ),
-    .HDMI_SL    (  HDMI_SL  ),
-
-    .fx                ( scanlines          ),
-    .forced_scandoubler( forced_scandoubler ),
-    .no_rotate         ( vertical_n         )
-);
+    `ifdef VERTICAL_SCREEN
+    arcade_rotate_fx #(256,224,12,1) u_rotate_fx
+    (
+        .clk_video  ( clk_sys   ),
+        .ce_pix     ( cen6      ),
+    
+        .RGB_in     ( {r,g,b}   ),
+        .HBlank     ( hblank    ),
+        .VBlank     ( vblank    ),
+        .HSync      ( hs        ),
+        .VSync      ( vs        ),
+    
+        .VGA_CLK    (  VGA_CLK  ),
+        .VGA_CE     (  VGA_CE   ),
+        .VGA_R      (  VGA_R    ),
+        .VGA_G      (  VGA_G    ),
+        .VGA_B      (  VGA_B    ),
+        .VGA_HS     (  VGA_HS   ),
+        .VGA_VS     (  VGA_VS   ),
+        .VGA_DE     (  VGA_DE   ),
+    
+        .HDMI_CLK   (  HDMI_CLK ),
+        .HDMI_CE    (  HDMI_CE  ),
+        .HDMI_R     (  HDMI_R   ),
+        .HDMI_G     (  HDMI_G   ),
+        .HDMI_B     (  HDMI_B   ),
+        .HDMI_HS    (  HDMI_HS  ),
+        .HDMI_VS    (  HDMI_VS  ),
+        .HDMI_DE    (  HDMI_DE  ),
+        .HDMI_SL    (  HDMI_SL  ),
+    
+        .fx                ( scanlines          ),
+        .forced_scandoubler( forced_scandoubler ),
+        .no_rotate         ( vertical_n         )
+    );
+    `else
+    // Horizontal games
+    video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
+    (
+        .clk_sys        ( VGA_CLK             ),
+        .ce_pix         ( cen6                ),
+        .ce_pix_out     ( VGA_CE              ),
+        .scandoubler    ( forced_scandoubler  ),        
+        .scanlines      ( scanlines           ),
+        .hq2x           ( 0                   ),
+        .R              ( R                   ),
+        .G              ( G                   ),
+        .B              ( B                   ),
+        .mono           ( 0                   ),
+        .HSync          ( HSync               ),
+        .VSync          ( VSync               ),
+        .HBlank         ( hblank              ),
+        .VBlank         ( vblank              ),
+        .VGA_R          ( VGA_R               ),
+        .VGA_G          ( VGA_G               ),
+        .VGA_B          ( VGA_B               ),
+        .VGA_HS         ( VGA_HS              ),
+        .VGA_VS         ( VGA_VS              ),
+        .VGA_DE         ( VGA_DE              )
+    );
+    `endif
 `else
     assign VGA_VS = vs;
     assign VGA_HS = hs;
@@ -300,27 +327,32 @@ assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
 `endif
 
+wire LHBL_dly, LVBL_dly;
+
+assign hblank = ~LHBL_dly;
+assign vblank = ~LVBL_dly;
+
 `GAMETOP #(.CLK_SPEED(48)) u_game
 (
-    .rst           ( game_rst        ),
-    .clk           ( clk_sys         ),
-    .cen12         ( cen12           ),
-    .cen6          ( cen6            ),
-    .cen3          ( cen3            ),
-    .cen1p5        ( cen1p5          ),
+    .rst          ( game_rst         ),
+    .clk          ( clk_sys          ),
+    .cen12        ( cen12            ),
+    .cen6         ( cen6             ),
+    .cen3         ( cen3             ),
+    .cen1p5       ( cen1p5           ),
 
-    .red           ( r               ),
-    .green         ( g               ),
-    .blue          ( b               ),
-    .LHBL_dly      ( hblank          ),
-    .LVBL_dly      ( vblank          ),
-    .HS            ( hs              ),
-    .VS            ( vs              ),
+    .red          ( r                ),
+    .green        ( g                ),
+    .blue         ( b                ),
+    .LHBL_dly     ( LHBL_dly         ),
+    .LVBL_dly     ( LVBL_dly         ),
+    .HS           ( hs               ),
+    .VS           ( vs               ),
 
-    .start_button  ( game_start      ),
-    .coin_input    ( game_coin       ),
-    .joystick1     ( game_joystick1[6:0] ),
-    .joystick2     ( game_joystick2[6:0] ),
+    .start_button ( game_start       ),
+    .coin_input   ( game_coin        ),
+    .joystick1    ( game_joystick1[6:0] ),
+    .joystick2    ( game_joystick2[6:0] ),
 
     // Sound control
     .enable_fm    ( enable_fm        ),
@@ -355,7 +387,6 @@ assign sim_pxl_cen = cen6;
     .gfx_en       ( gfx_en           ),
 
     // unconnected
-    .coin_cnt     (                  ),
     .sample       (                  )
 );
 

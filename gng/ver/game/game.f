@@ -1,6 +1,7 @@
 ../../hdl/jtgng_game.v
 ../../hdl/jtgng_main.v
 ../../hdl/jtgng_prom_we.v
+../../hdl/jtgng_dip.v
 ../../../1943/hdl/jt1943_rom2.v
 ../../../1943/hdl/jt1943_romrq.v
 ../../../modules/jtgng_video.v
