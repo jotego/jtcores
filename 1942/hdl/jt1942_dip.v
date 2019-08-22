@@ -36,7 +36,6 @@ wire [1:0]    dip_bonus   = ~status[17:16];
 wire [1:0]    dip_level   = ~status[21:20];
 wire [1:0]    dip_lives   = ~status[19:18];
 wire [2:0]    dip_price   = 3'b111;
-wire          dip_demosnd = 1'b1;
 
 always @(posedge clk) begin
     dipsw_a <= { dip_lives, dip_bonus, dip_upright, dip_price };

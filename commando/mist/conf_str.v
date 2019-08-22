@@ -15,8 +15,8 @@ localparam CONF_STR = {
     "F,rom;",
     `ifdef MISTER
     "O2,Aspect Ratio,Original,Wide;",
-    "O5,Orientation,Vert,Horz;",
-    "O34,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    "OD,Orientation,Vert,Horz;",
+    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     `else
     "O9,Screen filter,ON,OFF;",
     `endif

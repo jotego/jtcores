@@ -72,7 +72,7 @@ module jt1943_game(
     input   [3:0]   gfx_en
 );
 
-parameter CLK_SPEED=12;
+parameter CLK_SPEED=48;
 
 wire [8:0] V;
 wire [8:0] H;

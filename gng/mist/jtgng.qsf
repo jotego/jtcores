@@ -166,16 +166,12 @@ set_global_assignment -name VERILOG_MACRO "MISTTOP=jtgng_mist"
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mist/mist.qip
-set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
 set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_comb.v
 set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_interpol.v
 set_global_assignment -name VERILOG_FILE ../../../jt12/jt49/hdl/filter/jt49_dcrm2.v
-set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809.v
 set_global_assignment -name QIP_FILE ../hdl/jtgng.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mist.sv
-set_global_assignment -name VERILOG_FILE ../../modules/mc6809/mc6809i.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtframe_scan2x.v
-set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
 set_global_assignment -name CDF_FILE jtgng.cdf
 set_global_assignment -name VERILOG_MACRO "MIST=<None>"

@@ -58,8 +58,6 @@ module jt1942_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
-    // cheat
-    input           cheat_invincible,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -75,7 +73,7 @@ module jt1942_game(
     input   [ 3:0]  gfx_en
 );
 
-parameter CLK_SPEED=12;
+parameter CLK_SPEED=48;
 
 wire [8:0] V;
 wire [8:0] H;
@@ -234,12 +232,12 @@ jt1942_main u_main(
     .prom_k6_we ( prom_k6_we    ),
     .prog_din   ( prog_data[3:0]),
     // Cheat
-    .cheat_invincible( cheat_invincible ),
+    .cheat_invincible( 1'b0 ),
     // DIP switches
     .dip_flip   ( dip_flip      ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
-    .coin_cnt   ( coin_cnt      )
+    .coin_cnt   (               )
 );
 
 `ifndef NOSOUND

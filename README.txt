@@ -44,6 +44,19 @@ MC6809 from Greg Miller
 T80: originally from Daniel Wallner, with edits from Alexey Melnikov (Mister)
 hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
 
+Compilation
+===========
+
+I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend to use linux to compile the cores.
+
+In the directory bin there is a command line utility called jtcore that will compile the given core. Like
+
+jtcore gng
+
+will compile Ghosts'n Goblins.
+
+There is another file called update_cores.sh that will run jtcore over all supported cores in parallel.
+
 Directory Structure
 ===================
 original/hdl/   replica of original PCB schematics

@@ -51,9 +51,9 @@ set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
 set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
-set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
 set_global_assignment -name ALLOW_POWER_UP_DONT_CARE ON
-set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
+set_global_assignment -name QII_AUTO_PACKED_REGISTERS AUTO
 set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
@@ -64,8 +64,8 @@ set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
 set_global_assignment -name AUTO_DELAY_CHAINS_FOR_HIGH_FANOUT_INPUT_PINS ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
-set_global_assignment -name SYNTH_GATED_CLOCK_CONVERSION OFF
-set_global_assignment -name SEED 1
+set_global_assignment -name SYNTH_GATED_CLOCK_CONVERSION ON
+set_global_assignment -name SEED 0
 
 #============================================================
 # ADC
@@ -82,19 +82,6 @@ set_location_assignment PIN_AD4 -to ADC_SDO
 #============================================================
 # ARDUINO
 #============================================================
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[3]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[4]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[5]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[6]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[7]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[8]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[9]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[10]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[11]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[12]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[13]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[14]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[15]
 set_location_assignment PIN_AG9 -to ARDUINO_IO[3]
 set_location_assignment PIN_U14 -to ARDUINO_IO[4]
 set_location_assignment PIN_U13 -to ARDUINO_IO[5]
@@ -102,12 +89,22 @@ set_location_assignment PIN_AG8 -to ARDUINO_IO[6]
 set_location_assignment PIN_AH8 -to ARDUINO_IO[7]
 set_location_assignment PIN_AF17 -to ARDUINO_IO[8]
 set_location_assignment PIN_AE15 -to ARDUINO_IO[9]
-set_location_assignment PIN_AF15 -to ARDUINO_IO[10]
-set_location_assignment PIN_AG16 -to ARDUINO_IO[11]
-set_location_assignment PIN_AH11 -to ARDUINO_IO[12]
-set_location_assignment PIN_AH12 -to ARDUINO_IO[13]
-set_location_assignment PIN_AH9 -to ARDUINO_IO[14]
-set_location_assignment PIN_AG11 -to ARDUINO_IO[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[*]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to ARDUINO_IO[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ARDUINO_IO[*]
+
+#============================================================
+# USER PORT
+#============================================================
+set_location_assignment PIN_AF15 -to USER_IO[5]
+set_location_assignment PIN_AG16 -to USER_IO[4]
+set_location_assignment PIN_AH11 -to USER_IO[3]
+set_location_assignment PIN_AH12 -to USER_IO[2]
+set_location_assignment PIN_AH9 -to USER_IO[1]
+set_location_assignment PIN_AG11 -to USER_IO[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to USER_IO[*]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to USER_IO[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to USER_IO[*]
 
 #============================================================
 # SDIO
@@ -172,6 +169,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to AUDIO_*
 #============================================================
 # SDRAM
 #============================================================
+set_location_assignment PIN_AD20 -to SDRAM_CLK
 set_location_assignment PIN_Y11 -to SDRAM_A[0]
 set_location_assignment PIN_AA26 -to SDRAM_A[1]
 set_location_assignment PIN_AA13 -to SDRAM_A[2]
@@ -207,7 +205,6 @@ set_location_assignment PIN_AH3 -to SDRAM_DQ[15]
 set_location_assignment PIN_AG13 -to SDRAM_DQML
 set_location_assignment PIN_AF13 -to SDRAM_DQMH
 
-set_location_assignment PIN_AD20 -to SDRAM_CLK
 set_location_assignment PIN_AG10 -to SDRAM_CKE
 
 set_location_assignment PIN_AA19 -to SDRAM_nWE
@@ -364,24 +361,37 @@ set_location_assignment PIN_W24 -to SW[1]
 set_location_assignment PIN_W21 -to SW[2]
 set_location_assignment PIN_W20 -to SW[3]
 
-set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:../../modules/mister/sys/build_id.tcl"
+#################################################################
+## PLL location
+#######################
+
+set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[0].gpll"
+set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[1].gpll"
+
+set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
+
+##################################################################
+## Files
+########################
+
+set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:../../modules/jtframe/hdl/mister/sys/build_id.tcl"
+set_global_assignment -name CDF_FILE jtag.cdf
+
+
+# MiSTer Framework
 
 # 1942
 set_global_assignment -name VERILOG_MACRO "MISTER=<None>"
 set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1942_game"
 
-# set_global_assignment -name VERILOG_FILE ../../modules/hybrid_pwm_sd.v
-# set_global_assignment -name VHDL_FILE ../../modules/t80/T80pa.vhd
-# set_global_assignment -name VHDL_FILE ../../modules/t80/T80_Reg.vhd
-# set_global_assignment -name VHDL_FILE ../../modules/t80/T80_MCode.vhd
-# set_global_assignment -name VHDL_FILE ../../modules/t80/T80_ALU.vhd
-# set_global_assignment -name VHDL_FILE ../../modules/t80/T80.vhd
-
 set_global_assignment -name QIP_FILE ../hdl/jt1942.qip
 set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
-set_global_assignment -name QIP_FILE ../../modules/mister/sys/sys.qip
-set_global_assignment -name CDF_FILE jtag.cdf
+set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/pll.qip
+set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/mister.qip
 set_global_assignment -name QIP_FILE ../../modules/tv80/tv80s.qip
 set_global_assignment -name QIP_FILE ../../modules/jt12/jt49/hdl/jt49.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mister.sv

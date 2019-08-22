@@ -115,10 +115,33 @@ assign VGA_F1=1'b0;
 wire clk_sys;
 wire cen12, cen6, cen3, cen1p5;
 wire pll_locked;
+reg  pll_rst = 1'b0;
+
+// Resets the PLL if it looses lock
+always @(posedge clk_sys or posedge RESET) begin : pll_controller
+    reg last_locked;
+    reg [7:0] rst_cnt;
+
+    if( RESET ) begin
+        pll_rst <= 1'b0;
+        rst_cnt <= 8'hd0;
+    end else begin
+        last_locked <= pll_locked;
+        if( last_locked && !pll_locked ) begin
+            rst_cnt <= 8'hff; // keep reset high for 256 cycles
+            pll_rst <= 1'b1;
+        end else begin
+            if( rst_cnt != 8'h00 )
+                rst_cnt <= rst_cnt - 8'h1;
+            else
+                pll_rst <= 1'b0;
+        end
+    end
+end
 
 pll pll(
     .refclk     ( CLK_50M    ),
-    .rst        ( 1'b0       ),
+    .rst        ( pll_rst    ),
     .locked     ( pll_locked ),
     .outclk_0   ( clk_sys    ),
     .outclk_1   ( SDRAM_CLK  )
@@ -133,7 +156,6 @@ wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
-wire       vertical_n;
 wire [1:0] scanlines; // MiSTer
 
 wire        ioctl_wr;
@@ -220,6 +242,8 @@ u_frame(
     .game_service   (                ), // unused
     .LED            ( LED_USER       ),
     // DIP and OSD settings
+    .hdmi_arx       ( HDMI_ARX       ),
+    .hdmi_ary       ( HDMI_ARY       ),
     .enable_fm      ( enable_fm      ),
     .enable_psg     ( enable_psg     ),
     .dip_test       ( dip_test       ),
@@ -242,65 +266,78 @@ wire [3:0] r,g,b;
 
 `ifndef SIMULATION
     `ifdef VERTICAL_SCREEN
-    arcade_rotate_fx #(256,224,12,1) u_rotate_fx
-    (
-        .clk_video  ( clk_sys   ),
-        .ce_pix     ( cen6      ),
-    
-        .RGB_in     ( {r,g,b}   ),
-        .HBlank     ( hblank    ),
-        .VBlank     ( vblank    ),
-        .HSync      ( hs        ),
-        .VSync      ( vs        ),
-    
-        .VGA_CLK    (  VGA_CLK  ),
-        .VGA_CE     (  VGA_CE   ),
-        .VGA_R      (  VGA_R    ),
-        .VGA_G      (  VGA_G    ),
-        .VGA_B      (  VGA_B    ),
-        .VGA_HS     (  VGA_HS   ),
-        .VGA_VS     (  VGA_VS   ),
-        .VGA_DE     (  VGA_DE   ),
-    
-        .HDMI_CLK   (  HDMI_CLK ),
-        .HDMI_CE    (  HDMI_CE  ),
-        .HDMI_R     (  HDMI_R   ),
-        .HDMI_G     (  HDMI_G   ),
-        .HDMI_B     (  HDMI_B   ),
-        .HDMI_HS    (  HDMI_HS  ),
-        .HDMI_VS    (  HDMI_VS  ),
-        .HDMI_DE    (  HDMI_DE  ),
-        .HDMI_SL    (  HDMI_SL  ),
-    
-        .fx                ( scanlines          ),
-        .forced_scandoubler( forced_scandoubler ),
-        .no_rotate         ( vertical_n         )
-    );
+        arcade_rotate_fx #(256,224,12,1) u_rotate_fx
+        (
+            .clk_video  ( clk_sys   ),
+            .ce_pix     ( cen6      ),
+        
+            .RGB_in     ( {r,g,b}   ),
+            .HBlank     ( hblank    ),
+            .VBlank     ( vblank    ),
+            .HSync      ( hs        ),
+            .VSync      ( vs        ),
+        
+            .VGA_CLK    (  VGA_CLK  ),
+            .VGA_CE     (  VGA_CE   ),
+            .VGA_R      (  VGA_R    ),
+            .VGA_G      (  VGA_G    ),
+            .VGA_B      (  VGA_B    ),
+            .VGA_HS     (  VGA_HS   ),
+            .VGA_VS     (  VGA_VS   ),
+            .VGA_DE     (  VGA_DE   ),
+        
+            .HDMI_CLK   (  HDMI_CLK ),
+            .HDMI_CE    (  HDMI_CE  ),
+            .HDMI_R     (  HDMI_R   ),
+            .HDMI_G     (  HDMI_G   ),
+            .HDMI_B     (  HDMI_B   ),
+            .HDMI_HS    (  HDMI_HS  ),
+            .HDMI_VS    (  HDMI_VS  ),
+            .HDMI_DE    (  HDMI_DE  ),
+            .HDMI_SL    (  HDMI_SL  ),
+        
+            .fx                ( scanlines          ),
+            .forced_scandoubler( forced_scandoubler ),
+            .no_rotate         ( ~ROTATE[0]         )
+        );
     `else
-    // Horizontal games
-    video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
-    (
-        .clk_sys        ( VGA_CLK             ),
-        .ce_pix         ( cen6                ),
-        .ce_pix_out     ( VGA_CE              ),
-        .scandoubler    ( forced_scandoubler  ),        
-        .scanlines      ( scanlines           ),
-        .hq2x           ( 0                   ),
-        .R              ( R                   ),
-        .G              ( G                   ),
-        .B              ( B                   ),
-        .mono           ( 0                   ),
-        .HSync          ( HSync               ),
-        .VSync          ( VSync               ),
-        .HBlank         ( hblank              ),
-        .VBlank         ( vblank              ),
-        .VGA_R          ( VGA_R               ),
-        .VGA_G          ( VGA_G               ),
-        .VGA_B          ( VGA_B               ),
-        .VGA_HS         ( VGA_HS              ),
-        .VGA_VS         ( VGA_VS              ),
-        .VGA_DE         ( VGA_DE              )
-    );
+        // Horizontal games
+        wire [2:0] scale = status[5:3];
+        wire [2:0] sl = scale ? scale - 1'd1 : 3'd0;
+
+        video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
+        (
+            .clk_sys        ( VGA_CLK             ),
+            .ce_pix         ( cen6                ),
+            .ce_pix_out     ( VGA_CE              ),
+            .scandoubler    ( forced_scandoubler  ),        
+            .scanlines      ( 0                   ),
+            .hq2x           ( 0                   ),
+            .R              ( R                   ),
+            .G              ( G                   ),
+            .B              ( B                   ),
+            .mono           ( 0                   ),
+            .HSync          ( HSync               ),
+            .VSync          ( VSync               ),
+            .HBlank         ( hblank              ),
+            .VBlank         ( vblank              ),
+            .VGA_R          ( VGA_R               ),
+            .VGA_G          ( VGA_G               ),
+            .VGA_B          ( VGA_B               ),
+            .VGA_HS         ( VGA_HS              ),
+            .VGA_VS         ( VGA_VS              ),
+            .VGA_DE         ( VGA_DE              )
+        );
+        assign VGA_CLK  = clk_sys;
+        assign HDMI_CLK = VGA_CLK;
+        assign HDMI_CE  = VGA_CE;
+        assign HDMI_R   = VGA_R;
+        assign HDMI_G   = VGA_G;
+        assign HDMI_B   = VGA_B;
+        assign HDMI_DE  = VGA_DE;
+        assign HDMI_HS  = VGA_HS;
+        assign HDMI_VS  = VGA_VS;
+        assign HDMI_SL  = 2'd0; //sl[1:0];
     `endif
 `else
     assign VGA_VS = vs;

@@ -31,11 +31,9 @@ module jtgng_dip(
 );
 
 // Commando specific:
-wire          dip_upright = 1'b1;
+wire          dip_upright = 1'b0;
 wire [1:0]    dip_level  = ~status[17:16];
 wire [1:0]    dip_lives  = ~status[19:18];
-wire [1:0]    dip_price1 = 2'b00;
-wire [1:0]    dip_price2 = 2'b11;
 wire [1:0]    dip_bonus  = 2'b11;
 wire          dip_demosnd= 1'b1;
 

@@ -80,7 +80,7 @@ reg t80_rst_n;
 reg in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
 reg [1:0]  scrpos_cs;
 
-wire mreq_n;
+wire mreq_n, rfsh_n;
 assign cpu_cen = cen3;
 
 always @(*) begin
