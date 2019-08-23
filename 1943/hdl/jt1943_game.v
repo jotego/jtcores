@@ -194,6 +194,20 @@ reg video_flip;
 always @(posedge clk)
     video_flip <= dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
+
+// 1943 board supports three buttons, but the software only uses two
+// to perform a loop with the plane, you have to press buttons 1 and 2
+// this is hard to do.
+// The assignment below forces buttons 1 and 2 whenever button 3 is pressed
+// so the loop can be done with the 3rd button
+reg [2:0] joy1_btn;
+reg [2:0] joy2_btn;
+
+always @(posedge clk) begin
+    joy1_btn <= { {3{joystick1[6]}} & joystick1[6:4] };
+    joy2_btn <= { {3{joystick2[6]}} & joystick2[6:4] };
+end
+
 `ifndef NOMAIN
 jt1943_main u_main(
     .rst        ( rst_game      ),
