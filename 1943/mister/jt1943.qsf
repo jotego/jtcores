@@ -387,6 +387,10 @@ set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name VERILOG_MACRO "MISTER=<None>"
 set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1943_game"
+set_global_assignment -name VERILOG_MACRO "CORENAME=\"JT1943\""
+set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
+set_global_assignment -name VERILOG_MACRO "JT12=1"
+
 
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/pll.qip
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/mister.qip

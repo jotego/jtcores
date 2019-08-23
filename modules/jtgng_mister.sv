@@ -101,12 +101,43 @@ module emu
     output          sim_hs
     `endif
 );
-// 00000000001111111111222222222233
-// 00000000000123456789012345678901
-// 0123456789ABCDEFGHIJKLMNOPQRSTUV
 
+// Config string
 `include "build_id.v"
+`define SEPARATOR "-;",
 `include "conf_str.v"
+
+`ifdef SIMULATION
+localparam CONF_STR="JTGNG;;";
+`else
+localparam CONF_STR = {
+    `CORENAME,";;",
+    "O1,Pause,OFF,ON;",
+    `SEPARATOR
+    // Common MiSTer options
+    "F,rom;",
+    "O2,Aspect Ratio,Original,Wide;",
+    `ifdef VERTICAL_SCREEN
+    "OD,Orientation,horizontal, vertical;",
+    "OC,Flip screen,OFF,ON;",
+    `endif
+    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    `ifdef HAS_TESTMODE
+    "O6,Test mode,OFF,ON;",
+    `endif
+    "O7,PSG,ON,OFF;",
+    `ifdef JT12
+    "O8,FM ,ON,OFF;",
+    "OAB,FX volume, high, very high, very low, low;",
+    `endif
+    `SEPARATOR
+    `CORE_OSD
+    "R0,RST;",
+    "V,v",`BUILD_DATE," patreon.com/topapate;"
+};
+`endif
+
+`undef SEPARATOR
 
 assign VGA_F1=1'b0;
 
@@ -156,7 +187,7 @@ wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
-wire [1:0] scanlines; // MiSTer
+wire [2:0] scanlines; // MiSTer
 
 wire        ioctl_wr;
 wire [21:0] ioctl_addr;

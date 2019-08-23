@@ -30,3 +30,6 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../m
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_sh.v   ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/jtframe_z80.v     ]
+
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/t80/T80.qip          ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jt12/hdl/jt03.qip    ]

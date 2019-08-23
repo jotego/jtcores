@@ -69,8 +69,38 @@ localparam CLK_SPEED=48;
 `ifdef SIMULATION
 localparam CONF_STR="JTGNG;;";
 `else
+// Config string
+`define SEPARATOR "",
 `include "conf_str.v"
-`endif
+
+localparam CONF_STR = {
+    `CORENAME,";;",
+    "O1,Pause,OFF,ON;",
+    `SEPARATOR
+    // Common MiSTer options
+    "F,rom;",
+    "O2,Aspect Ratio,Original,Wide;",
+    `ifdef VERTICAL_SCREEN
+    //"OD,Orientation,Vert,Horz;",
+    "OC,Flip screen,OFF,ON;",
+    `endif
+    //"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    "O9,Screen filter,ON,OFF;",
+    `ifdef HAS_TESTMODE
+    "O6,Test mode,OFF,ON;",
+    `endif
+    "O7,PSG,ON,OFF;",
+    `ifdef JT12
+    "O8,FM ,ON,OFF;",
+    "OAB,FX volume, high, very high, very low, low;",
+    `endif
+    `SEPARATOR
+    `CORE_OSD
+    "T0,RST;",
+    "V,patreon.com/topapate;"
+};
+
+`undef SEPARATOR`endif
 
 wire          rst, rst_n, clk_sys, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;

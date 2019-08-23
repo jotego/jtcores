@@ -381,6 +381,8 @@ set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:../../modules/jtfra
 set_global_assignment -name VERILOG_MACRO "MISTER=<None>"
 set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtcommando_game"
+set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTCOM\""
+set_global_assignment -name VERILOG_MACRO "JT12=1"
 
 set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
@@ -391,8 +393,6 @@ set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/mister.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
-set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mister.sv
 set_global_assignment -name QIP_FILE ../hdl/jtcommando.qip
-set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
