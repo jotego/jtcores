@@ -3,10 +3,12 @@ MIST=mist
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        "-mister")
+        -mister)
             MIST=mister;;
-        "-mist")
+        -mist)
             MIST=mist;;
+        -all | -a)
+			MIST="mister mist";;
         *)  echo "ERROR: Unknown option $1";
             exit 1;;
     esac
@@ -15,4 +17,4 @@ done
 
 cores="1942 1943 gng commando"
 
-(for i in $cores; do echo $i; done) | parallel jtcore $MIST
+(for m in $MIST; do for i in $cores; do echo $i -$m; done; done) | parallel jtcore
