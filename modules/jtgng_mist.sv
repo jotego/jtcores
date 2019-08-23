@@ -81,7 +81,7 @@ localparam CONF_STR = {
     "F,rom;",
     "O2,Aspect Ratio,Original,Wide;",
     `ifdef VERTICAL_SCREEN
-    //"OD,Orientation,Vert,Horz;",
+    "OD,Rotate controls,No,Yes;",
     "OC,Flip screen,OFF,ON;",
     `endif
     //"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
@@ -163,7 +163,7 @@ wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
 wire [1:0] rotate;
 wire       en_mixing; // MiST
-wire [1:0] scanlines; // MiSTer
+wire [2:0] scanlines; // MiSTer
 
 wire [5:0] vga_r, vga_g, vga_b;
 wire vga_hsync, vga_vsync;
