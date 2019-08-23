@@ -56,7 +56,10 @@ while [ $# -gt 0 ]; do
             ZIP=FALSE
             SKIP_COMPILE=TRUE;;
         "-mister")
-            MIST=mister;;
+            MIST=mister
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
+            export PATH;;
         "-mist")
             MIST=mist;;
         "-zip") shift; break;;
