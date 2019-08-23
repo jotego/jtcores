@@ -5,13 +5,15 @@ function show_usage() {
 JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
     First argument is the project name, like jtgng, or jt1943
 
-    -skip   skips compilation and goes directly to prepare the release file
-            using the RBF file available.
-    -git    adds the release file to git
-    -prog   programs the FPGA
-    -zip    all arguments from that point on will be used as inputs to the
-            zip file. All files must be referred to $JTGNG_ROOT path
-    -help   displays this message
+    -skip       skips compilation and goes directly to prepare the release file
+                using the RBF file available.
+    -git        adds the release file to git
+    -mister     compiles MiSTer version. Default is MiST.
+    -prog       programs the FPGA
+    -prog-only  skips compilations and directly programs the FPGA
+    -zip        all arguments from that point on will be used as inputs to the
+                zip file. All files must be referred to $JTGNG_ROOT path
+    -help       displays this message
 EOF
    exit 0
 }
@@ -41,6 +43,7 @@ esac
 ZIP=TRUE
 GIT=FALSE
 PROG=FALSE
+MIST=mist
 SKIP_COMPILE=FALSE
 
 while [ $# -gt 0 ]; do
@@ -52,6 +55,10 @@ while [ $# -gt 0 ]; do
             PROG=TRUE
             ZIP=FALSE
             SKIP_COMPILE=TRUE;;
+        "-mister")
+            MIST=mister;;
+        "-mist")
+            MIST=mist;;
         "-zip") shift; break;;
         "-help")
             show_usage;;
@@ -71,7 +78,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # Update message file
     jt${PRJ}_msg.py
     # Recompile
-    cd $JTGNG_ROOT/$PRJ/mist
+    cd $JTGNG_ROOT/$PRJ/$MIST
     mkdir -p $JTGNG_ROOT/log
     quartus_sh --flow compile jt$PRJ > $JTGNG_ROOT/log/jt$PRJ.log
     if ! grep "Full Compilation was successful" $JTGNG_ROOT/log/jt$PRJ.log; then
@@ -84,8 +91,8 @@ fi
 if [ $ZIP = TRUE ]; then
     # Rename output file
     cd $JTGNG_ROOT
-    RELEASE=jt${PRJ}_mist_$(date +"%Y%m%d")
-    RBF=$PRJ/mist/jt$PRJ.rbf
+    RELEASE=jt${PRJ}_${MIST}_$(date +"%Y%m%d")
+    RBF=$PRJ/${MIST}/jt$PRJ.rbf
     if [ ! -e $RBF ]; then
         echo "ERROR: file $RBF does not exist. You need to recompile."
         exit 1
@@ -110,12 +117,12 @@ fi
 
 # Add to git
 if [ $GIT = TRUE ]; then
-    git add -f $PRJ/mist/msg.hex
+    git add -f $PRJ/${MIST}/msg.hex
     git add releases/$RELEASE.zip
 fi
 
 if [ $PROG = TRUE ]; then
-    quartus_pgm -c "USB-Blaster(Altera) [1-1.2.4]" $JTGNG_ROOT/$PRJ/mist/jt$PRJ.cdf
+    quartus_pgm -c "USB-Blaster(Altera) [1-1.2.4]" $JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
 fi
 
 echo completed at $(date)
