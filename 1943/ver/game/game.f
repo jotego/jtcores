@@ -28,3 +28,4 @@
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 test_inputs.v
+../../../modules/jtgng_charmsg.v

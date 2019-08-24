@@ -100,7 +100,8 @@ always @(posedge clk) begin : mem_mux
 
     // Output latch
     last_scan <= scan_sel;
-    dout <= last_Asel ? mem_high : mem_low;
+    if( !last_scan )
+        dout <= last_Asel ? mem_high : mem_low;
 end
 
 jtgng_ram #(.aw(SCANW)) u_ram_low(
@@ -123,8 +124,8 @@ jtgng_ram #(.aw(SCANW)) u_ram_high(
 
 always @(posedge clk) begin
     if(last_scan) begin
-        dout_low  = pause ? msg_low  : mem_low;
-        dout_high = pause ? msg_high : mem_high;
+        dout_low  <= pause ? msg_low  : mem_low;
+        dout_high <= pause ? msg_high : mem_high;
     end
 end
 

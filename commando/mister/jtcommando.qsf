@@ -383,10 +383,12 @@ set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtcommando_game"
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTCOM\""
 set_global_assignment -name VERILOG_MACRO "JT12=1"
-set_global_assignment -name VERILOG_MACRO "NOSOUND=1"
+# set_global_assignment -name VERILOG_MACRO "NOSOUND=1"
+# set_global_assignment -name VERILOG_MACRO "NOMAIN=1"
+# set_global_assignment -name VERILOG_MACRO "NOOBJ=1"
 
 set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+# set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/pll.qip

@@ -100,8 +100,9 @@ wire [3:0] cc;
 `ifndef NOCHAR
 
 wire [7:0] char_msg_low;
-wire [7:0] char_msg_high = 8'h2;
+wire [7:0] char_msg_high;
 wire [9:0] char_scan;
+wire [2:0] avatar_idx;
 
 jtgng_char #(.HOFFSET(1)) u_char (
     .clk        ( clk           ),
@@ -131,13 +132,13 @@ jtgng_char #(.HOFFSET(1)) u_char (
     .char_pxl   ( char_pxl      )
 );
 
-jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
-    .clk    ( clk          ),
-    .cen    ( cen6         ),
-    .data   ( 8'd0         ),
-    .addr   ( char_scan    ),
-    .we     ( 1'b0         ),
-    .q      ( char_msg_low )
+jtgng_charmsg u_msg(
+    .clk         ( clk           ),
+    .cen6        ( cen6          ),
+    .avatar_idx  ( avatar_idx    ),
+    .scan        ( char_scan     ),
+    .msg_low     ( char_msg_low  ),
+    .msg_high    ( char_msg_high ) 
 );
 `else
 assign char_mrdy = 1'b1;

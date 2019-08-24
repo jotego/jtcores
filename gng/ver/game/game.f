@@ -29,3 +29,4 @@
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
+../../../modules/jtgng_charmsg.v

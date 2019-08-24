@@ -27,3 +27,4 @@
 ../../../modules/jtgng_sound.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_true_dual_ram.v
+../../../modules/jtgng_charmsg.v

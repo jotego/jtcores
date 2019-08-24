@@ -11,7 +11,8 @@ JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
     -mister     compiles MiSTer version. Default is MiST.
     -prog       programs the FPGA
     -prog-only  skips compilations and directly programs the FPGA
-    -zip        all arguments from that point on will be used as inputs to the
+    -zip | -z   Create zip file
+    -add        all arguments from that point on will be used as inputs to the
                 zip file. All files must be referred to $JTGNG_ROOT path
     -help       displays this message
 EOF
@@ -33,14 +34,19 @@ shift
 case "$PRJ" in
     "")
         echo "ERROR: Missing project name."
-        echo "Usage: compile.sh project_name "
+        show_usage
         exit 1;;
-    "-help")
+    -help | -h | --help)
         show_usage;;
 esac
 
+if [ ! -e $JTGNG_ROOT/$PRJ ]; then
+    echo "Project $PRJ is not valid"
+    exit 1
+fi
 
-ZIP=TRUE
+
+ZIP=FALSE
 GIT=FALSE
 PROG=FALSE
 MIST=mist
@@ -48,22 +54,27 @@ SKIP_COMPILE=FALSE
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        "-skip") SKIP_COMPILE=TRUE;;
-        "-git") GIT=TRUE;;
+        -skip | -s) SKIP_COMPILE=TRUE;;
+        -git | -g) GIT=TRUE;;
         -prog | -p) PROG=TRUE;;
-        -prog-only | -o) 
+        -prog-only | -w) 
             PROG=TRUE
             ZIP=FALSE
             SKIP_COMPILE=TRUE;;
-        -mister | -er)
+        -mister | -mr)
             MIST=mister
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
             PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
             export PATH;;
         -mist)
             MIST=mist;;
-        "-zip") shift; break;;
-        "-help")
+        -add)
+            ZIP=TRUE 
+            shift
+            break;;
+        -zip | -z)
+            ZIP=TRUE;;
+        -help | -h)
             show_usage;;
         *)  echo "ERROR: Unknown option $1";
             exit 1;;

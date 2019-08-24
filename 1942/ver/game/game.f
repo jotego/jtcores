@@ -25,3 +25,4 @@
 ../../../modules/jtgng_tilemap.v
 ../../../modules/jtframe/hdl/ver/noise_gen.v
 
+../../../modules/jtgng_charmsg.v
