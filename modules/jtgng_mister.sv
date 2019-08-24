@@ -118,7 +118,7 @@ localparam CONF_STR = {
     "F,rom;",
     "O2,Aspect Ratio,Original,Wide;",
     `ifdef VERTICAL_SCREEN
-    "OD,Orientation,horizontal, vertical;",
+    "OD,Rotate screen,Yes,No;",
     "OC,Flip screen,OFF,ON;",
     `endif
     "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
@@ -198,7 +198,7 @@ wire [ 9:0] game_joystick1, game_joystick2;
 wire [ 1:0] game_coin, game_start;
 wire [ 3:0] gfx_en;
 
-wire        forced_scandoubler;
+wire        force_scan2x;
 wire        downloading, game_rst, rst, rst_n;
 wire        rst_req   = RESET | status[0] | buttons[1];
 
@@ -272,7 +272,7 @@ u_frame(
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
     .game_service   (                ), // unused
-    .LED            ( LED_USER       ),
+    .LED            ( /*LED_USER*/       ),
     // DIP and OSD settings
     .hdmi_arx       ( HDMI_ARX       ),
     .hdmi_ary       ( HDMI_ARY       ),
@@ -286,10 +286,11 @@ u_frame(
     .rotate         ( ROTATE         ),
     .en_mixing      (                ),
     .scanlines      ( scanlines      ),
+    .force_scan2x   ( force_scan2x   ),
     // Debug
     .gfx_en         ( gfx_en         )
 );
-
+assign LED_USER = ROTATE[0];
 ///////////////////////////////////////////////////////////////////
 
 wire hblank, vblank;
@@ -329,36 +330,41 @@ wire [3:0] r,g,b;
             .HDMI_SL    (  HDMI_SL  ),
         
             .fx                ( scanlines          ),
-            .forced_scandoubler( forced_scandoubler ),
-            .no_rotate         ( ~ROTATE[0]         )
+            .forced_scandoubler( force_scan2x       ),
+            .no_rotate         ( ROTATE[0]          ) // the no_rotate name
+                // is misleading. A low value in no_rotate will actually
+                // rotate the game video. If the game is vertical, a low value
+                // presents the game correctly on a horizontal screen
         );
     `else
         // Horizontal games
         wire [2:0] scale = status[5:3];
         wire [2:0] sl = scale ? scale - 1'd1 : 3'd0;
+        wire       scandoubler = (scale || force_scan2x); 
+
 
         video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
         (
-            .clk_sys        ( VGA_CLK             ),
-            .ce_pix         ( cen6                ),
-            .ce_pix_out     ( VGA_CE              ),
-            .scandoubler    ( forced_scandoubler  ),        
-            .scanlines      ( 0                   ),
-            .hq2x           ( 0                   ),
-            .R              ( R                   ),
-            .G              ( G                   ),
-            .B              ( B                   ),
-            .mono           ( 0                   ),
-            .HSync          ( HSync               ),
-            .VSync          ( VSync               ),
-            .HBlank         ( hblank              ),
-            .VBlank         ( vblank              ),
-            .VGA_R          ( VGA_R               ),
-            .VGA_G          ( VGA_G               ),
-            .VGA_B          ( VGA_B               ),
-            .VGA_HS         ( VGA_HS              ),
-            .VGA_VS         ( VGA_VS              ),
-            .VGA_DE         ( VGA_DE              )
+            .clk_sys        ( VGA_CLK       ),
+            .ce_pix         ( cen6          ),
+            .ce_pix_out     ( VGA_CE        ),
+            .scandoubler    ( scandoubler   ),        
+            .scanlines      ( 0             ),
+            .hq2x           ( scale==3'd1   ),
+            .R              ( r             ),
+            .G              ( g             ),
+            .B              ( b             ),
+            .mono           ( 0             ),
+            .HSync          ( HSync         ),
+            .VSync          ( VSync         ),
+            .HBlank         ( hblank        ),
+            .VBlank         ( vblank        ),
+            .VGA_R          ( VGA_R         ),
+            .VGA_G          ( VGA_G         ),
+            .VGA_B          ( VGA_B         ),
+            .VGA_HS         ( VGA_HS        ),
+            .VGA_VS         ( VGA_VS        ),
+            .VGA_DE         ( VGA_DE        )
         );
         assign VGA_CLK  = clk_sys;
         assign HDMI_CLK = VGA_CLK;
@@ -369,7 +375,7 @@ wire [3:0] r,g,b;
         assign HDMI_DE  = VGA_DE;
         assign HDMI_HS  = VGA_HS;
         assign HDMI_VS  = VGA_VS;
-        assign HDMI_SL  = 2'd0; //sl[1:0];
+        assign HDMI_SL  = sl[1:0];
     `endif
 `else
     assign VGA_VS = vs;

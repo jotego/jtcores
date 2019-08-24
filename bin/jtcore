@@ -50,17 +50,17 @@ while [ $# -gt 0 ]; do
     case "$1" in
         "-skip") SKIP_COMPILE=TRUE;;
         "-git") GIT=TRUE;;
-        "-prog") PROG=TRUE;;
-        "-prog-only") 
+        -prog | -p) PROG=TRUE;;
+        -prog-only | -o) 
             PROG=TRUE
             ZIP=FALSE
             SKIP_COMPILE=TRUE;;
-        "-mister")
+        -mister | -er)
             MIST=mister
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
             PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
             export PATH;;
-        "-mist")
+        -mist)
             MIST=mist;;
         "-zip") shift; break;;
         "-help")
@@ -74,18 +74,21 @@ done
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 
-echo =======================================
-echo jt$PRJ compilation starts at $(date +%T)
+echo ==============================================
+echo jt$PRJ $MIST compilation starts at $(date +%T)
 
 if [ $SKIP_COMPILE = FALSE ]; then
     # Update message file
     jt${PRJ}_msg.py
     # Recompile
     cd $JTGNG_ROOT/$PRJ/$MIST
-    mkdir -p $JTGNG_ROOT/log
-    quartus_sh --flow compile jt$PRJ > $JTGNG_ROOT/log/jt$PRJ.log
-    if ! grep "Full Compilation was successful" $JTGNG_ROOT/log/jt$PRJ.log; then
-        grep -i error $JTGNG_ROOT/log/jt$PRJ.log -A 2
+    pwd
+    rm -rf db incremental_db output_files
+    mkdir -p $JTGNG_ROOT/log/$MIST
+    LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
+    quartus_sh --flow compile jt$PRJ > "$LOG"
+    if ! grep "Full Compilation was successful" "$LOG"; then
+        grep -i error "$LOG" -A 2
         echo "ERROR while compiling the project. Aborting"
         exit 1
     fi
@@ -95,7 +98,11 @@ if [ $ZIP = TRUE ]; then
     # Rename output file
     cd $JTGNG_ROOT
     RELEASE=jt${PRJ}_${MIST}_$(date +"%Y%m%d")
-    RBF=$PRJ/${MIST}/jt$PRJ.rbf
+    if [ $MIST = mister ]; then
+        RBF=$PRJ/${MIST}/output_files/jt$PRJ.rbf
+    else
+        RBF=$PRJ/${MIST}/jt$PRJ.rbf
+    fi
     if [ ! -e $RBF ]; then
         echo "ERROR: file $RBF does not exist. You need to recompile."
         exit 1
@@ -125,7 +132,15 @@ if [ $GIT = TRUE ]; then
 fi
 
 if [ $PROG = TRUE ]; then
-    quartus_pgm -c "USB-Blaster(Altera) [1-1.2.4]" $JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
+    if [ $MIST = mister ]; then
+        CABLE="DE-SoC [1-1.2.3]"
+        cd $JTGNG_ROOT/$PRJ/mister
+        FILE=jtag.cdf
+    else
+        CABLE="USB-Blaster(Altera) [1-1.2.4]"
+        FILE=$JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
+    fi
+    quartus_pgm -c "$CABLE" $FILE
 fi
 
 echo completed at $(date)
