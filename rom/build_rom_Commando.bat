@@ -89,7 +89,7 @@ set ifilesm=cm04.9m+cm03.8m+cm02.9f+vt01.5d+vt11.5a+vt12.6a+vt15.9a+vt16.10a+vt1
 set zip1=MAME\commando.zip
 set ifiles=cm04.9m+cm03.8m+cm02.9f+vt01.5d+vt11.5a+vt12.6a+vt15.9a+vt16.10a+vt13.7a+vt14.8a+vt15.9a+vt16.10a+vt05.7e+vt06.8e+vt07.9e+vt08.7h+vt09.8h+vt10.9h+vtb1.1d+vtb2.2d+vtb3.3d+vtb4.1h+vtb5.6l+vtb6.6e
 set md5valid=5ba63333cd074858f8303dfbcb885c17
-set ofile=a.commando.rom
+set ofile=jtcom.rom
 set fullname=Commando (World) - commando.zip (Mame) - ORIGINAL
 GOTO START
 
