@@ -13,4 +13,4 @@ function check_hex_file {
     fi
 }
 
-go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR -d BYPASS_OSD -deep
+go.sh -frame 1 $*  -video -mister -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR -d BYPASS_OSD -deep

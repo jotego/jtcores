@@ -297,10 +297,10 @@ wire hblank, vblank;
 wire hs, vs;
 wire [3:0] r,g,b;
 
-`ifndef SIMULATION
+`ifndef SIM_SKIP_SCAN2X
     `ifdef VERTICAL_SCREEN
-        arcade_rotate_fx #(256,224,12,1) u_rotate_fx
-        (
+        arcade_rotate_fx #(.WIDTH(256),.HEIGHT(224),.DW(12),.CCW(1)) 
+        u_rotate_fx(
             .clk_video  ( clk_sys   ),
             .ce_pix     ( cen6      ),
         
@@ -342,7 +342,6 @@ wire [3:0] r,g,b;
         wire [2:0] sl = scale ? scale - 1'd1 : 3'd0;
         wire       scandoubler = (scale || force_scan2x); 
 
-
         video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
         (
             .clk_sys        ( VGA_CLK       ),
@@ -355,8 +354,8 @@ wire [3:0] r,g,b;
             .G              ( g             ),
             .B              ( b             ),
             .mono           ( 0             ),
-            .HSync          ( HSync         ),
-            .VSync          ( VSync         ),
+            .HSync          ( hs            ),
+            .VSync          ( vs            ),
             .HBlank         ( hblank        ),
             .VBlank         ( vblank        ),
             .VGA_R          ( VGA_R         ),

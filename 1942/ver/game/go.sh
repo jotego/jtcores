@@ -10,6 +10,6 @@ done
 export GAME_ROM_PATH=../../../rom/JT1942.rom
 export MEM_CHECK_TIME=68_000_000
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=240128 \
+../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=240128 -d VERTICAL_SCREEN \
      $* -sysname 1942 \
     -modules ../../../modules 
