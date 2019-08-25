@@ -113,6 +113,11 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
     R,F,G,D 2P direction
     Q,S,A   2P buttons 3,2 and 1
 
+    F7      Turn character layer on/off
+    F8      Turn second background layer on/off
+    F9      Turn first  background layer on/off
+    F10     Turn object (sprite) layer on/off
+
 
 ROM Generation
 ==============

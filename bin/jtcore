@@ -7,6 +7,12 @@ JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
 
     -skip       skips compilation and goes directly to prepare the release file
                 using the RBF file available.
+    -d          Defines a verilog macro. Macros are removed from qsf file after
+                compilation.
+                Useful macros:
+                    NOSOUND             the core is compiled without sound (faster)
+                    MISTER_VIDEO_MIXER  uses the Mr video modules
+                    JTFRAME_SCAN2X      uses simple scan doubler from JTFRAME
     -git        adds the release file to git
     -mister     compiles MiSTer version. Default is MiST.
     -prog       programs the FPGA
@@ -52,6 +58,9 @@ PROG=FALSE
 MIST=mist
 SKIP_COMPILE=FALSE
 
+# Verilog macros
+MACROS=
+
 while [ $# -gt 0 ]; do
     case "$1" in
         -skip | -s) SKIP_COMPILE=TRUE;;
@@ -59,7 +68,6 @@ while [ $# -gt 0 ]; do
         -prog | -p) PROG=TRUE;;
         -prog-only | -w) 
             PROG=TRUE
-            ZIP=FALSE
             SKIP_COMPILE=TRUE;;
         -mister | -mr)
             MIST=mister
@@ -67,11 +75,18 @@ while [ $# -gt 0 ]; do
             PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
             export PATH;;
         -mist)
-            MIST=mist;;
+            MIST=mist
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            PATH=$PATH:$HOME/altera/13.1/quartus/bin
+            export PATH;;
         -add)
             ZIP=TRUE 
             shift
             break;;
+        -d)
+            shift
+            MACROS="$1 $MACROS"
+            ;;
         -zip | -z)
             ZIP=TRUE;;
         -help | -h)
@@ -87,23 +102,43 @@ done
 
 echo ==============================================
 echo jt$PRJ $MIST compilation starts at $(date +%T)
+echo INFO: Macros used: $MACROS
 
 if [ $SKIP_COMPILE = FALSE ]; then
     # Update message file
     jt${PRJ}_msg.py
     # Recompile
     cd $JTGNG_ROOT/$PRJ/$MIST
-    pwd
+    echo "Moved to folder " $(pwd)
     rm -rf db incremental_db output_files
     mkdir -p $JTGNG_ROOT/log/$MIST
     LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
+    echo Log file: $LOG 
+    # Prepare macros
+    cp jt$PRJ.qsf jt$PRJ.qsf.bak
+    for m in $MACROS; do
+        echo -e "\n" set_global_assignment -name VERILOG_MACRO \"$m=1\" >> jt$PRJ.qsf
+    done
     quartus_sh --flow compile jt$PRJ > "$LOG"
+    # restores the document without the macros
+    mv jt$PRJ.qsf.bak jt$PRJ.qsf
     if ! grep "Full Compilation was successful" "$LOG"; then
         grep -i error "$LOG" -A 2
         echo "ERROR while compiling the project. Aborting"
         exit 1
     fi
 fi
+
+function append_if_exists {
+    val=
+    while [ $# -gt 0 ]; do
+        if [ -e "$1" ]; then
+            val="$val $1"
+        fi
+        shift
+    done
+    echo $val
+}
 
 if [ $ZIP = TRUE ]; then
     # Rename output file
@@ -119,21 +154,9 @@ if [ $ZIP = TRUE ]; then
         exit 1
     fi
     cp $RBF $RELEASE.rbf
-    zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $*
+    zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
+        $(append_if_exists rom/{build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
     rm $RELEASE.rbf
-
-    if [ -e rom/$PRJ/build_rom.ini ]; then
-        zip --junk-paths releases/$RELEASE.zip rom/build_rom.sh rom/$PRJ/build_rom.ini
-    fi
-
-    function add_ifexists {
-        if [ -e $1 ]; then
-            zip --junk-paths releases/$RELEASE.zip $1
-        fi   
-    }
-
-    add_ifexists doc/jt$PRJ.txt
-    add_ifexists rom/build_rom_$PRJ.bat
 fi
 
 # Add to git

@@ -167,8 +167,8 @@ set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtgng_game"
 set_global_assignment -name VERILOG_MACRO "MISTTOP=jtgng_mist"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
-# set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
-# set_global_assignment -name VERILOG_MACRO "JTFRAME_SCAN2X=<None>"
+# set_global_assignment -name VERILOG_MACRO "JTFRAME_VGA=<None>"
+# set_global_assignment -name VERILOG_MACRO "MISTER_VIDEO_MIXER=<None>"
 
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF

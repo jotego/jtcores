@@ -84,8 +84,13 @@ localparam CONF_STR = {
     "OD,Rotate controls,No,Yes;",
     "OC,Flip screen,OFF,ON;",
     `endif
-    //"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    `ifdef MISTER_VIDEO_MIXER
+    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    `else
+        `ifdef JTFRAME_VGA
     "O9,Screen filter,ON,OFF;",
+        `endif
+    `endif
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
@@ -161,54 +166,6 @@ wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
-wire [1:0] rotate;
-wire       en_mixing; // MiST
-wire [2:0] scanlines; // MiSTer
-
-wire [5:0] vga_r, vga_g, vga_b;
-wire vga_hsync, vga_vsync;
-
-`ifndef JTFRAME_SCAN2X
-jtgng_vga u_scandoubler (
-    .clk_rgb    ( clk_sys       ),
-    .cen6       ( cen6          ), //  6 MHz
-    .clk_vga    ( clk_vga       ), // 25 MHz
-    .rst        ( rst           ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
-    .LHBL       ( LHBL_dly      ),
-    .LVBL       ( LVBL_dly      ),
-    .en_mixing  ( en_mixing     ),
-    .vga_red    ( vga_r[5:1]    ),
-    .vga_green  ( vga_g[5:1]    ),
-    .vga_blue   ( vga_b[5:1]    ),
-    .vga_hsync  ( vga_hsync     ),
-    .vga_vsync  ( vga_vsync     )
-);
-
-// convert 5-bit colour to 6-bit colour
-assign vga_r[0] = vga_r[5];
-assign vga_g[0] = vga_g[5];
-assign vga_b[0] = vga_b[5];
-`else
-wire [11:0] rgbx2;
-
-jtframe_scan2x #(.DW(12), .HLEN(9'd384)) u_scan2x(
-    .rst_n      ( rst_n     ),
-    .clk        ( clk_sys   ),
-    .base_cen   ( cen6      ),
-    .basex2_cen ( cen12     ),
-    .base_pxl   ( {red, green, blue } ),
-    .x2_pxl     ( rgbx2     ),
-    .HS         ( hs        ),
-    .x2_HS      ( vga_hsync )
-);
-assign vga_vsync = vs;
-assign vga_r = { rgbx2[11:8], rgbx2[11:10] };
-assign vga_g = { rgbx2[ 7:4], rgbx2[ 7: 6] };
-assign vga_b = { rgbx2[ 3:0], rgbx2[ 3: 2] };
-`endif
 
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
@@ -231,15 +188,11 @@ u_frame(
     .game_g         ( green          ),
     .game_b         ( blue           ),
     .LHBL           ( LHBL_dly       ),
-    .LVBL           ( LVBL           ),
+    .LVBL           ( LVBL_dly       ),
     .hs             ( hs             ),
     .vs             ( vs             ),
-    // VGA video (without OSD)
-    .vga_r          ( vga_r          ),
-    .vga_g          ( vga_g          ),
-    .vga_b          ( vga_b          ),
-    .vga_hsync      ( vga_hsync      ),
-    .vga_vsync      ( vga_vsync      ),
+    .pxl_cen        ( cen6           ),
+    .pxl2_cen       ( cen12          ),
     // MiST VGA pins
     .VGA_R          ( VGA_R          ),
     .VGA_G          ( VGA_G          ),
@@ -308,10 +261,6 @@ u_frame(
     .dip_pause      ( dip_pause      ),
     .dip_flip       ( dip_flip       ),
     .dip_fxlevel    ( dip_fxlevel    ),
-    // screen
-    .rotate         (                ),
-    .en_mixing      (                ),
-    .scanlines      ( scanlines      ),    
     // Debug
     .gfx_en         ( gfx_en         )
 );
