@@ -268,13 +268,23 @@ assign map2_addr = 14'h0;
 `endif
 
 `ifndef NOOBJ
-jt1943_obj u_obj(
+jtgng_obj #(
+    .OBJMAX          ( 10'h1FF                  ),
+    .OBJMAX_LINE     ( 5'd31                    ),
+    .PXL_DLY         ( 8                        ),
+
+    .ROM_AW          ( 17                       ),
+    .LAYOUT          (  1                       ),
+    .PALW            (  4                       ),
+    .PALETTE         (  1                       ),
+    .PALETTE1_SIMFILE("../../../rom/1943/bm7.7c"),
+    .PALETTE0_SIMFILE("../../../rom/1943/bm8.8c"))
+u_obj(
     .rst            ( rst        ),
     .clk            ( clk        ),
     .cen6           ( cen6       ),
     //.cen3           ( cen3      ),
     // screen
-    .OBJON          ( OBJON      ),
     .HINIT          ( HINIT      ),
     .LHBL           ( LHBL_obj   ),
     .LVBL           ( LVBL       ),
@@ -286,7 +296,7 @@ jt1943_obj u_obj(
     .pause          ( obj_pause  ),
     .avatar_idx     ( avatar_idx ),
     // CPU bus
-    .AB             ( obj_AB     ),
+    .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),
     .DB             ( obj_DB     ),
     // shared bus
     .OKOUT          ( OKOUT      ),
@@ -297,13 +307,16 @@ jt1943_obj u_obj(
     .obj_addr       ( obj_addr    ),
     .objrom_data    ( objrom_data ),
     // PROMs
+    .OBJON          ( OBJON      ),
     .prog_addr      ( prog_addr   ),
-    .prom_7c_we     ( prom_7c_we  ),
-    .prom_8c_we     ( prom_8c_we  ),
+    .prom_hi_we     ( prom_7c_we  ),
+    .prom_lo_we     ( prom_8c_we  ),
     .prog_din       ( prog_din    ),
     // pixel output
     .obj_pxl        ( obj_pxl     )
 );
+assign obj_AB[ 12] = 1'b1;
+assign obj_AB[4:2] = 3'b0;
 `else
 assign prog_addr = 'd0;
 assign obj_pxl   = ~'d0;

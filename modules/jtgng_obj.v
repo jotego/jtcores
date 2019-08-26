@@ -16,7 +16,18 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_obj(
+module jtgng_obj #(parameter
+    OBJMAX      = 9'h180,
+    OBJMAX_LINE = 5'd24,
+    PXL_DLY     = 7,
+    ROM_AW      = 16,
+    LAYOUT      = 0,   // 0: GnG, Commando
+                       // 1: 1943
+    PALW        = 2,
+    PALETTE     = 0, // 1 if the palette PROM is used
+    PALETTE1_SIMFILE = "", // only for simulation
+    PALETTE0_SIMFILE = "" // only for simulation
+) (
     input              rst,
     input              clk,
     input              cen6,    //  6 MHz
@@ -28,6 +39,9 @@ module jtgng_obj(
     input   [ 7:0]     V,
     input   [ 8:0]     H,
     input              flip,
+    // Pause screen
+    input              pause,
+    output  [ 2:0]     avatar_idx,
     // shared bus
     output       [8:0] AB,
     input        [7:0] DB,
@@ -35,15 +49,19 @@ module jtgng_obj(
     output             bus_req,        // Request bus
     input              bus_ack,    // bus acknowledge
     output             blen,   // bus line counter enable
+    // Palette PROM
+    input              OBJON,
+    input       [7:0]  prog_addr,
+    input              prom_hi_we,
+    input              prom_lo_we,
+    input       [3:0]  prog_din,
     // SDRAM interface
-    output      [15:0] obj_addr,
+    output      [ROM_AW-1:0] obj_addr,
     input       [15:0] objrom_data,
     input              rom_ok,
     // pixel output
-    output       [5:0] obj_pxl
+    output      [(PALETTE?7:5):0] obj_pxl
 );
-
-parameter PXL_DLY=7;
 
 wire [8:0] pre_scan;
 wire [7:0] ram_dout;
@@ -64,13 +82,16 @@ always @(posedge clk) if(cen6) begin
 end
 
 // DMA to 6809 RAM memory to copy the sprite data
-jtgng_objdma u_dma(
+jtgng_objdma #(
+    .OBJMAX     ( OBJMAX     ))
+ u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen6       ( cen6      ),    //  6 MHz
     // screen
-    .LVBL       ( LVBL      ),
-    .pause      ( 1'b0      ),
+    .LVBL       ( LVBL       ),
+    .pause      ( pause      ),
+    .avatar_idx ( avatar_idx ),
     // shared bus
     .AB         ( AB        ),
     .DB         ( DB        ),
@@ -84,7 +105,10 @@ jtgng_objdma u_dma(
 );
 
 // Parse sprite data per line
-jtgng_objbuf u_buf(
+jtgng_objbuf #(
+    .OBJMAX     ( OBJMAX     ),
+    .OBJMAX_LINE( OBJMAX_LINE))
+u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -105,14 +129,22 @@ jtgng_objbuf u_buf(
 );
 
 wire [8:0] posx;
-wire [1:0] pospal;
-wire [3:0] new_pxl;
+wire [PALW-1:0] pospal;
+wire [(PALETTE?7:3):0] new_pxl;
 
 // draw the sprite
-jtgng_objdraw u_draw(
+jtgng_objdraw #(
+    .ROM_AW           ( ROM_AW            ),          
+    .LAYOUT           ( LAYOUT            ),          
+    .PALW             ( PALW              ),            
+    .PALETTE          ( PALETTE           ),         
+    .PALETTE1_SIMFILE ( PALETTE1_SIMFILE  ),
+    .PALETTE0_SIMFILE ( PALETTE0_SIMFILE  ))
+u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
+    .OBJON          ( OBJON         ),
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
@@ -123,6 +155,11 @@ jtgng_objdraw u_draw(
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .objrom_data    ( objrom_data   ),
+    // PROMs
+    .prog_addr      ( prog_addr     ),
+    .prom_hi_we     ( prom_hi_we    ),
+    .prom_lo_we     ( prom_lo_we    ),
+    .prog_din       ( prog_din      ),
     // pixel data
     .posx           ( posx          ),
     .pospal         ( pospal        ),
@@ -132,9 +169,11 @@ jtgng_objdraw u_draw(
 // line buffers for pixel data
 // obj_dly is not object pixel delay with respect to background
 // instead, it is the internal delay from previous stages
-wire [5:0] obj_pxl0;
+localparam PXLW = PALETTE ? 8 : 6;
+wire [PXLW-1:0] obj_pxl0;
+wire [PXLW-1:0] pxl_data = PALETTE ? new_pxl : {pospal, new_pxl};
 
-jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
+jtgng_objpxl #(.dw(PXLW),.obj_dly(5'hf),.palw(PALW)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -147,15 +186,14 @@ jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
     .posx           ( posx          ),
     .line           ( line          ),
     // pixel data
-    // .pospal         ( pospal        ),
-    .new_pxl        ( {pospal, new_pxl}       ),
+    .new_pxl        ( pxl_data      ),
     .obj_pxl        ( obj_pxl0      )
 );
 
 //always @(posedge clk) if(cen6) obj_pxl<=obj_pxl0;
 
 // Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(6), .stages(PXL_DLY)) u_sh(
+jtgng_sh #(.width(PXLW), .stages(PXL_DLY)) u_sh(
     .clk            ( clk           ),
     .clk_en         ( cen6          ),
     .din            ( obj_pxl0      ),

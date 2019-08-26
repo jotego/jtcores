@@ -47,7 +47,7 @@ module jtgng_objdraw #(parameter
     input       [3:0]  prog_din,
     // pixel data
     output reg  [PALW-1:0]       pospal,
-    output reg  [PALETTE?7:3:0]  new_pxl  // 8 bits if PROMs used, 4 bits otherwise
+    output reg  [(PALETTE?7:3):0]  new_pxl  // 8 bits if PROMs used, 4 bits otherwise
 );
 
 reg [7:0] ADlow;
@@ -168,6 +168,7 @@ generate
         reg [8:0] posx2;
 
         always @(posedge clk ) if(cen6) begin
+            pospal <= {PALW{1'b0}}; // it is actually unused on the upper level
             posx2 <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
                 new_pxl <= prom_dout;
