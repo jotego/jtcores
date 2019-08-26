@@ -117,7 +117,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # Prepare macros
     cp jt$PRJ.qsf jt$PRJ.qsf.bak
     for m in $MACROS; do
-        echo -e "\n" set_global_assignment -name VERILOG_MACRO \"$m=1\" >> jt$PRJ.qsf
+        echo -e "\n" set_global_assignment -name VERILOG_MACRO \"$m\" >> jt$PRJ.qsf
     done
     quartus_sh --flow compile jt$PRJ > "$LOG"
     # restores the document without the macros
