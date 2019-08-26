@@ -1,7 +1,6 @@
 ../../hdl/jt1943_colmix.v
 ../../hdl/jt1943_game.v
 ../../hdl/jt1943_main.v
-../../hdl/jt1943_objdraw.v
 ../../hdl/jt1943_obj.v
 ../../hdl/jt1943_prom_we.v
 ../../hdl/jt1943_rom2.v
@@ -22,6 +21,7 @@
 ../../../modules/jtgng_objbuf.v
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objpxl.v
+../../../modules/jtgng_objdraw.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_tilemap.v

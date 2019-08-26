@@ -121,7 +121,15 @@ wire [8:0] posx;
 wire [7:0] new_pxl;
 
 // draw the sprite
-jt1943_objdraw u_draw(
+//jt1943_objdraw u_draw(
+jtgng_objdraw #(
+    .ROM_AW          ( 17                       ),
+    .LAYOUT          (  1                       ),
+    .PALW            (  4                       ),
+    .PALETTE         (  1                       ),
+    .PALETTE1_SIMFILE("../../../rom/1943/bm7.7c"),
+    .PALETTE0_SIMFILE("../../../rom/1943/bm8.8c"))
+u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -134,7 +142,6 @@ jt1943_objdraw u_draw(
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
     .flip           ( flip          ),
-    .pause          ( pause         ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),
@@ -143,8 +150,8 @@ jt1943_objdraw u_draw(
     .objrom_data    ( objrom_data   ),
     // PROMs
     .prog_addr      ( prog_addr     ),
-    .prom_7c_we     ( prom_7c_we    ),
-    .prom_8c_we     ( prom_8c_we    ),
+    .prom_hi_we     ( prom_7c_we    ),
+    .prom_lo_we     ( prom_8c_we    ),
     .prog_din       ( prog_din      ),
     // pixel data
     .posx           ( posx          ),

@@ -110,7 +110,7 @@ always @(posedge clk ) if(cen6) begin
         new_pxl <= pause ? avatar_pxl : prom_dout;
         posx    <= posx2;
     end else begin
-        new_pxl <= 4'hf;
+        new_pxl <= 8'hf;
         posx    <= 9'h100;
     end
 end

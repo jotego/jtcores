@@ -43,6 +43,8 @@ module jtgng_obj(
     output       [5:0] obj_pxl
 );
 
+parameter PXL_DLY=7;
+
 wire [8:0] pre_scan;
 wire [7:0] ram_dout;
 
@@ -153,7 +155,7 @@ jtgng_objpxl #(.dw(6),.obj_dly(5'hf),.palw(2)) u_pxlbuf(
 //always @(posedge clk) if(cen6) obj_pxl<=obj_pxl0;
 
 // Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(6), .stages(7)) u_sh(
+jtgng_sh #(.width(6), .stages(PXL_DLY)) u_sh(
     .clk            ( clk           ),
     .clk_en         ( cen6          ),
     .din            ( obj_pxl0      ),
