@@ -139,52 +139,53 @@ always @(posedge clk) if(cen6) begin
     endcase
 end
 
-if( PALETTE == 1 ) begin
-    wire [7:0] prom_dout;
-    wire [3:0] new_col = { w[3],x[3],y[3],z[3] }; // 1943 has bits reversed for palette PROMs
-    wire [7:0] pal_addr = { objpal1, new_col };
+generate
+    if( PALETTE == 1 ) begin
+        wire [7:0] prom_dout;
+        wire [3:0] new_col = { w[3],x[3],y[3],z[3] }; // 1943 has bits reversed for palette PROMs
+        wire [7:0] pal_addr = { objpal1, new_col };
 
-    jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
-        .clk    ( clk            ),
-        .cen    ( cen6           ),
-        .data   ( prog_din       ),
-        .rd_addr( pal_addr       ),
-        .wr_addr( prog_addr      ),
-        .we     ( prom_hi_we     ),
-        .q      ( prom_dout[7:4] )
-    );
+        jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
+            .clk    ( clk            ),
+            .cen    ( cen6           ),
+            .data   ( prog_din       ),
+            .rd_addr( pal_addr       ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_hi_we     ),
+            .q      ( prom_dout[7:4] )
+        );
 
-    jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE0_SIMFILE) ) u_prom_lsb(
-        .clk    ( clk            ),
-        .cen    ( cen6           ),
-        .data   ( prog_din       ),
-        .rd_addr( pal_addr       ),
-        .wr_addr( prog_addr      ),
-        .we     ( prom_lo_we     ),
-        .q      ( prom_dout[3:0] )
-    );
+        jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE0_SIMFILE) ) u_prom_lsb(
+            .clk    ( clk            ),
+            .cen    ( cen6           ),
+            .data   ( prog_din       ),
+            .rd_addr( pal_addr       ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_lo_we     ),
+            .q      ( prom_dout[3:0] )
+        );
 
-    reg [8:0] posx2;
+        reg [8:0] posx2;
 
-    always @(posedge clk ) if(cen6) begin
-        posx2 <= posx1; // 1-clk delay to match the PROM data
-        if( OBJON ) begin
-            new_pxl <= prom_dout;
-            posx    <= posx2;
-        end else begin
-            new_pxl <= 8'hf;
-            posx    <= 9'h100;
+        always @(posedge clk ) if(cen6) begin
+            posx2 <= posx1; // 1-clk delay to match the PROM data
+            if( OBJON ) begin
+                new_pxl <= prom_dout;
+                posx    <= posx2;
+            end else begin
+                new_pxl <= 8'hf;
+                posx    <= 9'h100;
+            end
+        end
+
+    end else begin
+        // No palette PROMs
+        always @(posedge clk) if(cen6) begin
+            new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
+            posx    <= posx1;
+            pospal  <= objpal1;
         end
     end
-
-end else begin
-    // No palette PROMs
-    always @(posedge clk) if(cen6) begin
-        new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
-        posx    <= posx1;
-        pospal  <= objpal1;
-    end
-end
-
+endgenerate
 
 endmodule // jtgng_objdraw
