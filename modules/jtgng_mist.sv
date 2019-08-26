@@ -134,7 +134,7 @@ wire [3:0] blue;
 wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
 wire [15:0] snd;
 
-wire [9:0] game_joystick1, game_joystick2;
+wire [9:0] game_joy1, game_joy2;
 wire [1:0] game_coin, game_start;
 wire game_rst;
 wire [3:0] gfx_en;
@@ -248,8 +248,8 @@ u_frame(
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     // joystick
-    .game_joystick1 ( game_joystick1 ),
-    .game_joystick2 ( game_joystick2 ),
+    .game_joystick1 ( game_joy1      ),
+    .game_joystick2 ( game_joy2      ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
     .game_service   (                ), // unused
@@ -268,11 +268,11 @@ u_frame(
 `ifdef SIMULATION
 `ifdef TESTINPUTS
     test_inputs u_test_inputs(
-        .loop_rst       ( loop_rst            ),
-        .LVBL           ( LVBL                ),
-        .game_joystick1 ( game_joystick1[6:0] ),
-        .button_1p      ( game_start[0]       ),
-        .coin_left      ( game_coin[0]        )
+        .loop_rst       ( loop_rst       ),
+        .LVBL           ( LVBL           ),
+        .game_joystick1 ( game_joy1[6:0] ),
+        .button_1p      ( game_start[0]  ),
+        .coin_left      ( game_coin[0]   )
     );
     assign game_start[1] = 1'b1;
     assign game_coin[1]  = 1'b1;
@@ -285,26 +285,26 @@ u_frame(
 
 `GAMETOP #(.CLK_SPEED(CLK_SPEED))
 u_game(
-    .rst         ( game_rst      ),
-    .clk         ( clk_sys       ),
-    .cen12       ( cen12         ),
-    .cen6        ( cen6          ),
-    .cen3        ( cen3          ),
-    .cen1p5      ( cen1p5        ),
-    .red         ( red           ),
-    .green       ( green         ),
-    .blue        ( blue          ),
-    .LHBL        ( LHBL          ),
-    .LVBL        ( LVBL          ),
-    .LHBL_dly    ( LHBL_dly      ),
-    .LVBL_dly    ( LVBL_dly      ),
-    .HS          ( hs            ),
-    .VS          ( vs            ),
+    .rst         ( game_rst       ),
+    .clk         ( clk_sys        ),
+    .cen12       ( cen12          ),
+    .cen6        ( cen6           ),
+    .cen3        ( cen3           ),
+    .cen1p5      ( cen1p5         ),
+    .red         ( red            ),
+    .green       ( green          ),
+    .blue        ( blue           ),
+    .LHBL        ( LHBL           ),
+    .LVBL        ( LVBL           ),
+    .LHBL_dly    ( LHBL_dly       ),
+    .LVBL_dly    ( LVBL_dly       ),
+    .HS          ( hs             ),
+    .VS          ( vs             ),
 
-    .start_button( game_start          ),
-    .coin_input  ( game_coin           ),
-    .joystick1   ( game_joystick1[6:0] ),
-    .joystick2   ( game_joystick2[6:0] ),
+    .start_button( game_start     ),
+    .coin_input  ( game_coin      ),
+    .joystick1   ( game_joy1[6:0] ),
+    .joystick2   ( game_joy2[6:0] ),
 
     // Sound control
     .enable_fm   ( enable_fm      ),
@@ -319,27 +319,27 @@ u_game(
     .prog_we     ( prog_we        ),
 
     // ROM load
-    .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
-    .sdram_req   ( sdram_req     ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
-    .refresh_en  ( refresh_en    ),
+    .downloading ( downloading    ),
+    .loop_rst    ( loop_rst       ),
+    .sdram_req   ( sdram_req      ),
+    .sdram_addr  ( sdram_addr     ),
+    .data_read   ( data_read      ),
+    .sdram_ack   ( sdram_ack      ),
+    .data_rdy    ( data_rdy       ),
+    .refresh_en  ( refresh_en     ),
 
     // DIP switches
-    .status      ( status        ),
-    .dip_pause   ( dip_pause     ),
-    .dip_flip    ( dip_flip      ),
-    .dip_test    ( dip_test      ),
-    .dip_fxlevel ( dip_fxlevel   ),  
+    .status      ( status         ),
+    .dip_pause   ( dip_pause      ),
+    .dip_flip    ( dip_flip       ),
+    .dip_test    ( dip_test       ),
+    .dip_fxlevel ( dip_fxlevel    ),  
 
     // sound
-    .snd         ( snd           ),
-    .sample      (               ),
+    .snd         ( snd            ),
+    .sample      (                ),
     // Debug
-    .gfx_en      ( gfx_en        )
+    .gfx_en      ( gfx_en         )
 );
 
 endmodule
