@@ -188,17 +188,15 @@ wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
-wire [2:0] scanlines; // MiSTer
 
 wire        ioctl_wr;
 wire [21:0] ioctl_addr;
 wire [ 7:0] ioctl_data;
 
-wire [ 9:0] game_joystick1, game_joystick2;
+wire [ 9:0] game_joy1, game_joy2;
 wire [ 1:0] game_coin, game_start;
 wire [ 3:0] gfx_en;
 
-wire        force_scan2x;
 wire        downloading, game_rst, rst, rst_n;
 wire        rst_req   = RESET | status[0] | buttons[1];
 
@@ -220,16 +218,31 @@ wire [21:0]  prog_addr;
 wire [ 7:0]  prog_data;
 wire [ 1:0]  prog_mask;
 
+wire [ 3:0]  game_r, game_g, game_b;
+wire         LHBL_dly, LVBL_dly;
+wire         hs, vs;
+
 jtframe_mister #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_sys        ),
+    .clk_vga        ( clk_sys        ),
     .pll_locked     ( pll_locked     ),
     // interface with microcontroller
     .status         ( status         ),
     .HPS_BUS        ( HPS_BUS        ),
     .buttons        ( buttons        ),
+    // Base video
+    .game_r         ( game_r         ),
+    .game_g         ( game_g         ),
+    .game_b         ( game_b         ),
+    .LHBL           ( LHBL_dly       ),
+    .LVBL           ( LVBL_dly       ),
+    .hs             ( hs             ),
+    .vs             ( vs             ),
+    .pxl_cen        ( cen6           ),
+    .pxl2_cen       ( cen12          ),
     // SDRAM interface
     .SDRAM_CLK      ( SDRAM_CLK      ),
     .SDRAM_DQ       ( SDRAM_DQ       ),
@@ -267,15 +280,13 @@ u_frame(
     // reset forcing signals:
     .rst_req        ( rst_req        ),
     // joystick
-    .game_joystick1 ( game_joystick1 ),
-    .game_joystick2 ( game_joystick2 ),
+    .game_joystick1 ( game_joy1      ),
+    .game_joystick2 ( game_joy2      ),
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
     .game_service   (                ), // unused
-    .LED            ( /*LED_USER*/       ),
+    .LED            ( LED_USER       ),
     // DIP and OSD settings
-    .hdmi_arx       ( HDMI_ARX       ),
-    .hdmi_ary       ( HDMI_ARY       ),
     .enable_fm      ( enable_fm      ),
     .enable_psg     ( enable_psg     ),
     .dip_test       ( dip_test       ),
@@ -284,107 +295,30 @@ u_frame(
     .dip_fxlevel    ( dip_fxlevel    ),
     // screen
     .rotate         ( ROTATE         ),
-    .en_mixing      (                ),
-    .scanlines      ( scanlines      ),
-    .force_scan2x   ( force_scan2x   ),
+    // HDMI
+    .hdmi_r         ( HDMI_R         ),
+    .hdmi_g         ( HDMI_G         ),
+    .hdmi_b         ( HDMI_B         ),
+    .hdmi_hs        ( HDMI_HS        ),
+    .hdmi_vs        ( HDMI_VS        ),
+    .hdmi_clk       ( HDMI_CLK       ),
+    .hdmi_cen       ( HDMI_CE        ),
+    .hdmi_de        ( HDMI_DE        ),
+    .hdmi_sl        ( HDMI_SL        ),
+    .hdmi_arx       ( HDMI_ARX       ),
+    .hdmi_ary       ( HDMI_ARY       ),
+    // scan doubler output to VGA pins
+    .scan2x_r       ( VGA_R          ),
+    .scan2x_g       ( VGA_G          ),
+    .scan2x_b       ( VGA_B          ),
+    .scan2x_hs      ( VGA_HS         ),
+    .scan2x_vs      ( VGA_VS         ),
+    .scan2x_clk     ( VGA_CLK        ),
+    .scan2x_cen     ( VGA_CE         ),
+    .scan2x_de      ( VGA_DE         ),
     // Debug
     .gfx_en         ( gfx_en         )
 );
-assign LED_USER = ROTATE[0];
-///////////////////////////////////////////////////////////////////
-
-wire hblank, vblank;
-wire hs, vs;
-wire [3:0] r,g,b;
-
-`ifndef SIM_SKIP_SCAN2X
-    `ifdef VERTICAL_SCREEN
-        arcade_rotate_fx #(.WIDTH(256),.HEIGHT(224),.DW(12),.CCW(1)) 
-        u_rotate_fx(
-            .clk_video  ( clk_sys   ),
-            .ce_pix     ( cen6      ),
-        
-            .RGB_in     ( {r,g,b}   ),
-            .HBlank     ( hblank    ),
-            .VBlank     ( vblank    ),
-            .HSync      ( hs        ),
-            .VSync      ( vs        ),
-        
-            .VGA_CLK    (  VGA_CLK  ),
-            .VGA_CE     (  VGA_CE   ),
-            .VGA_R      (  VGA_R    ),
-            .VGA_G      (  VGA_G    ),
-            .VGA_B      (  VGA_B    ),
-            .VGA_HS     (  VGA_HS   ),
-            .VGA_VS     (  VGA_VS   ),
-            .VGA_DE     (  VGA_DE   ),
-        
-            .HDMI_CLK   (  HDMI_CLK ),
-            .HDMI_CE    (  HDMI_CE  ),
-            .HDMI_R     (  HDMI_R   ),
-            .HDMI_G     (  HDMI_G   ),
-            .HDMI_B     (  HDMI_B   ),
-            .HDMI_HS    (  HDMI_HS  ),
-            .HDMI_VS    (  HDMI_VS  ),
-            .HDMI_DE    (  HDMI_DE  ),
-            .HDMI_SL    (  HDMI_SL  ),
-        
-            .fx                ( scanlines          ),
-            .forced_scandoubler( force_scan2x       ),
-            .no_rotate         ( ROTATE[0]          ) // the no_rotate name
-                // is misleading. A low value in no_rotate will actually
-                // rotate the game video. If the game is vertical, a low value
-                // presents the game correctly on a horizontal screen
-        );
-    `else
-        // Horizontal games
-        wire [2:0] scale = status[5:3];
-        wire [2:0] sl = scale ? scale - 1'd1 : 3'd0;
-        wire       scandoubler = (scale || force_scan2x); 
-
-        video_mixer #(.LINE_LENGTH(256), .HALF_DEPTH(1)) video_mixer
-        (
-            .clk_sys        ( VGA_CLK       ),
-            .ce_pix         ( cen6          ),
-            .ce_pix_out     ( VGA_CE        ),
-            .scandoubler    ( scandoubler   ),        
-            .scanlines      ( 0             ),
-            .hq2x           ( scale==3'd1   ),
-            .R              ( r             ),
-            .G              ( g             ),
-            .B              ( b             ),
-            .mono           ( 0             ),
-            .HSync          ( hs            ),
-            .VSync          ( vs            ),
-            .HBlank         ( hblank        ),
-            .VBlank         ( vblank        ),
-            .VGA_R          ( VGA_R         ),
-            .VGA_G          ( VGA_G         ),
-            .VGA_B          ( VGA_B         ),
-            .VGA_HS         ( VGA_HS        ),
-            .VGA_VS         ( VGA_VS        ),
-            .VGA_DE         ( VGA_DE        )
-        );
-        assign VGA_CLK  = clk_sys;
-        assign HDMI_CLK = VGA_CLK;
-        assign HDMI_CE  = VGA_CE;
-        assign HDMI_R   = VGA_R;
-        assign HDMI_G   = VGA_G;
-        assign HDMI_B   = VGA_B;
-        assign HDMI_DE  = VGA_DE;
-        assign HDMI_HS  = VGA_HS;
-        assign HDMI_VS  = VGA_VS;
-        assign HDMI_SL  = sl[1:0];
-    `endif
-`else
-    assign VGA_VS = vs;
-    assign VGA_HS = hs;
-    assign VGA_R  = r;
-    assign VGA_G  = g;
-    assign VGA_B  = b;
-    assign VGA_CE = cen6;
-    assign VGA_CLK= clk_sys;
-`endif
 
 `ifdef SIMULATION
 assign sim_hs = hs;
@@ -401,11 +335,6 @@ assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
 `endif
 
-wire LHBL_dly, LVBL_dly;
-
-assign hblank = ~LHBL_dly;
-assign vblank = ~LVBL_dly;
-
 `GAMETOP #(.CLK_SPEED(48)) u_game
 (
     .rst          ( game_rst         ),
@@ -415,9 +344,9 @@ assign vblank = ~LVBL_dly;
     .cen3         ( cen3             ),
     .cen1p5       ( cen1p5           ),
 
-    .red          ( r                ),
-    .green        ( g                ),
-    .blue         ( b                ),
+    .red          ( game_r           ),
+    .green        ( game_g           ),
+    .blue         ( game_b           ),
     .LHBL_dly     ( LHBL_dly         ),
     .LVBL_dly     ( LVBL_dly         ),
     .HS           ( hs               ),
@@ -425,8 +354,8 @@ assign vblank = ~LVBL_dly;
 
     .start_button ( game_start       ),
     .coin_input   ( game_coin        ),
-    .joystick1    ( game_joystick1[6:0] ),
-    .joystick2    ( game_joystick2[6:0] ),
+    .joystick1    ( game_joy1[6:0]   ),
+    .joystick2    ( game_joy2[6:0]   ),
 
     // Sound control
     .enable_fm    ( enable_fm        ),
