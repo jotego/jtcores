@@ -149,6 +149,7 @@ u_draw(
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
     .flip           ( flip          ),
+    .pause          ( pause         ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),

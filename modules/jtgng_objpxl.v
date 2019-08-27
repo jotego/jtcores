@@ -48,7 +48,7 @@ reg weA, weB;
 
 reg pxlbuf_line;
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst )
         pxlbuf_line <= lineA;
     else if(cen6) begin

@@ -52,7 +52,7 @@ parameter OBJMAX=9'h180;
 
 reg mem_sel;
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst ) begin
         blen      <= 1'b0;
         bus_state <= ST_IDLE;
@@ -88,7 +88,7 @@ always @(posedge clk) if(cen6) begin
     end
 end
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if(rst)
         mem_sel <= MEM_PREBUF;
     else if(cen6) begin

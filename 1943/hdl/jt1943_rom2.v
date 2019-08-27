@@ -38,6 +38,7 @@ module jt1943_rom2 #(parameter
     input               LHBL,
     input               LVBL,
 
+    input               pause,
     input               main_cs,
     input               snd_cs,
 
@@ -212,6 +213,8 @@ jt1943_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
     .we       ( data_sel[5]     )
 );
 
+wire [15:0] obj_preout;
+
 jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
     .rst      ( rst             ),
     .clk      ( clk             ),
@@ -221,11 +224,28 @@ jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
     .addr_req ( obj_addr_req    ),
     .din      ( data_read       ),
     .din_ok   ( data_rdy        ),
-    .dout     ( obj_dout        ),
+    .dout     ( obj_preout      ),
     .req      ( obj_req         ),
     .data_ok  ( obj_ok          ),
     .we       ( data_sel[6]     )
 );
+
+
+`ifdef AVATARS
+    // Alternative Objects during pause
+    wire [15:0] avatar_data;
+    jtgng_ram #(.dw(16), .aw(12), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
+        .clk    ( clk            ),
+        .cen    ( pause          ),  // tiny power saving when not in pause
+        .data   ( 16'd0          ),
+        .addr   ( obj_addr[11:0] ),
+        .we     ( 1'b0           ),
+        .q      ( avatar_data    )
+    );
+    assign obj_dout = pause ? avatar_data : obj_dout;
+`else 
+    assign obj_dout = obj_preout;
+`endif
 
 `ifdef SIMULATION
 real busy_cnt=0, total_cnt=0;

@@ -197,6 +197,9 @@ jtgng_obj u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
+    // avatar display
+    .pause      ( pause       ),
+    .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .objrom_data( objrom_data ),

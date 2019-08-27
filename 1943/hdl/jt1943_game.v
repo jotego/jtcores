@@ -344,6 +344,9 @@ jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
 assign snd = 9'd0;
 `endif
 
+reg pause;
+always @(posedge clk) pause <= ~dip_pause;
+
 jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -362,7 +365,7 @@ jt1943_video u_video(
     .flip       ( 1'b0          ),
 `else
     .flip       ( video_flip    ),
-    .pause      ( ~dip_pause    ),
+    .pause      ( pause         ),
 `endif
     // CHAR
     .char_cs    ( char_cs       ),
@@ -439,6 +442,7 @@ jt1943_rom2 u_rom (
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
 
+    .pause       ( pause         ),
     .main_cs     ( main_cs       ),
     .snd_cs      ( 1'b0          ),
     .main_ok     ( main_ok       ),

@@ -316,6 +316,9 @@ assign snd      = 16'b0;
 wire scr1_ok, scr2_ok, char_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
+reg pause;
+always @(posedge clk) pause <= ~dip_pause;
+
 jtgng_video #(
     .OBJ_PAL      (2'b10),
     .PALETTE_PROM (1),
@@ -336,7 +339,7 @@ jtgng_video #(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( !dip_pause    ),
+    .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -402,6 +405,7 @@ jt1943_rom2 #(
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
 
+    .pause       ( pause         ),
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
     .main_ok     ( main_ok       ),

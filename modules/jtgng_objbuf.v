@@ -59,7 +59,7 @@ end
 
 localparam SEARCH=1'b0, TRANSFER=1'b1;
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst )
         line <= lineA;
     else if(cen6) begin
@@ -70,7 +70,7 @@ reg pre_scan_msb;
 
 wire [7:0] Vsum = ram_dout + (~VF + { {6{~flip}}, 2'b10 });
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst ) begin
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;

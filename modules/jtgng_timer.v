@@ -42,7 +42,7 @@ parameter obj_offset=10'd3;
 //reg OH;     // high on 0H transition
 
 // H counter
-always @(posedge clk) begin
+always @(posedge clk, posedge rst) begin
     if( rst ) begin
         { Hinit, H } <= 10'd0;
         Hsub <= 1'b0;
@@ -61,7 +61,7 @@ always @(posedge clk) begin
 end
 
 // V Counter
-always @(posedge clk) begin
+always @(posedge clk, posedge rst) begin
     if( rst ) begin
         V     <= 9'd250;
         Vinit <= 1'b1;
@@ -85,7 +85,7 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // I often just generates the signals with logic
 // LVBL_obj is such a signal. In CAPCOM schematics
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst ) begin
         LVBL <= 1'b0;
         LVBL_obj <= 1'b0;

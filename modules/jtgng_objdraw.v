@@ -33,6 +33,7 @@ module jtgng_objdraw #(parameter
     input       [3:0]  pxlcnt,
     output reg  [8:0]  posx,
     input              flip,
+    input              pause,
     // per-line sprite data
     input       [4:0]  objcnt,
     input       [7:0]  objbuf_data,
@@ -165,13 +166,21 @@ generate
             .q      ( prom_dout[3:0] )
         );
 
-        reg [8:0] posx2;
+        reg  [8:0] posx2;
+
+        `ifdef AVATARS
+            reg  [7:0] avatar_pxl;
+            always @(posedge clk) if(cen6)
+                avatar_pxl <= { objpal1, z[3], y[3], x[3], w[3] };
+        `else
+            wire [7:0] avatar_pxl = prom_dout;
+        `endif
 
         always @(posedge clk ) if(cen6) begin
             pospal <= {PALW{1'b0}}; // it is actually unused on the upper level
             posx2 <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
-                new_pxl <= prom_dout;
+                new_pxl <= pause ? avatar_pxl : prom_dout;
                 posx    <= posx2;
             end else begin
                 new_pxl <= 8'hf;
