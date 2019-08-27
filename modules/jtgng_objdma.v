@@ -128,14 +128,6 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 `ifdef AVATARS
 // Pause objects
 
-// jtgng_ram #(.aw(10), .synfile("avatar_xy.hex"),.cen_rd(1))u_avatars(
-//     .clk    ( clk           ),
-//     .cen    ( pause         ),  // tiny power saving when not in pause
-//     .data   ( 8'd0          ),
-//     .addr   ( {1'b0, pre_scan } ),
-//     .we     ( 1'b0          ),
-//     .q      ( avatar_data   )
-// );
 wire [ 7:0] avatar_id;
 reg  [ 7:0] avatar_data;
 reg  [10:0] avatar_cnt = 0;

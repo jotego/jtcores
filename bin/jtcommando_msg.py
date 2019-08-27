@@ -71,6 +71,7 @@ print_char("    mATTHEW yOUNG               ")
 print_char("    oLIVER jAKSCH               ")
 print_char("    oSCAR lAGUNA gARCIA         ")
 print_char("    rOMAN bUSER                 ")
+print_char("    sEmbiance                   ") # I haven't got the Avater
 print_char("    sMOKEmONSTER                ")
 print_char("    sTEVEN wILSON               ")
 print_char("    uLTRAROBOTNINJA             ")
@@ -86,18 +87,40 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
-print_char("                                ")
-
-# Avatars:
-# Daniel Bauza
-# Brian Sallee
-# Dustin Hubbard
-# Frederic Mahe
-# Jo Tomiyori
-# Phillip McMahon
-# Scralings
-# Sembiance
-# Suvodip Mitra
 
 save_hex( os.environ['JTGNG_ROOT']+"/commando/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG_ROOT']+"/commando/ver/game/msg.bin", char_ram )
+
+#################################################################
+def convert_buf( buf, k, msg ):
+    for cnt in range(len(msg)):
+        buf[k] = ascii_conv[ msg[cnt] ]
+        k+=1
+    return k
+
+#1 Avatars:
+#2 Daniel Bauza
+#3 Brian Sallee
+#4 Dustin Hubbard
+#5 Frederic Mahe
+#6 Jo Tomiyori
+#7 Phillip McMahon
+#8 Scralings
+#9 Sembiance -- but I don't have the image!
+#A Suvodip Mitra
+
+
+#           00000000000000001111111111111111
+#           0123456789ABCDEF0123456789ABCDEF
+av_buf=bytearray(32*8)
+av_pos=0
+av_pos=convert_buf(av_buf,av_pos,"            Scralings           ")
+av_pos=convert_buf(av_buf,av_pos,"            Suverman            ")
+av_pos=convert_buf(av_buf,av_pos,"          Frederic Mahe         ")
+av_pos=convert_buf(av_buf,av_pos,"            Jo Tomiyori         ")
+av_pos=convert_buf(av_buf,av_pos,"           Brian Sallee         ")
+av_pos=convert_buf(av_buf,av_pos,"             FULLSET            ")
+av_pos=convert_buf(av_buf,av_pos,"         Phillip McMahon        ")
+av_pos=convert_buf(av_buf,av_pos,"          Dustin Hubbard        ")
+av_pos=convert_buf(av_buf,av_pos,"          Daniel Bauza          ")
+save_hex( os.environ['JTGNG_ROOT']+"/commando/mist/msg_av.hex", av_buf )
