@@ -106,7 +106,7 @@ wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 
-wire [2:0] avatar_idx;
+wire [3:0] avatar_idx;
 
 `ifdef AVATARS
 wire obj_pause=pause;

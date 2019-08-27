@@ -41,26 +41,26 @@ module jtgng_obj #(parameter
     input              flip,
     // Pause screen
     input              pause,
-    output  [ 2:0]     avatar_idx,
+    output  [ 3:0]     avatar_idx,
     // shared bus
-    output       [8:0] AB,
-    input        [7:0] DB,
+    output  [ 8:0]     AB,
+    input   [ 7:0]     DB,
     input              OKOUT,
     output             bus_req,        // Request bus
     input              bus_ack,    // bus acknowledge
     output             blen,   // bus line counter enable
     // Palette PROM
     input              OBJON,
-    input       [7:0]  prog_addr,
+    input   [ 7:0]     prog_addr,
     input              prom_hi_we,
     input              prom_lo_we,
-    input       [3:0]  prog_din,
+    input   [ 3:0]     prog_din,
     // SDRAM interface
-    output      [ROM_AW-1:0] obj_addr,
-    input       [15:0] objrom_data,
+    output  [ROM_AW-1:0] obj_addr,
+    input   [15:0]     objrom_data,
     input              rom_ok,
     // pixel output
-    output      [(PALETTE?7:5):0] obj_pxl
+    output  [(PALETTE?7:5):0] obj_pxl
 );
 
 wire [8:0] pre_scan;

@@ -21,7 +21,7 @@ module jtgng_charmsg(
     input            clk,
     input            cen6,  /* synthesis direct_enable = 1 */
 
-    input      [2:0] avatar_idx,
+    input      [3:0] avatar_idx,
     input      [9:0] scan,
     output reg [7:0] msg_low,
     output     [7:0] msg_high
@@ -39,9 +39,9 @@ jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
 );
 
 `ifdef AVATARS
-wire [7:0] av_scan = { avatar_idx, scan[9:5] };
+wire [8:0] av_scan = { avatar_idx, scan[9:5] };
 
-jtgng_ram #(.aw(8),.synfile("msg_av.hex")) u_ram_msg_av(
+jtgng_ram #(.aw(9),.synfile("msg_av.hex")) u_ram_msg_av(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( 8'd0        ),

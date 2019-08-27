@@ -102,7 +102,7 @@ wire [3:0] cc;
 wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
-wire [2:0] avatar_idx;
+wire [3:0] avatar_idx;
 
 jtgng_char #(.HOFFSET(1)) u_char (
     .clk        ( clk           ),

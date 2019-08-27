@@ -23,7 +23,7 @@ module jtgng_objdma(
     // screen
     input              LVBL,
     input              pause,
-    output      [ 2:0] avatar_idx,
+    output      [ 3:0] avatar_idx,
     // shared bus
     output  reg [ 8:0] AB,
     input       [ 7:0] DB,
@@ -49,6 +49,7 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 // It takes 170us to copy the whole ('h1FF) buffer
 
 parameter OBJMAX=9'h180;
+parameter AVATAR_MAX=4'd8; // ignore if avatars are not used
 
 reg mem_sel;
 
@@ -128,30 +129,44 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 `ifdef AVATARS
 // Pause objects
 
-wire [ 7:0] avatar_id;
+reg  [ 7:0] avatar_id;
 reg  [ 7:0] avatar_data;
-reg  [10:0] avatar_cnt = 0;
-assign      avatar_idx = avatar_cnt[10:8];
+reg  [11:0] avatar_cnt = 0;
+assign      avatar_idx = avatar_cnt[11:8];
 
-jtgng_ram #(.aw(7), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
-    .clk    ( clk           ),
-    .cen    ( pause         ),  // tiny power saving when not in pause
-    .data   ( 8'd0          ),
-    .addr   ( {avatar_idx, pre_scan[5:2] } ),
-    .we     ( 1'b0          ),
-    .q      ( avatar_id   )
-);
+// jtgng_ram #(.aw(7), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
+//     .clk    ( clk           ),
+//     .cen    ( pause         ),  // tiny power saving when not in pause
+//     .data   ( 8'd0          ),
+//     .addr   ( {avatar_idx, pre_scan[5:2] } ),
+//     .we     ( 1'b0          ),
+//     .q      ( avatar_id   )
+// );
+// Each avatar is made of 9 sprites, which are ordered one after the other in memory
+// the sprite ID is calculated by combining the current Avatar on display and the
+// position inside the object buffer, which is virtual during avatar display
+
+// multiples avatar_idx by 9 = x8+1
+wire [7:0] avatar_idx9 = { 1'd0, avatar_idx, 3'd0 } + {4'd0, avatar_idx};
+
+always @(posedge clk)
+    avatar_id <= pre_scan[5:2] > 4'd8 ? 8'h63 :
+        ( {4'd0, pre_scan[5:2]} + avatar_idx9 );
 
 reg lastLVBL;
 always @(posedge clk) begin
     lastLVBL <= LVBL;
-    if( !LVBL && lastLVBL ) avatar_cnt<=avatar_cnt+11'd1;
+    if( !LVBL && lastLVBL ) 
+        avatar_cnt<= avatar_idx == AVATAR_MAX ? 12'd0 : avatar_cnt<=avatar_cnt+12'd1;
 end
 
 reg [7:0] avatar_y, avatar_x;
 
+reg avatar_region; // not the whole DMA buffer is overriden. Only the first 9 objects
+
 always @(posedge clk) begin
     if(pre_scan[8:6]==3'd0) begin
+        avatar_region <= pre_scan[5:2]<4'd9;
         case( pre_scan[5:2] )
             4'd0,4'd1,4'd2: avatar_y <= ~avatar_cnt[7:0];
             4'd3,4'd4,4'd5: avatar_y <= ~avatar_cnt[7:0] + 8'h10;
@@ -166,6 +181,7 @@ always @(posedge clk) begin
         endcase
     end
     else begin
+        avatar_region <= 1'b0;
         avatar_y <= 8'hf8;
         avatar_x <= 8'hf8;
     end
@@ -178,7 +194,7 @@ always @(*) begin
         2'd2: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_y;
         2'd3: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_x;
     endcase
-    ram_dout = pause ? avatar_data : buf_data;
+    ram_dout = (pause&&avatar_region) ? avatar_data : buf_data;
 end
 
 `else 
