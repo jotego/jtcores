@@ -187,7 +187,7 @@ end
 always @(*) begin
     case( pre_scan[1:0] )
         2'd0: avatar_data = pre_scan[8:6]==3'd0 ? avatar_id : 8'd63;
-        2'd1: avatar_data = { 5'd0, avatar_idx }; // palette index, one palette per avatar
+        2'd1: avatar_data = 8'd0;
         2'd2: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_y;
         2'd3: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_x;
     endcase
