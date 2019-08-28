@@ -1,0 +1,26 @@
+#!/bin/bash
+MIST=-mist
+EXTRA=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -mister)
+            MIST=-mister;;
+        -mist)
+            MIST=-mist;;
+        -all | -a)
+			MIST="-mist -mister";;
+        :)
+            # the remaining argument will be passed directly to the compilation
+            shift
+            EXTRA="$*"
+            break;;
+        *)  echo "ERROR: Unknown option $1";
+            exit 1;;
+    esac
+    shift
+done
+
+cores="1942 1943 gng commando"
+
+parallel jtcore {} $EXTRA ::: $cores ::: $MIST

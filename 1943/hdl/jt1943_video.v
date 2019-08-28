@@ -39,6 +39,7 @@ module jt1943_video(
     output      [ 7:0]  chram_dout,
     output      [13:0]  char_addr,
     input       [15:0]  char_data,
+    input               char_ok,
     output              char_wait,
     // SCROLL - ROM
     input               SC1ON,
@@ -72,6 +73,8 @@ module jt1943_video(
     input               LVBL_obj,
     input               LHBL,
     input               LHBL_obj,
+    output              LHBL_dly,
+    output              LVBL_dly,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue,
@@ -97,14 +100,13 @@ module jt1943_video(
     input       [3:0]   gfx_en
 );
 
+localparam SCR_OFFSET=4;
+
 wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 
-localparam chr_off = 8'd5;
-localparam scr_off = 8'd12;
-
-wire [2:0] avatar_idx;
+wire [3:0] avatar_idx;
 
 `ifdef AVATARS
 wire obj_pause=pause;
@@ -113,33 +115,61 @@ wire obj_pause=1'b0;
 `endif
 
 `ifndef NOCHAR
-jt1943_char #(.HOFFSET(chr_off)) u_char (
+wire [7:0] char_msg_low;
+wire [7:0] char_msg_high;
+wire [9:0] char_scan;
+wire [4:0] char_pal;
+wire [1:0] char_col;
+
+jtgng_char #(
+    .HOFFSET ( 0),
+    .ROM_AW  (14),
+    .IDMSB1  ( 7),
+    .IDMSB0  ( 5),
+    .PALW    ( 5),
+    .VFLIP_EN( 0),
+    .HFLIP_EN( 0),   // 1943 does not have character H/V flip
+    .PALETTE ( 1),
+    .PALETTE_SIMFILE("../../../rom/1943/bm5.7f")
+) u_char (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H          ( H             ),
-    .char_cs    ( char_cs       ),
-    .CHON       ( CHON          ),
+    .V          ( V             ),
+    .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
-    .rd_n       ( rd_n          ),
+    // Bus arbitrion
+    .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
-    .cpu_wait   ( char_wait     ),
-    .char_pxl   ( char_pxl      ),
+    .busy       ( char_wait     ),
     // Pause screen
     .pause      ( pause         ),
-    .avatar_idx ( avatar_idx    ),
-    // Palette PROM F1
+    .scan       ( char_scan     ),
+    .msg_low    ( char_msg_low  ),
+    .msg_high   ( char_msg_high ),    
+    // PROM access
     .prog_addr  ( prog_addr     ),
-    .prom_din   ( prog_din      ),
-    .prom_7f_we ( prom_7f_we    ),
+    .prog_din   ( prog_din      ),
+    .prom_we    ( prom_7f_we    ),
     // ROM
     .char_addr  ( char_addr     ),
-    .char_data  ( char_data     )
+    .rom_data   ( char_data     ),
+    .rom_ok     ( char_ok       ),
+    // Pixel output
+    .char_on    ( CHON          ),
+    .char_pxl   ( char_pxl      )
+);
+
+jtgng_charmsg u_msg(
+    .clk         ( clk           ),
+    .cen6        ( cen6          ),
+    .avatar_idx  ( avatar_idx    ),
+    .scan        ( char_scan     ),
+    .msg_low     ( char_msg_low  ),
+    .msg_high    ( char_msg_high ) 
 );
 `else
 assign char_wait_n = 1'b1;
@@ -147,7 +177,8 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1943_scroll #(.HOFFSET(scr_off),
+jt1943_scroll #(
+    .HOFFSET(SCR_OFFSET),
     .SIMFILE_MSB("../../../rom/1943/bm9.6l"),
     .SIMFILE_LSB("../../../rom/1943/bm10.7l")
 ) u_scroll1 (
@@ -163,10 +194,10 @@ jt1943_scroll #(.HOFFSET(scr_off),
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else
-    .SCxON        ( 1'b1          ),
-    .vpos         ( 8'd0          ),
-    .flip         ( 1'b0          ),
+    `else // TEST:
+        .SCxON        ( 1'b1          ),
+        .vpos         ( 8'd0          ),
+        .flip         ( 1'b0          ),
     `endif
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
@@ -187,7 +218,7 @@ jt1943_scroll #(.HOFFSET(scr_off),
 
 wire [1:0] scr2_nc; // not connected bits of the address
 
-jt1943_scroll #(.HOFFSET(scr_off),
+jt1943_scroll #(.HOFFSET(SCR_OFFSET),
     .SIMFILE_MSB("../../../rom/1943/bm11.12l"),
     .SIMFILE_LSB("../../../rom/1943/bm12.12m"),
     .AS8MASK(1'b0)
@@ -204,10 +235,10 @@ jt1943_scroll #(.HOFFSET(scr_off),
     .SCxON        ( SC2ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else
-    .SCxON        ( 1'b1          ),
-    .vpos         ( 8'd0          ),
-    .flip         ( 1'b0          ),
+    `else // TEST
+        .SCxON        ( 1'b1          ),
+        .vpos         ( 8'd0          ),
+        .flip         ( 1'b0          ),
     `endif
     .din          ( cpu_dout      ),
     .wr_n         ( wr_n          ),
@@ -236,15 +267,75 @@ assign scr2_addr = 17'h0;
 assign map2_addr = 14'h0;
 `endif
 
+`ifndef NOOBJ
+jtgng_obj #(
+    .OBJMAX          ( 10'h1FF                  ),
+    .OBJMAX_LINE     ( 5'd31                    ),
+    .PXL_DLY         ( 8                        ),
+
+    .ROM_AW          ( 17                       ),
+    .LAYOUT          (  1                       ),
+    .PALW            (  4                       ),
+    .PALETTE         (  1                       ),
+    .PALETTE1_SIMFILE("../../../rom/1943/bm7.7c"),
+    .PALETTE0_SIMFILE("../../../rom/1943/bm8.8c"))
+u_obj(
+    .rst            ( rst        ),
+    .clk            ( clk        ),
+    .cen6           ( cen6       ),
+    //.cen3           ( cen3      ),
+    // screen
+    .HINIT          ( HINIT      ),
+    .LHBL           ( LHBL_obj   ),
+    .LVBL           ( LVBL       ),
+    .LVBL_obj       ( LVBL_obj   ),
+    .V              ( V          ),
+    .H              ( H          ),
+    .flip           ( flip       ),
+    // Pause screen
+    .pause          ( obj_pause  ),
+    .avatar_idx     ( avatar_idx ),
+    // CPU bus
+    .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),
+    .DB             ( obj_DB     ),
+    // shared bus
+    .OKOUT          ( OKOUT      ),
+    .bus_req        ( bus_req    ),        // Request bus
+    .bus_ack        ( bus_ack    ),    // bus acknowledge
+    .blen           ( blcnten    ),   // bus line counter enable
+    // SDRAM interface
+    .obj_addr       ( obj_addr    ),
+    .objrom_data    ( objrom_data ),
+    // PROMs
+    .OBJON          ( OBJON      ),
+    .prog_addr      ( prog_addr   ),
+    .prom_hi_we     ( prom_7c_we  ),
+    .prom_lo_we     ( prom_8c_we  ),
+    .prog_din       ( prog_din    ),
+    // pixel output
+    .obj_pxl        ( obj_pxl     )
+);
+assign obj_AB[ 12] = 1'b1;
+assign obj_AB[4:2] = 3'b0;
+`else
+assign prog_addr = 'd0;
+assign obj_pxl   = ~'d0;
+assign bus_req   = 'b0;
+assign blcnten   = 'b0;
+`endif
 
 `ifndef NOCOLMIX
-jt1943_colmix u_colmix (
+jt1943_colmix #(
+    .BLANK_OFFSET(8)
+) u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
     .cen6       ( cen6          ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
     .pause      ( obj_pause     ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
@@ -269,50 +360,6 @@ jt1943_colmix u_colmix (
 assign  red = 4'd0;
 assign blue = 4'd0;
 assign green= 4'd0;
-`endif
-
-`ifndef NOOBJ
-jt1943_obj u_obj(
-    .rst            ( rst        ),
-    .clk            ( clk        ),
-    .cen6           ( cen6       ),
-    //.cen3           ( cen3      ),
-    // screen
-    .OBJON          ( OBJON      ),
-    .HINIT          ( HINIT      ),
-    .LHBL           ( LHBL_obj   ),
-    .LVBL           ( LVBL       ),
-    .LVBL_obj       ( LVBL_obj   ),
-    .V              ( V          ),
-    .H              ( H          ),
-    .flip           ( flip       ),
-    // Pause screen
-    .pause          ( obj_pause  ),
-    .avatar_idx     ( avatar_idx ),
-    // CPU bus
-    .AB             ( obj_AB     ),
-    .DB             ( obj_DB     ),
-    // shared bus
-    .OKOUT          ( OKOUT      ),
-    .bus_req        ( bus_req    ),        // Request bus
-    .bus_ack        ( bus_ack    ),    // bus acknowledge
-    .blen           ( blcnten    ),   // bus line counter enable
-    // SDRAM interface
-    .obj_addr       ( obj_addr    ),
-    .objrom_data    ( objrom_data ),
-    // PROMs
-    .prog_addr      ( prog_addr   ),
-    .prom_7c_we     ( prom_7c_we  ),
-    .prom_8c_we     ( prom_8c_we  ),
-    .prog_din       ( prog_din    ),
-    // pixel output
-    .obj_pxl        ( obj_pxl     )
-);
-`else
-assign prog_addr = 'd0;
-assign obj_pxl   = ~'d0;
-assign bus_req   = 'b0;
-assign blcnten   = 'b0;
 `endif
 
 endmodule // jtgng_video

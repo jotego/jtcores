@@ -18,7 +18,13 @@
 
 `timescale 1ns/1ps
 
-module jt1943_rom2 #(parameter char_aw=14, main_aw=18, obj_aw=17, scr1_aw=17,
+module jt1943_rom2 #(parameter 
+    char_aw  = 14,
+    main_aw  = 18,
+     snd_aw  = 15,
+     obj_aw  = 17,
+    scr1_aw  = 17,
+    scr2_aw  = 15,
   snd_offset = 22'h14_000, // bm05.4k,  32kB
  char_offset = 22'h18_000, // bm04.5h,  32kB
  map1_offset = 22'h1C_000, // bm14.5f,  32kB
@@ -32,22 +38,23 @@ module jt1943_rom2 #(parameter char_aw=14, main_aw=18, obj_aw=17, scr1_aw=17,
     input               LHBL,
     input               LVBL,
 
+    input               pause,
     input               main_cs,
     input               snd_cs,
 
     input       [char_aw-1:0]  char_addr, //  32 kB
     input       [main_aw-1:0]  main_addr, // 160 kB, addressed as 8-bit words
-    input       [14:0]   snd_addr, //  32 kB
-    input       [obj_aw-1:0]   obj_addr,  // 256 kB
+    input       [ snd_aw-1:0]   snd_addr, //  32 kB
+    input       [ obj_aw-1:0]   obj_addr,  // 256 kB
     input       [scr1_aw-1:0]  scr1_addr, // 256 kB (16-bit words)
-    input       [14:0]  scr2_addr, //  64 kB
+    input       [scr2_aw-1:0]  scr2_addr, //  64 kB
     input       [13:0]  map1_addr, //  32 kB
     input       [13:0]  map2_addr, //  32 kB
 
-    output      [15:0]  char_dout,
+    output  reg [15:0]  char_dout,
     output      [ 7:0]  main_dout,
     output      [ 7:0]   snd_dout,
-    output      [15:0]   obj_dout,
+    output  reg [15:0]   obj_dout,
     output      [15:0]  map1_dout,
     output      [15:0]  map2_dout,
     output      [15:0]  scr1_dout,
@@ -56,6 +63,10 @@ module jt1943_rom2 #(parameter char_aw=14, main_aw=18, obj_aw=17, scr1_aw=17,
 
     output              main_ok,
     output              snd_ok,
+    output              scr1_ok,
+    output              scr2_ok,
+    output              char_ok,
+    output              obj_ok,
     // SDRAM controller interface
     input               data_rdy,
     input               sdram_ack,
@@ -74,19 +85,19 @@ module jt1943_rom2 #(parameter char_aw=14, main_aw=18, obj_aw=17, scr1_aw=17,
 
 reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
-wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req; //, snd_req;
+wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req;
 
 reg [7:0] data_sel;
 wire [main_aw-1:0] main_addr_req;
-wire [14:0]  snd_addr_req;
+wire [ snd_aw-1:0]  snd_addr_req;
 wire [char_aw-1:0] char_addr_req;
-wire [obj_aw-1:0] obj_addr_req;
+wire [ obj_aw-1:0]  obj_addr_req;
 wire [scr1_aw-1:0] scr1_addr_req;
-wire [14:0] scr2_addr_req;
+wire [scr2_aw-1:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
 
-wire char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok;
+wire map1_ok, map2_ok;
 //wire newref = 
 //    &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
 
@@ -95,6 +106,14 @@ wire char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok;
 always @(posedge clk)
     // refresh_en <= !LVBL;
     refresh_en <= &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
+
+reg download_ok = 1'b0; // signals that the download process is completed
+
+always @(posedge clk) begin : download_watch
+    reg last_downloading;
+    if( !downloading && last_downloading )
+        download_ok <= 1'b1;
+end
 
 jt1943_romrq #(.AW(main_aw),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
@@ -112,7 +131,7 @@ jt1943_romrq #(.AW(main_aw),.INVERT_A0(1)) u_main(
 );
 
 
-jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
+jt1943_romrq #(.AW(snd_aw),.INVERT_A0(1)) u_snd(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( 1'b1            ),
@@ -127,6 +146,8 @@ jt1943_romrq #(.AW(15),.INVERT_A0(1)) u_snd(
     .we       ( data_sel[7]     )
 );
 
+wire [15:0] char_preout;
+
 jt1943_romrq #(.AW(char_aw),.DW(16)) u_char(
     .rst      ( rst             ),
     .clk      ( clk             ),
@@ -136,11 +157,17 @@ jt1943_romrq #(.AW(char_aw),.DW(16)) u_char(
     .addr_req ( char_addr_req   ),
     .din      ( data_read       ),
     .din_ok   ( data_rdy        ),
-    .dout     ( char_dout       ),
+    .dout     ( char_preout     ),
     .req      ( char_req        ),
     .data_ok  ( char_ok         ),
     .we       ( data_sel[1]     )
 );
+
+// Provides a non-zero output for characters before SDRAM has valid data
+// This can be used to display a rudimentary message on screen
+// and prompt the user to load the ROM
+// assign char_dout = download_ok ? char_preout : 16'hAAAA;
+always @(posedge clk) char_dout <= download_ok ? char_preout : 16'hAAAA;
 
 jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .rst      ( rst             ),
@@ -187,7 +214,7 @@ jt1943_romrq #(.AW(scr1_aw),.DW(16)) u_scr1(
     .we       ( data_sel[4]     )
 );
 
-jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
+jt1943_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( 1'b1            ),
@@ -202,6 +229,8 @@ jt1943_romrq #(.AW(15),.DW(16)) u_scr2(
     .we       ( data_sel[5]     )
 );
 
+wire [15:0] obj_preout;
+
 jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
     .rst      ( rst             ),
     .clk      ( clk             ),
@@ -211,11 +240,28 @@ jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
     .addr_req ( obj_addr_req    ),
     .din      ( data_read       ),
     .din_ok   ( data_rdy        ),
-    .dout     ( obj_dout        ),
+    .dout     ( obj_preout      ),
     .req      ( obj_req         ),
     .data_ok  ( obj_ok          ),
     .we       ( data_sel[6]     )
 );
+
+
+`ifdef AVATARS
+    // Alternative Objects during pause
+    wire [15:0] avatar_data;
+    jtgng_ram #(.dw(16), .aw(13), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
+        .clk    ( clk            ),
+        .cen    ( pause          ),  // tiny power saving when not in pause
+        .data   ( 16'd0          ),
+        .addr   ( obj_addr[12:0] ),
+        .we     ( 1'b0           ),
+        .q      ( avatar_data    )
+    );
+    always @(posedge clk) obj_dout <= pause ? avatar_data : obj_dout;
+`else 
+    always @(*) obj_dout = obj_preout;
+`endif
 
 `ifdef SIMULATION
 real busy_cnt=0, total_cnt=0;
@@ -255,15 +301,15 @@ end else begin
         data_sel <= 'd0;
         case( 1'b1 )
             !data_sel[7] & snd_req: begin
-                sdram_addr <= snd_offset + { 7'b0, snd_addr_req[14:1] };
+                sdram_addr <= snd_offset + { {22-snd_aw{1'b0}}, snd_addr_req[14:1] };
                 data_sel[7] <= 1'b1;
             end
             !data_sel[4] & scr1_req: begin
-                sdram_addr <= scr1_offset + { 5'b0, scr1_addr_req };
+                sdram_addr <= scr1_offset + { {22-scr1_aw{1'b0}}, scr1_addr_req };
                 data_sel[4] <= 1'b1;
             end
             !data_sel[5] & scr2_req: begin
-                sdram_addr <= scr2_offset + { 7'b0, scr2_addr_req };
+                sdram_addr <= scr2_offset + { {22-scr2_aw{1'b0}}, scr2_addr_req };
                 data_sel[5] <= 1'b1;
             end
             !data_sel[2] & map1_req: begin

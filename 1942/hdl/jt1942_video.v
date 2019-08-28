@@ -23,6 +23,7 @@ module jt1942_video(
     input               clk,
     input               cen6,
     input               cen3,
+    input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
@@ -37,14 +38,16 @@ module jt1942_video(
     output      [11:0]  char_addr,
     input       [15:0]  char_data,
     output              char_busy,
+    input               char_ok,
     // SCROLL - ROM
     input               scr_cs,
-    input       [ 1:0]  scrpos_cs,
     output              scr_busy,
     output      [ 7:0]  scram_dout,
-    output      [14:0]  scr_addr,
+    output      [13:0]  scr_addr,
     input       [23:0]  scrom_data,
     input       [ 2:0]  scr_br,
+    input       [ 8:0]  scr_hpos,
+    input               scr_ok,
     // OBJ
     input               obj_cs,
     input               HINIT,
@@ -68,37 +71,70 @@ module jt1942_video(
     input               prom_e9_we,
     input               prom_e10_we,
     input               prom_k3_we,
-    input               prom_m11_we
+    input               prom_m11_we,
+    // Debug
+    input       [3:0]   gfx_en
 );
 
 wire [3:0] char_pxl, obj_pxl;
 wire [5:0] scr_pxl;
 
-localparam scrchr_off = 8'd4;
-
 `ifndef NOCHAR
-jt1942_char #(.HOFFSET(scrchr_off)) u_char (
+wire [7:0] char_msg_low;
+wire [7:0] char_msg_high = 8'h2;
+wire [9:0] char_scan;
+wire [5:0] char_pal;
+wire [1:0] char_col;
+
+jtgng_char #(
+    .HOFFSET (8'd0),
+    .ROM_AW  (12),
+    .IDMSB1  ( 7),
+    .IDMSB0  ( 7),
+    .VFLIP   ( 6),
+    .PALW    ( 6),
+    .HFLIP_EN( 0),   // 1942 does not have character H flip
+    .PALETTE ( 1),
+    .PALETTE_SIMFILE( "../../../rom/1942/sb-0.f1" )
+) u_char (
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
-    .AB         ( cpu_AB[10:0]  ),
-    .V128       ( V[7:0]        ),
-    .H128       ( H[7:0]        ),
-    .char_cs    ( char_cs       ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
+    .AB         ( cpu_AB        ),
+    .V          ( V             ),
+    .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
-    .rd_n       ( rd_n          ),
+    // Bus arbitrion
+    .char_cs    ( char_cs       ),
+    .wr_n       ( wr_n          ),
     .busy       ( char_busy     ),
-    .char_pxl   ( char_pxl      ),
+    // Pause screen
     .pause      ( pause         ),
-    // Palette PROM F1
+    .scan       ( char_scan     ),
+    .msg_low    ( char_msg_low  ),
+    .msg_high   ( char_msg_high ),
+    // PROM access
     .prog_addr  ( prog_addr     ),
-    .prom_din   ( prog_din      ),
-    .prom_f1_we ( prom_f1_we    ),
+    .prog_din   ( prog_din      ),
+    .prom_we    ( prom_f1_we    ),
     // ROM
     .char_addr  ( char_addr     ),
-    .char_data  ( char_data     )
+    .rom_data   ( char_data     ),
+    .rom_ok     ( char_ok       ),
+    // Pixel output
+    .char_on    ( 1'b1          ),
+    .char_pxl   ( char_pxl      )
+);
+
+jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+    .clk    ( clk          ),
+    .cen    ( cen6         ),
+    .data   ( 8'd0         ),
+    .addr   ( char_scan    ),
+    .we     ( 1'b0         ),
+    .q      ( char_msg_low )
 );
 `else
 assign char_wait_n = 1'b1;
@@ -106,67 +142,81 @@ assign char_pxl = 4'hf;
 `endif
 
 `ifndef NOSCR
-jt1942_scroll #(.HOFFSET(scrchr_off)) u_scroll (
+wire [2:0] scr_col;
+wire [4:0] scr_pal;
+
+jtgng_scroll #(
+    .HOFFSET(9'd0),
+    .ROM_AW  (14),
+    .IDMSB1  ( 7),
+    .IDMSB0  ( 7),
+    .VFLIP   ( 6),
+    .HFLIP   ( 5),
+    .PALW    ( 5),
+    .SCANW   ( 9)
+) u_scroll (
     .clk          ( clk           ),
-    .cen6         ( cen6          ),
-    .cen3         ( cen3          ),
-    .AB           ( cpu_AB[9:0]   ),
-    .V128         ( V[7:0]        ),
+    .pxl_cen      ( cen6          ),
+    .cpu_cen      ( cpu_cen       ),
+    // screen position
     .H            ( H             ),
-    .scr_cs       ( scr_cs        ),
-    .scrpos_cs    ( scrpos_cs     ),
-    .busy         ( scr_busy      ),
+    .V            ( V[7:0]        ),
+    .hpos         ( scr_hpos      ),
     .flip         ( flip          ),
+    // bus arbitrion
+    .Asel         ( cpu_AB[4]     ),
+    .AB           ( { cpu_AB[9:5], cpu_AB[3:0] } ),
+    .scr_cs       ( scr_cs        ),
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),
-    .rd_n         ( rd_n          ),
     .wr_n         ( wr_n          ),
-    // Palette PROMs D1, D2
-    .scr_br       ( scr_br        ),
-    .prog_addr    ( prog_addr     ),
-    .prom_d1_we   ( prom_d1_we    ),
-    .prom_d2_we   ( prom_d2_we    ),
-    .prom_d6_we   ( prom_d6_we    ),
-    .prom_din     ( prog_din      ),
-
+    .busy         ( scr_busy      ),
     // ROM
-    .scr_addr     ( scr_addr[13:0]),
-    .scrom_data   ( scrom_data    ),
-    .scr_pxl      ( scr_pxl       )
+    .scr_addr     ( scr_addr      ),
+    .rom_data     ( scrom_data    ),
+    .rom_ok       ( scr_ok        ),
+    // pixel
+    .scr_col      ( scr_col       ),
+    .scr_pal      ( scr_pal       )
 );
-assign scr_addr[14]=1'b0; // this game only uses bits 13:0, but I
-    // leave bit 14 to maintain the same ROM interface as with GnG
+
+wire [7:0] scr_pal_addr;
+assign scr_pal_addr[7] = 1'b0;
+assign scr_pal_addr[6:4] = scr_br[2:0];
+
+// Scroll palette PROMs
+jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din[1:0]  ),
+    .rd_addr( scr_pal_addr   ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d1_we     ),
+    .q      ( scr_pxl[5:4]   )
+);
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din       ),
+    .rd_addr( scr_pal_addr   ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d2_we     ),
+    .q      ( scr_pxl[3:0]   )
+);
+
+jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
+    .clk    ( clk            ),
+    .cen    ( cen6           ),
+    .data   ( prog_din       ),
+    .rd_addr( {scr_pal, scr_col} ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_d6_we     ),
+    .q      ( scr_pal_addr[3:0]  )
+);
 `else
 assign scr_wait_n = 1'b1;
 assign scr_pxl = ~6'h0;
-`endif
-
-`ifndef NOCOLMIX
-jt1942_colmix u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    // pixel input from generator modules
-    .char_pxl   ( char_pxl      ),        // character color code
-    .scr_pxl    ( scr_pxl       ),
-    .obj_pxl    ( obj_pxl       ),
-    // Palette PROMs E8, E9, E10
-    .prog_addr  ( prog_addr     ),
-    .prom_e8_we ( prom_e8_we    ),
-    .prom_e9_we ( prom_e9_we    ),
-    .prom_e10_we( prom_e10_we   ),
-    .prom_din   ( prog_din      ),
-    // output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
-);
-`else
-assign  red = 4'd0;
-assign blue = 4'd0;
-assign green= 4'd0;
 `endif
 
 jt1942_obj u_obj(
@@ -197,5 +247,37 @@ jt1942_obj u_obj(
     // pixel output
     .obj_pxl        ( obj_pxl   )
 );
+
+`ifndef NOCOLMIX
+jt1942_colmix u_colmix (
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen6       ( cen6          ),
+    .LVBL       ( LVBL          ),
+    .LHBL       ( LHBL          ),
+    // pixel input from generator modules
+    .char_pxl   ( char_pxl      ),        // character color code
+    .scr_pxl    ( scr_pxl       ),
+    .obj_pxl    ( obj_pxl       ),
+    // Palette PROMs E8, E9, E10
+    .prog_addr  ( prog_addr     ),
+    .prom_e8_we ( prom_e8_we    ),
+    .prom_e9_we ( prom_e9_we    ),
+    .prom_e10_we( prom_e10_we   ),
+    .prom_din   ( prog_din      ),
+
+    // DEBUG
+    .gfx_en     ( gfx_en        ),
+
+    // output
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          )
+);
+`else
+assign  red = 4'd0;
+assign blue = 4'd0;
+assign green= 4'd0;
+`endif
 
 endmodule // jtgng_video

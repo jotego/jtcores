@@ -32,7 +32,7 @@ module jt1943_main(
     input              LVBL,
     // Sound
     output  reg        sres_b, // sound reset
-    output  reg        snd_latch_cs,
+    output  reg [7:0]  snd_latch,
     // Characters
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
@@ -46,8 +46,6 @@ module jt1943_main(
     output  reg [1:0]  scr2posh_cs,
     output  reg        SC1ON,
     output  reg        SC2ON,
-    // cheat!
-    input              cheat_invincible,
     output  reg        OBJON,
     // cabinet I/O
     input   [6:0]      joystick1,
@@ -77,7 +75,7 @@ module jt1943_main(
 
 wire [15:0] A;
 wire t80_rst_n;
-reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs;
+reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
 reg SECWR_cs;
 
 wire mreq_n, rfsh_n, busak_n;
@@ -103,9 +101,9 @@ always @(*) begin
         3'b10?: rom_cs = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
-                2'b00: // Part 11B
+                2'b00: // 0xC000 part 11B
                     in_cs = 1'b1;
-                2'b01:
+                2'b01: // 0xC800
                     casez(A[2:0])
                         3'b000: snd_latch_cs = 1'b1;
                         3'b100: bank_cs      = 1'b1;
@@ -156,6 +154,7 @@ always @(posedge clk)
                     $display("INFO: Bank changed to %d", cpu_dout[4:2]);
             `endif
         end
+        if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) scrposv <= cpu_dout;
         if( gfxen_cs ) begin
             {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];
@@ -210,8 +209,7 @@ wire irq_ack = !iorq_n && !m1_n;
 
 always @(*)
     case( {ram_cs, char_cs, rom_cs, in_cs} )
-        4'b10_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
-                            ram_dout;
+        4'b10_00: cpu_din = ram_dout;
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;
         4'b00_01: cpu_din = cabinet_input;

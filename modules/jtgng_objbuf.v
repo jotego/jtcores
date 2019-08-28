@@ -53,14 +53,13 @@ wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 reg trf_state;
 
-always @(posedge clk) if(cen6) begin
-    if( HINIT ) VF <= {8{flip}} ^ V;
+always @(posedge clk) begin
+    VF <= {8{flip}} ^ V;
 end
-//wire [7:0] VFx = (~(VF+8'd4))+8'd1;
 
 localparam SEARCH=1'b0, TRANSFER=1'b1;
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst )
         line <= lineA;
     else if(cen6) begin
@@ -69,7 +68,9 @@ always @(posedge clk)
 
 reg pre_scan_msb;
 
-always @(posedge clk)
+wire [7:0] Vsum = ram_dout + (~VF + { {6{~flip}}, 2'b10 });
+
+always @(posedge clk, posedge rst)
     if( rst ) begin
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;
@@ -82,11 +83,12 @@ always @(posedge clk)
                     {pre_scan_msb, pre_scan} <= 10'd2;
                     post_scan<= 5'd31; // store obj data in reverse order
                     // so we can print them in straight order while taking
-                    // advantage of horizontal blanking to avoid graphich clash
+                    // advantage of horizontal blanking to avoid graphic clash
                     if(HINIT) fill <= 1'd0;
                 end
                 else begin
-                    if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
+                    //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
+                    if( &Vsum[7:4] ) begin
                         pre_scan[1:0] <= 2'd0;
                         line_obj_we <= 1'b1;
                         trf_state <= TRANSFER;

@@ -1,0 +1,180 @@
+#!/bin/bash
+
+function show_usage() {
+    cat << EOF
+JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
+    First argument is the project name, like jtgng, or jt1943
+
+    -skip       skips compilation and goes directly to prepare the release file
+                using the RBF file available.
+    -d          Defines a verilog macro. Macros are removed from qsf file after
+                compilation.
+                Useful macros:
+                    NOSOUND             the core is compiled without sound (faster)
+                    MISTER_VIDEO_MIXER  uses the Mr video modules
+                    JTFRAME_SCAN2X      uses simple scan doubler from JTFRAME
+    -git        adds the release file to git
+    -mister     compiles MiSTer version. Default is MiST.
+    -prog       programs the FPGA
+    -prog-only  skips compilations and directly programs the FPGA
+    -zip | -z   Create zip file
+    -add        all arguments from that point on will be used as inputs to the
+                zip file. All files must be referred to $JTGNG_ROOT path
+    -help       displays this message
+EOF
+   exit 0
+}
+
+# Is the root folder environment variable set
+
+if [ "$JTGNG_ROOT" = "" ]; then
+    echo "ERROR: Missing JTGNG_ROOT environment variable. Define it to"
+    echo "point to the github jt_gng folder path."
+    exit 1
+fi
+
+# Is the project defined?
+PRJ=$1
+shift
+
+case "$PRJ" in
+    "")
+        echo "ERROR: Missing project name."
+        show_usage
+        exit 1;;
+    -help | -h | --help)
+        show_usage;;
+esac
+
+if [ ! -e $JTGNG_ROOT/$PRJ ]; then
+    echo "Project $PRJ is not valid"
+    exit 1
+fi
+
+
+ZIP=FALSE
+GIT=FALSE
+PROG=FALSE
+MIST=mist
+SKIP_COMPILE=FALSE
+
+# Verilog macros
+MACROS=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -skip | -s) SKIP_COMPILE=TRUE;;
+        -git | -g) GIT=TRUE;;
+        -prog | -p) PROG=TRUE;;
+        -prog-only | -w) 
+            PROG=TRUE
+            SKIP_COMPILE=TRUE;;
+        -mister | -mr)
+            MIST=mister
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
+            export PATH;;
+        -mist)
+            MIST=mist
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            PATH=$PATH:$HOME/altera/13.1/quartus/bin
+            export PATH;;
+        -add)
+            ZIP=TRUE 
+            shift
+            break;;
+        -d)
+            shift
+            MACROS="$1 $MACROS"
+            ;;
+        -zip | -z)
+            ZIP=TRUE;;
+        -help | -h)
+            show_usage;;
+        *)  echo "ERROR: Unknown option $1";
+            exit 1;;
+    esac
+    shift
+done
+
+# qsf line to disable SOUND synthesis
+# set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
+
+echo ==============================================
+echo jt$PRJ $MIST compilation starts at $(date +%T)
+echo INFO: Macros used: $MACROS
+
+if [ $SKIP_COMPILE = FALSE ]; then
+    # Update message file
+    jt${PRJ}_msg.py
+    # Recompile
+    cd $JTGNG_ROOT/$PRJ/$MIST
+    echo "Moved to folder " $(pwd)
+    rm -rf db incremental_db output_files
+    mkdir -p $JTGNG_ROOT/log/$MIST
+    LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
+    echo Log file: $LOG 
+    # Prepare macros
+    cp jt$PRJ.qsf jt$PRJ.qsf.bak
+    for m in $MACROS; do
+        echo -e "\n" set_global_assignment -name VERILOG_MACRO \"$m\" >> jt$PRJ.qsf
+    done
+    quartus_sh --flow compile jt$PRJ > "$LOG"
+    # restores the document without the macros
+    mv jt$PRJ.qsf.bak jt$PRJ.qsf
+    if ! grep "Full Compilation was successful" "$LOG"; then
+        grep -i error "$LOG" -A 2
+        echo "ERROR while compiling the project. Aborting"
+        exit 1
+    fi
+fi
+
+function append_if_exists {
+    val=
+    while [ $# -gt 0 ]; do
+        if [ -e "$1" ]; then
+            val="$val $1"
+        fi
+        shift
+    done
+    echo $val
+}
+
+if [ $ZIP = TRUE ]; then
+    # Rename output file
+    cd $JTGNG_ROOT
+    RELEASE=jt${PRJ}_${MIST}_$(date +"%Y%m%d")
+    if [ $MIST = mister ]; then
+        RBF=$PRJ/${MIST}/output_files/jt$PRJ.rbf
+    else
+        RBF=$PRJ/${MIST}/jt$PRJ.rbf
+    fi
+    if [ ! -e $RBF ]; then
+        echo "ERROR: file $RBF does not exist. You need to recompile."
+        exit 1
+    fi
+    cp $RBF $RELEASE.rbf
+    zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
+        $(append_if_exists rom/{build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
+    rm $RELEASE.rbf
+fi
+
+# Add to git
+if [ $GIT = TRUE ]; then
+    git add -f $PRJ/${MIST}/msg.hex
+    git add releases/$RELEASE.zip
+fi
+
+if [ $PROG = TRUE ]; then
+    if [ $MIST = mister ]; then
+        CABLE="DE-SoC [1-1.2.3]"
+        cd $JTGNG_ROOT/$PRJ/mister
+        FILE=jtag.cdf
+    else
+        CABLE="USB-Blaster(Altera) [1-1.2.4]"
+        FILE=$JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
+    fi
+    quartus_pgm -c "$CABLE" $FILE
+fi
+
+echo completed at $(date)

@@ -121,7 +121,15 @@ wire [8:0] posx;
 wire [7:0] new_pxl;
 
 // draw the sprite
-jt1943_objdraw u_draw(
+//jt1943_objdraw u_draw(
+jtgng_objdraw #(
+    .ROM_AW          ( 17                       ),
+    .LAYOUT          (  1                       ),
+    .PALW            (  4                       ),
+    .PALETTE         (  1                       ),
+    .PALETTE1_SIMFILE("../../../rom/1943/bm7.7c"),
+    .PALETTE0_SIMFILE("../../../rom/1943/bm8.8c"))
+u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
@@ -133,7 +141,7 @@ jt1943_objdraw u_draw(
     // screen
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
-    .pause          ( pause         ),
+    .flip           ( flip          ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),
@@ -142,8 +150,8 @@ jt1943_objdraw u_draw(
     .objrom_data    ( objrom_data   ),
     // PROMs
     .prog_addr      ( prog_addr     ),
-    .prom_7c_we     ( prom_7c_we    ),
-    .prom_8c_we     ( prom_8c_we    ),
+    .prom_hi_we     ( prom_7c_we    ),
+    .prom_lo_we     ( prom_8c_we    ),
     .prog_din       ( prog_din      ),
     // pixel data
     .posx           ( posx          ),
@@ -151,6 +159,10 @@ jt1943_objdraw u_draw(
 );
 
 // line buffers for pixel data
+// obj_dly is not object pixel delay with respect to background
+// instead, it is the internal delay from previous stages
+wire [7:0] obj_pxl0;
+
 jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -165,7 +177,15 @@ jtgng_objpxl #(.dw(8),.obj_dly(5'hf),.palw(4)) u_pxlbuf(
     .line           ( line          ),
     // pixel data
     .new_pxl        ( new_pxl       ),
-    .obj_pxl        ( obj_pxl       )
+    .obj_pxl        ( obj_pxl0      )
 );
 
-endmodule // jtgng_char
+// Delay pixel output in order to be aligned with the other layers
+jtgng_sh #(.width(8), .stages(8)) u_sh(
+    .clk            ( clk           ),
+    .clk_en         ( cen6          ),
+    .din            ( obj_pxl0      ),
+    .drop           ( obj_pxl       )
+);
+
+endmodule

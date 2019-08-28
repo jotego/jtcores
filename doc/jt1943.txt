@@ -30,6 +30,10 @@ It is obvious what you have to do except:
 -Hold fire 1 at the end of an air carrier phase to receive a weapon at the
  beginning of the next phase
 
+ Because rolling by pressing two buttons is hard; the FPGA core uses the 
+ 3rd button to roll. That is not the original behaviour. If you want to play
+ like the original, just don't use the 3rd button.
+
 CREDITS
 =======
 

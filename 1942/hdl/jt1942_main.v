@@ -24,6 +24,7 @@ module jt1942_main(
     input              clk,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
+    output             cpu_cen,
     input              rst,
     output             [7:0] cpu_dout,
     output  reg        flip,
@@ -42,8 +43,8 @@ module jt1942_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output  reg [1:0]  scrpos_cs,
     output  reg [2:0]  scr_br,
+    output  reg [8:0]  scr_hpos,
     // cheat!
     input              cheat_invincible,
     // Object
@@ -77,8 +78,10 @@ wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
 reg in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
+reg [1:0]  scrpos_cs;
 
-wire mreq_n;
+wire mreq_n, rfsh_n;
+assign cpu_cen = cen3;
 
 always @(*) begin
     rom_cs        = 1'b0;
@@ -94,7 +97,7 @@ always @(*) begin
     brt_cs        = 1'b0;
     obj_cs        = 1'b0;
     rom_cs        = 1'b0;
-    if( !mreq_n ) casez(A[15:13])
+    if( rfsh_n && !mreq_n ) casez(A[15:13])
         3'b0??: rom_cs  = 1'b1;
         3'b10?: rom_cs  = 1'b1; // bank
         3'b110: // cscd
@@ -120,6 +123,12 @@ always @(*) begin
             endcase
         3'b111: ram_cs = A[12]==1'b0; // csef
     endcase
+end
+
+// SCROLL H/V POSITION
+always @(posedge clk) if(cpu_cen) begin
+    if( scrpos_cs[1] ) scr_hpos[8]   <= cpu_dout[0];
+    if( scrpos_cs[0] ) scr_hpos[7:0] <= cpu_dout;
 end
 
 // special registers
@@ -251,12 +260,13 @@ always @(posedge clk)
         else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
     end
 
+wire wait_n;
+
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
-    .cpu_cen    ( cen3      ),
+    .cpu_cen    ( cpu_cen   ),
     // manage access to shared memory
-    .dev_cs     ( { scr_cs, char_cs }     ),
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
@@ -323,6 +333,7 @@ T80s u_cpu(
     .MREQ_n     ( mreq_n      ),
     .NMI_n      ( 1'b1        ),
     .BUSRQ_n    ( 1'b1        ),
+    .RFSH_n     ( rfsh_n      ),
     .out0       ( 1'b0        )
 );
 `else
@@ -342,11 +353,11 @@ tv80s #(.Mode(0)) u_cpu (
     .dout   ( cpu_dout   ),
     .iorq_n ( iorq_n     ),
     .m1_n   ( m1_n       ),
+    .rfsh_n ( rfsh_n     ),
     .mreq_n ( mreq_n     ),
     // unused
     .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
+    .halt_n ()
 );
 `endif
 endmodule // jtgng_main

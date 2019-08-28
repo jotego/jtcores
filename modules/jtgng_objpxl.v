@@ -48,7 +48,7 @@ reg weA, weB;
 
 reg pxlbuf_line;
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst )
         pxlbuf_line <= lineA;
     else if(cen6) begin
@@ -75,7 +75,7 @@ always @(posedge clk) if(cen6) begin
     //we_pxl  <= we0;
 end
 
-always @(*)
+always @(posedge clk)
     if( pxlbuf_line == lineA ) begin
         obj_pxl = !DISPTM_b ? lineA_q : blank;
         // lineA readout

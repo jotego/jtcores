@@ -27,6 +27,7 @@ module jt1943_objdraw(
     input       [7:0]  VF,
     input       [3:0]  pxlcnt,
     output reg  [8:0]  posx,
+    input              flip,
     input              pause,
     // per-line sprite data
     input       [4:0]  objcnt,
@@ -50,15 +51,20 @@ reg [3:0] objpal0, objpal;
 reg [2:0] ADhigh;
 reg [7:0] objy;
 reg [8:0] objx, posx1, posx2;
-reg [7:0] VB;
 wire [7:0] posy;
 reg  hover;
 reg vinzone;
 
+reg [7:0] Vsum;
+
 always @(*) begin
-    VB = VF-objy;
-    vinzone = (VF>=objy) && (VF<(objy+8'd16));
+    Vsum = (~VF + { {7{~flip}}, 1'b1})+objbuf_data; // this is equivalent to
+    // 2's complement of VF plus object's Y, i.e. a subtraction
+    // but flip is used to make it work with flipped screens
+    // This is the same formula used on the schematics
 end
+
+reg [3:0] Vobj;
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt[3:0] )
@@ -68,8 +74,9 @@ always @(posedge clk) if(cen6) begin
             hover     <= objbuf_data[4];
             objpal0   <= objbuf_data[3:0];
         end
-        4'd2: begin
-            objy <= (objbuf_data-8'd2);
+        4'd2: begin // Object Y is on objbuf_data at this step
+            Vobj    <= Vsum;
+            vinzone <= &Vsum[7:4];
         end
         4'd3: begin
             objx <= { hover, objbuf_data };
@@ -78,7 +85,7 @@ always @(posedge clk) if(cen6) begin
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
         obj_addr <= (!vinzone || objcnt==5'd0) ? 17'd0 :
-            { ADhigh, ADlow, VB[3:0],  pxlcnt[3:2] };
+            { ADhigh, ADlow, (~Vobj[3:0])^{4{flip}},  pxlcnt[3:2] };
     end
 end
 
@@ -103,7 +110,7 @@ always @(posedge clk ) if(cen6) begin
         new_pxl <= pause ? avatar_pxl : prom_dout;
         posx    <= posx2;
     end else begin
-        new_pxl <= 4'hf;
+        new_pxl <= 8'hf;
         posx    <= 9'h100;
     end
 end

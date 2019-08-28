@@ -43,7 +43,9 @@ module jt1942_colmix(
 
     output  [3:0]   red,
     output  [3:0]   green,
-    output  [3:0]   blue
+    output  [3:0]   blue,
+    // Debug
+    input      [3:0] gfx_en
 );
 
 wire [7:0] dout_rg;
@@ -57,10 +59,10 @@ wire obj_blank_b  = |(~obj_pxl);
 reg [7:0] prom_addr;
 
 always @(*) begin
-    if( !char_blank_b ) begin
+    if( !char_blank_b || !gfx_en[0] ) begin
         // Object or scroll
-        if( !obj_blank_b )
-            pixel_mux[5:0] = scr_pxl; // scroll wins
+        if( !obj_blank_b || !gfx_en[3])
+            pixel_mux[5:0] = gfx_en[2] ? scr_pxl : ~6'h0; // scroll wins
         else
             pixel_mux[5:0] = {2'b0, obj_pxl }; // object wins
     end

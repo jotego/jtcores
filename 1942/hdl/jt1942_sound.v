@@ -104,7 +104,6 @@ jtframe_z80wait #(1) u_wait(
     .clk        ( clk       ),
     .cpu_cen    ( cen3      ),
     // manage access to shared memory
-    .dev_cs     ( 1'b0      ),
     .dev_busy   ( 1'b0      ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),

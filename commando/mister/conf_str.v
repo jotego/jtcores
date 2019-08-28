@@ -1,0 +1,1 @@
+../mist/conf_str.v

@@ -83,7 +83,7 @@ jt1942_objram u_ram(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
-    .cen3           ( cen3          ),    //  3 MHz
+    .cen3           ( cen3          ),
     // Timings
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
@@ -166,4 +166,4 @@ jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     .obj_pxl        ( obj_pxl       )
 );
 
-endmodule // jtgng_char
+endmodule
