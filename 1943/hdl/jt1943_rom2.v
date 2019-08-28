@@ -250,11 +250,11 @@ jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
 `ifdef AVATARS
     // Alternative Objects during pause
     wire [15:0] avatar_data;
-    jtgng_ram #(.dw(16), .aw(12), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
+    jtgng_ram #(.dw(16), .aw(13), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
         .clk    ( clk            ),
         .cen    ( pause          ),  // tiny power saving when not in pause
         .data   ( 16'd0          ),
-        .addr   ( obj_addr[11:0] ),
+        .addr   ( obj_addr[12:0] ),
         .we     ( 1'b0           ),
         .q      ( avatar_data    )
     );

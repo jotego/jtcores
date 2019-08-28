@@ -112,7 +112,7 @@ def convert_buf( buf, k, msg ):
 
 #           00000000000000001111111111111111
 #           0123456789ABCDEF0123456789ABCDEF
-av_buf=bytearray(32*8)
+av_buf=bytearray(32*16)
 av_pos=0
 av_pos=convert_buf(av_buf,av_pos,"            Scralings           ")
 av_pos=convert_buf(av_buf,av_pos,"            Suverman            ")

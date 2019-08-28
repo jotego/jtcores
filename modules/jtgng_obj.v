@@ -26,7 +26,8 @@ module jtgng_obj #(parameter
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
-    PALETTE0_SIMFILE = "" // only for simulation
+    PALETTE0_SIMFILE = "", // only for simulation
+    AVATAR_MAX  = 8  // only used if macro AVATARS is defined
 ) (
     input              rst,
     input              clk,
@@ -83,7 +84,8 @@ end
 
 // DMA to 6809 RAM memory to copy the sprite data
 jtgng_objdma #(
-    .OBJMAX     ( OBJMAX     ))
+    .OBJMAX     ( OBJMAX     ),
+    .AVATAR_MAX ( AVATAR_MAX ))
  u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),

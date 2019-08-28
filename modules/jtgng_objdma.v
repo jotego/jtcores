@@ -134,24 +134,24 @@ reg  [ 7:0] avatar_data;
 reg  [11:0] avatar_cnt = 0;
 assign      avatar_idx = avatar_cnt[11:8];
 
-// jtgng_ram #(.aw(7), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
-//     .clk    ( clk           ),
-//     .cen    ( pause         ),  // tiny power saving when not in pause
-//     .data   ( 8'd0          ),
-//     .addr   ( {avatar_idx, pre_scan[5:2] } ),
-//     .we     ( 1'b0          ),
-//     .q      ( avatar_id   )
-// );
+jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
+    .clk    ( clk           ),
+    .cen    ( pause         ),  // tiny power saving when not in pause
+    .data   ( 8'd0          ),
+    .addr   ( {avatar_idx, pre_scan[5:2] } ),
+    .we     ( 1'b0          ),
+    .q      ( avatar_id   )
+);
 // Each avatar is made of 9 sprites, which are ordered one after the other in memory
 // the sprite ID is calculated by combining the current Avatar on display and the
 // position inside the object buffer, which is virtual during avatar display
 
 // multiples avatar_idx by 9 = x8+1
-wire [7:0] avatar_idx9 = { 1'd0, avatar_idx, 3'd0 } + {4'd0, avatar_idx};
-
-always @(posedge clk)
-    avatar_id <= pre_scan[5:2] > 4'd8 ? 8'h63 :
-        ( {4'd0, pre_scan[5:2]} + avatar_idx9 );
+// wire [7:0] avatar_idx9 = { 1'd0, avatar_idx, 3'd0 } + {4'd0, avatar_idx};
+// 
+// always @(posedge clk)
+//     avatar_id <= pre_scan[5:2] > 4'd8 ? 8'h63 :
+//         ( {4'd0, pre_scan[5:2]} + avatar_idx9 );
 
 reg lastLVBL;
 always @(posedge clk) begin

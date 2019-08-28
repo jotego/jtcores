@@ -89,6 +89,9 @@ parameter SCRWIN        = 1,
 parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
+    
+// parameters from jtgng_obj:
+parameter AVATAR_MAX    = 8;
 
 wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
@@ -217,17 +220,17 @@ jtgng_colmix #(
     .PALETTE_GREEN( PALETTE_GREEN),
     .PALETTE_BLUE ( PALETTE_BLUE )
 )u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen6       ( cen6          ),
+    .rst          ( rst           ),
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
 
-    .char_pxl   ( char_pxl      ),
-    .scr_pxl    ( {scrwin, scr_pal, scr_col} ),
-    .obj_pxl    ( obj_pxl       ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .char_pxl     ( char_pxl      ),
+    .scr_pxl      ( {scrwin, scr_pal, scr_col} ),
+    .obj_pxl      ( obj_pxl       ),
+    .LVBL         ( LVBL          ),
+    .LHBL         ( LHBL          ),
+    .LHBL_dly     ( LHBL_dly      ),
+    .LVBL_dly     ( LVBL_dly      ),
 
     // PROMs
     .prog_addr    ( prog_addr     ),
@@ -236,19 +239,23 @@ jtgng_colmix #(
     .prom_blue_we ( prom_blue_we  ),
     .prom_din     ( prom_din      ),    
 
+    // Avatars
+    .pause        ( pause         ),
+    .avatar_idx   ( avatar_idx    ),
+
     // DEBUG
-    .gfx_en     ( gfx_en        ),
+    .gfx_en       ( gfx_en        ),
 
     // CPU interface
-    .AB         ( cpu_AB[7:0]   ),
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
-    .DB         ( cpu_dout      ),
+    .AB           ( cpu_AB[7:0]   ),
+    .blue_cs      ( blue_cs       ),
+    .redgreen_cs  ( redgreen_cs   ),
+    .DB           ( cpu_dout      ),
 
     // colour output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
+    .red          ( red           ),
+    .green        ( green         ),
+    .blue         ( blue          )
 );
 `else
 assign  red = 4'd0;

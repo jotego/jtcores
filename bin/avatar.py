@@ -4,7 +4,7 @@ import sys
 import os
 pr=sys.stdout.write
 
-jtgng_path=os.environ['JTGNG_ROOT']
+jtgng_path=os.environ['JTGNG_ROOT']+"/"
 
 # for row in bmp:
 #     for col in row:
@@ -26,7 +26,7 @@ jtgng_path=os.environ['JTGNG_ROOT']
 # One object is 16x16 pixels
 
 # output arrays
-maxobj=64
+maxobj=128
 bufzy=bytearray(maxobj*16*16/4)
 bufxw=bytearray(maxobj*16*16/4)
 for x in range(len(bufzy)):
@@ -163,15 +163,10 @@ def get_pal(bmp):
 
 ######################################################################################3
 ## Conversion
-
-#patrons=["phillip_mcmahon.png","scralings_48.png","sascha.png","brian_sallee.png","tomiyori.png","gato.png","dustin.png"]
-# Bien: "phillip_mcmahon.png",  brian_sallee   sascha tomiyori mahe hubbard suv scralings_48
-patrons=["scralings_48", "suv", "mahe", "tomiyori", "brian_sallee", "sascha", "phillip_mcmahon", "hubbard"]
-png_path=jtgng_path+"/1943/patrons/"
 pal_list=list()
 
-for p in patrons:
-    p=png_path+p+".png"
+def convert_file(filename):
+    p=jtgng_path+filename.strip("\n")
     print p
     bmp=read_bmp( p )
     pal=get_pal(bmp)
@@ -180,11 +175,21 @@ for p in patrons:
     convert_bmp(bmp, pal, palidx )
     pal_list.append(pal)
 
-    
+# Try opening the file with the list of PNG images
+corename=sys.argv[1]
+avatar_filename = jtgng_path+corename+"/patrons/avatars"
+file = open( avatar_filename )
+line = file.readline()
+
+while line:
+    convert_file(line)
+    line = file.readline()
+file.close()
+
 # dump the new ROM files
 
 # Graphics
-f0=open(jtgng_path+"/1943/mist/avatar.hex","w")
+f0=open(jtgng_path+corename+"/mist/avatar.hex","w")
 for k in range(len(bufzy)):
     x = bufzy[k]<<8
     x |= bufxw[k]
@@ -192,7 +197,7 @@ for k in range(len(bufzy)):
     f0.write("%4X\n" % x )
 
 # Map
-f0=open(jtgng_path+"/1943/mist/avatar_xy.hex","w")
+f0=open(jtgng_path+corename+"/mist/avatar_xy.hex","w")
 k=0
 for k in range(len(mapxy)>>2):
     k4 = k*4
@@ -202,7 +207,7 @@ for k in range(len(mapxy)>>2):
     f0.write( "%2X\n" % (mapxy[k4+3]&255) )
 
 # Palette
-f0=open(jtgng_path+"/1943/mist/avatar_pal.hex","w")
+f0=open(jtgng_path+corename+"/mist/avatar_pal.hex","w")
 for pal in pal_list:
     palbuf=[]
     for k in range(16):
@@ -226,57 +231,115 @@ while k<16:
 print("Only %d bytes actually used" % bufpos )
 
 # Final Map
-map9x9 = [  # Scralings
-     0, 1, 2,
-     3, 4, 5, 
-     6, 7, 8,
-        #unused
-        63,63,63,63,63,63,63,
-    # Suv
-     9,10,11,
-    12,13,14,
-    15,16,17,
-        #unused
-        63,63,63,63,63,63,63,
-    # Mahe
-    18,63,63,
-    63,18,63,
-    63,63,18,
-        #unused
-        63,63,63,63,63,63,63,
-    # Tomiyori
-    19,20,21,
-    22,23,24,
-    63,63,63,
-        #unused
-        63,63,63,63,63,63,63,
-    # Brian
-    25,26,27,
-    28,29,30,
-    31,32,33,
-        #unused
-        63,63,63,63,63,63,63,
-    # Sascha
-    34,35,36,
-    37,38,39,
-    40,41,42,
-        #unused
-        63,63,63,63,63,63,63,
-    # McMahon
-    43,44,45,
-    46,47,48,
-    63,63,63,
-        #unused
-        63,63,63,63,63,63,63,
-    # Hubbard
-    49,50,51,
-    52,53,54,
-    55,56,57,
-        #unused
-        63,63,63,63,63,63,63,
-]
+if corename == "1943":
+    map9x9 = [  # Scralings
+         0, 1, 2,
+         3, 4, 5, 
+         6, 7, 8,
+            #unused
+            63,63,63,63,63,63,63,
+        # Suv
+         9,10,11,
+        12,13,14,
+        15,16,17,
+            #unused
+            63,63,63,63,63,63,63,
+        # Mahe
+        18,63,63,
+        63,18,63,
+        63,63,18,
+            #unused
+            63,63,63,63,63,63,63,
+        # Tomiyori
+        19,20,21,
+        22,23,24,
+        63,63,63,
+            #unused
+            63,63,63,63,63,63,63,
+        # Brian
+        25,26,27,
+        28,29,30,
+        31,32,33,
+            #unused
+            63,63,63,63,63,63,63,
+        # Sascha
+        34,35,36,
+        37,38,39,
+        40,41,42,
+            #unused
+            63,63,63,63,63,63,63,
+        # McMahon
+        43,44,45,
+        46,47,48,
+        63,63,63,
+            #unused
+            63,63,63,63,63,63,63,
+        # Hubbard
+        49,50,51,
+        52,53,54,
+        55,56,57,
+            #unused
+            63,63,63,63,63,63,63,
+    ]
 
-f0=open(jtgng_path+"/1943/mist/avatar_obj.hex","w")
+if corename == "commando":
+   map9x9 = [  # Scralings
+         0, 1, 2,
+         3, 4, 5, 
+         6, 7, 8,
+            #unused
+            63,63,63,63,63,63,63,
+        # Suv
+         9,10,11,
+        12,13,14,
+        15,16,17,
+            #unused
+            63,63,63,63,63,63,63,
+        # Mahe
+        18,63,63,
+        63,18,63,
+        63,63,18,
+            #unused
+            63,63,63,63,63,63,63,
+        # Tomiyori
+        19,20,21,
+        22,23,24,
+        63,63,63,
+            #unused
+            63,63,63,63,63,63,63,
+        # Brian
+        25,26,27,
+        28,29,30,
+        31,32,33,
+            #unused
+            63,63,63,63,63,63,63,
+        # Sascha
+        34,35,36,
+        37,38,39,
+        40,41,42,
+            #unused
+            63,63,63,63,63,63,63,
+        # McMahon
+        43,44,45,
+        46,47,48,
+        63,63,63,
+            #unused
+            63,63,63,63,63,63,63,
+        # Hubbard
+        49,50,51,
+        52,53,54,
+        55,56,57,
+            #unused
+            63,63,63,63,63,63,63,
+        # Daniel Baeza
+        58,59,60,
+        61,62,63,
+        64,65,66,
+            #unused
+            63,63,63,63,63,63,63,
+    ]
+
+f0=open(jtgng_path+corename+"/mist/avatar_obj.hex","w")
 for k in map9x9:
     f0.write("%X\n" % k)
 

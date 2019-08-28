@@ -38,11 +38,14 @@ module jtgng_colmix(
     output  reg      LHBL_dly,
     output  reg      LVBL_dly,
     // Palette PROMs and object priority
-    input   [7:0]    prog_addr,
+    input [7:0]      prog_addr,
     input            prom_red_we,
     input            prom_green_we,
     input            prom_blue_we,
-    input   [3:0]    prom_din,
+    input [3:0]      prom_din,
+    // Avatars
+    input [3:0]      avatar_idx,
+    input            pause,
     // CPU inteface
     input [7:0]      AB,
     input            blue_cs,
@@ -77,14 +80,19 @@ wire enable_obj  = gfx_en[3];
 // When SCRWIN=0 then the MSB of scr_pxl has no special meaning.
 wire scrwin = SCRWIN ? scr_pxl[6] : 1'b0;
 wire [7:0] scr_mux = SCRWIN ? {2'b00, scr_pxl[5:0] } : {1'b0, scr_pxl};
+reg  [1:0] obj_sel; // signals whether an object pixel is selected
 
 always @(posedge clk) if(cen6) begin
+    obj_sel[1] <= obj_sel[0];
+    obj_sel[0] <= 1'b0;
     if( char_pxl[1:0]==2'b11 || !enable_char ) begin
         // Object or scroll
         if( obj_blank || !enable_obj || (scrwin&&scr_pxl[2:0]!=3'd0) )
             pixel_mux <= enable_scr ? scr_mux : 8'hff; // scroll wins
-        else
+        else begin
+            obj_sel[0] <= 1'b1;
             pixel_mux <= {OBJ_PAL, obj_pxl }; // object wins
+        end
     end
     else begin // characters
         pixel_mux <= { 2'b11, char_pxl };
@@ -168,7 +176,27 @@ end else begin
 end
 endgenerate
 
+`ifdef AVATARS
+wire [11:0] avatar_pal;
+// Objects have their own palette during pause
+wire [7:0] avatar_addr = { avatar_idx, pixel_mux[3:0] };
+
+jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
+    .clk    ( clk           ),
+    .cen    ( pause         ),  // tiny power saving when not in pause
+    .data   ( 12'd0         ),
+    .addr   ( avatar_addr   ),
+    .we     ( 1'b0          ),
+    .q      ( avatar_pal    )
+);
+// Select the avatar palette output if we are on avatar mode
+wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
+`else 
+wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
+`endif
+
+
 always @(posedge clk) if (cen6)
-    {red, green, blue } <= pre_BL==2'b11 ? { pal_red, pal_green, pal_blue }: 12'd0;
+    {red, green, blue } <= pre_BL==2'b11 ? avatar_mux : 12'd0;
 
 endmodule // jtgng_colmix
