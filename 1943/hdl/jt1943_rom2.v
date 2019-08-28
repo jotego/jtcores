@@ -51,10 +51,10 @@ module jt1943_rom2 #(parameter
     input       [13:0]  map1_addr, //  32 kB
     input       [13:0]  map2_addr, //  32 kB
 
-    output      [15:0]  char_dout,
+    output  reg [15:0]  char_dout,
     output      [ 7:0]  main_dout,
     output      [ 7:0]   snd_dout,
-    output      [15:0]   obj_dout,
+    output  reg [15:0]   obj_dout,
     output      [15:0]  map1_dout,
     output      [15:0]  map2_dout,
     output      [15:0]  scr1_dout,
@@ -166,7 +166,8 @@ jt1943_romrq #(.AW(char_aw),.DW(16)) u_char(
 // Provides a non-zero output for characters before SDRAM has valid data
 // This can be used to display a rudimentary message on screen
 // and prompt the user to load the ROM
-assign char_dout = download_ok ? char_preout : 16'hAAAA;
+// assign char_dout = download_ok ? char_preout : 16'hAAAA;
+always @(posedge clk) char_dout <= download_ok ? char_preout : 16'hAAAA;
 
 jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .rst      ( rst             ),
@@ -257,9 +258,9 @@ jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
         .we     ( 1'b0           ),
         .q      ( avatar_data    )
     );
-    assign obj_dout = pause ? avatar_data : obj_dout;
+    always @(posedge clk) obj_dout <= pause ? avatar_data : obj_dout;
 `else 
-    assign obj_dout = obj_preout;
+    always @(*) obj_dout = obj_preout;
 `endif
 
 `ifdef SIMULATION
