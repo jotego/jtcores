@@ -107,6 +107,14 @@ always @(posedge clk)
     // refresh_en <= !LVBL;
     refresh_en <= &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
 
+reg download_ok = 1'b0; // signals that the download process is completed
+
+always @(posedge clk) begin : download_watch
+    reg last_downloading;
+    if( !downloading && last_downloading )
+        download_ok <= 1'b1;
+end
+
 jt1943_romrq #(.AW(main_aw),.INVERT_A0(1)) u_main(
     .rst      ( rst             ),
     .clk      ( clk             ),
@@ -138,6 +146,8 @@ jt1943_romrq #(.AW(snd_aw),.INVERT_A0(1)) u_snd(
     .we       ( data_sel[7]     )
 );
 
+wire [15:0] char_preout;
+
 jt1943_romrq #(.AW(char_aw),.DW(16)) u_char(
     .rst      ( rst             ),
     .clk      ( clk             ),
@@ -147,11 +157,16 @@ jt1943_romrq #(.AW(char_aw),.DW(16)) u_char(
     .addr_req ( char_addr_req   ),
     .din      ( data_read       ),
     .din_ok   ( data_rdy        ),
-    .dout     ( char_dout       ),
+    .dout     ( char_preout     ),
     .req      ( char_req        ),
     .data_ok  ( char_ok         ),
     .we       ( data_sel[1]     )
 );
+
+// Provides a non-zero output for characters before SDRAM has valid data
+// This can be used to display a rudimentary message on screen
+// and prompt the user to load the ROM
+assign char_dout = download_ok ? char_preout : 16'hAAAA;
 
 jt1943_romrq #(.AW(14),.DW(16)) u_map1(
     .rst      ( rst             ),

@@ -104,6 +104,7 @@ always @(posedge clk) begin : mem_mux
         dout <= last_Asel ? mem_high : mem_low;
 end
 
+// block ID
 jtgng_ram #(.aw(SCANW)) u_ram_low(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
@@ -113,7 +114,10 @@ jtgng_ram #(.aw(SCANW)) u_ram_low(
     .q      ( mem_low  )
 );
 
-jtgng_ram #(.aw(SCANW)) u_ram_high(
+// attributes
+// the default value for synthesis will display a ROM load message using
+// the palette attributes
+jtgng_ram #(.aw(SCANW),.synfile("rom_loadv.hex")) u_ram_high(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dlatch   ),
