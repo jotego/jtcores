@@ -183,7 +183,9 @@ assign scr_addr   = 15'd0;
 assign scr_dout   = 8'd0;
 `endif
 
-jtgng_obj u_obj (
+jtgng_obj #(
+    .AVATAR_MAX( AVATAR_MAX ))
+u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .cen6       ( cen6        ),

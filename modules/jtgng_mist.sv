@@ -174,10 +174,6 @@ assign sim_vs = vs;
 assign sim_hs = hs;
 `endif
 
-wire [9:0] joy1_adj = { game_joystick1[9:4], ~rot_control ? game_joystick1[3:0] :
-  { game_joystick1[0], game_joystick1[1], game_joystick1[3], game_joystick1[2] } };
-wire [9:0] joy2_adj = { game_joystick2[9:4], ~rot_control ? game_joystick2[3:0] :
-  { game_joystick2[0], game_joystick2[1], game_joystick2[3], game_joystick2[2] } };
 
 jtframe_mist #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))

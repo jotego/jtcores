@@ -111,6 +111,7 @@ reg download_ok = 1'b0; // signals that the download process is completed
 
 always @(posedge clk) begin : download_watch
     reg last_downloading;
+    last_downloading <= downloading;
     if( !downloading && last_downloading )
         download_ok <= 1'b1;
 end
@@ -258,7 +259,7 @@ jt1943_romrq #(.AW(obj_aw),.DW(16)) u_obj(
         .we     ( 1'b0           ),
         .q      ( avatar_data    )
     );
-    always @(posedge clk) obj_dout <= pause ? avatar_data : obj_dout;
+    always @(posedge clk) obj_dout <= pause ? avatar_data : obj_preout;
 `else 
     always @(*) obj_dout = obj_preout;
 `endif

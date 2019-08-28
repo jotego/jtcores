@@ -83,6 +83,8 @@ while [ $# -gt 0 ]; do
             ZIP=TRUE 
             shift
             break;;
+        -gngvga)
+            MACROS="JTFRAME_VGA SCAN2X_TYPE=1 $MACROS";;
         -d)
             shift
             MACROS="$1 $MACROS"
