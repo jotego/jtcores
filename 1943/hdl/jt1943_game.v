@@ -436,7 +436,7 @@ jt1943_video u_video(
 
 // Sound is not used through the ROM interface because there is not enough banwidth
 // when all the scroll ROMs have to be accessed
-jt1943_rom2 u_rom (
+jtgng_rom u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
     .LHBL        ( LHBL          ),

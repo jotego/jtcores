@@ -2,8 +2,8 @@
 ../../hdl/jt1943_game.v
 ../../hdl/jt1943_main.v
 ../../hdl/jt1943_prom_we.v
-../../hdl/jt1943_rom2.v
-../../hdl/jt1943_romrq.v
+../../../modules/jtgng_rom.v
+../../../modules/jtgng_romrq.v
 ../../hdl/jt1943_scroll.v
 ../../hdl/jt1943_security.v
 ../../hdl/jt1943_video.v

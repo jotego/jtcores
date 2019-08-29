@@ -14,130 +14,327 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-10-2017 */
+    Date: 20-2-2019 */
 
-module jtgng_rom(
+`timescale 1ns/1ps
+
+module jtgng_rom #(parameter 
+    char_aw  = 14,
+    main_aw  = 18,
+     snd_aw  = 15,
+     obj_aw  = 17,
+    scr1_aw  = 17,
+    scr2_aw  = 15,
+  snd_offset = 22'h14_000, // bm05.4k,  32kB
+ char_offset = 22'h18_000, // bm04.5h,  32kB
+ map1_offset = 22'h1C_000, // bm14.5f,  32kB
+ map2_offset = 22'h20_000, // bmm23.8k, 32kB
+ scr1_offset = 22'h24_000, // 10f/j, 11f/j, 12f/j, 14f/j 256kB
+ scr2_offset = 22'h44_000, // 14k/l 64kB
+  obj_offset = 22'h4C_000  // 10a/c, 11a/c, 12a/c, 14a/c 256kB
+)(
     input               rst,
     input               clk,
-    input               cen12, // 12 MHz
-    input       [ 2:0]  H,
-    input               Hsub,
     input               LHBL,
     input               LVBL,
-    output  reg         sdram_sync, // any edge (rising or falling)
-        // means a read request
 
-    input       [12:0]  char_addr,
-    input       [16:0]  main_addr,
-    input       [14:0]  snd_addr,
-    input       [15:0]  obj_addr,
-    input       [14:0]  scr_addr,
+    input               pause,
+    input               main_cs,
+    input               snd_cs,
+
+    input       [char_aw-1:0]  char_addr, //  32 kB
+    input       [main_aw-1:0]  main_addr, // 160 kB, addressed as 8-bit words
+    input       [ snd_aw-1:0]   snd_addr, //  32 kB
+    input       [ obj_aw-1:0]   obj_addr,  // 256 kB
+    input       [scr1_aw-1:0]  scr1_addr, // 256 kB (16-bit words)
+    input       [scr2_aw-1:0]  scr2_addr, //  64 kB
+    input       [13:0]  map1_addr, //  32 kB
+    input       [13:0]  map2_addr, //  32 kB
 
     output  reg [15:0]  char_dout,
-    output  reg [ 7:0]  main_dout,
-    output  reg [ 7:0]  snd_dout,
-    output  reg [15:0]  obj_dout,
-    output  reg [23:0]  scr_dout,
+    output      [ 7:0]  main_dout,
+    output      [ 7:0]   snd_dout,
+    output  reg [15:0]   obj_dout,
+    output      [15:0]  map1_dout,
+    output      [15:0]  map2_dout,
+    output      [15:0]  scr1_dout,
+    output      [15:0]  scr2_dout,
     output  reg         ready,
-    // ROM interface
+
+    output              main_ok,
+    output              snd_ok,
+    output              scr1_ok,
+    output              scr2_ok,
+    output              char_ok,
+    output              obj_ok,
+    // SDRAM controller interface
+    input               data_rdy,
+    input               sdram_ack,
     input               downloading,
     input               loop_rst,
     output  reg         sdram_req,
+    output  reg         refresh_en,
     output  reg [21:0]  sdram_addr,
-    input       [15:0]  data_read
+    input       [31:0]  data_read
 );
 
-wire [3:0] rd_state = { H, Hsub }; // +4'd1;
-
-// H is used to align with the pixel transfers
-// the SDRAM-read state machine will start at roughly pixel 0 (of each 8-pixel tuple)
-// the difference in time is less than 1/2 clk24 cycle
-// this avoids data coming at unexpected time.
-
-reg  [15:0] scr_aux;
-reg main_lsb, snd_lsb;
-
-// Default values correspond to G&G
-parameter  snd_offset = 22'h0A000;
-parameter char_offset = 22'h0E000;
-parameter  scr_offset = 22'h10000;
-parameter scr2_offset = 22'h08000; // upper byte of each tile
-parameter  obj_offset = 22'h20000;
-
-localparam col_w = 9, row_w = 13;
-localparam addr_w = 13, data_w = 16;
+// Main code
+// bme01.12d -> 32kB
+// bme02.13d, bme03.14d, -> 128kB, 8 banks of 16kB each
+// 6C_000 = ROM LEN
 
 reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
+wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req;
 
-`ifdef SIMULATION
-wire main_rq = rd_state[1:0] ==  2'b01;
-wire  snd_rq = rd_state[2:0] == 3'b000;
-wire  obj_rq = rd_state[2:0] == 3'b011;
-`endif
-wire char_rq = rd_state == 4'd2;
-wire  scr_rq = rd_state[2:1] == 2'b11;
+reg [7:0] data_sel;
+wire [main_aw-1:0] main_addr_req;
+wire [ snd_aw-1:0]  snd_addr_req;
+wire [char_aw-1:0] char_addr_req;
+wire [ obj_aw-1:0]  obj_addr_req;
+wire [scr1_aw-1:0] scr1_addr_req;
+wire [scr2_aw-1:0] scr2_addr_req;
+wire [13:0] map1_addr_req;
+wire [13:0] map2_addr_req;
 
-always @(posedge clk) if(cen12) begin
-    if( loop_rst || downloading )
-        sdram_sync <= 1'b0;   // start strobing before ready signal
-            // because first data must be read before that signal.
-    else
-        sdram_sync <= ~sdram_sync;
+wire map1_ok, map2_ok;
+//wire newref = 
+//    &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
+
+// wire blank_b = LVBL && LHBL;
+
+always @(posedge clk)
+    // refresh_en <= !LVBL;
+    refresh_en <= &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
+
+reg download_ok = 1'b0; // signals that the download process is completed
+
+always @(posedge clk) begin : download_watch
+    reg last_downloading;
+    last_downloading <= downloading;
+    if( !downloading && last_downloading )
+        download_ok <= 1'b1;
 end
 
-// 0, 8:        sound
-// 1, 4, 9, 12: main
-// 2            char
-// 3, 11        obj
-// 6, 14, 7, 15 scr
+jtgng_romrq #(.AW(main_aw),.INVERT_A0(1)) u_main(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( main_addr       ),
+    .addr_ok  ( main_cs         ),
+    .addr_req ( main_addr_req   ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( main_dout       ),
+    .req      ( main_req        ),
+    .data_ok  ( main_ok         ),
+    .we       ( data_sel[0]     )
+);
+
+
+jtgng_romrq #(.AW(snd_aw),.INVERT_A0(1)) u_snd(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( snd_addr        ),
+    .addr_ok  ( snd_cs          ),
+    .addr_req ( snd_addr_req    ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( snd_dout        ),
+    .req      ( snd_req         ),
+    .data_ok  ( snd_ok          ),
+    .we       ( data_sel[7]     )
+);
+
+wire [15:0] char_preout;
+
+jtgng_romrq #(.AW(char_aw),.DW(16)) u_char(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( char_addr       ),
+    .addr_ok  ( LVBL            ),
+    .addr_req ( char_addr_req   ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( char_preout     ),
+    .req      ( char_req        ),
+    .data_ok  ( char_ok         ),
+    .we       ( data_sel[1]     )
+);
+
+// Provides a non-zero output for characters before SDRAM has valid data
+// This can be used to display a rudimentary message on screen
+// and prompt the user to load the ROM
+// assign char_dout = download_ok ? char_preout : 16'hAAAA;
+always @(posedge clk) char_dout <= download_ok ? char_preout : 16'hAAAA;
+
+jtgng_romrq #(.AW(14),.DW(16)) u_map1(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( map1_addr       ),
+    .addr_ok  ( LVBL            ),
+    .addr_req ( map1_addr_req   ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( map1_dout       ),
+    .req      ( map1_req        ),
+    .data_ok  ( map1_ok         ),
+    .we       ( data_sel[2]     )
+);
+
+jtgng_romrq #(.AW(14),.DW(16)) u_map2(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( map2_addr       ),
+    .addr_ok  ( LVBL            ),
+    .addr_req ( map2_addr_req   ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( map2_dout       ),
+    .req      ( map2_req        ),
+    .data_ok  ( map2_ok         ),
+    .we       ( data_sel[3]     )
+);
+
+jtgng_romrq #(.AW(scr1_aw),.DW(16)) u_scr1(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( scr1_addr       ),
+    .addr_ok  ( LVBL            ),
+    .addr_req ( scr1_addr_req   ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( scr1_dout       ),
+    .req      ( scr1_req        ),
+    .data_ok  ( scr1_ok         ),
+    .we       ( data_sel[4]     )
+);
+
+jtgng_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( scr2_addr       ),
+    .addr_ok  ( LVBL            ),
+    .addr_req ( scr2_addr_req   ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( scr2_dout       ),
+    .req      ( scr2_req        ),
+    .data_ok  ( scr2_ok         ),
+    .we       ( data_sel[5]     )
+);
+
+wire [15:0] obj_preout;
+
+jtgng_romrq #(.AW(obj_aw),.DW(16)) u_obj(
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .cen      ( 1'b1            ),
+    .addr     ( obj_addr        ),
+    .addr_ok  ( 1'b1            ),
+    .addr_req ( obj_addr_req    ),
+    .din      ( data_read       ),
+    .din_ok   ( data_rdy        ),
+    .dout     ( obj_preout      ),
+    .req      ( obj_req         ),
+    .data_ok  ( obj_ok          ),
+    .we       ( data_sel[6]     )
+);
+
+
+`ifdef AVATARS
+    // Alternative Objects during pause
+    wire [15:0] avatar_data;
+    jtgng_ram #(.dw(16), .aw(13), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
+        .clk    ( clk            ),
+        .cen    ( pause          ),  // tiny power saving when not in pause
+        .data   ( 16'd0          ),
+        .addr   ( obj_addr[12:0] ),
+        .we     ( 1'b0           ),
+        .q      ( avatar_data    )
+    );
+    always @(posedge clk) obj_dout <= pause ? avatar_data : obj_preout;
+`else 
+    always @(*) obj_dout = obj_preout;
+`endif
+
+`ifdef SIMULATION
+real busy_cnt=0, total_cnt=0;
+always @(posedge clk) begin
+    total_cnt <= total_cnt + 1;
+    if( |data_sel ) busy_cnt <= busy_cnt+1;
+end
+always @(posedge LVBL) begin
+    $display("INFO: frame ROM stats: %.0f %%", 100.0*busy_cnt/total_cnt);
+end
+`endif
 
 always @(posedge clk)
 if( loop_rst || downloading ) begin
-    //rd_state    <= { H,1'b1 };
-    sdram_addr <= {(addr_w+col_w){1'b0}};
-    sdram_req <=  1'b0;
-    snd_dout  <=  8'd0;
-    main_dout <=  8'd0;
-    char_dout <= 16'd0;
-    obj_dout  <= 16'd0;
-    scr_dout  <= 24'd0;
+    sdram_addr <=  'd0;
     ready_cnt <=  4'd0;
     ready     <=  1'b0;
-end else if(cen12) begin
+    sdram_req <=  1'b0;
+    data_sel  <=  8'd0;
+end else begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
-    rd_state_last <= rd_state;
-    // Get data from current read
-    casez(rd_state_last) // I hope the -4'd1 gets re-encoded in the
-        // case list, rather than getting implemented as an actual adder
-        // but it depends on how good the synthesis tool is.
-        // Anyway, the idea is that we get the data for the last address
-        // requested but rd_state has already gone up by 1, that's why
-        // we need this
-        4'b??00: snd_dout  <=  !snd_lsb ? data_read[15:8] : data_read[ 7:0];
-        4'b??01: main_dout <= !main_lsb ? data_read[15:8] : data_read[ 7:0];
-        4'b0010: char_dout <= data_read;
-        4'b?011: obj_dout  <= data_read;
-        4'b?110: scr_aux   <= data_read; // coding: z - y - x bytes as in G&G schematics
-        4'b?111: scr_dout  <= { data_read[7:0] | data_read[15:8], scr_aux }; // for the upper byte, it doesn't matter which half of the word was used, as long as one half is zero.
-        default:;
-    endcase
-    casez(rd_state)
-        4'b??00: begin
-            sdram_addr <= snd_offset + { 8'b0,  snd_addr[14:1] }; // 14:0
-            snd_lsb <= snd_addr[0];
-        end
-        4'b??01: begin
-            sdram_addr <= { 6'd0, main_addr[16:1] }; // 16:0
-            main_lsb <= main_addr[0];
-        end
-        4'b0010: sdram_addr <= char_offset + { 9'b0, char_addr }; // 12:0
-        4'b?011: sdram_addr <=  obj_offset + { 6'b0,  obj_addr }; // 15:0
-        4'b?110: sdram_addr <=  scr_offset + { 6'b0,  scr_addr }; // 14:0 B/C ROMs
-        4'b?111: sdram_addr <=  sdram_addr + scr2_offset; // scr_addr E ROMs
-        default:;
-    endcase
-    sdram_req <= !( !LVBL && (char_rq || scr_rq) ); // rd_state==4'd14;
+    // if( data_rdy ) begin
+    //     data_sel <= 'd0;
+    // end
+    if( sdram_ack ) sdram_req <= 1'b0;
+    // accept a new request
+    if( data_sel==8'd0 || data_rdy ) begin
+        sdram_req <= 
+           ( main_req & ~data_sel[0] )
+         | ( map1_req & ~data_sel[2] )
+         | ( map2_req & ~data_sel[3] )
+         | ( scr1_req & ~data_sel[4] )
+         | ( scr2_req & ~data_sel[5] ) 
+         | ( char_req & ~data_sel[1] ) 
+         | ( obj_req  & ~data_sel[6] )
+         | ( snd_req  & ~data_sel[7] );
+        data_sel <= 'd0;
+        case( 1'b1 )
+            !data_sel[7] & snd_req: begin
+                sdram_addr <= snd_offset + { {22-snd_aw{1'b0}}, snd_addr_req[14:1] };
+                data_sel[7] <= 1'b1;
+            end
+            !data_sel[4] & scr1_req: begin
+                sdram_addr <= scr1_offset + { {22-scr1_aw{1'b0}}, scr1_addr_req };
+                data_sel[4] <= 1'b1;
+            end
+            !data_sel[5] & scr2_req: begin
+                sdram_addr <= scr2_offset + { {22-scr2_aw{1'b0}}, scr2_addr_req };
+                data_sel[5] <= 1'b1;
+            end
+            !data_sel[2] & map1_req: begin
+                sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
+                data_sel[2] <= 1'b1;
+            end
+            !data_sel[3] & map2_req: begin
+                sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
+                data_sel[3] <= 1'b1;
+            end
+            !data_sel[6] & obj_req: begin
+                sdram_addr <= obj_offset + { {22-obj_aw{1'b0}}, obj_addr_req };
+                data_sel[6] <= 1'b1;
+            end
+            !data_sel[0] & main_req: begin
+                sdram_addr <= { {22-main_aw{1'b0}}, main_addr_req[main_aw-1:1] };
+                data_sel[0] <= 1'b1;
+            end
+            !data_sel[1] & char_req: begin
+                sdram_addr <= char_offset + { {22-char_aw{1'b0}}, char_addr_req };
+                data_sel[1] <= 1'b1;
+            end
+        endcase
+    end
 end
 
 endmodule // jtgng_rom

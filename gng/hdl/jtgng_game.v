@@ -375,7 +375,7 @@ jtgng_video u_video(
 wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
-jt1943_rom2 #(
+jtgng_rom #(
     .char_aw    ( 13              ),
     .main_aw    ( 17              ),
     .obj_aw     ( 16              ),

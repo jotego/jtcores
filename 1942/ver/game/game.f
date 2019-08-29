@@ -9,8 +9,8 @@
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
 ../../hdl/jt1942_dip.v
-../../../1943/hdl/jt1943_rom2.v
-../../../1943/hdl/jt1943_romrq.v
+../../../1943/hdl/jtgng_rom.v
+../../../1943/hdl/jtgng_romrq.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_cen.v
