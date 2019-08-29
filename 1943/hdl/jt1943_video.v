@@ -278,36 +278,37 @@ jtgng_obj #(
     .PALW            (  4                       ),
     .PALETTE         (  1                       ),
     .PALETTE1_SIMFILE("../../../rom/1943/bm7.7c"),
-    .PALETTE0_SIMFILE("../../../rom/1943/bm8.8c"))
+    .PALETTE0_SIMFILE("../../../rom/1943/bm8.8c"),
+    .AVATAR_MAX      ( 8                        ))
 u_obj(
-    .rst            ( rst        ),
-    .clk            ( clk        ),
-    .cen6           ( cen6       ),
+    .rst            ( rst         ),
+    .clk            ( clk         ),
+    .cen6           ( cen6        ),
     //.cen3           ( cen3      ),
     // screen
-    .HINIT          ( HINIT      ),
-    .LHBL           ( LHBL_obj   ),
-    .LVBL           ( LVBL       ),
-    .LVBL_obj       ( LVBL_obj   ),
-    .V              ( V          ),
-    .H              ( H          ),
-    .flip           ( flip       ),
+    .HINIT          ( HINIT       ),
+    .LHBL           ( LHBL_obj    ),
+    .LVBL           ( LVBL        ),
+    .LVBL_obj       ( LVBL_obj    ),
+    .V              ( V           ),
+    .H              ( H           ),
+    .flip           ( flip        ),
     // Pause screen
-    .pause          ( obj_pause  ),
-    .avatar_idx     ( avatar_idx ),
+    .pause          ( obj_pause   ),
+    .avatar_idx     ( avatar_idx  ),
     // CPU bus
     .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),
-    .DB             ( obj_DB     ),
+    .DB             ( obj_DB      ),
     // shared bus
-    .OKOUT          ( OKOUT      ),
-    .bus_req        ( bus_req    ),        // Request bus
-    .bus_ack        ( bus_ack    ),    // bus acknowledge
-    .blen           ( blcnten    ),   // bus line counter enable
+    .OKOUT          ( OKOUT       ),
+    .bus_req        ( bus_req     ),        // Request bus
+    .bus_ack        ( bus_ack     ),    // bus acknowledge
+    .blen           ( blcnten     ),   // bus line counter enable
     // SDRAM interface
     .obj_addr       ( obj_addr    ),
     .objrom_data    ( objrom_data ),
     // PROMs
-    .OBJON          ( OBJON      ),
+    .OBJON          ( OBJON       ),
     .prog_addr      ( prog_addr   ),
     .prom_hi_we     ( prom_7c_we  ),
     .prom_lo_we     ( prom_8c_we  ),

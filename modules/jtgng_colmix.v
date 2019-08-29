@@ -80,9 +80,10 @@ wire enable_obj  = gfx_en[3];
 // When SCRWIN=0 then the MSB of scr_pxl has no special meaning.
 wire scrwin = SCRWIN ? scr_pxl[6] : 1'b0;
 wire [7:0] scr_mux = SCRWIN ? {2'b00, scr_pxl[5:0] } : {1'b0, scr_pxl};
-reg  [1:0] obj_sel; // signals whether an object pixel is selected
+reg  [2:0] obj_sel; // signals whether an object pixel is selected
 
 always @(posedge clk) if(cen6) begin
+    obj_sel[2] <= obj_sel[1];
     obj_sel[1] <= obj_sel[0];
     obj_sel[0] <= 1'b0;
     if( char_pxl[1:0]==2'b11 || !enable_char ) begin
@@ -190,7 +191,7 @@ jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .q      ( avatar_pal    )
 );
 // Select the avatar palette output if we are on avatar mode
-wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
+wire [11:0] avatar_mux = (pause/*&&obj_sel[2]*/) ? avatar_pal : { pal_red, pal_green, pal_blue };
 `else 
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif

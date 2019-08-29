@@ -23,7 +23,7 @@ module jtgng_objdma(
     // screen
     input              LVBL,
     input              pause,
-    output      [ 3:0] avatar_idx,
+    output  reg [ 3:0] avatar_idx,
     // shared bus
     output  reg [ 8:0] AB,
     input       [ 7:0] DB,
@@ -131,8 +131,10 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 
 wire [ 7:0] avatar_id;
 reg  [ 7:0] avatar_data;
-reg  [10:0] avatar_cnt = 0;
-assign      avatar_idx = avatar_cnt[10:7];
+reg  [ 9:0] avatar_cnt = 0;
+wire [ 9:0] avatar_next = avatar_cnt+10'd1;
+localparam CNTMAX = 10'd2*10'd60;
+
 
 jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
@@ -140,7 +142,7 @@ jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
     .data   ( 8'd0          ),
     .addr   ( {avatar_idx, pre_scan[5:2] } ),
     .we     ( 1'b0          ),
-    .q      ( avatar_id   )
+    .q      ( avatar_id     )
 );
 // Each avatar is made of 9 sprites, which are ordered one after the other in memory
 // the sprite ID is calculated by combining the current Avatar on display and the
@@ -153,12 +155,23 @@ jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
 //     avatar_id <= pre_scan[5:2] > 4'd8 ? 8'h63 :
 //         ( {4'd0, pre_scan[5:2]} + avatar_idx9 );
 
+wire [3:0] id_next =avatar_idx + 4'd1;
 reg lastLVBL;
-always @(posedge clk) begin
-    lastLVBL <= LVBL;
-    if( !LVBL && lastLVBL ) 
-        avatar_cnt<= avatar_idx == AVATAR_MAX ? 11'd0 : avatar_cnt+11'd2;
-end
+always @(posedge clk, posedge rst) 
+    if( rst ) begin
+        avatar_idx <= 4'd0;
+        avatar_cnt <= 10'd0;
+    end else begin
+        lastLVBL <= LVBL;
+        if( !LVBL && lastLVBL ) begin
+            if(avatar_next==CNTMAX) begin
+                avatar_cnt <= 10'd0;
+                avatar_idx <= id_next==AVATAR_MAX ? 4'd0 : id_next;
+            end else begin
+                avatar_cnt<= avatar_next;
+            end
+        end
+    end
 
 reg [7:0] avatar_y, avatar_x;
 
@@ -166,15 +179,15 @@ reg [7:0] avatar_y, avatar_x;
 always @(posedge clk) begin
     if(pre_scan[8:6]==3'd0) begin
         case( pre_scan[5:2] )
-            4'd0,4'd1,4'd2: avatar_y <= ~avatar_cnt[7:0];
-            4'd3,4'd4,4'd5: avatar_y <= ~avatar_cnt[7:0] + 8'h10;
-            4'd6,4'd7,4'd8: avatar_y <= ~avatar_cnt[7:0] + 8'h20;
+            4'd0,4'd1,4'd2: avatar_y <= 8'h70;
+            4'd3,4'd4,4'd5: avatar_y <= 8'h70 + 8'h10;
+            4'd6,4'd7,4'd8: avatar_y <= 8'h70 + 8'h20;
             default: avatar_y <= 8'hf8;
         endcase
         case( pre_scan[5:2] )
-            4'd0,4'd3,4'd6: avatar_x <= 8'h10;
-            4'd1,4'd4,4'd7: avatar_x <= 8'h10 + 8'h10;
-            4'd2,4'd5,4'd8: avatar_x <= 8'h10 + 8'h20;
+            4'd0,4'd3,4'd6: avatar_x <= 8'h08;
+            4'd1,4'd4,4'd7: avatar_x <= 8'h08 + 8'h10;
+            4'd2,4'd5,4'd8: avatar_x <= 8'h08 + 8'h20;
             default: avatar_x <= 8'hf8;
         endcase
     end
@@ -186,7 +199,7 @@ end
 
 always @(*) begin
     case( pre_scan[1:0] )
-        2'd0: avatar_data = pre_scan[8:6]==3'd0 ? avatar_id : 8'd63;
+        2'd0: avatar_data = pre_scan[8:6]==3'd0 ? avatar_id : 8'hff;
         2'd1: avatar_data = 8'd0;
         2'd2: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_y;
         2'd3: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_x;
@@ -196,7 +209,7 @@ end
 
 `else 
 always @(*) ram_dout = buf_data;
-assign avatar_idx = 3'd0;
+assign avatar_idx = 4'd0;
 `endif
 
 endmodule // load

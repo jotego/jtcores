@@ -331,7 +331,7 @@ if corename == "commando":
         55,56,57,
             #unused
             63,63,63,63,63,63,63,
-        # Daniel Baeza
+        # Daniel Bauza
         58,59,60,
         61,62,63,
         64,65,66,

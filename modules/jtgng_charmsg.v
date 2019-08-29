@@ -53,7 +53,7 @@ jtgng_ram #(.aw(9),.synfile("msg_av.hex")) u_ram_msg_av(
 reg av_col;
 
 always @(*) begin
-    av_col  = scan[4:0] == 5'd9;
+    av_col  = scan[4:0] == 5'd8;
     msg_low = av_col ? mem_msg_av : mem_msg;
 end
 `else 
