@@ -171,7 +171,9 @@ generate
         `ifdef AVATARS
             reg  [7:0] avatar_pxl;
             always @(posedge clk) if(cen6)
-                avatar_pxl <= { objpal1, z[3], y[3], x[3], w[3] };
+                avatar_pxl <= { 4'd0, z[3], y[3], x[3], w[3] }; // palette bits 
+                    // are ignored here because palette indexing for avatars
+                    // is done directly at the colour mixer
         `else
             wire [7:0] avatar_pxl = prom_dout;
         `endif

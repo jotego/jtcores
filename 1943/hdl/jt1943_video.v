@@ -336,7 +336,9 @@ jt1943_colmix #(
     .LHBL       ( LHBL          ),
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),
+    // Avatars
     .pause      ( obj_pause     ),
+    .avatar_idx ( avatar_idx    ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
     .scr1_pxl   ( scr1_pxl      ),

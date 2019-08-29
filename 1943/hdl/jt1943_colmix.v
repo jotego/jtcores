@@ -32,17 +32,19 @@ module jt1943_colmix(
     input [5:0]     scr2_pxl,
     input [7:0]     obj_pxl,
     // Palette PROMs 12A, 13A, 14A, 12C
-    input   [7:0]   prog_addr,
+    input [7:0]     prog_addr,
     input           prom_12a_we,
     input           prom_13a_we,
     input           prom_14a_we,
     input           prom_12c_we,
-    input   [3:0]   prom_din,
+    input [3:0]     prom_din,
 
     input           LVBL,
     input           LHBL,
     output  reg     LHBL_dly,
     output  reg     LVBL_dly,
+    // Avatars
+    input [3:0]     avatar_idx,
     input           pause,
 
     output reg [3:0] red,
@@ -149,8 +151,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
 `ifdef AVATARS
 wire [11:0] avatar_pal;
 // Objects have their own palette during pause
-reg [1:0] avatar_msb[0:2];
-wire [7:0] avatar_addr = { avatar_msb[2], pixel_mux[5:0] };
+wire [7:0] avatar_addr = { avatar_idx, pixel_mux[3:0] };
 
 jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
@@ -166,10 +167,6 @@ reg [1:0] obj_sel;
 always @(posedge clk) if(cen6) begin
     obj_sel[0] <= selbus[1:0]==2'b10;
     obj_sel[1] <= obj_sel[0];
-    // copy the OBJ palette address
-    avatar_msb[0] <= obj_pxl[7:6];
-    avatar_msb[1] <= avatar_msb[0];
-    avatar_msb[2] <= avatar_msb[1];
 end
 `else 
 wire [11:0] avatar_pal = {pal_red, pal_green, pal_blue};
