@@ -252,9 +252,14 @@ jtgng_romrq #(.AW(obj_aw),.DW(16)) u_obj(
     .we       ( data_sel[6]     )
 );
 
-
 `ifdef AVATARS
-    // Alternative Objects during pause
+`ifdef MISTER
+`define AVATAR_ROM
+`endif
+`endif
+
+`ifdef AVATAR_ROM
+    // Alternative Objects during pause for MiSTer
     wire [15:0] avatar_data;
     jtgng_ram #(.dw(16), .aw(13), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
         .clk    ( clk            ),

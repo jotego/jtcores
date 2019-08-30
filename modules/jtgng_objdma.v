@@ -127,6 +127,12 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 );
 
 `ifdef AVATARS
+`ifdef MISTER
+`define AVATAR_OBJDMA
+`endif
+`endif
+
+`ifdef AVATAR_OBJDMA
 // Pause objects
 
 wire [ 7:0] avatar_id;
@@ -205,8 +211,8 @@ always @(*) begin
     case( pre_scan[1:0] )
         2'd0: avatar_data = pre_scan[8:6]==3'd0 ? avatar_id : 8'hff;
         2'd1: avatar_data = 8'd0;
-        2'd2: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_y;
-        2'd3: avatar_data = avatar_id==8'd63 ? 8'hf8 : avatar_x;
+        2'd2: avatar_data = avatar_y;
+        2'd3: avatar_data = avatar_x;
     endcase
     ram_dout = pause ? avatar_data : buf_data;
 end

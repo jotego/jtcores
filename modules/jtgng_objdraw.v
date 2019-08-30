@@ -169,6 +169,12 @@ generate
         reg  [8:0] posx2;
 
         `ifdef AVATARS
+        `ifdef MISTER
+        `define AVATAR_OBJDRAW
+        `endif
+        `endif
+
+        `ifdef AVATAR_OBJDRAW
             reg  [7:0] avatar_pxl;
             always @(posedge clk) if(cen6)
                 avatar_pxl <= { 4'd0, new_col };

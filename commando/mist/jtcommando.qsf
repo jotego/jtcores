@@ -205,6 +205,7 @@ set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtcommando_game"
 set_global_assignment -name VERILOG_MACRO "MISTTOP=jtcommando_mist"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
+set_global_assignment -name VERILOG_MACRO "AVATARS=1"
 
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll1.qip
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll0.qip
