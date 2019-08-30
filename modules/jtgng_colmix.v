@@ -180,7 +180,7 @@ endgenerate
 `ifdef AVATARS
 wire [11:0] avatar_pal;
 // Objects have their own palette during pause
-wire [7:0] avatar_addr = { avatar_idx, pixel_mux[3:0] };
+wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
 
 jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
@@ -191,7 +191,7 @@ jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .q      ( avatar_pal    )
 );
 // Select the avatar palette output if we are on avatar mode
-wire [11:0] avatar_mux = (pause/*&&obj_sel[2]*/) ? avatar_pal : { pal_red, pal_green, pal_blue };
+wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
 `else 
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif

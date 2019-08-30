@@ -99,13 +99,13 @@ wire scrwin;
 wire [2:0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
+wire [3:0] avatar_idx;
 
 `ifndef NOCHAR
 
 wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
-wire [3:0] avatar_idx;
 
 jtgng_char #(.HOFFSET(1)) u_char (
     .clk        ( clk           ),

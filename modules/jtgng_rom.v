@@ -168,7 +168,12 @@ jtgng_romrq #(.AW(char_aw),.DW(16)) u_char(
 // This can be used to display a rudimentary message on screen
 // and prompt the user to load the ROM
 // assign char_dout = download_ok ? char_preout : 16'hAAAA;
+// This behaviour is disabled during simulation
+`ifndef SIMULATION
 always @(posedge clk) char_dout <= download_ok ? char_preout : 16'hAAAA;
+`else
+always @(posedge clk) char_dout <= char_preout;
+`endif
 
 jtgng_romrq #(.AW(14),.DW(16)) u_map1(
     .rst      ( rst             ),

@@ -2,8 +2,8 @@
 ../../hdl/jtcommando_main.v
 ../../hdl/jtcommando_prom_we.v
 ../../hdl/jtcommando_dip.v
-../../../1943/hdl/jtgng_rom.v
-../../../1943/hdl/jtgng_romrq.v
+../../../modules/jtgng_rom.v
+../../../modules/jtgng_romrq.v
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v

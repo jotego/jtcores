@@ -164,12 +164,16 @@ always @(posedge clk, posedge rst)
     end else begin
         lastLVBL <= LVBL;
         if( !LVBL && lastLVBL ) begin
+            `ifndef SIMULATION
             if(avatar_next==CNTMAX) begin
                 avatar_cnt <= 10'd0;
                 avatar_idx <= id_next==AVATAR_MAX ? 4'd0 : id_next;
             end else begin
                 avatar_cnt<= avatar_next;
             end
+            `else 
+            avatar_idx <= id_next;
+            `endif
         end
     end
 

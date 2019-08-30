@@ -151,7 +151,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
 `ifdef AVATARS
 wire [11:0] avatar_pal;
 // Objects have their own palette during pause
-wire [7:0] avatar_addr = { avatar_idx, pixel_mux[3:0] };
+wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
 
 jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
