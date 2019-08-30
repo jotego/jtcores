@@ -228,7 +228,7 @@ while k<16:
     k=k+1
 
 
-print("Only %d bytes actually used" % bufpos )
+print("Only %d 16-bit words actually used" % bufpos )
 
 # Final Map
 if corename == "1943":
