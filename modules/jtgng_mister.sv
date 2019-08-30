@@ -132,7 +132,7 @@ localparam CONF_STR = {
     `endif
     `SEPARATOR
     `CORE_OSD
-    // "J,Button 1,Button 2,1P Start,2P Start,Coin;",
+    // "J,Button 1,Button 2,Button 3,1P Start,2P Start,Coin;",
     "R0,RST;",
     "V,v",`BUILD_DATE," patreon.com/topapate;"
 };

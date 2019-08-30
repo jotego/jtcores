@@ -127,13 +127,7 @@ jtgng_dual_ram #(.aw(10)) u_objram (
 );
 
 `ifdef AVATARS
-`ifdef MISTER
-`define AVATAR_OBJDMA
-`endif
-`endif
-
-`ifdef AVATAR_OBJDMA
-// Pause objects
+// Avatar counter is used in both MiST and MiSTer
 
 wire [ 7:0] avatar_id;
 reg  [ 7:0] avatar_data;
@@ -141,15 +135,6 @@ reg  [ 9:0] avatar_cnt = 0;
 wire [ 9:0] avatar_next = avatar_cnt+10'd1;
 localparam CNTMAX = 10'd2*10'd60;
 
-
-jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
-    .clk    ( clk           ),
-    .cen    ( pause         ),  // tiny power saving when not in pause
-    .data   ( 8'd0          ),
-    .addr   ( {avatar_idx, pre_scan[5:2] } ),
-    .we     ( 1'b0          ),
-    .q      ( avatar_id     )
-);
 // Each avatar is made of 9 sprites, which are ordered one after the other in memory
 // the sprite ID is calculated by combining the current Avatar on display and the
 // position inside the object buffer, which is virtual during avatar display
@@ -182,6 +167,17 @@ always @(posedge clk, posedge rst)
             `endif
         end
     end
+
+// Avatar data output is only done in MiSTer
+`ifdef MISTER
+jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
+    .clk    ( clk           ),
+    .cen    ( pause         ),  // tiny power saving when not in pause
+    .data   ( 8'd0          ),
+    .addr   ( {avatar_idx, pre_scan[5:2] } ),
+    .we     ( 1'b0          ),
+    .q      ( avatar_id     )
+);
 
 reg [7:0] avatar_y, avatar_x;
 
@@ -218,8 +214,10 @@ always @(*) begin
 end
 
 `else 
-always @(*) ram_dout = buf_data;
-assign avatar_idx = 4'd0;
+always @(*) begin
+    ram_dout   = buf_data;
+end
+`endif
 `endif
 
 endmodule // load

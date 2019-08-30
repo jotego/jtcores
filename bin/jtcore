@@ -164,7 +164,7 @@ fi
 # Add to git
 if [ $GIT = TRUE ]; then
     git add -f $PRJ/${MIST}/msg.hex
-    git add releases/$RELEASE.zip
+    git add -f releases/$RELEASE.zip
 fi
 
 if [ $PROG = TRUE ]; then
