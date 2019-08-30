@@ -44,7 +44,7 @@ parameter obj_offset=10'd3;
 // H counter
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        { Hinit, H } <= 10'd0;
+        { Hinit, H } <= 10'd135;
         Hsub <= 1'b0;
     end else if(cen12) begin
         Hinit <= H == 9'h86;
@@ -63,7 +63,7 @@ end
 // V Counter
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        V     <= 9'd250;
+        V     <= 9'd496;
         Vinit <= 1'b1;
     end else if(cen6) begin
         if( H == 9'd511 ) begin
@@ -87,6 +87,7 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
 always @(posedge clk, posedge rst)
     if( rst ) begin
+        LHBL <= 1'b0;
         LVBL <= 1'b0;
         LVBL_obj <= 1'b0;
         VS <= 1'b0;
@@ -114,15 +115,5 @@ always @(posedge clk, posedge rst)
         // if (H==9'd136) LHBL_short <= 1'b0;
         // if (H==9'd248) LHBL_short <= 1'b1;
     end
-
-// H indicators
-// always @(posedge clk) begin
-//     G4H <= &H[1:0];
-//     OH  <= &H[2:0];
-// end
-//
-// always @(posedge clk) begin
-//     G4_3H <= &H[1:0];
-// end
 
 endmodule // jtgng_timer

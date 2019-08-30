@@ -19,10 +19,7 @@ function check_hex_file {
 
 check_hex_file msg.hex
 
-if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN -d ALWAYS_PAUSE -d NOSCR; then
+if ! go.sh -frame 1 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN \
+    -d ALWAYS_PAUSE -d NOSCR -d SCANDOUBLER_DISABLE=1; then
     exit 1
 fi
-
-for i in *png; do
-    convert $i -crop 290x260+50+0 -rotate -90 -resize 300%x300% $i
-done

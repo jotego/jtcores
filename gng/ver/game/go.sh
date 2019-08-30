@@ -26,6 +26,7 @@ fi
 
 export GAME_ROM_PATH=../../../rom/JTGNG.rom
 export MEM_CHECK_TIME=90_000_000
+export CONVERT_OPTIONS="-resize 300%x300%"
 
 # Generic simulation script from JTFRAME
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH) -sysname gng \

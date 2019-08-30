@@ -170,8 +170,8 @@ wire       dip_pause, dip_flip, dip_test;
 `ifdef SIMULATION
 assign sim_pxl_clk = clk_sys;
 assign sim_pxl_cen = cen6;
-assign sim_vs = vs;
-assign sim_hs = hs;
+assign sim_vs = ~LVBL_dly;
+assign sim_hs = ~LHBL_dly;
 `endif
 
 
