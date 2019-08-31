@@ -39,8 +39,8 @@ module jt1943_scroll(
     input              pause,
     // Palette PROMs D1, D2
     input   [7:0]      prog_addr,
-    input              prom_msb_we,
-    input              prom_lsb_we,
+    input              prom_hi_we,
+    input              prom_lo_we,
     input   [3:0]      prom_din,
 
     // Map ROM
@@ -170,7 +170,7 @@ jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
     .data   ( prom_din[1:0]  ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_msb_we    ),
+    .we     ( prom_hi_we     ),
     .q      ( scr_pxl[5:4]   )
 );
 
@@ -180,7 +180,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
     .data   ( prom_din       ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_lsb_we    ),
+    .we     ( prom_lo_we     ),
     .q      ( scr_pxl[3:0]   )
 );
 
