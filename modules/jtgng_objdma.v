@@ -218,6 +218,10 @@ always @(*) begin
     ram_dout   = buf_data;
 end
 `endif
+`else
+always @(*) begin
+    ram_dout   = buf_data;
+end
 `endif
 
 endmodule // load
