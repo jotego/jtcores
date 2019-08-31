@@ -92,7 +92,7 @@ wire [15:0] obj_data, map_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [15:0] main_addr;
+wire [16:0] main_addr;
 wire [14:0] snd_addr;
 wire [13:0] map_addr;
 wire [12:0] char_addr;
@@ -142,7 +142,6 @@ jtgunsmoke_dip u_dip(
     .status     ( status        ),
     .dip_pause  ( dip_pause     ),
     .dip_test   ( dip_test      ),
-    .dip_flip   ( dip_flip      ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
@@ -177,11 +176,18 @@ wire CHON, OBJON, SCRON;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
-wire [7:0] main_ram;
+wire [ 7:0] main_ram;
 
-wire [5:0] prom_we;
+wire [12:0] prom_we;
 
-jtgunsmoke_prom_we u_prom_we(
+jt1943_prom_we #(
+        .SNDADDR    ( 22'h1_8000 <<1 ),
+        .CHARADDR   ( 22'h2_0000 <<1 ),
+        .MAP1ADDR   ( 22'h2_4000 <<1 ),
+        .SCR1ADDR   ( 22'h2_C000 <<1 ),
+        .OBJADDR    ( 22'h6_C000 <<1 ),
+        .ROMEND     ( 22'hA_CA00 <<1 ))
+u_prom_we(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
@@ -197,12 +203,15 @@ jtgunsmoke_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-wire prom_1d = prom_we[0];
-wire prom_2d = prom_we[1];
-wire prom_3d = prom_we[2];
-wire prom_1h = prom_we[3];
-wire prom_6l = prom_we[4];
-wire prom_6e = prom_we[5];
+wire prom_red_we   = prom_we[0];
+wire prom_green_we = prom_we[1];
+wire prom_blue_we  = prom_we[2];
+wire prom_char_we  = prom_we[3];
+wire prom_scrlo_we = prom_we[4];
+wire prom_scrhi_we = prom_we[5];
+wire prom_objlo_we = prom_we[6];
+wire prom_objhi_we = prom_we[7];
+wire prom_prior_we = prom_we[9];
 
 wire [7:0] scrposv;
 wire [1:0] scrposh_cs;
@@ -265,7 +274,7 @@ jtgunsmoke_main u_main(
     .dipsw_b    ( dipsw_b       )
 );
 `else
-assign main_addr   = 16'd0;
+assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
 assign bus_ack     = 1'b0;
@@ -339,17 +348,17 @@ jt1943_video #(
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
-    .rd_n       ( rd_n          ),
-    .wr_n       ( wr_n          ),
+    .rd_n       ( ~RnW          ),
+    .wr_n       ( RnW           ),
     .cpu_dout   ( cpu_dout      ),
-    .flip       ( video_flip    ),
+    .flip       ( flip          ),
     .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
-    .chram_dout ( chram_dout    ),
+    .chram_dout ( char_dout     ),
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
-    .char_wait  ( char_wait     ),
+    .char_wait  ( char_busy     ),
     .char_ok    ( char_ok       ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
@@ -373,7 +382,7 @@ jt1943_video #(
     .obj_AB        ( obj_AB        ),
     .obj_DB        ( main_ram      ),
     .obj_addr      ( obj_addr      ),
-    .objrom_data   ( obj_dout      ),
+    .objrom_data   ( obj_data      ),
     .OKOUT         ( OKOUT         ),
     .bus_req       ( bus_req       ), // Request bus
     .bus_ack       ( bus_ack       ), // bus acknowledge
@@ -404,17 +413,17 @@ jt1943_video #(
     .prom_objhi_we ( prom_objhi_we ),
     .prom_objlo_we ( prom_objlo_we ),
     // Debug
-    .gfx_en     ( gfx_en        ),
+    .gfx_en        ( gfx_en        ),
     // Pixel Output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
+    .red           ( red           ),
+    .green         ( green         ),
+    .blue          ( blue          )
 );
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
     .char_aw    ( 13              ),
-    .main_aw    ( 16              ),
+    .main_aw    ( 17              ),
     .obj_aw     ( 16              ),
     .scr1_aw    ( 15              ),
     .snd_offset ( 22'h1_8000 >> 1 ),

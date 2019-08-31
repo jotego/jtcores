@@ -62,7 +62,7 @@ module jtgunsmoke_main(
     input              blcnten,  // bus line counter enable
     // ROM access
     output  reg        rom_cs,
-    output      [15:0] rom_addr,
+    output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
     // PROM 6L (interrupts)
@@ -125,7 +125,7 @@ always @(*) begin
 end
 
 // special registers
-reg [2:0] bank;
+reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
         bank      <=  'd0;
@@ -208,7 +208,11 @@ always @(*)
         default:   cpu_din = rom_data;
     endcase
 
-assign rom_addr = A;
+// ROM ADDRESS: 32kB + 4 banks of 16kB
+always @(*) begin
+    rom_addr[13: 0] = A[13:0];
+    rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + { 2'b0, bank});
+end
 
 /////////////////////////////////////////////////////////////////
 // wait_n generation
