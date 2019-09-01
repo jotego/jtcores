@@ -82,7 +82,7 @@ wire snd_cs;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd, cpu_cen;
+wire cpu_cen;
 wire char_busy, scr_busy;
 
 // ROM data
