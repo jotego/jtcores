@@ -181,12 +181,12 @@ wire [ 7:0] main_ram;
 wire [12:0] prom_we;
 
 jt1943_prom_we #(
-        .SNDADDR    ( 22'h1_8000 <<1 ),
-        .CHARADDR   ( 22'h2_0000 <<1 ),
-        .MAP1ADDR   ( 22'h2_4000 <<1 ),
-        .SCR1ADDR   ( 22'h2_C000 <<1 ),
-        .OBJADDR    ( 22'h6_C000 <<1 ),
-        .ROMEND     ( 22'hA_CA00 <<1 ))
+        .SNDADDR    ( 22'h1_8000 ),
+        .CHARADDR   ( 22'h2_0000 ),
+        .MAP1ADDR   ( 22'h2_4000 ),
+        .SCR1ADDR   ( 22'h2_C000 ),
+        .OBJADDR    ( 22'h6_C000 ),
+        .PROMADDR   ( 22'hA_C000 ))
 u_prom_we(
     .clk         ( clk           ),
     .downloading ( downloading   ),
@@ -330,7 +330,7 @@ jt1943_video #(
     .CHAR_IDMSB0  ( 6                                ),
     .SCRPLANES    ( 1                                ),
     .SCR1_PALHI   ( "../../../rom/gunsmoke/g-06.14a" ),
-    .SCR1_PALLO   ( "../../../rom/gunsmoke/g-07.15b" ),
+    .SCR1_PALLO   ( "../../../rom/gunsmoke/g-07.15a" ),
     // Colour mixer
     .PALETTE_RED  ( "../../../rom/gunsmoke/g-01.03b" ),
     .PALETTE_GREEN( "../../../rom/gunsmoke/g-02.04b" ),

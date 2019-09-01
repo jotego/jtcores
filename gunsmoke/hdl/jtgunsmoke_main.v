@@ -73,7 +73,6 @@ module jtgunsmoke_main(
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, misc_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
-reg SECWR_cs;
 wire rd_n, wr_n;
 
 assign RnW = wr_n;
@@ -196,10 +195,10 @@ always @(*)
         cpu_din = irq_vector;
     else
     case( {ram_cs, char_cs, rom_cs, in_cs} )
-        5'b100_00: cpu_din = ram_dout;
-        5'b010_00: cpu_din = char_dout;
-        5'b000_10: cpu_din = rom_data;
-        5'b000_01: cpu_din = cabinet_input;
+        4'b10_00: cpu_din = ram_dout;
+        4'b01_00: cpu_din = char_dout;
+        4'b00_10: cpu_din = rom_data;
+        4'b00_01: cpu_din = cabinet_input;
         default:   cpu_din = rom_data;
     endcase
 
