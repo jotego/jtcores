@@ -141,11 +141,13 @@ reg reset_n=1'b0;
 
 // interrupt latch
 reg int_n;
-wire iorq_n;
+wire iorq_n, m1_n;
+wire irq_ack = !iorq_n && !m1_n;
+
 always @(posedge clk or negedge reset_n)
     if( !reset_n ) int_n <= 1'b1;
     else if(cen3) begin
-        if(!iorq_n) int_n <= 1'b1;
+        if(irq_ack) int_n <= 1'b1;
         else if( snd_int_edge ) int_n <= 1'b0;
     end
 
@@ -200,7 +202,7 @@ jtframe_z80 u_cpu(
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
-    .m1_n       (             ),
+    .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
