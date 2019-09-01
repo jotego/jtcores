@@ -79,7 +79,7 @@ localparam CONF_STR = {
     `SEPARATOR
     // Common MiSTer options
     "F,rom;",
-    "O2,Aspect Ratio,Original,Wide;",
+    //"O2,Aspect Ratio,Original,Wide;",
     `ifdef VERTICAL_SCREEN
     "OD,Rotate controls,No,Yes;",
     "OC,Flip screen,OFF,ON;",

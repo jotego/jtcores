@@ -131,8 +131,10 @@ u_buf(
 );
 
 wire [8:0] posx;
+localparam PXLW = PALETTE ? 8 : 6;
+
 wire [PALW-1:0] pospal;
-wire [(PALETTE?7:3):0] new_pxl;
+wire [PXLW-1:0] new_pxl;
 
 // draw the sprite
 jtgng_objdraw #(
@@ -172,9 +174,14 @@ u_draw(
 // line buffers for pixel data
 // obj_dly is not object pixel delay with respect to background
 // instead, it is the internal delay from previous stages
-localparam PXLW = PALETTE ? 8 : 6;
 wire [PXLW-1:0] obj_pxl0;
-wire [PXLW-1:0] pxl_data = PALETTE ? new_pxl : {pospal, new_pxl};
+wire [PXLW-1:0] pxl_data;
+generate
+    if( PALETTE==1 )
+        assign pxl_data = new_pxl;
+    else
+        assign pxl_data = {pospal, new_pxl};
+endgenerate
 
 jtgng_objpxl #(.dw(PXLW),.obj_dly(5'hf),.palw(PALW)) u_pxlbuf(
     .rst            ( rst           ),

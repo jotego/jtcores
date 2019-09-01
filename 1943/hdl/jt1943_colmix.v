@@ -84,21 +84,23 @@ always @(posedge clk) if(cen6) begin
     scr2_pxl_1  <= scr2_pxl;
     obj_pxl_1   <= obj_pxl;
     if( SCRPLANES == 2 )
+        // 1943
         seladdr     <= { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
     else
-        seladdr     <= { 4'b0, char_blank_b, 1'b0, obj_blank_b, obj_pxl[6] }; // 6 or 7?
+        // GunSmoke
+        seladdr     <= { 4'b0, char_blank_b, obj_blank_b, obj_pxl[6], 1'b0 }; // 6 or 7?
 end
 
 always @(posedge clk) if(cen6) begin
     if( SCRPLANES == 2 )
-        case( selbus[1:0] )
+        case( selbus[1:0] ) // 1943
             2'b00: pixel_mux[5:0] <= scr2_pxl_1;
             2'b01: pixel_mux[5:0] <= scr1_pxl_1;
             2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
             2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
         endcase // selbus[1:0]
     else
-        case( selbus[1:0] )
+        case( selbus[1:0] ) // GunSmoke
             2'b00: pixel_mux[5:0] <= scr1_pxl_1;
             2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
             2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };

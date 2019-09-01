@@ -220,6 +220,7 @@ end
 `endif
 `else
 always @(*) begin
+    avatar_idx = 4'd0;
     ram_dout   = buf_data;
 end
 `endif

@@ -339,14 +339,15 @@ jt1943_video #(
     .SCR1_PALHI    ( "../../../rom/gunsmoke/g-06.14a" ),
     .SCR1_PALLO    ( "../../../rom/gunsmoke/g-07.15a" ),
     // Objects
-    .OBJMAX        ( 9'h180                           ),
-    .OBJMAX_LINE   ( 5'd24                            ),
+    //.OBJMAX        ( 9'h180                           ),
+    //.OBJMAX_LINE   ( 5'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),
     .OBJ_ROM_AW    ( 16                               ),
     // Colour mixer
     .PALETTE_RED   ( "../../../rom/gunsmoke/g-01.03b" ),
     .PALETTE_GREEN ( "../../../rom/gunsmoke/g-02.04b" ),
-    .PALETTE_BLUE  ( "../../../rom/gunsmoke/g-03.05b" )
+    .PALETTE_BLUE  ( "../../../rom/gunsmoke/g-03.05b" ),
+    .PALETTE_PRIOR ( "../../../rom/gunsmoke/g-05.01f" )
 ) u_video(
     .rst           ( rst           ),
     .clk           ( clk           ),
