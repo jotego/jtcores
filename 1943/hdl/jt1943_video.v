@@ -288,7 +288,7 @@ generate
         );
         end else begin
             assign scr2_pxl  = ~6'h0;
-            assign scr2_addr = 17'h0;
+            assign scr2_addr = 15'h0;
             assign map2_addr = 14'h0;
         end
 endgenerate
