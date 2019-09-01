@@ -29,11 +29,11 @@ dump "Tile map    " gs14.11c
 
 # note that SCROLL Z is repeated
 # lower bytes
-dump "SCROLL X    " gs13.06c gs12.05c
-dump "SCROLL Z    " gs11.04c gs10.02c
+dump "SCROLL X    " gs13.06c gs09.06a
+dump "SCROLL Y    " gs12.05c gs08.05a
 # upper bytes
-dump "SCROLL Y    " gs09.06a gs08.05a
-dump "SCROLL Z    " gs07.04a gs06.02a
+dump "SCROLL W    " gs11.04c gs07.04a
+dump "SCROLL Z    " gs10.02c gs06.02a
 
 # lower bytes
 dump "Objects ZY  " gs22.06n gs21.04n gs20.03n gs19.01n

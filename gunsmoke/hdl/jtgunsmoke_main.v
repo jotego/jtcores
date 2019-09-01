@@ -108,10 +108,11 @@ always @(*) begin
                 2'b10: // D0
                     char_cs = 1'b1; // D0CS
                 2'b11: // D8
-                    casez(A[3:0])
-                        4'b0_00?: scrposh_cs = 1'b1; 
-                        4'b0_010: scrposv_cs = 1'b1;
-                        4'b0_110: gfxen_cs   = 1'b1;
+                    if( !A[3] && !wr_n) case(A[2:0])
+                        3'b000: scrposh_cs = 2'b01; 
+                        3'b001: scrposh_cs = 2'b10; 
+                        3'b010: scrposv_cs = 1'b1;
+                        3'b110: gfxen_cs   = 1'b1;
                     endcase
             endcase
         3'b111: ram_cs = 1'b1;

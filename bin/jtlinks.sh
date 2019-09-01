@@ -13,3 +13,8 @@ for i in hdl mist mister ver; do
     echo $JTGNG_ROOT/$i
 done
 
+for j in 1943 1942 commando gunsmoke; do
+    if [ -e $JTGNG_ROOT/rom/$j ]; then
+        ln -f -s $JTGNG_ROOT/rom/$j $JTGNG_ROOT/$j/rom
+    fi
+done
