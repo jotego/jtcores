@@ -361,6 +361,7 @@ assign blcnten   = 'b0;
 
 `ifndef NOCOLMIX
 jt1943_colmix #(
+    .SCRPLANES     ( SCRPLANES      ),
     .BLANK_OFFSET  ( BLANK_OFFSET   ),
     .PALETTE_RED   ( PALETTE_RED    ),
     .PALETTE_GREEN ( PALETTE_GREEN  ),

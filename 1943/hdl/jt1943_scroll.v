@@ -89,7 +89,7 @@ end
 `ifndef TESTSCR1
 always @(posedge clk)
     if( rst ) begin
-        hpos <= 'd0;
+        hpos <= 16'd0;
     end else if(cen6) begin // same cen as main CPU
         if( scrposh_cs[1] && !wr_n ) hpos[15:8] <= din;
         if( scrposh_cs[0] && !wr_n ) hpos[ 7:0] <= din;

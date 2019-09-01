@@ -422,12 +422,14 @@ jt1943_video #(
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
-    .char_aw    ( 13              ),
     .main_aw    ( 17              ),
+    .char_aw    ( 13              ),
     .obj_aw     ( 17              ),
     .scr1_aw    ( 17              ),
+
     .snd_offset ( 22'h1_8000 >> 1 ),
     .char_offset( 22'h2_0000 >> 1 ),
+    .map1_offset( 22'h2_4000 >> 1 ),
     .scr1_offset( 22'h2_C000 >> 1 ),
     .obj_offset ((22'h2_C000 >> 1) + 22'h2_0000 )
 ) u_rom (

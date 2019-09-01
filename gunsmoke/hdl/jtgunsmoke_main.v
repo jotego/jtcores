@@ -127,7 +127,7 @@ always @(posedge clk)
         CHON      <= 1'b0;
         flip      <= 1'b0;
         sres_b    <= 1'b1;
-        {OBJON, SCRON } <= 2'd0;
+        {OBJON, SCRON } <= 2'b11;
     end
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
