@@ -59,6 +59,7 @@ module jtgunsmoke_main(
     input              bus_req,  // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
+    output  reg [ 2:0] obj_bank,
     // ROM access
     output  reg        rom_cs,
     output  reg [16:0] rom_addr,
@@ -72,7 +73,7 @@ module jtgunsmoke_main(
 
 wire [15:0] A;
 wire t80_rst_n;
-reg in_cs, ram_cs, misc_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
+reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
 wire rd_n, wr_n;
 
 assign RnW = wr_n;
@@ -85,7 +86,7 @@ always @(*) begin
     rom_cs        = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
-    misc_cs       = 1'b0;
+    bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
     scrposh_cs    = 1'b0;
@@ -99,10 +100,10 @@ always @(*) begin
                 2'b00: // C0
                     in_cs = 1'b1;
                 2'b01: // C8
-                    casez(A[3:0])
-                        4'b0_000: snd_latch_cs = 1'b1;
-                        4'b0_100: misc_cs      = 1'b1;  // ROM bank & screen flip
-                        4'b0_110: OKOUT        = 1'b1;
+                    if( !A[3] && !wr_n) case(A[2:0])
+                        3'b000: snd_latch_cs = 1'b1;
+                        3'b100: bank_cs      = 1'b1;  // ROM bank & screen flip
+                        3'b110: OKOUT        = 1'b1;
                         default:;
                     endcase
                 2'b10: // D0
@@ -113,6 +114,7 @@ always @(*) begin
                         3'b001: scrposh_cs = 2'b10; 
                         3'b010: scrposv_cs = 1'b1;
                         3'b110: gfxen_cs   = 1'b1;
+								default:;
                     endcase
             endcase
         3'b111: ram_cs = 1'b1;
@@ -123,15 +125,16 @@ end
 reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        bank      <=  'd0;
+        bank      <= 2'd0;
         scrposv   <= 8'd0;
         CHON      <= 1'b0;
         flip      <= 1'b0;
         sres_b    <= 1'b1;
-        {OBJON, SCRON } <= 2'b11;
+        obj_bank  <= 3'd0;
+        {OBJON, SCRON } <= 2'b00;
     end
     else if(cpu_cen) begin
-        if( misc_cs  && !wr_n ) begin
+        if( bank_cs  && !wr_n ) begin
             CHON     <=  cpu_dout[7];
             flip     <=  cpu_dout[6];
             sres_b   <= ~cpu_dout[5]; // inverted through NPN
@@ -142,6 +145,7 @@ always @(posedge clk)
         if( scrposv_cs ) scrposv <= cpu_dout;
         if( gfxen_cs ) begin
             {OBJON, SCRON } <= cpu_dout[5:4];
+            obj_bank        <= cpu_dout[2:0];
         end
     end
 
@@ -157,7 +161,7 @@ always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
                      2'b11, // undocumented. D5 & D4 what are those?
-                     1'b1,
+                     ~LVBL, // This was like this on 1943, just leaving it the same for now
                      1'b1,
                      start_button }; // START
         3'd1: cabinet_input = { 1'b1, joystick1 };
@@ -186,21 +190,16 @@ jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
 
 // Data bus input
 reg [7:0] cpu_din;
-wire [3:0] int_ctrl;
 wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
 
 always @(*)
-    if( irq_ack ) // Interrupt address
-        cpu_din = irq_vector;
-    else
     case( {ram_cs, char_cs, rom_cs, in_cs} )
         4'b10_00: cpu_din = ram_dout;
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;
         4'b00_01: cpu_din = cabinet_input;
-        default:   cpu_din = rom_data;
+        default:  cpu_din = rom_data;
     endcase
 
 // ROM ADDRESS: 32kB + 4 banks of 16kB
@@ -226,21 +225,23 @@ jtframe_z80wait #(1) u_wait(
     .wait_n     ( wait_n    )
 );
 
-// interrupt generation
-reg int_n;
+///////////////////////////////////////////////////////////////////
+// interrupt generation. 1943 Schematics page 5/9, parts 12J and 14K
+reg int_n, int_rqb, int_rqb_last;
+wire int_middle = V[7:5]!=3'd3;
+wire int_rqb_negedge = !int_rqb && int_rqb_last;
 
-always @(posedge clk) begin : irq_gen
-    reg LVBL_old;
-
-    if (rst) begin
-        int_n   <= 1'b1;
-    end else if(cen3) begin // H1 == cen3
-        LVBL_old<=LVBL;
+always @(posedge clk)
+    if(rst) begin
+        int_n <= 1'b1;
+    end else if(cpu_cen) begin
+        int_rqb_last <= int_rqb;
+        int_rqb <= LVBL && int_middle;
         if( irq_ack )
             int_n <= 1'b1;
-        else if(!LVBL && LVBL_old) int_n <= 1'b0;
+        else
+            if ( int_rqb_negedge ) int_n <= 1'b0;
     end
-end
 
 ///////////////////////////////////////////////////////////////////
 

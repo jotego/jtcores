@@ -83,7 +83,8 @@ wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire cpu_cen;
-wire char_busy, scr_busy;
+wire char_busy;
+wire [ 2:0] obj_bank;
 
 // ROM data
 wire [15:0] char_data;
@@ -97,7 +98,7 @@ wire [14:0] snd_addr;
 wire [13:0] map_addr;
 wire [12:0] char_addr;
 wire [16:0] scr_addr;
-wire [16:0] obj_addr;
+wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 
@@ -146,7 +147,7 @@ jtgunsmoke_dip u_dip(
     .dipsw_b    ( dipsw_b       )
 );
 
-wire LHBL_obj, LVBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -155,7 +156,7 @@ jtgng_timer u_timer(
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
-    .Hsub      ( Hsub     ),
+    .Hsub      (          ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
@@ -252,6 +253,7 @@ jtgunsmoke_main u_main(
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
     .OBJON      ( OBJON         ),
+    .obj_bank   ( obj_bank      ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -325,15 +327,22 @@ reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
 wire nc;
+wire [12:0] obj_AB2;
 
 jt1943_video #(
     .CHAR_PAL      ( "../../../rom/gunsmoke/g-01.03b" ),
     .CHAR_IDMSB0   ( 6                                ),
     .CHAR_VFLIP_XOR( 1'b1                             ),
     .CHAR_HFLIP_XOR( 1'b1                             ),
+    // Scroll
     .SCRPLANES     ( 1                                ),
     .SCR1_PALHI    ( "../../../rom/gunsmoke/g-06.14a" ),
     .SCR1_PALLO    ( "../../../rom/gunsmoke/g-07.15a" ),
+    // Objects
+    .OBJMAX        ( 9'h180                           ),
+    .OBJMAX_LINE   ( 5'd24                            ),
+    .OBJ_LAYOUT    ( 2                                ),
+    .OBJ_ROM_AW    ( 16                               ),
     // Colour mixer
     .PALETTE_RED   ( "../../../rom/gunsmoke/g-01.03b" ),
     .PALETTE_GREEN ( "../../../rom/gunsmoke/g-02.04b" ),
@@ -379,7 +388,7 @@ jt1943_video #(
     // OBJ
     .OBJON         ( OBJON         ),
     .HINIT         ( HINIT         ),
-    .obj_AB        ( obj_AB        ),
+    .obj_AB        ( obj_AB2       ),
     .obj_DB        ( main_ram      ),
     .obj_addr      ( obj_addr      ),
     .objrom_data   ( obj_data      ),
@@ -420,6 +429,9 @@ jt1943_video #(
     .blue          ( blue          )
 );
 
+assign obj_AB[8:0]  = { obj_AB2[11:5], obj_AB2[1:0] };
+assign obj_AB[12:9] = 4'hf;
+
 // Scroll data: Z, Y, X
 jtgng_rom #(
     .main_aw    ( 17              ),
@@ -431,7 +443,7 @@ jtgng_rom #(
     .char_offset( 22'h2_0000 >> 1 ),
     .map1_offset( 22'h2_4000 >> 1 ),
     .scr1_offset( 22'h2_C000 >> 1 ),
-    .obj_offset ((22'h2_C000 >> 1) + 22'h2_0000 )
+    .obj_offset ((22'h2_C000 >> 1) + 22'h1_0000 )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),

@@ -98,7 +98,7 @@ always @(posedge clk) if(cen6) begin
             2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
         endcase // selbus[1:0]
     else
-    case( selbus[1:0] )
+        case( selbus[1:0] )
             2'b00: pixel_mux[5:0] <= scr1_pxl_1;
             2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
             2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };

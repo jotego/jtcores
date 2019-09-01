@@ -18,7 +18,34 @@
 
 `timescale 1ns/1ps
 
-module jt1943_video(
+module jt1943_video #( parameter
+    // Characters
+    CHAR_PAL       = "../../../rom/1943/bm5.7f",
+    CHAR_IDMSB0    = 5,
+    CHAR_VFLIPEN   = 0,
+    CHAR_HFLIPEN   = 0,
+    CHAR_VFLIP_XOR = 1'b0,
+    CHAR_HFLIP_XOR = 1'b0,
+    // Scroll
+    SCRPLANES      = 2,    // 1 or 2
+    SCR1_PALHI     = "../../../rom/1943/bm9.6l",
+    SCR1_PALLO     = "../../../rom/1943/bm10.7l",
+    SCR2_PALHI     = "../../../rom/1943/bm11.12l",
+    SCR2_PALLO     = "../../../rom/1943/bm12.12m",
+    // From colour mixer:
+    BLANK_OFFSET   = 8,
+    PALETTE_RED    = "../../../rom/1943/bm1.12a",
+    PALETTE_GREEN  = "../../../rom/1943/bm2.13a",
+    PALETTE_BLUE   = "../../../rom/1943/bm3.14a",
+    PALETTE_PRIOR  = "../../../rom/1943/bm4.12c",
+    // From objects
+    OBJMAX         = 10'h1FF,
+    OBJMAX_LINE    = 5'd31,
+    OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
+    OBJ_ROM_AW     = 17,
+    OBJ_PALHI      = "../../../rom/1943/bm7.7c",
+    OBJ_PALLO      = "../../../rom/1943/bm8.8c"
+) (
     input               rst,
     input               clk,
     input               cen12,
@@ -59,7 +86,7 @@ module jt1943_video(
     // OBJ
     input               OBJON,
     input               HINIT,
-    output      [16:0]  obj_addr,
+    output      [OBJ_ROM_AW-1:0]  obj_addr,
     input       [15:0]  objrom_data,
     // shared bus
     output      [12:0]  obj_AB,
@@ -99,30 +126,6 @@ module jt1943_video(
     // Debug
     input       [3:0]   gfx_en
 );
-
-// Characters
-parameter CHAR_PAL       = "../../../rom/1943/bm5.7f";
-parameter CHAR_IDMSB0    = 5;
-parameter CHAR_VFLIPEN   = 0;
-parameter CHAR_HFLIPEN   = 0;
-parameter CHAR_VFLIP_XOR = 1'b0;
-parameter CHAR_HFLIP_XOR = 1'b0;
-// Scroll
-parameter SCRPLANES  = 2;    // 1 or 2
-parameter SCR1_PALHI = "../../../rom/1943/bm9.6l";
-parameter SCR1_PALLO = "../../../rom/1943/bm10.7l";
-parameter SCR2_PALHI = "../../../rom/1943/bm11.12l";
-parameter SCR2_PALLO = "../../../rom/1943/bm12.12m";
-// From colour mixer:
-parameter BLANK_OFFSET=8,
-          PALETTE_RED   = "../../../rom/1943/bm1.12a",
-          PALETTE_GREEN = "../../../rom/1943/bm2.13a",
-          PALETTE_BLUE  = "../../../rom/1943/bm3.14a",
-          PALETTE_PRIOR = "../../../rom/1943/bm4.12c";
-// From objects
-parameter OBJ_PALHI = "../../../rom/1943/bm7.7c";
-parameter OBJ_PALLO = "../../../rom/1943/bm8.8c";
-
 
 localparam SCR_OFFSET=4;
 
@@ -304,17 +307,17 @@ assign map2_addr = 14'h0;
 
 `ifndef NOOBJ
 jtgng_obj #(
-    .OBJMAX          ( 10'h1FF   ),
-    .OBJMAX_LINE     ( 5'd31     ),
-    .PXL_DLY         ( 8         ),
+    .OBJMAX          ( OBJMAX      ),
+    .OBJMAX_LINE     ( OBJMAX_LINE ),
+    .PXL_DLY         ( 8           ),
 
-    .ROM_AW          ( 17        ),
-    .LAYOUT          (  1        ),
-    .PALW            (  4        ),
-    .PALETTE         (  1        ),
-    .PALETTE1_SIMFILE( OBJ_PALHI ),
-    .PALETTE0_SIMFILE( OBJ_PALLO ),
-    .AVATAR_MAX      ( 8         ))
+    .ROM_AW          ( OBJ_ROM_AW  ),
+    .LAYOUT          ( OBJ_LAYOUT  ),
+    .PALW            (  4          ),
+    .PALETTE         (  1          ),
+    .PALETTE1_SIMFILE( OBJ_PALHI   ),
+    .PALETTE0_SIMFILE( OBJ_PALLO   ),
+    .AVATAR_MAX      ( 8           ))
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),

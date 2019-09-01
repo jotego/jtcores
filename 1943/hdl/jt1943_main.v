@@ -86,7 +86,6 @@ always @(*) begin
     rom_cs       = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
-    scrposv_cs    = 1'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
