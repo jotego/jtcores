@@ -1,11 +1,12 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgunsmoke_game.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgunsmoke_main.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgunsmoke_dip.v       ]
+# set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgunsmoke_video.v     ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_colmix.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_prom_we.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_video.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_scroll.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_video.v     ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_rom.v       ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_romrq.v     ]

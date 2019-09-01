@@ -101,8 +101,12 @@ module jt1943_video(
 );
 
 // Characters
-parameter CHAR_PAL    = "../../../rom/1943/bm5.7f";
-parameter CHAR_IDMSB0 = 5;
+parameter CHAR_PAL       = "../../../rom/1943/bm5.7f";
+parameter CHAR_IDMSB0    = 5;
+parameter CHAR_VFLIPEN   = 0;
+parameter CHAR_HFLIPEN   = 0;
+parameter CHAR_VFLIP_XOR = 1'b0;
+parameter CHAR_HFLIP_XOR = 1'b0;
 // Scroll
 parameter SCRPLANES  = 2;    // 1 or 2
 parameter SCR1_PALHI = "../../../rom/1943/bm9.6l";
@@ -142,15 +146,17 @@ wire [4:0] char_pal;
 wire [1:0] char_col;
 
 jtgng_char #(
-    .HOFFSET ( 0),
-    .ROM_AW  (14),
-    .IDMSB1  ( 7),
-    .IDMSB0  ( CHAR_IDMSB0 ), // 5 for 1943, 6 for GunSmoke
-    .PALW    ( 5),
-    .VFLIP_EN( 0),
-    .HFLIP_EN( 0),   // 1943 does not have character H/V flip
-    .PALETTE ( 1),
-    .PALETTE_SIMFILE(CHAR_PAL)
+    .HOFFSET   ( 0),
+    .ROM_AW    (14),
+    .IDMSB1    ( 7),
+    .IDMSB0    ( CHAR_IDMSB0 ), // 5 for 1943, 6 for GunSmoke
+    .PALW      ( 5),
+    .VFLIP_EN  ( CHAR_VFLIPEN   ),
+    .HFLIP_EN  ( CHAR_HFLIPEN   ),   // 1943 does not have character H/V flip
+    .VFLIP_XOR ( CHAR_VFLIP_XOR ),
+    .HFLIP_XOR ( CHAR_HFLIP_XOR ),
+    .PALETTE   ( 1              ),
+    .PALETTE_SIMFILE(CHAR_PAL   )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
