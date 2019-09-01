@@ -17,17 +17,17 @@
     Date: 27-10-2017 */
 
 module jtgng_sound(
-    input   rst,
-    input   clk,
-    input   cen3,   //  3   MHz
-    input   cen1p5, //  1.5 MHz
+    input           rst,
+    input           clk,
+    input           cen3,   //  3   MHz
+    input           cen1p5, //  1.5 MHz
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
     input           snd_int,
     // Sound control
-    input   enable_psg,
-    input   enable_fm,
+    input           enable_psg,
+    input           enable_fm,
     input   [7:0]   psg_gain,
     // ROM
     output  [14:0]  rom_addr,
