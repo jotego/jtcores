@@ -96,8 +96,8 @@ wire [16:0] main_addr;
 wire [14:0] snd_addr;
 wire [13:0] map_addr;
 wire [12:0] char_addr;
-wire [14:0] scr_addr;
-wire [15:0] obj_addr;
+wire [16:0] scr_addr;
+wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 
@@ -168,14 +168,14 @@ jtgng_timer u_timer(
 
 wire RnW;
 // sound
-wire sres_b, snd_int;
+wire sres_b;
 wire [7:0] snd_latch;
 
 wire        main_cs;
 wire CHON, OBJON, SCRON;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 8:0] obj_AB;
+wire [12:0] obj_AB;
 wire [ 7:0] main_ram;
 
 wire [12:0] prom_we;
@@ -232,7 +232,6 @@ jtgunsmoke_main u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
-    .snd_int    ( snd_int       ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -304,7 +303,7 @@ jtgng_sound #(.BIGROM(0)) u_sound (
     // Interface with main CPU
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
-    .snd_int        ( snd_int        ),
+    .snd_int        ( V[5]           ),
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
@@ -323,14 +322,16 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr1_ok, scr2_ok, char_ok;
-wire scr_ok = scr1_ok & scr2_ok;
+wire scr_ok, char_ok;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
+wire nc;
+
 jt1943_video #(
     .CHAR_PAL     ( "../../../rom/gunsmoke/g-01.03b" ),
+    .CHAR_IDMSB0  ( 6                                ),
     .SCRPLANES    ( 1                                ),
     .SCR1_PALHI   ( "../../../rom/gunsmoke/g-06.14a" ),
     .SCR1_PALLO   ( "../../../rom/gunsmoke/g-07.15b" ),
@@ -356,7 +357,7 @@ jt1943_video #(
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( char_dout     ),
-    .char_addr  ( char_addr     ),
+    .char_addr  ( {nc, char_addr}     ),
     .char_data  ( char_data     ),
     .char_wait  ( char_busy     ),
     .char_ok    ( char_ok       ),
@@ -424,8 +425,8 @@ jt1943_video #(
 jtgng_rom #(
     .char_aw    ( 13              ),
     .main_aw    ( 17              ),
-    .obj_aw     ( 16              ),
-    .scr1_aw    ( 15              ),
+    .obj_aw     ( 17              ),
+    .scr1_aw    ( 17              ),
     .snd_offset ( 22'h1_8000 >> 1 ),
     .char_offset( 22'h2_0000 >> 1 ),
     .scr1_offset( 22'h2_C000 >> 1 ),
@@ -441,8 +442,8 @@ jtgng_rom #(
     .snd_cs      ( snd_cs        ),
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
-    .scr1_ok     ( scr1_ok       ),
-    .scr2_ok     ( scr2_ok       ),
+    .scr1_ok     ( scr_ok        ),
+    .scr2_ok     (               ),
     .char_ok     ( char_ok       ),
 
     .char_addr   ( char_addr     ),
@@ -450,7 +451,7 @@ jtgng_rom #(
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( 16'd0         ),
+    .scr2_addr   ( 15'd0         ),
     .map1_addr   ( map_addr      ),
     .map2_addr   ( 14'd0         ),
 

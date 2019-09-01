@@ -101,7 +101,8 @@ module jt1943_video(
 );
 
 // Characters
-parameter CHAR_PAL   = "../../../rom/1943/bm5.7f";
+parameter CHAR_PAL    = "../../../rom/1943/bm5.7f";
+parameter CHAR_IDMSB0 = 5;
 // Scroll
 parameter SCRPLANES  = 2;    // 1 or 2
 parameter SCR1_PALHI = "../../../rom/1943/bm9.6l";
@@ -144,7 +145,7 @@ jtgng_char #(
     .HOFFSET ( 0),
     .ROM_AW  (14),
     .IDMSB1  ( 7),
-    .IDMSB0  ( 5),
+    .IDMSB0  ( CHAR_IDMSB0 ), // 5 for 1943, 6 for GunSmoke
     .PALW    ( 5),
     .VFLIP_EN( 0),
     .HFLIP_EN( 0),   // 1943 does not have character H/V flip

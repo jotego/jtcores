@@ -33,7 +33,6 @@ module jtgunsmoke_main(
     input              LVBL,
     // Sound
     output  reg        sres_b, // sound reset
-    output  reg        snd_int,
     output  reg  [7:0] snd_latch,
     // Characters
     input        [7:0] char_dout,
@@ -47,14 +46,14 @@ module jtgunsmoke_main(
     output  reg        SCRON,
     output  reg        OBJON,
     // cabinet I/O
-    input   [5:0]      joystick1,
-    input   [5:0]      joystick2,
+    input   [6:0]      joystick1,
+    input   [6:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
-    input   [ 8:0]     obj_AB,
+    input   [12:0]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
     input              bus_req,  // Request bus
@@ -165,8 +164,8 @@ always @(*)
                      1'b1,
                      1'b1,
                      start_button }; // START
-        3'd1: cabinet_input = { 2'b1, joystick1 };
-        3'd2: cabinet_input = { 2'b1, joystick2 };
+        3'd1: cabinet_input = { 1'b1, joystick1 };
+        3'd2: cabinet_input = { 1'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;
@@ -177,7 +176,7 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-wire [12:0] RAM_addr = blcnten ? {4'b1111, obj_AB} : cpu_AB;
+wire [12:0] RAM_addr = blcnten ? obj_AB : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
@@ -231,33 +230,19 @@ jtframe_z80wait #(1) u_wait(
     .wait_n     ( wait_n    )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
-    .clk    ( clk          ),
-    .cen    ( cen6         ),
-    .data   ( prog_din     ),
-    .wr_addr( prog_addr    ),
-    .rd_addr( V[7:0]       ),
-    .we     ( prom_6l_we   ),
-    .q      ( int_ctrl     )
-);
-
 // interrupt generation
 reg int_n;
 
 always @(posedge clk) begin : irq_gen
-    reg LHBL_old;
+    reg LVBL_old;
 
     if (rst) begin
-        snd_int <= 1'b1;
         int_n   <= 1'b1;
     end else if(cen3) begin // H1 == cen3
-        // Schematic 7L - sound interrupter
-        snd_int <= int_ctrl[2];
-        // Schematic L6, L5 - main CPU interrupter
-        LHBL_old<=LHBL;
+        LVBL_old<=LVBL;
         if( irq_ack )
             int_n <= 1'b1;
-        else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0 | ~dip_pause;
+        else if(!LVBL && LVBL_old) int_n <= 1'b0;
     end
 end
 
