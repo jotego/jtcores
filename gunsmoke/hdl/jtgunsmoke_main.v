@@ -123,7 +123,7 @@ end
 
 // special registers
 reg [1:0] bank;
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst ) begin
         bank      <= 2'd0;
         scrposv   <= 8'd0;
@@ -132,6 +132,7 @@ always @(posedge clk)
         sres_b    <= 1'b1;
         obj_bank  <= 3'd0;
         {OBJON, SCRON } <= 2'b00;
+        snd_latch <= 8'd0;
     end
     else if(cpu_cen) begin
         if( bank_cs  && !wr_n ) begin
@@ -199,7 +200,7 @@ always @(*)
         4'b01_00: cpu_din = char_dout;
         4'b00_10: cpu_din = rom_data;
         4'b00_01: cpu_din = cabinet_input;
-        default:  cpu_din = rom_data;
+        default:  cpu_din = 8'hff;
     endcase
 
 // ROM ADDRESS: 32kB + 4 banks of 16kB
@@ -231,7 +232,7 @@ reg int_n, int_rqb, int_rqb_last;
 wire int_middle = V[7:5]!=3'd3;
 wire int_rqb_negedge = !int_rqb && int_rqb_last;
 
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if(rst) begin
         int_n <= 1'b1;
     end else if(cpu_cen) begin
