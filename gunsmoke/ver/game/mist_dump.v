@@ -14,8 +14,9 @@ module mist_dump(
         $dumpfile("test.lxt");
     end
     `ifdef LOADROM
-    always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
-        $display("DUMP starts");
+    //always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
+   initial begin 
+       $display("DUMP starts");
         $dumpvars(0,mist_test);
         $dumpon;
     end

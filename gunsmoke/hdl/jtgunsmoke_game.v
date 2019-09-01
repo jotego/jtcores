@@ -263,10 +263,6 @@ jtgunsmoke_main u_main(
     .joystick2   ( joystick2    ),
 
     .RnW        ( RnW           ),
-    // PROM 6L (interrupts)
-    .prog_addr  ( prog_addr[7:0]),
-    .prom_6l_we ( prom_6l       ),
-    .prog_din   ( prog_data[3:0]),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),

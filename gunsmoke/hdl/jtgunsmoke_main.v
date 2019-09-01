@@ -64,10 +64,6 @@ module jtgunsmoke_main(
     output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
-    // PROM 6L (interrupts)
-    input    [7:0]     prog_addr,
-    input              prom_6l_we,
-    input    [3:0]     prog_din,
     // DIP switches
     input              dip_pause,
     input    [7:0]     dipsw_a,
