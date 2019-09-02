@@ -20,6 +20,7 @@ module jtgng_objdraw #(parameter
     ROM_AW   = 16, 
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
+                    // 2: GunSmoke
     PALW     = 2,
     PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
