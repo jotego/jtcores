@@ -167,7 +167,7 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-wire RnW;
+wire wr_n, rd_n;
 // sound
 wire sres_b;
 wire [7:0] snd_latch;
@@ -252,6 +252,8 @@ jtgunsmoke_main u_main(
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
+    .rd_n       ( rd_n          ),
+    .wr_n       ( wr_n          ),
     .OBJON      ( OBJON         ),
     .obj_bank   ( obj_bank      ),
     // ROM
@@ -264,8 +266,6 @@ jtgunsmoke_main u_main(
     .coin_input  ( coin_input   ),
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
-
-    .RnW        ( RnW           ),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
@@ -273,11 +273,12 @@ jtgunsmoke_main u_main(
 );
 `else
 assign main_addr   = 17'd0;
+assign rd_n        = 'b1;
+assign wr_n        = 'b1;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
-assign RnW         = 1'b1;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
@@ -294,7 +295,7 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.BIGROM(0)) u_sound (
+jtgng_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -358,8 +359,8 @@ jt1943_video #(
     .cpu_AB        ( cpu_AB[10:0]  ),
     .V             ( V[7:0]        ),
     .H             ( H             ),
-    .rd_n          ( ~RnW          ),
-    .wr_n          ( RnW           ),
+    .rd_n          ( rd_n          ),
+    .wr_n          ( wr_n          ),
     .cpu_dout      ( cpu_dout      ),
     .flip          ( flip          ),
     .pause         ( pause         ),

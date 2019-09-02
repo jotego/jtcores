@@ -54,7 +54,8 @@ module jtgunsmoke_main(
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
     input   [12:0]     obj_AB,
-    output             RnW,
+    output             rd_n,
+    output             wr_n,
     output  reg        OKOUT,
     input              bus_req,  // Request bus
     output             bus_ack,  // bus acknowledge
@@ -74,9 +75,6 @@ module jtgunsmoke_main(
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
-wire rd_n, wr_n;
-
-assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen3;
@@ -89,12 +87,13 @@ always @(*) begin
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
-    scrposh_cs    = 1'b0;
+    scrposh_cs    = 2'b0;
     scrposv_cs    = 1'b0;
     gfxen_cs      = 1'b0;
     OKOUT         = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
+        3'b0??: rom_cs = 1'b1;
+        3'b10?: rom_cs = 1'b1; // bank
         3'b110: // CXXX, DXXX
             case(A[12:11])
                 2'b00: // C0
@@ -140,6 +139,9 @@ always @(posedge clk, posedge rst)
             flip     <=  cpu_dout[6];
             sres_b   <= ~cpu_dout[5]; // inverted through NPN
             bank     <=  cpu_dout[3:2];
+            `ifdef SIMULATION
+            $display("Bank changed to %d", cpu_dout[3:2]);
+            `endif
             // bits 0, 1 are coin counters.
         end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
@@ -209,23 +211,6 @@ always @(*) begin
     rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + { 1'b0, bank});
 end
 
-/////////////////////////////////////////////////////////////////
-// wait_n generation
-wire wait_n;
-
-jtframe_z80wait #(1) u_wait(
-    .rst_n      ( t80_rst_n ),
-    .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
-    // manage access to shared memory
-    .dev_busy   ( char_busy ),
-    // manage access to ROM data from SDRAM
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-
-    .wait_n     ( wait_n    )
-);
-
 ///////////////////////////////////////////////////////////////////
 // interrupt generation. 1943 Schematics page 5/9, parts 12J and 14K
 reg int_n, int_rqb, int_rqb_last;
@@ -243,6 +228,23 @@ always @(posedge clk, posedge rst)
         else
             if ( int_rqb_negedge ) int_n <= 1'b0;
     end
+
+/////////////////////////////////////////////////////////////////
+// wait_n generation
+wire wait_n;
+
+jtframe_z80wait #(1) u_wait(
+    .rst_n      ( t80_rst_n ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+    // manage access to shared memory
+    .dev_busy   ( char_busy ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    ),
+
+    .wait_n     ( wait_n    )
+);
 
 ///////////////////////////////////////////////////////////////////
 

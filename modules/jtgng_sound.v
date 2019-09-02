@@ -47,20 +47,6 @@ wire [15:0] A;
 assign rom_addr = A[14:0];
 
 reg fm1_cs,fm0_cs, latch_cs, ram_cs;
-// reg [4:0] map_cs;
-// 
-// assign { rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs } = map_cs;
-// 
-// reg [7:0] AH;
-// 
-// always @(*)
-//     casez(A[15:11])
-//         5'b0???_?: map_cs = 5'h10; // 0000-7FFF, ROM
-//         5'b1100_0: map_cs = 5'h1;  // C000-C7FF, RAM
-//         5'b1100_1: map_cs = 5'h2;  // C800-C8FF, Sound latch
-//         5'b1110_0: map_cs = A[1] ? 5'h8 : 5'h4; // E000-E0FF, Yamaha
-//         default: map_cs = 5'h0;
-//     endcase
 
 wire mreq_n, rfsh_n;
 
