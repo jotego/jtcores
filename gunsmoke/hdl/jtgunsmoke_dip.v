@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 20-10-2019 */
+    Date: 3-8-2019 */
 
 `timescale 1ns/1ps
 
@@ -31,6 +31,7 @@ module jtgunsmoke_dip(
 
 wire       dip_upright   = 1'b1;
 wire       dip_demosnd   = 1'b0;
+wire       dip_demo      = 1'b0;
 wire       dip_continue  = 1'b1;
 wire [2:0] dip_price     = ~3'b0;
 reg  [1:0] dip_level;
@@ -47,7 +48,7 @@ always @(posedge clk)
     endcase
 
 
-assign dipsw_a = {dip_test, dip_pause, dip_level, dip_upright, dip_lives, dip_bonus };
-assign dipsw_b = {dip_demosnd, dip_continue, 2'b11, dip_price };
+assign dipsw_a = {dip_test, dip_pause, dip_level, dip_upright, dip_demo, dip_bonus };
+assign dipsw_b = {dip_demosnd, dip_continue, 3'b111, dip_price };
 
 endmodule

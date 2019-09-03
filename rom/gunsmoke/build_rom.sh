@@ -39,8 +39,6 @@ dump "SCROLL Z    " gs10.02c gs06.02a
 dump "Objects ZY  " gs22.06n gs18.06l gs21.04n gs17.04l  
 # upper bytes
 dump "Objects XW  " gs20.03n gs16.03l gs19.01n gs15.01l
-# dump "Objects ZY  " gs22.06n gs21.04n gs20.03n gs19.01n
-# dump "Objects XW  " gs18.06l gs17.04l gs16.03l gs15.01l
 
 # Not in SDRAM:
 dump "PROMs       " g-01.03b g-02.04b g-03.05b g-04.09d g-06.14a g-07.15a g-09.09f g-08.08f g-10.02j g-05.01f

@@ -207,7 +207,7 @@ set_global_assignment -name VERILOG_MACRO "MISTTOP=jtgunsmoke_mist"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
 
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
-# set_global_assignment -name VERILOG_MACRO "JTFRAME_SCAN2X=<None>"
+set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=1"
 
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll0.qip
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll1.qip
