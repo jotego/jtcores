@@ -434,9 +434,7 @@ jt1943_video #(
 
 always @(*) begin
     obj_addr[13:0]  = pre_obj_addr[13:0];
-    // obj_addr[16:14] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
-    // try this one too:
-    obj_addr[16:14] = obj_bank != 3'd0 ? obj_bank + 3'b100 : {1'b0, pre_obj_addr[15:14]};
+    obj_addr[16:14] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
 end
 
 // Scroll data: Z, Y, X
