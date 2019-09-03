@@ -340,8 +340,8 @@ jt1943_video #(
     .SCR1_PALHI    ( "../../../rom/gunsmoke/g-06.14a" ),
     .SCR1_PALLO    ( "../../../rom/gunsmoke/g-07.15a" ),
     // Objects
-    //.OBJMAX        ( 9'h180                           ),
-    //.OBJMAX_LINE   ( 5'd24                            ),
+    .OBJMAX        ( 9'h180                           ),
+    .OBJMAX_LINE   ( 5'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),
     .OBJ_ROM_AW    ( 16                               ),
     // Colour mixer
@@ -390,7 +390,7 @@ jt1943_video #(
     // OBJ
     .OBJON         ( OBJON         ),
     .HINIT         ( HINIT         ),
-    .obj_AB        ( obj_AB2       ),
+    .obj_AB        ( obj_AB        ),
     .obj_DB        ( main_ram      ),
     .obj_addr      ( obj_addr      ),
     .objrom_data   ( obj_data      ),
@@ -430,9 +430,6 @@ jt1943_video #(
     .green         ( green         ),
     .blue          ( blue          )
 );
-
-assign obj_AB[8:0]  = { obj_AB2[11:5], obj_AB2[1:0] };
-assign obj_AB[12:9] = 4'hf;
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
