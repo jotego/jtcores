@@ -98,7 +98,7 @@ wire [14:0] snd_addr;
 wire [13:0] map_addr;
 wire [12:0] char_addr;
 wire [16:0] scr_addr;
-wire [15:0] obj_addr;
+wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 
@@ -282,6 +282,7 @@ assign flip        = 1'b0;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
+assign obj_bank    = 3'd0;
 `endif
 
 `ifndef NOSOUND
@@ -328,7 +329,7 @@ reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
 wire nc;
-wire [12:0] obj_AB2;
+wire [15:0] pre_obj_addr;
 
 jt1943_video #(
     .CHAR_PAL      ( "../../../rom/gunsmoke/g-01.03b" ),
@@ -392,7 +393,7 @@ jt1943_video #(
     .HINIT         ( HINIT         ),
     .obj_AB        ( obj_AB        ),
     .obj_DB        ( main_ram      ),
-    .obj_addr      ( obj_addr      ),
+    .obj_addr      ( pre_obj_addr  ),
     .objrom_data   ( obj_data      ),
     .OKOUT         ( OKOUT         ),
     .bus_req       ( bus_req       ), // Request bus
@@ -430,6 +431,13 @@ jt1943_video #(
     .green         ( green         ),
     .blue          ( blue          )
 );
+
+always @(*) begin
+    obj_addr[13:0]  = pre_obj_addr[13:0];
+    obj_addr[16:14] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
+    // try this one too:
+    // obj_addr[16:14] = obj_bank != 3'd0 ? obj_bank + 3'b100 : {1'b0, pre_obj_addr[15:14]};
+end
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
