@@ -391,7 +391,10 @@ wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
+    `ifdef MISTER
     .BRAM_MAIN  ( 1               ),
+    // .BRAM_SOUND ( 1               ),
+    `endif
     .char_aw    ( 13              ),
     .main_aw    ( 16              ),
     .obj_aw     ( 16              ),

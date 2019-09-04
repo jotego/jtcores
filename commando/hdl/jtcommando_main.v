@@ -84,7 +84,16 @@ wire rd_n, wr_n;
 assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
+`ifdef  MIST
+assign cpu_cen = cen6; // MiST cannot use internal BRAM for CPU ROM. 
+// In order to cope with the slow down problems
+// of the SDRAM access, I have to increase the CPU speed. 
+// Otherwise, graphic glitches occur in the scroll and character layers.
+`else
+// MiSTer and other platforms that can have no-delay reads for CPU ROM
+// can use the original CPU speed
 assign cpu_cen = cen3;
+`endif
 assign bus_ack = ~busak_n;
 
 always @(*) begin

@@ -69,7 +69,7 @@ generate
     reg [DW-1:0] pre_even, pre_odd;
     reg [DW-1:0] even, odd;
     integer j;
-    for( k=0; k<DW; k=k+1 ) begin
+    for( k=0; k<DW; k=k+1 ) begin : mux
         always @(*) begin
             pre_even[k] = 1'b0;
             for( j=0; j<UNITS; j=j+2 ) begin
