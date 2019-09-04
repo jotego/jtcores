@@ -75,6 +75,8 @@ always @(*) begin
     {PIC2, SH2 }  = hpos + { {6{SCHF[9]}},SCHF };
 end
 
+reg [4:0] SVmap; // SV latched at the time the map_addr is set
+
 always @(posedge clk) if(cen6) begin
     // always update the map at the same pixel count
     if( SH[2:0]==3'd7 ) begin
@@ -82,6 +84,7 @@ always @(posedge clk) if(cen6) begin
         HS[4:3] <= SH2[4:3];
         map_addr <= { PIC2, SH2[7:6], SV[7:5], SH2[5] }; // SH[5] is LSB
             // in order to optimize cache use
+        SVmap <= SV[4:0];
     end
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end
@@ -103,29 +106,29 @@ always @(posedge clk)
 wire [7:0] dout_high = map_data[ 7:0];
 wire [7:0] dout_low  = map_data[15:8];
 
-reg scr_hflip;
-reg [7:0] addr_lsb;
+reg  [7:0] addr_lsb;
+reg  [3:0] scr_attr0;
+reg        scr_hflip1;
 
-reg [4:0] scr_attr0;
-wire [4:0] scr_attr1;
-assign scr_attr1 = scr_attr0;
+wire scr_hflip = dout_high[6];
+wire scr_vflip = dout_high[7];
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     if( HS[2:0]==3'b1 ) begin // dout_high/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
-        scr_attr0 <= dout_high[6:2];
+        scr_attr0 <= dout_high[5:2];
         scr_addr[16:1] <= {   dout_high[0] & AS8MASK, dout_low, // AS
-                        HS[4:3]^{2{dout_high[6]}} /*scr_hflip*/,
-                        {5{dout_high[7] /*vflip*/}}^SV[4:0] }; /*vert_addr*/
+                        HS[4:3]^{2{scr_hflip}},
+                        SVmap^{5{scr_vflip}} }; /*vert_addr*/
         scr_addr[0] <= HS[2]^dout_high[6];
     end
-    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_attr0[4];
+    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
 end
 
 // Draw pixel on screen
 reg [3:0] w,x,y,z;
-reg [3:0] scr_attr2, scr_col0, scr_pal0;
+reg [3:0] scr_attr1, scr_col0, scr_pal0;
 
 // Character data delay
 // clock count      stage
@@ -139,12 +142,12 @@ reg [3:0] scr_attr2, scr_col0, scr_pal0;
 always @(posedge clk) if(cen6) begin
     if( HS[1:0]==2'd1 ) begin
             { z,y,x,w } <= scrom_data;
-            scr_hflip   <= scr_attr1[4] ^ flip; // must be ready when z,y,x are.
-            scr_attr2   <= scr_attr1[3:0];
+            scr_hflip1  <= scr_hflip ^ flip; // must be ready when z,y,x are.
+            scr_attr1   <= scr_attr0;
         end
     else
         begin
-            if( scr_hflip ) begin
+            if( scr_hflip1 ) begin
                 w <= {1'b0, w[3:1]};
                 x <= {1'b0, x[3:1]};
                 y <= {1'b0, y[3:1]};
@@ -157,8 +160,8 @@ always @(posedge clk) if(cen6) begin
                 z <= {z[2:0], 1'b0};
             end
         end
-    scr_col0  <= scr_hflip ? { w[0], x[0], y[0], z[0] } : { w[3], x[3], y[3], z[3] };
-    scr_pal0  <= scr_attr2;
+    scr_col0  <= scr_hflip1 ? { w[0], x[0], y[0], z[0] } : { w[3], x[3], y[3], z[3] };
+    scr_pal0  <= scr_attr1;
 end
 
 wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
