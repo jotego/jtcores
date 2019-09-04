@@ -41,6 +41,7 @@ initial begin
         $display("ERROR: UNITW is too large. %m ");
         $finish;
     end
+    $display("INFO: Units = %d \t\t %m", UNITS );
 end
 `endif
 
@@ -58,8 +59,8 @@ reg [(DW*UNITS)-1:0] bank_dout;
 generate
     genvar k;
     for( k=0; k<UNITS; k=k+1 ) begin : u
-        reg [DW-1:0] ram[2**UNITW];
         always @(posedge clk) begin : ctrl
+            reg [DW-1:0] ram[2**UNITW];
             bank_dout[ (DW*(k+1))-1:DW*k ] <= ram[lowa];
             if( we && bank_hot[k] ) ram[lowa] <= din;
         end
@@ -67,16 +68,18 @@ generate
 
     reg [DW-1:0] pre_even, pre_odd;
     reg [DW-1:0] even, odd;
-    genvar j;
+    integer j;
     for( k=0; k<DW; k=k+1 ) begin
-        for( j=0; j<UNITS; j=j+2 ) begin
-            always @(*) begin
-                    pre_even[k] = bank_hot[j] ? bank_dout[ k+DW*j] : 1'bz;
+        always @(*) begin
+            pre_even[k] = 1'b0;
+            for( j=0; j<UNITS; j=j+2 ) begin
+               if( bank_hot[j] ) pre_even[k] = bank_dout[ k+DW*j];
             end
         end
-        for( j=1; j<UNITS; j=j+2 ) begin
-            always @(*) begin
-                    pre_odd[k] = bank_hot[j] ? bank_dout[ k+DW*j] : 1'bz;
+        always @(*) begin
+            pre_odd[k] = 1'b0;
+            for( j=1; j<UNITS; j=j+2 ) begin
+               if( bank_hot[j] ) pre_odd[k] = bank_dout[ k+DW*j];
             end
         end
     end

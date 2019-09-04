@@ -87,8 +87,8 @@ module jtgng_rom #(parameter
     input       [31:0]  data_read
 );
 
-wire main_dwnld = prog_we && (prog_mask!=2'b11) && prog_addr < snd_offset;
-wire  snd_dwnld = prog_we && (prog_mask!=2'b11) && prog_addr < char_offset && prog_addr>=snd_offset;
+wire prog_main = prog_we && (prog_mask!=2'b11) && prog_addr < snd_offset;
+wire  prog_snd = prog_we && (prog_mask!=2'b11) && prog_addr < char_offset && prog_addr>=snd_offset;
 
 // Main code
 // bme01.12d -> 32kB
@@ -143,8 +143,9 @@ jtgng_romflex #(.AW(main_aw),.INVERT_A0(1), .USE_BRAM(BRAM_MAIN)) u_main(
     .req       ( main_req               ),
     .data_ok   ( main_ok                ),
     .we        ( data_sel[0]            ),
-    .dwnld     ( main_dwnld             ),
-    .dwnld_addr( prog_addr2[main_aw-1:0])
+    .prog_we   ( prog_main              ),
+    .prog_data ( prog_data              ),
+    .prog_addr ( prog_addr2[main_aw-1:0])
 );
 
 
@@ -161,8 +162,9 @@ jtgng_romflex #(.AW(snd_aw),.INVERT_A0(1), .USE_BRAM(BRAM_SOUND)) u_snd(
     .req       ( snd_req                ),
     .data_ok   ( snd_ok                 ),
     .we        ( data_sel[7]            ),
-    .dwnld     ( snd_dwnld              ),
-    .dwnld_addr( prog_addr2[snd_aw-1:0] )
+    .prog_we   ( prog_snd               ),
+    .prog_data ( prog_data              ),
+    .prog_addr ( prog_addr2[snd_aw-1:0] )
 );
 
 wire [15:0] char_preout;

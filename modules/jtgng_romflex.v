@@ -27,8 +27,9 @@ module jtgng_romflex #(parameter AW=18, INVERT_A0=0, USE_BRAM=0 )(
     input [31:0]        din,
     input               din_ok,
     input               we,
-    input               dwnld,
-    input      [AW-1:0] dwnld_addr,
+    input               prog_we,
+    input      [AW-1:0] prog_addr,
+    input      [   7:0] prog_data,
     output              req,
     output              data_ok,    // strobe that signals that data is ready
     output     [AW-1:0] addr_req,
@@ -57,15 +58,15 @@ end
 else begin
     reg [AW-1:0] a;
     always @(*) begin
-        a = dwnld ? dwnld_addr : { addr[AW-1:1], INVERT_A0 ? ~addr[0]:addr[0]};
+        a = prog_we ? prog_addr : { addr[AW-1:1], INVERT_A0 ? ~addr[0]:addr[0]};
     end
 
     jtgng_multiram #(.AW(AW), .DW(8), .UNITW(12))
     u_multi(
         .clk    (  clk        ),
         .addr   (  a          ),
-        .din    (  din        ),
-        .we     (  dwnld   ), // do not use the we input here!
+        .din    (  prog_data  ),
+        .we     (  prog_we    ), // do not use the we input here!
         .dout   (  dout       )
     );
     assign req = 1'b0;
