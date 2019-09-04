@@ -391,7 +391,7 @@ wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
-    //.BRAM_MAIN  ( 1               ),
+    .BRAM_MAIN  ( 1               ),
     .char_aw    ( 13              ),
     .main_aw    ( 16              ),
     .obj_aw     ( 16              ),

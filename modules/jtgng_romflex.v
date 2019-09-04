@@ -18,7 +18,7 @@
 
 `timescale 1ns/1ps
 
-module jtgng_romflex #(parameter AW=18, INVERT_A0=0 )(
+module jtgng_romflex #(parameter AW=18, INVERT_A0=0, USE_BRAM=0 )(
     input               rst,
     input               clk,
     input               cen,
@@ -34,8 +34,6 @@ module jtgng_romflex #(parameter AW=18, INVERT_A0=0 )(
     output     [AW-1:0] addr_req,
     output     [   7:0] dout
 );
-
-parameter USE_BRAM=0;
 
 generate
     
@@ -57,7 +55,7 @@ if( USE_BRAM==0 ) begin
     );
 end
 else begin
-    wire [AW-1:0] a;
+    reg [AW-1:0] a;
     always @(*) begin
         a = dwnld ? dwnld_addr : { addr[AW-1:1], INVERT_A0 ? ~addr[0]:addr[0]};
     end

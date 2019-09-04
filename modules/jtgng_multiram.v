@@ -26,14 +26,14 @@
 
 module jtgng_multiram #(parameter AW=18, UNITW=13, DW=8)(
     input               clk,
-    input   [AW-1:0]    addr,
-    input   [DW-1:0]    din,
+    input      [AW-1:0] addr,
+    input      [DW-1:0] din,
     input               we,
-    output  [DW-1:0]    dout
+    output reg [DW-1:0] dout
 );
 
-localparam MAXA  = 2^AW-1;
-localparam UNITS = (2^AW)>>UNITW;
+localparam MAXA  = 2**AW-1;
+localparam UNITS = (2**AW)>>UNITW;
 
 `ifdef SIMULATION
 initial begin
@@ -46,32 +46,44 @@ end
 
 wire [AW-UNITW-1:0] bank = addr[AW-1:UNITW];
 wire [UNITW-1:0]    lowa = addr[UNITW-1:0];
+localparam HOTW = 2**(AW-UNITW);
+reg  [HOTW-1:0] bank_hot;
+
+always @(*) begin
+    bank_hot = {HOTW{1'b0}};
+    bank_hot[bank] = 1'b1;
+end
 
 reg [(DW*UNITS)-1:0] bank_dout;
 generate
     genvar k;
     for( k=0; k<UNITS; k=k+1 ) begin : u
-        reg [DW-1:0] ram[2^UNIT];
-        always @(posedge clk) begin
+        reg [DW-1:0] ram[2**UNITW];
+        always @(posedge clk) begin : ctrl
             bank_dout[ (DW*(k+1))-1:DW*k ] <= ram[lowa];
-            if( we && bank==k ) ram[lowa] <= din;
+            if( we && bank_hot[k] ) ram[lowa] <= din;
         end
     end
 
+    reg [DW-1:0] pre_even, pre_odd;
     reg [DW-1:0] even, odd;
-    always @(posedge clk) begin
-        for( k=0; k<UNITS; k=k+2 ) begin
-            if( bank==k ) even <= bank_dout[ (DW*(k+1))-1:DW*k ];
+    genvar j;
+    for( k=0; k<DW; k=k+1 ) begin
+        for( j=0; j<UNITS; j=j+2 ) begin
+            always @(*) begin
+                    pre_even[k] = bank_hot[j] ? bank_dout[ k+DW*j] : 1'bz;
+            end
+        end
+        for( j=1; j<UNITS; j=j+2 ) begin
+            always @(*) begin
+                    pre_odd[k] = bank_hot[j] ? bank_dout[ k+DW*j] : 1'bz;
+            end
         end
     end
 
     always @(posedge clk) begin
-        for( k=1; k<UNITS; k=k+2 ) begin
-            if( bank==k ) odd <= bank_dout[ (DW*(k+1))-1:DW*k ];
-        end
-    end
-
-    always @(posedge clk) begin
+        odd  <= pre_odd;
+        even <= pre_even;
         dout <= bank[0] ? odd : even;
     end
 
