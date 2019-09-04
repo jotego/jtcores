@@ -31,7 +31,10 @@ module jtgng_rom #(parameter
  map2_offset = 22'h20_000, // bmm23.8k, 32kB
  scr1_offset = 22'h24_000, // 10f/j, 11f/j, 12f/j, 14f/j 256kB
  scr2_offset = 22'h44_000, // 14k/l 64kB
-  obj_offset = 22'h4C_000  // 10a/c, 11a/c, 12a/c, 14a/c 256kB
+  obj_offset = 22'h4C_000, // 10a/c, 11a/c, 12a/c, 14a/c 256kB
+/// Selects whether ROM goes into SDRAM or BRAM
+   BRAM_MAIN =0,
+   BRAM_SOUND=0
 )(
     input               rst,
     input               clk,
@@ -50,6 +53,12 @@ module jtgng_rom #(parameter
     input       [scr2_aw-1:0]  scr2_addr, //  64 kB
     input       [13:0]  map1_addr, //  32 kB
     input       [13:0]  map2_addr, //  32 kB
+
+    // ROM download, only important if any of the BRAM parameters are set to 1
+    input       [ 7:0]  prog_data,
+    input       [ 1:0]  prog_mask,
+    input       [21:0]  prog_addr,
+    input               prog_we,  
 
     output  reg [15:0]  char_dout,
     output      [ 7:0]  main_dout,
@@ -77,6 +86,9 @@ module jtgng_rom #(parameter
     output  reg [21:0]  sdram_addr,
     input       [31:0]  data_read
 );
+
+wire main_dwnld = prog_we && (prog_mask!=2'b11) && prog_addr < snd_offset;
+wire  snd_dwnld = prog_we && (prog_mask!=2'b11) && prog_addr < char_offset && prog_addr>=snd_offset;
 
 // Main code
 // bme01.12d -> 32kB
@@ -116,35 +128,41 @@ always @(posedge clk) begin : download_watch
         download_ok <= 1'b1;
 end
 
-jtgng_romrq #(.AW(main_aw),.INVERT_A0(1)) u_main(
-    .rst      ( rst             ),
-    .clk      ( clk             ),
-    .cen      ( 1'b1            ),
-    .addr     ( main_addr       ),
-    .addr_ok  ( main_cs         ),
-    .addr_req ( main_addr_req   ),
-    .din      ( data_read       ),
-    .din_ok   ( data_rdy        ),
-    .dout     ( main_dout       ),
-    .req      ( main_req        ),
-    .data_ok  ( main_ok         ),
-    .we       ( data_sel[0]     )
+wire [22:0] prog_addr2 = { prog_addr[21:0], prog_mask[0] };
+
+jtgng_romflex #(.AW(main_aw),.INVERT_A0(1), .USE_BRAM(BRAM_MAIN)) u_main(
+    .rst       ( rst                    ),
+    .clk       ( clk                    ),
+    .cen       ( 1'b1                   ),
+    .addr      ( main_addr              ),
+    .addr_ok   ( main_cs                ),
+    .addr_req  ( main_addr_req          ),
+    .din       ( data_read              ),
+    .din_ok    ( data_rdy               ),
+    .dout      ( main_dout              ),
+    .req       ( main_req               ),
+    .data_ok   ( main_ok                ),
+    .we        ( data_sel[0]            ),
+    .dwnld     ( main_dwnld             ),
+    .dwnld_addr( prog_addr2[main_aw-1:0])
 );
 
 
-jtgng_romrq #(.AW(snd_aw),.INVERT_A0(1)) u_snd(
-    .rst      ( rst             ),
-    .clk      ( clk             ),
-    .cen      ( 1'b1            ),
-    .addr     ( snd_addr        ),
-    .addr_ok  ( snd_cs          ),
-    .addr_req ( snd_addr_req    ),
-    .din      ( data_read       ),
-    .din_ok   ( data_rdy        ),
-    .dout     ( snd_dout        ),
-    .req      ( snd_req         ),
-    .data_ok  ( snd_ok          ),
-    .we       ( data_sel[7]     )
+jtgng_romflex #(.AW(snd_aw),.INVERT_A0(1), .USE_BRAM(BRAM_SOUND)) u_snd(
+    .rst       ( rst                    ),
+    .clk       ( clk                    ),
+    .cen       ( 1'b1                   ),
+    .addr      ( snd_addr               ),
+    .addr_ok   ( snd_cs                 ),
+    .addr_req  ( snd_addr_req           ),
+    .din       ( data_read              ),
+    .din_ok    ( data_rdy               ),
+    .dout      ( snd_dout               ),
+    .req       ( snd_req                ),
+    .data_ok   ( snd_ok                 ),
+    .we        ( data_sel[7]            ),
+    .dwnld     ( snd_dwnld              ),
+    .dwnld_addr( prog_addr2[snd_aw-1:0] )
 );
 
 wire [15:0] char_preout;

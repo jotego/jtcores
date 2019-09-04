@@ -391,6 +391,7 @@ wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
+    //.BRAM_MAIN  ( 1               ),
     .char_aw    ( 13              ),
     .main_aw    ( 16              ),
     .obj_aw     ( 16              ),
@@ -442,7 +443,12 @@ jtgng_rom #(
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .refresh_en  ( refresh_en    ),
+
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       )
 );
 
 endmodule
