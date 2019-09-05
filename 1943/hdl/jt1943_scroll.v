@@ -29,6 +29,7 @@ module jt1943_scroll(
     input       [ 7:0] V128, // V128-V1
     input       [ 8:0] H, // H256-H1
     input              LVBL,
+    input              LHBL,
 
     input       [ 1:0] scrposh_cs,
     input       [ 7:0] vpos,
@@ -68,8 +69,15 @@ reg  [15:0] hpos, SP=16'd0; // called "SP" on the schematics
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
 
+// avoids VF changing in the middle of the line
+always @(posedge clk) begin : VFgen
+    reg last_LHBL;
+    last_LHBL <= LHBL;
+    if( !LHBL && last_LHBL )
+        VF <= {8{flip}}^V128;
+end
+
 always @(*) begin
-    VF = {8{flip}}^V128;
     SV = VF + vpos;
     {PIC, SH }  = SP + { {6{SCHF[9]}},SCHF };
     {PIC2, SH2 }  = hpos + { {6{SCHF[9]}},SCHF };
@@ -123,7 +131,7 @@ always @(posedge clk) if(cen6) begin
                         SVmap^{5{scr_vflip}} }; /*vert_addr*/
         scr_addr[0] <= HS[2]^dout_high[6];
     end
-    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip;
 end
 
 // Draw pixel on screen

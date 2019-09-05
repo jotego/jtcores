@@ -218,6 +218,7 @@ u_scroll1 (
     .V128         ( V[7:0]        ),
     .H            ( H             ),
     .LVBL         ( LVBL          ),
+    .LHBL         ( LHBL          ),
     .scrposh_cs   ( scr1posh_cs   ),
     `ifndef TESTSCR1
     .SCxON        ( SC1ON         ),
