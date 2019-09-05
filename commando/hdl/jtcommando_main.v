@@ -85,7 +85,7 @@ wire rd_n, wr_n;
 assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = cen3;
+assign cpu_cen = cen6;
 // `ifdef  MIST
 // assign cpu_cen = cen3; // MiST cannot use internal BRAM for CPU ROM. 
 // // In order to cope with the slow down problems
@@ -302,7 +302,7 @@ always @(posedge clk) begin : irq_gen
         end
         if( irq_ack )
             int_n <= 1'b1;
-        else if( pre_int2 && !last2 ) int_n <= 1'b0;
+        else if( pre_int2 && !last2 ) int_n <= 1'b0 | ~dip_pause;
     end
 end
 
