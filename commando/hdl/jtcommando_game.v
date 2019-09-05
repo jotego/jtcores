@@ -146,16 +146,14 @@ jtcommando_dip u_dip(
     .dipsw_b    ( dipsw_b       )
 );
 
-wire LHBL_obj, LVBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen12     ( cen12    ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
-    .Hsub      ( Hsub     ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
@@ -219,6 +217,7 @@ jtcommando_main u_main(
     .V          ( V             ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
+    .H1         ( H[0]          ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),

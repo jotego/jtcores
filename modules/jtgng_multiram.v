@@ -60,7 +60,7 @@ generate
     genvar k;
     for( k=0; k<UNITS; k=k+1 ) begin : u
         always @(posedge clk) begin : ctrl
-            reg [DW-1:0] ram[2**UNITW];
+            reg [DW-1:0] ram[0:2**UNITW-1];
             bank_dout[ (DW*(k+1))-1:DW*k ] <= ram[lowa];
             if( we && bank_hot[k] ) ram[lowa] <= din;
         end

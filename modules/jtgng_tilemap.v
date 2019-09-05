@@ -67,7 +67,7 @@ reg we_low, we_high;
 wire [7:0] mem_low, mem_high;
 
 reg last_H0;
-wire posedge_H0 = BUSY_ON_H0 ? (!last_H0 && H[0]) : 1'b1;
+wire posedge_H0 = BUSY_ON_H0 ? (!last_H0 && H[0] && pxl_cen) : 1'b1;
 
 always @(posedge clk) begin : busy_latch
     last_H0 <= H[0];
@@ -76,7 +76,7 @@ always @(posedge clk) begin : busy_latch
     else busy <= 1'b0;
 end
 
-always @(posedge clk) begin : scan_select
+always @(posedge clk) if(pxl_cen) begin : scan_select
     if( !cs )
         scan_sel <= 1'b1;
     else if(H[2:0]==DATAREAD)
