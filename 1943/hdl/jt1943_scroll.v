@@ -138,9 +138,9 @@ always @(posedge clk) if(cen6) begin
         scr_addr[16:1] <= {   dout_high[0] & AS8MASK, dout_low, // AS
                         HS[4:3]^{2{scr_hflip}},
                         SVmap^{5{scr_vflip}} }; /*vert_addr*/
-        scr_addr[0] <= HS[2]^dout_high[6];
+        scr_addr[0] <= HS[2]^dout_high[6]^flip;
     end
-    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip;
+    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
 end
 
 // Draw pixel on screen

@@ -5,17 +5,14 @@ import os
 ascii_conv = {
     '0':0, '1':1, '2':2, '3':3, '4':4, '5':5,
     '6':6, '7':7, '8':8, '9':9,
-    'a':0x41, 'b':0x42, 'c':0x43, 'd':0x44, 'e':0x45, 'f':0x46,
-    'g':0x47, 'h':0x48, 'i':0x49, 'j':0x4a, 'k':0x4b, 'l':0x4c,
-    'm':0x4d, 'n':0x4e, 'o':0x4f, 'p':0x50, 'q':0x51, 'r':0x52,
-    's':0x53, 't':0x54, 'u':0x55, 'v':0x56, 'w':0x57, 'x':0x58,
-    'y':0x59, 'z':0x5a, '.':0x5b, ',':0x2f, '=':0x3a,
-    'A':0x81, 'B':0x82, 'C':0x83, 'D':0x84, 'E':0x85, 'F':0x86,
-    'G':0x87, 'H':0x88, 'I':0x89, 'J':0x8a, 'K':0x8b, 'L':0x8c,
-    'M':0x8d, 'N':0x8e, 'O':0x8f, 'P':0x90, 'Q':0x91, 'R':0x92,
-    'S':0x93, 'T':0x94, 'U':0x95, 'V':0x96, 'W':0x97, 'X':0x98,
-    'Y':0x99, 'Z':0x9a,
-    ' ':0x20, '/':0x7f
+    'a':0xa,  'b':0xb,  'c':0xc,  'd':0xd,  'e':0xe,  'f':0xf,
+    'g':0x10, 'h':0x11, 'i':0x12, 'j':0x13, 'k':0x14, 'l':0x15,
+    'm':0x16, 'n':0x17, 'o':0x18, 'p':0x19, 'q':0x1a, 'r':0x1b,
+    's':0x1c, 't':0x1d, 'u':0x1e, 'v':0x1f, 'w':0x20, 'x':0x21,
+    'y':0x22, 'z':0x23, '.':0x2b, '-':0x37, '&':0x3a,
+    '!':0x66, '%':0x2d, '(':0x30, ')':0x31, '#':0x2f, ',':0x2a,
+    '-':0x37, '+':0x36, ':':0x2c, '/':0xc0, '=':0x38, '*':0x2d,
+    ' ':0x24
 }
 
 char_ram = [ 0x20 for x in range(0x400) ]
@@ -55,28 +52,28 @@ for col in range(256):
 
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("    cOMMANDO CLONE FOR fpga     ")
-print_char("    BROUGHT TO YOU BY JOTEGO.   ")
-print_char("  HTTP.//PATREON.COM/TOPAPATE   ")
+print_char("    commando clone for fpga     ")
+print_char("    brought to you by jotego.   ")
+print_char("  http.//patreon.com/topapate   ")
 print_char("                                ")
-print_char("       tHANKS TO MY PATRONS     ") 
+print_char("       thanks to my patrons     ") 
 print_char("                                ")
-print_char("    aNDREW mOORE                ")
-print_char("    aNDYWAYS                    ")
-print_char("    dAVE rOSS                   ")
-print_char("    dON gAFFORD                 ")
-print_char("    lESLIE lAW                  ")
-print_char("    mARY mARSHALL               ")
-print_char("    mATTHEW yOUNG               ")
-print_char("    oLIVER jAKSCH               ")
-print_char("    oSCAR lAGUNA gARCIA         ")
-print_char("    rOMAN bUSER                 ")
-print_char("    sEmbiance                   ") # I haven't got the Avater
-print_char("    sMOKEmONSTER                ")
-print_char("    sTEVEN wILSON               ")
-print_char("    uLTRAROBOTNINJA             ")
-print_char("    vICTOR gOMARIZ l. DE g.     ")
-print_char("    wILLIAM cLEMENS             ") # Declined the Avatar
+print_char("    andrew moore                ")
+print_char("    andyways                    ")
+print_char("    dave ross                   ")
+print_char("    don gafford                 ")
+print_char("    leslie law                  ")
+print_char("    mary marshall               ")
+print_char("    matthew young               ")
+print_char("    oliver jaksch               ")
+print_char("    oscar laguna garcia         ")
+print_char("    roman buser                 ")
+print_char("    sembiance                   ") # I haven't got the Avater
+print_char("    smokemonster                ")
+print_char("    steven wilson               ")
+print_char("    ultrarobotninja             ")
+print_char("    victor gomariz l. de g.     ")
+print_char("    william clemens             ") # Declined the Avatar
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
@@ -114,13 +111,13 @@ def convert_buf( buf, k, msg ):
 #           0123456789ABCDEF0123456789ABCDEF
 av_buf=bytearray(32*16)
 av_pos=0
-av_pos=convert_buf(av_buf,av_pos,"             sCRALINGS          ")
-av_pos=convert_buf(av_buf,av_pos,"             sUVERMAN           ")
-av_pos=convert_buf(av_buf,av_pos,"          fREDERIC mAHE         ")
-av_pos=convert_buf(av_buf,av_pos,"          jO tOMIYORI           ")
-av_pos=convert_buf(av_buf,av_pos,"           bRIAN sALLEE         ")
+av_pos=convert_buf(av_buf,av_pos,"             scralings          ")
+av_pos=convert_buf(av_buf,av_pos,"             suverman           ")
+av_pos=convert_buf(av_buf,av_pos,"          frederic mahe         ")
+av_pos=convert_buf(av_buf,av_pos,"          jo tomiyori           ")
+av_pos=convert_buf(av_buf,av_pos,"           brian sallee         ")
 av_pos=convert_buf(av_buf,av_pos,"             fullset            ")
-av_pos=convert_buf(av_buf,av_pos,"         pHILLIP mCmAHON        ")
-av_pos=convert_buf(av_buf,av_pos,"          dUSTIN hUBBARD        ")
-av_pos=convert_buf(av_buf,av_pos,"           dANIEL bAUZA         ")
+av_pos=convert_buf(av_buf,av_pos,"         phillip mcmahon        ")
+av_pos=convert_buf(av_buf,av_pos,"          dustin hubbard        ")
+av_pos=convert_buf(av_buf,av_pos,"           daniel bauza         ")
 save_hex( os.environ['JTGNG_ROOT']+"/gunsmoke/mist/msg_av.hex", av_buf )
