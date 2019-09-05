@@ -29,7 +29,7 @@ module jtgunsmoke_dip(
     output  [ 7:0]  dipsw_b
 );
 
-wire       dip_upright   = 1'b1;
+wire       dip_upright   = 1'b0;
 wire       dip_demosnd   = 1'b0;
 wire       dip_demo      = 1'b0;
 wire       dip_continue  = 1'b1;
