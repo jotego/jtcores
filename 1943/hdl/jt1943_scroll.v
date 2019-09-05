@@ -63,21 +63,30 @@ wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Correc
 
 reg  [ 4:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC, PIC2,SH2;
+wire [ 7:0] V128sh;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
 reg  [15:0] hpos, SP=16'd0; // called "SP" on the schematics
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
 
-// avoids VF changing in the middle of the line
-always @(posedge clk) begin : VFgen
-    reg last_LHBL;
-    last_LHBL <= LHBL;
-    if( !LHBL && last_LHBL )
-        VF <= {8{flip}}^V128;
-end
+// Because we process the signal a bit ahead of time
+// (exactly HOFFSET pixels ahead of time), this creates
+// an unbalance between the vertical line counter change
+// and the current output at the end of each line. It wasn't
+// noticeable in 1943, but it can be seen in GunSmoke
+// In order to avoid it, the V counter must be delayed by the same
+// HOFFSET amount
+jtgng_sh #(.width(8), .stages(HOFFSET) ) u_vsh
+(
+    .clk    ( clk     ),
+    .clk_en ( cen6    ),
+    .din    ( V128    ),
+    .drop   ( V128sh  )
+);
 
 always @(*) begin
+    VF = {8{flip}}^V128sh;
     SV = VF + vpos;
     {PIC, SH }  = SP + { {6{SCHF[9]}},SCHF };
     {PIC2, SH2 }  = hpos + { {6{SCHF[9]}},SCHF };
