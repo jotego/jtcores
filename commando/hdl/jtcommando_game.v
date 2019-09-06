@@ -146,16 +146,14 @@ jtcommando_dip u_dip(
     .dipsw_b    ( dipsw_b       )
 );
 
-wire LHBL_obj, LVBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen12     ( cen12    ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
-    .Hsub      ( Hsub     ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
@@ -219,6 +217,7 @@ jtcommando_main u_main(
     .V          ( V             ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
+    .H1         ( H[0]          ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
@@ -391,6 +390,10 @@ wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
+    `ifdef MISTER
+    .BRAM_MAIN  ( 1               ),
+    // .BRAM_SOUND ( 1               ),
+    `endif
     .char_aw    ( 13              ),
     .main_aw    ( 16              ),
     .obj_aw     ( 16              ),
@@ -442,7 +445,12 @@ jtgng_rom #(
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .refresh_en  ( refresh_en    ),
+
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       )
 );
 
 endmodule

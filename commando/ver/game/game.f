@@ -4,6 +4,8 @@
 ../../hdl/jtcommando_dip.v
 ../../../modules/jtgng_rom.v
 ../../../modules/jtgng_romrq.v
+../../../modules/jtgng_multiram.v
+../../../modules/jtgng_romflex.v
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v

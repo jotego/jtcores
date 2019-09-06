@@ -82,11 +82,11 @@ always @(posedge clk)
     end
 
 always @(*) begin
-    subaddr[1] <= addr[1];
+    subaddr[1] = addr[1];
     if( INVERT_A0 )
-        subaddr[0] <= ~addr[0];
+        subaddr[0] = ~addr[0];
     else
-        subaddr[0] <=  addr[0];
+        subaddr[0] =  addr[0];
 end
 
 // data_mux selects one of two cache registers

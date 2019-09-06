@@ -31,6 +31,7 @@ module jtcommando_main(
     input   [8:0]      V,
     input              LHBL,
     input              LVBL,
+    input              H1,
     // Sound
     output  reg        sres_b, // sound reset
     output  reg        snd_int,
@@ -84,7 +85,17 @@ wire rd_n, wr_n;
 assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = cen3;
+assign cpu_cen = cen6;
+// `ifdef  MIST
+// assign cpu_cen = cen3; // MiST cannot use internal BRAM for CPU ROM. 
+// // In order to cope with the slow down problems
+// // of the SDRAM access, I have to increase the CPU speed. 
+// // Otherwise, graphic glitches occur in the scroll and character layers.
+// `else
+// // MiSTer and other platforms that can have no-delay reads for CPU ROM
+// // can use the original CPU speed
+// assign cpu_cen = cen3;
+// `endif
 assign bus_ack = ~busak_n;
 
 always @(*) begin
@@ -239,6 +250,13 @@ jtframe_z80wait #(2) u_wait(
     .wait_n     ( wait_n    )
 );
 
+reg wait_cen;
+
+always @(negedge clk)
+    wait_cen <= wait_n;
+
+wire cpu_wait_cen = cpu_cen & wait_cen;
+
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
     .clk    ( clk          ),
     .cen    ( cen6         ),
@@ -251,109 +269,61 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
 
 // interrupt generation
 reg int_n;
+reg LHBL_posedge, H1_posedge;
+
+always @(posedge clk) begin : LHBL_edge
+    reg LHBL_old, H1_old;
+    LHBL_old<=LHBL;
+    LHBL_posedge <= !LHBL_old && LHBL;
+
+    H1_old <= H1;
+    H1_posedge <= !H1_old && H1;
+end
+
+reg pre_int;
+always @(posedge clk) begin
+    if( irq_ack )
+        pre_int <= 1'b0;
+    else if( LHBL_posedge ) pre_int <= int_ctrl[3];
+end
 
 always @(posedge clk) begin : irq_gen
-    reg LHBL_old;
-
+    reg pre_int2;
+    reg last2;
     if (rst) begin
         snd_int <= 1'b1;
         int_n   <= 1'b1;
-    end else if(cen3) begin // H1 == cen3
-        // Schematic 7L - sound interrupter
-        snd_int <= int_ctrl[2];
-        // Schematic L6, L5 - main CPU interrupter
-        LHBL_old<=LHBL;
+    end else begin
+        last2 <= pre_int2;
+        if( H1_posedge ) begin
+            // Schematic 7L - sound interrupter
+            snd_int  <= int_ctrl[2];
+            pre_int2 <= pre_int;
+        end
         if( irq_ack )
             int_n <= 1'b1;
-        else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0 | ~dip_pause;
+        else if( pre_int2 && !last2 ) int_n <= 1'b0 | ~dip_pause;
     end
 end
 
-///////////////////////////////////////////////////////////////////
-
-
-`ifdef SIMULATION
-`define Z80_ALT_CPU
-`endif
-
-//`ifdef NCVERILOG
-//`undef Z80_ALT_CPU
-//`endif
-
-`ifdef VERILATOR_LINT
-`define Z80_ALT_CPU
-`endif
-
-`ifndef Z80_ALT_CPU
-// This CPU is used for synthesis
-wire [211:0] z80_regs;
-`ifdef SIMULATION
-wire reg_IFF2;
-wire reg_IFF1;
-wire [1:0]  reg_IM;    // 4
-wire [15:0] reg_IY;
-wire [15:0] reg_HL_;
-wire [15:0] reg_DE_;
-wire [15:0] reg_BC_;
-wire [15:0] reg_IX;
-wire [15:0] reg_HL;
-wire [15:0] reg_DE;
-wire [15:0] reg_BC;
-wire [15:0] reg_PC;
-wire [15:0] reg_SP; // 164
-wire [7:0]  reg_R;
-wire [7:0]  reg_I;
-wire [7:0]  reg_F_;
-wire [7:0]  reg_A_;
-wire [7:0]  reg_F;
-wire [7:0]  reg_A;
-assign {
-    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_,
-    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I,
-    reg_F_, reg_A_, reg_F, reg_A } = z80_regs;
-`endif
-T80s u_cpu(
-    .RESET_n    ( t80_rst_n   ),
-    .CLK        ( clk         ),
-    .CEN        ( cpu_cen     ),
-    .WAIT_n     ( wait_n      ),
-    .INT_n      ( int_n       ),
-    .RD_n       ( rd_n        ),
-    .WR_n       ( wr_n        ),
+jtframe_z80 u_cpu(
+    .rst_n      ( t80_rst_n   ),
+    .clk        ( clk         ),
+    .cen        ( cpu_wait_cen),
+    .wait_n     ( 1'b1        ),
+    .int_n      ( int_n       ),
+    .nmi_n      ( 1'b1        ),
+    .busrq_n    ( ~bus_req    ),
+    .m1_n       ( m1_n        ),
+    .mreq_n     ( mreq_n      ),
+    .iorq_n     ( iorq_n      ),
+    .rd_n       ( rd_n        ),
+    .wr_n       ( wr_n        ),
+    .rfsh_n     ( rfsh_n      ),
+    .halt_n     (             ),
+    .busak_n    ( busak_n     ),
     .A          ( A           ),
-    .DI         ( cpu_din     ),
-    .DO         ( cpu_dout    ),
-    .IORQ_n     ( iorq_n      ),
-    .M1_n       ( m1_n        ),
-    .MREQ_n     ( mreq_n      ),
-    .NMI_n      ( 1'b1        ),
-    .BUSRQ_n    ( ~bus_req    ),
-    .BUSAK_n    ( busak_n     ),
-    .RFSH_n     ( rfsh_n      ),
-    .out0       ( 1'b0        )
+    .din        ( cpu_din     ),
+    .dout       ( cpu_dout    )
 );
-`else
-// This CPU is used for simulation
-tv80s #(.Mode(0)) u_cpu (
-    .reset_n( t80_rst_n  ),
-    .clk    ( clk        ),
-    .cen    ( cpu_cen    ),
-    .wait_n ( wait_n     ),
-    .int_n  ( int_n      ),
-    .nmi_n  ( 1'b1       ),
-    .busrq_n( ~bus_req   ),
-    .rd_n   ( rd_n       ),
-    .wr_n   ( wr_n       ),
-    .A      ( A          ),
-    .di     ( cpu_din    ),
-    .dout   ( cpu_dout   ),
-    .iorq_n ( iorq_n     ),
-    .m1_n   ( m1_n       ),
-    .mreq_n ( mreq_n     ),
-    .rfsh_n ( rfsh_n     ),
-    .busak_n( busak_n    ),
-    // unused
-    .halt_n ()
-);
-`endif
 endmodule // jtgng_main

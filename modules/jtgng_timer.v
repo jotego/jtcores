@@ -18,12 +18,10 @@
 
 module jtgng_timer(
     input               clk,
-    input               cen12,  // 12 MHz
     input               cen6,   //  6 MHz
     input               rst,
     output  reg [8:0]   V,
     output  reg [8:0]   H,
-    output  reg         Hsub,
     output  reg         Hinit,
     output  reg         Vinit,
     output  reg         LHBL,
@@ -45,17 +43,15 @@ parameter obj_offset=10'd3;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         { Hinit, H } <= 10'd135;
-        Hsub <= 1'b0;
-    end else if(cen12) begin
+    end else if(cen6) begin
         Hinit <= H == 9'h86;
-        Hsub  <= ~Hsub;
-        if( {H,Hsub} == {9'd511,1'b1} ) begin
+        if( H == 9'd511 ) begin
             //Hinit <= 1'b1;
             H <= 9'd128;
         end
         else begin
             //Hinit <= 1'b0;
-            H <= H + Hsub;
+            H <= H + 9'b1;
         end
     end
 end

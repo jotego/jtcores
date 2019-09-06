@@ -31,7 +31,8 @@ module jtgng_tilemap #(parameter
     SELBIT      = 2,
     INVERT_SCAN = 0,
     DATAREAD    = 3'd2,
-    SCANW       = 10
+    SCANW       = 10,
+    BUSY_ON_H0  = 0     // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
 ) (
     input            clk,
     input            pxl_cen /* synthesis direct_enable = 1 */,
@@ -65,15 +66,17 @@ reg [SCANW-1:0] addr;
 reg we_low, we_high;
 wire [7:0] mem_low, mem_high;
 
+reg last_H0;
+wire posedge_H0 = BUSY_ON_H0 ? (!last_H0 && H[0] && pxl_cen) : 1'b1;
+
 always @(posedge clk) begin : busy_latch
-    reg last_H0;
     last_H0 <= H[0];
-    if( cs && scan_sel)
+    if( cs && scan_sel && posedge_H0 )
         busy <= 1'b1;
-    else if( !H[0] && last_H0) busy <= 1'b0;
+    else busy <= 1'b0;
 end
 
-always @(posedge clk) begin : scan_select
+always @(posedge clk) if(pxl_cen) begin : scan_select
     if( !cs )
         scan_sel <= 1'b1;
     else if(H[2:0]==DATAREAD)
