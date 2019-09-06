@@ -19,8 +19,7 @@
 `timescale 1ns/1ps
 
 module jt1942_prom_we(
-    input                clk_rom,
-    input                clk_rgb,
+    input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
@@ -29,7 +28,9 @@ module jt1942_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask,
     output reg           prog_we,
-    output reg [9:0]     prom_we
+    output reg [9:0]     prom_we,
+    // detect whether the ROMs are for Vulgus
+    output reg           vulgus
 );
 
 // srb-03.m3  main    0x00000
@@ -76,7 +77,7 @@ reg [15:0] scr_offset;
 reg set_strobe, set_done;
 reg [9:0] prom_we0;
 
-always @(posedge clk_rgb) begin
+always @(posedge clk) begin
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
@@ -92,7 +93,7 @@ wire [3:0] region = {
     ioctl_addr < SCRUPPER, ioctl_addr < SCRADDR };
 `endif
 
-always @(posedge clk_rom) begin
+always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
@@ -138,6 +139,11 @@ always @(posedge clk_rom) begin
     else begin
         prog_we <= 1'b0;
     end
+end
+
+always @(posedge clk) begin
+    if( ioctl_wr && ioctl_addr[18:0]==19'h2 )
+        vulgus <= ioctl_data == 8'h0; // Vulgus has a 0 on byte 3 of the main CPU ROM for all versions
 end
 
 endmodule // jt1492_promprog

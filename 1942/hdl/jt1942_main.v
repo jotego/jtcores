@@ -30,6 +30,7 @@ module jt1942_main(
     output  reg        flip,
     input   [7:0]      V,
     input              LHBL,
+    input              vulgus,
     // Sound
     output  reg        sres_b, // sound reset
     output  reg        snd_int,
@@ -45,6 +46,7 @@ module jt1942_main(
     input              scr_busy,
     output  reg [2:0]  scr_br,
     output  reg [8:0]  scr_hpos,
+    output  reg [8:0]  scr_vpos,
     // cheat!
     input              cheat_invincible,
     // Object
@@ -70,7 +72,7 @@ module jt1942_main(
     output reg         coin_cnt,
     // PROM F1
     input    [7:0]     prog_addr,
-    input              prom_k6_we,
+    input              prom_irq_we,
     input    [3:0]     prog_din
 );
 
@@ -78,7 +80,7 @@ wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg t80_rst_n;
 reg in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
-reg [1:0]  scrpos_cs;
+reg scrpos_cs;
 
 wire mreq_n, rfsh_n;
 assign cpu_cen = cen3;
@@ -88,7 +90,7 @@ always @(*) begin
     ram_cs        = 1'b0;
     snd_latch0_cs = 1'b0;
     snd_latch1_cs = 1'b0;
-    scrpos_cs     = 2'b0;
+    scrpos_cs     = 1'b0;
     flip_cs       = 1'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
@@ -102,17 +104,16 @@ always @(*) begin
         3'b10?: rom_cs  = 1'b1; // bank
         3'b110: // cscd
             case(A[12:11])
-                2'b00: // COCS
+                2'b00: // C0CS
                     in_cs = 1'b1;
-                2'b01:
-                    if( A[10]==1'b1 )
+                2'b01: // C8
+                    if( A[10]==1'b1 ) // CC
                         obj_cs = 1'b1;
                     else if(!wr_n)
                         casez(A[2:0])
                             3'b000: snd_latch0_cs = 1'b1;
                             3'b001: snd_latch1_cs = 1'b1;
-                            3'b010: scrpos_cs     = 2'b01;
-                            3'b011: scrpos_cs     = 2'b10;
+                            3'b01?: scrpos_cs     = 1'b1;
                             3'b100: flip_cs       = 1'b1;
                             3'b101: brt_cs        = 1'b1;
                             3'b110: bank_cs       = 1'b1;
@@ -127,8 +128,20 @@ end
 
 // SCROLL H/V POSITION
 always @(posedge clk) if(cpu_cen) begin
-    if( scrpos_cs[1] ) scr_hpos[8]   <= cpu_dout[0];
-    if( scrpos_cs[0] ) scr_hpos[7:0] <= cpu_dout;
+    if( vulgus ) begin
+        case( {A[8], A[0]} )
+            2'b00: scr_hpos[7:0] <= cpu_dout;
+            2'b01: scr_hpos[  8] <= cpu_dout[0];
+            2'b10: scr_vpos[7:0] <= cpu_dout;
+            2'b11: scr_vpos[  8] <= cpu_dout[0];
+        endcase
+    end else begin // 1942
+        scr_vpos <= 8'h0;
+        if( A[0] )
+            scr_hpos[8]   <= cpu_dout[0];
+        else
+            scr_hpos[7:0] <= cpu_dout;
+    end
 end
 
 // special registers
@@ -239,7 +252,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .data   ( prog_din     ),
     .wr_addr( prog_addr    ),
     .rd_addr( V[7:0]       ),
-    .we     ( prom_k6_we   ),
+    .we     ( prom_irq_we  ),
     .q      ( int_ctrl     )
 );
 
