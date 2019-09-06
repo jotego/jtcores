@@ -175,7 +175,7 @@ jt1942_prom_we u_prom_we(
     .vulgus      ( vulgus        )
 );
 
-wire prom_irq_we    = prom_we[0];
+wire prom_irq_we   = prom_we[0];
 wire prom_d1_we    = prom_we[1];
 wire prom_d2_we    = prom_we[2];
 wire prom_d6_we    = prom_we[3];

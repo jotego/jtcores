@@ -63,14 +63,14 @@ always @(*) begin
     if( !char_blank_b || !gfx_en[0] ) begin
         // Object or scroll
         if( !obj_blank_b || !gfx_en[3])
-            pixel_mux[5:0] = gfx_en[2] ? scr_pxl : ~6'h0; // scroll wins
+            pixel_mux[5:0] = gfx_en[2]?(vulgus?{2'b0, scr_pxl[3:0]}:scr_pxl) : ~6'h0; // scroll wins
         else
             pixel_mux[5:0] = {1'b0, vulgus, obj_pxl }; // object wins
     end
     else begin // characters
         pixel_mux[5:0] = { vulgus, 1'b0, char_pxl };
     end
-    pixel_mux[7:6] = { char_blank_b, obj_blank_b };
+    pixel_mux[7:6] = vulgus ? scr_pxl[5:4] : { char_blank_b, obj_blank_b };
 end
 
 always @(posedge clk) if(cen6) begin
