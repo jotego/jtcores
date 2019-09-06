@@ -119,12 +119,10 @@ jt1942_dip u_dip(
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen12     ( cen12    ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
-    .Hsub      ( Hsub     ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
