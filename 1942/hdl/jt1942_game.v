@@ -110,6 +110,7 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
 jt1942_dip u_dip(
     .clk        ( clk           ),
     .status     ( status        ),
+    .vulgus     ( vulgus        ),
     .dip_pause  ( dip_pause     ),
     .dip_test   ( dip_test      ),
     .dip_flip   ( dip_flip      ),

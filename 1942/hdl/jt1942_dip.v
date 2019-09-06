@@ -21,6 +21,7 @@
 module jt1942_dip(
     input              clk,
     input      [31:0]  status,
+    input              vulgus,
 
     input              dip_pause,
     input              dip_test,
@@ -31,15 +32,21 @@ module jt1942_dip(
 );
 
 // Commando specific:
-wire          dip_upright = 1'b1;
+wire          dip_upright = 1'b0;
 wire [1:0]    dip_bonus   = ~status[17:16];
 wire [1:0]    dip_level   = ~status[21:20];
 wire [1:0]    dip_lives   = ~status[19:18];
 wire [2:0]    dip_price   = 3'b111;
 
 always @(posedge clk) begin
-    dipsw_a <= { dip_lives, dip_bonus, dip_upright, dip_price };
-    dipsw_b <= { dip_pause, dip_level, 1'b1, dip_test, 3'd7   };
+    if( vulgus ) begin
+        dipsw_a <= { dip_price, 2'b11, dip_price };
+        dipsw_b <= { dip_upright, dip_bonus,
+            1'b0 /* demo fx*/, 1'b1 /* demo music*/, 2'b11 };
+    end else begin
+        dipsw_a <= { dip_lives, dip_bonus, dip_upright, dip_price };
+        dipsw_b <= { dip_pause, dip_level, 1'b1, dip_test, 3'd7   };
+    end
 end
 
 endmodule

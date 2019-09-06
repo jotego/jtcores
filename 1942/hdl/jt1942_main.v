@@ -131,8 +131,8 @@ always @(posedge clk) if(cpu_cen) begin
     if( vulgus ) begin
         case( {A[8], A[0]} )
             2'b00: scr_hpos[7:0] <= cpu_dout;
-            2'b01: scr_hpos[  8] <= cpu_dout[0];
-            2'b10: scr_vpos[7:0] <= cpu_dout;
+            2'b01: scr_vpos[7:0] <= cpu_dout;
+            2'b10: scr_hpos[  8] <= cpu_dout[0];
             2'b11: scr_vpos[  8] <= cpu_dout[0];
         endcase
     end else begin // 1942

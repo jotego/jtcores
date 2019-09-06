@@ -27,11 +27,11 @@ dump "CHAR        " 1-3d.bin
 
 # note that SCROLL Z is repeated
 # lower bytes
-dump "SCROLL X    " 2-2a.bin 2-5a.bin
+dump "SCROLL X    " 2-2a.bin 2-7a.bin
 dump "SCROLL Z    " 2-3a.bin 2-6a.bin
 # upper bytes
+dump "SCROLL Y    " 2-4a.bin 2-5a.bin
 dump "SCROLL Y    " 2-4a.bin 2-7a.bin
-dump "SCROLL Z    " 2-3a.bin 2-6a.bin
 
 # lower bytes
 dump "Objects ZY  " 2-2n.bin 2-3n.bin
