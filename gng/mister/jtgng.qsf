@@ -383,6 +383,7 @@ set_global_assignment -name VERILOG_MACRO "CORENAME=\"JGNG\""
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtgng_game"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
 set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
+set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=2"
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=1"
 
 set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
