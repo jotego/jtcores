@@ -127,13 +127,13 @@ always @(*) begin
 end
 
 // SCROLL H/V POSITION
-always @(posedge clk) if(cpu_cen) begin
+always @(posedge clk) if(cpu_cen && scrpos_cs) begin
     if( vulgus ) begin
         case( {A[8], A[0]} )
-            2'b00: scr_hpos[7:0] <= cpu_dout;
-            2'b01: scr_vpos[7:0] <= cpu_dout;
-            2'b10: scr_hpos[  8] <= cpu_dout[0];
-            2'b11: scr_vpos[  8] <= cpu_dout[0];
+            2'b00: scr_vpos[7:0] <= cpu_dout;
+            2'b01: scr_hpos[7:0] <= cpu_dout;
+            2'b10: scr_vpos[  8] <= cpu_dout[0];
+            2'b11: scr_hpos[  8] <= cpu_dout[0];
         endcase
     end else begin // 1942
         scr_vpos <= 8'h0;
@@ -156,7 +156,7 @@ always @(posedge clk)
     end
     else if(cen3) begin
         if( bank_cs  ) begin
-            bank   <= cpu_dout[1:0];
+            bank   <= vulgus ? 2'd0 : cpu_dout[1:0];
             `ifdef SIMULATION
             $display("Bank changed to %d", cpu_dout[1:0]);
             `endif

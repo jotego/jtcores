@@ -31,6 +31,7 @@ module jt1942_colmix(
     input [3:0]     char_pxl,        // character color code
     input [5:0]     scr_pxl,
     input [3:0]     obj_pxl,
+    input           vulgus,
     // Palette PROMs E8, E9, E10
     input   [7:0]   prog_addr,
     input           prom_e8_we,
@@ -64,10 +65,10 @@ always @(*) begin
         if( !obj_blank_b || !gfx_en[3])
             pixel_mux[5:0] = gfx_en[2] ? scr_pxl : ~6'h0; // scroll wins
         else
-            pixel_mux[5:0] = {2'b0, obj_pxl }; // object wins
+            pixel_mux[5:0] = {1'b0, vulgus, obj_pxl }; // object wins
     end
     else begin // characters
-        pixel_mux[5:0] = { 2'b0, char_pxl };
+        pixel_mux[5:0] = { vulgus, 1'b0, char_pxl };
     end
     pixel_mux[7:6] = { char_blank_b, obj_blank_b };
 end

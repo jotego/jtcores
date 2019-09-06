@@ -221,9 +221,9 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
 );
 
 reg [3:0] pre_scr_pxl;
-always @(posedge clk) begin
-    pre_scr_pxl <= scr_pal_addr[3:0];
-    scr_pxl     <= vulgus ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
+always @(*) begin
+    pre_scr_pxl = scr_pal_addr[3:0];
+    scr_pxl     = vulgus ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
 end
 
 `else
@@ -267,6 +267,7 @@ jt1942_colmix u_colmix (
     .cen6       ( cen6          ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
+    .vulgus     ( vulgus        ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
     .scr_pxl    ( scr_pxl       ),

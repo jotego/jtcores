@@ -40,7 +40,7 @@ wire [2:0]    dip_price   = 3'b111;
 
 always @(posedge clk) begin
     if( vulgus ) begin
-        dipsw_a <= { dip_price, 2'b11, dip_price };
+        dipsw_a <= { dip_price, 2'b00, dip_price };
         dipsw_b <= { dip_upright, dip_bonus,
             1'b0 /* demo fx*/, 1'b1 /* demo music*/, 2'b11 };
     end else begin
