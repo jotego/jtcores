@@ -112,7 +112,7 @@ localparam CONF_STR="JTGNG;;";
 `else
 localparam CONF_STR = {
     `CORENAME,";;",
-    "O1,Pause,OFF,ON;",
+    "O1,Credits,OFF,ON;",
     `SEPARATOR
     // Common MiSTer options
     "F,rom;",
