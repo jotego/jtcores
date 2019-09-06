@@ -43,7 +43,7 @@ module jt1942_obj(
     // PROMs
     input   [7:0]      prog_addr,
     input              prom_m11_we,
-    input              prom_k3_we,
+    input              prom_pal_we,
     input   [3:0]      prog_din,
     // pixel output
     output       [3:0] obj_pxl
@@ -142,7 +142,7 @@ jt1942_objdraw u_draw(
     .obj_addr       ( obj_addr      ),
     // Palette PROM
     .prog_addr      ( prog_addr     ),
-    .prom_k3_we     ( prom_k3_we    ),
+    .prom_pal_we    ( prom_pal_we   ),
     .prog_din       ( prog_din      ),
     // pixel data
     .new_pxl        ( new_pxl       )

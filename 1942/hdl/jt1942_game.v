@@ -119,12 +119,10 @@ jt1942_dip u_dip(
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen12     ( cen12    ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
-    .Hsub      ( Hsub     ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
@@ -142,7 +140,7 @@ wire [7:0] snd_latch;
 wire main_cs, snd_cs;
 wire scr_cs, obj_cs;
 wire [2:0] scr_br;
-wire [8:0] scr_hpos;
+wire [8:0] scr_hpos, scr_vpos;
 
 // ROM data
 wire  [11:0]  char_addr;
@@ -156,11 +154,11 @@ wire  [14:0]  snd_addr;
 
 wire snd_latch0_cs, snd_latch1_cs, snd_int;
 wire char_busy, scr_busy;
+wire vulgus;
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
-    .clk_rom     ( clk           ),
-    .clk_rgb     ( clk           ),
+    .clk         ( clk           ),
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
@@ -172,19 +170,20 @@ jt1942_prom_we u_prom_we(
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_we       ),
+    .vulgus      ( vulgus        )
 );
 
-wire prom_k6_we  = prom_we[0];
-wire prom_d1_we  = prom_we[1];
-wire prom_d2_we  = prom_we[2];
-wire prom_d6_we  = prom_we[3];
-wire prom_e8_we  = prom_we[4];
-wire prom_e9_we  = prom_we[5];
-wire prom_e10_we = prom_we[6];
-wire prom_f1_we  = prom_we[7];
-wire prom_k3_we  = prom_we[8];
-wire prom_m11_we = prom_we[9];
+wire prom_irq_we    = prom_we[0];
+wire prom_d1_we    = prom_we[1];
+wire prom_d2_we    = prom_we[2];
+wire prom_d6_we    = prom_we[3];
+wire prom_red_we   = prom_we[4];
+wire prom_green_we = prom_we[5];
+wire prom_blue_we  = prom_we[6];
+wire prom_char_we  = prom_we[7];
+wire prom_obj_we   = prom_we[8];
+wire prom_m11_we   = prom_we[9];
 
 jt1942_main u_main(
     .rst        ( rst_game      ),
@@ -192,6 +191,7 @@ jt1942_main u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
+    .vulgus     ( vulgus        ),
     // sound
     .sres_b        ( sres_b        ),
     .snd_latch0_cs ( snd_latch0_cs ),
@@ -209,6 +209,7 @@ jt1942_main u_main(
     .scr_busy   ( scr_busy      ),
     .scr_dout   ( scram_dout    ),
     .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
     // video (other)
     .scr_br     ( scr_br        ),
     .obj_cs     ( obj_cs        ),
@@ -229,7 +230,7 @@ jt1942_main u_main(
     .joystick2   ( joystick2[5:0] ),
     // PROM K6
     .prog_addr  ( prog_addr[7:0]),
-    .prom_k6_we ( prom_k6_we    ),
+    .prom_irq_we( prom_irq_we   ),
     .prog_din   ( prog_data[3:0]),
     // Cheat
     .cheat_invincible( 1'b0 ),
@@ -286,6 +287,7 @@ jt1942_video u_video(
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
     .pause      ( ~dip_pause    ), //dipsw_a[7]    ),
+    .vulgus     ( vulgus        ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
@@ -301,6 +303,7 @@ jt1942_video u_video(
     .scr_busy   ( scr_busy      ),
     .scr_br     ( scr_br        ),
     .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
     // OBJ
     .obj_cs     ( obj_cs        ),
@@ -318,14 +321,14 @@ jt1942_video u_video(
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),
-    .prom_f1_we ( prom_f1_we    ),
+    .prom_char_we ( prom_char_we    ),
     .prom_d1_we ( prom_d1_we    ),
     .prom_d2_we ( prom_d2_we    ),
     .prom_d6_we ( prom_d6_we    ),
-    .prom_e8_we ( prom_e8_we    ),
-    .prom_e9_we ( prom_e9_we    ),
-    .prom_e10_we( prom_e10_we   ),
-    .prom_k3_we ( prom_k3_we    ),
+    .prom_e8_we ( prom_red_we   ),
+    .prom_e9_we ( prom_green_we ),
+    .prom_e10_we( prom_blue_we  ),
+    .prom_obj_we( prom_obj_we   ),
     .prom_m11_we( prom_m11_we   )
 );
 

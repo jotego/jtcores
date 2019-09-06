@@ -37,7 +37,7 @@ module jt1942_objdraw(
     input       [15:0] objrom_data,
     // Palette PROM
     input   [7:0]      prog_addr,
-    input              prom_k3_we,
+    input              prom_pal_we,
     input   [3:0]      prog_din,
     // pixel data
     output reg  [8:0]  posx,
@@ -157,7 +157,7 @@ jtgng_prom #(.aw(8),.dw(4),
     .data   ( prog_din       ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_k3_we     ),
+    .we     ( prom_pal_we     ),
     .q      ( prom_dout      )
 );
 

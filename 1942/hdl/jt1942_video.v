@@ -32,6 +32,7 @@ module jt1942_video(
     input               flip,
     input       [ 7:0]  cpu_dout,
     input               pause,
+    input               vulgus,
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
@@ -47,6 +48,7 @@ module jt1942_video(
     input       [23:0]  scrom_data,
     input       [ 2:0]  scr_br,
     input       [ 8:0]  scr_hpos,
+    input       [ 8:0]  scr_vpos,
     input               scr_ok,
     // OBJ
     input               obj_cs,
@@ -63,21 +65,21 @@ module jt1942_video(
     // PROM access
     input       [7:0]   prog_addr,
     input       [3:0]   prog_din,
-    input               prom_f1_we,
+    input               prom_char_we,
     input               prom_d1_we,
     input               prom_d2_we,
     input               prom_d6_we,
     input               prom_e8_we,
     input               prom_e9_we,
     input               prom_e10_we,
-    input               prom_k3_we,
+    input               prom_obj_we,
     input               prom_m11_we,
     // Debug
     input       [3:0]   gfx_en
 );
 
 wire [3:0] char_pxl, obj_pxl;
-wire [5:0] scr_pxl;
+reg  [5:0] scr_pxl;
 
 `ifndef NOCHAR
 wire [7:0] char_msg_low;
@@ -118,7 +120,7 @@ jtgng_char #(
     // PROM access
     .prog_addr  ( prog_addr     ),
     .prog_din   ( prog_din      ),
-    .prom_we    ( prom_f1_we    ),
+    .prom_we    ( prom_char_we  ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -162,6 +164,7 @@ jtgng_scroll #(
     .H            ( H             ),
     .V            ( V[7:0]        ),
     .hpos         ( scr_hpos      ),
+    .vpos         ( scr_vpos      ),
     .flip         ( flip          ),
     // bus arbitrion
     .Asel         ( cpu_AB[4]     ),
@@ -185,6 +188,7 @@ assign scr_pal_addr[7] = 1'b0;
 assign scr_pal_addr[6:4] = scr_br[2:0];
 
 // Scroll palette PROMs
+wire [5:0] scr_pal2;
 jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .clk    ( clk            ),
     .cen    ( cen6           ),
@@ -192,7 +196,7 @@ jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .rd_addr( scr_pal_addr   ),
     .wr_addr( prog_addr      ),
     .we     ( prom_d1_we     ),
-    .q      ( scr_pxl[5:4]   )
+    .q      ( scr_pal2[5:4]   )
 );
 
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
@@ -202,9 +206,10 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
     .rd_addr( scr_pal_addr   ),
     .wr_addr( prog_addr      ),
     .we     ( prom_d2_we     ),
-    .q      ( scr_pxl[3:0]   )
+    .q      ( scr_pal2[3:0]   )
 );
 
+// Vulgus only uses this PROM
 jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
     .clk    ( clk            ),
     .cen    ( cen6           ),
@@ -214,9 +219,16 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
     .we     ( prom_d6_we     ),
     .q      ( scr_pal_addr[3:0]  )
 );
+
+reg [3:0] pre_scr_pxl;
+always @(posedge clk) begin
+    pre_scr_pxl <= scr_pal_addr[3:0];
+    scr_pxl     <= vulgus ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
+end
+
 `else
 assign scr_wait_n = 1'b1;
-assign scr_pxl = ~6'h0;
+always @(*) scr_pxl = ~6'h0;
 `endif
 
 jt1942_obj u_obj(
@@ -241,8 +253,8 @@ jt1942_obj u_obj(
     .objrom_data    ( objrom_data ),
     // PROMs
     .prog_addr      ( prog_addr   ),
-    .prom_m11_we    ( prom_m11_we ),
-    .prom_k3_we     ( prom_k3_we  ),
+    .prom_m11_we    ( prom_m11_we ), // Object logic timing
+    .prom_pal_we    ( prom_obj_we ),
     .prog_din       ( prog_din    ),
     // pixel output
     .obj_pxl        ( obj_pxl   )
