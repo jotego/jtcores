@@ -91,7 +91,11 @@ always @(posedge clk) if(cen6) begin
     case( pxlcnt )
         4'd0: V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
         DATAREAD: begin
+            `ifdef VULGUS
+            pre_addr[14:10] <= { 1'b0, next_AD[7:4]};
+            `else // 1942
             pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
+            `endif
             case( next_vlen )
                 2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
                 2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
