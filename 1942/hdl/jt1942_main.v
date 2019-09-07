@@ -30,7 +30,7 @@ module jt1942_main(
     output  reg        flip,
     input   [7:0]      V,
     input              LHBL,
-    input              vulgus,
+    input              dip_pause,
     // Sound
     output  reg        sres_b, // sound reset
     output  reg        snd_int,
@@ -75,6 +75,8 @@ module jt1942_main(
     input              prom_irq_we,
     input    [3:0]     prog_din
 );
+
+parameter VULGUS=1'b0;
 
 wire [15:0] A;
 wire [ 7:0] ram_dout;
@@ -128,7 +130,7 @@ end
 
 // SCROLL H/V POSITION
 always @(posedge clk) if(cpu_cen && scrpos_cs) begin
-    if( vulgus ) begin
+    if( VULGUS ) begin
         case( {A[8], A[0]} )
             2'b00: scr_vpos[7:0] <= cpu_dout;
             2'b01: scr_hpos[7:0] <= cpu_dout;
@@ -156,7 +158,7 @@ always @(posedge clk)
     end
     else if(cen3) begin
         if( bank_cs  ) begin
-            bank   <= vulgus ? 2'd0 : cpu_dout[1:0];
+            bank   <= VULGUS ? 2'd0 : cpu_dout[1:0];
             `ifdef SIMULATION
             $display("Bank changed to %d", cpu_dout[1:0]);
             `endif
@@ -270,7 +272,8 @@ always @(posedge clk)
         LHBL_old<=LHBL;
         if( irq_ack )
             int_n <= 1'b1;
-        else if(LHBL && !LHBL_old && int_ctrl[3]) int_n <= 1'b0;
+        else if(LHBL && !LHBL_old && int_ctrl[3]) 
+            int_n <= VULGUS ? ~dip_pause : 1'b0;
     end
 
 wire wait_n;

@@ -28,9 +28,7 @@ module jt1942_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask,
     output reg           prog_we,
-    output reg [9:0]     prom_we,
-    // detect whether the ROMs are for Vulgus
-    output reg           vulgus
+    output reg [9:0]     prom_we
 );
 
 // srb-03.m3  main    0x00000
@@ -139,11 +137,6 @@ always @(posedge clk) begin
     else begin
         prog_we <= 1'b0;
     end
-end
-
-always @(posedge clk) begin
-    if( ioctl_wr && ioctl_addr[18:0]==19'h2 )
-        vulgus <= ioctl_data == 8'h0; // Vulgus has a 0 on byte 3 of the main CPU ROM for all versions
 end
 
 endmodule // jt1492_promprog

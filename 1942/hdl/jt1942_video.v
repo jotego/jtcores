@@ -32,7 +32,6 @@ module jt1942_video(
     input               flip,
     input       [ 7:0]  cpu_dout,
     input               pause,
-    input               vulgus,
     // CHAR
     input               char_cs,
     output      [ 7:0]  chram_dout,
@@ -77,6 +76,12 @@ module jt1942_video(
     // Debug
     input       [3:0]   gfx_en
 );
+
+`ifdef VULGUS
+localparam VULGUS = 1'b1;
+`else
+localparam VULGUS = 1'b0;
+`endif
 
 wire [3:0] char_pxl, obj_pxl;
 reg  [5:0] scr_pxl;
@@ -147,15 +152,26 @@ assign char_pxl = 4'hf;
 wire [2:0] scr_col;
 wire [4:0] scr_pal;
 
+// As scr_AB width differs depending on VULGUS
+// I think it is more clear to use `ifdef rather
+// than generate here.
+`ifdef VULGUS
+wire [8:0] scr_AB = cpu_AB[9:0];
+wire       scr_sel= cpu_AB[10];
+`else // 1942
+wire [7:0] scr_AB = cpu_AB[9:5], cpu_AB[3:0] };
+wire       scr_sel= cpu_AB[4];
+`endif
+
 jtgng_scroll #(
-    .HOFFSET(9'd0),
-    .ROM_AW  (14),
-    .IDMSB1  ( 7),
-    .IDMSB0  ( 7),
-    .VFLIP   ( 6),
-    .HFLIP   ( 5),
-    .PALW    ( 5),
-    .SCANW   ( 9)
+    .HOFFSET ( 9'd0    ),
+    .ROM_AW  ( 14      ),
+    .IDMSB1  ( 7       ),
+    .IDMSB0  ( 7       ),
+    .VFLIP   ( 6       ),
+    .HFLIP   ( 5       ),
+    .PALW    ( 5       ),
+    .SCANW   ( VULGUS ? 10 : 9 )
 ) u_scroll (
     .clk          ( clk           ),
     .pxl_cen      ( cen6          ),
@@ -167,8 +183,8 @@ jtgng_scroll #(
     .vpos         ( scr_vpos      ),
     .flip         ( flip          ),
     // bus arbitrion
-    .Asel         ( cpu_AB[4]     ),
-    .AB           ( { cpu_AB[9:5], cpu_AB[3:0] } ),
+    .Asel         ( scr_sel       ),
+    .AB           ( scr_AB        ),
     .scr_cs       ( scr_cs        ),
     .din          ( cpu_dout      ),
     .dout         ( scram_dout    ),
@@ -223,7 +239,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
 reg [3:0] pre_scr_pxl;
 always @(*) begin
     pre_scr_pxl = scr_pal_addr[3:0];
-    scr_pxl     = vulgus ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
+    scr_pxl     = VULGUS ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
 end
 
 `else
@@ -261,13 +277,12 @@ jt1942_obj u_obj(
 );
 
 `ifndef NOCOLMIX
-jt1942_colmix u_colmix (
+jt1942_colmix #(.VULGUS(VULGUS)) u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
-    .vulgus     ( vulgus        ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
     .scr_pxl    ( scr_pxl       ),

@@ -110,7 +110,6 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
 jt1942_dip u_dip(
     .clk        ( clk           ),
     .status     ( status        ),
-    .vulgus     ( vulgus        ),
     .dip_pause  ( dip_pause     ),
     .dip_test   ( dip_test      ),
     .dip_flip   ( dip_flip      ),
@@ -155,7 +154,13 @@ wire  [14:0]  snd_addr;
 
 wire snd_latch0_cs, snd_latch1_cs, snd_int;
 wire char_busy, scr_busy;
-wire vulgus;
+
+`ifdef VULGUS
+localparam VULGUS = 1'b1;
+`else
+localparam VULGUS = 1'b0;
+`endif
+
 
 wire [9:0] prom_we;
 jt1942_prom_we u_prom_we(
@@ -171,8 +176,7 @@ jt1942_prom_we u_prom_we(
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
 
-    .prom_we     ( prom_we       ),
-    .vulgus      ( vulgus        )
+    .prom_we     ( prom_we       )
 );
 
 wire prom_irq_we   = prom_we[0];
@@ -186,13 +190,12 @@ wire prom_char_we  = prom_we[7];
 wire prom_obj_we   = prom_we[8];
 wire prom_m11_we   = prom_we[9];
 
-jt1942_main u_main(
+jt1942_main #(.VULGUS(VULGUS)) u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
-    .vulgus     ( vulgus        ),
     // sound
     .sres_b        ( sres_b        ),
     .snd_latch0_cs ( snd_latch0_cs ),
@@ -201,6 +204,7 @@ jt1942_main u_main(
 
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
+    .dip_pause  ( dip_pause     ),
     // Char
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
@@ -288,7 +292,6 @@ jt1942_video u_video(
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
     .pause      ( ~dip_pause    ), //dipsw_a[7]    ),
-    .vulgus     ( vulgus        ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),

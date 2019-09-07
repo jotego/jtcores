@@ -119,7 +119,11 @@ wire [7:0] pal_addr = { CD, obj_wxyz};
 
 
 always @(posedge clk) if(cen6) begin
-    obj_wxyz <= {w[3],x[3],y[3],z[3]};
+    `ifdef VULGUS
+        obj_wxyz <= {y[3],z[3],w[3],x[3]};
+    `else
+        obj_wxyz <= {w[3],x[3],y[3],z[3]};
+    `endif
     if( pxlcnt == (DATAREAD+4'h1) ) begin //
         CD       <= CD2;
         VINZONE3 <= VINZONE2;

@@ -27,17 +27,18 @@ dump "CHAR        " 1-3d.bin
 
 # note that SCROLL Z is repeated
 # lower bytes
-dump "SCROLL X    " 2-7a.bin zeros
-dump "SCROLL Z    " zeros zeros
+dump "SCROLL Z    " 2-4a.bin 2-5a.bin
+dump "SCROLL X    " 2-2a.bin 2-3a.bin
 # upper bytes
-dump "SCROLL Y    " zeros zeros
-dump "SCROLL Y    " zeros zeros
+dump "SCROLL Y    " 2-6a.bin 2-7a.bin
+dump "SCROLL Y    " 2-6a.bin 2-7a.bin
+
 
 # lower bytes
-dump "Objects ZY  " 2-2n.bin 2-3n.bin
+dump "Objects XW  " 2-4n.bin 2-5n.bin
 dump "    repeat  " 2-2n.bin 2-3n.bin
 # upper bytes
-dump "Objects XW  " 2-4n.bin 2-5n.bin
+dump "Objects ZY  " 2-2n.bin 2-3n.bin
 dump "    repeat  " 2-4n.bin 2-5n.bin
 # Not in SDRAM:
 #  0    1   2  3    4  5  6   7   8     9
