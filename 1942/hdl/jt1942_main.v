@@ -119,8 +119,8 @@ always @(*) begin
                             3'b110: bank_cs       = 1'b1;
                             default:;
                         endcase
-                2'b10: char_cs = 1'b1; // DOCS
-                2'b11: scr_cs  = 1'b1; // SCRCE
+                2'b10: char_cs = 1'b1; // D0CS
+                2'b11: scr_cs  = 1'b1; // D8CS SCRCE
             endcase
         3'b111: ram_cs = A[12]==1'b0; // csef
     endcase

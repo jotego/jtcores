@@ -336,11 +336,11 @@ jt1942_video u_video(
 wire [7:0] scr_nc;
 
 jtgng_rom #(
-    .snd_offset (22'h0A000),
-    .char_offset(22'h0C000),
+    .snd_offset (22'h14000>>1),
+    .char_offset(22'h18000>>1),
     .scr1_offset(22'h1A000>>1),
     .scr2_offset(22'h22000>>1),
-    .obj_offset (22'h15000),
+    .obj_offset (22'h2A000>>1),
     .main_aw    ( 17      ),
     .snd_aw     ( 15      ),
     .char_aw    ( 12      ),
