@@ -16,9 +16,9 @@
 ##   Version: 1.0
 
 
-QUARTUS_VERSION = "17.0"
-DATE = "19:10:59 septiembre  8, 2019"
+QUARTUS_VERSION = "13.1"
+DATE = "${DATE}"
 
 # Revisions
 
-PROJECT_REVISION = "jt1943"
+PROJECT_REVISION = "jt${CORENAME}"

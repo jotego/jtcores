@@ -101,6 +101,20 @@ done
 
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
+function copy_templates {
+    datestr=$(date "+%H:%M:%S %B %e, %Y")
+    sedstr='s/${CORENAME}/'${PRJ}'/g;s/${DATE}/'${datestr}'/g'
+    sed "$sedstr" $JTGNG_ROOT/modules/templates/$MIST.qpf > $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qpf
+    sed "$sedstr" $JTGNG_ROOT/modules/templates/$MIST.qsf > $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
+    # MiST's tcl is always appended
+    cat $JTGNG_ROOT/$PRJ/mist/jt${PRJ}.tcl >> $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
+    # MiSTer's tcl is added if it exists
+    if [ $MIST = mister ]; then
+        if [ -e $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.tcl ]; then
+            cat $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.tcl >> $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.qsf
+        fi
+    fi
+}
 
 echo ==============================================
 echo jt$PRJ $MIST compilation starts at $(date +%T)
@@ -116,14 +130,12 @@ if [ $SKIP_COMPILE = FALSE ]; then
     mkdir -p $JTGNG_ROOT/log/$MIST
     LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
     echo Log file: $LOG 
+    copy_templates
     # Prepare macros
-    cp jt$PRJ.qsf jt$PRJ.qsf.bak
     for m in $MACROS; do
         echo -e "\n" set_global_assignment -name VERILOG_MACRO \"$m\" >> jt$PRJ.qsf
     done
     quartus_sh --flow compile jt$PRJ > "$LOG"
-    # restores the document without the macros
-    mv jt$PRJ.qsf.bak jt$PRJ.qsf
     if ! grep "Full Compilation was successful" "$LOG"; then
         grep -i error "$LOG" -A 2
         echo "ERROR while compiling the project. Aborting"
