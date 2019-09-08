@@ -368,33 +368,36 @@ set_location_assignment PIN_W20 -to SW[3]
 set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[0].gpll"
 set_location_assignment FRACTIONALPLL_X89_Y1_N0 -to "emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[1].gpll"
 
+set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
+
 ##################################################################
 ## Files
 ########################
 
 set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:../../modules/jtframe/hdl/mister/sys/build_id.tcl"
+set_global_assignment -name CDF_FILE jtag.cdf
 
 
 # MiSTer Framework
-
-# GnG
-set_global_assignment -name VERILOG_MACRO "MISTER=<None>"
-set_global_assignment -name VERILOG_MACRO "CORENAME=\"JGNG\""
-set_global_assignment -name VERILOG_MACRO "GAMETOP=jtgng_game"
-set_global_assignment -name VERILOG_MACRO "JT12=1"
-set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
-set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=2"
-# set_global_assignment -name VERILOG_MACRO "NOSOUND=1"
-
-set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
-set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
-set_global_assignment -name IO_PLACEMENT_OPTIMIZATION OFF
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/sys/pll.qip
-set_global_assignment -name CDF_FILE jtag.cdf
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mister/mister.qip
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
+set_global_assignment -name QIP_FILE ../../modules/jtgng_base.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mister.sv
-set_global_assignment -name QIP_FILE ../hdl/jtgng.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name QIP_FILE ../hdl/jtgng.qip
+
+set_global_assignment -name VERILOG_MACRO "MISTER=<None>"
+set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=2"
+set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTGNG\""
+set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
+set_global_assignment -name VERILOG_MACRO "GAMETOP=jtgng_game"
+set_global_assignment -name VERILOG_MACRO "MISTTOP=jtgng_mist"
+set_global_assignment -name VERILOG_MACRO "JT12=1"
+
+set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_comb.v
+set_global_assignment -name VERILOG_FILE ../../../jt12/hdl/mixer/jt12_interpol.v
+set_global_assignment -name VERILOG_FILE ../../../jt12/jt49/hdl/filter/jt49_dcrm2.v
+set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
