@@ -10,7 +10,9 @@
 *.log
 *.png
 sim
-1943/mist/*
+build_id.v
+*/mist/*
+*/mister/*
 1942/zxuno/*
 1942/mist/*
 1942/mister/*

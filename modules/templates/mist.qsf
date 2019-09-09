@@ -20,7 +20,7 @@
 
 set_global_assignment -name FAMILY "Cyclone III"
 set_global_assignment -name DEVICE EP3C25E144C8
-set_global_assignment -name TOP_LEVEL_ENTITY jt1943_mist
+set_global_assignment -name TOP_LEVEL_ENTITY jt${CORENAME}_mist
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:14:01  APRIL 10, 2012"
 set_global_assignment -name LAST_QUARTUS_VERSION 13.1
@@ -185,17 +185,7 @@ set_global_assignment -name QIP_FILE ../../modules/jtgng_pll1.qip
 set_global_assignment -name QIP_FILE ../../modules/jtgng_base.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mist.sv
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mist/mist.qip
-set_global_assignment -name QIP_FILE ../hdl/jt1943.qip
+set_global_assignment -name QIP_FILE ../hdl/jt${CORENAME}.qip
 
 set_global_assignment -name VERILOG_MACRO "MIST=<None>"
 
-set_global_assignment -name VERILOG_MACRO "CORENAME=\"JT1943\""
-set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
-set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
-set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1943_game"
-set_global_assignment -name VERILOG_MACRO "MISTTOP=jt1943_mist"
-set_global_assignment -name VERILOG_MACRO "JT12=1"
-
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
-set_global_assignment -name VERILOG_MACRO "OSD_NOBCK=<None>"

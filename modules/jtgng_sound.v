@@ -16,6 +16,9 @@
     Version: 1.0
     Date: 27-10-2017 */
 
+// This module is equivalent to the function
+// of CAPCOM's 85H001 package found in GunSmoke, GnG, etc.
+
 module jtgng_sound(
     input           rst,
     input           clk,
