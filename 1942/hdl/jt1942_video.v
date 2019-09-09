@@ -159,7 +159,7 @@ wire [4:0] scr_pal;
 wire [9:0] scr_AB = cpu_AB[9:0];
 wire       scr_sel= cpu_AB[10];
 `else // 1942
-wire [7:0] scr_AB = cpu_AB[9:5], cpu_AB[3:0] };
+wire [8:0] scr_AB = { cpu_AB[9:5], cpu_AB[3:0] };
 wire       scr_sel= cpu_AB[4];
 `endif
 

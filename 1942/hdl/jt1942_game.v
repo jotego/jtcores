@@ -364,6 +364,13 @@ jtgng_rom #(
     .scr2_ok     ( scr2_ok       ),
     .char_ok     ( char_ok       ),
 
+    // Unused pause features:
+    .pause       ( 1'b0          ),
+    .prog_we     ( 1'b0          ),
+    .prog_mask   ( 2'b11         ),
+    .prog_data   ( 8'h0          ),
+    .prog_addr   ( 22'h0         ),
+
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),

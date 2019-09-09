@@ -85,12 +85,12 @@ reg VINZONE2, VINZONE3;
 reg [8:0] objx, posx1;
 reg [3:0] CD2;
 
-localparam [3:0] DATAREAD = 4'h7;
+localparam [3:0] DATAREAD = 4'h9;
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt )
         4'd0: V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
-        DATAREAD: begin
+        4'd7: begin
             `ifdef VULGUS
             pre_addr[14:10] <= { 1'b0, next_AD[7:4]};
             `else // 1942

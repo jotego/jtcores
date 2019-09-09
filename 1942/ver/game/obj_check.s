@@ -1,7 +1,7 @@
     DI
 
     LD DE,$CC00
-    LD HL,SPRDATA
+    LD HL,GAMEPLAY
     LD BC,$80
     LDIR
 
