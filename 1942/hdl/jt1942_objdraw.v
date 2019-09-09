@@ -85,7 +85,7 @@ reg VINZONE2, VINZONE3;
 reg [8:0] objx, posx1;
 reg [3:0] CD2;
 
-localparam [3:0] DATAREAD = 4'h9;
+localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt )
