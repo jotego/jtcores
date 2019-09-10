@@ -339,6 +339,8 @@ jt1943_video #(
     .SCR1_PALHI    ( "../../../rom/gunsmoke/g-06.14a" ),
     .SCR1_PALLO    ( "../../../rom/gunsmoke/g-07.15a" ),
     // Objects
+    // DMA timing measured on real PCB was roughly 130us
+    // which correspons to these parameters:
     .OBJMAX        ( 9'h180                           ),
     .OBJMAX_LINE   ( 5'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),

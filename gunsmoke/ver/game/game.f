@@ -14,6 +14,8 @@
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_rom.v
+../../../modules/jtgng_romflex.v
+../../../modules/jtgng_multiram.v
 ../../../modules/jtgng_romrq.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
