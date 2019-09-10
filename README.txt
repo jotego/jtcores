@@ -22,7 +22,7 @@ In chronological order:
 
 How to continue the game
 ========================
-Most CAPCOM games of this era require to hold the fire button while pressing 1P to continue the game.
+Many CAPCOM games of this era require to hold the fire button while pressing 1P to continue the game.
 
 Project Structure
 =================
@@ -47,13 +47,23 @@ hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
 Compilation
 ===========
 
-I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend to use linux to compile the cores.
+I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
+
+Define a environment variable called JTGNG_ROOT with the path to the folder where
+you cloned jt_gng repository from Github.
 
 In the directory bin there is a command line utility called jtcore that will compile the given core. Like
 
 jtcore gng
 
-will compile Ghosts'n Goblins.
+will compile Ghosts'n Goblins for MiST.
+
+jtcore gng -mr
+
+will compile it for MiSTer.
+
+once compilation is triggered, Quartus qpf and qsf files are created. This files are not
+part of the repository as they are considered output files, not input.
 
 There is another file called update_cores.sh that will run jtcore over all supported cores in parallel.
 
