@@ -49,6 +49,8 @@ module jt1942_obj(
     output       [3:0] obj_pxl
 );
 
+parameter PXL_DLY=4;
+
 
 wire line, fill, line_obj_we;
 wire [7:0]  objbuf_data0, objbuf_data1, objbuf_data2, objbuf_data3;
@@ -149,6 +151,8 @@ jt1942_objdraw u_draw(
 );
 
 // line buffers for pixel data
+wire [3:0] obj_pxl0;
+
 jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -163,7 +167,15 @@ jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     .line           ( line          ),
     // pixel data
     .new_pxl        ( new_pxl       ),
-    .obj_pxl        ( obj_pxl       )
+    .obj_pxl        ( obj_pxl0      )
+);
+
+// Delay pixel output in order to be aligned with the other layers
+jtgng_sh #(.width(4), .stages(PXL_DLY)) u_sh(
+    .clk            ( clk           ),
+    .clk_en         ( cen6          ),
+    .din            ( obj_pxl0      ),
+    .drop           ( obj_pxl       )
 );
 
 endmodule

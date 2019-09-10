@@ -94,7 +94,7 @@ wire [5:0] char_pal;
 wire [1:0] char_col;
 
 jtgng_char #(
-    .HOFFSET (8'd0),
+    .HOFFSET (8'd4),
     .ROM_AW  (12),
     .IDMSB1  ( 7),
     .IDMSB0  ( 7),

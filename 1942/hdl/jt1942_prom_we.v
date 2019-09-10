@@ -66,7 +66,7 @@ module jt1942_prom_we(
 // sb-8.k3
 // sb-9.m11
 
-localparam SCRADDR = 22'h1A000, 
+parameter  SCRADDR = 22'h1A000, 
            SCRUPPER= 22'h22000,
            OBJADDR = 22'h2A000,
            PROMADDR= 22'h3A000;
