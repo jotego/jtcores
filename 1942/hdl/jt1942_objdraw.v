@@ -81,11 +81,11 @@ always @(*) begin
 end
 
 reg [14:0] pre_addr;
-reg VINZONE2, VINZONE3,VINZONE4;
+reg VINZONE2, VINZONE3;
 reg [8:0] objx, posx1, posx2;
 reg [3:0] CD2;
 
-localparam [3:0] DATAREAD = 4'd9; //6,8,9,10,11,12,16
+localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt )
@@ -113,7 +113,7 @@ end
 assign obj_addr[14:6] = pre_addr[14:6];
 assign obj_addr[ 4:1] = pre_addr[ 4:1];
 //assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
-assign { obj_addr[5], obj_addr[0] } = { pxlcnt[3]^~pxlcnt[2], ~pxlcnt[2]};
+assign { obj_addr[5], obj_addr[0] } = { pxlcnt[3]^~pxlcnt[2], ~pxlcnt[2]}-2'b1;
 
 // ROM data depacking
 
@@ -123,14 +123,14 @@ wire [7:0] pal_addr = { CD, obj_wxyz};
 
 
 always @(posedge clk) if(cen6) begin
-    if( pxlcnt == DATAREAD ) begin //
+    if( pxlcnt == 4'b1011 ) begin //
         CD       <= CD2;
         VINZONE3 <= VINZONE2;
         posx1<=objx;
     end else begin
         posx1 <= posx1 + 9'b1;
     end
-    if( pxlcnt[1:0] == DATAREAD[1:0] )
+    if( pxlcnt[1:0] == 2'b11 )
         {z,y,x,w} <= objrom_data;
     else begin
         z <= z << 1;
@@ -141,18 +141,19 @@ always @(posedge clk) if(cen6) begin
 end
 
 always @(*) begin
-    `ifdef VULGUS
-        obj_wxyz = {y[3],z[3],w[3],x[3]};
-    `else
-        obj_wxyz = {w[3],x[3],y[3],z[3]};
-    `endif
+`ifdef VULGUS
+    obj_wxyz = {y[3],z[3],w[3],x[3]};
+`else
+    obj_wxyz = {w[3],x[3],y[3],z[3]};
+`endif
 end
 
 wire [3:0] prom_dout;
+reg VINZONE4;
 
 always @(posedge clk ) if(cen6) begin
+    posx2 <= posx1;
     VINZONE4 <= VINZONE3;
-    posx2    <= posx1;
     if( !VINZONE4 ) begin
         new_pxl <= prom_dout;
         posx    <= posx2;
