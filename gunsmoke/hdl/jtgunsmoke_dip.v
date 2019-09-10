@@ -30,12 +30,12 @@ module jtgunsmoke_dip(
 );
 
 wire       dip_upright   = 1'b0;
-wire       dip_demosnd   = 1'b0;
+wire       dip_demosnd   = status[20]; // K
 wire       dip_demo      = 1'b0;
-wire       dip_continue  = 1'b1;
+wire       dip_continue  = ~status[21]; // L
 wire [2:0] dip_price     = ~3'b0;
 reg  [1:0] dip_level;
-reg  [1:0] dip_bonus     = 2'b01;
+reg  [1:0] dip_bonus     = ~status[19:18]; // I, J
 wire       dip_lives     = 1'b0;
 
 // play level
