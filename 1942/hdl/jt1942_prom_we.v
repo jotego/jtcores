@@ -19,8 +19,7 @@
 `timescale 1ns/1ps
 
 module jt1942_prom_we(
-    input                clk_rom,
-    input                clk_rgb,
+    input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
@@ -67,7 +66,7 @@ module jt1942_prom_we(
 // sb-8.k3
 // sb-9.m11
 
-localparam SCRADDR = 22'h1A000, 
+parameter  SCRADDR = 22'h1A000, 
            SCRUPPER= 22'h22000,
            OBJADDR = 22'h2A000,
            PROMADDR= 22'h3A000;
@@ -76,7 +75,7 @@ reg [15:0] scr_offset;
 reg set_strobe, set_done;
 reg [9:0] prom_we0;
 
-always @(posedge clk_rgb) begin
+always @(posedge clk) begin
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
@@ -92,7 +91,7 @@ wire [3:0] region = {
     ioctl_addr < SCRUPPER, ioctl_addr < SCRADDR };
 `endif
 
-always @(posedge clk_rom) begin
+always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
