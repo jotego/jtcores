@@ -291,7 +291,26 @@ jtgng_romrq #(.AW(obj_aw),.DW(16)) u_obj(
     );
     always @(posedge clk) obj_dout <= pause ? avatar_data : obj_preout;
 `else 
-    always @(*) obj_dout = obj_preout;
+
+    `ifndef OBJROMTEST
+        // Let the real data go through
+        always @(*) obj_dout = obj_preout;
+        initial begin
+            $display("INFO: direct OBJ");
+        end
+    `else
+        initial begin
+            $display("INFO: Using OBJ address as data read from ROM");
+        end
+        // Use the address as the data, but only when obj_ok is valid
+        always @(posedge clk) begin : objromtest
+            reg last_ok;
+            last_ok <= obj_ok;
+            if( obj_ok && !last_ok ) 
+                obj_dout = { {16-obj_aw{1'b0}}, obj_addr[obj_aw-1:0] };
+        end
+    `endif
+
 `endif
 
 `ifdef SIMULATION
