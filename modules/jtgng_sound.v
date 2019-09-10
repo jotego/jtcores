@@ -167,6 +167,7 @@ always @(posedge clk or negedge reset_n)
     if( !reset_n ) begin
         fm_wait  <= 2'b11;
     end else if(cen3) begin
+        last_fmx_cs <= fmx_cs;
         fm_wait  <= {  fm_wait[0], fmx_cs_posedge };
     end // else if(cen3)
 
@@ -176,7 +177,6 @@ always @(posedge clk or negedge reset_n)
     if( !reset_n )
         wait_n <= 1'b1;
     else begin
-        last_fmx_cs <= fmx_cs;
         last_rom_cs <= rom_cs;
         if( rom_cs && !last_rom_cs ) rom_lock <= 1'b1;
         if( rom_ok ) rom_lock <= 1'b0;
