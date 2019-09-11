@@ -35,7 +35,7 @@ wire       dip_demo      = 1'b0;
 wire       dip_continue  = ~status[21]; // L
 wire [2:0] dip_price     = ~3'b0;
 reg  [1:0] dip_level;
-reg  [1:0] dip_bonus     = ~status[19:18]; // I, J
+wire [1:0] dip_bonus     = ~status[19:18]; // I, J
 wire       dip_lives     = 1'b0;
 
 // play level
