@@ -163,7 +163,14 @@ localparam VULGUS = 1'b0;
 
 
 wire [9:0] prom_we;
-jt1942_prom_we u_prom_we(
+jt1942_prom_we 
+`ifdef VULGUS
+#( .SCRADDR   ( 22'h1_0000), 
+   .SCRUPPER  ( 22'h1_8000),
+   .OBJADDR   ( 22'h2_0000), 
+   .PROMADDR  ( 22'h2_8000)    )
+`endif
+u_prom_we(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
@@ -339,11 +346,19 @@ jt1942_video u_video(
 wire [7:0] scr_nc;
 
 jtgng_rom #(
+    `ifdef VULGUS
+    .snd_offset (22'h0A000>>1),
+    .char_offset(22'h0E000>>1),
+    .scr1_offset(22'h10000>>1),
+    .scr2_offset(22'h18000>>1),
+    .obj_offset (22'h20000>>1),
+    `else
     .snd_offset (22'h14000>>1),
     .char_offset(22'h18000>>1),
     .scr1_offset(22'h1A000>>1),
     .scr2_offset(22'h22000>>1),
     .obj_offset (22'h2A000>>1),
+    `endif
     .main_aw    ( 17      ),
     .snd_aw     ( 15      ),
     .char_aw    ( 12      ),
