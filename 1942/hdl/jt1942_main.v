@@ -189,7 +189,7 @@ reg [7:0] cabinet_input;
 
 always @(*)
     case( A[2:0] )
-        3'd0: cabinet_input = { coin_input, // COINS
+        3'd0: cabinet_input = { coin_input[0], coin_input[1], // COINS
                      4'hf, // undocumented. The game start screen has background when set to 0!
                      start_button }; // START
         3'd1: cabinet_input = { 2'b11, joystick1 };

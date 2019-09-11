@@ -130,8 +130,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
         mkdir $JTGNG_ROOT/$PRJ/mister
     fi
     for i in $JTGNG_ROOT/$PRJ/mist/{*hex,conf_str.v}; do
-        if [ ! -e "$i" ]; then
-            ln -s $i $JTGNG_ROOT/$PRJ/mister/$(basename $i)
+        j=$JTGNG_ROOT/$PRJ/mister/$(basename $i)
+        if [ ! -e "$j" ]; then
+            ln -s $i $j
         fi
     done
     # Update message file
