@@ -130,13 +130,14 @@ if [ $SKIP_COMPILE = FALSE ]; then
         mkdir $JTGNG_ROOT/$PRJ/mister
     fi
     for i in $JTGNG_ROOT/$PRJ/mist/{*hex,conf_str.v}; do
+        echo $i
         j=$JTGNG_ROOT/$PRJ/mister/$(basename $i)
         if [ ! -e "$j" ]; then
             ln -s $i $j
         fi
     done
     # Update message file
-    jt${PRJ}_msg.py
+    jt${PRJ}_msg.py || exit 1
     if ! cd $JTGNG_ROOT/$PRJ/$MIST; then
         exit 1
     fi
@@ -184,7 +185,7 @@ if [ $ZIP = TRUE ]; then
         exit 1
     fi
     cp $RBF $RELEASE.rbf
-    zip --update --junk-paths releases/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
+    zip --update --junk-paths releases/$MIST/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
         $(append_if_exists rom/{build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
     rm $RELEASE.rbf
 fi

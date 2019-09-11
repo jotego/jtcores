@@ -188,4 +188,6 @@ set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mist/mist.qip
 set_global_assignment -name QIP_FILE ../hdl/jt${CORENAME}.qip
 
 set_global_assignment -name VERILOG_MACRO "MIST=<None>"
+set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=2"
+set_global_assignment -name VERILOG_MACRO "MISTER_VIDEO_MIXER=<None>"
 

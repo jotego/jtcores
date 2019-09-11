@@ -2,19 +2,6 @@
 # Message in the pause menu
 import os
 
-ascii_conv = {
-    '0':0, '1':1, '2':2, '3':3, '4':4, '5':5,
-    '6':6, '7':7, '8':8, '9':9,
-    'a':0xa, 'b':0xb, 'c':0xc, 'd':0xd, 'e':0xe, 'f':0xf,
-    'g':0x10, 'h':0x11, 'i':0x12, 'j':0x13, 'k':0x14, 'l':0x15,
-    'm':0x16, 'n':0x17, 'o':0x18, 'p':0x19, 'q':0x1a, 'r':0x1b,
-    's':0x1c, 't':0x1d, 'u':0x1e, 'v':0x1f, 'w':0x20, 'x':0x21,
-    'y':0x22, 'z':0x23, '.':0x24, '-':0x25, '&':0x26, '?':0x27,
-    '!':0x28, '%':0x29, '(':0x2a, ')':0x2b, '#':0x2f, ',':0x34,
-    '-':0x35, '+':0x36, ':':0x44, '/':0x46, '=':0x4a, '*':0x4b,
-    ' ':0x70
-}
-
 char_ram = [ 0x70 for x in range(0x400) ]
 row=31
 
@@ -34,7 +21,7 @@ def print_char( msg ):
     global row
     pos = row
     for a in msg:
-        char_ram[pos] = ascii_conv[a.lower()]
+        char_ram[pos] = ord(a)
         pos = pos+32
     row = row-1
 
@@ -51,15 +38,22 @@ for col in range(256):
 #           01234567890123456789012345678901
 print_char("                                ")
 print_char("                                ")
-print_char("    Vulgus clone for fpga       ")
+print_char("    Vulgus clone for FPGA       ")
 print_char("    brought to you by jotego.   ")
-print_char("  http://patreon.com/topapate   ")
+print_char("  http.//patreon.com/topapate   ")
 print_char("                                ")
 print_char("       thanks to my patrons     ")
 print_char("                                ")
-print_char("  directors: scralings          ")
-print_char("             suvodip mitra      ")
-print_char("             frederic mahe      ")
+print_char("  Directors: Scralings          ")
+print_char("             Suv                ")
+print_char("             Frederic Mahe      ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("                                ")
+print_char("     Beta version               ")
+print_char("                                ")
+print_char("       DO NOT DISTRIBUTE        ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
@@ -67,13 +61,9 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
+print_char("                              , ")
+print_char("                              , ")
+print_char("                              , ")
 print_char("                              , ")
 print_char("                                ")
 print_char("                                ")

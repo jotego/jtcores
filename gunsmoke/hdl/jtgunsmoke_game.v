@@ -363,7 +363,7 @@ jt1943_video #(
     .rd_n          ( rd_n          ),
     .wr_n          ( wr_n          ),
     .cpu_dout      ( cpu_dout      ),
-    .flip          ( flip          ),
+    .flip          ( flip ^ dip_flip ), // no software support for DIP flip in GunSmoke
     .pause         ( pause         ),
     // CHAR
     .char_cs       ( char_cs       ),
