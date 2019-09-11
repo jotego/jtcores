@@ -117,15 +117,30 @@ function copy_templates {
 }
 
 echo ==============================================
-echo jt$PRJ $MIST compilation starts at $(date +%T)
-echo INFO: Macros used: $MACROS
+echo jt$PRsJ $MIST compilation starts at $(date +%T)
+if [ "$MACROS" != "" ]; then
+    echo INFO: Macros used: $MACROS
+else
+    echo INFO: No macros.
+fi
 
 if [ $SKIP_COMPILE = FALSE ]; then
+    # Create MiSTer folder if it doesn't exist
+    if [ ! -e $JTGNG_ROOT/$PRJ/mister ]; then
+        mkdir $JTGNG_ROOT/$PRJ/mister
+    fi
+    for i in $JTGNG_ROOT/$PRJ/mist/{*hex,conf_str.v}; do
+        if [ ! -e "$i" ]; then
+            ln -s $i $JTGNG_ROOT/$PRJ/mister/$(basename $i)
+        fi
+    done
     # Update message file
     jt${PRJ}_msg.py
-    # Recompile
-    cd $JTGNG_ROOT/$PRJ/$MIST
+    if ! cd $JTGNG_ROOT/$PRJ/$MIST; then
+        exit 1
+    fi
     echo "Moved to folder " $(pwd)
+    # Recompile
     rm -rf db incremental_db output_files
     mkdir -p $JTGNG_ROOT/log/$MIST
     LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
