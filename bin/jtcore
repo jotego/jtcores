@@ -186,7 +186,7 @@ if [ $ZIP = TRUE ]; then
     fi
     cp $RBF $RELEASE.rbf
     zip --update --junk-paths releases/$MIST/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
-        $(append_if_exists rom/{build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
+        $(append_if_exists rom/{$PRJ/build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
     rm $RELEASE.rbf
 fi
 
