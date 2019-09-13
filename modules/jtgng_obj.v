@@ -176,7 +176,7 @@ localparam PXLW = PALETTE ? 8 : 6;
 wire [PXLW-1:0] obj_pxl0;
 wire [PXLW-1:0] pxl_data = PALETTE ? new_pxl : {pospal, new_pxl};
 
-jtgng_objpxl #(.dw(PXLW),.obj_dly(5'hf),.palw(PALW)) u_pxlbuf(
+jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz

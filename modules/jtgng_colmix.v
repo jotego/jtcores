@@ -173,7 +173,6 @@ end else begin
         .we         ( we_b        ),
         .q          ( pal_blue    )
     );
-
 end
 endgenerate
 

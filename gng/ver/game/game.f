@@ -18,7 +18,6 @@
 ../../../modules/jtgng_objdraw.v
 ../../../modules/mc6809/mc6809.v
 ../../../modules/mc6809/mc6809i.v
-../../../modules/jtframe/hdl/ram/jtgng_dual_clk_ram.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
