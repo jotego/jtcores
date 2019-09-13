@@ -121,7 +121,11 @@ localparam CONF_STR = {
     "OD,Rotate screen,Yes,No;",
     "OC,Flip screen,OFF,ON;",
     `endif
-    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    `ifdef JTFRAME_VGA
+        "O9,Screen filter,ON,OFF;",
+    `else
+        "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+    `endif
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
@@ -179,6 +183,15 @@ pll pll(
     .outclk_1   ( SDRAM_CLK  )
 );
 
+wire clk_vga;
+
+mister_pll25 pll25(
+    .refclk     ( CLK_50M    ),
+    .rst        ( pll_rst    ),
+    .locked     (            ),
+    .outclk_0   ( clk_vga    )
+);
+
 ///////////////////////////////////////////////////
 
 wire [31:0] status;
@@ -227,7 +240,7 @@ jtframe_mister #( .CONF_STR(CONF_STR),
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_sys        ),
-    .clk_vga        ( clk_sys        ),
+    .clk_vga        ( clk_vga        ),
     .pll_locked     ( pll_locked     ),
     // interface with microcontroller
     .status         ( status         ),
