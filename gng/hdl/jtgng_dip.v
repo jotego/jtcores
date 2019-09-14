@@ -34,8 +34,8 @@ module jtgng_dip(
 wire          dip_upright = 1'b0;
 wire [1:0]    dip_level  = ~status[17:16];
 wire [1:0]    dip_lives  = ~status[19:18];
-wire [1:0]    dip_bonus  = 2'b11;
-wire          dip_demosnd= 1'b1;
+wire [1:0]    dip_bonus  = ~status[22:21];
+wire          dip_demosnd= ~status[20];
 
 always @(posedge clk) begin
     dipsw_a <= { dip_flip, dip_test, dip_demosnd, 5'h1F /* 1 coin, 1 credit */ };

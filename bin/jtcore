@@ -174,7 +174,7 @@ function append_if_exists {
 if [ $ZIP = TRUE ]; then
     # Rename output file
     cd $JTGNG_ROOT
-    RELEASE=jt${PRJ}_${MIST}_$(date +"%Y%m%d")
+    RELEASE=jt${PRJ}_$(date +"%Y%m%d")
     if [ $MIST = mister ]; then
         RBF=$PRJ/${MIST}/output_files/jt$PRJ.rbf
     else
@@ -187,6 +187,10 @@ if [ $ZIP = TRUE ]; then
     cp $RBF $RELEASE.rbf
     zip --update --junk-paths releases/$MIST/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
         $(append_if_exists rom/{$PRJ/build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
+    if [ -e $JTGNG_ROOT/../jtbin ]; then
+        cp $RELEASE.rbf $JTGNG_ROOT/../jtbin/$MIST
+        cp releases/$MIST/${RELEASE}.zip $JTGNG_ROOT/../jtbin/$MIST
+    fi
     rm $RELEASE.rbf
 fi
 

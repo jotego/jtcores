@@ -15,10 +15,19 @@ Supported Games
 ===============
 In chronological order:
 
-* 1942     (see doc/jt1942.txt)
-* Commando (see doc/jtcommando.txt)
-* Ghosts'n Goblins
-* 1943     (see doc/jt1943.txt)
+* 1942             (see doc/jt1942.txt)
+* Commando         (see doc/jtcommando.txt)
+* Ghosts'n Goblins (see doc/jtgng.txt)
+* 1943             (see doc/jt1943.txt)
+
+Troubleshooting
+===============
+
+* If the screen looks blurred, reset the game using F3. If it still looks blurred, reset again by try holding F3 for a couple of seconds. This happens because the scan doubler doesn't synchronize correctly sometimes. I have other scan doublers in my library without this problem, but this one produces the smoothest scroll.
+
+* If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.
+
+
 
 How to continue the game
 ========================

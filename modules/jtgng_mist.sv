@@ -85,11 +85,11 @@ localparam CONF_STR = {
     "OC,Flip screen,OFF,ON;",
     `endif
     `ifdef MISTER_VIDEO_MIXER
-    "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+        "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     `else
-        //`ifdef JTFRAME_VGA
-    "O9,Screen filter,ON,OFF;",
-        //`endif
+        `ifdef JTFRAME_VGA
+            "O9,Screen filter,ON,OFF;",
+        `endif
     `endif
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",

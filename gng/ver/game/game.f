@@ -2,8 +2,10 @@
 ../../hdl/jtgng_main.v
 ../../hdl/jtgng_prom_we.v
 ../../hdl/jtgng_dip.v
-../../../1943/hdl/jtgng_rom.v
-../../../1943/hdl/jtgng_romrq.v
+../../../modules/jtgng_rom.v
+../../../modules/jtgng_romrq.v
+../../../modules/jtgng_romflex.v
+../../../modules/jtgng_multiram.v
 ../../../modules/jtgng_video.v
 ../../../modules/jtgng_colmix.v
 ../../../modules/jtgng_char.v
@@ -22,7 +24,6 @@
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_sound.v
-../../../modules/jtgng_rom.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v

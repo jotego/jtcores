@@ -184,7 +184,7 @@ generate
         assign pxl_data = {pospal, new_pxl};
 endgenerate
 
-jtgng_objpxl #(.dw(PXLW),.obj_dly(5'hf),.palw(PALW)) u_pxlbuf(
+jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz

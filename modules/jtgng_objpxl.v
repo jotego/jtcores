@@ -80,7 +80,7 @@ always @(posedge clk)
         obj_pxl = !DISPTM_b ? lineA_q : blank;
         // lineA readout
         addrA = Hcnt;
-        weA   = 1'b1;
+        weA   = LHBL;
         dataA = blank;
         // lineB writein
         addrB = addr_wr;
@@ -94,7 +94,7 @@ always @(posedge clk)
         dataA = data_wr;
         // lineB readout
         addrB = Hcnt;
-        weB   = 1'b1;
+        weB   = LHBL;
         dataB = blank;
     end
 
