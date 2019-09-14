@@ -52,14 +52,19 @@ module jtbiocom_main(
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
     // BUS sharing
+    input              dma,
     output  [12:0]     cpu_AB,
-    output  [ 7:0]     ram_dout,
+    output  [15:0]     oram_dout,
     input   [ 8:0]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
     input              bus_req,  // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
+    // Palette
+    output             coluw,    // all active high
+    output             collw,    // all active high
+    output             colwr,    // all active high
     // ROM access
     output  reg        rom_cs,
     output      [17:1] rom_addr,
@@ -76,6 +81,7 @@ module jtbiocom_main(
 );
 
 wire [19:1] A;
+wire [15:0] wram_dout;
 wire t80_rst_n;
 reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
 reg SECWR_cs;
@@ -90,6 +96,8 @@ reg BERRn;
 always @(*) begin
     rom_cs        = 1'b0;
     ram_cs        = 1'b0;
+    obj_cs        = 1'b0;
+    col_cs        = 1'b0;
     io_cs         = 1'b0;
     char_cs       = 1'b0;
     scr1_cs       = 1'b0;
@@ -102,7 +110,7 @@ always @(*) begin
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])
-                    3'd0:   objram  = 1'b1;
+                    3'd0:   obj_cs  = 1'b1;
                     3'd1:   begin
                         iocs    = 1'b1;
 
@@ -111,32 +119,16 @@ always @(*) begin
                     3'd3:   char_cs = 1'b1;
                     3'd4:   scr1 cs = 1'b1;
                     3'd5:   scr2 cs = 1'b1;
-                    3'd6:   pal_cs  = 1'b1;
+                    3'd6:   col_cs  = 1'b1;
                     3'd7:   ram_cs  = 1'b1;
                 endcase
         endcase
-
-//        3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
-//        3'b110: // CXXX, DXXX
-//            case(A[12:11])
-//                2'b00: // C0
-//                    in_cs = 1'b1;
-//                2'b01: // C8
-//                    casez(A[3:0])
-//                        4'b0_000: snd_latch_cs = 1'b1;
-//                        4'b0_100: misc_cs      = 1'b1;
-//                        4'b0_110: OKOUT        = 1'b1;
-//                        4'b1_???: scrpos_cs    = 1'b1;  // C808-C80F
-//                        default:;
-//                    endcase
-//                2'b10: // D0
-//                    char_cs = 1'b1; // D0CS
-//                2'b11: // D8
-//                    scr_cs = 1'b1;
-//            endcase
-//        3'b111: ram_cs = 1'b1;
-//    endcase
 end
+
+// Palette
+assign colwr = col_cs & col_off;
+assign collw = ~LDSWRn & collwr;
+assign coluw = ~UDSWRn & collwr;
 
 // SCROLL H/V POSITION
 always @(posedge clk, negedge t80_rst_n) begin
@@ -156,6 +148,11 @@ end済む
 
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;
+
+// high during DMA transfer
+wire bclknteq = blcnten | dma;
+wire UDSWRn   = UDSWn | blcntenq;
+wire LDSWRn   = LDSWn | blcntenq;
 
 // special registers
 always @(posedge clk)
@@ -181,21 +178,52 @@ wire [15:0] cabinet_input = A[1] ?
         joystick2[5:0] };
 
 
-// RAM, 16kB
-wire cpu_ram_we = ram_cs && !wr_n;
-assign cpu_AB = A[12:0];
-
+/////////////////////////////////////////////////////
+// Work RAM, 16kB
 wire [12:0] RAM_addr = blcnten ? {4'b1111, obj_AB} : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
-jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
-    .clk        ( clk       ),
-    .cen        ( cpu_cen   ),
-    .addr       ( RAM_addr  ),
-    .data       ( cpu_dout  ),
-    .we         ( RAM_we    ),
-    .q          ( ram_dout  )
+jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
+    .clk        ( clk              ),
+    .cen        ( cpu_cen          ),
+    .addr       ( A[13:1]          ),
+    .data       ( cpu_dout[15:8]   ),
+    .we         ( ram_cs & !UDSWRn ),
+    .q          ( wram_dout[15:8]  )
 );
+
+jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
+    .clk        ( clk              ),
+    .cen        ( cpu_cen          ),
+    .addr       ( A[13:1]          ),
+    .data       ( cpu_dout[7:0]    ),
+    .we         ( ram_cs & !LDSWRn ),
+    .q          ( wram_dout[7:0]   )
+);
+
+/////////////////////////////////////////////////////
+// Object RAM, 4kB
+wire cpu_ram_we = ram_cs && !wr_n;
+assign cpu_AB = A[12:0];
+
+jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
+    .clk        ( clk              ),
+    .cen        ( cpu_cen          ),
+    .addr       ( A[11:1]          ),
+    .data       ( cpu_dout[15:8]   ),
+    .we         ( obj_cs & !UDSWRn ),
+    .q          ( oram_dout[15:8]  )
+);
+
+jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
+    .clk        ( clk              ),
+    .cen        ( cpu_cen          ),
+    .addr       ( A[11:1]          ),
+    .data       ( cpu_dout[7:0]    ),
+    .we         ( obj_cs & !LDSWRn ),
+    .q          ( oram_dout[7:0]   )
+);
+
 
 // Data bus input
 reg  [15:0] cpu_din;
@@ -214,8 +242,8 @@ wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 always @(*)
     case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
         5'b100_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
-                            ram_dout;
-        5'b010_00: cpu_din = char_dout;
+                            wram_dout;
+        5'b010_00: cpu_din = {8'hff, char_dout};
         5'b001_00: cpu_din = scr_dout;
         5'b000_10: cpu_din = !m1_n ? rom_opcode : rom_data;
         5'b000_01: cpu_din = cabinet_input;
@@ -259,41 +287,21 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
 );
 
 // interrupt generation
-reg int_n;
-reg LHBL_posedge, H1_posedge;
+reg int1, int2;
+wire inta_n = ~&{ FC2, FC1, FC0, ~ASn }; // interrupt ack.
 
-always @(posedge clk) begin : LHBL_edge
-    reg LHBL_old, H1_old;
-    LHBL_old<=LHBL;
-    LHBL_posedge <= !LHBL_old && LHBL;
+always @(posedge clk) begin : int_gen
+    reg last_LVBL, last_V256;
+    last_LVBL <= LVBL;
+    last_V256 <= V[8];
 
-    H1_old <= H1;
-    H1_posedge <= !H1_old && H1;
-end
-
-reg pre_int;
-always @(posedge clk) begin
-    if( irq_ack )
-        pre_int <= 1'b0;
-    else if( LHBL_posedge ) pre_int <= int_ctrl[3];
-end
-
-always @(posedge clk) begin : irq_gen
-    reg pre_int2;
-    reg last2;
-    if (rst) begin
-        snd_int <= 1'b1;
-        int_n   <= 1'b1;
-    end else begin
-        last2 <= pre_int2;
-        if( H1_posedge ) begin
-            // Schematic 7L - sound interrupter
-            snd_int  <= int_ctrl[2];
-            pre_int2 <= pre_int;
-        end
-        if( irq_ack )
-            int_n <= 1'b1;
-        else if( pre_int2 && !last2 ) int_n <= 1'b0 | ~dip_pause;
+    if( !inta_n ) begin
+        int1 <= 1'b1;
+        int2 <= 1'b1;
+    end
+    else begin
+        if( V[8] && !last_V256 ) int2 <= 1'b0;
+        if( !LVBL && last_LVBL ) int1 <= 1'b0;
     end
 end
 
