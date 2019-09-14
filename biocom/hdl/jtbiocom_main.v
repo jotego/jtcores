@@ -44,8 +44,10 @@ module jtbiocom_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output reg [8:0]   scr_hpos,
-    output reg [8:0]   scr_vpos,
+    output reg [8:0]   scr1_hpos,
+    output reg [8:0]   scr1_vpos,
+    output reg [8:0]   scr2_hpos,
+    output reg [8:0]   scr2_vpos,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -84,7 +86,7 @@ wire [19:1] A;
 wire [15:0] wram_dout;
 wire t80_rst_n;
 reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
-reg SECWR_cs;
+reg scrpt_cs;
 wire rd_n, wr_n;
 
 assign RnW = wr_n;
@@ -102,7 +104,7 @@ always @(*) begin
     char_cs       = 1'b0;
     scr1_cs       = 1'b0;
     scr2_cs       = 1'b0;
-    scrpos_cs     = 1'b0;
+    scrpt_cs      = 1'b0;
     OKOUT         = 1'b0;
 
     BERRn         = 1'b1;
@@ -115,7 +117,15 @@ always @(*) begin
                         iocs    = 1'b1;
 
                     end
-                    3'd2:   scrpt   = 1'b1;
+                    3'd2:   if( !UDSWRn && !LDSWRn && A[4]) case( A[3:1]) // SCRPTn in the schematics
+                                3'd0: scr1hpos_cs = 1'b1;
+                                3'd1: scr1vpos_cs = 1'b1;
+                                3'd2: scr2hpos_cs = 1'b1;
+                                3'd3: scr2vpos_cs = 1'b1;
+                                3'd3: OKOUT = 1'b1;
+                                3'd5: dmaon = 1'b1; // to MCU
+                            default:;
+                        endcase
                     3'd3:   char_cs = 1'b1;
                     3'd4:   scr1 cs = 1'b1;
                     3'd5:   scr2 cs = 1'b1;
@@ -131,20 +141,19 @@ assign collw = ~LDSWRn & collwr;
 assign coluw = ~UDSWRn & collwr;
 
 // SCROLL H/V POSITION
-always @(posedge clk, negedge t80_rst_n) begin
-    if( !t80_rst_n ) begin
-        scr_hpos <= 9'd0;
-        scr_vpos <= 9'd0;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        scr1_hpos <= 9'd0;
+        scr1_vpos <= 9'd0;
+        scr2_hpos <= 9'd0;
+        scr2_vpos <= 9'd0;
     end else if(cpu_cen) begin
-        if( scrpos_cs && A[3])
-        case(A[1:0])
-            2'd0: scr_hpos[7:0] <= cpu_dout;
-            2'd1: scr_hpos[8]   <= cpu_dout[0];
-            2'd2: scr_vpos[7:0] <= cpu_dout;
-            2'd3: scr_vpos[8]   <= cpu_dout[0];
-        endcase
+        if( scr1hpos_cs ) scr1_hpos <= cpu_dout[8:0];
+        if( scr2hpos_cs ) scr2_hpos <= cpu_dout[8:0];
+        if( scr1vpos_cs ) scr1_vpos <= cpu_dout[8:0];
+        if( scr2vpos_cs ) scr2_vpos <= cpu_dout[8:0];
     end
-end済む
+end
 
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;

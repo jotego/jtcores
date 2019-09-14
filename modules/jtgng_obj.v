@@ -135,7 +135,7 @@ wire [8:0] posx;
 localparam PXLW = PALETTE ? 8 : 6;
 
 wire [PALW-1:0] pospal;
-wire [PXLW-1:0] new_pxl;
+wire [(PALETTE?7:3):0] new_pxl;
 
 // draw the sprite
 jtgng_objdraw #(
