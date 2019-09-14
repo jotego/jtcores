@@ -4,10 +4,11 @@ Release history
 13th Sept 2019
     * Fixed ogre sound
     * Fixed sprite alignment
+    * Fixed bug that erased the first pixel of the sprite line buffer
     * Added more DIP options through OSD menu
     * Better scan doubler in MiSTer, although it requires a reset sometimes
     * MiSTer core name changed to JTGNG, as was in MiST before
     * MiST ROM file changed to follow the same format as MiSTer's
     * Reduced SDRAM speed (48MHz) for greater robustness
 
---- older releases are not shown here
+--- history of older releases is not shown here
