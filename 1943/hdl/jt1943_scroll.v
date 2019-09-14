@@ -48,7 +48,7 @@ module jt1943_scroll(
     output reg  [13:0] map_addr,
     input       [15:0] map_data,
     // Gfx ROM
-    output reg  [16:0] scr_addr,
+    output      [16:0] scr_addr,
     input       [15:0] scrom_data,
     output      [ 5:0] scr_pxl
 );
@@ -123,85 +123,29 @@ always @(posedge clk)
 wire [7:0] dout_high = map_data[ 7:0];
 wire [7:0] dout_low  = map_data[15:8];
 
-reg  [7:0] addr_lsb;
-reg  [3:0] scr_attr0;
-reg        scr_hflip1;
-
-wire scr_hflip = dout_high[6];
-wire scr_vflip = dout_high[7];
-
-// Set input for ROM reading
-always @(posedge clk) if(cen6) begin
-    if( HS[2:0]==3'b1 ) begin // dout_high/low data corresponds to this tile
-            // from HS[2:0] = 1,2,3...0. because RAM output is latched
-        scr_attr0 <= dout_high[5:2];
-        scr_addr[16:1] <= {   dout_high[0] & AS8MASK, dout_low, // AS
-                        HS[4:3]^{2{scr_hflip}},
-                        SVmap^{5{scr_vflip}} }; /*vert_addr*/
-        scr_addr[0] <= HS[2]^dout_high[6]^flip;
-    end
-    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
-end
-
-// Draw pixel on screen
-reg [3:0] w,x,y,z;
-reg [3:0] scr_attr1, scr_col0, scr_pal0;
-
-// Character data delay
-// clock count      stage
-// -1               Assign map address
-// 1                read map data
-// 5                read tile rom data
-// 6                assign to scr_col
-// 7                read from PROM
-// Total delay = 1 (+8) pixels
-
-always @(posedge clk) if(cen6) begin
-    if( HS[1:0]==2'd1 ) begin
-            { z,y,x,w } <= scrom_data;
-            scr_hflip1  <= scr_hflip ^ flip; // must be ready when z,y,x are.
-            scr_attr1   <= scr_attr0;
-        end
-    else
-        begin
-            if( scr_hflip1 ) begin
-                w <= {1'b0, w[3:1]};
-                x <= {1'b0, x[3:1]};
-                y <= {1'b0, y[3:1]};
-                z <= {1'b0, z[3:1]};
-            end
-            else  begin
-                w <= {w[2:0], 1'b0};
-                x <= {x[2:0], 1'b0};
-                y <= {y[2:0], 1'b0};
-                z <= {z[2:0], 1'b0};
-            end
-        end
-    scr_col0  <= scr_hflip1 ? { w[0], x[0], y[0], z[0] } : { w[3], x[3], y[3], z[3] };
-    scr_pal0  <= scr_attr1;
-end
-
-wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
-
-// Palette
-jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din[1:0]  ),
-    .rd_addr( pal_addr       ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_hi_we     ),
-    .q      ( scr_pxl[5:4]   )
-);
-
-jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din       ),
-    .rd_addr( pal_addr       ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_lo_we     ),
-    .q      ( scr_pxl[3:0]   )
+jtgng_tile4 #(
+    .AS8MASK        ( AS8MASK       ),
+    .SIMFILE_LSB    ( SIMFILE_LSB   ),
+    .SIMFILE_MSB    ( SIMFILE_MSB   ) )
+u_tile4(
+    .clk        (  clk          ),
+    .rst        (  rst          ),
+    .cen6       (  cen6         ),
+    .HS         (  HS           ),
+    .SV         (  SVmap        ),
+    .attr       (  dout_high    ),
+    .id         (  dout_low     ),
+    .SCxON      ( SCxON         ),
+    .flip       ( flip          ),
+    // Palette PROMs
+    .prog_addr  ( prog_addr     ),
+    .prom_hi_we ( prom_hi_we    ),
+    .prom_lo_we ( prom_lo_we    ),
+    .prom_din   ( prom_din      ),
+    // Gfx ROM
+    .scr_addr   ( scr_addr      ),
+    .scrom_data ( scrom_data    ),
+    .scr_pxl    ( scr_pxl       )
 );
 
 endmodule
