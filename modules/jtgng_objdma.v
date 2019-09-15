@@ -16,24 +16,28 @@
     Version: 1.0
     Date: 11-1-2019 */
 
-module jtgng_objdma(
-    input              rst,
-    input              clk,
-    input              cen6,    //  6 MHz
+module jtgng_objdma #(parameter
+    OBJMAX      =   9'h180,
+    DW          =   8,          // Most games are 8-bit wide, Bionic Commando is 12-bit wide
+    AVATAR_MAX  =   4'd8        // ignore if avatars are not used
+) (
+    input               rst,
+    input               clk,
+    input               cen6,    //  6 MHz
     // screen
-    input              LVBL,
-    input              pause,
-    output  reg [ 3:0] avatar_idx,
+    input               LVBL,
+    input               pause,
+    output  reg [ 3:0]  avatar_idx,
     // shared bus
-    output  reg [ 8:0] AB,
-    input       [ 7:0] DB,
-    input              OKOUT,
-    output  reg        bus_req,  // Request bus
-    input              bus_ack,  // bus acknowledge
-    output  reg        blen,     // bus line counter enable
+    output  reg [ 8:0]  AB,
+    input     [DW-1:0]  DB,
+    input               OKOUT,
+    output  reg         bus_req,  // Request bus
+    input               bus_ack,  // bus acknowledge
+    output  reg         blen,     // bus line counter enable
     // output data
-    input       [8:0]  pre_scan,
-    output  reg [7:0]  ram_dout
+    input       [8:0]   pre_scan,
+    output reg [DW-1:0] ram_dout
 );
 
 reg [1:0] bus_state;
@@ -47,9 +51,6 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 // buffer at 6MHz, so the GnG limitation may have been set to
 // give more time to the main CPU.
 // It takes 170us to copy the whole ('h1FF) buffer
-
-parameter OBJMAX=9'h180;
-parameter AVATAR_MAX=4'd8; // ignore if avatars are not used
 
 reg mem_sel;
 
@@ -116,7 +117,10 @@ jtgng_ram #(.aw(9),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
 
 wire [7:0] buf_data;
 
-jtgng_dual_ram #(.aw(10)) u_objram (
+// The real PCB did not have a dual port RAM but at this point
+// of the signal chain, it does not affect timing accuracy as
+// what matters is the DMA period, which is accurate.
+jtgng_dual_ram #(.aw(10),.dw(DW)) u_objram (
     .clk        ( clk               ),
     .clk_en     ( cen6              ),
     .data       ( ram_din           ),
@@ -210,7 +214,7 @@ always @(*) begin
         2'd2: avatar_data = avatar_y;
         2'd3: avatar_data = avatar_x;
     endcase
-    ram_dout = pause ? avatar_data : buf_data;
+    ram_dout = pause ? { {DW-8{1'b0}}, avatar_data} : buf_data;
 end
 
 `else 

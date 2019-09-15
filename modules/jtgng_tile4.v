@@ -18,7 +18,14 @@
 
 // 
 
-module jtgng_tile4(
+module jtgng_tile4 #(parameter
+    PALETTE     =  1,
+    ROM_AW      = 17,
+    LAYOUT      =  0, // 0:1943, 1: Bionic Commando
+    SIMFILE_MSB = "", 
+    SIMFILE_LSB = "",
+    AS8MASK     =  1'b1
+) (
     input              clk,
     input              rst,
     input              cen6,
@@ -34,32 +41,59 @@ module jtgng_tile4(
     input              prom_lo_we,
     input   [3:0]      prom_din,
     // Gfx ROM
-    output reg  [16:0] scr_addr,
-    input       [15:0] scrom_data,
-    output      [ 5:0] scr_pxl
+    output reg  [ROM_AW-1:0] scr_addr,
+    input             [15:0] scrom_data,
+    output [(PALETTE?5:7):0] scr_pxl
 );
 
-parameter SIMFILE_MSB="", SIMFILE_LSB="";
-parameter AS8MASK = 1'b1;
 
 reg  [7:0] addr_lsb;
 reg  [3:0] scr_attr0;
 reg        scr_hflip1;
 
-wire scr_hflip = attr[6];
-wire scr_vflip = attr[7];
+localparam HFLIP = LAYOUT == 0 ? 6 : 7;
+localparam VFLIP = LAYOUT == 0 ? 7 : 6;
+
+wire scr_hflip = attr[HFLIP];
+wire scr_vflip = attr[VFLIP];
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     if( HS[2:0]==3'b1 ) begin // attr/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
-        scr_attr0 <= attr[5:2];
-        scr_addr[16:1] <= {   attr[0] & AS8MASK, id, // AS
-                        HS[4:3]^{2{scr_hflip}},
-                        SV^{5{scr_vflip}} }; /*vert_addr*/
-        scr_addr[0] <= HS[2]^attr[6]^flip;
+        case( LAYOUT ) 
+        0: begin // 1943
+            scr_attr0 <= attr[5:2];
+            scr_addr[ROM_AW-1:1] <= {   attr[0] & AS8MASK, id, // AS
+                            HS[4:3]^{2{scr_hflip}},
+                            SV^{5{scr_vflip}} }; /*vert_addr*/
+            scr_addr[0] <= HS[2]^attr[6]^flip;
+            end
+        1: begin // Bionic Commando, scroll 1
+            scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
+            scr_addr[ROM_AW-1:1] <= {   attr[2:0], id, // AS
+                            SV[3:0]^{4{scr_vflip}},
+                            HS[4:3]^{2{scr_hflip}} }; // bit 5 order changed
+            scr_addr[0] <= HS[2]^attr[6]^flip;
+            end
+        2: begin // Bionic Commando, scroll 2
+            scr_attr0 <= { attr[7]&attr[6], attr[5:3] }; // MSB is wrong here. Unclear schematics
+            scr_addr[ROM_AW-1:1] <= {   attr[2:0], id, // AS
+                            SV[2:0]^{3{scr_vflip}} };
+            scr_addr[0] <= HS[2]^attr[6]^flip;
+            end
+        endcase
     end
-    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+    else begin
+        case( LAYOUT )
+            // 1943
+            0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+            // Bionic Commando scroll 1
+            1: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+            // Bionic Commando scroll 2
+            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+        endcase // LAYOUT
+    end
 end
 
 // Draw pixel on screen
@@ -100,27 +134,36 @@ always @(posedge clk) if(cen6) begin
     scr_pal0  <= scr_attr1;
 end
 
-wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
+generate
+    if( PALETTE ) begin
+        wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
 
-// Palette
-jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din[1:0]  ),
-    .rd_addr( pal_addr       ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_hi_we     ),
-    .q      ( scr_pxl[5:4]   )
-);
+        // Palette
+        jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
+            .clk    ( clk            ),
+            .cen    ( cen6           ),
+            .data   ( prom_din[1:0]  ),
+            .rd_addr( pal_addr       ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_hi_we     ),
+            .q      ( scr_pxl[5:4]   )
+        );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din       ),
-    .rd_addr( pal_addr       ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_lo_we     ),
-    .q      ( scr_pxl[3:0]   )
-);
+        jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
+            .clk    ( clk            ),
+            .cen    ( cen6           ),
+            .data   ( prom_din       ),
+            .rd_addr( pal_addr       ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_lo_we     ),
+            .q      ( scr_pxl[3:0]   )
+        );
+    end else begin
+        reg [7:0] pxl_dly; // to have the same delay as the palette case
+        always @(posedge clk)
+            pxl_dly <= { scr_pal0, scr_col0 };
+        assign scr_pxl = pxl_dly;
+    end
+endgenerate
 
 endmodule

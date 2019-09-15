@@ -16,11 +16,13 @@
     Version: 1.0
     Date: 11-1-2019 */
 
-module jtgng_objdraw #(parameter 
+module jtgng_objdraw #(parameter
+    DW       = 8,   // data width of the DMA
     ROM_AW   = 16, 
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
                     // 2: GunSmoke
+                    // 3: Bionic Commando
     PALW     = 2,
     PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -37,7 +39,7 @@ module jtgng_objdraw #(parameter
     input              pause,
     // per-line sprite data
     input       [4:0]  objcnt,
-    input       [7:0]  objbuf_data,
+    input    [DW-1:0]  objbuf_data,
     // SDRAM interface
     output  reg [ROM_AW-1:0] obj_addr,
     input       [15:0] objrom_data,
@@ -52,9 +54,9 @@ module jtgng_objdraw #(parameter
     output reg  [(PALETTE?7:3):0]  new_pxl  // 8 bits if PROMs used, 4 bits otherwise
 );
 
-reg [7:0] ADlow;
+localparam IDW = ROM_AW-6;
+reg [ROM_AW-7:0] id;
 reg [PALW-1:0] objpal, objpal1;
-reg [ROM_AW-15:0] ADhigh;
 reg [8:0] objx;
 reg obj_vflip, obj_hflip, hover;
 wire posvflip;
@@ -74,44 +76,54 @@ end
 
 reg [3:0] Vobj;
 
+// Bionic Commando has X and Y parameters
+// in reversed order
+localparam Y = LAYOUT==3 ? 4'd3 : 4'd2;
+localparam X = LAYOUT==3 ? 4'd2 : 4'd3;
+
 always @(posedge clk) if(cen6) begin
     case( pxlcnt[3:0] )
-        4'd0: ADlow   <= objbuf_data;
+        4'd0: id[DW-1:0] <= objbuf_data;
         4'd1: case( LAYOUT )
             default: begin // GnG, Commando
-                ADhigh    <= objbuf_data[7:6];
+                id[9:8]   <= objbuf_data[7:6];
                 objpal    <= objbuf_data[5:4];
                 obj_vflip <= objbuf_data[3];
                 obj_hflip <= objbuf_data[2];
                 hover     <= objbuf_data[0];
             end
             1: begin // 1943
-                ADhigh    <= objbuf_data[7:5];
+                id[10:8]  <= objbuf_data[7:5];
                 objpal    <= objbuf_data[3:0];
                 obj_vflip <= 1'b0;
                 obj_hflip <= 1'b0;
                 hover     <= objbuf_data[4];
             end
             2: begin // GunSmoke
-                ADhigh    <= objbuf_data[7:6];
+                id[9:8]   <= objbuf_data[7:6];
                 objpal    <= objbuf_data[3:0];
                 obj_vflip <= objbuf_data[4];
                 obj_hflip <= 1'b0;
                 hover     <= objbuf_data[5];
             end
+            3: begin // Bionic Commando
+                obj_vflip <= objbuf_data[0];
+                obj_hflip <= objbuf_data[1];
+                objpal    <= objbuf_data[5:2];
+            end
         endcase
-        4'd2: begin // Object Y is on objbuf_data at this step
+        Y: begin // Object Y is on objbuf_data at this step
             Vobj    <=  Vsum[3:0];
             vinzone <= &Vsum[7:4];
         end
-        4'd3: begin
-            objx <= { hover, objbuf_data };
+        X: begin
+            objx <= LAYOUT== 3 ? objbuf_data[8:0] : { hover, objbuf_data };
         end
         default:;
     endcase
     if( pxlcnt[1:0]==2'd3 ) begin
         obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-            { ADhigh, ADlow, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+            { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
     end
 end
 

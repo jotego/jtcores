@@ -25,7 +25,8 @@ module jtgng_scroll #(parameter
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
     VFLIP    = 5,
     HFLIP    = 4,
-    SCANW    = 10   // Tile map bit width, normally 10 bits, 9 bits for 1942
+    SCANW    = 10,  // Tile map bit width, normally 10 bits, 9 bits for 1942, 
+    TILE4    = 0    // Use 4 bpp instead of 3bpp
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
@@ -45,7 +46,7 @@ module jtgng_scroll #(parameter
 
     // ROM
     output      [ROM_AW-1:0] scr_addr,
-    input       [23:0]       rom_data,
+    input       [(TILE4?15:23):0]       rom_data,
     input                    rom_ok,
     output     [PALW-1:0]    scr_pal,
     output         [ 2:0]    scr_col
@@ -101,29 +102,57 @@ jtgng_tilemap #(
     .dout_high  ( dout_high )
 );
 
-jtgng_tile3 #(
-    .DATAREAD   (  DATAREAD   ),
-    .ROM_AW     (  ROM_AW     ),
-    .PALW       (  PALW       ),
-    .IDMSB1     (  IDMSB1     ),
-    .IDMSB0     (  IDMSB0     ),
-    .VFLIP      (  VFLIP      ),
-    .HFLIP      (  HFLIP      ))
-u_tile3(
-    .clk        (  clk        ),
-    .rst        (  rst        ),
-    .pxl_cen    (  pxl_cen    ),
-    .HS         (  HS         ),
-    .VS         (  VS         ),
-    .attr       (  dout_high  ),
-    .id         (  dout_low   ),
-    .flip       (  flip       ),
-    // Gfx ROM
-    .scr_addr   (  scr_addr   ),
-    .rom_data   (  rom_data   ),
-    .rom_ok     (  rom_ok     ),
-    .scr_pal    (  scr_pal    ),
-    .scr_col    (  scr_col    )
-);
-
+generate
+    
+    if ( TILE4 ) begin
+         jtgng_tile4 #(
+            .PALETTE    (  0          ),
+            .ROM_AW     (  ROM_AW     ),
+            .PALW       (  PALW       ),
+            .IDMSB1     (  IDMSB1     ),
+            .IDMSB0     (  IDMSB0     ),
+            .VFLIP      (  VFLIP      ),
+            .HFLIP      (  HFLIP      ))
+        u_tile4(
+            .clk        (  clk        ),
+            .rst        (  rst        ),
+            .cen6       (  pxl_cen    ),
+            .HS         (  HS         ),
+            .VS         (  VS         ),
+            .attr       (  dout_high  ),
+            .id         (  dout_low   ),
+            .flip       (  flip       ),
+            // Gfx ROM
+            .scr_addr   (  scr_addr   ),
+            .rom_data   (  rom_data   ),
+            .rom_ok     (  rom_ok     ),
+            .scr_pal    (  scr_pal    ),
+            .scr_col    (  scr_col    )
+        );       
+    end else begin
+        jtgng_tile3 #(
+            .DATAREAD   (  DATAREAD   ),
+            .ROM_AW     (  ROM_AW     ),
+            .PALW       (  PALW       ),
+            .IDMSB1     (  IDMSB1     ),
+            .IDMSB0     (  IDMSB0     ),
+            .VFLIP      (  VFLIP      ),
+            .HFLIP      (  HFLIP      ))
+        u_tile3(
+            .clk        (  clk        ),
+            .pxl_cen    (  pxl_cen    ),
+            .HS         (  HS         ),
+            .VS         (  VS         ),
+            .attr       (  dout_high  ),
+            .id         (  dout_low   ),
+            .flip       (  flip       ),
+            // Gfx ROM
+            .scr_addr   (  scr_addr   ),
+            .rom_data   (  rom_data   ),
+            .rom_ok     (  rom_ok     ),
+            .scr_pal    (  scr_pal    ),
+            .scr_col    (  scr_col    )
+        );
+    end
+endgenerate
 endmodule // jtgng_scroll

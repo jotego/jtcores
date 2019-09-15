@@ -16,7 +16,11 @@
     Version: 1.0
     Date: 11-1-2019 */
 
-module jtgng_objbuf(
+module jtgng_objbuf #(parameter
+    DW          = 8,
+    OBJMAX      = 10'h180,
+    OBJMAX_LINE = 5'd24
+) (
     input               rst,
     input               clk,     // 24 MHz
     input               cen6,    //  6 MHz
@@ -28,16 +32,13 @@ module jtgng_objbuf(
     input               flip,
     // sprite data scan
     output reg  [8:0]   pre_scan,
-    input       [7:0]   ram_dout,
+    input      [DW-1:0] ram_dout,
     // sprite data buffer
-    output      [7:0]   objbuf_data,
+    output     [DW-1:0] objbuf_data,
     input       [4:0]   objcnt,
     input       [3:0]   pxlcnt,
     output reg          line
 );
-
-parameter OBJMAX=10'h180;
-parameter OBJMAX_LINE = 5'd24;
 
 localparam LIMIT = 5'd31-OBJMAX_LINE;
 
@@ -47,7 +48,7 @@ reg  [4:0]   post_scan;
 reg          line_obj_we;
 
 localparam lineA=1'b0, lineB=1'b1;
-wire [7:0] q_a, q_b;
+wire [DW-1:0] q_a, q_b;
 assign objbuf_data = line==lineA ? q_b : q_a;
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
@@ -125,7 +126,7 @@ always @(posedge clk, posedge rst)
 
 reg [6:0] address_a, address_b;
 reg we_a, we_b;
-reg [7:0] data_a, data_b;
+reg [DW-1:0] data_a, data_b;
 
 always @(*) begin
     if( line == lineA ) begin
@@ -146,7 +147,7 @@ always @(*) begin
     end
 end
 
-jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
+jtgng_ram #(.aw(7),.dw(DW),.simfile("obj_buf.hex")) objbuf_a(
     .clk   ( clk       ),
     .cen   ( cen6      ),
     .addr  ( address_a ),
@@ -155,7 +156,7 @@ jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_a(
     .q     ( q_a       )
 );
 
-jtgng_ram #(.aw(7),.simfile("obj_buf.hex")) objbuf_b(
+jtgng_ram #(.aw(7),.dw(DW),.simfile("obj_buf.hex")) objbuf_b(
     .clk   ( clk       ),
     .cen   ( cen6      ),
     .addr  ( address_b ),
