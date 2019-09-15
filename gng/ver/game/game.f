@@ -12,6 +12,7 @@
 ../../../modules/jtgng_tilemap.v
 ../../../modules/jtgng_obj.v
 ../../../modules/jtgng_scroll.v
+../../../modules/jtgng_tile3.v
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objbuf.v
 ../../../modules/jtgng_objpxl.v
