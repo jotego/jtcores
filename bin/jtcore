@@ -71,9 +71,11 @@ while [ $# -gt 0 ]; do
             SKIP_COMPILE=TRUE;;
         -mister | -mr)
             MIST=mister
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
-            PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
-            export PATH;;
+            if ! (which quartus_sh|grep 17 -q); then
+                PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+                PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
+                export PATH
+            fi;;
         -mist)
             MIST=mist
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
