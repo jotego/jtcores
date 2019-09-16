@@ -390,5 +390,5 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 set_global_assignment -name QIP_FILE ../hdl/jt${CORENAME}.qip
 
 set_global_assignment -name VERILOG_MACRO "MISTER=<None>"
-set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=1"
-set_global_assignment -name VERILOG_MACRO "JTGNG_VGA=1"
+set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=2"
+#  set_global_assignment -name VERILOG_MACRO "JTGNG_VGA=1"
