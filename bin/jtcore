@@ -119,7 +119,7 @@ function copy_templates {
 }
 
 echo ==============================================
-echo jt$PRsJ $MIST compilation starts at $(date +%T)
+echo jt$PRJ $MIST compilation starts at $(date +%T)
 if [ "$MACROS" != "" ]; then
     echo INFO: Macros used: $MACROS
 else
@@ -142,6 +142,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
     jt${PRJ}_msg.py || exit 1
     if ! cd $JTGNG_ROOT/$PRJ/$MIST; then
         exit 1
+    fi
+    if [ ! -e $JTGNG_ROOT/$PRJ/$MIST/rom_loadv.hex ]; then
+        ln -s $JTGNG_ROOT/modules/rom_loadv.hex
     fi
     echo "Moved to folder " $(pwd)
     # Recompile

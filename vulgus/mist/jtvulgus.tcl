@@ -6,4 +6,4 @@ set_global_assignment -name VERILOG_MACRO "MISTTOP=jtvulgus_mist"
 set_global_assignment -name VERILOG_MACRO "VULGUS=1"
 
 set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
-set_global_assignment -name QIP_FILE ../../../jt12/jt49/hdl/jt49.qip
+set_global_assignment -name QIP_FILE ../../modules/jt12/jt49/hdl/jt49.qip
