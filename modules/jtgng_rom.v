@@ -33,7 +33,11 @@ module jtgng_rom #(parameter
  scr2_offset = 22'h44_000, // 14k/l 64kB
   obj_offset = 22'h4C_000, // 10a/c, 11a/c, 12a/c, 14a/c 256kB
 /// Selects whether ROM goes into SDRAM or BRAM
+`ifdef MISTER
+   BRAM_MAIN =1,           // So it starts up on MiSTer even if SDRAM fails
+`else
    BRAM_MAIN =0,
+`endif
    BRAM_SOUND=0
 )(
     input               rst,
