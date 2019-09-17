@@ -384,6 +384,10 @@ jtgng_rom #(
     .scr1_offset( 22'h2_0000 >> 1 ),
     .scr2_offset( (22'h2_0000 >> 1) + 22'h0_8000 ),
     .obj_offset ( 22'h4_0000 >> 1 )
+`ifdef MISTER
+   ,.BRAM_MAIN  ( 1               )
+   ,.BRAM_SOUND ( 1               )
+`endif
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -418,6 +422,11 @@ jtgng_rom #(
     .scr2_dout   ( { scr_nc, scr_data[23:16]       } ),
 
     .ready       ( rom_ready     ),
+    // Programming
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
