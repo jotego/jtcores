@@ -386,7 +386,9 @@ jtgng_rom #(
     .obj_offset ( 22'h4_0000 >> 1 )
 `ifdef MISTER
    ,.BRAM_MAIN  ( 1               )
-   ,.BRAM_SOUND ( 1               )
+   // sound cannot be embedded in BRAM because 
+   // char is ahead of sound in the ROM file
+   // this is the reverse of all other cores
 `endif
 ) u_rom (
     .rst         ( rst           ),
