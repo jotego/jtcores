@@ -111,7 +111,6 @@ jtgng_tile3 #(
     .HFLIP      (  HFLIP      ))
 u_tile3(
     .clk        (  clk        ),
-    .rst        (  rst        ),
     .pxl_cen    (  pxl_cen    ),
     .HS         (  HS         ),
     .VS         (  VS         ),
