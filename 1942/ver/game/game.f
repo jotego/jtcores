@@ -25,6 +25,7 @@
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_scroll.v
 ../../../modules/jtgng_tilemap.v
+../../../modules/jtgng_tile3.v
 ../../../modules/jtframe/hdl/ver/noise_gen.v
 
 ../../../modules/jtgng_charmsg.v

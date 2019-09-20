@@ -49,12 +49,34 @@ always @(posedge clk) if(cen6) begin
 end
 //assign pxlcnt = H[3:0];
 
-// This is the original scan sequence, that counts objects
+`ifdef VULGUS
+reg [1:0] vulgus_cnt;
+always @(posedge clk, posedge rst) 
+    if( rst )
+        vulgus_cnt <= 2'b0;
+    else if(cen6) begin
+        if( &H[6:4]==1'b1 && pxlcnt==4'd7 ) vulgus_cnt <= vulgus_cnt==2'b10 ? 2'b00 : (vulgus_cnt+2'b1);
+    end
+`endif
+
 always @(*) begin
-    objcnt[4] = H[8]^~H[7];
-    objcnt[3] = (V[7] & objcnt[4]) ^ ~H[7];
-    objcnt[2:0] = H[6:4];
+    // This is the original scan sequence of each game, that counts objects
+    `ifdef VULGUS
+        // scan sequence measured on real PCB. Region objcnt[4:3]==2'b11 is not scanned.
+        case( vulgus_cnt )
+            2'b00: objcnt[4:3] = 2'b01;
+            default: objcnt[4:3] = 2'b00;
+            2'b10: objcnt[4:3] = 2'b10;
+        endcase // vulgus_cnt
+        objcnt[2:0] = H[6:4];
+    `else 
+        // 1942 scan sequence from schematics
+        objcnt[4] = H[8]^~H[7];
+        objcnt[3] = (V[7] & objcnt[4]) ^ ~H[7];
+        objcnt[2:0] = H[6:4];
+    `endif
 end
+
 
 always @(posedge clk)
     if( rst )
@@ -62,6 +84,15 @@ always @(posedge clk)
     else if(cen6) begin
         if( HINIT ) line <= ~line;
     end
+
+wire pre_SEATM;
+
+jtgng_sh #(.width(1), .stages(8)) u_sh(
+    .clk            ( clk           ),
+    .clk_en         ( cen6          ),
+    .din            ( pre_SEATM     ),
+    .drop           ( SEATM_b       )
+);
 
 jtgng_prom #(.aw(8),.dw(2),
     .simfile("../../../rom/1942/sb-9.m11")
@@ -72,7 +103,7 @@ jtgng_prom #(.aw(8),.dw(2),
     .rd_addr( V[7:0]         ),
     .wr_addr( prog_addr      ),
     .we     ( prom_m11_we    ),
-    .q      ( {DISPTM_b, SEATM_b} )
+    .q      ( {DISPTM_b, pre_SEATM} )
 );
 
 endmodule // jt1942_obj
