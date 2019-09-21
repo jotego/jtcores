@@ -129,8 +129,8 @@ localparam CONF_STR = {
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
-    "O7,PSG,ON,OFF;",
     `ifdef JT12
+    "O7,PSG,ON,OFF;",
     "O8,FM ,ON,OFF;",
     "OAB,FX volume, high, very high, very low, low;",
     `endif
