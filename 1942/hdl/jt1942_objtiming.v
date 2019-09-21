@@ -47,15 +47,17 @@ always @(posedge clk) if(cen6) begin
         pxlcnt <= pxlcnt+4'd1;
     end
 end
-//assign pxlcnt = H[3:0];
 
 `ifdef VULGUS
-reg [1:0] vulgus_cnt;
+reg vulgus_sr;
 always @(posedge clk, posedge rst) 
-    if( rst )
-        vulgus_cnt <= 2'b0;
-    else if(cen6) begin
-        if( &H[6:4]==1'b1 && pxlcnt==4'd7 ) vulgus_cnt <= vulgus_cnt==2'b10 ? 2'b00 : (vulgus_cnt+2'b1);
+    if( rst ) begin
+        vulgus_sr  <= 1'b1;
+        objcnt[4:3] <= 2'b0;
+    end else if(cen6) begin
+        if( &H[6:4]==1'b1 && pxlcnt==4'd7 ) begin
+            { vulgus_sr, objcnt[4:3] } <= { objcnt[4:3], vulgus_sr };
+        end
     end
 `endif
 
@@ -63,11 +65,6 @@ always @(*) begin
     // This is the original scan sequence of each game, that counts objects
     `ifdef VULGUS
         // scan sequence measured on real PCB. Region objcnt[4:3]==2'b11 is not scanned.
-        case( vulgus_cnt )
-            2'b00: objcnt[4:3] = 2'b01;
-            default: objcnt[4:3] = 2'b00;
-            2'b10: objcnt[4:3] = 2'b10;
-        endcase // vulgus_cnt
         objcnt[2:0] = H[6:4];
     `else 
         // 1942 scan sequence from schematics
@@ -85,14 +82,12 @@ always @(posedge clk)
         if( HINIT ) line <= ~line;
     end
 
-wire pre_SEATM;
-
-jtgng_sh #(.width(1), .stages(8)) u_sh(
-    .clk            ( clk           ),
-    .clk_en         ( cen6          ),
-    .din            ( pre_SEATM     ),
-    .drop           ( SEATM_b       )
-);
+// The use of the original object timing signals below
+// may not be the optimal choice as the object drawing
+// timing is slightly different in this implementation
+// which means that these two signals may come slightly
+// off (by ~2 pixel clocks maybe?)
+// It doesn't seem to be an issue anyway.
 
 jtgng_prom #(.aw(8),.dw(2),
     .simfile("../../../rom/1942/sb-9.m11")
@@ -103,7 +98,7 @@ jtgng_prom #(.aw(8),.dw(2),
     .rd_addr( V[7:0]         ),
     .wr_addr( prog_addr      ),
     .we     ( prom_m11_we    ),
-    .q      ( {DISPTM_b, pre_SEATM} )
+    .q      ( {DISPTM_b, SEATM_b} )
 );
 
 endmodule // jt1942_obj

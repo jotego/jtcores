@@ -87,15 +87,15 @@ localparam CONF_STR = {
     `ifdef MISTER_VIDEO_MIXER
         "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     `else
-        `ifdef JTFRAME_VGA
+        `ifdef JTGNG_VGA
             "O9,Screen filter,ON,OFF;",
         `endif
     `endif
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
-    "O7,PSG,ON,OFF;",
     `ifdef JT12
+    "O7,PSG,ON,OFF;",
     "O8,FM ,ON,OFF;",
     "OAB,FX volume, high, very high, very low, low;",
     `endif

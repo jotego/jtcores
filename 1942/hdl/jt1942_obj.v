@@ -49,7 +49,7 @@ module jt1942_obj(
     output       [3:0] obj_pxl
 );
 
-parameter PXL_DLY=4;
+parameter PXL_DLY=7;
 
 
 wire line, fill, line_obj_we;
