@@ -28,7 +28,7 @@
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_charmsg.v
-../../../modules/fx68k/fx68kAlu.sv
-../../../modules/fx68k/fx68k.sv
-../../../modules/fx68k/uaddrPla.sv
+../../../modules/fk68k/fx68kAlu.sv
+../../../modules/fk68k/fx68k.sv
+../../../modules/fk68k/uaddrPla.sv
 
