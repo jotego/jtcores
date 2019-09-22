@@ -63,8 +63,6 @@ wire enable_obj  = gfx_en[3];
 // SCRWIN means that the MSB of scr_pxl signals that the background
 // tile should go on top of the sprites, changing the priority order.
 // When SCRWIN=0 then the MSB of scr_pxl has no special meaning.
-wire scrwin = SCRWIN ? scr_pxl[6] : 1'b0;
-wire [7:0] scr_mux = SCRWIN ? {2'b00, scr_pxl[5:0] } : {1'b0, scr_pxl};
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] selbus;
 reg  [7:0] seladdr;
@@ -120,8 +118,6 @@ end
 
 
 // Palette is in RAM
-wire we_rg = !LVBL && redgreen_cs;
-wire we_b  = !LVBL && blue_cs;
 
 jtgng_ram #(.aw(10),.dw(16)) u_pal(
     .clk        ( clk         ),
@@ -163,7 +159,7 @@ jtgng_ram #(.aw(10),.dw(16)) u_pal(
 jtgng_prom #(.aw(8),.dw(2),.simfile(PALETTE_PRIOR)) u_selbus(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
-    .data   ( prom_din      ),
+    .data   ( prom_din[1:0] ),
     .rd_addr( seladdr       ),
     .wr_addr( prog_addr     ),
     .we     ( prom_prio_we  ),

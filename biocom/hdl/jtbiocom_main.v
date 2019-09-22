@@ -43,7 +43,8 @@ module jtbiocom_main(
     output  reg        char_cs,
     input              char_busy,
     // scroll
-    input   [7:0]      scr_dout,
+    input   [7:0]      scr1_dout,
+    input   [7:0]      scr2_dout,
     output  reg        scr1_cs,
     output  reg        scr2_cs,
     input              scr1_busy,
@@ -64,6 +65,7 @@ module jtbiocom_main(
     input   [ 8:0]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
+    output  reg        dmaon,
     input              bus_req,  // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
@@ -86,15 +88,23 @@ module jtbiocom_main(
 wire [19:1] A;
 wire [15:0] wram_dout;
 wire t80_rst_n;
-reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
-reg scrpt_cs;
-wire rd_n, wr_n;
-
-assign RnW = wr_n;
+reg  in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, obj_cs;
+reg  scrpt_cs, io_cs;
+reg  scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
+wire wr_n = RnW;
+wire ASn;
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen12;
 reg BERRn;
+
+// high during DMA transfer
+wire UDSn, LDSn;
+wire UDSWn = RnW | UDSn;
+wire LDSWn = RnW | LDSn;
+wire blcntenq = blcnten | dma;
+wire UDSWRn   = UDSWn | blcntenq;
+wire LDSWRn   = LDSWn | blcntenq;
 
 always @(*) begin
     rom_cs        = 1'b0;
@@ -107,6 +117,7 @@ always @(*) begin
     scr2_cs       = 1'b0;
     scrpt_cs      = 1'b0;
     OKOUT         = 1'b0;
+    dmaon         = 1'b0;
 
     BERRn         = 1'b1;
     if( blcnten ) case(A[19:18])
@@ -115,7 +126,7 @@ always @(*) begin
             2'd3: if(A[17]) case(A[16:14])
                     3'd0:   obj_cs  = 1'b1;
                     3'd1:   begin
-                        iocs    = 1'b1;
+                        io_cs    = 1'b1;
 
                     end
                     3'd2:   if( !UDSWRn && !LDSWRn && A[4]) case( A[3:1]) // SCRPTn in the schematics
@@ -130,16 +141,11 @@ always @(*) begin
                     3'd3:   char_cs = 1'b1;
                     3'd4:   scr1_cs = 1'b1;
                     3'd5:   scr2_cs = 1'b1;
-                    3'd6:   col_cs  = 1'b1;
+                    3'd6:   col_cs  = !wr_n;
                     3'd7:   ram_cs  = 1'b1;
                 endcase
         endcase
 end
-
-// Palette
-assign colwr = col_cs & col_off;
-assign collw = ~LDSWRn & collwr;
-assign coluw = ~UDSWRn & collwr;
 
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
@@ -156,19 +162,10 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire UDSWn = RnW | UDSn;
-wire LDSWn = RnW | LDSn;
-
-// high during DMA transfer
-wire bclknteq = blcnten | dma;
-wire UDSWRn   = UDSWn | blcntenq;
-wire LDSWRn   = LDSWn | blcntenq;
-
 // special registers
 always @(posedge clk)
     if( rst ) begin
         flip         <= 1'b0;
-        sres_b       <= 1'b1;
         snd_latch    <= 8'b0;
     end
     else if(cpu_cen) begin
@@ -190,8 +187,9 @@ wire [15:0] cabinet_input = A[1] ?
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-wire [12:0] RAM_addr = blcnten ? {4'b1111, obj_AB} : cpu_AB;
-wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
+wire [12:0] RAM_addr   = blcnten ? {4'b1111, obj_AB} : cpu_AB;
+wire        cpu_ram_we = ram_cs && !wr_n;
+wire        RAM_we     = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
@@ -213,7 +211,6 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
 
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
-wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
@@ -249,14 +246,14 @@ wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 `endif
 
 always @(*)
-    case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
-        5'b100_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
-                            wram_dout;
-        5'b010_00: cpu_din = {8'hff, char_dout};
-        5'b001_00: cpu_din = scr_dout;
-        5'b000_10: cpu_din = !m1_n ? rom_opcode : rom_data;
-        5'b000_01: cpu_din = cabinet_input;
-        default:  cpu_din = rom_data;
+    case( {ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, in_cs} )
+        6'b100_000: cpu_din = wram_dout;
+        6'b010_000: cpu_din = { 8'hff, char_dout };
+        6'b001_000: cpu_din = { 8'hff, scr2_dout };
+        6'b000_100: cpu_din = { 8'hff, scr1_dout };
+        6'b000_010: cpu_din = rom_data;
+        6'b000_001: cpu_din = cabinet_input;
+        default:    cpu_din = rom_data;
     endcase
 
 assign rom_addr = A[17:1];
@@ -286,8 +283,9 @@ always @(negedge clk)
 wire cpu_wait_cen = cpu_cen & wait_cen;
 
 // interrupt generation
-reg int1, int2;
-wire inta_n = ~&{ FC2, FC1, FC0, ~ASn }; // interrupt ack.
+reg        int1, int2;
+wire [2:0] FC;
+wire inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
 
 always @(posedge clk) begin : int_gen
     reg last_LVBL, last_V256;

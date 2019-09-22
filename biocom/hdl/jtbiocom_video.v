@@ -66,6 +66,10 @@ module jtbiocom_video(
     output              LVBL_dly,
     input               col_cs,
     input       [3:0]   gfx_en,
+    // Priority PROM
+    input       [7:0]   prog_addr,
+    input               prom_prio_we,
+    input       [3:0]   prom_din,
     // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
@@ -87,9 +91,8 @@ parameter AVATAR_MAX    = 8;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
-wire scrwin;
-wire [2:0] scr_col;
-wire [2:0] scr_pal;
+wire [2:0] scr1_col, scr2_col;
+wire [2:0] scr1_pal, scr2_pal;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
@@ -145,28 +148,28 @@ jtgng_scroll #(
     .SCANW      ( 13            ),
     .HOFFSET    (  0            ),
     .TILE4      (  1            )) // 4bpp
-u_scroll (
+u_scroll1 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
-    .hpos       ( scr_hpos      ),
-    .vpos       ( scr_vpos      ),
+    .hpos       ( scr1_hpos     ),
+    .vpos       ( scr1_vpos     ),
     .flip       ( flip          ),
     // bus arbitrion
     .Asel       ( cpu_AB[1]     ),
     .AB         ( cpu_AB[13:2]  ),
     .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
-    .dout       ( scr_dout      ),
+    .dout       ( scr1_dout     ),
     .wr_n       ( RnW           ),
     .busy       ( scr_busy      ),
     // ROM
-    .scr_addr   ( scr_addr      ),
-    .rom_data   ( scr_data      ),
-    .rom_ok     ( scr_ok        ),
+    .scr_addr   ( scr1_addr     ),
+    .rom_data   ( scr1_data     ),
+    .rom_ok     ( scr1_ok       ),
     // pixel output
     .scr_col    ( scr_col       ),
     .scr_pal    ( { scrwin, scr_pal } )

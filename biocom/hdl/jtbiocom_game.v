@@ -168,7 +168,7 @@ jtgng_timer u_timer(
 
 wire RnW;
 // sound
-wire sres_b, snd_int;
+wire       snd_int;
 wire [7:0] snd_latch;
 
 wire        main_cs;
@@ -223,7 +223,6 @@ jtbiocom_main u_main(
     .LVBL       ( LVBL          ),
     .H1         ( H[0]          ),
     // sound
-    .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
     .snd_int    ( snd_int       ),
     // CHAR
@@ -274,6 +273,7 @@ assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
 `endif
 
+`define NOSOUND
 `ifndef NOSOUND
 jtbiocom_sound u_sound (
     .rst            ( rst_game       ),
@@ -281,7 +281,6 @@ jtbiocom_sound u_sound (
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),
     // Interface with main CPU
-    .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
     // ROM
@@ -351,9 +350,7 @@ jtbiocom_video #(
     .blcnten    ( blcnten       ), // bus line counter enable
     // PROMs
     .prog_addr    ( prog_addr[7:0]),
-    .prom_red_we  ( prom_1d       ),
-    .prom_green_we( prom_2d       ),
-    .prom_blue_we ( prom_3d       ),
+    .prom_prio_we ( prom_prio      ),
     .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
