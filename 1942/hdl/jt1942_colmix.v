@@ -40,6 +40,8 @@ module jt1942_colmix(
 
     input           LVBL,
     input           LHBL,
+    output  reg     LHBL_dly,
+    output  reg     LVBL_dly,
 
     output  [3:0]   red,
     output  [3:0]   green,
@@ -74,8 +76,18 @@ always @(*) begin
     pixel_mux[7:6] = VULGUS ? scr_pxl[5:4] : { char_blank_b, obj_blank_b };
 end
 
+wire [1:0] pre_BL;
+
+jtgng_sh #(.width(2),.stages(5)) u_hb_dly(
+    .clk    ( clk      ),
+    .clk_en ( cen6     ),
+    .din    ( {LHBL, LVBL}     ),
+    .drop   ( pre_BL   )
+);
+
 always @(posedge clk) if(cen6) begin
-    prom_addr <= (LVBL&&LHBL) ? pixel_mux : 8'd0;
+    {LHBL_dly, LVBL_dly} <= pre_BL;
+    prom_addr <= pre_BL==2'b11 ? pixel_mux : 8'd0;
 end
 
 

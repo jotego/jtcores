@@ -71,9 +71,11 @@ while [ $# -gt 0 ]; do
             SKIP_COMPILE=TRUE;;
         -mister | -mr)
             MIST=mister
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
-            PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
-            export PATH;;
+            if ! (which quartus_sh|grep 17 -q); then
+                PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+                PATH=$PATH:$HOME/intelFPGA_lite/17.1/quartus/bin
+                export PATH
+            fi;;
         -mist)
             MIST=mist
             PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
@@ -117,7 +119,7 @@ function copy_templates {
 }
 
 echo ==============================================
-echo jt$PRsJ $MIST compilation starts at $(date +%T)
+echo jt$PRJ $MIST compilation starts at $(date +%T)
 if [ "$MACROS" != "" ]; then
     echo INFO: Macros used: $MACROS
 else
@@ -140,6 +142,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
     jt${PRJ}_msg.py || exit 1
     if ! cd $JTGNG_ROOT/$PRJ/$MIST; then
         exit 1
+    fi
+    if [ ! -e $JTGNG_ROOT/$PRJ/$MIST/rom_loadv.hex ]; then
+        ln -s $JTGNG_ROOT/modules/rom_loadv.hex
     fi
     echo "Moved to folder " $(pwd)
     # Recompile
@@ -197,7 +202,7 @@ fi
 # Add to git
 if [ $GIT = TRUE ]; then
     git add -f $PRJ/${MIST}/msg.hex
-    git add -f releases/$RELEASE.zip
+    git add -f releases/$MIST/$RELEASE.zip
 fi
 
 if [ $PROG = TRUE ]; then

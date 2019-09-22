@@ -282,9 +282,6 @@ assign snd_cs = 1'b0;
 wire scr1_ok, scr2_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
-assign LHBL_dly = LHBL;
-assign LVBL_dly = LVBL;
-
 jt1942_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -325,6 +322,8 @@ jt1942_video u_video(
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),

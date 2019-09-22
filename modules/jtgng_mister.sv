@@ -129,8 +129,8 @@ localparam CONF_STR = {
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
-    "O7,PSG,ON,OFF;",
     `ifdef JT12
+    "O7,PSG,ON,OFF;",
     "O8,FM ,ON,OFF;",
     "OAB,FX volume, high, very high, very low, low;",
     `endif
@@ -183,15 +183,6 @@ pll pll(
     .outclk_1   ( SDRAM_CLK  )
 );
 
-wire clk_vga;
-
-mister_pll25 pll25(
-    .refclk     ( CLK_50M    ),
-    .rst        ( pll_rst    ),
-    .locked     (            ),
-    .outclk_0   ( clk_vga    )
-);
-
 ///////////////////////////////////////////////////
 
 wire [31:0] status;
@@ -240,7 +231,7 @@ jtframe_mister #( .CONF_STR(CONF_STR),
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_sys        ),
-    .clk_vga        ( clk_vga        ),
+    .clk_vga        ( clk_sys        ),
     .pll_locked     ( pll_locked     ),
     // interface with microcontroller
     .status         ( status         ),

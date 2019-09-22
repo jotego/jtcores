@@ -57,6 +57,8 @@ module jt1942_video(
     // Color Mix
     input               LVBL,
     input               LHBL,
+    output              LHBL_dly,
+    output              LVBL_dly,
     input               LHBL_obj,
     output      [3:0]   red,
     output      [3:0]   green,
@@ -94,7 +96,7 @@ wire [5:0] char_pal;
 wire [1:0] char_col;
 
 jtgng_char #(
-    .HOFFSET (8'd4),
+    .HOFFSET ( 0),
     .ROM_AW  (12),
     .IDMSB1  ( 7),
     .IDMSB0  ( 7),
@@ -283,6 +285,8 @@ jt1942_colmix #(.VULGUS(VULGUS)) u_colmix (
     .cen6       ( cen6          ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
     .scr_pxl    ( scr_pxl       ),

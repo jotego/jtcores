@@ -30,7 +30,7 @@ module jt1942_sound(
     input           sres_b,
     input   [ 7:0]  main_dout,
     input           main_latch0_cs,
-    input           main_latch1_cs,
+    input           main_latch1_cs, // Vulgus PCB also has two latches. MAME ignores one of them.
     input           snd_int,
     // ROM access
     output  reg     rom_cs,

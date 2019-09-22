@@ -1,0 +1,44 @@
+JTVulgus FPGA clone of GunSmoke arcade faithful to original hardware
+=====================================================================
+
+Please, read the main README file too.
+
+You have just got an expensive $200 PCB as that is what I paid for the
+board! You have in your hands a faithful conversion of the circuits on
+the Vulgus PCB to FPGA. If you come from the emulation world here are 
+some of the things different from emulators:
+
+-Real CPU/GPU bus sharing with delays
+-Sprites handled with the same scan pattern as in the original hardware
+-Palettes determined by the original PROMs
+-Graphics priority handled by the original PROM
+-No lag between image and input. Data is being sent to the screen in real time.
+-3 button input
+-Sound sampling rate exactly as the original
+-Accurate FPS 100% same as real hardware
+
+These technical aspects mean that the game play will be different from an emulator
+in a number of ways and that some hardware tricks that were not emulated will work
+here as in the original hardware.
+
+GAME PLAY
+=========
+
+The game uses two buttons: fire and missile. There is no continue screen.
+If you see the POW or letter icons move while there is horizontal scrolling
+going on and you think it is a bug, well, it isn't. That's just how the
+hardware worked. Using a different scan sequence might avoid it. But I'm
+using the original and it comes with that side effect (verified on the real PCB).
+
+
+CREDITS
+=======
+
+Brought to you by Jose Tejada, aka jotego. Meet me in twitter @topapate
+Checkout my patreon page here: http://patreon.com/topapate
+
+Special thanks to all September '19 patrons.
+
+Tier +3 Patrons Thanks!!
+========================
+All +3 Patrons will appear here on the core public release.

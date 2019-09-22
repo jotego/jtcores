@@ -1,3 +1,18 @@
+Release History
+===============
+
+Update 21-Sept-2019
+    -Issue with corner of CAPCOM logo after 2nd round of attract mode fixed
+    -Noise sound channel issue fixed
+    -Flip mode for MiSTer (MiST already had it)
+    -SDRAM speed reduced to 48MHz (more robust, less power)
+
+19th-Feb-2019
+    -First public release
+
+7th-Feb-2019
+    -Private beta
+
 Patreon supporters for 1942 core
 ================================
     Andyways
