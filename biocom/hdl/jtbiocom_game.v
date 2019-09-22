@@ -195,15 +195,16 @@ jtbiocom_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-wire prom_1d = prom_we[0];
-wire prom_2d = prom_we[1];
-wire prom_3d = prom_we[2];
-wire prom_1h = prom_we[3];
-wire prom_6l = prom_we[4];
-wire prom_6e = prom_we[5];
+// wire prom_1d = prom_we[0];
+// wire prom_2d = prom_we[1];
+// wire prom_3d = prom_we[2];
+// wire prom_1h = prom_we[3];
+// wire prom_6l = prom_we[4];
+// wire prom_6e = prom_we[5];
 
-wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
+wire scr1_cs, scr2_cs;
+wire [8:0] scr1_hpos, scr1_vpos;
+wire [8:0] scr2_hpos, scr2_vpos;
 
 
 `ifndef NOMAIN
@@ -230,12 +231,18 @@ jtbiocom_main u_main(
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
-    // SCROLL
-    .scr_dout   ( scr_dout      ),
-    .scr_cs     ( scr_cs        ),
-    .scr_busy   ( scr_busy      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    // SCROLL 1
+    .scr1_dout  ( scr1_dout     ),
+    .scr1_cs    ( scr1_cs       ),
+    .scr1_busy  ( scr1_busy     ),
+    .scr1_hpos  ( scr1_hpos     ),
+    .scr1_vpos  ( scr1_vpos     ),
+    // SCROLL 2
+    .scr2_dout  ( scr2_dout     ),
+    .scr2_cs    ( scr2_cs       ),
+    .scr2_busy  ( scr2_busy     ),
+    .scr2_hpos  ( scr2_hpos     ),
+    .scr2_vpos  ( scr2_vpos     ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -329,15 +336,24 @@ jtbiocom_video #(
     .char_data  ( char_data     ),
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
-    // SCROLL - ROM
-    .scr_cs     ( scr_cs        ),
-    .scr_dout   ( scr_dout      ),
-    .scr_addr   ( scr_addr      ),
-    .scr_data   ( scr_data      ),
-    .scr_busy   ( scr_busy      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
-    .scr_ok     ( scr_ok        ),
+    // SCROLL 1
+    .scr1_cs    ( scr1_cs       ),
+    .scr1_dout  ( scr1_dout     ),
+    .scr1_addr  ( scr1_addr     ),
+    .scr1_data  ( scr1_data     ),
+    .scr1_busy  ( scr1_busy     ),
+    .scr1_hpos  ( scr1_hpos     ),
+    .scr1_vpos  ( scr1_vpos     ),
+    .scr1_ok    ( scr1_ok       ),
+    // SCROLL 2
+    .scr2_cs    ( scr2_cs       ),
+    .scr2_dout  ( scr2_dout     ),
+    .scr2_addr  ( scr2_addr     ),
+    .scr2_data  ( scr2_data     ),
+    .scr2_busy  ( scr2_busy     ),
+    .scr2_hpos  ( scr2_hpos     ),
+    .scr2_vpos  ( scr2_vpos     ),
+    .scr2_ok    ( scr2_ok       ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
