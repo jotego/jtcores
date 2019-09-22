@@ -23,6 +23,8 @@
 module jtbiocom_main(
     input              rst,
     input              clk,
+    input              cen12,
+    input              cen12b,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     output             cpu_cen,
@@ -42,8 +44,10 @@ module jtbiocom_main(
     input              char_busy,
     // scroll
     input   [7:0]      scr_dout,
-    output  reg        scr_cs,
-    input              scr_busy,
+    output  reg        scr1_cs,
+    output  reg        scr2_cs,
+    input              scr1_busy,
+    input              scr2_busy,
     output reg [8:0]   scr1_hpos,
     output reg [8:0]   scr1_vpos,
     output reg [8:0]   scr2_hpos,
@@ -67,15 +71,12 @@ module jtbiocom_main(
     output             coluw,    // all active high
     output             collw,    // all active high
     output             colwr,    // all active high
+    output  reg        col_cs,
     // ROM access
     output  reg        rom_cs,
     output      [17:1] rom_addr,
     input       [15:0] rom_data,
     input              rom_ok,
-    // PROM 6L (interrupts)
-    input    [7:0]     prog_addr,
-    input              prom_6l_we,
-    input    [3:0]     prog_din,
     // DIP switches
     input              dip_pause,
     input    [7:0]     dipsw_a,
@@ -127,8 +128,8 @@ always @(*) begin
                             default:;
                         endcase
                     3'd3:   char_cs = 1'b1;
-                    3'd4:   scr1 cs = 1'b1;
-                    3'd5:   scr2 cs = 1'b1;
+                    3'd4:   scr1_cs = 1'b1;
+                    3'd5:   scr2_cs = 1'b1;
                     3'd6:   col_cs  = 1'b1;
                     3'd7:   ram_cs  = 1'b1;
                 endcase
@@ -236,7 +237,6 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
 
 // Data bus input
 reg  [15:0] cpu_din;
-wire [ 3:0] int_ctrl;
 wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
 
@@ -285,16 +285,6 @@ always @(negedge clk)
 
 wire cpu_wait_cen = cpu_cen & wait_cen;
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
-    .clk    ( clk          ),
-    .cen    ( cen6         ),
-    .data   ( prog_din     ),
-    .wr_addr( prog_addr    ),
-    .rd_addr( V[7:0]       ),
-    .we     ( prom_6l_we   ),
-    .q      ( int_ctrl     )
-);
-
 // interrupt generation
 reg int1, int2;
 wire inta_n = ~&{ FC2, FC1, FC0, ~ASn }; // interrupt ack.
@@ -320,7 +310,7 @@ fx68k u_cpu(
     .clk        ( clk         ),
     .extReset   ( rst         ),
     .pwrUp      ( rst         ),
-    .enPhi1     ( cen12a      ),
+    .enPhi1     ( cen12       ),
     .enPhi2     ( cen12b      ),
 
     // Buses
