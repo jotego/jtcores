@@ -18,7 +18,7 @@
 
 `timescale 1ns/1ps
 
-module jtgng_romflex #(parameter AW=18, INVERT_A0=0, USE_BRAM=0 )(
+module jtgng_romflex #(parameter AW=18, DW=8, INVERT_A0=0, USE_BRAM=0 )(
     input               rst,
     input               clk,
     input               cen,
@@ -29,17 +29,17 @@ module jtgng_romflex #(parameter AW=18, INVERT_A0=0, USE_BRAM=0 )(
     input               we,
     input               prog_we,
     input      [AW-1:0] prog_addr,
-    input      [   7:0] prog_data,
+    input      [DW-1:0] prog_data,
     output              req,
     output              data_ok,    // strobe that signals that data is ready
     output     [AW-1:0] addr_req,
-    output     [   7:0] dout
+    output     [DW-1:0] dout
 );
 
 generate
     
 if( USE_BRAM==0 ) begin
-    jtgng_romrq #(.AW(AW), .DW(8), .INVERT_A0(INVERT_A0)) 
+    jtgng_romrq #(.AW(AW), .DW(DW), .INVERT_A0(INVERT_A0)) 
     u_req(
         .rst        ( rst       ),
         .clk        ( clk       ),
@@ -58,10 +58,10 @@ end
 else begin
     reg [AW-1:0] a;
     always @(*) begin
-        a = prog_we ? prog_addr : { addr[AW-1:1], INVERT_A0 ? ~addr[0]:addr[0]};
+        a = prog_we ? prog_addr : { addr[AW-1:1], (INVERT_A0&&DW==8) ? ~addr[0]:addr[0]};
     end
 
-    jtgng_multiram #(.AW(AW), .DW(8), .UNITW(12))
+    jtgng_multiram #(.AW(AW), .DW(DW), .UNITW(12))
     u_multi(
         .clk    (  clk        ),
         .addr   (  a          ),

@@ -60,9 +60,9 @@ module jtbiocom_main(
     input   [1:0]      coin_input,
     // BUS sharing
     input              dma,
-    output  [12:0]     cpu_AB,
+    output  [13:1]     cpu_AB,
     output  [15:0]     oram_dout,
-    input   [ 8:0]     obj_AB,
+    input   [ 9:0]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
     output  reg        dmaon,
@@ -76,7 +76,7 @@ module jtbiocom_main(
     output  reg        col_cs,
     // ROM access
     output  reg        rom_cs,
-    output      [17:1] rom_addr,
+    output      [19:1] rom_addr,
     input       [15:0] rom_data,
     input              rom_ok,
     // DIP switches
@@ -187,9 +187,7 @@ wire [15:0] cabinet_input = A[1] ?
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-wire [12:0] RAM_addr   = blcnten ? {4'b1111, obj_AB} : cpu_AB;
 wire        cpu_ram_we = ram_cs && !wr_n;
-wire        RAM_we     = blcnten ? 1'b0 : cpu_ram_we;
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
@@ -211,12 +209,13 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
 
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
-assign cpu_AB = A[12:0];
+assign cpu_AB = A[13:1];
+wire [10:0] oram_addr   = blcnten ? {1'b1, obj_AB} : A[11:1];
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .clk        ( clk              ),
     .cen        ( cpu_cen          ),
-    .addr       ( A[11:1]          ),
+    .addr       ( oram_addr        ),
     .data       ( cpu_dout[15:8]   ),
     .we         ( obj_cs & !UDSWRn ),
     .q          ( oram_dout[15:8]  )
@@ -225,7 +224,7 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
     .clk        ( clk              ),
     .cen        ( cpu_cen          ),
-    .addr       ( A[11:1]          ),
+    .addr       ( oram_addr        ),
     .data       ( cpu_dout[7:0]    ),
     .we         ( obj_cs & !LDSWRn ),
     .q          ( oram_dout[7:0]   )
@@ -256,7 +255,7 @@ always @(*)
         default:    cpu_din = rom_data;
     endcase
 
-assign rom_addr = A[17:1];
+assign rom_addr = A[19:1];
 
 /////////////////////////////////////////////////////////////////
 // wait_n generation

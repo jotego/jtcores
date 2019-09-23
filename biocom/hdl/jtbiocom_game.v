@@ -77,7 +77,7 @@ wire [ 8:0] V;
 wire [ 8:0] H;
 wire        HINIT;
 
-wire [12:0] cpu_AB;
+wire [13:1] cpu_AB;
 wire        snd_cs;
 wire        char_cs, col_cs;
 wire        flip;
@@ -89,15 +89,15 @@ wire        char_busy, scr_busy;
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
 wire [15:0] obj_data;
-wire [ 7:0] main_data;
+wire [15:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [15:0] main_addr;
+wire [19:1] main_addr;
 wire [14:0] snd_addr;
 wire [12:0] char_addr;
-wire [14:0] scr1_addr;
+wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
-wire [15:0] obj_addr;
+wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen12b;
 
@@ -175,7 +175,7 @@ wire [7:0] snd_latch;
 wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 8:0] obj_AB;
+wire [ 9:0] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
 wire        prom_prio_we;
@@ -271,7 +271,7 @@ jtbiocom_main u_main(
     .dipsw_b    ( dipsw_b       )
 );
 `else
-assign main_addr   = 16'd0;
+assign main_addr   = 19'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
 assign bus_ack     = 1'b0;
@@ -387,19 +387,17 @@ wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
-    `ifdef MISTER
-    .BRAM_MAIN  ( 1               ),
-    // .BRAM_SOUND ( 1               ),
-    `endif
+    .main_dw    ( 19              ),
+    .main_aw    ( 17              ),
     .char_aw    ( 13              ),
-    .main_aw    ( 16              ),
-    .obj_aw     ( 16              ),
-    .scr1_aw    ( 15              ),
-    .snd_offset ( 22'h0_C000 >> 1 ),
-    .char_offset( 22'h1_0000 >> 1 ),
-    .scr1_offset( 22'h1_4000 >> 1 ),
-    .scr2_offset( (22'h1_4000 >> 1) + 22'h0_8000 ),
-    .obj_offset ( (22'h1_4000 >> 1) + 22'h1_0000 )
+    .obj_aw     ( 18              ),
+    .scr1_aw    ( 17              ),
+    .scr2_aw    ( 15              ),
+    .snd_offset ( 22'h4_0000 >> 1 ),
+    .char_offset( 22'h4_8000 >> 1 ),
+    .scr1_offset( 22'h5_0000 >> 1 ),
+    .scr2_offset( 22'h9_0000 >> 1 ),
+    .obj_offset ( 22'hA_0000 >> 1 )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),

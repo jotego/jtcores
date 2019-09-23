@@ -83,7 +83,7 @@ always @(posedge clk)
 
 always @(*) begin
     subaddr[1] = addr[1];
-    if( INVERT_A0 )
+    if( INVERT_A0 && DW==8 ) // only apply inverstion to 8-bit CPUs
         subaddr[0] = ~addr[0];
     else
         subaddr[0] =  addr[0];

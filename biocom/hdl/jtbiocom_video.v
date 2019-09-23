@@ -40,7 +40,7 @@ module jtbiocom_video(
     // SCROLL 1
     input               scr1_cs,
     output      [ 7:0]  scr1_dout,
-    output      [14:0]  scr1_addr,
+    output      [16:0]  scr1_addr,
     input       [23:0]  scr1_data,
     input               scr1_ok,
     output              scr1_busy,
@@ -57,13 +57,13 @@ module jtbiocom_video(
     input       [ 8:0]  scr2_vpos,
     // OBJ
     input               HINIT,
-    output      [ 8:0]  obj_AB,
+    output      [ 9:0]  obj_AB,
     input       [11:0]  oram_dout,   // only 12 bits are read
     input               OKOUT,
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [15:0]  obj_addr,
+    output      [17:0]  obj_addr,
     input       [15:0]  objrom_data,
     input               obj_ok,
     // Color Mix
@@ -189,7 +189,7 @@ u_scroll1 (
 );
 
 jtgng_scroll #(
-    .ROM_AW     ( 17            ),
+    .ROM_AW     ( 15            ),
     .SCANW      ( 13            ),
     .HOFFSET    (  0            ),
     .TILE4      (  1            )) // 4bpp
@@ -233,6 +233,7 @@ jtgng_obj #(
     .OBJMAX     ( 9'd160     ),
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),
+    .ROM_AW     ( 18         ),
     .DMA_DW     ( 12         ))
 u_obj (
     .rst        ( rst         ),

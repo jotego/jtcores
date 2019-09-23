@@ -18,7 +18,8 @@
 
 `timescale 1ns/1ps
 
-module jtgng_rom #(parameter 
+module jtgng_rom #(parameter
+    main_dw  = 8,
     char_aw  = 14,
     main_aw  = 18,
      snd_aw  = 15,
@@ -60,15 +61,15 @@ module jtgng_rom #(parameter
     input       [21:0]  prog_addr,
     input               prog_we,  
 
-    output  reg [15:0]  char_dout,
-    output      [ 7:0]  main_dout,
-    output      [ 7:0]   snd_dout,
-    output  reg [15:0]   obj_dout,
-    output      [15:0]  map1_dout,
-    output      [15:0]  map2_dout,
-    output      [15:0]  scr1_dout,
-    output      [15:0]  scr2_dout,
-    output  reg         ready,
+    output  reg   [15:0]  char_dout,
+    output [main_dw-1:0]  main_dout,
+    output        [ 7:0]   snd_dout,
+    output  reg   [15:0]   obj_dout,
+    output        [15:0]  map1_dout,
+    output        [15:0]  map2_dout,
+    output        [15:0]  scr1_dout,
+    output        [15:0]  scr2_dout,
+    output  reg           ready,
 
     output              main_ok,
     output              snd_ok,
@@ -130,7 +131,12 @@ end
 
 wire [22:0] prog_addr2 = { prog_addr[21:0], prog_mask[0] };
 
-jtgng_romflex #(.AW(main_aw),.INVERT_A0(1), .USE_BRAM(BRAM_MAIN)) u_main(
+jtgng_romflex #(
+    .AW(main_aw),
+    .DW(main_dw),
+    .INVERT_A0(1),
+    .USE_BRAM(BRAM_MAIN)) 
+u_main(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .cen       ( 1'b1                   ),

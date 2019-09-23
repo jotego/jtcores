@@ -49,8 +49,8 @@ module jtgng_scroll #(parameter
     output      [ROM_AW-1:0] scr_addr,
     input       [(TILE4?15:23):0]       rom_data,
     input                    rom_ok,
-    output     [PALW-1:0]    scr_pal,
-    output         [ 2:0]    scr_col
+    output      [PALW-1:0]   scr_pal,
+    output [(TILE4?3:2):0]   scr_col
 );
 
 wire [8:0] Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
