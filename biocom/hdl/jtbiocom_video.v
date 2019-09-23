@@ -136,7 +136,11 @@ jtgng_char #(.HOFFSET(1)) u_char (
     .rom_ok     ( char_ok       ),
     // Pixel output
     .char_on    ( 1'b1          ),
-    .char_pxl   ( char_pxl      )
+    .char_pxl   ( char_pxl      ),
+    // unused
+    .prog_addr  (               ),
+    .prog_din   (               ),
+    .prom_we    (               )
 );
 
 jtgng_charmsg u_msg(
@@ -170,7 +174,7 @@ u_scroll1 (
     // bus arbitrion
     .Asel       ( cpu_AB[1]     ),
     .AB         ( cpu_AB[13:2]  ),
-    .scr_cs     ( scr_cs        ),
+    .scr_cs     ( scr1_cs       ),
     .din        ( cpu_dout[7:0] ),
     .dout       ( scr1_dout     ),
     .wr_n       ( RnW           ),
@@ -182,6 +186,38 @@ u_scroll1 (
     // pixel output
     .scr_col    ( scr1_col      ),
     .scr_pal    ( scr1_pal      )
+);
+
+jtgng_scroll #(
+    .ROM_AW     ( 17            ),
+    .SCANW      ( 13            ),
+    .HOFFSET    (  0            ),
+    .TILE4      (  1            )) // 4bpp
+u_scroll2 (
+    .clk        ( clk           ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
+    // screen position
+    .H          ( H             ),
+    .V          ( V[7:0]        ),
+    .hpos       ( scr2_hpos     ),
+    .vpos       ( scr2_vpos     ),
+    .flip       ( flip          ),
+    // bus arbitrion
+    .Asel       ( cpu_AB[1]     ),
+    .AB         ( cpu_AB[13:2]  ),
+    .scr_cs     ( scr2_cs       ),
+    .din        ( cpu_dout[7:0] ),
+    .dout       ( scr2_dout     ),
+    .wr_n       ( RnW           ),
+    .busy       ( scr2_busy     ),
+    // ROM
+    .scr_addr   ( scr2_addr     ),
+    .rom_data   ( scr2_data     ),
+    .rom_ok     ( scr2_ok       ),
+    // pixel output
+    .scr_col    ( scr2_col      ),
+    .scr_pal    ( scr2_pal      )
 );
 `else
 assign scr_busy   = 1'b1;

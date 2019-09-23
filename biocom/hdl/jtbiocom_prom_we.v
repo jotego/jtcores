@@ -28,7 +28,7 @@ module jtbiocom_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg [ 5:0]    prom_we
+    output reg           prom_we
 );
 
 // MAIN         starts at 00000h
@@ -75,10 +75,10 @@ reg [16:0] scr_offset=17'd0;
 reg [15:0] obj_offset=16'd0;
 
 reg set_strobe, set_done;
-reg [5:0] prom_we0 = 6'd0;
+reg prom_we0 = 1'd0;
 
 always @(posedge clk) begin
-    prom_we <= 6'd0;
+    prom_we <= 1'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
@@ -121,14 +121,9 @@ always @(posedge clk) begin
             prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0 <= 6'd0;
+            prom_we0  <= 1'd0;
             case(ioctl_addr[10:8])
-                3'h0: prom_we0[0] <= 1'b1;
-                3'h1: prom_we0[1] <= 1'b1;
-                3'h2: prom_we0[2] <= 1'b1;
-                3'h3: prom_we0[3] <= 1'b1;
-                3'h4: prom_we0[4] <= 1'b1;
-                3'h5: prom_we0[5] <= 1'b1;
+                3'h0: prom_we0 <= 1'b1;
                 default:;
             endcase
             set_strobe <= 1'b1;
@@ -136,7 +131,7 @@ always @(posedge clk) begin
     end
     else begin
         prog_we  <= 1'b0;
-        prom_we0 <= 6'd0;
+        prom_we0 <= 1'd0;
     end
 end
 

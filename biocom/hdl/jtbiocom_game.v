@@ -79,7 +79,7 @@ wire        HINIT;
 
 wire [12:0] cpu_AB;
 wire        snd_cs;
-wire        char_cs;
+wire        char_cs, col_cs;
 wire        flip;
 wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
@@ -87,8 +87,7 @@ wire        rd, cpu_cen;
 wire        char_busy, scr_busy;
 
 // ROM data
-wire [15:0] char_data;
-wire [23:0] scr_data;
+wire [15:0] char_data, scr1_data, scr2_data;
 wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
@@ -96,13 +95,15 @@ wire [ 7:0] snd_data;
 wire [15:0] main_addr;
 wire [14:0] snd_addr;
 wire [12:0] char_addr;
-wire [14:0] scr_addr;
+wire [14:0] scr1_addr;
+wire [14:0] scr2_addr;
 wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen12b;
 
 wire        rom_ready;
-wire        main_ok, snd_ok;
+wire        main_ok, snd_ok, obj_ok;
+wire        scr1_ok, scr2_ok, char_ok;
 
 assign sample=1'b1;
 
@@ -177,7 +178,7 @@ wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
 wire [15:0] oram_dout;
 
-wire [5:0] prom_we;
+wire        prom_prio_we;
 
 jtbiocom_prom_we u_prom_we(
     .clk         ( clk           ),
@@ -192,7 +193,7 @@ jtbiocom_prom_we u_prom_we(
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_prio_we  )
 );
 
 // wire prom_1d = prom_we[0];
@@ -251,6 +252,7 @@ jtbiocom_main u_main(
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
+    .col_cs     ( col_cs        ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -303,9 +305,6 @@ assign snd_addr = 15'd0;
 assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
-
-wire scr1_ok, scr2_ok, char_ok;
-wire scr_ok = scr1_ok & scr2_ok;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
@@ -364,9 +363,11 @@ jtbiocom_video #(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
+    .col_cs     ( col_cs        ),
+    .obj_ok     ( obj_ok        ),
     // PROMs
     .prog_addr    ( prog_addr[7:0]),
-    .prom_prio_we ( prom_prio      ),
+    .prom_prio_we ( prom_prio_we  ),
     .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
@@ -413,6 +414,7 @@ jtgng_rom #(
     .scr1_ok     ( scr1_ok       ),
     .scr2_ok     ( scr2_ok       ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
@@ -429,8 +431,8 @@ jtgng_rom #(
     .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( scr_data[15:0] ),
-    .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
+    .scr1_dout   ( scr1_data     ),
+    .scr2_dout   ( scr2_data     ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface
