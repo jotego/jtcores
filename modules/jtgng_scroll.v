@@ -26,7 +26,8 @@ module jtgng_scroll #(parameter
     VFLIP    = 5,
     HFLIP    = 4,
     SCANW    = 10,  // Tile map bit width, normally 10 bits, 9 bits for 1942, 
-    TILE4    = 0    // Use 4 bpp instead of 3bpp
+    TILE4    = 0,   // Use 4 bpp instead of 3bpp
+    LAYOUT   = 0    // Only used for TILE 4
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
@@ -106,28 +107,23 @@ generate
     
     if ( TILE4 ) begin
          jtgng_tile4 #(
-            .PALETTE    (  0          ),
-            .ROM_AW     (  ROM_AW     ),
-            .PALW       (  PALW       ),
-            .IDMSB1     (  IDMSB1     ),
-            .IDMSB0     (  IDMSB0     ),
-            .VFLIP      (  VFLIP      ),
-            .HFLIP      (  HFLIP      ))
+            .PALETTE    ( 0          ),
+            .ROM_AW     ( ROM_AW     ),
+            .LAYOUT     ( LAYOUT     ))
         u_tile4(
             .clk        (  clk        ),
             .rst        (  rst        ),
             .cen6       (  pxl_cen    ),
-            .HS         (  HS         ),
-            .VS         (  VS         ),
+            .HS         (  HS[4:0]    ),
+            .SV         (  VS[4:0]    ),
             .attr       (  dout_high  ),
             .id         (  dout_low   ),
+            .SCxON      (  1'b0       ),
             .flip       (  flip       ),
             // Gfx ROM
             .scr_addr   (  scr_addr   ),
             .rom_data   (  rom_data   ),
-            .rom_ok     (  rom_ok     ),
-            .scr_pal    (  scr_pal    ),
-            .scr_col    (  scr_col    )
+            .scr_pxl    (  { scr_pal, scr_col } )
         );       
     end else begin
         jtgng_tile3 #(

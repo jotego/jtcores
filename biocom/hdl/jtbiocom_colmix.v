@@ -121,7 +121,7 @@ end
 
 jtgng_ram #(.aw(10),.dw(16)) u_pal(
     .clk        ( clk         ),
-    .clk_en     ( cen6        ), // clock enable only applies to write operation
+    .cen        ( cen6        ), // clock enable only applies to write operation
     .data       ( DB          ),
     .addr       ( pal_addr    ),
     .we         ( pal_we      ),

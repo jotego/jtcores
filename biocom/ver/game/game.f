@@ -3,7 +3,6 @@
 ../../hdl/jtbiocom_dip.v
 ../../hdl/jtbiocom_prom_we.v
 ../../hdl/jtbiocom_video.v
-../../hdl/jtbiocom_scroll.v
 ../../hdl/jtbiocom_colmix.v
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
@@ -22,13 +21,15 @@
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_objdraw.v
 ../../../modules/jtgng_obj.v
+../../../modules/jtgng_scroll.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_tilemap.v
+../../../modules/jtgng_tile4.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_charmsg.v
-../../../modules/fx68k/fx68kAlu.sv
-../../../modules/fx68k/fx68k.sv
-../../../modules/fx68k/uaddrPla.sv
-
+#../../../modules/fx68k/fx68kAlu.sv
+#../../../modules/fx68k/fx68k.sv
+#../../../modules/fx68k/uaddrPla.sv
+fx68k_dummy.v

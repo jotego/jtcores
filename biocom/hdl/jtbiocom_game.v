@@ -73,17 +73,18 @@ module jtbiocom_game(
 
 parameter CLK_SPEED=48;
 
-wire [8:0] V;
-wire [8:0] H;
-wire HINIT;
+wire [ 8:0] V;
+wire [ 8:0] H;
+wire        HINIT;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
-wire char_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd, cpu_cen;
-wire char_busy, scr_busy;
+wire        snd_cs;
+wire        char_cs;
+wire        flip;
+wire [ 7:0] char_dout, scr1_dout, scr2_dout;
+wire [15:0] cpu_dout;
+wire        rd, cpu_cen;
+wire        char_busy, scr_busy;
 
 // ROM data
 wire [15:0] char_data;
@@ -100,9 +101,8 @@ wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen12b;
 
-
-wire rom_ready;
-wire main_ok, snd_ok;
+wire        rom_ready;
+wire        main_ok, snd_ok;
 
 assign sample=1'b1;
 
@@ -175,7 +175,7 @@ wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
-wire [7:0] main_ram;
+wire [15:0] oram_dout;
 
 wire [5:0] prom_we;
 
@@ -246,7 +246,7 @@ jtbiocom_main u_main(
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
-    .ram_dout   ( main_ram      ),
+    .oram_dout  ( oram_dout     ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
@@ -357,7 +357,7 @@ jtbiocom_video #(
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
-    .main_ram   ( main_ram      ),
+    .oram_dout  ( oram_dout     ),
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_data      ),
     .OKOUT      ( OKOUT         ),

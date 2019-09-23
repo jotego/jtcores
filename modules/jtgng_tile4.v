@@ -42,7 +42,7 @@ module jtgng_tile4 #(parameter
     input   [3:0]      prom_din,
     // Gfx ROM
     output reg  [ROM_AW-1:0] scr_addr,
-    input             [15:0] scrom_data,
+    input             [15:0] rom_data,
     output [(PALETTE?5:7):0] scr_pxl
 );
 
@@ -111,7 +111,7 @@ reg [3:0] scr_attr1, scr_col0, scr_pal0;
 
 always @(posedge clk) if(cen6) begin
     if( HS[1:0]==2'd1 ) begin
-            { z,y,x,w } <= scrom_data;
+            { z,y,x,w } <= rom_data;
             scr_hflip1  <= scr_hflip ^ flip; // must be ready when z,y,x are.
             scr_attr1   <= scr_attr0;
         end

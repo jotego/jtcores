@@ -58,7 +58,7 @@ module jtbiocom_video(
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
-    input       [11:0]  main_ram,   // only 12 bits are read
+    input       [11:0]  oram_dout,   // only 12 bits are read
     input               OKOUT,
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
@@ -100,8 +100,8 @@ parameter AVATAR_MAX    = 8;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
-wire [2:0] scr1_col, scr2_col;
-wire [2:0] scr1_pal, scr2_pal;
+wire [3:0] scr1_col, scr2_col;
+wire [3:0] scr1_pal, scr2_pal;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
@@ -119,7 +119,7 @@ jtgng_char #(.HOFFSET(1)) u_char (
     .V          ( V             ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
-    .din        ( cpu_dout      ),
+    .din        ( cpu_dout[7:0] ),
     .dout       ( char_dout     ),
     // Bus arbitrion
     .char_cs    ( char_cs       ),
@@ -171,17 +171,17 @@ u_scroll1 (
     .Asel       ( cpu_AB[1]     ),
     .AB         ( cpu_AB[13:2]  ),
     .scr_cs     ( scr_cs        ),
-    .din        ( cpu_dout      ),
+    .din        ( cpu_dout[7:0] ),
     .dout       ( scr1_dout     ),
     .wr_n       ( RnW           ),
-    .busy       ( scr_busy      ),
+    .busy       ( scr1_busy     ),
     // ROM
     .scr_addr   ( scr1_addr     ),
     .rom_data   ( scr1_data     ),
     .rom_ok     ( scr1_ok       ),
     // pixel output
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( { scrwin, scr_pal } )
+    .scr_col    ( scr1_col      ),
+    .scr_pal    ( scr1_pal      )
 );
 `else
 assign scr_busy   = 1'b1;
@@ -203,7 +203,7 @@ u_obj (
     .clk        ( clk         ),
     .cen6       ( cen6        ),
     .AB         ( obj_AB      ),
-    .DB         ( main_ram    ),
+    .DB         ( oram_dout   ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
@@ -233,8 +233,8 @@ jtbiocom_colmix u_colmix (
     .cen6         ( cen6          ),
 
     .char_pxl     ( char_pxl      ),
-    .scr1_pxl     ( scr1_pxl      ),
-    .scr2_pxl     ( scr2_pxl      ),
+    .scr1_pxl     ( { scr1_pal, scr1_col } ),
+    .scr2_pxl     ( { scr2_pal, scr2_col } ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
