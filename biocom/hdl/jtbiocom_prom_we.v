@@ -31,48 +31,37 @@ module jtbiocom_prom_we(
     output reg           prom_we
 );
 
-// MAIN         starts at 00000h
-// SOUND        starts at 0C000h
-// CHAR         starts at 10000h
-// SCROLL X     starts at 14000h
-// SCROLL Z     starts at 1C000h
-// Objects ZY   starts at 24000h
-// SCROLL Y     starts at 30000h
-// SCROLL Z     starts at 38000h
-// Objects XW   starts at 40000h
-// PROMs        starts at 4C000h
-// ROM length 4C600h
+localparam MAIN0_ADDR  = 22'h00000;
+localparam MAIN1_ADDR  = 22'h20000;
+localparam SND_ADDR    = 22'h40000;
+localparam CHAR_ADDR   = 22'h48000;
+// Scroll 1/2
+localparam SCR1XY_ADDR = 22'h50000;
+localparam SCR2XY_ADDR = 22'h70000;
+localparam SCR1ZW_ADDR = 22'h78000;
+localparam SCR2ZW_ADDR = 22'h98000;
+localparam OBJZ_ADDR   = 22'hA0000;
+localparam OBJX_ADDR   = 22'hC0000;
+localparam MCU_ADDR    = 22'hE0000;
+localparam PROM_ADDR   = 22'hE1000;
+// ROM length E1100
 
-localparam 
-    SNDADDR  = 22'h0_C000, 
-    CHARADDR = 22'h1_0000,
-
-    SCRXADDR = 22'h1_4000,
-    SCRZADDR = 22'h1_C000,
-    SCRYADDR = 22'h2_4000,
-    SCRZADDR2= 22'h2_C000,
-
-    OBJZADDR = 22'h3_4000,
-    OBJXADDR = 22'h4_0000,
-
-    PROMS    = 22'h4_c000,
-    ROMEND   = 22'h4_c600;
-
-`ifdef SIMULATION
-wire region0_main  = ioctl_addr < SNDADDR;
-wire region1_snd   = ioctl_addr < CHARADDR;
-wire region2_char  = ioctl_addr < SCRXADDR;
-wire region3_scrx  = ioctl_addr < SCRZADDR;
-wire region4_scrz  = ioctl_addr < SCRYADDR;
-wire region5_scry  = ioctl_addr < SCRZADDR2;
-wire region6_scrz2 = ioctl_addr < OBJZADDR;
-wire region7_objzy = ioctl_addr < OBJXADDR;
-wire region8_objxw = ioctl_addr < PROMS;
-`endif
+// `ifdef SIMULATION
+// wire region0_main  = ioctl_addr < SND_ADDR;
+// wire region1_snd   = ioctl_addr < CHAR_ADDR;
+// wire region2_char  = ioctl_addr < SCR1XY_ADDR;
+// wire region3_scr1x = ioctl_addr < SCR1ZW_ADDR;
+// wire region4_scr1z = ioctl_addr < SCR2XY_ADDR;
+// wire region5_scry  = ioctl_addr < SCR2ZW_ADDR;
+// wire region6_scrz2 = ioctl_addr < OBJZ_ADDR;
+// wire region7_objzy = ioctl_addr < OBJX_ADDR;
+// wire region8_objxw = ioctl_addr < MCU_ADDR;
+// wire region8_objxw = ioctl_addr < PROM_ADDR;
+// `endif
 
 // offset the SDRAM programming address by 
-reg [16:0] scr_offset=17'd0;
-reg [15:0] obj_offset=16'd0;
+wire [ 3:0] scr_msb = ioctl_addr[19:16]-5'b0101;
+reg  [15:0] obj_offset=16'd0;
 
 reg set_strobe, set_done;
 reg prom_we0 = 1'd0;
@@ -94,17 +83,19 @@ always @(posedge clk) begin
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
-        if(ioctl_addr < SCRXADDR) begin // Main ROM, CHAR ROM
-            prog_addr <= {1'b0, ioctl_addr[21:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
-            scr_offset <= 17'd0;
+        if( ioctl_addr[19:16] < SND_ADDR[19:16] ) begin // Main ROM, 16 bits per word
+            prog_addr <= {1'b0, ioctl_addr[16:0]}; // A[17] ignored
+                // because it sets the boundary
+            prog_mask <= ioctl_addr[17]==1'b0 ? 2'b10 : 2'b01;            
         end
-        else if(ioctl_addr < OBJZADDR ) begin // Scroll    
-            prog_mask <= scr_offset[16] ? 2'b01 : 2'b10;
-            prog_addr <= SCRXADDR[21:1] +
-                { 6'd0, scr_offset[15:0] }; // original bit order
+        else if(ioctl_addr[19:16] < SCR1XY_ADDR[19:16]) begin // Sound ROM, CHAR ROM
+            prog_addr <= {1'b0, ioctl_addr[19:16]-6'd2, ioctl_addr[15:1]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+        end
+        else if(ioctl_addr[19:16] < OBJZ_ADDR[19:16] ) begin // Scroll    
+            prog_mask <= scr_msb<5'b010_1 ? 2'b01 : 2'b10;
+            prog_addr <= { scr_msb[3:0],ioctl_addr[14:0]} }; // original bit order
             scr_offset <= scr_offset+17'd1;
-            obj_offset <= 16'd0;
             obj_part   <= 1'b0;
         end
         else if(ioctl_addr < PROMS ) begin // Objects
@@ -115,7 +106,7 @@ always @(posedge clk) begin
             end else begin
                 obj_offset <= obj_offset+16'd1;
             end
-            prog_addr <= (OBJZADDR>>1) + { 6'd0, {obj_offset[15:6], obj_offset[4:1], obj_offset[5], obj_offset[0] } };
+            prog_addr <= (OBJZ_ADDR>>1) + { 6'd0, {obj_offset[15:6], obj_offset[4:1], obj_offset[5], obj_offset[0] } };
         end
         else begin // PROMs
             prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };
