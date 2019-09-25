@@ -16,8 +16,8 @@ module mist_dump(
     `ifdef LOADROM
     //always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
    initial begin 
-       $display("DUMP starts");
-        $dumpvars(0,mist_test);
+        $display("DUMP starts");
+        $dumpvars(1,mist_test.UUT.u_game.u_prom_we);            
         $dumpon;
     end
     `else

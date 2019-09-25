@@ -150,7 +150,9 @@ u_main(
     .data_ok   ( main_ok                ),
     .we        ( data_sel[0]            ),
     .prog_we   ( prog_main              ),
-    .prog_data ( prog_data              ),
+    // 16-bit operation from BRAM has not been
+    // verified yet
+    .prog_data ( {(main_dw==8?1:2){prog_data}} ),
     .prog_addr ( prog_addr2[main_aw-1:0])
 );
 

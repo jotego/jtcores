@@ -92,7 +92,7 @@ wire [15:0] obj_data;
 wire [15:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [19:1] main_addr;
+wire [17:1] main_addr;
 wire [14:0] snd_addr;
 wire [12:0] char_addr;
 wire [16:0] scr1_addr;
@@ -178,7 +178,9 @@ wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 9:0] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
-wire        prom_prio_we;
+wire [ 1:0] prom_we;
+wire        prom_mcu_we  = prom_we[0];
+wire        prom_prio_we = prom_we[1];
 
 jtbiocom_prom_we u_prom_we(
     .clk         ( clk           ),
@@ -193,7 +195,7 @@ jtbiocom_prom_we u_prom_we(
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
 
-    .prom_we     ( prom_prio_we  )
+    .prom_we     ( prom_we       )
 );
 
 // wire prom_1d = prom_we[0];
@@ -271,7 +273,7 @@ jtbiocom_main u_main(
     .dipsw_b    ( dipsw_b       )
 );
 `else
-assign main_addr   = 19'd0;
+assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
 assign bus_ack     = 1'b0;
@@ -309,6 +311,7 @@ assign snd      = 16'b0;
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
+`ifndef NOVIDEO
 jtbiocom_video #(
     .OBJ_PAL      (2'b10),
     .PALETTE_PROM (1),
@@ -382,12 +385,22 @@ jtbiocom_video #(
     .green      ( green         ),
     .blue       ( blue          )
 );
+`else
+// Video module may be ommitted for SDRAM load simulation
+assign red       = 4'h0;
+assign green     = 4'h0;
+assign blue      = 4'h0;
+assign obj_addr  = 0;
+assign scr1_addr = 0;
+assign scr2_addr = 0;
+assign char_addr = 0;
+`endif
 
 wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
-    .main_dw    ( 19              ),
+    .main_dw    ( 16              ),
     .main_aw    ( 17              ),
     .char_aw    ( 13              ),
     .obj_aw     ( 18              ),
@@ -395,9 +408,9 @@ jtgng_rom #(
     .scr2_aw    ( 15              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h4_8000 >> 1 ),
-    .scr1_offset( 22'h5_0000 >> 1 ),
-    .scr2_offset( 22'h9_0000 >> 1 ),
-    .obj_offset ( 22'hA_0000 >> 1 )
+    .scr1_offset( 22'h5_0000      ), // SCR and OBJ are not shifted
+    .scr2_offset( 22'h7_0000      ),
+    .obj_offset ( 22'hB_0000      )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -418,8 +431,8 @@ jtgng_rom #(
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
-    .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( scr_addr      ),
+    .scr1_addr   ( scr1_addr     ),
+    .scr2_addr   ( scr2_addr     ),
     .map1_addr   ( 14'd0         ),
     .map2_addr   ( 14'd0         ),
 

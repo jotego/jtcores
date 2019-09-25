@@ -28,7 +28,7 @@ module jtbiocom_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg           prom_we
+    output reg [ 1:0]    prom_we
 );
 
 localparam MAIN0_ADDR  = 22'h00000;
@@ -38,33 +38,43 @@ localparam CHAR_ADDR   = 22'h48000;
 // Scroll 1/2
 localparam SCR1XY_ADDR = 22'h50000;
 localparam SCR2XY_ADDR = 22'h70000;
-localparam SCR1ZW_ADDR = 22'h78000;
-localparam SCR2ZW_ADDR = 22'h98000;
-localparam OBJZ_ADDR   = 22'hA0000;
-localparam OBJX_ADDR   = 22'hC0000;
-localparam MCU_ADDR    = 22'hE0000;
-localparam PROM_ADDR   = 22'hE1000;
-// ROM length E1100
+localparam SCR1ZW_ADDR = 22'h80000;
+localparam SCR2ZW_ADDR = 22'hA0000;
+localparam OBJZ_ADDR   = 22'hB0000;
+localparam OBJX_ADDR   = 22'hD0000;
+localparam MCU_ADDR    = 22'hF0000;
+localparam PROM_ADDR   = 22'hF1000;
+// ROM length F1100
 
-// `ifdef SIMULATION
-// wire region0_main  = ioctl_addr < SND_ADDR;
-// wire region1_snd   = ioctl_addr < CHAR_ADDR;
-// wire region2_char  = ioctl_addr < SCR1XY_ADDR;
-// wire region3_scr1x = ioctl_addr < SCR1ZW_ADDR;
-// wire region4_scr1z = ioctl_addr < SCR2XY_ADDR;
-// wire region5_scry  = ioctl_addr < SCR2ZW_ADDR;
-// wire region6_scrz2 = ioctl_addr < OBJZ_ADDR;
-// wire region7_objzy = ioctl_addr < OBJX_ADDR;
-// wire region8_objxw = ioctl_addr < MCU_ADDR;
-// wire region8_objxw = ioctl_addr < PROM_ADDR;
-// `endif
+`ifdef SIMULATION
+// simulation watchers
+reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
+`define CLR_ALL  {w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom} <= 7'd0;
+`define SET_MAIN  w_main <= 1'b1;
+`define SET_SND   w_snd  <= 1'b1;
+`define SET_CHAR  w_char <= 1'b1;
+`define SET_SCR   w_scr  <= 1'b1;
+`define SET_OBJ   w_obj  <= 1'b1;
+`define SET_MCU   w_mcu  <= 1'b1;
+`define SET_PROM  w_prom <= 1'b1;
+`else
+// nothing for synthesis
+`define CLR_ALL  
+`define SET_MAIN 
+`define SET_SND  
+`define SET_CHAR 
+`define SET_SCR  
+`define SET_OBJ  
+`define SET_MCU  
+`define SET_PROM 
+`endif
 
 // offset the SDRAM programming address by 
-wire [ 3:0] scr_msb = ioctl_addr[19:16]-5'b0101;
-reg  [15:0] obj_offset=16'd0;
+wire [3:0] scr_msb = ioctl_addr[19:16]-4'd5;
+wire [3:0] obj_msb = ioctl_addr[19:16]-4'hb;
 
 reg set_strobe, set_done;
-reg prom_we0 = 1'd0;
+reg prom_we0 = 2'd0;
 
 always @(posedge clk) begin
     prom_we <= 1'd0;
@@ -83,45 +93,48 @@ always @(posedge clk) begin
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
+        `CLR_ALL
         if( ioctl_addr[19:16] < SND_ADDR[19:16] ) begin // Main ROM, 16 bits per word
             prog_addr <= {1'b0, ioctl_addr[16:0]}; // A[17] ignored
                 // because it sets the boundary
             prog_mask <= ioctl_addr[17]==1'b0 ? 2'b10 : 2'b01;            
+            `SET_MAIN
         end
         else if(ioctl_addr[19:16] < SCR1XY_ADDR[19:16]) begin // Sound ROM, CHAR ROM
-            prog_addr <= {1'b0, ioctl_addr[19:16]-6'd2, ioctl_addr[15:1]};
+            prog_addr <= {3'b0, ioctl_addr[19:16], ioctl_addr[15:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            `SET_SND
         end
         else if(ioctl_addr[19:16] < OBJZ_ADDR[19:16] ) begin // Scroll    
-            prog_mask <= scr_msb<5'b010_1 ? 2'b01 : 2'b10;
-            prog_addr <= { scr_msb[3:0],ioctl_addr[14:0]} }; // original bit order
-            scr_offset <= scr_offset+17'd1;
-            obj_part   <= 1'b0;
+            prog_mask <= scr_msb[2:0] >= 3'd3 ? 2'b01 : 2'b10;
+            prog_addr <= { 2'b0, scr_msb[3:0]+4'h5,ioctl_addr[15:0] }; // original bit order
+            `SET_SCR
         end
-        else if(ioctl_addr < PROMS ) begin // Objects
-            prog_mask <= obj_part ? 2'b10 : 2'b01;
-            if( obj_offset == 16'hBFFF ) begin
-                obj_offset <= 16'd0;
-                obj_part   <= 1'b1;
-            end else begin
-                obj_offset <= obj_offset+16'd1;
-            end
-            prog_addr <= (OBJZ_ADDR>>1) + { 6'd0, {obj_offset[15:6], obj_offset[4:1], obj_offset[5], obj_offset[0] } };
+        else if(ioctl_addr[19:16] < MCU_ADDR[19:16] ) begin // Objects
+            prog_mask <= obj_msb[1] ? 2'b10 : 2'b01;
+            prog_addr <= { 2'b0, obj_msb + 4'hB, 
+                {ioctl_addr[15:6], ioctl_addr[4:1], ioctl_addr[5], ioctl_addr[0] } };
+            `SET_OBJ
         end
-        else begin // PROMs
-            prog_addr <= { {22-8{1'b0}}, ioctl_addr[7:0] };
+        else if(ioctl_addr[19:12] < PROM_ADDR[19:12] ) begin // MCU
+            prog_addr <= {6'hf, 1'b0, ioctl_addr[15:1]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};            
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0  <= 1'd0;
-            case(ioctl_addr[10:8])
-                3'h0: prom_we0 <= 1'b1;
-                default:;
-            endcase
-            set_strobe <= 1'b1;
+            prom_we0  <= 2'b1;
+            `SET_MCU
+        end
+        else begin // PROMs
+            prog_addr <= ioctl_addr;
+            prog_we   <= 1'b0;
+            prog_mask <= 2'b11;
+            prom_we0  <= { ioctl_addr[11:8] == 4'h1, 1'b0 };
+            set_strobe<= 1'b1;
+            `SET_PROM
         end
     end
     else begin
-        prog_we  <= 1'b0;
+        prog_we  <= 2'b0;
         prom_we0 <= 1'd0;
     end
 end

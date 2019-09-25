@@ -76,7 +76,7 @@ module jtbiocom_main(
     output  reg        col_cs,
     // ROM access
     output  reg        rom_cs,
-    output      [19:1] rom_addr,
+    output      [17:1] rom_addr,
     input       [15:0] rom_data,
     input              rom_ok,
     // DIP switches
@@ -255,7 +255,7 @@ always @(*)
         default:    cpu_din = rom_data;
     endcase
 
-assign rom_addr = A[19:1];
+assign rom_addr = A[17:1];
 
 /////////////////////////////////////////////////////////////////
 // wait_n generation
