@@ -20,6 +20,7 @@ module jtgng_obj #(parameter
     OBJMAX      = 9'h180,
     OBJMAX_LINE = 5'd24,
     DMA_DW      = 8,        // Data width of each DMA transfer
+    DMA_AW      = 9,        // Data width of each DMA transfer
     PXL_DLY     = 7,
     ROM_AW      = 16,
     LAYOUT      = 0,   // 0: GnG, Commando
@@ -46,8 +47,8 @@ module jtgng_obj #(parameter
     input              pause,
     output  [ 3:0]     avatar_idx,
     // shared bus
-    output  [ 8:0]     AB,
-    input [DMA_DW-1:0] DB,
+    output [DMA_AW-1:0] AB,
+    input  [DMA_DW-1:0] DB,
     input              OKOUT,
     output             bus_req,        // Request bus
     input              bus_ack,    // bus acknowledge
@@ -66,7 +67,7 @@ module jtgng_obj #(parameter
     output  [(PALETTE?7:(PALW+4-1)):0] obj_pxl
 );
 
-wire [8:0] pre_scan;
+wire [DMA_AW-1:0] pre_scan;
 wire [DMA_DW-1:0] ram_dout, objbuf_data;
 
 wire line, fill, line_obj_we;
@@ -86,6 +87,7 @@ end
 // DMA to 6809 RAM memory to copy the sprite data
 jtgng_objdma #(
     .DW         ( DMA_DW     ),
+    .AW         ( DMA_AW     ),
     .OBJMAX     ( OBJMAX     ),
     .AVATAR_MAX ( AVATAR_MAX ))
  u_dma(
@@ -111,6 +113,7 @@ jtgng_objdma #(
 // Parse sprite data per line
 jtgng_objbuf #(
     .DW         ( DMA_DW     ),
+    .AW         ( DMA_AW     ),
     .OBJMAX     ( OBJMAX     ),
     .OBJMAX_LINE( OBJMAX_LINE))
 u_buf(
@@ -141,6 +144,7 @@ wire [(PALETTE?7:3):0] new_pxl;
 
 // draw the sprite
 jtgng_objdraw #(
+    .DW               ( DMA_DW            ),
     .ROM_AW           ( ROM_AW            ),          
     .LAYOUT           ( LAYOUT            ),          
     .PALW             ( PALW              ),            

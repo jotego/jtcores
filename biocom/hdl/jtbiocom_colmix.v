@@ -67,7 +67,7 @@ wire enable_obj  = gfx_en[3];
 wire [1:0] selbus;
 reg  [7:0] seladdr;
 reg  [1:0] muxsel;
-reg        char_blank_n = |(~char_pxl[1:0]);
+wire       char_blank_n = |(~char_pxl[1:0]);
 
 always @(*) begin
     seladdr[0]   = |(~scr2_pxl[3:0]);

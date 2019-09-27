@@ -18,7 +18,8 @@
 
 module jtgng_objbuf #(parameter
     DW          = 8,
-    OBJMAX      = 10'h180,
+    AW          = 9,
+    OBJMAX      = 10'h180, // 180h for 96 objects (GnG) 
     OBJMAX_LINE = 5'd24
 ) (
     input               rst,
@@ -31,7 +32,7 @@ module jtgng_objbuf #(parameter
     output reg  [7:0]   VF,
     input               flip,
     // sprite data scan
-    output reg  [8:0]   pre_scan,
+    output reg [AW-1:0] pre_scan,
     input      [DW-1:0] ram_dout,
     // sprite data buffer
     output     [DW-1:0] objbuf_data,
@@ -81,7 +82,7 @@ always @(posedge clk, posedge rst)
             SEARCH: begin
                 line_obj_we <= 1'b0;
                 if( !LVBL || fill ) begin
-                    {pre_scan_msb, pre_scan} <= 10'd2;
+                    {pre_scan_msb, pre_scan} <= 2;
                     post_scan<= 5'd31; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
@@ -98,7 +99,7 @@ always @(posedge clk, posedge rst)
                         if( {pre_scan_msb,pre_scan}>=OBJMAX ) begin
                             fill <= 1'b1;
                         end else begin
-                            {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 10'd4;
+                            {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 4;
                         end
                     end
                 end
@@ -113,7 +114,7 @@ always @(posedge clk, posedge rst)
                 else
                 if( pre_scan[1:0]==2'b11 ) begin
                     post_scan <= post_scan-1'b1;
-                    pre_scan <= pre_scan + 9'd3;
+                    pre_scan <= pre_scan + 3;
                     trf_state  <= SEARCH;
                     line_obj_we <= 1'b0;
                 end

@@ -1,13 +1,13 @@
-fx68k_dummy.v
+# fx68k_dummy.v
 ../../hdl/jtbiocom_colmix.v
 ../../hdl/jtbiocom_dip.v
 ../../hdl/jtbiocom_game.v
 ../../hdl/jtbiocom_main.v
 ../../hdl/jtbiocom_prom_we.v
 ../../hdl/jtbiocom_video.v
-# ../../../modules/fx68k/fx68kAlu.sv
-# ../../../modules/fx68k/fx68k.sv
-# ../../../modules/fx68k/uaddrPla.sv
+../../../modules/fx68k/fx68kAlu.sv
+../../../modules/fx68k/fx68k.sv
+../../../modules/fx68k/uaddrPla.sv
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v

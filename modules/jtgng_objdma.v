@@ -17,8 +17,9 @@
     Date: 11-1-2019 */
 
 module jtgng_objdma #(parameter
-    OBJMAX      =   9'h180,
+    OBJMAX      =   9'h180,     // Buffer size, obj count is this number divided by 4. 180h -> 60h = 96dec
     DW          =   8,          // Most games are 8-bit wide, Bionic Commando is 12-bit wide
+    AW          =   9,          // Bionic Commando is 10
     AVATAR_MAX  =   4'd8        // ignore if avatars are not used
 ) (
     input               rst,
@@ -29,14 +30,14 @@ module jtgng_objdma #(parameter
     input               pause,
     output  reg [ 3:0]  avatar_idx,
     // shared bus
-    output  reg [ 8:0]  AB,
-    input     [DW-1:0]  DB,
+    output reg [AW-1:0]  AB,
+    input      [DW-1:0]  DB,
     input               OKOUT,
     output  reg         bus_req,  // Request bus
     input               bus_ack,  // bus acknowledge
     output  reg         blen,     // bus line counter enable
     // output data
-    input       [8:0]   pre_scan,
+    input      [AW-1:0] pre_scan,
     output reg [DW-1:0] ram_dout
 );
 
@@ -84,7 +85,7 @@ always @(posedge clk, posedge rst)
 reg ABslow;
 always @(posedge clk) if(cen6) begin
     if( !blen )
-        {AB, ABslow} <= 10'd0;
+        {AB, ABslow} <= {AW+1{1'b0}};
     else begin
         {AB, ABslow} <= {AB, ABslow} + 1'b1;
     end
@@ -98,14 +99,14 @@ always @(posedge clk, posedge rst)
     end
 
 
-wire [9:0]  wr_addr = mem_sel==MEM_PREBUF ? {1'b0, AB } : 10'd0;
+wire [AW-1:0]  wr_addr = mem_sel==MEM_PREBUF ? AB : {AW{1'b0}};
 wire        ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
 `ifndef OBJTEST
-wire [7:0]  ram_din = mem_sel==MEM_PREBUF ? DB : 8'd0;
+wire [DW-1:0]  ram_din = mem_sel==MEM_PREBUF ? DB : {DW{1'd0}};
 `else 
-wire [7:0] ram_din;
-jtgng_ram #(.aw(9),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
+wire [DW-1:0] ram_din;
+jtgng_ram #(.aw(AW),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
     .clk        ( clk       ),
     .cen        ( 1'b1      ),
     .addr       ( AB        ),
@@ -115,19 +116,19 @@ jtgng_ram #(.aw(9),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
 );
 `endif
 
-wire [7:0] buf_data;
+wire [DW-1:0] buf_data;
 
 // The real PCB did not have a dual port RAM but at this point
 // of the signal chain, it does not affect timing accuracy as
 // what matters is the DMA period, which is accurate.
-jtgng_dual_ram #(.aw(10),.dw(DW)) u_objram (
-    .clk        ( clk               ),
-    .clk_en     ( cen6              ),
-    .data       ( ram_din           ),
-    .rd_addr    ( {1'b0, pre_scan } ),
-    .wr_addr    ( wr_addr           ),
-    .we         ( ram_we            ),
-    .q          ( buf_data          )
+jtgng_dual_ram #(.aw(AW),.dw(DW)) u_objram (
+    .clk        ( clk         ),
+    .clk_en     ( cen6        ),
+    .data       ( ram_din     ),
+    .rd_addr    ( pre_scan    ),
+    .wr_addr    ( wr_addr     ),
+    .we         ( ram_we      ),
+    .q          ( buf_data    )
 );
 
 `ifdef AVATARS

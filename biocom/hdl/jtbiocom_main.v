@@ -62,7 +62,7 @@ module jtbiocom_main(
     input              dma,
     output  [13:1]     cpu_AB,
     output  [15:0]     oram_dout,
-    input   [ 9:0]     obj_AB,
+    input   [13:1]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
     output  reg        dmaon,
@@ -210,7 +210,7 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
 assign cpu_AB = A[13:1];
-wire [10:0] oram_addr   = blcnten ? {1'b1, obj_AB} : A[11:1];
+wire [10:0] oram_addr   = blcnten ? obj_AB[11:1] : A[11:1];
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .clk        ( clk              ),

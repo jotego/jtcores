@@ -50,7 +50,7 @@ module jtgng_tilemap #(parameter
     output reg       busy,
     // Pause screen
     input            pause,
-    output     [SCANW-1:0] scan,
+    output reg [SCANW-1:0] scan,
     input      [7:0] msg_low,
     input      [7:0] msg_high,
     // Current tile
@@ -60,8 +60,15 @@ module jtgng_tilemap #(parameter
 
 reg scan_sel = 1'b1;
 
-assign scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}} 
-        : { {SCANW{flip}}^{V[7:3],H[7:3]}}) >> (10-SCANW);
+always @(*) begin
+    if( SCANW <= 10) begin
+        scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}} 
+            : { {SCANW{flip}}^{V[7:3],H[7:3]}}) >> (10-SCANW);
+    end else begin
+        scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
+    end
+end
+
 reg [SCANW-1:0] addr;
 reg we_low, we_high;
 wire [7:0] mem_low, mem_high;

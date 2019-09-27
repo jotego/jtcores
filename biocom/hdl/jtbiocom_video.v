@@ -41,7 +41,7 @@ module jtbiocom_video(
     input               scr1_cs,
     output      [ 7:0]  scr1_dout,
     output      [16:0]  scr1_addr,
-    input       [23:0]  scr1_data,
+    input       [15:0]  scr1_data,
     input               scr1_ok,
     output              scr1_busy,
     input       [ 8:0]  scr1_hpos,
@@ -50,14 +50,14 @@ module jtbiocom_video(
     input               scr2_cs,
     output      [ 7:0]  scr2_dout,
     output      [14:0]  scr2_addr,
-    input       [23:0]  scr2_data,
+    input       [15:0]  scr2_data,
     input               scr2_ok,
     output              scr2_busy,
     input       [ 8:0]  scr2_hpos,
     input       [ 8:0]  scr2_vpos,
     // OBJ
     input               HINIT,
-    output      [ 9:0]  obj_AB,
+    output      [13:1]  obj_AB,
     input       [11:0]  oram_dout,   // only 12 bits are read
     input               OKOUT,
     output              bus_req, // Request bus
@@ -158,7 +158,7 @@ assign char_mrdy = 1'b1;
 `ifndef NOSCR
 jtgng_scroll #(
     .ROM_AW     ( 17            ),
-    .SCANW      ( 13            ),
+    .SCANW      ( 12            ),
     .HOFFSET    (  0            ),
     .TILE4      (  1            )) // 4bpp
 u_scroll1 (
@@ -190,7 +190,7 @@ u_scroll1 (
 
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
-    .SCANW      ( 13            ),
+    .SCANW      ( 12            ),
     .HOFFSET    (  0            ),
     .TILE4      (  1            )) // 4bpp
 u_scroll2 (
@@ -230,16 +230,17 @@ assign scr_dout   = 8'd0;
 
 jtgng_obj #(
     .AVATAR_MAX ( AVATAR_MAX ),
-    .OBJMAX     ( 9'd160     ),
+    .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),
     .ROM_AW     ( 18         ),
+    .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .cen6       ( cen6        ),
-    .AB         ( obj_AB      ),
+    .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
@@ -262,6 +263,8 @@ u_obj (
     // pixel data
     .obj_pxl    ( obj_pxl     )
 );
+
+assign obj_AB[13:11] = 3'b111;
 
 `ifndef NOCOLMIX
 jtbiocom_colmix u_colmix (

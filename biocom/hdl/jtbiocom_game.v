@@ -175,7 +175,7 @@ wire [7:0] snd_latch;
 wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 9:0] obj_AB;     // 1 more bit than older games
+wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
 wire [ 1:0] prom_we;
@@ -324,7 +324,7 @@ jtbiocom_video #(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
-    .cpu_AB     ( cpu_AB[11:1]  ),
+    .cpu_AB     ( cpu_AB        ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .RnW        ( RnW           ),
@@ -359,7 +359,7 @@ jtbiocom_video #(
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
-    .oram_dout  ( oram_dout     ),
+    .oram_dout  ( oram_dout[11:0] ),
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_data      ),
     .OKOUT      ( OKOUT         ),
