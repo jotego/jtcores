@@ -87,7 +87,6 @@ module jtbiocom_main(
 
 wire [19:1] A;
 wire [15:0] wram_dout;
-wire t80_rst_n;
 reg  in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, obj_cs;
 reg  scrpt_cs, io_cs;
 reg  scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
@@ -257,34 +256,28 @@ always @(*)
 
 assign rom_addr = A[17:1];
 
-/////////////////////////////////////////////////////////////////
-// wait_n generation
-wire wait_n;
+// DTACKn generation
 
-jtframe_z80wait #(2) u_wait(
-    .rst_n      ( t80_rst_n ),
-    .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
-    // manage access to shared memory
-    .dev_busy   ( { scr_busy, char_busy } ),
-    // manage access to ROM data from SDRAM
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+wire dtack_cln = ~|{ ASn, |{char_cs, scr1_cs, scr2_cs} };
+wire [3:0] dtack_q;
+wire       dtack_ca;
+wire       inta_n;
+wire DTACKn = |{ ~dtack_ca, scr1_busy, scr2_busy, char_busy };
 
-    .wait_n     ( wait_n    )
+jt74161 u_dtack(
+    .cl_b   ( dtack_cln                ),
+    .cet    (   inta_n                 ),
+    .cep    ( DTACKn                   ),
+    .d      ( { 1'b1, ~rom_cs, 2'b11 } ),
+    .q      ( dtack_q                  ),
+    .ld_b   ( dtack_q[3]               ),
+    .ca     ( dtack_ca                 )
 );
-
-reg wait_cen;
-
-always @(negedge clk)
-    wait_cen <= wait_n;
-
-wire cpu_wait_cen = cpu_cen & wait_cen;
 
 // interrupt generation
 reg        int1, int2;
 wire [2:0] FC;
-wire inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
+assign inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
 
 always @(posedge clk) begin : int_gen
     reg last_LVBL, last_V256;
@@ -320,14 +313,14 @@ fx68k u_cpu(
     .LDSn       ( LDSn        ),
     .UDSn       ( UDSn        ),
     .ASn        ( ASn         ),
-    .VPAn       ( VPAn        ),
+    .VPAn       ( inta_n      ),
     .FC0        ( FC[0]       ),
     .FC1        ( FC[1]       ),
     .FC2        ( FC[2]       ),
 
     .BERRn      ( BERRn       ),
-    .BRn        ( BRn         ),
-    .BGACKn     ( BGACKn      ),
+    .BRn        ( 1'b1        ),
+    .BGACKn     ( 1'b1        ),
 
     .DTACKn     ( DTACKn      ),
     .IPL0n      ( 1'b1        ),
@@ -343,3 +336,30 @@ fx68k u_cpu(
 );
 
 endmodule // jtgng_main
+
+// synchronous presettable 4-bit binary counter, asynchronous clear
+module jt74161( // ref: 74??161
+    input            cet,   // pin: 10
+    input            cep,   // pin: 7
+    input            ld_b,  // pin: 9
+    input            clk,   // pin: 2
+    input            cl_b,  // pin: 1
+    input      [3:0] d,     // pin: 6,5,4,3
+    output     [3:0] q,     // pin: 11,12,13,14
+    output           ca     // pin: 15
+ );
+
+    assign ca = &{q, cet};
+
+    initial qq=4'd0;
+    reg [3:0] qq;
+    assign q = qq;
+    always @(posedge clk or negedge cl_b)
+        if( !cl_b )
+            qq <= 4'd0;
+        else begin
+            if(!ld_b) qq <= d;
+            else if( cep&&cet ) qq <= qq+4'd1;
+        end
+
+endmodule // jt74161
