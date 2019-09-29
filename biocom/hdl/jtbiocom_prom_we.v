@@ -128,7 +128,7 @@ always @(posedge clk) begin
             prog_addr <= ioctl_addr;
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0  <= { ioctl_addr[11:8] == 4'h1, 1'b0 };
+            prom_we0  <= ioctl_addr[11:8] ? 2'b10 : 2'b0;
             set_strobe<= 1'b1;
             `SET_PROM
         end

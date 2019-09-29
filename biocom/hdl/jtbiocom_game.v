@@ -198,12 +198,8 @@ jtbiocom_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-// wire prom_1d = prom_we[0];
-// wire prom_2d = prom_we[1];
-// wire prom_3d = prom_we[2];
-// wire prom_1h = prom_we[3];
-// wire prom_6l = prom_we[4];
-// wire prom_6e = prom_we[5];
+wire prom_mcu_we  = prom_we[0];
+wire prom_prio_we = prom_we[1];
 
 wire scr1_cs, scr2_cs;
 wire [8:0] scr1_hpos, scr1_vpos;
@@ -283,6 +279,29 @@ assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
 `endif
+
+jtbiocom_mcu u_mcu(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen6       ( cen6          ),       //  6   MHz
+    // Main CPU interface
+    input           DMAONb,
+    input   [ 7:0]  main_din,
+    output  [ 7:0]  main_dout,
+    output          main_rdn,
+    output          main_wrn,   // always write to low bytes
+    output  [16:1]  main_addr,
+    output          main_rqbsqn, // RQBSQn
+    output          DMAn,
+    // Sound CPU interface
+    input   [ 7:0]  snd_din,
+    output  [ 7:0]  snd_dout,
+    input           snd_mcu_wr,
+    // ROM programming
+    .prog_addr  ( prog_addr     ),
+    .prom_din   ( prom_din      ),
+    .prom_we    ( prom_mcu_we   ),
+);
 
 `define NOSOUND
 `ifndef NOSOUND
