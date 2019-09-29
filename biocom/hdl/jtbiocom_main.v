@@ -95,7 +95,7 @@ module jtbiocom_main(
 wire [19:1] A;
 wire [15:0] wram_dout;
 reg         BRn, BGACKn;
-wire        BGn,
+wire        BGn;
 reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, obj_cs;
 reg         scrpt_cs, io_cs;
 reg         scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;

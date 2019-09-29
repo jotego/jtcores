@@ -209,9 +209,6 @@ jtbiocom_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-wire prom_mcu_we  = prom_we[0];
-wire prom_prio_we = prom_we[1];
-
 wire scr1_cs, scr2_cs;
 wire [8:0] scr1_hpos, scr1_vpos;
 wire [8:0] scr2_hpos, scr2_vpos;
@@ -320,7 +317,7 @@ jtbiocom_mcu u_mcu(
     // ROM programming
     .prog_addr  ( prog_addr     ),
     .prom_din   ( prom_din      ),
-    .prom_we    ( prom_mcu_we   ),
+    .prom_we    ( prom_mcu_we   )
 );
 
 `define NOSOUND

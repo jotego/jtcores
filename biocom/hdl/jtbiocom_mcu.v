@@ -54,7 +54,7 @@ module jtbiocom_mcu(
     // ROM programming
     input   [11:0]  prog_addr,
     input   [ 7:0]  prom_din,
-    input           prom_we,
+    input           prom_we
 );
 
 wire [15:0] rom_addr, ext_addr;
@@ -102,7 +102,19 @@ always @(posedge clk, posedge rst) begin
         if( !int1_clrn )
             int1 <= 1'b1;
         else if( snd_mcu_wr ) int1 <= 1'b0;
+    end
 end
+
+// Program PROM
+jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
+    .clk    ( clk           ),
+    .cen    ( 1'b1          ),
+    .data   ( prom_din      ),
+    .rd_addr( rom_addr[11:0]),
+    .wr_addr( prog_addr     ),
+    .we     ( prom_we       ),
+    .q      ( rom_data      )
+);
 
 oc8051_top u_mcu(
     .wb_rst_i   ( rst           ),
@@ -121,7 +133,6 @@ oc8051_top u_mcu(
     .wbd_ack_i  ( 1'b1          ),
     .wbd_stb_o  (               ), 
     .wbd_cyc_o  (               ), 
-    .wbd_err_i  ( 1'b0          ),
 
     // interrupt interface
     .int0_i     ( int0          ), 
