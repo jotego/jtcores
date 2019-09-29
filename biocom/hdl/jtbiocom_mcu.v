@@ -24,18 +24,28 @@
 // The MCU responds by writting an answer. The MCU cannot
 // know whether the sound CPU has read the value
 
+// Interface with main CPU:
+// The MCU takes control of the bus directly, including the bus decoder
+// Because it doesn't drive AB[19:17], which will remain high, the MCU
+// cannot access the PROM, OBJRAM, IO, scroll positions or char RAM
+// It can drive both scrolls, palette and work RAM because it drives
+// AB[16:14]. However, it doesn't have any bus arbitrion with the video
+// components, so it wouldn't be able to access video components
+// successfully. Thus, I am assuming that it only interacts with the
+// work RAM
+
 module jtbiocom_mcu(
     input           rst,
     input           clk,
     input           cen6,       //  6   MHz
     // Main CPU interface
-    input           DMAONb,
+    input           DMAONn,
     input   [ 7:0]  main_din,
     output  [ 7:0]  main_dout,
     output          main_rdn,
     output          main_wrn,   // always write to low bytes
     output  [16:1]  main_addr,
-    output          main_rqbsqn, // RQBSQn
+    output          main_brn, // RQBSQn
     output          DMAn,
     // Sound CPU interface
     input   [ 7:0]  snd_din,
@@ -57,20 +67,20 @@ reg         int0, int1;
 // interface with main CPU
 assign main_addr[13:9] = ~5'b0;
 assign { main_addr[16:14], main_addr[8:1] } = ext_addr[10:0];
-assign main_rqbsqn = int0;
-reg    last_DMAONb;
+assign main_brn = int0;
+reg    last_DMAONn;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         int0 <= 1'b1;
-        last_DMAONb <= 1'b1;
+        last_DMAONn <= 1'b1;
     end else begin
-        last_DMAONb <= DMAONb;
+        last_DMAONn <= DMAONn;
         if( !p3_o[0] ) // CLR
             int0 <= ~1'b0;
         else if(!p3_o[1]) // PR
             int0 <= ~1'b1;
-        else if( DMAONb && !last_DMAONb )
+        else if( DMAONn && !last_DMAONn )
             int0 <= ~1'b1;
     end
 end

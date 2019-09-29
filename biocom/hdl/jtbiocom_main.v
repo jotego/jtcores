@@ -65,10 +65,17 @@ module jtbiocom_main(
     input   [13:1]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
-    output  reg        dmaon,
     input              bus_req,  // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
+    // MCU interface
+    input              mcu_brn,
+    input   [ 7:0]     mcu2main_din,
+    output  [ 7:0]     mcu2main_dout,
+    input   [16:1]     mcu2main_addr,
+    input              mcu2main_wrn,
+    input              mcu_DMAn,
+    output  reg        mcu_DMAONn,
     // Palette
     output             coluw,    // all active high
     output             collw,    // all active high
@@ -87,11 +94,13 @@ module jtbiocom_main(
 
 wire [19:1] A;
 wire [15:0] wram_dout;
-reg  in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, obj_cs;
-reg  scrpt_cs, io_cs;
-reg  scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
-wire wr_n = RnW;
-wire ASn;
+reg         BRn, BGACKn;
+wire        BGn,
+reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, obj_cs;
+reg         scrpt_cs, io_cs;
+reg         scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
+wire        wr_n = RnW;
+wire        ASn;
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen12;
@@ -116,7 +125,7 @@ always @(*) begin
     scr2_cs       = 1'b0;
     scrpt_cs      = 1'b0;
     OKOUT         = 1'b0;
-    dmaon         = 1'b0;
+    mcu_DMAONn    = 1'b1;   // for once, I leave the original active low setting
 
     BERRn         = 1'b1;
     if( blcnten ) case(A[19:18])
@@ -133,8 +142,8 @@ always @(*) begin
                                 3'd1: scr1vpos_cs = 1'b1;
                                 3'd2: scr2hpos_cs = 1'b1;
                                 3'd3: scr2vpos_cs = 1'b1;
-                                3'd3: OKOUT = 1'b1;
-                                3'd5: dmaon = 1'b1; // to MCU
+                                3'd3: OKOUT       = 1'b1;
+                                3'd5: mcu_DMAONn  = 1'b0; // to MCU
                             default:;
                         endcase
                     3'd3:   char_cs = 1'b1;
@@ -187,13 +196,30 @@ wire [15:0] cabinet_input = A[1] ?
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
 wire        cpu_ram_we = ram_cs && !wr_n;
+reg [13:1]  work_A;
+reg         work_uwe, work_lwe;
+assign      mcu2main_dout = wram_dout[7:0];
+
+always @(*) begin
+    if( !mcu_brn && !BGn && mcu2main_addr[16:14]==3'b111 ) begin
+        // MCU access
+        work_A   = mcu2main_addr[13:1];
+        work_uwe = 1'b0;
+        work_lwe = !mcu2main_wrn;
+    end else begin 
+        // CPU access
+        work_A   = A[13:1];
+        work_uwe = ram_cs & !UDSWRn;
+        work_lwe = ram_cs & !LDSWRn;
+    end
+end
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
     .cen        ( cpu_cen          ),
     .addr       ( A[13:1]          ),
     .data       ( cpu_dout[15:8]   ),
-    .we         ( ram_cs & !UDSWRn ),
+    .we         ( work_uwe         ),
     .q          ( wram_dout[15:8]  )
 );
 
@@ -202,7 +228,7 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
     .cen        ( cpu_cen          ),
     .addr       ( A[13:1]          ),
     .data       ( cpu_dout[7:0]    ),
-    .we         ( ram_cs & !LDSWRn ),
+    .we         ( work_lwe         ),
     .q          ( wram_dout[7:0]   )
 );
 
@@ -296,6 +322,19 @@ end
 
 wire [3:0] ncA;
 
+// Original design uses HALT signal instead of BR/BG/BGACK triad
+// but fx68k does not support it, so HALT operation is implemented
+// through regular bus arbitrion
+
+always @(posedge clk, posedge rst)
+    if( rst ) begin
+        BRn    <= 1'b1;
+        BGACKn <= 1'b1;
+    end else begin
+        BGACKn <= BGn;
+        BRn <= !mcu_brn || obj_br;
+    end
+
 fx68k u_cpu(
     .clk        ( clk         ),
     .extReset   ( rst         ),
@@ -319,8 +358,10 @@ fx68k u_cpu(
     .FC2        ( FC[2]       ),
 
     .BERRn      ( BERRn       ),
-    .BRn        ( 1'b1        ),
-    .BGACKn     ( 1'b1        ),
+    // Bus arbitrion
+    .BRn        ( BRn         ),
+    .BGACKn     ( BGACKn      ),
+    .BGn        ( BGn         ),
 
     .DTACKn     ( DTACKn      ),
     .IPL0n      ( 1'b1        ),
@@ -331,7 +372,6 @@ fx68k u_cpu(
     .oRESETn    (             ),
     .oHALTEDn   (             ),
     .VMAn       (             ),
-    .BGn        (             ),
     .E          (             )
 );
 

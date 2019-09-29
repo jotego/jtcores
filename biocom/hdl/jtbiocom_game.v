@@ -91,6 +91,17 @@ wire [15:0] char_data, scr1_data, scr2_data;
 wire [15:0] obj_data;
 wire [15:0] main_data;
 wire [ 7:0] snd_data;
+// MCU interface
+wire [ 7:0] snd_din, snd_dout;
+wire        snd_mcu_wr;
+wire        mcu_brn;
+wire [ 7:0] mcu2main_din;
+wire [ 7:0] mcu2main_dout;
+wire [16:1] mcu2main_addr;
+wire        mcu2main_wrn;
+wire        mcu_DMAn;
+wire        mcu_DMAONn;
+
 // ROM address
 wire [17:1] main_addr;
 wire [14:0] snd_addr;
@@ -251,6 +262,14 @@ jtbiocom_main u_main(
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
     .col_cs     ( col_cs        ),
+    // MCU interface
+    .mcu_brn        (  mcu_brn          ),
+    .mcu2main_din   (  mcu2main_din     ),
+    .mcu2main_dout  (  mcu2main_dout    ),
+    .mcu2main_addr  (  mcu2main_addr    ),
+    .mcu2main_wrn   (  mcu2main_wrn     ),
+    .mcu_DMAn       (  mcu_DMAn         ),
+    .mcu_DMAONn     (  mcu_DMAONn       ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -285,18 +304,19 @@ jtbiocom_mcu u_mcu(
     .clk        ( clk           ),
     .cen6       ( cen6          ),       //  6   MHz
     // Main CPU interface
-    input           DMAONb,
-    input   [ 7:0]  main_din,
-    output  [ 7:0]  main_dout,
-    output          main_rdn,
-    output          main_wrn,   // always write to low bytes
-    output  [16:1]  main_addr,
-    output          main_rqbsqn, // RQBSQn
-    output          DMAn,
+    .DMAONn     ( mcu_DMAONn    ),
+    .main_din   ( mcu2main_din  ),
+    .main_dout  ( mcu2main_dout ),
+    .main_rdn   (               ),
+    .main_wrn   ( mcu2main_wrn  ),   // always write to low bytes
+    .main_addr  ( mcu2main_addr ),
+    .main_brn   ( mcu_brn       ), // RQBSQn
+    .DMAn       ( mcu_DMAn      ),
+
     // Sound CPU interface
-    input   [ 7:0]  snd_din,
-    output  [ 7:0]  snd_dout,
-    input           snd_mcu_wr,
+    .snd_din    ( snd_din       ),
+    .snd_dout   ( snd_dout      ),
+    .snd_mcu_wr ( snd_mcu_wr    ),
     // ROM programming
     .prog_addr  ( prog_addr     ),
     .prom_din   ( prom_din      ),
@@ -313,6 +333,10 @@ jtbiocom_sound u_sound (
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
+    // Interface with MCU
+    .snd_din        ( snd_din        ),
+    .snd_dout       ( snd_dout       ),
+    .snd_mcu_wr     ( snd_mcu_wr     ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -322,9 +346,11 @@ jtbiocom_sound u_sound (
     .ym_snd         ( snd            )
 );
 `else
-assign snd_addr = 15'd0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
+assign snd_addr   = 15'd0;
+assign snd_cs     = 1'b0;
+assign snd        = 16'b0;
+assign snd_mcu_wr = 1'b0;
+assign snd_dout   = 8'd0;
 `endif
 
 reg pause;
