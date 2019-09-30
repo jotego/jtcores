@@ -438,12 +438,14 @@ assign scr2_addr = 0;
 assign char_addr = 0;
 `endif
 
-wire [7:0] scr_nc; // no connect
+wire [ 7:0] scr_nc; // no connect
+// // CPU addresses memory by words, not bytes:
+wire [17:0] main_rom_addr = { main_addr,1'b0 };
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
     .main_dw    ( 16              ),
-    .main_aw    ( 17              ),
+    .main_aw    ( 18              ),
     .char_aw    ( 13              ),
     .obj_aw     ( 18              ),
     .scr1_aw    ( 17              ),
@@ -470,7 +472,7 @@ jtgng_rom #(
     .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
-    .main_addr   ( main_addr     ),
+    .main_addr   ( main_rom_addr ),
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr1_addr     ),

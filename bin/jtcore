@@ -101,6 +101,13 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+function must_exist {
+    if [ ! -e $1 ]; then
+        echo -e "ERROR: Missing $1 ($2) file.\nCreate it first."
+        exit 1
+    fi    
+}
+
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 function copy_templates {
@@ -109,7 +116,10 @@ function copy_templates {
     sed "$sedstr" $JTGNG_ROOT/modules/templates/$MIST.qpf > $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qpf
     sed "$sedstr" $JTGNG_ROOT/modules/templates/$MIST.qsf > $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
     # MiST's tcl is always appended
-    cat $JTGNG_ROOT/$PRJ/mist/jt${PRJ}.tcl >> $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
+    MIST_TCL=$JTGNG_ROOT/$PRJ/mist/jt${PRJ}.tcl
+    must_exist $MIST_TCL "MiST TCL" 
+    must_exist $JTGNG_ROOT/$PRJ/mist/conf_str.v "OSD config string"
+    cat $MIST_TCL >> $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
     # MiSTer's tcl is added if it exists
     if [ $MIST = mister ]; then
         if [ -e $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.tcl ]; then
@@ -211,7 +221,7 @@ if [ $PROG = TRUE ]; then
         cd $JTGNG_ROOT/$PRJ/mister
         FILE=jtag.cdf
     else
-        CABLE="USB-Blaster(Altera) [1-1.2.4]"
+        CABLE="USB-Blaster(Altera) [1-1.2.3]"
         FILE=$JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
     fi
     quartus_pgm -c "$CABLE" $FILE
