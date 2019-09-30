@@ -58,10 +58,11 @@ module jtbiocom_mcu(
 );
 
 wire [15:0] rom_addr, ext_addr;
-wire [ 7:0] rom_data;
-wire [ 7:0] mcu_dout, mcu_din;
+wire [ 6:0] ram_addr;
+wire [ 7:0] ram_data, ram_q, rom_data;
+wire        ram_we;
 
-wire [ 7:0] p2_o, p3_o;
+wire [ 7:0] p3_o;
 reg         int0, int1;
 
 // interface with main CPU
@@ -105,50 +106,64 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// Program PROM
 jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din      ),
-    .rd_addr( rom_addr[11:0]),
+    .rd_addr( rom_a4        ),
     .wr_addr( prog_addr     ),
     .we     ( prom_we       ),
     .q      ( rom_data      )
 );
 
-oc8051_top u_mcu(
-    .wb_rst_i   ( rst           ),
-    .wb_clk_i   ( clk           ),
-    .cen        ( cen6          ),
-    // instruction rom
-    .wbi_adr_o  ( rom_addr      ), 
-    .wbi_dat_i  ( rom_data      ), 
-    .wbi_ack_i  ( 1'b1          ), 
+jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
+    .clk        ( clk              ),
+    .cen        ( 1'b1             ),
+    .addr       ( ram_addr         ),
+    .data       ( ram_data         ),
+    .we         ( ram_we           ),
+    .q          ( ram_q            )
+);
 
-    //interface to data ram
-    .wbd_dat_i  ( main_dout     ), 
-    .wbd_dat_o  ( main_din      ),
-    .wbd_adr_o  ( ext_addr      ), 
-    .wbd_we_o   ( main_low_we   ), 
-    .wbd_ack_i  ( 1'b1          ),
-    .wbd_stb_o  (               ), 
-    .wbd_cyc_o  (               ), 
+mc8051_core u_mcu(
+    .clk        ( clk       ),
+    .reset      ( rst       ),
+    // code ROM
+    .rom_data_i ( rom_data  ),
+    .rom_addr_o ( rom_addr  ),
+    // internal RAM
+    .ram_data_i ( ram_data  ),
+    .ram_data_o ( ram_q     ),
+    .ram_adr_o  ( ram_addr  ),
+    .ram_wr_o   ( ram_we    ),
+    .ram_en_o   (           ),
+    // external memory: connected to main CPU
+    .datax_i    ( main_din  ),
+    .datax_o    ( main_dout ),
+    .adrx_o     ( ext_addr  ),
+    .wrx_o      ( main_wrn  ),
+    // interrupts
+    .int0_i     ( int0      ),
+    .int1_i     ( int1      ),
+    // counters
+    .all_t0_i   ( 1'b0      ),
+    .all_t1_i   ( 1'b0      ),
+    // serial interface
+    .all_rxd_i  ( 1'b0      ),
+    .all_rxd_o  (           ),
+    // Ports
+    .p0_i       (           ),
+    .p0_o       (           ),
 
-    // interrupt interface
-    .int0_i     ( int0          ), 
-    .int1_i     ( int1          ),
+    .p1_i       ( snd_din   ),
+    .p1_o       ( snd_dout  ),
 
-    // port interface
-    .p0_i       (               ),
-    .p0_o       (               ),
-    .p1_i       ( snd_din_latch ),
-    .p1_o       ( snd_dout      ),
-    .p2_i       (               ),
-    .p2_o       ( p2_o          ),
-    .p3_i       (               ),
-    .p3_o       ( p3_o          ),
+    .p2_i       (           ),
+    .p2_o       (           ),
 
-    .ea_in      ( 1'b1          )
+    .p3_i       (           ),
+    .p3_o       ( p3_o      ),
+
 );
 
 endmodule

@@ -185,7 +185,7 @@ wire [7:0] snd_latch;
 
 wire        main_cs;
 // OBJ
-wire OKOUT, blcnten, bus_req, bus_ack;
+wire OKOUT, blcnten, obj_br, bus_ack;
 wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
@@ -256,7 +256,7 @@ jtbiocom_main u_main(
     .oram_dout  ( oram_dout     ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
-    .bus_req    ( bus_req       ),
+    .obj_br     ( obj_br        ),
     .bus_ack    ( bus_ack       ),
     .col_cs     ( col_cs        ),
     // MCU interface
@@ -315,9 +315,9 @@ jtbiocom_mcu u_mcu(
     .snd_dout   ( snd_dout      ),
     .snd_mcu_wr ( snd_mcu_wr    ),
     // ROM programming
-    .prog_addr  ( prog_addr     ),
-    .prom_din   ( prom_din      ),
-    .prom_we    ( prom_mcu_we   )
+    .prog_addr  ( prog_addr[11:0] ),
+    .prom_din   ( prog_data       ),
+    .prom_we    ( prom_mcu_we     )
 );
 
 `define NOSOUND
@@ -405,7 +405,7 @@ jtbiocom_video #(
     .obj_addr   ( obj_addr      ),
     .objrom_data( obj_data      ),
     .OKOUT      ( OKOUT         ),
-    .bus_req    ( bus_req       ), // Request bus
+    .bus_req    ( obj_br        ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .col_cs     ( col_cs        ),

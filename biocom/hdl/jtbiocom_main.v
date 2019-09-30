@@ -65,7 +65,7 @@ module jtbiocom_main(
     input   [13:1]     obj_AB,
     output             RnW,
     output  reg        OKOUT,
-    input              bus_req,  // Request bus
+    input              obj_br,   // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
     // MCU interface
