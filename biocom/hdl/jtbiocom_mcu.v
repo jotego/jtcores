@@ -110,7 +110,7 @@ jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din      ),
-    .rd_addr( rom_a4        ),
+    .rd_addr( rom_addr      ),
     .wr_addr( prog_addr     ),
     .we     ( prom_we       ),
     .q      ( rom_data      )
@@ -130,7 +130,7 @@ mc8051_core u_mcu(
     .reset      ( rst       ),
     // code ROM
     .rom_data_i ( rom_data  ),
-    .rom_addr_o ( rom_addr  ),
+    .rom_adr_o  ( rom_addr  ),
     // internal RAM
     .ram_data_i ( ram_data  ),
     .ram_data_o ( ram_q     ),
@@ -162,8 +162,7 @@ mc8051_core u_mcu(
     .p2_o       (           ),
 
     .p3_i       (           ),
-    .p3_o       ( p3_o      ),
-
+    .p3_o       ( p3_o      )
 );
 
 endmodule

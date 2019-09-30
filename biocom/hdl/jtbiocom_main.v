@@ -385,21 +385,22 @@ module jt74161( // ref: 74??161
     input            clk,   // pin: 2
     input            cl_b,  // pin: 1
     input      [3:0] d,     // pin: 6,5,4,3
-    output     [3:0] q,     // pin: 11,12,13,14
+    output reg [3:0] q,     // pin: 11,12,13,14
     output           ca     // pin: 15
  );
 
+    `ifdef SIMULATION
+    initial q=4'd0;
+    `endif
+
     assign ca = &{q, cet};
 
-    initial qq=4'd0;
-    reg [3:0] qq;
-    assign q = qq;
     always @(posedge clk or negedge cl_b)
         if( !cl_b )
-            qq <= 4'd0;
+            q <= 4'd0;
         else begin
-            if(!ld_b) qq <= d;
-            else if( cep&&cet ) qq <= qq+4'd1;
+            if(!ld_b) q <= d;
+            else if( cep&&cet ) q <= q+4'd1;
         end
 
 endmodule // jt74161
