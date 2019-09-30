@@ -128,7 +128,7 @@ always @(*) begin
     mcu_DMAONn    = 1'b1;   // for once, I leave the original active low setting
 
     BERRn         = 1'b1;
-    if( blcnten ) case(A[19:18])
+    if( !blcnten ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])
@@ -291,6 +291,7 @@ wire       inta_n;
 wire DTACKn = |{ ~dtack_ca, scr1_busy, scr2_busy, char_busy };
 
 jt74161 u_dtack(
+    .clk    ( clk                      ),
     .cl_b   ( dtack_cln                ),
     .cet    (   inta_n                 ),
     .cep    ( DTACKn                   ),
@@ -332,7 +333,7 @@ always @(posedge clk, posedge rst)
         BGACKn <= 1'b1;
     end else begin
         BGACKn <= BGn;
-        BRn <= !mcu_brn || obj_br;
+        BRn <= ~(~mcu_brn | obj_br); // obj_br is active high
     end
 
 fx68k u_cpu(

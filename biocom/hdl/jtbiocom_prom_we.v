@@ -49,24 +49,24 @@ localparam PROM_ADDR   = 22'hF1000;
 `ifdef SIMULATION
 // simulation watchers
 reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
-`define CLR_ALL  {w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom} <= 7'd0;
-`define SET_MAIN  w_main <= 1'b1;
-`define SET_SND   w_snd  <= 1'b1;
-`define SET_CHAR  w_char <= 1'b1;
-`define SET_SCR   w_scr  <= 1'b1;
-`define SET_OBJ   w_obj  <= 1'b1;
-`define SET_MCU   w_mcu  <= 1'b1;
-`define SET_PROM  w_prom <= 1'b1;
+`define CLR_ALL   {w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom} <= 7'd0;
+`define INFO_MAIN  w_main <= 1'b1;
+`define INFO_SND   w_snd  <= 1'b1;
+`define INFO_CHAR  w_char <= 1'b1;
+`define INFO_SCR   w_scr  <= 1'b1;
+`define INFO_OBJ   w_obj  <= 1'b1;
+`define INFO_MCU   w_mcu  <= 1'b1;
+`define INFO_PROM  w_prom <= 1'b1;
 `else
 // nothing for synthesis
 `define CLR_ALL  
-`define SET_MAIN 
-`define SET_SND  
-`define SET_CHAR 
-`define SET_SCR  
-`define SET_OBJ  
-`define SET_MCU  
-`define SET_PROM 
+`define INFO_MAIN 
+`define INFO_SND  
+`define INFO_CHAR 
+`define INFO_SCR  
+`define INFO_OBJ  
+`define INFO_MCU  
+`define INFO_PROM 
 `endif
 
 // offset the SDRAM programming address by 
@@ -97,24 +97,24 @@ always @(posedge clk) begin
         if( ioctl_addr[19:16] < SND_ADDR[19:16] ) begin // Main ROM, 16 bits per word
             prog_addr <= {1'b0, ioctl_addr[16:0]}; // A[17] ignored
                 // because it sets the boundary
-            prog_mask <= ioctl_addr[17]==1'b0 ? 2'b10 : 2'b01;            
-            `SET_MAIN
+            prog_mask <= ioctl_addr[17]==1'b1 ? 2'b10 : 2'b01;            
+            `INFO_MAIN
         end
         else if(ioctl_addr[19:16] < SCR1XY_ADDR[19:16]) begin // Sound ROM, CHAR ROM
             prog_addr <= {3'b0, ioctl_addr[19:16], ioctl_addr[15:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
-            `SET_SND
+            `INFO_SND
         end
         else if(ioctl_addr[19:16] < OBJZ_ADDR[19:16] ) begin // Scroll    
             prog_mask <= scr_msb[2:0] >= 3'd3 ? 2'b01 : 2'b10;
             prog_addr <= { 2'b0, scr_msb[3:0]+4'h5,ioctl_addr[15:0] }; // original bit order
-            `SET_SCR
+            `INFO_SCR
         end
         else if(ioctl_addr[19:16] < MCU_ADDR[19:16] ) begin // Objects
             prog_mask <= obj_msb[1] ? 2'b10 : 2'b01;
             prog_addr <= { 2'b0, obj_msb + 4'hB, 
                 {ioctl_addr[15:6], ioctl_addr[4:1], ioctl_addr[5], ioctl_addr[0] } };
-            `SET_OBJ
+            `INFO_OBJ
         end
         else if(ioctl_addr[19:12] < PROM_ADDR[19:12] ) begin // MCU
             prog_addr <= {6'hf, 1'b0, ioctl_addr[15:1]};
@@ -122,7 +122,7 @@ always @(posedge clk) begin
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
             prom_we0  <= 2'b1;
-            `SET_MCU
+            `INFO_MCU
         end
         else begin // PROMs
             prog_addr <= ioctl_addr;
@@ -130,7 +130,7 @@ always @(posedge clk) begin
             prog_mask <= 2'b11;
             prom_we0  <= ioctl_addr[11:8] ? 2'b10 : 2'b0;
             set_strobe<= 1'b1;
-            `SET_PROM
+            `INFO_PROM
         end
     end
     else begin
