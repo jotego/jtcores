@@ -22,7 +22,7 @@
 module jtbiocom_sound(
     input           rst,
     input           clk,    
-    input           cenfm,  // 14.31318/4 MHz
+    input           cenfm,  // 14.31318/4 MHz => 10/134 of 48MHz clock
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
