@@ -59,7 +59,6 @@ module jtbiocom_main(
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
     // BUS sharing
-    input              dma,
     output  [13:1]     cpu_AB,
     output  [15:0]     oram_dout,
     input   [13:1]     obj_AB,
@@ -96,9 +95,8 @@ wire [19:1] A;
 wire [15:0] wram_dout;
 reg         BRn, BGACKn;
 wire        BGn;
-reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, obj_cs;
-reg         scrpt_cs, io_cs;
-reg         scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
+reg         io_cs, ram_cs, obj_cs;
+reg         scrpt_cs, scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
 wire        wr_n = RnW;
 wire        ASn;
 
@@ -110,9 +108,6 @@ reg BERRn;
 wire UDSn, LDSn;
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;
-wire blcntenq = blcnten | dma;
-wire UDSWRn   = UDSWn | blcntenq;
-wire LDSWRn   = LDSWn | blcntenq;
 
 always @(*) begin
     rom_cs        = 1'b0;
@@ -126,9 +121,14 @@ always @(*) begin
     scrpt_cs      = 1'b0;
     OKOUT         = 1'b0;
     mcu_DMAONn    = 1'b1;   // for once, I leave the original active low setting
+    scr1vpos_cs   = 1'b0;
+    scr2vpos_cs   = 1'b0;
+    scr1hpos_cs   = 1'b0;
+    scr2hpos_cs   = 1'b0;
 
     BERRn         = 1'b1;
-    if( !blcnten ) case(A[19:18])
+    // address decoder is not shared with MCU contrary to the original design
+    if( !blcnten && mcu_DMAn ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])
@@ -137,7 +137,7 @@ always @(*) begin
                         io_cs    = 1'b1;
 
                     end
-                    3'd2:   if( !UDSWRn && !LDSWRn && A[4]) case( A[3:1]) // SCRPTn in the schematics
+                    3'd2:   if( !UDSWn && !LDSWn && A[4]) case( A[3:1]) // SCRPTn in the schematics
                                 3'd0: scr1hpos_cs = 1'b1;
                                 3'd1: scr1vpos_cs = 1'b1;
                                 3'd2: scr2hpos_cs = 1'b1;
@@ -177,12 +177,11 @@ always @(posedge clk)
         snd_latch    <= 8'b0;
     end
     else if(cpu_cen) begin
-        if( io_cs  && !UDSWn ) begin
-            if( !A[1] && UDSn )
-                flip <= cpu_dout[8];
-            else
-                snd_latch <= cpu_dout[7:0];
-        end
+        case( {io_cs, A[1], UDSWn} )
+            3'b1_00: flip      <= cpu_dout[8];
+            3'b1_01: snd_latch <= cpu_dout[7:0];
+            default:;
+        endcase // {io_cs, A[1], UDSWn}
     end
 
 wire [15:0] cabinet_input = A[1] ?
@@ -209,8 +208,8 @@ always @(*) begin
     end else begin 
         // CPU access
         work_A   = A[13:1];
-        work_uwe = ram_cs & !UDSWRn;
-        work_lwe = ram_cs & !LDSWRn;
+        work_uwe = ram_cs & !UDSWn;
+        work_lwe = ram_cs & !LDSWn;
     end
 end
 
@@ -236,13 +235,15 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
 // Object RAM, 4kB
 assign cpu_AB = A[13:1];
 wire [10:0] oram_addr   = blcnten ? obj_AB[11:1] : A[11:1];
+wire obj_uwe = obj_cs & ~UDSWn & ~blcnten;
+wire obj_lwe = obj_cs & ~LDSWn & ~blcnten;
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .clk        ( clk              ),
     .cen        ( cpu_cen          ),
     .addr       ( oram_addr        ),
     .data       ( cpu_dout[15:8]   ),
-    .we         ( obj_cs & !UDSWRn ),
+    .we         ( obj_uwe          ),
     .q          ( oram_dout[15:8]  )
 );
 
@@ -251,7 +252,7 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
     .cen        ( cpu_cen          ),
     .addr       ( oram_addr        ),
     .data       ( cpu_dout[7:0]    ),
-    .we         ( obj_cs & !LDSWRn ),
+    .we         ( obj_lwe          ),
     .q          ( oram_dout[7:0]   )
 );
 
@@ -270,7 +271,7 @@ wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 `endif
 
 always @(*)
-    case( {ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, in_cs} )
+    case( {ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, io_cs} )
         6'b100_000: cpu_din = wram_dout;
         6'b010_000: cpu_din = { 8'hff, char_dout };
         6'b001_000: cpu_din = { 8'hff, scr2_dout };
@@ -288,36 +289,61 @@ wire dtack_cln = ~|{ ASn, |{char_cs, scr1_cs, scr2_cs} };
 wire [3:0] dtack_q;
 wire       dtack_ca;
 wire       inta_n;
-wire DTACKn = |{ ~dtack_ca, scr1_busy, scr2_busy, char_busy };
+//wire DTACKn =  |{ dtack_ca, scr1_busy, scr2_busy, char_busy };
+//wire DTACKn =  |{ (rom_cs&~rom_ok), scr1_busy, scr2_busy, char_busy };
+wire       bus_cs =   |{ rom_cs, scr1_cs, scr2_cs, char_cs };
+wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy };
+reg DTACKn;
+always @(posedge clk, posedge rst) begin : dtack_gen
+    reg       last_ASn;
+    if( rst ) begin
+        DTACKn <= 1'b1;
+    end else if(cpu_cen) begin
+        DTACKn   <= 1'b1;
+        last_ASn <= ASn;
+        if( !ASn  ) begin
+            if( bus_cs ) begin
+                if (!bus_busy) DTACKn <= 1'b0;
+            end
+            else DTACKn <= 1'b0;
+        end
+        if( ASn && !last_ASn ) DTACKn <= 1'b1;
+    end
+end 
 
-jt74161 u_dtack(
-    .clk    ( clk                      ),
-    .cl_b   ( dtack_cln                ),
-    .cet    (   inta_n                 ),
-    .cep    ( DTACKn                   ),
-    .d      ( { 1'b1, ~rom_cs, 2'b11 } ),
-    .q      ( dtack_q                  ),
-    .ld_b   ( dtack_q[3]               ),
-    .ca     ( dtack_ca                 )
-);
-
+// jt74161 u_dtack(
+//     .clk    ( clk                      ),
+//     .cl_b   ( dtack_cln                ),
+//     .cet    (   inta_n & (rom_cs ? rom_ok : 1'b1)        ),
+//     .cep    ( DTACKn                   ),
+//     .d      ( { 1'b1, ~rom_cs, 2'b11 } ),
+//     .q      ( dtack_q                  ),
+//     .ld_b   ( dtack_q[3]               ),
+//     .ca     ( dtack_ca                 )
+// );
+// 
 // interrupt generation
 reg        int1, int2;
 wire [2:0] FC;
 assign inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
 
-always @(posedge clk) begin : int_gen
+always @(posedge clk, posedge rst) begin : int_gen
     reg last_LVBL, last_V256;
-    last_LVBL <= LVBL;
-    last_V256 <= V[8];
-
-    if( !inta_n ) begin
+    if( rst ) begin
         int1 <= 1'b1;
         int2 <= 1'b1;
-    end
-    else begin
-        if( V[8] && !last_V256 ) int2 <= 1'b0;
-        if( !LVBL && last_LVBL ) int1 <= 1'b0;
+    end else begin
+        last_LVBL <= LVBL;
+        last_V256 <= V[8];
+
+        if( !inta_n ) begin
+            int1 <= 1'b1;
+            int2 <= 1'b1;
+        end
+        else begin
+            if( V[8] && !last_V256 ) int2 <= 1'b0;
+            if( !LVBL && last_LVBL ) int1 <= 1'b0;
+        end
     end
 end
 
@@ -377,7 +403,7 @@ fx68k u_cpu(
 );
 
 endmodule // jtgng_main
-
+/*
 // synchronous presettable 4-bit binary counter, asynchronous clear
 module jt74161( // ref: 74??161
     input            cet,   // pin: 10
@@ -405,3 +431,4 @@ module jt74161( // ref: 74??161
         end
 
 endmodule // jt74161
+*/

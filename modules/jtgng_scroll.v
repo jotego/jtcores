@@ -112,7 +112,6 @@ generate
             .LAYOUT     ( LAYOUT     ))
         u_tile4(
             .clk        (  clk        ),
-            .rst        (  rst        ),
             .cen6       (  pxl_cen    ),
             .HS         (  HS[4:0]    ),
             .SV         (  VS[4:0]    ),
@@ -123,7 +122,13 @@ generate
             // Gfx ROM
             .scr_addr   (  scr_addr   ),
             .rom_data   (  rom_data   ),
-            .scr_pxl    (  { scr_pal, scr_col } )
+            .scr_pxl    (  { scr_pal, scr_col } ),
+            // Palette inputs - unused. Filled here
+            // to avoid tool warnings only
+            .prog_addr  ( 8'd0        ),
+            .prom_hi_we ( 1'b0        ),
+            .prom_lo_we ( 1'b0        ),
+            .prom_din   ( 4'd0        )
         );       
     end else begin
         jtgng_tile3 #(

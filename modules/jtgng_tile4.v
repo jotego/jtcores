@@ -27,7 +27,6 @@ module jtgng_tile4 #(parameter
     AS8MASK     =  1'b1
 ) (
     input              clk,
-    input              rst,
     input              cen6,
     input       [4:0]  HS,
     input       [4:0]  SV,

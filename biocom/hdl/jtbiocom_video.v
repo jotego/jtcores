@@ -261,7 +261,9 @@ u_obj (
     .objrom_data( objrom_data ),
     .rom_ok     ( obj_ok      ),
     // pixel data
-    .obj_pxl    ( obj_pxl     )
+    .obj_pxl    ( obj_pxl     ),
+    // unused
+    .OBJON      ( 1'b1        ) // not used for non palette PROM games
 );
 
 assign obj_AB[13:11] = 3'b111;
@@ -283,7 +285,7 @@ jtbiocom_colmix u_colmix (
 
     // PROMs
     .prog_addr    ( prog_addr     ),
-    .prom_prio_we ( prom_blue_we  ),
+    .prom_prio_we ( prom_prio_we  ),
     .prom_din     ( prom_din      ),    
 
     // Avatars

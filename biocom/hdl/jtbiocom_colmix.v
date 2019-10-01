@@ -51,7 +51,7 @@ module jtbiocom_colmix(
     input      [3:0] gfx_en
 );
 
-parameter PALETTE_PRIOR = "../../../rom/biocom/63s141.18f";
+parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
 
 reg [7:0] pixel_mux;
 
@@ -156,7 +156,7 @@ jtgng_ram #(.aw(10),.dw(16)) u_pal(
 
 // Clock must be faster than 6MHz so selbus is ready for the next
 // 6MHz clock cycle:
-jtgng_prom #(.aw(8),.dw(2),.simfile(PALETTE_PRIOR)) u_selbus(
+jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_selbus(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),

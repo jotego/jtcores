@@ -296,6 +296,7 @@ assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
 `endif
 
+`ifndef NOMCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -319,6 +320,13 @@ jtbiocom_mcu u_mcu(
     .prom_din   ( prog_data       ),
     .prom_we    ( prom_mcu_we     )
 );
+`else 
+assign mcu_DMAn = 1'b1;
+assign mcu_brn  = 1'b1;
+assign mcu2main_wrn = 1'b1;
+assign mcu2main_addr = 16'd0;
+assign mcu2main_din  =  8'd0;
+`endif
 
 `define NOSOUND
 `ifndef NOSOUND

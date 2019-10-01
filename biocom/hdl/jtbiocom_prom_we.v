@@ -70,11 +70,24 @@ reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
 `endif
 
 // offset the SDRAM programming address by 
-wire [3:0] scr_msb = ioctl_addr[19:16]-4'd5;
+reg  [3:0] scr_msb;
 wire [3:0] obj_msb = ioctl_addr[19:16]-4'hb;
 
 reg set_strobe, set_done;
 reg prom_we0 = 2'd0;
+
+always @(*) begin : scr_offcalc
+    reg [2:0] scr_aux;
+    scr_aux = ioctl_addr[19:16]-3'd5;
+    case( scr_aux )
+        3'd0,3'd3: scr_msb[2:0] = 3'd0;
+        3'd1,3'd4: scr_msb[2:0] = 3'd1;
+        3'd2,3'd5: scr_msb[2:0] = 3'd2;
+        default:   scr_msb[2:0] = 3'd3;
+    endcase
+    scr_msb[3] = scr_aux>=3'd3;
+end
+
 
 always @(posedge clk) begin
     prom_we <= 1'd0;
@@ -106,13 +119,13 @@ always @(posedge clk) begin
             `INFO_SND
         end
         else if(ioctl_addr[19:16] < OBJZ_ADDR[19:16] ) begin // Scroll    
-            prog_mask <= scr_msb[2:0] >= 3'd3 ? 2'b01 : 2'b10;
-            prog_addr <= { 2'b0, scr_msb[3:0]+4'h5,ioctl_addr[15:0] }; // original bit order
+            prog_mask <= scr_msb[3] ? 2'b01 : 2'b10;
+            prog_addr <= { 2'b0, {1'b0, scr_msb[2:0]}+4'h5,ioctl_addr[15:0] }; // original bit order
             `INFO_SCR
         end
         else if(ioctl_addr[19:16] < MCU_ADDR[19:16] ) begin // Objects
             prog_mask <= obj_msb[1] ? 2'b10 : 2'b01;
-            prog_addr <= { 2'b0, obj_msb + 4'hB, 
+            prog_addr <= { 2'b0, {1'b0,obj_msb[0]} + 4'hB, 
                 {ioctl_addr[15:6], ioctl_addr[4:1], ioctl_addr[5], ioctl_addr[0] } };
             `INFO_OBJ
         end

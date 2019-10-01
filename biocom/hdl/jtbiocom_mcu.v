@@ -69,6 +69,7 @@ reg         int0, int1;
 assign main_addr[13:9] = ~5'b0;
 assign { main_addr[16:14], main_addr[8:1] } = ext_addr[10:0];
 assign main_brn = int0;
+assign DMAn     = p3_o[5];
 reg    last_DMAONn;
 
 always @(posedge clk, posedge rst) begin
@@ -107,22 +108,22 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( prom_din      ),
-    .rd_addr( rom_addr      ),
-    .wr_addr( prog_addr     ),
-    .we     ( prom_we       ),
-    .q      ( rom_data      )
+    .clk        ( clk               ),
+    .cen        ( 1'b1              ),
+    .data       ( prom_din          ),
+    .rd_addr    ( rom_addr[11:0]    ),
+    .wr_addr    ( prog_addr         ),
+    .we         ( prom_we           ),
+    .q          ( rom_data          )
 );
 
 jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
-    .clk        ( clk              ),
-    .cen        ( 1'b1             ),
-    .addr       ( ram_addr         ),
-    .data       ( ram_data         ),
-    .we         ( ram_we           ),
-    .q          ( ram_q            )
+    .clk        ( clk               ),
+    .cen        ( 1'b1              ),
+    .addr       ( ram_addr          ),
+    .data       ( ram_data          ),
+    .we         ( ram_we            ),
+    .q          ( ram_q             )
 );
 
 mc8051_core u_mcu(
