@@ -1,0 +1,30 @@
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_colmix.v  ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_dip.v     ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_game.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_main.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_mcu.v     ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_prom_we.v ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_video.v   ]
+
+
+
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_cen.v          ]
+# set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/jtframe_z80wait.v ]
+# set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/jtframe_z80.v ]
+
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_video.qip   ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_rom.qip     ]
+
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_dual_ram.v     ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtgng_ram.v  ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtgng_prom.v ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_pll0.qip       ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_pll1.qip       ]
+# set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/t80/T80.qip          ]
+
+# M68000
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/fx68k/fx68k.qip     ]
+
+# i8751
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/8051/mc8051.qip     ]
+

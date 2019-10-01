@@ -10,3 +10,6 @@
 [submodule "modules/fx68k"]
 	path = modules/fx68k
 	url = https://github.com/ijor/fx68k
+[submodule "modules/jt51"]
+	path = modules/jt51
+	url = https://github.com/jotego/jt51
