@@ -173,9 +173,9 @@ function [3:0] dim;
 endfunction
 
 always @(posedge clk) if (cen6)
-    {red, green, blue } <= (!coloff && !pal_bright[3]) ? 
+    {red, green, blue } <= //(!coloff && !pal_bright[3]) ? 
         { dim(pal_red,   pal_bright[2]),
           dim(pal_green, pal_bright[1]),
-          dim(pal_blue,  pal_bright[0]) } : 12'd0;
+          dim(pal_blue,  pal_bright[0]) };// : 12'd0;
 
 endmodule // jtgng_colmix
