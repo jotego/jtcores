@@ -79,7 +79,7 @@ wire        HINIT;
 
 wire [13:1] cpu_AB;
 wire        snd_cs;
-wire        char_cs, col_cs;
+wire        char_cs, col_uw, col_lw;
 wire        flip;
 wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
@@ -258,7 +258,8 @@ jtbiocom_main u_main(
     .blcnten    ( blcnten       ),
     .obj_br     ( obj_br        ),
     .bus_ack    ( bus_ack       ),
-    .col_cs     ( col_cs        ),
+    .col_uw     ( col_uw        ),
+    .col_lw     ( col_lw        ),
     // MCU interface
     .mcu_brn        (  mcu_brn          ),
     .mcu2main_din   (  mcu2main_din     ),
@@ -286,14 +287,19 @@ jtbiocom_main u_main(
 );
 `else
 assign main_addr   = 17'd0;
+assign cpu_AB      = 13'd0;
+assign cpu_dout    = 16'd0;
 assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
+assign scr1_cs     = 1'b0;
+assign scr2_cs     = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-assign cpu_cen     = cen3;
+assign scr1_hpos   = 9'd0;
+assign scr1_vpos   = 9'd0;
+assign scr2_hpos   = 9'd0;
+assign scr2_vpos   = 9'd0;
+assign cpu_cen     = cen12;
 `endif
 
 `ifndef NOMCU
@@ -416,7 +422,8 @@ jtbiocom_video #(
     .bus_req    ( obj_br        ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
-    .col_cs     ( col_cs        ),
+    .col_uw     ( col_uw        ),
+    .col_lw     ( col_lw        ),
     .obj_ok     ( obj_ok        ),
     // PROMs
     .prog_addr    ( prog_addr[7:0]),

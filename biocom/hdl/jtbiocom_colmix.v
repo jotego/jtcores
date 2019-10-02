@@ -22,7 +22,7 @@ module jtbiocom_colmix(
     input            rst,
     input            clk,
     input            cen6 /* synthesis direct_enable = 1 */,
-
+    input            cpu_cen,
     // pixel input from generator modules
     input [5:0]      char_pxl,        // character color code
     input [7:0]      scr1_pxl,
@@ -41,7 +41,8 @@ module jtbiocom_colmix(
     // input            pause,
     // CPU inteface
     input [10:1]     AB,
-    input            col_cs,
+    input            col_uw,
+    input            col_lw,
     input [15:0]     DB,
 
     output reg [3:0] red,
@@ -53,16 +54,13 @@ module jtbiocom_colmix(
 
 parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
 
-reg [7:0] pixel_mux;
+reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
 wire enable_scr  = gfx_en[1];
 wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
-// SCRWIN means that the MSB of scr_pxl signals that the background
-// tile should go on top of the sprites, changing the priority order.
-// When SCRWIN=0 then the MSB of scr_pxl has no special meaning.
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] selbus;
 reg  [7:0] seladdr;
@@ -78,11 +76,12 @@ end
 
 always @(posedge clk) if(cen6) begin
     case( muxsel )
-        2'b11: pixel_mux = { 2'b0, char_pxl };
-        2'b01: pixel_mux = obj_pxl;
-        2'b10: pixel_mux = { 2'b0, scr1_pxl[5:0] };
-        2'b11: pixel_mux = { 1'b0, scr2_pxl[6:0] };
+        2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
+        2'b01: pixel_mux[7:0] <= obj_pxl;
+        2'b10: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
+        2'b11: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
     endcase
+    pixel_mux[9:8] <= muxsel;
 end
 
 // Blanking delay
@@ -97,17 +96,19 @@ jtgng_sh #(.width(2),.stages(5)) u_blank_dly(
 
 // Address mux
 reg  [9:0] pal_addr;
-reg        pal_we;
+reg        pal_uwe, pal_lwe;
 reg        coloff; // colour off
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
 
 always @(*) begin
     if( pre_BL!=2'b11 ) begin
         pal_addr = AB;
-        pal_we   = col_cs;
+        pal_uwe   = col_uw;
+        pal_lwe   = col_lw;
     end else begin
         pal_addr = pixel_mux;
-        pal_we   = 1'b0;
+        pal_uwe  = 1'b0;
+        pal_lwe  = 1'b0;
     end
 end
 
@@ -119,14 +120,24 @@ end
 
 // Palette is in RAM
 
-jtgng_ram #(.aw(10),.dw(16)) u_pal(
+jtgng_ram #(.aw(10),.dw(8),.simhexfile("palrg.hex")) u_upal(
     .clk        ( clk         ),
-    .cen        ( cen6        ), // clock enable only applies to write operation
-    .data       ( DB          ),
+    .cen        ( cpu_cen     ), // clock enable only applies to write operation
+    .data       ( DB[15:8]    ),
     .addr       ( pal_addr    ),
-    .we         ( pal_we      ),
-    .q          ( {pal_red, pal_green, pal_blue, pal_bright } )
+    .we         ( pal_uwe     ),
+    .q          ( {pal_red, pal_green } )
 );
+
+jtgng_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
+    .clk        ( clk         ),
+    .cen        ( cpu_cen     ), // clock enable only applies to write operation
+    .data       ( DB[7:0]     ),
+    .addr       ( pal_addr    ),
+    .we         ( pal_lwe     ),
+    .q          ( { pal_blue, pal_bright } )
+);
+
 
 
 // `ifdef AVATARS
@@ -173,9 +184,9 @@ function [3:0] dim;
 endfunction
 
 always @(posedge clk) if (cen6)
-    {red, green, blue } <= //(!coloff && !pal_bright[3]) ? 
+    {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
         { dim(pal_red,   pal_bright[2]),
           dim(pal_green, pal_bright[1]),
-          dim(pal_blue,  pal_bright[0]) };// : 12'd0;
+          dim(pal_blue,  pal_bright[0]) } : 12'd0;
 
 endmodule // jtgng_colmix

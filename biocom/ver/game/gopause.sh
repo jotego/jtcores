@@ -1,7 +1,7 @@
 #!/bin/bash
 # Show the pause screen
 
-../../../bin/jtcommando_msg.py
+$JTGNG_ROOT/bin/jtbiocom_msg.py
 
 function check_hex_file {
     if [ ! -e $1 ]; then
@@ -23,7 +23,8 @@ function check_hex_file {
 # check_hex_file avatar_obj.hex
 
 echo INFO: use -d AVATARS to add AVATAS to simulation
-if ! go.sh -frame 2 $*  -video -d DIP_TEST -nosnd \
-    -d NOMAIN -d ALWAYS_PAUSE -d SCANDOUBLER_DISABLE=1; then
+if ! go.sh -frame 2 $*  -deep -d DIP_TEST -nosnd \
+    -d NOMAIN -d ALWAYS_PAUSE -d SCANDOUBLER_DISABLE=1 \
+    -d NOMAIN -d NOMCU -d NOSOUND; then
     exit 1
 fi

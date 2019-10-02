@@ -73,7 +73,8 @@ module jtbiocom_video(
     input               LHBL_obj,
     output              LHBL_dly,
     output              LVBL_dly,
-    input               col_cs,
+    input               col_uw,
+    input               col_lw,
     input       [3:0]   gfx_en,
     // Priority PROM
     input       [7:0]   prog_addr,
@@ -273,6 +274,7 @@ jtbiocom_colmix u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
+    .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),
     .scr1_pxl     ( { scr1_pal, scr1_col } ),
@@ -297,7 +299,8 @@ jtbiocom_colmix u_colmix (
 
     // CPU interface
     .AB           ( cpu_AB[10:1]  ),
-    .col_cs       ( col_cs        ),
+    .col_uw       ( col_uw        ),
+    .col_lw       ( col_lw        ),
     .DB           ( cpu_dout      ),
 
     // colour output

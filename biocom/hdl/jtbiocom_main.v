@@ -79,7 +79,8 @@ module jtbiocom_main(
     output             coluw,    // all active high
     output             collw,    // all active high
     output             colwr,    // all active high
-    output  reg        col_cs,
+    output             col_uw,
+    output             col_lw,
     // ROM access
     output  reg        rom_cs,
     output      [17:1] rom_addr,
@@ -95,7 +96,7 @@ wire [19:1] A;
 wire [15:0] wram_dout;
 reg         BRn, BGACKn;
 wire        BGn;
-reg         io_cs, ram_cs, obj_cs;
+reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scrpt_cs, scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
 wire        wr_n = RnW;
 wire        ASn;
@@ -108,6 +109,9 @@ reg BERRn;
 wire UDSn, LDSn;
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;
+
+assign col_uw = col_cs & ~UDSWn;
+assign col_lw = col_cs & ~LDSWn;
 
 always @(*) begin
     rom_cs        = 1'b0;
@@ -149,7 +153,7 @@ always @(*) begin
                     3'd3:   char_cs = 1'b1;
                     3'd4:   scr1_cs = 1'b1;
                     3'd5:   scr2_cs = 1'b1;
-                    3'd6:   col_cs  = !wr_n;
+                    3'd6:   col_cs  = 1'b1;
                     3'd7:   ram_cs  = 1'b1;
                 endcase
         endcase
