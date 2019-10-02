@@ -76,9 +76,6 @@ module jtbiocom_main(
     input              mcu_DMAn,
     output  reg        mcu_DMAONn,
     // Palette
-    output             coluw,    // all active high
-    output             collw,    // all active high
-    output             colwr,    // all active high
     output             col_uw,
     output             col_lw,
     // ROM access

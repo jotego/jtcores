@@ -63,7 +63,8 @@ module jtbiocom_game(
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     // Sound output
-    output  signed [15:0] snd,
+    output  signed [15:0] snd_left,
+    output  signed [15:0] snd_right,
     output          sample,
     input           enable_psg,
     input           enable_fm,
@@ -110,7 +111,7 @@ wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
 wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12b;
+wire        cen12b, cen_fm, cen_fm2;
 
 wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok;
@@ -149,6 +150,10 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
+
+// temporary values for FM clock enables
+assign cen_fm  = cen3;  
+assign cen_fm2 = cen1p5;
 
 jtbiocom_dip u_dip(
     .clk        ( clk           ),
@@ -215,7 +220,6 @@ wire [8:0] scr2_hpos, scr2_vpos;
 
 
 `ifndef NOMAIN
-
 jtbiocom_main u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
@@ -334,13 +338,12 @@ assign mcu2main_addr = 16'd0;
 assign mcu2main_din  =  8'd0;
 `endif
 
-`define NOSOUND
 `ifndef NOSOUND
 jtbiocom_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
-    .cen3           ( cen3           ),
-    .cen1p5         ( cen1p5         ),
+    .cen_fm         ( cen_fm         ),
+    .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     .snd_int        ( snd_int        ),
@@ -354,12 +357,15 @@ jtbiocom_sound u_sound (
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            )
+    .left           ( snd_left       ),
+    .right          ( snd_right      ),
+    .sample         (     sample     )
 );
 `else
 assign snd_addr   = 15'd0;
 assign snd_cs     = 1'b0;
-assign snd        = 16'b0;
+assign snd_left  = 16'b0;
+assign snd_right = 16'b0;
 assign snd_mcu_wr = 1'b0;
 assign snd_dout   = 8'd0;
 `endif

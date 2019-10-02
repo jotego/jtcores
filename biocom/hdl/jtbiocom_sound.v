@@ -22,16 +22,15 @@
 module jtbiocom_sound(
     input           rst,
     input           clk,    
-    input           cenfm,  // 14.31318/4 MHz => 10/134 of 48MHz clock
+    input           cen_fm,   // 14.31318/4   MHz ~ 3.5  MHz => 10/134 of 48MHz clock
+    input           cen_fm2,  // 14.31318/4/8 MHz ~ 1.75 MHz =>  5/134 of 48MHz clock
     // Interface with main CPU
-    input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
     input           snd_int,
     // Interface with MCU
     input   [7:0]   snd_din,
     output  [7:0]   snd_dout,
-    output          RDn,
-    output          WRn,
+    output          snd_mcu_wr,
     // ROM
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
@@ -41,12 +40,15 @@ module jtbiocom_sound(
     // Sound output
     output  signed [15:0] left,
     output  signed [15:0] right,
-    output  sample
+    output                sample
 );
 
 wire [15:0] A;
-reg fm_cs, latch_cs, ram_cs, mcu_cs;
+reg  fm_cs, latch_cs, ram_cs, mcu_cs;
 wire mreq_n, rfsh_n, int_n;
+wire RDn, WRn;
+
+assign snd_mcu_wr = mcu_cs && !WRn;
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -55,11 +57,11 @@ always @(*) begin
     fm_cs    = 1'b0;
     mcu_cs   = 1'b0;
     casez( A[15:13] )
-        3'b1??: rom_cs   = 1'b1;
-        3'b000: fm_cs    = 1'b1;
-        3'b001: mcu_cs   = 1'b1;
-        3'b010: ram_cs   = 1'b1;
-        3'b011: latch_cs = 1'b1;
+        3'b0??: rom_cs   = 1'b1;
+        3'b100: fm_cs    = 1'b1;
+        3'b101: mcu_cs   = 1'b1;
+        3'b110: ram_cs   = 1'b1;
+        3'b111: latch_cs = 1'b1;
     endcase
 end
 
@@ -101,7 +103,7 @@ reg reset_n=1'b0;
 reg [3:0] rst_cnt;
 
 always @(negedge clk)
-    if( rst | ~sres_b ) begin
+    if( rst ) begin
         rst_cnt <= 'd0;
         reset_n <= 1'b0;
     end else begin
@@ -111,11 +113,13 @@ always @(negedge clk)
         end else reset_n <= 1'b1;
     end
 
+wire wait_n = !(rom_cs && !rom_ok);
+
 jtframe_z80 u_cpu(
     .rst_n      ( reset_n     ),
     .clk        ( clk         ),
-    .cen        ( cenfm       ),
-    .wait_n     ( 1'b1        ),
+    .cen        ( cen_fm      ),
+    .wait_n     ( wait_n      ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
@@ -133,9 +137,10 @@ jtframe_z80 u_cpu(
 );
 
 jt51 u_jt51(
-    .clk        ( clk       ), // main clock
-    .cen        ( cenfm     ),
     .rst        ( rst       ), // reset
+    .clk        ( clk       ), // main clock
+    .cen        ( cen_fm    ),
+    .cen_p1     ( cen_fm2   ),
     .cs_n       ( !fm_cs    ), // chip select
     .wr_n       ( WRn       ), // write
     .a0         ( A[0]      ),
@@ -144,9 +149,8 @@ jt51 u_jt51(
     .ct1        (           ),
     .ct2        (           ),
     .irq_n      ( int_n     ),  // I do not synchronize this signal
-    .p1         (           ),
     // Low resolution output (same as real chip)
-    .sample     (           ), // marks new output sample
+    .sample     ( sample    ), // marks new output sample
     .left       (           ),
     .right      (           ),
     // Full resolution output
