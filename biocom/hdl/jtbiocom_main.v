@@ -143,7 +143,7 @@ always @(*) begin
                                 3'd1: scr1vpos_cs = 1'b1;
                                 3'd2: scr2hpos_cs = 1'b1;
                                 3'd3: scr2vpos_cs = 1'b1;
-                                3'd3: OKOUT       = 1'b1;
+                                3'd4: OKOUT       = 1'b1;
                                 3'd5: mcu_DMAONn  = 1'b0; // to MCU
                             default:;
                         endcase
