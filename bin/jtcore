@@ -217,7 +217,7 @@ fi
 
 if [ $PROG = TRUE ]; then
     if [ $MIST = mister ]; then
-        CABLE="DE-SoC [1-1.2.3]"
+        CABLE="DE-SoC [1-1.2.2]"
         cd $JTGNG_ROOT/$PRJ/mister
         FILE=jtag.cdf
     else
