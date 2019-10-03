@@ -30,19 +30,17 @@ module jtbiocom_dip(
     output reg [ 7:0]  dipsw_b
 );
 
-// Commando specific:
-wire [1:0]    dip_upright = 2'b00;
-wire          dip_level  = ~status[16];
-wire [1:0]    dip_start  = ~status[18:17];
+// Bionic Commando specific: 20-16
+wire          dip_upright = 1'b1;
+wire [1:0]    dip_level  = ~status[18:17];
 wire [1:0]    dip_lives  = ~status[20:19];
-wire [1:0]    dip_price1 = 2'b00;
-wire [1:0]    dip_price2 = 2'b11;
-wire [2:0]    dip_bonus  = 3'b111;
-wire          dip_demosnd= 1'b0;
+wire [2:0]    dip_price1 = 3'b000;
+wire [2:0]    dip_price2 = 3'b000;
+wire [1:0]    dip_bonus  = ~status[16:15];
 
 always @(posedge clk) begin
-    dipsw_a <= { dip_price1, dip_price2, dip_lives, dip_start };
-    dipsw_b <= { dip_upright, dip_flip, dip_level, dip_demosnd, dip_bonus };
+    dipsw_a <= { dip_pause, dip_level, dip_bonus, dip_upright, dip_lives };
+    dipsw_b <= { dip_flip^1'b1, dip_test, dip_price2, dip_price1 };
 end
 
 endmodule

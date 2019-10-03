@@ -1,9 +1,12 @@
-// Ghosts'n Goblins MiST/er
+// Bionic Commando MiST/er
+
+// 00000000001111111112222222222233
+// 01234567890123456789012345678901
+//           abcdefghijklmnopqrstuv
 
 `define CORE_OSD \
-    "OGH,Difficulty,normal,easy,hard,very hard;", \
-    "OIJ,Lives,3,4,5,7;", \
-    "OK,Demo sounds,OFF,ON;", \
-    "OLM,Bonus Life,20/70/70,30/80/80,20/80,30/80;",
+    "OFG,Bonus Life,20/40/60,30/50/70,20/50,30/60;", \
+    "OHI,Difficulty,normal,easy,hard,very hard;", \
+    "OJK,Lives,3,4,5,7;", 
 `define CORE_KEYMAP \
     "J,Button 1,Button 2,Unused,1P Start,2P Start,Coin,Credits;",
