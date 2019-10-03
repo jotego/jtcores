@@ -38,7 +38,11 @@ module mist_dump(
     `endif
 `else // NCVERILOG
     `ifndef VIDEO_START
-    initial begin
+        `ifdef DUMP_START
+        always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
+        `else
+        initial begin
+        `endif
     `else
     always @(negedge VGA_VS) if( frame_cnt==`VIDEO_START ) begin
     `endif

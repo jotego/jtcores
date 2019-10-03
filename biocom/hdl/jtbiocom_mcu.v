@@ -40,9 +40,8 @@ module jtbiocom_mcu(
     input           cen6,       //  6   MHz
     // Main CPU interface
     input           DMAONn,
-    input   [ 7:0]  main_din,
-    output  [ 7:0]  main_dout,
-    output          main_rdn,
+    output  [ 7:0]  main_din,
+    input   [ 7:0]  main_dout,
     output          main_wrn,   // always write to low bytes
     output  [16:1]  main_addr,
     output          main_brn, // RQBSQn
@@ -92,18 +91,22 @@ end
 wire      int1_clrn = p3_o[4];
 
 reg [7:0] snd_din_latch;
+reg       last_snd_mcu_wr;
+wire      posedge_snd = snd_mcu_wr && !last_snd_mcu_wr;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        snd_din_latch <= 8'd0;
-        int1 <= 1'b1;
+        snd_din_latch   <= 8'd0;
+        int1            <= 1'b1;
+        last_snd_mcu_wr <= 1'b0;
     end else begin
-        if( snd_mcu_wr )
+        last_snd_mcu_wr <= snd_mcu_wr;
+        if( posedge_snd )
             snd_din_latch <= snd_din;
         // interrupt line
         if( !int1_clrn )
             int1 <= 1'b1;
-        else if( snd_mcu_wr ) int1 <= 1'b0;
+        else if( posedge_snd ) int1 <= 1'b0;
     end
 end
 
@@ -126,21 +129,23 @@ jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
     .q          ( ram_q             )
 );
 
+wire clk2 = clk&cen6; // cheap clock gating
+
 mc8051_core u_mcu(
-    .clk        ( clk       ),
+    .clk        ( clk2      ),
     .reset      ( rst       ),
     // code ROM
     .rom_data_i ( rom_data  ),
     .rom_adr_o  ( rom_addr  ),
     // internal RAM
-    .ram_data_i ( ram_data  ),
-    .ram_data_o ( ram_q     ),
+    .ram_data_i ( ram_q     ),
+    .ram_data_o ( ram_data  ),
     .ram_adr_o  ( ram_addr  ),
     .ram_wr_o   ( ram_we    ),
     .ram_en_o   (           ),
     // external memory: connected to main CPU
-    .datax_i    ( main_din  ),
-    .datax_o    ( main_dout ),
+    .datax_i    ( main_dout ),
+    .datax_o    ( main_din  ),
     .adrx_o     ( ext_addr  ),
     .wrx_o      ( main_wrn  ),
     // interrupts

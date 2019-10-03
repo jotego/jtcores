@@ -315,7 +315,6 @@ jtbiocom_mcu u_mcu(
     .DMAONn     ( mcu_DMAONn    ),
     .main_din   ( mcu2main_din  ),
     .main_dout  ( mcu2main_dout ),
-    .main_rdn   (               ),
     .main_wrn   ( mcu2main_wrn  ),   // always write to low bytes
     .main_addr  ( mcu2main_addr ),
     .main_brn   ( mcu_brn       ), // RQBSQn
