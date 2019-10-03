@@ -85,7 +85,7 @@ wire        flip;
 wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
 wire        rd, cpu_cen;
-wire        char_busy, scr_busy;
+wire        char_busy, scr1_busy, scr2_busy;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
@@ -185,7 +185,6 @@ jtgng_timer u_timer(
 
 wire RnW;
 // sound
-wire       snd_int;
 wire [7:0] snd_latch;
 
 wire        main_cs;
@@ -236,7 +235,6 @@ jtbiocom_main u_main(
     .H1         ( H[0]          ),
     // sound
     .snd_latch  ( snd_latch     ),
-    .snd_int    ( snd_int       ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -345,7 +343,6 @@ jtbiocom_sound u_sound (
     .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
-    .snd_int        ( snd_int        ),
     // Interface with MCU
     .snd_din        ( snd_din        ),
     .snd_dout       ( snd_dout       ),

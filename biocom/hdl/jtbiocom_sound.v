@@ -26,7 +26,6 @@ module jtbiocom_sound(
     input           cen_fm2,  // 14.31318/4/8 MHz ~ 1.75 MHz =>  5/134 of 48MHz clock
     // Interface with main CPU
     input   [7:0]   snd_latch,
-    input           snd_int,
     // Interface with MCU
     input   [7:0]   snd_din,
     output  [7:0]   snd_dout,
@@ -123,9 +122,9 @@ jtframe_z80 u_cpu(
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
-    .m1_n       ( m1_n        ),
+    .m1_n       (             ),
     .mreq_n     ( mreq_n      ),
-    .iorq_n     ( iorq_n      ),
+    .iorq_n     (             ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
     .rfsh_n     ( rfsh_n      ),

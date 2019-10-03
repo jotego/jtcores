@@ -35,7 +35,6 @@ module jtbiocom_main(
     input              LVBL,
     input              H1,
     // Sound
-    output  reg        snd_int,
     output  reg  [7:0] snd_latch,
     // Characters
     input        [7:0] char_dout,
@@ -94,8 +93,7 @@ wire [15:0] wram_dout;
 reg         BRn, BGACKn;
 wire        BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;
-reg         scrpt_cs, scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
-wire        wr_n = RnW;
+reg         scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
 wire        ASn;
 
 wire mreq_n, rfsh_n, busak_n;
@@ -119,7 +117,6 @@ always @(*) begin
     char_cs       = 1'b0;
     scr1_cs       = 1'b0;
     scr2_cs       = 1'b0;
-    scrpt_cs      = 1'b0;
     OKOUT         = 1'b0;
     mcu_DMAONn    = 1'b1;   // for once, I leave the original active low setting
     scr1vpos_cs   = 1'b0;
@@ -138,6 +135,7 @@ always @(*) begin
                         io_cs    = 1'b1;    // E_4000
                     end
                     3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8000
+                        // scrpt_cs
                         $display("SCRPTn");
                         case( A[3:1]) // SCRPTn in the schematics
                                 3'd0: scr1hpos_cs = 1'b1;
@@ -239,7 +237,6 @@ end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-wire        cpu_ram_we = ram_cs && !wr_n;
 reg [13:1]  work_A;
 reg         work_uwe, work_lwe;
 
@@ -260,7 +257,7 @@ end
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
     .cen        ( cpu_cen          ),
-    .addr       ( A[13:1]          ),
+    .addr       ( work_A           ),
     .data       ( ram_udin         ),
     .we         ( work_uwe         ),
     .q          ( wram_dout[15:8]  )
@@ -269,7 +266,7 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
 jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
     .clk        ( clk              ),
     .cen        ( cpu_cen          ),
-    .addr       ( A[13:1]          ),
+    .addr       ( work_A           ),
     .data       ( ram_ldin         ),
     .we         ( work_lwe         ),
     .q          ( wram_dout[7:0]   )
@@ -284,7 +281,7 @@ reg  obj_uwe, obj_lwe;
 always @(*) begin    
     case( {blcnten, mcu_obj_cs} )
         2'b10: begin // Object DMA
-            oram_addr = obj_AB[11:0];
+            oram_addr = obj_AB[11:1];
             obj_uwe   = 1'b0;
             obj_lwe   = 1'b0;
         end
@@ -322,16 +319,6 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
 
 // Data bus input
 reg  [15:0] cpu_din;
-wire iorq_n, m1_n;
-wire irq_ack = !iorq_n && !m1_n;
-
-`ifndef TESTROM
-// OP-code bits are shuffled
-wire [7:0] rom_opcode = A==16'd0 ? rom_data : 
-    {rom_data[3:1], rom_data[4], rom_data[7:5], rom_data[0] };
-`else 
-wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
-`endif
 
 always @(*)
     case( {ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, io_cs} )
@@ -348,9 +335,9 @@ assign rom_addr = A[17:1];
 
 // DTACKn generation
 
-wire dtack_cln = ~|{ ASn, |{char_cs, scr1_cs, scr2_cs} };
-wire [3:0] dtack_q;
-wire       dtack_ca;
+// wire dtack_cln = ~|{ ASn, |{char_cs, scr1_cs, scr2_cs} };
+// wire [3:0] dtack_q;
+// wire       dtack_ca;
 wire       inta_n;
 //wire DTACKn =  |{ dtack_ca, scr1_busy, scr2_busy, char_busy };
 //wire DTACKn =  |{ (rom_cs&~rom_ok), scr1_busy, scr2_busy, char_busy };

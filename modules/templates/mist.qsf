@@ -182,7 +182,7 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll0.qip
 set_global_assignment -name QIP_FILE ../../modules/jtgng_pll1.qip
-set_global_assignment -name QIP_FILE ../../modules/jtgng_base.qip
+# set_global_assignment -name QIP_FILE ../../modules/jtgng_base.qip
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_mist.sv
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/mist/mist.qip
 set_global_assignment -name QIP_FILE ../hdl/jt${CORENAME}.qip

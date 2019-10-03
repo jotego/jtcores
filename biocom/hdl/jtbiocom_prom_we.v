@@ -73,24 +73,24 @@ reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
 reg  [3:0] scr_msb;
 wire [3:0] obj_msb = ioctl_addr[19:16]-4'hb;
 
-reg set_strobe, set_done;
-reg prom_we0 = 2'd0;
+reg       set_strobe, set_done;
+reg [1:0] prom_we0 = 2'd0;
 
 always @(*) begin : scr_offcalc
-    reg [2:0] scr_aux;
-    scr_aux = ioctl_addr[19:16]-3'd5;
+    reg [3:0] scr_aux;
+    scr_aux = ioctl_addr[19:16]-4'd5;
     case( scr_aux )
-        3'd0,3'd3: scr_msb[2:0] = 3'd0;
-        3'd1,3'd4: scr_msb[2:0] = 3'd1;
-        3'd2,3'd5: scr_msb[2:0] = 3'd2;
+        4'd0,4'd3: scr_msb[2:0] = 3'd0;
+        4'd1,4'd4: scr_msb[2:0] = 3'd1;
+        4'd2,4'd5: scr_msb[2:0] = 3'd2;
         default:   scr_msb[2:0] = 3'd3;
     endcase
-    scr_msb[3] = scr_aux>=3'd3;
+    scr_msb[3] = scr_aux>=4'd3;
 end
 
 
 always @(posedge clk) begin
-    prom_we <= 1'd0;
+    prom_we <= 2'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
@@ -147,8 +147,8 @@ always @(posedge clk) begin
         end
     end
     else begin
-        prog_we  <= 2'b0;
-        prom_we0 <= 1'd0;
+        prog_we  <= 1'b0;
+        prom_we0 <= 2'd0;
     end
 end
 
