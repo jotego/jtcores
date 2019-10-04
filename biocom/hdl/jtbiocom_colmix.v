@@ -20,6 +20,7 @@
 
 // Resistor values measured on PCB by Caius (Twitter @Caius63417737)
 // R2R ladders: 4.7k-2.2K-1K-470-220-100
+// R9  470, R10 470, R11 470, R12 1K, R14 1K, R16 1K, R13 220, R15 220, R17 220
 
 module jtbiocom_colmix(
     input            rst,

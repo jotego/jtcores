@@ -96,12 +96,9 @@ wire [ 7:0] snd_data;
 wire [ 7:0] snd_din, snd_dout;
 wire        snd_mcu_wr;
 wire        mcu_brn;
-wire [ 7:0] mcu2main_din;
-wire [ 7:0] mcu2main_dout;
-wire [16:1] mcu2main_addr;
-wire        mcu2main_wrn;
-wire        mcu_DMAn;
-wire        mcu_DMAONn;
+wire [ 7:0] mcu_din, mcu_dout;
+wire [16:1] mcu_addr;
+wire        mcu_wrn, mcu_DMAn, mcu_DMAONn;
 
 // ROM address
 wire [17:1] main_addr;
@@ -224,15 +221,12 @@ jtbiocom_main u_main(
     .clk        ( clk           ),
     .cen12      ( cen12         ),
     .cen12b     ( cen12b        ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .H1         ( H[0]          ),
     // sound
     .snd_latch  ( snd_latch     ),
     // CHAR
@@ -263,13 +257,13 @@ jtbiocom_main u_main(
     .col_uw     ( col_uw        ),
     .col_lw     ( col_lw        ),
     // MCU interface
-    .mcu_brn        (  mcu_brn          ),
-    .mcu2main_din   (  mcu2main_din     ),
-    .mcu2main_dout  (  mcu2main_dout    ),
-    .mcu2main_addr  (  mcu2main_addr    ),
-    .mcu2main_wrn   (  mcu2main_wrn     ),
-    .mcu_DMAn       (  mcu_DMAn         ),
-    .mcu_DMAONn     (  mcu_DMAONn       ),
+    .mcu_brn    (  mcu_brn      ),
+    .mcu_din    (  mcu_din      ),
+    .mcu_dout   (  mcu_dout     ),
+    .mcu_addr   (  mcu_addr     ),
+    .mcu_wrn    (  mcu_wrn      ),
+    .mcu_DMAn   (  mcu_DMAn     ),
+    .mcu_DMAONn (  mcu_DMAONn   ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -311,11 +305,11 @@ jtbiocom_mcu u_mcu(
     .cen6       ( cen6          ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn    ),
-    .main_din   ( mcu2main_din  ),
-    .main_dout  ( mcu2main_dout ),
-    .main_wrn   ( mcu2main_wrn  ),   // always write to low bytes
-    .main_addr  ( mcu2main_addr ),
-    .main_brn   ( mcu_brn       ), // RQBSQn
+    .mcu_din    ( mcu_din       ),
+    .mcu_dout   ( mcu_dout      ),
+    .mcu_wrn    ( mcu_wrn       ),   // always write to low bytes
+    .mcu_addr   ( mcu_addr      ),
+    .mcu_brn    ( mcu_brn       ), // RQBSQn
     .DMAn       ( mcu_DMAn      ),
 
     // Sound CPU interface
@@ -330,9 +324,9 @@ jtbiocom_mcu u_mcu(
 `else 
 assign mcu_DMAn = 1'b1;
 assign mcu_brn  = 1'b1;
-assign mcu2main_wrn = 1'b1;
-assign mcu2main_addr = 16'd0;
-assign mcu2main_din  =  8'd0;
+assign mcu_wrn  = 1'b1;
+assign mcu_addr = 16'd0;
+assign mcu_din  =  8'd0;
 `endif
 
 `ifndef NOSOUND

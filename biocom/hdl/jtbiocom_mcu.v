@@ -40,15 +40,15 @@ module jtbiocom_mcu(
     input           cen6,       //  6   MHz
     // Main CPU interface
     input           DMAONn,
-    output  [ 7:0]  main_din,
-    input   [ 7:0]  main_dout,
-    output          main_wrn,   // always write to low bytes
-    output  [16:1]  main_addr,
-    output          main_brn, // RQBSQn
+    output  [ 7:0]  mcu_dout,
+    input   [ 7:0]  mcu_din,
+    output          mcu_wrn,   // always write to low bytes
+    output  [16:1]  mcu_addr,
+    output          mcu_brn,   // RQBSQn
     output          DMAn,
     // Sound CPU interface
-    input   [ 7:0]  snd_din,
-    output  [ 7:0]  snd_dout,
+    input   [ 7:0]  snd_dout,
+    output  [ 7:0]  snd_din,
     input           snd_mcu_wr,
     // ROM programming
     input   [11:0]  prog_addr,
@@ -65,9 +65,9 @@ wire [ 7:0] p3_o;
 reg         int0, int1;
 
 // interface with main CPU
-assign main_addr[13:9] = ~5'b0;
-assign { main_addr[16:14], main_addr[8:1] } = ext_addr[10:0];
-assign main_brn = int0;
+assign mcu_addr[13:9] = ~5'b0;
+assign { mcu_addr[16:14], mcu_addr[8:1] } = ext_addr[10:0];
+assign mcu_brn  = int0;
 assign DMAn     = p3_o[5];
 reg    last_DMAONn;
 
@@ -90,19 +90,19 @@ end
 // interface with sound CPU
 wire      int1_clrn = p3_o[4];
 
-reg [7:0] snd_din_latch;
+reg [7:0] snd_dout_latch;
 reg       last_snd_mcu_wr;
 wire      posedge_snd = snd_mcu_wr && !last_snd_mcu_wr;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        snd_din_latch   <= 8'd0;
+        snd_dout_latch   <= 8'd0;
         int1            <= 1'b1;
         last_snd_mcu_wr <= 1'b0;
     end else begin
         last_snd_mcu_wr <= snd_mcu_wr;
         if( posedge_snd )
-            snd_din_latch <= snd_din;
+            snd_dout_latch <= snd_dout;
         // interrupt line
         if( !int1_clrn )
             int1 <= 1'b1;
@@ -144,10 +144,10 @@ mc8051_core u_mcu(
     .ram_wr_o   ( ram_we    ),
     .ram_en_o   (           ),
     // external memory: connected to main CPU
-    .datax_i    ( main_dout ),
-    .datax_o    ( main_din  ),
+    .datax_i    ( mcu_din ),
+    .datax_o    ( mcu_dout  ),
     .adrx_o     ( ext_addr  ),
-    .wrx_o      ( main_wrn  ),
+    .wrx_o      ( mcu_wrn  ),
     // interrupts
     .int0_i     ( int0      ),
     .int1_i     ( int1      ),
@@ -161,8 +161,8 @@ mc8051_core u_mcu(
     .p0_i       (           ),
     .p0_o       (           ),
 
-    .p1_i       ( snd_din_latch   ),
-    .p1_o       ( snd_dout        ),
+    .p1_i       ( snd_dout_latch   ),
+    .p1_o       ( snd_din   ),
 
     .p2_i       (           ),
     .p2_o       (           ),

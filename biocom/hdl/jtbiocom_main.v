@@ -25,15 +25,12 @@ module jtbiocom_main(
     input              clk,
     input              cen12,
     input              cen12b,
-    input              cen6,   // 6MHz
-    input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     output             cpu_cen,
     // Timing
     output  reg        flip,
     input   [8:0]      V,
     input              LHBL,
     input              LVBL,
-    input              H1,
     // Sound
     output  reg  [7:0] snd_latch,
     // Characters
@@ -68,10 +65,10 @@ module jtbiocom_main(
     input              blcnten,  // bus line counter enable
     // MCU interface
     input              mcu_brn,
-    input      [ 7:0]  mcu2main_din,
-    output reg [ 7:0]  mcu2main_dout,
-    input      [16:1]  mcu2main_addr,
-    input              mcu2main_wrn,
+    input      [ 7:0]  mcu_dout,
+    output reg [ 7:0]  mcu_din,
+    input      [16:1]  mcu_addr,
+    input              mcu_wrn,
     input              mcu_DMAn,
     output  reg        mcu_DMAONn,
     // Palette
@@ -89,8 +86,10 @@ module jtbiocom_main(
 );
 
 wire [19:1] A;
+wire [3:0] ncA;
+
 `ifdef SIMULATION
-wire [20:0] A_full = {A,1'b0};
+wire [24:0] A_full = {ncA, A,1'b0};
 `endif
 wire [15:0] wram_dout;
 reg         BRn, BGACKn;
@@ -111,6 +110,8 @@ wire LDSWn = RnW | LDSn;
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;
 
+wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
+
 always @(*) begin
     rom_cs        = 1'b0;
     ram_cs        = 1'b0;
@@ -129,7 +130,7 @@ always @(*) begin
 
     BERRn         = 1'b1;
     // address decoder is not shared with MCU contrary to the original design
-    if( !blcnten && mcu_DMAn && !ASn ) case(A[19:18])
+    if( CPUbus ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])  // 111X
@@ -172,11 +173,12 @@ always @(*) begin
     mcu_obj_cs   = 1'b0;
     mcu_ram_cs   = 1'b0;
     mcu_other_cs = 1'b0;
-    case(mcu2main_addr[16:14])
-        3'd0: mcu_obj_cs = ~mcu_DMAn;
-        3'd7: mcu_ram_cs = ~mcu_DMAn;
-        default: mcu_other_cs = ~mcu_DMAn;
-    endcase
+    if( !mcu_DMAn )
+        case(mcu_addr[16:14])
+            3'd0:    mcu_obj_cs   = 1'b1;
+            3'd7:    mcu_ram_cs   = 1'b1;
+            default: mcu_other_cs = 1'b1;
+        endcase
 end
 
 // SCROLL H/V POSITION
@@ -187,10 +189,10 @@ always @(posedge clk, posedge rst) begin
         scr2_hpos <= 9'd0;
         scr2_vpos <= 9'd0;
     end else if(cpu_cen) begin
-        if( scr1hpos_cs ) scr1_hpos <= cpu_dout[8:0];
-        if( scr2hpos_cs ) scr2_hpos <= cpu_dout[8:0];
-        if( scr1vpos_cs ) scr1_vpos <= cpu_dout[8:0];
-        if( scr2vpos_cs ) scr2_vpos <= cpu_dout[8:0];
+        if( scr1hpos_cs && !RnW) scr1_hpos <= cpu_dout[8:0];
+        if( scr2hpos_cs && !RnW) scr2_hpos <= cpu_dout[8:0];
+        if( scr1vpos_cs && !RnW) scr1_vpos <= cpu_dout[8:0];
+        if( scr2vpos_cs && !RnW) scr2_vpos <= cpu_dout[8:0];
     end
 end
 
@@ -201,19 +203,20 @@ always @(posedge clk)
         snd_latch    <= 8'b0;
     end
     else if(cpu_cen) begin
-        case( {io_cs, A[1], UDSWn} )
-            3'b1_00: flip      <= cpu_dout[8];
-            3'b1_01: snd_latch <= cpu_dout[7:0];
-            default:;
-        endcase // {io_cs, A[1], UDSWn}
+        if( !UDSWn && io_cs)
+            case( { A[1]} )
+                1'b0: flip      <= cpu_dout[8];
+                1'b1: snd_latch <= cpu_dout[7:0];
+            endcase
     end
 
-wire [15:0] cabinet_input = A[1] ?
-      { dipsw_a, dipsw_b } :
-      { coin_input,      // COINS
-        start_button,    // START
-        joystick1[5:0],  //  2 buttons
-        joystick2[5:0] };
+wire [15:0] cabinet_input = 16'hff;
+// A[1] ?
+//       { dipsw_a, dipsw_b } :
+//       { coin_input,      // COINS
+//         start_button,    // START
+//         joystick1[5:0],  //  2 buttons
+//         joystick2[5:0] };
 
 /////////////////////////////////////////////////////
 // RAMs data input mux
@@ -221,8 +224,8 @@ reg [7:0] ram_udin, ram_ldin;
 
 always @(*) begin
     if( !mcu_DMAn ) begin
-        ram_udin = 8'hff;
-        ram_ldin = mcu2main_din;
+        ram_udin = 8'hff;       // unused
+        ram_ldin = mcu_dout;
     end else begin
         ram_udin = cpu_dout[15:8];
         ram_ldin = cpu_dout[ 7:0];
@@ -233,23 +236,23 @@ end
 // MCU DMA data output mux
 always @(*) begin
     if( mcu_obj_cs )
-        mcu2main_dout = oram_dout[7:0];
+        mcu_din = oram_dout[7:0];
     else
-        mcu2main_dout = wram_dout[7:0];
+        mcu_din = wram_dout[7:0];
 end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
 reg [13:1]  work_A;
 reg         work_uwe, work_lwe;
-wire        ram_cen=1'b1;
+wire        ram_cen=cpu_cen;
 
 always @(*) begin
     if( mcu_ram_cs ) begin
         // MCU access
-        work_A   = mcu2main_addr[13:1];
+        work_A   = mcu_addr[13:1];
         work_uwe = 1'b0;
-        work_lwe = !mcu2main_wrn;
+        work_lwe = !mcu_wrn;
     end else begin 
         // CPU access
         work_A   = A[13:1];
@@ -290,9 +293,9 @@ always @(*) begin
             obj_lwe   = 1'b0;
         end
         2'b01: begin // MCU DMA
-            oram_addr = mcu2main_addr[11:1];
+            oram_addr = mcu_addr[11:1];
             obj_uwe   = 1'b0;
-            obj_lwe   = ~mcu2main_wrn;
+            obj_lwe   = ~mcu_wrn;
         end
         default: begin
             oram_addr = A[11:1];
@@ -333,7 +336,7 @@ always @(*)
         7'b0_000_100: cpu_din = { 8'hff, scr1_dout };
         7'b0_000_010: cpu_din = rom_data;
         7'b0_000_001: cpu_din = cabinet_input;
-        default:    cpu_din = rom_data;
+        default:      cpu_din = rom_data;
     endcase
 
 assign rom_addr = A[17:1];
@@ -401,8 +404,6 @@ always @(posedge clk, posedge rst) begin : int_gen
         end
     end
 end
-
-wire [3:0] ncA;
 
 // Original design uses HALT signal instead of BR/BG/BGACK triad
 // but fx68k does not support it, so HALT operation is implemented
