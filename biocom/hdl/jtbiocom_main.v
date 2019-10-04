@@ -89,6 +89,9 @@ module jtbiocom_main(
 );
 
 wire [19:1] A;
+`ifdef SIMULATION
+wire [20:0] A_full = {A,1'b0};
+`endif
 wire [15:0] wram_dout;
 reg         BRn, BGACKn;
 wire        BGn;
@@ -126,7 +129,7 @@ always @(*) begin
 
     BERRn         = 1'b1;
     // address decoder is not shared with MCU contrary to the original design
-    if( !blcnten && mcu_DMAn ) case(A[19:18])
+    if( !blcnten && mcu_DMAn && !ASn ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])  // 111X
@@ -239,6 +242,7 @@ end
 // Work RAM, 16kB
 reg [13:1]  work_A;
 reg         work_uwe, work_lwe;
+wire        ram_cen=1'b1;
 
 always @(*) begin
     if( mcu_ram_cs ) begin
@@ -256,7 +260,7 @@ end
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
-    .cen        ( cpu_cen          ),
+    .cen        ( ram_cen          ),
     .addr       ( work_A           ),
     .data       ( ram_udin         ),
     .we         ( work_uwe         ),
@@ -265,7 +269,7 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
     .clk        ( clk              ),
-    .cen        ( cpu_cen          ),
+    .cen        ( ram_cen          ),
     .addr       ( work_A           ),
     .data       ( ram_ldin         ),
     .we         ( work_lwe         ),
@@ -300,7 +304,7 @@ end
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .clk        ( clk              ),
-    .cen        ( cpu_cen          ),
+    .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
     .data       ( ram_udin         ),
     .we         ( obj_uwe          ),
@@ -309,7 +313,7 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
     .clk        ( clk              ),
-    .cen        ( cpu_cen          ),
+    .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
     .data       ( ram_ldin         ),
     .we         ( obj_lwe          ),
@@ -321,13 +325,14 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
 reg  [15:0] cpu_din;
 
 always @(*)
-    case( {ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, io_cs} )
-        6'b100_000: cpu_din = wram_dout;
-        6'b010_000: cpu_din = { 8'hff, char_dout };
-        6'b001_000: cpu_din = { 8'hff, scr2_dout };
-        6'b000_100: cpu_din = { 8'hff, scr1_dout };
-        6'b000_010: cpu_din = rom_data;
-        6'b000_001: cpu_din = cabinet_input;
+    case( {obj_cs, ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, io_cs} )
+        7'b1_000_000: cpu_din = oram_dout;
+        7'b0_100_000: cpu_din = wram_dout;
+        7'b0_010_000: cpu_din = { 8'hff, char_dout };
+        7'b0_001_000: cpu_din = { 8'hff, scr2_dout };
+        7'b0_000_100: cpu_din = { 8'hff, scr1_dout };
+        7'b0_000_010: cpu_din = rom_data;
+        7'b0_000_001: cpu_din = cabinet_input;
         default:    cpu_din = rom_data;
     endcase
 
