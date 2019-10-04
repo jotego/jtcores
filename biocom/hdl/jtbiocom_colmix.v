@@ -82,7 +82,7 @@ always @(posedge clk) if(cen6) begin
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b01: pixel_mux[7:0] <= obj_pxl;
         2'b10: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
-        2'b11: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
+        2'b00: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
     endcase
     pixel_mux[9:8] <= muxsel;
 end
