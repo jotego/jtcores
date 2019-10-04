@@ -18,6 +18,9 @@
 
 `timescale 1ns/1ps
 
+// Resistor values measured on PCB by Caius (Twitter @Caius63417737)
+// R2R ladders: 4.7k-2.2K-1K-470-220-100
+
 module jtbiocom_colmix(
     input            rst,
     input            clk,
