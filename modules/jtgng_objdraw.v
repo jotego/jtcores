@@ -68,7 +68,7 @@ reg poshflip2;
 reg [7:0] Vsum;
 
 always @(*) begin
-    Vsum = (~VF + { {7{~flip}}, 1'b1})+objbuf_data; // this is equivalent to
+    Vsum = (~VF + { {7{~flip}}, 1'b1})+objbuf_data[7:0]; // this is equivalent to
     // 2's complement of VF plus object's Y, i.e. a subtraction
     // but flip is used to make it work with flipped screens
     // This is the same formula used on the schematics
@@ -117,7 +117,7 @@ always @(posedge clk) if(cen6) begin
             vinzone <= &Vsum[7:4];
         end
         X: begin
-            objx <= LAYOUT== 3 ? objbuf_data[8:0] : { hover, objbuf_data };
+            objx <= LAYOUT==3 ? objbuf_data[8:0] : { hover, objbuf_data };
         end
         default:;
     endcase

@@ -161,7 +161,8 @@ jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
     .HOFFSET    (  0            ),
-    .TILE4      (  1            )) // 4bpp
+    .TILE4      (  1            ), // 4bpp
+    .LAYOUT     (  1            ))
 u_scroll1 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -193,7 +194,8 @@ jtgng_scroll #(
     .ROM_AW     ( 15            ),
     .SCANW      ( 12            ),
     .HOFFSET    (  0            ),
-    .TILE4      (  1            )) // 4bpp
+    .TILE4      (  1            ), // 4bpp
+    .LAYOUT     (  2           ))
 u_scroll2 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),

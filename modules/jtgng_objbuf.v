@@ -70,7 +70,7 @@ always @(posedge clk, posedge rst)
 
 reg pre_scan_msb;
 
-wire [7:0] Vsum = ram_dout + (~VF + { {6{~flip}}, 2'b10 });
+wire [7:0] Vsum = ram_dout[7:0] + (~VF + { {6{~flip}}, 2'b10 });
 
 always @(posedge clk, posedge rst)
     if( rst ) begin

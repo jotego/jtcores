@@ -45,7 +45,7 @@ module jtbiocom_sound(
 wire [15:0] A;
 reg  fm_cs, latch_cs, ram_cs, mcu_cs;
 wire mreq_n, rfsh_n, int_n;
-wire RDn, WRn;
+wire WRn;
 
 assign snd_mcu_wr = mcu_cs && !WRn;
 
@@ -55,7 +55,7 @@ always @(*) begin
     latch_cs = 1'b0;
     fm_cs    = 1'b0;
     mcu_cs   = 1'b0;
-    casez( A[15:13] )
+    if(!mreq_n) casez( A[15:13] )
         3'b0??: rom_cs   = 1'b1;
         3'b100: fm_cs    = 1'b1;
         3'b101: mcu_cs   = 1'b1;
@@ -70,7 +70,6 @@ wire wr_n;
 wire RAM_we = ram_cs && !WRn;
 wire [7:0] ram_dout, dout, fm_dout;
 
-assign RDn = rd_n | mreq_n;
 assign WRn = wr_n | mreq_n;
 assign snd_dout = dout;
 assign rom_addr = A[14:0];

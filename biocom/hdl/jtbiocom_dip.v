@@ -40,7 +40,7 @@ wire [1:0]    dip_bonus  = ~status[16:15];
 
 always @(posedge clk) begin
     dipsw_a <= { dip_pause, dip_level, dip_bonus, dip_upright, dip_lives };
-    dipsw_b <= { dip_flip^1'b1, dip_test, dip_price2, dip_price1 };
+    dipsw_b <= { dip_flip, dip_test, dip_price2, dip_price1 };
 end
 
 endmodule
