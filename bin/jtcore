@@ -140,6 +140,10 @@ if [ $SKIP_COMPILE = FALSE ]; then
     done
     # Update message file
     jt${PRJ}_msg.py || exit 1
+    # Updata Avatars
+    if [ -e $JTGNG_ROOT/$PRJ/patrons/avatars ]; then
+        avatar.py $PRJ || exit 1
+    fi
     if ! cd $JTGNG_ROOT/$PRJ/$MIST; then
         exit 1
     fi
@@ -147,10 +151,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
         ln -s $JTGNG_ROOT/modules/rom_loadv.hex
     fi
     echo "Moved to folder " $(pwd)
-    # Updata Avatars
-    if [ -e $JTGNG_ROOT/$PRJ/patrons/avatars ]; then
-        avatar.py $PRJ || exit 1
-    fi
     # Recompile
     rm -rf db incremental_db output_files
     mkdir -p $JTGNG_ROOT/log/$MIST
