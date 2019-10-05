@@ -98,29 +98,28 @@ def convert_buf( buf, k, msg ):
         k+=1
     return k
 
-#1 Avatars:
-#2 Daniel Bauza
-#3 Brian Sallee
-#4 Dustin Hubbard
-#5 Frederic Mahe
-#6 Jo Tomiyori
-#7 Phillip McMahon
-#8 Scralings
-#9 Sembiance -- but I don't have the image!
-#A Suvodip Mitra
+#  Avatars:
+#1 Daniel Bauza
+#2 Brian Sallee
+#3 Dustin Hubbard
+#4 Frederic Mahe
+#5 Jo Tomiyori
+#6 Phillip McMahon
+#7 Scralings
+#8 Sembiance -- but I don't have the image!
+#9 Suvodip Mitra
 
 
 #           00000000000000001111111111111111
 #           0123456789ABCDEF0123456789ABCDEF
 av_buf=bytearray(32*16)
 av_pos=0
-av_pos=convert_buf(av_buf,av_pos,"             sCRALINGS          ")
-av_pos=convert_buf(av_buf,av_pos,"             sUVERMAN           ")
-av_pos=convert_buf(av_buf,av_pos,"          fREDERIC mAHE         ")
-av_pos=convert_buf(av_buf,av_pos,"          jO tOMIYORI           ")
-av_pos=convert_buf(av_buf,av_pos,"           bRIAN sALLEE         ")
-av_pos=convert_buf(av_buf,av_pos,"             fullset            ")
-av_pos=convert_buf(av_buf,av_pos,"         pHILLIP mCmAHON        ")
-av_pos=convert_buf(av_buf,av_pos,"          dUSTIN hUBBARD        ")
-av_pos=convert_buf(av_buf,av_pos,"           dANIEL bAUZA         ")
+av_pos=convert_buf(av_buf,av_pos,"             scralings          ")
+av_pos=convert_buf(av_buf,av_pos,"             suverman           ")
+av_pos=convert_buf(av_buf,av_pos,"          frederic mahe         ")
+av_pos=convert_buf(av_buf,av_pos,"          jo tomiyori           ")
+av_pos=convert_buf(av_buf,av_pos,"           brian sallee         ")
+av_pos=convert_buf(av_buf,av_pos,"         phillip mcmahon        ")
+av_pos=convert_buf(av_buf,av_pos,"          dustin hubbard        ")
+av_pos=convert_buf(av_buf,av_pos,"           daniel bauza         ")
 save_hex( os.environ['JTGNG_ROOT']+"/commando/mist/msg_av.hex", av_buf )

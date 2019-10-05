@@ -52,70 +52,38 @@ for col in range(256):
 
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("    commando clone for fpga     ")
-print_char("    brought to you by jotego.   ")
-print_char("  http://patreon.com/topapate   ")
 print_char("                                ")
+print_char("    gunsmoke clone by jotego    ")
+print_char("  http://patreon.com/topapate   ")
 print_char("       thanks to my patrons     ") 
 print_char("                                ")
+print_char("  andrew moore - andyways       ")
+print_char("  don gafford  - j. slowfret    ")
+print_char("  kyle good    - leslie law     ")
+print_char("  m. astudillo - mary marshall  ")
+print_char("  matthew young- oliver jaksch  ")
+print_char("  oliver wndmth- oscar laguna   ")
+print_char("  roman buser  - ryan fig       ")
+print_char("  steve suavek - steve wilson   ") 
+print_char("  tony boreham - xzarian        ")
+print_char("                                ")
+print_char("           xzarian              ")
+print_char("         sembiance              ") # I haven't got the Avater
+print_char("       victor gomariz           ")
+print_char("       ultrarobotninja          ")
+print_char("       william clemens          ") # Declined the Avatar
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
-print_char("        beta version            ")
-print_char("                                ")
-print_char("                                ")
-print_char("     do not distribute          ")
-print_char("                                ") # I haven't got the Avater
-print_char("        5-sept-2019             ")
-print_char("                                ")
-print_char("                                ")
-print_char("                          .     ")
-print_char("                                ") # Declined the Avatar
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-#print_char("    commando clone for fpga     ")
-#print_char("    brought to you by jotego.   ")
-#print_char("  http://patreon.com/topapate   ")
-#print_char("                                ")
-#print_char("       thanks to my patrons     ") 
-#print_char("                                ")
-#print_char("    andrew moore                ")
-#print_char("    andyways                    ")
-#print_char("    dave ross                   ")
-#print_char("    don gafford                 ")
-#print_char("    leslie law                  ")
-#print_char("    mary marshall               ")
-#print_char("    matthew young               ")
-#print_char("    oliver jaksch               ")
-#print_char("    oscar laguna garcia         ")
-#print_char("    roman buser                 ")
-#print_char("    sembiance                   ") # I haven't got the Avater
-#print_char("    smokemonster                ")
-#print_char("    steven wilson               ")
-#print_char("    ultrarobotninja             ")
-#print_char("    victor gomariz l. de g.     ")
-#print_char("    william clemens             ") # Declined the Avatar
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
-#print_char("                                ")
 
 save_hex( os.environ['JTGNG_ROOT']+"/gunsmoke/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG_ROOT']+"/gunsmoke/ver/game/msg.bin", char_ram )
@@ -127,16 +95,16 @@ def convert_buf( buf, k, msg ):
         k+=1
     return k
 
-#1 Avatars:
-#2 Daniel Bauza
-#3 Brian Sallee
-#4 Dustin Hubbard
-#5 Frederic Mahe
-#6 Jo Tomiyori
-#7 Phillip McMahon
-#8 Scralings
-#9 Sembiance -- but I don't have the image!
-#A Suvodip Mitra
+#  Avatars:
+#1 Daniel Bauza
+#2 Brian Sallee
+#3 Dustin Hubbard
+#4 Frederic Mahe
+#5 Jo Tomiyori
+#6 Phillip McMahon
+#7 Scralings
+#8 Sembiance -- but I don't have the image!
+#9 Suvodip Mitra
 
 
 #           00000000000000001111111111111111
@@ -148,7 +116,6 @@ av_pos=convert_buf(av_buf,av_pos,"             suverman           ")
 av_pos=convert_buf(av_buf,av_pos,"          frederic mahe         ")
 av_pos=convert_buf(av_buf,av_pos,"          jo tomiyori           ")
 av_pos=convert_buf(av_buf,av_pos,"           brian sallee         ")
-av_pos=convert_buf(av_buf,av_pos,"             fullset            ")
 av_pos=convert_buf(av_buf,av_pos,"         phillip mcmahon        ")
 av_pos=convert_buf(av_buf,av_pos,"          dustin hubbard        ")
 av_pos=convert_buf(av_buf,av_pos,"           daniel bauza         ")

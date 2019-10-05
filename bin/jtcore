@@ -147,6 +147,10 @@ if [ $SKIP_COMPILE = FALSE ]; then
         ln -s $JTGNG_ROOT/modules/rom_loadv.hex
     fi
     echo "Moved to folder " $(pwd)
+    # Updata Avatars
+    if [ -e $JTGNG_ROOT/$PRJ/patrons/avatars ]; then
+        avatar.py $PRJ || exit 1
+    fi
     # Recompile
     rm -rf db incremental_db output_files
     mkdir -p $JTGNG_ROOT/log/$MIST
@@ -211,7 +215,7 @@ if [ $PROG = TRUE ]; then
         cd $JTGNG_ROOT/$PRJ/mister
         FILE=jtag.cdf
     else
-        CABLE="USB-Blaster(Altera) [1-1.2.4]"
+        CABLE="USB-Blaster(Altera) [1-1.2.2]"
         FILE=$JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
     fi
     quartus_pgm -c "$CABLE" $FILE
