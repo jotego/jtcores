@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $JTGNG_ROOT
+cd $JTGNG_ROOT/bin
 
 function show_usage() {
     cat << EOF
@@ -68,7 +68,7 @@ while [ $# -gt 0 ]; do
         -skip | -s) SKIP_COMPILE=TRUE;;
         -git | -g) GIT=TRUE;;
         -prog | -p) PROG=TRUE;;
-        -prog-only | -w) 
+        -prog-only | -w)
             PROG=TRUE
             SKIP_COMPILE=TRUE;;
         -mister | -mr)
@@ -84,7 +84,7 @@ while [ $# -gt 0 ]; do
             PATH=$PATH:$HOME/altera/13.1/quartus/bin
             export PATH;;
         -add)
-            ZIP=TRUE 
+            ZIP=TRUE
             shift
             break;;
         -gngvga)
@@ -157,7 +157,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     rm -rf db incremental_db output_files
     mkdir -p $JTGNG_ROOT/log/$MIST
     LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
-    echo Log file: $LOG 
+    echo Log file: $LOG
     copy_templates
     # Prepare macros
     for m in $MACROS; do

@@ -4,8 +4,6 @@ MIN=0
 MAX=11000
 CORE=1943
 
-cd $JTGNG_ROOT
-
 while [ $# -gt 0 ]; do
     case "$1" in
         -min)
