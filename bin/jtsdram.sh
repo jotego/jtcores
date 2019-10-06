@@ -2,6 +2,7 @@
 
 MIN=0
 MAX=11000
+CORE=1943
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -11,6 +12,9 @@ while [ $# -gt 0 ]; do
         -max)
             shift
             MAX=$1;;
+        -core)
+            shift
+            CORE=$1;;
         *)
             echo "Unknown parameter"
             exit 1;;
@@ -24,14 +28,14 @@ do
         continue
     fi
     echo Using ${DELAY}ps delay
-    jtcore 1943 -mr -d SDRAM_SHIFT=\\\"$DELAY\\\"
-    OUTPUT=$JTGNG_ROOT/1943/mister/output_files/jt1943.rbf
+    jtcore ${CORE} -mr -d SDRAM_SHIFT=\\\"$DELAY\\\"
+    OUTPUT=$JTGNG_ROOT/${CORE}/mister/output_files/jt${CORE}.rbf
     if [ -e  ]; then
-        cp $OUTPUT jt1943_${DELAY}ps.rbf
-        mv $JTGNG_ROOT/log/mister/jt1943.log jt1943_${DELAY}ps.log
+        cp $OUTPUT jt${CORE}_${DELAY}ps.rbf
+        mv $JTGNG_ROOT/log/mister/jt${CORE}.log jt${CORE}_${DELAY}ps.log
     else
         echo "Missing output RBF file for ${DELAY}ps"
     fi
 done
 
-7za a jt1943_shift.7z jt1943*.log jt1943*.rbf
+7za a jt${CORE}_shift.7z jt${CORE}*.log jt${CORE}*.rbf

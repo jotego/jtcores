@@ -211,11 +211,11 @@ fi
 
 if [ $PROG = TRUE ]; then
     if [ $MIST = mister ]; then
-        CABLE="DE-SoC [1-1.2.3]"
+        CABLE="DE-SoC"
         cd $JTGNG_ROOT/$PRJ/mister
         FILE=jtag.cdf
     else
-        CABLE="USB-Blaster(Altera) [1-1.2.2]"
+        CABLE="USB-Blaster(Altera)"
         FILE=$JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
     fi
     quartus_pgm -c "$CABLE" $FILE
