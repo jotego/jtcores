@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd $JTGNG_ROOT
+
 function show_usage() {
     cat << EOF
 JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
