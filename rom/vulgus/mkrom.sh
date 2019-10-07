@@ -42,4 +42,4 @@ dump "Objects ZY  " 2-2n.bin 2-3n.bin
 dump "PROMs       " 82s126.9k c9.bin c9.bin c9.bin e8.bin e9.bin e10.bin d1.bin j2.bin 82s129.8n
 
 echo ROM length $(rom_len)
-cp JTVULGUS.rom $JTGNG_ROOT/rom/JTVULGUS.rom
+cp JTVULGUS.rom $JTGNG/rom/JTVULGUS.rom

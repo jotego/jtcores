@@ -252,8 +252,8 @@ jt1943_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),
+    .joystick1   ( { joy1_btn, joystick1[3:0]}    ),
+    .joystick2   ( { joy2_btn, joystick2[3:0]}    ),
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),

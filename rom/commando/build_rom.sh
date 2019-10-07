@@ -39,4 +39,4 @@ dump "Objects XW  " vt08.7h vt09.8h vt10.9h
 dump "PROMs       " vtb1.1d vtb2.2d vtb3.3d vtb4.1h vtb5.6l vtb6.6e
 
 echo ROM length $(rom_len)
-cp JTCOMMANDO.rom $JTGNG_ROOT/rom/JTCOMMANDO.rom
+cp JTCOMMANDO.rom $JTGNG/rom/JTCOMMANDO.rom

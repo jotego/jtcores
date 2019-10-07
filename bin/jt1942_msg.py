@@ -79,5 +79,5 @@ print_char("  Gyurco for his MiST Support   ")
 print_char("    and AmigaWave YT channel!   ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG_ROOT']+"/1942/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG_ROOT']+"/1942/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTGNG']+"/1942/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG']+"/1942/ver/game/msg.bin", char_ram )

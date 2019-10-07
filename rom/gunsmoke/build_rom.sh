@@ -44,6 +44,6 @@ dump "Objects XW  " gs20.03n gs16.03l gs19.01n gs15.01l
 dump "PROMs       " g-01.03b g-02.04b g-03.05b g-04.09d g-06.14a g-07.15a g-09.09f g-08.08f g-10.02j g-05.01f
 
 echo ROM length $(rom_len)
-if [ -e "$JTGNG_ROOT/rom" ]; then
-    cp $CORE.rom $JTGNG_ROOT/rom/$CORE.rom
+if [ -e "$JTGNG/rom" ]; then
+    cp $CORE.rom $JTGNG/rom/$CORE.rom
 fi

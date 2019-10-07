@@ -232,7 +232,7 @@ jt49_bus u_ay0( // note that input ports are not multiplexed
     .bdir   ( bdir0     ),
     .bc1    ( bc0       ),
     .din    ( dout      ),
-    .sel    ( 1'b0      ),
+    .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
     .sound  ( sound0    ),
     // unused
@@ -250,7 +250,7 @@ jt49_bus u_ay1( // note that input ports are not multiplexed
     .bdir   ( bdir1     ),
     .bc1    ( bc1       ),
     .din    ( dout      ),
-    .sel    ( 1'b0      ),
+    .sel    ( 1'b1      ),
     .dout   ( ay1_dout  ),
     .sound  ( sound1    ),
     .A(), .B(), .C() // unused outputs
