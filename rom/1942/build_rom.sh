@@ -42,5 +42,5 @@ dump "PROMs" sb-1.k6 sb-2.d1  sb-3.d2 sb-4.d6 sb-5.e8 \
              sb-6.e9 sb-7.e10 sb-0.f1 sb-8.k3 sb-9.m11
 
 echo ROM length $(rom_len)
-cp $GAME $JTGNG_ROOT/rom/$GAME
+cp $GAME $JTGNG/rom/$GAME
 echo MD5 Sum: $(md5sum $GAME)

@@ -29,6 +29,7 @@ export MEM_CHECK_TIME=250_000_000
 export BIN2PNG_OPTIONS="--rotate --scale"
 export CONVERT_OPTIONS="-rotate -90 -resize 300%x300%"
 GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
+export YM2203=1
 
 # Generic simulation script from JTFRAME
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN -sysname 1943 -d VERTICAL_SCREEN \

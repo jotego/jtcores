@@ -34,6 +34,14 @@ It is obvious what you have to do except:
  3rd button to roll. That is not the original behaviour. If you want to play
  like the original, just don't use the 3rd button.
 
+RELEASE HISTORY
+===============
+7th Oct 2019
+    * Added FLIP option, although it is a bit glitchy. Original hardware
+      did not fully implemented it so it is a bit of a hack.
+    * Updated to latest JT49 sound module. Fixes many bugs in SFX.
+    * Added 128MB RAM module support (MiSTer only)
+
 CREDITS
 =======
 

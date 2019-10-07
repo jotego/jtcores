@@ -9,8 +9,10 @@
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
 ../../hdl/jt1942_dip.v
-../../../1943/hdl/jtgng_rom.v
-../../../1943/hdl/jtgng_romrq.v
+../../../modules/jtgng_rom.v
+../../../modules/jtgng_romrq.v
+../../../modules/jtgng_romflex.v
+../../../modules/jtgng_multiram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_cen.v
@@ -23,6 +25,7 @@
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_scroll.v
 ../../../modules/jtgng_tilemap.v
+../../../modules/jtgng_tile3.v
 ../../../modules/jtframe/hdl/ver/noise_gen.v
 
 ../../../modules/jtgng_charmsg.v

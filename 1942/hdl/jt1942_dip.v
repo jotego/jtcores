@@ -31,15 +31,23 @@ module jt1942_dip(
 );
 
 // Commando specific:
-wire          dip_upright = 1'b1;
+wire          dip_upright = 1'b0;
 wire [1:0]    dip_bonus   = ~status[17:16];
 wire [1:0]    dip_level   = ~status[21:20];
 wire [1:0]    dip_lives   = ~status[19:18];
 wire [2:0]    dip_price   = 3'b111;
+wire          dip_demosnd = status[20];
+wire          dip_demomsc = status[21];
 
 always @(posedge clk) begin
-    dipsw_a <= { dip_lives, dip_bonus, dip_upright, dip_price };
-    dipsw_b <= { dip_pause, dip_level, 1'b1, dip_test, 3'd7   };
+    `ifdef VULGUS
+        dipsw_a <= { {2{dip_price}}, dip_lives };
+        dipsw_b <= { dip_upright, dip_bonus,
+            dip_demosnd, dip_demomsc, 2'b11 };
+    `else // 1942
+        dipsw_a <= { dip_lives, dip_bonus, dip_upright, dip_price };
+        dipsw_b <= { dip_pause, dip_level, 1'b1, dip_test, 3'd7   };
+    `endif
 end
 
 endmodule

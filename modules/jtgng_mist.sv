@@ -87,15 +87,15 @@ localparam CONF_STR = {
     `ifdef MISTER_VIDEO_MIXER
         "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     `else
-        `ifdef JTFRAME_VGA
+        `ifdef JTGNG_VGA
             "O9,Screen filter,ON,OFF;",
         `endif
     `endif
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
-    "O7,PSG,ON,OFF;",
     `ifdef JT12
+    "O7,PSG,ON,OFF;",
     "O8,FM ,ON,OFF;",
     "OAB,FX volume, high, very high, very low, low;",
     `endif
@@ -132,7 +132,11 @@ wire [3:0] green;
 wire [3:0] blue;
 
 wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
-wire [15:0] snd;
+wire [15:0] snd_left, snd_right;
+
+`ifndef STEREO_GAME
+assign snd_right = snd_left;
+`endif
 
 wire [9:0] game_joy1, game_joy2;
 wire [1:0] game_coin, game_start;
@@ -244,7 +248,8 @@ u_frame(
     // reset forcing signals:
     .rst_req        ( rst_req        ),
     // Sound
-    .snd            ( snd            ),
+    .snd_left       ( snd_left       ),
+    .snd_right      ( snd_right      ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
     // joystick
@@ -336,7 +341,12 @@ u_game(
     .dip_fxlevel ( dip_fxlevel    ),  
 
     // sound
-    .snd         ( snd            ),
+    `ifndef STEREO_GAME
+    .snd         ( snd_left       ),
+    `else
+    .snd_left    ( snd_left       ),
+    .snd_right   ( snd_right      ),
+    `endif
     .sample      (                ),
     // Debug
     .gfx_en      ( gfx_en         )

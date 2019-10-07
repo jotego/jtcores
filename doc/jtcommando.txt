@@ -23,9 +23,15 @@ The ROM Master
 ==============
 The ROM Master, aka Bruno Silva, has provided us with a .bat file to generate the necessary ROM file using MAME ROM files. Please follow the instructions of the .bat file to generate the ROM. The game works will all known ROMs.
 
-BETA RELEASE
-============
-The beta was release on the 20th of July of 2019 to patrons. It has some graphical issues, likely to be due to a problem in the bus arbitrion implementation. These will be fixed in the final -and public- release.
+RELEASE HISTORY
+===============
+7th Oct 2019
+    * Main Z80 is overclocked to avoid graphic glitches. Needs further debugging
+    * Updated to latest JT49 sound module. Fixes many bugs in SFX.
+    * Added 128MB RAM module support (MiSTer only)
+
+20th Jul 2019 BETA RELEASE
+    * Some graphical issues, likely to be due to a problem in the bus arbitrion implementation. These will be fixed in the final -and public- release.
 
 TEST MODE
 =========

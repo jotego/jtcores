@@ -46,4 +46,4 @@ dump "Objects XW  " tse_20.13j tsu_19.11j tse_22.17j tsu_21.15j
 dump "PROMs       " 63s141.18f
 
 echo ROM length $(rom_len)
-cp JTBIOCOM.rom $JTGNG_ROOT/rom/JTBIOCOM.rom
+cp JTBIOCOM.rom $JTGNG/rom/JTBIOCOM.rom

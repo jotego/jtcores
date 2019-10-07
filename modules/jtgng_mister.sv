@@ -129,8 +129,8 @@ localparam CONF_STR = {
     `ifdef HAS_TESTMODE
     "O6,Test mode,OFF,ON;",
     `endif
-    "O7,PSG,ON,OFF;",
     `ifdef JT12
+    "O7,PSG,ON,OFF;",
     "O8,FM ,ON,OFF;",
     "OAB,FX volume, high, very high, very low, low;",
     `endif
@@ -390,14 +390,22 @@ assign sim_pxl_cen = cen6;
     .dip_test     ( dip_test         ),
     .dip_fxlevel  ( dip_fxlevel      ),  
 
+    `ifdef STEREO_GAME
+    .snd_left     ( AUDIO_L          ),
+    .snd_right    ( AUDIO_R          ),
+    `else
     .snd          ( AUDIO_L          ),
+    `endif
     .gfx_en       ( gfx_en           ),
 
     // unconnected
     .sample       (                  )
 );
 
-assign AUDIO_R = AUDIO_L;
+`ifndef STEREO_GAME
+    assign AUDIO_R = AUDIO_L;
+`endif
+
 assign AUDIO_S = 1;
 
 endmodule

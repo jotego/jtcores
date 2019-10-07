@@ -20,17 +20,17 @@
 // of CAPCOM's 85H001 package found in GunSmoke, GnG, etc.
 
 module jtgng_sound(
-    input   rst,
-    input   clk,
-    input   cen3,   //  3   MHz
-    input   cen1p5, //  1.5 MHz
+    input           rst,
+    input           clk,
+    input           cen3,   //  3   MHz
+    input           cen1p5, //  1.5 MHz
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
     input           snd_int,
     // Sound control
-    input   enable_psg,
-    input   enable_fm,
+    input           enable_psg,
+    input           enable_fm,
     input   [7:0]   psg_gain,
     // ROM
     output  [14:0]  rom_addr,
@@ -50,20 +50,6 @@ wire [15:0] A;
 assign rom_addr = A[14:0];
 
 reg fm1_cs,fm0_cs, latch_cs, ram_cs;
-// reg [4:0] map_cs;
-// 
-// assign { rom_cs, fm1_cs, fm0_cs, latch_cs, ram_cs } = map_cs;
-// 
-// reg [7:0] AH;
-// 
-// always @(*)
-//     casez(A[15:11])
-//         5'b0???_?: map_cs = 5'h10; // 0000-7FFF, ROM
-//         5'b1100_0: map_cs = 5'h1;  // C000-C7FF, RAM
-//         5'b1100_1: map_cs = 5'h2;  // C800-C8FF, Sound latch
-//         5'b1110_0: map_cs = A[1] ? 5'h8 : 5'h4; // E000-E0FF, Yamaha
-//         default: map_cs = 5'h0;
-//     endcase
 
 wire mreq_n, rfsh_n;
 
@@ -144,11 +130,13 @@ reg reset_n=1'b0;
 
 // interrupt latch
 reg int_n;
-wire iorq_n;
+wire iorq_n, m1_n;
+wire irq_ack = !iorq_n && !m1_n;
+
 always @(posedge clk or negedge reset_n)
     if( !reset_n ) int_n <= 1'b1;
     else if(cen3) begin
-        if(!iorq_n) int_n <= 1'b1;
+        if(irq_ack) int_n <= 1'b1;
         else if( snd_int_edge ) int_n <= 1'b0;
     end
 
@@ -203,7 +191,7 @@ jtframe_z80 u_cpu(
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
-    .m1_n       (             ),
+    .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),

@@ -67,4 +67,4 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG_ROOT']+"/modules/rom_loadv.hex", char_ram )
+save_hex( os.environ['JTGNG']+"/modules/rom_loadv.hex", char_ram )

@@ -39,5 +39,5 @@ dump "Objects ZY  " gg17.bin gg16.bin gg15.bin gg15.bin
 dump "Objects XW  " gg14.bin gg13.bin gg12.bin gg12.bin
 
 echo ROM length $(rom_len)
-cp $GAME $JTGNG_ROOT/rom/$GAME
+cp $GAME $JTGNG/rom/$GAME
 echo MD5 Sum: $(md5sum $GAME)

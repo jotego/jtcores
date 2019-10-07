@@ -33,10 +33,10 @@ module jt1943_colmix(
     input [7:0]     obj_pxl,
     // Palette PROMs 12A, 13A, 14A, 12C
     input [7:0]     prog_addr,
-    input           prom_12a_we,
-    input           prom_13a_we,
-    input           prom_14a_we,
-    input           prom_12c_we,
+    input           prom_red_we,
+    input           prom_green_we,
+    input           prom_blue_we,
+    input           prom_prior_we,
     input [3:0]     prom_din,
 
     input           LVBL,
@@ -54,7 +54,12 @@ module jt1943_colmix(
     input      [3:0] gfx_en
 );
 
-parameter BLANK_OFFSET=4;
+parameter BLANK_OFFSET  = 4,
+          PALETTE_RED   = "../../../rom/1943/bm1.12a",
+          PALETTE_GREEN = "../../../rom/1943/bm2.13a",
+          PALETTE_BLUE  = "../../../rom/1943/bm3.14a",
+          PALETTE_PRIOR = "../../../rom/1943/bm4.12c";
+parameter SCRPLANES     = 2;    // 1 or 2
 
 wire [7:0] dout_rg;
 wire [3:0] dout_b;
@@ -78,16 +83,29 @@ always @(posedge clk) if(cen6) begin
     scr1_pxl_1  <= scr1_pxl;
     scr2_pxl_1  <= scr2_pxl;
     obj_pxl_1   <= obj_pxl;
-    seladdr     <= { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
+    if( SCRPLANES == 2 )
+        // 1943
+        seladdr     <= { 3'b0, char_blank_b, obj_blank_b, obj_pxl[7:6], scr1_blank_b };
+    else
+        // GunSmoke
+        seladdr     <= { 4'b0, char_blank_b, obj_blank_b, obj_pxl[6], 1'b0 }; // 6 or 7?
 end
 
 always @(posedge clk) if(cen6) begin
-    case( selbus[1:0] )
-        2'b00: pixel_mux[5:0] <= scr2_pxl_1;
-        2'b01: pixel_mux[5:0] <= scr1_pxl_1;
-        2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
-        2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
-    endcase // selbus[1:0]
+    if( SCRPLANES == 2 )
+        case( selbus[1:0] ) // 1943
+            2'b00: pixel_mux[5:0] <= scr2_pxl_1;
+            2'b01: pixel_mux[5:0] <= scr1_pxl_1;
+            2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
+            2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
+        endcase // selbus[1:0]
+    else
+        case( selbus[1:0] ) // GunSmoke
+            2'b00: pixel_mux[5:0] <= scr1_pxl_1;
+            2'b10: pixel_mux[5:0] <=  obj_pxl_1[5:0];
+            2'b11: pixel_mux[5:0] <= { 2'b0, char_pxl_1 };
+        endcase // selbus[1:0]
+
     pixel_mux[7:6] <= selbus[3:2];
 end
 
@@ -105,46 +123,46 @@ always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
 // palette ROM
 wire [3:0] pal_red, pal_green, pal_blue;
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm1.12a")) u_red(
+jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
     .clk    ( clk         ),
     .cen    ( 1'b1        ),
     .data   ( prom_din    ),
     .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
-    .we     ( prom_12a_we ),
+    .we     ( prom_red_we ),
     .q      ( pal_red     )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm2.13a")) u_green(
-    .clk    ( clk         ),
-    .cen    ( 1'b1        ),
-    .data   ( prom_din    ),
-    .rd_addr( pixel_mux   ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_13a_we ),
-    .q      ( pal_green   )
+jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
+    .clk    ( clk           ),
+    .cen    ( 1'b1          ),
+    .data   ( prom_din      ),
+    .rd_addr( pixel_mux     ),
+    .wr_addr( prog_addr     ),
+    .we     ( prom_green_we ),
+    .q      ( pal_green     )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm3.14a")) u_blue(
-    .clk    ( clk         ),
-    .cen    ( 1'b1        ),
-    .data   ( prom_din    ),
-    .rd_addr( pixel_mux   ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_14a_we ),
-    .q      ( pal_blue    )
+jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
+    .clk    ( clk          ),
+    .cen    ( 1'b1         ),
+    .data   ( prom_din     ),
+    .rd_addr( pixel_mux    ),
+    .wr_addr( prog_addr    ),
+    .we     ( prom_blue_we ),
+    .q      ( pal_blue     )
 );
 
 // Clock must be faster than 6MHz so selbus is ready for the next
 // 6MHz clock cycle:
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1943/bm4.12c")) u_selbus(
-    .clk    ( clk         ),
-    .cen    ( 1'b1        ),
-    .data   ( prom_din    ),
-    .rd_addr( seladdr     ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_12c_we ),
-    .q      ( selbus      )
+jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_PRIOR)) u_selbus(
+    .clk    ( clk           ),
+    .cen    ( 1'b1          ),
+    .data   ( prom_din      ),
+    .rd_addr( seladdr       ),
+    .wr_addr( prog_addr     ),
+    .we     ( prom_prior_we ),
+    .q      ( selbus        )
 );
 
 

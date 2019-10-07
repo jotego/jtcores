@@ -3,13 +3,13 @@
 SIMTIME=
 EXTRA2=-lxt
 
-if [ "$JTGNG_ROOT" = "" ]; then
-    echo "JTGNG_ROOT environment variable must be defined to point to"
+if [ "$JTGNG" = "" ]; then
+    echo "JTGNG environment variable must be defined to point to"
     echo "the jt_gng root foolder."
     exit 1
 fi
 
-FRAME=$JTGNG_ROOT/modules/jtframe
+FRAME=$JTGNG/modules/jtframe
 
 if [ ! -e $FRAME/cc/pcb2ver ]; then
     x=$(pwd)

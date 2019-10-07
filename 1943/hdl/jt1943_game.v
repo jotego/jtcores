@@ -252,8 +252,8 @@ jt1943_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),
+    .joystick1   ( { joy1_btn, joystick1[3:0]}    ),
+    .joystick2   ( { joy2_btn, joystick2[3:0]}    ),
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
@@ -410,26 +410,26 @@ jt1943_video u_video(
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),
     // Char
-    .prom_7f_we ( prom_7f_we    ),
+    .prom_char_we  ( prom_7f_we    ),
     // color mixer proms
-    .prom_12a_we( prom_12a_we   ),
-    .prom_13a_we( prom_13a_we   ),
-    .prom_14a_we( prom_14a_we   ),
-    .prom_12c_we( prom_12c_we   ),
+    .prom_red_we   ( prom_12a_we   ),
+    .prom_green_we ( prom_13a_we   ),
+    .prom_blue_we  ( prom_14a_we   ),
+    .prom_prior_we ( prom_12c_we   ),
     // scroll 1/2 proms
-    .prom_6l_we ( prom_6l_we    ),
-    .prom_7l_we ( prom_7l_we    ),
-    .prom_12l_we( prom_12l_we   ),
-    .prom_12m_we( prom_12m_we   ),
+    .prom_scr1hi_we( prom_6l_we    ),
+    .prom_scr1lo_we( prom_7l_we    ),
+    .prom_scr2hi_we( prom_12l_we   ),
+    .prom_scr2lo_we( prom_12m_we   ),
     // obj proms
-    .prom_7c_we ( prom_7c_we    ),
-    .prom_8c_we ( prom_8c_we    ),
+    .prom_objhi_we ( prom_7c_we    ),
+    .prom_objlo_we ( prom_8c_we    ),
     // Debug
-    .gfx_en     ( gfx_en        ),
+    .gfx_en        ( gfx_en        ),
     // Pixel Output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
+    .red           ( red           ),
+    .green         ( green         ),
+    .blue          ( blue          )
 );
 
 // Sound is not used through the ROM interface because there is not enough banwidth

@@ -168,8 +168,12 @@ always @(posedge clk, posedge rst)
         end
     end
 
-// Avatar data output is only done in MiSTer
 `ifdef MISTER
+    // Avatar data output is always defined for MiSTer
+    `define AVATAR_DATA
+`endif
+
+`ifdef AVATAR_DATA
 jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
@@ -220,6 +224,7 @@ end
 `endif
 `else
 always @(*) begin
+    avatar_idx = 4'd0;
     ram_dout   = buf_data;
 end
 `endif

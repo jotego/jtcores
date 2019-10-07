@@ -4,6 +4,8 @@
 ../../hdl/jt1943_prom_we.v
 ../../../modules/jtgng_rom.v
 ../../../modules/jtgng_romrq.v
+../../../modules/jtgng_romflex.v
+../../../modules/jtgng_multiram.v
 ../../hdl/jt1943_scroll.v
 ../../hdl/jt1943_security.v
 ../../hdl/jt1943_video.v
@@ -27,5 +29,6 @@
 ../../../modules/jtgng_tilemap.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
+../../../modules/jtgng_tile4.v
 test_inputs.v
 ../../../modules/jtgng_charmsg.v

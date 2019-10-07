@@ -37,7 +37,7 @@ module jt1942_objdraw(
     input       [15:0] objrom_data,
     // Palette PROM
     input   [7:0]      prog_addr,
-    input              prom_k3_we,
+    input              prom_pal_we,
     input   [3:0]      prog_din,
     // pixel data
     output reg  [8:0]  posx,
@@ -82,16 +82,20 @@ end
 
 reg [14:0] pre_addr;
 reg VINZONE2, VINZONE3;
-reg [8:0] objx, posx1;
+reg [8:0] objx, posx1, posx2;
 reg [3:0] CD2;
 
-localparam [3:0] DATAREAD = 4'h7;
+localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 
 always @(posedge clk) if(cen6) begin
     case( pxlcnt )
         4'd0: V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
-        DATAREAD: begin
+        4'd7: begin
+            `ifdef VULGUS
+            pre_addr[14:10] <= { 1'b0, next_AD[7:4]};
+            `else // 1942
             pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
+            `endif
             case( next_vlen )
                 2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
                 2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
@@ -109,7 +113,7 @@ end
 assign obj_addr[14:6] = pre_addr[14:6];
 assign obj_addr[ 4:1] = pre_addr[ 4:1];
 //assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
-assign { obj_addr[5], obj_addr[0] } = { pxlcnt[3]^~pxlcnt[2], ~pxlcnt[2]};
+assign { obj_addr[5], obj_addr[0] } = { pxlcnt[3]^~pxlcnt[2], ~pxlcnt[2]}-2'b1;
 
 // ROM data depacking
 
@@ -119,15 +123,14 @@ wire [7:0] pal_addr = { CD, obj_wxyz};
 
 
 always @(posedge clk) if(cen6) begin
-    obj_wxyz <= {w[3],x[3],y[3],z[3]};
-    if( pxlcnt == (DATAREAD+4'h1) ) begin //
+    if( pxlcnt == 4'b1011 ) begin //
         CD       <= CD2;
         VINZONE3 <= VINZONE2;
         posx1<=objx;
     end else begin
         posx1 <= posx1 + 9'b1;
     end
-    if( pxlcnt[1:0] == DATAREAD[1:0] )
+    if( pxlcnt[1:0] == 2'b11 )
         {z,y,x,w} <= objrom_data;
     else begin
         z <= z << 1;
@@ -137,12 +140,23 @@ always @(posedge clk) if(cen6) begin
 	end
 end
 
+always @(*) begin
+`ifdef VULGUS
+    obj_wxyz = {y[3],z[3],w[3],x[3]};
+`else
+    obj_wxyz = {w[3],x[3],y[3],z[3]};
+`endif
+end
+
 wire [3:0] prom_dout;
+reg VINZONE4;
 
 always @(posedge clk ) if(cen6) begin
-    if( !VINZONE3 ) begin
+    posx2 <= posx1;
+    VINZONE4 <= VINZONE3;
+    if( !VINZONE4 ) begin
         new_pxl <= prom_dout;
-        posx    <= posx1;
+        posx    <= posx2;
     end else begin
         new_pxl <= 4'hf;
         posx    <= 9'h100;
@@ -157,7 +171,7 @@ jtgng_prom #(.aw(8),.dw(4),
     .data   ( prog_din       ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_k3_we     ),
+    .we     ( prom_pal_we     ),
     .q      ( prom_dout      )
 );
 

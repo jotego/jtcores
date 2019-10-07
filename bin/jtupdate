@@ -21,6 +21,6 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-cores="1942 1943 gng commando"
+cores="1942 1943 gng commando gunsmoke vulgus"
 
 parallel jtcore {} $EXTRA ::: $cores ::: $MIST

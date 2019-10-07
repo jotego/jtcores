@@ -31,11 +31,26 @@ module jt1943_prom_we(
     output reg [12:0]    prom_we
 );
 
-localparam SNDADDR=22'h14_000<<1, CHARADDR=22'h18_000*2,
-    SCR1ADDR=22'h24_000<<1, ROMEND=22'h6C_000*2, MAP1ADDR=22'h1C_000<<1,
-    OBJADDR=22'h4C_000<<1;
+parameter SNDADDR  = 22'h14_000<<1,
+          CHARADDR = 22'h18_000<<1,
+          MAP1ADDR = 22'h1C_000<<1,
+          SCR1ADDR = 22'h24_000<<1,
+          OBJADDR  = 22'h4C_000<<1,
+          PROMADDR = 22'h6C_000<<1;
+parameter SND_BRAM = 1;
+
 wire [21:0] scr_start = ioctl_addr - SCR1ADDR;
 wire [21:0] map_start = ioctl_addr - MAP1ADDR;
+
+`ifdef SIMULATION
+wire in_main = ioctl_addr < SNDADDR;
+wire in_snd  = ioctl_addr > SNDADDR && ioctl_addr < CHARADDR;
+wire in_char = ioctl_addr >= CHARADDR && ioctl_addr < MAP1ADDR;
+wire in_map  = ioctl_addr >= MAP1ADDR && ioctl_addr < SCR1ADDR;
+wire in_scr  = ioctl_addr >= SCR1ADDR && ioctl_addr < OBJADDR;
+wire in_obj  = ioctl_addr >= OBJADDR && ioctl_addr < PROMADDR;
+wire in_prom = ioctl_addr >= PROMADDR;
+`endif
 
 reg set_strobe, set_done;
 reg [12:0] prom_we0;
@@ -56,7 +71,7 @@ always @(posedge clk) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
         if(ioctl_addr < MAP1ADDR) begin
-            if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR) begin // Sound ROM
+            if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR && SND_BRAM==1 ) begin // Sound ROM
                 prom_we0   <= 13'h10_00;
                 set_strobe <= 1'b1;
                 prog_we    <= 1'b0; // Do not write this on the SDRAM
@@ -77,7 +92,7 @@ always @(posedge clk) begin
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16], scr_start[14:0]};
             prog_mask <= { scr_start[15], ~scr_start[15]};
         end
-        else if(ioctl_addr < ROMEND) begin // OBJ
+        else if(ioctl_addr < PROMADDR ) begin // OBJ
             prog_addr <= SCR1ADDR[21:1] + {scr_start[21:16],
                 scr_start[14:6], scr_start[4:1], scr_start[5], scr_start[0] }; // bit order swapped to increase cache hits
             prog_mask <= { scr_start[15], ~scr_start[15]};

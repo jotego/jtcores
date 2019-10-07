@@ -23,6 +23,7 @@ export MEM_CHECK_TIME=86_000_000
 export BIN2PNG_OPTIONS="--rotate --scale"
 export CONVERT_OPTIONS="-rotate -90 -resize 300%x300%"
 GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
+export YM2203=1
 
 # create scroll RAM files with initial value for simulation
 make

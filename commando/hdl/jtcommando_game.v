@@ -325,7 +325,7 @@ jtgng_video #(
     .PALETTE_RED  ("../../../rom/commando/vtb1.1d"),
     .PALETTE_GREEN("../../../rom/commando/vtb2.2d"),
     .PALETTE_BLUE ("../../../rom/commando/vtb3.3d"),
-    .AVATAR_MAX   (9)
+    .AVATAR_MAX   (8)
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),

@@ -20,6 +20,7 @@ module jtgng_objdraw #(parameter
     ROM_AW   = 16, 
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
+                    // 2: GunSmoke
     PALW     = 2,
     PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -90,6 +91,13 @@ always @(posedge clk) if(cen6) begin
                 obj_vflip <= 1'b0;
                 obj_hflip <= 1'b0;
                 hover     <= objbuf_data[4];
+            end
+            2: begin // GunSmoke
+                ADhigh    <= objbuf_data[7:6];
+                objpal    <= objbuf_data[3:0];
+                obj_vflip <= objbuf_data[4];
+                obj_hflip <= 1'b0;
+                hover     <= objbuf_data[5];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step

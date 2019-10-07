@@ -83,10 +83,9 @@ assign cpu_cen = cen6;
 assign bus_ack = ~busak_n;
 
 always @(*) begin
-    rom_cs       = 1'b0;
+    rom_cs        = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
-    scrposv_cs    = 1'b0;
     bank_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
@@ -130,15 +129,16 @@ end
 
 // special registers
 reg [2:0] bank;
-always @(posedge clk)
+always @(posedge clk, posedge rst)
     if( rst ) begin
-        bank      <=  'd0;
+        bank      <= 2'd0;
         scrposv   <= 8'd0;
         CHON      <= 1'b0;
         flip      <= 1'b0;
         sres_b    <= 1'b1;
         coin_cnt  <= 1'b0;  // omitting inverter in M54532 for coin counter.
         {OBJON, SC2ON, SC1ON } <= 3'd0;
+        snd_latch <= 8'd0;
     end
     else if(cpu_cen) begin
         if( bank_cs  && !wr_n ) begin
@@ -223,7 +223,7 @@ always @(negedge rd_n)
 
 // ROM ADDRESS: 32kB + 8 banks of 16kB
 always @(*) begin
-    rom_addr[13:0] = A[13:0];
+    rom_addr[13: 0] = A[13:0];
     rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
 end
 
@@ -248,7 +248,6 @@ always @(posedge clk)
 /////////////////////////////////////////////////////////////////
 // wait_n generation
 reg [1:0] mem_wait_n;
-//wire wait_n = char_wait_n & mem_wait_n[0];
 reg wait_n;
 reg last_rom_cs;
 wire rom_cs_posedge = !last_rom_cs && rom_cs;
