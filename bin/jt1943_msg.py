@@ -81,7 +81,7 @@ def convert_buf( buf, k, msg ):
 # Patreons with Avatar:
 # Scralings, Suverman, Frederic Mahe, Jo Tomiyori, Brian Sallee, FULLSET, Phillip McMahon, Dustin Hubbard
 
-save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg_mister.hex", char_ram )
+save_hex( os.environ['JTGNG']+"/1943/mist/msg_mister.hex", char_ram )
 
 # Message for MiST (no Avatars)
 row=31
@@ -116,8 +116,8 @@ print_char("    Victor Gomariz L. de G.     ")
 # print_char("    FULLSET                     ")
 # print_char("    Phillip McMahon             ")
 # print_char("    Dustin Hubbard              ")
-save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG_ROOT']+"/1943/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTGNG']+"/1943/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG']+"/1943/ver/game/msg.bin", char_ram )
 
 
 #           00000000000000001111111111111111
@@ -132,4 +132,4 @@ av_pos=convert_buf(av_buf,av_pos,"           Brian Sallee         ")
 av_pos=convert_buf(av_buf,av_pos,"             FULLSET            ")
 av_pos=convert_buf(av_buf,av_pos,"         Phillip McMahon        ")
 av_pos=convert_buf(av_buf,av_pos,"          Dustin Hubbard        ")
-save_hex( os.environ['JTGNG_ROOT']+"/1943/mist/msg_av.hex", av_buf )
+save_hex( os.environ['JTGNG']+"/1943/mist/msg_av.hex", av_buf )

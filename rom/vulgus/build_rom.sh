@@ -120,7 +120,7 @@ rm -rf $tmpdir
 
 #Documentation
 
-#cp JTVULGUS.rom $JTGNG_ROOT/rom/JTVULGUS.rom
+#cp JTVULGUS.rom $JTGNG/rom/JTVULGUS.rom
 
 #echo 1 - Vulgus (set 1) - Default
 #echo 2 - Mach-9 (bootleg of Vulgus)

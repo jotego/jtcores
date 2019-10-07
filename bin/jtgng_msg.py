@@ -85,5 +85,5 @@ print_char("       Alexey Melnikov!         ")
 print_char("    and Szombathelyi Gyorgy     ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG_ROOT']+"/gng/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG_ROOT']+"/gng/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTGNG']+"/gng/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG']+"/gng/ver/game/msg.bin", char_ram )

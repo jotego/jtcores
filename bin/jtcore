@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $JTGNG_ROOT/bin
+cd $JTGNG/bin
 
 function show_usage() {
     cat << EOF
@@ -21,7 +21,7 @@ JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
     -prog-only  skips compilations and directly programs the FPGA
     -zip | -z   Create zip file
     -add        all arguments from that point on will be used as inputs to the
-                zip file. All files must be referred to $JTGNG_ROOT path
+                zip file. All files must be referred to $JTGNG path
     -help       displays this message
 EOF
    exit 0
@@ -29,8 +29,8 @@ EOF
 
 # Is the root folder environment variable set
 
-if [ "$JTGNG_ROOT" = "" ]; then
-    echo "ERROR: Missing JTGNG_ROOT environment variable. Define it to"
+if [ "$JTGNG" = "" ]; then
+    echo "ERROR: Missing JTGNG environment variable. Define it to"
     echo "point to the github jt_gng folder path."
     exit 1
 fi
@@ -48,7 +48,7 @@ case "$PRJ" in
         show_usage;;
 esac
 
-if [ ! -e $JTGNG_ROOT/$PRJ ]; then
+if [ ! -e $JTGNG/$PRJ ]; then
     echo "Project $PRJ is not valid"
     exit 1
 fi
@@ -108,14 +108,14 @@ done
 function copy_templates {
     datestr=$(date "+%H:%M:%S %B %e, %Y")
     sedstr='s/${CORENAME}/'${PRJ}'/g;s/${DATE}/'${datestr}'/g'
-    sed "$sedstr" $JTGNG_ROOT/modules/templates/$MIST.qpf > $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qpf
-    sed "$sedstr" $JTGNG_ROOT/modules/templates/$MIST.qsf > $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
+    sed "$sedstr" $JTGNG/modules/templates/$MIST.qpf > $JTGNG/$PRJ/$MIST/jt${PRJ}.qpf
+    sed "$sedstr" $JTGNG/modules/templates/$MIST.qsf > $JTGNG/$PRJ/$MIST/jt${PRJ}.qsf
     # MiST's tcl is always appended
-    cat $JTGNG_ROOT/$PRJ/mist/jt${PRJ}.tcl >> $JTGNG_ROOT/$PRJ/$MIST/jt${PRJ}.qsf
+    cat $JTGNG/$PRJ/mist/jt${PRJ}.tcl >> $JTGNG/$PRJ/$MIST/jt${PRJ}.qsf
     # MiSTer's tcl is added if it exists
     if [ $MIST = mister ]; then
-        if [ -e $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.tcl ]; then
-            cat $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.tcl >> $JTGNG_ROOT/$PRJ/mister/jt${PRJ}.qsf
+        if [ -e $JTGNG/$PRJ/mister/jt${PRJ}.tcl ]; then
+            cat $JTGNG/$PRJ/mister/jt${PRJ}.tcl >> $JTGNG/$PRJ/mister/jt${PRJ}.qsf
         fi
     fi
 }
@@ -130,12 +130,12 @@ fi
 
 if [ $SKIP_COMPILE = FALSE ]; then
     # Create MiSTer folder if it doesn't exist
-    if [ ! -e $JTGNG_ROOT/$PRJ/mister ]; then
-        mkdir $JTGNG_ROOT/$PRJ/mister
+    if [ ! -e $JTGNG/$PRJ/mister ]; then
+        mkdir $JTGNG/$PRJ/mister
     fi
-    for i in $JTGNG_ROOT/$PRJ/mist/{*hex,conf_str.v}; do
+    for i in $JTGNG/$PRJ/mist/{*hex,conf_str.v}; do
         echo $i
-        j=$JTGNG_ROOT/$PRJ/mister/$(basename $i)
+        j=$JTGNG/$PRJ/mister/$(basename $i)
         if [ ! -e "$j" ]; then
             ln -s $i $j
         fi
@@ -143,20 +143,20 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # Update message file
     jt${PRJ}_msg.py || exit 1
     # Updata Avatars
-    if [ -e $JTGNG_ROOT/$PRJ/patrons/avatars ]; then
+    if [ -e $JTGNG/$PRJ/patrons/avatars ]; then
         avatar.py $PRJ || exit 1
     fi
-    if ! cd $JTGNG_ROOT/$PRJ/$MIST; then
+    if ! cd $JTGNG/$PRJ/$MIST; then
         exit 1
     fi
-    if [ ! -e $JTGNG_ROOT/$PRJ/$MIST/rom_loadv.hex ]; then
-        ln -s $JTGNG_ROOT/modules/rom_loadv.hex
+    if [ ! -e $JTGNG/$PRJ/$MIST/rom_loadv.hex ]; then
+        ln -s $JTGNG/modules/rom_loadv.hex
     fi
     echo "Moved to folder " $(pwd)
     # Recompile
     rm -rf db incremental_db output_files
-    mkdir -p $JTGNG_ROOT/log/$MIST
-    LOG="$JTGNG_ROOT/log/$MIST/jt$PRJ.log"
+    mkdir -p $JTGNG/log/$MIST
+    LOG="$JTGNG/log/$MIST/jt$PRJ.log"
     echo Log file: $LOG
     copy_templates
     # Prepare macros
@@ -184,7 +184,7 @@ function append_if_exists {
 
 if [ $ZIP = TRUE ]; then
     # Rename output file
-    cd $JTGNG_ROOT
+    cd $JTGNG
     RELEASE=jt${PRJ}_$(date +"%Y%m%d")
     if [ $MIST = mister ]; then
         RBF=$PRJ/${MIST}/output_files/jt$PRJ.rbf
@@ -198,9 +198,9 @@ if [ $ZIP = TRUE ]; then
     cp $RBF $RELEASE.rbf
     zip --update --junk-paths releases/$MIST/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
         $(append_if_exists rom/{$PRJ/build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
-    if [ -e $JTGNG_ROOT/../jtbin ]; then
-        cp $RELEASE.rbf $JTGNG_ROOT/../jtbin/$MIST
-        cp releases/$MIST/${RELEASE}.zip $JTGNG_ROOT/../jtbin/$MIST
+    if [ -e $JTGNG/../jtbin ]; then
+        cp $RELEASE.rbf $JTGNG/../jtbin/$MIST
+        cp releases/$MIST/${RELEASE}.zip $JTGNG/../jtbin/$MIST
     fi
     rm $RELEASE.rbf
 fi
@@ -214,11 +214,11 @@ fi
 if [ $PROG = TRUE ]; then
     if [ $MIST = mister ]; then
         CABLE="DE-SoC"
-        cd $JTGNG_ROOT/$PRJ/mister
+        cd $JTGNG/$PRJ/mister
         FILE=jtag.cdf
     else
         CABLE="USB-Blaster(Altera)"
-        FILE=$JTGNG_ROOT/$PRJ/${MIST}/jt$PRJ.cdf
+        FILE=$JTGNG/$PRJ/${MIST}/jt$PRJ.cdf
     fi
     quartus_pgm -c "$CABLE" $FILE
 fi

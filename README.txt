@@ -58,7 +58,7 @@ Compilation
 
 I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
 
-Define a environment variable called JTGNG_ROOT with the path to the folder where
+Define a environment variable called JTGNG with the path to the folder where
 you cloned jt_gng repository from Github.
 
 In the directory bin there is a command line utility called jtcore that will compile the given core. Like
