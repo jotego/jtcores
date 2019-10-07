@@ -15,18 +15,17 @@ Supported Games
 ===============
 In chronological order:
 
+* Vulgus           (see doc/jtvulgus.txt)
 * 1942             (see doc/jt1942.txt)
 * Commando         (see doc/jtcommando.txt)
 * Ghosts'n Goblins (see doc/jtgng.txt)
+* GunSmoke         (see doc/jtgunsmoke.txt)
 * 1943             (see doc/jt1943.txt)
 
 Troubleshooting
 ===============
 
-* If the screen looks blurred, reset the game using F3. If it still looks blurred, reset again by try holding F3 for a couple of seconds. This happens because the scan doubler doesn't synchronize correctly sometimes. I have other scan doublers in my library without this problem, but this one produces the smoothest scroll.
-
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.
-
 
 
 How to continue the game
@@ -101,10 +100,10 @@ gng/ver         simulation files of MiST clone
 1943            MiST board version of 1943 arcade game
 1943/hdl        Verilog files of the clone for MiST
 1943/mist       Quartus files for MiST version
+etc.
 
-
-Clone Structure
-===============
+HDL Code Structure
+==================
 
 The top level module is called jtgng_mist. This is the module that is really dependent on the board. If you want to port jtgng to a different FPGA board you will need to modify this file. Most other files will likely stay the same
 
@@ -112,8 +111,8 @@ The game itself in module jtgng_game. It is written using an arbitrary clock (ac
 
 The video output is a 256x256 screen. That is what you get from jtgng_game in a signal format that replicates the original hardware. jtgng_mist instantiates a module called jtgng_vga that converts the image to a standard VGA resolution without losing frame speed.
 
-Keyboard (MiST, ZX-UNO)
-=======================
+Keyboard
+========
 
 On MiSTer keyboard control is configured through the OSD.
 
@@ -141,7 +140,7 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
 ROM Generation
 ==============
 
-Copy your .zip files to the rom folder and use Python to execute the file jtgng.py from a command line. Then copy the .rom file to the SD card with the name JTGNG.rom
+Each core in the releases folder continues files for linux and windows to generate the ROM file starting from a MAME set. Follow the instructions of that file.
 
 SD Card
 =======
@@ -166,37 +165,8 @@ Jose Tejada Gomez. Twitter @topapate
 Project is hosted in http://www.github.com/jotego/jt_gng
 License: GPL3, you are obligued to publish your code if you use mine
 
-Special thanks to Greg Miller and Alexey Melnikov
+Special thanks to Greg Miller, Bruno Silva and Alexey Melnikov
 
-Patreon supporters for 1942 core
-================================
-    Scralings
-    Suvodip Mitra
-    Don Gafford
-    Matthew Coyne
-    Fred Fryolator
-    Víctor Gomariz Ladrón de Guevara
-    albconde
-    Blue1597
-    Bruno Silva
-    Dag J.
-    Darren Newman
-    Ed Balan
-    Fredrik Berglind
-    Jacob Proctor
-    JD
-    John Klimek
-    Juan Javier Rivera Lopez
-    loloC2C
-    Manuel Fernández
-    Matt Charlesworth
-    Michael Stegen
-    PsyFX
-    remowilliams
-    Salvador Perugorria Lorente
-    Vorvek
-    Andyways
-    SmokeMonster
 
 Thank you all!
 
