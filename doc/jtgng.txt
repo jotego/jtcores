@@ -1,6 +1,12 @@
 Release history
 ===============
 
+7th Oct 2019
+    * Moved back to old scan doubler. Please use MiSTer custom filters if
+      the scroll is not smooth for you.
+    * Updated to latest JT49 sound module. Fixes many bugs in SFX.
+    * Added 128MB RAM module support (MiSTer only)
+
 13th Sept 2019
     * Fixed ogre sound
     * Fixed sprite alignment

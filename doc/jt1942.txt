@@ -1,5 +1,9 @@
-Release History
+RELEASE HISTORY
 ===============
+
+7th Oct 2019
+    - Updated to latest JT49 sound module. Fixes many bugs in SFX.
+    - Added 128MB RAM module support (MiSTer only)
 
 Update 21-Sept-2019
     -Issue with corner of CAPCOM logo after 2nd round of attract mode fixed

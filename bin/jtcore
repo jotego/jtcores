@@ -115,7 +115,7 @@ function copy_templates {
     # MiSTer's tcl is added if it exists
     if [ $MIST = mister ]; then
         if [ -e $JTGNG/$PRJ/mister/jt${PRJ}.tcl ]; then
-            cat $JTGNG/$PRJ/mister/jt${PRJ}.tcl >> $JTGNG/$PRJ/mister/jt${PRJ}.qsf
+            cat $JTGNG/$PRJ/mister/jt${PRJ}.tcl >> $JTGNG/$PRJ/mister/jt${PRJ}.qsf            
         fi
     fi
 }

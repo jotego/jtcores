@@ -30,6 +30,11 @@ going on and you think it is a bug, well, it isn't. That's just how the
 hardware worked. Using a different scan sequence might avoid it. But I'm
 using the original and it comes with that side effect (verified on the real PCB).
 
+REVISION HISTORY
+================
+7th Oct 2019 - Public release MisT(er)
+
+
 
 CREDITS
 =======
