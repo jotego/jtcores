@@ -129,7 +129,6 @@ jtgng_tile4 #(
     .SIMFILE_MSB    ( SIMFILE_MSB   ) )
 u_tile4(
     .clk        (  clk          ),
-    .rst        (  rst          ),
     .cen6       (  cen6         ),
     .HS         (  HS           ),
     .SV         (  SVmap        ),
@@ -144,7 +143,7 @@ u_tile4(
     .prom_din   ( prom_din      ),
     // Gfx ROM
     .scr_addr   ( scr_addr      ),
-    .scrom_data ( scrom_data    ),
+    .rom_data   ( scrom_data    ),
     .scr_pxl    ( scr_pxl       )
 );
 
