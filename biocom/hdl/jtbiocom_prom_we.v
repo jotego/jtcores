@@ -73,7 +73,7 @@ reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
 reg  [3:0] scr_msb;
 wire [3:0] obj_msb = ioctl_addr[19:16]-4'hb;
 
-reg       set_strobe, set_done;
+reg       set_strobe=1'b0, set_done=1'b0;
 reg [1:0] prom_we0 = 2'd0;
 
 always @(*) begin : scr_offcalc
@@ -134,14 +134,15 @@ always @(posedge clk) begin
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};            
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0  <= 2'b1;
+            prom_we0  <= 2'b01;
+            set_strobe<= 1'b1;
             `INFO_MCU
         end
         else begin // PROMs
             prog_addr <= ioctl_addr;
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0  <= ioctl_addr[11:8] ? 2'b10 : 2'b0;
+            prom_we0  <= 2'b10;
             set_strobe<= 1'b1;
             `INFO_PROM
         end

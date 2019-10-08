@@ -300,7 +300,7 @@ assign cpu_cen     = cen12;
 
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
-    .rst        ( rst           ),
+    .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),       //  6   MHz
     // Main CPU interface
