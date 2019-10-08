@@ -81,5 +81,5 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG_ROOT']+"/biocom/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG_ROOT']+"/biocom/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTGNG']+"/biocom/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG']+"/biocom/ver/game/msg.bin", char_ram )
