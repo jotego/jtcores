@@ -36,12 +36,17 @@ localparam MAIN1_ADDR  = 22'h20000;
 localparam SND_ADDR    = 22'h40000;
 localparam CHAR_ADDR   = 22'h48000;
 // Scroll 1/2
-localparam SCR1XY_ADDR = 22'h50000;
-localparam SCR2XY_ADDR = 22'h70000;
-localparam SCR1ZW_ADDR = 22'h80000;
-localparam SCR2ZW_ADDR = 22'hA0000;
-localparam OBJZ_ADDR   = 22'hB0000;
-localparam OBJX_ADDR   = 22'hD0000;
+localparam SCR1ZW_ADDR = 22'h50000;
+localparam SCR2ZW_ADDR = 22'h70000;
+localparam SCR1XY_ADDR = 22'h80000;
+localparam SCR2XY_ADDR = 22'hA0000;
+// even words
+localparam OBJWZ_ADDR0 = 22'hB0000;
+localparam OBJXY_ADDR0 = 22'hC0000;
+// odd words
+localparam OBJWZ_ADDR1 = 22'hD0000;
+localparam OBJXY_ADDR1 = 22'hE0000;
+// FPGA BRAM:
 localparam MCU_ADDR    = 22'hF0000;
 localparam PROM_ADDR   = 22'hF1000;
 // ROM length F1100
@@ -118,15 +123,17 @@ always @(posedge clk) begin
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             `INFO_SND
         end
-        else if(ioctl_addr[19:16] < OBJZ_ADDR[19:16] ) begin // Scroll    
+        else if(ioctl_addr[19:16] < OBJWZ_ADDR0[19:16] ) begin // Scroll    
             prog_mask <= scr_msb[3] ? 2'b01 : 2'b10;
             prog_addr <= { 2'b0, {1'b0, scr_msb[2:0]}+4'h5,ioctl_addr[15:0] }; // original bit order
             `INFO_SCR
-        end
+        end    
         else if(ioctl_addr[19:16] < MCU_ADDR[19:16] ) begin // Objects
-            prog_mask <= obj_msb[1] ? 2'b10 : 2'b01;
-            prog_addr <= { 2'b0, {1'b0,obj_msb[0]} + 4'hB, 
-                {ioctl_addr[15:6], ioctl_addr[4:1], ioctl_addr[5], ioctl_addr[0] } };
+            // Objects are written to address C_0000+
+            prog_mask <= ioctl_addr[16] ? 2'b10 : 2'b01;
+            prog_addr <= { 5'b110,
+                ioctl_addr[15:0], 
+                ioctl_addr[17]^ioctl_addr[16] }; // odd or even
             `INFO_OBJ
         end
         else begin // MCU and PROMs

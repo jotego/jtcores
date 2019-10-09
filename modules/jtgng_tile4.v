@@ -16,12 +16,10 @@
     Version: 1.0
     Date: 19-2-2019 */
 
-// 
-
 module jtgng_tile4 #(parameter
     PALETTE     =  1,
     ROM_AW      = 17,
-    LAYOUT      =  0, // 0:1943, 1: Bionic Commando
+    LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
     SIMFILE_MSB = "", 
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1
@@ -55,10 +53,11 @@ localparam VFLIP = LAYOUT == 0 ? 7 : 6;
 
 wire scr_hflip = attr[HFLIP];
 wire scr_vflip = attr[VFLIP];
+//wire load_tile = /*LAYOUT==1 ? HS[3:0]==4'd1 :*/ HS[2:0]==3'd1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
-    if( HS[2:0]==3'b1 ) begin // attr/low data corresponds to this tile
+    if( HS[2:0]==3'd1 ) begin // attr/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         case( LAYOUT ) 
         0: begin // 1943
@@ -68,7 +67,7 @@ always @(posedge clk) if(cen6) begin
                             SV^{5{scr_vflip}} }; /*vert_addr*/
             scr_addr[0] <= HS[2]^scr_hflip^flip;
             end
-        1: begin // Bionic Commando, scroll 1
+        1: begin // Bionic Commando, scroll 1, 16x16 tiles
             scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
             scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
                             HS[3]^scr_hflip,
@@ -76,7 +75,7 @@ always @(posedge clk) if(cen6) begin
                             HS[2]^scr_hflip };
                             //HS[3:2]^{2{scr_hflip}} }; // bit 5 order changed
             end
-        2: begin // Bionic Commando, scroll 2
+        2: begin // Bionic Commando, scroll 2, 8x8 tiles
             scr_attr0 <= { 1'b0, attr[5:3] }; // MSB doesn't connect to anything on the higher levels
             scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
                             SV[2:0]^{3{scr_vflip}},

@@ -465,7 +465,7 @@ jtgng_rom #(
     .char_offset( 22'h4_8000 >> 1 ),
     .scr1_offset( 22'h5_0000      ), // SCR and OBJ are not shifted
     .scr2_offset( 22'h7_0000      ),
-    .obj_offset ( 22'hB_0000      )
+    .obj_offset ( 22'hC_0000      )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),

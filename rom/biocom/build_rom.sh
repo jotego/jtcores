@@ -34,14 +34,22 @@ dump "localparam SCR2ZW_ADDR" tsu_06.4l tsu_06.4l
 dump "localparam SCR1XY_ADDR" ts_12.17f ts_11.15f ts_17.17g ts_16.15g
 dump "localparam SCR2XY_ADDR" tsu_07.5l tsu_07.5l
 
-# lower bytes
-dump "localparam OBJZ_ADDR" tse_10.13f tsu_09.11f tse_15.13g tsu_14.11g
-# upper bytes
-dump "localparam OBJX_ADDR" tse_20.13j tsu_19.11j tse_22.17j tsu_21.15j
+## Objects
+echo // even words
+    # lower bytes
+    dump "localparam OBJWZ_ADDR0" tse_22.17j tsu_21.15j
+    # upper bytes
+    dump "localparam OBJXY_ADDR0" tse_20.13j tsu_19.11j
+echo // odd words
+    # lower bytes
+    dump "localparam OBJWZ_ADDR1" tse_15.13g tsu_14.11g
+    # upper bytes
+    dump "localparam OBJXY_ADDR1" tse_10.13f tsu_09.11f
 
 # Not in SDRAM:
+echo // FPGA BRAM:
 dump "localparam MCU_ADDR" ts.2f
 dump "localparam PROM_ADDR" 63s141.18f
 
 echo // ROM length $(rom_len)
-cp JTBIOCOM.rom $JTGNG_ROOT/rom/JTBIOCOM.rom
+cp JTBIOCOM.rom $JTGNG/rom/JTBIOCOM.rom
