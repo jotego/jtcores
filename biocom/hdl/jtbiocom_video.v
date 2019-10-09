@@ -44,8 +44,8 @@ module jtbiocom_video(
     input       [15:0]  scr1_data,
     input               scr1_ok,
     output              scr1_busy,
-    input       [ 8:0]  scr1_hpos,
-    input       [ 8:0]  scr1_vpos,
+    input       [ 9:0]  scr1_hpos,
+    input       [ 9:0]  scr1_vpos,
     // SCROLL 2
     input               scr2_cs,
     output      [ 7:0]  scr2_dout,
@@ -112,7 +112,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(1)) u_char (
+jtgng_char #(.HOFFSET(0)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -160,6 +160,7 @@ assign char_mrdy = 1'b1;
 jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
+    .POSW       ( 10            ),
     .HOFFSET    (  0            ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ))

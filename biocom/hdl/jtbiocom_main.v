@@ -45,8 +45,8 @@ module jtbiocom_main(
     output  reg        scr2_cs,
     input              scr1_busy,
     input              scr2_busy,
-    output reg [8:0]   scr1_hpos,
-    output reg [8:0]   scr1_vpos,
+    output reg [9:0]   scr1_hpos,
+    output reg [9:0]   scr1_vpos,
     output reg [8:0]   scr2_hpos,
     output reg [8:0]   scr2_vpos,
     // cabinet I/O
@@ -135,9 +135,7 @@ always @(*) begin
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])  // 111X
                     3'd0:   obj_cs  = 1'b1; // E_0000 
-                    3'd1:   begin
-                        io_cs    = 1'b1;    // E_4000
-                    end
+                    3'd1:   io_cs   = 1'b1; // E_4000
                     3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8000
                         // scrpt_cs
                         $display("SCRPTn");
@@ -184,14 +182,14 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        scr1_hpos <= 9'd0;
-        scr1_vpos <= 9'd0;
+        scr1_hpos <= 10'd0;
+        scr1_vpos <= 10'd0;
         scr2_hpos <= 9'd0;
         scr2_vpos <= 9'd0;
     end else if(cpu_cen) begin
-        if( scr1hpos_cs && !RnW) scr1_hpos <= cpu_dout[8:0];
+        if( scr1hpos_cs && !RnW) scr1_hpos <= cpu_dout[9:0];
+        if( scr1vpos_cs && !RnW) scr1_vpos <= cpu_dout[9:0];
         if( scr2hpos_cs && !RnW) scr2_hpos <= cpu_dout[8:0];
-        if( scr1vpos_cs && !RnW) scr1_vpos <= cpu_dout[8:0];
         if( scr2vpos_cs && !RnW) scr2_vpos <= cpu_dout[8:0];
     end
 end

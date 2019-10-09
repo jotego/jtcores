@@ -63,23 +63,24 @@ always @(posedge clk) if(cen6) begin
         case( LAYOUT ) 
         0: begin // 1943
             scr_attr0 <= attr[5:2];
-            scr_addr[ROM_AW-1:1] <= {   attr[0] & AS8MASK, id, // AS
+            scr_addr[ROM_AW-1:1] <= { attr[0] & AS8MASK, id, // AS
                             HS[4:3]^{2{scr_hflip}},
                             SV^{5{scr_vflip}} }; /*vert_addr*/
-            scr_addr[0] <= HS[2]^attr[6]^flip;
+            scr_addr[0] <= HS[2]^scr_hflip^flip;
             end
         1: begin // Bionic Commando, scroll 1
             scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
-            scr_addr[ROM_AW-1:1] <= {   attr[2:0], id, // AS
+            scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
+                            HS[3]^scr_hflip,
                             SV[3:0]^{4{scr_vflip}},
-                            HS[4:3]^{2{scr_hflip}} }; // bit 5 order changed
-            scr_addr[0] <= HS[2]^attr[6]^flip;
+                            HS[2]^scr_hflip };
+                            //HS[3:2]^{2{scr_hflip}} }; // bit 5 order changed
             end
         2: begin // Bionic Commando, scroll 2
-            scr_attr0 <= { attr[7]&attr[6], attr[5:3] }; // MSB is wrong here. Unclear schematics
-            scr_addr[ROM_AW-1:1] <= {   attr[2:0], id, // AS
-                            SV[2:0]^{3{scr_vflip}} };
-            scr_addr[0] <= HS[2]^attr[6]^flip;
+            scr_attr0 <= { 1'b0, attr[5:3] }; // MSB doesn't connect to anything on the higher levels
+            scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
+                            SV[2:0]^{3{scr_vflip}},
+                            HS[2]^scr_hflip^flip };
             end
         endcase
     end
@@ -88,7 +89,10 @@ always @(posedge clk) if(cen6) begin
             // 1943
             0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
             // Bionic Commando scroll 1
-            1: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+            1: if(HS[2:0]==3'b101 ) begin
+                scr_addr[5] <= HS[3]^scr_hflip^flip;
+                scr_addr[0] <= HS[2]^scr_hflip^flip;
+            end
             // Bionic Commando scroll 2
             2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
         endcase // LAYOUT

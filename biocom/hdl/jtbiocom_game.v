@@ -211,7 +211,7 @@ jtbiocom_prom_we u_prom_we(
 );
 
 wire scr1_cs, scr2_cs;
-wire [8:0] scr1_hpos, scr1_vpos;
+wire [9:0] scr1_hpos, scr1_vpos;
 wire [8:0] scr2_hpos, scr2_vpos;
 
 

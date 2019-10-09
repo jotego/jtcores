@@ -82,8 +82,8 @@ end
 always @(posedge clk) if(cen6) begin
     case( muxsel )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
-        2'b01: pixel_mux[7:0] <= obj_pxl;
-        2'b10: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
+        2'b10: pixel_mux[7:0] <= obj_pxl;
+        2'b01: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
         2'b00: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
     endcase
     pixel_mux[9:8] <= muxsel;
@@ -185,7 +185,7 @@ jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_selbus(
 function [3:0] dim;
     input [3:0]  col;
     input        dim_set;
-    dim = dim_set ? {1'b0, col[3:1]} : col; // To do: fix accuracy
+    dim = !dim_set ? {1'b0, col[3:1]} : col; // To do: fix accuracy
 endfunction
 
 always @(posedge clk) if (cen6)

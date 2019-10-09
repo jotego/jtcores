@@ -27,12 +27,12 @@ dump "localparam CHAR_ADDR" tsu_08.8l
 # Scroll 1
 echo // Scroll 1/2
 # lower bytes
-dump "localparam SCR1XY_ADDR" ts_12.17f ts_11.15f ts_17.17g ts_16.15g
-# SCR2 repeated to keep all 16-bit of address zero
-dump "localparam SCR2XY_ADDR" tsu_07.5l tsu_07.5l
-# upper bytes
 dump "localparam SCR1ZW_ADDR" ts_13.18f ts_18.18g ts_23.18j ts_24.18k
+# SCR2 repeated to keep all 16-bit of address zero
 dump "localparam SCR2ZW_ADDR" tsu_06.4l tsu_06.4l
+# upper bytes
+dump "localparam SCR1XY_ADDR" ts_12.17f ts_11.15f ts_17.17g ts_16.15g
+dump "localparam SCR2XY_ADDR" tsu_07.5l tsu_07.5l
 
 # lower bytes
 dump "localparam OBJZ_ADDR" tse_10.13f tsu_09.11f tse_15.13g tsu_14.11g

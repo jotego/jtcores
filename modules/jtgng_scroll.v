@@ -20,6 +20,7 @@ module jtgng_scroll #(parameter
     ROM_AW   = 15,
     PALW     = 4,
     HOFFSET  = 9'd0,
+    POSW     = 9,   // Scroll offset width, normally 9 bits
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
@@ -36,8 +37,8 @@ module jtgng_scroll #(parameter
     input  [SCANW-1:0] AB,
     input        [7:0] V, // V128-V1
     input        [8:0] H, // H256-H1
-    input        [8:0] hpos,
-    input        [8:0] vpos,
+    input   [POSW-1:0] hpos,
+    input   [POSW-1:0] vpos,
     input              scr_cs,
     input              flip,
     input        [7:0] din,
@@ -54,7 +55,7 @@ module jtgng_scroll #(parameter
 );
 
 wire [8:0] Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
-reg  [ 8:0] HS, VS;
+reg  [POSW-1:0] HS, VS;
 wire [ 7:0] VF = {8{flip}}^V;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
 
@@ -63,8 +64,8 @@ wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 reg [2:0] HSaux;
 
 always @(posedge clk) begin
-    VS = vpos + {1'b0, VF};
-    { HS[8:3], HSaux } = hpos + { ~Hfix[8], H7, HF[6:0]};
+    VS = vpos + { {POSW-8{1'b0}}, VF};
+    { HS[POSW-1:3], HSaux } = hpos + { {POSW-8{~Hfix[8]}}, H7, HF[6:0]};
     HS[2:0] = HSaux ^ {3{flip}};
 end
 
@@ -72,7 +73,8 @@ wire [7:0] dout_low, dout_high;
 
 localparam DATAREAD = 3'd1;
 
-wire [7:0] Vtilemap = SCANW==10 ? VS[8:1] : VS[7:0];
+wire [7:0] Vtilemap = SCANW>=10 ? VS[POSW-1:POSW-8] : VS[7:0];
+wire [7:0] Htilemap = HS[POSW-1:POSW-8];
 
 jtgng_tilemap #(
     .SELBIT     ( 1         ),
@@ -85,7 +87,7 @@ jtgng_tilemap #(
     .Asel       ( Asel      ),
     .AB         ( AB        ),
     .V          ( Vtilemap  ),
-    .H          ( HS[8:1]   ),
+    .H          ( Htilemap  ),
     .flip       ( 1'b0      ),  // Flip is already done on HS and VS
     .din        ( din       ),
     .dout       ( dout      ),
