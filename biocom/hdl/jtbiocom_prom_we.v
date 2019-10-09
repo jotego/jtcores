@@ -118,7 +118,7 @@ always @(posedge clk) begin
             prog_mask <= ioctl_addr[17]==1'b1 ? 2'b10 : 2'b01;            
             `INFO_MAIN
         end
-        else if(ioctl_addr[19:16] < SCR1XY_ADDR[19:16]) begin // Sound ROM, CHAR ROM
+        else if(ioctl_addr[19:16] < SCR1ZW_ADDR[19:16]) begin // Sound ROM, CHAR ROM
             prog_addr <= {3'b0, ioctl_addr[19:16], ioctl_addr[15:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             `INFO_SND
