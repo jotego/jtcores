@@ -5,7 +5,7 @@
 //           abcdefghijklmnopqrstuv
 
 `define CORE_OSD \
-    "OFG,Bonus Life,20/40/60,30/50/70,20/50,30/60;", \
+    "OFG,Bonus Life,20/40/60,30/50/70,20/60,30/60;", \
     "OHI,Difficulty,normal,easy,hard,very hard;", \
     "OJK,Lives,3,4,5,7;", 
 `define CORE_KEYMAP \

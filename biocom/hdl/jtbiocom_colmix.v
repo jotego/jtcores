@@ -61,21 +61,22 @@ parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
 reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
-wire enable_scr  = gfx_en[1];
+wire enable_scr1 = gfx_en[1];
+wire enable_scr2 = gfx_en[2];
 wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] selbus;
 reg  [7:0] seladdr;
-reg  [1:0] muxsel;
+reg  [1:0] muxsel, presel;
 wire       char_blank_n = |(~char_pxl[1:0]);
 
 always @(*) begin
-    seladdr[0]   = |(~scr2_pxl[3:0]);
-    seladdr[6:1] = { scr1_pxl[7:6], scr1_pxl[3:0] };
-    seladdr[7]   = |(~obj_pxl[3:0]);
-    muxsel       = selbus | {2{char_blank_n}};
+    seladdr[0]   = enable_scr2 ? (|(~scr2_pxl[3:0])) : 1'b0;
+    seladdr[6:1] = enable_scr1 ? ({ scr1_pxl[7:6], scr1_pxl[3:0] }) : 6'h3f;
+    seladdr[7]   = enable_obj  ? (|(~obj_pxl[3:0])) : 1'b0;
+    muxsel       = selbus | ( enable_char ? {2{char_blank_n}} : 2'b0 );
 end
 
 always @(posedge clk) if(cen6) begin

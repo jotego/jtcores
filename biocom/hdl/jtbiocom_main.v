@@ -210,13 +210,16 @@ always @(posedge clk)
             endcase
     end
 
-wire [15:0] cabinet_input = 16'hff;
-// A[1] ?
-//       { dipsw_a, dipsw_b } :
-//       { coin_input,      // COINS
-//         start_button,    // START
-//         joystick1[5:0],  //  2 buttons
-//         joystick2[5:0] };
+reg [15:0] cabinet_input;
+
+always @(posedge clk) if(cpu_cen) begin
+    cabinet_input <= A[1] ?
+        { dipsw_a, dipsw_b } :
+        { coin_input[0], coin_input[1],        // COINS
+          start_button[0], start_button[1],    // START
+          { joystick1[3:0], joystick1[5:4]},   //  2 buttons
+          { joystick2[3:0], joystick2[5:4]} };
+end
 
 /////////////////////////////////////////////////////
 // RAMs data input mux
@@ -326,17 +329,26 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
 
 // Data bus input
 reg  [15:0] cpu_din;
+reg  [ 7:0] video_dout;
+wire        video_cs = char_cs | scr2_cs | scr1_cs;
+reg  [15:0] owram_dout;
+wire        owram_cs = obj_cs | ram_cs;
+
+always @(posedge clk) begin
+    case( {scr2_cs, scr1_cs} )
+        2'b10:   video_dout <= scr2_dout;
+        2'b01:   video_dout <= scr1_dout;
+        default: video_dout <= char_dout;
+    endcase
+    owram_dout <= obj_cs ? oram_dout : wram_dout;
+end
 
 always @(*)
-    case( {obj_cs, ram_cs, char_cs, scr2_cs, scr1_cs, rom_cs, io_cs} )
-        7'b1_000_000: cpu_din = oram_dout;
-        7'b0_100_000: cpu_din = wram_dout;
-        7'b0_010_000: cpu_din = { 8'hff, char_dout };
-        7'b0_001_000: cpu_din = { 8'hff, scr2_dout };
-        7'b0_000_100: cpu_din = { 8'hff, scr1_dout };
-        7'b0_000_010: cpu_din = rom_data;
-        7'b0_000_001: cpu_din = cabinet_input;
-        default:      cpu_din = rom_data;
+    case( {owram_cs, video_cs, io_cs} )
+        3'b100:  cpu_din = owram_dout;
+        3'b010:  cpu_din = { 8'hff, video_dout };
+        3'b001:  cpu_din = cabinet_input;
+        default: cpu_din = rom_data;
     endcase
 
 assign rom_addr = A[17:1];

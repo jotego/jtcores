@@ -133,7 +133,7 @@ always @(posedge clk) begin
             prog_addr <= ioctl_addr;
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0  <= ioctl_addr[19:15] < PROM_ADDR[19:15] ? 2'b01 : 2'b10;
+            prom_we0  <= ioctl_addr[12] ? 2'b10 : 2'b01;
             set_strobe<= 1'b1;
             `INFO_PROM
         end
