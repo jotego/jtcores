@@ -107,7 +107,7 @@ localparam CONF_STR = {
 
 `undef SEPARATOR`endif
 
-wire          rst, rst_n, clk_sys, clk_rom;
+wire          rst, rst_n, clk_sys, clk_mem, clk_rom;
 wire          cen12, cen6, cen3, cen1p5;
 wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
@@ -152,13 +152,13 @@ wire refresh_en;
 wire clk_vga_in, clk_vga, pll_locked;
 jtgng_pll0 u_pll_game (
     .inclk0 ( CLOCK_27[0] ),
+    .c0     ( clk_mem     ), // 96 MHz
     .c1     ( clk_rom     ), // 48 MHz
-    .c2     ( SDRAM_CLK   ),
     .c3     ( clk_vga_in  ),
     .locked ( pll_locked  )
 );
 
-// assign SDRAM_CLK = clk_rom;
+assign SDRAM_CLK = clk_mem;
 assign clk_sys   = clk_rom;
 
 jtgng_pll1 u_pll_vga (
@@ -183,6 +183,7 @@ jtframe_mist #( .CONF_STR(CONF_STR),
     .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
 u_frame(
     .clk_sys        ( clk_sys        ),
+    .clk_mem        ( clk_mem        ),
     .clk_rom        ( clk_rom        ),
     .clk_vga        ( clk_vga        ),
     .pll_locked     ( pll_locked     ),
