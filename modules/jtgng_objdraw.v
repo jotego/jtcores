@@ -109,7 +109,7 @@ always @(posedge clk) if(cen6) begin
             end
             3: begin // Bionic Commando
                 obj_vflip <= objbuf_data[0];
-                obj_hflip <= objbuf_data[1];
+                obj_hflip <= objbuf_data[1] ^ flip;
                 objpal    <= objbuf_data[5:2];
             end
         endcase

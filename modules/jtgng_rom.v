@@ -265,7 +265,7 @@ jtgng_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
     .we       ( data_sel[5]     )
 );
 
-wire [15:0] obj_preout;
+wire [obj_dw-1:0] obj_preout;
 
 jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
     .rst      ( rst             ),
