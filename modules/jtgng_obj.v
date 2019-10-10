@@ -27,6 +27,7 @@ module jtgng_obj #(parameter
     LAYOUT      = 0,   // 0: GnG, Commando
                        // 1: 1943
                        // 2: GunSmoke
+                       // 3: Bionic Commando
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation

@@ -55,7 +55,7 @@ module jtgng_objdraw #(parameter
     output reg  [(PALETTE?7:3):0]  new_pxl  // 8 bits if PROMs used, 4 bits otherwise
 );
 
-localparam IDW = ROM_AW-(ROM_DW==32?5:6);
+localparam IDW = LAYOUT==3 ? 12 : (ROM_AW-6);
 reg [IDW-1:0] id;
 reg [PALW-1:0] objpal, objpal1;
 reg [8:0] objx;
@@ -77,14 +77,9 @@ end
 
 reg [3:0] Vobj;
 
-// Bionic Commando has X and Y parameters
-// in reversed order
-localparam Y = LAYOUT==3 ? 4'd3 : 4'd2;
-localparam X = LAYOUT==3 ? 4'd2 : 4'd3;
-
 always @(posedge clk) if(cen6) begin
     case( pxlcnt[3:0] )
-        4'd0: id[DW-1:0] <= objbuf_data;
+        4'd0: id[IDW-1:0] <= objbuf_data;
         4'd1: case( LAYOUT )
             default: begin // GnG, Commando
                 id[9:8]   <= objbuf_data[7:6];
@@ -109,15 +104,15 @@ always @(posedge clk) if(cen6) begin
             end
             3: begin // Bionic Commando
                 obj_vflip <= objbuf_data[0];
-                obj_hflip <= objbuf_data[1] ^ flip;
+                obj_hflip <= objbuf_data[1];
                 objpal    <= objbuf_data[5:2];
             end
         endcase
-        Y: begin // Object Y is on objbuf_data at this step
+        4'd2: begin // Object Y is on objbuf_data at this step
             Vobj    <=  Vsum[3:0];
             vinzone <= &Vsum[7:4];
         end
-        X: begin
+        4'd3: begin
             objx <= LAYOUT==3 ? objbuf_data[8:0] : { hover, objbuf_data[7:0] };
         end
         default:;

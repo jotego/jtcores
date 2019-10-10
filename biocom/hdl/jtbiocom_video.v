@@ -234,6 +234,7 @@ assign scr_dout   = 8'd0;
 
 jtgng_obj #(
     .AVATAR_MAX ( AVATAR_MAX ),
+    .LAYOUT     ( 3          ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),
