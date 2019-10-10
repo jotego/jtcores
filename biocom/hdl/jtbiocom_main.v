@@ -68,7 +68,7 @@ module jtbiocom_main(
     input      [ 7:0]  mcu_dout,
     output reg [ 7:0]  mcu_din,
     input      [16:1]  mcu_addr,
-    input              mcu_wrn,
+    input              mcu_wr,
     input              mcu_DMAn,
     output  reg        mcu_DMAONn,
     // Palette
@@ -215,8 +215,8 @@ always @(posedge clk) if(cpu_cen) begin
         { dipsw_a, dipsw_b } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
-          ~12'h0 };//{ joystick1[3:0], joystick1[5:4]},   //  2 buttons
-          //{ joystick2[3:0], joystick2[5:4]} };
+          { joystick1[3:0], joystick1[5:4]},   //  2 buttons
+          { joystick2[3:0], joystick2[5:4]} };
 end
 
 /////////////////////////////////////////////////////
@@ -253,7 +253,7 @@ always @(*) begin
         // MCU access
         work_A   = mcu_addr[13:1];
         work_uwe = 1'b0;
-        work_lwe = !mcu_wrn;
+        work_lwe = mcu_wr ;
     end else begin 
         // CPU access
         work_A   = A[13:1];
@@ -296,7 +296,7 @@ always @(*) begin
         2'b01: begin // MCU DMA
             oram_addr = mcu_addr[11:1];
             obj_uwe   = 1'b0;
-            obj_lwe   = ~mcu_wrn;
+            obj_lwe   = mcu_wr ;
         end
         default: begin
             oram_addr = A[11:1];
@@ -486,7 +486,7 @@ fx68k u_cpu(
     .E          (             )
 );
 
-endmodule // jtgng_main
+endmodule
 /*
 // synchronous presettable 4-bit binary counter, asynchronous clear
 module jt74161( // ref: 74??161

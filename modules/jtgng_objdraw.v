@@ -142,13 +142,13 @@ generate
     end
 endgenerate
 
+localparam COMPW=(ROM_DW==16?4:8);
+reg [ COMPW-1:0] z,y,x,w;
+reg [8:0] posx1;
 
 // ROM data depacking
 generate
     if( ROM_DW==16) begin
-        reg [3:0] z,y,x,w;
-        reg [8:0] posx1;
-
         always @(posedge clk) if(cen6) begin
             if( pxlcnt[3:0]==4'h7 ) begin
                 objpal1   <= objpal;
@@ -176,9 +176,6 @@ generate
             endcase
         end
     end else begin //32
-        reg [7:0] z,y,x,w;
-        reg [8:0] posx1;
-
         always @(posedge clk) if(cen6) begin
             if( pxlcnt[3:0]==4'h7 ) begin
                 objpal1   <= objpal;
@@ -211,7 +208,8 @@ endgenerate
 generate
     if( PALETTE == 1 ) begin
         wire [7:0] prom_dout;
-        wire [3:0] new_col = { w[3],x[3],y[3],z[3] }; // 1943 has bits reversed for palette PROMs
+        // 1943 has bits reversed for palette PROMs
+        wire [3:0] new_col = { w[COMPW-1],x[COMPW-1],y[COMPW-1],z[COMPW-1] };
         wire [7:0] pal_addr = { objpal1, new_col };
 
         jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
@@ -265,7 +263,8 @@ generate
     end else begin
         // No palette PROMs
         always @(posedge clk) if(cen6) begin
-            new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
+            new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : 
+                    {w[COMPW-1],x[COMPW-1],y[COMPW-1],z[COMPW-1]};
             posx    <= posx1;
             pospal  <= objpal1;
         end

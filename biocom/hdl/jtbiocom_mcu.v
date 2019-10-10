@@ -42,7 +42,7 @@ module jtbiocom_mcu(
     input           DMAONn,
     output  [ 7:0]  mcu_dout,
     input   [ 7:0]  mcu_din,
-    output          mcu_wrn,   // always write to low bytes
+    output          mcu_wr,   // always write to low bytes
     output  [16:1]  mcu_addr,
     output          mcu_brn,   // RQBSQn
     output          DMAn,
@@ -147,7 +147,7 @@ mc8051_core u_mcu(
     .datax_i    ( mcu_din   ),
     .datax_o    ( mcu_dout  ),
     .adrx_o     ( ext_addr  ),
-    .wrx_o      ( mcu_wrn  ),
+    .wrx_o      ( mcu_wr   ),
     // interrupts
     .int0_i     ( int0      ),
     .int1_i     ( int1      ),

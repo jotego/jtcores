@@ -98,7 +98,7 @@ wire        snd_mcu_wr;
 wire        mcu_brn;
 wire [ 7:0] mcu_din, mcu_dout;
 wire [16:1] mcu_addr;
-wire        mcu_wrn, mcu_DMAn, mcu_DMAONn;
+wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 
 // ROM address
 wire [17:1] main_addr;
@@ -262,7 +262,7 @@ jtbiocom_main u_main(
     .mcu_din    (  mcu_din      ),
     .mcu_dout   (  mcu_dout     ),
     .mcu_addr   (  mcu_addr     ),
-    .mcu_wrn    (  mcu_wrn      ),
+    .mcu_wr     (  mcu_wr       ),
     .mcu_DMAn   (  mcu_DMAn     ),
     .mcu_DMAONn (  mcu_DMAONn   ),
     // ROM
@@ -308,7 +308,7 @@ jtbiocom_mcu u_mcu(
     .DMAONn     ( mcu_DMAONn    ),
     .mcu_din    ( mcu_din       ),
     .mcu_dout   ( mcu_dout      ),
-    .mcu_wrn    ( mcu_wrn       ),   // always write to low bytes
+    .mcu_wr     ( mcu_wr        ),   // always write to low bytes
     .mcu_addr   ( mcu_addr      ),
     .mcu_brn    ( mcu_brn       ), // RQBSQn
     .DMAn       ( mcu_DMAn      ),
@@ -325,7 +325,7 @@ jtbiocom_mcu u_mcu(
 `else 
 assign mcu_DMAn = 1'b1;
 assign mcu_brn  = 1'b1;
-assign mcu_wrn  = 1'b1;
+assign mcu_wr   = 1'b1;
 assign mcu_addr = 16'd0;
 assign mcu_din  =  8'd0;
 `endif
