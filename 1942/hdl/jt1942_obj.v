@@ -39,7 +39,7 @@ module jt1942_obj(
     input              wr_n,
     // SDRAM interface
     output      [14:0] obj_addr,
-    input       [15:0] objrom_data,
+    input       [15:0] obj_data,
     // PROMs
     input   [7:0]      prog_addr,
     input              prom_m11_we,
@@ -136,9 +136,9 @@ jt1942_objdraw u_draw(
     .objbuf_data2   ( objbuf_data2  ),
     .objbuf_data3   ( objbuf_data3  ),
     `ifdef OBJ_TEST
-    .objrom_data    ( test_data     ),
+    .obj_data       ( test_data     ),
     `else
-    .objrom_data    ( objrom_data   ),
+    .obj_data       ( obj_data      ),
     `endif
     // SDRAM interface
     .obj_addr       ( obj_addr      ),

@@ -64,7 +64,7 @@ module jtbiocom_video(
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
     output      [17:0]  obj_addr,
-    input       [15:0]  objrom_data,
+    input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
     input               LVBL,
@@ -237,7 +237,8 @@ jtgng_obj #(
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),
-    .ROM_AW     ( 18         ),
+    .ROM_AW     ( 17         ), // MSB is always zero
+    .ROM_DW     ( 32         ), // total 256kBytes of object graphic data
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
 u_obj (
@@ -262,7 +263,7 @@ u_obj (
     .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
-    .objrom_data( objrom_data ),
+    .obj_data   ( obj_data    ),
     .rom_ok     ( obj_ok      ),
     // pixel data
     .obj_pxl    ( obj_pxl     ),

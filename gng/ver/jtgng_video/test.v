@@ -34,7 +34,7 @@ wire [15:0] chrom_data;
 wire [ 8:0] obj_AB;
 wire bus_req, blen;
 wire [14:0] obj_addr;
-wire [15:0] objrom_data;
+wire [15:0] obj_data;
 wire [23:0] scr_dout;
 wire [14:0] scr_addr;
 
@@ -69,7 +69,7 @@ jtgng_video u_video(
     .bus_ack    ( 1'b0          ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .obj_addr   ( obj_addr      ),
-    .objrom_data( objrom_data   ),
+    .obj_data   ( obj_data      ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -139,7 +139,7 @@ jtgng_rom rom (
     .char_dout  ( chrom_data    ),
     .main_dout  (               ),
     .snd_dout   (               ),
-    .obj_dout   ( objrom_data   ),
+    .obj_dout   ( obj_data      ),
     .scr_dout   ( scr_dout      ),
     .ready      ( rom_ready     ),
     // SDRAM interface

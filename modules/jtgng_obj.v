@@ -23,6 +23,7 @@ module jtgng_obj #(parameter
     DMA_AW      = 9,        // Data width of each DMA transfer
     PXL_DLY     = 7,
     ROM_AW      = 16,
+    ROM_DW      = 16,
     LAYOUT      = 0,   // 0: GnG, Commando
                        // 1: 1943
                        // 2: GunSmoke
@@ -32,37 +33,37 @@ module jtgng_obj #(parameter
     PALETTE0_SIMFILE = "", // only for simulation
     AVATAR_MAX  = 8  // only used if macro AVATARS is defined
 ) (
-    input              rst,
-    input              clk,
-    input              cen6,    //  6 MHz
+    input               rst,
+    input               clk,
+    input               cen6,    //  6 MHz
     // screen
-    input              HINIT,
-    input              LHBL,
-    input              LVBL,
-    input              LVBL_obj,
-    input   [ 7:0]     V,
-    input   [ 8:0]     H,
-    input              flip,
+    input               HINIT,
+    input               LHBL,
+    input               LVBL,
+    input               LVBL_obj,
+    input   [ 7:0]      V,
+    input   [ 8:0]      H,
+    input               flip,
     // Pause screen
-    input              pause,
-    output  [ 3:0]     avatar_idx,
+    input               pause,
+    output  [ 3:0]      avatar_idx,
     // shared bus
     output [DMA_AW-1:0] AB,
     input  [DMA_DW-1:0] DB,
-    input              OKOUT,
-    output             bus_req,        // Request bus
-    input              bus_ack,    // bus acknowledge
-    output             blen,   // bus line counter enable
+    input               OKOUT,
+    output              bus_req,        // Request bus
+    input               bus_ack,    // bus acknowledge
+    output              blen,   // bus line counter enable
     // Palette PROM
-    input              OBJON,
-    input   [ 7:0]     prog_addr,
-    input              prom_hi_we,
-    input              prom_lo_we,
-    input   [ 3:0]     prog_din,
+    input               OBJON,
+    input   [ 7:0]      prog_addr,
+    input               prom_hi_we,
+    input               prom_lo_we,
+    input   [ 3:0]      prog_din,
     // SDRAM interface
-    output  [ROM_AW-1:0] obj_addr,
-    input   [15:0]     objrom_data,
-    input              rom_ok,
+    output [ROM_AW-1:0] obj_addr,
+    input  [ROM_DW-1:0] obj_data,
+    input               rom_ok,
     // pixel output
     output  [(PALETTE?7:(PALW+4-1)):0] obj_pxl
 );
@@ -145,7 +146,8 @@ wire [(PALETTE?7:3):0] new_pxl;
 // draw the sprite
 jtgng_objdraw #(
     .DW               ( DMA_DW            ),
-    .ROM_AW           ( ROM_AW            ),          
+    .ROM_AW           ( ROM_AW            ),
+    .ROM_DW           ( ROM_DW            ),
     .LAYOUT           ( LAYOUT            ),          
     .PALW             ( PALW              ),            
     .PALETTE          ( PALETTE           ),         
@@ -166,7 +168,7 @@ u_draw(
     .objbuf_data    ( objbuf_data   ),
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
-    .objrom_data    ( objrom_data   ),
+    .obj_data       ( obj_data      ),
     // PROMs
     .prog_addr      ( prog_addr     ),
     .prom_hi_we     ( prom_hi_we    ),

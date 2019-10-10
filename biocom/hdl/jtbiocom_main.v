@@ -215,8 +215,8 @@ always @(posedge clk) if(cpu_cen) begin
         { dipsw_a, dipsw_b } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
-          { joystick1[3:0], joystick1[5:4]},   //  2 buttons
-          { joystick2[3:0], joystick2[5:4]} };
+          ~12'h0 };//{ joystick1[3:0], joystick1[5:4]},   //  2 buttons
+          //{ joystick2[3:0], joystick2[5:4]} };
 end
 
 /////////////////////////////////////////////////////

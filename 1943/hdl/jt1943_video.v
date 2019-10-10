@@ -87,7 +87,7 @@ module jt1943_video #( parameter
     input               OBJON,
     input               HINIT,
     output      [OBJ_ROM_AW-1:0]  obj_addr,
-    input       [15:0]  objrom_data,
+    input       [15:0]  obj_data,
     // shared bus
     output      [12:0]  obj_AB,
     input        [7:0]  obj_DB,
@@ -344,7 +344,7 @@ u_obj(
     .blen           ( blcnten       ),   // bus line counter enable
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
-    .objrom_data    ( objrom_data   ),
+    .obj_data       ( obj_data      ),
     // PROMs
     .OBJON          ( OBJON         ),
     .prog_addr      ( prog_addr     ),

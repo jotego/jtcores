@@ -317,7 +317,7 @@ jt1942_video u_video(
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .obj_data   ( obj_data      ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),

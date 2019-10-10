@@ -84,7 +84,7 @@ wire flip;
 wire [7:0] cpu_dout, chram_dout;
 wire rd;
 // ROM data
-wire [15:0]  char_data, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
+wire [15:0]  char_data, obj_data, map1_dout, map2_dout, scr1_dout, scr2_dout;
 wire [ 7:0]  main_data;
 // ROM address
 wire [17:0]  main_addr;
@@ -394,7 +394,7 @@ jt1943_video u_video(
     .obj_AB     ( obj_AB        ),
     .obj_DB     ( main_ram      ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_dout      ),
+    .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -459,7 +459,7 @@ jtgng_rom u_rom (
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    (               ),
-    .obj_dout    ( obj_dout      ),
+    .obj_data    ( obj_data      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),
     .scr1_dout   ( scr1_dout     ),

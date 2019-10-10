@@ -361,7 +361,7 @@ jtgng_video #(
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge

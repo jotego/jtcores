@@ -347,7 +347,7 @@ jtgng_video u_video(
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .obj_data   ( obj_data      ),
     .obj_ok     ( obj_ok        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus

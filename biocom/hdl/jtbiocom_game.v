@@ -89,7 +89,7 @@ wire        char_busy, scr1_busy, scr2_busy;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
-wire [15:0] obj_data;
+wire [31:0] obj_data;
 wire [15:0] main_data;
 wire [ 7:0] snd_data;
 // MCU interface
@@ -106,7 +106,7 @@ wire [14:0] snd_addr;
 wire [12:0] char_addr;
 wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
-wire [17:0] obj_addr;
+wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen12b, cen_fm, cen_fm2;
 
@@ -115,6 +115,7 @@ wire        main_ok, snd_ok, obj_ok;
 wire        scr1_ok, scr2_ok, char_ok;
 
 assign sample=1'b1;
+assign obj_addr[0] = 1'b0; // fixed for 32 bit values
 
 `ifdef MISTER
 
@@ -412,8 +413,8 @@ jtbiocom_video #(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
-    .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .obj_addr   ( obj_addr[16:1]),
+    .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -458,9 +459,10 @@ jtgng_rom #(
     .main_dw    ( 16              ),
     .main_aw    ( 18              ),
     .char_aw    ( 13              ),
-    .obj_aw     ( 18              ),
+    .obj_aw     ( 16              ), // AD11 is disconnected in schematics
     .scr1_aw    ( 17              ),
     .scr2_aw    ( 15              ),
+    .obj_dw     ( 32              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h4_8000 >> 1 ),
     .scr1_offset( 22'h5_0000      ), // SCR and OBJ are not shifted

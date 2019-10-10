@@ -26,6 +26,7 @@ module jtgng_rom #(parameter
      obj_aw  = 17,
     scr1_aw  = 17,
     scr2_aw  = 15,
+     obj_dw  = 16,
   snd_offset = 22'h14_000, // bm05.4k,  32kB
  char_offset = 22'h18_000, // bm04.5h,  32kB
  map1_offset = 22'h1C_000, // bm14.5f,  32kB
@@ -61,15 +62,16 @@ module jtgng_rom #(parameter
     input       [21:0]  prog_addr,
     input               prog_we,  
 
-    output  reg   [15:0]  char_dout,
-    output [main_dw-1:0]  main_dout,
-    output        [ 7:0]   snd_dout,
-    output  reg   [15:0]   obj_dout,
-    output        [15:0]  map1_dout,
-    output        [15:0]  map2_dout,
-    output        [15:0]  scr1_dout,
-    output        [15:0]  scr2_dout,
-    output  reg           ready,
+    //  output data
+    output reg       [15:0] char_dout,
+    output    [main_dw-1:0] main_dout,
+    output           [ 7:0] snd_dout,
+    output reg [obj_dw-1:0] obj_dout,
+    output           [15:0] map1_dout,
+    output           [15:0] map2_dout,
+    output           [15:0] scr1_dout,
+    output           [15:0] scr2_dout,
+    output  reg             ready,
 
     output              main_ok,
     output              snd_ok,
@@ -265,7 +267,7 @@ jtgng_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
 
 wire [15:0] obj_preout;
 
-jtgng_romrq #(.AW(obj_aw),.DW(16)) u_obj(
+jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
     .rst      ( rst             ),
     .clk      ( clk             ),
     .cen      ( 1'b1            ),

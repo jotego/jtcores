@@ -110,7 +110,7 @@ generate
                 1'd0: dout = data_mux[15:0];
                 1'd1: dout = data_mux[31:16];
         endcase
-    end else always @(*) dout = data_mux;
+    end else always @(posedge clk) if(!req) dout = data_mux;
 endgenerate
 
 

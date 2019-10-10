@@ -19,6 +19,7 @@
 module jtgng_objdraw #(parameter
     DW       = 8,   // data width of the DMA
     ROM_AW   = 16, 
+    ROM_DW   = 16,
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
                     // 2: GunSmoke
@@ -42,7 +43,7 @@ module jtgng_objdraw #(parameter
     input    [DW-1:0]  objbuf_data,
     // SDRAM interface
     output  reg [ROM_AW-1:0] obj_addr,
-    input       [15:0] objrom_data,
+    input       [ROM_DW-1:0] obj_data,
     // Palette PROM
     input              OBJON,
     input       [7:0]  prog_addr,
@@ -54,8 +55,8 @@ module jtgng_objdraw #(parameter
     output reg  [(PALETTE?7:3):0]  new_pxl  // 8 bits if PROMs used, 4 bits otherwise
 );
 
-localparam IDW = ROM_AW-6;
-reg [ROM_AW-7:0] id;
+localparam IDW = ROM_AW-(ROM_DW==32?5:6);
+reg [IDW-1:0] id;
 reg [PALW-1:0] objpal, objpal1;
 reg [8:0] objx;
 reg obj_vflip, obj_hflip, hover;
@@ -117,48 +118,95 @@ always @(posedge clk) if(cen6) begin
             vinzone <= &Vsum[7:4];
         end
         X: begin
-            objx <= LAYOUT==3 ? objbuf_data[8:0] : { hover, objbuf_data };
+            objx <= LAYOUT==3 ? objbuf_data[8:0] : { hover, objbuf_data[7:0] };
         end
         default:;
     endcase
-    if( pxlcnt[1:0]==2'd3 ) begin
-        obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-            { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
-    end
 end
+
+generate
+    if( ROM_DW == 16 ) begin
+        always @(posedge clk) if(cen6) begin
+            if( pxlcnt[1:0]==2'd3 ) begin
+                obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
+                    { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+            end
+        end
+    end else begin // ROM_DW==32
+        always @(posedge clk) if(cen6) begin
+            if( pxlcnt[1:0]==2'd3 ) begin
+                obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
+                    { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}} };
+            end
+        end
+    end
+endgenerate
 
 
 // ROM data depacking
+generate
+    if( ROM_DW==16) begin
+        reg [3:0] z,y,x,w;
+        reg [8:0] posx1;
 
-reg [3:0] z,y,x,w;
-reg [8:0] posx1;
-
-always @(posedge clk) if(cen6) begin
-    if( pxlcnt[3:0]==4'h7 ) begin
-        objpal1   <= objpal;
-        poshflip2 <= obj_hflip;
-        posx1     <= objx;
-    end else begin
-        posx1     <= posx1 + 9'b1;
-    end
-    case( pxlcnt[1:0] )
-        2'd3:  begin // new data
-                {z,y,x,w} <= objrom_data;
-            end
-        default:
-            if( poshflip2 ) begin
-                z <= z >> 1;
-                y <= y >> 1;
-                x <= x >> 1;
-                w <= w >> 1;
+        always @(posedge clk) if(cen6) begin
+            if( pxlcnt[3:0]==4'h7 ) begin
+                objpal1   <= objpal;
+                poshflip2 <= obj_hflip;
+                posx1     <= objx;
             end else begin
-                z <= z << 1;
-                y <= y << 1;
-                x <= x << 1;
-                w <= w << 1;
+                posx1     <= posx1 + 9'b1;
             end
-    endcase
-end
+            case( pxlcnt[1:0] )
+                2'd3:  begin // new data
+                        {z,y,x,w} <= obj_data;
+                    end
+                default:
+                    if( poshflip2 ) begin
+                        z <= z >> 1;
+                        y <= y >> 1;
+                        x <= x >> 1;
+                        w <= w >> 1;
+                    end else begin
+                        z <= z << 1;
+                        y <= y << 1;
+                        x <= x << 1;
+                        w <= w << 1;
+                    end
+            endcase
+        end
+    end else begin //32
+        reg [7:0] z,y,x,w;
+        reg [8:0] posx1;
+
+        always @(posedge clk) if(cen6) begin
+            if( pxlcnt[3:0]==4'h7 ) begin
+                objpal1   <= objpal;
+                poshflip2 <= obj_hflip;
+                posx1     <= objx;
+            end else begin
+                posx1     <= posx1 + 9'b1;
+            end
+            case( pxlcnt[2:0] )
+                3'd7:  begin // new data
+                        {z,y,x,w} <= obj_data;
+                    end
+                default:
+                    if( poshflip2 ) begin
+                        z <= z >> 1;
+                        y <= y >> 1;
+                        x <= x >> 1;
+                        w <= w >> 1;
+                    end else begin
+                        z <= z << 1;
+                        y <= y << 1;
+                        x <= x << 1;
+                        w <= w << 1;
+                    end
+            endcase
+        end
+    end
+endgenerate
 
 generate
     if( PALETTE == 1 ) begin
