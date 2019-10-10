@@ -56,8 +56,8 @@ module jtbiocom_mcu(
     input           prom_we
 );
 
-wire [15:0] rom_addr, ext_addr;
-wire [ 6:0] ram_addr;
+reg  [15:0] rom_addr, ext_addr;
+reg  [ 6:0] ram_addr;
 wire [ 7:0] ram_data, ram_q, rom_data;
 wire        ram_we;
 
@@ -131,22 +131,31 @@ jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
 
 wire clk2 = clk&cen6; // cheap clock gating
 
+wire [15:0] rom_addr0, ext_addr0;
+wire [ 6:0] ram_addr0;
+
+always @(posedge clk) if(cen6) begin
+    rom_addr <= rom_addr0;
+    ram_addr <= ram_addr0;
+    ext_addr <= ext_addr0;
+end
+
 mc8051_core u_mcu(
     .clk        ( clk2      ),
     .reset      ( rst       ),
     // code ROM
     .rom_data_i ( rom_data  ),
-    .rom_adr_o  ( rom_addr  ),
+    .rom_adr_o  ( rom_addr0 ),
     // internal RAM
     .ram_data_i ( ram_q     ),
     .ram_data_o ( ram_data  ),
-    .ram_adr_o  ( ram_addr  ),
+    .ram_adr_o  ( ram_addr0 ),
     .ram_wr_o   ( ram_we    ),
     .ram_en_o   (           ),
     // external memory: connected to main CPU
     .datax_i    ( mcu_din   ),
     .datax_o    ( mcu_dout  ),
-    .adrx_o     ( ext_addr  ),
+    .adrx_o     ( ext_addr0 ),
     .wrx_o      ( mcu_wr   ),
     // interrupts
     .int0_i     ( int0      ),
