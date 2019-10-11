@@ -136,7 +136,7 @@ always @(*) begin
             2'd3: if(A[17]) case(A[16:14])  // 111X
                     3'd0:   obj_cs  = 1'b1; // E_0000 
                     3'd1:   io_cs   = 1'b1; // E_4000
-                    3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8000
+                    3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8010
                         // scrpt_cs
                         $display("SCRPTn");
                         case( A[3:1]) // SCRPTn in the schematics

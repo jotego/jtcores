@@ -177,7 +177,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
     else
         # Simulation
-        quartus_map jt$PRJ --generate_functional_sim_netlist
+        echo Preparing simulation netlist. Logfile:
+        echo $LOG
+        quartus_map jt$PRJ --generate_functional_sim_netlist > "$LOG"
         exit $?
     fi
 fi
