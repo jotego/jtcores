@@ -35,31 +35,33 @@
 // work RAM
 
 module jtbiocom_mcu(
-    input           rst,
-    input           clk,
-    input           cen6,       //  6   MHz
+    input                rst,
+    input                clk,
+    input                cen6a,       //  6   MHz
+    input                cen6b,       //  6   MHz
     // Main CPU interface
-    input           DMAONn,
-    output  [ 7:0]  mcu_dout,
-    input   [ 7:0]  mcu_din,
-    output          mcu_wr,   // always write to low bytes
-    output  [16:1]  mcu_addr,
-    output          mcu_brn,   // RQBSQn
-    output          DMAn,
+    input                DMAONn,
+    output reg   [ 7:0]  mcu_dout,
+    input        [ 7:0]  mcu_din,
+    output reg           mcu_wr,   // always write to low bytes
+    output       [16:1]  mcu_addr,
+    output               mcu_brn,   // RQBSQn
+    output               DMAn,
     // Sound CPU interface
-    input   [ 7:0]  snd_dout,
-    output  [ 7:0]  snd_din,
-    input           snd_mcu_wr,
+    input        [ 7:0]  snd_dout,
+    output       [ 7:0]  snd_din,
+    input                snd_mcu_wr,
     // ROM programming
-    input   [11:0]  prog_addr,
-    input   [ 7:0]  prom_din,
-    input           prom_we
+    input        [11:0]  prog_addr,
+    input        [ 7:0]  prom_din,
+    input                prom_we
 );
 
 reg  [15:0] rom_addr, ext_addr;
 reg  [ 6:0] ram_addr;
-wire [ 7:0] ram_data, ram_q, rom_data;
-wire        ram_we;
+reg  [ 7:0] ram_data;
+reg         ram_we;
+wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p3_o;
 reg         int0, int1;
@@ -129,15 +131,22 @@ jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
     .q          ( ram_q             )
 );
 
-wire clk2 = clk&cen6; // cheap clock gating
+wire clk2 = clk&cen6a; // cheap clock gating
 
 wire [15:0] rom_addr0, ext_addr0;
 wire [ 6:0] ram_addr0;
+wire [ 7:0] mcu_dout0, ram_data0;
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen6b) begin
     rom_addr <= rom_addr0;
-    ram_addr <= ram_addr0;
+    if(ram_en) begin
+        ram_addr <= ram_addr0;
+        ram_data <= ram_data0;
+        ram_we   <= ram_we0;
+    end
     ext_addr <= ext_addr0;
+    mcu_wr   <= mcu_wr0;
+    mcu_dout <= mcu_dout0;
 end
 
 mc8051_core u_mcu(
@@ -148,15 +157,15 @@ mc8051_core u_mcu(
     .rom_adr_o  ( rom_addr0 ),
     // internal RAM
     .ram_data_i ( ram_q     ),
-    .ram_data_o ( ram_data  ),
+    .ram_data_o ( ram_data0 ),
     .ram_adr_o  ( ram_addr0 ),
-    .ram_wr_o   ( ram_we    ),
-    .ram_en_o   (           ),
+    .ram_wr_o   ( ram_we0   ),
+    .ram_en_o   ( ram_en    ),
     // external memory: connected to main CPU
     .datax_i    ( mcu_din   ),
-    .datax_o    ( mcu_dout  ),
+    .datax_o    ( mcu_dout0 ),
     .adrx_o     ( ext_addr0 ),
-    .wrx_o      ( mcu_wr   ),
+    .wrx_o      ( mcu_wr0  ),
     // interrupts
     .int0_i     ( int0      ),
     .int1_i     ( int1      ),

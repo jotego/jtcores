@@ -23,7 +23,8 @@ module jtgng_cen(
     output  reg cen3,
     output  reg cen1p5,
     // 180 shifted signals
-    output  reg cen12b
+    output  reg cen12b,
+    output  reg cen6b
 );
 
 parameter CLK_SPEED = 48;
@@ -38,6 +39,7 @@ always @(negedge clk) begin
         cen12  <= cencnt[1:0] == 2'd0;
         cen12b <= cencnt[1:0] == 2'd2;
         cen6   <= cencnt[2:0] == 3'd0;
+        cen6b  <= cencnt[2:0] == 3'd4;
         cen3   <= cencnt[3:0] == 4'd0;
         cen1p5 <= cencnt[4:0] == 5'd0;
     end
@@ -45,6 +47,7 @@ always @(negedge clk) begin
         cen12  <= cencnt[  0] == 1'd0;
         cen12b <= cencnt[  0] == 1'd1;
         cen6   <= cencnt[1:0] == 2'd0;
+        cen6b  <= cencnt[1:0] == 2'd2;
         cen3   <= cencnt[2:0] == 3'd0;
         cen1p5 <= cencnt[3:0] == 4'd0;
     end
@@ -52,6 +55,7 @@ always @(negedge clk) begin
         cen12  <= 1'b1;
         cen12b <= 1'b1;
         cen6   <= cencnt[0]   == 1'd0;
+        cen6b  <= cencnt[0]   == 1'd1;
         cen3   <= cencnt[1:0] == 2'd0;
         cen1p5 <= cencnt[2:0] == 3'd0;
     end

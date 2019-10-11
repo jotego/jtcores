@@ -108,7 +108,7 @@ wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12b, cen_fm, cen_fm2;
+wire        cen12b, cen6b, cen_fm, cen_fm2;
 
 wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok;
@@ -145,6 +145,7 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen12  ( cen12     ),
     .cen12b ( cen12b    ),
     .cen6   ( cen6      ),
+    .cen6b  ( cen6b     ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
@@ -303,7 +304,8 @@ assign cpu_cen     = cen12;
 jtbiocom_mcu u_mcu(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),       //  6   MHz
+    .cen6a      ( cen6          ),       //  6   MHz
+    .cen6b      ( cen6b         ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn    ),
     .mcu_din    ( mcu_din       ),

@@ -22,6 +22,7 @@ JT_GNG compilation tool. (c) Jose Tejada 2019, @topapate
     -zip | -z   Create zip file
     -add        all arguments from that point on will be used as inputs to the
                 zip file. All files must be referred to $JTGNG path
+    -sim        prepare quartus simulation
     -help       displays this message
 EOF
    exit 0
@@ -55,6 +56,7 @@ fi
 
 
 ZIP=FALSE
+SIM=FALSE
 GIT=FALSE
 PROG=FALSE
 MIST=mist
@@ -87,6 +89,8 @@ while [ $# -gt 0 ]; do
             ZIP=TRUE
             shift
             break;;
+        -sim)
+            SIM=TRUE;;
         -gngvga)
             MACROS="JTFRAME_VGA SCAN2X_TYPE=1 $MACROS";;
         -d)
@@ -163,11 +167,18 @@ if [ $SKIP_COMPILE = FALSE ]; then
     for m in $MACROS; do
         echo -e "\n" set_global_assignment -name VERILOG_MACRO \"$m\" >> jt$PRJ.qsf
     done
-    quartus_sh --flow compile jt$PRJ > "$LOG"
-    if ! grep "Full Compilation was successful" "$LOG"; then
-        grep -i error "$LOG" -A 2
-        echo "ERROR while compiling the project. Aborting"
-        exit 1
+    if [ $SIM = FALSE ]; then
+        # Compilation
+        quartus_sh --flow compile jt$PRJ > "$LOG"
+        if ! grep "Full Compilation was successful" "$LOG"; then
+            grep -i error "$LOG" -A 2
+            echo "ERROR while compiling the project. Aborting"
+            exit 1
+        fi
+    else
+        # Simulation
+        quartus_map jt$PRJ --generate_functional_sim_netlist
+        exit $?
     fi
 fi
 
