@@ -85,25 +85,27 @@ wire [ 7:0] char_dout;
 wire [15:0] cpu_dout;
 wire        rd, cpu_cen;
 wire        char_busy;
+wire        service = 1'b1;
 
 // ROM data
 wire [15:0] char_data, scr_data;
 wire [31:0] obj_data;
-wire [15:0] main_data;
+wire [15:0] main_data, map_data;
 wire [ 7:0] snd_data;
 
 // ROM address
 wire [17:1] main_addr;
 wire [14:0] snd_addr;
-wire [12:0] char_addr;
+wire [13:0] map_addr;
+wire [13:0] char_addr;
 wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
-wire [17:0] obj_addr;
+wire [18:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen12b, cen6b, cen_fm, cen_fm2;
 
 wire        rom_ready;
-wire        main_ok, snd_ok, obj_ok, char_ok;
+wire        main_ok, scr_ok, snd_ok, obj_ok, char_ok;
 
 assign sample=1'b1;
 assign obj_addr[0] = 1'b0; // fixed for 32 bit values
@@ -183,9 +185,7 @@ wire OKOUT, blcnten, obj_br, bus_ack;
 wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
-wire [ 1:0] prom_we;
-wire        prom_mcu_we  = prom_we[0];
-wire        prom_prio_we = prom_we[1];
+wire        prom_we;
 
 jttora_prom_we u_prom_we(
     .clk         ( clk           ),
@@ -203,10 +203,7 @@ jttora_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-wire scr_cs, scr2_cs;
-wire [9:0] scr_hpos, scr_vpos;
-wire [8:0] scr2_hpos, scr2_vpos;
-
+wire [15:0] scr_hpos, scr_vpos;
 
 `ifndef NOMAIN
 jttora_main u_main(
@@ -248,9 +245,10 @@ jttora_main u_main(
     .rom_ok     ( main_ok       ),
     // Cabinet input
     .start_button( start_button ),
+    .service     ( service      ),
     .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .joystick1   ( joystick1    ),
+    .joystick2   ( joystick2    ),
 
     .RnW        ( RnW           ),
     // DIP switches
@@ -263,15 +261,11 @@ assign main_addr   = 17'd0;
 assign cpu_AB      = 13'd0;
 assign cpu_dout    = 16'd0;
 assign char_cs     = 1'b0;
-assign scr_cs     = 1'b0;
-assign scr2_cs     = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
-assign scr_hpos   = 9'd0;
-assign scr_vpos   = 9'd0;
-assign scr2_hpos   = 9'd0;
-assign scr2_vpos   = 9'd0;
+assign scr_hpos    = 16'd0;
+assign scr_vpos    = 16'd0;
 assign cpu_cen     = cen12;
 `endif
 
@@ -301,10 +295,7 @@ jtbiocom_sound u_sound (
 `else
 assign snd_addr   = 15'd0;
 assign snd_cs     = 1'b0;
-assign snd_left  = 16'b0;
-assign snd_right = 16'b0;
-assign snd_mcu_wr = 1'b0;
-assign snd_dout   = 8'd0;
+assign snd        = 16'd0;
 `endif
 
 reg pause;
@@ -312,9 +303,6 @@ always @(posedge clk) pause <= ~dip_pause;
 
 `ifndef NOVIDEO
 jttora_video #(
-    .OBJ_PAL      (2'b10),
-    .PALETTE_PROM (1),
-    .SCRWIN       (0),
     .AVATAR_MAX   (9)
 ) u_video(
     .rst        ( rst           ),
@@ -338,6 +326,8 @@ jttora_video #(
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL
+    .map_data   ( map_data      ),
+    .map_addr   ( map_addr      ),
     .scr_addr   ( scr_addr[17:0]),
     .scr_data   ( scr_data      ),
     .scr_hpos   ( scr_hpos      ),
@@ -347,7 +337,7 @@ jttora_video #(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
-    .obj_addr   ( obj_addr[17:1]),
+    .obj_addr   ( obj_addr[18:1]),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
@@ -358,7 +348,7 @@ jttora_video #(
     .obj_ok     ( obj_ok        ),
     // PROMs
     .prog_addr    ( prog_addr[7:0]),
-    .prom_prio_we ( prom_prio_we  ),
+    .prom_prio_we ( prom_we       ),
     .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
@@ -391,8 +381,8 @@ wire [17:0] main_rom_addr = { main_addr,1'b0 };
 jtgng_rom #(
     .main_dw    ( 16              ),
     .main_aw    ( 18              ),
-    .char_aw    ( 13              ),
-    .obj_aw     ( 16              ), // AD11 is disconnected in schematics
+    .char_aw    ( 14              ),
+    .obj_aw     ( 18              ),
     .scr1_aw    ( 19              ),
     .obj_dw     ( 32              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
@@ -410,8 +400,8 @@ jtgng_rom #(
     .snd_cs      ( snd_cs        ),
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
-    .scr1_ok     ( scr_ok       ),
-    .scr2_ok     ( scr2_ok       ),
+    .scr1_ok     ( scr_ok        ),
+    .scr2_ok     (               ),
     .char_ok     ( char_ok       ),
     .obj_ok      ( obj_ok        ),
 
@@ -421,7 +411,7 @@ jtgng_rom #(
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
     .scr2_addr   ( 0             ),
-    .map1_addr   ( 14'd0         ),
+    .map1_addr   ( map_addr      ),
     .map2_addr   ( 14'd0         ),
 
     .char_dout   ( char_data     ),

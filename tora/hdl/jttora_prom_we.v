@@ -107,7 +107,7 @@ always @(posedge clk) begin
         end
         else if(ioctl_addr[20:16] < SCRZW_ADDR[20:16]) begin
             // Sound ROM, CHAR ROM
-            prog_addr <= {3'b0, ioctl_addr[20:16], ioctl_addr[15:1]};
+            prog_addr <= {2'b0, ioctl_addr[20:16], ioctl_addr[15:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             `INFO_SND
         end

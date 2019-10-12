@@ -35,7 +35,7 @@ module jttora_video(
     output      [ 7:0]  char_dout,
     input               char_ok,
     output              char_busy,
-    output      [12:0]  char_addr,
+    output      [13:0]  char_addr,
     input       [15:0]  char_data,
     // SCROLL
     output      [17:0]  scr_addr,
@@ -44,8 +44,8 @@ module jttora_video(
     input       [15:0]  scr_hpos,
     input       [15:0]  scr_vpos,
     // MAP
-    output      [13:0]  map1_addr,
-    input       [15:0]  map1_data,
+    output      [13:0]  map_addr,
+    input       [15:0]  map_data,
     // OBJ
     input               HINIT,
     output      [13:1]  obj_AB,
@@ -54,7 +54,7 @@ module jttora_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [16:0]  obj_addr,
+    output      [17:0]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -77,16 +77,6 @@ module jttora_video(
     output      [3:0]   blue
 );
 
-// parameters from jtgng_colmix:
-parameter SCRWIN        = 1,
-          PALETTE_PROM  = 0,
-          PALETTE_RED   = "",
-          PALETTE_GREEN = "",
-          PALETTE_BLUE  = "";
-parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
-    // These two bits mark the region of the palette RAM/PROM where
-    // palettes for objects are stored
-    
 // parameters from jtgng_obj:
 parameter AVATAR_MAX    = 8;
 
@@ -101,7 +91,12 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(0)) u_char (
+jtgng_char #(
+    .HOFFSET( 0),
+    .ROM_AW (14),
+    .VFLIP  ( 4),
+    .LAYOUT ( 3)
+) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -190,7 +185,7 @@ u_scroll (
 assign scr_col    = 3'd0;
 assign scr_pal    = 3'd0;
 assign scr_addr   = 15'd0;
-assign scr_dout   = 8'd0;
+assign map_addr   = 14'd0;
 `endif
 
 jtgng_obj #(
@@ -199,8 +194,8 @@ jtgng_obj #(
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),
-    .ROM_AW     ( 16         ),
-    .ROM_DW     ( 32         ), // total 256kBytes of object graphic data
+    .ROM_AW     ( 17         ),
+    .ROM_DW     ( 32         ), // total 512kBytes of object graphic data
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
 u_obj (
@@ -218,7 +213,7 @@ u_obj (
     .LVBL_obj   ( LVBL_obj    ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
-    .V          ( V[7:0]      ),
+    .V          ( ~V[7:0]      ),
     .H          ( H           ),
     // avatar display
     .pause      ( pause       ),

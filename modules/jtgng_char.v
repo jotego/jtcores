@@ -34,6 +34,7 @@ module jtgng_char #(parameter
     HFLIP_XOR= 1'b0, // Additional bit for ^ with HFLIP value
     VFLIP_XOR= 1'b0, // Additional bit for ^ with VFLIP value
     PALETTE  = 0, // 1 if the palette PROM is used
+    LAYOUT   = 0, // 0 most games, 3 Tiger Road
     PALETTE_SIMFILE = "../../../rom/1943/bm5.7f" // only for simulation
 ) (
     input            clk,
@@ -131,9 +132,18 @@ always @(posedge clk) if(pxl_cen) begin
     if( Hfix[2:0]==DATAREAD ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
         char_attr1 <= char_attr0;
-        char_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
-        char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
-            {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
+        case( LAYOUT )
+            0:  begin
+                char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
+                {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
+                char_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
+            end
+            3:  begin // Tiger Road
+                char_addr  <= { { dout_high[5], dout_high[7:6], dout_low},
+                {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
+                char_attr0 <= { 1'b0, dout_high[PALW-1:0] };
+            end
+        endcase
     end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.

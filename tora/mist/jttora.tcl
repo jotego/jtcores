@@ -3,8 +3,9 @@ set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jttora_game"
 set_global_assignment -name VERILOG_MACRO "MISTTOP=jttora_mist"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
+set_global_assignment -name VERILOG_MACRO "NOSCR=1"
 #set_global_assignment -name VERILOG_MACRO "AVATARS=1"
-set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=0"
+set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=1"
 
 # Avatars on MiST too:
 # set_global_assignment -name VERILOG_MACRO "AVATAR_ROM=1"

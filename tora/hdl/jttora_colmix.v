@@ -56,34 +56,31 @@ parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
 reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
-wire enable_scr1 = gfx_en[1];
-wire enable_scr2 = gfx_en[2];
+wire enable_scr  = gfx_en[1];
 wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] selbus;
 reg  [7:0] seladdr;
-reg  [1:0] muxsel, presel;
+reg  [1:0] presel;
 wire       char_blank_n = |(~char_pxl[1:0]);
 
-// always @(*) begin
-//     seladdr[0]   = enable_scr2 ? (|(~scr2_pxl[3:0])) : 1'b0;
-//     seladdr[6:1] = enable_scr1 ? ({ scr1_pxl[7:6], scr1_pxl[3:0] }) : 6'h3f;
-//     seladdr[7]   = enable_obj  ? (|(~obj_pxl[3:0])) : 1'b0;
-//     muxsel       = selbus | ( enable_char ? {2{char_blank_n}} : 2'b0 );
-// end
+always @(*) begin
+    seladdr[7]   = 1'b1;
+    seladdr[6]   = enable_char & char_blank_n;
+    seladdr[5]   = enable_obj  & ~obj_blank;
+    seladdr[4:0] = { scr_pxl[7], scr_pxl[3:0] };
+end
 
 always @(posedge clk) if(cen6) begin
-    //case( muxsel )
-    //    2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
-    //    2'b10: pixel_mux[7:0] <= obj_pxl;
-    //    2'b01: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
-    //    2'b00: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
-    //endcase
-    pixel_mux[7:0] <= { 2'b0, char_pxl };
-    //pixel_mux[9:8] <= muxsel;
-    pixel_mux[9:8] <= 2'b0;
+    case( selbus )
+        2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
+        2'b10: pixel_mux[7:0] <= obj_pxl;
+        2'b01: pixel_mux[7:0] <= { 2'b0, scr_pxl[5:0] };
+        2'b00: pixel_mux[7:0] <= 8'd0;
+    endcase
+    pixel_mux[9:8] <= selbus;
 end
 
 // Blanking delay
@@ -179,16 +176,8 @@ jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_selbus(
     .q      ( selbus        )
 );
 
-function [3:0] dim;
-    input [3:0]  col;
-    input        dim_set;
-    dim = !dim_set ? {1'b0, col[3:1]} : col; // To do: fix accuracy
-endfunction
-
 always @(posedge clk) if (cen6)
     {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
-        { dim(pal_red,   pal_bright[2]),
-          dim(pal_green, pal_bright[1]),
-          dim(pal_blue,  pal_bright[0]) } : 12'd0;
+        { pal_red, pal_green, pal_blue } : 12'd0;
 
 endmodule // jtgng_colmix

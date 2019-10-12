@@ -16,7 +16,8 @@
     Version: 1.0
     Date: 12-10-2019 */
 
-// Bionic Commando: Main CPU
+// Tiger Road: Main CPU
+// 10MHz 68000 CPU
 
 `timescale 1ns/1ps
 
@@ -43,10 +44,11 @@ module jttora_main(
     output reg [15:0]  scr_vpos,
     output reg         scr_bank,
     // cabinet I/O
-    input   [5:0]      joystick1,
-    input   [5:0]      joystick2,
+    input   [6:0]      joystick1,
+    input   [6:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
+    input              service,
     // BUS sharing
     output  [13:1]     cpu_AB,
     output  [15:0]     oram_dout,
@@ -98,15 +100,15 @@ assign col_lw = col_cs & ~LDSWn;
 wire CPUbus = !blcnten; // main CPU in control of the bus
 
 always @(*) begin
-    rom_cs        = 1'b0;
-    ram_cs        = 1'b0;
-    obj_cs        = 1'b0;
-    col_cs        = 1'b0;
-    io_cs         = 1'b0;
-    char_cs       = 1'b0;
-    OKOUT         = 1'b0;
-    scrvpos_cs   = 1'b0;
-    scrhpos_cs   = 1'b0;
+    rom_cs     = 1'b0;
+    ram_cs     = 1'b0;
+    obj_cs     = 1'b0;
+    col_cs     = 1'b0;
+    io_cs      = 1'b0;
+    char_cs    = 1'b0;
+    OKOUT      = 1'b0;
+    scrvpos_cs = 1'b0;
+    scrhpos_cs = 1'b0;
 
     BERRn         = 1'b1;
     // address decoder is not shared with MCU contrary to the original design
@@ -132,6 +134,7 @@ always @(*) begin
                     3'd3:   char_cs = 1'b1; // E_C000
                     3'd6:   col_cs  = 1'b1; // F_8000
                     3'd7:   ram_cs  = 1'b1; // F_C000
+                    default:;
                 endcase
         endcase
 end
@@ -244,12 +247,14 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
 reg [15:0] cabinet_input;
 
 always @(posedge clk) if(cpu_cen) begin
-    cabinet_input <= A[1] ?
-        { dipsw_a, dipsw_b } :
-        { coin_input[0], coin_input[1],        // COINS
-          start_button[0], start_button[1],    // START
-          { joystick1[3:0], joystick1[5:4]},   //  2 buttons
-          { joystick2[3:0], joystick2[5:4]} };
+    case( A[2:1] )
+        2'b00: cabinet_input <= { 
+            2'b11, joystick2[5:0], 
+            2'b11, joystick1[5:0] };
+        2'b01: cabinet_input <= 
+            { coin_input, 3'b111, ~LVBL, start_button, 8'hff };
+        2'b10: cabinet_input <= { dipsw_a, dipsw_b };
+    endcase
 end
 
 // Data bus input
@@ -314,7 +319,8 @@ always @(posedge clk, posedge rst) begin : int_gen
             int2 <= 1'b1;
         end
         else begin
-            if( !LVBL && last_LVBL ) int2 <= 1'b0;
+            if( V[8] && !last_V256 ) int2 <= 1'b0;
+            if( !LVBL && last_LVBL ) int1 <= 1'b0;
         end
     end
 end
