@@ -42,8 +42,8 @@ module jttora_main(
     output             UDSWn,
     output             LDSWn,
     // scroll
-    output reg [15:0]  scr_hpos,
-    output reg [15:0]  scr_vpos,
+    output reg [15:0]  scrposh,
+    output reg [15:0]  scrposv,
     output reg         scr_bank,
     // cabinet I/O
     input   [6:0]      joystick1,
@@ -144,11 +144,11 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        scr_hpos <= 10'd0;
-        scr_vpos <= 10'd0;
+        scrposh <= 10'd0;
+        scrposv <= 10'd0;
     end else if(cpu_cen) begin
-        if( scrhpos_cs && !RnW) scr_hpos <= cpu_dout;
-        if( scrvpos_cs && !RnW) scr_vpos <= cpu_dout;
+        if( scrhpos_cs && !RnW) scrposh <= cpu_dout;
+        if( scrvpos_cs && !RnW) scrposv <= cpu_dout;
     end
 end
 

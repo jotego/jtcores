@@ -147,7 +147,7 @@ wire [7:0] scrposv, main_ram;
 
 wire char_wait;
 
-wire [1:0] scr1posh_cs, scr2posh_cs;
+wire [15:0] scr1posh, scr2posh;
 
 wire CHON, OBJON, SC2ON, SC1ON;
 wire cpu_cen, main_cs;
@@ -229,8 +229,8 @@ jt1943_main u_main(
     .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
-    .scr1posh_cs( scr1posh_cs   ),
-    .scr2posh_cs( scr2posh_cs   ),
+    .scr1posh   ( scr1posh      ),
+    .scr2posh   ( scr2posh      ),
     .SC1ON      ( SC1ON         ),
     .SC2ON      ( SC2ON         ),
     // OBJ - bus sharing
@@ -260,8 +260,8 @@ jt1943_main u_main(
     .coin_cnt   (               )
 );
 `else
-assign scr1posh_cs = 'b0;
-assign scr2posh_cs = 'b0;
+assign scr1posh = 16'b0;
+assign scr2posh = 16'b0;
 assign char_cs = 'b0;
 assign SC1ON = 'b1;
 assign SC2ON = 'b1;
@@ -374,8 +374,8 @@ jt1943_video u_video(
     .char_ok    ( char_ok       ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
-    .scr1posh_cs( scr1posh_cs   ),
-    .scr2posh_cs( scr2posh_cs   ),
+    .scr1posh   ( scr1posh      ),
+    .scr2posh   ( scr2posh      ),
     .scrposv    ( scrposv       ),
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_dout     ),
@@ -459,7 +459,7 @@ jtgng_rom u_rom (
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    (               ),
-    .obj_data    ( obj_data      ),
+    .obj_dout    ( obj_data      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),
     .scr1_dout   ( scr1_dout     ),

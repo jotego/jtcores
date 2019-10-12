@@ -23,11 +23,13 @@
 
 module jt1943_scroll #( parameter
     HOFFSET         = 9'd5,
+    LAYOUT          = 0,   // 1943
     ROM_AW          = 17,
     SIMFILE_MSB     = "", 
     SIMFILE_LSB     = "",
     AS8MASK         = 1'b1,
-    PALETTE         = 1
+    PALETTE         = 1,
+    PXLW            = LAYOUT==3 ? 9 : (PALETTE?6:8)
 )(
     input                rst,
     input                clk,  // >12 MHz
@@ -38,11 +40,10 @@ module jt1943_scroll #( parameter
     input                LVBL,
     input                LHBL,
 
-    input         [ 1:0] scrposh_cs,
+    input         [15:0] hpos,
     input         [ 7:0] vpos,
     input                SCxON,
     input                flip,
-    input         [ 7:0] din,
     input                wr_n,
     input                pause,
     // Palette PROMs D1, D2
@@ -57,19 +58,18 @@ module jt1943_scroll #( parameter
     // Gfx ROM
     output  [ROM_AW-1:0] scr_addr,
     input         [15:0] scrom_data,
-    output        [ 5:0] scr_pxl
+    output    [PXLW-1:0] scr_pxl
 );
-
 
 // H goes from 80h to 1FFh
 wire [8:0] Hfix_prev = H+HOFFSET;
-wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output   offset
+wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
 
 reg  [ 4:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC, PIC2,SH2;
 wire [ 7:0] V128sh;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
-reg  [15:0] hpos, SP=16'd0; // called "SP" on the schematics
+reg  [15:0] SP=16'd0; // called "SP" on the schematics
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
@@ -110,20 +110,6 @@ always @(posedge clk) if(cen6) begin
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end
 
-`ifndef TESTSCR1
-always @(posedge clk)
-    if( rst ) begin
-        hpos <= 16'd0;
-    end else if(cen6) begin // same cen as main CPU
-        if( scrposh_cs[1] && !wr_n ) hpos[15:8] <= din;
-        if( scrposh_cs[0] && !wr_n ) hpos[ 7:0] <= din;
-    end
-`else
-    initial hpos <= 'h100;
-    always @(negedge LVBL)
-        hpos <= hpos + 'h1;
-`endif
-
 wire [7:0] dout_high = map_data[ 7:0];
 wire [7:0] dout_low  = map_data[15:8];
 
@@ -132,7 +118,8 @@ jtgng_tile4 #(
     .PALETTE        ( PALETTE       ),
     .ROM_AW         ( ROM_AW        ),
     .SIMFILE_LSB    ( SIMFILE_LSB   ),
-    .SIMFILE_MSB    ( SIMFILE_MSB   ) )
+    .LAYOUT         ( LAYOUT        ),
+    .SIMFILE_MSB    ( SIMFILE_MSB   ))
 u_tile4(
     .clk        (  clk          ),
     .cen6       (  cen6         ),

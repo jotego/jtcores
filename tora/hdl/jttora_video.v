@@ -43,8 +43,8 @@ module jttora_video(
     output      [17:0]  scr_addr,
     input       [15:0]  scr_data,
     input               scr_ok,
-    input       [15:0]  scr_hpos,
-    input       [15:0]  scr_vpos,
+    input       [15:0]  scrposh,
+    input       [15:0]  scrposv,
     // MAP
     output      [13:0]  map_addr,
     input       [15:0]  map_data,
@@ -84,7 +84,7 @@ parameter AVATAR_MAX    = 8;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
-wire [3:0] scr_col, scr_pal;
+wire [8:0] scr_pxl;
 wire [3:0] avatar_idx;
 
 `ifndef NOCHAR
@@ -147,35 +147,30 @@ assign char_mrdy = 1'b1;
 `ifndef NOSCR
 jt1943_scroll #(
     .PALETTE    ( 0        ),
+    .LAYOUT     ( 4        ),
     .ROM_AW     ( 18       ),
     .HOFFSET    ( 0        ))
 u_scroll (
-    .rst          ( rst           ),
-    .clk          ( clk           ),
-    .cen6         ( cen6          ),
-    .cen3         ( cen3          ),
-    .V128         ( V[7:0]        ),
-    .H            ( H             ),
-    .LVBL         ( LVBL          ),
-    .LHBL         ( LHBL          ),
-    .scrposh_cs   ( scr1posh_cs   ),
-    `ifndef TESTSCR1
-    .SCxON        ( SC1ON         ),
-    .vpos         ( scrposv       ),
-    .flip         ( flip          ),
-    `else // TEST:
-        .SCxON        ( 1'b1          ),
-        .vpos         ( 8'd0          ),
-        .flip         ( 1'b0          ),
-    `endif
+    .rst          ( rst            ),
+    .clk          ( clk            ),
+    .cen6         ( cen6           ),
+    .cen3         ( cen3           ),
+    .V128         ( V[7:0]         ),
+    .H            ( H              ),
+    .LVBL         ( LVBL           ),
+    .LHBL         ( LHBL           ),
+    .SCxON        ( 1'b1           ),
+    .hpos         ( scrposh        ),
+    .vpos         ( scrposv        ),
+    .flip         ( flip           ),
     .din          ( cpu_dout       ),
     .wr_n         ( wr_n           ),
     .pause        ( pause          ),
-    // Palette PROMs
-    .prog_addr    ( prog_addr      ),
-    .prom_hi_we   ( prom_scr1hi_we ),
-    .prom_lo_we   ( prom_scr1lo_we ),
-    .prom_din     ( prog_din       ),
+    // No palette PROMs
+    .prog_addr    (                ),
+    .prom_hi_we   (                ),
+    .prom_lo_we   (                ),
+    .prom_din     (                ),
 
     // ROM
     .map_addr     ( map_addr       ),
@@ -242,7 +237,7 @@ jttora_colmix u_colmix (
     .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),
-    .scr_pxl      ( { scr_pal, scr_col } ),
+    .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),

@@ -203,7 +203,7 @@ jttora_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-wire [15:0] scr_hpos, scr_vpos;
+wire [15:0] scrposh, scrposv;
 wire UDSWn, LDSWn;
 
 `ifndef NOMAIN
@@ -228,8 +228,8 @@ jttora_main u_main(
     .UDSWn      ( UDSWn         ),
     .LDSWn      ( LDSWn         ),
     // SCROLL 
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    .scrposh    ( scrposh       ),
+    .scrposv    ( scrposv       ),
     .scr_bank   ( scr_addr[18]  ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
@@ -267,8 +267,8 @@ assign char_cs     = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
-assign scr_hpos    = 16'd0;
-assign scr_vpos    = 16'd0;
+assign scrposh     = 16'd0;
+assign scrposv     = 16'd0;
 assign cpu_cen     = cen12;
 `endif
 
@@ -335,8 +335,8 @@ jttora_video #(
     .map_addr   ( map_addr      ),
     .scr_addr   ( scr_addr[17:0]),
     .scr_data   ( scr_data      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    .scrposh    ( scrposh       ),
+    .scrposv    ( scrposv       ),
     .scr_ok     ( scr_ok        ),
     // OBJ
     .HINIT      ( HINIT         ),
@@ -392,6 +392,7 @@ jtgng_rom #(
     .obj_dw     ( 32              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h5_8000 >> 1 ),
+    .map1_offset( 22'h6_0000 >> 1 ),
     .scr1_offset( 22'h10_0000     ), // SCR and OBJ are not shifted
     .obj_offset ( 22'h20_0000     )
 ) u_rom (

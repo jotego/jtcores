@@ -71,8 +71,8 @@ module jt1943_video #( parameter
     // SCROLL - ROM
     input               SC1ON,
     input               SC2ON,
-    input       [ 1:0]  scr1posh_cs,
-    input       [ 1:0]  scr2posh_cs,
+    input       [15:0]  scr1posh,
+    input       [15:0]  scr2posh,
     input       [ 7:0]  scrposv,
     output      [16:0]  scr1_addr,
     output      [14:0]  scr2_addr,
@@ -219,7 +219,7 @@ u_scroll1 (
     .H            ( H             ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .scrposh_cs   ( scr1posh_cs   ),
+    .hpos         ( scr1posh      ),
     `ifndef TESTSCR1
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
@@ -229,7 +229,6 @@ u_scroll1 (
         .vpos         ( 8'd0          ),
         .flip         ( 1'b0          ),
     `endif
-    .din          ( cpu_dout       ),
     .wr_n         ( wr_n           ),
     .pause        ( pause          ),
     // Palette PROMs
@@ -263,7 +262,7 @@ generate
             .V128         ( V[7:0]        ),
             .H            ( H             ),
             .LVBL         ( LVBL          ),
-            .scrposh_cs   ( scr2posh_cs   ),
+            .hpos         ( scr2posh      ),
             `ifndef TESTSCR2
             .SCxON        ( SC2ON         ),
             .vpos         ( scrposv       ),
@@ -273,7 +272,6 @@ generate
                 .vpos         ( 8'd0          ),
                 .flip         ( 1'b0          ),
             `endif
-            .din          ( cpu_dout       ),
             .wr_n         ( wr_n           ),
 
             .pause        ( pause          ),

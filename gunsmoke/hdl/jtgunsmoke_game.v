@@ -214,7 +214,7 @@ wire prom_objhi_we = prom_we[7];
 wire prom_prior_we = prom_we[9];
 
 wire [7:0] scrposv;
-wire [1:0] scrposh_cs;
+wire [15:0] scrposh;
 
 `ifndef NOMAIN
 
@@ -240,7 +240,7 @@ jtgunsmoke_main u_main(
     .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
-    .scrposh_cs ( scrposh_cs    ),
+    .scrposh    ( scrposh       ),
     .SCRON      ( SCRON         ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
@@ -374,8 +374,8 @@ jt1943_video #(
     .char_ok       ( char_ok       ),
     .CHON          ( CHON          ),
     // SCROLL - ROM
-    .scr1posh_cs   ( scrposh_cs    ),
-    .scr2posh_cs   ( 2'd0          ),
+    .scr1posh      ( scrposh       ),
+    .scr2posh      ( 16'd0         ),
     .scrposv       ( scrposv       ),
     .scr1_addr     ( scr_addr      ),
     .scr1_data     ( scr_data      ),

@@ -20,9 +20,11 @@ module jtgng_tile4 #(parameter
     PALETTE     =  1,
     ROM_AW      = 17,
     LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
+                      // 3: Tiger Road
     SIMFILE_MSB = "", 
     SIMFILE_LSB = "",
-    AS8MASK     =  1'b1
+    AS8MASK     =  1'b1,
+    PXLW        = LAYOUT==3 ? 9 : (PALETTE?6:8)
 ) (
     input              clk,
     input              cen6,
@@ -40,19 +42,34 @@ module jtgng_tile4 #(parameter
     // Gfx ROM
     output reg  [ROM_AW-1:0] scr_addr,
     input             [15:0] rom_data,
-    output [(PALETTE?5:7):0] scr_pxl
+    output [PXLW-1:0] scr_pxl
 );
 
+localparam ATTW = LAYOUT==3 ? 5 : 4;
 
-reg  [7:0] addr_lsb;
-reg  [3:0] scr_attr0;
-reg        scr_hflip1;
+reg  [7:0]      addr_lsb;
+reg  [ATTW-1:0] scr_attr0;
+reg             scr_hflip1;
 
-localparam HFLIP = LAYOUT == 0 ? 6 : 7;
-localparam VFLIP = LAYOUT == 0 ? 7 : 6;
+reg scr_hflip, scr_vflip;
 
-wire scr_hflip = attr[HFLIP];
-wire scr_vflip = attr[VFLIP];
+always @(*) begin
+    case(LAYOUT)
+        default: begin
+            scr_hflip = attr[6];
+            scr_vflip = attr[7];        
+        end
+        1,2: begin // Bionic Commando
+            scr_hflip = attr[7];
+            scr_vflip = attr[6];        
+        end
+        3: begin // Tiger Road
+            scr_hflip = attr[5];
+            scr_vflip = 1'b0;
+        end
+    endcase
+end
+
 //wire load_tile = /*LAYOUT==1 ? HS[3:0]==4'd1 :*/ HS[2:0]==3'd1;
 
 // Set input for ROM reading
@@ -69,20 +86,20 @@ always @(posedge clk) if(cen6) begin
             end
         1: begin // Bionic Commando, scroll 1, 16x16 tiles
             scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
-            scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
+            scr_addr  <= { attr[2:0], id, // AS
                             HS[3]^scr_hflip,
                             SV[3:0]^{4{scr_vflip}},
                             HS[2]^scr_hflip };
             end
         2: begin // Bionic Commando, scroll 2, 8x8 tiles
             scr_attr0 <= { 1'b0, attr[5:3] }; // MSB doesn't connect to anything on the higher levels
-            scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
+            scr_addr  <= { attr[2:0], id, // AS
                             SV[2:0]^{3{scr_vflip}},
                             HS[2]^scr_hflip };
             end
         3: begin // Tiger Road, 32x32 tiles
-            scr_attr0 <= attr[3:0];
-            scr_addr[ROM_AW-1:0] <= { attr[7:6], id, // AS
+            scr_attr0 <= attr[4:0];
+            scr_addr  <= { attr[7:6], id, // 2+8+2+5+1=18 bits
                             HS[4:3]^{2{scr_hflip}},
                             SV[4:0],
                             HS[2]^scr_hflip };
@@ -110,8 +127,9 @@ always @(posedge clk) if(cen6) begin
 end
 
 // Draw pixel on screen
-reg [3:0] w,x,y,z;
-reg [3:0] scr_attr1, scr_col0, scr_pal0;
+reg [     3:0] w,x,y,z;
+reg [     3:0] scr_attr1, scr_col0;
+reg [ATTW-1:0] scr_pal0;
 
 // Character data delay
 // clock count      stage
@@ -172,7 +190,7 @@ generate
             .q      ( scr_pxl[3:0]   )
         );
     end else begin
-        reg [7:0] pxl_dly; // to have the same delay as the palette case
+        reg [PXLW-1:0] pxl_dly; // to have the same delay as the palette case
         always @(posedge clk)
             pxl_dly <= { scr_pal0, scr_col0 };
         assign scr_pxl = pxl_dly;

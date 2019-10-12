@@ -25,7 +25,7 @@ module jttora_colmix(
     input            cpu_cen,
     // pixel input from generator modules
     input [5:0]      char_pxl,        // character color code
-    input [7:0]      scr_pxl,
+    input [8:0]      scr_pxl,
     input [7:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
@@ -51,7 +51,7 @@ module jttora_colmix(
     input      [3:0] gfx_en
 );
 
-parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
+parameter SIM_PRIO = "../../../rom/tora/tr.9e";
 
 reg [9:0] pixel_mux;
 
@@ -70,14 +70,15 @@ always @(*) begin
     seladdr[7]   = 1'b1;
     seladdr[6]   = enable_char & char_blank_n;
     seladdr[5]   = enable_obj  & ~obj_blank;
-    seladdr[4:0] = { scr_pxl[7], scr_pxl[3:0] };
+    seladdr[4]   = scr_pxl[8]; // Scroll wins
+    seladdr[3:0] = 4'hf;
 end
 
 always @(posedge clk) if(cen6) begin
     case( selbus )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl;
-        2'b01: pixel_mux[7:0] <= { 2'b0, scr_pxl[5:0] };
+        2'b01: pixel_mux[7:0] <= scr_pxl[7:0];
         2'b00: pixel_mux[7:0] <= 8'd0;
     endcase
     pixel_mux[9:8] <= selbus;
