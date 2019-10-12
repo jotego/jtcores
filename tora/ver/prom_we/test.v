@@ -33,18 +33,46 @@ initial begin
 end
 
 reg [1:0] cnt=2'b0;
+reg [7:0] romfile[0:`ROM_LEN-1];
+integer f;
+
+initial begin    
+    f=$fopen(`ROM_PATH,"rb");
+    if( f==0 ) begin
+        $display("ERROR: cannot open file %s",`ROM_PATH);
+        $finish;
+    end
+    cnt=$fread(romfile,f);
+    $display("INFO: %s ROM lentgh 0x%h",`ROM_PATH,cnt);
+    $fclose(f);
+end
+
+reg [15:0] sdram[0:2**22-1];
+integer cnt2;
 
 always @(posedge clk) begin
     cnt      <= cnt+2'd1;
     ioctl_wr <= 1'b0;
-    if( ioctl_addr < `ROM_LEN && cnt==2'b11 ) begin
-        ioctl_addr <= ioctl_addr + 22'd1;
-        ioctl_data <= ioctl_data+8'd1;
+    if( ioctl_addr < `ROM_LEN && cnt==2'b10 ) begin
+        ioctl_data <= romfile[ioctl_addr];
         ioctl_wr   <= 1'b1;
+    end else if(cnt==2'b11) begin
+        ioctl_addr <= ioctl_addr + 22'd1;
     end else if( ioctl_addr >= `ROM_LEN ) begin
-        downloading <= 1'b0;        
-        #100 $finish;
+        downloading <= 1'b0;
+        f=$fopen("sdram.hex");
+        for( cnt2=0; cnt2<(2**22-1); cnt2=cnt2+1) begin
+            $fdisplay(f,"%04X",sdram[cnt2]);
+        end
+        $fclose(f);
+        $finish;
     end
+end
+
+
+always @(negedge prog_we) begin
+    if(!prog_mask[1]) sdram[ prog_addr ][15:8] <= prog_data;
+    if(!prog_mask[0]) sdram[ prog_addr ][ 7:0] <= prog_data;
 end
 
 initial begin
