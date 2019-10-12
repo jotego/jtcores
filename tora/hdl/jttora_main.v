@@ -41,6 +41,7 @@ module jttora_main(
     // scroll
     output reg [15:0]  scr_hpos,
     output reg [15:0]  scr_vpos,
+    output reg         scr_bank,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -94,7 +95,7 @@ wire LDSWn = RnW | LDSn;
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;
 
-wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
+wire CPUbus = !blcnten; // main CPU in control of the bus
 
 always @(*) begin
     rom_cs        = 1'b0;
@@ -104,7 +105,6 @@ always @(*) begin
     io_cs         = 1'b0;
     char_cs       = 1'b0;
     OKOUT         = 1'b0;
-    mcu_DMAONn    = 1'b1;   // for once, I leave the original active low setting
     scrvpos_cs   = 1'b0;
     scrhpos_cs   = 1'b0;
 
@@ -156,8 +156,11 @@ always @(posedge clk)
     else if(cpu_cen) begin
         if( !UDSWn && io_cs)
             case( { A[1]} )
-                1'b0: flip      <= cpu_dout[8];
-                1'b1: snd_latch <= cpu_dout[7:0];
+                1'b0: begin
+                    flip      <= cpu_dout[1];
+                    scr_bank  <= cpu_dout[2];
+                end
+                1'b1: snd_latch <= cpu_dout[15:8];
             endcase
     end
 
@@ -260,7 +263,7 @@ always @(posedge clk) begin
 end
 
 always @(*)
-    case( {owram_cs, video_cs, io_cs} )
+    case( {owram_cs, char_cs, io_cs} )
         3'b100:  cpu_din = owram_dout;
         3'b010:  cpu_din = { 8'hff, char_dout };
         3'b001:  cpu_din = cabinet_input;

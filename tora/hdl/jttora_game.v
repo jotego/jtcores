@@ -18,7 +18,7 @@
 
 `timescale 1ns/1ps
 
-module jtbiocom_game(
+module jttora_game(
     input           rst,
     input           clk,
     output          cen12,      // 12   MHz
@@ -63,8 +63,7 @@ module jtbiocom_game(
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     // Sound output
-    output  signed [15:0] snd_left,
-    output  signed [15:0] snd_right,
+    output  signed [15:0] snd,
     output          sample,
     input           enable_psg,
     input           enable_fm,
@@ -82,37 +81,29 @@ wire [13:1] cpu_AB;
 wire        snd_cs;
 wire        char_cs, col_uw, col_lw;
 wire        flip;
-wire [ 7:0] char_dout, scr_dout, scr2_dout;
+wire [ 7:0] char_dout;
 wire [15:0] cpu_dout;
 wire        rd, cpu_cen;
-wire        char_busy, scr_busy, scr2_busy;
+wire        char_busy;
 
 // ROM data
-wire [15:0] char_data, scr_data, scr2_data;
+wire [15:0] char_data, scr_data;
 wire [31:0] obj_data;
 wire [15:0] main_data;
 wire [ 7:0] snd_data;
-// MCU interface
-wire [ 7:0] snd_din, snd_dout;
-wire        snd_mcu_wr;
-wire        mcu_brn;
-wire [ 7:0] mcu_din, mcu_dout;
-wire [16:1] mcu_addr;
-wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 
 // ROM address
 wire [17:1] main_addr;
 wire [14:0] snd_addr;
 wire [12:0] char_addr;
-wire [16:0] scr_addr;
+wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
-wire [16:0] obj_addr;
+wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen12b, cen6b, cen_fm, cen_fm2;
 
 wire        rom_ready;
-wire        main_ok, snd_ok, obj_ok;
-wire        scr_ok, scr2_ok, char_ok;
+wire        main_ok, snd_ok, obj_ok, char_ok;
 
 assign sample=1'b1;
 assign obj_addr[0] = 1'b0; // fixed for 32 bit values
@@ -239,6 +230,7 @@ jttora_main u_main(
     // SCROLL 
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
+    .scr_bank   ( scr_addr[18]  ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -345,17 +337,17 @@ jttora_video #(
     .char_data  ( char_data     ),
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
-    // SCROLL 1
-    .scr_addr  ( scr_addr     ),
-    .scr_data  ( scr_data     ),
-    .scr_hpos  ( scr_hpos     ),
-    .scr_vpos  ( scr_vpos     ),
-    .scr_ok    ( scr_ok       ),
+    // SCROLL
+    .scr_addr   ( scr_addr[17:0]),
+    .scr_data   ( scr_data      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
+    .scr_ok     ( scr_ok        ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
-    .obj_addr   ( obj_addr[16:1]),
+    .obj_addr   ( obj_addr[17:1]),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
@@ -387,8 +379,7 @@ assign red       = 4'h0;
 assign green     = 4'h0;
 assign blue      = 4'h0;
 assign obj_addr  = 0;
-assign scr_addr = 0;
-assign scr2_addr = 0;
+assign scr_addr  = 0;
 assign char_addr = 0;
 `endif
 
@@ -402,11 +393,11 @@ jtgng_rom #(
     .main_aw    ( 18              ),
     .char_aw    ( 13              ),
     .obj_aw     ( 16              ), // AD11 is disconnected in schematics
-    .scr1_aw    ( 17              ),
+    .scr1_aw    ( 19              ),
     .obj_dw     ( 32              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h5_8000 >> 1 ),
-    .scr_offset ( 22'h10_0000     ), // SCR and OBJ are not shifted
+    .scr1_offset( 22'h10_0000     ), // SCR and OBJ are not shifted
     .obj_offset ( 22'h20_0000     )
 ) u_rom (
     .rst         ( rst           ),

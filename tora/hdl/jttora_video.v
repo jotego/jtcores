@@ -37,8 +37,8 @@ module jttora_video(
     output              char_busy,
     output      [12:0]  char_addr,
     input       [15:0]  char_data,
-    // SCROLL 1
-    output      [16:0]  scr_addr,
+    // SCROLL
+    output      [17:0]  scr_addr,
     input       [15:0]  scr_data,
     input               scr_ok,
     input       [15:0]  scr_hpos,
@@ -54,7 +54,7 @@ module jttora_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [17:0]  obj_addr,
+    output      [16:0]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -92,9 +92,7 @@ parameter AVATAR_MAX    = 8;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
-wire [3:0] scr1_col, scr2_col;
-wire [3:0] scr1_pal, scr2_pal;
-wire [3:0] cc;
+wire [3:0] scr_col, scr_pal;
 wire [3:0] avatar_idx;
 
 `ifndef NOCHAR
@@ -148,77 +146,49 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(
-    .ROM_AW     ( 17            ),
-    .SCANW      ( 12            ),
-    .POSW       ( 10            ),
-    .HOFFSET    (  0            ),
-    .TILE4      (  1            ), // 4bpp
-    .LAYOUT     (  1            ))
-u_scroll1 (
-    .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
-    // screen position
-    .H          ( H             ),
-    .V          ( V[7:0]        ),
-    .hpos       ( scr1_hpos     ),
-    .vpos       ( scr1_vpos     ),
-    .flip       ( flip          ),
-    // bus arbitrion
-    .Asel       ( cpu_AB[1]     ),
-    .AB         ( cpu_AB[13:2]  ),
-    .scr_cs     ( scr1_cs       ),
-    .din        ( cpu_dout[7:0] ),
-    .dout       ( scr1_dout     ),
-    .wr_n       ( RnW           ),
-    .busy       ( scr1_busy     ),
+jt1943_scroll #(
+    .PALETTE    ( 0        ),
+    .ROM_AW     ( 18       ),
+    .HOFFSET    ( 0        ))
+u_scroll (
+    .rst          ( rst           ),
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
+    .cen3         ( cen3          ),
+    .V128         ( V[7:0]        ),
+    .H            ( H             ),
+    .LVBL         ( LVBL          ),
+    .LHBL         ( LHBL          ),
+    .scrposh_cs   ( scr1posh_cs   ),
+    `ifndef TESTSCR1
+    .SCxON        ( SC1ON         ),
+    .vpos         ( scrposv       ),
+    .flip         ( flip          ),
+    `else // TEST:
+        .SCxON        ( 1'b1          ),
+        .vpos         ( 8'd0          ),
+        .flip         ( 1'b0          ),
+    `endif
+    .din          ( cpu_dout       ),
+    .wr_n         ( wr_n           ),
+    .pause        ( pause          ),
+    // Palette PROMs
+    .prog_addr    ( prog_addr      ),
+    .prom_hi_we   ( prom_scr1hi_we ),
+    .prom_lo_we   ( prom_scr1lo_we ),
+    .prom_din     ( prog_din       ),
+
     // ROM
-    .scr_addr   ( scr1_addr     ),
-    .rom_data   ( scr1_data     ),
-    .rom_ok     ( scr1_ok       ),
-    // pixel output
-    .scr_col    ( scr1_col      ),
-    .scr_pal    ( scr1_pal      )
+    .map_addr     ( map_addr       ),
+    .map_data     ( map_data       ),
+    .scr_addr     ( scr_addr       ),
+    .scrom_data   ( scr_data       ),
+    .scr_pxl      ( scr_pxl        )
 );
 
-jtgng_scroll #(
-    .ROM_AW     ( 15            ),
-    .SCANW      ( 12            ),
-    .HOFFSET    (  0            ),
-    .TILE4      (  1            ), // 4bpp
-    .LAYOUT     (  2           ))
-u_scroll2 (
-    .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
-    // screen position
-    .H          ( H             ),
-    .V          ( V[7:0]        ),
-    .hpos       ( scr2_hpos     ),
-    .vpos       ( scr2_vpos     ),
-    .flip       ( flip          ),
-    // bus arbitrion
-    .Asel       ( cpu_AB[1]     ),
-    .AB         ( cpu_AB[13:2]  ),
-    .scr_cs     ( scr2_cs       ),
-    .din        ( cpu_dout[7:0] ),
-    .dout       ( scr2_dout     ),
-    .wr_n       ( RnW           ),
-    .busy       ( scr2_busy     ),
-    // ROM
-    .scr_addr   ( scr2_addr     ),
-    .rom_data   ( scr2_data     ),
-    .rom_ok     ( scr2_ok       ),
-    // pixel output
-    .scr_col    ( scr2_col      ),
-    .scr_pal    ( scr2_pal      )
-);
 `else
-assign scr_busy   = 1'b1;
 assign scr_col    = 3'd0;
 assign scr_pal    = 3'd0;
-assign scrwin     = 1'd0;
 assign scr_addr   = 15'd0;
 assign scr_dout   = 8'd0;
 `endif
@@ -229,7 +199,7 @@ jtgng_obj #(
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),
-    .ROM_AW     ( 17         ), // MSB is always zero
+    .ROM_AW     ( 16         ),
     .ROM_DW     ( 32         ), // total 256kBytes of object graphic data
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
@@ -266,15 +236,14 @@ u_obj (
 assign obj_AB[13:11] = 3'b111;
 
 `ifndef NOCOLMIX
-jtbiocom_colmix u_colmix (
+jttora_colmix u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),
-    .scr1_pxl     ( { scr1_pal, scr1_col } ),
-    .scr2_pxl     ( { scr2_pal, scr2_col } ),
+    .scr_pxl      ( { scr_pal, scr_col } ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
@@ -310,4 +279,4 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
-endmodule // jtgng_video
+endmodule // jttora_video

@@ -73,13 +73,19 @@ always @(posedge clk) if(cen6) begin
                             HS[3]^scr_hflip,
                             SV[3:0]^{4{scr_vflip}},
                             HS[2]^scr_hflip };
-                            //HS[3:2]^{2{scr_hflip}} }; // bit 5 order changed
             end
         2: begin // Bionic Commando, scroll 2, 8x8 tiles
             scr_attr0 <= { 1'b0, attr[5:3] }; // MSB doesn't connect to anything on the higher levels
             scr_addr[ROM_AW-1:0] <= { attr[2:0], id, // AS
                             SV[2:0]^{3{scr_vflip}},
-                            HS[2]^scr_hflip^flip };
+                            HS[2]^scr_hflip };
+            end
+        3: begin // Tiger Road, 32x32 tiles
+            scr_attr0 <= attr[3:0];
+            scr_addr[ROM_AW-1:0] <= { attr[7:6], id, // AS
+                            HS[4:3]^{2{scr_hflip}},
+                            SV[4:0],
+                            HS[2]^scr_hflip };
             end
         endcase
     end
@@ -89,11 +95,16 @@ always @(posedge clk) if(cen6) begin
             0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
             // Bionic Commando scroll 1
             1: if(HS[2:0]==3'b101 ) begin
-                scr_addr[5] <= HS[3]^scr_hflip^flip;
-                scr_addr[0] <= HS[2]^scr_hflip^flip;
+                scr_addr[5] <= HS[3]^scr_hflip;
+                scr_addr[0] <= HS[2]^scr_hflip;
             end
             // Bionic Commando scroll 2
-            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip;
+            // Tiger Road
+            1: if(HS[2:0]==3'b101 ) begin
+                scr_addr[6:5] <= HS[3]^scr_hflip;
+                scr_addr[0] <= HS[2]^scr_hflip;
+            end
         endcase // LAYOUT
     end
 end

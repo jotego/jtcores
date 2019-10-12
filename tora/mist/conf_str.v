@@ -6,9 +6,9 @@
 
 `define CORE_OSD \
     "OF,Bonus Life,20/70/70,20/80/80;", \
-    "OG,Level Selection,Yes,No;" \
+    "OG,Level Selection,Yes,No;", \
     "OHI,Difficulty,normal,easy,hard,very hard;", \
     "OJK,Lives,3,4,5,7;", \
-    "OL,Continue,No,Yes;"
+    "OL,Continue,No,Yes;",
 `define CORE_KEYMAP \
     "J,Button 1,Button 2,Unused,1P Start,2P Start,Coin,Credits;",

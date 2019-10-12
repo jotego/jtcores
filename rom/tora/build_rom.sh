@@ -26,8 +26,8 @@ dump "localparam SND2_ADDR"  tru_05.12k tru_05.12k # dummy for 2nd sound CPU
 dump "localparam CHAR_ADDR"  tr_01.10d
 dump "localparam MAP_ADDR"   tr_13.7l tr_13.7l # duplicated to round up
 
-# Scroll 1
-echo // Scroll 1/2
+# Scroll
+echo // Scroll
 # lower bytes
 dump "localparam SCRZW_ADDR" tr-03a.2f tr-06a.2h tr-07a.2j tr_08.2l
 # upper bytes

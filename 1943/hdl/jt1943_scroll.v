@@ -21,45 +21,49 @@
 
 `timescale 1ns/1ps
 
-module jt1943_scroll(
-    input              rst,
-    input              clk,  // >12 MHz
-    input              cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
-    input              cen3,
-    input       [ 7:0] V128, // V128-V1
-    input       [ 8:0] H, // H256-H1
-    input              LVBL,
-    input              LHBL,
+module jt1943_scroll #( parameter
+    HOFFSET         = 9'd5,
+    ROM_AW          = 17,
+    SIMFILE_MSB     = "", 
+    SIMFILE_LSB     = "",
+    AS8MASK         = 1'b1,
+    PALETTE         = 1
+)(
+    input                rst,
+    input                clk,  // >12 MHz
+    input                cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
+    input                cen3,
+    input         [ 7:0] V128, // V128-V1
+    input         [ 8:0] H, // H256-H1
+    input                LVBL,
+    input                LHBL,
 
-    input       [ 1:0] scrposh_cs,
-    input       [ 7:0] vpos,
-    input              SCxON,
-    input              flip,
-    input       [ 7:0] din,
-    input              wr_n,
-    input              pause,
+    input         [ 1:0] scrposh_cs,
+    input         [ 7:0] vpos,
+    input                SCxON,
+    input                flip,
+    input         [ 7:0] din,
+    input                wr_n,
+    input                pause,
     // Palette PROMs D1, D2
-    input   [7:0]      prog_addr,
-    input              prom_hi_we,
-    input              prom_lo_we,
-    input   [3:0]      prom_din,
+    input     [7:0]      prog_addr,
+    input                prom_hi_we,
+    input                prom_lo_we,
+    input     [3:0]      prom_din,
 
     // Map ROM
-    output reg  [13:0] map_addr,
-    input       [15:0] map_data,
+    output   reg  [13:0] map_addr,
+    input         [15:0] map_data,
     // Gfx ROM
-    output      [16:0] scr_addr,
-    input       [15:0] scrom_data,
-    output      [ 5:0] scr_pxl
+    output  [ROM_AW-1:0] scr_addr,
+    input         [15:0] scrom_data,
+    output        [ 5:0] scr_pxl
 );
 
-parameter HOFFSET=9'd5;
-parameter SIMFILE_MSB="", SIMFILE_LSB="";
-parameter AS8MASK = 1'b1;
 
 // H goes from 80h to 1FFh
 wire [8:0] Hfix_prev = H+HOFFSET;
-wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
+wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output   offset
 
 reg  [ 4:0] HS;
 reg  [ 7:0] VF, SV, SH, PIC, PIC2,SH2;
@@ -73,7 +77,7 @@ wire [9:0] SCHF = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] }; // SCHF30~21
 // Because we process the signal a bit ahead of time
 // (exactly HOFFSET pixels ahead of time), this creates
 // an unbalance between the vertical line counter change
-// and the current output at the end of each line. It wasn't
+// and the current output   at the end of each line. It wasn't
 // noticeable in 1943, but it can be seen in GunSmoke
 // In order to avoid it, the V counter must be delayed by the same
 // HOFFSET amount
@@ -125,6 +129,8 @@ wire [7:0] dout_low  = map_data[15:8];
 
 jtgng_tile4 #(
     .AS8MASK        ( AS8MASK       ),
+    .PALETTE        ( PALETTE       ),
+    .ROM_AW         ( ROM_AW        ),
     .SIMFILE_LSB    ( SIMFILE_LSB   ),
     .SIMFILE_MSB    ( SIMFILE_MSB   ) )
 u_tile4(
