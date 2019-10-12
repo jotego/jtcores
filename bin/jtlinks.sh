@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Creates a reversed folder structure
-CORES="gng 1943 1942 commando gunsmoke vulgus biocom"
+CORES="gng 1943 1942 commando gunsmoke vulgus biocom tora"
 
 for i in hdl mist mister ver; do
     mkdir -p $JTGNG/$i
