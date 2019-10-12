@@ -204,6 +204,7 @@ jttora_prom_we u_prom_we(
 );
 
 wire [15:0] scr_hpos, scr_vpos;
+wire UDSWn, LDSWn;
 
 `ifndef NOMAIN
 jttora_main u_main(
@@ -224,6 +225,8 @@ jttora_main u_main(
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
+    .UDSWn      ( UDSWn         ),
+    .LDSWn      ( LDSWn         ),
     // SCROLL 
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
@@ -315,6 +318,8 @@ jttora_video #(
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .RnW        ( RnW           ),
+    .UDSWn      ( UDSWn         ),
+    .LDSWn      ( LDSWn         ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
     .pause      ( pause         ),

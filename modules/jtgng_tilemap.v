@@ -28,34 +28,36 @@
 `timescale 1ns/1ps
 
 module jtgng_tilemap #(parameter 
+    DW          = 8,
     SELBIT      = 2,
     INVERT_SCAN = 0,
     DATAREAD    = 3'd2,
     SCANW       = 10,
     BUSY_ON_H0  = 0     // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
 ) (
-    input            clk,
-    input            pxl_cen /* synthesis direct_enable = 1 */,
-    input            Asel,  // This is the address bit that selects
+    input                  clk,
+    input                  pxl_cen /* synthesis direct_enable = 1 */,
+    input                  Asel,  // This is the address bit that selects
                             // between the low and high tile map
+    input            [1:0] dseln,
     input      [SCANW-1:0] AB,
-    input      [7:0] V,
-    input      [7:0] H,
-    input            flip,
-    input      [7:0] din,
-    output reg [7:0] dout,
+    input            [7:0] V,
+    input            [7:0] H,
+    input                  flip,
+    input         [DW-1:0] din,
+    output    reg [DW-1:0] dout,
     // Bus arbitrion
-    input            cs,
-    input            wr_n,
-    output reg       busy,
+    input                  cs,
+    input                  wr_n,
+    output       reg       busy,
     // Pause screen
-    input            pause,
+    input                  pause,
     output reg [SCANW-1:0] scan,
-    input      [7:0] msg_low,
-    input      [7:0] msg_high,
+    input            [7:0] msg_low,
+    input            [7:0] msg_high,
     // Current tile
-    output reg [7:0] dout_low,
-    output reg [7:0] dout_high
+    output       reg [7:0] dout_low,
+    output       reg [7:0] dout_high
 );
 
 reg scan_sel = 1'b1;
@@ -90,7 +92,7 @@ always @(posedge clk) if(pxl_cen) begin : scan_select
         scan_sel <= 1'b0;
 end
 
-reg [7:0] dlatch;
+reg [7:0] udlatch, ldlatch;
 reg last_scan;
 
 always @(posedge clk) begin : mem_mux
@@ -102,23 +104,34 @@ always @(posedge clk) begin : mem_mux
         we_high   <= 1'b0;
     end else begin
         addr      <= AB;
-        we_low    <= cs && !wr_n && !Asel;
-        we_high   <= cs && !wr_n &&  Asel;
-        dlatch    <= din;
+        if( DW == 16 ) begin
+            we_low    <= cs && !wr_n && !dseln[0];
+            we_high   <= cs && !wr_n && !dseln[1];
+            udlatch    <= din[15:8];
+            ldlatch    <= din[7:0];
+        end else begin
+            we_low    <= cs && !wr_n && !Asel;
+            we_high   <= cs && !wr_n &&  Asel;
+            udlatch    <= din;
+            ldlatch    <= din;
+        end
         last_Asel <= Asel;
     end
 
-    // Output latch
+    // Output       latch
     last_scan <= scan_sel;
     if( !last_scan )
-        dout <= last_Asel ? mem_high : mem_low;
+        if(DW==8)
+            dout <= last_Asel ? mem_high : mem_low;
+        else
+            dout <= { mem_high, mem_low };
 end
 
 // block ID
 jtgng_ram #(.aw(SCANW)) u_ram_low(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
-    .data   ( dlatch   ),
+    .data   ( ldlatch  ),
     .addr   ( addr     ),
     .we     ( we_low   ),
     .q      ( mem_low  )
@@ -130,7 +143,7 @@ jtgng_ram #(.aw(SCANW)) u_ram_low(
 jtgng_ram #(.aw(SCANW)/*,.synfile("rom_loadv.hex")*/) u_ram_high(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
-    .data   ( dlatch   ),
+    .data   ( udlatch  ),
     .addr   ( addr     ),
     .we     ( we_high  ),
     .q      ( mem_high )

@@ -119,13 +119,13 @@ end
 
 // Palette is in RAM
 
-jtgng_ram #(.aw(10),.dw(8),.simhexfile("palrg.hex")) u_upal(
+jtgng_ram #(.aw(10),.dw(4),.simhexfile("palrg.hex")) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[15:8]    ),
+    .data       ( DB[11:8]    ),
     .addr       ( pal_addr    ),
     .we         ( pal_uwe     ),
-    .q          ( {pal_red, pal_green } )
+    .q          ( pal_red     )
 );
 
 jtgng_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
@@ -134,7 +134,7 @@ jtgng_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
     .data       ( DB[7:0]     ),
     .addr       ( pal_addr    ),
     .we         ( pal_lwe     ),
-    .q          ( { pal_blue, pal_bright } )
+    .q          ( { pal_green, pal_blue } )
 );
 
 

@@ -39,6 +39,8 @@ module jttora_main(
     output      [15:0] cpu_dout,
     output  reg        char_cs,
     input              char_busy,
+    output             UDSWn,
+    output             LDSWn,
     // scroll
     output reg [15:0]  scr_hpos,
     output reg [15:0]  scr_vpos,
@@ -91,8 +93,8 @@ reg BERRn;
 
 // high during DMA transfer
 wire UDSn, LDSn;
-wire UDSWn = RnW | UDSn;
-wire LDSWn = RnW | LDSn;
+assign UDSWn = RnW | UDSn;
+assign LDSWn = RnW | LDSn;
 
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;

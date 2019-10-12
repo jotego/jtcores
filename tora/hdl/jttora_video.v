@@ -27,6 +27,8 @@ module jttora_video(
     input       [ 7:0]  V,
     input       [ 8:0]  H,
     input               RnW,
+    input               UDSWn,
+    input               LDSWn,
     input               flip,
     input       [15:0]  cpu_dout,
     input               pause,
@@ -93,6 +95,7 @@ wire [9:0] char_scan;
 
 jtgng_char #(
     .HOFFSET( 0),
+    .DW     (16),
     .ROM_AW (14),
     .VFLIP  ( 4),
     .LAYOUT ( 3)
@@ -104,11 +107,12 @@ jtgng_char #(
     .V          ( V             ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
-    .din        ( cpu_dout[7:0] ),
+    .din        ( cpu_dout      ),
     .dout       ( char_dout     ),
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
+    .dseln      ( {UDSWn, LDSWn}),
     .busy       ( char_busy     ),
     // Pause screen
     .pause      ( pause         ),

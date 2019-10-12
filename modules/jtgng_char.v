@@ -23,6 +23,7 @@
 module jtgng_char #(parameter 
     ROM_AW   = 13, 
     PALW     = 4,
+    DW       = 8,
     HOFFSET  = 8'd0,
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
@@ -44,11 +45,12 @@ module jtgng_char #(parameter
     input   [ 7:0]   V, // V128-V1
     input   [ 7:0]   H, // Hfix-H1
     input            flip,
-    input   [ 7:0]   din,
-    output  [ 7:0]   dout,
+    input   [DW-1:0] din,
+    output  [DW-1:0] dout,
     // Bus arbitrion
     input            char_cs,
     input            wr_n,
+    input   [ 1:0]   dseln,
     output           busy,
     // Pause screen
     input            pause,
@@ -80,11 +82,13 @@ wire [7:0] Hfix = H + HOFFSET[7:0]; // Corrects pixel output offset
 localparam DATAREAD = 3'd1;
 
 jtgng_tilemap #(
+    .DW      ( DW       ),
     .DATAREAD( DATAREAD )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .Asel       ( AB[10]    ),
+    .Asel       ( AB[10]    ), // Select upper or lower byte for  8-bit access
+    .dseln      ( dseln     ), // Select upper or lower byte for 16-bit access
     .AB         ( AB[9:0]   ),
     .V          ( V         ),
     .H          ( Hfix      ),
