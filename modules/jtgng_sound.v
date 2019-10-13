@@ -138,8 +138,8 @@ wire fm1_mx = fm1_cs && LAYOUT==3;
 
 always @(posedge clk)
     case( 1'b1 )
-        fm1_mx:   din = fm1_dout;
         fm0_mx:   din = fm0_dout;
+        fm1_mx:   din = fm1_dout;
         latch_cs: din = snd_latch;
         ram_cs:   din = ram_dout;
         default:  din = rom_data;

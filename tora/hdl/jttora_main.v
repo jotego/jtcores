@@ -120,7 +120,7 @@ always @(*) begin
             2'd3: if(A[17]) case(A[16:14])  // 111X
                     3'd0:   obj_cs  = 1'b1; // E_0000 
                     3'd1:   io_cs   = 1'b1; // E_4000
-                    3'd2: if( !UDSWn && !LDSWn && !A[4]) begin // E_8000
+                    3'd2: if( (!UDSWn || !LDSWn) && !A[4]) begin // E_8000
                         // scrpt_cs
                         $display("SCRPTn");
                         case( A[3:1]) // SCRPTn in the schematics
@@ -144,11 +144,17 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        scrposh <= 10'd0;
-        scrposv <= 10'd0;
+        scrposh <= 16'd0;
+        scrposv <= 16'd0;
     end else if(cpu_cen) begin
-        if( scrhpos_cs && !RnW) scrposh <= cpu_dout;
-        if( scrvpos_cs && !RnW) scrposv <= cpu_dout;
+        if( scrhpos_cs ) begin
+            if(!UDSWn) scrposh[15:8] <= cpu_dout[15:8];
+            if(!LDSWn) scrposh[ 7:0] <= cpu_dout[ 7:0];
+        end
+        if( scrvpos_cs ) begin
+            if(!UDSWn) scrposv[15:8] <= cpu_dout[15:8];
+            if(!LDSWn) scrposv[ 7:0] <= cpu_dout[ 7:0];
+        end
     end
 end
 
@@ -157,6 +163,7 @@ always @(posedge clk)
     if( rst ) begin
         flip         <= 1'b0;
         snd_latch    <= 8'b0;
+        scr_bank     <= 1'b0;
     end
     else if(cpu_cen) begin
         if( !UDSWn && io_cs)

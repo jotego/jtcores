@@ -147,6 +147,7 @@ jtgng_charmsg u_msg(
 );
 `else
 assign char_mrdy = 1'b1;
+assign char_pxl  = 6'h3f;
 `endif
 
 `ifndef NOSCR
@@ -154,16 +155,13 @@ jt1943_scroll #(
     .PALETTE    ( 0        ),
     .LAYOUT     ( LAYOUT   ),
     .ROM_AW     ( 18       ),
-    .HOFFSET    ( 0        ))
+    .HOFFSET    ( 4        ))
 u_scroll (
     .rst          ( rst            ),
     .clk          ( clk            ),
     .cen6         ( cen6           ),
-    .cen3         ( cen3           ),
     .V128         ( V[7:0]         ),
     .H            ( H              ),
-    .LVBL         ( LVBL           ),
-    .LHBL         ( LHBL           ),
     .SCxON        ( 1'b1           ),
     .hpos         ( scrposh        ),
     .vpos         ( scrposv        ),
@@ -184,8 +182,7 @@ u_scroll (
 );
 
 `else
-assign scr_col    = 3'd0;
-assign scr_pal    = 3'd0;
+assign scr_pxl    = 9'h0;
 assign scr_addr   = 15'd0;
 assign map_addr   = 14'd0;
 `endif

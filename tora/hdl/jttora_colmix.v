@@ -76,12 +76,10 @@ end
 
 always @(posedge clk) if(cen6) begin
     case( selbus )
-        2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
-        2'b10: pixel_mux[7:0] <= obj_pxl;
-        2'b01: pixel_mux[7:0] <= scr_pxl[7:0];
-        2'b00: pixel_mux[7:0] <= 8'd0;
+        2'b11: pixel_mux <= {2'b11, 2'b0, char_pxl };
+        2'b10: pixel_mux <= {2'b10, obj_pxl        };
+        2'b01: pixel_mux <= {2'b01, scr_pxl[7:0]   };
     endcase
-    pixel_mux[9:8] <= selbus;
 end
 
 // Blanking delay
@@ -119,7 +117,7 @@ end
 
 // Palette is in RAM
 
-jtgng_ram #(.aw(10),.dw(4),.simhexfile("palrg.hex")) u_upal(
+jtgng_ram #(.aw(10),.dw(4),.simhexfile("palr.hex")) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[11:8]    ),
@@ -128,7 +126,7 @@ jtgng_ram #(.aw(10),.dw(4),.simhexfile("palrg.hex")) u_upal(
     .q          ( pal_red     )
 );
 
-jtgng_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
+jtgng_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[7:0]     ),

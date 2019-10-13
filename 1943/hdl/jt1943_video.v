@@ -214,11 +214,8 @@ u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
-    .cen3         ( cen3          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
-    .LVBL         ( LVBL          ),
-    .LHBL         ( LHBL          ),
     .hpos         ( scr1posh      ),
     `ifndef TESTSCR1
     .SCxON        ( SC1ON         ),
@@ -257,10 +254,8 @@ generate
             .rst          ( rst           ),
             .clk          ( clk           ),
             .cen6         ( cen6          ),
-            .cen3         ( cen3          ),
             .V128         ( V[7:0]        ),
             .H            ( H             ),
-            .LVBL         ( LVBL          ),
             .hpos         ( scr2posh      ),
             `ifndef TESTSCR2
             .SCxON        ( SC2ON         ),

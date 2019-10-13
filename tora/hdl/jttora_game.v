@@ -268,6 +268,7 @@ assign RnW         = 1'b1;
 assign scrposh     = 16'd0;
 assign scrposv     = 16'd0;
 assign cpu_cen     = cen12;
+assign scr_addr[18]= 1'b0;
 `endif
 
 `ifndef NOSOUND
