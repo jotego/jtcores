@@ -101,7 +101,7 @@ wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
 wire [18:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12b, cen6b, cen_fm;
+wire        cen10, cen10b, cen6b, cen_fm;
 
 wire        rom_ready;
 wire        main_ok, scr_ok, snd_ok, obj_ok, char_ok;
@@ -134,12 +134,18 @@ end
 
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen12b ( cen12b    ),
+    .cen12  (           ),
+    .cen12b (           ),
     .cen6   ( cen6      ),
     .cen6b  ( cen6b     ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
+);
+
+jtgng_cen10 u_cen10(
+    .clk    ( clk       ),
+    .cen10  ( cen10     ),
+    .cen10b ( cen10b    )
 );
 
 // temporary values for FM clock enables
@@ -208,8 +214,8 @@ wire UDSWn, LDSWn;
 jttora_main u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen12b     ( cen12b        ),
+    .cen10      ( cen10         ),
+    .cen10b     ( cen10b        ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),

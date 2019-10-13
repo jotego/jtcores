@@ -77,7 +77,7 @@ always @(posedge clk) if(cen6) begin
     if( HS[2:0]==3'd1 ) begin // attr/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
         case( LAYOUT ) 
-        0: begin // 1943
+        0: begin // 1943, 32x32 tiles
             scr_attr0 <= attr[5:2];
             scr_addr[ROM_AW-1:1] <= { attr[0] & AS8MASK, id, // AS
                             HS[4:3]^{2{scr_hflip}},
@@ -118,8 +118,7 @@ always @(posedge clk) if(cen6) begin
             // Bionic Commando scroll 2
             2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip;
             // Tiger Road
-            1: if(HS[2:0]==3'b101 ) begin
-                scr_addr[6:5] <= HS[3]^scr_hflip;
+            3: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip;
             end
         endcase // LAYOUT

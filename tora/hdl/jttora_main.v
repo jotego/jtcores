@@ -24,8 +24,8 @@
 module jttora_main(
     input              rst,
     input              clk,
-    input              cen12,
-    input              cen12b,
+    input              cen10,
+    input              cen10b,
     output             cpu_cen,
     // Timing
     output  reg        flip,
@@ -88,7 +88,7 @@ reg         scrhpos_cs, scrvpos_cs;
 wire        ASn;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = cen12;
+assign cpu_cen = cen10;
 reg BERRn;
 
 // high during DMA transfer
@@ -369,8 +369,8 @@ fx68k u_cpu(
     .clk        ( clk         ),
     .extReset   ( rst         ),
     .pwrUp      ( rst         ),
-    .enPhi1     ( cen12       ),
-    .enPhi2     ( cen12b      ),
+    .enPhi1     ( cen10       ),
+    .enPhi2     ( cen10b      ),
 
     // Buses
     .eab        ( { ncA, A }  ),
