@@ -44,7 +44,6 @@ module jt1943_scroll #( parameter
     input         [ 7:0] vpos,
     input                SCxON,
     input                flip,
-    input                wr_n,
     input                pause,
     // Palette PROMs D1, D2
     input     [7:0]      prog_addr,

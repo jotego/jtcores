@@ -81,8 +81,7 @@ wire [13:1] cpu_AB;
 wire        snd_cs;
 wire        char_cs, col_uw, col_lw;
 wire        flip;
-wire [ 7:0] char_dout;
-wire [15:0] cpu_dout;
+wire [15:0] char_dout, cpu_dout;
 wire        rd, cpu_cen;
 wire        char_busy;
 wire        service = 1'b1;
@@ -102,7 +101,7 @@ wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
 wire [18:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12b, cen6b, cen_fm, cen_fm2;
+wire        cen12b, cen6b, cen_fm;
 
 wire        rom_ready;
 wire        main_ok, scr_ok, snd_ok, obj_ok, char_ok;
@@ -145,7 +144,6 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
 
 // temporary values for FM clock enables
 assign cen_fm  = cen3;  
-assign cen_fm2 = cen1p5;
 
 jttora_dip u_dip(
     .clk        ( clk           ),
@@ -272,33 +270,32 @@ assign scrposv     = 16'd0;
 assign cpu_cen     = cen12;
 `endif
 
-`define NOSOUND
 `ifndef NOSOUND
-jtbiocom_sound u_sound (
+jtgng_sound #(.LAYOUT(3)) u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
-    .cen_fm         ( cen_fm         ),
-    .cen_fm2        ( cen_fm2        ),
+    .cen3           ( cen_fm         ),
+    .cen1p5         ( cen1p5         ),  // unused
     // Interface with main CPU
+    .sres_b         ( 1'b1           ),  // unused
     .snd_latch      ( snd_latch      ),
-    // Interface with MCU
-    .snd_din        ( snd_din        ),
-    .snd_dout       ( snd_dout       ),
-    .snd_mcu_wr     ( snd_mcu_wr     ),
+    .snd_int        ( 1'b1           ),  // unused
+    // sound control
+    .enable_psg     ( enable_psg     ),
+    .enable_fm      ( enable_fm      ),
+    .psg_gain       ( psg_gain       ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .left           ( snd_left       ),
-    .right          ( snd_right      ),
-    .sample         (     sample     )
+    .ym_snd         ( snd            )
 );
 `else
-assign snd_addr   = 15'd0;
-assign snd_cs     = 1'b0;
-assign snd        = 16'd0;
+assign snd_addr = 15'd0;
+assign snd_cs   = 1'b0;
+assign snd      = 16'b0;
 `endif
 
 reg pause;
@@ -416,7 +413,7 @@ jtgng_rom #(
     .snd_addr    ( snd_addr      ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( 0             ),
+    .scr2_addr   ( 15'd0         ),
     .map1_addr   ( map_addr      ),
     .map2_addr   ( 14'd0         ),
 

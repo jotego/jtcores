@@ -71,7 +71,7 @@ always @(*) begin
     seladdr[6]   = enable_char & char_blank_n;
     seladdr[5]   = enable_obj  & ~obj_blank;
     seladdr[4]   = scr_pxl[8]; // Scroll wins
-    seladdr[3:0] = 4'hf;
+    seladdr[3:0] = scr_pxl[3:0];
 end
 
 always @(posedge clk) if(cen6) begin
@@ -116,7 +116,6 @@ always @(posedge clk) if(cen6) begin
     coloff <= pre_BL!=2'b11;
     {LHBL_dly, LVBL_dly} <= pre_BL;
 end
-
 
 // Palette is in RAM
 

@@ -50,4 +50,4 @@ fi
 echo "Game ROM length: " $GAME_ROM_LEN
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN \
     -sysname tora -modules ../../../modules -d SCANDOUBLER_DISABLE=1 \
-    -d NOSCR $*
+    $*

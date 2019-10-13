@@ -5,6 +5,7 @@
 ../../hdl/jttora_main.v
 ../../hdl/jttora_prom_we.v
 ../../hdl/jttora_video.v
+../../../1943/hdl/jt1943_scroll.v
 ../../../modules/fx68k/fx68kAlu.sv
 ../../../modules/fx68k/fx68k.sv
 ../../../modules/fx68k/uaddrPla.sv

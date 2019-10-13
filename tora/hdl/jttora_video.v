@@ -16,6 +16,10 @@
     Version: 1.0
     Date: 12-10-2019 */
 
+// Map ROM: 32 kBytes = 2^14 16-word locations
+// 32x32 tiles = 5 + 5 bits
+// HPOS/VPOS = 16 bits, 5 for in-tile offset, remaining 11 bits, effective: 7 bits only (4 MSBs unused)
+
 module jttora_video(
     input               rst,
     input               clk,
@@ -34,7 +38,7 @@ module jttora_video(
     input               pause,
     // CHAR
     input               char_cs,
-    output      [ 7:0]  char_dout,
+    output      [15:0]  char_dout,
     input               char_ok,
     output              char_busy,
     output      [13:0]  char_addr,
@@ -80,7 +84,8 @@ module jttora_video(
 );
 
 // parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8;
+parameter  AVATAR_MAX    = 8;
+localparam LAYOUT        = 3; 
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
@@ -94,11 +99,11 @@ wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET( 0),
-    .DW     (16),
-    .ROM_AW (14),
-    .VFLIP  ( 4),
-    .LAYOUT ( 3)
+    .HOFFSET(      0 ),
+    .DW     (     16 ),
+    .ROM_AW (     14 ),
+    .VFLIP  (      4 ),
+    .LAYOUT ( LAYOUT )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -147,7 +152,7 @@ assign char_mrdy = 1'b1;
 `ifndef NOSCR
 jt1943_scroll #(
     .PALETTE    ( 0        ),
-    .LAYOUT     ( 4        ),
+    .LAYOUT     ( LAYOUT   ),
     .ROM_AW     ( 18       ),
     .HOFFSET    ( 0        ))
 u_scroll (
@@ -163,8 +168,6 @@ u_scroll (
     .hpos         ( scrposh        ),
     .vpos         ( scrposv        ),
     .flip         ( flip           ),
-    .din          ( cpu_dout       ),
-    .wr_n         ( wr_n           ),
     .pause        ( pause          ),
     // No palette PROMs
     .prog_addr    (                ),
@@ -189,7 +192,7 @@ assign map_addr   = 14'd0;
 
 jtgng_obj #(
     .AVATAR_MAX ( AVATAR_MAX ),
-    .LAYOUT     ( 3          ),
+    .LAYOUT     ( LAYOUT     ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 5'd31      ),
     .PALW       ( 4          ),

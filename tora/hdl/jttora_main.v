@@ -35,7 +35,7 @@ module jttora_main(
     // Sound
     output  reg  [7:0] snd_latch,
     // Characters
-    input        [7:0] char_dout,
+    input       [15:0] char_dout,
     output      [15:0] cpu_dout,
     output  reg        char_cs,
     input              char_busy,
@@ -272,7 +272,7 @@ end
 always @(*)
     case( {owram_cs, char_cs, io_cs} )
         3'b100:  cpu_din = owram_dout;
-        3'b010:  cpu_din = { 8'hff, char_dout };
+        3'b010:  cpu_din = char_dout;
         3'b001:  cpu_din = cabinet_input;
         default: cpu_din = rom_data;
     endcase

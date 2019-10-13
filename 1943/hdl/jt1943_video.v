@@ -229,7 +229,6 @@ u_scroll1 (
         .vpos         ( 8'd0          ),
         .flip         ( 1'b0          ),
     `endif
-    .wr_n         ( wr_n           ),
     .pause        ( pause          ),
     // Palette PROMs
     .prog_addr    ( prog_addr      ),
@@ -272,8 +271,6 @@ generate
                 .vpos         ( 8'd0          ),
                 .flip         ( 1'b0          ),
             `endif
-            .wr_n         ( wr_n           ),
-
             .pause        ( pause          ),
             // Palette PROMs
             .prog_addr    ( prog_addr      ),
