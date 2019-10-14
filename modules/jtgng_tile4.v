@@ -64,6 +64,11 @@ always @(*) begin
             scr_vflip = attr[6];        
         end
         3: begin // Tiger Road
+            // attribute bits:
+            // 3-0 palette
+            // 4   SCRWIN
+            // 5   HFLIP
+            // 7-6 ID
             scr_hflip = attr[5];
             scr_vflip = 1'b0;
         end
