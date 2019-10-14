@@ -28,7 +28,6 @@
 ../../../modules/jtgng_romflex.v
 ../../../modules/jtgng_romrq.v
 ../../../modules/jtgng_rom.v
-../../../modules/jtgng_scroll.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_tile4.v
 ../../../modules/jtgng_tilemap.v

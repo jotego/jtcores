@@ -57,10 +57,11 @@ module jtbiocom_mcu(
     input                prom_we
 );
 
-reg  [15:0] rom_addr, ext_addr;
-reg  [ 6:0] ram_addr;
-reg  [ 7:0] ram_data;
-reg         ram_we;
+wire [15:0] rom_addr;
+reg  [15:0] ext_addr;
+wire [ 6:0] ram_addr;
+wire [ 7:0] ram_data;
+wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p3_o;
@@ -114,7 +115,7 @@ end
 
 jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
     .clk        ( clk               ),
-    .cen        ( 1'b1              ),
+    .cen        ( cen6a             ),
     .data       ( prom_din          ),
     .rd_addr    ( rom_addr[11:0]    ),
     .wr_addr    ( prog_addr         ),
@@ -124,7 +125,7 @@ jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
 
 jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
     .clk        ( clk               ),
-    .cen        ( 1'b1              ),
+    .cen        ( cen6a             ),
     .addr       ( ram_addr          ),
     .data       ( ram_data          ),
     .we         ( ram_we            ),
@@ -134,16 +135,10 @@ jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
 wire clk2 = clk&cen6a; // cheap clock gating
 
 wire [15:0] rom_addr0, ext_addr0;
-wire [ 6:0] ram_addr0;
-wire [ 7:0] mcu_dout0, ram_data0;
+wire [ 7:0] mcu_dout0;
+wire        mcu_wr0;
 
 always @(posedge clk) if(cen6b) begin
-    rom_addr <= rom_addr0;
-    if(ram_en) begin
-        ram_addr <= ram_addr0;
-        ram_data <= ram_data0;
-        ram_we   <= ram_we0;
-    end
     ext_addr <= ext_addr0;
     mcu_wr   <= mcu_wr0;
     mcu_dout <= mcu_dout0;
@@ -154,12 +149,12 @@ mc8051_core u_mcu(
     .reset      ( rst       ),
     // code ROM
     .rom_data_i ( rom_data  ),
-    .rom_adr_o  ( rom_addr0 ),
+    .rom_adr_o  ( rom_addr  ),
     // internal RAM
     .ram_data_i ( ram_q     ),
-    .ram_data_o ( ram_data0 ),
-    .ram_adr_o  ( ram_addr0 ),
-    .ram_wr_o   ( ram_we0   ),
+    .ram_data_o ( ram_data  ),
+    .ram_adr_o  ( ram_addr  ),
+    .ram_wr_o   ( ram_we    ),
     .ram_en_o   ( ram_en    ),
     // external memory: connected to main CPU
     .datax_i    ( mcu_din   ),
