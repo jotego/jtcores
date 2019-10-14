@@ -41,9 +41,9 @@ module jtbiocom_mcu(
     input                cen6b,       //  6   MHz
     // Main CPU interface
     input                DMAONn,
-    output reg   [ 7:0]  mcu_dout,
+    output       [ 7:0]  mcu_dout,
     input        [ 7:0]  mcu_din,
-    output reg           mcu_wr,   // always write to low bytes
+    output               mcu_wr,   // always write to low bytes
     output       [16:1]  mcu_addr,
     output               mcu_brn,   // RQBSQn
     output               DMAn,
@@ -58,7 +58,7 @@ module jtbiocom_mcu(
 );
 
 wire [15:0] rom_addr;
-reg  [15:0] ext_addr;
+wire [15:0] ext_addr;
 wire [ 6:0] ram_addr;
 wire [ 7:0] ram_data;
 wire        ram_we;
@@ -123,7 +123,7 @@ jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
     .q          ( rom_data          )
 );
 
-jtgng_ram #(.aw(7),.cen_rd(0)) u_ramu(
+jtgng_ram #(.aw(7),.cen_rd(1)) u_ramu(
     .clk        ( clk               ),
     .cen        ( cen6a             ),
     .addr       ( ram_addr          ),
@@ -137,11 +137,13 @@ wire clk2 = clk&cen6a; // cheap clock gating
 wire [15:0] rom_addr0, ext_addr0;
 wire [ 7:0] mcu_dout0;
 wire        mcu_wr0;
+reg  [ 7:0] mcu_din0;
 
-always @(posedge clk) if(cen6b) begin
-    ext_addr <= ext_addr0;
-    mcu_wr   <= mcu_wr0;
-    mcu_dout <= mcu_dout0;
+always @(posedge clk) if(cen6a) begin
+//     ext_addr <= ext_addr0;
+//     mcu_wr   <= mcu_wr0;
+//     mcu_dout <= mcu_dout0;
+    mcu_din0 <= mcu_din;
 end
 
 mc8051_core u_mcu(
@@ -157,10 +159,10 @@ mc8051_core u_mcu(
     .ram_wr_o   ( ram_we    ),
     .ram_en_o   ( ram_en    ),
     // external memory: connected to main CPU
-    .datax_i    ( mcu_din   ),
-    .datax_o    ( mcu_dout0 ),
-    .adrx_o     ( ext_addr0 ),
-    .wrx_o      ( mcu_wr0  ),
+    .datax_i    ( mcu_din0  ),
+    .datax_o    ( mcu_dout  ),
+    .adrx_o     ( ext_addr  ),
+    .wrx_o      ( mcu_wr    ),
     // interrupts
     .int0_i     ( int0      ),
     .int1_i     ( int1      ),

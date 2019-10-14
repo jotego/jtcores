@@ -165,15 +165,17 @@ always @(*) begin
 end
 
 // MCU DMA address decoder
-reg mcu_obj_cs, mcu_ram_cs, mcu_other_cs;
+reg mcu_obj_cs, mcu_ram_cs, mcu_io_cs, mcu_other_cs;
 
 always @(*) begin
     mcu_obj_cs   = 1'b0;
     mcu_ram_cs   = 1'b0;
+    mcu_io_cs    = 1'b0;
     mcu_other_cs = 1'b0;
     if( !mcu_DMAn )
         case(mcu_addr[16:14])
             3'd0:    mcu_obj_cs   = 1'b1;
+            3'd1:    mcu_io_cs    = 1'b1;
             3'd7:    mcu_ram_cs   = 1'b1;
             default: mcu_other_cs = 1'b1;
         endcase
@@ -211,7 +213,7 @@ always @(posedge clk)
 reg [15:0] cabinet_input;
 
 always @(posedge clk) if(cpu_cen) begin
-    cabinet_input <= A[1] ?
+    cabinet_input <= (!mcu_DMAn ? mcu_addr[1] : A[1]) ?
         { dipsw_a, dipsw_b } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
@@ -235,11 +237,13 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-always @(*) begin
-    if( mcu_obj_cs )
-        mcu_din = oram_dout[7:0];
-    else
-        mcu_din = wram_dout[7:0];
+always @(posedge clk) begin
+    case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
+        3'b100:  mcu_din <= oram_dout[7:0];
+        3'b010:  mcu_din <= wram_dout[7:0];
+        3'b001:  mcu_din <= cabinet_input[7:0];
+        default: mcu_din <= 8'hff;
+    endcase
 end
 
 /////////////////////////////////////////////////////
