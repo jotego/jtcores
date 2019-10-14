@@ -319,7 +319,7 @@ jttora_video #(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB        ),
-    .V          ( V[7:0]        ),
+    .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
     .UDSWn      ( UDSWn         ),
