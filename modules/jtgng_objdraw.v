@@ -131,7 +131,7 @@ generate
         always @(posedge clk) if(cen6) begin
             if( pxlcnt[1:0]==2'd3 ) begin
                 obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-                    { id, pxlcnt[3]^obj_hflip, Vobj^{4{obj_vflip}} };
+                    { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}} };
             end
         end
     end
