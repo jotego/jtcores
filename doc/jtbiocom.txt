@@ -3,17 +3,17 @@ JTTora FPGA clone of Tiger Road arcade faithful to original hardware
 
 Please, read the main README file too.
 
-You have just got an expensive $295 PCB according to eBay. You have in your hands
+You have just got an expensive €175 PCB according to eBay. You have in your hands
 a faithful conversion of the circuits on the Tiger Road PCB to FPGA. If you come from
 the emulation world here are some of the things different from emulators:
 
 -Real CPU/GPU bus sharing with delays
 -Sprites handled with DMA exactly as in the original hardware
--Palettes determined by the original PROMs
+-Exact timing for bus sharing with microcontroller
 -Graphics priority handled by the original PROM
 -No lag between image and input. Data is being sent to the screen in real time.
 -3 button input
--Sound sampling rate: 41.663 kHz (original, 125/3 kHz)
+-Sound sampling rate: exactly the original
 -Accurate FPS 100% same as real hardware
 
 These technical aspects mean that the game play will be different from an emulator
@@ -31,8 +31,9 @@ so it will be the same the next time you powerup.
 
 TEST SCREEN
 ===========
-Select the test screen through the OSD menu.  To pass on to the next test 
-screen press both action buttons.
+Select the test screen through the OSD menu. Press 1P coin button during ROM
+test to access all test sections. To pass on to the next test screen press 
+both action buttons.
 
 TECHNICAL INFORMATION
 =====================
