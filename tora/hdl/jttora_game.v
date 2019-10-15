@@ -148,8 +148,10 @@ jtgng_cen10 u_cen10(
     .cen10b ( cen10b    )
 );
 
-// temporary values for FM clock enables
-assign cen_fm  = cen3;  
+jtgng_cen3p57 u_cen3p57(
+    .clk      ( clk       ),
+    .cen_3p57 ( cen_fm    )
+);
 
 jttora_dip u_dip(
     .clk        ( clk           ),
