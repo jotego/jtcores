@@ -1,5 +1,5 @@
-JTTora FPGA clone of Tiger Road arcade faithful to original hardware
-======================================================================
+JTTora FPGA clone of Bionic Commando arcade faithful to original hardware
+=========================================================================
 
 Please, read the main README file too.
 
