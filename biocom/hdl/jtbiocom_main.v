@@ -92,8 +92,7 @@ wire [3:0] ncA;
 wire [24:0] A_full = {ncA, A,1'b0};
 `endif
 wire [15:0] wram_dout;
-reg         BRn, BGACKn;
-wire        BGn;
+wire        BRn, BGACKn, BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
 wire        ASn;
@@ -423,32 +422,17 @@ end
 // but fx68k does not support it, so HALT operation is implemented
 // through regular bus arbitrion
 
-reg bus_dma;
+wire [1:0] dev_br = { ~mcu_brn, obj_br };
+assign bus_ack = ~BGACKn;
 
-assign bus_ack = bus_dma;
-
-always @(posedge clk, posedge rst)
-    if( rst ) begin
-        BRn     <= 1'b1;
-        BGACKn  <= 1'b1;
-        bus_dma <= 1'b0;
-    end else begin
-        case( bus_dma )
-            1'b0: begin
-                if( !BRn && !BGn ) begin
-                    bus_dma <= 1'b1;
-                    BGACKn  <= 1'b0;
-                end
-            end
-            1'b1: begin
-                if( BRn ) begin
-                    bus_dma <= 1'b0;
-                end
-                BGACKn <= BGn;
-            end
-        endcase
-        BRn <= ~(~mcu_brn | obj_br); // obj_br is active high
-    end
+jtframe_68kdma #(.BW(2)) u_arbitration(
+    .clk        (  clk          ),
+    .rst        (  rst          ),
+    .cpu_BRn    (  BRn          ),
+    .cpu_BGACKn (  BGACKn       ),
+    .cpu_BGn    (  BGn          ),
+    .dev_br     (  dev_br       )
+);
 
 fx68k u_cpu(
     .clk        ( clk         ),

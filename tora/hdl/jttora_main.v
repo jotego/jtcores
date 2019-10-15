@@ -81,8 +81,7 @@ wire [3:0] ncA;
 wire [24:0] A_full = {ncA, A,1'b0};
 `endif
 wire [15:0] wram_dout;
-reg         BRn, BGACKn;
-wire        BGn;
+wire        BRn, BGACKn, BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scrhpos_cs, scrvpos_cs;
 wire        ASn;
@@ -334,39 +333,16 @@ always @(posedge clk, posedge rst) begin : int_gen
     end
 end
 
-// Original design uses HALT signal instead of BR/BG/BGACK triad
-// but fx68k does not support it, so HALT operation is implemented
-// through regular bus arbitrion
+assign bus_ack = ~BGACKn;
 
-reg bus_dma;
-
-assign bus_ack = bus_dma;
-
-always @(posedge clk, posedge rst)
-    if( rst ) begin
-        BRn     <= 1'b1;
-        BGACKn  <= 1'b1;
-        bus_dma <= 1'b0;
-    end else begin
-        case( bus_dma )
-            1'b0: begin
-                if( !BRn && !BGn ) begin
-                    bus_dma <= 1'b1;
-                    BGACKn  <= 1'b0;
-                    `ifdef SIMULATION
-                    $display("Bus requested");
-                    `endif
-                end
-            end
-            1'b1: begin
-                if( BRn ) begin
-                    bus_dma <= 1'b0;
-                end
-                BGACKn <= BGn;
-            end
-        endcase
-        BRn <= ~obj_br; // obj_br is active high
-    end
+jtframe_68kdma u_arbitration(
+    .clk        (  clk          ),
+    .rst        (  rst          ),
+    .cpu_BRn    (  BRn          ),
+    .cpu_BGACKn (  BGACKn       ),
+    .cpu_BGn    (  BGn          ),
+    .dev_br     (  obj_br       )
+);
 
 fx68k u_cpu(
     .clk        ( clk         ),

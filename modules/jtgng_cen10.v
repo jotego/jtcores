@@ -23,7 +23,7 @@ module jtgng_cen10(
     output  reg cen10b
 );
 
-reg [2:0] cencnt=5'd0;
+reg [2:0] cencnt=3'd0;
 reg [2:0] muxcnt=3'd0;
 reg [2:0] next=3'd4, nextb=3'd2;
 

@@ -216,7 +216,6 @@ wire scr1_cs, scr2_cs;
 wire [9:0] scr1_hpos, scr1_vpos;
 wire [8:0] scr2_hpos, scr2_vpos;
 
-
 `ifndef NOMAIN
 jtbiocom_main u_main(
     .rst        ( rst_game      ),

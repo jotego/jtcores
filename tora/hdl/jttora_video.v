@@ -187,6 +187,11 @@ assign scr_addr   = 15'd0;
 assign map_addr   = 14'd0;
 `endif
 
+// Object DMA transfer takes ~164us as per bootleg PCB measurement
+// pin A1 toggles as 250ns low, 250ns high
+// So address bus is toggling with a 4MHz clock
+// and at 250ns per address, it can sweep 640 locations in 160us.
+
 jtgng_obj #(
     .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( LAYOUT     ),

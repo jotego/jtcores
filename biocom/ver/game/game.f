@@ -12,6 +12,7 @@
 ../../../modules/fx68k/uaddrPla.sv
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+../../../modules/jtframe/hdl/cpu/jtframe_68kdma.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v

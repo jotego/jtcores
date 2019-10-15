@@ -54,6 +54,19 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 // It takes 170us to copy the whole ('h1FF) buffer
 
 reg mem_sel;
+reg OKOUT_latch;
+
+// This "latch" prevents the circuit from missing requests
+// that fall in between two cen6 pulses. This is important
+// for M68000 CPUs which run faster than 6MHz
+always @(posedge clk, posedge rst)
+    if( rst ) begin
+        OKOUT_latch <= 1'b0;
+    end else begin
+        if( OKOUT )
+            OKOUT_latch <= 1'b1;
+        else if( cen6 ) OKOUT_latch <= 1'b0; // clear it with cen6
+    end
 
 always @(posedge clk, posedge rst)
     if( rst ) begin
@@ -61,7 +74,7 @@ always @(posedge clk, posedge rst)
         bus_state <= ST_IDLE;
     end else if(cen6) begin
         case( bus_state )
-            ST_IDLE: if( OKOUT ) begin
+            ST_IDLE: if( OKOUT_latch ) begin
                     bus_req   <= 1'b1;
                     bus_state <= ST_WAIT;
                 end
@@ -69,7 +82,7 @@ always @(posedge clk, posedge rst)
                     bus_req <= 1'b0;
                     blen    <= 1'b0;
                 end
-            ST_WAIT: if( bus_ack && mem_sel == MEM_PREBUF && !LVBL ) begin
+            ST_WAIT: if( bus_ack && mem_sel == MEM_PREBUF /*&& !LVBL*/ ) begin
                 blen      <= 1'b1;
                 bus_state <= ST_BUSY;
             end
