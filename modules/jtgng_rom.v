@@ -344,51 +344,45 @@ if( loop_rst || downloading ) begin
 end else begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
     // if( data_rdy ) begin
-    //     data_sel <= 'd0;
+    //     data_sel <= 8'd0;
     // end
     if( sdram_ack ) sdram_req <= 1'b0;
     // accept a new request
     if( data_sel==8'd0 || data_rdy ) begin
         sdram_req <= 
-           ( main_req & ~data_sel[0] )
-         | ( map1_req & ~data_sel[2] )
-         | ( map2_req & ~data_sel[3] )
-         | ( scr1_req & ~data_sel[4] )
-         | ( scr2_req & ~data_sel[5] ) 
-         | ( char_req & ~data_sel[1] ) 
-         | ( obj_req  & ~data_sel[6] )
-         | ( snd_req  & ~data_sel[7] );
-        data_sel <= 'd0;
+           |{main_req, map1_req, map2_req, scr1_req, scr2_req,
+             char_req, obj_req,  snd_req };
+        data_sel <= 8'd0;
         case( 1'b1 )
-            !data_sel[7] & snd_req: begin
-                sdram_addr <= snd_offset + { {22-snd_aw{1'b0}}, snd_addr_req[14:1] };
+            snd_req: begin
+                sdram_addr <= snd_offset + { {23-snd_aw{1'b0}}, snd_addr_req[snd_aw-1:1] };
                 data_sel[7] <= 1'b1;
             end
-            !data_sel[4] & scr1_req: begin
+            scr1_req: begin
                 sdram_addr <= scr1_offset + { {22-scr1_aw{1'b0}}, scr1_addr_req };
                 data_sel[4] <= 1'b1;
             end
-            !data_sel[5] & scr2_req: begin
+            scr2_req: begin
                 sdram_addr <= scr2_offset + { {22-scr2_aw{1'b0}}, scr2_addr_req };
                 data_sel[5] <= 1'b1;
             end
-            !data_sel[2] & map1_req: begin
+            map1_req: begin
                 sdram_addr <= map1_offset + { 8'b0, map1_addr_req };
                 data_sel[2] <= 1'b1;
             end
-            !data_sel[3] & map2_req: begin
+            map2_req: begin
                 sdram_addr <= map2_offset + { 8'b0, map2_addr_req };
                 data_sel[3] <= 1'b1;
             end
-            !data_sel[6] & obj_req: begin
+            obj_req: begin
                 sdram_addr <= obj_offset + { {22-obj_aw{1'b0}}, obj_addr_req };
                 data_sel[6] <= 1'b1;
             end
-            !data_sel[0] & main_req: begin
-                sdram_addr <= { {22-main_aw{1'b0}}, main_addr_req[main_aw-1:1] };
+            main_req: begin
+                sdram_addr <= { {23-main_aw{1'b0}}, main_addr_req[main_aw-1:1] };
                 data_sel[0] <= 1'b1;
             end
-            !data_sel[1] & char_req: begin
+            char_req: begin
                 sdram_addr <= char_offset + { {22-char_aw{1'b0}}, char_addr_req };
                 data_sel[1] <= 1'b1;
             end

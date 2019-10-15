@@ -10,8 +10,8 @@
 ../../../modules/fx68k/fx68k.sv
 ../../../modules/fx68k/uaddrPla.sv
 # ../../../modules/jt12/hdl/jt12_rst.v
-# ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
-# ../../../modules/jtframe/hdl/jtframe_z80wait.v
+../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtgng_cen.v
@@ -34,3 +34,6 @@
 ../../../modules/jtgng_tilemap.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_true_dual_ram.v
+../../../modules/jtgng_sound.v
+../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
+../../../modules/jt12/hdl/mixer/jt12_mixer.v

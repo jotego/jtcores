@@ -70,7 +70,7 @@ always @(*) begin
     seladdr[7]   = 1'b1;
     seladdr[6]   = enable_char & char_blank_n;
     seladdr[5]   = enable_obj  & ~obj_blank;
-    seladdr[4]   = scr_pxl[4]; // Scroll wins 8
+    seladdr[4]   = scr_pxl[8]; // Scroll wins 8
     seladdr[3:0] = scr_pxl[3:0];
 end
 
