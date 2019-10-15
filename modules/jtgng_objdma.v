@@ -100,7 +100,7 @@ always @(posedge clk, posedge rst)
 
 
 wire [AW-1:0]  wr_addr = mem_sel==MEM_PREBUF ? AB : {AW{1'b0}};
-wire        ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
+wire           ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
 `ifndef OBJTEST
 wire [DW-1:0]  ram_din = mem_sel==MEM_PREBUF ? DB : {DW{1'd0}};

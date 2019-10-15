@@ -71,7 +71,8 @@ always @(*) begin
     seladdr[6]   = enable_char & char_blank_n;
     seladdr[5]   = enable_obj  & ~obj_blank;
     seladdr[4]   = scr_pxl[8]; // Scroll wins 8
-    seladdr[3:0] = scr_pxl[3:0];
+    seladdr[3:0] = scr_pxl[3:0]; // for some colours, the background
+        // will be imposed over the objects (colours 9 to 15)
 end
 
 always @(posedge clk) if(cen6) begin

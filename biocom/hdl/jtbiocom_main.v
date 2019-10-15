@@ -442,7 +442,7 @@ always @(posedge clk, posedge rst)
             end
             1'b1: begin
                 if( BRn ) begin
-                    bus_dma <= 1'b1;
+                    bus_dma <= 1'b0;
                 end
                 BGACKn <= BGn;
             end

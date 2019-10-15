@@ -353,11 +353,14 @@ always @(posedge clk, posedge rst)
                 if( !BRn && !BGn ) begin
                     bus_dma <= 1'b1;
                     BGACKn  <= 1'b0;
+                    `ifdef SIMULATION
+                    $display("Bus requested");
+                    `endif
                 end
             end
             1'b1: begin
                 if( BRn ) begin
-                    bus_dma <= 1'b1;
+                    bus_dma <= 1'b0;
                 end
                 BGACKn <= BGn;
             end

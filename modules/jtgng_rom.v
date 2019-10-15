@@ -343,12 +343,12 @@ if( loop_rst || downloading ) begin
     data_sel  <=  8'd0;
 end else begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
-    // if( data_rdy ) begin
-    //     data_sel <= 8'd0;
-    // end
+    if( data_rdy ) begin
+        data_sel <= 8'd0;
+    end
     if( sdram_ack ) sdram_req <= 1'b0;
     // accept a new request
-    if( data_sel==8'd0 || data_rdy ) begin
+    if( data_sel==8'd0 /*|| data_rdy*/ ) begin
         sdram_req <= 
            |{main_req, map1_req, map2_req, scr1_req, scr2_req,
              char_req, obj_req,  snd_req };
