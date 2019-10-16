@@ -121,13 +121,12 @@ always @(*) begin
                     3'd1:   io_cs   = 1'b1; // E_4000
                     3'd2: if( (!UDSWn || !LDSWn) && !A[4]) begin // E_8000
                         // scrpt_cs
-                        $display("SCRPTn");
                         case( A[3:1]) // SCRPTn in the schematics
                                 3'd0: scrhpos_cs = 1'b1;
                                 3'd1: scrvpos_cs = 1'b1;
                                 3'd7: begin
                                     OKOUT       = 1'b1;
-                                    $display("OKOUT");
+                                    // $display("OKOUT");
                                 end
                             default:;
                         endcase
