@@ -384,4 +384,19 @@ fx68k u_cpu(
     .E          (             )
 );
 
+`ifdef SIMULATION
+    wire sdram_error;
+
+    jtframe_din_check #(.AW(17)) u_sdram_check(
+        .rst        ( rst           ),
+        .clk        ( clk           ),
+        .cen        ( cpu_cen       ),
+        .rom_cs     (  rom_cs       ),
+        .rom_ok     ( rom_ok        ),
+        .rom_addr   (  rom_addr     ),
+        .rom_data   (  rom_data     ),
+        .error      ( sdram_error   )
+    );
+`endif
+
 endmodule
