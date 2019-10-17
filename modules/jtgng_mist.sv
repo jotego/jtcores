@@ -84,6 +84,10 @@ localparam CONF_STR = {
     "OD,Rotate controls,No,Yes;",
     "OC,Flip screen,OFF,ON;",
     `endif
+    `ifdef JOIN_JOYSTICKS
+    "OE,Separate Joysticks,Yes,No;",    // If no, then player 2 joystick
+        // is assimilated to player 1 joystick
+    `endif
     `ifdef MISTER_VIDEO_MIXER
         "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     `else
@@ -118,7 +122,8 @@ wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 
-wire rst_req = status[0];
+wire rst_req   = status[0];
+wire join_joys = status[32'he];
 
 wire sdram_req;
 

@@ -70,7 +70,7 @@ always @(*) begin
             // 5   HFLIP
             // 7-6 ID
             scr_hflip = attr[5];
-            scr_vflip = 1'b0;
+            scr_vflip = flip;
         end
     endcase
 end

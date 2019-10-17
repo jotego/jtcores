@@ -119,7 +119,7 @@ generate
         reg       V7;
         
         always @(*) begin
-            VF          = {9{flip}}^V128sh[8:0];
+            VF          = /*{9{flip}}^*/V128sh[8:0];
             //V7          = (~V128sh[8] & (~flip ^ VF[6])) ^VF[7];
             //SCVF        = { VF[6]&~V128sh[8], ~V128sh[8], V7, VF[6:0] };
             //{PICV, SV } = { {6{SCVF[9]}}, SCVF } - vpos;
@@ -131,7 +131,6 @@ generate
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
                 HS[4:3] <= SH[4:3];
-                //map_addr <= {  row[6:3], col[6:3], row[2:0], col[2:0] };
                 map_addr <= {  ~row[6:3], col[6:3], ~row[2:0], col[2:0] };
                 SVmap <= SV[4:0];
             end

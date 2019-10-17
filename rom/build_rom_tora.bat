@@ -33,6 +33,7 @@ echo.
 echo ** MENU **
 echo 1 - Tiger Road (US) - Default
 echo 2 - Tiger Road (US, Romstar license)
+echo 3 - Tora e no Michi (Japan)
 
 echo.
 if %merged% EQU 0 (
@@ -55,6 +56,7 @@ echo.
 SET /P M="Choose option and then press ENTER (or Q to quit): "
 IF '%M%'=='1' GOTO TIGEROAD
 IF '%M%'=='2' GOTO TIGEROADU
+IF '%M%'=='3' GOTO TORAMICH
 
 echo.
 IF '%M%'=='c' GOTO CHANGEMERGED
@@ -86,6 +88,16 @@ set ifiles=tru_02.6j+tru_04.6k+tru_05.12k+tru_05.12k+tru_05.12k+tr_01.10d+tr_13.
 set md5valid=42e21e4872ce725031d6511a7e4c1f27
 set ofile=Tiger Road (US, Romstar license).rom
 set fullname=Tiger Road (US, Romstar license)
+GOTO START
+
+:TORAMICH
+set zip1m=MAME\tigeroad.zip
+set ifilesm=toramich\tr_02.6j+toramich\tr_04.6k+toramich\tr_05.12k+toramich\tr_03.11j+tr_01.10d+tr_13.7l+tr_13.7l+tr-03a.2f+tr-06a.2h+tr-07a.2j+tr_08.2l+tr-01a.3f+tr-04a.3h+tr-02a.3j+tr-05.3l+tr-12a.2d+tr-11a.3d+tr-10a.2b+tr-09a.3b+tr.9e
+set zip1=MAME\toramich.zip
+set ifiles=tr_02.6j+tr_04.6k+tr_05.12k+tr_03.11j+tr_01.10d+tr_13.7l+tr_13.7l+tr-03a.2f+tr-06a.2h+tr-07a.2j+tr_08.2l+tr-01a.3f+tr-04a.3h+tr-02a.3j+tr-05.3l+tr-12a.2d+tr-11a.3d+tr-10a.2b+tr-09a.3b+tr.9e
+set md5valid=2542a73d07de52ad2fd1c9fecd96ef5a
+set ofile=Tora e no Michi (Japan).rom
+set fullname=Tora e no Michi (Japan)
 GOTO START
 
 
