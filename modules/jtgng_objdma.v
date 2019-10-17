@@ -115,26 +115,12 @@ always @(posedge clk, posedge rst)
 wire [AW-1:0]  wr_addr = mem_sel==MEM_PREBUF ? AB : {AW{1'b0}};
 wire           ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
-`ifndef OBJTEST
-wire [DW-1:0]  ram_din = mem_sel==MEM_PREBUF ? DB : {DW{1'd0}};
-`else 
-wire [DW-1:0] ram_din;
-jtgng_ram #(.aw(AW),.simfile("objtest.bin"),.cen_rd(0)) u_testram(
-    .clk        ( clk       ),
-    .cen        ( 1'b1      ),
-    .addr       ( AB        ),
-    .data       ( 9'd0      ),
-    .we         ( 1'b0      ),
-    .q          ( ram_din   )
-);
-`endif
-
 wire [DW-1:0] buf_data;
 
 // The real PCB did not have a dual port RAM but at this point
 // of the signal chain, it does not affect timing accuracy as
 // what matters is the DMA period, which is accurate.
-jtgng_dual_ram #(.aw(AW),.dw(DW)) u_objram (
+jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile("objdma.bin")) u_objram (
     .clk        ( clk         ),
     .clk_en     ( cen6        ),
     .data       ( ram_din     ),

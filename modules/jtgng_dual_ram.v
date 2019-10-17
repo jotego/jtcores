@@ -37,6 +37,7 @@ if( simfile != "" ) begin
         $display("WARNING: %m cannot find file %s",simfile);
     end else begin
         readcnt=$fread( mem, f );
+        $display("INFO: %m read %d bytes", readcnt);
         $fclose(f);
     end
     end
