@@ -119,10 +119,7 @@ generate
         reg       V7;
         
         always @(*) begin
-            VF          = /*{9{flip}}^*/V128sh[8:0];
-            //V7          = (~V128sh[8] & (~flip ^ VF[6])) ^VF[7];
-            //SCVF        = { VF[6]&~V128sh[8], ~V128sh[8], V7, VF[6:0] };
-            //{PICV, SV } = { {6{SCVF[9]}}, SCVF } - vpos;
+            VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
         end        
         wire [7:0] col = {PIC,  SH}>>5;

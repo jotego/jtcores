@@ -107,7 +107,7 @@ always @(posedge clk) if(cen6) begin
             scr_addr  <= { attr[7:6], id, // 2+8+2+5+1=18 bits
                             HS[4:3]^{2{scr_hflip}},
                             SV[4:0],
-                            HS[2]^scr_hflip };
+                            HS[2]^scr_hflip^flip };
             end
         endcase
     end
@@ -124,7 +124,7 @@ always @(posedge clk) if(cen6) begin
             2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip;
             // Tiger Road
             3: if(HS[2:0]==3'b101 ) begin
-                scr_addr[0] <= HS[2]^scr_hflip;
+                scr_addr[0] <= HS[2]^scr_hflip^flip;
             end
         endcase // LAYOUT
     end
