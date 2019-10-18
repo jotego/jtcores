@@ -63,7 +63,7 @@ module jtbiocom_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [17:0]  obj_addr,
+    output      [16:0]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -272,7 +272,11 @@ u_obj (
     // pixel data
     .obj_pxl    ( obj_pxl     ),
     // unused
-    .OBJON      ( 1'b1        ) // not used for non palette PROM games
+    .OBJON      ( 1'b1        ), // not used for non palette PROM games
+    .prog_addr  (             ),
+    .prom_hi_we (             ),
+    .prom_lo_we (             ),
+    .prog_din   (             )    
 );
 
 assign obj_AB[13:11] = 3'b111;

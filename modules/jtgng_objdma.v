@@ -129,7 +129,7 @@ wire [DW-1:0] buf_data;
 jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile(`OBJDMA_SIMFILE)) u_objram (
     .clk        ( clk         ),
     .clk_en     ( cen6        ),
-    .data       ( ram_din     ),
+    .data       ( DB          ),
     .rd_addr    ( pre_scan    ),
     .wr_addr    ( wr_addr     ),
     .we         ( ram_we      ),

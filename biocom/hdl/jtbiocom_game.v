@@ -461,7 +461,7 @@ jtgng_rom #(
     .main_dw    ( 16              ),
     .main_aw    ( 18              ),
     .char_aw    ( 13              ),
-    .obj_aw     ( 16              ), // AD11 is disconnected in schematics
+    .obj_aw     ( 17              ), // AD11 is disconnected in schematics
     .scr1_aw    ( 17              ),
     .scr2_aw    ( 15              ),
     .obj_dw     ( 32              ),

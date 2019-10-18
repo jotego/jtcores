@@ -102,7 +102,9 @@ jtgng_tilemap #(
     .msg_high   ( 8'd0      ),
     // Current tile
     .dout_low   ( dout_low  ),
-    .dout_high  ( dout_high )
+    .dout_high  ( dout_high ),
+    // unused:
+    .dseln      (           )
 );
 
 generate

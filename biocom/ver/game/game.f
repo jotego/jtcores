@@ -5,7 +5,7 @@
 ../../hdl/jtbiocom_main.v
 ../../hdl/jtbiocom_prom_we.v
 ../../hdl/jtbiocom_video.v
-#../../hdl/jtbiocom_mcu.v
+../../hdl/jtbiocom_mcu.v
 ../../hdl/jtbiocom_sound.v
 ../../../modules/fx68k/fx68kAlu.sv
 ../../../modules/fx68k/fx68k.sv

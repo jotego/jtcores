@@ -34,7 +34,6 @@ module jtgng_tile3 #( parameter
     input       [8:0]       VS,
     input       [7:0]       attr,
     input       [7:0]       id,
-    input                   SCxON,
     input                   flip,
     // Gfx ROM
     output reg [ROM_AW-1:0] scr_addr,
