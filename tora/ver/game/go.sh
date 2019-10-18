@@ -8,19 +8,6 @@ if [ -e ../../mist/*hex ]; then
     done
 fi
 
-# Preparare a gray palette so we can get
-# some graphics output without the main CPU
-if [ ! -e pal.hex ]; then
-    (python <<END
-for k in range(256):
-    print "0000"
-    print "4440"
-    print "BBB0"
-    print "FFF0"
-END
-) > pal.hex
-fi
-
 MIST=-mist
 VIDEO=0
 for k in $*; do

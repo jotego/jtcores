@@ -120,7 +120,13 @@ wire [DW-1:0] buf_data;
 // The real PCB did not have a dual port RAM but at this point
 // of the signal chain, it does not affect timing accuracy as
 // what matters is the DMA period, which is accurate.
-jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile("objdma.bin")) u_objram (
+`ifdef SIMULATION
+`ifndef OBJDMA_SIMFILE
+`define OBJDMA_SIMFILE "objdma.bin"
+`endif
+`endif
+
+jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile(`OBJDMA_SIMFILE)) u_objram (
     .clk        ( clk         ),
     .clk_en     ( cen6        ),
     .data       ( ram_din     ),

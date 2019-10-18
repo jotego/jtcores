@@ -297,6 +297,7 @@ assign scr1_vpos   = 9'd0;
 assign scr2_hpos   = 9'd0;
 assign scr2_vpos   = 9'd0;
 assign cpu_cen     = cen12;
+assign OKOUT       = 1'b0;
 `endif
 
 `ifndef NOMCU

@@ -140,7 +140,7 @@ reg [DW-1:0] data_a, data_b;
 
 always @(*) begin
     if( line == lineA ) begin
-        address_a = { ~post_scan[5:0], pre_scan[1:0] };
+        address_a = { ~post_scan[4:0], pre_scan[1:0] };
         address_b = hscan;
         data_a    = ram_dout;
         data_b    = 8'hf8;
@@ -149,7 +149,7 @@ always @(*) begin
     end
     else begin
         address_a = hscan;
-        address_b = { ~post_scan[5:0], pre_scan[1:0] };
+        address_b = { ~post_scan[4:0], pre_scan[1:0] };
         data_a    = 8'hf8;
         data_b    = ram_dout;
         we_a      = 1'b1;

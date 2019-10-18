@@ -154,6 +154,7 @@ jtgng_charmsg u_msg(
 );
 `else
 assign char_mrdy = 1'b1;
+assign char_pxl  = ~6'd0;
 `endif
 
 `ifndef NOSCR
@@ -225,8 +226,10 @@ u_scroll2 (
 );
 `else
 assign scr_busy   = 1'b1;
-assign scr_col    = 3'd0;
-assign scr_pal    = 3'd0;
+assign scr1_col   = 4'd0;
+assign scr1_pal   = 4'd0;
+assign scr2_col   = 4'd0;
+assign scr2_pal   = 4'd0;
 assign scrwin     = 1'd0;
 assign scr_addr   = 15'd0;
 assign scr_dout   = 8'd0;
