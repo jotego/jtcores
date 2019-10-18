@@ -196,7 +196,7 @@ jtgng_obj #(
     .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( LAYOUT     ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
-    .OBJMAX_LINE( 5'd31      ),
+    .OBJMAX_LINE( 6'd32      ),
     .PALW       ( 4          ),
     .ROM_AW     ( 17         ),
     .ROM_DW     ( 32         ), // total 512kBytes of object graphic data

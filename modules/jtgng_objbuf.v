@@ -16,11 +16,15 @@
     Version: 1.0
     Date: 11-1-2019 */
 
+// Original hardware had at least two variants:
+// 24 sprites per line: GnG, Commando... the buffer ran at 6MHz
+// 32 sprites per line: Tiger Road, Bionic Commando... ran at 8MHz
+
 module jtgng_objbuf #(parameter
     DW          = 8,
     AW          = 9,
     OBJMAX      = 10'h180, // 180h for 96 objects (GnG) 
-    OBJMAX_LINE = 5'd24
+    OBJMAX_LINE = 6'd24
 ) (
     input               rst,
     input               clk,     // 24 MHz
@@ -41,11 +45,9 @@ module jtgng_objbuf #(parameter
     output reg          line
 );
 
-localparam LIMIT = 5'd31-OBJMAX_LINE;
-
 // sprite buffer
 reg          fill;
-reg  [4:0]   post_scan;
+reg  [5:0]   post_scan;
 reg          line_obj_we;
 
 localparam lineA=1'b0, lineB=1'b1;
@@ -70,7 +72,14 @@ always @(posedge clk, posedge rst)
 
 reg pre_scan_msb;
 
-wire [7:0] Vsum = ram_dout[7:0] + (~VF + { {6{~flip}}, 2'b10 });
+reg [8:0] Vsum;
+reg       MATCH;
+
+always @(*) begin
+    Vsum  = {1'b0, ram_dout[7:0]} + {1'b0,(~VF + { {6{~flip}}, 2'b10 })};
+    MATCH = DW==8 ? (&Vsum[7:4]) // 8-bit games: GnG, GunSmoke...
+        : ( &{ ~^{ram_dout[8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
+end
 
 always @(posedge clk, posedge rst)
     if( rst ) begin
@@ -83,14 +92,14 @@ always @(posedge clk, posedge rst)
                 line_obj_we <= 1'b0;
                 if( !LVBL || fill ) begin
                     {pre_scan_msb, pre_scan} <= 2;
-                    post_scan<= 5'd31; // store obj data in reverse order
+                    post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
                     if(HINIT) fill <= 1'd0;
                 end
                 else begin
                     //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
-                    if( &Vsum[7:4] ) begin
+                    if( MATCH ) begin
                         pre_scan[1:0] <= 2'd0;
                         line_obj_we <= 1'b1;
                         trf_state <= TRANSFER;
@@ -106,14 +115,14 @@ always @(posedge clk, posedge rst)
             end
             TRANSFER: begin
                 // line_obj_we <= 1'b0;
-                if( post_scan == LIMIT ) begin // Transfer done before the end of the line
+                if( post_scan == OBJMAX_LINE ) begin // Transfer done before the end of the line
                     line_obj_we <= 1'b0;
                     trf_state <= SEARCH;
                     fill <= 1'd1;
                 end
                 else
                 if( pre_scan[1:0]==2'b11 ) begin
-                    post_scan <= post_scan-1'b1;
+                    post_scan <= post_scan+1'b1;
                     pre_scan <= pre_scan + 3;
                     trf_state  <= SEARCH;
                     line_obj_we <= 1'b0;
@@ -131,7 +140,7 @@ reg [DW-1:0] data_a, data_b;
 
 always @(*) begin
     if( line == lineA ) begin
-        address_a = { post_scan, pre_scan[1:0] };
+        address_a = { ~post_scan[5:0], pre_scan[1:0] };
         address_b = hscan;
         data_a    = ram_dout;
         data_b    = 8'hf8;
@@ -140,7 +149,7 @@ always @(*) begin
     end
     else begin
         address_a = hscan;
-        address_b = { post_scan, pre_scan[1:0] };
+        address_b = { ~post_scan[5:0], pre_scan[1:0] };
         data_a    = 8'hf8;
         data_b    = ram_dout;
         we_a      = 1'b1;
