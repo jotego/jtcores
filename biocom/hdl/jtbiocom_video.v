@@ -162,7 +162,7 @@ jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
     .POSW       ( 10            ),
-    .HOFFSET    (  0            ),
+    .HOFFSET    ( -4            ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ))
 u_scroll1 (

@@ -39,7 +39,7 @@ module jt1943_video #( parameter
     PALETTE_BLUE   = "../../../rom/1943/bm3.14a",
     PALETTE_PRIOR  = "../../../rom/1943/bm4.12c",
     // From objects
-    OBJMAX         = 10'h1FF,
+    OBJMAX         = 10'd128, // DMA buffer 512 bytes = 4*128
     OBJMAX_LINE    = 6'd32,
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,
