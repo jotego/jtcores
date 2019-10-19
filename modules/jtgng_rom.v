@@ -305,9 +305,6 @@ jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
     `ifndef OBJROMTEST
         // Let the real data go through
         always @(*) obj_dout = obj_preout;
-        initial begin
-            $display("INFO: direct OBJ");
-        end
     `else
         initial begin
             $display("INFO: Using OBJ address as data read from ROM");

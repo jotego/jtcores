@@ -39,7 +39,7 @@ module jt1943_video #( parameter
     PALETTE_BLUE   = "../../../rom/1943/bm3.14a",
     PALETTE_PRIOR  = "../../../rom/1943/bm4.12c",
     // From objects
-    OBJMAX         = 10'd128, // DMA buffer 512 bytes = 4*128
+    OBJMAX         = 10'd511, // DMA buffer 512 bytes = 4*128
     OBJMAX_LINE    = 6'd32,
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,
@@ -49,6 +49,7 @@ module jt1943_video #( parameter
     input               rst,
     input               clk,
     input               cen12,
+    input               cen8,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -287,7 +288,7 @@ generate
         end
 endgenerate
 `else
-assign scr1_pxl  = 6'h31;
+assign scr1_pxl  = ~6'h0;
 assign scr1_addr = 17'h0;
 assign map1_addr = 14'h0;
 
@@ -312,7 +313,8 @@ jtgng_obj #(
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),
+    .cen            ( cen8          ),  // 8MHz!!
+    .pxl_cen        ( cen8          ),
     // screen
     .HINIT          ( HINIT         ),
     .LHBL           ( LHBL_obj      ),

@@ -24,7 +24,7 @@ module jtgng_objdma #(parameter
 ) (
     input               rst,
     input               clk,
-    input               cen6,    //  6 MHz
+    input               cen /*direct_enable*/,
     // screen
     input               LVBL,
     input               pause,
@@ -57,7 +57,7 @@ reg mem_sel;
 reg OKOUT_latch;
 
 // This "latch" prevents the circuit from missing requests
-// that fall in between two cen6 pulses. This is important
+// that fall in between two cen  pulses. This is important
 // for M68000 CPUs which run faster than 6MHz
 always @(posedge clk, posedge rst)
     if( rst ) begin
@@ -65,14 +65,14 @@ always @(posedge clk, posedge rst)
     end else begin
         if( OKOUT )
             OKOUT_latch <= 1'b1;
-        else if( cen6 ) OKOUT_latch <= 1'b0; // clear it with cen6
+        else if( cen  ) OKOUT_latch <= 1'b0; // clear it with cen 
     end
 
 always @(posedge clk, posedge rst)
     if( rst ) begin
         blen      <= 1'b0;
         bus_state <= ST_IDLE;
-    end else if(cen6) begin
+    end else if(cen ) begin
         case( bus_state )
             ST_IDLE: if( OKOUT_latch ) begin
                     bus_req   <= 1'b1;
@@ -96,7 +96,7 @@ always @(posedge clk, posedge rst)
     end
 
 reg ABslow;
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen ) begin
     if( !blen )
         {AB, ABslow} <= {AW+1{1'b0}};
     else begin
@@ -107,7 +107,7 @@ end
 always @(posedge clk, posedge rst)
     if(rst)
         mem_sel <= MEM_PREBUF;
-    else if(cen6) begin
+    else if(cen ) begin
         mem_sel <= ~mem_sel;
     end
 
@@ -120,15 +120,13 @@ wire [DW-1:0] buf_data;
 // The real PCB did not have a dual port RAM but at this point
 // of the signal chain, it does not affect timing accuracy as
 // what matters is the DMA period, which is accurate.
-`ifdef SIMULATION
 `ifndef OBJDMA_SIMFILE
 `define OBJDMA_SIMFILE "objdma.bin"
-`endif
 `endif
 
 jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile(`OBJDMA_SIMFILE)) u_objram (
     .clk        ( clk         ),
-    .clk_en     ( cen6        ),
+    .clk_en     ( cen         ),
     .data       ( DB          ),
     .rd_addr    ( pre_scan    ),
     .wr_addr    ( wr_addr     ),

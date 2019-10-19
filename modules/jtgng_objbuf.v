@@ -27,8 +27,8 @@ module jtgng_objbuf #(parameter
     OBJMAX_LINE = 6'd24
 ) (
     input               rst,
-    input               clk,     // 24 MHz
-    input               cen6,    //  6 MHz
+    input               clk,
+    input               cen /*direct_enable*/,
     // screen
     input               HINIT,
     input               LVBL,
@@ -66,7 +66,7 @@ localparam SEARCH=1'b0, TRANSFER=1'b1;
 always @(posedge clk, posedge rst)
     if( rst )
         line <= lineA;
-    else if(cen6) begin
+    else if(cen ) begin
         if( HINIT ) line <= ~line;
     end
 
@@ -86,7 +86,7 @@ always @(posedge clk, posedge rst)
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;
     end
-    else if(cen6) begin
+    else if(cen) begin
         case( trf_state )
             SEARCH: begin
                 line_obj_we <= 1'b0;
@@ -157,18 +157,18 @@ always @(*) begin
     end
 end
 
-jtgng_ram #(.aw(7),.dw(DW),.simfile("obj_buf.hex")) objbuf_a(
+jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
     .clk   ( clk       ),
-    .cen   ( cen6      ),
+    .cen   ( cen       ),
     .addr  ( address_a ),
     .data  ( data_a    ),
     .we    ( we_a      ),
     .q     ( q_a       )
 );
 
-jtgng_ram #(.aw(7),.dw(DW),.simfile("obj_buf.hex")) objbuf_b(
+jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_b(
     .clk   ( clk       ),
-    .cen   ( cen6      ),
+    .cen   ( cen       ),
     .addr  ( address_b ),
     .data  ( data_b    ),
     .we    ( we_b      ),

@@ -188,7 +188,8 @@ jtgng_obj #(
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .cen6       ( cen6        ),
+    .cen        ( cen6        ),
+    .pxl_cen    ( cen6        ),
     .AB         ( obj_AB      ),
     .DB         ( main_ram    ),
     .OKOUT      ( OKOUT       ),

@@ -106,9 +106,12 @@ reg rst_game;
 always @(negedge clk)
     rst_game <= rst || !rom_ready;
 
+wire cen8;
+
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
+    .cen8   ( cen8      ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -260,19 +263,21 @@ jt1943_main u_main(
     .coin_cnt   (               )
 );
 `else
-assign scr1posh = 16'b0;
-assign scr2posh = 16'b0;
-assign char_cs = 'b0;
-assign SC1ON = 'b1;
-assign SC2ON = 'b1;
-assign OBJON = 'b1;
-assign  CHON = 'b1;
+assign scr1posh  = 16'b0;
+assign scr2posh  = 16'b0;
+assign char_cs   = 1'b0;
+assign SC1ON     = 1'b1;
+assign SC2ON     = 1'b1;
+assign OBJON     = 1'b1;
+assign  CHON     = 1'b1;
 assign main_addr = 'd0;
-assign rd_n = 'b1;
-assign wr_n = 'b1;
-assign cpu_AB = 'b0;
-assign sres_b = 'b1;
-assign cpu_dout = 'b0;
+assign rd_n      = 1'b1;
+assign wr_n      = 1'b1;
+assign cpu_AB    = 13'b0;
+assign sres_b    = 1'b1;
+assign cpu_dout  = 8'b0;
+assign OKOUT     = 1'b0;
+assign flip      = 1'b0;
 `endif
 
 `ifndef NOSOUND
@@ -349,6 +354,7 @@ jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
+    .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),

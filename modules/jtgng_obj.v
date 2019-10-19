@@ -36,7 +36,8 @@ module jtgng_obj #(parameter
 ) (
     input               rst,
     input               clk,
-    input               cen6,    //  6 MHz
+    input               cen,       //  6 or 8MHz
+    input               pxl_cen,   //  6MHz
     // screen
     input               HINIT,
     input               LHBL,
@@ -76,15 +77,16 @@ wire line, fill, line_obj_we;
 wire [4:0] post_scan;
 wire [7:0] VF;
 
-reg [4:0] objcnt;
-reg [3:0] pxlcnt;
+wire [4:0] objcnt;
+wire [3:0] pxlcnt;
 
-always @(posedge clk) if(cen6) begin
-    if( HINIT )
-        { objcnt, pxlcnt } <= {5'd8,4'd0};
-    else
-        if( objcnt != 5'd0 )  { objcnt, pxlcnt } <=  { objcnt, pxlcnt } + 1'd1;
-end
+jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
+    .clk    ( clk       ),
+    .cen    ( cen       ),
+    .HINIT  ( HINIT     ),
+    .objcnt ( objcnt    ),
+    .pxlcnt ( pxlcnt    )
+);
 
 // DMA to 6809 RAM memory to copy the sprite data
 jtgng_objdma #(
@@ -95,7 +97,7 @@ jtgng_objdma #(
  u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen6       ( cen6      ),    //  6 MHz
+    .cen        ( cen       ),
     // screen
     .LVBL       ( LVBL       ),
     .pause      ( pause      ),
@@ -121,7 +123,7 @@ jtgng_objbuf #(
 u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),    //  6 MHz
+    .cen            ( cen           ),
     // screen
     .HINIT          ( HINIT         ),
     .LVBL           ( LVBL_obj      ),
@@ -157,7 +159,7 @@ jtgng_objdraw #(
 u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),    //  6 MHz
+    .cen            ( cen           ),
     .OBJON          ( OBJON         ),
     // screen
     .VF             ( VF            ),
@@ -196,7 +198,8 @@ endgenerate
 jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),    //  6 MHz
+    .cen_rd         ( pxl_cen       ),
+    .cen_wr         ( cen           ),
     .DISPTM_b       ( 1'b0          ),
     // screen
     .LHBL           ( LHBL          ),
@@ -210,12 +213,12 @@ jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
     .obj_pxl        ( obj_pxl0      )
 );
 
-//always @(posedge clk) if(cen6) obj_pxl<=obj_pxl0;
+//always @(posedge clk) if(cen ) obj_pxl<=obj_pxl0;
 
 // Delay pixel output in order to be aligned with the other layers
 jtgng_sh #(.width(PXLW), .stages(PXL_DLY)) u_sh(
     .clk            ( clk           ),
-    .clk_en         ( cen6          ),
+    .clk_en         ( cen           ),
     .din            ( obj_pxl0      ),
     .drop           ( obj_pxl       )
 );

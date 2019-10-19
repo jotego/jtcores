@@ -30,8 +30,8 @@ module jtgng_objdraw #(parameter
     PALETTE0_SIMFILE = "" // only for simulation
 ) (
     input              rst,
-    input              clk,     // 24 MHz
-    input              cen6,    //  6 MHz
+    input              clk,
+    input              cen /*direct_enable*/,
     // screen
     input       [7:0]  VF,
     input       [3:0]  pxlcnt,
@@ -77,7 +77,7 @@ end
 
 reg [3:0] Vobj;
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen) begin
     case( pxlcnt[3:0] )
         4'd0: id[IDW-1:0] <= objbuf_data;
         4'd1: case( LAYOUT )
@@ -121,14 +121,14 @@ end
 
 generate
     if( ROM_DW == 16 ) begin
-        always @(posedge clk) if(cen6) begin
+        always @(posedge clk) if(cen) begin
             if( pxlcnt[1:0]==2'd3 ) begin
                 obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
                     { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
             end
         end
     end else begin // ROM_DW==32
-        always @(posedge clk) if(cen6) begin
+        always @(posedge clk) if(cen) begin
             if( pxlcnt[1:0]==2'd3 ) begin
                 obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
                     { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}} };
@@ -144,7 +144,7 @@ reg [8:0] posx1;
 // ROM data depacking
 generate
     if( ROM_DW==16) begin
-        always @(posedge clk) if(cen6) begin
+        always @(posedge clk) if(cen ) begin
             if( pxlcnt[3:0]==4'h7 ) begin
                 objpal1   <= objpal;
                 poshflip2 <= obj_hflip;
@@ -171,7 +171,7 @@ generate
             endcase
         end
     end else begin //32
-        always @(posedge clk) if(cen6) begin
+        always @(posedge clk) if(cen) begin
             if( pxlcnt[3:0]==4'h7 ) begin
                 objpal1   <= objpal;
                 poshflip2 <= obj_hflip;
@@ -209,7 +209,7 @@ generate
 
         jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
             .clk    ( clk            ),
-            .cen    ( cen6           ),
+            .cen    ( cen            ),
             .data   ( prog_din       ),
             .rd_addr( pal_addr       ),
             .wr_addr( prog_addr      ),
@@ -219,7 +219,7 @@ generate
 
         jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE0_SIMFILE) ) u_prom_lsb(
             .clk    ( clk            ),
-            .cen    ( cen6           ),
+            .cen    ( cen            ),
             .data   ( prog_din       ),
             .rd_addr( pal_addr       ),
             .wr_addr( prog_addr      ),
@@ -237,13 +237,13 @@ generate
 
         `ifdef AVATAR_OBJDRAW
             reg  [7:0] avatar_pxl;
-            always @(posedge clk) if(cen6)
+            always @(posedge clk) if(cen)
                 avatar_pxl <= { 4'd0, new_col };
         `else
             wire [7:0] avatar_pxl = prom_dout;
         `endif
 
-        always @(posedge clk ) if(cen6) begin
+        always @(posedge clk ) if(cen ) begin
             pospal <= {PALW{1'b0}}; // it is actually unused on the upper level
             posx2 <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
@@ -257,7 +257,7 @@ generate
 
     end else begin
         // No palette PROMs
-        always @(posedge clk) if(cen6) begin
+        always @(posedge clk) if(cen) begin
             new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : 
                     {w[COMPW-1],x[COMPW-1],y[COMPW-1],z[COMPW-1]};
             posx    <= posx1;

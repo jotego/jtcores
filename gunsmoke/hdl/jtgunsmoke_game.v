@@ -130,9 +130,12 @@ end
 
 `endif
 
+wire cen8;
+
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
+    .cen8   ( cen8      ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -354,6 +357,7 @@ jt1943_video #(
     .rst           ( rst           ),
     .clk           ( clk           ),
     .cen12         ( cen12         ),
+    .cen8          ( cen8          ),    
     .cen6          ( cen6          ),
     .cen3          ( cen3          ),
     .cpu_cen       ( cpu_cen       ),

@@ -55,7 +55,6 @@ for col in range(256):
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
 print_char("                                ")
-print_char("                                ")
 print_char("       G&G clone for FPGA       ")
 print_char("    brought to you by jotego.   ")
 print_char("  http://patreon.com/topapate   ")
@@ -63,6 +62,7 @@ print_char("                                ")
 print_char("      Thanks to my patrons:     ")
 print_char("                                ")
 print_char(" Andrew Moore                   ")
+print_char(" Blackstar                      ")
 print_char(" Bruno Silva                    ")
 print_char(" Carlos Hasan                   ")
 print_char(" Don Gafford                    ")
