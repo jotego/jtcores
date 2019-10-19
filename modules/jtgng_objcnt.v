@@ -22,14 +22,33 @@ module jtgng_objcnt #(parameter
     input               clk,
     input               cen /*direct_enable*/,
     input               HINIT,
+    output reg          HINIT_short,
     output reg [4:0]    objcnt,
     output reg [3:0]    pxlcnt
 );
 
+// HINIT is generated in the pxl_cen domain (6MHz)
+// If cen is 8MHz, The HINIT pulse will last for two 8MHz cen pulses
+// and that can create problems.
+// The signal is resampled here to obtain a shortened version.
+
+reg HINIT_clr;
+reg last_HINIT;
+
+always @(posedge clk) begin 
+    last_HINIT <= HINIT;
+    if( HINIT && !last_HINIT) HINIT_short <= 1'b1;
+    if( HINIT_clr ) HINIT_short <= 1'b0;
+end
+
+always @(posedge clk) if(cen) begin
+    HINIT_clr <= HINIT_short;
+end
+
 reg over;
 
 always @(posedge clk) if(cen) begin
-    if( HINIT )
+    if( HINIT_short )
         { over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
     else
         if( !over )  { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;

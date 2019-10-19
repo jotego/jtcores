@@ -73,7 +73,7 @@ module jtgng_obj #(parameter
 wire [DMA_AW-1:0] pre_scan;
 wire [DMA_DW-1:0] ram_dout, objbuf_data;
 
-wire line, fill, line_obj_we;
+wire line, fill, line_obj_we, HINIT_short;
 wire [4:0] post_scan;
 wire [7:0] VF;
 
@@ -81,11 +81,12 @@ wire [4:0] objcnt;
 wire [3:0] pxlcnt;
 
 jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
-    .clk    ( clk       ),
-    .cen    ( cen       ),
-    .HINIT  ( HINIT     ),
-    .objcnt ( objcnt    ),
-    .pxlcnt ( pxlcnt    )
+    .clk        ( clk         ),
+    .cen        ( cen         ),
+    .HINIT      ( HINIT       ),
+    .HINIT_short( HINIT_short ),
+    .objcnt     ( objcnt      ),
+    .pxlcnt     ( pxlcnt      )
 );
 
 // DMA to 6809 RAM memory to copy the sprite data
@@ -125,7 +126,7 @@ u_buf(
     .clk            ( clk           ),
     .cen            ( cen           ),
     // screen
-    .HINIT          ( HINIT         ),
+    .HINIT_short    ( HINIT_short   ),
     .LVBL           ( LVBL_obj      ),
     .V              ( V             ),
     .VF             ( VF            ),
@@ -198,9 +199,8 @@ endgenerate
 jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen_rd         ( pxl_cen       ),
-    .cen_wr         ( cen           ),
-    .DISPTM_b       ( 1'b0          ),
+    .pxl_cen        ( pxl_cen       ),
+    .cen            ( cen           ),
     // screen
     .LHBL           ( LHBL          ),
     .flip           ( flip          ),

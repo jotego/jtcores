@@ -314,7 +314,7 @@ u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen            ( cen8          ),  // 8MHz!!
-    .pxl_cen        ( cen8          ),
+    .pxl_cen        ( cen6          ),
     // screen
     .HINIT          ( HINIT         ),
     .LHBL           ( LHBL_obj      ),

@@ -30,7 +30,7 @@ module jtgng_objbuf #(parameter
     input               clk,
     input               cen /*direct_enable*/,
     // screen
-    input               HINIT,
+    input               HINIT_short,
     input               LVBL,
     input       [7:0]   V,
     output reg  [7:0]   VF,
@@ -63,12 +63,13 @@ end
 
 localparam SEARCH=1'b0, TRANSFER=1'b1;
 
-always @(posedge clk, posedge rst)
+always @(posedge clk, posedge rst) begin
     if( rst )
         line <= lineA;
-    else if(cen ) begin
-        if( HINIT ) line <= ~line;
+    else if(cen) begin
+        if( HINIT_short ) line <= ~line;
     end
+end
 
 reg pre_scan_msb;
 
@@ -95,7 +96,7 @@ always @(posedge clk, posedge rst)
                     post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
-                    if(HINIT) fill <= 1'd0;
+                    if(HINIT_short) fill <= 1'd0;
                 end
                 else begin
                     //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin

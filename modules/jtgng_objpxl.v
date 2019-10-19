@@ -21,10 +21,9 @@
 module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0)(
     input              rst,
     input              clk,
-    input              cen_wr /*direct_enable*/,
-    input              cen_rd /*direct_enable*/,
+    input              cen /*direct_enable*/,
+    input              pxl_cen /*direct_enable*/,
     // screen
-    input              DISPTM_b,
     input              LHBL,
     input              flip,
     input       [4:0]  objcnt,
@@ -52,11 +51,11 @@ reg pxlbuf_line;
 always @(posedge clk, posedge rst)
     if( rst )
         pxlbuf_line <= lineA;
-    else if(cen_wr ) begin
+    else if(cen ) begin
         if( {objcnt[0],pxlcnt}== obj_dly ) pxlbuf_line<=line; // to account for latency drawing the object
     end
 
-always @(posedge clk) if(cen_rd) begin
+always @(posedge clk) if(pxl_cen) begin
     if( !LHBL ) Hcnt <= 8'd0;
     else Hcnt <= Hcnt+1'd1;
 end
@@ -65,55 +64,57 @@ wire [dw-1:0] blank = {dw{1'b1}};
 
 reg [7:0]    addr_wr;
 reg [dw-1:0] data_wr;
-reg we_pxl, we0;
+reg pxl_wr, we0;
 
-//wire we_pxl = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+//wire pxl_wr = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+reg [dw-1:0] pxlmux;
 
-always @(*) begin
-    data_wr = new_pxl;
-    addr_wr = {8{flip}} ^ posx[7:0];
-    we_pxl  = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
-    //we_pxl  <= we0;
+always @(posedge clk) if(cen) begin
+    data_wr <= new_pxl;
+    addr_wr <= {8{flip}} ^ posx[7:0];
+    pxl_wr  <= !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
 end
 
-reg cenA, cenB;
+always @(posedge clk) if(pxl_cen) begin
+    obj_pxl <= pxlmux;
+end
 
-always @(*) begin
-    if( pxlbuf_line == lineA ) begin
-        cenA  = cen_rd;
-        cenB  = cen_wr;
+reg [3:0] st;
+
+always @(posedge clk,posedge rst) begin
+    if(rst) begin
+        st <= 4'b0;
     end else begin
-        cenA  = cen_wr;
-        cenB  = cen_rd;
+        st <= { pxl_cen, st[3:1] };
+        if( st[2] ) pxlmux <= pxlbuf_line==lineA ? lineA_q : lineB_q;
     end
 end
 
-always @(posedge clk)
+always @(*) begin
     if( pxlbuf_line == lineA ) begin
-        obj_pxl <= !DISPTM_b ? lineA_q : blank;
         // lineA readout
-        addrA <= Hcnt;
-        weA   <= LHBL;
-        dataA <= blank;
+        addrA = Hcnt;
+        weA   = LHBL && st[0];
+        dataA = blank;
         // lineB writein
-        addrB <= addr_wr;
-        weB   <= we_pxl;
-        dataB <= data_wr;
+        addrB = addr_wr;
+        weB   = pxl_wr;
+        dataB = data_wr;
     end else begin
-        obj_pxl <= !DISPTM_b ? lineB_q : blank;
         // lineA writein
-        addrA <= addr_wr;
-        weA   <= we_pxl;
-        dataA <= data_wr;
+        addrA = addr_wr;
+        weA   = pxl_wr;
+        dataA = data_wr;
         // lineB readout
-        addrB <= Hcnt;
-        weB   <= LHBL;
-        dataB <= blank;
+        addrB = Hcnt;
+        weB   = LHBL && st[0];
+        dataB = blank;
     end
+end
 
 jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
     .clk     ( clk             ),
-    .cen     ( cenA            ),
+    .cen     ( 1'b1            ),
     .addr    ( addrA           ),
     .data    ( dataA           ),
     .we      ( weA             ),
@@ -122,7 +123,7 @@ jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
 
 jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
     .clk     ( clk             ),
-    .cen     ( cenB            ),
+    .cen     ( 1'b1            ),
     .addr    ( addrB           ),
     .data    ( dataB           ),
     .we      ( weB             ),
