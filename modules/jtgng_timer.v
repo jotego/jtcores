@@ -18,7 +18,6 @@
 
 module jtgng_timer(
     input               clk,
-    input               cen8,   //  8 MHz
     input               cen6,   //  6 MHz
     input               rst,
     output  reg [8:0]   V,
@@ -48,7 +47,7 @@ always @(posedge clk, posedge rst) begin
         Hinit <= H == 9'h86;
         if( H == 9'd511 ) begin
             //Hinit <= 1'b1;
-            if(cen8) H <= 9'd128;
+            H <= 9'd128;
         end
         else begin
             //Hinit <= 1'b0;

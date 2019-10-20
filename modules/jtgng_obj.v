@@ -188,7 +188,6 @@ u_draw(
 // line buffers for pixel data
 // obj_dly is not object pixel delay with respect to background
 // instead, it is the internal delay from previous stages
-wire [PXLW-1:0] obj_pxl0;
 wire [PXLW-1:0] pxl_data;
 generate
     if( PALETTE==1 )
@@ -197,7 +196,7 @@ generate
         assign pxl_data = {pospal, new_pxl};
 endgenerate
 
-jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
+jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW),.PXL_DLY(PXL_DLY)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
@@ -211,17 +210,7 @@ jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
     .line           ( line          ),
     // pixel data
     .new_pxl        ( pxl_data      ),
-    .obj_pxl        ( obj_pxl0      )
-);
-
-//always @(posedge clk) if(cen ) obj_pxl<=obj_pxl0;
-
-// Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(PXLW), .stages(PXL_DLY)) u_sh(
-    .clk            ( clk           ),
-    .clk_en         ( pxl_cen       ), // important: pixel cen!
-    .din            ( obj_pxl0      ),
-    .drop           ( obj_pxl       )
+    .obj_pxl        ( obj_pxl       )
 );
 
 endmodule
