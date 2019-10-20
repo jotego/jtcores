@@ -21,8 +21,9 @@ module jtgng_objcnt #(parameter
 ) (
     input               clk,
     input               cen /*direct_enable*/,
+    input               pxl_cen,
     input               HINIT,
-    output reg          HINIT_short,
+    output              HINIT_short,
     output reg [4:0]    objcnt,
     output reg [3:0]    pxlcnt
 );
@@ -32,25 +33,25 @@ module jtgng_objcnt #(parameter
 // and that can create problems.
 // The signal is resampled here to obtain a shortened version.
 
-reg HINIT_clr;
+reg HINIT_clr, HINIT_latch;
 reg last_HINIT;
 
 always @(posedge clk) begin 
     last_HINIT <= HINIT;
-    if( HINIT && !last_HINIT) HINIT_short <= 1'b1;
-    if( HINIT_clr ) HINIT_short <= 1'b0;
+    if( HINIT && !last_HINIT) HINIT_latch <= 1'b1;
+    if( HINIT_clr ) HINIT_latch <= 1'b0;
 end
 
-always @(posedge clk) if(cen) begin
-    HINIT_clr <= HINIT_short;
-end
+assign HINIT_short = cen & pxl_cen & (HINIT_latch | HINIT);
 
 reg over;
 
 always @(posedge clk) if(cen) begin
-    if( HINIT_short )
+    HINIT_clr <= 1'b0;
+    if( HINIT_short ) begin
         { over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
-    else
+        HINIT_clr <= HINIT_short;
+    end else
         if( !over )  { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;
 end
 

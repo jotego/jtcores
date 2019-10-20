@@ -140,10 +140,13 @@ end
 
 `endif
 
+wire cen8;
+
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen12b ( cen12b    ),
+    .cen8   ( cen8      ),
     .cen6   ( cen6      ),
     .cen6b  ( cen6b     ),
     .cen3   ( cen3      ),
@@ -376,6 +379,7 @@ jtbiocom_video #(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
+    .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),

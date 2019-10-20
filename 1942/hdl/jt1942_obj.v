@@ -156,10 +156,10 @@ wire [3:0] obj_pxl0;
 jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),    //  6 MHz
+    .cen            ( cen6          ),    //  6 MHz
+    .pxl_cen        ( cen6          ),    //  6 MHz
     // screen
     .LHBL           ( LHBL          ),
-    .DISPTM_b       ( DISPTM_b      ),
     .flip           ( flip          ),
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),

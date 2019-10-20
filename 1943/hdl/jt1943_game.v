@@ -128,6 +128,7 @@ jt1943_dip u_dip(
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
+    .cen8      ( cen8     ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),

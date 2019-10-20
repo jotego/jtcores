@@ -24,6 +24,7 @@ module jttora_video(
     input               rst,
     input               clk,
     input               cen12,
+    input               cen8,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -205,7 +206,8 @@ jtgng_obj #(
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .cen6       ( cen6        ),
+    .cen        ( cen8        ),
+    .pxl_cen    ( cen6        ),
     .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),
     .OKOUT      ( OKOUT       ),

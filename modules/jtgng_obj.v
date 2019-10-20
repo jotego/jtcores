@@ -83,6 +83,7 @@ wire [3:0] pxlcnt;
 jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
     .clk        ( clk         ),
     .cen        ( cen         ),
+    .pxl_cen    ( pxl_cen     ),
     .HINIT      ( HINIT       ),
     .HINIT_short( HINIT_short ),
     .objcnt     ( objcnt      ),

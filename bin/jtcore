@@ -148,7 +148,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     jt${PRJ}_msg.py || exit 1
     # Updata Avatars
     if [ -e $JTGNG/$PRJ/patrons/avatars ]; then
-        avatar.py $PRJ || exit 1
+        avatar.py $PRJ > /tmp/avatar_$PRJ.log || ( cat /tmp/avatar_$PRJ.log; exit 1 )
     fi
     if ! cd $JTGNG/$PRJ/$MIST; then
         exit 1

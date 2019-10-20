@@ -67,16 +67,11 @@ reg [dw-1:0] data_wr;
 reg pxl_wr, we0;
 
 //wire pxl_wr = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
-reg [dw-1:0] pxlmux;
 
 always @(posedge clk) if(cen) begin
     data_wr <= new_pxl;
     addr_wr <= {8{flip}} ^ posx[7:0];
     pxl_wr  <= !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
-end
-
-always @(posedge clk) if(pxl_cen) begin
-    obj_pxl <= pxlmux;
 end
 
 reg [3:0] st;
@@ -86,7 +81,7 @@ always @(posedge clk,posedge rst) begin
         st <= 4'b0;
     end else begin
         st <= { pxl_cen, st[3:1] };
-        if( st[2] ) pxlmux <= pxlbuf_line==lineA ? lineA_q : lineB_q;
+        if( st[2] ) obj_pxl <= pxlbuf_line==lineA ? lineA_q : lineB_q;
     end
 end
 
