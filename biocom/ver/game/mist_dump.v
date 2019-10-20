@@ -30,8 +30,8 @@ module mist_dump(
             `ifdef DEEPDUMP
                 $dumpvars(0,mist_test);
             `else
-                $dumpvars(1,mist_test.UUT.u_game.u_main);
-                // $dumpvars(1,mist_test.UUT.u_game.u_sound);
+                //$dumpvars(1,mist_test.UUT.u_game.u_main);
+                $dumpvars(1,mist_test.UUT.u_game.u_sound);
             `endif
             $dumpon;
         end
@@ -47,7 +47,7 @@ module mist_dump(
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
         `else
-            $shm_probe(mist_test.UUT.u_game.u_main,"A");
+            $shm_probe(mist_test.UUT.u_game.u_sound,"AS");
         `endif
     end
 `endif

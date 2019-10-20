@@ -364,22 +364,21 @@ jt1943_colmix #(
     .PALETTE_BLUE  ( PALETTE_BLUE   ),
     .PALETTE_PRIOR ( PALETTE_PRIOR  )) 
 u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .rst          ( rst           ),
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
+    .LVBL         ( LVBL          ),
+    .LHBL         ( LHBL          ),
+    .LHBL_dly     ( LHBL_dly      ),
+    .LVBL_dly     ( LVBL_dly      ),
     // Avatars
-    .pause      ( obj_pause     ),
-    .avatar_idx ( avatar_idx    ),
+    .pause        ( obj_pause     ),
+    .avatar_idx   ( avatar_idx    ),
     // pixel input from generator modules
-    .char_pxl   ( char_pxl      ),        // character color code
-    .scr1_pxl   ( scr1_pxl      ),
-    .scr2_pxl   ( scr2_pxl      ),
-    .obj_pxl    ( obj_pxl       ),
+    .char_pxl     ( char_pxl      ),        // character color code
+    .scr1_pxl     ( scr1_pxl      ),
+    .scr2_pxl     ( scr2_pxl      ),
+    .obj_pxl      ( obj_pxl       ),
     // Palette and priority PROMs
     .prog_addr    ( prog_addr     ),
     .prom_red_we  ( prom_red_we   ),
@@ -388,11 +387,11 @@ u_colmix (
     .prom_prior_we( prom_prior_we ),
     .prom_din     ( prog_din      ),
     // output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
+    .red          ( red           ),
+    .green        ( green         ),
+    .blue         ( blue          ),
     // debug
-    .gfx_en     ( gfx_en        )
+    .gfx_en       ( gfx_en        )
 );
 `else
 assign  red = 4'd0;

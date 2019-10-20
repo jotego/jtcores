@@ -298,6 +298,8 @@ u_frame(
 `endif
 `endif
 
+wire sample;
+
 `GAMETOP #(.CLK_SPEED(CLK_SPEED))
 u_game(
     .rst         ( game_rst       ),
@@ -357,9 +359,21 @@ u_game(
     .snd_left    ( snd_left       ),
     .snd_right   ( snd_right      ),
     `endif
-    .sample      (                ),
+    .sample      ( sample         ),
     // Debug
     .gfx_en      ( gfx_en         )
 );
+
+`ifdef SIMULATION
+`ifdef SOUND_DUMP
+integer fsnd;
+initial begin
+    fsnd=$fopen("sound.raw","wb");
+end
+always @(posedge sample) begin
+    $fwrite(fsnd,"%u", snd_left);
+end
+`endif
+`endif
 
 endmodule

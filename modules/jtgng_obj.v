@@ -219,7 +219,7 @@ jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW)) u_pxlbuf(
 // Delay pixel output in order to be aligned with the other layers
 jtgng_sh #(.width(PXLW), .stages(PXL_DLY)) u_sh(
     .clk            ( clk           ),
-    .clk_en         ( cen           ),
+    .clk_en         ( pxl_cen       ), // important: pixel cen!
     .din            ( obj_pxl0      ),
     .drop           ( obj_pxl       )
 );

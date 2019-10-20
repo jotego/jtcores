@@ -114,7 +114,6 @@ wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok;
 wire        scr1_ok, scr2_ok, char_ok;
 
-assign sample=1'b1;
 assign obj_addr[0] = 1'b0; // fixed for 32 bit values
 
 `ifdef MISTER
