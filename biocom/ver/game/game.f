@@ -25,6 +25,7 @@
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objdraw.v
 ../../../modules/jtgng_objpxl.v
+../../../modules/jtgng_objcnt.v
 ../../../modules/jtgng_obj.v
 ../../../modules/jtgng_romflex.v
 ../../../modules/jtgng_romrq.v

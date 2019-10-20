@@ -171,6 +171,7 @@ wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
+    .cen8      ( cen8     ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
@@ -378,10 +379,8 @@ jtbiocom_video #(
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
     .cen8       ( cen8          ),
     .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB        ),
     .V          ( V[7:0]        ),
