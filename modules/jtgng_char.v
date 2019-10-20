@@ -129,6 +129,9 @@ end
 wire vflip_en = VFLIP_EN[0];
 wire hflip_en = HFLIP_EN[0];
 
+wire hflip_next = char_attr1[PALW];
+wire dout_hflip = (dout_high[HFLIP]& hflip_en) ^ flip ^ HFLIP_XOR;
+
 always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
@@ -140,7 +143,7 @@ always @(posedge clk) if(pxl_cen) begin
             0:  begin
                 char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
                 {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
-                char_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
+                char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };
             end
             3:  begin // Tiger Road
                 char_addr  <= { { dout_high[5], dout_high[7:6], dout_low},
@@ -153,8 +156,8 @@ always @(posedge clk) if(pxl_cen) begin
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
         (DATAREAD+3'd1): begin
-            chd <= !char_hflip ? {good_data[7:0],good_data[15:8]} : good_data;
-            char_hflip <= (char_attr1[PALW] & hflip_en) ^ flip ^ HFLIP_XOR;
+            chd <= !hflip_next ? {good_data[7:0],good_data[15:8]} : good_data;
+            char_hflip <= hflip_next;
             char_attr2 <= char_attr1[PALW-1:0];
         end
         (DATAREAD+3'd5):
