@@ -49,7 +49,7 @@ localparam ATTW = LAYOUT==3 ? 5 : 4;
 
 reg  [7:0]      addr_lsb;
 reg  [ATTW-1:0] scr_attr0;
-reg             scr_hflip1;
+reg             scr_hflip0, scr_hflip1;
 
 reg scr_hflip, scr_vflip;
 
@@ -110,21 +110,22 @@ always @(posedge clk) if(cen6) begin
                             HS[2]^scr_hflip^flip };
             end
         endcase
+        scr_hflip0 <= scr_hflip ^ flip;
     end
     else begin
         case( LAYOUT )
             // 1943
-            0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+            0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
             // Bionic Commando scroll 1
             1: if(HS[2:0]==3'b101 ) begin
-                scr_addr[5] <= HS[3]^scr_hflip;
-                scr_addr[0] <= HS[2]^scr_hflip;
+                scr_addr[5] <= HS[3]^scr_hflip0;
+                scr_addr[0] <= HS[2]^scr_hflip0;
             end
             // Bionic Commando scroll 2
-            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip;
+            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
             // Tiger Road
             3: if(HS[2:0]==3'b101 ) begin
-                scr_addr[0] <= HS[2]^scr_hflip^flip;
+                scr_addr[0] <= HS[2]^scr_hflip0;
             end
         endcase // LAYOUT
     end
@@ -147,7 +148,7 @@ reg [ATTW-1:0] scr_pal0;
 always @(posedge clk) if(cen6) begin
     if( HS[1:0]==2'd1 ) begin
             { z,y,x,w } <= rom_data;
-            scr_hflip1  <= scr_hflip ^ flip; // must be ready when z,y,x are.
+            scr_hflip1  <= scr_hflip0; // must be ready when z,y,x are.
             scr_attr1   <= scr_attr0;
         end
     else
