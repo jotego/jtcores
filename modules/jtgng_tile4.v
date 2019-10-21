@@ -47,6 +47,10 @@ module jtgng_tile4 #(parameter
 
 localparam ATTW = LAYOUT==3 ? 5 : 4;
 
+`ifdef SIMULATION
+initial $display("INFO: LAYOUT %d for %m", LAYOUT);
+`endif
+
 reg  [7:0]      addr_lsb;
 reg  [ATTW-1:0] scr_attr0;
 reg             scr_hflip0, scr_hflip1;
@@ -60,8 +64,8 @@ always @(*) begin
             scr_vflip = attr[7];        
         end
         1,2: begin // Bionic Commando
-            scr_hflip = attr[7];
-            scr_vflip = attr[6];        
+            scr_hflip = attr[7]^flip;
+            scr_vflip = attr[6]^flip;        
         end
         3: begin // Tiger Road
             // attribute bits:
@@ -110,7 +114,7 @@ always @(posedge clk) if(cen6) begin
                             HS[2]^scr_hflip^flip };
             end
         endcase
-        scr_hflip0 <= scr_hflip ^ flip;
+        scr_hflip0 <= scr_hflip;
     end
     else begin
         case( LAYOUT )
