@@ -38,4 +38,6 @@ go.sh -d NOSOUND -d NOMAIN -d NOMCU -video 2 \
     -d SIM_SCR1_VPOS=10\'hFD11 \
     -d SIM_SCR2_HPOS=10\'h03A8 \
     -d SIM_SCR2_VPOS=9\'hFB11 \
-    -deep 
+    -deep $*
+#    -d SIM_SCR2_HPOS=10\'h03A8 \
+#    -d SIM_SCR1_HPOS=10\'h03A8 \

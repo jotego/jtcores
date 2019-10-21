@@ -21,7 +21,7 @@ module jtgng_tile4 #(parameter
     ROM_AW      = 17,
     LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
                       // 3: Tiger Road
-    SIMFILE_MSB = "", 
+    SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1,
     PXLW        = LAYOUT==3 ? 9 : (PALETTE?6:8)
@@ -55,17 +55,24 @@ reg  [7:0]      addr_lsb;
 reg  [ATTW-1:0] scr_attr0;
 reg             scr_hflip0, scr_hflip1;
 
-reg scr_hflip, scr_vflip;
+reg scr_hflip, scr_vflip, aux;
 
+// Not sure about having ^flip in so many places
+// Need to double check all games but BioCom
 always @(*) begin
     case(LAYOUT)
         default: begin
-            scr_hflip = attr[6];
-            scr_vflip = attr[7];        
+            scr_hflip = attr[6]^flip;
+            scr_vflip = attr[7]^flip;
         end
-        1,2: begin // Bionic Commando
-            scr_hflip = attr[7]^flip;
-            scr_vflip = attr[6]^flip;        
+        1: begin // Bionic Commando SCROLL 1. No ^flip on schematics
+            aux = ~&attr[7:6];
+            scr_hflip = attr[7]&aux;
+            scr_vflip = attr[6]&aux;
+        end
+        2: begin // Bionic Commando SCROLL 2. No ^flip on schematics
+            scr_hflip = attr[7];
+            scr_vflip = attr[6];
         end
         3: begin // Tiger Road
             // attribute bits:
@@ -73,7 +80,7 @@ always @(*) begin
             // 4   SCRWIN
             // 5   HFLIP
             // 7-6 ID
-            scr_hflip = attr[5];
+            scr_hflip = attr[5]^flip;
             scr_vflip = flip;
         end
     endcase
@@ -85,13 +92,13 @@ end
 always @(posedge clk) if(cen6) begin
     if( HS[2:0]==3'd1 ) begin // attr/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
-        case( LAYOUT ) 
+        case( LAYOUT )
         0: begin // 1943, 32x32 tiles
             scr_attr0 <= attr[5:2];
             scr_addr[ROM_AW-1:1] <= { attr[0] & AS8MASK, id, // AS
                             HS[4:3]^{2{scr_hflip}},
                             SV^{5{scr_vflip}} }; /*vert_addr*/
-            scr_addr[0] <= HS[2]^scr_hflip^flip;
+            scr_addr[0] <= HS[2]^scr_hflip;
             end
         1: begin // Bionic Commando, scroll 1, 16x16 tiles
             scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
@@ -111,7 +118,7 @@ always @(posedge clk) if(cen6) begin
             scr_addr  <= { attr[7:6], id, // 2+8+2+5+1=18 bits
                             HS[4:3]^{2{scr_hflip}},
                             SV[4:0],
-                            HS[2]^scr_hflip^flip };
+                            HS[2]^scr_hflip };
             end
         endcase
         scr_hflip0 <= scr_hflip;

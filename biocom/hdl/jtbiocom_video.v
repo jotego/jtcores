@@ -156,7 +156,12 @@ assign char_mrdy = 1'b1;
 assign char_pxl  = ~6'd0;
 `endif
 
-`ifndef NOSCR
+`ifdef NOSCR
+    `define NOSCR1
+    `define NOSCR2
+`endif
+
+`ifndef NOSCR1
 jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
@@ -191,7 +196,15 @@ u_scroll1 (
     .scr_col    ( scr1_col      ),
     .scr_pal    ( scr1_pal      )
 );
+`else
+assign scr1_busy  = 1'b1;
+assign scr1_col   = ~4'd0;
+assign scr1_pal   = ~4'd0;
+assign scr1_addr  = 15'd0;
+assign scr1_dout  = 8'd0;
+`endif
 
+`ifndef NOSCR2
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
     .SCANW      ( 12            ),
@@ -226,14 +239,11 @@ u_scroll2 (
     .scr_pal    ( scr2_pal      )
 );
 `else
-assign scr_busy   = 1'b1;
-assign scr1_col   = ~4'd0;
-assign scr1_pal   = ~4'd0;
+assign scr2_busy  = 1'b0;
 assign scr2_col   = ~4'd0;
 assign scr2_pal   = ~4'd0;
-assign scrwin     = 1'd0;
-assign scr_addr   = 15'd0;
-assign scr_dout   = 8'd0;
+assign scr2_addr  = 15'd0;
+assign scr2_dout  = 8'd0;
 `endif
 
 jtgng_obj #(
