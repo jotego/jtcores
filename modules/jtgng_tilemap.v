@@ -33,7 +33,8 @@ module jtgng_tilemap #(parameter
     INVERT_SCAN = 0,
     DATAREAD    = 3'd2,
     SCANW       = 10,
-    BUSY_ON_H0  = 0     // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
+    BUSY_ON_H0  = 0,    // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
+    SIMID       = ""
 ) (
     input                  clk,
     input                  pxl_cen /* synthesis direct_enable = 1 */,

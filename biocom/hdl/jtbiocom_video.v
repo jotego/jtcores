@@ -111,7 +111,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(0)) u_char (
+jtgng_char #(.HOFFSET(0),.SIMID("char")) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -163,7 +163,8 @@ jtgng_scroll #(
     .POSW       ( 10            ),
     .HOFFSET    ( -4            ),
     .TILE4      (  1            ), // 4bpp
-    .LAYOUT     (  1            ))
+    .LAYOUT     (  1            ),
+    .SIMID      ("scr1"         ))
 u_scroll1 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -196,7 +197,8 @@ jtgng_scroll #(
     .SCANW      ( 12            ),
     .HOFFSET    (  0            ),
     .TILE4      (  1            ), // 4bpp
-    .LAYOUT     (  2           ))
+    .LAYOUT     (  2            ),
+    .SIMID      ("scr2"         ))
 u_scroll2 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),

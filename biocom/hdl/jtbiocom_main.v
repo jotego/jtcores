@@ -182,7 +182,7 @@ end
 
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
-    if( rst ) begin
+    if( rst ) begin        
         scr1_hpos <= 10'd0;
         scr1_vpos <= 10'd0;
         scr2_hpos <= 9'd0;

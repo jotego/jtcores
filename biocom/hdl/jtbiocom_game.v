@@ -285,21 +285,34 @@ jtbiocom_main u_main(
     .dipsw_b    ( dipsw_b       )
 );
 `else
-assign main_addr   = 17'd0;
-assign cpu_AB      = 13'd0;
-assign cpu_dout    = 16'd0;
-assign char_cs     = 1'b0;
-assign scr1_cs     = 1'b0;
-assign scr2_cs     = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr1_hpos   = 9'd0;
-assign scr1_vpos   = 9'd0;
-assign scr2_hpos   = 9'd0;
-assign scr2_vpos   = 9'd0;
-assign cpu_cen     = cen12;
-assign OKOUT       = 1'b0;
+    `ifndef SIM_SCR1_HPOS
+    `define SIM_SCR1_HPOS 10'd0
+    `endif
+    `ifndef SIM_SCR1_VPOS
+    `define SIM_SCR1_VPOS 10'd0
+    `endif
+    `ifndef SIM_SCR2_HPOS
+    `define SIM_SCR2_HPOS 9'd0
+    `endif
+    `ifndef SIM_SCR1_VPOS
+    `define SIM_SCR2_VPOS 9'd0
+    `endif
+
+    assign main_addr   = 17'd0;
+    assign cpu_AB      = 13'd0;
+    assign cpu_dout    = 16'd0;
+    assign char_cs     = 1'b0;
+    assign scr1_cs     = 1'b0;
+    assign scr2_cs     = 1'b0;
+    assign bus_ack     = 1'b0;
+    assign flip        = 1'b0;
+    assign RnW         = 1'b1;
+    assign scr1_hpos   = `SIM_SCR1_HPOS;
+    assign scr1_vpos   = `SIM_SCR1_VPOS;
+    assign scr2_hpos   = `SIM_SCR2_HPOS;
+    assign scr2_vpos   = `SIM_SCR2_VPOS;
+    assign cpu_cen     = cen12;
+    assign OKOUT       = 1'b0;
 `endif
 
 `ifndef NOMCU

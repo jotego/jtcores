@@ -36,7 +36,8 @@ module jtgng_char #(parameter
     VFLIP_XOR= 1'b0, // Additional bit for ^ with VFLIP value
     PALETTE  = 0, // 1 if the palette PROM is used
     LAYOUT   = 0, // 0 most games, 3 Tiger Road
-    PALETTE_SIMFILE = "../../../rom/1943/bm5.7f" // only for simulation
+    PALETTE_SIMFILE = "../../../rom/1943/bm5.7f", // only for simulation
+    SIMID = ""
 ) (
     input            clk,
     input            pxl_cen  /* synthesis direct_enable = 1 */,
@@ -83,7 +84,8 @@ localparam DATAREAD = 3'd1;
 
 jtgng_tilemap #(
     .DW      ( DW       ),
-    .DATAREAD( DATAREAD )
+    .DATAREAD( DATAREAD ),
+    .SIMID   ( SIMID    )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

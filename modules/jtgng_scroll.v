@@ -28,7 +28,8 @@ module jtgng_scroll #(parameter
     HFLIP    = 4,
     SCANW    = 10,  // Tile map bit width, normally 10 bits, 9 bits for 1942, 
     TILE4    = 0,   // Use 4 bpp instead of 3bpp
-    LAYOUT   = 0    // Only used for TILE 4
+    LAYOUT   = 0,   // Only used for TILE 4
+    SIMID    = ""
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
@@ -80,7 +81,8 @@ jtgng_tilemap #(
     .SELBIT     ( 1         ),
     .INVERT_SCAN( 1         ),
     .DATAREAD   ( DATAREAD  ),
-    .SCANW      ( SCANW     )
+    .SCANW      ( SCANW     ),
+    .SIMID      ( SIMID     )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
