@@ -57,17 +57,16 @@ wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 reg trf_state;
 
-always @(posedge clk) begin
-    VF <= {8{flip}} ^ V;
-end
-
 localparam SEARCH=1'b0, TRANSFER=1'b1;
 
 always @(posedge clk, posedge rst) begin
     if( rst )
         line <= lineA;
     else if(cen) begin
-        if( HINIT_short ) line <= ~line;
+        if( HINIT_short ) begin
+            VF <= {8{flip}} ^ V;
+            line <= ~line;
+        end
     end
 end
 
