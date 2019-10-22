@@ -129,8 +129,7 @@ always @(posedge clk) if(cen6) begin
             0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
             // Bionic Commando scroll 1
             1: if(HS[2:0]==3'b101 ) begin
-                scr_addr[5] <= HS[3]^scr_hflip0;
-                scr_addr[0] <= HS[2]^scr_hflip0;
+                scr_addr[1:0] <= HS[3:2]^{2{scr_hflip0}};
             end
             // Bionic Commando scroll 2
             2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
