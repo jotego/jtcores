@@ -79,10 +79,10 @@ module jtbiocom_video(
     input       [7:0]   prog_addr,
     input               prom_prio_we,
     input       [3:0]   prom_din,
-    // Pixel output
-    output      [3:0]   red,
-    output      [3:0]   green,
-    output      [3:0]   blue
+    // Pixel output: 5 bits per colour!
+    output      [4:0]   red,
+    output      [4:0]   green,
+    output      [4:0]   blue
 );
 
 // parameters from jtgng_colmix:

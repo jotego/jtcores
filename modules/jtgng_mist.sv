@@ -132,9 +132,14 @@ wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
 wire          prog_we;
 
-wire [3:0] red;
-wire [3:0] green;
-wire [3:0] blue;
+`ifndef COLORW
+`define COLORW 4
+`endif
+localparam COLORW=`COLORW;
+
+wire [COLORW-1:0] red;
+wire [COLORW-1:0] green;
+wire [COLORW-1:0] blue;
 
 wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
 wire [15:0] snd_left, snd_right;
@@ -184,8 +189,11 @@ assign sim_hs = ~LHBL_dly;
 `endif
 
 
-jtframe_mist #( .CONF_STR(CONF_STR),
-    .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
+jtframe_mist #( 
+    .CONF_STR     ( CONF_STR ),
+    .SIGNED_SND   ( 1'b1     ),
+    .THREE_BUTTONS( 1'b1     ),
+    .COLORW       ( COLORW   ))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),

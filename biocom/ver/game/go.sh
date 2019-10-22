@@ -51,4 +51,4 @@ fi
 echo "Game ROM length: " $GAME_ROM_LEN
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN \
     -sysname biocom -modules ../../../modules -d SCANDOUBLER_DISABLE=1 \
-    -d STEREO_GAME -d JT51_NODEBUG $*
+    -d STEREO_GAME -d COLORW=5 -d JT51_NODEBUG $*

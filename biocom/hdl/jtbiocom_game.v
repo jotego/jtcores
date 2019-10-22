@@ -25,9 +25,9 @@ module jtbiocom_game(
     output          cen6,       //  6   MHz
     output          cen3,       //  3   MHz
     output          cen1p5,     //  1.5 MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
+    output   [4:0]  red,
+    output   [4:0]  green,
+    output   [4:0]  blue,
     output          LHBL,
     output          LVBL,
     output          LHBL_dly,
@@ -457,9 +457,9 @@ jtbiocom_video #(
 );
 `else
 // Video module may be ommitted for SDRAM load simulation
-assign red       = 4'h0;
-assign green     = 4'h0;
-assign blue      = 4'h0;
+assign red       = 5'h0;
+assign green     = 5'h0;
+assign blue      = 5'h0;
 assign obj_addr  = 0;
 assign scr1_addr = 0;
 assign scr2_addr = 0;

@@ -34,10 +34,8 @@ drop1 < biocom_scr2.bin | drop1 -l > scr2_lower.bin
 go.sh -d NOSOUND -d NOMAIN -d NOMCU -video 2 \
     -d JTCHAR_UPPER_SIMFILE=',.simfile({SIMID,"_upper.bin"})' \
     -d JTCHAR_LOWER_SIMFILE=',.simfile({SIMID,"_lower.bin"})' \
-    -d SIM_SCR1_HPOS=10\'h03A8 \
-    -d SIM_SCR1_VPOS=10\'hFD11 \
-    -d SIM_SCR2_HPOS=10\'h03A8 \
-    -d SIM_SCR2_VPOS=9\'hFB11 \
+    -d SIM_SCR1_VPOS=10\'h0300 \
+    -d SIM_SCR2_VPOS=9\'h0100 \
     -deep $*
 #    -d SIM_SCR2_HPOS=10\'h03A8 \
 #    -d SIM_SCR1_HPOS=10\'h03A8 \

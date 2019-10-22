@@ -222,12 +222,20 @@ wire [21:0]  prog_addr;
 wire [ 7:0]  prog_data;
 wire [ 1:0]  prog_mask;
 
-wire [ 3:0]  game_r, game_g, game_b;
-wire         LHBL_dly, LVBL_dly;
-wire         hs, vs;
+`ifndef COLORW
+`define COLORW 4
+`endif
+localparam COLORW=`COLORW;
 
-jtframe_mister #( .CONF_STR(CONF_STR),
-    .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
+wire [COLORW-1:0] game_r, game_g, game_b;
+wire              LHBL_dly, LVBL_dly;
+wire              hs, vs;
+
+jtframe_mister #(
+    .CONF_STR      ( CONF_STR ),
+    .SIGNED_SND    ( 1'b1     ),
+    .THREE_BUTTONS ( 1'b1     ),
+    .COLORW        ( COLORW   ))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_sys        ),

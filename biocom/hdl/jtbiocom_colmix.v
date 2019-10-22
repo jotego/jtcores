@@ -71,9 +71,9 @@ module jtbiocom_colmix(
     input            col_lw,
     input [15:0]     DB,
 
-    output reg [3:0] red,
-    output reg [3:0] green,
-    output reg [3:0] blue,
+    output reg [4:0] red,
+    output reg [4:0] green,
+    output reg [4:0] blue,
     // Debug
     input      [3:0] gfx_en
 );
@@ -85,7 +85,6 @@ reg [9:0] pixel_mux;
 wire enable_char = gfx_en[0];
 wire enable_scr1 = gfx_en[1];
 wire enable_scr2 = gfx_en[2];
-wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
@@ -204,16 +203,42 @@ jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_selbus(
     .q      ( selbus        )
 );
 
-function [3:0] dim;
-    input [3:0]  col;
-    input        dim_set;
-    dim = !dim_set ? {1'b0, col[3:1]} : col; // To do: fix accuracy
-endfunction
+reg [4:0] pre_r, pre_g, pre_b;
+reg [3:0] pre_bright;
+reg [7:0] step;
 
-always @(posedge clk) if (cen6)
-    {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
-        { dim(pal_red,   pal_bright[2]),
-          dim(pal_green, pal_bright[1]),
-          dim(pal_blue,  pal_bright[0]) } : 12'd0;
+always @(posedge clk,posedge rst) begin
+    if( rst ) begin
+        step <= 8'd1;
+    end else begin
+        step <= { step[6:0], step[7] };
+        if( step[0] ) begin
+            pre_bright <= pal_bright;
+            if( coloff ) begin
+                pre_r <= 5'd0;
+                pre_g <= 5'd0;
+                pre_b <= 5'd0;
+            end else begin
+                pre_r <= { pal_red,  pal_red[3]   } >> ~pal_bright[3];
+                pre_g <= { pal_green,pal_green[3] } >> ~pal_bright[3];
+                pre_b <= { pal_blue, pal_blue[3]  } >> ~pal_bright[3];
+            end
+        end
+        else begin
+            if( !pre_bright[3] && pre_bright[2:0]!=3'd0 ) begin
+                pre_r <= pre_r + 5'd2;
+                pre_g <= pre_g + 5'd2;
+                pre_b <= pre_b + 5'd2;
+                pre_bright[2:0] <= pre_bright[2:0] - 3'd1;
+            end
+        end
+    end
+end
+
+always @(posedge clk) if(cen6) begin
+    red   <= pre_r;
+    green <= pre_g;
+    blue  <= pre_b;
+end
 
 endmodule // jtgng_colmix
