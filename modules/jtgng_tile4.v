@@ -103,9 +103,9 @@ always @(posedge clk) if(cen6) begin
         1: begin // Bionic Commando, scroll 1, 16x16 tiles
             scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
             scr_addr  <= { attr[2:0], id, // AS
-                            HS[3]^scr_hflip,
                             SV[3:0]^{4{scr_vflip}},
-                            HS[2]^scr_hflip };
+                            HS[3]^scr_hflip,    // it was bit 5 originally
+                            HS[2]^scr_hflip };  // swapped for cache performance
             end
         2: begin // Bionic Commando, scroll 2, 8x8 tiles
             scr_attr0 <= { 1'b0, attr[5:3] }; // MSB doesn't connect to anything on the higher levels

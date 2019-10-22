@@ -125,7 +125,14 @@ always @(posedge clk) begin
         end
         else if(ioctl_addr[19:16] < OBJWZ_ADDR0[19:16] ) begin // Scroll    
             prog_mask <= scr_msb[3] ? 2'b01 : 2'b10;
-            prog_addr <= { 2'b0, {1'b0, scr_msb[2:0]}+4'h5,ioctl_addr[15:0] }; // original bit order
+            prog_addr <= { 2'b0, {1'b0, scr_msb[2:0]}+4'h5, 
+                scr_msb[1] ?
+                ioctl_addr[15:0] : // SCR2: original bit order
+                { ioctl_addr[15:6], // SCR1: bit 5 swapped
+                  ioctl_addr[4:1],
+                  ioctl_addr[5],
+                  ioctl_addr[0] }
+                };
             `INFO_SCR
         end    
         else if(ioctl_addr[19:16] < MCU_ADDR[19:16] ) begin // Objects
