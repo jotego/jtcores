@@ -201,6 +201,7 @@ always @(posedge clk)
     if( rst ) begin
         flip         <= 1'b0;
         snd_latch    <= 8'b0;
+        snd_nmi_n    <= 1'b1;
     end
     else if(cpu_cen) begin
         snd_nmi_n  <= 1'b1;
