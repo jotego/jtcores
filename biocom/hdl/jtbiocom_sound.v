@@ -142,8 +142,8 @@ jt51 u_jt51(
     .cs_n       ( !fm_cs    ), // chip select
     .wr_n       ( WRn       ), // write
     .a0         ( A[0]      ),
-    .d_in       ( dout      ), // data in
-    .d_out      ( fm_dout   ), // data out
+    .din        ( dout      ), // data in
+    .dout       ( fm_dout   ), // data out
     .ct1        (           ),
     .ct2        (           ),
     .irq_n      ( int_n     ),  // I do not synchronize this signal

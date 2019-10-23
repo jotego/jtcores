@@ -157,7 +157,7 @@ mc8051_core u_mcu(
     .ram_data_o ( ram_data  ),
     .ram_adr_o  ( ram_addr  ),
     .ram_wr_o   ( ram_we    ),
-    .ram_en_o   ( ram_en    ),
+    .ram_en_o   (           ),
     // external memory: connected to main CPU
     .datax_i    ( mcu_din0  ),
     .datax_o    ( mcu_dout  ),

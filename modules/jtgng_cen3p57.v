@@ -21,7 +21,8 @@
 
 module jtgng_cen3p57(
     input      clk,       // 48 MHz
-    output reg cen_3p57
+    output reg cen_3p57,
+    output reg cen_1p78
 );
 
 localparam [10:0] step=11'd105;
@@ -32,12 +33,19 @@ reg  [10:0] cencnt=11'd0;
 wire [10:0] next  = cencnt+11'd105;
 wire [10:0] next2 = cencnt+11'd105-lim;
 
+reg alt=1'b0;
+
 always @(negedge clk) begin
     cen_3p57 <= 1'b0;
+    cen_1p78 <= 1'b0;
     if( cencnt >= lim ) begin
         cencnt <= next2;
         cen_3p57 <= 1'b1;
-    end else cencnt <= next;
+        alt    <= ~alt;
+        if( alt ) cen_1p78 <= 1'b1;
+    end else begin
+        cencnt <= next;
+    end
 end
 
 endmodule // jtgng_cen

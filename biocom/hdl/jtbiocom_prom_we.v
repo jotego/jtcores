@@ -76,7 +76,6 @@ reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
 
 // offset the SDRAM programming address by 
 reg  [3:0] scr_msb;
-wire [3:0] obj_msb = ioctl_addr[19:16]-4'hb;
 
 reg       set_strobe=1'b0, set_done=1'b0;
 reg [1:0] prom_we0 = 2'd0;

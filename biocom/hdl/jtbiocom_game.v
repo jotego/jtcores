@@ -108,7 +108,7 @@ wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12b, cen6b, cen_fm, cen_fm2;
+wire        cen12b, cen6b;
 
 wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok;
@@ -151,10 +151,6 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
-
-// temporary values for FM clock enables
-assign cen_fm  = cen3;  
-assign cen_fm2 = cen1p5;
 
 jtbiocom_dip u_dip(
     .clk        ( clk           ),
@@ -348,6 +344,15 @@ assign mcu_din  =  8'd0;
 `endif
 
 `ifndef NOSOUND
+
+wire cen_fm, cen_fm2;
+
+jtgng_cen3p57 u_cen3p57(
+    .clk        ( clk       ),       // 48 MHz
+    .cen_3p57   ( cen_fm    ),
+    .cen_1p78   ( cen_fm2   )
+);
+
 jtbiocom_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
