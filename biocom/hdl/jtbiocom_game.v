@@ -184,7 +184,7 @@ wire RnW;
 // sound
 wire [7:0] snd_latch;
 
-wire        main_cs;
+wire        main_cs, snd_nmi_n;
 // OBJ
 wire OKOUT, blcnten, obj_br, bus_ack;
 wire [13:1] obj_AB;     // 1 more bit than older games
@@ -228,6 +228,7 @@ jtbiocom_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .snd_latch  ( snd_latch     ),
+    .snd_nmi_n  ( snd_nmi_n     ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -360,6 +361,7 @@ jtbiocom_sound u_sound (
     .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
+    .nmi_n          ( snd_nmi_n      ),
     // Interface with MCU
     .snd_din        ( snd_din        ),
     .snd_dout       ( snd_dout       ),

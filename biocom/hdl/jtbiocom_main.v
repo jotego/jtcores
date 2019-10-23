@@ -33,6 +33,7 @@ module jtbiocom_main(
     input              LVBL,
     // Sound
     output  reg  [7:0] snd_latch,
+    output  reg        snd_nmi_n,
     // Characters
     input        [7:0] char_dout,
     output      [15:0] cpu_dout,
@@ -202,10 +203,14 @@ always @(posedge clk)
         snd_latch    <= 8'b0;
     end
     else if(cpu_cen) begin
+        snd_nmi_n  <= 1'b1;
         if( !UDSWn && io_cs)
             case( { A[1]} )
                 1'b0: flip      <= cpu_dout[8];
-                1'b1: snd_latch <= cpu_dout[7:0];
+                1'b1: begin
+                    snd_latch <= cpu_dout[7:0];
+                    snd_nmi_n  <= 1'b0;
+                end
             endcase
     end
 

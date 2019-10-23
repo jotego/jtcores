@@ -17,6 +17,7 @@
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtgng_cen.v
+../../../modules/jtgng_cen3p57.v
 ../../../modules/jtgng_charmsg.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_dual_ram.v
