@@ -379,7 +379,7 @@ initial begin
     fsnd=$fopen("sound.raw","wb");
 end
 always @(posedge sample) begin
-    $fwrite(fsnd,"%u", snd_left);
+    $fwrite(fsnd,"%u", {snd_left, snd_right});
 end
 `endif
 `endif
