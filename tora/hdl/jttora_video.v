@@ -196,6 +196,7 @@ assign map_addr   = 14'd0;
 jtgng_obj #(
     .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( LAYOUT     ),
+    .INVY       ( 1          ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 6'd32      ),
     .PALW       ( 4          ),

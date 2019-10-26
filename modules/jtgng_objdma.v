@@ -20,7 +20,8 @@ module jtgng_objdma #(parameter
     OBJMAX      =   9'h180,     // Buffer size, obj count is this number divided by 4. 180h -> 60h = 96dec
     DW          =   8,          // Most games are 8-bit wide, Bionic Commando is 12-bit wide
     AW          =   9,          // Bionic Commando is 10
-    AVATAR_MAX  =   4'd8        // ignore if avatars are not used
+    AVATAR_MAX  =   4'd8,       // ignore if avatars are not used
+    INVY        =   0
 ) (
     input               rst,
     input               clk,
@@ -115,7 +116,8 @@ always @(posedge clk, posedge rst)
 wire [AW-1:0]  wr_addr = mem_sel==MEM_PREBUF ? AB : {AW{1'b0}};
 wire           ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
-wire [DW-1:0] buf_data;
+wire [DW-1:0] prebuf;
+reg  [DW-1:0] buf_data;
 
 // The real PCB did not have a dual port RAM but at this point
 // of the signal chain, it does not affect timing accuracy as
@@ -131,8 +133,15 @@ jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile(`OBJDMA_SIMFILE)) u_objram (
     .rd_addr    ( pre_scan    ),
     .wr_addr    ( wr_addr     ),
     .we         ( ram_we      ),
-    .q          ( buf_data    )
+    .q          ( prebuf      )
 );
+
+reg invy;
+
+always @(posedge clk) begin
+    invy     <= pre_scan[1:0]==2'b10 && INVY;
+    buf_data <= invy ? 9'd240-prebuf : prebuf;
+end
 
 `ifdef AVATARS
 // Avatar counter is used in both MiST and MiSTer

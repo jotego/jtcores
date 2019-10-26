@@ -269,18 +269,23 @@ jttora_main u_main(
     .dipsw_b    ( dipsw_b       )
 );
 `else
-assign main_addr   = 17'd0;
-assign cpu_AB      = 13'd0;
-assign cpu_dout    = 16'd0;
-assign char_cs     = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scrposh     = -16'd128;
-assign scrposv     = 16'd0;
-assign cpu_cen     = cen12;
-assign scr_addr[18]= 1'b0;
-assign OKOUT       = 1'b0;
+    `ifndef SIM_SCR_VPOS
+    `define SIM_SCR_HPOS 16'd0
+    `define SIM_SCR_VPOS 16'd0
+    `define SIM_SCR_BANK 1'b0
+    `endif
+    assign main_addr   = 17'd0;
+    assign cpu_AB      = 13'd0;
+    assign cpu_dout    = 16'd0;
+    assign char_cs     = 1'b0;
+    assign bus_ack     = 1'b0;
+    assign flip        = 1'b0;
+    assign RnW         = 1'b1;
+    assign scrposh     = `SIM_SCR_HPOS;
+    assign scrposv     = `SIM_SCR_VPOS;
+    assign scr_addr[18]= `SIM_SCR_BANK;
+    assign cpu_cen     = cen12;
+    assign OKOUT       = 1'b0;
 `endif
 
 `ifndef NOSOUND

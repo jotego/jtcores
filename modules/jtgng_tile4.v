@@ -143,8 +143,8 @@ end
 
 // Draw pixel on screen
 reg [     3:0] w,x,y,z;
-reg [     3:0] scr_attr1, scr_col0;
-reg [ATTW-1:0] scr_pal0;
+reg [     3:0] scr_col0;
+reg [ATTW-1:0] scr_attr1, scr_pal0;
 
 // Character data delay
 // clock count      stage

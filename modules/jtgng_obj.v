@@ -28,6 +28,7 @@ module jtgng_obj #(parameter
                        // 1: 1943
                        // 2: GunSmoke
                        // 3: Bionic Commando
+    INVY        = 0,   // Invert Y position, used by Tiger Road
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -95,6 +96,7 @@ jtgng_objdma #(
     .DW         ( DMA_DW     ),
     .AW         ( DMA_AW     ),
     .OBJMAX     ( OBJMAX     ),
+    .INVY       ( INVY       ),
     .AVATAR_MAX ( AVATAR_MAX ))
  u_dma(
     .rst        ( rst       ),

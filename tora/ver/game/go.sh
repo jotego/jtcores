@@ -24,7 +24,7 @@ export GAME_ROM_PATH=../../../rom/JTTORA.rom
 export MEM_CHECK_TIME=310_000_000
 # 280ms to load the ROM ~17 frames
 export BIN2PNG_OPTIONS="--scale"
-export CONVERT_OPTIONS="-resize 200%x200%"
+export CONVERT_OPTIONS="-resize 300%x300%"
 GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
 export YM2203=1
 

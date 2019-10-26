@@ -102,7 +102,7 @@ always @(posedge clk) if(cen) begin
                 obj_hflip <= 1'b0;
                 hover     <= objbuf_data[5];
             end
-            3: begin // Bionic Commando
+            3: begin // Bionic Commando, Tiger Road
                 obj_vflip <= objbuf_data[0];
                 obj_hflip <= objbuf_data[1];
                 objpal    <= objbuf_data[5:2];
