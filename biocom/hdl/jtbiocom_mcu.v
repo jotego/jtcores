@@ -48,7 +48,7 @@ module jtbiocom_mcu(
     output               mcu_brn,   // RQBSQn
     output               DMAn,
     // Sound CPU interface
-    input        [ 7:0]  snd_dout,
+    input  reg   [ 7:0]  snd_dout,
     output       [ 7:0]  snd_din,
     input                snd_mcu_wr,
     // ROM programming
@@ -64,7 +64,7 @@ wire [ 7:0] ram_data;
 wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
-wire [ 7:0] p3_o;
+wire [ 7:0] p1_o, p3_o;
 reg         int0, int1;
 
 // interface with main CPU
@@ -94,8 +94,9 @@ end
 wire      int1_clrn = p3_o[4];
 
 reg [7:0] snd_dout_latch;
-reg       last_snd_mcu_wr;
+reg       last_snd_mcu_wr, last_p3_6;
 wire      posedge_snd = snd_mcu_wr && !last_snd_mcu_wr;
+wire      posedge_p3_6 = p3_o[6] && !last_p3_6;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -110,6 +111,9 @@ always @(posedge clk, posedge rst) begin
         if( !int1_clrn )
             int1 <= 1'b1;
         else if( posedge_snd ) int1 <= 1'b0;
+        // latch sound data
+        if( posedge_p3_6 )
+            snd_din <= p1_o;
     end
 end
 
@@ -177,7 +181,7 @@ mc8051_core u_mcu(
     .p0_o       (           ),
 
     .p1_i       ( snd_dout_latch   ),
-    .p1_o       ( snd_din   ),
+    .p1_o       ( p1_o      ),
 
     .p2_i       (           ),
     .p2_o       (           ),
