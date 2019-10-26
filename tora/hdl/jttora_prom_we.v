@@ -121,7 +121,7 @@ always @(posedge clk) begin
         end    
         else if(ioctl_addr[20:16] < PROM_ADDR[20:16] ) begin // Objects
             // saved to 22'h20_0000
-            prog_mask <= obj_msb[1] ? 2'b10 : 2'b01;
+            prog_mask <= !obj_msb[1] ? 2'b10 : 2'b01;
             prog_addr <= { 4'b10_00,
                 ~ioctl_addr[16],
                 ioctl_addr[15:0], 

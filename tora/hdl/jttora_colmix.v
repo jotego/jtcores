@@ -61,7 +61,7 @@ wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
-wire [1:0] selbus;
+wire [1:0] prio;
 reg  [7:0] seladdr;
 reg  [1:0] presel;
 wire       char_blank_n = |(~char_pxl[1:0]);
@@ -76,11 +76,12 @@ always @(*) begin
 end
 
 always @(posedge clk) if(cen6) begin
-    case( selbus )
-        2'b11: pixel_mux <= {2'b11, 2'b0, char_pxl };
-        2'b10: pixel_mux <= {2'b10, obj_pxl        };
-        2'b01: pixel_mux <= {2'b01, scr_pxl[7:0]   };
+    case( prio )
+        2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
+        2'b10: pixel_mux[7:0] <= obj_pxl; // 2301
+        2'b01: pixel_mux[7:0] <= scr_pxl[7:0];
     endcase
+    pixel_mux[9:8] <= prio;
 end
 
 // Blanking delay
@@ -163,16 +164,16 @@ jtgng_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
 // wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 // `endif
 
-// Clock must be faster than 6MHz so selbus is ready for the next
+// Clock must be faster than 6MHz so prio is ready for the next
 // 6MHz clock cycle:
-jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_selbus(
+jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),
     .rd_addr( seladdr       ),
     .wr_addr( prog_addr     ),
     .we     ( prom_prio_we  ),
-    .q      ( selbus        )
+    .q      ( prio          )
 );
 
 always @(posedge clk) if (cen6)
