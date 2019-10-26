@@ -48,7 +48,7 @@ module jtgng_tile4 #(parameter
 localparam ATTW = LAYOUT==3 ? 5 : 4;
 
 `ifdef SIMULATION
-initial $display("INFO: LAYOUT %d for %m", LAYOUT);
+initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
 `endif
 
 reg  [7:0]      addr_lsb;

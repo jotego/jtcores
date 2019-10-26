@@ -61,7 +61,7 @@ module jttora_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [17:0]  obj_addr,
+    output      [16:0]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -110,7 +110,7 @@ jtgng_char #(
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[11:1]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),

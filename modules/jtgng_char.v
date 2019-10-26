@@ -122,6 +122,10 @@ reg [PALW-1:0] char_attr2;
 
 reg [15:0] good_data;
 
+`ifdef SIMULATION
+initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
+`endif
+
 // avoid getting the data too early
 always @(posedge clk) begin
     if( Hfix[2:0]>(DATAREAD+3'd1) && rom_ok ) good_data <= rom_data;

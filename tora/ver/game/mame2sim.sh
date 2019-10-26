@@ -43,8 +43,8 @@ if ! which drop1; then
     exit 1
 fi
 
-dd if=tora_char.bin count=4        2>/dev/null | drop1 > char_lower.bin 
-dd if=tora_char.bin count=4 skip=4 2>/dev/null | drop1 > char_upper.bin 
+dd if=tora_char.bin 2>/dev/null | drop1 > char_lower.bin 
+dd if=tora_char.bin 2>/dev/null | drop1 -l > char_upper.bin 
 
 # Palette 
 if [ ! -e pal_bin2hex ]; then

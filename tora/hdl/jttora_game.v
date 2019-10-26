@@ -99,7 +99,7 @@ wire [13:0] map_addr;
 wire [13:0] char_addr;
 wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
-wire [18:0] obj_addr;
+wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen10, cen10b, cen6b, cen_fm;
 
@@ -356,7 +356,7 @@ jttora_video #(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
-    .obj_addr   ( obj_addr[18:1]),
+    .obj_addr   ( obj_addr[17:1]),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
