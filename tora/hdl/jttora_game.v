@@ -274,6 +274,9 @@ jttora_main u_main(
     `define SIM_SCR_VPOS 16'd0
     `define SIM_SCR_BANK 1'b0
     `endif
+    `ifndef SIM_SND_LATCH
+    `define SIM_SND_LATCH 8'd0;
+    `endif
     assign main_addr   = 17'd0;
     assign cpu_AB      = 13'd0;
     assign cpu_dout    = 16'd0;
@@ -286,6 +289,7 @@ jttora_main u_main(
     assign scr_addr[18]= `SIM_SCR_BANK;
     assign cpu_cen     = cen12;
     assign OKOUT       = 1'b0;
+    assign snd_latch   = `SIM_SND_LATCH;
 `endif
 
 `ifndef NOSOUND

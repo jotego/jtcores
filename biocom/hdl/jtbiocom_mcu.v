@@ -48,8 +48,8 @@ module jtbiocom_mcu(
     output               mcu_brn,   // RQBSQn
     output               DMAn,
     // Sound CPU interface
-    input  reg   [ 7:0]  snd_dout,
-    output       [ 7:0]  snd_din,
+    input        [ 7:0]  snd_dout,
+    output reg   [ 7:0]  snd_din,
     input                snd_mcu_wr,
     // ROM programming
     input        [11:0]  prog_addr,
