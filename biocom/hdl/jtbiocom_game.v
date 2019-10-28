@@ -231,7 +231,7 @@ jtbiocom_main u_main(
     .snd_nmi_n  ( snd_nmi_n     ),
     // CHAR
     .char_dout  ( char_dout     ),
-    .cpu_dout   ( cpu_dout      ),
+    .bus_din    ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
     // SCROLL 1

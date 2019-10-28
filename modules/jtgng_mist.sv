@@ -373,7 +373,6 @@ u_game(
 );
 
 `ifdef SIMULATION
-`ifdef SOUND_DUMP
 integer fsnd;
 initial begin
     fsnd=$fopen("sound.raw","wb");
@@ -381,7 +380,6 @@ end
 always @(posedge sample) begin
     $fwrite(fsnd,"%u", {snd_left, snd_right});
 end
-`endif
 `endif
 
 endmodule

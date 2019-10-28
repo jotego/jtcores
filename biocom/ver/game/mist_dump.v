@@ -49,7 +49,10 @@ module mist_dump(
             $shm_probe(mist_test,"AS");
         `else
             $shm_probe(mist_test.UUT.u_game.u_sound,"A");
-            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51,"AS");
+            $shm_probe(mist_test.UUT.u_game.u_mcu,"A");
+            $shm_probe(mist_test.UUT.u_game.u_main,"A");
+            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51,"A");
+            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.u_mmr,"AS");
             $shm_probe(mist_test.UUT,"A");
             $shm_probe(mist_test,"A");
         `endif

@@ -64,7 +64,7 @@ wire [ 7:0] ram_data;
 wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
-wire [ 7:0] p1_o, p3_o;
+wire [ 7:0] p1_o, p2_o, p3_o;
 reg         int0, int1;
 
 // interface with main CPU
@@ -105,6 +105,7 @@ always @(posedge clk, posedge rst) begin
         last_snd_mcu_wr <= 1'b0;
     end else begin
         last_snd_mcu_wr <= snd_mcu_wr;
+        last_p3_6       <= p3_o[6];
         if( posedge_snd )
             snd_dout_latch <= snd_dout;
         // interrupt line
@@ -184,7 +185,7 @@ mc8051_core u_mcu(
     .p1_o       ( p1_o      ),
 
     .p2_i       (           ),
-    .p2_o       (           ),
+    .p2_o       ( p2_o      ),
 
     .p3_i       (           ),
     .p3_o       ( p3_o      )

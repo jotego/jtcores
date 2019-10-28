@@ -106,7 +106,6 @@ wire        cen10, cen10b, cen6b, cen_fm;
 wire        rom_ready;
 wire        main_ok, scr_ok, snd_ok, obj_ok, char_ok;
 
-assign sample=1'b1;
 assign obj_addr[0] = 1'b0; // fixed for 32 bit values
 
 `ifdef MISTER
@@ -153,7 +152,8 @@ jtgng_cen10 u_cen10(
 
 jtgng_cen3p57 u_cen3p57(
     .clk      ( clk       ),
-    .cen_3p57 ( cen_fm    )
+    .cen_3p57 ( cen_fm    ),
+    .cen_1p78 (           )     // unused
 );
 
 jttora_dip u_dip(
@@ -305,14 +305,15 @@ jtgng_sound #(.LAYOUT(3)) u_sound (
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
-    .psg_gain       ( psg_gain       ),
+    .psg_gain       ( 8'h10          ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            )
+    .ym_snd         ( snd            ),
+    .sample         ( sample         )
 );
 `else
 assign snd_addr = 15'd0;

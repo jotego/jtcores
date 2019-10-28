@@ -7,6 +7,7 @@
 ../../hdl/jtbiocom_video.v
 ../../hdl/jtbiocom_mcu.v
 ../../hdl/jtbiocom_sound.v
+../../hdl/jtbiocom_bus.v
 ../../../modules/fx68k/fx68kAlu.sv
 ../../../modules/fx68k/fx68k.sv
 ../../../modules/fx68k/uaddrPla.sv

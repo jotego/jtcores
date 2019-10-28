@@ -36,7 +36,7 @@ module jtbiocom_main(
     output  reg        snd_nmi_n,
     // Characters
     input        [7:0] char_dout,
-    output      [15:0] cpu_dout,
+    output      [15:0] bus_din,
     output  reg        char_cs,
     input              char_busy,
     // scroll
@@ -67,7 +67,7 @@ module jtbiocom_main(
     // MCU interface
     input              mcu_brn,
     input      [ 7:0]  mcu_dout,
-    output reg [ 7:0]  mcu_din,
+    output     [ 7:0]  mcu_din,
     input      [16:1]  mcu_addr,
     input              mcu_wr,
     input              mcu_DMAn,
@@ -112,6 +112,25 @@ assign col_lw = col_cs & ~LDSWn;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
 
+wire [19:1] bus_addr;
+wire        bus_UDSWn, bus_LDSWn;
+wire [15:0] cpu_dout;
+
+jtbiocom_bus u_bus(
+    .mcu_addr   ( mcu_addr          ),
+    .cpu_addr   ( A                 ),
+    .mcu_wr     ( mcu_wr            ),
+    .UDSWn      ( UDSWn             ),
+    .LDSWn      ( LDSWn             ),
+    .mcu_DMAn   ( mcu_DMAn          ),
+    .mcu_dout   ( mcu_dout          ),
+    .cpu_dout   ( cpu_dout          ),
+    .bus_addr   ( bus_addr          ),
+    .bus_din    ( bus_din           ),
+    .bus_UDSWn  ( bus_UDSWn         ),
+    .bus_LDSWn  ( bus_LDSWn         )
+);
+
 always @(*) begin
     rom_cs        = 1'b0;
     ram_cs        = 1'b0;
@@ -129,17 +148,17 @@ always @(*) begin
     scr2hpos_cs   = 1'b0;
 
     BERRn         = 1'b1;
-    // address decoder is not shared with MCU contrary to the original design
-    if( CPUbus ) case(A[19:18])
+    // address decoder is shared with MCU same as the original design
+    if( !blcnten ) case(bus_addr[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
-            2'd3: if(A[17]) case(A[16:14])  // 111X
+            2'd3: if(bus_addr[17]) case(bus_addr[16:14])  // 111X
                     3'd0:   obj_cs  = 1'b1; // E_0000 
                     3'd1:   io_cs   = 1'b1; // E_4000
-                    3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8010
+                    3'd2: if( !bus_UDSWn && !bus_LDSWn && bus_addr[4]) begin // E_8010
                         // scrpt_cs
                         $display("SCRPTn");
-                        case( A[3:1]) // SCRPTn in the schematics
+                        case( bus_addr[3:1]) // SCRPTn in the schematics
                                 3'd0: scr1hpos_cs = 1'b1;
                                 3'd1: scr1vpos_cs = 1'b1;
                                 3'd2: scr2hpos_cs = 1'b1;
@@ -155,31 +174,16 @@ always @(*) begin
                             default:;
                         endcase
                     end
-                    3'd3:   char_cs = 1'b1; // E_C000
-                    3'd4:   scr1_cs = 1'b1; // F_0000
-                    3'd5:   scr2_cs = 1'b1; // F_4000
-                    3'd6:   col_cs  = 1'b1; // F_8000
-                    3'd7:   ram_cs  = 1'b1; // F_C000
+                    3'd3: char_cs = 1'b1; // E_C000
+                    3'd4: scr1_cs = 1'b1; // F_0000
+                    3'd5: scr2_cs = 1'b1; // F_4000
+                    3'd6: col_cs  = 1'b1; // F_8000
+                    3'd7: ram_cs  = 1'b1; // F_C000
                 endcase
         endcase
 end
 
-// MCU DMA address decoder
-reg mcu_obj_cs, mcu_ram_cs, mcu_io_cs, mcu_other_cs;
-
-always @(*) begin
-    mcu_obj_cs   = 1'b0;
-    mcu_ram_cs   = 1'b0;
-    mcu_io_cs    = 1'b0;
-    mcu_other_cs = 1'b0;
-    if( !mcu_DMAn )
-        case(mcu_addr[16:14])
-            3'd0:    mcu_obj_cs   = 1'b1;
-            3'd1:    mcu_io_cs    = 1'b1;
-            3'd7:    mcu_ram_cs   = 1'b1;
-            default: mcu_other_cs = 1'b1;
-        endcase
-end
+assign cpu_AB = bus_addr[13:1];
 
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
@@ -227,55 +231,20 @@ always @(posedge clk) if(cpu_cen) begin
 end
 
 /////////////////////////////////////////////////////
-// RAMs data input mux
-reg [7:0] ram_udin, ram_ldin;
-
-always @(*) begin
-    if( !mcu_DMAn ) begin
-        ram_udin = 8'hff;       // unused
-        ram_ldin = mcu_dout;
-    end else begin
-        ram_udin = cpu_dout[15:8];
-        ram_ldin = cpu_dout[ 7:0];
-    end
-end
-
-/////////////////////////////////////////////////////
-// MCU DMA data output mux
-always @(posedge clk) begin
-    case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
-        3'b100:  mcu_din <= oram_dout[7:0];
-        3'b010:  mcu_din <= wram_dout[7:0];
-        3'b001:  mcu_din <= cabinet_input[7:0];
-        default: mcu_din <= 8'hff;
-    endcase
-end
-
-/////////////////////////////////////////////////////
 // Work RAM, 16kB
-reg [13:1]  work_A;
 reg         work_uwe, work_lwe;
 wire        ram_cen=cpu_cen;
 
 always @(*) begin
-    if( mcu_ram_cs ) begin
-        // MCU access
-        work_A   = mcu_addr[13:1];
-        work_uwe = 1'b0;
-        work_lwe = mcu_wr ;
-    end else begin 
-        // CPU access
-        work_A   = A[13:1];
-        work_uwe = ram_cs & !UDSWn;
-        work_lwe = ram_cs & !LDSWn;
-    end
+    work_uwe = ram_cs & !UDSWn;
+    work_lwe = ram_cs & !LDSWn;
 end
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
-    .addr       ( work_A           ),
-    .data       ( ram_udin         ),
+    .addr       ( bus_addr[13:1]   ),
+    .data       ( bus_din[15:8]    ),
     .we         ( work_uwe         ),
     .q          ( wram_dout[15:8]  )
 );
@@ -283,43 +252,34 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
 jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
-    .addr       ( work_A           ),
-    .data       ( ram_ldin         ),
+    .addr       ( bus_addr[13:1]   ),
+    .data       ( bus_din[7:0]     ),
     .we         ( work_lwe         ),
     .q          ( wram_dout[7:0]   )
 );
 
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
-assign cpu_AB = A[13:1];
 reg [10:0] oram_addr;
 reg  obj_uwe, obj_lwe;
 
 always @(*) begin    
-    case( {blcnten, mcu_obj_cs} )
-        2'b10: begin // Object DMA
-            oram_addr = obj_AB[11:1];
-            obj_uwe   = 1'b0;
-            obj_lwe   = 1'b0;
-        end
-        2'b01: begin // MCU DMA
-            oram_addr = mcu_addr[11:1];
-            obj_uwe   = 1'b0;
-            obj_lwe   = mcu_wr ;
-        end
-        default: begin
-            oram_addr = A[11:1];
-            obj_uwe   = obj_cs & !UDSWn;
-            obj_lwe   = obj_cs & !LDSWn;
-        end
-    endcase
+    if( blcnten ) begin // Object DMA
+        oram_addr = obj_AB[11:1];
+        obj_uwe   = 1'b0;
+        obj_lwe   = 1'b0;
+    end else begin // bus access
+        oram_addr = bus_addr[11:1];
+        obj_uwe   = ~bus_UDSWn;
+        obj_lwe   = ~bus_LDSWn;
+    end
 end
 
 jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
-    .data       ( ram_udin         ),
+    .data       ( bus_din[15:8]    ),
     .we         ( obj_uwe          ),
     .q          ( oram_dout[15:8]  )
 );
@@ -328,7 +288,7 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
-    .data       ( ram_ldin         ),
+    .data       ( bus_din[7:0]     ),
     .we         ( obj_lwe          ),
     .q          ( oram_dout[7:0]   )
 );
@@ -340,6 +300,8 @@ reg  [ 7:0] video_dout;
 wire        video_cs = char_cs | scr2_cs | scr1_cs;
 reg  [15:0] owram_dout;
 wire        owram_cs = obj_cs | ram_cs;
+
+assign mcu_din = cpu_din[7:0];
 
 always @(posedge clk) begin
     case( {scr2_cs, scr1_cs} )
@@ -362,12 +324,7 @@ assign rom_addr = A[17:1];
 
 // DTACKn generation
 
-// wire dtack_cln = ~|{ ASn, |{char_cs, scr1_cs, scr2_cs} };
-// wire [3:0] dtack_q;
-// wire       dtack_ca;
 wire       inta_n;
-//wire DTACKn =  |{ dtack_ca, scr1_busy, scr2_busy, char_busy };
-//wire DTACKn =  |{ (rom_cs&~rom_ok), scr1_busy, scr2_busy, char_busy };
 wire       bus_cs =   |{ rom_cs, scr1_cs, scr2_cs, char_cs };
 wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy };
 reg DTACKn;
