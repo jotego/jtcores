@@ -379,8 +379,8 @@ jtbiocom_sound u_sound (
 `else
 assign snd_addr   = 15'd0;
 assign snd_cs     = 1'b0;
-assign snd_left  = 16'b0;
-assign snd_right = 16'b0;
+assign snd_left   = 16'b0;
+assign snd_right  = 16'b0;
 assign snd_mcu_wr = 1'b0;
 assign snd_dout   = 8'd0;
 `endif

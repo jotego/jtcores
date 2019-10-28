@@ -12,13 +12,22 @@ the emulation world here are some of the things different from emulators:
 -Exact timing for bus sharing with microcontroller
 -Graphics priority handled by the original PROM
 -No lag between image and input. Data is being sent to the screen in real time.
--3 button input
 -Sound sampling rate: exactly the original
 -Accurate FPS 100% same as real hardware
 
 These technical aspects mean that the game play will be different from an emulator
 in a number of ways and that some hardware tricks that were not emulated will work
 here as in the original hardware.
+
+MiST VERSION
+============
+
+The MiST version does not have sound because of lack of enough internal memory
+in the FPGA. Maybe it can be fixed with some architectural change but I will
+probably not do it myself unless several patrons ask for it.
+
+MiSTer will feature sound in the release version, although the first beta doesn't
+play sounds (the hardware is there but something fails in the CPU/MCU/2nd CPU interface)
 
 GAME PLAY
 =========
@@ -35,13 +44,15 @@ Select the test screen through the OSD menu. Press 1P coin button during ROM
 test to access all test sections. To pass on to the next test screen press 
 both action buttons.
 
-TECHNICAL INFORMATION
-=====================
--All PSG channels had no load on the bootleg board
--DMA duration was measured to be xxx, matching the expected behaviour
 
 REVISION HISTORY
 ================
+
+27 Oct 2019: beta release. 
+                -No sound (some MCU issue?)
+                -Sprite glitches due to 8-pixel data loading 
+                 (instead of 4 pixels as other CPS0 games)
+                -Background glitch when elevator lights flash
 
 
 CREDITS

@@ -12,7 +12,6 @@ the emulation world here are some of the things different from emulators:
 -Palettes determined by the original PROMs
 -Graphics priority handled by the original PROM
 -No lag between image and input. Data is being sent to the screen in real time.
--3 button input
 -Sound sampling rate: 41.663 kHz (original, 125/3 kHz)
 -Accurate FPS 100% same as real hardware
 
@@ -41,6 +40,12 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
+
+27 Oct 2019: beta release.
+            -No FX sound. I don't understand why.
+            -Sprite glitches due to 8-pixel data loading 
+             (instead of 4 pixels as other CPS0 games)
+
 
 
 CREDITS

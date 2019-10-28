@@ -51,7 +51,7 @@ parameter       LAYOUT=0;
     //      -Can readback from FM chip
     //      -IRQ controlled by FM chips
     //      -FM clock speed same as CPU
-parameter [7:0] FM_GAIN=8'h20;
+parameter [7:0] FM_GAIN=8'h30;
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
