@@ -107,8 +107,8 @@ wire UDSn, LDSn;
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;
 
-assign col_uw = col_cs & ~UDSWn;
-assign col_lw = col_cs & ~LDSWn;
+assign col_uw = col_cs & ~bus_UDSWn;
+assign col_lw = col_cs & ~bus_LDSWn;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
 
