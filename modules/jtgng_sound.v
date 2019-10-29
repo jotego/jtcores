@@ -315,4 +315,14 @@ jt03 u_fm1(
     .snd_sample()
 );
 
+`ifdef SIMULATION
+    integer fsnd;
+    initial begin
+        fsnd=$fopen("fm_sound.raw","wb");
+    end
+    always @(posedge sample) begin
+        $fwrite(fsnd,"%u", {fm0_snd, fm1_snd});
+    end
+`endif
+
 endmodule // jtgng_sound

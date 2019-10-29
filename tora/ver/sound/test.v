@@ -27,7 +27,7 @@ initial begin
     rst = 1'b0;
     #200
     rst = 1'b1;
-    #500
+    #2500
     rst = 1'b0;
 end
 
@@ -41,9 +41,9 @@ always @(posedge clk)
 
 always @(posedge sample) begin
     sample_cnt<=sample_cnt+1;
-    if( sample_cnt == 2000 ) snd_latch <= 8'h30;
-    if( sample_cnt == 3000 ) snd_latch <= 8'h7f;
-    if( sample_cnt ==10000 ) $finish;
+    if( sample_cnt == 10_000 ) snd_latch <= `CODE;
+    if( sample_cnt == 13_000 ) snd_latch <= 8'h7f;
+    if( sample_cnt == 70_000 ) $finish;
 end
 
 jtgng_cen3p57 u_cen3p57(
@@ -75,11 +75,24 @@ jtgng_sound #(.LAYOUT(3)) u_sound (
     .sample         ( sample         )
 );
 
+`ifdef DUMP
+initial $display("INFO: signal dump enabled");
 
-initial begin
-    $dumpfile("test.lxt");
-    $dumpvars(2,test);
-    $dumpon;
-end
+`ifndef NCVERILOG
+    initial begin
+        $dumpfile("test.lxt");
+        $dumpvars(2,test);
+        $dumpon;
+    end
+`else
+    initial begin
+        $shm_open("test.shm");
+        $shm_probe(test,"A");
+        $shm_probe(test.u_sound,"A");
+        $shm_probe(test.u_sound.u_fm0,"AS");
+        $shm_probe(test.u_sound.u_fm1,"AS");
+    end
+`endif
+`endif
 
 endmodule

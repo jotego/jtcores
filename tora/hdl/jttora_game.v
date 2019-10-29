@@ -293,6 +293,16 @@ jttora_main u_main(
 `endif
 
 `ifndef NOSOUND
+reg [7:0] psg_gain;
+always @(posedge clk) begin
+    case( dip_fxlevel )
+        2'd0: psg_gain <= 8'h1F;
+        2'd1: psg_gain <= 8'h3F;
+        2'd2: psg_gain <= 8'h7F;
+        2'd3: psg_gain <= 8'hFF;
+    endcase // dip_fxlevel
+end
+
 jtgng_sound #(.LAYOUT(3)) u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
@@ -305,7 +315,7 @@ jtgng_sound #(.LAYOUT(3)) u_sound (
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
-    .psg_gain       ( 8'h10          ),
+    .psg_gain       ( psg_gain       ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),

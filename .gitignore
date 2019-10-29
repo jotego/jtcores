@@ -9,6 +9,9 @@
 *.bin
 *.log
 *.png
+*.jpg
+*.raw
+.simvision
 sim
 build_id.v
 */mist/*
