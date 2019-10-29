@@ -51,7 +51,7 @@ parameter       LAYOUT=0;
     //      -Can readback from FM chip
     //      -IRQ controlled by FM chips
     //      -FM clock speed same as CPU
-parameter [7:0] FM_GAIN=8'h30;
+parameter [7:0] FM_GAIN=8'h40;
 
 wire [15:0] A;
 assign rom_addr = A[14:0];
@@ -120,7 +120,15 @@ wire intn_fm0, intn_fm1;
 wire RAM_we = ram_cs && !wr_n;
 wire [7:0] ram_dout, dout, fm0_dout, fm1_dout;
 
-jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
+// `define SIM_SND_RAM ,.simfile("snd_ram.hex")
+`ifndef SIM_SND_RAM
+`define SIM_SND_RAM
+`endif
+
+jtgng_ram #(
+    .aw(11)
+    `SIM_SND_RAM
+) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dout     ),

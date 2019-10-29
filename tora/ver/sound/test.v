@@ -43,7 +43,7 @@ always @(posedge sample) begin
     sample_cnt<=sample_cnt+1;
     if( sample_cnt == 10_000 ) snd_latch <= `CODE;
     if( sample_cnt == 13_000 ) snd_latch <= 8'h7f;
-    if( sample_cnt == 70_000 ) $finish;
+    if( sample_cnt ==`FINISH ) $finish;
 end
 
 jtgng_cen3p57 u_cen3p57(

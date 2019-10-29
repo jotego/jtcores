@@ -141,13 +141,9 @@ wire clk2 = clk&cen6a; // cheap clock gating
 
 wire [15:0] rom_addr0, ext_addr0;
 wire [ 7:0] mcu_dout0;
-wire        mcu_wr0;
 reg  [ 7:0] mcu_din0;
 
 always @(posedge clk) if(cen6a) begin
-//     ext_addr <= ext_addr0;
-//     mcu_wr   <= mcu_wr0;
-//     mcu_dout <= mcu_dout0;
     mcu_din0 <= mcu_din;
 end
 
