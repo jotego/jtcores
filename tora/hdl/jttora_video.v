@@ -138,14 +138,19 @@ jtgng_char #(
     .prom_we    (               )
 );
 
+wire [7:0] char_aux;
 jtgng_charmsg u_msg(
     .clk         ( clk           ),
     .cen6        ( cen6          ),
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
-    .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high ) 
+    .msg_low     ( char_aux      ),
+    .msg_high    (               ) 
 );
+
+assign char_msg_high = char_aux[7:6]==2'b11 ? { 3'b111, 5'd2 } : 8'd2;
+assign char_msg_low  = char_aux[7:6]==2'b11 ? {2'b01, char_aux[5:0]} : char_aux;
+
 `else
 assign char_mrdy = 1'b1;
 assign char_pxl  = 6'h3f;

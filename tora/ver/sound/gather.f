@@ -3,5 +3,6 @@
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtgng_cen3p57.v
 ../../../modules/jtgng_sound.v
+../../../modules/jtgng_obj32.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v

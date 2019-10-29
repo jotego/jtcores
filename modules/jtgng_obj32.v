@@ -31,8 +31,7 @@ module jtgng_obj32(
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
-    output reg           prog_we,
-    output reg           prom_we
+    output reg           prog_we
 );
 
 parameter [21:0] OBJ_START=22'h20_0000;
@@ -49,63 +48,64 @@ always @(posedge clk, posedge rst) begin
         prog_data <= 8'd0;
         prog_mask <= 2'd0;
         prog_we   <= 1'b0;
-        prom_we   <= 1'b0;
+        state     <= 8'h1;
+        sdram_wait<= 8'hff;
     end else begin
         last_down <= downloading;
         prog_we  <= 1'b0;
         if( !downloading && last_down ) begin
-            read_addr <= OBJ_START;
+            prog_addr <= OBJ_START;
             convert   <= 1'b1;
+            state     <= 8'h1;
         end
-        if( convert && prog_addr < OBJ_END ) begin
+        else if( convert && prog_addr < OBJ_END ) begin
             if( !sdram_wait[7] ) begin
                 sdram_wait <= { sdram_wait[6:0], 1'b1 };
             end else begin
                 state <= state<<1;
-                prog_addr[21:1] <= read_addr[21:1];
                 case( state )
                     8'd1: begin
-                        prog_mask <= 2'b11;
-                        prog_we   <= 1'b0;
-                        sdram_wait <= 8'd0;
+                        prog_mask    <= 2'b11;
+                        prog_we      <= 1'b0;
+                        prog_addr[0] <= 1'b0;
+                        sdram_wait   <= 8'd0;
                     end
                     8'd2: begin
                         obj_data <= sdram_dout;
                     end
                     8'd4: begin
                         prog_addr[0] <= 1'b0;
-                        prog_data <= { obj_data[2*7:2*4], obj_data[1*7,1*4]};
-                        prog_mask <= 2'b01;
-                        prog_we   <= 1'b1;
-                        sdram_wait <= 8'd0;
+                        prog_data    <= { obj_data[7+8:4+8], obj_data[7:4]};
+                        prog_mask    <= 2'b01;
+                        prog_we      <= 1'b1;
+                        sdram_wait   <= 8'd0;
                     end
                     8'd8: begin
                         prog_addr[0] <= 1'b0;
-                        prog_data <= { obj_data[4*7:4*4], obj_data[3*7,3*4]};
+                        prog_data <= { obj_data[7+24:4+24], obj_data[7+16:4+16]};
                         prog_mask <= 2'b10;
                         prog_we   <= 1'b1;
                         sdram_wait <= 8'd0;
                     end
                     8'h10: begin
                         prog_addr[0] <= 1'b1;
-                        prog_data <= { obj_data[2*7:2*4], obj_data[1*7,1*4]};
+                        prog_data <= { obj_data[3+8:0+8], obj_data[3:0]};
                         prog_mask <= 2'b01;
                         prog_we   <= 1'b1;
                         sdram_wait <= 8'd0;
                     end
                     8'h20: begin
                         prog_addr[0] <= 1'b1;
-                        prog_data <= { obj_data[4*7:4*4], obj_data[3*7,3*4]};
+                        prog_data <= { obj_data[3+24:0+24], obj_data[3+16:0+16]};
                         prog_mask <= 2'b10;
                         prog_we   <= 1'b1;
                         sdram_wait <= 8'd0;
                     end
                     8'h40: begin
-                        read_addr <= read_addr+22'h2;
+                        prog_addr[21:1] <= prog_addr[21:1]+21'h1;
                         state     <= 8'h1;
                     end
                 endcase
-                end
             end
         end else convert<=1'b0;
     end
