@@ -41,6 +41,7 @@ module jttora_game(
     input   [ 6:0]  joystick2,
     // SDRAM interface
     input           downloading,
+    output          dwnld_busy,
     input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -56,6 +57,7 @@ module jttora_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
+    output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -105,8 +107,6 @@ wire        cen10, cen10b, cen6b, cen_fm;
 
 wire        rom_ready;
 wire        main_ok, scr_ok, snd_ok, obj_ok, char_ok;
-
-assign obj_addr[0] = 1'b0; // fixed for 32 bit values
 
 `ifdef MISTER
 
@@ -196,7 +196,7 @@ wire [15:0] oram_dout;
 
 wire        prom_we;
 
-jttora_prom_we u_prom_we(
+jttora_dwnld u_dwnld(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
@@ -208,8 +208,11 @@ jttora_prom_we u_prom_we(
     .prog_mask   ( prog_mask     ),
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
+    .prog_rd     ( prog_rd       ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_we       ),
+    .sdram_dout  ( data_read     ),
+    .dwnld_busy  ( dwnld_busy    )
 );
 
 wire [15:0] scrposh, scrposv;
@@ -275,7 +278,7 @@ jttora_main u_main(
     `define SIM_SCR_BANK 1'b0
     `endif
     `ifndef SIM_SND_LATCH
-    `define SIM_SND_LATCH 8'd0;
+    `define SIM_SND_LATCH 8'd0
     `endif
     assign main_addr   = 17'd0;
     assign cpu_AB      = 13'd0;
@@ -371,7 +374,7 @@ jttora_video #(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
-    .obj_addr   ( obj_addr[17:1]),
+    .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
@@ -418,7 +421,6 @@ jtgng_rom #(
     .char_aw    ( 14              ),
     .obj_aw     ( 18              ),
     .scr1_aw    ( 19              ),
-    .obj_dw     ( 32              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h5_8000 >> 1 ),
     .map1_offset( 22'h6_0000 >> 1 ),

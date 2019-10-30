@@ -117,7 +117,7 @@ wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
 wire          loop_rst;
-wire          downloading;
+wire          downloading, dwnld_busy;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
@@ -130,7 +130,7 @@ wire sdram_req;
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
-wire          prog_we;
+wire          prog_we, prog_rd;
 
 `ifndef COLORW
 `define COLORW 4
@@ -244,7 +244,9 @@ u_frame(
     .prog_data      ( prog_data      ),
     .prog_mask      ( prog_mask      ),
     .prog_we        ( prog_we        ),
+    .prog_rd        ( prog_rd        ),
     .downloading    ( downloading    ),
+    .dwnld_busy     ( dwnld_busy     ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
@@ -342,9 +344,11 @@ u_game(
     .prog_data   ( prog_data      ),
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
+    .prog_rd     ( prog_rd        ),
 
     // ROM load
     .downloading ( downloading    ),
+    .dwnld_busy  ( dwnld_busy     ),
     .loop_rst    ( loop_rst       ),
     .sdram_req   ( sdram_req      ),
     .sdram_addr  ( sdram_addr     ),

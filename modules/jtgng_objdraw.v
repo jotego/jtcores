@@ -123,8 +123,13 @@ generate
     if( ROM_DW == 16 ) begin
         always @(posedge clk) if(cen) begin
             if( pxlcnt[1:0]==2'd3 ) begin
-                obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-                    { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+                if( LAYOUT!=3 )
+                    obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
+                        { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+                else
+                    obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
+                        { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}}, 
+                              pxlcnt[2]^obj_hflip };
             end
         end
     end else begin // ROM_DW==32

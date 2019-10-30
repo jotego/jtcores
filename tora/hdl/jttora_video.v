@@ -61,7 +61,7 @@ module jttora_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [16:0]  obj_addr,
+    output      [17:0]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -205,8 +205,7 @@ jtgng_obj #(
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 6'd32      ),
     .PALW       ( 4          ),
-    .ROM_AW     ( 17         ),
-    .ROM_DW     ( 32         ), // total 512kBytes of object graphic data
+    .ROM_AW     ( 18         ),
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
 u_obj (
