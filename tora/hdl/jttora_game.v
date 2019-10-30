@@ -80,7 +80,7 @@ wire [ 8:0] H;
 wire        HINIT;
 
 wire [13:1] cpu_AB;
-wire        snd_cs;
+wire        snd_cs, snd2_cs;
 wire        char_cs, col_uw, col_lw;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
@@ -92,21 +92,21 @@ wire        service = 1'b1;
 wire [15:0] char_data, scr_data;
 wire [31:0] obj_data;
 wire [15:0] main_data, map_data;
-wire [ 7:0] snd_data;
+wire [ 7:0] snd_data, snd2_data;
 
 // ROM address
 wire [17:1] main_addr;
-wire [14:0] snd_addr;
+wire [14:0] snd_addr, snd2_addr;
 wire [13:0] map_addr;
 wire [13:0] char_addr;
 wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
 wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen10, cen10b, cen6b, cen_fm;
+wire        cen10, cen10b, cen6b, cen_fm, cenp384;
 
 wire        rom_ready;
-wire        main_ok, scr_ok, snd_ok, obj_ok, char_ok;
+wire        main_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
 
 `ifdef MISTER
 
@@ -154,6 +154,11 @@ jtgng_cen3p57 u_cen3p57(
     .clk      ( clk       ),
     .cen_3p57 ( cen_fm    ),
     .cen_1p78 (           )     // unused
+);
+
+jtgng_cenp384 u_cenp384(
+    .clk      ( clk       ),
+    .cen_p384 ( cenp384   )
 );
 
 jttora_dip u_dip(
@@ -306,11 +311,12 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.LAYOUT(3)) u_sound (
+jttora_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cen_fm         ),
     .cen1p5         ( cen1p5         ),  // unused
+    .cenp384        ( cenp384        ),
     // Interface with main CPU
     .sres_b         ( 1'b1           ),  // unused
     .snd_latch      ( snd_latch      ),
@@ -324,6 +330,11 @@ jtgng_sound #(.LAYOUT(3)) u_sound (
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
+    // ROM 2
+    .rom2_addr      ( snd2_addr      ),
+    .rom2_data      ( snd2_data      ),
+    .rom2_cs        ( snd2_cs        ),
+    .rom2_ok        ( snd2_ok        ),
     // sound output
     .ym_snd         ( snd            ),
     .sample         ( sample         )
@@ -414,7 +425,7 @@ wire [ 7:0] scr_nc; // no connect
 // // CPU addresses memory by words, not bytes:
 wire [17:0] main_rom_addr = { main_addr,1'b0 };
 
-// Scroll data: Z, Y, X
+// map2 ports are used for the ADPCM CPU (snd2)
 jtgng_rom #(
     .main_dw    ( 16              ),
     .main_aw    ( 18              ),
@@ -424,6 +435,7 @@ jtgng_rom #(
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h5_8000 >> 1 ),
     .map1_offset( 22'h6_0000 >> 1 ),
+    .map2_offset( 22'h4_8000 >> 1 ), // second sound CPU
     .scr1_offset( 22'h10_0000     ), // SCR and OBJ are not shifted
     .obj_offset ( 22'h20_0000     )
 ) u_rom (
@@ -441,6 +453,8 @@ jtgng_rom #(
     .scr2_ok     (               ),
     .char_ok     ( char_ok       ),
     .obj_ok      ( obj_ok        ),
+    .map1_ok     (               ),
+    .map2_ok     ( snd2_ok       ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_rom_addr ),
@@ -449,14 +463,14 @@ jtgng_rom #(
     .scr1_addr   ( scr_addr      ),
     .scr2_addr   ( 15'd0         ),
     .map1_addr   ( map_addr      ),
-    .map2_addr   ( 14'd0         ),
+    .map2_addr   ( snd2_addr     ),
 
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    ( snd_data      ),
     .obj_dout    ( obj_data      ),
     .map1_dout   ( map_data      ),
-    .map2_dout   (               ),
+    .map2_dout   ( snd2_data     ),
     .scr1_dout   ( scr_data      ),
     .scr2_dout   (               ),
 

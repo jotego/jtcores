@@ -21,23 +21,25 @@
 // when using LAYOUT 0
 
 module jtgng_sound(
-    input           rst,
-    input           clk,
-    input           cen3,   //  3   MHz
-    input           cen1p5, //  1.5 MHz
+    input            rst,
+    input            clk,
+    input            cen3,   //  3   MHz
+    input            cen1p5, //  1.5 MHz
     // Interface with main CPU
-    input           sres_b, // Z80 reset
-    input   [7:0]   snd_latch,
-    input           snd_int,
+    input            sres_b, // Z80 reset
+    input   [7:0]    snd_latch,
+    input            snd_int,
+    // Interface with second sound CPU
+    output reg [7:0] snd2_latch,
     // Sound control
-    input           enable_psg,
-    input           enable_fm,
-    input   [7:0]   psg_gain,
+    input            enable_psg,
+    input            enable_fm,
+    input   [7:0]    psg_gain,
     // ROM
-    output  [14:0]  rom_addr,
-    output  reg     rom_cs,
-    input   [ 7:0]  rom_data,
-    input           rom_ok,
+    output  [14:0]   rom_addr,
+    output  reg      rom_cs,
+    input   [ 7:0]   rom_data,
+    input            rom_ok,
 
     // Sound output
     output  signed [15:0] ym_snd,
@@ -54,11 +56,13 @@ parameter       LAYOUT=0;
 parameter [7:0] FM_GAIN=8'h40;
 
 wire [15:0] A;
+wire        iorq_n, m1_n, wr_n, rd_n;
+wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
+reg         fm1_cs,fm0_cs, latch_cs, ram_cs;
+wire        mreq_n, rfsh_n;
+
 assign rom_addr = A[14:0];
 
-reg fm1_cs,fm0_cs, latch_cs, ram_cs;
-
-wire mreq_n, rfsh_n;
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -112,13 +116,14 @@ always @(*) begin
         endcase
 end
 
+// only used in games with ADPCM Z80
+always @(posedge clk) begin
+    if( !iorq_n && !wr_n ) snd2_latch <= dout;
+end
 
-wire rd_n;
-wire wr_n;
 wire intn_fm0, intn_fm1;
 
 wire RAM_we = ram_cs && !wr_n;
-wire [7:0] ram_dout, dout, fm0_dout, fm1_dout;
 
 // `define SIM_SND_RAM ,.simfile("snd_ram.hex")
 `ifndef SIM_SND_RAM
@@ -163,7 +168,6 @@ end
 reg reset_n=1'b0;
 
 reg int_n;
-wire iorq_n, m1_n;
 
 generate
     if( LAYOUT==3 ) begin

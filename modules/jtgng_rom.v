@@ -77,6 +77,8 @@ module jtgng_rom #(parameter
     output              snd_ok,
     output              scr1_ok,
     output              scr2_ok,
+    output              map1_ok,
+    output              map2_ok,
     output              char_ok,
     output              obj_ok,
     // SDRAM controller interface
@@ -111,12 +113,6 @@ wire [scr1_aw-1:0] scr1_addr_req;
 wire [scr2_aw-1:0] scr2_addr_req;
 wire [13:0] map1_addr_req;
 wire [13:0] map2_addr_req;
-
-wire map1_ok, map2_ok;
-//wire newref = 
-//    &{ main_ok&main_cs, char_ok, scr1_ok, scr2_ok, map1_ok, map2_ok, obj_ok };
-
-// wire blank_b = LVBL && LHBL;
 
 always @(posedge clk)
     // refresh_en <= !LVBL;
