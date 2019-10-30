@@ -35,7 +35,7 @@ module jtgng_obj32(
 );
 
 parameter [21:0] OBJ_START=22'h20_0000;
-parameter [21:0] OBJ_END  =22'h22_0000;
+parameter [21:0] OBJ_END  =22'h24_0000;
 
 reg [31:0] obj_data;
 reg [7:0]  sdram_wait;
