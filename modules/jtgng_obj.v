@@ -37,9 +37,9 @@ module jtgng_obj #(parameter
 ) (
     input               rst,
     input               clk,
-    input               dma_cen,       //  6 or 8MHz
-    input               draw_cen,
-    input               pxl_cen,   //  6MHz
+    input               dma_cen,   // use same as original PCB
+    input               draw_cen,  // make it faster than original
+    input               pxl_cen,   // use same as original PCB
     // screen
     input               HINIT,
     input               LHBL,

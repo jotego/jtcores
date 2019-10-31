@@ -26,7 +26,7 @@ module jtgng_objcnt #(parameter
 
     input               HINIT,
     output              rom_wait,
-    output              draw_over,
+    output reg          draw_over,
     output reg [4:0]    objcnt,
     output reg [3:0]    pxlcnt
 );
@@ -45,16 +45,19 @@ jtframe_cencross_strobe u_hinit(
     .stout  ( HINIT_draw  )
 );
 
-reg draw_over;
+reg over;
 assign rom_wait = !rom_ok && pxlcnt[1:0]==2'b11;
 
 always @(posedge clk) if(draw_cen) begin
     if( HINIT_draw ) begin
-        { draw_over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
+        { over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
+        draw_over <= 1'b0;
     end else begin
         // stops at the data collection point if rom data is not available
+        // give extra time to the draw module to finish
+        if( over && pxlcnt[2:0] == 3'd7 ) draw_over <= 1'b1;
         if( !draw_over && !rom_wait ) 
-            { draw_over, objcnt, pxlcnt } <=  { draw_over, objcnt, pxlcnt } + 1'd1;
+            { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;
     end
 end
 

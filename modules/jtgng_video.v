@@ -188,7 +188,7 @@ jtgng_obj #(
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( cen6        ),
+    .draw_cen   ( cen12       ),
     .dma_cen    ( cen6        ),
     .pxl_cen    ( cen6        ),
     .AB         ( obj_AB      ),
