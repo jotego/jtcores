@@ -19,7 +19,6 @@
 module jtgng_objdraw #(parameter
     DW       = 8,   // data width of the DMA
     ROM_AW   = 16, 
-    ROM_DW   = 16,
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
                     // 2: GunSmoke
@@ -29,9 +28,9 @@ module jtgng_objdraw #(parameter
     PALETTE1_SIMFILE = "", // only for simulation
     PALETTE0_SIMFILE = "" // only for simulation
 ) (
+    (* direct_enable *) input cen,
     input              rst,
     input              clk,
-    input              cen /*direct_enable*/,
     // screen
     input       [7:0]  VF,
     input       [3:0]  pxlcnt,
@@ -43,7 +42,9 @@ module jtgng_objdraw #(parameter
     input    [DW-1:0]  objbuf_data,
     // SDRAM interface
     output  reg [ROM_AW-1:0] obj_addr,
-    input       [ROM_DW-1:0] obj_data,
+    input       [15:0] obj_data,
+    input              rom_wait,
+    input              draw_over,
     // Palette PROM
     input              OBJON,
     input       [7:0]  prog_addr,
@@ -119,97 +120,57 @@ always @(posedge clk) if(cen) begin
     endcase
 end
 
-generate
-    if( ROM_DW == 16 ) begin
-        always @(posedge clk) if(cen) begin
-            if( pxlcnt[1:0]==2'd3 ) begin
-                if( LAYOUT!=3 )
-                    obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-                        { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
-                else
-                    obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-                        { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}}, 
-                              pxlcnt[2]^obj_hflip };
-            end
-        end
-    end else begin // ROM_DW==32
-        always @(posedge clk) if(cen) begin
-            if( pxlcnt[1:0]==2'd3 ) begin
-                obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
-                    { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}} };
-            end
-        end
+always @(posedge clk) if(cen) begin
+    if( pxlcnt[1:0]==2'd3 ) begin
+        if( LAYOUT!=3 )
+            obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
+                { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };
+        else
+            obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
+                { id, pxlcnt[3]^obj_hflip, Vobj^{4{~obj_vflip}}, 
+                      pxlcnt[2]^obj_hflip };
     end
-endgenerate
+end
 
-localparam COMPW=(ROM_DW==16?4:8);
-reg [ COMPW-1:0] z,y,x,w;
+reg [ 3:0] z,y,x,w;
 reg [8:0] posx1;
 
 // ROM data depacking
-generate
-    if( ROM_DW==16) begin
-        always @(posedge clk) if(cen ) begin
-            if( pxlcnt[3:0]==4'h7 ) begin
-                objpal1   <= objpal;
-                poshflip2 <= obj_hflip;
-                posx1     <= objx;
-            end else begin
-                posx1     <= posx1 + 9'b1;
-            end
-            case( pxlcnt[1:0] )
-                2'd3:  begin // new data
-                        {z,y,x,w} <= obj_data;
-                    end
-                default:
-                    if( poshflip2 ) begin
-                        z <= z >> 1;
-                        y <= y >> 1;
-                        x <= x >> 1;
-                        w <= w >> 1;
-                    end else begin
-                        z <= z << 1;
-                        y <= y << 1;
-                        x <= x << 1;
-                        w <= w << 1;
-                    end
-            endcase
+always @(posedge clk) if(cen) begin
+    // only advance if we are not waiting for data
+    if( !rom_wait ) begin
+        if( pxlcnt[3:0]==4'h7 ) begin
+            objpal1   <= objpal;
+            poshflip2 <= obj_hflip;
+            posx1     <= objx;
+        end else begin
+            posx1     <= posx1 + 9'b1;
         end
-    end else begin //32
-        always @(posedge clk) if(cen) begin
-            if( pxlcnt[3:0]==4'h7 ) begin
-                objpal1   <= objpal;
-                poshflip2 <= obj_hflip;
-                posx1     <= objx;
-            end else begin
-                posx1     <= posx1 + 9'b1;
-            end
-            case( pxlcnt[2:0] )
-                3'd7:  begin // new data
-                        {z,y,x,w} <= obj_data;
-                    end
-                default:
-                    if( poshflip2 ) begin
-                        z <= z >> 1;
-                        y <= y >> 1;
-                        x <= x >> 1;
-                        w <= w >> 1;
-                    end else begin
-                        z <= z << 1;
-                        y <= y << 1;
-                        x <= x << 1;
-                        w <= w << 1;
-                    end
-            endcase
-        end
+        case( pxlcnt[1:0] )
+            2'd3:  begin // new data
+                    {z,y,x,w} <= obj_data;
+                end
+            default:
+                if( poshflip2 ) begin
+                    z <= z >> 1;
+                    y <= y >> 1;
+                    x <= x >> 1;
+                    w <= w >> 1;
+                end else begin
+                    z <= z << 1;
+                    y <= y << 1;
+                    x <= x << 1;
+                    w <= w << 1;
+                end
+        endcase
     end
-endgenerate
+end
 
 generate
     if( PALETTE == 1 ) begin
         wire [7:0] prom_dout;
         // 1943 has bits reversed for palette PROMs
-        wire [3:0] new_col = { w[COMPW-1],x[COMPW-1],y[COMPW-1],z[COMPW-1] };
+        wire [3:0] new_col = { w,x,y,z };
         wire [7:0] pal_addr = { objpal1, new_col };
 
         jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
@@ -263,9 +224,8 @@ generate
     end else begin
         // No palette PROMs
         always @(posedge clk) if(cen) begin
-            new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : 
-                    {w[COMPW-1],x[COMPW-1],y[COMPW-1],z[COMPW-1]};
-            posx    <= posx1;
+            new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
+            posx    <= draw_over ? 9'h1ff : posx1;
             pospal  <= objpal1;
         end
     end

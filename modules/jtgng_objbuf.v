@@ -28,9 +28,10 @@ module jtgng_objbuf #(parameter
 ) (
     input               rst,
     input               clk,
-    input               cen /*direct_enable*/,
+    (*direct_enable*)   input dma_cen,
+    input               draw_cen,
     // screen
-    input               HINIT_short,
+    input               HINIT,
     input               LVBL,
     input       [7:0]   V,
     output reg  [7:0]   VF,
@@ -39,11 +40,22 @@ module jtgng_objbuf #(parameter
     output reg [AW-1:0] pre_scan,
     input      [DW-1:0] ram_dout,
     // sprite data buffer
-    output     [DW-1:0] objbuf_data,
+    output reg [DW-1:0] objbuf_data,
     input       [4:0]   objcnt,
     input       [3:0]   pxlcnt,
+    input               rom_wait,
     output reg          line
 );
+
+wire HINIT_dma;
+
+jtframe_cencross_strobe u_hinit(
+    .clk    ( clk         ),
+    .cen    ( dma_cen     ),
+    .stin   ( HINIT       ),
+    .stout  ( HINIT_dma   )
+);
+
 
 // sprite buffer
 reg          fill;
@@ -52,7 +64,6 @@ reg          line_obj_we;
 
 localparam lineA=1'b0, lineB=1'b1;
 wire [DW-1:0] q_a, q_b;
-assign objbuf_data = line==lineA ? q_b : q_a;
 wire [6:0] hscan = { objcnt, pxlcnt[1:0] };
 
 reg trf_state;
@@ -62,8 +73,8 @@ localparam SEARCH=1'b0, TRANSFER=1'b1;
 always @(posedge clk, posedge rst) begin
     if( rst )
         line <= lineA;
-    else if(cen) begin
-        if( HINIT_short ) begin
+    else if(dma_cen) begin
+        if( HINIT_dma ) begin
             VF <= {8{flip}} ^ V;
             line <= ~line;
         end
@@ -86,7 +97,7 @@ always @(posedge clk, posedge rst)
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;
     end
-    else if(cen) begin
+    else if(dma_cen) begin
         case( trf_state )
             SEARCH: begin
                 line_obj_we <= 1'b0;
@@ -95,7 +106,7 @@ always @(posedge clk, posedge rst)
                     post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
-                    if(HINIT_short) fill <= 1'd0;
+                    if(HINIT_dma) fill <= 1'd0;
                 end
                 else begin
                     //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
@@ -138,6 +149,17 @@ reg [6:0] address_a, address_b;
 reg we_a, we_b;
 reg [DW-1:0] data_a, data_b;
 
+reg [2:0] we_clr;
+always @(posedge clk, posedge rst) begin
+    if( rst ) we_clr <= 3'b0;
+    else begin
+        we_clr <= { we_clr[1:0], draw_cen && !rom_wait};
+        if( we_clr[1] ) objbuf_data <= line==lineA ? q_b : q_a;
+    end
+end
+
+reg cen_a, cen_b;
+
 always @(*) begin
     if( line == lineA ) begin
         address_a = { ~post_scan[4:0], pre_scan[1:0] };
@@ -145,21 +167,25 @@ always @(*) begin
         data_a    = ram_dout;
         data_b    = 8'hf8;
         we_a      = line_obj_we;
-        we_b      = 1'b1;
+        we_b      = we_clr[2];
+        cen_a     = dma_cen;
+        cen_b     = 1'b1;
     end
     else begin
         address_a = hscan;
         address_b = { ~post_scan[4:0], pre_scan[1:0] };
         data_a    = 8'hf8;
         data_b    = ram_dout;
-        we_a      = 1'b1;
+        we_a      = we_clr[2];
         we_b      = line_obj_we;
+        cen_a     = 1'b1;
+        cen_b     = dma_cen;
     end
 end
 
 jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
     .clk   ( clk       ),
-    .cen   ( cen       ),
+    .cen   ( cen_a     ),
     .addr  ( address_a ),
     .data  ( data_a    ),
     .we    ( we_a      ),
@@ -168,7 +194,7 @@ jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
 
 jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_b(
     .clk   ( clk       ),
-    .cen   ( cen       ),
+    .cen   ( cen_b     ),
     .addr  ( address_b ),
     .data  ( data_b    ),
     .we    ( we_b      ),

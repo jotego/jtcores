@@ -26,8 +26,6 @@ module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0,PXL_DLY=7)(
     // screen
     input              LHBL,
     input              flip,
-    input       [4:0]  objcnt,
-    input       [3:0]  pxlcnt,
     input       [8:0]  posx,
     input              line,
     // pixel data
@@ -51,8 +49,8 @@ reg pxlbuf_line;
 always @(posedge clk, posedge rst)
     if( rst )
         pxlbuf_line <= lineA;
-    else if(cen ) begin
-        if( {objcnt[0],pxlcnt}== obj_dly ) pxlbuf_line<=line; // to account for latency drawing the object
+    else if(cen) begin
+        pxlbuf_line<=line;
     end
 
 always @(posedge clk) if(pxl_cen) begin

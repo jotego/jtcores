@@ -313,7 +313,8 @@ jtgng_obj #(
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen            ( cen8          ),  // 8MHz!!
+    .dma_cen        ( cen8          ),  // 8MHz!!
+    .draw_cen       ( cen12         ),
     .pxl_cen        ( cen6          ),
     // screen
     .HINIT          ( HINIT         ),

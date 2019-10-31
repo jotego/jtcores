@@ -211,7 +211,8 @@ jtgng_obj #(
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .cen        ( cen8        ),
+    .draw_cen   ( cen12       ),
+    .dma_cen    ( cen8        ),
     .pxl_cen    ( cen6        ),
     .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),
@@ -236,7 +237,11 @@ u_obj (
     // pixel data
     .obj_pxl    ( obj_pxl     ),
     // unused
-    .OBJON      ( 1'b1        ) // not used for non palette PROM games
+    .OBJON      ( 1'b1        ), // not used for non palette PROM games
+    .prog_addr  ( 8'd0        ),
+    .prom_hi_we ( 1'b0        ),
+    .prom_lo_we ( 1'b0        ),
+    .prog_din   ( 4'd0        )
 );
 
 assign obj_AB[13:11] = 3'b111;

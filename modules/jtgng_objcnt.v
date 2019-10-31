@@ -20,10 +20,13 @@ module jtgng_objcnt #(parameter
     OBJMAX_LINE = 6'd24
 ) (
     input               clk,
-    input               cen /*direct_enable*/,
+    input               draw_cen /*direct_enable*/,
     input               pxl_cen,
+    input               rom_ok,
+
     input               HINIT,
-    output              HINIT_short,
+    output              rom_wait,
+    output              draw_over,
     output reg [4:0]    objcnt,
     output reg [3:0]    pxlcnt
 );
@@ -33,26 +36,26 @@ module jtgng_objcnt #(parameter
 // and that can create problems.
 // The signal is resampled here to obtain a shortened version.
 
-reg HINIT_clr, HINIT_latch;
-reg last_HINIT;
+wire HINIT_draw;
 
-always @(posedge clk) begin 
-    last_HINIT <= HINIT;
-    if( HINIT && !last_HINIT) HINIT_latch <= 1'b1;
-    if( HINIT_clr ) HINIT_latch <= 1'b0;
-end
+jtframe_cencross_strobe u_hinit(
+    .clk    ( clk         ),
+    .cen    ( draw_cen    ),
+    .stin   ( HINIT       ),
+    .stout  ( HINIT_draw  )
+);
 
-assign HINIT_short = cen & pxl_cen & (HINIT_latch | HINIT);
+reg draw_over;
+assign rom_wait = !rom_ok && pxlcnt[1:0]==2'b11;
 
-reg over;
-
-always @(posedge clk) if(cen) begin
-    HINIT_clr <= 1'b0;
-    if( HINIT_short ) begin
-        { over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
-        HINIT_clr <= HINIT_short;
-    end else
-        if( !over )  { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;
+always @(posedge clk) if(draw_cen) begin
+    if( HINIT_draw ) begin
+        { draw_over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
+    end else begin
+        // stops at the data collection point if rom data is not available
+        if( !draw_over && !rom_wait ) 
+            { draw_over, objcnt, pxlcnt } <=  { draw_over, objcnt, pxlcnt } + 1'd1;
+    end
 end
 
 endmodule

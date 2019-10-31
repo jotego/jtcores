@@ -135,7 +135,7 @@ wire cen8;
 
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
-    .cen12  (           ),
+    .cen12  ( cen12     ),
     .cen12b (           ),
     .cen8   ( cen8      ),
     .cen6   ( cen6      ),
@@ -357,6 +357,7 @@ jttora_video #(
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cpu_cen    ( cpu_cen       ),

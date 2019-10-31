@@ -37,7 +37,8 @@ module jtgng_obj #(parameter
 ) (
     input               rst,
     input               clk,
-    input               cen,       //  6 or 8MHz
+    input               dma_cen,       //  6 or 8MHz
+    input               draw_cen,
     input               pxl_cen,   //  6MHz
     // screen
     input               HINIT,
@@ -74,19 +75,22 @@ module jtgng_obj #(parameter
 wire [DMA_AW-1:0] pre_scan;
 wire [DMA_DW-1:0] ram_dout, objbuf_data;
 
-wire line, fill, line_obj_we, HINIT_short;
+wire line, fill, line_obj_we;
 wire [4:0] post_scan;
 wire [7:0] VF;
 
 wire [4:0] objcnt;
 wire [3:0] pxlcnt;
+wire       rom_wait, draw_over;
 
 jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
     .clk        ( clk         ),
-    .cen        ( cen         ),
+    .draw_cen   ( draw_cen    ),
     .pxl_cen    ( pxl_cen     ),
+    .rom_ok     ( rom_ok      ),
+    .rom_wait   ( rom_wait    ),
+    .draw_over  ( draw_over   ),
     .HINIT      ( HINIT       ),
-    .HINIT_short( HINIT_short ),
     .objcnt     ( objcnt      ),
     .pxlcnt     ( pxlcnt      )
 );
@@ -101,7 +105,7 @@ jtgng_objdma #(
  u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen       ),
+    .cen        ( dma_cen   ),
     // screen
     .LVBL       ( LVBL       ),
     .pause      ( pause      ),
@@ -127,9 +131,10 @@ jtgng_objbuf #(
 u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen            ( cen           ),
+    .dma_cen        ( dma_cen       ),
+    .draw_cen       ( draw_cen      ),
     // screen
-    .HINIT_short    ( HINIT_short   ),
+    .HINIT          ( HINIT         ),
     .LVBL           ( LVBL_obj      ),
     .V              ( V             ),
     .VF             ( VF            ),
@@ -138,6 +143,7 @@ u_buf(
     .pre_scan       ( pre_scan      ),
     .ram_dout       ( ram_dout      ),
     // sprite data buffer
+    .rom_wait       ( rom_wait      ),
     .objbuf_data    ( objbuf_data   ),
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
@@ -154,16 +160,15 @@ wire [(PALETTE?7:3):0] new_pxl;
 jtgng_objdraw #(
     .DW               ( DMA_DW            ),
     .ROM_AW           ( ROM_AW            ),
-    .ROM_DW           ( ROM_DW            ),
-    .LAYOUT           ( LAYOUT            ),          
-    .PALW             ( PALW              ),            
-    .PALETTE          ( PALETTE           ),         
+    .LAYOUT           ( LAYOUT            ),
+    .PALW             ( PALW              ),
+    .PALETTE          ( PALETTE           ),
     .PALETTE1_SIMFILE ( PALETTE1_SIMFILE  ),
     .PALETTE0_SIMFILE ( PALETTE0_SIMFILE  ))
 u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen            ( cen           ),
+    .cen            ( draw_cen      ),
     .OBJON          ( OBJON         ),
     // screen
     .VF             ( VF            ),
@@ -176,6 +181,8 @@ u_draw(
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .obj_data       ( obj_data      ),
+    .rom_wait       ( rom_wait      ),
+    .draw_over      ( draw_over     ),
     // PROMs
     .prog_addr      ( prog_addr     ),
     .prom_hi_we     ( prom_hi_we    ),
@@ -202,12 +209,10 @@ jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW),.PXL_DLY(PXL_DLY)) u_pxlbuf
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
-    .cen            ( cen           ),
+    .cen            ( draw_cen      ),
     // screen
     .LHBL           ( LHBL          ),
     .flip           ( flip          ),
-    .objcnt         ( objcnt        ),
-    .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
     .line           ( line          ),
     // pixel data
