@@ -19,6 +19,7 @@
 module jtbiocom_video(
     input               rst,
     input               clk,
+    input               cen12,
     input               cen8,
     input               cen6,
     input               cpu_cen,
@@ -63,7 +64,7 @@ module jtbiocom_video(
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
     output      [16:0]  obj_addr,
-    input       [31:0]  obj_data,
+    input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
     input               LVBL,
@@ -253,13 +254,13 @@ jtgng_obj #(
     .OBJMAX_LINE( 6'd32      ),
     .PALW       ( 4          ),
     .ROM_AW     ( 17         ), // MSB is always zero
-    .ROM_DW     ( 32         ), // total 256kBytes of object graphic data
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .cen        ( cen8        ),
+    .dma_cen    ( cen8        ),
+    .draw_cen   ( cen12       ),
     .pxl_cen    ( cen6        ),
     .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),

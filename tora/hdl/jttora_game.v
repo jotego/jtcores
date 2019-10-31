@@ -203,23 +203,23 @@ wire        prom_we;
 wire        jap;        // high if Japanese ROM was loaded
 
 jttora_dwnld u_dwnld(
-    .clk         ( clk           ),
-    .downloading ( downloading   ),
-    .jap         ( jap           ),
+    .clk         ( clk             ),
+    .downloading ( downloading     ),
+    .jap         ( jap             ),
 
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_data  ( ioctl_data    ),
+    .ioctl_wr    ( ioctl_wr        ),
+    .ioctl_addr  ( ioctl_addr      ),
+    .ioctl_data  ( ioctl_data      ),
 
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-    .prog_rd     ( prog_rd       ),
+    .prog_data   ( prog_data       ),
+    .prog_mask   ( prog_mask       ),
+    .prog_addr   ( prog_addr       ),
+    .prog_we     ( prog_we         ),
+    .prog_rd     ( prog_rd         ),
 
-    .prom_we     ( prom_we       ),
-    .sdram_dout  ( data_read     ),
-    .dwnld_busy  ( dwnld_busy    )
+    .prom_we     ( prom_we         ),
+    .sdram_dout  ( data_read[15:0] ),
+    .dwnld_busy  ( dwnld_busy      )
 );
 
 wire [15:0] scrposh, scrposv;

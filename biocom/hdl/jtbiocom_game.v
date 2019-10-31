@@ -41,6 +41,7 @@ module jtbiocom_game(
     input   [ 6:0]  joystick2,
     // SDRAM interface
     input           downloading,
+    output          dwnld_busy,
     input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -56,6 +57,7 @@ module jtbiocom_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
+    output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -89,7 +91,7 @@ wire        char_busy, scr1_busy, scr2_busy;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
-wire [31:0] obj_data;
+wire [15:0] obj_data;
 wire [15:0] main_data;
 wire [ 7:0] snd_data;
 // MCU interface
@@ -113,8 +115,6 @@ wire        cen12b, cen6b;
 wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok;
 wire        scr1_ok, scr2_ok, char_ok;
-
-assign obj_addr[0] = 1'b0; // fixed for 32 bit values
 
 `ifdef MISTER
 
@@ -194,20 +194,23 @@ wire [ 1:0] prom_we;
 wire        prom_mcu_we  = prom_we[0];
 wire        prom_prio_we = prom_we[1];
 
-jtbiocom_prom_we u_prom_we(
-    .clk         ( clk           ),
-    .downloading ( downloading   ),
+jtbiocom_dwnld u_dwnld(
+    .clk         ( clk             ),
+    .downloading ( downloading     ),
 
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_data  ( ioctl_data    ),
+    .ioctl_wr    ( ioctl_wr        ),
+    .ioctl_addr  ( ioctl_addr      ),
+    .ioctl_data  ( ioctl_data      ),
 
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
+    .prog_data   ( prog_data       ),
+    .prog_mask   ( prog_mask       ),
+    .prog_addr   ( prog_addr       ),
+    .prog_we     ( prog_we         ),
+    .prog_rd     ( prog_rd         ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_we         ),
+    .sdram_dout  ( data_read[15:0] ),
+    .dwnld_busy  ( dwnld_busy      )
 );
 
 wire scr1_cs, scr2_cs;
@@ -291,7 +294,7 @@ jtbiocom_main u_main(
     `ifndef SIM_SCR2_HPOS
     `define SIM_SCR2_HPOS 9'd0
     `endif
-    `ifndef SIM_SCR1_VPOS
+    `ifndef SIM_SCR2_VPOS
     `define SIM_SCR2_VPOS 9'd0
     `endif
 
@@ -397,6 +400,7 @@ jtbiocom_video #(
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -436,7 +440,7 @@ jtbiocom_video #(
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
-    .obj_addr   ( obj_addr[16:1]),
+    .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
@@ -485,7 +489,6 @@ jtgng_rom #(
     .obj_aw     ( 17              ), // AD11 is disconnected in schematics
     .scr1_aw    ( 17              ),
     .scr2_aw    ( 15              ),
-    .obj_dw     ( 32              ),
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h4_8000 >> 1 ),
     .scr1_offset( 22'h5_0000      ), // SCR and OBJ are not shifted

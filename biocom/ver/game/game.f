@@ -7,7 +7,8 @@
 ../../hdl/jtbiocom_video.v
 ../../hdl/jtbiocom_mcu.v
 ../../hdl/jtbiocom_sound.v
-../../hdl/jtbiocom_bus.v
+# ../../hdl/jtbiocom_bus.v
+../../hdl/jtbiocom_dwnld.v
 ../../../modules/fx68k/fx68kAlu.sv
 ../../../modules/fx68k/fx68k.sv
 ../../../modules/fx68k/uaddrPla.sv
@@ -17,6 +18,7 @@
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_cen3p57.v
 ../../../modules/jtgng_charmsg.v
@@ -29,6 +31,7 @@
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_objcnt.v
 ../../../modules/jtgng_obj.v
+../../../modules/jtgng_obj32.v
 ../../../modules/jtgng_romflex.v
 ../../../modules/jtgng_romrq.v
 ../../../modules/jtgng_rom.v

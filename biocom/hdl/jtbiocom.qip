@@ -6,10 +6,12 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_prom_we.v ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_video.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_sound.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_bus.v     ]
+# set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_bus.v     ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_dwnld.v   ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_cen.v       ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_cen3p57.v   ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_obj32.v     ]
 
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_video.qip   ]
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_rom.qip     ]

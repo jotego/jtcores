@@ -41,6 +41,7 @@ module jt1943_game(
     input   [ 6:0]  joystick2,
     // SDRAM interface
     input           downloading,
+    output          dwnld_busy,
     input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -56,7 +57,7 @@ module jt1943_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
-
+    output          prog_rd,
     // DIP Switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -71,6 +72,11 @@ module jt1943_game(
     // Debug
     input   [3:0]   gfx_en
 );
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
 
 parameter CLK_SPEED=48;
 

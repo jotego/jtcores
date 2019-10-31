@@ -36,6 +36,7 @@ module jtgunsmoke_game(
     output          VS,
     // cabinet I/O
     input   [ 1:0]  start_button,
+    output          dwnld_busy,
     input   [ 1:0]  coin_input,
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
@@ -56,6 +57,7 @@ module jtgunsmoke_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
+    output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -70,6 +72,11 @@ module jtgunsmoke_game(
     // Debug
     input   [3:0]   gfx_en
 );
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
 
 parameter CLK_SPEED=48;
 
