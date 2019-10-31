@@ -28,7 +28,8 @@ module jttora_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg           prom_we
+    output reg           prom_we,
+    output reg           jap=1'b0   // high if the Japanese version was loaded
 );
 
 localparam MAIN0_ADDR  = 22'h00000;
@@ -141,6 +142,11 @@ always @(posedge clk) begin
         prog_we  <= 1'b0;
         prom_we0 <= 1'd0;
     end
+end
+
+always @(posedge clk) begin
+    if( ioctl_addr == 22'h40 && ioctl_wr )
+        jap <= ioctl_data==8'h38;
 end
 
 endmodule // jt1492_promprog

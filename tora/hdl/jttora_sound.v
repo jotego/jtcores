@@ -22,6 +22,7 @@ module jttora_sound(
     input           cen3,    //  3   MHz
     input           cen1p5,  //  1.5 MHz
     input           cenp384, //  384 kHz
+    input           jap,
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
@@ -32,24 +33,30 @@ module jttora_sound(
     input   [7:0]   psg_gain,
     // ROM
     output  [14:0]  rom_addr,
-    output  reg     rom_cs,
+    output          rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
     output  [14:0]  rom2_addr,
-    output  reg     rom2_cs,
+    output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,    
 
     // Sound output
-    output  signed [15:0] ym_snd,
+    output  reg signed [15:0] ym_snd,
     output  sample
 );
 
 wire signed [15:0] fm_snd;
 wire signed [11:0] adpcm;
+wire               cen_cpu3  = jap & cen3;
+wire               cen_adpcm = jap & cenp384;
 
-assign ym_snd = fm_snd + { {2{adpcm[11]}}, adpcm, 2'd0 };
+always @(posedge clk) begin
+    ym_snd <= jap ?
+    fm_snd + { {2{adpcm[11]}}, adpcm, 2'd0 }:
+    fm_snd;
+end
 
 wire [ 7:0] cmd;
 
@@ -107,7 +114,7 @@ wire irq_st;
 jt5205 u_adpcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cenp384   ),
+    .cen        ( cen_adpcm ),
     .sel        ( 2'b0      ),
     .din        ( pcm_data  ),
     .sound      ( adpcm     ),
@@ -131,7 +138,7 @@ end
 jtframe_z80 u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
-    .cen        ( cen3        ),
+    .cen        ( cen_cpu3    ),
     .wait_n     ( wait_n      ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),

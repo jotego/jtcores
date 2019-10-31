@@ -200,10 +200,12 @@ wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
 wire        prom_we;
+wire        jap;        // high if Japanese ROM was loaded
 
 jttora_dwnld u_dwnld(
     .clk         ( clk           ),
     .downloading ( downloading   ),
+    .jap         ( jap           ),
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  ( ioctl_addr    ),
@@ -317,6 +319,7 @@ jttora_sound u_sound (
     .cen3           ( cen_fm         ),
     .cen1p5         ( cen1p5         ),  // unused
     .cenp384        ( cenp384        ),
+    .jap            ( jap            ),
     // Interface with main CPU
     .sres_b         ( 1'b1           ),  // unused
     .snd_latch      ( snd_latch      ),
