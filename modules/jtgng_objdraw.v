@@ -121,7 +121,7 @@ always @(posedge clk) if(cen) begin
 end
 
 always @(posedge clk) if(cen) begin
-    if( pxlcnt[1:0]==2'd3 ) begin
+    if( pxlcnt[1:0]==2'd3 && !rom_wait ) begin
         if( LAYOUT!=3 )
             obj_addr <= (!vinzone || objcnt==5'd0) ? {ROM_AW{1'b0}} :
                 { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };

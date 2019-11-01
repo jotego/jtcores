@@ -40,17 +40,20 @@ module mist_dump(
     `else
     initial begin
     `endif
-        $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
         `ifdef DEEPDUMP
+            $display("NC Verilog: will dump all signals");
             $shm_probe(mist_test,"AS");
         `else
-            $shm_probe(UUT.u_game.u_sound,"A");
-            $shm_probe(UUT.u_game.u_sound.u_fm0,"A");
-            $shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_timers,"AS");
-            $shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_mmr,"AS");
-            $shm_probe(UUT.u_game.u_sound.u_fm1.u_jt12.u_mmr,"AS");
-            $shm_probe(UUT.u_game.u_sound.u_fm1,"A");
+            $display("NC Verilog: will dump selected signals");
+            $shm_probe(UUT.u_game.u_video.u_obj,"AS");
+            $shm_probe(frame_cnt);
+            //$shm_probe(UUT.u_game.u_sound,"A");
+            //$shm_probe(UUT.u_game.u_sound.u_fm0,"A");
+            //$shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_timers,"AS");
+            //$shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_mmr,"AS");
+            //$shm_probe(UUT.u_game.u_sound.u_fm1.u_jt12.u_mmr,"AS");
+            //$shm_probe(UUT.u_game.u_sound.u_fm1,"A");
         `endif
     end
 `endif
