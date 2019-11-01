@@ -56,7 +56,6 @@ jtframe_cencross_strobe u_hinit(
     .stout  ( HINIT_dma   )
 );
 
-
 // sprite buffer
 reg          fill;
 reg  [5:0]   post_scan;

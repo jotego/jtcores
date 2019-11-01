@@ -116,7 +116,7 @@ always @(posedge clk) if(cen6) begin
         3: begin // Tiger Road, 32x32 tiles
             scr_attr0 <= attr[4:0];
             scr_addr  <= { attr[7:6], id, // 2+8+2+5+1=18 bits
-                            HS[4:3]^{2{scr_hflip}},
+                            HS[4:3]^{2{scr_hflip^flip}},
                             SV[4:0],
                             HS[2]^scr_hflip };
             end

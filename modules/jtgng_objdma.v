@@ -54,20 +54,15 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 // give more time to the main CPU.
 // It takes 170us to copy the whole ('h1FF) buffer
 
-reg mem_sel;
-reg OKOUT_latch;
+reg  mem_sel;
+wire OKOUT_latch;
 
-// This "latch" prevents the circuit from missing requests
-// that fall in between two cen  pulses. This is important
-// for M68000 CPUs which run faster than 6MHz
-always @(posedge clk, posedge rst)
-    if( rst ) begin
-        OKOUT_latch <= 1'b0;
-    end else begin
-        if( OKOUT )
-            OKOUT_latch <= 1'b1;
-        else if( cen  ) OKOUT_latch <= 1'b0; // clear it with cen 
-    end
+jtframe_cencross_strobe u_okout(
+    .clk    ( clk         ),
+    .cen    ( cen         ),
+    .stin   ( OKOUT       ),
+    .stout  ( OKOUT_latch )
+);
 
 always @(posedge clk, posedge rst)
     if( rst ) begin

@@ -137,6 +137,7 @@ wire hflip_en = HFLIP_EN[0];
 
 wire hflip_next = char_attr1[PALW];
 wire dout_hflip = (dout_high[HFLIP]& hflip_en) ^ flip ^ HFLIP_XOR;
+wire dout_vflip = (dout_high[VFLIP]& vflip_en) ^ flip ^ VFLIP_XOR;
 
 always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
@@ -148,13 +149,13 @@ always @(posedge clk) if(pxl_cen) begin
         case( LAYOUT )
             0:  begin
                 char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
-                {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
+                {3{dout_vflip}}^V[2:0] };
                 char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };
             end
             3:  begin // Tiger Road
                 char_addr  <= { { dout_high[5], dout_high[7:6], dout_low},
-                {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
-                char_attr0 <= { 1'b0, dout_high[PALW-1:0] };
+                {3{dout_vflip}}^V[2:0] };
+                char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };
             end
         endcase
     end

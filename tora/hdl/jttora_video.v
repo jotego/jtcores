@@ -104,6 +104,7 @@ jtgng_char #(
     .DW     (     16 ),
     .ROM_AW (     14 ),
     .VFLIP  (      4 ),
+    .HFLIP  (      4 ),
     .LAYOUT ( LAYOUT )
 ) u_char (
     .clk        ( clk           ),
