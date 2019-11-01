@@ -84,6 +84,7 @@ wire [3:0] pxlcnt;
 wire       rom_wait, draw_over, HINIT_draw;
 
 jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
+    .rst        ( rst         ),
     .clk        ( clk         ),
     .draw_cen   ( draw_cen    ),
     .rom_ok     ( rom_ok      ),

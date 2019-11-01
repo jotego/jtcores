@@ -55,8 +55,8 @@ pal_bin2hex < tora_pal.bin
 
 # Objects
 cp -f tora_obj.bin objdma.bin
-
-$TEST go.sh -d NOSOUND -d NOMAIN -d NOMCU -video -time 17 \
+# -time 17 \
+$TEST go.sh -d NOSOUND -d NOMAIN -d NOMCU -video 5 \
     -d JTCHAR_UPPER_SIMFILE=',.simfile({"char_upper.bin"})' \
     -d JTCHAR_LOWER_SIMFILE=',.simfile({"char_lower.bin"})' \
     -d SIM_SCR_HPOS=16\'h$SCRHPOS \

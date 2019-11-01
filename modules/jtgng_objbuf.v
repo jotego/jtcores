@@ -81,6 +81,9 @@ always @(*) begin
         : ( &{ ~^{ram_dout[8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
 end
 
+localparam DMAEND = OBJMAX-4;
+wire dmaend = {pre_scan_msb,pre_scan}>=DMAEND;
+
 always @(posedge clk, posedge rst)
     if( rst ) begin
         trf_state <= SEARCH;
@@ -90,7 +93,7 @@ always @(posedge clk, posedge rst)
         case( trf_state )
             SEARCH: begin
                 line_obj_we <= 1'b0;
-                if( !LVBL || fill ) begin
+                if( !LVBL || fill || dmaend ) begin
                     {pre_scan_msb, pre_scan} <= 2;
                     post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
@@ -105,7 +108,7 @@ always @(posedge clk, posedge rst)
                         trf_state <= TRANSFER;
                     end
                     else begin
-                        if( {pre_scan_msb,pre_scan}>=OBJMAX ) begin
+                        if( dmaend ) begin
                             fill <= 1'b1;
                         end else begin
                             {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 4;

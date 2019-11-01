@@ -58,6 +58,7 @@ reg  mem_sel;
 wire OKOUT_latch;
 
 jtframe_cencross_strobe u_okout(
+    .rst    ( rst         ),
     .clk    ( clk         ),
     .cen    ( cen         ),
     .stin   ( OKOUT       ),

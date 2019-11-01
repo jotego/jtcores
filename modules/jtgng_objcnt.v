@@ -19,6 +19,7 @@
 module jtgng_objcnt #(parameter
     OBJMAX_LINE = 6'd24
 ) (
+    input               rst,
     input               clk,
     input               draw_cen /*direct_enable*/,
     input               rom_ok,
@@ -37,6 +38,7 @@ module jtgng_objcnt #(parameter
 // The signal is resampled here to obtain a shortened version.
 
 jtframe_cencross_strobe u_hinit(
+    .rst    ( rst         ),
     .clk    ( clk         ),
     .cen    ( draw_cen    ),
     .stin   ( HINIT       ),
