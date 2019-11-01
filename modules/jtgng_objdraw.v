@@ -146,6 +146,7 @@ always @(posedge clk) if(cen) begin
         end else begin
             posx1     <= posx1 + 9'b1;
         end
+        if( draw_over ) posx1[8] <= 1'b1;
         case( pxlcnt[1:0] )
             2'd3:  begin // new data
                     {z,y,x,w} <= obj_data;
@@ -225,7 +226,7 @@ generate
         // No palette PROMs
         always @(posedge clk) if(cen) begin
             new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
-            posx    <= draw_over ? 9'h1ff : posx1;
+            posx    <= posx1;
             pospal  <= objpal1;
         end
     end

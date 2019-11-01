@@ -81,16 +81,16 @@ wire [7:0] VF;
 
 wire [4:0] objcnt;
 wire [3:0] pxlcnt;
-wire       rom_wait, draw_over;
+wire       rom_wait, draw_over, HINIT_draw;
 
 jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
     .clk        ( clk         ),
     .draw_cen   ( draw_cen    ),
-    .pxl_cen    ( pxl_cen     ),
     .rom_ok     ( rom_ok      ),
     .rom_wait   ( rom_wait    ),
     .draw_over  ( draw_over   ),
     .HINIT      ( HINIT       ),
+    .HINIT_draw ( HINIT_draw  ),
     .objcnt     ( objcnt      ),
     .pxlcnt     ( pxlcnt      )
 );
@@ -131,10 +131,9 @@ jtgng_objbuf #(
 u_buf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .dma_cen        ( dma_cen       ),
     .draw_cen       ( draw_cen      ),
     // screen
-    .HINIT          ( HINIT         ),
+    .HINIT_draw     ( HINIT_draw    ),
     .LVBL           ( LVBL_obj      ),
     .V              ( V             ),
     .VF             ( VF            ),

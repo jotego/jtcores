@@ -28,10 +28,9 @@ module jtgng_objbuf #(parameter
 ) (
     input               rst,
     input               clk,
-    (*direct_enable*)   input dma_cen,
-    input               draw_cen,
+    (*direct_enable*) input draw_cen,
     // screen
-    input               HINIT,
+    input               HINIT_draw,
     input               LVBL,
     input       [7:0]   V,
     output reg  [7:0]   VF,
@@ -45,15 +44,6 @@ module jtgng_objbuf #(parameter
     input       [3:0]   pxlcnt,
     input               rom_wait,
     output reg          line
-);
-
-wire HINIT_dma;
-
-jtframe_cencross_strobe u_hinit(
-    .clk    ( clk         ),
-    .cen    ( dma_cen     ),
-    .stin   ( HINIT       ),
-    .stout  ( HINIT_dma   )
 );
 
 // sprite buffer
@@ -72,8 +62,8 @@ localparam SEARCH=1'b0, TRANSFER=1'b1;
 always @(posedge clk, posedge rst) begin
     if( rst )
         line <= lineA;
-    else if(dma_cen) begin
-        if( HINIT_dma ) begin
+    else if(draw_cen) begin
+        if( HINIT_draw ) begin
             VF <= {8{flip}} ^ V;
             line <= ~line;
         end
@@ -96,7 +86,7 @@ always @(posedge clk, posedge rst)
         trf_state <= SEARCH;
         line_obj_we <= 1'b0;
     end
-    else if(dma_cen) begin
+    else if(draw_cen) begin
         case( trf_state )
             SEARCH: begin
                 line_obj_we <= 1'b0;
@@ -105,7 +95,7 @@ always @(posedge clk, posedge rst)
                     post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
-                    if(HINIT_dma) fill <= 1'd0;
+                    if(HINIT_draw) fill <= 1'd0;
                 end
                 else begin
                     //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
@@ -157,8 +147,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-reg cen_a, cen_b;
-
 always @(*) begin
     if( line == lineA ) begin
         address_a = { ~post_scan[4:0], pre_scan[1:0] };
@@ -167,8 +155,6 @@ always @(*) begin
         data_b    = 8'hf8;
         we_a      = line_obj_we;
         we_b      = we_clr[2];
-        cen_a     = dma_cen;
-        cen_b     = 1'b1;
     end
     else begin
         address_a = hscan;
@@ -177,14 +163,12 @@ always @(*) begin
         data_b    = ram_dout;
         we_a      = we_clr[2];
         we_b      = line_obj_we;
-        cen_a     = 1'b1;
-        cen_b     = dma_cen;
     end
 end
 
 jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
     .clk   ( clk       ),
-    .cen   ( cen_a     ),
+    .cen   ( 1'b1      ),
     .addr  ( address_a ),
     .data  ( data_a    ),
     .we    ( we_a      ),
@@ -193,7 +177,7 @@ jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
 
 jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_b(
     .clk   ( clk       ),
-    .cen   ( cen_b     ),
+    .cen   ( 1'b1      ),
     .addr  ( address_b ),
     .data  ( data_b    ),
     .we    ( we_b      ),

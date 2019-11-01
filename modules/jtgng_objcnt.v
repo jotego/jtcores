@@ -21,10 +21,10 @@ module jtgng_objcnt #(parameter
 ) (
     input               clk,
     input               draw_cen /*direct_enable*/,
-    input               pxl_cen,
     input               rom_ok,
 
     input               HINIT,
+    output              HINIT_draw,
     output              rom_wait,
     output reg          draw_over,
     output reg [4:0]    objcnt,
@@ -35,8 +35,6 @@ module jtgng_objcnt #(parameter
 // If cen is 8MHz, The HINIT pulse will last for two 8MHz cen pulses
 // and that can create problems.
 // The signal is resampled here to obtain a shortened version.
-
-wire HINIT_draw;
 
 jtframe_cencross_strobe u_hinit(
     .clk    ( clk         ),
@@ -55,7 +53,8 @@ always @(posedge clk) if(draw_cen) begin
     end else begin
         // stops at the data collection point if rom data is not available
         // give extra time to the draw module to finish
-        if( over && pxlcnt[2:0] == 3'd7 ) draw_over <= 1'b1;
+        if( over && pxlcnt[2:0] == 3'd6 ) draw_over <= 1'b1;
+        if( draw_over ) { objcnt, pxlcnt } <= { 5'd0, 4'd0 };
         if( !draw_over && !rom_wait ) 
             { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;
     end
