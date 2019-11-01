@@ -23,4 +23,8 @@ done
 
 cores="1942 1943 gng commando gunsmoke vulgus tora"
 
+if [ $MIST = -mister ]; then
+    cores="$cores biocom"
+fi
+
 parallel jtcore {} $EXTRA ::: $cores ::: $MIST

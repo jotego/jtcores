@@ -150,10 +150,7 @@ jt1942_objdraw u_draw(
     .new_pxl        ( new_pxl       )
 );
 
-// line buffers for pixel data
-wire [3:0] obj_pxl0;
-
-jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
+jtgng_objpxl #(.obj_dly(5'h1f),.PXL_DLY(PXL_DLY))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen            ( cen6          ),    //  6 MHz
@@ -161,21 +158,11 @@ jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
     // screen
     .LHBL           ( LHBL          ),
     .flip           ( flip          ),
-    .objcnt         ( objcnt        ),
-    .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
     .line           ( line          ),
     // pixel data
     .new_pxl        ( new_pxl       ),
-    .obj_pxl        ( obj_pxl0      )
-);
-
-// Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(4), .stages(PXL_DLY)) u_sh(
-    .clk            ( clk           ),
-    .clk_en         ( cen6          ),
-    .din            ( obj_pxl0      ),
-    .drop           ( obj_pxl       )
+    .obj_pxl        ( obj_pxl       )
 );
 
 endmodule

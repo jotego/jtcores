@@ -108,7 +108,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 
 
 wire rom_ready;
-wire main_ok, snd_ok;
+wire main_ok, snd_ok, obj_ok;
 
 assign sample=1'b1;
 
@@ -369,6 +369,7 @@ jtgng_video #(
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
+    .obj_ok     ( obj_ok        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -424,6 +425,7 @@ jtgng_rom #(
     .scr1_ok     ( scr1_ok       ),
     .scr2_ok     ( scr2_ok       ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),

@@ -171,7 +171,7 @@ generate
     if( PALETTE == 1 ) begin
         wire [7:0] prom_dout;
         // 1943 has bits reversed for palette PROMs
-        wire [3:0] new_col = { w,x,y,z };
+        wire [3:0] new_col = { w[3],x[3],y[3],z[3] };
         wire [7:0] pal_addr = { objpal1, new_col };
 
         jtgng_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(

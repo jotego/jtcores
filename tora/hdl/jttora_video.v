@@ -215,22 +215,25 @@ u_obj (
     .draw_cen   ( cen12       ),
     .dma_cen    ( cen8        ),
     .pxl_cen    ( cen6        ),
+    // screen
+    .HINIT      ( HINIT       ),
+    .LHBL       ( LHBL_obj    ),
+    .LVBL       ( LVBL        ),
+    .LVBL_obj   ( LVBL_obj    ),
+    .V          ( V[7:0]      ),
+    .H          ( H           ),
+    .flip       ( flip        ),
+    // Pause screen
+    .pause      ( pause       ),
+    .avatar_idx ( avatar_idx  ),
+    // CPU bus
     .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),
+    // shared bus
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LHBL       ( LHBL_obj    ),
-    .LVBL       ( LVBL        ),
-    .LVBL_obj   ( LVBL_obj    ),
-    .HINIT      ( HINIT       ),
-    .flip       ( flip        ),
-    .V          ( V[7:0]      ),
-    .H          ( H           ),
-    // avatar display
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
