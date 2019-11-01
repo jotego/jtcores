@@ -48,6 +48,8 @@ both action buttons.
 REVISION HISTORY
 ================
 
+1st Nov 2019 beta release (2)
+    * Fixed occasional sprite glitching
 27 Oct 2019: beta release. 
                 -No sound (some MCU issue?)
                 -Sprite glitches due to 8-pixel data loading 

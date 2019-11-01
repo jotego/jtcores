@@ -89,6 +89,7 @@ module jt1943_video #( parameter
     input               HINIT,
     output      [OBJ_ROM_AW-1:0]  obj_addr,
     input       [15:0]  obj_data,
+    input               obj_ok,
     // shared bus
     output      [12:0]  obj_AB,
     input        [7:0]  obj_DB,
@@ -338,6 +339,7 @@ u_obj(
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .obj_data       ( obj_data      ),
+    .rom_ok         ( obj_ok        ),
     // PROMs
     .OBJON          ( OBJON         ),
     .prog_addr      ( prog_addr     ),

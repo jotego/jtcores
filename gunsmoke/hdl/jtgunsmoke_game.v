@@ -331,7 +331,7 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr_ok, char_ok;
+wire scr_ok, char_ok, obj_ok;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
@@ -406,6 +406,7 @@ jt1943_video #(
     .obj_DB        ( main_ram      ),
     .obj_addr      ( pre_obj_addr  ),
     .obj_data      ( obj_data      ),
+    .obj_ok        ( obj_ok        ),
     .OKOUT         ( OKOUT         ),
     .bus_req       ( bus_req       ), // Request bus
     .bus_ack       ( bus_ack       ), // bus acknowledge
@@ -474,6 +475,7 @@ jtgng_rom #(
     .scr1_ok     ( scr_ok        ),
     .scr2_ok     (               ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),

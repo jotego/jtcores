@@ -25,6 +25,8 @@ The ROM Master, aka Bruno Silva, has provided us with a .bat file to generate th
 
 RELEASE HISTORY
 ===============
+1st Nov 2019
+    * Fixed occasional sprite glitching
 7th Oct 2019
     * Main Z80 is overclocked to avoid graphic glitches. Needs further debugging
     * Updated to latest JT49 sound module. Fixes many bugs in SFX.

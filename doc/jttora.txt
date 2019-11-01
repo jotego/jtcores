@@ -41,6 +41,10 @@ TECHNICAL INFORMATION
 REVISION HISTORY
 ================
 
+1  Nov 2019: beta release 2
+            -FX sound added for western versions
+            -Sprite glithces fixed
+            -Still missing ADPCM sound on Japanese version
 27 Oct 2019: beta release.
             -No FX sound. I don't understand why.
             -Sprite glitches due to 8-pixel data loading 

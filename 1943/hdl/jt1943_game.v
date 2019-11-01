@@ -101,7 +101,7 @@ wire [14:0]  scr2_addr;
 wire [ 7:0]  dipsw_a, dipsw_b;
 
 wire rom_ready;
-wire main_ok, char_ok;
+wire main_ok, char_ok, obj_ok;
 
 assign sample=1'b1;
 
@@ -407,6 +407,7 @@ jt1943_video u_video(
     .obj_DB     ( main_ram      ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
+    .obj_ok     ( obj_ok        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -458,6 +459,7 @@ jtgng_rom u_rom (
     .main_ok     ( main_ok       ),
     .snd_ok      (               ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
