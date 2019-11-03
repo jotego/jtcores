@@ -79,7 +79,7 @@ end
 reg [3:0] Vobj;
 
 always @(posedge clk) if(cen) begin
-    case( pxlcnt[3:0] )
+    if(!rom_wait) case( pxlcnt[3:0] )
         4'd0: id[IDW-1:0] <= objbuf_data;
         4'd1: case( LAYOUT )
             default: begin // GnG, Commando
@@ -210,7 +210,7 @@ generate
             wire [7:0] avatar_pxl = prom_dout;
         `endif
 
-        always @(posedge clk ) if(cen ) begin
+        always @(posedge clk ) if(cen && !rom_wait) begin
             pospal <= {PALW{1'b0}}; // it is actually unused on the upper level
             posx2 <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
@@ -224,7 +224,7 @@ generate
 
     end else begin
         // No palette PROMs
-        always @(posedge clk) if(cen) begin
+        always @(posedge clk) if(cen && !rom_wait) begin
             new_pxl <= poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
             posx    <= posx1;
             pospal  <= objpal1;

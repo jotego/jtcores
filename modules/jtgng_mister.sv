@@ -201,7 +201,7 @@ wire [ 9:0] game_joy1, game_joy2;
 wire [ 1:0] game_coin, game_start;
 wire [ 3:0] gfx_en;
 
-wire        downloading, game_rst, rst, rst_n;
+wire        downloading, game_rst, rst, rst_n, dwnld_busy;
 wire        rst_req   = RESET | status[0] | buttons[1];
 
 
@@ -217,7 +217,7 @@ wire         data_rdy;
 wire         sdram_ack;
 wire         refresh_en;
 
-wire         prog_we;
+wire         prog_we, prog_rd;
 wire [21:0]  prog_addr;
 wire [ 7:0]  prog_data;
 wire [ 1:0]  prog_mask;
@@ -231,11 +231,20 @@ wire [COLORW-1:0] game_r, game_g, game_b;
 wire              LHBL_dly, LVBL_dly;
 wire              hs, vs;
 
+`ifndef SIGNED_SND
+assign AUDIO_S = 1'b1; // Assume signed by default
+`else
+assign AUDIO_S = `SIGNED_SND;
+`endif
+
+`ifndef THREE_BUTTONS
+`define THREE_BUTTONS 1'b1
+`endif
+
 jtframe_mister #(
-    .CONF_STR      ( CONF_STR ),
-    .SIGNED_SND    ( 1'b1     ),
-    .THREE_BUTTONS ( 1'b1     ),
-    .COLORW        ( COLORW   ))
+    .CONF_STR      ( CONF_STR       ),
+    .THREE_BUTTONS ( `THREE_BUTTONS ),
+    .COLORW        ( COLORW         ))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_sys        ),
@@ -275,7 +284,9 @@ u_frame(
     .prog_data      ( prog_data      ),
     .prog_mask      ( prog_mask      ),
     .prog_we        ( prog_we        ),
+    .prog_rd        ( prog_rd        ),
     .downloading    ( downloading    ),
+    .dwnld_busy     ( dwnld_busy     ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
@@ -380,9 +391,10 @@ assign sim_pxl_cen = cen6;
     .prog_data    ( prog_data        ),
     .prog_mask    ( prog_mask        ),
     .prog_we      ( prog_we          ),
-
+    .prog_rd      ( prog_rd          ),
     // ROM load
     .downloading  ( downloading      ),
+    .dwnld_busy   ( dwnld_busy       ),
     .loop_rst     ( loop_rst         ),
     .sdram_req    ( sdram_req        ),
     .sdram_addr   ( sdram_addr       ),
@@ -413,7 +425,5 @@ assign sim_pxl_cen = cen6;
 `ifndef STEREO_GAME
     assign AUDIO_R = AUDIO_L;
 `endif
-
-assign AUDIO_S = 1;
 
 endmodule

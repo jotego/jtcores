@@ -24,7 +24,11 @@ done
 cores="1942 1943 gng commando gunsmoke vulgus tora"
 
 if [ $MIST = -mister ]; then
+    # MiSTer cores are processed serially
     cores="$cores biocom"
+    for i in $cores; do
+        nice jtcore $i -mister $EXTRA
+    done
+else
+    parallel jtcore {} $EXTRA ::: $cores ::: $MIST
 fi
-
-parallel jtcore {} $EXTRA ::: $cores ::: $MIST

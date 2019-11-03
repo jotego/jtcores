@@ -261,8 +261,8 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
 );
 
 `ifndef NOSOUND
-wire [8:0] psg_snd;
-assign snd = { 1'b0, psg_snd, 6'd0 };
+wire [9:0] psg_snd;
+assign snd = { psg_snd, 6'd0 };
 
 jt1942_sound u_sound (
     .rst            ( rst_game       ),

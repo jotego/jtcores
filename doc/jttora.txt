@@ -36,19 +36,22 @@ screen press both action buttons.
 TECHNICAL INFORMATION
 =====================
 -All PSG channels had no load on the bootleg board
+-YM2203 phi M =3.7MHz, phi S = 1.2MHz (measured with broken Z80, so default divider)
 -DMA duration was measured to be xxx, matching the expected behaviour
 
 REVISION HISTORY
 ================
-
+3  Nov 2019: beta 3
+    * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration
+    * Set JT49 compression to level 1 (29.1dB)
 1  Nov 2019: beta release 2
-            -FX sound added for western versions
-            -Sprite glithces fixed
-            -Still missing ADPCM sound on Japanese version
+    * FX sound added for western versions
+    * Sprite glithces fixed
+    * Still missing ADPCM sound on Japanese version
 27 Oct 2019: beta release.
-            -No FX sound. I don't understand why.
-            -Sprite glitches due to 8-pixel data loading 
-             (instead of 4 pixels as other CPS0 games)
+    * No FX sound. I don't understand why.
+    * Sprite glitches due to 8-pixel data loading 
+      (instead of 4 pixels as other CPS0 games)
 
 
 

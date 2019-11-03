@@ -1,6 +1,10 @@
 RELEASE HISTORY
 ===============
 
+3rd Nov 2019
+    - Updated to latest JT49 sound module. Fixes bug in envelope duration
+    - Set JT49 compression to level 2 (21dB)
+
 7th Oct 2019
     - Updated to latest JT49 sound module. Fixes many bugs in SFX.
     - Added 128MB RAM module support (MiSTer only)

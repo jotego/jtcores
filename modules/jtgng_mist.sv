@@ -188,12 +188,19 @@ assign sim_vs = ~LVBL_dly;
 assign sim_hs = ~LHBL_dly;
 `endif
 
+`ifndef SIGNED_SND
+`define SIGNED_SND 1'b1
+`endif
+
+`ifndef THREE_BUTTONS
+`define THREE_BUTTONS 1'b1
+`endif
 
 jtframe_mist #( 
-    .CONF_STR     ( CONF_STR ),
-    .SIGNED_SND   ( 1'b1     ),
-    .THREE_BUTTONS( 1'b1     ),
-    .COLORW       ( COLORW   ))
+    .CONF_STR     ( CONF_STR       ),
+    .SIGNED_SND   ( `SIGNED_SND    ),
+    .THREE_BUTTONS( `THREE_BUTTONS ),
+    .COLORW       ( COLORW         ))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),

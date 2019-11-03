@@ -20,6 +20,10 @@
 // of CAPCOM's 85H001 package found in GunSmoke, GnG, etc.
 // when using LAYOUT 0
 
+// watch points for MAME:
+// wpset e000,1,w,1,{printf "reg = %X", wpdata;g}
+// wpset e001,1,w,1,{printf "val = %X", wpdata;g}
+
 module jtgng_sound(
     input            rst,
     input            clk,

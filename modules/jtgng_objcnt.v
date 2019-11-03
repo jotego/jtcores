@@ -45,13 +45,17 @@ jtframe_cencross_strobe u_hinit(
     .stout  ( HINIT_draw  )
 );
 
-reg over;
-assign rom_wait = !rom_ok && pxlcnt[1:0]==2'b11;
+reg  over;
+reg  wait_latch;
+wire wait_cond = !rom_ok && pxlcnt[1:0]==2'b11;
+
+assign rom_wait = wait_cond | wait_latch;
 
 always @(posedge clk) if(draw_cen) begin
     if( HINIT_draw ) begin
         { over, objcnt, pxlcnt } <= { 6'd32-OBJMAX_LINE,4'd0};
-        draw_over <= 1'b0;
+        draw_over  <= 1'b0;
+        wait_latch <= 1'b0;
     end else begin
         // stops at the data collection point if rom data is not available
         // give extra time to the draw module to finish
@@ -59,6 +63,7 @@ always @(posedge clk) if(draw_cen) begin
         if( draw_over ) { objcnt, pxlcnt } <= { 5'd0, 4'd0 };
         if( !draw_over && !rom_wait ) 
             { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;
+        wait_latch <= wait_cond;
     end
 end
 

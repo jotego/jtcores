@@ -145,7 +145,7 @@ reg [2:0] we_clr;
 always @(posedge clk, posedge rst) begin
     if( rst ) we_clr <= 3'b0;
     else begin
-        we_clr <= { we_clr[1:0], draw_cen && !rom_wait};
+        we_clr <= { we_clr[1:0], draw_cen & ~rom_wait};
         if( we_clr[1] ) objbuf_data <= line==lineA ? q_b : q_a;
     end
 end
