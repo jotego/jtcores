@@ -7,7 +7,6 @@
 using namespace std;
 
 class Wrapper {
-    int8_t cpu_mem[512];
     int    screen[256][224];
     char * rom;
     int    hcnt,vcnt, LHBL, LVBL, last_LHBL, last_LVBL;
@@ -18,10 +17,12 @@ class Wrapper {
     void advance();
     void dma_cycle();
     void eval();
-    void load_palette( const char *name );
+    void load_palette( const char *name, int pos );
 public:
+    int8_t cpu_mem[512];
     Wrapper( Vtest* t );
     ~Wrapper();
+    void frame();
     void reset();
     void random();
     void save_raw();
@@ -32,7 +33,12 @@ int main(int argc, char *argv[]) {
     try {
         Wrapper wrap(top);
         wrap.reset();
-        wrap.random();
+        wrap.cpu_mem[0]=4;
+        wrap.cpu_mem[2]=0x80;
+        wrap.cpu_mem[3]=0x80;
+
+        //wrap.random();
+        wrap.frame();
         wrap.save_raw();
     } catch(int i ) { }
     delete top; top=0;
@@ -43,8 +49,8 @@ void Wrapper::save_raw() {
     stringstream s;
     s << "obj_" << frame_cnt << ".raw";
     ofstream of(s.str(),ios_base::binary);
-    for(int r=0; r<256; r++ )
-        for( int c=0; c<224; c++ ) {
+    for( int c=0; c<224; c++ )
+        for(int r=0; r<256; r++ ) {
             char rgba[4];
             rgba[0] = screen[r][c];
             rgba[1] = rgba[2] = rgba[0];
@@ -61,8 +67,15 @@ void Wrapper::eval() {
     bus_req = top->bus_req;
     blen    = top->blen;
     obj_AB  = top->obj_AB;
-    int16_t obj_data;
-    int     obj_addr;
+    int     obj_data;
+    int     obj_addr = top->obj_addr;
+    obj_addr<<=1;
+    int lo, hi;
+    lo = 0xff&(int)rom[ obj_addr ];
+    hi = 0xff&(int)rom[ obj_addr | 1 ];
+    obj_data = (hi<<8) | lo;
+    top->obj_data = obj_data;
+    top->obj_ok   = 1;
 }
 
 void Wrapper::advance() {
@@ -98,17 +111,21 @@ void Wrapper::dma_cycle() {
     top->bus_ack=0;
 }
 
+void Wrapper::frame() {
+    while( !LVBL ) advance();
+    while( LVBL ) advance();
+}
+
 void Wrapper::random() {
     for( int k=0; k<512; k++ ) {
         cpu_mem[k] = rand()%256;
     }
     dma_cycle();
-    while( !LVBL ) advance();
-    while( LVBL ) advance();
+    frame();
 }
 
 void Wrapper::reset() {
-    top->rst = 0;
+    top->rst = 1;
     top->clk = 0;
     top->prog_addr  = 0;
     top->prog_din   = 0;
@@ -119,32 +136,36 @@ void Wrapper::reset() {
     top->bus_ack    = 0;
     top->obj_data   = 0;
     top->obj_ok     = 0;
-    for( int i=0; i<100; i++ ) {
-        eval();
-        top->clk = i%2;
+    top->flip       = 0;
+    for( int i=0; i<10; i++ ) {
+        advance();
     }
+    top->rst=0;
     LHBL = top->LHBL;
     LVBL = top->LVBL;
     // Load the palettes
-    load_palette( "../../../rom/1943/bm7.7c" );
-    load_palette( "../../../rom/1943/bm8.8c" );
+    load_palette( "../../../rom/1943/bm7.7c",1 );
+    load_palette( "../../../rom/1943/bm8.8c",2 );
 }
 
-void Wrapper::load_palette( const char *name ) {
+void Wrapper::load_palette( const char *name, int pos ) {
     ifstream pal(name);
+    top->prom_hi_we = (pos&2)>>1;
+    top->prom_lo_we = pos&1;
     if( pal.bad() || pal.eof() ) {
         cerr << "ERROR: cannot read palette file\n";
         throw 1;
     }
+    char *buf = new char[256];
+    pal.read( buf, 256 );
     for( int k=0; k<256; k++ ) {
-        char c;
-        pal.read( &c, 1 );
         top->prog_addr  = k;
-        top->prom_hi_we = 1;
-        top->prog_din   = c&0xf;
+        top->prog_din   = buf[k]&0xf;
         advance();
         advance();
     }
+    top->prom_hi_we = 0;
+    top->prom_lo_we = 0;
 }
 
 Wrapper::Wrapper( Vtest* t ) : top(t) { 
@@ -158,6 +179,7 @@ Wrapper::Wrapper( Vtest* t ) : top(t) {
         throw 1;
     }
     fin.read( rom, 887808 );
+    for( int k=0; k<512; k++ ) cpu_mem[k]=0xf8;
 }
 
 Wrapper::~Wrapper() {

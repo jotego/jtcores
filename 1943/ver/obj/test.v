@@ -9,7 +9,7 @@ module test(
     input               prom_hi_we,
     input               prom_lo_we,
     // DMA
-    output      [12:0]  obj_AB,
+    output      [ 8:0]  obj_AB,
     input       [ 7:0]  obj_DB,
     input               OKOUT,
     output              bus_req,   // Request bus
@@ -103,7 +103,7 @@ u_obj(
     .pause          ( 1'b0          ),
     .avatar_idx     (               ),
     // CPU bus
-    .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),
+    .AB             ( obj_AB        ),
     .DB             ( obj_DB        ),
     // shared bus
     .OKOUT          ( OKOUT         ),
@@ -123,7 +123,5 @@ u_obj(
     // pixel output
     .obj_pxl        ( obj_pxl       )
 );
-assign obj_AB[ 12] = 1'b1;
-assign obj_AB[4:2] = 3'b0;
 
 endmodule
