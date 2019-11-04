@@ -65,7 +65,7 @@ print_char("  matthew young- oliver jaksch  ")
 print_char("  blackstar    - oscar laguna   ")
 print_char("  roman buser  - ryan fig       ")
 print_char("  steve suavek - steve wilson   ") 
-print_char("  tony boreham - xzarian        ")
+print_char("  toby boreham - xzarian        ")
 print_char("                                ")
 print_char("           xzarian              ")
 print_char("         sembiance              ") # I haven't got the Avater
