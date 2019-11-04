@@ -74,11 +74,12 @@ reg pre_scan_msb;
 
 reg [8:0] Vsum;
 reg       MATCH;
+localparam BIT8 = DW-4; // This will be 8 when DW==12. (Verilator workaround)
 
 always @(*) begin
     Vsum  = {1'b0, ram_dout[7:0]} + {1'b0,(~VF + { {6{~flip}}, 2'b10 })};
     MATCH = DW==8 ? (&Vsum[7:4]) // 8-bit games: GnG, GunSmoke...
-        : ( &{ ~^{ram_dout[8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
+        : ( &{ ~^{ram_dout[BIT8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
 end
 
 localparam DMAEND = OBJMAX-4;

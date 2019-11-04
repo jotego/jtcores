@@ -105,7 +105,7 @@ wire main_ok, char_ok, obj_ok;
 
 assign sample=1'b1;
 
-wire LHBL_obj, LVBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj;
 
 reg rst_game;
 

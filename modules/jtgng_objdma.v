@@ -136,7 +136,7 @@ reg invy;
 
 always @(posedge clk) begin
     invy     <= pre_scan[1:0]==2'b10 && INVY;
-    buf_data <= invy ? 9'd240-prebuf : prebuf;
+    buf_data <= invy ? { {DW-8{1'b0}}, 8'd240}-prebuf : prebuf;
 end
 
 `ifdef AVATARS

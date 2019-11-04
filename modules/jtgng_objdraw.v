@@ -56,7 +56,11 @@ module jtgng_objdraw #(parameter
     output reg  [(PALETTE?7:3):0]  new_pxl  // 8 bits if PROMs used, 4 bits otherwise
 );
 
+// Width of ID code
 localparam IDW = LAYOUT==3 ? 12 : (ROM_AW-6);
+// Width of ID code directly read from the buffer at step 0
+localparam IDWDIRECT = IDW<DW ? IDW : DW;
+
 reg [IDW-1:0] id;
 reg [PALW-1:0] objpal, objpal1;
 reg [8:0] objx;
@@ -80,14 +84,14 @@ reg [3:0] Vobj;
 
 always @(posedge clk) if(cen) begin
     if(!rom_wait) case( pxlcnt[3:0] )
-        4'd0: id[IDW-1:0] <= objbuf_data;
+        4'd0: id[IDWDIRECT-1:0] <= objbuf_data[ IDWDIRECT-1: 0 ];
         4'd1: case( LAYOUT )
             default: begin // GnG, Commando
-                id[9:8]   <= objbuf_data[7:6];
-                objpal    <= objbuf_data[5:4];
-                obj_vflip <= objbuf_data[3];
-                obj_hflip <= objbuf_data[2];
-                hover     <= objbuf_data[0];
+                id[9:8]     <= objbuf_data[7:6];
+                objpal[1:0] <= objbuf_data[5:4];
+                obj_vflip   <= objbuf_data[3];
+                obj_hflip   <= objbuf_data[2];
+                hover       <= objbuf_data[0];
             end
             1: begin // 1943
                 id[10:8]  <= objbuf_data[7:5];
@@ -114,7 +118,9 @@ always @(posedge clk) if(cen) begin
             vinzone <= &Vsum[7:4];
         end
         4'd3: begin
-            objx <= LAYOUT==3 ? objbuf_data[8:0] : { hover, objbuf_data[7:0] };
+            // DW-4 refers to bit 12 but it needs this indirect index
+            // so verilator does not complaint about the 12 when DW is only 8   
+            objx <= { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] };
         end
         default:;
     endcase
