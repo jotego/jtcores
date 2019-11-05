@@ -2,13 +2,15 @@
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
+#include <string>
 #include "Vtest.h"
 
 using namespace std;
 
 class Wrapper {
     int    screen[256][224];
-    char * rom;
+    int*   rom;
     int    hcnt,vcnt, LHBL, LVBL, last_LHBL, last_LVBL;
     int    pxl_cen, bus_req, blen, obj_AB;
     int    frame_cnt;
@@ -37,10 +39,17 @@ int main(int argc, char *argv[]) {
         wrap.cpu_mem[2]=0x80;
         wrap.cpu_mem[3]=0x80;
 
-        //wrap.random();
-        wrap.frame();
-        wrap.save_raw();
+        wrap.random();
+        for(int i=0; i<5; i++ ) {
+            for( int j=0; j<512; j+=4 ) {
+                wrap.cpu_mem[j+3]++;
+            }
+            wrap.frame();
+            wrap.save_raw();
+            cout << '.';
+        }
     } catch(int i ) { }
+    cout << '\n';
     delete top; top=0;
     return 0;
 }
@@ -69,11 +78,8 @@ void Wrapper::eval() {
     obj_AB  = top->obj_AB;
     int     obj_data;
     int     obj_addr = top->obj_addr;
-    obj_addr<<=1;
-    int lo, hi;
-    lo = 0xff&(int)rom[ obj_addr ];
-    hi = 0xff&(int)rom[ obj_addr | 1 ];
-    obj_data = (hi<<8) | lo;
+    obj_addr += 0x4'C000;
+    obj_data = rom[obj_addr];
     top->obj_data = obj_data;
     top->obj_ok   = 1;
 }
@@ -91,7 +97,10 @@ void Wrapper::advance() {
         hcnt&=0xff;
         if( LHBL && !last_LHBL ) vcnt++;
         if( !LVBL ) vcnt=0;
-        if( LHBL && LVBL && vcnt<224 ) screen[hcnt][vcnt]=top->obj_pxl;
+        if( LHBL && LVBL && vcnt<224 ) {
+            int pxl = top->obj_pxl;
+            screen[hcnt][vcnt]= (pxl<<4) | pxl;
+        }
         if( LVBL && !last_LVBL ) frame_cnt++;
         // cout << LVBL << LHBL << " - " << vcnt << " " << hcnt << '\n';
     }
@@ -172,13 +181,25 @@ Wrapper::Wrapper( Vtest* t ) : top(t) {
     LVBL=1; 
     LHBL=1; 
     frame_cnt=0; 
-    rom = new char[887808];
-    ifstream fin("../../../rom/JT1943.rom");
+    rom = new int[20971520];
+    ifstream fin("../game/sdram.hex");
     if( fin.bad() || fin.eof() ) {
-        cerr << "ERROR: cannot load JT1943.rom";
+        cerr << "ERROR: cannot load ../game/sdram.hex";
         throw 1;
     }
-    fin.read( rom, 887808 );
+    int k;
+    for( k=0; k<20'971'520 && !fin.eof(); k++ ) {
+        string s;
+        fin >> s;
+        if( s =="xxxx" ) {
+            rom[k] = 0xffff;
+        }
+        else {
+            stringstream ss(s);
+            ss >> hex >> rom[k];
+        }
+    }
+    cout << "Read " << k << " words of ROM\n";
     for( int k=0; k<512; k++ ) cpu_mem[k]=0xf8;
 }
 
