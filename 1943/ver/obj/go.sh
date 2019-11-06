@@ -1,7 +1,22 @@
 #!/bin/bash
 
+DUMP=
+echo "" > trace.h
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -w)
+            DUMP=--trace
+            echo "#define TRACE" > trace.h;;
+        *)  
+            echo "ERROR: Unknown argument " $1
+            exit 1;;
+    esac
+    shift
+done
+
 verilator test.v -F $JTGNG/modules/jtgng_obj.f $JTGNG/modules/jtgng_{timer,cen}.v \
-    --cc --exe test.cpp --top-module test || exit $?
+    --cc --exe test.cpp --top-module test $DUMP || exit $?
 make -j -C obj_dir -f Vtest.mk Vtest || exit $?
 
 date

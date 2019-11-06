@@ -108,8 +108,6 @@ always @(posedge clk, posedge rst)
         mem_sel <= ~mem_sel;
     end
 
-
-wire [AW-1:0]  wr_addr = mem_sel==MEM_PREBUF ? AB : {AW{1'b0}};
 wire           ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
 wire [DW-1:0] prebuf;
@@ -127,7 +125,7 @@ jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile(`OBJDMA_SIMFILE)) u_objram (
     .clk_en     ( 1'b1        ),
     .data       ( DB          ),
     .rd_addr    ( pre_scan    ),
-    .wr_addr    ( wr_addr     ),
+    .wr_addr    ( AB          ),
     .we         ( ram_we      ),
     .q          ( prebuf      )
 );
