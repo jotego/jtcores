@@ -73,6 +73,9 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
+integer frame_cnt=0;
+always @(negedge LVBL) frame_cnt=frame_cnt+1;
+
 jtgng_obj #(
     .OBJMAX          ( OBJMAX      ),
     .OBJMAX_LINE     ( OBJMAX_LINE ),

@@ -21,7 +21,11 @@ make -j -C obj_dir -f Vtest.mk Vtest || exit $?
 
 date
 echo simulating
-obj_dir/Vtest
+if [ "$DUMP" = "" ]; then
+    obj_dir/Vtest
+else
+    obj_dir/Vtest -w >(vcd2fst -v - -f test.fst)
+fi
 echo done
 date
 

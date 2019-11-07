@@ -53,13 +53,26 @@ public:
 int main(int argc, char *argv[]) {
     Vtest *top = new Vtest();
     VerilatedVcdC* tfp = new VerilatedVcdC;
+    string vcdname("test.vcd");
+    for( int k=1; k<argc; k++ ) {
+        if( strcmp(argv[k],"-w")==0 ) {
+            k++; 
+            if(k>=argc) {
+                cerr << "ERROR: expecting filename after -w\n";
+                return 1;
+            }
+            vcdname=argv[k];
+            continue;
+        }
+        cerr << "ERROR: unexpected argument " << argv[k] << '\n';
+        return 1;
+    }
 #ifdef TRACE
     bool trace=true;
     if( trace ) {
         Verilated::traceEverOn(true);
         top->trace(tfp,99);
-        // tfp->open("/dev/stdout");
-        tfp->open("test.vcd");
+        tfp->open(vcdname.c_str());
     }
 #endif
     try {
@@ -69,18 +82,19 @@ int main(int argc, char *argv[]) {
         //    wrap.set_obj(k, 0x88, 0x2<<5, rand()%256, rand()%240 );
         //}
         int attr = (0x2<<5) | 2;
-        wrap.set_obj(0, 0x88, attr, 0x40, 0x80 );
-        wrap.set_obj(1, 0x88, attr, 0x4A, 0x80 );
+        //wrap.set_obj(1, 0x88, attr, 0x4A, 0x80 );
 
         //wrap.random(40);
         wrap.fail_trip = 0;
-        for(int i=0; i<2; i++ ) {
+        for(int k=0; k<32; k++ ) {
+            wrap.set_obj(k, 0x88, attr, k*5, 100+(k&0x3) );
             //for( int j=0; j<512; j+=4 ) {
             //    wrap.cpu_mem[j+3]++;
             //}
             wrap.frame();
             wrap.save_raw();
             cout << '.';
+            cout.flush();
         }
     } catch(int i ) { cerr << "ERROR #" << i << '\n'; }
     cout << '\n';

@@ -84,6 +84,7 @@ end
 
 localparam DMAEND = OBJMAX-4;
 wire dmaend = {pre_scan_msb,pre_scan}>=DMAEND;
+wire [5:0] objcnt_end = OBJMAX_LINE-6'd1;
 
 always @(posedge clk, posedge rst)
     if( rst ) begin
@@ -99,7 +100,7 @@ always @(posedge clk, posedge rst)
                     post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
-                    if(HINIT_draw) fill <= 1'd0;
+                    fill <= ~HINIT_draw;
                 end
                 else begin
                     //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
@@ -119,17 +120,17 @@ always @(posedge clk, posedge rst)
             end
             TRANSFER: begin
                 // line_obj_we <= 1'b0;
-                if( post_scan == OBJMAX_LINE ) begin // Transfer done before the end of the line
-                    line_obj_we <= 1'b0;
-                    trf_state <= SEARCH;
-                    fill <= 1'd1;
-                end
-                else
                 if( pre_scan[1:0]==2'b11 ) begin
-                    post_scan <= post_scan+1'b1;
-                    pre_scan <= pre_scan + 3;
-                    trf_state  <= SEARCH;
-                    line_obj_we <= 1'b0;
+                    if( post_scan == objcnt_end ) begin // Transfer done before the end of the line
+                        line_obj_we <= 1'b0;
+                        trf_state <= SEARCH;
+                        fill <= 1'd1;
+                    end else begin
+                        post_scan <= post_scan+1'b1;
+                        pre_scan <= pre_scan + 3;
+                        trf_state  <= SEARCH;
+                        line_obj_we <= 1'b0;
+                    end
                 end
                 else begin
                     pre_scan[1:0] <= pre_scan[1:0]+1'b1;
