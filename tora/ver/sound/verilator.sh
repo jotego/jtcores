@@ -3,6 +3,7 @@
 DUMP=
 EXTRA=
 CMDONLY=
+DEFS=
 echo "" > trace.h
 
 while [ $# -gt 0 ]; do
@@ -10,6 +11,9 @@ while [ $# -gt 0 ]; do
         -w)
             DUMP=--trace
             echo "#define TRACE" > trace.h;;
+        -nofm)
+            echo "Skipping FM/PSG sound simulation"
+            DEFS="$DEFS -DNOFM -DNOSSG";;
         :)
             shift
             EXTRA="$*"
@@ -20,7 +24,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-$CMDONLY verilator -DTV80S -f gather.f \
+$CMDONLY verilator -DTV80S $DEFS -f gather.f \
     -F $JTGNG/modules/jt12/hdl/jt03.f \
     -F $JTGNG/modules/jtframe/hdl/cpu/tv80/tv80.f \
     test_verilator.v --top-module test \

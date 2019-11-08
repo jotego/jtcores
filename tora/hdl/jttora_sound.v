@@ -20,13 +20,12 @@ module jttora_sound(
     input           rst,
     input           clk,
     input           cen3,    //  3   MHz
-    input           cen1p5,  //  1.5 MHz
+    input           cenfm,   //  3.57   MHz
     input           cenp384, //  384 kHz
     input           jap,
     // Interface with main CPU
     input           sres_b, // Z80 reset
     input   [7:0]   snd_latch,
-    input           snd_int,
     // Sound control
     input           enable_psg,
     input           enable_fm,
@@ -63,12 +62,12 @@ wire [ 7:0] cmd;
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
-    .cen3       (  cen3         ),
-    .cen1p5     (  cen1p5       ),
+    .cen3       (  cenfm        ),
+    .cen1p5     (  1'b0         ), // unused
     .sres_b     (  sres_b       ),
     .snd_latch  (  snd_latch    ),
     .snd2_latch (  cmd          ),
-    .snd_int    (  snd_int      ),
+    .snd_int    (  1'b0         ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
     .psg_gain   (  psg_gain     ),
