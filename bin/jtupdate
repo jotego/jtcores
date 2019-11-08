@@ -10,6 +10,18 @@ while [ $# -gt 0 ]; do
             MIST=-mist;;
         -all | -a)
 			MIST="-mist -mister";;
+        -h | -help | --help)
+            cat <<EOF
+Updates all JT cores. Usage:
+    jtupdate    update MiST target by default
+
+    -mist   updates MiST target (uses all CPU cores, paralel compilation)
+    -mister updates MiSTer target (one JT core at a time)
+    -all    updates both MiST and MiSTer
+    :       options for jtcore script can be added after a colon
+EOF
+        exit 0;
+        ;;
         :)
             # the remaining argument will be passed directly to the compilation
             shift

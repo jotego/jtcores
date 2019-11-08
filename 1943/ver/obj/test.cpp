@@ -54,6 +54,7 @@ int main(int argc, char *argv[]) {
     Vtest *top = new Vtest();
     VerilatedVcdC* tfp = new VerilatedVcdC;
     string vcdname("test.vcd");
+    int fail_rate=0;
     for( int k=1; k<argc; k++ ) {
         if( strcmp(argv[k],"-w")==0 ) {
             k++; 
@@ -62,6 +63,20 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             vcdname=argv[k];
+            continue;
+        }
+        if(strcmp(argv[k],"-f")==0) {
+            k++;
+            if(k>=argc) {
+                cerr << "ERROR: expecting fail rate in % after -w\n";
+                return 1;
+            }
+            stringstream ss(argv[k]);
+            ss >> fail_rate;
+            if( fail_rate<0 || fail_rate>100 ) {
+                cerr << "ERROR: the fail rate must be between 0 and 100%\n";
+                return 1;
+            }
             continue;
         }
         cerr << "ERROR: unexpected argument " << argv[k] << '\n';
@@ -85,7 +100,7 @@ int main(int argc, char *argv[]) {
         //wrap.set_obj(1, 0x88, attr, 0x4A, 0x80 );
 
         //wrap.random(40);
-        wrap.fail_trip = 0;
+        wrap.fail_trip = fail_rate;
         for(int k=0; k<32; k++ ) {
             wrap.set_obj(k, 0x88, attr, k*5, 100+(k&0x3) );
             //for( int j=0; j<512; j+=4 ) {

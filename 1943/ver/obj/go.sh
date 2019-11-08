@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DUMP=
+EXTRA=
 echo "" > trace.h
 
 while [ $# -gt 0 ]; do
@@ -8,23 +9,28 @@ while [ $# -gt 0 ]; do
         -w)
             DUMP=--trace
             echo "#define TRACE" > trace.h;;
+        :)
+            shift
+            EXTRA="$*"
+            break;;
         *)  
-            echo "ERROR: Unknown argument " $1
+            echo "ERROR (go.sh): Unknown argument " $1
             exit 1;;
     esac
-    shift
 done
 
+RUNSIM:
+
 verilator test.v -F $JTGNG/modules/jtgng_obj.f $JTGNG/modules/jtgng_{timer,cen}.v \
-    --cc --exe test.cpp --top-module test $DUMP || exit $?
+    --cc --exe test.cpp --top-module test $DUMP | exit $?
 make -j -C obj_dir -f Vtest.mk Vtest || exit $?
 
 date
 echo simulating
 if [ "$DUMP" = "" ]; then
-    obj_dir/Vtest
+    obj_dir/Vtest $EXTRA
 else
-    obj_dir/Vtest -w >(vcd2fst -v - -f test.fst)
+    obj_dir/Vtest $EXTRA -w >(vcd2fst -v - -f test.fst)
 fi
 echo done
 date
