@@ -62,6 +62,16 @@ int main(int argc, char *argv[]) {
             ss >> finish_time;
             continue;
         }
+        if( strcmp(argv[k],"-c")==0 ) {
+            k++; 
+            if(k>=argc) {
+                cerr << "ERROR: expecting filename after -c\n";
+                return 1;
+            }
+            stringstream ss(argv[k]);
+            ss >> code;
+            continue;
+        }
         cerr << "ERROR: unexpected argument " << argv[k] << '\n';
         return 1;
     }

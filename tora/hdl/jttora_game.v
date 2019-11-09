@@ -317,13 +317,10 @@ jttora_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cen_fm         ),
-    .cen1p5         ( cen1p5         ),  // unused
     .cenp384        ( cenp384        ),
     .jap            ( jap            ),
     // Interface with main CPU
-    .sres_b         ( 1'b1           ),  // unused
     .snd_latch      ( snd_latch      ),
-    .snd_int        ( 1'b1           ),  // unused
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),

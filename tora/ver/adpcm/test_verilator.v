@@ -28,7 +28,7 @@ jtgng_cenp384 u_cenp384(
     .cen_p384 ( cenp384   )
 );
 
-jttora_adpcm u_sound (
+jttora_adpcm uut (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
