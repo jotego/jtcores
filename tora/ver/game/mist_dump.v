@@ -50,6 +50,7 @@ module mist_dump(
             $shm_probe(frame_cnt);
             $shm_probe(UUT.u_game.u_sound,"A");
             $shm_probe(UUT.u_game.u_sound.u_adpcmcpu,"A");
+            $shm_probe(UUT.u_game.u_sound.u_adpcmcpu.u_adpcm,"AS");
             $shm_probe(UUT.u_game.u_sound.u_fmcpu,"A");
             //$shm_probe(UUT.u_game.u_sound.u_fm0,"A");
             //$shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_timers,"AS");

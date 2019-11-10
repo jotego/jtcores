@@ -38,24 +38,13 @@ module jttora_adpcm(
     output  reg signed [15:0] snd
 );
 
-wire signed [11:0] adpcm, adpcm2;
+wire signed [11:0] adpcm;
 wire               cen_cpu3  = jap & cen3;
 wire               cen_adpcm = jap & cenp384;
 
 always @(posedge clk) begin
     snd <= { adpcm, 4'd0 };
 end
-
-// Remove DC value
-// jt49_dcrm2 #(.sw(12)) u_dcrm (
-//     .rst    (  rst        ),
-//     .clk    (  clk        ),
-//     .cen    (  cen_adpcm  ),
-//     .din    (  adpcm      ),
-//     .dout   (  adpcm2     )
-// );
-
-wire [ 7:0] cmd;
 
 // ADPCM CPU
 reg  wait_n, last_rom2_cs, int_n;
@@ -84,10 +73,15 @@ end
 reg [3:0] pcm_data;
 reg       pcm_rst;
 
-always @(posedge clk) begin
-    if( !iorq_n && A[0] && !wr_n ) begin
-        pcm_rst  <= dout[7];
-        pcm_data <= dout[3:0];
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        pcm_rst  <= 1'b0;
+        pcm_data <= 4'd0;
+    end else begin
+        if( !iorq_n && A[0] && !wr_n ) begin
+            pcm_rst  <= dout[7];
+            pcm_data <= dout[3:0];
+        end
     end
 end
 
