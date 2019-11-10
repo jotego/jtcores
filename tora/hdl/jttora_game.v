@@ -103,7 +103,7 @@ wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
 wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen10, cen10b, cen6b, cen_fm, cenp384;
+wire        cen10, cen10b, cen6b, cenfm, cenp384;
 
 wire        rom_ready;
 wire        main_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
@@ -152,7 +152,7 @@ jtgng_cen10 u_cen10(
 
 jtgng_cen3p57 u_cen3p57(
     .clk      ( clk       ),
-    .cen_3p57 ( cen_fm    ),
+    .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused
 );
 
@@ -316,7 +316,8 @@ end
 jttora_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
-    .cen3           ( cen_fm         ),
+    .cen3           ( cen3           ),
+    .cenfm          ( cenfm          ),
     .cenp384        ( cenp384        ),
     .jap            ( jap            ),
     // Interface with main CPU
@@ -340,9 +341,11 @@ jttora_sound u_sound (
     .sample         ( sample         )
 );
 `else
-assign snd_addr = 15'd0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
+assign snd_addr  = 15'd0;
+assign snd2_addr = 15'd0;
+assign snd_cs    = 1'b0;
+assign snd2_cs   = 1'b0;
+assign snd       = 16'b0;
 `endif
 
 reg pause;
@@ -436,7 +439,7 @@ jtgng_rom #(
     .snd_offset ( 22'h4_0000 >> 1 ),
     .char_offset( 22'h5_8000 >> 1 ),
     .map1_offset( 22'h6_0000 >> 1 ),
-    .map2_offset( 22'h4_8000 >> 1 ), // second sound CPU
+    .snd2_offset( 22'h4_8000 >> 1 ), // second sound CPU
     .scr1_offset( 22'h10_0000     ), // SCR and OBJ are not shifted
     .obj_offset ( 22'h20_0000     )
 ) u_rom (
@@ -448,30 +451,34 @@ jtgng_rom #(
     .pause       ( pause         ),
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
+    .snd2_cs     ( snd2_cs       ),
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
+    .snd2_ok     ( snd2_ok       ),
     .scr1_ok     ( scr_ok        ),
     .scr2_ok     (               ),
     .char_ok     ( char_ok       ),
     .obj_ok      ( obj_ok        ),
     .map1_ok     (               ),
-    .map2_ok     ( snd2_ok       ),
+    .map2_ok     (               ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_rom_addr ),
     .snd_addr    ( snd_addr      ),
+    .snd2_addr   ( snd2_addr     ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
     .scr2_addr   ( 15'd0         ),
     .map1_addr   ( map_addr      ),
-    .map2_addr   ( snd2_addr     ),
+    .map2_addr   ( 14'd0         ),
 
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    ( snd_data      ),
+    .snd2_dout   ( snd2_data     ),
     .obj_dout    ( obj_data      ),
     .map1_dout   ( map_data      ),
-    .map2_dout   ( snd2_data     ),
+    .map2_dout   (               ),
     .scr1_dout   ( scr_data      ),
     .scr2_dout   (               ),
 

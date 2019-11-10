@@ -121,8 +121,12 @@ always @(*) begin
 end
 
 // only used in games with ADPCM Z80
-always @(posedge clk) begin
-    if( !iorq_n && !wr_n ) snd2_latch <= dout;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        snd2_latch <= 8'd0;
+    end else begin
+        if( !iorq_n && !wr_n && A[7:0]==8'h7f) snd2_latch <= dout;
+    end
 end
 
 wire intn_fm0, intn_fm1;

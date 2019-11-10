@@ -23,14 +23,14 @@ localparam PROM_ADDR   = 22'h1F0000;
 
 reg         rst;
 reg         clk, downloading=1'b1;
-reg  [21:0] ioctl_addr=OBJWZ_ADDR0;//22'd0;
+reg  [21:0] ioctl_addr= 22'd0;
 reg  [ 7:0] ioctl_data= 8'd0;
 reg         ioctl_wr;
 
 wire [21:0] prog_addr;
 wire [ 7:0] prog_data;
 wire [ 1:0] prog_mask;
-wire        prog_we;
+wire        prog_we, jap;
 wire [`PROM_W-1:0] prom_we;
 
 jttora_prom_we
@@ -44,19 +44,22 @@ jttora_prom_we
     .prog_data   (  prog_data    ),
     .prog_mask   (  prog_mask    ),
     .prog_we     (  prog_we      ),
-    .prom_we     (  prom_we      )
+    .prom_we     (  prom_we      ),
+    .jap         (  jap          )
 );
+
+always @(posedge jap) $display("JAP enabled");
+always @(negedge jap) $display("JAP disabled");
 
 wire [21:0] obj_addr;
 wire [ 7:0] obj_data;
 wire [ 1:0] obj_mask;
 wire        obj_we;
 
-wire [31:0] sdram_dout = 32'h89abcdef;
+wire [15:0] sdram_dout = 16'habcd;
 
 jtgng_obj32 u_obj32(
     .clk        ( clk           ),
-    .rst        ( rst           ),
     .downloading( downloading   ),
     .sdram_dout ( sdram_dout    ),
     .convert    ( convert       ),

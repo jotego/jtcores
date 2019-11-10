@@ -58,7 +58,7 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cenfm        ),
-    .cen1p5     (  1'b0         ), // unused
+    .cen1p5     (  cenfm        ), // unused
     .sres_b     (  1'b1         ),
     .snd_latch  (  snd_latch    ),
     .snd2_latch (  snd2_latch   ),

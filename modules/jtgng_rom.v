@@ -23,11 +23,13 @@ module jtgng_rom #(parameter
     char_aw  = 14,
     main_aw  = 18,
      snd_aw  = 15,
+    snd2_aw  = 16,
      obj_aw  = 17,
     scr1_aw  = 17,
     scr2_aw  = 15,
      obj_dw  = 16,
   snd_offset = 22'h14_000, // bm05.4k,  32kB
+ snd2_offset = 22'h14_000, // bm05.4k,  32kB
  char_offset = 22'h18_000, // bm04.5h,  32kB
  map1_offset = 22'h1C_000, // bm14.5f,  32kB
  map2_offset = 22'h20_000, // bmm23.8k, 32kB
@@ -46,11 +48,13 @@ module jtgng_rom #(parameter
     input               pause,
     input               main_cs,
     input               snd_cs,
+    input               snd2_cs,
 
     input       [char_aw-1:0]  char_addr, //  32 kB
     input       [main_aw-1:0]  main_addr, // 160 kB, addressed as 8-bit words
     input       [ snd_aw-1:0]   snd_addr, //  32 kB
-    input       [ obj_aw-1:0]   obj_addr,  // 256 kB
+    input       [snd2_aw-1:0]  snd2_addr, //  64 kB
+    input       [ obj_aw-1:0]   obj_addr, // 256 kB
     input       [scr1_aw-1:0]  scr1_addr, // 256 kB (16-bit words)
     input       [scr2_aw-1:0]  scr2_addr, //  64 kB
     input       [13:0]  map1_addr, //  32 kB
@@ -66,6 +70,7 @@ module jtgng_rom #(parameter
     output reg       [15:0] char_dout,
     output    [main_dw-1:0] main_dout,
     output           [ 7:0] snd_dout,
+    output           [ 7:0] snd2_dout,
     output reg [obj_dw-1:0] obj_dout,
     output           [15:0] map1_dout,
     output           [15:0] map2_dout,
@@ -75,6 +80,7 @@ module jtgng_rom #(parameter
 
     output              main_ok,
     output              snd_ok,
+    output              snd2_ok,
     output              scr1_ok,
     output              scr2_ok,
     output              map1_ok,
@@ -102,11 +108,12 @@ wire  prog_snd = prog_we && (prog_mask!=2'b11) && prog_addr < char_offset && pro
 
 reg [3:0] ready_cnt;
 reg [3:0] rd_state_last;
-wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req;
+wire main_req, char_req, map1_req, map2_req, scr1_req, scr2_req, obj_req, snd_req, snd2_req;
 
-reg [7:0] data_sel;
+reg  [8:0] data_sel;
 wire [main_aw-1:0] main_addr_req;
 wire [ snd_aw-1:0]  snd_addr_req;
+wire [snd2_aw-1:0]  snd2_addr_req;
 wire [char_aw-1:0] char_addr_req;
 wire [ obj_aw-1:0]  obj_addr_req;
 wire [scr1_aw-1:0] scr1_addr_req;
@@ -171,6 +178,21 @@ jtgng_romflex #(.AW(snd_aw),.INVERT_A0(1), .USE_BRAM(BRAM_SOUND)) u_snd(
     .prog_we   ( prog_snd               ),
     .prog_data ( prog_data              ),
     .prog_addr ( prog_addr2[snd_aw-1:0] )
+);
+
+jtgng_romrq #(.AW(snd2_aw),.INVERT_A0(1)) u_snd2(
+    .rst       ( rst                    ),
+    .clk       ( clk                    ),
+    .cen       ( 1'b1                   ),
+    .addr      ( snd2_addr              ),
+    .addr_ok   ( snd2_cs                ),
+    .addr_req  ( snd2_addr_req          ),
+    .din       ( data_read              ),
+    .din_ok    ( data_rdy               ),
+    .dout      ( snd2_dout              ),
+    .req       ( snd2_req               ),
+    .data_ok   ( snd2_ok                ),
+    .we        ( data_sel[8]            )
 );
 
 wire [15:0] char_preout;
@@ -329,11 +351,11 @@ end
 
 always @(posedge clk)
 if( loop_rst || downloading ) begin
-    sdram_addr <=  'd0;
+    sdram_addr <= 22'd0;
     ready_cnt <=  4'd0;
     ready     <=  1'b0;
     sdram_req <=  1'b0;
-    data_sel  <=  8'd0;
+    data_sel  <=  9'd0;
 end else begin
     {ready, ready_cnt}  <= {ready_cnt, 1'b1};
     // if( data_rdy ) begin
@@ -341,7 +363,7 @@ end else begin
     // end
     if( sdram_ack ) sdram_req <= 1'b0;
     // accept a new request
-    if( data_sel==8'd0 || data_rdy ) begin
+    if( data_sel==9'd0 || data_rdy ) begin
         sdram_req <= 
            ( main_req & ~data_sel[0] )
          | ( map1_req & ~data_sel[2] )
@@ -350,11 +372,12 @@ end else begin
          | ( scr2_req & ~data_sel[5] ) 
          | ( char_req & ~data_sel[1] ) 
          | ( obj_req  & ~data_sel[6] )
-         | ( snd_req  & ~data_sel[7] );
+         | ( snd_req  & ~data_sel[7] )
+         | ( snd2_req & ~data_sel[8] );
         data_sel <= 'd0;
         case( 1'b1 )
             !data_sel[7] & snd_req: begin
-                sdram_addr <= snd_offset + { {22-snd_aw{1'b0}}, snd_addr_req[14:1] };
+                sdram_addr <= snd_offset + { {22-snd_aw{1'b0}}, snd_addr_req[snd_aw-1:1] };
                 data_sel[7] <= 1'b1;
             end
             !data_sel[4] & scr1_req: begin
@@ -384,6 +407,10 @@ end else begin
             !data_sel[1] & char_req: begin
                 sdram_addr <= char_offset + { {22-char_aw{1'b0}}, char_addr_req };
                 data_sel[1] <= 1'b1;
+            end
+            !data_sel[8] & snd2_req: begin
+                sdram_addr <= snd2_offset + { {22-snd2_aw{1'b0}}, snd2_addr_req[snd2_aw-1:1] };
+                data_sel[8] <= 1'b1;
             end
         endcase
     end

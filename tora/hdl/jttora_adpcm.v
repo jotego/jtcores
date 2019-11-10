@@ -29,6 +29,10 @@ module jttora_adpcm(
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,    
+    `ifdef VERILATOR
+    output  [ 3:0]  adpcm_din,
+    output          adpcm_irq,
+    `endif
 
     // Sound output
     output  reg signed [15:0] snd
@@ -74,18 +78,23 @@ always @(posedge clk or posedge rst) begin
 end
 
 always @(*) begin
-    din = !iorq_n ? snd2_latch : rom2_data;
+    din = !iorq_n && !rd_n && !A[0] ? snd2_latch : rom2_data;
 end
 
 reg [3:0] pcm_data;
+reg       pcm_rst;
 
-always @(posedge clk)
-    if( !iorq_n && A[0] && !wr_n ) pcm_data <= dout[3:0];
+always @(posedge clk) begin
+    if( !iorq_n && A[0] && !wr_n ) begin
+        pcm_rst  <= dout[7];
+        pcm_data <= dout[3:0];
+    end
+end
 
 wire irq_st;
 
 jt5205 u_adpcm(
-    .rst        ( rst       ),
+    .rst        ( rst | pcm_rst ),
     .clk        ( clk       ),
     .cen        ( cen_adpcm ),
     .sel        ( 2'b0      ),
@@ -93,6 +102,11 @@ jt5205 u_adpcm(
     .sound      ( adpcm     ),
     .irq        ( irq_st    )
 );
+
+`ifdef VERILATOR
+assign adpcm_din = pcm_data;
+assign adpcm_irq = irq_st;
+`endif
 
 reg last_irq_st;
 

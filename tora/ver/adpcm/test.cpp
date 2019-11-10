@@ -20,11 +20,12 @@ class VerilatedVcdC {
 using namespace std;
 
 class Wrapper {
-    int snd;
+    int snd, last_irq;
     char *rom2;
     Vtest* top;
     VerilatedVcdC* tfp;
     WaveWritter *ww;
+    ofstream fdata;
     vluint64_t sim_time, sim_step, sample_time;
 
     void advance();
@@ -87,8 +88,11 @@ int main(int argc, char *argv[]) {
         Wrapper wrap(top, tfp);
         wrap.reset();
         wrap.sim(1);
-        top->snd2_latch = code;
-        wrap.sim(finish_time);
+        for( int code=1; code<20; code++) {
+            cout << code << " "; cout.flush();
+            top->snd2_latch = code;
+            wrap.sim(finish_time);
+        }
     } catch(int i ) { cerr << "ERROR #" << i << '\n'; }
     cout << '\n';
     delete tfp; tfp=0;
@@ -110,6 +114,7 @@ void Wrapper::eval() {
 void Wrapper::advance() {
     top->clk = 0;
     eval();
+    last_irq = top->adpcm_irq;
     top->clk = 1;
     eval();
     if( sim_time >= sample_time ) {
@@ -119,10 +124,17 @@ void Wrapper::advance() {
         ww->write(lr);
         sample_time = sim_time + 1e9/8000;
     }
+    int adpcm_irq = top->adpcm_irq;
+    if( adpcm_irq && !last_irq ) {
+        char data = (char)top->adpcm_din;
+        fdata.write( &data, 1 );
+    }
+    last_irq = top->adpcm_irq;
 }
 
 void Wrapper::sim(int time) {
-    vluint64_t final_time = sim_time + time*1000'000;
+    vluint64_t final_time = time;
+    final_time = sim_time + final_time*1000'000;
     while( sim_time < final_time ) advance();
 }
 
@@ -130,7 +142,6 @@ void Wrapper::reset() {
     top->rst = 1;
     top->clk = 0;
     top->snd2_latch = 0;
-    sample_time = 0;
     for( int i=0; i<10; i++ ) {
         advance();
     }
@@ -145,8 +156,11 @@ Wrapper::Wrapper( Vtest* t, VerilatedVcdC* vcd ) : top(t), tfp(vcd) {
     sim_time = 0;
     float step = 1e9/(2*48e6);
     sim_step = step;
+    sample_time = 0;
     // Wave output
     ww = new WaveWritter("test.wav", 8000, false );
+    // ADPCM data input
+    fdata.open("adpcm_din.bin", ios_base::binary);    
 }
 
 Wrapper::~Wrapper() {
