@@ -35,7 +35,7 @@ module jttora_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output  [14:0]  rom2_addr,
+    output  [15:0]  rom2_addr,
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,    

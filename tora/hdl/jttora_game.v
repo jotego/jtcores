@@ -96,7 +96,8 @@ wire [ 7:0] snd_data, snd2_data;
 
 // ROM address
 wire [17:1] main_addr;
-wire [14:0] snd_addr, snd2_addr;
+wire [14:0] snd_addr;
+wire [15:0] snd2_addr;
 wire [13:0] map_addr;
 wire [13:0] char_addr;
 wire [18:0] scr_addr;

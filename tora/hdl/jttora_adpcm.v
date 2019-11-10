@@ -25,7 +25,7 @@ module jttora_adpcm(
     // Interface with second CPU
     input   [7:0]   snd2_latch,
     // ADPCM ROM
-    output  [14:0]  rom2_addr,
+    output  [15:0]  rom2_addr,
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,    
@@ -65,7 +65,7 @@ wire [15:0] A;
 reg  [ 7:0] din;
 wire [ 7:0] dout;
 
-assign rom2_addr = A[14:0];
+assign rom2_addr = A;
 
 always @(posedge clk or posedge rst) begin
     if( rst )
