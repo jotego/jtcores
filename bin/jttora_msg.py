@@ -60,30 +60,102 @@ print_char("       clone for FPGA           ")
 print_char("    brought to you by jotego.   ")
 print_char("  http://patreon.com/topapate   ")
 print_char("                                ")
-print_char("   Director patrons:            ")
+print_char("  andrew moore - andyways       ")
+print_char("  don gafford  - j. slowfret    ")
+print_char("  kyle good    - leslie law     ")
+print_char("  m. astudillo - mary marshall  ")
+print_char("  matthew young- oliver jaksch  ")
+print_char("  blackstar    - oscar laguna   ")
+print_char("  roman buser  - ryan fig       ")
+print_char("  steve suavek - steve wilson   ") 
+print_char("  toby boreham - xzarian        ")
 print_char("                                ")
-print_char("       Frederic Mahe            ")
-print_char("         Scralings              ")
-print_char("       Suvodip Mitra            ")
+print_char("           xzarian              ")
+print_char("         sembiance              ") # I haven't got the Avater
+print_char("       victor gomariz           ")
+print_char("       ultrarobotninja          ")
+print_char("       william clemens          ") # Declined the Avatar
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
-print_char("   BETA VERSION DO NOT          ")
-print_char("          DISTRIBUTE            ")
 print_char("                                ")
 print_char("                                ")
-print_char("  Hardware support from:        ")
 print_char("                                ")
-print_char("  Ricardo Saraiva-Retroshop.pt  ")
-print_char("        Porkchop Express        ")
-print_char("        Antonio Villena         ")
 print_char("                                ")
-print_char("         Greetings to           ")
-print_char("       Alexey Melnikov!         ")
-print_char("       the ROM Master           ")
-print_char("    and Szombathelyi Gyorgy     ")
+print_char("                                ")
+print_char("                                ")
 print_char("                                ")
 
 save_hex( os.environ['JTGNG']+"/tora/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG']+"/tora/ver/game/msg.bin", char_ram )
+
+#################################################################
+def convert_buf( buf, k, msg ):
+    for cnt in range(len(msg)):
+        buf[k] = ascii_conv[ msg[cnt] ]
+        k+=1
+    return k
+
+#  Avatars:
+#1 Daniel Bauza
+#2 Brian Sallee
+#3 Dustin Hubbard
+#4 Frederic Mahe
+#5 Jo Tomiyori
+#6 Phillip McMahon
+#7 Scralings
+#8 Sembiance -- but I don't have the image!
+#9 Suvodip Mitra
+
+
+#           00000000000000001111111111111111
+#           0123456789ABCDEF0123456789ABCDEF
+av_buf=bytearray(32*16)
+av_pos=0
+for cnt in range(len(av_buf)):
+    av_buf[cnt]=32
+
+av_pos=convert_buf(av_buf,av_pos,"           scralings            ")
+av_pos=convert_buf(av_buf,av_pos,"           suverman             ")
+av_pos=convert_buf(av_buf,av_pos,"        frederic mahe           ")
+av_pos=convert_buf(av_buf,av_pos,"        jo tomiyori             ")
+av_pos=convert_buf(av_buf,av_pos,"         brian sallee           ")
+av_pos=convert_buf(av_buf,av_pos,"       phillip mcmahon          ")
+av_pos=convert_buf(av_buf,av_pos,"        dustin hubbard          ")
+av_pos=convert_buf(av_buf,av_pos,"         daniel bauza           ")
+save_hex( os.environ['JTGNG']+"/tora/mist/msg_av.hex", av_buf )
+
+# Andrew Moore
+# Andyways
+# Don Gafford
+# Jorge Slowfret
+# Kyle Good
+# Leslie Law
+# Manuel Astudillo
+# Mary Marshall
+# Matthew Young
+# Oliver Jaksch
+# Oliver Wndmth
+# Oscar Laguna Garcia
+# Roman Buser
+# Ryan Fig
+# Steve Suavek
+# Steven Wilson
+# Toby Boreham
+# Ultrarobotninja
+# Victor Gomariz Ladron de Guevara
+# Xzarian
+# 
+# Avatar
+# 
+# Brian Sallee
+# Daniel Bauza
+# Dustin Hubbard
+# Frederic Mahe
+# Jo Tomiyori
+# Phillip McMahon
+# Scralings
+# Sembiance
+# Suvodip Mitra
+# William Clemens

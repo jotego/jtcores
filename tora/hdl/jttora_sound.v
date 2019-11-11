@@ -46,12 +46,10 @@ module jttora_sound(
 );
 
 wire signed [15:0] fm_snd, adpcm_snd;
-wire               cen_cpu3  = jap & cen3;
-wire               cen_adpcm = jap & cenp384;
 wire        [ 7:0] snd2_latch;
 
 always @(posedge clk) begin
-    ym_snd <= jap ? fm_snd + adpcm_snd : fm_snd;
+    ym_snd <= jap ? (fm_snd>>>1) + adpcm_snd : fm_snd;
 end
 
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (

@@ -3,7 +3,7 @@ module test(
     input           clk,
     // CPU 2
     input   [ 7:0]  snd2_latch,
-    output  [14:0]  snd2_addr,
+    output  [15:0]  snd2_addr,
     input   [ 7:0]  snd2_data,
     // ADPCM
     output  [ 3:0]  adpcm_din,

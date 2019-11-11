@@ -125,7 +125,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         snd2_latch <= 8'd0;
     end else begin
-        if( !iorq_n && !wr_n && A[7:0]==8'h7f) snd2_latch <= dout;
+        if( !iorq_n && !wr_n && !A[8]) snd2_latch <= dout;
     end
 end
 

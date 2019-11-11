@@ -56,19 +56,21 @@ print_char("        CLONE FOR FPGA          ")
 print_char("    BROUGHT TO YOU BY JOTEGO.   ")
 print_char("  HTTP:!!PATREON.COM!TOPAPATE   ")
 print_char("                                ")
-print_char("       THANKS TO MY PATRONS     ")
+print_char("  ANDREW MOORE = ANDYWAYS       ")
+print_char("  DON GAFFORD  = J. SLOWFRET    ")
+print_char("  KYLE GOOD    = LESLIE LAW     ")
+print_char("  M. ASTUDILLO = MARY MARSHALL  ")
+print_char("  MATTHEW YOUNG= OLIVER JAKSCH  ")
+print_char("  BLACKSTAR    = OSCAR LAGUNA   ")
+print_char("  ROMAN BUSER  = RYAN FIG       ")
+print_char("  STEVE SUAVEK = STEVE WILSON   ") 
+print_char("  TOBY BOREHAM = XZARIAN        ")
 print_char("                                ")
-print_char("  DIRECTORS: SCRALINGS          ")
-print_char("             SUV                ")
-print_char("             FREDERIC MAHE      ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("                                ")
-print_char("     BETA VERSION               ")
-print_char("                                ")
-print_char("       DO NOT DISTRIBUTE        ")
-print_char("                                ")
+print_char("           XZARIAN              ")
+print_char("         SEMBIANCE              ") # I haven't got the Avater
+print_char("       VICTOR GOMARIZ           ")
+print_char("       ULTRAROBOTNINJA          ")
+print_char("       WILLIAM CLEMENS          ") # Declined the Avatar
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
@@ -83,3 +85,70 @@ print_char("                                ")
 
 save_hex( os.environ['JTGNG']+"/biocom/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG']+"/biocom/ver/game/msg.bin", char_ram )
+
+#################################################################
+def convert_buf( buf, k, msg ):
+    for cnt in range(len(msg)):
+        buf[k] = ascii_conv[ msg[cnt] ]
+        k+=1
+    return k
+
+#  Avatars:
+#1 Daniel Bauza
+#2 Brian Sallee
+#3 Dustin Hubbard
+#4 Frederic Mahe
+#5 Jo Tomiyori
+#6 Phillip McMahon
+#7 Scralings
+#8 Sembiance -- but I don't have the image!
+#9 Suvodip Mitra
+
+
+#           00000000000000001111111111111111
+#           0123456789ABCDEF0123456789ABCDEF
+av_buf=bytearray(32*16)
+av_pos=0
+av_pos=convert_buf(av_buf,av_pos,"             SCRALINGS          ")
+av_pos=convert_buf(av_buf,av_pos,"             SUVERMAN           ")
+av_pos=convert_buf(av_buf,av_pos,"          FREDERIC MAHE         ")
+av_pos=convert_buf(av_buf,av_pos,"          JO TOMIYORI           ")
+av_pos=convert_buf(av_buf,av_pos,"           BRIAN SALLEE         ")
+av_pos=convert_buf(av_buf,av_pos,"         PHILLIP MCMAHON        ")
+av_pos=convert_buf(av_buf,av_pos,"          DUSTIN HUBBARD        ")
+av_pos=convert_buf(av_buf,av_pos,"           DANIEL BAUZA         ")
+save_hex( os.environ['JTGNG']+"/biocom/mist/msg_av.hex", av_buf )
+
+# Andrew Moore
+# Andyways
+# Don Gafford
+# Jorge Slowfret
+# Kyle Good
+# Leslie Law
+# Manuel Astudillo
+# Mary Marshall
+# Matthew Young
+# Oliver Jaksch
+# Oliver Wndmth
+# Oscar Laguna Garcia
+# Roman Buser
+# Ryan Fig
+# Steve Suavek
+# Steven Wilson
+# Toby Boreham
+# Ultrarobotninja
+# Victor Gomariz Ladron de Guevara
+# Xzarian
+# 
+# Avatar
+# 
+# Brian Sallee
+# Daniel Bauza
+# Dustin Hubbard
+# Frederic Mahe
+# Jo Tomiyori
+# Phillip McMahon
+# Scralings
+# Sembiance
+# Suvodip Mitra
+# William Clemens

@@ -39,11 +39,11 @@ module jttora_adpcm(
 );
 
 wire signed [11:0] adpcm;
-wire               cen_cpu3  = jap & cen3;
-wire               cen_adpcm = jap & cenp384;
+wire               cen_cpu3  = /*jap &*/ cen3;
+wire               cen_adpcm = /*jap &*/ cenp384;
 
 always @(posedge clk) begin
-    snd <= { adpcm, 4'd0 };
+    snd <= { adpcm[10:0], 5'd0 }; // adpcm seems not to use all dynamic range
 end
 
 // ADPCM CPU

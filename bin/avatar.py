@@ -282,7 +282,7 @@ if corename == "1943":
             255,255,255,255,255,255,255,
     ]
 
-if corename == "commando" or corename == "vulgus" or corename == "gunsmoke":
+if corename == "commando" or corename == "vulgus" or corename == "gunsmoke" or corename=="tora" or corename=="biocom":
    map9x9 = [  # Scralings
          0, 1, 2,
          3, 4, 5, 

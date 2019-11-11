@@ -85,7 +85,7 @@ module jttora_video(
 );
 
 // parameters from jtgng_obj:
-parameter  AVATAR_MAX    = 8;
+parameter  AVATAR_MAX    = 7;
 localparam LAYOUT        = 3; 
 
 wire [5:0] char_pxl;
@@ -140,7 +140,7 @@ jtgng_char #(
 );
 
 wire [7:0] char_aux;
-jtgng_charmsg u_msg(
+jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .clk         ( clk           ),
     .cen6        ( cen6          ),
     .avatar_idx  ( avatar_idx    ),

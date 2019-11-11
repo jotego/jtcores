@@ -88,11 +88,8 @@ int main(int argc, char *argv[]) {
         Wrapper wrap(top, tfp);
         wrap.reset();
         wrap.sim(1);
-        for( int code=1; code<20; code++) {
-            cout << code << " "; cout.flush();
-            top->snd2_latch = code;
-            wrap.sim(finish_time);
-        }
+        top->snd2_latch = code;
+        wrap.sim(finish_time);
     } catch(int i ) { cerr << "ERROR #" << i << '\n'; }
     cout << '\n';
     delete tfp; tfp=0;
