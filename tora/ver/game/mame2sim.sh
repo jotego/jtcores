@@ -8,6 +8,7 @@ SCRHPOS=0000
 SCRVPOS=0000
 SCRBANK=0
 TEST=
+EXTRA=
 
 while [ $# -gt 0 ]; do
 case "$1" in
@@ -22,6 +23,9 @@ case "$1" in
         SCRBANK=$1;;
     -t|-test)
         TEST=echo;;
+    :)
+        shift
+        EXTRA="$*";;
     -help)
         cat <<EOF
 -h or -scrhpos: indicate horizontal scroll 1 in hexadecimal
@@ -32,6 +36,9 @@ EOF
         exit 0;;
     *) echo "Unknown option $1. Use -help to see the list of options"; exit 1;;        
 esac
+if [ "$EXTRA" != "" ]; then
+    break
+fi
 shift
 done
 
@@ -62,4 +69,4 @@ $TEST go.sh -d NOSOUND -d NOMAIN -d NOMCU -video 5 \
     -d SIM_SCR_HPOS=16\'h$SCRHPOS \
     -d SIM_SCR_VPOS=16\'h$SCRVPOS \
     -d SIM_SCR_BANK=1\'b$SCRBANK \
-    -deep $*
+    -deep $EXTRA
