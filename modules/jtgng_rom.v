@@ -86,7 +86,7 @@ module jtgng_rom #(parameter
     output              map1_ok,
     output              map2_ok,
     output              char_ok,
-    output              obj_ok,
+    output  reg         obj_ok,
     // SDRAM controller interface
     input               data_rdy,
     input               sdram_ack,
@@ -284,6 +284,7 @@ jtgng_romrq #(.AW(scr2_aw),.DW(16)) u_scr2(
 );
 
 wire [obj_dw-1:0] obj_preout;
+wire              obj_ok0;
 
 jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
     .rst      ( rst             ),
@@ -296,7 +297,7 @@ jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
     .din_ok   ( data_rdy        ),
     .dout     ( obj_preout      ),
     .req      ( obj_req         ),
-    .data_ok  ( obj_ok          ),
+    .data_ok  ( obj_ok0         ),
     .we       ( data_sel[6]     )
 );
 
@@ -317,25 +318,16 @@ jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
         .we     ( 1'b0           ),
         .q      ( avatar_data    )
     );
-    always @(posedge clk) obj_dout <= pause ? avatar_data : obj_preout;
+    always @(*) begin
+        obj_dout = pause ? avatar_data : obj_preout;
+        obj_ok   = obj_ok0;
+    end
 `else 
-
-    `ifndef OBJROMTEST
-        // Let the real data go through
-        always @(*) obj_dout = obj_preout;
-    `else
-        initial begin
-            $display("INFO: Using OBJ address as data read from ROM");
-        end
-        // Use the address as the data, but only when obj_ok is valid
-        always @(posedge clk) begin : objromtest
-            reg last_ok;
-            last_ok <= obj_ok;
-            if( obj_ok && !last_ok ) 
-                obj_dout = { {16-obj_aw{1'b0}}, obj_addr[obj_aw-1:0] };
-        end
-    `endif
-
+    // Let the real data go through
+    always @(*) begin
+        obj_dout = obj_preout;
+        obj_ok   = obj_ok0;
+    end
 `endif
 
 `ifdef SIMULATION

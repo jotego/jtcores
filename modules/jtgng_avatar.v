@@ -122,7 +122,7 @@ always @(*) begin
     endcase
 end
 
-always @(posedge clk) begin
+always @(*) begin
     muxed_dout <= pause ? { {DW-8{1'b0}}, avatar_data} : dma_dout;
 end
 

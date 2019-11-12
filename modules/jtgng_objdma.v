@@ -36,7 +36,7 @@ module jtgng_objdma #(parameter
     output  reg         blen,     // bus line counter enable
     // output data
     input      [AW-1:0] pre_scan,
-    output reg [DW-1:0] dma_dout
+    output     [DW-1:0] dma_dout
 );
 
 reg [1:0] bus_state;

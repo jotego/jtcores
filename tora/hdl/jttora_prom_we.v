@@ -28,7 +28,7 @@ module jttora_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg           prom_we,
+    output reg [ 1:0]    prom_we,
     output reg           jap=1'b1   // high if the Japanese version was loaded
 );
 
@@ -49,7 +49,12 @@ localparam OBJWZ_ADDR1 = 22'h1B0000;
 localparam OBJXY_ADDR1 = 22'h1D0000;
 // FPGA BRAM:
 localparam PROM_ADDR   = 22'h1F0000;
-// ROM length 1F0100
+// repetition          = 22'h1F0100;
+// ROM length 1F0100 Tiger Road
+localparam MCU_ADDR    = 22'h1F1000;
+// ROM length 1F2000 F1 Dream
+
+
 
 
 `ifdef SIMULATION
@@ -80,10 +85,10 @@ wire [4:0] scr_msb = ioctl_addr[20:16]-5'h07;
 wire [4:0] obj_msb = ioctl_addr[20:16]-5'h17;
 
 reg       set_strobe=1'b0, set_done=1'b0;
-reg       prom_we0 = 1'd0;
+reg [1:0] prom_we0  =2'd0;
 
 always @(posedge clk) begin
-    prom_we <= 1'd0;
+    prom_we <= 2'd0;
     if( set_strobe ) begin
         prom_we <= prom_we0;
         set_done <= 1'b1;
@@ -129,18 +134,26 @@ always @(posedge clk) begin
                 obj_msb[2]}; // odd or even
             `INFO_OBJ
         end
-        else begin // Priority PROM
+        else if(ioctl_addr[12:8]==5'd0) begin // Priority PROM
             prog_addr <= ioctl_addr;
             prog_we   <= 1'b0;
             prog_mask <= 2'b11;
-            prom_we0  <= 1'b1;
+            prom_we0  <= 2'b1;
             set_strobe<= 1'b1;
             `INFO_PROM
+        end
+        else if(ioctl_addr[15:12]==4'h1) begin // MCU ROM
+            prog_addr <= ioctl_addr;
+            prog_we   <= 1'b0;
+            prog_mask <= 2'b11;
+            prom_we0  <= 2'b10;
+            set_strobe<= 1'b1;
+            `INFO_MCU
         end
     end
     else begin
         prog_we  <= 1'b0;
-        prom_we0 <= 1'd0;
+        prom_we0 <= 2'd0;
     end
 end
 
