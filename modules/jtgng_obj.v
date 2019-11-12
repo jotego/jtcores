@@ -33,7 +33,8 @@ module jtgng_obj #(parameter
     PALETTE     = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
     PALETTE0_SIMFILE = "", // only for simulation
-    AVATAR_MAX  = 8  // only used if macro AVATARS is defined
+    AVATAR_MAX  = 8, // only used if macro AVATARS is defined
+    VERTICAL    = 1  // 1 vertical game, 0 otherwise. Used by AVATARS only.
 ) (
     input               rst,
     input               clk,
@@ -73,7 +74,7 @@ module jtgng_obj #(parameter
 );
 
 wire [DMA_AW-1:0] pre_scan;
-wire [DMA_DW-1:0] ram_dout, objbuf_data;
+wire [DMA_DW-1:0] objbuf_data;
 
 wire line, fill, line_obj_we;
 wire [4:0] post_scan;
@@ -97,20 +98,18 @@ jtgng_objcnt #(.OBJMAX_LINE(OBJMAX_LINE)) u_cnt(
 );
 
 // DMA to 6809 RAM memory to copy the sprite data
+wire [DMA_DW-1:0] dma_dout, dma_muxed;
 jtgng_objdma #(
     .DW         ( DMA_DW     ),
     .AW         ( DMA_AW     ),
     .OBJMAX     ( OBJMAX     ),
-    .INVY       ( INVY       ),
-    .AVATAR_MAX ( AVATAR_MAX ))
+    .INVY       ( INVY       ))
  u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( dma_cen   ),
     // screen
     .LVBL       ( LVBL       ),
-    .pause      ( pause      ),
-    .avatar_idx ( avatar_idx ),
     // shared bus
     .AB         ( AB        ),
     .DB         ( DB        ),
@@ -120,8 +119,31 @@ jtgng_objdma #(
     .blen       ( blen      ),  // bus line counter enable
     // output data
     .pre_scan   ( pre_scan  ),
-    .ram_dout   ( ram_dout  )
+    .dma_dout   ( dma_dout  )
 );
+
+`ifdef AVATARS
+jtgng_avatar #(
+    .VERTICAL   ( VERTICAL   ),
+    .DW         ( DMA_DW     ),
+    .AVATAR_MAX ( AVATAR_MAX ))
+u_avatar (
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( draw_cen      ),
+    // screen
+    .LVBL       ( LVBL          ),
+    .pause      ( pause         ),
+    .avatar_idx ( avatar_idx    ),
+    // output data
+    .pre_scan   ( pre_scan[8:0] ),
+    .dma_dout   ( dma_dout      ),
+    .muxed_dout ( dma_muxed     )
+);
+`else
+assign dma_muxed  = dma_dout;
+assign avatar_idx = 4'd0;
+`endif
 
 // Parse sprite data per line
 jtgng_objbuf #(
@@ -141,7 +163,7 @@ u_buf(
     .flip           ( flip          ),
     // sprite data scan
     .pre_scan       ( pre_scan      ),
-    .ram_dout       ( ram_dout      ),
+    .dma_dout       ( dma_muxed     ),
     // sprite data buffer
     .rom_wait       ( rom_wait      ),
     .objbuf_data    ( objbuf_data   ),

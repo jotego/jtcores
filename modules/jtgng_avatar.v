@@ -14,11 +14,12 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 11-1-2019 */
+    Date: 12-11-2019 */
 
 module jtgng_avatar #(parameter
-    DW          =   8,          // Most games are 8-bit wide, Bionic Commando is 12-bit wide
-    AVATAR_MAX  =   4'd8        // ignore if avatars are not used
+    VERTICAL    = 1,   // 1 if the game is vertical, 0 otherwise
+    DW          = 8,   // Most games are 8-bit wide, Bionic Commando is 12-bit wide
+    AVATAR_MAX  = 4'd8
 ) (
     input               rst,
     input               clk,
@@ -27,7 +28,7 @@ module jtgng_avatar #(parameter
     input               pause,
     output  reg [ 3:0]  avatar_idx,
     // output data
-    input      [AW-1:0] pre_scan,
+    input      [   8:0] pre_scan,
     input      [DW-1:0] dma_dout,
     output reg [DW-1:0] muxed_dout
 );
@@ -112,15 +113,16 @@ always @(*) begin
     end
 end
 
-always @(posedge clk) begin
+always @(*) begin
     case( pre_scan[1:0] )
         2'd0: avatar_data <= pre_scan[8:6]==3'd0 ? avatar_id : 8'hff;
         2'd1: avatar_data <= 8'd0;
-        2'd2: avatar_data <= avatar_y;
-        2'd3: avatar_data <= avatar_x;
+        2'd2: avatar_data <= VERTICAL ? avatar_y : avatar_x;
+        2'd3: avatar_data <= VERTICAL ? avatar_x : avatar_y;
     endcase
+end
 
-always @(posedge clk) if(cen) begin
+always @(posedge clk) begin
     muxed_dout <= pause ? { {DW-8{1'b0}}, avatar_data} : dma_dout;
 end
 

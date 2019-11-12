@@ -4,6 +4,7 @@ jtgng_objdma.v
 jtgng_objbuf.v
 jtgng_objdraw.v
 jtgng_objpxl.v
+jtgng_avatar.v
 jtgng_dual_ram.v
 jtgng_sh.v
 jtframe/hdl/ram/jtgng_prom.v

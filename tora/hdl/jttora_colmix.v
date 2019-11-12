@@ -36,8 +36,8 @@ module jttora_colmix(
     input            prom_prio_we,
     input [3:0]      prom_din,
     // Avatars
-    // input [3:0]      avatar_idx,
-    // input            pause,
+    input [3:0]      avatar_idx,
+    input            pause,
     // CPU inteface
     input [10:1]     AB,
     input            col_uw,
@@ -75,7 +75,13 @@ always @(*) begin
         // will be imposed over the objects (colours 9 to 15)
 end
 
+reg [1:0] obj_sel;
+reg [3:0] obj_pxl2;
+
 always @(posedge clk) if(cen6) begin
+    obj_sel[0] <= prio==2'b10;
+    obj_sel[1] <= obj_sel[0];
+    obj_pxl2   <= obj_pxl[3:0];
     case( prio )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl; // 2301
@@ -137,32 +143,19 @@ jtgng_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
     .q          ( { pal_green, pal_blue } )
 );
 
+wire [11:0] avatar_mux;
 
-
-// `ifdef AVATARS
-// `ifdef MISTER
-// `define AVATAR_PAL
-// `endif
-// `endif
-// 
-// `ifdef AVATAR_PAL
-// wire [11:0] avatar_pal;
-// // Objects have their own palette during pause
-// wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
-// 
-// jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
-//     .clk    ( clk           ),
-//     .cen    ( pause         ),  // tiny power saving when not in pause
-//     .data   ( 12'd0         ),
-//     .addr   ( avatar_addr   ),
-//     .we     ( 1'b0          ),
-//     .q      ( avatar_pal    )
-// );
-// // Select the avatar palette output if we are on avatar mode
-// wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
-// `else 
-// wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
-// `endif
+jtgng_avatar_pal u_avatar(
+    .clk        (  clk          ),
+    .pause      (  pause        ),
+    .avatar_idx (  avatar_idx   ),
+    .obj_sel    (  obj_sel[1]   ),
+    .obj_pxl    (  obj_pxl2     ),
+    .pal_red    (  pal_red      ),
+    .pal_green  (  pal_green    ),
+    .pal_blue   (  pal_blue     ),
+    .avatar_mux (  avatar_mux   )
+);
 
 // Clock must be faster than 6MHz so prio is ready for the next
 // 6MHz clock cycle:
@@ -178,6 +171,6 @@ jtgng_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
 
 always @(posedge clk) if (cen6)
     {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
-        { pal_red, pal_green, pal_blue } : 12'd0;
+        avatar_mux : 12'd0;
 
 endmodule // jtgng_colmix

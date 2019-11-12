@@ -37,7 +37,7 @@ module jtgng_objbuf #(parameter
     input               flip,
     // sprite data scan
     output reg [AW-1:0] pre_scan,
-    input      [DW-1:0] ram_dout,
+    input      [DW-1:0] dma_dout,
     // sprite data buffer
     output reg [DW-1:0] objbuf_data,
     input       [4:0]   objcnt,
@@ -77,9 +77,9 @@ reg       MATCH;
 localparam BIT8 = DW-4; // This will be 8 when DW==12. (Verilator workaround)
 
 always @(*) begin
-    Vsum  = {1'b0, ram_dout[7:0]} + {1'b0,(~VF + { {6{~flip}}, 2'b10 })};
+    Vsum  = {1'b0, dma_dout[7:0]} + {1'b0,(~VF + { {6{~flip}}, 2'b10 })};
     MATCH = DW==8 ? (&Vsum[7:4]) // 8-bit games: GnG, GunSmoke...
-        : ( &{ ~^{ram_dout[BIT8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
+        : ( &{ ~^{dma_dout[BIT8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
 end
 
 localparam DMAEND = OBJMAX-4;
@@ -103,7 +103,7 @@ always @(posedge clk, posedge rst)
                     fill <= ~HINIT_draw;
                 end
                 else begin
-                    //if( ram_dout<=(VF+'d3) && (ram_dout+8'd12)>=VF  ) begin
+                    //if( dma_dout<=(VF+'d3) && (dma_dout+8'd12)>=VF  ) begin
                     if( MATCH ) begin
                         pre_scan[1:0] <= 2'd0;
                         line_obj_we <= 1'b1;
@@ -156,7 +156,7 @@ always @(*) begin
     if( line == lineA ) begin
         address_a = { ~post_scan[4:0], pre_scan[1:0] };
         address_b = hscan;
-        data_a    = ram_dout;
+        data_a    = dma_dout;
         data_b    = 8'hf8;
         we_a      = line_obj_we;
         we_b      = we_clr[2];
@@ -165,7 +165,7 @@ always @(*) begin
         address_a = hscan;
         address_b = { ~post_scan[4:0], pre_scan[1:0] };
         data_a    = 8'hf8;
-        data_b    = ram_dout;
+        data_b    = dma_dout;
         we_a      = we_clr[2];
         we_b      = line_obj_we;
     end

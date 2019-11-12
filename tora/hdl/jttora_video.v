@@ -200,6 +200,7 @@ assign map_addr   = 14'd0;
 // and at 250ns per address, it can sweep 640 locations in 160us.
 
 jtgng_obj #(
+    .VERTICAL   ( 0          ),
     .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( LAYOUT     ),
     .INVY       ( 1          ),
@@ -271,8 +272,8 @@ jttora_colmix u_colmix (
     .prom_din     ( prom_din      ),    
 
     // Avatars
-    // .pause        ( pause         ),
-    // .avatar_idx   ( avatar_idx    ),
+    .pause        ( pause         ),
+    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

@@ -34,6 +34,8 @@
 ../../../modules/jtgng_objcnt.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_obj.v
+../../../modules/jtgng_avatar.v
+../../../modules/jtgng_avatar_pal.v
 ../../../modules/jtgng_obj32.v
 ../../../modules/jtgng_romflex.v
 ../../../modules/jtgng_romrq.v
