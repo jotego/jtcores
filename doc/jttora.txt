@@ -41,7 +41,8 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
-3  Nov 2019: beta 3
+13 Nov 2019: beta 3
+    * Adds ADPCM sound to Japanese version
     * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration
     * Set JT49 compression to level 1 (29.1dB)
 1  Nov 2019: beta release 2

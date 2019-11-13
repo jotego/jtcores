@@ -1,7 +1,7 @@
 Release history
 ===============
 
-3rd  Nov 2019
+13th  Nov 2019
     * Fixed occasional sprite glitching
     * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration
     * Set JT49 compression to level 1 (29.1dB)

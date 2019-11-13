@@ -32,7 +32,7 @@ using the original and it comes with that side effect (verified on the real PCB)
 
 REVISION HISTORY
 ================
-3rd Nov 2019
+13th Nov 2019
     - Updated to latest JT49 sound module. Fixes bug in envelope duration
     - Set JT49 compression to level 2 (21dB)
     
