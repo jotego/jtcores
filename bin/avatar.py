@@ -282,7 +282,7 @@ if corename == "1943":
             255,255,255,255,255,255,255,
     ]
 
-if corename == "commando" or corename == "vulgus" or corename == "gunsmoke" or corename=="tora" or corename=="biocom":
+if corename == "commando" or corename == "vulgus" or corename == "gunsmoke":
    map9x9 = [  # Scralings
          0, 1, 2,
          3, 4, 5, 
@@ -317,6 +317,57 @@ if corename == "commando" or corename == "vulgus" or corename == "gunsmoke" or c
         34,35,36,
         37,38,39,
         255,255,255,
+            #unused
+            255,255,255,255,255,255,255,
+        # Hubbard
+        40,41,42,
+        43,44,45,
+        46,47,48,
+            #unused
+            255,255,255,255,255,255,255,
+        # Daniel Bauza
+        49,50,51,
+        52,53,54,
+        55,56,57,
+            #unused
+            255,255,255,255,255,255,255,
+    ]
+
+if corename=="tora" or corename=="biocom":
+   map9x9 = [  # Scralings
+         0, 1, 2,
+         3, 4, 5, 
+         6, 7, 8,
+            #unused
+            255,255,255,255,255,255,255,
+        # Suv
+         9,10,11,
+        12,13,14,
+        15,16,17,
+            #unused
+            255,255,255,255,255,255,255,
+        # Mahe
+        18,255,255,
+        255,18,255,
+        255,255,18,
+            #unused
+            255,255,255,255,255,255,255,
+        # Tomiyori
+        19,20,255,
+        21,22,255,
+        23,24,255,
+            #unused
+            255,255,255,255,255,255,255,
+        # Brian
+        25,26,27,
+        28,29,30,
+        31,32,33,
+            #unused
+            255,255,255,255,255,255,255,
+        # McMahon
+        34,35,255,
+        36,37,255,
+        38,39,255,
             #unused
             255,255,255,255,255,255,255,
         # Hubbard

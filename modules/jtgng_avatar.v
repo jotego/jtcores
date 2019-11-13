@@ -91,19 +91,22 @@ jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
 
 reg [7:0] avatar_y, avatar_x;
 
+localparam [7:0] Y0 = VERTICAL ? 8'h70 : 8'hb8;
+localparam [7:0] X0 = VERTICAL ? 8'h08 : 8'h68;
+
 
 always @(*) begin
     if(pre_scan[8:6]==3'd0) begin
         case( pre_scan[5:2] )
-            4'd0,4'd1,4'd2: avatar_y = 8'h70;
-            4'd3,4'd4,4'd5: avatar_y = 8'h70 + 8'h10;
-            4'd6,4'd7,4'd8: avatar_y = 8'h70 + 8'h20;
+            4'd0,4'd1,4'd2: avatar_y = Y0;
+            4'd3,4'd4,4'd5: avatar_y = Y0 + 8'h10;
+            4'd6,4'd7,4'd8: avatar_y = Y0 + 8'h20;
             default: avatar_y <= 8'hf8;
         endcase
         case( pre_scan[5:2] )
-            4'd0,4'd3,4'd6: avatar_x = 8'h08;
-            4'd1,4'd4,4'd7: avatar_x = 8'h08 + 8'h10;
-            4'd2,4'd5,4'd8: avatar_x = 8'h08 + 8'h20;
+            4'd0,4'd3,4'd6: avatar_x = X0;
+            4'd1,4'd4,4'd7: avatar_x = X0 + 8'h10;
+            4'd2,4'd5,4'd8: avatar_x = X0 + 8'h20;
             default: avatar_x = 8'hf8;
         endcase
     end
@@ -117,8 +120,8 @@ always @(*) begin
     case( pre_scan[1:0] )
         2'd0: avatar_data <= pre_scan[8:6]==3'd0 ? avatar_id : 8'hff;
         2'd1: avatar_data <= 8'd0;
-        2'd2: avatar_data <= VERTICAL ? avatar_y : avatar_x;
-        2'd3: avatar_data <= VERTICAL ? avatar_x : avatar_y;
+        2'd2: avatar_data <= avatar_y;
+        2'd3: avatar_data <= avatar_x;
     endcase
 end
 

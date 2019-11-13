@@ -62,7 +62,7 @@ module jttora_video(
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
     output      [17:0]  obj_addr,
-    input       [31:0]  obj_data,
+    input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
     input               LVBL,

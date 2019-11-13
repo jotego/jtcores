@@ -149,7 +149,7 @@ jtgng_avatar_pal u_avatar(
     .clk        (  clk          ),
     .pause      (  pause        ),
     .avatar_idx (  avatar_idx   ),
-    .obj_sel    (  obj_sel[1]   ),
+    .obj_sel    (  obj_sel[0]   ),
     .obj_pxl    (  obj_pxl2     ),
     .pal_red    (  pal_red      ),
     .pal_green  (  pal_green    ),

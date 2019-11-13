@@ -89,8 +89,7 @@ wire        char_busy;
 wire        service = 1'b1;
 
 // ROM data
-wire [15:0] char_data, scr_data;
-wire [31:0] obj_data;
+wire [15:0] char_data, scr_data, obj_data;
 wire [15:0] main_data, map_data;
 wire [ 7:0] snd_data, snd2_data;
 
@@ -200,7 +199,7 @@ wire OKOUT, blcnten, obj_br, bus_ack;
 wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
-wire        prom_we;
+wire [1:0]  prom_we;
 wire        jap;        // high if Japanese ROM was loaded
 
 jttora_dwnld u_dwnld(
@@ -401,7 +400,7 @@ jttora_video #(
     .obj_ok     ( obj_ok        ),
     // PROMs
     .prog_addr    ( prog_addr[7:0]),
-    .prom_prio_we ( prom_we       ),
+    .prom_prio_we ( prom_we[0]    ),
     .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),

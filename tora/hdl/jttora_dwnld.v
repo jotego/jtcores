@@ -29,10 +29,10 @@ module jttora_dwnld(
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
     output               prog_rd,
-    output               prom_we,
+    output     [ 1:0]    prom_we,
     output               jap,
 
-    input      [31:0]    sdram_dout,
+    input      [15:0]    sdram_dout,
     output reg           dwnld_busy = 1'b0
 );
 
