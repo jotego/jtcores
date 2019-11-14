@@ -352,9 +352,7 @@ reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
 `ifndef NOVIDEO
-jttora_video #(
-    .AVATAR_MAX   (9)
-) u_video(
+jttora_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),

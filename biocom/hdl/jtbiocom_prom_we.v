@@ -138,7 +138,9 @@ always @(posedge clk) begin
             // Objects are written to address C_0000+
             prog_mask <= ioctl_addr[16] ? 2'b10 : 2'b01;
             prog_addr <= { 5'b110,
-                ioctl_addr[15:0], 
+                ioctl_addr[15:5], 
+                ioctl_addr[3:0],
+                ioctl_addr[4],
                 ioctl_addr[17]^ioctl_addr[16] }; // odd or even
             `INFO_OBJ
         end

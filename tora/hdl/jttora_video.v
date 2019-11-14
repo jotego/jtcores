@@ -85,7 +85,7 @@ module jttora_video(
 );
 
 // parameters from jtgng_obj:
-parameter  AVATAR_MAX    = 7;
+localparam AVATAR_MAX    = 8;
 localparam LAYOUT        = 3; 
 
 wire [5:0] char_pxl;

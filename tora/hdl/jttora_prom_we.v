@@ -130,7 +130,9 @@ always @(posedge clk) begin
             prog_mask <= !obj_msb[1] ? 2'b10 : 2'b01;
             prog_addr <= { 4'b10_00,
                 ~ioctl_addr[16],
-                ioctl_addr[15:0], 
+                ioctl_addr[15:5], 
+                ioctl_addr[3:0],
+                ioctl_addr[4],
                 obj_msb[2]}; // odd or even
             `INFO_OBJ
         end
