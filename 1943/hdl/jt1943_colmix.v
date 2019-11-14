@@ -24,7 +24,6 @@
 module jt1943_colmix(
     input           rst,
     input           clk,    // 24 MHz
-    input           cen12,
     input           cen6 /* synthesis direct_enable = 1 */,
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code

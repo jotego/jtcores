@@ -47,10 +47,9 @@ for col in range(256):
     blue [col] = col%16
 
 
-
+# MiSTer:
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("                                ") 
 print_char("      1943 clone for FPGA       ")
 print_char("    brought to you by jotego.   ")
 print_char("  http://patreon.com/topapate   ")
@@ -59,6 +58,7 @@ print_char("       Thanks to my patrons     ")
 print_char("                                ")
 print_char("    Andrew Moore                ")
 print_char("    Andyways                    ")
+print_char("    Blackstar                   ") 
 print_char("    Dave Ross                   ")
 print_char("    Don Gafford                 ")
 print_char("    Leslie Law                  ")
@@ -87,7 +87,6 @@ save_hex( os.environ['JTGNG']+"/1943/mist/msg_mister.hex", char_ram )
 row=31
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("                                ") 
 print_char("      1943 clone for FPGA       ")
 print_char("    brought to you by jotego.   ")
 print_char("  http://patreon.com/topapate   ")
@@ -96,6 +95,7 @@ print_char("       Thanks to my patrons     ")
 print_char("                                ")
 print_char("    Andrew Moore                ")
 print_char("    Andyways                    ")
+print_char("    Blackstar                   ") 
 print_char("    Dave Ross                   ")
 print_char("    Don Gafford                 ")
 print_char("    Leslie Law                  ")

@@ -18,40 +18,55 @@
 
 // This module is equivalent to the function
 // of CAPCOM's 85H001 package found in GunSmoke, GnG, etc.
+// when using LAYOUT 0
+
+// watch points for MAME:
+// wpset e000,1,w,1,{printf "reg = %X", wpdata;g}
+// wpset e001,1,w,1,{printf "val = %X", wpdata;g}
 
 module jtgng_sound(
-    input           rst,
-    input           clk,
-    input           cen3,   //  3   MHz
-    input           cen1p5, //  1.5 MHz
+    input            rst,
+    input            clk,
+    input            cen3,   //  3   MHz
+    input            cen1p5, //  1.5 MHz
     // Interface with main CPU
-    input           sres_b, // Z80 reset
-    input   [7:0]   snd_latch,
-    input           snd_int,
+    input            sres_b, // Z80 reset
+    input   [7:0]    snd_latch,
+    input            snd_int,
+    // Interface with second sound CPU
+    output reg [7:0] snd2_latch,
     // Sound control
-    input           enable_psg,
-    input           enable_fm,
-    input   [7:0]   psg_gain,
+    input            enable_psg,
+    input            enable_fm,
+    input   [7:0]    psg_gain,
     // ROM
-    output  [14:0]  rom_addr,
-    output  reg     rom_cs,
-    input   [ 7:0]  rom_data,
-    input           rom_ok,
+    output  [14:0]   rom_addr,
+    output  reg      rom_cs,
+    input   [ 7:0]   rom_data,
+    input            rom_ok,
 
     // Sound output
     output  signed [15:0] ym_snd,
     output  sample
 );
 
-parameter       BIGROM=1;
-parameter [7:0] FM_GAIN=8'h20;
+parameter       LAYOUT=0;
+    // 0 GnG, most games
+    // 1 Commando (smaller ROM)
+    // 3 Tiger Road:
+    //      -Can readback from FM chip
+    //      -IRQ controlled by FM chips
+    //      -FM clock speed same as CPU
+parameter [7:0] FM_GAIN=8'h40;
 
 wire [15:0] A;
+wire        iorq_n, m1_n, wr_n, rd_n;
+wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
+reg         fm1_cs,fm0_cs, latch_cs, ram_cs;
+wire        mreq_n, rfsh_n;
+
 assign rom_addr = A[14:0];
 
-reg fm1_cs,fm0_cs, latch_cs, ram_cs;
-
-wire mreq_n, rfsh_n;
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -60,8 +75,8 @@ always @(*) begin
     fm0_cs   = 1'b0;
     fm1_cs   = 1'b0;
     if( rfsh_n && !mreq_n) 
-        if( BIGROM ) begin
-            // Memory map for: GnG, Gun Smoke, 1943
+        case( LAYOUT )
+        0:  // Memory map for: GnG, Gun Smoke, 1943
             casez(A[15:13])
                 3'b0??: rom_cs   = 1'b1;
                 3'b110: if(A[11])
@@ -76,8 +91,7 @@ always @(*) begin
                 end
                 default:;
             endcase
-        end else begin
-            // Memory map for Commando
+        1:  // Memory map for Commando
             casez(A[15:13])
                 3'b00?: rom_cs   = 1'b1;
                 3'b010: ram_cs   = 1'b1;
@@ -88,17 +102,46 @@ always @(*) begin
                 end
                 default:;
             endcase
+        3: // Tiger Road
+            casez(A[15:13])
+                3'b0??: rom_cs   = 1'b1;
+                3'b100: fm0_cs   = 1'b1;
+                3'b101: fm1_cs   = 1'b1;
+                3'b110: ram_cs   = 1'b1;
+                3'b111: latch_cs = 1'b1;
+                default:;
+            endcase
+        `ifdef SIMULATION
+        default: begin
+            $display("ERROR: Wrong sound layout");
+            $finish;
         end
+        `endif
+        endcase
 end
 
+// only used in games with ADPCM Z80
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        snd2_latch <= 8'd0;
+    end else begin
+        if( !iorq_n && !wr_n && !A[8]) snd2_latch <= dout;
+    end
+end
 
-wire rd_n;
-wire wr_n;
+wire intn_fm0, intn_fm1;
 
 wire RAM_we = ram_cs && !wr_n;
-wire [7:0] ram_dout, dout;
 
-jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
+// `define SIM_SND_RAM ,.simfile("snd_ram.hex")
+`ifndef SIM_SND_RAM
+`define SIM_SND_RAM
+`endif
+
+jtgng_ram #(
+    .aw(11)
+    `SIM_SND_RAM
+) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dout     ),
@@ -109,11 +152,15 @@ jtgng_ram #(.aw(11),.simfile("snd_ram.hex")) u_ram(
 
 reg [7:0] din;
 
-always @(*)
+// Only Layout 3 can read the status register
+// from FM chips:
+wire fm0_mx = fm0_cs && LAYOUT==3;
+wire fm1_mx = fm1_cs && LAYOUT==3;
+
+always @(posedge clk)
     case( 1'b1 )
-        // Real hardware cannot read data from FM chips:
-        // fm1_cs:   din = fm1_dout;
-        // fm0_cs:   din = fm0_dout;
+        fm0_mx:   din = fm0_dout;
+        fm1_mx:   din = fm1_dout;
         latch_cs: din = snd_latch;
         ram_cs:   din = ram_dout;
         default:  din = rom_data;
@@ -128,17 +175,24 @@ end
 
 reg reset_n=1'b0;
 
-// interrupt latch
 reg int_n;
-wire iorq_n, m1_n;
-wire irq_ack = !iorq_n && !m1_n;
 
-always @(posedge clk or negedge reset_n)
-    if( !reset_n ) int_n <= 1'b1;
-    else if(cen3) begin
-        if(irq_ack) int_n <= 1'b1;
-        else if( snd_int_edge ) int_n <= 1'b0;
+generate
+    if( LAYOUT==3 ) begin
+        // Interrupt directly generated by the FM chip
+        always @(*) int_n = intn_fm0;
+    end else begin : irq_latch
+        // interrupt latch
+        wire irq_ack = !iorq_n && !m1_n;
+
+        always @(posedge clk or negedge reset_n)
+            if( !reset_n ) int_n <= 1'b1;
+            else if(cen3) begin
+                if(irq_ack) int_n <= 1'b1;
+                else if( snd_int_edge ) int_n <= 1'b0;
+            end
     end
+endgenerate
 
 // local reset
 reg [3:0] rst_cnt;
@@ -212,10 +266,11 @@ wire        [10:0] psg01 = {1'b0,psg0_snd} + {1'b0,psg1_snd};
 //     psg1_signed = {1'b0, psg1_snd, 4'b0 };
 
 wire signed [10:0] psg2x; // DC-removed version of psg01
+wire cenfm = LAYOUT==3 ? cen3 : cen1p5;
 
 jt49_dcrm2 #(.sw(11)) u_dcrm (
     .clk    (  clk    ),
-    .cen    (  cen1p5 ),
+    .cen    (  cenfm  ),
     .rst    (  rst    ),
     .din    (  psg01  ),
     .dout   (  psg2x  )
@@ -226,7 +281,7 @@ wire signed [7:0]  fm_gain2 = enable_fm  ?  FM_GAIN : 8'h0;
 
 jt12_mixer #(.w0(16),.w1(16),.w2(15),.w3(8),.wout(16)) u_mixer(
     .clk    ( clk          ),
-    .cen    ( cen1p5       ),
+    .cen    ( cenfm        ),
     .ch0    ( fm0_snd      ),
     .ch1    ( fm1_snd      ),
     .ch2    ( {psg2x, 4'b0}),
@@ -242,7 +297,7 @@ jt03 u_fm0(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk        ),
-    .cen    ( cen1p5     ),
+    .cen    ( cenfm      ),
     .din    ( dout       ),
     .addr   ( A[0]       ),
     .cs_n   ( ~fm0_cs    ),
@@ -251,8 +306,8 @@ jt03 u_fm0(
     .fm_snd ( fm0_snd    ),
     .snd_sample ( sample ),
     // unused outputs
-    .dout   (),
-    .irq_n  (),
+    .dout   ( fm0_dout   ),
+    .irq_n  ( intn_fm0   ),
     .psg_A  (),
     .psg_B  (),
     .psg_C  (),
@@ -263,7 +318,7 @@ jt03 u_fm1(
     .rst    ( ~reset_n  ),
     // CPU interface
     .clk    ( clk       ),
-    .cen    ( cen1p5    ),
+    .cen    ( cenfm     ),
     .din    ( dout      ),
     .addr   ( A[0]      ),
     .cs_n   ( ~fm1_cs   ),
@@ -271,13 +326,23 @@ jt03 u_fm1(
     .psg_snd( psg1_snd  ),
     .fm_snd ( fm1_snd   ),
     // unused outputs
-    .dout   (),
-    .irq_n  (),
+    .dout   ( fm1_dout  ),
+    .irq_n  ( intn_fm1  ),
     .psg_A  (),
     .psg_B  (),
     .psg_C  (),
     .snd    (),
     .snd_sample()
 );
+
+`ifdef SIMULATION
+    integer fsnd;
+    initial begin
+        fsnd=$fopen("fm_sound.raw","wb");
+    end
+    always @(posedge sample) begin
+        $fwrite(fsnd,"%u", {fm0_snd, fm1_snd});
+    end
+`endif
 
 endmodule // jtgng_sound

@@ -53,7 +53,7 @@ module jt1942_video(
     input               obj_cs,
     input               HINIT,
     output      [14:0]  obj_addr,
-    input       [15:0]  objrom_data,
+    input       [15:0]  obj_data,
     // Color Mix
     input               LVBL,
     input               LHBL,
@@ -268,7 +268,7 @@ jt1942_obj u_obj(
     .wr_n           ( wr_n        ),
     // SDRAM interface
     .obj_addr       ( obj_addr    ),
-    .objrom_data    ( objrom_data ),
+    .obj_data       ( obj_data    ),
     // PROMs
     .prog_addr      ( prog_addr   ),
     .prom_m11_we    ( prom_m11_we ), // Object logic timing

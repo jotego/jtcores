@@ -18,21 +18,19 @@
 
 // Object Line Buffer
 
-module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0)(
+module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0,PXL_DLY=7)(
     input              rst,
-    input              clk,     // 24 MHz
-    input              cen6,    //  6 MHz
+    input              clk,
+    input              cen /*direct_enable*/,
+    input              pxl_cen /*direct_enable*/,
     // screen
-    input              DISPTM_b,
     input              LHBL,
     input              flip,
-    input       [4:0]  objcnt,
-    input       [3:0]  pxlcnt,
     input       [8:0]  posx,
     input              line,
     // pixel data
     input       [dw-1:0]  new_pxl,
-    output reg  [dw-1:0]  obj_pxl
+    output      [dw-1:0]  obj_pxl
 );
 
 localparam lineA=1'b0, lineB=1'b1;
@@ -51,11 +49,11 @@ reg pxlbuf_line;
 always @(posedge clk, posedge rst)
     if( rst )
         pxlbuf_line <= lineA;
-    else if(cen6) begin
-        if( {objcnt[0],pxlcnt}== obj_dly ) pxlbuf_line<=line; // to account for latency drawing the object
+    else if(cen) begin
+        pxlbuf_line<=line;
     end
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(pxl_cen) begin
     if( !LHBL ) Hcnt <= 8'd0;
     else Hcnt <= Hcnt+1'd1;
 end
@@ -64,43 +62,53 @@ wire [dw-1:0] blank = {dw{1'b1}};
 
 reg [7:0]    addr_wr;
 reg [dw-1:0] data_wr;
-reg we_pxl, we0;
+reg pxl_wr, we0;
 
-//wire we_pxl = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+//wire pxl_wr = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen) begin
     data_wr <= new_pxl;
     addr_wr <= {8{flip}} ^ posx[7:0];
-    we_pxl  <= !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
-    //we_pxl  <= we0;
+    pxl_wr  <= !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
 end
 
-always @(posedge clk)
+reg [   3:0] st;
+reg [dw-1:0] obj_pxl0;
+
+always @(posedge clk,posedge rst) begin
+    if(rst) begin
+        st <= 4'b0;
+    end else begin
+        st <= { pxl_cen, st[3:1] };
+        if( st[2] ) obj_pxl0 <= pxlbuf_line==lineA ? lineA_q : lineB_q;
+    end
+end
+
+always @(*) begin
     if( pxlbuf_line == lineA ) begin
-        obj_pxl = !DISPTM_b ? lineA_q : blank;
         // lineA readout
         addrA = Hcnt;
-        weA   = LHBL;
+        weA   = LHBL && st[0];
         dataA = blank;
         // lineB writein
         addrB = addr_wr;
-        weB   = we_pxl;
+        weB   = pxl_wr;
         dataB = data_wr;
     end else begin
-        obj_pxl = !DISPTM_b ? lineB_q : blank;
         // lineA writein
         addrA = addr_wr;
-        weA   = we_pxl;
+        weA   = pxl_wr;
         dataA = data_wr;
         // lineB readout
         addrB = Hcnt;
-        weB   = LHBL;
+        weB   = LHBL && st[0];
         dataB = blank;
     end
+end
 
 jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
     .clk     ( clk             ),
-    .cen     ( cen6            ),
+    .cen     ( 1'b1            ),
     .addr    ( addrA           ),
     .data    ( dataA           ),
     .we      ( weA             ),
@@ -109,11 +117,19 @@ jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
 
 jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
     .clk     ( clk             ),
-    .cen     ( cen6            ),
+    .cen     ( 1'b1            ),
     .addr    ( addrB           ),
     .data    ( dataB           ),
     .we      ( weB             ),
     .q       ( lineB_q         )
+);
+
+// Delay pixel output in order to be aligned with the other layers
+jtgng_sh #(.width(dw), .stages(PXL_DLY)) u_sh(
+    .clk            ( clk           ),
+    .clk_en         ( pxl_cen       ), // important: pixel cen!
+    .din            ( obj_pxl0      ),
+    .drop           ( obj_pxl       )
 );
 
 endmodule // jtgng_objpxl

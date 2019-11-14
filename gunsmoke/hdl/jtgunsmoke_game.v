@@ -36,6 +36,7 @@ module jtgunsmoke_game(
     output          VS,
     // cabinet I/O
     input   [ 1:0]  start_button,
+    output          dwnld_busy,
     input   [ 1:0]  coin_input,
     input   [ 6:0]  joystick1,
     input   [ 6:0]  joystick2,
@@ -56,6 +57,7 @@ module jtgunsmoke_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
+    output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -70,6 +72,11 @@ module jtgunsmoke_game(
     // Debug
     input   [3:0]   gfx_en
 );
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
 
 parameter CLK_SPEED=48;
 
@@ -130,9 +137,12 @@ end
 
 `endif
 
+wire cen8;
+
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
+    .cen8   ( cen8      ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -214,7 +224,7 @@ wire prom_objhi_we = prom_we[7];
 wire prom_prior_we = prom_we[9];
 
 wire [7:0] scrposv;
-wire [1:0] scrposh_cs;
+wire [15:0] scrposh;
 
 `ifndef NOMAIN
 
@@ -240,7 +250,7 @@ jtgunsmoke_main u_main(
     .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
-    .scrposh_cs ( scrposh_cs    ),
+    .scrposh    ( scrposh       ),
     .SCRON      ( SCRON         ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
@@ -321,7 +331,7 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr_ok, char_ok;
+wire scr_ok, char_ok, obj_ok;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
@@ -342,7 +352,7 @@ jt1943_video #(
     // DMA timing measured on real PCB was roughly 130us
     // which correspons to these parameters:
     .OBJMAX        ( 9'h180                           ),
-    .OBJMAX_LINE   ( 5'd24                            ),
+    .OBJMAX_LINE   ( 6'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),
     .OBJ_ROM_AW    ( 16                               ),
     // Colour mixer
@@ -354,6 +364,7 @@ jt1943_video #(
     .rst           ( rst           ),
     .clk           ( clk           ),
     .cen12         ( cen12         ),
+    .cen8          ( cen8          ),    
     .cen6          ( cen6          ),
     .cen3          ( cen3          ),
     .cpu_cen       ( cpu_cen       ),
@@ -374,8 +385,8 @@ jt1943_video #(
     .char_ok       ( char_ok       ),
     .CHON          ( CHON          ),
     // SCROLL - ROM
-    .scr1posh_cs   ( scrposh_cs    ),
-    .scr2posh_cs   ( 2'd0          ),
+    .scr1posh      ( scrposh       ),
+    .scr2posh      ( 16'd0         ),
     .scrposv       ( scrposv       ),
     .scr1_addr     ( scr_addr      ),
     .scr1_data     ( scr_data      ),
@@ -394,7 +405,8 @@ jt1943_video #(
     .obj_AB        ( obj_AB        ),
     .obj_DB        ( main_ram      ),
     .obj_addr      ( pre_obj_addr  ),
-    .objrom_data   ( obj_data      ),
+    .obj_data      ( obj_data      ),
+    .obj_ok        ( obj_ok        ),
     .OKOUT         ( OKOUT         ),
     .bus_req       ( bus_req       ), // Request bus
     .bus_ack       ( bus_ack       ), // bus acknowledge
@@ -463,6 +475,7 @@ jtgng_rom #(
     .scr1_ok     ( scr_ok        ),
     .scr2_ok     (               ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),

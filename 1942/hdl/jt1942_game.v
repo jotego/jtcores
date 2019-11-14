@@ -42,6 +42,7 @@ module jt1942_game(
 
     // SDRAM interface
     input           downloading,
+    output          dwnld_busy,
     input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -58,6 +59,7 @@ module jt1942_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
+    output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -72,6 +74,11 @@ module jt1942_game(
     // Debug
     input   [ 3:0]  gfx_en
 );
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
 
 parameter CLK_SPEED=48;
 
@@ -254,8 +261,8 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
 );
 
 `ifndef NOSOUND
-wire [8:0] psg_snd;
-assign snd = { 1'b0, psg_snd, 6'd0 };
+wire [9:0] psg_snd;
+assign snd = { psg_snd, 6'd0 };
 
 jt1942_sound u_sound (
     .rst            ( rst_game       ),
@@ -317,7 +324,7 @@ jt1942_video u_video(
     .obj_cs     ( obj_cs        ),
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .obj_data   ( obj_data      ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),

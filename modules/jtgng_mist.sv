@@ -84,6 +84,10 @@ localparam CONF_STR = {
     "OD,Rotate controls,No,Yes;",
     "OC,Flip screen,OFF,ON;",
     `endif
+    `ifdef JOIN_JOYSTICKS
+    "OE,Separate Joysticks,Yes,No;",    // If no, then player 2 joystick
+        // is assimilated to player 1 joystick
+    `endif
     `ifdef MISTER_VIDEO_MIXER
         "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
     `else
@@ -113,23 +117,29 @@ wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
 wire          loop_rst;
-wire          downloading;
+wire          downloading, dwnld_busy;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 
-wire rst_req = status[0];
+wire rst_req   = status[0];
+wire join_joys = status[32'he];
 
 wire sdram_req;
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
-wire          prog_we;
+wire          prog_we, prog_rd;
 
-wire [3:0] red;
-wire [3:0] green;
-wire [3:0] blue;
+`ifndef COLORW
+`define COLORW 4
+`endif
+localparam COLORW=`COLORW;
+
+wire [COLORW-1:0] red;
+wire [COLORW-1:0] green;
+wire [COLORW-1:0] blue;
 
 wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
 wire [15:0] snd_left, snd_right;
@@ -178,9 +188,19 @@ assign sim_vs = ~LVBL_dly;
 assign sim_hs = ~LHBL_dly;
 `endif
 
+`ifndef SIGNED_SND
+`define SIGNED_SND 1'b1
+`endif
 
-jtframe_mist #( .CONF_STR(CONF_STR),
-    .SIGNED_SND(1'b1), .THREE_BUTTONS(1'b1))
+`ifndef THREE_BUTTONS
+`define THREE_BUTTONS 1'b1
+`endif
+
+jtframe_mist #( 
+    .CONF_STR     ( CONF_STR       ),
+    .SIGNED_SND   ( `SIGNED_SND    ),
+    .THREE_BUTTONS( `THREE_BUTTONS ),
+    .COLORW       ( COLORW         ))
 u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
@@ -231,7 +251,9 @@ u_frame(
     .prog_data      ( prog_data      ),
     .prog_mask      ( prog_mask      ),
     .prog_we        ( prog_we        ),
+    .prog_rd        ( prog_rd        ),
     .downloading    ( downloading    ),
+    .dwnld_busy     ( dwnld_busy     ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
@@ -267,7 +289,12 @@ u_frame(
     .dip_flip       ( dip_flip       ),
     .dip_fxlevel    ( dip_fxlevel    ),
     // Debug
-    .gfx_en         ( gfx_en         )
+    .gfx_en         ( gfx_en         ),
+    // Unused
+    .game_pause     (                ),
+    .hdmi_arx       (                ),
+    .hdmi_ary       (                ),
+    .vertical_n     (                )
 );
 
 `ifdef SIMULATION
@@ -287,6 +314,8 @@ u_frame(
     assign sim_hs = hs;
 `endif
 `endif
+
+wire sample;
 
 `GAMETOP #(.CLK_SPEED(CLK_SPEED))
 u_game(
@@ -322,9 +351,11 @@ u_game(
     .prog_data   ( prog_data      ),
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
+    .prog_rd     ( prog_rd        ),
 
     // ROM load
     .downloading ( downloading    ),
+    .dwnld_busy  ( dwnld_busy     ),
     .loop_rst    ( loop_rst       ),
     .sdram_req   ( sdram_req      ),
     .sdram_addr  ( sdram_addr     ),
@@ -347,9 +378,19 @@ u_game(
     .snd_left    ( snd_left       ),
     .snd_right   ( snd_right      ),
     `endif
-    .sample      (                ),
+    .sample      ( sample         ),
     // Debug
     .gfx_en      ( gfx_en         )
 );
+
+`ifdef SIMULATION
+integer fsnd;
+initial begin
+    fsnd=$fopen("sound.raw","wb");
+end
+always @(posedge sample) begin
+    $fwrite(fsnd,"%u", {snd_left, snd_right});
+end
+`endif
 
 endmodule

@@ -39,7 +39,7 @@ module jt1942_obj(
     input              wr_n,
     // SDRAM interface
     output      [14:0] obj_addr,
-    input       [15:0] objrom_data,
+    input       [15:0] obj_data,
     // PROMs
     input   [7:0]      prog_addr,
     input              prom_m11_we,
@@ -136,9 +136,9 @@ jt1942_objdraw u_draw(
     .objbuf_data2   ( objbuf_data2  ),
     .objbuf_data3   ( objbuf_data3  ),
     `ifdef OBJ_TEST
-    .objrom_data    ( test_data     ),
+    .obj_data       ( test_data     ),
     `else
-    .objrom_data    ( objrom_data   ),
+    .obj_data       ( obj_data      ),
     `endif
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
@@ -150,32 +150,19 @@ jt1942_objdraw u_draw(
     .new_pxl        ( new_pxl       )
 );
 
-// line buffers for pixel data
-wire [3:0] obj_pxl0;
-
-jtgng_objpxl #(.obj_dly(5'h1f))u_pxlbuf(
+jtgng_objpxl #(.obj_dly(5'h1f),.PXL_DLY(PXL_DLY))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),    //  6 MHz
+    .cen            ( cen6          ),    //  6 MHz
+    .pxl_cen        ( cen6          ),    //  6 MHz
     // screen
     .LHBL           ( LHBL          ),
-    .DISPTM_b       ( DISPTM_b      ),
     .flip           ( flip          ),
-    .objcnt         ( objcnt        ),
-    .pxlcnt         ( pxlcnt        ),
     .posx           ( posx          ),
     .line           ( line          ),
     // pixel data
     .new_pxl        ( new_pxl       ),
-    .obj_pxl        ( obj_pxl0      )
-);
-
-// Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(4), .stages(PXL_DLY)) u_sh(
-    .clk            ( clk           ),
-    .clk_en         ( cen6          ),
-    .din            ( obj_pxl0      ),
-    .drop           ( obj_pxl       )
+    .obj_pxl        ( obj_pxl       )
 );
 
 endmodule

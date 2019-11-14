@@ -36,6 +36,18 @@ It is obvious what you have to do except:
 
 RELEASE HISTORY
 ===============
+13th  Nov 2019
+    * Fixed occasional sprite glitching
+    * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration
+    * Set JT49 compression to level 1 (29.1dB)
+
+20th Oct 2019
+    * Increased sprites per line to 32.
+            Changed object to 8MHz as per schematics.
+            In the same time, we can produce 32 objects:
+                32*16/8MHz = 24*16/6MHz
+            This is the approach of Bionic Commando, which also
+            uses 8MHz instead of 6MHz.
 7th Oct 2019
     * Added FLIP option, although it is a bit glitchy. Original hardware
       did not fully implemented it so it is a bit of a hack.

@@ -1,0 +1,5 @@
+save biocom_obj.bin,   0xfe0800,0x500
+save biocom_char.bin,  0xfec000,0x1000
+save biocom_scr1.bin,  0xff0000,0x4000
+save biocom_scr2.bin,  0xff4000,0x4000
+save biocom_pal.bin,   0xff8000,0x800

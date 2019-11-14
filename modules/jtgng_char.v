@@ -23,6 +23,7 @@
 module jtgng_char #(parameter 
     ROM_AW   = 13, 
     PALW     = 4,
+    DW       = 8,
     HOFFSET  = 8'd0,
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
@@ -34,7 +35,9 @@ module jtgng_char #(parameter
     HFLIP_XOR= 1'b0, // Additional bit for ^ with HFLIP value
     VFLIP_XOR= 1'b0, // Additional bit for ^ with VFLIP value
     PALETTE  = 0, // 1 if the palette PROM is used
-    PALETTE_SIMFILE = "../../../rom/1943/bm5.7f" // only for simulation
+    LAYOUT   = 0, // 0 most games, 3 Tiger Road
+    PALETTE_SIMFILE = "../../../rom/1943/bm5.7f", // only for simulation
+    SIMID = ""
 ) (
     input            clk,
     input            pxl_cen  /* synthesis direct_enable = 1 */,
@@ -43,11 +46,12 @@ module jtgng_char #(parameter
     input   [ 7:0]   V, // V128-V1
     input   [ 7:0]   H, // Hfix-H1
     input            flip,
-    input   [ 7:0]   din,
-    output  [ 7:0]   dout,
+    input   [DW-1:0] din,
+    output  [DW-1:0] dout,
     // Bus arbitrion
     input            char_cs,
     input            wr_n,
+    input   [ 1:0]   dseln,
     output           busy,
     // Pause screen
     input            pause,
@@ -79,11 +83,14 @@ wire [7:0] Hfix = H + HOFFSET[7:0]; // Corrects pixel output offset
 localparam DATAREAD = 3'd1;
 
 jtgng_tilemap #(
-    .DATAREAD( DATAREAD )
+    .DW      ( DW       ),
+    .DATAREAD( DATAREAD ),
+    .SIMID   ( SIMID    )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .Asel       ( AB[10]    ),
+    .Asel       ( AB[10]    ), // Select upper or lower byte for  8-bit access
+    .dseln      ( dseln     ), // Select upper or lower byte for 16-bit access
     .AB         ( AB[9:0]   ),
     .V          ( V         ),
     .H          ( Hfix      ),
@@ -115,6 +122,10 @@ reg [PALW-1:0] char_attr2;
 
 reg [15:0] good_data;
 
+`ifdef SIMULATION
+initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
+`endif
+
 // avoid getting the data too early
 always @(posedge clk) begin
     if( Hfix[2:0]>(DATAREAD+3'd1) && rom_ok ) good_data <= rom_data;
@@ -124,6 +135,10 @@ end
 wire vflip_en = VFLIP_EN[0];
 wire hflip_en = HFLIP_EN[0];
 
+wire hflip_next = char_attr1[PALW];
+wire dout_hflip = (dout_high[HFLIP]& hflip_en) ^ flip ^ HFLIP_XOR;
+wire dout_vflip = (dout_high[VFLIP]& vflip_en) ^ flip ^ VFLIP_XOR;
+
 always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
     // 8 pixels from delay in ROM reading
@@ -131,16 +146,25 @@ always @(posedge clk) if(pxl_cen) begin
     if( Hfix[2:0]==DATAREAD ) begin // read data from memory when the CPU is forbidden to write on it
         // Set input for ROM reading
         char_attr1 <= char_attr0;
-        char_attr0 <= { dout_high[HFLIP], dout_high[PALW-1:0] };
-        char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
-            {3{(dout_high[VFLIP]&vflip_en) ^ flip ^VFLIP_XOR}}^V[2:0] };
+        case( LAYOUT )
+            0:  begin
+                char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
+                {3{dout_vflip}}^V[2:0] };
+                char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };
+            end
+            3:  begin // Tiger Road
+                char_addr  <= { { dout_high[5], dout_high[7:6], dout_low},
+                {3{dout_vflip}}^V[2:0] };
+                char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };
+            end
+        endcase
     end
     // The two case-statements cannot be joined because of the default statement
     // which needs to apply in all cases except the two outlined before it.
     case( Hfix[2:0] )
         (DATAREAD+3'd1): begin
-            chd <= !char_hflip ? {good_data[7:0],good_data[15:8]} : good_data;
-            char_hflip <= (char_attr1[PALW] & hflip_en) ^ flip ^ HFLIP_XOR;
+            chd <= !hflip_next ? {good_data[7:0],good_data[15:8]} : good_data;
+            char_hflip <= hflip_next;
             char_attr2 <= char_attr1[PALW-1:0];
         end
         (DATAREAD+3'd5):

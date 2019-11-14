@@ -55,7 +55,7 @@ module jtgng_video(
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
     output      [15:0]  obj_addr,
-    input       [15:0]  objrom_data,
+    input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
     input               LVBL,
@@ -188,7 +188,9 @@ jtgng_obj #(
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .cen6       ( cen6        ),
+    .draw_cen   ( cen12       ),
+    .dma_cen    ( cen6        ),
+    .pxl_cen    ( cen6        ),
     .AB         ( obj_AB      ),
     .DB         ( main_ram    ),
     .OKOUT      ( OKOUT       ),
@@ -207,7 +209,7 @@ u_obj (
     .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
-    .objrom_data( objrom_data ),
+    .obj_data   ( obj_data    ),
     .rom_ok     ( obj_ok      ),
     // pixel data
     .obj_pxl    ( obj_pxl     )

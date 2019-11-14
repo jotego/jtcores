@@ -39,8 +39,8 @@ module jt1943_video #( parameter
     PALETTE_BLUE   = "../../../rom/1943/bm3.14a",
     PALETTE_PRIOR  = "../../../rom/1943/bm4.12c",
     // From objects
-    OBJMAX         = 10'h1FF,
-    OBJMAX_LINE    = 5'd31,
+    OBJMAX         = 10'd511, // DMA buffer 512 bytes = 4*128
+    OBJMAX_LINE    = 6'd32,
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,
     OBJ_PALHI      = "../../../rom/1943/bm7.7c",
@@ -49,6 +49,7 @@ module jt1943_video #( parameter
     input               rst,
     input               clk,
     input               cen12,
+    input               cen8,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -71,8 +72,8 @@ module jt1943_video #( parameter
     // SCROLL - ROM
     input               SC1ON,
     input               SC2ON,
-    input       [ 1:0]  scr1posh_cs,
-    input       [ 1:0]  scr2posh_cs,
+    input       [15:0]  scr1posh,
+    input       [15:0]  scr2posh,
     input       [ 7:0]  scrposv,
     output      [16:0]  scr1_addr,
     output      [14:0]  scr2_addr,
@@ -87,7 +88,8 @@ module jt1943_video #( parameter
     input               OBJON,
     input               HINIT,
     output      [OBJ_ROM_AW-1:0]  obj_addr,
-    input       [15:0]  objrom_data,
+    input       [15:0]  obj_data,
+    input               obj_ok,
     // shared bus
     output      [12:0]  obj_AB,
     input        [7:0]  obj_DB,
@@ -214,12 +216,9 @@ u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
-    .cen3         ( cen3          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
-    .LVBL         ( LVBL          ),
-    .LHBL         ( LHBL          ),
-    .scrposh_cs   ( scr1posh_cs   ),
+    .hpos         ( scr1posh      ),
     `ifndef TESTSCR1
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
@@ -229,8 +228,6 @@ u_scroll1 (
         .vpos         ( 8'd0          ),
         .flip         ( 1'b0          ),
     `endif
-    .din          ( cpu_dout       ),
-    .wr_n         ( wr_n           ),
     .pause        ( pause          ),
     // Palette PROMs
     .prog_addr    ( prog_addr      ),
@@ -259,11 +256,9 @@ generate
             .rst          ( rst           ),
             .clk          ( clk           ),
             .cen6         ( cen6          ),
-            .cen3         ( cen3          ),
             .V128         ( V[7:0]        ),
             .H            ( H             ),
-            .LVBL         ( LVBL          ),
-            .scrposh_cs   ( scr2posh_cs   ),
+            .hpos         ( scr2posh      ),
             `ifndef TESTSCR2
             .SCxON        ( SC2ON         ),
             .vpos         ( scrposv       ),
@@ -273,9 +268,6 @@ generate
                 .vpos         ( 8'd0          ),
                 .flip         ( 1'b0          ),
             `endif
-            .din          ( cpu_dout       ),
-            .wr_n         ( wr_n           ),
-
             .pause        ( pause          ),
             // Palette PROMs
             .prog_addr    ( prog_addr      ),
@@ -297,7 +289,7 @@ generate
         end
 endgenerate
 `else
-assign scr1_pxl  = 6'h31;
+assign scr1_pxl  = ~6'h0;
 assign scr1_addr = 17'h0;
 assign map1_addr = 14'h0;
 
@@ -322,7 +314,9 @@ jtgng_obj #(
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),
+    .dma_cen        ( cen8          ),  // 8MHz!!
+    .draw_cen       ( cen12         ),
+    .pxl_cen        ( cen6          ),
     // screen
     .HINIT          ( HINIT         ),
     .LHBL           ( LHBL_obj      ),
@@ -344,7 +338,8 @@ u_obj(
     .blen           ( blcnten       ),   // bus line counter enable
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
-    .objrom_data    ( objrom_data   ),
+    .obj_data       ( obj_data      ),
+    .rom_ok         ( obj_ok        ),
     // PROMs
     .OBJON          ( OBJON         ),
     .prog_addr      ( prog_addr     ),
@@ -372,22 +367,21 @@ jt1943_colmix #(
     .PALETTE_BLUE  ( PALETTE_BLUE   ),
     .PALETTE_PRIOR ( PALETTE_PRIOR  )) 
 u_colmix (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
-    .LVBL       ( LVBL          ),
-    .LHBL       ( LHBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .rst          ( rst           ),
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
+    .LVBL         ( LVBL          ),
+    .LHBL         ( LHBL          ),
+    .LHBL_dly     ( LHBL_dly      ),
+    .LVBL_dly     ( LVBL_dly      ),
     // Avatars
-    .pause      ( obj_pause     ),
-    .avatar_idx ( avatar_idx    ),
+    .pause        ( obj_pause     ),
+    .avatar_idx   ( avatar_idx    ),
     // pixel input from generator modules
-    .char_pxl   ( char_pxl      ),        // character color code
-    .scr1_pxl   ( scr1_pxl      ),
-    .scr2_pxl   ( scr2_pxl      ),
-    .obj_pxl    ( obj_pxl       ),
+    .char_pxl     ( char_pxl      ),        // character color code
+    .scr1_pxl     ( scr1_pxl      ),
+    .scr2_pxl     ( scr2_pxl      ),
+    .obj_pxl      ( obj_pxl       ),
     // Palette and priority PROMs
     .prog_addr    ( prog_addr     ),
     .prom_red_we  ( prom_red_we   ),
@@ -396,11 +390,11 @@ u_colmix (
     .prom_prior_we( prom_prior_we ),
     .prom_din     ( prog_din      ),
     // output
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
+    .red          ( red           ),
+    .green        ( green         ),
+    .blue         ( blue          ),
     // debug
-    .gfx_en     ( gfx_en        )
+    .gfx_en       ( gfx_en        )
 );
 `else
 assign  red = 4'd0;

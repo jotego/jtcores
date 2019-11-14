@@ -41,6 +41,7 @@ module jtcommando_game(
     input   [ 6:0]  joystick2,
     // SDRAM interface
     input           downloading,
+    output          dwnld_busy,
     input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -56,6 +57,7 @@ module jtcommando_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
+    output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -70,6 +72,11 @@ module jtcommando_game(
     // Debug
     input   [3:0]   gfx_en
 );
+
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
 
 parameter CLK_SPEED=48;
 
@@ -101,7 +108,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 
 
 wire rom_ready;
-wire main_ok, snd_ok;
+wire main_ok, snd_ok, obj_ok;
 
 assign sample=1'b1;
 
@@ -285,7 +292,7 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.BIGROM(0)) u_sound (
+jtgng_sound #(.LAYOUT(1)) u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -361,7 +368,8 @@ jtgng_video #(
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_data      ),
+    .obj_data   ( obj_data      ),
+    .obj_ok     ( obj_ok        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -417,6 +425,7 @@ jtgng_rom #(
     .scr1_ok     ( scr1_ok       ),
     .scr2_ok     ( scr2_ok       ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),

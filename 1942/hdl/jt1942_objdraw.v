@@ -34,7 +34,7 @@ module jt1942_objdraw(
     input       [7:0]  objbuf_data3,
     // SDRAM interface
     output      [14:0] obj_addr,
-    input       [15:0] objrom_data,
+    input       [15:0] obj_data,
     // Palette PROM
     input   [7:0]      prog_addr,
     input              prom_pal_we,
@@ -131,7 +131,7 @@ always @(posedge clk) if(cen6) begin
         posx1 <= posx1 + 9'b1;
     end
     if( pxlcnt[1:0] == 2'b11 )
-        {z,y,x,w} <= objrom_data;
+        {z,y,x,w} <= obj_data   ;
     else begin
         z <= z << 1;
         y <= y << 1;

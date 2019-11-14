@@ -16,6 +16,7 @@
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_sound.v
@@ -23,6 +24,7 @@
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_objdraw.v
+../../../modules/jtgng_objcnt.v
 ../../../modules/jtgng_obj.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v

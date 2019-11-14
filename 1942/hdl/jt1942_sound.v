@@ -38,7 +38,7 @@ module jt1942_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // Sound output
-    output reg [ 8:0]  snd
+    output reg [9:0] snd
 );
 
 wire mreq_n;
@@ -216,16 +216,16 @@ tv80s #(.Mode(0)) u_cpu (
 wire [9:0] sound0, sound1;
 wire [10:0] unlim_snd = {1'b0, sound0} + {1'b0, sound1};
 
-// limit to 9 bits in order to get good volume
+// limit to 10 bits in order to get good volume
 always @(posedge clk) if(cen1p5)
-    snd <= unlim_snd[10:9]!=2'b0 ? 9'h1FF : unlim_snd[8:0];
+    snd <= unlim_snd[10] ? 10'h3FF : unlim_snd[9:0];
 
 wire bdir0 = ay0_cs & ~wr_n;
 wire bc0   = ay0_cs & ~wr_n & ~A[0];
 wire bdir1 = ay1_cs & ~wr_n;
 wire bc1   = ay1_cs & ~wr_n & ~A[0];
 
-jt49_bus u_ay0( // note that input ports are not multiplexed
+jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .rst_n  ( reset_n   ),
     .clk    ( clk       ),
     .clk_en ( cen1p5    ),
@@ -243,7 +243,7 @@ jt49_bus u_ay0( // note that input ports are not multiplexed
     .A(), .B(), .C() // unused outputs
 );
 
-jt49_bus u_ay1( // note that input ports are not multiplexed
+jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
     .rst_n  ( reset_n   ),
     .clk    ( clk       ),
     .clk_en ( cen1p5    ),

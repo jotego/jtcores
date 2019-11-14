@@ -42,8 +42,8 @@ module jt1943_main(
     input              char_wait,
     // scroll
     output  reg [7:0]  scrposv,
-    output  reg [1:0]  scr1posh_cs,
-    output  reg [1:0]  scr2posh_cs,
+    output  reg [15:0] scr1posh,
+    output  reg [15:0] scr2posh,
     output  reg        SC1ON,
     output  reg        SC2ON,
     output  reg        OBJON,
@@ -77,6 +77,8 @@ wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
 reg SECWR_cs;
+reg [1:0]  scr1posh_cs, scr2posh_cs;
+
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen6;
@@ -156,6 +158,10 @@ always @(posedge clk, posedge rst)
         end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) scrposv <= cpu_dout;
+        if( scr1posh_cs[0] )  scr1posh[ 7:0] <= cpu_dout;
+        if( scr1posh_cs[1] )  scr1posh[15:8] <= cpu_dout;
+        if( scr2posh_cs[0] )  scr2posh[ 7:0] <= cpu_dout;
+        if( scr2posh_cs[1] )  scr2posh[15:8] <= cpu_dout;
         if( gfxen_cs ) begin
             {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];
         end

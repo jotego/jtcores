@@ -103,6 +103,7 @@ always @(posedge clk, posedge rst)
 
                 9'd507: VS <= 1;
                 9'd510: VS <= 0;
+                default:;
             endcase // V
         end
 

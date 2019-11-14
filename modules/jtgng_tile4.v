@@ -16,11 +16,17 @@
     Version: 1.0
     Date: 19-2-2019 */
 
-// 
-
-module jtgng_tile4(
+module jtgng_tile4 #(parameter
+    PALETTE     =  1,
+    ROM_AW      = 17,
+    LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
+                      // 3: Tiger Road
+    SIMFILE_MSB = "",
+    SIMFILE_LSB = "",
+    AS8MASK     =  1'b1,
+    PXLW        = LAYOUT==3 ? 9 : (PALETTE?6:8)
+) (
     input              clk,
-    input              rst,
     input              cen6,
     input       [4:0]  HS,
     input       [4:0]  SV,
@@ -34,37 +40,111 @@ module jtgng_tile4(
     input              prom_lo_we,
     input   [3:0]      prom_din,
     // Gfx ROM
-    output reg  [16:0] scr_addr,
-    input       [15:0] scrom_data,
-    output      [ 5:0] scr_pxl
+    output reg  [ROM_AW-1:0] scr_addr,
+    input             [15:0] rom_data,
+    output [PXLW-1:0] scr_pxl
 );
 
-parameter SIMFILE_MSB="", SIMFILE_LSB="";
-parameter AS8MASK = 1'b1;
+localparam ATTW = LAYOUT==3 ? 5 : 4;
 
-reg  [7:0] addr_lsb;
-reg  [3:0] scr_attr0;
-reg        scr_hflip1;
+`ifdef SIMULATION
+initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
+`endif
 
-wire scr_hflip = attr[6];
-wire scr_vflip = attr[7];
+reg  [7:0]      addr_lsb;
+reg  [ATTW-1:0] scr_attr0;
+reg             scr_hflip0, scr_hflip1;
+
+reg scr_hflip, scr_vflip, aux;
+
+// Not sure about having ^flip in so many places
+// Need to double check all games but BioCom
+always @(*) begin
+    case(LAYOUT)
+        default: begin
+            scr_hflip = attr[6]^flip;
+            scr_vflip = attr[7]^flip;
+        end
+        1: begin // Bionic Commando SCROLL 1. No ^flip on schematics
+            aux = ~&attr[7:6];
+            scr_hflip = attr[7]&aux;
+            scr_vflip = attr[6]&aux;
+        end
+        2: begin // Bionic Commando SCROLL 2. No ^flip on schematics
+            scr_hflip = attr[7];
+            scr_vflip = attr[6];
+        end
+        3: begin // Tiger Road
+            // attribute bits:
+            // 3-0 palette
+            // 4   SCRWIN
+            // 5   HFLIP
+            // 7-6 ID
+            scr_hflip = attr[5]^flip;
+            scr_vflip = flip;
+        end
+    endcase
+end
+
+//wire load_tile = /*LAYOUT==1 ? HS[3:0]==4'd1 :*/ HS[2:0]==3'd1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
-    if( HS[2:0]==3'b1 ) begin // attr/low data corresponds to this tile
+    if( HS[2:0]==3'd1 ) begin // attr/low data corresponds to this tile
             // from HS[2:0] = 1,2,3...0. because RAM output is latched
-        scr_attr0 <= attr[5:2];
-        scr_addr[16:1] <= {   attr[0] & AS8MASK, id, // AS
-                        HS[4:3]^{2{scr_hflip}},
-                        SV^{5{scr_vflip}} }; /*vert_addr*/
-        scr_addr[0] <= HS[2]^attr[6]^flip;
+        case( LAYOUT )
+        0: begin // 1943, 32x32 tiles
+            scr_attr0 <= attr[5:2];
+            scr_addr[ROM_AW-1:1] <= { attr[0] & AS8MASK, id, // AS
+                            HS[4:3]^{2{scr_hflip}},
+                            SV^{5{scr_vflip}} }; /*vert_addr*/
+            scr_addr[0] <= HS[2]^scr_hflip;
+            end
+        1: begin // Bionic Commando, scroll 1, 16x16 tiles
+            scr_attr0 <= { attr[7]&attr[6], attr[5:3] };
+            scr_addr  <= { attr[2:0], id, // AS
+                            SV[3:0]^{4{scr_vflip}},
+                            HS[3]^scr_hflip,    // it was bit 5 originally
+                            HS[2]^scr_hflip };  // swapped for cache performance
+            end
+        2: begin // Bionic Commando, scroll 2, 8x8 tiles
+            scr_attr0 <= { 1'b0, attr[5:3] }; // MSB doesn't connect to anything on the higher levels
+            scr_addr  <= { attr[2:0], id, // AS
+                            SV[2:0]^{3{scr_vflip}},
+                            HS[2]^scr_hflip };
+            end
+        3: begin // Tiger Road, 32x32 tiles
+            scr_attr0 <= attr[4:0];
+            scr_addr  <= { attr[7:6], id, // 2+8+2+5+1=18 bits
+                            HS[4:3]^{2{scr_hflip^flip}},
+                            SV[4:0],
+                            HS[2]^scr_hflip };
+            end
+        endcase
+        scr_hflip0 <= scr_hflip;
     end
-    else if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip^flip;
+    else begin
+        case( LAYOUT )
+            // 1943
+            0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
+            // Bionic Commando scroll 1
+            1: if(HS[2:0]==3'b101 ) begin
+                scr_addr[1:0] <= HS[3:2]^{2{scr_hflip0}};
+            end
+            // Bionic Commando scroll 2
+            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
+            // Tiger Road
+            3: if(HS[2:0]==3'b101 ) begin
+                scr_addr[0] <= HS[2]^scr_hflip0;
+            end
+        endcase // LAYOUT
+    end
 end
 
 // Draw pixel on screen
-reg [3:0] w,x,y,z;
-reg [3:0] scr_attr1, scr_col0, scr_pal0;
+reg [     3:0] w,x,y,z;
+reg [     3:0] scr_col0;
+reg [ATTW-1:0] scr_attr1, scr_pal0;
 
 // Character data delay
 // clock count      stage
@@ -77,8 +157,8 @@ reg [3:0] scr_attr1, scr_col0, scr_pal0;
 
 always @(posedge clk) if(cen6) begin
     if( HS[1:0]==2'd1 ) begin
-            { z,y,x,w } <= scrom_data;
-            scr_hflip1  <= scr_hflip ^ flip; // must be ready when z,y,x are.
+            { z,y,x,w } <= rom_data;
+            scr_hflip1  <= scr_hflip0; // must be ready when z,y,x are.
             scr_attr1   <= scr_attr0;
         end
     else
@@ -100,27 +180,36 @@ always @(posedge clk) if(cen6) begin
     scr_pal0  <= scr_attr1;
 end
 
-wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
+generate
+    if( PALETTE ) begin
+        wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
 
-// Palette
-jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din[1:0]  ),
-    .rd_addr( pal_addr       ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_hi_we     ),
-    .q      ( scr_pxl[5:4]   )
-);
+        // Palette
+        jtgng_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
+            .clk    ( clk            ),
+            .cen    ( cen6           ),
+            .data   ( prom_din[1:0]  ),
+            .rd_addr( pal_addr       ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_hi_we     ),
+            .q      ( scr_pxl[5:4]   )
+        );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prom_din       ),
-    .rd_addr( pal_addr       ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_lo_we     ),
-    .q      ( scr_pxl[3:0]   )
-);
+        jtgng_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
+            .clk    ( clk            ),
+            .cen    ( cen6           ),
+            .data   ( prom_din       ),
+            .rd_addr( pal_addr       ),
+            .wr_addr( prog_addr      ),
+            .we     ( prom_lo_we     ),
+            .q      ( scr_pxl[3:0]   )
+        );
+    end else begin
+        reg [PXLW-1:0] pxl_dly; // to have the same delay as the palette case
+        always @(posedge clk)
+            pxl_dly <= { scr_pal0, scr_col0 };
+        assign scr_pxl = pxl_dly;
+    end
+endgenerate
 
 endmodule

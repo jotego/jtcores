@@ -27,6 +27,8 @@ module jtgng_charmsg(
     output     [7:0] msg_high
 );
 
+parameter VERTICAL=1;
+
 wire [7:0] mem_msg, mem_msg_av;
 
 jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
@@ -39,7 +41,11 @@ jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
 );
 
 `ifdef AVATARS
-wire [8:0] av_scan = { avatar_idx, scan[9:5] };
+wire [4:0] av_sel0 = VERTICAL ? scan[9:5] : scan[4:0];
+wire [4:0] av_sel1  = VERTICAL ? scan[4:0] : scan[9:5];
+localparam [4:0] AVPOS = VERTICAL ? 5'd8 : 5'd22;
+
+wire [8:0] av_scan = { avatar_idx, av_sel0 };
 
 jtgng_ram #(.aw(9),.synfile("msg_av.hex")) u_ram_msg_av(
     .clk    ( clk         ),
@@ -53,7 +59,7 @@ jtgng_ram #(.aw(9),.synfile("msg_av.hex")) u_ram_msg_av(
 reg av_col;
 
 always @(*) begin
-    av_col  = scan[4:0] == 5'd8;
+    av_col  = av_sel1 == AVPOS;
     msg_low = av_col ? mem_msg_av : mem_msg;
 end
 `else 

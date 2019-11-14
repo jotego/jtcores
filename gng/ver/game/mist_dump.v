@@ -31,21 +31,23 @@ module mist_dump(
     end
     `endif
 `else // NCVERILOG
-    `ifndef VIDEO_START
-    initial begin
+    `ifdef DUMP_START
+    always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
     `else
-    always @(negedge VGA_VS) if( frame_cnt==`VIDEO_START ) begin
+    initial begin
     `endif
-        $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
         `ifdef DEEPDUMP
+            $display("NC Verilog: will dump all signals");
             $shm_probe(mist_test,"AS");
         `else
-            // $shm_probe(UUT.u_game.u_prom_we,"AS");
-            // $shm_probe(UUT.u_base.u_sdram,"AS");
-            $shm_probe(UUT.u_game.u_main,"A");
-            $shm_probe(UUT.u_game,"A");
-            $shm_probe(UUT.u_game.u_video.u_char,"AS");
+            $display("NC Verilog: will dump selected signals");
+            $shm_probe(frame_cnt);
+            $shm_probe(UUT.u_game.u_sound,"A");
+            $shm_probe(UUT.u_game.u_sound.u_fm0,"A");
+            $shm_probe(UUT.u_game.u_sound.u_fm1,"A");
+            $shm_probe(UUT.u_game.u_sound.u_fm0.u_jt12.u_mmr,"AS");
+            $shm_probe(UUT.u_game.u_sound.u_fm1.u_jt12.u_mmr,"AS");
         `endif
     end
 `endif

@@ -40,8 +40,8 @@ module jtgunsmoke_main(
     output  reg        char_cs,
     input              char_busy,
     // scroll
-    output  reg [7:0]  scrposv,
-    output  reg [1:0]  scrposh_cs,
+    output  reg [ 7:0] scrposv,
+    output  reg [15:0] scrposh,
     output  reg        CHON,
     output  reg        SCRON,
     output  reg        OBJON,
@@ -75,7 +75,7 @@ module jtgunsmoke_main(
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
-
+reg [1:0]  scrposh_cs;
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen3;
 assign bus_ack = ~busak_n;
@@ -146,6 +146,8 @@ always @(posedge clk, posedge rst)
         end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) scrposv <= cpu_dout;
+        if( scrposh_cs[0] )  scrposh[ 7:0] <= cpu_dout;
+        if( scrposh_cs[1] )  scrposh[15:8] <= cpu_dout;
         if( gfxen_cs ) begin
             {OBJON, SCRON } <= cpu_dout[5:4];
             obj_bank        <= cpu_dout[2:0];

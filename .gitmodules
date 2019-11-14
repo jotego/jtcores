@@ -5,5 +5,14 @@
 	path = modules/jtframe
 	url = https://github.com/jotego/jtframe
 [submodule "modules/fk68k"]
-	path = modules/fk68k
+	path = modules/fx68k
 	url = git@github.com:ijor/fx68k.git
+[submodule "modules/fx68k"]
+	path = modules/fx68k
+	url = https://github.com/ijor/fx68k
+[submodule "modules/jt51"]
+	path = modules/jt51
+	url = https://github.com/jotego/jt51
+[submodule "modules/jt5205"]
+	path = modules/jt5205
+	url = https://github.com/jotego/jt5205.git

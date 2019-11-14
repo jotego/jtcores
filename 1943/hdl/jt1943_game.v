@@ -41,6 +41,7 @@ module jt1943_game(
     input   [ 6:0]  joystick2,
     // SDRAM interface
     input           downloading,
+    output          dwnld_busy,
     input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
@@ -56,7 +57,7 @@ module jt1943_game(
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
-
+    output          prog_rd,
     // DIP Switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
@@ -72,6 +73,11 @@ module jt1943_game(
     input   [3:0]   gfx_en
 );
 
+// These signals are used by games which need
+// to read back from SDRAM during the ROM download process
+assign prog_rd    = 1'b0;
+assign dwnld_busy = downloading;
+
 parameter CLK_SPEED=48;
 
 wire [8:0] V;
@@ -84,7 +90,7 @@ wire flip;
 wire [7:0] cpu_dout, chram_dout;
 wire rd;
 // ROM data
-wire [15:0]  char_data, obj_dout, map1_dout, map2_dout, scr1_dout, scr2_dout;
+wire [15:0]  char_data, obj_data, map1_dout, map2_dout, scr1_dout, scr2_dout;
 wire [ 7:0]  main_data;
 // ROM address
 wire [17:0]  main_addr;
@@ -95,20 +101,23 @@ wire [14:0]  scr2_addr;
 wire [ 7:0]  dipsw_a, dipsw_b;
 
 wire rom_ready;
-wire main_ok, char_ok;
+wire main_ok, char_ok, obj_ok;
 
 assign sample=1'b1;
 
-wire LHBL_obj, LVBL_obj, Hsub;
+wire LHBL_obj, LVBL_obj;
 
 reg rst_game;
 
 always @(negedge clk)
     rst_game <= rst || !rom_ready;
 
+wire cen8;
+
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
+    .cen8   ( cen8      ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
@@ -147,7 +156,7 @@ wire [7:0] scrposv, main_ram;
 
 wire char_wait;
 
-wire [1:0] scr1posh_cs, scr2posh_cs;
+wire [15:0] scr1posh, scr2posh;
 
 wire CHON, OBJON, SC2ON, SC1ON;
 wire cpu_cen, main_cs;
@@ -229,8 +238,8 @@ jt1943_main u_main(
     .CHON       ( CHON          ),
     // SCROLL
     .scrposv    ( scrposv       ),
-    .scr1posh_cs( scr1posh_cs   ),
-    .scr2posh_cs( scr2posh_cs   ),
+    .scr1posh   ( scr1posh      ),
+    .scr2posh   ( scr2posh      ),
     .SC1ON      ( SC1ON         ),
     .SC2ON      ( SC2ON         ),
     // OBJ - bus sharing
@@ -260,19 +269,21 @@ jt1943_main u_main(
     .coin_cnt   (               )
 );
 `else
-assign scr1posh_cs = 'b0;
-assign scr2posh_cs = 'b0;
-assign char_cs = 'b0;
-assign SC1ON = 'b1;
-assign SC2ON = 'b1;
-assign OBJON = 'b1;
-assign  CHON = 'b1;
+assign scr1posh  = 16'b0;
+assign scr2posh  = 16'b0;
+assign char_cs   = 1'b0;
+assign SC1ON     = 1'b1;
+assign SC2ON     = 1'b1;
+assign OBJON     = 1'b1;
+assign  CHON     = 1'b1;
 assign main_addr = 'd0;
-assign rd_n = 'b1;
-assign wr_n = 'b1;
-assign cpu_AB = 'b0;
-assign sres_b = 'b1;
-assign cpu_dout = 'b0;
+assign rd_n      = 1'b1;
+assign wr_n      = 1'b1;
+assign cpu_AB    = 13'b0;
+assign sres_b    = 1'b1;
+assign cpu_dout  = 8'b0;
+assign OKOUT     = 1'b0;
+assign flip      = 1'b0;
 `endif
 
 `ifndef NOSOUND
@@ -349,6 +360,7 @@ jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
+    .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
@@ -374,8 +386,8 @@ jt1943_video u_video(
     .char_ok    ( char_ok       ),
     .CHON       ( CHON          ),
     // SCROLL - ROM
-    .scr1posh_cs( scr1posh_cs   ),
-    .scr2posh_cs( scr2posh_cs   ),
+    .scr1posh   ( scr1posh      ),
+    .scr2posh   ( scr2posh      ),
     .scrposv    ( scrposv       ),
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_dout     ),
@@ -394,7 +406,8 @@ jt1943_video u_video(
     .obj_AB     ( obj_AB        ),
     .obj_DB     ( main_ram      ),
     .obj_addr   ( obj_addr      ),
-    .objrom_data( obj_dout      ),
+    .obj_data   ( obj_data      ),
+    .obj_ok     ( obj_ok        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
@@ -446,6 +459,7 @@ jtgng_rom u_rom (
     .main_ok     ( main_ok       ),
     .snd_ok      (               ),
     .char_ok     ( char_ok       ),
+    .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ), //  32 kB
     .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
@@ -459,7 +473,7 @@ jtgng_rom u_rom (
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    (               ),
-    .obj_dout    ( obj_dout      ),
+    .obj_dout    ( obj_data      ),
     .map1_dout   ( map1_dout     ),
     .map2_dout   ( map2_dout     ),
     .scr1_dout   ( scr1_dout     ),

@@ -24,10 +24,12 @@
 ../../../modules/jtgng_objdma.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_objdraw.v
+../../../modules/jtgng_objcnt.v
 ../../../modules/jtgng_obj.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_tilemap.v
+../../../modules/jtgng_tile4.v
 ../../../modules/jtgng_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_charmsg.v

@@ -83,7 +83,7 @@ always @(posedge clk)
 
 always @(*) begin
     subaddr[1] = addr[1];
-    if( INVERT_A0 )
+    if( INVERT_A0 && DW==8 ) // only apply inverstion to 8-bit CPUs
         subaddr[0] = ~addr[0];
     else
         subaddr[0] =  addr[0];
@@ -110,7 +110,7 @@ generate
                 1'd0: dout = data_mux[15:0];
                 1'd1: dout = data_mux[31:16];
         endcase
-    end else always @(*) dout = data_mux;
+    end else always @(posedge clk) if(!req) dout = data_mux;
 endgenerate
 
 
