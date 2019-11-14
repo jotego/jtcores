@@ -41,6 +41,7 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
+14 Nov 2019: Public release (MiST and MiSTer)
 13 Nov 2019: beta 3
     * Adds ADPCM sound to Japanese version
     * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration

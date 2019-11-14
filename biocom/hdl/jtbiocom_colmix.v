@@ -63,8 +63,8 @@ module jtbiocom_colmix(
     input            prom_prio_we,
     input [3:0]      prom_din,
     // Avatars
-    // input [3:0]      avatar_idx,
-    // input            pause,
+    input [3:0]      avatar_idx,
+    input            pause,
     // CPU inteface
     input [10:1]     AB,
     input            col_uw,
@@ -100,7 +100,12 @@ always @(*) begin
     prio         = pre_prio | ( enable_char ? {2{char_blank_n}} : 2'b0 );
 end
 
+reg       obj_sel;
+reg [3:0] obj_pxl2;
+
 always @(posedge clk) if(cen6) begin
+    obj_sel  <= prio==2'b10;
+    obj_pxl2 <= obj_pxl[3:0];
     case( prio )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl;
@@ -164,32 +169,20 @@ jtgng_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
     .q          ( { pal_blue, pal_bright } )
 );
 
+wire [11:0] avatar_mux;
 
+jtgng_avatar_pal u_avatar(
+    .clk        (  clk          ),
+    .pause      (  pause        ),
+    .avatar_idx (  avatar_idx   ),
+    .obj_sel    (  obj_sel      ),
+    .obj_pxl    (  obj_pxl2     ),
+    .pal_red    (  pal_red      ),
+    .pal_green  (  pal_green    ),
+    .pal_blue   (  pal_blue     ),
+    .avatar_mux (  avatar_mux   )
+);
 
-// `ifdef AVATARS
-// `ifdef MISTER
-// `define AVATAR_PAL
-// `endif
-// `endif
-// 
-// `ifdef AVATAR_PAL
-// wire [11:0] avatar_pal;
-// // Objects have their own palette during pause
-// wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
-// 
-// jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
-//     .clk    ( clk           ),
-//     .cen    ( pause         ),  // tiny power saving when not in pause
-//     .data   ( 12'd0         ),
-//     .addr   ( avatar_addr   ),
-//     .we     ( 1'b0          ),
-//     .q      ( avatar_pal    )
-// );
-// // Select the avatar palette output if we are on avatar mode
-// wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
-// `else 
-// wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
-// `endif
 
 // Clock must be faster than 6MHz so pre_prio is ready for the next
 // 6MHz clock cycle:
@@ -207,6 +200,9 @@ reg [4:0] pre_r, pre_g, pre_b;
 reg [3:0] pre_bright;
 reg [7:0] step;
 
+wire [3:0] mux_red, mux_green, mux_blue;
+assign { mux_red, mux_green, mux_blue } = avatar_mux;
+
 always @(posedge clk,posedge rst) begin
     if( rst ) begin
         step <= 8'd1;
@@ -219,9 +215,9 @@ always @(posedge clk,posedge rst) begin
                 pre_g <= 5'd0;
                 pre_b <= 5'd0;
             end else begin
-                pre_r <= { pal_red,  pal_red[3]   } >> ~pal_bright[3];
-                pre_g <= { pal_green,pal_green[3] } >> ~pal_bright[3];
-                pre_b <= { pal_blue, pal_blue[3]  } >> ~pal_bright[3];
+                pre_r <= { mux_red,  mux_red[3]   } >> ~pal_bright[3];
+                pre_g <= { mux_green,mux_green[3] } >> ~pal_bright[3];
+                pre_b <= { mux_blue, mux_blue[3]  } >> ~pal_bright[3];
             end
         end
         else begin

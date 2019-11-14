@@ -144,7 +144,7 @@ jtgng_char #(.HOFFSET(0),.SIMID("char")) u_char (
     .prom_we    (               )
 );
 
-jtgng_charmsg u_msg(
+jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .clk         ( clk           ),
     .cen6        ( cen6          ),
     .avatar_idx  ( avatar_idx    ),
@@ -248,6 +248,7 @@ assign scr2_dout  = 8'd0;
 `endif
 
 jtgng_obj #(
+    .VERTICAL   ( 0          ),
     .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( 3          ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
@@ -316,8 +317,8 @@ jtbiocom_colmix u_colmix (
     .prom_din     ( prom_din      ),    
 
     // Avatars
-    // .pause        ( pause         ),
-    // .avatar_idx   ( avatar_idx    ),
+    .pause        ( pause         ),
+    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

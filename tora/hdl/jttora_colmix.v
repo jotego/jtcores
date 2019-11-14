@@ -75,13 +75,12 @@ always @(*) begin
         // will be imposed over the objects (colours 9 to 15)
 end
 
-reg [1:0] obj_sel;
+reg       obj_sel;
 reg [3:0] obj_pxl2;
 
 always @(posedge clk) if(cen6) begin
-    obj_sel[0] <= prio==2'b10;
-    obj_sel[1] <= obj_sel[0];
-    obj_pxl2   <= obj_pxl[3:0];
+    obj_sel  <= prio==2'b10;
+    obj_pxl2 <= obj_pxl[3:0];
     case( prio )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl; // 2301
@@ -149,7 +148,7 @@ jtgng_avatar_pal u_avatar(
     .clk        (  clk          ),
     .pause      (  pause        ),
     .avatar_idx (  avatar_idx   ),
-    .obj_sel    (  obj_sel[0]   ),
+    .obj_sel    (  obj_sel      ),
     .obj_pxl    (  obj_pxl2     ),
     .pal_red    (  pal_red      ),
     .pal_green  (  pal_green    ),
