@@ -30,20 +30,37 @@ module jttora_dip(
     output reg [ 7:0]  dipsw_b
 );
 
-// Bionic Commando specific: 20-16
 wire          dip_portrait= 1'b1;
-wire [1:0]    dip_level  = ~status[18:17];
 wire [1:0]    dip_lives  = ~status[20:19];
+wire          dip_cont   = ~status[21];
 wire [2:0]    dip_price1 = 3'b111;
 wire [2:0]    dip_price2 = 3'b111;
+
+always @(posedge clk) begin
+    dipsw_b <= { ~dip_flip, dip_test, dip_price2, dip_price1 };
+end
+
+// DIPSW A is different for Tora and F1 Dream
+
+`ifndef F1DREAM
+// Tiger Road
+wire [1:0]    dip_level  = ~status[18:17];
 wire          dip_select = ~status[16];
 wire          dip_bonus  = ~status[15];
-wire          dip_cont   = ~status[21];
 
 always @(posedge clk) begin
     dipsw_a <= { dip_cont, dip_level, dip_select,
                  dip_bonus, dip_portrait, dip_lives };
-    dipsw_b <= { ~dip_flip, dip_test, dip_price2, dip_price1 };
 end
+`else // F1 Dream
+wire          dip_level  = ~status[17];
+wire          dip_version= ~status[18];
+wire [1:0]    dip_bonus  = ~status[16:15];
+
+always @(posedge clk) begin
+    dipsw_a <= { dip_cont, dip_version, dip_level, 
+                 dip_bonus, dip_portrait, dip_lives };
+end
+`endif
 
 endmodule

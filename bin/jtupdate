@@ -33,7 +33,7 @@ EOF
     shift
 done
 
-cores="1942 1943 gng commando gunsmoke vulgus tora"
+cores="1942 1943 gng commando gunsmoke vulgus tora f1dream"
 
 if [ $MIST = -mister ]; then
     # MiSTer cores are processed serially

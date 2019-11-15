@@ -33,8 +33,12 @@ module jtgng_sound(
     input            sres_b, // Z80 reset
     input   [7:0]    snd_latch,
     input            snd_int,
-    // Interface with second sound CPU
+    // Interface with second sound CPU (Tiger Road)
     output reg [7:0] snd2_latch,
+    // Interface with MCU (F1 Dream)
+    // input   [7:0]    snd_din,
+    // output  [7:0]    snd_dout,
+    // output           snd_mcu_wr,
     // Sound control
     input            enable_psg,
     input            enable_fm,
@@ -65,8 +69,9 @@ wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg         fm1_cs,fm0_cs, latch_cs, ram_cs;
 wire        mreq_n, rfsh_n;
 
-assign rom_addr = A[14:0];
-
+assign rom_addr   = A[14:0];
+// assign snd_dout   = dout;
+// assign snd_mcu_wr = 1'b0;
 
 always @(*) begin
     rom_cs   = 1'b0;

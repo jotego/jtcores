@@ -92,6 +92,13 @@ wire        service = 1'b1;
 wire [15:0] char_data, scr_data, obj_data;
 wire [15:0] main_data, map_data;
 wire [ 7:0] snd_data, snd2_data;
+// MCU interface
+wire [ 7:0] snd_din, snd_dout;
+wire        snd_mcu_wr;
+wire        mcu_brn;
+wire [ 7:0] mcu_din, mcu_dout;
+wire [16:1] mcu_addr;
+wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 
 // ROM address
 wire [17:1] main_addr;
@@ -260,6 +267,14 @@ jttora_main u_main(
     .bus_ack    ( bus_ack       ),
     .col_uw     ( col_uw        ),
     .col_lw     ( col_lw        ),
+    // MCU interface
+    .mcu_brn    (  mcu_brn      ),
+    .mcu_din    (  mcu_din      ),
+    .mcu_dout   (  mcu_dout     ),
+    .mcu_addr   (  mcu_addr     ),
+    .mcu_wr     (  mcu_wr       ),
+    .mcu_DMAn   (  mcu_DMAn     ),
+    .mcu_DMAONn (  mcu_DMAONn   ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -302,6 +317,39 @@ jttora_main u_main(
     assign snd_latch   = `SIM_SND_LATCH;
 `endif
 
+`ifdef F1DREAM
+jtbiocom_mcu u_mcu(
+    .rst        ( rst_game        ),
+    .clk        ( clk             ),
+    .cen6a      ( cen6            ),       //  6   MHz
+    .cen6b      ( cen6b           ),       //  6   MHz
+    // Main CPU interface
+    .DMAONn     ( mcu_DMAONn      ),
+    .mcu_din    ( mcu_din         ),
+    .mcu_dout   ( mcu_dout        ),
+    .mcu_wr     ( mcu_wr          ),   // always write to low bytes
+    .mcu_addr   ( mcu_addr        ),
+    .mcu_brn    ( mcu_brn         ), // RQBSQn
+    .DMAn       ( mcu_DMAn        ),
+
+    // Sound CPU interface
+    .snd_din    ( snd_din         ),
+    .snd_dout   ( snd_dout        ),
+    .snd_mcu_wr ( snd_mcu_wr      ),
+    // ROM programming
+    .prog_addr  ( prog_addr[11:0] ),
+    .prom_din   ( prog_data       ),
+    .prom_we    ( prom_we[1]      )
+);
+`else 
+assign mcu_DMAn = 1'b1;
+assign mcu_brn  = 1'b1;
+assign mcu_wr   = 1'b1;
+assign mcu_addr = 16'd0;
+assign mcu_din  =  8'd0;
+`endif
+
+
 `ifndef NOSOUND
 reg [7:0] psg_gain;
 always @(posedge clk) begin
@@ -322,6 +370,10 @@ jttora_sound u_sound (
     .jap            ( jap            ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
+    // Interface with MCU
+    .snd_din        ( snd_din        ),
+    .snd_dout       ( snd_dout       ),
+    .snd_mcu_wr     ( snd_mcu_wr     ),
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
