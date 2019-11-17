@@ -374,7 +374,7 @@ end
 wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
 
-jtframe_68kdma u_arbitration(
+jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
     .cpu_BRn    (  BRn          ),
