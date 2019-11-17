@@ -371,6 +371,7 @@ always @(posedge clk, posedge rst) begin : int_gen
     end
 end
 
+wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
 
 jtframe_68kdma u_arbitration(
@@ -379,7 +380,7 @@ jtframe_68kdma u_arbitration(
     .cpu_BRn    (  BRn          ),
     .cpu_BGACKn (  BGACKn       ),
     .cpu_BGn    (  BGn          ),
-    .dev_br     (  obj_br       )
+    .dev_br     (  dev_br       )
 );
 
 fx68k u_cpu(
