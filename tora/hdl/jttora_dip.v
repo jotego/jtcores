@@ -30,7 +30,7 @@ module jttora_dip(
     output reg [ 7:0]  dipsw_b
 );
 
-wire          dip_portrait= 1'b1;
+wire          dip_portrait= 1'b0;
 wire [1:0]    dip_lives  = ~status[20:19];
 wire          dip_cont   = ~status[21];
 wire [2:0]    dip_price1 = 3'b111;
