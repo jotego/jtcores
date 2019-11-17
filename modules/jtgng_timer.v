@@ -20,16 +20,16 @@ module jtgng_timer(
     input               clk,
     input               cen6,   //  6 MHz
     input               rst,
-    output  reg [8:0]   V,
-    output  reg [8:0]   H,
-    output  reg         Hinit,
-    output  reg         Vinit,
-    output  reg         LHBL,
-    output  reg         LHBL_obj,
-    output  reg         LVBL,
-    output  reg         LVBL_obj,
-    output  reg         HS,
-    output  reg         VS
+    output  reg [8:0]   V = 9'd496,
+    output  reg [8:0]   H = 9'd135,
+    output  reg         Hinit = 1'b0,
+    output  reg         Vinit = 1'b1,
+    output  reg         LHBL = 1'b0,
+    output  reg         LHBL_obj = 1'b0,
+    output  reg         LVBL = 1'b0,
+    output  reg         LVBL_obj = 1'b0,
+    output  reg         HS = 1'b0,
+    output  reg         VS = 1'b0
 );
 
 parameter obj_offset=10'd3;
@@ -40,32 +40,23 @@ parameter obj_offset=10'd3;
 //reg OH;     // high on 0H transition
 
 // H counter
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        { Hinit, H } <= 10'd135;
-    end else if(cen6) begin
-        Hinit <= H == 9'h86;
-        if( H == 9'd511 ) begin
-            //Hinit <= 1'b1;
-            H <= 9'd128;
-        end
-        else begin
-            //Hinit <= 1'b0;
-            H <= H + 9'b1;
-        end
+always @(posedge clk) if(cen6) begin
+    Hinit <= H == 9'h86;
+    if( H == 9'd511 ) begin
+        //Hinit <= 1'b1;
+        H <= 9'd128;
+    end
+    else begin
+        //Hinit <= 1'b0;
+        H <= H + 9'b1;
     end
 end
 
 // V Counter
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        V     <= 9'd496;
-        Vinit <= 1'b1;
-    end else if(cen6) begin
-        if( H == 9'd511 ) begin
-            Vinit <= &V;
-            V <= &V ? 9'd250 : V + 1'd1;
-        end
+always @(posedge clk) if(cen6) begin
+    if( H == 9'd511 ) begin
+        Vinit <= &V;
+        V <= &V ? 9'd250 : V + 1'd1;
     end
 end
 
@@ -81,36 +72,28 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // I often just generates the signals with logic
 // LVBL_obj is such a signal. In CAPCOM schematics
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
-always @(posedge clk, posedge rst)
-    if( rst ) begin
-        LHBL <= 1'b0;
-        LVBL <= 1'b0;
-        LVBL_obj <= 1'b0;
-        VS <= 1'b0;
-        HS <= 1'b0;
-    end
-    else if(cen6) begin
-        if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
-        if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
-        if( &H[2:0] ) begin
-            LHBL <= H[8];
-            case( V )
-                9'd496: LVBL <= 1'b0; // h1F0
-                9'd272: LVBL <= 1'b1; // h110
-                // OBJ LVBL is two lines ahead
-                9'd494: LVBL_obj <= 1'b0;
-                9'd270: LVBL_obj <= 1'b1;
+always @(posedge clk) if(cen6) begin
+    if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
+    if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
+    if( &H[2:0] ) begin
+        LHBL <= H[8];
+        case( V )
+            9'd496: LVBL <= 1'b0; // h1F0
+            9'd272: LVBL <= 1'b1; // h110
+            // OBJ LVBL is two lines ahead
+            9'd494: LVBL_obj <= 1'b0;
+            9'd270: LVBL_obj <= 1'b1;
 
-                9'd507: VS <= 1;
-                9'd510: VS <= 0;
-                default:;
-            endcase // V
-        end
-
-        if (H==9'd178) HS <= 1;
-        if (H==9'd206) HS <= 0;
-        // if (H==9'd136) LHBL_short <= 1'b0;
-        // if (H==9'd248) LHBL_short <= 1'b1;
+            9'd507: VS <= 1;
+            9'd510: VS <= 0;
+            default:;
+        endcase // V
     end
+
+    if (H==9'd178) HS <= 1;
+    if (H==9'd206) HS <= 0;
+    // if (H==9'd136) LHBL_short <= 1'b0;
+    // if (H==9'd248) LHBL_short <= 1'b1;
+end
 
 endmodule // jtgng_timer

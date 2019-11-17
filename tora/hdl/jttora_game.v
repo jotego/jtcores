@@ -350,7 +350,7 @@ jtbiocom_mcu u_mcu(
 `else 
 assign mcu_DMAn = 1'b1;
 assign mcu_brn  = 1'b1;
-assign mcu_wr   = 1'b1;
+assign mcu_wr   = 1'b0;
 assign mcu_addr = 16'd0;
 assign mcu_dout =  8'd0;
 `endif
