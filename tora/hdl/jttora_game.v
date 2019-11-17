@@ -318,6 +318,12 @@ jttora_main u_main(
 `endif
 
 `ifdef F1DREAM
+`ifndef NOMCU
+`define MCU
+`endif
+`endif
+
+`ifdef MCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst_game        ),
     .clk        ( clk             ),
@@ -346,7 +352,7 @@ assign mcu_DMAn = 1'b1;
 assign mcu_brn  = 1'b1;
 assign mcu_wr   = 1'b1;
 assign mcu_addr = 16'd0;
-assign mcu_din  =  8'd0;
+assign mcu_dout =  8'd0;
 `endif
 
 

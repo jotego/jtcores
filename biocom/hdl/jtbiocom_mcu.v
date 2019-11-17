@@ -139,8 +139,6 @@ jtgng_ram #(.aw(7),.cen_rd(1)) u_ramu(
 
 wire clk2 = clk&cen6a; // cheap clock gating
 
-wire [15:0] rom_addr0, ext_addr0;
-wire [ 7:0] mcu_dout0;
 reg  [ 7:0] mcu_din0;
 
 always @(posedge clk) if(cen6a) begin

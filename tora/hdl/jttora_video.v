@@ -26,7 +26,6 @@ module jttora_video(
     input               cen12,
     input               cen8,
     input               cen6,
-    input               cen3,
     input               cpu_cen,
     input       [13:1]  cpu_AB,
     input       [ 8:0]  V,
