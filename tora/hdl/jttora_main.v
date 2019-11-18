@@ -129,7 +129,7 @@ always @(*) begin
                     3'd0:   obj_cs  = 1'b1; // E_0000 
                     3'd1:   begin
                         io_cs      = 1'b1; // E_4000
-                        mcu_DMAONn = ~A[1];// E_4002
+                        mcu_DMAONn = !(A[4:1]==4'd1 && !UDSWn && !LDSWn);// E_4002
                     end
                     3'd2: if( (!UDSWn || !LDSWn) && !A[4]) begin // E_8000
                         // scrpt_cs

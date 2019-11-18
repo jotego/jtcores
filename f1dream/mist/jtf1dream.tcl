@@ -1,4 +1,4 @@
-set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTF1DREAM\""
+set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTF1DRM\""
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jttora_game"
 set_global_assignment -name VERILOG_MACRO "MISTTOP=jtf1dream_mist"
 set_global_assignment -name VERILOG_MACRO "JT12=1"

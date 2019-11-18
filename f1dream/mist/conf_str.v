@@ -5,9 +5,9 @@
 //           abcdefghijklmnopqrstuv
 
 `define CORE_OSD \
-    "OFG,F1 Up Point,20,18,16,12;", \
+    "OFG,F1 Up Point,12,16,18,20;", \
     "OH,Difficulty,normal,hard;", \
-    "OI,Version,World,Japan;", \
+    "OI,Version,Japan,World;", \
     "OJK,Lives,3,4,5,7;", \
     "OL,Continue,Yes,No;",
 `define CORE_KEYMAP \
