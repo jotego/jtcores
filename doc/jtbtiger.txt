@@ -1,0 +1,64 @@
+JTBTiger FPGA clone of Black Tiger arcade faithful to original hardware
+========================================================================
+
+Please, read the main README file too.
+
+You have just got an expensive €315 PCB according to eBay. You have in your hands
+a faithful conversion of the circuits on the Tiger Road PCB to FPGA. If you come from
+the emulation world here are some of the things different from emulators:
+
+-Real CPU/GPU bus sharing with delays
+-Sprites handled with DMA exactly as in the original hardware
+-Exact timing for bus sharing with microcontroller
+-Graphics priority handled by the original PROM
+-No lag between image and input. Data is being sent to the screen in real time.
+-Sound sampling rate: exactly the original
+-Accurate FPS 100% same as real hardware
+
+These technical aspects mean that the game play will be different from an emulator
+in a number of ways and that some hardware tricks that were not emulated will work
+here as in the original hardware.
+
+MiST VERSION
+============
+
+The MiST version does not have sound because of lack of enough internal memory
+in the FPGA. Maybe it can be fixed with some architectural change but I will
+probably not do it myself unless several patrons ask for it.
+
+MiSTer will feature sound in the release version, although the first beta doesn't
+play sounds (the hardware is there but something fails in the CPU/MCU/2nd CPU interface)
+
+GAME PLAY
+=========
+
+The game uses two buttons: shot and jump.
+
+Note that by default the continue prompt is disabled. If you want to
+be able to continue, change this in the OSD. You can then save your settings
+so it will be the same the next time you powerup.
+
+TEST SCREEN
+===========
+Select the test screen through the OSD menu. Press 1P coin button during ROM
+test to access all test sections. To pass on to the next test screen press 
+both action buttons.
+
+
+REVISION HISTORY
+================
+
+23 Nov 2019 beta release
+
+
+
+CREDITS
+=======
+
+Brought to you by Jose Tejada, aka jotego. Meet me in twitter @topapate
+Checkout my patreon page here: http://patreon.com/topapate
+
+Special thanks to all November '19 patrons.
+
+Tier +3 Patrons Thanks!!
+========================

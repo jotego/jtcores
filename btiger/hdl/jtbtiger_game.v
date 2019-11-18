@@ -14,11 +14,11 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-10-2017 */
+    Date: 18-11-2019 */
 
 `timescale 1ns/1ps
 
-module jtgng_game(
+module jtbtiger_game(
     input           rst,
     input           clk,
     output          cen12,      // 12   MHz
@@ -63,14 +63,14 @@ module jtgng_game(
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     // Sound output
     output  signed [15:0] snd,
     output          sample,
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [ 3:0]  gfx_en
+    input   [3:0]   gfx_en
 );
 
 // These signals are used by games which need
@@ -99,15 +99,18 @@ wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [16:0] main_addr;
+wire [18:0] main_addr;
 wire [14:0] snd_addr;
 wire [12:0] char_addr;
 wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
+wire        cenfm;
 
 wire rom_ready;
-wire main_ok, snd_ok;
+wire main_ok, snd_ok, obj_ok;
+
+assign sample=1'b1;
 
 `ifdef MISTER
 
@@ -140,11 +143,18 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-jtgng_dip u_dip(
+jtgng_cen3p57 u_cen3p57(
+    .clk      ( clk       ),
+    .cen_3p57 ( cenfm     ),
+    .cen_1p78 (           )     // unused
+);
+
+jtbtiger_dip u_dip(
     .clk        ( clk           ),
     .status     ( status        ),
     .dip_pause  ( dip_pause     ),
     .dip_test   ( dip_test      ),
+    .dip_flip   ( dip_flip      ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
@@ -168,28 +178,22 @@ jtgng_timer u_timer(
 );
 
 wire RnW;
-
 wire blue_cs;
 wire redgreen_cs;
 
-wire bus_ack, bus_req;
-wire [15:0] sdram_din;
-wire [12:0] wr_row;
-wire [ 8:0] wr_col;
-wire        main_cs;
-// OBJ
-wire [ 8:0] obj_AB;
-wire OKOUT;
-wire [7:0] main_ram;
-wire blcnten;
 // sound
 wire sres_b;
 wire [7:0] snd_latch;
 
-wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
+wire        main_cs;
+// OBJ
+wire OKOUT, blcnten, bus_req, bus_ack;
+wire [ 8:0] obj_AB;
+wire [ 7:0] main_ram;
 
-jtgng_prom_we u_prom_we(
+wire [4:0] prom_we;
+
+jtbtiger_prom_we u_prom_we(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
@@ -200,21 +204,31 @@ jtgng_prom_we u_prom_we(
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       )
+    .prog_we     ( prog_we       ),
+
+    .prom_we     ( prom_we       )
 );
 
+wire prom_mcu = prom_we[4];
+
+wire scr_cs;
+wire [8:0] scr_hpos, scr_vpos;
+
+
 `ifndef NOMAIN
-jtgng_main u_main(
+
+jtbtiger_main u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
-    .cen1p5     ( cen1p5        ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
+    .V          ( V             ),
+    .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-
+    .H1         ( H[0]          ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
@@ -229,8 +243,6 @@ jtgng_main u_main(
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
-    //.scr_holdn  ( gfx_en[2]     ), // hold scroll latches
-    .scr_holdn  ( 1'b1          ), // hold scroll latches
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -239,9 +251,6 @@ jtgng_main u_main(
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
-    // Palette RAM
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -249,22 +258,24 @@ jtgng_main u_main(
     .rom_ok     ( main_ok       ),
     // Cabinet input
     .start_button( start_button ),
-    .coin_input ( coin_input    ),
-    .joystick1  ( joystick1[5:0]),
-    .joystick2  ( joystick2[5:0]),
+    .coin_input  ( coin_input   ),
+    .joystick1   ( joystick1[5:0] ),
+    .joystick2   ( joystick2[5:0] ),
 
     .RnW        ( RnW           ),
+    // PROM 6L (interrupts)
+    .prog_addr  ( prog_addr[7:0]),
+    .prom_6l_we ( prom_6l       ),
+    .prog_din   ( prog_data[3:0]),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
 `else
-assign main_addr   = 17'd0;
+assign main_addr   = 19'd0;
 assign char_cs     = 1'b0;
 assign scr_cs      = 1'b0;
-assign blue_cs     = 1'b0;
-assign redgreen_cs = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
@@ -285,38 +296,42 @@ always @(posedge clk) begin
 end
 
 jtgng_sound u_sound (
-    .rst            ( rst_game   ),
-    .clk            ( clk        ),
-    .cen3           ( cen3       ),
-    .cen1p5         ( cen1p5     ),
+    .rst            ( rst_game       ),
+    .clk            ( clk            ),
+    .cen3           ( cenfm          ),
+    .cen1p5         ( cenfm          ),
     // Interface with main CPU
-    .sres_b         ( sres_b     ),
-    .snd_latch      ( snd_latch  ),
-    .snd_int        ( V[5]       ),
+    .sres_b         ( sres_b         ),
+    .snd_latch      ( snd_latch      ),
+    .snd_int        ( 1'b0           ),
     // sound control
-    .enable_psg     ( enable_psg ),
-    .enable_fm      ( enable_fm  ),
-    .psg_gain       ( psg_gain   ),
+    .enable_psg     ( enable_psg     ),
+    .enable_fm      ( enable_fm      ),
+    .psg_gain       ( psg_gain       ),
     // ROM
-    .rom_addr       ( snd_addr   ),
-    .rom_data       ( snd_data   ),
-    .rom_cs         ( snd_cs     ),
-    .rom_ok         ( snd_ok     ),
+    .rom_addr       ( snd_addr       ),
+    .rom_data       ( snd_data       ),
+    .rom_cs         ( snd_cs         ),
+    .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd        ),
-    .sample         ( sample     )
+    .ym_snd         ( snd            )
 );
 `else
 assign snd_addr = 15'd0;
-assign sample   = 1'b0;
 assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire char_ok, scr1_ok, scr2_ok, obj_ok;
+wire scr1_ok, scr2_ok, char_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
-jtgng_video u_video(
+reg pause;
+always @(posedge clk) pause <= ~dip_pause;
+
+jtgng_video #(
+    .SCRWIN       (0),
+    .AVATAR_MAX   (8)
+) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
@@ -329,7 +344,7 @@ jtgng_video u_video(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( !dip_pause    ),
+    .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -357,6 +372,15 @@ jtgng_video u_video(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
+    // PROMs
+    .prog_addr    ( prog_addr[7:0]),
+    .prom_red_we  ( 1'b0          ),
+    .prom_green_we( 1'b0          ),
+    .prom_blue_we ( 1'b0          ),
+    .prom_din     ( prog_data[3:0]),
+    // Palette RAM
+    .blue_cs    ( blue_cs       ),
+    .redgreen_cs( redgreen_cs   ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -365,9 +389,6 @@ jtgng_video u_video(
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),
     .gfx_en     ( gfx_en        ),
-    // Palette RAM
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
@@ -378,22 +399,25 @@ wire [7:0] scr_nc; // no connect
 
 // Scroll data: Z, Y, X
 jtgng_rom #(
+    `ifdef MISTER
+    .BRAM_MAIN  ( 1               ),
+    // .BRAM_SOUND ( 1               ),
+    `endif
     .char_aw    ( 13              ),
-    .main_aw    ( 17              ),
+    .main_aw    ( 19              ),
     .obj_aw     ( 16              ),
     .scr1_aw    ( 15              ),
-    .scr2_aw    ( 15              ),
-    .snd_offset ( 22'h1_8000 >> 1 ),
-    .char_offset( 22'h1_4000 >> 1 ),
-    .scr1_offset( 22'h2_0000 >> 1 ),
-    .scr2_offset( (22'h2_0000 >> 1) + 22'h0_8000 ),
-    .obj_offset ( 22'h4_0000 >> 1 )
+    .snd_offset ( 22'h4_8000 >> 1 ),
+    .char_offset( 22'h5_0000 >> 1 ),
+    .scr1_offset( 22'h6_0000      ),
+    .obj_offset ( 22'hA_0000      )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
     .LHBL        ( LHBL          ),
     .LVBL        ( LVBL          ),
 
+    .pause       ( pause         ),
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
     .main_ok     ( main_ok       ),
@@ -418,8 +442,8 @@ jtgng_rom #(
     .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),
-    .scr1_dout   ( scr_data[15:0]),
-    .scr2_dout   ( { scr_nc, scr_data[23:16]       } ),
+    .scr1_dout   ( scr_data[15:0] ),
+    .scr2_dout   ( { scr_nc, scr_data[23:16] } ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface
@@ -430,7 +454,12 @@ jtgng_rom #(
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .refresh_en  ( refresh_en    ),
+
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_addr   ( prog_addr     ),
+    .prog_we     ( prog_we       )
 );
 
-endmodule // jtgng
+endmodule

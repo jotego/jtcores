@@ -14,13 +14,11 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 2-7-2019 */
-
-// commando: Main CPU
+    Date: 18-11-2019 */
 
 `timescale 1ns/1ps
 
-module jtcommando_main(
+module jtbtiger_main(
     input              rst,
     input              clk,
     input              cen6,   // 6MHz
@@ -28,13 +26,14 @@ module jtcommando_main(
     output             cpu_cen,
     // Timing
     output  reg        flip,
+    output  reg        blue_cs,
+    output  reg        redgreen_cs,    
     input   [8:0]      V,
     input              LHBL,
     input              LVBL,
     input              H1,
     // Sound
     output  reg        sres_b, // sound reset
-    output  reg        snd_int,
     output  reg  [7:0] snd_latch,
     // Characters
     input        [7:0] char_dout,
@@ -63,7 +62,7 @@ module jtcommando_main(
     input              blcnten,  // bus line counter enable
     // ROM access
     output  reg        rom_cs,
-    output      [15:0] rom_addr,
+    output      [18:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
     // PROM 6L (interrupts)
@@ -86,48 +85,52 @@ assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen6;
-// `ifdef  MIST
-// assign cpu_cen = cen3; // MiST cannot use internal BRAM for CPU ROM. 
-// // In order to cope with the slow down problems
-// // of the SDRAM access, I have to increase the CPU speed. 
-// // Otherwise, graphic glitches occur in the scroll and character layers.
-// `else
-// // MiSTer and other platforms that can have no-delay reads for CPU ROM
-// // can use the original CPU speed
-// assign cpu_cen = cen3;
-// `endif
 assign bus_ack = ~busak_n;
 
+// Memory map
 always @(*) begin
     rom_cs        = 1'b0;
     ram_cs        = 1'b0;
-    snd_latch_cs  = 1'b0;
-    misc_cs       = 1'b0;
-    in_cs         = 1'b0;
     char_cs       = 1'b0;
     scr_cs        = 1'b0;
-    scrpos_cs     = 1'b0;
-    OKOUT         = 1'b0;
+    blue_cs       = 1'b0;
+    redgreen_cs   = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
+        3'b000: rom_cs = 1'b1; 
+        3'b100: rom_cs = 1'b1; // banked ROM
         3'b110: // CXXX, DXXX
             case(A[12:11])
                 2'b00: // C0
-                    in_cs = 1'b1;
-                2'b01: // C8
-                    casez(A[3:0])
-                        4'b0_000: snd_latch_cs = 1'b1;
-                        4'b0_100: misc_cs      = 1'b1;
-                        4'b0_110: OKOUT        = 1'b1;
-                        4'b1_???: scrpos_cs    = 1'b1;  // C808-C80F
-                        default:;
-                    endcase
+                    scr_cs = 1'b1;
                 2'b10: // D0
                     char_cs = 1'b1; // D0CS
                 2'b11: // D8
-                    scr_cs = 1'b1;
+                    if( A[10] )
+                        blue_cs     = 1'b1;
+                    else
+                        redgreen_cs = 1'b1;
             endcase
         3'b111: ram_cs = 1'b1;
+    endcase
+end
+
+// Port map
+always @(*) begin
+    snd_latch_cs  = 1'b0;
+    misc_cs       = 1'b0;
+    in_cs         = 1'b0;
+    scrpos_cs     = 1'b0;
+    OKOUT         = 1'b0;
+    if( rfsh_n && mreq_n ) casez(A[3:0])
+        4'd0: snd_latch_cs = !RnW;
+        4'd1: misc_cs      = !RnW;
+        4'd2,4'd3,4'd4,4'd5: in_cs = 1'b1;
+        4'd6: OKOUT = 1'b1;
+        4'd7: ; // MCU
+        4'd8, 4'd9, 4'd10, 4'd11: scrpos_cs = 1'b1;
+        4'd12: ; // video enable
+        4'd13: ; // BG bank
+        4'd14: ; // screen alyout
     endcase
 end
 
@@ -137,7 +140,7 @@ always @(posedge clk, negedge t80_rst_n) begin
         scr_hpos <= 9'd0;
         scr_vpos <= 9'd0;
     end else if(cpu_cen) begin
-        if( scrpos_cs && A[3] && !RnW )
+        if( scrpos_cs && A[3] && !RnW)
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;
             2'd1: scr_hpos[8]   <= cpu_dout[0];
@@ -148,15 +151,19 @@ always @(posedge clk, negedge t80_rst_n) begin
 end
 
 // special registers
+reg [3:0] bank;
+
 always @(posedge clk)
     if( rst ) begin
         flip      <= 1'b0;
         sres_b    <= 1'b1;
+        bank      <= 4'd0;
     end
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
-            flip     <= cpu_dout[7];
-            sres_b   <= ~cpu_dout[4]; // inverted through NPN
+            //flip     <= cpu_dout[7];
+            //sres_b   <= ~cpu_dout[4]; // inverted through NPN
+            bank       <= cpu_dout[3:0];
         end
         if( snd_latch_cs && !wr_n ) begin
             snd_latch <= cpu_dout;
@@ -182,6 +189,7 @@ always @(*)
         3'd2: cabinet_input = { 2'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
+        3'd5: cabinet_input = 8'hff; //dip_pause;
         default: cabinet_input = 8'hff;
     endcase
 
@@ -231,7 +239,12 @@ always @(*)
         default:  cpu_din = rom_data;
     endcase
 
-assign rom_addr = A;
+always @(A,bank) begin
+    rom_addr[13:0] = A[13:0];
+    if( A[15] ) begin // banks
+        rom_addr[18:14] = { 1'b0, bank }
+    end else rom_addr[18:14] = {3'h4, A[15:14] };
+end
 
 /////////////////////////////////////////////////////////////////
 // wait_n generation
@@ -291,13 +304,11 @@ always @(posedge clk) begin : irq_gen
     reg pre_int2;
     reg last2;
     if (rst) begin
-        snd_int <= 1'b1;
         int_n   <= 1'b1;
     end else begin
         last2 <= pre_int2;
         if( H1_posedge ) begin
             // Schematic 7L - sound interrupter
-            snd_int  <= int_ctrl[2];
             pre_int2 <= pre_int;
         end
         if( irq_ack )
