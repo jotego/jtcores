@@ -118,7 +118,13 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
+jtgng_prom #(.aw(12),.dw(8),
+    `ifdef F1DREAM    
+    .simfile("../../../rom/f1dream/8751.mcu")
+    `else
+    .simfile("../../../rom/biocom/ts.2f")
+    `endif
+) u_prom(
     .clk        ( clk               ),
     .cen        ( cen6a             ),
     .data       ( prom_din          ),
