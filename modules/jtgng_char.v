@@ -51,7 +51,7 @@ module jtgng_char #(parameter
     // Bus arbitrion
     input            char_cs,
     input            wr_n,
-    input   [ 1:0]   dseln,
+    input   [ 1:0]   dseln, // Select upper or lower byte for 16-bit access
     output           busy,
     // Pause screen
     input            pause,

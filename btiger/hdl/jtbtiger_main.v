@@ -46,6 +46,14 @@ module jtbtiger_main(
     input              scr_busy,
     output reg [8:0]   scr_hpos,
     output reg [8:0]   scr_vpos,
+    output reg [1:0]   scr_bank,
+    output  reg        CHRON,
+    output  reg        SCRON,
+    output  reg        OBJON,
+    // Security
+    input      [7:0]   mcu_dout,
+    output reg [7:0]   mcu_din,
+    output reg         mcu_wr,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -62,13 +70,9 @@ module jtbtiger_main(
     input              blcnten,  // bus line counter enable
     // ROM access
     output  reg        rom_cs,
-    output      [18:0] rom_addr,
+    output  reg [18:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
-    // PROM 6L (interrupts)
-    input    [7:0]     prog_addr,
-    input              prom_6l_we,
-    input    [3:0]     prog_din,
     // DIP switches
     input              dip_pause,
     input    [7:0]     dipsw_a,
@@ -78,7 +82,6 @@ module jtbtiger_main(
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
-reg SECWR_cs;
 wire rd_n, wr_n;
 
 assign RnW = wr_n;
@@ -86,6 +89,10 @@ assign RnW = wr_n;
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen6;
 assign bus_ack = ~busak_n;
+
+reg [7:0] cpu_din;
+wire iorq_n, m1_n;
+wire irq_ack = !iorq_n && !m1_n;
 
 // Memory map
 always @(*) begin
@@ -110,26 +117,31 @@ always @(*) begin
                     else
                         redgreen_cs = 1'b1;
             endcase
-        3'b111: ram_cs = 1'b1;
+        3'b111: ram_cs = 1'b1; // EXXX, FXXX
     endcase
 end
 
 // Port map
+reg en_cs, scr_bank_cs, mcu_cs;
+
 always @(*) begin
     snd_latch_cs  = 1'b0;
     misc_cs       = 1'b0;
     in_cs         = 1'b0;
     scrpos_cs     = 1'b0;
+    en_cs         = 1'b0;
     OKOUT         = 1'b0;
-    if( rfsh_n && mreq_n ) casez(A[3:0])
+    scr_bank_cs   = 1'b0;
+    mcu_cs        = 1'b0;
+    if( rfsh_n && !iorq_n ) casez(A[3:0])
         4'd0: snd_latch_cs = !RnW;
         4'd1: misc_cs      = !RnW;
         4'd2,4'd3,4'd4,4'd5: in_cs = 1'b1;
         4'd6: OKOUT = 1'b1;
-        4'd7: ; // MCU
+        4'd7: mcu_cs = 1'b1; // MCU
         4'd8, 4'd9, 4'd10, 4'd11: scrpos_cs = 1'b1;
-        4'd12: ; // video enable
-        4'd13: ; // BG bank
+        4'd12: en_cs = 1'b1; // video enable
+        4'd13: scr_bank_cs = 1'b1; // BG bank
         4'd14: ; // screen alyout
     endcase
 end
@@ -158,15 +170,36 @@ always @(posedge clk)
         flip      <= 1'b0;
         sres_b    <= 1'b1;
         bank      <= 4'd0;
+        CHRON     <= 1'b1;
+        SCRON     <= 1'b1;
+        OBJON     <= 1'b1;
+        scr_bank  <= 2'b0;
+        mcu_wr    <= 1'b0;
     end
     else if(cpu_cen) begin
-        if( misc_cs  && !wr_n ) begin
-            //flip     <= cpu_dout[7];
-            //sres_b   <= ~cpu_dout[4]; // inverted through NPN
-            bank       <= cpu_dout[3:0];
-        end
-        if( snd_latch_cs && !wr_n ) begin
-            snd_latch <= cpu_dout;
+        mcu_wr   <= 1'b0;
+        if( !wr_n ) begin
+            if( misc_cs ) begin
+                bank       <= cpu_dout[3:0];
+            end
+            if( mcu_cs ) begin
+                mcu_din  <= cpu_dout;
+                mcu_wr   <= 1'b1;
+            end
+            if( in_cs && A[2]) begin
+                // bits 0,1 coin counters
+                CHRON    <= ~cpu_dout[7];
+                flip     <=  cpu_dout[6];
+                sres_b   <= ~cpu_dout[5]; // inverted through NPN            
+            end
+            if( en_cs ) begin
+                SCRON    <= ~cpu_dout[1];
+                OBJON    <= ~cpu_dout[2];
+            end
+            if( scr_bank_cs  ) scr_bank <= cpu_dout[1:0];
+            if( snd_latch_cs ) begin
+                snd_latch <= cpu_dout;
+            end
         end
     end
 
@@ -187,8 +220,8 @@ always @(*)
                      start_button }; // START
         3'd1: cabinet_input = { 2'b1, joystick1 };
         3'd2: cabinet_input = { 2'b1, joystick2 };
-        3'd3: cabinet_input = dipsw_a;
-        3'd4: cabinet_input = dipsw_b;
+        3'd3: cabinet_input = dipsw_b;
+        3'd4: cabinet_input = dipsw_a;
         3'd5: cabinet_input = 8'hff; //dip_pause;
         default: cabinet_input = 8'hff;
     endcase
@@ -210,40 +243,21 @@ jtgng_ram #(.aw(13),.cen_rd(0)) RAM(
     .q          ( ram_dout  )
 );
 
-// Data bus input
-reg [7:0] cpu_din;
-wire [3:0] int_ctrl;
-wire iorq_n, m1_n;
-wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
-
-`ifndef TESTROM
-// OP-code bits are shuffled
-wire [7:0] rom_opcode = A==16'd0 ? rom_data : 
-    {rom_data[3:1], rom_data[4], rom_data[7:5], rom_data[0] };
-`else 
-wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
-`endif
-
-always @(*)
-    if( irq_ack ) // Interrupt address
-        cpu_din = irq_vector;
-    else
-    case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
-        5'b100_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
-                            ram_dout;
-        5'b010_00: cpu_din = char_dout;
-        5'b001_00: cpu_din = scr_dout;
-        5'b000_10: cpu_din = !m1_n ? rom_opcode : rom_data;
-        5'b000_01: cpu_din = cabinet_input;
-        default:  cpu_din = rom_data;
+always @(*) begin
+    cpu_din = 8'hff;
+    case( 1'b1 )
+        ram_cs : cpu_din = ram_dout;
+        char_cs: cpu_din = char_dout;
+        scr_cs : cpu_din = scr_dout;
+        rom_cs : cpu_din = rom_data;
+        in_cs  : cpu_din = cabinet_input;
+        mcu_cs : cpu_din = mcu_dout;
     endcase
+end
 
 always @(A,bank) begin
-    rom_addr[13:0] = A[13:0];
-    if( A[15] ) begin // banks
-        rom_addr[18:14] = { 1'b0, bank }
-    end else rom_addr[18:14] = {3'h4, A[15:14] };
+    rom_addr[13:0]  = A[13:0];
+    rom_addr[18:14] = A[15] ? { 1'b0, bank } : {3'h4, A[15:14] };
 end
 
 /////////////////////////////////////////////////////////////////
@@ -270,52 +284,23 @@ always @(negedge clk)
 
 wire cpu_wait_cen = cpu_cen & wait_cen;
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
-    .clk    ( clk          ),
-    .cen    ( cen6         ),
-    .data   ( prog_din     ),
-    .wr_addr( prog_addr    ),
-    .rd_addr( V[7:0]       ),
-    .we     ( prom_6l_we   ),
-    .q      ( int_ctrl     )
-);
+///////////////////////////////////////////////////////////////////
+// interrupt generation. 1943 Schematics page 5/9, parts 12J and 14K
+reg int_n, int_rqb, int_rqb_last;
+wire int_middle = V[7:5]!=3'd3;
+wire int_rqb_negedge = !int_rqb && int_rqb_last;
 
-// interrupt generation
-reg int_n;
-reg LHBL_posedge, H1_posedge;
-
-always @(posedge clk) begin : LHBL_edge
-    reg LHBL_old, H1_old;
-    LHBL_old<=LHBL;
-    LHBL_posedge <= !LHBL_old && LHBL;
-
-    H1_old <= H1;
-    H1_posedge <= !H1_old && H1;
-end
-
-reg pre_int;
-always @(posedge clk) begin
-    if( irq_ack )
-        pre_int <= 1'b0;
-    else if( LHBL_posedge ) pre_int <= int_ctrl[3];
-end
-
-always @(posedge clk) begin : irq_gen
-    reg pre_int2;
-    reg last2;
-    if (rst) begin
-        int_n   <= 1'b1;
-    end else begin
-        last2 <= pre_int2;
-        if( H1_posedge ) begin
-            // Schematic 7L - sound interrupter
-            pre_int2 <= pre_int;
-        end
+always @(posedge clk, posedge rst)
+    if(rst) begin
+        int_n <= 1'b1;
+    end else if(cpu_cen) begin
+        int_rqb_last <= int_rqb;
+        int_rqb <= LVBL && int_middle;
         if( irq_ack )
             int_n <= 1'b1;
-        else if( pre_int2 && !last2 ) int_n <= 1'b0 | ~dip_pause;
+        else
+            if ( int_rqb_negedge ) int_n <= 1'b0;
     end
-end
 
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
@@ -337,4 +322,10 @@ jtframe_z80 u_cpu(
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
 );
+
+// `ifdef SIMULATION
+// always @(posedge rom_ok)
+//     if( rom_cs ) $display("%1X,%4X (%5X) -> %2X", bank, A, rom_addr, rom_data );
+// `endif
+
 endmodule // jtgng_main

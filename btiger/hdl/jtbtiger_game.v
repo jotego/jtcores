@@ -91,6 +91,7 @@ wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
+wire [1:0] scr_bank;
 
 // ROM data
 wire [15:0] char_data;
@@ -105,6 +106,8 @@ wire [12:0] char_addr;
 wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
+wire [ 7:0] mcu_din, mcu_dout;
+wire        mcu_wr;
 wire        cenfm;
 
 wire rom_ready;
@@ -138,7 +141,10 @@ end
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
+    .cen12b (           ),
+    .cen8   (           ),
     .cen6   ( cen6      ),
+    .cen6b  (           ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
 );
@@ -180,6 +186,7 @@ jtgng_timer u_timer(
 wire RnW;
 wire blue_cs;
 wire redgreen_cs;
+wire  CHRON, SCRON, OBJON;
 
 // sound
 wire sres_b;
@@ -229,20 +236,30 @@ jtbtiger_main u_main(
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .H1         ( H[0]          ),
+    // Palette
+    .blue_cs    ( blue_cs       ),
+    .redgreen_cs( redgreen_cs   ),
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
+    // security
+    .mcu_din    ( mcu_din       ),
+    .mcu_dout   ( mcu_dout      ),
+    .mcu_wr     ( mcu_wr        ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
+    .CHRON      ( CHRON         ),
     // SCROLL
     .scr_dout   ( scr_dout      ),
     .scr_cs     ( scr_cs        ),
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
+    .SCRON      ( SCRON         ),
+    .scr_bank   ( scr_bank      ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -251,6 +268,7 @@ jtbtiger_main u_main(
     .blcnten    ( blcnten       ),
     .bus_req    ( bus_req       ),
     .bus_ack    ( bus_ack       ),
+    .OBJON      ( OBJON         ),
     // ROM
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
@@ -263,10 +281,6 @@ jtbtiger_main u_main(
     .joystick2   ( joystick2[5:0] ),
 
     .RnW        ( RnW           ),
-    // PROM 6L (interrupts)
-    .prog_addr  ( prog_addr[7:0]),
-    .prom_6l_we ( prom_6l       ),
-    .prog_din   ( prog_data[3:0]),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
@@ -282,6 +296,22 @@ assign RnW         = 1'b1;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
+`endif
+
+`ifndef NOMCU
+jtbtiger_mcu u_mcu(
+    .rst        (  rst        ),
+    .clk        (  clk        ),
+    .cen6       (  cen6       ),
+    .mcu_dout   (  mcu_dout   ),
+    .mcu_din    (  mcu_din    ),
+    .mcu_wr     (  mcu_wr     ),
+    .prog_addr  (  prog_addr  ),
+    .prom_din   (  prog_data  ),
+    .prom_we    (  prom_mcu   )
+);
+`else 
+assign mcu_dout = 8'hff;
 `endif
 
 `ifndef NOSOUND
@@ -314,7 +344,10 @@ jtgng_sound u_sound (
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            )
+    .ym_snd         ( snd            ),
+    // Unused
+    .sample         (                ),
+    .snd2_latch     (                )
 );
 `else
 assign snd_addr = 15'd0;
@@ -328,7 +361,7 @@ wire scr_ok = scr1_ok & scr2_ok;
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
-jtgng_video #(
+jtbtiger_video #(
     .SCRWIN       (0),
     .AVATAR_MAX   (8)
 ) u_video(
@@ -352,6 +385,7 @@ jtgng_video #(
     .char_data  ( char_data     ),
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
+    .CHRON      ( CHRON         ),
     // SCROLL - ROM
     .scr_cs     ( scr_cs        ),
     .scr_dout   ( scr_dout      ),
@@ -361,6 +395,8 @@ jtgng_video #(
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
+    .scr_bank   ( scr_bank      ),
+    .SCRON      ( SCRON         ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
@@ -372,6 +408,7 @@ jtgng_video #(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
+    .OBJON      ( OBJON         ),
     // PROMs
     .prog_addr    ( prog_addr[7:0]),
     .prom_red_we  ( 1'b0          ),
@@ -420,16 +457,21 @@ jtgng_rom #(
     .pause       ( pause         ),
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),
+    .snd2_cs     ( 1'b0          ),
     .main_ok     ( main_ok       ),
     .snd_ok      ( snd_ok        ),
+    .snd2_ok     (               ),
     .scr1_ok     ( scr1_ok       ),
     .scr2_ok     ( scr2_ok       ),
+    .map1_ok     (               ),
+    .map2_ok     (               ),
     .char_ok     ( char_ok       ),
     .obj_ok      ( obj_ok        ),
 
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
+    .snd2_addr   ( 0             ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
     .scr2_addr   ( scr_addr      ),
@@ -439,6 +481,7 @@ jtgng_rom #(
     .char_dout   ( char_data     ),
     .main_dout   ( main_data     ),
     .snd_dout    ( snd_data      ),
+    .snd2_dout   (               ),
     .obj_dout    ( obj_data      ),
     .map1_dout   (               ),
     .map2_dout   (               ),

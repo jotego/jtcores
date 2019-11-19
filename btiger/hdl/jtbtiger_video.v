@@ -14,9 +14,9 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 30-12-2018 */
+    Date: 19-11-2018 */
 
-module jtgng_video(
+module jtbtiger_video(
     input               rst,
     input               clk,
     input               cen12,
@@ -37,15 +37,18 @@ module jtgng_video(
     output              char_busy,
     output      [12:0]  char_addr,
     input       [15:0]  char_data,
+    input               CHRON,
     // SCROLL - ROM
     input               scr_cs,
-    output      [ 7:0]  scr_dout,
+    output reg  [ 7:0]  scr_dout,
     output      [14:0]  scr_addr,
     input       [23:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
     input       [ 8:0]  scr_hpos,
     input       [ 8:0]  scr_vpos,
+    input       [ 1:0]  scr_bank,
+    input               SCRON,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -57,6 +60,7 @@ module jtgng_video(
     output      [15:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
+    input               OBJON,
     // Color Mix
     input               LVBL,
     input               LVBL_obj,
@@ -81,11 +85,7 @@ module jtgng_video(
 );
 
 // parameters from jtgng_colmix:
-parameter SCRWIN        = 1,
-          PALETTE_PROM  = 0,
-          PALETTE_RED   = "",
-          PALETTE_GREEN = "",
-          PALETTE_BLUE  = "";
+parameter SCRWIN        = 1;
 parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
@@ -153,34 +153,47 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.HOFFSET(0)) u_scroll (
-    .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
-    .cpu_cen    ( cpu_cen       ),
-    // screen position
-    .H          ( H             ),
-    .V          ( V[7:0]        ),
-    .hpos       ( scr_hpos      ),
-    .vpos       ( scr_vpos      ),
-    .flip       ( flip          ),
-    // bus arbitrion
-    .Asel       ( cpu_AB[10]    ),
-    .AB         ( cpu_AB[9:0]   ),
-    .scr_cs     ( scr_cs        ),
-    .din        ( cpu_dout      ),
-    .dout       ( scr_dout      ),
-    .wr_n       ( RnW           ),
-    .busy       ( scr_busy      ),
-    // ROM
-    .scr_addr   ( scr_addr      ),
-    .rom_data   ( scr_data      ),
-    .rom_ok     ( scr_ok        ),
-    // pixel output
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( { scrwin, scr_pal } )
-);
+reg [7:0] scr_mem[0:16*1024-1];
+
+always @(posedge clk) begin
+    if( scr_cs && !RnW ) scr_mem[ {scr_bank, cpu_AB[11:0]} ] <= cpu_dout;
+    scr_dout <= scr_mem[ {scr_bank, cpu_AB[11:0]} ];
+end
+
+assign scr_busy   = 1'b0;
+assign scr_col    = 3'd0;
+assign scr_pal    = 3'd0;
+assign scrwin     = 1'd0;
+assign scr_addr   = 15'd0;
+
+// jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
+//     .clk        ( clk           ),
+//     .pxl_cen    ( cen6          ),
+//     .cpu_cen    ( cpu_cen       ),
+//     // screen position
+//     .H          ( H             ),
+//     .V          ( V[7:0]        ),
+//     .hpos       ( scr_hpos      ),
+//     .vpos       ( scr_vpos      ),
+//     .flip       ( flip          ),
+//     // bus arbitrion
+//     .Asel       ( cpu_AB[10]    ),
+//     .AB         ( cpu_AB[9:0]   ),
+//     .scr_cs     ( scr_cs        ),
+//     .din        ( cpu_dout      ),
+//     .dout       ( scr_dout      ),
+//     .wr_n       ( RnW           ),
+//     .busy       ( scr_busy      ),
+//     // ROM
+//     .scr_addr   ( scr_addr      ),
+//     .rom_data   ( scr_data      ),
+//     .rom_ok     ( scr_ok        ),
+//     // pixel output
+//     .scr_col    ( scr_col       ),
+//     .scr_pal    ( { scrwin, scr_pal } )
+// );
 `else
-assign scr_busy   = 1'b1;
+assign scr_busy   = 1'b0;
 assign scr_col    = 3'd0;
 assign scr_pal    = 3'd0;
 assign scrwin     = 1'd0;
@@ -188,6 +201,7 @@ assign scr_addr   = 15'd0;
 assign scr_dout   = 8'd0;
 `endif
 
+`ifndef NOOBJ
 jtgng_obj #(
     .AVATAR_MAX( AVATAR_MAX ))
 u_obj (
@@ -225,15 +239,17 @@ u_obj (
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
+`else 
+assign blcnten = 1'b0;
+assign bus_req = 1'b0;
+assign obj_pxl = ~6'd0;
+`endif
 
 `ifndef NOCOLMIX
 jtgng_colmix #(
     .SCRWIN       ( SCRWIN       ),
     .OBJ_PAL      ( OBJ_PAL      ),
-    .PALETTE_PROM ( PALETTE_PROM ),
-    .PALETTE_RED  ( PALETTE_RED  ),
-    .PALETTE_GREEN( PALETTE_GREEN),
-    .PALETTE_BLUE ( PALETTE_BLUE )
+    .BLUELOW      ( 1            )
 )u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),

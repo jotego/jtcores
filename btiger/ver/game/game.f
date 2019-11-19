@@ -1,7 +1,9 @@
 ../../hdl/jtbtiger_game.v
 ../../hdl/jtbtiger_main.v
+../../hdl/jtbtiger_mcu.v
 ../../hdl/jtbtiger_prom_we.v
 ../../hdl/jtbtiger_dip.v
+../../hdl/jtbtiger_video.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_cen3p57.v
 ../../../modules/jtgng_timer.v

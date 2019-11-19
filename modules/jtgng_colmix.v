@@ -60,6 +60,7 @@ module jtgng_colmix(
 );
 
 parameter SCRWIN        = 1,
+          BLUELOW       = 0, // used high or low nibble for blue palette
           PALETTE_PROM  = 0,
           PALETTE_RED   = "../../../rom/commando/vtb1.1d",
           PALETTE_GREEN = "../../../rom/commando/vtb2.2d",
@@ -167,7 +168,7 @@ end else begin
     jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
         .clk        ( clk         ),
         .clk_en     ( cen6        ), // clock enable only applies to write operation
-        .data       ( DB[7:4]     ),
+        .data       ( BLUELOW==1 ? DB[3:0] : DB[7:4] ),
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( AB          ),
         .we         ( we_b        ),
