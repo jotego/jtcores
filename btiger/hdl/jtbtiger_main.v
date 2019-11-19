@@ -47,6 +47,7 @@ module jtbtiger_main(
     output reg [8:0]   scr_hpos,
     output reg [8:0]   scr_vpos,
     output reg [1:0]   scr_bank,
+    output reg         scr_layout,
     output  reg        CHRON,
     output  reg        SCRON,
     output  reg        OBJON,
@@ -81,7 +82,7 @@ module jtbtiger_main(
 
 wire [15:0] A;
 wire t80_rst_n;
-reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
+reg in_cs, ram_cs, bank_cs, scrpos_cs, snd_latch_cs;
 wire rd_n, wr_n;
 
 assign RnW = wr_n;
@@ -103,8 +104,8 @@ always @(*) begin
     blue_cs       = 1'b0;
     redgreen_cs   = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b000: rom_cs = 1'b1; 
-        3'b100: rom_cs = 1'b1; // banked ROM
+        3'b0??: rom_cs = 1'b1; 
+        3'b10?: rom_cs = 1'b1; // banked ROM
         3'b110: // CXXX, DXXX
             case(A[12:11])
                 2'b00: // C0
@@ -122,28 +123,33 @@ always @(*) begin
 end
 
 // Port map
-reg en_cs, scr_bank_cs, mcu_cs;
+reg en_cs, scr_bank_cs, mcu_cs, video_cs, layout_cs;
 
 always @(*) begin
     snd_latch_cs  = 1'b0;
-    misc_cs       = 1'b0;
+    bank_cs       = 1'b0;
     in_cs         = 1'b0;
     scrpos_cs     = 1'b0;
     en_cs         = 1'b0;
     OKOUT         = 1'b0;
     scr_bank_cs   = 1'b0;
     mcu_cs        = 1'b0;
-    if( rfsh_n && !iorq_n ) casez(A[3:0])
-        4'd0: snd_latch_cs = !RnW;
-        4'd1: misc_cs      = !RnW;
-        4'd2,4'd3,4'd4,4'd5: in_cs = 1'b1;
-        4'd6: OKOUT = 1'b1;
-        4'd7: mcu_cs = 1'b1; // MCU
-        4'd8, 4'd9, 4'd10, 4'd11: scrpos_cs = 1'b1;
-        4'd12: en_cs = 1'b1; // video enable
-        4'd13: scr_bank_cs = 1'b1; // BG bank
-        4'd14: ; // screen alyout
-    endcase
+    video_cs      = 1'b0;
+    layout_cs     = 1'b0;
+    if( rfsh_n && !iorq_n ) begin
+        in_cs = A[3:0] <= 4'd5 && RnW;
+        mcu_cs = A[3:0] == 4'd7;
+        if( !RnW ) casez(A[3:0])
+                4'd0: snd_latch_cs = 1'b1;
+                4'd1: bank_cs      = 1'b1;
+                4'd4: video_cs     = 1'b1;
+                4'd6: OKOUT        = 1'b1;
+                4'd8, 4'd9, 4'd10, 4'd11: scrpos_cs = 1'b1;
+                4'd12: en_cs       = 1'b1; // video enable
+                4'd13: scr_bank_cs = 1'b1; // BG bank
+                4'd14: layout_cs   = 1'b1; // screen alyout
+            endcase
+    end
 end
 
 // SCROLL H/V POSITION
@@ -152,7 +158,7 @@ always @(posedge clk, negedge t80_rst_n) begin
         scr_hpos <= 9'd0;
         scr_vpos <= 9'd0;
     end else if(cpu_cen) begin
-        if( scrpos_cs && A[3] && !RnW)
+        if( scrpos_cs )
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;
             2'd1: scr_hpos[8]   <= cpu_dout[0];
@@ -175,32 +181,28 @@ always @(posedge clk)
         OBJON     <= 1'b1;
         scr_bank  <= 2'b0;
         mcu_wr    <= 1'b0;
+        scr_layout<= 1'b0;
     end
     else if(cpu_cen) begin
         mcu_wr   <= 1'b0;
-        if( !wr_n ) begin
-            if( misc_cs ) begin
-                bank       <= cpu_dout[3:0];
-            end
-            if( mcu_cs ) begin
-                mcu_din  <= cpu_dout;
-                mcu_wr   <= 1'b1;
-            end
-            if( in_cs && A[2]) begin
-                // bits 0,1 coin counters
-                CHRON    <= ~cpu_dout[7];
-                flip     <=  cpu_dout[6];
-                sres_b   <= ~cpu_dout[5]; // inverted through NPN            
-            end
-            if( en_cs ) begin
-                SCRON    <= ~cpu_dout[1];
-                OBJON    <= ~cpu_dout[2];
-            end
-            if( scr_bank_cs  ) scr_bank <= cpu_dout[1:0];
-            if( snd_latch_cs ) begin
-                snd_latch <= cpu_dout;
-            end
+        if( bank_cs ) bank <= cpu_dout[3:0];
+        if( mcu_cs ) begin
+            mcu_din  <= cpu_dout;
+            mcu_wr   <= 1'b1;
         end
+        if( video_cs ) begin
+            // bits 0,1 coin counters
+            CHRON    <= ~cpu_dout[7];
+            flip     <=  cpu_dout[6];
+            sres_b   <= ~cpu_dout[5]; // inverted through NPN            
+        end
+        if( en_cs ) begin
+            SCRON    <= ~cpu_dout[1];
+            OBJON    <= ~cpu_dout[2];
+        end
+        if( scr_bank_cs  ) scr_bank   <= cpu_dout[1:0];
+        if( snd_latch_cs ) snd_latch  <= cpu_dout;
+        if( layout_cs    ) scr_layout <= cpu_dout[0];
     end
 
 jt12_rst u_rst(
@@ -213,16 +215,16 @@ reg [7:0] cabinet_input;
 
 always @(*)
     case( A[2:0] )
-        3'd0: cabinet_input = { coin_input, // COINS
+        3'd0: cabinet_input = { coin_input, // COINS IN0
                      2'b11, // undocumented. D5 & D4 what are those?
                      1'b1,
                      1'b1,
                      start_button }; // START
-        3'd1: cabinet_input = { 2'b1, joystick1 };
-        3'd2: cabinet_input = { 2'b1, joystick2 };
+        3'd1: cabinet_input = { 2'b11, joystick1 }; // IN1
+        3'd2: cabinet_input = { 2'b11, joystick2 }; // IN2
         3'd3: cabinet_input = dipsw_b;
         3'd4: cabinet_input = dipsw_a;
-        3'd5: cabinet_input = 8'hff; //dip_pause;
+        3'd5: cabinet_input = 8'hff; //dip_pause, LVBL?;
         default: cabinet_input = 8'hff;
     endcase
 

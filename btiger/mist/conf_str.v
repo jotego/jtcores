@@ -6,8 +6,8 @@
 
 `define CORE_OSD \
     "OFH,Difficulty,0 (easy),1,2,3,4 (normal),5,6,7 (hard);", \
-    "OJK,Lives,2,3,5,7;", \
-    "OL,Continue,Yes,No;",
+    "OJK,Lives,3,2,5,7;", \
+    "OL,Continue,Yes,No;", \
     "OI,Demo Sounds,Yes,No;",
 `define CORE_KEYMAP \
     "J,Button 1,Button 2,Unused,1P Start,2P Start,Coin,Credits;",

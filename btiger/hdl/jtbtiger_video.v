@@ -35,7 +35,7 @@ module jtbtiger_video(
     output      [ 7:0]  char_dout,
     input               char_ok,
     output              char_busy,
-    output      [12:0]  char_addr,
+    output      [13:0]  char_addr,
     input       [15:0]  char_data,
     input               CHRON,
     // SCROLL - ROM
@@ -57,7 +57,7 @@ module jtbtiger_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [15:0]  obj_addr,
+    output      [16:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
     input               OBJON,
@@ -107,7 +107,14 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(1)) u_char (
+jtgng_char #(
+    .HOFFSET ( 1),
+    .ROM_AW  (14),
+    .PALW    ( 5),
+    .VFLIP_EN( 0),
+    .HFLIP_EN( 0),
+    .IDMSB0  ( 5)
+) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -156,8 +163,8 @@ assign char_mrdy = 1'b1;
 reg [7:0] scr_mem[0:16*1024-1];
 
 always @(posedge clk) begin
-    if( scr_cs && !RnW ) scr_mem[ {scr_bank, cpu_AB[11:0]} ] <= cpu_dout;
-    scr_dout <= scr_mem[ {scr_bank, cpu_AB[11:0]} ];
+    if( scr_cs && !RnW ) scr_mem[ {scr_bank, cpu_AB[10:0]} ] <= cpu_dout;
+    scr_dout <= scr_mem[ {scr_bank, cpu_AB[10:0]} ];
 end
 
 assign scr_busy   = 1'b0;
@@ -203,6 +210,7 @@ assign scr_dout   = 8'd0;
 
 `ifndef NOOBJ
 jtgng_obj #(
+    .ROM_AW    ( 17         ),
     .AVATAR_MAX( AVATAR_MAX ))
 u_obj (
     .rst        ( rst         ),

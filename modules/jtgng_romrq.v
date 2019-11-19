@@ -54,14 +54,13 @@ always @(*) begin
 end
 
 // reg [1:0] ok_sr;
-wire pre_ok = addr_ok && ( hit0 || hit1 || (din_ok&&we));
 
 always @(posedge clk)
     if( rst ) begin
         init      <= 1'b1;
         deleterus <= 1'b0;  // signals which cached data is to be overwritten next time
     end else begin
-        data_ok <= pre_ok;
+        data_ok <= addr_ok && ( hit0 || hit1 || (din_ok&&we));
         if( we && din_ok ) begin
             if( init ) begin
                 cached_data0 <= din;
@@ -99,7 +98,7 @@ wire [31:0] data_mux = (we&&din_ok) ? din :
 generate
     if(DW==8) begin
         always @(posedge clk)
-        if(pre_ok) case( subaddr )
+        if(!req) case( subaddr )
             2'd0: dout <= data_mux[ 7: 0];
             2'd1: dout <= data_mux[15: 8];
             2'd2: dout <= data_mux[23:16];
@@ -107,11 +106,11 @@ generate
         endcase
     end else if(DW==16) begin
         always @(posedge clk)
-        if(pre_ok) case( subaddr[0] )
-                1'd0: dout <= data_mux[15:0];
-                1'd1: dout <= data_mux[31:16];
+        if(!req) case( subaddr[0] )
+                1'd0: dout = data_mux[15:0];
+                1'd1: dout = data_mux[31:16];
         endcase
-    end else always @(posedge clk) if(pre_ok) dout <= data_mux;
+    end else always @(posedge clk) if(!req) dout = data_mux;
 endgenerate
 
 

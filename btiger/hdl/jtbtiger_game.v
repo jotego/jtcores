@@ -92,6 +92,7 @@ wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
 wire [1:0] scr_bank;
+wire       scr_layout;
 
 // ROM data
 wire [15:0] char_data;
@@ -102,9 +103,9 @@ wire [ 7:0] snd_data;
 // ROM address
 wire [18:0] main_addr;
 wire [14:0] snd_addr;
-wire [12:0] char_addr;
+wire [13:0] char_addr;
 wire [14:0] scr_addr;
-wire [15:0] obj_addr;
+wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 7:0] mcu_din, mcu_dout;
 wire        mcu_wr;
@@ -260,6 +261,7 @@ jtbtiger_main u_main(
     .scr_vpos   ( scr_vpos      ),
     .SCRON      ( SCRON         ),
     .scr_bank   ( scr_bank      ),
+    .scr_layout ( scr_layout    ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -440,7 +442,7 @@ jtgng_rom #(
     .BRAM_MAIN  ( 1               ),
     // .BRAM_SOUND ( 1               ),
     `endif
-    .char_aw    ( 13              ),
+    .char_aw    ( 14              ),
     .main_aw    ( 19              ),
     .obj_aw     ( 16              ),
     .scr1_aw    ( 15              ),

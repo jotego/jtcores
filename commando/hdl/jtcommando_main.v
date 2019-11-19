@@ -178,8 +178,8 @@ always @(*)
                      1'b1,
                      1'b1,
                      start_button }; // START
-        3'd1: cabinet_input = { 2'b1, joystick1 };
-        3'd2: cabinet_input = { 2'b1, joystick2 };
+        3'd1: cabinet_input = { 2'b11, joystick1 };
+        3'd2: cabinet_input = { 2'b11, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;
