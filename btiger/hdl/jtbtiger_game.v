@@ -327,7 +327,7 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound u_sound (
+jtgng_sound #(.LAYOUT(4)) u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cenfm          ),
