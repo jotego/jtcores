@@ -28,7 +28,7 @@ module jtbtiger_colmix(
 
     // pixel input from generator modules
     input [6:0]      char_pxl,        // character color code
-    input [6:0]      scr_pxl,
+    input [7:0]      scr_pxl,
     input [6:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
@@ -78,14 +78,14 @@ always @(posedge clk) if(cen6) begin
     if( char_blank || !enable_char ) begin
         // Object or scroll
         if( obj_blank || !enable_obj || (scrwin&&scr_pxl[2:0]!=3'd0) )
-            pixel_mux <= enable_scr ? scr_mux : 8'hff; // scroll wins
+            pixel_mux <= enable_scr ? { 2'b0, scr_mux } : ~10'h0; // scroll wins
         else begin
             obj_sel[0] <= 1'b1;
-            pixel_mux <= {3'b0, obj_pxl }; // object wins
+            pixel_mux <= {3'b100, obj_pxl }; // object wins
         end
     end
     else begin // characters
-        pixel_mux <= { 3'b0, char_pxl };
+        pixel_mux <= { 3'b110, char_pxl };
     end
 end
 
@@ -103,10 +103,10 @@ always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
 wire [3:0] pal_red, pal_green, pal_blue;
 
 // Palette is in RAM
-wire we_rg = !LVBL && redgreen_cs;
-wire we_b  = !LVBL && blue_cs;
+wire we_rg = /* !LVBL && */ redgreen_cs;
+wire we_b  = /* !LVBL && */ blue_cs;
 
-jtgng_dual_ram #(.aw(10),.simfile("rg_ram.hex")) u_redgreen(
+jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
     .clk        ( clk         ),
     .clk_en     ( cen6        ), // clock enable only applies to write operation
     .data       ( DB          ),
@@ -116,7 +116,7 @@ jtgng_dual_ram #(.aw(10),.simfile("rg_ram.hex")) u_redgreen(
     .q          ( {pal_red, pal_green}     )
 );
 
-jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.hex")) u_blue(
+jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
     .clk        ( clk         ),
     .clk_en     ( cen6        ), // clock enable only applies to write operation
     .data       ( DB[3:0]     ),

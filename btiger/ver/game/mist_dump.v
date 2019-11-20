@@ -49,8 +49,11 @@ module mist_dump(
             $display("NC Verilog: will dump selected signals");
             $shm_probe(frame_cnt);
             $shm_probe(UUT.u_game.u_main,"A");
-            $shm_probe(UUT.u_game.u_mcu,"A");
+            //$shm_probe(UUT.u_game.u_mcu,"A");
             $shm_probe(UUT.u_game.u_video,"A");
+            //$shm_probe(UUT.u_game.u_video.u_char,"A");
+            //$shm_probe(UUT.u_game.u_video.u_scroll,"AS");
+            //$shm_probe(UUT.u_game.u_video.u_obj,"A");
             $shm_probe(UUT.u_game.u_video.u_colmix,"A");
         `endif
     end

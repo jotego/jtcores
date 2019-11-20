@@ -97,6 +97,7 @@ jtgng_tilemap #(
     .flip       ( flip      ),
     .din        ( din       ),
     .dout       ( dout      ),
+    .layout     ( 1'b0      ),
     // Bus arbitrion
     .cs         ( char_cs   ),
     .wr_n       ( wr_n      ),

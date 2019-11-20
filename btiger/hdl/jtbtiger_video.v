@@ -23,7 +23,7 @@ module jtbtiger_video(
     input               cen6,
     input               cen3,
     input               cpu_cen,
-    input       [10:0]  cpu_AB,
+    input       [11:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
     input               RnW,
@@ -41,13 +41,14 @@ module jtbtiger_video(
     // SCROLL - ROM
     input               scr_cs,
     output reg  [ 7:0]  scr_dout,
-    output      [14:0]  scr_addr,
+    output      [16:0]  scr_addr,
     input       [23:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
     input       [ 8:0]  scr_hpos,
     input       [ 8:0]  scr_vpos,
     input       [ 1:0]  scr_bank,
+    input               scr_layout,
     input               SCRON,
     // OBJ
     input               HINIT,
@@ -95,9 +96,7 @@ parameter AVATAR_MAX    = 8;
 
 wire [6:0] char_pxl;
 wire [6:0] obj_pxl;
-wire scrwin;
-wire [2:0] scr_col;
-wire [2:0] scr_pal;
+wire [7:0] scr_pxl;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
@@ -160,51 +159,36 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-reg [7:0] scr_mem[0:16*1024-1];
-
-always @(posedge clk) begin
-    if( scr_cs && !RnW ) scr_mem[ {scr_bank, cpu_AB[10:0]} ] <= cpu_dout;
-    scr_dout <= scr_mem[ {scr_bank, cpu_AB[10:0]} ];
-end
-
-assign scr_busy   = 1'b0;
-assign scr_col    = ~3'd0;
-assign scr_pal    = ~3'd0;
-assign scrwin     = 1'd0;
-assign scr_addr   = 15'd0;
-
-// jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
-//     .clk        ( clk           ),
-//     .pxl_cen    ( cen6          ),
-//     .cpu_cen    ( cpu_cen       ),
-//     // screen position
-//     .H          ( H             ),
-//     .V          ( V[7:0]        ),
-//     .hpos       ( scr_hpos      ),
-//     .vpos       ( scr_vpos      ),
-//     .flip       ( flip          ),
-//     // bus arbitrion
-//     .Asel       ( cpu_AB[10]    ),
-//     .AB         ( cpu_AB[9:0]   ),
-//     .scr_cs     ( scr_cs        ),
-//     .din        ( cpu_dout      ),
-//     .dout       ( scr_dout      ),
-//     .wr_n       ( RnW           ),
-//     .busy       ( scr_busy      ),
-//     // ROM
-//     .scr_addr   ( scr_addr      ),
-//     .rom_data   ( scr_data      ),
-//     .rom_ok     ( scr_ok        ),
-//     // pixel output
-//     .scr_col    ( scr_col       ),
-//     .scr_pal    ( { scrwin, scr_pal } )
-// );
+jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
+    .clk        ( clk           ),
+    .pxl_cen    ( cen6          ),
+    .cpu_cen    ( cpu_cen       ),
+    // screen position
+    .H          ( H             ),
+    .V          ( V[7:0]        ),
+    .hpos       ( scr_hpos      ),
+    .vpos       ( scr_vpos      ),
+    .flip       ( flip          ),
+    .layout     ( scr_layout    ),
+    .bank       ( scr_bank      ),
+    // bus arbitrion
+    .AB         ( cpu_AB[11:0]  ),
+    .scr_cs     ( scr_cs        ),
+    .din        ( cpu_dout      ),
+    .dout       ( scr_dout      ),
+    .wr_n       ( RnW           ),
+    .busy       ( scr_busy      ),
+    // ROM
+    .scr_addr   ( scr_addr      ),
+    .rom_data   ( scr_data      ),
+    .rom_ok     ( scr_ok        ),
+    // pixel output
+    .scr_pxl    ( scr_pxl       )
+);
 `else
 assign scr_busy   = 1'b0;
-assign scr_col    = 3'd0;
-assign scr_pal    = 3'd0;
-assign scrwin     = 1'd0;
-assign scr_addr   = 15'd0;
+assign scr_pxl    = 8'hff;
+assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 `endif
 
@@ -262,7 +246,7 @@ jtbtiger_colmix u_colmix (
     .cen6         ( cen6          ),
 
     .char_pxl     ( char_pxl      ),
-    .scr_pxl      ( {scrwin, scr_pal, scr_col} ),
+    .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),

@@ -325,9 +325,11 @@ jtframe_z80 u_cpu(
     .dout       ( cpu_dout    )
 );
 
-// `ifdef SIMULATION
-// always @(posedge rom_ok)
-//     if( rom_cs ) $display("%1X,%4X (%5X) -> %2X", bank, A, rom_addr, rom_data );
-// `endif
+//`ifdef SIMULATION
+//reg [15:0] Acode;
+//always @(posedge rom_ok)
+//    Acode <= A;
+//    //if( rom_cs ) $display("%1X,%4X (%5X) -> %2X", bank, A, rom_addr, rom_data );
+//`endif
 
 endmodule // jtgng_main

@@ -17,30 +17,19 @@
     Date: 19-11-2017 */
 
 module jtbtiger_scroll #(parameter 
-    ROM_AW   = 15,
-    PALW     = 4,
-    HOFFSET  = 9'd0,
-    POSW     = 9,   // Scroll offset width, normally 9 bits
-    // bit field information
-    IDMSB1   = 7,   // MSB of tile ID is
-    IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
-    VFLIP    = 5,
-    HFLIP    = 4,
-    SCANW    = 13,  // Tile map bit width, normally 10 bits, 9 bits for 1942, 
-    TILE4    = 0,   // Use 4 bpp instead of 3bpp
-    LAYOUT   = 0,   // Only used for TILE 4
-    SIMID    = ""
+    HOFFSET  = 9'd0
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
     input              cpu_cen,
-    input              Asel,
-    input  [SCANW-1:0] AB,
+    input       [11:0] AB,
     input        [7:0] V, // V128-V1
     input        [8:0] H, // H256-H1
-    input   [POSW-1:0] hpos,
-    input   [POSW-1:0] vpos,
+    input        [8:0] hpos,
+    input        [8:0] vpos,
     input              scr_cs,
+    input              layout,
+    input        [1:0] bank,
     input              flip,
     input        [7:0] din,
     output       [7:0] dout,
@@ -48,12 +37,13 @@ module jtbtiger_scroll #(parameter
     output             busy,
 
     // ROM
-    output      [ROM_AW-1:0] scr_addr,
-    input       [(TILE4?15:23):0]       rom_data,
-    input                    rom_ok,
-    output      [PALW-1:0]   scr_pal,
-    output [(TILE4?3:2):0]   scr_col
+    output      [16:0] scr_addr,
+    input       [15:0] rom_data,
+    input              rom_ok,
+    output       [7:0] scr_pxl
 );
+
+localparam POSW = 9;   // Scroll offset width, normally 9 bits
 
 wire [8:0] Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
 reg  [POSW-1:0] HS, VS;
@@ -74,25 +64,28 @@ wire [7:0] dout_low, dout_high;
 
 localparam DATAREAD = 3'd1;
 
-wire [7:0] Vtilemap = SCANW>=10 ? VS[POSW-1:POSW-8] : VS[7:0];
+wire [7:0] Vtilemap = VS[POSW-1:POSW-8]; // : VS[7:0];
 wire [7:0] Htilemap = HS[POSW-1:POSW-8];
+
+wire [12:0] tile_addr = { bank, AB[11:1] };
 
 jtgng_tilemap #(
     .SELBIT     ( 1         ),
     .INVERT_SCAN( 1         ),
     .DATAREAD   ( DATAREAD  ),
-    .SCANW      ( SCANW     ),
-    .SIMID      ( SIMID     )
+    .SCANW      ( 13        ),
+    .SIMID      ( "CHAR"    )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .Asel       ( Asel      ),
-    .AB         ( AB        ),
+    .Asel       ( AB[0]     ),
+    .AB         ( tile_addr ),
     .V          ( Vtilemap  ),
     .H          ( Htilemap  ),
     .flip       ( 1'b0      ),  // Flip is already done on HS and VS
     .din        ( din       ),
     .dout       ( dout      ),
+    .layout     ( layout    ),
     // Bus arbitrion
     .cs         ( scr_cs    ),
     .wr_n       ( wr_n      ),
@@ -108,59 +101,26 @@ jtgng_tilemap #(
     // unused:
     .dseln      (           )
 );
-
-generate
-    
-    if ( TILE4 ) begin
-         jtgng_tile4 #(
-            .PALETTE    ( 0          ),
-            .ROM_AW     ( ROM_AW     ),
-            .LAYOUT     ( LAYOUT     ))
-        u_tile4(
-            .clk        (  clk        ),
-            .cen6       (  pxl_cen    ),
-            .HS         (  HS[4:0]    ),
-            .SV         (  VS[4:0]    ),
-            .attr       (  dout_high  ),
-            .id         (  dout_low   ),
-            .SCxON      (  1'b0       ),
-            .flip       (  flip       ),
-            // Gfx ROM
-            .scr_addr   (  scr_addr   ),
-            .rom_data   (  rom_data   ),
-            .scr_pxl    (  { scr_pal, scr_col } ),
-            // Palette inputs - unused. Filled here
-            // to avoid tool warnings only
-            .prog_addr  ( 8'd0        ),
-            .prom_hi_we ( 1'b0        ),
-            .prom_lo_we ( 1'b0        ),
-            .prom_din   ( 4'd0        )
-        );       
-    end else begin
-        jtgng_tile3 #(
-            .DATAREAD   (  DATAREAD   ),
-            .ROM_AW     (  ROM_AW     ),
-            .PALW       (  PALW       ),
-            .IDMSB1     (  IDMSB1     ),
-            .IDMSB0     (  IDMSB0     ),
-            .VFLIP      (  VFLIP      ),
-            .HFLIP      (  HFLIP      ))
-        u_tile3(
-            .clk        (  clk        ),
-            .pxl_cen    (  pxl_cen    ),
-            .HS         (  HS         ),
-            .VS         (  VS         ),
-            .attr       (  dout_high  ),
-            .id         (  dout_low   ),
-            .flip       (  flip       ),
-            // Gfx ROM
-            .scr_addr   (  scr_addr   ),
-            .rom_data   (  rom_data   ),
-            .rom_ok     (  rom_ok     ),
-            .scr_pal    (  scr_pal    ),
-            .scr_col    (  scr_col    )
-        );
-    end
-endgenerate
-
+/*
+ jtbtiger_tile4 #(
+    .PALETTE    ( 0          ),
+    .ROM_AW     ( ROM_AW     ),
+    .LAYOUT     ( LAYOUT     ))
+u_tile4(
+    .clk        (  clk        ),
+    .cen6       (  pxl_cen    ),
+    .HS         (  HS[4:0]    ),
+    .SV         (  VS[4:0]    ),
+    .attr       (  dout_high  ),
+    .id         (  dout_low   ),
+    .SCxON      (  1'b0       ),
+    .flip       (  flip       ),
+    .layout     ( layout      ),
+    // Gfx ROM
+    .scr_addr   (  scr_addr   ),
+    .rom_data   (  rom_data   ),
+    .scr_pxl    (  { scr_pal, scr_col } )
+);       
+*/
+assign scr_pxl = 8'hff;
 endmodule // jtgng_scroll

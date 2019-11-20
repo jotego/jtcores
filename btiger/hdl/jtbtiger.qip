@@ -5,6 +5,8 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_prom_we.v ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_dip.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_colmix.v  ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_scroll.v  ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_tile4.v   ]
 
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_cen.v          ]

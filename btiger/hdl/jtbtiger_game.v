@@ -104,7 +104,7 @@ wire [ 7:0] snd_data;
 wire [18:0] main_addr;
 wire [14:0] snd_addr;
 wire [13:0] char_addr;
-wire [14:0] scr_addr;
+wire [16:0] scr_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 7:0] mcu_din, mcu_dout;
@@ -373,7 +373,7 @@ jtbtiger_video #(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
-    .cpu_AB     ( cpu_AB[10:0]  ),
+    .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .RnW        ( RnW           ),
@@ -398,6 +398,7 @@ jtbtiger_video #(
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
     .scr_bank   ( scr_bank      ),
+    .scr_layout ( scr_layout    ),
     .SCRON      ( SCRON         ),
     // OBJ
     .HINIT      ( HINIT         ),
@@ -444,8 +445,8 @@ jtgng_rom #(
     `endif
     .char_aw    ( 14              ),
     .main_aw    ( 19              ),
-    .obj_aw     ( 16              ),
-    .scr1_aw    ( 15              ),
+    .obj_aw     ( 17              ),
+    .scr1_aw    ( 17              ),
     .snd_offset ( 22'h4_8000 >> 1 ),
     .char_offset( 22'h5_0000 >> 1 ),
     .scr1_offset( 22'h6_0000      ),
@@ -473,10 +474,10 @@ jtgng_rom #(
     .char_addr   ( char_addr     ),
     .main_addr   ( main_addr     ),
     .snd_addr    ( snd_addr      ),
-    .snd2_addr   ( 0             ),
+    .snd2_addr   ( 16'd0         ),
     .obj_addr    ( obj_addr      ),
     .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( scr_addr      ),
+    .scr2_addr   ( 15'd0         ),
     .map1_addr   ( 14'd0         ),
     .map2_addr   ( 14'd0         ),
 
