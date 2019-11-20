@@ -114,7 +114,7 @@ always @(posedge clk) if(cen) begin
                 objpal    <= objbuf_data[5:2];
             end
             4: begin // Black Tiger
-                id[9:7]   <= objbuf_data[7:5];
+                id[10:8]  <= objbuf_data[7:5];
                 hover     <= objbuf_data[4];
                 obj_hflip <= objbuf_data[3];
                 obj_vflip <= 1'b0;

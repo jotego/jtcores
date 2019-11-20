@@ -40,7 +40,7 @@ module jtbtiger_video(
     input               CHRON,
     // SCROLL - ROM
     input               scr_cs,
-    output reg  [ 7:0]  scr_dout,
+    output      [ 7:0]  scr_dout,
     output      [16:0]  scr_addr,
     input       [23:0]  scr_data,
     input               scr_ok,
