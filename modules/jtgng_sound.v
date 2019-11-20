@@ -69,6 +69,7 @@ parameter       LAYOUT=0;
 parameter [7:0] FM_GAIN=8'h40;
 
 localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4;
+localparam READ_FM    = LAYOUT==3 || LAYOUT==4;
 localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4;
 
 wire [15:0] A;
@@ -165,19 +166,20 @@ jtgng_ram #(
 
 reg [7:0] din;
 
-// Only Layout 3 can read the status register
+// Only some layouts can read the status register
 // from FM chips:
-wire fm0_mx = fm0_cs && LAYOUT==3;
-wire fm1_mx = fm1_cs && LAYOUT==3;
+wire fm0_mx = fm0_cs && READ_FM;
+wire fm1_mx = fm1_cs && READ_FM;
 
 always @(posedge clk)
     case( 1'b1 )
+        rom_cs:   din = rom_data;
         fm0_mx:   din = fm0_dout;
         fm1_mx:   din = fm1_dout;
         latch_cs: din = snd_latch;
         ram_cs:   din = ram_dout;
-        default:  din = rom_data;
-    endcase // {latch_cs,rom_cs,ram_cs}
+        default:  din = 8'hff;
+    endcase
 
 // posedge of snd_int
 reg snd_int_last;

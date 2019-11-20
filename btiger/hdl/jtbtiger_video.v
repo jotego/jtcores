@@ -93,8 +93,8 @@ parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
 // parameters from jtgng_obj:
 parameter AVATAR_MAX    = 8;
 
-wire [5:0] char_pxl;
-wire [5:0] obj_pxl;
+wire [6:0] char_pxl;
+wire [6:0] obj_pxl;
 wire scrwin;
 wire [2:0] scr_col;
 wire [2:0] scr_pal;
@@ -168,8 +168,8 @@ always @(posedge clk) begin
 end
 
 assign scr_busy   = 1'b0;
-assign scr_col    = 3'd0;
-assign scr_pal    = 3'd0;
+assign scr_col    = ~3'd0;
+assign scr_pal    = ~3'd0;
 assign scrwin     = 1'd0;
 assign scr_addr   = 15'd0;
 
@@ -211,6 +211,8 @@ assign scr_dout   = 8'd0;
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW    ( 17         ),
+    .PALW      (  3         ),
+    .LAYOUT    (  4         ),
     .AVATAR_MAX( AVATAR_MAX ))
 u_obj (
     .rst        ( rst         ),
@@ -254,11 +256,7 @@ assign obj_pxl = ~6'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtgng_colmix #(
-    .SCRWIN       ( SCRWIN       ),
-    .OBJ_PAL      ( OBJ_PAL      ),
-    .BLUELOW      ( 1            )
-)u_colmix (
+jtbtiger_colmix u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
@@ -271,22 +269,20 @@ jtgng_colmix #(
     .LHBL_dly     ( LHBL_dly      ),
     .LVBL_dly     ( LVBL_dly      ),
 
-    // PROMs
-    .prog_addr    ( prog_addr     ),
-    .prom_red_we  ( prom_red_we   ),
-    .prom_green_we( prom_green_we ),
-    .prom_blue_we ( prom_blue_we  ),
-    .prom_din     ( prom_din      ),    
-
     // Avatars
     .pause        ( pause         ),
     .avatar_idx   ( avatar_idx    ),
+
+    // Layer control
+    .CHRON        ( CHRON         ),
+    .SCRON        ( SCRON         ),
+    .OBJON        ( OBJON         ),    
 
     // DEBUG
     .gfx_en       ( gfx_en        ),
 
     // CPU interface
-    .AB           ( cpu_AB[7:0]   ),
+    .AB           ( cpu_AB[9:0]   ),
     .blue_cs      ( blue_cs       ),
     .redgreen_cs  ( redgreen_cs   ),
     .DB           ( cpu_dout      ),
