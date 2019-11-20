@@ -139,11 +139,13 @@ end
 
 `endif
 
+wire cen8;
+
 jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen12b (           ),
-    .cen8   (           ),
+    .cen8   ( cen8      ),
     .cen6   ( cen6      ),
     .cen6b  (           ),
     .cen3   ( cen3      ),
@@ -363,13 +365,10 @@ wire scr_ok = scr1_ok & scr2_ok;
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
-jtbtiger_video #(
-    .SCRWIN       (0),
-    .AVATAR_MAX   (8)
-) u_video(
+jtbtiger_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
+    .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),

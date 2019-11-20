@@ -67,8 +67,6 @@ wire enable_obj  = gfx_en[3];
 // SCRWIN means that the MSB of scr_pxl signals that the background
 // tile should go on top of the sprites, changing the priority order.
 // When SCRWIN=0 then the MSB of scr_pxl has no special meaning.
-wire scrwin = SCRWIN ? scr_pxl[6] : 1'b0;
-wire [7:0] scr_mux = SCRWIN ? {2'b00, scr_pxl[5:0] } : {1'b0, scr_pxl};
 reg  [2:0] obj_sel; // signals whether an object pixel is selected
 
 always @(posedge clk) if(cen6) begin
@@ -77,8 +75,8 @@ always @(posedge clk) if(cen6) begin
     obj_sel[0] <= 1'b0;
     if( char_blank || !enable_char ) begin
         // Object or scroll
-        if( obj_blank || !enable_obj || (scrwin&&scr_pxl[2:0]!=3'd0) )
-            pixel_mux <= enable_scr ? { 2'b0, scr_mux } : ~10'h0; // scroll wins
+        if( obj_blank || !enable_obj )
+            pixel_mux <= enable_scr ? { 2'b0, scr_pxl } : ~10'h0; // scroll wins
         else begin
             obj_sel[0] <= 1'b1;
             pixel_mux <= {3'b100, obj_pxl }; // object wins

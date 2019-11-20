@@ -117,6 +117,7 @@ always @(*) begin
                         blue_cs     = 1'b1;
                     else
                         redgreen_cs = 1'b1;
+                default:;
             endcase
         3'b111: ram_cs = 1'b1; // EXXX, FXXX
     endcase
@@ -137,7 +138,7 @@ always @(*) begin
     video_cs      = 1'b0;
     layout_cs     = 1'b0;
     if( rfsh_n && !iorq_n ) begin
-        in_cs = A[3:0] <= 4'd5 && RnW;
+        in_cs  = A[3:0] <= 4'd5 && RnW;
         mcu_cs = A[3:0] == 4'd7;
         if( !RnW ) casez(A[3:0])
                 4'd0: snd_latch_cs = 1'b1;
@@ -148,6 +149,7 @@ always @(*) begin
                 4'd12: en_cs       = 1'b1; // video enable
                 4'd13: scr_bank_cs = 1'b1; // BG bank
                 4'd14: layout_cs   = 1'b1; // screen alyout
+                default:;
             endcase
     end
 end
@@ -254,6 +256,7 @@ always @(*) begin
         rom_cs : cpu_din = rom_data;
         in_cs  : cpu_din = cabinet_input;
         mcu_cs : cpu_din = mcu_dout;
+        default:;
     endcase
 end
 

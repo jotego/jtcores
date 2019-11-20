@@ -19,7 +19,7 @@
 module jtbtiger_video(
     input               rst,
     input               clk,
-    input               cen12,
+    input               cen8,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -85,14 +85,9 @@ module jtbtiger_video(
     output      [3:0]   blue
 );
 
-// parameters from jtgng_colmix:
-parameter SCRWIN        = 1;
-parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
-    // These two bits mark the region of the palette RAM/PROM where
-    // palettes for objects are stored
-    
-// parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8;
+localparam OBJMAX       = 10'd511, // DMA buffer 512 bytes = 4*128
+           OBJMAX_LINE  = 6'd32,
+           AVATAR_MAX   = 8;
 
 wire [6:0] char_pxl;
 wire [6:0] obj_pxl;
@@ -194,15 +189,17 @@ assign scr_dout   = 8'd0;
 
 `ifndef NOOBJ
 jtgng_obj #(
-    .ROM_AW    ( 17         ),
-    .PALW      (  3         ),
-    .LAYOUT    (  4         ),
-    .AVATAR_MAX( AVATAR_MAX ))
+    .OBJMAX       ( OBJMAX      ),
+    .OBJMAX_LINE  ( OBJMAX_LINE ),
+    .ROM_AW       ( 17          ),
+    .PALW         (  3          ),
+    .LAYOUT       (  4          ),
+    .AVATAR_MAX   ( AVATAR_MAX  ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( cen12       ),
-    .dma_cen    ( cen6        ),
+    .draw_cen   ( cen8        ),
+    .dma_cen    ( cen8        ),
     .pxl_cen    ( cen6        ),
     .AB         ( obj_AB      ),
     .DB         ( main_ram    ),
