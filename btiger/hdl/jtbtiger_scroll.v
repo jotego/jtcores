@@ -101,12 +101,8 @@ jtgng_tilemap #(
     // unused:
     .dseln      (           )
 );
-/*
- jtbtiger_tile4 #(
-    .PALETTE    ( 0          ),
-    .ROM_AW     ( ROM_AW     ),
-    .LAYOUT     ( LAYOUT     ))
-u_tile4(
+
+ jtbtiger_tile4 u_tile4(
     .clk        (  clk        ),
     .cen6       (  pxl_cen    ),
     .HS         (  HS[4:0]    ),
@@ -119,8 +115,7 @@ u_tile4(
     // Gfx ROM
     .scr_addr   (  scr_addr   ),
     .rom_data   (  rom_data   ),
-    .scr_pxl    (  { scr_pal, scr_col } )
+    .scr_pxl    (  scr_pxl    )
 );       
-*/
-assign scr_pxl = 8'hff;
+
 endmodule // jtgng_scroll

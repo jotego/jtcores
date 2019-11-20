@@ -27,9 +27,9 @@ module jtbtiger_tile4 (
     input              flip,
     input              layout,
     // Gfx ROM
-    output reg  [ROM_AW-1:0] scr_addr,
-    input             [15:0] rom_data,
-    output [PXLW-1:0] scr_pxl
+    output reg  [16:0] scr_addr,
+    input       [15:0] rom_data,
+    output      [ 7:0] scr_pxl
 );
 
 localparam ROM_AW = 17;
@@ -40,7 +40,7 @@ reg  [7:0]      addr_lsb;
 reg  [ATTW-1:0] scr_attr0;
 reg             scr_hflip0, scr_hflip1;
 
-reg scr_hflip, scr_vflip, aux;
+reg scr_hflip, aux;
 
 always @(*) begin
     scr_hflip = attr[7]; // ^flip ?
@@ -49,15 +49,12 @@ end
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
     if( HS[1:0]==2'd1 ) begin
-        scr_attr0 <= attr[6:3];
-        scr_addr  <= { attr[2:0], id, // AS
-                        SV[2:0]^{3{scr_vflip}},
-                        HS[2]^scr_hflip };
+        scr_attr0      <= attr[6:3];
+        scr_addr[16:1] <= { attr[2:0], id, // AS
+                        SV[2:0]^{3{flip}}};
         scr_hflip0 <= scr_hflip;
     end
-    else begin
-        scr_addr[0] <= HS[2]^scr_hflip0; // 8x4
-    end
+    scr_addr[0] <= HS[2]^scr_hflip0; // 8x4
 end
 
 // Draw pixel on screen

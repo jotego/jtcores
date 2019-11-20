@@ -6,6 +6,7 @@
 ../../hdl/jtbtiger_video.v
 ../../hdl/jtbtiger_scroll.v
 ../../hdl/jtbtiger_colmix.v
+../../hdl/jtbtiger_tile4.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_cen3p57.v
 ../../../modules/jtgng_timer.v
