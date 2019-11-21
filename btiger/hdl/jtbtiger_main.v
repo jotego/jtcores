@@ -290,9 +290,8 @@ always @(negedge clk)
 wire cpu_wait_cen = cpu_cen & wait_cen;
 
 ///////////////////////////////////////////////////////////////////
-// interrupt generation. 1943 Schematics page 5/9, parts 12J and 14K
+// interrupt generation.
 reg int_n, int_rqb, int_rqb_last;
-wire int_middle = V[7:5]!=3'd3;
 wire int_rqb_negedge = !int_rqb && int_rqb_last;
 
 always @(posedge clk, posedge rst)
@@ -300,7 +299,7 @@ always @(posedge clk, posedge rst)
         int_n <= 1'b1;
     end else if(cpu_cen) begin
         int_rqb_last <= int_rqb;
-        int_rqb <= LVBL; // && int_middle;
+        int_rqb <= LVBL;
         if( irq_ack )
             int_n <= 1'b1;
         else

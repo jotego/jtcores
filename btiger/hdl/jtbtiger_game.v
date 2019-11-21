@@ -300,6 +300,8 @@ assign RnW         = 1'b1;
 assign scr_hpos    = 9'd0;
 assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
+assign scr_layout  = 1'b0;
+assign scr_bank    = 2'b0;
 `endif
 
 `ifndef NOMCU

@@ -150,6 +150,7 @@ jtgng_charmsg u_msg(
     .msg_high    ( char_msg_high ) 
 );
 `else
+assign char_pxl  = ~7'd0;
 assign char_mrdy = 1'b1;
 `endif
 

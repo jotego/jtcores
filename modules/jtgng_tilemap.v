@@ -72,7 +72,8 @@ always @(*) begin
         if( SCANW==13) begin // Black Tiger
             // 1 -> tile map 8x4
             // 0 -> tile map 4x8
-            scan =  layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
+            scan =  { V[7:2], H[7:1] };
+            //!layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
         end else // other games
             scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
     end
@@ -135,8 +136,14 @@ always @(posedge clk) begin : mem_mux
 end
 
 // Use these macros to add simulation files
-// like ', .simhexfile("sim.hex")' or
-// ', .simfile("sim.bin")'
+// like 
+// ',.simhexfile("sim.hex")' or
+// ',.simfile("sim.bin")'
+// when calling the simulation script:
+// go.sh \
+//    -d JTCHAR_LOWER_SIMFILE=',.simfile("scr0.bin")' \
+//    -d JTCHAR_UPPER_SIMFILE=',.simfile("scr1.bin")' 
+
 
 `ifndef JTCHAR_UPPER_SIMFILE
 `define JTCHAR_UPPER_SIMFILE

@@ -69,6 +69,7 @@ wire [7:0] Htilemap = HS[POSW-1:POSW-8];
 
 wire [12:0] tile_addr = { bank, AB[11:1] };
 
+
 jtgng_tilemap #(
     .SELBIT     ( 1         ),
     .INVERT_SCAN( 1         ),
