@@ -300,7 +300,7 @@ always @(posedge clk, posedge rst)
         int_n <= 1'b1;
     end else if(cpu_cen) begin
         int_rqb_last <= int_rqb;
-        int_rqb <= LVBL && int_middle;
+        int_rqb <= LVBL; // && int_middle;
         if( irq_ack )
             int_n <= 1'b1;
         else
