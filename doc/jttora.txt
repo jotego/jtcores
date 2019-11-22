@@ -41,6 +41,8 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
+21st Nov 2019
+    - Fixes bug in SDRAM controller
 14 Nov 2019: Public release (MiST and MiSTer)
 13 Nov 2019: beta 3
     * Adds ADPCM sound to Japanese version

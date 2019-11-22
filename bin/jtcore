@@ -212,8 +212,12 @@ if [ $ZIP = TRUE ]; then
     zip --update --junk-paths releases/$MIST/${RELEASE}.zip ${RELEASE}.rbf README.txt $* \
         $(append_if_exists rom/{$PRJ/build_rom.sh,$PRJ/build_rom.ini,build_rom_$PRJ.bat} doc/jt$PRJ.txt )
     if [ -e $JTGNG/../jtbin ]; then
-        cp $RELEASE.rbf $JTGNG/../jtbin/$MIST
-        cp releases/$MIST/${RELEASE}.zip $JTGNG/../jtbin/$MIST
+        if [ "$MIST" = mist ]; then
+            cp releases/$MIST/${RELEASE}.zip $JTGNG/../jtbin/$MIST
+        else
+            cp $RELEASE.rbf $JTGNG/../jtbin/$MIST/$PRJ/releases
+            cp releases/$MIST/${RELEASE}.zip $JTGNG/../jtbin/$MIST/$PRJ
+        fi
     fi
     rm $RELEASE.rbf
 fi

@@ -72,8 +72,9 @@ always @(*) begin
         if( SCANW==13) begin // Black Tiger
             // 1 -> tile map 8x4
             // 0 -> tile map 4x8
-            scan =  { V[7:2], H[7:1] };
-            //!layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
+            scan =  { V[7:5], H[6:5], V[4:1], H[4:1] };
+            // { V[6:5], H[7:5], V[4:1], H[4:1] };
+            //layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
         end else // other games
             scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
     end

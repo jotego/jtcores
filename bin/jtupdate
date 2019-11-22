@@ -35,7 +35,7 @@ done
 
 cores="1942 1943 gng commando gunsmoke vulgus tora f1dream"
 
-if [ $MIST = -mister ]; then
+if [ "$MIST" = -mister ]; then
     # MiSTer cores are processed serially
     cores="$cores biocom"
     for i in $cores; do

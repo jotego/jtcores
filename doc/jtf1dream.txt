@@ -44,6 +44,8 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
+21st Nov 2019
+    - Fixes bug in SDRAM controller
 17 Nov 2019: Beta release (MiST and MiSTer)
 
 CREDITS

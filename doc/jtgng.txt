@@ -1,6 +1,7 @@
 Release history
 ===============
-
+21st Nov 2019
+    * Fixes bug in SDRAM controller
 13th  Nov 2019
     * Fixed occasional sprite glitching
     * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration

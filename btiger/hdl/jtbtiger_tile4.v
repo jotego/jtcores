@@ -48,7 +48,7 @@ end
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
-    if( HS[1:0]==2'd1 ) begin
+    if( HS[2:0]==3'd1 ) begin
         scr_attr0      <= attr[6:3];
         scr_addr[16:1] <= { attr[2:0], id, // AS
                         SV[2:0]^{3{flip}}};

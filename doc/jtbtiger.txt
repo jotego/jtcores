@@ -48,6 +48,8 @@ both action buttons.
 REVISION HISTORY
 ================
 
+21st Nov 2019
+    - Fixes bug in SDRAM controller
 23 Nov 2019 beta release
 
 
