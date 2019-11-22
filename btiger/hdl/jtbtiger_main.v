@@ -44,8 +44,8 @@ module jtbtiger_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output reg [8:0]   scr_hpos,
-    output reg [8:0]   scr_vpos,
+    output reg [10:0]  scr_hpos,
+    output reg [10:0]  scr_vpos,
     output reg [1:0]   scr_bank,
     output reg         scr_layout,
     output  reg        CHRON,
@@ -157,15 +157,15 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, negedge t80_rst_n) begin
     if( !t80_rst_n ) begin
-        scr_hpos <= 9'd0;
-        scr_vpos <= 9'd0;
+        scr_hpos <= 11'd0;
+        scr_vpos <= 11'd0;
     end else if(cpu_cen) begin
         if( scrpos_cs )
         case(A[1:0])
-            2'd0: scr_hpos[7:0] <= cpu_dout;
-            2'd1: scr_hpos[8]   <= cpu_dout[0];
-            2'd2: scr_vpos[7:0] <= cpu_dout;
-            2'd3: scr_vpos[8]   <= cpu_dout[0];
+            2'd0: scr_hpos[ 7:0] <= cpu_dout;
+            2'd1: scr_hpos[10:8] <= cpu_dout[2:0];
+            2'd2: scr_vpos[ 7:0] <= cpu_dout;
+            2'd3: scr_vpos[10:8] <= cpu_dout[2:0];
         endcase
     end
 end
@@ -303,7 +303,7 @@ always @(posedge clk, posedge rst)
         if( irq_ack )
             int_n <= 1'b1;
         else
-            if ( int_rqb_negedge ) int_n <= 1'b0;
+            if ( int_rqb_negedge && dip_pause ) int_n <= 1'b0;
     end
 
 jtframe_z80 u_cpu(

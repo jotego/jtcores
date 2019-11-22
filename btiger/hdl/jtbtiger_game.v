@@ -222,7 +222,7 @@ jtbtiger_prom_we u_prom_we(
 wire prom_mcu = prom_we[4];
 
 wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
+wire [10:0] scr_hpos, scr_vpos;
 
 
 `ifndef NOMAIN

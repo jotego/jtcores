@@ -34,7 +34,8 @@ module jtgng_tilemap #(parameter
     DATAREAD    = 3'd2,
     SCANW       = 10,
     BUSY_ON_H0  = 0,    // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
-    SIMID       = ""
+    SIMID       = "",
+    VHW         = 8
 ) (
     input                  clk,
     input                  pxl_cen /* synthesis direct_enable = 1 */,
@@ -43,8 +44,8 @@ module jtgng_tilemap #(parameter
     input            [1:0] dseln,
     input                  layout,  // use by Black Tiger to change scan
     input      [SCANW-1:0] AB,
-    input            [7:0] V,
-    input            [7:0] H,
+    input        [VHW-1:0] V,
+    input        [VHW-1:0] H,
     input                  flip,
     input         [DW-1:0] din,
     output    reg [DW-1:0] dout,
@@ -72,7 +73,7 @@ always @(*) begin
         if( SCANW==13) begin // Black Tiger
             // 1 -> tile map 8x4
             // 0 -> tile map 4x8
-            scan =  { V[7:5], H[6:5], V[4:1], H[4:1] };
+            scan =  { V[9:7], H[8:7], V[6:3], H[6:3] };
             // { V[6:5], H[7:5], V[4:1], H[4:1] };
             //layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
         end else // other games

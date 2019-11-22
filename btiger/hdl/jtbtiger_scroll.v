@@ -19,14 +19,14 @@
 module jtbtiger_scroll #(parameter 
     HOFFSET  = 9'd0
 ) (
-    input              clk,     // 24 MHz
+    input              clk,
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
     input              cpu_cen,
     input       [11:0] AB,
     input        [7:0] V, // V128-V1
     input        [8:0] H, // H256-H1
-    input        [8:0] hpos,
-    input        [8:0] vpos,
+    input       [10:0] hpos,
+    input       [10:0] vpos,
     input              scr_cs,
     input              layout,
     input        [1:0] bank,
@@ -43,7 +43,7 @@ module jtbtiger_scroll #(parameter
     output       [7:0] scr_pxl
 );
 
-localparam POSW = 9;   // Scroll offset width, normally 9 bits
+localparam POSW = 11;   // Scroll offset width
 
 wire [8:0] Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
 reg  [POSW-1:0] HS, VS;
@@ -64,8 +64,8 @@ wire [7:0] dout_low, dout_high;
 
 localparam DATAREAD = 3'd1;
 
-wire [7:0] Vtilemap = VS[POSW-1:POSW-8]; // : VS[7:0];
-wire [7:0] Htilemap = HS[POSW-1:POSW-8];
+wire [POSW-2:0] Vtilemap = VS[POSW-1:1]; // : VS[7:0];
+wire [POSW-2:0] Htilemap = HS[POSW-1:1];
 
 wire [12:0] tile_addr = { bank, AB[11:1] };
 
@@ -75,6 +75,7 @@ jtgng_tilemap #(
     .INVERT_SCAN( 1         ),
     .DATAREAD   ( DATAREAD  ),
     .SCANW      ( 13        ),
+    .VHW        ( POSW-1    ),
     .SIMID      ( "CHAR"    )
 ) u_tilemap(
     .clk        ( clk       ),
@@ -103,20 +104,28 @@ jtgng_tilemap #(
     .dseln      (           )
 );
 
- jtbtiger_tile4 u_tile4(
+jtgng_tile4 #(
+    .PALETTE( 0  ),
+    .ROM_AW ( 17 ),
+    .LAYOUT ( 4  )) 
+u_tile4 (
     .clk        (  clk        ),
     .cen6       (  pxl_cen    ),
     .HS         (  HS[4:0]    ),
     .SV         (  VS[4:0]    ),
     .attr       (  dout_high  ),
     .id         (  dout_low   ),
-    .SCxON      (  1'b0       ),
+    .SCxON      (  1'b1       ),
     .flip       (  flip       ),
-    .layout     ( layout      ),
+    // Palette PROMs
+    .prog_addr  ( 8'd0        ),
+    .prom_hi_we ( 0           ),
+    .prom_lo_we ( 0           ),
+    .prom_din   ( 4'd0        ),
     // Gfx ROM
     .scr_addr   (  scr_addr   ),
     .rom_data   (  rom_data   ),
     .scr_pxl    (  scr_pxl    )
-);       
+);
 
 endmodule // jtgng_scroll

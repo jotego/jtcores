@@ -83,6 +83,10 @@ always @(*) begin
             scr_hflip = attr[5]^flip;
             scr_vflip = flip;
         end
+        4: begin // Black Tiger
+            scr_hflip = attr[7]^flip;
+            scr_vflip = 1'b0;
+        end
     endcase
 end
 
@@ -120,6 +124,15 @@ always @(posedge clk) if(cen6) begin
                             SV[4:0],
                             HS[2]^scr_hflip };
             end
+        4: begin // Black Tiger, 16x16 tiles
+            scr_attr0      <= attr[6:3];
+            scr_addr       <= { attr[2:0], id, // AS
+                            HS[3]^scr_hflip,
+                            SV[3:0]^{4{flip}},
+                            HS[2]^scr_hflip
+                            };
+            scr_hflip0     <= scr_hflip;            
+        end
         endcase
         scr_hflip0 <= scr_hflip;
     end
@@ -135,6 +148,10 @@ always @(posedge clk) if(cen6) begin
             2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
             // Tiger Road
             3: if(HS[2:0]==3'b101 ) begin
+                scr_addr[0] <= HS[2]^scr_hflip0;
+            end
+            4: begin // Black Tiger
+                scr_addr[5] <= HS[3]^scr_hflip0;
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
         endcase // LAYOUT
