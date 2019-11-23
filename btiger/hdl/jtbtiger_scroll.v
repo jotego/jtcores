@@ -54,7 +54,7 @@ wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
 
-always @(posedge clk) begin
+always @(posedge clk) if(pxl_cen) begin
     VS = vpos + { {POSW-8{1'b0}}, VF};
     { HS[POSW-1:3], HSaux } = hpos + { {POSW-8{~Hfix[8]}}, H7, HF[6:0]};
     HS[2:0] = HSaux ^ {3{flip}};
@@ -119,8 +119,8 @@ u_tile4 (
     .flip       (  flip       ),
     // Palette PROMs
     .prog_addr  ( 8'd0        ),
-    .prom_hi_we ( 0           ),
-    .prom_lo_we ( 0           ),
+    .prom_hi_we ( 1'b0        ),
+    .prom_lo_we ( 1'b0        ),
     .prom_din   ( 4'd0        ),
     // Gfx ROM
     .scr_addr   (  scr_addr   ),

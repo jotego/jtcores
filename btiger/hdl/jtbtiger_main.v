@@ -107,8 +107,8 @@ always @(*) begin
         3'b0??: rom_cs = 1'b1; 
         3'b10?: rom_cs = 1'b1; // banked ROM
         3'b110: // CXXX, DXXX
-            case(A[12:11])
-                2'b00: // C0
+            casez(A[12:11])
+                2'b0?: // C0
                     scr_cs = 1'b1;
                 2'b10: // D0
                     char_cs = 1'b1; // D0CS

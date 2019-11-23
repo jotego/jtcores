@@ -8,8 +8,8 @@ reg           rst;
 wire   [11:0] AB = 12'd0;
 wire    [8:0] V; // V128-V1
 wire    [8:0] H; // H256-H1
-wire    [8:0] hpos=9'd0;
-wire    [8:0] vpos=9'h0;
+wire   [10:0] hpos=11'd0;
+wire   [10:0] vpos=11'h0;
 wire          scr_cs = 1'b0;
 wire          layout = 1'b0;
 wire    [1:0] bank = 2'b0;

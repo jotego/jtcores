@@ -136,7 +136,7 @@ always @(posedge clk) if(cen6) begin
         endcase
         scr_hflip0 <= scr_hflip;
     end
-    else begin
+    else if(HS[1:0]==2'b1) begin
         case( LAYOUT )
             // 1943
             0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;

@@ -155,7 +155,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
+jtbtiger_scroll #(.HOFFSET(-9'd4)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
