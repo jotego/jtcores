@@ -27,9 +27,9 @@ dump "localparam CHAR_ADDR"  bd-15.2n bd-15.2n
 # Scroll
 echo // Scroll
 # lower bytes
-dump "localparam SCRZW_ADDR"  bd-12.5b bd-11.4b 
+dump "localparam SCRZW_ADDR" bd-14.9b bd-13.8b
 # upper bytes
-dump "localparam SCRXY_ADDR" bd-14.9b bd-13.8b
+dump "localparam SCRXY_ADDR" bd-12.5b bd-11.4b
 ## Objects
 echo // objects
     # lower bytes

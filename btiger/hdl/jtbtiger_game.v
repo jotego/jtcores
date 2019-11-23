@@ -370,6 +370,7 @@ always @(posedge clk) pause <= ~dip_pause;
 jtbtiger_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .cen12      ( cen12         ),
     .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),

@@ -19,6 +19,7 @@
 module jtbtiger_video(
     input               rst,
     input               clk,
+    input               cen12,
     input               cen8,
     input               cen6,
     input               cen3,
@@ -199,7 +200,7 @@ jtgng_obj #(
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( cen8        ),
+    .draw_cen   ( cen12       ),
     .dma_cen    ( cen8        ),
     .pxl_cen    ( cen6        ),
     .AB         ( obj_AB      ),
