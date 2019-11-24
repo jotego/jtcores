@@ -312,4 +312,4 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
-endmodule // jtgng_video
+endmodule

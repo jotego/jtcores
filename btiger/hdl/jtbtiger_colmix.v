@@ -54,20 +54,36 @@ module jtbtiger_colmix(
     input      [3:0] gfx_en
 );
 
-parameter SCRWIN        = 1;
-
 reg [9:0] pixel_mux;
 
-wire enable_char = gfx_en[0];
-wire enable_scr  = gfx_en[1];
-wire obj_blank   = &obj_pxl[3:0];
+wire enable_char = gfx_en[0] && CHRON;
+wire enable_scr  = gfx_en[1] && SCRON;
+wire obj_blank   = &obj_pxl[3:0] || !OBJON;
 wire char_blank  = &char_pxl[1:0];
 wire enable_obj  = gfx_en[3];
 
-// SCRWIN means that the MSB of scr_pxl signals that the background
-// tile should go on top of the sprites, changing the priority order.
-// When SCRWIN=0 then the MSB of scr_pxl has no special meaning.
 reg  [2:0] obj_sel; // signals whether an object pixel is selected
+
+////////////////////////////////////
+// Priority - scroll overlapping
+// PROM bd02.9j seems to be driven by scr_pxl[7:4] to obtain a 0,1,2,3 value
+// This value comes into bd01.8j. Address 0x40-0x7F seem to contain whether
+// scr or obj are selected. bit 0 selects obj, bit 1 scr.
+// Paul Leaman's visually derived transparent table in MAME source code
+// fits this interpretation of the PROM too
+// I am not reading the PROMs here as it will take less area to do it
+// directly in code
+
+reg       scr_win;
+
+always @(*) begin
+    case( scr_pxl[7:5] )
+        3'd0:    scr_win = scr_pxl[3:2]<2'd3;
+        3'd1:    scr_win = scr_pxl[3:2]<2'd2;
+        3'd2:    scr_win = scr_pxl[3:2]<2'd1;
+        default: scr_win = 1'b0;
+    endcase
+end
 
 always @(posedge clk) if(cen6) begin
     obj_sel[2] <= obj_sel[1];
@@ -75,7 +91,7 @@ always @(posedge clk) if(cen6) begin
     obj_sel[0] <= 1'b0;
     if( char_blank || !enable_char ) begin
         // Object or scroll
-        if( obj_blank || !enable_obj )
+        if( obj_blank || !enable_obj || scr_win)
             pixel_mux <= enable_scr ? { 2'b0, scr_pxl } : ~10'h0; // scroll wins
         else begin
             obj_sel[0] <= 1'b1;
