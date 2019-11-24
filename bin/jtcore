@@ -135,7 +135,7 @@ fi
 if [ $SKIP_COMPILE = FALSE ]; then
     # Create MiSTer folder if it doesn't exist
     if [ ! -e $JTGNG/$PRJ/mister ]; then
-        mkdir $JTGNG/$PRJ/mister
+        mkdir -p $JTGNG/$PRJ/mister
     fi
     for i in $JTGNG/$PRJ/mist/{*hex,conf_str.v}; do
         echo $i
@@ -215,6 +215,7 @@ if [ $ZIP = TRUE ]; then
         if [ "$MIST" = mist ]; then
             cp releases/$MIST/${RELEASE}.zip $JTGNG/../jtbin/$MIST
         else
+            mkdir -p $JTGNG/../jtbin/mister/$PRJ/releases
             cp $RELEASE.rbf $JTGNG/../jtbin/$MIST/$PRJ/releases
             cp releases/$MIST/${RELEASE}.zip $JTGNG/../jtbin/$MIST/$PRJ
         fi
