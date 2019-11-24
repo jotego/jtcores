@@ -284,7 +284,7 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound u_sound (
+jtgng_sound #(.FM_GAIN(8'h38)) u_sound (
     .rst            ( rst_game   ),
     .clk            ( clk        ),
     .cen3           ( cen3       ),

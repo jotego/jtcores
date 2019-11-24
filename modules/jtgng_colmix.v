@@ -89,7 +89,7 @@ always @(posedge clk) if(cen6) begin
     obj_sel[0] <= 1'b0;
     if( char_pxl[1:0]==2'b11 || !enable_char ) begin
         // Object or scroll
-        if( obj_blank || !enable_obj || (scrwin&&scr_pxl[2:0]!=3'd0) )
+        if( obj_blank || !enable_obj || (scrwin&&scr_pxl[2:0]!=3'd0 &&scr_pxl[2:0]!=3'd6) )
             pixel_mux <= enable_scr ? scr_mux : 8'hff; // scroll wins
         else begin
             obj_sel[0] <= 1'b1;
