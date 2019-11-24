@@ -103,16 +103,19 @@ always @(posedge clk) if(cen6) begin
     end
 end
 
-wire [1:0] pre_BL;
+reg [1:0] pre_BL;
 
-jtgng_sh #(.width(2),.stages(5)) u_hb_dly(
-    .clk    ( clk      ),
-    .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}     ),
-    .drop   ( pre_BL   )
-);
+//jtgng_sh #(.width(2),.stages(5)) u_hb_dly(
+//    .clk    ( clk      ),
+//    .clk_en ( cen6     ),
+//    .din    ( {LHBL, LVBL}     ),
+//    .drop   ( pre_BL   )
+//);
 
-always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
+always @(posedge clk) if(cen6) begin
+    {LHBL_dly, LVBL_dly} <= pre_BL;
+    pre_BL <= {LHBL, LVBL};
+end
 
 wire [3:0] pal_red, pal_green, pal_blue;
 

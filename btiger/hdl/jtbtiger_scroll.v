@@ -20,7 +20,7 @@ module jtbtiger_scroll #(parameter
     HOFFSET  = 9'd0
 ) (
     input              clk,
-    input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz
+    (* direct_enable *) input pxl_cen,
     input              cpu_cen,
     input       [11:0] AB,
     input        [7:0] V, // V128-V1
@@ -64,7 +64,7 @@ wire [7:0] dout_low, dout_high;
 
 localparam DATAREAD = 3'd1;
 
-wire [POSW-2:0] Vtilemap = VS[POSW-1:1]; // : VS[7:0];
+wire [POSW-2:0] Vtilemap = VS[POSW-1:1];
 wire [POSW-2:0] Htilemap = HS[POSW-1:1];
 
 wire [12:0] tile_addr = { bank, AB[11:1] };

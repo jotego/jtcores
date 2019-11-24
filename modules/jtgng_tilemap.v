@@ -38,7 +38,7 @@ module jtgng_tilemap #(parameter
     VHW         = 8
 ) (
     input                  clk,
-    input                  pxl_cen /* synthesis direct_enable = 1 */,
+    (* direct_enable *) input pxl_cen,
     input                  Asel,  // This is the address bit that selects
                             // between the low and high tile map
     input            [1:0] dseln,
@@ -70,7 +70,7 @@ always @(*) begin
         scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}} 
             : { {SCANW{flip}}^{V[7:3],H[7:3]}}) >> (10-SCANW);
     end else begin
-        if( SCANW==13) begin // Black Tiger
+        if( SCANW==13 ) begin // Black Tiger
             // 1 -> tile map 8x4
             // 0 -> tile map 4x8
             scan =  layout ? 

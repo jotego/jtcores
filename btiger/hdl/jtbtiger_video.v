@@ -103,7 +103,7 @@ wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET ( 1),
+    .HOFFSET ( 5),
     .ROM_AW  (14),
     .PALW    ( 5),
     .VFLIP_EN( 0),
@@ -156,7 +156,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtbtiger_scroll #(.HOFFSET(-9'd4)) u_scroll (
+jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -195,6 +195,7 @@ jtgng_obj #(
     .OBJMAX_LINE  ( OBJMAX_LINE ),
     .ROM_AW       ( 17          ),
     .PALW         (  3          ),
+    .PXL_DLY      (  3          ),    
     .LAYOUT       (  4          ),
     .AVATAR_MAX   ( AVATAR_MAX  ))
 u_obj (
