@@ -8,6 +8,7 @@ You have in your hands a faithful conversion of the circuits on the F1 Dream PCB
 If you come from the emulation world here are some of the things different from emulators:
 
 -Real CPU/GPU bus sharing with delays
+-Real CPU/MCU bus sharing with accurate delays
 -Sprites handled with DMA exactly as in the original hardware
 -MCU/CPU interaction with same bus timings as original hardware
 -Graphics priority handled by the original PROM

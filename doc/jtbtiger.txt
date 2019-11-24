@@ -7,10 +7,11 @@ You have just got an expensive €315 PCB according to eBay. You have in your ha
 a faithful conversion of the circuits on the Tiger Road PCB to FPGA. If you come from
 the emulation world here are some of the things different from emulators:
 
--Real CPU/GPU bus sharing with delays
+-Real CPU/GPU bus sharing with accurate delays
+-Real CPU/MCU bus sharing with accurate delays
 -Sprites handled with DMA exactly as in the original hardware
 -Exact timing for bus sharing with microcontroller
--Graphics priority handled by the original PROM
+-Graphics priority handled as the original PROMs indicate
 -No lag between image and input. Data is being sent to the screen in real time.
 -Sound sampling rate: exactly the original
 -Accurate FPS 100% same as real hardware
@@ -48,10 +49,7 @@ both action buttons.
 REVISION HISTORY
 ================
 
-21st Nov 2019
-    - Fixes bug in SDRAM controller
-23 Nov 2019 beta release
-
+24 Nov 2019 beta release
 
 
 CREDITS
