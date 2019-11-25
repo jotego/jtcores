@@ -362,7 +362,7 @@ assign rom_addr = A[17:1];
 
 // DTACKn generation
 wire       inta_n;
-reg  [3:0] io_busy_cnt;
+reg  [7:0] io_busy_cnt;
 wire       io_busy = io_busy_cnt[0];
 wire       bus_cs =   |{ rom_cs, scr1_cs, scr2_cs, char_cs, io_cs };
 wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy, io_busy };
@@ -373,12 +373,12 @@ wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy, io_b
 always @(posedge clk, posedge rst) begin : io_busy_gen
     reg       last_iocs;
     if( rst ) begin
-        io_busy_cnt <= 4'd0;
+        io_busy_cnt <= 8'd0;
         last_iocs   <= 1'b0;
     end else if(cpu_cen) begin
         last_iocs <= io_cs;
         if( io_cs && !last_iocs ) 
-            io_busy_cnt <= ~4'd0;
+            io_busy_cnt <= ~8'd0;
         else 
             io_busy_cnt <= io_busy_cnt>>1;
     end

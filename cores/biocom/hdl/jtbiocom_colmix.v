@@ -116,14 +116,15 @@ always @(posedge clk) if(cen6) begin
 end
 
 // Blanking delay
-wire [1:0] pre_BL;
+//wire  [1:0] pre_BL = {LHBL, LVBL};
+reg  [1:0] pre_BL;
 
-jtgng_sh #(.width(2),.stages(5)) u_blank_dly(
-    .clk    ( clk      ),
-    .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}     ),
-    .drop   ( pre_BL   )
-);
+// jtgng_sh #(.width(2),.stages(5)) u_blank_dly(
+//     .clk    ( clk      ),
+//     .clk_en ( cen6     ),
+//     .din    ( {LHBL, LVBL}     ),
+//     .drop   ( pre_BL   )
+// );
 
 // Address mux
 reg  [9:0] pal_addr;
@@ -144,6 +145,7 @@ always @(*) begin
 end
 
 always @(posedge clk) if(cen6) begin
+    pre_BL <= {LHBL, LVBL};
     coloff <= pre_BL!=2'b11;
     {LHBL_dly, LVBL_dly} <= pre_BL;
 end

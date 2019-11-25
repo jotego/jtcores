@@ -112,7 +112,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(0),.SIMID("char")) u_char (
+jtgng_char #(.HOFFSET(4),.SIMID("char")) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -168,7 +168,7 @@ jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
     .POSW       ( 10            ),
-    .HOFFSET    ( -4            ),
+    .HOFFSET    (  0            ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ),
     .SIMID      ("scr1"         ))
@@ -255,6 +255,7 @@ jtgng_obj #(
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 6'd32      ),
     .PALW       ( 4          ),
+    .PXL_DLY    ( 4          ),
     .ROM_AW     ( 17         ), // MSB is always zero
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
@@ -296,6 +297,16 @@ u_obj (
 
 assign obj_AB[13:11] = 3'b111;
 
+reg [7:0] scr1_pxl, scr2_pxl;
+
+//always @(*) begin
+//end
+
+always @(posedge clk) if(cen6) begin
+    scr1_pxl <= { scr1_pal, scr1_col };
+    scr2_pxl <= { scr2_pal, scr2_col };
+end
+
 `ifndef NOCOLMIX
 jtbiocom_colmix u_colmix (
     .rst          ( rst           ),
@@ -304,8 +315,8 @@ jtbiocom_colmix u_colmix (
     .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),
-    .scr1_pxl     ( { scr1_pal, scr1_col } ),
-    .scr2_pxl     ( { scr2_pal, scr2_col } ),
+    .scr1_pxl     ( scr1_pxl      ),
+    .scr2_pxl     ( scr2_pxl      ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
