@@ -139,6 +139,7 @@ jtgng_char #(.HOFFSET(0),.SIMID("char")) u_char (
     .char_on    ( 1'b1          ),
     .char_pxl   ( char_pxl      ),
     // unused
+    .dseln      ( 2'b11         ),
     .prog_addr  (               ),
     .prog_din   (               ),
     .prom_we    (               )

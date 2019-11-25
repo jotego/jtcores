@@ -52,9 +52,11 @@ module mist_dump(
             $shm_probe(mist_test.UUT.u_game.u_mcu,"A");
             $shm_probe(mist_test.UUT.u_game.u_main,"A");
             $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51,"A");
-            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.u_mmr,"AS");
+            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.u_mmr,"A");
+            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.timers,"AS");
             $shm_probe(mist_test.UUT,"A");
             $shm_probe(mist_test,"A");
+            $shm_probe(frame_cnt);
         `endif
     end
 `endif

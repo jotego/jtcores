@@ -19,6 +19,8 @@
 ../../../modules/jtframe/hdl/ram/jtgng_prom.v
 ../../../modules/jtframe/hdl/ram/jtgng_ram.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
+../../../modules/jtgng_avatar.v
+../../../modules/jtgng_avatar_pal.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_cen3p57.v
 ../../../modules/jtgng_charmsg.v

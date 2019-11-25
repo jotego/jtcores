@@ -38,3 +38,4 @@ test.shm
 releases/*
 */mist/incremental_db
 */mist/db
+old/*

@@ -106,7 +106,8 @@ jtgng_tilemap #(
     .dout_low   ( dout_low  ),
     .dout_high  ( dout_high ),
     // unused:
-    .dseln      (           )
+    .dseln      (           ),
+    .layout     (           )
 );
 
 generate

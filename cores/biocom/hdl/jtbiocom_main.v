@@ -25,7 +25,7 @@ module jtbiocom_main(
     input              clk,
     input              cen12,
     input              cen12b,
-    output             cpu_cen,
+    (*direct_enable *) output cpu_cen,
     // Timing
     output  reg        flip,
     input   [8:0]      V,
@@ -138,7 +138,7 @@ always @(*) begin
                     3'd1:   io_cs   = 1'b1; // E_4000
                     3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8010
                         // scrpt_cs
-                        $display("SCRPTn");
+                        // $display("SCRPTn");
                         case( A[3:1]) // SCRPTn in the schematics
                                 3'd0: scr1hpos_cs = 1'b1;
                                 3'd1: scr1vpos_cs = 1'b1;
@@ -146,11 +146,11 @@ always @(*) begin
                                 3'd3: scr2vpos_cs = 1'b1;
                                 3'd4: begin
                                     OKOUT       = 1'b1;
-                                    $display("OKOUT");
+                                    //$display("OKOUT");
                                 end
                                 3'd5: begin
                                     mcu_DMAONn  = 1'b0; // to MCU
-                                    $display("mcu_DOMAONn");
+                                    //$display("mcu_DOMAONn");
                                 end
                             default:;
                         endcase
@@ -361,20 +361,34 @@ always @(*)
 assign rom_addr = A[17:1];
 
 // DTACKn generation
-
-// wire dtack_cln = ~|{ ASn, |{char_cs, scr1_cs, scr2_cs} };
-// wire [3:0] dtack_q;
-// wire       dtack_ca;
 wire       inta_n;
-//wire DTACKn =  |{ dtack_ca, scr1_busy, scr2_busy, char_busy };
-//wire DTACKn =  |{ (rom_cs&~rom_ok), scr1_busy, scr2_busy, char_busy };
-wire       bus_cs =   |{ rom_cs, scr1_cs, scr2_cs, char_cs };
-wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy };
+reg  [3:0] io_busy_cnt;
+wire       io_busy = io_busy_cnt[0];
+wire       bus_cs =   |{ rom_cs, scr1_cs, scr2_cs, char_cs, io_cs };
+wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy, io_busy };
+
+// DTACK is also held down during IO access in order to make
+// the NMI request to the Z80 CPU long enough
+// If the Z80 misses these requests it will not play any sound at all.
+always @(posedge clk, posedge rst) begin : io_busy_gen
+    reg       last_iocs;
+    if( rst ) begin
+        io_busy_cnt <= 4'd0;
+        last_iocs   <= 1'b0;
+    end else if(cpu_cen) begin
+        last_iocs <= io_cs;
+        if( io_cs && !last_iocs ) 
+            io_busy_cnt <= ~4'd0;
+        else 
+            io_busy_cnt <= io_busy_cnt>>1;
+    end
+end
+
 reg DTACKn;
 always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
     if( rst ) begin
-        DTACKn <= 1'b1;
+        DTACKn      <= 1'b1;
     end else if(cpu_cen) begin
         DTACKn   <= 1'b1;
         last_ASn <= ASn;
@@ -388,17 +402,6 @@ always @(posedge clk, posedge rst) begin : dtack_gen
     end
 end 
 
-// jt74161 u_dtack(
-//     .clk    ( clk                      ),
-//     .cl_b   ( dtack_cln                ),
-//     .cet    (   inta_n & (rom_cs ? rom_ok : 1'b1)        ),
-//     .cep    ( DTACKn                   ),
-//     .d      ( { 1'b1, ~rom_cs, 2'b11 } ),
-//     .q      ( dtack_q                  ),
-//     .ld_b   ( dtack_q[3]               ),
-//     .ca     ( dtack_ca                 )
-// );
-// 
 // interrupt generation
 reg        int1, int2;
 wire [2:0] FC;
@@ -481,32 +484,3 @@ fx68k u_cpu(
 );
 
 endmodule
-/*
-// synchronous presettable 4-bit binary counter, asynchronous clear
-module jt74161( // ref: 74??161
-    input            cet,   // pin: 10
-    input            cep,   // pin: 7
-    input            ld_b,  // pin: 9
-    input            clk,   // pin: 2
-    input            cl_b,  // pin: 1
-    input      [3:0] d,     // pin: 6,5,4,3
-    output reg [3:0] q,     // pin: 11,12,13,14
-    output           ca     // pin: 15
- );
-
-    `ifdef SIMULATION
-    initial q=4'd0;
-    `endif
-
-    assign ca = &{q, cet};
-
-    always @(posedge clk or negedge cl_b)
-        if( !cl_b )
-            q <= 4'd0;
-        else begin
-            if(!ld_b) q <= d;
-            else if( cep&&cet ) q <= q+4'd1;
-        end
-
-endmodule // jt74161
-*/
