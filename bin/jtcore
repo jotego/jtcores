@@ -38,6 +38,7 @@ fi
 
 # Is the project defined?
 PRJ=$1
+PRJPATH=$JTGNG/cores/$PRJ
 shift
 
 case "$PRJ" in
@@ -49,7 +50,7 @@ case "$PRJ" in
         show_usage;;
 esac
 
-if [ ! -e $JTGNG/$PRJ ]; then
+if [ ! -e $PRJPATH ]; then
     echo "Project $PRJ is not valid"
     exit 1
 fi
@@ -112,14 +113,14 @@ done
 function copy_templates {
     datestr=$(date "+%H:%M:%S %B %e, %Y")
     sedstr='s/${CORENAME}/'${PRJ}'/g;s/${DATE}/'${datestr}'/g'
-    sed "$sedstr" $JTGNG/modules/templates/$MIST.qpf > $JTGNG/$PRJ/$MIST/jt${PRJ}.qpf
-    sed "$sedstr" $JTGNG/modules/templates/$MIST.qsf > $JTGNG/$PRJ/$MIST/jt${PRJ}.qsf
+    sed "$sedstr" $JTGNG/modules/templates/$MIST.qpf > $PRJPATH/$MIST/jt${PRJ}.qpf
+    sed "$sedstr" $JTGNG/modules/templates/$MIST.qsf > $PRJPATH/$MIST/jt${PRJ}.qsf
     # MiST's tcl is always appended
-    cat $JTGNG/$PRJ/mist/jt${PRJ}.tcl >> $JTGNG/$PRJ/$MIST/jt${PRJ}.qsf
+    cat $PRJPATH/mist/jt${PRJ}.tcl >> $PRJPATH/$MIST/jt${PRJ}.qsf
     # MiSTer's tcl is added if it exists
     if [ $MIST = mister ]; then
-        if [ -e $JTGNG/$PRJ/mister/jt${PRJ}.tcl ]; then
-            cat $JTGNG/$PRJ/mister/jt${PRJ}.tcl >> $JTGNG/$PRJ/mister/jt${PRJ}.qsf            
+        if [ -e $PRJPATH/mister/jt${PRJ}.tcl ]; then
+            cat $PRJPATH/mister/jt${PRJ}.tcl >> $PRJPATH/mister/jt${PRJ}.qsf            
         fi
     fi
 }
@@ -134,12 +135,12 @@ fi
 
 if [ $SKIP_COMPILE = FALSE ]; then
     # Create MiSTer folder if it doesn't exist
-    if [ ! -e $JTGNG/$PRJ/mister ]; then
-        mkdir -p $JTGNG/$PRJ/mister
+    if [ ! -e $PRJPATH/mister ]; then
+        mkdir -p $PRJPATH/mister
     fi
-    for i in $JTGNG/$PRJ/mist/{*hex,conf_str.v}; do
+    for i in $PRJPATH/mist/{*hex,conf_str.v}; do
         echo $i
-        j=$JTGNG/$PRJ/mister/$(basename $i)
+        j=$PRJPATH/mister/$(basename $i)
         if [ ! -e "$j" ]; then
             ln -s $i $j
         fi
@@ -147,13 +148,13 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # Update message file
     jt${PRJ}_msg.py || exit 1
     # Updata Avatars
-    if [ -e $JTGNG/$PRJ/patrons/avatars ]; then
+    if [ -e $PRJPATH/patrons/avatars ]; then
         avatar.py $PRJ > /tmp/avatar_$PRJ.log || ( cat /tmp/avatar_$PRJ.log; exit 1 )
     fi
-    if ! cd $JTGNG/$PRJ/$MIST; then
+    if ! cd $PRJPATH/$MIST; then
         exit 1
     fi
-    if [ ! -e $JTGNG/$PRJ/$MIST/rom_loadv.hex ]; then
+    if [ ! -e $PRJPATH/$MIST/rom_loadv.hex ]; then
         ln -s $JTGNG/modules/rom_loadv.hex
     fi
     echo "Moved to folder " $(pwd)
@@ -232,11 +233,11 @@ fi
 if [ $PROG = TRUE ]; then
     if [ $MIST = mister ]; then
         CABLE="DE-SoC"
-        cd $JTGNG/$PRJ/mister
+        cd $PRJPATH/mister
         FILE=jtag.cdf
     else
         CABLE="USB-Blaster(Altera)"
-        FILE=$JTGNG/$PRJ/${MIST}/jt$PRJ.cdf
+        FILE=$PRJPATH/${MIST}/jt$PRJ.cdf
     fi
     quartus_pgm -c "$CABLE" $FILE
 fi

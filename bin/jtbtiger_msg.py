@@ -85,5 +85,5 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG']+"/btiger/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG']+"/btiger/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTGNG']+"/cores/btiger/mist/msg.hex", char_ram )
+save_bin( os.environ['JTGNG']+"/cores/btiger/ver/game/msg.bin", char_ram )
