@@ -96,7 +96,7 @@ wire [15:0] main_data;
 wire [ 7:0] snd_data;
 // MCU interface
 wire [ 7:0] snd_din, snd_dout;
-wire        snd_mcu_wr;
+wire        snd_mcu_wr, snd_mcu_rd;
 wire        mcu_brn;
 wire [ 7:0] mcu_din, mcu_dout;
 wire [16:1] mcu_addr;
@@ -319,8 +319,8 @@ jtbiocom_main u_main(
 jtbiocom_mcu u_mcu(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
-    .cen6a      ( cen6          ),       //  6   MHz
-    .cen6b      ( cen6b         ),       //  6   MHz
+//    .cen6a      ( cen6          ),       //  6   MHz
+    .cen6a      ( cen3          ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn    ),
     .mcu_din    ( mcu_din       ),
@@ -334,6 +334,7 @@ jtbiocom_mcu u_mcu(
     .snd_din    ( snd_din       ),
     .snd_dout   ( snd_dout      ),
     .snd_mcu_wr ( snd_mcu_wr    ),
+    .snd_mcu_rd ( snd_mcu_rd    ),
     // ROM programming
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data       ),
@@ -369,6 +370,7 @@ jtbiocom_sound u_sound (
     .snd_din        ( snd_din        ),
     .snd_dout       ( snd_dout       ),
     .snd_mcu_wr     ( snd_mcu_wr     ),
+    .snd_mcu_rd     ( snd_mcu_rd     ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -385,6 +387,7 @@ assign snd_cs     = 1'b0;
 assign snd_left   = 16'b0;
 assign snd_right  = 16'b0;
 assign snd_mcu_wr = 1'b0;
+assign snd_mcu_rd = 1'b0;
 assign snd_dout   = 8'd0;
 `endif
 

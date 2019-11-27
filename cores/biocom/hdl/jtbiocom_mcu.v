@@ -38,7 +38,6 @@ module jtbiocom_mcu(
     input                rst,
     input                clk,
     input                cen6a,       //  6   MHz
-    input                cen6b,       //  6   MHz
     // Main CPU interface
     input                DMAONn,
     output       [ 7:0]  mcu_dout,
@@ -51,6 +50,7 @@ module jtbiocom_mcu(
     input        [ 7:0]  snd_dout,
     output reg   [ 7:0]  snd_din,
     input                snd_mcu_wr,
+    input                snd_mcu_rd,
     // ROM programming
     input        [11:0]  prog_addr,
     input        [ 7:0]  prom_din,
@@ -94,17 +94,22 @@ end
 wire      int1_clrn = p3_o[4];
 
 reg [7:0] snd_dout_latch;
-reg       last_snd_mcu_wr, last_p3_6;
-wire      posedge_snd = snd_mcu_wr && !last_snd_mcu_wr;
+reg       last_snd_mcu_wr, last_p3_6, last_snd_mcu_rd;
+wire      posedge_snd    = snd_mcu_wr && !last_snd_mcu_wr;
+wire      posedge_snd_rd = snd_mcu_rd && !last_snd_mcu_rd;
 wire      posedge_p3_6 = p3_o[6] && !last_p3_6;
+wire      snd_blank = p1_o == 8'hff;
+reg       snd_done;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         snd_dout_latch   <= 8'd0;
         int1            <= 1'b1;
         last_snd_mcu_wr <= 1'b0;
+        snd_done        <= 1'b1;
     end else begin
         last_snd_mcu_wr <= snd_mcu_wr;
+        last_snd_mcu_rd <= snd_mcu_rd;
         last_p3_6       <= p3_o[6];
         if( posedge_snd )
             snd_dout_latch <= snd_dout;
@@ -113,8 +118,11 @@ always @(posedge clk, posedge rst) begin
             int1 <= 1'b1;
         else if( posedge_snd ) int1 <= 1'b0;
         // latch sound data
-        if( posedge_p3_6 )
-            snd_din <= p1_o;
+        if( posedge_snd_rd ) snd_done <= 1'b1;
+        if( posedge_p3_6 && (snd_done || !snd_blank) ) begin
+            snd_done <= snd_blank;
+            snd_din  <= p1_o;
+        end
     end
 end
 

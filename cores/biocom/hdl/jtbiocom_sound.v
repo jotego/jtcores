@@ -31,6 +31,7 @@ module jtbiocom_sound(
     input   [7:0]   snd_din,
     output  [7:0]   snd_dout,
     output          snd_mcu_wr,
+    output          snd_mcu_rd,
     // ROM
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
@@ -49,6 +50,7 @@ wire mreq_n, rfsh_n, int_n;
 wire WRn;
 
 assign snd_mcu_wr = mcu_cs && !WRn;
+assign snd_mcu_rd = mcu_cs &&  WRn;
 
 always @(*) begin
     rom_cs   = 1'b0;
