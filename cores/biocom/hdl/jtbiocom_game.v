@@ -182,7 +182,7 @@ jtgng_timer u_timer(
 
 wire RnW;
 // sound
-wire [7:0] snd_latch;
+wire [7:0] snd_latch, snd_hack;
 
 wire        main_cs, snd_nmi_n;
 // OBJ
@@ -231,6 +231,7 @@ jtbiocom_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .snd_latch  ( snd_latch     ),
+    .snd_hack   ( snd_hack      ),
     .snd_nmi_n  ( snd_nmi_n     ),
     // CHAR
     .char_dout  ( char_dout     ),
@@ -367,11 +368,12 @@ jtgng_cen3p57 u_cen3p57(
 // Sound latch data is delayed by one frame as the real MCU
 // does
 
-reg [7:0] snd_hack;
+reg [7:0] snd_hack2=8'd0
+;
 always @(posedge clk) begin : snd_workaround
     reg last_LVBL;
     last_LVBL <= LVBL;
-    if( !LVBL && last_LVBL) snd_hack <= snd_latch;
+    if( !LVBL && last_LVBL) snd_hack2 <= snd_hack;
 end
 
 jtbiocom_sound u_sound (
@@ -380,12 +382,11 @@ jtbiocom_sound u_sound (
     .cen_fm         ( cen_fm         ),
     .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU
-    //.snd_latch      ( snd_latch      ),
-    .snd_latch      ( 8'h00          ),
+    .snd_latch      ( snd_latch      ),
     .nmi_n          ( snd_nmi_n      ),
     // Interface with MCU
     //.snd_din        ( snd_din        ),
-    .snd_din        ( snd_hack       ),
+    .snd_din        ( snd_hack2      ),
     .snd_dout       ( snd_dout       ),
     .snd_mcu_wr     ( snd_mcu_wr     ),
     .snd_mcu_rd     ( snd_mcu_rd     ),

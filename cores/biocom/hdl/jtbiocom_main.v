@@ -33,6 +33,7 @@ module jtbiocom_main(
     input              LVBL,
     // Sound
     output  reg  [7:0] snd_latch,
+    output  reg  [7:0] snd_hack,
     output  reg        snd_nmi_n,
     // Characters
     input        [7:0] char_dout,
@@ -214,13 +215,13 @@ always @(posedge clk) begin
                     // however, the main CPU software never writes a
                     // value here. This is only used to trigger the NMI
                     // in practice
-                    //snd_latch <= cpu_dout[7:0]; // real PCB behaviour
+                    snd_latch <= cpu_dout[7:0]; // real PCB behaviour
                     snd_nmi_n  <= 1'b0;
                 end
             endcase
         // Hack to capture the sound code that is sent to the MCU
         if( !LDSWn && work_A==13'h1ffc && ram_cs)
-            snd_latch <= cpu_dout[7:0]; // hack
+            snd_hack <= cpu_dout[7:0]; // hack
     end
 end
 
