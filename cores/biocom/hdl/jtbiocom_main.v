@@ -166,6 +166,7 @@ end
 
 // MCU DMA address decoder
 reg mcu_obj_cs, mcu_ram_cs, mcu_io_cs, mcu_other_cs;
+reg [13:1]  work_A;
 
 always @(*) begin
     mcu_obj_cs   = 1'b0;
@@ -197,7 +198,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // special registers
-always @(posedge clk)
+always @(posedge clk) begin
     if( rst ) begin
         flip         <= 1'b0;
         snd_latch    <= 8'b0;
@@ -209,11 +210,19 @@ always @(posedge clk)
             case( { A[1]} )
                 1'b0: flip      <= cpu_dout[8];
                 1'b1: begin
-                    snd_latch <= cpu_dout[7:0];
+                    // sound latch is updated here on the actual PCB
+                    // however, the main CPU software never writes a
+                    // value here. This is only used to trigger the NMI
+                    // in practice
+                    //snd_latch <= cpu_dout[7:0]; // real PCB behaviour
                     snd_nmi_n  <= 1'b0;
                 end
             endcase
+        // Hack to capture the sound code that is sent to the MCU
+        if( !LDSWn && work_A==13'h1ffc && ram_cs)
+            snd_latch <= cpu_dout[7:0]; // hack
     end
+end
 
 reg [15:0] cabinet_input;
 
@@ -253,7 +262,6 @@ end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-reg [13:1]  work_A;
 reg         work_uwe, work_lwe;
 wire        ram_cen=cpu_cen;
 

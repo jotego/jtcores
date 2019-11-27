@@ -229,7 +229,7 @@ localparam COLORW=`COLORW;
 
 wire [COLORW-1:0] game_r, game_g, game_b;
 wire              LHBL_dly, LVBL_dly;
-wire              hs, vs;
+wire              hs, vs, sample;
 
 `ifndef SIGNED_SND
 assign AUDIO_S = 1'b1; // Assume signed by default
@@ -419,11 +419,22 @@ assign sim_pxl_cen = cen6;
     .gfx_en       ( gfx_en           ),
 
     // unconnected
-    .sample       (                  )
+    .sample       ( sample           )
 );
 
 `ifndef STEREO_GAME
     assign AUDIO_R = AUDIO_L;
 `endif
+
+`ifdef SIMULATION
+integer fsnd;
+initial begin
+    fsnd=$fopen("sound.raw","wb");
+end
+always @(posedge sample) begin
+    $fwrite(fsnd,"%u", {AUDIO_L, AUDIO_R});
+end
+`endif
+
 
 endmodule
