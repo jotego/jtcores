@@ -160,4 +160,19 @@ jt51 u_jt51(
     .dacright   (           )
 );
 
+`ifdef SIMULATION
+reg nmi_req;
+
+always @(negedge nmi_n) begin
+    if( nmi_req ) $display("ERROR: NMI was not ack'ed");
+    nmi_req <= 1'b1;
+    $display("NMI req");
+end
+
+always @(posedge rom_cs) begin
+    nmi_req <= 1'b0;
+    if( A == 16'h66 ) $display("NMI ack");
+end
+`endif
+
 endmodule // jtgng_sound
