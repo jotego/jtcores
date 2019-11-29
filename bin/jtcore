@@ -201,9 +201,9 @@ if [ $ZIP = TRUE ]; then
     cd $JTGNG
     RELEASE=jt${PRJ}_$(date +"%Y%m%d")
     if [ $MIST = mister ]; then
-        RBF=$PRJ/${MIST}/output_files/jt$PRJ.rbf
+        RBF=$PRJPATH/${MIST}/output_files/jt$PRJ.rbf
     else
-        RBF=$PRJ/${MIST}/jt$PRJ.rbf
+        RBF=$PRJPATH/${MIST}/jt$PRJ.rbf
     fi
     if [ ! -e $RBF ]; then
         echo "ERROR: file $RBF does not exist. You need to recompile."

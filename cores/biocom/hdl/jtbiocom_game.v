@@ -359,34 +359,18 @@ jtgng_cen3p57 u_cen3p57(
     .cen_1p78   ( cen_fm2   )
 );
 
-// Hack to get the sound working on MiSTer
-// For some reason it doesn't work through the MCU
-// It does work in simulation
-// There are timing errors related to the MCU but
-// it is not trivial to fix the MCU by adding pipeline stages
-// So I have made this workaround.
-// Sound latch data is delayed by one frame as the real MCU
-// does
-
-reg [7:0] snd_hack2=8'd0
-;
-always @(posedge clk) begin : snd_workaround
-    reg last_LVBL;
-    last_LVBL <= LVBL;
-    if( !LVBL && last_LVBL) snd_hack2 <= snd_hack;
-end
-
 jtbiocom_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
-    .cen_fm         ( cen_fm         ),
+    .cen_fm         ( cen_fm2        ),
     .cen_fm2        ( cen_fm2        ),
+    //.cen_fm         ( cen3        ),
+    //.cen_fm2        ( cen3        ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     .nmi_n          ( snd_nmi_n      ),
     // Interface with MCU
-    //.snd_din        ( snd_din        ),
-    .snd_din        ( snd_hack2      ),
+    .snd_din        ( snd_din        ),
     .snd_dout       ( snd_dout       ),
     .snd_mcu_wr     ( snd_mcu_wr     ),
     .snd_mcu_rd     ( snd_mcu_rd     ),
