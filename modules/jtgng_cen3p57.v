@@ -25,20 +25,30 @@ module jtgng_cen3p57(
     output reg cen_1p78
 );
 
-localparam [10:0] step=11'd105;
-localparam [10:0] lim =11'd1408;
-
+wire [10:0] step=11'd105;
+wire [10:0] lim =11'd1408;
+wire [10:0] absmax = lim+step;
 
 reg  [10:0] cencnt=11'd0;
-wire [10:0] next  = cencnt+11'd105;
-wire [10:0] next2 = cencnt+11'd105-lim;
+reg  [10:0] next;
+reg  [10:0] next2;
+
+always @(*) begin
+    next  = cencnt+11'd105;
+    next2 = next-lim;
+end
 
 reg alt=1'b0;
 
 always @(negedge clk) begin
     cen_3p57 <= 1'b0;
     cen_1p78 <= 1'b0;
-    if( cencnt >= lim ) begin
+    if( cencnt >= absmax ) begin
+        // something went wrong: restart
+        cencnt <= 11'd0;
+        alt    <= 1'b0;
+    end else
+    if( next >= lim ) begin
         cencnt <= next2;
         cen_3p57 <= 1'b1;
         alt    <= ~alt;
