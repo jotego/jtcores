@@ -182,7 +182,8 @@ jtgng_timer u_timer(
 
 wire RnW;
 // sound
-wire [7:0] snd_latch, snd_hack;
+wire [7:0] snd_latch;
+// wire [7:0] snd_hack;
 
 wire        main_cs, snd_nmi_n;
 // OBJ
@@ -231,7 +232,7 @@ jtbiocom_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .snd_latch  ( snd_latch     ),
-    .snd_hack   ( snd_hack      ),
+    //.snd_hack   ( snd_hack      ),
     .snd_nmi_n  ( snd_nmi_n     ),
     // CHAR
     .char_dout  ( char_dout     ),
@@ -362,10 +363,12 @@ jtgng_cen3p57 u_cen3p57(
 jtbiocom_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
-    .cen_fm         ( cen_fm2        ),
+    .cen_alt        ( cen3           ), // CPU CEN, it should be cen_fm really
+    // cen6    X
+    // cen_fm2 X
+    // cen_fm  O
+    .cen_fm         ( cen_fm         ),
     .cen_fm2        ( cen_fm2        ),
-    //.cen_fm         ( cen3        ),
-    //.cen_fm2        ( cen3        ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     .nmi_n          ( snd_nmi_n      ),

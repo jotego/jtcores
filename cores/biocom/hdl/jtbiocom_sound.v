@@ -22,6 +22,7 @@
 module jtbiocom_sound(
     input           rst,
     input           clk,    
+    input           cen_alt,
     input           cen_fm,   // 14.31318/4   MHz ~ 3.5  MHz => 10/134 of 48MHz clock
     input           cen_fm2,  // 14.31318/4/8 MHz ~ 1.75 MHz =>  5/134 of 48MHz clock
     // Interface with main CPU
@@ -118,7 +119,8 @@ wire wait_n = !(rom_cs && !rom_ok);
 jtframe_z80 u_cpu(
     .rst_n      ( reset_n     ),
     .clk        ( clk         ),
-    .cen        ( cen_fm      ),
+    .cen        ( cen_alt     ),
+    //.cen        ( cen_fm2     ),
     .wait_n     ( wait_n      ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
@@ -139,8 +141,10 @@ jtframe_z80 u_cpu(
 jt51 u_jt51(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
+    //.cen        ( cen_fm    ),
     .cen        ( cen_fm    ),
     .cen_p1     ( cen_fm2   ),
+    //.cen_p1     ( cen_fm   ),
     .cs_n       ( !fm_cs    ), // chip select
     .wr_n       ( WRn       ), // write
     .a0         ( A[0]      ),

@@ -33,7 +33,7 @@ module jtbiocom_main(
     input              LVBL,
     // Sound
     output  reg  [7:0] snd_latch,
-    output  reg  [7:0] snd_hack,
+    //output  reg  [7:0] snd_hack,
     output  reg        snd_nmi_n,
     // Characters
     input        [7:0] char_dout,
@@ -220,8 +220,8 @@ always @(posedge clk) begin
                 end
             endcase
         // Hack to capture the sound code that is sent to the MCU
-        if( !LDSWn && work_A==13'h1ffc && ram_cs)
-            snd_hack <= cpu_dout[7:0]; // hack
+        // if( !LDSWn && work_A==13'h1ffc && ram_cs)
+        //     snd_hack <= cpu_dout[7:0]; // hack
     end
 end
 
@@ -232,8 +232,8 @@ always @(posedge clk) if(cpu_cen) begin
         { dipsw_a, dipsw_b } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
-          { joystick1[3:0], joystick1[5:4]},   //  2 buttons
-          { joystick2[3:0], joystick2[5:4]} };
+          { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
+          { joystick2[3:0], joystick2[4], joystick2[5]} };
 end
 
 /////////////////////////////////////////////////////

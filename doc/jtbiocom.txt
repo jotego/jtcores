@@ -26,17 +26,9 @@ The MiST version does not have sound because of lack of enough internal memory
 in the FPGA. Maybe it can be fixed with some architectural change but I will
 probably not do it myself unless several patrons ask for it.
 
-MiSTer version does have all the logic needed to produce sound but something prevents it
-from working. MCU communication seems fine in simulation but there are timing errors related
-to the MCU after synthesis. I made a hack around the problem, which again, works in simulation.
-Nonetheless I have not been able to get sound on the FPGA. There are some spurious tones played
-sometimes but no music. There might be a problem with JT51 or the interface with it as this is
-the first core that uses it but I cannot debug it easily. Using SignalTap in MiSTer seems to
-need one new compilation after another and each one takes almost 30 minutes. I cannot debug it
-on MiST because it doesn't fit there.
-
-When I get JT51 working on a core that fits in MiST, if I find a problem in JT51, I will look
-again at this. Otherwise, I think I leave this problem to the open source community.
+MiSTer version uses 3MHz as the clock for the sound CPU but it should be 3.7MHz. There is
+an issue preventing the sound to work when the sound CPU is run at 3.7MHz. I still do
+not understand why.
 
 GAME PLAY
 =========
@@ -57,6 +49,8 @@ both action buttons.
 REVISION HISTORY
 ================
 
+30   Nov 2019
+    -Sound works in MiSTer using 3MHz clock
 28   Nov 2019   Public release
     -Sound doesn't work in MiST because it doesn't fit in the FPGA
     -Sound doesn't work in MiSTer for unknown reason. It works in simulation.
