@@ -34,8 +34,8 @@ module jtbiocom_dip(
 wire          dip_cocktail= 1'b1;
 wire [1:0]    dip_level  = ~status[18:17];
 wire [1:0]    dip_lives  = ~status[20:19];
-wire [2:0]    dip_price1 = 3'b111;
-wire [2:0]    dip_price2 = 3'b111;
+wire [2:0]    dip_price1 = ~status[23:21];
+wire [2:0]    dip_price2 = ~status[26:24];
 wire [1:0]    dip_bonus  = ~status[16:15];
 
 always @(posedge clk) begin

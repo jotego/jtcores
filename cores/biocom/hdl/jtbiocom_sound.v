@@ -45,7 +45,7 @@ module jtbiocom_sound(
     output                sample
 );
 
-wire [15:0] A;
+(*keep*) wire [15:0] A;
 reg  fm_cs, latch_cs, ram_cs, mcu_cs;
 wire mreq_n, rfsh_n, int_n;
 wire WRn;
@@ -98,6 +98,7 @@ always @(*)
         default:  din = rom_data;
     endcase // {latch_cs,rom_cs,ram_cs}
 
+/*
 reg reset_n=1'b0;
 
 // local reset
@@ -113,14 +114,14 @@ always @(negedge clk)
             rst_cnt <= rst_cnt + 4'd1;
         end else reset_n <= 1'b1;
     end
-
-wire wait_n = !(rom_cs && !rom_ok);
+*/
+(*keep*) wire wait_n = !(rom_cs && !rom_ok);
 
 jtframe_z80 u_cpu(
-    .rst_n      ( reset_n     ),
+    .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_alt     ),
-    //.cen        ( cen_fm2     ),
+    //.cen        ( cen_fm     ),
     .wait_n     ( wait_n      ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
@@ -141,10 +142,8 @@ jtframe_z80 u_cpu(
 jt51 u_jt51(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
-    //.cen        ( cen_fm    ),
     .cen        ( cen_fm    ),
     .cen_p1     ( cen_fm2   ),
-    //.cen_p1     ( cen_fm   ),
     .cs_n       ( !fm_cs    ), // chip select
     .wr_n       ( WRn       ), // write
     .a0         ( A[0]      ),

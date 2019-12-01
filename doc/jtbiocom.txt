@@ -14,6 +14,9 @@ the emulation world here are some of the things different from emulators:
 -No lag between image and input. Data is being sent to the screen in real time.
 -Sound sampling rate: exactly the original
 -Accurate FPS 100% same as real hardware
+-Test DIP does not stop the game, so it is possible to use all test
+features (read below about cheating). For some reason, the test dip stops
+the game in MAME
 
 These technical aspects mean that the game play will be different from an emulator
 in a number of ways and that some hardware tricks that were not emulated will work
@@ -39,8 +42,23 @@ Note that by default the continue prompt is disabled. If you want to
 be able to continue, change this in the OSD. You can then save your settings
 so it will be the same the next time you powerup.
 
+CHEAT
+=====
+If you enable the test mode after the game has already started, it is possible
+to start at any level by altering the value of the coin slot settings.
+
+Slot1 Input Stage
+1c1    1
+1c2    2
+1c3    3
+1c4    4
+1c5    5
+
+Note that you can reset the game by pressing F3 or selecting RST in the OSD menu.
+
 TEST SCREEN
 ===========
+
 Select the test screen through the OSD menu. Press 1P coin button during ROM
 test to access all test sections. To pass on to the next test screen press 
 both action buttons.

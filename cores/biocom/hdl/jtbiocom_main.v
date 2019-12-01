@@ -429,7 +429,7 @@ always @(posedge clk, posedge rst) begin : int_gen
             int1 <= 1'b1;
             int2 <= 1'b1;
         end
-        else begin
+        else if(dip_pause) begin
             if( V[8] && !last_V256 ) int2 <= 1'b0;
             if( !LVBL && last_LVBL ) int1 <= 1'b0;
         end
