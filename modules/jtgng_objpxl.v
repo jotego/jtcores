@@ -106,7 +106,7 @@ always @(*) begin
     end
 end
 
-jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
+jtframe_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
     .clk     ( clk             ),
     .cen     ( 1'b1            ),
     .addr    ( addrA           ),
@@ -115,7 +115,7 @@ jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
     .q       ( lineA_q         )
 );
 
-jtgng_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
+jtframe_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
     .clk     ( clk             ),
     .cen     ( 1'b1            ),
     .addr    ( addrB           ),

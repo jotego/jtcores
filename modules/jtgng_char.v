@@ -195,7 +195,7 @@ generate
     end else begin
         wire [7:0] colour_addr = { {6-PALW{1'b0}}, char_pal, char_col };
         wire [3:0] prom_data;
-        jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_SIMFILE)) u_vprom(
+        jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_SIMFILE)) u_vprom(
             .clk    ( clk            ),
             .cen    ( pxl_cen        ),
             .data   ( prog_din       ),

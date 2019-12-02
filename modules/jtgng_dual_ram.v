@@ -55,4 +55,4 @@ always @(posedge clk) if( clk_en ) begin
     if( we) mem[wr_addr] <= data;
 end
 
-endmodule // jtgng_ram
+endmodule // jtframe_ram

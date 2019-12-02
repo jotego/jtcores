@@ -171,7 +171,7 @@ always @(*) begin
     end
 end
 
-jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
+jtframe_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
     .clk   ( clk       ),
     .cen   ( 1'b1      ),
     .addr  ( address_a ),
@@ -180,7 +180,7 @@ jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
     .q     ( q_a       )
 );
 
-jtgng_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_b(
+jtframe_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_b(
     .clk   ( clk       ),
     .cen   ( 1'b1      ),
     .addr  ( address_b ),

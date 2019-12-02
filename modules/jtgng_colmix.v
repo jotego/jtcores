@@ -120,7 +120,7 @@ generate
 if( PALETTE_PROM==1) begin
     // palette is in PROM
 
-    jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
+    jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
         .clk    ( clk          ),
         .cen    ( 1'b1         ),
         .data   ( prom_din     ),
@@ -130,7 +130,7 @@ if( PALETTE_PROM==1) begin
         .q      ( pal_red      )
     );
 
-    jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
+    jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
         .clk    ( clk          ),
         .cen    ( 1'b1         ),
         .data   ( prom_din     ),
@@ -140,7 +140,7 @@ if( PALETTE_PROM==1) begin
         .q      ( pal_green    )
     );
 
-    jtgng_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
+    jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
         .clk    ( clk          ),
         .cen    ( 1'b1         ),
         .data   ( prom_din     ),
@@ -188,7 +188,7 @@ wire [11:0] avatar_pal;
 // Objects have their own palette during pause
 wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
 
-jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
+jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
     .data   ( 12'd0         ),

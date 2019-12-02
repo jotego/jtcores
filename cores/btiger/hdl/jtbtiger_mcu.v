@@ -43,7 +43,7 @@ wire [ 7:0] ram_q, rom_data;
 wire [ 7:0] p1_o, p2_o, p3_o;
 
 
-jtgng_prom #(.aw(12),.dw(8),
+jtframe_prom #(.aw(12),.dw(8),
     .simfile("../../../rom/btiger/bd.6k")
 ) u_prom(
     .clk        ( clk               ),
@@ -55,7 +55,7 @@ jtgng_prom #(.aw(12),.dw(8),
     .q          ( rom_data          )
 );
 
-jtgng_ram #(.aw(7),.cen_rd(1)) u_ramu(
+jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
     .clk        ( clk               ),
     .cen        ( cen6             ),
     .addr       ( ram_addr          ),

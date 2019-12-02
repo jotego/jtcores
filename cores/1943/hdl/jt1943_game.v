@@ -330,7 +330,7 @@ jtgng_sound u_sound (
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
 // separated in two modules to make implementation easier
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
+jtframe_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prog_data         ),
@@ -340,7 +340,7 @@ jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
     .q      ( snd_data0         )
 );
 
-jtgng_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
+jtframe_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prog_data         ),

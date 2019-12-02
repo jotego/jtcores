@@ -1,6 +1,6 @@
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
-../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/ram/jtframe_ram.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_cenp384.v
 ../../../modules/jtgng_cen3p57.v

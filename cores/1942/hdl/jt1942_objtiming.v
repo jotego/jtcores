@@ -89,7 +89,7 @@ always @(posedge clk)
 // off (by ~2 pixel clocks maybe?)
 // It doesn't seem to be an issue anyway.
 
-jtgng_prom #(.aw(8),.dw(2),
+jtframe_prom #(.aw(8),.dw(2),
     .simfile("../../../rom/1942/sb-9.m11")
     ) u_prom_m11(
     .clk    ( clk            ),

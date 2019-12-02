@@ -1,6 +1,6 @@
 jt03_dummy.v
 ../../hdl/jtgng_sound.v
-../../hdl/jtgng_ram.v
+../../hdl/jtframe_ram.v
 ../../../modules/tv80/tv80_alu.v
 ../../../modules/tv80/tv80_core.v
 ../../../modules/tv80/tv80_mcode.v

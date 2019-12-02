@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 23-12-2018 */
 
-module jtgng_dual_clk_ram #(parameter dw=8, aw=10)(
+module jtframe_dual_clk_ram #(parameter dw=8, aw=10)(
     input   clka,
     input   clka_en,
     input   clkb,
@@ -43,4 +43,4 @@ always @(posedge clkb) if(clkb_en) begin
     if(we_b) mem[addr_b] <= data_b;
 end
 
-endmodule // jtgng_ram
+endmodule // jtframe_ram

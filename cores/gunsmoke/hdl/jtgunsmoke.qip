@@ -9,8 +9,8 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_video.v     ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jt12/hdl/jt12_rst.v     ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtgng_prom.v      ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtgng_ram.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtframe_prom.v      ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtframe_ram.v       ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_cen.v       ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_dual_ram.v  ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_sound.v     ]

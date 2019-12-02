@@ -1,6 +1,6 @@
 ../../hdl/jtgng_game.v
 ../../hdl/jtgng_main.v
-../../hdl/jtgng_prom_we.v
+../../hdl/jtframe_prom_we.v
 ../../hdl/jtgng_dip.v
 ../../../modules/jtgng_cen.v
 ../../../modules/jtgng_timer.v

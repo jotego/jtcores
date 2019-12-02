@@ -137,7 +137,7 @@ jtgng_char #(
     .char_pxl   ( char_pxl      )
 );
 
-jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+jtframe_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
     .clk    ( clk          ),
     .cen    ( cen6         ),
     .data   ( 8'd0         ),
@@ -207,7 +207,7 @@ assign scr_pal_addr[6:4] = scr_br[2:0];
 
 // Scroll palette PROMs
 wire [5:0] scr_pal2;
-jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
+jtframe_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prog_din[1:0]  ),
@@ -217,7 +217,7 @@ jtgng_prom #(.aw(8),.dw(2),.simfile("../../../rom/1942/sb-2.d1")) u_prom_d1(
     .q      ( scr_pal2[5:4]   )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prog_din       ),
@@ -228,7 +228,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-3.d2")) u_prom_d2(
 );
 
 // Vulgus only uses this PROM
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-4.d6")) u_prom_d6(
     .clk    ( clk            ),
     .cen    ( cen6           ),
     .data   ( prog_din       ),

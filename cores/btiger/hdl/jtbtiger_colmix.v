@@ -154,7 +154,7 @@ wire [11:0] avatar_pal;
 // Objects have their own palette during pause
 wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
 
-jtgng_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
+jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
     .data   ( 12'd0         ),

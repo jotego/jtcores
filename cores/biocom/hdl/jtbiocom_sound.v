@@ -78,7 +78,7 @@ assign WRn = wr_n | mreq_n;
 assign snd_dout = dout;
 assign rom_addr = A[14:0];
 
-jtgng_ram #(.aw(11)) u_ram(
+jtframe_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dout     ),

@@ -280,7 +280,7 @@ always @(*) begin
     end
 end
 
-jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
+jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -289,7 +289,7 @@ jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .q          ( wram_dout[15:8]  )
 );
 
-jtgng_ram #(.aw(13),.cen_rd(0)) u_raml(
+jtframe_ram #(.aw(13),.cen_rd(0)) u_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -324,7 +324,7 @@ always @(*) begin
     endcase
 end
 
-jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
+jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
@@ -333,7 +333,7 @@ jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .q          ( oram_dout[15:8]  )
 );
 
-jtgng_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
+jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),

@@ -212,7 +212,7 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-jtgng_ram #(.aw(12)) RAM(
+jtframe_ram #(.aw(12)) RAM(
     .clk        ( clk       ),
     .cen        ( cen3      ),
     .addr       ( A[11:0]   ),
@@ -248,7 +248,7 @@ always @(*) begin
     rom_addr[16:14] = !A[15] ? { 2'b0, A[14] } : ( 3'b010 + {1'b0, bank});
 end
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-1.k6")) u_vprom(
     .clk    ( clk          ),
     .cen    ( cen6         ),
     .data   ( prog_din     ),

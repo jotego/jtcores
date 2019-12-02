@@ -1,1 +1,1 @@
-../../../biocom/ver/game/fast_pll_mister.f
+../../../modules/jtframe/hdl/mister/mister_pll48.v

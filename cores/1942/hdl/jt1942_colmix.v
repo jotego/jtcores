@@ -92,7 +92,7 @@ end
 
 
 // palette ROM
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -102,7 +102,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
     .q      ( red         )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -112,7 +112,7 @@ jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
     .q      ( green       )
 );
 
-jtgng_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-7.e10")) u_blue(
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-7.e10")) u_blue(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),

@@ -152,7 +152,7 @@ wire RAM_we = ram_cs && !wr_n;
 `define SIM_SND_RAM
 `endif
 
-jtgng_ram #(
+jtframe_ram #(
     .aw(11)
     `SIM_SND_RAM
 ) u_ram(

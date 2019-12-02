@@ -80,7 +80,7 @@ always @(posedge clk, posedge rst)
 `endif
 
 `ifdef AVATAR_DATA
-jtgng_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
+jtframe_ram #(.aw(8), .synfile("avatar_obj.hex"),.cen_rd(1))u_avatars(
     .clk    ( clk           ),
     .cen    ( pause         ),  // tiny power saving when not in pause
     .data   ( 8'd0          ),

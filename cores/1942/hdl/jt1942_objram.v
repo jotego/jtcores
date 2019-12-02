@@ -46,7 +46,7 @@ wire [6:0] addr = SEATM_b ? AB : scan;
 wire we = SEATM_b && !wr_n && obj_cs;
 wire [7:0] ram_data;
 
-jtgng_ram #(.aw(7)) u_ram(
+jtframe_ram #(.aw(7)) u_ram(
     .clk    ( clk         ),
     .cen    ( cen3        ),
     .data   ( DB          ),

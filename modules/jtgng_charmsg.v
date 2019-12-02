@@ -31,7 +31,7 @@ parameter VERTICAL=1;
 
 wire [7:0] mem_msg, mem_msg_av;
 
-jtgng_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
+jtframe_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( 8'd0        ),
@@ -47,7 +47,7 @@ localparam [4:0] AVPOS = VERTICAL ? 5'd8 : 5'd22;
 
 wire [8:0] av_scan = { avatar_idx, av_sel0 };
 
-jtgng_ram #(.aw(9),.synfile("msg_av.hex")) u_ram_msg_av(
+jtframe_ram #(.aw(9),.synfile("msg_av.hex")) u_ram_msg_av(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( 8'd0        ),

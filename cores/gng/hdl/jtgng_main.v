@@ -209,7 +209,7 @@ assign cpu_AB = A[12:0];
 wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
-jtgng_ram #(.aw(13)) u_ram(
+jtframe_ram #(.aw(13)) u_ram(
     .clk        ( clk       ),
     .cen        ( cen6      ),
     .addr       ( RAM_addr  ),

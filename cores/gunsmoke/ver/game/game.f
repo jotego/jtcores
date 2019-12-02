@@ -9,8 +9,8 @@
 ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
-../../../modules/jtframe/hdl/ram/jtgng_prom.v
-../../../modules/jtframe/hdl/ram/jtgng_ram.v
+../../../modules/jtframe/hdl/ram/jtframe_prom.v
+../../../modules/jtframe/hdl/ram/jtframe_ram.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtgng_rom.v

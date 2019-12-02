@@ -7,6 +7,6 @@ jtgng_objpxl.v
 jtgng_avatar.v
 jtgng_dual_ram.v
 jtgng_sh.v
-jtframe/hdl/ram/jtgng_prom.v
-jtframe/hdl/ram/jtgng_ram.v
+jtframe/hdl/ram/jtframe_prom.v
+jtframe/hdl/ram/jtframe_ram.v
 jtframe/hdl/clocking/jtframe_cencross_strobe.v

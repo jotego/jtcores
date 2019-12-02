@@ -126,7 +126,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtgng_prom #(.aw(12),.dw(8),
+jtframe_prom #(.aw(12),.dw(8),
     `ifdef F1DREAM    
     .simfile("../../../rom/f1dream/8751.mcu")
     `else
@@ -142,7 +142,7 @@ jtgng_prom #(.aw(12),.dw(8),
     .q          ( rom_data          )
 );
 
-jtgng_ram #(.aw(7),.cen_rd(1)) u_ramu(
+jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
     .clk        ( clk               ),
     .cen        ( cen6a             ),
     .addr       ( ram_addr          ),

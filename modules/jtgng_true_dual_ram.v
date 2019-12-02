@@ -38,4 +38,4 @@ always @(posedge clk) if(clk_en) begin
     if(we_b) mem[addr_b] <= data_b;
 end
 
-endmodule // jtgng_ram
+endmodule // jtframe_ram

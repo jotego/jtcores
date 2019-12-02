@@ -18,7 +18,7 @@
 
 `timescale 1ns/1ps
 
-module jtgng_prom_we(
+module jtframe_prom_we(
     input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
@@ -115,4 +115,4 @@ always @(posedge clk) begin
     end
 end
 
-endmodule // jtgng_promprog
+endmodule // jtframe_promprog

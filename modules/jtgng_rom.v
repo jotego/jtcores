@@ -310,7 +310,7 @@ jtgng_romrq #(.AW(obj_aw),.DW(obj_dw)) u_obj(
 `ifdef AVATAR_ROM
     // Alternative Objects during pause for MiSTer
     wire [15:0] avatar_data;
-    jtgng_ram #(.dw(16), .aw(13), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
+    jtframe_ram #(.dw(16), .aw(13), .synfile("avatar.hex"),.cen_rd(1)) u_avatars(
         .clk    ( clk            ),
         .cen    ( pause          ),  // tiny power saving when not in pause
         .data   ( 16'd0          ),

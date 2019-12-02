@@ -157,7 +157,7 @@ end
 `define JTCHAR_LOWER_SIMFILE
 `endif
 
-jtgng_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
+jtframe_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( ldlatch  ),
@@ -169,7 +169,7 @@ jtgng_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
 // attributes
 // the default value for synthesis will display a ROM load message using
 // the palette attributes
-jtgng_ram #(.aw(SCANW) `JTCHAR_UPPER_SIMFILE) u_ram_high(
+jtframe_ram #(.aw(SCANW) `JTCHAR_UPPER_SIMFILE) u_ram_high(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( udlatch  ),
