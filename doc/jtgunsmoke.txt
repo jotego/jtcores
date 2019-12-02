@@ -29,6 +29,14 @@ Note that by default the continue prompt is disabled. If you want to
 be able to continue, change this in the OSD. You can then save your settings
 so it will be the same the next time you powerup.
 
+CHEAT
+=====
+If you enable the test mode after the game has already started, it is possible
+to start at any level by altering the value of the coin slot settings.
+
+Note that you can reset the game by pressing F3 or selecting RST in the OSD menu.
+
+
 TECHNICAL INFORMATION
 =====================
 -All PSG channels are loaded with 1 kOhm resistors.
@@ -36,6 +44,8 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
+1st  Dec 2019
+    - Flip mode fixed
 21st Nov 2019
     - Fixes bug in SDRAM controller
 13th  Nov 2019

@@ -32,8 +32,9 @@ module jtgunsmoke_dip(
 wire       dip_upright   = 1'b0;
 wire       dip_demosnd   = status[20]; // K
 wire       dip_demo      = 1'b0;
-wire       dip_continue  = ~status[21]; // L
-wire [2:0] dip_price     = ~3'b0;
+wire       dip_continue  = ~status[27];
+wire [2:0] dip_price1 = ~status[23:21];
+wire [2:0] dip_price2 = ~status[26:24];
 reg  [1:0] dip_level;
 wire [1:0] dip_bonus     = ~status[19:18]; // I, J
 wire       dip_lives     = 1'b0;
@@ -49,6 +50,6 @@ always @(posedge clk)
 
 
 assign dipsw_a = {dip_test, dip_pause, dip_level, dip_upright, dip_demo, dip_bonus };
-assign dipsw_b = {dip_demosnd, dip_continue, 3'b111, dip_price };
+assign dipsw_b = {dip_demosnd, dip_continue, dip_price2, dip_price1 };
 
 endmodule

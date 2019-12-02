@@ -324,14 +324,14 @@ assign mcu_dout = 8'hff;
 reg [7:0] psg_gain;
 always @(posedge clk) begin
     case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h1F;
+        2'd0: psg_gain <= 8'h2F;
         2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h7F;
-        2'd3: psg_gain <= 8'hFF;
+        2'd2: psg_gain <= 8'h4F;
+        2'd3: psg_gain <= 8'h5F;
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.LAYOUT(4)) u_sound (
+jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h38)) u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
     .cen3           ( cenfm          ),

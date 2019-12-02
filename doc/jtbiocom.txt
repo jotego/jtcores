@@ -30,8 +30,9 @@ in the FPGA. Maybe it can be fixed with some architectural change but I will
 probably not do it myself unless several patrons ask for it.
 
 MiSTer version uses 3MHz as the clock for the sound CPU but it should be 3.7MHz. There is
-an issue preventing the sound to work when the sound CPU is run at 3.7MHz. I still do
-not understand why.
+an issue preventing the sound to work when the sound CPU is run at 3.7MHz. The sound CPU
+ignores the JT51 interrupt line when using 3.7MHz. It is not clear whether the interaction
+with the MCU and main CPU has something to do with this.
 
 GAME PLAY
 =========

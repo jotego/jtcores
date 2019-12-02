@@ -63,7 +63,7 @@ always @(*) begin
     case(LAYOUT)
         default: begin
             scr_hflip = attr[6]^flip;
-            scr_vflip = attr[7]^flip;
+            scr_vflip = attr[7]/*^flip*/;
         end
         1: begin // Bionic Commando SCROLL 1. No ^flip on schematics
             aux = ~&attr[7:6];

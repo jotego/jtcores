@@ -297,10 +297,10 @@ assign obj_bank    = 3'd0;
 reg [7:0] psg_gain;
 always @(posedge clk) begin
     case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h7F;
-        2'd3: psg_gain <= 8'hFF;
+        2'd0: psg_gain <= 8'h2F;
+        2'd1: psg_gain <= 8'h4F;
+        2'd2: psg_gain <= 8'h6F;
+        2'd3: psg_gain <= 8'h8F;
     endcase // dip_fxlevel
 end
 

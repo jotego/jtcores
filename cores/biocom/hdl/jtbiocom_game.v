@@ -363,7 +363,7 @@ jtgng_cen3p57 u_cen3p57(
 jtbiocom_sound u_sound (
     .rst            ( rst_game       ),
     .clk            ( clk            ),
-    .cen_alt        ( cen_fm         ), // CPU CEN, it should be cen_fm really
+    .cen_alt        ( cen3         ), // CPU CEN, it should be cen_fm really
     // cen6    X
     // cen_fm2 X
     // cen_fm  O
