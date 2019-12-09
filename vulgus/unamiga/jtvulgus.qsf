@@ -210,13 +210,13 @@ set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 
 set_global_assignment -name QIP_FILE ../../1942/hdl/jt1942.qip
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/FW/CtrlROM_VULGUS.vhd
+set_global_assignment -name VHDL_FILE ../cyclone5/CtrlROM_VULGUS.vhd
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_keyboard.v
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/RTL/zpupkg.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/RTL/zpu_core_flex.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/RTL/spi.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/RTL/interrupt_controller.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/RTL/CtrlModule.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpupkg.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpu_core_flex.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/spi.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/interrupt_controller.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/CtrlModule.vhd
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/unamiga/reloj_altera/jtgng_pll.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/unamiga/jtgng_unamiga_board.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/sigma_delta_dac.v

@@ -25,7 +25,7 @@
 #
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CEFA2F23I7
-set_global_assignment -name TOP_LEVEL_ENTITY jtvulgus_cyclone5
+set_global_assignment -name TOP_LEVEL_ENTITY jtbiocom_cyclone5
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:14:01  APRIL 10, 2012"
 set_global_assignment -name LAST_QUARTUS_VERSION "17.1.0 Lite Edition"
@@ -55,16 +55,19 @@ set_location_assignment PIN_AB13 -to BTN[0]
 set_location_assignment PIN_V18 -to BTN[1]
 
 # LEDS
-set_location_assignment PIN_D17 -to LED[0]
-#set_location_assignment PIN_?? -to LED[1]
+set_location_assignment PIN_D17 -to LED
 
 # RATON
 #set_location_assignment PIN_K22 -to PS2_MCLK
 #set_location_assignment PIN_K21 -to PS2_MDAT
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MCLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MDAT
 
 # TECLADO
 set_location_assignment PIN_N16 -to PS2_CLK
 set_location_assignment PIN_M16 -to PS2_DATA
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_CLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_DATA
 # SONIDO
 set_location_assignment PIN_E7 -to AUDIO_L
 set_location_assignment PIN_D6 -to AUDIO_R
@@ -73,6 +76,7 @@ set_location_assignment PIN_D6 -to AUDIO_R
 set_location_assignment PIN_C16 -to JOY_CLK
 set_location_assignment PIN_B16 -to JOY_LOAD
 set_location_assignment PIN_B15 -to JOY_DATA
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY_DATA
 
 # VGA 
 set_location_assignment PIN_G8 -to VGA_R[0]
@@ -104,6 +108,7 @@ set_location_assignment PIN_M22 -to SD_CLK
 set_location_assignment PIN_K17 -to SD_MOSI
 set_location_assignment PIN_L22 -to SD_MISO
 set_location_assignment PIN_L17 -to SD_CS_N
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_MISO
 
 # SDRAM 
 set_location_assignment PIN_P8 -to SDRAM_A[0]
@@ -149,13 +154,10 @@ set_location_assignment PIN_P9 -to SDRAM_BA[1]
 set_location_assignment PIN_AB7 -to SDRAM_DQML
 set_location_assignment PIN_V10 -to SDRAM_DQMH
 
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MCLK
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MDAT
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_CLK
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_DATA
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY_DATA
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_MISO
 set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
 set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE stp1.stp
@@ -176,15 +178,17 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
 #############################################################################
 
-set_global_assignment -name VERILOG_MACRO "SDRAM_SHIFT=10417"
+
+set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTBIOCOM\""
+#set_global_assignment -name VERILOG_MACRO "SDRAM_SHIFT=10417"
+set_global_assignment -name VERILOG_MACRO "SDRAM_SHIFT=6944"
+set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
+set_global_assignment -name VERILOG_MACRO "STEREO_GAME=1"
+set_global_assignment -name VERILOG_MACRO "COLORW=5"
+set_global_assignment -name VERILOG_MACRO "GAMETOP=jtbiocom_game"
+set_global_assignment -name VERILOG_MACRO "CORETOP=jtbiocom_cyclone5"
 set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=0"
 set_global_assignment -name VERILOG_MACRO "JTGNG_VGA=0"
-set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
-set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1942_game"
-set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTVULGUS\""
-set_global_assignment -name VERILOG_MACRO "CORETOP=jtvulgus_cyclone5"
-set_global_assignment -name VERILOG_MACRO "VULGUS=1"
-set_global_assignment -name VERILOG_MACRO "SIGNED_SND=0"
 
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
@@ -193,14 +197,12 @@ set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 1
-
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-
-set_global_assignment -name QIP_FILE ../../1942/hdl/jt1942.qip
-set_global_assignment -name VHDL_FILE ../cyclone5/CtrlROM_VULGUS.vhd
+set_global_assignment -name QIP_FILE ../hdl/jtbiocom.qip
+set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cpu/jtframe_68kdma.v
+set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/zxdos/fx68k/fx68k.qip
+set_global_assignment -name VHDL_FILE ../cyclone5/CtrlROM_BIOCOM.vhd
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_keyboard.v
+set_global_assignment -name HEX_FILE ../../modules/rom_loadv.hex
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpupkg.vhd
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpu_core_flex.vhd
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/spi.vhd
@@ -209,6 +211,11 @@ set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlMod
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/cyclone5/reloj_cyclone5/pll.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_board.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/sigma_delta_dac.v
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpupkg.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpu_core_flex.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/spi.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/interrupt_controller.vhd
+set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/CtrlModule.vhd
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_cyclone5.v
 set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtframe/hdl/mister/sys/video_cleaner.sv
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/ram/jtgng_dual_clk_ram.v
