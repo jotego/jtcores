@@ -74,7 +74,7 @@ reg  [ 8:0] VF;
 // noticeable in 1943, but it can be seen in GunSmoke
 // In order to avoid it, the V counter must be delayed by the same
 // HOFFSET amount
-jtgng_sh #(.width(9), .stages(HOFFSET) ) u_vsh
+jtframe_sh #(.width(9), .stages(HOFFSET) ) u_vsh
 (
     .clk    ( clk     ),
     .clk_en ( cen6    ),

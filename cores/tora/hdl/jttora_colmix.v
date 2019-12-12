@@ -92,7 +92,7 @@ end
 // Blanking delay
 wire [1:0] pre_BL;
 
-jtgng_sh #(.width(2),.stages(5)) u_blank_dly(
+jtframe_sh #(.width(2),.stages(5)) u_blank_dly(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
     .din    ( {LHBL, LVBL}     ),

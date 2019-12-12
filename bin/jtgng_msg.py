@@ -54,7 +54,8 @@ for col in range(256):
 
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
-print_char("                                ")
+print_char("                                ") # non visible
+print_char("                                ") # non visible
 print_char("       G&G clone for FPGA       ")
 print_char("    brought to you by jotego.   ")
 print_char("  http://patreon.com/topapate   ")
@@ -73,9 +74,9 @@ print_char(" SmokeMonster - YouTube channel ")
 print_char(" Suvodip Mitra                  ")
 print_char(" Sweetlilmre                    ")
 print_char(" Ultrarobotninja                ")
+print_char(" www.arcadexpress.com           ")
 print_char("                                ")
-print_char("  Hardware support from:        ")
-print_char("                                ")
+print_char("     Hardware support from:     ")
 print_char("           Manuferhi            ")
 print_char("        Antonio Villena         ")
 print_char("  Ricardo Saraiva-Retroshop.pt  ")
@@ -83,7 +84,6 @@ print_char("                                ")
 print_char("         Greetings to           ")
 print_char("       Alexey Melnikov!         ")
 print_char("    and Szombathelyi Gyorgy     ")
-print_char("                                ")
 
 save_hex( os.environ['JTGNG']+"/cores/gng/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG']+"/cores/gng/ver/game/msg.bin", char_ram )

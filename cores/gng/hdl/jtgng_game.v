@@ -189,7 +189,7 @@ wire [7:0] snd_latch;
 wire scr_cs;
 wire [8:0] scr_hpos, scr_vpos;
 
-jtframe_prom_we u_prom_we(
+jtgng_prom_we u_prom_we(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 

@@ -125,7 +125,7 @@ jtframe_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
 );
 
 // Delay pixel output in order to be aligned with the other layers
-jtgng_sh #(.width(dw), .stages(PXL_DLY)) u_sh(
+jtframe_sh #(.width(dw), .stages(PXL_DLY)) u_sh(
     .clk            ( clk           ),
     .clk_en         ( pxl_cen       ), // important: pixel cen!
     .din            ( obj_pxl0      ),

@@ -105,7 +105,7 @@ end
 
 reg [1:0] pre_BL;
 
-//jtgng_sh #(.width(2),.stages(5)) u_hb_dly(
+//jtframe_sh #(.width(2),.stages(5)) u_hb_dly(
 //    .clk    ( clk      ),
 //    .clk_en ( cen6     ),
 //    .din    ( {LHBL, LVBL}     ),
