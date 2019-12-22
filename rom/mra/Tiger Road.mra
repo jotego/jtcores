@@ -1,0 +1,33 @@
+<misterromdescription>
+	<name>Tiger Road (US)</name>
+	<mameversion>0216</mameversion>
+	<setname>tigeroad</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1987</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Fighter / Asian</category>
+	<rbf>jttora</rbf>
+	<rom index="0" zip="tigeroad.zip" md5="153ab39a778af8b5b2240d9d1719ca97" type="merged|nonmerged">
+		<part name="tre_02.6j"/>
+		<part name="tre_04.6k"/>
+		<part name="tru_05.12k"/>
+		<part name="tru_05.12k"/>
+		<part name="tru_05.12k"/>
+		<part name="tr_01.10d"/>
+		<part name="tr_13.7l"/>
+		<part name="tr_13.7l"/>
+		<part name="tr-03a.2f"/>
+		<part name="tr-06a.2h"/>
+		<part name="tr-07a.2j"/>
+		<part name="tr_08.2l"/>
+		<part name="tr-01a.3f"/>
+		<part name="tr-04a.3h"/>
+		<part name="tr-02a.3j"/>
+		<part name="tr-05.3l"/>
+		<part name="tr-12a.2d"/>
+		<part name="tr-11a.3d"/>
+		<part name="tr-10a.2b"/>
+		<part name="tr-09a.3b"/>
+		<part name="tr.9e"/>
+	</rom>
+</misterromdescription>

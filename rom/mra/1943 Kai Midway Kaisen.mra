@@ -1,0 +1,49 @@
+<misterromdescription>
+	<name>1943 Kai Midway Kaisen (Japan)</name>
+	<mameversion>0216</mameversion>
+	<setname>1943kai</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1987</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Army / Airforce</category>
+	<rbf>jt1943</rbf>
+	<rom index="0" zip="1943kai.zip" md5="a22833b3bf0c0bc6c95c53147f17b48f" type="merged|nonmerged">
+		<part name="bmk01.12d"/>
+		<part name="bmk02.13d"/>
+		<part name="bmk03.14d"/>
+		<part name="bmk05.4k"/>
+		<part name="bmk04.5h"/>
+		<part name="bmk14.5f"/>
+		<part name="bmk23.8k"/>
+		<part name="bm15.10f"/>
+		<part name="bm19.10j"/>
+		<part name="bmk16.11f"/>
+		<part name="bmk20.11j"/>
+		<part name="bmk17.12f"/>
+		<part name="bmk21.12j"/>
+		<part name="bmk18.14f"/>
+		<part name="bmk22.14j"/>
+		<part name="bmk24.14k"/>
+		<part name="bmk25.14l"/>
+		<part name="bmk06.10a"/>
+		<part name="bmk10.10c"/>
+		<part name="bmk07.11a"/>
+		<part name="bmk11.11c"/>
+		<part name="bmk08.12a"/>
+		<part name="bmk12.12c"/>
+		<part name="bmk09.14a"/>
+		<part name="bmk13.14c"/>
+		<part name="bmk10.7l"/>
+		<part name="bmk11.12l"/>
+		<part name="bmk1.12a"/>
+		<part name="bmk12.12m"/>
+		<part name="bmk2.13a"/>
+		<part name="bmk3.14a"/>
+		<part name="bm4.12c"/>
+		<part name="bmk5.7f"/>
+		<part name="bm6.4b"/>
+		<part name="bmk7.7c"/>
+		<part name="bmk8.8c"/>
+		<part name="bmk9.6l"/>
+	</rom>
+</misterromdescription>

@@ -1,0 +1,34 @@
+<misterromdescription>
+	<name>Ghosts'n Goblins (World set 1)</name>
+	<mameversion>0216</mameversion>
+	<setname>gng</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1985</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Adventure / Knights</category>
+	<category>Fighter / Warriors</category>
+	<rbf>gng</rbf>
+	<rom index="0" zip="gng.zip" md5="41a39ea05a8bf15526ca05e0894c248f" type="merged|nonmerged">
+		<part name="gg3.bin"/>
+		<part name="gg4.bin"/>
+		<part name="gg5.bin"/>
+		<part name="gg1.bin"/>
+		<part name="gg2.bin"/>
+		<part name="gg9.bin"/>
+		<part name="gg8.bin"/>
+		<part name="gg7.bin"/>
+		<part name="gg6.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg17.bin"/>
+		<part name="gg16.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg14.bin"/>
+		<part name="gg13.bin"/>
+		<part name="gg12.bin"/>
+		<part name="gg12.bin"/>
+	</rom>
+</misterromdescription>

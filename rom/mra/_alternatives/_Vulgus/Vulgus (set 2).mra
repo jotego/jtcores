@@ -1,0 +1,74 @@
+<misterromdescription>
+	<name>Vulgus (set 2)</name>
+	<mameversion>0216</mameversion>
+	<setname>vulgusa</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1984</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Space / Force</category>
+	<rbf>jtvulgus</rbf>
+	<rom index="0" zip="vulgusa.zip" md5="cc7ff45328905f65aa6866e90260d081" type="nonmerged">
+		<part name="v2"/>
+		<part name="v3"/>
+		<part name="v4"/>
+		<part name="v5"/>
+		<part name="1-8n.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-3d.bin"/>
+		<part name="2-4a.bin"/>
+		<part name="2-5a.bin"/>
+		<part name="2-2a.bin"/>
+		<part name="2-3a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="2-7a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="2-7a.bin"/>
+		<part name="2-4n.bin"/>
+		<part name="2-5n.bin"/>
+		<part name="2-2n.bin"/>
+		<part name="2-3n.bin"/>
+		<part name="82s126.9k"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="e8.bin"/>
+		<part name="e9.bin"/>
+		<part name="e10.bin"/>
+		<part name="d1.bin"/>
+		<part name="j2.bin"/>
+		<part name="82s129.8n"/>
+	</rom>
+	<rom index="0" zip="vulgus.zip" md5="cc7ff45328905f65aa6866e90260d081" type="merged">
+		<part name="vulgusa/v2"/>
+		<part name="vulgusa/v3"/>
+		<part name="vulgusa/v4"/>
+		<part name="vulgusa/v5"/>
+		<part name="1-8n.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-3d.bin"/>
+		<part name="2-4a.bin"/>
+		<part name="2-5a.bin"/>
+		<part name="2-2a.bin"/>
+		<part name="2-3a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="2-7a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="2-7a.bin"/>
+		<part name="2-4n.bin"/>
+		<part name="2-5n.bin"/>
+		<part name="2-2n.bin"/>
+		<part name="2-3n.bin"/>
+		<part name="82s126.9k"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="e8.bin"/>
+		<part name="e9.bin"/>
+		<part name="e10.bin"/>
+		<part name="d1.bin"/>
+		<part name="j2.bin"/>
+		<part name="82s129.8n"/>
+	</rom>
+</misterromdescription>

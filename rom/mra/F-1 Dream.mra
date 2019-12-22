@@ -1,0 +1,61 @@
+<misterromdescription>
+	<name>F-1 Dream</name>
+	<mameversion>0216</mameversion>
+	<setname>f1dream</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1988</year>
+	<manufacturer>Capcom (Romstar license)</manufacturer>
+	<category>Racing / F1</category>
+	<rbf>jtf1dream</rbf>
+	<rom index="0" zip="f1dream.zip" md5="7bbad4ffbf4d2829569baa73eb38a2b1" type="merged|nonmerged">
+		<part name="f1_02.6j"/>
+		<part name="f1_03.6k"/>
+		<part name="f1_04.12k"/>
+		<part name="f1_04.12k"/>
+		<part name="f1_04.12k"/>
+		<part name="f1_01.10d"/>
+		<part name="f1_15.7l"/>
+		<part name="f1_15.7l"/>
+		<part name="f1_11.2f"/>
+		<part name="f1_09.17f"/>
+		<part name="f1_13.2h"/>
+		<part name="f1_13.2h"/>
+		<part name="f1_11.2f"/>
+		<part name="f1_09.17f"/>
+		<part name="f1_13.2h"/>
+		<part name="f1_13.2h"/>
+		<part name="f1_12.3f"/>
+		<part name="f1_10.1f"/>
+		<part name="f1_14.3h"/>
+		<part name="f1_14.3h"/>
+		<part name="f1_12.3f"/>
+		<part name="f1_10.1f"/>
+		<part name="f1_14.3h"/>
+		<part name="f1_14.3h"/>
+		<part name="f1_07.2d"/>
+		<part name="f1_07.2d"/>
+		<part name="f1_08.3d"/>
+		<part name="f1_08.3d"/>
+		<part name="f1_05.2b"/>
+		<part name="f1_05.2b"/>
+		<part name="f1_06.3b"/>
+		<part name="f1_06.3b"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="tr.9e"/>
+		<part name="f1.9j"/>
+	</rom>
+</misterromdescription>

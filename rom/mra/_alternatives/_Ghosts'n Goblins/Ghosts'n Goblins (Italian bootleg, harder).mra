@@ -1,0 +1,57 @@
+<misterromdescription>
+	<name>Ghosts'n Goblins (Italian bootleg, harder)</name>
+	<mameversion>0216</mameversion>
+	<setname>gngblita</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1985</year>
+	<manufacturer>bootleg</manufacturer>
+	<category>Adventure / Knights</category>
+	<category>Fighter / Warriors</category>
+	<rbf>gng</rbf>
+	<rom index="0" zip="gngblita.zip" md5="3da9708518bfb1b90ba960b22f71e0c9" type="nonmerged">
+		<part name="4-5"/>
+		<part name="3"/>
+		<part name="1-2"/>
+		<part name="gg1.bin"/>
+		<part name="gg2.bin"/>
+		<part name="gg9.bin"/>
+		<part name="gg8.bin"/>
+		<part name="gg7.bin"/>
+		<part name="gg6.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg17.bin"/>
+		<part name="gg16.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg14.bin"/>
+		<part name="gg13.bin"/>
+		<part name="gg12.bin"/>
+		<part name="gg12.bin"/>
+	</rom>
+	<rom index="0" zip="gng.zip" md5="3da9708518bfb1b90ba960b22f71e0c9" type="merged">
+		<part name="gngblita/4-5"/>
+		<part name="gngblita/3"/>
+		<part name="gngblita/1-2"/>
+		<part name="gg1.bin"/>
+		<part name="gg2.bin"/>
+		<part name="gg9.bin"/>
+		<part name="gg8.bin"/>
+		<part name="gg7.bin"/>
+		<part name="gg6.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg17.bin"/>
+		<part name="gg16.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg14.bin"/>
+		<part name="gg13.bin"/>
+		<part name="gg12.bin"/>
+		<part name="gg12.bin"/>
+	</rom>
+</misterromdescription>

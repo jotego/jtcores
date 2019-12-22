@@ -1,0 +1,74 @@
+<misterromdescription>
+	<name>1942 Supercharger + C64 Music - HBMame</name>
+	<mameversion>0216</mameversion>
+	<setname>1942HC64</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1991</year>
+	<manufacturer>hack (Two Bit Score)</manufacturer>
+	<category>Army / Airforce</category>
+	<rbf>1942</rbf>
+	<rom index="0" zip="1942h.zip" md5="ba98c8f0d34b514f9adbd9ea739e3c33" type="nonmerged">
+		<part name="supercharger_1942_@3.m3"/>
+		<part name="supercharger_1942_@4.m4"/>
+		<part name="supercharger_1942_@5.m5"/>
+		<part name="srb-06.m6"/>
+		<part name="srb-06.m6"/>
+		<part name="srb-07.m7"/>
+		<part zip="/hbmame/1942.zip" name="1942c64/1942c64.c11"/>
+		<part name="sr-02.f2"/>
+		<part name="sr-10.a3"/>
+		<part name="sr-11.a4"/>
+		<part name="sr-08.a1"/>
+		<part name="sr-09.a2"/>
+		<part name="sr-12.a5"/>
+		<part name="sr-13.a6"/>
+		<part name="sr-12.a5"/>
+		<part name="sr-13.a6"/>
+		<part name="sr-14.l1"/>
+		<part name="sr-16.n1"/>
+		<part name="sr-15.l2"/>
+		<part name="sr-17.n2"/>
+		<part name="sb-1.k6"/>
+		<part name="sb-2.d1"/>
+		<part name="sb-3.d2"/>
+		<part name="sb-4.d6"/>
+		<part name="sb-5.e8"/>
+		<part name="sb-6.e9"/>
+		<part name="sb-7.e10"/>
+		<part name="sb-0.f1"/>
+		<part name="sb-8.k3"/>
+		<part name="sb-9.m11"/>
+	</rom>
+	<rom index="0" zip="1942.zip" md5="ba98c8f0d34b514f9adbd9ea739e3c33" type="merged">
+		<part name="1942h/supercharger_1942_@3.m3"/>
+		<part name="1942h/supercharger_1942_@4.m4"/>
+		<part name="1942h/supercharger_1942_@5.m5"/>
+		<part name="srb-06.m6"/>
+		<part name="srb-06.m6"/>
+		<part name="srb-07.m7"/>
+		<part zip="/hbmame/1942.zip" name="1942c64/1942c64.c11"/>
+		<part name="sr-02.f2"/>
+		<part name="sr-10.a3"/>
+		<part name="sr-11.a4"/>
+		<part name="sr-08.a1"/>
+		<part name="sr-09.a2"/>
+		<part name="sr-12.a5"/>
+		<part name="sr-13.a6"/>
+		<part name="sr-12.a5"/>
+		<part name="sr-13.a6"/>
+		<part name="sr-14.l1"/>
+		<part name="sr-16.n1"/>
+		<part name="sr-15.l2"/>
+		<part name="sr-17.n2"/>
+		<part name="sb-1.k6"/>
+		<part name="sb-2.d1"/>
+		<part name="sb-3.d2"/>
+		<part name="sb-4.d6"/>
+		<part name="sb-5.e8"/>
+		<part name="sb-6.e9"/>
+		<part name="sb-7.e10"/>
+		<part name="sb-0.f1"/>
+		<part name="sb-8.k3"/>
+		<part name="sb-9.m11"/>
+	</rom>
+</misterromdescription>

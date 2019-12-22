@@ -1,0 +1,57 @@
+<misterromdescription>
+	<name>Ghosts'n Goblins (US)</name>
+	<mameversion>0216</mameversion>
+	<setname>gngt</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1985</year>
+	<manufacturer>Capcom (Taito America license)</manufacturer>
+	<category>Adventure / Knights</category>
+	<category>Fighter / Warriors</category>
+	<rbf>gng</rbf>
+	<rom index="0" zip="gngt.zip" md5="205229cb8941ae2ab651777018f91826" type="nonmerged">
+		<part name="mmt03d.8n"/>
+		<part name="mmt04d.10n"/>
+		<part name="mmt05d.13n"/>
+		<part name="mm01.11e"/>
+		<part name="mm02.14h"/>
+		<part name="mm09.3c"/>
+		<part name="mm08.1c"/>
+		<part name="mm07.3b"/>
+		<part name="mm06.1b"/>
+		<part name="mm11.3e"/>
+		<part name="mm10.1e"/>
+		<part name="mm11.3e"/>
+		<part name="mm10.1e"/>
+		<part name="mm17.4n"/>
+		<part name="mm16.3n"/>
+		<part name="mm15.1n"/>
+		<part name="mm15.1n"/>
+		<part name="mm14.4l"/>
+		<part name="mm13.3l"/>
+		<part name="mm12.1l"/>
+		<part name="mm12.1l"/>
+	</rom>
+	<rom index="0" zip="gng.zip" md5="205229cb8941ae2ab651777018f91826" type="merged">
+		<part name="gngt/mmt03d.8n"/>
+		<part name="gngt/mmt04d.10n"/>
+		<part name="gngt/mmt05d.13n"/>
+		<part name="gg1.bin"/>
+		<part name="gg2.bin"/>
+		<part name="gg9.bin"/>
+		<part name="gg8.bin"/>
+		<part name="gg7.bin"/>
+		<part name="gg6.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg17.bin"/>
+		<part name="gg16.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg14.bin"/>
+		<part name="gg13.bin"/>
+		<part name="gg12.bin"/>
+		<part name="gg12.bin"/>
+	</rom>
+</misterromdescription>

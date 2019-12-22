@@ -1,0 +1,64 @@
+<misterromdescription>
+	<name>Double Dragon (World set 2)</name>
+	<mameversion>0216</mameversion>
+	<setname>ddragonw1</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1987</year>
+	<manufacturer>Technos Japan (Taito license)</manufacturer>
+	<category>Fighter / Hero</category>
+	<rbf>jtdd</rbf>
+	<rom index="0" zip="ddragonw1.zip" md5="1521c064e72cde91c87b1f5d7ede1caa" type="nonmerged">
+		<part name="21a-2-4.25"/>
+		<part name="21a-3.24"/>
+		<part name="e4-1.23"/>
+		<part name="e4-1.23"/>
+		<part name="e1-1.26"/>
+		<part name="21j-0-1"/>
+		<part name="21j-6"/>
+		<part name="21j-7"/>
+		<part name="21j-5"/>
+		<part name="21j-5"/>
+		<part name="21j-8"/>
+		<part name="21j-9"/>
+		<part name="21j-i"/>
+		<part name="21j-j"/>
+		<part name="21j-a"/>
+		<part name="21j-b"/>
+		<part name="21j-c"/>
+		<part name="21j-d"/>
+		<part name="21j-e"/>
+		<part name="21j-f"/>
+		<part name="21j-g"/>
+		<part name="21j-h"/>
+		<part name="21jm-0.ic55"/>
+		<part name="21j-k-0.101"/>
+		<part name="21j-l-0.16"/>
+	</rom>
+	<rom index="0" zip="ddragon.zip" md5="1521c064e72cde91c87b1f5d7ede1caa" type="merged">
+		<part name="ddragonua/21a-2_4"/>
+		<part name="ddragonb/21a-3.24"/>
+		<part name="ddragonw1/e4-1.23"/>
+		<part name="ddragonw1/e4-1.23"/>
+		<part name="ddragonw1/e1-1.26"/>
+		<part name="21j-0-1"/>
+		<part name="21j-6"/>
+		<part name="21j-7"/>
+		<part name="21j-5"/>
+		<part name="21j-5"/>
+		<part name="21j-8"/>
+		<part name="21j-9"/>
+		<part name="21j-i"/>
+		<part name="21j-j"/>
+		<part name="21j-a"/>
+		<part name="21j-b"/>
+		<part name="21j-c"/>
+		<part name="21j-d"/>
+		<part name="21j-e"/>
+		<part name="21j-f"/>
+		<part name="21j-g"/>
+		<part name="21j-h"/>
+		<part name="21jm-0.ic55"/>
+		<part name="21j-k-0"/>
+		<part name="21j-l-0"/>
+	</rom>
+</misterromdescription>

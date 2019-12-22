@@ -1,0 +1,74 @@
+<misterromdescription>
+	<name>Mach-9 (bootleg of Vulgus)</name>
+	<mameversion>0216</mameversion>
+	<setname>mach9</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1984</year>
+	<manufacturer>bootleg (ITISA)</manufacturer>
+	<category>Space / Force</category>
+	<rbf>jtvulgus</rbf>
+	<rom index="0" zip="mach9.zip" md5="eb03683437787decdc1b80c689baff6d" type="nonmerged">
+		<part name="02_4n.bin"/>
+		<part name="03_5n.bin"/>
+		<part name="04_6n.bin"/>
+		<part name="05_7n.bin"/>
+		<part name="06_8n.bin"/>
+		<part name="07_11c.bin"/>
+		<part name="07_11c.bin"/>
+		<part name="01_3d.bin"/>
+		<part name="10_4a.bin"/>
+		<part name="11_5a.bin"/>
+		<part name="08_2a.bin"/>
+		<part name="09_3a.bin"/>
+		<part name="12_6a.bin"/>
+		<part name="13_7a.bin"/>
+		<part name="12_6a.bin"/>
+		<part name="13_7a.bin"/>
+		<part name="16_4n.bin"/>
+		<part name="17_5n.bin"/>
+		<part name="14_2n.bin"/>
+		<part name="15_3n.bin"/>
+		<part name="82s129_9k.bin"/>
+		<part name="82s129_9c.bin"/>
+		<part name="82s129_9c.bin"/>
+		<part name="82s129_9c.bin"/>
+		<part name="82s129_8e.bin"/>
+		<part name="82s129_9e.bin"/>
+		<part name="82s129_10e.bin"/>
+		<part name="82s129_1d.bin"/>
+		<part name="82s129_2j.bin"/>
+		<part name="82s129_8n.bin"/>
+	</rom>
+	<rom index="0" zip="vulgus.zip" md5="eb03683437787decdc1b80c689baff6d" type="merged">
+		<part name="mach9/02_4n.bin"/>
+		<part name="vulgus.003"/>
+		<part name="vulgus.004"/>
+		<part name="mach9/05_7n.bin"/>
+		<part name="1-8n.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="mach9/01_3d.bin"/>
+		<part name="2-4a.bin"/>
+		<part name="mach9/11_5a.bin"/>
+		<part name="2-2a.bin"/>
+		<part name="mach9/09_3a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="mach9/13_7a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="mach9/13_7a.bin"/>
+		<part name="2-4n.bin"/>
+		<part name="2-5n.bin"/>
+		<part name="2-2n.bin"/>
+		<part name="2-3n.bin"/>
+		<part name="82s126.9k"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="e8.bin"/>
+		<part name="e9.bin"/>
+		<part name="mach9/82s129_10e.bin"/>
+		<part name="d1.bin"/>
+		<part name="j2.bin"/>
+		<part name="82s129.8n"/>
+	</rom>
+</misterromdescription>

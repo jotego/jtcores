@@ -1,0 +1,41 @@
+<misterromdescription>
+	<name>Popeye (bootleg set 3)</name>
+	<mameversion>0216</mameversion>
+	<setname>popeyeb3</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1982</year>
+	<manufacturer>bootleg</manufacturer>
+	<rbf>jtpopeye</rbf>
+	<rom index="0" zip="popeyeb3.zip" md5="e6ba0b8f7403d854e3f39155942683fc" type="nonmerged">
+		<part name="bdf-5"/>
+		<part name="bdf-6"/>
+		<part name="bdf-7"/>
+		<part name="bdf-8"/>
+		<part name="bdf-4"/>
+		<part name="bdf-3"/>
+		<part name="bdf-2"/>
+		<part name="bdf-1"/>
+		<part name="bdf-9"/>
+		<part name="tpp2-v.7j"/>
+		<part name="tpp2-c.5b"/>
+		<part name="tpp2-c.5a"/>
+		<part name="tpp2-c.4a"/>
+		<part name="tpp2-c.3a"/>
+	</rom>
+	<rom index="0" zip="popeye.zip" md5="e6ba0b8f7403d854e3f39155942683fc" type="merged">
+		<part name="popeyeb3/bdf-5"/>
+		<part name="popeyeb3/bdf-6"/>
+		<part name="popeyeb3/bdf-7"/>
+		<part name="popeyeb3/bdf-8"/>
+		<part name="tpp2-v.1e"/>
+		<part name="tpp2-v.1f"/>
+		<part name="tpp2-v.1j"/>
+		<part name="tpp2-v.1k"/>
+		<part name="tpp2-v.5n"/>
+		<part name="tpp2-v.7j"/>
+		<part name="tpp2-c.5b"/>
+		<part name="tpp2-c.5a"/>
+		<part name="tpp2-c.4a"/>
+		<part name="tpp2-c.3a"/>
+	</rom>
+</misterromdescription>

@@ -1,0 +1,78 @@
+<misterromdescription>
+	<name>Gun.Smoke (World, 851115) (bootleg)</name>
+	<mameversion>0216</mameversion>
+	<setname>gunsmokeb</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1985</year>
+	<manufacturer>bootleg</manufacturer>
+	<category>Adventure / Western</category>
+	<rbf>jtgunsmoke</rbf>
+	<rom index="0" zip="gunsmokeb.zip" md5="c2dbd27e0a05e6575d1ff83831051a73" type="nonmerged">
+		<part name="3.ic85"/>
+		<part name="4.ic86"/>
+		<part name="5.ic87"/>
+		<part name="2.ic41"/>
+		<part name="1.ic39"/>
+		<part name="14.ic25"/>
+		<part name="13.ic21"/>
+		<part name="9.ic04"/>
+		<part name="12.ic20"/>
+		<part name="8.ic03"/>
+		<part name="11.ic19"/>
+		<part name="7.ic02"/>
+		<part name="10.ic18"/>
+		<part name="6.ic01"/>
+		<part name="22.ic134"/>
+		<part name="18.ic115"/>
+		<part name="21.ic133"/>
+		<part name="17.ic114"/>
+		<part name="20.ic132"/>
+		<part name="16.ic113"/>
+		<part name="19.ic131"/>
+		<part name="15.ic112"/>
+		<part name="prom.ic3"/>
+		<part name="prom.ic4"/>
+		<part name="prom.ic5"/>
+		<part name="g-04.09d"/>
+		<part name="g-06.14a"/>
+		<part name="g-07.15a"/>
+		<part name="g-09.09f"/>
+		<part name="g-08.08f"/>
+		<part name="g-10.02j"/>
+		<part name="g-05.01f"/>
+	</rom>
+	<rom index="0" zip="gunsmoke.zip" md5="c2dbd27e0a05e6575d1ff83831051a73" type="merged">
+		<part name="gunsmokeb/3.ic85"/>
+		<part name="gs04.10n"/>
+		<part name="gs05.12n"/>
+		<part name="gs02.14h"/>
+		<part name="gs01.11f"/>
+		<part name="gs14.11c"/>
+		<part name="gs13.06c"/>
+		<part name="gs09.06a"/>
+		<part name="gs12.05c"/>
+		<part name="gs08.05a"/>
+		<part name="gs11.04c"/>
+		<part name="gs07.04a"/>
+		<part name="gs10.02c"/>
+		<part name="gs06.02a"/>
+		<part name="gs22.06n"/>
+		<part name="gs18.06l"/>
+		<part name="gs21.04n"/>
+		<part name="gs17.04l"/>
+		<part name="gs20.03n"/>
+		<part name="gs16.03l"/>
+		<part name="gs19.01n"/>
+		<part name="gs15.01l"/>
+		<part name="g-01.03b"/>
+		<part name="g-02.04b"/>
+		<part name="g-03.05b"/>
+		<part name="g-04.09d"/>
+		<part name="g-06.14a"/>
+		<part name="g-07.15a"/>
+		<part name="g-09.09f"/>
+		<part name="g-08.08f"/>
+		<part name="g-10.02j"/>
+		<part name="g-05.01f"/>
+	</rom>
+</misterromdescription>

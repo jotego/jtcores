@@ -1,0 +1,42 @@
+<misterromdescription>
+	<name>Vulgus (set 1)</name>
+	<mameversion>0216</mameversion>
+	<setname>vulgus</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1984</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Space / Force</category>
+	<rbf>jtvulgus</rbf>
+	<rom index="0" zip="vulgus.zip" md5="410250f0a3af08ead86b4ddd8dd78006" type="merged|nonmerged">
+		<part name="vulgus.002"/>
+		<part name="vulgus.003"/>
+		<part name="vulgus.004"/>
+		<part name="vulgus.005"/>
+		<part name="1-8n.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-11c.bin"/>
+		<part name="1-3d.bin"/>
+		<part name="2-4a.bin"/>
+		<part name="2-5a.bin"/>
+		<part name="2-2a.bin"/>
+		<part name="2-3a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="2-7a.bin"/>
+		<part name="2-6a.bin"/>
+		<part name="2-7a.bin"/>
+		<part name="2-4n.bin"/>
+		<part name="2-5n.bin"/>
+		<part name="2-2n.bin"/>
+		<part name="2-3n.bin"/>
+		<part name="82s126.9k"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="c9.bin"/>
+		<part name="e8.bin"/>
+		<part name="e9.bin"/>
+		<part name="e10.bin"/>
+		<part name="d1.bin"/>
+		<part name="j2.bin"/>
+		<part name="82s129.8n"/>
+	</rom>
+</misterromdescription>

@@ -1,0 +1,57 @@
+<misterromdescription>
+	<name>Makai-Mura (Japan Revision G)</name>
+	<mameversion>0216</mameversion>
+	<setname>makaimurg</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1985</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Adventure / Knights</category>
+	<category>Fighter / Warriors</category>
+	<rbf>gng</rbf>
+	<rom index="0" zip="makaimurg.zip" md5="b2c45890c22b282f6a1e799cfdc4c700" type="nonmerged">
+		<part name="mj03g.bin"/>
+		<part name="mj04g.bin"/>
+		<part name="mj05g.bin"/>
+		<part name="gg1.bin"/>
+		<part name="gg2.bin"/>
+		<part name="gg9.bin"/>
+		<part name="gg8.bin"/>
+		<part name="gg7.bin"/>
+		<part name="gg6.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gng13.n4"/>
+		<part name="gg16.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gng16.l4"/>
+		<part name="gg13.bin"/>
+		<part name="gg12.bin"/>
+		<part name="gg12.bin"/>
+	</rom>
+	<rom index="0" zip="gng.zip" md5="b2c45890c22b282f6a1e799cfdc4c700" type="merged">
+		<part name="makaimurg/mj03g.bin"/>
+		<part name="makaimurg/mj04g.bin"/>
+		<part name="makaimurg/mj05g.bin"/>
+		<part name="gg1.bin"/>
+		<part name="gg2.bin"/>
+		<part name="gg9.bin"/>
+		<part name="gg8.bin"/>
+		<part name="gg7.bin"/>
+		<part name="gg6.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gg11.bin"/>
+		<part name="gg10.bin"/>
+		<part name="gngbl/19.84472.4n"/>
+		<part name="gg16.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gg15.bin"/>
+		<part name="gngbl/16.84472.4l"/>
+		<part name="gg13.bin"/>
+		<part name="gg12.bin"/>
+		<part name="gg12.bin"/>
+	</rom>
+</misterromdescription>

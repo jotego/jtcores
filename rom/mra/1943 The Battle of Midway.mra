@@ -1,0 +1,88 @@
+<misterromdescription>
+	<name>1943 The Battle of Midway (US, Rev C)</name>
+	<mameversion>0216</mameversion>
+	<setname>1943u</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1987</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Army / Airforce</category>
+	<rbf>jt1943</rbf>
+	<rom index="0" zip="1943u.zip" md5="9b5cfef91f91462265c977a365a453a6" type="nonmerged">
+		<part name="bmu01c.12d"/>
+		<part name="bmu02c.13d"/>
+		<part name="bmu03c.14d"/>
+		<part name="bm05.4k"/>
+		<part name="bm04.5h"/>
+		<part name="bm14.5f"/>
+		<part name="bm23.8k"/>
+		<part name="bm15.10f"/>
+		<part name="bm19.10j"/>
+		<part name="bm16.11f"/>
+		<part name="bm20.11j"/>
+		<part name="bm17.12f"/>
+		<part name="bm21.12j"/>
+		<part name="bm18.14f"/>
+		<part name="bm22.14j"/>
+		<part name="bm24.14k"/>
+		<part name="bm25.14l"/>
+		<part name="bm06.10a"/>
+		<part name="bm10.10c"/>
+		<part name="bm07.11a"/>
+		<part name="bm11.11c"/>
+		<part name="bm08.12a"/>
+		<part name="bm12.12c"/>
+		<part name="bm09.14a"/>
+		<part name="bm13.14c"/>
+		<part name="bm10.7l"/>
+		<part name="bm11.12l"/>
+		<part name="bm1.12a"/>
+		<part name="bm12.12m"/>
+		<part name="bm2.13a"/>
+		<part name="bm3.14a"/>
+		<part name="bm4.12c"/>
+		<part name="bm5.7f"/>
+		<part name="bm6.4b"/>
+		<part name="bm7.7c"/>
+		<part name="bm8.8c"/>
+		<part name="bm9.6l"/>
+	</rom>
+	<rom index="0" zip="1943.zip" md5="9b5cfef91f91462265c977a365a453a6" type="merged">
+		<part name="1943u/bmu01c.12d"/>
+		<part name="1943u/bmu02c.13d"/>
+		<part name="1943u/bmu03c.14d"/>
+		<part name="bm05.4k"/>
+		<part name="bm04.5h"/>
+		<part name="bm14.5f"/>
+		<part name="bm23.8k"/>
+		<part name="bm15.10f"/>
+		<part name="bm19.10j"/>
+		<part name="bm16.11f"/>
+		<part name="bm20.11j"/>
+		<part name="bm17.12f"/>
+		<part name="bm21.12j"/>
+		<part name="bm18.14f"/>
+		<part name="bm22.14j"/>
+		<part name="bm24.14k"/>
+		<part name="bm25.14l"/>
+		<part name="bm06.10a"/>
+		<part name="bm10.10c"/>
+		<part name="bm07.11a"/>
+		<part name="bm11.11c"/>
+		<part name="bm08.12a"/>
+		<part name="bm12.12c"/>
+		<part name="bm09.14a"/>
+		<part name="bm13.14c"/>
+		<part name="bm10.7l"/>
+		<part name="bm11.12l"/>
+		<part name="bm1.12a"/>
+		<part name="bm12.12m"/>
+		<part name="bm2.13a"/>
+		<part name="bm3.14a"/>
+		<part name="bm4.12c"/>
+		<part name="bm5.7f"/>
+		<part name="bm6.4b"/>
+		<part name="bm7.7c"/>
+		<part name="bm8.8c"/>
+		<part name="bm9.6l"/>
+	</rom>
+</misterromdescription>
