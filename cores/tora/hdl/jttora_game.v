@@ -482,9 +482,6 @@ assign scr_addr  = 0;
 assign char_addr = 0;
 `endif
 
-// // CPU addresses memory by words, not bytes:
-wire [17:0] main_rom_addr = { main_addr,1'b0 };
-
 // map2 ports are used for the ADPCM CPU (snd2)
 jtframe_rom #(
     .SLOT0_AW    ( 14              ), // Char
@@ -568,8 +565,7 @@ jtframe_rom #(
     //.prog_addr   ( prog_addr     ),
     //.prog_we     ( prog_we       )
 );
-
-
+  
 jtframe_avatar u_avatar(
     .rst         ( rst           ),
     .clk         ( clk           ),

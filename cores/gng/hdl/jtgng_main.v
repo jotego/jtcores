@@ -70,7 +70,7 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire wait_n;
+wire waitn;
 wire nRESET;
 reg sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
 
@@ -102,7 +102,7 @@ always @(*) begin
     char_cs     = 1'b0;
     bank_cs     = 1'b0;
     rom_cs      = 1'b0;
-    if( /* (E || Q || !wait_n) && */ nRESET ) case(A[15:13])
+    if( /* (E || Q || !waitn) && */ nRESET ) case(A[15:13])
         3'b000: ram_cs = 1'b1;
         3'b001: case( A[12:11])
                 2'd0: char_cs = 1'b1;
@@ -256,14 +256,14 @@ end
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( nRESET    ),
     .clk        ( clk       ),
-    .cpu_cen    ( cen_Q     ),
+    .cen_in     ( cen_Q     ),
+    .cen_out    (           ),
+    .gate       ( waitn     ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-
-    .wait_n     ( wait_n    )
+    .rom_ok     ( rom_ok    )
 );
 
 
@@ -274,8 +274,8 @@ reg E,Q;
 assign cpu_cen = Q;
 
 always @(negedge clk) begin
-    E <= cen_E & (wait_n | ~nRESET);
-    Q <= cen_Q & (wait_n | ~nRESET);
+    E <= cen_E & waitn;
+    Q <= cen_Q & waitn;
 end
 
 mc6809i u_cpu (

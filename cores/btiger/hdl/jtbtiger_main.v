@@ -267,27 +267,20 @@ end
 
 /////////////////////////////////////////////////////////////////
 // wait_n generation
-wire wait_n;
+wire cpu_cenw;
 
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .cen_in     ( cpu_cen   ),
+    .cen_out    ( cpu_cenw  ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-
-    .wait_n     ( wait_n    )
+    .rom_ok     ( rom_ok    )
 );
 
-reg wait_cen;
-
-always @(negedge clk)
-    wait_cen <= wait_n;
-
-wire cpu_wait_cen = cpu_cen & wait_cen;
 
 ///////////////////////////////////////////////////////////////////
 // interrupt generation.
@@ -309,7 +302,7 @@ always @(posedge clk, posedge rst)
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
     .clk        ( clk         ),
-    .cen        ( cpu_wait_cen),
+    .cen        ( cpu_cenw    ),
     .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),

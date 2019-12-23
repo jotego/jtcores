@@ -276,104 +276,39 @@ always @(posedge clk)
             int_n <= VULGUS ? ~dip_pause : 1'b0;
     end
 
-wire wait_n;
+wire cpu_cenw;
 
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .cen_in     ( cpu_cen   ),
+    .cen_out    ( cpu_cenw  ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-
-    .wait_n     ( wait_n    )
+    .rom_ok     ( rom_ok    )
 );
 
-`ifdef SIMULATION
-`define Z80_ALT_CPU
-`endif
-
-//`ifdef NCVERILOG
-//`undef Z80_ALT_CPU
-//`endif
-
-`ifdef VERILATOR_LINT
-`define Z80_ALT_CPU
-`endif
-
-
-
-`ifndef Z80_ALT_CPU
-// This CPU is used for synthesis
-wire [211:0] z80_regs;
-`ifdef SIMULATION
-wire reg_IFF2;
-wire reg_IFF1;
-wire [1:0]  reg_IM;    // 4
-wire [15:0] reg_IY;
-wire [15:0] reg_HL_;
-wire [15:0] reg_DE_;
-wire [15:0] reg_BC_;
-wire [15:0] reg_IX;
-wire [15:0] reg_HL;
-wire [15:0] reg_DE;
-wire [15:0] reg_BC;
-wire [15:0] reg_PC;
-wire [15:0] reg_SP; // 164
-wire [7:0]  reg_R;
-wire [7:0]  reg_I;
-wire [7:0]  reg_F_;
-wire [7:0]  reg_A_;
-wire [7:0]  reg_F;
-wire [7:0]  reg_A;
-assign {
-    reg_IFF2, reg_IFF1, reg_IM, reg_IY, reg_HL_, reg_DE_, reg_BC_,
-    reg_IX, reg_HL, reg_DE, reg_BC, reg_PC, reg_SP, reg_R, reg_I,
-    reg_F_, reg_A_, reg_F, reg_A } = z80_regs;
-`endif
-T80s u_cpu(
-    .RESET_n    ( t80_rst_n   ),
-    .CLK        ( clk         ),
-    .CEN        ( cen3        ),
-    .WAIT_n     ( wait_n      ),
-    .INT_n      ( int_n       ),
-    .RD_n       ( rd_n        ),
-    .WR_n       ( wr_n        ),
+jtframe_z80 u_cpu(
+    .rst_n      ( t80_rst_n   ),
+    .clk        ( clk         ),
+    .cen        ( cpu_cenw    ),
+    .wait_n     ( 1'b1        ),
+    .int_n      ( int_n       ),
+    .nmi_n      ( 1'b1        ),
+    .busrq_n    ( 1'b1        ),
+    .m1_n       ( m1_n        ),
+    .mreq_n     ( mreq_n      ),
+    .iorq_n     ( iorq_n      ),
+    .rd_n       ( rd_n        ),
+    .wr_n       ( wr_n        ),
+    .rfsh_n     ( rfsh_n      ),
+    .halt_n     (             ),
+    .busak_n    (             ),
     .A          ( A           ),
-    .DI         ( cpu_din     ),
-    .DO         ( cpu_dout    ),
-    .IORQ_n     ( iorq_n      ),
-    .M1_n       ( m1_n        ),
-    .MREQ_n     ( mreq_n      ),
-    .NMI_n      ( 1'b1        ),
-    .BUSRQ_n    ( 1'b1        ),
-    .RFSH_n     ( rfsh_n      ),
-    .out0       ( 1'b0        )
+    .din        ( cpu_din     ),
+    .dout       ( cpu_dout    )
 );
-`else
-// This CPU is used for simulation
-tv80s #(.Mode(0)) u_cpu (
-    .reset_n( t80_rst_n  ),
-    .clk    ( clk        ), // 3 MHz, clock gated
-    .cen    ( cen3       ),
-    .wait_n ( wait_n     ),
-    .int_n  ( int_n      ),
-    .nmi_n  ( 1'b1       ),
-    .busrq_n( 1'b1       ),
-    .rd_n   ( rd_n       ),
-    .wr_n   ( wr_n       ),
-    .A      ( A          ),
-    .di     ( cpu_din    ),
-    .dout   ( cpu_dout   ),
-    .iorq_n ( iorq_n     ),
-    .m1_n   ( m1_n       ),
-    .rfsh_n ( rfsh_n     ),
-    .mreq_n ( mreq_n     ),
-    // unused
-    .busak_n(),
-    .halt_n ()
-);
-`endif
+
 endmodule // jtgng_main

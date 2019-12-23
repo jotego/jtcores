@@ -88,29 +88,25 @@ always @(*) begin
     endcase
 end
 
-reg [1:0] cs_wait;
-always @(posedge clk)
-    if( rst )
-        cs_wait <= 2'b11;
-    else if(cen3) begin
-        cs_wait <= { cs_wait[0], ~(ay0_cs|ay1_cs) };
-    end // else if(cen3)
+reg rom_wait_n;
 
-wire rom_wait_n;
-(*keep*) wire wait_n = (~cs_wait[1] | cs_wait[0]) & rom_wait_n;
+always @(posedge clk, posedge rst) begin : waitgen
+    reg last_rom_cs;
+    if( rst ) begin
+        last_rom_cs <= 1'b0;
+        rom_wait_n  <= 1'b1;
+    end else begin
+        last_rom_cs <= rom_cs;
+        if( rom_cs && !last_rom_cs) begin
+            rom_wait_n <= 1'b0;
+        end else if(rom_ok||!rom_cs) rom_wait_n<=1'b1;
+    end
+end
 
-jtframe_z80wait #(1) u_wait(
-    .rst_n      ( reset_n   ),
-    .clk        ( clk       ),
-    .cpu_cen    ( cen3      ),
-    // manage access to shared memory
-    .dev_busy   ( 1'b0      ),
-    // manage access to ROM data from SDRAM
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+reg cen3w;
 
-    .wait_n     ( rom_wait_n )
-);
+always @(negedge clk)
+    cen3w <= cen3 & rom_wait_n;
 
 reg [7:0] latch0, latch1;
 
@@ -157,61 +153,26 @@ always @(*)
         default:  din = 8'hff;
     endcase // {latch_cs,rom_cs,ram_cs}
 
-// Select the Z80 core to use
-`ifdef SIMULATION
-`define Z80_ALT_CPU
-`endif
-
-// `ifdef NCVERILOG
-// `undef Z80_ALT_CPU
-// `endif
-
-`ifdef VERILATOR_LINT
-`define Z80_ALT_CPU
-`endif
-
-`ifndef Z80_ALT_CPU
-// This CPU is used for synthesis
-T80s u_cpu(
-    .RESET_n    ( reset_n     ),
-    .CLK        ( clk         ),
-    .CEN        ( cen3        ),
-    .WAIT_n     ( wait_n      ),
-    .INT_n      ( int_n       ),
-    .RD_n       ( rd_n        ),
-    .WR_n       ( wr_n        ),
+jtframe_z80 u_cpu(
+    .rst_n      ( reset_n     ),
+    .clk        ( clk         ),
+    .cen        ( cen3w       ),
+    .wait_n     ( 1'b1        ),
+    .int_n      ( int_n       ),
+    .nmi_n      ( 1'b1        ),
+    .busrq_n    ( 1'b1        ),
+    .m1_n       ( m1_n        ),
+    .mreq_n     ( mreq_n      ),
+    .iorq_n     ( iorq_n      ),
+    .rd_n       ( rd_n        ),
+    .wr_n       ( wr_n        ),
+    .rfsh_n     ( rfsh_n      ),
+    .halt_n     (             ),
+    .busak_n    (             ),
     .A          ( A           ),
-    .DI         ( din         ),
-    .DO         ( dout        ),
-    .IORQ_n     ( iorq_n      ),
-    .NMI_n      ( 1'b1        ),
-    .BUSRQ_n    ( 1'b1        ),
-    .MREQ_n     ( mreq_n      ),
-    .out0       ( 1'b0        )
+    .din        ( din         ),
+    .dout       ( dout        )
 );
-`else
-tv80s #(.Mode(0)) u_cpu (
-    .reset_n(reset_n ),
-    .clk    (clk     ), // 3 MHz, clock gated
-    .cen    (cen3    ),
-    .wait_n (wait_n  ),
-    .int_n  (int_n   ),
-    .nmi_n  (1'b1    ),
-    .busrq_n(1'b1    ),
-    .rd_n   (rd_n    ),
-    .wr_n   (wr_n    ),
-    .A      (A       ),
-    .di     (din     ),
-    .dout   (dout    ),
-    .iorq_n ( iorq_n ),
-    // unused
-    .mreq_n (mreq_n  ),
-    .m1_n   (),
-    .busak_n(),
-    .halt_n (),
-    .rfsh_n ()
-);
-`endif
 
 wire [9:0] sound0, sound1;
 wire [10:0] unlim_snd = {1'b0, sound0} + {1'b0, sound1};
