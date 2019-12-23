@@ -43,7 +43,7 @@ module jtbtiger_video(
     input               scr_cs,
     output      [ 7:0]  scr_dout,
     output      [16:0]  scr_addr,
-    input       [23:0]  scr_data,
+    input       [15:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
     input       [10:0]  scr_hpos,

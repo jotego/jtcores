@@ -1,0 +1,33 @@
+<misterromdescription>
+	<name>Black Tiger</name>
+	<mameversion>0216</mameversion>
+	<setname>blktiger</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1987</year>
+	<manufacturer>Capcom</manufacturer>
+	<category>Fighter / Warriors</category>
+	<rbf>jtbtiger</rbf>
+	<rom index="0" zip="blktiger.zip" md5="5d864c2ff5386bf87ecc66d99a29e06d" type="merged|nonmerged">
+		<part name="bdu-02a.6e"/>
+		<part name="bdu-03a.8e"/>
+		<part name="bd-04.9e"/>
+		<part name="bd-05.10e"/>
+		<part name="bdu-01a.5e"/>
+		<part name="bd-06.1l"/>
+		<part name="bd-15.2n"/>
+		<part name="bd-15.2n"/>
+		<part name="bd-14.9b"/>
+		<part name="bd-13.8b"/>
+		<part name="bd-12.5b"/>
+		<part name="bd-11.4b"/>
+		<part name="bd-08.5a"/>
+		<part name="bd-07.4a"/>
+		<part name="bd-10.9a"/>
+		<part name="bd-09.8a"/>
+		<part name="bd.6k"/>
+		<part name="bd01.8j"/>
+		<part name="bd02.9j"/>
+		<part name="bd03.11k"/>
+		<part name="bd04.11l"/>
+	</rom>
+</misterromdescription>

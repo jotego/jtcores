@@ -7,7 +7,7 @@ function rom_len {
 }
 
 function dump {
-    echo "$1" starts at $(rom_len)
+    echo "$1"$(rom_len)\;
     shift
     for i in $*; do
         if [ ! -e $i ]; then
@@ -21,9 +21,9 @@ function dump {
 rm -f $GAME
 touch $GAME
 
-dump "MAIN        " srb-03.m3 srb-04.m4 srb-05.m5 srb-06.m6 srb-06.m6 srb-07.m7
-dump "SOUND       " sr-01.c11
-dump "CHAR        " sr-02.f2
+dump "parameter [21:0] MAIN_ADDR  = 22'" srb-03.m3 srb-04.m4 srb-05.m5 srb-06.m6 srb-06.m6 srb-07.m7
+dump "parameter [21:0] SOUND_ADDR = 22'" sr-01.c11
+dump "parameter [21:0] CHAR_ADDR  = 22'" sr-02.f2
 
 # note that SCROLL Y is repeated
 # lower bytes

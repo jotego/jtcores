@@ -89,6 +89,8 @@ end
 
 reg obj_part;
 
+wire incpu = ioctl_addr<CHARADDR;
+
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
@@ -96,7 +98,7 @@ always @(posedge clk) begin
         prog_data <= ioctl_data;
         if(ioctl_addr < SCRXADDR) begin // Main ROM, CHAR ROM
             prog_addr <= {1'b0, ioctl_addr[21:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]} ^ {2{incpu}};
             scr_offset <= 17'd0;
         end
         else if(ioctl_addr < OBJZADDR ) begin // Scroll    

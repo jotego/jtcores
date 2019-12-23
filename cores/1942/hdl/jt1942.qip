@@ -11,11 +11,11 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1942_
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1942_prom_we.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1942_video.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt1942_dip.v       ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_cen.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/clocking/jtframe_cen48.v       ]
 
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_video.qip   ]
-set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_rom.qip     ]
-
+# SDRAM
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtframe/hdl/sdram/jtframe_rom.qip  ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtframe_prom.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtframe_ram.v       ]

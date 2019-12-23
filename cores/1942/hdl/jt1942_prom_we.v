@@ -66,10 +66,15 @@ module jt1942_prom_we(
 // sb-8.k3
 // sb-9.m11
 
-parameter  SCRADDR = 22'h1A000, 
-           SCRUPPER= 22'h22000,
-           OBJADDR = 22'h2A000,
-           PROMADDR= 22'h3A000;
+parameter [21:0] MAINADDR  = 22'h0_0000;
+parameter [21:0] SOUNDADDR = 22'h1_4000;
+parameter [21:0] CHARADDR  = 22'h1_8000;
+
+parameter [21:0]
+           SCRADDR = 22'h1_A000, 
+           SCRUPPER= 22'h2_2000,
+           OBJADDR = 22'h2_A000,
+           PROMADDR= 22'h3_A000;
 reg [15:0] scr_offset;
 
 reg set_strobe, set_done;
@@ -91,6 +96,8 @@ wire [3:0] region = {
     ioctl_addr < SCRUPPER, ioctl_addr < SCRADDR };
 `endif
 
+wire incpu = ioctl_addr < CHARADDR;
+
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
@@ -98,7 +105,11 @@ always @(posedge clk) begin
         prog_data <= ioctl_data;
         if(ioctl_addr < SCRADDR) begin // regular copy
             prog_addr <= {1'b0, ioctl_addr[21:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            prog_mask <= ioctl_addr < SOUNDADDR ?
+                ~{ioctl_addr[0], ~ioctl_addr[0]} : // main 
+                ioctl_addr < CHARADDR ? 
+                ~{ioctl_addr[0], ~ioctl_addr[0]} : // sound
+                {ioctl_addr[0], ~ioctl_addr[0]}; // char
             scr_offset <= 16'd0;
         end
         else if(ioctl_addr < OBJADDR ) begin // scroll

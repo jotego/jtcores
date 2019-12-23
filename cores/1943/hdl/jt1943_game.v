@@ -21,10 +21,8 @@
 module jt1943_game(
     input           rst,
     input           clk,        // 24  or 12  MHz
-    output          cen12,      // 12   MHz
-    output          cen6,       //  6   MHz
-    output          cen3,       //  3   MHz
-    output          cen1p5,     //  1.5 MHz
+    output          pxl2_cen,   // 12   MHz
+    output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -90,7 +88,8 @@ wire flip;
 wire [7:0] cpu_dout, chram_dout;
 wire rd;
 // ROM data
-wire [15:0]  char_data, obj_data, map1_dout, map2_dout, scr1_dout, scr2_dout;
+wire [15:0]  char_data, obj_data, obj_pre,
+             map1_data, map2_data, scr1_data, scr2_data;
 wire [ 7:0]  main_data;
 // ROM address
 wire [17:0]  main_addr;
@@ -101,7 +100,11 @@ wire [14:0]  scr2_addr;
 wire [ 7:0]  dipsw_a, dipsw_b;
 
 wire rom_ready;
-wire main_ok, char_ok, obj_ok;
+wire main_ok, map1_ok, map2_ok, scr1_ok, scr2_ok, char_ok, obj_ok;
+wire cen12, cen6, cen3, cen1p5;
+
+assign pxl2_cen = cen12;
+assign pxl_cen  = cen6;
 
 assign sample=1'b1;
 
@@ -114,7 +117,7 @@ always @(negedge clk)
 
 wire cen8;
 
-jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
+jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen8   ( cen8      ),
@@ -166,7 +169,7 @@ wire [12:0] obj_AB;
 
 wire [12:0] prom_we;
 
-jt1943_prom_we u_prom_we(
+jt1943_prom_we #(.SND_BRAM(1)) u_prom_we(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
@@ -390,16 +393,16 @@ jt1943_video u_video(
     .scr2posh   ( scr2posh      ),
     .scrposv    ( scrposv       ),
     .scr1_addr  ( scr1_addr     ),
-    .scr1_data  ( scr1_dout     ),
+    .scr1_data  ( scr1_data     ),
     .scr2_addr  ( scr2_addr     ),
-    .scr2_data  ( scr2_dout     ),
+    .scr2_data  ( scr2_data     ),
     .SC1ON      ( SC1ON         ),
     .SC2ON      ( SC2ON         ),
     // Scroll maps
     .map1_addr  ( map1_addr     ),
-    .map1_data  ( map1_dout     ),
+    .map1_data  ( map1_data     ),
     .map2_addr  ( map2_addr     ),
-    .map2_data  ( map2_dout     ),
+    .map2_data  ( map2_data     ),
     // OBJ
     .OBJON      ( OBJON         ),
     .HINIT      ( HINIT         ),
@@ -447,37 +450,79 @@ jt1943_video u_video(
 
 // Sound is not used through the ROM interface because there is not enough banwidth
 // when all the scroll ROMs have to be accessed
-jtgng_rom u_rom (
+jtframe_rom #(
+    .SLOT0_AW    ( 14              ), // Char
+    .SLOT0_DW    ( 16              ),
+    .SLOT0_OFFSET( 22'h1_8000      ),
+
+    .SLOT1_AW    ( 14              ), // Map 1
+    .SLOT1_DW    ( 16              ),
+    .SLOT1_OFFSET( 22'h1_C000      ),
+
+    .SLOT2_AW    ( 17              ), // Scroll 1
+    .SLOT2_DW    ( 16              ),
+    .SLOT2_OFFSET( 22'h2_4000      ),
+
+    .SLOT3_AW    ( 14              ), // Map 2
+    .SLOT3_DW    ( 16              ),
+    .SLOT3_OFFSET( 22'h2_0000      ),
+
+    .SLOT4_AW    ( 15              ), // Scroll 2
+    .SLOT4_DW    ( 16              ),
+    .SLOT4_OFFSET( 22'h4_4000      ),
+
+    // .SLOT6_AW    ( 15              ), // Sound
+    // .SLOT6_DW    (  8              ),
+    // .SLOT6_OFFSET( 22'h1_4000 >> 1 ),
+
+    .SLOT7_AW    ( 18              ),
+    .SLOT7_DW    (  8              ),
+    .SLOT7_OFFSET(  0              ), // Main
+
+    .SLOT8_AW    ( 17              ), // objects
+    .SLOT8_DW    ( 16              ),
+    .SLOT8_OFFSET( 22'h4_C000      )
+) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .LHBL        ( LHBL          ),
-    .LVBL        ( LVBL          ),
+    .vblank      ( ~LVBL         ),
 
-    .pause       ( pause         ),
-    .main_cs     ( main_cs       ),
-    .snd_cs      ( 1'b0          ),
-    .main_ok     ( main_ok       ),
-    .snd_ok      (               ),
-    .char_ok     ( char_ok       ),
-    .obj_ok      ( obj_ok        ),
+    .slot0_cs    ( LVBL          ), // char
+    .slot1_cs    ( LVBL          ), // map 1
+    .slot2_cs    ( LVBL          ), // scroll 1
+    .slot3_cs    ( LVBL          ), // map 2
+    .slot4_cs    ( LVBL          ), // scroll 2
+    .slot5_cs    ( 1'b0          ), // unused
+    .slot6_cs    ( 1'b0          ),
+    .slot7_cs    ( main_cs       ),
+    .slot8_cs    ( 1'b1          ),
 
-    .char_addr   ( char_addr     ), //  32 kB
-    .main_addr   ( main_addr     ), // 160 kB, addressed as 8-bit words
-    .snd_addr    ( 15'd0         ),
-    .obj_addr    ( obj_addr      ),  // 256 kB
-    .scr1_addr   ( scr1_addr     ), // 256 kB (16-bit words)
-    .scr2_addr   ( scr2_addr     ), //  64 kB
-    .map1_addr   ( map1_addr     ), //  32 kB
-    .map2_addr   ( map2_addr     ), //  32 kB
+    .slot0_ok    ( char_ok       ),
+    .slot1_ok    ( map1_ok       ),
+    .slot2_ok    ( scr1_ok       ),
+    .slot3_ok    ( map2_ok       ),
+    .slot4_ok    ( scr2_ok       ),
+    //.slot6_ok    ( snd_ok        ),
+    .slot7_ok    ( main_ok       ),
+    .slot8_ok    ( obj_ok        ),
 
-    .char_dout   ( char_data     ),
-    .main_dout   ( main_data     ),
-    .snd_dout    (               ),
-    .obj_dout    ( obj_data      ),
-    .map1_dout   ( map1_dout     ),
-    .map2_dout   ( map2_dout     ),
-    .scr1_dout   ( scr1_dout     ),
-    .scr2_dout   ( scr2_dout     ),
+    .slot0_addr  ( char_addr     ),
+    .slot1_addr  ( map1_addr     ),
+    .slot2_addr  ( scr1_addr     ),
+    .slot3_addr  ( map2_addr     ),
+    .slot4_addr  ( scr2_addr     ),
+    //.slot6_addr  ( snd_addr      ),
+    .slot7_addr  ( main_addr     ),
+    .slot8_addr  ( obj_addr      ),
+
+    .slot0_dout  ( char_data     ),
+    .slot1_dout  ( map1_data     ),
+    .slot2_dout  ( scr1_data     ),
+    .slot3_dout  ( map2_data     ),
+    .slot4_dout  ( scr2_data     ),
+    //.slot6_dout  ( snd_data      ),
+    .slot7_dout  ( main_data     ),
+    .slot8_dout  ( obj_pre       ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface
@@ -489,6 +534,15 @@ jtgng_rom u_rom (
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     .refresh_en  ( refresh_en    )
+);
+
+jtframe_avatar u_avatar(
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .pause       ( pause         ),
+    .obj_addr    ( obj_addr[12:0]),
+    .obj_data    ( obj_pre       ),
+    .obj_mux     ( obj_data      ),
 );
 
 endmodule

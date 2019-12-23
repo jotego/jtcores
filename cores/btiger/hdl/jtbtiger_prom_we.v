@@ -83,6 +83,8 @@ end
 
 reg obj_part;
 
+wire incpu = ioctl_addr < CHAR_ADDR;
+
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
@@ -91,7 +93,7 @@ always @(posedge clk) begin
         `CLR_ALL
         if(ioctl_addr[21:16] < SCRZW_ADDR[21:16]) begin // Main/Sound ROM, CHAR ROM
             prog_addr <= {1'b0, ioctl_addr[21:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]} ^ {2{incpu}};
             `INFO_MAIN
             `INFO_SND
             `INFO_CHAR

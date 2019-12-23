@@ -21,8 +21,8 @@
 module jtgng_main(
     input              clk,
     input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
-    input              cen3,   // 3MHz
-    input              cen1p5,   // 1.5MHz
+    (* direct_enable *) input cen_E,
+    (* direct_enable *) input cen_Q,
     output             cpu_cen,
     input              rst,
     input              LVBL,   // vertical blanking when 0
@@ -70,7 +70,7 @@ module jtgng_main(
 );
 
 wire [15:0] A;
-wire MRDY, E, Q;
+wire wait_n;
 wire nRESET;
 reg sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
 
@@ -87,8 +87,6 @@ reg sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
 //end
 //`endif
 
-assign cpu_cen = cen3;
-
 reg [7:0] AH;
 
 always @(*) begin
@@ -104,7 +102,7 @@ always @(*) begin
     char_cs     = 1'b0;
     bank_cs     = 1'b0;
     rom_cs      = 1'b0;
-    if( /* (E || Q || !MRDY) && */ nRESET ) case(A[15:13])
+    if( /* (E || Q || !wait_n) && */ nRESET ) case(A[15:13])
         3'b000: ram_cs = 1'b1;
         3'b001: case( A[12:11])
                 2'd0: char_cs = 1'b1;
@@ -258,22 +256,32 @@ end
 jtframe_z80wait #(2) u_wait(
     .rst_n      ( nRESET    ),
     .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
+    .cpu_cen    ( cen_Q     ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
 
-    .wait_n     ( MRDY      )
+    .wait_n     ( wait_n    )
 );
 
 
 // cycle accurate core
-wire EXTAL = ~(clk &cen6);
 wire [111:0] RegData;
 
-mc6809 u_cpu (
+reg E,Q;
+assign cpu_cen = Q;
+
+always @(negedge clk) begin
+    E <= cen_E & (wait_n | ~nRESET);
+    Q <= cen_Q & (wait_n | ~nRESET);
+end
+
+mc6809i u_cpu (
+    .clk     ( clk     ),
+    .cen_E   ( E       ),
+    .cen_Q   ( Q       ),
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),
     .ADDR    ( A       ),
@@ -283,15 +291,10 @@ mc6809 u_cpu (
     .nIRQ    ( nIRQ    ),
     .nFIRQ   ( 1'b1    ),
     .nNMI    ( 1'b1    ),
-    .EXTAL   ( EXTAL   ),
     .nHALT   ( ~bus_req),
     .nRESET  ( nRESET  ),
-    .MRDY    ( MRDY    ),
     .nDMABREQ( 1'b1    ),
     // unused:
-    .XTAL    ( 1'b0    ),
-    .E       ( E       ),
-    .Q       ( Q       ),
     .RegData ( RegData )
     //.AVMA()
 );

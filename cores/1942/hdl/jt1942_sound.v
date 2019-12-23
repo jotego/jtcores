@@ -33,10 +33,10 @@ module jt1942_sound(
     input           main_latch1_cs, // Vulgus PCB also has two latches. MAME ignores one of them.
     input           snd_int,
     // ROM access
-    output  reg     rom_cs,
+    (*keep*)output  reg     rom_cs,
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
-    input           rom_ok,
+    (*keep*)input           rom_ok,
     // Sound output
     output reg [9:0] snd
 );
@@ -97,7 +97,7 @@ always @(posedge clk)
     end // else if(cen3)
 
 wire rom_wait_n;
-wire wait_n = (~cs_wait[1] | cs_wait[0]) & rom_wait_n;
+(*keep*) wire wait_n = (~cs_wait[1] | cs_wait[0]) & rom_wait_n;
 
 jtframe_z80wait #(1) u_wait(
     .rst_n      ( reset_n   ),

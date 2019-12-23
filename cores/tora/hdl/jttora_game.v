@@ -21,10 +21,8 @@
 module jttora_game(
     input           rst,
     input           clk,
-    output          cen12,      // 12   MHz
-    output          cen6,       //  6   MHz
-    output          cen3,       //  3   MHz
-    output          cen1p5,     //  1.5 MHz
+    output          pxl2_cen,   // 12   MHz
+    output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -89,7 +87,7 @@ wire        char_busy;
 wire        service = 1'b1;
 
 // ROM data
-wire [15:0] char_data, scr_data, obj_data;
+wire [15:0] char_data, scr_data, obj_data, obj_pre;
 wire [15:0] main_data, map_data;
 wire [ 7:0] snd_data, snd2_data;
 // MCU interface
@@ -113,7 +111,11 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen10, cen10b, cen6b, cenfm, cenp384;
 
 wire        rom_ready;
-wire        main_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
+wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
+wire        cen12, cen6, cen3, cen1p5;
+
+assign      pxl2_cen = cen12;
+assign      pxl_cen  = cen6;
 
 `ifdef MISTER
 
@@ -140,7 +142,7 @@ end
 
 wire cen8;
 
-jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
+jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen12b (           ),
@@ -151,19 +153,19 @@ jtgng_cen #(.CLK_SPEED(CLK_SPEED)) u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-jtgng_cen10 u_cen10(
+jtframe_cen10 u_cen10(
     .clk    ( clk       ),
     .cen10  ( cen10     ),
     .cen10b ( cen10b    )
 );
 
-jtgng_cen3p57 u_cen3p57(
+jtframe_cen3p57 u_cen3p57(
     .clk      ( clk       ),
     .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused
 );
 
-jtgng_cenp384 u_cenp384(
+jtframe_cenp384 u_cenp384(
     .clk      ( clk       ),
     .cen_p384 ( cenp384   )
 );
@@ -328,7 +330,6 @@ jtbiocom_mcu u_mcu(
     .rst        ( rst_game        ),
     .clk        ( clk             ),
     .cen6a      ( cen6            ),       //  6   MHz
-    .cen6b      ( cen6b           ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),
     .mcu_din    ( mcu_din         ),
@@ -481,62 +482,75 @@ assign scr_addr  = 0;
 assign char_addr = 0;
 `endif
 
-wire [ 7:0] scr_nc; // no connect
 // // CPU addresses memory by words, not bytes:
 wire [17:0] main_rom_addr = { main_addr,1'b0 };
 
 // map2 ports are used for the ADPCM CPU (snd2)
-jtgng_rom #(
-    .main_dw    ( 16              ),
-    .main_aw    ( 18              ),
-    .char_aw    ( 14              ),
-    .obj_aw     ( 18              ),
-    .scr1_aw    ( 19              ),
-    .snd_offset ( 22'h4_0000 >> 1 ),
-    .char_offset( 22'h5_8000 >> 1 ),
-    .map1_offset( 22'h6_0000 >> 1 ),
-    .snd2_offset( 22'h4_8000 >> 1 ), // second sound CPU
-    .scr1_offset( 22'h10_0000     ), // SCR and OBJ are not shifted
-    .obj_offset ( 22'h20_0000     )
+jtframe_rom #(
+    .SLOT0_AW    ( 14              ), // Char
+    .SLOT0_DW    ( 16              ),
+    .SLOT0_OFFSET( 22'h5_8000 >> 1 ),
+
+    .SLOT1_AW    ( 14              ),
+    .SLOT1_DW    ( 16              ),
+    .SLOT1_OFFSET( 22'h6_0000 >> 1 ), // Map
+
+    .SLOT2_AW    ( 19              ), // Scroll
+    .SLOT2_DW    ( 16              ),
+    .SLOT2_OFFSET( 22'h10_0000     ), // SCR and OBJ are not shifted
+
+    .SLOT3_AW    ( 17              ), // main
+    .SLOT3_DW    ( 16              ),
+    .SLOT3_OFFSET(  0              ),
+
+    .SLOT5_AW    ( 15              ), // Sound 1
+    .SLOT5_DW    (  8              ),
+    .SLOT5_OFFSET( 22'h4_0000 >> 1 ),
+
+    .SLOT6_AW    ( 16              ), // Sound 2
+    .SLOT6_DW    (  8              ),
+    .SLOT6_OFFSET( 22'h4_8000 >> 1 ),
+
+    .SLOT8_AW    ( 18              ), // Objects
+    .SLOT8_DW    ( 16              ),
+    .SLOT8_OFFSET( 22'h20_0000     )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .LHBL        ( LHBL          ),
-    .LVBL        ( LVBL          ),
+    .vblank      ( ~LVBL         ),
 
-    .pause       ( pause         ),
-    .main_cs     ( main_cs       ),
-    .snd_cs      ( snd_cs        ),
-    .snd2_cs     ( snd2_cs       ),
-    .main_ok     ( main_ok       ),
-    .snd_ok      ( snd_ok        ),
-    .snd2_ok     ( snd2_ok       ),
-    .scr1_ok     ( scr_ok        ),
-    .scr2_ok     (               ),
-    .char_ok     ( char_ok       ),
-    .obj_ok      ( obj_ok        ),
-    .map1_ok     (               ),
-    .map2_ok     (               ),
+    //.pause       ( pause         ),
+    .slot0_cs    ( LVBL          ),
+    .slot1_cs    ( LVBL          ),
+    .slot2_cs    ( LVBL          ), 
+    .slot3_cs    ( main_cs       ),
+    .slot5_cs    ( snd_cs        ),
+    .slot6_cs    ( snd2_cs       ),
+    .slot8_cs    ( 1'b1          ),
 
-    .char_addr   ( char_addr     ),
-    .main_addr   ( main_rom_addr ),
-    .snd_addr    ( snd_addr      ),
-    .snd2_addr   ( snd2_addr     ),
-    .obj_addr    ( obj_addr      ),
-    .scr1_addr   ( scr_addr      ),
-    .scr2_addr   ( 15'd0         ),
-    .map1_addr   ( map_addr      ),
-    .map2_addr   ( 14'd0         ),
+    .slot0_ok    ( char_ok       ),
+    .slot1_ok    ( map_ok        ),
+    .slot2_ok    ( scr_ok        ),
+    .slot3_ok    ( main_ok       ),
+    .slot5_ok    ( snd_ok        ),
+    .slot6_ok    ( snd2_ok       ),
+    .slot8_ok    ( obj_ok        ),
 
-    .char_dout   ( char_data     ),
-    .main_dout   ( main_data     ),
-    .snd_dout    ( snd_data      ),
-    .snd2_dout   ( snd2_data     ),
-    .obj_dout    ( obj_data      ),
-    .map1_dout   ( map_data      ),
-    .map2_dout   (               ),
-    .scr1_dout   ( scr_data      ),
-    .scr2_dout   (               ),
+    .slot0_addr  ( char_addr     ),
+    .slot1_addr  ( map_addr      ),
+    .slot2_addr  ( scr_addr      ),
+    .slot3_addr  ( main_addr     ),
+    .slot5_addr  ( snd_addr      ),
+    .slot6_addr  ( snd2_addr     ),
+    .slot8_addr  ( obj_addr      ),
+
+    .slot0_dout  ( char_data     ),
+    .slot1_dout  ( map_data      ),
+    .slot2_dout  ( scr_data      ),
+    .slot3_dout  ( main_data     ),
+    .slot5_dout  ( snd_data      ),
+    .slot6_dout  ( snd2_data     ),
+    .slot8_dout  ( obj_pre       ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface
@@ -547,12 +561,22 @@ jtgng_rom #(
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    ),
+    .refresh_en  ( refresh_en    )
 
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       )
+    //.prog_data   ( prog_data     ),
+    //.prog_mask   ( prog_mask     ),
+    //.prog_addr   ( prog_addr     ),
+    //.prog_we     ( prog_we       )
+);
+
+
+jtframe_avatar u_avatar(
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .pause       ( pause         ),
+    .obj_addr    ( obj_addr[12:0]),
+    .obj_data    ( obj_pre       ),
+    .obj_mux     ( obj_data      ),
 );
 
 endmodule

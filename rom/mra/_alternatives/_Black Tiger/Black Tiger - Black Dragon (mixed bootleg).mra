@@ -1,0 +1,86 @@
+<misterromdescription>
+	<name>Black Tiger - Black Dragon (mixed bootleg)</name>
+	<mameversion>0216</mameversion>
+	<setname>blktigerb3</setname>
+	<mratimestamp>201911270000</mratimestamp>
+	<year>1987</year>
+	<manufacturer>bootleg</manufacturer>
+	<category>Fighter / Warriors</category>
+	<rbf>jtbtiger</rbf>
+	<rom index="0" zip="blktigerb3.zip" md5="3c9fd4dba6b53a596627986a2d2d4068" type="nonmerged">
+		<part name="2.6e"/>
+		<part name="3.8e"/>
+		<part name="4.9e"/>
+		<part name="5.10e"/>
+		<part name="1.5e"/>
+		<part name="6.1l"/>
+		<part name="15.2n"/>
+		<part name="15.2n"/>
+		<part name="14.9b"/>
+		<part name="13.8b"/>
+		<part name="12.5b"/>
+		<part name="11.4b"/>
+		<part name="8.5a"/>
+		<part name="7.4a"/>
+		<part name="10.9a"/>
+		<part name="9.8a"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd01.8j"/>
+		<part name="bd02.9j"/>
+		<part name="bd03.11k"/>
+		<part name="bd04.11l"/>
+	</rom>
+	<rom index="0" zip="blktiger.zip" md5="3c9fd4dba6b53a596627986a2d2d4068" type="merged">
+		<part name="bdu-02a.6e"/>
+		<part name="blktigerb1/btiger3.j6"/>
+		<part name="bd-04.9e"/>
+		<part name="bd-05.10e"/>
+		<part name="blktigerb2/1.bin"/>
+		<part name="blktigerb3/6.1l"/>
+		<part name="blkdrgon/bd_15.2n"/>
+		<part name="blkdrgon/bd_15.2n"/>
+		<part name="bd-14.9b"/>
+		<part name="bd-13.8b"/>
+		<part name="bd-12.5b"/>
+		<part name="bd-11.4b"/>
+		<part name="bd-08.5a"/>
+		<part name="bd-07.4a"/>
+		<part name="bd-10.9a"/>
+		<part name="bd-09.8a"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd04.11l"/>
+		<part name="bd01.8j"/>
+		<part name="bd02.9j"/>
+		<part name="bd03.11k"/>
+		<part name="bd04.11l"/>
+	</rom>
+</misterromdescription>

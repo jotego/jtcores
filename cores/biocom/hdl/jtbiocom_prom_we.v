@@ -104,6 +104,7 @@ always @(posedge clk) begin
 end
 
 reg obj_part;
+wire insnd = ioctl_addr<CHAR_ADDR;
 
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
@@ -119,7 +120,7 @@ always @(posedge clk) begin
         end
         else if(ioctl_addr[19:16] < SCR1ZW_ADDR[19:16]) begin // Sound ROM, CHAR ROM
             prog_addr <= {3'b0, ioctl_addr[19:16], ioctl_addr[15:1]};
-            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]} ^ {2{insnd}};
             `INFO_SND
         end
         else if(ioctl_addr[19:16] < OBJWZ_ADDR0[19:16] ) begin // Scroll    

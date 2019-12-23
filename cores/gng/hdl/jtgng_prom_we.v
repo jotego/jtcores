@@ -85,12 +85,21 @@ reg [15:0] obj_offset=16'd0;
 //     end
 // end
 
+wire inmain = ioctl_addr < CHARADDR;
+wire insnd  = ioctl_addr >= SNDADDR && ioctl_addr < SCRXADDR;
+wire incpu  = inmain | insnd;
+
 always @(posedge clk) begin
     // if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
         prog_data <= ioctl_data;
-        if(ioctl_addr < SCRXADDR) begin // Main ROM, Sound, CHAR ROM (regular copy)
+        if(ioctl_addr < SCRXADDR) begin // Main ROM (regular copy)
+            prog_addr <= {1'b0, ioctl_addr[21:1]};
+            prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]} ^ {2{incpu}};
+            scr_offset <= 15'd0;
+        end
+        else if(ioctl_addr < SCRXADDR) begin // CHAR ROM (regular copy)
             prog_addr <= {1'b0, ioctl_addr[21:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
             scr_offset <= 15'd0;

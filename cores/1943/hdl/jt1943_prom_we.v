@@ -65,6 +65,8 @@ always @(posedge clk) begin
     end
 end
 
+wire incpu = ioctl_addr < CHARADDR;
+
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
@@ -79,7 +81,7 @@ always @(posedge clk) begin
                 prog_mask <= 2'b11;
             end else begin // Main ROM, CHAR ROM
                 prog_addr <= {1'b0, ioctl_addr[21:1]};
-                prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]};
+                prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]} ^{2{incpu}};
             end
         end
         else if(ioctl_addr < SCR1ADDR) begin // MAP1+MAP2
