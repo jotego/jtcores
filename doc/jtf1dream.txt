@@ -45,8 +45,11 @@ TECHNICAL INFORMATION
 
 REVISION HISTORY
 ================
+24th Dec 2019
+    * Public release
+    * Latest MiSTer and jtframe framework
 21st Nov 2019
-    - Fixes bug in SDRAM controller
+    * Fixes bug in SDRAM controller
 17 Nov 2019: Beta release (MiST and MiSTer)
 
 CREDITS
@@ -60,4 +63,194 @@ Special thanks to all November '19 patrons.
 Tier +3 Patrons Thanks!!
 ========================
 
-To be filled in December.
+Adam Forrester
+Adrian
+AkaiFutari
+Alan Steremberg
+albconde
+Alexander Kholodov
+Allen Tipper
+Amosfear
+Andrew Boudreau
+Andrew Francomb
+Andrew Moore
+Andylithia
+Andyways
+Anthony Bolek
+AtariSTFan
+Bibiabho Astoporri
+Blue1597
+Brian Sallee
+Bruno Silva
+Bryan Siemon
+Buster D
+Carl Hagström
+Carlos Del Alamo
+Charles Sagett
+Chris Jardine
+Chris Mawman
+Christian Auby
+Christian Bailey
+Christopher Harvey
+Christopher rumford
+Christopher Tuckwell
+Dacide
+Dana Rich
+Daniel Bauza
+Daniel Casadevall
+Daniel Hochman
+DarkStar7
+Darren Newman
+Don Gafford
+Duane Hembrick
+Ed Balan
+emceebois
+Eoin Gibney
+Evan Clarke
+Fabio
+Fay Dek
+Filip Kindt
+foyde
+FRANCISCO JAVIER FUENTES MORENO
+Frank Wolf
+Fred Fryolator
+Frédéric Mahé
+Fredrik Berglind
+FULLSET
+Funkycochise
+furrtek
+Gary Shepherdson
+Geert Oost 
+George Stravopodis
+Gonzalo López
+Gregory Hogan
+Guillermo Tunon
+Guinness
+Henry R
+Herbert Krammer
+Humanoide70
+Ishmael Hallin
+James DeRose
+JD
+Jeff Gerstmann
+Jeff O'Meara
+Jeremy Glass
+Jeremy Hopkins
+Jeremy Kaiman
+Jérôme Moreau
+Jeruro
+Jesus Garcia
+Jo Tomiyori
+Joe Kalwitz
+Johannes Reß
+John Kelley
+John Klimek
+John Perry
+John Stringer
+Jootec from Mars
+Jorge Galán
+Jorge Slowfret
+Juan Diego Sánchez Noguera
+Juan Manuel Sandoval Jr
+Keith Kelly
+Ken ottosson
+Kevin Bidwell
+Kris Butler
+Kyle Good
+Kyle Troutman
+Leslie Law
+Lewis Waddington
+loloC2C
+Mahen
+Manuel
+Manuel Antoni
+Manuel Astudillo
+Manuel Fernández
+Manuelfx
+Marco Tavian
+Mario Salvini
+Mary Marshall
+Matt Charlesworth
+Matt Elder
+Matteo Parolin
+Matthew Langtry
+Matthew Young
+McNathan
+Michael Scanlon
+Michael Stegen
+Michael Troelsen
+Michael's Workshop
+Miguel Angel Rodriguez Jodar
+Mikael Tillander
+Mike Holzinger
+Mister JBAM
+Neil Maguire
+Nelson Melo
+Niall O'Higgins
+Nicolas Hamel
+Obiwantje
+Oliver Jaksch
+Oliver Seitz
+Oliver Wndmth
+olivier bernhard
+Oscar Jacobsson
+Oscar Laguna Garcia
+Outchocinco
+Owlnonymous
+PAOLO CAMANO
+Phillip McMahon
+Pierre Paul
+Popov
+Porkchop Express
+PsyFX
+QcRetro
+Raziel
+remowilliams
+Renan Eler
+RetroShop.pt
+Richard Gregory
+Rob Young
+Roberto Lari
+Roland
+Roman Buser
+Ryan Fig
+Rysha
+Salvador Perugorria Lorente
+Samuli Tuomola
+sawf01
+Scralings
+Sembiance
+Shane Lynch
+Shawn Wheatley
+Shogun7
+Siampumpkin
+SJohansson
+skywalky
+SmokeMonster
+Stefan Nordkvist
+Stephen Marshall
+Stephen Pearce
+Steve Suavek
+Steven
+Steven Wilson
+Stuart Fisk
+Suvodip Mitra
+Sweetlilmre
+Thomas Davies
+Thomas Tahsin-Bey
+Toby Boreham
+Tony Peters
+type78
+UKShark
+Ultrarobotninja
+Víctor Gomariz Ladrón de Guevara
+Videodr0me
+Violeta Martin Fernandez
+Visa-Valtteri Pimiä
+vladimir
+Vorvek
+William Clemens
+wvc
+Xtro
+Xzarian
+

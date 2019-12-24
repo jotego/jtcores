@@ -333,7 +333,7 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr_ok, map_ok, char_ok, obj_ok;
+wire scr_ok, map_ok, char_ok, obj_ok, obj_ok0;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
@@ -498,7 +498,7 @@ jtframe_rom #(
     .slot2_ok    ( scr_ok        ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
+    .slot8_ok    ( obj_ok0       ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( map_addr      ),
@@ -534,7 +534,8 @@ jtframe_avatar u_avatar(
     .obj_addr    ( obj_addr[12:0]),
     .obj_data    ( obj_pre       ),
     .obj_mux     ( obj_data      ),
+    .ok_in       ( obj_ok0       ),
+    .ok_out      ( obj_ok        )
 );
-
 
 endmodule

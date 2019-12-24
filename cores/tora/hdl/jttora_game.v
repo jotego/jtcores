@@ -111,7 +111,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire        cen10, cen10b, cen6b, cenfm, cenp384;
 
 wire        rom_ready;
-wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
+wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, obj_ok0, char_ok;
 wire        cen12, cen6, cen3, cen1p5;
 
 assign      pxl2_cen = cen12;
@@ -531,7 +531,7 @@ jtframe_rom #(
     .slot3_ok    ( main_ok       ),
     .slot5_ok    ( snd_ok        ),
     .slot6_ok    ( snd2_ok       ),
-    .slot8_ok    ( obj_ok        ),
+    .slot8_ok    ( obj_ok0       ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( map_addr      ),
@@ -573,6 +573,8 @@ jtframe_avatar u_avatar(
     .obj_addr    ( obj_addr[12:0]),
     .obj_data    ( obj_pre       ),
     .obj_mux     ( obj_data      ),
+    .ok_in       ( obj_ok0       ),
+    .ok_out      ( obj_ok        )
 );
 
 endmodule
