@@ -60,6 +60,14 @@ module jttora_main(
     input              obj_br,   // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
+    // MCU interface
+    input              mcu_brn,
+    input      [ 7:0]  mcu_dout,
+    output reg [ 7:0]  mcu_din,
+    input      [16:1]  mcu_addr,
+    input              mcu_wr,
+    input              mcu_DMAn,
+    output  reg        mcu_DMAONn,
     // Palette
     output             col_uw,
     output             col_lw,
@@ -98,7 +106,7 @@ assign LDSWn = RnW | LDSn;
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;
 
-wire CPUbus = !blcnten; // main CPU in control of the bus
+wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
 
 always @(*) begin
     rom_cs     = 1'b0;
@@ -108,6 +116,7 @@ always @(*) begin
     io_cs      = 1'b0;
     char_cs    = 1'b0;
     OKOUT      = 1'b0;
+    mcu_DMAONn = 1'b1;   // for once, I leave the original active low setting
     scrvpos_cs = 1'b0;
     scrhpos_cs = 1'b0;
 
@@ -118,7 +127,10 @@ always @(*) begin
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])  // 111X
                     3'd0:   obj_cs  = 1'b1; // E_0000 
-                    3'd1:   io_cs   = 1'b1; // E_4000
+                    3'd1:   begin
+                        io_cs      = 1'b1; // E_4000
+                        mcu_DMAONn = !(A[1] && !RnW);// E_4002
+                    end
                     3'd2: if( (!UDSWn || !LDSWn) && !A[4]) begin // E_8000
                         // scrpt_cs
                         case( A[3:1]) // SCRPTn in the schematics
@@ -137,6 +149,15 @@ always @(*) begin
                     default:;
                 endcase
         endcase
+end
+
+// MCU DMA address decoder
+reg mcu_obj_cs, mcu_ram_cs, mcu_io_cs, mcu_other_cs;
+
+always @(*) begin
+    mcu_ram_cs   = 1'b0;
+    if( !mcu_DMAn )
+        mcu_ram_cs   = 1'b1;
 end
 
 // SCROLL H/V POSITION
@@ -179,8 +200,19 @@ always @(posedge clk)
 reg [7:0] ram_udin, ram_ldin;
 
 always @(*) begin
-    ram_udin = cpu_dout[15:8];
-    ram_ldin = cpu_dout[ 7:0];
+    if( !mcu_DMAn ) begin
+        ram_udin = 8'hff;       // unused
+        ram_ldin = mcu_dout;
+    end else begin
+        ram_udin = cpu_dout[15:8];
+        ram_ldin = cpu_dout[ 7:0];
+    end
+end
+
+/////////////////////////////////////////////////////
+// MCU DMA data output mux
+always @(posedge clk) begin
+    mcu_din <= mcu_ram_cs ? wram_dout[7:0] : 8'hff;
 end
 
 /////////////////////////////////////////////////////
@@ -190,10 +222,17 @@ reg         work_uwe, work_lwe;
 wire        ram_cen=cpu_cen;
 
 always @(*) begin
-    // CPU access
-    work_A   = A[13:1];
-    work_uwe = ram_cs & !UDSWn;
-    work_lwe = ram_cs & !LDSWn;
+    if( mcu_ram_cs ) begin
+        // MCU access
+        work_A   = mcu_addr[13:1];
+        work_uwe = 1'b0;
+        work_lwe = mcu_wr ;
+    end else begin 
+        // CPU access
+        work_A   = A[13:1];
+        work_uwe = ram_cs & !UDSWn;
+        work_lwe = ram_cs & !LDSWn;
+    end
 end
 
 jtgng_ram #(.aw(13),.cen_rd(0)) u_ramu(
@@ -332,15 +371,16 @@ always @(posedge clk, posedge rst) begin : int_gen
     end
 end
 
+wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
 
-jtframe_68kdma u_arbitration(
+jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
     .cpu_BRn    (  BRn          ),
     .cpu_BGACKn (  BGACKn       ),
     .cpu_BGn    (  BGn          ),
-    .dev_br     (  obj_br       )
+    .dev_br     (  dev_br       )
 );
 
 fx68k u_cpu(

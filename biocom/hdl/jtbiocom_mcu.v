@@ -118,7 +118,13 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtgng_prom #(.aw(12),.dw(8),.simfile("../../../rom/biocom/ts.2f")) u_prom(
+jtgng_prom #(.aw(12),.dw(8),
+    `ifdef F1DREAM    
+    .simfile("../../../rom/f1dream/8751.mcu")
+    `else
+    .simfile("../../../rom/biocom/ts.2f")
+    `endif
+) u_prom(
     .clk        ( clk               ),
     .cen        ( cen6a             ),
     .data       ( prom_din          ),
@@ -139,8 +145,6 @@ jtgng_ram #(.aw(7),.cen_rd(1)) u_ramu(
 
 wire clk2 = clk&cen6a; // cheap clock gating
 
-wire [15:0] rom_addr0, ext_addr0;
-wire [ 7:0] mcu_dout0;
 reg  [ 7:0] mcu_din0;
 
 always @(posedge clk) if(cen6a) begin

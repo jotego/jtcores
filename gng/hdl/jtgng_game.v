@@ -168,12 +168,9 @@ jtgng_timer u_timer(
 );
 
 wire RnW;
-wire [3:0] char_pal;
 
-wire [3:0] cc;
 wire blue_cs;
 wire redgreen_cs;
-wire [ 5:0] obj_pxl;
 
 wire bus_ack, bus_req;
 wire [15:0] sdram_din;

@@ -28,6 +28,7 @@ module jtgng_obj #(parameter
                        // 1: 1943
                        // 2: GunSmoke
                        // 3: Bionic Commando
+                       // 4: Black Tiger
     INVY        = 0,   // Invert Y position, used by Tiger Road
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used

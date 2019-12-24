@@ -137,7 +137,7 @@ always @(posedge clk, negedge t80_rst_n) begin
         scr_hpos <= 9'd0;
         scr_vpos <= 9'd0;
     end else if(cpu_cen) begin
-        if( scrpos_cs && A[3])
+        if( scrpos_cs && A[3] && !RnW )
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;
             2'd1: scr_hpos[8]   <= cpu_dout[0];
@@ -178,8 +178,8 @@ always @(*)
                      1'b1,
                      1'b1,
                      start_button }; // START
-        3'd1: cabinet_input = { 2'b1, joystick1 };
-        3'd2: cabinet_input = { 2'b1, joystick2 };
+        3'd1: cabinet_input = { 2'b11, joystick1 };
+        3'd2: cabinet_input = { 2'b11, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;

@@ -25,6 +25,10 @@ module jttora_sound(
     input           jap,
     // Interface with main CPU
     input   [7:0]   snd_latch,
+    // Interface with MCU
+    input   [7:0]   snd_din,
+    output  [7:0]   snd_dout,
+    output          snd_mcu_wr,
     // Sound control
     input           enable_psg,
     input           enable_fm,
@@ -48,9 +52,10 @@ module jttora_sound(
 wire signed [15:0] fm_snd, adpcm_snd;
 wire        [ 7:0] snd2_latch;
 
-always @(posedge clk) begin
-    ym_snd <= jap ? (fm_snd>>>1) + adpcm_snd : fm_snd;
-end
+// It looks like the sound CPU never interacts with the MCU
+// So I do not bother to fully connect it
+assign snd_mcu_wr = 1'b0;
+assign snd_dout   = 8'd0;
 
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
@@ -58,7 +63,11 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .cen3       (  cenfm        ),
     .cen1p5     (  cenfm        ), // unused
     .sres_b     (  1'b1         ),
+`ifndef F1DREAM
     .snd_latch  (  snd_latch    ),
+`else
+    .snd_latch  (  snd_din      ), // from MCU
+`endif
     .snd2_latch (  snd2_latch   ),
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
@@ -72,6 +81,7 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .sample     (  sample       )
 );
 
+`ifndef F1DREAM
 jttora_adpcm u_adpcmcpu(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -88,5 +98,14 @@ jttora_adpcm u_adpcmcpu(
     // Sound output
     .snd        ( adpcm_snd     )
 );
+
+always @(posedge clk) begin
+    ym_snd <= jap ? (fm_snd>>>1) + adpcm_snd : fm_snd;
+end
+
+`else
+// F1 Dream does not have the ADPCM section
+always @(*) ym_snd = fm_snd;
+`endif
 
 endmodule // jtgng_sound

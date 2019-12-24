@@ -97,20 +97,20 @@ wire [31:0] data_mux = (we&&din_ok) ? din :
 
 generate
     if(DW==8) begin
-        always @(posedge clk)
-        if(!req) case( subaddr )
-            2'd0: dout <= data_mux[ 7: 0];
-            2'd1: dout <= data_mux[15: 8];
-            2'd2: dout <= data_mux[23:16];
-            2'd3: dout <= data_mux[31:24];
+        always @(*)
+        case( subaddr )
+            2'd0: dout = data_mux[ 7: 0];
+            2'd1: dout = data_mux[15: 8];
+            2'd2: dout = data_mux[23:16];
+            2'd3: dout = data_mux[31:24];
         endcase
     end else if(DW==16) begin
-        always @(posedge clk)
-        if(!req) case( subaddr[0] )
+        always @(*)
+        case( subaddr[0] )
                 1'd0: dout = data_mux[15:0];
                 1'd1: dout = data_mux[31:16];
         endcase
-    end else always @(posedge clk) if(!req) dout = data_mux;
+    end else always @(*) dout = data_mux;
 endgenerate
 
 

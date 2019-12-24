@@ -22,7 +22,8 @@ module jtgng_objdraw #(parameter
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
                     // 2: GunSmoke
-                    // 3: Bionic Commando
+                    // 3: Bionic Commando, Tiger Road
+                    // 4: Black Tiger
     PALW     = 2,
     PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -111,6 +112,13 @@ always @(posedge clk) if(cen) begin
                 obj_vflip <= objbuf_data[0];
                 obj_hflip <= objbuf_data[1];
                 objpal    <= objbuf_data[5:2];
+            end
+            4: begin // Black Tiger
+                id[10:8]  <= objbuf_data[7:5];
+                hover     <= objbuf_data[4];
+                obj_hflip <= objbuf_data[3];
+                obj_vflip <= 1'b0;
+                objpal    <= objbuf_data[2:0];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step

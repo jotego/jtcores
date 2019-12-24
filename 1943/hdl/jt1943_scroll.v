@@ -97,16 +97,13 @@ end
 generate
     if (LAYOUT==0) begin
         // 1943
-        always @(*) begin
-            VF = {8{flip}}^V128sh[7:0];
-            {PICV, SV } = { {16-VPOSW{vpos[7]}}, vpos } + { {8{VF[7]}}, VF };
-        end
-
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
-                HS[4:3] <= SH[4:3];
-                map_addr <= { PIC, SH[7:6], SV[7:5], SH[5] }; // SH[5] is LSB
+                VF <= {8{flip}}^V128sh[7:0];
+                {PICV, SV } <= { {16-VPOSW{vpos[7]}}, vpos } + { {8{VF[7]}}, VF };
+                HS[4:3] <= SH[4:3] ^{2{flip}};
+                map_addr <= { PIC, SH[7:6], SV[7:5]^{3{flip}}, SH[5] }; // SH[5] is LSB
                     // in order to optimize cache use
                 SVmap <= SV[4:0];
             end
