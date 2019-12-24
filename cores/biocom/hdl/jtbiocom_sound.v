@@ -115,16 +115,27 @@ always @(negedge clk)
         end else reset_n <= 1'b1;
     end
 */
-(*keep*) wire wait_n = !(rom_cs && !rom_ok);
 wire iorq_n, m1_n;
+wire cpu_cenw;
 (*keep*) wire irq_ack = !iorq_n && !m1_n;
+
+jtframe_z80wait #(1) u_wait(
+    .rst_n      ( t80_rst_n ),
+    .clk        ( clk       ),
+    .cen_in     ( cen_alt   ),
+    .cen_out    ( cpu_cenw  ),
+    // manage access to shared memory
+    .dev_busy   ( 1'b0      ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    )
+);
 
 jtframe_z80 u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
-    .cen        ( cen_alt     ),
-    //.cen        ( cen_fm     ),
-    .wait_n     ( wait_n      ),
+    .cen        ( cen_cpuw    ),
+    .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
     .busrq_n    ( 1'b1        ),
