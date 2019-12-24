@@ -132,7 +132,12 @@ jtgng_char #(.HOFFSET(1)) u_char (
     .rom_ok     ( char_ok       ),
     // Pixel output
     .char_on    ( 1'b1          ),
-    .char_pxl   ( char_pxl      )
+    .char_pxl   ( char_pxl      ),
+    // unused
+    .dseln      (               ),
+    .prog_addr  (               ),
+    .prog_din   (               ),
+    .prom_we    (               )
 );
 
 jtgng_charmsg u_msg(
@@ -212,7 +217,13 @@ u_obj (
     .obj_data   ( obj_data    ),
     .rom_ok     ( obj_ok      ),
     // pixel data
-    .obj_pxl    ( obj_pxl     )
+    .obj_pxl    ( obj_pxl     ),
+    // unused
+    .prog_addr  (             ),
+    .prog_din   (             ),
+    .prom_hi_we ( 1'b0        ),
+    .prom_lo_we ( 1'b0        ),
+    .OBJON      ( 1'b1        )
 );
 
 `ifndef NOCOLMIX

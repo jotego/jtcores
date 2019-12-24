@@ -1,0 +1,60 @@
+JTF1Dream FPGA clone of F1 Dream arcade faithful to original hardware
+=====================================================================
+
+Please, read the main README file too.
+
+You have just got an expensive $200 PCB as this is the price I paid for it. 
+You have in your hands a faithful conversion of the circuits on the F1 Dream PCB to FPGA.
+If you come from the emulation world here are some of the things different from emulators:
+
+-Real CPU/GPU bus sharing with delays
+-Sprites handled with DMA exactly as in the original hardware
+-MCU/CPU interaction with same bus timings as original hardware
+-Graphics priority handled by the original PROM
+-No lag between image and input. Data is being sent to the screen in real time.
+-Sound sampling rate: 41.663 kHz (original, 125/3 kHz)
+-Accurate FPS 100% same as real hardware
+
+These technical aspects mean that the game play will be different from an emulator
+in a number of ways and that some hardware tricks that were not emulated will work
+here as in the original hardware.
+
+GAME PLAY
+=========
+
+The game uses two buttons: low gear and high gear. In turbo mode you press the two
+at the same time to set the turbo.
+
+Note that by default the continue prompt is disabled. If you want to
+be able to continue, change this in the OSD. You can then save your settings
+so it will be the same the next time you powerup.
+
+TEST SCREEN
+===========
+Select the test screen through the OSD menu.  To pass on to the next test 
+screen press both action buttons.
+
+TECHNICAL INFORMATION
+=====================
+-This board seems to be the same as Tiger Road but it has the MCU socket filled
+ whereas Tiger Road didn't have one. On the other hand, it has no chips in the
+ sockets for the second Z80 and its ROM. It should be possible to convert an
+ original Tiger Road board into a F1 Dream board and vice versa quite easily.
+-YM2203 phi M =3.7MHz
+
+REVISION HISTORY
+================
+17 Nov 2019: Beta release (MiST and MiSTer)
+
+CREDITS
+=======
+
+Brought to you by Jose Tejada, aka jotego. Meet me in twitter @topapate
+Checkout my patreon page here: http://patreon.com/topapate
+
+Special thanks to all November '19 patrons.
+
+Tier +3 Patrons Thanks!!
+========================
+
+To be filled in December.

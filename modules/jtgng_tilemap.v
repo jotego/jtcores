@@ -41,6 +41,7 @@ module jtgng_tilemap #(parameter
     input                  Asel,  // This is the address bit that selects
                             // between the low and high tile map
     input            [1:0] dseln,
+    input                  layout,  // use by Black Tiger to change scan
     input      [SCANW-1:0] AB,
     input            [7:0] V,
     input            [7:0] H,
@@ -68,7 +69,12 @@ always @(*) begin
         scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}} 
             : { {SCANW{flip}}^{V[7:3],H[7:3]}}) >> (10-SCANW);
     end else begin
-        scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
+        if( SCANW==13) begin // Black Tiger
+            // 1 -> tile map 8x4
+            // 0 -> tile map 4x8
+            scan =  layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
+        end else // other games
+            scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
     end
 end
 
