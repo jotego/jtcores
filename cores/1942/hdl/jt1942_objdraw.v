@@ -109,19 +109,14 @@ always @(posedge clk) begin
     end
 end
 
-assign obj_addr[14:6] = pre_addr[14:6];
-assign obj_addr[ 4:1] = pre_addr[ 4:1];
+// assign obj_addr[14:6] = pre_addr[14:6];
+// assign obj_addr[ 4:1] = pre_addr[ 4:1];
+assign obj_addr[14:2] = { pre_addr[14:6], pre_addr[4:1] };
 
 reg [1:0] hcnt; // read order 2,3,0,1
 
-// function [3:0] haddr(
-//         input [3:0] cnt
-//     );
-//     haddr = { cnt[3]^~cnt[2], ~cnt[2]}-2'b1;
-// endfunction
-// wire [3:0] cnt_next = pxlcnt + 4'd2;
-// assign { obj_addr[5], obj_addr[0] } = haddr(cnt_next);
-assign { obj_addr[5], obj_addr[0] } = hcnt;
+//assign { obj_addr[5], obj_addr[0] } = hcnt;
+assign obj_addr[1:0] = hcnt;
 
 // ROM data depacking
 

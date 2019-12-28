@@ -121,8 +121,8 @@ always @(posedge clk) begin
         else if(ioctl_addr < PROMADDR ) begin // objects
             //**************************************************
             prog_mask  <= scr_offset[14] ? 2'b10 : 2'b01;
-            prog_addr <= (OBJADDR>>1) + {scr_offset[15], 
-                scr_offset[13:0] };
+            prog_addr <= (OBJADDR>>1) + {scr_offset[15], // reordered to optimize cache hits
+                scr_offset[13:6], scr_offset[4:1], scr_offset[5], scr_offset[0] };
             //**************************************************
             scr_offset <= scr_offset+16'd1;
         end

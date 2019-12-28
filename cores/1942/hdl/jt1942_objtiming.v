@@ -74,7 +74,7 @@ always @(posedge clk) begin
                     objcnt <= objcnt + 5'h1;
                 end else begin // 1942
                     objcnt <= (objcnt == 5'h0f && V[7]) ? 5'h18 : objcnt+5'h1;
-                    over   <= objcnt == 5'h1f || objcnt==5'h17;
+                    over   <= objcnt == 5'h1f || (objcnt==5'h17 && !V[7]);
                 end
             end
         end

@@ -32,6 +32,11 @@ using the original and it comes with that side effect (verified on the real PCB)
 
 REVISION HISTORY
 ================
+
+28th Dec 2019
+    - Fixes missing sprite bug
+    - Fixes top line missing (noticeable in cross hatch test)
+    - Moved to new MiSTer SYS folder
 21st Nov 2019
     - Fixes bug in SDRAM controller
 13th Nov 2019
@@ -39,7 +44,6 @@ REVISION HISTORY
     - Set JT49 compression to level 2 (21dB)
     
 7th Oct 2019 - Public release MisT(er)
-
 
 
 CREDITS

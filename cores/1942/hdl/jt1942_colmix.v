@@ -43,9 +43,9 @@ module jt1942_colmix(
     output  reg     LHBL_dly,
     output  reg     LVBL_dly,
 
-    output  [3:0]   red,
-    output  [3:0]   green,
-    output  [3:0]   blue,
+    output reg [3:0] red,
+    output reg [3:0] green,
+    output reg [3:0] blue,
     // Debug
     input      [3:0] gfx_en
 );
@@ -60,7 +60,6 @@ reg [7:0] pixel_mux;
 wire char_blank_b = |(~char_pxl);
 wire obj_blank_b  = |(~obj_pxl);
 //wire obj_blank_b  = 1'b0;
-reg [7:0] prom_addr;
 
 always @(*) begin
     if( !char_blank_b || !gfx_en[0] ) begin
@@ -78,7 +77,7 @@ end
 
 wire [1:0] pre_BL;
 
-jtframe_sh #(.width(2),.stages(5)) u_hb_dly(
+jtframe_sh #(.width(2),.stages(6)) u_hb_dly(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
     .din    ( {LHBL, LVBL}     ),
@@ -87,39 +86,40 @@ jtframe_sh #(.width(2),.stages(5)) u_hb_dly(
 
 always @(posedge clk) if(cen6) begin
     {LHBL_dly, LVBL_dly} <= pre_BL;
-    prom_addr <= pre_BL==2'b11 ? pixel_mux : 8'd0;
+    {red, green, blue } <= LVBL_dly && (LHBL || LHBL_dly) ? {pre_r, pre_g, pre_b} : 12'd0;
 end
 
+wire [3:0] pre_r, pre_g, pre_b;
 
 // palette ROM
 jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_e8_we  ),
-    .q      ( red         )
+    .q      ( pre_r       )
 );
 
 jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_e9_we  ),
-    .q      ( green       )
+    .q      ( pre_g       )
 );
 
 jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-7.e10")) u_blue(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
-    .rd_addr( prom_addr   ),
+    .rd_addr( pixel_mux   ),
     .wr_addr( prog_addr   ),
     .we     ( prom_e10_we ),
-    .q      ( blue        )
+    .q      ( pre_b       )
 );
 
 endmodule // jtgng_colmix

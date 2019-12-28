@@ -1,6 +1,10 @@
 RELEASE HISTORY
 ===============
 
+28th Dec 2019
+    - Fixes missing sprite bug
+    - Fixes top line missing (noticeable in cross hatch test)
+    - Moved to new MiSTer SYS folder
 21st Nov 2019
     - Fixes bug in SDRAM controller
 13th Nov 2019
