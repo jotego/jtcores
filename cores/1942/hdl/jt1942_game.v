@@ -93,7 +93,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire rd;
 wire rom_ready;
 wire cpu_cen;
-wire main_ok, snd_ok, char_ok;
+wire main_ok, snd_ok, char_ok, obj_ok;
 wire cen12, cen6, cen3, cen1p5;
 
 assign pxl2_cen = cen12;
@@ -209,6 +209,7 @@ wire prom_char_we  = prom_we[7];
 wire prom_obj_we   = prom_we[8];
 wire prom_m11_we   = prom_we[9];
 
+`ifndef NOMAIN
 jt1942_main #(.VULGUS(VULGUS)) u_main(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
@@ -264,6 +265,17 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
     .dipsw_b    ( dipsw_b       ),
     .coin_cnt   (               )
 );
+`else 
+assign main_cs   = 1'b0;
+assign cpu_cen   = cen3;
+assign char_cs   = 1'b0;
+assign scr_cs    = 1'b0;
+assign obj_cs    = 1'b0;
+assign scr_hpos  = 9'd0;
+assign scr_vpos  = 9'd0;
+assign scr_br    = 2'b0;
+assign flip      = 1'b0;
+`endif
 
 `ifndef NOSOUND
 wire [9:0] psg_snd;
@@ -330,6 +342,7 @@ jt1942_video u_video(
     .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
+    .obj_ok     ( obj_ok        ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LHBL_obj   ( LHBL_obj      ),

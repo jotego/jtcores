@@ -25,6 +25,7 @@ module jt1942_obj(
     input              clk,
     input              cen6,    //  6 MHz
     input              cen3,    //  3 MHz
+    input              cpu_cen,
     // screen
     input              HINIT,
     input              LHBL,
@@ -38,6 +39,7 @@ module jt1942_obj(
     input              obj_cs,
     input              wr_n,
     // SDRAM interface
+    input              obj_ok,
     output      [14:0] obj_addr,
     input       [15:0] obj_data,
     // PROMs
@@ -55,28 +57,30 @@ parameter PXL_DLY=7;
 wire line, fill, line_obj_we;
 wire [7:0]  objbuf_data0, objbuf_data1, objbuf_data2, objbuf_data3;
 
-wire [3:0] pxlcnt;
+wire [3:0] pxlcnt, bufcnt;
 wire [4:0] objcnt;
-
-wire SEATM_b, DISPTM_b;
+wire       pxlcnt_lsb;
+wire       over;
 
 jt1942_objtiming u_timing(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen6        ( cen6          ),    //  6 MHz
     // screen
+    .LHBL        ( LHBL          ),
     .HINIT       ( HINIT         ),
     .V           ( V             ),
     .H           ( H             ),
-    // Timings
-    .SEATM_b     ( SEATM_b       ),
-    .DISPTM_b    ( DISPTM_b      ),
+    .obj_ok      ( obj_ok        ),
+    .over        ( over          ),
     // Timing PROM
     .prog_addr   ( prog_addr     ),
     .prom_m11_we ( prom_m11_we   ),
     .prog_din    ( prog_din[1:0] ),
     .pxlcnt      ( pxlcnt        ),
+    .pxlcnt_lsb  ( pxlcnt_lsb    ),
     .objcnt      ( objcnt        ),
+    .bufcnt      ( bufcnt        ),
     .line        ( line          )
 );
 
@@ -84,17 +88,19 @@ jt1942_objtiming u_timing(
 jt1942_objram u_ram(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen6           ( cen6          ),    //  6 MHz
-    .cen3           ( cen3          ),
+    .cpu_cen        ( cpu_cen       ),
     // Timings
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
-    .SEATM_b        ( SEATM_b       ),
+    .bufcnt         ( bufcnt        ),
+    .LHBL           ( LHBL          ),
+    .LVBL           ( LVBL          ),
     // CPU interface
     .DB             ( DB            ),
     .AB             ( AB            ),
     .wr_n           ( wr_n          ),
     .obj_cs         ( obj_cs        ),
+    .over           ( over          ),
     // memory output
     .objbuf_data0   ( objbuf_data0  ),
     .objbuf_data1   ( objbuf_data1  ),
@@ -128,6 +134,8 @@ jt1942_objdraw u_draw(
     .V              ( V             ),
     .H              ( H             ),
     .pxlcnt         ( pxlcnt        ),
+    .pxlcnt_lsb     ( pxlcnt_lsb    ),
+    .bufcnt         ( bufcnt        ),
     .posx           ( posx          ),
     .flip           ( flip          ),
     // per-line sprite data
@@ -142,6 +150,7 @@ jt1942_objdraw u_draw(
     `endif
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
+    .obj_ok         ( obj_ok        ),
     // Palette PROM
     .prog_addr      ( prog_addr     ),
     .prom_pal_we    ( prom_pal_we   ),
@@ -150,10 +159,10 @@ jt1942_objdraw u_draw(
     .new_pxl        ( new_pxl       )
 );
 
-jtgng_objpxl #(.obj_dly(5'h1f),.PXL_DLY(PXL_DLY))u_pxlbuf(
+jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cen            ( cen6          ),    //  6 MHz
+    .cen            ( 1'b1          ),
     .pxl_cen        ( cen6          ),    //  6 MHz
     // screen
     .LHBL           ( LHBL          ),

@@ -23,12 +23,14 @@
 module jt1942_objram(
     input              rst,
     input              clk,
-    input              cen6,    //  6 MHz
-    input              cen3,    //  3 MHz
+    (*direct_enable*) input cpu_cen,    //  6 MHz
     // Timing
     input   [3:0]      pxlcnt,
     input   [4:0]      objcnt,
-    input              SEATM_b,
+    input   [3:0]      bufcnt,
+    input              LHBL,
+    input              LVBL,
+    input              over,
     // CPU interface
     input   [7:0]      DB,
     input   [6:0]      AB,
@@ -41,47 +43,47 @@ module jt1942_objram(
     output reg  [7:0]  objbuf_data3
 );
 
-wire [6:0] scan = { objcnt, pxlcnt[1:0] };
-wire [6:0] addr = SEATM_b ? AB : scan;
-wire we = SEATM_b && !wr_n && obj_cs;
-wire [7:0] ram_data;
+reg [7:0] cpu_data;
+reg [6:0] cpu_AB;
+reg       cpu_we;
 
-jtframe_ram #(.aw(7),.simfile("obj.bin")) u_ram(
-    .clk    ( clk         ),
-    .cen    ( cen3        ),
-    .data   ( DB          ),
-    .addr   ( addr        ),
-    .we     ( we          ),
-    .q      ( ram_data    )
-);
-
-//`define OBJ_TEST
-
-`ifndef OBJ_TEST
-// Latches data output. It can be done without this, but
-// I find this less prone to bugs
-reg [31:0] collect;
-
-always @(posedge clk) if(cen6) begin
-    collect[31:0] <= {collect[23:0], ram_data };
-    if( !SEATM_b && pxlcnt==4'd6 ) begin
-        { objbuf_data2, objbuf_data3, objbuf_data0, objbuf_data1 } <= collect;
+always @(posedge clk) if( cpu_cen ) begin
+    cpu_we <= 1'b0;
+    if(!wr_n && obj_cs) begin
+        cpu_data <= DB;
+        cpu_AB   <= AB;
+        cpu_we   <= !LVBL;
     end
 end
-`else
-always @(posedge clk) if(cen6)
-if( !SEATM_b && pxlcnt==4'd6 ) case(scan[6:2])
-    // 5'd0: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'hD2_46_61_20;
-    // 5'd1: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h11_04_98_c0;
-    // 5'd2: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h12_04_b0_c0;
-    // 5'd3: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h13_04_c8_c0;
-    // 5'd4: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he0_40_80_a0;
-    // 5'd5: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he1_40_b0_a0;
-    // 5'd6: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'he4_40_80_80;
-    //5'd7: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h6c_a6_40_20;
-    5'd8: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h6C_A6_61_20;
-    5'd9: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h6C_00_00_20;
-    default: {objbuf_data0,objbuf_data1,objbuf_data2,objbuf_data3} <= 32'h0;
-endcase
-`endif
+
+wire [6:0] scan = { objcnt, bufcnt[2:1] };
+wire [6:0] addr = over ? cpu_AB : scan;
+wire we = cpu_we;
+wire [7:0] ram_data;
+
+jtframe_dual_ram #(.aw(7),.simfile("obj.bin")/*,.synfile("objtest.hex")*/) u_ram(
+    // Scan
+    .clk0   ( clk         ),
+    .data0  ( 8'h0        ),
+    .addr0  ( scan        ),
+    .we0    ( 1'b0        ),
+    .q0     ( ram_data    ),
+    // CPU
+    .clk1   ( clk         ),
+    .data1  ( cpu_data    ),
+    .addr1  ( cpu_AB      ),
+    .we1    ( cpu_we      ),
+    .q1     (             ) 
+);
+
+always @(posedge clk) begin
+    case(bufcnt)
+        4'b00_1: objbuf_data0 <= ram_data;
+        4'b01_1: objbuf_data1 <= ram_data;
+        4'b10_1: objbuf_data2 <= ram_data;
+        4'b11_1: objbuf_data3 <= ram_data;
+    endcase
+end
+
+
 endmodule // jtgng_objdraw

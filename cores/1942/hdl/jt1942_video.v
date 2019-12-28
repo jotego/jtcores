@@ -54,6 +54,7 @@ module jt1942_video(
     input               HINIT,
     output      [14:0]  obj_addr,
     input       [15:0]  obj_data,
+    input               obj_ok,
     // Color Mix
     input               LVBL,
     input               LHBL,
@@ -86,7 +87,6 @@ localparam VULGUS = 1'b0;
 `endif
 
 wire [3:0] char_pxl, obj_pxl;
-reg  [5:0] scr_pxl;
 
 `ifndef NOCHAR
 wire [7:0] char_msg_low;
@@ -95,6 +95,7 @@ wire [9:0] char_scan;
 wire [5:0] char_pal;
 wire [1:0] char_col;
 
+`ifndef NOCHAR
 jtgng_char #(
     .HOFFSET ( 0),
     .ROM_AW  (12),
@@ -136,6 +137,10 @@ jtgng_char #(
     .char_on    ( 1'b1          ),
     .char_pxl   ( char_pxl      )
 );
+`else 
+assign char_addr = 12'd0;
+assign char_pxl  = 4'hf;
+`endif
 
 jtframe_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
     .clk    ( clk          ),
@@ -153,6 +158,7 @@ assign char_pxl = 4'hf;
 `ifndef NOSCR
 wire [2:0] scr_col;
 wire [4:0] scr_pal;
+reg  [5:0] scr_pxl;
 
 // As scr_AB width differs depending on VULGUS
 // I think it is more clear to use `ifdef rather
@@ -243,10 +249,13 @@ always @(*) begin
     pre_scr_pxl = scr_pal_addr[3:0];
     scr_pxl     = VULGUS ? { scr_br[1:0], pre_scr_pxl } : scr_pal2;
 end
-
 `else
-assign scr_wait_n = 1'b1;
-always @(*) scr_pxl = ~6'h0;
+initial $display("INFO: scroll simulation omitted.");
+wire  [5:0] scr_pxl;
+
+assign scr_busy  = 1'b0;
+assign scr_addr  = 14'd0;
+assign scr_pxl   = ~6'h0;
 `endif
 
 jt1942_obj u_obj(
@@ -254,6 +263,7 @@ jt1942_obj u_obj(
     .clk            ( clk       ),
     .cen6           ( cen6      ),
     .cen3           ( cen3      ),
+    .cpu_cen        ( cpu_cen   ),
     // screen
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
@@ -269,6 +279,7 @@ jt1942_obj u_obj(
     // SDRAM interface
     .obj_addr       ( obj_addr    ),
     .obj_data       ( obj_data    ),
+    .obj_ok         ( obj_ok      ),
     // PROMs
     .prog_addr      ( prog_addr   ),
     .prom_m11_we    ( prom_m11_we ), // Object logic timing

@@ -19,9 +19,9 @@
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
+../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_prom.v
 ../../../modules/jtframe/hdl/jtframe_sh.v
-../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_scroll.v
