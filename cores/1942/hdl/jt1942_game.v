@@ -267,6 +267,7 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
 );
 `else 
 assign main_cs   = 1'b0;
+assign cpu_cen   = cen3;
 assign char_cs   = 1'b0;
 assign scr_cs    = 1'b0;
 assign obj_cs    = 1'b0;

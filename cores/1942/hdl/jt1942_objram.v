@@ -29,6 +29,7 @@ module jt1942_objram(
     input   [4:0]      objcnt,
     input   [3:0]      bufcnt,
     input              LHBL,
+    input              LVBL,
     input              over,
     // CPU interface
     input   [7:0]      DB,
@@ -51,7 +52,7 @@ always @(posedge clk) if( cpu_cen ) begin
     if(!wr_n && obj_cs) begin
         cpu_data <= DB;
         cpu_AB   <= AB;
-        cpu_we   <= 1'b1;
+        cpu_we   <= !LVBL;
     end
 end
 
@@ -65,7 +66,7 @@ jtframe_dual_ram #(.aw(7),.simfile("obj.bin")/*,.synfile("objtest.hex")*/) u_ram
     .clk0   ( clk         ),
     .data0  ( 8'h0        ),
     .addr0  ( scan        ),
-    .we0    ( 1'b1        ),
+    .we0    ( 1'b0        ),
     .q0     ( ram_data    ),
     // CPU
     .clk1   ( clk         ),

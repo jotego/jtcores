@@ -94,6 +94,7 @@ jt1942_objram u_ram(
     .pxlcnt         ( pxlcnt        ),
     .bufcnt         ( bufcnt        ),
     .LHBL           ( LHBL          ),
+    .LVBL           ( LVBL          ),
     // CPU interface
     .DB             ( DB            ),
     .AB             ( AB            ),

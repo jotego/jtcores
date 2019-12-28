@@ -62,7 +62,7 @@ wire       next_ADext = objbuf_data1[5];
 wire       next_hover = objbuf_data1[4];
 wire [3:0] next_CD    = objbuf_data1[3:0];
 wire [7:0] objy       = objbuf_data2;
-wire [7:0] objx       = objbuf_data3;
+wire [8:0] objx       = { next_hover, objbuf_data3 };
 
 wire [7:0] LVBETA = objy + V2C;
 wire [7:0] VBETA = ~LVBETA;
