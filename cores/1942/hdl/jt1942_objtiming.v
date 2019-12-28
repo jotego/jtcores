@@ -28,26 +28,75 @@ module jt1942_objtiming(
     // screen
     input   [7:0]      V,
     input   [8:0]      H,
+    input              LHBL,
     input              HINIT,
+    input              obj_ok,    
     output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
+    output reg [3:0]   bufcnt,
     output reg         line,
-    output             SEATM_b,
-    output             DISPTM_b,
+    output reg         pxlcnt_lsb,
+    output reg         over,
     // Timing PROM
     input   [7:0]      prog_addr,
     input              prom_m11_we,
     input   [1:0]      prog_din
 );
 
-always @(posedge clk) if(cen6) begin
-    if( HINIT ) begin
-        pxlcnt <= 4'd0;
-    end else begin
-        pxlcnt <= pxlcnt+4'd1;
+`ifdef VULGUS
+localparam VULGUS=1;
+`else
+localparam VULGUS=0;
+`endif
+
+reg last_LHBL, okdly;
+wire rom_good = obj_ok & okdly;
+wire posedge_LHBL = LHBL && !last_LHBL;
+
+always @(posedge clk) begin
+    last_LHBL <= LHBL;
+    okdly     <= obj_ok;
+    if( posedge_LHBL ) begin
+        pxlcnt    <= 4'd0;
+        objcnt    <= 5'd0;
+        over      <= 1'b0;
+        bufcnt    <= 3'b0;
+        pxlcnt_lsb       <= 1'b0;
+    end else begin // image scan
+        if(bufcnt!=4'b1010) 
+            bufcnt <= bufcnt+4'd1;
+        else if(rom_good && !over ) begin
+            {pxlcnt, pxlcnt_lsb} <= {pxlcnt,pxlcnt_lsb}+5'd1;
+            if( &{pxlcnt,pxlcnt_lsb} ) begin
+                bufcnt <= 4'd0;
+                if( VULGUS ) begin
+                    over   <= objcnt == 5'h17;
+                    objcnt <= objcnt + 5'h1;
+                end else begin // 1942
+                    objcnt <= (objcnt == 5'h0f && V[7]) ? 5'h18 : objcnt+5'h1;
+                    over   <= objcnt == 5'h1f || objcnt==5'h17;
+                end
+            end
+        end
+        else if(!rom_good) pxlcnt_lsb <= 1'b0;
     end
 end
 
+always @(posedge clk) begin
+    if( rst )
+        line <= 1'b0;
+    else if(cen6) begin
+        if( HINIT ) line <= ~line;
+    end
+end
+
+// Not the whole RAM is read for producing objects
+// 1942: left part of the vertical screen (V[7]==1) objects 18-1F
+//       right part                                 objects 10-17
+//       whole screen                               objects 0-0F
+// Vulgus: objects 0 to 17 only
+
+/* Original sequence
 `ifdef VULGUS
 reg vulgus_sr;
 always @(posedge clk, posedge rst) 
@@ -60,7 +109,6 @@ always @(posedge clk, posedge rst)
         end
     end
 `endif
-
 always @(*) begin
     // This is the original scan sequence of each game, that counts objects
     `ifdef VULGUS
@@ -73,32 +121,6 @@ always @(*) begin
         objcnt[2:0] = H[6:4];
     `endif
 end
-
-
-always @(posedge clk)
-    if( rst )
-        line <= 1'b0;
-    else if(cen6) begin
-        if( HINIT ) line <= ~line;
-    end
-
-// The use of the original object timing signals below
-// may not be the optimal choice as the object drawing
-// timing is slightly different in this implementation
-// which means that these two signals may come slightly
-// off (by ~2 pixel clocks maybe?)
-// It doesn't seem to be an issue anyway.
-
-jtframe_prom #(.aw(8),.dw(2),
-    .simfile("../../../rom/1942/sb-9.m11")
-    ) u_prom_m11(
-    .clk    ( clk            ),
-    .cen    ( cen6           ),
-    .data   ( prog_din       ),
-    .rd_addr( V[7:0]         ),
-    .wr_addr( prog_addr      ),
-    .we     ( prom_m11_we    ),
-    .q      ( {DISPTM_b, SEATM_b} )
-);
+*/
 
 endmodule // jt1942_obj

@@ -26,9 +26,10 @@ module mist_dump(
             $dumpvars(0,mist_test);
         `else
             $dumpvars(1,mist_test.UUT.u_game.u_main);
-            $dumpvars(1,mist_test.UUT.u_game.u_sound);
-            $dumpvars(1,mist_test.UUT.u_game.u_rom);
-            $dumpvars(1,mist_test.UUT.u_game);
+            //$dumpvars(1,mist_test.UUT.u_game.u_sound);
+            //$dumpvars(1,mist_test.UUT.u_game.u_rom);
+            $dumpvars(0,mist_test.UUT.u_game.u_video.u_obj.u_ram);
+            $dumpvars(0,mist_test.UUT.u_game.u_video.u_obj);
         `endif
         $dumpon;
     end

@@ -39,8 +39,8 @@ if [ "$MIST" = -mister ]; then
     # MiSTer cores are processed serially
     cores="$cores biocom"
     for i in $cores; do
-        nice jtcore $i -mister $EXTRA
+        nice $JTFRAME/bin/jtcore $i -mister $EXTRA
     done
 else
-    parallel jtcore {} $EXTRA ::: $cores ::: $MIST
+    parallel $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $MIST
 fi

@@ -15,12 +15,13 @@
 ../../../modules/jtgng_romflex.v
 ../../../modules/jtgng_multiram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
+../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
+../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_prom.v
 ../../../modules/jtframe/hdl/jtframe_sh.v
-../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_scroll.v

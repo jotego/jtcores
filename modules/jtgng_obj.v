@@ -228,7 +228,7 @@ generate
         assign pxl_data = {pospal, new_pxl};
 endgenerate
 
-jtgng_objpxl #(.dw(PXLW),.obj_dly(5'h11),.palw(PALW),.PXL_DLY(PXL_DLY)) u_pxlbuf(
+jtgng_objpxl #(.dw(PXLW),.palw(PALW),.PXL_DLY(PXL_DLY)) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),

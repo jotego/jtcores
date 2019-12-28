@@ -18,7 +18,7 @@
 
 // Object Line Buffer
 
-module jtgng_objpxl #(parameter dw=4,obj_dly = 5'hc,palw=0,PXL_DLY=7)(
+module jtgng_objpxl #(parameter dw=4,palw=0,PXL_DLY=7)(
     input              rst,
     input              clk,
     input              cen /*direct_enable*/,

@@ -27,6 +27,8 @@ module jt1942_objdraw(
     input       [7:0]  V,
     input       [8:0]  H,
     input       [3:0]  pxlcnt,
+    input              pxlcnt_lsb,
+    input       [3:0]  bufcnt,
     // per-line sprite data
     input       [7:0]  objbuf_data0,
     input       [7:0]  objbuf_data1,
@@ -35,6 +37,7 @@ module jt1942_objdraw(
     // SDRAM interface
     output      [14:0] obj_addr,
     input       [15:0] obj_data,
+    input              obj_ok,
     // Palette PROM
     input   [7:0]      prog_addr,
     input              prom_pal_we,
@@ -58,17 +61,17 @@ wire [1:0] next_vlen  = objbuf_data1[7:6];
 wire       next_ADext = objbuf_data1[5];
 wire       next_hover = objbuf_data1[4];
 wire [3:0] next_CD    = objbuf_data1[3:0];
-wire [7:0] next_y     = objbuf_data2;
-wire [7:0] next_x     = objbuf_data3;
+wire [7:0] objy       = objbuf_data2;
+wire [7:0] objx       = objbuf_data3;
 
-wire [7:0] LVBETA = next_y + V2C;
+wire [7:0] LVBETA = objy + V2C;
 wire [7:0] VBETA = ~LVBETA;
 
 always @(*) begin
     // comparison side of VINZONE
-    // Vgt = VBETA  > ~next_y;
-    Veq = VBETA == ~next_y;
-    Vlt = VBETA  < ~next_y;
+    // Vgt = VBETA  > ~objy;
+    Veq = VBETA == ~objy;
+    Vlt = VBETA  < ~objy;
     VINcmp = /*ADext ? Vgt :*/ (Veq|Vlt);
     case( next_vlen )
         2'b00: VINlen = &LVBETA[7:4]; // 16 lines
@@ -82,62 +85,72 @@ end
 
 reg [14:0] pre_addr;
 reg VINZONE2, VINZONE3;
-reg [8:0] objx, posx1, posx2;
-reg [3:0] CD2;
+reg [8:0] posx1, posx2;
 
 localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 
-always @(posedge clk) if(cen6) begin
-    case( pxlcnt )
-        4'd0: V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
-        4'd7: begin
-            `ifdef VULGUS
-            pre_addr[14:10] <= { 1'b0, next_AD[7:4]};
-            `else // 1942
-            pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
-            `endif
-            case( next_vlen )
-                2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
-                2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
-                2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
-                2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
-            endcase
-            pre_addr[4:1] <= ~LVBETA[3:0];
-            VINZONE2 <= VINZONE;
-            objx <= { next_hover, next_x };
-            CD2   <= next_CD;
-        end
-    endcase
+always @(posedge clk) begin
+    V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
+    if( bufcnt==4'h9 ) begin // set new address
+        `ifdef VULGUS
+        pre_addr[14:10] <= {1'b0, next_AD[7:4]};
+        `else // 1942
+        pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
+        `endif
+        case( next_vlen )
+            2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
+            2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
+            2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
+            2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
+        endcase
+        pre_addr[4:1] <= ~LVBETA[3:0];
+        VINZONE2 <= VINZONE; // active low
+        CD   <= next_CD;
+    end
 end
 
 assign obj_addr[14:6] = pre_addr[14:6];
 assign obj_addr[ 4:1] = pre_addr[ 4:1];
-//assign { obj_addr[5], obj_addr[0] } = {~pxlcnt[3], pxlcnt[2]};
-assign { obj_addr[5], obj_addr[0] } = { pxlcnt[3]^~pxlcnt[2], ~pxlcnt[2]}-2'b1;
+
+reg [1:0] hcnt; // read order 2,3,0,1
+
+// function [3:0] haddr(
+//         input [3:0] cnt
+//     );
+//     haddr = { cnt[3]^~cnt[2], ~cnt[2]}-2'b1;
+// endfunction
+// wire [3:0] cnt_next = pxlcnt + 4'd2;
+// assign { obj_addr[5], obj_addr[0] } = haddr(cnt_next);
+assign { obj_addr[5], obj_addr[0] } = hcnt;
 
 // ROM data depacking
 
 reg  [3:0] z,y,x,w;
 reg  [3:0] obj_wxyz;
 wire [7:0] pal_addr = { CD, obj_wxyz};
+reg  [2:0] draw;
+wire       pre_draw = bufcnt[3] && pxlcnt_lsb && !VINZONE2 && obj_ok;
 
-
-always @(posedge clk) if(cen6) begin
-    if( pxlcnt == 4'b1011 ) begin //
-        CD       <= CD2;
-        VINZONE3 <= VINZONE2;
-        posx1<=objx;
-    end else begin
-        posx1 <= posx1 + 9'b1;
+always @(posedge clk) begin
+    if( !bufcnt[3] ) hcnt <= 2'd0;
+    draw <= { draw[1:0], pre_draw };
+    if( pre_draw ) begin
+        posx1 <= objx+{5'd0, pxlcnt};
+        if( pxlcnt[1:0] == 2'b0 ) begin
+            {z,y,x,w} <= obj_data;
+            case( hcnt )
+                2'd2: hcnt <= 2'd3;
+                2'd3: hcnt <= 2'd0;
+                2'd0: hcnt <= 2'd1;
+                2'd1: hcnt <= 2'd2;
+            endcase
+        end else begin
+            z <= z << 1;
+            y <= y << 1;
+            x <= x << 1;
+            w <= w << 1;
+    	end
     end
-    if( pxlcnt[1:0] == 2'b11 )
-        {z,y,x,w} <= obj_data   ;
-    else begin
-        z <= z << 1;
-        y <= y << 1;
-        x <= x << 1;
-        w <= w << 1;
-	end
 end
 
 always @(*) begin
@@ -149,12 +162,10 @@ always @(*) begin
 end
 
 wire [3:0] prom_dout;
-reg VINZONE4;
 
-always @(posedge clk ) if(cen6) begin
-    posx2 <= posx1;
-    VINZONE4 <= VINZONE3;
-    if( !VINZONE4 ) begin
+always @(posedge clk ) begin
+    if(draw[0]) posx2 <= posx1;
+    if(draw[1]) begin
         new_pxl <= prom_dout;
         posx    <= posx2;
     end else begin
@@ -167,13 +178,12 @@ jtframe_prom #(.aw(8),.dw(4),
     .simfile("../../../rom/1942/sb-8.k3")
 ) u_prom_k3(
     .clk    ( clk            ),
-    .cen    ( cen6           ),
+    .cen    ( 1'b1           ),
     .data   ( prog_din       ),
     .rd_addr( pal_addr       ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_pal_we     ),
+    .we     ( prom_pal_we    ),
     .q      ( prom_dout      )
 );
-
 
 endmodule // jtgng_objdraw
