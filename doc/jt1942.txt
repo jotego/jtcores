@@ -1,3 +1,8 @@
+KNOWN ISSUES
+============
+
+If you enable flip mode and wait for the CAPCOM logo screen to appear for the second time, the animation will not be displayed correctly. This occurs because that logo is printed using two sprites right at the limit of the vertical split line (schematics 5/8). I think this is a genuine bug of the original hardware. The CAPCOM logo works correctly when not in flip mode.
+
 RELEASE HISTORY
 ===============
 
