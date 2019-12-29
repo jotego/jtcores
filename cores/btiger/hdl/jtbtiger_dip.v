@@ -34,8 +34,8 @@ wire          dip_portrait= 1'b0;
 wire [1:0]    dip_lives  = ~status[20:19];
 wire          dip_cont   = ~status[21];
 wire          dip_demo   = ~status[18];
-wire [2:0]    dip_price1 = 3'b111;
-wire [2:0]    dip_price2 = 3'b111;
+wire [2:0]    dip_price1 = ~status[24:22];
+wire [2:0]    dip_price2 = ~status[27:25];
 
 wire [2:0]    dip_level  = ~status[17:15];
 
