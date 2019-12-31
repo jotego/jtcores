@@ -250,6 +250,7 @@ assign obj_pxl = ~6'd0;
 jtbtiger_colmix u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
+    .cen12        ( cen12         ),
     .cen6         ( cen6          ),
 
     .char_pxl     ( char_pxl      ),

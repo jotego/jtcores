@@ -24,6 +24,7 @@
 module jtbtiger_colmix(
     input            rst,
     input            clk,
+    input            cen12 /* synthesis direct_enable = 1 */,
     input            cen6 /* synthesis direct_enable = 1 */,
 
     // pixel input from generator modules
@@ -138,7 +139,7 @@ jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
 // 6MHz clock cycle:
 jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
     .clk    ( clk           ),
-    .cen    ( 1'b1          ),
+    .cen    ( cen12         ),
     .data   ( prom_din      ),
     .rd_addr( seladdr       ),
     .wr_addr( prog_addr     ),
