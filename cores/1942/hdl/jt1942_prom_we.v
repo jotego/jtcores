@@ -96,7 +96,7 @@ wire [3:0] region = {
     ioctl_addr < SCRUPPER, ioctl_addr < SCRADDR };
 `endif
 
-wire incpu = ioctl_addr < CHARADDR;
+// wire incpu = ioctl_addr < CHARADDR;
 
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;

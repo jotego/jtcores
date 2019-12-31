@@ -247,9 +247,11 @@ jtframe_ram #(.aw(13),.cen_rd(0)) RAM(
     .q          ( ram_dout  )
 );
 
+
 always @(*) begin
     cpu_din = 8'hff;
     case( 1'b1 )
+        // ram_cs : cpu_din = A==16'hf3a1 && ram_dout==8'd0 ? 8'd4 : ram_dout; // cheat to start on level 5
         ram_cs : cpu_din = ram_dout;
         char_cs: cpu_din = char_dout;
         scr_cs : cpu_din = scr_dout;

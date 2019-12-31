@@ -8,6 +8,7 @@ set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=384"
 # OSD options
 set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "JOIN_JOYSTICKS=1"
+set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=384"
 
 # Avatars on MiST too:
 #set_global_assignment -name VERILOG_MACRO "AVATAR_ROM=1"

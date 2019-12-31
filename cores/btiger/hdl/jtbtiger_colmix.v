@@ -32,8 +32,8 @@ module jtbtiger_colmix(
     input [6:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output  reg      LHBL_dly,
-    output  reg      LVBL_dly,
+    output           LHBL_dly,
+    output           LVBL_dly,
     // Avatars
     input [3:0]      avatar_idx,
     input            pause,
@@ -46,6 +46,10 @@ module jtbtiger_colmix(
     output reg [3:0] red,
     output reg [3:0] green,
     output reg [3:0] blue,
+    // Priority PROMs bd01.8j
+    input [7:0]     prog_addr,
+    input           prom_prior_we,
+    input [3:0]     prom_din,
     // control
     input            CHRON,
     input            SCRON,
@@ -58,64 +62,51 @@ reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0] && CHRON;
 wire enable_scr  = gfx_en[1] && SCRON;
-wire obj_blank   = &obj_pxl[3:0] || !OBJON;
-wire char_blank  = &char_pxl[1:0];
-wire enable_obj  = gfx_en[3];
+wire enable_obj  = gfx_en[3] && OBJON;
+
+wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
+wire obj_blank   = (&obj_pxl[3:0])  | ~enable_obj;
+wire scr_blank   = &scr_pxl[3:0];
 
 reg  [2:0] obj_sel; // signals whether an object pixel is selected
 
-////////////////////////////////////
-// Priority - scroll overlapping
-// PROM bd02.9j seems to be driven by scr_pxl[7:4] to obtain a 0,1,2,3 value
-// This value comes into bd01.8j. Address 0x40-0x7F seem to contain whether
-// scr or obj are selected. bit 0 selects obj, bit 1 scr.
-// Paul Leaman's visually derived transparent table in MAME source code
-// fits this interpretation of the PROM too
-// I am not reading the PROMs here as it will take less area to do it
-// directly in code
+reg  [7:0] seladdr;
+wire [3:0] selbus;
 
-reg       scr_win;
+reg [7:0] scr0;
+reg [6:0] char0, obj0;
 
-always @(*) begin
-    case( scr_pxl[7:5] )
-        3'd0:    scr_win = scr_pxl[3:2]<2'd3;
-        3'd1:    scr_win = scr_pxl[3:2]<2'd2;
-        3'd2:    scr_win = scr_pxl[3:2]<2'd1;
-        default: scr_win = 1'b0;
-    endcase
-end
+wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
 
 always @(posedge clk) if(cen6) begin
+    seladdr <= { ~char_blank & enable_char, ~obj_blank & enable_obj, 
+        (scr_pxl[7] || !enable_scr) ? 2'b00 : {scr_prio}, scr_pxl[3:0] };
+    scr0 <= scr_pxl;
+    char0 <= char_pxl;
+    obj0 <= obj_pxl;
+
     obj_sel[2] <= obj_sel[1];
     obj_sel[1] <= obj_sel[0];
     obj_sel[0] <= 1'b0;
-    if( char_blank || !enable_char ) begin
-        // Object or scroll
-        if( obj_blank || !enable_obj || scr_win)
-            pixel_mux <= enable_scr ? { 2'b0, scr_pxl } : ~10'h0; // scroll wins
-        else begin
+
+    pixel_mux[9:8] <= selbus[3:2];
+    case( selbus[1:0] )
+        2'b11: pixel_mux[7:0] <= { 1'b0, char0 };
+        2'b10: pixel_mux[7:0] <= scr0;
+        2'b01: begin
+            pixel_mux[7:0] <= { 1'b0, obj0 };
             obj_sel[0] <= 1'b1;
-            pixel_mux <= {3'b100, obj_pxl }; // object wins
         end
-    end
-    else begin // characters
-        pixel_mux <= { 3'b110, char_pxl };
-    end
+        2'b00: pixel_mux[7:0] <= 8'd0; // this value is a guess
+    endcase
 end
 
-reg [1:0] pre_BL;
-
-//jtframe_sh #(.width(2),.stages(5)) u_hb_dly(
-//    .clk    ( clk      ),
-//    .clk_en ( cen6     ),
-//    .din    ( {LHBL, LVBL}     ),
-//    .drop   ( pre_BL   )
-//);
-
-always @(posedge clk) if(cen6) begin
-    {LHBL_dly, LVBL_dly} <= pre_BL;
-    pre_BL <= {LHBL, LVBL};
-end
+jtframe_sh #(.width(2),.stages(8)) u_hb_dly(
+    .clk    ( clk      ),
+    .clk_en ( cen6     ),
+    .din    ( {LHBL, LVBL}    ),
+    .drop   ( {LHBL_dly, LVBL_dly}   )
+);
 
 wire [3:0] pal_red, pal_green, pal_blue;
 
@@ -143,6 +134,19 @@ jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
     .q          ( pal_blue    )
 );
 
+// Clock must be faster than 6MHz so selbus is ready for the next
+// 6MHz clock cycle:
+jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
+    .clk    ( clk           ),
+    .cen    ( 1'b1          ),
+    .data   ( prom_din      ),
+    .rd_addr( seladdr       ),
+    .wr_addr( prog_addr     ),
+    .we     ( prom_prior_we ),
+    .q      ( selbus        )
+);
+
+
 `ifdef AVATARS
 `ifdef MISTER
 `define AVATAR_PAL
@@ -168,8 +172,10 @@ wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif
 
+wire blanking = !LVBL_dly || (!LHBL && !LHBL_dly);
 
 always @(posedge clk) if (cen6)
-    {red, green, blue } <= pre_BL==2'b11 ? avatar_mux : 12'd0;
+    {red, green, blue } <= !blanking ? avatar_mux : 12'd0;
+
 
 endmodule // jtgng_colmix

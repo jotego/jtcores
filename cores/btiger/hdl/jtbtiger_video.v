@@ -72,9 +72,7 @@ module jtbtiger_video(
     output              LVBL_dly,
     // Palette PROMs
     input       [7:0]   prog_addr,
-    input               prom_red_we,
-    input               prom_green_we,
-    input               prom_blue_we,
+    input               prom_prior_we,
     input       [3:0]   prom_din,  
     // Palette RAM
     input               blue_cs,
@@ -103,7 +101,7 @@ wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET ( 5),
+    .HOFFSET ( 0),
     .ROM_AW  (14),
     .PALW    ( 5),
     .VFLIP_EN( 0),
@@ -156,6 +154,15 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
+wire [7:0] scr_pre;
+
+jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
+    .clk    ( clk      ),
+    .clk_en ( cen6     ),
+    .din    ( scr_pre  ),
+    .drop   ( scr_pxl  )
+);
+
 jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -180,7 +187,7 @@ jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
     // pixel output
-    .scr_pxl    ( scr_pxl       )
+    .scr_pxl    ( scr_pre       )
 );
 `else
 assign scr_busy   = 1'b0;
@@ -195,7 +202,7 @@ jtgng_obj #(
     .OBJMAX_LINE  ( OBJMAX_LINE ),
     .ROM_AW       ( 17          ),
     .PALW         (  3          ),
-    .PXL_DLY      (  3          ),    
+    .PXL_DLY      (  8          ),    
     .LAYOUT       (  4          ),
     .AVATAR_MAX   ( AVATAR_MAX  ))
 u_obj (
@@ -252,6 +259,11 @@ jtbtiger_colmix u_colmix (
     .LHBL         ( LHBL          ),
     .LHBL_dly     ( LHBL_dly      ),
     .LVBL_dly     ( LVBL_dly      ),
+
+    // Priority PROM
+    .prog_addr    ( prog_addr     ),
+    .prom_prior_we( prom_prior_we ),
+    .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),
