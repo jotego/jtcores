@@ -36,8 +36,10 @@ wire [1:0]    dip_bonus   = ~status[17:16];
 wire [1:0]    dip_level   = ~status[21:20];
 wire [1:0]    dip_lives   = ~status[19:18];
 wire [2:0]    dip_price   = 3'b111;
+`ifdef VULGUS
 wire          dip_demosnd = status[20];
 wire          dip_demomsc = status[21];
+`endif
 
 always @(posedge clk) begin
     `ifdef VULGUS

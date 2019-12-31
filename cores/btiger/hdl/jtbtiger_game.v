@@ -221,7 +221,8 @@ jtbtiger_prom_we u_prom_we(
     .prom_we     ( prom_we       )
 );
 
-wire prom_mcu = prom_we[4];
+wire prom_prior_we = prom_we[0];
+wire prom_mcu      = prom_we[4];
 
 wire scr_cs;
 wire [10:0] scr_hpos, scr_vpos;
@@ -417,9 +418,7 @@ jtbtiger_video u_video(
     .OBJON      ( OBJON         ),
     // PROMs
     .prog_addr    ( prog_addr[7:0]),
-    .prom_red_we  ( 1'b0          ),
-    .prom_green_we( 1'b0          ),
-    .prom_blue_we ( 1'b0          ),
+    .prom_prior_we( prom_prior_we ),
     .prom_din     ( prog_data[3:0]),
     // Palette RAM
     .blue_cs    ( blue_cs       ),
