@@ -8,6 +8,9 @@ while [ $# -gt 0 ]; do
             MIST=-mister;;
         -mist)
             MIST=-mist;;
+        -sidi)
+            MIST=-mist;;
+            EXTRA="-sidi $EXTRA"
         -all | -a)
 			MIST="-mist -mister";;
         -h | -help | --help)
@@ -25,7 +28,7 @@ EOF
         :)
             # the remaining argument will be passed directly to the compilation
             shift
-            EXTRA="$*"
+            EXTRA="$EXTRA $*"
             break;;
         *)  echo "ERROR: Unknown option $1";
             exit 1;;
@@ -33,7 +36,7 @@ EOF
     shift
 done
 
-cores="1942 1943 gng commando gunsmoke vulgus tora f1dream"
+cores="1942 1943 gng commando gunsmoke vulgus tora f1dream btiger"
 
 if [ "$MIST" = -mister ]; then
     # MiSTer cores are processed serially

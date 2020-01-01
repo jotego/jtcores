@@ -333,7 +333,7 @@ always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
     if( rst ) begin
         DTACKn <= 1'b1;
-    end else if(cpu_cen) begin
+    end else if(cen10b) begin
         DTACKn   <= 1'b1;
         last_ASn <= ASn;
         if( !ASn  ) begin
