@@ -26,7 +26,7 @@ set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../m
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_pll1.qip       ]
 
 # M68000
-set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/fx68k/fx68k.qip     ]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/fx68k.qip     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/jtframe_68kdma.v ]
 
 # Z80 / YM2203 / MSM5205

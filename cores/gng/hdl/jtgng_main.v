@@ -272,13 +272,7 @@ jtframe_dual_wait #(2) u_wait(
 wire [111:0] RegData;
 
 assign cpu_cen = Q;
-/*reg E,Q;
 
-always @(negedge clk) begin
-    E <= cen_E & waitn;
-    Q <= cen_Q & waitn;
-end
-*/
 mc6809i u_cpu (
     .clk     ( clk     ),
     .cen_E   ( E       ),

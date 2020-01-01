@@ -88,25 +88,17 @@ always @(*) begin
     endcase
 end
 
-reg rom_wait_n;
+wire cen3w;
 
-always @(posedge clk, posedge rst) begin : waitgen
-    reg last_rom_cs;
-    if( rst ) begin
-        last_rom_cs <= 1'b0;
-        rom_wait_n  <= 1'b1;
-    end else begin
-        last_rom_cs <= rom_cs;
-        if( rom_cs && !last_rom_cs) begin
-            rom_wait_n <= 1'b0;
-        end else if(rom_ok||!rom_cs) rom_wait_n<=1'b1;
-    end
-end
-
-reg cen3w;
-
-always @(negedge clk)
-    cen3w <= cen3 & rom_wait_n;
+jtframe_rom_wait u_wait(
+    .rst_n      ( nRESET    ),
+    .clk        ( clk       ),
+    .cen_in     ( cen3      ),
+    .cen_out    ( cen3w     ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    )
+);
 
 reg [7:0] latch0, latch1;
 

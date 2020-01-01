@@ -171,7 +171,7 @@ always @(posedge clk)
         end
     end
 
-always @(negedge clk)
+always @(posedge clk)
     t80_rst_n <= ~rst;
 
 `ifdef SIMULATION

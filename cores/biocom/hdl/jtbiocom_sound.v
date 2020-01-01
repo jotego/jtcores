@@ -98,23 +98,6 @@ always @(*)
         default:  din = rom_data;
     endcase // {latch_cs,rom_cs,ram_cs}
 
-/*
-reg reset_n=1'b0;
-
-// local reset
-reg [3:0] rst_cnt;
-
-always @(negedge clk)
-    if( rst ) begin
-        rst_cnt <= 'd0;
-        reset_n <= 1'b0;
-    end else begin
-        if( rst_cnt != ~4'b0 ) begin
-            reset_n <= 1'b0;
-            rst_cnt <= rst_cnt + 4'd1;
-        end else reset_n <= 1'b1;
-    end
-*/
 wire iorq_n, m1_n;
 wire cpu_cenw;
 (*keep*) wire irq_ack = !iorq_n && !m1_n;

@@ -9,8 +9,8 @@ while [ $# -gt 0 ]; do
         -mist)
             MIST=-mist;;
         -sidi)
+            EXTRA="-sidi -z $EXTRA"
             MIST=-mist;;
-            EXTRA="-sidi $EXTRA"
         -all | -a)
 			MIST="-mist -mister";;
         -h | -help | --help)
