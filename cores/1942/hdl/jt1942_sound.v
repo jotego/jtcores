@@ -91,7 +91,7 @@ end
 wire cen3w;
 
 jtframe_rom_wait u_wait(
-    .rst_n      ( nRESET    ),
+    .rst_n      ( reset_n   ),
     .clk        ( clk       ),
     .cen_in     ( cen3      ),
     .cen_out    ( cen3w     ),
