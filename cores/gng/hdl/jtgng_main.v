@@ -253,11 +253,13 @@ always @(posedge clk) if(cen6) begin
         if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
 end
 
-jtframe_z80wait #(2) u_wait(
+wire E,Q;
+
+jtframe_dual_wait #(2) u_wait(
     .rst_n      ( nRESET    ),
     .clk        ( clk       ),
-    .cen_in     ( cen_Q     ),
-    .cen_out    (           ),
+    .cen_in     ( { cen_E, cen_Q }    ),
+    .cen_out    ( { E,Q          }    ),
     .gate       ( waitn     ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
@@ -266,18 +268,17 @@ jtframe_z80wait #(2) u_wait(
     .rom_ok     ( rom_ok    )
 );
 
-
 // cycle accurate core
 wire [111:0] RegData;
 
-reg E,Q;
 assign cpu_cen = Q;
+/*reg E,Q;
 
 always @(negedge clk) begin
     E <= cen_E & waitn;
     Q <= cen_Q & waitn;
 end
-
+*/
 mc6809i u_cpu (
     .clk     ( clk     ),
     .cen_E   ( E       ),
