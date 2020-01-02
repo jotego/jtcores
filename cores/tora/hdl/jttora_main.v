@@ -61,6 +61,7 @@ module jttora_main(
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
     // MCU interface
+    input              mcu_cen,
     input              mcu_brn,
     input      [ 7:0]  mcu_dout,
     output reg [ 7:0]  mcu_din,
@@ -72,10 +73,10 @@ module jttora_main(
     output             col_uw,
     output             col_lw,
     // ROM access
-    output  reg        rom_cs,
-    output      [17:1] rom_addr,
-    input       [15:0] rom_data,
-    input              rom_ok,
+    (*keep*) output  reg        rom_cs,
+    (*keep*) output      [17:1] rom_addr,
+    (*keep*) input       [15:0] rom_data,
+    (*keep*) input              rom_ok,
     // DIP switches
     input              dip_pause,
     input    [7:0]     dipsw_a,
@@ -219,23 +220,25 @@ end
 // Work RAM, 16kB
 reg [13:1]  work_A;
 reg         work_uwe, work_lwe;
-wire        ram_cen=cpu_cen;
+reg         ram_cen;
 
 always @(*) begin
     if( mcu_ram_cs ) begin
         // MCU access
         work_A   = mcu_addr[13:1];
         work_uwe = 1'b0;
-        work_lwe = mcu_wr ;
+        work_lwe = mcu_wr;
+        ram_cen  = mcu_cen;
     end else begin 
         // CPU access
         work_A   = A[13:1];
         work_uwe = ram_cs & !UDSWn;
         work_lwe = ram_cs & !LDSWn;
+        ram_cen  = cpu_cen;
     end
 end
 
-jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
+jtframe_ram #(.aw(13),.cen_rd(1)) u_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -244,7 +247,7 @@ jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .q          ( wram_dout[15:8]  )
 );
 
-jtframe_ram #(.aw(13),.cen_rd(0)) u_raml(
+jtframe_ram #(.aw(13),.cen_rd(1)) u_raml( // cen_rd must be set for proper MCU access
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -325,9 +328,9 @@ assign rom_addr = A[17:1];
 
 // DTACKn generation
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, char_cs };
-wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy };
-reg DTACKn;
+(*keep*) wire       bus_cs =   |{ rom_cs, char_cs };
+(*keep*) wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy };
+(*keep*) reg DTACKn;
 
 always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
@@ -373,6 +376,9 @@ end
 
 wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
+
+// reg cen10dly, cen10bdly;
+// always @(posedge clk) {cen10dly, cen10bdly} <= {cen10, cen10b};
 
 jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),

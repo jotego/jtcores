@@ -113,6 +113,7 @@ wire        cen10, cen10b, cen6b, cenfm, cenp384;
 wire        rom_ready;
 wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, obj_ok0, char_ok;
 wire        cen12, cen6, cen3, cen1p5;
+wire        mcu_cen = cen6;
 
 assign      pxl2_cen = cen12;
 assign      pxl_cen  = cen6;
@@ -270,6 +271,7 @@ jttora_main u_main(
     .col_uw     ( col_uw        ),
     .col_lw     ( col_lw        ),
     // MCU interface
+    .mcu_cen    (  mcu_cen      ),
     .mcu_brn    (  mcu_brn      ),
     .mcu_din    (  mcu_din      ),
     .mcu_dout   (  mcu_dout     ),
@@ -329,7 +331,7 @@ jttora_main u_main(
 jtbiocom_mcu u_mcu(
     .rst        ( rst_game        ),
     .clk        ( clk             ),
-    .cen6a      ( cen6            ),       //  6   MHz
+    .cen6a      ( mcu_cen         ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),
     .mcu_din    ( mcu_din         ),
@@ -362,9 +364,9 @@ reg [7:0] psg_gain;
 always @(posedge clk) begin
     case( dip_fxlevel )
         2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h7F;
-        2'd3: psg_gain <= 8'hFF;
+        2'd1: psg_gain <= 8'h2F;
+        2'd2: psg_gain <= 8'h3F;
+        2'd3: psg_gain <= 8'h4F;
     endcase // dip_fxlevel
 end
 
@@ -562,11 +564,6 @@ jtframe_rom #(
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     .refresh_en  ( refresh_en    )
-
-    //.prog_data   ( prog_data     ),
-    //.prog_mask   ( prog_mask     ),
-    //.prog_addr   ( prog_addr     ),
-    //.prog_we     ( prog_we       )
 );
   
 jtframe_avatar u_avatar(

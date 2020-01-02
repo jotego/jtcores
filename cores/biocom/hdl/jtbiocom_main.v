@@ -66,6 +66,7 @@ module jtbiocom_main(
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
     // MCU interface
+    input              mcu_cen,
     input              mcu_brn,
     input      [ 7:0]  mcu_dout,
     output reg [ 7:0]  mcu_din,
@@ -227,8 +228,8 @@ end
 
 reg [15:0] cabinet_input;
 
-always @(posedge clk) if(cpu_cen) begin
-    cabinet_input <= (!mcu_DMAn ? mcu_addr[1] : A[1]) ?
+always @(*) /*if(cpu_cen)*/ begin
+    cabinet_input = (!mcu_DMAn ? mcu_addr[1] : A[1]) ?
         { dipsw_a, dipsw_b } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
@@ -252,19 +253,19 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-always @(posedge clk) begin
+always @(*) begin
     case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
-        3'b100:  mcu_din <= oram_dout[7:0];
-        3'b010:  mcu_din <= wram_dout[7:0];
-        3'b001:  mcu_din <= cabinet_input[7:0];
-        default: mcu_din <= 8'hff;
+        3'b100:  mcu_din = oram_dout[7:0];
+        3'b010:  mcu_din = wram_dout[7:0];
+        3'b001:  mcu_din = cabinet_input[7:0];
+        default: mcu_din = 8'hff;
     endcase
 end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
 reg         work_uwe, work_lwe;
-wire        ram_cen=cpu_cen;
+reg         ram_cen;
 
 always @(*) begin
     if( mcu_ram_cs ) begin
@@ -272,15 +273,17 @@ always @(*) begin
         work_A   = mcu_addr[13:1];
         work_uwe = 1'b0;
         work_lwe = mcu_wr ;
+        ram_cen  = mcu_cen;
     end else begin 
         // CPU access
         work_A   = A[13:1];
         work_uwe = ram_cs & !UDSWn;
         work_lwe = ram_cs & !LDSWn;
+        ram_cen  = cpu_cen;
     end
 end
 
-jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
+jtframe_ram #(.aw(13),.cen_rd(1)) u_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -289,7 +292,7 @@ jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .q          ( wram_dout[15:8]  )
 );
 
-jtframe_ram #(.aw(13),.cen_rd(0)) u_raml(
+jtframe_ram #(.aw(13),.cen_rd(1)) u_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -324,7 +327,7 @@ always @(*) begin
     endcase
 end
 
-jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
+jtframe_ram #(.aw(11),.cen_rd(1)) u_obj_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
@@ -333,7 +336,7 @@ jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
     .q          ( oram_dout[15:8]  )
 );
 
-jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
+jtframe_ram #(.aw(11),.cen_rd(1)) u_obj_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( oram_addr        ),
@@ -398,7 +401,7 @@ always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
     if( rst ) begin
         DTACKn      <= 1'b1;
-    end else if(cpu_cen) begin
+    end else if(cen12b) begin
         DTACKn   <= 1'b1;
         last_ASn <= ASn;
         if( !ASn  ) begin

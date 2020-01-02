@@ -20,7 +20,7 @@
 
 module jttora_dwnld(
     input                clk,
-    input                downloading,
+(*keep*)    input                downloading,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
     input                ioctl_wr,
@@ -28,15 +28,15 @@ module jttora_dwnld(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output               prog_rd,
-    output     [ 1:0]    prom_we,
+(*keep*)    output               prog_rd,
+(*keep*)    output     [ 1:0]    prom_we,
     output               jap,
 
     input      [15:0]    sdram_dout,
-    output reg           dwnld_busy = 1'b0
+(*keep*)    output reg           dwnld_busy = 1'b0
 );
 
-wire         convert;
+(*keep*) wire         convert;
 wire [21:0]  dwnld_addr, obj_addr;
 wire [ 7:0]  dwnld_data, obj_data;
 wire [ 1:0]  dwnld_mask, obj_mask;

@@ -173,7 +173,7 @@ wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif
 
-wire blanking = !LVBL_dly || (!LHBL && !LHBL_dly);
+wire blanking = !LVBL_dly || (/*!LHBL &&*/ !LHBL_dly);
 
 always @(posedge clk) if (cen6)
     {red, green, blue } <= !blanking ? avatar_mux : 12'd0;

@@ -99,26 +99,12 @@ always @(*)
     endcase // {latch_cs,rom_cs,ram_cs}
 
 wire iorq_n, m1_n;
-wire cpu_cenw;
 (*keep*) wire irq_ack = !iorq_n && !m1_n;
 
-jtframe_z80wait #(1) u_wait(
-    .rst_n      ( t80_rst_n ),
-    .clk        ( clk       ),
-    .cen_in     ( cen_alt   ),
-    .cen_out    ( cpu_cenw  ),
-    // manage access to shared memory
-    .dev_busy   ( 1'b0      ),
-    // manage access to ROM data from SDRAM
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
-);
-
-jtframe_z80 u_cpu(
+jtframe_z80_wait u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
-    .cen        ( cen_cpuw    ),
-    .wait_n     ( 1'b1        ),
+    .cen        ( cen_alt     ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
     .busrq_n    ( 1'b1        ),
@@ -132,7 +118,10 @@ jtframe_z80 u_cpu(
     .busak_n    (             ),
     .A          ( A           ),
     .din        ( din         ),
-    .dout       ( dout        )
+    .dout       ( dout        ),
+    // manage access to ROM data from SDRAM
+    .rom_cs     ( rom_cs      ),
+    .rom_ok     ( rom_ok      )
 );
 
 jt51 u_jt51(

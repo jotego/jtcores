@@ -1,13 +1,5 @@
 #!/bin/bash
 
-if [ -e ../../mist/*hex ]; then
-    for i in ../../mist/*hex; do
-        if [ ! -e $(basename $i) ]; then
-            if [ -e "$i" ]; then ln -s $i; fi
-        fi
-    done
-fi
-
 MIST=-mist
 VIDEO=0
 for k in $*; do
@@ -26,7 +18,7 @@ export MEM_CHECK_TIME=310_000_000
 export BIN2PNG_OPTIONS="--scale"
 export CONVERT_OPTIONS="-resize 300%x300%"
 GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
-GAME_ROM_LEN=$((GAME_ROM_LEN/16))
+GAME_ROM_LEN=$((GAME_ROM_LEN/8))
 export YM2203=1
 export MSM5205=1
 

@@ -47,7 +47,7 @@ jtframe_prom #(.aw(12),.dw(8),
     .simfile("../../../rom/btiger/bd.6k")
 ) u_prom(
     .clk        ( clk               ),
-    .cen        ( cen6             ),
+    .cen        ( cpu_cen           ),
     .data       ( prom_din          ),
     .rd_addr    ( rom_addr[11:0]    ),
     .wr_addr    ( prog_addr         ),
@@ -57,20 +57,21 @@ jtframe_prom #(.aw(12),.dw(8),
 
 jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
     .clk        ( clk               ),
-    .cen        ( cen6             ),
+    .cen        ( cpu_cen          ),
     .addr       ( ram_addr          ),
     .data       ( ram_data          ),
     .we         ( ram_we            ),
     .q          ( ram_q             )
 );
 
-wire clk2 = clk&cen6; // cheap clock gating
+wire cpu_cen = cen6;
+//always @(posedge clk) cpu_cen <= cen6;
 
-reg  [ 7:0] mcu_din0;
-
-always @(posedge clk) if(cen6) begin
-    mcu_din0 <= mcu_din;
-end
+// reg  [ 7:0] mcu_din0;
+// 
+// always @(posedge clk) if(cpu_cen) begin
+//     mcu_din0 <= mcu_din;
+// end
 
 reg mcu_int1;
 reg last_mcu_wr;
@@ -90,8 +91,9 @@ always @(posedge clk) begin
 end
 
 mc8051_core u_mcu(
-    .clk        ( clk2      ),
     .reset      ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen6      ),
     // code ROM
     .rom_data_i ( rom_data  ),
     .rom_adr_o  ( rom_addr  ),
@@ -116,7 +118,7 @@ mc8051_core u_mcu(
     .all_rxd_i  ( 1'b0      ),
     .all_rxd_o  (           ),
     // Ports
-    .p0_i       ( mcu_din0  ),
+    .p0_i       ( mcu_din   ),
     .p0_o       ( mcu_dout  ),
 
     .p1_i       (           ),

@@ -21,7 +21,6 @@ module jttora_adpcm(
     input           clk,
     input           cen3,    //  3   MHz
     input           cenp384, //  384 kHz
-    input           jap,
     // Interface with second CPU
     input   [7:0]   snd2_latch,
     // ADPCM ROM
@@ -39,15 +38,13 @@ module jttora_adpcm(
 );
 
 wire signed [11:0] adpcm;
-wire               cen_cpu3  = /*jap &*/ cen3;
-wire               cen_adpcm = /*jap &*/ cenp384;
 
 always @(posedge clk) begin
     snd <= { adpcm[10:0], 5'd0 }; // adpcm seems not to use all dynamic range
 end
 
 // ADPCM CPU
-reg  wait_n, last_rom2_cs, int_n;
+reg  last_rom2_cs, int_n;
 wire wr_n, rd_n, iorq_n, rfsh_n, mreq_n, m1_n;
 assign rom2_cs = !mreq_n && rfsh_n;
 wire [15:0] A;
@@ -55,16 +52,6 @@ reg  [ 7:0] din;
 wire [ 7:0] dout;
 
 assign rom2_addr = A;
-
-always @(posedge clk or posedge rst) begin
-    if( rst )
-        wait_n <= 1'b1;
-    else begin
-        last_rom2_cs <= rom2_cs;
-        if( rom2_cs && !last_rom2_cs ) wait_n <= 1'b0;
-        if( rom2_ok ) wait_n <= 1'b1;
-    end
-end
 
 always @(*) begin
     din = !iorq_n && !rd_n && !A[0] ? snd2_latch : rom2_data;
@@ -89,12 +76,12 @@ wire irq_st;
 
 jt5205 u_adpcm(
     .rst        ( rst | pcm_rst ),
-    .clk        ( clk       ),
-    .cen        ( cen_adpcm ),
-    .sel        ( 2'b0      ),
-    .din        ( pcm_data  ),
-    .sound      ( adpcm     ),
-    .irq        ( irq_st    )
+    .clk        ( clk           ),
+    .cen        ( cenp384       ),
+    .sel        ( 2'b0          ),
+    .din        ( pcm_data      ),
+    .sound      ( adpcm         ),
+    .irq        ( irq_st        )
 );
 
 `ifdef VERILATOR
@@ -116,11 +103,10 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_z80 u_cpu(
+jtframe_z80_wait u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
-    .cen        ( cen_cpu3    ),
-    .wait_n     ( wait_n      ),
+    .cen        ( cen3        ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
@@ -134,7 +120,9 @@ jtframe_z80 u_cpu(
     .busak_n    (             ),
     .A          ( A           ),
     .din        ( din         ),
-    .dout       ( dout        )
+    .dout       ( dout        ),
+    .rom_cs     ( rom2_cs     ),
+    .rom_ok     ( rom2_ok     )
 );
 
 

@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP3C25E144) Path("/home/jtejada/github/jt_gng/tora/mist/") File("jttora.sof") MfrSpec(OpMask(1));
+		Device PartName(EP3C25E144) Path("/home/jtejada/github/jt_gng/cores/tora/mist/") File("jttora.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

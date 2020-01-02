@@ -87,7 +87,6 @@ jttora_adpcm u_adpcmcpu(
     .clk        ( clk           ),
     .cen3       ( cen3          ),
     .cenp384    ( cenp384       ),
-    .jap        ( jap           ),
     // Interface with second CPU
     .snd2_latch ( snd2_latch    ),
     // ADPCM ROM

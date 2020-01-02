@@ -114,6 +114,7 @@ wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
 wire        scr1_ok, scr2_ok, char_ok;
 wire        cen12, cen6, cen3, cen1p5;
+wire        mcu_cen = cen3;
 
 assign      pxl2_cen = cen12;
 assign      pxl_cen  = cen6;
@@ -264,6 +265,7 @@ jtbiocom_main u_main(
     .col_uw     ( col_uw        ),
     .col_lw     ( col_lw        ),
     // MCU interface
+    .mcu_cen    (  mcu_cen      ),
     .mcu_brn    (  mcu_brn      ),
     .mcu_din    (  mcu_din      ),
     .mcu_dout   (  mcu_dout     ),
@@ -324,7 +326,7 @@ jtbiocom_mcu u_mcu(
     .rst        ( rst_game      ),
     .clk        ( clk           ),
 //    .cen6a      ( cen6          ),       //  6   MHz
-    .cen6a      ( cen3          ),       //  6   MHz
+    .cen6a      ( mcu_cen       ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn    ),
     .mcu_din    ( mcu_din       ),
