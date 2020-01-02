@@ -480,6 +480,9 @@ assign blue      = 4'h0;
 assign obj_addr  = 0;
 assign scr_addr  = 0;
 assign char_addr = 0;
+assign blcnten   = 1'b0;
+assign obj_br    = 1'b0;
+assign char_busy = 1'b0;
 `endif
 
 // map2 ports are used for the ADPCM CPU (snd2)

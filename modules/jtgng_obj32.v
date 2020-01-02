@@ -37,6 +37,19 @@ module jtgng_obj32(
 parameter [21:0] OBJ_START=22'h20_0000;
 parameter [21:0] OBJ_END  =22'h24_0000;
 
+`ifdef SIMULATION
+`ifdef FAST_LOAD
+`define JTGNG_OBJ32_FAST
+`endif
+`endif
+
+`ifdef JTGNG_OBJ32_FAST
+localparam OBJ_END1 = OBJ_START+((OBJ_END-OBJ_START)>>6); // make conversion length 32 times shorter
+`else
+localparam OBJ_END1 = OBJ_END;
+`endif
+`undef  JTGNG_OBJ32_FAST
+
 reg [31:0] obj_data;
 reg [7:0]  sdram_wait;
 reg last_down;
@@ -61,7 +74,7 @@ always @(posedge clk ) begin
             convert   <= 1'b1;
             state     <= 8'h1;
         end
-        else if( convert && prog_addr < OBJ_END ) begin
+        else if( convert && prog_addr < OBJ_END1 ) begin
             if( !sdram_wait[7] ) begin
                 sdram_wait <= { sdram_wait[6:0], 1'b1 };
             end else begin

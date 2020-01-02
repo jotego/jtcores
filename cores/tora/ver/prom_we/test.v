@@ -32,20 +32,24 @@ wire [ 7:0] prog_data;
 wire [ 1:0] prog_mask;
 wire        prog_we, jap;
 wire [`PROM_W-1:0] prom_we;
+wire [15:0]        sdram_dout = 16'habcd;
+wire               dwnld_busy;
 
-jttora_prom_we
-    u_uut(
-    .clk         (  clk          ),
-    .downloading (  downloading  ),
-    .ioctl_addr  (  ioctl_addr   ),
-    .ioctl_data  (  ioctl_data   ),
-    .ioctl_wr    (  ioctl_wr     ),
-    .prog_addr   (  prog_addr    ),
-    .prog_data   (  prog_data    ),
-    .prog_mask   (  prog_mask    ),
-    .prog_we     (  prog_we      ),
-    .prom_we     (  prom_we      ),
-    .jap         (  jap          )
+jttora_dwnld uut(
+    .clk         ( clk           ),
+    .downloading ( downloading   ),
+    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_data  ( ioctl_data    ),
+    .ioctl_wr    ( ioctl_wr      ),
+    .prog_addr   ( prog_addr     ),
+    .prog_data   ( prog_data     ),
+    .prog_mask   ( prog_mask     ),
+    .prog_we     ( prog_we       ),
+    .prog_rd     ( prog_rd       ),
+    .prom_we     ( prom_we       ),
+    .jap         ( jap           ),
+    .sdram_dout  ( sdram_dout    ),
+    .dwnld_busy  ( dwnld_busy    )
 );
 
 always @(posedge jap) $display("JAP enabled");
@@ -55,19 +59,6 @@ wire [21:0] obj_addr;
 wire [ 7:0] obj_data;
 wire [ 1:0] obj_mask;
 wire        obj_we;
-
-wire [15:0] sdram_dout = 16'habcd;
-
-jtgng_obj32 u_obj32(
-    .clk        ( clk           ),
-    .downloading( downloading   ),
-    .sdram_dout ( sdram_dout    ),
-    .convert    ( convert       ),
-    .prog_addr  ( obj_addr      ),
-    .prog_data  ( obj_data      ),
-    .prog_mask  ( obj_mask      ), // active low
-    .prog_we    ( obj_we        )
-);
 
 initial begin
     clk = 1'b0;    
@@ -119,11 +110,11 @@ always @(posedge clk) begin
     end
 end
 
-reg last_convert;
+reg last_busy;
 always @(posedge clk) begin
-    last_convert <= convert;
+    last_busy <= dwnld_busy;
 
-    if( last_convert && !convert && tx_done) begin
+    if( last_busy && !dwnld_busy ) begin
         $display("INFO: conversion finished");
         $finish;
     end

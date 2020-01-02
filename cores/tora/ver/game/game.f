@@ -20,7 +20,7 @@
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
 ../../../modules/jtframe/hdl/ver/jtframe_din_check.v
-../../../modules/jtframe/hdl/clocking/jtframe_cen.v
+../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
 ../../../modules/jtgng_charmsg.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_dual_ram.v
@@ -34,9 +34,10 @@
 ../../../modules/jtgng_avatar.v
 ../../../modules/jtgng_avatar_pal.v
 ../../../modules/jtgng_obj32.v
+../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
 ../../../modules/jtframe/hdl/sdram/jtframe_rom.v
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
-../../../modules/jtgng_sh.v
+../../../modules/jtframe/hdl/jtframe_sh.v
 ../../../modules/jtgng_tile4.v
 ../../../modules/jtgng_tilemap.v
 ../../../modules/jtgng_timer.v
