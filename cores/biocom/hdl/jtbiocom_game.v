@@ -114,7 +114,7 @@ wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
 wire        scr1_ok, scr2_ok, char_ok;
 wire        cen12, cen6, cen3, cen1p5;
-wire        mcu_cen = cen3;
+wire        mcu_cen = cen6;
 
 assign      pxl2_cen = cen12;
 assign      pxl_cen  = cen6;
