@@ -38,12 +38,10 @@ done
 
 cores="1942 1943 gng commando gunsmoke vulgus tora f1dream btiger"
 
+PARA=
+
 if [ "$MIST" = -mister ]; then
-    # MiSTer cores are processed serially
-    cores="$cores biocom"
-    for i in $cores; do
-        nice $JTFRAME/bin/jtcore $i -mister $EXTRA
-    done
-else
-    parallel $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $MIST
+    PARA="$PARA --jobs 2"
 fi
+
+parallel $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $MIST
