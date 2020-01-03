@@ -1,1 +1,1 @@
-set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=256"
+../../tora/mister/jttora.tcl
