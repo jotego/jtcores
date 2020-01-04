@@ -188,12 +188,12 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
 #############################################################################
 
-set_global_assignment -name VERILOG_MACRO "SDRAM_SHIFT=10417"
+
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JT1943\""
-set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
-set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1943_game"
 set_global_assignment -name VERILOG_MACRO "CORETOP=jt1943_unamiga"
+set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
+set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=0"
 set_global_assignment -name VERILOG_MACRO "JTGNG_VGA=0"
 
@@ -206,19 +206,13 @@ set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 1
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/unamiga/jtgng_unamiga_board.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/unamiga/jtgng_unamiga_base.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/unamiga/jtframe_unamiga.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_unamiga.v
+set_global_assignment -name SYSTEMVERILOG_FILE  ../../modules/jtframe/hdl/unamiga/jtframe_unamiga.sv
+set_global_assignment -name SYSTEMVERILOG_FILE  ../../modules/jtgng_unamiga.sv
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtframe_scan2xsl.v
 set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/unamiga/reloj_altera/jtgng_pll.qip
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_keyboard.v
 set_global_assignment -name HEX_FILE ../../modules/rom_loadv.hex
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpupkg.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpu_core_flex.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/spi.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/interrupt_controller.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/CtrlModule.vhd
 set_global_assignment -name VHDL_FILE ../cyclone5/CtrlROM_1943.vhd
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/sigma_delta_dac.v
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpupkg.vhd
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpu_core_flex.vhd
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/spi.vhd
@@ -256,6 +250,7 @@ set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/jtframe_dip.v
 set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/keyboard/ps2_intf.vhd
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/sound/hybrid_pwm_sd.v
 set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/sound/hifi_1bit_dac.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtframe/hdl/mist/rgb2ypbpr.sv
 set_global_assignment -name VERILOG_FILE ../../modules/jtgng_romflex.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_interpol.v

@@ -14,49 +14,49 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 8-2-2019 */
+    Date: 22-2-2019 */
 
-`default_nettype wire
+`timescale 1ns/1ps
+
+// This is the MiST top level
+// It will instantiate the appropriate game core according
+// to the macro GAMETOP
+// It will get the config string for the microcontroller
+// from the include file conf_str.v
 
 module `CORETOP(
-    input wire        CLOCK_50,
-   // 6-bit output (add-on)
-    output wire [5:0]  VGA_R,
-    output wire [5:0]  VGA_G,
-    output wire [5:0]  VGA_B,
-    output wire        VGA_HS,
-    output wire       VGA_VS,
-   // Composite output
-    //output wire       STDN,
-   // SRAM interface
-    // output [20:0] sram_addr,
-    // inout  [7:0]  sram_data,
-    // output sram_we_n,
-   // SDRAM interface
-    inout wire [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
-    output wire[12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
-    output wire         SDRAM_DQML,     // SDRAM Low-byte Data Mask
-    output wire         SDRAM_DQMH,     // SDRAM High-byte Data Mask
-    output wire         SDRAM_nWE,      // SDRAM Write Enable
-    output wire         SDRAM_nCAS,     // SDRAM Column Address Strobe
-    output wire         SDRAM_nRAS,     // SDRAM Row Address Strobe
-    output wire          SDRAM_nCS,      // SDRAM Chip Select
-    output wire [1:0]    SDRAM_BA,       // SDRAM Bank Address
-    output wire     SDRAM_CLK,      // SDRAM Clock
-    output wire         SDRAM_CKE,      // SDRAM Clock Enable
+    input           CLOCK_50,
+    output  [5:0]   VGA_R,
+    output  [5:0]   VGA_G,
+    output  [5:0]   VGA_B,
+    output          VGA_HS,
+    output          VGA_VS,
+    // SDRAM interface
+    inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
+    output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
+    output          SDRAM_DQML,     // SDRAM Low-byte Data Mask
+    output          SDRAM_DQMH,     // SDRAM High-byte Data Mask
+    output          SDRAM_nWE,      // SDRAM Write Enable
+    output          SDRAM_nCAS,     // SDRAM Column Address Strobe
+    output          SDRAM_nRAS,     // SDRAM Row Address Strobe
+    output          SDRAM_nCS,      // SDRAM Chip Select
+    output [1:0]    SDRAM_BA,       // SDRAM Bank Address
+    output          SDRAM_CLK,      // SDRAM Clock
+    output          SDRAM_CKE,      // SDRAM Clock Enable
 	// SPI interface to SD
-	 output wire         SD_CS_N,
-	 output wire         SD_CLK,
-	 output wire         SD_MOSI,
-	 input  wire         SD_MISO,
+	output wire         SD_CS_N,
+	output wire         SD_CLK,
+	output wire         SD_MOSI,
+	input  wire         SD_MISO,
     // sound
-     output wire         AUDIO_L,
-     output wire         AUDIO_R,
+    output          AUDIO_L,
+    output          AUDIO_R,
+    // user LED
+    output          LED,
+	 input wire		[1:0] BTN,	
    // keyboard
     input wire        PS2_CLK,
     input wire        PS2_DATA,
-    output wire       LED,                    
-	input wire		[1:0] BTN,
    // joystick
    input       [  5:0] JOYA,         // joystick port A
    input       [  5:0] JOYB          // joystick port B
@@ -70,26 +70,32 @@ wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
 wire          loop_rst;
-wire          downloading;
+wire          downloading, dwnld_busy;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 
-wire rst_req = status[0];
+wire rst_req   = status[0];
+wire join_joys = status[32'he];
 
 wire sdram_req;
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
-wire          prog_we;
+wire          prog_we, prog_rd;
 
-wire [3:0] red;
-wire [3:0] green;
-wire [3:0] blue;
+`ifndef COLORW
+`define COLORW 4
+`endif
+localparam COLORW=`COLORW;
+
+wire [COLORW-1:0] red;
+wire [COLORW-1:0] green;
+wire [COLORW-1:0] blue;
 
 wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
-wire [15:0] snd_right, snd_left;
+wire [15:0] snd_left, snd_right;
 
 `ifndef STEREO_GAME
 assign snd_right = snd_left;
@@ -102,34 +108,49 @@ wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
 wire refresh_en;
-wire clk_vga, pll_locked;
-wire CLKFB_OUT;
 
+
+// PLL's
+wire clk_vga, pll_locked;
 jtgng_pll u_pll(
     .inclk0    ( CLOCK_50  ),
     .c1        ( clk_rom   ), // 48 MHz
-	 .c2        ( SDRAM_CLK ),	// 48 MHz 6944 PS 120 Degree
+	.c2        ( SDRAM_CLK ),	// 48 MHz 6944 PS 120 Degree
     .c3        ( clk_vga   ), // 25 Mhz
-    .locked     ( pll_locked   )//,
-    //.CLKFB_IN   ( 1'b0      )
+    .locked    ( pll_locked   )//,
 	 );
-/*
-pll u_pll(
-    .refclk    ( CLOCK_50  ),
-    .outclk_0        ( clk_rom   ), // 48 MHz
-	 .outclk_1        ( SDRAM_CLK ),	// 48 MHz 6944 PS 120 Degree
-    .locked     ( pll_locked   )//,
-	 );
-*/
-assign clk_sys = clk_rom;
+
+//assign SDRAM_CLK = ~clk_rom;
+assign clk_sys   = clk_rom;
 
 wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
 
+`ifdef SIMULATION
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
+assign sim_vs = ~LVBL_dly;
+assign sim_hs = ~LHBL_dly;
+`endif
 
-jtframe_unamiga u_frame(
+`ifndef SIGNED_SND
+`define SIGNED_SND 1'b1
+`endif
+
+`ifndef THREE_BUTTONS
+`define THREE_BUTTONS 1'b1
+`endif
+
+localparam CONF_STR="JTGNG;;";
+
+jtframe_unamiga #( 
+    .CONF_STR     ( CONF_STR       ),
+    .SIGNED_SND   ( `SIGNED_SND    ),
+    .THREE_BUTTONS( `THREE_BUTTONS ),
+    .COLORW       ( COLORW         ))
+u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .clk_vga        ( clk_vga        ),
@@ -152,6 +173,7 @@ jtframe_unamiga u_frame(
     .VGA_HS         ( VGA_HS         ),
     .VGA_VS         ( VGA_VS         ),
     // SDRAM interface
+    .SDRAM_CLK      ( SDRAM_CLK      ),
     .SDRAM_DQ       ( SDRAM_DQ       ),
     .SDRAM_A        ( SDRAM_A        ),
     .SDRAM_DQML     ( SDRAM_DQML     ),
@@ -175,7 +197,9 @@ jtframe_unamiga u_frame(
     .prog_data      ( prog_data      ),
     .prog_mask      ( prog_mask      ),
     .prog_we        ( prog_we        ),
+    .prog_rd        ( prog_rd        ),
     .downloading    ( downloading    ),
+    .dwnld_busy     ( dwnld_busy     ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
@@ -192,7 +216,7 @@ jtframe_unamiga u_frame(
     // reset forcing signals:
     .rst_req        ( rst_req        ),
     // Sound
-	 .snd_left       ( snd_left       ),
+    .snd_left       ( snd_left       ),
     .snd_right      ( snd_right      ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
@@ -202,13 +226,12 @@ jtframe_unamiga u_frame(
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
     .game_service   (                ), // unused
-	 //Leds y Botones
     .LED            ( LED            ),
-	 .BTN            ( BTN            ),
+	.BTN            ( BTN            ),	
 	 //Keyboard y Joy (Entradas)
-    .PS2_CLK         ( PS2_CLK       ),
-    .PS2_DATA        ( PS2_DATA      ),
-	 .JOYA           ( JOYA          ),
+    .PS2_CLK        ( PS2_CLK       ),
+    .PS2_DATA       ( PS2_DATA      ),
+	.JOYA           ( JOYA          ),
     .JOYB           ( JOYB          ),
     // DIP and OSD settings
     .enable_fm      ( enable_fm      ),
@@ -220,6 +243,26 @@ jtframe_unamiga u_frame(
     // Debug
     .gfx_en         ( gfx_en         )
 );
+
+`ifdef SIMULATION
+`ifdef TESTINPUTS
+    test_inputs u_test_inputs(
+        .loop_rst       ( loop_rst       ),
+        .LVBL           ( LVBL           ),
+        .game_joystick1 ( game_joy1[6:0] ),
+        .button_1p      ( game_start[0]  ),
+        .coin_left      ( game_coin[0]   )
+    );
+    assign game_start[1] = 1'b1;
+    assign game_coin[1]  = 1'b1;
+    assign game_joystick2 = ~10'd0;
+    assign game_joystick1[9:7] = 3'b111;
+    assign sim_vs = vs;
+    assign sim_hs = hs;
+`endif
+`endif
+
+wire sample;
 
 `GAMETOP #(.CLK_SPEED(CLK_SPEED))
 u_game(
@@ -255,9 +298,11 @@ u_game(
     .prog_data   ( prog_data      ),
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
+    .prog_rd     ( prog_rd        ),
 
     // ROM load
     .downloading ( downloading    ),
+    .dwnld_busy  ( dwnld_busy     ),
     .loop_rst    ( loop_rst       ),
     .sdram_req   ( sdram_req      ),
     .sdram_addr  ( sdram_addr     ),
@@ -280,9 +325,19 @@ u_game(
     .snd_left    ( snd_left       ),
     .snd_right   ( snd_right      ),
     `endif
-    .sample      (                ),
+    .sample      ( sample         ),
     // Debug
     .gfx_en      ( gfx_en         )
 );
+
+`ifdef SIMULATION
+integer fsnd;
+initial begin
+    fsnd=$fopen("sound.raw","wb");
+end
+always @(posedge sample) begin
+    $fwrite(fsnd,"%u", {snd_left, snd_right});
+end
+`endif
 
 endmodule

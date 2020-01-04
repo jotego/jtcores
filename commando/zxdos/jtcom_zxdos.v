@@ -29,9 +29,9 @@ module jtcom_zxdos(
    // Composite output
     //output wire       STDN,
    // SRAM interface
-     output [20:0] sram_addr,
-     inout  [7:0]  sram_data,
-     output sram_we_n,
+    output [18:0] sram_addr,
+    inout  [7:0]  sram_data,
+    output sram_we_n,
    // SDRAM interface
     inout wire [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
     output wire[12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
@@ -71,26 +71,32 @@ wire [31:0]   status, joystick1, joystick2;
 wire [21:0]   sdram_addr;
 wire [31:0]   data_read;
 wire          loop_rst;
-wire          downloading;
+wire          downloading, dwnld_busy;
 wire [21:0]   ioctl_addr;
 wire [ 7:0]   ioctl_data;
 wire          ioctl_wr;
 
-wire rst_req = status[0];
+wire rst_req   = status[0];
+wire join_joys = status[32'he];
 
 wire sdram_req;
 
 wire [21:0]   prog_addr;
 wire [ 7:0]   prog_data;
 wire [ 1:0]   prog_mask;
-wire          prog_we;
+wire          prog_we, prog_rd;
 
-wire [3:0] red;
-wire [3:0] green;
-wire [3:0] blue;
+`ifndef COLORW
+`define COLORW 4
+`endif
+localparam COLORW=`COLORW;
+
+wire [COLORW-1:0] red;
+wire [COLORW-1:0] green;
+wire [COLORW-1:0] blue;
 
 wire LHBL, LHBL_dly, LVBL, LVBL_dly, hs, vs;
-wire [15:0] snd_right, snd_left;
+wire [15:0] snd_left, snd_right;
 
 `ifndef STEREO_GAME
 assign snd_right = snd_left;
@@ -103,29 +109,50 @@ wire [3:0] gfx_en;
 // SDRAM
 wire data_rdy, sdram_ack;
 wire refresh_en;
-wire clk_vga, pll_locked;
-wire CLKFB_OUT;
+
+// PLL's
 jtgng_pll u_pll(
     .inclk0    ( CLOCK_50  ),
-    .c1        ( clk_rom   ), // 48 MHz
+	 .c1        ( clk_rom   ), // 48 MHz
 	 .c2        ( SDRAM_CLK ),	// 48 MHz 6944 PS 120 Degree
-    .c3        ( clk_vga   ), // 25 Mhz
+    //.c3        ( clk_vga   ), // 25 Mhz
     .locked     ( pll_locked   )//,
-    //.CLKFB_IN   ( 1'b0      )
 	 );
-
+	 
+//assign SDRAM_CLK = ~clk_rom;
 assign clk_sys   = clk_rom;
 
 wire [7:0] dipsw_a, dipsw_b;
 wire [1:0] dip_fxlevel;
 wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
+`ifdef SIMULATION
+assign sim_pxl_clk = clk_sys;
+assign sim_pxl_cen = cen6;
+assign sim_vs = ~LVBL_dly;
+assign sim_hs = ~LHBL_dly;
+`endif
+
+`ifndef SIGNED_SND
+`define SIGNED_SND 1'b1
+`endif
+
+`ifndef THREE_BUTTONS
+`define THREE_BUTTONS 1'b1
+`endif
+
+localparam CONF_STR="JTGNG;;";
 
 assign sram_we_n = 1'b1; //Lectura
 assign sram_addr = 21'h008FD5; 
 wire [1:0]videoconf = sram_data[1:0];
 
-jtframe_zxdos u_frame(
+jtframe_zxdos #( 
+    .CONF_STR     ( CONF_STR       ),
+    .SIGNED_SND   ( `SIGNED_SND    ),
+    .THREE_BUTTONS( `THREE_BUTTONS ),
+    .COLORW       ( COLORW         ))
+u_frame(
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .clk_vga        ( clk_vga        ),
@@ -172,7 +199,9 @@ jtframe_zxdos u_frame(
     .prog_data      ( prog_data      ),
     .prog_mask      ( prog_mask      ),
     .prog_we        ( prog_we        ),
+    .prog_rd        ( prog_rd        ),
     .downloading    ( downloading    ),
+    .dwnld_busy     ( dwnld_busy     ),
     // ROM access from game
     .loop_rst       ( loop_rst       ),
     .sdram_addr     ( sdram_addr     ),
@@ -189,7 +218,7 @@ jtframe_zxdos u_frame(
     // reset forcing signals:
     .rst_req        ( rst_req        ),
     // Sound
-	 .snd_left       ( snd_left       ),
+    .snd_left       ( snd_left       ),
     .snd_right      ( snd_right      ),
     .AUDIO_L        ( AUDIO_L        ),
     .AUDIO_R        ( AUDIO_R        ),
@@ -199,16 +228,15 @@ jtframe_zxdos u_frame(
     .game_coin      ( game_coin      ),
     .game_start     ( game_start     ),
     .game_service   (                ), // unused
-	 //Leds y Botones
     .LED            ( LED            ),
-	 .BTN            ( BTN            ),
+	.BTN            ( BTN            ),	
 	 //Keyboard y Joy (Entradas)
     .PS2_CLK         ( PS2_CLK       ),
     .PS2_DATA        ( PS2_DATA      ),
-	 .JOY_CLK         ( JOY_CLK       ),
+	.JOY_CLK         ( JOY_CLK       ),
     .JOY_LOAD        ( JOY_LOAD      ),
     .JOY_DATA        ( JOY_DATA      ),
-	 .VIDEOCONF       ( VIDEOCONF     ),	
+	.VIDEOCONF       ( VIDEOCONF     ),	
     // DIP and OSD settings
     .enable_fm      ( enable_fm      ),
     .enable_psg     ( enable_psg     ),
@@ -219,6 +247,26 @@ jtframe_zxdos u_frame(
     // Debug
     .gfx_en         ( gfx_en         )
 );
+
+`ifdef SIMULATION
+`ifdef TESTINPUTS
+    test_inputs u_test_inputs(
+        .loop_rst       ( loop_rst       ),
+        .LVBL           ( LVBL           ),
+        .game_joystick1 ( game_joy1[6:0] ),
+        .button_1p      ( game_start[0]  ),
+        .coin_left      ( game_coin[0]   )
+    );
+    assign game_start[1] = 1'b1;
+    assign game_coin[1]  = 1'b1;
+    assign game_joystick2 = ~10'd0;
+    assign game_joystick1[9:7] = 3'b111;
+    assign sim_vs = vs;
+    assign sim_hs = hs;
+`endif
+`endif
+
+wire sample;
 
 jtcommando_game #(.CLK_SPEED(CLK_SPEED))
 u_game(
@@ -254,9 +302,11 @@ u_game(
     .prog_data   ( prog_data      ),
     .prog_mask   ( prog_mask      ),
     .prog_we     ( prog_we        ),
+    .prog_rd     ( prog_rd        ),
 
     // ROM load
     .downloading ( downloading    ),
+    .dwnld_busy  ( dwnld_busy     ),
     .loop_rst    ( loop_rst       ),
     .sdram_req   ( sdram_req      ),
     .sdram_addr  ( sdram_addr     ),
@@ -279,9 +329,19 @@ u_game(
     .snd_left    ( snd_left       ),
     .snd_right   ( snd_right      ),
     `endif
-    .sample      (                ),
+    .sample      ( sample         ),
     // Debug
     .gfx_en      ( gfx_en         )
 );
+
+`ifdef SIMULATION
+integer fsnd;
+initial begin
+    fsnd=$fopen("sound.raw","wb");
+end
+always @(posedge sample) begin
+    $fwrite(fsnd,"%u", {snd_left, snd_right});
+end
+`endif
 
 endmodule
