@@ -65,7 +65,7 @@
     </file>
     <file xil_pn:name="../../modules/jtframe/hdl/video/jtframe_scan2xsl.v" xil_pn:type="FILE_VERILOG">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="94"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="85"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="84"/>
     </file>
     <file xil_pn:name="../../modules/jtframe/hdl/jtgng_sdram.v" xil_pn:type="FILE_VERILOG">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="95"/>
@@ -414,10 +414,6 @@
     <file xil_pn:name="../../modules/jtframe/hdl/zxdos/zxdos.ucf" xil_pn:type="FILE_UCF">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
-    <file xil_pn:name="../../modules/jtframe/hdl/zxdos/sigma_delta_dac.v" xil_pn:type="FILE_VERILOG">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="235"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="83"/>
-    </file>
     <file xil_pn:name="../../modules/jtframe/hdl/zxdos/timings.xcf" xil_pn:type="FILE_USERDOC"/>
     <file xil_pn:name="../../modules/jtframe/hdl/zxdos/relojes/jtgng_pll.xco" xil_pn:type="FILE_COREGEN">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="237"/>
@@ -445,7 +441,7 @@
     </file>
     <file xil_pn:name="../../modules/jtframe/hdl/zxdos/jtgng_zxdos_keyboard.v" xil_pn:type="FILE_VERILOG">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="205"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="84"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="83"/>
     </file>
     <file xil_pn:name="../../modules/jtgng_objcnt.v" xil_pn:type="FILE_VERILOG">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="167"/>
@@ -454,6 +450,10 @@
     <file xil_pn:name="../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v" xil_pn:type="FILE_VERILOG">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="168"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="47"/>
+    </file>
+    <file xil_pn:name="../../modules/jtframe/hdl/sound/hifi_1bit_dac.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="117"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="85"/>
     </file>
     <file xil_pn:name="../../modules/jtframe/hdl/zxdos/relojes/jtgng_pll.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
