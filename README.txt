@@ -21,7 +21,9 @@ In chronological order:
 * Ghosts'n Goblins (see doc/jtgng.txt)
 * GunSmoke         (see doc/jtgunsmoke.txt)
 * 1943             (see doc/jt1943.txt)
+* Black Tiger      (see doc/jtbtiger.txt)
 * Tiger Road       (see doc/jttora.txt)
+* F1-Dream         (see doc/jtf1dream.txt)
 * Bionic Commando  (see doc/jtbiocom.txt)
 
 Troubleshooting
