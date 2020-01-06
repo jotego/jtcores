@@ -97,7 +97,7 @@ wire [3:0] avatar_idx;
 `ifndef NOCHAR
 
 wire [7:0] char_msg_low;
-wire [7:0] char_msg_high;
+wire [7:0] char_msg_high=8'h0;
 wire [9:0] char_scan;
 
 jtgng_char #(
@@ -140,13 +140,13 @@ jtgng_char #(
     .prom_we    (               )
 );
 
-jtgng_charmsg u_msg(
+jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .clk         ( clk           ),
     .cen6        ( cen6          ),
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high ) 
+    .msg_high    (               ) 
 );
 `else
 assign char_pxl  = ~7'd0;
@@ -204,7 +204,8 @@ jtgng_obj #(
     .PALW         (  3          ),
     .PXL_DLY      (  8          ),    
     .LAYOUT       (  4          ),
-    .AVATAR_MAX   ( AVATAR_MAX  ))
+    .AVATAR_MAX   ( AVATAR_MAX  ),
+    .VERTICAL     ( 0           ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
