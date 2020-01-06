@@ -49,7 +49,8 @@ both action buttons.
 REVISION HISTORY
 ================
 
-24 Nov 2019 beta release
+ 6 Jan 2020 Public release
+24 Nov 2019 Beta release
 
 
 CREDITS
@@ -62,3 +63,112 @@ Special thanks to all November '19 patrons.
 
 Tier +3 Patrons Thanks!!
 ========================
+
+Adam Forrester                  LawdVayduh
+Adrian                          Leslie Law
+AkaiFutari                      Lewis Waddington
+Alan Steremberg                 loloC2C
+albconde                        Mads Troest
+Allen Tipper                    Manuel
+Amosfear                        Manuel Antoni
+Andrew Boudreau                 Manuel Astudillo
+Andrew Moore                    Manuel Fernández
+Andylithia                      Manuelfx
+Andyways                        Marco Tavian
+Anthony Bolek                   Marcos
+AtariSTFan                      Mario Salvini
+Bibiabho Astoporri              Mark Kohler (NML32)
+Blue1597                        Mary Marshall
+Brian Sallee                    Matt Charlesworth
+Bruno Silva                     Matt Elder
+Bryan Siemon                    Matteo Parolin
+Buster D                        Matthew Langtry
+Carl Hagström                   Matthew Young
+Carlos Del Alamo                McNathan
+Charles Sagett                  Michael Scanlon
+Chris Jardine                   Michael Stegen
+Chris Mawman                    Michael Troelsen
+Christian Auby                  Michael's Workshop
+Christian Bailey                Mick Stone
+Christopher Caswell             Miguel Angel Rodriguez Jodar
+Christopher Harvey              Mikael Tillander
+Christopher rumford             Mike Holzinger
+Christopher Tuckwell            Mister JBAM
+Dacide                          Mordecai The Walrus
+Dag J.                          Mr.B
+Dana Rich                       MrX-8B
+Daniel Bauza                    Neil Maguire
+Daniel Casadevall               Nelson Jr
+Daniel Hochman                  Nicolas Hamel
+Daniel Renner                   Obiwantje
+DarkStar7                       Oliver Jaksch
+Darren Newman                   Oliver Seitz
+Dave Ross                       Oliver Wndmth
+David Colmenero                 olivier bernhard
+Diego Losada Somoza             Oscar Jacobsson
+Don Gafford                     Oscar Laguna Garcia
+Duane Hembrick                  Oscar López Sierra
+Dustin Hubbard                  Outchocinco
+Ed Balan                        Owlnonymous
+emceebois                       Phillip McMahon
+Eoin Gibney                     Pierre Paul
+Evan Clarke                     Popov
+Fabio                           Porkchop Express
+Fabrice Ketels                  PsyFX
+Fay Dek                         QcRetro
+Filip Kindt                     Raziel
+FRANCISCO JAVIER FUENTES MORENO remowilliams
+Frank Wolf                      Renan Eler
+Fred Fryolator                  RetroShop.pt
+Frédéric Mahé                   RetroTyke
+Fredrik Berglind                Richard Gregory
+Fry Lo                          Rikard Bengtsson
+FULLSET                         Rob Young
+Funkycochise                    robert fisher
+furrtek                         Roberto Lari
+Gary Shepherdson                Roland
+Geert Oost                      Roman Buser
+George Stravopodis              Ryan Fig
+Gonzalo López                   Rysha
+Gregory Hogan                   Salvador Perugorria Lorente
+Guillermo Tunon                 Samuli Tuomola
+Guinness                        sawf01
+Gus Marruedo                    Scott Redepenning
+Henry R                         Scralings
+Herbert Krammer                 Sembiance
+Humanoide70                     Shane Lynch
+Ishmael Hallin                  Shawn Wheatley
+Jacob Proctor                   Shogun7
+James DeRose                    SJohansson
+Jan Beta                        skywalky
+Javier Martínez                 SmokeMonster
+JD                              StalkS
+Jeff Gerstmann                  Stefan Nordkvist
+Jeff O'Meara                    Stephen Marshall
+Jeremy Glass                    Stephen Pearce
+Jeremy Hopkins                  Steve Suavek
+Jeremy Kaiman                   Steven
+Jérôme Moreau                   Steven Wilson
+Jeruro                          Stuart Fisk
+Jesse Beau                      Suvodip Mitra
+Jesus Garcia                    Sweetlilmre
+Jo Tomiyori                     Thomas Davies
+Joe Kalwitz                     Thomas Tahsin-Bey
+Johannes Reß                    Toby Boreham
+John Kelley                     Tommaso Mauro Tautonico
+John Klimek                     Tony Peters
+John Perry                      Travis Brown
+John Silva                      type78
+John Stringer                   UKShark
+Jootec from Mars                Ultrarobotninja
+Jorge Galán                     Víctor Gomariz Ladrón de Guevara
+Jorge Slowfret                  Videodr0me
+Joshua Witt                     Violeta Martin Fernandez
+Juan Diego Sánchez Noguera      Visa-Valtteri Pimiä
+Juan Manuel Sandoval Jr         vladimir
+Keith Kelly                     Vorvek
+Ken ottosson                    William Clemens
+Kevin Bidwell                   wvc
+Kris Butler                     Xtro
+Kyle Good                       Xzarian
+Kyle Troutman                   

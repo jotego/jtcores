@@ -53,7 +53,6 @@ for col in range(256):
 print_char("                                ")
 print_char("                                ")
 print_char("     BLACK TIGER/DRAGON         ")
-print_char("       CLONE FOR FPGA           ")
 print_char("    BROUGHT TO YOU BY JOTEGO.   ")
 print_char("  HTTP://PATREON.COM/TOPAPATE   ")
 print_char("                                ")
@@ -72,6 +71,7 @@ print_char("         SEMBIANCE              ") # I haven't got the Avater
 print_char("       VICTOR GOMARIZ           ")
 print_char("       ULTRAROBOTNINJA          ")
 print_char("       WILLIAM CLEMENS          ") # Declined the Avatar
+print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
