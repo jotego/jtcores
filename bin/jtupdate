@@ -2,6 +2,9 @@
 MIST=-mist
 EXTRA=
 
+cores="1942 1943 gng biocom commando gunsmoke vulgus tora f1dream btiger"
+
+
 while [ $# -gt 0 ]; do
     case "$1" in
         -mister)
@@ -13,6 +16,9 @@ while [ $# -gt 0 ]; do
             MIST=-mist;;
         -all | -a)
 			MIST="-mist -mister";;
+        -cores)
+            shift
+            cores="$1";;
         -h | -help | --help)
             cat <<EOF
 Updates all JT cores. Usage:
@@ -35,8 +41,6 @@ EOF
     esac
     shift
 done
-
-cores="1942 1943 gng commando gunsmoke vulgus tora f1dream btiger"
 
 PARA=
 
