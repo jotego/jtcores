@@ -55,26 +55,26 @@ for col in range(256):
 #           00000000001111111111222222222233
 #           01234567890123456789012345678901
 print_char("                                ")
-print_char("        BLACK TIGER             ")
-print_char("       CLONE FOR FPGA           ")
-print_char("    BROUGHT TO YOU BY JOTEGO.   ")
-print_char("  HTTP://PATREON.COM/TOPAPATE   ")
+print_char("     Black Tiger/Dragon         ")
+print_char("       clone for FPGA           ")
+print_char("    brought to you by jotego.   ")
+print_char("  http://patreon.com/topapate   ")
 print_char("                                ")
-print_char("      THANKS TO MY PATRONS      ")
+print_char("  andrew moore - andyways       ")
+print_char("  don gafford  - j. slowfret    ")
+print_char("  kyle good    - leslie law     ")
+print_char("  m. astudillo - mary marshall  ")
+print_char("  matthew young- oliver jaksch  ")
+print_char("  blackstar    - oscar laguna   ")
+print_char("  roman buser  - ryan fig       ")
+print_char("  steve suavek - steve wilson   ") 
+print_char("  toby boreham - xzarian        ")
 print_char("                                ")
-print_char("                                ")
-print_char("      BETA VERSION              ")
-print_char("                                ")
-print_char("                                ")
-print_char("      DO NOT DISTRIBUTE         ")
-print_char("                                ")
-print_char("                                ")
-print_char("     SPECIAL THANKS TO          ")
-print_char("      MANUEL ASTUDILLO          ")
-print_char("                                ")
-print_char("     FOR DONATING A             ")
-print_char("       BLACK TIGER PCB          ")
-print_char("         FOR RESEARCH           ")
+print_char("           xzarian              ")
+print_char("         sembiance              ") # I haven't got the Avater
+print_char("       victor gomariz           ")
+print_char("       ultrarobotninja          ")
+print_char("       william clemens          ") # Declined the Avatar
 print_char("                                ")
 print_char("                                ")
 print_char("                                ")
@@ -87,3 +87,77 @@ print_char("                                ")
 
 save_hex( os.environ['JTGNG']+"/cores/btiger/mist/msg.hex", char_ram )
 save_bin( os.environ['JTGNG']+"/cores/btiger/ver/game/msg.bin", char_ram )
+
+
+#################################################################
+def convert_buf( buf, k, msg ):
+    for cnt in range(len(msg)):
+        buf[k] = ascii_conv[ msg[cnt] ]
+        k+=1
+    return k
+
+#  Avatars:
+#1 Daniel Bauza
+#2 Brian Sallee
+#3 Dustin Hubbard
+#4 Frederic Mahe
+#5 Jo Tomiyori
+#6 Phillip McMahon
+#7 Scralings
+#8 Sembiance -- but I don't have the image!
+#9 Suvodip Mitra
+#A Arcade Express
+
+
+#           00000000000000001111111111111111
+#           0123456789ABCDEF0123456789ABCDEF
+av_buf=bytearray(32*16)
+av_pos=0
+for cnt in range(len(av_buf)):
+    av_buf[cnt]=32
+
+av_pos=convert_buf(av_buf,av_pos,"           Scralings            ")
+av_pos=convert_buf(av_buf,av_pos,"           Suverman             ")
+av_pos=convert_buf(av_buf,av_pos,"        Frederic Mahe           ")
+av_pos=convert_buf(av_buf,av_pos,"        Jo Tomiyori             ")
+av_pos=convert_buf(av_buf,av_pos,"         Brian Sallee           ")
+av_pos=convert_buf(av_buf,av_pos,"       Phillip McMahon          ")
+av_pos=convert_buf(av_buf,av_pos,"        Dustin Hubbard          ")
+av_pos=convert_buf(av_buf,av_pos,"         Daniel Bauza           ")
+av_pos=convert_buf(av_buf,av_pos,"        Arcade Express          ")
+save_hex( os.environ['JTGNG']+"/cores/btiger/mist/msg_av.hex", av_buf )
+
+# Andrew Moore
+# Andyways
+# Don Gafford
+# Jorge Slowfret
+# Kyle Good
+# Leslie Law
+# Manuel Astudillo
+# Mary Marshall
+# Matthew Young
+# Oliver Jaksch
+# Oliver Wndmth
+# Oscar Laguna Garcia
+# Roman Buser
+# Ryan Fig
+# Steve Suavek
+# Steven Wilson
+# Toby Boreham
+# Ultrarobotninja
+# Victor Gomariz Ladron de Guevara
+# Xzarian
+# 
+# Avatar
+# 
+# Brian Sallee
+# Daniel Bauza
+# Dustin Hubbard
+# Frederic Mahe
+# Jo Tomiyori
+# Phillip McMahon
+# Scralings
+# Sembiance
+# Suvodip Mitra
+# William Clemens
+# Arcade Express

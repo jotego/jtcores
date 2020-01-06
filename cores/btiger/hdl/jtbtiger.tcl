@@ -1,7 +1,7 @@
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTBTIGER\""
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtbtiger_game"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
-#set_global_assignment -name VERILOG_MACRO "AVATARS=1"
+set_global_assignment -name VERILOG_MACRO "AVATARS=1"
 set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=384"
 
 # OSD options
