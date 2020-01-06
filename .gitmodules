@@ -1,15 +1,9 @@
-[submodule "modules/jt12"]
-	path = modules/jt12
-	url = https://github.com/jotego/jt12
 [submodule "modules/jtframe"]
 	path = modules/jtframe
 	url = https://github.com/jotego/jtframe
 [submodule "modules/fk68k"]
 	path = modules/fx68k
 	url = git@github.com:ijor/fx68k.git
-[submodule "modules/fx68k"]
-	path = modules/fx68k
-	url = https://github.com/ijor/fx68k
 [submodule "modules/jt51"]
 	path = modules/jt51
 	url = https://github.com/jotego/jt51
