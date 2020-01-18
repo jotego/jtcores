@@ -3,5 +3,5 @@ set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) jttora.qip 
 
 # Specific to F1 Dream
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../biocom/hdl/jtbiocom_mcu.v ]
-set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/cpu/8051/mc8051.qip     ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/8051/mc8051.qip     ]
 
