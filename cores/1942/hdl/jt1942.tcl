@@ -3,6 +3,8 @@ set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
 set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1942_game"
 set_global_assignment -name VERILOG_MACRO "SIGNED_SND=0"
+set_global_assignment -name VERILOG_MACRO "THREE_BUTTONS=1'b0"
+
 # This game is missing one top line in MiST when using SCAN2X_TYPE=1
 # set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=0"
 

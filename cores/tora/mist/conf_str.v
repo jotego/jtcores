@@ -11,4 +11,5 @@
     "OJK,Lives,3,4,5,7;", \
     "OL,Continue,Yes,No;",
 `define CORE_KEYMAP \
-    "J,Button 1,Button 2,Unused,1P Start,2P Start,Coin,Credits;",
+    "J1,Fire,Jump,1P Start,2P Start,Coin,Credits;", \
+    "jn,A,B,R,L,X,Start;",

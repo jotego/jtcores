@@ -2,10 +2,9 @@
 ../../hdl/jt1943_game.v
 ../../hdl/jt1943_main.v
 ../../hdl/jt1943_prom_we.v
-../../../modules/jtgng_rom.v
-../../../modules/jtgng_romrq.v
-../../../modules/jtgng_romflex.v
-../../../modules/jtgng_multiram.v
+../../../modules/jtframe/hdl/sdram/jtframe_rom.v
+../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
+../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
 ../../hdl/jt1943_scroll.v
 ../../hdl/jt1943_security.v
 ../../hdl/jt1943_video.v
@@ -17,7 +16,7 @@
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
-../../../modules/jtgng_cen.v
+../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_sound.v
 ../../../modules/jtgng_objbuf.v
@@ -29,7 +28,7 @@
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_char.v
 ../../../modules/jtgng_tilemap.v
-../../../modules/jtgng_sh.v
+../../../modules/jtframe/hdl/jtframe_sh.v
 ../../../modules/jtgng_true_dual_ram.v
 ../../../modules/jtgng_tile4.v
 test_inputs.v

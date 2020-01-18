@@ -19,4 +19,6 @@
 `endif
 
 `define CORE_KEYMAP \
-    "J,Button 1,Button 2,Button 3,1P Start,2P Start,Coin,Credits;",
+    "J1,Fire,Special,1P Start,2P Start,Coin,Credits;", \
+    "jn,A,B,R,L,X,Start;",
+

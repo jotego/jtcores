@@ -12,4 +12,5 @@
     // "OMO,Slot 1,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", \
     // "OPR,Slot 2,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", 
 `define CORE_KEYMAP \
-    "J,Button 1,Button 2,Unused,1P Start,2P Start,Coin,Credits;",
+    "J1,Fire,Jump,1P Start,2P Start,Coin,Credits;", \
+    "jn,A,B,R,L,X,Start;",

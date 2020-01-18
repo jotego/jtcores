@@ -6,4 +6,5 @@
     "OK,Demo music,OFF,ON;", \
     "OLM,Bonus Life,20/70/70,30/80/80,20/80,30/80;",
 `define CORE_KEYMAP \
-    "J,Button 1,Button 2,Unused,1P Start,2P Start,Coin,Credits;",
+    "J1,Fire,Jump,1P Start,2P Start,Coin,Credits;", \
+    "jn,A,B,R,L,X,Start;",
