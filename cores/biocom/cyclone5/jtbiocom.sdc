@@ -1,118 +1,54 @@
-## Generated SDC file "jt1492.out.sdc"
+# Specify root clocks
+create_clock -period "50.0 MHz" [get_ports CLOCK_50]
 
-## Copyright (C) 1991-2013 Altera Corporation
-## Your use of Altera Corporation's design tools, logic functions 
-## and other software and tools, and its AMPP partner logic 
-## functions, and any output files from any of the foregoing 
-## (including device programming or simulation files), and any 
-## associated documentation or information are expressly subject 
-## to the terms and conditions of the Altera Program License 
-## Subscription Agreement, Altera MegaCore Function License 
-## Agreement, or other applicable license agreement, including, 
-## without limitation, that your use is for the sole purpose of 
-## programming logic devices manufactured by Altera and sold by 
-## Altera or its authorized distributors.  Please refer to the 
-## applicable agreement for further details.
-
-
-## VENDOR  "Altera"
-## PROGRAM "Quartus II"
-## VERSION "Version 13.1.0 Build 162 10/23/2013 SJ Web Edition"
-
-## DATE    "Thu Aug 10 21:25:00 2017"
-
-##
-## DEVICE  "EP3C25E144C8"
-##
-
-
-#**************************************************************
-# Time Information
-#**************************************************************
-
-set_time_format -unit ns -decimal_places 3
-
-
-
-#**************************************************************
-# Create Clock
-#**************************************************************
-
-create_clock -name {CLOCK_50[0]} -period 20.000  [get_ports {CLOCK_27[0]}]
-create_clock -name {SD_CLK}  -period 41.666 -waveform { 20.8 41.666 } [get_ports {SD_CLK}]
-create_clock -name {u_board|u_scandoubler|vga_hsync} -period 31777.000 -waveform { 0.000 15888.500 } 
-
-
-#**************************************************************
-# Create Generated Clock
-#**************************************************************
-
-derive_pll_clocks -create_base_clocks
-create_generated_clock -name {sdclk_pin} -source [get_pins {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
-
-
-
-#**************************************************************
-# Set Clock Latency
-#**************************************************************
-
-
-
-#**************************************************************
-# Set Clock Uncertainty
-#**************************************************************
+derive_pll_clocks
 derive_clock_uncertainty
+
+
+create_generated_clock -name SDRAM_CLK -source \
+    [get_pins {emu|pll|pll_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk}] \
+    -divide_by 1 \
+    [get_ports SDRAM_CLK]
+
+
+# Decouple different clock groups (to simplify routing)
+set_clock_groups -exclusive \
+   -group [get_clocks { *|pll|pll_inst|altera_pll_i|*[*].*|divclk}] \
+   -group [get_clocks { CLOCK_50 }] 
+
+set_false_path -from [get_ports {KEY*}]
+set_false_path -from [get_ports {BTN_*}]
+set_false_path -to [get_ports {LED_*}]
+set_false_path -to [get_ports {VGA_*}]
+set_false_path -to [get_ports {AUDIO_L}]
+set_false_path -to [get_ports {AUDIO_R}]
+
 
 #**************************************************************
 # Set Input Delay
 #**************************************************************
 
-set_input_delay -clock sdclk_pin -max 6.4 [get_ports SDRAM_DQ[*]]
-set_input_delay -clock sdclk_pin -min 3.2 [get_ports SDRAM_DQ[*]]
+# This is tAC in the data sheet. It is the time it takes to the
+# output pins of the SDRAM to change after a new clock edge.
+# This is used to calculate set-up time conditions in the FF
+# latching the signal inside the FPGA
+set_input_delay -clock SDRAM_CLK -max 6 [get_ports SDRAM_DQ[*]] 
+
+# This is tOH in the data sheet. It is the time data is hold at the
+# output pins of the SDRAM after a new clock edge.
+# This is used to calculate hold time conditions in the FF
+# latching the signal inside the FPGA (3.2)
+set_input_delay -clock SDRAM_CLK -min 3 [get_ports SDRAM_DQ[*]]
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
 
-set_output_delay -clock sdclk_pin -max 1.5 [get_ports SDRAM_*]
-set_output_delay -clock sdclk_pin -min -0.8 [get_ports SDRAM_*]
-
-
-
-#**************************************************************
-# Set Clock Groups
-#**************************************************************
-
-set_clock_groups -asynchronous -group [get_clocks {SPI_SCK}] -group [get_clocks {*|altpll_component|auto_generated|pll1|clk[*]}]
-set_clock_groups -asynchronous -group [get_clocks {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[1]}] -group [get_clocks {u_base|clk_gen2|altpll_component|auto_generated|pll1|clk[0]}]
-
-#**************************************************************
-# Set False Path
-#**************************************************************
-
-# set_false_path  -from  [get_clocks {clk_E}]  -to  [get_clocks {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[2]}]
-# set_false_path  -from  [get_clocks {u_base|clk_gen|altpll_component|auto_generated|pll1|clk[2]}]  -to  [get_clocks {rE}]
-
-#**************************************************************
-# Set Multicycle Path
-#**************************************************************
-
-# set_multicycle_path -from [get_clocks {sdclk_pin}] -to [get_clocks clk_sdram] -setup -end 2
-
-
-#**************************************************************
-# Set Maximum Delay
-#**************************************************************
-
-
-
-#**************************************************************
-# Set Minimum Delay
-#**************************************************************
-
-
-
-#**************************************************************
-# Set Input Transition
-#**************************************************************
-
+# This is tDS in the data sheet, setup time, spec is 1.5ns
+set_output_delay -clock SDRAM_CLK -max 1.5 \
+    [get_ports {SDRAM_A[*] SDRAM_BA[*] SDRAM_CKE SDRAM_DQMH SDRAM_DQML \
+                SDRAM_DQ[*] SDRAM_nCAS SDRAM_nCS SDRAM_nRAS SDRAM_nWE}]
+# This is tDH in the data sheet, hold time, spec is 0.8ns
+set_output_delay -clock  SDRAM_CLK -min -0.8 \
+    [get_ports {SDRAM_A[*] SDRAM_BA[*] SDRAM_CKE SDRAM_DQMH SDRAM_DQML \
+                SDRAM_DQ[*] SDRAM_nCAS SDRAM_nCS SDRAM_nRAS SDRAM_nWE}]
