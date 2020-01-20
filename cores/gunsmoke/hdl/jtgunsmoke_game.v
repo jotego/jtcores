@@ -357,6 +357,7 @@ jt1943_video #(
     .OBJMAX_LINE   ( 6'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),
     .OBJ_ROM_AW    ( 16                               ),
+    .AVATAR_MAX    ( 8                                ),
     // Colour mixer
     .PALETTE_RED   ( "../../../rom/gunsmoke/g-01.03b" ),
     .PALETTE_GREEN ( "../../../rom/gunsmoke/g-02.04b" ),

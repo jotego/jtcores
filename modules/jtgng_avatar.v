@@ -118,10 +118,11 @@ end
 
 always @(*) begin
     case( pre_scan[1:0] )
-        2'd0: avatar_data <= pre_scan[8:6]==3'd0 ? avatar_id : 8'hff;
+        2'd0: avatar_data <= avatar_id; // pre_scan[8:6]==3'd0 ? avatar_id : 8'hff;
         2'd1: avatar_data <= 8'd0;
-        2'd2: avatar_data <= avatar_y;
-        2'd3: avatar_data <= avatar_x;
+        // avatar_id code 8'hff means blank sprite
+        2'd2: avatar_data <= avatar_id==8'hff ? 8'hf0 : avatar_y;
+        2'd3: avatar_data <= avatar_id==8'hff ? 8'hff : avatar_x;
     endcase
 end
 

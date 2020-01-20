@@ -15,21 +15,23 @@ Supported Games
 ===============
 In chronological order:
 
-* Vulgus           (see doc/jtvulgus.txt)
-* 1942             (see doc/jt1942.txt)
-* Commando         (see doc/jtcommando.txt)
-* Ghosts'n Goblins (see doc/jtgng.txt)
-* GunSmoke         (see doc/jtgunsmoke.txt)
-* 1943             (see doc/jt1943.txt)
-* Black Tiger      (see doc/jtbtiger.txt)
-* Tiger Road       (see doc/jttora.txt)
-* F1-Dream         (see doc/jtf1dream.txt)
-* Bionic Commando  (see doc/jtbiocom.txt)
+ 1. Vulgus           (see doc/jtvulgus.txt)
+ 2. 1942             (see doc/jt1942.txt)
+ 3. Commando         (see doc/jtcommando.txt)
+ 4. Ghosts'n Goblins (see doc/jtgng.txt)
+ 5. GunSmoke         (see doc/jtgunsmoke.txt)
+ 6. 1943             (see doc/jt1943.txt)
+ 7. Black Tiger      (see doc/jtbtiger.txt)
+ 8. Tiger Road       (see doc/jttora.txt)
+ 9. F1-Dream         (see doc/jtf1dream.txt)
+10. Bionic Commando  (see doc/jtbiocom.txt)
 
 Troubleshooting
 ===============
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.
+
+* F1-Dream and Black Tiger are using an IP for the MCU that does not synthesize correctly at 48MHz because of a setup timing violation. Using the clock enable signal to operate it seems to remove the problem. Ideally, the IP should be edited to increase its frequency performance.
 
 
 How to continue the game
@@ -61,10 +63,11 @@ Compilation
 
 I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
 
-Define a environment variable called JTGNG with the path to the folder where
-you cloned jt_gng repository from Github.
+Go to the root directory of the repository and execute:
 
-In the directory bin there is a command line utility called jtcore that will compile the given core. Like
+source set_prj.sh
+
+That will create an alias called jtcore to directory modules/jtframe/bin/jtcore. This is a command line utility that will compile the cores. Like
 
 jtcore gng
 
@@ -72,12 +75,11 @@ will compile Ghosts'n Goblins for MiST.
 
 jtcore gng -mr
 
-will compile it for MiSTer.
+will compile it for MiSTer. And -sidi, will compile it for MiST. Support for Xilinx platforms is done by Neurorulez and is done through the GUI. Just check the files inside the cores folder for each game.
 
-once compilation is triggered, Quartus qpf and qsf files are created. This files are not
-part of the repository as they are considered output files, not input.
+Pnce compilation is triggered with jtcore, Quartus qpf and qsf files are created. This files are not part of the repository as they are considered output files, not input.
 
-There is another file called update_cores.sh that will run jtcore over all supported cores in parallel.
+There is another script called update_cores.sh that will run jtcore over all supported cores in parallel.
 
 Directory Structure
 ===================

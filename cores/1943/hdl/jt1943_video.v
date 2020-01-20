@@ -44,7 +44,8 @@ module jt1943_video #( parameter
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,
     OBJ_PALHI      = "../../../rom/1943/bm7.7c",
-    OBJ_PALLO      = "../../../rom/1943/bm8.8c"
+    OBJ_PALLO      = "../../../rom/1943/bm8.8c",
+    AVATAR_MAX     = 10
 ) (
     input               rst,
     input               clk,
@@ -310,7 +311,7 @@ jtgng_obj #(
     .PALETTE         (  1          ),
     .PALETTE1_SIMFILE( OBJ_PALHI   ),
     .PALETTE0_SIMFILE( OBJ_PALLO   ),
-    .AVATAR_MAX      ( 10          ))
+    .AVATAR_MAX      ( AVATAR_MAX  ))
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
