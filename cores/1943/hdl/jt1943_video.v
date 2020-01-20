@@ -310,7 +310,7 @@ jtgng_obj #(
     .PALETTE         (  1          ),
     .PALETTE1_SIMFILE( OBJ_PALHI   ),
     .PALETTE0_SIMFILE( OBJ_PALLO   ),
-    .AVATAR_MAX      ( 8           ))
+    .AVATAR_MAX      ( 10          ))
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),

@@ -95,7 +95,7 @@ always @(posedge clk) if(cen) begin
                 hover       <= objbuf_data[0];
             end
             1: begin // 1943
-                id[10:8]  <= objbuf_data[7:5];
+                id[10:8]  <= pause ? 3'd0 : objbuf_data[7:5];
                 objpal    <= objbuf_data[3:0];
                 obj_vflip <= 1'b0;
                 obj_hflip <= 1'b0;

@@ -108,6 +108,7 @@ def convert_buf( buf, k, msg ):
 #7 Scralings
 #8 Sembiance -- but I don't have the image!
 #9 Suvodip Mitra
+#10 Arcade Express
 
 
 #           00000000000000001111111111111111
@@ -122,4 +123,5 @@ av_pos=convert_buf(av_buf,av_pos,"           brian sallee         ")
 av_pos=convert_buf(av_buf,av_pos,"         phillip mcmahon        ")
 av_pos=convert_buf(av_buf,av_pos,"          dustin hubbard        ")
 av_pos=convert_buf(av_buf,av_pos,"           daniel bauza         ")
+av_pos=convert_buf(av_buf,av_pos,"          arcade express        ")
 save_hex( os.environ['JTGNG']+"/cores/commando/mist/msg_av.hex", av_buf )

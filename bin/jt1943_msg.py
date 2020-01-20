@@ -122,14 +122,16 @@ save_bin( os.environ['JTGNG']+"/cores/1943/ver/game/msg.bin", char_ram )
 
 #           00000000000000001111111111111111
 #           0123456789ABCDEF0123456789ABCDEF
-av_buf=bytearray(32*8)
+av_buf=bytearray(32*10)
 av_pos=0
-av_pos=convert_buf(av_buf,av_pos,"            Scralings           ")
-av_pos=convert_buf(av_buf,av_pos,"            Suverman            ")
-av_pos=convert_buf(av_buf,av_pos,"          Frederic Mahe         ")
-av_pos=convert_buf(av_buf,av_pos,"           Jo Tomiyori          ")
-av_pos=convert_buf(av_buf,av_pos,"           Brian Sallee         ")
-av_pos=convert_buf(av_buf,av_pos,"             FULLSET            ")
-av_pos=convert_buf(av_buf,av_pos,"         Phillip McMahon        ")
-av_pos=convert_buf(av_buf,av_pos,"          Dustin Hubbard        ")
+av_pos=convert_buf(av_buf,av_pos,"            Scralings           ") # 1
+av_pos=convert_buf(av_buf,av_pos,"            Suverman            ") # 2 
+av_pos=convert_buf(av_buf,av_pos,"          Frederic Mahe         ") # 3
+av_pos=convert_buf(av_buf,av_pos,"           Jo Tomiyori          ") # 4 
+av_pos=convert_buf(av_buf,av_pos,"           Brian Sallee         ") # 5
+av_pos=convert_buf(av_buf,av_pos,"             FULLSET            ") # 6
+av_pos=convert_buf(av_buf,av_pos,"         Phillip McMahon        ") # 7
+av_pos=convert_buf(av_buf,av_pos,"          Dustin Hubbard        ") # 8
+av_pos=convert_buf(av_buf,av_pos,"           Daniel Bauza         ") # 9
+av_pos=convert_buf(av_buf,av_pos,"          Arcade Express        ") # 10
 save_hex( os.environ['JTGNG']+"/cores/1943/mist/msg_av.hex", av_buf )

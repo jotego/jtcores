@@ -334,7 +334,7 @@ jtgng_video #(
     .PALETTE_RED  ("../../../rom/commando/vtb1.1d"),
     .PALETTE_GREEN("../../../rom/commando/vtb2.2d"),
     .PALETTE_BLUE ("../../../rom/commando/vtb3.3d"),
-    .AVATAR_MAX   (8)
+    .AVATAR_MAX   (9)
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -473,11 +473,11 @@ jtframe_rom #(
     // .prog_we     ( prog_we       )
 );
 
-jtframe_avatar u_avatar(
+jtframe_avatar #(.AW(14)) u_avatar(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
+    .obj_addr    ( obj_addr[13:0]),
     .obj_data    ( obj_pre       ),
     .obj_mux     ( obj_data      ),
     .ok_in       ( obj_ok0       ),

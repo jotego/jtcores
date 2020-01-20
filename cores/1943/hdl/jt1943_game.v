@@ -536,7 +536,7 @@ jtframe_rom #(
     .refresh_en  ( refresh_en    )
 );
 
-jtframe_avatar u_avatar(
+jtframe_avatar #(.AW(13)) u_avatar(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .pause       ( pause         ),
