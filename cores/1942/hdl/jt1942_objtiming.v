@@ -52,16 +52,27 @@ localparam VULGUS=0;
 reg last_LHBL, okdly;
 wire rom_good = obj_ok & okdly;
 wire posedge_LHBL = LHBL && !last_LHBL;
+reg [4:0] auxcnt;
+
+`ifdef VULGUS
+    always @(*) objcnt = auxcnt;
+`else
+    always @(*) begin
+        objcnt[2:0] = auxcnt[2:0];
+        objcnt[4] = auxcnt[4] ^ ~auxcnt[3];
+        objcnt[3] = (objcnt[4] & V[7]) ^ ~auxcnt[3];
+    end
+`endif
 
 always @(posedge clk) begin
     last_LHBL <= LHBL;
     okdly     <= obj_ok;
     if( posedge_LHBL ) begin
         pxlcnt    <= 4'd0;
-        objcnt    <= 5'd0;
         over      <= 1'b0;
         bufcnt    <= 3'b0;
-        pxlcnt_lsb       <= 1'b0;
+        pxlcnt_lsb<= 1'b0;
+        auxcnt    <= 5'd0;
     end else begin // image scan
         if(bufcnt!=4'b1010) 
             bufcnt <= bufcnt+4'd1;
@@ -70,11 +81,11 @@ always @(posedge clk) begin
             if( &{pxlcnt,pxlcnt_lsb} ) begin
                 bufcnt <= 4'd0;
                 if( VULGUS ) begin
-                    over   <= objcnt == 5'h17;
-                    objcnt <= objcnt + 5'h1;
+                    over   <= auxcnt == 5'h17;
+                    auxcnt <= auxcnt + 5'h1;
                 end else begin // 1942
-                    objcnt <= (objcnt == 5'h0f && V[7]) ? 5'h18 : objcnt+5'h1;
-                    over   <= objcnt == 5'h1f || (objcnt==5'h17 && !V[7]);
+                    auxcnt <= auxcnt+5'h1;
+                    over   <= auxcnt == 5'h1f;
                 end
             end
         end
@@ -90,10 +101,8 @@ always @(posedge clk) begin
     end
 end
 
-// Not the whole RAM is read for producing objects
-// 1942: left part of the vertical screen (V[7]==1) objects 18-1F
-//       right part                                 objects 10-17
-//       whole screen                               objects 0-0F
+// 1942: left part of the vertical screen (V[7]==1) read in inverse
+// order from right part so the 1942 logo effect occurs.
 // Vulgus: objects 0 to 17 only
 
 /* Original sequence
