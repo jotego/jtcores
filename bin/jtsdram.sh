@@ -29,10 +29,10 @@ do
     fi
     echo Using ${DELAY}ps delay
     jtcore ${CORE} -mr -d SDRAM_SHIFT=\\\"$DELAY\\\"
-    OUTPUT=$JTGNG/${CORE}/mister/output_files/jt${CORE}.rbf
+    OUTPUT=$JTROOT/${CORE}/mister/output_files/jt${CORE}.rbf
     if [ -e  ]; then
         cp $OUTPUT jt${CORE}_${DELAY}ps.rbf
-        mv $JTGNG/log/mister/jt${CORE}.log jt${CORE}_${DELAY}ps.log
+        mv $JTROOT/log/mister/jt${CORE}.log jt${CORE}_${DELAY}ps.log
     else
         echo "Missing output RBF file for ${DELAY}ps"
     fi

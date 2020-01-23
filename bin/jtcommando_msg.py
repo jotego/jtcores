@@ -88,8 +88,8 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG']+"/cores/commando/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG']+"/cores/commando/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTROOT']+"/cores/commando/mist/msg.hex", char_ram )
+save_bin( os.environ['JTROOT']+"/cores/commando/ver/game/msg.bin", char_ram )
 
 #################################################################
 def convert_buf( buf, k, msg ):
@@ -124,4 +124,4 @@ av_pos=convert_buf(av_buf,av_pos,"         phillip mcmahon        ")
 av_pos=convert_buf(av_buf,av_pos,"          dustin hubbard        ")
 av_pos=convert_buf(av_buf,av_pos,"           daniel bauza         ")
 av_pos=convert_buf(av_buf,av_pos,"          arcade express        ")
-save_hex( os.environ['JTGNG']+"/cores/commando/mist/msg_av.hex", av_buf )
+save_hex( os.environ['JTROOT']+"/cores/commando/mist/msg_av.hex", av_buf )

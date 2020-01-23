@@ -4,7 +4,7 @@ import sys
 import os
 pr=sys.stdout.write
 
-jtgng_path=os.environ['JTGNG']+"/"
+jtgng_path=os.environ['JTROOT']+"/"
 
 # for row in bmp:
 #     for col in row:

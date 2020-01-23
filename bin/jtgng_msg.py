@@ -85,5 +85,5 @@ print_char("         Greetings to           ")
 print_char("       Alexey Melnikov!         ")
 print_char("    and Szombathelyi Gyorgy     ")
 
-save_hex( os.environ['JTGNG']+"/cores/gng/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG']+"/cores/gng/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTROOT']+"/cores/gng/mist/msg.hex", char_ram )
+save_bin( os.environ['JTROOT']+"/cores/gng/ver/game/msg.bin", char_ram )

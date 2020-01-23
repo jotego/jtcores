@@ -81,8 +81,8 @@ print_char("                                ")
 print_char("                                ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG']+"/cores/btiger/mist/msg.hex", char_ram )
-save_bin( os.environ['JTGNG']+"/cores/btiger/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTROOT']+"/cores/btiger/mist/msg.hex", char_ram )
+save_bin( os.environ['JTROOT']+"/cores/btiger/ver/game/msg.bin", char_ram )
 
 
 #################################################################
@@ -121,7 +121,7 @@ av_pos=convert_buf(av_buf,av_pos,"       PHILLIP MCMAHON          ")
 av_pos=convert_buf(av_buf,av_pos,"        DUSTIN HUBBARD          ")
 av_pos=convert_buf(av_buf,av_pos,"         DANIEL BAUZA           ")
 av_pos=convert_buf(av_buf,av_pos,"        ARCADE EXPRESS          ")
-save_hex( os.environ['JTGNG']+"/cores/btiger/mist/msg_av.hex", av_buf )
+save_hex( os.environ['JTROOT']+"/cores/btiger/mist/msg_av.hex", av_buf )
 
 # Andrew Moore
 # Andyways

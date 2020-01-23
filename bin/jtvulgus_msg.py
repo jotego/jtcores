@@ -69,8 +69,8 @@ print_char("       Victor Gomariz           ")
 print_char("       Ultrarobotninja          ")
 print_char("                                ")
 
-save_hex( os.environ['JTGNG']+"/cores/vulgus/mist/msg.hex", char_ram )
-# save_bin( os.environ['JTGNG']+"/cores/vulgus/ver/game/msg.bin", char_ram )
+save_hex( os.environ['JTROOT']+"/cores/vulgus/mist/msg.hex", char_ram )
+# save_bin( os.environ['JTROOT']+"/cores/vulgus/ver/game/msg.bin", char_ram )
 
 #################################################################
 def convert_buf( buf, k, msg ):
@@ -103,4 +103,4 @@ av_pos=convert_buf(av_buf,av_pos,"           brian sallee         ")
 av_pos=convert_buf(av_buf,av_pos,"         phillip mcmahon        ")
 av_pos=convert_buf(av_buf,av_pos,"          dustin hubbard        ")
 av_pos=convert_buf(av_buf,av_pos,"           daniel bauza         ")
-save_hex( os.environ['JTGNG']+"/cores/vulgus/mist/msg_av.hex", av_buf )
+save_hex( os.environ['JTROOT']+"/cores/vulgus/mist/msg_av.hex", av_buf )

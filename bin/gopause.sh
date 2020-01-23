@@ -2,7 +2,7 @@
 # Show the pause screen
 
 CORE=$1
-cd $JTGNG/$1/ver/game || exit 1
+cd $JTROOT/$1/ver/game || exit 1
 shift
 
 $JTCORE/bin/jt${CORE}_msg.py
