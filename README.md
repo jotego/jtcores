@@ -1,5 +1,4 @@
-JT_GNG FPGA Clone of early CAPCOM arcade games by Jose Tejada (@topapate)
-=========================================================================
+# JT_GNG FPGA Clone of early CAPCOM arcade games by Jose Tejada (@topapate)
 
 You can show your appreciation through
     * Patreon: https://patreon.com/topapate
@@ -11,8 +10,8 @@ What you get with this is an extremely accurate (allegedly 100% accurate) clone 
 
 I hope you will have as much fun with it as I had it while making it!
 
-Supported Games
-===============
+## Supported Games
+
 In chronological order:
 
  1. Vulgus           (see doc/jtvulgus.txt)
@@ -26,99 +25,15 @@ In chronological order:
  9. F1-Dream         (see doc/jtf1dream.txt)
 10. Bionic Commando  (see doc/jtbiocom.txt)
 
-Troubleshooting
-===============
+## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.
 
 * F1-Dream and Black Tiger are using an IP for the MCU that does not synthesize correctly at 48MHz because of a setup timing violation. Using the clock enable signal to operate it seems to remove the problem. Ideally, the IP should be edited to increase its frequency performance.
 
+* How to continue the game: many CAPCOM games of this era require to hold the fire button while pressing 1P to continue the game.
 
-How to continue the game
-========================
-Many CAPCOM games of this era require to hold the fire button while pressing 1P to continue the game.
-
-Project Structure
-=================
-
-This work has two separate parts:
-
-1. A verilog model of the original hardware, replicated from original schematics. This is found in the hdl folder. Some test benches are available in the "ver" (for verification) folder. Data sheets of parts used in the original design are located in the "doc" folder. This is interesting to understand how it worked. It can be used to repair broken boards too.
-
-2. A modern clone written in Verilog. It has been made with the MiST board in mind but the game itself (jtgng_game module) is highly portable. All components used aim to be cycle exact -some even sub-cycle exact- so the recreation is the most similar thing to having the original PCB you can get.
-
-Modules
-=======
-
-The FPGA clone uses the following modules:
-
-JT12: For YM2203 sound synthesis. From the same author.
-JTFRAME: A common framework for MiST arcades. From the same author.
-MC6809 from Greg Miller
-T80: originally from Daniel Wallner, with edits from Alexey Melnikov (Mister)
-hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
-
-Compilation
-===========
-
-I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
-
-Go to the root directory of the repository and execute:
-
-source set_prj.sh
-
-That will create an alias called jtcore to directory modules/jtframe/bin/jtcore. This is a command line utility that will compile the cores. Like
-
-jtcore gng
-
-will compile Ghosts'n Goblins for MiST.
-
-jtcore gng -mr
-
-will compile it for MiSTer. And -sidi, will compile it for MiST. Support for Xilinx platforms is done by Neurorulez and is done through the GUI. Just check the files inside the cores folder for each game.
-
-Pnce compilation is triggered with jtcore, Quartus qpf and qsf files are created. This files are not part of the repository as they are considered output files, not input.
-
-There is another script called update_cores.sh that will run jtcore over all supported cores in parallel.
-
-Directory Structure
-===================
-original/hdl/   replica of original PCB schematics
-original/ver/   simulation files for original PCB
-modules         files shared by several games and external files
-modules/mist    
-doc             documents related to original PCB
-doc/74          74' series data sheets
-rom             script to convert from MAME rom files to the required format
-                simulation files expect the rom files here
-gng/            MiST board version of Ghosts'n Goblins.
-                Latest core version is located in this folder and called core.rbf
-gng/hdl         Verilog files of the clone for MiST
-gng/doc         documents related to MiST clone or MiST hardware
-gng/quartus     project to synthesize the clone
-gng/ver         simulation files of MiST clone
-
-1942            MiST board version of 1942 arcade game
-1942/hdl        Verilog files of the clone for MiST
-1942/zxuno      files for ZX-UNO version
-1942/mist       Quartus files for MiST version
-
-1943            MiST board version of 1943 arcade game
-1943/hdl        Verilog files of the clone for MiST
-1943/mist       Quartus files for MiST version
-etc.
-
-HDL Code Structure
-==================
-
-The top level module is called jtgng_mist. This is the module that is really dependent on the board. If you want to port jtgng to a different FPGA board you will need to modify this file. Most other files will likely stay the same
-
-The game itself in module jtgng_game. It is written using an arbitrary clock (active on positive edge) and a clock enable signal (switching on the negative edge). From jtgng_game down the hierarchy, everything should be highly portable.
-
-The video output is a 256x256 screen. That is what you get from jtgng_game in a signal format that replicates the original hardware. jtgng_mist instantiates a module called jtgng_vga that converts the image to a standard VGA resolution without losing frame speed.
-
-Keyboard
-========
+##Keyboard
 
 On MiSTer keyboard control is configured through the OSD.
 
@@ -164,8 +79,91 @@ Original filter for sound (GnG)
     -high pass filter with cut-off freq. at 1.6Hz
     -low pass filter with cut-off freq. at 32.3kHz
 
-Credits
-=======
+## Project Structure
+
+This work has two separate parts:
+
+1. A verilog model of the original hardware, replicated from original schematics. This is found in the hdl folder. Some test benches are available in the "ver" (for verification) folder. Data sheets of parts used in the original design are located in the "doc" folder. This is interesting to understand how it worked. It can be used to repair broken boards too.
+
+2. A modern clone written in Verilog. It has been made with the MiST board in mind but the game itself (jtgng_game module) is highly portable. All components used aim to be cycle exact -some even sub-cycle exact- so the recreation is the most similar thing to having the original PCB you can get.
+
+## Modules
+
+The FPGA clone uses the following modules:
+
+JT12: For YM2203 sound synthesis. From the same author.
+JTFRAME: A common framework for MiST arcades. From the same author.
+MC6809 from Greg Miller
+T80: originally from Daniel Wallner, with edits from Alexey Melnikov (Mister)
+hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
+
+Use `git clone --recurse-submodules` in order to get all submodules when you clone the repository.
+
+##Compilation
+
+I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
+
+###Requisites
+
+* Linux
+* Quartus 13 for MiST/SiDi compilation
+* Quartus 17 for MiSTer compilation
+* Add the path to quartus_sh to your PATH environment variable if JTCORE cannot automatically find it
+* PNG library for Python
+
+###Compilation Steps
+Go to the root directory of the repository and execute: `source set_prj.sh`
+
+That will create an alias called jtcore to directory modules/jtframe/bin/jtcore. This is a command line utility that will compile the cores. Like
+
+`jtcore gng`
+
+will compile Ghosts'n Goblins for MiST.
+
+`jtcore gng -mr`
+
+will compile it for MiSTer. And -sidi, will compile it for MiST. Support for Xilinx platforms is done by Neurorulez and is done through the GUI. Just check the files inside the cores folder for each game.
+
+Pnce compilation is triggered with jtcore, Quartus qpf and qsf files are created. This files are not part of the repository as they are considered output files, not input.
+
+There is another script called update_cores.sh that will run jtcore over all supported cores in parallel.
+
+##Directory Structure
+
+original/hdl/   replica of original PCB schematics
+original/ver/   simulation files for original PCB
+modules         files shared by several games and external files
+modules/mist    
+doc             documents related to original PCB
+doc/74          74' series data sheets
+rom             script to convert from MAME rom files to the required format
+                simulation files expect the rom files here
+gng/            MiST board version of Ghosts'n Goblins.
+                Latest core version is located in this folder and called core.rbf
+gng/hdl         Verilog files of the clone for MiST
+gng/doc         documents related to MiST clone or MiST hardware
+gng/quartus     project to synthesize the clone
+gng/ver         simulation files of MiST clone
+
+1942            MiST board version of 1942 arcade game
+1942/hdl        Verilog files of the clone for MiST
+1942/zxuno      files for ZX-UNO version
+1942/mist       Quartus files for MiST version
+
+1943            MiST board version of 1943 arcade game
+1943/hdl        Verilog files of the clone for MiST
+1943/mist       Quartus files for MiST version
+etc.
+
+##HDL Code Structure
+
+The top level module is called jtgng_mist. This is the module that is really dependent on the board. If you want to port jtgng to a different FPGA board you will need to modify this file. Most other files will likely stay the same
+
+The game itself in module jtgng_game. It is written using an arbitrary clock (active on positive edge) and a clock enable signal (switching on the negative edge). From jtgng_game down the hierarchy, everything should be highly portable.
+
+The video output is a 256x256 screen. That is what you get from jtgng_game in a signal format that replicates the original hardware. jtgng_mist instantiates a module called jtgng_vga that converts the image to a standard VGA resolution without losing frame speed.
+
+##Credits
 
 Jose Tejada Gomez. Twitter @topapate
 Project is hosted in http://www.github.com/jotego/jt_gng
