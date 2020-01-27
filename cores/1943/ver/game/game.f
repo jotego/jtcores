@@ -4,7 +4,6 @@
 ../../hdl/jt1943_prom_we.v
 ../../../modules/jtframe/hdl/sdram/jtframe_rom.v
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
-../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
 ../../hdl/jt1943_scroll.v
 ../../hdl/jt1943_security.v
 ../../hdl/jt1943_video.v

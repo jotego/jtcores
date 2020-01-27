@@ -22,12 +22,8 @@ check_hex_file avatar_xy.hex
 check_hex_file avatar_pal.hex
 check_hex_file avatar_obj.hex
 
-if ! go.sh -frame 3 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN \
+if ! go.sh -frame 12 $*  -video -mist -d DIP_TEST -nosnd -d NOMAIN \
     -d AVATAR_DATA -d AVATAR_ROM \
-    -d ALWAYS_PAUSE -d NOSCR -d AVATARS -d SCANDOUBLER_DISABLE=1; then
+    -d DIP_PAUSE -d NOSCR -d AVATARS -d SCANDOUBLER_DISABLE=1; then
     exit 1
 fi
-
-# for i in *png; do
-#     convert $i -crop 290x260+50+0 -rotate -90 -resize 300%x300% $i
-# done

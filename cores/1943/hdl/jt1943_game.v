@@ -374,13 +374,8 @@ jt1943_video u_video(
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
     .cpu_dout   ( cpu_dout      ),
-`ifdef ALWAYS_PAUSE
-    .pause      ( 1'b1          ),
-    .flip       ( 1'b0          ),
-`else
     .flip       ( video_flip    ),
     .pause      ( pause         ),
-`endif
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
