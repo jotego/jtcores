@@ -15,8 +15,12 @@
 ../../../modules/jtframe/hdl/ram/jtframe_prom.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
+# Avatar
+../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
+../../../modules/jtgng_avatar.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtgng_sound.v
 ../../../modules/jtgng_objbuf.v

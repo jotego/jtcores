@@ -41,11 +41,11 @@ module mist_dump(
     end
     `endif
 `else // NCVERILOG
-    `ifndef VIDEO_START
+    //`ifndef VIDEO_START
     initial begin
-    `else
-    always @(negedge VGA_VS) if( frame_cnt==`VIDEO_START ) begin
-    `endif
+    //`else
+    //always @(negedge VGA_VS) if( frame_cnt==`VIDEO_START ) begin
+    //`endif
         $display("NC Verilog: will dump all signals");
         $shm_open("test.shm");
         `ifdef DEEPDUMP
