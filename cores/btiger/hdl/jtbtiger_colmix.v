@@ -24,7 +24,7 @@
 module jtbtiger_colmix(
     input            rst,
     input            clk,
-    input            cen12 /* synthesis direct_enable = 1 */,
+    input            cen12,
     input            cen6 /* synthesis direct_enable = 1 */,
 
     // pixel input from generator modules

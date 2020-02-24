@@ -512,7 +512,7 @@ jtframe_avatar u_avatar(
     .pause       ( pause         ),
     .obj_addr    ( obj_addr[12:0]),
     .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
+    .obj_mux     ( obj_data      )
 );
 
 endmodule

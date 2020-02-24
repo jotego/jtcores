@@ -27,6 +27,8 @@ Updates all JT cores. Usage:
     -mist   updates MiST target (uses all CPU cores, paralel compilation)
     -mister updates MiSTer target (one JT core at a time)
     -all    updates both MiST and MiSTer
+    -cores  list of cores to update as \"gng 1943\"
+    -sidi   compile for SiDi. Cannot update for SiDi and MiST at the same time
     :       options for jtcore script can be added after a colon
 EOF
         exit 0;

@@ -56,7 +56,7 @@ parameter SIM_PRIO = "../../../rom/tora/tr.9e";
 reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
-wire enable_scr  = gfx_en[1];
+// wire enable_scr  = gfx_en[1];
 wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 
