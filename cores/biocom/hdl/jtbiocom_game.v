@@ -562,7 +562,7 @@ jtframe_rom #(
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
+    .downloading ( dwnld_busy    ),
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
