@@ -149,6 +149,7 @@ jtgng_dip u_dip(
     .status     ( status        ),
     .dip_pause  ( dip_pause     ),
     .dip_test   ( dip_test      ),
+    .dip_flip   ( dip_flip      ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
