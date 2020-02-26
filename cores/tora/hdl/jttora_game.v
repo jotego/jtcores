@@ -230,7 +230,8 @@ jttora_dwnld u_dwnld(
     .prom_we     ( prom_we         ),
     .sdram_dout  ( data_read[15:0] ),
     .dwnld_busy  ( dwnld_busy      ),
-    .sdram_ack   ( sdram_ack       )
+    .sdram_ack   ( sdram_ack       ),
+    .data_ok     ( data_rdy        )
 );
 
 wire [15:0] scrposh, scrposv;

@@ -32,6 +32,7 @@ module jttora_dwnld(
     output     [ 1:0]    prom_we,
     output               jap,
     input                sdram_ack,
+    input                data_ok,
 
     input      [15:0]    sdram_dout,
     output reg           dwnld_busy = 1'b0
@@ -95,7 +96,8 @@ jtgng_obj32 u_obj32(
     .prog_mask   (  obj_mask     ), // active low
     .prog_we     (  obj_we       ),
     .prog_rd     (  prog_rd      ),
-    .sdram_ack   (  sdram_ack    )
+    .sdram_ack   (  sdram_ack    ),
+    .data_ok     (  data_ok      )
 );
 
 endmodule
