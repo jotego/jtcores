@@ -27,7 +27,8 @@ module jtgng_prom_we(
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
-    output reg           prog_we
+    output reg           prog_we,
+    input                sdram_ack
     // output reg [ 5:0]    prom_we
 );
 //                     Starts at
@@ -118,7 +119,7 @@ always @(posedge clk) begin
             obj_offset <= obj_offset+16'd1;
         end
     end
-    else begin
+    else if(!downloading || sdram_ack) begin
         prog_we  <= 1'b0;
         // prom_we0 <= 6'd0;
     end

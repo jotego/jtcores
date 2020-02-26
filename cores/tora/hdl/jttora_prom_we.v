@@ -29,6 +29,7 @@ module jttora_prom_we(
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
     output reg [ 1:0]    prom_we,
+    input                sdram_ack,
     output reg           jap=1'b1   // high if the Japanese version was loaded
 );
 
@@ -154,7 +155,7 @@ always @(posedge clk) begin
             `INFO_MCU
         end
     end
-    else begin
+    else if(!downloading || sdram_ack) begin
         prog_we  <= 1'b0;
         prom_we0 <= 2'd0;
     end

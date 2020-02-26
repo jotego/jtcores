@@ -212,7 +212,8 @@ u_prom_we(
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_we       ),
+    .sdram_ack   ( sdram_ack     )
 );
 
 wire prom_red_we   = prom_we[0];

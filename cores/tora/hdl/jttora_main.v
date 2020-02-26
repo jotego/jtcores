@@ -86,9 +86,9 @@ module jttora_main(
 wire [19:1] A;
 wire [3:0] ncA;
 
-`ifdef SIMULATION
-wire [24:0] A_full = {ncA, A,1'b0};
-`endif
+//`ifdef SIMULATION
+(*keep*) wire [24:0] A_full = {ncA, A,1'b0};
+//`endif
 wire [15:0] wram_dout;
 wire        BRn, BGACKn, BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;

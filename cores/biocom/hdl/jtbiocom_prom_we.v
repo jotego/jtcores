@@ -28,7 +28,8 @@ module jtbiocom_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg [ 1:0]    prom_we
+    output reg [ 1:0]    prom_we,
+    input                sdram_ack
 );
 
 localparam MAIN0_ADDR  = 22'h00000;
@@ -154,7 +155,7 @@ always @(posedge clk) begin
             `INFO_PROM
         end
     end
-    else begin
+    else if(!downloading || sdram_ack) begin
         prog_we  <= 1'b0;
         prom_we0 <= 2'd0;
     end

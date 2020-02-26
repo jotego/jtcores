@@ -50,7 +50,7 @@ module jt1942_game(
     output          refresh_en,
 
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [22:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -183,19 +183,20 @@ jt1942_prom_we
    .PROMADDR  ( 22'h2_8000)    )
 `endif
 u_prom_we(
-    .clk         ( clk           ),
-    .downloading ( downloading   ),
+    .clk         ( clk               ),
+    .downloading ( downloading       ),
 
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_data  ( ioctl_data    ),
+    .ioctl_wr    ( ioctl_wr          ),
+    .ioctl_addr  ( ioctl_addr[21:0]  ),
+    .ioctl_data  ( ioctl_data        ),
 
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
+    .prog_data   ( prog_data         ),
+    .prog_mask   ( prog_mask         ),
+    .prog_addr   ( prog_addr         ),
+    .prog_we     ( prog_we           ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_we           ),
+    .sdram_ack   ( sdram_ack         )
 );
 
 wire prom_irq_we   = prom_we[0];
@@ -370,19 +371,6 @@ jt1942_video u_video(
 wire [7:0] scr_nc;
 
 jtframe_rom #(
-    `ifdef VULGUS
-    .SLOT6_OFFSET(22'h0A000>>1), // sound
-    .SLOT0_OFFSET(22'h0E000>>1), // char
-    .SLOT1_OFFSET(22'h10000>>1), // SCR1
-    .SLOT2_OFFSET(22'h18000>>1), // scr2
-    .SLOT8_OFFSET(22'h20000>>1),
-    `else
-    .SLOT6_OFFSET(22'h14000>>1),
-    .SLOT0_OFFSET(22'h18000>>1),
-    .SLOT1_OFFSET(22'h1A000>>1),
-    .SLOT2_OFFSET(22'h22000>>1),
-    .SLOT8_OFFSET(22'h2A000>>1),
-    `endif
     .SLOT0_DW    ( 16         ),
     .SLOT1_DW    ( 16         ),
     .SLOT2_DW    ( 16         ),
@@ -400,6 +388,21 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .vblank      ( ~LVBL         ),
+
+    `ifdef VULGUS
+    .slot6_offset( 22'h0A000>>1  ), // sound
+    .slot0_offset( 22'h0E000>>1  ), // char
+    .slot1_offset( 22'h10000>>1  ), // SCR1
+    .slot2_offset( 22'h18000>>1  ), // scr2
+    .slot8_offset( 22'h20000>>1  ),    
+    `else
+    .slot6_offset( 22'h14000>>1  ),
+    .slot0_offset( 22'h18000>>1  ),
+    .slot1_offset( 22'h1A000>>1  ),
+    .slot2_offset( 22'h22000>>1  ),
+    .slot8_offset( 22'h2A000>>1  ),
+    `endif
+    .slot7_offset( 22'h0         ),
 
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),

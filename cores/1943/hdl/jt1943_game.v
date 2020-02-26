@@ -182,7 +182,8 @@ jt1943_prom_we #(.SND_BRAM(1)) u_prom_we(
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
 
-    .prom_we     ( prom_we       )
+    .prom_we     ( prom_we       ),
+    .sdram_ack   ( sdram_ack     )
 );
 
 wire prom_7l_we  = prom_we[ 0];

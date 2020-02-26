@@ -205,7 +205,8 @@ jtgng_prom_we u_prom_we(
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       )
+    .prog_we     ( prog_we       ),
+    .sdram_ack   ( sdram_ack     )
 );
 
 `ifndef NOMAIN
