@@ -31,7 +31,8 @@ module jtgng_obj32(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output reg           prog_rd
+    output reg           prog_rd,
+    input                sdram_ack
 );
 
 parameter [21:0] OBJ_START=22'h20_0000;
@@ -75,7 +76,7 @@ always @(posedge clk ) begin
             state     <= 8'h1;
         end
         else if( convert && prog_addr < OBJ_END1 ) begin
-            if( !sdram_wait[7] ) begin
+            if( !sdram_wait[7] && sdram_ack ) begin
                 sdram_wait <= { sdram_wait[6:0], 1'b1 };
             end else begin
                 state <= state<<1;

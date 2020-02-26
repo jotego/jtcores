@@ -20,7 +20,7 @@
 
 module jttora_dwnld(
     input                clk,
-(*keep*)    input                downloading,
+    input                downloading,
     input      [21:0]    ioctl_addr,
     input      [ 7:0]    ioctl_data,
     input                ioctl_wr,
@@ -28,12 +28,13 @@ module jttora_dwnld(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-(*keep*)    output               prog_rd,
-(*keep*)    output     [ 1:0]    prom_we,
+    output               prog_rd,
+    output     [ 1:0]    prom_we,
     output               jap,
+    input                sdram_ack,
 
     input      [15:0]    sdram_dout,
-(*keep*)    output reg           dwnld_busy = 1'b0
+    output reg           dwnld_busy = 1'b0
 );
 
 (*keep*) wire         convert;
@@ -80,7 +81,8 @@ jttora_prom_we u_prom_we(
     .prog_mask   (  dwnld_mask   ),
     .prog_we     (  dwnld_we     ),
     .prom_we     (  prom_we      ),
-    .jap         (  jap          )
+    .jap         (  jap          ),
+    .sdram_ack   (  sdram_ack    )
 );
 
 jtgng_obj32 u_obj32(
@@ -92,7 +94,8 @@ jtgng_obj32 u_obj32(
     .prog_data   (  obj_data     ),
     .prog_mask   (  obj_mask     ), // active low
     .prog_we     (  obj_we       ),
-    .prog_rd     (  prog_rd      )
+    .prog_rd     (  prog_rd      ),
+    .sdram_ack   (  sdram_ack    )
 );
 
 endmodule
