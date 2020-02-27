@@ -35,6 +35,32 @@ wire [`PROM_W-1:0] prom_we;
 wire [15:0]        sdram_dout = 16'habcd;
 wire               dwnld_busy;
 
+reg  [ 3:0] random=4'd1;
+
+always @(posedge clk) begin
+    random <= { random[2:0], random[3]^random[2] };
+end
+
+reg         sdram_ack=1'b0, data_ok=1'b0;
+reg         sdram_st;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        sdram_st <= 1'b0;
+    end else begin
+        sdram_ack <= 1'b0;
+        data_ok   <= 1'b0;
+        if( (prog_we | prog_rd) && random[0] && !sdram_st) begin
+            sdram_st  <= 1'b1;
+            sdram_ack <= 1'b1;
+        end
+        if( sdram_st && random[0] ) begin
+            sdram_st <= 1'b0;
+            data_ok  <= 1'b1;
+        end
+    end
+end
+
 jttora_dwnld uut(
     .clk         ( clk           ),
     .downloading ( downloading   ),
@@ -49,7 +75,9 @@ jttora_dwnld uut(
     .prom_we     ( prom_we       ),
     .jap         ( jap           ),
     .sdram_dout  ( sdram_dout    ),
-    .dwnld_busy  ( dwnld_busy    )
+    .dwnld_busy  ( dwnld_busy    ),
+    .sdram_ack   ( sdram_ack     ),
+    .data_ok     ( data_ok       )
 );
 
 always @(posedge jap) $display("JAP enabled");

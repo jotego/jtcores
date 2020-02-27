@@ -79,6 +79,10 @@ always @(posedge clk ) begin
             wait_ack  <= 1'b0;
         end
         else if( convert && prog_addr < OBJ_END1 )  begin
+            if( sdram_ack ) begin
+                prog_rd <= 1'b0;
+                prog_we <= 1'b0;
+            end
             if(!wait_ack || (wait_ack && data_ok) ) state <= state<<1;
             case( state )
                 8'd1: begin // read
