@@ -137,9 +137,9 @@ always @(posedge clk) begin
             set_strobe <= 1'b1;
         end
     end
-    else if(!downloading || sdram_ack) begin
-        prog_we  <= 1'b0;
+    else begin
         prom_we0 <= 6'd0;
+        if(!downloading || sdram_ack) prog_we  <= 1'b0;
     end
 end
 

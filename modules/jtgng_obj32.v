@@ -138,7 +138,8 @@ always @(posedge clk ) begin
                 8'h80: if( data_ok ) begin
                     prog_addr[21:1] <= prog_addr[21:1]+21'h1;
                     state     <= 8'h1;
-                    wait_ack        <= 1'd0;
+                    prog_we   <= 1'b0;
+                    wait_ack  <= 1'd0;
                 end
             endcase
         end else convert<=1'b0;
