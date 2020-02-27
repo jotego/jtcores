@@ -53,7 +53,6 @@ localparam OBJ_END1 = OBJ_END;
 `undef  JTGNG_OBJ32_FAST
 
 reg [31:0] obj_data;
-reg [7:0]  sdram_wait;
 reg last_down, wait_ack;
 reg [7:0]  state;
 
@@ -65,7 +64,6 @@ always @(posedge clk ) begin
         prog_mask <= 2'd0;
         prog_we   <= 1'b0;
         state     <= 8'h1;
-        sdram_wait<= 8'hff;
         prog_rd   <= 1'b0;
         convert   <= 1'b0;
         wait_ack  <= 1'b0;
@@ -98,7 +96,6 @@ always @(posedge clk ) begin
                     prog_we      <= 1'b0;
                     prog_rd      <= 1'b1;
                     prog_addr[0] <= 1'b1;
-                    sdram_wait   <= 8'd0;
                 end
                 8'd4: if( data_ok ) begin
                     obj_data[31:16] <= sdram_dout;
@@ -111,7 +108,6 @@ always @(posedge clk ) begin
                     prog_data    <= { obj_data[7+8:4+8], obj_data[7:4]};
                     prog_mask    <= 2'b10;
                     prog_we      <= 1'b1;
-                    sdram_wait   <= 8'd0;
                     wait_ack     <= 1'd1;
                 end
                 8'h10: if( data_ok ) begin
@@ -119,24 +115,22 @@ always @(posedge clk ) begin
                     prog_data <= { obj_data[7+24:4+24], obj_data[7+16:4+16]};
                     prog_mask <= 2'b01;
                     prog_we   <= 1'b1;
-                    sdram_wait <= 8'd0;
                 end
                 8'h20: if( data_ok )  begin
                     prog_addr[0] <= 1'b1;
                     prog_data <= { obj_data[3+8:0+8], obj_data[3:0]};
                     prog_mask <= 2'b10;
                     prog_we   <= 1'b1;
-                    sdram_wait <= 8'd0;
                 end
                 8'h40: if( data_ok )  begin
                     prog_addr[0] <= 1'b1;
                     prog_data <= { obj_data[3+24:0+24], obj_data[3+16:0+16]};
                     prog_mask <= 2'b01;
                     prog_we   <= 1'b1;
-                    sdram_wait <= 8'd0;
                 end
                 8'h80: if( data_ok ) begin
                     prog_addr[21:1] <= prog_addr[21:1]+21'h1;
+                    prog_addr[0]    <= 1'b0;
                     state     <= 8'h1;
                     prog_we   <= 1'b0;
                     wait_ack  <= 1'd0;
