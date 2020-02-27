@@ -31,7 +31,7 @@ module jtgunsmoke_dip(
 
 wire       dip_upright   = 1'b0;
 wire       dip_demosnd   = status[20]; // K
-wire       dip_demo      = 1'b0;
+wire       dip_demo      = status[28]; // S. This setting affects the game prologue scene
 wire       dip_continue  = ~status[27];
 wire [2:0] dip_price1 = ~status[23:21];
 wire [2:0] dip_price2 = ~status[26:24];

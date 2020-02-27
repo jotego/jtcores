@@ -8,6 +8,7 @@
     "OGH,Difficulty,Normal,Easy,Hard,Very hard;", \
     "OIJ,Bonus,20k & every 100k,20k and 100k only,20k and every 80k,20k and every 100k;", \
     "OK,Demo sound,No,Yes;", \
+    "OS,Demo,No,Yes;", \
     "OLN,Slot 1,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", \
     "OOQ,Slot 2,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", \
     "OR,Continue play,Yes,No;",
