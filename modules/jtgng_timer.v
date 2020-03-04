@@ -83,14 +83,16 @@ always @(posedge clk) if(cen6) begin
             // OBJ LVBL is two lines ahead
             9'd494: LVBL_obj <= 1'b0;
             9'd270: LVBL_obj <= 1'b1;
-
-            9'd507: VS <= 1;
-            9'd510: VS <= 0;
             default:;
         endcase // V
     end
 
-    if (H==9'd178) HS <= 1;
+    if (H==9'd178) begin
+        HS <= 1;
+        if (V==9'd507) VS <= 1;
+        if (V==9'd510) VS <= 0;
+    end
+
     if (H==9'd206) HS <= 0;
     // if (H==9'd136) LHBL_short <= 1'b0;
     // if (H==9'd248) LHBL_short <= 1'b1;
