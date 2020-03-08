@@ -49,6 +49,8 @@ both action buttons.
 REVISION HISTORY
 ================
 
+ 8 Mar 2020 Improved stability by eliminating the clock enable of the MCU 
+            and using a 6MHz clock directly
  6 Jan 2020 Public release
 24 Nov 2019 Beta release
 
