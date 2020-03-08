@@ -23,7 +23,7 @@
 module jtbtiger_mcu(
     input                rst,
     input                clk,
-    input                cen6,       //  6   MHz
+    input                clk6,
     // Main CPU interface
     output       [ 7:0]  mcu_dout,
     input        [ 7:0]  mcu_din,
@@ -42,36 +42,29 @@ wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p1_o, p2_o, p3_o;
 
-wire cpu_cen = cen6;
-
-jtframe_prom #(.aw(12),.dw(8),
-    .simfile("../../../rom/btiger/bd.6k")
-) u_prom(
-    .clk        ( clk               ),
-    .cen        ( cpu_cen           ),
-    .data       ( prom_din          ),
-    .rd_addr    ( rom_addr[11:0]    ),
-    .wr_addr    ( prog_addr         ),
-    .we         ( prom_we           ),
-    .q          ( rom_data          )
+jtframe_dual_ram #(.aw(12), .simfile("../../../rom/btiger/bd.6k")) u_prom(
+    .clk0   ( clk               ),
+    .clk1   ( clk6              ),
+    // Port 0: PROM downloading
+    .data0  ( prom_din          ),
+    .addr0  ( prog_addr         ),
+    .we0    ( prom_we           ),
+    .q0     (                   ),
+    // Port 1: PROM read
+    .data1  (                   ),
+    .addr1  ( rom_addr[11:0]    ),
+    .we1    ( 1'b0              ),
+    .q1     ( rom_data          )
 );
 
 jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
-    .clk        ( clk               ),
-    .cen        ( cpu_cen          ),
+    .clk        ( clk6              ),
+    .cen        ( 1'b1              ),
     .addr       ( ram_addr          ),
     .data       ( ram_data          ),
     .we         ( ram_we            ),
     .q          ( ram_q             )
 );
-
-//always @(posedge clk) cpu_cen <= cen6;
-
-// reg  [ 7:0] mcu_din0;
-// 
-// always @(posedge clk) if(cpu_cen) begin
-//     mcu_din0 <= mcu_din;
-// end
 
 reg mcu_int1;
 reg last_mcu_wr;
@@ -84,7 +77,7 @@ reg last_mcu_wr;
 // Note that MAME clears the interrupt in a different way
 // as it does it when the main CPU reads from the MCU
 
-always @(posedge clk) begin
+always @(posedge clk6) begin
     last_mcu_wr <= mcu_wr;
     if( mcu_wr && !last_mcu_wr ) mcu_int1 <= 1'b0;
     if( !p3_o[1] ) mcu_int1 <= 1'b1;
@@ -92,8 +85,8 @@ end
 
 mc8051_core u_mcu(
     .reset      ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cen6      ),
+    .clk        ( clk6      ),
+    .cen        ( 1'b1      ),
     // code ROM
     .rom_data_i ( rom_data  ),
     .rom_adr_o  ( rom_addr  ),

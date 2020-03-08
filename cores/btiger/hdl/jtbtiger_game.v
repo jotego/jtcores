@@ -21,6 +21,7 @@
 module jtbtiger_game(
     input           rst,
     input           clk,
+    input           clk6,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
@@ -312,7 +313,7 @@ assign scr_bank    = 2'b0;
 jtbtiger_mcu u_mcu(
     .rst        (  rst        ),
     .clk        (  clk        ),
-    .cen6       (  cen6       ),
+    .clk6       (  clk6       ),
     .mcu_dout   (  mcu_dout   ),
     .mcu_din    (  mcu_din    ),
     .mcu_wr     (  mcu_wr     ),

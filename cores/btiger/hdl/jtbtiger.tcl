@@ -4,6 +4,8 @@ set_global_assignment -name VERILOG_MACRO "JT12=1"
 set_global_assignment -name VERILOG_MACRO "AVATARS=1"
 set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=256"
 set_global_assignment -name VERILOG_MACRO "VIDEO_HEIGHT=224"
+# 6 MHz used in MCU to avoid timing errors
+set_global_assignment -name VERILOG_MACRO "JTFRAME_CLK6"
 
 # OSD options
 set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
