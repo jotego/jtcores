@@ -449,9 +449,12 @@ assign bus_ack = ~BGACKn;
 jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
+    .cen        (  cen12b       ),
     .cpu_BRn    (  BRn          ),
     .cpu_BGACKn (  BGACKn       ),
     .cpu_BGn    (  BGn          ),
+    .cpu_ASn    (  ASn          ),
+    .cpu_DTACKn (  DTACKn       ),
     .dev_br     (  dev_br       )
 );
 

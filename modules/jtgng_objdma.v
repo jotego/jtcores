@@ -66,6 +66,7 @@ always @(posedge clk, posedge rst)
     if( rst ) begin
         blen      <= 1'b0;
         bus_state <= ST_IDLE;
+        bus_req   <= 1'b0;
     end else if(cen ) begin
         case( bus_state )
             ST_IDLE: if( OKOUT_latch ) begin

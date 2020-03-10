@@ -93,7 +93,7 @@ wire [15:0] wram_dout;
 wire        BRn, BGACKn, BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scrhpos_cs, scrvpos_cs;
-wire        ASn;
+(*keep*) wire        ASn;
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen10;
@@ -374,20 +374,26 @@ always @(posedge clk, posedge rst) begin : int_gen
     end
 end
 
-wire [1:0] dev_br = { ~mcu_brn, obj_br };
+(*keep*) wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
 
 // reg cen10dly, cen10bdly;
 // always @(posedge clk) {cen10dly, cen10bdly} <= {cen10, cen10b};
-
+/*
 jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
+    .cen        ( cen10b        ),
     .cpu_BRn    (  BRn          ),
     .cpu_BGACKn (  BGACKn       ),
     .cpu_BGn    (  BGn          ),
+    .cpu_ASn    (  ASn          ),
+    .cpu_DTACKn (  DTACKn       ),
     .dev_br     (  dev_br       )
 );
+*/
+assign BRn = 1'b1;
+assign BGACKn = 1'b1;
 
 fx68k u_cpu(
     .clk        ( clk         ),
