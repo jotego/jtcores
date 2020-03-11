@@ -30,6 +30,8 @@ module jtbiocom_dwnld(
     output reg           prog_we,
     output               prog_rd,
     output     [ 1:0]    prom_we,
+    input                sdram_ack,
+    input                data_ok,
 
     input      [15:0]    sdram_dout,
     output reg           dwnld_busy = 1'b0
@@ -78,7 +80,8 @@ jtbiocom_prom_we u_prom_we(
     .prog_data   (  dwnld_data   ),
     .prog_mask   (  dwnld_mask   ),
     .prog_we     (  dwnld_we     ),
-    .prom_we     (  prom_we      )
+    .prom_we     (  prom_we      ),
+    .sdram_ack   (  sdram_ack    )
 );
 
 jtgng_obj32 #(
@@ -93,7 +96,9 @@ u_obj32(
     .prog_data   (  obj_data     ),
     .prog_mask   (  obj_mask     ), // active low
     .prog_we     (  obj_we       ),
-    .prog_rd     (  prog_rd      )
+    .prog_rd     (  prog_rd      ),
+    .sdram_ack   (  sdram_ack    ),
+    .data_ok     (  data_ok      )
 );
 
 endmodule

@@ -103,7 +103,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_z80_wait u_cpu(
+jtframe_z80_romwait u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen3        ),
