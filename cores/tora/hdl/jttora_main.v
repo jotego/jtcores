@@ -379,7 +379,7 @@ assign bus_ack = ~BGACKn;
 
 // reg cen10dly, cen10bdly;
 // always @(posedge clk) {cen10dly, cen10bdly} <= {cen10, cen10b};
-/*
+
 jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
@@ -391,9 +391,6 @@ jtframe_68kdma #(.BW(2)) u_arbitration(
     .cpu_DTACKn (  DTACKn       ),
     .dev_br     (  dev_br       )
 );
-*/
-assign BRn = 1'b1;
-assign BGACKn = 1'b1;
 
 fx68k u_cpu(
     .clk        ( clk         ),
