@@ -10,6 +10,6 @@
     "OOQ,Slot 2,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", 
 
 `define CORE_KEYMAP \
-    "J1,Fire,Bomb,Roll,1P Start,2P Start,Coin,Credits;", \
-    "jn,A,B,Y,R,L,X,Start;",
+    "J1,Fire,Bomb,Roll,Start,Coin,Credits;", \
+    "jn,A,B,X,R,L,Start;",
 
