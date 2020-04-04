@@ -50,4 +50,4 @@ if [ "$MIST" = -mister ]; then
     PARA="$PARA --jobs 2"
 fi
 
-parallel $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $MIST
+parallel $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $MIST | tee update.log
