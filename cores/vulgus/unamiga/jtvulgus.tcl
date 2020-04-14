@@ -1,6 +1,6 @@
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTvulgus\""
 set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
-set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
+set_global_assignment -name VERILOG_MACRO "JTFRAME_OSD_TEST=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtvulgus_game"
 set_global_assignment -name VERILOG_MACRO "ZX2TOP=jtvulgus_mist"
 

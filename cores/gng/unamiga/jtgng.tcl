@@ -1,5 +1,5 @@
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTGNG\""
-set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
+set_global_assignment -name VERILOG_MACRO "JTFRAME_OSD_TEST=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtgng_game"
 set_global_assignment -name VERILOG_MACRO "MISTTOP=jtgng_mist"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
