@@ -199,7 +199,7 @@ always @(posedge clk)
     end
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
-            flip     <= cpu_dout[FLIP];
+            flip     <= cpu_dout[FLIP] ^ (GAME==1);
             sres_b   <= ~cpu_dout[SRES]; // inverted through NPN
             nmi_mask <= cpu_dout[3];
             if( GAME != 0 ) begin

@@ -1,5 +1,6 @@
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTSZR\""
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtsectionz_game"
+set_global_assignment -name VERILOG_MACRO "JTFRAME_MRA_DIP=1"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
 #set_global_assignment -name VERILOG_MACRO "AVATARS=1"
 set_global_assignment -name VERILOG_MACRO "BUTTONS=2"

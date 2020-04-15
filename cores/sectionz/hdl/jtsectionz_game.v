@@ -62,6 +62,7 @@ module jtsectionz_game(
     input           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [31:0]  dipsw,
     // Sound output
     output  signed [15:0] snd,
     output          sample,
@@ -101,7 +102,6 @@ wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-
 wire rom_ready;
 wire main_ok, snd_ok, obj_ok, obj_ok0;
 wire cen12, cen6, cen3, cen1p5;
@@ -110,6 +110,8 @@ assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
 assign sample=1'b1;
+
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
 
 `ifdef MISTER
 
@@ -152,9 +154,6 @@ jtframe_cen48 u_cen(
     .cen3qb (           ),
     .cen1p5b(           )
 );
-
-assign dipsw_a = 8'hff;
-assign dipsw_b = 8'hff;
 
 wire LHBL_obj, LVBL_obj;
 
