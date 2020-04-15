@@ -35,8 +35,8 @@ module jtsectionz_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
@@ -48,7 +48,7 @@ module jtsectionz_game(
     input           sdram_ack,
     output          refresh_en,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -202,7 +202,7 @@ u_prom_we(
     .downloading ( downloading   ),
 
     .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
+    .ioctl_addr  ( ioctl_addr[21:0] ),
     .ioctl_data  ( ioctl_data    ),
 
     .prog_data   ( prog_data     ),
@@ -454,6 +454,10 @@ jtframe_rom #(
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( scr_addr      ),
+    .slot2_addr  (               ),
+    .slot3_addr  (               ),
+    .slot4_addr  (               ),
+    .slot5_addr  (               ),
     .slot6_addr  ( snd_addr      ),
     .slot7_addr  ( main_addr     ),
     .slot8_addr  ( obj_addr      ),

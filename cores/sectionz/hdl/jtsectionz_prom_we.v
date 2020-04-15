@@ -69,11 +69,11 @@ always @(posedge clk) begin
     if ( ioctl_wr && downloading ) begin
         prog_data <= ioctl_data;
         prog_mask <= !ioctl_addr[0] ? 2'b10 : 2'b01;            
-        prog_addr <= is_cpu  ? bulk_addr[22:1] + CPU_OFFSET  : (
-                     is_snd  ?  snd_addr[22:1] + SND_OFFSET  : (
-                     is_char ? char_addr[22:1] + CHAR_OFFSET : (
-                     is_scr  ?  scr_addr[22:1] + SCR_OFFSET  : obj_addr[22:1] + OBJ_OFFSET )));
-        if( ioctl_addr < START_BYTES ) begin
+        prog_addr <= is_cpu  ? bulk_addr[21:1] + CPU_OFFSET  : (
+                     is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
+                     is_char ? char_addr[21:1] + CHAR_OFFSET : (
+                     is_scr  ?  scr_addr[21:1] + SCR_OFFSET  : obj_addr[22:1] + OBJ_OFFSET )));
+        if( ioctl_addr < FULL_HEADER ) begin
             if( ioctl_addr[3:0]==4'd0 ) game_cfg <= ioctl_data;
             if( is_start ) starts  <= { starts[STARTW-9:0], ioctl_data };
             prog_we <= 1'b0;

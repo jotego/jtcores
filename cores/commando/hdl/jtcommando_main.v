@@ -267,19 +267,20 @@ wire [7:0] rom_opcode = A==16'd0 ? rom_data :
 wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 `endif
 
-always @(*)
+always @(posedge clk) if( cpu_cen) begin
     if( irq_ack ) // Interrupt address
-        cpu_din = irq_vector;
+        cpu_din <= irq_vector;
     else
     case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
-        5'b100_00: cpu_din = // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
+        5'b100_00: cpu_din <= // (cheat_invincible && (A==16'hf206 || A==16'hf286)) ? 8'h40 :
                             ram_dout;
-        5'b010_00: cpu_din = char_dout;
-        5'b001_00: cpu_din = scr_dout;
-        5'b000_10: cpu_din = !m1_n ? rom_opcode : rom_data;
-        5'b000_01: cpu_din = cabinet_input;
-        default:  cpu_din = rom_data;
+        5'b010_00: cpu_din <= char_dout;
+        5'b001_00: cpu_din <= scr_dout;
+        5'b000_10: cpu_din <= !m1_n ? rom_opcode : rom_data;
+        5'b000_01: cpu_din <= cabinet_input;
+        default:  cpu_din  <= 8'hFF;
     endcase
+end
 
 always @(A,bank) begin
     if( GAME==0)
