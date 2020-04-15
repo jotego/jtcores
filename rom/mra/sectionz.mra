@@ -1,10 +1,10 @@
 <misterromdescription>
-    <name>Section ></name>
+    <name>Section Z</name>
     <setname>sectionz</setname>
     <year>1985</year>
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
-    <rbf>jtbtiger</rbf>
+    <rbf>jtsectionz</rbf>
     <!--
         Main   <98304   =  1'8000
         Sound  <131072  =  2'0000
@@ -45,4 +45,5 @@
         <part name="3h_sz16.bin" crc="500ff2bb"/>
         <part name="1h_sz10.bin" crc="00b3d244"/>
     </rom>
+    <buttons names="Fire,Turn around,Start,Coin,Pause" default="A,B,R,L,Start"/>
 </misterromdescription>
