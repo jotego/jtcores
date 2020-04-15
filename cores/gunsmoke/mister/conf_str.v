@@ -14,4 +14,5 @@
     "OR,Continue play,Yes,No;",
 
 `define CORE_KEYMAP \
-    "J,Fire left,Fire centre,Fire right,1P Start,2P Start,Coin,Credits;",
+    "J,Fire left,Fire centre,Fire right,Start,Coin,Credits;", \
+    "jn,A,B,X,R,L,Start;",

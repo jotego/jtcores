@@ -2,6 +2,7 @@ set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTBTIGER\""
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtbtiger_game"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
 set_global_assignment -name VERILOG_MACRO "AVATARS=1"
+set_global_assignment -name VERILOG_MACRO "BUTTONS=2"
 set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=256"
 set_global_assignment -name VERILOG_MACRO "VIDEO_HEIGHT=224"
 # 6 MHz used in MCU to avoid timing errors
