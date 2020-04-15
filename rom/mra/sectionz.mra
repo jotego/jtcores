@@ -1,10 +1,10 @@
 <misterromdescription>
-    <name>Section ></name>
+    <name>Section Z</name>
     <setname>sectionz</setname>
     <year>1985</year>
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
-    <rbf>jtbtiger</rbf>
+    <rbf>jtsectionz</rbf>
     <!--
         Main   <98304   =  1'8000
         Sound  <131072  =  2'0000
