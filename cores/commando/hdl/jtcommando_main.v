@@ -320,6 +320,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
 reg int_n, nmi_n;
 
 // interrupt generation
+generate
 if( GAME==0 ) begin
     // Commando
     reg LHBL_posedge, H1_posedge;
@@ -381,6 +382,7 @@ end else begin
         end
     end
 end
+endgenerate
 
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
