@@ -45,4 +45,5 @@
         <part name="3h_sz16.bin" crc="500ff2bb"/>
         <part name="1h_sz10.bin" crc="00b3d244"/>
     </rom>
+    <buttons names="Fire,Turn around,Start,Coin,Pause" default="A,B,R,L,Start"/>
 </misterromdescription>
