@@ -91,7 +91,6 @@ localparam SRES = GAME ? 6 : 4;
 wire [15:0] A;
 wire        t80_rst_n;
 reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
-reg         SECWR_cs;
 wire        rd_n, wr_n;
 // Commando does not use these:
 reg  [ 1:0] bank;
@@ -260,14 +259,14 @@ wire [7:0] irq_vector = GAME==0 ? {3'b110, int_ctrl[1:0], 3'b111 } // Schematic 
     : 8'hd7; // Section Z (no PROM available)
 
 `ifndef TESTROM
-// OP-code bits are shuffled
-wire [7:0] rom_opcode = A==16'd0 ? rom_data : 
+// OP-code bits are shuffled for Commando only
+wire [7:0] rom_opcode = A==16'd0 || GAME!=0 ? rom_data : 
     {rom_data[3:1], rom_data[4], rom_data[7:5], rom_data[0] };
 `else 
 wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 `endif
 
-always @(posedge clk) if( cpu_cen) begin
+always @(posedge clk) begin
     if( irq_ack ) // Interrupt address
         cpu_din <= irq_vector;
     else
