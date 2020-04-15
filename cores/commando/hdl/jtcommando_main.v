@@ -316,15 +316,13 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
     .q      ( int_ctrl     )
 );
 
-reg int_n, nmi_n;
+reg int_n;
 
 // interrupt generation
 generate
 if( GAME==0 ) begin
     // Commando
     reg LHBL_posedge, H1_posedge;
-
-    always @(*) nmi_n = 1'b1;
 
     always @(posedge clk) begin : LHBL_edge
         reg LHBL_old, H1_old;
@@ -364,20 +362,19 @@ end else begin
     // SectionZ
     always @(*) begin
         snd_int = V[5]; // same as Ghosts'n Goblins
-        int_n   = 1'b1;
     end
 
     always @(posedge clk, posedge rst) begin : nmi_gen
         reg last_LVBL;
 
         if( rst ) begin
-            nmi_n     <= 1'b1;
+            int_n     <= 1'b1;
             last_LVBL <= 1'b0;
         end else begin
             last_LVBL <= LVBL;
-            if( !LVBL && last_LVBL && nmi_mask ) begin
-                nmi_n <= 1'b0;
-            end else if( irq_ack ) nmi_n <= 1'b1;
+            if( !LVBL && last_LVBL ) begin
+                int_n <= ~nmi_mask;
+            end else if( irq_ack ) int_n <= 1'b1;
         end
     end
 end
@@ -389,7 +386,7 @@ jtframe_z80 u_cpu(
     .cen        ( cpu_cenw    ),
     .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
-    .nmi_n      ( nmi_n       ),
+    .nmi_n      ( 1'b1        ),
     .busrq_n    ( ~bus_req    ),
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
