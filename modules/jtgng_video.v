@@ -16,7 +16,21 @@
     Version: 1.0
     Date: 30-12-2018 */
 
-module jtgng_video(
+module jtgng_video #(
+parameter SCR_TILE4 = 0,  // 3 bpp (default=0) or 4 bpp (set to 1)
+// parameters from jtgng_colmix:
+parameter SCRWIN        = 1,
+          PALETTE_PROM  = 0,
+          PALETTE_RED   = "",
+          PALETTE_GREEN = "",
+          PALETTE_BLUE  = "",
+parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
+    // These two bits mark the region of the palette RAM/PROM where
+    // palettes for objects are stored
+    
+// parameters from jtgng_obj:
+parameter AVATAR_MAX    = 8
+) (
     input               rst,
     input               clk,
     input               cen12,
@@ -41,7 +55,7 @@ module jtgng_video(
     input               scr_cs,
     output      [ 7:0]  scr_dout,
     output      [14:0]  scr_addr,
-    input       [23:0]  scr_data,
+    input       [(SCR_TILE4 ? 15:23):0]  scr_data, // 16 bits if SCR_TILE4 is set
     input               scr_ok,
     output              scr_busy,
     input       [ 8:0]  scr_hpos,
@@ -80,23 +94,10 @@ module jtgng_video(
     output      [3:0]   blue
 );
 
-// parameters from jtgng_colmix:
-parameter SCRWIN        = 1,
-          PALETTE_PROM  = 0,
-          PALETTE_RED   = "",
-          PALETTE_GREEN = "",
-          PALETTE_BLUE  = "";
-parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
-    // These two bits mark the region of the palette RAM/PROM where
-    // palettes for objects are stored
-    
-// parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8;
-
 wire [5:0] char_pxl;
 wire [5:0] obj_pxl;
 wire scrwin;
-wire [2:0] scr_col;
+wire [(SCR_TILE4?3:2):0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
@@ -153,7 +154,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.HOFFSET(0)) u_scroll (
+jtgng_scroll #(.HOFFSET(0),.TILE4(SCR_TILE4)) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -181,7 +182,7 @@ jtgng_scroll #(.HOFFSET(0)) u_scroll (
 );
 `else
 assign scr_busy   = 1'b1;
-assign scr_col    = 3'd0;
+assign scr_col    = 0;
 assign scr_pal    = 3'd0;
 assign scrwin     = 1'd0;
 assign scr_addr   = 15'd0;

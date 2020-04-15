@@ -19,9 +19,13 @@
         <part> 08 40 FF FF FF FF FF FF </part>
         <part> FF FF FF FF FF FF FF FF </part>
         <!-- ROMs -->
-        <part name="6c_sz01.bin" crc="69585125"/>
+        
+        <!-- CPU: banks -->
         <part name="7c_sz02.bin" crc="22f161b8"/>
         <part name="9c_sz03.bin" crc="4c7111ed"/>
+        <!-- CPU: non banked -->
+        <part name="6c_sz01.bin" crc="69585125"/>
+
         <!-- Sound -->
         <part name="11e_sz04.bin" crc="a6073566"/>
         <!-- CHAR -->

@@ -47,6 +47,9 @@ module jtcommando_main(
     input              scr_busy,
     output reg [8:0]   scr_hpos,
     output reg [8:0]   scr_vpos,
+    // Palette
+    output  reg        blue_cs,
+    output  reg        redgreen_cs,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -63,7 +66,7 @@ module jtcommando_main(
     input              blcnten,  // bus line counter enable
     // ROM access
     output  reg        rom_cs,
-    output      [15:0] rom_addr,
+    output  reg [16:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
     // PROM 6L (interrupts)
@@ -76,11 +79,23 @@ module jtcommando_main(
     input    [7:0]     dipsw_b
 );
 
+// 0: Commando
+// 1: Section Z
+parameter GAME=0;
+
+// bit locations
+localparam FLIP = GAME ? 0 : 7;
+localparam NMI  = 3;
+localparam SRES = GAME ? 6 : 4;
+
 wire [15:0] A;
-wire t80_rst_n;
-reg in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
-reg SECWR_cs;
-wire rd_n, wr_n;
+wire        t80_rst_n;
+reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
+reg         SECWR_cs;
+wire        rd_n, wr_n;
+// Commando does not use these:
+reg  [ 1:0] bank;
+reg         nmi_mask;
 
 assign RnW = wr_n;
 
@@ -108,27 +123,56 @@ always @(*) begin
     scr_cs        = 1'b0;
     scrpos_cs     = 1'b0;
     OKOUT         = 1'b0;
-    if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
-        3'b110: // CXXX, DXXX
-            case(A[12:11])
-                2'b00: // C0
-                    in_cs = 1'b1;
-                2'b01: // C8
-                    casez(A[3:0])
-                        4'b0_000: snd_latch_cs = 1'b1;
-                        4'b0_100: misc_cs      = 1'b1;
-                        4'b0_110: OKOUT        = 1'b1;
-                        4'b1_???: scrpos_cs    = 1'b1;  // C808-C80F
-                        default:;
-                    endcase
-                2'b10: // D0
-                    char_cs = 1'b1; // D0CS
-                2'b11: // D8
-                    scr_cs = 1'b1;
-            endcase
-        3'b111: ram_cs = 1'b1;
-    endcase
+    blue_cs       = 1'b0;
+    redgreen_cs   = 1'b0;
+    if( GAME==0 ) begin
+        // Commando
+        if( rfsh_n && !mreq_n ) casez(A[15:13])
+            3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
+            3'b110: // CXXX, DXXX
+                case(A[12:11])
+                    2'b00: // C0
+                        in_cs = 1'b1;
+                    2'b01: // C8
+                        casez(A[3:0])
+                            4'b0_000: snd_latch_cs = 1'b1;
+                            4'b0_100: misc_cs      = 1'b1;
+                            4'b0_110: OKOUT        = 1'b1;
+                            4'b1_???: scrpos_cs    = !RnW;  // C808-C80F
+                            default:;
+                        endcase
+                    2'b10: // D0
+                        char_cs = 1'b1; // D0CS
+                    2'b11: // D8
+                        scr_cs = 1'b1;
+                endcase
+            3'b111: ram_cs = 1'b1;
+        endcase
+    end else begin
+        // Section Z
+        if( rfsh_n && !mreq_n ) casez(A[15:13])
+            3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
+            3'b110: ram_cs = 1'b1; // CXXX, DXXX
+            3'b111: // EXXX, FXXX
+                case(A[12:11])
+                    2'b00: // E000-E7FF
+                        char_cs = 1'b1;
+                    2'b01: // E800-EFFF
+                        scr_cs = 1'b1;
+                    2'b10: begin // F0
+                        redgreen_cs = !A[10];
+                        blue_cs     =  A[10];
+                    end
+                    2'b11: begin// F8
+                        in_cs        = A[3] && RnW;
+                        scrpos_cs    = A[3] && !A[2] && !RnW;
+                        snd_latch_cs = A[3] &&  A[2:0]==3'b100 && !RnW;
+                        OKOUT        = A[3] &&  A[2:0]==3'b101 && !RnW;
+                        misc_cs      = A[3] &&  A[2:0]==3'b110 && !RnW;
+                    end
+                endcase
+        endcase
+    end
 end
 
 // SCROLL H/V POSITION
@@ -136,8 +180,7 @@ always @(posedge clk, negedge t80_rst_n) begin
     if( !t80_rst_n ) begin
         scr_hpos <= 9'd0;
         scr_vpos <= 9'd0;
-    end else if(cpu_cen) begin
-        if( scrpos_cs && A[3] && !RnW )
+    end else if(cpu_cen && scrpos_cs) begin
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;
             2'd1: scr_hpos[8]   <= cpu_dout[0];
@@ -152,11 +195,17 @@ always @(posedge clk)
     if( rst ) begin
         flip      <= 1'b0;
         sres_b    <= 1'b1;
+        bank      <= 2'b0;
+        nmi_mask  <= 1'b0;
     end
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
-            flip     <= cpu_dout[7];
-            sres_b   <= ~cpu_dout[4]; // inverted through NPN
+            flip     <= cpu_dout[FLIP];
+            sres_b   <= ~cpu_dout[SRES]; // inverted through NPN
+            nmi_mask <= cpu_dout[3];
+            if( GAME != 0 ) begin
+                bank <= cpu_dout[2:1];
+            end
         end
         if( snd_latch_cs && !wr_n ) begin
             snd_latch <= cpu_dout;
@@ -207,7 +256,8 @@ reg [7:0] cpu_din;
 wire [3:0] int_ctrl;
 wire iorq_n, m1_n;
 wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
+wire [7:0] irq_vector = GAME==0 ? {3'b110, int_ctrl[1:0], 3'b111 } // Schematic K11
+    : 8'hd7; // Section Z (no PROM available)
 
 `ifndef TESTROM
 // OP-code bits are shuffled
@@ -231,7 +281,14 @@ always @(*)
         default:  cpu_din = rom_data;
     endcase
 
-assign rom_addr = A;
+always @(A,bank) begin
+    if( GAME==0)
+        rom_addr = {1'b0, A}; // Commando
+    else begin
+        rom_addr[13:0] = A[13:0];
+        rom_addr[16:14] = A[15] ? { 1'b0, bank } : { 2'b10, A[14] };
+    end
+end
 
 /////////////////////////////////////////////////////////////////
 wire cpu_cenw;
@@ -245,7 +302,8 @@ jtframe_z80wait #(2) u_wait(
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
+    .rom_ok     ( rom_ok    ),
+    .gate       (           )
 );
 
 jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
@@ -258,42 +316,68 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
     .q      ( int_ctrl     )
 );
 
+reg int_n, nmi_n;
+
 // interrupt generation
-reg int_n;
-reg LHBL_posedge, H1_posedge;
+if( GAME==0 ) begin
+    // Commando
+    reg LHBL_posedge, H1_posedge;
 
-always @(posedge clk) begin : LHBL_edge
-    reg LHBL_old, H1_old;
-    LHBL_old<=LHBL;
-    LHBL_posedge <= !LHBL_old && LHBL;
+    always @(*) nmi_n = 1'b1;
 
-    H1_old <= H1;
-    H1_posedge <= !H1_old && H1;
-end
+    always @(posedge clk) begin : LHBL_edge
+        reg LHBL_old, H1_old;
+        LHBL_old<=LHBL;
+        LHBL_posedge <= !LHBL_old && LHBL;
 
-reg pre_int;
-always @(posedge clk) begin
-    if( irq_ack )
-        pre_int <= 1'b0;
-    else if( LHBL_posedge ) pre_int <= int_ctrl[3];
-end
+        H1_old <= H1;
+        H1_posedge <= !H1_old && H1;
+    end
 
-always @(posedge clk) begin : irq_gen
-    reg pre_int2;
-    reg last2;
-    if (rst) begin
-        snd_int <= 1'b1;
-        int_n   <= 1'b1;
-    end else begin
-        last2 <= pre_int2;
-        if( H1_posedge ) begin
-            // Schematic 7L - sound interrupter
-            snd_int  <= int_ctrl[2];
-            pre_int2 <= pre_int;
-        end
+    reg pre_int;
+    always @(posedge clk) begin
         if( irq_ack )
-            int_n <= 1'b1;
-        else if( pre_int2 && !last2 ) int_n <= 1'b0 | ~dip_pause;
+            pre_int <= 1'b0;
+        else if( LHBL_posedge ) pre_int <= int_ctrl[3];
+    end
+
+    always @(posedge clk) begin : irq_gen
+        reg pre_int2;
+        reg last2;
+        if (rst) begin
+            snd_int <= 1'b1;
+            int_n   <= 1'b1;
+        end else begin
+            last2 <= pre_int2;
+            if( H1_posedge ) begin
+                // Schematic 7L - sound interrupter
+                snd_int  <= int_ctrl[2];
+                pre_int2 <= pre_int;
+            end
+            if( irq_ack )
+                int_n <= 1'b1;
+            else if( pre_int2 && !last2 ) int_n <= 1'b0 | ~dip_pause;
+        end
+    end
+end else begin
+    // SectionZ
+    always @(*) begin
+        snd_int = V[5]; // same as Ghosts'n Goblins
+        int_n   = 1'b1;
+    end
+
+    always @(posedge clk, posedge rst) begin : nmi_gen
+        reg last_LVBL;
+
+        if( rst ) begin
+            nmi_n     <= 1'b1;
+            last_LVBL <= 1'b0;
+        end else begin
+            last_LVBL <= LVBL;
+            if( !LVBL && last_LVBL && nmi_mask ) begin
+                nmi_n <= 1'b0;
+            end else if( irq_ack ) nmi_n <= 1'b1;
+        end
     end
 end
 
@@ -303,7 +387,7 @@ jtframe_z80 u_cpu(
     .cen        ( cpu_cenw    ),
     .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
-    .nmi_n      ( 1'b1        ),
+    .nmi_n      ( nmi_n       ),
     .busrq_n    ( ~bus_req    ),
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
@@ -317,4 +401,4 @@ jtframe_z80 u_cpu(
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
 );
-endmodule // jtgng_main
+endmodule
