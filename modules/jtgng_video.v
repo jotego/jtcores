@@ -17,13 +17,19 @@
     Date: 30-12-2018 */
 
 module jtgng_video #(
+// parameters from jtgng_char
+parameter CHAR_AW   = 13,
+// parameters from jtgng_scroll
 parameter SCR_TILE4 = 0,  // 3 bpp (default=0) or 4 bpp (set to 1)
+          SCR_AW    = 15,
 // parameters from jtgng_colmix:
 parameter SCRWIN        = 1,
           PALETTE_PROM  = 0,
           PALETTE_RED   = "",
           PALETTE_GREEN = "",
           PALETTE_BLUE  = "",
+// parameters from jtgng_obj
+parameter       OBJ_AW  = 16,
 parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
@@ -49,13 +55,13 @@ parameter AVATAR_MAX    = 8
     output      [ 7:0]  char_dout,
     input               char_ok,
     output              char_busy,
-    output      [12:0]  char_addr,
+    output [CHAR_AW-1:0]char_addr,
     input       [15:0]  char_data,
     // SCROLL - ROM
     input               scr_cs,
     output      [ 7:0]  scr_dout,
-    output      [14:0]  scr_addr,
-    input       [(SCR_TILE4 ? 15:23):0]  scr_data, // 16 bits if SCR_TILE4 is set
+    output [SCR_AW-1:0] scr_addr,
+    input  [(SCR_TILE4 ? 15:23):0]  scr_data, // 16 bits if SCR_TILE4 is set
     input               scr_ok,
     output              scr_busy,
     input       [ 8:0]  scr_hpos,
@@ -68,7 +74,7 @@ parameter AVATAR_MAX    = 8
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [15:0]  obj_addr,
+    output [OBJ_AW-1:0] obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -108,7 +114,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(1)) u_char (
+jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -154,7 +160,11 @@ assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
-jtgng_scroll #(.HOFFSET(0),.TILE4(SCR_TILE4)) u_scroll (
+jtgng_scroll #(
+    .HOFFSET( 0         ),
+    .TILE4  ( SCR_TILE4 ),
+    .ROM_AW ( SCR_AW    )
+) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -190,7 +200,9 @@ assign scr_dout   = 8'd0;
 `endif
 
 jtgng_obj #(
-    .AVATAR_MAX( AVATAR_MAX ))
+    .ROM_AW    ( OBJ_AW     ),
+    .AVATAR_MAX( AVATAR_MAX )
+)
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),

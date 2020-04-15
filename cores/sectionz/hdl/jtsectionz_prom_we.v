@@ -68,7 +68,7 @@ wire is_obj   = bulk_addr[21:8] >=obj_start;
 always @(posedge clk) begin
     if ( ioctl_wr && downloading ) begin
         prog_data <= ioctl_data;
-        prog_mask <= !ioctl_addr[0] ? 2'b10 : 2'b01;            
+        prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;            
         prog_addr <= {1'b0,bulk_addr[21:1]};
                   /*   is_cpu  ? bulk_addr[21:1] + CPU_OFFSET  : (
                      is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
