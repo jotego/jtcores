@@ -26,6 +26,7 @@
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CEFA2F23I7
 set_global_assignment -name TOP_LEVEL_ENTITY jtvulgus_cyclone5
+
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:14:01  APRIL 10, 2012"
 set_global_assignment -name LAST_QUARTUS_VERSION "17.1.0 Lite Edition"
@@ -45,116 +46,6 @@ set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY build
 
-# pin & location assignments
-# ==========================
-# reloj principal de 50mhz
-set_location_assignment PIN_M9 -to CLOCK_50
-
-# BOTONES
-set_location_assignment PIN_AB13 -to BTN[0]
-set_location_assignment PIN_V18 -to BTN[1]
-
-# LEDS
-set_location_assignment PIN_D17 -to LED[0]
-#set_location_assignment PIN_?? -to LED[1]
-
-# RATON
-#set_location_assignment PIN_K22 -to PS2_MCLK
-#set_location_assignment PIN_K21 -to PS2_MDAT
-
-# TECLADO
-set_location_assignment PIN_N16 -to PS2_CLK
-set_location_assignment PIN_M16 -to PS2_DATA
-# SONIDO
-set_location_assignment PIN_E7 -to AUDIO_L
-set_location_assignment PIN_D6 -to AUDIO_R
-
-# JOYS
-set_location_assignment PIN_C16 -to JOY_CLK
-set_location_assignment PIN_B16 -to JOY_LOAD
-set_location_assignment PIN_B15 -to JOY_DATA
-
-# VGA 
-set_location_assignment PIN_G8 -to VGA_R[0]
-set_location_assignment PIN_G6 -to VGA_R[1]
-set_location_assignment PIN_H6 -to VGA_R[2]
-set_location_assignment PIN_C1 -to VGA_R[3]
-set_location_assignment PIN_C2 -to VGA_R[4]
-set_location_assignment PIN_E2 -to VGA_R[5]
-#
-set_location_assignment PIN_G1 -to VGA_B[0]
-set_location_assignment PIN_L1 -to VGA_B[1]
-set_location_assignment PIN_N1 -to VGA_B[2]
-set_location_assignment PIN_U1 -to VGA_B[3]
-set_location_assignment PIN_Y3 -to VGA_B[4]
-set_location_assignment PIN_AA2 -to VGA_B[5]
-#
-set_location_assignment PIN_D3 -to VGA_G[0]
-set_location_assignment PIN_G2 -to VGA_G[1]
-set_location_assignment PIN_L2 -to VGA_G[2]
-set_location_assignment PIN_N2 -to VGA_G[3]
-set_location_assignment PIN_U2 -to VGA_G[4]
-set_location_assignment PIN_W2 -to VGA_G[5]
-#
-set_location_assignment PIN_F7 -to VGA_HS
-set_location_assignment PIN_H8 -to VGA_VS
-
-# lector de MINI-SD
-set_location_assignment PIN_M22 -to SD_CLK
-set_location_assignment PIN_K17 -to SD_MOSI
-set_location_assignment PIN_L22 -to SD_MISO
-set_location_assignment PIN_L17 -to SD_CS_N
-
-# SDRAM 
-set_location_assignment PIN_P8 -to SDRAM_A[0]
-set_location_assignment PIN_P7 -to SDRAM_A[1]
-set_location_assignment PIN_N8 -to SDRAM_A[2]
-set_location_assignment PIN_N6 -to SDRAM_A[3]
-set_location_assignment PIN_U6 -to SDRAM_A[4]
-set_location_assignment PIN_U7 -to SDRAM_A[5]
-set_location_assignment PIN_V6 -to SDRAM_A[6]
-set_location_assignment PIN_U8 -to SDRAM_A[7]
-set_location_assignment PIN_T8 -to SDRAM_A[8]
-set_location_assignment PIN_W8 -to SDRAM_A[9]
-set_location_assignment PIN_R6 -to SDRAM_A[10]
-set_location_assignment PIN_T9 -to SDRAM_A[11]
-set_location_assignment PIN_Y9 -to SDRAM_A[12]
-#
-set_location_assignment PIN_AA12 -to SDRAM_DQ[0]
-set_location_assignment PIN_Y11 -to SDRAM_DQ[1]
-set_location_assignment PIN_AA10 -to SDRAM_DQ[2]
-set_location_assignment PIN_AB10 -to SDRAM_DQ[3]
-set_location_assignment PIN_Y10 -to SDRAM_DQ[4]
-set_location_assignment PIN_AA9 -to SDRAM_DQ[5]
-set_location_assignment PIN_AB8 -to SDRAM_DQ[6]
-set_location_assignment PIN_AA8 -to SDRAM_DQ[7]
-set_location_assignment PIN_U10 -to SDRAM_DQ[8]
-set_location_assignment PIN_T10 -to SDRAM_DQ[9]
-set_location_assignment PIN_U11 -to SDRAM_DQ[10]
-set_location_assignment PIN_R10 -to SDRAM_DQ[11]
-set_location_assignment PIN_R11 -to SDRAM_DQ[12]
-set_location_assignment PIN_U12 -to SDRAM_DQ[13]
-set_location_assignment PIN_R12 -to SDRAM_DQ[14]
-set_location_assignment PIN_P12 -to SDRAM_DQ[15]
-#
-set_location_assignment PIN_V9 -to SDRAM_CKE
-set_location_assignment PIN_AB11 -to SDRAM_CLK
-set_location_assignment PIN_AA7 -to SDRAM_nCAS
-set_location_assignment PIN_AB6 -to SDRAM_nRAS
-set_location_assignment PIN_W9 -to SDRAM_nWE
-set_location_assignment PIN_AB5 -to SDRAM_nCS
-#
-set_location_assignment PIN_T7 -to SDRAM_BA[0]
-set_location_assignment PIN_P9 -to SDRAM_BA[1]
-set_location_assignment PIN_AB7 -to SDRAM_DQML
-set_location_assignment PIN_V10 -to SDRAM_DQMH
-
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MCLK
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MDAT
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_CLK
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_DATA
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY_DATA
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_MISO
 set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
 
 set_global_assignment -name ENABLE_SIGNALTAP OFF
@@ -174,19 +65,6 @@ set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
-#############################################################################
-
-set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTVULGUS\""
-set_global_assignment -name VERILOG_MACRO "GAMETOP=jt1942_game"
-set_global_assignment -name VERILOG_MACRO "CORETOP=jtvulgus_cyclone5"
-set_global_assignment -name VERILOG_MACRO "VERTICAL_SCREEN=1"
-set_global_assignment -name VERILOG_MACRO "HAS_TESTMODE=1"
-set_global_assignment -name VERILOG_MACRO "VULGUS=1"
-set_global_assignment -name VERILOG_MACRO "SIGNED_SND=0"
-#set_global_assignment -name VERILOG_MACRO "DAC_SIMPLE=1"
-set_global_assignment -name VERILOG_MACRO "SCAN2X_TYPE=0"
-set_global_assignment -name VERILOG_MACRO "JTGNG_VGA=0"
-
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 
@@ -199,59 +77,12 @@ set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
+#############################################################################
+source ../../../modules/jtframe/hdl/cyclone5/cyclone5_pines.tcl
+source jtvulgus.tcl
+#############################################################################
 
+set_global_assignment -name QIP_FILE ../../../modules/jtframe/hdl/cyclone5/cyclone5.qip
 set_global_assignment -name VHDL_FILE ../cyclone5/CtrlROM_VULGUS.vhd
-set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtgng_cyclone5.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtframe_cyclone5.sv
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_base.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_keyboard.v
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpupkg.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/zpu_core_flex.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/spi.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/interrupt_controller.vhd
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/cyclone5/CtrlModule/CtrlModule.vhd
-set_global_assignment -name QIP_FILE ../../modules/jtframe/hdl/cyclone5/reloj_cyclone5/pll.qip
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cyclone5/jtgng_cyclone5_board.v
-set_global_assignment -name QIP_FILE ../../1942/hdl/jt1942.qip
-set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtframe/hdl/mister/sys/video_cleaner.sv
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/ram/jtgng_dual_clk_ram.v
-set_global_assignment -name QIP_FILE ../../modules/t80/T80.qip
-set_global_assignment -name QIP_FILE ../../modules/jt12/jt49/hdl/jt49.qip
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_dual_ram.v
-set_global_assignment -name QIP_FILE ../../modules/jtgng_video.qip
-set_global_assignment -name QIP_FILE ../../modules/jtgng_rom.qip
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/ram/jtgng_prom.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_tilemap.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_sh.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_objdraw.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_objdma.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_objbuf.v
-set_global_assignment -name QIP_FILE ../../modules/jt12/hdl/jt03.qip
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_obj.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_charmsg.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_char.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/cpu/jtframe_z80.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_sound.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_romrq.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/jt12_rst.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_timer.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_rom.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_cen.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtgng_vgapxl.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtgng_vga.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/video/jtframe_scan2xsl.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/jtgng_sdram.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/jtframe_dip.v
-set_global_assignment -name VHDL_FILE ../../modules/jtframe/hdl/keyboard/ps2_intf.vhd
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/sound/hybrid_pwm_sd.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/sound/hifi_1bit_dac.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtgng_romflex.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_interpol.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_comb.v
-set_global_assignment -name VERILOG_FILE ../../modules/jt12/hdl/mixer/jt12_mixer.v
-set_global_assignment -name CDF_FILE jtgng.cdf
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/jtframe_z80wait.v
-set_global_assignment -name VERILOG_FILE ../../modules/jtframe/hdl/ram/jtgng_ram.v
-set_global_assignment -name SYSTEMVERILOG_FILE ../../modules/jtframe/hdl/mist/rgb2ypbpr.sv
+set_global_assignment -name QIP_FILE ../../1942/hdl/jtvulgus.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
