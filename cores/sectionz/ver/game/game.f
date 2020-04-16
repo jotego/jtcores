@@ -1,4 +1,6 @@
 ../../hdl/jtsectionz_game.v
+../../hdl/jtsectionz_video.v
+../../hdl/jtsectionz_colmix.v
 ../../hdl/jtsectionz_prom_we.v
 ../../../commando/hdl/jtcommando_main.v
 ../../../modules/jtgng_timer.v
