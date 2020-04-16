@@ -165,7 +165,7 @@ always @(posedge clk) if(cen6) begin
             3: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
-            4: begin // Black Tiger
+            4,5: begin // Black Tiger
                 scr_addr[5] <= HS[3]^scr_hflip0;
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end

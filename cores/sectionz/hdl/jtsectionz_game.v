@@ -98,8 +98,8 @@ wire [ 7:0] snd_data;
 wire [16:0] main_addr;
 wire [14:0] snd_addr;
 wire [13:0] char_addr;
-wire [17:0] scr_addr;
-wire [17:0] obj_addr;
+wire [16:0] scr_addr;
+wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 wire rom_ready;
@@ -338,8 +338,8 @@ always @(posedge clk) pause <= ~dip_pause;
 
 jtgng_video #(
     .CHAR_AW      ( 14    ),
-    .SCR_AW       ( 18    ),
-    .OBJ_AW       ( 18    ),
+    .SCR_AW       ( 17    ),
+    .OBJ_AW       ( 17    ),
     .SCR_TILE4    ( 1     ),
     .OBJ_PAL      ( 2'b10 ),
     .PALETTE_PROM ( 0     ),
@@ -418,10 +418,10 @@ jtframe_rom #(
     .SLOT8_AW    ( 18              ), // OBJ
 
     .SLOT0_DW    ( 16              ), // Char
-    .SLOT1_DW    ( 16              ), // Scroll
+    .SLOT1_DW    ( 17              ), // Scroll
     .SLOT6_DW    (  8              ), // Sound
     .SLOT7_DW    (  8              ), // Main
-    .SLOT8_DW    ( 16              ), // OBJ
+    .SLOT8_DW    ( 17              ), // OBJ
 
     .SLOT0_OFFSET( CHAR_OFFSET ),
     .SLOT1_OFFSET( SCR_OFFSET  ),
