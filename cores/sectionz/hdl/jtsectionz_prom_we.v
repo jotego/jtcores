@@ -112,10 +112,10 @@ always @(posedge clk) begin
                 prog_addr     <= scr_addr;
                 if( scr_rewr[1] || scr_rewr[3] ) scr_addr <= scr_addr+1;
                 casez( scr_rewr )
-                    4'b???1: prog_data <= { prev_data[11: 8], prev_data[ 3: 0] };
-                    4'b??10: prog_data <= { prev_data[27:24], prev_data[19:16] };
-                    4'b?100: prog_data <= { prev_data[15:12], prev_data[ 7: 4] };
-                    4'b1000: prog_data <= { prev_data[31:28], prev_data[23:20] };
+                    4'b0001: prog_data <= { prev_data[15:12], prev_data[ 7: 4] };
+                    4'b0010: prog_data <= { prev_data[31:28], prev_data[23:20] };
+                    4'b0100: prog_data <= { prev_data[11: 8], prev_data[ 3: 0] };
+                    4'b1000: prog_data <= { prev_data[27:24], prev_data[19:16] };
                 endcase
                 prog_mask <= scr_rewr[0] || scr_rewr[2] ?  2'b10 : 2'b01;
             end
