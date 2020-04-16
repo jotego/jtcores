@@ -187,8 +187,8 @@ wire [7:0] main_ram;
 localparam [21:0] CPU_OFFSET  = 22'h0;
 localparam [21:0] SND_OFFSET  = 22'h1_8000 >> 1;
 localparam [21:0] CHAR_OFFSET = 22'h2_0000 >> 1;
-localparam [21:0] SCR_OFFSET  = 22'h2_4000 >> 1;
-localparam [21:0] OBJ_OFFSET  = 22'h5_C000 >> 1;
+localparam [21:0] SCR_OFFSET  = 22'h4_0000 >> 1;
+localparam [21:0] OBJ_OFFSET  = 22'h8_0000 >> 1;
 
 jtsectionz_prom_we #(
     .CPU_OFFSET     ( CPU_OFFSET    ),

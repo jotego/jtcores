@@ -65,24 +65,52 @@ wire is_char  = bulk_addr[21:8] < scr_start  && bulk_addr[21:8]>=char_start;
 wire is_scr   = bulk_addr[21:8] < obj_start  && bulk_addr[21:8]>=scr_start;
 wire is_obj   = bulk_addr[21:8] >=obj_start;
 
+reg [7:0] scr_buf, last_data;
+reg       scr_rewr;
+
+`ifdef SIMULATION
+initial begin
+    scr_rewr = 1'b0;
+end
+`endif
+
 always @(posedge clk) begin
     if ( ioctl_wr && downloading ) begin
-        prog_data <= ioctl_data;
-        prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;            
-        prog_addr <= is_cpu  ? bulk_addr[21:1] + CPU_OFFSET  : (
-                     is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
-                     is_char ? char_addr[21:1] + CHAR_OFFSET : (
-                     is_scr  ?  scr_addr[21:1] + SCR_OFFSET  : obj_addr[21:1] + OBJ_OFFSET )));
+        last_data <= ioctl_data;
+        if( is_scr ) begin
+            if( ioctl_addr[0] ) begin
+                prog_data <= { ioctl_data[3:0], last_data[3:0] };
+                scr_buf   <= { ioctl_data[7:4], last_data[7:4] };
+                scr_rewr  <= 1'b1;
+                prog_we   <= 1'b1;
+                prog_addr <= scr_addr[21:1] + SCR_OFFSET;
+                prog_mask <= 2'b10;
+            end
+        end else begin
+            prog_data <= ioctl_data;
+            prog_addr <= is_cpu  ? bulk_addr[21:1] + CPU_OFFSET  : (
+                         is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
+                         is_char ? char_addr[21:1] + CHAR_OFFSET : (
+                         obj_addr[21:1] + OBJ_OFFSET )));
+            scr_rewr  <= 1'b0;
+            prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;            
+        end
         if( ioctl_addr < FULL_HEADER ) begin
             if( ioctl_addr[3:0]==4'd0 ) game_cfg <= ioctl_data;
             if( is_start ) starts  <= { starts[STARTW-9:0], ioctl_data };
             prog_we <= 1'b0;
-        end else begin
+        end else if(!is_scr) begin
             prog_we <= 1'b1;
         end
     end
     else begin
         if(!downloading || sdram_ack) prog_we  <= 1'b0;
+        else if( !prog_we && scr_rewr ) begin
+            prog_we       <= 1'b1;
+            scr_rewr      <= 1'b0;
+            prog_data     <= scr_buf;
+            prog_mask     <= 2'b01;
+        end
     end
 end
 
