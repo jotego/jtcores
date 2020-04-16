@@ -1,6 +1,8 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../commando/hdl/jtcommando_main.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtsectionz_game.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtsectionz_prom_we.v   ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtsectionz_video.v   ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtsectionz_colmix.v   ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jt12/hdl/jt12_rst.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/ram/jtframe_prom.v      ]

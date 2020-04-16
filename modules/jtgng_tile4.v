@@ -26,7 +26,7 @@ module jtgng_tile4 #(parameter
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1,
-    PXLW        = LAYOUT==3 ? 9 : (PALETTE?6:8)
+    PXLW        = LAYOUT==3 ? 9 : ( LAYOUT==5 ? 7 : (PALETTE?6:8))
 ) (
     input              clk,
     input              cen6,

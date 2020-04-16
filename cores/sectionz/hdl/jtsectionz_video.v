@@ -14,37 +14,30 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 30-12-2018 */
+    Date: 4-4-2020 */
 
-module jtgng_video #(
-// parameters from jtgng_char
-parameter CHAR_AW   = 13,
-// parameters from jtgng_scroll
-parameter SCR_TILE4 = 0,  // 3 bpp (default=0) or 4 bpp (set to 1)
-          SCR_AW    = 15,
-// parameters from jtgng_colmix:
-parameter SCRWIN        = 1,
-          PALETTE_PROM  = 0,
-          PALETTE_RED   = "",
-          PALETTE_GREEN = "",
-          PALETTE_BLUE  = "",
-// parameters from jtgng_obj
-parameter       OBJ_AW  = 16,
-            OBJ_LAYOUT  = 0,
-parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
-    // These two bits mark the region of the palette RAM/PROM where
-    // palettes for objects are stored
-    
-// parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8
-) (
+/*
+    .SCR_AW       ( SCRW  ),
+    .SCR_TILE4    ( 1     ),
+    .OBJ_AW       ( OBJW  ),
+    .OBJ_LAYOUT   ( 4     ),
+    .OBJ_PAL      ( 2'b10 ),
+    .PALETTE_PROM ( 0     ),
+    .SCRWIN       ( 0     ),
+    .AVATAR_MAX   ( 9     )
+*/
+
+module jtsectionz_video#(
+    parameter SCRW = 18,
+    parameter OBJW = 17
+)(
     input               rst,
     input               clk,
     input               cen12,
     input               cen6,
     input               cen3,
     input               cpu_cen,
-    input       [10:0]  cpu_AB,
+    input       [11:0]  cpu_AB,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
     input               RnW,
@@ -56,17 +49,19 @@ parameter AVATAR_MAX    = 8
     output      [ 7:0]  char_dout,
     input               char_ok,
     output              char_busy,
-    output [CHAR_AW-1:0]char_addr,
+    output      [13:0]  char_addr,
     input       [15:0]  char_data,
     // SCROLL - ROM
     input               scr_cs,
     output      [ 7:0]  scr_dout,
-    output [SCR_AW-1:0] scr_addr,
-    input  [(SCR_TILE4 ? 15:23):0]  scr_data, // 16 bits if SCR_TILE4 is set
+    output  [SCRW-1:0]  scr_addr,
+    input       [15:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
-    input       [ 8:0]  scr_hpos,
-    input       [ 8:0]  scr_vpos,
+    input       [10:0]  scr_hpos,
+    input       [10:0]  scr_vpos,
+    input       [ 1:0]  scr_bank,
+    input               scr_layout,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -75,7 +70,7 @@ parameter AVATAR_MAX    = 8
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output [OBJ_AW-1:0] obj_addr,
+    output  [OBJW-1:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
@@ -86,11 +81,9 @@ parameter AVATAR_MAX    = 8
     output              LHBL_dly,
     output              LVBL_dly,
     // Palette PROMs
-    input       [7:0]   prog_addr,
-    input               prom_red_we,
-    input               prom_green_we,
-    input               prom_blue_we,
-    input       [3:0]   prom_din,  
+    // input       [7:0]   prog_addr,
+    // input               prom_prior_we,
+    // input       [3:0]   prom_din,  
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -101,28 +94,27 @@ parameter AVATAR_MAX    = 8
     output      [3:0]   blue
 );
 
-wire [5:0] char_pxl;
-wire [5:0] obj_pxl;
-wire scrwin;
-wire [(SCR_TILE4?3:2):0] scr_col;
-wire [2:0] scr_pal;
+localparam AVATAR_MAX   = 9;
+
+localparam PXL_CHRW=6;
+
+wire [PXL_CHRW-1:0] char_pxl;
+wire [6:0] obj_pxl;
+wire [6:0] scr_pxl;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
-
-`ifdef NOVIDEO
-`define NOCHAR
-`define NOSCR
-`define NOOBJ
-`define NOCOLMIX
-`endif
 
 `ifndef NOCHAR
 
 wire [7:0] char_msg_low;
-wire [7:0] char_msg_high;
+wire [7:0] char_msg_high=8'h0;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
+jtgng_char #(
+    .HOFFSET ( 0),
+    .ROM_AW  (14),
+    .PALW    ( 4)
+) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -155,23 +147,35 @@ jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
     .prom_we    (               )
 );
 
-jtgng_charmsg u_msg(
+jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .clk         ( clk           ),
     .cen6        ( cen6          ),
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high ) 
+    .msg_high    (               ) 
 );
 `else
+assign char_pxl  = ~7'd0;
 assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
+// wire [7:0] scr_pre;
+// 
+// jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
+//     .clk    ( clk      ),
+//     .clk_en ( cen6     ),
+//     .din    ( scr_pre  ),
+//     .drop   ( scr_pxl  )
+// );
+
 jtgng_scroll #(
-    .HOFFSET( 0         ),
-    .TILE4  ( SCR_TILE4 ),
-    .ROM_AW ( SCR_AW    )
+    .HOFFSET( 0     ),
+    .ROM_AW ( SCRW  ),
+    .TILE4  ( 1     ),
+    .LAYOUT ( 5     ),
+    .PALW   ( 3     )
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -195,24 +199,25 @@ jtgng_scroll #(
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
     // pixel output
-    .scr_col    ( scr_col       ),
-    .scr_pal    ( { scrwin, scr_pal } )
+    .scr_pal    ( scr_pxl[6:5]  ),
+    .scr_col    ( scr_pxl[3:0]  )
 );
 `else
-assign scr_busy   = 1'b1;
-assign scr_col    = 0;
-assign scr_pal    = 3'd0;
-assign scrwin     = 1'd0;
-assign scr_addr   = 15'd0;
+assign scr_busy   = 1'b0;
+assign scr_pxl    = 7'h7f;
+assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 `endif
 
 `ifndef NOOBJ
 jtgng_obj #(
-    .ROM_AW    ( OBJ_AW     ),
-    .LAYOUT    ( OBJ_LAYOUT ),
-    .AVATAR_MAX( AVATAR_MAX )
-)
+    .ROM_AW       ( OBJW        ),
+    .PALW         (  3          ),
+    .PXL_DLY      (  8          ),    
+    .LAYOUT       (  4          ),
+    // Avatar parameters
+    .AVATAR_MAX   ( AVATAR_MAX  ),
+    .VERTICAL     ( 0           ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -249,38 +254,33 @@ u_obj (
     .OBJON      ( 1'b1        )
 );
 `else 
-assign obj_addr = {OBJ_AW{1'b0}};
-assign obj_pxl  = 6'd0;
-assign bus_req  = 1'b0;
+assign blcnten = 1'b0;
+assign bus_req = 1'b0;
+assign obj_pxl = ~6'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtgng_colmix #(
-    .SCRWIN       ( SCRWIN       ),
-    .OBJ_PAL      ( OBJ_PAL      ),
-    .PALETTE_PROM ( PALETTE_PROM ),
-    .PALETTE_RED  ( PALETTE_RED  ),
-    .PALETTE_GREEN( PALETTE_GREEN),
-    .PALETTE_BLUE ( PALETTE_BLUE )
-)u_colmix (
+jtsectionz_colmix #(
+    .CHARW  (   PXL_CHRW    )
+)
+u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
+    .cen12        ( cen12         ),
     .cen6         ( cen6          ),
 
     .char_pxl     ( char_pxl      ),
-    .scr_pxl      ( {scrwin, scr_pal, scr_col} ),
+    .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
     .LHBL_dly     ( LHBL_dly      ),
     .LVBL_dly     ( LVBL_dly      ),
 
-    // PROMs
-    .prog_addr    ( prog_addr     ),
-    .prom_red_we  ( prom_red_we   ),
-    .prom_green_we( prom_green_we ),
-    .prom_blue_we ( prom_blue_we  ),
-    .prom_din     ( prom_din      ),    
+    // Priority PROM
+    // .prog_addr    ( prog_addr     ),
+    // .prom_prior_we( prom_prior_we ),
+    // .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),
@@ -290,7 +290,7 @@ jtgng_colmix #(
     .gfx_en       ( gfx_en        ),
 
     // CPU interface
-    .AB           ( cpu_AB[7:0]   ),
+    .AB           ( cpu_AB[9:0]   ),
     .blue_cs      ( blue_cs       ),
     .redgreen_cs  ( redgreen_cs   ),
     .DB           ( cpu_dout      ),
@@ -306,4 +306,4 @@ assign blue = 4'd0;
 assign green= 4'd0;
 `endif
 
-endmodule // jtgng_video
+endmodule

@@ -338,16 +338,10 @@ wire scr_ok, char_ok;
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
-jtgng_video #(
-    .CHAR_AW      ( 14    ),
-    .SCR_AW       ( SCRW  ),
-    .OBJ_AW       ( OBJW  ),
-    .SCR_TILE4    ( 1     ),
-    .OBJ_PAL      ( 2'b10 ),
-    .PALETTE_PROM ( 0     ),
-    .SCRWIN       ( 0     ),
-    .AVATAR_MAX   ( 9     )
-) u_video(
+jtsectionz_video #(
+    .SCRW   ( SCRW      )
+)
+u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
@@ -392,11 +386,11 @@ jtgng_video #(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // PROMs -- unused --
-    .prog_addr    ( 8'd0        ),
-    .prom_red_we  ( 1'b0        ),
-    .prom_green_we( 1'b0        ),
-    .prom_blue_we ( 1'b0        ),
-    .prom_din     ( 4'd0        ),
+    // .prog_addr    ( 8'd0        ),
+    // .prom_red_we  ( 1'b0        ),
+    // .prom_green_we( 1'b0        ),
+    // .prom_blue_we ( 1'b0        ),
+    // .prom_din     ( 4'd0        ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
