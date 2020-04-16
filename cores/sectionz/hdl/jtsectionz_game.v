@@ -89,6 +89,8 @@ wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
 
+localparam SCRW=18, OBJW=17;
+
 // ROM data
 wire [15:0] char_data, scr_data;
 wire [15:0] obj_data, obj_pre;
@@ -98,8 +100,8 @@ wire [ 7:0] snd_data;
 wire [16:0] main_addr;
 wire [14:0] snd_addr;
 wire [13:0] char_addr;
-wire [16:0] scr_addr;
-wire [16:0] obj_addr;
+wire [SCRW-1:0] scr_addr;
+wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 wire rom_ready;
@@ -338,8 +340,8 @@ always @(posedge clk) pause <= ~dip_pause;
 
 jtgng_video #(
     .CHAR_AW      ( 14    ),
-    .SCR_AW       ( 17    ),
-    .OBJ_AW       ( 17    ),
+    .SCR_AW       ( SCRW  ),
+    .OBJ_AW       ( OBJW  ),
     .SCR_TILE4    ( 1     ),
     .OBJ_PAL      ( 2'b10 ),
     .PALETTE_PROM ( 0     ),
@@ -412,16 +414,16 @@ jtgng_video #(
 // Scroll data: Z, Y, X
 jtframe_rom #(
     .SLOT0_AW    ( 14              ), // Char
-    .SLOT1_AW    ( 18              ), // Scroll
+    .SLOT1_AW    ( SCRW            ), // Scroll
     .SLOT6_AW    ( 15              ), // Sound
     .SLOT7_AW    ( 17              ), // Main
-    .SLOT8_AW    ( 18              ), // OBJ
+    .SLOT8_AW    ( OBJW            ), // OBJ
 
     .SLOT0_DW    ( 16              ), // Char
-    .SLOT1_DW    ( 17              ), // Scroll
+    .SLOT1_DW    ( 16              ), // Scroll
     .SLOT6_DW    (  8              ), // Sound
     .SLOT7_DW    (  8              ), // Main
-    .SLOT8_DW    ( 17              ), // OBJ
+    .SLOT8_DW    ( 16              ), // OBJ
 
     .SLOT0_OFFSET( CHAR_OFFSET ),
     .SLOT1_OFFSET( SCR_OFFSET  ),
