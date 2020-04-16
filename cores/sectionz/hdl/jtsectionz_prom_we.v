@@ -89,7 +89,7 @@ always @(posedge clk) begin
             prog_addr <= is_cpu  ? bulk_addr[21:1] + CPU_OFFSET  : (
                          is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
                          is_char ? char_addr[21:1] + CHAR_OFFSET : (
-                         obj_addr[21:1] + OBJ_OFFSET )));
+                         { obj_addr[21:7],obj_addr[5:2],obj_addr[6], obj_addr[1] } + OBJ_OFFSET )));
             scr_rewr  <= 1'b0;
             prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;            
         end

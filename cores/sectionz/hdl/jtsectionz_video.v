@@ -94,7 +94,8 @@ module jtsectionz_video#(
     output      [3:0]   blue
 );
 
-localparam AVATAR_MAX   = 9;
+localparam AVATAR_MAX = 9;
+localparam LAYOUT     = 5;
 
 localparam PXL_CHRW=6;
 
@@ -174,7 +175,7 @@ jtgng_scroll #(
     .HOFFSET( 0     ),
     .ROM_AW ( SCRW  ),
     .TILE4  ( 1     ),
-    .LAYOUT ( 5     ),
+    .LAYOUT (LAYOUT ),
     .PALW   ( 3     )
 ) u_scroll (
     .clk        ( clk           ),
@@ -214,7 +215,7 @@ jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
     .PXL_DLY      (  8          ),    
-    .LAYOUT       (  4          ),
+    .LAYOUT       ( LAYOUT      ),
     // Avatar parameters
     .AVATAR_MAX   ( AVATAR_MAX  ),
     .VERTICAL     ( 0           ))

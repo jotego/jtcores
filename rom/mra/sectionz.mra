@@ -37,10 +37,14 @@
             <part name="1f_sz09.bin" crc="da8f06c9" map="0001"/>
         </interleave>
         <!-- OBJ -->
-        <part name="3j_sz17.bin" crc="8df7b24a"/>
-        <part name="1j_sz11.bin" crc="685d4c54"/>
-        <part name="3h_sz16.bin" crc="500ff2bb"/>
-        <part name="1h_sz10.bin" crc="00b3d244"/>
+        <interleave output="16">
+            <part name="3j_sz17.bin" crc="8df7b24a" map="01"/>
+            <part name="3h_sz16.bin" crc="500ff2bb" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="1j_sz11.bin" crc="685d4c54" map="01"/>
+            <part name="1h_sz10.bin" crc="00b3d244" map="10"/>
+        </interleave>
     </rom>
     <buttons names="Fire,Turn around,Start,Coin,Pause" default="A,B,R,L,Start"/>
     <switches default="FF,FF">

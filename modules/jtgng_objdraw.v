@@ -120,6 +120,13 @@ always @(posedge clk) if(cen) begin
                 obj_vflip <= 1'b0;
                 objpal    <= objbuf_data[2:0];
             end
+            5: begin // Section Z
+                id[9:8]  <= objbuf_data[7:6];
+                hover     <= objbuf_data[0];
+                obj_hflip <= objbuf_data[1];
+                obj_vflip <= objbuf_data[2];
+                objpal    <= objbuf_data[5:3];
+            end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step
             Vobj    <=  Vsum[3:0];
