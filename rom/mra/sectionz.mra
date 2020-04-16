@@ -15,7 +15,7 @@
     <rom index="0" zip="sectionz.zip" md5="none">
         <!-- 32-byte Header -->
         <part> 01 00 00 00 00 00 00 00 </part>
-        <part> 01 80 02 00 02 40 05 C0 </part>
+        <part> 01 80 02 00 02 40 06 40 </part>
         <part> 08 40 FF FF FF FF FF FF </part>
         <part> FF FF FF FF FF FF FF FF </part>
         <!-- ROMs -->
@@ -31,15 +31,19 @@
         <!-- CHAR -->
         <part name="9h_sz05.bin" crc="3173ba2e"/>
         <!-- SCROLL -->
-        <part name="3e_sz14.bin" crc="63782e30"/>
-        <part name="1e_sz08.bin" crc="d57d9f13"/>
-        <part name="3d_sz13.bin" crc="1b3d4d7f"/>
-        <part name="1d_sz07.bin" crc="f5b3a29f"/>
-        <part name="3b_sz12.bin" crc="11d47dfd"/>
-        <part name="1b_sz06.bin" crc="df703b68"/>
-        <part name="3f_sz15.bin" crc="36bb9bf7"/>
+        <interleave output="32">
+            <part name="3e_sz14.bin" crc="63782e30" map="0001"/>
+            <part name="1e_sz08.bin" crc="d57d9f13" map="0010"/>
+            <part name="3d_sz13.bin" crc="1b3d4d7f" map="0100"/>
+            <part name="1d_sz07.bin" crc="f5b3a29f" map="1000"/>
+        </interleave>
+        <interleave output="32">
+            <part name="3b_sz12.bin" crc="11d47dfd" map="0001"/>
+            <part name="1b_sz06.bin" crc="df703b68" map="0010"/>
+            <part name="3f_sz15.bin" crc="36bb9bf7" map="0100"/>
+            <part name="1f_sz09.bin" crc="da8f06c9" map="1000"/>
+        </interleave>
         <!-- OBJ -->
-        <part name="1f_sz09.bin" crc="da8f06c9"/>
         <part name="3j_sz17.bin" crc="8df7b24a"/>
         <part name="1j_sz11.bin" crc="685d4c54"/>
         <part name="3h_sz16.bin" crc="500ff2bb"/>
