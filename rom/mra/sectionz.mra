@@ -5,13 +5,6 @@
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
     <rbf>jtsectionz</rbf>
-    <!--
-        Main   <98304   =  1'8000
-        Sound  <131072  =  2'0000
-        Char   <147456  =  2'4000
-        Scr    <376832  =  5'C000
-        Obj    <540672  =  8'4000
-    -->
     <rom index="0" zip="sectionz.zip" md5="none">
         <!-- 32-byte Header -->
         <part> 01 00 00 00 00 00 00 00 </part>
@@ -52,16 +45,15 @@
     <buttons names="Fire,Turn around,Start,Coin,Pause" default="A,B,R,L,Start"/>
     <switches default="FF,FF">
         <!-- A -->
-        <dip bits="7" name="Service Mode" ids="On,Off"/>
-        <dip bits="6" name="Flip Screen"  ids="On,Off"/>
-        <dip bits="4,5" name="Lives"      ids="0,8,12,4"/>
-        <dip bits="2,3" name="Coin A"     ids="1/1,2/1,3/1,4/1"/>
-        <dip bits="0,1" name="Coin B"     ids="1/1,2/1,3/1,4/1"/>
+        <dip bits="0"   name="Service Mode" ids="On,Off"/>
+        <dip bits="1"   name="Flip Screen"  ids="On,Off"/>
+        <dip bits="2,3" name="Lives"        ids="0,8,12,4"/>
+        <dip bits="4,5" name="Coin A"       ids="4/1,2/1,3/1,1/1"/>
+        <dip bits="6,7" name="Coin B"       ids="4/1,2/1,3/1,1/1"/>
         <!-- B -->
-        <dip bits="15"     name="Allow Continue" ids="No,Yes"/>
-        <dip bits="13,14"   name="Difficulty"     ids="Very hard,hard,normal,easy"/>
-        <dip bits="10,11,12" name="Bonus Life"     ids="20k 50k,20k 60k,20k 70k,30k 60k,30k 70k,30k 80k,40k 100k,None"/>
-        <dip bits="8,9"   name="Cabinet" ids="Upright 1P,Upright 2P,Cocktail"/>
+        <dip bits="8"     name="Allow Continue" ids="No,Yes"/>
+        <dip bits="9,10"  name="Difficulty"     ids="Very hard,easy,hard,normal"/>
+        <dip bits="11,13" name="Bonus Life"     ids="Bonus item,30k 60k,30k 80k,20k 60k,40k 100k,20k 70k,30k 70k,20k 50k"/>
+        <dip bits="14,15" name="Cabinet"        ids="Upright 1P,Upright 2P,Cocktail"/>
     </switches>
-
 </misterromdescription>
