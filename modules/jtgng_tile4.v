@@ -21,6 +21,8 @@ module jtgng_tile4 #(parameter
     ROM_AW      = 17,
     LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
                       // 3: Tiger Road
+                      // 4: Black Tiger
+                      // 5: Legendary Wings / Section Z
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1,
@@ -87,6 +89,10 @@ always @(*) begin
             scr_hflip = attr[7]^flip;
             scr_vflip = 1'b0;
         end
+        5: begin // Legendary Wings / Section Z
+            scr_hflip = attr[3]^flip;
+            scr_vflip = attr[4];
+        end
     endcase
 end
 
@@ -127,6 +133,15 @@ always @(posedge clk) if(cen6) begin
         4: begin // Black Tiger, 16x16 tiles
             scr_attr0      <= attr[6:3];
             scr_addr       <= { attr[2:0], id, // AS
+                            HS[3]^scr_hflip,
+                            SV[3:0]^{4{flip}},
+                            HS[2]^scr_hflip
+                            };
+            scr_hflip0     <= scr_hflip;            
+        end
+        5: begin // Legendary Wings, Section Z, 16x16 tiles
+            scr_attr0      <= attr[2:0];
+            scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
                             HS[3]^scr_hflip,
                             SV[3:0]^{4{flip}},
                             HS[2]^scr_hflip

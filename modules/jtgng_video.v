@@ -108,6 +108,13 @@ wire [2:0] scr_pal;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
+`ifdef NOVIDEO
+`define NOCHAR
+`define NOSCR
+`define NOOBJ
+`define NOCOLMIX
+`endif
+
 `ifndef NOCHAR
 
 wire [7:0] char_msg_low;
@@ -199,6 +206,7 @@ assign scr_addr   = 15'd0;
 assign scr_dout   = 8'd0;
 `endif
 
+`ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW    ( OBJ_AW     ),
     .AVATAR_MAX( AVATAR_MAX )
@@ -238,6 +246,11 @@ u_obj (
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
+`else 
+assign obj_addr = {OBJ_AW{1'b0}};
+assign obj_pxl  = 6'd0;
+assign bus_req  = 1'b0;
+`endif
 
 `ifndef NOCOLMIX
 jtgng_colmix #(

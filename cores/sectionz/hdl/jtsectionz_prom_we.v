@@ -38,7 +38,7 @@ parameter [21:0] CHAR_OFFSET=22'h0;
 parameter [21:0] SCR_OFFSET=22'h0;
 parameter [21:0] OBJ_OFFSET=22'h0;
 
-localparam START_BYTES  = 8*2;
+localparam START_BYTES  = 8;
 localparam START_HEADER = 32;
 localparam STARTW=8*START_BYTES;
 localparam [21:0] FULL_HEADER = START_HEADER;
