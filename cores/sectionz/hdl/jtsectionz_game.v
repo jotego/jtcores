@@ -348,7 +348,7 @@ u_video(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
-    .cpu_AB     ( cpu_AB[10:0]  ),
+    .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .RnW        ( RnW           ),

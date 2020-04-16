@@ -22,7 +22,7 @@ module jtgng_tile4 #(parameter
     LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
                       // 3: Tiger Road
                       // 4: Black Tiger
-                      // 5: Legendary Wings / Section Z
+                      // 5: Legendary Wings / Section Z (3 palette bits)
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1,
@@ -47,7 +47,7 @@ module jtgng_tile4 #(parameter
     output [PXLW-1:0] scr_pxl
 );
 
-localparam ATTW = LAYOUT==3 ? 5 : 4;
+localparam ATTW = LAYOUT==3 ? 5 : ( LAYOUT==5 ? 3 : 4);
 
 `ifdef SIMULATION
 initial $display("INFO: LAYOUT %2d for %m", LAYOUT);

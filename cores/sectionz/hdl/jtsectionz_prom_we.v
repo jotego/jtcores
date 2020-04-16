@@ -84,7 +84,7 @@ always @(posedge clk) begin
                 scr_rewr  <= 1'b1;
                 prog_we   <= 1'b1;
                 prog_addr <= scr_addr[21:1] + SCR_OFFSET;
-                prog_mask <= 2'b10;
+                prog_mask <= 2'b01;
             end
         end else begin
             prog_data <= ioctl_data;
@@ -109,7 +109,7 @@ always @(posedge clk) begin
             prog_we       <= 1'b1;
             scr_rewr      <= 1'b0;
             prog_data     <= scr_buf;
-            prog_mask     <= 2'b01;
+            prog_mask     <= 2'b10;
         end
     end
 end
