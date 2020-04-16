@@ -87,7 +87,7 @@ always @(posedge clk) if(cen6) begin
 
     pixel_mux[9:8] <= selbus;
     case( selbus )
-        2'b10: pixel_mux[7:0] <= { {(8-CHARW){1'b0}}, char0[5:2], char[0], char[1] };
+        2'b10: pixel_mux[7:0] <= { {(8-CHARW){1'b0}}, char0[5:2], char0[0], char0[1] };
         2'b00: pixel_mux[7:0] <= { 1'b0, scr0 };
         2'b01: begin
             pixel_mux[7:0] <= { 1'b1, obj0 };

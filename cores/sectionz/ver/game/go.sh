@@ -25,4 +25,5 @@ echo "Game ROM length: " $GAME_ROM_LEN
     -sysname sectionz -modules ../../../modules \
     -d BUTTONS=2 \
     -d COLORW=4  \
+    -d JTFRAME_SIM_LOAD_EXTRA=24 \
     -d SCANDOUBLER_DISABLE=1 $*

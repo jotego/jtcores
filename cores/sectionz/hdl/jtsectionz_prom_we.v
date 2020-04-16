@@ -55,7 +55,7 @@ wire [21:0] bulk_addr  = ioctl_addr - FULL_HEADER; // the header is excluded
 wire [21:0] cpu_addr   = bulk_addr ; // the header is excluded
 wire [21:0] snd_addr   = bulk_addr - { snd_start,  8'd0 };
 wire [21:0] char_addr  = bulk_addr - { char_start, 8'd0 };
-wire [21:0] scr_addr   = bulk_addr - { scr_start,  8'd0 };
+//wire [21:0] scr_addr   = bulk_addr - { scr_start,  8'd0 };
 wire [21:0] obj_addr   = bulk_addr - { obj_start,  8'd0 };
 
 wire is_start = ioctl_addr > 7 && ioctl_addr < (8+START_BYTES);
@@ -65,26 +65,24 @@ wire is_char  = bulk_addr[21:8] < scr_start  && bulk_addr[21:8]>=char_start;
 wire is_scr   = bulk_addr[21:8] < obj_start  && bulk_addr[21:8]>=scr_start;
 wire is_obj   = bulk_addr[21:8] >=obj_start;
 
-reg [7:0] scr_buf, last_data;
-reg       scr_rewr;
+reg [7:0] scr_buf;
+reg [3:0] scr_rewr;
+reg [31:0] prev_data;
 
 `ifdef SIMULATION
 initial begin
-    scr_rewr = 1'b0;
+    scr_rewr = 4'b0;
 end
 `endif
 
+reg [21:0] scr_addr;
+
 always @(posedge clk) begin
     if ( ioctl_wr && downloading ) begin
-        last_data <= ioctl_data;
+        prev_data <= { ioctl_data, prev_data[31:8] };
         if( is_scr ) begin
-            if( ioctl_addr[0] ) begin
-                prog_data <= { ioctl_data[3:0], last_data[3:0] };
-                scr_buf   <= { ioctl_data[7:4], last_data[7:4] };
-                scr_rewr  <= 1'b1;
-                prog_we   <= 1'b1;
-                prog_addr <= scr_addr[21:1] + SCR_OFFSET;
-                prog_mask <= 2'b01;
+            if( ioctl_addr[1:0]==2'b11 ) begin
+                scr_rewr <= 4'b1;
             end
         end else begin
             prog_data <= ioctl_data;
@@ -105,11 +103,22 @@ always @(posedge clk) begin
     end
     else begin
         if(!downloading || sdram_ack) prog_we  <= 1'b0;
-        else if( !prog_we && scr_rewr ) begin
-            prog_we       <= 1'b1;
-            scr_rewr      <= 1'b0;
-            prog_data     <= scr_buf;
-            prog_mask     <= 2'b10;
+        else if( !prog_we ) begin
+            if( !is_scr )
+                scr_addr <= SCR_OFFSET;
+            else if( scr_rewr ) begin
+                prog_we       <= 1'b1;
+                scr_rewr      <= scr_rewr<<1;
+                prog_addr     <= scr_addr;
+                if( scr_rewr[1] || scr_rewr[3] ) scr_addr <= scr_addr+1;
+                casez( scr_rewr )
+                    4'b???1: prog_data <= { prev_data[11: 8], prev_data[ 3: 0] };
+                    4'b??10: prog_data <= { prev_data[27:24], prev_data[19:16] };
+                    4'b?100: prog_data <= { prev_data[15:12], prev_data[ 7: 4] };
+                    4'b1000: prog_data <= { prev_data[31:28], prev_data[23:20] };
+                endcase
+                prog_mask <= scr_rewr[0] || scr_rewr[2] ?  2'b10 : 2'b01;
+            end
         end
     end
 end
