@@ -25,7 +25,6 @@ module jtgng_timer(
     output  reg         Hinit = 1'b0,
     output  reg         Vinit = 1'b1,
     output  reg         LHBL = 1'b0,
-    output  reg         LHBL_obj = 1'b0,
     output  reg         LVBL = 1'b0,
     output  reg         LVBL_obj = 1'b0,
     output  reg         HS = 1'b0,
@@ -33,6 +32,7 @@ module jtgng_timer(
 );
 
 parameter obj_offset=10'd3;
+parameter LAYOUT=0; // 0 for most games, 5 for Section Z (240px height)
 
 //reg LHBL_short;
 //reg G4_3H;  // high on 3/4 H transition
@@ -52,16 +52,16 @@ always @(posedge clk) if(cen6) begin
     end
 end
 
+reg LVBL_x;
+
 // V Counter
 always @(posedge clk) if(cen6) begin
     if( H == 9'd511 ) begin
         Vinit <= &V;
         V <= &V ? 9'd250 : V + 1'd1;
+        { LVBL, LVBL_x } <= { LVBL_x, LVBL_obj };
     end
 end
-
-wire [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd135-obj_offset+10'd512-10'd128;
-wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 
 // L Horizontal/Vertical Blanking
 // Objects are drawn using a 2-line buffer
@@ -72,17 +72,22 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // I often just generates the signals with logic
 // LVBL_obj is such a signal. In CAPCOM schematics
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
+
+localparam [8:0] VB_START = LAYOUT != 5 ? 9'd494 : 9'd502;
+localparam [8:0] VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262;
+
+//localparam [8:0] VS_START = LAYOUT != 5 ? 9'd507 : 9'd502;
+//localparam [8:0] VS_END   = LAYOUT != 5 ? 9'd510 : 9'd262;
+
+wire bl_switch = H[2:0]==3'b111; //LAYOUT != 5 ? (H[2:0]==3'b111) : (H[2:0]==3'd0);
+
 always @(posedge clk) if(cen6) begin
-    if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
-    if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
-    if( &H[2:0] ) begin
+    if( bl_switch ) begin
         LHBL <= H[8];
         case( V )
-            9'd496: LVBL <= 1'b0; // h1F0
-            9'd272: LVBL <= 1'b1; // h110
             // OBJ LVBL is two lines ahead
-            9'd494: LVBL_obj <= 1'b0;
-            9'd270: LVBL_obj <= 1'b1;
+            VB_START: LVBL_obj <= 1'b0;
+            VB_END:   LVBL_obj <= 1'b1;
             default:;
         endcase // V
     end
@@ -94,8 +99,6 @@ always @(posedge clk) if(cen6) begin
     end
 
     if (H==9'd206) HS <= 0;
-    // if (H==9'd136) LHBL_short <= 1'b0;
-    // if (H==9'd248) LHBL_short <= 1'b1;
 end
 
 endmodule // jtgng_timer
