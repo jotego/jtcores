@@ -33,19 +33,25 @@ module jtgng_timer(
 );
 
 parameter obj_offset=10'd3;
-parameter LAYOUT=0; // 0 for most games, 5 for Section Z (240px height)
+// 0 for most games (224px height, 59.64Hz)
+// 5 for Section Z  (240px height, 55.37Hz)
+parameter LAYOUT=0;
 
-//reg LHBL_short;
-//reg G4_3H;  // high on 3/4 H transition
-//reg G4H;    // high on 4H transition
-//reg OH;     // high on 0H transition
+localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
+                 VB_START = LAYOUT != 5 ? 9'd494 : 9'd502,
+                 VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262,
+                 VS_START = LAYOUT != 5 ? 9'd507 : 9'd245,
+                 // VS length doesn't affect position
+                 VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2),
+                 // H signals
+                 H_START  = LAYOUT != 5 ? 9'd128 : 9'd125;
 
 // H counter
 always @(posedge clk) if(cen6) begin
     Hinit <= H == 9'h86;
     if( H == 9'd511 ) begin
         //Hinit <= 1'b1;
-        H <= 9'd128;
+        H <= H_START;
     end
     else begin
         //Hinit <= 1'b0;
@@ -54,13 +60,6 @@ always @(posedge clk) if(cen6) begin
 end
 
 reg LVBL_x;
-
-localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
-                 VB_START = LAYOUT != 5 ? 9'd494 : 9'd502,
-                 VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262,
-                 VS_START = LAYOUT != 5 ? 9'd507 : 9'd245,
-                 // VS length doesn't affect position
-                 VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2);
 
 // V Counter
 always @(posedge clk) if(cen6) begin
