@@ -55,11 +55,18 @@ end
 
 reg LVBL_x;
 
+localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
+                 VB_START = LAYOUT != 5 ? 9'd494 : 9'd502,
+                 VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262,
+                 VS_START = LAYOUT != 5 ? 9'd507 : 9'd245,
+                 // VS length doesn't affect position
+                 VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2);
+
 // V Counter
 always @(posedge clk) if(cen6) begin
     if( H == 9'd511 ) begin
         Vinit <= &V;
-        V <= &V ? 9'd250 : V + 1'd1;
+        V <= &V ? V_START : V + 1'd1;
         { LVBL, LVBL_x } <= { LVBL_x, LVBL_obj };
     end
 end
@@ -77,11 +84,7 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // LVBL_obj is such a signal. In CAPCOM schematics
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
 
-localparam [8:0] VB_START = LAYOUT != 5 ? 9'd494 : 9'd502;
-localparam [8:0] VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262;
 
-//localparam [8:0] VS_START = LAYOUT != 5 ? 9'd507 : 9'd502;
-//localparam [8:0] VS_END   = LAYOUT != 5 ? 9'd510 : 9'd262;
 
 wire bl_switch = H[2:0]==3'b111; //LAYOUT != 5 ? (H[2:0]==3'b111) : (H[2:0]==3'd0);
 
@@ -101,8 +104,8 @@ always @(posedge clk) if(cen6) begin
 
     if (H==9'd178) begin
         HS <= 1;
-        if (V==9'd507) VS <= 1;
-        if (V==9'd510) VS <= 0;
+        if (V==VS_START) VS <= 1;
+        if (V==VS_END  ) VS <= 0;
     end
 
     if (H==9'd206) HS <= 0;

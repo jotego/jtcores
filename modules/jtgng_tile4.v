@@ -25,7 +25,7 @@ module jtgng_tile4 #(parameter
                       // 5: Legendary Wings / Section Z (3 palette bits)
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
-    AS8MASK     =  1'b1,
+    AS8MASK     =  1'b1, // only used by layout 0
     PXLW        = LAYOUT==3 ? 9 : ( LAYOUT==5 ? 7 : (PALETTE?6:8))
 ) (
     input              clk,
