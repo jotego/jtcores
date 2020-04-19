@@ -35,6 +35,7 @@ wire new_HS = HS && !HS_last;
 wire new_VS = VS && !VS_last;
 
 integer vbcnt=0, vcnt=0, hcnt=0, hbcnt=0, vs0, vs1, hs0, hs1;
+integer framecnt=0;
 
 always @(posedge clk) begin
     LHBL_last <= LHBL;
@@ -45,13 +46,17 @@ always @(posedge clk) begin
     if( new_line ) begin
         LVBL_Last <= LVBL;
         if( new_frame ) begin
-            $display("VB count = %3d (sync at %2d)", vbcnt, vs1 );
-            $display("V  total = %3d (%.2f Hz)", vcnt, 6e6/(hcnt*vcnt) );
-            $display("HB count = %3d (sync at %2d)", hbcnt, hs1 );
-            $display("H  total = %3d", hcnt );
-            $display("-------------" );
+            if( framecnt>0 ) begin
+                $display("VB count = %3d (sync at %2d)", vbcnt, vs1 );
+                $display("V  total = %3d (%.2f Hz)", vcnt, 6e6/(hcnt*vcnt) );
+                $display("HB count = %3d (sync at %2d)", hbcnt, hs1 );
+                $display("H  total = %3d", hcnt );
+                $display("-------------" );
+            end
             vbcnt <= 1;
             vcnt  <= 1;
+            framecnt <= framecnt+1;
+            if( framecnt==1 ) $finish;
         end else begin
             vcnt <= vcnt+1;
             if( !LVBL ) vbcnt <= vbcnt+1;
@@ -68,7 +73,6 @@ initial begin
     $dumpfile("test.lxt");
     $dumpvars(0,test);
     $dumpon;
-    #54180000 $finish;
 end
 
 endmodule
