@@ -130,7 +130,7 @@ jtgng_char #(
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
     // Pause screen
-    .pause      ( pause         ),
+    .pause      ( pause & 0        ),
     .scan       ( char_scan     ),
     .msg_low    ( char_msg_low  ),
     .msg_high   ( char_msg_high ),

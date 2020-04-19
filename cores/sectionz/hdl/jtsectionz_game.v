@@ -159,7 +159,7 @@ jtframe_cen48 u_cen(
 
 wire LHBL_obj, LVBL_obj;
 
-jtgng_timer u_timer(
+jtgng_timer #(.LAYOUT(5)) u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),

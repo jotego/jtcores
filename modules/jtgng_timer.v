@@ -25,6 +25,7 @@ module jtgng_timer(
     output  reg         Hinit = 1'b0,
     output  reg         Vinit = 1'b1,
     output  reg         LHBL = 1'b0,
+    output  reg         LHBL_obj = 1'b0,
     output  reg         LVBL = 1'b0,
     output  reg         LVBL_obj = 1'b0,
     output  reg         HS = 1'b0,
@@ -63,6 +64,9 @@ always @(posedge clk) if(cen6) begin
     end
 end
 
+wire [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd135-obj_offset+10'd512-10'd128;
+wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
+
 // L Horizontal/Vertical Blanking
 // Objects are drawn using a 2-line buffer
 // so they are calculated two lines in advanced
@@ -82,6 +86,9 @@ localparam [8:0] VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262;
 wire bl_switch = H[2:0]==3'b111; //LAYOUT != 5 ? (H[2:0]==3'b111) : (H[2:0]==3'd0);
 
 always @(posedge clk) if(cen6) begin
+    if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
+    if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
+
     if( bl_switch ) begin
         LHBL <= H[8];
         case( V )

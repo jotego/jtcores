@@ -29,7 +29,6 @@
 
 module jtgng_tilemap #(parameter 
     DW          = 8,
-    SELBIT      = 2,
     INVERT_SCAN = 0,
     DATAREAD    = 3'd2,
     SCANW       = 10,
@@ -38,7 +37,7 @@ module jtgng_tilemap #(parameter
     VHW         = 8
 ) (
     input                  clk,
-    (* direct_enable *) input pxl_cen,
+    input                  pxl_cen,
     input                  Asel,  // This is the address bit that selects
                             // between the low and high tile map
     input            [1:0] dseln,
@@ -130,7 +129,7 @@ always @(posedge clk) begin : mem_mux
         last_Asel <= Asel;
     end
 
-    // Output       latch
+    // Output latch
     last_scan <= scan_sel;
     if( !last_scan )
         if(DW==8)

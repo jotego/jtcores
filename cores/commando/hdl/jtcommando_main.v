@@ -363,7 +363,7 @@ end else begin
         end else begin
             last_LVBL <= LVBL;
             if( !LVBL && last_LVBL ) begin
-                int_n <= ~nmi_mask;
+                int_n <= ~nmi_mask  | ~dip_pause;
             end else if( irq_ack ) int_n <= 1'b1;
         end
     end

@@ -78,7 +78,6 @@ wire [7:0] Vtilemap = SCANW>=10 ? VS[POSW-1:POSW-8] : VS[7:0];
 wire [7:0] Htilemap = HS[POSW-1:POSW-8];
 
 jtgng_tilemap #(
-    .SELBIT     ( 1         ),
     .INVERT_SCAN( 1         ),
     .DATAREAD   ( DATAREAD  ),
     .SCANW      ( SCANW     ),
