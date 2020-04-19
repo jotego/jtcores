@@ -5,7 +5,7 @@ set_global_assignment -name VERILOG_MACRO "JT12=1"
 #set_global_assignment -name VERILOG_MACRO "AVATARS=1"
 set_global_assignment -name VERILOG_MACRO "BUTTONS=2"
 set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=256"
-set_global_assignment -name VERILOG_MACRO "VIDEO_HEIGHT=224"
+set_global_assignment -name VERILOG_MACRO "VIDEO_HEIGHT=240"
 
 set_global_assignment -name VERILOG_MACRO "JTFRAME_ARX=5"
 set_global_assignment -name VERILOG_MACRO "JTFRAME_ARY=4"
