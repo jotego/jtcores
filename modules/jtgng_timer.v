@@ -40,7 +40,7 @@ parameter LAYOUT=0;
 localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
                  VB_START = LAYOUT != 5 ? 9'd494 : 9'd502,
                  VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262,
-                 VS_START = LAYOUT != 5 ? 9'd507 : 9'd245,
+                 VS_START = LAYOUT != 5 ? 9'd507 : 9'd244,
                  // VS length doesn't affect position
                  VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2),
                  // H signals: all must be multiple of 8

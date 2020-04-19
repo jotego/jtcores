@@ -112,7 +112,7 @@ wire [7:0] char_msg_high=8'h0;
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET ( 0),
+    .HOFFSET ( 6),
     .ROM_AW  (14),
     .PALW    ( 4)
 ) u_char (
@@ -130,7 +130,7 @@ jtgng_char #(
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
     // Pause screen
-    .pause      ( pause & 0        ),
+    .pause      ( pause         ),
     .scan       ( char_scan     ),
     .msg_low    ( char_msg_low  ),
     .msg_high   ( char_msg_high ),
@@ -214,7 +214,7 @@ assign scr_dout   = 8'd0;
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
-    .PXL_DLY      (  8          ),    
+    .PXL_DLY      (  2          ),    
     .LAYOUT       ( LAYOUT      ),
     // Avatar parameters
     .AVATAR_MAX   ( AVATAR_MAX  ),
