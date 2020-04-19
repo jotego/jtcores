@@ -20,8 +20,8 @@ module jtgng_timer(
     input               clk,
     input               cen6,   //  6 MHz
     input               rst,
-    output  reg [8:0]   V = 9'd496,
-    output  reg [8:0]   H = 9'd135,
+    output  reg [8:0]   V,
+    output  reg [8:0]   H,
     output  reg         Hinit = 1'b0,
     output  reg         Vinit = 1'b1,
     output  reg         LHBL = 1'b0,
@@ -65,8 +65,18 @@ reg LVBL_x;
 
 `ifdef SIMULATION
 initial begin
-    LVBL_x = 0;
-    LVBL   = 0;
+    // These numbers produce a good image in simulation
+    // after binary to jpg conversion. Tested with layout=5
+    // might need different H/V values for layout 0
+    // The problem is the few pixels for which both LHBL and LVBL
+    // are high before LVBL goes down, that can shift the image
+    // in the jpg files.
+    LVBL_obj = 1;
+    LVBL_x = 1;
+    LVBL   = 1;
+    LHBL   = 0;
+    H = 192;
+    V = 264;
 end
 `endif
 
@@ -149,7 +159,6 @@ always @(posedge clk) if(cen6) begin
             vbcnt <= 1;
             vcnt  <= 1;
             framecnt <= framecnt+1;
-            if( framecnt==1 ) $finish;
         end else begin
             vcnt <= vcnt+1;
             if( !LVBL ) vbcnt <= vbcnt+1;
