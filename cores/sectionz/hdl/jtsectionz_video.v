@@ -200,7 +200,7 @@ jtgng_scroll #(
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
     // pixel output
-    .scr_pal    ( scr_pxl[6:5]  ),
+    .scr_pal    ( scr_pxl[6:4]  ),
     .scr_col    ( scr_pxl[3:0]  )
 );
 `else
