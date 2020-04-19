@@ -112,7 +112,7 @@ wire [7:0] char_msg_high=8'h0;
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET ( 0),
+    .HOFFSET ( 1),
     .ROM_AW  (14),
     .PALW    ( 4)
 ) u_char (
