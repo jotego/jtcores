@@ -143,7 +143,7 @@ always @(posedge clk) if(cen6) begin
             scr_attr0      <= attr[2:0];
             scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
                             HS[3]^scr_hflip,
-                            SV[3:0]^{4{flip}},
+                            SV[3:0]^{4{scr_vflip^flip}},
                             HS[2]^scr_hflip
                             };
             scr_hflip0     <= scr_hflip;            
