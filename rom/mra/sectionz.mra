@@ -51,7 +51,7 @@
         <!-- A -->
         <dip bits="0"   name="Service Mode" ids="On,Off"/>
         <dip bits="1"   name="Flip Screen"  ids="On,Off"/>
-        <dip bits="2,3" name="Lives"        ids="0,8,12,4"/>
+        <dip bits="2,3" name="Lives"        ids="5,2,4,3"/>
         <dip bits="4,5" name="Coin A"       ids="4/1,2/1,3/1,1/1"/>
         <dip bits="6,7" name="Coin B"       ids="4/1,2/1,3/1,1/1"/>
         <!-- B -->
