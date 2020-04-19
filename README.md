@@ -58,28 +58,25 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
     F10     Turn object (sprite) layer on/off
 
 
-ROM Generation
-==============
+# ROM Generation
 
 Each core in the releases folder continues files for linux and windows to generate the ROM file starting from a MAME set. Follow the instructions of that file.
 
-SD Card
-=======
+# SD Card
 
 For MiST copy the file core.rbf to the SD card at the root directory. Copy also the rom you have generated with the name JTGNG.rom. It will get loaded at start.
 
-Extras
-======
+# Extras
 
 You can press F12 to bring the OSD menu up. You can turn off music, or sound effects with it. By default, a screen filter makes the screen look closer to an old tube monitor. If you turn it off you will get sharp pixels. Note that if you switch from sharp to soft pixels you will need a couple of seconds to get your eyes used as the brain initially perceives this as an out of focus image compared to the old one.
 
-Sound
-=======
+# Misc
+
 Original filter for sound (GnG)
     -high pass filter with cut-off freq. at 1.6Hz
     -low pass filter with cut-off freq. at 32.3kHz
 
-## Project Structure
+# Project Structure
 
 This work has two separate parts:
 
@@ -99,11 +96,11 @@ hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
 
 Use `git clone --recurse-submodules` in order to get all submodules when you clone the repository.
 
-##Compilation
+#Compilation
 
 I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
 
-###Requisites
+##Requisites
 
 * Linux
 * Quartus 13 for MiST/SiDi compilation
@@ -128,7 +125,7 @@ Pnce compilation is triggered with jtcore, Quartus qpf and qsf files are created
 
 There is another script called update_cores.sh that will run jtcore over all supported cores in parallel.
 
-##Directory Structure
+#Directory Structure
 
 original/hdl/   replica of original PCB schematics
 original/ver/   simulation files for original PCB
@@ -155,7 +152,7 @@ gng/ver         simulation files of MiST clone
 1943/mist       Quartus files for MiST version
 etc.
 
-##HDL Code Structure
+#HDL Code Structure
 
 The top level module is called jtgng_mist. This is the module that is really dependent on the board. If you want to port jtgng to a different FPGA board you will need to modify this file. Most other files will likely stay the same
 
@@ -163,7 +160,9 @@ The game itself in module jtgng_game. It is written using an arbitrary clock (ac
 
 The video output is a 256x256 screen. That is what you get from jtgng_game in a signal format that replicates the original hardware. jtgng_mist instantiates a module called jtgng_vga that converts the image to a standard VGA resolution without losing frame speed.
 
-##Credits
+# Simulation
+
+#Credits
 
 Jose Tejada Gomez. Twitter @topapate
 Project is hosted in http://www.github.com/jotego/jt_gng

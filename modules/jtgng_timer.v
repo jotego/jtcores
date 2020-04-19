@@ -43,10 +43,10 @@ localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
                  VS_START = LAYOUT != 5 ? 9'd507 : 9'd245,
                  // VS length doesn't affect position
                  VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2),
-                 // H signals
-                 H_START  = LAYOUT != 5 ? 9'd128 : 9'd125,
-                 HB_START = LAYOUT != 5 ? 9'd127 : 9'd130,
-                 HB_END   = LAYOUT != 5 ? 9'd263 : 9'd262;
+                 // H signals: all must be multiple of 8
+                 H_START  = 9'd128,
+                 HB_START = 9'd136,
+                 HB_END   = 9'd264;
 
 // H counter
 always @(posedge clk) if(cen6) begin
@@ -62,6 +62,13 @@ always @(posedge clk) if(cen6) begin
 end
 
 reg LVBL_x;
+
+`ifdef SIMULATION
+initial begin
+    LVBL_x = 0;
+    LVBL   = 0;
+end
+`endif
 
 // V Counter
 always @(posedge clk) if(cen6) begin
@@ -111,5 +118,49 @@ always @(posedge clk) if(cen6) begin
 
     if (H==9'd206) HS <= 0;
 end
+
+`ifdef SIMULATION
+reg LVBL_Last, LHBL_last, VS_last, HS_last;
+
+wire new_line  = LHBL_last && !LHBL;
+wire new_frame = LVBL_Last && !LVBL;
+wire new_HS = HS && !HS_last;
+wire new_VS = VS && !VS_last;
+
+integer vbcnt=0, vcnt=0, hcnt=0, hbcnt=0, vs0, vs1, hs0, hs1;
+integer framecnt=0;
+
+always @(posedge clk) if(cen6) begin
+    LHBL_last <= LHBL;
+    HS_last   <= HS;
+    VS_last   <= VS;
+    if( new_HS ) hs1 <= hbcnt;
+    if( new_VS ) vs1 <= vbcnt;
+    if( new_line ) begin
+        LVBL_Last <= LVBL;
+        if( new_frame ) begin
+            if( framecnt>0 ) begin
+                $display("VB count = %3d (sync at %2d)", vbcnt, vs1 );
+                $display("V  total = %3d (%.2f Hz)", vcnt, 6e6/(hcnt*vcnt) );
+                $display("HB count = %3d (sync at %2d)", hbcnt, hs1 );
+                $display("H  total = %3d", hcnt );
+                $display("-------------" );
+            end
+            vbcnt <= 1;
+            vcnt  <= 1;
+            framecnt <= framecnt+1;
+            if( framecnt==1 ) $finish;
+        end else begin
+            vcnt <= vcnt+1;
+            if( !LVBL ) vbcnt <= vbcnt+1;
+        end
+        hbcnt <= 1;
+        hcnt  <= 1;
+    end else begin
+        hcnt <= hcnt+1;
+        if( !LHBL ) hbcnt <= hbcnt+1;
+    end
+end
+`endif
 
 endmodule // jtgng_timer

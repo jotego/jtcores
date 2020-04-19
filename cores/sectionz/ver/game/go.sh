@@ -21,8 +21,9 @@ export YM2203=1
 
 # Generic simulation script from JTFRAME
 echo "Game ROM length: " $GAME_ROM_LEN
-../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN  \
+$JTFRAME/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN  \
     -sysname sectionz -modules ../../../modules \
+    -videow 256 -videoh 240 \
     -d BUTTONS=2 \
     -d COLORW=4  \
     -d JTFRAME_SIM_LOAD_EXTRA=24 \

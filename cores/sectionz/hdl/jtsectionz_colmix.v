@@ -116,6 +116,7 @@ wire [3:0] pal_red, pal_green, pal_blue;
 wire we_rg = /* !LVBL && */ redgreen_cs;
 wire we_b  = /* !LVBL && */ blue_cs;
 
+`ifndef PAL_GRAY
 jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
     .clk        ( clk         ),
     .clk_en     ( cen6        ), // clock enable only applies to write operation
@@ -135,19 +136,10 @@ jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
     .we         ( we_b        ),
     .q          ( pal_blue    )
 );
-/*
-// Clock must be faster than 6MHz so selbus is ready for the next
-// 6MHz clock cycle:
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
-    .clk    ( clk           ),
-    .cen    ( cen12         ),
-    .data   ( prom_din      ),
-    .rd_addr( seladdr       ),
-    .wr_addr( prog_addr     ),
-    .we     ( prom_prior_we ),
-    .q      ( selbus        )
-);
-*/
+`else
+// by pass palette for quick sims:
+assign {pal_red, pal_green, pal_blue} = {3{pixel_mux[3:0]}};
+`endif
 
 `ifdef AVATARS
 `ifdef MISTER
