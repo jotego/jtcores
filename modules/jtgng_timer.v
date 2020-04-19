@@ -44,7 +44,9 @@ localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
                  // VS length doesn't affect position
                  VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2),
                  // H signals
-                 H_START  = LAYOUT != 5 ? 9'd128 : 9'd125;
+                 H_START  = LAYOUT != 5 ? 9'd128 : 9'd125,
+                 HB_START = LAYOUT != 5 ? 9'd127 : 9'd130,
+                 HB_END   = LAYOUT != 5 ? 9'd263 : 9'd262;
 
 // H counter
 always @(posedge clk) if(cen6) begin
@@ -91,15 +93,15 @@ always @(posedge clk) if(cen6) begin
     if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
     if( H==LHBL_obj0[8:0] ) LHBL_obj<=1'b0;
 
-    if( bl_switch ) begin
-        LHBL <= H[8];
+    if( H == HB_START ) begin
+        LHBL <= 0;
         case( V )
             // OBJ LVBL is two lines ahead
             VB_START: LVBL_obj <= 1'b0;
             VB_END:   LVBL_obj <= 1'b1;
             default:;
         endcase // V
-    end
+    end else if( H == HB_END ) LHBL <= 1;
 
     if (H==9'd178) begin
         HS <= 1;
