@@ -45,8 +45,8 @@ localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
                  VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2),
                  // H signals: all must be multiple of 8
                  H_START  = 9'd128,
-                 HB_START = 9'd136,
-                 HB_END   = 9'd264;
+                 HB_START = 9'd128,
+                 HB_END   = 9'd256;
 
 // H counter
 always @(posedge clk) if(cen6) begin
@@ -80,15 +80,6 @@ initial begin
 end
 `endif
 
-// V Counter
-always @(posedge clk) if(cen6) begin
-    if( H == 9'd511 ) begin
-        Vinit <= &V;
-        V <= &V ? V_START : V + 1'd1;
-        { LVBL, LVBL_x } <= { LVBL_x, LVBL_obj };
-    end
-end
-
 wire [9:0] LHBL_obj0 = 10'd135-obj_offset >= 10'd128 ? 10'd135-obj_offset : 10'd135-obj_offset+10'd512-10'd128;
 wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 
@@ -112,6 +103,9 @@ always @(posedge clk) if(cen6) begin
 
     if( H == HB_START ) begin
         LHBL <= 0;
+        Vinit <= &V;
+        V <= &V ? V_START : V + 1'd1;
+        { LVBL, LVBL_x } <= { LVBL_x, LVBL_obj };
         case( V )
             // OBJ LVBL is two lines ahead
             VB_START: LVBL_obj <= 1'b0;
