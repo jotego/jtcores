@@ -1,8 +1,8 @@
-# JT_GNG FPGA Clone of early CAPCOM arcade games by Jose Tejada (@topapate)
+# JT_GNG FPGA Clone of Early CAPCOM Arcade Games by Jose Tejada (@topapate)
 
 You can show your appreciation through
-    * Patreon: https://patreon.com/topapate
-    * Paypal: https://paypal.me/topapate
+* Patreon: https://patreon.com/topapate
+* Paypal: https://paypal.me/topapate
 
 Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST(er) is here to the rescue.
 
@@ -18,12 +18,13 @@ In chronological order:
  2. 1942             (see doc/jt1942.txt)
  3. Commando         (see doc/jtcommando.txt)
  4. Ghosts'n Goblins (see doc/jtgng.txt)
- 5. GunSmoke         (see doc/jtgunsmoke.txt)
- 6. 1943             (see doc/jt1943.txt)
- 7. Black Tiger      (see doc/jtbtiger.txt)
- 8. Tiger Road       (see doc/jttora.txt)
- 9. F1-Dream         (see doc/jtf1dream.txt)
-10. Bionic Commando  (see doc/jtbiocom.txt)
+ 5. SectionZ         (see doc/jtsectionz.txt)
+ 6. GunSmoke         (see doc/jtgunsmoke.txt)
+ 7. 1943             (see doc/jt1943.txt)
+ 8. Black Tiger      (see doc/jtbtiger.txt)
+ 9. Tiger Road       (see doc/jttora.txt)
+10. F1-Dream         (see doc/jtf1dream.txt)
+11. Bionic Commando  (see doc/jtbiocom.txt)
 
 ## Troubleshooting
 
@@ -33,7 +34,7 @@ In chronological order:
 
 * How to continue the game: many CAPCOM games of this era require to hold the fire button while pressing 1P to continue the game.
 
-##Keyboard
+## Keyboard
 
 On MiSTer keyboard control is configured through the OSD.
 
@@ -57,14 +58,13 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
     F9      Turn first  background layer on/off
     F10     Turn object (sprite) layer on/off
 
-
 # ROM Generation
 
-Each core in the releases folder continues files for linux and windows to generate the ROM file starting from a MAME set. Follow the instructions of that file.
+Each core in the releases folder continues files for linux and windows to generate the ROM file starting from a MAME set. Follow the instructions of that file. There are also MRA files available in the rom/mra folder. MRA files are the recommended way.
 
 # SD Card
 
-For MiST copy the file core.rbf to the SD card at the root directory. Copy also the rom you have generated with the name JTGNG.rom. It will get loaded at start.
+For MiST copy the file core.rbf to the SD card at the root directory. Copy also the rom you have generated with the name JTGNG.rom. It will get loaded at start. Make sure to have a recent version of MiST/SiDi firmware.
 
 # Extras
 
@@ -96,11 +96,11 @@ hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
 
 Use `git clone --recurse-submodules` in order to get all submodules when you clone the repository.
 
-#Compilation
+# Compilation
 
 I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
 
-##Requisites
+## Requisites
 
 * Linux
 * Quartus 13 for MiST/SiDi compilation
@@ -108,7 +108,7 @@ I use linux as my development system. This means that I use many bash scripts, e
 * Add the path to quartus_sh to your PATH environment variable if JTCORE cannot automatically find it
 * PNG library for Python
 
-###Compilation Steps
+### Compilation Steps
 Go to the root directory of the repository and execute: `source set_prj.sh`
 
 That will create an alias called jtcore to directory modules/jtframe/bin/jtcore. This is a command line utility that will compile the cores. Like
@@ -125,7 +125,7 @@ Pnce compilation is triggered with jtcore, Quartus qpf and qsf files are created
 
 There is another script called update_cores.sh that will run jtcore over all supported cores in parallel.
 
-#Directory Structure
+# Directory Structure
 
 original/hdl/   replica of original PCB schematics
 original/ver/   simulation files for original PCB
@@ -152,7 +152,7 @@ gng/ver         simulation files of MiST clone
 1943/mist       Quartus files for MiST version
 etc.
 
-#HDL Code Structure
+# HDL Code Structure
 
 The top level module is called jtgng_mist. This is the module that is really dependent on the board. If you want to port jtgng to a different FPGA board you will need to modify this file. Most other files will likely stay the same
 
@@ -162,7 +162,7 @@ The video output is a 256x256 screen. That is what you get from jtgng_game in a 
 
 # Simulation
 
-#Credits
+# Credits
 
 Jose Tejada Gomez. Twitter @topapate
 Project is hosted in http://www.github.com/jotego/jt_gng
