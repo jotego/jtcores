@@ -1,6 +1,6 @@
 <misterromdescription>
     <name>Section Z</name>
-    <setname>Sectionz</setname>
+    <setname>sectionz</setname>
     <year>1985</year>
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
@@ -25,16 +25,16 @@
         <part name="9h_sz05.bin" crc="3173ba2e"/>
         <!-- SCROLL -->
         <interleave output="32">
-            <part name="3e_sz14.bin" crc="63782e30" map="1000"/>
-            <part name="3d_sz13.bin" crc="1b3d4d7f" map="0100"/>
-            <part name="3b_sz12.bin" crc="11d47dfd" map="0010"/>
             <part name="3f_sz15.bin" crc="36bb9bf7" map="0001"/>
+            <part name="3b_sz12.bin" crc="11d47dfd" map="0010"/>
+            <part name="3d_sz13.bin" crc="1b3d4d7f" map="0100"/>
+            <part name="3e_sz14.bin" crc="63782e30" map="1000"/>
         </interleave>
         <interleave output="32">
-            <part name="1e_sz08.bin" crc="d57d9f13" map="1000"/>
-            <part name="1d_sz07.bin" crc="f5b3a29f" map="0100"/>
-            <part name="1b_sz06.bin" crc="df703b68" map="0010"/>
             <part name="1f_sz09.bin" crc="da8f06c9" map="0001"/>
+            <part name="1b_sz06.bin" crc="df703b68" map="0010"/>
+            <part name="1d_sz07.bin" crc="f5b3a29f" map="0100"/>
+            <part name="1e_sz08.bin" crc="d57d9f13" map="1000"/>
         </interleave>
         <!-- OBJ -->
         <interleave output="16">
