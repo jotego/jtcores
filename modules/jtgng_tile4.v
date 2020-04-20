@@ -142,8 +142,8 @@ always @(posedge clk) if(cen6) begin
         5: begin // Legendary Wings, Section Z, 16x16 tiles
             scr_attr0      <= attr[2:0];
             scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
-                            HS[3]^scr_hflip,
-                            SV[3:0]^{4{scr_vflip^flip}},
+                            HS[3]^(scr_hflip^flip),
+                            SV[3:0]^{4{scr_vflip}},
                             HS[2]^scr_hflip
                             };
             scr_hflip0     <= scr_hflip;            
@@ -165,8 +165,12 @@ always @(posedge clk) if(cen6) begin
             3: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
-            4,5: begin // Black Tiger
+            4: begin // Black Tiger
                 scr_addr[5] <= HS[3]^scr_hflip0;
+                scr_addr[0] <= HS[2]^scr_hflip0;
+            end
+            5: begin // Section Z
+                scr_addr[5] <= HS[3]^(scr_hflip0^flip);
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
         endcase // LAYOUT
