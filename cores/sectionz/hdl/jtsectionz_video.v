@@ -268,7 +268,8 @@ u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen12        ( cen12         ),
-    .cen6         ( cen6          ),
+    .pxl_cen      ( cen6          ),
+    .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
@@ -295,6 +296,7 @@ u_colmix (
     .blue_cs      ( blue_cs       ),
     .redgreen_cs  ( redgreen_cs   ),
     .DB           ( cpu_dout      ),
+    .cpu_wrn      ( RnW           ),
 
     // colour output
     .red          ( red           ),

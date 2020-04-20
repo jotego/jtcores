@@ -24,7 +24,8 @@ module jtsectionz_colmix #(
     input            rst,
     input            clk,
     input            cen12,
-    input            cen6 /* synthesis direct_enable = 1 */,
+    input            pxl_cen,
+    input            cpu_cen,
 
     // pixel input from generator modules
     input [CHARW-1:0]char_pxl,        // character color code
@@ -42,6 +43,7 @@ module jtsectionz_colmix #(
     input            blue_cs,
     input            redgreen_cs,
     input [7:0]      DB,
+    input            cpu_wrn,
 
     output reg [3:0] red,
     output reg [3:0] green,
@@ -74,7 +76,7 @@ reg [CHARW-1:0] char0;
 
 wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(pxl_cen) begin
     seladdr <= { ~char_blank, ~obj_blank, 
         !enable_scr ? 2'b00 : {scr_prio}, scr_pxl[3:0] };
     scr0 <= scr_pxl;
@@ -105,7 +107,7 @@ end
 
 jtframe_sh #(.width(2),.stages(8)) u_hb_dly(
     .clk    ( clk      ),
-    .clk_en ( cen6     ),
+    .clk_en ( pxl_cen     ),
     .din    ( {LHBL, LVBL}    ),
     .drop   ( {LHBL_dly, LVBL_dly}   )
 );
@@ -113,13 +115,13 @@ jtframe_sh #(.width(2),.stages(8)) u_hb_dly(
 wire [3:0] pal_red, pal_green, pal_blue;
 
 // Palette is in RAM
-wire we_rg = /* !LVBL && */ redgreen_cs;
-wire we_b  = /* !LVBL && */ blue_cs;
+wire we_rg = !cpu_wrn && !LVBL && redgreen_cs;
+wire we_b  = !cpu_wrn && !LVBL && blue_cs;
 
 `ifndef PAL_GRAY
 jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
     .clk        ( clk         ),
-    .clk_en     ( cen6        ), // clock enable only applies to write operation
+    .clk_en     ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB          ),
     .rd_addr    ( pixel_mux   ),
     .wr_addr    ( AB          ),
@@ -129,7 +131,7 @@ jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
 
 jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
     .clk        ( clk         ),
-    .clk_en     ( cen6        ), // clock enable only applies to write operation
+    .clk_en     ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[7:4]     ),
     .rd_addr    ( pixel_mux   ),
     .wr_addr    ( AB          ),
@@ -168,7 +170,7 @@ wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 
 wire blanking = !LVBL_dly || (/*!LHBL &&*/ !LHBL_dly);
 
-always @(posedge clk) if (cen6)
+always @(posedge clk) if (pxl_cen)
     {red, green, blue } <= !blanking ? avatar_mux : 12'd0;
 
 
