@@ -12,7 +12,7 @@ end
 wire [8:0] V,H;
 wire       Hinit, Vinit, LHBL, LHBL_obj, LVBL, LVBL_obj, HS, VS;
 
-jtgng_timer #(.LAYOUT(5)) UUT(
+jtgng_timer #(.LAYOUT(`LAYOUT)) UUT(
     .clk       ( clk      ),
     .cen6      ( 1'b1     ),   //  6 MHz
     .V         ( V        ),
@@ -27,45 +27,24 @@ jtgng_timer #(.LAYOUT(5)) UUT(
     .VS        ( VS       )
 );
 
-reg LVBL_Last, LHBL_last, VS_last, HS_last;
+old_timer old(
+    .clk       ( clk      ),
+    .cen6      ( 1'b1     )    //  6 MHz
+);
 
-wire new_line  = LHBL_last && !LHBL;
-wire new_frame = LVBL_Last && !LVBL;
+reg VS_last, HS_last;
+
 wire new_HS = HS && !HS_last;
 wire new_VS = VS && !VS_last;
 
-integer vbcnt=0, vcnt=0, hcnt=0, hbcnt=0, vs0, vs1, hs0, hs1;
 integer framecnt=0;
 
 always @(posedge clk) begin
-    LHBL_last <= LHBL;
-    HS_last   <= HS;
-    VS_last   <= VS;
-    if( new_HS ) hs1 <= hbcnt;
-    if( new_VS ) vs1 <= vbcnt;
-    if( new_line ) begin
-        LVBL_Last <= LVBL;
-        if( new_frame ) begin
-            if( framecnt>0 ) begin
-                $display("VB count = %3d (sync at %2d)", vbcnt, vs1 );
-                $display("V  total = %3d (%.2f Hz)", vcnt, 6e6/(hcnt*vcnt) );
-                $display("HB count = %3d (sync at %2d)", hbcnt, hs1 );
-                $display("H  total = %3d", hcnt );
-                $display("-------------" );
-            end
-            vbcnt <= 1;
-            vcnt  <= 1;
-            framecnt <= framecnt+1;
-            if( framecnt==1 ) $finish;
-        end else begin
-            vcnt <= vcnt+1;
-            if( !LVBL ) vbcnt <= vbcnt+1;
-        end
-        hbcnt <= 1;
-        hcnt  <= 1;
-    end else begin
-        hcnt <= hcnt+1;
-        if( !LHBL ) hbcnt <= hbcnt+1;
+    VS_last <= VS;
+    HS_last <= HS;
+    if( new_VS ) begin
+        framecnt <= framecnt+1;
+        if( framecnt==2 ) $finish;
     end
 end
 
