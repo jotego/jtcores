@@ -26,6 +26,7 @@ module jtcommando_main(
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     output             cpu_cen,
+(*keep*)    input              cen_sel,
     // Timing
     output  reg        flip,
     input   [8:0]      V,
@@ -99,7 +100,10 @@ reg         nmi_mask;
 assign RnW = wr_n;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = GAME==0 ? cen6 : cen3;
+
+assign cpu_cen = !GAME ? cen6 // Commando
+    : (cen_sel ? cen6 // Legendary Wings
+        : cen3 ); // Section Z
 assign bus_ack = ~busak_n;
 
 always @(*) begin

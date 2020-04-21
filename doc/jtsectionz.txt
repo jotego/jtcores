@@ -30,6 +30,11 @@ TEST SCREEN
 ===========
 Select the test screen through the OSD menu.
 
+COMPILATION
+===========
+For MiSTer: jtcore sectionz -mister
+For MiST/Sidi: jtcore sectionz -mist/-side -rename JTSZ
+
 TECHNICAL INFORMATION
 =====================
 -This board seems to be the same as Legendary Wings except for CPU speed.

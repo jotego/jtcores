@@ -5,6 +5,7 @@
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
     <rbf>jtsectionz</rbf>
+    <mist-rbf>jtsz</mist-rbf>
     <rom index="0" zip="sectionz.zip" md5="none">
         <!-- 32-byte Header -->
         <part> 01 00 00 00 00 00 00 00 </part>
@@ -46,8 +47,10 @@
             <part name="1h_sz10.bin" crc="00b3d244" map="10"/>
         </interleave>
     </rom>
+    <!-- horizontal screen -->
+    <rom index="1"><part> 0 </part></rom>
     <buttons names="Fire,Turn around,Start,Coin,Pause" default="A,B,R,L,Start"/>
-    <switches default="FF,FF">
+    <switches default="FF,FE" mist-base="10">
         <!-- A -->
         <dip bits="0"   name="Service Mode" ids="On,Off"/>
         <dip bits="1"   name="Flip Screen"  ids="On,Off"/>

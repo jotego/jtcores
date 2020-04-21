@@ -38,6 +38,7 @@ module jtsectionz_video#(
     input               cen3,
     input               cpu_cen,
     input       [11:0]  cpu_AB,
+    input               game_sel,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
     input               RnW,
@@ -148,7 +149,9 @@ jtgng_char #(
     .prom_we    (               )
 );
 
-jtgng_charmsg #(.VERTICAL(0)) u_msg(
+wire [9:0] msg_scan = game_sel ? { char_scan[4:0], char_scan[9:5] } : char_scan;
+
+jtgng_charmsg u_msg(
     .clk         ( clk           ),
     .cen6        ( cen6          ),
     .avatar_idx  ( avatar_idx    ),

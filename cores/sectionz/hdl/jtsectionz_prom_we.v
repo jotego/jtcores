@@ -94,7 +94,7 @@ always @(posedge clk) begin
             prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;            
         end
         if( ioctl_addr < FULL_HEADER ) begin
-            if( ioctl_addr[3:0]==4'd0 ) game_cfg <= ioctl_data;
+            if( !ioctl_addr ) game_cfg <= ioctl_data;
             if( is_start ) starts  <= { starts[STARTW-9:0], ioctl_data };
             prog_we <= 1'b0;
         end else if(!is_scr) begin

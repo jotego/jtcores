@@ -184,7 +184,7 @@ wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
-wire [7:0] main_ram;
+wire [ 7:0] main_ram, game_cfg;
 
 localparam [21:0] CPU_OFFSET  = 22'h0;
 localparam [21:0] SND_OFFSET  = 22'h1_8000 >> 1;
@@ -212,7 +212,7 @@ u_prom_we(
     .prog_we     ( prog_we       ),
 
     .sdram_ack   ( sdram_ack     ),
-    .game_cfg    (               )
+    .game_cfg    ( game_cfg      )
 );
 
 wire scr_cs;
@@ -227,6 +227,7 @@ jtcommando_main #(.GAME(1)) u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
+    .cen_sel    ( game_cfg[0]   ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -349,6 +350,7 @@ u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
+    .game_sel   ( game_cfg[0]   ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .RnW        ( RnW           ),
