@@ -149,14 +149,7 @@ jtgng_char #(
     .prom_we    (               )
 );
 
-wire [9:0] msg_scan = game_sel ? 
-            ( 
-                // OFF: bien, ON: arriba/abajo mal
-                // flip ? { ~char_scan[4:0], char_scan[9:5] } : { char_scan[4:0], char_scan[9:5] }
-                
-                flip ? { ~char_scan[4:0], char_scan[9:5] } : { ~char_scan[4:0], char_scan[9:5] }
-            )
-            : char_scan;
+wire [9:0] msg_scan = game_sel ? { ~char_scan[4:0], char_scan[9:5] } : char_scan;
 
 jtgng_charmsg u_msg(
     .clk         ( clk           ),
