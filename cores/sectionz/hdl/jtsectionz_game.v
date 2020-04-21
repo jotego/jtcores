@@ -59,7 +59,7 @@ module jtsectionz_game(
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           dip_pause,
-    input           dip_flip,
+    inout           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     input   [31:0]  dipsw,
@@ -114,6 +114,7 @@ assign pxl_cen  = cen6;
 assign sample=1'b1;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign dip_flip = dipsw_a[1];
 
 `ifdef MISTER
 
