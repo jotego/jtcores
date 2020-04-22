@@ -90,7 +90,7 @@ always @(*) begin
     fm1_cs   = 1'b0;
     if( rfsh_n && !mreq_n) 
         case( LAYOUT )
-        0,4:  // Memory map for: GnG, Gun Smoke, 1943, Black Tiger
+        0,4:  // Memory map for: GnG, Gun Smoke, 1943, Black Tiger, SectionZ
             casez(A[15:13])
                 3'b0??: rom_cs   = 1'b1;
                 3'b110: if(A[11])

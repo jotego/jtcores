@@ -5,6 +5,6 @@
     "OGH,Bonus,30/100,30/80,20/100,20/80;", \
     "OKL,Difficulty,Normal,Easy,Hard,Very hard;",
 `define CORE_KEYMAP \
-    "J,Button 1,Button 2,1P Start,2P Start,Coin,Credits;", \
-    "jn,A,B,R,L,X,Start;",
+    "J,Button 1,Button 2,Start,Coin,Credits;", \
+    "jn,A,B,R,L,Start;",
 

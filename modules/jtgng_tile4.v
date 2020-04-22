@@ -21,10 +21,12 @@ module jtgng_tile4 #(parameter
     ROM_AW      = 17,
     LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
                       // 3: Tiger Road
+                      // 4: Black Tiger
+                      // 5: Legendary Wings / Section Z (3 palette bits)
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
-    AS8MASK     =  1'b1,
-    PXLW        = LAYOUT==3 ? 9 : (PALETTE?6:8)
+    AS8MASK     =  1'b1, // only used by layout 0
+    PXLW        = LAYOUT==3 ? 9 : ( LAYOUT==5 ? 7 : (PALETTE?6:8))
 ) (
     input              clk,
     input              cen6,
@@ -45,7 +47,7 @@ module jtgng_tile4 #(parameter
     output [PXLW-1:0] scr_pxl
 );
 
-localparam ATTW = LAYOUT==3 ? 5 : 4;
+localparam ATTW = LAYOUT==3 ? 5 : ( LAYOUT==5 ? 3 : 4);
 
 `ifdef SIMULATION
 initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
@@ -86,6 +88,10 @@ always @(*) begin
         4: begin // Black Tiger
             scr_hflip = attr[7]^flip;
             scr_vflip = 1'b0;
+        end
+        5: begin // Legendary Wings / Section Z
+            scr_hflip = attr[3]^flip;
+            scr_vflip = attr[4];
         end
     endcase
 end
@@ -133,6 +139,15 @@ always @(posedge clk) if(cen6) begin
                             };
             scr_hflip0     <= scr_hflip;            
         end
+        5: begin // Legendary Wings, Section Z, 16x16 tiles
+            scr_attr0      <= attr[2:0];
+            scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
+                            HS[3]^(scr_hflip^flip),
+                            SV[3:0]^{4{scr_vflip}},
+                            HS[2]^scr_hflip
+                            };
+            scr_hflip0     <= scr_hflip;            
+        end
         endcase
         scr_hflip0 <= scr_hflip;
     end
@@ -152,6 +167,10 @@ always @(posedge clk) if(cen6) begin
             end
             4: begin // Black Tiger
                 scr_addr[5] <= HS[3]^scr_hflip0;
+                scr_addr[0] <= HS[2]^scr_hflip0;
+            end
+            5: begin // Section Z
+                scr_addr[5] <= HS[3]^(scr_hflip0^flip);
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
         endcase // LAYOUT

@@ -2,7 +2,7 @@
 MIST=-mist
 EXTRA=
 
-cores="1942 1943 gng biocom commando gunsmoke vulgus tora f1dream btiger"
+cores="1942 1943 gng biocom commando gunsmoke vulgus tora f1dream btiger sectionz"
 
 
 while [ $# -gt 0 ]; do
@@ -15,7 +15,7 @@ while [ $# -gt 0 ]; do
             EXTRA="-sidi -z $EXTRA"
             MIST=-mist;;
         -all | -a)
-			MIST="-mist -mister";;
+			MIST="-mist -mister -sidi";;
         -cores)
             shift
             cores="$1";;

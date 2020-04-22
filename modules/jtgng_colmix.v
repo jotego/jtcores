@@ -168,7 +168,7 @@ end else begin
     jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
         .clk        ( clk         ),
         .clk_en     ( cen6        ), // clock enable only applies to write operation
-        .data       ( BLUELOW==1 ? DB[3:0] : DB[7:4] ),
+        .data       ( BLUELOW ? DB[3:0] : DB[7:4] ),
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( AB          ),
         .we         ( we_b        ),

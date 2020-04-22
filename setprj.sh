@@ -13,9 +13,10 @@ else
 
     # derived variables
     CORES=$JTROOT/cores
-    ROM=$JTROOT/rom
+    export ROM=$JTROOT/rom
+    CC=$JTROOT/cc
     MRA=$ROM/mra
-    MODULES=$JTROOT/modules
+    export MODULES=$JTROOT/modules
     JT12=$MODULES/jt12
     JT51=$MODULES/jt51
 fi

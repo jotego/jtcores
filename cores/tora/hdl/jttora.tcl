@@ -2,6 +2,7 @@ set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTTORA\""
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jttora_game"
 set_global_assignment -name VERILOG_MACRO "JT12=1"
 #set_global_assignment -name VERILOG_MACRO "AVATARS=1"
+set_global_assignment -name VERILOG_MACRO "BUTTONS=2"
 set_global_assignment -name VERILOG_MACRO "VIDEO_WIDTH=384"
 
 # OSD options
