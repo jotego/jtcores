@@ -37,12 +37,11 @@
         <dip name="Coin A" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"></dip>
         <dip name="Service Mode" bits="6" ids="On,Off"></dip>
         <dip name="Flip Screen" bits="7" ids="On,Off"></dip>
-        <!-- DSW -->
-        <dip name="Lives" bits="16,17" ids="7,5,4,3"></dip>
-        <dip name="Cabinet" bits="18" ids="Upright,Cocktail"></dip>
-        <dip name="Bonus Life" bits="19,20" ids="30k 90k 90k,30k 80k 80k,20k 80k 80k,20k 70k 70k"></dip>
-        <dip name="Difficulty" bits="21,22" ids="Difficult,Very Easy,Easy,Normal"></dip>
-        <dip name="Allow Continue" bits="23" ids="No,Yes"></dip>
+        <dip name="Lives" bits="8,9" ids="7,5,4,3"></dip>
+        <dip name="Cabinet" bits="10" ids="Upright,Cocktail"></dip>
+        <dip name="Bonus Life" bits="11,12" ids="30k 90k 90k,30k 80k 80k,20k 80k 80k,20k 70k 70k"></dip>
+        <dip name="Difficulty" bits="13,14" ids="Difficult,Very Easy,Easy,Normal"></dip>
+        <dip name="Allow Continue" bits="15" ids="No,Yes"></dip>
     </switches>
     <buttons names="Fire,Jump,Start,Coin,Pause" 
         default="A,B,R,L,Start"/>

@@ -110,7 +110,9 @@ always @(negedge clk)
     rst_game <= rst || !rom_ready;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
+`ifndef VULGUS
 assign dip_flip = dipsw[12];
+`endif
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),

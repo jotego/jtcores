@@ -145,7 +145,7 @@ end
 
 wire cen8;
 
-assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign {dipsw_a, dipsw_b} = dipsw[15:0];
 assign dip_flip = dipsw[6];
 
 jtframe_cen48 u_cen(

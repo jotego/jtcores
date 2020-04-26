@@ -144,7 +144,8 @@ end
 
 wire cen8;
 
-assign {dipsw_b, dipsw_a} = dipsw[15:0];
+// A and B are inverted in this game (or in MAME definition)
+assign {dipsw_a, dipsw_b} = dipsw[15:0];
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
