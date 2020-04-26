@@ -120,7 +120,7 @@ jtgng_char #(
     .wr_n       ( RnW           ),
     .dseln      ( {UDSWn, LDSWn}),
     .busy       ( char_busy     ),
-    // Pause screen
+    // Pause screen    
     .pause      ( pause         ),
     .scan       ( char_scan     ),
     .msg_low    ( char_msg_low  ),

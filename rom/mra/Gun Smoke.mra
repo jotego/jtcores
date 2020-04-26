@@ -6,7 +6,7 @@
 	<year>1985</year>
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Western</category>
-	<rbf>jtgunsmoke</rbf>
+	<rbf alt="jtgun">jtgunsmoke</rbf>
 	<rom index="0" zip="gunsmoke.zip" md5="a659c3df76fc4374a4af1ca2187faa8f" type="merged|nonmerged">
 		<part name="gs03.09n"/>
 		<part name="gs04.10n"/>

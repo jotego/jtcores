@@ -40,12 +40,14 @@
 		<part name="j2.bin"/>
 		<part name="82s129.8n"/>
 	</rom>
-    <switches base="16">
+    <switches default="FF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Lives" bits="0,1" ids="5,1,2,3"></dip>
-        <dip name="Coin B" bits="2,4" ids="2 Coins/1 Credit,4 Coins/1 Credit,1 Coin/2 Credits,5 Coins/1 Credit,1 Coin/3 Credits,3 Coins/1 Credit,1 Coin/1 Credit" coin="yes"></dip>
-        <dip name="Coin A" bits="5,7" ids="Free Play,2 Coins/1 Credit,4 Coins/1 Credit,1 Coin/2 Credits,5 Coins/1 Credit,1 Coin/3 Credits,3 Coins/1 Credit,1 Coin/1 Credit" coin="yes"></dip>
+        <dip name="Coin B" bits="2,4" ids="2/1,4/1,1/2,5/1,1/3,3/1,1/1"></dip>
+        <dip name="Coin A" bits="5,7" ids="Free Play,2/1,4/1,1/2,5/1,1/3,3/1,1/1"></dip>
         <!-- DSW2 -->
+        <dip name="Unused" bits="8" ids="On,Off"></dip>
+        <dip name="Unused" bits="9" ids="On,Off"></dip>
         <dip name="Demo Music" bits="10" ids="Off,On"></dip>
         <dip name="Demo Sounds" bits="11" ids="Off,On"></dip>
         <dip name="Bonus Life" bits="12,14" ids="None,10k 70k,20k 80k,10k 50k,30k 70k,10k 60k,20k 70k,20k 60k"></dip>

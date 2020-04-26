@@ -3,7 +3,8 @@ TARGET="-mist -mister -sidi"
 EXTRA="-d JTFRAME_RELEASE -g"
 NETWORK=
 
-cores="1942 1943 gng biocom commando gunsmoke vulgus tora f1dream btiger sectionz"
+# Biocom is currently ommited
+cores="1942 1943 gng commando gunsmoke vulgus tora f1dream btiger sectionz"
 
 
 while [ $# -gt 0 ]; do
@@ -16,7 +17,11 @@ while [ $# -gt 0 ]; do
             TARGET=-sidi;;
         -target)
             shift
-            TARGET="$1";;
+            TARGET=
+            for i in $1; do
+                TARGET="$TARGET -$i"
+            done
+            ;;
         -all | -a)
 			TARGET="-mist -mister -sidi";;
         -test)
@@ -25,7 +30,12 @@ while [ $# -gt 0 ]; do
             shift
             cores="$1";;
         -network)
-            NETWORK="-S despacho";;
+            if [ "$TARGET" = "-mister" ]; then
+                NETWORK="-S 1/portatil.home -S 2/despacho.home"
+            else
+                NETWORK="-S 2/portatil.home -S 8/despacho.home"
+            fi
+            ;;
         -h | -help | --help)
             cat <<EOF
 Updates all JT cores. Usage:
@@ -54,9 +64,9 @@ done
 
 PARA=
 
-if [ "$TARGET" = -mister ]; then
-    PARA="$PARA --jobs 2"
-fi
+#if [ "$TARGET" = -mister ]; then
+#    PARA="$PARA --jobs 2"
+#fi
 export JTROOT
 #parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee update.log
-parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee update.log
+parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee $JTROOT/log/update.log

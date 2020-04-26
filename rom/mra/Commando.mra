@@ -7,7 +7,7 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Army / Fighter</category>
     <mameversion>0217</mameversion>
-	<rbf>jtcommando</rbf>
+	<rbf alt="jtcom">jtcommando</rbf>
 	<rom index="0" zip="commando.zip" md5="5ba63333cd074858f8303dfbcb885c17" type="merged|nonmerged">
 		<part name="cm04.9m"/>
 		<part name="cm03.8m"/>

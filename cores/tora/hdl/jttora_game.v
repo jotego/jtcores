@@ -405,8 +405,12 @@ assign snd2_cs   = 1'b0;
 assign snd       = 16'b0;
 `endif
 
+`ifndef NOPAUSE
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
+`else
+wire pause=1'b0;
+`endif
 
 `ifndef NOVIDEO
 jttora_video u_video(
