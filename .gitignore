@@ -12,6 +12,11 @@
 *.png
 *.jpg
 *.raw
+*.qpf
+*.qsf
+*.pin
+*.sof
+*.jdi
 .simvision
 sim
 build_id.v

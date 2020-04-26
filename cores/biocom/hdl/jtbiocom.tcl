@@ -1,5 +1,5 @@
 set_global_assignment -name VERILOG_MACRO "CORENAME=\"JTBIOCOM\""
-set_global_assignment -name VERILOG_MACRO "JTFRAME_OSD_TEST=1"
+set_global_assignment -name VERILOG_MACRO "JTFRAME_MRA_DIP=1"
 set_global_assignment -name VERILOG_MACRO "GAMETOP=jtbiocom_game"
 set_global_assignment -name VERILOG_MACRO "STEREO_GAME=1"
 set_global_assignment -name VERILOG_MACRO "COLORW=5"

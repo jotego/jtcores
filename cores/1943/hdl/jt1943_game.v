@@ -57,7 +57,8 @@ module jt1943_game(
     output          prog_we,
     output          prog_rd,
     // DIP Switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
+    input   [31:0]  status,
+    input   [31:0]  dipsw,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -117,6 +118,8 @@ always @(negedge clk)
 
 wire cen8;
 
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -124,15 +127,6 @@ jtframe_cen48 u_cen(
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
-);
-
-jt1943_dip u_dip(
-    .clk        ( clk           ),
-    .status     ( status        ),
-    .dip_pause  ( dip_pause     ),
-    .dip_test   ( dip_test      ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
 );
 
 jtgng_timer u_timer(

@@ -58,9 +58,10 @@ module jtbtiger_game(
     output          prog_we,
     output          prog_rd,
     // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
+    input   [31:0]  status,
+    input   [31:0]  dipsw,
     input           dip_pause,
-    input           dip_flip,
+    inout           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     // Sound output
@@ -144,6 +145,9 @@ end
 
 wire cen8;
 
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign dip_flip = dipsw[6];
+
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -159,16 +163,6 @@ jtframe_cen3p57 u_cen3p57(
     .clk      ( clk       ),
     .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused
-);
-
-jtbtiger_dip u_dip(
-    .clk        ( clk           ),
-    .status     ( status        ),
-    .dip_pause  ( dip_pause     ),
-    .dip_test   ( dip_test      ),
-    .dip_flip   ( dip_flip      ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
 );
 
 wire LHBL_obj, LVBL_obj;

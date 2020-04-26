@@ -41,4 +41,20 @@
 		<part name="g-10.02j"/>
 		<part name="g-05.01f"/>
 	</rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW1 -->
+        <dip name="Bonus Life" bits="0,1" ids="30K 100K 150K+,30K 80K 80K+,30K 100K,30K 100K 100K+"></dip>
+        <dip name="Demo" bits="2" ids="Off,On"></dip>
+        <dip name="Cabinet" bits="3" ids="Upright,Cocktail"></dip>
+        <dip name="Difficulty" bits="4,5" ids="Very Difficult,Difficult,Easy,Normal"></dip>
+        <dip name="Freeze" bits="6" ids="On,Off"></dip>
+        <dip name="Service Mode" bits="7" ids="On,Off"></dip>
+        <!-- DSW2 -->
+        <dip name="Coin B" bits="8,10" ids="4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/1 Credit,1 Coin/6 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="true"></dip>
+        <dip name="Coin A" bits="11,13" ids="4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/1 Credit,1 Coin/6 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="true"></dip>
+        <dip name="Allow Continue" bits="14" ids="No,Yes"></dip>
+        <dip name="Demo Sounds" bits="15" ids="Off,On"></dip>
+    </switches>
+	<buttons names="Fire left,Fire centre,Fire right,Start,Coin,Pause" 
+		default="Y,X,A,R,L,Start"/>
 </misterromdescription>

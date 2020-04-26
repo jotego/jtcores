@@ -4,6 +4,7 @@
     <year>1985</year>
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
+    <mameversion>0217</mameversion>
     <rbf alt="jtsz">jtsectionz</rbf>
     <rom index="0" zip="sectionz.zip" md5="none">
         <!-- 32-byte Header -->

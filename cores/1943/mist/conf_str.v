@@ -4,12 +4,3 @@
 // 01234567890123456789012345678901
 //           abcdefghijklmnopqrstuv
 
-`define CORE_OSD \
-    "OGH,Difficulty,Normal,Easy,Hard,Very hard;", \
-    "OLN,Slot 1,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", \
-    "OOQ,Slot 2,1c1,1c2,1c3,1c4,1c6,2c1,3c1,4c1;", 
-
-`define CORE_KEYMAP \
-    "J1,Fire,Bomb,Roll,Start,Coin,Credits;", \
-    "jn,A,B,X,R,L,Start;",
-

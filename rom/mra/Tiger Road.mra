@@ -6,6 +6,7 @@
 	<year>1987</year>
 	<manufacturer>Capcom</manufacturer>
 	<category>Fighter / Asian</category>
+    <mameversion>0217</mameversion>
 	<rbf>jttora</rbf>
 	<rom index="0" zip="tigeroad.zip" md5="153ab39a778af8b5b2240d9d1719ca97" type="merged|nonmerged">
 		<part name="tre_02.6j"/>
@@ -30,4 +31,19 @@
 		<part name="tr-09a.3b"/>
 		<part name="tr.9e"/>
 	</rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW -->
+        <dip name="Coin B" bits="0,2" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"></dip>
+        <dip name="Coin A" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"></dip>
+        <dip name="Service Mode" bits="6" ids="On,Off"></dip>
+        <dip name="Flip Screen" bits="7" ids="On,Off"></dip>
+        <!-- DSW -->
+        <dip name="Lives" bits="16,17" ids="7,5,4,3"></dip>
+        <dip name="Cabinet" bits="18" ids="Upright,Cocktail"></dip>
+        <dip name="Bonus Life" bits="19,20" ids="30k 90k 90k,30k 80k 80k,20k 80k 80k,20k 70k 70k"></dip>
+        <dip name="Difficulty" bits="21,22" ids="Difficult,Very Easy,Easy,Normal"></dip>
+        <dip name="Allow Continue" bits="23" ids="No,Yes"></dip>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Pause" 
+        default="A,B,R,L,Start"/>
 </misterromdescription>

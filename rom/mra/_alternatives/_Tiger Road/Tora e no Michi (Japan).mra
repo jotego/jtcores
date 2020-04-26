@@ -51,4 +51,19 @@
 		<part name="tr-09a.3b"/>
 		<part name="tr.9e"/>
 	</rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW -->
+        <dip name="Coin B" bits="0,2" ids="4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/1 Credit,1 Coin/6 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit"></dip>
+        <dip name="Coin A" bits="3,5" ids="4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/1 Credit,1 Coin/6 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit"></dip>
+        <dip name="Service Mode" bits="6" ids="On,Off"></dip>
+        <dip name="Flip Screen" bits="7" ids="On,Off"></dip>
+        <dip name="Lives" bits="8,7" ids="7,5,4,3"></dip>
+        <dip name="Cabinet" bits="8,7" ids="Upright,Cocktail"></dip>
+        <dip name="Bonus Life" bits="8,7" ids="20k 80k 80k,20k 70k 70k"></dip>
+        <dip name="Allow Level Select" bits="8,7" ids="Yes,No"></dip>
+        <dip name="Difficulty" bits="8,7" ids="Very Difficult,Difficult,Easy,Normal"></dip>
+        <dip name="Allow Continue" bits="8,7" ids="No,Yes"></dip>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Pause" 
+        default="A,B,R,L,Start"/>
 </misterromdescription>

@@ -6,6 +6,7 @@
 	<year>1987</year>
 	<manufacturer>Capcom</manufacturer>
 	<category>Fighter / Warriors</category>
+    <mameversion>0217</mameversion>
 	<rbf>jtbtiger</rbf>
 	<rom index="0" zip="blktiger.zip" md5="5d864c2ff5386bf87ecc66d99a29e06d" type="merged|nonmerged">
 		<part name="bdu-02a.6e"/>
@@ -30,4 +31,19 @@
 		<part name="bd03.11k"/>
 		<part name="bd04.11l"/>
 	</rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW0 -->
+        <dip name="Coin A" bits="0,2" ids="4/1,3/1,2/1,1/5,1/4,1/3,1/2,1/1"></dip>
+        <dip name="Coin B" bits="3,5" ids="4/1,3/1,2/1,1/5,1/4,1/3,1/2,1/1"></dip>
+        <dip name="Flip Screen" bits="6" ids="On,Off"></dip>
+        <dip name="Test" bits="7" ids="On,Off"></dip>
+        <!-- DSW1 -->
+        <dip name="Lives" bits="8,9" ids="7,5,2,3"></dip>
+        <dip name="Difficulty" bits="10,12" ids="8,7,6,5,4,3,2,1"></dip>
+        <dip name="Demo Sounds" bits="13" ids="Off,On"></dip>
+        <dip name="Allow Continue" bits="14" ids="No,Yes"></dip>
+        <dip name="Cabinet" bits="15" ids="Upright,Cocktail"></dip>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Pause" 
+        default="A,B,R,L,Start"/>
 </misterromdescription>

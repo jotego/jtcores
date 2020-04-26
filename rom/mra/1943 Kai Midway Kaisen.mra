@@ -6,6 +6,7 @@
 	<year>1987</year>
 	<manufacturer>Capcom</manufacturer>
 	<category>Army / Airforce</category>
+    <mameversion>0217</mameversion>
 	<rbf>jt1943</rbf>
 	<rom index="0" zip="1943kai.zip" md5="a22833b3bf0c0bc6c95c53147f17b48f" type="merged|nonmerged">
 		<part name="bmk01.12d"/>
@@ -46,4 +47,19 @@
 		<part name="bmk8.8c"/>
 		<part name="bmk9.6l"/>
 	</rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSWA -->
+        <dip name="Difficulty" bits="0,3" ids="16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1"></dip>
+        <dip name="2 Player Game" bits="4" ids="1 Credit/2 Players,2 Credits/2 Players" coin="yes"></dip>
+        <dip name="Cabinet" bits="5" ids="Cocktail,Upright"></dip>
+        <dip name="Screen Stop" bits="6" ids="On,Off"></dip>
+        <dip name="Service Mode" bits="7" ids="On,Off"></dip>
+        <!-- DSWB -->
+        <dip name="Coin A" bits="8,10" ids="4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/1 Credit,1 Coin/5 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="yes"></dip>
+        <dip name="Coin B" bits="11,13" ids="4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/1 Credit,1 Coin/5 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="yes"></dip>
+        <dip name="Allow Continue" bits="14" ids="No,Yes"></dip>
+        <dip name="Demo Sounds" bits="15" ids="Off,On"></dip>
+    </switches>
+	<buttons names="Shot,Bomb,Loop,Start,Coin,Pause" 
+		default="A,B,X,R,L,Start"/>
 </misterromdescription>

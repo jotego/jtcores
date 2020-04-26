@@ -1,6 +1,7 @@
 #!/bin/bash
-MIST=-mist
-EXTRA=
+TARGET="-mist -mister -sidi"
+EXTRA="-d JTFRAME_RELEASE -g"
+NETWORK=
 
 cores="1942 1943 gng biocom commando gunsmoke vulgus tora f1dream btiger sectionz"
 
@@ -8,17 +9,23 @@ cores="1942 1943 gng biocom commando gunsmoke vulgus tora f1dream btiger section
 while [ $# -gt 0 ]; do
     case "$1" in
         -mister)
-            MIST=-mister;;
+            TARGET=-mister;;
         -mist)
-            MIST=-mist;;
+            TARGET=-mist;;
         -sidi)
-            EXTRA="-sidi -z $EXTRA"
-            MIST=-mist;;
+            TARGET=-sidi;;
+        -target)
+            shift
+            TARGET="$1";;
         -all | -a)
-			MIST="-mist -mister -sidi";;
+			TARGET="-mist -mister -sidi";;
+        -test)
+            EXTRA="-d NOSOUND -d MISTER_NOHDMI";;
         -cores)
             shift
             cores="$1";;
+        -network)
+            NETWORK="-S despacho";;
         -h | -help | --help)
             cat <<EOF
 Updates all JT cores. Usage:
@@ -29,6 +36,7 @@ Updates all JT cores. Usage:
     -all    updates both MiST and MiSTer
     -cores  list of cores to update as \"gng 1943\"
     -sidi   compile for SiDi. Cannot update for SiDi and MiST at the same time
+    -test   test build. Disables sound and HDMI. Does not define JTFRAME_RELEASE.
     :       options for jtcore script can be added after a colon
 EOF
         exit 0;
@@ -38,7 +46,7 @@ EOF
             shift
             EXTRA="$EXTRA $*"
             break;;
-        *)  echo "ERROR: Unknown option $1";
+        *)  echo "ERROR: jtupdate does not know option $1";
             exit 1;;
     esac
     shift
@@ -46,8 +54,9 @@ done
 
 PARA=
 
-if [ "$MIST" = -mister ]; then
+if [ "$TARGET" = -mister ]; then
     PARA="$PARA --jobs 2"
 fi
-
-parallel $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $MIST | tee update.log
+export JTROOT
+#parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee update.log
+parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee update.log

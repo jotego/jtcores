@@ -57,7 +57,8 @@ module jttora_game(
     output          prog_we,
     output          prog_rd,
     // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
+    input   [31:0]  status,
+    input   [31:0]  dipsw,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -143,6 +144,8 @@ end
 
 wire cen8;
 
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -169,16 +172,6 @@ jtframe_cen3p57 u_cen3p57(
 jtframe_cenp384 u_cenp384(
     .clk      ( clk       ),
     .cen_p384 ( cenp384   )
-);
-
-jttora_dip u_dip(
-    .clk        ( clk           ),
-    .status     ( status        ),
-    .dip_pause  ( dip_pause     ),
-    .dip_test   ( dip_test      ),
-    .dip_flip   ( dip_flip      ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
 );
 
 wire LHBL_obj, LVBL_obj;

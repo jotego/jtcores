@@ -7,7 +7,8 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+    <mameversion>0217</mameversion>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="gng.zip" md5="41a39ea05a8bf15526ca05e0894c248f" type="merged|nonmerged">
 		<part name="gg3.bin"/>
 		<part name="gg4.bin"/>
@@ -31,4 +32,20 @@
 		<part name="gg12.bin"/>
 		<part name="gg12.bin"/>
 	</rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW1 -->
+        <dip name="Coinage" bits="0,3" ids="Free Play,4 Coins/3 Credits,4 Coins/1 Credit,3 Coins/4 Credits,3 Coins/2 Credits,3 Coins/1 Credit,2 Coins/5 Credits,2 Coins/3 Credits,2 Coins/1 Credit,1 Coin/7 Credits,1 Coin/6 Credits,1 Coin/5 Credits,1 Coin/4 Credits,1 Coin/3 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="yes"></dip>
+        <dip name="Coinage affects" bits="4" ids="Coin B,Coin A" coin="yes"></dip>
+        <dip name="Demo Sounds" bits="5" ids="On,Off"></dip>
+        <dip name="Service Mode" bits="6" ids="On,Off"></dip>
+        <dip name="Flip Screen" bits="7" ids="On,Off"></dip>
+        <!-- DSW2 -->
+        <dip name="Lives" bits="8,9" ids="7,5,4,3"></dip>
+        <dip name="Cabinet" bits="10" ids="Upright,Cocktail"></dip>
+        <dip name="Bonus Life" bits="11,12" ids="30K and 80K,20K and 80K,30K 80K**,20K 70K**"></dip>
+        <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"></dip>
+        <dip name="Unused" bits="15" ids="On,Off"></dip>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Pause" 
+        default="A,B,R,L,Start"/>
 </misterromdescription>

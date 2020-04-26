@@ -57,9 +57,10 @@ module jtcommando_game(
     output          prog_we,
     output          prog_rd,
     // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
+    input   [31:0]  status,
+    input   [31:0]  dipsw,
     input           dip_pause,
-    input           dip_flip,
+    inout           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
     // Sound output
@@ -114,6 +115,9 @@ assign pxl_cen  = cen6;
 
 assign sample=1'b1;
 
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign dip_flip = dipsw[13];
+
 `ifdef MISTER
 
 reg rst_game;
@@ -143,16 +147,6 @@ jtframe_cen48 u_cen(
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
-);
-
-jtcommando_dip u_dip(
-    .clk        ( clk           ),
-    .status     ( status        ),
-    .dip_pause  ( dip_pause     ),
-    .dip_test   ( dip_test      ),
-    .dip_flip   ( dip_flip      ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
 );
 
 wire LHBL_obj, LVBL_obj;

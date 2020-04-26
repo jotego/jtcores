@@ -58,8 +58,9 @@ module jtgng_game(
     output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
+    input   [31:0]  dipsw,
     input           dip_pause,
-    input           dip_flip,
+    inout           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     // Sound output
@@ -144,15 +145,8 @@ jtframe_cen48 u_cen(
     .cen1p5b( cen1p5b   )
 );
 
-jtgng_dip u_dip(
-    .clk        ( clk           ),
-    .status     ( status        ),
-    .dip_pause  ( dip_pause     ),
-    .dip_test   ( dip_test      ),
-    .dip_flip   ( dip_flip      ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
-);
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign dip_flip = dipsw_a[7];
 
 wire LHBL_obj, LVBL_obj;
 

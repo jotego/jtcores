@@ -4,6 +4,7 @@
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
     <rbf alt="jtsz">jtsectionz</rbf>
+    <mameversion>0217</mameversion>
     <rom index="0" zip="lwings.zip" md5="none">
         <!-- 32-byte Header -->
         <part> 01 00 00 00 00 00 00 00 </part>

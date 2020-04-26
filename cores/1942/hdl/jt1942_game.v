@@ -59,9 +59,10 @@ module jt1942_game(
     output          prog_we,
     output          prog_rd,
     // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
+    input   [31:0]  status,     // ignored
+    input   [31:0]  dipsw,
     input           dip_pause,
-    input           dip_flip,
+    inout           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
     // Sound output
@@ -108,22 +109,15 @@ reg rst_game;
 always @(negedge clk)
     rst_game <= rst || !rom_ready;
 
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign dip_flip = dipsw[12];
+
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
-);
-
-jt1942_dip u_dip(
-    .clk        ( clk           ),
-    .status     ( status        ),
-    .dip_pause  ( dip_pause     ),
-    .dip_test   ( dip_test      ),
-    .dip_flip   ( dip_flip      ),
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
 );
 
 jtgng_timer u_timer(

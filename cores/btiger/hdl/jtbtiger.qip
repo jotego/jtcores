@@ -3,7 +3,6 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_video.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_mcu.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_prom_we.v ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_dip.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_colmix.v  ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbtiger_scroll.v  ]
 
@@ -30,7 +29,7 @@ set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../.
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jtgng_pll1.qip       ]
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/t80/T80.qip          ]
 # set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/tv80/tv80s.qip    ]
-set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jt12/hdl/jt03.qip    ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jtgng_sound.qip      ]
 
 # Protection
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/cpu/8051/mc8051.qip     ]

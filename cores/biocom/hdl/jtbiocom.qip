@@ -1,5 +1,4 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_colmix.v  ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_dip.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_game.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_main.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtbiocom_mcu.v     ]
