@@ -11,6 +11,26 @@ end
 
 wire [8:0] V,H;
 wire       Hinit, Vinit, LHBL, LHBL_obj, LVBL, LVBL_obj, HS, VS;
+wire       hs_out, vs_out;
+
+wire [3:0] hoffset, voffset;
+
+assign hoffset = `HOFFSET;
+assign voffset = `VOFFSET;
+
+jtframe_resync u_resync(
+    .clk      (  clk         ),
+    .pxl_cen  (  1'b1        ),
+    .hs_in    (  HS          ),
+    .vs_in    (  VS          ),
+    .LVBL     (  LVBL        ),
+    .LHBL     (  LHBL        ),
+    .hoffset  (  hoffset     ),
+    .voffset  (  voffset     ),
+    .hs_out   (  hs_out      ),
+    .vs_out   (  vs_out      )    
+);
+
 
 jtgng_timer #(.LAYOUT(`LAYOUT)) UUT(
     .clk       ( clk      ),
