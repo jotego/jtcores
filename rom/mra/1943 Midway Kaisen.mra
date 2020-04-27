@@ -8,83 +8,44 @@
 	<category>Army / Airforce</category>
 	<mameversion>0217</mameversion>
 	<rbf>jt1943</rbf>
-	<rom index="0" zip="1943j.zip" md5="ed51564a2680da2172a4a3203a7d6768" type="nonmerged">
-		<part name="bm01b.12d"/>
-		<part name="bm02b.13d"/>
-		<part name="bm03b.14d"/>
-		<part name="bm05.4k"/>
-		<part name="bm04.5h"/>
-		<part name="bm14.5f"/>
-		<part name="bm23.8k"/>
-		<part name="bm15.10f"/>
-		<part name="bm19.10j"/>
-		<part name="bm16.11f"/>
-		<part name="bm20.11j"/>
-		<part name="bm17.12f"/>
-		<part name="bm21.12j"/>
-		<part name="bm18.14f"/>
-		<part name="bm22.14j"/>
-		<part name="bm24.14k"/>
-		<part name="bm25.14l"/>
-		<part name="bm06.10a"/>
-		<part name="bm10.10c"/>
-		<part name="bm07.11a"/>
-		<part name="bm11.11c"/>
-		<part name="bm08.12a"/>
-		<part name="bm12.12c"/>
-		<part name="bm09.14a"/>
-		<part name="bm13.14c"/>
-		<part name="bm10.7l"/>
-		<part name="bm11.12l"/>
-		<part name="bm1.12a"/>
-		<part name="bm12.12m"/>
-		<part name="bm2.13a"/>
-		<part name="bm3.14a"/>
-		<part name="bm4.12c"/>
-		<part name="bm5.7f"/>
-		<part name="bm6.4b"/>
-		<part name="bm7.7c"/>
-		<part name="bm8.8c"/>
-		<part name="bm9.6l"/>
-	</rom>
-	<rom index="0" zip="1943.zip" md5="ed51564a2680da2172a4a3203a7d6768" type="merged">
-		<part name="1943j/bm01b.12d"/>
-		<part name="1943j/bm02b.13d"/>
-		<part name="1943j/bm03b.14d"/>
-		<part name="bm05.4k"/>
-		<part name="bm04.5h"/>
-		<part name="bm14.5f"/>
-		<part name="bm23.8k"/>
-		<part name="bm15.10f"/>
-		<part name="bm19.10j"/>
-		<part name="bm16.11f"/>
-		<part name="bm20.11j"/>
-		<part name="bm17.12f"/>
-		<part name="bm21.12j"/>
-		<part name="bm18.14f"/>
-		<part name="bm22.14j"/>
-		<part name="bm24.14k"/>
-		<part name="bm25.14l"/>
-		<part name="bm06.10a"/>
-		<part name="bm10.10c"/>
-		<part name="bm07.11a"/>
-		<part name="bm11.11c"/>
-		<part name="bm08.12a"/>
-		<part name="bm12.12c"/>
-		<part name="bm09.14a"/>
-		<part name="bm13.14c"/>
-		<part name="bm10.7l"/>
-		<part name="bm11.12l"/>
-		<part name="bm1.12a"/>
-		<part name="bm12.12m"/>
-		<part name="bm2.13a"/>
-		<part name="bm3.14a"/>
-		<part name="bm4.12c"/>
-		<part name="bm5.7f"/>
-		<part name="bm6.4b"/>
-		<part name="bm7.7c"/>
-		<part name="bm8.8c"/>
-		<part name="bm9.6l"/>
+	<rom index="0" zip="1943.zip|1943j.zip" md5="ed51564a2680da2172a4a3203a7d6768" type="merged">
+        <part name="bm01b.12d" crc="363f9f3d"/>
+        <part name="bm02b.13d" crc="7f0d7edc"/>
+        <part name="bm03b.14d" crc="7093da2a"/>
+        <part name="bm05.4k" crc="ee2bd2d7"/>
+        <part name="bm04.5h" crc="46cb9d3d"/>
+        <part name="bm14.5f" crc="4d3c6401"/>
+        <part name="bm23.8k" crc="a52aecbd"/>
+        <part name="bm15.10f" crc="6b1a0443"/>
+        <part name="bm19.10j" crc="868ababc"/>
+        <part name="bm16.11f" crc="23c908c2"/>
+        <part name="bm20.11j" crc="0917e5d4"/>
+        <part name="bm17.12f" crc="46bcdd07"/>
+        <part name="bm21.12j" crc="9bfb0d89"/>
+        <part name="bm18.14f" crc="e6ae7ba0"/>
+        <part name="bm22.14j" crc="04f3c274"/>
+        <part name="bm24.14k" crc="11134036"/>
+        <part name="bm25.14l" crc="092cf9c1"/>
+        <part name="bm06.10a" crc="97acc8af"/>
+        <part name="bm10.10c" crc="8438a44a"/>
+        <part name="bm07.11a" crc="d78f7197"/>
+        <part name="bm11.11c" crc="6c69351d"/>
+        <part name="bm08.12a" crc="1a626608"/>
+        <part name="bm12.12c" crc="5e7efdb7"/>
+        <part name="bm09.14a" crc="92408400"/>
+        <part name="bm13.14c" crc="1143829a"/>
+        <part name="bm10.7l" crc="33c2491c"/>
+        <part name="bm11.12l" crc="405aae37"/>
+        <part name="bm1.12a" crc="74421f18"/>
+        <part name="bm12.12m" crc="c18aa136"/>
+        <part name="bm2.13a" crc="ac27541f"/>
+        <part name="bm3.14a" crc="251fb6ff"/>
+        <part name="bm4.12c" crc="91a8a2e1"/>
+        <part name="bm5.7f" crc="206713d0"/>
+        <part name="bm6.4b" crc="0eaf5158"/>
+        <part name="bm7.7c" crc="b56f30c3"/>
+        <part name="bm8.8c" crc="c2010a9e"/>
+        <part name="bm9.6l" crc="aeea4af7"/>
 	</rom>
     <switches default="FF,FF" base="16">
         <!-- DSWA -->
