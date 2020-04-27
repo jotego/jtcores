@@ -34,7 +34,7 @@
 		<part name="vtb5.6l"/>
 		<part name="vtb6.6e"/>
 	</rom>
-    <switches default="FF,FF" base="16">
+    <switches default="BF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Starting Area" bits="0,1" ids="6,2,4,0"></dip>
         <dip name="Lives" bits="2,3" ids="5,2,4,3"></dip>
@@ -44,7 +44,7 @@
         <dip name="Bonus Life" bits="8,10" ids="None,20K 70K+,30K 80K+,10K 60K+,40K 100K+,20K 60K+,30K 70K+,10K 50K+"></dip>
         <dip name="Demo Sounds" bits="11" ids="Off,On"></dip>
         <dip name="Difficulty" bits="12" ids="Difficult,Normal"></dip>
-        <dip name="Flip Screen" bits="13" ids="Off,On"></dip>
+        <dip name="Game mode" bits="13" ids="Off,On"></dip>
         <dip name="Cabinet" bits="14,15" ids="Upright,Upright Two Players,Cocktail"></dip>
     </switches>
 	<buttons names="Shot,Granade,Start,Coin,Pause" 
