@@ -8,7 +8,7 @@
 	<category>Army / Airforce</category>
     <mameversion>0217</mameversion>
 	<rbf>jt1943</rbf>
-	<rom index="0" zip="1943mii.zip" md5="e56b41c808ea01274b7245c5d89fdef4" type="merged|nonmerged">
+	<rom index="0" zip="1943mii.zip" md5="e56b41c808ea01274b7245c5d89fdef4" >
 		<part name="01.12d"/>
 		<part name="02.13d"/>
 		<part name="03.14d"/>
@@ -49,8 +49,8 @@
 	</rom>
     <switches default="FF,FF" base="16">
         <!-- DSWA -->
-        <dip name="Difficulty" bits="0,3" ids="16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1"></dip>
-        <dip name="2 Player Game" bits="4" ids="1 Credit/2 Players,2 Credits/2 Players"></dip>
+        <dip name="Level" bits="0,3" ids="16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1"></dip>
+        <dip name="2 Player Coins" bits="4" ids="1 Credit/2 Players,2 Credits/2 Players"></dip>
         <dip name="Cabinet" bits="5" ids="Cocktail,Upright"></dip>
         <dip name="Screen Stop" bits="6" ids="On,Off"></dip>
         <dip name="Service Mode" bits="7" ids="On,Off"></dip>

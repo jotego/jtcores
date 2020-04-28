@@ -8,7 +8,7 @@
 	<category>Fighter / Asian</category>
     <mameversion>0217</mameversion>
 	<rbf>jttora</rbf>
-	<rom index="0" zip="tigeroad.zip" md5="153ab39a778af8b5b2240d9d1719ca97" type="merged|nonmerged">
+	<rom index="0" zip="tigeroad.zip" md5="153ab39a778af8b5b2240d9d1719ca97" >
 		<part name="tre_02.6j"/>
 		<part name="tre_04.6k"/>
 		<part name="tru_05.12k"/>
@@ -40,7 +40,7 @@
         <dip name="Lives" bits="8,9" ids="7,5,4,3"></dip>
         <dip name="Cabinet" bits="10" ids="Upright,Cocktail"></dip>
         <dip name="Bonus Life" bits="11,12" ids="30k 90k 90k,30k 80k 80k,20k 80k 80k,20k 70k 70k"></dip>
-        <dip name="Difficulty" bits="13,14" ids="Difficult,Very Easy,Easy,Normal"></dip>
+        <dip name="Level" bits="13,14" ids="Hardt,Very Easy,Easy,Normal"></dip>
         <dip name="Allow Continue" bits="15" ids="No,Yes"></dip>
     </switches>
     <buttons names="Fire,Jump,Start,Coin,Pause" 

@@ -9,7 +9,7 @@
 	<category>Fighter / Warriors</category>
     <mameversion>0217</mameversion>
 	<rbf>jtgng</rbf>
-	<rom index="0" zip="gng.zip" md5="41a39ea05a8bf15526ca05e0894c248f" type="merged|nonmerged">
+	<rom index="0" zip="gng.zip" md5="41a39ea05a8bf15526ca05e0894c248f" >
 		<part name="gg3.bin"/>
 		<part name="gg4.bin"/>
 		<part name="gg5.bin"/>
@@ -42,8 +42,8 @@
         <!-- DSW2 -->
         <dip name="Lives" bits="8,9" ids="7,5,4,3"></dip>
         <dip name="Cabinet" bits="10" ids="Upright,Cocktail"></dip>
-        <dip name="Bonus Life" bits="11,12" ids="30K and 80K Only,20K and 80K Only,30K 80K Every 80K,20K 70K Every 70K"></dip>
-        <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"></dip>
+        <dip name="Bonus Life" bits="11,12" ids="30K/80K,20K/80K,30K 80K/80K,20K 70K/70K"></dip>
+        <dip name="Level" bits="13,14" ids="Very Hard,Hard,Easy,Normal"></dip>
         <dip name="Unused" bits="15" ids="On,Off"></dip>
     </switches>
     <buttons names="Fire,Jump,Start,Coin,Pause" 

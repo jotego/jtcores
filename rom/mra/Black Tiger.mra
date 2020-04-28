@@ -8,7 +8,7 @@
 	<category>Fighter / Warriors</category>
     <mameversion>0217</mameversion>
 	<rbf>jtbtiger</rbf>
-	<rom index="0" zip="blktiger.zip" md5="5d864c2ff5386bf87ecc66d99a29e06d" type="merged|nonmerged">
+	<rom index="0" zip="blktiger.zip" md5="5d864c2ff5386bf87ecc66d99a29e06d" >
 		<part name="bdu-02a.6e"/>
 		<part name="bdu-03a.8e"/>
 		<part name="bd-04.9e"/>
@@ -39,7 +39,7 @@
         <dip name="Test" bits="7" ids="On,Off"></dip>
         <!-- DSW1 -->
         <dip name="Lives" bits="8,9" ids="7,5,2,3"></dip>
-        <dip name="Difficulty" bits="10,12" ids="8,7,6,5,4,3,2,1"></dip>
+        <dip name="Level" bits="10,12" ids="8,7,6,5,4,3,2,1"></dip>
         <dip name="Demo Sounds" bits="13" ids="Off,On"></dip>
         <dip name="Allow Continue" bits="14" ids="No,Yes"></dip>
         <dip name="Cabinet" bits="15" ids="Upright,Cocktail"></dip>

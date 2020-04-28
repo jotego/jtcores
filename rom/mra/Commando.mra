@@ -8,7 +8,7 @@
 	<category>Army / Fighter</category>
     <mameversion>0217</mameversion>
 	<rbf alt="jtcom">jtcommando</rbf>
-	<rom index="0" zip="commando.zip" md5="5ba63333cd074858f8303dfbcb885c17" type="merged|nonmerged">
+	<rom index="0" zip="commando.zip" md5="5ba63333cd074858f8303dfbcb885c17" >
 		<part name="cm04.9m"/>
 		<part name="cm03.8m"/>
 		<part name="cm02.9f"/>
@@ -43,9 +43,9 @@
         <!-- DSW2 -->
         <dip name="Bonus Life" bits="8,10" ids="None,20K 70K+,30K 80K+,10K 60K+,40K 100K+,20K 60K+,30K 70K+,10K 50K+"></dip>
         <dip name="Demo Sounds" bits="11" ids="Off,On"></dip>
-        <dip name="Difficulty" bits="12" ids="Difficult,Normal"></dip>
+        <dip name="Level" bits="12" ids="Hard,Normal"></dip>
         <dip name="Game mode" bits="13" ids="Off,On"></dip>
-        <dip name="Cabinet" bits="14,15" ids="Upright,Upright Two Players,Cocktail"></dip>
+        <dip name="Cabinet" bits="14,15" ids="Upright,Upright 2P,Cocktail"></dip>
     </switches>
 	<buttons names="Shot,Granade,Start,Coin,Pause" 
 		default="A,B,R,L,Start"/>

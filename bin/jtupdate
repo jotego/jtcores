@@ -1,34 +1,35 @@
 #!/bin/bash
-TARGET="-mist -mister -sidi"
+TARGET="mist mister sidi"
 EXTRA="-d JTFRAME_RELEASE -g"
 NETWORK=
-
-# Biocom is currently ommited
-cores="1942 1943 gng commando gunsmoke vulgus tora f1dream btiger sectionz"
-
+DRYRUN=
+CORES=".*"
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -mister)
-            TARGET=-mister;;
-        -mist)
-            TARGET=-mist;;
-        -sidi)
-            TARGET=-sidi;;
+        -mister|-mist|-sidi)
+            TARGET=${1:1}
+            ;;
         -target)
             shift
-            TARGET=
-            for i in $1; do
-                TARGET="$TARGET -$i"
-            done
+            TARGET="$1"
             ;;
         -all | -a)
-			TARGET="-mist -mister -sidi";;
+			TARGET="mist mister sidi";;
         -test)
             EXTRA="-d NOSOUND -d MISTER_NOHDMI";;
+        -dryrun|--dry-run)
+            DRYRUN=--dry-run;;
         -cores)
             shift
-            cores="$1";;
+            for i in $1; do
+                if [ "$CORES" = ".*" ]; then
+                    CORES="$i"
+                else
+                    CORES="$CORES\|$i"
+                fi
+            done
+            ;;
         -network)
             if [ "$TARGET" = "-mister" ]; then
                 NETWORK="-S 1/portatil.home -S 2/despacho.home"
@@ -64,9 +65,11 @@ done
 
 PARA=
 
-#if [ "$TARGET" = -mister ]; then
-#    PARA="$PARA --jobs 2"
-#fi
 export JTROOT
-#parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee update.log
-parallel $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA ::: $cores ::: $TARGET | tee $JTROOT/log/update.log
+
+(
+    for i in $TARGET; do 
+        if [ -e $i.cores ]; then cat $i.cores; fi; 
+    done 
+) | grep "$CORES" | 
+parallel --no-run-if-empty --colsep " " --delay 0.5 $DRYRUN $NETWORK $PARA $JTFRAME/bin/jtcore {} $EXTRA | tee $JTROOT/log/update.log

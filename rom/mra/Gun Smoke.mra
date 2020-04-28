@@ -1,5 +1,5 @@
 <misterromdescription>
-	<name>Gun.Smoke (World, 851115)</name>
+	<name>Gun Smoke (World, 851115)</name>
 	<mameversion>0216</mameversion>
 	<setname>gunsmoke</setname>
 	<mratimestamp>201911270000</mratimestamp>
@@ -7,7 +7,7 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Western</category>
 	<rbf alt="jtgun">jtgunsmoke</rbf>
-	<rom index="0" zip="gunsmoke.zip" md5="a659c3df76fc4374a4af1ca2187faa8f" type="merged|nonmerged">
+	<rom index="0" zip="gunsmoke.zip" md5="a659c3df76fc4374a4af1ca2187faa8f" >
 		<part name="gs03.09n"/>
 		<part name="gs04.10n"/>
 		<part name="gs05.12n"/>
@@ -46,7 +46,7 @@
         <dip name="Bonus Life" bits="0,1" ids="30K 100K 150K+,30K 80K 80K+,30K 100K,30K 100K 100K+"></dip>
         <dip name="Demo" bits="2" ids="Off,On"></dip>
         <dip name="Cabinet" bits="3" ids="Upright,Cocktail"></dip>
-        <dip name="Difficulty" bits="4,5" ids="Very Difficult,Difficult,Easy,Normal"></dip>
+        <dip name="Level" bits="4,5" ids="Very Hard,Hard,Easy,Normal"></dip>
         <dip name="Freeze" bits="6" ids="On,Off"></dip>
         <dip name="Service Mode" bits="7" ids="On,Off"></dip>
         <!-- DSW2 -->

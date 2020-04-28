@@ -57,7 +57,7 @@
         <dip name="Coin A" bits="6,7" ids="2/4,1/2,1/3,1/1"></dip>
         <!-- DSWB -->
         <dip name="Continue play" bits="8" ids="Off,On"></dip>
-        <dip name="Difficulty" bits="9,10" ids="Hardest,Easy,Hard,Medium"></dip>
+        <dip name="Level" bits="9,10" ids="Hardest,Easy,Hard,Medium"></dip>
         <dip name="Demo Sounds" bits="11" ids="Off,On"></dip>
         <dip name="Allow Continue" bits="12" ids="No,Yes"></dip>
         <dip name="Bonus Life" bits="13,15" ids="None,30k/60k,30k/80k,20k/60k,40k/10k0,20k/70k,30k/70k,20k/50k"></dip>

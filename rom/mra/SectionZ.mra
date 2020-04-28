@@ -59,7 +59,7 @@
         <dip bits="6,7" name="Coin B"       ids="4/1,2/1,3/1,1/1"/>
         <!-- B -->
         <dip bits="8"     name="Allow Continue" ids="No,Yes"/>
-        <dip bits="9,10"  name="Difficulty"     ids="Very hard,easy,hard,normal"/>
+        <dip bits="9,10"  name="Level"     ids="Very hard,easy,hard,normal"/>
         <dip bits="11,13" name="Bonus Life"     ids="Bonus item,30k 60k,30k 80k,20k 60k,40k 100k,20k 70k,30k 70k,20k 50k"/>
         <dip bits="14,15" name="Cabinet"        ids="Upright 1P,Upright 2P,Cocktail"/>
     </switches>

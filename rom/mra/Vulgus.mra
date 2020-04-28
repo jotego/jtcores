@@ -8,7 +8,7 @@
 	<category>Space / Force</category>
     <mameversion>0217</mameversion>
 	<rbf>jtvulgus</rbf>
-	<rom index="0" zip="vulgus.zip" md5="410250f0a3af08ead86b4ddd8dd78006" type="merged|nonmerged">
+	<rom index="0" zip="vulgus.zip" md5="410250f0a3af08ead86b4ddd8dd78006" >
 		<part name="vulgus.002"/>
 		<part name="vulgus.003"/>
 		<part name="vulgus.004"/>

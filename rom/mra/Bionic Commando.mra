@@ -9,7 +9,7 @@
 	<category>Platform / Climbing</category>
     <mameversion>0217</mameversion>
 	<rbf>jtbiocom</rbf>
-	<rom index="0" zip="bionicc.zip" md5="1e0d5946c2618f03a29e895fa7d987f0" type="merged|nonmerged">
+	<rom index="0" zip="bionicc.zip" md5="1e0d5946c2618f03a29e895fa7d987f0" >
 		<part name="tse_02.1a"/>
 		<part name="tse_03.2a"/>
 		<part name="tse_04.1b"/>
@@ -48,7 +48,7 @@
         <dip name="Lives" bits="8,9" ids="7,5,4,3"></dip>
         <dip name="Cabinet" bits="10" ids="Cocktail,Upright"></dip>
         <dip name="Bonus Life" bits="11,12" ids="30k 70k,20k 60k,30k 50k 120k 70k+,20k 40k 100k 60k+"></dip>
-        <dip name="Difficulty" bits="13,14" ids="Hardest,Hard,Easy,Medium"></dip>
+        <dip name="Level" bits="13,14" ids="Hardest,Hard,Easy,Medium"></dip>
         <dip name="Freeze" bits="15" ids="On,Off"></dip>
     </switches>
 	<buttons names="Hook,Shoot,Start,Coin,Pause" 
