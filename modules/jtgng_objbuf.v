@@ -82,7 +82,7 @@ always @(*) begin
         : ( &{ ~^{dma_dout[BIT8],Vsum[8]}, Vsum[7:4] } ); // 16-bit games: Tora, Biocom...
 end
 
-localparam DMAEND = OBJMAX-4;
+localparam DMAEND = OBJMAX-1;
 wire dmaend = {pre_scan_msb,pre_scan}>=DMAEND;
 wire [5:0] objcnt_end = OBJMAX_LINE-6'd1;
 
