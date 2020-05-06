@@ -2,7 +2,7 @@
 
 module test;
 
-parameter AW = 9;
+parameter AW = 9, OBJMAX=512;
 
 wire [AW-1:0]  AB;
 
@@ -33,7 +33,7 @@ always @(negedge blen ) begin
     if(!rst) #100 $finish;
 end
 
-jtgng_objdma #(.AW(AW)) UUT  (
+jtgng_objdma #(.AW(AW),.OBJMAX(OBJMAX)) UUT  (
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen       ),

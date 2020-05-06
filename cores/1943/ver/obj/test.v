@@ -29,7 +29,7 @@ module test(
 
     // From objects
 parameter
-    OBJMAX         = 9'd511, // DMA buffer 512 bytes = 4*128
+    OBJMAX         = 10'h200, // DMA buffer 512 bytes = 4*128
     OBJMAX_LINE    = 6'd32,
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,

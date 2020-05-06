@@ -17,7 +17,7 @@
     Date: 11-1-2019 */
 
 module jtgng_objdma #(parameter
-    OBJMAX      =   9'h180,     // Buffer size, obj count is this number divided by 4. 180h -> 60h = 96dec
+    OBJMAX      =   10'h180,     // Buffer size, obj count is this number divided by 4. 180h -> 60h = 96dec
     DW          =   8,          // Most games are 8-bit wide, Bionic Commando is 12-bit wide
     AW          =   9,          // Bionic Commando is 10
     INVY        =   0
@@ -28,7 +28,7 @@ module jtgng_objdma #(parameter
     // screen
     input               LVBL,
     // shared bus
-    output reg [AW-1:0]  AB,
+    output     [AW-1:0]  AB,
     input      [DW-1:0]  DB,
     input               OKOUT,
     output  reg         bus_req,  // Request bus
@@ -51,8 +51,12 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 // give more time to the main CPU.
 // It takes 170us to copy the whole ('h1FF) buffer
 
-reg  mem_sel;
-wire OKOUT_latch;
+reg             mem_sel;
+wire            ABmsb, ABslow;
+wire            OKOUT_latch;
+reg   [AW+1:0]  full_cnt;
+
+assign {ABmsb, AB, ABslow} = full_cnt;
 
 jtframe_cencross_strobe u_okout(
     .rst    ( rst         ),
@@ -81,7 +85,7 @@ always @(posedge clk, posedge rst)
                 blen      <= 1'b1;
                 bus_state <= ST_BUSY;
             end
-            ST_BUSY: if( AB==OBJMAX ) begin
+            ST_BUSY: if( {ABmsb,AB}==OBJMAX[AW:0] ) begin
                 bus_req <= 1'b0;
                 blen    <= 1'b0;
                 bus_state <= ST_IDLE;
@@ -90,12 +94,11 @@ always @(posedge clk, posedge rst)
         endcase
     end
 
-reg ABslow;
 always @(posedge clk) if(cen ) begin
     if( !blen )
-        {AB, ABslow} <= {AW+1{1'b0}};
+        full_cnt <= {AW+2{1'b0}};
     else begin
-        {AB, ABslow} <= {AB, ABslow} + 1'b1;
+        full_cnt <= full_cnt + 1'b1;
     end
 end
 

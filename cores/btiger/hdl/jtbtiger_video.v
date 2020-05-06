@@ -84,7 +84,7 @@ module jtbtiger_video(
     output      [3:0]   blue
 );
 
-localparam OBJMAX       = 10'd511, // DMA buffer 512 bytes = 4*128
+localparam OBJMAX       = 10'h200, // DMA buffer 512 bytes = 4*128
            OBJMAX_LINE  = 6'd32,
            AVATAR_MAX   = 9;
 
