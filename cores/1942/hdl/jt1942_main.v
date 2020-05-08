@@ -165,7 +165,11 @@ always @(posedge clk)
         end
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin
-            flip     <=  cpu_dout[7] ^ dip_flip;
+            `ifdef VULGUS
+            flip     <=  cpu_dout[7] ^ dip_flip; // Vulgus doesn't have a real dip_flip
+            `else 
+            flip     <=  cpu_dout[7];
+            `endif
             sres_b   <= ~cpu_dout[4];
             coin_cnt <= ~cpu_dout[0];
         end
@@ -273,7 +277,7 @@ always @(posedge clk)
         if( irq_ack )
             int_n <= 1'b1;
         else if(LHBL && !LHBL_old && int_ctrl[3]) 
-            int_n <= VULGUS ? ~dip_pause : 1'b0;
+            int_n <= ~dip_pause;
     end
 
 wire cpu_cenw;
