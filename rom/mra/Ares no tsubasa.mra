@@ -48,7 +48,7 @@
     </rom>
     <!-- enable vertical screen -->
     <rom index="1"><part> 01 </part></rom>
-    <switches base="0x10" default="FF,FE">
+    <switches base="0x10" default="FF,FD">
         <!-- DSWA -->
         <dip name="Test mode" bits="0" ids="On,Off"></dip>
         <dip name="Flip Screen" bits="1" ids="On,Off"></dip>
