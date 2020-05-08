@@ -228,7 +228,7 @@ always @(posedge clk, posedge rst)
         if( irq_ack )
             int_n <= 1'b1;
         else
-            if ( int_rqb_negedge ) int_n <= 1'b0;
+            if ( int_rqb_negedge && dip_pause ) int_n <= 1'b0;
     end
 
 /////////////////////////////////////////////////////////////////

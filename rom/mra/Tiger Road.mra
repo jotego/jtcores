@@ -1,6 +1,5 @@
 <misterromdescription>
 	<name>Tiger Road (US)</name>
-	<mameversion>0216</mameversion>
 	<setname>tigeroad</setname>
 	<mratimestamp>201911270000</mratimestamp>
 	<year>1987</year>
@@ -40,7 +39,7 @@
         <dip name="Lives" bits="8,9" ids="7,5,4,3"></dip>
         <dip name="Cabinet" bits="10" ids="Upright,Cocktail"></dip>
         <dip name="Bonus Life" bits="11,12" ids="30k 90k 90k,30k 80k 80k,20k 80k 80k,20k 70k 70k"></dip>
-        <dip name="Level" bits="13,14" ids="Hardt,Very Easy,Easy,Normal"></dip>
+        <dip name="Level" bits="13,14" ids="Hard,Very Easy,Easy,Normal"></dip>
         <dip name="Allow Continue" bits="15" ids="No,Yes"></dip>
     </switches>
     <buttons names="Fire,Jump,Start,Coin,Pause" 

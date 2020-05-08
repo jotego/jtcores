@@ -264,6 +264,7 @@ jt1943_main u_main(
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
+    .dip_pause  ( dip_pause     ),
     .coin_cnt   (               )
 );
 `else

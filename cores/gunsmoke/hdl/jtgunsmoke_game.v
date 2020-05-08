@@ -348,7 +348,7 @@ jt1943_video #(
     // Objects
     // DMA timing measured on real PCB was roughly 130us
     // which correspons to these parameters:
-    .OBJMAX        ( 9'h180                           ),
+    .OBJMAX        ( 10'h180                          ),
     .OBJMAX_LINE   ( 6'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),
     .OBJ_ROM_AW    ( 16                               ),

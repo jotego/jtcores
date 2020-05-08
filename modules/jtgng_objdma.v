@@ -52,11 +52,10 @@ localparam MEM_PREBUF=1'd0,MEM_BUF=1'd1;
 // It takes 170us to copy the whole ('h1FF) buffer
 
 reg             mem_sel;
-wire            ABmsb, ABslow;
 wire            OKOUT_latch;
-reg   [AW+1:0]  full_cnt;
+reg   [10:0]    full_cnt;
 
-assign {ABmsb, AB, ABslow} = full_cnt;
+assign AB = full_cnt[AW:1];
 
 jtframe_cencross_strobe u_okout(
     .rst    ( rst         ),
@@ -85,7 +84,7 @@ always @(posedge clk, posedge rst)
                 blen      <= 1'b1;
                 bus_state <= ST_BUSY;
             end
-            ST_BUSY: if( {ABmsb,AB}==OBJMAX[AW:0] ) begin
+            ST_BUSY: if( full_cnt[10:1]==OBJMAX[9:0] ) begin
                 bus_req <= 1'b0;
                 blen    <= 1'b0;
                 bus_state <= ST_IDLE;
