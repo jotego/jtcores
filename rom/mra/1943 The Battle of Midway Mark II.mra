@@ -47,6 +47,8 @@
 		<part name="8.8c"/>
 		<part name="9.6l"/>
 	</rom>
+    <!-- enable vertical screen -->
+    <rom index="1"><part> 01 </part></rom>
     <switches default="FF,FF" base="16">
         <!-- DSWA -->
         <dip name="Level" bits="0,3" ids="16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1"></dip>

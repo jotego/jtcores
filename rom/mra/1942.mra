@@ -40,7 +40,8 @@
 		<part name="sb-8.k3"/>
 		<part name="sb-9.m11"/>
 	</rom>
-    <rom index="1"> 01 </rom>
+    <!-- enable vertical screen -->
+    <rom index="1"><part> 01 </part></rom>
     <switches default="EF,FF" base="16">
         <!-- DSWA -->
         <dip name="Coin A" bits="0,2" ids="Free Play,4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/3 Credits,2 Coins/1 Credit,1 Coin/4 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="yes"></dip>

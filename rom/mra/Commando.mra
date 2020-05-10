@@ -34,7 +34,9 @@
 		<part name="vtb5.6l"/>
 		<part name="vtb6.6e"/>
 	</rom>
-    <switches default="FF,CF" base="16">
+    <!-- enable vertical screen -->
+    <rom index="1"><part> 01 </part></rom>
+    <switches default="FF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Starting Area" bits="0,1" ids="6,2,4,0"></dip>
         <dip name="Lives" bits="2,3" ids="5,2,4,3"></dip>

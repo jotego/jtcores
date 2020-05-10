@@ -40,6 +40,8 @@
 		<part name="j2.bin"/>
 		<part name="82s129.8n"/>
 	</rom>
+    <!-- enable vertical screen -->
+    <rom index="1"><part> 01 </part></rom>
     <switches default="FF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Lives" bits="0,1" ids="5,1,2,3"></dip>

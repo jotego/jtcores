@@ -41,6 +41,8 @@
 		<part name="g-10.02j"/>
 		<part name="g-05.01f"/>
 	</rom>
+    <!-- enable vertical screen -->
+    <rom index="1"><part> 01 </part></rom>
     <switches default="FF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Bonus Life" bits="0,1" ids="30K 100K 150K+,30K 80K 80K+,30K 100K,30K 100K 100K+"></dip>

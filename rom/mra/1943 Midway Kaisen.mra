@@ -47,6 +47,8 @@
         <part name="bm8.8c" crc="c2010a9e"/>
         <part name="bm9.6l" crc="aeea4af7"/>
 	</rom>
+    <!-- enable vertical screen -->
+    <rom index="1"><part> 01 </part></rom>
     <switches default="FF,FF" base="16">
         <!-- DSWA -->
         <dip name="Level" bits="0,3" ids="0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F"></dip>
