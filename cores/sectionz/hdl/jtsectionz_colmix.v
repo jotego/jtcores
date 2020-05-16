@@ -33,8 +33,8 @@ module jtsectionz_colmix #(
     input [6:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    output reg       LHBL_dly,
+    output reg       LVBL_dly,
     // Avatars
     input [3:0]      avatar_idx,
     input            pause,
@@ -75,6 +75,7 @@ reg [6:0] scr0, obj0;
 reg [CHARW-1:0] char0;
 
 wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
+wire       LHBL_pre, LVBL_pre;
 
 always @(posedge clk) if(pxl_cen) begin
     seladdr <= { ~char_blank, ~obj_blank, 
@@ -105,11 +106,11 @@ always @(posedge clk) if(cen12) begin
         2'b00); // scr
 end
 
-jtframe_sh #(.width(2),.stages(8)) u_hb_dly(
+jtframe_sh #(.width(2),.stages(9)) u_hb_dly(
     .clk    ( clk      ),
     .clk_en ( pxl_cen     ),
     .din    ( {LHBL, LVBL}    ),
-    .drop   ( {LHBL_dly, LVBL_dly}   )
+    .drop   ( {LHBL_pre, LVBL_pre}   )
 );
 
 wire [3:0] pal_red, pal_green, pal_blue;
@@ -170,10 +171,14 @@ wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif
 
-wire blanking = !LVBL_dly || (/*!LHBL &&*/ !LHBL_dly);
+reg  LHBL_dly1;
+wire blanking = !LVBL_dly || (!LHBL_dly && !LHBL_pre);
 
-always @(posedge clk) if (pxl_cen)
-    {red, green, blue } <= !blanking ? avatar_mux : 12'd0;
+always @(posedge clk) if (pxl_cen) begin
+    LHBL_dly <= LHBL_pre;
+    LVBL_dly <= LVBL_pre;
+    { red, green, blue } <= !blanking ? avatar_mux : 12'd0;
+end
 
 
 endmodule // jtgng_colmix
