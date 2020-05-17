@@ -20,7 +20,6 @@
 
 module jtgng_main(
     input              clk,
-    input              cen6  /* synthesis direct_enable = 1 */,   // 6MHz
     (* direct_enable *) input cen_E,
     (* direct_enable *) input cen_Q,
     output             cpu_cen,
@@ -128,7 +127,7 @@ always @(posedge clk or negedge nRESET)
     if( !nRESET ) begin
         scr_hpos <= 8'd0;
         scr_vpos <= 8'd0;
-    end else if(cen6) begin
+    end else if(cen_Q) begin
         if( scrpos_cs && A[3] && scr_holdn)
         case(A[1:0])
             2'd0: scr_hpos[7:0] <= cpu_dout;
@@ -144,7 +143,7 @@ always @(posedge clk or negedge nRESET)
     if( !nRESET ) begin
         bank   <= 3'd0;
     end
-    else if(cen6) begin
+    else if(cen_Q) begin
         if( bank_cs && !RnW ) begin
             bank <= cpu_dout[2:0];
         end
@@ -167,7 +166,7 @@ always @(posedge clk)
         flip <= 1'b0;
         sres_b <= 1'b1;
         end
-    else if(cen6) begin
+    else if(cen_Q) begin
         if( flip_cs )
             case(A[2:0])
                 3'd0: flip <= cpu_dout[0];
@@ -181,7 +180,7 @@ always @(posedge clk)
 always @(posedge clk)
     if( rst )
         snd_latch <= 8'd0;
-    else if(cen6) begin
+    else if(cen_Q) begin
         if( sound_cs ) snd_latch <= cpu_dout;
     end
 
@@ -209,7 +208,7 @@ wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtframe_ram #(.aw(13)) u_ram(
     .clk        ( clk       ),
-    .cen        ( cen6      ),
+    .cen        ( cen_Q      ),
     .addr       ( RAM_addr  ),
     .data       ( cpu_dout  ),
     .we         ( RAM_we    ),
@@ -245,7 +244,7 @@ wire BS,BA;
 
 assign bus_ack = BA && BS;
 
-always @(posedge clk) if(cen6) begin
+always @(posedge clk) if(cen_Q) begin
     last_LVBL <= LVBL;
     if( {BS,BA}==2'b10 )
         nIRQ <= 1'b1;

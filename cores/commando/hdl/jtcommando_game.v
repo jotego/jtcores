@@ -335,7 +335,6 @@ jtgng_video #(
     .clk        ( clk           ),
     .cen12      ( cen12         ),
     .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),

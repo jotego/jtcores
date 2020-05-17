@@ -4,6 +4,7 @@ GAMETOP=jtgng_game
 BUTTONS=2
 VIDEO_HEIGHT=224
 JTFRAME_MRA_DIP
+JTFRAME_CLK24
 
 [mist|sidi]
 #Uses easy scan2x to save resources

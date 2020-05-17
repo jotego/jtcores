@@ -42,7 +42,6 @@ parameter AVATAR_MAX    = 8
     input               clk,
     input               cen12,
     input               cen6,
-    input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,

@@ -21,6 +21,7 @@
 module jtgng_game(
     input           rst,
     input           clk,
+    input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
@@ -108,22 +109,23 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire rom_ready;
 wire main_ok, snd_ok;
 wire cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
+wire clk48_cen12, clk48_cen6;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
+assign pxl2_cen = clk48_cen12;
+assign pxl_cen  = clk48_cen6;
 
 `ifdef MISTER
 
 reg rst_game;
 
-always @(negedge clk)
+always @(negedge clk24)
     rst_game <= rst || !rom_ready;
 
 `else
 
 reg rst_game=1'b1;
 
-always @(posedge clk) begin : rstgame_gen
+always @(posedge clk24) begin : rstgame_gen
     reg rst_aux;
     if( rst || !rom_ready ) begin
         {rst_game,rst_aux} <= 2'b11;
@@ -135,8 +137,8 @@ end
 
 `endif
 
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
+jtframe_cen24 u_cen24(
+    .clk    ( clk24     ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen6b  ( cen6b     ),
@@ -145,13 +147,24 @@ jtframe_cen48 u_cen(
     .cen1p5b( cen1p5b   )
 );
 
+
+jtframe_cen48 u_cen48(
+    .clk    ( clk         ),
+    .cen12  ( clk48_cen12 ),
+    .cen6   ( clk48_cen6  ),
+    .cen6b  (             ),
+    .cen3   (             ),
+    .cen1p5 (             ),
+    .cen1p5b(             )
+);
+
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = dipsw_a[7];
 
 wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
-    .clk       ( clk      ),
+    .clk       ( clk24    ),
     .cen6      ( cen6     ),
     .rst       ( rst      ),
     .V         ( V        ),
@@ -206,8 +219,7 @@ jtgng_prom_we u_prom_we(
 `ifndef NOMAIN
 jtgng_main u_main(
     .rst        ( rst_game      ),
-    .clk        ( clk           ),
-    .cen6       ( cen6          ),
+    .clk        ( clk24         ),
     .cen_E      ( cen1p5        ),
     .cen_Q      ( cen1p5b       ),
     .cpu_cen    ( cpu_cen       ),
@@ -275,7 +287,7 @@ assign cpu_cen     = cen3;
 
 `ifndef NOSOUND
 reg [7:0] psg_gain;
-always @(posedge clk) begin
+always @(posedge clk24) begin
     case( dip_fxlevel )
         2'd0: psg_gain <= 8'h1F;
         2'd1: psg_gain <= 8'h3F;
@@ -286,7 +298,7 @@ end
 
 jtgng_sound #(.FM_GAIN(8'h38)) u_sound (
     .rst            ( rst_game   ),
-    .clk            ( clk        ),
+    .clk            ( clk24      ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),
     // Interface with main CPU
@@ -319,9 +331,8 @@ wire scr_ok = scr1_ok & scr2_ok;
 jtgng_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .cen12      ( pxl2_cen      ),
+    .cen6       ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
