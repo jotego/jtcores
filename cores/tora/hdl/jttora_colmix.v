@@ -29,8 +29,8 @@ module jttora_colmix(
     input [7:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output  reg      LHBL_dly,
-    output  reg      LVBL_dly,
+    output           LHBL_dly,
+    output           LVBL_dly,
     // Priority PROM
     input [7:0]      prog_addr,
     input            prom_prio_we,
@@ -44,9 +44,9 @@ module jttora_colmix(
     input            col_lw,
     input [15:0]     DB,
 
-    output reg [3:0] red,
-    output reg [3:0] green,
-    output reg [3:0] blue,
+    output     [3:0] red,
+    output     [3:0] green,
+    output     [3:0] blue,
     // Debug
     input      [3:0] gfx_en
 );
@@ -59,6 +59,7 @@ wire enable_char = gfx_en[0];
 // wire enable_scr  = gfx_en[1];
 wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
+wire preLBL;
 
 //reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] prio;
@@ -89,24 +90,13 @@ always @(posedge clk) if(cen6) begin
     pixel_mux[9:8] <= prio;
 end
 
-// Blanking delay
-wire [1:0] pre_BL;
-
-jtframe_sh #(.width(2),.stages(5)) u_blank_dly(
-    .clk    ( clk      ),
-    .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}     ),
-    .drop   ( pre_BL   )
-);
-
 // Address mux
 reg  [9:0] pal_addr;
 reg        pal_uwe, pal_lwe;
-reg        coloff; // colour off
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
 
 always @(*) begin
-    if( pre_BL!=2'b11 ) begin
+    if( !preLBL ) begin
         pal_addr = AB;
         pal_uwe   = col_uw;
         pal_lwe   = col_lw;
@@ -115,11 +105,6 @@ always @(*) begin
         pal_uwe  = 1'b0;
         pal_lwe  = 1'b0;
     end
-end
-
-always @(posedge clk) if(cen6) begin
-    coloff <= pre_BL!=2'b11;
-    {LHBL_dly, LVBL_dly} <= pre_BL;
 end
 
 // Palette is in RAM
@@ -168,8 +153,21 @@ jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
     .q      ( prio          )
 );
 
-always @(posedge clk) if (cen6)
-    {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
-        avatar_mux : 12'd0;
+// always @(posedge clk) if (cen6)
+//     {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
+//         avatar_mux : 12'd0;
+
+jtframe_blank #(.DLY(8),.DW(12)) u_dly(
+    .clk        ( clk                 ),
+    .pxl_cen    ( cen6                ),
+    .LHBL       ( LHBL                ),
+    .LVBL       ( LVBL                ),
+    .LHBL_dly   ( LHBL_dly            ),
+    .LVBL_dly   ( LVBL_dly            ),
+    .preLBL     ( preLBL              ),
+    .rgb_in     ( avatar_mux          ),
+    .rgb_out    ( {red, green, blue } )
+);
+
 
 endmodule // jtgng_colmix

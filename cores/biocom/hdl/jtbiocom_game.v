@@ -486,8 +486,6 @@ assign char_addr = 0;
 `endif
 
 wire [ 7:0] scr_nc; // no connect
-// // CPU addresses memory by words, not bytes:
-wire [17:0] main_rom_addr = { main_addr,1'b0 };
 
 // Scroll data: Z, Y, X
 jtframe_rom #(

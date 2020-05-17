@@ -1,0 +1,22 @@
+[all]
+CORENAME="JTBIOCOM"
+GAMETOP=jtbiocom_game
+BUTTONS=2
+STEREO_GAME
+COLORW=5
+JTFRAME_MRA_DIP
+VIDEO_WIDTH=256
+VIDEO_HEIGHT=224
+
+[mist|sidi]
+# Sound doesn't fit in small devices
+NOSOUND
+OSD_NOBCK
+
+[mister]
+AVATARS
+MISTTOP=jtbiocom_mist
+JTFRAME_OSD_NOLOAD
+JTFRAME_ARX=5
+JTFRAME_ARY=4
+

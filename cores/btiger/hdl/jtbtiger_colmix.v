@@ -44,9 +44,9 @@ module jtbtiger_colmix(
     input            redgreen_cs,
     input [7:0]      DB,
 
-    output reg [3:0] red,
-    output reg [3:0] green,
-    output reg [3:0] blue,
+    output     [3:0] red,
+    output     [3:0] green,
+    output     [3:0] blue,
     // Priority PROMs bd01.8j
     input [7:0]     prog_addr,
     input           prom_prior_we,
@@ -102,13 +102,6 @@ always @(posedge clk) if(cen6) begin
     endcase
 end
 
-jtframe_sh #(.width(2),.stages(8)) u_hb_dly(
-    .clk    ( clk      ),
-    .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}    ),
-    .drop   ( {LHBL_dly, LVBL_dly}   )
-);
-
 wire [3:0] pal_red, pal_green, pal_blue;
 
 // Palette is in RAM
@@ -155,8 +148,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
 `endif
 
 `ifdef AVATAR_PAL
-wire [11:0] avatar_pal;
-// Objects have their own palette during pause
+wire [11:0] avatar_pal;8/ Objects have their own palette during pause
 wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
 
 jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
@@ -173,10 +165,15 @@ wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif
 
-wire blanking = !LVBL_dly || (/*!LHBL &&*/ !LHBL_dly);
-
-always @(posedge clk) if (cen6)
-    {red, green, blue } <= !blanking ? avatar_mux : 12'd0;
-
+jtframe_blank #(.DLY(8),.DW(12)) u_dly(
+    .clk        ( clk                 ),
+    .pxl_cen    ( cen6                ),
+    .LHBL       ( LHBL                ),
+    .LVBL       ( LVBL                ),
+    .LHBL_dly   ( LHBL_dly            ),
+    .LVBL_dly   ( LVBL_dly            ),    
+    .rgb_in     ( avatar_mux          ),
+    .rgb_out    ( {red, green, blue } )
+);
 
 endmodule // jtgng_colmix

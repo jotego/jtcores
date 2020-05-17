@@ -1,1 +1,0 @@
-../mist/jtsectionz.tcl

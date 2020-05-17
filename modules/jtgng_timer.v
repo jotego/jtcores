@@ -42,7 +42,7 @@ localparam [8:0] V_START  = LAYOUT != 5 ? 9'd250 : 9'd232,
                  VB_END   = LAYOUT != 5 ? 9'd270 : 9'd262,
                  VS_START = LAYOUT != 5 ? 9'd507 : 9'd244,
                  // VS length doesn't affect position
-                 VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+2),
+                 VS_END   = LAYOUT != 5 ? 9'd510 : (VS_START+9'd3),
                  // H signals: all must be multiple of 8
                  H_START  = LAYOUT != 5 ? 9'd128 : 9'd128,
                  HB_START = LAYOUT != 5 ? 9'h087 : 9'd128,
@@ -92,10 +92,6 @@ wire [9:0] LHBL_obj1 = 10'd263-obj_offset;
 // I often just generates the signals with logic
 // LVBL_obj is such a signal. In CAPCOM schematics
 // this is roughly equivalent to BLTM (1943) or BLTIMING (GnG)
-
-
-
-wire bl_switch = H[2:0]==3'b111; //LAYOUT != 5 ? (H[2:0]==3'b111) : (H[2:0]==3'd0);
 
 always @(posedge clk) if(cen6) begin
     if( H==LHBL_obj1[8:0] ) LHBL_obj<=1'b1;
