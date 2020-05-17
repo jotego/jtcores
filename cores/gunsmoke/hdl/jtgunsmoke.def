@@ -9,15 +9,11 @@ JTFRAME_MRA_DIP
 JTFRAME_OSD_FLIP
 AVATARS
  
-[mist]
-# Avatars on MiST too:
-AVATAR_ROM
-AVATAR_PAL
-AVATAR_OBJDRAW
-AVATAR_DATA
-
-[sidi]
-OSD_NOBCK
+[mist|sidi]
+#Uses easy scan2x to save resources
+#otherwise it won't fit
+VIDEO_WIDTH=384
+JTFRAME_SCAN2X
 
 [mister]
 #JTFRAME_SDRAM_REPACK

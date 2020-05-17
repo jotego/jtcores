@@ -10,10 +10,10 @@ VIDEO_WIDTH=256
 VIDEO_HEIGHT=224
 
 [sidi|mist]
-OSD_NOBCK
-
-[sidi]
-NOSOUND
+#Uses easy scan2x to save resources
+#otherwise it won't fit
+VIDEO_WIDTH=384
+JTFRAME_SCAN2X
 
 [mister]
 AVATARS

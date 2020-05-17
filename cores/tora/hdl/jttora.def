@@ -12,7 +12,10 @@ JTFRAME_MRA_DIP
 JOIN_JOYSTICKS
 
 [mist|sidi]
-OSD_NOBCK
+#Uses easy scan2x to save resources
+#otherwise it won't fit
+VIDEO_WIDTH=384
+JTFRAME_SCAN2X
 
 [mister]
 AVATARS
