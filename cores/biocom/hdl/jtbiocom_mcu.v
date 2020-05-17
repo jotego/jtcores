@@ -188,7 +188,10 @@ mc8051_core u_mcu(
     .p2_o       ( p2_o      ),
 
     .p3_i       (           ),
-    .p3_o       ( p3_o      )
+    .p3_o       ( p3_o      ),
+    // Unused
+    .ALL_TXD_O  (           ),
+    .ALL_RXDWR_O(           )
 );
 
 `ifdef SIMULATION

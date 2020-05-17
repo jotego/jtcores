@@ -26,8 +26,6 @@ module jtbiocom_game(
     output   [4:0]  red,
     output   [4:0]  green,
     output   [4:0]  blue,
-    output          LHBL,
-    output          LVBL,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -155,7 +153,15 @@ jtframe_cen48 u_cen(
     .cen6   ( cen6      ),
     .cen6b  ( cen6b     ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
+    .cen1p5 ( cen1p5    ),
+    // Unused
+    .cen16  (           ),
+    .cen4   (           ),
+    .cen4_12(           ),
+    .cen3q  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5b(           )
 );
 
 wire LHBL_obj, LVBL_obj;
@@ -208,7 +214,8 @@ jtbiocom_dwnld u_dwnld(
     .prom_we     ( prom_we         ),
     .sdram_dout  ( data_read[15:0] ),
     .dwnld_busy  ( dwnld_busy      ),
-    .sdram_ack   ( sdram_ack       )
+    .sdram_ack   ( sdram_ack       ),
+    .data_ok     ( data_rdy        )
 );
 
 wire scr1_cs, scr2_cs;
@@ -558,7 +565,17 @@ jtframe_rom #(
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .refresh_en  ( refresh_en    ),
+    // Unused
+    .slot3_addr  (               ),
+    .slot4_addr  (               ),
+    .slot5_addr  (               ),
+    .slot3_dout  (               ),
+    .slot4_dout  (               ),
+    .slot5_dout  (               ),
+    .slot3_ok    (               ),
+    .slot4_ok    (               ),
+    .slot5_ok    (               )
 );
 
 jtframe_avatar u_avatar(

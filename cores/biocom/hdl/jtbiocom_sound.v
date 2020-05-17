@@ -121,7 +121,9 @@ jtframe_z80_romwait u_cpu(
     .dout       ( dout        ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs      ),
-    .rom_ok     ( rom_ok      )
+    .rom_ok     ( rom_ok      ),
+    // unused
+    .cpu_cen    (             )
 );
 
 jt51 u_jt51(

@@ -1,13 +1,5 @@
 #!/bin/bash
 
-if [ -e ../../mist/*hex ]; then
-    for i in ../../mist/*hex; do
-        if [ ! -e $(basename $i) ]; then
-            if [ -e "$i" ]; then ln -s $i; fi
-        fi
-    done
-fi
-
 # Preparare a gray palette so we can get
 # some graphics output without the main CPU
 if [ ! -e pal.hex ]; then
@@ -33,7 +25,7 @@ for k in $*; do
     fi
 done
 
-export GAME_ROM_PATH=../../../rom/JTBIOCOM.rom
+export GAME_ROM_PATH=../../../rom/biocom.rom
 export MEM_CHECK_TIME=280_000_000
 # 280ms to load the ROM ~17 frames
 export BIN2PNG_OPTIONS="--scale"
@@ -51,7 +43,7 @@ fi
 echo "Game ROM length: " $GAME_ROM_LEN
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN \
     -sysname biocom -modules ../../../modules -d SCANDOUBLER_DISABLE=1 \
-    -d STEREO_GAME -d COLORW=5 -d JT51_NODEBUG $*
+    -d STEREO_GAME -d COLORW=5 -d JT51_NODEBUG -d JTFRAME_MRA_DIP $*
 
 if [ -e jt51.log ]; then
     $JTGNG/modules/jt51/bin/log2txt < jt51.log >/tmp/x
