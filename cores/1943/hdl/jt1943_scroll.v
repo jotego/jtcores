@@ -91,7 +91,7 @@ always @(*) begin
     HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
     H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
     SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
-    {PIC,  SH } = hpos + { {6{SCHF[9]}},SCHF };
+    {PIC,  SH } = hpos + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
 end
 
 generate

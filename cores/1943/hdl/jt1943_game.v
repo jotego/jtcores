@@ -197,7 +197,7 @@ wire prom_4k_we  = prom_we[12];
 reg video_flip;
 
 always @(posedge clk)
-    video_flip <= dip_flip ^ flip; // Original 1943 did not have this DIP bit.
+    video_flip <= ~dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
 
 // 1943 board supports three buttons, but the software only uses two

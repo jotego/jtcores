@@ -335,6 +335,10 @@ always @(posedge clk) pause <= ~dip_pause;
 
 wire nc;
 wire [15:0] pre_obj_addr;
+reg         video_flip;
+
+always @(posedge clk)
+    video_flip <= ~dip_flip ^ flip; // Original Gun Smoke did not have this DIP bit.
 
 jt1943_video #(
     .CHAR_PAL      ( "../../../rom/gunsmoke/g-01.03b" ),
@@ -372,7 +376,7 @@ jt1943_video #(
     .rd_n          ( rd_n          ),
     .wr_n          ( wr_n          ),
     .cpu_dout      ( cpu_dout      ),
-    .flip          ( flip ^ dip_flip ), // no software support for DIP flip in GunSmoke
+    .flip          ( video_flip    ), // no software support for DIP flip in GunSmoke
     .pause         ( pause         ),
     // CHAR
     .char_cs       ( char_cs       ),
