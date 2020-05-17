@@ -148,7 +148,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
 `endif
 
 `ifdef AVATAR_PAL
-wire [11:0] avatar_pal;8/ Objects have their own palette during pause
+wire [11:0] avatar_pal; // Objects have their own palette during pause
 wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
 
 jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(

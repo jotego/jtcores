@@ -12,6 +12,9 @@ VIDEO_HEIGHT=224
 [sidi|mist]
 OSD_NOBCK
 
+[sidi]
+NOSOUND
+
 [mister]
 AVATARS
 JTFRAME_OSD_NOLOAD
