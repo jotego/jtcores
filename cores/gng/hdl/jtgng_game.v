@@ -114,29 +114,6 @@ wire clk48_cen12, clk48_cen6;
 assign pxl2_cen = clk48_cen12;
 assign pxl_cen  = clk48_cen6;
 
-`ifdef MISTER
-
-reg rst_game;
-
-always @(negedge clk24)
-    rst_game <= rst || !rom_ready;
-
-`else
-
-reg rst_game=1'b1;
-
-always @(posedge clk24) begin : rstgame_gen
-    reg rst_aux;
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
-end
-
-`endif
-
 jtframe_cen24 u_cen24(
     .clk    ( clk24     ),
     .cen12  ( cen12     ),
@@ -166,7 +143,6 @@ wire LHBL_obj, LVBL_obj;
 jtgng_timer u_timer(
     .clk       ( clk24    ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -218,7 +194,7 @@ jtgng_prom_we u_prom_we(
 
 `ifndef NOMAIN
 jtgng_main u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk24         ),
     .cen_E      ( cen1p5        ),
     .cen_Q      ( cen1p5b       ),
@@ -297,7 +273,7 @@ always @(posedge clk24) begin
 end
 
 jtgng_sound #(.FM_GAIN(8'h38)) u_sound (
-    .rst            ( rst_game   ),
+    .rst            ( rst        ),
     .clk            ( clk24      ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),

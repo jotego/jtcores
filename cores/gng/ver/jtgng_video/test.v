@@ -19,7 +19,6 @@ wire HINIT;
 jtgng_timer timers(
     .clk       ( clk      ),
     .clk_en    ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),

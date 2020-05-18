@@ -104,11 +104,6 @@ assign sample=1'b1;
 
 wire LHBL_obj, Hsub;
 
-reg rst_game;
-
-always @(negedge clk)
-    rst_game <= rst || !rom_ready;
-
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 `ifndef VULGUS
 assign dip_flip = dipsw[12];
@@ -125,7 +120,6 @@ jtframe_cen48 u_cen(
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -208,7 +202,7 @@ wire prom_m11_we   = prom_we[9];
 
 `ifndef NOMAIN
 jt1942_main #(.VULGUS(VULGUS)) u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -279,7 +273,7 @@ wire [9:0] psg_snd;
 assign snd = { psg_snd, 6'd0 };
 
 jt1942_sound u_sound (
-    .rst            ( rst_game       ),
+    .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),

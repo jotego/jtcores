@@ -116,29 +116,6 @@ assign sample=1'b1;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = dipsw_a[1];
 
-`ifdef MISTER
-
-reg rst_game;
-
-always @(negedge clk)
-    rst_game <= rst || !rom_ready;
-
-`else
-
-reg rst_game=1'b1;
-
-always @(posedge clk) begin : rstgame_gen
-    reg rst_aux;
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
-end
-
-`endif
-
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
@@ -163,7 +140,6 @@ wire LHBL_obj, LVBL_obj;
 jtgng_timer #(.LAYOUT(5)) u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -223,7 +199,7 @@ wire [8:0] scr_hpos, scr_vpos;
 `ifndef NOMAIN
 
 jtcommando_main #(.GAME(1)) u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -306,7 +282,7 @@ always @(posedge clk) begin
 end
 
 jtgng_sound #(.LAYOUT(0)) u_sound (
-    .rst            ( rst_game       ),
+    .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),

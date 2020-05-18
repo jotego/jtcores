@@ -56,7 +56,6 @@ jtgng_cen #(.CLK_SPEED(48)) u_cen(
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     (          ),

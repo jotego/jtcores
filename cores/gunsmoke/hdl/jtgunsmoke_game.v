@@ -117,29 +117,6 @@ assign pxl_cen  = cen6;
 
 assign sample=1'b1;
 
-`ifdef MISTER
-
-reg rst_game;
-
-always @(negedge clk)
-    rst_game <= rst || !rom_ready;
-
-`else
-
-reg rst_game=1'b1;
-
-always @(posedge clk) begin : rstgame_gen
-    reg rst_aux;
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
-end
-
-`endif
-
 wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
@@ -158,7 +135,6 @@ wire LHBL_obj, LVBL_obj;
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -226,7 +202,7 @@ wire [15:0] scrposh;
 `ifndef NOMAIN
 
 jtgunsmoke_main u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -302,7 +278,7 @@ always @(posedge clk) begin
 end
 
 jtgng_sound u_sound (
-    .rst            ( rst_game       ),
+    .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cen1p5         ( cen1p5         ),

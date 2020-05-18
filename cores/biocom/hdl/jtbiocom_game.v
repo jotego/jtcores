@@ -118,29 +118,6 @@ wire        mcu_cen = cen6;
 assign      pxl2_cen = cen12;
 assign      pxl_cen  = cen6;
 
-`ifdef MISTER
-
-reg rst_game;
-
-always @(negedge clk)
-    rst_game <= rst || !rom_ready;
-
-`else
-
-reg rst_game=1'b1;
-
-always @(posedge clk) begin : rstgame_gen
-    reg rst_aux;
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
-end
-
-`endif
-
 wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
@@ -169,7 +146,6 @@ wire LHBL_obj, LVBL_obj;
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -224,7 +200,7 @@ wire [8:0] scr2_hpos, scr2_vpos;
 
 `ifndef NOMAIN
 jtbiocom_main u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
     .cen12b     ( cen12b        ),
@@ -324,7 +300,7 @@ jtbiocom_main u_main(
 
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
 //    .cen6a      ( cen6          ),       //  6   MHz
     .cen6a      ( mcu_cen       ),       //  6   MHz
@@ -366,7 +342,7 @@ jtframe_cen3p57 u_cen3p57(
 );
 
 jtbiocom_sound u_sound (
-    .rst            ( rst_game       ),
+    .rst            ( rst            ),
     .clk            ( clk            ),
     .cen_alt        ( cen3         ), // CPU CEN, it should be cen_fm really
     //.cen_alt        ( cen_fm         ), // CPU CEN, it should be cen_fm really

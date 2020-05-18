@@ -28,7 +28,6 @@ end
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( 1'b1     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),

@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 18-2-2019 */
 
-`timescale 1ns/1ps
-
 module jt1943_game(
     input           rst,
     input           clk,        // 24  or 12  MHz
@@ -111,11 +109,6 @@ assign sample=1'b1;
 
 wire LHBL_obj, LVBL_obj;
 
-reg rst_game;
-
-always @(negedge clk)
-    rst_game <= rst || !rom_ready;
-
 wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
@@ -132,7 +125,6 @@ jtframe_cen48 u_cen(
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -215,7 +207,7 @@ end
 
 `ifndef NOMAIN
 jt1943_main u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
@@ -306,7 +298,7 @@ always @(posedge clk) begin
 end
 
 jtgng_sound u_sound (
-    .rst            ( rst_game   ),
+    .rst            ( rst        ),
     .clk            ( clk        ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),

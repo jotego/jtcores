@@ -19,7 +19,6 @@
 module jtgng_timer(
     input               clk,
     input               cen6,   //  6 MHz
-    input               rst,
     output  reg [8:0]   V,
     output  reg [8:0]   H,
     output  reg         Hinit = 1'b0,

@@ -119,29 +119,6 @@ wire        mcu_cen = cen6;
 assign      pxl2_cen = cen12;
 assign      pxl_cen  = cen6;
 
-`ifdef MISTER
-
-reg rst_game;
-
-always @(negedge clk)
-    rst_game <= rst || !rom_ready;
-
-`else
-
-reg rst_game=1'b1;
-
-always @(posedge clk) begin : rstgame_gen
-    reg rst_aux;
-    if( rst || !rom_ready ) begin
-        {rst_game,rst_aux} <= 2'b11;
-    end
-    else begin
-        {rst_game,rst_aux} <= {rst_aux, downloading };
-    end
-end
-
-`endif
-
 wire cen8;
 
 // A and B are inverted in this game (or in MAME definition)
@@ -180,7 +157,6 @@ wire LHBL_obj, LVBL_obj;
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
-    .rst       ( rst      ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -233,7 +209,7 @@ wire UDSWn, LDSWn;
 
 `ifndef NOMAIN
 jttora_main u_main(
-    .rst        ( rst_game      ),
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen10      ( cen10         ),
     .cen10b     ( cen10b        ),
@@ -325,7 +301,7 @@ jttora_main u_main(
 
 `ifdef MCU
 jtbiocom_mcu u_mcu(
-    .rst        ( rst_game        ),
+    .rst        ( rst             ),
     .clk        ( clk             ),
     .cen6a      ( mcu_cen         ),       //  6   MHz
     // Main CPU interface
@@ -367,7 +343,7 @@ always @(posedge clk) begin
 end
 
 jttora_sound u_sound (
-    .rst            ( rst_game       ),
+    .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cenfm          ( cenfm          ),

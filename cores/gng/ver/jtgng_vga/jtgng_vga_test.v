@@ -108,7 +108,6 @@ wire [8:0] H;
 jtgng_timer timer (
     .clk      (clk_rgb),
     .clk_en   (cen6   ),
-    .rst      (rst    ),
     .V        (V      ),
     .H        (H      ),
     .Hinit    (Hinit  ),

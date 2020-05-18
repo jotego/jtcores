@@ -14,6 +14,7 @@ VIDEO_HEIGHT=224
 #otherwise it won't fit
 VIDEO_WIDTH=384
 JTFRAME_SCAN2X
+OSD_NOBCK
 
 [mister]
 AVATARS
