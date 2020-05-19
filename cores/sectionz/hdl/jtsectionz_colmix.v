@@ -33,8 +33,8 @@ module jtsectionz_colmix #(
     input [6:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output reg       LHBL_dly,
-    output reg       LVBL_dly,
+    output           LHBL_dly,
+    output           LVBL_dly,
     // Avatars
     input [3:0]      avatar_idx,
     input            pause,
@@ -45,9 +45,9 @@ module jtsectionz_colmix #(
     input [7:0]      DB,
     input            cpu_wrn,
 
-    output reg [3:0] red,
-    output reg [3:0] green,
-    output reg [3:0] blue,
+    output     [3:0] red,
+    output     [3:0] green,
+    output     [3:0] blue,
     // Priority PROMs bd01.8j
     // input [7:0]     prog_addr,
     // input           prom_prior_we,
@@ -75,7 +75,6 @@ reg [6:0] scr0, obj0;
 reg [CHARW-1:0] char0;
 
 wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
-wire       LHBL_pre, LVBL_pre;
 
 always @(posedge clk) if(pxl_cen) begin
     seladdr <= { ~char_blank, ~obj_blank, 
@@ -105,13 +104,6 @@ always @(posedge clk) if(cen12) begin
         seladdr[6] ? 2'b01 : // obj
         2'b00); // scr
 end
-
-jtframe_sh #(.width(2),.stages(9)) u_hb_dly(
-    .clk    ( clk      ),
-    .clk_en ( pxl_cen     ),
-    .din    ( {LHBL, LVBL}    ),
-    .drop   ( {LHBL_pre, LVBL_pre}   )
-);
 
 wire [3:0] pal_red, pal_green, pal_blue;
 
@@ -171,14 +163,16 @@ wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif
 
-reg  LHBL_dly1;
-wire blanking = !LVBL_dly || (!LHBL_dly && !LHBL_pre);
-
-always @(posedge clk) if (pxl_cen) begin
-    LHBL_dly <= LHBL_pre;
-    LVBL_dly <= LVBL_pre;
-    { red, green, blue } <= !blanking ? avatar_mux : 12'd0;
-end
+jtframe_blank #(.DLY(8),.DW(12)) u_dly(
+    .clk        ( clk                 ),
+    .pxl_cen    ( pxl_cen             ),
+    .LHBL       ( LHBL                ),
+    .LVBL       ( LVBL                ),
+    .LHBL_dly   ( LHBL_dly            ),
+    .LVBL_dly   ( LVBL_dly            ),    
+    .rgb_in     ( avatar_mux          ),
+    .rgb_out    ( {red, green, blue } )
+);
 
 
 endmodule // jtgng_colmix
