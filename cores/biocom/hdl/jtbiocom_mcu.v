@@ -36,6 +36,7 @@
 
 module jtbiocom_mcu(
     input                rst,
+    input                clk_rom,
     input                clk,
     input                cen6a,       //  6   MHz
     // Main CPU interface
@@ -132,7 +133,7 @@ jtframe_prom #(.aw(12),.dw(8),
     .simfile("../../../rom/biocom/ts.2f")
     `endif
 ) u_prom(
-    .clk        ( clk               ),
+    .clk        ( clk_rom           ),
     .cen        ( cen6a             ),
     .data       ( prom_din          ),
     .rd_addr    ( rom_addr[11:0]    ),

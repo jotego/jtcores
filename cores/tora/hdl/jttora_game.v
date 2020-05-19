@@ -21,6 +21,7 @@
 module jttora_game(
     input           rst,
     input           clk,
+    input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
@@ -109,46 +110,63 @@ wire [18:0] scr_addr;
 wire [14:0] scr2_addr;
 wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen10, cen10b, cen6b, cenfm, cenp384;
 
 wire        rom_ready;
 wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, obj_ok0, char_ok;
-wire        cen12, cen6, cen3, cen1p5;
-wire        mcu_cen = cen6;
-
-assign      pxl2_cen = cen12;
-assign      pxl_cen  = cen6;
-
-wire cen8;
+wire        video_cen8;
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
 
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen12  ( cen12     ),
+/////////////////////////////////////
+// 48 MHz based clock enable signals
+jtframe_cen48 u_cen48(
+    .clk    ( clk           ),
+    .cen12  ( pxl2_cen      ),
+    .cen12b (               ),
+    .cen8   ( video_cen8    ),
+    .cen6   ( pxl_cen       ),
+    .cen6b  (               ),
+    .cen3   (               ),
+    .cen1p5 (               )
+);
+
+/////////////////////////////////////
+// 24 MHz based clock enable signals
+wire        cen3, mcu_cen;
+wire        cen10, cenfm, cenp384;
+wire        nc,ncb;
+reg         cen10b;
+
+jtframe_cen24 u_cen(
+    .clk    ( clk24     ),
+    .cen12  (           ),
     .cen12b (           ),
-    .cen8   ( cen8      ),
-    .cen6   ( cen6      ),
-    .cen6b  ( cen6b     ),
+    .cen8   (           ),
+    .cen6   ( mcu_cen   ),
+    .cen6b  (           ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
+    .cen1p5 (           )
 );
 
-jtframe_cen10 u_cen10(
-    .clk    ( clk       ),
-    .cen10  ( cen10     ),
-    .cen10b ( cen10b    )
+jtframe_frac_cen u_cen10(
+    .clk    ( clk24          ),
+    .n      ( 10'd5          ),         // numerator
+    .m      ( 10'd12         ),         // denominator
+    .cen    ( {nc,  cen10  } ),
+    .cenb   ( /*{ncb, cen10b }*/ )  // 180 shifted
 );
 
-jtframe_cen3p57 u_cen3p57(
-    .clk      ( clk       ),
+always @(posedge clk24) cen10b<=cen10;
+
+jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
+    .clk      ( clk24     ),
     .cen_3p57 ( cenfm     ),
     .cen_1p78 (           )     // unused
 );
 
-jtframe_cenp384 u_cenp384(
-    .clk      ( clk       ),
+jtframe_cenp384 #(.CLK24(1)) u_cenp384(
+    .clk      ( clk24     ),
     .cen_p384 ( cenp384   )
 );
 
@@ -156,7 +174,7 @@ wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen6      ( cen6     ),
+    .cen6      ( pxl_cen  ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -210,7 +228,7 @@ wire UDSWn, LDSWn;
 `ifndef NOMAIN
 jttora_main u_main(
     .rst        ( rst           ),
-    .clk        ( clk           ),
+    .clk        ( clk24         ),
     .cen10      ( cen10         ),
     .cen10b     ( cen10b        ),
     .cpu_cen    ( cpu_cen       ),
@@ -302,7 +320,8 @@ jttora_main u_main(
 `ifdef MCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst             ),
-    .clk        ( clk             ),
+    .clk_rom    ( clk             ),
+    .clk        ( clk24           ),
     .cen6a      ( mcu_cen         ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),
@@ -344,7 +363,7 @@ end
 
 jttora_sound u_sound (
     .rst            ( rst            ),
-    .clk            ( clk            ),
+    .clk            ( clk24          ),
     .cen3           ( cen3           ),
     .cenfm          ( cenfm          ),
     .cenp384        ( cenp384        ),
@@ -392,9 +411,9 @@ wire pause=1'b0;
 jttora_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
+    .cen12      ( pxl2_cen      ),
+    .cen8       ( video_cen8    ),
+    .cen6       ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB        ),
     .V          ( V             ),

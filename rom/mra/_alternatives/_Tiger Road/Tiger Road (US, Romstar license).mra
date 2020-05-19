@@ -1,4 +1,29 @@
+<!--          FPGA compatible core of arcade hardware by Jotego
+
+              This core is available for hardware compatible with MiST and MiSTer
+              Other FPGA systems may be supported by the time you read this.
+              This work is not mantained by the MiSTer project. Please contact the
+              core author for issues and updates.
+
+              (c) Jose Tejada, 2020. Please support the author
+              Patreon: https://patreon.com/topapate
+              Paypal:  https://paypal.me/topapate
+
+              The author does not endorse or participate in illegal distribution
+              of CAPCOM copyrighted material. This work can be used with legally
+              obtained ROM dumps of CAPCOM games or with homework software for
+              the arcade platform.
+
+              This file license is GNU GPLv2.
+              You can read the whole license file in
+              https://opensource.org/licenses/gpl-2.0.php
+
+-->
+
 <misterromdescription>
+    <about author="jotego" webpage="https://patreon.com/topapate"
+                           source ="https://github.com/jotego/jtcps1"
+                           twitter="@topapate"/>
 	<name>Tiger Road (US, Romstar license)</name>
 	<mameversion>0216</mameversion>
 	<setname>tigeroadu</setname>
@@ -7,7 +32,7 @@
 	<manufacturer>Capcom (Romstar license)</manufacturer>
 	<category>Fighter / Asian</category>
 	<rbf>jttora</rbf>
-	<rom index="0" zip="tigeroadu.zip" md5="42e21e4872ce725031d6511a7e4c1f27" type="nonmerged">
+	<rom index="0" zip="tigeroad.zip|tigeroadu.zip" md5="42e21e4872ce725031d6511a7e4c1f27" type="nonmerged">
 		<part name="tru_02.6j"/>
 		<part name="tru_04.6k"/>
 		<part name="tru_05.12k"/>
