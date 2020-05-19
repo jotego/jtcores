@@ -126,6 +126,27 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+jtframe_dual_ram #(.aw(12), 
+    `ifdef F1DREAM    
+    .simfile("../../../rom/f1dream/8751.mcu")
+    `else
+    .simfile("../../../rom/biocom/ts.2f")
+    `endif
+) u_prom (
+    .clk0   ( clk_rom   ),
+    .clk1   ( clk       ),
+    // Port 0: ROM write
+    .data0  ( prom_din      ),
+    .addr0  ( prog_addr     ),
+    .we0    ( prom_we       ),
+    .q0     (               ),
+    // Port 1: Read
+    .data1  (               ),
+    .addr1  ( rom_addr[11:0]),
+    .we1    ( 1'b0          ),
+    .q1     ( rom_data      )
+);
+/*
 jtframe_prom #(.aw(12),.dw(8),
     `ifdef F1DREAM    
     .simfile("../../../rom/f1dream/8751.mcu")
@@ -141,7 +162,7 @@ jtframe_prom #(.aw(12),.dw(8),
     .we         ( prom_we           ),
     .q          ( rom_data          )
 );
-
+*/
 jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
     .clk        ( clk               ),
     .cen        ( cen6a             ),
