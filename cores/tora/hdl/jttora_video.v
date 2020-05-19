@@ -161,7 +161,7 @@ jt1943_scroll #(
     .PALETTE    ( 0        ),
     .LAYOUT     ( LAYOUT   ),
     .ROM_AW     ( 18       ),
-    .HOFFSET    ( 4        ))
+    .HOFFSET    ( 3        ))
 u_scroll (
     .rst          ( rst            ),
     .clk          ( clk            ),

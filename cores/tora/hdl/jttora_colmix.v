@@ -153,11 +153,7 @@ jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
     .q      ( prio          )
 );
 
-// always @(posedge clk) if (cen6)
-//     {red, green, blue } <= (!coloff /*&& !pal_bright[3]*/) ? 
-//         avatar_mux : 12'd0;
-
-jtframe_blank #(.DLY(8),.DW(12)) u_dly(
+jtframe_blank #(.DLY(7),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
     .LHBL       ( LHBL                ),
@@ -168,6 +164,5 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .rgb_in     ( avatar_mux          ),
     .rgb_out    ( {red, green, blue } )
 );
-
 
 endmodule // jtgng_colmix
