@@ -121,7 +121,7 @@ always @(posedge clk) if(cen6) begin
     if (H==9'd206) HS <= 0;
 end
 
-`ifdef SIMULATION
+`ifdef SIMULATION_TIMER
 reg LVBL_Last, LHBL_last, VS_last, HS_last;
 
 wire new_line  = LHBL_last && !LHBL;

@@ -27,8 +27,6 @@ module jttora_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -49,7 +47,7 @@ module jttora_game(
     input           sdram_ack,
     output          refresh_en,
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -78,6 +76,7 @@ parameter CLK_SPEED=48;
 wire [ 8:0] V;
 wire [ 8:0] H;
 wire        HINIT;
+wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
 wire        snd_cs, snd2_cs;
@@ -122,13 +121,19 @@ assign {dipsw_a, dipsw_b} = dipsw[15:0];
 // 48 MHz based clock enable signals
 jtframe_cen48 u_cen48(
     .clk    ( clk           ),
+    .cen16  (               ),
     .cen12  ( pxl2_cen      ),
     .cen12b (               ),
     .cen8   ( video_cen8    ),
     .cen6   ( pxl_cen       ),
     .cen6b  (               ),
+    .cen4   (               ),
+    .cen4_12(               ),
     .cen3   (               ),
-    .cen1p5 (               )
+    .cen3q  (               ),
+    .cen3b  (               ),
+    .cen1p5 (               ),
+    .cen1p5b(               )
 );
 
 /////////////////////////////////////
@@ -142,7 +147,6 @@ jtframe_cen24 u_cen(
     .clk    ( clk24     ),
     .cen12  (           ),
     .cen12b (           ),
-    .cen8   (           ),
     .cen6   ( mcu_cen   ),
     .cen6b  (           ),
     .cen3   ( cen3      ),
@@ -206,7 +210,7 @@ jttora_dwnld u_dwnld(
     .jap         ( jap             ),
 
     .ioctl_wr    ( ioctl_wr        ),
-    .ioctl_addr  ( ioctl_addr      ),
+    .ioctl_addr  ( ioctl_addr[21:0]),
     .ioctl_data  ( ioctl_data      ),
 
     .prog_data   ( prog_data       ),
@@ -558,7 +562,16 @@ jtframe_rom #(
     .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .refresh_en  ( refresh_en    ),
+    // Unused
+    .slot4_addr  (               ),
+    .slot7_addr  (               ),
+    .slot4_dout  (               ),
+    .slot7_dout  (               ),
+    .slot4_ok    (               ),
+    .slot7_ok    (               ),
+    .slot4_cs    (               ),
+    .slot7_cs    (               )
 );
   
 jtframe_avatar u_avatar(

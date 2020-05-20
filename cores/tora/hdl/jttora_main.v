@@ -154,7 +154,7 @@ always @(*) begin
 end
 
 // MCU DMA address decoder
-reg mcu_obj_cs, mcu_ram_cs, mcu_io_cs, mcu_other_cs;
+reg mcu_ram_cs;
 
 always @(*) begin
     mcu_ram_cs   = 1'b0;

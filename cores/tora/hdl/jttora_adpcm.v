@@ -107,6 +107,7 @@ jtframe_z80_romwait u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen3        ),
+    .cpu_cen    (             ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
