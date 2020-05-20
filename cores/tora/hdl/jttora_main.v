@@ -399,6 +399,7 @@ fx68k u_cpu(
     .pwrUp      ( rst         ),
     .enPhi1     ( cen10       ),
     .enPhi2     ( cen10b      ),
+    .HALTn      ( 1'b1        ),
 
     // Buses
     .eab        ( { ncA, A }  ),
