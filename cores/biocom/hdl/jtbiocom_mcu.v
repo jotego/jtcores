@@ -166,7 +166,6 @@ jtframe_prom #(.aw(12),.dw(8),
     .simfile("../../../rom/biocom/ts.2f")
     `endif
 ) u_prom(
-    //.clk        ( clk_rom           ),
     .clk        ( clk               ),
     .cen        ( cen6a             ),
     .data       ( prom_din          ),

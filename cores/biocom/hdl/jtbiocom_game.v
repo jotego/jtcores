@@ -21,6 +21,7 @@
 module jtbiocom_game(
     input           rst,
     input           clk,
+    input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
     output   [4:0]  red,
@@ -107,45 +108,59 @@ wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12b, cen6b;
 
 wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
 wire        scr1_ok, scr2_ok, char_ok;
-wire        cen12, cen6, cen3, cen1p5;
-wire        mcu_cen = cen6;
-
-assign      pxl2_cen = cen12;
-assign      pxl_cen  = cen6;
+wire        cen12, cen12b;
+wire        video_cen8;
 
 wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
+/////////////////////////////////////
+// 48 MHz based clock enable signals
+jtframe_cen48 u_cen48(
+    .clk    ( clk           ),
+    .cen16  (               ),
+    .cen12  ( pxl2_cen      ),
+    .cen12b (               ),
+    .cen8   ( video_cen8    ),
+    .cen6   ( pxl_cen       ),
+    .cen6b  (               ),
+    .cen4   (               ),
+    .cen4_12(               ),
+    .cen3   (               ),
+    .cen3q  (               ),
+    .cen3b  (               ),
+    .cen1p5 (               ),
+    .cen1p5b(               )
+);
+
+/////////////////////////////////////
+// 24 MHz based clock enable signals
+wire        cen3, mcu_cen;
+wire        cen10, cenfm, cenp384;
+wire        nc,ncb;
+reg         cen10b;
+
+jtframe_cen24 u_cen24(
+    .clk    ( clk24     ),
     .cen12  ( cen12     ),
     .cen12b ( cen12b    ),
-    .cen8   ( cen8      ),
-    .cen6   ( cen6      ),
-    .cen6b  ( cen6b     ),
+    .cen6   ( mcu_cen   ),
+    .cen6b  (           ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    ),
-    // Unused
-    .cen16  (           ),
-    .cen4   (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5b(           )
+    .cen1p5 (           )
 );
+
 
 wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen6      ( cen6     ),
+    .cen6      ( pxl_cen  ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -201,7 +216,7 @@ wire [8:0] scr2_hpos, scr2_vpos;
 `ifndef NOMAIN
 jtbiocom_main u_main(
     .rst        ( rst           ),
-    .clk        ( clk           ),
+    .clk        ( clk24         ),
     .cen12      ( cen12         ),
     .cen12b     ( cen12b        ),
     .cpu_cen    ( cpu_cen       ),
@@ -301,8 +316,8 @@ jtbiocom_main u_main(
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
-    .clk        ( clk           ),
-//    .cen6a      ( cen6          ),       //  6   MHz
+    .clk        ( clk24         ),
+    .clk_rom    ( clk           ),
     .cen6a      ( mcu_cen       ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn    ),
@@ -335,16 +350,16 @@ assign mcu_din  =  8'd0;
 
 wire cen_fm, cen_fm2;
 
-jtframe_cen3p57 u_cen3p57(
-    .clk        ( clk       ),       // 48 MHz
+jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
+    .clk        ( clk24     ),       // 48 MHz
     .cen_3p57   ( cen_fm    ),
     .cen_1p78   ( cen_fm2   )
 );
 
 jtbiocom_sound u_sound (
     .rst            ( rst            ),
-    .clk            ( clk            ),
-    .cen_alt        ( cen3         ), // CPU CEN, it should be cen_fm really
+    .clk            ( clk24          ),
+    .cen_alt        ( cen3           ), // CPU CEN, it should be cen_fm really
     //.cen_alt        ( cen_fm         ), // CPU CEN, it should be cen_fm really
     // cen6    X
     // cen_fm2 X
@@ -391,9 +406,9 @@ jtbiocom_video #(
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
+    .cen12      ( pxl2_cen      ),
+    .cen8       ( video_cen8    ),
+    .cen6       ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB        ),
     .V          ( V[7:0]        ),
