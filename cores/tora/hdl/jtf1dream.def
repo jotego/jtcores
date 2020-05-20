@@ -18,6 +18,10 @@ JOIN_JOYSTICKS
 VIDEO_WIDTH=384
 JTFRAME_SCAN2X
 
+[sidi]
+# necessary to make it fit
+OSD_NOBCK
+
 [mister]
 AVATARS
 JTFRAME_ARX=5
