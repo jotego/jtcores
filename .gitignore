@@ -24,6 +24,7 @@ build_id.v
 */mister/*
 cores/*/zxuno/*
 cores/*/mist/*
+cores/*/sidi/*
 cores/*/mister/*
 */obj_dir/*
 .simvision
@@ -45,3 +46,4 @@ releases/*
 */mist/incremental_db
 */mist/db
 old/*
+history
