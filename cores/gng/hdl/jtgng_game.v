@@ -196,8 +196,7 @@ jtgng_prom_we u_prom_we(
 jtgng_main u_main(
     .rst        ( rst           ),
     .clk        ( clk24         ),
-    .cen_E      ( cen1p5        ),
-    .cen_Q      ( cen1p5b       ),
+    .cen6       ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),

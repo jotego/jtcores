@@ -20,8 +20,7 @@
 
 module jtgng_main(
     input              clk,
-    (* direct_enable *) input cen_E,
-    (* direct_enable *) input cen_Q,
+    input              cen6,
     output             cpu_cen,
     input              rst,
     input              LVBL,   // vertical blanking when 0
@@ -208,7 +207,7 @@ wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtframe_ram #(.aw(13)) u_ram(
     .clk        ( clk       ),
-    .cen        ( cen_Q      ),
+    .cen        ( cen_Q     ),
     .addr       ( RAM_addr  ),
     .data       ( cpu_dout  ),
     .we         ( RAM_we    ),
@@ -252,30 +251,28 @@ always @(posedge clk) if(cen_Q) begin
         if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
 end
 
-wire E,Q;
+wire cen_E, cen_Q;
+wire bus_busy = scr_busy | char_busy;
 
-jtframe_dual_wait #(2) u_wait(
-    .rst_n      ( nRESET    ),
+jtframe_6809wait u_wait(
+    .rstn       ( nRESET    ), 
     .clk        ( clk       ),
-    .cen_in     ( { cen_E, cen_Q }    ),
-    .cen_out    ( { E,Q          }    ),
-    .gate       ( waitn     ),
-    // manage access to shared memory
-    .dev_busy   ( { scr_busy, char_busy } ),
-    // manage access to ROM data from SDRAM
+    .cen        ( cen6      ),
+    .cpu_cen    ( cpu_cen   ),
+    .dev_busy   ( bus_busy  ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
+    .rom_ok     ( rom_ok    ),
+    .cen_E      ( cen_E     ),
+    .cen_Q      ( cen_Q     )
 );
 
 // cycle accurate core
 wire [111:0] RegData;
 
-assign cpu_cen = Q;
-
 mc6809i u_cpu (
     .clk     ( clk     ),
-    .cen_E   ( E       ),
-    .cen_Q   ( Q       ),
+    .cen_E   ( cen_E   ),
+    .cen_Q   ( cen_Q   ),
     .D       ( cpu_din ),
     .DOut    ( cpu_dout),
     .ADDR    ( A       ),
