@@ -166,7 +166,7 @@ always @(posedge clk)
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin
             `ifdef VULGUS
-            flip     <=  cpu_dout[7] ^ dip_flip; // Vulgus doesn't have a real dip_flip
+            flip     <=  cpu_dout[7] ^ ~dip_flip; // Vulgus doesn't have a real dip_flip
             `else 
             flip     <=  cpu_dout[7];
             `endif

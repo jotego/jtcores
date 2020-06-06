@@ -106,7 +106,7 @@ wire LHBL_obj, Hsub;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 `ifndef VULGUS
-assign dip_flip = ~dipsw[12];
+assign dip_flip = ~flip;
 `endif
 
 jtframe_cen48 u_cen(
@@ -117,7 +117,7 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-jtgng_timer u_timer(
+jtgng_timer #(.LAYOUT(1)) u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
     .V         ( V        ),
