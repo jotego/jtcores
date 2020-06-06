@@ -114,7 +114,7 @@ assign pxl_cen  = cen6;
 assign sample=1'b1;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = dipsw_a[1];
+assign dip_flip = ~flip;
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
