@@ -26,6 +26,23 @@ In chronological order:
 10. F1-Dream         (see doc/jtf1dream.txt)
 11. Bionic Commando  (see doc/jtbiocom.txt)
 
+### Dependencies
+
+Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149
+------------------|------|-----|-------|------|---------|--------|--------
+1942              |      |  X  |       |      |         |        |   X
+Vulgus            |      |  X  |       |      |         |        |   X
+1943              |      |  X  |       |      |   X     |        |   X
+Commando          |      |  X  |       |      |   X     |        |   X
+Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X
+Section Z         |      |  X  |       |      |   X     |        |   X
+Legendary Wings   |      |  X  |       |      |   X     |        |   X
+Black Tiger       |      |  X  |       |  X   |   X     |        |   X
+Tiger Road        |      |  X  |   X   |      |   X     |        |   X
+F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X
+Bionic Commando   |      |  X  |   X   |  X   |         |   X    |   X
+
+
 ## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.
@@ -130,7 +147,7 @@ There is another script called update_cores.sh that will run jtcore over all sup
 original/hdl/   replica of original PCB schematics
 original/ver/   simulation files for original PCB
 modules         files shared by several games and external files
-modules/mist    
+modules/mist
 doc             documents related to original PCB
 doc/74          74' series data sheets
 rom             script to convert from MAME rom files to the required format
