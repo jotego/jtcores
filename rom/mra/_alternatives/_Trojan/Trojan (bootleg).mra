@@ -32,9 +32,9 @@
         00 00 00 00 00 00 00 00 
         </part>
         <!-- maincpu - starts at 0x0 -->
-        <part name="4.11l" crc="aad03bc7"/>
         <part name="6.11p" crc="8ad19c83"/>
         <part name="5.11m" crc="9273b264"/>
+        <part name="4.11l" crc="aad03bc7"/>
         <!-- soundcpu - starts at 0x18000 -->
         <part name="2.6q" crc="21154797"/>
         <!-- adpcm - starts at 0x20000 -->

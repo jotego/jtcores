@@ -32,9 +32,9 @@
         00 00 00 00 00 00 00 00 
         </part>
         <!-- maincpu - starts at 0x0 -->
-        <part name="troj-04.10n" crc="0b5a7f49"/>
         <part name="troj-06.13n" crc="dee6ed92"/>
         <part name="tb05.12n" crc="9273b264"/>
+        <part name="troj-04.10n" crc="0b5a7f49"/>
         <!-- soundcpu - starts at 0x18000 -->
         <part name="tb02.15h" crc="21154797"/>
         <!-- adpcm - starts at 0x20000 -->

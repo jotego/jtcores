@@ -28,9 +28,12 @@ module jtsectionz_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
+    output               prom_we,
     input                sdram_ack,
     output reg [ 7:0]    game_cfg
 );
+
+assign prom_we = 0;
 
 parameter [21:0] CPU_OFFSET=22'h0;
 parameter [21:0] SND_OFFSET=22'h0;
@@ -91,7 +94,7 @@ always @(posedge clk) begin
                          is_char ? char_addr[21:1] + CHAR_OFFSET : (
                          { obj_addr[21:7],obj_addr[5:2],obj_addr[6], obj_addr[1] } + OBJ_OFFSET )));
             scr_rewr  <= 1'b0;
-            prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;            
+            prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;
         end
         if( ioctl_addr < FULL_HEADER ) begin
             if( !ioctl_addr ) game_cfg <= ioctl_data;

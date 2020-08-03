@@ -86,8 +86,9 @@ wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
+wire prom_we;
 
-localparam SCRW=18, SCR2W=16, OBJW=17;
+localparam SCRW=18, SCR2W=16, OBJW=18;
 
 // ROM data
 wire [15:0] char_data, scr_data;
@@ -190,6 +191,7 @@ u_prom_we(
     .prog_mask   ( prog_mask     ),
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
+    .prom_we     ( prom_we       ),
 
     .sdram_ack   ( sdram_ack     ),
     .game_cfg    ( game_cfg      )
@@ -322,7 +324,8 @@ reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
 jttrojan_video #(
-    .SCRW   ( SCRW      )
+    .SCRW   ( SCRW      ),
+    .OBJW   ( OBJW      )
 )
 u_video(
     .rst        ( rst           ),
@@ -369,12 +372,10 @@ u_video(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
-    // PROMs -- unused --
-    // .prog_addr    ( 8'd0        ),
-    // .prom_red_we  ( 1'b0        ),
-    // .prom_green_we( 1'b0        ),
-    // .prom_blue_we ( 1'b0        ),
-    // .prom_din     ( 4'd0        ),
+    // PROMs
+    .prog_addr    ( prog_addr[7:0] ),
+    .prom_prio_we ( prom_we        ),
+    .prom_din     ( prog_data[3:0] ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),

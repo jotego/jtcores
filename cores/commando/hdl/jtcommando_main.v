@@ -142,7 +142,7 @@ always @(*) begin
             3'b111: ram_cs = 1'b1;
         endcase
     end else begin
-        // Section Z
+        // Section Z (GAME=1) or Trojan (GAME=2)
         if( rfsh_n && !mreq_n ) casez(A[15:13])
             3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
             3'b110: ram_cs = 1'b1; // CXXX, DXXX
@@ -157,11 +157,13 @@ always @(*) begin
                         blue_cs     =  A[10];
                     end
                     2'b11: begin// F8
-                        in_cs        = A[3] && RnW;
-                        scrpos_cs    = A[3] && !A[2] && !RnW;
-                        snd_latch_cs = A[3] &&  A[2:0]==3'b100 && !RnW;
-                        OKOUT        = A[3] &&  A[2:0]==3'b101 && !RnW;
-                        misc_cs      = A[3] &&  A[2:0]==3'b110 && !RnW;
+                        in_cs        = A[3] && RnW; // F808
+                        scrpos_cs    = (GAME==1 ? (A[3]&&!A[2]) : !A[3]) && !RnW; /* F808-B or F800-05*/
+                        snd_latch_cs = A[3] &&  A[2:0]==3'b100 && !RnW; // F80C
+                        OKOUT        = (GAME==1 ? A[2:0]==3'b101  // F80D
+                                                : A[2:0]==3'b000) // F808 for Trojan
+                                         && A[3] && !RnW; // F80D
+                        misc_cs      = A[3] &&  A[2:0]==3'b110 && !RnW; // F80E
                     end
                 endcase
         endcase
@@ -254,9 +256,9 @@ wire [7:0] irq_vector = GAME==0 ? {3'b110, int_ctrl[1:0], 3'b111 } // Schematic 
 
 `ifndef TESTROM
 // OP-code bits are shuffled for Commando only
-wire [7:0] rom_opcode = A==16'd0 || GAME!=0 ? rom_data : 
+wire [7:0] rom_opcode = A==16'd0 || GAME!=0 ? rom_data :
     {rom_data[3:1], rom_data[4], rom_data[7:5], rom_data[0] };
-`else 
+`else
 wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 `endif
 

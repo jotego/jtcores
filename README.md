@@ -40,7 +40,7 @@ Legendary Wings   |      |  X  |       |      |   X     |        |   X
 Black Tiger       |      |  X  |       |  X   |   X     |        |   X
 Tiger Road        |      |  X  |   X   |      |   X     |        |   X
 F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X
-Bionic Commando   |      |  X  |   X   |  X   |         |   X    |   X
+Bionic Commando   |      |  X  |   X   |  X   |         |   X    |
 
 
 ## Troubleshooting

@@ -23,6 +23,7 @@ module jtgng_tile4 #(parameter
                       // 3: Tiger Road
                       // 4: Black Tiger
                       // 5: Legendary Wings / Section Z (3 palette bits)
+                      // 6: Trojan
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1, // only used by layout 0
@@ -93,6 +94,10 @@ always @(*) begin
             scr_hflip = attr[3]^flip;
             scr_vflip = attr[4];
         end
+        6: begin // Trojan
+            scr_hflip = attr[4]^flip;
+            scr_vflip = 0;
+        end
     endcase
 end
 
@@ -137,7 +142,7 @@ always @(posedge clk) if(cen6) begin
                             SV[3:0]^{4{flip}},
                             HS[2]^scr_hflip
                             };
-            scr_hflip0     <= scr_hflip;            
+            scr_hflip0     <= scr_hflip;
         end
         5: begin // Legendary Wings, Section Z, 16x16 tiles
             scr_attr0      <= attr[2:0];
@@ -146,7 +151,16 @@ always @(posedge clk) if(cen6) begin
                             SV[3:0]^{4{scr_vflip}},
                             HS[2]^scr_hflip
                             };
-            scr_hflip0     <= scr_hflip;            
+            scr_hflip0     <= scr_hflip;
+        end
+        6: begin // Trojan, 16x16 tiles
+            scr_attr0      <= attr[3:0];
+            scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
+                            HS[3]^(scr_hflip^flip),
+                            SV[3:0],
+                            HS[2]^scr_hflip
+                            };
+            scr_hflip0     <= scr_hflip;
         end
         endcase
         scr_hflip0 <= scr_hflip;
@@ -169,7 +183,7 @@ always @(posedge clk) if(cen6) begin
                 scr_addr[5] <= HS[3]^scr_hflip0;
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
-            5: begin // Section Z
+            5,6: begin // Section Z
                 scr_addr[5] <= HS[3]^(scr_hflip0^flip);
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end

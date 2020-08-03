@@ -18,12 +18,14 @@
 
 module jtgng_objdraw #(parameter
     DW       = 8,   // data width of the DMA
-    ROM_AW   = 16, 
+    ROM_AW   = 16,
     LAYOUT   = 0,   // 0: GnG, Commando
                     // 1: 1943
                     // 2: GunSmoke
                     // 3: Bionic Commando, Tiger Road
                     // 4: Black Tiger
+                    // 5: Section Z/Legendary Wings
+                    // 6: Trojan
     PALW     = 2,
     PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -120,12 +122,19 @@ always @(posedge clk) if(cen) begin
                 obj_vflip <= 1'b0;
                 objpal    <= objbuf_data[2:0];
             end
-            5: begin // Section Z
-                id[9:8]  <= objbuf_data[7:6];
+            5: begin // Section Z / Legendary Wings
+                id[9:8]   <= objbuf_data[7:6];
                 hover     <= objbuf_data[0];
                 obj_hflip <= objbuf_data[1];
                 obj_vflip <= objbuf_data[2];
                 objpal    <= objbuf_data[5:3];
+            end
+            6: begin // Trojan
+                id[10:8]  <= { objbuf_data[7], objbuf_data[5], objbuf_data[6] };
+                hover     <= objbuf_data[0];
+                obj_hflip <= objbuf_data[4];
+                obj_vflip <= 1;
+                objpal    <= objbuf_data[3:1];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step
@@ -134,7 +143,7 @@ always @(posedge clk) if(cen) begin
         end
         4'd3: begin
             // DW-4 refers to bit 12 but it needs this indirect index
-            // so verilator does not complaint about the 12 when DW is only 8   
+            // so verilator does not complaint about the 12 when DW is only 8
             objx <= { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] };
         end
         default:;

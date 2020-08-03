@@ -29,7 +29,7 @@
 
 module jttrojan_video #(
     parameter SCRW = 18,
-    parameter OBJW = 17
+    parameter OBJW = 18
 )(
     input               rst,
     input               clk,
@@ -82,9 +82,9 @@ module jttrojan_video #(
     output              LHBL_dly,
     output              LVBL_dly,
     // Palette PROMs
-    // input       [7:0]   prog_addr,
-    // input               prom_prior_we,
-    // input       [3:0]   prom_din,
+    input       [7:0]   prog_addr,
+    input               prom_prio_we,
+    input       [3:0]   prom_din,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -96,13 +96,13 @@ module jttrojan_video #(
 );
 
 localparam AVATAR_MAX = 9;
-localparam LAYOUT     = 5;
+localparam LAYOUT     = 6;
 
 localparam PXL_CHRW=6;
 
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
-wire [6:0] scr_pxl;
+wire [7:0] scr_pxl;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
@@ -251,7 +251,7 @@ assign obj_pxl = ~6'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtsectionz_colmix #(
+jttrojan_colmix #(
     .CHARW  (   PXL_CHRW    )
 )
 u_colmix (
@@ -270,9 +270,9 @@ u_colmix (
     .LVBL_dly     ( LVBL_dly      ),
 
     // Priority PROM
-    // .prog_addr    ( prog_addr     ),
-    // .prom_prior_we( prom_prior_we ),
-    // .prom_din     ( prom_din      ),
+    .prog_addr    ( prog_addr     ),
+    .prom_prio_we ( prom_prio_we  ),
+    .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),
