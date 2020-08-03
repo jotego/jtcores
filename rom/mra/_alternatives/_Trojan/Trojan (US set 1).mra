@@ -46,16 +46,16 @@
         <part name="tb03.8k" crc="581a2b4c"/>
         <!-- gfx2 - starts at 0x34000 -->
         <interleave output="32">
-            <part name="tb13.6b" crc="285a052b" map="0001"/>
-            <part name="tb12.4b" crc="dfb0fe5c" map="0010"/>
-            <part name="tb11.3b" crc="00f0f4fd" map="0100"/>
-            <part name="tb14.8b" crc="14bfac18" map="1000"/>
+            <part name="tb14.8b" crc="14bfac18" map="0001"/>
+            <part name="tb11.3b" crc="00f0f4fd" map="0010"/>
+            <part name="tb12.4b" crc="dfb0fe5c" map="0100"/>
+            <part name="tb13.6b" crc="285a052b" map="1000"/>
         </interleave>
         <interleave output="32">
-            <part name="tb09.6a" crc="aeb693f7" map="0001"/>
-            <part name="tb08.4a" crc="d3a4c9d1" map="0010"/>
-            <part name="tb07.3a" crc="dff2ee02" map="0100"/>
-            <part name="tb10.8a" crc="71ba8a6d" map="1000"/>
+            <part name="tb10.8a" crc="71ba8a6d" map="0001"/>
+            <part name="tb07.3a" crc="dff2ee02" map="0010"/>
+            <part name="tb08.4a" crc="d3a4c9d1" map="0100"/>
+            <part name="tb09.6a" crc="aeb693f7" map="1000"/>
         </interleave>
         <!-- gfx4 - starts at 0x74000 -->
         <interleave output="16">
