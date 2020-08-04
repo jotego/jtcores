@@ -1,8 +1,11 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../commando/hdl/jtcommando_main.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_game.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../sectionz/hdl/jtsectionz_prom_we.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_video.v     ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_colmix.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_video.v                ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_sound.v                ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_colmix.v               ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../tora/hdl/jttora_adpcm.v   ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_scroll.v  ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jt12/hdl/jt12_rst.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/ram/jtframe_prom.v      ]
@@ -11,6 +14,7 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../.
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtgng_dual_ram.v                  ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/jtframe_z80wait.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/cpu/jtframe_z80.v     ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sound/jtframe_mixer.v ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/video/jtframe_blank.v ]
 
 
@@ -28,3 +32,4 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../.
 
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/t80/T80.qip          ]
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jt12/hdl/jt03.qip    ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jt5205/hdl/jt5205.qip   ]

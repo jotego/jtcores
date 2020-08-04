@@ -37,6 +37,7 @@ module jtcommando_main(
     output  reg        sres_b, // sound reset
     output  reg        snd_int,
     output  reg  [7:0] snd_latch,
+    output  reg  [7:0] snd2_latch, // only used by Trojan
     // Characters
     input        [7:0] char_dout,
     output       [7:0] cpu_dout,
@@ -48,6 +49,8 @@ module jtcommando_main(
     input              scr_busy,
     output reg [8:0]   scr_hpos,
     output reg [8:0]   scr_vpos,
+    // Scroll 2 of Trojan
+    output reg [15:0]  scr2_hpos,
     // Palette
     output  reg        blue_cs,
     output  reg        redgreen_cs,
@@ -91,7 +94,7 @@ localparam SRES = GAME ? 6 : 4;
 
 wire [15:0] A;
 wire        t80_rst_n;
-reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs;
+reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, snd2_latch_cs;
 wire        rd_n, wr_n;
 // Commando does not use these:
 reg  [ 1:0] bank;
@@ -110,6 +113,7 @@ always @(*) begin
     rom_cs        = 1'b0;
     ram_cs        = 1'b0;
     snd_latch_cs  = 1'b0;
+    snd2_latch_cs = 1'b0;
     misc_cs       = 1'b0;
     in_cs         = 1'b0;
     char_cs       = 1'b0;
@@ -163,6 +167,7 @@ always @(*) begin
                         OKOUT        = (GAME==1 ? A[2:0]==3'b101  // F80D
                                                 : A[2:0]==3'b000) // F808 for Trojan
                                          && A[3] && !RnW; // F80D
+                        snd2_latch_cs= GAME==2 && A[3] &&  A[2:0]==3'b101 && !RnW; // F80D
                         misc_cs      = A[3] &&  A[2:0]==3'b110 && !RnW; // F80E
                     end
                 endcase
@@ -173,25 +178,35 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, negedge t80_rst_n) begin
     if( !t80_rst_n ) begin
-        scr_hpos <= 9'd0;
-        scr_vpos <= 9'd0;
+        scr_hpos  <= 9'd0;
+        scr2_hpos <= 16'd0;
+        scr_vpos  <= 9'd0;
     end else if(cpu_cen && scrpos_cs) begin
-        case(A[1:0])
-            2'd0: scr_hpos[7:0] <= cpu_dout;
-            2'd1: scr_hpos[8]   <= cpu_dout[0];
-            2'd2: scr_vpos[7:0] <= cpu_dout;
-            2'd3: scr_vpos[8]   <= cpu_dout[0];
-        endcase
+        if( !A[2] ) begin // redundant for GAME==1
+            case(A[1:0])
+                2'd0: scr_hpos[7:0] <= cpu_dout;
+                2'd1: scr_hpos[8]   <= cpu_dout[0];
+                2'd2: scr_vpos[7:0] <= cpu_dout;
+                2'd3: scr_vpos[8]   <= cpu_dout[0];
+            endcase
+        end else if(GAME==2) begin // A[2]==1
+            case(A[1:0])
+                2'd0: scr2_hpos[ 7:0] <= cpu_dout;
+                2'd1: scr2_hpos[15:8] <= cpu_dout;
+            endcase
+        end
     end
 end
 
 // special registers
 always @(posedge clk)
     if( rst ) begin
-        flip      <= 1'b0;
-        sres_b    <= 1'b1;
-        bank      <= 2'b0;
-        nmi_mask  <= 1'b0;
+        flip       <= 1'b0;
+        sres_b     <= 1'b1;
+        bank       <= 2'b0;
+        nmi_mask   <= 1'b0;
+        snd_latch  <= 8'd0;
+        snd2_latch <= 8'd0;
     end
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
@@ -204,6 +219,9 @@ always @(posedge clk)
         end
         if( snd_latch_cs && !wr_n ) begin
             snd_latch <= cpu_dout;
+        end
+        if( snd2_latch_cs && !wr_n ) begin
+            snd2_latch <= cpu_dout;
         end
     end
 

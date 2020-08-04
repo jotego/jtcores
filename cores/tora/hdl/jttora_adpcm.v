@@ -27,21 +27,17 @@ module jttora_adpcm(
     output  [15:0]  rom2_addr,
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
-    input           rom2_ok,    
+    input           rom2_ok,
     `ifdef VERILATOR
     output  [ 3:0]  adpcm_din,
     output          adpcm_irq,
     `endif
 
     // Sound output
-    output  reg signed [15:0] snd
+    output signed [11:0] snd
 );
 
-wire signed [11:0] adpcm;
-
-always @(posedge clk) begin
-    snd <= { adpcm[10:0], 5'd0 }; // adpcm seems not to use all dynamic range
-end
+parameter ADPCM_EXTRA=1;
 
 // ADPCM CPU
 reg  last_rom2_cs, int_n;
@@ -80,7 +76,7 @@ jt5205 u_adpcm(
     .cen        ( cenp384       ),
     .sel        ( 2'b0          ),
     .din        ( pcm_data      ),
-    .sound      ( adpcm         ),
+    .sound      ( snd           ),
     .irq        ( irq_st        )
 );
 

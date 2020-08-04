@@ -63,6 +63,12 @@ module jttrojan_video #(
     input       [10:0]  scr_vpos,
     input       [ 1:0]  scr_bank,
     input               scr_layout,
+    // SCROLL 2
+    output      [14:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
+    input       [15:0]  scr2_data,
+    output      [13:0]  map2_addr, // 32kB in 8 bits or 16kW in 16 bits
+    input       [15:0]  map2_data,
+    input       [15:0]  scr2_hpos,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -99,11 +105,12 @@ localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 6;
 
 localparam PXL_CHRW=6;
+localparam SCR_OFFSET = 1;
 
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [7:0] scr_pxl;
-wire [6:0] scr2_pxl = 7'd0;
+wire [6:0] scr2_pxl;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
@@ -163,10 +170,10 @@ assign char_mrdy = 1'b1;
 // );
 
 jtgng_scroll #(
-    .HOFFSET( 1     ),
-    .ROM_AW ( SCRW  ),
-    .TILE4  ( 1     ),
-    .LAYOUT (LAYOUT )
+    .HOFFSET( SCR_OFFSET    ),
+    .ROM_AW ( SCRW          ),
+    .TILE4  ( 1             ),
+    .LAYOUT (LAYOUT         )
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -200,11 +207,40 @@ assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 `endif
 
+jt1943_scroll #(
+    .HOFFSET    (SCR_OFFSET ),
+    .AS8MASK    (1'b0       ),
+    .ROM_AW     (15         ),
+    .PALETTE    (0          )
+) u_scroll2 (
+    .rst          ( rst           ),
+    .clk          ( clk           ),
+    .cen6         ( cen6          ),
+    .V128         ( V[7:0]        ),
+    .H            ( H             ),
+    .hpos         ( scr2_hpos     ),
+    .SCxON        ( 1'b1          ),
+    .vpos         ( 8'd0          ),
+    .flip         ( flip          ),
+    // Palette PROMs - unused in Troan
+    .prog_addr    ( 8'd0          ),
+    .prom_hi_we   ( 1'b0          ),
+    .prom_lo_we   ( 1'b0          ),
+    .prom_din     ( 4'd0          ),
+
+    // ROM
+    .map_addr     ( map2_addr     ),
+    .map_data     ( map2_data     ),
+    .scr_addr     ( scr2_addr     ),
+    .scrom_data   ( scr2_data     ),
+    .scr_pxl      ( scr2_pxl      )
+);
+
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
-    .PXL_DLY      (  2          ),
+    .PXL_DLY      (  1          ),
     .LAYOUT       ( LAYOUT      ),
     // Avatar parameters
     .AVATAR_MAX   ( AVATAR_MAX  ),

@@ -80,23 +80,25 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
+wire snd_cs, snd2_cs;
 wire char_cs, blue_cs, redgreen_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
+wire [15:0] scr2_hpos;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
 
-localparam SCRW=18, SCR2W=16, OBJW=18;
+localparam SCRW=18, SCR2W=15, OBJW=18;
 
 // ROM data
-wire [15:0] char_data, scr_data;
+wire [15:0] char_data, scr_data, scr2_data, map_data;
 wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data, snd2_data;
 // ROM address
 wire [16:0] main_addr;
-wire [14:0] snd_addr, map_addr;
+wire [14:0] snd_addr;
+wire [13:0] map_addr;
 wire [13:0] snd2_addr;
 wire [13:0] char_addr;
 wire [SCRW-1:0] scr_addr;
@@ -155,7 +157,7 @@ jtgng_timer #(.LAYOUT(5)) u_timer(
 wire RnW;
 // sound
 wire sres_b, snd_int;
-wire [7:0] snd_latch;
+wire [7:0] snd_latch, snd2_latch;
 
 wire        main_cs;
 // OBJ
@@ -217,6 +219,7 @@ jtcommando_main #(.GAME(2)) u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
+    .snd2_latch ( snd2_latch    ),
     .snd_int    ( snd_int       ),
     // Palette
     .redgreen_cs( redgreen_cs   ),
@@ -232,6 +235,8 @@ jtcommando_main #(.GAME(2)) u_main(
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
+    // SCROLL 2
+    .scr2_hpos  ( scr2_hpos     ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -284,7 +289,7 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.LAYOUT(0)) u_sound (
+jttrojan_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -292,6 +297,7 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
     // Interface with main CPU
     .sres_b         ( sres_b         ),
     .snd_latch      ( snd_latch      ),
+    .snd2_latch     ( snd2_latch     ),
     .snd_int        ( snd_int        ),
     // sound control
     .enable_psg     ( enable_psg     ),
@@ -302,11 +308,14 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
+    // ROM 2
+    .rom2_addr      ( snd2_addr      ),
+    .rom2_data      ( snd2_data      ),
+    .rom2_cs        ( snd2_cs        ),
+    .rom2_ok        ( snd2_ok        ),
     // sound output
     .ym_snd         ( snd            ),
-    // unused
-    .sample         (                ),
-    .snd2_latch     (                )
+    .sample         (                )
 );
 `else
 assign snd_addr  = 15'd0;
@@ -359,6 +368,12 @@ u_video(
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
+    // SCROLL 2
+    .scr2_hpos  ( scr2_hpos     ),
+    .scr2_addr  ( scr2_addr     ),
+    .scr2_data  ( scr2_data     ),
+    .map2_addr  ( map_addr      ), // 32kB in 8 bits or 16kW in 16 bits
+    .map2_data  ( map_data      ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
@@ -388,17 +403,11 @@ u_video(
     .blue       ( blue          )
 );
 
-// temporary assignments
-assign scr2_addr = {SCR2W{1'b0}};
-assign snd2_addr = 14'd0;
-assign map_addr  = 15'd0;
-assign snd2_cs   = 1'b0;
-
 // Scroll data: Z, Y, X
 jtframe_rom #(
     .SLOT0_AW    ( 14              ), // Char
     .SLOT1_AW    ( SCRW            ), // Scroll
-    .SLOT2_AW    ( 15              ), // Scroll Map
+    .SLOT2_AW    ( 14              ), // Scroll 2 Map
     .SLOT3_AW    ( SCR2W           ), // Scroll 2
     .SLOT4_AW    ( 14              ), // Sound 2
     .SLOT6_AW    ( 15              ), // Sound

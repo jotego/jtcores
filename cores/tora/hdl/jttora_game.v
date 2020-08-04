@@ -61,7 +61,7 @@ module jttora_game(
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  signed [15:0] snd,
     output          sample,
@@ -102,7 +102,7 @@ wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 // ROM address
 wire [17:1] main_addr;
 wire [14:0] snd_addr;
-wire [15:0] snd2_addr;
+wire [13:0] snd2_addr;
 wire [13:0] map_addr;
 wire [13:0] char_addr;
 wire [18:0] scr_addr;
@@ -250,7 +250,7 @@ jttora_main u_main(
     .char_busy  ( char_busy     ),
     .UDSWn      ( UDSWn         ),
     .LDSWn      ( LDSWn         ),
-    // SCROLL 
+    // SCROLL
     .scrposh    ( scrposh       ),
     .scrposv    ( scrposv       ),
     .scr_bank   ( scr_addr[18]  ),
@@ -345,7 +345,7 @@ jtbiocom_mcu u_mcu(
     .prom_din   ( prog_data       ),
     .prom_we    ( prom_we[1]      )
 );
-`else 
+`else
 assign mcu_DMAn = 1'b1;
 assign mcu_brn  = 1'b1;
 assign mcu_wr   = 1'b0;
@@ -398,7 +398,7 @@ jttora_sound u_sound (
 );
 `else
 assign snd_addr  = 15'd0;
-assign snd2_addr = 15'd0;
+assign snd2_addr = 14'd0;
 assign snd_cs    = 1'b0;
 assign snd2_cs   = 1'b0;
 assign snd       = 16'b0;
@@ -523,7 +523,7 @@ jtframe_rom #(
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ), 
+    .slot2_cs    ( LVBL          ),
     .slot3_cs    ( main_cs       ),
     .slot5_cs    ( snd_cs        ),
     .slot6_cs    ( snd2_cs       ),
@@ -573,7 +573,7 @@ jtframe_rom #(
     .slot4_cs    (               ),
     .slot7_cs    (               )
 );
-  
+
 jtframe_avatar u_avatar(
     .rst         ( rst           ),
     .clk         ( clk           ),

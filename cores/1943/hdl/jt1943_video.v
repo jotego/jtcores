@@ -140,7 +140,7 @@ wire [3:0] avatar_idx;
 
 `ifdef AVATARS
 wire obj_pause=pause;
-`else 
+`else
 wire obj_pause=1'b0;
 `endif
 
@@ -181,7 +181,7 @@ jtgng_char #(
     .pause      ( pause         ),
     .scan       ( char_scan     ),
     .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),    
+    .msg_high   ( char_msg_high ),
     // PROM access
     .prog_addr  ( prog_addr     ),
     .prog_din   ( prog_din      ),
@@ -201,7 +201,7 @@ jtgng_charmsg u_msg(
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high ) 
+    .msg_high    ( char_msg_high )
 );
 `else
 assign char_wait_n = 1'b1;
@@ -229,7 +229,6 @@ u_scroll1 (
         .vpos         ( 8'd0          ),
         .flip         ( 1'b0          ),
     `endif
-    .pause        ( pause          ),
     // Palette PROMs
     .prog_addr    ( prog_addr      ),
     .prom_hi_we   ( prom_scr1hi_we ),
@@ -269,7 +268,6 @@ generate
                 .vpos         ( 8'd0          ),
                 .flip         ( 1'b0          ),
             `endif
-            .pause        ( pause          ),
             // Palette PROMs
             .prog_addr    ( prog_addr      ),
             .prom_hi_we   ( prom_scr2hi_we ),
@@ -366,7 +364,7 @@ jt1943_colmix #(
     .PALETTE_RED   ( PALETTE_RED    ),
     .PALETTE_GREEN ( PALETTE_GREEN  ),
     .PALETTE_BLUE  ( PALETTE_BLUE   ),
-    .PALETTE_PRIOR ( PALETTE_PRIOR  )) 
+    .PALETTE_PRIOR ( PALETTE_PRIOR  ))
 u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),

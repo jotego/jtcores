@@ -22,14 +22,14 @@
 `timescale 1ns/1ps
 
 module jt1943_scroll #( parameter
-    HOFFSET         = 9'd5,
+    [8:0] HOFFSET   = 9'd5,
     LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando
     ROM_AW          = 17,
-    SIMFILE_MSB     = "", 
+    SIMFILE_MSB     = "",
     SIMFILE_LSB     = "",
     AS8MASK         = 1'b1,
     PALETTE         = 1,
-    PXLW            = LAYOUT==3 ? 9 : (PALETTE?6:8),
+    PXLW            = LAYOUT==3 ? 9 : (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
     VPOSW           = LAYOUT==3 ? 16 : 8 // vertical offset bit width
 )(
     input                rst,
@@ -42,7 +42,6 @@ module jt1943_scroll #( parameter
     input    [VPOSW-1:0] vpos,
     input                SCxON,
     input                flip,
-    input                pause,
     // Palette PROMs D1, D2
     input     [7:0]      prog_addr,
     input                prom_hi_we,
@@ -114,11 +113,11 @@ generate
         // Tiger Road
         reg [9:0] SCVF;
         reg       V7;
-        
+
         always @(*) begin
             VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
-        end        
+        end
         wire [7:0] col = {PIC,  SH}>>5;
         wire [7:0] row = {PICV, SV}>>5;
         always @(posedge clk) if(cen6) begin

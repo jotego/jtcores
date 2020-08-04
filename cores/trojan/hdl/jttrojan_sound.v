@@ -14,21 +14,18 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-10-2017 */
+    Date: 4-8-2020 */
 
-module jttora_sound(
+module jttrojan_sound(
     input           rst,
     input           clk,
-    input           cen3,    //  3   MHz
-    input           cenfm,   //  3.57   MHz
-    input           cenp384, //  384 kHz
-    input           jap,
+    input           cen3,     //  3    MHz
+    input           cen1p5,   //  1.5  MHz
     // Interface with main CPU
+    input           sres_b,
+    input           snd_int,
     input   [7:0]   snd_latch,
-    // Interface with MCU
-    input   [7:0]   snd_din,
-    output  [7:0]   snd_dout,
-    output          snd_mcu_wr,
+    input   [7:0]   snd2_latch,
     // Sound control
     input           enable_psg,
     input           enable_fm,
@@ -39,38 +36,35 @@ module jttora_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output  [15:0]  rom2_addr,
+    output  [13:0]  rom2_addr,
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,
 
     // Sound output
-    output  reg signed [15:0] ym_snd,
-    output  sample
+    output signed [15:0] ym_snd,
+    output          sample
 );
 
 wire signed [15:0] fm_snd;
 wire signed [11:0] adpcm_snd;
-wire        [ 7:0] snd2_latch;
+wire               cenp384; //  384 kHz
 
-// It looks like the sound CPU never interacts with the MCU
-// So I do not bother to fully connect it
-assign snd_mcu_wr = 1'b0;
-assign snd_dout   = 8'd0;
+jtframe_cenp384 u_cenp384(
+    .clk      ( clk       ),
+    .cen_p384 ( cenp384   )
+);
 
-jtgng_sound #(.LAYOUT(3)) u_fmcpu (
+
+jtgng_sound #(.LAYOUT(0)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
-    .cen3       (  cenfm        ),
-    .cen1p5     (  cenfm        ), // unused
-    .sres_b     (  1'b1         ),
-`ifndef F1DREAM
+    .cen3       (  cen3         ),
+    .cen1p5     (  cen1p5       ), // unused
+    .sres_b     (  sres_b       ),
     .snd_latch  (  snd_latch    ),
-`else
-    .snd_latch  (  snd_din      ), // from MCU
-`endif
-    .snd2_latch (  snd2_latch   ),
-    .snd_int    (  1'b1         ), // unused
+    .snd2_latch (               ),
+    .snd_int    (  snd_int      ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
     .psg_gain   (  psg_gain     ),
@@ -82,8 +76,7 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .sample     (  sample       )
 );
 
-`ifndef F1DREAM
-jttora_adpcm u_adpcmcpu(
+jttora_adpcm #(.ADPCM_EXTRA(0))u_adpcmcpu(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen3       ( cen3          ),
@@ -99,15 +92,20 @@ jttora_adpcm u_adpcmcpu(
     .snd        ( adpcm_snd     )
 );
 
-always @(posedge clk) begin
-    // adpcm_snd doesn't seem to be used in its full dynamic range
-    // so I can multiply by x2
-    ym_snd <= jap ? (fm_snd>>>1) + {adpcm_snd[10:0],5'd0} : fm_snd;
-end
-
-`else
-// F1 Dream does not have the ADPCM section
-always @(*) ym_snd = fm_snd;
-`endif
+jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
+    .clk    ( clk       ),
+    .cen    ( cen1p5    ),
+    // input signals
+    .ch0    ( fm_snd    ),
+    .ch1    ( adpcm_snd ),
+    .ch2    ( 16'd0     ),
+    .ch3    ( 16'd0     ),
+    // gain for each channel in 4.4 fixed point format
+    .gain0  ( 8'h08     ),
+    .gain1  ( 8'h10     ),
+    .gain2  ( 8'h00     ),
+    .gain3  ( 8'h00     ),
+    .mixed  ( ym_snd    )
+);
 
 endmodule // jtgng_sound
