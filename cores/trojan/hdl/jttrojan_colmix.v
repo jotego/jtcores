@@ -85,8 +85,7 @@ localparam [1:0] SCR2=2'b00, SCR1=2'b01, CHAR=2'b11, OBJ=2'b10;
 
 always @(posedge clk) if(pxl_cen) begin
     seladdr <= { ~char_blank, ~obj_blank,
-        //scr_pxl[7], ~scr_blank, scr_pxl[3:0] };
-        scr_pxl[7], scr_pxl[3:0], 1'b0 };
+        scr_pxl[7], scr_pxl[3:0], scr_blank };
     scr0  <= scr_pxl;
     scr20 <= scr2_pxl;
     char0 <= char_pxl;
@@ -114,7 +113,7 @@ always @(posedge clk) if(cen12) begin
         seladdr[6] ? (
             (seladdr[5] && seladdr[4:1]>=4'd7 && seladdr[4:1]<=4'd11) ? SCR1 :OBJ)
             :
-        (seladdr[3:0]==4'd15 ? SCR2 : SCR1));
+        (seladdr[4:1]==4'd0 ? SCR2 : SCR1));
 end
 
 wire [3:0] pal_red, pal_green, pal_blue;

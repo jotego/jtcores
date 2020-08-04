@@ -90,7 +90,8 @@ always @(*) begin
     HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
     H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
     SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
-    {PIC,  SH } = hpos + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
+    {PIC,  SH } = (LAYOUT==7 ? {8'd0, hpos[7:0]} : hpos)
+        + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
 end
 
 generate
@@ -111,9 +112,6 @@ generate
     end
     if(LAYOUT==3) begin
         // Tiger Road 32x32
-        reg [9:0] SCVF;
-        reg       V7;
-
         always @(*) begin
             VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
@@ -132,20 +130,17 @@ generate
     end
     if(LAYOUT==7) begin
         // Trojan 16x16
-        reg [9:0] SCVF;
-        reg       V7;
-
         always @(*) begin
             VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
         end
-        wire [7:0] col = {PIC,  SH}>>4;
+        wire [8:0] col = {PIC,  SH}>>4;
         wire [7:0] row = {PICV, SV}>>4;
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
                 HS[4:3] <= SH[4:3];
-                map_addr <= {  row[6:0], col[6:0] };
+                map_addr <= {  {row[4:0] + hpos[12:8]}, col[8:0] }; // 5 + 9
                 SVmap <= SV[4:0];
             end
             HS[2:0] <= SH[2:0] ^ {3{flip}};

@@ -40,7 +40,9 @@
         <!-- adpcm - starts at 0x20000 -->
         <part name="tb01.6d" crc="1c0f91b2"/>
         <!-- gfx5 - starts at 0x24000 -->
-        <part name="tb23.9n" crc="eda13c0e"/>
+        <interleave output="16">
+            <part name="tb23.9n" crc="eda13c0e" map="12"/>
+        </interleave>
         <part repeat="0x4000">FF</part>
         <!-- gfx1 - starts at 0x30000 -->
         <part name="tb03.8k" crc="581a2b4c"/>

@@ -27,6 +27,7 @@ mame2dip trojan.xml \
     -frac gfx3 2 \
     -frac gfx4 2 \
     -start gfx1 0x30000 \
+    -swapbytes gfx5 \
     -order maincpu soundcpu adpcm gfx5 gfx1 gfx2 gfx4 gfx3 \
     -order-roms maincpu 1 2 0 \
     -order-roms gfx2  6 7 4 5 2 3 0 1\

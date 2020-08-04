@@ -40,7 +40,9 @@
         <!-- adpcm - starts at 0x20000 -->
         <part name="1.3f" crc="83c715b2"/>
         <!-- gfx5 - starts at 0x28000 -->
-        <part name="23.12h" crc="eda13c0e"/>
+        <interleave output="16">
+            <part name="23.12h" crc="eda13c0e" map="12"/>
+        </interleave>
         <!-- gfx1 - starts at 0x30000 -->
         <part name="3.8h" crc="581a2b4c"/>
         <!-- gfx2 - starts at 0x34000 -->
