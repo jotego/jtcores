@@ -28,12 +28,9 @@ module jtsectionz_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
-    output               prom_we,
     input                sdram_ack,
     output reg [ 7:0]    game_cfg
 );
-
-assign prom_we = 0;
 
 parameter [21:0] CPU_OFFSET=22'h0;
 parameter [21:0] SND_OFFSET=22'h0;

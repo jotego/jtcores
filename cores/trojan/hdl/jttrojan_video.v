@@ -81,10 +81,10 @@ module jttrojan_video #(
     input               LHBL_obj,
     output              LHBL_dly,
     output              LVBL_dly,
-    // Palette PROMs
-    input       [7:0]   prog_addr,
-    input               prom_prio_we,
-    input       [3:0]   prom_din,
+    // Priority PROMs
+    // input       [7:0]   prog_addr,
+    // input               prom_prio_we,
+    // input       [3:0]   prom_din,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -103,6 +103,7 @@ localparam PXL_CHRW=6;
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [7:0] scr_pxl;
+wire [6:0] scr2_pxl = 7'd0;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
@@ -162,11 +163,10 @@ assign char_mrdy = 1'b1;
 // );
 
 jtgng_scroll #(
-    .HOFFSET( 0    ),
+    .HOFFSET( 1     ),
     .ROM_AW ( SCRW  ),
     .TILE4  ( 1     ),
-    .LAYOUT (LAYOUT ),
-    .PALW   ( 3     )
+    .LAYOUT (LAYOUT )
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -190,12 +190,12 @@ jtgng_scroll #(
     .rom_data   ( scr_data      ),
     .rom_ok     ( scr_ok        ),
     // pixel output
-    .scr_pal    ( scr_pxl[6:4]  ),
+    .scr_pal    ( scr_pxl[7:4]  ),
     .scr_col    ( scr_pxl[3:0]  )
 );
 `else
 assign scr_busy   = 1'b0;
-assign scr_pxl    = 7'h7f;
+assign scr_pxl    = 8'h7f;
 assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 `endif
@@ -263,6 +263,7 @@ u_colmix (
 
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
+    .scr2_pxl     ( scr2_pxl      ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
@@ -270,9 +271,9 @@ u_colmix (
     .LVBL_dly     ( LVBL_dly      ),
 
     // Priority PROM
-    .prog_addr    ( prog_addr     ),
-    .prom_prio_we ( prom_prio_we  ),
-    .prom_din     ( prom_din      ),
+    // .prog_addr    ( prog_addr     ),
+    // .prom_prio_we ( prom_prio_we  ),
+    // .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),

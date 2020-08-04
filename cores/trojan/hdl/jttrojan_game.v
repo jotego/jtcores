@@ -86,13 +86,12 @@ wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
-wire prom_we;
 
 localparam SCRW=18, SCR2W=16, OBJW=18;
 
 // ROM data
 wire [15:0] char_data, scr_data;
-wire [15:0] obj_data, obj_pre;
+wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data, snd2_data;
 // ROM address
@@ -191,7 +190,6 @@ u_prom_we(
     .prog_mask   ( prog_mask     ),
     .prog_addr   ( prog_addr     ),
     .prog_we     ( prog_we       ),
-    .prom_we     ( prom_we       ),
 
     .sdram_ack   ( sdram_ack     ),
     .game_cfg    ( game_cfg      )
@@ -373,9 +371,9 @@ u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // PROMs
-    .prog_addr    ( prog_addr[7:0] ),
-    .prom_prio_we ( prom_we        ),
-    .prom_din     ( prog_data[3:0] ),
+    // .prog_addr    ( prog_addr[7:0] ),
+    // .prom_prio_we ( prom_we        ),
+    // .prom_din     ( prog_data[3:0] ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -448,7 +446,7 @@ jtframe_rom #(
     .slot5_ok    (               ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok0       ),
+    .slot8_ok    ( obj_ok        ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( scr_addr      ),
@@ -468,7 +466,7 @@ jtframe_rom #(
     .slot5_dout  (               ),
     .slot6_dout  ( snd_data      ),
     .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_pre       ),
+    .slot8_dout  ( obj_data      ),
 
     .ready       ( rom_ready     ),
     // SDRAM interface
@@ -480,17 +478,6 @@ jtframe_rom #(
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
     .refresh_en  ( refresh_en    )
-);
-
-jtframe_avatar #(.AW(14)) u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[13:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
 );
 
 endmodule

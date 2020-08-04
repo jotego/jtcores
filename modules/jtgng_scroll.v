@@ -16,9 +16,9 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_scroll #(parameter 
+module jtgng_scroll #(parameter
     ROM_AW   = 15,
-    PALW     = 4,
+    PALW     = 4,   // PALW must be manually defined to match what is needed by LAYOUT
     HOFFSET  = 9'd0,
     POSW     = 9,   // Scroll offset width, normally 9 bits
     // bit field information
@@ -26,7 +26,7 @@ module jtgng_scroll #(parameter
     IDMSB0   = 6,   //   { dout_high[IDMSB1:IDMSB0], dout_low }
     VFLIP    = 5,
     HFLIP    = 4,
-    SCANW    = 10,  // Tile map bit width, normally 10 bits, 9 bits for 1942, 
+    SCANW    = 10,  // Tile map bit width, normally 10 bits, 9 bits for 1942,
     TILE4    = 0,   // Use 4 bpp instead of 3bpp
     LAYOUT   = 0,   // Only used for TILE 4
     SIMID    = ""
@@ -110,7 +110,7 @@ jtgng_tilemap #(
 );
 
 generate
-    
+
     if ( TILE4 ) begin
          jtgng_tile4 #(
             .PALETTE    ( 0          ),
@@ -135,7 +135,7 @@ generate
             .prom_hi_we ( 1'b0        ),
             .prom_lo_we ( 1'b0        ),
             .prom_din   ( 4'd0        )
-        );       
+        );
     end else begin
         jtgng_tile3 #(
             .DATAREAD   (  DATAREAD   ),
