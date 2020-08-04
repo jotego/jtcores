@@ -109,7 +109,7 @@ generate
             HS[2:0] <= SH[2:0] ^ {3{flip}};
         end
     end
-    if(LAYOUT==3) begin
+    if(LAYOUT==3 || LAYOUT==7) begin
         // Tiger Road
         reg [9:0] SCVF;
         reg       V7;

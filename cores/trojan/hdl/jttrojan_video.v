@@ -209,9 +209,10 @@ assign scr_dout   = 8'd0;
 
 jt1943_scroll #(
     .HOFFSET    (SCR_OFFSET ),
-    .AS8MASK    (1'b0       ),
-    .ROM_AW     (15         ),
-    .PALETTE    (0          )
+    .AS8MASK    ( 1'b0      ),
+    .ROM_AW     ( 15        ),
+    .PALETTE    ( 0         ),
+    .LAYOUT     ( LAYOUT+1  )
 ) u_scroll2 (
     .rst          ( rst           ),
     .clk          ( clk           ),
