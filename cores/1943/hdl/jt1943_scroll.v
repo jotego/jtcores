@@ -95,7 +95,7 @@ end
 
 generate
     if (LAYOUT==0) begin
-        // 1943
+        // 1943 32x32
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
@@ -109,8 +109,8 @@ generate
             HS[2:0] <= SH[2:0] ^ {3{flip}};
         end
     end
-    if(LAYOUT==3 || LAYOUT==7) begin
-        // Tiger Road
+    if(LAYOUT==3) begin
+        // Tiger Road 32x32
         reg [9:0] SCVF;
         reg       V7;
 
@@ -129,7 +129,27 @@ generate
             end
             HS[2:0] <= SH[2:0] ^ {3{flip}};
         end
+    end
+    if(LAYOUT==7) begin
+        // Trojan 16x16
+        reg [9:0] SCVF;
+        reg       V7;
 
+        always @(*) begin
+            VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
+            {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
+        end
+        wire [7:0] col = {PIC,  SH}>>4;
+        wire [7:0] row = {PICV, SV}>>4;
+        always @(posedge clk) if(cen6) begin
+            // always update the map at the same pixel count
+            if( SH[2:0]==3'd7 ) begin
+                HS[4:3] <= SH[4:3];
+                map_addr <= {  row[6:0], col[6:0] };
+                SVmap <= SV[4:0];
+            end
+            HS[2:0] <= SH[2:0] ^ {3{flip}};
+        end
     end
 endgenerate
 

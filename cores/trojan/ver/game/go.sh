@@ -25,8 +25,9 @@ if [ ! -e $GAME_ROM_PATH ]; then
     exit 1
 fi
 
-# Make SDRAM file
-bin2hex < $GAME_ROM_PATH > sdram.hex
+# The sdram.hex file cannot be made with bin2hex
+# because of the prom_we loader. You need to run goload.sh
+# to get sdram.hex
 
 # Generic simulation script from JTFRAME
 $JTFRAME/bin/sim.sh $MIST \

@@ -1,7 +1,8 @@
 ../../hdl/jttrojan_game.v
 ../../hdl/jttrojan_video.v
-../../../sectionz/hdl/jtsectionz_colmix.v
+../../hdl/jttrojan_colmix.v
 ../../../sectionz/hdl/jtsectionz_prom_we.v
+../../../1943/hdl/jt1943_scroll.v
 ../../../commando/hdl/jtcommando_main.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_tile4.v

@@ -343,7 +343,7 @@ u_video(
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
     .game_sel   ( game_cfg[0]   ),
-    .V          ( V[7:0]        ),
+    .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
     .flip       ( flip          ),

@@ -183,7 +183,9 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .LHBL_dly   ( LHBL_dly            ),
     .LVBL_dly   ( LVBL_dly            ),
     .rgb_in     ( avatar_mux          ),
-    .rgb_out    ( {red, green, blue } )
+    .rgb_out    ( {red, green, blue } ),
+    // unused:
+    .preLBL     (                     )
 );
 
 endmodule // jtgng_colmix
