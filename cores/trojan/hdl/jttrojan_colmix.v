@@ -64,7 +64,7 @@ module jttrojan_colmix #(
 reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
-wire enable_scr  = gfx_en[1];
+// wire enable_scr  = gfx_en[1];
 wire enable_obj  = gfx_en[3];
 
 wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
