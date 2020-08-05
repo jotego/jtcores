@@ -27,7 +27,7 @@
     <rom index="0" zip="trojanb.zip|trojan.zip" type="merged" md5="None">
         <part>
         02 00 00 00 00 00 00 00 
-        01 80 03 00 03 40 07 40 
+        01 80 04 00 04 40 08 40 
         0c 40 00 00 00 00 00 00 
         00 00 00 00 00 00 00 00 
         </part>
@@ -43,9 +43,14 @@
         <interleave output="16">
             <part name="23.12h" crc="eda13c0e" map="12"/>
         </interleave>
-        <!-- gfx1 - starts at 0x30000 -->
+        <!-- gfx4 - starts at 0x30000 -->
+        <interleave output="16">
+            <part name="25.12q" crc="6e38c6fa" map="01"/>
+            <part name="24.12o" crc="14fc6cf2" map="10"/>
+        </interleave>
+        <!-- gfx1 - starts at 0x40000 -->
         <part name="3.8h" crc="581a2b4c"/>
-        <!-- gfx2 - starts at 0x34000 -->
+        <!-- gfx2 - starts at 0x44000 -->
         <interleave output="32">
             <part name="14.3g" crc="14bfac18" map="0001"/>
             <part name="11.3b" crc="00f0f4fd" map="0010"/>
@@ -58,7 +63,7 @@
             <part name="8.1d" crc="d3a4c9d1" map="0100"/>
             <part name="9.1e" crc="aeb693f7" map="1000"/>
         </interleave>
-        <!-- gfx3 - starts at 0x74000 -->
+        <!-- gfx3 - starts at 0x84000 -->
         <interleave output="16">
             <part name="18.10f" crc="862c4713" map="01"/>
             <part name="22.12f" crc="39daafd4" map="10"/>
@@ -74,11 +79,6 @@
         <interleave output="16">
             <part name="15.10b" crc="bb1a2769" map="01"/>
             <part name="19.12b" crc="81d5ab36" map="10"/>
-        </interleave>
-        <!-- gfx4 - starts at 0xB4000 -->
-        <interleave output="16">
-            <part name="25.12q" crc="6e38c6fa" map="01"/>
-            <part name="24.12o" crc="14fc6cf2" map="10"/>
         </interleave>
         <!-- proms - starts at 0xC4000 -->
         <part name="82s129.8g" crc="d96bcc98"/>

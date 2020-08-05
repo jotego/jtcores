@@ -27,7 +27,7 @@
     <rom index="0" zip="trojanj.zip|trojan.zip" type="merged" md5="None">
         <part>
         02 00 00 00 00 00 00 00 
-        01 80 03 00 03 40 07 40 
+        01 80 04 00 04 40 08 40 
         0c 40 00 00 00 00 00 00 
         00 00 00 00 00 00 00 00 
         </part>
@@ -43,10 +43,15 @@
         <interleave output="16">
             <part name="tb23.9n" crc="eda13c0e" map="12"/>
         </interleave>
+        <!-- gfx4 - starts at 0x2C000 -->
+        <interleave output="16">
+            <part name="tb25.15n" crc="6e38c6fa" map="01"/>
+            <part name="tb24.13n" crc="14fc6cf2" map="10"/>
+        </interleave>
         <part repeat="0x4000">FF</part>
-        <!-- gfx1 - starts at 0x30000 -->
+        <!-- gfx1 - starts at 0x40000 -->
         <part name="tb03.8k" crc="581a2b4c"/>
-        <!-- gfx2 - starts at 0x34000 -->
+        <!-- gfx2 - starts at 0x44000 -->
         <interleave output="32">
             <part name="tb14.8b" crc="14bfac18" map="0001"/>
             <part name="tb11.3b" crc="00f0f4fd" map="0010"/>
@@ -59,7 +64,7 @@
             <part name="tb08.4a" crc="d3a4c9d1" map="0100"/>
             <part name="tb09.6a" crc="aeb693f7" map="1000"/>
         </interleave>
-        <!-- gfx3 - starts at 0x74000 -->
+        <!-- gfx3 - starts at 0x84000 -->
         <interleave output="16">
             <part name="tb18.7l" crc="862c4713" map="01"/>
             <part name="tb22.7n" crc="39daafd4" map="10"/>
@@ -75,11 +80,6 @@
         <interleave output="16">
             <part name="tb15.2l" crc="bb1a2769" map="01"/>
             <part name="tb19.2n" crc="81d5ab36" map="10"/>
-        </interleave>
-        <!-- gfx4 - starts at 0xB4000 -->
-        <interleave output="16">
-            <part name="tb25.15n" crc="6e38c6fa" map="01"/>
-            <part name="tb24.13n" crc="14fc6cf2" map="10"/>
         </interleave>
         <!-- proms - starts at 0xC4000 -->
         <part name="tbp24s10.7j" crc="d96bcc98"/>

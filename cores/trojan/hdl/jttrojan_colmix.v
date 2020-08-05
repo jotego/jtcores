@@ -87,7 +87,8 @@ always @(posedge clk) if(pxl_cen) begin
     seladdr <= { ~char_blank, ~obj_blank,
         scr_pxl[7], scr_pxl[3:0], scr_blank };
     scr0  <= scr_pxl;
-    scr20 <= scr2_pxl;
+    //scr20 <= scr2_pxl;
+    scr20 <= { scr2_pxl[6:4], scr2_pxl[0], scr2_pxl[1], scr2_pxl[2], scr2_pxl[3] };
     char0 <= char_pxl;
     obj0  <= obj_pxl;
 
