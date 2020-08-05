@@ -78,8 +78,8 @@
         </interleave>
         <!-- gfx4 - starts at 0xB4000 -->
         <interleave output="16">
-            <part name="tb25.15n" crc="6e38c6fa" map="01"/>
-            <part name="tb24.13n" crc="14fc6cf2" map="10"/>
+            <part name="tb24.13n" crc="14fc6cf2" map="01"/>
+            <part name="tb25.15n" crc="6e38c6fa" map="10"/>
         </interleave>
         <!-- proms - starts at 0xC4000 -->
         <part name="tbp24s10.7j" crc="d96bcc98"/>

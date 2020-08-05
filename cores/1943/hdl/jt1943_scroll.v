@@ -91,8 +91,7 @@ always @(*) begin
     HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
     H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
     SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
-    //{PIC,  SH } = (LAYOUT==7 ? {8'd0, hpos[7:0]} : hpos)
-    {PIC,  SH } = hpos
+    {PIC,  SH } = (LAYOUT==7 ? {8'd0, hpos[7:0]} : hpos)
         + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
 end
 
@@ -142,7 +141,7 @@ generate
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
                 HS[4:3] <= SH[4:3];
-                map_addr <= {  {row[5:0] /*+ hpos[12:8]*/}, col[7:0] }; // 5 + 9
+                map_addr <= {  {row[3:0], 2'b0 }+ hpos[13:8], col[7:0] }; // 6 + 8
                 SVmap <= SV[4:0];
             end
             HS[2:0] <= SH[2:0] ^ {3{flip}};

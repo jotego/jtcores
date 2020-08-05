@@ -215,7 +215,7 @@ jt1943_scroll #(
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
-    .V128         ( V             ),
+    .V128         ( {1'b0, V[7:0]} ),
     .H            ( H             ),
     .hpos         ( scr2_hpos     ),
     .SCxON        ( 1'b1          ),

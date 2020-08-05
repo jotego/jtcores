@@ -35,5 +35,5 @@ $JTFRAME/bin/sim.sh $MIST \
     -def ../../hdl/jttrojan.def \
     -videow 256 -videoh 240 \
     -d BUTTONS=2 \
-    -d COLORW=4  \
+    -d COLORW=4  -d JTFRAME_SIM_DIPS=32\'hBFFF \
     $*
