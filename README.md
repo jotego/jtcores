@@ -28,19 +28,20 @@ In chronological order:
 
 ### Dependencies
 
-Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149
-------------------|------|-----|-------|------|---------|--------|--------
-1942              |      |  X  |       |      |         |        |   X
-Vulgus            |      |  X  |       |      |         |        |   X
-1943              |      |  X  |       |      |   X     |        |   X
-Commando          |      |  X  |       |      |   X     |        |   X
-Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X
-Section Z         |      |  X  |       |      |   X     |        |   X
-Legendary Wings   |      |  X  |       |      |   X     |        |   X
-Black Tiger       |      |  X  |       |  X   |   X     |        |   X
-Tiger Road        |      |  X  |   X   |      |   X     |        |   X
-F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X
-Bionic Commando   |      |  X  |   X   |  X   |         |   X    |
+Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149 | MSM5205
+------------------|------|-----|-------|------|---------|--------|--------|---------
+1942              |      |  X  |       |      |         |        |   X    |
+Vulgus            |      |  X  |       |      |         |        |   X    |
+1943              |      |  X  |       |      |   X     |        |   X    |
+Commando          |      |  X  |       |      |   X     |        |   X    |
+Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |
+Section Z         |      |  X  |       |      |   X     |        |   X    |
+Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
+Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |
+Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
+F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |
+Bionic Commando   |      |  X  |   X   |  X   |         |   X    |        |
+Trojan            |      |  X  |       |      |   X     |        |        |   X
 
 
 ## Troubleshooting

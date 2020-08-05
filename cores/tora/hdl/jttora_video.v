@@ -85,7 +85,7 @@ module jttora_video(
 
 // parameters from jtgng_obj:
 localparam AVATAR_MAX    = 8;
-localparam LAYOUT        = 3; 
+localparam LAYOUT        = 3;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
@@ -120,7 +120,7 @@ jtgng_char #(
     .wr_n       ( RnW           ),
     .dseln      ( {UDSWn, LDSWn}),
     .busy       ( char_busy     ),
-    // Pause screen    
+    // Pause screen
     .pause      ( pause         ),
     .scan       ( char_scan     ),
     .msg_low    ( char_msg_low  ),
@@ -145,7 +145,7 @@ jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_aux      ),
-    .msg_high    (               ) 
+    .msg_high    (               )
 );
 
 assign char_msg_high = char_aux[7:6]==2'b11 ? { 3'b111, 5'd2 } : 8'd2;
@@ -172,7 +172,6 @@ u_scroll (
     .hpos         ( scrposh        ),
     .vpos         ( scrposv        ),
     .flip         ( flip           ),
-    .pause        ( pause          ),
     // No palette PROMs
     .prog_addr    (                ),
     .prom_hi_we   (                ),
@@ -268,7 +267,7 @@ jttora_colmix u_colmix (
     // PROMs
     .prog_addr    ( prog_addr     ),
     .prom_prio_we ( prom_prio_we  ),
-    .prom_din     ( prom_din      ),    
+    .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),

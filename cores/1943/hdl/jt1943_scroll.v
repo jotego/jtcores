@@ -91,7 +91,7 @@ always @(*) begin
     HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
     H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
     SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
-    if(LAYOUT==7) begin
+    if(LAYOUT==7) begin // Trojan only has 8-bit scrolling
         {PIC,  SH } = {8'd0, hpos[7:0] } +
             + { {6{SCHF[9]}},SCHF } + (flip?16'h16:16'h8);
     end else begin
@@ -110,49 +110,35 @@ generate
                 HS[4:3] <= SH[4:3] ^{2{flip}};
                 map_addr <= { PIC, SH[7:6], SV[7:5]/*^{3{flip}}*/, SH[5] }; // SH[5] is LSB
                     // in order to optimize cache use
-                SVmap <= SV[4:0];
             end
-            HS[2:0] <= SH[2:0] ^ {3{flip}};
         end
     end
-    if(LAYOUT==3) begin
-        // Tiger Road 32x32
+    if(LAYOUT==3 || LAYOUT==7) begin
+        // Tiger Road 32x32 - Trojan 16x16
         always @(*) begin
             VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
         end
-        wire [7:0] col = {PIC,  SH}>>5;
-        wire [7:0] row = {PICV, SV}>>5;
+        wire [7:0] col = {PIC,  SH}>>(LAYOUT==3 ? 5 : 4);
+        wire [7:0] row = {PICV, SV}>>(LAYOUT==3 ? 5 : 4);
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
                 HS[4:3] <= SH[4:3];
-                map_addr <= {  ~row[6:3], col[6:3], ~row[2:0], col[2:0] };
-                SVmap <= SV[4:0];
+                map_addr <= LAYOUT==3 ?
+                    {  ~row[6:3], col[6:3], ~row[2:0], col[2:0] } : // Tiger Road
+                    {  {row[3:0], 2'b0 }, col[7:0] }+ {2'b0, hpos[15:8], 4'd0}; // Trojan 6 + 8
             end
-            HS[2:0] <= SH[2:0] ^ {3{flip}};
-        end
-    end
-    if(LAYOUT==7) begin
-        // Trojan 16x16
-        always @(*) begin
-            VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
-            {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
-        end
-        wire [8:0] col = {PIC,  SH}>>4;
-        wire [7:0] row = {PICV, SV}>>4;
-        always @(posedge clk) if(cen6) begin
-            // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
-                HS[4:3] <= SH[4:3];
-                map_addr <= {  {row[3:0], 2'b0 }, col[7:0] }+ {2'b0, hpos[15:8], 4'd0}; // 6 + 8
-                SVmap <= SV[4:0];
-            end
-            HS[2:0] <= SH[2:0] ^ {3{flip}};
         end
     end
 endgenerate
 
+always @(posedge clk) if(cen6) begin
+    if( SH[2:0]==3'd7 ) begin
+        SVmap <= SV[4:0];
+    end
+    HS[2:0] <= SH[2:0] ^ {3{flip}};
+end
 
 wire [7:0] dout_high = /*LAYOUT==7 ? map_data[15:8]:*/ map_data[ 7:0];
 wire [7:0] dout_low  = /*LAYOUT==7 ? map_data[ 7:0]:*/ map_data[15:8];
