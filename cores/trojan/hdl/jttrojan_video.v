@@ -206,7 +206,7 @@ assign scr_dout   = 8'd0;
 `endif
 
 jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET ),
+    .HOFFSET    (SCR_OFFSET+1 ),
     .AS8MASK    ( 1'b0      ),
     .ROM_AW     ( 15        ),
     .PALETTE    ( 0         ),
