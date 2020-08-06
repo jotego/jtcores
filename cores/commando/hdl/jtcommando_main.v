@@ -26,7 +26,7 @@ module jtcommando_main(
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     output             cpu_cen,
-(*keep*)    input              cen_sel,
+    input              cen_sel,
     // Timing
     output  reg        flip,
     input   [8:0]      V,

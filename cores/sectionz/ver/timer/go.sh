@@ -27,6 +27,6 @@ while [ $# -gt 0 ]; do
 done
 
 iverilog test.v old_timer.v $MODULES/jtgng_timer.v $JTFRAME/hdl/video/jtframe_resync.v -o sim \
-    -DSIMULATION -DLAYOUT=$LAYOUT \
+    -DSIMULATION -DLAYOUT=$LAYOUT -DSIMULATION_TIMER \
     -DHOFFSET=$HOFFSET -DVOFFSET=$VOFFSET \
     && sim -lxt

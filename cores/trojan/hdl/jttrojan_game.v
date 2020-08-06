@@ -139,7 +139,7 @@ jtframe_cen48 u_cen(
 
 wire LHBL_obj, LVBL_obj;
 
-jtgng_timer #(.LAYOUT(5)) u_timer(
+jtgng_timer #(.LAYOUT(6)) u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
     .V         ( V        ),
@@ -209,7 +209,7 @@ jtcommando_main #(.GAME(2)) u_main(
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
-    .cen_sel    ( game_cfg[0]   ),
+    .cen_sel    ( 1'b0          ), // 3MHz CPU
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -282,10 +282,10 @@ assign cpu_cen     = cen3;
 reg [7:0] psg_gain;
 always @(posedge clk) begin
     case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h7F;
-        2'd3: psg_gain <= 8'hFF;
+        2'd0: psg_gain <= 8'h10;
+        2'd1: psg_gain <= 8'h30;
+        2'd2: psg_gain <= 8'h70;
+        2'd3: psg_gain <= 8'hF0;
     endcase // dip_fxlevel
 end
 

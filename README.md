@@ -20,28 +20,29 @@ In chronological order:
  4. Ghosts'n Goblins (see doc/jtgng.txt)
  5. SectionZ         (see doc/jtsectionz.txt)
  6. GunSmoke         (see doc/jtgunsmoke.txt)
- 7. 1943             (see doc/jt1943.txt)
- 8. Black Tiger      (see doc/jtbtiger.txt)
- 9. Tiger Road       (see doc/jttora.txt)
-10. F1-Dream         (see doc/jtf1dream.txt)
-11. Bionic Commando  (see doc/jtbiocom.txt)
+ 7. Trojan           (see doc/jttrojan.txt)
+ 8. 1943             (see doc/jt1943.txt)
+ 9. Black Tiger      (see doc/jtbtiger.txt)
+10. Tiger Road       (see doc/jttora.txt)
+11. F1-Dream         (see doc/jtf1dream.txt)
+12. Bionic Commando  (see doc/jtbiocom.txt)
 
 ### Dependencies
 
 Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149 | MSM5205
 ------------------|------|-----|-------|------|---------|--------|--------|---------
 1942              |      |  X  |       |      |         |        |   X    |
-Vulgus            |      |  X  |       |      |         |        |   X    |
 1943              |      |  X  |       |      |   X     |        |   X    |
-Commando          |      |  X  |       |      |   X     |        |   X    |
-Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |
-Section Z         |      |  X  |       |      |   X     |        |   X    |
-Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
-Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |
-Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
-F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |
 Bionic Commando   |      |  X  |   X   |  X   |         |   X    |        |
+Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |
+Commando          |      |  X  |       |      |   X     |        |   X    |
+F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |
+Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |
+Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
+Section Z         |      |  X  |       |      |   X     |        |   X    |
+Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
 Trojan            |      |  X  |       |      |   X     |        |        |   X
+Vulgus            |      |  X  |       |      |         |        |   X    |
 
 
 ## Troubleshooting
@@ -59,7 +60,7 @@ On MiSTer keyboard control is configured through the OSD.
 For MiST and MiSTer: games can be controlled with both game pads and keyboard. The keyboard follows the same layout as MAME's default.
 
     F3      Game reset
-    P       Pause
+    P       Pause (in some games, you can disable the credits screen by pressing 1P)
     1,2     1P, 2P start buttons
     5,6     Left and right coin inputs
 
@@ -94,19 +95,13 @@ Original filter for sound (GnG)
     -high pass filter with cut-off freq. at 1.6Hz
     -low pass filter with cut-off freq. at 32.3kHz
 
-# Project Structure
-
-This work has two separate parts:
-
-1. A verilog model of the original hardware, replicated from original schematics. This is found in the hdl folder. Some test benches are available in the "ver" (for verification) folder. Data sheets of parts used in the original design are located in the "doc" folder. This is interesting to understand how it worked. It can be used to repair broken boards too.
-
-2. A modern clone written in Verilog. It has been made with the MiST board in mind but the game itself (jtgng_game module) is highly portable. All components used aim to be cycle exact -some even sub-cycle exact- so the recreation is the most similar thing to having the original PCB you can get.
-
 ## Modules
 
 The FPGA clone uses the following modules:
 
-JT12: For YM2203 sound synthesis. From the same author.
+JT12:   For YM2203 sound synthesis. From the same author.
+JT51:   For YM2151 sound synthesis. From the same author.
+JT5205: For MSM5205 ADPCM sound. From the same author.
 JTFRAME: A common framework for MiST arcades. From the same author.
 MC6809 from Greg Miller
 T80: originally from Daniel Wallner, with edits from Alexey Melnikov (Mister)
@@ -145,29 +140,29 @@ There is another script called update_cores.sh that will run jtcore over all sup
 
 # Directory Structure
 
-original/hdl/   replica of original PCB schematics
-original/ver/   simulation files for original PCB
+model/gng/hdl/  replica of original PCB schematics
+model/gng/ver/  simulation files for original PCB
 modules         files shared by several games and external files
 modules/mist
 doc             documents related to original PCB
 doc/74          74' series data sheets
 rom             script to convert from MAME rom files to the required format
                 simulation files expect the rom files here
-gng/            MiST board version of Ghosts'n Goblins.
-                Latest core version is located in this folder and called core.rbf
-gng/hdl         Verilog files of the clone for MiST
-gng/doc         documents related to MiST clone or MiST hardware
-gng/quartus     project to synthesize the clone
-gng/ver         simulation files of MiST clone
+cores/gng/        MiST board version of Ghosts'n Goblins.
+                  Latest core version is located in this folder and called core.rbf
+cores/gng/hdl     Verilog files of the clone for MiST
+cores/gng/doc     documents related to MiST clone or MiST hardware
+cores/gng/quartus project to synthesize the clone
+cores/gng/ver     simulation files of MiST clone
 
-1942            MiST board version of 1942 arcade game
-1942/hdl        Verilog files of the clone for MiST
-1942/zxuno      files for ZX-UNO version
-1942/mist       Quartus files for MiST version
+cores/1942        MiST board version of 1942 arcade game
+cores/1942/hdl    Verilog files of the clone for MiST
+cores/1942/zxuno  files for ZX-UNO version
+cores/1942/mist   Quartus files for MiST version
 
-1943            MiST board version of 1943 arcade game
-1943/hdl        Verilog files of the clone for MiST
-1943/mist       Quartus files for MiST version
+cores/1943        MiST board version of 1943 arcade game
+cores/1943/hdl    Verilog files of the clone for MiST
+cores/1943/mist   Quartus files for MiST version
 etc.
 
 # HDL Code Structure

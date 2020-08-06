@@ -56,7 +56,7 @@ jtframe_cenp384 u_cenp384(
 );
 
 
-jtgng_sound #(.LAYOUT(0)) u_fmcpu (
+jtgng_sound #(.LAYOUT(0),.FM_GAIN(8'h20)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cen3         ),
@@ -101,8 +101,8 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
     .ch2    ( 16'd0     ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h08     ),
-    .gain1  ( 8'h18     ),
+    .gain0  ( 8'h10     ),
+    .gain1  ( 8'h20     ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
     .mixed  ( ym_snd    )
