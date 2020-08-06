@@ -34,6 +34,7 @@ module jttrojan_video #(
     input               rst,
     input               clk,
     input               cen12,
+    input               cen8,
     input               cen6,
     input               cen3,
     input               cpu_cen,
@@ -44,7 +45,6 @@ module jttrojan_video #(
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  char_dout,
@@ -110,7 +110,6 @@ wire [6:0] obj_pxl;
 wire [7:0] scr_pxl;
 wire [6:0] scr2_pxl;
 wire [3:0] cc;
-wire [3:0] avatar_idx;
 
 `ifndef NOCHAR
 
@@ -241,6 +240,7 @@ jtgng_obj #(
     .PALW         (  3          ),
     .PXL_DLY      (  1          ),
     .LAYOUT       ( LAYOUT      ),
+//    .OBJMAX_LINE  ( 31          ),
     // Avatar parameters
     .AVATAR_MAX   ( AVATAR_MAX  ),
     .VERTICAL     ( 0           ))
@@ -264,8 +264,8 @@ u_obj (
     .V          ( V[7:0]      ),
     .H          ( H           ),
     // avatar display
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
+    .pause      ( 1'b0        ),
+    .avatar_idx (             ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
@@ -309,10 +309,6 @@ u_colmix (
     // .prog_addr    ( prog_addr     ),
     // .prom_prio_we ( prom_prio_we  ),
     // .prom_din     ( prom_din      ),
-
-    // Avatars
-    .pause        ( pause         ),
-    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

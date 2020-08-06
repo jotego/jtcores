@@ -108,7 +108,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 
 wire rom_ready;
 wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
-wire cen12, cen6, cen3, cen1p5;
+wire cen12, cen8, cen6, cen3, cen1p5;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
@@ -126,7 +126,7 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    ),
     // unused:
     .cen16  (           ),
-    .cen8   (           ),
+    .cen8   ( cen8      ),
     .cen4   (           ),
     .cen4_12(           ),
     .cen3q  (           ),
@@ -338,6 +338,7 @@ u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( cen12         ),
+    .cen8       ( cen8          ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
@@ -348,7 +349,6 @@ u_video(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( pause         ),
     // Palette
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),

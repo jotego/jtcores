@@ -16,9 +16,10 @@
     Version: 1.0
     Date: 27-10-2017 */
 
-module jtgng_obj #(parameter
-    OBJMAX      = 10'h180,
-    OBJMAX_LINE = 6'd24,
+module jtgng_obj #(
+    parameter [9:0] OBJMAX      = 10'h180,
+    parameter [5:0] OBJMAX_LINE = 6'd24,
+    parameter
     DMA_DW      = 8,        // Data width of each DMA transfer
     DMA_AW      = 9,        // Data width of each DMA transfer
     PXL_DLY     = 7,

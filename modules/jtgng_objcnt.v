@@ -17,7 +17,7 @@
     Date: 19-10-2019 */
 
 module jtgng_objcnt #(parameter
-    OBJMAX_LINE = 6'd24
+    [5:0] OBJMAX_LINE = 6'd24
 ) (
     input               rst,
     input               clk,
@@ -61,7 +61,7 @@ always @(posedge clk) if(draw_cen) begin
         // give extra time to the draw module to finish
         if( over && pxlcnt[2:0] == 3'd6 ) draw_over <= 1'b1;
         if( draw_over ) { objcnt, pxlcnt } <= { 5'd0, 4'd0 };
-        if( !draw_over && !rom_wait ) 
+        if( !draw_over && !rom_wait )
             { over, objcnt, pxlcnt } <=  { over, objcnt, pxlcnt } + 1'd1;
         wait_latch <= wait_cond;
     end

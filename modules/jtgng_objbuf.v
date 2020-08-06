@@ -23,7 +23,7 @@
 module jtgng_objbuf #(parameter
     DW          = 8,
     AW          = 9,
-    OBJMAX      = 10'h180, // 180h for 96 objects (GnG) 
+    OBJMAX      = 10'h180, // 180h for 96 objects (GnG)
     OBJMAX_LINE = 6'd24
 ) (
     input               rst,
