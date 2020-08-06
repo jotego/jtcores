@@ -147,7 +147,9 @@ end else begin
         4'd3: begin
             // DW-4 refers to bit 12 but it needs this indirect index
             // so verilator does not complaint about the 12 when DW is only 8
-            objx <= { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] };
+            objx <= vinzone ?
+                { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] }
+                : 9'h100;
         end
         default:;
     endcase
