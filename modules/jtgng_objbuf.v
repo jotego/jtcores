@@ -145,27 +145,31 @@ reg [DW-1:0] data_a, data_b;
 
 reg [2:0] we_clr;
 always @(posedge clk, posedge rst) begin
-    if( rst ) we_clr <= 3'b0;
-    else begin
+    if( rst ) begin
+        we_clr      <= 3'b0;
+        objbuf_data <= {DW{1'b0}};
+    end else begin
         we_clr <= { we_clr[1:0], draw_cen & ~rom_wait};
         if( we_clr[1] ) objbuf_data <= line==lineA ? q_b : q_a;
     end
 end
 
+localparam [7:0] CLRVAL = 8'hF8;
+
 always @(*) begin
     if( line == lineA ) begin
         address_a = { ~post_scan[4:0], pre_scan[1:0] };
         address_b = hscan;
-        data_a    = dma_dout;
-        data_b    = 8'hf8;
+        data_a    = fill ? CLRVAL : dma_dout;
+        data_b    = CLRVAL;
         we_a      = line_obj_we;
         we_b      = we_clr[2];
     end
     else begin
         address_a = hscan;
         address_b = { ~post_scan[4:0], pre_scan[1:0] };
-        data_a    = 8'hf8;
-        data_b    = dma_dout;
+        data_a    = CLRVAL;
+        data_b    = fill ? CLRVAL : dma_dout;
         we_a      = we_clr[2];
         we_b      = line_obj_we;
     end

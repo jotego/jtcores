@@ -15,7 +15,7 @@ done
 
 
 export GAME_ROM_PATH=../../../rom/trojan.rom
-export MEM_CHECK_TIME=106_000_000
+export MEM_CHECK_TIME=146_000_000
 export CONVERT_OPTIONS="-resize 300%x300%"
 export YM2203=1
 export Z80=1

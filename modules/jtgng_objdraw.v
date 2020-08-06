@@ -86,6 +86,9 @@ end
 reg [3:0] Vobj;
 
 always @(posedge clk) if(cen) begin
+if( rst ) begin
+    id <= {IDW{1'b0}};
+end else begin
     if(!rom_wait) case( pxlcnt[3:0] )
         4'd0: id[IDWDIRECT-1:0] <= objbuf_data[ IDWDIRECT-1: 0 ];
         4'd1: case( LAYOUT )
@@ -148,6 +151,7 @@ always @(posedge clk) if(cen) begin
         end
         default:;
     endcase
+end
 end
 
 always @(posedge clk) if(cen) begin
