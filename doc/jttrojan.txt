@@ -39,6 +39,8 @@ for Section Z (same resolution) I was getting 55.77Hz reported by OSSC and the g
 demo loop. So I have opted to speed it up to 56.0Hz by removing one blanking line. If I ever come across
 an original board I'll measure its frame rate and correct the core if needed.
 
+Curiously, the WAITN signal seemed to be always high on the main Z80 on my bootleg board.
+
 REVISION HISTORY
 ================
 
