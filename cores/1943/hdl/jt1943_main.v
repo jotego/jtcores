@@ -14,13 +14,23 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 18-2-2019 */
+    Date: 18-2-2019
+    Version: 2.0
+    Date:  8-8-2020 (added Side Arms support)
+    */
 
-// 1943: Main CPU
+// GAME = 0 1943        (default)
+// GAME = 1 Side Arms
 
-`timescale 1ns/1ps
+// 1943 uses the waitn signal for bus arbitrion and for slowing down the CPU
+// Side Arms, gates the clock for bus arbitrion and uses waitn to slow down the CPU
+// in the same way as 1943
+// This CPU slow down must be to meet memory timings
+// I use waitn signal for bus arbitrion for both games for convenience
 
-module jt1943_main(
+module jt1943_main #(
+    parameter GAME=0 // 0=1943, 1=Side Arms
+)(
     input              clk,
     input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
@@ -41,12 +51,15 @@ module jt1943_main(
     output             cpu_cen,
     input              char_wait,
     // scroll
-    output  reg [7:0]  scrposv,
+    output  reg [(GAME ? 15 : 7):0]  scrposv,
     output  reg [15:0] scr1posh,
     output  reg [15:0] scr2posh,
     output  reg        SC1ON,
     output  reg        SC2ON,
     output  reg        OBJON,
+    // Palette (only Side Arms)
+    output  reg        blue_cs,
+    output  reg        redgreen_cs,
     // cabinet I/O
     input   [6:0]      joystick1,
     input   [6:0]      joystick2,
@@ -74,97 +87,150 @@ module jt1943_main(
     output reg         coin_cnt
 );
 
+localparam CHON_BIT  = GAME==0 ? 7 : 6;
+localparam FLIP_BIT  = GAME==0 ? 6 : 7;
+localparam SRES_BIT  = GAME==0 ? 5 : 4;
+localparam BANK_BIT1 = GAME==0 ? 4 : 7;
+localparam BANK_BIT0 = GAME==0 ? 2 : 6;
+localparam BANKW     = GAME==0 ? 3 : 2;
+
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
 reg SECWR_cs;
 reg [1:0]  scr1posh_cs, scr2posh_cs;
 
+// special registers
+reg [BANKW-1:0] bank;
 
 wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen6;
 assign bus_ack = ~busak_n;
 
 always @(*) begin
-    rom_cs        = 1'b0;
-    ram_cs        = 1'b0;
-    snd_latch_cs  = 1'b0;
-    bank_cs       = 1'b0;
-    in_cs         = 1'b0;
-    char_cs       = 1'b0;
+    rom_cs        = !mreq_n && !rfsh_n && (!A[15] || A[15:14]==2'b10);
+    ram_cs        = !mreq_n && !rfsh_n && A[15:13]==3'b111;
+    snd_latch_cs  = 0;
+    bank_cs       = 0;
+    in_cs         = 0;
+    char_cs       = !mreq_n && !rfsh_n && A[15:12]==4'hd && (GAME==1 || !A[11]);
     scr1posh_cs   = 2'b0;
     scr2posh_cs   = 2'b0;
-    scrposv_cs    = 1'b0;
-    gfxen_cs      = 1'b0;
-    OKOUT         = 1'b0;
-    SECWR_cs      = 1'b0;
-    if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b0??: rom_cs = 1'b1;
-        3'b10?: rom_cs = 1'b1; // bank
-        3'b110: // cscd
-            case(A[12:11])
-                2'b00: // 0xC000 part 11B
-                    in_cs = 1'b1;
-                2'b01: // 0xC800
-                    casez(A[2:0])
-                        3'b000: snd_latch_cs = 1'b1;
-                        3'b100: bank_cs      = 1'b1;
-                        3'b110: OKOUT        = 1'b1;
-                        3'b111: SECWR_cs     = 1'b1;
-                        default:;
-                    endcase
-                2'b10: // D0CS (D phi CS on schematics)
-                    char_cs = 1'b1; // D0CS
-                2'b11: // D8CS
-                    if( !A[3] && !wr_n) case(A[2:0])
-                        3'd0: scr1posh_cs = 2'b01; // LSB
-                        3'd1: scr1posh_cs = 2'b10; // MSB
-                        3'd2: scrposv_cs  = 1'b1;
-                        3'd3: scr2posh_cs = 2'b01; // LSB
-                        3'd4: scr2posh_cs = 2'b10; // MSB
-                        3'd6: gfxen_cs    = 1'b1;
-                        default:;
+    scrposv_cs    = 0;
+    gfxen_cs      = 0;
+    OKOUT         = 0;
+    SECWR_cs      = 0;
+    blue_cs       = 0;
+    redgreen_cs   = 0;
+    misc_cs       = 0;
+    if( rfsh_n && !mreq_n ) begin
+        if( GAME==0 ) begin // 1943
+            casez(A[15:13])
+                3'b110: // cscd
+                    case(A[12:11])
+                        2'b00: // 0xC000 part 11B
+                            in_cs = 1'b1;
+                        2'b01: // 0xC800
+                            casez(A[2:0])
+                                3'b000: snd_latch_cs = 1'b1;
+                                3'b100: begin
+                                    bank_cs = 1;
+                                    misc_cs = 1;
+                                end
+                                3'b110: OKOUT        = 1'b1;
+                                3'b111: SECWR_cs     = 1'b1;
+                                default:;
+                            endcase
+                        2'b10: // D0CS (D phi CS on schematics)
+                            char_cs = 1'b1; // D0CS
+                        2'b11: // D8CS
+                            if( !A[3] && !wr_n) case(A[2:0])
+                                3'd0: scr1posh_cs = 2'b01; // LSB
+                                3'd1: scr1posh_cs = 2'b10; // MSB
+                                3'd2: scrposv_cs  = 1'b1;
+                                3'd3: scr2posh_cs = 2'b01; // LSB
+                                3'd4: scr2posh_cs = 2'b10; // MSB
+                                3'd6: gfxen_cs    = 1'b1;
+                                default:;
+                            endcase
                     endcase
             endcase
-        3'b111: ram_cs = 1'b1;
-    endcase
+        end else begin // Side Arms
+            casez(A[15:13])
+                3'b110: // cscd
+                    casez(A[12:11])
+                        2'b00: begin // 0xC000
+                            redgreen_cs = !A[10];
+                            blue_cs     =  A[10];
+                        end
+                        2'b01: begin // 0xC800
+                            if( !wr_n ) begin
+                                casez(A[3:0])
+                                    4'd0: snd_latch_cs  = 1;
+                                    4'd1: bank_cs       = 1;
+                                    4'd2: OKOUT         = 1;
+                                    4'd4: misc_cs       = 1;
+                                    4'd5, 4'd6: star_cs = 1;
+                                    4'd8: scr1posh_cs = 2'b01; // LSB
+                                    4'd9: scr1posh_cs = 2'b10; // MSB
+                                    4'd10,4'd11: scrposv_cs  = 1'b1;
+                                    4'd12: gfxen_cs    = 1'b1;
+                                    default:;
+                                endcase
+                            end
+                            in_cs = !rd_n;
+                        end
+                    endcase
+            endcase
+        end
+    end
 end
 
-// special registers
-reg [2:0] bank;
 always @(posedge clk, posedge rst)
     if( rst ) begin
-        bank      <= 2'd0;
-        scrposv   <= 8'd0;
-        CHON      <= 1'b0;
-        flip      <= 1'b0;
-        sres_b    <= 1'b1;
-        coin_cnt  <= 1'b0;  // omitting inverter in M54532 for coin counter.
-        {OBJON, SC2ON, SC1ON } <= 3'd0;
+        bank      <= {BANKW{1'b0}};
+        scrposv   <= 'd0;
+        flip      <= 0;
+        sres_b    <= 1;
+        coin_cnt  <= 1;  // omitting inverter in M54532 for coin counter.
+        {OBJON, SC2ON, SC1ON, CHON } <= 4'd0;
         snd_latch <= 8'd0;
     end
     else if(cpu_cen) begin
         if( bank_cs  && !wr_n ) begin
-            CHON     <= cpu_dout[7];
-            flip     <= cpu_dout[6];
-            sres_b   <= ~cpu_dout[5]; // inverted through M54532
-            coin_cnt <= |cpu_dout[1:0];
-            bank     <= cpu_dout[4:2];
+            bank     <= cpu_dout[BANK_BIT1:BANK_BIT0];
             `ifdef SIMULATION
-                if (!cpu_dout[5])
-                    $display("INFO: Sound CPU reset");
-                if(cpu_dout[4:2]!=bank)
+                if(cpu_dout[BANK_BIT1:BANK_BIT0]!=bank)
                     $display("INFO: Bank changed to %d", cpu_dout[4:2]);
             `endif
         end
+        if( misc_cs  && !wr_n ) begin
+            CHON     <= cpu_dout[CHON_BIT];
+            flip     <= cpu_dout[FLIP_BIT];
+            sres_b   <= ~cpu_dout[SRES_BIT]; // inverted through M54532
+            coin_cnt <= |cpu_dout[1:0];
+            `ifdef SIMULATION
+                if (!cpu_dout[SRES_BIT])
+                    $display("INFO: Sound CPU reset");
+            `endif
+        end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
-        if( scrposv_cs ) scrposv <= cpu_dout;
+        if( scrposv_cs ) begin
+            if(GAME==0) scrposv <= cpu_dout;
+            if(GAME==1) begin
+                if( !A[0] ) scrposv[ 7:0] <= cpu_dout;
+                if(  A[0] ) scrposv[15:8] <= cpu_dout;
+            end
+        end
         if( scr1posh_cs[0] )  scr1posh[ 7:0] <= cpu_dout;
         if( scr1posh_cs[1] )  scr1posh[15:8] <= cpu_dout;
         if( scr2posh_cs[0] )  scr2posh[ 7:0] <= cpu_dout;
         if( scr2posh_cs[1] )  scr2posh[15:8] <= cpu_dout;
         if( gfxen_cs ) begin
-            {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];
+            if(GAME==0)
+                {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];
+            else
+                {SC1ON, OBJON} <= cpu_dout[1:0];
         end
     end
 
@@ -229,13 +295,23 @@ always @(negedge rd_n)
 `endif
 
 // ROM ADDRESS: 32kB + 8 banks of 16kB
-always @(*) begin
-    rom_addr[13: 0] = A[13:0];
-    rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
-end
+generate
+    if( GAME==0 )
+        always @(*) begin
+            rom_addr[13: 0] = A[13:0];
+            rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
+        end
+    end else begin
+        always @(*) begin
+            rom_addr[13: 0] = A[13:0];
+            rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 2'b0, bank[0], bank[1]});
+        end
+    end
+endgenerate
 
 ///////////////////////////////////////////////////////////////////
-// interrupt generation. Schematics page 5/9, parts 12J and 14K
+// interrupt generation. Schematics page 5/9, parts 12J and 14K (1943)
+// schematics page 1/9 and timing (Side Arms)
 reg int_n, int_rqb, int_rqb_last;
 wire int_middle = V[7:5]!=3'd3;
 wire int_rqb_negedge = !int_rqb && int_rqb_last;
@@ -245,7 +321,12 @@ always @(posedge clk)
         int_n <= 1'b1;
     end else if(cpu_cen) begin
         int_rqb_last <= int_rqb;
-        int_rqb <= LVBL && int_middle;
+        if( GAME==0 )
+            int_rqb <= LVBL && int_middle;
+        else begin
+            if( V[7:0]==8'h6F || V[7:0]==8'hEF ) int_rqb <= 0;
+            if( V[7:0]==8'h70 || V[7:0]==8'hF0 ) int_rqb <= 1;
+        end
         if( irq_ack )
             int_n <= 1'b1;
         else
@@ -296,14 +377,18 @@ always @(posedge clk or negedge t80_rst_n)
         end
     end
 
-jt1943_security u_security(
-    .clk    ( clk      ),
-    .cen    ( cpu_cen  ),
-    .wr_n   ( wr_n     ),
-    .cs     ( SECWR_cs ),
-    .din    ( cpu_dout ),
-    .dout   ( security )
-);
+generate
+    if( GAME==0 )
+    jt1943_security u_security(
+        .clk    ( clk      ),
+        .cen    ( cpu_cen  ),
+        .wr_n   ( wr_n     ),
+        .cs     ( SECWR_cs ),
+        .din    ( cpu_dout ),
+        .dout   ( security )
+    );
+    else assign security = 8'd0;
+endgenerate
 
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),

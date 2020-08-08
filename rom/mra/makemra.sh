@@ -21,6 +21,25 @@ done
 export JTFRAME
 (cd $JTFRAME/cc;make) || exit $?
 
+################## Side Arms
+# gfx2 = 32x32 tiles
+# gfx3 = OBJ
+mame2dip sidearms.xml \
+    -rbf jtsarms \
+    -frac gfx2 2 \
+    -frac gfx3 2
+
+exit $?
+
+################## Exed Exes
+# gfx3 = 16x16 tiles
+# gfx4 = OBJ
+mame2dip exedexes.xml \
+    -rbf jtexed \
+    -frac gfx3 2 \
+    -frac gfx4 2
+
+############# Trojan
 mame2dip trojan.xml \
     -rbf jttrojan \
     -frac gfx2 4 \
