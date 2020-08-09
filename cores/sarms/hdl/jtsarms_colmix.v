@@ -119,11 +119,9 @@ end
 
 wire [3:0] pal_red, pal_green, pal_blue;
 
-// Palette is in RAM. There are writes outside the vertical blank
-// If I gate the signals for VB only then the sea turns yellow in
-// Legendary Wings after playing a game
-wire we_rg = !cpu_wrn &&  redgreen_cs;
-wire we_b  = !cpu_wrn &&  blue_cs;
+// Palette is in RAM
+wire we_rg = !LVBL && !cpu_wrn &&  redgreen_cs;
+wire we_b  = !LVBL && !cpu_wrn &&  blue_cs;
 
 `ifndef PAL_GRAY
 jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
@@ -139,7 +137,7 @@ jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
 jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
     .clk        ( clk         ),
     .clk_en     ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[7:4]     ),
+    .data       ( DB[3:0]     ),
     .rd_addr    ( pixel_mux   ),
     .wr_addr    ( AB          ),
     .we         ( we_b        ),
