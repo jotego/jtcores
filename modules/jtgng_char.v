@@ -20,10 +20,13 @@
 
 `timescale 1ns/1ps
 
-module jtgng_char #(parameter 
-    ROM_AW   = 13, 
+module jtgng_char #(parameter
+    ROM_AW   = 13,
     PALW     = 4,
     DW       = 8,
+    LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms
+    ABW      = LAYOUT==8 ? 12 : 11,
+    HW       = LAYOUT==8 ? 9 : 8,
     HOFFSET  = 8'd0,
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
@@ -35,16 +38,15 @@ module jtgng_char #(parameter
     HFLIP_XOR= 1'b0, // Additional bit for ^ with HFLIP value
     VFLIP_XOR= 1'b0, // Additional bit for ^ with VFLIP value
     PALETTE  = 0, // 1 if the palette PROM is used
-    LAYOUT   = 0, // 0 most games, 3 Tiger Road
     PALETTE_SIMFILE = "../../../rom/1943/bm5.7f", // only for simulation
     SIMID = ""
 ) (
     input            clk,
     input            pxl_cen  /* synthesis direct_enable = 1 */,
     input            cpu_cen,
-    input   [10:0]   AB,
+    input   [ABW-1:0]   AB,
     input   [ 7:0]   V, // V128-V1
-    input   [ 7:0]   H, // Hfix-H1
+    input   [HW-1:0] H, // Hfix-H1
     input            flip,
     input   [DW-1:0] din,
     output  [DW-1:0] dout,
@@ -78,38 +80,40 @@ reg [     1:0] char_col;
 
 
 wire [7:0] dout_low, dout_high;
-wire [7:0] Hfix = H + HOFFSET[7:0]; // Corrects pixel output offset
+wire [HW-1:0] Hfix = H + HOFFSET[HW-1:0]; // Corrects pixel output offset
 
 localparam DATAREAD = 3'd1;
 
 jtgng_tilemap #(
     .DW      ( DW       ),
     .DATAREAD( DATAREAD ),
-    .SIMID   ( SIMID    )
+    .SIMID   ( SIMID    ),
+    .LAYOUT  ( LAYOUT   ),
+    .SCANW   ( ABW-1    )
 ) u_tilemap(
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .Asel       ( AB[10]    ), // Select upper or lower byte for  8-bit access
-    .dseln      ( dseln     ), // Select upper or lower byte for 16-bit access
-    .AB         ( AB[9:0]   ),
-    .V          ( V         ),
-    .H          ( Hfix      ),
-    .flip       ( flip      ),
-    .din        ( din       ),
-    .dout       ( dout      ),
-    .layout     ( 1'b0      ),
+    .clk        ( clk         ),
+    .pxl_cen    ( pxl_cen     ),
+    .Asel       ( AB[ABW-1]   ), // Selects upper or lower byte for  8-bit access
+    .dseln      ( dseln       ), // Selects upper or lower byte for 16-bit access
+    .AB         ( AB[ABW-2:0] ),
+    .V          ( V           ),
+    .H          ( Hfix        ),
+    .flip       ( flip        ),
+    .din        ( din         ),
+    .dout       ( dout        ),
+    .layout     ( 1'b0        ),
     // Bus arbitrion
-    .cs         ( char_cs   ),
-    .wr_n       ( wr_n      ),
-    .busy       ( busy      ),
+    .cs         ( char_cs     ),
+    .wr_n       ( wr_n        ),
+    .busy       ( busy        ),
     // Pause screen
-    .pause      ( pause     ),
-    .scan       ( scan      ),
-    .msg_low    ( msg_low   ),
-    .msg_high   ( msg_high  ),
+    .pause      ( pause       ),
+    .scan       ( scan        ),
+    .msg_low    ( msg_low     ),
+    .msg_high   ( msg_high    ),
     // Current tile
-    .dout_low   ( dout_low  ),
-    .dout_high  ( dout_high )
+    .dout_low   ( dout_low    ),
+    .dout_high  ( dout_high   )
 );
 
 reg [7:0] addr_lsb;

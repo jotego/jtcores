@@ -103,18 +103,19 @@ wire       pxl_cen = cen8;
 
 `ifndef NOCHAR
 jtgng_char #(
-    .HOFFSET ( 7),
-    .ROM_AW  (14),
-    .PALW    ( 6),
-    .VFLIP_EN( 0),
-    .HFLIP_EN( 0)
+    .HOFFSET (  7      ),
+    .ROM_AW  ( 14      ),
+    .PALW    (  6      ),
+    .VFLIP_EN(  0      ),
+    .HFLIP_EN(  0      ),
+    .LAYOUT  (  LAYOUT )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .AB         ( cpu_AB[10:0]  ),
+    .AB         ( cpu_AB        ),
     .V          ( V             ),
-    .H          ( H[7:0]        ),
+    .H          ( H             ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( char_dout     ),
@@ -132,7 +133,7 @@ jtgng_char #(
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
-    .char_on    ( 1'b1          ),
+    .char_on    ( CHON          ),
     .char_pxl   ( char_pxl      ),
     // unused
     .dseln      (               ),
@@ -159,7 +160,7 @@ jt1943_scroll #(
     .V128         ( {1'b0, V[7:0]} ),
     .H            ( H             ),
     .hpos         ( scr2_hpos     ),
-    .SCxON        ( 1'b1          ),
+    .SCxON        ( SCRON         ),
     .vpos         ( 8'd0          ),
     .flip         ( flip          ),
     // Palette PROMs - unused in Side Arms

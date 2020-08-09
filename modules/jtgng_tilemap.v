@@ -27,14 +27,16 @@
 
 `timescale 1ns/1ps
 
-module jtgng_tilemap #(parameter 
+module jtgng_tilemap #(parameter
     DW          = 8,
     INVERT_SCAN = 0,
     DATAREAD    = 3'd2,
+    LAYOUT      = 0, // 0: all games, 8: Side Arms
     SCANW       = 10,
     BUSY_ON_H0  = 0,    // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
     SIMID       = "",
-    VHW         = 8
+    VW          = 8,
+    HW          = LAYOUT==8 ? 9 : 8
 ) (
     input                  clk,
     input                  pxl_cen,
@@ -43,8 +45,8 @@ module jtgng_tilemap #(parameter
     input            [1:0] dseln,
     input                  layout,  // use by Black Tiger to change scan
     input      [SCANW-1:0] AB,
-    input        [VHW-1:0] V,
-    input        [VHW-1:0] H,
+    input         [VW-1:0] V,
+    input         [HW-1:0] H,
     input                  flip,
     input         [DW-1:0] din,
     output    reg [DW-1:0] dout,
@@ -66,17 +68,19 @@ reg scan_sel = 1'b1;
 
 always @(*) begin
     if( SCANW <= 10) begin
-        scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}} 
+        scan = (INVERT_SCAN ? { {SCANW{flip}}^{H[7:3],V[7:3]}}
             : { {SCANW{flip}}^{V[7:3],H[7:3]}}) >> (10-SCANW);
     end else begin
         if( SCANW==13 ) begin // Black Tiger
             // 1 -> tile map 8x4
             // 0 -> tile map 4x8
-            scan =  layout ? 
+            scan =  layout ?
                 { V[8:7], H[9:7], V[6:3], H[6:3] } :
                 { V[9:7], H[8:7], V[6:3], H[6:3] };
             // { V[6:5], H[7:5], V[4:1], H[4:1] };
             //layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
+        end else if( LAYOUT==8 ) begin // Side Arms
+            scan = { V[7:3], H[8:3] }; // SCANW assumed to be 11
         end else // other games
             scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
     end
@@ -139,13 +143,13 @@ always @(posedge clk) begin : mem_mux
 end
 
 // Use these macros to add simulation files
-// like 
+// like
 // ',.simhexfile("sim.hex")' or
 // ',.simfile("sim.bin")'
 // when calling the simulation script:
 // go.sh \
 //    -d JTCHAR_LOWER_SIMFILE=',.simfile("scr0.bin")' \
-//    -d JTCHAR_UPPER_SIMFILE=',.simfile("scr1.bin")' 
+//    -d JTCHAR_UPPER_SIMFILE=',.simfile("scr1.bin")'
 
 
 `ifndef JTCHAR_UPPER_SIMFILE
