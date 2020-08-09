@@ -60,7 +60,7 @@ module jt1943_game(
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  [15:0]  snd,
     output          sample,
@@ -205,13 +205,14 @@ always @(posedge clk) begin
     joy2_btn <= { {3{joystick2[6]}} & joystick2[6:4] };
 end
 
+assign cpu_cen = cen6;
+
 `ifndef NOMAIN
 jt1943_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
+    .cen3       ( cen3          ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),

@@ -32,8 +32,7 @@ module jt1943_main #(
     parameter GAME=0 // 0=1943, 1=Side Arms
 )(
     input              clk,
-    input              cen6,   // 6MHz
-    input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
+    input              cpu_cen,   // 6MHz or 4MHz
     input              rst,
     // Timing
     output  reg        flip,
@@ -48,7 +47,6 @@ module jt1943_main #(
     output             [7:0] cpu_dout,
     output  reg        char_cs,
     output  reg        CHON,    // 1 enables character output
-    output             cpu_cen,
     input              char_wait,
     // scroll
     output  reg [(GAME ? 15 : 7):0]  scrposv,
@@ -104,7 +102,6 @@ reg [1:0]  scr1posh_cs, scr2posh_cs;
 reg [BANKW-1:0] bank;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = cen6;
 assign bus_ack = ~busak_n;
 
 always @(*) begin

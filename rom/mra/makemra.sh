@@ -27,7 +27,9 @@ export JTFRAME
 mame2dip sidearms.xml \
     -rbf jtsarms \
     -frac gfx2 2 \
-    -frac gfx3 2
+    -frac gfx3 2 \
+    -swapbytes audiocpu \
+    -swapbytes maincpu
 
 exit $?
 

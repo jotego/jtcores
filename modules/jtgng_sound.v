@@ -66,11 +66,17 @@ parameter       LAYOUT=0;
     //      -IRQ controlled by FM chips
     //      -FM clock speed same as CPU
     //      -CPU memory map same as GnG
+    // 8 Side Arms:
+    //      -Can readback from FM chip
+    //      -IRQ controlled by FM chips
+    //      -FM clock speed same as CPU
+    //      -Different memory map from Tiger Road
+
 parameter [7:0] FM_GAIN=8'h40;
 
-localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4;
-localparam READ_FM    = LAYOUT==3 || LAYOUT==4;
-localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4;
+localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
+localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
+localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
 
 wire [15:0] A;
 wire        iorq_n, m1_n, wr_n, rd_n;
@@ -88,7 +94,7 @@ always @(*) begin
     latch_cs = 1'b0;
     fm0_cs   = 1'b0;
     fm1_cs   = 1'b0;
-    if( rfsh_n && !mreq_n) 
+    if( rfsh_n && !mreq_n)
         case( LAYOUT )
         0,4:  // Memory map for: GnG, Gun Smoke, 1943, Black Tiger, SectionZ
             casez(A[15:13])
@@ -123,6 +129,17 @@ always @(*) begin
                 3'b101: fm1_cs   = 1'b1;
                 3'b110: ram_cs   = 1'b1;
                 3'b111: latch_cs = 1'b1;
+                default:;
+            endcase
+        8: // Side Arms
+            casez(A[15:12])
+                4'b0???: rom_cs   = 1'b1;
+                4'b1100: ram_cs   = 1'b1;
+                4'b1101: latch_cs = 1'b1;
+                4'b1111: begin
+                    fm0_cs   = ~A[1];
+                    fm1_cs   =  A[1];
+                end
                 default:;
             endcase
         `ifdef SIMULATION
