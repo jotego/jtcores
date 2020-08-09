@@ -249,7 +249,7 @@ wire [7:0] security;
 
 always @(*) begin
     case( A[2:0] )
-        3'd0: cabinet_input = GAME==0 ? { coin_input, // COINS
+        3'd0: cabinet_input = { coin_input, // COINS
                      ~2'h0, // undocumented. D5 & D4 what are those?
                             // service and tilt in Side Arms
                      ~LVBL,
