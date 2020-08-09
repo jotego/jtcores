@@ -4,23 +4,26 @@
 
 module test;
 
-reg clk, rst;
+reg clk, rst, cen8;
 
 initial begin
     clk=0;
-    forever #62.5 clk=~clk;
+    cen8=0;
+    forever #31.25 clk=~clk;
 end
+
+always @(posedge clk) cen8<=~cen8 & ~rst;
 
 initial begin
     rst = 1;
-    #500 rst=0;
+    #50 rst=0;
 end
 
 wire LHBL, LVBL, intrq, hsync, vsync, sync;
 
 timing_model u_model(
     .rst    ( rst   ),
-    .clk    ( clk   ),
+    .clk    ( cen8  ),
     .LHBL   ( LHBL  ),
     .LVBL   ( LVBL  ),
     .intrq  ( intrq ),
@@ -45,7 +48,7 @@ jtframe_vtimer #(
     .HINIT    ( 9'h0FC )
 ) u_timer(
     .clk        ( clk   ),
-    .pxl_cen    ( 1'b1  ),
+    .pxl_cen    ( cen8  ),
     .vdump      (       ),
     .vrender    (       ),
     .vrender1   (       ),

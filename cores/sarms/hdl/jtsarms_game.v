@@ -136,12 +136,14 @@ jtframe_cen48 u_cen(
     .cen1p5b(           )
 );
 
-wire LHBL_obj, LVBL_obj;
+wire LVBL_obj;
 
 // Exactly the same as the original:
 jtframe_vtimer #(
-    .HB_START ( 9'h1C7 ),
-    .HB_END   ( 9'h047 ),
+    //.HB_START ( 9'h1C7 ),
+    //.HB_END   ( 9'h047 ),
+    .HB_START ( 9'h0C7 ),
+    .HB_END   ( 9'h147 ),
     .HCNT_END ( 9'h1FF ),
     .VB_START ( 9'hF0  ),
     .VB_END   ( 9'h10  ),
@@ -152,7 +154,8 @@ jtframe_vtimer #(
     .HS_END   ( 9'h027 ),
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
-    .HINIT    ( 9'h0FC )
+    //.HINIT    ( 9'h0FC )
+    .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( cen8     ),
@@ -169,7 +172,6 @@ jtframe_vtimer #(
     .vrender1  (          )
 );
 
-assign LHBL_obj = LHBL;
 assign LVBL_obj = LVBL;
 
 wire rd_n, wr_n;
@@ -227,7 +229,6 @@ jt1943_main #(.GAME(1)) u_main(
     // Timing
     .flip       ( flip          ),
     .V          ( V[7:0]        ),
-    .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // sound
     .sres_b     ( sres_b        ),
@@ -394,7 +395,6 @@ u_video(
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),

@@ -71,7 +71,6 @@ module jtsarms_video #(
     input               LVBL,
     input               LVBL_obj,
     input               LHBL,
-    input               LHBL_obj,
     output              LHBL_dly,
     output              LVBL_dly,
     // Priority PROMs
@@ -203,7 +202,7 @@ jtgng_obj #(
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LHBL       ( LHBL_obj    ),
+    .LHBL       ( LHBL        ),
     .LVBL       ( LVBL        ),
     .LVBL_obj   ( LVBL_obj    ),
     .HINIT      ( HINIT       ),

@@ -37,7 +37,6 @@ module jt1943_main #(
     // Timing
     output  reg        flip,
     input   [8:0]      V,
-    input              LHBL,
     input              LVBL,
     // Sound
     output  reg        sres_b, // sound reset
