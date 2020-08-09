@@ -152,7 +152,7 @@ always @(posedge clk) if(pxl_cen) begin
         // Set input for ROM reading
         char_attr1 <= char_attr0;
         case( LAYOUT )
-            0:  begin
+            default:  begin
                 char_addr  <= { {dout_high[IDMSB1:IDMSB0], dout_low},
                 {3{dout_vflip}}^V[2:0] };
                 char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };

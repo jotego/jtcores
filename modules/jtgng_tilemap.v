@@ -122,13 +122,13 @@ always @(posedge clk) begin : mem_mux
         if( DW == 16 ) begin
             we_low    <= cs && !wr_n && !dseln[0];
             we_high   <= cs && !wr_n && !dseln[1];
-            udlatch    <= din[15:8];
-            ldlatch    <= din[7:0];
+            udlatch   <= din[15:8];
+            ldlatch   <= din[7:0];
         end else begin
             we_low    <= cs && !wr_n && !Asel;
             we_high   <= cs && !wr_n &&  Asel;
-            udlatch    <= din;
-            ldlatch    <= din;
+            udlatch   <= din;
+            ldlatch   <= din;
         end
         last_Asel <= Asel;
     end

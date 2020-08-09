@@ -104,6 +104,7 @@ wire [CHARW-1:0] char_addr;
 wire [SCRW-1 :0] scr_addr;
 wire [OBJW-1 :0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b, dipsw_c;
+wire        CHON, SCRON, STARON, OBJON;
 
 wire rom_ready;
 wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
@@ -168,7 +169,7 @@ jtframe_vtimer #(
 assign LHBL_obj = LHBL;
 assign LVBL_obj = LVBL;
 
-wire RnW;
+wire rd_n, wr_n;
 // sound
 wire sres_b;
 wire [7:0] snd_latch;
@@ -240,8 +241,8 @@ jt1943_main #(.GAME(1)) u_main(
     // SCROLL
     .scr1posh   ( scr_hpos      ),
     .scrposv    ( scr_vpos      ),
-    .SC1ON      ( SC1ON         ),
-    .SC2ON      (               ),
+    .SC1ON      ( SCRON         ),
+    .SC2ON      ( STARON        ),
     // Star Field
     //.scr2_hpos  ( scr2_hpos     ),
     // OBJ - bus sharing
@@ -277,7 +278,7 @@ assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
-assign RnW         = 1'b1;
+assign wr_n        = 1'b1;
 assign scr_hpos    = 16'd0;
 assign scr_vpos    = 16'd0;
 `endif
@@ -342,7 +343,7 @@ u_video(
     .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V             ),
     .H          ( H             ),
-    .RnW        ( RnW           ),
+    .RnW        ( wr_n          ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
     // Palette
@@ -355,6 +356,7 @@ u_video(
     .char_data  ( char_data     ),
     .char_busy  ( char_wait     ),
     .char_ok    ( char_ok       ),
+    .CHON       ( CHON          ),
     // SCROLL - ROM
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
@@ -363,6 +365,7 @@ u_video(
     .scr_ok     ( scr_ok        ),
     .map_addr   ( map_addr      ), // 32kB in 8 bits or 16kW in 16 bits
     .map_data   ( map_data      ),
+    .SCRON      ( SCRON         ),
     // SCROLL 2
     .star_hpos  ( star_hpos     ),
     .star_addr  ( star_addr     ),
@@ -378,6 +381,7 @@ u_video(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
+    .OBJON      ( OBJON         ),
     // PROMs
     // .prog_addr    ( prog_addr[7:0] ),
     // .prom_prio_we ( prom_we        ),
@@ -448,7 +452,7 @@ jtframe_rom #(
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( scr_addr      ),
     .slot2_addr  ( map_addr      ),
-    .slot3_addr  ( scr2_addr     ),
+    .slot3_addr  ( star_addr     ),
     .slot6_addr  ( snd_addr      ),
     .slot7_addr  ( main_addr     ),
     .slot8_addr  ( obj_addr      ),
@@ -456,7 +460,7 @@ jtframe_rom #(
     .slot0_dout  ( char_data     ),
     .slot1_dout  ( scr_data      ),
     .slot2_dout  ( map_data      ),
-    .slot3_dout  ( scr2_data     ),
+    .slot3_dout  ( star_data     ),
     .slot4_dout  (               ),
     .slot5_dout  (               ),
     .slot6_dout  ( snd_data      ),

@@ -210,6 +210,7 @@ always @(posedge clk, posedge rst)
         if( misc_cs  && !wr_n ) begin
             CHON     <= cpu_dout[CHON_BIT];
             flip     <= cpu_dout[FLIP_BIT];
+            if( GAME==1 ) SC2ON <= cpu_dout[5]; // Star on signal for Side Arms
             sres_b   <= ~cpu_dout[SRES_BIT]; // inverted through M54532
             coin_cnt <= |cpu_dout[1:0];
             `ifdef SIMULATION
