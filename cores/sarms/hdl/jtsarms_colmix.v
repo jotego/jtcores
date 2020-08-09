@@ -120,8 +120,10 @@ end
 wire [3:0] pal_red, pal_green, pal_blue;
 
 // Palette is in RAM
-wire we_rg = !LVBL && !cpu_wrn &&  redgreen_cs;
-wire we_b  = !LVBL && !cpu_wrn &&  blue_cs;
+// Original circuit only allows writes during blanking and contains
+// a mechanism to register failed writes
+wire we_rg = /*!LVBL &&*/ !cpu_wrn &&  redgreen_cs;
+wire we_b  = /*!LVBL &&*/ !cpu_wrn &&  blue_cs;
 
 `ifndef PAL_GRAY
 jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
