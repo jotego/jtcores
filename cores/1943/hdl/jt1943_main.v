@@ -81,6 +81,7 @@ module jt1943_main #(
     // DIP switches
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
+    input    [7:0]     dipsw_c,
     input              dip_pause,
     output reg         coin_cnt
 );
@@ -242,7 +243,7 @@ jt12_rst u_rst(
 reg [7:0] cabinet_input;
 wire [7:0] security;
 
-always @(*)
+always @(*) begin
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
                      ~2'h0, // undocumented. D5 & D4 what are those?
@@ -253,9 +254,11 @@ always @(*)
         3'd2: cabinet_input = { 1'b1, joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
-        3'd7: cabinet_input = security;
+        3'd5: cabinet_input = GAME==1 ? dipsw_c  : 8'hff;
+        3'd7: cabinet_input = GAME==0 ? security : 8'hff;
         default: cabinet_input = 8'hff;
     endcase
+end
 
 
 // RAM, 16kB

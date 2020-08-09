@@ -23,7 +23,7 @@
 // change this in the future
 
 module jtsarms_colmix #(
-    parameter CHARW = 6
+    parameter CHARW = 7
 ) (
     input            rst,
     input            clk,
@@ -33,9 +33,9 @@ module jtsarms_colmix #(
 
     // pixel input from generator modules
     input [CHARW-1:0]char_pxl,        // character color code
-    input [7:0]      scr_pxl,
-    input [6:0]      star_pxl,
-    input [6:0]      obj_pxl,
+    input [8:0]      scr_pxl,
+    input [2:0]      star_pxl,
+    input [7:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
     output           LHBL_dly,
@@ -72,50 +72,49 @@ wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
 wire obj_blank   = (&obj_pxl[3:0])  | ~enable_obj;
 wire scr_blank   = &scr_pxl[3:0];
 
-reg  [2:0] obj_sel; // signals whether an object pixel is selected
-
 reg  [7:0] seladdr;
-reg  [1:0] selbus;
+reg  [1:0] selbus, colmsb;
 
-reg [6:0] obj0;
-reg [7:0] scr0;
-reg [6:0] scr20;
+reg [7:0] obj0, scr0;
+reg [2:0] star0;
 reg [CHARW-1:0] char0;
 
-localparam [1:0] SCR2=2'b00, SCR1=2'b01, CHAR=2'b11, OBJ=2'b10;
+localparam [1:0] STAR=2'b00, SCR=2'b01, CHAR=2'b11, OBJ=2'b10;
 
 always @(posedge clk) if(pxl_cen) begin
-    seladdr <= { ~char_blank, ~obj_blank,
-        scr_pxl[7], scr_pxl[3:0], scr_blank };
-    scr0  <= scr_pxl;
-    //scr20 <= star_pxl;
-    scr20 <= { star_pxl[6:4], star_pxl[0], star_pxl[1], star_pxl[2], star_pxl[3] };
+    seladdr <= { ~char_blank, ~obj_blank, 1'b0,
+        scr_pxl[8], scr_pxl[3:0] };
+    scr0  <= scr_pxl[7:0];
+    star0 <= star_pxl;
     char0 <= char_pxl;
     obj0  <= obj_pxl;
 
-    obj_sel[2] <= obj_sel[1];
-    obj_sel[1] <= obj_sel[0];
-    obj_sel[0] <= 1'b0;
-
     pixel_mux[9:8] <= selbus;
     case( selbus )
-        CHAR: pixel_mux[7:0] <= { {(8-CHARW){1'b0}}, char0[5:2], char0[0], char0[1] };
-        SCR1: pixel_mux[7:0] <= { 1'b0, scr0[6:0] };
-        OBJ: begin
-            pixel_mux[7:0] <= { 1'b1, obj0 };
-            obj_sel[0] <= 1'b1;
-        end
-        SCR2: pixel_mux[7:0] <= { 1'b0, scr20 }; // this value is a guess
+        CHAR: pixel_mux[7:0] <= char0;
+        SCR:  pixel_mux[7:0] <= scr0;
+        OBJ:  pixel_mux[7:0] <= obj0;
+        STAR: pixel_mux[7:0] <= { ~5'b0, star0 };
     endcase
 end
 
 always @(posedge clk) if(cen12) begin
-    selbus <=
-        seladdr[7] ? CHAR : (
-        seladdr[6] ? (
-            (seladdr[5] && seladdr[4:1]>=4'd7 && seladdr[4:1]<=4'd11) ? SCR1 :OBJ)
-            :
-        (seladdr[4:1]==4'd0 ? SCR2 : SCR1));
+    if( seladdr[7] ) begin
+        selbus <= CHAR;
+        colmsb <= CHAR;
+    end else if(seladdr[6]) begin
+        selbus <= OBJ;
+        colmsb <= OBJ;
+    end else if(seladdr[3:0]==4'd15)  begin
+        selbus <= STAR;
+        colmsb <= CHAR;
+    end else if(seladdr[4]) begin
+        selbus <= SCR;
+        colmsb <= SCR;
+    end else begin
+        selbus <= SCR;
+        colmsb <= STAR;
+    end
 end
 
 wire [3:0] pal_red, pal_green, pal_blue;
@@ -147,7 +146,7 @@ jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
     .q          ( pal_blue    )
 );
 `else
-// by pass palette for quick sims:
+// bypass palette for quick sims:
 assign {pal_red, pal_green, pal_blue} = {3{pixel_mux[3:0]}};
 `endif
 

@@ -25,12 +25,13 @@ module jtgng_tile4 #(parameter
                       // 5: Legendary Wings / Section Z (3 palette bits)
                       // 6: Trojan SCR1
                       // 7: Trojan SCR2
+                      // 8: Side Arms
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     AS8MASK     =  1'b1, // only used by layout 0
-    PXLW        = LAYOUT==3               ? 9 :
-               ( (LAYOUT==5 || LAYOUT==7) ? 7 :
-                 (PALETTE                 ? 6 : 8))
+    PXLW        = (LAYOUT==3 || LAYOUT==8) ? 9 :
+               (  (LAYOUT==5 || LAYOUT==7) ? 7 :
+                  (PALETTE                 ? 6 : 8))
 ) (
     input              clk,
     input              cen6,
@@ -105,6 +106,10 @@ always @(*) begin
             scr_hflip = attr[4]^flip;
             scr_vflip = attr[5];
         end
+        8: begin // Side Arms
+            scr_hflip = attr[1]^flip;
+            scr_vflip = attr[2];
+        end
     endcase
 end
 
@@ -178,6 +183,14 @@ always @(posedge clk) if(cen6) begin
                             };
             scr_hflip0     <= scr_hflip;
         end
+        8: begin // Side Arms, 32x32 tiles
+            scr_attr0 <= attr[7:3];
+            scr_addr  <= { attr[0], id, // AS=1+8+6=15 bits
+                            HS[4:3]^{2{scr_hflip^flip}},
+                            SV[4:0],
+                            HS[2]^scr_hflip };
+            scr_hflip0 <= scr_hflip;
+        end
         endcase
         scr_hflip0 <= scr_hflip;
     end
@@ -191,8 +204,8 @@ always @(posedge clk) if(cen6) begin
             end
             // Bionic Commando scroll 2
             2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
-            // Tiger Road
-            3: if(HS[2:0]==3'b101 ) begin
+            // Tiger Road, Side Arms
+            3,8: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
             4: begin // Black Tiger

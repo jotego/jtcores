@@ -89,27 +89,26 @@ module jtsarms_video #(
     output      [3:0]   blue
 );
 
-localparam LAYOUT     = 8;
+localparam       LAYOUT      = 8;
+localparam       PXL_CHRW    = 8;
+localparam       SCR_OFFSET  = 1;
+localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
+localparam [5:0] OBJMAX_LINE = 6'd32;
 
-localparam PXL_CHRW=6;
-localparam SCR_OFFSET = 1;
 
-wire [PXL_CHRW-1:0] char_pxl;
-wire [6:0] obj_pxl;
-wire [7:0] scr_pxl;
-wire [6:0] star_pxl;
+wire [7:0] char_pxl, obj_pxl;
+wire [8:0] scr_pxl;
+wire [2:0] star_pxl;
+wire       pxl_cen = cen8;
 
 `ifndef NOCHAR
-
-wire [9:0] char_scan;
-
 jtgng_char #(
     .HOFFSET ( 7),
     .ROM_AW  (14),
     .PALW    ( 4)
 ) u_char (
     .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
+    .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V             ),
@@ -123,7 +122,7 @@ jtgng_char #(
     .busy       ( char_busy     ),
     // Pause screen
     .pause      ( 1'b0          ),
-    .scan       ( char_scan     ),
+    .scan       (               ),
     .msg_low    ( 8'd0          ),
     .msg_high   ( 8'd0          ),
     // ROM
@@ -140,21 +139,21 @@ jtgng_char #(
     .prom_we    (               )
 );
 `else
-assign char_pxl  = ~7'd0;
+assign char_pxl  = ~8'd0;
 assign char_mrdy = 1'b1;
 `endif
 
 `ifndef NOSCR
 jt1943_scroll #(
     .HOFFSET    (SCR_OFFSET+1 ),
-    .AS8MASK    ( 1'b0      ),
-    .ROM_AW     ( 15        ),
-    .PALETTE    ( 0         ),
-    .LAYOUT     ( LAYOUT+1  )
+    .AS8MASK    ( 1'b0        ),
+    .ROM_AW     ( 15          ),
+    .PALETTE    ( 0           ),
+    .LAYOUT     ( LAYOUT      )
 ) u_scroll2 (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen6         ( cen6          ),
+    .cen6         ( pxl_cen       ),
     .V128         ( {1'b0, V[7:0]} ),
     .H            ( H             ),
     .hpos         ( scr2_hpos     ),
@@ -175,7 +174,7 @@ jt1943_scroll #(
     .scr_pxl      ( scr_pxl       )
 );
 `else
-assign scr_pxl    = 8'h7f;
+assign scr_pxl    = 9'h0f;
 assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 assign map_addr   = 'd0;
@@ -187,14 +186,15 @@ jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  4          ),
     .PXL_DLY      (  1          ),
-    .LAYOUT       ( LAYOUT      )
-//    .OBJMAX_LINE  ( 31          ),
+    .LAYOUT       ( LAYOUT      ),
+    .OBJMAX       ( OBJMAX      ),
+    .OBJMAX_LINE  ( OBJMAX_LINE )
 ) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .draw_cen   ( cen12       ),
     .dma_cen    ( cen6        ),
-    .pxl_cen    ( cen6        ),
+    .pxl_cen    ( pxl_cen     ),
     .AB         ( {obj_AB[11:5], obj_AB[1:0]} ),
     .DB         ( main_ram    ),
     .OKOUT      ( OKOUT       ),
@@ -240,7 +240,7 @@ u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen12        ( cen12         ),
-    .pxl_cen      ( cen8          ),
+    .pxl_cen      ( pxl_cen       ),
     .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),

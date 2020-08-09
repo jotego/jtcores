@@ -103,7 +103,7 @@ wire [STARW-1:0] star_addr;
 wire [CHARW-1:0] char_addr;
 wire [SCRW-1 :0] scr_addr;
 wire [OBJW-1 :0] obj_addr;
-wire [ 7:0] dipsw_a, dipsw_b;
+wire [ 7:0] dipsw_a, dipsw_b, dipsw_c;
 
 wire rom_ready;
 wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
@@ -114,7 +114,7 @@ assign pxl_cen  = cen6;
 
 assign sample=1'b1;
 
-assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign {dipsw_c, dipsw_b, dipsw_a} = dipsw[23:0];
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -269,7 +269,8 @@ jt1943_main #(.GAME(1)) u_main(
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_b    ( dipsw_b       ),
+    .dipsw_c    ( dipsw_c       )
 );
 `else
 assign main_addr   = 17'd0;
@@ -292,7 +293,7 @@ always @(posedge clk) begin
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.LAYOUT(8)) u_sound (
+jtgng_sound #(.LAYOUT(8),.FM_GAIN(8'h20)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen4           ),
