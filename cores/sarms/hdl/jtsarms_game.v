@@ -115,7 +115,6 @@ assign pxl_cen  = cen6;
 assign sample=1'b1;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = ~flip;
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -160,14 +159,14 @@ jtframe_vtimer #(
     .H         ( H        ),
     .Hinit     ( HINIT    ),
     .LHBL      ( LHBL     ),
-    .LHBL_obj  ( LHBL_obj ),
     .LVBL      ( LVBL     ),
-    .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
     .Vinit     (          )
 );
 
+assign LHBL_obj = LHBL;
+assign LVBL_obj = LVBL;
 
 wire RnW;
 // sound
@@ -177,8 +176,8 @@ wire [7:0] snd_latch;
 wire        main_cs;
 // OBJ
 wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 8:0] obj_AB;
-wire [ 7:0] main_ram, game_cfg;
+wire [12:0] obj_AB;
+wire [ 7:0] main_ram;
 
 wire        scr_cs;
 wire [15:0] scr_hpos, scr_vpos;
@@ -196,7 +195,6 @@ localparam [21:0] MAP_OFFSET  = 22'hA_C000 >> 1;
 localparam [21:0] PROM_START  = 22'hB_4000;
 
 jtframe_dwnld #(
-    .PROM_EN    ( 1          ),
     .PROM_START ( PROM_START )
 )
 u_dwnld(
@@ -222,7 +220,6 @@ jt1943_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
-    .cen_sel    ( 1'b0          ), // 3MHz CPU
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -241,9 +238,10 @@ jt1943_main #(.GAME(1)) u_main(
     .char_wait  ( char_wait     ),
     .CHON       ( CHON          ),
     // SCROLL
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    .scr1posh   ( scr_hpos      ),
+    .scrposv    ( scr_vpos      ),
     .SC1ON      ( SC1ON         ),
+    .SC2ON      (               ),
     // Star Field
     //.scr2_hpos  ( scr2_hpos     ),
     // OBJ - bus sharing
@@ -341,7 +339,6 @@ u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
-    .game_sel   ( game_cfg[0]   ),
     .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
@@ -358,7 +355,6 @@ u_video(
     .char_busy  ( char_wait     ),
     .char_ok    ( char_ok       ),
     // SCROLL - ROM
-    .scr_cs     ( scr_cs        ),
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data      ),
     .scr_hpos   ( scr_hpos      ),

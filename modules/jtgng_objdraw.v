@@ -26,7 +26,8 @@ module jtgng_objdraw #(parameter
                     // 4: Black Tiger
                     // 5: Section Z/Legendary Wings
                     // 6: Trojan
-    PALW     = 2,
+                    // 8: Side Arms
+    PALW     = 2,   // Define it in the video module
     PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
     PALETTE0_SIMFILE = "" // only for simulation
@@ -138,6 +139,13 @@ end else begin
                 obj_hflip <= objbuf_data[4];
                 obj_vflip <= 1;
                 objpal    <= objbuf_data[3:1];
+            end
+            8: begin // Side Arms
+                id[10:8]  <= objbuf_data[7:5];
+                hover     <= objbuf_data[4];
+                obj_hflip <= 0;
+                obj_vflip <= 0;
+                objpal    <= objbuf_data[3:0];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step

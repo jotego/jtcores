@@ -59,7 +59,7 @@ module jtsarms_video #(
     input       [15:0]  star_hpos,
     // OBJ
     input               HINIT,
-    output      [ 8:0]  obj_AB,
+    output      [12:0]  obj_AB,
     input       [ 7:0]  main_ram,
     input               OKOUT,
     output              bus_req, // Request bus
@@ -185,20 +185,17 @@ assign map_addr   = 'd0;
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
-    .PALW         (  3          ),
+    .PALW         (  4          ),
     .PXL_DLY      (  1          ),
-    .LAYOUT       ( LAYOUT      ),
+    .LAYOUT       ( LAYOUT      )
 //    .OBJMAX_LINE  ( 31          ),
-    // Avatar parameters
-    .AVATAR_MAX   ( AVATAR_MAX  ),
-    .VERTICAL     ( 0           ))
-u_obj (
+) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .draw_cen   ( cen12       ),
     .dma_cen    ( cen6        ),
     .pxl_cen    ( cen6        ),
-    .AB         ( obj_AB      ),
+    .AB         ( {obj_AB[11:5], obj_AB[1:0]} ),
     .DB         ( main_ram    ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
@@ -227,6 +224,8 @@ u_obj (
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
+assign obj_AB[ 12] = 1'b1;
+assign obj_AB[4:2] = 3'b0;
 `else
 assign blcnten = 1'b0;
 assign bus_req = 1'b0;

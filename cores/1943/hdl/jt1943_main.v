@@ -95,6 +95,7 @@ localparam BANKW     = GAME==0 ? 3 : 2;
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
+reg misc_cs, star_cs;
 reg SECWR_cs;
 reg [1:0]  scr1posh_cs, scr2posh_cs;
 
@@ -120,6 +121,7 @@ always @(*) begin
     blue_cs       = 0;
     redgreen_cs   = 0;
     misc_cs       = 0;
+    star_cs       = 0;
     if( rfsh_n && !mreq_n ) begin
         if( GAME==0 ) begin // 1943
             casez(A[15:13])
@@ -293,7 +295,7 @@ always @(negedge rd_n)
 
 // ROM ADDRESS: 32kB + 8 banks of 16kB
 generate
-    if( GAME==0 )
+    if( GAME==0 ) begin
         always @(*) begin
             rom_addr[13: 0] = A[13:0];
             rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
