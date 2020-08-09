@@ -106,12 +106,12 @@ wire mreq_n, rfsh_n, busak_n;
 assign bus_ack = ~busak_n;
 
 always @(*) begin
-    rom_cs        = !mreq_n && !rfsh_n && (!A[15] || A[15:14]==2'b10);
-    ram_cs        = !mreq_n && !rfsh_n && A[15:13]==3'b111;
+    rom_cs        = !mreq_n && rfsh_n && (!A[15] || A[15:14]==2'b10);
+    ram_cs        = !mreq_n && rfsh_n && A[15:13]==3'b111;
     snd_latch_cs  = 0;
     bank_cs       = 0;
     in_cs         = 0;
-    char_cs       = !mreq_n && !rfsh_n && A[15:12]==4'hd && (GAME==1 || !A[11]);
+    char_cs       = !mreq_n && rfsh_n && A[15:12]==4'hd && (GAME==1 || !A[11]);
     scr1posh_cs   = 2'b0;
     scr2posh_cs   = 2'b0;
     scrposv_cs    = 0;
