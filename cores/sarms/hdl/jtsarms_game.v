@@ -33,8 +33,8 @@ module jtsarms_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 5:0]  joystick1,
-    input   [ 5:0]  joystick2,
+    input   [ 6:0]  joystick1,
+    input   [ 6:0]  joystick2,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
@@ -96,7 +96,7 @@ wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [16:0] main_addr;
+wire [17:0] main_addr;
 wire [14:0] snd_addr;
 wire [MAPW-1 :0] map_addr;
 wire [STARW-1:0] star_addr;
@@ -163,7 +163,10 @@ jtframe_vtimer #(
     .LVBL      ( LVBL     ),
     .HS        ( HS       ),
     .VS        ( VS       ),
-    .Vinit     (          )
+    .Vinit     (          ),
+    // unused
+    .vrender   (          ),
+    .vrender1  (          )
 );
 
 assign LHBL_obj = LHBL;
@@ -223,7 +226,7 @@ jt1943_main #(.GAME(1)) u_main(
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // sound
@@ -262,8 +265,8 @@ jt1943_main #(.GAME(1)) u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1[5:0] ),
-    .joystick2   ( joystick2[5:0] ),
+    .joystick1   ( joystick1    ),
+    .joystick2   ( joystick2    ),
 
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
@@ -271,10 +274,12 @@ jt1943_main #(.GAME(1)) u_main(
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
-    .dipsw_c    ( dipsw_c       )
+    .dipsw_c    ( dipsw_c       ),
+    // unused
+    .coin_cnt   (               )
 );
 `else
-assign main_addr   = 17'd0;
+assign main_addr   = 18'd0;
 assign char_cs     = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
@@ -445,6 +450,8 @@ jtframe_rom #(
     .slot1_ok    ( scr_ok        ),
     .slot2_ok    ( map_ok        ),
     .slot3_ok    ( star_ok       ),
+    .slot4_ok    (               ),
+    .slot5_ok    (               ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
     .slot8_ok    ( obj_ok        ),
@@ -453,6 +460,8 @@ jtframe_rom #(
     .slot1_addr  ( scr_addr      ),
     .slot2_addr  ( map_addr      ),
     .slot3_addr  ( star_addr     ),
+    .slot4_addr  (               ),
+    .slot5_addr  (               ),
     .slot6_addr  ( snd_addr      ),
     .slot7_addr  ( main_addr     ),
     .slot8_addr  ( obj_addr      ),

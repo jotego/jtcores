@@ -48,7 +48,6 @@ module jtsarms_video #(
     output  [SCRW-1:0]  scr_addr,
     input       [15:0]  scr_data,
     input               scr_ok,
-    output              scr_busy,
     input       [15:0]  scr_hpos,
     input       [15:0]  scr_vpos,
     output      [13:0]  map_addr, // 32kB in 8 bits or 16kW in 16 bits
