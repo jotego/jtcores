@@ -105,7 +105,9 @@ wire       pxl_cen = cen8;
 jtgng_char #(
     .HOFFSET ( 7),
     .ROM_AW  (14),
-    .PALW    ( 4)
+    .PALW    ( 6),
+    .VFLIP_EN( 0),
+    .HFLIP_EN( 0)
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),

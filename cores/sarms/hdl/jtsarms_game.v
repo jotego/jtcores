@@ -364,9 +364,9 @@ u_video(
     .map_addr   ( map_addr      ), // 32kB in 8 bits or 16kW in 16 bits
     .map_data   ( map_data      ),
     // SCROLL 2
-    .star_hpos  ( scr2_hpos     ),
-    .star_addr  ( scr2_addr     ),
-    .star_data  ( scr2_data     ),
+    .star_hpos  ( star_hpos     ),
+    .star_addr  ( star_addr     ),
+    .star_data  ( star_data     ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),

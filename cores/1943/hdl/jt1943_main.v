@@ -89,9 +89,9 @@ module jt1943_main #(
 localparam CHON_BIT  = GAME==0 ? 7 : 6;
 localparam FLIP_BIT  = GAME==0 ? 6 : 7;
 localparam SRES_BIT  = GAME==0 ? 5 : 4;
-localparam BANK_BIT1 = GAME==0 ? 4 : 7;
-localparam BANK_BIT0 = GAME==0 ? 2 : 6;
-localparam BANKW     = GAME==0 ? 3 : 2;
+localparam BANK_BIT1 = GAME==0 ? 4 : 2;
+localparam BANK_BIT0 = GAME==0 ? 2 : 0;
+localparam BANKW     = 3;
 
 wire [15:0] A;
 wire t80_rst_n;
@@ -106,8 +106,11 @@ reg [BANKW-1:0] bank;
 wire mreq_n, rfsh_n, busak_n;
 assign bus_ack = ~busak_n;
 
+reg banked_cs;
+
 always @(*) begin
-    rom_cs        = !mreq_n && rfsh_n && (!A[15] || A[15:14]==2'b10);
+    banked_cs     = !mreq_n && rfsh_n && A[15:14]==2'b10;
+    rom_cs        = (!mreq_n && rfsh_n && !A[15]) || banked_cs;
     ram_cs        = !mreq_n && rfsh_n && A[15:13]==3'b111;
     snd_latch_cs  = 0;
     bank_cs       = 0;
@@ -197,7 +200,7 @@ always @(posedge clk, posedge rst)
         snd_latch <= 8'd0;
     end
     else if(cpu_cen) begin
-        if( bank_cs  && !wr_n ) begin
+        if( bank_cs && !wr_n ) begin
             bank     <= cpu_dout[BANK_BIT1:BANK_BIT0];
             `ifdef SIMULATION
                 if(cpu_dout[BANK_BIT1:BANK_BIT0]!=bank)
@@ -297,19 +300,10 @@ always @(negedge rd_n)
 `endif
 
 // ROM ADDRESS: 32kB + 8 banks of 16kB
-generate
-    if( GAME==0 ) begin
-        always @(*) begin
-            rom_addr[13: 0] = A[13:0];
-            rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
-        end
-    end else begin
-        always @(*) begin
-            rom_addr[13: 0] = A[13:0];
-            rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 2'b0, bank[0], bank[1]});
-        end
-    end
-endgenerate
+always @(*) begin
+    rom_addr[13: 0] = A[13:0];
+    rom_addr[17:14] = !A[15] ? { 3'b0, A[14] } : ( 4'b0010 + { 1'b0, bank});
+end
 
 ///////////////////////////////////////////////////////////////////
 // interrupt generation. Schematics page 5/9, parts 12J and 14K (1943)
