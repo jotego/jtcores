@@ -311,7 +311,9 @@ end
 // schematics page 1/9 and timing (Side Arms)
 reg int_n, int_rqb, int_rqb_last;
 wire int_middle = V[7:5]!=3'd3;
-wire int_rqb_negedge = !int_rqb && int_rqb_last;
+wire int_rqb_edge = GAME==0 ?
+                        (!int_rqb &&  int_rqb_last) : // 1943: Neg edge
+                        ( int_rqb && !int_rqb_last);  // Side Arms: Pos edge
 
 always @(posedge clk)
     if(rst) begin
@@ -327,7 +329,7 @@ always @(posedge clk)
         if( irq_ack )
             int_n <= 1'b1;
         else
-            if ( int_rqb_negedge && dip_pause ) int_n <= 1'b0;
+            if ( int_rqb_edge && dip_pause ) int_n <= 1'b0;
     end
 
 /////////////////////////////////////////////////////////////////

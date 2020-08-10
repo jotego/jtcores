@@ -140,10 +140,8 @@ wire LVBL_obj;
 
 // Exactly the same as the original:
 jtframe_vtimer #(
-    //.HB_START ( 9'h1C7 ),
-    //.HB_END   ( 9'h047 ),
-    .HB_START ( 9'h0C7 ),
-    .HB_END   ( 9'h147 ),
+    .HB_START ( 9'h1C7 ),
+    .HB_END   ( 9'h047 ),
     .HCNT_END ( 9'h1FF ),
     .VB_START ( 9'hF0  ),
     .VB_END   ( 9'h10  ),
@@ -154,7 +152,6 @@ jtframe_vtimer #(
     .HS_END   ( 9'h027 ),
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
-    //.HINIT    ( 9'h0FC )
     .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk       ( clk      ),
