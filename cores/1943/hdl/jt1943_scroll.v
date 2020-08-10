@@ -24,14 +24,15 @@
 module jt1943_scroll #( parameter
     [8:0] HOFFSET   = 9'd5,
     parameter
-    LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando
+    LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando, 8 = Side Arms
     ROM_AW          = 17,
     SIMFILE_MSB     = "",
     SIMFILE_LSB     = "",
     AS8MASK         = 1'b1,
     PALETTE         = 1,
-    PXLW            = LAYOUT==3 ? 9 : (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
-    VPOSW           = LAYOUT==3 ? 16 : 8 // vertical offset bit width
+    PXLW            = (LAYOUT==3 || LAYOUT==8) ? 9 :
+                      (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
+    VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8 // vertical offset bit width
 )(
     input                rst,
     input                clk,  // >12 MHz
@@ -58,14 +59,17 @@ module jt1943_scroll #( parameter
     output    [PXLW-1:0] scr_pxl
 );
 
+localparam SHW = LAYOUT==8 ? 9 : 8;
+
 // H goes from 80h to 1FFh
 wire [8:0] Hfix_prev = H+HOFFSET;
 wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
 
-reg  [ 4:0] HS;
-reg  [ 7:0] SV, PICV, PIC, SH;
-wire [ 8:0] V128sh;
-reg  [ 8:0] VF;
+reg  [    4:0] HS;
+reg  [    7:0] SV, PICV, PIC;
+reg  [SHW-1:0] SH;
+wire [    8:0] V128sh;
+reg  [    8:0] VF;
 
 // Because we process the signal a bit ahead of time
 // (exactly HOFFSET pixels ahead of time), this creates
@@ -88,14 +92,19 @@ reg [9:0] SCHF;
 reg       H7;
 
 always @(*) begin
-    HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
-    H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
-    SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
-    if(LAYOUT==7) begin // Trojan only has 8-bit scrolling
-        {PIC,  SH } = {8'd0, hpos[7:0] } +
-            + { {6{SCHF[9]}},SCHF } + (flip?16'h16:16'h8);
+    if( LAYOUT==8 ) begin
+        PIC[6:3] = vpos[11:8];
+        { PIC[7], PIC[2:0], SH } = {4'd0, H^{9{flip}}} + hpos[12:0];
     end else begin
-        {PIC,  SH } = hpos + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
+        HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
+        H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
+        SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
+        if(LAYOUT==7) begin // Trojan only has 8-bit scrolling
+            {PIC,  SH } = {8'd0, hpos[7:0] } +
+                + { {6{SCHF[9]}},SCHF } + (flip?16'h16:16'h8);
+        end else begin
+            {PIC,  SH } = hpos + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
+        end
     end
 end
 
@@ -128,6 +137,18 @@ generate
                 map_addr <= LAYOUT==3 ?
                     {  ~row[6:3], col[6:3], ~row[2:0], col[2:0] } : // Tiger Road
                     {  {row[3:0], 2'b0 }, col[7:0] }+ {2'b0, hpos[15:8], 4'd0}; // Trojan 6 + 8
+            end
+        end
+    end
+    if (LAYOUT==8) begin
+        // SideArms 32x32
+        always @(posedge clk) if(cen6) begin
+            // always update the map at the same pixel count
+            if( SH[2:0]==3'd7 ) begin
+                VF       <= {8{flip}}^V128sh[7:0];
+                SV       <= VF + vpos[7:0];
+                HS[4:3] <= SH[4:3] ^{2{flip}};
+                map_addr <= { PIC[6:0], SH[8:5], SV[7:5]/*^{3{flip}}*/ };
             end
         end
     end

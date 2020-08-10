@@ -49,12 +49,12 @@ module jtsarms_video #(
     input       [15:0]  scr_data,
     input               scr_ok,
     input       [15:0]  scr_hpos,
-    input       [15:0]  scr_vpos,
+    input       [15:0]  scr_vpos, // only 12 bits are used
     output      [13:0]  map_addr, // 32kB in 8 bits or 16kW in 16 bits
     input       [15:0]  map_data,
     // Star field
     output      [14:0]  star_addr, // 64kB in 8 bits or 32kW in 16 bits
-    input       [15:0]  star_data,
+    input       [ 7:0]  star_data,
     input       [15:0]  star_hpos,
     // OBJ
     input               HINIT,
@@ -112,7 +112,7 @@ jtgng_char #(
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H             ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -148,14 +148,14 @@ assign char_mrdy = 1'b1;
 jt1943_scroll #(
     .HOFFSET    (SCR_OFFSET+1 ),
     .AS8MASK    ( 1'b0        ),
-    .ROM_AW     ( 15          ),
+    .ROM_AW     ( SCRW        ),
     .PALETTE    ( 0           ),
     .LAYOUT     ( LAYOUT      )
 ) u_scroll2 (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( pxl_cen       ),
-    .V128         ( {1'b0, V[7:0]} ),
+    .V128         ( {1'b0, V[7:0]}),
     .H            ( H             ),
     .SCxON        ( SCRON         ),
     .hpos         ( scr_hpos      ),

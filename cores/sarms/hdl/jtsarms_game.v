@@ -91,9 +91,9 @@ wire char_wait;
 localparam CHARW=14,SCRW=18, OBJW=18, MAPW=14, STARW=15;
 
 // ROM data
-wire [15:0] char_data, scr_data, star_data, map_data;
+wire [15:0] char_data, scr_data, map_data;
 wire [15:0] obj_data;
-wire [ 7:0] main_data;
+wire [ 7:0] main_data, star_data;
 wire [ 7:0] snd_data;
 // ROM address
 wire [17:0] main_addr;
@@ -225,7 +225,7 @@ jt1943_main #(.GAME(1)) u_main(
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
-    .V          ( V[7:0]        ),
+    .V          ( V             ),
     .LVBL       ( LVBL          ),
     // sound
     .sres_b     ( sres_b        ),
