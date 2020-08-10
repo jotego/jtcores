@@ -108,10 +108,10 @@ wire        CHON, SCRON, STARON, OBJON;
 
 wire rom_ready;
 wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
-wire cen12, cen8, cen6, cen4, cen3;
+wire cen16, cen12, cen8, cen6, cen4, cen3;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
+assign pxl2_cen = cen16;
+assign pxl_cen  = cen8;
 
 assign sample=1'b1;
 
@@ -125,7 +125,7 @@ jtframe_cen48 u_cen(
     .cen8   ( cen8      ),
     .cen4   ( cen4      ),
     // unused:
-    .cen16  (           ),
+    .cen16  ( cen16     ),
     .cen1p5 (           ),
     .cen4_12(           ),
     .cen3q  (           ),

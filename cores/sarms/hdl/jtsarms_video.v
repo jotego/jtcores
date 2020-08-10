@@ -157,9 +157,9 @@ jt1943_scroll #(
     .cen6         ( pxl_cen       ),
     .V128         ( {1'b0, V[7:0]} ),
     .H            ( H             ),
-    .hpos         ( scr2_hpos     ),
     .SCxON        ( SCRON         ),
-    .vpos         ( 8'd0          ),
+    .hpos         ( scr_hpos      ),
+    .vpos         ( scr_vpos      ),
     .flip         ( flip          ),
     // Palette PROMs - unused in Side Arms
     .prog_addr    ( 8'd0          ),
