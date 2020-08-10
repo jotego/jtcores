@@ -9,10 +9,8 @@ VIDEO_HEIGHT=224
 # JTFRAME_CREDITS
 
 [sidi|mist]
-#Uses easy scan2x to save resources
-#otherwise it won't fit
 VIDEO_WIDTH=512
-OSD_NOBCK
+# JTFRAME_MIST_DIPBASE=8
 
 [mister]
 VIDEO_WIDTH=384

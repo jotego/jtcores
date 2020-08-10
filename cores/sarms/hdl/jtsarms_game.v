@@ -19,8 +19,8 @@
 module jtsarms_game(
     input           rst,
     input           clk,
-    output          pxl2_cen,   // 12   MHz
-    output          pxl_cen,    //  6   MHz
+    output          pxl2_cen,   // 16   MHz
+    output          pxl_cen,    //  8   MHz
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
@@ -115,7 +115,9 @@ assign pxl_cen  = cen8;
 
 assign sample=1'b1;
 
-assign {dipsw_c, dipsw_b, dipsw_a} = dipsw[23:0];
+assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign dipsw_c = 8'hff; // Only the freeze is contained here, and users often get
+    // confused with it, so I'd rather leave it fixed and hidden
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -157,7 +159,7 @@ jtframe_vtimer #(
     .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk       ( clk      ),
-    .pxl_cen   ( cen8     ),
+    .pxl_cen   ( pxl_cen  ),
     .vdump     ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),

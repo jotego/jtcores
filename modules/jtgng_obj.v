@@ -32,7 +32,7 @@ module jtgng_obj #(
                        // 4: Black Tiger
                        // 5: Section Z/Legendary Wings
                        // 6: Trojan
-                       // 8: Trojan
+                       // 8: Side Arms
     INVY        = 0,   // Invert Y position, used by Tiger Road
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used
@@ -77,6 +77,9 @@ module jtgng_obj #(
     // pixel output
     output  [(PALETTE?7:(PALW+4-1)):0] obj_pxl
 );
+
+localparam LINEBUF_AW = LAYOUT==8 ? 9 : 8;
+localparam LINEBUF_H0 = LAYOUT==8 ? 9'h48 : 8'h0;
 
 wire [DMA_AW-1:0] pre_scan;
 wire [DMA_DW-1:0] objbuf_data;
@@ -232,7 +235,13 @@ generate
         assign pxl_data = {pospal, new_pxl};
 endgenerate
 
-jtgng_objpxl #(.dw(PXLW),.palw(PALW),.PXL_DLY(PXL_DLY)) u_pxlbuf(
+jtgng_objpxl #(
+    .dw     ( PXLW        ),
+    .palw   ( PALW        ),
+    .PXL_DLY( PXL_DLY     ),
+    .AW     ( LINEBUF_AW  ),
+    .H0     ( LINEBUF_H0  )
+    ) u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),

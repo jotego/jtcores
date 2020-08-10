@@ -18,7 +18,7 @@
 
 // Object Line Buffer
 
-module jtgng_objpxl #(parameter dw=4,palw=0,PXL_DLY=7)(
+module jtgng_objpxl #(parameter dw=4,palw=0,PXL_DLY=7,AW=8,H0=0)(
     input              rst,
     input              clk,
     input              cen /*direct_enable*/,
@@ -37,39 +37,37 @@ localparam lineA=1'b0, lineB=1'b1;
 
 // Line colour buffer
 
-reg [7:0] addrA, addrB;
-reg [7:0] Hcnt;
+reg [AW-1:0] addrA, addrB;
+reg [AW-1:0] Hcnt;
 
 wire [dw-1:0] lineA_q, lineB_q;
 reg  [dw-1:0] dataA, dataB;
-reg weA, weB;
-
-reg pxlbuf_line;
+reg           weA, weB;
+reg           pxlbuf_line;
 
 always @(posedge clk, posedge rst)
     if( rst )
         pxlbuf_line <= lineA;
     else if(cen) begin
-        pxlbuf_line<=line;
+        pxlbuf_line <= line;
     end
 
 always @(posedge clk) if(pxl_cen) begin
-    if( !LHBL ) Hcnt <= 8'd0;
+    if( !LHBL ) Hcnt <= H0[AW-1:0];
     else Hcnt <= Hcnt+1'd1;
 end
 
 wire [dw-1:0] blank = {dw{1'b1}};
 
-reg [7:0]    addr_wr;
+reg [AW-1:0] addr_wr;
 reg [dw-1:0] data_wr;
-reg pxl_wr, we0;
-
-//wire pxl_wr = !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+reg          pxl_wr, we0;
 
 always @(posedge clk) if(cen) begin
     data_wr <= new_pxl;
-    addr_wr <= {8{flip}} ^ posx[7:0];
-    pxl_wr  <= !posx[8] && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+    addr_wr <= {AW{flip}} ^ posx[AW-1:0];
+    // pxl_wr enable if !posx[8] for AW=8, always if AW=9
+    pxl_wr  <= (AW!=8 || !posx[8]) && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
 end
 
 reg [   3:0] st;
@@ -106,7 +104,7 @@ always @(*) begin
     end
 end
 
-jtframe_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
+jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineA_buf(
     .clk     ( clk             ),
     .cen     ( 1'b1            ),
     .addr    ( addrA           ),
@@ -115,7 +113,7 @@ jtframe_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineA_buf(
     .q       ( lineA_q         )
 );
 
-jtframe_ram #(.aw(8),.dw(dw),.cen_rd(0)) lineB_buf(
+jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineB_buf(
     .clk     ( clk             ),
     .cen     ( 1'b1            ),
     .addr    ( addrB           ),

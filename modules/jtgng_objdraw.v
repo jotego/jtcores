@@ -156,8 +156,8 @@ end else begin
             // DW-4 refers to bit 12 but it needs this indirect index
             // so verilator does not complaint about the 12 when DW is only 8
             objx <= vinzone ?
-                { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] }
-                : 9'h100;
+                { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] } // to do: remove LAYOUT==3 condition
+                : 9'h1F0;
         end
         default:;
     endcase
@@ -189,7 +189,7 @@ always @(posedge clk) if(cen) begin
         end else begin
             posx1     <= posx1 + 9'b1;
         end
-        if( draw_over ) posx1[8] <= 1'b1;
+        if( draw_over ) posx1 <= 9'h1f0;
         case( pxlcnt[1:0] )
             2'd3:  begin // new data
                     {z,y,x,w} <= obj_data;
@@ -261,7 +261,7 @@ generate
                 posx    <= posx2;
             end else begin
                 new_pxl <= 8'hf;
-                posx    <= 9'h100;
+                posx    <= 9'h1F0;
             end
         end
 
