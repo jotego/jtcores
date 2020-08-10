@@ -27,7 +27,7 @@ module jtsarms_colmix #(
 ) (
     input            rst,
     input            clk,
-    input            cen12,
+    input            pxl2_cen,
     input            pxl_cen,
     input            cpu_cen,
 
@@ -98,7 +98,7 @@ always @(posedge clk) if(pxl_cen) begin
     endcase
 end
 
-always @(posedge clk) if(cen12) begin
+always @(posedge clk) if(pxl2_cen) begin
     if( seladdr[7] ) begin
         selbus <= CHAR;
         colmsb <= CHAR;
@@ -152,7 +152,7 @@ assign {pal_red, pal_green, pal_blue} = {3{pixel_mux[3:0]}};
 
 wire [11:0] pal_out = {pal_red, pal_green, pal_blue};
 
-jtframe_blank #(.DLY(8),.DW(12)) u_dly(
+jtframe_blank #(.DLY(2),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
     .LHBL       ( LHBL                ),

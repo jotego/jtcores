@@ -119,13 +119,13 @@ assign {dipsw_c, dipsw_b, dipsw_a} = dipsw[23:0];
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
+    .cen16  ( cen16     ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen8   ( cen8      ),
     .cen4   ( cen4      ),
     // unused:
-    .cen16  ( cen16     ),
     .cen1p5 (           ),
     .cen4_12(           ),
     .cen3q  (           ),
@@ -146,12 +146,14 @@ jtframe_vtimer #(
     .VB_START ( 9'hF0  ),
     .VB_END   ( 9'h10  ),
     .VCNT_END ( 9'hFF  ),
-    .VS_START ( 9'h0   ),
-    .VS_END   ( 9'h8   ),
+    //.VS_START ( 9'h0   ),
+    .VS_START ( 9'hF8   ),
+    //.VS_END   ( 9'h8   ),
     .HS_START ( 9'h1e7 ),
-    .HS_END   ( 9'h027 ),
-    .H_VB     ( 9'h7   ),
-    .H_VS     ( 9'h1FF ),
+    .HS_END   ( 9'h00b ),
+    //.HS_END   ( 9'h027 ),
+    //.H_VB     ( 9'h7   ),
+    //.H_VS     ( 9'h1FF ),
     .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk       ( clk      ),
@@ -338,10 +340,8 @@ jtsarms_video #(
 u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .pxl2_cen   ( pxl2_cen      ),
+    .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V             ),

@@ -22,10 +22,8 @@ module jtsarms_video #(
 )(
     input               rst,
     input               clk,
-    input               cen12,
-    input               cen8,
-    input               cen6,
-    input               cen3,
+    input               pxl2_cen,
+    input               pxl_cen,
     input               cpu_cen,
     input       [11:0]  cpu_AB,
     input       [ 8:0]  V,
@@ -97,7 +95,6 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 wire [7:0] char_pxl, obj_pxl;
 wire [8:0] scr_pxl;
 wire [2:0] star_pxl;
-wire       pxl_cen = cen8;
 
 `ifndef NOCHAR
 jtgng_char #(
@@ -193,8 +190,8 @@ jtgng_obj #(
 ) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( cen12       ),
-    .dma_cen    ( cen6        ),
+    .draw_cen   ( pxl2_cen    ),
+    .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
     .AB         ( {obj_AB[11:5], obj_AB[1:0]} ),
     .DB         ( main_ram    ),
@@ -240,7 +237,7 @@ jtsarms_colmix #(
 u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen12        ( cen12         ),
+    .pxl2_cen     ( pxl2_cen      ),
     .pxl_cen      ( pxl_cen       ),
     .cpu_cen      ( cpu_cen       ),
 
