@@ -152,10 +152,10 @@ jtframe_vtimer #(
     .VS_START ( 9'hF8   ),
     //.VS_END   ( 9'h8   ),
     .HS_START ( 9'h1e7 ),
-    .HS_END   ( 9'h00b ),
-    //.HS_END   ( 9'h027 ),
-    //.H_VB     ( 9'h7   ),
-    //.H_VS     ( 9'h1FF ),
+    //.HS_END   ( 9'h00b ),
+    .HS_END   ( 9'h027 ),
+    .H_VB     ( 9'h7   ),
+    .H_VS     ( 9'h1FF ),
     .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk       ( clk      ),

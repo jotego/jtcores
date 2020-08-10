@@ -1,0 +1,108 @@
+<!--          FPGA compatible core of arcade hardware by Jotego
+
+              This core is available for hardware compatible with MiST and MiSTer
+              Other FPGA systems may be supported by the time you read this.
+              This work is not mantained by the MiSTer project. Please contact the
+              core author for issues and updates.
+
+              (c) Jose Tejada, 2020. Please support the author
+              Patreon: https://patreon.com/topapate
+              Paypal:  https://paypal.me/topapate
+
+              The author does not endorse or participate in illegal distribution
+              of copyrighted material. This work can be used with legally
+              obtained ROM dumps or with compatible homebrew software
+
+              This file license is GNU GPLv2.
+              You can read the whole license file in
+              https://opensource.org/licenses/gpl-2.0.php
+
+-->
+
+<misterromdescription>
+    <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
+    <name>Side Arms - Hyper Dyne (World, 861129)</name>
+    <setname>sidearms</setname>
+    <rbf>jtsarms</rbf>
+    <rom index="0" zip="sidearms.zip" type="merged" md5="None">
+        <!-- maincpu - starts at 0x0 -->
+        <interleave output="16">
+            <part name="sa03.bin" crc="e10fe6a0" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a_14e.rom" crc="4925ed03" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a_12e.rom" crc="81d0ece7" map="12"/>
+        </interleave>
+        <!-- audiocpu - starts at 0x18000 -->
+        <interleave output="16">
+            <part name="a_04k.rom" crc="34efe2d2" map="12"/>
+        </interleave>
+        <!-- user1 - starts at 0x20000 -->
+        <part name="b_11j.rom" crc="134dc35b"/>
+        <!-- gfx1 - starts at 0x28000 -->
+        <part name="a_10j.rom" crc="651fef75"/>
+        <!-- gfx2 - starts at 0x2C000 -->
+        <interleave output="16">
+            <part name="b_13d.rom" crc="3c59afe1" map="01"/>
+            <part name="b_14d.rom" crc="826e8a97" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b_13e.rom" crc="64bc3b77" map="01"/>
+            <part name="b_14e.rom" crc="6cfc02a4" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b_13f.rom" crc="e6bcea6f" map="01"/>
+            <part name="b_14f.rom" crc="9b9f6730" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b_13g.rom" crc="c71a3053" map="01"/>
+            <part name="b_14g.rom" crc="ef6af630" map="10"/>
+        </interleave>
+        <!-- gfx3 - starts at 0x6C000 -->
+        <interleave output="16">
+            <part name="b_11b.rom" crc="eb6f278c" map="01"/>
+            <part name="b_12b.rom" crc="86e43eda" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b_13b.rom" crc="e91b4014" map="01"/>
+            <part name="b_14b.rom" crc="076e92d1" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b_11a.rom" crc="2822c522" map="01"/>
+            <part name="b_12a.rom" crc="ce107f3c" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b_13a.rom" crc="3e8a9f75" map="01"/>
+            <part name="b_14a.rom" crc="dba06076" map="10"/>
+        </interleave>
+        <!-- gfx4 - starts at 0xAC000 -->
+        <part name="b_03d.rom" crc="6f348008"/>
+        <!-- proms - starts at 0xB4000 -->
+        <part name="63s141.16h" crc="75af3553"/>
+        <part name="63s141.11h" crc="a6e4d68f"/>
+        <part name="63s141.15h" crc="c47c182a"/>
+        <part name="63s081.3j" crc="c5817816"/>
+        <!-- Total 0xB4320 bytes - 720 kBytes -->
+    </rom>
+    <rom index="1">
+        <part>00</part>
+    </rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW0 -->
+        <dip name="Difficulty" bits="0,2" ids="7,6,5,4,3,2,1,0"/>
+        <dip name="Lives" bits="3" ids="5,3"/>
+        <dip name="Bonus Life" bits="4,5" ids="20k0 20k0,150k 150k,10k0 10k0,10k0"/>
+        <dip name="Flip Screen" bits="6" ids="On,Off"/>
+        <dip name="Service Mode" bits="7" ids="On,Off"/>
+        <!-- DSW1 -->
+        <dip name="Coin A" bits="8,10" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
+        <dip name="Coin B" bits="11,13" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
+        <dip name="Allow Continue" bits="14" ids="No,Yes"/>
+        <dip name="Demo Sounds" bits="15" ids="Off,On"/>
+        <!-- SYSTEM -->
+        <dip name="Freeze" bits="19" ids="On,Off"/>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Pause" default="Y,X,R,L,Start"/>
+</misterromdescription>

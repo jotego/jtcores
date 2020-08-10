@@ -45,6 +45,7 @@ mame2dip exedexes.xml \
     -rbf jtexed \
     -frac gfx3 2 \
     -frac gfx4 2
+#    -order-roms gfx2  6 7 4 5 2 3 0 1
 fi
 
 ############# Trojan
