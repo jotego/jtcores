@@ -202,6 +202,12 @@ localparam [21:0] OBJ_OFFSET  = 22'h6_C000 >> 1;
 localparam [21:0] MAP_OFFSET  = 22'hA_C000 >> 1;
 localparam [21:0] PROM_START  = 22'hB_4000;
 
+wire [21:0] pre_prog;
+
+assign prog_addr = (ioctl_addr[22:1]>=OBJ_OFFSET && ioctl_addr[22:1]<MAP_OFFSET) ?
+    { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
+    pre_prog;
+
 jtframe_dwnld #(
     .PROM_START ( PROM_START )
 )
@@ -213,7 +219,7 @@ u_dwnld(
     .ioctl_data  ( ioctl_data    ),
     .ioctl_wr    ( ioctl_wr      ),
 
-    .prog_addr   ( prog_addr     ),
+    .prog_addr   ( pre_prog      ),
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_we     ( prog_we       ),

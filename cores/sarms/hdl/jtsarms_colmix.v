@@ -149,7 +149,7 @@ assign {pal_red, pal_green, pal_blue} = {3{pixel_mux[3:0]}};
 
 wire [11:0] pal_out = {pal_red, pal_green, pal_blue};
 
-jtframe_blank #(.DLY(8),.DW(12)) u_dly(
+jtframe_blank #(.DLY(5),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
     .LHBL       ( LHBL                ),
