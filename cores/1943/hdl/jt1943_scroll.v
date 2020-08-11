@@ -59,14 +59,16 @@ module jt1943_scroll #( parameter
     output    [PXLW-1:0] scr_pxl
 );
 
-localparam SHW = LAYOUT==8 ? 9 : 8;
+localparam SHW = LAYOUT==8 ?  9 : 8;
+localparam SVW = LAYOUT==8 ? 12 : 8;
 
 // H goes from 80h to 1FFh
 wire [8:0] Hfix_prev = H+HOFFSET;
 wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
 
 reg  [    4:0] HS;
-reg  [    7:0] SV, PICV, PIC;
+reg  [    7:0] PICV, PIC;
+reg  [SVW-1:0] SV;
 reg  [SHW-1:0] SH;
 wire [    8:0] V128sh;
 reg  [    8:0] VF;
@@ -92,8 +94,8 @@ reg [9:0] SCHF;
 reg       H7;
 
 always @(*) begin
-    if( LAYOUT==8 ) begin
-        PIC[6:3] = vpos[11:8];
+    if( LAYOUT==8 ) begin // Side Arms
+        PIC[6:3] = SV[11:8];
         { PIC[7], PIC[2:0], SH } = {4'd0, H^{9{flip}}} + hpos[12:0];
     end else begin
         HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
@@ -143,14 +145,14 @@ generate
     if (LAYOUT==8) begin
         // SideArms 32x32
         always @(posedge clk) begin
-            VF       <= {8{flip}}^V128[7:0];
-            SV       <= VF + vpos[7:0];
+            VF <= {8{flip}}^V128[7:0];
+            SV <= { {VPOSW-9{1'b0}}, VF } + vpos;
         end
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
-                HS[4:3] <= SH[4:3] ^{2{flip}};
-                map_addr <= { PIC[6:0], SH[8:5], SV[7:5]/*^{3{flip}}*/ };
+                HS[4:3] <= SH[4:3] /*^{2{flip}}*/;
+                map_addr <= { PIC[6:0], SH[8:5], SV[7:5] };
             end
         end
     end

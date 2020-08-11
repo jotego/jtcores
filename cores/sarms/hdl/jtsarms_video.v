@@ -184,7 +184,7 @@ assign map_addr   = 'd0;
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  4          ),
-    .PXL_DLY      (  1          ),
+    .PXL_DLY      (  16         ),
     .LAYOUT       ( LAYOUT      ),
     .OBJMAX       ( OBJMAX      ),
     .OBJMAX_LINE  ( OBJMAX_LINE )
