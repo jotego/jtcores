@@ -94,7 +94,7 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 
 wire [7:0] char_pxl, obj_pxl;
 wire [8:0] scr_pxl;
-wire [2:0] star_pxl;
+wire [2:0] star_pxl = 3'b111;
 
 `ifndef NOCHAR
 jtgng_char #(
@@ -148,7 +148,7 @@ jt1943_scroll #(
     .ROM_AW     ( SCRW        ),
     .PALETTE    ( 0           ),
     .LAYOUT     ( LAYOUT      )
-) u_scroll2 (
+) u_scroll (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( pxl_cen       ),
