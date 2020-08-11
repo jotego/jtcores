@@ -28,7 +28,7 @@ module jtgng_objdraw #(parameter
                     // 6: Trojan
                     // 8: Side Arms
     PALW     = 2,   // Define it in the video module
-    PALETTE  = 0, // 1 if the palette PROM is used
+    PALETTE  = 0,   // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
     PALETTE0_SIMFILE = "" // only for simulation
 ) (

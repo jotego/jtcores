@@ -17,8 +17,8 @@
     Date: 9-8-2020 */
 
 module jtsarms_video #(
-    parameter SCRW = 18,
-    parameter OBJW = 18
+    parameter SCRW = 17,
+    parameter OBJW = 17
 )(
     input               rst,
     input               clk,
@@ -94,7 +94,7 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 
 wire [7:0] char_pxl, obj_pxl;
 wire [8:0] scr_pxl;
-wire [2:0] star_pxl = 3'b111;
+wire [2:0] star_pxl = 3'b0;
 
 `ifndef NOCHAR
 jtgng_char #(

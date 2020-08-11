@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 19-11-2017 */
 
-module jtbtiger_scroll #(parameter 
+module jtbtiger_scroll #(parameter
     HOFFSET  = 9'd0
 ) (
     input              clk,
@@ -74,7 +74,8 @@ jtgng_tilemap #(
     .INVERT_SCAN( 1         ),
     .DATAREAD   ( DATAREAD  ),
     .SCANW      ( 13        ),
-    .VHW        ( POSW-1    ),
+    .VW         ( POSW-1    ),
+    .HW         ( POSW-1    ),
     .SIMID      ( "CHAR"    )
 ) u_tilemap(
     .clk        ( clk       ),
@@ -106,7 +107,7 @@ jtgng_tilemap #(
 jtgng_tile4 #(
     .PALETTE( 0  ),
     .ROM_AW ( 17 ),
-    .LAYOUT ( 4  )) 
+    .LAYOUT ( 4  ))
 u_tile4 (
     .clk        (  clk        ),
     .cen6       (  pxl_cen    ),

@@ -93,38 +93,8 @@ always @(posedge clk) if(pxl_cen) begin
     case( selbus )
         CHAR: pixel_mux[7:0] <= char0;
         SCR:  pixel_mux[7:0] <= scr0;
-        //SCR:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[3], scr0[0], scr0[1] };
-        /*SCR: case(`SCRMIX)
-                32'h0:  pixel_mux[7:0] <= { scr0[7:4], scr0[3], scr0[2], scr0[1], scr0[0] };
-                32'h1:  pixel_mux[7:0] <= { scr0[7:4], scr0[3], scr0[2], scr0[0], scr0[1] };
-                32'h2:  pixel_mux[7:0] <= { scr0[7:4], scr0[3], scr0[1], scr0[2], scr0[0] };
-                32'h3:  pixel_mux[7:0] <= { scr0[7:4], scr0[3], scr0[1], scr0[0], scr0[2] };
-                32'h4:  pixel_mux[7:0] <= { scr0[7:4], scr0[3], scr0[0], scr0[2], scr0[1] };
-                32'h5:  pixel_mux[7:0] <= { scr0[7:4], scr0[3], scr0[0], scr0[1], scr0[2] };
-
-                32'h6:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[3], scr0[1], scr0[0] };
-                32'h7:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[3], scr0[0], scr0[1] };
-                32'h8:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[1], scr0[3], scr0[0] };
-                32'h9:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[1], scr0[0], scr0[3] };
-                32'ha:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[0], scr0[1], scr0[3] };
-                32'hb:  pixel_mux[7:0] <= { scr0[7:4], scr0[2], scr0[0], scr0[3], scr0[1] };
-
-                32'h0c:  pixel_mux[7:0] <= { scr0[7:4], scr0[1], scr0[0], scr0[2], scr0[3] };
-                32'h0d:  pixel_mux[7:0] <= { scr0[7:4], scr0[1], scr0[0], scr0[3], scr0[2] };
-                32'h0e:  pixel_mux[7:0] <= { scr0[7:4], scr0[1], scr0[2], scr0[3], scr0[0] };
-                32'h0f:  pixel_mux[7:0] <= { scr0[7:4], scr0[1], scr0[2], scr0[0], scr0[3] };
-                32'h10:  pixel_mux[7:0] <= { scr0[7:4], scr0[1], scr0[3], scr0[2], scr0[0] };
-                32'h11:  pixel_mux[7:0] <= { scr0[7:4], scr0[1], scr0[3], scr0[0], scr0[2] };
-
-                32'h12:  pixel_mux[7:0] <= { scr0[7:4], scr0[0], scr0[1], scr0[2], scr0[3] };
-                32'h13:  pixel_mux[7:0] <= { scr0[7:4], scr0[0], scr0[1], scr0[3], scr0[2] };
-                32'h14:  pixel_mux[7:0] <= { scr0[7:4], scr0[0], scr0[2], scr0[3], scr0[1] };
-                32'h15:  pixel_mux[7:0] <= { scr0[7:4], scr0[0], scr0[2], scr0[1], scr0[3] };
-                32'h16:  pixel_mux[7:0] <= { scr0[7:4], scr0[0], scr0[3], scr0[2], scr0[1] };
-                32'h17:  pixel_mux[7:0] <= { scr0[7:4], scr0[0], scr0[3], scr0[1], scr0[2] };
-            endcase*/
         OBJ:  pixel_mux[7:0] <= obj0;
-        STAR: pixel_mux[7:0] <= { ~5'b0, star0 };
+        STAR: pixel_mux[7:0] <= { 5'b0_1111, star0 };
     endcase
 end
 
@@ -179,7 +149,7 @@ assign {pal_red, pal_green, pal_blue} = {3{pixel_mux[3:0]}};
 
 wire [11:0] pal_out = {pal_red, pal_green, pal_blue};
 
-jtframe_blank #(.DLY(2),.DW(12)) u_dly(
+jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
     .LHBL       ( LHBL                ),

@@ -39,14 +39,16 @@ jtframe_vtimer #(
     .VB_START ( 9'hF0  ),
     .VB_END   ( 9'h10  ),
     .VCNT_END ( 9'hFF  ),
-    .VS_START ( 9'h0   ),
-    .VS_END   ( 9'h8   ),
+    //.VS_START ( 9'h0   ),
+    .VS_START ( 9'hF8   ),
+    //.VS_END   ( 9'h8   ),
     .HS_START ( 9'h1e7 ),
-    .HS_END   ( 9'h00b ), // shorter (4.5us)
-    // .HS_END   ( 9'h027 ), // original
-    //.H_VB     ( 9'h7   ),
-    //.H_VS     ( 9'h1FF ),
-    .HINIT    ( 9'h0FC )
+    //.HS_END   ( 9'h00b ),
+    .HS_END   ( 9'h027 ),
+    .H_VB     ( 9'h7   ),
+    .H_VS     ( 9'h1FF ),
+    .H_VNEXT  ( 9'h1FF ),
+    .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk        ( clk   ),
     .pxl_cen    ( cen8  ),

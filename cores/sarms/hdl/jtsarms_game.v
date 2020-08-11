@@ -88,7 +88,7 @@ wire [15:0] star_hpos;
 wire rd, cpu_cen;
 wire char_wait;
 
-localparam CHARW=14,SCRW=18, OBJW=18, MAPW=14, STARW=15;
+localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=15;
 
 // ROM data
 wire [15:0] char_data, scr_data, map_data;
@@ -156,6 +156,7 @@ jtframe_vtimer #(
     .HS_END   ( 9'h027 ),
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
+    .H_VNEXT  ( 9'h1FF ),
     .HINIT    ( 9'h1FC )
 ) u_timer(
     .clk       ( clk      ),
