@@ -52,7 +52,8 @@ module jtgng_tile4 #(parameter
     output [PXLW-1:0] scr_pxl
 );
 
-localparam ATTW = LAYOUT==3 ? 5 : ( (LAYOUT==5 || LAYOUT==7) ? 3 : 4);
+localparam ATTW =( LAYOUT==3 || LAYOUT==8 ) ? 5 :
+                 ( (LAYOUT==5 || LAYOUT==7) ? 3 : 4);
 
 `ifdef SIMULATION
 initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
@@ -196,23 +197,15 @@ always @(posedge clk) if(cen6) begin
     end
     else if(HS[1:0]==2'b1) begin
         case( LAYOUT )
-            // 1943
-            0: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
             // Bionic Commando scroll 1
             1: if(HS[2:0]==3'b101 ) begin
                 scr_addr[1:0] <= HS[3:2]^{2{scr_hflip0}};
             end
-            // Bionic Commando scroll 2
-            2: if(HS[2:0]==3'b101 ) scr_addr[0] <= HS[2]^scr_hflip0;
-            // Tiger Road, Side Arms
-            3,8: if(HS[2:0]==3'b101 ) begin
+            // 1943, Bionic Commando scroll 2, Tiger Road, Side Arms
+            0,2,3,8: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
-            4: begin // Black Tiger
-                scr_addr[5] <= HS[3]^scr_hflip0;
-                scr_addr[0] <= HS[2]^scr_hflip0;
-            end
-            5,6,7: begin // Section Z, Legendary Wings, Trojan
+            4,5,6,7: begin // Black Tiger, Section Z, Legendary Wings, Trojan
                 scr_addr[5] <= HS[3]^(scr_hflip0^flip);
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end

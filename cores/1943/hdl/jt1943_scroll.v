@@ -142,11 +142,13 @@ generate
     end
     if (LAYOUT==8) begin
         // SideArms 32x32
+        always @(posedge clk) begin
+            VF       <= {8{flip}}^V128[7:0];
+            SV       <= VF + vpos[7:0];
+        end
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
-                VF       <= {8{flip}}^V128sh[7:0];
-                SV       <= VF + vpos[7:0];
                 HS[4:3] <= SH[4:3] ^{2{flip}};
                 map_addr <= { PIC[6:0], SH[8:5], SV[7:5]/*^{3{flip}}*/ };
             end
