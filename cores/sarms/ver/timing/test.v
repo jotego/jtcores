@@ -48,7 +48,7 @@ jtframe_vtimer #(
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
     .H_VNEXT  ( 9'h1FF ),
-    .HINIT    ( 9'h1FC )
+    .HINIT    ( 9'h0   )
 ) u_timer(
     .clk        ( clk   ),
     .pxl_cen    ( cen8  ),

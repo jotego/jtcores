@@ -212,11 +212,9 @@ jt1943_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
-    .cen3       ( cen3          ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
-    .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // sound
     .sres_b     ( sres_b        ),

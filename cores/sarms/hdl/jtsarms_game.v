@@ -157,7 +157,7 @@ jtframe_vtimer #(
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
     .H_VNEXT  ( 9'h1FF ),
-    .HINIT    ( 9'h1FC )
+    .HINIT    ( 9'h0   )
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
@@ -345,6 +345,7 @@ u_video(
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
+    .cen12      ( cen12         ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V             ),

@@ -25,6 +25,7 @@ module jtsarms_video #(
     input               pxl2_cen,
     input               pxl_cen,
     input               cpu_cen,
+    input               cen12,
     input       [11:0]  cpu_AB,
     input       [ 8:0]  V,
     input       [ 8:0]  H,
@@ -190,7 +191,7 @@ jtgng_obj #(
 ) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( pxl2_cen    ),
+    .draw_cen   ( cen12       ),
     .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
     .AB         ( {obj_AB[11:5], obj_AB[1:0]} ),
