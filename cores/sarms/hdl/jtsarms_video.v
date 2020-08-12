@@ -92,7 +92,10 @@ module jtsarms_video #(
 
 localparam       LAYOUT      = 8;
 localparam       PXL_CHRW    = 8;
-localparam       SCR_OFFSET  = 1;
+localparam       SCR_OFFSET  = 0;
+localparam       CHAR_OFFSET = 0;
+localparam       OBJ_DLY     = 13;
+localparam       BLANK_DLY   = 12;
 localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
@@ -103,12 +106,12 @@ wire [2:0] star_pxl;
 
 `ifndef NOCHAR
 jtgng_char #(
-    .HOFFSET (  7      ),
-    .ROM_AW  ( 14      ),
-    .PALW    (  6      ),
-    .VFLIP_EN(  0      ),
-    .HFLIP_EN(  0      ),
-    .LAYOUT  (  LAYOUT )
+    .HOFFSET ( CHAR_OFFSET ),
+    .ROM_AW  ( 14          ),
+    .PALW    (  6          ),
+    .VFLIP_EN(  0          ),
+    .HFLIP_EN(  0          ),
+    .LAYOUT  (  LAYOUT     )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -148,7 +151,7 @@ assign char_mrdy = 1'b1;
 
 `ifndef NOSCR
 jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET+1 ),
+    .HOFFSET    (SCR_OFFSET   ),
     .AS8MASK    ( 1'b0        ),
     .ROM_AW     ( SCRW        ),
     .PALETTE    ( 0           ),
@@ -211,7 +214,7 @@ assign star_addr = 12'd0;
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  4          ),
-    .PXL_DLY      (  16         ),
+    .PXL_DLY      ( OBJ_DLY     ),
     .LAYOUT       ( LAYOUT      ),
     .OBJMAX       ( OBJMAX      ),
     .OBJMAX_LINE  ( OBJMAX_LINE )

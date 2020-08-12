@@ -17,20 +17,22 @@
     Date: 11-1-2019 */
 
 module jtgng_objdraw #(parameter
-    DW       = 8,   // data width of the DMA
-    ROM_AW   = 16,
-    LAYOUT   = 0,   // 0: GnG, Commando
-                    // 1: 1943
-                    // 2: GunSmoke
-                    // 3: Bionic Commando, Tiger Road
-                    // 4: Black Tiger
-                    // 5: Section Z/Legendary Wings
-                    // 6: Trojan
-                    // 8: Side Arms
-    PALW     = 2,   // Define it in the video module
-    PALETTE  = 0,   // 1 if the palette PROM is used
+    DW               = 8,   // data width of the DMA
+    ROM_AW           = 16,
+    LAYOUT           = 0,   // 0: GnG, Commando
+                            // 1: 1943
+                            // 2: GunSmoke
+                            // 3: Bionic Commando, Tiger Road
+                            // 4: Black Tiger
+                            // 5: Section Z/Legendary Wings
+                            // 6: Trojan
+                            // 8: Side Arms
+    PALW             = 2,   // Define it in the video module
+    PALETTE          = 0,   // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
-    PALETTE0_SIMFILE = "" // only for simulation
+    PALETTE0_SIMFILE = "", // only for simulation
+
+    parameter [8:0] XOUT = 9'h1F0 // non visible location in double-line buffer
 ) (
     (* direct_enable *) input cen,
     input              rst,
@@ -157,7 +159,7 @@ end else begin
             // so verilator does not complaint about the 12 when DW is only 8
             objx <= vinzone ?
                 { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] } // LAYOUT==3 implies DW=16
-                : 9'h1F0;
+                : XOUT;
         end
         default:;
     endcase
@@ -189,7 +191,7 @@ always @(posedge clk) if(cen) begin
         end else begin
             posx1     <= posx1 + 9'b1;
         end
-        if( draw_over ) posx1 <= 9'h1f0;
+        if( draw_over ) posx1 <= XOUT;
         case( pxlcnt[1:0] )
             2'd3:  begin // new data
                     {z,y,x,w} <= obj_data;
@@ -261,7 +263,7 @@ generate
                 posx    <= posx2;
             end else begin
                 new_pxl <= 8'hf;
-                posx    <= 9'h1F0;
+                posx    <= XOUT;
             end
         end
 
