@@ -35,6 +35,7 @@ module jtsarms_video #(
     // Enable bits
     input               CHON,
     input               SCRON,
+    input               STARON,
     input               OBJON,
     // CHAR
     input               char_cs,
@@ -52,9 +53,11 @@ module jtsarms_video #(
     output      [13:0]  map_addr, // 32kB in 8 bits or 16kW in 16 bits
     input       [15:0]  map_data,
     // Star field
-    output      [14:0]  star_addr, // 64kB in 8 bits or 32kW in 16 bits
+    output      [11:0]  star_addr, // 64kB in 8 bits or 32kW in 16 bits
     input       [ 7:0]  star_data,
-    input       [15:0]  star_hpos,
+    input               star_ok,
+    input               star_hscan,
+    input               star_vscan,
     // OBJ
     input               HINIT,
     output      [12:0]  obj_AB,
@@ -95,7 +98,7 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 
 wire [7:0] char_pxl, obj_pxl;
 wire [8:0] scr_pxl;
-wire [2:0] star_pxl = 3'b0;
+wire [2:0] star_pxl;
 
 `ifndef NOCHAR
 jtgng_char #(
@@ -179,6 +182,29 @@ assign scr_dout   = 8'd0;
 assign map_addr   = 'd0;
 `endif
 
+`ifndef NOSCR
+jtsarms_star(
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .pxl_cen    ( pxl_cen    ),
+    .V          ( V          ),
+    .H          ( H          ),
+    // From CPU
+    .STARON     ( STARON     ),
+    .flip       ( flip       ),
+    .hscan      ( star_hscan ),
+    .vscan      ( star_vscan ),
+    // To SDRAM
+    .rom_addr   ( star_addr  ),
+    .rom_data   ( star_data  ),
+    .rom_ok     ( star_ok    ),
+    // Output star
+    .star_pxl   ( star_pxl   )
+);
+`else
+assign star_pxl  = 3'd0;
+assign star_addr = 12'd0;
+`endif
 
 `ifndef NOOBJ
 jtgng_obj #(

@@ -228,8 +228,17 @@ always @(posedge clk, posedge rst)
         end
         if( scr1posh_cs[0] )  scr1posh[ 7:0] <= cpu_dout;
         if( scr1posh_cs[1] )  scr1posh[15:8] <= cpu_dout;
-        if( scr2posh_cs[0] )  scr2posh[ 7:0] <= cpu_dout;
-        if( scr2posh_cs[1] )  scr2posh[15:8] <= cpu_dout;
+        if( GAME==0 ) begin
+            if( scr2posh_cs[0] )  scr2posh[ 7:0] <= cpu_dout;
+            if( scr2posh_cs[1] )  scr2posh[15:8] <= cpu_dout;
+        end else begin
+            if( star_cs && !wr_n ) begin
+                scr2posh[0] <= !A[0];
+                scr2posh[1] <=  A[0];
+            end else begin
+                scr2posh <= 16'd0;
+            end
+        end
         if( gfxen_cs ) begin
             if(GAME==0)
                 {OBJON, SC2ON, SC1ON } <= cpu_dout[6:4];

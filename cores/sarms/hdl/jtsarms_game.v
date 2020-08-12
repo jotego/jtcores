@@ -77,18 +77,18 @@ assign dwnld_busy = downloading;
 
 wire [8:0] V;
 wire [8:0] H;
-wire HINIT;
+wire       HINIT;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
-wire char_cs, blue_cs, redgreen_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire [15:0] star_hpos;
-wire rd, cpu_cen;
-wire char_wait;
+wire [ 7:0] cpu_dout, char_dout, scr_dout;
+wire        snd_cs;
+wire        char_cs, blue_cs, redgreen_cs;
+wire        flip;
+wire        star_hscan, star_vscan;
+wire        rd, cpu_cen;
+wire        char_wait;
 
-localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=15;
+localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=12;
 
 // ROM data
 wire [15:0] char_data, scr_data, map_data;
@@ -230,6 +230,8 @@ u_dwnld(
 
 `ifndef NOMAIN
 
+wire [13:0] nc;
+
 jt1943_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -256,7 +258,7 @@ jt1943_main #(.GAME(1)) u_main(
     .SC1ON      ( SCRON         ),
     .SC2ON      ( STARON        ),
     // Star Field
-    //.scr2_hpos  ( scr2_hpos     ),
+    .scr2posh   ( { nc, star_vscan, star_hscan } ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -379,10 +381,12 @@ u_video(
     .map_addr   ( map_addr      ), // 32kB in 8 bits or 16kW in 16 bits
     .map_data   ( map_data      ),
     .SCRON      ( SCRON         ),
-    // SCROLL 2
-    .star_hpos  ( star_hpos     ),
+    // STAR FIELD
+    .star_hscan ( star_hscan    ),
+    .star_vscan ( star_vscan    ),
     .star_addr  ( star_addr     ),
     .star_data  ( star_data     ),
+    .star_ok    ( star_ok       ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
