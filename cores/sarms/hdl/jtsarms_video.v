@@ -94,8 +94,8 @@ localparam       LAYOUT      = 8;
 localparam       PXL_CHRW    = 8;
 localparam       SCR_OFFSET  = 0;
 localparam       CHAR_OFFSET = 0;
-localparam       OBJ_DLY     = 13;
-localparam       BLANK_DLY   = 12;
+localparam       OBJ_DLY     = 6;
+localparam       BLANK_DLY   = 3;
 localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
@@ -263,7 +263,8 @@ assign obj_pxl = ~6'd0;
 
 `ifndef NOCOLMIX
 jtsarms_colmix #(
-    .CHARW  (   PXL_CHRW    )
+    .CHARW     ( PXL_CHRW  ),
+    .BLANK_DLY ( BLANK_DLY )
 )
 u_colmix (
     .rst          ( rst           ),

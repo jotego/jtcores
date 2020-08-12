@@ -67,7 +67,7 @@ wire [dw-1:0] blank = {dw{1'b1}};
 
 reg [AW-1:0] addr_wr;
 reg [dw-1:0] data_wr;
-reg          pxl_wr, we0;
+reg          pxl_wr;
 
 always @(posedge clk) if(cen) begin
     data_wr <= new_pxl;
