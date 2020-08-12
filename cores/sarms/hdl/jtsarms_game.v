@@ -258,7 +258,7 @@ jt1943_main #(.GAME(1)) u_main(
     .SC1ON      ( SCRON         ),
     .SC2ON      ( STARON        ),
     // Star Field
-    .scr2posh   ( { nc, star_vscan, star_hscan } ),
+    .scr2posh   ( { nc, star_hscan, star_vscan } ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
@@ -387,6 +387,7 @@ u_video(
     .star_addr  ( star_addr     ),
     .star_data  ( star_data     ),
     .star_ok    ( star_ok       ),
+    .STARON     ( STARON        ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),

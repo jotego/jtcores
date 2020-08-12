@@ -183,7 +183,7 @@ assign map_addr   = 'd0;
 `endif
 
 `ifndef NOSCR
-jtsarms_star(
+jtsarms_star u_star(
     .rst        ( rst        ),
     .clk        ( clk        ),
     .pxl_cen    ( pxl_cen    ),

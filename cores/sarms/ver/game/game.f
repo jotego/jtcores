@@ -1,6 +1,7 @@
 ../../hdl/jtsarms_game.v
 ../../hdl/jtsarms_video.v
 ../../hdl/jtsarms_colmix.v
+../../hdl/jtsarms_star.v
 ../../../1943/hdl/jt1943_scroll.v
 ../../../1943/hdl/jt1943_main.v
 ../../../1943/hdl/jt1943_security.v

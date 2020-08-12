@@ -100,7 +100,7 @@ always @(posedge clk, posedge rst)
                     post_scan<= 6'd0; // store obj data in reverse order
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
-                    fill <= ~HINIT_draw;
+                    if( HINIT_draw ) fill <= 0; // gets out of this state at this signal
                 end
                 else begin
                     //if( dma_dout<=(VF+'d3) && (dma_dout+8'd12)>=VF  ) begin
