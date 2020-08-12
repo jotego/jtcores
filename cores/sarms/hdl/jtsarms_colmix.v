@@ -70,7 +70,7 @@ wire enable_obj  = gfx_en[3];
 
 wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
 wire obj_blank   = (&obj_pxl[3:0])  | ~enable_obj;
-wire scr_blank   = &scr_pxl[3:0];
+// wire scr_blank   = &scr_pxl[3:0];
 
 reg  [7:0] seladdr;
 reg  [1:0] selbus, colmsb;

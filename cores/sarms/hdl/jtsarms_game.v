@@ -88,7 +88,7 @@ wire        star_hscan, star_vscan;
 wire        rd, cpu_cen;
 wire        char_wait;
 
-localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=12;
+localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=14;
 
 // ROM data
 wire [15:0] char_data, scr_data, map_data;
@@ -96,19 +96,19 @@ wire [15:0] obj_data;
 wire [ 7:0] main_data, star_data;
 wire [ 7:0] snd_data;
 // ROM address
-wire [17:0] main_addr;
-wire [14:0] snd_addr;
 wire [MAPW-1 :0] map_addr;
 wire [STARW-1:0] star_addr;
 wire [CHARW-1:0] char_addr;
 wire [SCRW-1 :0] scr_addr;
 wire [OBJW-1 :0] obj_addr;
+wire [17:0] main_addr;
+wire [14:0] snd_addr;
 wire [ 7:0] dipsw_a, dipsw_b, dipsw_c;
 wire        CHON, SCRON, STARON, OBJON;
 
-wire rom_ready;
-wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
-wire cen16, cen12, cen8, cen6, cen4, cen3;
+wire        rom_ready, prom_we;
+wire        main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
+wire        cen16, cen12, cen8, cen6, cen4, cen3;
 
 assign pxl2_cen = cen16;
 assign pxl_cen  = cen8;
@@ -340,9 +340,6 @@ assign snd       = 16'b0;
 `endif
 
 wire scr_ok, star_ok, map_ok, char_ok;
-
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
 
 jtsarms_video #(
     .SCRW   ( SCRW      ),

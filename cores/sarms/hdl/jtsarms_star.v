@@ -28,7 +28,7 @@ module jtsarms_star(
     input               hscan,
     input               vscan,
     // To SDRAM
-    output      [11:0]  rom_addr,
+    output      [13:0]  rom_addr,
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // Output star
@@ -42,26 +42,28 @@ reg        last_h, last_v;
 wire       posedge_h = !last_h && hscan;
 wire       posedge_v = !last_v && vscan;
 
-assign rom_addr = { vsum, hsum[8:5] };
+assign rom_addr = { 2'b11, vsum, hsum[8:5] };
 
 always @(posedge clk) begin
     last_h <= hscan;
     last_v <= vscan;
     if( !STARON ) begin
-        hcnt <= {9{flip}};
-        vcnt <= {8{flip}};
+        hcnt <= 9'd0;
+        vcnt <= 8'd0;
     end else begin
-        if( posedge_h ) hcnt<=hcnt+1'd1;
-        if( posedge_v ) vcnt<=vcnt+1'd1;
+        if( posedge_h ) hcnt<= flip ? hcnt-1'd1 : hcnt+1'd1;
+        if( posedge_v ) vcnt<= flip ? vcnt-1'd1 : vcnt+1'd1;
         hsum <= hcnt + H;
         vsum <= vcnt + V;
     end
 end
 
 always @(posedge clk) begin
-    if( rom_ok && hsum[4:0]==5'h1f ) data <= rom_data;
+    if( rom_ok && hsum[4:0]==5'd0 ) data <= rom_data;
     if( pxl_cen ) begin
-        star_pxl <= hsum[4:0]==data[4:0] && vsum[1:0]=={H[5],hsum[2]} ? data[7:5] : 3'd0;
+        star_pxl <= STARON && &(hsum[4:1]^data[4:1]) && ~(hsum[0]^data[0])
+                    && (vsum[2]^H[5]) && (!hsum[2] || !vsum[1]) ?
+            data[7:5] : 3'd0;
     end
 end
 

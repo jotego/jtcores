@@ -17,8 +17,9 @@
     Date: 9-8-2020 */
 
 module jtsarms_video #(
-    parameter SCRW = 17,
-    parameter OBJW = 17
+    parameter SCRW  = 17,
+    parameter OBJW  = 17,
+    parameter STARW = 14
 )(
     input               rst,
     input               clk,
@@ -53,7 +54,7 @@ module jtsarms_video #(
     output      [13:0]  map_addr, // 32kB in 8 bits or 16kW in 16 bits
     input       [15:0]  map_data,
     // Star field
-    output      [11:0]  star_addr, // 64kB in 8 bits or 32kW in 16 bits
+    output [STARW-1:0]  star_addr, // 64kB in 8 bits or 32kW in 16 bits
     input       [ 7:0]  star_data,
     input               star_ok,
     input               star_hscan,
