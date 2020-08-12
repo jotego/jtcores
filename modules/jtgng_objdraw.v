@@ -183,32 +183,36 @@ reg [8:0] posx1;
 // ROM data depacking
 always @(posedge clk) if(cen) begin
     // only advance if we are not waiting for data
-    if( !rom_wait ) begin
-        if( pxlcnt[3:0]==4'h7 ) begin
-            objpal1   <= objpal;
-            poshflip2 <= obj_hflip;
-            posx1     <= objx;
-        end else begin
-            posx1     <= posx1 + 9'b1;
+    if( draw_over ) begin
+        posx1 <= XOUT;
+        {z,y,x,w} <= 16'hFFFF;
+    end else begin
+        if( !rom_wait ) begin
+            if( pxlcnt[3:0]==4'h7 ) begin
+                objpal1   <= objpal;
+                poshflip2 <= obj_hflip;
+                posx1     <= objx;
+            end else begin
+                posx1     <= posx1 + 9'b1;
+            end
+            case( pxlcnt[1:0] )
+                2'd3:  begin // new data
+                        {z,y,x,w} <= obj_data;
+                    end
+                default:
+                    if( poshflip2 ) begin
+                        z <= z >> 1;
+                        y <= y >> 1;
+                        x <= x >> 1;
+                        w <= w >> 1;
+                    end else begin
+                        z <= z << 1;
+                        y <= y << 1;
+                        x <= x << 1;
+                        w <= w << 1;
+                    end
+            endcase
         end
-        if( draw_over ) posx1 <= XOUT;
-        case( pxlcnt[1:0] )
-            2'd3:  begin // new data
-                    {z,y,x,w} <= obj_data;
-                end
-            default:
-                if( poshflip2 ) begin
-                    z <= z >> 1;
-                    y <= y >> 1;
-                    x <= x >> 1;
-                    w <= w >> 1;
-                end else begin
-                    z <= z << 1;
-                    y <= y << 1;
-                    x <= x << 1;
-                    w <= w << 1;
-                end
-        endcase
     end
 end
 
