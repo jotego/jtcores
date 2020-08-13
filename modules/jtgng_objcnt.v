@@ -47,7 +47,7 @@ jtframe_cencross_strobe u_hinit(
 
 reg  over;
 reg  wait_latch;
-wire wait_cond = !rom_ok && pxlcnt[1:0]==2'b11;
+wire wait_cond = !rom_ok /*&& pxlcnt[1:0]==2'b11*/; // the 2'b11 condition creates artifacts in Side Arms at least
 
 assign rom_wait = wait_cond | wait_latch;
 
