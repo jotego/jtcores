@@ -76,6 +76,8 @@ module jtsarms_video #(
     input               LHBL,
     output              LHBL_dly,
     output              LVBL_dly,
+    input               eres_n,        // clears palette error signal
+    output              wrerr_n,       // marks an attempt to write in palette outside v-blanking
     // Priority PROMs
     // input       [7:0]   prog_addr,
     // input               prom_prio_we,
@@ -301,6 +303,8 @@ u_colmix (
     .redgreen_cs  ( redgreen_cs   ),
     .DB           ( cpu_dout      ),
     .cpu_wrn      ( RnW           ),
+    .eres_n       ( eres_n        ),
+    .wrerr_n      ( wrerr_n       ),
 
     // colour output
     .red          ( red           ),

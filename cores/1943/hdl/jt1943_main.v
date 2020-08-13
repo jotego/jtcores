@@ -57,6 +57,8 @@ module jt1943_main #(
     // Palette (only Side Arms)
     output  reg        blue_cs,
     output  reg        redgreen_cs,
+    output  reg        eres_n,
+    input              wrerr_n,
     // cabinet I/O
     input   [6:0]      joystick1,
     input   [6:0]      joystick2,
@@ -125,6 +127,7 @@ always @(*) begin
     redgreen_cs   = 0;
     misc_cs       = 0;
     star_cs       = 0;
+    eres_n        = 1;
     if( rfsh_n && !mreq_n ) begin
         if( GAME==0 ) begin // 1943
             casez(A[15:13])
@@ -171,6 +174,7 @@ always @(*) begin
                                     4'd0: snd_latch_cs  = 1;
                                     4'd1: bank_cs       = 1;
                                     4'd2: OKOUT         = 1;
+                                    4'd3: eres_n        = 0;
                                     4'd4: misc_cs       = 1;
                                     4'd5, 4'd6: star_cs = 1;
                                     4'd8: scr1posh_cs = 2'b01; // LSB
@@ -262,7 +266,7 @@ always @(*) begin
                      ~2'h0, // undocumented. D5 & D4 what are those?
                             // service and tilt in Side Arms
                      ~LVBL,
-                     1'b1, // /WRERR - palette write error (Side Arms)
+                     GAME==1 ? wrerr_n : 1'b1, // /WRERR - palette write error (Side Arms)
                      start_button }; // START
         3'd1: cabinet_input = { 1'b1, joystick1 };
         3'd2: cabinet_input = { 1'b1, joystick2 };

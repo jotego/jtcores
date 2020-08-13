@@ -83,6 +83,7 @@ wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout, scr_dout;
 wire        snd_cs;
 wire        char_cs, blue_cs, redgreen_cs;
+wire        eres_n, wrerr_n;
 wire        flip;
 wire        star_hscan, star_vscan;
 wire        rd, cpu_cen;
@@ -191,7 +192,7 @@ wire [ 7:0] main_ram;
 wire        scr_cs;
 wire [15:0] scr_hpos, scr_vpos;
 
-assign cpu_cen = cen4;
+assign cpu_cen = cen8;
 
 
 localparam [21:0] CPU_OFFSET  = 22'h0;
@@ -247,6 +248,8 @@ jt1943_main #(.GAME(1)) u_main(
     // Palette
     .redgreen_cs( redgreen_cs   ),
     .blue_cs    ( blue_cs       ),
+    .eres_n     ( eres_n        ),
+    .wrerr_n    ( wrerr_n       ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -362,6 +365,8 @@ u_video(
     // Palette
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
+    .eres_n     ( eres_n        ),
+    .wrerr_n    ( wrerr_n       ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),

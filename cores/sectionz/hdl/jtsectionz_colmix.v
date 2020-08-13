@@ -77,7 +77,7 @@ reg [CHARW-1:0] char0;
 wire [1:0] scr_prio = scr_pxl[6:5] + 2'b01;
 
 always @(posedge clk) if(pxl_cen) begin
-    seladdr <= { ~char_blank, ~obj_blank, 
+    seladdr <= { ~char_blank, ~obj_blank,
         !enable_scr ? 2'b00 : {scr_prio}, scr_pxl[3:0] };
     scr0 <= scr_pxl;
     char0 <= char_pxl;
@@ -109,7 +109,11 @@ wire [3:0] pal_red, pal_green, pal_blue;
 
 // Palette is in RAM. There are writes outside the vertical blank
 // If I gate the signals for VB only then the sea turns yellow in
-// Legendary Wings after playing a game 
+// Legendary Wings after playing a game
+// There could be an error bit like wrerr_n in Side Arms but it is not documented
+// in MAME and I don't have schematics. To do: try implementing it at a resonable
+// location in memory and gate signals with VB again. See if the yellow sea problem
+// still occurs
 wire we_rg = !cpu_wrn &&  redgreen_cs;
 wire we_b  = !cpu_wrn &&  blue_cs;
 
@@ -159,7 +163,7 @@ jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
 );
 // Select the avatar palette output if we are on avatar mode
 wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
-`else 
+`else
 wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
 `endif
 
@@ -169,7 +173,7 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
     .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),    
+    .LVBL_dly   ( LVBL_dly            ),
     .rgb_in     ( avatar_mux          ),
     .rgb_out    ( {red, green, blue } )
 );

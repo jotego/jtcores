@@ -51,6 +51,8 @@ module jtsarms_colmix #(
     input            redgreen_cs,
     input      [7:0] DB,
     input            cpu_wrn,
+    input            eres_n,        // clears palette error signal
+    output reg       wrerr_n,       // marks an attempt to write in palette outside v-blanking
 
     output     [3:0] red,
     output     [3:0] green,
@@ -118,10 +120,18 @@ end
 wire [3:0] pal_red, pal_green, pal_blue;
 
 // Palette is in RAM
-// Original circuit only allows writes during blanking and contains
-// a mechanism to register failed writes
-wire we_rg = /*!LVBL &&*/ !cpu_wrn &&  redgreen_cs;
-wire we_b  = /*!LVBL &&*/ !cpu_wrn &&  blue_cs;
+wire we_rg = !LVBL && !cpu_wrn &&  redgreen_cs;
+wire we_b  = !LVBL && !cpu_wrn &&  blue_cs;
+
+always @(posedge clk, posedge rst) begin
+    if( rst )
+        wrerr_n <= 0;
+    else begin
+        if( !eres_n )
+            wrerr_n <= 1;
+        else if( (redgreen_cs || blue_cs) && LVBL ) wrerr_n <= 0;
+    end
+end
 
 `ifndef PAL_GRAY
 jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
