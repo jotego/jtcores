@@ -196,6 +196,7 @@ always @(posedge clk, posedge rst)
     if( rst ) begin
         bank      <= {BANKW{1'b0}};
         scr1posh  <= 16'd0;
+        scr2posh  <= 16'd0;
         scrposv   <= 'd0;
         flip      <= 0;
         sres_b    <= 1;

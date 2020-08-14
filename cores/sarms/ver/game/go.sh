@@ -33,7 +33,7 @@ fi
 $JTFRAME/bin/sim.sh $MIST \
     -sysname sarms \
     -def ../../hdl/jtsarms.def \
-    -videow 384 -videoh 224 \
+    -videow 376 -videoh 224 \
     -d BUTTONS=2 \
     -d COLORW=4 -d VIDEO_START=1 \
     $*

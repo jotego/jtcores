@@ -68,7 +68,8 @@ module jtsarms_colmix #(
 reg [9:0] pixel_mux;
 
 wire enable_char = gfx_en[0];
-// wire enable_scr  = gfx_en[1];
+wire enable_scr  = gfx_en[1];
+wire enable_star = gfx_en[2];
 wire enable_obj  = gfx_en[3];
 
 wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
@@ -86,9 +87,9 @@ localparam [1:0] STAR=2'b00, SCR=2'b01, CHAR=2'b11, OBJ=2'b10;
 
 always @(posedge clk) if(pxl_cen) begin
     seladdr <= { ~char_blank, ~obj_blank, 1'b0,
-        scr_pxl[8], scr_pxl[3:0] };
+        scr_pxl[8], enable_scr ? scr_pxl[3:0] : 4'd15 };
     scr0  <= scr_pxl[7:0];
-    star0 <= star_pxl;
+    star0 <= enable_star ? star_pxl : 3'd0;
     char0 <= char_pxl;
     obj0  <= obj_pxl;
 

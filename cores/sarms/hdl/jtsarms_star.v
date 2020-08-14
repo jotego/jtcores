@@ -47,9 +47,14 @@ assign rom_addr = { 2'b11, vsum, hsum[8:5] };
 always @(posedge clk) begin
     last_h <= hscan;
     last_v <= vscan;
-    if( !STARON ) begin
+end
+
+always @(posedge clk, posedge rst) begin
+    if( !STARON || rst ) begin
         hcnt <= 9'd0;
         vcnt <= 8'd0;
+        hsum <= 9'd0;
+        vsum <= 8'd0;
     end else begin
         if( posedge_h ) hcnt<= flip ? hcnt-1'd1 : hcnt+1'd1;
         if( posedge_v ) vcnt<= flip ? vcnt-1'd1 : vcnt+1'd1;

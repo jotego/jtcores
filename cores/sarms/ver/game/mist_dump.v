@@ -51,6 +51,7 @@ module mist_dump(
             $shm_probe(UUT.u_game.u_main,"A");
             $shm_probe(UUT.u_game.HS);
             $shm_probe(UUT.u_game.VS);
+            $shm_probe(UUT.u_game,"A");
             $shm_probe(UUT.u_game.u_timer,"A");
             $shm_probe(UUT.u_game.u_video,"AS");
         `endif

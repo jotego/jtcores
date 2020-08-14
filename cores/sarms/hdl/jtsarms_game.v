@@ -392,7 +392,8 @@ u_video(
     .star_ok    ( star_ok       ),
     .STARON     ( STARON        ),
     // OBJ
-    .HINIT      ( HINIT         ),
+    .HINIT      ( HINIT
+      ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
