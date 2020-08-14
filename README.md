@@ -14,18 +14,20 @@ I hope you will have as much fun with it as I had it while making it!
 
 In chronological order:
 
- 1. Vulgus           (see doc/jtvulgus.txt)
- 2. 1942             (see doc/jt1942.txt)
- 3. Commando         (see doc/jtcommando.txt)
- 4. Ghosts'n Goblins (see doc/jtgng.txt)
- 5. SectionZ         (see doc/jtsectionz.txt)
- 6. GunSmoke         (see doc/jtgunsmoke.txt)
- 7. Trojan           (see doc/jttrojan.txt)
- 8. 1943             (see doc/jt1943.txt)
- 9. Black Tiger      (see doc/jtbtiger.txt)
-10. Tiger Road       (see doc/jttora.txt)
-11. F1-Dream         (see doc/jtf1dream.txt)
-12. Bionic Commando  (see doc/jtbiocom.txt)
+ 1. Vulgus           (doc/jtvulgus.txt)
+ 2. 1942             (doc/jt1942.txt)
+ 3. Commando         (doc/jtcommando.txt)
+ 4. Ghosts'n Goblins (doc/jtgng.txt)
+ 5. SectionZ         (doc/jtsectionz.txt)
+ 6. GunSmoke         (doc/jtgunsmoke.txt)
+ 7. Legendary Wings  (doc/jtsectionz.txt)
+ 8. Trojan           (doc/jttrojan.txt)
+ 9. 1943             (doc/jt1943.txt)
+10. Black Tiger      (doc/jtbtiger.txt)
+11. Side Arms        (doc/jtsarms.txt)
+12. Tiger Road       (doc/jttora.txt)
+13. F1-Dream         (doc/jtf1dream.txt)
+14. Bionic Commando  (doc/jtbiocom.txt)
 
 ### Dependencies
 

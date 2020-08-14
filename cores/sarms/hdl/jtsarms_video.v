@@ -223,7 +223,7 @@ jtgng_obj #(
 ) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( cen12       ),
+    .draw_cen   ( pxl2_cen    ),
     .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
     .AB         ( {obj_AB[11:5], obj_AB[1:0]} ),

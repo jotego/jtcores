@@ -101,8 +101,6 @@
         <dip name="Coin B" bits="11,13" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
         <dip name="Allow Continue" bits="14" ids="No,Yes"/>
         <dip name="Demo Sounds" bits="15" ids="Off,On"/>
-        <!-- SYSTEM -->
-        <dip name="Freeze" bits="19" ids="On,Off"/>
     </switches>
-    <buttons names="Fire,Jump,Start,Coin,Pause" default="Y,X,R,L,Start"/>
+    <buttons names="Fire-left,Fire-right,Option,Start,Coin,Pause" default="Y,X,B,R,L,Start"/>
 </misterromdescription>

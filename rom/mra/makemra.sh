@@ -34,7 +34,9 @@ mame2dip sidearms.xml \
     -frac gfx2 2 \
     -frac gfx3 2 \
     -swapbytes audiocpu \
-    -swapbytes maincpu
+    -swapbytes maincpu \
+    -rmdipsw Freeze \
+    -buttons "fire-left" "fire-right" "option"
 #    -order-roms gfx2  4 5 6 7 0 1 2 3
 fi
 

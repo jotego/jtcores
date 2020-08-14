@@ -49,7 +49,7 @@ always @(posedge clk) begin
     last_v <= vscan;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( !STARON || rst ) begin
         hcnt <= 9'd0;
         vcnt <= 8'd0;
