@@ -111,9 +111,13 @@ wire [3:0] pal_red, pal_green, pal_blue;
 // If I gate the signals for VB only then the sea turns yellow in
 // Legendary Wings after playing a game
 // There could be an error bit like wrerr_n in Side Arms but it is not documented
-// in MAME and I don't have schematics. To do: try implementing it at a resonable
-// location in memory and gate signals with VB again. See if the yellow sea problem
-// still occurs
+// in MAME and I don't have schematics.
+// I have tried implementing it at resonable locations in memory
+// but the bad colour problems still occured if I gated the we_rg/b signals
+// I have also tried triggering the vertical interrupt a bit before LVBL (few lines)
+// but as long as we_rg/b are gated with LVBL, there are wrong colours
+// So I don't gate these signals:
+
 wire we_rg = !cpu_wrn &&  redgreen_cs;
 wire we_b  = !cpu_wrn &&  blue_cs;
 
