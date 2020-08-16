@@ -1,0 +1,212 @@
+<!--          FPGA compatible core of arcade hardware by Jotego
+
+              This core is available for hardware compatible with MiST and MiSTer
+              Other FPGA systems may be supported by the time you read this.
+              This work is not mantained by the MiSTer project. Please contact the
+              core author for issues and updates.
+
+              (c) Jose Tejada, 2020. Please support the author
+              Patreon: https://patreon.com/topapate
+              Paypal:  https://paypal.me/topapate
+
+              The author does not endorse or participate in illegal distribution
+              of copyrighted material. This work can be used with legally
+              obtained ROM dumps or with compatible homebrew software
+
+              This file license is GNU GPLv2.
+              You can read the whole license file in
+              https://opensource.org/licenses/gpl-2.0.php
+
+-->
+
+<misterromdescription>
+    <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
+    <name>Street Fighter (Japan, bootleg)</name>
+    <setname>sfjbl</setname>
+    <rbf>jtsf</rbf>
+    <rom index="0" zip="sfjbl.zip|sf.zip" type="merged" md5="None">
+        <!-- maincpu - starts at 0x0 -->
+        <part name="a-34.34.4a" crc="116027d7"/>
+        <part name="a-37.37.4c" crc="d3cbd09e"/>
+        <part name="a-35.35.5a" crc="5c31ea04"/>
+        <part name="a-38.38.5c" crc="908d9e98"/>
+        <part name="a-36.36.6a" crc="5ea75033"/>
+        <part name="a-39.39.6c" crc="4d0606cb"/>
+        <!-- audiocpu - starts at 0x50000 -->
+        <interleave output="16">
+            <part name="a-6.6.8f" crc="4a9ac534" map="12"/>
+        </interleave>
+        <!-- audio2 - starts at 0x58000 -->
+        <interleave output="16">
+            <part name="a-2.2.6b" crc="a3212da3" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-1.1.6a" crc="707d5f67" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-5.5.8a" crc="e2574554" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-4.4.7a" crc="af7ae326" map="12"/>
+        </interleave>
+        <!-- mcu - starts at 0x98000 -->
+        <part name="c8751h-88.5o" crc="6588891f"/>
+        <part repeat="0x10000">FF</part>
+        <!-- maps - starts at 0xA9000 -->
+        <part name="k-7.57.7g" crc="23d09d3d"/>
+        <part name="k-4.54.7e" crc="ea16df6c"/>
+        <part name="k-17.67.10r" crc="72df2bd9"/>
+        <part name="k-16.66.10m" crc="3e99d3d5"/>
+        <!-- char - starts at 0xE9000 -->
+        <part name="a-3.3.6e" crc="59416e03"/>
+        <!-- scr1 - starts at 0xF1000 -->
+        <interleave output="16">
+            <part name="k-8.58.4m" crc="365c87bf" map="01"/>
+            <part name="k-12.62.4r" crc="643660c0" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-46.46.1l" crc="2559af76" map="01"/>
+            <part name="a-49.49.1q" crc="63f7f181" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="k-9.59.5m" crc="0a14421a" map="01"/>
+            <part name="k-13.63.5r" crc="e8e113b1" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-47.47.1m" crc="e97f19fa" map="01"/>
+            <part name="a-48.48.1p" crc="8da0a11c" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="k-10.60.6m" crc="96e34f7d" map="01"/>
+            <part name="k-14.64.6r" crc="5990fda8" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-45.45.1k" crc="bd5700b4" map="01"/>
+            <part name="a-50.50.1r" crc="29ef5174" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="k-11.61.7m" crc="22746035" map="01"/>
+            <part name="k-15.65.7r" crc="301b4bcc" map="10"/>
+        </interleave>
+        <!-- scr2 - starts at 0x1D1000 -->
+        <interleave output="16">
+            <part name="k-5.55.4g" crc="7c90a53e" map="01"/>
+            <part name="k-6.56.5g" crc="91f77551" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-43.43.1h" crc="0cfe888c" map="01"/>
+            <part name="a-41.41.1f" crc="90c0115c" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="k-2.52.4e" crc="b5263e4b" map="01"/>
+            <part name="k-3.53.5e" crc="c9dae6b9" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-42.42.1g" crc="d401b93e" map="01"/>
+            <part name="a-40.40.1e" crc="c4e6a3b1" map="10"/>
+        </interleave>
+        <!-- obj - starts at 0x251000 -->
+        <interleave output="16">
+            <part name="a-7.7.1b" crc="2063e23c" map="01"/>
+            <part name="a-21.21.3f" crc="ee694c18" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-8.8.1c" crc="00af40c4" map="01"/>
+            <part name="a-22.22.4f" crc="2dc438a8" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-9.9.1d" crc="92b791d8" map="01"/>
+            <part name="a-25.25.3h" crc="cc6cd84a" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-10.10.1de" crc="f4a8e86b" map="01"/>
+            <part name="a-26.26.4h" crc="be2eaac7" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-11.11.1ef" crc="b2af5bfd" map="01"/>
+            <part name="a-29.29.3k" crc="7d90034d" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-12.12.1f" crc="a50bf0b9" map="01"/>
+            <part name="a-30.30.4k" crc="48ea345f" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-13.13.1g" crc="e7d297e3" map="01"/>
+            <part name="a-32.32.3l" crc="b9563911" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-14.14.1gh" crc="02c037a9" map="01"/>
+            <part name="a-33.33.4l" crc="61a9d0ea" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-15.15.1h" crc="222dbc94" map="01"/>
+            <part name="a-24.24.6f" crc="a21e27ff" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-16.16.1j" crc="7c6481e0" map="01"/>
+            <part name="a-23.23.5f" crc="e77e3d75" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-17.17.1jk" crc="6c19b324" map="01"/>
+            <part name="a-28.28.6h" crc="f08c974e" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-18.18.1kl" crc="38f6e7d8" map="01"/>
+            <part name="a-27.27.5h" crc="263f93b0" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a-19.19.1l" crc="6e521aea" map="01"/>
+            <part name="a-31.31.6k" crc="eb8db0bf" map="10"/>
+        </interleave>
+        <!-- plds - starts at 0x3F1000 -->
+        <part name="tibpal16l8-25cn.10g" crc="b95bc9bc"/>
+        <part name="tibpal16l8-25cn.10j" crc="d5e7fb3c"/>
+        <part name="tibpal16l8-25cn.11b" crc="1db26b84"/>
+        <part name="tibpal16l8-25cn.11e" crc="e419a33f"/>
+        <part name="tibpal16l8-25cn.12e" crc="4803a097"/>
+        <part name="tibpal16l8-25cn.12f" crc="40689e0e"/>
+        <part name="tibpal16l8-25cn.16e" crc="9daca4f6"/>
+        <part name="tibpal16l8-25cn.3q" crc="e7bb2b87"/>
+        <part name="tibpal16l8-25cn.6m" crc="6675dcc7"/>
+        <part name="tibpal16l8-25cn.7c" crc="c8a1458f"/>
+        <part name="tibpal16l8-25cn.7e" crc="858b1c21"/>
+        <part name="tibpal16r4-25cn.7a" crc="b3c22357"/>
+        <part name="tibpal16r4-25cn.7d" crc="29cdd190"/>
+        <!-- proms - starts at 0x3F1D34 -->
+        <part name="n82s129n.8m" crc="864199ad"/>
+        <part name="n82s129n.13g" crc="c0e56586"/>
+        <part name="n82s129n.7m" crc="4c734b64"/>
+        <part name="n82s123n.9p" crc="06bcda53"/>
+        <!-- Total 0x3F2054 bytes - 4040 kBytes -->
+    </rom>
+    <rom index="1">
+        <part>00</part>
+    </rom>
+    <switches default="FF,FF" base="16">
+        <!-- DSW1 -->
+        <dip name="Coin A" bits="0,2" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
+        <dip name="Coin B" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
+        <dip name="Unused" bits="6" ids="On,Off"/>
+        <dip name="Unused" bits="7" ids="On,Off"/>
+        <dip name="Flip Screen" bits="8" ids="On,Off"/>
+        <dip name="Attract Music" bits="9" ids="Off,On"/>
+        <dip name="Unused" bits="10" ids="On,Off"/>
+        <dip name="Unused" bits="11" ids="On,Off"/>
+        <dip name="Speed" bits="12" ids="Slow,Normal"/>
+        <dip name="Demo Sounds" bits="13" ids="On,Off"/>
+        <dip name="Freeze" bits="14" ids="On,Off"/>
+        <dip name="Service Mode" bits="15" ids="On,Off"/>
+        <!-- DSW2 -->
+        <dip name="Game Continuation" bits="8,10" ids="None,1st Stage Maximum,2nd Stage Maximum,3rd Stage Maximum,4th Stage Maximum,5th Stage Maximum"/>
+        <dip name="Round Time Count" bits="11,12" ids="250,200,150,100"/>
+        <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"/>
+        <dip name="Buy-In Feature" bits="15,17" ids="None,1st Stage Maximum,2nd Stage Maximum,3rd Stage Maximum,4th Stage Maximum,5th Stage Maximum"/>
+        <dip name="Number of Countries Selected" bits="18" ids="4,2"/>
+        <dip name="Unused" bits="19" ids="On,Off"/>
+        <dip name="Unused" bits="20" ids="On,Off"/>
+        <dip name="Unused" bits="21" ids="On,Off"/>
+        <dip name="Unused" bits="22" ids="On,Off"/>
+        <dip name="Unused" bits="23" ids="On,Off"/>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Pause" default="Y,X,R,L,Start"/>
+</misterromdescription>
