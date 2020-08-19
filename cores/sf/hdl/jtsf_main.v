@@ -29,8 +29,10 @@
 //       /o19 = /i1 & /i3
 
 
-module jtsf_main #(parameter MAINW=18)
-(
+module jtsf_main #(
+    parameter MAINW = 18,
+              RAMW  = 15
+) (
     input              rst,
     input              clk,
     input              cen8,
@@ -53,6 +55,11 @@ module jtsf_main #(parameter MAINW=18)
     // scroll
     output reg  [15:0] scr1posh,
     output reg  [15:0] scr2posh,
+    // GFX enable signals
+    output reg         charon,
+    output reg         scr1on,
+    output reg         scr2on,
+    output reg         objon,
     // cabinet I/O
     input       [ 9:0] joystick1,
     input       [ 9:0] joystick2,
@@ -61,8 +68,7 @@ module jtsf_main #(parameter MAINW=18)
     input              service,
     // BUS sharing
     output      [13:1] cpu_AB,
-    output      [15:0] oram_dout,
-    input       [13:1] obj_AB,
+    input       [11:0] obj_AB,
     output             RnW,
     output reg         OKOUT,
     input              obj_br,   // Request bus
@@ -75,6 +81,7 @@ module jtsf_main #(parameter MAINW=18)
     output   [MAINW:1] addr,
     // RAM access
     output             ram_cs,
+    output  [RAMW-1:0] ram_addr,
     input       [15:0] ram_data,
     input              ram_ok,
     // ROM access
@@ -90,7 +97,8 @@ module jtsf_main #(parameter MAINW=18)
 wire [23:1] A;
 reg  [15:0] cabinet_input, cpu_din;
 wire        BRn, BGACKn, BGn;
-reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs;
+reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs,
+            misc_cs, snd_cs;
 reg         scr1pos_cs, scr2pos_cs;
 wire        ASn, CPUbus;
 wire        UDSn, LDSn;
@@ -98,13 +106,14 @@ reg         BERRn;
 
 assign cpu_cen = cen8;
 // high during DMA transfer
-assign UDSWn  = RnW | UDSn;
-assign LDSWn  = RnW | LDSn;
-assign CPUbus = !blcnten; // main CPU in control of the bus
+assign UDSWn    = RnW | UDSn;
+assign LDSWn    = RnW | LDSn;
+assign CPUbus   = !blcnten; // main CPU in control of the bus
+assign ram_addr = CPUbus ? A[RAMW:1] : { 3'b111, obj_AB };
 
-assign col_uw = col_cs & ~UDSWn;
-assign col_lw = col_cs & ~LDSWn;
-assign addr   = A[MAINW:1];
+assign col_uw   = col_cs & ~UDSWn;
+assign col_lw   = col_cs & ~LDSWn;
+assign addr     = A[MAINW:1];
 
 `ifdef SIMULATION
 wire [24:0] A_full = {A,1'b0};
@@ -134,7 +143,10 @@ always @(*) begin
                     // 3'd1: coin_cs    = 1;  // coin counters
                     3'd2: scr1pos_cs = 1;
                     3'd4: scr2pos_cs = 1;
-                    3'd5: misc_cs    = 1;
+                    3'd5: begin
+                        misc_cs = 1;
+                        OKOUT   = !UDSn;
+                    end
                     3'd6: snd_cs     = 1;
                     default:;
                 endcase
@@ -146,8 +158,8 @@ end
 // SCROLL 1/2 H POSITION
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        scr1pos <= 16'd0;
-        scr1pos <= 16'd0;
+        scr1posh <= 16'd0;
+        scr2posh <= 16'd0;
     end else if(cpu_cen) begin
         if( scr1pos_cs ) begin
             if(!UDSWn) scr1posh[15:8] <= cpu_dout[15:8];
@@ -165,9 +177,10 @@ always @(posedge clk) begin
     if( rst ) begin
         flip         <= 0;
         snd_latch    <= 8'b0;
-        chon         <= 1;
+        charon       <= 1;
         scr1on       <= 1;
         scr2on       <= 1;
+        objon        <= 1;
     end
     else if(cpu_cen) begin
         if( misc_cs) begin
@@ -189,7 +202,7 @@ reg    dsn_dly;
 
 assign ram_cs  = dsn_dly ? reg_ram_cs  : pre_ram_cs;
 
-always @(posedge clk) if(cen10) begin
+always @(posedge clk) if(cen8) begin
     reg_ram_cs  <= pre_ram_cs;
     dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
 end
@@ -200,14 +213,15 @@ localparam BUT1=4, BUT2=5, BUT3=6, BUT4=7, BUT5=8, BUT6=9;
 always @(posedge clk) if(cpu_cen) begin
     case( A[3:1] )
         4'd0: cabinet_input <= { // IN0 in MAME
+                4'hf, // 15-12
+                1'b1, // 11
                 joystick2[BUT3], // 10
                 joystick1[BUT3], // 9
                 joystick2[BUT6], // 8
+                4'hf,            // 7-4
                 joystick1[BUT6], // 3
                 coin_input       // 1-0
             };
-            2'b11, joystick2[5:0],
-            2'b11, joystick1[5:0] };
         4'd1: cabinet_input <= { // IN1 in MAME
             joystick2[BUT5],
             joystick2[BUT4],
@@ -271,6 +285,7 @@ end
 jtsf_intgen u_intgen(
     .clk        ( clk       ),
     .rst        ( rst       ),
+    .cpu_cen    ( cen8      ),
     .V          ( V         ),
     .int1       ( int1      ),
     .int2       ( int2      ),
@@ -356,6 +371,7 @@ endmodule
 module jtsf_intgen(
     input           clk,
     input           rst,
+    input           cpu_cen,
     input     [7:0] V,
     input     [2:0] FC,
     input           ASn,

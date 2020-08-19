@@ -18,8 +18,8 @@
 
 module jtsf_video #(
     parameter CHARW = 17,
-    parameter MAP1  = 14,
-    parameter MAP2  = 14,
+    parameter MAP1W = 14,
+    parameter MAP2W = 14,
     parameter SCR1W = 17,
     parameter SCR2W = 17,
     parameter OBJW  = 17
@@ -53,19 +53,19 @@ module jtsf_video #(
     output [SCR1W-1:0]  scr1_addr,
     input       [15:0]  scr1_data,
     input               scr1_ok,
-    input       [15:0]  scr1_hpos,
+    input       [15:0]  scr1posh,
     output [MAP1W-1:0]  map1_addr,
     input       [15:0]  map1_data,
     // SCROLL 2 - ROM
     output [SCR2W-1:0]  scr2_addr,
     input       [15:0]  scr2_data,
     input               scr2_ok,
-    input       [15:0]  scr2_hpos,
+    input       [15:0]  scr2posh,
     output [MAP2W-1:0]  map2_addr,
     input       [15:0]  map2_data,
     // OBJ
     input               HINIT,
-    output      [12:0]  obj_AB,
+    output      [11:0]  obj_AB,
     input       [15:0]  main_ram,
     input               OKOUT,
     output              bus_req, // Request bus
@@ -95,6 +95,8 @@ module jtsf_video #(
 
 localparam       LAYOUT      = 9;
 localparam       CHRPW       = 6;
+localparam       SCRPW       = 8;
+localparam       OBJPW       = 8;
 localparam       SCR_OFFSET  = 0;
 localparam       CHAR_OFFSET = 0;
 localparam       OBJ_DLY     = 6;
@@ -106,7 +108,7 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 wire [CHRPW-1:0] char_pxl;
 wire [OBJPW-1:0] obj_pxl;
 wire [SCRPW-1:0] scr1_pxl, scr2_pxl;
-wire [     10:1] obj_ram = main_ram[10:1];
+wire [     11:0] obj_ram = main_ram[11:0];
 
 
 `ifndef NOCHAR
@@ -167,7 +169,7 @@ jt1943_scroll #(
     .V128         ( {1'b0, V[7:0]}),
     .H            ( H             ),
     .SCxON        ( scr1on        ),
-    .hpos         ( scr_hpos      ),
+    .hpos         ( scr1posh      ),
     .vpos         ( 16'd0         ),
     .flip         ( flip          ),
     // Palette PROMs - unused
@@ -203,7 +205,7 @@ jt1943_scroll #(
     .V128         ( {1'b0, V[7:0]}),
     .H            ( H             ),
     .SCxON        ( scr2on        ),
-    .hpos         ( scr_hpos      ),
+    .hpos         ( scr2posh      ),
     .vpos         ( 16'd0         ),
     .flip         ( flip          ),
     // Palette PROMs - unused
@@ -225,18 +227,19 @@ assign scr2_addr = {SCR2W{1'b0}};
 assign map2_addr = {MAP2W{1'b0}};
 `endif
 
+wire [9:0] raw_addr;
+
+assign obj_AB = { raw_addr[9:2], 2'b0, raw_addr[1:0] }; // 12 bits
 
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .DMA_AW       ( 10          ),
     .DMA_DW       ( 12          ),
-    .PALW         (  4          ),
+    .PALW         ( OBJPW-4     ),
     .PXL_DLY      ( OBJ_DLY     ),
     .LAYOUT       ( LAYOUT      ),
     // Same as Tiger Road
-    .OBJMAX       ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
-    .OBJMAX_LINE  ( 6'd32      ),
     .OBJMAX       ( OBJMAX      ),
     .OBJMAX_LINE  ( OBJMAX_LINE )
 ) u_obj (
@@ -246,7 +249,7 @@ jtgng_obj #(
     .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
     // CPU bus
-    .AB         ( obj_AB[10:1]),
+    .AB         ( raw_addr    ),
     .DB         ( obj_ram     ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
@@ -259,7 +262,7 @@ jtgng_obj #(
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
-    .objon      ( objon       ),
+    .OBJON      ( objon       ),
     // avatar display
     .pause      ( 1'b0        ),
     .avatar_idx (             ),
@@ -275,8 +278,6 @@ jtgng_obj #(
     .prom_hi_we ( 1'b0        ),
     .prom_lo_we ( 1'b0        )
 );
-assign obj_AB[ 12] = 1'b1;
-assign obj_AB[4:2] = 3'b0;
 `else
 assign blcnten = 1'b0;
 assign bus_req = 1'b0;

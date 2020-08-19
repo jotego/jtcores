@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 19-2-2019 */
 
-`timescale 1ns/1ps
-
 module jt1943_video #( parameter
     // Characters
     CHAR_PAL       = "../../../rom/1943/bm5.7f",

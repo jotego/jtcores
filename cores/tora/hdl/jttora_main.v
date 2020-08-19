@@ -96,7 +96,6 @@ reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scrhpos_cs, scrvpos_cs;
 (*keep*) wire        ASn;
 
-wire mreq_n, rfsh_n, busak_n;
 assign cpu_cen = cen10;
 reg BERRn;
 
@@ -128,7 +127,7 @@ always @(*) begin
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
             2'd3: if(A[17]) case(A[16:14])  // 111X
-                    3'd0:   obj_cs  = 1'b1; // E_0000 
+                    3'd0:   obj_cs  = 1'b1; // E_0000
                     3'd1:   begin
                         io_cs      = 1'b1; // E_4000
                         mcu_DMAONn = !(A[1] && !RnW);// E_4002
@@ -230,7 +229,7 @@ always @(*) begin
         work_uwe = 1'b0;
         work_lwe = mcu_wr;
         ram_cen  = mcu_cen;
-    end else begin 
+    end else begin
         // CPU access
         work_A   = A[13:1];
         work_uwe = ram_cs & !UDSWn;
@@ -263,7 +262,7 @@ assign cpu_AB = A[13:1];
 reg [10:0] oram_addr;
 reg  obj_uwe, obj_lwe;
 
-always @(*) begin    
+always @(*) begin
     if( blcnten) begin // Object DMA
         oram_addr = obj_AB[11:1];
         obj_uwe   = 1'b0;
@@ -298,10 +297,10 @@ reg [15:0] cabinet_input;
 
 always @(posedge clk) if(cpu_cen) begin
     case( A[2:1] )
-        2'b00: cabinet_input <= { 
-            2'b11, joystick2[5:0], 
+        2'b00: cabinet_input <= {
+            2'b11, joystick2[5:0],
             2'b11, joystick1[5:0] };
-        2'b01: cabinet_input <= 
+        2'b01: cabinet_input <=
             { coin_input, 3'b111, ~LVBL, start_button, 8'hff };
         2'b10: cabinet_input <= { dipsw_a, dipsw_b };
     endcase
@@ -348,7 +347,7 @@ always @(posedge clk, posedge rst) begin : dtack_gen
         end
         if( ASn && !last_ASn ) DTACKn <= 1'b1;
     end
-end 
+end
 
 // interrupt generation
 reg        int1, int2;
@@ -436,7 +435,7 @@ fx68k u_cpu(
 
 // `ifdef SIMULATION
 //     wire sdram_error;
-// 
+//
 //     jtframe_din_check #(.AW(17)) u_sdram_check(
 //         .rst        ( rst           ),
 //         .clk        ( clk           ),

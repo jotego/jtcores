@@ -26,8 +26,10 @@ module jtgng_tile4 #(parameter
                       // 6: Trojan SCR1
                       // 7: Trojan SCR2
                       // 8: Side Arms
+                      // 9: Street Fighter
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
+    DW          = LAYOUT==9 ? 16:8;
     AS8MASK     =  1'b1, // only used by layout 0
     PXLW        = (LAYOUT==3 || LAYOUT==8) ? 9 :
                (  (LAYOUT==5 || LAYOUT==7) ? 7 :
@@ -37,8 +39,8 @@ module jtgng_tile4 #(parameter
     input              cen6,
     input       [4:0]  HS,
     input       [4:0]  SV,
-    input       [7:0]  attr,
-    input       [7:0]  id,
+    input    [DW-1:0]  attr,
+    input    [DW-1:0]  id,
     input              SCxON,
     input              flip,
     // Palette PROMs
@@ -111,6 +113,10 @@ always @(*) begin
             scr_hflip = attr[1]^flip;
             scr_vflip = attr[2];
         end
+        9: begin // Street Fighter
+            scr_hflip = attr[8]^flip;
+            scr_vflip = attr[9];
+        end
     endcase
 end
 
@@ -148,41 +154,37 @@ always @(posedge clk) if(cen6) begin
                             SV[4:0],
                             HS[2]^scr_hflip };
             end
-        4: begin // Black Tiger, 16x16 tiles
-            scr_attr0      <= attr[6:3];
-            scr_addr       <= { attr[2:0], id, // AS
-                            HS[3]^scr_hflip,
-                            SV[3:0]^{4{flip}},
-                            HS[2]^scr_hflip
-                            };
-            scr_hflip0     <= scr_hflip;
+        4: begin // Black111 Tiger, 16x16 tiles
+            scr_attr0  <= attr[6:3];
+            scr_addr   <= { attr[2:0], id, // AS
+                        HS[3]^scr_hflip,
+                        SV[3:0]^{4{flip}},
+                        HS[2]^scr_hflip };
+            scr_hflip0 <= scr_hflip;
         end
         5: begin // Legendary Wings, Section Z, 16x16 tiles
-            scr_attr0      <= attr[2:0];
-            scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
-                            HS[3]^(scr_hflip^flip),
-                            SV[3:0]^{4{scr_vflip}},
-                            HS[2]^scr_hflip
-                            };
-            scr_hflip0     <= scr_hflip;
+            scr_attr0  <= attr[2:0];
+            scr_addr   <= { attr[7:5], id, // AS=3+8+6=17 bits
+                        HS[3]^(scr_hflip^flip),
+                        SV[3:0]^{4{scr_vflip}},
+                        HS[2]^scr_hflip };
+            scr_hflip0 <= scr_hflip;
         end
         6: begin // Trojan, 16x16 tiles - SCR1
-            scr_attr0      <= attr[3:0];
-            scr_addr       <= { attr[7:5], id, // AS=3+8+6=17 bits
-                            HS[3]^(scr_hflip^flip),
-                            SV[3:0],
-                            HS[2]^scr_hflip
-                            };
-            scr_hflip0     <= scr_hflip;
+            scr_attr0  <= attr[3:0];
+            scr_addr   <= { attr[7:5], id, // AS=3+8+6=17 bits
+                        HS[3]^(scr_hflip^flip),
+                        SV[3:0],
+                        HS[2]^scr_hflip };
+            scr_hflip0 <= scr_hflip;
         end
         7: begin // Trojan, 16x16 tiles - SCR2
-            scr_attr0      <= attr[2:0];
-            scr_addr       <= { attr[7], id, // AS=1+8+6=15 bits
-                            HS[3]^(scr_hflip^flip),
-                            SV[3:0]^{4{scr_vflip}},
-                            HS[2]^scr_hflip
-                            };
-            scr_hflip0     <= scr_hflip;
+            scr_attr0  <= attr[2:0];
+            scr_addr   <= { attr[7], id, // AS=1+8+6=15 bits
+                        HS[3]^(scr_hflip^flip),
+                        SV[3:0]^{4{scr_vflip}},
+                        HS[2]^scr_hflip };
+            scr_hflip0 <= scr_hflip;
         end
         8: begin // Side Arms, 32x32 tiles, 256kBytes in 16 bits = 2^17 words
             scr_attr0 <= attr[7:3];
@@ -191,6 +193,14 @@ always @(posedge clk) if(cen6) begin
                             SV[4:0]^{5{scr_vflip}},
                             HS[2]^scr_hflip };
             scr_hflip0 <= scr_hflip;
+        end
+        9: begin // Street Fighter, 16x16 tiles
+            scr_attr0 <= attr[3:0]; // how many bits?
+            scr_addr  <= { id[ROM_AW-7:0], // AS=16+6=22 bits max
+                       HS[3]^(scr_hflip^flip),
+                       SV[3:0]^{4{scr_vflip}},
+                       HS[2]^scr_hflip };
+            scr_hflip0<= scr_hflip;
         end
         endcase
         scr_hflip0 <= scr_hflip;
@@ -205,7 +215,7 @@ always @(posedge clk) if(cen6) begin
             0,2,3,8: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
-            4,5,6,7: begin // Black Tiger, Section Z, Legendary Wings, Trojan
+            4,5,6,7,9: begin // 16x16 Black Tiger, Section Z, Legendary Wings, Trojan, Street Fighter
                 scr_addr[5] <= HS[3]^(scr_hflip0^flip);
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end

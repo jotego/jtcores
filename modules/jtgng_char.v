@@ -23,10 +23,12 @@
 module jtgng_char #(parameter
     ROM_AW   = 13,
     PALW     = 4,
-    DW       = 8,
-    LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms
-    ABW      = LAYOUT==8 ? 12 : 11,
-    HW       = LAYOUT==8 ? 9 : 8,
+    LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms, 9: Street Fighter
+    PALETTE  = 0, // 1 if the palette PROM is used
+    DW       = LAYOUT==9 ? 16 : 8,
+    ABW      = (LAYOUT==8 || LAYOUT==9) ? 12 : 11,
+    HW       = (LAYOUT==8 || LAYOUT==9) ?  9 : 8,
+    PXLW     = (PALETTE?4:PALW+2),
     HOFFSET  = 8'd0,
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
@@ -37,15 +39,14 @@ module jtgng_char #(parameter
     HFLIP_EN = 1, // 1 for enable HFLIP bit
     HFLIP_XOR= 1'b0, // Additional bit for ^ with HFLIP value
     VFLIP_XOR= 1'b0, // Additional bit for ^ with VFLIP value
-    PALETTE  = 0, // 1 if the palette PROM is used
     PALETTE_SIMFILE = "../../../rom/1943/bm5.7f", // only for simulation
     SIMID = ""
 ) (
     input            clk,
     input            pxl_cen  /* synthesis direct_enable = 1 */,
     input            cpu_cen,
-    input   [ABW-1:0]   AB,
-    input   [ 7:0]   V, // V128-V1
+    input  [ABW-1:0] AB,
+    input     [ 7:0] V, // V128-V1
     input   [HW-1:0] H, // Hfix-H1
     input            flip,
     input   [DW-1:0] din,
@@ -53,16 +54,16 @@ module jtgng_char #(parameter
     // Bus arbitrion
     input            char_cs,
     input            wr_n,
-    input   [ 1:0]   dseln, // Select upper or lower byte for 16-bit access
+    input     [ 1:0] dseln, // Select upper or lower byte for 16-bit access
     output           busy,
     // Pause screen
     input            pause,
-    output  [ 9:0]   scan,
-    input   [ 7:0]   msg_low,
-    input   [ 7:0]   msg_high,
+    output    [ 9:0] scan,
+    input     [ 7:0] msg_low,
+    input     [ 7:0] msg_high,
     // PROM access
-    input   [ 7:0]   prog_addr,
-    input   [ 3:0]   prog_din,
+    input     [ 7:0] prog_addr,
+    input     [ 3:0] prog_din,
     input            prom_we,
     // ROM
     output reg [ROM_AW-1:0] char_addr,
@@ -70,7 +71,7 @@ module jtgng_char #(parameter
     input                   rom_ok,
     // Output pixel
     input                   char_on,    // low makes the output FF
-    output reg [ (PALETTE?3:PALW+1):0] char_pxl
+    output reg [PXLW-1:0]   char_pxl
 );
 
 localparam CHARW = PALETTE?4:PALW+2;
@@ -162,6 +163,11 @@ always @(posedge clk) if(pxl_cen) begin
                 {3{dout_vflip}}^V[2:0] };
                 char_attr0 <= { dout_hflip, dout_high[PALW-1:0] };
             end
+            9:  begin // Street Fighter
+                char_addr  <= { { dout_high[1:0], dout_low},
+                {3{dout_vflip}}^V[2:0] };
+                char_attr0 <= { dout_hflip, dout_high[7:4] };
+            end
         endcase
     end
     // The two case-statements cannot be joined because of the default statement
@@ -208,7 +214,7 @@ generate
             .we     ( prom_we        ),
             .q      ( prom_data      )
         );
-        always @(*) char_pxl = (char_on|pause) ? prom_data : 4'hF;
+        always @(*) char_pxl = (char_on|pause) ? prom_data : {PXLW{1'b1}};
     end
 endgenerate
 

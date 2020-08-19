@@ -27,6 +27,7 @@ module jtgng_objdraw #(parameter
                             // 5: Section Z/Legendary Wings
                             // 6: Trojan
                             // 8: Side Arms
+                            // 9: Street Fighter
     PALW             = 2,   // Define it in the video module
     PALETTE          = 0,   // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -147,6 +148,11 @@ end else begin
                 hover     <= objbuf_data[4];
                 obj_hflip <= 0;
                 obj_vflip <= 0;
+                objpal    <= objbuf_data[3:0];
+            end
+            9: begin // Street Fighter
+                obj_vflip <= objbuf_data[9];
+                obj_hflip <= objbuf_data[8];
                 objpal    <= objbuf_data[3:0];
             end
         endcase

@@ -17,7 +17,7 @@
     Date: 11-1-2019 */
 
 module jtgng_objdma #(parameter
-    OBJMAX      =   10'h180,     // Buffer size, obj count is this number divided by 4. 180h -> 60h = 96dec
+    OBJMAX      =   10'h180,    // Buffer size, obj count is this number divided by 4. 180h -> 60h = 96dec
     DW          =   8,          // Most games are 8-bit wide, Bionic Commando is 12-bit wide
     AW          =   9,          // Bionic Commando is 10
     INVY        =   0

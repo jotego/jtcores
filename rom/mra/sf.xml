@@ -480,9 +480,9 @@
 		<rom name="sf-21.4a" size="65536" crc="e086bc4c" sha1="782134978ff0a7133768d9cc8050bc3b5016580b" region="maincpu" offset="40000"/>
 		<rom name="sf-24.4c" size="65536" crc="13a6696b" sha1="c01f9b700928e427bc9914c61beeaa6bcbde4546" region="maincpu" offset="40001"/>
 		<rom name="sf-02.7k" merge="sf-02.7k" size="32768" crc="4a9ac534" sha1="933645f8db4756aa2a35a843c3ac6f93cb8d565d" region="audiocpu" offset="0"/>
+		<rom name="sf_s.id8751h-8.14f" size="4096" crc="6588891f" sha1="699a96c682dd527dc77aa5cb2c2655136d2bfc90" region="protcpu" offset="0"/>
 		<rom name="sf-00.1h" size="131072" crc="4b733845" sha1="f7ff46e02f8ce6682d6e573588271bae2edfa90f" region="audio2" offset="0"/>
 		<rom name="sf-01.1k" merge="sf-01.1k" size="131072" crc="86e0f0d5" sha1="7cef8056f83dac15f1b47d7be705d26170858337" region="audio2" offset="20000"/>
-		<rom name="sf_s.id8751h-8.14f" size="2048" status="nodump" region="mcu" offset="0"/>
 		<rom name="sf-39.2k" merge="sf-39.2k" size="131072" crc="cee3d292" sha1="a8c22f1dc81976e8dd5d6c70361c61fa3f9f89d6" region="gfx1" offset="0"/>
 		<rom name="sf-38.1k" merge="sf-38.1k" size="131072" crc="2ea99676" sha1="5f3eb77e75f0ee27fb8fc7bab2819b3fdd480206" region="gfx1" offset="20000"/>
 		<rom name="sf-41.4k" merge="sf-41.4k" size="131072" crc="e0280495" sha1="e52c79feed590535b9a0b71ccadd0ed27d04ff45" region="gfx1" offset="40000"/>
@@ -530,9 +530,11 @@
 		<device_ref name="ym2151"/>
 		<device_ref name="msm5205"/>
 		<device_ref name="msm5205"/>
+		<device_ref name="i8751"/>
 		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
 		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
 		<chip type="cpu" tag="audio2" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="protcpu" name="Intel 8751" clock="8000000"/>
 		<chip type="audio" tag="lspeaker" name="Speaker"/>
 		<chip type="audio" tag="rspeaker" name="Speaker"/>
 		<chip type="audio" tag="ymsnd" name="Yamaha YM2151 OPM" clock="3579545"/>
@@ -942,6 +944,278 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="sfjbl" sourcefile="sf.cpp" cloneof="sf" romof="sf">
+		<description>Street Fighter (Japan, bootleg)</description>
+		<year>1987</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="a-34.34.4a" size="65536" crc="116027d7" sha1="6bcb117ee415aff4d8ea962d4eff4088ca94c251" region="maincpu" offset="0"/>
+		<rom name="a-37.37.4c" size="65536" crc="d3cbd09e" sha1="7274c603100132102de09e10d2129cfeb6c06369" region="maincpu" offset="1"/>
+		<rom name="a-35.35.5a" size="65536" crc="5c31ea04" sha1="6ae07c668ad97356b1b7163dbca9518e37dba42a" region="maincpu" offset="20000"/>
+		<rom name="a-38.38.5c" size="65536" crc="908d9e98" sha1="bd2acd424864a79fb225ae5fa5bcbe3b9fdfe3a6" region="maincpu" offset="20001"/>
+		<rom name="a-36.36.6a" size="32768" crc="5ea75033" sha1="c79d5eac8787a326546ae4d2506a8f8bcd72611f" region="maincpu" offset="40000"/>
+		<rom name="a-39.39.6c" size="32768" crc="4d0606cb" sha1="27042925b94cd827d800f658062a914d7425c407" region="maincpu" offset="40001"/>
+		<rom name="a-6.6.8f" merge="sf-02.7k" size="32768" crc="4a9ac534" sha1="933645f8db4756aa2a35a843c3ac6f93cb8d565d" region="audiocpu" offset="0"/>
+		<rom name="c8751h-88.5o" size="4096" crc="6588891f" sha1="699a96c682dd527dc77aa5cb2c2655136d2bfc90" region="protcpu" offset="0"/>
+		<rom name="a-2.2.6b" size="65536" crc="a3212da3" sha1="4f95eb1dedbcca05016d92f62968ffce8173defe" region="audio2" offset="0"/>
+		<rom name="a-1.1.6a" size="65536" crc="707d5f67" sha1="355cecb1f45ada332b834bff824b84b0b3fb60b5" region="audio2" offset="10000"/>
+		<rom name="a-5.5.8a" size="65536" crc="e2574554" sha1="9519d29c815b267145844524aad8c7b962450e8d" region="audio2" offset="20000"/>
+		<rom name="a-4.4.7a" size="65536" crc="af7ae326" sha1="655f4eb2585e39ab3cf8c148ea48b8ebf41ec049" region="audio2" offset="30000"/>
+		<rom name="k-5.55.4g" size="65536" crc="7c90a53e" sha1="a97507e17d61fdcd6af447cd6d1d7472d4606bba" region="gfx1" offset="0"/>
+		<rom name="a-43.43.1h" size="65536" crc="0cfe888c" sha1="a059f6bd9c4a6ffd5eb0f7628651ef7bf66c46e9" region="gfx1" offset="10000"/>
+		<rom name="k-2.52.4e" size="65536" crc="b5263e4b" sha1="d48af16273605ccbcb6ebc6f5004a221b47a5ad7" region="gfx1" offset="20000"/>
+		<rom name="a-42.42.1g" size="65536" crc="d401b93e" sha1="84a6ff40d4cd365303fd03794d264c09e4144b4c" region="gfx1" offset="30000"/>
+		<rom name="k-6.56.5g" size="65536" crc="91f77551" sha1="52570eeeee0f39a3583dcc2fafc6908178c686ce" region="gfx1" offset="40000"/>
+		<rom name="a-41.41.1f" size="65536" crc="90c0115c" sha1="a064f58d0a235453897ec71877e715d2a6a585b5" region="gfx1" offset="50000"/>
+		<rom name="k-3.53.5e" size="65536" crc="c9dae6b9" sha1="95fab99a5f3d6e610c632b3c9692030af3fd17d3" region="gfx1" offset="60000"/>
+		<rom name="a-40.40.1e" size="65536" crc="c4e6a3b1" sha1="5eb3a4ceee58567e0a2ec35f080dce1ae0e79361" region="gfx1" offset="70000"/>
+		<rom name="k-8.58.4m" size="65536" crc="365c87bf" sha1="bf2da41193ce08d048612fb5291e96eab91460e1" region="gfx2" offset="0"/>
+		<rom name="a-46.46.1l" size="65536" crc="2559af76" sha1="0450b82a59782639c55bbf1bab73148a3e698481" region="gfx2" offset="10000"/>
+		<rom name="k-9.59.5m" size="65536" crc="0a14421a" sha1="aa13ee4738b774d7cfa8c0b35dc51a27e964018d" region="gfx2" offset="20000"/>
+		<rom name="a-47.47.1m" size="65536" crc="e97f19fa" sha1="849da1dbcbbcfafb66ed80eab60a2a2e7f2d8ac7" region="gfx2" offset="30000"/>
+		<rom name="k-10.60.6m" size="65536" crc="96e34f7d" sha1="373bae1fcba249b4f23290304ba549c25b858d45" region="gfx2" offset="40000"/>
+		<rom name="a-45.45.1k" size="65536" crc="bd5700b4" sha1="9077e6783fe5e923574a6d0999e49e2a884b4e95" region="gfx2" offset="50000"/>
+		<rom name="k-11.61.7m" size="65536" crc="22746035" sha1="55efd91d88ab63e425961cb6eed23e3401060463" region="gfx2" offset="60000"/>
+		<rom name="k-12.62.4r" size="65536" crc="643660c0" sha1="4f57cafd36977733e95b45920f1390dded047c11" region="gfx2" offset="80000"/>
+		<rom name="a-49.49.1q" size="65536" crc="63f7f181" sha1="4c5ac7e4272f1a9c62791260c02ad29c6435b42d" region="gfx2" offset="90000"/>
+		<rom name="k-13.63.5r" size="65536" crc="e8e113b1" sha1="42b52ff462ad6f0429086f62bcd690d9e3a09a30" region="gfx2" offset="a0000"/>
+		<rom name="a-48.48.1p" size="65536" crc="8da0a11c" sha1="51e25c6481410524e1be9b5f4cdebdf9d1db5c0f" region="gfx2" offset="b0000"/>
+		<rom name="k-14.64.6r" size="65536" crc="5990fda8" sha1="c8539a59b57df648d219c4003cf4001b3d7bf7ec" region="gfx2" offset="c0000"/>
+		<rom name="a-50.50.1r" size="65536" crc="29ef5174" sha1="e610850f69574adb8b0b1713715bec7dbc04a0c6" region="gfx2" offset="d0000"/>
+		<rom name="k-15.65.7r" size="65536" crc="301b4bcc" sha1="8a3aed7838baa1dd3085fdbc963f5338e99234aa" region="gfx2" offset="e0000"/>
+		<rom name="a-7.7.1b" size="65536" crc="2063e23c" sha1="b856ab4ac4ca414e19ead4a60c81050db57b7d7b" region="gfx3" offset="0"/>
+		<rom name="a-8.8.1c" size="65536" crc="00af40c4" sha1="554966188713cb80fce1089636cfbe3ea6b6b243" region="gfx3" offset="10000"/>
+		<rom name="a-9.9.1d" size="65536" crc="92b791d8" sha1="9eb382398db0dc7260348c6fb69aabcae6e8a9c0" region="gfx3" offset="20000"/>
+		<rom name="a-10.10.1de" size="65536" crc="f4a8e86b" sha1="b3039aac1eb0c52e7409b766872796c1df96327f" region="gfx3" offset="30000"/>
+		<rom name="a-11.11.1ef" size="65536" crc="b2af5bfd" sha1="ef9bcbd43d5fe08686e193f175d117a49b394caf" region="gfx3" offset="40000"/>
+		<rom name="a-12.12.1f" size="65536" crc="a50bf0b9" sha1="cf67fb1ff13c61fb5ad1cfb4736bd1a67d7a456f" region="gfx3" offset="50000"/>
+		<rom name="a-13.13.1g" size="65536" crc="e7d297e3" sha1="3a6c53a460f1f637a58e3e831f725b28fb981c43" region="gfx3" offset="60000"/>
+		<rom name="a-14.14.1gh" size="65536" crc="02c037a9" sha1="5de414aa5171bc84e8fc8ae82d85b761542c96bc" region="gfx3" offset="70000"/>
+		<rom name="a-15.15.1h" size="65536" crc="222dbc94" sha1="06d32ef02dd921e66fbd35f93a69f4d32bb98a03" region="gfx3" offset="80000"/>
+		<rom name="a-16.16.1j" size="65536" crc="7c6481e0" sha1="50b00478cf16757669928b13ca336bfd01e86722" region="gfx3" offset="90000"/>
+		<rom name="a-17.17.1jk" size="65536" crc="6c19b324" sha1="ac2dd74ec743b554b179d589d04c4a15b6cf75c8" region="gfx3" offset="a0000"/>
+		<rom name="a-18.18.1kl" size="65536" crc="38f6e7d8" sha1="d193dd7e48502d4c80e97eacfd5c976110b93486" region="gfx3" offset="b0000"/>
+		<rom name="a-19.19.1l" size="65536" crc="6e521aea" sha1="092e117fda00070d6361a72016a83afd5db5f3b6" region="gfx3" offset="c0000"/>
+		<rom name="a-21.21.3f" size="65536" crc="ee694c18" sha1="97bf0fe4f5b70cae94ac8b0713dcbd6e5b253064" region="gfx3" offset="e0000"/>
+		<rom name="a-22.22.4f" size="65536" crc="2dc438a8" sha1="fb402fecd5723df797ccbc8a3f5501619ae01fc7" region="gfx3" offset="f0000"/>
+		<rom name="a-25.25.3h" size="65536" crc="cc6cd84a" sha1="e8073fdf385f8e8240473b36d5011ebc87405fa7" region="gfx3" offset="100000"/>
+		<rom name="a-26.26.4h" size="65536" crc="be2eaac7" sha1="42696e83be38790a65a2200aa88c9376f2e3fbf9" region="gfx3" offset="110000"/>
+		<rom name="a-29.29.3k" size="65536" crc="7d90034d" sha1="10b24598db634bcb4e349f84ad74cf36c5f8d9d6" region="gfx3" offset="120000"/>
+		<rom name="a-30.30.4k" size="65536" crc="48ea345f" sha1="c1beee4d6db95345e97eb57573c1a5b9ddd5cc41" region="gfx3" offset="130000"/>
+		<rom name="a-32.32.3l" size="65536" crc="b9563911" sha1="329e485dc580f8cbd0550e17817af151ef58f933" region="gfx3" offset="140000"/>
+		<rom name="a-33.33.4l" size="65536" crc="61a9d0ea" sha1="086d129e91ef13f7e001bd93e3862756b8febedf" region="gfx3" offset="150000"/>
+		<rom name="a-24.24.6f" size="65536" crc="a21e27ff" sha1="bddee3a925bc5bd000b70ab6a024e1a7fd419da9" region="gfx3" offset="160000"/>
+		<rom name="a-23.23.5f" size="65536" crc="e77e3d75" sha1="47397d04d1709f6aaf36b8f204560d7b7e28f3b4" region="gfx3" offset="170000"/>
+		<rom name="a-28.28.6h" size="65536" crc="f08c974e" sha1="a1050241892f613c79c4ea87304545d973f89807" region="gfx3" offset="180000"/>
+		<rom name="a-27.27.5h" size="65536" crc="263f93b0" sha1="6019b7a4f47da1f74cc76debe69ead975064817e" region="gfx3" offset="190000"/>
+		<rom name="a-31.31.6k" size="65536" crc="eb8db0bf" sha1="ccef46e4c9034f9729712826f3a0a48c15034d7c" region="gfx3" offset="1a0000"/>
+		<rom name="a-3.3.6e" size="32768" crc="59416e03" sha1="028e74e0b23c5063883d19f94da35719be4feada" region="gfx4" offset="0"/>
+		<rom name="k-7.57.7g" merge="sf-37.4h" size="65536" crc="23d09d3d" sha1="a0c71abc49c5fe59487a63b502e3d03021bfef13" region="tilerom" offset="0"/>
+		<rom name="k-4.54.7e" merge="sf-36.3h" size="65536" crc="ea16df6c" sha1="68709a314b775c500817fc17d40a80204b2ae06c" region="tilerom" offset="10000"/>
+		<rom name="k-17.67.10r" merge="sf-32.3g" size="65536" crc="72df2bd9" sha1="9a0da618139673738b6b3302207255e44c5491a2" region="tilerom" offset="20000"/>
+		<rom name="k-16.66.10m" merge="sf-33.4g" size="65536" crc="3e99d3d5" sha1="9168a977e80f8c23c6126b9e64eb176290cf941a" region="tilerom" offset="30000"/>
+		<rom name="n82s129n.8m" size="256" crc="864199ad" sha1="b777df20b19fa7b7536120191df1875101e9d7af" region="proms" offset="0"/>
+		<rom name="n82s129n.13g" merge="mb7114h.11h" size="256" crc="c0e56586" sha1="2abf93aef48af34f869b30f63c130513a97f86a3" region="proms" offset="100"/>
+		<rom name="n82s129n.7m" merge="mb7114h.12j" size="256" crc="4c734b64" sha1="7a122b643bad3e3586821980efff023a63e5a029" region="proms" offset="200"/>
+		<rom name="n82s123n.9p" merge="mmi-7603.13h" size="32" crc="06bcda53" sha1="fa69b77697bb12aa6012d82ef5b504d3a1d20232" region="proms" offset="300"/>
+		<rom name="tibpal16l8-25cn.10g" size="260" crc="b95bc9bc" sha1="75c671dd0bef906bdec1f76fa8867d945502d3af" region="plds" offset="0"/>
+		<rom name="tibpal16l8-25cn.10j" size="260" crc="d5e7fb3c" sha1="4be2fa491e3b2cfd68917bf335bfecf4375e633f" region="plds" offset="200"/>
+		<rom name="tibpal16l8-25cn.11b" size="260" crc="1db26b84" sha1="1164d8ae135cad28067f8a711580a51be38724fb" region="plds" offset="400"/>
+		<rom name="tibpal16l8-25cn.11e" size="260" crc="e419a33f" sha1="81431743df314d5ff06b44ba203a7a3113becbab" region="plds" offset="600"/>
+		<rom name="tibpal16l8-25cn.12e" size="260" crc="4803a097" sha1="4264d98bbb8ea476e4fb6351fe0f08ca0fadaffb" region="plds" offset="800"/>
+		<rom name="tibpal16l8-25cn.12f" size="260" crc="40689e0e" sha1="a30e1bf2f9d38a2be25ef3850089770d403f219b" region="plds" offset="a00"/>
+		<rom name="tibpal16l8-25cn.16e" size="260" crc="9daca4f6" sha1="7323c120a8d47304ccac509b671daa7565f6e601" region="plds" offset="c00"/>
+		<rom name="tibpal16l8-25cn.3q" size="260" crc="e7bb2b87" sha1="76cfbbf5af06a70d44230993447b2616babe16e4" region="plds" offset="e00"/>
+		<rom name="tibpal16l8-25cn.6m" size="260" crc="6675dcc7" sha1="06b8e01a458e2bf4e24bbd6b0a0d0863406fb44a" region="plds" offset="1000"/>
+		<rom name="tibpal16l8-25cn.7c" size="260" crc="c8a1458f" sha1="ca48afa619bc62191c1c690ea90a01b0fa2ce6d8" region="plds" offset="1200"/>
+		<rom name="tibpal16l8-25cn.7e" size="260" crc="858b1c21" sha1="7672729dff67cf804300a6ad3bc802aa9f5081e6" region="plds" offset="1400"/>
+		<rom name="tibpal16r4-25cn.7a" size="260" crc="b3c22357" sha1="aa0005471eb08cc4ba34acb35cde7a82712409e4" region="plds" offset="1600"/>
+		<rom name="tibpal16r4-25cn.7d" size="260" crc="29cdd190" sha1="1b7383cda958f0cea53231c3b52d9040faee677d" region="plds" offset="1800"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="i8751"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="audio2" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="protcpu" name="Intel 8751" clock="8000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="Yamaha YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm2" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="6" ways="8"/>
+			<control type="joy" player="2" buttons="6" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="7">
+			<diplocation name="DSW1.7E" number="1"/>
+			<diplocation name="DSW1.7E" number="2"/>
+			<diplocation name="DSW1.7E" number="3"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="1"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="1 Coin/1 Credit" value="7" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="5"/>
+			<dipvalue name="1 Coin/4 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="3"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="56">
+			<diplocation name="DSW1.7E" number="4"/>
+			<diplocation name="DSW1.7E" number="5"/>
+			<diplocation name="DSW1.7E" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="56" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/3 Credits" value="40"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/6 Credits" value="24"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="DSW1.7E" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="DSW1.7E" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW1" mask="256">
+			<diplocation name="DSW2.13E" number="1"/>
+			<dipvalue name="Off" value="256" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Attract Music" tag="DSW1" mask="512">
+			<diplocation name="DSW2.13E" number="2"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="512" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1024">
+			<diplocation name="DSW2.13E" number="3"/>
+			<dipvalue name="Off" value="1024" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2048">
+			<diplocation name="DSW2.13E" number="4"/>
+			<dipvalue name="Off" value="2048" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Speed" tag="DSW1" mask="4096">
+			<diplocation name="DSW2.13E" number="5"/>
+			<dipvalue name="Slow" value="0"/>
+			<dipvalue name="Normal" value="4096" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="8192">
+			<diplocation name="DSW2.13E" number="6"/>
+			<dipvalue name="Off" value="8192"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW1" mask="16384">
+			<diplocation name="DSW2.13E" number="7"/>
+			<dipvalue name="Off" value="16384" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW1" mask="32768">
+			<diplocation name="DSW2.13E" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Game Continuation" tag="DSW2" mask="7">
+			<diplocation name="DSW3.6E" number="1"/>
+			<diplocation name="DSW3.6E" number="2"/>
+			<diplocation name="DSW3.6E" number="3"/>
+			<dipvalue name="5th Stage Maximum" value="7" default="yes"/>
+			<dipvalue name="4th Stage Maximum" value="6"/>
+			<dipvalue name="3rd Stage Maximum" value="5"/>
+			<dipvalue name="2nd Stage Maximum" value="4"/>
+			<dipvalue name="1st Stage Maximum" value="3"/>
+			<dipvalue name="None" value="2"/>
+		</dipswitch>
+		<dipswitch name="Round Time Count" tag="DSW2" mask="24">
+			<diplocation name="DSW3.6E" number="4"/>
+			<diplocation name="DSW3.6E" number="5"/>
+			<dipvalue name="100" value="24" default="yes"/>
+			<dipvalue name="150" value="16"/>
+			<dipvalue name="200" value="8"/>
+			<dipvalue name="250" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="DSW3.6E" number="6"/>
+			<diplocation name="DSW3.6E" number="7"/>
+			<dipvalue name="Normal" value="96" default="yes"/>
+			<dipvalue name="Easy" value="64"/>
+			<dipvalue name="Difficult" value="32"/>
+			<dipvalue name="Very Difficult" value="0"/>
+		</dipswitch>
+		<dipswitch name="Buy-In Feature" tag="DSW2" mask="896">
+			<diplocation name="DSW3.6E" number="8"/>
+			<diplocation name="DSW4.11E" number="1"/>
+			<diplocation name="DSW4.11E" number="2"/>
+			<dipvalue name="5th Stage Maximum" value="896" default="yes"/>
+			<dipvalue name="4th Stage Maximum" value="768"/>
+			<dipvalue name="3rd Stage Maximum" value="640"/>
+			<dipvalue name="2nd Stage Maximum" value="512"/>
+			<dipvalue name="1st Stage Maximum" value="384"/>
+			<dipvalue name="None" value="128"/>
+		</dipswitch>
+		<dipswitch name="Number of Countries Selected" tag="DSW2" mask="1024">
+			<diplocation name="DSW4.11E" number="3"/>
+			<dipvalue name="2" value="1024" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="2048">
+			<diplocation name="DSW4.11E" number="4"/>
+			<dipvalue name="Off" value="2048" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="4096">
+			<diplocation name="DSW4.11E" number="5"/>
+			<dipvalue name="Off" value="4096" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8192">
+			<diplocation name="DSW4.11E" number="6"/>
+			<dipvalue name="Off" value="8192" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16384">
+			<diplocation name="DSW4.11E" number="7"/>
+			<dipvalue name="Off" value="16384" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32768">
+			<diplocation name="DSW4.11E" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="sfp" sourcefile="sf.cpp" cloneof="sf" romof="sf">
 		<description>Street Fighter (prototype)</description>
 		<year>1987</year>
@@ -1186,9 +1460,9 @@
 		<rom name="sfs21u.3a" size="65536" crc="004a418b" sha1="1048afe2e0dbc22969d79a031394f3c8ab4c8901" region="maincpu" offset="40000"/>
 		<rom name="sfs24u.3b" size="65536" crc="2b4545ff" sha1="19bdae7947d13b861ace25b96e46f199ee9a6eb2" region="maincpu" offset="40001"/>
 		<rom name="sf-02.7k" merge="sf-02.7k" size="32768" crc="4a9ac534" sha1="933645f8db4756aa2a35a843c3ac6f93cb8d565d" region="audiocpu" offset="0"/>
+		<rom name="sf_s.id8751h-8.14f" size="4096" crc="6588891f" sha1="699a96c682dd527dc77aa5cb2c2655136d2bfc90" region="protcpu" offset="0"/>
 		<rom name="sfu-00.1h" merge="sfu-00.1h" size="131072" crc="a7cce903" sha1="76f521c9a00abd95a3491ab95e8eccd0fc7ea0e5" region="audio2" offset="0"/>
 		<rom name="sf-01.1k" merge="sf-01.1k" size="131072" crc="86e0f0d5" sha1="7cef8056f83dac15f1b47d7be705d26170858337" region="audio2" offset="20000"/>
-		<rom name="sf_s.id8751h-8.14f" size="2048" status="nodump" region="mcu" offset="0"/>
 		<rom name="sf-39.2k" merge="sf-39.2k" size="131072" crc="cee3d292" sha1="a8c22f1dc81976e8dd5d6c70361c61fa3f9f89d6" region="gfx1" offset="0"/>
 		<rom name="sf-38.1k" merge="sf-38.1k" size="131072" crc="2ea99676" sha1="5f3eb77e75f0ee27fb8fc7bab2819b3fdd480206" region="gfx1" offset="20000"/>
 		<rom name="sf-41.4k" merge="sf-41.4k" size="131072" crc="e0280495" sha1="e52c79feed590535b9a0b71ccadd0ed27d04ff45" region="gfx1" offset="40000"/>
@@ -1236,9 +1510,11 @@
 		<device_ref name="ym2151"/>
 		<device_ref name="msm5205"/>
 		<device_ref name="msm5205"/>
+		<device_ref name="i8751"/>
 		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
 		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
 		<chip type="cpu" tag="audio2" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="protcpu" name="Intel 8751" clock="8000000"/>
 		<chip type="audio" tag="lspeaker" name="Speaker"/>
 		<chip type="audio" tag="rspeaker" name="Speaker"/>
 		<chip type="audio" tag="ymsnd" name="Yamaha YM2151 OPM" clock="3579545"/>
@@ -1419,9 +1695,9 @@
 		<rom name="sfs21e.4a" size="65536" crc="e0d3f410" sha1="442841df8c29a43ad8322b2f91c615f98ded3950" region="maincpu" offset="40000"/>
 		<rom name="sfs24e.4c" size="65536" crc="bcd20105" sha1="ce0383e839c7c08534dfbe885f709c727352c3f0" region="maincpu" offset="40001"/>
 		<rom name="sf-02.7k" merge="sf-02.7k" size="32768" crc="4a9ac534" sha1="933645f8db4756aa2a35a843c3ac6f93cb8d565d" region="audiocpu" offset="0"/>
+		<rom name="sf.14e" size="4096" crc="6588891f" sha1="699a96c682dd527dc77aa5cb2c2655136d2bfc90" region="protcpu" offset="0"/>
 		<rom name="sfu-00.1h" merge="sfu-00.1h" size="131072" crc="a7cce903" sha1="76f521c9a00abd95a3491ab95e8eccd0fc7ea0e5" region="audio2" offset="0"/>
 		<rom name="sf-01.2k" merge="sf-01.1k" size="131072" crc="86e0f0d5" sha1="7cef8056f83dac15f1b47d7be705d26170858337" region="audio2" offset="20000"/>
-		<rom name="sf.14e" size="2048" status="nodump" region="mcu" offset="0"/>
 		<rom name="sf-39.2k" merge="sf-39.2k" size="131072" crc="cee3d292" sha1="a8c22f1dc81976e8dd5d6c70361c61fa3f9f89d6" region="gfx1" offset="0"/>
 		<rom name="sf-38.1k" merge="sf-38.1k" size="131072" crc="2ea99676" sha1="5f3eb77e75f0ee27fb8fc7bab2819b3fdd480206" region="gfx1" offset="20000"/>
 		<rom name="sf-41.4k" merge="sf-41.4k" size="131072" crc="e0280495" sha1="e52c79feed590535b9a0b71ccadd0ed27d04ff45" region="gfx1" offset="40000"/>
@@ -1469,9 +1745,11 @@
 		<device_ref name="ym2151"/>
 		<device_ref name="msm5205"/>
 		<device_ref name="msm5205"/>
+		<device_ref name="i8751"/>
 		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
 		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
 		<chip type="cpu" tag="audio2" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="protcpu" name="Intel 8751" clock="8000000"/>
 		<chip type="audio" tag="lspeaker" name="Speaker"/>
 		<chip type="audio" tag="rspeaker" name="Speaker"/>
 		<chip type="audio" tag="ymsnd" name="Yamaha YM2151 OPM" clock="3579545"/>

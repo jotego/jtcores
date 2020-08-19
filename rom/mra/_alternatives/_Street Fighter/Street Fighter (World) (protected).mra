@@ -46,10 +46,14 @@
         <!-- mcu - starts at 0xA8000 -->
         <part name="sf.14e" crc="6588891f"/>
         <!-- maps - starts at 0xA9000 -->
-        <part name="sf-37.4h" crc="23d09d3d"/>
-        <part name="sf-36.3h" crc="ea16df6c"/>
-        <part name="sf-32.3g" crc="72df2bd9"/>
-        <part name="sf-33.4g" crc="3e99d3d5"/>
+        <interleave output="16">
+            <part name="sf-36.3h" crc="ea16df6c" map="01"/>
+            <part name="sf-37.4h" crc="23d09d3d" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="sf-33.4g" crc="3e99d3d5" map="01"/>
+            <part name="sf-32.3g" crc="72df2bd9" map="10"/>
+        </interleave>
         <!-- char - starts at 0xE9000 -->
         <part name="sf-27.4d" crc="2b09b36d"/>
         <!-- scr1 - starts at 0xED000 -->

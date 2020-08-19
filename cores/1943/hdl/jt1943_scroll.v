@@ -19,12 +19,10 @@
 // 1943 Scroll Generation
 // Schematics pages 8/15...
 
-`timescale 1ns/1ps
-
 module jt1943_scroll #( parameter
     [8:0] HOFFSET   = 9'd5,
     parameter
-    LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando, 8 = Side Arms
+    LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando, 8 = Side Arms, 9=SF
     ROM_AW          = 17,
     SIMFILE_MSB     = "",
     SIMFILE_LSB     = "",
@@ -32,7 +30,9 @@ module jt1943_scroll #( parameter
     PALETTE         = 1,
     PXLW            = (LAYOUT==3 || LAYOUT==8) ? 9 :
                       (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
-    VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8 // vertical offset bit width
+    VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
+    // MAP SIZE
+    MAPDW           = LAYOUT==9 ? 32 : 16
 )(
     input                rst,
     input                clk,  // >12 MHz
@@ -52,7 +52,7 @@ module jt1943_scroll #( parameter
 
     // Map ROM
     output   reg  [13:0] map_addr,
-    input         [15:0] map_data,
+    input    [MAPDW-1:0] map_data,
     // Gfx ROM
     output  [ROM_AW-1:0] scr_addr,
     input         [15:0] scrom_data,
@@ -165,8 +165,8 @@ always @(posedge clk) if(cen6) begin
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end
 
-wire [7:0] dout_high = /*LAYOUT==7 ? map_data[15:8]:*/ map_data[ 7:0];
-wire [7:0] dout_low  = /*LAYOUT==7 ? map_data[ 7:0]:*/ map_data[15:8];
+wire [MAPDW/2-1:0] dout_high = map_data[MAPDW/2-1:0];
+wire [MAPDW/2-1:0] dout_low  = map_data[MAPDW-1:MAPDW/2];
 
 jtgng_tile4 #(
     .AS8MASK        ( AS8MASK       ),

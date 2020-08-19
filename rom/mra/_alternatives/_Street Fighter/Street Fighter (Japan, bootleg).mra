@@ -53,10 +53,14 @@
         <part name="c8751h-88.5o" crc="6588891f"/>
         <part repeat="0x10000">FF</part>
         <!-- maps - starts at 0xA9000 -->
-        <part name="k-7.57.7g" crc="23d09d3d"/>
-        <part name="k-4.54.7e" crc="ea16df6c"/>
-        <part name="k-17.67.10r" crc="72df2bd9"/>
-        <part name="k-16.66.10m" crc="3e99d3d5"/>
+        <interleave output="16">
+            <part name="k-4.54.7e" crc="ea16df6c" map="01"/>
+            <part name="k-7.57.7g" crc="23d09d3d" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="k-16.66.10m" crc="3e99d3d5" map="01"/>
+            <part name="k-17.67.10r" crc="72df2bd9" map="10"/>
+        </interleave>
         <!-- char - starts at 0xE9000 -->
         <part name="a-3.3.6e" crc="59416e03"/>
         <!-- scr1 - starts at 0xF1000 -->

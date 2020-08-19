@@ -107,6 +107,7 @@ wire [13:1] cpu_AB;
 wire        main_cs, ram_cs,
             snd1_cs, snd2_cs,
             char_cs, col_uw,  col_lw;
+wire        charon, scr1on, scr2on, objon;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
 wire        rd, cpu_cen;
@@ -140,8 +141,6 @@ wire [15:0] dipsw_a, dipsw_b;
 wire        rom_ready;
 wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
             snd1_ok, snd2_ok, obj_ok, char_ok;
-
-assign ram_addr = main_addr[RAMW:1];
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
@@ -225,11 +224,9 @@ wire RnW;
 wire [7:0] snd_latch;
 
 // OBJ
-wire OKOUT, blcnten, obj_br, bus_ack;
-wire [13:1] obj_AB;     // 1 more bit than older games
+wire        OKOUT, blcnten, obj_br, bus_ack;
+wire [11:0] obj_AB;
 wire [15:0] oram_dout;
-
-wire [1:0]  prom_we;
 
 wire [21:0] pre_prog;
 
@@ -252,7 +249,7 @@ u_dwnld(
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_we     ( prog_we       ),
-    .prom_we     ( prom_we       ),
+    .prom_we     (               ),
 
     .sdram_ack   ( sdram_ack     )
 );
@@ -264,7 +261,7 @@ wire [ 1:0] dsn;
 assign dsn = {UDSWn, LDSWn};
 
 `ifndef NOMAIN
-jtsf_main #( .MAINW(MAINW) ) u_main (
+jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rst        ( rst           ),
     .clk        ( clk24         ),
     .cen8       ( cen24_8       ),
@@ -279,9 +276,6 @@ jtsf_main #( .MAINW(MAINW) ) u_main (
     .snd_latch  ( snd_latch     ),
     // CPU data bus
     .cpu_dout   ( cpu_dout      ),
-    .ram_data   ( ram_data      ),
-    .ram_ok     ( ram_ok        ),
-    .ram_cs     ( ram_cs        ),
     // CHAR
     .char_dout  ( char_dout     ),
     .char_cs    ( char_cs       ),
@@ -291,10 +285,14 @@ jtsf_main #( .MAINW(MAINW) ) u_main (
     // SCROLL
     .scr1posh   ( scr1posh      ),
     .scr2posh   ( scr2posh      ),
+    // GFX enable signals
+    .charon     ( charon        ),
+    .scr1on     ( scr1on        ),
+    .scr2on     ( scr2on        ),
+    .objon      ( objon         ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
-    .oram_dout  ( oram_dout     ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .obj_br     ( obj_br        ),
@@ -312,6 +310,7 @@ jtsf_main #( .MAINW(MAINW) ) u_main (
     // .mcu_DMAONn (  mcu_DMAONn   ),
     .addr       ( main_addr     ),
     // RAM
+    .ram_addr   ( ram_addr      ),
     .ram_cs     ( ram_cs        ),
     .ram_data   ( ram_data      ),
     .ram_ok     ( ram_ok        ),
@@ -411,6 +410,11 @@ jtsf_video #(
     .LDSWn      ( LDSWn         ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
+    // GFX enable signals
+    .charon     ( charon        ),
+    .scr1on     ( scr1on        ),
+    .scr2on     ( scr2on        ),
+    .objon      ( objon         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -435,7 +439,7 @@ jtsf_video #(
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
-    .oram_dout  ( oram_dout[11:0] ),
+    .main_ram   ( ram_data      ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
@@ -446,9 +450,9 @@ jtsf_video #(
     .col_lw     ( col_lw        ),
     .obj_ok     ( obj_ok        ),
     // PROMs
-    .prog_addr    ( prog_addr[7:0]),
-    .prom_prio_we ( prom_we[0]    ),
-    .prom_din     ( prog_data[3:0]),
+    // .prog_addr    ( prog_addr[7:0]),
+    // .prom_prio_we ( prom_we[0]    ),
+    // .prom_din     ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -495,7 +499,7 @@ jtframe_sdram_mux #(
     .SLOT2_AW    ( SCR1W         ), // Scroll 1
     .SLOT2_DW    ( 16            ),
 
-    .SLOT3_AW    ( MAINW         ), // main
+    .SLOT3_AW    ( MAINW         ), // main ROM
     .SLOT3_DW    ( 16            ),
 
     .SLOT4_AW    ( SCR2W         ), // Scroll 2
@@ -531,24 +535,14 @@ jtframe_sdram_mux #(
     .slot8_offset( OBJ_OFFSET    ),
     .slot9_offset( MAP1_OFFSET   ),
 
-    .slot1_addr  ( ram_addr      ),
-    .slot1_dout  ( ram_data      ),
     .slot1_din   ( cpu_dout      ),
     .slot1_wrmask( dsn           ),
 
     .slot_cs     ( slot_cs       ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot2_ok    ( scr1_ok       ),
-    .slot3_ok    ( main_ok       ),
-    .slot4_ok    ( scr2_ok       ),
-    .slot5_ok    ( snd1_ok       ),
-    .slot6_ok    ( snd2_ok       ),
-    .slot7_ok    ( map2_ok       ),
-    .slot8_ok    ( obj_ok        ),
-    .slot9_ok    ( map1_ok       ),
+    .slot_ok     ( slot_ok       ),
 
     .slot0_addr  ( char_addr     ),
+    .slot1_addr  ( ram_addr      ),
     .slot2_addr  ( scr1_addr     ),
     .slot3_addr  ( main_addr     ),
     .slot4_addr  ( scr2_addr     ),
@@ -559,6 +553,7 @@ jtframe_sdram_mux #(
     .slot9_addr  ( map1_addr     ),
 
     .slot0_dout  ( char_data     ),
+    .slot1_dout  ( ram_data      ),
     .slot2_dout  ( scr1_data     ),
     .slot3_dout  ( main_data     ),
     .slot4_dout  ( scr2_data     ),
