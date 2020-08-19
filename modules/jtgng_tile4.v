@@ -29,7 +29,7 @@ module jtgng_tile4 #(parameter
                       // 9: Street Fighter
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
-    DW          = LAYOUT==9 ? 16:8;
+    DW          = LAYOUT==9 ? 16:8,
     AS8MASK     =  1'b1, // only used by layout 0
     PXLW        = (LAYOUT==3 || LAYOUT==8) ? 9 :
                (  (LAYOUT==5 || LAYOUT==7) ? 7 :

@@ -90,7 +90,8 @@ localparam [21:0] MAIN_OFFSET = 22'h0,
                   SND_OFFSET  = 22'h06_0000 >> 1,
                   SND2_OFFSET = 22'h06_8000 >> 1,
                   MCU_OFFSET  = 22'h0A_8000 >> 1,
-                  MAP_OFFSET  = 22'h0A_9000 >> 1,
+                  MAP1_OFFSET = 22'h0A_9000 >> 1,
+                  MAP2_OFFSET = 22'h0C_9000 >> 1,
                   CHAR_OFFSET = 22'h0E_9000 >> 1,
                   SCR1_OFFSET = 22'h0E_D000 >> 1,
                   SCR2_OFFSET = 22'h1E_D000 >> 1,
@@ -138,12 +139,12 @@ wire [OBJW-1 :0] obj_addr;
 
 wire [15:0] dipsw_a, dipsw_b;
 
-wire        rom_ready;
 wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
             snd1_ok, snd2_ok, obj_ok, char_ok;
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
+assign dwnld_busy         = downloading;
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -159,6 +160,7 @@ jtframe_cen48 u_cen48(
     .cen4_12(               ),
     .cen3   (               ),
     .cen3q  (               ),
+    .cen3qb (               ),
     .cen3b  (               ),
     .cen1p5 (               ),
     .cen1p5b(               )
@@ -338,14 +340,16 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign main_addr   = {MAINW{1'b0}};
     assign cpu_AB      = 13'd0;
     assign cpu_dout    = 16'd0;
-    assign char_cs     = 1'b0;
-    assign bus_ack     = 1'b0;
-    assign flip        = 1'b0;
-    assign RnW         = 1'b1;
+    assign char_cs     = 0;
+    assign bus_ack     = 0;
+    assign flip        = 0;
+    assign RnW         = 1;
+    assign UDSWn       = 1;
+    assign LDSWn       = 1;
     assign scrpos1h    = 16'd0;
     assign scrpos2h    = 16'd0;
     assign cpu_cen     = cen24_8;
-    assign OKOUT       = 1'b0;
+    assign OKOUT       = 0;
     assign snd_latch   = `SIM_SND_LATCH;
 `endif
 
@@ -478,15 +482,21 @@ assign obj_br    = 1'b0;
 assign char_busy = 1'b0;
 `endif
 
-wire [9:0] slot_cs, slot_ok;
+wire [9:0] slot_cs, slot_ok, slot_wr, slot_clr;
 
 assign slot_cs = {
-  LVBL,    ram_cs,  LVBL, main_cs, LVBL,
-  snd1_cs, snd2_cs, LVBL, 1'b1,    LVBL };
+  LVBL, 1'b1, LVBL, snd2_cs, snd1_cs,
+  LVBL, main_cs, LVBL, ram_cs, LVBL };
+
 
 assign {
-  char_ok, ram_ok,  scr1_ok, main_ok, scr2_ok,
-  snd1_ok, snd2_ok, map2_ok, obj_ok,  map1_ok } = slot_ok;
+  map1_ok, obj_ok, map2_ok, snd2_ok, snd1_ok,
+  scr2_ok, main_ok, scr1_ok, ram_ok, char_ok } = slot_ok;
+
+assign slot_wr[9:2] = 7'd0;
+assign slot_wr[1]   = !RnW;
+assign slot_wr[0]   = 1'd0;
+assign slot_clr     = 10'd0;
 
 jtframe_sdram_mux #(
     .SLOT0_AW    ( CHARW         ), // Char
@@ -538,9 +548,6 @@ jtframe_sdram_mux #(
     .slot1_din   ( cpu_dout      ),
     .slot1_wrmask( dsn           ),
 
-    .slot_cs     ( slot_cs       ),
-    .slot_ok     ( slot_ok       ),
-
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( ram_addr      ),
     .slot2_addr  ( scr1_addr     ),
@@ -563,18 +570,28 @@ jtframe_sdram_mux #(
     .slot8_dout  ( obj_data      ),
     .slot9_dout  ( map1_data     ),
 
-    .ready       ( rom_ready     ),
+    // bus signals
+    .slot_cs     ( slot_cs       ),
+    .slot_ok     ( slot_ok       ),
+    .slot_wr     ( slot_wr       ),
+    .slot_clr    ( slot_clr      ),
+
     // SDRAM interface
-    .sdram_req   ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
-    .downloading ( dwnld_busy    ),
+    .downloading ( downloading   ),
     .loop_rst    ( loop_rst      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
+    .sdram_ack   ( sdram_ack     ),
+    .sdram_req   ( sdram_req     ),
     .refresh_en  ( refresh_en    ),
+    .sdram_addr  ( sdram_addr    ),
+    .sdram_rnw   ( sdram_rnw     ),
+    .sdram_wrmask( sdram_wrmask  ),
+    .data_rdy    ( data_rdy      ),
+    .data_read   ( data_read     ),
+    .data_write  ( data_write    ),
 
     // Unused:
+    .ready       (               ),
+    .slot_active (               ),
     .slot0_din   (               ),
     .slot2_din   (               ),
     .slot3_din   (               ),
