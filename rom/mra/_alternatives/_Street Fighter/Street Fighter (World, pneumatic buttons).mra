@@ -26,12 +26,18 @@
     <rbf>jtsf</rbf>
     <rom index="0" zip="sfan.zip|sf.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->
-        <part name="sfe-19.2a" crc="8346c3ca"/>
-        <part name="sfe-22.2c" crc="3a4bfaa8"/>
-        <part name="sfe-20.3a" crc="b40e67ee"/>
-        <part name="sfe-23.3c" crc="477c3d5b"/>
-        <part name="sfe-21.4a" crc="2547192b"/>
-        <part name="sfe-24.4c" crc="79680f4e"/>
+        <interleave output="16">
+            <part name="sfe-19.2a" crc="8346c3ca" map="01"/>
+            <part name="sfe-22.2c" crc="3a4bfaa8" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="sfe-20.3a" crc="b40e67ee" map="01"/>
+            <part name="sfe-23.3c" crc="477c3d5b" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="sfe-21.4a" crc="2547192b" map="01"/>
+            <part name="sfe-24.4c" crc="79680f4e" map="10"/>
+        </interleave>
         <!-- audiocpu - starts at 0x60000 -->
         <interleave output="16">
             <part name="sf-02.7k" crc="4a9ac534" map="12"/>

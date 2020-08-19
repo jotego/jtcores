@@ -26,8 +26,10 @@
     <rbf>jtsf</rbf>
     <rom index="0" zip="sfp.zip|sf.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->
-        <part name="prg8.2a" crc="d48d06a3"/>
-        <part name="prg0.2c" crc="e8606c1a"/>
+        <interleave output="16">
+            <part name="prg8.2a" crc="d48d06a3" map="01"/>
+            <part name="prg0.2c" crc="e8606c1a" map="10"/>
+        </interleave>
         <!-- audiocpu - starts at 0x40000 -->
         <interleave output="16">
             <part name="sound.9j" crc="43cd32ae" map="12"/>

@@ -35,6 +35,8 @@ mame2dip sf.xml \
     -frac scr1 2 \
     -frac scr2 2 \
     -frac maps 2 \
+    -frac maincpu 2 \
+    -order-roms maincpu 0 2 4 1 3 5 \
     -order-roms maps 1 3 0 2 \
     -order maincpu audiocpu audio2 mcu maps char scr1 scr2 obj prom \
     -start maps 0xa9000
