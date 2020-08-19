@@ -132,7 +132,7 @@ always @(*) begin
 
     BERRn      = 1;
 
-    if( CPUbus ) case(A[23:20])
+    if( !ASn && BGACKn ) case(A[23:20])
             4'h0: rom_cs  = 1;
             4'h8: char_cs = 1;
             4'hb: col_cs  = 1;
