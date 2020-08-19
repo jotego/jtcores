@@ -29,7 +29,7 @@ module jtsf_video #(
     input               pxl2_cen,
     input               pxl_cen,
     input               cpu_cen,
-    input       [11:0]  cpu_AB,
+    input       [13:1]  cpu_AB,
     input       [ 8:0]  V,
     input       [ 8:0]  H,
     input               RnW,
@@ -66,7 +66,7 @@ module jtsf_video #(
     // OBJ
     input               HINIT,
     output      [12:0]  obj_AB,
-    input       [ 7:0]  main_ram,
+    input       [15:0]  main_ram,
     input               OKOUT,
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
@@ -94,7 +94,7 @@ module jtsf_video #(
 );
 
 localparam       LAYOUT      = 9;
-localparam       PXL_CHRW    = 8;
+localparam       CHRPW       = 6;
 localparam       SCR_OFFSET  = 0;
 localparam       CHAR_OFFSET = 0;
 localparam       OBJ_DLY     = 6;
@@ -103,23 +103,24 @@ localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
 
-wire [7:0] char_pxl, obj_pxl;
-wire [8:0] scr_pxl;
-wire [2:0] star_pxl;
+wire [CHRPW-1:0] char_pxl;
+wire [OBJPW-1:0] obj_pxl;
+wire [SCRPW-1:0] scr1_pxl, scr2_pxl;
+wire [     10:1] obj_ram = main_ram[10:1];
+
 
 `ifndef NOCHAR
 jtgng_char #(
     .HOFFSET ( CHAR_OFFSET ),
-    .ROM_AW  ( 14          ),
-    .PALW    (  6          ),
-    .VFLIP_EN(  0          ),
-    .HFLIP_EN(  0          ),
+    .ROM_AW  ( CHARW       ),
+    .VFLIP   (  3          ),
+    .HFLIP   (  2          ),
     .LAYOUT  (  LAYOUT     )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .AB         ( cpu_AB        ),
+    .AB         ( cpu_AB[11:1]  ),
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .flip       ( flip          ),
@@ -128,6 +129,7 @@ jtgng_char #(
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
+    .dseln      ( {UDSWn, LDSWn}),
     .busy       ( char_busy     ),
     // Pause screen
     .pause      ( 1'b0          ),
@@ -139,17 +141,16 @@ jtgng_char #(
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
-    .char_on    ( charon          ),
+    .char_on    ( charon        ),
     .char_pxl   ( char_pxl      ),
     // unused
-    .dseln      (               ),
     .prog_addr  (               ),
     .prog_din   (               ),
     .prom_we    (               )
 );
 `else
-assign char_pxl  = ~8'd0;
-assign char_mrdy = 1'b1;
+assign char_pxl  = {CHRPW{1'b1}};
+assign char_mrdy = 1;
 `endif
 
 `ifndef NOSCR
@@ -228,9 +229,14 @@ assign map2_addr = {MAP2W{1'b0}};
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
+    .DMA_AW       ( 10          ),
+    .DMA_DW       ( 12          ),
     .PALW         (  4          ),
     .PXL_DLY      ( OBJ_DLY     ),
     .LAYOUT       ( LAYOUT      ),
+    // Same as Tiger Road
+    .OBJMAX       ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
+    .OBJMAX_LINE  ( 6'd32      ),
     .OBJMAX       ( OBJMAX      ),
     .OBJMAX_LINE  ( OBJMAX_LINE )
 ) u_obj (
@@ -239,19 +245,21 @@ jtgng_obj #(
     .draw_cen   ( pxl2_cen    ),
     .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
-    .AB         ( {obj_AB[11:5], obj_AB[1:0]} ),
-    .DB         ( main_ram    ),
+    // CPU bus
+    .AB         ( obj_AB[10:1]),
+    .DB         ( obj_ram     ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
     .LHBL       ( LHBL        ),
     .LVBL       ( LVBL        ),
-    .LVBL_obj   ( LVBL_obj    ),
+    .LVBL_obj   ( LVBL        ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
+    .objon      ( objon       ),
     // avatar display
     .pause      ( 1'b0        ),
     .avatar_idx (             ),
@@ -265,8 +273,7 @@ jtgng_obj #(
     .prog_addr  (             ),
     .prog_din   (             ),
     .prom_hi_we ( 1'b0        ),
-    .prom_lo_we ( 1'b0        ),
-    .objon      ( 1'b1        )
+    .prom_lo_we ( 1'b0        )
 );
 assign obj_AB[ 12] = 1'b1;
 assign obj_AB[4:2] = 3'b0;
@@ -278,13 +285,14 @@ assign obj_pxl = ~6'd0;
 
 `ifndef NOCOLMIX
 jtsf_colmix #(
-    .CHARW     ( PXL_CHRW  ),
+    .CHRPW     ( CHRPW     ),
+    .SCRPW     ( SCRPW     ),
+    .OBJPW     ( OBJPW     ),
     .BLANK_DLY ( BLANK_DLY )
 )
 u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .pxl2_cen     ( pxl2_cen      ),
     .pxl_cen      ( pxl_cen       ),
     .cpu_cen      ( cpu_cen       ),
 
@@ -298,27 +306,19 @@ u_colmix (
     .LVBL_dly     ( LVBL_dly      ),
 
     // Enable bits
-    .charon       ( charon        ),
-    .scr1on       ( scr1on        ),
-    .scr2on       ( scr2on        ),
-    .objon        ( objon         ),
-
-    // Priority PROM
-    // .prog_addr    ( prog_addr     ),
-    // .prom_prio_we ( prom_prio_we  ),
-    // .prom_din     ( prom_din      ),
+    // .charon       ( charon        ),
+    // .scr1on       ( scr1on        ),
+    // .scr2on       ( scr2on        ),
+    // .objon        ( objon         ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),
 
     // CPU interface
-    .AB           ( cpu_AB[9:0]   ),
-    .blue_cs      ( blue_cs       ),
-    .redgreen_cs  ( redgreen_cs   ),
+    .AB           ( cpu_AB[10:1]  ),
+    .col_uw       ( col_uw        ),
+    .col_lw       ( col_lw        ),
     .DB           ( cpu_dout      ),
-    .cpu_wrn      ( RnW           ),
-    .eres_n       ( eres_n        ),
-    .wrerr_n      ( wrerr_n       ),
 
     // colour output
     .red          ( red           ),
