@@ -32,7 +32,8 @@ module jt1943_scroll #( parameter
                       (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
     // MAP SIZE
-    MAPDW           = LAYOUT==9 ? 32 : 16
+    MAPAW           = LAYOUT==9 ? 15 : 14, // address width
+    MAPDW           = LAYOUT==9 ? 32 : 16  // data width
 )(
     input                rst,
     input                clk,  // >12 MHz
@@ -51,15 +52,15 @@ module jt1943_scroll #( parameter
     input     [3:0]      prom_din,
 
     // Map ROM
-    output   reg  [13:0] map_addr,
-    input    [MAPDW-1:0] map_data,
+    output reg [MAPAW-1:0] map_addr,
+    input      [MAPDW-1:0] map_data,
     // Gfx ROM
     output  [ROM_AW-1:0] scr_addr,
     input         [15:0] scrom_data,
     output    [PXLW-1:0] scr_pxl
 );
 
-localparam SHW = LAYOUT==8 ?  9 : 8;
+localparam SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8;
 localparam SVW = LAYOUT==8 ? 12 : 8;
 
 // H goes from 80h to 1FFh
@@ -143,7 +144,7 @@ generate
         end
     end
     if (LAYOUT==8) begin
-        // SideArms 32x32
+        // Side Arms 32x32
         always @(posedge clk) begin
             VF <= {8{flip}}^V128[7:0];
             SV <= { {VPOSW-9{1'b0}}, VF } + vpos;
@@ -153,6 +154,20 @@ generate
             if( SH[2:0]==3'd7 ) begin
                 HS[4:3] <= SH[4:3] /*^{2{flip}}*/;
                 map_addr <= { PIC[6:0], SH[8:5], SV[7:5] };
+            end
+        end
+    end
+    if (LAYOUT==9) begin
+        // Street Fighter 16x16
+        always @(posedge clk) begin
+            VF <= {8{flip}}^V128[7:0];
+            SV <= { {VPOSW-9{1'b0}}, VF };
+        end
+        always @(posedge clk) if(cen6) begin
+            // always update the map at the same pixel count
+            if( SH[2:0]==3'd7 ) begin
+                HS[4:3] <= SH[4:3] /*^{2{flip}}*/;
+                map_addr <= { PIC[4:0], SH[8:4], SV[7:4] }; // 5 + 5 + 4 = 14
             end
         end
     end

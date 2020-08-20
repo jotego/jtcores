@@ -54,8 +54,8 @@ module jtgng_tile4 #(parameter
     output [PXLW-1:0] scr_pxl
 );
 
-localparam ATTW =( LAYOUT==3 || LAYOUT==8 ) ? 5 :
-                 ( (LAYOUT==5 || LAYOUT==7) ? 3 : 4);
+localparam ATTW =(  LAYOUT==3 || LAYOUT==8 ) ? 5 :
+                 (( LAYOUT==5 || LAYOUT==7 ) ? 3 : 4);
 
 `ifdef SIMULATION
 initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
