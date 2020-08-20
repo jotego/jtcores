@@ -185,13 +185,7 @@ jt1943_scroll #(
     .scrom_data   ( scr1_data     ),
     .scr_pxl      ( scr1_pxl      )
 );
-`else
-assign scr_pxl   = 9'h0f;
-assign scr1_addr = {SCR2W{1'b0}};
-assign map1_addr = {MAP2W{1'b0}};
-`endif
 
-`ifndef NOSCR
 jt1943_scroll #(
     .HOFFSET    (SCR_OFFSET   ),
     .AS8MASK    ( 1'b0        ),
@@ -222,9 +216,12 @@ jt1943_scroll #(
     .scr_pxl      ( scr2_pxl      )
 );
 `else
+assign scr1_pxl  = 9'h0f;
 assign scr2_pxl  = 9'h0f;
-assign scr2_addr = {SCR2W{1'b0}};
+assign map1_addr = {MAP2W{1'b0}};
 assign map2_addr = {MAP2W{1'b0}};
+assign scr1_addr = {SCR2W{1'b0}};
+assign scr2_addr = {SCR2W{1'b0}};
 `endif
 
 wire [9:0] raw_addr;

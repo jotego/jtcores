@@ -86,17 +86,17 @@ localparam
     MCUW  = 12, // 4kB
     OBJW  = 21;
 
-localparam [21:0] MAIN_OFFSET = 22'h0,
-                  SND_OFFSET  = 22'h06_0000 >> 1,
-                  SND2_OFFSET = 22'h06_8000 >> 1,
-                  MCU_OFFSET  = 22'h0A_8000 >> 1,
-                  MAP1_OFFSET = 22'h0A_9000 >> 1,
-                  MAP2_OFFSET = 22'h0C_9000 >> 1,
-                  CHAR_OFFSET = 22'h0E_9000 >> 1,
-                  SCR1_OFFSET = 22'h0E_D000 >> 1,
-                  SCR2_OFFSET = 22'h1E_D000 >> 1,
-                  OBJ_OFFSET  = 22'h26_D000 >> 1,
-                  PROM_START  = 22'h42_D000,
+localparam [24:0] MAIN_OFFSET = 25'h0,
+                  SND_OFFSET  = 25'h06_0000 >> 1,
+                  SND2_OFFSET = 25'h06_8000 >> 1,
+                  MCU_OFFSET  = 25'h0A_8000 >> 1,
+                  MAP1_OFFSET = 25'h0A_9000 >> 1,
+                  MAP2_OFFSET = 25'h0C_9000 >> 1,
+                  CHAR_OFFSET = 25'h0E_9000 >> 1,
+                  SCR1_OFFSET = 25'h0E_D000 >> 1,
+                  SCR2_OFFSET = 25'h1E_D000 >> 1,
+                  OBJ_OFFSET  = 25'h26_D000 >> 1,
+                  PROM_START  = 25'h42_D000,
                   RAM_OFFSET  = PROM_START  >> 1;
 
 wire [ 8:0] V;
