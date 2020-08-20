@@ -119,7 +119,7 @@ wire        service = 1'b1;
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data, obj_data;
 wire [15:0] main_data, ram_data;
-wire [31:0] map1_data, map2_data;
+wire [31:0] map1_data, map2_data, map1_swap, map2_swap;
 wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
 // wire        mcu_brn;
@@ -147,6 +147,8 @@ wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
+assign map1_swap          = { map1_data[15:0], map1_data[31:16] };
+assign map2_swap          = { map2_data[15:0], map2_data[31:16] };
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -428,14 +430,14 @@ jtsf_video #(
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL 1
-    .map1_data  ( map1_data     ),
+    .map1_data  ( map1_swap     ),
     .map1_addr  ( map1_addr     ),
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_data     ),
     .scr1posh   ( scr1posh      ),
     .scr1_ok    ( scr1_ok       ),
     // SCROLL 2
-    .map2_data  ( map2_data     ),
+    .map2_data  ( map2_swap     ),
     .map2_addr  ( map2_addr     ),
     .scr2_addr  ( scr2_addr     ),
     .scr2_data  ( scr2_data     ),
