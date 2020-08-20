@@ -288,7 +288,7 @@ jtsf_intgen u_intgen(
     .clk        ( clk       ),
     .rst        ( rst       ),
     .cpu_cen    ( cen8      ),
-    .V          ( V         ),
+    .V          ( V[7:0]    ),
     .int1       ( int1      ),
     .int2       ( int2      ),
     .inta_n     ( inta_n    ),

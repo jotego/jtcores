@@ -32,7 +32,7 @@ module jt1943_scroll #( parameter
                       (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
     // MAP SIZE
-    MAPAW           = LAYOUT==9 ? 15 : 14, // address width
+    MAPAW           = 14, // LAYOUT==9 ? 15 : 14, // address width
     MAPDW           = LAYOUT==9 ? 32 : 16  // data width
 )(
     input                rst,

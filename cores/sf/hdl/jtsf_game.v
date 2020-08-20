@@ -77,7 +77,7 @@ localparam
     MAINW = 19, // 16 bit
     RAMW  = 15, // 32k x 16 bits
     CHARW = 13, // 16 bit reads
-    MAP1W = 17,
+    MAP1W = 14,
     MAP2W = MAP1W,
     SCR1W = 20,
     SCR2W = 19,
@@ -86,7 +86,7 @@ localparam
     MCUW  = 12, // 4kB
     OBJW  = 21;
 
-localparam [24:0] MAIN_OFFSET = 25'h0,
+localparam [21:0] MAIN_OFFSET = 25'h0,
                   SND_OFFSET  = 25'h06_0000 >> 1,
                   SND2_OFFSET = 25'h06_8000 >> 1,
                   MCU_OFFSET  = 25'h0A_8000 >> 1,
@@ -95,9 +95,9 @@ localparam [24:0] MAIN_OFFSET = 25'h0,
                   CHAR_OFFSET = 25'h0E_9000 >> 1,
                   SCR1_OFFSET = 25'h0E_D000 >> 1,
                   SCR2_OFFSET = 25'h1E_D000 >> 1,
-                  OBJ_OFFSET  = 25'h26_D000 >> 1,
-                  PROM_START  = 25'h42_D000,
-                  RAM_OFFSET  = PROM_START  >> 1;
+                  OBJ_OFFSET  = 25'h26_D000 >> 1;
+localparam [24:0] PROM_START  = 25'h42_D000;
+localparam [21:0] RAM_OFFSET  = PROM_START[22:1];
 
 wire [ 8:0] V;
 wire [ 8:0] H;
@@ -118,7 +118,8 @@ wire        service = 1'b1;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data, obj_data;
-wire [15:0] main_data, ram_data, map1_data, map2_data;
+wire [15:0] main_data, ram_data;
+wire [31:0] map1_data, map2_data;
 wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
 // wire        mcu_brn;
@@ -179,8 +180,13 @@ jtframe_cen24 u_cen(
     .cen8   ( cen24_8   ),
     .cen6   ( mcu_cen   ),
     .cen6b  (           ),
+    .cen4   (           ),
     .cen3   (           ),
-    .cen1p5 (           )
+    .cen3q  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5 (           ),
+    .cen1p5b(           )
 );
 
 always @(posedge clk24) cen24_8b<=cen24_8;
@@ -523,13 +529,13 @@ jtframe_sdram_mux #(
     .SLOT6_DW    (  8            ),
 
     .SLOT7_AW    ( MAP2W         ), // Map 2
-    .SLOT7_DW    ( 16            ),
+    .SLOT7_DW    ( 32            ),
 
     .SLOT8_AW    ( OBJW          ), // Objects
     .SLOT8_DW    ( 16            ),
 
     .SLOT9_AW    ( MAP1W         ), // Map 1
-    .SLOT9_DW    ( 16            )
+    .SLOT9_DW    ( 32            )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),

@@ -26,7 +26,7 @@ module jtgng_char #(parameter
     LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms, 9: Street Fighter
     PALETTE  = 0, // 1 if the palette PROM is used
     DW       = LAYOUT==9 ? 16 : 8,
-    ABW      = (LAYOUT==8 || LAYOUT==9) ? 12 : 11,
+    ABW      = (LAYOUT==8 /*|| LAYOUT==9*/) ? 12 : 11,
     HW       = (LAYOUT==8 || LAYOUT==9) ?  9 : 8,
     PXLW     = (PALETTE?4:PALW+2),
     HOFFSET  = 8'd0,
@@ -58,7 +58,7 @@ module jtgng_char #(parameter
     output           busy,
     // Pause screen
     input            pause,
-    output    [ 9:0] scan,
+    output [ABW-2:0] scan,
     input     [ 7:0] msg_low,
     input     [ 7:0] msg_high,
     // PROM access

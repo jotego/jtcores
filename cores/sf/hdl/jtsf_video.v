@@ -55,14 +55,14 @@ module jtsf_video #(
     input               scr1_ok,
     input       [15:0]  scr1posh,
     output [MAP1W-1:0]  map1_addr,
-    input       [15:0]  map1_data,
+    input       [31:0]  map1_data,
     // SCROLL 2 - ROM
     output [SCR2W-1:0]  scr2_addr,
     input       [15:0]  scr2_data,
     input               scr2_ok,
     input       [15:0]  scr2posh,
     output [MAP2W-1:0]  map2_addr,
-    input       [15:0]  map2_data,
+    input       [31:0]  map2_data,
     // OBJ
     input               HINIT,
     output      [11:0]  obj_AB,
@@ -170,7 +170,7 @@ jt1943_scroll #(
     .H            ( H             ),
     .SCxON        ( scr1on        ),
     .hpos         ( scr1posh      ),
-    .vpos         ( 16'd0         ),
+    .vpos         ( 8'd0          ),
     .flip         ( flip          ),
     // Palette PROMs - unused
     .prog_addr    ( 8'd0          ),
@@ -200,7 +200,7 @@ jt1943_scroll #(
     .H            ( H             ),
     .SCxON        ( scr2on        ),
     .hpos         ( scr2posh      ),
-    .vpos         ( 16'd0         ),
+    .vpos         ( 8'd0          ),
     .flip         ( flip          ),
     // Palette PROMs - unused
     .prog_addr    ( 8'd0          ),
