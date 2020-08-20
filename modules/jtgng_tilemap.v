@@ -36,7 +36,7 @@ module jtgng_tilemap #(parameter
     BUSY_ON_H0  = 0,    // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
     SIMID       = "",
     VW          = 8,
-    HW          = LAYOUT==8 ? 9 : 8
+    HW          = (LAYOUT==8 || LAYOUT==9) ? 9 : 8
 ) (
     input                  clk,
     input                  pxl_cen,
@@ -77,9 +77,7 @@ always @(*) begin
             scan =  layout ?
                 { V[8:7], H[9:7], V[6:3], H[6:3] } :
                 { V[9:7], H[8:7], V[6:3], H[6:3] };
-            // { V[6:5], H[7:5], V[4:1], H[4:1] };
-            //layout ? { V[7:1], H[7:2] } : { V[7:2], H[7:1] };
-        end else if( LAYOUT==8 ) begin // Side Arms
+        end else if( LAYOUT==8 || LAYOUT==9 ) begin // Side Arms/Street Fighter
             scan = { V[7:3], H[8:3] }; // SCANW assumed to be 11
         end else // other games
             scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
