@@ -111,6 +111,7 @@ wire        main_cs, ram_cs,
 wire        charon, scr1on, scr2on, objon;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
+wire [15:0] scr1posh, scr2posh;
 wire        rd, cpu_cen;
 wire        char_busy;
 wire        service = 1'b1;

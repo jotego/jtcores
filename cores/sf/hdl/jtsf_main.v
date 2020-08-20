@@ -167,9 +167,9 @@ always @(posedge clk, posedge rst) begin
             if(!UDSWn) scr1posh[15:8] <= cpu_dout[15:8];
             if(!LDSWn) scr1posh[ 7:0] <= cpu_dout[ 7:0];
         end
-        if( scr1pos_cs ) begin
-            if(!UDSWn) scr1posh[15:8] <= cpu_dout[15:8];
-            if(!LDSWn) scr1posh[ 7:0] <= cpu_dout[ 7:0];
+        if( scr2pos_cs ) begin
+            if(!UDSWn) scr2posh[15:8] <= cpu_dout[15:8];
+            if(!LDSWn) scr2posh[ 7:0] <= cpu_dout[ 7:0];
         end
     end
 end
