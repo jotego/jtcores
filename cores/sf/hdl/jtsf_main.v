@@ -114,6 +114,7 @@ assign ram_addr = CPUbus ? A[RAMW:1] : { 3'b111, obj_AB };
 assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;
 assign addr     = A[MAINW:1];
+assign cpu_AB   = A[13:1];
 
 `ifdef SIMULATION
 wire [24:0] A_full = {A,1'b0};
