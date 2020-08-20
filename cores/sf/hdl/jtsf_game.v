@@ -77,7 +77,7 @@ localparam
     MAINW = 19, // 16 bit
     RAMW  = 15, // 32k x 16 bits
     CHARW = 13, // 16 bit reads
-    MAP1W = 14,
+    MAP1W = 15, // 128 kBytes read in 32-bit words -> 32kW = 2^15
     MAP2W = MAP1W,
     SCR1W = 20,
     SCR2W = 19,
@@ -86,16 +86,16 @@ localparam
     MCUW  = 12, // 4kB
     OBJW  = 21;
 
-localparam [21:0] MAIN_OFFSET = 25'h0,
-                  SND_OFFSET  = 25'h06_0000 >> 1,
-                  SND2_OFFSET = 25'h06_8000 >> 1,
-                  MCU_OFFSET  = 25'h0A_8000 >> 1,
-                  MAP1_OFFSET = 25'h0A_9000 >> 1,
-                  MAP2_OFFSET = 25'h0C_9000 >> 1,
-                  CHAR_OFFSET = 25'h0E_9000 >> 1,
-                  SCR1_OFFSET = 25'h0E_D000 >> 1,
-                  SCR2_OFFSET = 25'h1E_D000 >> 1,
-                  OBJ_OFFSET  = 25'h26_D000 >> 1;
+localparam [21:0] MAIN_OFFSET = 22'h0,
+                  SND_OFFSET  = 22'h06_0000 >> 1,
+                  SND2_OFFSET = 22'h06_8000 >> 1,
+                  MCU_OFFSET  = 22'h0A_8000 >> 1,
+                  MAP1_OFFSET = 22'h0A_9000 >> 1,
+                  MAP2_OFFSET = 22'h0C_9000 >> 1,
+                  CHAR_OFFSET = 22'h0E_9000 >> 1,
+                  SCR1_OFFSET = 22'h0E_D000 >> 1,
+                  SCR2_OFFSET = 22'h1E_D000 >> 1,
+                  OBJ_OFFSET  = 22'h26_D000 >> 1;
 localparam [24:0] PROM_START  = 25'h42_D000;
 localparam [21:0] RAM_OFFSET  = PROM_START[22:1];
 
@@ -389,14 +389,8 @@ assign snd1_addr = {SND1W{1'b0}};
 assign snd2_addr = {SND2W{1'b0}};
 assign snd1_cs   = 0;
 assign snd2_cs   = 0;
-assign snd       = 16'b0;
-`endif
-
-`ifndef NOPAUSE
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
-`else
-wire pause=1'b0;
+assign snd_left  = 16'b0;
+assign snd_right = 16'b0;
 `endif
 
 `ifndef NOVIDEO

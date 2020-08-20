@@ -128,9 +128,10 @@ always @(*) begin
     char_cs    = 0;
     OKOUT      = 0;
     misc_cs    = 0;
+    snd_cs     = 0;
     // mcu_DMAONn = 1;   // for once, I leave the original active low setting
     scr1pos_cs = 0;
-    scr1pos_cs = 0;
+    scr2pos_cs = 0;
 
     BERRn      = 1;
 
@@ -154,6 +155,7 @@ always @(*) begin
                 endcase
             end
             //default: BERRn = ASn;
+            default:;
         endcase
 end
 

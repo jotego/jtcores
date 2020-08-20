@@ -32,7 +32,7 @@ module jt1943_scroll #( parameter
                       (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
     // MAP SIZE
-    MAPAW           = 14, // LAYOUT==9 ? 15 : 14, // address width
+    MAPAW           = LAYOUT==9 ? 15 : 14, // address width
     MAPDW           = LAYOUT==9 ? 32 : 16  // data width
 )(
     input                rst,
@@ -98,6 +98,8 @@ always @(*) begin
     if( LAYOUT==8 ) begin // Side Arms
         PIC[6:3] = SV[11:8];
         { PIC[7], PIC[2:0], SH } = {4'd0, H^{9{flip}}} + hpos[12:0];
+    end else if(LAYOUT==9) begin // Street Fighter
+        { PIC, SH } = {4'd0, H^{9{flip}}} + hpos;
     end else begin
         HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
         H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
@@ -166,8 +168,8 @@ generate
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
-                HS[4:3] <= SH[4:3] /*^{2{flip}}*/;
-                map_addr <= { PIC[4:0], SH[8:4], SV[7:4] }; // 5 + 5 + 4 = 14
+                HS[3] <= SH[3] /*^flip*/;
+                map_addr <= { PIC[5:0], SH[8:4], SV[7:4] }; // 6 + 5 + 4 = 14
             end
         end
     end
