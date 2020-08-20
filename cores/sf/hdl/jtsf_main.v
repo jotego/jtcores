@@ -126,6 +126,7 @@ always @(*) begin
     io_cs      = 0;
     char_cs    = 0;
     OKOUT      = 0;
+    misc_cs    = 0;
     // mcu_DMAONn = 1;   // for once, I leave the original active low setting
     scr1pos_cs = 0;
     scr1pos_cs = 0;
@@ -260,8 +261,8 @@ end
 wire       int1, int2;
 wire [2:0] FC;
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, char_cs };
-wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy };
+wire       bus_cs =   |{ rom_cs, char_cs, ram_cs };
+wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
 reg DTACKn;
 
 always @(posedge clk, posedge rst) begin : dtack_gen
@@ -269,15 +270,15 @@ always @(posedge clk, posedge rst) begin : dtack_gen
     if( rst ) begin
         DTACKn <= 1'b1;
     end else if(cen8b) begin
-        DTACKn   <= 1'b1;
         last_ASn <= ASn;
-        if( !ASn  ) begin
+        if( !ASn && last_ASn ) begin
+            DTACKn <= 1;
+        end else if( !ASn ) begin
             if( bus_cs ) begin
-                if (!bus_busy) DTACKn <= 1'b0;
+                if (!bus_busy) DTACKn <= 0;
             end
-            else DTACKn <= 1'b0;
+            else DTACKn <= 0;
         end
-        if( ASn && !last_ASn ) DTACKn <= 1'b1;
     end
 end
 
