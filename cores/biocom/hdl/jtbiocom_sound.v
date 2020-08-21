@@ -21,7 +21,7 @@
 
 module jtbiocom_sound(
     input           rst,
-    input           clk,    
+    input           clk,
     input           cen_alt,
     input           cen_fm,   // 14.31318/4   MHz ~ 3.5  MHz => 10/134 of 48MHz clock
     input           cen_fm2,  // 14.31318/4/8 MHz ~ 1.75 MHz =>  5/134 of 48MHz clock
@@ -45,6 +45,8 @@ module jtbiocom_sound(
     output                sample
 );
 
+parameter LAYOUT=3; // 9 for SF
+
 (*keep*) wire [15:0] A;
 reg  fm_cs, latch_cs, ram_cs, mcu_cs;
 wire mreq_n, rfsh_n, int_n;
@@ -59,13 +61,27 @@ always @(*) begin
     latch_cs = 1'b0;
     fm_cs    = 1'b0;
     mcu_cs   = 1'b0;
-    if(!mreq_n) casez( A[15:13] )
-        3'b0??: rom_cs   = 1'b1;
-        3'b100: fm_cs    = 1'b1;
-        3'b101: mcu_cs   = 1'b1;
-        3'b110: ram_cs   = 1'b1;
-        3'b111: latch_cs = 1'b1;
-    endcase
+    if(!mreq_n) begin
+        if( LAYOUT==9 ) begin // Stret Fighter
+             casez( A[15:13] )
+                3'b0??: rom_cs   = 1;
+                3'b110: begin
+                    ram_cs   = !A[11];
+                    latch_cs =  A[11];
+                end
+                3'b111: fm_cs = 1;
+                default:;
+            endcase
+        end else begin // Bionic Commando
+             casez( A[15:13] )
+                3'b0??: rom_cs   = 1'b1;
+                3'b100: fm_cs    = 1'b1;
+                3'b101: mcu_cs   = 1'b1;
+                3'b110: ram_cs   = 1'b1;
+                3'b111: latch_cs = 1'b1;
+            endcase
+        end
+    end
 end
 
 wire rd_n;
