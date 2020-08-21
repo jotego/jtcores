@@ -68,7 +68,7 @@ wire obj_blank  = &obj_pxl[3:0];
 wire char_blank = &char_pxl[1:0];
 wire scr1_blank = &scr1_pxl[3:0];
 wire preLBL;
-/*
+
 always @(*) begin
     if( !char_blank && enable_char)
         prio = CHAR;
@@ -78,8 +78,7 @@ always @(*) begin
         prio = SCR1;
     else
         prio = SCR2;
-end*/
-assign prio=SCR2;
+end
 
 always @(posedge clk) if(pxl_cen) begin
     pixel_mux[9:8] <= prio;
