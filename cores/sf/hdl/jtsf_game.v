@@ -77,7 +77,7 @@ localparam
     MAINW = 19, // 16 bit
     RAMW  = 15, // 32k x 16 bits
     CHARW = 13, // 16 bit reads
-    MAP1W = 15, // 128 kBytes read in 32-bit words -> 32kW = 2^15
+    MAP1W = 16, // 128 kBytes read in 16-bit words -> 64kW = 2^16
     MAP2W = MAP1W,
     SCR1W = 20,
     SCR2W = 19,
@@ -357,8 +357,8 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign RnW         = 1;
     assign UDSWn       = 1;
     assign LDSWn       = 1;
-    assign scrpos1h    = 16'd0;
-    assign scrpos2h    = 16'd0;
+    assign scr1posh    = 16'd0;
+    assign scr2posh    = 16'd0;
     assign cpu_cen     = cen24_8;
     assign OKOUT       = 0;
     assign snd_latch   = `SIM_SND_LATCH;
@@ -433,15 +433,17 @@ jtsf_video #(
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL 1
-    .map1_data  ( map1_swap     ),
+    .map1_data  ( map1_data     ),
     .map1_addr  ( map1_addr     ),
+    .map1_ok    ( map1_ok       ),
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_data     ),
     .scr1posh   ( scr1posh      ),
     .scr1_ok    ( scr1_ok       ),
     // SCROLL 2
-    .map2_data  ( map2_swap     ),
+    .map2_data  ( map2_data     ),
     .map2_addr  ( map2_addr     ),
+    .map2_ok    ( map2_ok       ),
     .scr2_addr  ( scr2_addr     ),
     .scr2_data  ( scr2_data     ),
     .scr2posh   ( scr2posh      ),

@@ -68,7 +68,7 @@ wire obj_blank  = &obj_pxl[3:0];
 wire char_blank = &char_pxl[1:0];
 wire scr1_blank = &scr1_pxl[3:0];
 wire preLBL;
-
+/*
 always @(*) begin
     if( !char_blank && enable_char)
         prio = CHAR;
@@ -78,7 +78,8 @@ always @(*) begin
         prio = SCR1;
     else
         prio = SCR2;
-end
+end*/
+assign prio=SCR2;
 
 always @(posedge clk) if(pxl_cen) begin
     pixel_mux[9:8] <= prio;
@@ -105,6 +106,11 @@ always @(*) begin
 end
 
 // Palette is in RAM
+`ifdef GRAY
+assign pal_red   = pal_addr[3:0];
+assign pal_green = pal_addr[3:0];
+assign pal_blue  = pal_addr[3:0];
+`else
 jtframe_ram #(.aw(10),.dw(4),.simhexfile("palr.hex")) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
@@ -122,6 +128,7 @@ jtframe_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
     .we         ( pal_lwe     ),
     .q          ( { pal_green, pal_blue } )
 );
+`endif
 
 jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
     .clk        ( clk                 ),

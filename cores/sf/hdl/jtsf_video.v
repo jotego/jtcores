@@ -56,6 +56,7 @@ module jtsf_video #(
     input       [15:0]  scr1posh,
     output [MAP1W-1:0]  map1_addr,
     input       [31:0]  map1_data,
+    input               map1_ok,
     // SCROLL 2 - ROM
     output [SCR2W-1:0]  scr2_addr,
     input       [15:0]  scr2_data,
@@ -63,6 +64,7 @@ module jtsf_video #(
     input       [15:0]  scr2posh,
     output [MAP2W-1:0]  map2_addr,
     input       [31:0]  map2_data,
+    input               map2_ok,
     // OBJ
     input               HINIT,
     output      [11:0]  obj_AB,
@@ -181,6 +183,7 @@ jt1943_scroll #(
     // ROM
     .map_addr     ( map1_addr     ),
     .map_data     ( map1_data     ),
+    //.map_ok       ( map1_ok       ),
     .scr_addr     ( scr1_addr     ),
     .scrom_data   ( scr1_data     ),
     .scr_pxl      ( scr1_pxl      )
@@ -211,13 +214,14 @@ jt1943_scroll #(
     // ROM
     .map_addr     ( map2_addr     ),
     .map_data     ( map2_data     ),
+    //.map_ok       ( map2_ok       ),
     .scr_addr     ( scr2_addr     ),
     .scrom_data   ( scr2_data     ),
     .scr_pxl      ( scr2_pxl      )
 );
 `else
-assign scr1_pxl  = 9'h0f;
-assign scr2_pxl  = 9'h0f;
+assign scr1_pxl  = {SCRPW{1'b0}};
+assign scr2_pxl  = {SCRPW{1'b0}};
 assign map1_addr = {MAP2W{1'b0}};
 assign map2_addr = {MAP2W{1'b0}};
 assign scr1_addr = {SCR2W{1'b0}};
@@ -278,7 +282,7 @@ jtgng_obj #(
 `else
 assign blcnten = 1'b0;
 assign bus_req = 1'b0;
-assign obj_pxl = ~6'd0;
+assign obj_pxl = {OBJPW{1'b1}};
 `endif
 
 `ifndef NOCOLMIX

@@ -32,7 +32,7 @@ module jt1943_scroll #( parameter
                       (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
     // MAP SIZE
-    MAPAW           = LAYOUT==9 ? 15 : 14, // address width
+    MAPAW           = LAYOUT==9 ? 16 : 14, // address width
     MAPDW           = LAYOUT==9 ? 32 : 16  // data width
 )(
     input                rst,
@@ -54,6 +54,7 @@ module jt1943_scroll #( parameter
     // Map ROM
     output reg [MAPAW-1:0] map_addr,
     input      [MAPDW-1:0] map_data,
+    // input                  map_ok,
     // Gfx ROM
     output  [ROM_AW-1:0] scr_addr,
     input         [15:0] scrom_data,
@@ -163,13 +164,14 @@ generate
         // Street Fighter 16x16
         always @(posedge clk) begin
             VF <= {8{flip}}^V128[7:0];
-            SV <= { {VPOSW-9{1'b0}}, VF };
+            SV <= VF;
         end
         always @(posedge clk) if(cen6) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
                 HS[3] <= SH[3] /*^flip*/;
-                map_addr <= { PIC[5:0], SH[8:4], SV[7:4] }; // 6 + 5 + 4 = 14
+                // Map address shifted left because of 32-bit read
+                map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
             end
         end
     end
@@ -182,8 +184,10 @@ always @(posedge clk) if(cen6) begin
     HS[2:0] <= SH[2:0] ^ {3{flip}};
 end
 
-wire [MAPDW/2-1:0] dout_high = map_data[MAPDW/2-1:0];
-wire [MAPDW/2-1:0] dout_low  = map_data[MAPDW-1:MAPDW/2];
+wire [MAPDW/2-1:0] dout_high, dout_low;
+
+assign dout_high = map_data[MAPDW/2-1:0];
+assign dout_low  = map_data[MAPDW-1:MAPDW/2];
 
 jtgng_tile4 #(
     .AS8MASK        ( AS8MASK       ),

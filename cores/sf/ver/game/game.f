@@ -12,6 +12,7 @@
 ../../../modules/jtframe/hdl/video/jtframe_vtimer.v
 ../../../modules/jtframe/hdl/cpu/jtframe_68kdma.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
+../../../modules/jtframe/hdl/jtframe_ff.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 # SDRAM
 ../../../modules/jtframe/hdl/sdram/jtframe_sdram_mux.v
