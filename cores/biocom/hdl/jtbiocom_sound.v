@@ -114,15 +114,27 @@ always @(*)
         default:  din = rom_data;
     endcase // {latch_cs,rom_cs,ram_cs}
 
-wire iorq_n, m1_n;
-// (*keep*) wire irq_ack = !iorq_n && !m1_n;
+wire iorq_n, m1_n, nmiff_n;
+wire irq_ack = !iorq_n && !m1_n;
+
+jtframe_ff u_ff(
+    .clk    ( clk       ),
+    .rst    ( rst       ),
+    .cen    ( 1'b1      ),
+    .din    ( 1'b1      ),
+    .q      (           ),
+    .qn     ( nmiff_n   ),
+    .set    ( 1'b0      ),
+    .clr    ( irq_ack   ),    // active high
+    .sigedge( ~nmi_n    )
+);
 
 jtframe_z80_romwait u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_alt     ),
     .int_n      ( int_n       ),
-    .nmi_n      ( nmi_n       ),
+    .nmi_n      ( nmiff_n     ),
     .busrq_n    ( 1'b1        ),
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),

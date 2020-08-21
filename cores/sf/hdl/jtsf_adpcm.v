@@ -24,7 +24,7 @@ module jtsf_adpcm(
     // Interface with second CPU
     input   [7:0]   snd_latch,
     // ADPCM ROM
-    output  [15:0]  rom2_addr,
+    output  [17:0]  rom2_addr,
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,
@@ -42,15 +42,23 @@ wire signed [11:0] snd0, snd1;
 wire        [15:0] A;
 reg         [ 7:0] din;
 wire        [ 7:0] dout;
+reg         [ 2:0] bank, rom_msb;
 reg                last_rom2_cs, int_n;
 wire               wr_n, rd_n, iorq_n, rfsh_n, mreq_n, m1_n;
 
 assign rom2_cs   = !mreq_n && rfsh_n;
-assign rom2_addr = A;
+assign rom2_addr = { rom_msb, A[14:0] };
 assign snd       = snd0 + snd1;
 
 always @(*) begin
-    din = !iorq_n && !rd_n && !A[0] ? snd_latch : rom2_data;
+    din = !iorq_n && !rd_n && A[0] ? snd_latch : rom2_data;
+end
+
+always @(*) begin
+    if( !A[15] )
+        rom_msb = 3'd0;
+    else
+        rom_msb = bank+1'd1;
 end
 
 reg [3:0] pcm0_data, pcm1_data;
@@ -62,15 +70,22 @@ always @(posedge clk, posedge rst) begin
         pcm1_rst  <= 1'b0;
         pcm0_data <= 4'd0;
         pcm1_data <= 4'd0;
+        bank      <= 3'd0;
     end else begin
         if( !iorq_n && !wr_n ) begin
-            if( !A[0] ) begin
-                pcm0_rst  <= dout[7];
-                pcm0_data <= dout[3:0];
-            end else begin
-                pcm1_rst  <= dout[7];
-                pcm1_data <= dout[3:0];
-            end
+            case( A[1:0] )
+                2'd0: begin
+                    pcm0_rst  <= dout[7];
+                    pcm0_data <= dout[3:0];
+                end
+                2'd1: begin
+                    pcm1_rst  <= dout[7];
+                    pcm1_data <= dout[3:0];
+                end
+                2'd2: begin
+                    bank <= dout[2:0];
+                end
+            endcase
         end
     end
 end
@@ -84,7 +99,8 @@ jt5205 u_adpcm0(
     .sel        ( 2'b0          ),
     .din        ( pcm0_data     ),
     .sound      ( snd0          ),
-    .irq        ( irq_st        )
+    .irq        ( irq_st        ),
+    .vclk_o     (               )
 );
 
 jt5205 u_adpcm1(
@@ -94,7 +110,8 @@ jt5205 u_adpcm1(
     .sel        ( 2'b0          ),
     .din        ( pcm1_data     ),
     .sound      ( snd1          ),
-    .irq        (               )
+    .irq        (               ),
+    .vclk_o     (               )
 );
 
 reg last_irq_st;

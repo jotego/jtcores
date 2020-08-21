@@ -17,8 +17,9 @@ done
 export GAME_ROM_PATH=../../../rom/sf.rom
 export MEM_CHECK_TIME=146_000_000
 export CONVERT_OPTIONS="-resize 300%x300%"
-# export YM2151=1
-# export Z80=1
+export YM2151=1
+export Z80=1
+export MSM5205=1
 
 if [ ! -e $GAME_ROM_PATH ]; then
     echo Missing file $GAME_ROM_PATH
@@ -33,7 +34,6 @@ fi
 $JTFRAME/bin/sim.sh $MIST \
     -sysname sf \
     -def ../../hdl/jtsf.def \
-    -videow 384 -videoh 224 \
-    -d BUTTONS=2 \
+    -videow 376 -videoh 224 \
     -d COLORW=4 -d VIDEO_START=1 \
     $*

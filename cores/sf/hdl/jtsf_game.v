@@ -230,9 +230,10 @@ jtframe_vtimer #(
     .vrender1  (          )
 );
 
-wire RnW;
+wire       RnW;
 // sound
 wire [7:0] snd_latch;
+wire       snd_nmi_n;
 
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
@@ -285,6 +286,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .LVBL       ( LVBL          ),
     // sound
     .snd_latch  ( snd_latch     ),
+    .snd_nmi_n  ( snd_nmi_n     ),
     // CPU data bus
     .cpu_dout   ( cpu_dout      ),
     // CHAR
@@ -371,6 +373,7 @@ jtsf_sound #(
     .clk            ( clk24          ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
+    .snd_nmi_n      ( snd_nmi_n      ),
     // ROM
     .rom_addr       ( snd1_addr      ),
     .rom_data       ( snd1_data      ),

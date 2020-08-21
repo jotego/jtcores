@@ -20,20 +20,21 @@ module jtsf_sound #(
     parameter SND1W = 15,
     parameter SND2W = 15
 ) (
-    input            rst,
-    input            clk,
+    input              rst,
+    input              clk,
     // Interface with main CPU
-    input     [ 7:0] snd_latch,
+    input       [ 7:0] snd_latch,
+    input              snd_nmi_n,
     // ROM
-    output [SND1W:0] rom_addr,
-    output           rom_cs,
-    input     [ 7:0] rom_data,
-    input            rom_ok,
+    output [SND1W-1:0] rom_addr,
+    output             rom_cs,
+    input       [ 7:0] rom_data,
+    input              rom_ok,
     // ADPCM ROM
-    output [SND2W:0] rom2_addr,
-    output           rom2_cs,
-    input     [ 7:0] rom2_data,
-    input            rom2_ok,
+    output [SND2W-1:0] rom2_addr,
+    output             rom2_cs,
+    input       [ 7:0] rom2_data,
+    input              rom2_ok,
 
     // Sound output
     output signed [15:0] left,
@@ -68,7 +69,7 @@ jtbiocom_sound #(.LAYOUT(9)) u_fm(
     .cen_fm2    ( cen_fm2   ),
     // Interface with main CPU
     .snd_latch  ( snd_latch ),
-    .nmi_n      ( 1'b1      ),
+    .nmi_n      ( snd_nmi_n ),
     // Interface with MCU - Used by Bionic Commando only
     .snd_din    (           ),
     .snd_dout   (           ),
@@ -92,7 +93,7 @@ jtsf_adpcm u_adpcmcpu(
     .cpu_cen    ( cen_fm        ),
     .cenp384    ( cenp384       ),
     // Interface with second CPU
-    .snd_latch  ( snd2_latch    ),
+    .snd_latch  ( snd_latch     ),
     // ADPCM ROM
     .rom2_addr  ( rom2_addr     ),
     .rom2_cs    ( rom2_cs       ),

@@ -45,6 +45,7 @@ module jtsf_main #(
     input              LVBL,
     // Sound
     output reg  [ 7:0] snd_latch,
+    output reg         snd_nmi_n,
     // Characters
     input       [15:0] char_dout,
     output      [15:0] cpu_dout,
@@ -185,6 +186,7 @@ always @(posedge clk) begin
         scr1on       <= 1;
         scr2on       <= 1;
         objon        <= 1;
+        snd_nmi_n    <= 1;
     end
     else if(cpu_cen) begin
         if( misc_cs) begin
@@ -195,7 +197,12 @@ always @(posedge clk) begin
                 // scr2on <= cpu_dout[6];
             end
         end
-        if( !UDSWn && snd_cs ) snd_latch <= cpu_dout[15:8];
+        if( !UDSWn && snd_cs ) begin
+            snd_latch <= cpu_dout[15:8];
+            snd_nmi_n <= 0;
+        end else begin
+            snd_nmi_n <= 1;
+        end
     end
 end
 
