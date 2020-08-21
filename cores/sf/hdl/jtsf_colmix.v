@@ -69,6 +69,7 @@ wire char_blank = &char_pxl[1:0];
 wire scr1_blank = &scr1_pxl[3:0];
 wire preLBL;
 
+`ifndef GRAY
 always @(*) begin
     if( !char_blank && enable_char)
         prio = CHAR;
@@ -79,6 +80,9 @@ always @(*) begin
     else
         prio = SCR2;
 end
+`else
+assign prio=SCR2;
+`endif
 
 always @(posedge clk) if(pxl_cen) begin
     pixel_mux[9:8] <= prio;
