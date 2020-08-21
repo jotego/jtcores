@@ -41,13 +41,23 @@ module jtsf_sound #(
     output               sample
 );
 
-assign rom2_cs = 0;
-assign rom2_addr = 16'd0;
+wire signed [12:0] adpcm_snd;
+wire signed [15:0] fm_left, fm_right;
+
+wire               cen_fm, cen_fm2, cenp384;
+
+assign left  = fm_left  + {adpcm_snd,3'd0};
+assign right = fm_right + {adpcm_snd,3'd0};
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen (
     .clk        ( clk       ),
-    .cen_3p57   ( cenfm     ),
-    .cen_1p78   ( cenfm2    )
+    .cen_3p57   ( cen_fm    ),
+    .cen_1p78   ( cen_fm2   )
+);
+
+jtframe_cenp384 #(.CLK24(1)) u_cenp384(
+    .clk      ( clk       ),
+    .cen_p384 ( cenp384   )
 );
 
 jtbiocom_sound #(.LAYOUT(9)) u_fm(
@@ -71,18 +81,18 @@ jtbiocom_sound #(.LAYOUT(9)) u_fm(
     .rom_ok     ( rom_ok    ),
 
     // Sound output
-    .left       ( left      ),
-    .right      ( right     ),
+    .left       ( fm_left   ),
+    .right      ( fm_right  ),
     .sample     ( sample    )
 );
-/*
-jttora_adpcm u_adpcmcpu(
+
+jtsf_adpcm u_adpcmcpu(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen3       ( cen3          ),
+    .cpu_cen    ( cen_fm        ),
     .cenp384    ( cenp384       ),
     // Interface with second CPU
-    .snd2_latch ( snd2_latch    ),
+    .snd_latch  ( snd2_latch    ),
     // ADPCM ROM
     .rom2_addr  ( rom2_addr     ),
     .rom2_cs    ( rom2_cs       ),
@@ -92,5 +102,4 @@ jttora_adpcm u_adpcmcpu(
     .snd        ( adpcm_snd     )
 );
 
-*/
 endmodule
