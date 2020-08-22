@@ -63,29 +63,29 @@
         <part name="sf-27.4d" crc="2b09b36d"/>
         <!-- scr1 - starts at 0xED000 -->
         <interleave output="16">
-            <part name="sf-25.1d" crc="7f23042e" map="01"/>
-            <part name="sf-26.2d" crc="54ede9f5" map="10"/>
+            <part name="sf-26.2d" crc="54ede9f5" map="01"/>
+            <part name="sf-25.1d" crc="7f23042e" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-28.1e" crc="92f8b91c" map="01"/>
-            <part name="sf-29.2e" crc="f0649a67" map="10"/>
+            <part name="sf-29.2e" crc="f0649a67" map="01"/>
+            <part name="sf-28.1e" crc="92f8b91c" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-30.1g" crc="b1399856" map="01"/>
-            <part name="sf-31.2g" crc="8f4dd71a" map="10"/>
+            <part name="sf-31.2g" crc="8f4dd71a" map="01"/>
+            <part name="sf-30.1g" crc="b1399856" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-34.1h" crc="96b6ae2e" map="01"/>
-            <part name="sf-35.2h" crc="70c00fb4" map="10"/>
+            <part name="sf-35.2h" crc="70c00fb4" map="01"/>
+            <part name="sf-34.1h" crc="96b6ae2e" map="10"/>
         </interleave>
         <!-- scr2 - starts at 0x1ED000 -->
         <interleave output="16">
-            <part name="sf-39.2k" crc="cee3d292" map="01"/>
-            <part name="sf-41.4k" crc="e0280495" map="10"/>
+            <part name="sf-41.4k" crc="e0280495" map="01"/>
+            <part name="sf-39.2k" crc="cee3d292" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-38.1k" crc="2ea99676" map="01"/>
-            <part name="sf-40.3k" crc="c70b30de" map="10"/>
+            <part name="sf-40.3k" crc="c70b30de" map="01"/>
+            <part name="sf-38.1k" crc="2ea99676" map="10"/>
         </interleave>
         <!-- obj - starts at 0x26D000 -->
         <interleave output="16">

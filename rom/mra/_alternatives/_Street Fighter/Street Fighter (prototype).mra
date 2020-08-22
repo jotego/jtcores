@@ -52,29 +52,29 @@
         <part name="vram.4d" crc="bfadfb32"/>
         <!-- scr1 - starts at 0xED000 -->
         <interleave output="16">
-            <part name="mchr.1d" crc="ab06a60b" map="01"/>
-            <part name="mchr.2d" crc="e52303c4" map="10"/>
+            <part name="mchr.2d" crc="e52303c4" map="01"/>
+            <part name="mchr.1d" crc="ab06a60b" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="mchr.1e" crc="d221387d" map="01"/>
-            <part name="mchr.2e" crc="23b9a6a1" map="10"/>
+            <part name="mchr.2e" crc="23b9a6a1" map="01"/>
+            <part name="mchr.1e" crc="d221387d" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="mchr.1g" crc="1e4c1712" map="01"/>
-            <part name="mchr.2g" crc="1283ac09" map="10"/>
+            <part name="mchr.2g" crc="1283ac09" map="01"/>
+            <part name="mchr.1g" crc="1e4c1712" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="mchr.1h" crc="a381f529" map="01"/>
-            <part name="mchr.2h" crc="cc6bf05c" map="10"/>
+            <part name="mchr.2h" crc="cc6bf05c" map="01"/>
+            <part name="mchr.1h" crc="a381f529" map="10"/>
         </interleave>
         <!-- scr2 - starts at 0x1ED000 -->
         <interleave output="16">
-            <part name="bkchr.2k" crc="e4d47aca" map="01"/>
-            <part name="bkchr.4k" crc="c351bd48" map="10"/>
+            <part name="bkchr.4k" crc="c351bd48" map="01"/>
+            <part name="bkchr.2k" crc="e4d47aca" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="bkchr.1k" crc="5a1cbc1b" map="01"/>
-            <part name="bkchr.3k" crc="6bb2b050" map="10"/>
+            <part name="bkchr.3k" crc="6bb2b050" map="01"/>
+            <part name="bkchr.1k" crc="5a1cbc1b" map="10"/>
         </interleave>
         <!-- obj - starts at 0x26D000 -->
         <interleave output="16">

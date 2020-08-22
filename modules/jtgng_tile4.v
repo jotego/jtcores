@@ -289,7 +289,7 @@ generate
     end else begin
         reg [PXLW-1:0] pxl_dly; // to have the same delay as the palette case
         always @(posedge clk)
-            pxl_dly <= { scr_pal0, scr_col0 };
+            pxl_dly <= { scr_pal0, SCxON ? scr_col0 : 4'hf };
         assign scr_pxl = pxl_dly;
     end
 endgenerate

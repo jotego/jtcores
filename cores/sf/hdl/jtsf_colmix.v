@@ -97,7 +97,11 @@ end
 assign pal_rgb = {pal_red, pal_green, pal_blue};
 
 always @(*) begin
-    if( !preLBL ) begin
+    // The original one is likey to gate this with LVBL but
+    // if I do it sometimes colours are missed
+    // There might be an error bit like in Side Arms but it is not documented so far
+    // So I'm just giving priority to writes
+    if( col_uw || col_lw || !LVBL ) begin
         pal_addr = AB;
         pal_uwe   = col_uw;
         pal_lwe   = col_lw;
@@ -114,7 +118,7 @@ assign pal_red   = pal_addr[3:0];
 assign pal_green = pal_addr[3:0];
 assign pal_blue  = pal_addr[3:0];
 `else
-jtframe_ram #(.aw(10),.dw(4),.simhexfile("palr.hex")) u_upal(
+jtframe_ram #(.aw(10),.dw(4)) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[11:8]    ),
@@ -123,7 +127,7 @@ jtframe_ram #(.aw(10),.dw(4),.simhexfile("palr.hex")) u_upal(
     .q          ( pal_red     )
 );
 
-jtframe_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
+jtframe_ram #(.aw(10),.dw(8)) u_lpal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[7:0]     ),
