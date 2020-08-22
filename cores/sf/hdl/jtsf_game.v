@@ -79,8 +79,8 @@ localparam
     CHARW = 13, // 16 bit reads
     MAP1W = 16, // 128 kBytes read in 16-bit words -> 64kW = 2^16
     MAP2W = MAP1W,
-    SCR1W = 20,
-    SCR2W = 19,
+    SCR1W = 19,
+    SCR2W = 18,
     SND1W = 15, // 32 kB
     SND2W = 18, // 256 kB
     MCUW  = 12, // 4kB
