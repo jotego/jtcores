@@ -108,7 +108,7 @@ reg [7:0] din;
 always @(*)
     case( 1'b1 )
         fm_cs:    din = fm_dout;
-        latch_cs: din = snd_din; //snd_latch;
+        latch_cs: din = LAYOUT==9 ? snd_latch : snd_din;
         ram_cs:   din = ram_dout;
         mcu_cs:   din = snd_din;
         default:  din = rom_data;

@@ -61,7 +61,7 @@ jtframe_cenp384 #(.CLK24(1)) u_cenp384(
     .cen_p384 ( cenp384   )
 );
 
-jtbiocom_sound #(.LAYOUT(9)) u_fm(
+jtbiocom_sound #(.LAYOUT(9)) u_fmcpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_alt    ( cen_fm    ),
