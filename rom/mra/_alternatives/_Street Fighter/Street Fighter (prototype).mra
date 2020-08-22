@@ -41,12 +41,12 @@
         <part repeat="0x51000">FF</part>
         <!-- maps - starts at 0xA9000 -->
         <interleave output="16">
-            <part name="bks1j18.3h" crc="551ffc88" map="01"/>
-            <part name="bks1j10.5h" crc="4934aacd" map="10"/>
-        </interleave>
-        <interleave output="16">
             <part name="ms1j18.5g" crc="89e35dc1" map="01"/>
             <part name="ms1j10.3g" crc="f92958b8" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="bks1j18.3h" crc="551ffc88" map="01"/>
+            <part name="bks1j10.5h" crc="4934aacd" map="10"/>
         </interleave>
         <!-- char - starts at 0xE9000 -->
         <part name="vram.4d" crc="bfadfb32"/>
