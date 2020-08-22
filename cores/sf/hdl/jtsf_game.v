@@ -248,7 +248,7 @@ wire       snd_nmi_n;
 
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
-wire [11:0] obj_AB;
+wire [12:0] obj_AB;
 wire [15:0] oram_dout;
 
 wire [21:0] pre_prog;

@@ -69,7 +69,7 @@ module jtsf_main #(
     input              service,
     // BUS sharing
     output      [13:1] cpu_AB,
-    input       [11:0] obj_AB,
+    input       [12:0] obj_AB,
     output             RnW,
     output reg         OKOUT,
     input              obj_br,   // Request bus
@@ -110,7 +110,7 @@ assign cpu_cen = cen8;
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
 assign CPUbus   = !blcnten; // main CPU in control of the bus
-assign ram_addr = CPUbus ? A[RAMW:1] : { 3'b111, obj_AB };
+assign ram_addr = CPUbus ? A[RAMW:1] : { 2'b11, obj_AB };
 
 assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;

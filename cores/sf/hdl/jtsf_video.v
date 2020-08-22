@@ -67,7 +67,7 @@ module jtsf_video #(
     input               map2_ok,
     // OBJ
     input               HINIT,
-    output      [11:0]  obj_AB,
+    output      [12:0]  obj_AB,
     input       [15:0]  main_ram,
     input               OKOUT,
     output              bus_req, // Request bus
@@ -230,7 +230,7 @@ assign scr2_addr = {SCR2W{1'b0}};
 
 wire [9:0] raw_addr;
 
-assign obj_AB = { raw_addr[9:2], 2'b0, raw_addr[1:0] }; // 12 bits
+assign obj_AB = { raw_addr[9:2], 3'b0, raw_addr[1:0] }; // 12 bits
 
 `ifndef NOOBJ
 jtgng_obj #(
