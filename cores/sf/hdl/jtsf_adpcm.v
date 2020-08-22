@@ -90,13 +90,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire irq_st;
+wire       irq_st;
+wire [1:0] fsel = 2'b10; // 8kHz
 
 jt5205 u_adpcm0(
     .rst        ( rst |pcm0_rst ),
     .clk        ( clk           ),
     .cen        ( cenp384       ),
-    .sel        ( 2'b0          ),
+    .sel        ( fsel          ),
     .din        ( pcm0_data     ),
     .sound      ( snd0          ),
     .irq        ( irq_st        ),
@@ -107,7 +108,7 @@ jt5205 u_adpcm1(
     .rst        ( rst |pcm1_rst ),
     .clk        ( clk           ),
     .cen        ( cenp384       ),
-    .sel        ( 2'b0          ),
+    .sel        ( fsel          ),
     .din        ( pcm1_data     ),
     .sound      ( snd1          ),
     .irq        (               ),

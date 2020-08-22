@@ -19,6 +19,9 @@
 module jtsf_game(
     input           rst,
     input           clk,
+    `ifdef JTFRAME_CLK96
+    input           clk48,
+    `endif
     input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
@@ -152,6 +155,7 @@ assign map2_swap          = { map2_data[15:0], map2_data[31:16] };
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
+`ifndef JTFRAME_CLK96
 jtframe_cen48 u_cen48(
     .clk    ( clk           ),
     .cen16  ( pxl2_cen      ),
@@ -169,6 +173,13 @@ jtframe_cen48 u_cen48(
     .cen1p5 (               ),
     .cen1p5b(               )
 );
+`else
+jtframe_cen96 u_cen96(
+    .clk    ( clk           ),
+    .cen16  ( pxl2_cen      ),
+    .cen8   ( pxl_cen       )
+);
+`endif
 
 /////////////////////////////////////
 // 24 MHz based clock enable signals

@@ -141,7 +141,7 @@ always @(*) begin
             4'h8: char_cs = 1;
             4'hb: col_cs  = 1;
             4'hf: pre_ram_cs = A[15]; // 32kB!
-            4'hc: begin
+            4'hc: if(A[19:16]==4'd0) begin
                 io_cs = !A[4] && RnW;
                 if( A[4] && !RnW ) case(A[3:1])
                     // 3'd1: coin_cs    = 1;  // coin counters
@@ -149,9 +149,12 @@ always @(*) begin
                     3'd4: scr2pos_cs = 1;
                     3'd5: begin
                         misc_cs = 1;
-                        OKOUT   = !UDSn;
+                        OKOUT   = 1;
                     end
-                    3'd6: snd_cs     = 1;
+                    3'd6: begin
+                        //OKOUT   = !UDSn; // c0001c
+                        snd_cs  = !LDSn; // c0001d
+                    end
                     default:;
                 endcase
             end
@@ -191,14 +194,15 @@ always @(posedge clk) begin
     else if(cpu_cen) begin
         if( misc_cs) begin
             if( !LDSWn ) begin
-                flip <= cpu_dout[2];
-                // chon <= cpu_dout[3];
-                // scr1on <= cpu_dout[5];
-                // scr2on <= cpu_dout[6];
+                flip   <= cpu_dout[2];
+                charon <= cpu_dout[3];
+                scr1on <= cpu_dout[5];
+                scr2on <= cpu_dout[6];
+                objon  <= cpu_dout[7];
             end
         end
         if( !UDSWn && snd_cs ) begin
-            snd_latch <= cpu_dout[15:8];
+            snd_latch <= cpu_dout[7:0];
             snd_nmi_n <= 0;
         end else begin
             snd_nmi_n <= 1;
@@ -221,19 +225,19 @@ end
 // Cabinet input
 localparam BUT1=4, BUT2=5, BUT3=6, BUT4=7, BUT5=8, BUT6=9;
 
-always @(posedge clk) if(cpu_cen) begin
+always @(posedge clk) if(io_cs) begin
     case( A[3:1] )
-        4'd0: cabinet_input <= { // IN0 in MAME
+        3'd0: cabinet_input <= { // IN0 in MAME
                 4'hf, // 15-12
                 1'b1, // 11
                 joystick2[BUT3], // 10
                 joystick1[BUT3], // 9
                 joystick2[BUT6], // 8
-                4'hf,            // 7-4
-                joystick1[BUT6], // 3
+                5'h1f,           // 7-3
+                joystick1[BUT6], // 2
                 coin_input       // 1-0
             };
-        4'd1: cabinet_input <= { // IN1 in MAME
+        3'd1: cabinet_input <= { // IN1 in MAME
             joystick2[BUT5],
             joystick2[BUT4],
             joystick2[BUT2],
@@ -245,15 +249,16 @@ always @(posedge clk) if(cpu_cen) begin
             joystick1[BUT1],
             joystick1[3:0]
         };
-        4'd4: cabinet_input <= dipsw_b;
-        4'd5: cabinet_input <= dipsw_a;
-        4'd6: cabinet_input <= { // SYS
+        3'd4: cabinet_input <= dipsw_b;
+        3'd5: cabinet_input <= dipsw_a;
+        3'd6: cabinet_input <= { // SYS
             8'hff,
             1'b0, // freeze when high
             4'hf,
             service,
             start_button
         };
+        default: cabinet_input <= 16'hffff;
     endcase
 end
 
