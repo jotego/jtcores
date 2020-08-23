@@ -47,10 +47,12 @@ module jtsf_scroll #( parameter
     output    [PXLW-1:0] scr_pxl
 );
 
+localparam [2:0] MAPRD = 3'd0;
+
 wire [8:0] hscan;
 wire [7:0] vscan, new_pxl;
 // reg  [1:0] sdram_ok;
-wire       data_ok;
+wire       data_ok, tile_cen;
 
 reg  [4:0] HS;
 reg  [7:0] SV, PIC;
@@ -61,7 +63,8 @@ reg [7:0] HF;
 reg [9:0] SCHF;
 reg       H7;
 
-assign    data_ok = !((!map_ok&&HS[2:0]==3'd1) || (!scr_ok&&HS[1:0]==2'd1));
+assign    tile_cen = pxl2_cen & data_ok;
+assign    data_ok  = !((!map_ok&&HS[2:0]==MAPRD) || (!scr_ok&&HS[1:0]==2'd1));
 
 always @(*) begin // Street Fighter
     { PIC, SH } = {7'd0, hscan^{9{flip}}} + hpos;
@@ -75,9 +78,12 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         map_addr <= {MAPAW{1'b0}};
+        HS[3:0]  <= 4'd0;
+        SVmap    <= 5'd0;
     end else begin
+        HS[2:0] <= SH[2:0] ^ {3{flip}};
         // always update the map at the same pixel count
-        if( SH[2:0]==3'd7 ) begin
+        if( SH[2:0]==3'd6 ) begin
             HS[3] <= SH[3] /*^flip*/;
             // Map address shifted left because of 32-bit read
             map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
@@ -86,14 +92,19 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk) begin
-    HS[2:0] <= SH[2:0] ^ {3{flip}};
+
+reg [MAPDW/2-1:0] dout_high, dout_low;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        { dout_high, dout_low } <= {MAPDW{1'b0}};
+    end else begin
+        if( map_ok && SH[2:0]==MAPRD ) begin
+            dout_high <= map_data[MAPDW/2-1:0];
+            dout_low  <= map_data[MAPDW-1:MAPDW/2];
+        end
+    end
 end
-
-wire [MAPDW/2-1:0] dout_high, dout_low;
-
-assign dout_high = map_data[MAPDW/2-1:0];
-assign dout_low  = map_data[MAPDW-1:MAPDW/2];
 
 jtgng_tile4 #(
     .PALETTE        ( 0             ),
@@ -101,7 +112,7 @@ jtgng_tile4 #(
     .LAYOUT         ( LAYOUT        ))
 u_tile4(
     .clk        (  clk          ),
-    .cen6       (  pxl2_cen     ),
+    .cen6       (  tile_cen     ),
     .HS         (  HS           ),
     .SV         (  SVmap        ),
     .attr       (  dout_high    ),
