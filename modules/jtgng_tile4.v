@@ -59,6 +59,9 @@ localparam ATTW =(  LAYOUT==3 || LAYOUT==8 ) ? 5 :
 
 `ifdef SIMULATION
 initial $display("INFO: LAYOUT %2d for %m", LAYOUT);
+initial begin
+    scr_addr = {ROM_AW{1'b0}};
+end
 `endif
 
 reg  [7:0]      addr_lsb;

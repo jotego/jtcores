@@ -29,7 +29,7 @@ module jtsf_colmix #(
     input            cpu_cen,
     // pixel input from generator modules
     input [5:0]      char_pxl,        // character color code
-    input [8:0]      scr1_pxl,
+    input [7:0]      scr1_pxl,
     input [7:0]      scr2_pxl,
     input [7:0]      obj_pxl,
     input            LVBL,
@@ -89,8 +89,8 @@ always @(posedge clk) if(pxl_cen) begin
     case( prio )
         CHAR: pixel_mux[7:0] <= { 2'b0, char_pxl };
         OBJ:  pixel_mux[7:0] <= obj_pxl; // 2301
-        SCR1: pixel_mux[7:0] <= scr1_pxl[7:0];
-        SCR2: pixel_mux[7:0] <= enable_scr2 ? scr2_pxl[7:0] : 8'h00;
+        SCR1: pixel_mux[7:0] <= scr1_pxl;
+        SCR2: pixel_mux[7:0] <= enable_scr2 ? scr2_pxl : 8'h00;
     endcase
 end
 

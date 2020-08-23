@@ -47,9 +47,10 @@ module jtsf_scroll #( parameter
     output    [PXLW-1:0] scr_pxl
 );
 
-wire [8:0] hdump;
-wire [7:0] vdump;
-reg  [1:0] sdram_ok;
+wire [8:0] hscan;
+wire [7:0] vscan, new_pxl;
+// reg  [1:0] sdram_ok;
+wire       data_ok;
 
 reg  [4:0] HS;
 reg  [7:0] SV, PIC;
@@ -60,25 +61,28 @@ reg [7:0] HF;
 reg [9:0] SCHF;
 reg       H7;
 
+assign    data_ok = !((!map_ok&&HS[2:0]==3'd1) || (!scr_ok&&HS[1:0]==2'd1));
+
 always @(*) begin // Street Fighter
-    { PIC, SH } = {7'd0, hdump^{9{flip}}} + hpos;
+    { PIC, SH } = {7'd0, hscan^{9{flip}}} + hpos;
 end
 
 // Street Fighter 16x16
 always @(posedge clk) begin
-    SV <= {8{flip}}^vdump[7:0];
+    SV <= {8{flip}}^vscan[7:0];
 end
 
-always @(posedge clk) begin
-    // always update the map at the same pixel count
-    if( SH[2:0]==3'd7 ) begin
-        HS[3] <= SH[3] /*^flip*/;
-        // Map address shifted left because of 32-bit read
-        map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
-        SVmap    <= SV[4:0];
-        sdram_ok <= 2'b0;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        map_addr <= {MAPAW{1'b0}};
     end else begin
-        sdram_ok <= (map_ok && scr_ok) ? { sdram_ok[0], 1'b1 } : 2'b0;
+        // always update the map at the same pixel count
+        if( SH[2:0]==3'd7 ) begin
+            HS[3] <= SH[3] /*^flip*/;
+            // Map address shifted left because of 32-bit read
+            map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
+            SVmap    <= SV[4:0];
+        end
     end
 end
 
@@ -115,15 +119,18 @@ u_tile4(
     .scr_pxl    ( new_pxl       )
 );
 
-jtframe_tilebuf #(.HW(9),.HOVER(9'h1D0)) u_buffer(
+jtframe_tilebuf #(
+    .HW(9),
+    .HOVER(9'h1E7) // [2:0] must be 7 or the counter gets locked by sdram_ok
+) u_buffer(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
-    .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
-    .hscan      ( H         ),
-    .vscan      ( V         ),
-    .rom_ok     ( sdram_ok  ),
+    .hdump      ( H         ),
+    .vdump      ( V         ),
+    .hscan      ( hscan     ),
+    .vscan      ( vscan     ),
+    .rom_ok     ( data_ok   ),
     .pxl_data   ( new_pxl   ),
     .pxl_dump   ( scr_pxl   )
 );

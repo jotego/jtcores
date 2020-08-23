@@ -90,7 +90,8 @@ wire wr_n;
 wire RAM_we = ram_cs && !WRn;
 wire [7:0] ram_dout, dout, fm_dout;
 wire [7:0] din;
-reg  [7:0] rom2_data, rom2_ok;
+reg  [7:0] rom2_data;
+reg        rom2_ok;
 wire       rom_good;
 
 assign     rom_good = rom_ok & rom2_ok;

@@ -369,6 +369,10 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign scr1posh    = 16'd0;
     assign scr2posh    = 16'd0;
     assign cpu_cen     = cen24_8;
+    assign charon      = 1;
+    assign scr1on      = 1;
+    assign scr2on      = 1;
+    assign objon       = 1;
     assign OKOUT       = 0;
     assign snd_latch   = `SIM_SND_LATCH;
 `endif
