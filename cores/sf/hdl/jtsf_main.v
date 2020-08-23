@@ -197,8 +197,8 @@ always @(posedge clk) begin
             if( !LDSWn ) begin
                 flip   <= cpu_dout[2];
                 charon <= cpu_dout[3];
-                scr1on <= cpu_dout[5];
-                scr2on <= cpu_dout[6];
+                scr1on <= cpu_dout[6];
+                scr2on <= cpu_dout[5];
                 objon  <= cpu_dout[7];
             end
         end

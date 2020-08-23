@@ -48,7 +48,7 @@ wire               wr_n, rd_n, iorq_n, rfsh_n, mreq_n, m1_n;
 
 assign rom2_cs   = !mreq_n && rfsh_n;
 assign rom2_addr = { rom_msb, A[14:0] };
-assign snd       = snd0 + snd1;
+
 
 always @(*) begin
     din = !iorq_n && !rd_n && A[0] ? snd_latch : rom2_data;
@@ -152,5 +152,20 @@ jtframe_z80_romwait u_cpu(
     .rom_ok     ( rom2_ok     )
 );
 
+jtframe_mixer #(.W0(12),.W1(12),.WOUT(13)) u_mixer(
+    .clk    ( clk       ),
+    .cen    ( cenp384   ),
+    // input signals
+    .ch0    ( snd0      ),
+    .ch1    ( snd1      ),
+    .ch2    ( 16'd0     ),
+    .ch3    ( 16'd0     ),
+    // gain for each channel in 4.4 fixed point format
+    .gain0  ( 8'h10     ),
+    .gain1  ( 8'h10     ),
+    .gain2  ( 8'h00     ),
+    .gain3  ( 8'h00     ),
+    .mixed  ( snd       )
+);
 
 endmodule // jtgng_sound

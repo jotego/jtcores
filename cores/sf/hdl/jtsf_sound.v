@@ -48,8 +48,6 @@ wire signed [15:0] fm_left, fm_right;
 wire               cen_fm, cen_fm2, cenp384;
 wire               cen3, cen_alt;
 
-assign left  = fm_left  + {adpcm_snd,3'd0};
-assign right = fm_right + {adpcm_snd,3'd0};
 assign cen_alt = cen3;
 
 jtframe_cen24 u_cenalt(
@@ -122,5 +120,38 @@ jtsf_adpcm u_adpcmcpu(
     // Sound output
     .snd        ( adpcm_snd     )
 );
+
+jtframe_mixer #(.W0(16),.W1(13)) u_left_mix(
+    .clk    ( clk       ),
+    .cen    ( cen_fm2   ),
+    // input signals
+    .ch0    ( fm_left   ),
+    .ch1    ( adpcm_snd ),
+    .ch2    ( 16'd0     ),
+    .ch3    ( 16'd0     ),
+    // gain for each channel in 4.4 fixed point format
+    .gain0  ( 8'h10     ),
+    .gain1  ( 8'h10     ),
+    .gain2  ( 8'h00     ),
+    .gain3  ( 8'h00     ),
+    .mixed  ( left      )
+);
+
+jtframe_mixer #(.W0(16),.W1(13)) u_right_mix(
+    .clk    ( clk       ),
+    .cen    ( cen_fm2   ),
+    // input signals
+    .ch0    ( fm_right  ),
+    .ch1    ( adpcm_snd ),
+    .ch2    ( 16'd0     ),
+    .ch3    ( 16'd0     ),
+    // gain for each channel in 4.4 fixed point format
+    .gain0  ( 8'h10     ),
+    .gain1  ( 8'h10     ),
+    .gain2  ( 8'h00     ),
+    .gain3  ( 8'h00     ),
+    .mixed  ( right     )
+);
+
 
 endmodule

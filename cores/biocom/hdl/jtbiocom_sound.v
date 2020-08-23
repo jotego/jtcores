@@ -47,69 +47,71 @@ module jtbiocom_sound(
 
 parameter LAYOUT=3; // 9 for SF
 
-(*keep*) wire [15:0] A;
-reg  fm_cs, latch_cs, ram_cs, mcu_cs;
-wire mreq_n, rfsh_n, int_n;
-wire WRn;
+wire [15:0] A;
+reg         fm_cs, latch_cs, ram_cs, mcu_cs;
+wire        mreq_n, rfsh_n, int_n;
+wire        WRn, rd_n, wr_n;
+wire [ 7:0] ram_dout, dout, fm_dout;
+reg  [ 7:0] din;
+reg         rom2_ok;
+wire        rom_good;
+
+wire RAM_we = ram_cs && !WRn;
 
 assign snd_mcu_wr = mcu_cs && !WRn;
 assign snd_mcu_rd = mcu_cs &&  WRn;
 
-always @(*) begin
-    rom_cs   = 1'b0;
-    ram_cs   = 1'b0;
-    latch_cs = 1'b0;
-    fm_cs    = 1'b0;
-    mcu_cs   = 1'b0;
+always @(posedge clk) begin
+    rom_cs   <= 1'b0;
+    ram_cs   <= 1'b0;
+    latch_cs <= 1'b0;
+    fm_cs    <= 1'b0;
+    mcu_cs   <= 1'b0;
+    rom2_ok  <= rom_ok;
     if(!mreq_n) begin
         if( LAYOUT==9 ) begin // Stret Fighter
              casez( A[15:13] )
-                3'b0??: rom_cs   = 1;
+                3'b0??: rom_cs <= 1;
                 3'b110: begin
-                    ram_cs   = !A[11];
-                    latch_cs =  A[11];
+                    ram_cs   <= !A[11];
+                    latch_cs <=  A[11];
                 end
-                3'b111: fm_cs = 1;
+                3'b111: fm_cs <= 1;
                 default:;
             endcase
         end else begin // Bionic Commando
              casez( A[15:13] )
-                3'b0??: rom_cs   = 1'b1;
-                3'b100: fm_cs    = 1'b1;
-                3'b101: mcu_cs   = 1'b1;
-                3'b110: ram_cs   = 1'b1;
-                3'b111: latch_cs = 1'b1;
+                3'b0??: begin
+                    rom_cs   <= 1'b1;
+                    rom2_ok  <= 0;
+                end
+                3'b100: fm_cs    <= 1'b1;
+                3'b101: mcu_cs   <= 1'b1;
+                3'b110: ram_cs   <= 1'b1;
+                3'b111: latch_cs <= 1'b1;
             endcase
         end
     end
 end
 
-wire rd_n;
-wire wr_n;
-
-wire RAM_we = ram_cs && !WRn;
-wire [7:0] ram_dout, dout, fm_dout;
-wire [7:0] din;
-reg  [7:0] rom2_data;
-reg        rom2_ok;
-wire       rom_good;
-
 assign     rom_good = rom_ok & rom2_ok;
-
-always @(posedge clk) begin
-    rom2_data <= rom_data;
-    rom2_ok   <= rom_ok;
-end
 
 assign WRn      = wr_n | mreq_n;
 assign snd_dout = dout;
 assign rom_addr = A[14:0];
-assign din      = rom_cs   ? rom2_data : (
-                  fm_cs    ? fm_dout   : (
-                  latch_cs ? (LAYOUT==9 ? snd_latch : snd_din) : (
-                  mcu_cs   ? snd_din   : (
-                  ram_cs   ? ram_dout  :
-                  8'hff ))));
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        din <= 8'hff;
+    end else begin
+        din <= rom_cs   ? rom_data : (
+               fm_cs    ? fm_dout   : (
+               latch_cs ? (LAYOUT==9 ? snd_latch : snd_din) : (
+               mcu_cs   ? snd_din   : (
+               ram_cs   ? ram_dout  :
+               8'hff ))));
+    end
+end
 
 jtframe_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
