@@ -99,7 +99,7 @@ localparam       LAYOUT      = 9;
 localparam       CHRPW       = 6;
 localparam       SCRPW       = 8;
 localparam       OBJPW       = 8;
-localparam       SCR_OFFSET  = 0;
+localparam       SCR_OFFSET  = 6;
 localparam       CHAR_OFFSET = 0;
 localparam       OBJ_DLY     = 6;
 localparam       BLANK_DLY   = 3;
@@ -159,7 +159,8 @@ assign char_mrdy = 1;
 
 `ifndef NOSCR
 jtsf_scroll #(
-    .ROM_AW     ( SCR1W       )
+    .ROM_AW     ( SCR1W       ),
+    .HOFFSET    ( SCR_OFFSET  )
 ) u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
@@ -180,7 +181,8 @@ jtsf_scroll #(
 );
 
 jtsf_scroll #(
-    .ROM_AW     ( SCR2W       )
+    .ROM_AW     ( SCR2W       ),
+    .HOFFSET    ( SCR_OFFSET  )
 ) u_scroll2 (
     .rst          ( rst           ),
     .clk          ( clk           ),

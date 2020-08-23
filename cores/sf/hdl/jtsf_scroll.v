@@ -23,6 +23,7 @@ module jtsf_scroll #( parameter
     LAYOUT          = 9,   // 9=SF
     ROM_AW          = 17,
     PXLW            = 8,
+    HOFFSET         = 0,
     // MAP SIZE
     MAPAW           = 16, // address width
     MAPDW           = 32  // data width
@@ -131,8 +132,9 @@ u_tile4(
 );
 
 jtframe_tilebuf #(
-    .HW(9),
-    .HOVER(9'h1E7) // [2:0] must be 7 or the counter gets locked by sdram_ok
+    .HW     ( 9       ),
+    .HOFFSET( HOFFSET ),
+    .HOVER  ( 9'h1E7  ) // [2:0] must be 7 or the counter gets locked by sdram_ok
 ) u_buffer(
     .rst        ( rst       ),
     .clk        ( clk       ),

@@ -208,8 +208,8 @@ wire LHBL_obj, LVBL_obj;
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
     .HB_START ( 9'h1C7 ),
-    //.HB_END   ( 9'h047 ),
-    .HB_END   ( 9'h04F ),
+    .HB_END   ( 9'h047 ),
+    //.HB_END   ( 9'h04F ),
     .HCNT_END ( 9'h1FF ),
     .VB_START ( 9'hF0  ),
     .VB_END   ( 9'h10  ),
