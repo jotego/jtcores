@@ -97,11 +97,7 @@ end
 assign pal_rgb = {pal_red, pal_green, pal_blue};
 
 always @(*) begin
-    // The original one is likey to gate this with LVBL but
-    // if I do it sometimes colours are missed
-    // There might be an error bit like in Side Arms but it is not documented so far
-    // So I'm just giving priority to writes
-    if( col_uw || col_lw || !LVBL ) begin
+    if( !LVBL ) begin
         pal_addr = AB;
         pal_uwe   = col_uw;
         pal_lwe   = col_lw;

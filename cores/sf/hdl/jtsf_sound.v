@@ -46,9 +46,28 @@ wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 
 wire               cen_fm, cen_fm2, cenp384;
+wire               cen3, cen_alt;
 
 assign left  = fm_left  + {adpcm_snd,3'd0};
 assign right = fm_right + {adpcm_snd,3'd0};
+assign cen_alt = cen3;
+
+jtframe_cen24 u_cenalt(
+    .clk    ( clk       ),
+    .cen12  (           ),
+    .cen12b (           ),
+    .cen8   (           ),
+    .cen6   (           ),
+    .cen6b  (           ),
+    .cen4   (           ),
+    .cen3   ( cen3      ),
+    .cen3q  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5 (           ),
+    .cen1p5b(           )
+);
+
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen (
     .clk        ( clk       ),
@@ -64,6 +83,7 @@ jtframe_cenp384 #(.CLK24(1)) u_cenp384(
 jtbiocom_sound #(.LAYOUT(9)) u_fmcpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
+//    .cen_alt    ( cen_alt   ),
     .cen_alt    ( cen_fm    ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),

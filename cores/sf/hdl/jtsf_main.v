@@ -253,7 +253,7 @@ always @(posedge clk) if(io_cs) begin
         3'd5: cabinet_input <= dipsw_a;
         3'd6: cabinet_input <= { // SYS
             8'hff,
-            1'b0, // freeze when high
+            LVBL, // freeze when high
             4'hf,
             service,
             start_button
