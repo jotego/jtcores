@@ -103,7 +103,7 @@ localparam       SCR_OFFSET  = 0;
 localparam       CHAR_OFFSET = 0;
 localparam       OBJ_DLY     = 6;
 localparam       BLANK_DLY   = 3;
-localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
+localparam [9:0] OBJMAX      = 10'h3FF; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
 
@@ -158,65 +158,45 @@ assign char_mrdy = 1;
 `endif
 
 `ifndef NOSCR
-jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET   ),
-    .AS8MASK    ( 1'b0        ),
-    .ROM_AW     ( SCR1W       ),
-    .PALETTE    ( 0           ),
-    .LAYOUT     ( LAYOUT      )
+jtsf_scroll #(
+    .ROM_AW     ( SCR1W       )
 ) u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen6         ( pxl_cen       ),
-    .V128         ( {1'b0, V[7:0]}),
+    .pxl2_cen     ( pxl2_cen      ),
+    .V            ( V[7:0]        ),
     .H            ( H             ),
     .SCxON        ( scr1on        ),
     .hpos         ( scr1posh      ),
-    .vpos         ( 8'd0          ),
     .flip         ( flip          ),
-    // Palette PROMs - unused
-    .prog_addr    ( 8'd0          ),
-    .prom_hi_we   ( 1'b0          ),
-    .prom_lo_we   ( 1'b0          ),
-    .prom_din     ( 4'd0          ),
-
     // ROM
     .map_addr     ( map1_addr     ),
     .map_data     ( map1_data     ),
-    //.map_ok       ( map1_ok       ),
+    .map_ok       ( map1_ok       ),
     .scr_addr     ( scr1_addr     ),
-    .scrom_data   ( scr1_data     ),
+    .scr_data     ( scr1_data     ),
+    .scr_ok       ( scr1_ok       ),
     .scr_pxl      ( scr1_pxl      )
 );
 
-jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET   ),
-    .AS8MASK    ( 1'b0        ),
-    .ROM_AW     ( SCR2W       ),
-    .PALETTE    ( 0           ),
-    .LAYOUT     ( LAYOUT      )
+jtsf_scroll #(
+    .ROM_AW     ( SCR2W       )
 ) u_scroll2 (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen6         ( pxl_cen       ),
-    .V128         ( {1'b0, V[7:0]}),
+    .pxl2_cen     ( pxl2_cen      ),
+    .V            ( V[7:0]        ),
     .H            ( H             ),
     .SCxON        ( scr2on        ),
     .hpos         ( scr2posh      ),
-    .vpos         ( 8'd0          ),
     .flip         ( flip          ),
-    // Palette PROMs - unused
-    .prog_addr    ( 8'd0          ),
-    .prom_hi_we   ( 1'b0          ),
-    .prom_lo_we   ( 1'b0          ),
-    .prom_din     ( 4'd0          ),
-
     // ROM
     .map_addr     ( map2_addr     ),
     .map_data     ( map2_data     ),
-    //.map_ok       ( map2_ok       ),
+    .map_ok       ( map2_ok       ),
     .scr_addr     ( scr2_addr     ),
-    .scrom_data   ( scr2_data     ),
+    .scr_data     ( scr2_data     ),
+    .scr_ok       ( scr2_ok       ),
     .scr_pxl      ( scr2_pxl      )
 );
 `else
@@ -230,7 +210,13 @@ assign scr2_addr = {SCR2W{1'b0}};
 
 wire [9:0] raw_addr;
 
-assign obj_AB = { raw_addr[9:2], 3'b0, raw_addr[1:0] }; // 12 bits
+//assign obj_AB = { raw_addr[9:2], 3'b111, raw_addr[1:0] }; // 12 bits
+//assign obj_AB = { raw_addr[9:2], 3'b110, raw_addr[1:0] }; // 12 bits
+assign obj_AB = { raw_addr[9:2], 3'b101, raw_addr[1:0] }; // 12 bits
+
+//assign obj_AB = { raw_addr[9:2], 3'b100, raw_addr[1:0] }; // 12 bits
+//assign obj_AB = { raw_addr[9:2], 3'b011, raw_addr[1:0] }; // 12 bits
+//assign obj_AB = { raw_addr[9:2], 3'b000, raw_addr[1:0] }; // 12 bits
 
 `ifndef NOOBJ
 jtgng_obj #(

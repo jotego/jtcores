@@ -133,6 +133,7 @@ always @(*) begin
     // mcu_DMAONn = 1;   // for once, I leave the original active low setting
     scr1pos_cs = 0;
     scr2pos_cs = 0;
+    snd_nmi_n  = 1;
 
     BERRn      = 1;
 
@@ -154,6 +155,7 @@ always @(*) begin
                     3'd6: begin
                         //OKOUT   = !UDSn; // c0001c
                         snd_cs  = !LDSn; // c0001d
+                        snd_nmi_n = 0;
                     end
                     default:;
                 endcase
@@ -189,7 +191,6 @@ always @(posedge clk) begin
         scr1on       <= 1;
         scr2on       <= 1;
         objon        <= 1;
-        snd_nmi_n    <= 1;
     end
     else if(cpu_cen) begin
         if( misc_cs) begin
@@ -203,9 +204,6 @@ always @(posedge clk) begin
         end
         if( !UDSWn && snd_cs ) begin
             snd_latch <= cpu_dout[7:0];
-            snd_nmi_n <= 0;
-        end else begin
-            snd_nmi_n <= 1;
         end
     end
 end

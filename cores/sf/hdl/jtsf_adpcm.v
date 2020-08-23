@@ -92,9 +92,16 @@ end
 
 wire       irq_st;
 wire [1:0] fsel = 2'b10; // 8kHz
+reg        rst0_sync, rst1_sync;
+
+always @(posedge clk) begin
+    rst0_sync <= rst | pcm0_rst;
+    rst1_sync <= rst | pcm1_rst;
+end
+
 
 jt5205 u_adpcm0(
-    .rst        ( rst |pcm0_rst ),
+    .rst        ( rst0_sync     ),
     .clk        ( clk           ),
     .cen        ( cenp384       ),
     .sel        ( fsel          ),
@@ -105,7 +112,7 @@ jt5205 u_adpcm0(
 );
 
 jt5205 u_adpcm1(
-    .rst        ( rst |pcm1_rst ),
+    .rst        ( rst1_sync     ),
     .clk        ( clk           ),
     .cen        ( cenp384       ),
     .sel        ( fsel          ),

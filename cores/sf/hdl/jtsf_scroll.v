@@ -1,0 +1,131 @@
+/*  This file is part of JT_GNG.
+    JT_GNG program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JT_GNG program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JT_GNG.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 19-2-2019 */
+
+// 1943 Scroll Generation
+// Schematics pages 8/15...
+
+module jtsf_scroll #( parameter
+    LAYOUT          = 9,   // 9=SF
+    ROM_AW          = 17,
+    PXLW            = 8,
+    // MAP SIZE
+    MAPAW           = 16, // address width
+    MAPDW           = 32  // data width
+)(
+    input                rst,
+    input                clk,
+    input                pxl2_cen,
+    input         [ 7:0] V, // V-V1
+    input         [ 8:0] H, // H256-H1
+
+    input         [15:0] hpos,
+    input                SCxON,
+    input                flip,
+    // Map ROM
+    output reg [MAPAW-1:0] map_addr,
+    input      [MAPDW-1:0] map_data,
+    input                  map_ok,
+    // Gfx ROM
+    output  [ROM_AW-1:0] scr_addr,
+    input         [15:0] scr_data,
+    input                scr_ok,
+    output    [PXLW-1:0] scr_pxl
+);
+
+wire [8:0] hdump;
+wire [7:0] vdump;
+reg  [1:0] sdram_ok;
+
+reg  [4:0] HS;
+reg  [7:0] SV, PIC;
+reg  [8:0] SH;
+
+reg [4:0] SVmap; // SV latched at the time the map_addr is set
+reg [7:0] HF;
+reg [9:0] SCHF;
+reg       H7;
+
+always @(*) begin // Street Fighter
+    { PIC, SH } = {7'd0, hdump^{9{flip}}} + hpos;
+end
+
+// Street Fighter 16x16
+always @(posedge clk) begin
+    SV <= {8{flip}}^vdump[7:0];
+end
+
+always @(posedge clk) begin
+    // always update the map at the same pixel count
+    if( SH[2:0]==3'd7 ) begin
+        HS[3] <= SH[3] /*^flip*/;
+        // Map address shifted left because of 32-bit read
+        map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
+        SVmap    <= SV[4:0];
+        sdram_ok <= 2'b0;
+    end else begin
+        sdram_ok <= (map_ok && scr_ok) ? { sdram_ok[0], 1'b1 } : 2'b0;
+    end
+end
+
+always @(posedge clk) begin
+    HS[2:0] <= SH[2:0] ^ {3{flip}};
+end
+
+wire [MAPDW/2-1:0] dout_high, dout_low;
+
+assign dout_high = map_data[MAPDW/2-1:0];
+assign dout_low  = map_data[MAPDW-1:MAPDW/2];
+
+jtgng_tile4 #(
+    .PALETTE        ( 0             ),
+    .ROM_AW         ( ROM_AW        ),
+    .LAYOUT         ( LAYOUT        ))
+u_tile4(
+    .clk        (  clk          ),
+    .cen6       (  pxl2_cen     ),
+    .HS         (  HS           ),
+    .SV         (  SVmap        ),
+    .attr       (  dout_high    ),
+    .id         (  dout_low     ),
+    .SCxON      ( SCxON         ),
+    .flip       ( flip          ),
+    // Palette PROMs
+    .prog_addr  (               ),
+    .prom_hi_we (               ),
+    .prom_lo_we (               ),
+    .prom_din   (               ),
+    // Gfx ROM
+    .scr_addr   ( scr_addr      ),
+    .rom_data   ( scr_data      ),
+    .scr_pxl    ( new_pxl       )
+);
+
+jtframe_tilebuf #(.HW(9),.HOVER(9'h1D0)) u_buffer(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl2_cen   ( pxl2_cen  ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    .hscan      ( H         ),
+    .vscan      ( V         ),
+    .rom_ok     ( sdram_ok  ),
+    .pxl_data   ( new_pxl   ),
+    .pxl_dump   ( scr_pxl   )
+);
+
+endmodule

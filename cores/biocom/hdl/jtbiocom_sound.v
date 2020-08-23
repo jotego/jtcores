@@ -89,10 +89,26 @@ wire wr_n;
 
 wire RAM_we = ram_cs && !WRn;
 wire [7:0] ram_dout, dout, fm_dout;
+wire [7:0] din;
+reg  [7:0] rom2_data, rom2_ok;
+wire       rom_good;
 
-assign WRn = wr_n | mreq_n;
+assign     rom_good = rom_ok & rom2_ok;
+
+always @(posedge clk) begin
+    rom2_data <= rom_data;
+    rom2_ok   <= rom_ok;
+end
+
+assign WRn      = wr_n | mreq_n;
 assign snd_dout = dout;
 assign rom_addr = A[14:0];
+assign din      = rom_cs   ? rom2_data : (
+                  fm_cs    ? fm_dout   : (
+                  latch_cs ? (LAYOUT==9 ? snd_latch : snd_din) : (
+                  mcu_cs   ? snd_din   : (
+                  ram_cs   ? ram_dout  :
+                  8'hff ))));
 
 jtframe_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
@@ -102,17 +118,6 @@ jtframe_ram #(.aw(11)) u_ram(
     .we     ( RAM_we   ),
     .q      ( ram_dout )
 );
-
-reg [7:0] din;
-
-always @(*)
-    case( 1'b1 )
-        fm_cs:    din = fm_dout;
-        latch_cs: din = LAYOUT==9 ? snd_latch : snd_din;
-        ram_cs:   din = ram_dout;
-        mcu_cs:   din = snd_din;
-        default:  din = rom_data;
-    endcase // {latch_cs,rom_cs,ram_cs}
 
 wire iorq_n, m1_n, nmiff_n;
 wire irq_ack = !iorq_n && !m1_n;
@@ -150,24 +155,26 @@ jtframe_z80_romwait u_cpu(
     .dout       ( dout        ),
     // manage access to ROM data from SDRAM
     .rom_cs     ( rom_cs      ),
-    .rom_ok     ( rom_ok      ),
+    .rom_ok     ( rom2_ok     ),
     // unused
     .cpu_cen    (             )
 );
+
+wire fm_csn = ~fm_cs;
 
 jt51 u_jt51(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
     .cen        ( cen_fm    ),
     .cen_p1     ( cen_fm2   ),
-    .cs_n       ( !fm_cs    ), // chip select
+    .cs_n       ( fm_csn    ), // chip select
     .wr_n       ( WRn       ), // write
     .a0         ( A[0]      ),
     .din        ( dout      ), // data in
     .dout       ( fm_dout   ), // data out
     .ct1        (           ),
     .ct2        (           ),
-    .irq_n      ( int_n     ),  // I do not synchronize this signal
+    .irq_n      ( int_n     ),
     // Low resolution output (same as real chip)
     .sample     ( sample    ), // marks new output sample
     .left       (           ),

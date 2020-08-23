@@ -122,7 +122,7 @@ wire        service = 1'b1;
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data, obj_data;
 wire [15:0] main_data, ram_data;
-wire [31:0] map1_data, map2_data, map1_swap, map2_swap;
+wire [31:0] map1_data, map2_data;
 wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
 // wire        mcu_brn;
@@ -150,8 +150,6 @@ wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
-assign map1_swap          = { map1_data[15:0], map1_data[31:16] };
-assign map2_swap          = { map2_data[15:0], map2_data[31:16] };
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -504,13 +502,13 @@ assign char_busy = 1'b0;
 wire [9:0] slot_cs, slot_ok, slot_wr, slot_clr;
 
 assign slot_cs = {
-  LVBL, 1'b1, LVBL, snd2_cs, snd1_cs,
-  LVBL, main_cs, LVBL, ram_cs, LVBL };
+  LVBL, 1'b1, LVBL, LVBL, snd1_cs,
+  LVBL, main_cs, snd2_cs, ram_cs, LVBL };
 
 
 assign {
-  map1_ok, obj_ok, map2_ok, snd2_ok, snd1_ok,
-  scr2_ok, main_ok, scr1_ok, ram_ok, char_ok } = slot_ok;
+  map1_ok, obj_ok, map2_ok, scr1_ok, snd1_ok,
+  scr2_ok, main_ok, snd2_ok, ram_ok, char_ok } = slot_ok;
 
 assign slot_wr[9:2] = 7'd0;
 assign slot_wr[1]   = !RnW;
@@ -525,8 +523,8 @@ jtframe_sdram_mux #(
     .SLOT1_DW    ( 16            ),
     .SLOT1_TYPE  ( 2             ), // R/W access
 
-    .SLOT2_AW    ( SCR1W         ), // Scroll 1
-    .SLOT2_DW    ( 16            ),
+    .SLOT6_AW    ( SCR1W         ), // Scroll 1
+    .SLOT6_DW    ( 16            ),
 
     .SLOT3_AW    ( MAINW         ), // main ROM
     .SLOT3_DW    ( 16            ),
@@ -537,8 +535,8 @@ jtframe_sdram_mux #(
     .SLOT5_AW    ( SND1W         ), // Sound 1
     .SLOT5_DW    (  8            ),
 
-    .SLOT6_AW    ( SND2W         ), // Sound 2
-    .SLOT6_DW    (  8            ),
+    .SLOT2_AW    ( SND2W         ), // Sound 2
+    .SLOT2_DW    (  8            ),
 
     .SLOT7_AW    ( MAP2W         ), // Map 2
     .SLOT7_DW    ( 32            ),
@@ -555,11 +553,11 @@ jtframe_sdram_mux #(
 
     .slot0_offset( CHAR_OFFSET   ),
     .slot1_offset( RAM_OFFSET    ),
-    .slot2_offset( SCR1_OFFSET   ),
+    .slot2_offset( SND2_OFFSET   ),
     .slot3_offset( MAIN_OFFSET   ),
     .slot4_offset( SCR2_OFFSET   ),
     .slot5_offset( SND_OFFSET    ),
-    .slot6_offset( SND2_OFFSET   ),
+    .slot6_offset( SCR1_OFFSET   ),
     .slot7_offset( MAP2_OFFSET   ),
     .slot8_offset( OBJ_OFFSET    ),
     .slot9_offset( MAP1_OFFSET   ),
@@ -569,22 +567,22 @@ jtframe_sdram_mux #(
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( ram_addr      ),
-    .slot2_addr  ( scr1_addr     ),
+    .slot2_addr  ( snd2_addr     ),
     .slot3_addr  ( main_addr     ),
     .slot4_addr  ( scr2_addr     ),
     .slot5_addr  ( snd1_addr     ),
-    .slot6_addr  ( snd2_addr     ),
+    .slot6_addr  ( scr1_addr     ),
     .slot7_addr  ( map2_addr     ),
     .slot8_addr  ( obj_addr      ),
     .slot9_addr  ( map1_addr     ),
 
     .slot0_dout  ( char_data     ),
     .slot1_dout  ( ram_data      ),
-    .slot2_dout  ( scr1_data     ),
+    .slot2_dout  ( snd2_data     ),
     .slot3_dout  ( main_data     ),
     .slot4_dout  ( scr2_data     ),
     .slot5_dout  ( snd1_data     ),
-    .slot6_dout  ( snd2_data     ),
+    .slot6_dout  ( scr1_data     ),
     .slot7_dout  ( map2_data     ),
     .slot8_dout  ( obj_data      ),
     .slot9_dout  ( map1_data     ),
