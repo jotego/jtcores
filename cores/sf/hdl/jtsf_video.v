@@ -100,7 +100,7 @@ localparam       CHRPW       = 6;
 localparam       SCRPW       = 8;
 localparam       OBJPW       = 8;
 localparam       SCR_OFFSET  = 6;
-localparam       CHAR_OFFSET = 0;
+localparam       CHAR_OFFSET = 4;
 localparam       OBJ_DLY     = 6;
 localparam       BLANK_DLY   = 3;
 localparam [9:0] OBJMAX      = 10'h3FF; // DMA buffer 512 bytes = 4*128
