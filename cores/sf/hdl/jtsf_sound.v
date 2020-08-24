@@ -49,8 +49,10 @@ wire               cen_fm, cen_fm2, cenp384;
 wire               cen3, cen_alt, cen3p5, cen1p7 ;
 
 assign cen_alt = cen3;
-assign cen_fm  = cen3;
-assign cen_fm2 = cen1p5;
+//assign cen_fm  = cen3;
+//assign cen_fm2 = cen1p5;
+assign cen_fm  = cen3p5;
+assign cen_fm2 = cen1p7;
 
 jtframe_cen24 u_cenalt(
     .clk    ( clk       ),
