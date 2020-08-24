@@ -46,9 +46,11 @@ wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 
 wire               cen_fm, cen_fm2, cenp384;
-wire               cen3, cen_alt;
+wire               cen3, cen_alt, cen3p5, cen1p7 ;
 
 assign cen_alt = cen3;
+assign cen_fm  = cen3;
+assign cen_fm2 = cen1p5;
 
 jtframe_cen24 u_cenalt(
     .clk    ( clk       ),
@@ -62,15 +64,15 @@ jtframe_cen24 u_cenalt(
     .cen3q  (           ),
     .cen3b  (           ),
     .cen3qb (           ),
-    .cen1p5 (           ),
+    .cen1p5 ( cen1p5    ),
     .cen1p5b(           )
 );
 
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen (
     .clk        ( clk       ),
-    .cen_3p57   ( cen_fm    ),
-    .cen_1p78   ( cen_fm2   )
+    .cen_3p57   ( cen3p5    ),
+    .cen_1p78   ( cen1p7    )
 );
 
 jtframe_cenp384 #(.CLK24(1)) u_cenp384(

@@ -34,7 +34,7 @@ module jtbiocom_sound(
     output          snd_mcu_wr,
     output          snd_mcu_rd,
     // ROM
-    output  [14:0]  rom_addr,
+    output reg [14:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
@@ -71,7 +71,10 @@ always @(posedge clk) begin
     if(!mreq_n) begin
         if( LAYOUT==9 ) begin // Stret Fighter
              casez( A[15:13] )
-                3'b0??: rom_cs <= 1;
+                3'b0??: begin
+                    rom_cs <= 1;
+                    rom_addr <= A[14:0];
+                end
                 3'b110: begin
                     ram_cs   <= !A[11];
                     latch_cs <=  A[11];
@@ -98,7 +101,6 @@ assign     rom_good = rom_ok & rom2_ok;
 
 assign WRn      = wr_n | mreq_n;
 assign snd_dout = dout;
-assign rom_addr = A[14:0];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
