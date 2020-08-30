@@ -213,7 +213,7 @@ end
 // to avoid that a little bit of logic is needed:
 reg    dsn_dly;
 
-assign ram_cs  = dsn_dly ? reg_ram_cs  : pre_ram_cs;
+assign ram_cs  = bus_ack | (dsn_dly ? reg_ram_cs  : pre_ram_cs);
 
 always @(posedge clk) if(cen8) begin
     reg_ram_cs  <= pre_ram_cs;
