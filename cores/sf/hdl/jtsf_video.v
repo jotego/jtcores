@@ -214,17 +214,25 @@ wire [9:0] raw_addr;
 
 //assign obj_AB = { raw_addr[9:2], 3'b111, raw_addr[1:0] }; // 12 bits
 //assign obj_AB = { raw_addr[9:2], 3'b110, raw_addr[1:0] }; // 12 bits
-assign obj_AB = { raw_addr[9:2], 3'b101, raw_addr[1:0] }; // 12 bits
+//assign obj_AB = { raw_addr[9:2], 3'b101, raw_addr[1:0] }; // 12 bits
 
 //assign obj_AB = { raw_addr[9:2], 3'b100, raw_addr[1:0] }; // 12 bits
 //assign obj_AB = { raw_addr[9:2], 3'b011, raw_addr[1:0] }; // 12 bits
-//assign obj_AB = { raw_addr[9:2], 3'b000, raw_addr[1:0] }; // 12 bits
+assign obj_AB = { 1'b1, raw_addr[9:3], 1'b0, raw_addr[2:0] }; // 12 bits
+
+// Memories on B board (object generator)
+// 4x TMM2015 together = 4 x 1 kB = 4 kB or 2 kWord = full obj table
+// 2x TMM2015 together = 2 x 1 kB = 2 kB or 1kWord = line obj table
+// 2x TMM2018 together = 2 x 2 kB = 4 kB = line buffers
+// DMAW = 2 kWord = 11 bits
+// 8MHz read/write clock, 16 pixel objects -> max 32 objects
+// OBJ ROM size < 2 MB = 2^14 OBJ --> probably DMA DW is 14 (Bionic Commando was 12)
 
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .DMA_AW       ( 10          ),
-    .DMA_DW       ( 12          ),
+    .DMA_DW       ( 16          ),
     .PALW         ( OBJPW-4     ),
     .PXL_DLY      ( OBJ_DLY     ),
     .LAYOUT       ( LAYOUT      ),
@@ -239,7 +247,7 @@ jtgng_obj #(
     .pxl_cen    ( pxl_cen     ),
     // CPU bus
     .AB         ( raw_addr    ),
-    .DB         ( obj_ram     ),
+    .DB         ( main_ram    ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),

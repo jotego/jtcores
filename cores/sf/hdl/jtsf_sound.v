@@ -42,6 +42,9 @@ module jtsf_sound #(
     output               sample
 );
 
+localparam [7:0] FM_GAIN  = 8'h08;
+localparam [7:0] PCM_GAIN = 8'h18;
+
 wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 
@@ -85,7 +88,6 @@ jtframe_cenp384 #(.CLK24(1)) u_cenp384(
 jtbiocom_sound #(.LAYOUT(9)) u_fmcpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-//    .cen_alt    ( cen_alt   ),
     .cen_alt    ( cen_fm    ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
@@ -134,8 +136,8 @@ jtframe_mixer #(.W0(16),.W1(13)) u_left_mix(
     .ch2    ( 16'd0     ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h10     ),
-    .gain1  ( 8'h10     ),
+    .gain0  ( FM_GAIN   ),
+    .gain1  ( PCM_GAIN  ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
     .mixed  ( left      )
@@ -150,8 +152,8 @@ jtframe_mixer #(.W0(16),.W1(13)) u_right_mix(
     .ch2    ( 16'd0     ),
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
-    .gain0  ( 8'h10     ),
-    .gain1  ( 8'h10     ),
+    .gain0  ( FM_GAIN   ),
+    .gain1  ( PCM_GAIN  ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
     .mixed  ( right     )
