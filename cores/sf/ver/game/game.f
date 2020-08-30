@@ -22,8 +22,10 @@
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
 ../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
+../../../modules/jtframe/hdl/sound/jtframe_mixer.v
 -F ../../../modules/jtgng_video.f
 # -F ../../../modules/jtgng_sound.f
+../../../modules/jtframe/hdl/clocking/jtframe_cen96.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen24.v
 ../../../modules/jtframe/hdl/video/jtframe_blank.v

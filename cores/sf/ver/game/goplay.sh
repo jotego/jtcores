@@ -1,3 +1,4 @@
 #!/bin/bash
 
-go.sh -video 550 -d DUMP_START=400 -w -d SIM_INPUTS $*
+ln -s --force coin_inputs.hex sim_inputs.hex
+go.sh -video 1050 -d DUMP_START=1040 -w -d SIM_INPUTS $*

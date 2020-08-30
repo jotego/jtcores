@@ -34,6 +34,6 @@ fi
 $JTFRAME/bin/sim.sh $MIST \
     -sysname sf \
     -def ../../hdl/jtsf.def \
-    -videow 376 -videoh 224 \
+    -videow 384 -videoh 224 \
     -d COLORW=4 -d VIDEO_START=1 -d JT51_NODEBUG\
     $*
