@@ -218,7 +218,7 @@ wire [9:0] raw_addr;
 
 //assign obj_AB = { raw_addr[9:2], 3'b100, raw_addr[1:0] }; // 12 bits
 //assign obj_AB = { raw_addr[9:2], 3'b011, raw_addr[1:0] }; // 12 bits
-assign obj_AB = { 1'b1, raw_addr[9:3], 1'b0, raw_addr[2:0] }; // 12 bits
+assign obj_AB = { 2'b10, raw_addr[9:3], 1'b0, raw_addr[2:0] }; // 12 bits
 
 // Memories on B board (object generator)
 // 4x TMM2015 together = 4 x 1 kB = 4 kB or 2 kWord = full obj table
