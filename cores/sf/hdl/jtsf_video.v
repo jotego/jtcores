@@ -103,7 +103,7 @@ localparam       SCR_OFFSET  = 6;
 localparam       CHAR_OFFSET = 4;
 localparam       OBJ_DLY     = 6;
 localparam       BLANK_DLY   = 3;
-localparam [9:0] OBJMAX      = 10'h3FF; // DMA buffer 512 bytes = 4*128
+localparam [9:0] OBJMAX      = 10'h1FF; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
 
@@ -210,15 +210,14 @@ assign scr1_addr = {SCR2W{1'b0}};
 assign scr2_addr = {SCR2W{1'b0}};
 `endif
 
-wire [9:0] raw_addr;
+wire [ 9:0] raw_addr;
+wire [15:0] obj_din;
 
-//assign obj_AB = { raw_addr[9:2], 3'b111, raw_addr[1:0] }; // 12 bits
-//assign obj_AB = { raw_addr[9:2], 3'b110, raw_addr[1:0] }; // 12 bits
-//assign obj_AB = { raw_addr[9:2], 3'b101, raw_addr[1:0] }; // 12 bits
-
-//assign obj_AB = { raw_addr[9:2], 3'b100, raw_addr[1:0] }; // 12 bits
-//assign obj_AB = { raw_addr[9:2], 3'b011, raw_addr[1:0] }; // 12 bits
-assign obj_AB = { 2'b10, raw_addr[9:3], 1'b0, raw_addr[2:0] }; // 12 bits
+//assign obj_AB = { 2'b10, raw_addr[9:3], 1'b0, raw_addr[2:0] }; // 12 bits
+//assign obj_AB = { 2'b10, raw_addr[9:2], 1'b0, raw_addr[1:0] }; // 12 bits
+assign obj_AB = { 1'b1, raw_addr[8:2], 3'b0, raw_addr[1:0] }; // 12 bits
+// assign obj_din = { main_ram[7:0], main_ram[15:8] };
+assign obj_din = main_ram;
 
 // Memories on B board (object generator)
 // 4x TMM2015 together = 4 x 1 kB = 4 kB or 2 kWord = full obj table
@@ -247,7 +246,7 @@ jtgng_obj #(
     .pxl_cen    ( pxl_cen     ),
     // CPU bus
     .AB         ( raw_addr    ),
-    .DB         ( main_ram    ),
+    .DB         ( obj_din     ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),

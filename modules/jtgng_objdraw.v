@@ -164,7 +164,7 @@ end else begin
             // DW-4 refers to bit 12 but it needs this indirect index
             // so verilator does not complaint about the 12 when DW is only 8
             objx <= vinzone ?
-                { LAYOUT==3 ? objbuf_data[DW-4] : hover, objbuf_data[7:0] } // LAYOUT==3 implies DW=16
+                { (LAYOUT==3 || LAYOUT==9) ? objbuf_data[8] : hover, objbuf_data[7:0] } // LAYOUT==3 implies DW=16
                 : XOUT;
         end
         default:;
