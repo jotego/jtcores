@@ -108,7 +108,7 @@ wire        HINIT;
 wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
-wire        main_cs, ram_cs,
+wire        main_cs, ram_cs, ram_pre_cs,
             snd1_cs, snd2_cs,
             char_cs, col_uw,  col_lw;
 wire        charon, scr1on, scr2on, objon;
@@ -247,6 +247,7 @@ wire       snd_nmi_n;
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
 wire [12:0] obj_AB;
+reg  [12:0] obj_AB2;
 wire [15:0] oram_dout;
 
 wire [21:0] pre_prog;
@@ -254,6 +255,12 @@ wire [21:0] pre_prog;
 assign prog_addr = (ioctl_addr[22:1]>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
+
+always @(posedge clk) begin
+    obj_AB2 <= obj_AB;
+end
+
+assign ram_cs = bus_ack ? (obj_AB2==obj_AB) : ram_pre_cs;
 
 jtframe_dwnld #(
     .PROM_START ( PROM_START )
@@ -333,7 +340,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .addr       ( main_addr     ),
     // RAM
     .ram_addr   ( ram_addr      ),
-    .ram_cs     ( ram_cs        ),
+    .ram_cs     ( ram_pre_cs    ),
     .ram_data   ( ram_data      ),
     .ram_ok     ( ram_ok        ),
     // ROM

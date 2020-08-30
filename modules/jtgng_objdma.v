@@ -93,7 +93,7 @@ always @(posedge clk, posedge rst)
         endcase
     end
 
-always @(posedge clk) if(cen ) begin
+always @(posedge clk) if(cen) begin
     if( !blen )
         full_cnt <= {AW+2{1'b0}};
     else begin
