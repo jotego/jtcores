@@ -68,17 +68,17 @@ localparam IDW = LAYOUT==3 ? 12 : (ROM_AW-6);
 // Width of ID code directly read from the buffer at step 0
 localparam IDWDIRECT = IDW<DW ? IDW : DW;
 
-reg [IDW-1:0] id;
-reg [PALW-1:0] objpal, objpal1;
-reg [8:0] objx;
-reg obj_vflip, obj_hflip, hover;
-wire posvflip;
-reg  poshflip;
-reg vinzone;
+reg  [ IDW-1:0] id;
+reg  [PALW-1:0] objpal, objpal1;
+reg  [     8:0] objx;
+reg             obj_vflip, obj_hflip, hover;
+wire            posvflip;
+reg             poshflip;
+reg             vinzone;
+reg             resize;
+reg             poshflip2;
+reg  [     7:0] Vsum;
 
-reg poshflip2;
-
-reg [7:0] Vsum;
 
 always @(*) begin
     Vsum = (~VF + { {7{~flip}}, 1'b1})+objbuf_data[7:0]; // this is equivalent to
@@ -154,11 +154,19 @@ end else begin
                 obj_vflip <= objbuf_data[9];
                 obj_hflip <= objbuf_data[8];
                 objpal    <= objbuf_data[3:0];
+                resize    <= objbuf_data[10];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step
-            Vobj    <=  Vsum[3:0];
-            vinzone <= &Vsum[7:4];
+            if( LAYOUT == 9 ) begin // SF
+                Vobj    <= Vsum[3:0];
+                vinzone <= resize ? &Vsum[7:5] : &Vsum[7:4];
+                if( resize )
+                    id[4] <= ~Vsum[4];
+            end else begin
+                Vobj    <=  Vsum[3:0];
+                vinzone <= &Vsum[7:4];
+            end
         end
         4'd3: begin
             // DW-4 refers to bit 12 but it needs this indirect index
