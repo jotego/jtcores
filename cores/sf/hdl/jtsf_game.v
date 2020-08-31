@@ -260,7 +260,6 @@ always @(posedge clk) begin
     obj_AB2 <= obj_AB;
 end
 
-assign ram_cs = bus_ack ? (obj_AB2==obj_AB) : ram_pre_cs;
 
 jtframe_dwnld #(
     .PROM_START ( PROM_START )
@@ -289,6 +288,8 @@ wire [ 1:0] dsn;
 assign dsn = {UDSWn, LDSWn};
 
 `ifndef NOMAIN
+assign ram_cs = bus_ack ? (obj_AB2==obj_AB) : ram_pre_cs;
+
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rst        ( rst           ),
     .clk        ( clk24         ),
@@ -366,13 +367,9 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     `endif
     assign main_addr   = {MAINW{1'b0}};
     assign cpu_AB      = 13'd0;
-    assign cpu_dout    = 16'd0;
     assign char_cs     = 0;
-    assign bus_ack     = 0;
+    assign bus_ack     = 1;
     assign flip        = 0;
-    assign RnW         = 1;
-    assign UDSWn       = 1;
-    assign LDSWn       = 1;
     assign scr1posh    = 16'd0;
     assign scr2posh    = 16'd0;
     assign cpu_cen     = cen24_8;
@@ -380,8 +377,31 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign scr1on      = 1;
     assign scr2on      = 1;
     assign objon       = 1;
-    assign OKOUT       = 0;
     assign snd_latch   = `SIM_SND_LATCH;
+    `ifdef OBJLOAD
+    jtsf_objload u_objload(
+        .clk        ( clk       ),
+        .rst        ( loop_rst  ),
+        .obj_AB     ( obj_AB    ),
+        .cen8       ( pxl_cen   ),
+        .LVBL       ( LVBL      ),
+        .ram_addr   ( ram_addr  ),
+        .cpu_dout   ( cpu_dout  ),
+        .UDSWn      ( UDSWn     ),
+        .LDSWn      ( LDSWn     ),
+        .RnW        ( RnW       ),
+        .ram_cs     ( ram_cs    ),
+        .OKOUT      ( OKOUT     )
+    );
+    `else
+    assign OKOUT    = 0;
+    assign cpu_dout = 16'd0;
+    assign RnW      = 1;
+    assign UDSWn    = 1;
+    assign LDSWn    = 1;
+    assign ram_addr = 14'd0;
+    assign ram_cs   = 0;
+    `endif
 `endif
 
 `ifndef NOSOUND
@@ -632,3 +652,75 @@ jtframe_sdram_mux #(
 );
 
 endmodule
+
+`ifdef SIMULATION
+`ifdef OBJLOAD
+module jtsf_objload(
+    input             clk,
+    input             rst,
+    input      [12:0] obj_AB,
+    input             cen8,
+    input             LVBL,
+    output     [15:1] ram_addr,
+    output     [15:0] cpu_dout,
+    output            UDSWn,
+    output            LDSWn,
+    output            RnW,
+    output reg        ram_cs,
+    output reg        OKOUT
+);
+
+    integer   fobj,fobjcnt;
+
+    reg [11:0] loadcnt, lastcnt;
+    reg [ 7:0] objdebug[0:8192];
+    reg        done, extrac, last_LVBL;
+
+    initial begin
+        fobj=$fopen("sf-obj.bin","rb");
+        if( fobj==0 ) begin
+            $display("ERROR: cannot open sf-obj.bin");
+            $finish;
+        end
+        fobjcnt=$fread(objdebug, fobj);
+        $display("INFO: %d bytes read from sf-obj.bin",fobjcnt);
+        $fclose(fobj);
+    end
+
+    assign ram_addr = done ? {2'b11, obj_AB} : { 3'b111, loadcnt };
+    assign UDSWn    = ~done;
+    assign LDSWn    = ~done;
+    assign cpu_dout = { objdebug[{loadcnt,1'b1}],
+                        objdebug[{loadcnt,1'b0}] };
+    assign ram_cs   = lastcnt==( done ? obj_AB[11:0] : loadcnt );
+    assign RnW      = done;
+
+    always @(posedge clk, posedge rst) begin
+        if( rst ) begin
+            done    <= 0;
+            extrac  <= 1;
+            loadcnt <= 13'd0;
+        end else begin
+            if( !done ) begin
+                lastcnt <= loadcnt;
+                if(cen8) begin
+                    if( extrac ) begin
+                        done    <= &loadcnt;
+                        loadcnt <= loadcnt + 1'd1;
+                        extrac  <= 0;
+                    end
+                    else extrac <= 1;
+                end
+            end else begin // done
+                lastcnt <= obj_AB[11:0];
+                if(cen8) begin
+                    last_LVBL <= LVBL;
+                    OKOUT     <= !last_LVBL && LVBL;
+                end
+            end
+        end
+    end
+
+endmodule
+`endif
+`endif
