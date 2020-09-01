@@ -78,28 +78,28 @@
         </interleave>
         <!-- obj - starts at 0x26D000 -->
         <interleave output="16">
+            <part name="b4m.bin" crc="b4fa85d3" map="01"/>
+            <part name="b2m.bin" crc="d958f5ad" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b3k.bin" crc="40e11cc8" map="01"/>
+            <part name="b1k.bin" crc="e766f5fe" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b4k.bin" crc="5ca9716e" map="01"/>
+            <part name="b2k.bin" crc="e71572d3" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b3h.bin" crc="8c3d9173" map="01"/>
+            <part name="b1h.bin" crc="8494f38c" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="b4h.bin" crc="a2df66f8" map="01"/>
+            <part name="b2h.bin" crc="1fc5f049" map="10"/>
+        </interleave>
+        <interleave output="16">
             <part name="b1m.bin" crc="64758232" map="01"/>
             <part name="b3m.bin" crc="d136802e" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="b2m.bin" crc="d958f5ad" map="01"/>
-            <part name="b4m.bin" crc="b4fa85d3" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="b1k.bin" crc="e766f5fe" map="01"/>
-            <part name="b3k.bin" crc="40e11cc8" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="b2k.bin" crc="e71572d3" map="01"/>
-            <part name="b4k.bin" crc="5ca9716e" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="b1h.bin" crc="8494f38c" map="01"/>
-            <part name="b3h.bin" crc="8c3d9173" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="b2h.bin" crc="1fc5f049" map="01"/>
-            <part name="b4h.bin" crc="a2df66f8" map="10"/>
         </interleave>
         <!-- proms - starts at 0x32D000 -->
         <part name="sfb05.bin" crc="864199ad"/>

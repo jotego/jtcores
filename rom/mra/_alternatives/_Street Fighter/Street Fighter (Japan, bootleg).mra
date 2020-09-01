@@ -97,58 +97,34 @@
         </interleave>
         <!-- obj - starts at 0x1B1000 -->
         <interleave output="16">
-            <part name="a-7.7.1b" crc="2063e23c" map="01"/>
-            <part name="a-21.21.3f" crc="ee694c18" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a-8.8.1c" crc="00af40c4" map="01"/>
-            <part name="a-22.22.4f" crc="2dc438a8" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a-9.9.1d" crc="92b791d8" map="01"/>
-            <part name="a-25.25.3h" crc="cc6cd84a" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a-10.10.1de" crc="f4a8e86b" map="01"/>
-            <part name="a-26.26.4h" crc="be2eaac7" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a-11.11.1ef" crc="b2af5bfd" map="01"/>
-            <part name="a-29.29.3k" crc="7d90034d" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a-12.12.1f" crc="a50bf0b9" map="01"/>
-            <part name="a-30.30.4k" crc="48ea345f" map="10"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a-13.13.1g" crc="e7d297e3" map="01"/>
-            <part name="a-32.32.3l" crc="b9563911" map="10"/>
-        </interleave>
-        <interleave output="16">
             <part name="a-14.14.1gh" crc="02c037a9" map="01"/>
-            <part name="a-33.33.4l" crc="61a9d0ea" map="10"/>
+            <part name="a-7.7.1b" crc="2063e23c" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="a-15.15.1h" crc="222dbc94" map="01"/>
-            <part name="a-24.24.6f" crc="a21e27ff" map="10"/>
+            <part name="a-8.8.1c" crc="00af40c4" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="a-16.16.1j" crc="7c6481e0" map="01"/>
-            <part name="a-23.23.5f" crc="e77e3d75" map="10"/>
+            <part name="a-9.9.1d" crc="92b791d8" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="a-17.17.1jk" crc="6c19b324" map="01"/>
-            <part name="a-28.28.6h" crc="f08c974e" map="10"/>
+            <part name="a-10.10.1de" crc="f4a8e86b" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="a-18.18.1kl" crc="38f6e7d8" map="01"/>
-            <part name="a-27.27.5h" crc="263f93b0" map="10"/>
+            <part name="a-11.11.1ef" crc="b2af5bfd" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="a-19.19.1l" crc="6e521aea" map="01"/>
-            <part name="a-31.31.6k" crc="eb8db0bf" map="10"/>
+            <part name="a-12.12.1f" crc="a50bf0b9" map="10"/>
         </interleave>
-        <!-- plds - starts at 0x351000 -->
+        <interleave output="16">
+            <part name="a-21.21.3f" crc="ee694c18" map="01"/>
+            <part name="a-13.13.1g" crc="e7d297e3" map="10"/>
+        </interleave>
+        <!-- plds - starts at 0x291000 -->
         <part name="tibpal16l8-25cn.10g" crc="b95bc9bc"/>
         <part name="tibpal16l8-25cn.10j" crc="d5e7fb3c"/>
         <part name="tibpal16l8-25cn.11b" crc="1db26b84"/>
@@ -162,12 +138,12 @@
         <part name="tibpal16l8-25cn.7e" crc="858b1c21"/>
         <part name="tibpal16r4-25cn.7a" crc="b3c22357"/>
         <part name="tibpal16r4-25cn.7d" crc="29cdd190"/>
-        <!-- proms - starts at 0x351D34 -->
+        <!-- proms - starts at 0x291D34 -->
         <part name="n82s129n.8m" crc="864199ad"/>
         <part name="n82s129n.13g" crc="c0e56586"/>
         <part name="n82s129n.7m" crc="4c734b64"/>
         <part name="n82s123n.9p" crc="06bcda53"/>
-        <!-- Total 0x352054 bytes - 3400 kBytes -->
+        <!-- Total 0x292054 bytes - 2632 kBytes -->
     </rom>
     <rom index="1">
         <part>00</part>

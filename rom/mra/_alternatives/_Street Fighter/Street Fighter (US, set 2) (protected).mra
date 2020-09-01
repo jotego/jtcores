@@ -90,32 +90,32 @@
         </interleave>
         <!-- obj - starts at 0x26D000 -->
         <interleave output="16">
-            <part name="sf-15.1m" crc="fc0113db" map="01"/>
-            <part name="sf-17.3m" crc="69fac48e" map="10"/>
+            <part name="sf-17.3m" crc="69fac48e" map="01"/>
+            <part name="sf-15.1m" crc="fc0113db" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-16.2m" crc="82e4a6d3" map="01"/>
-            <part name="sf-18.4m" crc="71cfd18d" map="10"/>
+            <part name="sf-18.4m" crc="71cfd18d" map="01"/>
+            <part name="sf-16.2m" crc="82e4a6d3" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-11.1k" crc="e112df1b" map="01"/>
-            <part name="sf-13.3k" crc="fa2eb24b" map="10"/>
+            <part name="sf-13.3k" crc="fa2eb24b" map="01"/>
+            <part name="sf-11.1k" crc="e112df1b" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-12.2k" crc="42d52299" map="01"/>
-            <part name="sf-14.4k" crc="ad955c95" map="10"/>
+            <part name="sf-14.4k" crc="ad955c95" map="01"/>
+            <part name="sf-12.2k" crc="42d52299" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-07.1h" crc="49f340d9" map="01"/>
-            <part name="sf-09.3h" crc="41b73a31" map="10"/>
+            <part name="sf-09.3h" crc="41b73a31" map="01"/>
+            <part name="sf-07.1h" crc="49f340d9" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-08.2h" crc="95ece9b1" map="01"/>
-            <part name="sf-10.4h" crc="91c41c50" map="10"/>
+            <part name="sf-10.4h" crc="91c41c50" map="01"/>
+            <part name="sf-08.2h" crc="95ece9b1" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="sf-03.1f" crc="5ca05781" map="01"/>
-            <part name="sf-05.3f" crc="538c7cbe" map="10"/>
+            <part name="sf-05.3f" crc="538c7cbe" map="01"/>
+            <part name="sf-03.1f" crc="5ca05781" map="10"/>
         </interleave>
         <!-- proms - starts at 0x42D000 -->
         <part name="sfb05.bin" crc="864199ad"/>
