@@ -151,6 +151,10 @@ end else begin
                 objpal    <= objbuf_data[3:0];
             end
             9: begin // Street Fighter
+                if(id[4]!=id[3]) begin
+                    id[4:3] <= ~id[4:3]; // This might be needed just
+                    // because of the ROM load order
+                end
                 obj_vflip <= objbuf_data[9];
                 obj_hflip <= objbuf_data[8];
                 objpal    <= objbuf_data[3:0];
