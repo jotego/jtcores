@@ -202,8 +202,8 @@ jtsf_scroll #(
     .scr_pxl      ( scr2_pxl      )
 );
 `else
-assign scr1_pxl  = {SCRPW{1'b0}};
-assign scr2_pxl  = {SCRPW{1'b0}};
+assign scr1_pxl  = {SCRPW{1'b1}};
+assign scr2_pxl  = {SCRPW{1'b1}};
 assign map1_addr = {MAP2W{1'b0}};
 assign map2_addr = {MAP2W{1'b0}};
 assign scr1_addr = {SCR2W{1'b0}};

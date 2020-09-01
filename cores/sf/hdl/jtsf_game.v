@@ -688,10 +688,10 @@ module jtsf_objload(
     end
 
     assign ram_addr = done ? {2'b11, obj_AB} : { 3'b111, loadcnt };
-    assign UDSWn    = ~done;
-    assign LDSWn    = ~done;
-    assign cpu_dout = { objdebug[{loadcnt,1'b1}],
-                        objdebug[{loadcnt,1'b0}] };
+    assign UDSWn    = done;
+    assign LDSWn    = done;
+    assign cpu_dout = { objdebug[{loadcnt,1'b0}],
+                        objdebug[{loadcnt,1'b1}] };
     assign ram_cs   = lastcnt==( done ? obj_AB[11:0] : loadcnt );
     assign RnW      = done;
 
