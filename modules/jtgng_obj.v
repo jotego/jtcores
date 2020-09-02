@@ -157,6 +157,7 @@ assign avatar_idx = 4'd0;
 jtgng_objbuf #(
     .DW         ( DMA_DW     ),
     .AW         ( DMA_AW     ),
+    .LAYOUT     ( LAYOUT     ),
     .OBJMAX     ( OBJMAX     ),
     .OBJMAX_LINE( OBJMAX_LINE))
 u_buf(
