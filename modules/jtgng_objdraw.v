@@ -69,6 +69,7 @@ localparam IDW = LAYOUT==3 ? 12 : (ROM_AW-6);
 localparam IDWDIRECT = IDW<DW ? IDW : DW;
 
 reg  [ IDW-1:0] id;
+reg  [ IDW-1:0] idalt;
 reg  [PALW-1:0] objpal, objpal1;
 reg  [     8:0] objx;
 reg             obj_vflip, obj_hflip, hover;
@@ -85,6 +86,7 @@ always @(*) begin
     // 2's complement of VF plus object's Y, i.e. a subtraction
     // but flip is used to make it work with flipped screens
     // This is the same formula used on the schematics
+    idalt = id + {~Vsum[4],4'd0 };
 end
 
 reg [3:0] Vobj;
@@ -151,10 +153,6 @@ end else begin
                 objpal    <= objbuf_data[3:0];
             end
             9: begin // Street Fighter
-                if(id[4]!=id[3]) begin
-                    id[4:3] <= ~id[4:3]; // This might be needed just
-                    // because of the ROM load order
-                end
                 obj_vflip <= objbuf_data[9];
                 obj_hflip <= objbuf_data[8];
                 objpal    <= objbuf_data[3:0];
@@ -165,8 +163,16 @@ end else begin
             if( LAYOUT == 9 ) begin // SF
                 Vobj    <= Vsum[3:0];
                 vinzone <= resize ? &Vsum[7:5] : &Vsum[7:4];
-                if( resize )
-                    id[4] <= ~Vsum[4];
+                if( resize ) begin
+                    id[0] <= ~id[0];
+                    id[4:3] <= idalt[4] != idalt[3] ? ~idalt[4:3] : idalt[4:3];
+                end
+                else begin
+                    if(id[4]!=id[3]) begin
+                        id[4:3] <= ~id[4:3]; // This might be needed just
+                        // because of the ROM load order
+                    end
+                end
             end else begin
                 Vobj    <=  Vsum[3:0];
                 vinzone <= &Vsum[7:4];
@@ -184,10 +190,10 @@ end else begin
 end
 end
 
-always @(posedge clk) if(cen) begin
+always @(posedge clk, posedge rst) begin
     if( rst ) begin
         obj_addr <= {ROM_AW{1'b0}};
-    end else begin
+    end else if(cen) begin
         if( pxlcnt[1:0]==2'd3 && !rom_wait ) begin
             obj_addr <= !vinzone ? {ROM_AW{1'b0}} :
                 { id, Vobj^{4{~obj_vflip}}, pxlcnt[3:2]^{2{obj_hflip}} };

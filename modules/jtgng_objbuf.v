@@ -71,11 +71,13 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-reg pre_scan_msb;
-
 reg [8:0] Vsum;
 reg       MATCH;
-localparam BIT8 = DW-4; // This will be 8 when DW==12. (Verilator workaround)
+reg       pre_scan_msb;
+reg [1:0] extend;
+
+localparam BIT8   = DW-4; // This will be 8 when DW==12. (Verilator workaround)
+localparam EXTBIT = LAYOUT==9 ? 10 : 0;
 
 always @(*) begin
     Vsum  = {1'b0, dma_dout[7:0]} + {1'b0,(~VF + { {6{~flip}}, 2'b10 })};
@@ -86,18 +88,20 @@ always @(*) begin
 end
 
 localparam DMAEND = OBJMAX-1;
-wire dmaend = {pre_scan_msb,pre_scan}>=DMAEND;
+wire       dmaend     = {pre_scan_msb,pre_scan}>=DMAEND;
 wire [5:0] objcnt_end = OBJMAX_LINE-6'd1;
 
 always @(posedge clk, posedge rst)
     if( rst ) begin
-        trf_state <= SEARCH;
-        line_obj_we <= 1'b0;
+        trf_state   <= SEARCH;
+        line_obj_we <= 0;
+        extend      <= 2'd0;
     end
     else if(draw_cen) begin
         case( trf_state )
             SEARCH: begin
-                line_obj_we <= 1'b0;
+                line_obj_we <= 0;
+                extend      <= 2'd0;
                 if( !LVBL || fill || dmaend ) begin
                     {pre_scan_msb, pre_scan} <= 2;
                     post_scan<= 6'd0; // store obj data in reverse order
@@ -130,13 +134,23 @@ always @(posedge clk, posedge rst)
                         fill <= 1'd1;
                     end else begin
                         post_scan <= post_scan+1'b1;
-                        pre_scan <= pre_scan + 3;
-                        trf_state  <= SEARCH;
-                        line_obj_we <= 1'b0;
+                        if( !extend[0] ) begin
+                            // advance to next obj
+                            pre_scan <= pre_scan + 3;
+                            trf_state  <= SEARCH;
+                            line_obj_we <= 1'b0;
+                        end else begin
+                            // repeat and modify ID/X
+                            extend[1] <= 1;
+                            pre_scan[1:0] <= 2'd0;
+                        end
                     end
                 end
                 else begin
                     pre_scan[1:0] <= pre_scan[1:0]+1'b1;
+                    if( LAYOUT==9 && pre_scan[1:0]==2'd1 ) begin
+                        extend[0] <= extend[0] ^ dma_dout[EXTBIT];
+                    end
                 end
             end
         endcase
@@ -159,11 +173,28 @@ end
 
 localparam [7:0] CLRVAL = 8'hF8;
 
+function [DW-1:0] apply_ext;
+    input [DW-1:0] dma_dout;
+    input [   1:0] pre_scan;
+
+    if( LAYOUT == 9 ) begin
+        case( pre_scan )
+            2'd0: apply_ext = { dma_dout[DW-1:1], dma_dout[0] ^ extend[1] };
+            2'd3: apply_ext = dma_dout + { extend[1], 4'd0 };
+            default: apply_ext = dma_dout;
+        endcase
+    end else begin
+        apply_ext = dma_dout;
+    end
+endfunction
+
+wire [DW-1:0] dma_ext = apply_ext( dma_dout, pre_scan );
+
 always @(*) begin
     if( line == lineA ) begin
         address_a = { ~post_scan[4:0], pre_scan[1:0] };
         address_b = hscan;
-        data_a    = fill ? CLRVAL : dma_dout;
+        data_a    = fill ? CLRVAL : dma_ext;
         data_b    = CLRVAL;
         we_a      = line_obj_we;
         we_b      = we_clr[2];
@@ -172,7 +203,7 @@ always @(*) begin
         address_a = hscan;
         address_b = { ~post_scan[4:0], pre_scan[1:0] };
         data_a    = CLRVAL;
-        data_b    = fill ? CLRVAL : dma_dout;
+        data_b    = fill ? CLRVAL : dma_ext;
         we_a      = we_clr[2];
         we_b      = line_obj_we;
     end
