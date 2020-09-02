@@ -108,6 +108,7 @@ always @(posedge clk, posedge rst)
                     // so we can print them in straight order while taking
                     // advantage of horizontal blanking to avoid graphic clash
                     if( HINIT_draw ) fill <= 0; // gets out of this state at this signal
+                    else if(dmaend) fill <= 1;
                 end
                 else begin
                     //if( dma_dout<=(VF+'d3) && (dma_dout+8'd12)>=VF  ) begin
@@ -196,7 +197,7 @@ always @(*) begin
         address_b = hscan;
         data_a    = fill ? CLRVAL : dma_ext;
         data_b    = CLRVAL;
-        we_a      = line_obj_we;
+        we_a      = line_obj_we & draw_cen;
         we_b      = we_clr[2];
     end
     else begin
@@ -205,7 +206,7 @@ always @(*) begin
         data_a    = CLRVAL;
         data_b    = fill ? CLRVAL : dma_ext;
         we_a      = we_clr[2];
-        we_b      = line_obj_we;
+        we_b      = line_obj_we & draw_cen;
     end
 end
 
