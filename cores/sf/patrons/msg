@@ -1,0 +1,27 @@
+\B Street Fighter 1 \W - \RJotego\W
+  http://patreon.com/topapate
+
+        September 2020
+
+Beta version only for patreons
+     do not distribute
+
+
+        Known issues
+
+.Geki animation shows a wrong
+frame when hit
+
+.ADPCM sounds a bit noisy
+
+.No support for MCU protected
+versions
+
+.M68000 bus wait cycles may
+differ from original
+
+.Patreon credits missing
+
+  Report other issues to:
+  github.com/jotego/jt_gng
+_______________________________
