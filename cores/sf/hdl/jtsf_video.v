@@ -213,10 +213,7 @@ assign scr2_addr = {SCR2W{1'b0}};
 wire [ 9:0] raw_addr;
 wire [15:0] obj_din;
 
-//assign obj_AB = { 2'b10, raw_addr[9:3], 1'b0, raw_addr[2:0] }; // 12 bits
-//assign obj_AB = { 2'b10, raw_addr[9:2], 1'b0, raw_addr[1:0] }; // 12 bits
-assign obj_AB = { 1'b1, raw_addr[8:2], 3'b0, raw_addr[1:0] }; // 12 bits
-// assign obj_din = { main_ram[7:0], main_ram[15:8] };
+assign obj_AB = { 1'b1, raw_addr[8:2], 3'b0, raw_addr[1:0] }; // 13 bits
 assign obj_din = main_ram;
 
 // Memories on B board (object generator)

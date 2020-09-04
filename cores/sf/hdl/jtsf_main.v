@@ -69,6 +69,7 @@ module jtsf_main #(
     input              service,
     // BUS sharing
     output      [13:1] cpu_AB,
+    output      [15:0] dmaout,
     input       [12:0] obj_AB,
     output             RnW,
     output reg         OKOUT,
@@ -97,12 +98,14 @@ module jtsf_main #(
 
 wire [23:1] A;
 reg  [15:0] cabinet_input, cpu_din;
+wire [15:0] objram;
 wire        BRn, BGACKn, BGn;
 reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs,
             misc_cs, snd_cs;
 reg         scr1pos_cs, scr2pos_cs;
 wire        ASn, CPUbus;
 wire        UDSn, LDSn;
+wire        objram_ldw, objram_udw;
 reg         BERRn;
 
 assign cpu_cen = cen8;
@@ -117,6 +120,9 @@ assign col_lw   = col_cs & ~LDSWn;
 assign addr     = A[MAINW:1];
 assign cpu_AB   = A[13:1];
 
+assign objram_udw = ~UDSWn & obj_cs;
+assign objram_ldw = ~LDSWn & obj_cs;
+
 `ifdef SIMULATION
 wire [24:0] A_full = {A,1'b0};
 `endif
@@ -130,6 +136,7 @@ always @(*) begin
     OKOUT      = 0;
     misc_cs    = 0;
     snd_cs     = 0;
+    obj_cs     = 0;
     // mcu_DMAONn = 1;   // for once, I leave the original active low setting
     scr1pos_cs = 0;
     scr2pos_cs = 0;
@@ -141,7 +148,13 @@ always @(*) begin
             4'h0: rom_cs  = 1;
             4'h8: char_cs = 1;
             4'hb: col_cs  = 1;
-            4'hf: pre_ram_cs = A[15]; // 32kB!
+            4'hf: if( A[15]) begin  // 32kB!
+                if( A[14:13]==2'b11 ) begin // FE - object RAM
+                    obj_cs = 1;
+                end else begin
+                    pre_ram_cs = 1;
+                end
+            end
             4'hc: if(A[19:16]==4'd0) begin
                 io_cs = !A[4] && RnW;
                 if( A[4] && !RnW ) case(A[3:1])
@@ -213,7 +226,7 @@ end
 // to avoid that a little bit of logic is needed:
 reg    dsn_dly;
 
-assign ram_cs  = bus_ack | (dsn_dly ? reg_ram_cs  : pre_ram_cs);
+assign ram_cs  = dsn_dly ? reg_ram_cs  : pre_ram_cs;
 
 always @(posedge clk) if(cen8) begin
     reg_ram_cs  <= pre_ram_cs;
@@ -262,10 +275,11 @@ end
 
 // Data bus input
 always @(*) begin
-    case( {ram_cs, char_cs, io_cs} )
-        3'b100:  cpu_din = ram_data;
-        3'b010:  cpu_din = char_dout;
-        3'b001:  cpu_din = cabinet_input;
+    case( {obj_cs, ram_cs, char_cs, io_cs} )
+        4'b1000:  cpu_din = objram;
+        4'b0100:  cpu_din = ram_data;
+        4'b0010:  cpu_din = char_dout;
+        4'b0001:  cpu_din = cabinet_input;
         default: cpu_din = rom_data;
     endcase
 end
@@ -294,6 +308,44 @@ always @(posedge clk, posedge rst) begin : dtack_gen
         end
     end
 end
+
+// OBJ RAM is implemented in BRAM
+// It was originally part of the SDRAM but the OBJ DMA module does not
+// take into account the SDRAM ok signal and was getting garbage when compiling
+// with sound enabled. Plus the ADPCM chips seemed to be missing data and thus
+// some noise was heard
+// Up to commit 6327e7 OBJ RAM was in SDRAM, just for reference
+// Note that not all 8kB are used but only 1kB
+
+jtframe_dual_ram #(.aw(12)) u_objlow(
+    .clk0       ( clk           ),
+    .clk1       ( clk           ),
+    // Port 0: CPU
+    .data0      ( cpu_dout[7:0] ),
+    .addr0      ( A[12:1]       ),
+    .we0        ( objram_ldw    ),
+    .q0         ( objram[7:0]   ),
+    // Port 1
+    .data1      ( 8'd0          ),
+    .addr1      ( obj_AB[11:0]  ),
+    .we1        ( 1'b0          ),
+    .q1         ( dmaout[7:0]   )
+);
+
+jtframe_dual_ram #(.aw(12)) u_objhi(
+    .clk0       ( clk           ),
+    .clk1       ( clk           ),
+    // Port 0: CPU
+    .data0      ( cpu_dout[15:8]),
+    .addr0      ( A[12:1]       ),
+    .we0        ( objram_udw    ),
+    .q0         ( objram[15:8]  ),
+    // Port 1
+    .data1      ( 8'd0          ),
+    .addr1      ( obj_AB[11:0]  ),
+    .we1        ( 1'b0          ),
+    .q1         ( dmaout[15:8]  )
+);
 
 // interrupt generation
 jtsf_intgen u_intgen(

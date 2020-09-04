@@ -281,15 +281,13 @@ u_dwnld(
     .sdram_ack   ( sdram_ack     )
 );
 
-wire [15:0] scrposh, scrposv;
+wire [15:0] scrposh, scrposv, dmaout;
 wire        UDSWn, LDSWn;
 wire [ 1:0] dsn;
 
 assign dsn = {UDSWn, LDSWn};
 
 `ifndef NOMAIN
-assign ram_cs = bus_ack ? (obj_AB2==obj_AB) : ram_pre_cs;
-
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rst        ( rst           ),
     .clk        ( clk24         ),
@@ -323,6 +321,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
+    .dmaout     ( dmaout        ),
     .OKOUT      ( OKOUT         ),
     .blcnten    ( blcnten       ),
     .obj_br     ( obj_br        ),
@@ -341,7 +340,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .addr       ( main_addr     ),
     // RAM
     .ram_addr   ( ram_addr      ),
-    .ram_cs     ( ram_pre_cs    ),
+    .ram_cs     ( ram_cs        ),
     .ram_data   ( ram_data      ),
     .ram_ok     ( ram_ok        ),
     // ROM
@@ -379,7 +378,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign objon       = 1;
     assign snd_latch   = `SIM_SND_LATCH;
     `ifdef OBJLOAD
-    jtsf_objload u_objload(
+    jtsf_objload u_objload( // this doesn't work after moving OBJ RAM to its own BRAM
         .clk        ( clk       ),
         .rst        ( loop_rst  ),
         .obj_AB     ( obj_AB    ),
@@ -491,7 +490,7 @@ jtsf_video #(
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
-    .main_ram   ( ram_data      ),
+    .main_ram   ( dmaout        ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .OKOUT      ( OKOUT         ),
