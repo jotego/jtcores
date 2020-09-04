@@ -107,8 +107,16 @@ wire        ASn, CPUbus;
 wire        UDSn, LDSn;
 wire        objram_ldw, objram_udw;
 reg         BERRn;
+wire [ 8:0] Aobj, obj_subAB;
 
-assign cpu_cen = cen8;
+// obj RAM is split so only the 1kB used inside the 8kB is in BRAM
+// potentially, there could be a problem if tryng to access 16 bits
+// in the boundary. But that doesn't happen in software so I'm leaving
+// it that way.
+assign Aobj      = { A[12:6], A[2:1] };
+assign obj_subAB = { obj_AB[11:5], obj_AB[1:0] };
+
+assign cpu_cen  = cen8;
 // high during DMA transfer
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
@@ -149,7 +157,7 @@ always @(*) begin
             4'h8: char_cs = 1;
             4'hb: col_cs  = 1;
             4'hf: if( A[15]) begin  // 32kB!
-                if( A[14:13]==2'b11 ) begin // FE - object RAM
+                if( A[14:13]==2'b11 && A[5:3]==3'd0 ) begin // FE - object RAM
                     obj_cs = 1;
                 end else begin
                     pre_ram_cs = 1;
@@ -315,34 +323,33 @@ end
 // with sound enabled. Plus the ADPCM chips seemed to be missing data and thus
 // some noise was heard
 // Up to commit 6327e7 OBJ RAM was in SDRAM, just for reference
-// Note that not all 8kB are used but only 1kB
 
-jtframe_dual_ram #(.aw(12)) u_objlow(
+jtframe_dual_ram #(.aw(9)) u_objlow(
     .clk0       ( clk           ),
     .clk1       ( clk           ),
     // Port 0: CPU
     .data0      ( cpu_dout[7:0] ),
-    .addr0      ( A[12:1]       ),
+    .addr0      ( Aobj          ),
     .we0        ( objram_ldw    ),
     .q0         ( objram[7:0]   ),
     // Port 1
     .data1      ( 8'd0          ),
-    .addr1      ( obj_AB[11:0]  ),
+    .addr1      ( obj_subAB     ),
     .we1        ( 1'b0          ),
     .q1         ( dmaout[7:0]   )
 );
 
-jtframe_dual_ram #(.aw(12)) u_objhi(
+jtframe_dual_ram #(.aw(9)) u_objhi(
     .clk0       ( clk           ),
     .clk1       ( clk           ),
     // Port 0: CPU
     .data0      ( cpu_dout[15:8]),
-    .addr0      ( A[12:1]       ),
+    .addr0      ( Aobj          ),
     .we0        ( objram_udw    ),
     .q0         ( objram[15:8]  ),
     // Port 1
     .data1      ( 8'd0          ),
-    .addr1      ( obj_AB[11:0]  ),
+    .addr1      ( obj_subAB     ),
     .we1        ( 1'b0          ),
     .q1         ( dmaout[15:8]  )
 );
