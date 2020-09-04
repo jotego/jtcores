@@ -89,16 +89,16 @@ always @(*) begin
 end
 
 always @(resize,repeated,id,Vsum, obj_hflip) begin
-    idalt = resize ? (id + {~Vsum[4],4'd0 }) : id;
+    idalt = { id[IDW-1:5], resize ? ~Vsum[4] : id[4], id[3:0] };
     if( resize ) begin
         if( !obj_hflip ) begin
-            if(repeated) idalt <= idalt + 1'd1;
+            if(repeated) idalt = idalt + 1'd1;
         end else begin
-            if(!repeated) idalt <= idalt + 1'd1;
+            if(!repeated) idalt = idalt + 1'd1;
         end
     end
     if(idalt[4]!=idalt[3]) begin
-        idalt[4:3] <= ~idalt[4:3]; // This might be needed just
+        idalt[4:3] = ~idalt[4:3]; // This might be needed just
         // because of the ROM load order
     end
 end
