@@ -42,7 +42,8 @@ mame2dip sf.xml \
     -order-roms obj 7 8 9 10 11 12 13 0 1 2 3 4 5 6 \
     -order-roms scr2 2 3 0 1 \
     -order maincpu audiocpu audio2 mcu maps char scr1 scr2 obj prom \
-    -start maps 0xa9000
+    -start maps 0xa9000 \
+    -buttons kick1 kick2 kick3 punch1 punch2 punch3
 fi
 
 ################## Side Arms

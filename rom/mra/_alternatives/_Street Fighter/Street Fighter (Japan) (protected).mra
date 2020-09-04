@@ -153,5 +153,5 @@
         <dip name="Unused" bits="22" ids="On,Off"/>
         <dip name="Unused" bits="23" ids="On,Off"/>
     </switches>
-    <buttons names="Fire,Jump,Start,Coin,Pause" default="Y,X,R,L,Start"/>
+    <buttons names="Kick1,Kick2,Kick3,Punch1,Punch2,Punch3" default="Y,X,B,A,L,R"/>
 </misterromdescription>

@@ -89,7 +89,18 @@ always @(*) begin
 end
 
 always @(resize,repeated,id,Vsum, obj_hflip) begin
-    idalt = { id[IDW-1:5], resize ? ~Vsum[4] : id[4], id[3:0] };
+    // idalt is -so far- only used by SF
+    // note that extended size objects are built
+    // by actually adding 1, 16 or 17 to the ID code
+    // The ID is not built by OR-ing or by replacing
+    // bits like in other titles.
+    // There are 14x 74-283 chips (4-bit adders)
+    // that's a lot of adders. GnG uses only 8x adders
+    // So there are 6 extra, enough to make two
+    // additions on 12-bit numbers
+    // Using OR-ing instead of adding results in broken
+    // sprites, both horizontally and vertically
+    idalt = resize ? (id+{~Vsum[4],4'd0}) : id;
     if( resize ) begin
         if( !obj_hflip ) begin
             if(repeated) idalt = idalt + 1'd1;
