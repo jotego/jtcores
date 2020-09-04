@@ -76,7 +76,7 @@ reg             obj_vflip, obj_hflip, hover;
 wire            posvflip;
 reg             poshflip;
 reg             vinzone;
-reg             resize;
+reg             resize, repeated;
 reg             poshflip2;
 reg  [     7:0] Vsum;
 
@@ -86,7 +86,21 @@ always @(*) begin
     // 2's complement of VF plus object's Y, i.e. a subtraction
     // but flip is used to make it work with flipped screens
     // This is the same formula used on the schematics
-    idalt = id ^ {~Vsum[4],4'd0 };
+end
+
+always @(resize,repeated,id,Vsum, obj_hflip) begin
+    idalt = resize ? (id + {~Vsum[4],4'd0 }) : id;
+    if( resize ) begin
+        if( !obj_hflip ) begin
+            if(repeated) idalt <= idalt + 1'd1;
+        end else begin
+            if(!repeated) idalt <= idalt + 1'd1;
+        end
+    end
+    if(idalt[4]!=idalt[3]) begin
+        idalt[4:3] <= ~idalt[4:3]; // This might be needed just
+        // because of the ROM load order
+    end
 end
 
 reg [3:0] Vobj;
@@ -157,22 +171,14 @@ end else begin
                 obj_hflip <= objbuf_data[8];
                 objpal    <= objbuf_data[3:0];
                 resize    <= objbuf_data[10];
+                repeated  <= objbuf_data[15];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step
             if( LAYOUT == 9 ) begin // SF
                 Vobj    <= Vsum[3:0];
                 vinzone <= resize ? &Vsum[7:5] : &Vsum[7:4];
-                if( resize ) begin
-                    id[0] <= id[0]^obj_hflip;
-                    id[4:3] <= idalt[4] != idalt[3] ? ~idalt[4:3] : idalt[4:3];
-                end
-                else begin
-                    if(id[4]!=id[3]) begin
-                        id[4:3] <= ~id[4:3]; // This might be needed just
-                        // because of the ROM load order
-                    end
-                end
+                id      <= idalt;
             end else begin
                 Vobj    <=  Vsum[3:0];
                 vinzone <= &Vsum[7:4];

@@ -180,7 +180,8 @@ function [DW-1:0] apply_ext;
 
     if( LAYOUT == 9 ) begin
         case( pre_scan )
-            2'd0: apply_ext = { dma_dout[DW-1:1], dma_dout[0] ^ extend[1] };
+            //2'd0: apply_ext = dma_dout + extend[1];
+            2'd1: apply_ext = { extend[1], dma_dout[DW-2:0] }; // mark MSB
             2'd3: apply_ext = dma_dout + { extend[1], 4'd0 };
             default: apply_ext = dma_dout;
         endcase
