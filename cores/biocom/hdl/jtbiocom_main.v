@@ -230,7 +230,7 @@ reg [15:0] cabinet_input;
 
 always @(*) /*if(cpu_cen)*/ begin
     cabinet_input = (!mcu_DMAn ? mcu_addr[1] : A[1]) ?
-        { dipsw_a, dipsw_b } :
+        { dipsw_b, dipsw_a } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
           { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
