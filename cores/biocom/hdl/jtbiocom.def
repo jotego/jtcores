@@ -10,7 +10,7 @@ VIDEO_HEIGHT=224
 
 [mist|sidi]
 # Sound doesn't fit in small devices
-NOSOUND
+#NOSOUND
 OSD_NOBCK
 VIDEO_WIDTH=384
 JTFRAME_SCAN2X
