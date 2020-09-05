@@ -61,7 +61,7 @@ module jtbiocom_game(
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  signed [15:0] snd_left,
     output  signed [15:0] snd_right,
@@ -108,6 +108,7 @@ wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
+wire        LHBL, LVBL;
 
 wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
@@ -338,7 +339,7 @@ jtbiocom_mcu u_mcu(
     .prom_din   ( prog_data       ),
     .prom_we    ( prom_mcu_we     )
 );
-`else 
+`else
 assign mcu_DMAn = 1'b1;
 assign mcu_brn  = 1'b1;
 assign mcu_wr   = 1'b1;
@@ -492,11 +493,11 @@ jtframe_rom #(
     .SLOT0_OFFSET( 22'h4_8000 >> 1 ),
 
     .SLOT1_AW    ( 17              ), // Scroll 1
-    .SLOT1_DW    ( 16              ), 
+    .SLOT1_DW    ( 16              ),
     .SLOT1_OFFSET( 22'h5_0000      ), // SCR and OBJ are not shifted
 
     .SLOT2_AW    ( 15              ), // Scroll 2
-    .SLOT2_DW    ( 16              ), 
+    .SLOT2_DW    ( 16              ),
     .SLOT2_OFFSET( 22'h7_0000      ),
 
     .SLOT6_AW    ( 15              ), // Sound
@@ -518,7 +519,7 @@ jtframe_rom #(
     // .pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ), 
+    .slot2_cs    ( LVBL          ),
     .slot3_cs    ( 1'b0          ), // unused
     .slot4_cs    ( 1'b0          ), // unused
     .slot5_cs    ( 1'b0          ), // unused
