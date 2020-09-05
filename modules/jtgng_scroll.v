@@ -123,7 +123,7 @@ generate
             .SV         (  VS[4:0]    ),
             .attr       (  dout_high  ),
             .id         (  dout_low   ),
-            .SCxON      (  1'b0       ),
+            .SCxON      (  1'b1       ),
             .flip       (  flip       ),
             // Gfx ROM
             .scr_addr   (  scr_addr   ),
