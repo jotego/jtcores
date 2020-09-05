@@ -230,7 +230,7 @@ reg [15:0] cabinet_input;
 
 always @(*) /*if(cpu_cen)*/ begin
     cabinet_input = (!mcu_DMAn ? mcu_addr[1] : A[1]) ?
-        { dipsw_a, dipsw_b } :
+        { dipsw_b, dipsw_a } :
         { coin_input[0], coin_input[1],        // COINS
           start_button[0], start_button[1],    // START
           { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
@@ -253,12 +253,13 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-always @(*) begin
+always @(posedge clk) begin
+	if (mcu_cen)
     case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
-        3'b100:  mcu_din = oram_dout[7:0];
-        3'b010:  mcu_din = wram_dout[7:0];
-        3'b001:  mcu_din = cabinet_input[7:0];
-        default: mcu_din = 8'hff;
+        3'b100:  mcu_din <= oram_dout[7:0];
+        3'b010:  mcu_din <= wram_dout[7:0];
+        3'b001:  mcu_din <= cabinet_input[7:0];
+        default: mcu_din <= 8'hff;
     endcase
 end
 
@@ -272,7 +273,7 @@ always @(*) begin
         // MCU access
         work_A   = mcu_addr[13:1];
         work_uwe = 1'b0;
-        work_lwe = mcu_wr ;
+        work_lwe = mcu_wr;
         ram_cen  = mcu_cen;
     end else begin 
         // CPU access
@@ -283,7 +284,7 @@ always @(*) begin
     end
 end
 
-jtframe_ram #(.aw(13),.cen_rd(1)) u_ramu(
+jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
@@ -292,7 +293,7 @@ jtframe_ram #(.aw(13),.cen_rd(1)) u_ramu(
     .q          ( wram_dout[15:8]  )
 );
 
-jtframe_ram #(.aw(13),.cen_rd(1)) u_raml(
+jtframe_ram #(.aw(13),.cen_rd(0)) u_raml(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
     .addr       ( work_A           ),
