@@ -12,12 +12,16 @@
 ../../../modules/fx68k/fx68k.sv
 ../../../modules/fx68k/uaddrPla.sv
 ../../../modules/jt12/hdl/jt12_rst.v
+
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/cpu/jtframe_68kdma.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/ram/jtframe_prom.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
+../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
+../../../modules/jtframe/hdl/clocking/jtframe_cen24.v
+
 ../../../modules/jtgng_avatar.v
 ../../../modules/jtgng_avatar_pal.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen48.v

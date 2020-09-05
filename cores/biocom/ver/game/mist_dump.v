@@ -15,9 +15,9 @@ module mist_dump(
     end
     `ifdef LOADROM
     //always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
-   initial begin 
+   initial begin
         $display("DUMP starts");
-        $dumpvars(1,mist_test.UUT.u_game.u_prom_we);            
+        $dumpvars(1,mist_test.UUT.u_game.u_prom_we);
         $dumpon;
     end
     `else
@@ -48,12 +48,17 @@ module mist_dump(
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
         `else
-            $shm_probe(mist_test.UUT.u_game.u_sound,"A");
+            `ifndef NOSOUND
+                $shm_probe(mist_test.UUT.u_game.u_sound,"A");
+                $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51,"A");
+                $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.u_mmr,"A");
+                $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.timers,"AS");
+            `endif
             $shm_probe(mist_test.UUT.u_game.u_mcu,"A");
             $shm_probe(mist_test.UUT.u_game.u_main,"A");
-            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51,"A");
-            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.u_mmr,"A");
-            $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.timers,"AS");
+            $shm_probe(mist_test.UUT.u_game.u_video,"A");
+            $shm_probe(mist_test.UUT.u_game.u_video.u_scroll1,"AS");
+            $shm_probe(mist_test.UUT.u_game.u_video.u_scroll2,"AS");
             $shm_probe(mist_test.UUT,"A");
             $shm_probe(mist_test,"A");
             $shm_probe(frame_cnt);

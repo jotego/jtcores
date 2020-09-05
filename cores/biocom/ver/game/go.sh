@@ -42,8 +42,8 @@ fi
 # Generic simulation script from JTFRAME
 echo "Game ROM length: " $GAME_ROM_LEN
 ../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN \
-    -sysname biocom -modules ../../../modules -d SCANDOUBLER_DISABLE=1 \
-    -d STEREO_GAME -d COLORW=5 -d JT51_NODEBUG -d JTFRAME_MRA_DIP $*
+    -sysname biocom -def ../../hdl/jtbiocom.def \
+    -d JT51_NODEBUG -d VIDEO_START=1 $*
 
 if [ -e jt51.log ]; then
     $JTGNG/modules/jt51/bin/log2txt < jt51.log >/tmp/x
