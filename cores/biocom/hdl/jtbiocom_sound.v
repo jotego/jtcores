@@ -101,10 +101,10 @@ always @(*)
 wire iorq_n, m1_n;
 (*keep*) wire irq_ack = !iorq_n && !m1_n;
 
-jtframe_z80_romwait u_cpu(
+jtframe_z80_romwait #(0) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
-    .cen        ( cen_alt     ),
+    .cen        ( cen_fm      ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
     .busrq_n    ( 1'b1        ),
