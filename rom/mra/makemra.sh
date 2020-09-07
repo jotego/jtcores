@@ -15,6 +15,18 @@ while [ $# -gt 0 ]; do
         -core)
             shift
             MAKELIST=$1;;
+        -h|-help)
+            cat <<EOF
+makemra.sh creates MRA files for some cores. Optional arguments:
+    -rom        create .rom files too using the mra tool
+    -core       specify for which core the files will be generated. Valid values
+                sf
+                trojan
+                sarms
+                exed
+    -h | -help  shows this message
+EOF
+            exit 1;;
         *)
             echo "ERROR: unknown argument " $MAKEROM
             exit 1;;
@@ -43,7 +55,13 @@ mame2dip sf.xml \
     -order-roms scr2 2 3 0 1 \
     -order maincpu audiocpu audio2 mcu maps char scr1 scr2 obj prom \
     -start maps 0xa9000 \
-    -buttons kick1 kick2 kick3 punch1 punch2 punch3
+    -buttons punch1 punch2 punch3 kick1 kick2 kick3 \
+    -dipbase 8 -rmdipsw Unused -rmdipsw Freeze
+
+# Fix DIP names
+find -name "Street Fighter*.mra" -print0 | xargs -0 sed -i "s/Number of Countries Selected/Countries/g"
+find -name "Street Fighter*.mra" -print0 | xargs -0 sed -i "s/Stage Maximum/Stage Max/g"
+find -name "Street Fighter*.mra" -print0 | xargs -0 sed -i "s/Round Time Count/Time/g"
 fi
 
 ################## Side Arms

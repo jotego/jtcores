@@ -126,31 +126,21 @@
     <rom index="1">
         <part>00</part>
     </rom>
-    <switches default="FF,FF" base="16">
+    <switches base="8" default="FF,FF,FF">
         <!-- DSW1 -->
         <dip name="Coin A" bits="0,2" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
         <dip name="Coin B" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
-        <dip name="Unused" bits="6" ids="On,Off"/>
-        <dip name="Unused" bits="7" ids="On,Off"/>
         <dip name="Flip Screen" bits="8" ids="On,Off"/>
         <dip name="Attract Music" bits="9" ids="Off,On"/>
-        <dip name="Unused" bits="10" ids="On,Off"/>
-        <dip name="Unused" bits="11" ids="On,Off"/>
         <dip name="Speed" bits="12" ids="Slow,Normal"/>
         <dip name="Demo Sounds" bits="13" ids="On,Off"/>
-        <dip name="Freeze" bits="14" ids="On,Off"/>
         <dip name="Service Mode" bits="15" ids="On,Off"/>
         <!-- DSW2 -->
-        <dip name="Game Continuation" bits="8,10" ids="None,1st Stage Maximum,2nd Stage Maximum,3rd Stage Maximum,4th Stage Maximum,5th Stage Maximum"/>
-        <dip name="Round Time Count" bits="11,12" ids="250,200,150,100"/>
-        <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"/>
-        <dip name="Buy-In Feature" bits="15,17" ids="None,1st Stage Maximum,2nd Stage Maximum,3rd Stage Maximum,4th Stage Maximum,5th Stage Maximum"/>
-        <dip name="Number of Countries Selected" bits="18" ids="4,2"/>
-        <dip name="Unused" bits="19" ids="On,Off"/>
-        <dip name="Unused" bits="20" ids="On,Off"/>
-        <dip name="Unused" bits="21" ids="On,Off"/>
-        <dip name="Unused" bits="22" ids="On,Off"/>
-        <dip name="Unused" bits="23" ids="On,Off"/>
+        <dip name="Game Continuation" bits="16,18" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
+        <dip name="Time" bits="19,20" ids="250,200,150,100"/>
+        <dip name="Difficulty" bits="21,22" ids="Very Difficult,Difficult,Easy,Normal"/>
+        <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
+        <dip name="Countries" bits="26" ids="4,2"/>
     </switches>
-    <buttons names="Kick1,Kick2,Kick3,Punch1,Punch2,Punch3,Start,Coin" default="Y,X,B,A,L,R,Select,Start"/>
+    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Pause" default="Y,X,B,A,L,R,Select,Start,-"/>
 </misterromdescription>
