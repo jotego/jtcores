@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 20-1-2019 */
 
-`timescale 1ns/1ps
-
 module jt1942_video(
     input               rst,
     input               clk,
@@ -137,7 +135,7 @@ jtgng_char #(
     .char_on    ( 1'b1          ),
     .char_pxl   ( char_pxl      )
 );
-`else 
+`else
 assign char_addr = 12'd0;
 assign char_pxl  = 4'hf;
 `endif

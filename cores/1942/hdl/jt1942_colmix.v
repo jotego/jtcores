@@ -25,8 +25,6 @@ module jt1942_colmix(
     input           rst,
     input           clk,    // 24 MHz
     input           cen6 /* synthesis direct_enable = 1 */,
-    // Synchronization
-    //input [2:0]       H,
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code
     input [5:0]     scr_pxl,
@@ -40,17 +38,18 @@ module jt1942_colmix(
 
     input           LVBL,
     input           LHBL,
-    output  reg     LHBL_dly,
-    output  reg     LVBL_dly,
+    output          LHBL_dly,
+    output          LVBL_dly,
 
-    output reg [3:0] red,
-    output reg [3:0] green,
-    output reg [3:0] blue,
+    output     [3:0] red,
+    output     [3:0] green,
+    output     [3:0] blue,
     // Debug
     input      [3:0] gfx_en
 );
 
 parameter VULGUS=1'b0;
+localparam BLANK_DLY = 2;
 
 wire [7:0] dout_rg;
 wire [3:0] dout_b;
@@ -59,7 +58,6 @@ reg [7:0] pixel_mux;
 
 wire char_blank_b = |(~char_pxl);
 wire obj_blank_b  = |(~obj_pxl);
-//wire obj_blank_b  = 1'b0;
 
 always @(*) begin
     if( !char_blank_b || !gfx_en[0] ) begin
@@ -75,21 +73,22 @@ always @(*) begin
     pixel_mux[7:6] = VULGUS ? scr_pxl[5:4] : { char_blank_b, obj_blank_b };
 end
 
-wire [1:0] pre_BL;
+wire [ 3:0] pre_r, pre_g, pre_b;
+wire [11:0] pal_rgb;
 
-jtframe_sh #(.width(2),.stages(6)) u_hb_dly(
-    .clk    ( clk      ),
-    .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}     ),
-    .drop   ( pre_BL   )
+assign pal_rgb = { pre_r, pre_g, pre_b };
+
+jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
+    .clk        ( clk                 ),
+    .pxl_cen    ( cen6                ),
+    .LHBL       ( LHBL                ),
+    .LVBL       ( LVBL                ),
+    .LHBL_dly   ( LHBL_dly            ),
+    .LVBL_dly   ( LVBL_dly            ),
+    .preLBL     (                     ),
+    .rgb_in     ( pal_rgb             ),
+    .rgb_out    ( {red, green, blue } )
 );
-
-always @(posedge clk) if(cen6) begin
-    {LHBL_dly, LVBL_dly} <= pre_BL;
-    {red, green, blue } <= LVBL_dly && (LHBL || LHBL_dly) ? {pre_r, pre_g, pre_b} : 12'd0;
-end
-
-wire [3:0] pre_r, pre_g, pre_b;
 
 // palette ROM
 jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
