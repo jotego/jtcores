@@ -18,6 +18,7 @@
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/ram/jtframe_prom.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
+../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
 ../../../modules/jtframe/hdl/ver/jtframe_din_check.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen48.v

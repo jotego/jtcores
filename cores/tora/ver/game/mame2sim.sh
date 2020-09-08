@@ -34,7 +34,7 @@ case "$1" in
 -t or -test   : show the go.sh command without executing it
 EOF
         exit 0;;
-    *) echo "Unknown option $1. Use -help to see the list of options"; exit 1;;        
+    *) echo "Unknown option $1. Use -help to see the list of options"; exit 1;;
 esac
 if [ "$EXTRA" != "" ]; then
     break
@@ -50,10 +50,10 @@ if ! which drop1; then
     exit 1
 fi
 
-dd if=tora_char.bin 2>/dev/null | drop1 > char_lower.bin 
-dd if=tora_char.bin 2>/dev/null | drop1 -l > char_upper.bin 
+dd if=tora_char.bin 2>/dev/null | drop1 > char_lower.bin
+dd if=tora_char.bin 2>/dev/null | drop1 -l > char_upper.bin
 
-# Palette 
+# Palette
 if [ ! -e pal_bin2hex ]; then
     g++ pal_bin2hex.cc -o pal_bin2hex || exit 1
 fi
@@ -69,4 +69,5 @@ $TEST go.sh -d NOSOUND -d NOMAIN -d NOMCU -video 5 \
     -d SIM_SCR_HPOS=16\'h$SCRHPOS \
     -d SIM_SCR_VPOS=16\'h$SCRVPOS \
     -d SIM_SCR_BANK=1\'b$SCRBANK \
+    -d VIDEO_START=1 \
     -deep $EXTRA

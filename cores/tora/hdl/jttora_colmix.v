@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 22-9-2019 */
 
-`timescale 1ns/1ps
-
 module jttora_colmix(
     input            rst,
     input            clk,
@@ -153,6 +151,10 @@ jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
     .q      ( prio          )
 );
 
+`ifdef GRAY
+wire [11:0] pal_gray = {3{pal_addr[3:0]}};
+`endif
+
 jtframe_blank #(.DLY(7),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
@@ -161,8 +163,12 @@ jtframe_blank #(.DLY(7),.DW(12)) u_dly(
     .LHBL_dly   ( LHBL_dly            ),
     .LVBL_dly   ( LVBL_dly            ),
     .preLBL     ( preLBL              ),
+`ifdef GRAY
+    .rgb_in     ( pal_gray            ),
+`else
     .rgb_in     ( avatar_mux          ),
+`endif
     .rgb_out    ( {red, green, blue } )
 );
 
-endmodule // jtgng_colmix
+endmodule

@@ -131,6 +131,7 @@ jtframe_cen48 u_cen48(
     .cen4_12(               ),
     .cen3   (               ),
     .cen3q  (               ),
+    .cen3qb (               ),
     .cen3b  (               ),
     .cen1p5 (               ),
     .cen1p5b(               )
@@ -147,10 +148,16 @@ jtframe_cen24 u_cen(
     .clk    ( clk24     ),
     .cen12  (           ),
     .cen12b (           ),
+    .cen8   (           ),
+    .cen4   (           ),
     .cen6   ( mcu_cen   ),
     .cen6b  (           ),
     .cen3   ( cen3      ),
-    .cen1p5 (           )
+    .cen3q  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5 (           ),
+    .cen1p5b(           )
 );
 
 jtframe_frac_cen u_cen10(
@@ -310,7 +317,7 @@ jttora_main u_main(
     assign scrposh     = `SIM_SCR_HPOS;
     assign scrposv     = `SIM_SCR_VPOS;
     assign scr_addr[18]= `SIM_SCR_BANK;
-    assign cpu_cen     = cen12;
+    assign cpu_cen     = cen10;
     assign OKOUT       = 1'b0;
     assign snd_latch   = `SIM_SND_LATCH;
 `endif
