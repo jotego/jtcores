@@ -8,14 +8,13 @@
 ../../hdl/jt1942_objram.v
 ../../hdl/jt1942_objdraw.v
 ../../hdl/jt1942_objtiming.v
-../../hdl/jt1942_dip.v
 ../../../modules/jtframe/hdl/sdram/jtframe_rom.v
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
-../../../modules/jtgng_romflex.v
 ../../../modules/jtgng_multiram.v
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+../../../modules/jtframe/hdl/video/jtframe_blank.v
 ../../../modules/jtgng_objpxl.v
 ../../../modules/jtgng_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
