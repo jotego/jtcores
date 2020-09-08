@@ -36,7 +36,7 @@ module jtgng_objpxl #(
     input              line,
     // pixel data
     input       [dw-1:0]  new_pxl,
-    output reg  [dw-1:0]  obj_pxl
+    output      [dw-1:0]  obj_pxl
 );
 
 localparam lineA=1'b0, lineB=1'b1;
@@ -59,7 +59,7 @@ always @(posedge clk, posedge rst)
     end
 
 always @(posedge clk) if(pxl_cen) begin
-    if( !LHBL ) Hcnt <= H0-PXL_DLY;
+    if( !LHBL ) Hcnt <= AW==8 ? 8'd0 : (H0-PXL_DLY);
     else Hcnt <= Hcnt+1'd1;
 end
 
@@ -77,14 +77,14 @@ always @(posedge clk) if(cen) begin
 end
 
 reg [   3:0] st;
-//reg [dw-1:0] obj_pxl0;
+reg [dw-1:0] obj_pxl0;
 
 always @(posedge clk,posedge rst) begin
     if(rst) begin
         st <= 4'b0;
     end else begin
         st <= { pxl_cen, st[3:1] };
-        if( st[2] ) obj_pxl <= pxlbuf_line==lineA ? lineA_q : lineB_q;
+        if( st[2] ) obj_pxl0 <= pxlbuf_line==lineA ? lineA_q : lineB_q;
     end
 end
 
@@ -127,13 +127,19 @@ jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineB_buf(
     .we      ( weB             ),
     .q       ( lineB_q         )
 );
-/*
-// Delay pixel output in order to be aligned with the other layers
-jtframe_sh #(.width(dw), .stages(PXL_DLY)) u_sh(
-    .clk            ( clk           ),
-    .clk_en         ( pxl_cen       ), // important: pixel cen!
-    .din            ( obj_pxl0      ),
-    .drop           ( obj_pxl       )
-);
-*/
+
+generate
+    if( AW==8 )begin : shifter
+    // Delay pixel output in order to be aligned with the other layers
+    jtframe_sh #(.width(dw), .stages(PXL_DLY)) u_sh(
+        .clk            ( clk           ),
+        .clk_en         ( pxl_cen       ), // important: pixel cen!
+        .din            ( obj_pxl0      ),
+        .drop           ( obj_pxl       )
+    );
+    end else begin : noshifter
+        assign obj_pxl = obj_pxl0;
+    end
+endgenerate
+
 endmodule // jtgng_objpxl
