@@ -84,6 +84,9 @@ localparam VULGUS = 1'b1;
 localparam VULGUS = 1'b0;
 `endif
 
+localparam COFFSET = 9'd5;
+localparam SOFFSET = 9'd4;
+
 wire [3:0] char_pxl, obj_pxl;
 
 `ifndef NOCHAR
@@ -95,14 +98,14 @@ wire [1:0] char_col;
 
 `ifndef NOCHAR
 jtgng_char #(
-    .HOFFSET ( 0),
-    .ROM_AW  (12),
-    .IDMSB1  ( 7),
-    .IDMSB0  ( 7),
-    .VFLIP   ( 6),
-    .PALW    ( 6),
-    .HFLIP_EN( 0),   // 1942 does not have character H flip
-    .PALETTE ( 1),
+    .HOFFSET ( COFFSET ),
+    .ROM_AW  ( 12      ),
+    .IDMSB1  (  7      ),
+    .IDMSB0  (  7      ),
+    .VFLIP   (  6      ),
+    .PALW    (  6      ),
+    .HFLIP_EN(  0      ),   // 1942 does not have character H flip
+    .PALETTE (  1      ),
     .PALETTE_SIMFILE( "../../../rom/1942/sb-0.f1" )
 ) u_char (
     .clk        ( clk           ),
@@ -170,7 +173,7 @@ wire       scr_sel= cpu_AB[4];
 `endif
 
 jtgng_scroll #(
-    .HOFFSET ( 9'd0    ),
+    .HOFFSET ( SOFFSET ),
     .ROM_AW  ( 14      ),
     .IDMSB1  ( 7       ),
     .IDMSB0  ( 7       ),
@@ -256,7 +259,7 @@ assign scr_addr  = 14'd0;
 assign scr_pxl   = ~6'h0;
 `endif
 
-jt1942_obj u_obj(
+jt1942_obj #(.PXL_DLY(4)) u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( cen6      ),

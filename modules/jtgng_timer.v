@@ -33,7 +33,6 @@ module jtgng_timer(
 
 parameter obj_offset=10'd3;
 // 0 for most games (224px height, 59.64Hz)
-// 1 for 1942, Vulgus: longer HB
 // 5 for Section Z  (240px height, 55.37Hz)
 // 6 for Section Z  (240px height, 55.97Hz)
 parameter LAYOUT=0;
@@ -46,11 +45,10 @@ localparam [8:0] V_START  = (LAYOUT != 5 && LAYOUT!=6) ? 9'd250 : (LAYOUT==5 ? 9
                  VS_END   = (LAYOUT != 5 && LAYOUT!=6) ? 9'd510 : (VS_START+9'd3),
                  // H signals: all must be multiple of 8
                  H_START  = (LAYOUT != 5 && LAYOUT!=6) ? 9'd128 : 9'd128,
-                 HB_START = (LAYOUT != 5 && LAYOUT!=6) ? 9'h087 :
-                            ( LAYOUT == 1 ? 9'd136 : 9'd128 ),
+                 HB_START = (LAYOUT != 5 && LAYOUT!=6) ? 9'h087 : 9'd128,
+                            //( LAYOUT == 1 ? 9'd136 : 9'd128 ),
                  HB_END   = (LAYOUT != 5 && LAYOUT!=6) ?
-                   ( LAYOUT==1 ? 9'h10C :// 1942
-                      9'h107 ) // other games
+                      9'h107  // other games
                     : 9'd256; // Section Z
 
 // H counter

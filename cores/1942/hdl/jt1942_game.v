@@ -64,7 +64,7 @@ module jt1942_game(
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB   
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  [15:0]  snd,
     output          sample,
@@ -117,7 +117,7 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-jtgng_timer #(.LAYOUT(1)) u_timer(
+jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),
     .V         ( V        ),
@@ -162,14 +162,14 @@ localparam VULGUS = 1'b0;
 
 
 wire [9:0] prom_we;
-jt1942_prom_we 
+jt1942_prom_we
 `ifdef VULGUS
-#( 
+#(
    .SOUNDADDR ( 22'h0_A000),
    .CHARADDR  ( 22'h0_E000),
-   .SCRADDR   ( 22'h1_0000), 
+   .SCRADDR   ( 22'h1_0000),
    .SCRUPPER  ( 22'h1_8000),
-   .OBJADDR   ( 22'h2_0000), 
+   .OBJADDR   ( 22'h2_0000),
    .PROMADDR  ( 22'h2_8000)    )
 `endif
 u_prom_we(
@@ -256,7 +256,7 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
     .dipsw_b    ( dipsw_b       ),
     .coin_cnt   (               )
 );
-`else 
+`else
 assign main_cs   = 1'b0;
 assign cpu_cen   = cen3;
 assign char_cs   = 1'b0;
@@ -394,7 +394,7 @@ jtframe_rom #(
 
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ), 
+    .slot2_cs    ( LVBL          ),
     .slot3_cs    ( 1'b0          ), // unused
     .slot4_cs    ( 1'b0          ), // unused
     .slot5_cs    ( 1'b0          ), // unused
