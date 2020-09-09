@@ -73,7 +73,7 @@ module jtbtiger_video(
     // Palette PROMs
     input       [7:0]   prog_addr,
     input               prom_prior_we,
-    input       [3:0]   prom_din,  
+    input       [3:0]   prom_din,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -146,7 +146,7 @@ jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    (               ) 
+    .msg_high    (               )
 );
 `else
 assign char_pxl  = ~7'd0;
@@ -170,6 +170,7 @@ jtbtiger_scroll #(.HOFFSET(0)) u_scroll (
     // screen position
     .H          ( H             ),
     .V          ( V[7:0]        ),
+    .Hinit      ( HINIT         ),
     .hpos       ( scr_hpos      ),
     .vpos       ( scr_vpos      ),
     .flip       ( flip          ),
@@ -202,7 +203,7 @@ jtgng_obj #(
     .OBJMAX_LINE  ( OBJMAX_LINE ),
     .ROM_AW       ( 17          ),
     .PALW         (  3          ),
-    .PXL_DLY      (  8          ),    
+    .PXL_DLY      (  8          ),
     .LAYOUT       (  4          ),
     .AVATAR_MAX   ( AVATAR_MAX  ),
     .VERTICAL     ( 0           ))
@@ -241,7 +242,7 @@ u_obj (
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
-`else 
+`else
 assign blcnten = 1'b0;
 assign bus_req = 1'b0;
 assign obj_pxl = ~6'd0;
@@ -274,7 +275,7 @@ jtbtiger_colmix u_colmix (
     // Layer control
     .CHRON        ( CHRON         ),
     .SCRON        ( SCRON         ),
-    .OBJON        ( OBJON         ),    
+    .OBJON        ( OBJON         ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

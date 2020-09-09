@@ -25,6 +25,7 @@ module jtbtiger_scroll #(parameter
     input       [11:0] AB,
     input        [7:0] V, // V128-V1
     input        [8:0] H, // H256-H1
+    input              Hinit,
     input       [10:0] hpos,
     input       [10:0] vpos,
     input              scr_cs,
@@ -53,11 +54,17 @@ wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
+reg       layout2;
 
 always @(posedge clk) if(pxl_cen) begin
     VS = vpos + { {POSW-8{1'b0}}, VF};
     { HS[POSW-1:3], HSaux } = hpos + { {POSW-8{~Hfix[8]}}, H7, HF[6:0]};
     HS[2:0] = HSaux ^ {3{flip}};
+
+    if( Hinit ) layout2 <= layout; // latching layout changes prevent
+        // wrong lines at the top of the screen
+        // I wonder if the original PCB was gating writes to this register
+        // instead of latching at the beginning of the line
 end
 
 wire [7:0] dout_low, dout_high;
@@ -87,7 +94,7 @@ jtgng_tilemap #(
     .flip       ( 1'b0      ),  // Flip is already done on HS and VS
     .din        ( din       ),
     .dout       ( dout      ),
-    .layout     ( layout    ),
+    .layout     ( layout2   ),
     // Bus arbitrion
     .cs         ( scr_cs    ),
     .wr_n       ( wr_n      ),

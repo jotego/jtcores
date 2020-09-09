@@ -44,7 +44,7 @@ localparam [8:0] V_START  = (LAYOUT != 5 && LAYOUT!=6) ? 9'd250 : (LAYOUT==5 ? 9
                  // VS length doesn't affect position
                  VS_END   = (LAYOUT != 5 && LAYOUT!=6) ? 9'd510 : (VS_START+9'd3),
                  // H signals: all must be multiple of 8
-                 H_START  = (LAYOUT != 5 && LAYOUT!=6) ? 9'd128 : 9'd128,
+                 H_START  = 9'd128,
                  HB_START = (LAYOUT != 5 && LAYOUT!=6) ? 9'h087 : 9'd128,
                             //( LAYOUT == 1 ? 9'd136 : 9'd128 ),
                  HB_END   = (LAYOUT != 5 && LAYOUT!=6) ?
