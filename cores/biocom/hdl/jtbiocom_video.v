@@ -95,7 +95,7 @@ parameter SCRWIN        = 1,
 parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
-    
+
 // parameters from jtgng_obj:
 parameter AVATAR_MAX    = 8;
 
@@ -151,7 +151,7 @@ jtgng_charmsg #(.VERTICAL(0)) u_msg(
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high ) 
+    .msg_high    ( char_msg_high )
 );
 `else
 assign char_mrdy = 1'b1;
@@ -168,7 +168,7 @@ jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
     .POSW       ( 10            ),
-    .HOFFSET    (  0            ),
+    .HOFFSET    ( 9'd0          ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ),
     .SIMID      ("scr1"         ))
@@ -210,7 +210,7 @@ assign scr1_dout  = 8'd0;
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
     .SCANW      ( 12            ),
-    .HOFFSET    (  0            ),
+    .HOFFSET    ( ~9'd0         ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  2            ),
     .SIMID      ("scr2"         ))
@@ -292,7 +292,7 @@ u_obj (
     .prog_addr  (             ),
     .prom_hi_we (             ),
     .prom_lo_we (             ),
-    .prog_din   (             )    
+    .prog_din   (             )
 );
 
 assign obj_AB[13:11] = 3'b111;
@@ -326,7 +326,7 @@ jtbiocom_colmix u_colmix (
     // PROMs
     .prog_addr    ( prog_addr     ),
     .prom_prio_we ( prom_prio_we  ),
-    .prom_din     ( prom_din      ),    
+    .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),
