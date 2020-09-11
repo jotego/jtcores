@@ -86,7 +86,7 @@ always @(posedge clk) begin
              casez( A[15:13] )
                 3'b0??: begin
                     rom_cs   <= 1'b1;
-                    rom2_ok  <= 0;
+                    rom_addr <= A[14:0];
                 end
                 3'b100: fm_cs    <= 1'b1;
                 3'b101: mcu_cs   <= 1'b1;
