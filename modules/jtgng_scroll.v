@@ -19,7 +19,7 @@
 module jtgng_scroll #(parameter
     ROM_AW   = 15,
     PALW     = 4,   // PALW must be manually defined to match what is needed by LAYOUT
-    HOFFSET  = 9'd0,
+    HOFFSET  = 9'd0,// Only positive numbers
     POSW     = 9,   // Scroll offset width, normally 9 bits
     // bit field information
     IDMSB1   = 7,   // MSB of tile ID is
@@ -55,7 +55,7 @@ module jtgng_scroll #(parameter
     output   [(TILE4?3:2):0] scr_col
 );
 
-wire [8:0] Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
+reg  [8:0] Hfix;
 reg  [POSW-1:0] HS, VS;
 wire [ 7:0] VF = {8{flip}}^V;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
@@ -63,6 +63,18 @@ wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
 reg [2:0] HSaux;
+
+always @(*) begin
+    Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
+    if( LAYOUT==1 ) begin // Bionic Commando
+        // This fixes when H is 1FF and increasing it
+        // should lead to 80 and not 00
+        // This should apply to most games, but I'm only doing it
+        // for BioCom for now
+        if( H[8] && !Hfix[8] )
+            Hfix = Hfix + 9'h80;
+    end
+end
 
 always @(posedge clk) begin
     VS = vpos + { {POSW-8{1'b0}}, VF};

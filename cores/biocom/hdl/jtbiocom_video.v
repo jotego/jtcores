@@ -102,6 +102,7 @@ parameter AVATAR_MAX    = 8;
 localparam CHAR_OFFSET = 9'd6;
 localparam SCR1_OFFSET = 9'd1;
 localparam SCR2_OFFSET = 9'd0;
+localparam OBJ_DLY     = 2;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
@@ -259,7 +260,7 @@ jtgng_obj #(
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 6'd32      ),
     .PALW       ( 4          ),
-    .PXL_DLY    ( 4          ),
+    .PXL_DLY    ( OBJ_DLY    ),
     .ROM_AW     ( 17         ), // MSB is always zero
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
