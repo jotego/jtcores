@@ -168,7 +168,7 @@ jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
     .POSW       ( 10            ),
-    .HOFFSET    ( 9'd0          ),
+    .HOFFSET    ( -9'd1         ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ),
     .SIMID      ("scr1"         ))
@@ -210,7 +210,7 @@ assign scr1_dout  = 8'd0;
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
     .SCANW      ( 12            ),
-    .HOFFSET    ( ~9'd0         ),
+    .HOFFSET    ( -9'd2         ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  2            ),
     .SIMID      ("scr2"         ))

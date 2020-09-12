@@ -1,6 +1,6 @@
 #!/bin/bash
 VIDEOWIDTH=256
-VIDEOHEIGHT=240
+VIDEOHEIGHT=224
 
 mv video video2
 rm -rf video2&
