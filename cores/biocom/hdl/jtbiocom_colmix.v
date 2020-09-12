@@ -91,7 +91,7 @@ wire [1:0] pre_prio;
 reg  [7:0] seladdr;
 reg  [1:0] prio, presel;
 wire       char_blank_n = |(~char_pxl[1:0]);
-reg        preLBL;
+wire       preLBL;
 
 always @(*) begin
     seladdr[0]   = enable_scr2 ? (|(~scr2_pxl[3:0])) : 1'b0;
@@ -115,16 +115,6 @@ always @(posedge clk) if(cen6) begin
     pixel_mux[9:8] <= prio;
 end
 
-// Blanking delay
-//wire  [1:0] preLBL = {LHBL, LVBL};
-
-// jtframe_sh #(.width(2),.stages(5)) u_blank_dly(
-//     .clk    ( clk      ),
-//     .clk_en ( cen6     ),
-//     .din    ( {LHBL, LVBL}     ),
-//     .drop   ( preLBL   )
-// );
-
 // Address mux
 reg  [9:0] pal_addr;
 reg        pal_uwe, pal_lwe;
@@ -142,12 +132,6 @@ always @(*) begin
         pal_lwe  = 1'b0;
     end
 end
-
-// always @(posedge clk) if(cen6) begin
-//     preLBL <= {LHBL, LVBL};
-//     coloff <= preLBL!=2'b11;
-//     {LHBL_dly, LVBL_dly} <= preLBL;
-// end
 
 assign coloff = ~preLBL;
 
@@ -247,12 +231,6 @@ always @(posedge clk,posedge rst) begin
         end
     end
 end
-
-// always @(posedge clk) if(cen6) begin
-//     red   <= pre_r;
-//     green <= pre_g;
-//     blue  <= pre_b;
-// end
 
 wire [14:0] pal_rgb = {pre_r, pre_g, pre_b};
 
