@@ -99,6 +99,10 @@ parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
 // parameters from jtgng_obj:
 parameter AVATAR_MAX    = 8;
 
+localparam CHAR_OFFSET = 9'd6;
+localparam SCR1_OFFSET = 9'd1;
+localparam SCR2_OFFSET = 9'd0;
+
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
 wire [3:0] scr1_col, scr2_col;
@@ -112,7 +116,7 @@ wire [7:0] char_msg_low;
 wire [7:0] char_msg_high;
 wire [9:0] char_scan;
 
-jtgng_char #(.HOFFSET(4),.SIMID("char")) u_char (
+jtgng_char #(.HOFFSET(CHAR_OFFSET),.SIMID("char")) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -168,7 +172,7 @@ jtgng_scroll #(
     .ROM_AW     ( 17            ),
     .SCANW      ( 12            ),
     .POSW       ( 10            ),
-    .HOFFSET    ( -9'd1         ),
+    .HOFFSET    ( SCR1_OFFSET   ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ),
     .SIMID      ("scr1"         ))
@@ -210,7 +214,7 @@ assign scr1_dout  = 8'd0;
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
     .SCANW      ( 12            ),
-    .HOFFSET    ( -9'd2         ),
+    .HOFFSET    ( SCR2_OFFSET   ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  2            ),
     .SIMID      ("scr2"         ))

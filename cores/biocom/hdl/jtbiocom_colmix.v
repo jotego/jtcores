@@ -77,7 +77,7 @@ module jtbiocom_colmix(
 );
 
 parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
-localparam BLANK_DLY=3;
+localparam BLANK_DLY=0;
 
 reg [9:0] pixel_mux;
 
