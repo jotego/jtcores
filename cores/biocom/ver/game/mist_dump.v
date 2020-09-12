@@ -54,13 +54,14 @@ module mist_dump(
                 $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.u_mmr,"A");
                 $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.timers,"AS");
             `endif
-            $shm_probe(mist_test.UUT.u_game.u_mcu,"A");
+            //$shm_probe(mist_test.UUT.u_game.u_mcu,"A");
+            $shm_probe(mist_test.UUT.u_game,"A");
             $shm_probe(mist_test.UUT.u_game.u_main,"A");
-            $shm_probe(mist_test.UUT.u_game.u_video,"A");
-            $shm_probe(mist_test.UUT.u_game.u_video.u_scroll1,"AS");
-            $shm_probe(mist_test.UUT.u_game.u_video.u_scroll2,"AS");
-            $shm_probe(mist_test.UUT,"A");
-            $shm_probe(mist_test,"A");
+            $shm_probe(mist_test.UUT.u_game.u_video,"AS");
+            //$shm_probe(mist_test.UUT.u_game.u_video.u_scroll1,"AS");
+            //$shm_probe(mist_test.UUT.u_game.u_video.u_scroll2,"AS");
+            //$shm_probe(mist_test.UUT,"A");
+            //$shm_probe(mist_test,"A");
             $shm_probe(frame_cnt);
         `endif
     end
