@@ -21,6 +21,7 @@
 ../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
 ../../../modules/jtframe/hdl/clocking/jtframe_cen24.v
+../../../modules/jtframe/hdl/video/jtframe_blank.v
 
 ../../../modules/jtgng_avatar.v
 ../../../modules/jtgng_avatar_pal.v

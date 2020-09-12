@@ -1,7 +1,9 @@
 #!/bin/bash
-VIDEOWIDTH=384
+VIDEOWIDTH=256
 VIDEOHEIGHT=240
 
+mv video video2
+rm -rf video2&
 mkdir -p video
 
 # convert -size 384x240 -depth 8 RGBA:video.raw -resize 200% video.png

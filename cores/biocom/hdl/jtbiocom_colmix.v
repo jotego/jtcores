@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 22-9-2019 */
 
-`timescale 1ns/1ps
-
 // Resistor values measured on PCB by Caius (Twitter @Caius63417737)
 // Pin number    7    6    5  4  3   2    1
 // R2R ladders: 4.7k-2.2K-1K-470-220-100  common net
@@ -27,22 +25,22 @@
 //                      Brightnes
 //       0      1    2     3     4     5     6     7
 // Colour
-// 0   0.000 0.194 0.412 0.606 0.881 1.075 1.293 1.487 
-// 1   0.088 0.282 0.500 0.694 0.969 1.163 1.381 1.575 
-// 2   0.194 0.388 0.606 0.800 1.075 1.268 1.487 1.681 
-// 3   0.282 0.476 0.694 0.888 1.163 1.357 1.575 1.769 
-// 4   0.412 0.606 0.825 1.018 1.293 1.487 1.706 1.899 
-// 5   0.500 0.694 0.913 1.107 1.381 1.575 1.794 1.987 
-// 6   0.606 0.800 1.018 1.212 1.487 1.681 1.899 2.093 
-// 7   0.694 0.888 1.107 1.300 1.575 1.769 1.987 2.181 
-// 8   0.881 1.075 1.293 1.487 1.762 1.956 2.174 2.368 
-// 9   0.969 1.163 1.381 1.575 1.850 2.044 2.262 2.456 
-// 10  1.075 1.268 1.487 1.681 1.956 2.149 2.368 2.562 
-// 11  1.163 1.357 1.575 1.769 2.044 2.237 2.456 2.650 
-// 12  1.293 1.487 1.706 1.899 2.174 2.368 2.586 2.780 
-// 13  1.381 1.575 1.794 1.987 2.262 2.456 2.674 2.868 
-// 14  1.487 1.681 1.899 2.093 2.368 2.562 2.780 2.974 
-// 15  1.575 1.769 1.987 2.181 2.456 2.650 2.868 3.062 
+// 0   0.000 0.194 0.412 0.606 0.881 1.075 1.293 1.487
+// 1   0.088 0.282 0.500 0.694 0.969 1.163 1.381 1.575
+// 2   0.194 0.388 0.606 0.800 1.075 1.268 1.487 1.681
+// 3   0.282 0.476 0.694 0.888 1.163 1.357 1.575 1.769
+// 4   0.412 0.606 0.825 1.018 1.293 1.487 1.706 1.899
+// 5   0.500 0.694 0.913 1.107 1.381 1.575 1.794 1.987
+// 6   0.606 0.800 1.018 1.212 1.487 1.681 1.899 2.093
+// 7   0.694 0.888 1.107 1.300 1.575 1.769 1.987 2.181
+// 8   0.881 1.075 1.293 1.487 1.762 1.956 2.174 2.368
+// 9   0.969 1.163 1.381 1.575 1.850 2.044 2.262 2.456
+// 10  1.075 1.268 1.487 1.681 1.956 2.149 2.368 2.562
+// 11  1.163 1.357 1.575 1.769 2.044 2.237 2.456 2.650
+// 12  1.293 1.487 1.706 1.899 2.174 2.368 2.586 2.780
+// 13  1.381 1.575 1.794 1.987 2.262 2.456 2.674 2.868
+// 14  1.487 1.681 1.899 2.093 2.368 2.562 2.780 2.974
+// 15  1.575 1.769 1.987 2.181 2.456 2.650 2.868 3.062
 
 module jtbiocom_colmix(
     input            rst,
@@ -56,8 +54,8 @@ module jtbiocom_colmix(
     input [7:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output  reg      LHBL_dly,
-    output  reg      LVBL_dly,
+    output           LHBL_dly,
+    output           LVBL_dly,
     // Priority PROM
     input [7:0]      prog_addr,
     input            prom_prio_we,
@@ -71,14 +69,15 @@ module jtbiocom_colmix(
     input            col_lw,
     input [15:0]     DB,
 
-    output reg [4:0] red,
-    output reg [4:0] green,
-    output reg [4:0] blue,
+    output     [4:0] red,
+    output     [4:0] green,
+    output     [4:0] blue,
     // Debug
     input      [3:0] gfx_en
 );
 
 parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
+localparam BLANK_DLY=3;
 
 reg [9:0] pixel_mux;
 
@@ -92,6 +91,7 @@ wire [1:0] pre_prio;
 reg  [7:0] seladdr;
 reg  [1:0] prio, presel;
 wire       char_blank_n = |(~char_pxl[1:0]);
+reg        preLBL;
 
 always @(*) begin
     seladdr[0]   = enable_scr2 ? (|(~scr2_pxl[3:0])) : 1'b0;
@@ -116,25 +116,24 @@ always @(posedge clk) if(cen6) begin
 end
 
 // Blanking delay
-//wire  [1:0] pre_BL = {LHBL, LVBL};
-reg  [1:0] pre_BL;
+//wire  [1:0] preLBL = {LHBL, LVBL};
 
 // jtframe_sh #(.width(2),.stages(5)) u_blank_dly(
 //     .clk    ( clk      ),
 //     .clk_en ( cen6     ),
 //     .din    ( {LHBL, LVBL}     ),
-//     .drop   ( pre_BL   )
+//     .drop   ( preLBL   )
 // );
 
 // Address mux
 reg  [9:0] pal_addr;
 reg        pal_uwe, pal_lwe;
-reg        coloff; // colour off
+wire       coloff; // colour off
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
 
 always @(*) begin
-    if( pre_BL!=2'b11 ) begin
-        pal_addr = AB;
+    if( !preLBL ) begin
+        pal_addr  = AB;
         pal_uwe   = col_uw;
         pal_lwe   = col_lw;
     end else begin
@@ -144,15 +143,17 @@ always @(*) begin
     end
 end
 
-always @(posedge clk) if(cen6) begin
-    pre_BL <= {LHBL, LVBL};
-    coloff <= pre_BL!=2'b11;
-    {LHBL_dly, LVBL_dly} <= pre_BL;
-end
+// always @(posedge clk) if(cen6) begin
+//     preLBL <= {LHBL, LVBL};
+//     coloff <= preLBL!=2'b11;
+//     {LHBL_dly, LVBL_dly} <= preLBL;
+// end
 
+assign coloff = ~preLBL;
 
 // Palette is in RAM
 
+`ifndef GRAY
 jtframe_ram #(.aw(10),.dw(8),.simhexfile("palrg.hex")) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
@@ -170,6 +171,20 @@ jtframe_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
     .we         ( pal_lwe     ),
     .q          ( { pal_blue, pal_bright } )
 );
+`else
+// for some reason I'm not getting the palette
+// right for scroll 2 in simulation
+reg [3:0] gray;
+
+assign pal_red   = gray;
+assign pal_green = gray;
+assign pal_blue  = gray;
+assign pal_bright= 4'b1000;
+
+always @(posedge clk) begin
+    gray <= pal_addr[3:0];
+end
+`endif
 
 wire [11:0] avatar_mux;
 
@@ -233,10 +248,24 @@ always @(posedge clk,posedge rst) begin
     end
 end
 
-always @(posedge clk) if(cen6) begin
-    red   <= pre_r;
-    green <= pre_g;
-    blue  <= pre_b;
-end
+// always @(posedge clk) if(cen6) begin
+//     red   <= pre_r;
+//     green <= pre_g;
+//     blue  <= pre_b;
+// end
+
+wire [14:0] pal_rgb = {pre_r, pre_g, pre_b};
+
+jtframe_blank #(.DLY(BLANK_DLY),.DW(15)) u_dly(
+    .clk        ( clk                 ),
+    .pxl_cen    ( cen6                ),
+    .LHBL       ( LHBL                ),
+    .LVBL       ( LVBL                ),
+    .LHBL_dly   ( LHBL_dly            ),
+    .LVBL_dly   ( LVBL_dly            ),
+    .preLBL     ( preLBL              ),
+    .rgb_in     ( pal_rgb             ),
+    .rgb_out    ( {red, green, blue } )
+);
 
 endmodule // jtgng_colmix

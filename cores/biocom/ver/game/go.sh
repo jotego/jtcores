@@ -28,8 +28,7 @@ done
 export GAME_ROM_PATH=../../../rom/biocom.rom
 export MEM_CHECK_TIME=280_000_000
 # 280ms to load the ROM ~17 frames
-export BIN2PNG_OPTIONS="--scale"
-export CONVERT_OPTIONS="-resize 300%x300%"
+export CONVERT_OPTIONS="-resize 300%"
 GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
 export YM2151=1
 export I8051=1
