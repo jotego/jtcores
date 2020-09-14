@@ -84,7 +84,7 @@ module jtsectionz_video#(
     // Palette PROMs
     // input       [7:0]   prog_addr,
     // input               prom_prior_we,
-    // input       [3:0]   prom_din,  
+    // input       [3:0]   prom_din,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -157,7 +157,7 @@ jtgng_charmsg u_msg(
     .avatar_idx  ( avatar_idx    ),
     .scan        ( msg_scan      ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    (               ) 
+    .msg_high    (               )
 );
 `else
 assign char_pxl  = ~7'd0;
@@ -166,7 +166,7 @@ assign char_mrdy = 1'b1;
 
 `ifndef NOSCR
 // wire [7:0] scr_pre;
-// 
+//
 // jtframe_sh #(.width(8),.stages(5)) u_hb_dly(
 //     .clk    ( clk      ),
 //     .clk_en ( cen6     ),
@@ -175,7 +175,7 @@ assign char_mrdy = 1'b1;
 // );
 
 jtgng_scroll #(
-    .HOFFSET( 0    ),
+    .HOFFSET( 1    ),
     .ROM_AW ( SCRW  ),
     .TILE4  ( 1     ),
     .LAYOUT (LAYOUT ),
@@ -217,7 +217,7 @@ assign scr_dout   = 8'd0;
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
-    .PXL_DLY      (  2          ),    
+    .PXL_DLY      (  2          ),
     .LAYOUT       ( LAYOUT      ),
     // Avatar parameters
     .AVATAR_MAX   ( AVATAR_MAX  ),
@@ -257,7 +257,7 @@ u_obj (
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
-`else 
+`else
 assign blcnten = 1'b0;
 assign bus_req = 1'b0;
 assign obj_pxl = ~6'd0;

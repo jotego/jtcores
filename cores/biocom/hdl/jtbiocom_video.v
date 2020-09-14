@@ -100,9 +100,9 @@ parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
 parameter AVATAR_MAX    = 8;
 
 localparam CHAR_OFFSET = 9'd5;
-localparam SCR1_OFFSET = 9'd0;
-localparam SCR2_OFFSET = 9'd0;
-localparam OBJ_DLY     = 2;
+localparam SCR1_OFFSET = 9'd1;
+localparam SCR2_OFFSET = 9'd1;
+localparam OBJ_DLY     = 3;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;

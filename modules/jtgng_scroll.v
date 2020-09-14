@@ -56,7 +56,8 @@ module jtgng_scroll #(parameter
 );
 
 reg  [8:0] Hfix;
-reg  [POSW-1:0] HS, VS;
+reg  [POSW-1:0] HS;
+wire [POSW-1:0] Hsum, VS;
 wire [ 7:0] VF = {8{flip}}^V;
 wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
 
@@ -66,20 +67,16 @@ reg [2:0] HSaux;
 
 always @(*) begin
     Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
-    if( LAYOUT==1 ) begin // Bionic Commando
-        // This fixes when H is 1FF and increasing it
-        // should lead to 80 and not 00
-        // This should apply to most games, but I'm only doing it
-        // for BioCom for now
-        if( H[8] && !Hfix[8] )
-            Hfix = Hfix + 9'h80;
-    end
 end
 
-always @(posedge clk) begin
-    VS = vpos + { {POSW-8{1'b0}}, VF};
-    { HS[POSW-1:3], HSaux } = hpos + { {POSW-8{~Hfix[8]}}, H7, HF[6:0]};
-    HS[2:0] = HSaux ^ {3{flip}};
+assign VS = vpos + { {POSW-8{1'b0}}, VF};
+assign Hsum = hpos + ( LAYOUT==1 ?
+            { {POSW-8{~Hfix[8]}}, HF[7:0]} :
+            { {POSW-8{~Hfix[8]}}, H7, HF[6:0]} );
+
+always @(posedge clk) if(pxl_cen) begin
+    if( Hsum[2:0]==3'd0 ) HS[POSW-1:3] <= Hsum[POSW-1:3];
+    HS[2:0]      <= Hsum[2:0] ^ {3{flip}};
 end
 
 wire [7:0] dout_low, dout_high;

@@ -85,7 +85,7 @@ localparam VULGUS = 1'b0;
 `endif
 
 localparam COFFSET = 9'd5;
-localparam SOFFSET = 9'd4;
+localparam SOFFSET = 9'd5;
 
 wire [3:0] char_pxl, obj_pxl;
 

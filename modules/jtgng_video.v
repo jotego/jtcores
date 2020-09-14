@@ -34,7 +34,7 @@ parameter       OBJ_AW  = 16,
 parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
-    
+
 // parameters from jtgng_obj:
 parameter AVATAR_MAX    = 8
 ) (
@@ -89,7 +89,7 @@ parameter AVATAR_MAX    = 8
     input               prom_red_we,
     input               prom_green_we,
     input               prom_blue_we,
-    input       [3:0]   prom_din,  
+    input       [3:0]   prom_din,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -160,7 +160,7 @@ jtgng_charmsg u_msg(
     .avatar_idx  ( avatar_idx    ),
     .scan        ( char_scan     ),
     .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high ) 
+    .msg_high    ( char_msg_high )
 );
 `else
 assign char_mrdy = 1'b1;
@@ -168,7 +168,7 @@ assign char_mrdy = 1'b1;
 
 `ifndef NOSCR
 jtgng_scroll #(
-    .HOFFSET( 0         ),
+    .HOFFSET( 1         ),
     .TILE4  ( SCR_TILE4 ),
     .ROM_AW ( SCR_AW    )
 ) u_scroll (
@@ -247,7 +247,7 @@ u_obj (
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
-`else 
+`else
 assign obj_addr = {OBJ_AW{1'b0}};
 assign obj_pxl  = 6'd0;
 assign bus_req  = 1'b0;
@@ -279,7 +279,7 @@ jtgng_colmix #(
     .prom_red_we  ( prom_red_we   ),
     .prom_green_we( prom_green_we ),
     .prom_blue_we ( prom_blue_we  ),
-    .prom_din     ( prom_din      ),    
+    .prom_din     ( prom_din      ),
 
     // Avatars
     .pause        ( pause         ),
