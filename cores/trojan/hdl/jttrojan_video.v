@@ -103,7 +103,7 @@ localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 6;
 
 localparam PXL_CHRW=6;
-localparam SCR_OFFSET = 1;
+localparam SCR_OFFSET = 2;
 
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
