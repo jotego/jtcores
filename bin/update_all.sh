@@ -16,5 +16,5 @@ done
 
 jtupdate -target "mist sidi" $NETWORK_MIST $OTHER
 cp $JTROOT/log/update.log /tmp/update_mist.log
-jtupdate -mister $NETWORK_MISTER $OTHER
+jtupdate -mister $NETWORK_MISTER -jobs 2 $OTHER
 cat /tmp/update_mist.log >> $JTROOT/log/update.log
