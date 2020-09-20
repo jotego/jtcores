@@ -51,7 +51,8 @@ module jt1942_obj(
     output       [3:0] obj_pxl
 );
 
-parameter PXL_DLY=7;
+parameter PXL_DLY    = 7,
+          KEEP_ORDER = 0; // keep original ROM addressing format
 
 
 wire line, fill, line_obj_we;
@@ -126,7 +127,7 @@ wire [3:0] new_pxl;
 `endif
 
 // draw the sprite
-jt1942_objdraw u_draw(
+jt1942_objdraw #(KEEP_ORDER) u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz

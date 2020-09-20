@@ -47,6 +47,8 @@ module jt1942_objdraw(
     output reg  [3:0]  new_pxl
 );
 
+parameter KEEP_ORDER = 0;
+
 reg [3:0] CD; // colour data
 reg [7:0] V2C;
 wire [7:0] VF = {8{flip}} ^V;
@@ -111,12 +113,19 @@ end
 
 // assign obj_addr[14:6] = pre_addr[14:6];
 // assign obj_addr[ 4:1] = pre_addr[ 4:1];
-assign obj_addr[14:2] = { pre_addr[14:6], pre_addr[4:1] };
-
 reg [1:0] hcnt; // read order 2,3,0,1
 
+generate
+    if( KEEP_ORDER ) begin : original_addr
+        assign obj_addr = { pre_addr[14:6], hcnt[1], pre_addr[4:1], hcnt[0] };
+    end else begin : cache_addr
+        assign obj_addr[14:2] = { pre_addr[14:6], pre_addr[4:1] };
+        assign obj_addr[1:0] = hcnt;
+    end
+endgenerate
+
+
 //assign { obj_addr[5], obj_addr[0] } = hcnt;
-assign obj_addr[1:0] = hcnt;
 
 // ROM data depacking
 

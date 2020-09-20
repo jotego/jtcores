@@ -1,0 +1,104 @@
+<mame>
+	<machine name="higemaru" sourcefile="higemaru.cpp">
+		<description>Pirate Ship Higemaru</description>
+		<year>1984</year>
+		<manufacturer>Capcom</manufacturer>
+		<rom name="hg4.p12" size="8192" crc="dc67a7f9" sha1="701875e2e85efbe84bf66515117861563f3883c0" region="maincpu" offset="0"/>
+		<rom name="hg5.m12" size="8192" crc="f65a4b68" sha1="687d46406de389c8bad6cc052a2516135db93d4a" region="maincpu" offset="2000"/>
+		<rom name="hg6.p11" size="8192" crc="5f5296aa" sha1="410ee1df63492e488b3578b9c4cfbfbd2f41c888" region="maincpu" offset="4000"/>
+		<rom name="hg7.m11" size="8192" crc="dc5d455d" sha1="7d253d6680d35943792746da11d91d7be57367cc" region="maincpu" offset="6000"/>
+		<rom name="hg3.m1" size="8192" crc="b37b88c8" sha1="7933270969806154f0774d31fda75a5352cf26ad" region="gfx1" offset="0"/>
+		<rom name="hg1.c14" size="8192" crc="ef4c2f5d" sha1="247ce819cdc4ed4ec99c25c9006bac1911354bc8" region="gfx2" offset="0"/>
+		<rom name="hg2.e14" size="8192" crc="9133f804" sha1="93661c028709a7134537321e52da85e3c0f917ba" region="gfx2" offset="2000"/>
+		<rom name="hgb3.l6" size="32" crc="629cebd8" sha1="c28cd0f341f4f1c7be97f4d8c289860db8ac0857" region="proms" offset="0"/>
+		<rom name="hgb5.m4" size="256" crc="dbaa4443" sha1="cca2f9b187abd735f2309b38570edcd745042b3e" region="proms" offset="20"/>
+		<rom name="hgb1.h7" size="256" crc="07c607ce" sha1="c048602d62f47129152bbc7ccd38627d78a4392f" region="proms" offset="120"/>
+		<rom name="hgb4.l9" size="256" crc="712ac508" sha1="5349d722ab6733afdda65f6e0a98322f0d515e86" region="proms" offset="220"/>
+		<rom name="hgb2.k7" size="256" crc="4921635c" sha1="aee37d6cdc36acf0f11ff5f93e7b16e4b12f6c39" region="proms" offset="320"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="7">
+			<dipvalue name="5 Coins/1 Credit" value="1"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="3"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="7" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="5"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="56">
+			<dipvalue name="5 Coins/1 Credit" value="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="16"/>
+			<dipvalue name="3 Coins/1 Credit" value="24"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="56" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/3 Credits" value="40"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="192">
+			<dipvalue name="1" value="128"/>
+			<dipvalue name="2" value="64"/>
+			<dipvalue name="3" value="192" default="yes"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="14">
+			<dipvalue name="10k 50k 50k+" value="14" default="yes"/>
+			<dipvalue name="10k 60k 60k+" value="12"/>
+			<dipvalue name="20k 60k 60k+" value="10"/>
+			<dipvalue name="20k 70k 70k+" value="8"/>
+			<dipvalue name="30k 70k 70k+" value="6"/>
+			<dipvalue name="30k 80k 80k+" value="4"/>
+			<dipvalue name="40k 100k 100k+" value="2"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="16">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Music" tag="DSW2" mask="32">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+</mame>

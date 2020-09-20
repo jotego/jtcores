@@ -1,0 +1,31 @@
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1942/hdl/jt1942_obj.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1942/hdl/jt1942_objtiming.v ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1942/hdl/jt1942_objram.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1942/hdl/jt1942_objdraw.v   ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1942/hdl/jt1942_obj.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jthige_main.v      ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jthige_game.v      ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jthige_colmix.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jthige_video.v     ]
+
+# Do not replace ../../modules by ../../../modules in this file
+# somehow it produces a TCL error. Maybe because the directory vulgus/hdl is a symbolic link?
+
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/clocking/jtframe_cen48.v       ]
+
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtgng_video.qip   ]
+
+# SDRAM
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/sdram/jtframe_dwnld.v  ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../modules/jtframe/hdl/sdram/jtframe_rom.qip  ]
+
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtframe_prom.v      ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/ram/jtframe_ram.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/jtframe_z80wait.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/jtframe_z80.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/video/jtframe_blank.v   ]
+
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../modules/jtgng_true_dual_ram.v   ]
+
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/t80/T80.qip           ]
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/jt12/jt49/hdl/jt49.qip       ]

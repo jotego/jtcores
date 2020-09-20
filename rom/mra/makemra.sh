@@ -24,6 +24,7 @@ makemra.sh creates MRA files for some cores. Optional arguments:
                 trojan
                 sarms
                 exed
+                hige
     -h | -help  shows this message
 EOF
             exit 1;;
@@ -36,6 +37,17 @@ done
 
 export JTFRAME
 (cd $JTFRAME/cc;make) || exit $?
+
+################## Higemaru
+if [[ $MAKELIST = all || $MAKELIST == hige ]]; then
+mame2dip higemaru.xml \
+    -rbf jthige \
+    -rename char=gfx1 obj=gfx2 \
+    -frac obj 2 \
+    -swapbytes maincpu \
+    -buttons action \
+    -rmdipsw Unused
+fi
 
 ################## Street Fighter 1
 if [[ $MAKELIST = all || $MAKELIST == sf ]]; then
@@ -133,5 +145,7 @@ for i in  'Street Fighter (Japan, bootleg).mra' \
           'Street Fighter (US, set 2) (protected).mra' \
           'Street Fighter (Japan) (protected).mra' 'Street Fighter (World, pneumatic buttons).mra' \
           'Street Fighter (prototype).mra' 'Street Fighter (World) (protected).mra'; do
- mv "$i" _alternatives/_Street\ Fighter
+ if [ -e "$i" ]; then
+    mv "$i" _alternatives/_Street\ Fighter
+fi
 done
