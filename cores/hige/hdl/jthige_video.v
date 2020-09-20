@@ -20,6 +20,7 @@ module jthige_video(
     input               rst,
     input               clk,
     input               pxl_cen,
+    input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
     input       [ 7:0]  V,
@@ -79,7 +80,7 @@ jtgng_char #(
     .PALETTE_SIMFILE( "../../../rom/hige/hgb5.m4" )
 ) u_char (
     .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
+    .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
     .V          ( V             ),
@@ -91,6 +92,7 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
     .busy       ( char_busy     ),
+    .dseln      (               ),
     // Pause screen
     .pause      ( 1'b0          ),
     .scan       (               ),
@@ -98,7 +100,7 @@ jtgng_char #(
     .msg_high   (               ),
     // PROM access
     .prog_addr  ( prom_addr     ), // corrected address
-    .prog_din   ( prog_din      ),
+    .prog_din   ( prog_din[3:0] ),
     .prom_we    ( prom_char_we  ),
     // ROM
     .char_addr  ( char_addr     ),
@@ -118,7 +120,7 @@ assign char_pxl = 4'hf;
 jt1942_obj #(.PXL_DLY(OBJ_DLY), .KEEP_ORDER(1)) u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
-    .cen6           ( cen6      ),
+    .cen6           ( pxl_cen   ),
     .cen3           ( cen3      ),
     .cpu_cen        ( cpu_cen   ),
     // screen

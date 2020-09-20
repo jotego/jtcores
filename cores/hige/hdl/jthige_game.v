@@ -24,8 +24,6 @@ module jthige_game(
     output   [2:0]  red,
     output   [2:0]  green,
     output   [2:0]  blue,
-    output          LHBL,
-    output          LVBL,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -33,8 +31,8 @@ module jthige_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 4:0]  joystick1, // MSB unused
-    input   [ 4:0]  joystick2, // MSB unused
+    input   [ 5:0]  joystick1, // MSB unused
+    input   [ 5:0]  joystick2, // MSB unused
 
     // SDRAM interface
     input           downloading,
@@ -48,7 +46,7 @@ module jthige_game(
     output          refresh_en,
 
     // ROM LOAD
-    input   [22:0]  ioctl_addr,
+    input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
@@ -102,7 +100,7 @@ localparam [21:0] CHAR_OFFSET = 22'h8000 >> 1,
                   OBJ_OFFSET  = 22'hA000 >> 1,
                   PROM_START  = 22'hE000;
 
-localparam CHAR_AW=12, OBJ_AW=13, MAIN_AW=14;
+localparam CHAR_AW=12, OBJ_AW=15, MAIN_AW=15;
 
 // ROM data
 wire  [CHAR_AW-1:0] char_addr;
@@ -122,7 +120,18 @@ jtframe_cen48 u_cen(
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
+    .cen1p5 ( cen1p5    ),
+    // unused
+    .cen16  (           ),
+    .cen8   (           ),
+    .cen4   (           ),
+    .cen4_12(           ),
+    .cen3q  (           ),
+    .cen12b (           ),
+    .cen6b  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5b(           )
 );
 
 jtgng_timer u_timer(
@@ -134,6 +143,7 @@ jtgng_timer u_timer(
     .LHBL      ( LHBL     ),
     .LHBL_obj  ( LHBL_obj ),
     .LVBL      ( LVBL     ),
+    .LVBL_obj  (          ),
     .HS        ( HS       ),
     .VS        ( VS       ),
     .Vinit     (          )
@@ -158,8 +168,8 @@ jtframe_dwnld #(.PROM_START( PROM_START )) u_dwnld(
 
 wire prom_pal_we   = prom_we && prog_addr < 22'he020;
 wire prom_char_we  = prom_we && prog_addr >=22'he020 && prog_addr < 22'he120;
-wire prom_obj_we   = prom_we && prog_addr >= 22'he220 && prog_addr < 22'he320;
-wire prom_irq_we   = prom_we && prog_addr >= 22'he320;
+wire prom_obj_we   = prom_we && prog_addr >= 22'he120 && prog_addr < 22'he220;
+wire prom_irq_we   = prom_we && prog_addr >= 22'he220 && prog_addr < 22'he320;
 
 wire [8:0] prom_addr = prog_addr[8:0] - 9'h20;
 
@@ -193,8 +203,8 @@ jthige_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
-    .joystick1   ( joystick1    ),
-    .joystick2   ( joystick2    ),
+    .joystick1   ( joystick1[4:0] ),
+    .joystick2   ( joystick2[4:0] ),
     // PROM K6
     .prog_addr  ( prom_addr[7:0]),
     .prom_irq_we( prom_irq_we   ),
@@ -218,6 +228,7 @@ jthige_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
+    .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
@@ -252,7 +263,7 @@ jthige_video u_video(
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prom_addr  ( prom_addr[7:0]),
-    .prog_din   ( prog_data[3:0]),
+    .prog_din   ( prog_data     ),
     .prom_char_we( prom_char_we ),
     .prom_obj_we( prom_obj_we   ),
     .prom_pal_we( prom_pal_we   )
@@ -287,6 +298,9 @@ jtframe_rom #(
     .slot0_ok    ( char_ok       ),
     .slot1_ok    (               ),
     .slot2_ok    (               ),
+    .slot3_ok    (               ),
+    .slot4_ok    (               ),
+    .slot5_ok    (               ),
     .slot6_ok    (               ),
     .slot7_ok    ( main_ok       ),
     .slot8_ok    ( obj_ok        ),
@@ -294,6 +308,9 @@ jtframe_rom #(
     .slot0_addr  ( char_addr     ),
     .slot1_addr  (               ),
     .slot2_addr  (               ),
+    .slot3_addr  (               ),
+    .slot4_addr  (               ),
+    .slot5_addr  (               ),
     .slot6_addr  (               ),
     .slot7_addr  ( main_addr     ),
     .slot8_addr  ( obj_addr      ),
@@ -301,6 +318,9 @@ jtframe_rom #(
     .slot0_dout  ( char_data     ),
     .slot1_dout  (               ),
     .slot2_dout  (               ),
+    .slot3_dout  (               ),
+    .slot4_dout  (               ),
+    .slot5_dout  (               ),
     .slot6_dout  (               ),
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),

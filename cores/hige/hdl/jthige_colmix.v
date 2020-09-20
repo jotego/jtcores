@@ -59,7 +59,7 @@ wire [ 8:0] pal_rgb;
 
 jtframe_blank #(.DLY(BLANK_DLY),.DW(9)) u_dly(
     .clk        ( clk                 ),
-    .pxl_cen    ( cen6                ),
+    .pxl_cen    ( pxl_cen             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
     .LHBL_dly   ( LHBL_dly            ),
@@ -70,14 +70,14 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(9)) u_dly(
 );
 
 // palette ROM
-jtframe_prom #(.aw(5),.dw(8),.simfile("../../../rom/hige/hgb3.l6")) u_palette(
-    .clk    ( clk         ),
-    .cen    ( pxl_cen     ),
-    .data   ( prom_din    ),
-    .rd_addr( pixel_mux   ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_pal_we ),
-    .q      ( pre_rgb     )
+jtframe_prom #(.aw(8),.dw(8),.simfile("../../../rom/hige/hgb3.l6")) u_palette(
+    .clk    ( clk                 ),
+    .cen    ( pxl_cen             ),
+    .data   ( prom_din            ),
+    .rd_addr( { 3'd0, pixel_mux } ),
+    .wr_addr( prog_addr           ),
+    .we     ( prom_pal_we         ),
+    .q      ( pre_rgb             )
 );
 
 assign pal_rgb = { pre_rgb[2:0], pre_rgb[5:3],  { pre_rgb[7:6], pre_rgb[7] } };

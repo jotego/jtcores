@@ -37,8 +37,8 @@ module jthige_main(
     // Object
     output  reg        obj_cs,
     // cabinet I/O
-    input   [5:0]      joystick1,
-    input   [5:0]      joystick2,
+    input   [4:0]      joystick1,
+    input   [4:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
     // BUS sharing
@@ -51,7 +51,6 @@ module jthige_main(
     input       [ 7:0] rom_data,
     input              rom_ok,
     // DIP switches
-    input              dip_flip,    // Not a DIP in the original board ;-)
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
     output reg         coin_cnt,
@@ -195,6 +194,7 @@ jtframe_z80wait #(1) u_wait(
     .clk        ( clk       ),
     .cen_in     ( cpu_cen   ),
     .cen_out    ( cpu_cenw  ),
+    .gate       (           ),
     // manage access to shared memory
     .dev_busy   ( char_busy ),
     // manage access to ROM data from SDRAM
