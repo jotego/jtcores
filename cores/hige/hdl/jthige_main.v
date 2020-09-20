@@ -94,7 +94,7 @@ always @(*) begin
                         default:;
                     endcase
                 2'b10: char_cs = 1'b1; // D0CS
-                2'b11: obj_cs  = 1'b1; // D8CS SCRCE
+                2'b11: obj_cs  = A[8:7]>=2'b01; // D880 - D9FF
             endcase
         3'b111: ram_cs = A[12]==1'b0; // csef
         default:;

@@ -66,6 +66,7 @@ localparam COFFSET = 9'd5,
            OBJ_DLY = 4;
 
 wire [3:0] char_pxl, obj_pxl;
+wire [8:0] obj_AB = cpu_AB[8:0] - 9'h80;
 
 `ifndef NOCHAR
 jtgng_char #(
@@ -131,7 +132,7 @@ jt1942_obj #(.PXL_DLY(OBJ_DLY), .LAYOUT(2)) u_obj(
     .H              ( H         ),
     .flip           ( flip      ),
     // CPU bus
-    .AB             ( cpu_AB[8:2] ),
+    .AB             ( obj_AB[8:2] ),
     .DB             ( cpu_dout    ),
     .obj_cs         ( obj_cs      ),
     .wr_n           ( wr_n        ),
