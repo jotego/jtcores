@@ -60,14 +60,16 @@ wire [7:0] next_AD    = objbuf_data0;
 wire [1:0] next_vlen  = objbuf_data1[7:6];
 wire       next_ADext = objbuf_data1[5];
 wire       next_hover = LAYOUT==2 ? 1'b0: objbuf_data1[4];
-wire       hflip      = LAYOUT==2 && objbuf_data1[4];
-wire       vflip      = LAYOUT==2 && objbuf_data1[5];
+wire       next_hflip = LAYOUT==2 && objbuf_data1[4];
+wire       next_vflip = LAYOUT==2 && objbuf_data1[5];
 wire [3:0] next_CD    = objbuf_data1[3:0];
 wire [7:0] objy       = objbuf_data2;
 wire [8:0] objx       = { next_hover, objbuf_data3 };
 
 wire [7:0] LVBETA = objy + V2C;
 wire [7:0] VBETA = ~LVBETA;
+
+reg        hflip;
 
 always @(*) begin
     // comparison side of VINZONE
@@ -110,7 +112,8 @@ always @(posedge clk) begin
         end else begin
             pre_addr[9:6] <= next_AD[3:0]; // 16
         end
-        pre_addr[4:1] <= (~LVBETA[3:0]) ^ {4{vflip}};
+        pre_addr[4:1] <= (~LVBETA[3:0]) ^ {4{next_vflip}};
+        hflip         <= next_hflip;
         VINZONE2 <= VINZONE; // active low
         CD   <= next_CD;
     end
