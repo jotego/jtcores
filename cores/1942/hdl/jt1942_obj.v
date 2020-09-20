@@ -51,8 +51,8 @@ module jt1942_obj(
     output       [3:0] obj_pxl
 );
 
-parameter PXL_DLY    = 7,
-          KEEP_ORDER = 0; // keep original ROM addressing format
+parameter PXL_DLY = 7,
+          LAYOUT  = 0; // 0=1942, 1=Vulgus, 2=Higemaru
 
 
 wire line, fill, line_obj_we;
@@ -63,7 +63,7 @@ wire [4:0] objcnt;
 wire       pxlcnt_lsb;
 wire       over;
 
-jt1942_objtiming u_timing(
+jt1942_objtiming #(.LAYOUT(LAYOUT)) u_timing(
     .rst         ( rst           ),
     .clk         ( clk           ),
     .cen6        ( cen6          ),    //  6 MHz
@@ -127,7 +127,7 @@ wire [3:0] new_pxl;
 `endif
 
 // draw the sprite
-jt1942_objdraw #(KEEP_ORDER) u_draw(
+jt1942_objdraw #(.LAYOUT(LAYOUT)) u_draw(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz

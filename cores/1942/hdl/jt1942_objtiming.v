@@ -30,7 +30,7 @@ module jt1942_objtiming(
     input   [8:0]      H,
     input              LHBL,
     input              HINIT,
-    input              obj_ok,    
+    input              obj_ok,
     output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
     output reg [3:0]   bufcnt,
@@ -43,26 +43,25 @@ module jt1942_objtiming(
     input   [1:0]      prog_din
 );
 
-`ifdef VULGUS
-localparam VULGUS=1;
-`else
-localparam VULGUS=0;
-`endif
+parameter LAYOUT=0;
+localparam VULGUS=LAYOUT!=0;
 
 reg last_LHBL, okdly;
 wire rom_good = obj_ok & okdly;
 wire posedge_LHBL = LHBL && !last_LHBL;
 reg [4:0] auxcnt;
 
-`ifdef VULGUS
-    always @(*) objcnt = auxcnt;
-`else
-    always @(*) begin
-        objcnt[2:0] = auxcnt[2:0];
-        objcnt[4] = auxcnt[4] ^ ~auxcnt[3];
-        objcnt[3] = (objcnt[4] & V[7]) ^ ~auxcnt[3];
+generate
+    if( LAYOUT==0 ) begin : part_screen
+        always @(*) begin
+            objcnt[2:0] = auxcnt[2:0];
+            objcnt[4] = auxcnt[4] ^ ~auxcnt[3];
+            objcnt[3] = (objcnt[4] & V[7]) ^ ~auxcnt[3];
+        end
+    end else begin : cont_screen
+        always @(*) objcnt = auxcnt;
     end
-`endif
+endgenerate
 
 always @(posedge clk) begin
     last_LHBL <= LHBL;
@@ -74,7 +73,7 @@ always @(posedge clk) begin
         pxlcnt_lsb<= 1'b0;
         auxcnt    <= 5'd0;
     end else begin // image scan
-        if(bufcnt!=4'b1010) 
+        if(bufcnt!=4'b1010)
             bufcnt <= bufcnt+4'd1;
         else if(rom_good && !over ) begin
             {pxlcnt, pxlcnt_lsb} <= {pxlcnt,pxlcnt_lsb}+5'd1;
@@ -108,7 +107,7 @@ end
 /* Original sequence
 `ifdef VULGUS
 reg vulgus_sr;
-always @(posedge clk, posedge rst) 
+always @(posedge clk, posedge rst)
     if( rst ) begin
         vulgus_sr  <= 1'b1;
         objcnt[4:3] <= 2'b0;
@@ -123,7 +122,7 @@ always @(*) begin
     `ifdef VULGUS
         // scan sequence measured on real PCB. Region objcnt[4:3]==2'b11 is not scanned.
         objcnt[2:0] = H[6:4];
-    `else 
+    `else
         // 1942 scan sequence from schematics
         objcnt[4] = H[8]^~H[7];
         objcnt[3] = (V[7] & objcnt[4]) ^ ~H[7];

@@ -259,7 +259,7 @@ assign scr_addr  = 14'd0;
 assign scr_pxl   = ~6'h0;
 `endif
 
-jt1942_obj #(.PXL_DLY(4)) u_obj(
+jt1942_obj #(.PXL_DLY(4),.LAYOUT(VULGUS)) u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( cen6      ),

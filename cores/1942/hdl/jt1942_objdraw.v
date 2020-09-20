@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 21-1-2019 */
 
-`timescale 1ns/1ps
-
 module jt1942_objdraw(
     input              rst,
     input              clk,     //
@@ -47,7 +45,7 @@ module jt1942_objdraw(
     output reg  [3:0]  new_pxl
 );
 
-parameter KEEP_ORDER = 0;
+parameter LAYOUT = 0; // 0=1942, 1=Vulgus, 2=Higemaru
 
 reg [3:0] CD; // colour data
 reg [7:0] V2C;
@@ -61,7 +59,9 @@ reg VINcmp, VINlen, Veq, Vlt; // Vgt;
 wire [7:0] next_AD    = objbuf_data0;
 wire [1:0] next_vlen  = objbuf_data1[7:6];
 wire       next_ADext = objbuf_data1[5];
-wire       next_hover = objbuf_data1[4];
+wire       next_hover = LAYOUT==2 ? 1'b0: objbuf_data1[4];
+wire       hflip      = LAYOUT==2 && objbuf_data1[4];
+wire       vflip      = LAYOUT==2 && objbuf_data1[5];
 wire [3:0] next_CD    = objbuf_data1[3:0];
 wire [7:0] objy       = objbuf_data2;
 wire [8:0] objx       = { next_hover, objbuf_data3 };
@@ -81,6 +81,7 @@ always @(*) begin
         2'b10: VINlen = &LVBETA[7:6]; // 64 lines
         2'b11: VINlen = 1'b1;
     endcase // vlen
+        VINlen = &LVBETA[7:4]; // 16 lines
     //VINZONE = ~(VINcmp & VINlen);
     VINZONE = ~(VINcmp & VINlen);
 end
@@ -94,18 +95,22 @@ localparam [3:0] DATAREAD = 4'd7; //6,8,9,10,11,12,16
 always @(posedge clk) begin
     V2C <= ~VF + { {7{~flip}}, 1'b1 }; // V 2's complement
     if( bufcnt==4'h9 ) begin // set new address
-        `ifdef VULGUS
-        pre_addr[14:10] <= {1'b0, next_AD[7:4]};
-        `else // 1942
-        pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
-        `endif
-        case( next_vlen )
-            2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
-            2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
-            2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
-            2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
+        case( LAYOUT )
+            0: pre_addr[14:10] <= {next_AD[7], next_ADext, next_AD[6:4]};
+            1: pre_addr[14:10] <= {1'b0, next_AD[7:4]};
+            2: pre_addr[14:10] <= {2'b0, next_AD[6:4]};
         endcase
-        pre_addr[4:1] <= ~LVBETA[3:0];
+        if( LAYOUT!=2 ) begin
+            case( next_vlen )
+                2'd0: pre_addr[9:6] <= next_AD[3:0]; // 16
+                2'd1: pre_addr[9:6] <= { next_AD[3:1], ~LVBETA[4] }; // 32
+                2'd2: pre_addr[9:6] <= { next_AD[3:2], ~LVBETA[5], ~LVBETA[4] }; // 64
+                2'd3: pre_addr[9:6] <= ~LVBETA[7:4];
+            endcase
+        end else begin
+            pre_addr[9:6] <= next_AD[3:0]; // 16
+        end
+        pre_addr[4:1] <= (~LVBETA[3:0]) ^ {4{vflip}};
         VINZONE2 <= VINZONE; // active low
         CD   <= next_CD;
     end
@@ -116,8 +121,8 @@ end
 reg [1:0] hcnt; // read order 2,3,0,1
 
 generate
-    if( KEEP_ORDER ) begin : original_addr
-        assign obj_addr = { pre_addr[14:6], hcnt[1], pre_addr[4:1], hcnt[0] };
+    if( LAYOUT == 2 ) begin : original_addr
+        assign obj_addr = { pre_addr[14:6], hcnt[1]^hflip, pre_addr[4:1], hcnt[0]^hflip };
     end else begin : cache_addr
         assign obj_addr[14:2] = { pre_addr[14:6], pre_addr[4:1] };
         assign obj_addr[1:0] = hcnt;
@@ -149,20 +154,27 @@ always @(posedge clk) begin
                 2'd1: hcnt <= 2'd2;
             endcase
         end else begin
-            z <= z << 1;
-            y <= y << 1;
-            x <= x << 1;
-            w <= w << 1;
+            if( hflip ) begin
+                z <= z >> 1;
+                y <= y >> 1;
+                x <= x >> 1;
+                w <= w >> 1;
+            end else begin
+                z <= z << 1;
+                y <= y << 1;
+                x <= x << 1;
+                w <= w << 1;
+            end
     	end
     end
 end
 
 always @(*) begin
-`ifdef VULGUS
-    obj_wxyz = {y[3],z[3],w[3],x[3]};
-`else
-    obj_wxyz = {w[3],x[3],y[3],z[3]};
-`endif
+    case( LAYOUT )
+        0: obj_wxyz = {w[3],x[3],y[3],z[3]};
+        1: obj_wxyz = {y[3],z[3],w[3],x[3]};
+        2: obj_wxyz = hflip ? {y[0],z[0],w[0],x[0]} : {y[3],z[3],w[3],x[3]};
+    endcase
 end
 
 wire [3:0] prom_dout;

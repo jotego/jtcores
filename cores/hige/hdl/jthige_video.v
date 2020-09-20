@@ -117,7 +117,7 @@ assign char_wait_n = 1'b1;
 assign char_pxl = 4'hf;
 `endif
 
-jt1942_obj #(.PXL_DLY(OBJ_DLY), .KEEP_ORDER(1)) u_obj(
+jt1942_obj #(.PXL_DLY(OBJ_DLY), .LAYOUT(2)) u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( pxl_cen   ),
