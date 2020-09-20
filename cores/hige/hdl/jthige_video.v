@@ -131,7 +131,7 @@ jt1942_obj #(.PXL_DLY(OBJ_DLY), .KEEP_ORDER(1)) u_obj(
     .H              ( H         ),
     .flip           ( flip      ),
     // CPU bus
-    .AB             ( cpu_AB[6:0] ),
+    .AB             ( cpu_AB[8:2] ),
     .DB             ( cpu_dout    ),
     .obj_cs         ( obj_cs      ),
     .wr_n           ( wr_n        ),
