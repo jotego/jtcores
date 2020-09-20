@@ -42,8 +42,8 @@
         <part name="hg3.m1" crc="b37b88c8"/>
         <!-- obj - starts at 0xA000 -->
         <interleave output="16">
-            <part name="hg1.c14" crc="ef4c2f5d" map="01"/>
-            <part name="hg2.e14" crc="9133f804" map="10"/>
+            <part name="hg2.e14" crc="9133f804" map="01"/>
+            <part name="hg1.c14" crc="ef4c2f5d" map="10"/>
         </interleave>
         <!-- proms - starts at 0xE000 -->
         <part name="hgb3.l6" crc="629cebd8"/>

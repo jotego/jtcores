@@ -46,6 +46,7 @@ mame2dip higemaru.xml \
     -frac obj 2 \
     -swapbytes maincpu \
     -buttons action \
+    -order-roms obj 1 0 \
     -rmdipsw Unused
 fi
 
