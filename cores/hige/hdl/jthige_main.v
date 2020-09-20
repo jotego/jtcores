@@ -121,8 +121,9 @@ always @(*)
         3'd0: cabinet_input = { 4'hf, joystick1[3:0] };
         3'd1: cabinet_input = { 4'hf, joystick2[3:0] & joystick1[3:0] };
         3'd2: cabinet_input = { coin_input[0], coin_input[1], // COINS
-                    start_button, joystick1[4],
-                    dip_pause, joystick2[4], 1'b1 }; // START
+                    start_button[0], start_button[1],
+                    joystick1[4], dip_pause,
+                    joystick2[4], 1'b1 }; // START
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;
