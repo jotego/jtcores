@@ -77,13 +77,16 @@ always @(*) begin
     Veq = VBETA == ~objy;
     Vlt = VBETA  < ~objy;
     VINcmp = /*ADext ? Vgt :*/ (Veq|Vlt);
-    case( next_vlen )
-        2'b00: VINlen = &LVBETA[7:4]; // 16 lines
-        2'b01: VINlen = &LVBETA[7:5]; // 32 lines
-        2'b10: VINlen = &LVBETA[7:6]; // 64 lines
-        2'b11: VINlen = 1'b1;
-    endcase // vlen
+    if( LAYOUT != 2 ) begin
+        case( next_vlen )
+            2'b00: VINlen = &LVBETA[7:4]; // 16 lines
+            2'b01: VINlen = &LVBETA[7:5]; // 32 lines
+            2'b10: VINlen = &LVBETA[7:6]; // 64 lines
+            2'b11: VINlen = 1'b1;
+        endcase // vlen
+    end else begin // Higemaru
         VINlen = &LVBETA[7:4]; // 16 lines
+    end
     //VINZONE = ~(VINcmp & VINlen);
     VINZONE = ~(VINcmp & VINlen);
 end
