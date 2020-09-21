@@ -54,7 +54,7 @@
         <!-- Total 0xE420 bytes - 57 kBytes -->
     </rom>
     <rom index="1">
-        <part>00</part>
+        <part>02</part>
     </rom>
     <switches base="16" default="FF,FF">
         <!-- DSW1 -->

@@ -47,7 +47,7 @@ mame2dip higemaru.xml \
     -swapbytes maincpu \
     -buttons action \
     -order-roms obj 1 0 \
-    -rmdipsw Unused
+    -rmdipsw Unused -4way
 fi
 
 ################## Street Fighter 1

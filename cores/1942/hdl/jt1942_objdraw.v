@@ -189,7 +189,7 @@ always @(posedge clk ) begin
     if(draw[0]) posx2 <= posx1;
     if(draw[1]) begin
         new_pxl <= prom_dout;
-        posx    <= posx2;
+        posx    <= LAYOUT==2 ? { 1'b0, posx2[7:0]} : posx2; // Higemaru's OBJ wrap around
     end else begin
         new_pxl <= 4'hf;
         posx    <= 9'h100;
