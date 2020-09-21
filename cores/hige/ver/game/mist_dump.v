@@ -48,9 +48,11 @@ module mist_dump(
             $shm_probe(frame_cnt);
             $shm_probe(UUT.u_game,"A");
             $shm_probe(UUT.u_game.u_main,"A");
-            $shm_probe(UUT.u_game.u_rom,"AS");
-            $shm_probe(UUT.u_game.u_video,"AS");
-            $shm_probe(UUT.u_game.u_video.u_colmix,"AS");
+            $shm_probe(UUT.u_game.u_main.u_ay0,"AS");
+            $shm_probe(UUT.u_game.u_main.u_ay1,"AS");
+            // $shm_probe(UUT.u_game.u_rom,"AS");
+            // $shm_probe(UUT.u_game.u_video,"AS");
+            // $shm_probe(UUT.u_game.u_video.u_colmix,"AS");
         `endif
     end
 `endif

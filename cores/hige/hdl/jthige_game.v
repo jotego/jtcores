@@ -63,7 +63,7 @@ module jthige_game(
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  [15:0]  snd,
-    output          sample,
+    output  reg     sample,
     input           enable_psg, // unused
     input           enable_fm,  // unused
     // Debug
@@ -85,11 +85,10 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire        char_cs, flip, cpu_cen;
 wire        main_ok, char_ok, obj_ok;
 wire        cen12, cen6, cen3, cen1p5;
+reg  [ 4:0] sample_cnt;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
-
-assign sample=1'b1;
 
 wire LHBL_obj, Hsub;
 
@@ -148,6 +147,16 @@ jtgng_timer u_timer(
     .VS        ( VS       ),
     .Vinit     (          )
 );
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        sample_cnt <= 5'd0;
+        sample     <= 0;
+    end else if(cen1p5) begin
+        sample_cnt <= sample_cnt + 1'd1;
+        sample     <= &sample_cnt;
+    end
+end
 
 jtframe_dwnld #(.PROM_START( PROM_START )) u_dwnld(
     .clk         ( clk           ),
