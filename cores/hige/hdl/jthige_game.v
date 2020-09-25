@@ -21,9 +21,9 @@ module jthige_game(
     input           clk,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
-    output   [2:0]  red,
-    output   [2:0]  green,
-    output   [2:0]  blue,
+    output   [3:0]  red,
+    output   [3:0]  green,
+    output   [3:0]  blue,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -94,6 +94,10 @@ wire LHBL_obj, Hsub;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
+
+assign red[0]   = red[3];
+assign green[0] = green[3];
+assign blue[0]  = blue[3];
 
 localparam [21:0] CHAR_OFFSET = 22'h8000 >> 1,
                   OBJ_OFFSET  = 22'hA000 >> 1,
@@ -265,9 +269,9 @@ jthige_video u_video(
     .LVBL       ( LVBL          ),
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          ),
+    .red        ( red[3:1]      ),
+    .green      ( green[3:1]    ),
+    .blue       ( blue[3:1]     ),
     .gfx_en     ( gfx_en        ),
     // PROM access
     .prog_addr  ( prog_addr[7:0]),

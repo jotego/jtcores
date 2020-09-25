@@ -68,5 +68,5 @@
         <dip name="Demo Music" bits="13" ids="Off,On"/>
         <dip name="Flip Screen" bits="14" ids="On,Off"/>
     </switches>
-    <buttons names="Action,Start,Coin,Pause" default="Y,R,L,Start"/>
+    <buttons names="Action,Unused,Start,Coin,Pause" default="Y,X,R,L,Start"/>
 </misterromdescription>

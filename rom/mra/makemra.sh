@@ -45,7 +45,7 @@ mame2dip higemaru.xml \
     -rename char=gfx1 obj=gfx2 \
     -frac obj 2 \
     -swapbytes maincpu \
-    -buttons action \
+    -buttons action unused \
     -order-roms obj 1 0 \
     -rmdipsw Unused -4way
 fi

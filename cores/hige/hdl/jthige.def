@@ -5,13 +5,15 @@ JTFRAME_MRA_DIP
 SIGNED_SND=0
 JTFRAME_ARX=5
 JTFRAME_ARY=4
-COLORW=3
+#Color width is really 3, but needs 4 to make it work with avatars
+COLORW=4
 VULGUS
 JTFRAME_CREDITS
 
 [mist|sidi]
 
 [mister]
+JTFRAME_AVATARS
 VIDEO_WIDTH=256
 VIDEO_HEIGHT=224
 JTFRAME_OSD_NOLOAD
