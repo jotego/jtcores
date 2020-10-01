@@ -19,7 +19,7 @@
 module jtsarms_video #(
     parameter SCRW  = 17,
     parameter OBJW  = 17,
-    parameter STARW = 14
+    parameter STARW = 15
 )(
     input               rst,
     input               clk,

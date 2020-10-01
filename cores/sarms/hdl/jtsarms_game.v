@@ -89,7 +89,7 @@ wire        star_hscan, star_vscan;
 wire        rd, cpu_cen;
 wire        char_wait;
 
-localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=14;
+localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=15;
 
 // ROM data
 wire [15:0] char_data, scr_data, map_data;
@@ -347,7 +347,8 @@ wire scr_ok, star_ok, map_ok, char_ok;
 
 jtsarms_video #(
     .SCRW   ( SCRW      ),
-    .OBJW   ( OBJW      )
+    .OBJW   ( OBJW      ),
+    .STARW  ( STARW     )
 )
 u_video(
     .rst        ( rst           ),

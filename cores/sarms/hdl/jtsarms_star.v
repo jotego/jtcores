@@ -16,6 +16,24 @@
     Version: 1.0
     Date: 12-8-2020 */
 
+// This module is meant to be equivalent to schematic sheet 12/12
+// but the output doesn't agree to pictures from PCB
+// Possible reasons:
+// 1. Starfield ROM dump is wrong. Unless you pay close attention, you
+//    wouldn't notice.
+//    The size of the ROM dump does not agree with the size of the ROM
+//    in the schematics. The dump is not a 16kB ROM duplicated into 32kB,
+//    but data really is 32kB long.
+// 2. The schematic sheet is very hard to read. I might have got one or
+//    or more signals or gates wrong
+// 3. Data from the ROM is latched at the 1F to 00 transition of horizontal-
+//    sum bits. I think at that point the data latched actually correspond
+//    to the previous ROM address values as the data delay is smaller up to
+//    the latch clock input compared to the data inputs
+// 4. The top bit of the horizontal ripple counter is taken from the negative
+//    output, which I find confusing. But it wouldn't make sense if either
+//    the counter, or the HSUM were not continuous sequences
+
 module jtsarms_star(
     input               rst,
     input               clk,
@@ -28,7 +46,7 @@ module jtsarms_star(
     input               hscan,
     input               vscan,
     // To SDRAM
-    output      [13:0]  rom_addr,
+    output      [14:0]  rom_addr,
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // Output star
@@ -42,7 +60,7 @@ reg        last_h, last_v;
 wire       posedge_h = !last_h && hscan;
 wire       posedge_v = !last_v && vscan;
 
-assign rom_addr = { 2'b11, vsum, hsum[8:5] };
+assign rom_addr = { 3'b111, vsum, hsum[8:5] };
 
 always @(posedge clk) begin
     last_h <= hscan;
@@ -63,13 +81,11 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk) begin
-    if( rom_ok && hsum[4:0]==5'd0 ) data <= rom_data;
-    if( pxl_cen ) begin
-        star_pxl <= STARON && &(hsum[4:1]^data[4:1]) && ~(hsum[0]^data[0])
-                    && (vsum[2]^H[5]) && (!hsum[2] || !vsum[1]) ?
-            data[7:5] : 3'd0;
-    end
+always @(posedge clk) if(pxl_cen) begin
+    if( hsum[4:0]==5'h1f ) data <= rom_data;
+    star_pxl <= STARON && &(hsum[4:1]^data[4:1]) && ~(hsum[0]^data[0])
+                && (vsum[2]^H[5]) && (!hsum[2] || !vsum[1]) ?
+        data[7:5] : 3'd0;
 end
 
 endmodule
