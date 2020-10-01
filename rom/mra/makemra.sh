@@ -85,7 +85,8 @@ mame2dip sidearms.xml \
     -rbf jtsarms \
     -frac gfx2 2 \
     -frac gfx3 2 \
-    -swapbytes audiocpu maincpu \
+    -rename starfield=user1 \
+    -swapbytes audiocpu maincpu starfield \
     -rmdipsw Freeze \
     -buttons "fire-left" "fire-right" "option"
 #    -order-roms gfx2  4 5 6 7 0 1 2 3

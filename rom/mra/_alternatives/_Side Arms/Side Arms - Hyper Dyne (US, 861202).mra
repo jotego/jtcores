@@ -39,8 +39,10 @@
         <interleave output="16">
             <part name="a_04k.rom" crc="34efe2d2" map="12"/>
         </interleave>
-        <!-- user1 - starts at 0x20000 -->
-        <part name="b_11j.rom" crc="134dc35b"/>
+        <!-- starfield - starts at 0x20000 -->
+        <interleave output="16">
+            <part name="b_11j.rom" crc="134dc35b" map="12"/>
+        </interleave>
         <!-- gfx1 - starts at 0x28000 -->
         <part name="a_10j.rom" crc="651fef75"/>
         <!-- gfx2 - starts at 0x2C000 -->
@@ -89,7 +91,7 @@
     <rom index="1">
         <part>00</part>
     </rom>
-    <switches default="FF,FF" base="16">
+    <switches base="16" default="FF,FF">
         <!-- DSW0 -->
         <dip name="Difficulty" bits="0,2" ids="7,6,5,4,3,2,1,0"/>
         <dip name="Lives" bits="3" ids="5,3"/>
