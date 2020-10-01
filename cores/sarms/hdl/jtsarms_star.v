@@ -42,7 +42,7 @@ reg        last_h, last_v;
 wire       posedge_h = !last_h && hscan;
 wire       posedge_v = !last_v && vscan;
 
-assign rom_addr = { 2'b11, vsum, hsum[8:5] };
+assign rom_addr = { 2'b11, vsum, hsum[8:5]^4'b1 };
 
 always @(posedge clk) begin
     last_h <= hscan;
