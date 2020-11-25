@@ -19,7 +19,6 @@
 // 1942 Sound
 // Schematics page 3/8
 
-`timescale 1ns/1ps
 
 module jt1942_sound(
     input           clk,    // 24   MHz

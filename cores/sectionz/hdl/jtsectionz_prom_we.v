@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 15-4-2020 */
 
-`timescale 1ns/1ps
 
 module jtsectionz_prom_we(
     input                clk,

@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 16-4-2020 */
 
-`timescale 1ns/1ps
 
 module jtsectionz_colmix #(
     parameter CHARW = 6

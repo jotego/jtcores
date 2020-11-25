@@ -18,7 +18,6 @@
 
 // commando: Main CPU
 
-`timescale 1ns/1ps
 
 module jtgunsmoke_main(
     input              rst,

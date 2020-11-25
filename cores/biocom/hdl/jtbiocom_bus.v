@@ -18,7 +18,6 @@
 
 // Bionic Commando: Main CPU
 
-`timescale 1ns/1ps
 
 module jtbiocom_bus(
     input      [16:1]  mcu_addr,

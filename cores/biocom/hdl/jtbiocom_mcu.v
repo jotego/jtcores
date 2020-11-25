@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 14-9-2019 */
 
-`timescale 1ns/1ps
 
 // Interface with sound CPU:
 // The sound CPU can read and write to the MCU at a fixed

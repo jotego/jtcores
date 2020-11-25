@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 19-11-2019 */
 
-`timescale 1ns/1ps
 
 // based on 1943 schematics
 

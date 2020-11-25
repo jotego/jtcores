@@ -19,7 +19,6 @@
 // Tiger Road: Main CPU
 // 10MHz 68000 CPU
 
-`timescale 1ns/1ps
 
 module jttora_main(
     input              rst,

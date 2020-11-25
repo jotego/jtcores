@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 12-10-2019 */
 
-`timescale 1ns/1ps
 
 module jttora_game(
     input           rst,

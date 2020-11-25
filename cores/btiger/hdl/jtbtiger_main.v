@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 18-11-2019 */
 
-`timescale 1ns/1ps
 
 module jtbtiger_main(
     input              rst,

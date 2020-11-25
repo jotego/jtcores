@@ -18,7 +18,6 @@
 
 // commando: Main CPU
 
-`timescale 1ns/1ps
 
 module jtcommando_main(
     input              rst,

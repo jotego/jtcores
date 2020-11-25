@@ -19,7 +19,6 @@
 // 1942 Colour Mixer
 // Schematics page 4
 
-`timescale 1ns/1ps
 
 module jt1942_colmix(
     input           rst,

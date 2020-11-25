@@ -19,7 +19,6 @@
 // 1943 Colour Mixer
 // Schematics page 8/9
 
-`timescale 1ns/1ps
 
 module jt1943_colmix(
     input           rst,

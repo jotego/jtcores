@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 29-6-2019 */
 
-`timescale 1ns/1ps
 
 module jtbiocom_prom_we(
     input                clk,

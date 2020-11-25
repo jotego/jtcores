@@ -19,7 +19,6 @@
 // bd02.9j is probably the priority PROM. It isn't really worth using
 // as the content is quite plain
 
-`timescale 1ns/1ps
 
 module jtbtiger_colmix(
     input            rst,

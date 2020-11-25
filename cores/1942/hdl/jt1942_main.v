@@ -18,7 +18,6 @@
 
 // 1942: Main CPU
 
-`timescale 1ns/1ps
 
 module jt1942_main(
     input              clk,
