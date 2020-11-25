@@ -40,6 +40,7 @@ Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |
 Commando          |      |  X  |       |      |   X     |        |   X    |
 F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |
 Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |
+Higemaru          |      |  X  |       |      |         |        |   X    |
 Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
 Section Z         |      |  X  |       |      |   X     |        |   X    |
 Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X

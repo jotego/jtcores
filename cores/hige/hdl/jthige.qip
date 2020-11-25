@@ -29,3 +29,6 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../m
 
 set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/cpu/t80/T80.qip           ]
 set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/jt12/jt49/hdl/jt49.qip       ]
+
+# FIR filter
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../modules/jtframe/hdl/sound/jtframe_jt49_filters.qip ]

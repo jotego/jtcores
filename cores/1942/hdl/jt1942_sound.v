@@ -37,7 +37,8 @@ module jt1942_sound(
     input   [ 7:0]  rom_data,
     (*keep*)input           rom_ok,
     // Sound output
-    output reg [9:0] snd
+    output signed [15:0] snd,
+    output           sample
 );
 
 wire mreq_n;
@@ -165,12 +166,7 @@ jtframe_z80 u_cpu(
     .dout       ( dout        )
 );
 
-wire [9:0] sound0, sound1;
-wire [10:0] unlim_snd = {1'b0, sound0} + {1'b0, sound1};
-
-// limit to 10 bits in order to get good volume
-always @(posedge clk) if(cen1p5)
-    snd <= unlim_snd[10] ? 10'h3FF : unlim_snd[9:0];
+wire        [ 9:0] sound0, sound1;
 
 wire bdir0 = ay0_cs & ~wr_n;
 wire bc0   = ay0_cs & ~wr_n & ~A[0];
@@ -187,6 +183,7 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
     .sound  ( sound0    ),
+    .sample ( sample    ),
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
@@ -205,7 +202,22 @@ jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
     .sel    ( 1'b1      ),
     .dout   ( ay1_dout  ),
     .sound  ( sound1    ),
-    .A(), .B(), .C() // unused outputs
+    // unused
+    .IOA_in ( 8'h0      ),
+    .IOA_out(           ),
+    .IOB_in ( 8'h0      ),
+    .IOB_out(           ),
+    .sample (           ),
+    .A(), .B(), .C()
 );
 
-endmodule // jtgng_sound
+jtframe_jt49_filters u_filters(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .din0   ( sound0    ),
+    .din1   ( sound1    ),
+    .sample ( sample    ),
+    .dout   ( snd       )
+);
+
+endmodule

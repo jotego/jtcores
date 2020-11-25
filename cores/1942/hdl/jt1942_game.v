@@ -268,8 +268,6 @@ assign flip      = 1'b0;
 `endif
 
 `ifndef NOSOUND
-wire [9:0] psg_snd;
-assign snd = { psg_snd, 6'd0 };
 
 jt1942_sound u_sound (
     .rst            ( rst            ),
@@ -285,12 +283,12 @@ jt1942_sound u_sound (
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_ok         ( snd_ok         ),
-    .snd            ( psg_snd        )
+    .snd            ( snd            )
 );
 `else
 assign snd_addr = 15'd0;
-assign snd = 9'd0;
-assign snd_cs = 1'b0;
+assign snd      = 16'd0;
+assign snd_cs   = 1'b0;
 `endif
 
 wire scr1_ok, scr2_ok;

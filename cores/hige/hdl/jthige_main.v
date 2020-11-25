@@ -29,7 +29,7 @@ module jthige_main(
     input              LHBL,
     input              dip_pause,
     // Sound
-    output reg [15:0]  snd, // sound reset
+    output signed [15:0] snd, // sound reset
     // Char
     output  reg        char_cs,
     input              char_busy,
@@ -227,13 +227,6 @@ jtframe_z80 u_cpu(
 ////////// Sound
 
 wire [9:0] sound0, sound1;
-wire [10:0] unlim_snd = {1'b0, sound0} + {1'b0, sound1};
-
-// limit to 10 bits in order to get good volume
-always @(posedge clk) if(cen1p5) begin
-    snd[15:6] <= unlim_snd[10] ? 10'h3FF : unlim_snd[9:0];
-    snd[ 5:0] <= 6'd0;
-end
 
 wire bdir0 = ay0_cs & ~wr_n;
 wire bc0   = ay0_cs & ~wr_n & A[0];
@@ -274,6 +267,15 @@ jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
     .IOB_in ( 8'h0      ),
     .IOB_out(           ),
     .A(), .B(), .C() // unused outputs
+);
+
+jtframe_jt49_filters u_filters(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .din0   ( sound0    ),
+    .din1   ( sound1    ),
+    .sample ( sample    ),
+    .dout   ( snd       )
 );
 
 endmodule

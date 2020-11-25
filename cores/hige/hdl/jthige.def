@@ -2,7 +2,6 @@
 CORENAME="JTHIGE"
 GAMETOP=jthige_game
 JTFRAME_MRA_DIP
-SIGNED_SND=0
 JTFRAME_ARX=5
 JTFRAME_ARY=4
 #Color width is really 3, but needs 4 to make it work with avatars
