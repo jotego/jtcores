@@ -29,6 +29,7 @@ module jthige_main(
     input              LHBL,
     input              dip_pause,
     // Sound
+    output             sample,
     output signed [15:0] snd, // sound reset
     // Char
     output  reg        char_cs,
@@ -243,6 +244,7 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
     .sound  ( sound0    ),
+    .sample ( sample    ),
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),
