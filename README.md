@@ -15,19 +15,21 @@ I hope you will have as much fun with it as I had it while making it!
 In chronological order:
 
  1. Vulgus           (doc/jtvulgus.txt)
- 2. 1942             (doc/jt1942.txt)
- 3. Commando         (doc/jtcommando.txt)
- 4. Ghosts'n Goblins (doc/jtgng.txt)
- 5. SectionZ         (doc/jtsectionz.txt)
- 6. GunSmoke         (doc/jtgunsmoke.txt)
- 7. Legendary Wings  (doc/jtsectionz.txt)
- 8. Trojan           (doc/jttrojan.txt)
- 9. 1943             (doc/jt1943.txt)
-10. Black Tiger      (doc/jtbtiger.txt)
-11. Side Arms        (doc/jtsarms.txt)
-12. Tiger Road       (doc/jttora.txt)
-13. F1-Dream         (doc/jtf1dream.txt)
-14. Bionic Commando  (doc/jtbiocom.txt)
+ 2. Higemaru         (doc/jthige.txt)
+ 3. 1942             (doc/jt1942.txt)
+ 4. Commando         (doc/jtcommando.txt)
+ 5. Ghosts'n Goblins (doc/jtgng.txt)
+ 6. SectionZ         (doc/jtsectionz.txt)
+ 7. GunSmoke         (doc/jtgunsmoke.txt)
+ 8. Legendary Wings  (doc/jtsectionz.txt)
+ 9. Trojan           (doc/jttrojan.txt)
+10. 1943             (doc/jt1943.txt)
+11. Black Tiger      (doc/jtbtiger.txt)
+12. Side Arms        (doc/jtsarms.txt)
+13. Tiger Road       (doc/jttora.txt)
+14. F1-Dream         (doc/jtf1dream.txt)
+15. Bionic Commando  (doc/jtbiocom.txt)
+16. Street Fighter   (doc/jtsf.txt)
 
 ### Dependencies
 
@@ -40,9 +42,11 @@ Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |
 Commando          |      |  X  |       |      |   X     |        |   X    |
 F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |
 Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |
+Gun Smoke         |      |  X  |       |      |   X     |        |   X    |
 Higemaru          |      |  X  |       |      |         |        |   X    |
 Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
 Section Z         |      |  X  |       |      |   X     |        |   X    |
+Street Fighter    |      |  X  |   X   |  X   |         |   X    |        |   X
 Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
 Trojan            |      |  X  |       |      |   X     |        |        |   X
 Vulgus            |      |  X  |       |      |         |        |   X    |

@@ -202,4 +202,4 @@ jtframe_mixer #(.W0(12),.W1(12),.WOUT(13)) u_mixer(
     .mixed  ( snd       )
 );
 */
-endmodule // jtgng_sound
+endmodule

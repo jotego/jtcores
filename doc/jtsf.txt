@@ -37,7 +37,7 @@ HARDWARE DIFFERENCES
 ====================
 
 The registered PAL device is not being used. The DTACK timing may be wrong.
-There might some additional video signal -like a palette error bit. I have not
+There might some additional video signals -like a palette error bit. I have not
 looked for them on the PCB.
 
 
@@ -53,7 +53,8 @@ screen press both action buttons.
 
 REVISION HISTORY
 ================
---th August, 2020: Beta release
+27th November, 2020: Public release
+ 4th September, 2020: Beta release
 
 
 CREDITS
