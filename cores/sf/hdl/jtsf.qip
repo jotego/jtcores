@@ -18,12 +18,16 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../.
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/video/jtframe_tilebuf.v        ]
 
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jtgng_video.qip   ]
+
 # SDRAM
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sdram/jtframe_sdram_mux.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sdram/jtframe_sdram_rq.v      ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v         ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sdram/jtframe_ram_rq.v        ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sdram/jtframe_dwnld.v         ]
+
+# Filters
+set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sound/jtframe_uprate2_fir.qip     ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtgng_dual_ram.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/ram/jtframe_ram.v  ]
@@ -43,7 +47,7 @@ set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../.
 # JT51 (YM2151) and JT5205 (MSM5205)
 set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../../modules/jt51/hdl/jt51.qip       ]
 set_global_assignment -name QIP_FILE [file join $::quartus(qip_path) ../../../modules/jt5205/hdl/jt5205.qip   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v     ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sound/jtframe_dcrm.v     ]
 
 # i8751
 # set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/cpu/8051/mc8051.qip     ]
