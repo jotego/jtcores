@@ -99,7 +99,7 @@ wire       base_sample;
 wire signed [12:0] ac_mix;
 
 assign     irq_st = irq0; // | irq1;
-/*
+
 jtframe_dcrm #(.SW(12)) u_rm0 (
     .rst    ( rst         ),
     .clk    ( clk         ),
@@ -115,9 +115,9 @@ jtframe_dcrm #(.SW(12)) u_rm1 (
     .din    ( base1       ),
     .dout   ( snd1        )
 );
-*/
-assign snd0 = base0;
-assign snd1 = base1;
+
+//assign snd0 = base0;
+//assign snd1 = base1;
 assign ac_mix = { snd0[11], snd0 } + { snd1[11], snd1 };
 
 jt5205 #(.INTERPOL(0)) u_adpcm0(

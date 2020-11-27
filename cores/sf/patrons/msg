@@ -1,24 +1,111 @@
-\B Street Fighter 1 \W - \RJotego\W
+\BStreet Fighter\W port by \RJotego\W
   http://patreon.com/topapate
 
-        September 2020
-
-Beta version only for patreons
-     do not distribute
+      September 2020
 
 
-        Known issues
+         DIRECTORS
 
 
-.ADPCM sounds a bit noisy
 
-.No support for MCU protected
-versions
 
-.M68000 bus wait cycles may
-differ from original
 
-.Patreon credits missing
 
-  Report other issues to:
-  github.com/jotego/jt_gng
+
+Purple Tinker       Atrac17
+
+
+
+
+
+
+Frederic Mahe    Chris. Gelatt
+
+
+
+
+
+
+   DJ Qbert           SID
+
+
+
+
+
+
+          DJ Hardrich
+
+Ben01623        - Manuel Antoni
+
+Charles D'Aoust - John Williams
+_______________________________
+       \RSpecial Thanks to\W
+
+
+
+
+
+
+
+    Cohge       \Barcadexpress.com\W
+
+
+
+
+
+
+
+          Brian Sallee
+
+
+
+
+
+
+
+Lionel Lenoble   Daniel Bauza
+
+
+
+
+
+
+
+Phillip McMahon  Jo Tomiyori
+_______________________________
+
+       \RAnd thanks to\W
+
+Adam Davis      Kitsuake
+Anders Rensberg Kyle Good
+Andrew Francomb Leslie Law
+Andrew Moore    Marcus Hogue
+Andyways        Matthew Young
+Arjan de Lang   Michele Zilli
+Chris Jardine   nullobject
+Christian       Oliver Jaksch
+Chris Harvey    Oliver Wndmth
+David Ashby     Oscar
+Don Gafford     Per Sweden
+Ed Balan        PsyFX
+Edward Rana     RetroDriven
+Gus D.          Robert MacLean
+Henrik N.       Roman Buser
+Joeri           Steven Wilson
+John Casey      Toby Boreham
+Jorge Slowfret  Ulf Skutnabba
+JPS (RetroFPGA) Victor
+Juan E. Gayon   Xzarian
+      Ultrarobotninja
+_______________________________
+
+Greetings to
+
+Gyurco, from MiST scene
+Mottzilla, CPS2 hacker
+Fabrice Ketels
+Adam Davis for the TMNT sch!
+Yeahbuddy
+Loic WydD Petit, CPS2 research
+and Furrtek!
+_______________________________
