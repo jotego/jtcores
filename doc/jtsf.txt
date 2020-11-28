@@ -41,8 +41,10 @@ There might some additional video signals -like a palette error bit. I have not
 looked for them on the PCB.
 
 
-GAME PLAY
-=========
+Issues
+======
+
+-ADPCM is a bit noisy, probably because of missing ROM reads
 
 
 TEST SCREEN
