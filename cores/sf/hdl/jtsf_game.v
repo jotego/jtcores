@@ -181,6 +181,7 @@ wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
+assign refresh_en         = ~LVBL;
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
