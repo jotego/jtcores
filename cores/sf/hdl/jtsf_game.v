@@ -77,12 +77,12 @@ module jtsf_game(
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
+    output  [15:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output  [ 1:0]  prog_ba,
     output          prog_we,
     output          prog_rd,
-    output          prog_rdy,
+    input           prog_rdy,
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
@@ -309,6 +309,7 @@ jtframe_dwnld #(
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_we     ( prog_we       ),
+    .prog_rd     ( prog_rd       ),
     .prog_ba     ( prog_ba       ),
     .prom_we     (               ),
 
@@ -582,8 +583,8 @@ jtframe_ram_2slots #(
     .slot0_ok    ( ram_ok        ),
     .slot1_ok    ( main_ok       ),
 
-    .slot1_din   ( cpu_dout      ),
-    .slot1_wrmask( dsn           ),
+    .slot0_din   ( cpu_dout      ),
+    .slot0_wrmask( dsn           ),
 
     .slot0_addr  ( ram_addr      ),
     .slot1_addr  ( main_addr     ),

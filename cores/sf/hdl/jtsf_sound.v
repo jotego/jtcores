@@ -18,7 +18,7 @@
 
 module jtsf_sound #(
     parameter SND1W = 15,
-    parameter SND2W = 15
+    parameter SND2W = 18
 ) (
     input              rst,
     input              clk,

@@ -15,11 +15,10 @@
 ../../../modules/jtframe/hdl/jtframe_z80wait.v
 ../../../modules/jtframe/hdl/jtframe_ff.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
+
 # SDRAM
-../../../modules/jtframe/hdl/sdram/jtframe_sdram_mux.v
-../../../modules/jtframe/hdl/sdram/jtframe_sdram_rq.v
-../../../modules/jtframe/hdl/sdram/jtframe_ram_rq.v
-../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
+-F ../../../modules/jtframe/hdl/sdram/jtframe_sdram_bank.f
+
 ../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v
 ../../../modules/jtframe/hdl/sound/jtframe_mixer.v
@@ -34,3 +33,5 @@
 ../../../modules/fx68k/fx68kAlu.sv
 ../../../modules/fx68k/fx68k.sv
 ../../../modules/fx68k/uaddrPla.sv
+# FIR
+-F ../../../modules/jtframe/hdl/sound/jtframe_uprate2_fir.f
