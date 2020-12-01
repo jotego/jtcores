@@ -123,8 +123,8 @@ localparam [21:0] MAIN_OFFSET = 22'h0,
                   // Bank 2
                   BA2_START   = 22'hA_9000,
                   MAP1_OFFSET = 22'h0,
-                  MAP2_OFFSET = 22'h2000 >> 1,
-                  CHAR_OFFSET = 22'h4000 >> 1,
+                  MAP2_OFFSET = 22'h2_0000 >> 1,
+                  CHAR_OFFSET = 22'h4_0000 >> 1,
                   // Bank 3
                   BA3_START   = 22'hE_D000,
                   SCR1_OFFSET = 22'h0,
