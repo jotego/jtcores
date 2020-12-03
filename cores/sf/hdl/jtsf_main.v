@@ -298,21 +298,27 @@ wire [2:0] FC;
 wire       inta_n;
 wire       bus_cs =   |{ rom_cs, char_cs, ram_cs };
 wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
-reg DTACKn;
+reg        DTACKn, preDTACKn;
+
+always @(posedge clk, posedge rst) begin
+    if( rst )
+        DTACKn <= 1;
+    else if( cen8b ) DTACKn <= preDTACKn;
+end
 
 always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
     if( rst ) begin
-        DTACKn <= 1'b1;
-    end else if(cen8b) begin
+        preDTACKn <= 1'b1;
+    end else begin
         last_ASn <= ASn;
-        if( !ASn && last_ASn ) begin
-            DTACKn <= 1;
+        if( ASn ) begin
+            preDTACKn <= 1;
         end else if( !ASn ) begin
             if( bus_cs ) begin
-                if (!bus_busy) DTACKn <= 0;
+                if (!bus_busy) preDTACKn <= 0;
             end
-            else DTACKn <= 0;
+            else preDTACKn <= 0;
         end
     end
 end

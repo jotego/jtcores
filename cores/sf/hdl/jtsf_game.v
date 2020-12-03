@@ -572,7 +572,8 @@ jtframe_ram_2slots #(
 
     .SLOT1_AW    ( MAINW         ), // main ROM
     .SLOT1_DW    ( 16            ),
-    .SLOT1_OFFSET( MAIN_OFFSET   )
+    .SLOT1_OFFSET( MAIN_OFFSET   ),
+    .REF_FILE    ("sdram_bank0.hex")
 ) u_bank0 (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -611,7 +612,8 @@ jtframe_rom_2slots #(
 
     .SLOT1_AW    ( SND2W         ), // Sound 2
     .SLOT1_DW    (  8            ),
-    .SLOT1_OFFSET( SND2_OFFSET   )
+    .SLOT1_OFFSET( SND2_OFFSET   ),
+    .REF_FILE    ("sdram_bank1.hex")
 ) u_bank1 (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -646,7 +648,8 @@ jtframe_rom_3slots #(
 
     .SLOT2_AW    ( CHARW         ), // Char
     .SLOT2_DW    ( 16            ),
-    .SLOT2_OFFSET( CHAR_OFFSET   )
+    .SLOT2_OFFSET( CHAR_OFFSET   ),
+    .REF_FILE    ("sdram_bank2.hex")
 ) u_bank2 (
     .rst         ( rst           ),
     .clk         ( clk           ),
@@ -685,7 +688,8 @@ jtframe_rom_3slots #(
 
     .SLOT2_AW    ( SCR2W         ), // Scroll 2
     .SLOT2_DW    ( 16            ),
-    .SLOT2_OFFSET( SCR2_OFFSET   )
+    .SLOT2_OFFSET( SCR2_OFFSET   ),
+    .REF_FILE    ("sdram_bank3.hex")
 ) u_bank3 (
     .rst         ( rst           ),
     .clk         ( clk           ),
