@@ -119,7 +119,7 @@ localparam [21:0] MAIN_OFFSET = 22'h0,
                   BA1_START   = 22'h6_0000,
                   SND_OFFSET  = 22'h0,
                   SND2_OFFSET = 22'h8000 >> 1,
-                  MCU_OFFSET  = 22'h1_0000 >> 1,
+                  MCU_OFFSET  = 22'h4_8000 >> 1,
                   // Bank 2
                   BA2_START   = 22'hA_9000,
                   MAP1_OFFSET = 22'h0,
@@ -139,7 +139,7 @@ wire        HINIT;
 wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
-wire        main_cs, ram_cs, ram_pre_cs,
+wire        main_cs, ram_cs,
             snd1_cs, snd2_cs,
             char_cs, col_uw,  col_lw;
 wire        charon, scr1on, scr2on, objon;
