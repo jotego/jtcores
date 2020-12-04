@@ -46,7 +46,7 @@ module jtsf_sound #(
 // but that's the way the game is
 // Some PCM samples seem to have been recorded with clipping
 localparam [7:0] FM_GAIN  = 8'h08;
-localparam [7:0] PCM_GAIN = 8'h18;
+localparam [7:0] PCM_GAIN = 8'h08;
 
 wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;

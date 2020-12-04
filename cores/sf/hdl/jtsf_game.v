@@ -279,19 +279,14 @@ wire       snd_nmi_n;
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
 wire [12:0] obj_AB;
-reg  [12:0] obj_AB2;
 wire [15:0] oram_dout;
 
 wire [21:0] pre_prog;
 
-assign prog_addr = (ioctl_addr[22:1]>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
+// Optimize cache use for object ROMs
+assign prog_addr = (prog_ba == 2'd3 && prog_addr>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
-
-always @(posedge clk) begin
-    obj_AB2 <= obj_AB;
-end
-
 
 jtframe_dwnld #(
     .PROM_START ( PROM_START ),
