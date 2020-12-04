@@ -178,10 +178,20 @@ wire [15:0] dipsw_a, dipsw_b;
 wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
             snd1_ok, snd2_ok, obj_ok, char_ok;
 
+reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
+
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
 assign refresh_en         = ~LVBL;
+
+
+always @(negedge clk) begin
+    snd_rst   <= rst;
+    video_rst <= rst;
+    main_rst  <= rst;
+end
+
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -320,7 +330,7 @@ assign dsn = {UDSWn, LDSWn};
 
 `ifndef NOMAIN
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
-    .rst        ( rst           ),
+    .rst        ( main_rst      ),
     .clk        ( clk24         ),
     .cen8       ( cen24_8       ),
     .cen8b      ( cen24_8b      ),
@@ -435,11 +445,12 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
 `endif
 
 `ifndef NOSOUND
+
 jtsf_sound #(
     .SND1W( SND1W ),
     .SND2W( SND2W )
 ) u_sound (
-    .rst            ( rst            ),
+    .rst            ( snd_rst        ),
     .clk            ( clk24          ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
@@ -477,7 +488,7 @@ jtsf_video #(
     .SCR2W  ( SCR2W ),
     .OBJW   ( OBJW  )
 ) u_video(
-    .rst        ( rst           ),
+    .rst        ( video_rst     ),
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
