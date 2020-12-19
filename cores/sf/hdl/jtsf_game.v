@@ -574,11 +574,9 @@ assign char_busy = 1'b0;
 jtframe_ram_2slots #(
     .SLOT0_AW    ( RAMW          ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
-    .SLOT0_OFFSET( RAM_OFFSET    ),
 
     .SLOT1_AW    ( MAINW         ), // main ROM
     .SLOT1_DW    ( 16            ),
-    .SLOT1_OFFSET( MAIN_OFFSET   ),
     .REF_FILE    ("sdram_bank0.hex")
 ) u_bank0 (
     .rst         ( rst           ),
@@ -590,6 +588,9 @@ jtframe_ram_2slots #(
 
     .slot0_ok    ( ram_ok        ),
     .slot1_ok    ( main_ok       ),
+
+    .offset0     ( RAM_OFFSET    ),
+    .offset1     ( MAIN_OFFSET   ),
 
     .slot0_din   ( cpu_dout      ),
     .slot0_wrmask( dsn           ),
