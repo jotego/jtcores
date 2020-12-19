@@ -140,12 +140,13 @@ jtframe_ff u_ff(
     .sigedge( ~nmi_n    )
 );*/
 
-jtframe_z80_romwait #(0) u_cpu(
+jtframe_z80_romwait u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
+    .start      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
     .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
