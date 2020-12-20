@@ -585,6 +585,7 @@ jtframe_ram_2slots #(
     .slot0_cs    ( ram_cs        ),
     .slot0_wen   ( !RnW          ),
     .slot1_cs    ( main_cs       ),
+    .slot1_clr   ( 1'b0          ),
 
     .slot0_ok    ( ram_ok        ),
     .slot1_ok    ( main_ok       ),

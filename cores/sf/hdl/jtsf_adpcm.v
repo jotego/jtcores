@@ -94,7 +94,6 @@ end
 wire       irq_st, irq0, irq1;
 wire [1:0] fsel = 2'b10; // 8kHz
 reg  [5:0] cencnt;
-reg        cen8k;
 wire       base_sample;
 wire signed [12:0] ac_mix;
 
@@ -177,6 +176,7 @@ jtframe_z80_romwait u_cpu(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ),
     .cpu_cen    (             ),
+    .start      ( 1'b1        ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
