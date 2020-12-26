@@ -61,7 +61,7 @@ module jtgunsmoke_game(
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  signed [15:0] snd,
     output          sample,
@@ -269,14 +269,14 @@ assign obj_bank    = 3'd0;
 reg [7:0] psg_gain;
 always @(posedge clk) begin
     case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h2F;
-        2'd1: psg_gain <= 8'h4F;
-        2'd2: psg_gain <= 8'h6F;
-        2'd3: psg_gain <= 8'h8F;
+        2'd0: psg_gain <= 8'h1F;
+        2'd1: psg_gain <= 8'h2F;
+        2'd2: psg_gain <= 8'h3F;
+        2'd3: psg_gain <= 8'h4F;
     endcase // dip_fxlevel
 end
 
-jtgng_sound u_sound (
+jtgng_sound #(.FM_GAIN(8'h20)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -341,7 +341,7 @@ jt1943_video #(
     .rst           ( rst           ),
     .clk           ( clk           ),
     .cen12         ( cen12         ),
-    .cen8          ( cen8          ),    
+    .cen8          ( cen8          ),
     .cen6          ( cen6          ),
     .cen3          ( cen3          ),
     .cpu_cen       ( cpu_cen       ),
