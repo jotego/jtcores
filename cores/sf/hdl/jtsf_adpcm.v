@@ -138,6 +138,7 @@ jt5205 #(.INTERPOL(0)) u_adpcm1(
     .sel        ( fsel          ),
     .din        ( pcm1_data     ),
     .sound      ( base1         ),
+    .sample     (               ),
     .irq        ( irq1          ),
     .vclk_o     (               )
 );
