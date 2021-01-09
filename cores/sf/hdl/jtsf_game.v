@@ -82,6 +82,7 @@ module jtsf_game(
     output  [ 1:0]  prog_ba,
     output          prog_we,
     output          prog_rd,
+    input           prog_ack,
     input           prog_rdy,
     // DIP switches
     input   [31:0]  status,
