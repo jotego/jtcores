@@ -22,7 +22,6 @@
 // It could be done at 2*cen6, but this solutions is neat
 // and 24MHz is not a tough requirement for modern FPGAs
 
-`timescale 1ns/1ps
 
 module jtgng_colmix(
     input            rst,

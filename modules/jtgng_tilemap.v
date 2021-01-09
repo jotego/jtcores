@@ -25,7 +25,6 @@
 //         release the CPU and keep it in control of the bus until
 //         the CPU releases the CS signal
 
-`timescale 1ns/1ps
 
 module jtgng_tilemap #(parameter
     DW          = 8,

@@ -18,7 +18,6 @@
 
 // Generic 2-bit per pixel no-scroll tile generator
 
-`timescale 1ns/1ps
 
 module jtgng_char #(parameter
     ROM_AW   = 13,

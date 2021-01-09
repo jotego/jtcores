@@ -19,7 +19,6 @@
 // Converts 4bpp object data from an eight pixel packed format
 // to a four pixel format
 
-`timescale 1ns/1ps
 
 module jtgng_obj32(
     input                clk,

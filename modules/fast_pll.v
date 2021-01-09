@@ -1,4 +1,3 @@
-`timescale 1ns/1ps
 
 module jtgng_pll0(
     input    inclk0,
