@@ -49,19 +49,27 @@ module mist_dump(
             $display("NC Verilog: will dump selected signals");
             $shm_probe(frame_cnt);
             $shm_probe(UUT.u_game,"A");
-            `ifndef NOSOUND
-            $shm_probe(UUT.u_game.u_sound,"A");
-            $shm_probe(UUT.u_game.u_sound.u_fmcpu,"A");
-            $shm_probe(UUT.u_game.u_sound.u_adpcmcpu,"A");
-            `endif
-            `ifdef OBJLOAD
-            $shm_probe(UUT.u_game.u_objload,"A");
-            $shm_probe(UUT.u_game.u_rom,"AS");
+            `ifdef LOADROM
+            $shm_probe(UUT.u_game.u_dwnld,"A");
+            $shm_probe(UUT.u_frame.u_board.u_sdram,"AS");
             `else
-            $shm_probe(UUT.u_game.u_main,"A");
+                `ifndef NOSOUND
+                $shm_probe(UUT.u_game.u_sound,"A");
+                $shm_probe(UUT.u_game.u_sound.u_fmcpu,"A");
+                $shm_probe(UUT.u_game.u_sound.u_adpcmcpu,"A");
+                `endif
+                `ifdef OBJLOAD
+                $shm_probe(UUT.u_game.u_objload,"A");
+                $shm_probe(UUT.u_game.u_rom,"AS");
+                `else
+                $shm_probe(UUT.u_game.u_main,"A");
+                $shm_probe(UUT.u_game.u_bank0,"AS");
+                $shm_probe(UUT.u_frame.u_board.u_sdram,"AS");
+                $shm_probe(UUT.u_game.u_video,"AS");
+                `endif
             `endif
-            $shm_probe(UUT.u_game.u_video,"A");
-            $shm_probe(UUT.u_game.u_video.u_obj,"AS");
+            //$shm_probe(UUT.u_game.u_video,"A");
+            //$shm_probe(UUT.u_game.u_video.u_obj,"AS");
         `endif
     end
 `endif

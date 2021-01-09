@@ -41,14 +41,33 @@ There might some additional video signals -like a palette error bit. I have not
 looked for them on the PCB.
 
 
-GAME PLAY
-=========
+Issues
+======
+
+-ADPCM is a bit noisy, probably because of missing ROM reads
 
 
 TEST SCREEN
 ===========
 Select the test screen through the OSD menu. To pass on to the next test
 screen press both action buttons.
+
+SDRAM LAYOUT
+============
+
+Region        |  ROM Start | SDRAM Start | Length    |  Bank
+--------------|------------|-------------|-----------|--------
+Main CPU ROM  |       0    |         0   |  6'0000   |   0
+Main CPU RAM  |     N/A    |    3'0000   |           |   0
+Sound 1 CPU   |  6'0000    |         0   |    8000   |   1
+Sound 2 CPU   |  6'8000    |      4000   |    8000   |   1
+MCU           |  A'8000    |      8000   |    1000   |   1
+Map 1         |  A'9000    |         0   |    2000   |   2
+Map 2         |  C'9000    |      1000   |    2000   |   2
+Char          |  E'9000    |      2000   |    4000   |   2
+Scroll 1      |  E'D000    |         0   | 10'0000   |   3
+Scroll 2      | 1E'D000    |    8'0000   |  8'0000   |   3
+Object        | 26'D000    |    C'0000   | 1C'0000   |   3
 
 
 REVISION HISTORY

@@ -37,28 +37,53 @@ module jtsf_game(
     input   [ 1:0]  coin_input,
     input   [ 9:0]  joystick1,
     input   [ 9:0]  joystick2,
+
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
     input           loop_rst,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    output  [ 1:0]  sdram_wrmask,
-    output          sdram_rnw,
-    output  [15:0]  data_write,
+
+    // Bank 0: allows R/W
+    output   [21:0] ba0_addr,
+    output          ba0_rd,
+    output          ba0_wr,
+    output   [15:0] ba0_din,
+    output   [ 1:0] ba0_din_m,  // write mask
+    input           ba0_rdy,
+    input           ba0_ack,
+
+    // Bank 1: Read only
+    output   [21:0] ba1_addr,
+    output          ba1_rd,
+    input           ba1_rdy,
+    input           ba1_ack,
+
+    // Bank 2: Read only
+    output   [21:0] ba2_addr,
+    output          ba2_rd,
+    input           ba2_rdy,
+    input           ba2_ack,
+
+    // Bank 3: Read only
+    output   [21:0] ba3_addr,
+    output          ba3_rd,
+    input           ba3_rdy,
+    input           ba3_ack,
+
     input   [31:0]  data_read,
-    input           data_rdy,
-    input           sdram_ack,
     output          refresh_en,
     // ROM LOAD
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
+    output  [15:0]  prog_data,
     output  [ 1:0]  prog_mask,
+    output  [ 1:0]  prog_ba,
     output          prog_we,
     output          prog_rd,
+    input           prog_ack,
+    input           prog_rdy,
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
@@ -90,17 +115,24 @@ localparam
     OBJW  = 21;
 
 localparam [21:0] MAIN_OFFSET = 22'h0,
-                  SND_OFFSET  = 22'h06_0000 >> 1,
-                  SND2_OFFSET = 22'h06_8000 >> 1,
-                  MCU_OFFSET  = 22'h0A_8000 >> 1,
-                  MAP1_OFFSET = 22'h0A_9000 >> 1,
-                  MAP2_OFFSET = 22'h0C_9000 >> 1,
-                  CHAR_OFFSET = 22'h0E_9000 >> 1,
-                  SCR1_OFFSET = 22'h0E_D000 >> 1,
-                  SCR2_OFFSET = 22'h1E_D000 >> 1,
-                  OBJ_OFFSET  = 22'h26_D000 >> 1;
+                  RAM_OFFSET  = 22'h4_0000,
+                  // Bank 1
+                  BA1_START   = 22'h6_0000,
+                  SND_OFFSET  = 22'h0,
+                  SND2_OFFSET = 22'h8000 >> 1,
+                  MCU_OFFSET  = 22'h4_8000 >> 1,
+                  // Bank 2
+                  BA2_START   = 22'hA_9000,
+                  MAP1_OFFSET = 22'h0,
+                  MAP2_OFFSET = 22'h2_0000 >> 1,
+                  CHAR_OFFSET = 22'h4_0000 >> 1,
+                  // Bank 3
+                  BA3_START   = 22'hE_D000,
+                  SCR1_OFFSET = 22'h0,
+                  SCR2_OFFSET = 22'h10_0000 >> 1,
+                  OBJ_OFFSET  = 22'h18_0000 >> 1;
+
 localparam [24:0] PROM_START  = 25'h42_D000;
-localparam [21:0] RAM_OFFSET  = PROM_START[22:1];
 
 wire [ 8:0] V;
 wire [ 8:0] H;
@@ -108,7 +140,7 @@ wire        HINIT;
 wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
-wire        main_cs, ram_cs, ram_pre_cs,
+wire        main_cs, ram_cs,
             snd1_cs, snd2_cs,
             char_cs, col_uw,  col_lw;
 wire        charon, scr1on, scr2on, objon;
@@ -147,9 +179,20 @@ wire [15:0] dipsw_a, dipsw_b;
 wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
             snd1_ok, snd2_ok, obj_ok, char_ok;
 
+reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
+
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
+assign refresh_en         = ~LVBL;
+
+
+always @(negedge clk) begin
+    snd_rst   <= rst;
+    video_rst <= rst;
+    main_rst  <= rst;
+end
+
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -247,24 +290,21 @@ wire       snd_nmi_n;
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
 wire [12:0] obj_AB;
-reg  [12:0] obj_AB2;
 wire [15:0] oram_dout;
 
 wire [21:0] pre_prog;
 
-assign prog_addr = (ioctl_addr[22:1]>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
+// Optimize cache use for object ROMs
+assign prog_addr = (prog_ba == 2'd3 && prog_addr>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
 
-always @(posedge clk) begin
-    obj_AB2 <= obj_AB;
-end
-
-
 jtframe_dwnld #(
-    .PROM_START ( PROM_START )
-)
-u_dwnld(
+    .PROM_START ( PROM_START ),
+    .BA1_START  ( BA1_START  ),
+    .BA2_START  ( BA2_START  ),
+    .BA3_START  ( BA3_START  )
+) u_dwnld(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
@@ -276,9 +316,11 @@ u_dwnld(
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
     .prog_we     ( prog_we       ),
+    .prog_rd     ( prog_rd       ),
+    .prog_ba     ( prog_ba       ),
     .prom_we     (               ),
 
-    .sdram_ack   ( sdram_ack     )
+    .sdram_ack   ( prog_rdy      )
 );
 
 wire [15:0] scrposh, scrposv, dmaout;
@@ -289,7 +331,7 @@ assign dsn = {UDSWn, LDSWn};
 
 `ifndef NOMAIN
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
-    .rst        ( rst           ),
+    .rst        ( main_rst      ),
     .clk        ( clk24         ),
     .cen8       ( cen24_8       ),
     .cen8b      ( cen24_8b      ),
@@ -364,19 +406,19 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     `ifndef SIM_SND_LATCH
     `define SIM_SND_LATCH 8'd0
     `endif
-    assign main_addr   = {MAINW{1'b0}};
-    assign cpu_AB      = 13'd0;
-    assign char_cs     = 0;
-    assign bus_ack     = 1;
-    assign flip        = 0;
-    assign scr1posh    = 16'd0;
-    assign scr2posh    = 16'd0;
-    assign cpu_cen     = cen24_8;
-    assign charon      = 1;
-    assign scr1on      = 1;
-    assign scr2on      = 1;
-    assign objon       = 1;
-    assign snd_latch   = `SIM_SND_LATCH;
+    assign main_addr = {MAINW{1'b0}};
+    assign cpu_AB    = 13'd0;
+    assign char_cs   = 0;
+    assign bus_ack   = 1;
+    assign flip      = 0;
+    assign scr1posh  = 16'd0;
+    assign scr2posh  = 16'd0;
+    assign cpu_cen   = cen24_8;
+    assign charon    = 1;
+    assign scr1on    = 1;
+    assign scr2on    = 1;
+    assign objon     = 1;
+    assign snd_latch = `SIM_SND_LATCH;
     `ifdef OBJLOAD
     jtsf_objload u_objload( // this doesn't work after moving OBJ RAM to its own BRAM
         .clk        ( clk       ),
@@ -404,11 +446,12 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
 `endif
 
 `ifndef NOSOUND
+
 jtsf_sound #(
     .SND1W( SND1W ),
     .SND2W( SND2W )
 ) u_sound (
-    .rst            ( rst            ),
+    .rst            ( snd_rst        ),
     .clk            ( clk24          ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
@@ -446,7 +489,7 @@ jtsf_video #(
     .SCR2W  ( SCR2W ),
     .OBJW   ( OBJW  )
 ) u_video(
-    .rst        ( rst           ),
+    .rst        ( video_rst     ),
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
@@ -529,125 +572,158 @@ assign obj_br    = 1'b0;
 assign char_busy = 1'b0;
 `endif
 
-wire [9:0] slot_cs, slot_ok, slot_wr, slot_clr;
-
-assign slot_cs = {
-  LVBL, 1'b1, LVBL, LVBL, snd1_cs,
-  LVBL, main_cs, snd2_cs, ram_cs, LVBL };
-
-
-assign {
-  map1_ok, obj_ok, map2_ok, scr1_ok, snd1_ok,
-  scr2_ok, main_ok, snd2_ok, ram_ok, char_ok } = slot_ok;
-
-assign slot_wr[9:2] = 7'd0;
-assign slot_wr[1]   = !RnW;
-assign slot_wr[0]   = 1'd0;
-assign slot_clr     = 10'd0;
-
-jtframe_sdram_mux #(
-    .SLOT0_AW    ( CHARW         ), // Char
+jtframe_ram_2slots #(
+    .SLOT0_AW    ( RAMW          ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
 
-    .SLOT1_AW    ( RAMW          ), // Main CPU RAM
+    .SLOT1_AW    ( MAINW         ), // main ROM
     .SLOT1_DW    ( 16            ),
-    .SLOT1_TYPE  ( 2             ), // R/W access
-
-    .SLOT6_AW    ( SCR1W         ), // Scroll 1
-    .SLOT6_DW    ( 16            ),
-
-    .SLOT3_AW    ( MAINW         ), // main ROM
-    .SLOT3_DW    ( 16            ),
-
-    .SLOT4_AW    ( SCR2W         ), // Scroll 2
-    .SLOT4_DW    ( 16            ),
-
-    .SLOT5_AW    ( SND1W         ), // Sound 1
-    .SLOT5_DW    (  8            ),
-
-    .SLOT2_AW    ( SND2W         ), // Sound 2
-    .SLOT2_DW    (  8            ),
-
-    .SLOT7_AW    ( MAP2W         ), // Map 2
-    .SLOT7_DW    ( 32            ),
-
-    .SLOT8_AW    ( OBJW          ), // Objects
-    .SLOT8_DW    ( 16            ),
-
-    .SLOT9_AW    ( MAP1W         ), // Map 1
-    .SLOT9_DW    ( 32            )
-) u_rom (
+    .REF_FILE    ("sdram_bank0.hex")
+) u_bank0 (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
-    .slot0_offset( CHAR_OFFSET   ),
-    .slot1_offset( RAM_OFFSET    ),
-    .slot2_offset( SND2_OFFSET   ),
-    .slot3_offset( MAIN_OFFSET   ),
-    .slot4_offset( SCR2_OFFSET   ),
-    .slot5_offset( SND_OFFSET    ),
-    .slot6_offset( SCR1_OFFSET   ),
-    .slot7_offset( MAP2_OFFSET   ),
-    .slot8_offset( OBJ_OFFSET    ),
-    .slot9_offset( MAP1_OFFSET   ),
+    .slot0_cs    ( ram_cs        ),
+    .slot0_wen   ( !RnW          ),
+    .slot1_cs    ( main_cs       ),
+    .slot1_clr   ( 1'b0          ),
 
-    .slot1_din   ( cpu_dout      ),
-    .slot1_wrmask( dsn           ),
+    .slot0_ok    ( ram_ok        ),
+    .slot1_ok    ( main_ok       ),
 
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( ram_addr      ),
-    .slot2_addr  ( snd2_addr     ),
-    .slot3_addr  ( main_addr     ),
-    .slot4_addr  ( scr2_addr     ),
-    .slot5_addr  ( snd1_addr     ),
-    .slot6_addr  ( scr1_addr     ),
-    .slot7_addr  ( map2_addr     ),
-    .slot8_addr  ( obj_addr      ),
-    .slot9_addr  ( map1_addr     ),
+    .offset0     ( RAM_OFFSET    ),
+    .offset1     ( MAIN_OFFSET   ),
 
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( ram_data      ),
-    .slot2_dout  ( snd2_data     ),
-    .slot3_dout  ( main_data     ),
-    .slot4_dout  ( scr2_data     ),
-    .slot5_dout  ( snd1_data     ),
-    .slot6_dout  ( scr1_data     ),
-    .slot7_dout  ( map2_data     ),
-    .slot8_dout  ( obj_data      ),
-    .slot9_dout  ( map1_data     ),
+    .slot0_din   ( cpu_dout      ),
+    .slot0_wrmask( dsn           ),
 
-    // bus signals
-    .slot_cs     ( slot_cs       ),
-    .slot_ok     ( slot_ok       ),
-    .slot_wr     ( slot_wr       ),
-    .slot_clr    ( slot_clr      ),
+    .slot0_addr  ( ram_addr      ),
+    .slot1_addr  ( main_addr     ),
+
+    .slot0_dout  ( ram_data      ),
+    .slot1_dout  ( main_data     ),
 
     // SDRAM interface
-    .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
-    .sdram_ack   ( sdram_ack     ),
-    .sdram_req   ( sdram_req     ),
-    .refresh_en  ( refresh_en    ),
-    .sdram_addr  ( sdram_addr    ),
-    .sdram_rnw   ( sdram_rnw     ),
-    .sdram_wrmask( sdram_wrmask  ),
-    .data_rdy    ( data_rdy      ),
-    .data_read   ( data_read     ),
-    .data_write  ( data_write    ),
+    .sdram_addr  ( ba0_addr      ),
+    .sdram_rd    ( ba0_rd        ),
+    .sdram_wr    ( ba0_wr        ),
+    .sdram_ack   ( ba0_ack       ),
+    .data_rdy    ( ba0_rdy       ),
+    .data_write  ( ba0_din       ),
+    .sdram_wrmask( ba0_din_m     ),
+    .data_read   ( data_read     )
+);
 
-    // Unused:
-    .ready       (               ),
-    .slot_active (               ),
-    .slot0_din   (               ),
-    .slot2_din   (               ),
-    .slot3_din   (               ),
-    .slot4_din   (               ),
-    .slot5_din   (               ),
-    .slot6_din   (               ),
-    .slot7_din   (               ),
-    .slot8_din   (               ),
-    .slot9_din   (               )
+jtframe_rom_2slots #(
+    .SLOT0_AW    ( SND1W         ), // Sound 1
+    .SLOT0_DW    (  8            ),
+    .SLOT0_OFFSET( SND_OFFSET    ),
+
+    .SLOT1_AW    ( SND2W         ), // Sound 2
+    .SLOT1_DW    (  8            ),
+    .SLOT1_OFFSET( SND2_OFFSET   ),
+    .REF_FILE    ("sdram_bank1.hex")
+) u_bank1 (
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+
+    .slot0_cs    ( snd1_cs       ),
+    .slot1_cs    ( snd2_cs       ),
+
+    .slot0_ok    ( snd1_ok       ),
+    .slot1_ok    ( snd2_ok       ),
+
+    .slot0_addr  ( snd1_addr     ),
+    .slot1_addr  ( snd2_addr     ),
+
+    .slot0_dout  ( snd1_data     ),
+    .slot1_dout  ( snd2_data     ),
+
+    .sdram_addr  ( ba1_addr      ),
+    .sdram_req   ( ba1_rd        ),
+    .sdram_ack   ( ba1_ack       ),
+    .data_rdy    ( ba1_rdy       ),
+    .data_read   ( data_read     )
+);
+
+jtframe_rom_3slots #(
+    .SLOT0_AW    ( MAP1W         ), // Map 1
+    .SLOT0_DW    ( 32            ),
+    .SLOT0_OFFSET( MAP1_OFFSET   ),
+
+    .SLOT1_AW    ( MAP2W         ), // Map 2
+    .SLOT1_DW    ( 32            ),
+    .SLOT1_OFFSET( MAP2_OFFSET   ),
+
+    .SLOT2_AW    ( CHARW         ), // Char
+    .SLOT2_DW    ( 16            ),
+    .SLOT2_OFFSET( CHAR_OFFSET   ),
+    .REF_FILE    ("sdram_bank2.hex")
+) u_bank2 (
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+
+    .slot0_cs    ( LVBL          ),
+    .slot1_cs    ( LVBL          ),
+    .slot2_cs    ( LVBL          ),
+
+    .slot0_ok    ( map1_ok       ),
+    .slot1_ok    ( map2_ok       ),
+    .slot2_ok    ( char_ok       ),
+
+    .slot0_addr  ( map1_addr     ),
+    .slot1_addr  ( map2_addr     ),
+    .slot2_addr  ( char_addr     ),
+
+    .slot0_dout  ( map1_data     ),
+    .slot1_dout  ( map2_data     ),
+    .slot2_dout  ( char_data     ),
+
+    .sdram_addr  ( ba2_addr      ),
+    .sdram_req   ( ba2_rd        ),
+    .sdram_ack   ( ba2_ack       ),
+    .data_rdy    ( ba2_rdy       ),
+    .data_read   ( data_read     )
+);
+
+jtframe_rom_3slots #(
+    .SLOT0_AW    ( OBJW          ), // Objects
+    .SLOT0_DW    ( 16            ),
+    .SLOT0_OFFSET( OBJ_OFFSET    ),
+
+    .SLOT1_AW    ( SCR1W         ), // Scroll 1
+    .SLOT1_DW    ( 16            ),
+    .SLOT1_OFFSET( SCR1_OFFSET   ),
+
+    .SLOT2_AW    ( SCR2W         ), // Scroll 2
+    .SLOT2_DW    ( 16            ),
+    .SLOT2_OFFSET( SCR2_OFFSET   ),
+    .REF_FILE    ("sdram_bank3.hex")
+) u_bank3 (
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+
+    .slot0_cs    ( LVBL          ),
+    .slot1_cs    ( LVBL          ),
+    .slot2_cs    ( LVBL          ),
+
+    .slot0_ok    ( obj_ok        ),
+    .slot1_ok    ( scr1_ok       ),
+    .slot2_ok    ( scr2_ok       ),
+
+    .slot0_addr  ( obj_addr      ),
+    .slot1_addr  ( scr1_addr     ),
+    .slot2_addr  ( scr2_addr     ),
+
+    .slot0_dout  ( obj_data      ),
+    .slot1_dout  ( scr1_data     ),
+    .slot2_dout  ( scr2_data     ),
+
+    .sdram_addr  ( ba3_addr      ),
+    .sdram_req   ( ba3_rd        ),
+    .sdram_ack   ( ba3_ack       ),
+    .data_rdy    ( ba3_rdy       ),
+    .data_read   ( data_read     )
 );
 
 endmodule

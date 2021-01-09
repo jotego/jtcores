@@ -110,8 +110,6 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 wire [CHRPW-1:0] char_pxl;
 wire [OBJPW-1:0] obj_pxl;
 wire [SCRPW-1:0] scr1_pxl, scr2_pxl;
-wire [     11:0] obj_ram = main_ram[11:0];
-
 
 `ifndef NOCHAR
 jtgng_char #(

@@ -122,5 +122,4 @@ jtframe_z80_romwait u_cpu(
     .rom_ok     ( rom2_ok     )
 );
 
-
-endmodule // jtgng_sound
+endmodule

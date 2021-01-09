@@ -34,11 +34,12 @@ module jtsf_adpcm(
     `endif
 
     // Sound output
+    output          sample,
     output signed [12:0] snd
 );
 
 // ADPCM CPU
-wire signed [11:0] snd0, snd1, pre0, pre1;
+wire signed [11:0] snd0, snd1, base0, base1;
 wire        [15:0] A;
 reg         [ 7:0] din;
 wire        [ 7:0] dout;
@@ -93,60 +94,68 @@ end
 wire       irq_st, irq0, irq1;
 wire [1:0] fsel = 2'b10; // 8kHz
 reg  [5:0] cencnt;
-reg        cen8k;
+wire       base_sample;
+wire signed [12:0] ac_mix;
 
 assign     irq_st = irq0; // | irq1;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        cencnt <= 6'd0;
-        cen8k  <= 1;
-    end else begin
-        if(cenp384) begin
-            cencnt <= cencnt==6'd47 ? cencnt+1'd1 : 6'd0;
-            cen8k  <= ~|cencnt;
-        end else cen8k <= 0;
-    end
-end
 /*
-jt49_dcrm2 #(.sw(12)) u_rm0 (
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen8k     ),
-    .din    ( pre0      ),
-    .dout   ( snd0      )
+jtframe_dcrm #(.SW(12)) u_rm0 (
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .sample ( base_sample ),
+    .din    ( base0       ),
+    .dout   ( snd0        )
 );
 
-jt49_dcrm2 #(.sw(12)) u_rm1 (
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen8k     ),
-    .din    ( pre1      ),
-    .dout   ( snd1      )
+jtframe_dcrm #(.SW(12)) u_rm1 (
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .sample ( base_sample ),
+    .din    ( base1       ),
+    .dout   ( snd1        )
 );
 */
-assign snd = { snd0[11], snd0 } + { snd1[11], snd1 };
+assign snd0 = base0;
+assign snd1 = base1;
+assign ac_mix = { snd0[11], snd0 } + { snd1[11], snd1 };
 
-jt5205 u_adpcm0(
+jt5205 #(.INTERPOL(0)) u_adpcm0(
     .rst        ( pcm0_rst      ),
     .clk        ( clk           ),
     .cen        ( cenp384       ),
     .sel        ( fsel          ),
     .din        ( pcm0_data     ),
-    .sound      ( snd0          ),
+    .sound      ( base0         ),
     .irq        ( irq0          ),
+    .sample     ( base_sample   ),
     .vclk_o     (               )
 );
 
-jt5205 u_adpcm1(
+jt5205 #(.INTERPOL(0)) u_adpcm1(
     .rst        ( pcm1_rst      ),
     .clk        ( clk           ),
     .cen        ( cenp384       ),
     .sel        ( fsel          ),
     .din        ( pcm1_data     ),
-    .sound      ( pre1          ),
-    .irq        ( snd1          ),
+    .sound      ( base1         ),
+    .sample     (               ),
+    .irq        ( irq1          ),
     .vclk_o     (               )
+);
+
+wire signed [15:0] snd_fir;
+
+assign snd = snd_fir[15:3];
+
+jtframe_uprate2_fir u_upsample2(
+    .rst        ( rst               ),
+    .clk        ( clk               ),
+    .sample     ( base_sample       ),
+    .upsample   ( sample            ),
+    .l_in       ( { ac_mix, 3'd0 }  ),
+    .r_in       ( 16'd0             ),
+    .l_out      ( snd_fir           ),
+    .r_out      (                   )
 );
 
 reg last_irq_st;

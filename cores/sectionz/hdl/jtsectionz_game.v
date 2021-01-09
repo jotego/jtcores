@@ -60,7 +60,7 @@ module jtsectionz_game(
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     input   [31:0]  dipsw,
     // Sound output
     output  signed [15:0] snd,
@@ -274,13 +274,13 @@ reg [7:0] psg_gain;
 always @(posedge clk) begin
     case( dip_fxlevel )
         2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h7F;
-        2'd3: psg_gain <= 8'hFF;
+        2'd1: psg_gain <= 8'h2F;
+        2'd2: psg_gain <= 8'h3F;
+        2'd3: psg_gain <= 8'h4F;
     endcase // dip_fxlevel
 end
 
-jtgng_sound #(.LAYOUT(0)) u_sound (
+jtgng_sound #(.FM_GAIN(8'h20),.LAYOUT(0)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
@@ -410,7 +410,7 @@ jtframe_rom #(
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // Char
     .slot1_cs    ( LVBL          ), // Scroll
-    .slot2_cs    ( 1'b0          ), 
+    .slot2_cs    ( 1'b0          ),
     .slot3_cs    ( 1'b0          ),
     .slot4_cs    ( 1'b0          ),
     .slot5_cs    ( 1'b0          ),

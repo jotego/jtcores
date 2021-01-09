@@ -16,7 +16,6 @@
     Version: 1.0
     Date: 4-9-2019 */
 
-`timescale 1ns/1ps
 
 // This module breaks up a RAM into smaller units
 // and then multiplexes all the outputs in two steps

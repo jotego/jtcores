@@ -18,7 +18,7 @@
 
 module jtsf_sound #(
     parameter SND1W = 15,
-    parameter SND2W = 15
+    parameter SND2W = 18
 ) (
     input              rst,
     input              clk,
@@ -42,8 +42,11 @@ module jtsf_sound #(
     output               sample
 );
 
+// Sound effects via FM seem too loud compared to music
+// but that's the way the game is
+// Some PCM samples seem to have been recorded with clipping
 localparam [7:0] FM_GAIN  = 8'h08;
-localparam [7:0] PCM_GAIN = 8'h18;
+localparam [7:0] PCM_GAIN = 8'h08;
 
 wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
@@ -124,7 +127,8 @@ jtsf_adpcm u_adpcmcpu(
     .rom2_data  ( rom2_data     ),
     .rom2_ok    ( rom2_ok       ),
     // Sound output
-    .snd        ( adpcm_snd     )
+    .snd        ( adpcm_snd     ),
+    .sample     ( adpcm_sample  )
 );
 
 jtframe_mixer #(.W0(16),.W1(13)) u_left_mix(

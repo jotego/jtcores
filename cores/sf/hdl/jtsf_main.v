@@ -244,7 +244,7 @@ end
 // Cabinet input
 localparam BUT1=4, BUT2=5, BUT3=6, BUT4=7, BUT5=8, BUT6=9;
 
-always @(posedge clk) if(io_cs) begin
+always @(posedge clk) begin
     case( A[3:1] )
         3'd0: cabinet_input <= { // IN0 in MAME
                 4'hf, // 15-12
@@ -296,23 +296,32 @@ end
 wire       int1, int2;
 wire [2:0] FC;
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, char_cs, ram_cs };
+wire       bus_cs =   |{ rom_cs, char_cs, pre_ram_cs, ram_cs };
 wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
-reg DTACKn;
+reg        DTACKn, preDTACKn;
+
+always @(posedge clk, posedge rst) begin
+    if( rst )
+        DTACKn <= 1;
+    else begin
+        if( preDTACKn ) DTACKn <= 1'b1;
+        else if( cen8b ) DTACKn <= 1'b0;
+    end
+end
 
 always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
     if( rst ) begin
-        DTACKn <= 1'b1;
-    end else if(cen8b) begin
+        preDTACKn <= 1'b1;
+    end else begin
         last_ASn <= ASn;
-        if( !ASn && last_ASn ) begin
-            DTACKn <= 1;
+        if( ASn ) begin
+            preDTACKn <= 1;
         end else if( !ASn ) begin
             if( bus_cs ) begin
-                if (!bus_busy) DTACKn <= 0;
+                if (!bus_busy) preDTACKn <= 0;
             end
-            else DTACKn <= 0;
+            else preDTACKn <= 0;
         end
     end
 end
