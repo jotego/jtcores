@@ -27,28 +27,29 @@ module jtbiocom_prom_we(
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
+    output reg [ 1:0]    prog_ba,
     output reg [ 1:0]    prom_we,
     input                sdram_ack
 );
 
-localparam MAIN0_ADDR  = 22'h00000;
-localparam MAIN1_ADDR  = 22'h20000;
-localparam SND_ADDR    = 22'h40000;
-localparam CHAR_ADDR   = 22'h48000;
+localparam MAIN0_ADDR  = 22'h0_0000;
+localparam MAIN1_ADDR  = 22'h2_0000;
+localparam SND_ADDR    = 22'h4_0000;
+localparam CHAR_ADDR   = 22'h4_8000;
 // Scroll 1/2
-localparam SCR1ZW_ADDR = 22'h50000;
-localparam SCR2ZW_ADDR = 22'h70000;
-localparam SCR1XY_ADDR = 22'h80000;
-localparam SCR2XY_ADDR = 22'hA0000;
+localparam SCR1ZW_ADDR = 22'h5_0000;
+localparam SCR2ZW_ADDR = 22'h7_0000;
+localparam SCR1XY_ADDR = 22'h8_0000;
+localparam SCR2XY_ADDR = 22'hA_0000;
 // even words
-localparam OBJWZ_ADDR0 = 22'hB0000;
-localparam OBJXY_ADDR0 = 22'hC0000;
+localparam OBJWZ_ADDR0 = 22'hB_0000;
+localparam OBJXY_ADDR0 = 22'hC_0000;
 // odd words
-localparam OBJWZ_ADDR1 = 22'hD0000;
-localparam OBJXY_ADDR1 = 22'hE0000;
+localparam OBJWZ_ADDR1 = 22'hD_0000;
+localparam OBJXY_ADDR1 = 22'hE_0000;
 // FPGA BRAM:
-localparam MCU_ADDR    = 22'hF0000;
-localparam PROM_ADDR   = 22'hF1000;
+localparam MCU_ADDR    = 22'hF_0000;
+localparam PROM_ADDR   = 22'hF_1000;
 // ROM length F1100
 
 `ifdef SIMULATION
@@ -64,17 +65,17 @@ reg w_main, w_snd, w_char, w_scr, w_obj, w_mcu, w_prom;
 `define INFO_PROM  w_prom <= 1'b1;
 `else
 // nothing for synthesis
-`define CLR_ALL  
-`define INFO_MAIN 
-`define INFO_SND  
-`define INFO_CHAR 
-`define INFO_SCR  
-`define INFO_OBJ  
-`define INFO_MCU  
-`define INFO_PROM 
+`define CLR_ALL
+`define INFO_MAIN
+`define INFO_SND
+`define INFO_CHAR
+`define INFO_SCR
+`define INFO_OBJ
+`define INFO_MCU
+`define INFO_PROM
 `endif
 
-// offset the SDRAM programming address by 
+// offset the SDRAM programming address by
 reg  [3:0] scr_msb;
 
 reg       set_strobe=1'b0, set_done=1'b0;
@@ -104,7 +105,8 @@ always @(posedge clk) begin
 end
 
 reg obj_part;
-wire insnd = ioctl_addr<CHAR_ADDR;
+wire insnd  = ioctl_addr<CHAR_ADDR;
+wire inscr2 = scr_msb[1];
 
 always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
@@ -115,34 +117,37 @@ always @(posedge clk) begin
         if( ioctl_addr[19:16] < SND_ADDR[19:16] ) begin // Main ROM, 16 bits per word
             prog_addr <= {1'b0, ioctl_addr[16:0]}; // A[17] ignored
                 // because it sets the boundary
-            prog_mask <= ioctl_addr[17]==1'b1 ? 2'b10 : 2'b01;            
+            prog_mask <= ioctl_addr[17]==1'b1 ? 2'b10 : 2'b01;
             `INFO_MAIN
+            prog_ba   <= 2'd0;
         end
         else if(ioctl_addr[19:16] < SCR1ZW_ADDR[19:16]) begin // Sound ROM, CHAR ROM
-            prog_addr <= {3'b0, ioctl_addr[19:16], ioctl_addr[15:1]};
+            prog_addr <= {8'b0, ioctl_addr[14:1]};
             prog_mask <= {ioctl_addr[0], ~ioctl_addr[0]} ^ {2{insnd}};
+            prog_ba   <= insnd ? 2'd1 : 2'd2;
             `INFO_SND
         end
-        else if(ioctl_addr[19:16] < OBJWZ_ADDR0[19:16] ) begin // Scroll    
+        else if(ioctl_addr[19:16] < OBJWZ_ADDR0[19:16] ) begin // Scroll
             prog_mask <= scr_msb[3] ? 2'b01 : 2'b10;
-            prog_addr <= { 2'b0, {1'b0, scr_msb[2:0]}+4'h5, 
-                scr_msb[1] ?
+            prog_addr <= { 1'b0, ~inscr2, {1'b0, scr_msb[2:0]},
+                inscr2 ?
                 ioctl_addr[15:0] : // SCR2: original bit order
                 { ioctl_addr[15:6], // SCR1: bit 5 swapped
                   ioctl_addr[4:1],
                   ioctl_addr[5],
                   ioctl_addr[0] }
                 };
+            prog_ba <= inscr2 ? 2'd3 : 2'd2;
             `INFO_SCR
-        end    
+        end
         else if(ioctl_addr[19:16] < MCU_ADDR[19:16] ) begin // Objects
-            // Objects are written to address C_0000+
             prog_mask <= ioctl_addr[16] ? 2'b10 : 2'b01;
-            prog_addr <= { 5'b110,
-                ioctl_addr[15:5], 
+            prog_addr <= { 5'h08,
+                ioctl_addr[15:5],
                 ioctl_addr[3:0],
                 ioctl_addr[4],
                 ioctl_addr[17]^ioctl_addr[16] }; // odd or even
+            prog_ba <= 2'd3;
             `INFO_OBJ
         end
         else begin // MCU and PROMs

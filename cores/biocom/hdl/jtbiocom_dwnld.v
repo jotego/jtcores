@@ -26,6 +26,7 @@ module jtbiocom_dwnld(
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
+    output reg [ 1:0]    prog_ba,
     output reg           prog_we,
     output               prog_rd,
     output     [ 1:0]    prom_we,
@@ -39,24 +40,26 @@ module jtbiocom_dwnld(
 wire         convert;
 wire [21:0]  dwnld_addr, obj_addr;
 wire [ 7:0]  dwnld_data, obj_data;
-wire [ 1:0]  dwnld_mask, obj_mask;
+wire [ 1:0]  dwnld_mask, obj_mask, dwnld_ba;
 wire         dwnld_we, obj_we;
 
 reg          last_convert;
 
-always @(posedge clk) begin    
+always @(posedge clk) begin
     last_convert <= convert;
     if( downloading ) begin
         prog_addr <= dwnld_addr;
         prog_data <= dwnld_data;
         prog_mask <= dwnld_mask;
         prog_we   <= dwnld_we;
+        prog_ba   <= dwnld_ba;
         dwnld_busy<= 1'b1;
     end else if(convert) begin
         prog_addr <= obj_addr;
         prog_data <= obj_data;
         prog_mask <= obj_mask;
-        prog_we   <= obj_we;        
+        prog_we   <= obj_we;
+        prog_ba   <= 2'b11;
     end else begin
         prog_we   <= 1'b0;
         prog_mask <= 2'b11;
@@ -79,13 +82,14 @@ jtbiocom_prom_we u_prom_we(
     .prog_data   (  dwnld_data   ),
     .prog_mask   (  dwnld_mask   ),
     .prog_we     (  dwnld_we     ),
+    .prog_ba     (  dwnld_ba     ),
     .prom_we     (  prom_we      ),
     .sdram_ack   (  sdram_ack    )
 );
 
 jtgng_obj32 #(
-    .OBJ_START ( 22'hC_0000 ),
-    .OBJ_END   ( 22'hE_0000 ))
+    .OBJ_START ( 22'h10_0000 ),
+    .OBJ_END   ( 22'h12_0000 ))
 u_obj32(
     .clk         (  clk          ),
     .downloading (  downloading  ),

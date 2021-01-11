@@ -41,7 +41,6 @@ module jtsf_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
 
     // Bank 0: allows R/W
     output   [21:0] ba0_addr,

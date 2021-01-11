@@ -38,22 +38,49 @@ module jtbiocom_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
+
+    // Bank 0: allows R/W
+    output   [21:0] ba0_addr,
+    output          ba0_rd,
+    output          ba0_wr,
+    output   [15:0] ba0_din,
+    output   [ 1:0] ba0_din_m,  // write mask
+    input           ba0_rdy,
+    input           ba0_ack,
+
+    // Bank 1: Read only
+    output   [21:0] ba1_addr,
+    output          ba1_rd,
+    input           ba1_rdy,
+    input           ba1_ack,
+
+    // Bank 2: Read only
+    output   [21:0] ba2_addr,
+    output          ba2_rd,
+    input           ba2_rdy,
+    input           ba2_ack,
+
+    // Bank 3: Read only
+    output   [21:0] ba3_addr,
+    output          ba3_rd,
+    input           ba3_rdy,
+    input           ba3_ack,
+
     input   [31:0]  data_read,
-    input           data_rdy,
-    input           sdram_ack,
     output          refresh_en,
+
     // ROM LOAD
-    input   [21:0]  ioctl_addr,
+    input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
+    output  [15:0]  prog_data,
     output  [ 1:0]  prog_mask,
+    output  [ 1:0]  prog_ba,
     output          prog_we,
     output          prog_rd,
+    input           prog_ack,
+    input           prog_rdy,
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
@@ -88,7 +115,7 @@ wire        char_busy, scr1_busy, scr2_busy;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
-wire [15:0] obj_data, obj_pre;
+wire [15:0] obj_data;
 wire [15:0] main_data;
 wire [ 7:0] snd_data;
 // MCU interface
@@ -109,7 +136,6 @@ wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        LHBL, LVBL;
 
-wire        rom_ready;
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
 wire        scr1_ok, scr2_ok, char_ok;
 wire        cen12, cen12b;
@@ -201,12 +227,13 @@ jtbiocom_dwnld u_dwnld(
     .prog_addr   ( prog_addr       ),
     .prog_we     ( prog_we         ),
     .prog_rd     ( prog_rd         ),
+    .prog_ba     ( prog_ba         ),
 
     .prom_we     ( prom_we         ),
     .sdram_dout  ( data_read[15:0] ),
     .dwnld_busy  ( dwnld_busy      ),
-    .sdram_ack   ( sdram_ack       ),
-    .data_ok     ( data_rdy        )
+    .sdram_ack   ( prog_ack        ),
+    .data_ok     ( prog_rdy        )
 );
 
 wire scr1_cs, scr2_cs;
@@ -483,101 +510,68 @@ assign scr2_addr = 0;
 assign char_addr = 0;
 `endif
 
-wire [ 7:0] scr_nc; // no connect
-
 // Scroll data: Z, Y, X
-jtframe_rom #(
-    .SLOT0_AW    ( 13              ), // Char
-    .SLOT0_DW    ( 16              ),
-    .SLOT0_OFFSET( 22'h4_8000 >> 1 ),
-
-    .SLOT1_AW    ( 17              ), // Scroll 1
-    .SLOT1_DW    ( 16              ),
-    .SLOT1_OFFSET( 22'h5_0000      ), // SCR and OBJ are not shifted
-
-    .SLOT2_AW    ( 15              ), // Scroll 2
-    .SLOT2_DW    ( 16              ),
-    .SLOT2_OFFSET( 22'h7_0000      ),
-
-    .SLOT6_AW    ( 15              ), // Sound
-    .SLOT6_DW    (  8              ),
-    .SLOT6_OFFSET( 22'h4_0000 >> 1 ),
-
-    .SLOT7_AW    ( 17              ), // Main
-    .SLOT7_DW    ( 16              ),
-    .SLOT7_OFFSET(  0              ),
-
-    .SLOT8_AW    ( 17              ), // OBJ. AD11 is disconnected in schematics
-    .SLOT8_DW    ( 16              ),
-    .SLOT8_OFFSET( 22'hC_0000      )
-) u_rom (
+jtbiocom_sdram u_sdram(
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
-    // .pause       ( pause         ),
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ),
-    .slot3_cs    ( 1'b0          ), // unused
-    .slot4_cs    ( 1'b0          ), // unused
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr1_ok       ),
-    .slot2_ok    ( scr2_ok       ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok0       ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr1_addr     ),
-    .slot2_addr  ( scr2_addr     ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr1_data     ),
-    .slot2_dout  ( scr2_data     ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_pre       ),
-
-    .ready       ( rom_ready     ),
-    // SDRAM interface
-    .sdram_req   ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_rdy    ( data_rdy      ),
-    .downloading ( dwnld_busy    ),
-    .loop_rst    ( loop_rst      ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    ),
-    // Unused
-    .slot3_addr  (               ),
-    .slot4_addr  (               ),
-    .slot5_addr  (               ),
-    .slot3_dout  (               ),
-    .slot4_dout  (               ),
-    .slot5_dout  (               ),
-    .slot3_ok    (               ),
-    .slot4_ok    (               ),
-    .slot5_ok    (               )
-);
-
-jtframe_avatar u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
+    .LVBL        ( LVBL          ),
     .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
+
+    .main_cs     ( main_cs       ),
+    .snd_cs      ( snd_cs        ),
+
+    .main_ok     ( main_ok       ),
+    .snd_ok      ( snd_ok        ),
+    .char_ok     ( char_ok       ),
+    .scr1_ok     ( scr1_ok       ),
+    .scr2_ok     ( scr2_ok       ),
+    .obj_ok      ( obj_ok        ),
+
+    .main_addr   ( main_addr     ),
+    .snd_addr    ( snd_addr      ),
+    .char_addr   ( char_addr     ),
+    .scr1_addr   ( scr1_addr     ),
+    .scr2_addr   ( scr2_addr     ),
+    .obj_addr    ( obj_addr      ),
+
+    .main_data   ( main_data     ),
+    .snd_data    ( snd_data      ),
+    .char_data   ( char_data     ),
+    .scr1_data   ( scr1_data     ),
+    .scr2_data   ( scr2_data     ),
+    .obj_data    ( obj_data      ),
+
+    // SDRAM interface
+    // Bank 0: allows R/W
+    .ba0_addr    ( ba0_addr      ),
+    .ba0_rd      ( ba0_rd        ),
+    .ba0_wr      ( ba0_wr        ),
+    .ba0_ack     ( ba0_ack       ),
+    .ba0_rdy     ( ba0_rdy       ),
+    .ba0_din     ( ba0_din       ),
+    .ba0_din_m   ( ba0_din_m     ),
+
+    // Bank 1: Read only
+    .ba1_addr    ( ba1_addr      ),
+    .ba1_rd      ( ba1_rd        ),
+    .ba1_ack     ( ba1_ack       ),
+    .ba1_rdy     ( ba1_rdy       ),
+
+    // Bank 2: Read only
+    .ba2_addr    ( ba2_addr      ),
+    .ba2_rd      ( ba2_rd        ),
+    .ba2_ack     ( ba2_ack       ),
+    .ba2_rdy     ( ba2_rdy       ),
+
+    // Bank 3: Read only
+    .ba3_addr    ( ba3_addr      ),
+    .ba3_rd      ( ba3_rd        ),
+    .ba3_ack     ( ba3_ack       ),
+    .ba3_rdy     ( ba3_rdy       ),
+
+    .data_read   ( data_read     ),
+    .refresh_en  ( refresh_en    )
 );
 
 endmodule
