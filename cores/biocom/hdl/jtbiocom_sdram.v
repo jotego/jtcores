@@ -82,6 +82,7 @@ module jtbiocom_sdram(
 
 localparam [21:0] ZERO_OFFSET = 22'd0,
                   SCR1_OFFSET = 22'h10_0000,
+                  SCR2_OFFSET = 22'h02_0000,
                    OBJ_OFFSET = 22'h10_0000;
 
 assign ba0_wr = 0;
@@ -170,7 +171,7 @@ jtframe_rom_2slots #(
     // Slot 0: Scroll 2
     .SLOT0_AW    ( 15            ),
     .SLOT0_DW    ( 16            ),
-    .SLOT0_OFFSET( ZERO_OFFSET   ),
+    .SLOT0_OFFSET( SCR2_OFFSET   ),
 
     // Slot 1: Obj
     .SLOT1_AW    ( 17            ),
