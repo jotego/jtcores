@@ -158,8 +158,9 @@ jtframe_cen48 u_cen48(
     .cen4   (               ),
     .cen4_12(               ),
     .cen3   (               ),
-    .cen3q  (               ),
     .cen3b  (               ),
+    .cen3q  (               ),
+    .cen3qb (               ),
     .cen1p5 (               ),
     .cen1p5b(               )
 );
@@ -176,9 +177,16 @@ jtframe_cen24 u_cen24(
     .cen12  ( cen12     ),
     .cen12b ( cen12b    ),
     .cen6   ( mcu_cen   ),
-    .cen6b  (           ),
     .cen3   ( cen3      ),
-    .cen1p5 (           )
+    // Unused:
+    .cen6b  (           ),
+    .cen1p5 (           ),
+    .cen1p5b(           ),
+    .cen8   (           ),
+    .cen4   (           ),
+    .cen3q  (           ),
+    .cen3b  (           ),
+    .cen3qb (           )
 );
 
 
@@ -219,7 +227,7 @@ jtbiocom_dwnld u_dwnld(
     .downloading ( downloading     ),
 
     .ioctl_wr    ( ioctl_wr        ),
-    .ioctl_addr  ( ioctl_addr      ),
+    .ioctl_addr  ( ioctl_addr[21:0]),
     .ioctl_data  ( ioctl_data      ),
 
     .prog_data   ( prog_data       ),
@@ -362,7 +370,7 @@ jtbiocom_mcu u_mcu(
     .snd_mcu_rd ( snd_mcu_rd    ),
     // ROM programming
     .prog_addr  ( prog_addr[11:0] ),
-    .prom_din   ( prog_data       ),
+    .prom_din   ( prog_data[7:0]  ),
     .prom_we    ( prom_mcu_we     )
 );
 `else

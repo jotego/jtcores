@@ -24,7 +24,7 @@ module jtbiocom_dwnld(
     input      [ 7:0]    ioctl_data,
     input                ioctl_wr,
     output reg [21:0]    prog_addr,
-    output reg [ 7:0]    prog_data,
+    output     [15:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg [ 1:0]    prog_ba,
     output reg           prog_we,
@@ -42,21 +42,24 @@ wire [21:0]  dwnld_addr, obj_addr;
 wire [ 7:0]  dwnld_data, obj_data;
 wire [ 1:0]  dwnld_mask, obj_mask, dwnld_ba;
 wire         dwnld_we, obj_we;
+reg  [ 7:0]  pre_data;
 
 reg          last_convert;
+
+assign prog_data = {2{pre_data}};
 
 always @(posedge clk) begin
     last_convert <= convert;
     if( downloading ) begin
         prog_addr <= dwnld_addr;
-        prog_data <= dwnld_data;
+        pre_data  <= dwnld_data;
         prog_mask <= dwnld_mask;
         prog_we   <= dwnld_we;
         prog_ba   <= dwnld_ba;
         dwnld_busy<= 1'b1;
     end else if(convert) begin
         prog_addr <= obj_addr;
-        prog_data <= obj_data;
+        pre_data  <= obj_data;
         prog_mask <= obj_mask;
         prog_we   <= obj_we;
         prog_ba   <= 2'b11;

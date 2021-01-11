@@ -9,49 +9,48 @@
 ../../hdl/jtbiocom_sdram.v
 # ../../hdl/jtbiocom_bus.v
 ../../hdl/jtbiocom_dwnld.v
-../../../modules/fx68k/fx68kAlu.sv
-../../../modules/fx68k/fx68k.sv
-../../../modules/fx68k/uaddrPla.sv
-../../../modules/jt12/hdl/jt12_rst.v
+$MODULES/fx68k/fx68kAlu.sv
+$MODULES/fx68k/fx68k.sv
+$MODULES/fx68k/uaddrPla.sv
+$MODULES/jt12/hdl/jt12_rst.v
 
-../../../modules/jtframe/hdl/cpu/jtframe_z80.v
-../../../modules/jtframe/hdl/cpu/jtframe_68kdma.v
-../../../modules/jtframe/hdl/jtframe_z80wait.v
-../../../modules/jtframe/hdl/ram/jtframe_prom.v
-../../../modules/jtframe/hdl/ram/jtframe_ram.v
-../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
-../../../modules/jtframe/hdl/clocking/jtframe_cencross_strobe.v
-../../../modules/jtframe/hdl/clocking/jtframe_cen24.v
-../../../modules/jtframe/hdl/video/jtframe_blank.v
+$JTFRAME/hdl/cpu/jtframe_z80.v
+$JTFRAME/hdl/cpu/jtframe_68kdma.v
+$JTFRAME/hdl/jtframe_z80wait.v
+$JTFRAME/hdl/ram/jtframe_prom.v
+$JTFRAME/hdl/ram/jtframe_ram.v
+$JTFRAME/hdl/ram/jtframe_dual_ram.v
+$JTFRAME/hdl/clocking/jtframe_cencross_strobe.v
+$JTFRAME/hdl/clocking/jtframe_cen24.v
+$JTFRAME/hdl/video/jtframe_blank.v
 
-../../../modules/jtgng_avatar.v
-../../../modules/jtgng_avatar_pal.v
-../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
-../../../modules/jtgng_charmsg.v
-../../../modules/jtgng_char.v
-../../../modules/jtgng_dual_ram.v
-../../../modules/jtgng_multiram.v
-../../../modules/jtgng_objbuf.v
-../../../modules/jtgng_objdma.v
-../../../modules/jtgng_objdraw.v
-../../../modules/jtgng_objpxl.v
-../../../modules/jtgng_objcnt.v
-../../../modules/jtgng_obj.v
-../../../modules/jtgng_obj32.v
-../../../modules/jtgng_scroll.v
-../../../modules/jtgng_tile3.v
-../../../modules/jtgng_tile4.v
-../../../modules/jtgng_tilemap.v
-../../../modules/jtgng_timer.v
-../../../modules/jtgng_true_dual_ram.v
+$MODULES/jtgng_avatar.v
+$MODULES/jtgng_avatar_pal.v
+$JTFRAME/hdl/clocking/jtframe_cen48.v
+$MODULES/jtgng_charmsg.v
+$MODULES/jtgng_char.v
+$MODULES/jtgng_dual_ram.v
+$MODULES/jtgng_multiram.v
+$MODULES/jtgng_objbuf.v
+$MODULES/jtgng_objdma.v
+$MODULES/jtgng_objdraw.v
+$MODULES/jtgng_objpxl.v
+$MODULES/jtgng_objcnt.v
+$MODULES/jtgng_obj.v
+$MODULES/jtgng_obj32.v
+$MODULES/jtgng_scroll.v
+$MODULES/jtgng_tile3.v
+$MODULES/jtgng_tile4.v
+$MODULES/jtgng_tilemap.v
+$MODULES/jtgng_timer.v
+$MODULES/jtgng_true_dual_ram.v
 # SDRAM
-../../../modules/jtframe/hdl/jtframe_sh.v
-../../../modules/jtframe/hdl/keyboard/jtframe_4wayjoy.v
-../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
-../../../modules/jtframe/hdl/sdram/jtframe_rom.v
-../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
+$JTFRAME/hdl/jtframe_sh.v
+$JTFRAME/hdl/keyboard/jtframe_4wayjoy.v
+$JTFRAME/hdl/sdram/jtframe_avatar.v
+-F $JTFRAME/hdl/sdram/jtframe_sdram_bank.f
 # Arcade video
-# ../../../modules/jtframe/hdl/mister/template/sys/arcade_video.v
-# ../../../modules/jtframe/hdl/mister/template/sys/video_mixer.sv
-# ../../../modules/jtframe/hdl/mister/sync_fix.sv
+# $JTFRAME/hdl/mister/template/sys/arcade_video.v
+# $JTFRAME/hdl/mister/template/sys/video_mixer.sv
+# $JTFRAME/hdl/mister/sync_fix.sv
 

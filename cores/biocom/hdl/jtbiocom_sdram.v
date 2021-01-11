@@ -84,7 +84,7 @@ localparam [21:0] ZERO_OFFSET = 22'd0,
                   SCR1_OFFSET = 22'h10_0000,
                    OBJ_OFFSET = 22'h10_0000;
 
-assign ba0_wr = 1;
+assign ba0_wr = 0;
 assign refresh_en = ~LVBL;
 
 wire        obj_ok0;
@@ -134,7 +134,7 @@ jtframe_rom_1slot #(
 // Bank 2: Char/SCR1
 jtframe_rom_2slots #(
     // Slot 0: Char
-    .SLOT0_AW    ( 12            ),
+    .SLOT0_AW    ( 13            ),
     .SLOT0_DW    ( 16            ),
     .SLOT0_OFFSET( ZERO_OFFSET   ),
 
