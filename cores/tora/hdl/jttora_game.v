@@ -64,6 +64,7 @@ module jttora_game(
     // Sound output
     output  signed [15:0] snd,
     output          sample,
+    output          game_led,
     input           enable_psg,
     input           enable_fm,
     // Debug
@@ -361,16 +362,6 @@ assign mcu_dout =  8'd0;
 
 
 `ifndef NOSOUND
-reg [7:0] psg_gain;
-always @(posedge clk) begin
-    case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h2F;
-        2'd2: psg_gain <= 8'h3F;
-        2'd3: psg_gain <= 8'h4F;
-    endcase // dip_fxlevel
-end
-
 jttora_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk24          ),
@@ -387,7 +378,7 @@ jttora_sound u_sound (
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
-    .psg_gain       ( psg_gain       ),
+    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -400,7 +391,8 @@ jttora_sound u_sound (
     .rom2_ok        ( snd2_ok        ),
     // sound output
     .ym_snd         ( snd            ),
-    .sample         ( sample         )
+    .sample         ( sample         ),
+    .peak           ( game_led       )
 );
 `else
 assign snd_addr  = 15'd0;

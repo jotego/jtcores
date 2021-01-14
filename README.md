@@ -46,6 +46,7 @@ Gun Smoke         |      |  X  |       |      |   X     |        |   X    |
 Higemaru          |      |  X  |       |      |         |        |   X    |
 Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
 Section Z         |      |  X  |       |      |   X     |        |   X    |
+Side Arms         |      |  X  |       |      |   X     |        |   X    |
 Street Fighter    |      |  X  |   X   |  X   |         |   X    |        |   X
 Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
 Trojan            |      |  X  |       |      |   X     |        |        |   X

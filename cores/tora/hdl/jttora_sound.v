@@ -32,7 +32,7 @@ module jttora_sound(
     // Sound control
     input           enable_psg,
     input           enable_fm,
-    input   [7:0]   psg_gain,
+    input   [ 1:0]  psg_level,
     // ROM
     output  [14:0]  rom_addr,
     output          rom_cs,
@@ -45,20 +45,24 @@ module jttora_sound(
     input           rom2_ok,
 
     // Sound output
-    output  reg signed [15:0] ym_snd,
-    output  sample
+    output signed [15:0] ym_snd,
+    output          sample,
+    output  reg     peak
 );
 
 wire signed [15:0] fm_snd;
 wire signed [11:0] adpcm_snd;
 wire        [ 7:0] snd2_latch;
+wire               fm_peak, mix_peak;
 
 // It looks like the sound CPU never interacts with the MCU
 // So I do not bother to fully connect it
 assign snd_mcu_wr = 1'b0;
 assign snd_dout   = 8'd0;
 
-jtgng_sound #(.LAYOUT(3)) u_fmcpu (
+always @(posedge clk) peak <= mix_peak | fm_peak;
+
+jtgng_sound #(.LAYOUT(3),.FM_GAIN(8'h10)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cenfm        ),
@@ -73,16 +77,32 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
-    .psg_gain   (  psg_gain     ),
+    .psg_level  (  psg_level    ),
     .rom_addr   (  rom_addr     ),
     .rom_cs     (  rom_cs       ),
     .rom_data   (  rom_data     ),
     .rom_ok     (  rom_ok       ),
     .ym_snd     (  fm_snd       ),
-    .sample     (  sample       )
+    .sample     (  sample       ),
+    .peak       (  fm_peak      )
 );
 
 `ifndef F1DREAM
+reg [7:0] pcm_gain;
+
+always @(posedge clk) begin
+    if( !enable_psg )
+        pcm_gain <= 8'h0;
+    else begin
+        case( psg_level )
+            2'd0: pcm_gain <= 8'h04;
+            2'd1: pcm_gain <= 8'h08;
+            2'd2: pcm_gain <= 8'h10;
+            2'd3: pcm_gain <= 8'h20;
+        endcase
+    end
+end
+
 jttora_adpcm u_adpcmcpu(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -99,15 +119,31 @@ jttora_adpcm u_adpcmcpu(
     .snd        ( adpcm_snd     )
 );
 
-always @(posedge clk) begin
+wire [7:0] fm_gain = jap ? 8'h08 : 8'h10;
+
+jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cenfm     ),
+    // input signals
+    .ch0    ( fm_snd    ),
+    .ch1    ( adpcm_snd ),
+    .ch2    ( 16'd0     ),
+    .ch3    ( 16'd0     ),
+    // gain for each channel in 4.4 fixed point format
     // adpcm_snd doesn't seem to be used in its full dynamic range
     // so I can multiply by x2
-    ym_snd <= jap ? (fm_snd>>>1) + {adpcm_snd[10:0],5'd0} : fm_snd;
-end
-
+    .gain0  ( 8'h10     ),
+    .gain1  ( pcm_gain  ),
+    .gain2  ( 8'h00     ),
+    .gain3  ( 8'h00     ),
+    .mixed  ( ym_snd    ),
+    .peak   ( mix_peak  )
+);
 `else
 // F1 Dream does not have the ADPCM section
-always @(*) ym_snd = fm_snd;
+assign ym_snd   = fm_snd;
+assign mix_peak = 0;
 `endif
 
-endmodule // jtgng_sound
+endmodule

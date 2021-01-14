@@ -64,6 +64,7 @@ module jthige_game(
     // Sound output
     output  [15:0]  snd,
     output          sample,
+    output          game_led,
     input           enable_psg, // unused
     input           enable_fm,  // unused
     // Debug

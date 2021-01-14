@@ -22,6 +22,7 @@ module jtsf_sound #(
 ) (
     input              rst,
     input              clk,
+    input       [ 1:0] pcm_level,
     // Interface with main CPU
     input       [ 7:0] snd_latch,
     input              snd_nmi_n,
@@ -39,26 +40,38 @@ module jtsf_sound #(
     // Sound output
     output signed [15:0] left,
     output signed [15:0] right,
-    output               sample
+    output               sample,
+    output reg           peak
 );
 
 // Sound effects via FM seem too loud compared to music
 // but that's the way the game is
 // Some PCM samples seem to have been recorded with clipping
 localparam [7:0] FM_GAIN  = 8'h08;
-localparam [7:0] PCM_GAIN = 8'h08;
 
 wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 
 wire               cen_fm, cen_fm2, cenp384;
 wire               cen3, cen_alt, cen3p5, cen1p7 ;
+reg         [ 7:0] pcm_gain;
 
 assign cen_alt = cen3;
 //assign cen_fm  = cen3;
 //assign cen_fm2 = cen1p5;
 assign cen_fm  = cen3p5;
 assign cen_fm2 = cen1p7;
+
+always @(posedge clk) peak <= peak_l | peak_r;
+
+always @(posedge clk) begin
+    case( pcm_level )
+        2'd0: pcm_gain <= 8'h04;
+        2'd1: pcm_gain <= 8'h06;
+        2'd2: pcm_gain <= 8'h08;
+        2'd3: pcm_gain <= 8'h0C;
+    endcase
+end
 
 jtframe_cen24 u_cenalt(
     .clk    ( clk       ),
@@ -132,6 +145,7 @@ jtsf_adpcm u_adpcmcpu(
 );
 
 jtframe_mixer #(.W0(16),.W1(13)) u_left_mix(
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen_fm2   ),
     // input signals
@@ -141,13 +155,15 @@ jtframe_mixer #(.W0(16),.W1(13)) u_left_mix(
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FM_GAIN   ),
-    .gain1  ( PCM_GAIN  ),
+    .gain1  ( pcm_gain  ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
-    .mixed  ( left      )
+    .mixed  ( left      ),
+    .peak   ( peak_l    )
 );
 
 jtframe_mixer #(.W0(16),.W1(13)) u_right_mix(
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen_fm2   ),
     // input signals
@@ -157,10 +173,11 @@ jtframe_mixer #(.W0(16),.W1(13)) u_right_mix(
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( FM_GAIN   ),
-    .gain1  ( PCM_GAIN  ),
+    .gain1  ( pcm_gain  ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
-    .mixed  ( right     )
+    .mixed  ( right     ),
+    .peak   ( peak_r    )
 );
 
 

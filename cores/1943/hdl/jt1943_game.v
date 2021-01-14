@@ -64,6 +64,7 @@ module jt1943_game(
     // Sound output
     output  [15:0]  snd,
     output          sample,
+    output          game_led,
     input           enable_fm,
     input           enable_psg,
     // Debug
@@ -286,17 +287,7 @@ wire        snd_cs;     // unused at this level
 always @(posedge clk)
     snd_data <= snd_addr[14] ? snd_data1 : snd_data0;
 
-reg [7:0] psg_gain;
-always @(posedge clk) begin
-    case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h2F;
-        2'd2: psg_gain <= 8'h3F;
-        2'd3: psg_gain <= 8'h4F;
-    endcase // dip_fxlevel
-end
-
-jtgng_sound #(.FM_GAIN(8'h20)) u_sound (
+jtgng_sound u_sound (
     .rst            ( rst        ),
     .clk            ( clk        ),
     .cen3           ( cen3       ),
@@ -308,7 +299,7 @@ jtgng_sound #(.FM_GAIN(8'h20)) u_sound (
     // sound control
     .enable_psg     ( enable_psg ),
     .enable_fm      ( enable_fm  ),
-    .psg_gain       ( psg_gain   ),
+    .psg_level      ( dip_fxlevel),
     // ROM
     .rom_addr       ( snd_addr   ),
     .rom_data       ( snd_data   ),
@@ -316,7 +307,8 @@ jtgng_sound #(.FM_GAIN(8'h20)) u_sound (
     .rom_ok         ( 1'b1       ),
     // sound output
     .ym_snd         ( snd        ),
-    .sample         ( sample     )
+    .sample         ( sample     ),
+    .peak           ( game_led   )
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth

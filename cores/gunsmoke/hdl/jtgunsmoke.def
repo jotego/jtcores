@@ -7,8 +7,9 @@ VIDEO_WIDTH=256
 VIDEO_HEIGHT=224
 JTFRAME_MRA_DIP
 JTFRAME_OSD_FLIP
+JTFRAME_OSD_VOL
 AVATARS
- 
+
 [mist|sidi]
 #Uses easy scan2x to save resources
 #otherwise it won't fit

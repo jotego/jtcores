@@ -62,10 +62,11 @@ module jtbtiger_game(
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  signed [15:0] snd,
     output          sample,
+    output          game_led,
     input           enable_psg,
     input           enable_fm,
     // Debug
@@ -290,22 +291,12 @@ jtbtiger_mcu u_mcu(
     .prom_din   (  prog_data  ),
     .prom_we    (  prom_mcu   )
 );
-`else 
+`else
 assign mcu_dout = 8'hff;
 `endif
 
 `ifndef NOSOUND
-reg [7:0] psg_gain;
-always @(posedge clk) begin
-    case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h2F;
-        2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h4F;
-        2'd3: psg_gain <= 8'h5F;
-    endcase // dip_fxlevel
-end
-
-jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h38)) u_sound (
+jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cenfm          ),
@@ -317,7 +308,7 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h38)) u_sound (
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
-    .psg_gain       ( psg_gain       ),
+    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -325,8 +316,9 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h38)) u_sound (
     .rom_ok         ( snd_ok         ),
     // sound output
     .ym_snd         ( snd            ),
+    .sample         ( sample         ),
+    .peak           ( game_led       ),
     // Unused
-    .sample         (                ),
     .snd2_latch     (                )
 );
 `else
@@ -439,7 +431,7 @@ jtframe_rom #(
     // .pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( 1'b0          ), // unused 
+    .slot2_cs    ( 1'b0          ), // unused
     .slot3_cs    ( 1'b0          ), // unused
     .slot4_cs    ( 1'b0          ), // unused
     .slot5_cs    ( 1'b0          ), // unused

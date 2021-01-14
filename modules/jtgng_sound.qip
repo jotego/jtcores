@@ -1,4 +1,4 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_sound.v                     ]
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) jt12/hdl/jt03.qip                 ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt12/jt49/hdl/filter/jt49_dcrm2.v ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jt12/hdl/mixer/jt12_mixer.v       ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtframe/hdl/sound/jtframe_mixer.v ]

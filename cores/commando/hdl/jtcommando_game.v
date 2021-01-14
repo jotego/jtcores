@@ -61,10 +61,11 @@ module jtcommando_game(
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB    
+    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
     output  signed [15:0] snd,
     output          sample,
+    output          game_led,
     input           enable_psg,
     input           enable_fm,
     // Debug
@@ -254,16 +255,6 @@ assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
-reg [7:0] psg_gain;
-always @(posedge clk) begin
-    case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h1F;
-        2'd1: psg_gain <= 8'h3F;
-        2'd2: psg_gain <= 8'h7F;
-        2'd3: psg_gain <= 8'hFF;
-    endcase // dip_fxlevel
-end
-
 jtgng_sound #(.LAYOUT(1)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -276,14 +267,16 @@ jtgng_sound #(.LAYOUT(1)) u_sound (
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
-    .psg_gain       ( psg_gain       ),
+    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_cs         ( snd_cs         ),
     .rom_ok         ( snd_ok         ),
     // sound output
-    .ym_snd         ( snd            )
+    .ym_snd         ( snd            ),
+    .sample         ( sample         ),
+    .peak           ( game_led       )
 );
 `else
 assign snd_addr = 15'd0;
@@ -396,7 +389,7 @@ jtframe_rom #(
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ), 
+    .slot2_cs    ( LVBL          ),
     .slot3_cs    ( 1'b0          ), // unused
     .slot4_cs    ( 1'b0          ), // unused
     .slot5_cs    ( 1'b0          ), // unused

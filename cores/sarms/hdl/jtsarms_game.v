@@ -64,6 +64,7 @@ module jtsarms_game(
     // Sound output
     output  signed [15:0] snd,
     output          sample,
+    output          game_led,
     input           enable_psg,
     input           enable_fm,
     // Debug
@@ -304,17 +305,7 @@ assign scr_vpos    = 16'd0;
 `endif
 
 `ifndef NOSOUND
-reg [7:0] psg_gain;
-always @(posedge clk) begin
-    case( dip_fxlevel )
-        2'd0: psg_gain <= 8'h10;
-        2'd1: psg_gain <= 8'h30;
-        2'd2: psg_gain <= 8'h70;
-        2'd3: psg_gain <= 8'hF0;
-    endcase // dip_fxlevel
-end
-
-jtgng_sound #(.LAYOUT(8),.FM_GAIN(8'h20)) u_sound (
+jtgng_sound #(.LAYOUT(8)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen4           ),
@@ -327,7 +318,7 @@ jtgng_sound #(.LAYOUT(8),.FM_GAIN(8'h20)) u_sound (
     // sound control
     .enable_psg     ( enable_psg     ),
     .enable_fm      ( enable_fm      ),
-    .psg_gain       ( psg_gain       ),
+    .psg_level      ( dip_fxlevel    ),
     // ROM
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
@@ -335,7 +326,8 @@ jtgng_sound #(.LAYOUT(8),.FM_GAIN(8'h20)) u_sound (
     .rom_ok         ( snd_ok         ),
     // sound output
     .ym_snd         ( snd            ),
-    .sample         (                )
+    .sample         ( sample         ),
+    .peak           ( game_led       )
 );
 `else
 assign snd_addr  = 15'd0;

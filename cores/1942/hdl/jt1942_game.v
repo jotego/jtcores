@@ -67,6 +67,7 @@ module jt1942_game(
     // Sound output
     output  [15:0]  snd,
     output          sample,
+    output          game_led,
     input           enable_psg, // unused
     input           enable_fm,  // unused
     // Debug
@@ -77,6 +78,7 @@ module jt1942_game(
 // to read back from SDRAM during the ROM download process
 assign prog_rd    = 1'b0;
 assign dwnld_busy = downloading;
+assign game_led   = 0;
 
 parameter CLK_SPEED=48;
 

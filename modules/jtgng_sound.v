@@ -42,7 +42,7 @@ module jtgng_sound(
     // Sound control
     input            enable_psg,
     input            enable_fm,
-    input   [7:0]    psg_gain,
+    input   [1:0]    psg_level,
     // ROM
     output  [14:0]   rom_addr,
     output  reg      rom_cs,
@@ -51,7 +51,8 @@ module jtgng_sound(
 
     // Sound output
     output  signed [15:0] ym_snd,
-    output  sample
+    output  sample,
+    output  peak
 );
 
 parameter       LAYOUT=0;
@@ -72,7 +73,7 @@ parameter       LAYOUT=0;
     //      -FM clock speed same as CPU
     //      -Different memory map from Tiger Road
 
-parameter [7:0] FM_GAIN=8'h40;
+parameter [7:0] FM_GAIN=8'h08;
 
 localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
 localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
@@ -87,6 +88,21 @@ wire        mreq_n, rfsh_n;
 assign rom_addr   = A[14:0];
 // assign snd_dout   = dout;
 // assign snd_mcu_wr = 1'b0;
+
+reg [7:0] psg_gain;
+
+always @(posedge clk) begin
+    if( !enable_psg )
+        psg_gain <= 8'h0;
+    else begin
+        case( psg_level )
+            2'd0: psg_gain <= 8'h04;
+            2'd1: psg_gain <= 8'h08;
+            2'd2: psg_gain <= 8'h10;
+            2'd3: psg_gain <= 8'h20;
+        endcase
+    end
+end
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -308,21 +324,25 @@ jt49_dcrm2 #(.sw(11)) u_dcrm (
     .dout   (  psg2x  )
 );
 
-wire signed [7:0] psg_gain2 = enable_psg ? psg_gain : 8'h0;
 wire signed [7:0]  fm_gain2 = enable_fm  ?  FM_GAIN : 8'h0;
 
-jt12_mixer #(.w0(16),.w1(16),.w2(15),.w3(8),.wout(16)) u_mixer(
+jtframe_mixer #(.W2(11)) u_mixer(
+    .rst    ( rst          ),
     .clk    ( clk          ),
     .cen    ( cenfm        ),
+
     .ch0    ( fm0_snd      ),
     .ch1    ( fm1_snd      ),
-    .ch2    ( {psg2x, 4'b0}),
-    .ch3    ( 8'd0         ),
+    .ch2    ( psg2x        ),
+    .ch3    ( 16'd0        ),
+
     .gain0  ( fm_gain2     ),
     .gain1  ( fm_gain2     ),
-    .gain2  ( psg_gain2    ),
+    .gain2  ( psg_gain     ),
     .gain3  ( 8'd0         ),
-    .mixed  ( ym_snd       )
+
+    .mixed  ( ym_snd       ),
+    .peak   ( peak         )
 );
 
 jt03 u_fm0(

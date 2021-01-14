@@ -29,7 +29,7 @@ module jttrojan_sound(
     // Sound control
     input           enable_psg,
     input           enable_fm,
-    input   [7:0]   psg_gain,
+    input   [1:0]   psg_level,
     // ROM
     output  [14:0]  rom_addr,
     output          rom_cs,
@@ -43,20 +43,32 @@ module jttrojan_sound(
 
     // Sound output
     output signed [15:0] ym_snd,
-    output          sample
+    output          sample,
+    output reg      peak
 );
 
 wire signed [15:0] fm_snd;
 wire signed [11:0] adpcm_snd;
 wire               cenp384; //  384 kHz
+wire               fm_peak, mix_peak;
+reg         [ 7:0] pcm_gain;
+
+always @(posedge clk) begin
+    peak <= fm_peak | mix_peak;
+    case( psg_level )
+        2'd0: pcm_gain <= 8'h04;
+        2'd1: pcm_gain <= 8'h08;
+        2'd2: pcm_gain <= 8'h10;
+        2'd3: pcm_gain <= 8'h20;
+    endcase
+end
 
 jtframe_cenp384 u_cenp384(
     .clk      ( clk       ),
     .cen_p384 ( cenp384   )
 );
 
-
-jtgng_sound #(.LAYOUT(0),.FM_GAIN(8'h20)) u_fmcpu (
+jtgng_sound #(.LAYOUT(0)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cen3         ),
@@ -67,13 +79,14 @@ jtgng_sound #(.LAYOUT(0),.FM_GAIN(8'h20)) u_fmcpu (
     .snd_int    (  snd_int      ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
-    .psg_gain   (  psg_gain     ),
+    .psg_level  (  psg_level    ),
     .rom_addr   (  rom_addr     ),
     .rom_cs     (  rom_cs       ),
     .rom_data   (  rom_data     ),
     .rom_ok     (  rom_ok       ),
     .ym_snd     (  fm_snd       ),
-    .sample     (  sample       )
+    .sample     (  sample       ),
+    .peak       (  fm_peak      )
 );
 
 jttora_adpcm #(.ADPCM_EXTRA(0))u_adpcmcpu(
@@ -93,6 +106,7 @@ jttora_adpcm #(.ADPCM_EXTRA(0))u_adpcmcpu(
 );
 
 jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
+    .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cen1p5    ),
     // input signals
@@ -102,10 +116,11 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
     .ch3    ( 16'd0     ),
     // gain for each channel in 4.4 fixed point format
     .gain0  ( 8'h10     ),
-    .gain1  ( 8'h20     ),
+    .gain1  ( pcm_gain  ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
-    .mixed  ( ym_snd    )
+    .mixed  ( ym_snd    ),
+    .peak   ( mix_peak  )
 );
 
-endmodule // jtgng_sound
+endmodule

@@ -92,6 +92,7 @@ module jtbiocom_game(
     output  signed [15:0] snd_left,
     output  signed [15:0] snd_right,
     output          sample,
+    output          game_led,
     input           enable_psg,
     input           enable_fm,
     // Debug
@@ -144,6 +145,7 @@ wire        video_cen8;
 wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign game_led = 0;
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals

@@ -94,6 +94,7 @@ module jtsf_game(
     output  signed [15:0] snd_left,
     output  signed [15:0] snd_right,
     output          sample,
+    output          game_led,
     input           enable_psg,
     input           enable_fm,
     // Debug
@@ -452,6 +453,7 @@ jtsf_sound #(
 ) u_sound (
     .rst            ( snd_rst        ),
     .clk            ( clk24          ),
+    .pcm_level      ( dip_fxlevel    ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),
     .snd_nmi_n      ( snd_nmi_n      ),
@@ -468,7 +470,8 @@ jtsf_sound #(
     // sound output
     .left           ( snd_left       ),
     .right          ( snd_right      ),
-    .sample         ( sample         )
+    .sample         ( sample         ),
+    .peak           ( game_led       )
 );
 `else
 assign snd1_addr = {SND1W{1'b0}};
