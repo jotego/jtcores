@@ -70,7 +70,8 @@ module jtgng_main(
 wire [15:0] A;
 wire waitn;
 wire nRESET;
-reg sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
+wire cen_E, cen_Q;
+reg  sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
 
 //`ifdef SIMULATION
 //reg dump_on = 1'b0;
@@ -251,11 +252,10 @@ always @(posedge clk) if(cen_Q) begin
         if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
 end
 
-wire cen_E, cen_Q;
 wire bus_busy = scr_busy | char_busy;
 
 jtframe_6809wait u_wait(
-    .rstn       ( nRESET    ), 
+    .rstn       ( nRESET    ),
     .clk        ( clk       ),
     .cen        ( cen6      ),
     .cpu_cen    ( cpu_cen   ),
@@ -289,7 +289,8 @@ mc6809i u_cpu (
     .RegData ( RegData )
     //.AVMA()
 );
-`ifdef SIMULATION
+
+`ifdef GNG_CPUDUMP
 wire [ 7:0] reg_a  = RegData[7:0];
 wire [ 7:0] reg_b  = RegData[15:8];
 wire [15:0] reg_x  = RegData[31:16];
@@ -306,7 +307,7 @@ integer ticks=0, last_ticks=0;
 initial begin
     fout = $fopen("m6809.log","w");
 end
-always @(negedge E) begin
+always @(negedge cen_E) begin
     last_regdata <= RegData[95:0];
     ticks <= ticks+1;
     if( last_regdata != RegData[95:0] ) begin

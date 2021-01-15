@@ -24,15 +24,9 @@ if [[ ! -e rg_ram.hex || ! -e b_ram.hex ]]; then
     done
 fi
 
-export GAME_ROM_PATH=../../../rom/JTGNG.rom
 export MEM_CHECK_TIME=90_000_000
 export CONVERT_OPTIONS="-resize 300%x300%"
 export YM2203=1
 
-echo convert $CONVERT_OPTIONS -size 256x240 \
-        -depth 8 RGBA:video.raw video.jpg > raw2jpg.sh
-chmod +x raw2jpg.sh
-
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH) -sysname gng \
-    -modules ../../../modules $*
+$JTFRAME/bin/sim.sh $MIST -sysname gng $*
