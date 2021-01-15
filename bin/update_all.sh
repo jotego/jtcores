@@ -14,7 +14,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-jtupdate -target "mist sidi" $NETWORK_MIST $OTHER
+jtupdate -target "mist sidi" $NETWORK_MIST $OTHER -jobs 5
 cp $JTROOT/log/update.log /tmp/update_mist.log
 jtupdate -mister $NETWORK_MISTER -jobs 2 $OTHER
 cat /tmp/update_mist.log >> $JTROOT/log/update.log
