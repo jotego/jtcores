@@ -102,7 +102,7 @@ wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 // ROM address
 wire [17:1] main_addr;
 wire [14:0] snd_addr;
-wire [13:0] snd2_addr;
+wire [15:0] snd2_addr;
 wire [13:0] map_addr;
 wire [13:0] char_addr;
 wire [18:0] scr_addr;
@@ -396,7 +396,7 @@ jttora_sound u_sound (
 );
 `else
 assign snd_addr  = 15'd0;
-assign snd2_addr = 14'd0;
+assign snd2_addr = 15'd0;
 assign snd_cs    = 1'b0;
 assign snd2_cs   = 1'b0;
 assign snd       = 16'b0;

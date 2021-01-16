@@ -37,8 +37,6 @@ module jttora_adpcm(
     output signed [11:0] snd
 );
 
-parameter ADPCM_EXTRA=1;
-
 // ADPCM CPU
 reg  last_rom2_cs, int_n;
 wire wr_n, rd_n, iorq_n, rfsh_n, mreq_n, m1_n;

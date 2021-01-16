@@ -62,7 +62,7 @@ assign snd_dout   = 8'd0;
 
 always @(posedge clk) peak <= mix_peak | fm_peak;
 
-jtgng_sound #(.LAYOUT(3),.FM_GAIN(8'h10)) u_fmcpu (
+jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cenfm        ),
