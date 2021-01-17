@@ -89,7 +89,7 @@ jtgng_sound #(.LAYOUT(0)) u_fmcpu (
     .peak       (  fm_peak      )
 );
 
-jttora_adpcm #(.ADPCM_EXTRA(0))u_adpcmcpu(
+jttora_adpcm u_adpcmcpu(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen3       ( cen3          ),
