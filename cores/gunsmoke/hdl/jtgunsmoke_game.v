@@ -58,6 +58,7 @@ module jtgunsmoke_game(
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           service,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -245,6 +246,7 @@ jtgunsmoke_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
+    .service     ( service      ),
     .joystick1   ( joystick1    ),
     .joystick2   ( joystick2    ),
     // DIP switches

@@ -86,6 +86,7 @@ module jtsf_game(
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           service,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -149,7 +150,6 @@ wire [15:0] char_dout, cpu_dout;
 wire [15:0] scr1posh, scr2posh;
 wire        rd, cpu_cen;
 wire        char_busy;
-wire        service = 1'b1;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data, obj_data;

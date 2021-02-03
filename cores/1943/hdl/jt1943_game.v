@@ -57,6 +57,7 @@ module jt1943_game(
     // DIP Switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           service,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -251,6 +252,7 @@ jt1943_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
+    .service     ( service      ),
     .joystick1   ( { joy1_btn, joystick1[3:0]}    ),
     .joystick2   ( { joy2_btn, joystick2[3:0]}    ),
     // DIP switches

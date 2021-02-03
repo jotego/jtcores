@@ -26,7 +26,7 @@ module jtbtiger_main(
     // Timing
     output  reg        flip,
     output  reg        blue_cs,
-    output  reg        redgreen_cs,    
+    output  reg        redgreen_cs,
     input   [8:0]      V,
     input              LHBL,
     input              LVBL,
@@ -74,6 +74,7 @@ module jtbtiger_main(
     input       [ 7:0] rom_data,
     input              rom_ok,
     // DIP switches
+    input              service,
     input              dip_pause,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
@@ -103,7 +104,7 @@ always @(*) begin
     blue_cs       = 1'b0;
     redgreen_cs   = 1'b0;
     if( rfsh_n && !mreq_n ) casez(A[15:13])
-        3'b0??: rom_cs = 1'b1; 
+        3'b0??: rom_cs = 1'b1;
         3'b10?: rom_cs = 1'b1; // banked ROM
         3'b110: // CXXX, DXXX
             casez(A[12:11])
@@ -195,7 +196,7 @@ always @(posedge clk)
             // bits 0,1 coin counters
             CHRON    <= ~cpu_dout[7];
             flip     <=  cpu_dout[6];
-            sres_b   <= ~cpu_dout[5]; // inverted through NPN            
+            sres_b   <= ~cpu_dout[5]; // inverted through NPN
         end
         if( en_cs ) begin
             SCRON    <= ~cpu_dout[1];
@@ -217,7 +218,8 @@ reg [7:0] cabinet_input;
 always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS IN0
-                     2'b11, // undocumented. D5 & D4 what are those?
+                     service, // undocumented. D5 & D4 what are those?
+                     1'b1,    // tilt?
                      1'b1,
                      1'b1,
                      start_button }; // START

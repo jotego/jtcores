@@ -64,6 +64,7 @@ module jt1943_main #(
     input   [6:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
+    input              service,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output  [ 7:0]     ram_dout,
@@ -264,7 +265,7 @@ wire [7:0] security;
 always @(*) begin
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
-                     ~2'h0, // undocumented. D5 & D4 what are those?
+                     service, 1'b1 /* tilt */, // undocumented. D5 & D4 what are those?
                             // service and tilt in Side Arms
                      ~LVBL,
                      GAME==1 ? wrerr_n : 1'b1, // /WRERR - palette write error (Side Arms)

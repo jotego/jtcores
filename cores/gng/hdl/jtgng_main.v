@@ -62,6 +62,7 @@ module jtgng_main(
     input       [ 7:0] rom_data,
     input              rom_ok,
     // DIP switches
+    input              service,
     input              dip_pause,
     input  [7:0]       dipsw_a,
     input  [7:0]       dipsw_b
@@ -189,7 +190,9 @@ reg [7:0] cabinet_input;
 always @(*)
     case( cpu_AB[3:0])
         4'd0: cabinet_input = { coin_input, // COINS
-                     4'hf, // undocumented. The game start screen has background when set to 0!
+                     service,
+                     1'b1, // tilt?
+                     2'h3, // undocumented. The game start screen has background when set to 0!
                      start_button }; // START
         4'd1: cabinet_input = { 2'b11, joystick1 };
         4'd2: cabinet_input = { 2'b11, joystick2 };

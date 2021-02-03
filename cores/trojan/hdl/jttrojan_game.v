@@ -56,6 +56,7 @@ module jttrojan_game(
     output          prog_rd,
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
+    input           service,
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
@@ -254,6 +255,7 @@ jtcommando_main #(.GAME(2)) u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
+    .service     ( service      ),
     .joystick1   ( joystick1[5:0] ),
     .joystick2   ( joystick2[5:0] ),
 

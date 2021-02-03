@@ -84,6 +84,7 @@ module jtbiocom_game(
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           service,     // unused in this game
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,

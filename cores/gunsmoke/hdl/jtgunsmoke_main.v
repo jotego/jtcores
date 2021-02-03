@@ -66,6 +66,7 @@ module jtgunsmoke_main(
     input       [ 7:0] rom_data,
     input              rom_ok,
     // DIP switches
+    input              service,
     input              dip_pause,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
@@ -108,8 +109,8 @@ always @(*) begin
                     char_cs = 1'b1; // D0CS
                 2'b11: // D8
                     if( !A[3] && !wr_n) case(A[2:0])
-                        3'b000: scrposh_cs = 2'b01; 
-                        3'b001: scrposh_cs = 2'b10; 
+                        3'b000: scrposh_cs = 2'b01;
+                        3'b001: scrposh_cs = 2'b10;
                         3'b010: scrposv_cs = 1'b1;
                         3'b110: gfxen_cs   = 1'b1;
 								default:;
@@ -164,7 +165,8 @@ reg [7:0] cabinet_input;
 always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
-                     2'b11, // undocumented. D5 & D4 what are those?
+                     1'b1,  // tilt?
+                     service,
                      ~LVBL, // This was like this on 1943, just leaving it the same for now
                      1'b1,
                      start_button }; // START

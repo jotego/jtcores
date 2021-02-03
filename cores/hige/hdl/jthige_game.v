@@ -57,6 +57,7 @@ module jthige_game(
     // DIP switches
     input   [31:0]  status,     // ignored
     input   [31:0]  dipsw,
+    input           service,    // unused
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,

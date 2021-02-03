@@ -300,7 +300,10 @@ always @(posedge clk) if(cpu_cen) begin
             2'b11, joystick2[5:0],
             2'b11, joystick1[5:0] };
         2'b01: cabinet_input <=
-            { coin_input, 3'b111, ~LVBL, start_button, 8'hff };
+            { coin_input,
+                service, // just a guess
+                2'b11,
+                ~LVBL, start_button, 8'hff };
         2'b10: cabinet_input <= { dipsw_a, dipsw_b };
     endcase
 end

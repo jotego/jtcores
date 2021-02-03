@@ -77,6 +77,7 @@ module jtcommando_main(
     input              prom_6l_we,
     input    [3:0]     prog_din,
     // DIP switches
+    input              service,
     input              dip_pause,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
@@ -235,9 +236,9 @@ reg [7:0] cabinet_input;
 always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
-                     2'b11, // undocumented. D5 & D4 what are those?
-                     1'b1,
-                     1'b1,
+                     4'hf,      // there doesn't seem to be a service input
+                                // Section Z seems to have a freeze input in
+                                // one of these four bits
                      start_button }; // START
         3'd1: cabinet_input = { 2'b11, joystick1 };
         3'd2: cabinet_input = { 2'b11, joystick2 };

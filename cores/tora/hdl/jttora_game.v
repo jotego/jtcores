@@ -57,6 +57,7 @@ module jttora_game(
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           service,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -85,7 +86,6 @@ wire        flip;
 wire [15:0] char_dout, cpu_dout;
 wire        rd, cpu_cen;
 wire        char_busy;
-wire        service = 1'b1;
 
 // ROM data
 wire [15:0] char_data, scr_data, obj_data, obj_pre;

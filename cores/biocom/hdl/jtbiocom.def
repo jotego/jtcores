@@ -12,7 +12,7 @@ JTFRAME_SDRAM_BANKS
 [mist|sidi]
 # Sound doesn't fit in small devices
 #NOSOUND
-OSD_NOBCK
+JTFRAME_OSD_NOLOGO
 VIDEO_WIDTH=384
 JTFRAME_SCAN2X
 

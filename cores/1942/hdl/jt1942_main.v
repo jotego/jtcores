@@ -55,6 +55,7 @@ module jt1942_main(
     input   [5:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
+    input              service,
     // BUS sharing
     output  [12:0]     cpu_AB,
     output             rd_n,
@@ -166,7 +167,7 @@ always @(posedge clk)
         if( flip_cs ) begin
             `ifdef VULGUS
             flip     <=  cpu_dout[7] ^ ~dip_flip; // Vulgus doesn't have a real dip_flip
-            `else 
+            `else
             flip     <=  cpu_dout[7];
             `endif
             sres_b   <= ~cpu_dout[4];
@@ -193,7 +194,9 @@ reg [7:0] cabinet_input;
 always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input[0], coin_input[1], // COINS
-                     4'hf, // undocumented. The game start screen has background when set to 0!
+                     1'd1, // Tilt ?
+                     service,
+                     2'b11, // undocumented. The game start screen has background when set to 0!
                      start_button }; // START
         3'd1: cabinet_input = { 2'b11, joystick1 };
         3'd2: cabinet_input = { 2'b11, joystick2 };
@@ -275,7 +278,7 @@ always @(posedge clk)
         LHBL_old<=LHBL;
         if( irq_ack )
             int_n <= 1'b1;
-        else if(LHBL && !LHBL_old && int_ctrl[3]) 
+        else if(LHBL && !LHBL_old && int_ctrl[3])
             int_n <= ~dip_pause;
     end
 

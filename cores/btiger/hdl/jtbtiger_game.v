@@ -59,6 +59,7 @@ module jtbtiger_game(
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           service,
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
@@ -256,6 +257,7 @@ jtbtiger_main u_main(
     // Cabinet input
     .start_button( start_button ),
     .coin_input  ( coin_input   ),
+    .service     ( service      ),
     .joystick1   ( joystick1[5:0] ),
     .joystick2   ( joystick2[5:0] ),
 
