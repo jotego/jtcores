@@ -20,7 +20,7 @@ JTFRAME_SCAN2X
 
 [sidi]
 # necessary to make it fit
-OSD_NOBCK
+JTFRAME_OSD_NOLOGO
 
 [mister]
 AVATARS
