@@ -101,7 +101,6 @@ jtframe_rom_1slot #(
 
     .slot0_cs    ( main_cs       ),
     .slot0_ok    ( main_ok       ),
-    .slot0_offset( ZERO_OFFSET   ),
     .slot0_addr  ( main_addr     ),
     .slot0_dout  ( main_data     ),
 
@@ -122,7 +121,6 @@ jtframe_rom_1slot #(
 
     .slot0_cs    ( snd_cs        ),
     .slot0_ok    ( snd_ok        ),
-    .slot0_offset( ZERO_OFFSET   ),
     .slot0_addr  ( snd_addr      ),
     .slot0_dout  ( snd_data      ),
 
