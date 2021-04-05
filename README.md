@@ -14,22 +14,23 @@ I hope you will have as much fun with it as I had it while making it!
 
 In chronological order:
 
- 1. Vulgus           (doc/jtvulgus.txt)
- 2. Higemaru         (doc/jthige.txt)
- 3. 1942             (doc/jt1942.txt)
- 4. Commando         (doc/jtcommando.txt)
- 5. Ghosts'n Goblins (doc/jtgng.txt)
- 6. SectionZ         (doc/jtsectionz.txt)
- 7. GunSmoke         (doc/jtgunsmoke.txt)
- 8. Legendary Wings  (doc/jtsectionz.txt)
- 9. Trojan           (doc/jttrojan.txt)
-10. 1943             (doc/jt1943.txt)
-11. Black Tiger      (doc/jtbtiger.txt)
-12. Side Arms        (doc/jtsarms.txt)
-13. Tiger Road       (doc/jttora.txt)
-14. F1-Dream         (doc/jtf1dream.txt)
-15. Bionic Commando  (doc/jtbiocom.txt)
-16. Street Fighter   (doc/jtsf.txt)
+ 1. Vulgus            (doc/jtvulgus.txt)
+ 2. Higemaru          (doc/jthige.txt)
+ 3. 1942              (doc/jt1942.txt)
+ 4. Commando          (doc/jtcommando.txt)
+ 5. Ghosts'n Goblins  (doc/jtgng.txt)
+ 6. SectionZ          (doc/jtsectionz.txt)
+ 7. GunSmoke          (doc/jtgunsmoke.txt)
+ 8. Legendary Wings   (doc/jtsectionz.txt)
+ 9. Trojan            (doc/jttrojan.txt)
+10. The Speed Rumbler (doc/jtrumble.txt)
+11. 1943              (doc/jt1943.txt)
+12. Black Tiger       (doc/jtbtiger.txt)
+13. Side Arms         (doc/jtsarms.txt)
+14. Tiger Road        (doc/jttora.txt)
+15. F1-Dream          (doc/jtf1dream.txt)
+16. Bionic Commando   (doc/jtbiocom.txt)
+17. Street Fighter    (doc/jtsf.txt)
 
 ### Dependencies
 
@@ -48,6 +49,7 @@ Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
 Section Z         |      |  X  |       |      |   X     |        |   X    |
 Side Arms         |      |  X  |       |      |   X     |        |   X    |
 Street Fighter    |      |  X  |   X   |  X   |         |   X    |        |   X
+The Speed Rumbler |  X   |  X  |       |      |   X     |        |   X    |
 Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
 Trojan            |      |  X  |       |      |   X     |        |        |   X
 Vulgus            |      |  X  |       |      |         |        |   X    |

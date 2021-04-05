@@ -27,6 +27,7 @@ module jtgng_tile4 #(parameter
                       // 7: Trojan SCR2
                       // 8: Side Arms
                       // 9: Street Fighter
+                      //10: The Speed Rumbler
     SIMFILE_MSB = "",
     SIMFILE_LSB = "",
     DW          = LAYOUT==9 ? 16:8,
@@ -120,10 +121,12 @@ always @(*) begin
             scr_hflip = attr[8]^flip;
             scr_vflip = attr[9];
         end
+        10: begin // The Speed Rumbler
+            scr_hflip = 0;
+            scr_vflip = attr[3]^flip;
+        end
     endcase
 end
-
-//wire load_tile = /*LAYOUT==1 ? HS[3:0]==4'd1 :*/ HS[2:0]==3'd1;
 
 // Set input for ROM reading
 always @(posedge clk) if(cen6) begin
@@ -163,7 +166,6 @@ always @(posedge clk) if(cen6) begin
                         HS[3]^scr_hflip,
                         SV[3:0]^{4{flip}},
                         HS[2]^scr_hflip };
-            scr_hflip0 <= scr_hflip;
         end
         5: begin // Legendary Wings, Section Z, 16x16 tiles
             scr_attr0  <= attr[2:0];
@@ -171,7 +173,6 @@ always @(posedge clk) if(cen6) begin
                         HS[3]^(scr_hflip^flip),
                         SV[3:0]^{4{scr_vflip}},
                         HS[2]^scr_hflip };
-            scr_hflip0 <= scr_hflip;
         end
         6: begin // Trojan, 16x16 tiles - SCR1
             scr_attr0  <= attr[3:0];
@@ -179,7 +180,6 @@ always @(posedge clk) if(cen6) begin
                         HS[3]^(scr_hflip^flip),
                         SV[3:0],
                         HS[2]^scr_hflip };
-            scr_hflip0 <= scr_hflip;
         end
         7: begin // Trojan, 16x16 tiles - SCR2
             scr_attr0  <= attr[2:0];
@@ -187,7 +187,6 @@ always @(posedge clk) if(cen6) begin
                         HS[3]^(scr_hflip^flip),
                         SV[3:0]^{4{scr_vflip}},
                         HS[2]^scr_hflip };
-            scr_hflip0 <= scr_hflip;
         end
         8: begin // Side Arms, 32x32 tiles, 256kBytes in 16 bits = 2^17 words
             scr_attr0 <= attr[7:3];
@@ -195,7 +194,6 @@ always @(posedge clk) if(cen6) begin
                             HS[4:3]^{2{scr_hflip^flip}},
                             SV[4:0]^{5{scr_vflip}},
                             HS[2]^scr_hflip };
-            scr_hflip0 <= scr_hflip;
         end
         9: begin // Street Fighter, 16x16 tiles
             scr_attr0 <= attr[3:0]; // how many bits?
@@ -203,7 +201,13 @@ always @(posedge clk) if(cen6) begin
                        HS[3]^(scr_hflip^flip),
                        SV[3:0]^{4{scr_vflip}},
                        HS[2]^scr_hflip };
-            scr_hflip0<= scr_hflip;
+        end
+        10: begin // The Speed Rumbler
+            scr_attr0  <= attr[7:4];
+            scr_addr   <= { attr[2:0], id, // AS=3+8+6=17 bits
+                        HS[3]^(scr_hflip^flip),
+                        SV[3:0]^{4{scr_vflip}},
+                        HS[2]^scr_hflip };
         end
         endcase
         scr_hflip0 <= scr_hflip;
@@ -218,7 +222,7 @@ always @(posedge clk) if(cen6) begin
             0,2,3,8: if(HS[2:0]==3'b101 ) begin
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
-            4,5,6,7,9: begin // 16x16 Black Tiger, Section Z, Legendary Wings, Trojan, Street Fighter
+            4,5,6,7,9,10: begin // 16x16 Black Tiger, Section Z, Legendary Wings, Trojan, Street Fighter
                 scr_addr[5] <= HS[3]^(scr_hflip0^flip);
                 scr_addr[0] <= HS[2]^scr_hflip0;
             end
