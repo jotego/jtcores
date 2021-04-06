@@ -104,6 +104,7 @@ module jtrumble_game(
 
 localparam MAINW=18, RAMW=13, CHARW2=13, SCRW=17, OBJW=17;
 
+wire [ 8:0] vdump;
 // ROM data
 wire [15:0] char_data;
 wire [15:0] scr_data;
@@ -126,21 +127,21 @@ wire [ 1:0] prom_banks;
 wire        prom_prior_we;
 
 jtframe_cen48 u_cen48(
-    .clk    ( clk           ),
-    .cen16  ( pxl2_cen      ),
-    .cen12  (               ),
-    .cen12b (               ),
-    .cen8   ( pxl_cen       ),
-    .cen6   (               ),
-    .cen6b  (               ),
-    .cen4   (               ),
-    .cen4_12(               ),
-    .cen3   (               ),
-    .cen3q  (               ),
-    .cen3qb (               ),
-    .cen3b  (               ),
-    .cen1p5 (               ),
-    .cen1p5b(               )
+    .clk    ( clk      ),
+    .cen16  ( pxl2_cen ),
+    .cen12  (          ),
+    .cen12b (          ),
+    .cen8   ( pxl_cen  ),
+    .cen6   (          ),
+    .cen6b  (          ),
+    .cen4   ( cenfm    ),
+    .cen4_12(          ),
+    .cen3   (          ),
+    .cen3q  (          ),
+    .cen3qb (          ),
+    .cen3b  (          ),
+    .cen1p5 (          ),
+    .cen1p5b(          )
 );
 
 jtrumble_video #(
@@ -155,9 +156,7 @@ u_video(
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
-    .game_sel   ( game_cfg[0]   ),
-    .V          ( V[7:0]        ),
-    .H          ( H             ),
+    .V          ( vdump         ),
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
@@ -199,10 +198,10 @@ u_video(
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
-    .LVBL_obj   ( LVBL_obj      ),
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),
@@ -214,14 +213,14 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cenfm        ),
-    .cen1p5     (  cenfm        ), // unused
+    .cen1p5     (  1'b0         ), // unused
     .sres_b     (  1'b1         ),
     .snd_latch  (  snd_latch    ),
     .snd2_latch (  8'd0         ),
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
-    .psg_level  (  psg_level    ),
+    .psg_level  (  dip_fxlevel  ),
     .rom_addr   (  snd_addr     ),
     .rom_cs     (  snd_cs       ),
     .rom_data   (  rom_data     ),
@@ -316,8 +315,8 @@ jtrumble_sdram #(
     .dwnld_busy (dwnld_busy  ),
 
     // PROM
-    .prom_banks     ( prom_banks    ),
-    .prom_prior_we  ( prom_prior_we ),
+    .prom_banks ( prom_banks ),
+    .prom_prior_we(prom_prior_we),
 
     .ioctl_addr ( ioctl_addr ),
     .ioctl_data ( ioctl_data ),

@@ -27,9 +27,7 @@ module jtrumble_video#(
     input               pxl_cen,
     input               cpu_cen,
     input       [11:0]  cpu_AB,
-    input               game_sel,
-    input       [ 7:0]  V,
-    input       [ 8:0]  H,
+    output      [ 7:0]  V,
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
@@ -64,12 +62,12 @@ module jtrumble_video#(
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LVBL_obj,
-    input               LHBL,
-    input               LHBL_obj,
+    output              LVBL,
+    output              LHBL,
     output              LHBL_dly,
     output              LVBL_dly,
+    output              HS,
+    output              VS,
     // Priority PROMs
     input       [7:0]   prog_addr,
     input               prom_prior_we,
@@ -94,25 +92,27 @@ wire [7:0] scr_pxl;
 wire [3:0] cc;
 wire [3:0] avatar_idx;
 
+wire       HINIT;
+wire       LVBL_obj, LHBL_obj;
+wire [8:0] H;
+
+
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
-    .HB_START ( 9'h1C7 ),
-    .HB_END   ( 9'h047 ),
-    //.HB_END   ( 9'h04F ),
+    .HB_START ( 9'h1AF ),
+    .HB_END   ( 9'h04F ),
     .HCNT_END ( 9'h1FF ),
     .VB_START ( 9'hF0  ),
-    .VB_END   ( 9'h10  ),
-    .VCNT_END ( 9'hFF  ),
-    //.VS_START ( 9'h0   ),
-    .VS_START ( 9'hF8   ),
-    //.VS_END   ( 9'h8   ),
-    .HS_START ( 9'h1F8 ),
-    .HS_END   ( 9'h020 ),
+    .VB_END   ( 9'h00  ),
+    .VCNT_END ( 9'h10F ),
+    .VS_START ( 9'h0FF ),
+    .HS_START ( 9'h1f0 ),
+    .HS_END   ( 9'h027 ),
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
     .H_VNEXT  ( 9'h1FF ),
-    .HINIT    ( 9'h20 )
+    .HINIT    ( 9'h0   )
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
@@ -226,6 +226,7 @@ assign scr_dout   = 8'd0;
 
 `ifndef NOOBJ
 jtgng_obj #(
+    .OBJMAX       ( 10'h200     ),
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
     .PXL_DLY      (  2          ),

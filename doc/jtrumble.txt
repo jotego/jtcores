@@ -32,6 +32,8 @@ This game has an interesting mix of hardware modules present in former and later
 -Two YM2203 chips for music, lime most 8-bit CAPCOM arcades
 -The main CPU is a m6809, like GnG
 -Resolution of 352x240 pixels
+-Object buffer: Measure ~130us, probably the exact number is 128us, which is
+ 512 bytes transferred at 4MHz
 
 My original board runs at 57.44Hz according to OSSC. When I measure it with the
 oscilloscope I get either 57.3Hz or 57.5Hz.

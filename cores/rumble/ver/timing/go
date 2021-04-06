@@ -1,0 +1,5 @@
+#!/bin/bash
+
+iverilog test.v $JTFRAME/hdl/video/jtframe_vtimer.v -o sim \
+    -DSIMULATION -DSIMULATION_VTIMER -DSIMULATION_VTIMER_FCLK=8e6 \
+    && sim -lxt

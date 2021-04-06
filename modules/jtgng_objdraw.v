@@ -28,6 +28,7 @@ module jtgng_objdraw #(parameter
                             // 6: Trojan
                             // 8: Side Arms
                             // 9: Street Fighter
+                            //10: The Speed Rumbler
     PALW             = 2,   // Define it in the video module
     PALETTE          = 0,   // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
@@ -183,6 +184,13 @@ end else begin
                 objpal    <= objbuf_data[3:0];
                 resize    <= objbuf_data[10];
                 repeated  <= objbuf_data[15];
+            end
+            10: begin // The Speed Rumbler
+                id[10:8]  <= objbuf_data[7:5];
+                obj_vflip <= objbuf_data[1];
+                obj_hflip <= 0;
+                objpal    <= objbuf_data[4:2];
+                hover     <= objbuf_data[0];
             end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step
