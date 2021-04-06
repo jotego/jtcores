@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 5-4-2020 */
+    Date: 5-4-2021 */
 
 module jtrumble_game(
     input           rst,
@@ -102,6 +102,8 @@ module jtrumble_game(
     input   [3:0]   gfx_en
 );
 
+localparam MAINW=18, RAMW=13, CHARW2=13, SCRW=17, OBJW=17;
+
 // ROM data
 wire [15:0] char_data;
 wire [15:0] scr_data;
@@ -111,17 +113,102 @@ wire [ 7:0] snd_data;
 // ROM address
 wire [18:0] main_addr;
 wire [14:0] snd_addr;
-wire [13:0] char_addr;
-wire [16:0] scr_addr;
-wire [16:0] obj_addr;
+wire [CHARW-1:0] char_addr;
+wire [SCRW-1:0] scr_addr;
+wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire [ 7:0] mcu_din, mcu_dout;
-wire        mcu_wr;
 wire        cenfm;
 
 wire rom_ready;
 wire main_ok, snd_ok, obj_ok;
 
+wire [ 1:0] prom_banks;
+wire        prom_prior_we;
+
+jtframe_cen48 u_cen48(
+    .clk    ( clk           ),
+    .cen16  ( pxl2_cen      ),
+    .cen12  (               ),
+    .cen12b (               ),
+    .cen8   ( pxl_cen       ),
+    .cen6   (               ),
+    .cen6b  (               ),
+    .cen4   (               ),
+    .cen4_12(               ),
+    .cen3   (               ),
+    .cen3q  (               ),
+    .cen3qb (               ),
+    .cen3b  (               ),
+    .cen1p5 (               ),
+    .cen1p5b(               )
+);
+
+jtrumble_video #(
+    .CHARW  ( CHARW     ),
+    .SCRW   ( SCRW      ),
+    .OBJW   ( OBJW      )
+)
+u_video(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl2_cen   ( pxl2_cen      ),
+    .pxl_cen    ( pxl_cen       ),
+    .cpu_cen    ( cpu_cen       ),
+    .cpu_AB     ( cpu_AB[11:0]  ),
+    .game_sel   ( game_cfg[0]   ),
+    .V          ( V[7:0]        ),
+    .H          ( H             ),
+    .RnW        ( RnW           ),
+    .flip       ( flip          ),
+    .cpu_dout   ( cpu_dout      ),
+    .pause      ( pause         ),
+    // Palette
+    .blue_cs    ( blue_cs       ),
+    .redgreen_cs( redgreen_cs   ),
+    // CHAR
+    .char_cs    ( char_cs       ),
+    .char_dout  ( char_dout     ),
+    .char_addr  ( char_addr     ),
+    .char_data  ( char_data     ),
+    .char_busy  ( char_busy     ),
+    .char_ok    ( char_ok       ),
+    // SCROLL - ROM
+    .scr_cs     ( scr_cs        ),
+    .scr_dout   ( scr_dout      ),
+    .scr_addr   ( scr_addr      ),
+    .scr_data   ( scr_data      ),
+    .scr_busy   ( scr_busy      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
+    .scr_ok     ( scr_ok        ),
+    // OBJ
+    .HINIT      ( HINIT         ),
+    .obj_AB     ( obj_AB        ),
+    .main_ram   ( main_ram      ),
+    .obj_addr   ( obj_addr      ),
+    .obj_data   ( obj_data      ),
+    .obj_ok     ( obj_ok        ),
+    .OKOUT      ( OKOUT         ),
+    .bus_req    ( bus_req       ), // Request bus
+    .bus_ack    ( bus_ack       ), // bus acknowledge
+    .blcnten    ( blcnten       ), // bus line counter enable
+    // PROMs
+    .prog_addr  ( prog_addr     ),
+    .prom_prior_we(prom_prior_we),
+    .prom_din   ( prom_din      ),
+    // Color Mix
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
+    .LHBL_obj   ( LHBL_obj      ),
+    .LVBL_obj   ( LVBL_obj      ),
+    .LHBL_dly   ( LHBL_dly      ),
+    .LVBL_dly   ( LVBL_dly      ),
+    .gfx_en     ( gfx_en        ),
+    // Pixel Output
+    .red        ( red           ),
+    .green      ( green         ),
+    .blue       ( blue          )
+);
 
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
@@ -142,6 +229,108 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .ym_snd     (  snd          ),
     .sample     (  sample       ),
     .peak       (  fm_peak      )
+);
+
+jtrumble_sdram #(
+    .MAINW  ( MAINW ),
+    .RAMW   ( RAMW  ),
+    .CHARW  ( CHARW ),
+    .SCRW   ( SCRW  ),
+    .OBJW   ( OBJW  )
+) u_sdram(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+
+    .vrender    ( vrender   ),
+    .LVBL       ( LVBL      ),
+
+    // Main CPU
+    .main_cs    ( main_cs   ),
+    .ram_cs     ( ram_cs    ),
+
+    .main_addr  ( main_addr ),
+    .ram_addr   ( ram_addr  ),
+    .main_data  ( main_data ),
+    .ram_data   ( ram_data  ),
+
+    .main_ok    ( main_ok   ),
+    .ram_ok     ( ram_ok    ),
+
+    .main_dout  ( main_dout ),
+    .main_rnw   ( main_rnw  ),
+
+    // Sound CPU
+    .snd_addr   ( snd_addr  ),
+    .snd_cs     ( snd_cs    ),
+    .snd_data   ( snd_data  ),
+    .snd_ok     ( snd_ok    ),
+
+    // Char interface
+    .char_ok    ( char_ok   ),
+    .char_addr  ( char_addr ), // 9 addr + 3 vertical + 2 horizontal = 14 bits
+    .char_data  ( char_data ),
+
+    // Scroll 1
+    .scr1_ok    ( scr1_ok   ),
+    .scr1_addr  ( scr1_addr ),
+    .scr1_data  ( scr1_data ),
+
+    // Sprite interface
+    .obj_ok     ( obj_ok    ),
+    .obj_cs     ( obj_cs    ),
+    .obj_addr   ( obj_addr  ),
+    .obj_data   ( obj_data  ),
+
+    // Bank 0: allows R/W
+    .ba0_addr   ( ba0_addr  ),
+    .ba0_rd     ( ba0_rd    ),
+    .ba0_wr     ( ba0_wr    ),
+    .ba0_ack    ( ba0_ack   ),
+    .ba0_rdy    ( ba0_rdy   ),
+    .ba0_din    ( ba0_din   ),
+    .ba0_din_m  ( ba0_din_m ),
+
+    // Bank 1: Read only
+    .ba1_addr   ( ba1_addr  ),
+    .ba1_rd     ( ba1_rd    ),
+    .ba1_rdy    ( ba1_rdy   ),
+    .ba1_ack    ( ba1_ack   ),
+
+    // Bank 2: Read only
+    .ba2_addr   ( ba2_addr  ),
+    .ba2_rd     ( ba2_rd    ),
+    .ba2_rdy    ( ba2_rdy   ),
+    .ba2_ack    ( ba2_ack   ),
+
+    // Bank 2: Read only
+    .ba3_addr   ( ba3_addr  ),
+    .ba3_rd     ( ba3_rd    ),
+    .ba3_rdy    ( ba3_rdy   ),
+    .ba3_ack    ( ba3_ack   ),
+
+    .data_read  ( data_read ),
+    .refresh_en ( refresh_en),
+
+    // ROM load
+    .downloading(downloading ),
+    .dwnld_busy (dwnld_busy  ),
+
+    // PROM
+    .prom_banks     ( prom_banks    ),
+    .prom_prior_we  ( prom_prior_we ),
+
+    .ioctl_addr ( ioctl_addr ),
+    .ioctl_data ( ioctl_data ),
+    .ioctl_wr   ( ioctl_wr   ),
+    .prog_addr  ( prog_addr  ),
+    .prog_data  ( prog_data  ),
+    .prog_mask  ( prog_mask  ),
+    .prog_ba    ( prog_ba    ),
+    .prog_we    ( prog_we    ),
+    .n7751_prom ( n7751_prom ),
+    .prog_rd    ( prog_rd    ),
+    .prog_ack   ( prog_ack   ),
+    .prog_rdy   ( prog_rdy   )
 );
 
 endmodule
