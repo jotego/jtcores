@@ -50,8 +50,8 @@ module jtrumble_main(
     output             RnW,
     output reg         OKOUT,
     // ROM access
-    output  reg        rom_cs,
-    output      [17:0] rom_addr,
+    output             rom_cs,
+    output  reg [17:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
     // RAM access
@@ -80,46 +80,42 @@ wire [ 7:0] mem_map, bank_addr0, bank_addr1, cpu_din;
 
 assign bank_addr0 = { bank[7:4], A[15:12] };
 assign bank_addr1 = { bank[3:0], A[15:12] };
-assign rom_addr   = { mem_map[5:0], A[11:0] };
 assign ram_addr   = A[12:0];
 
-reg  prerom_cs, preram_cs;
-reg  rom_good, ram_good;
-reg  VMA;
+reg        VMA, pre_cs;
+reg [ 1:0] last_E, last_cs;
+reg [12:0] last_ram_addr;
+
+assign rom_cs = last_cs[1] && pre_cs;
 
 always @(posedge clk or negedge nRESET) begin
     if(!nRESET) begin
-        rom_cs <= 1;
-        ram_cs <= 0;
-        rom_good <= 0;
-        ram_good <= 0;
         VMA      <= 1;
     end else begin
-        if( cen_E ) VMA <= AVMA;
-        if( cen_Q ) begin
-            if( prerom_cs ) { rom_cs, rom_good } <= 2'b10;
-            if( preram_cs ) { ram_cs, ram_good } <= 2'b10;
-        end else begin
-            if( rom_ok ) { rom_cs, rom_good } <= 2'b01;
-            if( ram_ok ) { ram_cs, ram_good } <= 2'b01;
+        last_ram_addr <= ram_addr;
+        last_E  <= { last_E[0], cen_E   };
+        last_cs <= { last_cs[0], pre_cs };
+        if( cen_E ) begin
+            VMA <= AVMA;
         end
+        if( last_E[1] ) rom_addr <= { mem_map[5:0], A[11:0] };
     end
 end
 
 always @(*) begin
-    preram_cs   = 0;
+    ram_cs   = 0;
     scr_cs      = 0;
     io_cs       = 0;
-    prerom_cs   = 0;
+    pre_cs      = 0;
     char_cs     = 0;
     pal_cs      = 0;
     if( VMA && nRESET ) begin
         casez(A[15:12])
-            4'b000?: preram_cs = 1; // 0
-            4'b001?: scr_cs    = 1; // 2-3
-            4'b0100: io_cs     = A[3]; // 4
+            4'b000?: ram_cs = last_ram_addr==ram_addr; // 0
+            4'b001?: scr_cs = 1; // 2-3
+            4'b0100: io_cs  = A[3]; // 4
             default: begin
-                prerom_cs =  RnW;
+                pre_cs =  RnW;
                 char_cs= !RnW && A[15:12]==4'h5;
                 pal_cs = !RnW && A[15:12]==4'h7;
             end
@@ -175,11 +171,11 @@ always @(*) begin
     endcase
 end
 
-assign cpu_din = prerom_cs  ? rom_data : (
-                 preram_cs  ? ram_data : (
-                 scr_cs     ? scr_dout : (
-                 char_cs    ? char_dout: (
-                 io_cs      ? cabinet  : 8'hff ))));
+assign cpu_din = pre_cs  ? rom_data : (
+                 ram_cs  ? ram_data : (
+                 scr_cs  ? scr_dout : (
+                 char_cs ? char_dout: (
+                 io_cs   ? cabinet  : 8'hff ))));
 
 // Bus access
 reg nIRQ, last_LVBL;
@@ -196,8 +192,8 @@ always @(posedge clk) if(cen_Q) begin
 end
 
 wire bus_busy = scr_busy | char_busy;
-wire sdram_cs = prerom_cs | preram_cs;
-wire sdram_ok = rom_good | ram_good;
+wire sdram_cs = pre_cs | ram_cs;
+wire sdram_ok = rom_ok | ram_ok;
 
 jtframe_6809wait u_wait(
     .rstn       ( nRESET    ),
