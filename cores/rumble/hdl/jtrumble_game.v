@@ -312,7 +312,7 @@ jtrumble_sdram #(
     .main_ok    ( main_ok   ),
     .ram_ok     ( ram_ok    ),
 
-    .main_dout  ( main_data ),
+    .main_dout  ( cpu_dout  ),
     .main_rnw   ( main_rnw  ),
 
     // DMA

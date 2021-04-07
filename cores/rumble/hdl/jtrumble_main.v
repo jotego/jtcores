@@ -173,6 +173,8 @@ always @(posedge clk) if(cen_Q) begin
 end
 
 wire bus_busy = scr_busy | char_busy;
+wire sdram_cs = rom_cs | ram_cs;
+wire sdram_ok = rom_ok | ram_ok;
 
 jtframe_6809wait u_wait(
     .rstn       ( nRESET    ),
@@ -180,8 +182,8 @@ jtframe_6809wait u_wait(
     .cen        ( cen8      ),
     .cpu_cen    ( cpu_cen   ),
     .dev_busy   ( bus_busy  ),
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .rom_cs     ( sdram_cs  ),
+    .rom_ok     ( sdram_ok  ),
     .cen_E      ( cen_E     ),
     .cen_Q      ( cen_Q     )
 );
@@ -204,7 +206,7 @@ mc6809i u_cpu (
     .nDMABREQ( 1'b1    ),
     // unused:
     .RegData (         ),
-    .AVMA    (         ),
+    .AVMA    ( AVMA    ),
     .BUSY    (         ),
     .LIC     (         )
 );
@@ -216,7 +218,7 @@ jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.12a")) u_bank0(
     .rd_addr( bank_addr0    ),
     .wr_addr( prog_addr     ),
     .we     ( prom_bank[0]  ),
-    .q      ( mem_map[3:0]  )
+    .q      ( mem_map[7:4]  )
 );
 
 jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.13a")) u_bank1(
@@ -226,7 +228,7 @@ jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.13a")) u_bank1(
     .rd_addr( bank_addr1    ),
     .wr_addr( prog_addr     ),
     .we     ( prom_bank[1]  ),
-    .q      ( mem_map[7:4]  )
+    .q      ( mem_map[3:0]  )
 );
 
 endmodule
