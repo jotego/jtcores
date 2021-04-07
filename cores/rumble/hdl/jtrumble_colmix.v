@@ -27,6 +27,7 @@ module jtrumble_colmix(
     input            rst,
     input            clk,
     input            pxl_cen,
+    input            pxl2_cen,
 
     // pixel input from generator modules
     input [5:0]      char_pxl,        // character color code
@@ -84,7 +85,7 @@ always @(posedge clk) begin
     if(pxl_cen) begin
         pxl <= { last_out, dump[7:4] };
         lsb<=1;
-    end else lsb <= ~lsb;
+    end else if(pxl2_cen) lsb <= ~lsb;
 end
 
 jtframe_prom #(.dw(2),.aw(8),.simfile("63s141.8j")) u_prio(

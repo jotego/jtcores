@@ -357,33 +357,37 @@ jt03 u_fm0(
     .psg_snd( psg0_snd   ),
     .fm_snd ( fm0_snd    ),
     .snd_sample ( sample ),
-    // unused outputs
     .dout   ( fm0_dout   ),
     .irq_n  ( intn_fm0   ),
-    .psg_A  (),
-    .psg_B  (),
-    .psg_C  (),
-    .snd    ()
+    // unused ports
+    .IOA_in (            ),
+    .IOB_in (            ),
+    .psg_A  (            ),
+    .psg_B  (            ),
+    .psg_C  (            ),
+    .snd    (            )
 );
 
 jt03 u_fm1(
-    .rst    ( ~reset_n  ),
+    .rst    ( ~reset_n   ),
     // CPU interface
-    .clk    ( clk       ),
-    .cen    ( cenfm     ),
-    .din    ( dout      ),
-    .addr   ( A[0]      ),
-    .cs_n   ( ~fm1_cs   ),
-    .wr_n   ( wr_n      ),
-    .psg_snd( psg1_snd  ),
-    .fm_snd ( fm1_snd   ),
-    // unused outputs
-    .dout   ( fm1_dout  ),
-    .irq_n  ( intn_fm1  ),
-    .psg_A  (),
-    .psg_B  (),
-    .psg_C  (),
-    .snd    (),
+    .clk    ( clk        ),
+    .cen    ( cenfm      ),
+    .din    ( dout       ),
+    .addr   ( A[0]       ),
+    .cs_n   ( ~fm1_cs    ),
+    .wr_n   ( wr_n       ),
+    .psg_snd( psg1_snd   ),
+    .fm_snd ( fm1_snd    ),
+    .dout   ( fm1_dout   ),
+    .irq_n  ( intn_fm1   ),
+    // unused ports
+    .IOA_in (            ),
+    .IOB_in (            ),
+    .psg_A  (            ),
+    .psg_B  (            ),
+    .psg_C  (            ),
+    .snd    (            ),
     .snd_sample()
 );
 

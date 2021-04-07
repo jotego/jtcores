@@ -27,11 +27,9 @@ module jtrumble_sdram #(
     input              clk,
 
     input              LVBL,
-    input       [ 8:0] vrender,
 
     // Main CPU
     input              main_cs,
-    input              vram_cs,
     input              ram_cs,
     input  [MAINW-1:0] main_addr,
     input  [ RAMW-1:0] ram_addr,

@@ -27,11 +27,10 @@ module jtrumble_video#(
     input               pxl_cen,
     input               cpu_cen,
     input       [11:0]  cpu_AB,
-    output      [ 7:0]  V,
+    output      [ 8:0]  V,
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  char_dout,
@@ -46,14 +45,14 @@ module jtrumble_video#(
     input       [15:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
-    input       [10:0]  scr_hpos,
-    input       [10:0]  scr_vpos,
-    input       [ 1:0]  scr_bank,
-    input               scr_layout,
+    input       [ 8:0]  scr_hpos,
+    input       [ 8:0]  scr_vpos,
+    // DMA
+    output              dma_cs,
+    input               dma_ok,
+    output      [ 8:0]  dma_addr,
+    input       [ 7:0]  dma_data,
     // OBJ
-    input               HINIT,
-    output      [ 8:0]  obj_AB,
-    input       [ 7:0]  main_ram,
     input               OKOUT,
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
@@ -73,8 +72,7 @@ module jtrumble_video#(
     input               prom_prior_we,
     input       [3:0]   prom_din,
     // Palette RAM
-    input               blue_cs,
-    input               redgreen_cs,
+    input               pal_cs,
     input       [3:0]   gfx_en,
     // Pixel output
     output      [3:0]   red,
@@ -139,10 +137,10 @@ jtgng_char #(
     .PALW    (    4)
 ) u_char (
     .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
+    .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[10:0]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -224,6 +222,8 @@ assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 `endif
 
+assign dma_cs = bus_ack;
+
 `ifndef NOOBJ
 jtgng_obj #(
     .OBJMAX       ( 10'h200     ),
@@ -240,8 +240,8 @@ u_obj (
     .draw_cen   ( pxl2_cen    ),
     .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
-    .AB         ( obj_AB      ),
-    .DB         ( main_ram    ),
+    .AB         ( dma_addr    ),
+    .DB         ( dma_data    ),
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
@@ -255,7 +255,7 @@ u_obj (
     .H          ( H           ),
     // avatar display
     .pause      ( 1'b0        ),
-    .avatar_idx ( 4'd0        ),
+    .avatar_idx (             ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
@@ -276,15 +276,11 @@ assign obj_pxl = ~6'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtrumble_colmix #(
-    .CHARW  (   PXL_CHRW    )
-)
-u_colmix (
+jtrumble_colmix u_colmix(
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .pxl2_cen     ( pxl2_cen      ),
     .pxl_cen      ( pxl_cen       ),
-    .cpu_cen      ( cpu_cen       ),
+    .pxl2_cen     ( pxl2_cen      ),
 
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
@@ -296,18 +292,16 @@ u_colmix (
 
     // Priority PROM
     .prog_addr    ( prog_addr     ),
-    .prom_prior_we( prom_prior_we ),
+    .prom_prio_we ( prom_prior_we ),
     .prom_din     ( prom_din      ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),
 
     // CPU interface
-    .AB           ( cpu_AB[9:0]   ),
-    .blue_cs      ( blue_cs       ),
-    .redgreen_cs  ( redgreen_cs   ),
-    .DB           ( cpu_dout      ),
-    .cpu_wrn      ( RnW           ),
+    .pal_cs       ( pal_cs        ),
+    .cpu_addr     ( cpu_AB[9:0]   ),
+    .cpu_dout     ( cpu_dout      ),
 
     // colour output
     .red          ( red           ),

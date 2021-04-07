@@ -47,7 +47,6 @@ module jtrumble_main(
     // BUS sharing
     output             bus_ack,
     input              bus_req,
-    output  [12:0]     cpu_AB,
     output             RnW,
     output reg         OKOUT,
     // ROM access
@@ -75,7 +74,7 @@ wire [15:0] A;
 wire        waitn;
 wire        nRESET;
 wire        cen_E, cen_Q;
-reg         io_cs, ram_cs;
+reg         io_cs;
 reg  [ 7:0] bank;
 wire [ 7:0] mem_map, bank_addr0, bank_addr1, cpu_din;
 
@@ -139,7 +138,7 @@ jt12_rst u_rst(
 reg [7:0] cabinet;
 
 always @(*) begin
-    case( cpu_AB[2:0])
+    case( A[2:0])
         3'd0: cabinet = { coin_input, // COINS
                      service,
                      1'b1, // tilt?
@@ -204,8 +203,10 @@ mc6809i u_cpu (
     .nRESET  ( nRESET  ),
     .nDMABREQ( 1'b1    ),
     // unused:
-    .RegData (         )
-    //.AVMA()
+    .RegData (         ),
+    .AVMA    (         ),
+    .BUSY    (         ),
+    .LIC     (         )
 );
 
 jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.12a")) u_bank0(

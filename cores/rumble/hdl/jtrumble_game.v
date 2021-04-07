@@ -19,10 +19,6 @@
 module jtrumble_game(
     input           rst,
     input           clk,
-    `ifdef JTFRAME_CLK96
-    input           clk48,
-    `endif
-    input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
@@ -35,8 +31,8 @@ module jtrumble_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 9:0]  joystick1,
-    input   [ 9:0]  joystick2,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,
 
     // SDRAM interface
     input           downloading,
@@ -102,35 +98,41 @@ module jtrumble_game(
     input   [3:0]   gfx_en
 );
 
-localparam MAINW=18, RAMW=13, CHARW2=13, SCRW=17, OBJW=17;
+localparam MAINW=18, RAMW=13, CHARW=13, SCRW=17, OBJW=17;
 
-wire [ 8:0] vdump;
 // ROM data
 wire [15:0] char_data;
 wire [15:0] scr_data;
 wire [15:0] obj_data, obj_pre;
-wire [ 7:0] main_data, dma_data;
-wire [ 7:0] snd_data;
+wire [ 7:0] main_data, dma_data, ram_data;
+wire [ 7:0] snd_data, snd_latch;
+wire [ 7:0] cpu_dout, scr_dout, char_dout;
 // ROM address
-wire [18:0] main_addr;
+wire [17:0] main_addr;
+wire [12:0] ram_addr;
 wire [14:0] snd_addr;
-wire [ 9:0] dma_addr;
+wire [ 8:0] dma_addr;
 wire [CHARW-1:0] char_addr;
 wire [SCRW-1:0] scr_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cenfm, cpu_cen;
 
-wire        rom_ready;
-wire        main_ok, snd_ok, obj_ok, dma_ok;
+wire [ 8:0] scr_hpos, scr_vpos;
+wire [ 8:0] vdump;
+wire        scr_busy, char_busy;
+
+wire        main_rnw;
+wire        main_ok, snd_ok, obj_ok, dma_ok, ram_ok;
 wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
 
-wire [ 1:0] prom_banks;
+wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
     .cen16  ( pxl2_cen ),
+    .cen16b (          ),
     .cen12  (          ),
     .cen12b (          ),
     .cen8   ( pxl_cen  ),
@@ -177,23 +179,22 @@ jtrumble_main u_main(
     // BUS sharing
     .bus_ack     ( bus_ack      ),
     .bus_req     ( bus_req      ),
-    .cpu_AB      ( cpu_AB       ),
-    .RnW         ( RnW          ),
+    .RnW         ( main_rnw     ),
     .OKOUT       ( OKOUT        ),
     // ROM access
-    .rom_cs      ( rom_cs       ),
-    .rom_addr    ( rom_addr     ),
-    .rom_data    ( rom_data     ),
-    .rom_ok      ( rom_ok       ),
+    .rom_cs      ( main_cs      ),
+    .rom_addr    ( main_addr    ),
+    .rom_data    ( main_data    ),
+    .rom_ok      ( main_ok      ),
     // RAM access
     .ram_cs      ( ram_cs       ),
     .ram_addr    ( ram_addr     ),
     .ram_data    ( ram_data     ),
     .ram_ok      ( ram_ok       ),
     // Memory map PROM
-    .prog_addr   ( prog_addr    ),
+    .prog_addr   (prog_addr[7:0]),
     .prom_bank   ( prom_bank    ),
-    .prom_din    ( prom_din     ),
+    .prom_din    (prog_data[3:0]),
     // DIP switches
     .service     ( service      ),
     .dip_pause   ( dip_pause    ),
@@ -212,15 +213,13 @@ u_video(
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .cpu_AB     ( cpu_AB[11:0]  ),
+    .cpu_AB     ( ram_addr[11:0]),
     .V          ( vdump         ),
-    .RnW        ( RnW           ),
+    .RnW        ( main_rnw      ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( pause         ),
     // Palette
-    .blue_cs    ( blue_cs       ),
-    .redgreen_cs( redgreen_cs   ),
+    .pal_cs     ( pal_cs        ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -238,9 +237,11 @@ u_video(
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
     // OBJ
-    .HINIT      ( HINIT         ),
-    .obj_AB     ( obj_AB        ),
-    .main_ram   ( main_ram      ),
+    .dma_addr   ( dma_addr      ),
+    .dma_data   ( dma_data      ),
+    .dma_ok     ( dma_ok        ),
+    .dma_cs     ( dma_cs        ),
+
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_ok     ( obj_ok        ),
@@ -249,9 +250,9 @@ u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // PROMs
-    .prog_addr  ( prog_addr     ),
+    .prog_addr  ( prog_addr[7:0]),
     .prom_prior_we(prom_prior_we),
-    .prom_din   ( prom_din      ),
+    .prom_din   ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -273,15 +274,15 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .cen1p5     (  1'b0         ), // unused
     .sres_b     (  1'b1         ),
     .snd_latch  (  snd_latch    ),
-    .snd2_latch (  8'd0         ),
+    .snd2_latch (               ),
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
     .psg_level  (  dip_fxlevel  ),
     .rom_addr   (  snd_addr     ),
     .rom_cs     (  snd_cs       ),
-    .rom_data   (  rom_data     ),
-    .rom_ok     (  rom_ok       ),
+    .rom_data   (  snd_data     ),
+    .rom_ok     (  snd_ok       ),
     .ym_snd     (  snd          ),
     .sample     (  sample       ),
     .peak       (  fm_peak      )
@@ -297,7 +298,6 @@ jtrumble_sdram #(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .vrender    ( vrender   ),
     .LVBL       ( LVBL      ),
 
     // Main CPU
@@ -312,7 +312,7 @@ jtrumble_sdram #(
     .main_ok    ( main_ok   ),
     .ram_ok     ( ram_ok    ),
 
-    .main_dout  ( main_dout ),
+    .main_dout  ( main_data ),
     .main_rnw   ( main_rnw  ),
 
     // DMA
@@ -333,9 +333,9 @@ jtrumble_sdram #(
     .char_data  ( char_data ),
 
     // Scroll 1
-    .scr1_ok    ( scr1_ok   ),
-    .scr1_addr  ( scr1_addr ),
-    .scr1_data  ( scr1_data ),
+    .scr1_ok    ( scr_ok    ),
+    .scr1_addr  ( scr_addr  ),
+    .scr1_data  ( scr_data  ),
 
     // Sprite interface
     .obj_ok     ( obj_ok    ),
@@ -378,7 +378,7 @@ jtrumble_sdram #(
     .dwnld_busy (dwnld_busy  ),
 
     // PROM
-    .prom_banks ( prom_banks ),
+    .prom_banks ( prom_bank  ),
     .prom_prior_we(prom_prior_we),
 
     .ioctl_addr ( ioctl_addr ),
@@ -389,7 +389,6 @@ jtrumble_sdram #(
     .prog_mask  ( prog_mask  ),
     .prog_ba    ( prog_ba    ),
     .prog_we    ( prog_we    ),
-    .n7751_prom ( n7751_prom ),
     .prog_rd    ( prog_rd    ),
     .prog_ack   ( prog_ack   ),
     .prog_rdy   ( prog_rdy   )
