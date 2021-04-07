@@ -17,13 +17,13 @@
     Date: 5-4-2021 */
 
 module jtrumble_main(
-    input              clk,
-    input              cen6,
-    output             cpu_cen,
     input              rst,
+    input              clk,
+    input              cen8,
+    output             cpu_cen,
     input              LVBL,   // vertical blanking when 0
-    output  reg        blue_cs,
-    output  reg        redgreen_cs,
+    // Screen
+    output  reg        pal_cs,
     output  reg        flip,
     // Sound
     output  reg        sres_b, // Z80 reset
@@ -39,7 +39,6 @@ module jtrumble_main(
     input              scr_busy,
     output  reg [8:0]  scr_hpos,
     output  reg [8:0]  scr_vpos,
-    input              scr_holdn,
     // cabinet I/O
     input       [1:0]  start_button,
     input       [1:0]  coin_input,
@@ -48,17 +47,23 @@ module jtrumble_main(
     // BUS sharing
     output             bus_ack,
     input              bus_req,
-    input              blcnten,
-    input   [ 8:0]     obj_AB,
     output  [12:0]     cpu_AB,
     output             RnW,
     output reg         OKOUT,
-    output  [7:0]      ram_dout,
     // ROM access
     output  reg        rom_cs,
-    output  reg [16:0] rom_addr,
+    output      [17:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
+    // RAM access
+    output  reg        ram_cs,
+    output      [12:0] ram_addr,
+    input       [ 7:0] ram_data,
+    input              ram_ok,
+    // Memory map PROM
+    input       [ 7:0] prog_addr,
+    input       [ 1:0] prom_bank,
+    input       [ 3:0] prom_din,
     // DIP switches
     input              service,
     input              dip_pause,
@@ -67,86 +72,62 @@ module jtrumble_main(
 );
 
 wire [15:0] A;
-wire waitn;
-wire nRESET;
-wire cen_E, cen_Q;
-reg  sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
+wire        waitn;
+wire        nRESET;
+wire        cen_E, cen_Q;
+reg         io_cs, ram_cs;
+reg  [ 7:0] bank;
+wire [ 7:0] mem_map, bank_addr0, bank_addr1, cpu_din;
 
-//`ifdef SIMULATION
-//reg dump_on = 1'b0;
-//always @(posedge bank_cs/*, posedge scr_cs, posedge char_cs*/) begin
-//    if( !dump_on ) begin
-//        dump_on <= 1'b1;
-//        $display("DUMP starts because of CS edge");
-//        $dumpfile("test.lxt");
-//        $dumpvars(0,mist_test);
-//        $dumpon;
-//    end
-//end
-//`endif
-
-reg [7:0] AH;
+assign bank_addr0 = { bank[7:4], A[15:12] };
+assign bank_addr1 = { bank[3:0], A[15:12] };
+assign rom_addr   = { mem_map[5:0], A[11:0] };
+assign ram_addr   = A[12:0];
 
 always @(*) begin
-    sound_cs    = 1'b0;
-    OKOUT       = 1'b0;
-    scrpos_cs   = 1'b0;
-    scr_cs      = 1'b0;
-    in_cs       = 1'b0;
-    blue_cs     = 1'b0;
-    redgreen_cs = 1'b0;
-    flip_cs     = 1'b0;
-    ram_cs      = 1'b0;
-    char_cs     = 1'b0;
-    bank_cs     = 1'b0;
-    rom_cs      = 1'b0;
-    if( /* (E || Q || !waitn) && */ nRESET ) case(A[15:13])
-        3'b000: ram_cs = 1'b1;
-        3'b001: case( A[12:11])
-                2'd0: char_cs = 1'b1;
-                2'd1: scr_cs  = 1'b1;
-                2'd2: in_cs   = 1'b1;
-                2'd3: case( A[10:8] )
-                    3'd0: redgreen_cs = 1'b1;
-                    3'd1: blue_cs     = 1'b1;
-                    3'd2: sound_cs    = 1'b1;
-                    3'd3: scrpos_cs   = 1'b1;
-                    3'd4: OKOUT       = 1'b1;
-                    3'd5: flip_cs     = 1'b1;
-                    3'd6: bank_cs     = 1'b1;
-                    default:;
-                endcase
-            endcase
-        default: rom_cs = 1'b1;
-    endcase
-end
-
-// SCROLL H/V POSITION
-always @(posedge clk or negedge nRESET)
-    if( !nRESET ) begin
-        scr_hpos <= 8'd0;
-        scr_vpos <= 8'd0;
-    end else if(cen_Q) begin
-        if( scrpos_cs && A[3] && scr_holdn)
-        case(A[1:0])
-            2'd0: scr_hpos[7:0] <= cpu_dout;
-            2'd1: scr_hpos[8]   <= cpu_dout[0];
-            2'd2: scr_vpos[7:0] <= cpu_dout;
-            2'd3: scr_vpos[8]   <= cpu_dout[0];
+    ram_cs      = 0;
+    scr_cs      = 0;
+    io_cs       = 0;
+    rom_cs      = 0;
+    char_cs     = 0;
+    pal_cs      = 0;
+    if( /* (E || Q || !waitn) && */ nRESET ) begin
+        casez(A[15:12])
+            4'b000?: ram_cs = 1; // 0
+            4'b001?: scr_cs = 1; // 2-3
+            4'b0100: io_cs  = A[3]; // 4
+            default: begin
+                rom_cs =  RnW;
+                char_cs= !RnW && A[15:12]==4'h5;
+                pal_cs = !RnW && A[15:12]==4'h7;
+            end
         endcase
     end
+end
 
-// special registers
-reg [2:0] bank;
-always @(posedge clk or negedge nRESET)
+always @(posedge clk or negedge nRESET) begin
     if( !nRESET ) begin
-        bank   <= 3'd0;
+        scr_hpos  <= 0;
+        scr_vpos  <= 0;
+        snd_latch <= 0;
+        flip      <= 0;
+        sres_b    <= 1;
+        bank      <= 0;
+    end else if(cen_Q && io_cs && !RnW ) begin
+        case(A[2:0])
+            3'd0: bank <= cpu_dout;
+            3'd1: begin
+                flip   <= cpu_dout[7]; // coin counters go here too
+                sres_b <= cpu_dout[4]; // it could be bit 5, not sure, they are toggled together
+            end
+            3'd2: scr_hpos[7:0] <= cpu_dout;
+            3'd3: scr_hpos[8]   <= cpu_dout[0];
+            3'd4: scr_vpos[7:0] <= cpu_dout;
+            3'd5: scr_vpos[8]   <= cpu_dout[0];
+            3'd6: snd_latch     <= cpu_dout;
+        endcase
     end
-    else if(cen_Q) begin
-        if( bank_cs && !RnW ) begin
-            bank <= cpu_dout[2:0];
-        end
-    end
+end
 
 // CPU reset
 jt12_rst u_rst(
@@ -155,89 +136,28 @@ jt12_rst u_rst(
     .rst_n  ( nRESET    )
 );
 
-localparam coinw = 4;
-reg [coinw-1:0] coin_cnt1, coin_cnt2;
+reg [7:0] cabinet;
 
-always @(posedge clk)
-    if( rst ) begin
-        coin_cnt1 <= {coinw{1'b0}};
-        coin_cnt2 <= {coinw{1'b0}};
-        flip <= 1'b0;
-        sres_b <= 1'b1;
-        end
-    else if(cen_Q) begin
-        if( flip_cs )
-            case(A[2:0])
-                3'd0: flip <= cpu_dout[0];
-                3'd1: sres_b <= cpu_dout[0];
-                3'd2: coin_cnt1 <= coin_cnt1+{ {(coinw-1){1'b0}}, cpu_dout[0] };
-                3'd3: coin_cnt2 <= coin_cnt2+{ {(coinw-1){1'b0}}, cpu_dout[0] };
-                default:;
-            endcase
-    end
-
-always @(posedge clk)
-    if( rst )
-        snd_latch <= 8'd0;
-    else if(cen_Q) begin
-        if( sound_cs ) snd_latch <= cpu_dout;
-    end
-
-reg [7:0] cabinet_input;
-
-always @(*)
-    case( cpu_AB[3:0])
-        4'd0: cabinet_input = { coin_input, // COINS
+always @(*) begin
+    case( cpu_AB[2:0])
+        3'd0: cabinet = { coin_input, // COINS
                      service,
                      1'b1, // tilt?
-                     2'h3, // undocumented. The game start screen has background when set to 0!
+                     2'h3, // undocumented
                      start_button }; // START
-        4'd1: cabinet_input = { 2'b11, joystick1 };
-        4'd2: cabinet_input = { 2'b11, joystick2 };
-        4'd3: cabinet_input = dipsw_a;
-        4'd4: cabinet_input = dipsw_b;
-        default: cabinet_input = 8'hff;
-    endcase
-
-
-// RAM, 8kB
-wire cpu_ram_we = ram_cs && !RnW;
-assign cpu_AB = A[12:0];
-
-wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
-wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
-
-jtframe_ram #(.aw(13)) u_ram(
-    .clk        ( clk       ),
-    .cen        ( cen_Q     ),
-    .addr       ( RAM_addr  ),
-    .data       ( cpu_dout  ),
-    .we         ( RAM_we    ),
-    .q          ( ram_dout  )
-);
-
-reg [7:0] cpu_din;
-
-always @(*)
-    case( {ram_cs, char_cs, scr_cs, rom_cs, in_cs} )
-        5'b10_000: cpu_din =  ram_dout;
-        5'b01_000: cpu_din =  char_dout;
-        5'b00_100: cpu_din =  scr_dout;
-        5'b00_010: cpu_din =  rom_data;
-        5'b00_001: cpu_din =  cabinet_input;
-        default:   cpu_din =  rom_data;
-    endcase
-
-always @(A,bank) begin
-    rom_addr[12:0] = A[12:0];
-    casez( A[15:13] )
-        3'b1??: rom_addr[16:13] = { 2'h0, A[14:13] }; // 8N, 9N (32kB) 0x8000-0xFFFF
-        3'b011: rom_addr[16:13] = 4'b101; // 10N - 0x6000-0x7FFF (8kB)
-        3'b010:  // 0x4000-0x5FFF
-          rom_addr[16:13] = bank==3'd4 ? 4'b100 : {2'd0,bank[1:0]}+4'b110; // 13N
-        default: rom_addr[16:13] = 4'd0;
+        3'd1: cabinet = { 2'b11, joystick1 };
+        3'd2: cabinet = { 2'b11, joystick2 };
+        3'd3: cabinet = dipsw_a;
+        3'd4: cabinet = dipsw_b;
+        default: cabinet = 8'hff;
     endcase
 end
+
+assign cpu_din = rom_cs  ? rom_data : (
+                 ram_cs  ? ram_data : (
+                 scr_cs  ? scr_dout : (
+                 char_cs ? char_dout: (
+                 io_cs   ? cabinet  : 8'hff ))));
 
 // Bus access
 reg nIRQ, last_LVBL;
@@ -258,7 +178,7 @@ wire bus_busy = scr_busy | char_busy;
 jtframe_6809wait u_wait(
     .rstn       ( nRESET    ),
     .clk        ( clk       ),
-    .cen        ( cen6      ),
+    .cen        ( cen8      ),
     .cpu_cen    ( cpu_cen   ),
     .dev_busy   ( bus_busy  ),
     .rom_cs     ( rom_cs    ),
@@ -266,9 +186,6 @@ jtframe_6809wait u_wait(
     .cen_E      ( cen_E     ),
     .cen_Q      ( cen_Q     )
 );
-
-// cycle accurate core
-wire [111:0] RegData;
 
 mc6809i u_cpu (
     .clk     ( clk     ),
@@ -287,8 +204,28 @@ mc6809i u_cpu (
     .nRESET  ( nRESET  ),
     .nDMABREQ( 1'b1    ),
     // unused:
-    .RegData ( RegData )
+    .RegData (         )
     //.AVMA()
+);
+
+jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.12a")) u_bank0(
+    .clk    ( clk           ),
+    .cen    ( 1'b1          ),
+    .data   ( prom_din[3:0] ),
+    .rd_addr( bank_addr0    ),
+    .wr_addr( prog_addr     ),
+    .we     ( prom_bank[0]  ),
+    .q      ( mem_map[3:0]  )
+);
+
+jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.13a")) u_bank1(
+    .clk    ( clk           ),
+    .cen    ( 1'b1          ),
+    .data   ( prom_din[3:0] ),
+    .rd_addr( bank_addr1    ),
+    .wr_addr( prog_addr     ),
+    .we     ( prom_bank[1]  ),
+    .q      ( mem_map[7:4]  )
 );
 
 endmodule

@@ -28,8 +28,8 @@ module jtgng_objdma #(parameter
     // screen
     input               LVBL,
     // shared bus
-    output     [AW-1:0]  AB,
-    input      [DW-1:0]  DB,
+    output     [AW-1:0] AB,
+    input      [DW-1:0] DB,
     input               OKOUT,
     output  reg         bus_req,  // Request bus
     input               bus_ack,  // bus acknowledge
