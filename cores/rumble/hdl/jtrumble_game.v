@@ -109,19 +109,21 @@ wire [ 8:0] vdump;
 wire [15:0] char_data;
 wire [15:0] scr_data;
 wire [15:0] obj_data, obj_pre;
-wire [ 7:0] main_data;
+wire [ 7:0] main_data, dma_data;
 wire [ 7:0] snd_data;
 // ROM address
 wire [18:0] main_addr;
 wire [14:0] snd_addr;
+wire [ 9:0] dma_addr;
 wire [CHARW-1:0] char_addr;
 wire [SCRW-1:0] scr_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cenfm;
+wire        cenfm, cpu_cen;
 
-wire rom_ready;
-wire main_ok, snd_ok, obj_ok;
+wire        rom_ready;
+wire        main_ok, snd_ok, obj_ok, dma_ok;
+wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
 
 wire [ 1:0] prom_banks;
 wire        prom_prior_we;
@@ -142,6 +144,61 @@ jtframe_cen48 u_cen48(
     .cen3b  (          ),
     .cen1p5 (          ),
     .cen1p5b(          )
+);
+
+jtrumble_main u_main(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen8       ( pxl_cen       ),
+    .cpu_cen    ( cpu_cen       ),
+    .LVBL       ( LVBL          ),   // vertical blanking when 0
+    // Screen
+    .pal_cs     ( pal_cs        ),
+    .flip       ( flip          ),
+    // Sound
+    .sres_b     ( sres_b        ), // Z80 reset
+    .snd_latch  ( snd_latch     ),
+    // Characters
+    .char_dout  ( char_dout     ),
+    .cpu_dout   ( cpu_dout      ),
+    .char_cs    ( char_cs       ),
+    .char_busy  ( char_busy     ),
+    // scroll
+    .scr_dout   ( scr_dout      ),
+    .scr_cs     ( scr_cs        ),
+    .scr_busy   ( scr_busy      ),
+    .scr_hpos   ( scr_hpos      ),
+    .scr_vpos   ( scr_vpos      ),
+    // cabinet I/O
+    .start_button( start_button ),
+    .coin_input  ( coin_input   ),
+    .joystick1   ( joystick1    ),
+    .joystick2   ( joystick2    ),
+    // BUS sharing
+    .bus_ack     ( bus_ack      ),
+    .bus_req     ( bus_req      ),
+    .cpu_AB      ( cpu_AB       ),
+    .RnW         ( RnW          ),
+    .OKOUT       ( OKOUT        ),
+    // ROM access
+    .rom_cs      ( rom_cs       ),
+    .rom_addr    ( rom_addr     ),
+    .rom_data    ( rom_data     ),
+    .rom_ok      ( rom_ok       ),
+    // RAM access
+    .ram_cs      ( ram_cs       ),
+    .ram_addr    ( ram_addr     ),
+    .ram_data    ( ram_data     ),
+    .ram_ok      ( ram_ok       ),
+    // Memory map PROM
+    .prog_addr   ( prog_addr    ),
+    .prom_bank   ( prom_bank    ),
+    .prom_din    ( prom_din     ),
+    // DIP switches
+    .service     ( service      ),
+    .dip_pause   ( dip_pause    ),
+    .dipsw_a     ( dipsw_a      ),
+    .dipsw_b     ( dipsw_b      )
 );
 
 jtrumble_video #(
@@ -257,6 +314,12 @@ jtrumble_sdram #(
 
     .main_dout  ( main_dout ),
     .main_rnw   ( main_rnw  ),
+
+    // DMA
+    .dma_cs     ( dma_cs    ),
+    .dma_addr   ( dma_addr  ),
+    .dma_ok     ( dma_ok    ),
+    .dma_data   ( dma_data  ),
 
     // Sound CPU
     .snd_addr   ( snd_addr  ),

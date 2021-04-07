@@ -42,6 +42,12 @@ module jtrumble_sdram #(
     input       [ 7:0] main_dout,
     input              main_rnw,
 
+    // DMA
+    input              dma_cs,
+    output             dma_ok,
+    input       [ 8:0] dma_addr,
+    output      [ 7:0] dma_data,
+
     // Sound CPU
     input              snd_cs,
     output             snd_ok,
@@ -117,7 +123,8 @@ module jtrumble_sdram #(
 
 localparam [21:0] ZERO_OFFSET=0,
                   RAM_OFFSET =22'h10_0000,
-                  SCR_OFFSET =(22'h4c000-22'h48000)>>1;
+                  SCR_OFFSET =(22'h4c000-22'h48000)>>1,
+                  DMA_OFFSET =22'h1e00>>1;
 
 /* verilator lint_off WIDTH */
 localparam [24:0] BA1_START  = `BA1_START,
@@ -125,6 +132,8 @@ localparam [24:0] BA1_START  = `BA1_START,
                   BA3_START  = `BA3_START,
                   PROM_START = `PROM_START;
 /* verilator lint_on WIDTH */
+
+wire       prom_we;
 
 assign dwnld_busy = downloading;
 assign refresh_en = LVBL;
@@ -138,7 +147,7 @@ jtframe_dwnld #(
     .BA1_START ( BA1_START ), // sound
     .BA2_START ( BA2_START ), // tiles
     .BA3_START ( BA3_START ), // obj
-    .PROM_START( MCU_PROM  ), // PCM MCU
+    .PROM_START( PROM_START), // PCM MCU
     .SWAB      ( 1         )
 ) u_dwnld(
     .clk          ( clk            ),
@@ -157,42 +166,50 @@ jtframe_dwnld #(
     .sdram_ack    ( prog_ack       )
 );
 
-// main CPU ROM and RAM
-jtframe_ram_2slots #(
+// main CPU ROM/RAM, OBJ DMA
+jtframe_ram_3slots #(
     // RAM
     .SLOT0_DW( 8),
     .SLOT0_AW(RAMW),
 
     // Game ROM
     .SLOT1_DW( 8),
-    .SLOT1_AW(MAINW)
+    .SLOT1_AW(MAINW),
+
+    // DMA
+    .SLOT2_DW( 8),
+    .SLOT2_AW( 9)
 ) u_bank0(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
     .offset0    ( RAM_OFFSET),
     .offset1    (ZERO_OFFSET),
+    .offset2    ( DMA_OFFSET),
 
     .slot0_addr (  ram_addr ),
     .slot1_addr ( main_addr ),
-    .slot2_addr ( map1_addr ),
-    .slot3_addr ( map2_addr ),
+    .slot2_addr (  dma_addr ),
 
     //  output data
     .slot0_dout (  ram_data ),
     .slot1_dout ( main_data ),
+    .slot2_dout (  dma_data ),
 
     .slot0_cs   (  ram_cs   ),
     .slot1_cs   ( main_cs   ),
+    .slot2_cs   (  dma_cs   ),
 
     .slot0_wen  ( ~main_rnw ),
     .slot0_din  ( main_dout ),
     .slot0_wrmask( 2'b10    ),
 
     .slot1_clr  ( 1'b0      ),
+    .slot2_clr  ( 1'b0      ),
 
     .slot0_ok   ( ram_ok    ),
     .slot1_ok   ( main_ok   ),
+    .slot2_ok   (  dma_ok   ),
 
     // SDRAM controller interface
     .sdram_ack   ( ba0_ack   ),
@@ -206,9 +223,9 @@ jtframe_ram_2slots #(
 );
 
 // Audio CPU
-jtframe_rom_1slots #(
+jtframe_rom_1slot #(
     .SLOT0_DW( 8),
-    .SLOT0_AW(14)
+    .SLOT0_AW(15)
 ) u_bank1(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -258,7 +275,7 @@ jtframe_rom_2slots #(
 );
 
 // Objects
-jtframe_rom_1slots #(
+jtframe_rom_1slot #(
     .SLOT0_DW(  16),
     .SLOT0_AW(OBJW)
 ) u_bank3(
