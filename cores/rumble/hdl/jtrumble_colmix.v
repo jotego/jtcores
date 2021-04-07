@@ -30,8 +30,8 @@ module jtrumble_colmix(
 
     // pixel input from generator modules
     input [5:0]      char_pxl,        // character color code
-    input [6:0]      scr_pxl,
-    input [5:0]      obj_pxl,
+    input [7:0]      scr_pxl,
+    input [6:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
     output  reg      LHBL_dly,
@@ -54,11 +54,12 @@ module jtrumble_colmix(
 
 parameter PXL_DLY = 8;
 
-parameter [1:0] OBJ_PAL = 2'b01,
-                SCR_PAL = 2'b00,
+parameter [1:0] OBJ_PAL = 2'b10,
+                SCR_PAL = 2'b01,
                 CHAR_PAL= 2'b11;
 
-reg [7:0] pal_addr;
+reg [ 8:0] pal_addr;
+reg [ 7:0] last_out;
 
 wire enable_char = gfx_en[0];
 wire enable_scr  = gfx_en[1];
@@ -69,14 +70,14 @@ wire enable_obj  = gfx_en[3];
 wire pal_we      = pal_cs;
 wire [ 1:0] prio;
 wire [ 7:0] dump;
-wire [11:0] pxl;
+reg  [11:0] pxl;
 reg         lsb;
 
-wire       scrwin  = scr_pxl[6];
+wire       scrwin  = scr_pxl[7];
 wire [7:0] prio_addr = { scr_pxl[3:0], scr_pxl[6], obj_blank, scr_blank, char_blank };
 
-assign pal_addr = prio==CHAR_PAL ? { CHAR_PAL, char_pxl} :
-                 (prio==OBJ_PAL  ? { OBJ_PAL, obj_pxl } : { SCR_PAL: scr_pxl[5:0]} );
+assign pal_addr = prio==CHAR_PAL ? { CHAR_PAL, 1'b1, char_pxl} :
+                 (prio==OBJ_PAL  ? { OBJ_PAL, obj_pxl } : { SCR_PAL, scr_pxl[6:0]} );
 
 always @(posedge clk) begin
     last_out <= dump;
@@ -86,12 +87,12 @@ always @(posedge clk) begin
     end else lsb <= ~lsb;
 end
 
-jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.8j")) u_prio(
+jtframe_prom #(.dw(2),.aw(8),.simfile("63s141.8j")) u_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
-    .data   ( prom_din      ),
+    .data   ( prom_din[1:0] ),
     .rd_addr( prio_addr     ),
-    .wr_addr( prom_addr     ),
+    .wr_addr( prog_addr     ),
     .we     ( prom_prio_we  ),
     .q      ( prio          )
 );
@@ -111,7 +112,7 @@ jtframe_dual_ram #(.aw(10)) u_pal(
     .q1     ( dump          )
 );
 
-jtframe_blank #(.DLY(PXL_DLY))(
+jtframe_blank #(.DLY(PXL_DLY)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .LHBL       ( LHBL      ),
