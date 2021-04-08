@@ -22,6 +22,7 @@ module jtrumble_main(
     input              cen8,
     output             cpu_cen,
     input              LVBL,   // vertical blanking when 0
+    input              vmid,
     // Screen
     output  reg        pal_cs,
     output  reg        flip,
@@ -48,7 +49,6 @@ module jtrumble_main(
     output             bus_ack,
     input              bus_req,
     output             RnW,
-    output reg         OKOUT,
     // ROM access
     output             rom_cs,
     output  reg [17:0] rom_addr,
@@ -178,17 +178,21 @@ assign cpu_din = pre_cs  ? rom_data : (
                  io_cs   ? cabinet  : 8'hff ))));
 
 // Bus access
-reg nIRQ, last_LVBL;
+reg nIRQ, nFIRQ, last_LVBL, last_vmid;
 wire BS,BA;
 
 assign bus_ack = BA && BS;
 
 always @(posedge clk) if(cen_Q) begin
     last_LVBL <= LVBL;
-    if( {BS,BA}==2'b10 )
-        nIRQ <= 1'b1;
-    else
-        if(last_LVBL && !LVBL ) nIRQ<=1'b0 | ~dip_pause; // when LVBL goes low
+    last_vmid <= vmid;
+    if( {BS,BA}==2'b10 ) begin
+        nIRQ  <= 1'b1;
+        nFIRQ <= 1'b1;
+    end else begin
+        if( last_LVBL && !LVBL ) nIRQ<=1'b0  | ~dip_pause; // when LVBL goes low
+        if(!last_vmid &&  vmid ) nFIRQ<=1'b0 | ~dip_pause; // mid screen
+    end
 end
 
 wire bus_busy = scr_busy | char_busy;
@@ -218,7 +222,7 @@ mc6809i u_cpu (
     .BS      ( BS      ),
     .BA      ( BA      ),
     .nIRQ    ( nIRQ    ),
-    .nFIRQ   ( 1'b1    ),
+    .nFIRQ   ( nFIRQ   ),
     .nNMI    ( 1'b1    ),
     .nHALT   ( ~bus_req),
     .nRESET  ( nRESET  ),

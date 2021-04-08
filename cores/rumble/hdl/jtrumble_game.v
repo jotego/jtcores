@@ -129,6 +129,8 @@ wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
 wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
+wire        vmid;
+
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
     .cen16  ( pxl2_cen ),
@@ -154,6 +156,7 @@ jtrumble_main u_main(
     .cen8       ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .LVBL       ( LVBL          ),   // vertical blanking when 0
+    .vmid       ( vmid          ),
     // Screen
     .pal_cs     ( pal_cs        ),
     .flip       ( flip          ),
@@ -180,7 +183,6 @@ jtrumble_main u_main(
     .bus_ack     ( bus_ack      ),
     .bus_req     ( bus_req      ),
     .RnW         ( main_rnw     ),
-    .OKOUT       ( OKOUT        ),
     // ROM access
     .rom_cs      ( main_cs      ),
     .rom_addr    ( main_addr    ),
@@ -245,7 +247,6 @@ u_video(
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_ok     ( obj_ok        ),
-    .OKOUT      ( OKOUT         ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
@@ -253,7 +254,8 @@ u_video(
     .prog_addr  ( prog_addr[7:0]),
     .prom_prior_we(prom_prior_we),
     .prom_din   ( prog_data[3:0]),
-    // Color Mix
+    // Sync
+    .vmid       ( vmid          ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .LHBL_dly   ( LHBL_dly      ),

@@ -53,14 +53,14 @@ module jtrumble_video#(
     output      [ 8:0]  dma_addr,
     input       [ 7:0]  dma_data,
     // OBJ
-    input               OKOUT,
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten, // bus line counter enable
     output  [OBJW-1:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
-    // Color Mix
+    // Sync signals
+    output reg          vmid,
     output              LVBL,
     output              LHBL,
     output              LHBL_dly,
@@ -94,6 +94,7 @@ wire       HINIT;
 wire       LVBL_obj, LHBL_obj;
 wire [8:0] H;
 
+always @(posedge clk) vmid<=V==9'h60;
 
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
@@ -224,7 +225,21 @@ assign scr_dout   = 8'd0;
 
 assign dma_cs = bus_ack;
 
+
 `ifndef NOOBJ
+reg  okout, last_LVBL;
+reg  miss;
+wire dma_cen;
+
+// no tick recovery yet:
+assign dma_cen = pxl_cen & (~bus_ack | dma_ok | ~miss);
+
+always @(posedge clk) if(pxl_cen) begin
+    miss <= bus_req & (bus_ack&~dma_ok);
+    last_LVBL <= LVBL;
+    okout <= LVBL && !last_LVBL;
+end
+
 jtgng_obj #(
     .OBJMAX       ( 10'h200     ),
     .ROM_AW       ( OBJW        ),
@@ -238,11 +253,11 @@ u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .draw_cen   ( pxl2_cen    ),
-    .dma_cen    ( pxl_cen     ),
+    .dma_cen    ( dma_cen     ),
     .pxl_cen    ( pxl_cen     ),
     .AB         ( dma_addr    ),
     .DB         ( dma_data    ),
-    .OKOUT      ( OKOUT       ),
+    .OKOUT      ( okout       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
