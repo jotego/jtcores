@@ -23,6 +23,7 @@
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>Rush &quot; Crash (Japan)</name>
     <setname>rushcrsh</setname>
+    <rbf>jtrumble</rbf>
     <mameversion>0229</mameversion>
     <year>1986</year>
     <manufacturer>Capcom</manufacturer>

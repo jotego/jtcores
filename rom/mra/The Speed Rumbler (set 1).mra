@@ -23,6 +23,7 @@
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>The Speed Rumbler (set 1)</name>
     <setname>srumbler</setname>
+    <rbf>jtrumble</rbf>
     <mameversion>0229</mameversion>
     <year>1986</year>
     <manufacturer>Capcom</manufacturer>

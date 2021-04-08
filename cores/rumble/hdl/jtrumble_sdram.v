@@ -34,7 +34,7 @@ module jtrumble_sdram #(
     input  [MAINW-1:0] main_addr,
     input  [ RAMW-1:0] ram_addr,
     output      [ 7:0] main_data,
-    output reg  [ 7:0] ram_data,
+    output      [ 7:0] ram_data,
     output             main_ok,
     output             ram_ok,
     input       [ 7:0] main_dout,

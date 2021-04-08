@@ -35,8 +35,8 @@ module jtrumble_colmix(
     input [6:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
-    output  reg      LHBL_dly,
-    output  reg      LVBL_dly,
+    output           LHBL_dly,
+    output           LVBL_dly,
     // Palette PROMs and object priority
     input [7:0]      prog_addr,
     input            prom_prio_we,
@@ -46,9 +46,9 @@ module jtrumble_colmix(
     input [7:0]      cpu_dout,
     input            pal_cs,
 
-    output reg [3:0] red,
-    output reg [3:0] green,
-    output reg [3:0] blue,
+    output     [3:0] red,
+    output     [3:0] green,
+    output     [3:0] blue,
     // Debug
     input      [3:0] gfx_en
 );
@@ -59,8 +59,8 @@ parameter [1:0] OBJ_PAL = 2'b10,
                 SCR_PAL = 2'b01,
                 CHAR_PAL= 2'b11;
 
-reg [ 8:0] pal_addr;
-reg [ 7:0] last_out;
+wire [ 8:0] pal_addr;
+reg  [ 7:0] last_out;
 
 wire enable_char = gfx_en[0];
 wire enable_scr  = gfx_en[1];

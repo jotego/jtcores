@@ -6,4 +6,5 @@ ALTDIR=_alternatives/"_The Speed Rumbler"
 mkdir -p $OUTDIR/"$ALTDIR"
 
 mame2dip srumbler.xml -outdir $OUTDIR -altfolder "$ALTDIR" \
+    -rbf jtrumble \
     -corebuttons 2 -buttons "Shoot,Exit car"

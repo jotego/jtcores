@@ -19,6 +19,7 @@
 module jtrumble_game(
     input           rst,
     input           clk,
+    input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
     output   [3:0]  red,
@@ -129,7 +130,7 @@ wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
 wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
-wire        vmid;
+wire        vmid, cen24_8;
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
@@ -150,10 +151,26 @@ jtframe_cen48 u_cen48(
     .cen1p5b(          )
 );
 
+jtframe_cen24 u_cen24(
+    .clk    ( clk24     ),
+    .cen12  (           ),
+    .cen8   ( cen24_8   ),
+    .cen6   (           ),
+    .cen4   (           ),
+    .cen3   (           ),
+    .cen3q  (           ),
+    .cen1p5 (           ),
+    .cen12b (           ),
+    .cen6b  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5b(           )
+);
+
 jtrumble_main u_main(
     .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen8       ( pxl_cen       ),
+    .clk        ( clk24         ),
+    .cen8       ( cen24_8       ),
     .cpu_cen    ( cpu_cen       ),
     .LVBL       ( LVBL          ),   // vertical blanking when 0
     .vmid       ( vmid          ),
