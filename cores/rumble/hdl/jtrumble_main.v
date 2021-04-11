@@ -79,22 +79,22 @@ assign bank_addr0 = { bank[3:0], A[15:12] };
 assign ram_addr   = A[12:0];
 
 reg        VMA, pre_cs;
-reg [ 1:0] last_E, last_cs;
+reg        last_E, last_cs;
 reg [12:0] last_ram_addr;
 
-assign rom_cs = last_cs[1] && pre_cs;
+assign rom_cs = last_cs && pre_cs;
 
 always @(posedge clk or negedge nRESET) begin
     if(!nRESET) begin
         VMA      <= 1;
     end else begin
         last_ram_addr <= ram_addr;
-        last_E  <= { last_E[0], cen_E   };
-        last_cs <= { last_cs[0], pre_cs };
+        last_E  <= cen_E;
+        last_cs <= pre_cs;
         if( cen_E ) begin
             VMA <= AVMA;
         end
-        if( last_E[1] ) rom_addr <= { mem_map[5:0], A[11:0] };
+        if( pre_cs ) rom_addr <= { mem_map[5:0], A[11:0] };
     end
 end
 
