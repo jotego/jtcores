@@ -87,6 +87,9 @@ assign rom_cs = last_cs && pre_cs;
 always @(posedge clk or negedge nRESET) begin
     if(!nRESET) begin
         VMA      <= 1;
+        last_E   <= 0;
+        last_cs  <= 0;
+        rom_addr <= 0;
     end else begin
         last_ram_addr <= ram_addr;
         last_E  <= cen_E;
