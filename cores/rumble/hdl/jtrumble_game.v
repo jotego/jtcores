@@ -210,10 +210,6 @@ jtrumble_main u_main(
     .ram_addr    ( ram_addr     ),
     .ram_data    ( ram_data     ),
     .ram_ok      ( ram_ok       ),
-    // Memory map PROM
-    .prog_addr   (prog_addr[7:0]),
-    .prom_bank   ( prom_bank    ),
-    .prom_din    (prog_data[3:0]),
     // DIP switches
     .service     ( service      ),
     .dip_pause   ( dip_pause    ),

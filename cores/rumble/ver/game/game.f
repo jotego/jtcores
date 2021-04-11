@@ -3,6 +3,7 @@
 ../../hdl/jtrumble_main.v
 ../../hdl/jtrumble_sdram.v
 ../../hdl/jtrumble_video.v
+../../hdl/jtrumble_banks.v
 -F $MODULES/jtgng_obj.f
 -F $MODULES/jtgng_sound.f
 $MODULES/jtgng_char.v
@@ -22,4 +23,5 @@ $JTFRAME/hdl/video/jtframe_blank.v
 $JTFRAME/hdl/sdram/jtframe_dwnld.v
 
 $JTFRAME/hdl/clocking/jtframe_cen48.v
+$JTFRAME/hdl/clocking/jtframe_cen24.v
 # $JTFRAME/hdl/jtframe_sh.v

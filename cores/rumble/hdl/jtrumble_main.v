@@ -59,10 +59,6 @@ module jtrumble_main(
     output      [12:0] ram_addr,
     input       [ 7:0] ram_data,
     input              ram_ok,
-    // Memory map PROM
-    input       [ 7:0] prog_addr,
-    input       [ 1:0] prom_bank,
-    input       [ 3:0] prom_din,
     // DIP switches
     input              service,
     input              dip_pause,
@@ -78,8 +74,8 @@ reg         io_cs;
 reg  [ 7:0] bank;
 wire [ 7:0] mem_map, bank_addr0, bank_addr1, cpu_din;
 
-assign bank_addr0 = { bank[7:4], A[15:12] };
-assign bank_addr1 = { bank[3:0], A[15:12] };
+assign bank_addr1 = { bank[7:4], A[15:12] };
+assign bank_addr0 = { bank[3:0], A[15:12] };
 assign ram_addr   = A[12:0];
 
 reg        VMA, pre_cs;
@@ -234,24 +230,11 @@ mc6809i u_cpu (
     .LIC     (         )
 );
 
-jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.12a")) u_bank0(
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( prom_din[3:0] ),
-    .rd_addr( bank_addr0    ),
-    .wr_addr( prog_addr     ),
-    .we     ( prom_bank[0]  ),
-    .q      ( mem_map[7:4]  )
-);
-
-jtframe_prom #(.dw(4),.aw(8),.simfile("63s141.13a")) u_bank1(
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( prom_din[3:0] ),
-    .rd_addr( bank_addr1    ),
-    .wr_addr( prog_addr     ),
-    .we     ( prom_bank[1]  ),
-    .q      ( mem_map[3:0]  )
+jtrumble_banks u_banks(
+    .msb_addr   ( bank_addr1   ),
+    .lsb_addr   ( bank_addr0   ),
+    .msb        ( mem_map[7:4] ),
+    .lsb        ( mem_map[3:0] )
 );
 
 endmodule
