@@ -109,7 +109,7 @@ module jtrumble_sdram #(
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
-    output  [21:0]  prog_addr,
+    output reg [21:0] prog_addr,
     output  [15:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output  [ 1:0]  prog_ba,
