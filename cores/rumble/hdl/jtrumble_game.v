@@ -131,7 +131,7 @@ wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
 wire        vmid, cen24_8, cen24_4;
-wire        sres_b;
+wire        sres_b, flip;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = ~flip;
