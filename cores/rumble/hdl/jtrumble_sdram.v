@@ -141,6 +141,15 @@ assign prom_prior_we = prom_we && prog_addr[9:8]==2'b10;
 assign prom_banks[0] = prom_we && prog_addr[9:8]==2'b00;
 assign prom_banks[1] = prom_we && prog_addr[9:8]==2'b01;
 
+wire [21:0] raw_prog;
+
+always @(*) begin
+    prog_addr = raw_prog;
+    if( prog_ba==2'd2 && raw_prog >= 22'h4000 && !prom_we ) begin
+        prog_addr[4:0] = { raw_prog[3:0], raw_prog[4] }; // swaps bit 4 for scroll tiles
+    end
+end
+
 jtframe_dwnld #(
     .BA1_START ( BA1_START ), // sound
     .BA2_START ( BA2_START ), // tiles
@@ -153,7 +162,7 @@ jtframe_dwnld #(
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_data   ( ioctl_data     ),
     .ioctl_wr     ( ioctl_wr       ),
-    .prog_addr    ( prog_addr      ),
+    .prog_addr    ( raw_prog       ),
     .prog_data    ( prog_data      ),
     .prog_mask    ( prog_mask      ), // active low
     .prog_we      ( prog_we        ),

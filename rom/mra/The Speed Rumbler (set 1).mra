@@ -43,8 +43,10 @@
         <part name="rc06.11f" crc="a70f4fd4"/>
         <!-- audiocpu - starts at 0x40000 -->
         <part name="rc05.2f" crc="0177cebe"/>
-        <!-- gfx1 - starts at 0x48000 -->
-        <part name="rc10.6g" crc="adabe271"/>
+        <!-- char - starts at 0x48000 -->
+        <interleave output="16">
+            <part name="rc10.6g" crc="adabe271" map="12"/>
+        </interleave>
         <!-- gfx2 - starts at 0x4C000 -->
         <part name="rc11.11a" crc="5fa042ba"/>
         <part name="rc12.13a" crc="a2db64af"/>

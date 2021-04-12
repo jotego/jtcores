@@ -86,7 +86,7 @@ module jtrumble_game(
     input   [31:0]  dipsw,
     input           service,
     input           dip_pause,
-    input           dip_flip,
+    output          dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     // Sound output
@@ -130,7 +130,11 @@ wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
 wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
-wire        vmid, cen24_8;
+wire        vmid, cen24_8, cen24_4;
+wire        sres_b;
+
+assign { dipsw_b, dipsw_a } = dipsw[15:0];
+assign dip_flip = ~flip;
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
@@ -141,7 +145,7 @@ jtframe_cen48 u_cen48(
     .cen8   ( pxl_cen  ),
     .cen6   (          ),
     .cen6b  (          ),
-    .cen4   ( cenfm    ),
+    .cen4   (          ),
     .cen4_12(          ),
     .cen3   (          ),
     .cen3q  (          ),
@@ -156,7 +160,7 @@ jtframe_cen24 u_cen24(
     .cen12  (           ),
     .cen8   ( cen24_8   ),
     .cen6   (           ),
-    .cen4   (           ),
+    .cen4   ( cen24_4   ),
     .cen3   (           ),
     .cen3q  (           ),
     .cen1p5 (           ),
@@ -284,10 +288,10 @@ u_video(
 
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
-    .clk        (  clk          ),
-    .cen3       (  cenfm        ),
+    .clk        (  clk24        ),
+    .cen3       (  cen24_4      ),
     .cen1p5     (  1'b0         ), // unused
-    .sres_b     (  1'b1         ),
+    .sres_b     (  sres_b       ),
     .snd_latch  (  snd_latch    ),
     .snd2_latch (               ),
     .snd_int    (  1'b1         ), // unused

@@ -134,8 +134,8 @@ always @(posedge clk or negedge nRESET) begin
         case(A[2:0])
             3'd0: bank <= cpu_dout;
             3'd1: begin
-                flip   <= cpu_dout[7]; // coin counters go here too
-                sres_b <= cpu_dout[4]; // it could be bit 5, not sure, they are toggled together
+                flip   <= cpu_dout[0]; // coin counters go here too
+                // sres_b <= cpu_dout[4]; // it could be bit 5, not sure, they are toggled together
             end
             3'd2: scr_hpos[7:0] <= cpu_dout;
             3'd3: scr_hpos[8]   <= cpu_dout[0];

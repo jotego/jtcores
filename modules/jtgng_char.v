@@ -26,8 +26,8 @@ module jtgng_char #(parameter
                   // 10: The Speed Rumbler
     PALETTE  = 0, // 1 if the palette PROM is used
     DW       = LAYOUT==9 ? 16 : 8,
-    ABW      = (LAYOUT==8 || LAYOUT==9) ? 12 : 11,
-    HW       = (LAYOUT==8 || LAYOUT==9) ?  9 : 8,
+    ABW      = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10 ) ? 12 : 11,
+    HW       = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10 ) ?  9 : 8,
     PXLW     = (PALETTE?4:PALW+2),
     HOFFSET  = 8'd0,
     // bit field information
@@ -147,7 +147,7 @@ reg  dout_hflip, dout_vflip;
 always @(*) begin
     case( LAYOUT )
         10: begin // The Speed Rumbler (to check on PCB)
-            dout_hflip =  dout_high[7];
+            dout_hflip =  dout_high[7] ^ flip;
             dout_vflip = ~dout_high[6];
         end
         default: begin

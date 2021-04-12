@@ -63,12 +63,9 @@ wire [ 8:0] pal_addr;
 reg  [ 7:0] last_out;
 reg         gray;       // gray output until the palette is 1st written
 
-wire enable_char = gfx_en[0];
-wire enable_scr  = gfx_en[1];
-wire obj_blank   = ~&obj_pxl[3:0];
-wire scr_blank   = ~&scr_pxl[3:0];
-wire char_blank  = ~&char_pxl[1:0];
-wire enable_obj  = gfx_en[3];
+wire obj_blank   = ~&obj_pxl[3:0]  & gfx_en[3];
+wire scr_blank   = ~&scr_pxl[3:0]  & gfx_en[1];
+wire char_blank  = ~&char_pxl[1:0] & gfx_en[0];
 wire pal_we      = pal_cs;
 wire [ 1:0] prio;
 wire [ 7:0] dump;
@@ -90,12 +87,14 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @(posedge clk) begin
-    last_out <= dump;
     if(pxl_cen) begin
         pxl <= gray ? {3{~pal_addr[3:0]}} :
-                      { last_out, dump[7:4] };
+                      { dump, last_out[7:4] };
         lsb<=1;
-    end else if(pxl2_cen) lsb <= ~lsb;
+    end else if(pxl2_cen) begin
+        last_out <= dump;
+        lsb      <= ~lsb;
+    end
 end
 
 jtframe_prom #(.dw(2),.aw(8),.simfile("63s141.8j")) u_prio(
