@@ -61,6 +61,7 @@ parameter [1:0] OBJ_PAL = 2'b10,
 
 wire [ 8:0] pal_addr;
 reg  [ 7:0] last_out;
+reg         gray;       // gray output until the palette is 1st written
 
 wire enable_char = gfx_en[0];
 wire enable_scr  = gfx_en[1];
@@ -80,10 +81,19 @@ wire [7:0] prio_addr = { scr_pxl[3:0], scr_pxl[6], obj_blank, scr_blank, char_bl
 assign pal_addr = prio==CHAR_PAL ? { CHAR_PAL, 1'b1, char_pxl} :
                  (prio==OBJ_PAL  ? { OBJ_PAL, obj_pxl } : { SCR_PAL, scr_pxl[6:0]} );
 
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        gray <= 1;
+    end else begin
+        if( pal_cs ) gray<=0;
+    end
+end
+
 always @(posedge clk) begin
     last_out <= dump;
     if(pxl_cen) begin
-        pxl <= { last_out, dump[7:4] };
+        pxl <= gray ? {3{~pal_addr[3:0]}} :
+                      { last_out, dump[7:4] };
         lsb<=1;
     end else if(pxl2_cen) lsb <= ~lsb;
 end

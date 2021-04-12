@@ -22,7 +22,8 @@
 module jtgng_char #(parameter
     ROM_AW   = 13,
     PALW     = 4,
-    LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms, 9: Street Fighter
+    LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms, 9: Street Fighter,
+                  // 10: The Speed Rumbler
     PALETTE  = 0, // 1 if the palette PROM is used
     DW       = LAYOUT==9 ? 16 : 8,
     ABW      = (LAYOUT==8 || LAYOUT==9) ? 12 : 11,
@@ -141,8 +142,23 @@ wire vflip_en = VFLIP_EN[0];
 wire hflip_en = HFLIP_EN[0];
 
 wire hflip_next = char_attr1[PALW];
-wire dout_hflip = (dout_high[HFLIP]& hflip_en) ^ flip ^ HFLIP_XOR;
-wire dout_vflip = (dout_high[VFLIP]& vflip_en) ^ flip ^ VFLIP_XOR;
+reg  dout_hflip, dout_vflip;
+
+always @(*) begin
+    case( LAYOUT )
+        10: begin // The Speed Rumbler (to check on PCB)
+            dout_hflip =  dout_high[7];
+            dout_vflip = ~dout_high[6];
+        end
+        default: begin
+            dout_hflip = (dout_high[HFLIP] & hflip_en) ^ HFLIP_XOR;
+            dout_vflip = (dout_high[VFLIP] & vflip_en) ^ VFLIP_XOR;
+        end
+    endcase
+
+    dout_hflip = dout_hflip ^ flip;
+    dout_vflip = dout_vflip ^ flip;
+end
 
 always @(posedge clk) if(pxl_cen) begin
     // new tile starts 8+5=13 pixels off
@@ -166,6 +182,10 @@ always @(posedge clk) if(pxl_cen) begin
                 char_addr  <= { { dout_high[1:0], dout_low},
                 {3{dout_vflip}}^V[2:0] };
                 char_attr0 <= { dout_hflip, dout_high[7:4] };
+            end
+            10:  begin // The Speed Rumbler
+                char_addr  <= { { dout_high[1:0], dout_low}, V[2:0] };
+                char_attr0 <= { dout_hflip, dout_high[5:2] };
             end
         endcase
     end

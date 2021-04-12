@@ -133,14 +133,15 @@ jtframe_vtimer #(
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET (    7),
-    .ROM_AW  (CHARW),
-    .PALW    (    4)
+    .HOFFSET (       7),
+    .ROM_AW  (   CHARW),
+    .PALW    (       4),
+    .LAYOUT  ( LAYOUT )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .AB         ( cpu_AB[10:0]  ),
+    .AB         ( { ~cpu_AB[0], cpu_AB[10:1] } ),
     .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
@@ -157,6 +158,7 @@ jtgng_char #(
     .msg_high   (               ),
     // ROM
     .char_addr  ( char_addr     ),
+    //.rom_data   ( { char_data[7:0], char_data[15:8] } ),
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
@@ -201,7 +203,7 @@ jtgng_scroll #(
     .vpos       ( scr_vpos      ),
     .flip       ( flip          ),
     // bus arbitrion
-    .Asel       ( cpu_AB[0]     ),
+    .Asel       ( ~cpu_AB[0]    ),
     .AB         ( cpu_AB[10:1]  ),
     .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
