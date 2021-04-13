@@ -203,7 +203,7 @@ jtgng_scroll #(
     .vpos       ( scr_vpos      ),
     .flip       ( flip          ),
     // bus arbitrion
-    .Asel       ( cpu_AB[0]     ),
+    .Asel       ( ~cpu_AB[0]    ),
     .AB         ( cpu_AB[10:1]  ),
     .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
