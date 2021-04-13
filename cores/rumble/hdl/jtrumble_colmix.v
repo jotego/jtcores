@@ -64,7 +64,7 @@ reg  [ 7:0] last_out;
 reg         gray;       // gray output until the palette is 1st written
 
 wire obj_blank   = ~&obj_pxl[3:0]  & gfx_en[3];
-wire scr_blank   = ~&scr_pxl[3:0]  & gfx_en[1];
+wire scr_blank   =  &scr_pxl[3:0]  | ~gfx_en[1];
 wire char_blank  = ~&char_pxl[1:0] & gfx_en[0];
 wire pal_we      = pal_cs;
 wire [ 1:0] prio;
