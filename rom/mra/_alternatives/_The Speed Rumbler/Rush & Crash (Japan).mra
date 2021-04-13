@@ -49,20 +49,20 @@
         </interleave>
         <!-- scr - starts at 0x4C000 -->
         <interleave output="16">
-            <part name="rc11.11a" crc="5fa042ba" map="01"/>
-            <part name="rc15.11c" crc="ca3a3af3" map="10"/>
+            <part name="rc15.11c" crc="ca3a3af3" map="01"/>
+            <part name="rc11.11a" crc="5fa042ba" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="rc12.13a" crc="a2db64af" map="01"/>
-            <part name="rc16.13c" crc="c49a4a11" map="10"/>
+            <part name="rc16.13c" crc="c49a4a11" map="01"/>
+            <part name="rc12.13a" crc="a2db64af" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="rc13.14a" crc="f1df5499" map="01"/>
-            <part name="rc17.14c" crc="aa80aaab" map="10"/>
+            <part name="rc17.14c" crc="aa80aaab" map="01"/>
+            <part name="rc13.14a" crc="f1df5499" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="rc14.15a" crc="b22b31b3" map="01"/>
-            <part name="rc18.15c" crc="ce67868e" map="10"/>
+            <part name="rc18.15c" crc="ce67868e" map="01"/>
+            <part name="rc14.15a" crc="b22b31b3" map="10"/>
         </interleave>
         <!-- obj - starts at 0x8C000 -->
         <interleave output="32">
