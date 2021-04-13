@@ -78,8 +78,8 @@ always @(*) begin
                 { V[9:7], H[8:7], V[6:3], H[6:3] };
         end else if( LAYOUT==8 || LAYOUT==9 ) begin // Side Arms/Street Fighter
             scan = { V[7:3], H[8:3] }; // SCANW assumed to be 11
-        end else if( LAYOUT==10 ) begin // The Speed Rumbler
-            scan = {SCANW{flip}}^{ H[8:3], V[7:3] };
+        end else if( LAYOUT==10 ) begin // The Speed Rumbler (SCANW=11 or 12)
+            scan = {SCANW{flip}}^{ H[8:3], V[7:(SCANW==12?2:3)] };
         end else // other games
             scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
     end

@@ -119,7 +119,7 @@ wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        cenfm, cpu_cen;
 
-wire [ 8:0] scr_hpos, scr_vpos;
+wire [ 9:0] scr_hpos, scr_vpos;
 wire [ 8:0] vdump;
 wire        scr_busy, char_busy;
 
@@ -232,7 +232,7 @@ u_video(
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .cpu_AB     ( ram_addr[11:0]),
+    .cpu_AB     ( ram_addr[12:0]),
     .V          ( vdump         ),
     .RnW        ( main_rnw      ),
     .flip       ( flip          ),

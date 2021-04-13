@@ -26,7 +26,7 @@ module jtrumble_video#(
     input               pxl2_cen,
     input               pxl_cen,
     input               cpu_cen,
-    input       [11:0]  cpu_AB,
+    input       [12:0]  cpu_AB,
     output      [ 8:0]  V,
     input               RnW,
     input               flip,
@@ -158,7 +158,6 @@ jtgng_char #(
     .msg_high   (               ),
     // ROM
     .char_addr  ( char_addr     ),
-    //.rom_data   ( { char_data[7:0], char_data[15:8] } ),
     .rom_data   ( char_data     ),
     .rom_ok     ( char_ok       ),
     // Pixel output
@@ -191,7 +190,9 @@ jtgng_scroll #(
     .ROM_AW ( SCRW  ),
     .TILE4  ( 1     ),
     .LAYOUT (LAYOUT ),
-    .PALW   ( 4     )
+    .PALW   ( 4     ),
+    .SCANW  ( 12    ),
+    .POSW   ( 10    )
 ) u_scroll (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -204,7 +205,7 @@ jtgng_scroll #(
     .flip       ( flip          ),
     // bus arbitrion
     .Asel       ( ~cpu_AB[0]    ),
-    .AB         ( cpu_AB[10:1]  ),
+    .AB         ( { cpu_AB[6:1], cpu_AB[12:7] }  ),
     .scr_cs     ( scr_cs        ),
     .din        ( cpu_dout      ),
     .dout       ( scr_dout      ),

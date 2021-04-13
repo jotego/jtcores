@@ -38,8 +38,8 @@ module jtrumble_main(
     input       [7:0]  scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output  reg [8:0]  scr_hpos,
-    output  reg [8:0]  scr_vpos,
+    output  reg [9:0]  scr_hpos,
+    output  reg [9:0]  scr_vpos,
     // cabinet I/O
     input       [1:0]  start_button,
     input       [1:0]  coin_input,
@@ -138,9 +138,9 @@ always @(posedge clk or negedge nRESET) begin
                 // sres_b <= cpu_dout[4]; // it could be bit 5, not sure, they are toggled together
             end
             3'd2: scr_hpos[7:0] <= cpu_dout;
-            3'd3: scr_hpos[8]   <= cpu_dout[0];
+            3'd3: scr_hpos[9:8] <= cpu_dout[1:0];
             3'd4: scr_vpos[7:0] <= cpu_dout;
-            3'd5: scr_vpos[8]   <= cpu_dout[0];
+            3'd5: scr_vpos[9:8] <= cpu_dout[1:0];
             3'd6: snd_latch     <= cpu_dout;
         endcase
     end
