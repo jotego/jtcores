@@ -145,9 +145,9 @@ wire [21:0] raw_prog;
 
 always @(*) begin
     prog_addr = raw_prog;
-    if( prog_ba==2'd2 && raw_prog >= 22'h4000 && !prom_we ) begin
-        prog_addr[4:0] = { raw_prog[3:0], raw_prog[4] }; // swaps bit 4 for scroll tiles
-    end
+//    if( prog_ba==2'd2 && raw_prog >= 22'h4000 && !prom_we ) begin
+//        prog_addr[4:0] = { raw_prog[3:0], raw_prog[4] }; // swaps bit 4 for scroll tiles
+//    end
 end
 
 jtframe_dwnld #(
