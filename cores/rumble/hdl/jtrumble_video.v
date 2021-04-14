@@ -82,7 +82,7 @@ module jtrumble_video#(
 
 localparam LAYOUT = 10;
 
-localparam PXL_CHRW=6;
+localparam PXL_CHRW=7;
 
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
@@ -133,10 +133,10 @@ jtframe_vtimer #(
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET (       7),
-    .ROM_AW  (   CHARW),
-    .PALW    (       4),
-    .LAYOUT  ( LAYOUT )
+    .HOFFSET (       7    ),
+    .ROM_AW  (   CHARW    ),
+    .PALW    ( PXL_CHRW-2 ),
+    .LAYOUT  ( LAYOUT     )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),

@@ -185,7 +185,7 @@ always @(posedge clk) if(pxl_cen) begin
             end
             10:  begin // The Speed Rumbler
                 char_addr  <= { { dout_high[1:0], dout_low}, V[2:0] };
-                char_attr0 <= { dout_hflip, dout_high[5:2] };
+                char_attr0 <= { dout_hflip, dout_high[6:2] };
             end
         endcase
     end

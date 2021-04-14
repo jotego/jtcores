@@ -30,7 +30,7 @@ module jtrumble_colmix(
     input            pxl2_cen,
 
     // pixel input from generator modules
-    input [5:0]      char_pxl,        // character color code
+    input [6:0]      char_pxl,        // character color code
     input [7:0]      scr_pxl,
     input [6:0]      obj_pxl,
     input            LVBL,
@@ -63,19 +63,20 @@ wire [ 8:0] pal_addr;
 reg  [ 7:0] last_out;
 reg         gray;       // gray output until the palette is 1st written
 
-wire obj_blank   = ~&obj_pxl[3:0]  & gfx_en[3];
+wire obj_blankn  = ~&obj_pxl[3:0]  & gfx_en[3];
 wire scr_blank   =  &scr_pxl[3:0]  | ~gfx_en[1];
-wire char_blank  = ~&char_pxl[1:0] & gfx_en[0];
+wire char_blankn = ~&char_pxl[1:0] & gfx_en[0];
 wire pal_we      = pal_cs;
 wire [ 1:0] prio;
 wire [ 7:0] dump;
 reg  [11:0] pxl;
 reg         lsb;
 
-wire       scrwin  = scr_pxl[7];
-wire [7:0] prio_addr = { scr_pxl[3:0], scr_pxl[6], obj_blank, scr_blank, char_blank };
+wire        scrwin   =   scr_pxl[7];
+wire       charwin   =  char_pxl[6];
+wire [7:0] prio_addr = { scr_pxl[3:0], scrwin, obj_blankn, charwin, char_blankn };
 
-assign pal_addr = prio==CHAR_PAL ? { CHAR_PAL, 1'b1, char_pxl} :
+assign pal_addr = prio==CHAR_PAL ? { CHAR_PAL, 1'b1, char_pxl[5:0]} :
                  (prio==OBJ_PAL  ? { OBJ_PAL, obj_pxl } : { SCR_PAL, scr_pxl[6:0]} );
 
 always @(posedge clk, posedge rst) begin

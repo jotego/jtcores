@@ -203,7 +203,7 @@ always @(posedge clk) if(cen6) begin
                        HS[2]^scr_hflip };
         end
         10: begin // The Speed Rumbler
-            scr_attr0  <= attr[7:4];
+            scr_attr0  <= {attr[4], attr[7:5]};
             scr_addr   <= { attr[2:0], id, // AS=3+8+6=17 bits
                        HS[3]^(scr_hflip^flip),
                        SV[3:0]^{4{scr_vflip}},
