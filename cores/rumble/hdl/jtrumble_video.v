@@ -96,6 +96,9 @@ wire [8:0] H;
 
 always @(posedge clk) vmid<=V==9'h60;
 
+assign LVBL_obj = LVBL;
+assign LHBL_obj = LHBL;
+
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
