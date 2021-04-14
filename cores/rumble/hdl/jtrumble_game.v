@@ -135,6 +135,7 @@ wire        sres_b, flip;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = ~flip;
+assign obj_cs   = 1;
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
