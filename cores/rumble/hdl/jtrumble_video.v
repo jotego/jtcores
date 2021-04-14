@@ -45,8 +45,8 @@ module jtrumble_video#(
     input       [15:0]  scr_data,
     input               scr_ok,
     output              scr_busy,
-    input       [ 8:0]  scr_hpos,
-    input       [ 8:0]  scr_vpos,
+    input       [ 9:0]  scr_hpos,
+    input       [ 9:0]  scr_vpos,
     // DMA
     output              dma_cs,
     input               dma_ok,

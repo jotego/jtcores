@@ -71,8 +71,10 @@ end
 
 assign VS = vpos + { {POSW-8{1'b0}}, VF};
 assign Hsum = hpos + ( LAYOUT==1 ?
-            { {POSW-8{~Hfix[8]}}, HF[7:0]} :
-            { {POSW-8{~Hfix[8]}}, H7, HF[6:0]} );
+            { {POSW-8{~Hfix[8]}}, HF[7:0]} : (
+            LAYOUT==10 && SCANW==12 ?
+            { Hfix[8], Hfix } :
+            { {POSW-8{~Hfix[8]}}, H7, HF[6:0]} ));
 
 always @(posedge clk) if(pxl_cen) begin
     if( Hsum[2:0]=={3{flip}} ) HS[POSW-1:3] <= Hsum[POSW-1:3];
