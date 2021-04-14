@@ -59,7 +59,7 @@ reg  [8:0] Hfix;
 reg  [POSW-1:0] HS;
 wire [POSW-1:0] Hsum, VS;
 wire [ 7:0] VF = {8{flip}}^V;
-wire [ 7:0] HF = {8{flip}}^Hfix[7:0];
+wire [ 8:0] HF = {9{flip}}^Hfix;
 
 wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 
@@ -73,7 +73,7 @@ assign VS = vpos + { {POSW-8{1'b0}}, VF};
 assign Hsum = hpos + ( LAYOUT==1 ?
             { {POSW-8{~Hfix[8]}}, HF[7:0]} : (
             LAYOUT==10 && SCANW==12 ?
-            { Hfix[8], Hfix } :
+            HF :
             { {POSW-8{~Hfix[8]}}, H7, HF[6:0]} ));
 
 always @(posedge clk) if(pxl_cen) begin
