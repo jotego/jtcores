@@ -250,7 +250,7 @@ jtgng_obj #(
     .OBJMAX       ( 10'h200     ),
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
-    .PXL_DLY      (  2          ),
+    .PXL_DLY      (  0          ),
     .LAYOUT       ( LAYOUT      ),
     // Avatar parameters
     .AVATAR_MAX   ( 0           ),
