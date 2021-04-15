@@ -122,7 +122,7 @@ module jtrumble_sdram #(
 localparam [21:0] ZERO_OFFSET=0,
                   RAM_OFFSET =22'h10_0000,
                   SCR_OFFSET =(22'h4c000-22'h48000)>>1,
-                  DMA_OFFSET =22'h1e00>>1;
+                  DMA_OFFSET = RAM_OFFSET+22'h1e00;
 
 /* verilator lint_off WIDTH */
 localparam [24:0] BA1_START  = `BA1_START,
@@ -185,7 +185,7 @@ jtframe_ram_3slots #(
 
     // DMA
     .SLOT2_DW( 8),
-    .SLOT2_AW( 9)
+    .SLOT2_AW( 10)
 ) u_bank0(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -196,7 +196,7 @@ jtframe_ram_3slots #(
 
     .slot0_addr (  ram_addr ),
     .slot1_addr ( main_addr ),
-    .slot2_addr (  dma_addr ),
+    .slot2_addr ({dma_addr,1'b0} ),
 
     //  output data
     .slot0_dout (  ram_data ),
