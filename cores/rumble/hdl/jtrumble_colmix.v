@@ -59,10 +59,6 @@ parameter [1:0] OBJ_PAL = 2'b10,
                 SCR_PAL = 2'b01,
                 CHAR_PAL= 2'b11;
 
-parameter [1:0] OBJ_SEL = 2'b10,
-                SCR_SEL = 2'b01,
-                CHAR_SEL= 2'b11;
-
 wire [ 8:0] pal_addr;
 reg  [ 7:0] last_out;
 reg         gray;       // gray output until the palette is 1st written
@@ -79,8 +75,9 @@ wire        scrwin   =   scr_pxl[7];
 wire       charwin   =  char_pxl[6];
 wire [7:0] prio_addr = { scr_pxl[3:0], obj_blank, charwin, scrwin, char_blankn };
 
-assign pal_addr = prio==CHAR_SEL ? { CHAR_PAL, 1'b1, char_pxl[5:0]} :
-                 (prio==OBJ_SEL  ? { OBJ_PAL, obj_pxl } : { SCR_PAL, scr_pxl[6:0] });
+assign pal_addr[8:7] = prio;
+assign pal_addr[6:0] = prio==CHAR_PAL ? { 1'b1, char_pxl[5:0]} :
+                      (prio==OBJ_PAL  ? obj_pxl : scr_pxl[6:0]);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
