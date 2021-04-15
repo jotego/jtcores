@@ -175,8 +175,8 @@ jtframe_cen24 u_cen24(
 jtframe_cendiv u_cendiv(
     .clk    ( clk24     ),
     .cen_in ( cen24_4   ),
-    .cen_div( cen24_2   ), // Divided but not alligned with the original
-    .cen_da (           )
+    .cen_div(           ), // Divided but not alligned with the original
+    .cen_da ( cen24_2   )
 );
 
 jtrumble_main u_main(
@@ -294,11 +294,14 @@ u_video(
     .blue       ( blue          )
 );
 
-jtgng_sound #(.LAYOUT(3)) u_fmcpu (
+jtgng_sound #(
+    .LAYOUT (10 ),
+    .PSG_ATT( 2 )   // Fx is very loud in this game
+) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk24        ),
-    .cen3       (  cen24_2      ),
-    .cen1p5     (  1'b0         ), // unused
+    .cen3       (  cen24_4      ),
+    .cen1p5     (  cen24_2      ), // unused
     .sres_b     (  sres_b       ),
     .snd_latch  (  snd_latch    ),
     .snd2_latch (               ),

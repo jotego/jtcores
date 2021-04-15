@@ -74,9 +74,10 @@ parameter       LAYOUT=0;
     //      -Different memory map from Tiger Road
 
 parameter [7:0] FM_GAIN=8'h08;
+parameter       PSG_ATT=0;      // adds attenuation to the psg_level values
 
-localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
-localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
+localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
+localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
 
 wire [15:0] A;
@@ -96,10 +97,10 @@ always @(posedge clk) begin
         psg_gain <= 8'h0;
     else begin
         case( psg_level )
-            2'd0: psg_gain <= 8'h04;
-            2'd1: psg_gain <= 8'h08;
-            2'd2: psg_gain <= 8'h10;
-            2'd3: psg_gain <= 8'h20;
+            2'd0: psg_gain <= 8'h04 >> PSG_ATT;
+            2'd1: psg_gain <= 8'h08 >> PSG_ATT;
+            2'd2: psg_gain <= 8'h10 >> PSG_ATT;
+            2'd3: psg_gain <= 8'h20 >> PSG_ATT;
         endcase
     end
 end
@@ -138,7 +139,7 @@ always @(*) begin
                 end
                 default:;
             endcase
-        3: // Tiger Road
+        3, 10: // Tiger Road, The Speed Rumbler
             casez(A[15:13])
                 3'b0??: rom_cs   = 1'b1;
                 3'b100: fm0_cs   = 1'b1;
