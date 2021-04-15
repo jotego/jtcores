@@ -233,17 +233,21 @@ assign dma_cs = bus_ack;
 
 
 `ifndef NOOBJ
-reg  okout, last_LVBL;
+reg  okout, last_match;
 reg  miss;
 wire dma_cen;
+wire match = V==9'h10c;
 
 // no tick recovery yet:
 assign dma_cen = pxl_cen & (~bus_ack | dma_ok | ~miss);
 
 always @(posedge clk) if(pxl_cen) begin
     miss <= bus_req & (bus_ack&~dma_ok);
-    last_LVBL <= LVBL;
-    okout <= LVBL && !last_LVBL;
+end
+
+always @(posedge clk) begin
+    last_match <= match;
+    okout <= match && !last_match;
 end
 
 jtgng_obj #(

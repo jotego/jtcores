@@ -193,6 +193,13 @@ jtframe_dwnld #(
     .sdram_ack    ( prog_ack       )
 );
 
+`ifdef SIMULATION
+`ifndef LOADROM
+    `define SKIPOBJ32
+`endif
+`endif
+
+`ifndef SKIPOBJ32
 jtgng_obj32 #(
     .OBJ_START( 22'd0     ),
     .OBJ_END  ( 22'h40000 )
@@ -209,6 +216,9 @@ jtgng_obj32 #(
     .sdram_ack   ( prog_ack     ),
     .data_ok     ( prog_rdy     )
 );
+`else
+assign convert=0;
+`endif
 
 // main CPU ROM/RAM, OBJ DMA
 jtframe_ram_3slots #(
