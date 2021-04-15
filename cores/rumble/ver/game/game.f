@@ -25,4 +25,5 @@ $JTFRAME/hdl/sdram/jtframe_dwnld.v
 
 $JTFRAME/hdl/clocking/jtframe_cen48.v
 $JTFRAME/hdl/clocking/jtframe_cen24.v
+$JTFRAME/hdl/clocking/jtframe_cendiv.v
 # $JTFRAME/hdl/jtframe_sh.v

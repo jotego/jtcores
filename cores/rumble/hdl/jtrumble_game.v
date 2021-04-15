@@ -130,7 +130,7 @@ wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
 wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
-wire        vmid, cen24_8, cen24_4;
+wire        vmid, cen24_8, cen24_4, cen24_2;
 wire        sres_b, flip;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
@@ -170,6 +170,13 @@ jtframe_cen24 u_cen24(
     .cen3b  (           ),
     .cen3qb (           ),
     .cen1p5b(           )
+);
+
+jtframe_cendiv u_cendiv(
+    .clk    ( clk24     ),
+    .cen_in ( cen24_4   ),
+    .cen_div( cen24_2   ), // Divided but not alligned with the original
+    .cen_da (           )
 );
 
 jtrumble_main u_main(
@@ -290,7 +297,7 @@ u_video(
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk24        ),
-    .cen3       (  cen24_4      ),
+    .cen3       (  cen24_2      ),
     .cen1p5     (  1'b0         ), // unused
     .sres_b     (  sres_b       ),
     .snd_latch  (  snd_latch    ),
