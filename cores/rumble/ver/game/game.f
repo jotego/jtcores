@@ -10,6 +10,7 @@ $MODULES/jtgng_char.v
 $MODULES/jtgng_scroll.v
 $MODULES/jtgng_tile4.v
 $MODULES/jtgng_tilemap.v
+$MODULES/jtgng_obj32.v
 
 $MODULES/jt12/hdl/jt12_rst.v
 -F $MODULES/jt12/hdl/jt03.f

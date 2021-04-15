@@ -100,7 +100,7 @@ module jtrumble_sdram #(
 
     // ROM LOAD
     input           downloading,
-    output          dwnld_busy,
+    output reg      dwnld_busy,
 
     // PROMs
     output [1:0]    prom_banks,
@@ -137,7 +137,8 @@ wire       gfx_cs = LVBL;
 wire convert;
 
 wire [21:0] conv_addr, dwn_addr;
-wire [15:0] conv_data, dwn_data;
+wire [15:0] dwn_data;
+wire [ 7:0] conv_data;
 wire [ 1:0] conv_mask, dwn_mask, dwn_ba;
 wire        conv_we,   dwn_we,
             conv_rd,   dwn_rd;
@@ -149,18 +150,24 @@ wire        conv_we,   dwn_we,
 //    end
 //end
 
-assign dwnld_busy = downloading | convert;
 assign refresh_en = LVBL;
 assign prom_prior_we = prom_we && prog_addr[9:8]==2'b10;
 assign prom_banks[0] = prom_we && prog_addr[9:8]==2'b00;
 assign prom_banks[1] = prom_we && prog_addr[9:8]==2'b01;
 
 assign prog_addr = convert ? conv_addr : dwn_addr;
-assign prog_data = convert ? conv_data : dwn_data;
+assign prog_data = convert ? {2{conv_data}} : dwn_data;
 assign prog_mask = convert ? conv_mask : dwn_mask;
 assign prog_we   = convert ? conv_we   : dwn_we;
 assign prog_rd   = convert ? conv_rd   : dwn_rd;
 assign prog_ba   = convert ? 2'd3      : dwn_ba;
+
+reg last_dwn;
+
+always @(posedge clk) begin
+    last_dwn   <= downloading;
+    dwnld_busy <= downloading | last_dwn | convert;
+end
 
 jtframe_dwnld #(
     .BA1_START ( BA1_START ), // sound
@@ -174,7 +181,7 @@ jtframe_dwnld #(
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_data   ( ioctl_data     ),
     .ioctl_wr     ( ioctl_wr       ),
-    .prog_addr    ( dwn_prog       ),
+    .prog_addr    ( dwn_addr       ),
     .prog_data    ( dwn_data       ),
     .prog_mask    ( dwn_mask       ), // active low
     .prog_we      ( dwn_we         ),
@@ -185,10 +192,13 @@ jtframe_dwnld #(
     .sdram_ack    ( prog_ack       )
 );
 
-jtgng_obj32 u_obj32(
+jtgng_obj32 #(
+    .OBJ_START( 22'd0     ),
+    .OBJ_END  ( 22'h40000 )
+) u_obj32(
     .clk         ( clk          ),
     .downloading ( downloading  ),
-    .sdram_dout  ( data_read    ),
+    .sdram_dout  ( data_read[15:0]    ),
     .convert     ( convert      ),
     .prog_addr   ( conv_addr    ),
     .prog_data   ( conv_data    ),
