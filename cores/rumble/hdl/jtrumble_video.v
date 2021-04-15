@@ -276,7 +276,7 @@ u_obj (
     .LVBL_obj   ( LVBL_obj    ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
-    .V          ( V[7:0]      ),
+    .V          ( V[7:0]+8'd8 ),
     .H          ( H           ),
     // avatar display
     .pause      ( 1'b0        ),
