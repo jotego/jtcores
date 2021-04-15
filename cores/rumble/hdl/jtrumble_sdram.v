@@ -109,7 +109,7 @@ module jtrumble_sdram #(
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
     input           ioctl_wr,
-    output reg [21:0] prog_addr,
+    output  [21:0]  prog_addr,
     output  [15:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output  [ 1:0]  prog_ba,
@@ -132,23 +132,35 @@ localparam [24:0] BA1_START  = `BA1_START,
 /* verilator lint_on WIDTH */
 
 wire       prom_we;
-
-assign dwnld_busy = downloading;
-assign refresh_en = LVBL;
 wire       gfx_cs = LVBL;
 
+wire convert;
+
+wire [21:0] conv_addr, dwn_addr;
+wire [15:0] conv_data, dwn_data;
+wire [ 1:0] conv_mask, dwn_mask, dwn_ba;
+wire        conv_we,   dwn_we,
+            conv_rd,   dwn_rd;
+
+//always @(*) begin
+//    prog_addr = raw_prog;
+//    if( prog_ba==2'd2 && raw_prog >= 22'h4000 && !prom_we ) begin
+//        prog_addr[4:0] = { raw_prog[3:0], raw_prog[4] }; // swaps bit 4 for scroll tiles
+//    end
+//end
+
+assign dwnld_busy = downloading | convert;
+assign refresh_en = LVBL;
 assign prom_prior_we = prom_we && prog_addr[9:8]==2'b10;
 assign prom_banks[0] = prom_we && prog_addr[9:8]==2'b00;
 assign prom_banks[1] = prom_we && prog_addr[9:8]==2'b01;
 
-wire [21:0] raw_prog;
-
-always @(*) begin
-    prog_addr = raw_prog;
-//    if( prog_ba==2'd2 && raw_prog >= 22'h4000 && !prom_we ) begin
-//        prog_addr[4:0] = { raw_prog[3:0], raw_prog[4] }; // swaps bit 4 for scroll tiles
-//    end
-end
+assign prog_addr = convert ? conv_addr : dwn_addr;
+assign prog_data = convert ? conv_data : dwn_data;
+assign prog_mask = convert ? conv_mask : dwn_mask;
+assign prog_we   = convert ? conv_we   : dwn_we;
+assign prog_rd   = convert ? conv_rd   : dwn_rd;
+assign prog_ba   = convert ? 2'd3      : dwn_ba;
 
 jtframe_dwnld #(
     .BA1_START ( BA1_START ), // sound
@@ -162,15 +174,29 @@ jtframe_dwnld #(
     .ioctl_addr   ( ioctl_addr     ),
     .ioctl_data   ( ioctl_data     ),
     .ioctl_wr     ( ioctl_wr       ),
-    .prog_addr    ( raw_prog       ),
-    .prog_data    ( prog_data      ),
-    .prog_mask    ( prog_mask      ), // active low
-    .prog_we      ( prog_we        ),
-    .prog_rd      ( prog_rd        ),
-    .prog_ba      ( prog_ba        ),
+    .prog_addr    ( dwn_prog       ),
+    .prog_data    ( dwn_data       ),
+    .prog_mask    ( dwn_mask       ), // active low
+    .prog_we      ( dwn_we         ),
+    .prog_rd      ( dwn_rd         ),
+    .prog_ba      ( dwn_ba         ),
     .prom_we      ( prom_we        ),
     .header       (                ),
     .sdram_ack    ( prog_ack       )
+);
+
+jtgng_obj32 u_obj32(
+    .clk         ( clk          ),
+    .downloading ( downloading  ),
+    .sdram_dout  ( data_read    ),
+    .convert     ( convert      ),
+    .prog_addr   ( conv_addr    ),
+    .prog_data   ( conv_data    ),
+    .prog_mask   ( conv_mask    ), // active low
+    .prog_we     ( conv_we      ),
+    .prog_rd     ( conv_rd      ),
+    .sdram_ack   ( prog_ack     ),
+    .data_ok     ( prog_rdy     )
 );
 
 // main CPU ROM/RAM, OBJ DMA
