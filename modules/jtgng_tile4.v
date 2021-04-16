@@ -123,7 +123,7 @@ always @(*) begin
         end
         10: begin // The Speed Rumbler
             scr_hflip = 0;
-            scr_vflip = attr[3]^flip;
+            scr_vflip = attr[3];
         end
     endcase
 end

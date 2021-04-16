@@ -145,16 +145,8 @@ wire hflip_next = char_attr1[PALW];
 reg  dout_hflip, dout_vflip;
 
 always @(*) begin
-    case( LAYOUT )
-        10: begin // The Speed Rumbler (to check on PCB)
-            dout_hflip =  dout_high[7] ^ flip;
-            dout_vflip = ~dout_high[6];
-        end
-        default: begin
-            dout_hflip = (dout_high[HFLIP] & hflip_en) ^ HFLIP_XOR;
-            dout_vflip = (dout_high[VFLIP] & vflip_en) ^ VFLIP_XOR;
-        end
-    endcase
+    dout_hflip = (dout_high[HFLIP] & hflip_en) ^ HFLIP_XOR;
+    dout_vflip = (dout_high[VFLIP] & vflip_en) ^ VFLIP_XOR;
 
     dout_hflip = dout_hflip ^ flip;
     dout_vflip = dout_vflip ^ flip;
@@ -184,7 +176,7 @@ always @(posedge clk) if(pxl_cen) begin
                 char_attr0 <= { dout_hflip, dout_high[7:4] };
             end
             10:  begin // The Speed Rumbler
-                char_addr  <= { { dout_high[1:0], dout_low}, V[2:0] };
+                char_addr  <= { { dout_high[1:0], dout_low}, V[2:0] ^ {3{dout_vflip}} };
                 char_attr0 <= { dout_hflip, dout_high[6:2] };
             end
         endcase

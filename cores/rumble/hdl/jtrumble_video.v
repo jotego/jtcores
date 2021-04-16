@@ -137,6 +137,8 @@ wire [9:0] char_scan;
 
 jtgng_char #(
     .HOFFSET (       7    ),
+    .HFLIP_EN(       0    ),
+    .VFLIP_EN(       0    ),
     .ROM_AW  (   CHARW    ),
     .PALW    ( PXL_CHRW-2 ),
     .LAYOUT  ( LAYOUT     )
