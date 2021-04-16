@@ -59,8 +59,8 @@ module jtgng_tilemap #(parameter
     input            [7:0] msg_low,
     input            [7:0] msg_high,
     // Current tile
-    output       reg [7:0] dout_low,
-    output       reg [7:0] dout_high
+    output           [7:0] dout_low,
+    output           [7:0] dout_high
 );
 
 reg scan_sel = 1'b1;
@@ -92,6 +92,8 @@ wire [7:0] mem_low, mem_high;
 reg last_H0;
 wire posedge_H0 = BUSY_ON_H0 ? (!last_H0 && H[0] && pxl_cen) : 1'b1;
 
+// Although a dual port memory is used for easy synthesis
+// the bus wait state is complied by means of the 'busy' signal
 always @(posedge clk) begin : busy_latch
     last_H0 <= H[0];
     if( cs && scan_sel && posedge_H0 )
@@ -107,30 +109,22 @@ always @(posedge clk) if(pxl_cen) begin : scan_select
 end
 
 reg [7:0] udlatch, ldlatch;
-reg last_scan;
+reg last_scan, last_Asel;
 
-always @(posedge clk) begin : mem_mux
-    reg last_Asel;
-
-    if( scan_sel ) begin
-        addr      <= scan;
-        we_low    <= 1'b0;
-        we_high   <= 1'b0;
+always @(posedge clk) begin
+    addr <= AB;
+    if( DW == 16 ) begin
+        we_low    <= cs && !wr_n && !dseln[0];
+        we_high   <= cs && !wr_n && !dseln[1];
+        udlatch   <= din[15:8];
+        ldlatch   <= din[7:0];
     end else begin
-        addr      <= AB;
-        if( DW == 16 ) begin
-            we_low    <= cs && !wr_n && !dseln[0];
-            we_high   <= cs && !wr_n && !dseln[1];
-            udlatch   <= din[15:8];
-            ldlatch   <= din[7:0];
-        end else begin
-            we_low    <= cs && !wr_n && !Asel;
-            we_high   <= cs && !wr_n &&  Asel;
-            udlatch   <= din;
-            ldlatch   <= din;
-        end
-        last_Asel <= Asel;
+        we_low    <= cs && !wr_n && !Asel;
+        we_high   <= cs && !wr_n &&  Asel;
+        udlatch   <= din;
+        ldlatch   <= din;
     end
+    last_Asel <= Asel;
 
     // Output latch
     last_scan <= scan_sel;
@@ -159,32 +153,37 @@ end
 `define JTCHAR_LOWER_SIMFILE
 `endif
 
-jtframe_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
-    .clk    ( clk      ),
-    .cen    ( 1'b1     ),
-    .data   ( ldlatch  ),
-    .addr   ( addr     ),
-    .we     ( we_low   ),
-    .q      ( mem_low  )
+jtframe_dual_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
+    .clk0   ( clk      ),
+    .clk1   ( clk      ),
+    // CPU
+    .data0  ( ldlatch  ),
+    .addr0  ( addr     ),
+    .we0    ( we_low   ),
+    .q0     ( mem_low  ),
+    // GFX
+    .data1  ( 8'd0     ),
+    .addr1  ( scan     ),
+    .we1    ( 1'b0     ),
+    .q1     ( dout_low )
 );
 
 // attributes
 // the default value for synthesis will display a ROM load message using
 // the palette attributes
-jtframe_ram #(.aw(SCANW) `JTCHAR_UPPER_SIMFILE) u_ram_high(
-    .clk    ( clk      ),
-    .cen    ( 1'b1     ),
-    .data   ( udlatch  ),
-    .addr   ( addr     ),
-    .we     ( we_high  ),
-    .q      ( mem_high )
+jtframe_dual_ram #(.aw(SCANW) `JTCHAR_UPPER_SIMFILE) u_ram_high(
+    .clk0   ( clk      ),
+    .clk1   ( clk      ),
+    // CPU
+    .data0  ( udlatch  ),
+    .addr0  ( addr     ),
+    .we0    ( we_high  ),
+    .q0     ( mem_high ),
+    // GFX
+    .data1  ( 8'd0     ),
+    .addr1  ( scan     ),
+    .we1    ( 1'b0     ),
+    .q1     ( dout_high)
 );
-
-always @(posedge clk) begin
-    if(last_scan) begin
-        dout_low  <= pause ? msg_low  : mem_low;
-        dout_high <= pause ? msg_high : mem_high;
-    end
-end
 
 endmodule
