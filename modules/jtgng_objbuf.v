@@ -20,6 +20,12 @@
 // 24 sprites per line: GnG, Commando... the buffer ran at 6MHz
 // 32 sprites per line: Tiger Road, Bionic Commando... ran at 8MHz
 
+// Comparison of resources, the old version
+// was used upto commit ac7aef116158
+//      LC / Regs / M9K
+// Old 126 / 39   / 2
+// New 102 / 31   / 1
+
 module jtgng_objbuf #(parameter
     DW          = 8,
     AW          = 9,
@@ -157,22 +163,23 @@ always @(posedge clk, posedge rst)
         endcase
     end
 
-reg [6:0] address_a, address_b;
-reg we_a, we_b;
-reg [DW-1:0] data_a, data_b;
+reg     [2:0] we_clr;
+reg     [7:0] wr_addr, rd_addr;
+reg           wr_en;
+reg  [DW-1:0] wr_data;
+wire [DW-1:0] pre_q;
 
-reg [2:0] we_clr;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        we_clr      <= 3'b0;
-        objbuf_data <= {DW{1'b0}};
+        we_clr      <= 0;
+        objbuf_data <= 0;
     end else begin
         we_clr <= { we_clr[1:0], draw_cen & ~rom_wait};
-        if( we_clr[1] ) objbuf_data <= line==lineA ? q_b : q_a;
+        if( we_clr[1] ) objbuf_data <= pre_q;
     end
 end
 
-localparam [7:0] CLRVAL = 8'hF8;
+localparam [DW-1:0] CLRVAL = 'hF8;
 
 function [DW-1:0] apply_ext;
     input [DW-1:0] dma_dout;
@@ -193,41 +200,25 @@ endfunction
 wire [DW-1:0] dma_ext = apply_ext( dma_dout, pre_scan );
 
 always @(*) begin
-    if( line == lineA ) begin
-        address_a = { ~post_scan[4:0], pre_scan[1:0] };
-        address_b = hscan;
-        data_a    = fill ? CLRVAL : dma_ext;
-        data_b    = CLRVAL;
-        we_a      = line_obj_we & draw_cen;
-        we_b      = we_clr[2];
-    end
-    else begin
-        address_a = hscan;
-        address_b = { ~post_scan[4:0], pre_scan[1:0] };
-        data_a    = CLRVAL;
-        data_b    = fill ? CLRVAL : dma_ext;
-        we_a      = we_clr[2];
-        we_b      = line_obj_we & draw_cen;
-    end
+    rd_addr = { line, hscan};
+    wr_addr = {~line, ~post_scan[4:0], pre_scan[1:0]};
+    wr_data = fill ? CLRVAL : dma_ext;
+    wr_en   = line_obj_we & draw_cen;
 end
 
-jtframe_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_a(
-    .clk   ( clk       ),
-    .cen   ( 1'b1      ),
-    .addr  ( address_a ),
-    .data  ( data_a    ),
-    .we    ( we_a      ),
-    .q     ( q_a       )
+jtframe_dual_ram #(.dw(DW),.aw(8)) u_objbuf(
+    .clk0   ( clk       ),
+    .clk1   ( clk       ),
+    // Port 0: writes
+    .data0  ( wr_data   ),
+    .addr0  ( wr_addr   ),
+    .we0    ( wr_en     ),
+    .q0     (           ),
+    // Port 1: reads and clears
+    .data1  ( CLRVAL    ),
+    .addr1  ( rd_addr   ),
+    .we1    ( we_clr[2] ),
+    .q1     ( pre_q     )
 );
-
-jtframe_ram #(.aw(7),.dw(DW)/*,.simfile("obj_buf.hex")*/) objbuf_b(
-    .clk   ( clk       ),
-    .cen   ( 1'b1      ),
-    .addr  ( address_b ),
-    .data  ( data_b    ),
-    .we    ( we_b      ),
-    .q     ( q_b       )
-);
-
 
 endmodule // jtgng_objbuf
