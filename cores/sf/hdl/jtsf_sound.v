@@ -53,7 +53,8 @@ wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
 
 wire               cen_fm, cen_fm2, cenp384;
-wire               cen3, cen_alt, cen3p5, cen1p7 ;
+wire               cen3, cen_alt, cen3p5, cen1p7;
+wire               peak_l, peak_r;
 reg         [ 7:0] pcm_gain;
 
 assign cen_alt = cen3;

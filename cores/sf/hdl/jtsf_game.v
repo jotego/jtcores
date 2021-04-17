@@ -320,7 +320,8 @@ jtframe_dwnld #(
     .prog_ba     ( prog_ba       ),
     .prom_we     (               ),
 
-    .sdram_ack   ( prog_rdy      )
+    .sdram_ack   ( prog_rdy      ),
+    .header      (               )
 );
 
 wire [15:0] scrposh, scrposv, dmaout;

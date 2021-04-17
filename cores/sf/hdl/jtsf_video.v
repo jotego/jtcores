@@ -122,7 +122,7 @@ jtgng_char #(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .AB         ( cpu_AB[11:1]  ),
+    .AB         ( cpu_AB[11:1]  ),  // shouldn't this be 12:1, or change char's AW
     .V          ( V[7:0]        ),
     .H          ( H             ),
     .flip       ( flip          ),

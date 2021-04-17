@@ -31,9 +31,10 @@ fi
 # to get sdram.hex
 
 # Generic simulation script from JTFRAME
-$JTFRAME/bin/sim.sh $MIST \
+jtsim $MIST \
     -sysname sf \
     -def ../../hdl/jtsf.def \
     -videow 384 -videoh 224 \
     -d COLORW=4 -d VIDEO_START=1 -d JT51_NODEBUG\
+    -d JTFRAME_SIM_ROMRQ_NOCHECK \
     $*
