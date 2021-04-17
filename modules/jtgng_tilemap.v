@@ -63,7 +63,11 @@ module jtgng_tilemap #(parameter
     output           [7:0] dout_high
 );
 
-reg scan_sel = 1'b1;
+wire [7:0] scan_low, scan_high;
+reg        scan_sel = 1'b1;
+
+assign dout_low  = pause ? msg_low  : scan_low;
+assign dout_high = pause ? msg_high : scan_high;
 
 always @(*) begin
     if( SCANW <= 10) begin
@@ -165,7 +169,7 @@ jtframe_dual_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
     .data1  ( 8'd0     ),
     .addr1  ( scan     ),
     .we1    ( 1'b0     ),
-    .q1     ( dout_low )
+    .q1     ( scan_low )
 );
 
 // attributes
@@ -183,7 +187,7 @@ jtframe_dual_ram #(.aw(SCANW) `JTCHAR_UPPER_SIMFILE) u_ram_high(
     .data1  ( 8'd0     ),
     .addr1  ( scan     ),
     .we1    ( 1'b0     ),
-    .q1     ( dout_high)
+    .q1     ( scan_high)
 );
 
 endmodule
