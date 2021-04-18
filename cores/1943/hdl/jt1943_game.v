@@ -378,8 +378,10 @@ jt1943_video u_video(
     // Scroll maps
     .map1_addr  ( map1_addr     ),
     .map1_data  ( map1_data     ),
+    .map1_ok    ( map1_ok       ),
     .map2_addr  ( map2_addr     ),
     .map2_data  ( map2_data     ),
+    .map2_ok    ( map2_ok       ),
     // OBJ
     .OBJON      ( OBJON         ),
     .HINIT      ( HINIT         ),

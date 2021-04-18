@@ -52,142 +52,43 @@ module jt1943_scroll #( parameter
     input     [3:0]      prom_din,
 
     // Map ROM
-    output reg [MAPAW-1:0] map_addr,
-    input      [MAPDW-1:0] map_data,
-    // input                  map_ok,
+    output   [MAPAW-1:0] map_addr,
+    input    [MAPDW-1:0] map_data,
+    input                map_ok,
     // Gfx ROM
     output  [ROM_AW-1:0] scr_addr,
     input         [15:0] scrom_data,
     output    [PXLW-1:0] scr_pxl
 );
 
-localparam SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8;
-localparam SVW = LAYOUT==8 ? 12 : 8;
-
-// H goes from 80h to 1FFh
-wire [8:0] Hfix_prev = H+HOFFSET;
-wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Corrects pixel output offset
-
-reg  [    4:0] HS;
-reg  [    7:0] PICV, PIC;
-reg  [SVW-1:0] SV;
-reg  [SHW-1:0] SH;
-wire [    8:0] V128sh;
-reg  [    8:0] VF;
-
-// Because we process the signal a bit ahead of time
-// (exactly HOFFSET pixels ahead of time), this creates
-// an unbalance between the vertical line counter change
-// and the current output   at the end of each line. It wasn't
-// noticeable in 1943, but it can be seen in GunSmoke
-// In order to avoid it, the V counter must be delayed by the same
-// HOFFSET amount
-jtframe_sh #(.width(9), .stages(HOFFSET) ) u_vsh
-(
-    .clk    ( clk     ),
-    .clk_en ( cen6    ),
-    .din    ( V128    ),
-    .drop   ( V128sh  )
-);
-
-reg [4:0] SVmap; // SV latched at the time the map_addr is set
-reg [7:0] HF;
-reg [9:0] SCHF;
-reg       H7;
-
-always @(*) begin
-    if( LAYOUT==8 ) begin // Side Arms
-        PIC[6:3] = SV[11:8];
-        { PIC[7], PIC[2:0], SH } = {4'd0, H^{9{flip}}} + hpos[12:0];
-    end else if(LAYOUT==9) begin // Street Fighter
-        { PIC, SH } = {4'd0, H^{9{flip}}} + hpos;
-    end else begin
-        HF          = {8{flip}}^Hfix[7:0]; // SCHF2_1-8
-        H7          = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
-        SCHF        = { HF[6]&~Hfix[8], ~Hfix[8], H7, HF[6:0] };
-        if(LAYOUT==7) begin // Trojan only has 8-bit scrolling
-            {PIC,  SH } = {8'd0, hpos[7:0] } +
-                + { {6{SCHF[9]}},SCHF } + (flip?16'h16:16'h8);
-        end else begin
-            {PIC,  SH } = hpos + { {6{SCHF[9]}},SCHF } + (flip?16'h8:16'h0);
-        end
-    end
-end
-
-generate
-    if (LAYOUT==0) begin
-        // 1943 32x32
-        always @(posedge clk) if(cen6) begin
-            // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
-                VF <= {8{flip}}^V128sh[7:0];
-                {PICV, SV } <= { {16-VPOSW{vpos[7]}}, vpos } + { {8{VF[7]}}, VF };
-                HS[4:3] <= SH[4:3] ^{2{flip}};
-                map_addr <= { PIC, SH[7:6], SV[7:5]/*^{3{flip}}*/, SH[5] }; // SH[5] is LSB
-                    // in order to optimize cache use
-            end
-        end
-    end
-    if(LAYOUT==3 || LAYOUT==7) begin
-        // Tiger Road 32x32 - Trojan 16x16
-        always @(*) begin
-            VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
-            {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
-        end
-        wire [7:0] col = {PIC,  SH}>>(LAYOUT==3 ? 5 : 4);
-        wire [7:0] row = {PICV, SV}>>(LAYOUT==3 ? 5 : 4);
-        always @(posedge clk) if(cen6) begin
-            // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
-                HS[4:3] <= SH[4:3];
-                map_addr <= LAYOUT==3 ?
-                    {  ~row[6:3], col[6:3], ~row[2:0], col[2:0] } : // Tiger Road
-                    {  {row[3:0], 2'b0 }, col[7:0] }+ {2'b0, hpos[15:8], 4'd0}; // Trojan 6 + 8
-            end
-        end
-    end
-    if (LAYOUT==8) begin
-        // Side Arms 32x32
-        always @(posedge clk) begin
-            VF <= {8{flip}}^V128[7:0];
-            SV <= { {VPOSW-9{1'b0}}, VF } + vpos;
-        end
-        always @(posedge clk) if(cen6) begin
-            // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
-                HS[4:3] <= SH[4:3] /*^{2{flip}}*/;
-                map_addr <= { PIC[6:0], SH[8:5], SV[7:5] };
-            end
-        end
-    end
-    if (LAYOUT==9) begin
-        // Street Fighter 16x16
-        always @(posedge clk) begin
-            VF <= {8{flip}}^V128[7:0];
-            SV <= VF;
-        end
-        always @(posedge clk) if(cen6) begin
-            // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
-                HS[3] <= SH[3] /*^flip*/;
-                // Map address shifted left because of 32-bit read
-                map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
-            end
-        end
-    end
-endgenerate
-
-always @(posedge clk) if(cen6) begin
-    if( SH[2:0]==3'd7 ) begin
-        SVmap <= SV[4:0];
-    end
-    HS[2:0] <= SH[2:0] ^ {3{flip}};
-end
-
 wire [MAPDW/2-1:0] dout_high, dout_low;
-
-assign dout_high = map_data[MAPDW/2-1:0];
-assign dout_low  = map_data[MAPDW-1:MAPDW/2];
+wire         [4:0] HS, SVmap;
+jt1943_map #(
+    .HOFFSET    ( HOFFSET   ),
+    .LAYOUT     ( LAYOUT    ),
+    .VPOSW      ( VPOSW     ),
+    .MAPAW      ( MAPAW     ),
+    .MAPDW      ( MAPDW     )
+) u_map(
+    .rst        ( rst       ),
+    .clk        ( clk       ),  // >12 MHz
+    .pxl_cen    ( cen6      ),
+    .V128       ( V128      ), // V128-V1
+    .H          ( H         ), // H256-H1
+    .hpos       ( hpos      ),
+    .vpos       ( vpos      ),
+    .SCxON      ( SCxON     ),
+    .flip       ( flip      ),
+    // Map ROM
+    .map_addr   ( map_addr  ),
+    .map_data   ( map_data  ),
+    .map_ok     ( map_ok    ),
+    // Current tile
+    .dout_high  ( dout_high ),
+    .dout_low   ( dout_low  ),
+    .HS         ( HS        ),
+    .SVmap      ( SVmap     )
+);
 
 jtgng_tile4 #(
     .AS8MASK        ( AS8MASK       ),

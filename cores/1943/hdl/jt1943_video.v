@@ -83,6 +83,8 @@ module jt1943_video #( parameter
     output      [13:0]  map2_addr,
     input       [15:0]  map1_data,
     input       [15:0]  map2_data,
+    input               map1_ok,
+    input               map2_ok,
     // OBJ
     input               OBJON,
     input               HINIT,
@@ -236,6 +238,7 @@ u_scroll1 (
     // ROM
     .map_addr     ( map1_addr      ),
     .map_data     ( map1_data      ),
+    .map_ok       ( map1_ok        ),
     .scr_addr     ( scr1_addr      ),
     .scrom_data   ( scr1_data      ),
     .scr_pxl      ( scr1_pxl       )
@@ -275,6 +278,7 @@ generate
             // ROM
             .map_addr     ( map2_addr     ),
             .map_data     ( map2_data     ),
+            .map_ok       ( map2_ok       ),
             .scr_addr     ( { scr2_nc, scr2_addr} ),
             .scrom_data   ( scr2_data     ),
             .scr_pxl      ( scr2_pxl      )
