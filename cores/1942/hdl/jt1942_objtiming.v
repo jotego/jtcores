@@ -36,7 +36,7 @@ module jt1942_objtiming(
     output reg         line,
     output reg         pxlcnt_lsb,
     output reg         over,
-    // Timing PROM
+    // Timing PROM (unused)
     input   [7:0]      prog_addr,
     input              prom_m11_we,
     input   [1:0]      prog_din
@@ -50,17 +50,11 @@ wire rom_good = obj_ok & okdly;
 wire posedge_LHBL = LHBL && !last_LHBL;
 reg [4:0] auxcnt;
 
-generate
-    if( LAYOUT==0 ) begin : part_screen
-        always @(*) begin
-            objcnt[2:0] = auxcnt[2:0];
-            objcnt[4] = auxcnt[4] ^ ~auxcnt[3];
-            objcnt[3] = (objcnt[4] & V[7]) ^ ~auxcnt[3];
-        end
-    end else begin : cont_screen
-        always @(*) objcnt = auxcnt;
-    end
-endgenerate
+always @(*) begin
+    objcnt = auxcnt;
+    if( V[7] && auxcnt> 'hf && LAYOUT==0)
+        objcnt[3] = 1;
+end
 
 always @(posedge clk) begin
     last_LHBL <= LHBL;
@@ -78,13 +72,13 @@ always @(posedge clk) begin
             {pxlcnt, pxlcnt_lsb} <= {pxlcnt,pxlcnt_lsb}+5'd1;
             if( &{pxlcnt,pxlcnt_lsb} ) begin
                 bufcnt <= 4'd0;
-                if( VULGUS ) begin
+                //if( VULGUS ) begin
                     over   <= auxcnt == 5'h17;
                     auxcnt <= auxcnt + 5'h1;
-                end else begin // 1942
-                    auxcnt <= auxcnt+5'h1;
-                    over   <= auxcnt == 5'h1f;
-                end
+                //end else begin // 1942
+                //    auxcnt <= auxcnt+5'h1;
+                //    over   <= auxcnt == 5'h1f;
+                //end
             end
         end
         else if(!rom_good) pxlcnt_lsb <= 1'b0;
@@ -99,8 +93,9 @@ always @(posedge clk) begin
     end
 end
 
-// 1942: left part of the vertical screen (V[7]==1) read in inverse
-// order from right part so the 1942 logo effect occurs.
+// 1942: left part of the vertical screen (V[7]==1)
+// reads objects 0h to 17h, right half read 0h to Fh and then 18h to 1fh
+// so the 1942 logo effect occurs.
 // Vulgus: objects 0 to 17 only
 
 /* Original sequence
