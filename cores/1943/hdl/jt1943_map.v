@@ -37,7 +37,6 @@ module jt1943_map #( parameter
     // Map ROM
     output reg [MAPAW-1:0] map_addr,
     input      [MAPDW-1:0] map_data,
-    input                  map_ok,
     output   [MAPDW/2-1:0] dout_high,
     output   [MAPDW/2-1:0] dout_low,
     // Coordinates for tiler
@@ -55,23 +54,7 @@ wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Correc
 reg  [    7:0] PICV, PIC;
 reg  [SVW-1:0] SV;
 reg  [SHW-1:0] SH;
-wire [    8:0] V128sh;
 reg  [    8:0] VF;
-
-// Because we process the signal a bit ahead of time
-// (exactly HOFFSET pixels ahead of time), this creates
-// an unbalance between the vertical line counter change
-// and the current output   at the end of each line. It wasn't
-// noticeable in 1943, but it can be seen in GunSmoke
-// In order to avoid it, the V counter must be delayed by the same
-// HOFFSET amount
-jtframe_sh #(.width(9), .stages(HOFFSET) ) u_vsh
-(
-    .clk    ( clk     ),
-    .clk_en ( pxl_cen ),
-    .din    ( V128    ),
-    .drop   ( V128sh  )
-);
 
 reg [7:0] HF;
 reg [9:0] SCHF;
@@ -102,7 +85,7 @@ generate
         always @(posedge clk) if(pxl_cen) begin
             // always update the map at the same pixel count
             if( SH[2:0]==3'd7 ) begin
-                VF <= {8{flip}}^V128sh[7:0];
+                VF <= {8{flip}}^V128[7:0];
                 {PICV, SV } <= { {16-VPOSW{vpos[7]}}, vpos } + { {8{VF[7]}}, VF };
                 HS[4:3] <= SH[4:3] ^{2{flip}};
                 map_addr <= { PIC, SH[7:6], SV[7:5]/*^{3{flip}}*/, SH[5] }; // SH[5] is LSB
@@ -113,7 +96,7 @@ generate
     if(LAYOUT==3 || LAYOUT==7) begin
         // Tiger Road 32x32 - Trojan 16x16
         always @(*) begin
-            VF          = flip ? 9'd240-V128sh[8:0] : V128sh[8:0];
+            VF          = flip ? 9'd240-V128[8:0] : V128[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
         end
         wire [7:0] col = {PIC,  SH}>>(LAYOUT==3 ? 5 : 4);

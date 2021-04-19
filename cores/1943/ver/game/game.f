@@ -6,6 +6,7 @@
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
 ../../hdl/jt1943_scroll.v
 ../../hdl/jt1943_map.v
+../../hdl/jt1943_map_cache.v
 ../../hdl/jt1943_security.v
 ../../hdl/jt1943_video.v
 ../../hdl/jt1943_dip.v

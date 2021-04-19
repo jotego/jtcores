@@ -102,6 +102,7 @@ wire [ 7:0]  dipsw_a, dipsw_b;
 
 wire rom_ready;
 wire main_ok, map1_ok, map2_ok, scr1_ok, scr2_ok, char_ok, obj_ok, obj_ok0;
+wire map1_cs, map2_cs;
 wire cen12, cen6, cen3, cen1p5;
 
 assign pxl2_cen = cen12;
@@ -379,9 +380,11 @@ jt1943_video u_video(
     .map1_addr  ( map1_addr     ),
     .map1_data  ( map1_data     ),
     .map1_ok    ( map1_ok       ),
+    .map1_cs    ( map1_cs       ),
     .map2_addr  ( map2_addr     ),
     .map2_data  ( map2_data     ),
     .map2_ok    ( map2_ok       ),
+    .map2_cs    ( map2_cs       ),
     // OBJ
     .OBJON      ( OBJON         ),
     .HINIT      ( HINIT         ),
@@ -467,9 +470,9 @@ jtframe_rom #(
     .vblank      ( ~LVBL         ),
 
     .slot0_cs    ( LVBL          ), // char
-    .slot1_cs    ( LVBL          ), // map 1
+    .slot1_cs    ( map1_cs       ), // map 1
     .slot2_cs    ( LVBL          ), // scroll 1
-    .slot3_cs    ( LVBL          ), // map 2
+    .slot3_cs    ( map2_cs       ), // map 2
     .slot4_cs    ( LVBL          ), // scroll 2
     .slot5_cs    ( 1'b0          ), // unused
     .slot6_cs    ( 1'b0          ),
