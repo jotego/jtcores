@@ -63,7 +63,7 @@ always @(posedge clk, posedge rst) begin
         last_LHBL <= LHBL;
         if( !LHBL && last_LHBL ) begin
             draw_en  <= 0;
-            hcnt    <= 9'h100;
+            hcnt     <= 9'h100;
             st       <= 0;
         end
         // cache filler
@@ -76,6 +76,7 @@ always @(posedge clk, posedge rst) begin
                         st <= 2;
                     else begin
                         map_cs <= 0;
+                        st     <= 0;
                         if( hcnt == HEND )
                             draw_en <= 1;
                         else
