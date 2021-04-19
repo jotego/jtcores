@@ -20,7 +20,7 @@ module jt1943_map_cache #(parameter
     // MAP SIZE
     MAPAW = 14, // address width
     MAPDW = 16, // data width
-    [8:0] HEND  = 9'h0FF
+    [8:0] HEND  = 9'h1F0
 ) (
     input                rst,
     input                clk,  // >12 MHz
@@ -31,12 +31,13 @@ module jt1943_map_cache #(parameter
     input         [ 8:0] H, // H256-H1
 
     output        [ 8:0] map_h, // H256-H1
-    output reg           draw_en,
+    output reg           busy,
 
     // Map ROM to SDRAM
     input    [MAPDW-1:0] map_data,
     input                map_ok,
     output reg           map_cs,
+    input                row_start,
 
     // Map ROM from mapper
     output   [MAPDW-1:0] mapper_data
@@ -45,44 +46,45 @@ module jt1943_map_cache #(parameter
 localparam CACHEW = 5; //up to 32 tiles => 512 for 16x16 tiles
 
 reg  [1:0] st;
-reg        last_LHBL, okidle;
+reg        last_rstart, okidle;
 reg  [8:0] hcnt;
 wire       map_we;
 
 assign map_we     = map_ok && map_cs;
-assign mapper_cen = draw_en ? pxl_cen : 1'b1;
-assign map_h      = draw_en ? H : hcnt;
+assign mapper_cen = busy ? 1'b1 : pxl_cen;
+assign map_h      = busy ? hcnt : H;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        draw_en   <= 1;
-        last_LHBL <= 1;
-        okidle    <= 0;
-        st        <= 0;
+        busy        <= 0;
+        okidle      <= 0;
+        st          <= 0;
+        last_rstart <= 0;
     end else begin
-        last_LHBL <= LHBL;
-        if( !LHBL && last_LHBL ) begin
-            draw_en  <= 0;
-            hcnt     <= 9'h100;
-            st       <= 0;
+        last_rstart <= row_start;
+        if( row_start && !last_rstart && !LHBL ) begin
+            busy  <= 1;
+            hcnt  <= 9'h100;
+            st    <= 0;
         end
         // cache filler
-        if( !draw_en ) begin
+        if( busy ) begin
             st <= st+2'd1;
             case( st )
                 0: map_cs <= 1;
+                1:; // gives time to the SDRAM to produce the correct map_ok
                 2: begin
                     if( !map_ok )
                         st <= 2;
                     else begin
                         map_cs <= 0;
-                        st     <= 0;
                         if( hcnt == HEND )
-                            draw_en <= 1;
+                            busy <= 0;
                         else
-                            hcnt  <= hcnt + 1'd1;
+                            hcnt  <= hcnt + 9'h10;
                     end
                 end
+                3:; // gives time to jt1943_map to produce the map_addr
             endcase
         end else begin
             map_cs <= 1;

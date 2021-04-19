@@ -66,6 +66,7 @@ module jt1943_scroll #( parameter
 wire [MAPDW/2-1:0] dout_high, dout_low;
 wire         [4:0] HS, SVmap;
 wire         [8:0] V128sh;
+wire               row_start;
 
 // Because we process the signal a bit ahead of time
 // (exactly HOFFSET pixels ahead of time), this creates
@@ -89,11 +90,11 @@ generate
     end
 endgenerate
 
-wire             mapper_cen, draw_en, tiler_en;
+wire             mapper_cen, cache_busy, tiler_en;
 wire       [8:0] mapper_h;
 wire [MAPDW-1:0] mapper_data;
 
-assign tiler_en = draw_en & SCxON;
+assign tiler_en = ~cache_busy & SCxON;
 
 jt1943_map_cache #(
     .MAPAW( MAPAW ),
@@ -107,13 +108,13 @@ jt1943_map_cache #(
     .H          ( H         ),
 
     .map_h      ( mapper_h  ), // H256-H1
-    .draw_en    ( draw_en   ),
+    .busy       ( cache_busy),
 
     // Map ROM to SDRAM
     .map_data   ( map_data  ),
     .map_ok     ( map_ok    ),
     .map_cs     ( map_cs    ),
-
+    .row_start  ( row_start ),
     // Map ROM from mapper
     .mapper_data(mapper_data)
 );
@@ -128,6 +129,7 @@ jt1943_map #(
     .rst        ( rst       ),
     .clk        ( clk       ),  // >12 MHz
     .pxl_cen    ( mapper_cen),
+    .burst      ( cache_busy),
     .V128       ( V128sh    ), // V128-V1
     .H          ( mapper_h  ), // H256-H1
     .hpos       ( hpos      ),
@@ -137,6 +139,7 @@ jt1943_map #(
     // Map ROM
     .map_addr   ( map_addr  ),
     .map_data   (mapper_data),
+    .row_start  ( row_start ),
     // Current tile
     .dout_high  ( dout_high ),
     .dout_low   ( dout_low  ),

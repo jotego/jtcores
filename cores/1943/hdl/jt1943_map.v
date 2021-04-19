@@ -28,6 +28,7 @@ module jt1943_map #( parameter
     input                  rst,
     input                  clk,  // >12 MHz
     input                  pxl_cen,
+    input                  burst,   // do not wait for SH[2:0] to be 7
     input           [ 8:0] V128, // V128-V1
     input           [ 8:0] H, // H256-H1
     input           [15:0] hpos,
@@ -39,6 +40,7 @@ module jt1943_map #( parameter
     input      [MAPDW-1:0] map_data,
     output   [MAPDW/2-1:0] dout_high,
     output   [MAPDW/2-1:0] dout_low,
+    output                 row_start,
     // Coordinates for tiler
     output reg       [4:0] HS,
     output reg       [4:0] SVmap // SV latched at the time the map_addr is set
@@ -59,6 +61,10 @@ reg  [    8:0] VF;
 reg [7:0] HF;
 reg [9:0] SCHF;
 reg       H7;
+wire      adv;
+
+assign adv       = SH[2:0]==3'd7 || burst;
+assign row_start = SV[3:0]==0;
 
 always @(*) begin
     if( LAYOUT==8 ) begin // Side Arms
@@ -84,7 +90,7 @@ generate
         // 1943 32x32
         always @(posedge clk) if(pxl_cen) begin
             // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
+            if( adv ) begin
                 VF <= {8{flip}}^V128[7:0];
                 {PICV, SV } <= { {16-VPOSW{vpos[7]}}, vpos } + { {8{VF[7]}}, VF };
                 HS[4:3] <= SH[4:3] ^{2{flip}};
@@ -103,7 +109,7 @@ generate
         wire [7:0] row = {PICV, SV}>>(LAYOUT==3 ? 5 : 4);
         always @(posedge clk) if(pxl_cen) begin
             // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
+            if( adv ) begin
                 HS[4:3] <= SH[4:3];
                 map_addr <= LAYOUT==3 ?
                     {  ~row[6:3], col[6:3], ~row[2:0], col[2:0] } : // Tiger Road
@@ -119,7 +125,7 @@ generate
         end
         always @(posedge clk) if(pxl_cen) begin
             // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
+            if( adv ) begin
                 HS[4:3] <= SH[4:3] /*^{2{flip}}*/;
                 map_addr <= { PIC[6:0], SH[8:5], SV[7:5] };
             end
@@ -133,7 +139,7 @@ generate
         end
         always @(posedge clk) if(pxl_cen) begin
             // always update the map at the same pixel count
-            if( SH[2:0]==3'd7 ) begin
+            if( adv ) begin
                 HS[3] <= SH[3] /*^flip*/;
                 // Map address shifted left because of 32-bit read
                 map_addr <= { PIC[5:0], SH[8:4], SV[7:4], 1'b0 }; // 6+5+4+1=16
@@ -143,7 +149,7 @@ generate
 endgenerate
 
 always @(posedge clk) if(pxl_cen) begin
-    if( SH[2:0]==3'd7 ) begin
+    if( adv ) begin
         SVmap <= SV[4:0];
     end
     HS[2:0] <= SH[2:0] ^ {3{flip}};
