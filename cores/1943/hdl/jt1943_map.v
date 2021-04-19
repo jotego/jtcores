@@ -23,7 +23,8 @@ module jt1943_map #( parameter
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
     // MAP SIZE
     MAPAW           = LAYOUT==9 ? 16 : 14, // address width
-    MAPDW           = LAYOUT==9 ? 32 : 16  // data width
+    MAPDW           = LAYOUT==9 ? 32 : 16, // data width
+    SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8
 )(
     input                  rst,
     input                  clk,  // >12 MHz
@@ -41,12 +42,12 @@ module jt1943_map #( parameter
     output   [MAPDW/2-1:0] dout_high,
     output   [MAPDW/2-1:0] dout_low,
     output                 row_start,
+    output reg   [SHW-1:0] SH,
     // Coordinates for tiler
     output reg       [4:0] HS,
     output reg       [4:0] SVmap // SV latched at the time the map_addr is set
 );
 
-localparam SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8;
 localparam SVW = LAYOUT==8 ? 12 : 8;
 
 // H goes from 80h to 1FFh
@@ -55,7 +56,6 @@ wire [8:0] Hfix = !Hfix_prev[8] && H[8] ? Hfix_prev|9'h80 : Hfix_prev; // Correc
 
 reg  [    7:0] PICV, PIC;
 reg  [SVW-1:0] SV;
-reg  [SHW-1:0] SH;
 reg  [    8:0] VF;
 
 reg [7:0] HF;

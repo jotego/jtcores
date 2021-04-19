@@ -63,8 +63,11 @@ module jt1943_scroll #( parameter
     output    [PXLW-1:0] scr_pxl
 );
 
+localparam SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8;
+
 wire [MAPDW/2-1:0] dout_high, dout_low;
 wire         [4:0] HS, SVmap;
+wire     [SHW-1:0] SH;
 wire         [8:0] V128sh;
 wire               row_start;
 
@@ -98,14 +101,15 @@ assign tiler_en = ~cache_busy & SCxON;
 
 jt1943_map_cache #(
     .MAPAW( MAPAW ),
-    .MAPDW( MAPDW )
+    .MAPDW( MAPDW ),
+    .SHW  ( SHW   )
 ) u_mapcache(
     .rst        ( rst       ),
     .clk        ( clk       ),  // >12 MHz
     .pxl_cen    ( cen6      ),
     .mapper_cen ( mapper_cen),
     .LHBL       ( LHBL      ),
-    .H          ( H         ),
+    .H          ( SH        ),
 
     .map_h      ( mapper_h  ), // H256-H1
     .busy       ( cache_busy),
@@ -124,7 +128,8 @@ jt1943_map #(
     .LAYOUT     ( LAYOUT    ),
     .VPOSW      ( VPOSW     ),
     .MAPAW      ( MAPAW     ),
-    .MAPDW      ( MAPDW     )
+    .MAPDW      ( MAPDW     ),
+    .SHW        ( SHW       )
 ) u_map(
     .rst        ( rst       ),
     .clk        ( clk       ),  // >12 MHz
@@ -132,6 +137,7 @@ jt1943_map #(
     .burst      ( cache_busy),
     .V128       ( V128sh    ), // V128-V1
     .H          ( mapper_h  ), // H256-H1
+    .SH         ( SH        ),
     .hpos       ( hpos      ),
     .vpos       ( vpos      ),
     .SCxON      ( SCxON     ),

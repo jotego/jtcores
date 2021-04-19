@@ -20,7 +20,8 @@ module jt1943_map_cache #(parameter
     // MAP SIZE
     MAPAW = 14, // address width
     MAPDW = 16, // data width
-    [8:0] HEND  = 9'h1F0
+    [8:0] HEND  = 9'h1F0,
+    SHW   = 8
 ) (
     input                rst,
     input                clk,  // >12 MHz
@@ -28,7 +29,7 @@ module jt1943_map_cache #(parameter
     output               mapper_cen,
 
     input                LHBL,
-    input         [ 8:0] H, // H256-H1
+    input      [SHW-1:0] H, // H256-H1
 
     output        [ 8:0] map_h, // H256-H1
     output reg           busy,
@@ -104,7 +105,7 @@ jtframe_dual_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
     .q0     (           ),
     // Port 1: reads
     .data1  (           ),
-    .addr1  ( H[8:4]    ),
+    .addr1  (H[SHW-1:SHW-CACHEW]),
     .we1    ( 1'b0      ),
     .q1     ( mapper_data )
 );
