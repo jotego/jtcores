@@ -29,7 +29,8 @@ module jt1943_map_cache #(parameter
     output               mapper_cen,
 
     input                LHBL,
-    input      [SHW-1:0] H, // H256-H1
+    input          [8:0] H, // H256-H1
+    input      [SHW-1:0] SH, // H256-H1
 
     output        [ 8:0] map_h, // H256-H1
     output reg           busy,
@@ -105,7 +106,7 @@ jtframe_dual_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
     .q0     (           ),
     // Port 1: reads
     .data1  (           ),
-    .addr1  (H[SHW-1:SHW-CACHEW]),
+    .addr1  (SH[SHW-1:SHW-CACHEW]),
     .we1    ( 1'b0      ),
     .q1     ( mapper_data )
 );

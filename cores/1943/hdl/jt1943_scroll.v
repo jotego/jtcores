@@ -109,7 +109,8 @@ jt1943_map_cache #(
     .pxl_cen    ( cen6      ),
     .mapper_cen ( mapper_cen),
     .LHBL       ( LHBL      ),
-    .H          ( SH        ),
+    .H          ( H         ),
+    .SH         ( SH        ),
 
     .map_h      ( mapper_h  ), // H256-H1
     .busy       ( cache_busy),
