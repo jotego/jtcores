@@ -31,5 +31,6 @@ GAME_ROM_LEN=$(stat -c%s $GAME_ROM_PATH)
 export YM2203=1
 
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN -sysname 1943 -d VERTICAL_SCREEN \
+jtsim $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN -sysname 1943 -d VERTICAL_SCREEN \
+    -d JTFRAME_SIM_ROMRQ_NOCHECK \
     -modules ../../../modules $*

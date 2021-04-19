@@ -194,7 +194,9 @@ jtgng_char #(
     .rom_ok     ( char_ok       ),
     // Pixel output
     .char_on    ( CHON          ),
-    .char_pxl   ( char_pxl      )
+    .char_pxl   ( char_pxl      ),
+    // Unused
+    .dseln      (               )
 );
 
 jtgng_charmsg u_msg(
@@ -219,6 +221,7 @@ u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
+    .LHBL         ( LHBL          ),
     .V128         ( V[7:0]        ),
     .H            ( H             ),
     .hpos         ( scr1posh      ),
@@ -260,6 +263,7 @@ generate
             .rst          ( rst           ),
             .clk          ( clk           ),
             .cen6         ( cen6          ),
+            .LHBL         ( LHBL          ),
             .V128         ( V[7:0]        ),
             .H            ( H             ),
             .hpos         ( scr2posh      ),
