@@ -129,20 +129,25 @@ always @(*) begin
 end
 
 // SCROLL H/V POSITION
-always @(posedge clk) if(cpu_cen && scrpos_cs) begin
-    if( VULGUS ) begin
-        case( {A[8], A[0]} )
-            2'b00: scr_vpos[7:0] <= cpu_dout;
-            2'b01: scr_hpos[7:0] <= cpu_dout;
-            2'b10: scr_vpos[  8] <= cpu_dout[0];
-            2'b11: scr_hpos[  8] <= cpu_dout[0];
-        endcase
-    end else begin // 1942
-        scr_vpos <= 8'h0;
-        if( A[0] )
-            scr_hpos[8]   <= cpu_dout[0];
-        else
-            scr_hpos[7:0] <= cpu_dout;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        scr_vpos <= 0;
+        scr_hpos <= 0;
+    end else if(cpu_cen && scrpos_cs) begin
+        if( VULGUS ) begin
+            case( {A[8], A[0]} )
+                2'b00: scr_vpos[7:0] <= cpu_dout;
+                2'b01: scr_hpos[7:0] <= cpu_dout;
+                2'b10: scr_vpos[  8] <= cpu_dout[0];
+                2'b11: scr_hpos[  8] <= cpu_dout[0];
+            endcase
+        end else begin // 1942
+            scr_vpos <= 8'h0;
+            if( A[0] )
+                scr_hpos[8]   <= cpu_dout[0];
+            else
+                scr_hpos[7:0] <= cpu_dout;
+        end
     end
 end
 

@@ -23,3 +23,6 @@ jtsim $MIST -d GAME_ROM_LEN=240128 -d VERTICAL_SCREEN \
      $* -sysname 1942 \
     -d JTCHAR_LOWER_SIMFILE=',.simfile("char_lo.bin")' \
     -d JTCHAR_UPPER_SIMFILE=',.simfile("char_hi.bin")'
+
+# Unused SDRAM banks
+rm -f sdram_bank{1,2,3}.hex
