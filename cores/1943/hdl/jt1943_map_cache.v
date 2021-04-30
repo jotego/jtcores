@@ -106,7 +106,7 @@ jtframe_dual_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
     .q0     (           ),
     // Port 1: reads
     .data1  (           ),
-    .addr1  (SH[SHW-1:SHW-CACHEW]),
+    .addr1  ( {1'b1,SH[7:4]}),
     .we1    ( 1'b0      ),
     .q1     ( mapper_data )
 );
