@@ -19,8 +19,7 @@ export CONVERT_OPTIONS="-rotate -90 -resize 300%x300%"
 export YM2149=1
 
 # Generic simulation script from JTFRAME
-../../../modules/jtframe/bin/sim.sh $MIST -d GAME_ROM_LEN=240128 -d VERTICAL_SCREEN \
+jtsim $MIST -d GAME_ROM_LEN=240128 -d VERTICAL_SCREEN \
      $* -sysname 1942 \
-     -def ../../hdl/jt1942.def \
     -d JTCHAR_LOWER_SIMFILE=',.simfile("char_lo.bin")' \
     -d JTCHAR_UPPER_SIMFILE=',.simfile("char_hi.bin")'
