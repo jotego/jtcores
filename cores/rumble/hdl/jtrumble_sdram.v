@@ -256,7 +256,7 @@ jtframe_ram_3slots #(
     .sdram_addr  ( ba0_addr  ),
     .data_dst    ( ba_dst[0] ),
     .data_rdy    ( ba_rdy[0] ),
-    .data_write  ( ba_din    ),
+    .data_write  ( ba0_din   ),
     .sdram_wrmask( ba0_din_m ),
     .data_read   ( data_read )
 );
