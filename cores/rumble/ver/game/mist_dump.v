@@ -53,6 +53,12 @@ module mist_dump(
             $shm_probe(UUT.u_game.u_video,"AS");
             //$shm_probe(UUT.u_game.u_video.u_colmix,"A");
             //$shm_probe(UUT.u_game.u_sdram,"A");
+            `ifdef LOADROM
+                $shm_probe(UUT.u_frame.u_board.u_sdram,"AS");
+                $shm_probe(UUT.u_game.u_sdram,"AS");
+                $shm_probe(UUT.u_game.u_prom_we,"A");
+                $shm_probe(u_harness.mist_sdram,"A");
+            `endif
         `endif
     end
 `endif

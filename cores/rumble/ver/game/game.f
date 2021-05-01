@@ -20,7 +20,7 @@ $JTFRAME/hdl/cpu/jtframe_sys6809.v
 $JTFRAME/hdl/video/jtframe_vtimer.v
 $JTFRAME/hdl/video/jtframe_blank.v
 
--F $JTFRAME/hdl/sdram/jtframe_sdram_bank.f
+-F $JTFRAME/hdl/sdram/jtframe_sdram64.f
 $JTFRAME/hdl/sdram/jtframe_dwnld.v
 
 $JTFRAME/hdl/clocking/jtframe_cen48.v

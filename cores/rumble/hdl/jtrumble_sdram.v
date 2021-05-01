@@ -70,33 +70,18 @@ module jtrumble_sdram #(
 
     // Bank 0: allows R/W
     output   [21:0] ba0_addr,
-    output          ba0_rd,
-    output          ba0_wr,
+    output   [21:0] ba1_addr,
+    output   [21:0] ba2_addr,
+    output   [21:0] ba3_addr,
+    output   [ 3:0] ba_rd,
+    output          ba_wr,
     output   [15:0] ba0_din,
     output   [ 1:0] ba0_din_m,  // write mask
-    input           ba0_rdy,
-    input           ba0_ack,
+    input    [ 3:0] ba_ack,
+    input    [ 3:0] ba_dst,
+    input    [ 3:0] ba_rdy,
 
-    // Bank 1: Read only
-    output   [21:0] ba1_addr,
-    output          ba1_rd,
-    input           ba1_rdy,
-    input           ba1_ack,
-
-    // Bank 2: Read only
-    output   [21:0] ba2_addr,
-    output          ba2_rd,
-    input           ba2_rdy,
-    input           ba2_ack,
-
-    // Bank 3: Read only
-    output   [21:0] ba3_addr,
-    output          ba3_rd,
-    input           ba3_rdy,
-    input           ba3_ack,
-
-    input    [31:0] data_read,
-    output          refresh_en,
+    input    [15:0] data_read,
 
     // ROM LOAD
     input           downloading,
@@ -116,7 +101,7 @@ module jtrumble_sdram #(
     output          prog_we,
     output          prog_rd,
     input           prog_ack,
-    input           prog_rdy
+    input           prog_dst
 );
 
 localparam [21:0] ZERO_OFFSET=0,
@@ -150,7 +135,6 @@ wire        conv_we,   dwn_we,
 //    end
 //end
 
-assign refresh_en = LVBL;
 assign prom_prior_we = prom_we && prog_addr[9:8]==2'b10;
 assign prom_banks[0] = prom_we && prog_addr[9:8]==2'b00;
 assign prom_banks[1] = prom_we && prog_addr[9:8]==2'b01;
@@ -206,7 +190,7 @@ jtgng_obj32 #(
 ) u_obj32(
     .clk         ( clk          ),
     .downloading ( downloading  ),
-    .sdram_dout  ( data_read[15:0]    ),
+    .sdram_dout  ( data_read    ),
     .convert     ( convert      ),
     .prog_addr   ( conv_addr    ),
     .prog_data   ( conv_data    ),
@@ -214,7 +198,7 @@ jtgng_obj32 #(
     .prog_we     ( conv_we      ),
     .prog_rd     ( conv_rd      ),
     .sdram_ack   ( prog_ack     ),
-    .data_ok     ( prog_rdy     )
+    .data_ok     ( prog_dst     )
 );
 `else
 assign convert=0;
@@ -266,12 +250,13 @@ jtframe_ram_3slots #(
     .slot2_ok   (  dma_ok   ),
 
     // SDRAM controller interface
-    .sdram_ack   ( ba0_ack   ),
-    .sdram_rd    ( ba0_rd    ),
-    .sdram_wr    ( ba0_wr    ),
+    .sdram_ack   ( ba_ack[0] ),
+    .sdram_rd    ( ba_rd[0]  ),
+    .sdram_wr    ( ba_wr     ),
     .sdram_addr  ( ba0_addr  ),
-    .data_rdy    ( ba0_rdy   ),
-    .data_write  ( ba0_din   ),
+    .data_dst    ( ba_dst[0] ),
+    .data_rdy    ( ba_rdy[0] ),
+    .data_write  ( ba_din    ),
     .sdram_wrmask( ba0_din_m ),
     .data_read   ( data_read )
 );
@@ -290,10 +275,11 @@ jtframe_rom_1slot #(
     .slot0_ok   ( snd_ok    ),
 
     // SDRAM controller interface
-    .sdram_ack  ( ba1_ack   ),
-    .sdram_req  ( ba1_rd    ),
+    .sdram_ack  ( ba_ack[1] ),
+    .sdram_req  ( ba_rd[1]  ),
     .sdram_addr ( ba1_addr  ),
-    .data_rdy   ( ba1_rdy   ),
+    .data_dst   ( ba_dst[1] ),
+    .data_rdy   ( ba_rdy[1] ),
     .data_read  ( data_read )
 );
 
@@ -321,10 +307,11 @@ jtframe_rom_2slots #(
     .slot1_ok   ( scr1_ok   ),
 
     // SDRAM controller interface
-    .sdram_ack  ( ba2_ack   ),
-    .sdram_req  ( ba2_rd    ),
+    .sdram_ack  ( ba_ack[2] ),
+    .sdram_req  ( ba_rd[2]  ),
     .sdram_addr ( ba2_addr  ),
-    .data_rdy   ( ba2_rdy   ),
+    .data_dst   ( ba_dst[2] ),
+    .data_rdy   ( ba_rdy[2] ),
     .data_read  ( data_read )
 );
 
@@ -342,10 +329,11 @@ jtframe_rom_1slot #(
     .slot0_ok   ( obj_ok    ),
 
     // SDRAM controller interface
-    .sdram_ack  ( ba3_ack   ),
-    .sdram_req  ( ba3_rd    ),
+    .sdram_ack  ( ba_ack[3] ),
+    .sdram_req  ( ba_rd[3]  ),
     .sdram_addr ( ba3_addr  ),
-    .data_rdy   ( ba3_rdy   ),
+    .data_dst   ( ba_dst[3] ),
+    .data_rdy   ( ba_rdy[3] ),
     .data_read  ( data_read )
 );
 
