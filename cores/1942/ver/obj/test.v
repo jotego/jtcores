@@ -64,6 +64,7 @@ jt1942_objtiming u_timing(
     // screen
     .LHBL        ( LHBL          ),
     .HINIT       ( HINIT         ),
+    .flip        ( 1'b0          ),
     .V           ( V[7:0]        ),
     .H           ( H             ),
     .obj_ok      ( 1'b1          ),

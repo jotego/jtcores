@@ -29,6 +29,7 @@ module jt1942_objtiming(
     input   [8:0]      H,
     input              LHBL,
     input              HINIT,
+    input              flip,
     input              obj_ok,
     output reg [3:0]   pxlcnt,
     output reg [4:0]   objcnt,
@@ -50,10 +51,16 @@ wire rom_good = obj_ok & okdly;
 wire posedge_LHBL = LHBL && !last_LHBL;
 reg [4:0] auxcnt;
 
+// The 1942 logo effect still doesn't look perfect
+// the second round if flip is set
+// there appear to be a 2-pixel wide gap in between
+// the two halves of the CAPCOM logo
+// If flip is off, the second round logo is rendered
+// correctly
 always @(*) begin
     objcnt = auxcnt;
-    if( V[7] && auxcnt> 'hf && LAYOUT==0)
-        objcnt[3] = 1;
+    if( (V[7]^flip) && auxcnt> 'hf && LAYOUT==0)
+        objcnt[3] = objcnt[3]^1;
 end
 
 always @(posedge clk) begin
@@ -95,7 +102,9 @@ end
 
 // 1942: left part of the vertical screen (V[7]==1)
 // reads objects 0h to 17h, right half read 0h to Fh and then 18h to 1fh
-// so the 1942 logo effect occurs.
+// so the 1942 logo effect occurs. But this should take the flip bit into
+// account to work correctly and that isn't in the schematics. Again,
+// the schematics look like coming from a prototype version
 // Vulgus: objects 0 to 17 only
 
 /* Original sequence

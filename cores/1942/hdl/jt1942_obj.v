@@ -71,6 +71,7 @@ jt1942_objtiming #(.LAYOUT(LAYOUT)) u_timing(
     .HINIT       ( HINIT         ),
     .V           ( V             ),
     .H           ( H             ),
+    .flip        ( flip          ),
     .obj_ok      ( obj_ok        ),
     .over        ( over          ),
     // Timing PROM
