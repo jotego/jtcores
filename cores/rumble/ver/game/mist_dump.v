@@ -56,8 +56,13 @@ module mist_dump(
             `ifdef LOADROM
                 $shm_probe(UUT.u_frame.u_board.u_sdram,"AS");
                 $shm_probe(UUT.u_game.u_sdram,"AS");
-                $shm_probe(UUT.u_game.u_prom_we,"A");
-                $shm_probe(u_harness.mist_sdram,"A");
+                $shm_probe(u_harness.u_sdram,"A");
+            `endif
+            `ifdef DUMP_SDRAM
+                $shm_probe(UUT.u_game.u_sdram, "AS");
+                $shm_probe(UUT.u_frame.u_board.u_sdram, "AS");
+                $shm_probe(UUT.u_game.u_main, "A");
+                $shm_probe(u_harness.u_sdram, "A");
             `endif
         `endif
     end
