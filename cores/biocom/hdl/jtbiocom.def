@@ -11,7 +11,7 @@ JTFRAME_SDRAM_BANKS
 
 [mist|sidi]
 #The logo doesn't fit in small devices
-#JTFRAME_OSD_NOLOGO
+JTFRAME_OSD_NOLOGO
 VIDEO_WIDTH=384
 JTFRAME_SCAN2X
 
