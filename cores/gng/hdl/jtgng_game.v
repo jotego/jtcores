@@ -40,13 +40,12 @@ module jtgng_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
-    input   [31:0]  data_read,
+    input   [15:0]  data_read,
     input           data_rdy,
+    input           data_dst,
     input           sdram_ack,
-    output          refresh_en,
     // ROM LOAD
     input   [21:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -107,7 +106,6 @@ wire [14:0] scr_addr;
 wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-wire rom_ready;
 wire main_ok, snd_ok;
 wire cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
 wire clk48_cen12, clk48_cen6;
@@ -383,7 +381,6 @@ jtframe_rom #(
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
@@ -416,16 +413,14 @@ jtframe_rom #(
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),
 
-    .ready       ( rom_ready     ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_rdy    ( data_rdy      ),
+    .data_dst    ( data_dst      ),
     .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .data_read   ( data_read     )
 );
 
 endmodule // jtgng

@@ -38,13 +38,12 @@ module jttora_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
-    input   [31:0]  data_read,
+    input   [15:0]  data_read,
+    input           data_dst,
     input           data_rdy,
     input           sdram_ack,
-    output          refresh_en,
     // ROM LOAD
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -110,7 +109,6 @@ wire [14:0] scr2_addr;
 wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-wire        rom_ready;
 wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, obj_ok0, char_ok;
 wire        video_cen8;
 
@@ -516,7 +514,6 @@ jtframe_rom #(
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
@@ -551,16 +548,14 @@ jtframe_rom #(
     .slot6_dout  ( snd2_data     ),
     .slot8_dout  ( obj_pre       ),
 
-    .ready       ( rom_ready     ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
+    .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
     .downloading ( dwnld_busy    ),
-    .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    ),
     // Unused
     .slot4_addr  (               ),
     .slot7_addr  (               ),

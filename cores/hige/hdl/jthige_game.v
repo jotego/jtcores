@@ -37,13 +37,12 @@ module jthige_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
-    input   [31:0]  data_read,
+    input   [15:0]  data_read,
+    input           data_dst,
     input           data_rdy,
     input           sdram_ack,
-    output          refresh_en,
 
     // ROM LOAD
     input   [24:0]  ioctl_addr,
@@ -288,7 +287,6 @@ jtframe_rom #(
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( 1'b0          ),
@@ -330,16 +328,14 @@ jtframe_rom #(
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),
 
-    .ready       (               ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
+    .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .data_read   ( data_read     )
 );
 
 endmodule

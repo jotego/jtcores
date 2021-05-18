@@ -39,13 +39,12 @@ module jtcommando_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
-    input   [31:0]  data_read,
+    input   [15:0]  data_read,
+    input           data_dst,
     input           data_rdy,
     input           sdram_ack,
-    output          refresh_en,
     // ROM LOAD
     input   [21:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -107,7 +106,6 @@ wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 
-wire rom_ready;
 wire main_ok, snd_ok, obj_ok, obj_ok0;
 wire cen12, cen6, cen3, cen1p5;
 
@@ -386,7 +384,6 @@ jtframe_rom #(
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
@@ -420,21 +417,14 @@ jtframe_rom #(
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_pre       ),
 
-    .ready       ( rom_ready     ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
+    .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
-
-    // .prog_data   ( prog_data     ),
-    // .prog_mask   ( prog_mask     ),
-    // .prog_addr   ( prog_addr     ),
-    // .prog_we     ( prog_we       )
+    .data_read   ( data_read     )
 );
 
 jtframe_avatar #(.AW(14)) u_avatar(

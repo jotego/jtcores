@@ -51,33 +51,18 @@ module jtbiocom_sdram(
     // SDRAM
     // Bank 0: allows R/W
     output   [21:0] ba0_addr,
-    output          ba0_rd,
+    output   [21:0] ba1_addr,
+    output   [21:0] ba2_addr,
+    output   [21:0] ba3_addr,
+    output   [ 3:0] ba_rd,
     output          ba0_wr,
     output   [15:0] ba0_din,
     output   [ 1:0] ba0_din_m,  // write mask
-    input           ba0_rdy,
-    input           ba0_ack,
+    input    [ 3:0] ba_dst,
+    input    [ 3:0] ba_rdy,
+    input    [ 3:0] ba_ack,
 
-    // Bank 1: Read only
-    output   [21:0] ba1_addr,
-    output          ba1_rd,
-    input           ba1_rdy,
-    input           ba1_ack,
-
-    // Bank 2: Read only
-    output   [21:0] ba2_addr,
-    output          ba2_rd,
-    input           ba2_rdy,
-    input           ba2_ack,
-
-    // Bank 3: Read only
-    output   [21:0] ba3_addr,
-    output          ba3_rd,
-    input           ba3_rdy,
-    input           ba3_ack,
-
-    input   [31:0]  data_read,
-    output          refresh_en
+    input    [15:0] data_read
 );
 
 localparam [21:0] ZERO_OFFSET = 22'd0,
@@ -86,7 +71,6 @@ localparam [21:0] ZERO_OFFSET = 22'd0,
                    OBJ_OFFSET = 22'h10_0000;
 
 assign ba0_wr = 0;
-assign refresh_en = ~LVBL;
 
 wire        obj_ok0;
 wire [15:0] obj_pre;
@@ -105,9 +89,10 @@ jtframe_rom_1slot #(
     .slot0_dout  ( main_data     ),
 
     .sdram_addr  ( ba0_addr      ),
-    .sdram_req   ( ba0_rd        ),
-    .sdram_ack   ( ba0_ack       ),
-    .data_rdy    ( ba0_rdy       ),
+    .sdram_req   ( ba_rd[0]      ),
+    .sdram_ack   ( ba_ack[0]     ),
+    .data_dst    ( ba_dst[0]     ),
+    .data_rdy    ( ba_rdy[0]     ),
     .data_read   ( data_read     )
 );
 
@@ -125,9 +110,10 @@ jtframe_rom_1slot #(
     .slot0_dout  ( snd_data      ),
 
     .sdram_addr  ( ba1_addr      ),
-    .sdram_req   ( ba1_rd        ),
-    .sdram_ack   ( ba1_ack       ),
-    .data_rdy    ( ba1_rdy       ),
+    .sdram_req   ( ba_rd[1]      ),
+    .sdram_ack   ( ba_ack[1]     ),
+    .data_dst    ( ba_dst[1]     ),
+    .data_rdy    ( ba_rdy[1]     ),
     .data_read   ( data_read     )
 );
 // Bank 2: Char/SCR1
@@ -158,9 +144,10 @@ jtframe_rom_2slots #(
     .slot1_dout  ( scr1_data     ),
 
     .sdram_addr  ( ba2_addr      ),
-    .sdram_req   ( ba2_rd        ),
-    .sdram_ack   ( ba2_ack       ),
-    .data_rdy    ( ba2_rdy       ),
+    .sdram_req   ( ba_rd[2]      ),
+    .sdram_ack   ( ba_ack[2]     ),
+    .data_dst    ( ba_dst[2]     ),
+    .data_rdy    ( ba_rdy[2]     ),
     .data_read   ( data_read     )
 );
 
@@ -192,9 +179,10 @@ jtframe_rom_2slots #(
     .slot1_dout  ( obj_pre       ),
 
     .sdram_addr  ( ba3_addr      ),
-    .sdram_req   ( ba3_rd        ),
-    .sdram_ack   ( ba3_ack       ),
-    .data_rdy    ( ba3_rdy       ),
+    .sdram_req   ( ba_rd[3]      ),
+    .sdram_ack   ( ba_ack[3]     ),
+    .data_dst    ( ba_dst[3]     ),
+    .data_rdy    ( ba_rdy[3]     ),
     .data_read   ( data_read     )
 );
 

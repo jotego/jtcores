@@ -44,33 +44,19 @@ module jtsf_game(
 
     // Bank 0: allows R/W
     output   [21:0] ba0_addr,
-    output          ba0_rd,
-    output          ba0_wr,
+    output   [21:0] ba1_addr,
+    output   [21:0] ba2_addr,
+    output   [21:0] ba3_addr,
     output   [15:0] ba0_din,
     output   [ 1:0] ba0_din_m,  // write mask
-    input           ba0_rdy,
-    input           ba0_ack,
+    output   [ 3:0] ba_rd,
+    output          ba_wr,
+    input    [ 3:0] ba_ack,
+    input    [ 3:0] ba_dst,
+    input    [ 3:0] ba_dok,
+    input    [ 3:0] ba_rdy,
 
-    // Bank 1: Read only
-    output   [21:0] ba1_addr,
-    output          ba1_rd,
-    input           ba1_rdy,
-    input           ba1_ack,
-
-    // Bank 2: Read only
-    output   [21:0] ba2_addr,
-    output          ba2_rd,
-    input           ba2_rdy,
-    input           ba2_ack,
-
-    // Bank 3: Read only
-    output   [21:0] ba3_addr,
-    output          ba3_rd,
-    input           ba3_rdy,
-    input           ba3_ack,
-
-    input   [31:0]  data_read,
-    output          refresh_en,
+    input   [15:0]  data_read,
     // ROM LOAD
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -82,7 +68,10 @@ module jtsf_game(
     output          prog_we,
     output          prog_rd,
     input           prog_ack,
+    input           prog_dst,
+    input           prog_dok,
     input           prog_rdy,
+
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
@@ -184,8 +173,6 @@ reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
-assign refresh_en         = ~LVBL;
-
 
 always @(negedge clk) begin
     snd_rst   <= rst;
@@ -608,10 +595,11 @@ jtframe_ram_2slots #(
 
     // SDRAM interface
     .sdram_addr  ( ba0_addr      ),
-    .sdram_rd    ( ba0_rd        ),
     .sdram_wr    ( ba0_wr        ),
-    .sdram_ack   ( ba0_ack       ),
-    .data_rdy    ( ba0_rdy       ),
+    .sdram_rd    ( ba_rd[0]      ),
+    .sdram_ack   ( ba_ack[0]     ),
+    .data_dst    ( ba_dst[0]     ),
+    .data_rdy    ( ba_rdy[0]     ),
     .data_write  ( ba0_din       ),
     .sdram_wrmask( ba0_din_m     ),
     .data_read   ( data_read     )
@@ -643,9 +631,10 @@ jtframe_rom_2slots #(
     .slot1_dout  ( snd2_data     ),
 
     .sdram_addr  ( ba1_addr      ),
-    .sdram_req   ( ba1_rd        ),
-    .sdram_ack   ( ba1_ack       ),
-    .data_rdy    ( ba1_rdy       ),
+    .sdram_req   ( ba_rd[1]      ),
+    .sdram_ack   ( ba_ack[1]     ),
+    .data_dst    ( ba_dst[1]     ),
+    .data_rdy    ( ba_rdy[1]     ),
     .data_read   ( data_read     )
 );
 
@@ -683,9 +672,10 @@ jtframe_rom_3slots #(
     .slot2_dout  ( char_data     ),
 
     .sdram_addr  ( ba2_addr      ),
-    .sdram_req   ( ba2_rd        ),
-    .sdram_ack   ( ba2_ack       ),
-    .data_rdy    ( ba2_rdy       ),
+    .sdram_req   ( ba_rd[2]      ),
+    .sdram_ack   ( ba_ack[2]     ),
+    .data_dst    ( ba_dst[2]     ),
+    .data_rdy    ( ba_rdy[2]     ),
     .data_read   ( data_read     )
 );
 
@@ -723,9 +713,10 @@ jtframe_rom_3slots #(
     .slot2_dout  ( scr2_data     ),
 
     .sdram_addr  ( ba3_addr      ),
-    .sdram_req   ( ba3_rd        ),
-    .sdram_ack   ( ba3_ack       ),
-    .data_rdy    ( ba3_rdy       ),
+    .sdram_req   ( ba_rd[3]      ),
+    .sdram_ack   ( ba_ack[3]     ),
+    .data_dst    ( ba_dst[3]     ),
+    .data_rdy    ( ba_rdy[3]     ),
     .data_read   ( data_read     )
 );
 

@@ -27,7 +27,7 @@ module jtrumble_main(
     output  reg        pal_cs,
     output  reg        flip,
     // Sound
-    output  reg        sres_b, // Z80 reset
+    output             sres_b, // Z80 reset
     output  reg [7:0]  snd_latch,
     // Characters
     input       [7:0]  char_dout,
@@ -83,6 +83,7 @@ reg        last_E, last_cs;
 reg [12:0] last_ram_addr;
 
 assign rom_cs = last_cs && pre_cs;
+assign sres_b = 1;
 
 always @(posedge clk or negedge nRESET) begin
     if(!nRESET) begin
@@ -128,7 +129,6 @@ always @(posedge clk or negedge nRESET) begin
         scr_vpos  <= 0;
         snd_latch <= 0;
         flip      <= 0;
-        sres_b    <= 1;
         bank      <= 0;
     end else if(cen_Q && io_cs && !RnW ) begin
         case(A[2:0])

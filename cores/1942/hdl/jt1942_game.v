@@ -423,7 +423,6 @@ jtframe_rom #(
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),
 
-    .ready       ( rom_ready     ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
