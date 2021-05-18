@@ -53,7 +53,7 @@ module jt1943_video #( parameter
     input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
-    input       [ 7:0]  V,
+    input       [ 8:0]  V,
     input       [ 8:0]  H,
     input               rd_n,
     input               wr_n,
@@ -222,7 +222,7 @@ u_scroll1 (
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .LHBL         ( LHBL          ),
-    .V128         ( V[7:0]        ),
+    .V128         ( V             ),
     .H            ( H             ),
     .hpos         ( scr1posh      ),
     `ifndef TESTSCR1
@@ -264,7 +264,7 @@ generate
             .clk          ( clk           ),
             .cen6         ( cen6          ),
             .LHBL         ( LHBL          ),
-            .V128         ( V[7:0]        ),
+            .V128         ( V             ),
             .H            ( H             ),
             .hpos         ( scr2posh      ),
             `ifndef TESTSCR2

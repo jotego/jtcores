@@ -24,12 +24,12 @@ for k in $*; do
     fi
 done
 
-export GAME_ROM_PATH=../../../rom/JT1943.rom
 export MEM_CHECK_TIME=250_000_000
 export CONVERT_OPTIONS="-rotate -90 -resize 300%x300%"
 export YM2203=1
 
 # Generic simulation script from JTFRAME
-jtsim $MIST -d GAME_ROM_LEN=$GAME_ROM_LEN -sysname 1943 -d VERTICAL_SCREEN \
+jtsim $MIST -sysname 1943 -d VERTICAL_SCREEN \
     -d JTFRAME_SIM_ROMRQ_NOCHECK \
+    -videow 256 -videoh 224 \
     -modules ../../../modules $*

@@ -257,6 +257,7 @@ jt1943_main u_main(
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
+    .dipsw_c    (               ),
     .dip_pause  ( dip_pause     ),
     .coin_cnt   (               )
 );
@@ -349,7 +350,7 @@ jt1943_video u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
-    .V          ( V[7:0]        ),
+    .V          ( V             ),
     .H          ( H             ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
