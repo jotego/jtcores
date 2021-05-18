@@ -8,9 +8,6 @@
 ../../hdl/jttora_sound.v
 ../../hdl/jttora_adpcm.v
 ../../../1943/hdl/jt1943_scroll.v
-../../../modules/fx68k/fx68kAlu.sv
-../../../modules/fx68k/fx68k.sv
-../../../modules/fx68k/uaddrPla.sv
 # ../../../modules/jt12/hdl/jt12_rst.v
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 ../../../modules/jtframe/hdl/cpu/jtframe_68kdma.v
@@ -49,3 +46,4 @@
 ../../../modules/jtgng_sound.v
 ../../../modules/jt12/jt49/hdl/filter/jt49_dcrm2.v
 ../../../modules/jt12/hdl/mixer/jt12_mixer.v
+-F $JTFRAME/hdl/sdram/jtframe_sdram64.f
