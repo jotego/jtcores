@@ -80,7 +80,7 @@ wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
 wire        snd_cs, snd2_cs;
-wire        char_cs, col_uw, col_lw;
+wire        char_cs, map_cs, col_uw, col_lw;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
 wire        rd, cpu_cen;
@@ -434,6 +434,8 @@ jttora_video u_video(
     // SCROLL
     .map_data   ( map_data      ),
     .map_addr   ( map_addr      ),
+    .map_cs     ( map_cs        ),
+    .map_ok     ( map_ok        ),
     .scr_addr   ( scr_addr[17:0]),
     .scr_data   ( scr_data      ),
     .scrposh    ( scrposh       ),
@@ -517,7 +519,7 @@ jtframe_rom #(
 
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
+    .slot1_cs    ( map_cs        ),
     .slot2_cs    ( LVBL          ),
     .slot3_cs    ( main_cs       ),
     .slot5_cs    ( snd_cs        ),

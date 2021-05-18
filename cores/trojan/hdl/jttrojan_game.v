@@ -38,13 +38,12 @@ module jttrojan_game(
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
-    input           loop_rst,
     output          sdram_req,
     output  [21:0]  sdram_addr,
-    input   [31:0]  data_read,
+    input   [15:0]  data_read,
+    input           data_dst,
     input           data_rdy,
     input           sdram_ack,
-    output          refresh_en,
     // ROM LOAD
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_data,
@@ -82,7 +81,7 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
-wire snd_cs, snd2_cs;
+wire snd_cs, snd2_cs, map_cs;
 wire char_cs, blue_cs, redgreen_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
@@ -108,7 +107,6 @@ wire [SCR2W-1:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-wire rom_ready;
 wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
 wire cen12, cen8, cen6, cen3, cen1p5;
 
@@ -368,6 +366,8 @@ u_video(
     .scr2_data  ( scr2_data     ),
     .map2_addr  ( map_addr      ), // 32kB in 8 bits or 16kW in 16 bits
     .map2_data  ( map_data      ),
+    .map2_cs    ( map_cs        ),
+    .map2_ok    ( map_ok        ),
     // OBJ
     .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
@@ -428,12 +428,10 @@ jtframe_rom #(
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
-    .vblank      ( ~LVBL         ),
 
-    //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // Char
     .slot1_cs    ( LVBL          ), // Scroll
-    .slot2_cs    ( LVBL          ), // Map
+    .slot2_cs    ( map_cs        ), // Map
     .slot3_cs    ( LVBL          ), // Scroll 2
     .slot4_cs    ( snd2_cs       ),
     .slot5_cs    ( 1'b0          ),
@@ -471,16 +469,14 @@ jtframe_rom #(
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),
 
-    .ready       ( rom_ready     ),
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
+    .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    .refresh_en  ( refresh_en    )
+    .data_read   ( data_read     )
 );
 
 endmodule

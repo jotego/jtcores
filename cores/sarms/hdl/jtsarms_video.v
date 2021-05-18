@@ -53,6 +53,8 @@ module jtsarms_video #(
     input       [15:0]  scr_vpos, // only 12 bits are used
     output      [13:0]  map_addr, // 32kB in 8 bits or 16kW in 16 bits
     input       [15:0]  map_data,
+    input               map_ok,
+    output              map_cs,
     // Star field
     output [STARW-1:0]  star_addr, // 64kB in 8 bits or 32kW in 16 bits
     input       [ 7:0]  star_data,
@@ -177,6 +179,8 @@ jt1943_scroll #(
     // ROM
     .map_addr     ( map_addr      ),
     .map_data     ( map_data      ),
+    .map_ok       ( map_ok        ),
+    .map_cs       ( map_cs        ),
     .scr_addr     ( scr_addr      ),
     .scrom_data   ( scr_data      ),
     .scr_pxl      ( scr_pxl       )

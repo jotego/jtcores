@@ -52,6 +52,8 @@ module jttora_video(
     // MAP
     output      [13:0]  map_addr,
     input       [15:0]  map_data,
+    input               map_ok,
+    output              map_cs,
     // OBJ
     input               HINIT,
     output      [13:1]  obj_AB,
@@ -181,6 +183,8 @@ u_scroll (
     // ROM
     .map_addr     ( map_addr       ),
     .map_data     ( map_data       ),
+    .map_ok       ( map_ok         ),
+    .map_cs       ( map_cs         ),
     .scr_addr     ( scr_addr       ),
     .scrom_data   ( scr_data       ),
     .scr_pxl      ( scr_pxl        )

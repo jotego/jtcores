@@ -66,6 +66,8 @@ module jttrojan_video #(
     input       [15:0]  scr2_data,
     output      [13:0]  map2_addr, // 32kB in 8 bits or 16kW in 16 bits
     input       [15:0]  map2_data,
+    input               map2_ok,
+    output              map2_cs,
     input       [15:0]  scr2_hpos,
     // OBJ
     input               HINIT,
@@ -229,6 +231,8 @@ jt1943_scroll #(
     // ROM
     .map_addr     ( map2_addr     ),
     .map_data     ( map2_data     ),
+    .map_cs       ( map2_cs       ),
+    .map_ok       ( map2_ok       ),
     .scr_addr     ( scr2_addr     ),
     .scrom_data   ( scr2_data     ),
     .scr_pxl      ( scr2_pxl      )

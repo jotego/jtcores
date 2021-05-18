@@ -5,7 +5,7 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttroja
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_sound.v                ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttrojan_colmix.v               ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../tora/hdl/jttora_adpcm.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../1943/hdl/jt1943_scroll.v  ]
+set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../1943/hdl/jt1943_scroll.qip]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jt12/hdl/jt12_rst.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/ram/jtframe_prom.v      ]

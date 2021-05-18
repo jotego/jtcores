@@ -82,7 +82,7 @@ wire       HINIT;
 
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout, scr_dout;
-wire        snd_cs;
+wire        map_cs, snd_cs;
 wire        char_cs, blue_cs, redgreen_cs;
 wire        eres_n, wrerr_n;
 wire        flip;
@@ -377,6 +377,8 @@ u_video(
     .scr_ok     ( scr_ok        ),
     .map_addr   ( map_addr      ), // 32kB in 8 bits or 16kW in 16 bits
     .map_data   ( map_data      ),
+    .map_cs     ( map_cs        ),
+    .map_ok     ( map_ok        ),
     .SCRON      ( SCRON         ),
     // STAR FIELD
     .star_hscan ( star_hscan    ),
@@ -447,7 +449,7 @@ jtframe_rom #(
     //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // Char
     .slot1_cs    ( LVBL          ), // Scroll
-    .slot2_cs    ( LVBL          ), // Map
+    .slot2_cs    ( map_cs        ), // Map
     .slot3_cs    ( LVBL          ), // Star
     .slot4_cs    ( 1'b0          ),
     .slot5_cs    ( 1'b0          ),
