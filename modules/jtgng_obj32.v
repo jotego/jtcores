@@ -90,14 +90,14 @@ always @(posedge clk ) begin
                     wait_ack     <= 1'd1;
                 end
                 8'd2: if( data_ok ) begin
-                    obj_data[15:0] <= sdram_dout;
+                    obj_data[31:16] <= sdram_dout;
                     prog_mask    <= 2'b11;
                     prog_we      <= 1'b0;
                     prog_rd      <= 1'b1;
                     prog_addr[0] <= 1'b1;
                 end
                 8'd4: if( data_ok ) begin
-                    obj_data[31:16] <= sdram_dout;
+                    obj_data[15:0] <= sdram_dout;
                     prog_rd         <= 1'b0;
                     wait_ack        <= 1'd0;
                 end
