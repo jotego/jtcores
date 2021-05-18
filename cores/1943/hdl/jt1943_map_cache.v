@@ -83,7 +83,7 @@ always @(posedge clk, posedge rst) begin
                         if( hcnt == HEND )
                             busy <= 0;
                         else
-                            hcnt  <= hcnt + 9'h10;
+                            hcnt  <= hcnt + 9'h8;
                     end
                 end
                 3:; // gives time to jt1943_map to produce the map_addr
@@ -101,7 +101,7 @@ jtframe_dual_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
     .clk1   ( clk       ),
     // Port 0: writes
     .data0  ( map_data  ),
-    .addr0  ( hcnt[8:4] ),
+    .addr0  ( {1'b1,SH[7:4]}),
     .we0    ( map_we    ),
     .q0     (           ),
     // Port 1: reads
