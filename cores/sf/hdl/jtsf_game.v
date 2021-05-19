@@ -398,6 +398,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign main_addr = {MAINW{1'b0}};
     assign cpu_AB    = 13'd0;
     assign char_cs   = 0;
+    assign main_cs   = 0;
     assign bus_ack   = 1;
     assign flip      = 0;
     assign scr1posh  = 16'd0;
