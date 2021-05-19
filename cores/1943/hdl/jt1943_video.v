@@ -222,7 +222,7 @@ u_scroll1 (
     .clk          ( clk           ),
     .cen6         ( cen6          ),
     .LHBL         ( LHBL          ),
-    .V128         ( V             ),
+    .V128         ( {1'b0, V[7:0]}),
     .H            ( H             ),
     .hpos         ( scr1posh      ),
     `ifndef TESTSCR1
@@ -264,7 +264,7 @@ generate
             .clk          ( clk           ),
             .cen6         ( cen6          ),
             .LHBL         ( LHBL          ),
-            .V128         ( V             ),
+            .V128         ( {1'b0, V[7:0]}),
             .H            ( H             ),
             .hpos         ( scr2posh      ),
             `ifndef TESTSCR2

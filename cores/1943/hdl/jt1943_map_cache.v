@@ -48,7 +48,7 @@ module jt1943_map_cache #(parameter
 localparam CACHEW = 5; //up to 32 tiles => 512 for 16x16 tiles
 
 reg  [1:0] st;
-reg        last_rstart, okidle;
+reg        last_LHBL, okidle;
 reg  [8:0] hcnt;
 wire       map_we;
 
@@ -61,10 +61,10 @@ always @(posedge clk, posedge rst) begin
         busy        <= 0;
         okidle      <= 0;
         st          <= 0;
-        last_rstart <= 0;
+        last_LHBL   <= 0;
     end else begin
-        last_rstart <= row_start;
-        if( row_start && !last_rstart && !LHBL ) begin
+        last_LHBL <= LHBL;
+        if( row_start && last_LHBL && !LHBL ) begin
             busy  <= 1;
             hcnt  <= 9'h100;
             st    <= 0;
@@ -83,7 +83,7 @@ always @(posedge clk, posedge rst) begin
                         if( hcnt == HEND )
                             busy <= 0;
                         else
-                            hcnt  <= hcnt + 9'h8;
+                            hcnt  <= hcnt + 9'h10;
                     end
                 end
                 3:; // gives time to jt1943_map to produce the map_addr
@@ -94,21 +94,15 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// hcnt[8], H[8] are always 1 for 256-wide screens
-// CACHEW could be optimized
-jtframe_dual_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
-    .clk0   ( clk       ),
-    .clk1   ( clk       ),
-    // Port 0: writes
-    .data0  ( map_data  ),
-    .addr0  ( {1'b1,SH[7:4]}),
-    .we0    ( map_we    ),
-    .q0     (           ),
-    // Port 1: reads
-    .data1  (           ),
-    .addr1  ( {1'b1,SH[7:4]}),
-    .we1    ( 1'b0      ),
-    .q1     ( mapper_data )
+wire [CACHEW-1:0] addr = SH[SHW-1 -: CACHEW];
+
+jtframe_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
+    .clk    ( clk         ),
+    .cen    ( 1'b1        ),
+    .addr   ( addr        ),
+    .data   ( map_data    ),
+    .we     ( map_we      ),
+    .q      ( mapper_data )
 );
 
 endmodule

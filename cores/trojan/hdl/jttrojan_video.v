@@ -118,7 +118,7 @@ wire [3:0] cc;
 wire [9:0] char_scan;
 
 jtgng_char #(
-    .HOFFSET ( 7),
+    .HOFFSET ( 8),
     .ROM_AW  (14),
     .PALW    ( 4)
 ) u_char (

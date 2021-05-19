@@ -482,7 +482,8 @@ jtframe_rom #(
     .slot2_ok    ( scr1_ok       ),
     .slot3_ok    ( map2_ok       ),
     .slot4_ok    ( scr2_ok       ),
-    //.slot6_ok    ( snd_ok        ),
+    .slot5_ok    (               ),
+    .slot6_ok    (               ),
     .slot7_ok    ( main_ok       ),
     .slot8_ok    ( obj_ok0       ),
 
