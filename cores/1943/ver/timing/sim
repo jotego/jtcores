@@ -1,0 +1,6 @@
+#!/bin/bash
+
+iverilog test.v $MODULES/jtgng_timer.v -o xsim \
+    -DSIMULATION -DSIMULATION_VTIMER -DSIMULATION_VTIMER_FCLK=8e6 \
+    && xsim -lxt
+rm -f xsim

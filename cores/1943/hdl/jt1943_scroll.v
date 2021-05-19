@@ -68,7 +68,7 @@ localparam SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8;
 wire [MAPDW/2-1:0] dout_high, dout_low;
 wire         [4:0] HS, SVmap;
 wire     [SHW-1:0] SH;
-wire         [8:0] V128sh;
+reg          [8:0] V128sh;
 wire               row_start;
 
 // Because we process the signal a bit ahead of time
@@ -81,15 +81,12 @@ wire               row_start;
 // This is not needed for games with more than 256 h width
 generate
     if( LAYOUT!=8 && LAYOUT!=9 ) begin
-        jtframe_sh #(.width(9), .stages(HOFFSET) ) u_vsh
-        (
-            .clk    ( clk     ),
-            .clk_en ( cen6    ),
-            .din    ( V128    ),
-            .drop   ( V128sh  )
-        );
+        always @(posedge clk) if(cen6) begin
+            if( !LHBL )
+                V128sh <= V128;
+        end
     end else begin
-        assign V128sh = V128;
+        always @(*) V128sh = V128;
     end
 endgenerate
 
