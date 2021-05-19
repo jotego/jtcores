@@ -70,6 +70,7 @@ wire         [4:0] HS, SVmap;
 wire     [SHW-1:0] SH;
 reg          [8:0] V128sh;
 wire               row_start;
+wire               LHBLd;
 
 // Because we process the signal a bit ahead of time
 // (exactly HOFFSET pixels ahead of time), this creates
@@ -85,8 +86,15 @@ generate
             if( !LHBL )
                 V128sh <= V128;
         end
+        jtframe_sh #(.width(1),.stages(8)) u_lhbl(
+            .clk    ( clk   ),
+            .clk_en ( cen6  ),
+            .din    ( LHBL  ),
+            .drop   ( LHBLd )
+        );
     end else begin
         always @(*) V128sh = V128;
+        assign LHBLd = LHBL;
     end
 endgenerate
 
@@ -105,7 +113,7 @@ jt1943_map_cache #(
     .clk        ( clk       ),  // >12 MHz
     .pxl_cen    ( cen6      ),
     .mapper_cen ( mapper_cen),
-    .LHBL       ( LHBL      ),
+    .LHBL       ( LHBLd     ),
     .H          ( H         ),
     .SH         ( SH        ),
 

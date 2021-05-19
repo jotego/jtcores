@@ -84,7 +84,7 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
+wire snd_cs, map1_cs;
 wire char_cs;
 wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
@@ -296,7 +296,7 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr_ok, map_ok, char_ok, obj_ok, obj_ok0;
+wire scr_ok, map1_ok, char_ok, obj_ok, obj_ok0;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
@@ -367,6 +367,8 @@ jt1943_video #(
     // Scroll maps
     .map1_addr     ( map_addr      ),
     .map1_data     ( map_data      ),
+    .map1_ok       ( map1_ok       ),
+    .map1_cs       ( map1_cs       ),
     .map2_addr     (               ),
     .map2_data     (               ),
     // OBJ
@@ -451,7 +453,7 @@ jtframe_rom #(
 
     // .pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // char
-    .slot1_cs    ( LVBL          ), // map
+    .slot1_cs    ( map1_cs       ), // map
     .slot2_cs    ( LVBL          ), // scroll
     .slot3_cs    ( 1'b0          ), // unused
     .slot4_cs    ( 1'b0          ), // unused
@@ -461,7 +463,7 @@ jtframe_rom #(
     .slot8_cs    ( 1'b1          ),
 
     .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( map_ok        ),
+    .slot1_ok    ( map1_ok       ),
     .slot2_ok    ( scr_ok        ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
@@ -487,7 +489,6 @@ jtframe_rom #(
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
     .downloading ( downloading   ),
-    .loop_rst    ( loop_rst      ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
 );

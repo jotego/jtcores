@@ -56,7 +56,7 @@ Vulgus            |      |  X  |       |      |         |        |   X    |
 
 Games using 1943 scroll module
 
-* 1943
+* 1943 / Gun Smoke
 * Trojan
 * Tiger Road / F1 Dream
 * Side Arms
