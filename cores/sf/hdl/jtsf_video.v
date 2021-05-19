@@ -112,6 +112,11 @@ wire [OBJPW-1:0] obj_pxl;
 wire [SCRPW-1:0] scr1_pxl, scr2_pxl;
 
 `ifndef NOCHAR
+wire [8:0] ch;
+wire [7:0] cv;
+wire [CHRPW-1:0] char_buf;
+wire buf_cen;
+
 jtgng_char #(
     .HOFFSET ( CHAR_OFFSET ),
     .ROM_AW  ( CHARW       ),
@@ -120,11 +125,11 @@ jtgng_char #(
     .LAYOUT  (  LAYOUT     )
 ) u_char (
     .clk        ( clk           ),
-    .pxl_cen    ( pxl_cen       ),
+    .pxl_cen    ( buf_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[11:1]  ),  // shouldn't this be 12:1, or change char's AW
-    .V          ( V[7:0]        ),
-    .H          ( H             ),
+    .V          ( cv            ),
+    .H          ( ch            ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( char_dout     ),
@@ -144,12 +149,32 @@ jtgng_char #(
     .rom_ok     ( char_ok       ),
     // Pixel output
     .char_on    ( charon        ),
-    .char_pxl   ( char_pxl      ),
+    .char_pxl   ( char_buf      ),
     // unused
     .prog_addr  (               ),
     .prog_din   (               ),
     .prom_we    (               )
 );
+
+jtframe_tilebuf #(
+    .HW     ( 9       ),
+    .PW     ( CHRPW   ),
+    .HOFFSET( CHAR_OFFSET ),
+    .HOVER  ( 9'h1E7  ) // [2:0] must be 7 or the counter gets locked by sdram_ok
+) u_charbuf(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl2_cen   ( pxl2_cen  ),
+    .hdump      ( H         ),
+    .vdump      ( V         ),
+    .scan_cen   ( buf_cen   ),
+    .hscan      ( ch        ),
+    .vscan      ( cv        ),
+    .rom_ok     ( char_ok   ),
+    .pxl_data   ( char_buf  ),
+    .pxl_dump   ( char_pxl  )
+);
+
 `else
 assign char_pxl  = {CHRPW{1'b1}};
 assign char_addr = 0;

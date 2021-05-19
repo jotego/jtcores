@@ -64,7 +64,6 @@ reg [7:0] HF;
 reg [9:0] SCHF;
 reg       H7;
 
-assign    tile_cen = pxl2_cen & data_ok;
 assign    data_ok  = !((!map_ok&&HS[2:0]==MAPRD) || (!scr_ok&&HS[1:0]==2'd1));
 
 always @(*) begin // Street Fighter
@@ -139,6 +138,7 @@ jtframe_tilebuf #(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
+    .scan_cen   ( tile_cen  ),
     .hdump      ( H         ),
     .vdump      ( V         ),
     .hscan      ( hscan     ),
