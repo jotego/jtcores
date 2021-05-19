@@ -17,7 +17,7 @@
 ../../../modules/jtframe/hdl/cpu/jtframe_z80.v
 
 # SDRAM
--F ../../../modules/jtframe/hdl/sdram/jtframe_sdram_bank.f
+-F ../../../modules/jtframe/hdl/sdram/jtframe_sdram64.f
 
 ../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
 ../../../modules/jtframe/hdl/ram/jtframe_ram.v

@@ -187,6 +187,7 @@ end
 jtframe_cen48 u_cen48(
     .clk    ( clk           ),
     .cen16  ( pxl2_cen      ),
+    .cen16b (               ),
     .cen12  (               ),
     .cen12b (               ),
     .cen8   ( pxl_cen       ),
@@ -410,12 +411,14 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     `ifdef OBJLOAD
     jtsf_objload u_objload( // this doesn't work after moving OBJ RAM to its own BRAM
         .clk        ( clk       ),
-        .rst        ( loop_rst  ),
+        .rst        ( rst       ),
         .obj_AB     ( obj_AB    ),
         .cen8       ( pxl_cen   ),
         .LVBL       ( LVBL      ),
         .ram_addr   ( ram_addr  ),
         .cpu_dout   ( cpu_dout  ),
+        .ram_data   ( ram_data  ),
+        .dmaout     ( dmaout    ),
         .UDSWn      ( UDSWn     ),
         .LDSWn      ( LDSWn     ),
         .RnW        ( RnW       ),
@@ -595,7 +598,7 @@ jtframe_ram_2slots #(
 
     // SDRAM interface
     .sdram_addr  ( ba0_addr      ),
-    .sdram_wr    ( ba0_wr        ),
+    .sdram_wr    ( ba_wr         ),
     .sdram_rd    ( ba_rd[0]      ),
     .sdram_ack   ( ba_ack[0]     ),
     .data_dst    ( ba_dst[0]     ),
@@ -732,18 +735,19 @@ module jtsf_objload(
     input             LVBL,
     output     [15:1] ram_addr,
     output     [15:0] cpu_dout,
+    output     [15:0] dmaout,
+    input      [15:0] ram_data,
     output            UDSWn,
     output            LDSWn,
     output            RnW,
-    output reg        ram_cs,
+    output            ram_cs,
     output reg        OKOUT
 );
 
     integer   fobj,fobjcnt;
 
-    reg [11:0] loadcnt, lastcnt;
     reg [ 7:0] objdebug[0:8192];
-    reg        done, extrac, last_LVBL;
+    reg        last_LVBL;
 
     initial begin
         fobj=$fopen("sf-obj.bin","rb");
@@ -756,37 +760,19 @@ module jtsf_objload(
         $fclose(fobj);
     end
 
-    assign ram_addr = done ? {2'b11, obj_AB} : { 3'b111, loadcnt };
-    assign UDSWn    = done;
-    assign LDSWn    = done;
-    assign cpu_dout = { objdebug[{loadcnt,1'b0}],
-                        objdebug[{loadcnt,1'b1}] };
-    assign ram_cs   = lastcnt==( done ? obj_AB[11:0] : loadcnt );
-    assign RnW      = done;
+    assign dmaout = { objdebug[{obj_AB[11:0],1'b0}], objdebug[{obj_AB[11:0],1'b1}] };
+
+    assign ram_cs = 0;
+    assign UDSWn  = 1;
+    assign LDSWn  = 1;
+    assign RnW    = 1;
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            done    <= 0;
-            extrac  <= 1;
-            loadcnt <= 13'd0;
-        end else begin
-            if( !done ) begin
-                lastcnt <= loadcnt;
-                if(cen8) begin
-                    if( extrac ) begin
-                        done    <= &loadcnt;
-                        loadcnt <= loadcnt + 1'd1;
-                        extrac  <= 0;
-                    end
-                    else extrac <= 1;
-                end
-            end else begin // done
-                lastcnt <= obj_AB[11:0];
-                if(cen8) begin
-                    last_LVBL <= LVBL;
-                    OKOUT     <= !last_LVBL && LVBL;
-                end
-            end
+            OKOUT   <= 1;
+        end else if(cen8) begin
+            last_LVBL <= LVBL;
+            OKOUT     <= !last_LVBL && LVBL;
         end
     end
 
