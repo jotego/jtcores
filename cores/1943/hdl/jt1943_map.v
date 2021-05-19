@@ -63,7 +63,7 @@ reg [9:0] SCHF;
 reg       H7;
 wire      adv;
 
-assign adv       = SH[2:0]==3'd7 || burst;
+assign adv       = (SH[2:0]==(3'd7 ^ {3{flip}})) || burst;
 assign row_start = SV[3:0]==0;
 
 always @(*) begin

@@ -86,6 +86,7 @@ generate
             if( !LHBL )
                 V128sh <= V128;
         end
+
         jtframe_sh #(.width(1),.stages(8)) u_lhbl(
             .clk    ( clk   ),
             .clk_en ( cen6  ),

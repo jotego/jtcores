@@ -65,9 +65,10 @@ always @(posedge clk, posedge rst) begin
     end else begin
         last_LHBL <= LHBL;
         if( row_start && last_LHBL && !LHBL ) begin
-            busy  <= 1;
-            hcnt  <= 9'h100;
-            st    <= 0;
+            busy   <= 1;
+            hcnt   <= 9'h100;
+            st     <= 0;
+            map_cs <= 0;
         end
         // cache filler
         if( busy ) begin
