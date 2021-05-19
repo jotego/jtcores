@@ -12,4 +12,4 @@ if [ ! -e sf-obj.bin ]; then
     ln -s objram/sf-obj1.bin sf-obj.bin
 fi
 
-go.sh -d NOMAIN -d NOCHAR -d NOSCR -d NOSOUND -d GRAY -d OBJLOAD -video 2 -deep $*
+go.sh -d NOMAIN -d NOCHAR -d NOSCR -d NOSOUND -d GRAY -d OBJLOAD -video 2 -w $*

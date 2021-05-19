@@ -101,7 +101,7 @@ always @(resize,repeated,id,Vsum, obj_hflip) begin
     // additions on 12-bit numbers
     // Using OR-ing instead of adding results in broken
     // sprites, both horizontally and vertically
-    idalt = resize ? (id+{~Vsum[4],4'd0}) : id;
+    idalt = resize ? (id+{(~obj_vflip)^Vsum[4],4'd0}) : id;
     if( resize ) begin
         if( !obj_hflip ) begin
             if(repeated) idalt = idalt + 1'd1;
