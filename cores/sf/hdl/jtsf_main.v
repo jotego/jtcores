@@ -35,8 +35,6 @@ module jtsf_main #(
 ) (
     input              rst,
     input              clk,
-    input              cen8,
-    input              cen8b,
     output             cpu_cen,
     // Timing
     output reg         flip,
@@ -97,6 +95,7 @@ module jtsf_main #(
 );
 
 wire [23:1] A;
+wire        cen8, cen8b;
 reg  [15:0] cabinet_input, cpu_din;
 wire [15:0] objram;
 wire        BRn, BGACKn, BGn;
@@ -298,33 +297,19 @@ wire [2:0] FC;
 wire       inta_n;
 wire       bus_cs =   |{ rom_cs, char_cs, pre_ram_cs, ram_cs };
 wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
-reg        DTACKn, preDTACKn;
+wire       DTACKn;
 
-always @(posedge clk, posedge rst) begin
-    if( rst )
-        DTACKn <= 1;
-    else begin
-        if( preDTACKn ) DTACKn <= 1'b1;
-        else if( cen8b ) DTACKn <= 1'b0;
-    end
-end
+jtframe_68kdtack #(.CENCNT(3)) u_dtack(
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .cpu_cen    ( cen8       ),
+    .cpu_cenb   ( cen8b      ),
+    .bus_cs     ( bus_cs     ),
+    .bus_busy   ( bus_busy   ),
+    .ASn        ( ASn        ),
+    .DTACKn     ( DTACKn     )
+);
 
-always @(posedge clk, posedge rst) begin : dtack_gen
-    reg       last_ASn;
-    if( rst ) begin
-        preDTACKn <= 1'b1;
-    end else begin
-        last_ASn <= ASn;
-        if( ASn ) begin
-            preDTACKn <= 1;
-        end else if( !ASn ) begin
-            if( bus_cs ) begin
-                if (!bus_busy) preDTACKn <= 0;
-            end
-            else preDTACKn <= 0;
-        end
-    end
-end
 
 // OBJ RAM is implemented in BRAM
 // It was originally part of the SDRAM but the OBJ DMA module does not

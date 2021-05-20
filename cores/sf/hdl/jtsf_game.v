@@ -212,14 +212,13 @@ jtframe_cen96 u_cen96(
 
 /////////////////////////////////////
 // 24 MHz based clock enable signals
-wire        mcu_cen, cen24_8;
-reg         cen24_8b;
+wire        mcu_cen;
 
 jtframe_cen24 u_cen(
     .clk    ( clk24     ),
     .cen12  (           ),
     .cen12b (           ),
-    .cen8   ( cen24_8   ),
+    .cen8   (           ),
     .cen6   ( mcu_cen   ),
     .cen6b  (           ),
     .cen4   (           ),
@@ -230,8 +229,6 @@ jtframe_cen24 u_cen(
     .cen1p5 (           ),
     .cen1p5b(           )
 );
-
-always @(posedge clk24) cen24_8b<=cen24_8;
 
 wire LHBL_obj, LVBL_obj;
 
@@ -322,8 +319,6 @@ assign dsn = {UDSWn, LDSWn};
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rst        ( main_rst      ),
     .clk        ( clk24         ),
-    .cen8       ( cen24_8       ),
-    .cen8b      ( cen24_8b      ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),
