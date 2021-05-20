@@ -1,17 +1,17 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
+<!--          FPGA compatible core for Capcom arcade hardware by Jotego
 
               This core is available for hardware compatible with MiST and MiSTer
               Other FPGA systems may be supported by the time you read this.
               This work is not mantained by the MiSTer project. Please contact the
               core author for issues and updates.
 
-              (c) Jose Tejada, 2020. Please support the author
+              (c) Jose Tejada, 2021. Please support the author
               Patreon: https://patreon.com/topapate
               Paypal:  https://paypal.me/topapate
 
               The author does not endorse or participate in illegal distribution
               of copyrighted material. This work can be used with legally
-              obtained ROM dumps or with compatible homebrew software
+              obtained ROM dumps or with compatible homebrew software.
 
               This file license is GNU GPLv2.
               You can read the whole license file in
@@ -24,6 +24,13 @@
     <name>Street Fighter (Japan, pneumatic buttons)</name>
     <setname>sfjan</setname>
     <rbf>jtsf</rbf>
+    <mameversion>0229</mameversion>
+    <year>1987</year>
+    <manufacturer>Capcom</manufacturer>
+    <players>2</players>
+    <joystick>8-way</joystick>
+    <rotation>horizontal</rotation>
+    <region>Japan</region>
     <rom index="0" zip="sfjan.zip|sf.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->
         <interleave output="16">
@@ -49,7 +56,7 @@
         <interleave output="16">
             <part name="sf-01.bin" crc="86e0f0d5" map="12"/>
         </interleave>
-        <part repeat="0x1000">FF</part>
+        <part repeat="0x1000"> FF</part>
         <!-- maps - starts at 0xA9000 -->
         <interleave output="16">
             <part name="sf-33.4g" crc="3e99d3d5" map="01"/>
@@ -141,5 +148,4 @@
         <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
         <dip name="Countries" bits="26" ids="2,4"/>
     </switches>
-    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Pause" default="Y,X,B,A,L,R,Select,Start,-"/>
 </misterromdescription>

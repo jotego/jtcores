@@ -1,17 +1,17 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
+<!--          FPGA compatible core for Capcom arcade hardware by Jotego
 
               This core is available for hardware compatible with MiST and MiSTer
               Other FPGA systems may be supported by the time you read this.
               This work is not mantained by the MiSTer project. Please contact the
               core author for issues and updates.
 
-              (c) Jose Tejada, 2020. Please support the author
+              (c) Jose Tejada, 2021. Please support the author
               Patreon: https://patreon.com/topapate
               Paypal:  https://paypal.me/topapate
 
               The author does not endorse or participate in illegal distribution
               of copyrighted material. This work can be used with legally
-              obtained ROM dumps or with compatible homebrew software
+              obtained ROM dumps or with compatible homebrew software.
 
               This file license is GNU GPLv2.
               You can read the whole license file in
@@ -24,6 +24,13 @@
     <name>Street Fighter (prototype)</name>
     <setname>sfp</setname>
     <rbf>jtsf</rbf>
+    <mameversion>0229</mameversion>
+    <year>1987</year>
+    <manufacturer>Capcom</manufacturer>
+    <players>2</players>
+    <joystick>8-way</joystick>
+    <rotation>horizontal</rotation>
+    <region>World</region>
     <rom index="0" zip="sfp.zip|sf.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->
         <interleave output="16">
@@ -38,7 +45,7 @@
         <interleave output="16">
             <part name="voice.1g" crc="3f23c180" map="12"/>
         </interleave>
-        <part repeat="0x51000">FF</part>
+        <part repeat="0x51000"> FF</part>
         <!-- maps - starts at 0xA9000 -->
         <interleave output="16">
             <part name="ms1j18.5g" crc="89e35dc1" map="01"/>
@@ -79,26 +86,26 @@
         <!-- obj - starts at 0x26D000 -->
         <interleave output="16">
             <part name="b4m.bin" crc="b4fa85d3" map="01"/>
-            <part name="b2m.bin" crc="d958f5ad" map="10"/>
+            <part name="b1m.bin" crc="64758232" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="b3k.bin" crc="40e11cc8" map="01"/>
-            <part name="b1k.bin" crc="e766f5fe" map="10"/>
+            <part name="b2m.bin" crc="d958f5ad" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="b4k.bin" crc="5ca9716e" map="01"/>
-            <part name="b2k.bin" crc="e71572d3" map="10"/>
+            <part name="b1k.bin" crc="e766f5fe" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="b3h.bin" crc="8c3d9173" map="01"/>
-            <part name="b1h.bin" crc="8494f38c" map="10"/>
+            <part name="b2k.bin" crc="e71572d3" map="10"/>
         </interleave>
         <interleave output="16">
             <part name="b4h.bin" crc="a2df66f8" map="01"/>
-            <part name="b2h.bin" crc="1fc5f049" map="10"/>
+            <part name="b1h.bin" crc="8494f38c" map="10"/>
         </interleave>
         <interleave output="16">
-            <part name="b1m.bin" crc="64758232" map="01"/>
+            <part name="b2h.bin" crc="1fc5f049" map="01"/>
             <part name="b3m.bin" crc="d136802e" map="10"/>
         </interleave>
         <!-- proms - starts at 0x32D000 -->
@@ -126,5 +133,4 @@
         <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
         <dip name="Countries" bits="26" ids="2,4"/>
     </switches>
-    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Pause" default="Y,X,B,A,L,R,Select,Start,-"/>
 </misterromdescription>
