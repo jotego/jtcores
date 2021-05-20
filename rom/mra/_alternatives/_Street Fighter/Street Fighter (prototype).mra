@@ -45,8 +45,8 @@
         <interleave output="16">
             <part name="voice.1g" crc="3f23c180" map="12"/>
         </interleave>
-        <part repeat="0x51000"> FF</part>
-        <!-- maps - starts at 0xA9000 -->
+        <part repeat="0x50000"> FF</part>
+        <!-- maps - starts at 0xA8000 -->
         <interleave output="16">
             <part name="ms1j18.5g" crc="89e35dc1" map="01"/>
             <part name="ms1j10.3g" crc="f92958b8" map="10"/>
@@ -55,9 +55,9 @@
             <part name="bks1j18.3h" crc="551ffc88" map="01"/>
             <part name="bks1j10.5h" crc="4934aacd" map="10"/>
         </interleave>
-        <!-- char - starts at 0xE9000 -->
+        <!-- char - starts at 0xE8000 -->
         <part name="vram.4d" crc="bfadfb32"/>
-        <!-- scr1 - starts at 0xED000 -->
+        <!-- scr1 - starts at 0xEC000 -->
         <interleave output="16">
             <part name="mchr.2d" crc="e52303c4" map="01"/>
             <part name="mchr.1d" crc="ab06a60b" map="10"/>
@@ -74,7 +74,7 @@
             <part name="mchr.2h" crc="cc6bf05c" map="01"/>
             <part name="mchr.1h" crc="a381f529" map="10"/>
         </interleave>
-        <!-- scr2 - starts at 0x1ED000 -->
+        <!-- scr2 - starts at 0x1EC000 -->
         <interleave output="16">
             <part name="bkchr.4k" crc="c351bd48" map="01"/>
             <part name="bkchr.2k" crc="e4d47aca" map="10"/>
@@ -83,7 +83,7 @@
             <part name="bkchr.3k" crc="6bb2b050" map="01"/>
             <part name="bkchr.1k" crc="5a1cbc1b" map="10"/>
         </interleave>
-        <!-- obj - starts at 0x26D000 -->
+        <!-- obj - starts at 0x26C000 -->
         <interleave output="16">
             <part name="b4m.bin" crc="b4fa85d3" map="01"/>
             <part name="b1m.bin" crc="64758232" map="10"/>
@@ -108,12 +108,7 @@
             <part name="b2h.bin" crc="1fc5f049" map="01"/>
             <part name="b3m.bin" crc="d136802e" map="10"/>
         </interleave>
-        <!-- proms - starts at 0x32D000 -->
-        <part name="sfb05.bin" crc="864199ad"/>
-        <part name="sfb00.bin" crc="bd3f8c5d"/>
-        <part name="mb7114h.12j" crc="4c734b64"/>
-        <part name="mmi-7603.13h" crc="06bcda53"/>
-        <!-- Total 0x32D320 bytes - 3252 kBytes -->
+        <!-- Total 0x32C000 bytes - 3248 kBytes -->
     </rom>
     <rom index="1">
         <part>00</part>

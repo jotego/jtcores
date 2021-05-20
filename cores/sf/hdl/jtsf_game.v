@@ -112,17 +112,17 @@ localparam [21:0] MAIN_OFFSET = 22'h0,
                   SND2_OFFSET = 22'h8000 >> 1,
                   MCU_OFFSET  = 22'h4_8000 >> 1,
                   // Bank 2
-                  BA2_START   = 22'hA_9000,
+                  BA2_START   = 22'hA_8000,
                   MAP1_OFFSET = 22'h0,
                   MAP2_OFFSET = 22'h2_0000 >> 1,
                   CHAR_OFFSET = 22'h4_0000 >> 1,
                   // Bank 3
-                  BA3_START   = 22'hE_D000,
+                  BA3_START   = 22'hE_C000,
                   SCR1_OFFSET = 22'h0,
                   SCR2_OFFSET = 22'h10_0000 >> 1,
                   OBJ_OFFSET  = 22'h18_0000 >> 1;
 
-localparam [24:0] PROM_START  = 25'h42_D000;
+localparam [24:0] PROM_START  = 25'h42_C000;
 
 wire [ 8:0] V;
 wire [ 8:0] H;

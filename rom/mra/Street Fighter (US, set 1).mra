@@ -56,8 +56,7 @@
         <interleave output="16">
             <part name="sf-01.1k" crc="86e0f0d5" map="12"/>
         </interleave>
-        <part repeat="0x1000"> FF</part>
-        <!-- maps - starts at 0xA9000 -->
+        <!-- maps - starts at 0xA8000 -->
         <interleave output="16">
             <part name="sf-33.4g" crc="3e99d3d5" map="01"/>
             <part name="sf-32.3g" crc="72df2bd9" map="10"/>
@@ -66,9 +65,9 @@
             <part name="sf-36.3h" crc="ea16df6c" map="01"/>
             <part name="sf-37.4h" crc="23d09d3d" map="10"/>
         </interleave>
-        <!-- char - starts at 0xE9000 -->
+        <!-- char - starts at 0xE8000 -->
         <part name="sf-27.4d" crc="2b09b36d"/>
-        <!-- scr1 - starts at 0xED000 -->
+        <!-- scr1 - starts at 0xEC000 -->
         <interleave output="16">
             <part name="sf-26.2d" crc="54ede9f5" map="01"/>
             <part name="sf-25.1d" crc="7f23042e" map="10"/>
@@ -85,7 +84,7 @@
             <part name="sf-35.2h" crc="70c00fb4" map="01"/>
             <part name="sf-34.1h" crc="96b6ae2e" map="10"/>
         </interleave>
-        <!-- scr2 - starts at 0x1ED000 -->
+        <!-- scr2 - starts at 0x1EC000 -->
         <interleave output="16">
             <part name="sf-41.4k" crc="e0280495" map="01"/>
             <part name="sf-39.2k" crc="cee3d292" map="10"/>
@@ -94,7 +93,7 @@
             <part name="sf-40.3k" crc="c70b30de" map="01"/>
             <part name="sf-38.1k" crc="2ea99676" map="10"/>
         </interleave>
-        <!-- obj - starts at 0x26D000 -->
+        <!-- obj - starts at 0x26C000 -->
         <interleave output="16">
             <part name="sf-17.3m" crc="69fac48e" map="01"/>
             <part name="sf-15.1m" crc="fc0113db" map="10"/>
@@ -123,12 +122,7 @@
             <part name="sf-05.3f" crc="538c7cbe" map="01"/>
             <part name="sf-03.1f" crc="5ca05781" map="10"/>
         </interleave>
-        <!-- proms - starts at 0x42D000 -->
-        <part name="mb7114h.12k" crc="75af3553"/>
-        <part name="mb7114h.11h" crc="c0e56586"/>
-        <part name="mb7114h.12j" crc="4c734b64"/>
-        <part name="mmi-7603.13h" crc="06bcda53"/>
-        <!-- Total 0x42D320 bytes - 4276 kBytes -->
+        <!-- Total 0x42C000 bytes - 4272 kBytes -->
     </rom>
     <rom index="1">
         <part>00</part>
@@ -149,5 +143,5 @@
         <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
         <dip name="Countries" bits="26" ids="4,2"/>
     </switches>
-    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Core credits" default="Y,X,B,A,L,R,Select,Start,-" count="6"/>
+    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,-,-" default="Y,X,B,A,L,RSelectStart" count="6"/>
 </misterromdescription>

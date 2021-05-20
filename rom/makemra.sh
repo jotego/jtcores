@@ -78,16 +78,17 @@ mame2dip sf.xml -outdir $OUTDIR -altfolder "$ALTDIR"\
     -rename scr2=gfx1 scr1=gfx2 obj=gfx3 char=gfx4 maps=tilerom mcu=protcpu? \
     -swapbytes audiocpu audio2 \
     -setword maincpu 16 \
+    -ignore proms \
     -frac obj  2 \
     -frac scr1 2 \
     -frac scr2 2 \
     -frac maps 2 \
+    -start maps 0xa8000 \
     -order-roms maps 3 2 1 0 \
     -order-roms scr1 4 0 5 1 6 2 7 3 \
     -order-roms scr2 2 0 3 1 \
     -order-roms obj 7 0 8 1 9 2 10 3 11 4 12 5 13 6 \
-    -order maincpu audiocpu audio2 mcu maps char scr1 scr2 obj prom \
-    -start maps 0xa9000 \
+    -order maincpu audiocpu audio2 maps char scr1 scr2 obj mcu proms \
     -buttons "punch1,punch2,punch3,kick1,kick2,kick3" \
     -dipbase 8 -rmdipsw Unused -rmdipsw Freeze
 

@@ -62,10 +62,8 @@
         <interleave output="16">
             <part name="a-4.4.7a" crc="af7ae326" map="12"/>
         </interleave>
-        <!-- mcu - starts at 0x98000 -->
-        <part name="c8751h-88.5o" crc="6588891f"/>
         <part repeat="0x10000"> FF</part>
-        <!-- maps - starts at 0xA9000 -->
+        <!-- maps - starts at 0xA8000 -->
         <interleave output="16">
             <part name="k-16.66.10m" crc="3e99d3d5" map="01"/>
             <part name="k-17.67.10r" crc="72df2bd9" map="10"/>
@@ -74,9 +72,9 @@
             <part name="k-4.54.7e" crc="ea16df6c" map="01"/>
             <part name="k-7.57.7g" crc="23d09d3d" map="10"/>
         </interleave>
-        <!-- char - starts at 0xE9000 -->
+        <!-- char - starts at 0xE8000 -->
         <part name="a-3.3.6e" crc="59416e03"/>
-        <!-- scr1 - starts at 0xF1000 -->
+        <!-- scr1 - starts at 0xF0000 -->
         <interleave output="16">
             <part name="k-10.60.6m" crc="96e34f7d" map="01"/>
             <part name="k-8.58.4m" crc="365c87bf" map="10"/>
@@ -93,7 +91,7 @@
             <part name="k-12.62.4r" crc="643660c0" map="01"/>
             <part name="a-47.47.1m" crc="e97f19fa" map="10"/>
         </interleave>
-        <!-- scr2 - starts at 0x171000 -->
+        <!-- scr2 - starts at 0x170000 -->
         <interleave output="16">
             <part name="k-2.52.4e" crc="b5263e4b" map="01"/>
             <part name="k-5.55.4g" crc="7c90a53e" map="10"/>
@@ -102,7 +100,7 @@
             <part name="a-42.42.1g" crc="d401b93e" map="01"/>
             <part name="a-43.43.1h" crc="0cfe888c" map="10"/>
         </interleave>
-        <!-- obj - starts at 0x1B1000 -->
+        <!-- obj - starts at 0x1B0000 -->
         <interleave output="16">
             <part name="a-14.14.1gh" crc="02c037a9" map="01"/>
             <part name="a-7.7.1b" crc="2063e23c" map="10"/>
@@ -131,6 +129,8 @@
             <part name="a-21.21.3f" crc="ee694c18" map="01"/>
             <part name="a-13.13.1g" crc="e7d297e3" map="10"/>
         </interleave>
+        <!-- mcu - starts at 0x290000 -->
+        <part name="c8751h-88.5o" crc="6588891f"/>
         <!-- plds - starts at 0x291000 -->
         <part name="tibpal16l8-25cn.10g" crc="b95bc9bc"/>
         <part name="tibpal16l8-25cn.10j" crc="d5e7fb3c"/>
@@ -145,12 +145,7 @@
         <part name="tibpal16l8-25cn.7e" crc="858b1c21"/>
         <part name="tibpal16r4-25cn.7a" crc="b3c22357"/>
         <part name="tibpal16r4-25cn.7d" crc="29cdd190"/>
-        <!-- proms - starts at 0x291D34 -->
-        <part name="n82s129n.8m" crc="864199ad"/>
-        <part name="n82s129n.13g" crc="c0e56586"/>
-        <part name="n82s129n.7m" crc="4c734b64"/>
-        <part name="n82s123n.9p" crc="06bcda53"/>
-        <!-- Total 0x292054 bytes - 2632 kBytes -->
+        <!-- Total 0x291D34 bytes - 2631 kBytes -->
     </rom>
     <rom index="1">
         <part>00</part>
@@ -171,5 +166,5 @@
         <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
         <dip name="Countries" bits="26" ids="4,2"/>
     </switches>
-    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Core credits" default="Y,X,B,A,L,R,Select,Start,-" count="6"/>
+    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,-,-" default="Y,X,B,A,L,RSelectStart" count="6"/>
 </misterromdescription>
