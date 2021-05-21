@@ -19,16 +19,18 @@
 module jtsf_mcu(
     input                rst,
     input                clk_rom,
-    input                clk,
-    input                cen8,
+    input                clk,       // 24MHz
+    output               mcu_cen,
     // Main CPU interface
-    input                DMAONn,
-    output       [ 7:0]  mcu_dout,
-    input        [ 7:0]  mcu_din,
-    output               mcu_wr,   // always write to low bytes
-    output       [16:1]  mcu_addr,
+    input        [15:0]  mcu_din,
+    output       [15:0]  mcu_dout,
+    output               mcu_wr,
+    output       [15:1]  mcu_addr,
+    output               mcu_sel, // 1 for RAM, 0 for cabinet I/O
     output               mcu_brn,   // RQBSQn
-    output               DMAn,
+    input                mcu_DMAONn,
+    output               mcu_ds,
+    input                ram_ok,
     // ROM programming
     input        [11:0]  prog_addr,
     input        [ 7:0]  prom_din,
@@ -38,52 +40,41 @@ module jtsf_mcu(
 (*keep*) wire [15:0] rom_addr;
 wire [15:0] ext_addr;
 wire [ 6:0] ram_addr;
-wire [ 7:0] ram_data;
+wire [ 7:0] ram_data, mcu_dout8, mcu_din8;
 wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p1_o, p2_o, p3_o;
-(*keep*) reg         int0, int1;
+reg         int0;
+assign      mcu_ds = p3_o[0];
 
 // interface with main CPU
-assign mcu_addr[13:9] = ~5'b0;
-assign { mcu_addr[16:14], mcu_addr[8:1] } = ext_addr[10:0];
+assign mcu_addr = ext_addr[14:0];
 assign mcu_brn  = int0;
-assign DMAn     = p3_o[5];
-reg    last_DMAONn;
+assign mcu_dout = {2{mcu_dout8}};
+assign mcu_din  = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
+reg    last_mcu_DMAONn;
+
+reg [2:0] cencnt=3'd1;
+wire cen8 = (mcu_sel & ~mcu_brn & ~ram_ok) ? 0 : cencnt[0];
+
+assign mcu_cen = cen8;
+
+// Clock enable for 8MHz, like MAME. I need to measure it on the PCB
+always @(posedge clk) cencnt <= {cencnt[1:0], cencnt[2]};
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         int0 <= 1'b1;
-        last_DMAONn <= 1'b1;
+        last_mcu_DMAONn <= 1'b1;
     end else begin
-        last_DMAONn <= DMAONn;
-        if( !p3_o[0] ) // CLR
+        last_mcu_DMAONn <= mcu_DMAONn;
+        if( !p3_o[1] ) // CLR
             int0 <= ~1'b0;
-        else if(!p3_o[1]) // PR
-            int0 <= ~1'b1;
-        else if( DMAONn && !last_DMAONn )
+        else if( mcu_DMAONn && !last_mcu_DMAONn )
             int0 <= ~1'b1;
     end
 end
-
-// interface with sound CPU
-wire      int1_clrn = p3_o[4];
-
-wire      posedge_p3_6 = p3_o[6] && !last_p3_6;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        int1            <= 1'b1;
-    end else begin
-        last_p3_6       <= p3_o[6];
-        // interrupt line
-        if( !int1_clrn )
-            int1 <= 1'b1;
-        else if( posedge_snd ) int1 <= 1'b0;
-    end
-end
-
 
 reg burn, burned;
 
@@ -131,13 +122,13 @@ mc8051_core u_mcu(
     .ram_wr_o   ( ram_we    ),
     .ram_en_o   (           ),
     // external memory: connected to main CPU
-    .datax_i    ( mcu_din   ),
-    .datax_o    ( mcu_dout  ),
+    .datax_i    ( mcu_din8  ),
+    .datax_o    ( mcu_dout8 ),
     .adrx_o     ( ext_addr  ),
     .wrx_o      ( mcu_wr    ),
     // interrupts
     .int0_i     ( int0      ),
-    .int1_i     ( int1      ),
+    .int1_i     ( 1'b1      ),
     // counters
     .all_t0_i   ( 1'b0      ),
     .all_t1_i   ( 1'b0      ),

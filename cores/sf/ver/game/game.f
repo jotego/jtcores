@@ -5,6 +5,7 @@
 ../../hdl/jtsf_sound.v
 ../../hdl/jtsf_adpcm.v
 ../../hdl/jtsf_scroll.v
+#../../hdl/jtsf_mcu.v
 ../../../biocom/hdl/jtbiocom_sound.v
 ../../../modules/jtgng_timer.v
 ../../../modules/jtgng_tile4.v

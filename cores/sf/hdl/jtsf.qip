@@ -5,6 +5,7 @@ set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtsf_sound.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtsf_adpcm.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtsf_scroll.v  ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../hdl/jtsf_mcu.v     ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../biocom/hdl/jtbiocom_sound.v  ]
 
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../../modules/jtframe/hdl/sound/jtframe_mixer.v          ]

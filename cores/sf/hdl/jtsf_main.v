@@ -74,15 +74,28 @@ module jtsf_main #(
     input              obj_br,   // Request bus
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
+    // MCU interfcae
+    input              mcu_cen,
+    output     [15:0]  mcu_din,
+    input      [15:0]  mcu_dout,
+    input              mcu_wr,
+    input      [15:1]  mcu_addr,
+    input              mcu_sel, // 1 for RAM, 0 for cabinet I/O
+    input              mcu_brn, // RQBSQn    // Palette
+    output reg         mcu_DMAONn,
+    input              mcu_ds,
     // Palette
-    output             col_uw,
-    output             col_lw,
+    input              col_uw,
+    input              col_lw,
     // Memory address for SDRAM
     output   [MAINW:1] addr,
     // RAM access
     output             ram_cs,
     output  [RAMW-1:0] ram_addr,
     input       [15:0] ram_data,
+    output      [15:0] ram_din,
+    output      [ 1:0] ram_dsn,
+    output             ram_we,
     input              ram_ok,
     // ROM access
     output reg         rom_cs,
@@ -107,6 +120,8 @@ wire        UDSn, LDSn;
 wire        objram_ldw, objram_udw;
 reg         BERRn;
 wire [ 8:0] Aobj, obj_subAB;
+wire        mcu_master, ram_cen;
+reg         dsn_dly;
 
 // obj RAM is split so only the 1kB used inside the 8kB is in BRAM
 // potentially, there could be a problem if tryng to access 16 bits
@@ -120,7 +135,6 @@ assign cpu_cen  = cen8;
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
 assign CPUbus   = !blcnten; // main CPU in control of the bus
-assign ram_addr = CPUbus ? A[RAMW:1] : { 2'b11, obj_AB };
 
 assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;
@@ -130,9 +144,13 @@ assign cpu_AB   = A[13:1];
 assign objram_udw = ~UDSWn & obj_cs;
 assign objram_ldw = ~LDSWn & obj_cs;
 
+assign mcu_master = ~mcu_brn & bus_ack;
+
 `ifdef SIMULATION
 wire [24:0] A_full = {A,1'b0};
 `endif
+
+reg regs_cs;
 
 always @(*) begin
     rom_cs     = 0;
@@ -144,14 +162,17 @@ always @(*) begin
     misc_cs    = 0;
     snd_cs     = 0;
     obj_cs     = 0;
-    // mcu_DMAONn = 1;   // for once, I leave the original active low setting
+    // mcu_mcu_DMAONn = 1;   // for once, I leave the original active low setting
     scr1pos_cs = 0;
     scr2pos_cs = 0;
     snd_nmi_n  = 1;
 
     BERRn      = 1;
+    mcu_DMAONn     = 1;
+    regs_cs    = 0;
 
-    if( !ASn && BGACKn ) case(A[23:20])
+    if( !ASn && BGACKn ) begin
+        case(A[23:20])
             4'h0: rom_cs  = 1;
             4'h8: char_cs = 1;
             4'hb: col_cs  = 1;
@@ -164,40 +185,59 @@ always @(*) begin
             end
             4'hc: if(A[19:16]==4'd0) begin
                 io_cs = !A[4] && RnW;
-                if( A[4] && !RnW ) case(A[3:1])
-                    // 3'd1: coin_cs    = 1;  // coin counters
-                    3'd2: scr1pos_cs = 1;
-                    3'd4: scr2pos_cs = 1;
-                    3'd5: begin
-                        misc_cs = 1;
-                        OKOUT   = 1;
-                    end
-                    3'd6: begin
-                        //OKOUT   = !UDSn; // c0001c
-                        snd_cs  = !LDSn; // c0001d
-                        snd_nmi_n = 0;
-                    end
-                    default:;
-                endcase
+                if( A[4] && !RnW )
+                    regs_cs = 1;
             end
             //default: BERRn = ASn;
             default:;
         endcase
+    end
+
+    // output registers
+    if( mcu_master & ~mcu_sel ) regs_cs = 1;
+    if( regs_cs ) begin
+        case( mcu_master ? mcu_addr[3:1] : A[3:1] )
+            // 3'd1: coin_cs    = 1;  // coin counters
+            3'd2: scr1pos_cs = 1;
+            3'd4: scr2pos_cs = 1;
+            3'd5: begin
+                misc_cs = 1;
+                OKOUT   = 1;
+            end
+            3'd6: if( !ram_dsn[0] ) begin
+                snd_cs    = 1; // c0001d
+                snd_nmi_n = 0;
+            end
+            3'd7: begin // Triggers the MCU
+                mcu_DMAONn = 0;
+            end
+            default:;
+        endcase
+    end
 end
 
-// SCROLL 1/2 H POSITION
+// MCU and shared bus
+assign ram_cs   = mcu_master ? mcu_sel  : (dsn_dly ? reg_ram_cs  : pre_ram_cs);
+assign ram_addr = mcu_master ? mcu_addr[15:1] : A[RAMW:1];
+assign ram_din  = mcu_master ? mcu_dout : cpu_dout;
+assign ram_dsn  = mcu_master ? { mcu_ds, ~mcu_ds } : {UDSWn, LDSWn};
+assign ram_we   = mcu_master ? (ram_cs & mcu_wr) : !RnW;
+assign ram_cen  = mcu_master ? mcu_cen : cpu_cen; // only used for internal registers
+assign mcu_din  = mcu_sel    ? ram_data : cabinet_input; // it looks like only ram_data is used
+
+// SCROLL 1/2 H POSITION, it can be written by both the CPU and the MCU
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         scr1posh <= 16'd0;
         scr2posh <= 16'd0;
-    end else if(cpu_cen) begin
+    end else if( ram_cen ) begin
         if( scr1pos_cs ) begin
-            if(!UDSWn) scr1posh[15:8] <= cpu_dout[15:8];
-            if(!LDSWn) scr1posh[ 7:0] <= cpu_dout[ 7:0];
+            if(!ram_dsn[1]) scr1posh[15:8] <= ram_din[15:8];
+            if(!ram_dsn[0]) scr1posh[ 7:0] <= ram_din[ 7:0];
         end
         if( scr2pos_cs ) begin
-            if(!UDSWn) scr2posh[15:8] <= cpu_dout[15:8];
-            if(!LDSWn) scr2posh[ 7:0] <= cpu_dout[ 7:0];
+            if(!ram_dsn[1]) scr2posh[15:8] <= ram_din[15:8];
+            if(!ram_dsn[0]) scr2posh[ 7:0] <= ram_din[ 7:0];
         end
     end
 end
@@ -212,18 +252,18 @@ always @(posedge clk) begin
         scr2on       <= 1;
         objon        <= 1;
     end
-    else if(cpu_cen) begin
+    else if(ram_cen) begin
         if( misc_cs) begin
-            if( !LDSWn ) begin
-                flip   <= cpu_dout[2];
-                charon <= cpu_dout[3];
-                scr1on <= cpu_dout[6];
-                scr2on <= cpu_dout[5];
-                objon  <= cpu_dout[7];
+            if( !ram_dsn[0] ) begin
+                flip   <= ram_din[2];
+                charon <= ram_din[3];
+                scr1on <= ram_din[6];
+                scr2on <= ram_din[5];
+                objon  <= ram_din[7];
             end
         end
-        if( !UDSWn && snd_cs ) begin
-            snd_latch <= cpu_dout[7:0];
+        if( snd_cs ) begin
+            snd_latch <= ram_din[7:0];
         end
     end
 end
@@ -231,10 +271,6 @@ end
 // ram_cs and vram_cs signals go down before DSWn signals
 // that causes a false read request to the SDRAM. In order
 // to avoid that a little bit of logic is needed:
-reg    dsn_dly;
-
-assign ram_cs  = dsn_dly ? reg_ram_cs  : pre_ram_cs;
-
 always @(posedge clk) if(cen8) begin
     reg_ram_cs  <= pre_ram_cs;
     dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
@@ -244,7 +280,7 @@ end
 localparam BUT1=4, BUT2=5, BUT3=6, BUT4=7, BUT5=8, BUT6=9;
 
 always @(posedge clk) begin
-    case( A[3:1] )
+    case( mcu_master ? mcu_addr[3:1] : A[3:1] )
         3'd0: cabinet_input <= { // IN0 in MAME
                 4'hf, // 15-12
                 1'b1, // 11
@@ -362,13 +398,13 @@ jtsf_intgen u_intgen(
     .dip_pause  ( dip_pause )
 );
 
-wire [1:0] dev_br = { 1'b0 /* replace by MCU BR*/, obj_br };
+wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
 
 jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
-    .cen        ( cen8b         ),
+    .cen        (  cen8b        ),
     .cpu_BRn    (  BRn          ),
     .cpu_BGACKn (  BGACKn       ),
     .cpu_BGn    (  BGn          ),

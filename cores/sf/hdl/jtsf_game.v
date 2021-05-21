@@ -140,16 +140,21 @@ wire [15:0] scr1posh, scr2posh;
 wire        rd, cpu_cen;
 wire        char_busy;
 
+// RAM
+wire        ram_we;
+wire [ 1:0] ram_dsn;
+wire [15:0] ram_din;
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data, obj_data;
 wire [15:0] main_data, ram_data;
 wire [31:0] map1_data, map2_data;
 wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
-// wire        mcu_brn;
-// wire [ 7:0] mcu_din, mcu_dout;
-// wire [16:1] mcu_addr;
-// wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
+wire [15:0]  mcu_din;
+wire [15:0]  mcu_dout;
+wire         mcu_wr;
+wire [15:1]  mcu_addr;
+wire         mcu_sel, mcu_brn, mcu_DMAONn, mcu_ds;
 
 // ROM addresses
 wire [MAINW  :1] main_addr;
@@ -278,11 +283,25 @@ wire [12:0] obj_AB;
 wire [15:0] oram_dout;
 
 wire [21:0] pre_prog;
+wire        prom_we;
+reg         mcu_en, mcu_lock;
 
 // Optimize cache use for object ROMs
 assign prog_addr = (prog_ba == 2'd3 && prog_addr>=OBJ_OFFSET && ioctl_addr[22:1]<PROM_START) ?
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        mcu_en   <= 0;
+        mcu_lock <= 0;
+    end else begin
+        if( prom_we && !mcu_lock ) begin
+            mcu_lock <= 1;
+            mcu_en   <= ioctl_data != 8'hff;
+        end
+    end
+end
 
 jtframe_dwnld #(
     .PROM_START ( PROM_START ),
@@ -303,7 +322,7 @@ jtframe_dwnld #(
     .prog_we     ( prog_we       ),
     .prog_rd     ( prog_rd       ),
     .prog_ba     ( prog_ba       ),
-    .prom_we     (               ),
+    .prom_we     ( prom_we       ),
 
     .sdram_ack   ( prog_rdy      ),
     .header      (               )
@@ -355,19 +374,24 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .col_uw     ( col_uw        ),
     .col_lw     ( col_lw        ),
     // MCU interface
-    // .mcu_cen    (  mcu_cen      ),
-    // .mcu_brn    (  mcu_brn      ),
-    // .mcu_din    (  mcu_din      ),
-    // .mcu_dout   (  mcu_dout     ),
-    // .mcu_addr   (  mcu_addr     ),
-    // .mcu_wr     (  mcu_wr       ),
-    // .mcu_DMAn   (  mcu_DMAn     ),
-    // .mcu_DMAONn (  mcu_DMAONn   ),
+    .mcu_cen    ( mcu_cen       ),
+    .mcu_din    ( mcu_din       ),
+    .mcu_dout   ( mcu_dout      ),
+    .mcu_wr     ( mcu_wr        ),
+    .mcu_addr   ( mcu_addr      ),
+    .mcu_sel    ( mcu_sel       ),
+    .mcu_brn    ( mcu_brn       ),
+    .mcu_DMAONn ( mcu_DMAONn    ),
+    .mcu_ds     ( mcu_ds        ),
+    // ROM
     .addr       ( main_addr     ),
     // RAM
-    .ram_addr   ( ram_addr      ),
     .ram_cs     ( ram_cs        ),
+    .ram_addr   ( ram_addr      ),
     .ram_data   ( ram_data      ),
+    .ram_din    ( ram_din       ),
+    .ram_dsn    ( ram_dsn       ),
+    .ram_we     ( ram_we        ),
     .ram_ok     ( ram_ok        ),
     // ROM
     .rom_cs     ( main_cs       ),
@@ -432,8 +456,32 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     `endif
 `endif
 
-`ifndef NOSOUND
+`ifndef NOMCU
+    jtsf_mcu u_mcu(
+        .rst        ( rst       ),
+        .clk_rom    ( clk       ),
+        .clk        ( clk24     ),
+        // Main CPU interface
+        .mcu_din    ( mcu_din   ),
+        .mcu_dout   ( mcu_dout  ),
+        .mcu_wr     ( mcu_wr    ),
+        .mcu_addr   ( mcu_addr  ),
+        .mcu_sel    ( mcu_sel   ),
+        .mcu_brn    ( mcu_brn   ),
+        .mcu_DMAONn ( mcu_DMAONn),
+        .mcu_ds     ( mcu_ds    ),
+        .ram_ok     ( ram_ok    ),
+        // ROM programming
+        .prog_addr  ( prog_addr[11:0] ),
+        .prom_din   ( ioctl_data[7:0] ),
+        .prom_we    ( prom_we         )
+    );
+`else
+    assign mcu_brn = 1;
+    assign mcu_sel = 0;
+`endif
 
+`ifndef NOSOUND
 jtsf_sound #(
     .SND1W( SND1W ),
     .SND2W( SND2W )
@@ -573,7 +621,7 @@ jtframe_ram_2slots #(
     .clk         ( clk           ),
 
     .slot0_cs    ( ram_cs        ),
-    .slot0_wen   ( !RnW          ),
+    .slot0_wen   ( ram_we        ),
     .slot1_cs    ( main_cs       ),
     .slot1_clr   ( 1'b0          ),
 
@@ -583,8 +631,8 @@ jtframe_ram_2slots #(
     .offset0     ( RAM_OFFSET    ),
     .offset1     ( MAIN_OFFSET   ),
 
-    .slot0_din   ( cpu_dout      ),
-    .slot0_wrmask( dsn           ),
+    .slot0_din   ( ram_din       ),
+    .slot0_wrmask( ram_dsn       ),
 
     .slot0_addr  ( ram_addr      ),
     .slot1_addr  ( main_addr     ),
