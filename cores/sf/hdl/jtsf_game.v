@@ -152,7 +152,7 @@ wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
 wire [15:0]  mcu_din;
 wire [15:0]  mcu_dout;
-wire         mcu_wr;
+wire         mcu_cen, mcu_wr;
 wire [15:1]  mcu_addr;
 wire         mcu_sel, mcu_brn, mcu_DMAONn, mcu_ds;
 
@@ -214,26 +214,6 @@ jtframe_cen96 u_cen96(
     .cen8   ( pxl_cen       )
 );
 `endif
-
-/////////////////////////////////////
-// 24 MHz based clock enable signals
-wire        mcu_cen;
-
-jtframe_cen24 u_cen(
-    .clk    ( clk24     ),
-    .cen12  (           ),
-    .cen12b (           ),
-    .cen8   (           ),
-    .cen6   ( mcu_cen   ),
-    .cen6b  (           ),
-    .cen4   (           ),
-    .cen3   (           ),
-    .cen3q  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5 (           ),
-    .cen1p5b(           )
-);
 
 wire LHBL_obj, LVBL_obj;
 
@@ -462,6 +442,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
         .clk_rom    ( clk       ),
         .clk        ( clk24     ),
         // Main CPU interface
+        .mcu_cen    ( mcu_cen   ),
         .mcu_din    ( mcu_din   ),
         .mcu_dout   ( mcu_dout  ),
         .mcu_wr     ( mcu_wr    ),
