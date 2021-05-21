@@ -55,14 +55,15 @@ assign mcu_dout = {2{mcu_dout8}};
 assign mcu_din8 = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
 reg    last_mcu_DMAONn;
 
-reg [2:0] cencnt=3'd1;
+localparam CW=3;
+reg [CW-1:0] cencnt=1;
 wire cen8 = (mcu_sel & ~mcu_brn & ~ram_ok) ? 0 : cencnt[0];
 
 assign mcu_cen = cen8;
 assign mcu_sel = ext_addr[15];
 
 // Clock enable for 8MHz, like MAME. I need to measure it on the PCB
-always @(posedge clk) cencnt <= {cencnt[1:0], cencnt[2]};
+always @(posedge clk) cencnt <= {cencnt[CW-2:0], cencnt[CW-1]};
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -77,32 +78,27 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-reg burn, burned;
+wire mcu_clk = clk & cen8;
 
-always @(posedge clk_rom) begin
-    if( prom_we ) burn <= 1;
-    else if( burned ) burn <= 0;
-end
-
-always @(posedge clk) begin
-    burned <= burn;
-end
-
-jtframe_prom #(.aw(12),.dw(8),
-    .simfile("../../../rom/sf/protcpu")
-) u_prom(
-    .clk        ( clk               ),
-    .cen        ( cen8             ),
-    .data       ( prom_din          ),
-    .rd_addr    ( rom_addr[11:0]    ),
-    .wr_addr    ( prog_addr         ),
-    .we         ( burned            ),
-    .q          ( rom_data          )
+// You need to clock gate for reading or the MCU won't work
+jtframe_dual_ram #(.aw(12)) u_prom(
+    .clk0   ( clk_rom   ),
+    .clk1   ( mcu_clk   ),
+    // Port 0
+    .data0  ( prom_din  ),
+    .addr0  ( prog_addr ),
+    .we0    ( prom_we   ),
+    .q0     (           ),
+    // Port 1
+    .data1  (           ),
+    .addr1  ( rom_addr[11:0]  ),
+    .we1    ( 1'b0      ),
+    .q1     ( rom_data  )
 );
 
 jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
     .clk        ( clk               ),
-    .cen        ( cen8             ),
+    .cen        ( cen8              ),
     .addr       ( ram_addr          ),
     .data       ( ram_data          ),
     .we         ( ram_we            ),
@@ -110,9 +106,9 @@ jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
 );
 
 mc8051_core u_mcu(
-    .clk        ( clk       ),
-    .cen        ( cen8     ),
     .reset      ( rst       ),
+    .clk        ( mcu_clk   ),
+    .cen        ( 1'b1      ),  // cen implementation is wrong
     // code ROM
     .rom_data_i ( rom_data  ),
     .rom_adr_o  ( rom_addr  ),

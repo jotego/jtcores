@@ -63,7 +63,7 @@ module mist_dump(
                 `else
                 $shm_probe(UUT.u_game,"A");
                 $shm_probe(UUT.u_game.u_main,"A");
-                $shm_probe(UUT.u_game.u_mcu,"A");
+                $shm_probe(UUT.u_game.u_mcu,"AS");
                 //$shm_probe(UUT.u_game.u_bank0,"AS");
                 //$shm_probe(UUT.u_frame.u_board.u_sdram,"AS");
                 //$shm_probe(UUT.u_game.u_video,"A");
