@@ -59,6 +59,7 @@ reg [2:0] cencnt=3'd1;
 wire cen8 = (mcu_sel & ~mcu_brn & ~ram_ok) ? 0 : cencnt[0];
 
 assign mcu_cen = cen8;
+assign mcu_sel = ext_addr[15];
 
 // Clock enable for 8MHz, like MAME. I need to measure it on the PCB
 always @(posedge clk) cencnt <= {cencnt[1:0], cencnt[2]};
