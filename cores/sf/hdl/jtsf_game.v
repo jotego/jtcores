@@ -298,7 +298,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         if( prom_we && !mcu_lock ) begin
             mcu_lock <= 1;
-            mcu_en   <= ioctl_data != 8'hff;
+            mcu_en   <= prog_data[7:0] != 8'hff;
         end
     end
 end
@@ -473,7 +473,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
         .ram_ok     ( ram_ok    ),
         // ROM programming
         .prog_addr  ( prog_addr[11:0] ),
-        .prom_din   ( ioctl_data[7:0] ),
+        .prom_din   ( prog_data[7:0]  ),
         .prom_we    ( prom_we         )
     );
 `else

@@ -139,7 +139,7 @@ mc8051_core u_mcu(
     .p0_i       (           ),
     .p0_o       (           ),
 
-    .p1_i       ( snd_dout_latch   ),
+    .p1_i       (           ),
     .p1_o       ( p1_o      ),
 
     .p2_i       (           ),
@@ -155,8 +155,5 @@ mc8051_core u_mcu(
 `ifdef SIMULATION
 always @(negedge int0)
     $display ("MCU: int0 edge - main CPU");
-
-always @(negedge int1)
-    $display ("MCU: int1 edge - sound CPU");
 `endif
 endmodule
