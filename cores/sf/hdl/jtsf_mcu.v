@@ -46,7 +46,7 @@ wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p1_o, p2_o, p3_o;
 reg         int0;
-assign      mcu_ds = p3_o[0];
+assign      mcu_ds = p3_o[4];
 
 // interface with main CPU
 assign mcu_addr = ext_addr[14:0];
