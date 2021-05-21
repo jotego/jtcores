@@ -85,8 +85,8 @@ module jtsf_main #(
     output reg         mcu_DMAONn,
     input              mcu_ds,
     // Palette
-    input              col_uw,
-    input              col_lw,
+    output             col_uw,
+    output             col_lw,
     // Memory address for SDRAM
     output   [MAINW:1] addr,
     // RAM access

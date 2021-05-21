@@ -52,7 +52,7 @@ assign      mcu_ds = p3_o[0];
 assign mcu_addr = ext_addr[14:0];
 assign mcu_brn  = int0;
 assign mcu_dout = {2{mcu_dout8}};
-assign mcu_din  = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
+assign mcu_din8 = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
 reg    last_mcu_DMAONn;
 
 reg [2:0] cencnt=3'd1;
