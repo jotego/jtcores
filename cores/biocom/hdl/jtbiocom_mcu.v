@@ -39,13 +39,13 @@ module jtbiocom_mcu(
     input                clk,
     input                cen6a,       //  6   MHz
     // Main CPU interface
-    (*keep*) input                DMAONn,
+    input                DMAONn,
     output       [ 7:0]  mcu_dout,
     input        [ 7:0]  mcu_din,
     output               mcu_wr,   // always write to low bytes
     output       [16:1]  mcu_addr,
-    (*keep*) output               mcu_brn,   // RQBSQn
-    (*keep*) output               DMAn,
+    output               mcu_brn,   // RQBSQn
+    output               DMAn,
     // Sound CPU interface
     input        [ 7:0]  snd_dout,
     output reg   [ 7:0]  snd_din,
@@ -57,15 +57,10 @@ module jtbiocom_mcu(
     input                prom_we
 );
 
-(*keep*) wire [15:0] rom_addr;
 wire [15:0] ext_addr;
-wire [ 6:0] ram_addr;
-wire [ 7:0] ram_data;
-wire        ram_we;
-wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p1_o, p2_o, p3_o;
-(*keep*) reg         int0, int1;
+reg         int0, int1;
 
 // interface with main CPU
 assign mcu_addr[13:9] = ~5'b0;
@@ -124,97 +119,19 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-/*
-jtframe_dual_ram #(.aw(12), 
-    `ifdef F1DREAM    
-    .simfile("../../../rom/f1dream/8751.mcu")
-    `else
-    .simfile("../../../rom/biocom/ts.2f")
-    `endif
-) u_prom (
-    .clk0   ( clk_rom   ),
-    .clk1   ( clk       ),
-    // Port 0: ROM write
-    .data0  ( prom_din      ),
-    .addr0  ( prog_addr     ),
-    .we0    ( prom_we       ),
-    .q0     (               ),
-    // Port 1: Read
-    .data1  (               ),
-    .addr1  ( rom_addr[11:0]),
-    .we1    ( 1'b0          ),
-    .q1     ( rom_data      )
-);
-*/
 
-reg burn, burned;
-
-always @(posedge clk_rom) begin
-    if( prom_we ) burn <= 1;
-    else if( burned ) burn <= 0;
-end
-
-always @(posedge clk) begin
-    burned <= burn;
-end
-
-jtframe_prom #(.aw(12),.dw(8),
-    `ifdef F1DREAM    
-    .simfile("../../../rom/f1dream/8751.mcu")
-    `else
-    .simfile("../../../rom/biocom/ts.2f")
-    `endif
-) u_prom(
-    .clk        ( clk               ),
-    .cen        ( cen6a             ),
-    .data       ( prom_din          ),
-    .rd_addr    ( rom_addr[11:0]    ),
-    .wr_addr    ( prog_addr         ),
-    .we         ( burned            ),
-    .q          ( rom_data          )
-);
-
-jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
-    .clk        ( clk               ),
-    .cen        ( cen6a             ),
-    .addr       ( ram_addr          ),
-    .data       ( ram_data          ),
-    .we         ( ram_we            ),
-    .q          ( ram_q             )
-);
-
-mc8051_core u_mcu(
+jtframe_6801mcu u_mcu(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen6a     ),
-    .reset      ( rst       ),
-    // code ROM
-    .rom_data_i ( rom_data  ),
-    .rom_adr_o  ( rom_addr  ),
-    // internal RAM
-    .ram_data_i ( ram_q     ),
-    .ram_data_o ( ram_data  ),
-    .ram_adr_o  ( ram_addr  ),
-    .ram_wr_o   ( ram_we    ),
-    .ram_en_o   (           ),
-    // external memory: connected to main CPU
-    .datax_i    ( mcu_din   ),
-    .datax_o    ( mcu_dout  ),
-    .adrx_o     ( ext_addr  ),
-    .wrx_o      ( mcu_wr    ),
-    // interrupts
-    .int0_i     ( int0      ),
-    .int1_i     ( int1      ),
-    // counters
-    .all_t0_i   ( 1'b0      ),
-    .all_t1_i   ( 1'b0      ),
-    // serial interface
-    .all_rxd_i  ( 1'b0      ),
-    .all_rxd_o  (           ),
-    // Ports
+
+    .int0n      ( int0      ),
+    .int1n      ( int1      ),
+
     .p0_i       (           ),
     .p0_o       (           ),
 
-    .p1_i       ( snd_dout_latch   ),
+    .p1_i       ( snd_dout_latch ),
     .p1_o       ( p1_o      ),
 
     .p2_i       (           ),
@@ -222,10 +139,20 @@ mc8051_core u_mcu(
 
     .p3_i       (           ),
     .p3_o       ( p3_o      ),
-    // Unused
-    .ALL_TXD_O  (           ),
-    .ALL_RXDWR_O(           )
+
+    // external memory
+    .x_din      ( mcu_din   ),
+    .x_dout     ( mcu_dout  ),
+    .x_addr     ( ext_addr  ),
+    .x_wr       ( mcu_wr    ),
+
+    // ROM programming
+    .clk_rom    ( clk_rom   ),
+    .prog_addr  ( prog_addr ),
+    .prom_din   ( prom_din  ),
+    .prom_we    ( prom_we   )
 );
+
 
 `ifdef SIMULATION
 always @(negedge int0)

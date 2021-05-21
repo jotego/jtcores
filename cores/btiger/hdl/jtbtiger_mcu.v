@@ -33,37 +33,7 @@ module jtbtiger_mcu(
     input                prom_we
 );
 
-wire [15:0] rom_addr;
-wire [ 6:0] ram_addr;
-wire [ 7:0] ram_data;
-wire        ram_we;
-wire [ 7:0] ram_q, rom_data;
-
 wire [ 7:0] p1_o, p2_o, p3_o;
-
-jtframe_dual_ram #(.aw(12), .simfile("../../../rom/btiger/bd.6k")) u_prom(
-    .clk0   ( clk               ),
-    .clk1   ( clk6              ),
-    // Port 0: PROM downloading
-    .data0  ( prom_din          ),
-    .addr0  ( prog_addr         ),
-    .we0    ( prom_we           ),
-    .q0     (                   ),
-    // Port 1: PROM read
-    .data1  (                   ),
-    .addr1  ( rom_addr[11:0]    ),
-    .we1    ( 1'b0              ),
-    .q1     ( rom_data          )
-);
-
-jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
-    .clk        ( clk6              ),
-    .cen        ( 1'b1              ),
-    .addr       ( ram_addr          ),
-    .data       ( ram_data          ),
-    .we         ( ram_we            ),
-    .q          ( ram_q             )
-);
 
 reg mcu_int1;
 reg last_mcu_wr;
@@ -82,34 +52,14 @@ always @(posedge clk6) begin
     if( !p3_o[1] ) mcu_int1 <= 1'b1;
 end
 
-mc8051_core u_mcu(
-    .reset      ( rst       ),
+jtframe_6801mcu u_mcu(
+    .rst        ( rst       ),
     .clk        ( clk6      ),
     .cen        ( 1'b1      ),
-    // code ROM
-    .rom_data_i ( rom_data  ),
-    .rom_adr_o  ( rom_addr  ),
-    // internal RAM
-    .ram_data_i ( ram_q     ),
-    .ram_data_o ( ram_data  ),
-    .ram_adr_o  ( ram_addr  ),
-    .ram_wr_o   ( ram_we    ),
-    .ram_en_o   (           ),
-    // external memory: connected to main CPU
-    .datax_i    (           ),
-    .datax_o    (           ),
-    .adrx_o     (           ),
-    .wrx_o      (           ),
-    // interrupts
-    .int0_i     ( 1'b1      ),
-    .int1_i     ( mcu_int1  ),
-    // counters
-    .all_t0_i   ( 1'b0      ),
-    .all_t1_i   ( 1'b0      ),
-    // serial interface
-    .all_rxd_i  ( 1'b0      ),
-    .all_rxd_o  (           ),
-    // Ports
+
+    .int0n      ( 1'b1      ),
+    .int1n      ( mcu_int1  ),
+
     .p0_i       ( mcu_din   ),
     .p0_o       ( mcu_dout  ),
 
@@ -120,7 +70,19 @@ mc8051_core u_mcu(
     .p2_o       ( p2_o      ),
 
     .p3_i       (           ),
-    .p3_o       ( p3_o      )
+    .p3_o       ( p3_o      ),
+
+    // external memory
+    .x_din      (           ),
+    .x_dout     (           ),
+    .x_addr     (           ),
+    .x_wr       (           ),
+
+    // ROM programming
+    .clk_rom    ( clk       ),
+    .prog_addr  ( prog_addr ),
+    .prom_din   ( prom_din  ),
+    .prom_we    ( prom_we   )
 );
 
 endmodule

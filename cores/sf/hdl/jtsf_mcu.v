@@ -37,12 +37,9 @@ module jtsf_mcu(
     input                prom_we
 );
 
-(*keep*) wire [15:0] rom_addr;
 wire [15:0] ext_addr;
-wire [ 6:0] ram_addr;
-wire [ 7:0] ram_data, mcu_dout8, mcu_din8;
-wire        ram_we;
-wire [ 7:0] ram_q, rom_data;
+wire [ 7:0] mcu_dout8;
+reg  [ 7:0] mcu_din8;
 
 wire [ 7:0] p1_o, p2_o, p3_o;
 reg         int0;
@@ -52,7 +49,6 @@ assign      mcu_ds = p3_o[4];
 assign mcu_addr = ext_addr[14:0];
 assign mcu_brn  = int0;
 assign mcu_dout = {2{mcu_dout8}};
-assign mcu_din8 = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
 reg    last_mcu_DMAONn;
 
 localparam CW=3;
@@ -78,63 +74,24 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire mcu_clk = clk & cen8;
+always @(posedge clk ) begin
+    //addr_cpy <= ext_addr;
+    //wr_cpy   <= mcu_wr;
+    //if( addr_cpy != ext_addr || (mcu_wr && !wr_cpy) )
+    if( cen8 )
+        mcu_din8 <= mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
+end
 
-// You need to clock gate for reading or the MCU won't work
-jtframe_dual_ram #(.aw(12)) u_prom(
-    .clk0   ( clk_rom   ),
-    .clk1   ( mcu_clk   ),
-    // Port 0
-    .data0  ( prom_din  ),
-    .addr0  ( prog_addr ),
-    .we0    ( prom_we   ),
-    .q0     (           ),
-    // Port 1
-    .data1  (           ),
-    .addr1  ( rom_addr[11:0]  ),
-    .we1    ( 1'b0      ),
-    .q1     ( rom_data  )
-);
+jtframe_6801mcu u_mcu(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen8      ),
 
-jtframe_ram #(.aw(7),.cen_rd(1)) u_ramu(
-    .clk        ( clk               ),
-    .cen        ( cen8              ),
-    .addr       ( ram_addr          ),
-    .data       ( ram_data          ),
-    .we         ( ram_we            ),
-    .q          ( ram_q             )
-);
+    .int0n      ( int0      ),
+    .int1n      ( 1'b1      ),
 
-mc8051_core u_mcu(
-    .reset      ( rst       ),
-    .clk        ( mcu_clk   ),
-    .cen        ( 1'b1      ),  // cen implementation is wrong
-    // code ROM
-    .rom_data_i ( rom_data  ),
-    .rom_adr_o  ( rom_addr  ),
-    // internal RAM
-    .ram_data_i ( ram_q     ),
-    .ram_data_o ( ram_data  ),
-    .ram_adr_o  ( ram_addr  ),
-    .ram_wr_o   ( ram_we    ),
-    .ram_en_o   (           ),
-    // external memory: connected to main CPU
-    .datax_i    ( mcu_din8  ),
-    .datax_o    ( mcu_dout8 ),
-    .adrx_o     ( ext_addr  ),
-    .wrx_o      ( mcu_wr    ),
-    // interrupts
-    .int0_i     ( int0      ),
-    .int1_i     ( 1'b1      ),
-    // counters
-    .all_t0_i   ( 1'b0      ),
-    .all_t1_i   ( 1'b0      ),
-    // serial interface
-    .all_rxd_i  ( 1'b0      ),
-    .all_rxd_o  (           ),
-    // Ports
     .p0_i       (           ),
-    .p0_o       (           ),
+    .p0_o       ( p0_o      ),
 
     .p1_i       (           ),
     .p1_o       ( p1_o      ),
@@ -144,9 +101,18 @@ mc8051_core u_mcu(
 
     .p3_i       (           ),
     .p3_o       ( p3_o      ),
-    // Unused
-    .ALL_TXD_O  (           ),
-    .ALL_RXDWR_O(           )
+
+    // external memory
+    .x_din      ( mcu_din8  ),
+    .x_dout     ( mcu_dout8 ),
+    .x_addr     ( ext_addr  ),
+    .x_wr       ( mcu_wr    ),
+
+    // ROM programming
+    .clk_rom    ( clk_rom   ),
+    .prog_addr  ( prog_addr ),
+    .prom_din   ( prom_din  ),
+    .prom_we    ( prom_we   )
 );
 
 `ifdef SIMULATION
