@@ -120,7 +120,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_6801mcu #(.ROMBIN("../../../../rom/biocom/ts.2f")) u_mcu(
+jtframe_8751mcu #(.ROMBIN("../../../../rom/biocom/ts.2f")) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen6a     ),

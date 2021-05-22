@@ -52,7 +52,7 @@ always @(posedge clk6) begin
     if( !p3_o[1] ) mcu_int1 <= 1'b1;
 end
 
-jtframe_6801mcu u_mcu(
+jtframe_8751mcu u_mcu(
     .rst        ( rst       ),
     .clk        ( clk6      ),
     .cen        ( 1'b1      ),
