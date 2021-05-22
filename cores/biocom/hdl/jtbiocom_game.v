@@ -135,6 +135,7 @@ wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign game_led = 0;
+assign ba_wr = 0;
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals

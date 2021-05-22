@@ -55,6 +55,10 @@ reg [31:0] obj_data;
 reg last_down, wait_ack;
 reg [7:0]  state;
 
+localparam RW=3;
+
+reg [RW-1:0] rfsh_wait;
+
 always @(posedge clk ) begin
     last_down <= downloading;
     if( downloading ) begin
@@ -66,6 +70,7 @@ always @(posedge clk ) begin
         prog_rd   <= 1'b0;
         convert   <= 1'b0;
         wait_ack  <= 1'b0;
+        rfsh_wait <= 0;
     end else begin
         // prog_we  <= 1'b0;
         // prog_rd  <= 1'b0;
@@ -130,9 +135,12 @@ always @(posedge clk ) begin
                 8'h80: if( data_ok ) begin
                     prog_addr[21:1] <= prog_addr[21:1]+21'h1;
                     prog_addr[0]    <= 1'b0;
-                    state     <= 8'h1;
                     prog_we   <= 1'b0;
                     wait_ack  <= 1'd0;
+                end
+                default: begin // gives a chance to the SDRAM to refresh
+                    rfsh_wait <= rfsh_wait+1'd1;
+                    if( !rfsh_wait[RW-1] ) state <= 1;
                 end
             endcase
         end else convert<=1'b0;

@@ -67,6 +67,13 @@ Games re-writting the sprites to SDRAM
 * Tiger Road / F1 Dream
 * Bionic Commando
 
+Games using multiple SDRAM banks
+
+* Bionic Commando
+* Street Fighter
+* The Speed Rumbler
+
+
 ## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.

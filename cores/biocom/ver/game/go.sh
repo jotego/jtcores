@@ -28,9 +28,9 @@ export YM2151=1
 export I8051=1
 
 # Generic simulation script from JTFRAME
-$JTFRAME/bin/sim.sh $MIST \
-    -sysname biocom \
-    -d JT51_NODEBUG -d VIDEO_START=1 $*
+jtsim $MIST \
+    -sysname biocom -d JTFRAME_SIM_ROMRQ_NOCHECK \
+    -d JT51_NODEBUG  $*
 
 if [ -e jt51.log ]; then
     $JTGNG/modules/jt51/bin/log2txt < jt51.log >/tmp/x

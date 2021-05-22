@@ -9,9 +9,6 @@
 ../../hdl/jtbiocom_sdram.v
 # ../../hdl/jtbiocom_bus.v
 ../../hdl/jtbiocom_dwnld.v
-$MODULES/fx68k/fx68kAlu.sv
-$MODULES/fx68k/fx68k.sv
-$MODULES/fx68k/uaddrPla.sv
 $MODULES/jt12/hdl/jt12_rst.v
 
 $JTFRAME/hdl/cpu/jtframe_z80.v
@@ -48,7 +45,7 @@ $MODULES/jtgng_true_dual_ram.v
 $JTFRAME/hdl/jtframe_sh.v
 $JTFRAME/hdl/keyboard/jtframe_4wayjoy.v
 $JTFRAME/hdl/sdram/jtframe_avatar.v
--F $JTFRAME/hdl/sdram/jtframe_sdram_bank.f
+-F $JTFRAME/hdl/sdram/jtframe_sdram64.f
 # Arcade video
 # $JTFRAME/hdl/mister/template/sys/arcade_video.v
 # $JTFRAME/hdl/mister/template/sys/video_mixer.sv

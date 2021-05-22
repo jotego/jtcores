@@ -48,9 +48,9 @@ module mist_dump(
         `ifdef DEEPDUMP
             $shm_probe(mist_test,"AS");
         `else
-            `ifdef LOADROM
-                $shm_probe(mist_test.UUT.u_game.u_dwnld,"AS");
-            `endif
+            //`ifdef LOADROM
+            //    $shm_probe(mist_test.UUT.u_game.u_dwnld,"AS");
+            //`endif
             `ifndef NOSOUND
                 $shm_probe(mist_test.UUT.u_game.u_sound,"A");
                 $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51,"A");
@@ -58,9 +58,11 @@ module mist_dump(
                 $shm_probe(mist_test.UUT.u_game.u_sound.u_jt51.timers,"AS");
             `endif
             //$shm_probe(mist_test.UUT.u_game.u_mcu,"A");
-            $shm_probe(mist_test.UUT.u_game,"A");
-            $shm_probe(mist_test.UUT.u_game.u_main,"A");
-            $shm_probe(mist_test.UUT.u_game.u_sdram,"AS");
+            //$shm_probe(mist_test.UUT.u_game,"A");
+            //$shm_probe(mist_test.UUT.u_game.u_main,"A");
+            $shm_probe(mist_test.UUT.u_game.u_mcu,"A");
+            $shm_probe(mist_test.UUT.u_game.u_mcu.u_mcu,"A");
+            //$shm_probe(mist_test.UUT.u_game.u_sdram,"AS");
             //$shm_probe(mist_test.UUT.u_game.u_video,"AS");
             //$shm_probe(mist_test.UUT.u_game.u_video.u_scroll1,"AS");
             //$shm_probe(mist_test.UUT.u_game.u_video.u_scroll2,"AS");
