@@ -74,15 +74,16 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk ) begin
-    //addr_cpy <= ext_addr;
-    //wr_cpy   <= mcu_wr;
-    //if( addr_cpy != ext_addr || (mcu_wr && !wr_cpy) )
-    if( cen8 )
-        mcu_din8 <= mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
-end
+//always @(posedge clk ) begin
+//    //addr_cpy <= ext_addr;
+//    //wr_cpy   <= mcu_wr;
+//    //if( addr_cpy != ext_addr || (mcu_wr && !wr_cpy) )
+//    if( cen8 )
+//end
+always @(*)
+        mcu_din8 = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
 
-jtframe_6801mcu u_mcu(
+jtframe_8751mcu u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen8      ),
