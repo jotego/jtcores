@@ -97,7 +97,7 @@ module jtsarms_video #(
 localparam       LAYOUT      = 8;
 localparam       PXL_CHRW    = 8;
 localparam       SCR_OFFSET  = 0;
-localparam       CHAR_OFFSET = 0;
+localparam       CHAR_OFFSET = -3;
 localparam       OBJ_DLY     = 6;
 localparam       BLANK_DLY   = 3;
 localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128

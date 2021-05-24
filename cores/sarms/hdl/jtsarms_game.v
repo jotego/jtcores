@@ -145,18 +145,17 @@ wire LVBL_obj;
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
-    .HB_START ( 9'h1C7 ),
-    //.HB_END   ( 9'h047 ),
+    .HB_START ( 9'h1CF ),
     .HB_END   ( 9'h04F ),
     .HCNT_END ( 9'h1FF ),
     .VB_START ( 9'hF0  ),
     .VB_END   ( 9'h10  ),
     .VCNT_END ( 9'hFF  ),
     //.VS_START ( 9'h0   ),
-    .VS_START ( 9'hF8   ),
+    .VS_START ( 9'hF5   ),
     //.VS_END   ( 9'h8   ),
-    .HS_START ( 9'h1F8 ),
-    .HS_END   ( 9'h020 ),
+    .HS_START ( 9'h1F2 ),
+    .HS_END   ( 9'h01A ),
     .H_VB     ( 9'h7   ),
     .H_VS     ( 9'h1FF ),
     .H_VNEXT  ( 9'h1FF ),
