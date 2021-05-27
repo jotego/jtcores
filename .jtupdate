@@ -1,0 +1,35 @@
+[all]
+1942
+1943
+biocom
+gng
+commando
+gunsmoke
+vulgus
+tora
+f1dream
+btiger
+sarms
+sectionz
+sf
+trojan
+hige
+
+[jt03]
+1943
+btiger
+commando
+f1dream
+gng
+gunsmoke
+sectionz
+sarms
+rumble
+tora
+trojan
+
+[custom:mist|sidi]
+commando  -rename com
+gunsmoke  -rename gun
+f1dream   -rename f1drm
+sectionz  -rename sz
