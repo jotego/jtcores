@@ -51,7 +51,7 @@ module jttora_sound(
 );
 
 wire signed [15:0] fm_snd;
-wire signed [11:0] adpcm_snd;
+wire signed [11:0] adpcm_snd, prepcm_snd;
 wire        [ 7:0] snd2_latch;
 wire               fm_peak, mix_peak;
 
@@ -59,6 +59,7 @@ wire               fm_peak, mix_peak;
 // So I do not bother to fully connect it
 assign snd_mcu_wr = 1'b0;
 assign snd_dout   = 8'd0;
+assign adpcm_snd  = jap ? prepcm_snd : 12'd0;
 
 always @(posedge clk) peak <= mix_peak | fm_peak;
 
@@ -116,7 +117,7 @@ jttora_adpcm u_adpcmcpu(
     .rom2_data  ( rom2_data     ),
     .rom2_ok    ( rom2_ok       ),
     // Sound output
-    .snd        ( adpcm_snd     )
+    .snd        ( prepcm_snd    )
 );
 
 wire [7:0] fm_gain = jap ? 8'h08 : 8'h10;
