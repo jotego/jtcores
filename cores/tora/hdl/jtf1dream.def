@@ -1,30 +1,11 @@
+include common.def
+
 [all]
 CORENAME="JTF1DRM"
 GAMETOP=jttora_game
-JTFRAME_OSD_VOL
-BUTTONS=2
-VIDEO_WIDTH=256
-VIDEO_HEIGHT=224
 F1DREAM
-JTFRAME_CLK24
-
-# OSD options
-JTFRAME_MRA_DIP
-JOIN_JOYSTICKS
-
-[mist|sidi]
-#Uses easy scan2x to save resources
-#otherwise it won't fit
-VIDEO_WIDTH=384
-JTFRAME_SCAN2X
 
 [sidi]
 # necessary to make it fit
 JTFRAME_OSD_NOLOGO
 
-[mister]
-AVATARS
-JTFRAME_ARX=5
-JTFRAME_ARY=4
-JTFRAME_SDRAM_REPACK
-JTFRAME_OSD_NOLOAD
