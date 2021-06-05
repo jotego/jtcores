@@ -101,6 +101,7 @@ module jtrumble_sdram #(
     output          prog_we,
     output          prog_rd,
     input           prog_ack,
+    input           prog_rdy,
     input           prog_dst
 );
 
@@ -198,7 +199,7 @@ jtgng_obj32 #(
     .prog_we     ( conv_we      ),
     .prog_rd     ( conv_rd      ),
     .sdram_ack   ( prog_ack     ),
-    .data_ok     ( prog_dst     )
+    .data_ok     ( prog_rdy     )   // using prog_dst would corrupt the graphics
 );
 `else
 assign convert=0;

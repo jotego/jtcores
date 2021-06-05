@@ -394,7 +394,8 @@ jtrumble_sdram #(
     .prog_we    ( prog_we    ),
     .prog_rd    ( prog_rd    ),
     .prog_ack   ( prog_ack   ),
-    .prog_dst   ( prog_dst   )
+    .prog_dst   ( prog_dst   ),
+    .prog_rdy   ( prog_rdy   )
 );
 
 endmodule
