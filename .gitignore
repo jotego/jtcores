@@ -18,6 +18,7 @@
 *.sof
 *.jdi
 .simvision
+log/*
 sim
 build_id.v
 */mist/*
