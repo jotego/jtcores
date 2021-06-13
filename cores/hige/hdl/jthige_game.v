@@ -98,6 +98,7 @@ assign dip_flip = ~flip;
 assign red[0]   = red[3];
 assign green[0] = green[3];
 assign blue[0]  = blue[3];
+assign game_led = 0;
 
 localparam [21:0] CHAR_OFFSET = 22'h8000 >> 1,
                   OBJ_OFFSET  = 22'hA000 >> 1,
@@ -186,7 +187,7 @@ jthige_main u_main(
     .cpu_cen    ( cpu_cen       ),
     .LHBL       ( LHBL          ),
     .cpu_dout   ( cpu_dout      ),
-    .dip_pause  ( dip_pause     ),
+    .dip_pause  ( 1'b1 ), //dip_pause     ),
     // Char
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
