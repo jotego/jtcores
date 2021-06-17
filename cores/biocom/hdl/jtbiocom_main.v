@@ -407,29 +407,11 @@ jtframe_68kdtack #(.CENCNT(4)) u_dtack( // cen = 12MHz
     .cpu_cenb   ( cen12b     ),
     .bus_cs     ( bus_cs     ),
     .bus_busy   ( bus_busy   ),
+    .bus_legit  ( bus_legit  ),
     .BUSn       ( BUSn       ),
     .DTACKn     ( DTACKn     )
 );
 
-/*
-reg DTACKn;
-always @(posedge clk, posedge rst) begin : dtack_gen
-    reg       last_ASn;
-    if( rst ) begin
-        DTACKn      <= 1'b1;
-    end else if(cen12b) begin
-        DTACKn   <= 1'b1;
-        last_ASn <= ASn;
-        if( !ASn  ) begin
-            if( bus_cs ) begin
-                if (!bus_busy) DTACKn <= 1'b0;
-            end
-            else DTACKn <= 1'b0;
-        end
-        if( ASn && !last_ASn ) DTACKn <= 1'b1;
-    end
-end 
-*/
 // interrupt generation
 reg        int1, int2;
 wire [2:0] FC;
