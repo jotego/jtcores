@@ -23,8 +23,8 @@
 module jttora_main(
     input              rst,
     input              clk,
-    input              cen10,
-    input              cen10b,
+    output             cen10,
+    output             cen10b,
     output             cpu_cen,
     // Timing
     output  reg        flip,
@@ -72,10 +72,10 @@ module jttora_main(
     output             col_uw,
     output             col_lw,
     // ROM access
-    (*keep*) output  reg        rom_cs,
-    (*keep*) output      [17:1] rom_addr,
-    (*keep*) input       [15:0] rom_data,
-    (*keep*) input              rom_ok,
+    output  reg        rom_cs,
+    output      [17:1] rom_addr,
+    input       [15:0] rom_data,
+    input              rom_ok,
     // DIP switches
     input              dip_pause,
     input    [7:0]     dipsw_a,
@@ -332,6 +332,20 @@ assign rom_addr = A[17:1];
 wire       inta_n;
 (*keep*) wire       bus_cs =   |{ rom_cs, char_cs };
 (*keep*) wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy };
+wire DTACKn;
+
+jtframe_68kdtack #(3) u_dtack(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cen10     ),
+    .cpu_cenb   ( cen10b    ),
+    .bus_cs     ( bus_cs    ),
+    .bus_busy   ( bus_busy  ),
+    .BUSn       ( ASn       ),   // BUSn = ASn | (LDSn & UDSn)
+    .DTACKn     ( DTACKn    )
+);
+
+/*
 (*keep*) reg DTACKn;
 
 always @(posedge clk, posedge rst) begin : dtack_gen
@@ -350,6 +364,7 @@ always @(posedge clk, posedge rst) begin : dtack_gen
         if( ASn && !last_ASn ) DTACKn <= 1'b1;
     end
 end
+*/
 
 // interrupt generation
 reg        int1, int2;
@@ -434,20 +449,5 @@ fx68k u_cpu(
     .VMAn       (             ),
     .E          (             )
 );
-
-// `ifdef SIMULATION
-//     wire sdram_error;
-//
-//     jtframe_din_check #(.AW(17)) u_sdram_check(
-//         .rst        ( rst           ),
-//         .clk        ( clk           ),
-//         .cen        ( cpu_cen       ),
-//         .rom_cs     (  rom_cs       ),
-//         .rom_ok     ( rom_ok        ),
-//         .rom_addr   (  rom_addr     ),
-//         .rom_data   (  rom_data     ),
-//         .error      ( sdram_error   )
-//     );
-// `endif
 
 endmodule

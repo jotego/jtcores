@@ -10,7 +10,6 @@
 ../../../1943/hdl/jt1943_scroll.v
 # $MODULES/jt12/hdl/jt12_rst.v
 $JTFRAME/hdl/cpu/jtframe_z80.v
-$JTFRAME/hdl/cpu/jtframe_68kdma.v
 $JTFRAME/hdl/keyboard/jtframe_4wayjoy.v
 $JTFRAME/hdl/jtframe_z80wait.v
 $JTFRAME/hdl/ram/jtframe_prom.v
@@ -47,3 +46,7 @@ $MODULES/jtgng_sound.v
 $MODULES/jt12/jt49/hdl/filter/jt49_dcrm2.v
 $MODULES/jt12/hdl/mixer/jt12_mixer.v
 -F $JTFRAME/hdl/sdram/jtframe_sdram64.f
+
+# 68000
+$JTFRAME/hdl/cpu/jtframe_68kdma.v
+$JTFRAME/hdl/cpu/jtframe_68kdtack.v

@@ -158,15 +158,15 @@ jtframe_cen24 u_cen(
     .cen1p5b(           )
 );
 
-jtframe_frac_cen u_cen10(
-    .clk    ( clk24          ),
-    .n      ( 10'd5          ),         // numerator
-    .m      ( 10'd12         ),         // denominator
-    .cen    ( {nc,  cen10  } ),
-    .cenb   ( /*{ncb, cen10b }*/ )  // 180 shifted
-);
-
-always @(posedge clk24) cen10b<=cen10;
+// jtframe_frac_cen u_cen10(
+//     .clk    ( clk24          ),
+//     .n      ( 10'd5          ),         // numerator
+//     .m      ( 10'd12         ),         // denominator
+//     .cen    ( {nc,  cen10  } ),
+//     .cenb   ( /*{ncb, cen10b }*/ )  // 180 shifted
+// );
+//
+// always @(posedge clk24) cen10b<=cen10;
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
     .clk      ( clk24     ),
@@ -565,8 +565,8 @@ jtframe_rom #(
     .slot7_dout  (               ),
     .slot4_ok    (               ),
     .slot7_ok    (               ),
-    .slot4_cs    (               ),
-    .slot7_cs    (               )
+    .slot4_cs    ( 1'd0          ),
+    .slot7_cs    ( 1'd0          )
 );
 
 jtframe_avatar u_avatar(
