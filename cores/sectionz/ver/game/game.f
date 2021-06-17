@@ -9,4 +9,4 @@
 -F ../../../modules/jtgng_video.f
 -F ../../../modules/jtgng_sound.f
 ../../../modules/jtframe/hdl/clocking/jtframe_cen48.v
-../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
+../../../modules/jtframe/hdl/video/jtframe_avatar.v

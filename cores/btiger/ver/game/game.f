@@ -14,6 +14,6 @@
 ../../../modules/jtgng_tile4.v
 ../../../modules/jtframe/hdl/sdram/jtframe_rom.v
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
-../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
+../../../modules/jtframe/hdl/video/jtframe_avatar.v
 -F ../../../modules/jtgng_obj.f
 -F ../../../modules/jtgng_sound.f

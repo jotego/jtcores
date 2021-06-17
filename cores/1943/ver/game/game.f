@@ -23,7 +23,7 @@ $MODULES/jt12/hdl/mixer/jt12_mixer.v
 $MODULES/jt12/jt49/hdl/filter/jt49_dcrm2.v
 
 # Avatar
-$JTFRAME/hdl/sdram/jtframe_avatar.v
+$JTFRAME/hdl/video/jtframe_avatar.v
 
 $MODULES/jtgng_avatar.v
 $MODULES/jtgng_dual_ram.v

@@ -44,7 +44,7 @@ $MODULES/jtgng_true_dual_ram.v
 # SDRAM
 $JTFRAME/hdl/jtframe_sh.v
 $JTFRAME/hdl/keyboard/jtframe_4wayjoy.v
-$JTFRAME/hdl/sdram/jtframe_avatar.v
+$JTFRAME/hdl/video/jtframe_avatar.v
 -F $JTFRAME/hdl/sdram/jtframe_sdram64.f
 # Arcade video
 # $JTFRAME/hdl/mister/template/sys/arcade_video.v

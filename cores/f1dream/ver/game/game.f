@@ -37,7 +37,7 @@
 ../../../modules/jtgng_avatar.v
 ../../../modules/jtgng_avatar_pal.v
 ../../../modules/jtgng_obj32.v
-../../../modules/jtframe/hdl/sdram/jtframe_avatar.v
+../../../modules/jtframe/hdl/video/jtframe_avatar.v
 ../../../modules/jtframe/hdl/sdram/jtframe_rom.v
 ../../../modules/jtframe/hdl/sdram/jtframe_romrq.v
 ../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v
