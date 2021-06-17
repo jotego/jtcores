@@ -334,7 +334,7 @@ wire       inta_n;
 (*keep*) wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy };
 wire DTACKn;
 
-jtframe_68kdtack #(3) u_dtack(
+jtframe_68kdtack #(.CENCNT(12),.CENSTEP(5)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),
