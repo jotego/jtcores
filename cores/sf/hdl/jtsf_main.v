@@ -117,7 +117,7 @@ reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs,
 reg         scr1pos_cs, scr2pos_cs;
 wire        ASn, CPUbus;
 wire        BUSn, UDSn, LDSn;
-wire        objram_ldw, objram_udw;
+wire        clk_obj, objram_ldw, objram_udw;
 reg         BERRn;
 wire [ 8:0] Aobj, obj_subAB;
 wire        mcu_master, ram_cen;
@@ -141,8 +141,11 @@ assign col_lw   = col_cs & ~LDSWn;
 assign addr     = A[MAINW:1];
 assign cpu_AB   = A[13:1];
 
-assign objram_udw = ~UDSWn & obj_cs;
-assign objram_ldw = ~LDSWn & obj_cs;
+// obj_cs gates the object RAM clock for CPU access, this
+// helps with the hold time for the write (MiSTer target)
+assign clk_obj    = obj_cs & clk;
+assign objram_udw = ~UDSWn;
+assign objram_ldw = ~LDSWn;
 
 assign mcu_master = ~mcu_brn & bus_ack;
 
@@ -356,7 +359,7 @@ jtframe_68kdtack #(.CENCNT(3)) u_dtack(
 // Up to commit 6327e7 OBJ RAM was in SDRAM, just for reference
 
 jtframe_dual_ram #(.aw(9)) u_objlow(
-    .clk0       ( clk           ),
+    .clk0       ( clk_obj       ),
     .clk1       ( clk           ),
     // Port 0: CPU
     .data0      ( cpu_dout[7:0] ),
@@ -371,7 +374,7 @@ jtframe_dual_ram #(.aw(9)) u_objlow(
 );
 
 jtframe_dual_ram #(.aw(9)) u_objhi(
-    .clk0       ( clk           ),
+    .clk0       ( clk_obj       ),
     .clk1       ( clk           ),
     // Port 0: CPU
     .data0      ( cpu_dout[15:8]),
