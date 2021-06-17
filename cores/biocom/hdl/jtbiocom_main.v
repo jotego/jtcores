@@ -22,8 +22,8 @@
 module jtbiocom_main(
     input              rst,
     input              clk,
-    input              cen12,
-    input              cen12b,
+    output             cen12,
+    output             cen12b,
     (*direct_enable *) output cpu_cen,
     // Timing
     output  reg        flip,
@@ -104,10 +104,11 @@ assign cpu_cen = cen12;
 reg BERRn;
 
 // high during DMA transfer
-wire UDSn, LDSn;
+wire BUSn, UDSn, LDSn;
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;
 
+assign BUSn   = ASn | (LDSn & UDSn);
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;
 
@@ -396,6 +397,20 @@ always @(posedge clk, posedge rst) begin : io_busy_gen
     end
 end
 
+wire DTACKn;
+
+jtframe_68kdtack #(.CENCNT(2)) u_dtack(
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .cpu_cen    ( cen12      ),
+    .cpu_cenb   ( cen12b     ),
+    .bus_cs     ( bus_cs     ),
+    .bus_busy   ( bus_busy   ),
+    .BUSn       ( BUSn       ),
+    .DTACKn     ( DTACKn     )
+);
+
+/*
 reg DTACKn;
 always @(posedge clk, posedge rst) begin : dtack_gen
     reg       last_ASn;
@@ -413,7 +428,7 @@ always @(posedge clk, posedge rst) begin : dtack_gen
         if( ASn && !last_ASn ) DTACKn <= 1'b1;
     end
 end 
-
+*/
 // interrupt generation
 reg        int1, int2;
 wire [2:0] FC;

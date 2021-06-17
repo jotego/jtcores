@@ -24,6 +24,17 @@ f1dream
 gng
 rumble
 
+[ram-in-sdram]
+# These systems have the main CPU RAM in SDRAM
+sf
+rumble
+
+[68000]
+sf
+biocom
+tora
+f1dream
+
 [custom:mist|sidi]
 commando  -rename com
 gunsmoke  -rename gun

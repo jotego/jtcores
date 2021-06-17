@@ -116,7 +116,7 @@ reg         io_cs, pre_ram_cs, reg_ram_cs, obj_cs, col_cs,
             misc_cs, snd_cs;
 reg         scr1pos_cs, scr2pos_cs;
 wire        ASn, CPUbus;
-wire        UDSn, LDSn;
+wire        BUSn, UDSn, LDSn;
 wire        objram_ldw, objram_udw;
 reg         BERRn;
 wire [ 8:0] Aobj, obj_subAB;
@@ -145,6 +145,8 @@ assign objram_udw = ~UDSWn & obj_cs;
 assign objram_ldw = ~LDSWn & obj_cs;
 
 assign mcu_master = ~mcu_brn & bus_ack;
+
+assign BUSn       = ASn | (LDSn & UDSn);
 
 `ifdef SIMULATION
 wire [24:0] A_full = {A,1'b0};
@@ -217,7 +219,7 @@ always @(*) begin
 end
 
 // MCU and shared bus
-assign ram_cs   = mcu_master ? mcu_sel  : (dsn_dly ? reg_ram_cs  : pre_ram_cs);
+assign ram_cs   = mcu_master ? mcu_sel  : ( ~BUSn & (dsn_dly ? reg_ram_cs  : pre_ram_cs));
 assign ram_addr = mcu_master ? mcu_addr[15:1] : A[RAMW:1];
 assign ram_din  = mcu_master ? mcu_dout : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds, ~mcu_ds } : {UDSWn, LDSWn};
@@ -342,10 +344,9 @@ jtframe_68kdtack #(.CENCNT(3)) u_dtack(
     .cpu_cenb   ( cen8b      ),
     .bus_cs     ( bus_cs     ),
     .bus_busy   ( bus_busy   ),
-    .ASn        ( ASn        ),
+    .BUSn       ( BUSn       ),
     .DTACKn     ( DTACKn     )
 );
-
 
 // OBJ RAM is implemented in BRAM
 // It was originally part of the SDRAM but the OBJ DMA module does not
