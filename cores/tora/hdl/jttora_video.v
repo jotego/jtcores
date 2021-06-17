@@ -170,6 +170,7 @@ u_scroll (
     .cen6         ( cen6           ),
     .V128         ( V              ),
     .H            ( H              ),
+    .LHBL         ( LHBL           ),
     .SCxON        ( 1'b1           ),
     .hpos         ( scrposh        ),
     .vpos         ( scrposv        ),
