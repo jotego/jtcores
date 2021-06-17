@@ -333,6 +333,7 @@ wire       inta_n;
 (*keep*) wire       bus_cs =   |{ rom_cs, char_cs };
 (*keep*) wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy };
 wire DTACKn;
+wire BUSn = ASn | (LDSn & UDSn);
 
 jtframe_68kdtack #(.CENCNT(12),.CENSTEP(5)) u_dtack(
     .rst        ( rst       ),
@@ -341,7 +342,7 @@ jtframe_68kdtack #(.CENCNT(12),.CENSTEP(5)) u_dtack(
     .cpu_cenb   ( cen10b    ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .BUSn       ( ASn       ),   // BUSn = ASn | (LDSn & UDSn)
+    .BUSn       ( BUSn      ),   // BUSn = ASn | (LDSn & UDSn)
     .DTACKn     ( DTACKn    )
 );
 
