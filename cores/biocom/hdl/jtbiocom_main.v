@@ -377,8 +377,9 @@ assign rom_addr = A[17:1];
 wire       inta_n;
 reg  [7:0] io_busy_cnt;
 wire       io_busy = io_busy_cnt[0];
-wire       bus_cs =   |{ rom_cs, scr1_cs, scr2_cs, char_cs, io_cs };
-wire       bus_busy = |{ rom_cs & ~rom_ok, scr1_busy, scr2_busy, char_busy, io_busy };
+wire       bus_cs    = |{ rom_cs, scr1_cs, scr2_cs, char_cs, io_cs };
+wire       bus_legit = |{scr1_busy, scr2_busy, char_busy};
+wire       bus_busy  = |{ rom_cs & ~rom_ok, io_busy, bus_legit };
 
 // DTACK is also held down during IO access in order to make
 // the NMI request to the Z80 CPU long enough
@@ -399,7 +400,7 @@ end
 
 wire DTACKn;
 
-jtframe_68kdtack #(.CENCNT(2)) u_dtack(
+jtframe_68kdtack #(.CENCNT(4)) u_dtack( // cen = 12MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
     .cpu_cen    ( cen12      ),

@@ -243,7 +243,7 @@ wire [8:0] scr2_hpos, scr2_vpos;
 `ifndef NOMAIN
 jtbiocom_main u_main(
     .rst        ( rst           ),
-    .clk        ( clk24         ),
+    .clk        ( clk           ),
     .cen12      ( cen12         ),
     .cen12b     ( cen12b        ),
     .cpu_cen    ( cpu_cen       ),

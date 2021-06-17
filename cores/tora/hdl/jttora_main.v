@@ -335,13 +335,14 @@ wire       inta_n;
 wire DTACKn;
 wire BUSn = ASn | (LDSn & UDSn);
 
-jtframe_68kdtack #(.CENCNT(12),.CENSTEP(5)) u_dtack(
+jtframe_68kdtack #(.CENCNT(2)/*12),.CENSTEP(5)*/) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),
     .cpu_cenb   ( cen10b    ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
+    .bus_legit  ( char_busy ),
     .BUSn       ( BUSn      ),   // BUSn = ASn | (LDSn & UDSn)
     .DTACKn     ( DTACKn    )
 );
