@@ -140,7 +140,7 @@ jtframe_cen48 u_cen48(
 wire        cen3, mcu_cen;
 wire        cen10, cenfm, cenp384;
 wire        nc,ncb;
-reg         cen10b;
+wire        cen10b;
 
 jtframe_cen24 u_cen(
     .clk    ( clk24     ),
