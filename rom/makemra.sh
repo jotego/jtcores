@@ -90,7 +90,9 @@ mame2dip sf.xml -outdir $OUTDIR -altfolder "$ALTDIR"\
     -order-roms obj 7 0 8 1 9 2 10 3 11 4 12 5 13 6 \
     -order maincpu audiocpu audio2 maps char scr1 scr2 obj mcu proms \
     -buttons "punch1,punch2,punch3,kick1,kick2,kick3" \
-    -dipbase 8 -rmdipsw Unused -rmdipsw Freeze
+    -dipbase 8 -rmdipsw Unused -rmdipsw Freeze \
+    -info mameversion 229 \
+    -info category "Beat 'em up"
 
 # Fix DIP names
 find $OUTDIR -name "Street Fighter*.mra" -print0 | xargs -0 sed -i "s/Number of Countries Selected/Countries/g"
