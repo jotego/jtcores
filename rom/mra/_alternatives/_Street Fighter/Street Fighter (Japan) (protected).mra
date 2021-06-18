@@ -1,17 +1,17 @@
-<!--          FPGA compatible core for Capcom arcade hardware by Jotego
+<!--          FPGA compatible core of arcade hardware by Jotego
 
               This core is available for hardware compatible with MiST and MiSTer
               Other FPGA systems may be supported by the time you read this.
               This work is not mantained by the MiSTer project. Please contact the
               core author for issues and updates.
 
-              (c) Jose Tejada, 2021. Please support the author
+              (c) Jose Tejada, 2020. Please support the author
               Patreon: https://patreon.com/topapate
               Paypal:  https://paypal.me/topapate
 
               The author does not endorse or participate in illegal distribution
               of copyrighted material. This work can be used with legally
-              obtained ROM dumps or with compatible homebrew software.
+              obtained ROM dumps or with compatible homebrew software
 
               This file license is GNU GPLv2.
               You can read the whole license file in
@@ -22,15 +22,12 @@
 <misterromdescription>
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>Street Fighter (Japan) (protected)</name>
+    <mameversion>0217</mameversion>
     <setname>sfj</setname>
-    <rbf>jtsf</rbf>
-    <mameversion>0229</mameversion>
     <year>1987</year>
     <manufacturer>Capcom</manufacturer>
-    <players>2</players>
-    <joystick>8-way</joystick>
-    <rotation>horizontal</rotation>
-    <region>Japan</region>
+    <category>Beat em up</category>
+    <rbf>jtsf</rbf>
     <rom index="0" zip="sfj.zip|sf.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->
         <interleave output="16">
@@ -56,7 +53,9 @@
         <interleave output="16">
             <part name="sf-01.1k" crc="86e0f0d5" map="12"/>
         </interleave>
-        <!-- maps - starts at 0xA8000 -->
+        <!-- mcu - starts at 0xA8000 -->
+        <part name="sf_s.id8751h-8.14f" crc="6588891f"/>
+        <!-- maps - starts at 0xA9000 -->
         <interleave output="16">
             <part name="sf-33.4g" crc="3e99d3d5" map="01"/>
             <part name="sf-32.3g" crc="72df2bd9" map="10"/>
@@ -65,9 +64,9 @@
             <part name="sf-36.3h" crc="ea16df6c" map="01"/>
             <part name="sf-37.4h" crc="23d09d3d" map="10"/>
         </interleave>
-        <!-- char - starts at 0xE8000 -->
+        <!-- char - starts at 0xE9000 -->
         <part name="sf-27.4d" crc="2b09b36d"/>
-        <!-- scr1 - starts at 0xEC000 -->
+        <!-- scr1 - starts at 0xED000 -->
         <interleave output="16">
             <part name="sf-26.2d" crc="54ede9f5" map="01"/>
             <part name="sf-25.1d" crc="7f23042e" map="10"/>
@@ -84,7 +83,7 @@
             <part name="sf-35.2h" crc="70c00fb4" map="01"/>
             <part name="sf-34.1h" crc="96b6ae2e" map="10"/>
         </interleave>
-        <!-- scr2 - starts at 0x1EC000 -->
+        <!-- scr2 - starts at 0x1ED000 -->
         <interleave output="16">
             <part name="sf-41.4k" crc="e0280495" map="01"/>
             <part name="sf-39.2k" crc="cee3d292" map="10"/>
@@ -93,7 +92,7 @@
             <part name="sf-40.3k" crc="c70b30de" map="01"/>
             <part name="sf-38.1k" crc="2ea99676" map="10"/>
         </interleave>
-        <!-- obj - starts at 0x26C000 -->
+        <!-- obj - starts at 0x26D000 -->
         <interleave output="16">
             <part name="sf-17.3m" crc="69fac48e" map="01"/>
             <part name="sf-15.1m" crc="fc0113db" map="10"/>
@@ -122,9 +121,12 @@
             <part name="sf-05.3f" crc="538c7cbe" map="01"/>
             <part name="sf-03.1f" crc="5ca05781" map="10"/>
         </interleave>
-        <!-- mcu - starts at 0x42C000 -->
-        <part name="sf_s.id8751h-8.14f" crc="6588891f"/>
-        <!-- Total 0x42D000 bytes - 4276 kBytes -->
+        <!-- proms - starts at 0x42D000 -->
+        <part name="sfb05.bin" crc="864199ad"/>
+        <part name="sfb00.bin" crc="bd3f8c5d"/>
+        <part name="mb7114h.12j" crc="4c734b64"/>
+        <part name="mmi-7603.13h" crc="06bcda53"/>
+        <!-- Total 0x42D320 bytes - 4276 kBytes -->
     </rom>
     <rom index="1">
         <part>00</part>
@@ -145,5 +147,5 @@
         <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
         <dip name="Countries" bits="26" ids="4,2"/>
     </switches>
-    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,-,-" default="Y,X,B,A,L,RSelectStart" count="6"/>
+    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Pause" default="Y,X,B,A,L,R,Select,Start,-"/>
 </misterromdescription>
