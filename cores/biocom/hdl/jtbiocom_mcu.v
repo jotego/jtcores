@@ -39,13 +39,13 @@ module jtbiocom_mcu(
     input                clk,
     input                cen6a,       //  6   MHz
     // Main CPU interface
-    (*keep*) input                DMAONn,
+    (*keep*) input       DMAONn,
     output       [ 7:0]  mcu_dout,
     input        [ 7:0]  mcu_din,
     output               mcu_wr,   // always write to low bytes
     output       [16:1]  mcu_addr,
-    (*keep*) output               mcu_brn,   // RQBSQn
-    (*keep*) output               DMAn,
+    (*keep*) output      mcu_brn,   // RQBSQn
+    (*keep*) output      DMAn,
     // Sound CPU interface
     input        [ 7:0]  snd_dout,
     output reg   [ 7:0]  snd_din,

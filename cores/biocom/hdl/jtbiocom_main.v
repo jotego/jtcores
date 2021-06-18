@@ -63,7 +63,7 @@ module jtbiocom_main(
     output             RnW,
     output  reg        OKOUT,
     input              obj_br,   // Request bus
-    output             bus_ack,  // bus acknowledge
+    output             bus_ack,  // bus acknowledge for Object engine
     input              blcnten,  // bus line counter enable
     // MCU interface
     input              mcu_cen,
@@ -176,7 +176,7 @@ always @(*) begin
     mcu_ram_cs   = 1'b0;
     mcu_io_cs    = 1'b0;
     mcu_other_cs = 1'b0;
-    if( !mcu_DMAn )
+    if( !mcu_DMAn && ~BGACKn )
         case(mcu_addr[16:14])
             3'd0:    mcu_obj_cs   = 1'b1;
             3'd1:    mcu_io_cs    = 1'b1;
@@ -236,20 +236,6 @@ always @(*) /*if(cpu_cen)*/ begin
           start_button[0], start_button[1],    // START
           { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
           { joystick2[3:0], joystick2[4], joystick2[5]} };
-end
-
-/////////////////////////////////////////////////////
-// RAMs data input mux
-reg [7:0] ram_udin, ram_ldin;
-
-always @(*) begin
-    if( !mcu_DMAn ) begin
-        ram_udin = 8'hff;       // unused
-        ram_ldin = mcu_dout;
-    end else begin
-        ram_udin = cpu_dout[15:8];
-        ram_ldin = cpu_dout[ 7:0];
-    end
 end
 
 /////////////////////////////////////////////////////
