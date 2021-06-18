@@ -335,9 +335,11 @@ wire       inta_n;
 wire DTACKn;
 wire BUSn = ASn | (LDSn & UDSn);
 
-jtframe_68kdtack #(.CENCNT(2)/*12),.CENSTEP(5)*/) u_dtack(
+jtframe_68kdtack u_dtack( // 24 -> 10MHz
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .num        ( 4'd5      ),
+    .den        ( 4'd12     ),
     .cpu_cen    ( cen10     ),
     .cpu_cenb   ( cen10b    ),
     .bus_cs     ( bus_cs    ),

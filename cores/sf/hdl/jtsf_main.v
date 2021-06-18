@@ -340,9 +340,11 @@ wire       bus_cs =   |{ rom_cs, char_cs, pre_ram_cs, ram_cs };
 wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
 wire       DTACKn;
 
-jtframe_68kdtack #(.CENCNT(3)) u_dtack( // 8MHz
+jtframe_68kdtack u_dtack( // 24 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
+    .num        ( 4'd1       ),
+    .den        ( 4'd3       ),
     .cpu_cen    ( cen8       ),
     .cpu_cenb   ( cen8b      ),
     .bus_cs     ( bus_cs     ),

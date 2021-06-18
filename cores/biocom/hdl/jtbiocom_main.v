@@ -401,9 +401,11 @@ end
 
 wire DTACKn;
 
-jtframe_68kdtack #(.CENCNT(4)) u_dtack( // cen = 12MHz
+jtframe_68kdtack u_dtack( // cen = 12MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
+    .num        ( 4'd1       ),
+    .den        ( 4'd4       ),
     .cpu_cen    ( cen12      ),
     .cpu_cenb   ( cen12b     ),
     .bus_cs     ( bus_cs     ),
