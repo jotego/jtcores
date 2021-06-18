@@ -22,6 +22,7 @@
 module jtbiocom_main(
     input              rst,
     input              clk,
+    input              clk_mcu,
     output             cen12,
     output             cen12b,
     (*direct_enable *) output cpu_cen,
@@ -253,10 +254,12 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
+wire [15:0] omcu_dout;
+
 always @(posedge clk) begin
 	if (mcu_cen)
     case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
-        3'b100:  mcu_din <= oram_dout[7:0];
+        3'b100:  mcu_din <= omcu_dout[7:0];
         3'b010:  mcu_din <= wram_dout[7:0];
         3'b001:  mcu_din <= cabinet_input[7:0];
         default: mcu_din <= 8'hff;
@@ -309,7 +312,7 @@ reg [10:0] oram_addr;
 reg  obj_uwe, obj_lwe;
 
 always @(*) begin    
-    case( {blcnten, mcu_obj_cs} )
+    case( {blcnten, /*mcu_obj_cs*/ 1'b0 } )
         2'b10: begin // Object DMA
             oram_addr = obj_AB[11:1];
             obj_uwe   = 1'b0;
@@ -328,6 +331,24 @@ always @(*) begin
     endcase
 end
 
+wire [1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
+wire       omcu_wr  = mcu_wr & mcu_obj_cs;
+
+jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
+    .clk0   ( clk            ),
+    .clk1   ( clk_mcu        ),
+    // Port 0: CPU or Object DMA
+    .data0  ( cpu_dout       ),
+    .addr0  ( oram_addr      ),
+    .we0    ( oram_dsn       ),
+    .q0     ( oram_dout      ),
+    // Port 1: MCU
+    .data1  ( { 8'hff, mcu_dout} ) ,
+    .addr1  ( mcu_addr[11:1] ),
+    .we1    ( {1'b0,omcu_wr} ),
+    .q1     ( omcu_dout      )
+);
+/*
 jtframe_ram #(.aw(11),.cen_rd(1)) u_obj_ramu(
     .clk        ( clk              ),
     .cen        ( ram_cen          ),
@@ -345,7 +366,7 @@ jtframe_ram #(.aw(11),.cen_rd(1)) u_obj_raml(
     .we         ( obj_lwe          ),
     .q          ( oram_dout[7:0]   )
 );
-
+*/
 
 // Data bus input
 reg  [15:0] cpu_din;

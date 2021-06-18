@@ -102,6 +102,7 @@ wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
 wire        rd, cpu_cen;
 wire        char_busy, scr1_busy, scr2_busy;
+wire        clk_mcu = clk24;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
@@ -245,6 +246,7 @@ wire [8:0] scr2_hpos, scr2_vpos;
 jtbiocom_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .clk_mcu    ( clk_mcu       ),
     .cen12      ( cen12         ),
     .cen12b     ( cen12b        ),
     .cpu_cen    ( cpu_cen       ),
@@ -344,7 +346,7 @@ jtbiocom_main u_main(
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
-    .clk        ( clk           ),      // must match the CPU's clock
+    .clk        ( clk_mcu       ),      // must match the CPU's clock
     .clk_rom    ( clk           ),
     .cen6a      ( mcu_cen       ),       //  6   MHz
     // Main CPU interface
