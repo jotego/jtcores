@@ -254,13 +254,13 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-wire [15:0] omcu_dout;
+wire [15:0] omcu_dout, wmcu_dout;
 
 always @(posedge clk) begin
 	if (mcu_cen)
     case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
         3'b100:  mcu_din <= omcu_dout[7:0];
-        3'b010:  mcu_din <= wram_dout[7:0];
+        3'b010:  mcu_din <= wmcu_dout[7:0];
         3'b001:  mcu_din <= cabinet_input[7:0];
         default: mcu_din <= 8'hff;
     endcase
@@ -268,71 +268,31 @@ end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-reg         work_uwe, work_lwe;
-reg         ram_cen;
+wire [1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
+wire       wmcu_wr  = mcu_wr & mcu_ram_cs;
 
-always @(*) begin
-    if( mcu_ram_cs ) begin
-        // MCU access
-        work_A   = mcu_addr[13:1];
-        work_uwe = 1'b0;
-        work_lwe = mcu_wr;
-        ram_cen  = mcu_cen;
-    end else begin 
-        // CPU access
-        work_A   = A[13:1];
-        work_uwe = ram_cs & !UDSWn;
-        work_lwe = ram_cs & !LDSWn;
-        ram_cen  = cpu_cen;
-    end
-end
-
-jtframe_ram #(.aw(13),.cen_rd(0)) u_ramu(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( work_A           ),
-    .data       ( ram_udin         ),
-    .we         ( work_uwe         ),
-    .q          ( wram_dout[15:8]  )
-);
-
-jtframe_ram #(.aw(13),.cen_rd(0)) u_raml(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( work_A           ),
-    .data       ( ram_ldin         ),
-    .we         ( work_lwe         ),
-    .q          ( wram_dout[7:0]   )
+jtframe_dual_ram16 #(.aw(13)) u_work_ram (
+    .clk0   ( clk            ),
+    .clk1   ( clk_mcu        ),
+    // Port 0: CPU
+    .data0  ( cpu_dout       ),
+    .addr0  ( A[13:1]        ),
+    .we0    ( wram_dsn       ),
+    .q0     ( wram_dout      ),
+    // Port 1: MCU
+    .data1  ( { 8'hff, mcu_dout} ) ,
+    .addr1  ( mcu_addr[13:1] ),
+    .we1    ( {1'b0,wmcu_wr} ),
+    .q1     ( wmcu_dout      )
 );
 
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
 assign cpu_AB = A[13:1];
-reg [10:0] oram_addr;
-reg  obj_uwe, obj_lwe;
 
-always @(*) begin    
-    case( {blcnten, /*mcu_obj_cs*/ 1'b0 } )
-        2'b10: begin // Object DMA
-            oram_addr = obj_AB[11:1];
-            obj_uwe   = 1'b0;
-            obj_lwe   = 1'b0;
-        end
-        2'b01: begin // MCU DMA
-            oram_addr = mcu_addr[11:1];
-            obj_uwe   = 1'b0;
-            obj_lwe   = mcu_wr ;
-        end
-        default: begin
-            oram_addr = A[11:1];
-            obj_uwe   = obj_cs & !UDSWn;
-            obj_lwe   = obj_cs & !LDSWn;
-        end
-    endcase
-end
-
-wire [1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
-wire       omcu_wr  = mcu_wr & mcu_obj_cs;
+wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : A[11:1];
+wire [ 1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
+wire        omcu_wr  = mcu_wr & mcu_obj_cs;
 
 jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .clk0   ( clk            ),
@@ -348,25 +308,6 @@ jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .we1    ( {1'b0,omcu_wr} ),
     .q1     ( omcu_dout      )
 );
-/*
-jtframe_ram #(.aw(11),.cen_rd(1)) u_obj_ramu(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( oram_addr        ),
-    .data       ( ram_udin         ),
-    .we         ( obj_uwe          ),
-    .q          ( oram_dout[15:8]  )
-);
-
-jtframe_ram #(.aw(11),.cen_rd(1)) u_obj_raml(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( oram_addr        ),
-    .data       ( ram_ldin         ),
-    .we         ( obj_lwe          ),
-    .q          ( oram_dout[7:0]   )
-);
-*/
 
 // Data bus input
 reg  [15:0] cpu_din;

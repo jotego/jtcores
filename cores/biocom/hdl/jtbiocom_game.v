@@ -346,7 +346,7 @@ jtbiocom_main u_main(
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
-    .clk        ( clk_mcu       ),      // must match the CPU's clock
+    .clk        ( clk_mcu       ),
     .clk_rom    ( clk           ),
     .cen6a      ( mcu_cen       ),       //  6   MHz
     // Main CPU interface
