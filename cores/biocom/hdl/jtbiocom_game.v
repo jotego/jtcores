@@ -168,7 +168,7 @@ jtframe_cen24 u_cen24(
     .clk    ( clk24     ),
     .cen12  (           ),
     .cen12b (           ),
-    .cen6   ( mcu_cen   ),
+    //.cen6   ( mcu_cen   ),
     .cen3   ( cen3      ),
     // Unused:
     .cen6b  (           ),
@@ -181,6 +181,7 @@ jtframe_cen24 u_cen24(
     .cen3qb (           )
 );
 
+assign mcu_cen = pxl_cen;
 
 wire LHBL_obj, LVBL_obj;
 
@@ -343,7 +344,7 @@ jtbiocom_main u_main(
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
-    .clk        ( clk24         ),
+    .clk        ( clk           ),      // must match the CPU's clock
     .clk_rom    ( clk           ),
     .cen6a      ( mcu_cen       ),       //  6   MHz
     // Main CPU interface
