@@ -1,4 +1,4 @@
-name: Black Tiger MiST
+name: 1942 SiDi
 
 on:
   push:
@@ -25,6 +25,6 @@ jobs:
         with:
           submodules: true
           repository: ${{ github.repository }}
-      - name: compile for MiST
-        run: /docked_build.sh btiger
+      - name: compilation
+        run: /docked_build.sh 1942 -sidi
 
