@@ -2,6 +2,8 @@ name: Higemaru SiDi
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

@@ -2,6 +2,8 @@ name: Side Arms SiDi
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

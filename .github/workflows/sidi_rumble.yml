@@ -2,6 +2,8 @@ name: The Speed Rumbler SiDi
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 
