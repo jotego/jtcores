@@ -2,6 +2,8 @@ name: Commando MiST
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

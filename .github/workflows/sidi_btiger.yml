@@ -2,6 +2,8 @@ name: Black Tiger SiDi
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

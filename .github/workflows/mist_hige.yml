@@ -2,6 +2,8 @@ name: Higemaru MiST
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

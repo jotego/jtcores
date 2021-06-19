@@ -2,6 +2,8 @@ name: Ghosts'n Goblins MiST
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

@@ -2,6 +2,8 @@ name: GunSmoke MiST
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

@@ -2,6 +2,8 @@ name: F1Dream SiDi
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

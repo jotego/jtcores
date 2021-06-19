@@ -2,6 +2,8 @@ name: Trojan MiST
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

@@ -2,6 +2,8 @@ name: Bionic Commando MiST
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 

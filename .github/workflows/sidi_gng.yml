@@ -2,6 +2,8 @@ name: Ghosts'n Goblins SiDi
 
 on:
   push:
+    branches:
+      - build
 
 jobs:
 
