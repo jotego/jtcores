@@ -1,4 +1,5 @@
-name: Higemaru SiDi
+
+name: hige for sidi
 
 on:
   push:
@@ -7,31 +8,29 @@ on:
 
 jobs:
 
-  mist_compilation:
+  sidi_compilation:
 
     env:
       FTPUSER: ${{ secrets.FTPUSER }}
       FTPPASS: ${{ secrets.FTPPASS }}
-  
+
     runs-on: ubuntu-latest
-    
+
     container:
       image: jotego/jtcore13
       credentials:
         username: jotego
         password: ${{ secrets.DOCKER_LOGIN }}
-    
+
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.0
         with:
           access_token: ${{ github.token }}
-
       - name: check out
         uses: actions/checkout@v2
         with:
           submodules: true
           repository: ${{ github.repository }}
-      - name: compilation
-        run: /docked_build.sh hige -sidi
-
+      - name: compile for sidi
+        run: /docked_build.sh hige -sidi 
