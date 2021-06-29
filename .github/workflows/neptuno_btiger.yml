@@ -1,0 +1,32 @@
+name: Black Tiger MiST
+
+on:
+  push:
+    branches:
+      - build
+
+jobs:
+
+  mist_compilation:
+
+    env:
+      FTPUSER: ${{ secrets.FTPUSER }}
+      FTPPASS: ${{ secrets.FTPPASS }}
+  
+    runs-on: ubuntu-latest
+    
+    container:
+      image: jotego/jtcore13
+      credentials:
+        username: jotego
+        password: ${{ secrets.DOCKER_LOGIN }}
+    
+    steps:
+      - name: check out
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          repository: ${{ github.repository }}
+      - name: compile for MiST
+        run: /docked_build.sh btiger -neptuno
+
