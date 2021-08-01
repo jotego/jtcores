@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - build
+      - mist
 
 jobs:
 
@@ -33,4 +34,4 @@ jobs:
           submodules: true
           repository: ${{ github.repository }}
       - name: compile for mist
-        run: /docked_build.sh gunsmoke -mist  -rename gun
+        run: /docked_build.sh gunsmoke -mist  -rename gun 

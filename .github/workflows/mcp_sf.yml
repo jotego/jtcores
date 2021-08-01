@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - build
+      
 
 jobs:
 
@@ -33,4 +34,4 @@ jobs:
           submodules: true
           repository: ${{ github.repository }}
       - name: compile for mcp
-        run: /docked_build.sh sf -mcp 
+        run: /docked_build.sh sf -mcp  
