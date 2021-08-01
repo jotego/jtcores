@@ -166,7 +166,7 @@ jtframe_zxdos u_frame(
     .SD_MISO        ( SD_MISO        ),
     // ROM
     .ioctl_addr     ( ioctl_addr     ),
-    .ioctl_dout     ( ioctl_data     ),
+    .ioctl_dout     ( ioctl_dout     ),
     .ioctl_wr       ( ioctl_wr       ),
     .prog_addr      ( prog_addr      ),
     .prog_data      ( prog_data      ),
@@ -248,7 +248,7 @@ u_game(
     .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
-    .ioctl_dout  ( ioctl_data     ),
+    .ioctl_dout  ( ioctl_dout     ),
     .ioctl_wr    ( ioctl_wr       ),
     .prog_addr   ( prog_addr      ),
     .prog_data   ( prog_data      ),

@@ -222,7 +222,7 @@ jtbiocom_dwnld u_dwnld(
 
     .ioctl_wr    ( ioctl_wr        ),
     .ioctl_addr  ( ioctl_addr[21:0]),
-    .ioctl_dout  ( ioctl_data      ),
+    .ioctl_dout  ( ioctl_dout      ),
 
     .prog_data   ( prog_data       ),
     .prog_mask   ( prog_mask       ),

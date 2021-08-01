@@ -385,7 +385,7 @@ jtrumble_sdram #(
     .prom_prior_we(prom_prior_we),
 
     .ioctl_addr ( ioctl_addr ),
-    .ioctl_dout ( ioctl_data ),
+    .ioctl_dout ( ioctl_dout ),
     .ioctl_wr   ( ioctl_wr   ),
     .prog_addr  ( prog_addr  ),
     .prog_data  ( prog_data  ),

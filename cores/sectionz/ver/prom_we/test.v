@@ -64,7 +64,7 @@ jtsectionz_prom_we uut(
     .clk         ( clk           ),
     .downloading ( downloading   ),
     .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_data    ),
+    .ioctl_dout  ( ioctl_dout    ),
     .ioctl_wr    ( ioctl_wr      ),
     .prog_addr   ( prog_addr     ),
     .prog_data   ( prog_data     ),

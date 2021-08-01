@@ -79,7 +79,7 @@ jtbiocom_prom_we u_prom_we(
     .clk         (  clk          ),
     .downloading (  downloading  ),
     .ioctl_addr  (  ioctl_addr   ),
-    .ioctl_dout  (  ioctl_data   ),
+    .ioctl_dout  (  ioctl_dout   ),
     .ioctl_wr    (  ioctl_wr     ),
     .prog_addr   (  dwnld_addr   ),
     .prog_data   (  dwnld_data   ),

@@ -218,7 +218,7 @@ u_dwnld(
     .downloading ( downloading   ),
 
     .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_data    ),
+    .ioctl_dout  ( ioctl_dout    ),
     .ioctl_wr    ( ioctl_wr      ),
 
     .prog_addr   ( pre_prog      ),

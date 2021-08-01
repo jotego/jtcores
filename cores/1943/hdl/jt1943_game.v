@@ -162,7 +162,7 @@ jt1943_prom_we #(.SND_BRAM(1)) u_prom_we(
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_data    ),
+    .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),

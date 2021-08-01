@@ -161,7 +161,7 @@ jtcommando_prom_we u_prom_we(
 
     .ioctl_wr    ( ioctl_wr      ),
     .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_data    ),
+    .ioctl_dout  ( ioctl_dout    ),
 
     .prog_data   ( prog_data     ),
     .prog_mask   ( prog_mask     ),
