@@ -46,7 +46,7 @@ module jthige_game(
 
     // ROM LOAD
     input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_data,
+    input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
     output  [ 7:0]  prog_data,
@@ -157,7 +157,7 @@ jtframe_dwnld #(.PROM_START( PROM_START )) u_dwnld(
     .downloading ( downloading   ),
 
     .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_data  ( ioctl_data    ),
+    .ioctl_dout  ( ioctl_data    ),
     .ioctl_wr    ( ioctl_wr      ),
 
     .prog_addr   ( prog_addr     ),

@@ -1,1 +1,2 @@
-../mist/conf_str.v
+// Commando
+

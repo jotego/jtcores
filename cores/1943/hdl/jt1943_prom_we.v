@@ -21,7 +21,7 @@ module jt1943_prom_we(
     input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
-    input      [ 7:0]    ioctl_data,
+    input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
@@ -71,7 +71,7 @@ always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
-        prog_data <= ioctl_data;
+        prog_data <= ioctl_dout;
         if(ioctl_addr < MAP1ADDR) begin
             if(ioctl_addr>=SNDADDR && ioctl_addr<CHARADDR && SND_BRAM==1 ) begin // Sound ROM
                 prom_we0   <= 13'h10_00;

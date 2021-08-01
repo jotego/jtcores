@@ -73,7 +73,7 @@ wire [31:0]   data_read;
 wire          loop_rst;
 wire          downloading;
 wire [21:0]   ioctl_addr;
-wire [ 7:0]   ioctl_data;
+wire [ 7:0]   ioctl_dout;
 wire          ioctl_wr;
 
 wire rst_req = status[0];
@@ -166,7 +166,7 @@ jtframe_zxdos u_frame(
     .SD_MISO        ( SD_MISO        ),
     // ROM
     .ioctl_addr     ( ioctl_addr     ),
-    .ioctl_data     ( ioctl_data     ),
+    .ioctl_dout     ( ioctl_data     ),
     .ioctl_wr       ( ioctl_wr       ),
     .prog_addr      ( prog_addr      ),
     .prog_data      ( prog_data      ),
@@ -248,7 +248,7 @@ u_game(
     .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
-    .ioctl_data  ( ioctl_data     ),
+    .ioctl_dout  ( ioctl_data     ),
     .ioctl_wr    ( ioctl_wr       ),
     .prog_addr   ( prog_addr      ),
     .prog_data   ( prog_data      ),

@@ -21,7 +21,7 @@ module jttora_prom_we(
     input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
-    input      [ 7:0]    ioctl_data,
+    input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
@@ -104,7 +104,7 @@ always @(posedge clk) begin
     if( set_done ) set_strobe <= 1'b0;
     if ( ioctl_wr ) begin
         prog_we   <= 1'b1;
-        prog_data <= ioctl_data;
+        prog_data <= ioctl_dout;
         `CLR_ALL
         if( ioctl_addr[20:16] < SND_ADDR[20:16] ) begin // Main ROM, 16 bits per word
             prog_addr <= {1'b0, ioctl_addr[16:0]}; // A[17] ignored
@@ -162,7 +162,7 @@ end
 
 always @(posedge clk) begin
     if( ioctl_addr == 22'h41 && ioctl_wr )
-        jap <= ioctl_data==8'h4A;
+        jap <= ioctl_dout==8'h4A;
 end
 
 endmodule // jt1492_promprog

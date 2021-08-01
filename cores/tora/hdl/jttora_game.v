@@ -46,7 +46,7 @@ module jttora_game(
     input           sdram_ack,
     // ROM LOAD
     input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_data,
+    input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
     output  [ 7:0]  prog_data,
@@ -216,7 +216,7 @@ jttora_dwnld u_dwnld(
 
     .ioctl_wr    ( ioctl_wr        ),
     .ioctl_addr  ( ioctl_addr[21:0]),
-    .ioctl_data  ( ioctl_data      ),
+    .ioctl_dout  ( ioctl_data      ),
 
     .prog_data   ( prog_data       ),
     .prog_mask   ( prog_mask       ),

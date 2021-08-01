@@ -4,7 +4,7 @@ module test;
 
 reg         clk, downloading=1'b1;
 reg  [21:0] ioctl_addr=22'd0;
-reg  [ 7:0] ioctl_data= 8'd0;
+reg  [ 7:0] ioctl_dout= 8'd0;
 reg         ioctl_wr;
 
 wire [21:0] prog_addr;
@@ -18,7 +18,7 @@ jtbiocom_prom_we
     .clk         (  clk          ),
     .downloading (  downloading  ),
     .ioctl_addr  (  ioctl_addr   ),
-    .ioctl_data  (  ioctl_data   ),
+    .ioctl_dout  (  ioctl_data   ),
     .ioctl_wr    (  ioctl_wr     ),
     .prog_addr   (  prog_addr    ),
     .prog_data   (  prog_data    ),
@@ -39,7 +39,7 @@ always @(posedge clk) begin
     ioctl_wr <= 1'b0;
     if( ioctl_addr < `ROM_LEN && cnt==2'b11 ) begin
         ioctl_addr <= ioctl_addr + 22'd1;
-        ioctl_data <= ioctl_data+8'd1;
+        ioctl_dout <= ioctl_data+8'd1;
         ioctl_wr   <= 1'b1;
     end else if( ioctl_addr >= `ROM_LEN ) begin
         downloading <= 1'b0;        

@@ -59,7 +59,7 @@ module jtsf_game(
     input   [15:0]  data_read,
     // ROM LOAD
     input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_data,
+    input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
     output  [15:0]  prog_data,
@@ -293,7 +293,7 @@ jtframe_dwnld #(
     .downloading ( downloading   ),
 
     .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_data  ( ioctl_data    ),
+    .ioctl_dout  ( ioctl_data    ),
     .ioctl_wr    ( ioctl_wr      ),
 
     .prog_addr   ( pre_prog      ),

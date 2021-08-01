@@ -21,7 +21,7 @@ module jtsectionz_prom_we(
     input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
-    input      [ 7:0]    ioctl_data,
+    input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
     output reg [21:0]    prog_addr,
     output reg [ 7:0]    prog_data,
@@ -78,13 +78,13 @@ reg [21:0] scr_addr;
 
 always @(posedge clk) begin
     if ( ioctl_wr && downloading ) begin
-        prev_data <= { ioctl_data, prev_data[31:8] };
+        prev_data <= { ioctl_dout, prev_data[31:8] };
         if( is_scr ) begin
             if( ioctl_addr[1:0]==2'b11 ) begin
                 scr_rewr <= 4'b1;
             end
         end else begin
-            prog_data <= ioctl_data;
+            prog_data <= ioctl_dout;
             prog_addr <= is_cpu  ? bulk_addr[21:1] + CPU_OFFSET  : (
                          is_snd  ?  snd_addr[21:1] + SND_OFFSET  : (
                          is_char ? char_addr[21:1] + CHAR_OFFSET : (
@@ -93,8 +93,8 @@ always @(posedge clk) begin
             prog_mask <= ioctl_addr[0]^(is_cpu|is_snd) ? 2'b10 : 2'b01;
         end
         if( ioctl_addr < FULL_HEADER ) begin
-            if( !ioctl_addr ) game_cfg <= ioctl_data;
-            if( is_start ) starts  <= { starts[STARTW-9:0], ioctl_data };
+            if( !ioctl_addr ) game_cfg <= ioctl_dout;
+            if( is_start ) starts  <= { starts[STARTW-9:0], ioctl_dout };
             prog_we <= 1'b0;
         end else if(!is_scr) begin
             prog_we <= 1'b1;

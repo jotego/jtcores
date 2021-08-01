@@ -1,1 +1,2 @@
-../mist/conf_str.v
+// Ghosts'n Goblins MiST/er
+// nothing required here

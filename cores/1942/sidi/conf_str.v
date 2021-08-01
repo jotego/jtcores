@@ -1,1 +1,1 @@
-../mist/conf_str.v
+// 1942 MiST/er

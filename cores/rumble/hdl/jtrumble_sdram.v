@@ -92,7 +92,7 @@ module jtrumble_sdram #(
     output          prom_prior_we,
 
     input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_data,
+    input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     output  [21:0]  prog_addr,
     output  [15:0]  prog_data,
@@ -165,7 +165,7 @@ jtframe_dwnld #(
     .clk          ( clk            ),
     .downloading  ( downloading    ),
     .ioctl_addr   ( ioctl_addr     ),
-    .ioctl_data   ( ioctl_data     ),
+    .ioctl_dout   ( ioctl_data     ),
     .ioctl_wr     ( ioctl_wr       ),
     .prog_addr    ( dwn_addr       ),
     .prog_data    ( dwn_data       ),
