@@ -69,7 +69,8 @@
         <part name="k06_e-08.bin" crc="0eaf5158"/>
         <part name="l03_e-09.bin" crc="0d968558"/>
         <part name="03e_e-01.bin" crc="1acee376"/>
-        <!-- Total 0x68B20 bytes - 418 kBytes -->
+        <part repeat="0xE0"> FF</part>
+        <!-- Total 0x68C00 bytes - 419 kBytes -->
     </rom>
     <!-- Vertical game -->
     <rom index="1">
