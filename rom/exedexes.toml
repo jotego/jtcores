@@ -1,0 +1,16 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="exedexes.cpp"
+
+[buttons]
+core=2
+names=[
+    {machine="exedexes", names="shot,bomb"},
+]
+
+[rbf]
+name="jtexed"
+
+[ROM]
