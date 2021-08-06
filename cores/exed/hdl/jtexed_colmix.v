@@ -47,7 +47,8 @@ module jtexed_colmix(
 localparam BLANK_DLY = 2;
 
 wire [4:0] prio_addr;
-reg  [7:0] pixel_mux;
+reg  [7:0] pxl_mux;
+wire [7:0] prio_sel;
 
 wire char_blank_b = |(~char_pxl);
 wire scr1_blank_b = |(~scr1_pxl[3:0]);
@@ -59,14 +60,14 @@ assign prio_addr = { 1'b0, char_blank_b, 1'b0 /* prioa2 ?*/,
                            scr1_blank_b };
 
 always @(*) begin
-    pixel_mux[7:6] = prio_sel[1:0];
+    pxl_mux[7:6] = prio_sel[1:0];
     case( prio_sel[1:0] )
-        3: prio_sel[3:0] = char_pxl;
-        2: prio_sel[3:0] = scr2_pxl;
-        1: prio_sel[3:0] = scr1_pxl;
-        0: prio_sel[3:0] = obj_pxl;
+        3: pxl_mux[3:0] = char_pxl;
+        2: pxl_mux[3:0] = scr2_pxl;
+        1: pxl_mux[3:0] = scr1_pxl;
+        0: pxl_mux[3:0] = obj_pxl;
     endcase
-    pixel_mux[5:4] = 0; // for now
+    pxl_mux[5:4] = 0; // for now
 end
 
 wire [ 3:0] pre_r, pre_g, pre_b;
@@ -88,44 +89,44 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
 
 // priority PROM
 jtframe_prom #(.aw(5),.dw(8)) u_prio(
-    .clk    ( clk         ),
-    .cen    ( 1'b1        ),
-    .data   ( prom_din    ),
-    .rd_addr( prio_addr   ),
+    .clk    ( clk            ),
+    .cen    ( 1'b1           ),
+    .data   ( prom_din       ),
+    .rd_addr( prio_addr      ),
     .wr_addr( prog_addr[4:0] ),
-    .we     ( prom_we[0]  ),
-    .q      ( prio_sel   )
+    .we     ( prom_prio_we   ),
+    .q      ( prio_sel       )
 );
 
 // palette ROM
 jtframe_prom #(.aw(8),.dw(4)) u_red(
-    .clk    ( clk         ),
-    .cen    ( pxl_cen     ),
-    .data   ( prom_din[3:0] ),
-    .rd_addr( pixel_mux   ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_we[1]  ),
-    .q      ( pre_r       )
+    .clk    ( clk            ),
+    .cen    ( pxl_cen        ),
+    .data   ( prom_din[3:0]  ),
+    .rd_addr( pxl_mux        ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_rgb_we[1] ),
+    .q      ( pre_g          )
 );
 
 jtframe_prom #(.aw(8),.dw(4)) u_green(
-    .clk    ( clk         ),
-    .cen    ( pxl_cen     ),
-    .data   ( prom_din[3:0] ),
-    .rd_addr( pixel_mux   ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_we[2]  ),
-    .q      ( pre_g       )
+    .clk    ( clk            ),
+    .cen    ( pxl_cen        ),
+    .data   ( prom_din[3:0]  ),
+    .rd_addr( pxl_mux        ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_rgb_we[2] ),
+    .q      ( pre_g          )
 );
 
 jtframe_prom #(.aw(8),.dw(4)) u_blue(
-    .clk    ( clk         ),
-    .cen    ( pxl_cen     ),
-    .data   ( prom_din[3:0] ),
-    .rd_addr( pixel_mux   ),
-    .wr_addr( prog_addr   ),
-    .we     ( prom_we[3]  ),
-    .q      ( pre_b       )
+    .clk    ( clk            ),
+    .cen    ( pxl_cen        ),
+    .data   ( prom_din[3:0]  ),
+    .rd_addr( pxl_mux        ),
+    .wr_addr( prog_addr      ),
+    .we     ( prom_rgb_we[2] ),
+    .q      ( pre_g          )
 );
 
 endmodule

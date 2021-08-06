@@ -180,14 +180,14 @@ wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
 wire [ 7:0] main_ram, game_cfg;
 
-localparam [21:0] CPU_OFFSET  = 22'h0;
-                  SND_OFFSET  = `SND_START  >> 1;
-                  MAP1_OFFSET = `MAP_START  >> 1;
-                  MAP2_OFFSET =  MAP1_OFFSET+22'h4000>>1;
-                  CHAR_OFFSET = `CHAR_START >> 1;
-                  SCR1_OFFSET = `SCR1_START >> 1;
-                  SCR2_OFFSET = `SCR2_START >> 1;
-                  OBJ_OFFSET  = `OBJ_START  >> 1;
+localparam [21:0] CPU_OFFSET  = 22'h0,
+                  SND_OFFSET  = `SND_START  >> 1,
+                  MAP1_OFFSET = `MAP_START  >> 1,
+                  MAP2_OFFSET =  MAP1_OFFSET+22'h4000>>1,
+                  CHAR_OFFSET = `CHAR_START >> 1,
+                  SCR1_OFFSET = `SCR1_START >> 1,
+                  SCR2_OFFSET = `SCR2_START >> 1,
+                  OBJ_OFFSET  = `OBJ_START  >> 1,
                   PROM_OFFSET = `PROM_START;
 
 jtframe_dwnld #(.PROM_START(PROM_OFFSET)) u_dwnld(
