@@ -48,8 +48,13 @@ module jtcommando_main(
     input              scr_busy,
     output reg [8:0]   scr_hpos,
     output reg [8:0]   scr_vpos,
-    // Scroll 2 of Trojan
+    // Scroll 2 of Trojan/Exed Exes
     output reg [15:0]  scr2_hpos,
+    // Layer enable bits (only Exed Exes)
+    output reg         char_on,
+    output reg         scr1_on,
+    output reg         scr2_on,
+    output reg         obj_on,
     // Palette
     output  reg        blue_cs,
     output  reg        redgreen_cs,
@@ -145,6 +150,31 @@ always @(*) begin
                 endcase
             3'b111: ram_cs = 1'b1;
         endcase
+    end else if(GAME==3) begin // Exed Exes
+        if( rfsh_n && !mreq_n ) casez(A[15:13])
+            3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB 0000-BFFF
+            3'b111: ram_cs = 1'b1; // EXXX-FFFF
+            3'b110: // C000, DFFF
+                case(A[12:11])
+                    0: begin // C000
+                        in_cs        = A[3] && RnW; // F808
+                        scrpos_cs    = (GAME==1 ? (A[3]&&!A[2]) : !A[3]) && !RnW; /* F808-B or F800-05*/
+                        OKOUT        = (GAME==1 ? A[2:0]==3'b101  // F80D
+                                                : A[2:0]==3'b000) // F808 for Trojan
+                                         && A[3] && !RnW; // F80D
+                        misc_cs      = A[3] &&  A[2:0]==3'b110 && !RnW; // F80E
+                    end
+                    1: if( !A[6] && !RnW ) begin // C800
+                        snd_latch_cs = A[2:0]==0;
+                        OKOUT        = A[2:0]==6;
+                    end
+                    2: // D000-D7FF
+                        char_cs = 1;
+                    3: begin // D800
+                        scrpos_cs = 1;
+                    end
+                endcase
+        endcase
     end else begin
         // Section Z (GAME=1) or Trojan (GAME=2)
         if( rfsh_n && !mreq_n ) casez(A[15:13])
@@ -189,10 +219,11 @@ always @(posedge clk, negedge t80_rst_n) begin
                 2'd2: scr_vpos[7:0] <= cpu_dout;
                 2'd3: scr_vpos[8]   <= cpu_dout[0];
             endcase
-        end else if(GAME==2) begin // A[2]==1
+        end else if(GAME==2 || GAME==3) begin // A[2]==1
             case(A[1:0])
                 2'd0: scr2_hpos[ 7:0] <= cpu_dout;
                 2'd1: scr2_hpos[15:8] <= cpu_dout;
+                2'd3: { char_on, obj_on, scr1_on, scr2_on } <= cpu_dout[7:4];
             endcase
         end
     end

@@ -14,43 +14,29 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 20-1-2019 */
+    Date: 6-8-2021 */
 
-// 1942 Sound
-// Schematics page 3/8
-
-
-module jt1942_sound(
-    input           clk,    // 24   MHz
-    input           cen3   /* synthesis direct_enable = 1 */,   //  3   MHz
+module jtexed(
+    input           clk,
+    input           cen3,   //  3   MHz
     input           cen1p5, //  1.5 MHz
     input           rst,
     // Interface with main CPU
     input           sres_b,
     input   [ 7:0]  main_dout,
-    input   [ 7:0]  snd_latch,
     input           main_latch0_cs,
-    input           main_latch1_cs, // Vulgus PCB also has two latches. MAME ignores one of them.
     input           snd_int,
     // ROM access
-    (*keep*)output  reg     rom_cs,
+    output  reg     rom_cs,
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
-    (*keep*)input           rom_ok,
+    input           rom_ok,
     // Sound output
     output signed [15:0] snd,
-    output           sample,
-    output           peak
+    output           sample
 );
 
-parameter EXEDEXES=0;
-
 wire mreq_n;
-wire rd_n;
-wire wr_n;
-
-wire RAM_we = ram_cs && !wr_n;
-wire [7:0] ram_dout, dout;
 
 // posedge of snd_int
 reg snd_int_last;
@@ -78,7 +64,6 @@ always @(posedge clk) if(cen3)
     reset_n <= ~( rst | ~sres_b );
 
 reg ay1_cs, ay0_cs, latch_cs, ram_cs;
-reg psg2_wrn, psg1_wrn;
 
 reg [7:0] AH;
 
@@ -92,11 +77,7 @@ always @(*) begin
         3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
-        3'b100: begin
-            ay0_cs   = EXEDEXES==0 || A[2:0]<2;
-            psg0_wrn = A[2:0] == 2 && !wr_n;
-            psg1_wrn = A[2:0] == 3 && !wr_n;
-        end
+        3'b100: ay0_cs   = 1'b1;
         3'b110: ay1_cs   = 1'b1;
         default:;
     endcase
@@ -131,6 +112,12 @@ end else if(cen3) begin
     `endif
 end
 
+wire rd_n;
+wire wr_n;
+
+wire RAM_we = ram_cs && !wr_n;
+wire [7:0] ram_dout, dout;
+
 jtframe_ram #(.aw(11)) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
@@ -143,16 +130,15 @@ jtframe_ram #(.aw(11)) u_ram(
 reg [7:0] din;
 wire [7:0] ay1_dout, ay0_dout;
 
-always @(*) begin
+always @(*)
     case( 1'b1 )
         ay1_cs:   din = ay1_dout;
         ay0_cs:   din = ay0_dout;
-        latch_cs: din = EXEDEXES ? snd_latch : (A[0] ? latch1 : latch0);
+        latch_cs: din = A[0] ? latch1 : latch0;
         rom_cs:   din = rom_data;
         ram_cs:   din = ram_dout;
         default:  din = 8'hff;
     endcase // {latch_cs,rom_cs,ram_cs}
-end
 
 jtframe_z80 u_cpu(
     .rst_n      ( reset_n     ),
@@ -201,87 +187,23 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .A(), .B(), .C() // unused outputs
 );
 
-generate
-    if( EXEDEXES==1 ) begin
-        wire signed [10:0] psg1, psg0;
-        jt89 u_psg1(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .clk_en ( cen3      ),
-            .wr_n   ( psg1_wrn  ),
-            .din    ( cpu_dout  ),
-            .sound  ( psg1      ),
-            .ready  (           )
-        );
+jt89 u_psg1(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .clk_en ( cen3      ),
+    .wr_n   ( wr_n      ),
+    .din    ( cpu_dout  ),
+    output  signed [10:0] sound,
+    output         ready
+);
 
-        jt89 u_psg2(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .clk_en ( cen3      ),
-            .wr_n   ( psg2_wrn  ),
-            .din    ( cpu_dout  ),
-            .sound  ( psg2      ),
-            .ready  (           )
-        );
-
-        wire [9:0] dcrm_snd;
-
-        jtframe_dcrm #(.SW(10)) u_dcrm(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .sample ( sample    ),
-            .din    ( sound0    ),
-            .dout   ( dcrm_snd  )
-        );
-
-        jtframe_mixer #(parameter .W0(10),.W1(11),.W2(11)) u_mixer(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .cen    ( cen3      ),
-            // input signals
-            .ch0    ( dcrm_snd  ),
-            .ch1    ( psg0      ),
-            .ch2    ( psg1      ),
-            .ch3    (           ),
-            // gain for each channel in 4.4 fixed point format
-            .gain0  ( 8'h10     ),
-            .gain1  ( 8'h10     ),
-            .gain2  ( 8'h10     ),
-            .gain3  ( 8'h10     ),
-            .mixed  ( snd       ),
-            .peak   ( peak      )   // overflow signal (time enlarged)
-        );
-    end else begin
-        jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
-            .rst_n  ( reset_n   ),
-            .clk    ( clk       ),
-            .clk_en ( cen1p5    ),
-            .bdir   ( bdir1     ),
-            .bc1    ( bc1       ),
-            .din    ( dout      ),
-            .sel    ( 1'b1      ),
-            .dout   ( ay1_dout  ),
-            .sound  ( sound1    ),
-            // unused
-            .IOA_in ( 8'h0      ),
-            .IOA_out(           ),
-            .IOB_in ( 8'h0      ),
-            .IOB_out(           ),
-            .sample (           ),
-            .A(), .B(), .C()
-        );
-
-        jtframe_jt49_filters u_filters(
-            .rst    ( rst       ),
-            .clk    ( clk       ),
-            .din0   ( sound0    ),
-            .din1   ( sound1    ),
-            .sample ( sample    ),
-            .dout   ( snd       )
-        );
-
-        assign peak = 0;
-    end
-endgenerate
+jtframe_jt49_filters u_filters(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .din0   ( sound0    ),
+    .din1   ( sound1    ),
+    .sample ( sample    ),
+    .dout   ( snd       )
+);
 
 endmodule

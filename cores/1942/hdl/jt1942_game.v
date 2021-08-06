@@ -272,7 +272,6 @@ assign flip      = 1'b0;
 `endif
 
 `ifndef NOSOUND
-
 jt1942_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),

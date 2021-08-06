@@ -1,0 +1,131 @@
+/*  This file is part of JT_GNG.
+    JT_GNG program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JT_GNG program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JT_GNG.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 6-8-2021 */
+
+
+module jtexed_colmix(
+    input           rst,
+    input           clk,
+    input           pxl_cen,
+    // pixel input from generator modules
+    input [3:0]     char_pxl,        // character color code
+    input [3:0]     scr1_pxl,
+    input [3:0]     scr2_pxl,
+    input [3:0]     obj_pxl,
+    // Palette and priority PROMs
+    input   [7:0]   prog_addr,
+    input   [2:0]   prom_rgb_we,
+    input           prom_prio_we,
+    input   [7:0]   prom_din,
+
+    input           LVBL,
+    input           LHBL,
+    output          LHBL_dly,
+    output          LVBL_dly,
+
+    output    [3:0] red,
+    output    [3:0] green,
+    output    [3:0] blue,
+    // Debug
+    input     [3:0] gfx_en
+);
+
+localparam BLANK_DLY = 2;
+
+wire [4:0] prio_addr;
+reg  [7:0] pixel_mux;
+
+wire char_blank_b = |(~char_pxl);
+wire scr1_blank_b = |(~scr1_pxl[3:0]);
+wire scr2_blank_b = |(~scr2_pxl[3:0]);
+wire obj_blank_b  = |(~obj_pxl);
+
+assign prio_addr = { 1'b0, char_blank_b, 1'b0 /* prioa2 ?*/,
+                           obj_blank_b,
+                           scr1_blank_b };
+
+always @(*) begin
+    pixel_mux[7:6] = prio_sel[1:0];
+    case( prio_sel[1:0] )
+        3: prio_sel[3:0] = char_pxl;
+        2: prio_sel[3:0] = scr2_pxl;
+        1: prio_sel[3:0] = scr1_pxl;
+        0: prio_sel[3:0] = obj_pxl;
+    endcase
+    pixel_mux[5:4] = 0; // for now
+end
+
+wire [ 3:0] pre_r, pre_g, pre_b;
+wire [11:0] pal_rgb;
+
+assign pal_rgb = { pre_r, pre_g, pre_b };
+
+jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
+    .clk        ( clk                 ),
+    .pxl_cen    ( pxl_cen             ),
+    .LHBL       ( LHBL                ),
+    .LVBL       ( LVBL                ),
+    .LHBL_dly   ( LHBL_dly            ),
+    .LVBL_dly   ( LVBL_dly            ),
+    .preLBL     (                     ),
+    .rgb_in     ( pal_rgb             ),
+    .rgb_out    ( {red, green, blue } )
+);
+
+// priority PROM
+jtframe_prom #(.aw(5),.dw(8)) u_prio(
+    .clk    ( clk         ),
+    .cen    ( 1'b1        ),
+    .data   ( prom_din    ),
+    .rd_addr( prio_addr   ),
+    .wr_addr( prog_addr[4:0] ),
+    .we     ( prom_we[0]  ),
+    .q      ( prio_sel   )
+);
+
+// palette ROM
+jtframe_prom #(.aw(8),.dw(4)) u_red(
+    .clk    ( clk         ),
+    .cen    ( pxl_cen     ),
+    .data   ( prom_din[3:0] ),
+    .rd_addr( pixel_mux   ),
+    .wr_addr( prog_addr   ),
+    .we     ( prom_we[1]  ),
+    .q      ( pre_r       )
+);
+
+jtframe_prom #(.aw(8),.dw(4)) u_green(
+    .clk    ( clk         ),
+    .cen    ( pxl_cen     ),
+    .data   ( prom_din[3:0] ),
+    .rd_addr( pixel_mux   ),
+    .wr_addr( prog_addr   ),
+    .we     ( prom_we[2]  ),
+    .q      ( pre_g       )
+);
+
+jtframe_prom #(.aw(8),.dw(4)) u_blue(
+    .clk    ( clk         ),
+    .cen    ( pxl_cen     ),
+    .data   ( prom_din[3:0] ),
+    .rd_addr( pixel_mux   ),
+    .wr_addr( prog_addr   ),
+    .we     ( prom_we[3]  ),
+    .q      ( pre_b       )
+);
+
+endmodule

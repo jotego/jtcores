@@ -17,7 +17,7 @@
     Date: 19-2-2019 */
 
 module jtgng_tile4 #(parameter
-    PALETTE     =  1,
+    PALETTE     =  1, // 1 for palette PROMs
     ROM_AW      = 17,
     LAYOUT      =  0, // 0:1943, 1: Bionic Commando SCR1, 2: Biocom SCR2
                       // 3: Tiger Road
