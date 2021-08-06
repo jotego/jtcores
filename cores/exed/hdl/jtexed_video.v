@@ -47,14 +47,11 @@ module jtexed_video #(
     output      [12:0]  char_addr,
     input       [15:0]  char_data,
     // SCROLL - ROM
-    input               scr_cs,
-    output      [ 7:0]  scr_dout,
-    output  [SCRW-1:0]  scr_addr,
-    input       [15:0]  scr_data,
-    input               scr_ok,
-    output              scr_busy,
-    input       [ 9:0]  scr_hpos,
-    input       [ 9:0]  scr_vpos,
+    output  [SCRW-1:0]  scr1_addr,
+    input       [15:0]  scr1_data,
+    input               scr1_ok,
+    input       [ 9:0]  scr1_hpos,
+    input       [ 9:0]  scr1_vpos,
     output      [12:0]  map1_addr, // 16kB in 8 bits or 8kW in 16 bits
     input       [15:0]  map1_data,
     input               map1_ok,
@@ -100,7 +97,7 @@ module jtexed_video #(
 localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 6;
 
-localparam PXL_CHRW=6;
+localparam PXL_CHRW=4;
 localparam SCR_OFFSET = 2;
 
 localparam PROM_CHAR  = 3,
@@ -152,7 +149,7 @@ jtgng_char #(
     .char_pxl   ( char_pxl      ),
     // Palette PROM
     .prog_addr  ( prog_addr     ),
-    .prog_din   ( prog_din      ),
+    .prog_din   ( prom_din      ),
     .prom_we    ( prom_we[PROM_CHAR] ),
     // unused
     .dseln      (               )
@@ -171,11 +168,12 @@ jt1943_scroll #(
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
+    .LHBL         ( LHBL          ),
     .V128         ( {1'b0, V[7:0]} ),
     .H            ( H             ),
-    .hpos         ( scr2_hpos     ),
+    .hpos         ( scr1_hpos     ),
     .SCxON        ( scr1_on       ),
-    .vpos         ( 8'd0          ),
+    .vpos         ( scr1_vpos     ),
     .flip         ( flip          ),
     // Palette PROMs
     .prog_addr    ( prog_addr     ),
@@ -202,6 +200,7 @@ jt1943_scroll #(
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
+    .LHBL         ( LHBL          ),
     .V128         ( {1'b0, V[7:0]} ),
     .H            ( H             ),
     .hpos         ( scr2_hpos     ),
@@ -277,18 +276,13 @@ assign obj_pxl = ~6'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtexed_colmix #(
-    .CHARW  (   PXL_CHRW    )
-)
-u_colmix (
+jtexed_colmix u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
-    .cen12        ( cen12         ),
     .pxl_cen      ( cen6          ),
-    .cpu_cen      ( cpu_cen       ),
 
     .char_pxl     ( char_pxl      ),
-    .scr_pxl      ( scr_pxl       ),
+    .scr1_pxl     ( scr1_pxl      ),
     .scr2_pxl     ( scr2_pxl      ),
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),

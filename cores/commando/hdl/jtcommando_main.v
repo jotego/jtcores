@@ -346,6 +346,10 @@ jtframe_z80wait #(2) u_wait(
     .clk        ( clk       ),
     .cen_in     ( cpu_cen   ),
     .cen_out    ( cpu_cenw  ),
+    // Recover cycles
+    .mreq_n     ( mreq_n    ),
+    .iorq_n     ( iorq_n    ),
+    .busak_n    ( busak_n   ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM

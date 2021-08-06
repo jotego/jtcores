@@ -48,3 +48,5 @@ releases/*
 */mist/db
 old/*
 history
+core.def
+macros.f

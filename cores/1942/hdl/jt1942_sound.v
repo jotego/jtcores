@@ -49,7 +49,11 @@ wire mreq_n;
 wire rd_n;
 wire wr_n;
 
-wire RAM_we = ram_cs && !wr_n;
+reg ay1_cs, ay0_cs, latch_cs, ram_cs;
+reg psg2_wrn, psg1_wrn;
+
+reg [7:0] AH;
+
 wire [7:0] ram_dout, dout;
 
 // posedge of snd_int
@@ -77,11 +81,6 @@ reg reset_n=1'b0;
 always @(posedge clk) if(cen3)
     reset_n <= ~( rst | ~sres_b );
 
-reg ay1_cs, ay0_cs, latch_cs, ram_cs;
-reg psg2_wrn, psg1_wrn;
-
-reg [7:0] AH;
-
 always @(*) begin
     rom_cs   = 1'b0;
     ram_cs   = 1'b0;
@@ -94,25 +93,13 @@ always @(*) begin
         3'b011: latch_cs = 1'b1;
         3'b100: begin
             ay0_cs   = EXEDEXES==0 || A[2:0]<2;
-            psg0_wrn = A[2:0] == 2 && !wr_n;
-            psg1_wrn = A[2:0] == 3 && !wr_n;
+            psg1_wrn = A[2:0] == 2 && !wr_n;
+            psg2_wrn = A[2:0] == 3 && !wr_n;
         end
         3'b110: ay1_cs   = 1'b1;
         default:;
     endcase
 end
-
-wire cen3w;
-
-jtframe_rom_wait u_wait(
-    .rst_n      ( reset_n   ),
-    .clk        ( clk       ),
-    .cen_in     ( cen3      ),
-    .cen_out    ( cen3w     ),
-    // manage access to ROM data from SDRAM
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
-);
 
 reg [7:0] latch0, latch1;
 
@@ -131,15 +118,6 @@ end else if(cen3) begin
     `endif
 end
 
-jtframe_ram #(.aw(11)) u_ram(
-    .clk    ( clk      ),
-    .cen    ( 1'b1     ),
-    .data   ( dout     ),
-    .addr   ( A[10:0]  ),
-    .we     ( RAM_we   ),
-    .q      ( ram_dout )
-);
-
 reg [7:0] din;
 wire [7:0] ay1_dout, ay0_dout;
 
@@ -154,11 +132,11 @@ always @(*) begin
     endcase // {latch_cs,rom_cs,ram_cs}
 end
 
-jtframe_z80 u_cpu(
+jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rst_n      ( reset_n     ),
     .clk        ( clk         ),
-    .cen        ( cen3w       ),
-    .wait_n     ( 1'b1        ),
+    .cen        ( cen3        ),
+    .cpu_cen    (             ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
@@ -171,8 +149,13 @@ jtframe_z80 u_cpu(
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
-    .din        ( din         ),
-    .dout       ( dout        )
+    .cpu_din    ( din         ),
+    .cpu_dout   ( dout        ),
+    .ram_dout   ( ram_dout    ),
+    // ROM access
+    .ram_cs     ( ram_cs      ),
+    .rom_cs     ( rom_cs      ),
+    .rom_ok     ( rom_ok      )
 );
 
 wire        [ 9:0] sound0, sound1;
@@ -234,7 +217,7 @@ generate
             .dout   ( dcrm_snd  )
         );
 
-        jtframe_mixer #(parameter .W0(10),.W1(11),.W2(11)) u_mixer(
+        jtframe_mixer #(.W0(10),.W1(11),.W2(11)) u_mixer(
             .rst    ( rst       ),
             .clk    ( clk       ),
             .cen    ( cen3      ),

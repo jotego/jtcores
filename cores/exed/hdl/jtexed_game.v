@@ -81,18 +81,20 @@ wire [8:0] H;
 wire HINIT;
 
 wire [12:0] cpu_AB;
-wire snd_cs, map1_cs, map2_cs;
-wire char_cs, blue_cs, redgreen_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
+wire [ 7:0] cpu_dout, char_dout;
 wire [15:0] scr2_hpos;
-wire rd, cpu_cen;
-wire char_busy, scr_busy;
+wire [ 8:0] scr1_hpos, scr1_vpos;
+wire        snd_cs, map1_cs, map2_cs;
+wire        char_cs, blue_cs, redgreen_cs;
+wire        flip;
+wire        rd, cpu_cen;
+wire        char_busy;
+wire        scr1_ok, scr2_ok, map1_ok, map2_ok, char_ok;
 
 localparam SCRW=18, SCR2W=15, OBJW=18;
 
 // ROM data
-wire [15:0] char_data, scr_data, scr2_data, map1_data, map2_data;
+wire [15:0] char_data, scr1_data, scr2_data, map1_data, map2_data;
 wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
@@ -105,7 +107,7 @@ wire [12:0] map1_addr;
 wire [11:0] map2_addr;
 
 wire [12:0] char_addr;
-wire [SCRW-1:0] scr_addr;
+wire [SCRW-1:0] scr1_addr;
 wire [SCR2W-1:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -126,7 +128,6 @@ assign pxl_cen  = cen6;
 assign sample=1'b1;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = ~flip;
 
 always @(*) begin
     prom_we = 0;
@@ -145,6 +146,7 @@ jtframe_cen48 u_cen(
     .cen4   (           ),
     .cen4_12(           ),
     .cen3q  (           ),
+    .cen16b (           ),
     .cen12b (           ),
     .cen6b  (           ),
     .cen3b  (           ),
@@ -205,10 +207,6 @@ jtframe_dwnld #(.PROM_START(PROM_OFFSET)) u_dwnld(
     .sdram_ack    ( sdram_ack    )
 );
 
-wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
-
-
 `ifndef NOMAIN
 
 jtcommando_main #(.GAME(3)) u_main(
@@ -219,7 +217,7 @@ jtcommando_main #(.GAME(3)) u_main(
     .cpu_cen    ( cpu_cen       ),
     .cen_sel    ( 1'b0          ), // 3MHz CPU
     // Timing
-    .flip       ( flip          ),
+    .flip       (               ),
     .V          ( V             ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -227,6 +225,7 @@ jtcommando_main #(.GAME(3)) u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
+    .snd2_latch (               ),
     .snd_int    ( snd_int       ),
     // Palette - unused
     .redgreen_cs(               ),
@@ -242,11 +241,11 @@ jtcommando_main #(.GAME(3)) u_main(
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),
     // SCROLL
-    .scr_dout   ( scr_dout      ),
-    .scr_cs     ( scr_cs        ),
-    .scr_busy   ( scr_busy      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    .scr_dout   ( 8'd0          ),
+    .scr_cs     (               ),
+    .scr_busy   ( 1'b0          ),
+    .scr_hpos   ( scr1_hpos     ),
+    .scr_vpos   ( scr1_vpos     ),
     // SCROLL 2
     .scr2_hpos  ( scr2_hpos     ),
     // OBJ - bus sharing
@@ -282,12 +281,11 @@ jtcommando_main #(.GAME(3)) u_main(
 `else
 assign main_addr   = 17'd0;
 assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
+assign scr1_hpos   = 9'd0;
+assign scr1_vpos   = 9'd0;
 assign cpu_cen     = cen3;
 `endif
 
@@ -307,15 +305,15 @@ jt1942_sound u_sound (
     .rom_addr       ( snd_addr       ),
     .rom_data       ( snd_data       ),
     .rom_ok         ( snd_ok         ),
-    .snd            ( snd            )
+    .snd            ( snd            ),
+    .sample         (                ),
+    .peak           ( game_led       )
 );
 `else
 assign snd_addr = 15'd0;
 assign snd      = 16'd0;
 assign snd_cs   = 1'b0;
 `endif
-
-wire scr_ok, scr2_ok, map1_ok, map2_ok, char_ok;
 
 reg pause;
 always @(posedge clk) pause <= ~dip_pause;
@@ -337,7 +335,7 @@ u_video(
     .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
-    .flip       ( flip          ),
+    .flip       ( dip_flip      ),
     .cpu_dout   ( cpu_dout      ),
     // Layer enable
     .char_on    ( char_on       ),
@@ -352,14 +350,11 @@ u_video(
     .char_busy  ( char_busy     ),
     .char_ok    ( char_ok       ),
     // SCROLL 1 - ROM
-    .scr_cs     ( scr_cs        ),
-    .scr_dout   ( scr_dout      ),
-    .scr_addr   ( scr_addr      ),
-    .scr_data   ( scr_data      ),
-    .scr_busy   ( scr_busy      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
-    .scr_ok     ( scr_ok        ),
+    .scr1_addr  ( scr1_addr     ),
+    .scr1_data  ( scr1_data     ),
+    .scr1_hpos  ( scr1_hpos     ),
+    .scr1_vpos  ( scr1_vpos     ),
+    .scr1_ok    ( scr1_ok       ),
     .map1_addr  ( map1_addr     ), // 16kB in 8 bits or 8kW in 16 bits
     .map1_data  ( map1_data     ),
     .map1_cs    ( map1_cs       ),
@@ -444,7 +439,7 @@ jtframe_rom #(
     .slot8_cs    ( 1'b1          ), // OBJ
 
     .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr_ok        ),
+    .slot1_ok    ( scr1_ok       ),
     .slot2_ok    ( map2_ok       ),
     .slot3_ok    ( scr2_ok       ),
     .slot4_ok    ( map1_ok       ),
@@ -454,7 +449,7 @@ jtframe_rom #(
     .slot8_ok    ( obj_ok        ),
 
     .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr_addr      ),
+    .slot1_addr  ( scr1_addr     ),
     .slot2_addr  ( map2_addr     ),
     .slot3_addr  ( scr2_addr     ),
     .slot4_addr  ( map1_addr     ),
@@ -464,7 +459,7 @@ jtframe_rom #(
     .slot8_addr  ( obj_addr      ),
 
     .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr_data      ),
+    .slot1_dout  ( scr1_data     ),
     .slot2_dout  ( map2_data     ),
     .slot3_dout  ( scr2_data     ),
     .slot4_dout  ( map1_data     ),
