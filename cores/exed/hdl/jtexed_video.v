@@ -87,7 +87,7 @@ module jtexed_video #(
     output              LVBL_dly,
     // Priority PROMs
     input       [7:0]   prog_addr,
-    input       [7:0]   prom_we,
+    input      [11:0]   prom_we,
     input       [7:0]   prom_din,
     // Debug
     input       [3:0]   gfx_en,
@@ -103,14 +103,14 @@ localparam LAYOUT     = 6;
 localparam PXL_CHRW=6;
 localparam SCR_OFFSET = 2;
 
-localparam PROM_CHAR  = 0,
-           PROM_SCR1  = 1,
-           PROM_SCR2  = 2,
-           PROM_OBJ   = 3,
-           PROM_PRIO  = 4,
-           PROM_RED   = 5,
-           PROM_GREEN = 6,
-           PROM_BLUE  = 7;
+localparam PROM_CHAR  = 3,
+           PROM_SCR1  = 5,
+           PROM_SCR2  = 4,
+           PROM_OBJ   = 6,
+           PROM_PRIO  =11,
+           PROM_RED   = 0,
+           PROM_GREEN = 1,
+           PROM_BLUE  = 2;
 
 wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;

@@ -116,8 +116,9 @@ wire cen12, cen8, cen6, cen3, cen1p5;
 wire char_on, scr1_on, scr2_on, obj_on;
 
 // PROMs
-reg  [8:0] prom_we; // 7-0 = video, 8=interrupt vectors
-wire       prom_sel_we;
+localparam PROM_IRQ = 8;
+reg  [11:0] prom_we;
+wire        promsel_we;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
@@ -129,7 +130,7 @@ assign dip_flip = ~flip;
 
 always @(*) begin
     prom_we = 0;
-    if( prom_sel_we ) prom_we[ ioctl_addr[10:7] ] = 1;
+    if( promsel_we ) prom_we[ ioctl_addr[10:7] ] = 1;
 end
 
 jtframe_cen48 u_cen(
@@ -180,14 +181,14 @@ wire [ 8:0] obj_AB;
 wire [ 7:0] main_ram, game_cfg;
 
 localparam [21:0] CPU_OFFSET  = 22'h0;
-localparam [21:0] SND_OFFSET  = 22'h1_8000 >> 1;
-localparam [21:0] MAP1_OFFSET = 22'h2_4000 >> 1;
-localparam [21:0] MAP2_OFFSET = 22'h2_4000 >> 1;
-localparam [21:0] CHAR_OFFSET = 22'h4_0000 >> 1;
-localparam [21:0] SCR1_OFFSET = 22'h4_4000 >> 1;
-localparam [21:0] SCR2_OFFSET = 22'h2_C000 >> 1;
-localparam [21:0] OBJ_OFFSET  = 22'h8_4000 >> 1;
-localparam [21:0] PROM_OFFSET = 22'h8_4000;
+                  SND_OFFSET  = `SND_START  >> 1;
+                  MAP1_OFFSET = `MAP_START  >> 1;
+                  MAP2_OFFSET =  MAP1_OFFSET+22'h4000>>1;
+                  CHAR_OFFSET = `CHAR_START >> 1;
+                  SCR1_OFFSET = `SCR1_START >> 1;
+                  SCR2_OFFSET = `SCR2_START >> 1;
+                  OBJ_OFFSET  = `OBJ_START  >> 1;
+                  PROM_OFFSET = `PROM_START;
 
 jtframe_dwnld #(.PROM_START(PROM_OFFSET)) u_dwnld(
     .clk          ( clk          ),
@@ -270,9 +271,9 @@ jtcommando_main #(.GAME(3)) u_main(
 
     .RnW        ( RnW           ),
     // PROM 6L (interrupts)
-    .prog_addr  ( 8'd0          ),
-    .prom_6l_we ( 1'b0          ),
-    .prog_din   ( 4'd0          ),
+    .prog_addr  ( prog_addr[7:0]),
+    .prom_6l_we ( prom_we[PROM_IRQ]),
+    .prog_din   ( prog_data[3:0]),
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),

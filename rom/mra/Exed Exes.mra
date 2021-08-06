@@ -1,0 +1,93 @@
+<!--          FPGA compatible core for Capcom arcade hardware by Jotego
+
+              This core is available for hardware compatible with MiST and MiSTer
+              Other FPGA systems may be supported by the time you read this.
+              This work is not mantained by the MiSTer project. Please contact the
+              core author for issues and updates.
+
+              (c) Jose Tejada, 2021. Please support the author
+              Patreon: https://patreon.com/topapate
+              Paypal:  https://paypal.me/topapate
+
+              The author does not endorse or participate in illegal distribution
+              of copyrighted material. This work can be used with legally
+              obtained ROM dumps or with compatible homebrew software.
+
+              This file license is GNU GPLv2.
+              You can read the whole license file in
+              https://opensource.org/licenses/gpl-2.0.php
+
+-->
+
+<misterromdescription>
+    <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
+    <name>Exed Exes</name>
+    <setname>exedexes</setname>
+    <rbf>jtexed</rbf>
+    <mameversion>0232</mameversion>
+    <year>1985</year>
+    <manufacturer>Capcom</manufacturer>
+    <players>2</players>
+    <joystick>8</joystick>
+    <rotation>vertical</rotation>
+    <region>World</region>
+    <mraauthor>jotego</mraauthor>
+    <rom index="0" zip="exedexes.zip" md5="None">
+        <!-- maincpu - starts at 0x0 -->
+        <part name="11m_ee04.bin" crc="44140dbd"/>
+        <part name="10m_ee03.bin" crc="bf72cfba"/>
+        <part name="09m_ee02.bin" crc="7ad95e2f"/>
+        <!-- soundcpu - starts at 0xC000 -->
+        <part name="11e_ee01.bin" crc="73cdf3b2"/>
+        <!-- maps - starts at 0x10000 -->
+        <part name="c01_ee07.bin" crc="3625a68d"/>
+        <part name="h04_ee09.bin" crc="6057c907"/>
+        <part repeat="0x2000"> FF</part>
+        <!-- char - starts at 0x18000 -->
+        <part name="05c_ee00.bin" crc="cadb75bd"/>
+        <part repeat="0x6000"> FF</part>
+        <!-- scr1 - starts at 0x20000 -->
+        <part name="a03_ee06.bin" crc="6039bdd1"/>
+        <part name="a02_ee05.bin" crc="b32d8252"/>
+        <part repeat="0x18000"> FF</part>
+        <!-- scr2 - starts at 0x40000 -->
+        <part name="h01_ee08.bin" crc="96a65c1d"/>
+        <part repeat="0x1C000"> FF</part>
+        <!-- object - starts at 0x60000 -->
+        <part name="j11_ee10.bin" crc="bc83e265"/>
+        <part name="j12_ee11.bin" crc="0e0f300d"/>
+        <!-- proms - starts at 0x68000 -->
+        <part name="02d_e-02.bin" crc="8d0d5935"/>
+        <part name="03d_e-03.bin" crc="d3c17efc"/>
+        <part name="04d_e-04.bin" crc="58ba964c"/>
+        <part name="06f_e-05.bin" crc="35a03579"/>
+        <part name="l04_e-10.bin" crc="1dfad87a"/>
+        <part name="c04_e-07.bin" crc="850064e0"/>
+        <part name="l09_e-11.bin" crc="2bb68710"/>
+        <part name="l10_e-12.bin" crc="173184ef"/>
+        <part name="06l_e-06.bin" crc="712ac508"/>
+        <part name="k06_e-08.bin" crc="0eaf5158"/>
+        <part name="l03_e-09.bin" crc="0d968558"/>
+        <part name="03e_e-01.bin" crc="1acee376"/>
+        <!-- Total 0x68B20 bytes - 418 kBytes -->
+    </rom>
+    <!-- Vertical game -->
+    <rom index="1">
+        <part>01</part>
+    </rom>
+    <switches base="16" default="80,80">
+        <!-- DSW0 -->
+        <dip name="Difficulty" bits="0,7" ids="Hardest,Hard,Easy,Normal"/>
+        <dip name="Lives" bits="0,7" ids="5,2,1,3"/>
+        <dip name="2 Players Game" bits="0,7" ids="1,2"/>
+        <dip name="Language" bits="0,7" ids="English,Japanese"/>
+        <dip name="Freeze" bits="0,7" ids="On,Off"/>
+        <dip name="Service Mode" bits="0,7" ids="On,Off"/>
+        <!-- DSW1 -->
+        <dip name="Coin A" bits="8,15" ids="4/1,3/1,2/1,1/5,1/4,1/3,1/2,1/1"/>
+        <dip name="Coin B" bits="8,15" ids="4/1,3/1,2/1,1/5,1/4,1/3,1/2,1/1"/>
+        <dip name="Allow Continue" bits="8,15" ids="No,Yes"/>
+        <dip name="Demo Sounds" bits="8,15" ids="Off,On"/>
+    </switches>
+    <buttons names="Shot,Bomb,Start,Coin,Core credits" default="Y,X,Start,Select,-" count="2"/>
+</misterromdescription>

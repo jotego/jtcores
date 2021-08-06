@@ -7,7 +7,7 @@ sourcefile="exedexes.cpp"
 [buttons]
 core=2
 names=[
-    {machine="exedexes", names="shot,bomb"},
+    {machine="exedexes", names="Shot,Bomb"},
 ]
 
 [rbf]
@@ -16,16 +16,16 @@ name="jtexed"
 [ROM]
 regions = [
     { name="maincpu"  },
-    { name="audiocpu" },
-    { name="gfx1" },
-    { name="gfx2" },
-    { name="gfx3" },
-    { name="gfx4" },
-    { name="tilerom" },
-    { name="proms" }
+    { name="soundcpu", rename="audiocpu",  start=$SND_START  },
+    { name="maps",     rename="tilerom",   start=$MAP_START  },
+    { name="char",     rename="gfx1",      start=$CHAR_START },
+    { name="scr1",     rename="gfx3",      start=$SCR1_START },
+    { name="scr2",     rename="gfx2",      start=$SCR2_START },
+    { name="object",   rename="gfx4",      start=$OBJ_START  },
+    { name="proms",                        start=$PROM_START }
 ]
 # { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
-# order = [
-#     "maincpu", "soundcpu", "gfx1",
-#     "sprites", "mcu", "maincpu:key", "soundcpu:key"
-# ]
+order = [
+    "maincpu", "soundcpu", "maps", "char", "scr1", "scr2",
+    "object", "proms"
+]
