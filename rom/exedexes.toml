@@ -14,3 +14,18 @@ names=[
 name="jtexed"
 
 [ROM]
+regions = [
+    { name="maincpu"  },
+    { name="audiocpu" },
+    { name="gfx1" },
+    { name="gfx2" },
+    { name="gfx3" },
+    { name="gfx4" },
+    { name="tilerom" },
+    { name="proms" }
+]
+# { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
+# order = [
+#     "maincpu", "soundcpu", "gfx1",
+#     "sprites", "mcu", "maincpu:key", "soundcpu:key"
+# ]
