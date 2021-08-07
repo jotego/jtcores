@@ -73,6 +73,14 @@ Games using multiple SDRAM banks
 * Street Fighter
 * The Speed Rumbler
 
+Some modules identify the location of graphic bits, such as horizontal flip, with the help of a LAYOUT parameter. Here are the values:
+
+Layout  |  Game
+--------|---------
+10      | The Speed Rumbler
+11      | Exed Exes
+12      | Exed Exes (SCR2)
+
 ## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.

@@ -23,6 +23,7 @@ module jt1943_scroll #( parameter
     [8:0] HOFFSET   = 9'd5,
     parameter
     LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando, 8 = Side Arms, 9=SF
+                           // 11 = Exed Exes SCR1 (12 for SCR2)
     ROM_AW          = 17,
     SIMFILE_MSB     = "",
     SIMFILE_LSB     = "",
@@ -37,7 +38,7 @@ module jt1943_scroll #( parameter
 )(
     input                rst,
     input                clk,  // >12 MHz
-    input                cen6  /* synthesis direct_enable = 1 */,    //  6 MHz
+    input                cen6, //  6 MHz
     input         [ 8:0] V128, // V128-V1
     input         [ 8:0] H, // H256-H1
     input                LHBL,

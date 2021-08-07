@@ -90,7 +90,11 @@ module jtcommando_main(
 
 // 0: Commando
 // 1: Section Z
+// 3: EXEDEXES
 parameter GAME=0;
+localparam  COMMANDO = 0,
+            SECTIONZ = 1,
+            EXEDEXES = 3;
 
 // bit locations
 localparam FLIP = GAME ? 0 : 7;
@@ -127,8 +131,7 @@ always @(*) begin
     OKOUT         = 1'b0;
     blue_cs       = 1'b0;
     redgreen_cs   = 1'b0;
-    if( GAME==0 ) begin
-        // Commando
+    if( GAME==COMMANDO ) begin
         if( rfsh_n && !mreq_n ) casez(A[15:13])
             3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
             3'b110: // CXXX, DXXX
@@ -150,7 +153,7 @@ always @(*) begin
                 endcase
             3'b111: ram_cs = 1'b1;
         endcase
-    end else if(GAME==3) begin // Exed Exes
+    end else if(GAME==EXEDEXES) begin
         if( rfsh_n && !mreq_n ) casez(A[15:13])
             3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB 0000-BFFF
             3'b111: ram_cs = 1'b1; // EXXX-FFFF
@@ -296,12 +299,11 @@ jtframe_ram #(.aw(13),.cen_rd(0)) RAM(
 );
 
 // Data bus input
-reg [7:0] cpu_din;
+reg  [7:0] cpu_din;
 wire [3:0] int_ctrl;
-wire iorq_n, m1_n;
-wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = GAME==0 ? {3'b110, int_ctrl[1:0], 3'b111 } // Schematic K11
-    : 8'hd7; // Section Z (no PROM available)
+wire       iorq_n, m1_n;
+wire       irq_ack = !iorq_n && !m1_n;
+reg  [7:0] irq_vector;
 
 `ifndef TESTROM
 // OP-code bits are shuffled for Commando only
@@ -313,6 +315,17 @@ wire [7:0] rom_opcode = (A==16'd0 && rom_data=='h3e) || GAME!=0 ? rom_data :
 `else
 wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 `endif
+
+always @(*) begin
+    case( GAME )
+        COMMANDO:
+            irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
+        EXEDEXES:
+            irq_vector = { 4'hf,  int_ctrl[1:0], 2'b01  };    // Schematic M8
+        default:
+            irq_vector = 8'hd7;  // Section Z (no PROM available)
+    endcase
+end
 
 always @(posedge clk) begin
     if( irq_ack ) // Interrupt address
@@ -330,12 +343,13 @@ always @(posedge clk) begin
 end
 
 always @(A,bank) begin
-    if( GAME==0)
-        rom_addr = {1'b0, A}; // Commando
-    else begin
-        rom_addr[13:0] = A[13:0];
-        rom_addr[16:14] = A[15] ? { 1'b0, bank } : { 2'b10, A[14] };
-    end
+    case(GAME)
+        COMMANDO, EXEDEXES: rom_addr = {1'b0, A};
+        default: begin
+            rom_addr[13:0] = A[13:0];
+            rom_addr[16:14] = A[15] ? { 1'b0, bank } : { 2'b10, A[14] };
+        end
+    endcase
 end
 
 /////////////////////////////////////////////////////////////////
@@ -372,8 +386,7 @@ reg int_n;
 
 // interrupt generation
 generate
-if( GAME==0 ) begin
-    // Commando
+if( GAME==COMMANDO || GAME==EXEDEXES ) begin
     reg LHBL_posedge, H1_posedge;
 
     always @(posedge clk) begin : LHBL_edge

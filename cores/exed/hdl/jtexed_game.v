@@ -24,8 +24,8 @@ module jtexed_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
+    // output          LHBL,
+    // output          LVBL,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -91,7 +91,9 @@ wire        rd, cpu_cen;
 wire        char_busy;
 wire        scr1_ok, scr2_ok, map1_ok, map2_ok, char_ok;
 
-localparam SCRW=18, SCR2W=15, OBJW=18;
+localparam SCR1W=14, // 32 kB - read in 16-bit words
+           SCR2W=13, // 16 kB
+           OBJW=14;  // 32 kB
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data, map1_data, map2_data;
@@ -107,7 +109,7 @@ wire [12:0] map1_addr;
 wire [11:0] map2_addr;
 
 wire [12:0] char_addr;
-wire [SCRW-1:0] scr1_addr;
+wire [SCR1W-1:0] scr1_addr;
 wire [SCR2W-1:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -319,7 +321,8 @@ reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
 jtexed_video #(
-    .SCRW   ( SCRW      ),
+    .SCR1W  ( SCR1W     ),
+    .SCR2W  ( SCR2W     ),
     .OBJW   ( OBJW      )
 )
 u_video(
@@ -379,9 +382,9 @@ u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // PROMs
-    .prog_addr    ( prog_addr[7:0] ),
-    .prom_we      ( prom_we[8:0]   ),
-    .prom_din     ( prog_data      ),
+    .prog_addr  ( prog_addr[7:0]),
+    .prom_we    ( prom_we       ),
+    .prom_din   ( prog_data     ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -399,7 +402,7 @@ u_video(
 // Scroll data: Z, Y, X
 jtframe_rom #(
     .SLOT0_AW    ( 13              ), // Char
-    .SLOT1_AW    ( SCRW            ), // Scroll
+    .SLOT1_AW    ( SCR1W           ), // Scroll 1
     .SLOT2_AW    ( 12              ), // Scroll 2 Map
     .SLOT3_AW    ( SCR2W           ), // Scroll 2
     .SLOT4_AW    ( 13              ), // Scroll 1 Map

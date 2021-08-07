@@ -192,6 +192,13 @@ end else begin
                 objpal    <= objbuf_data[4:2];
                 hover     <= objbuf_data[0];
             end
+            11: begin // Exed Exes
+                objpal[3:0] <= objbuf_data[3:0];
+                obj_hflip   <= objbuf_data[4];
+                obj_vflip   <= objbuf_data[5];
+                // obj_prio    <= objbuf_data[6];
+                hover       <= objbuf_data[7];
+            end
         endcase
         4'd2: begin // Object Y is on objbuf_data at this step
             if( LAYOUT == 9 ) begin // SF
@@ -270,7 +277,7 @@ generate
         wire [7:0] prom_dout;
         // 1943 has bits reversed for palette PROMs
         wire [3:0] new_col = { w[3],x[3],y[3],z[3] };
-        wire [7:0] pal_addr = { objpal1, new_col };
+        wire [7:0] pal_addr = { objpal1[3:0], new_col };
 
         jtframe_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
             .clk    ( clk            ),
@@ -309,8 +316,8 @@ generate
         `endif
 
         always @(posedge clk ) if(cen && !rom_wait) begin
-            pospal <= {PALW{1'b0}}; // it is actually unused on the upper level
-            posx2 <= posx1; // 1-clk delay to match the PROM data
+            pospal <= objpal1;
+            posx2  <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
                 new_pxl <= pause ? avatar_pxl : prom_dout;
                 posx    <= posx2;

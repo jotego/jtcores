@@ -50,3 +50,6 @@ old/*
 history
 core.def
 macros.f
+jtsim.f
+jtsim_vhdl.f
+video.info
