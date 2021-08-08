@@ -54,7 +54,7 @@ reg psg2_wrn, psg1_wrn;
 
 reg [7:0] AH;
 
-wire [7:0] ram_dout, dout;
+wire [7:0] ram_dout, cpu_dout;
 
 // posedge of snd_int
 reg snd_int_last;
@@ -150,7 +150,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .busak_n    (             ),
     .A          ( A           ),
     .cpu_din    ( din         ),
-    .cpu_dout   ( dout        ),
+    .cpu_dout   ( cpu_dout    ),
     .ram_dout   ( ram_dout    ),
     // ROM access
     .ram_cs     ( ram_cs      ),
@@ -171,7 +171,7 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .clk_en ( cen1p5    ),
     .bdir   ( bdir0     ),
     .bc1    ( bc0       ),
-    .din    ( dout      ),
+    .din    ( cpu_dout  ),
     .sel    ( 1'b1      ),
     .dout   ( ay0_dout  ),
     .sound  ( sound0    ),
@@ -186,7 +186,7 @@ jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
 
 generate
     if( EXEDEXES==1 ) begin
-        wire signed [10:0] psg1, psg0;
+        wire signed [10:0] psg1, psg2;
         jt89 u_psg1(
             .rst    ( rst       ),
             .clk    ( clk       ),
@@ -223,8 +223,8 @@ generate
             .cen    ( cen3      ),
             // input signals
             .ch0    ( dcrm_snd  ),
-            .ch1    ( psg0      ),
-            .ch2    ( psg1      ),
+            .ch1    ( psg1      ),
+            .ch2    ( psg2      ),
             .ch3    (           ),
             // gain for each channel in 4.4 fixed point format
             .gain0  ( 8'h10     ),
@@ -241,7 +241,7 @@ generate
             .clk_en ( cen1p5    ),
             .bdir   ( bdir1     ),
             .bc1    ( bc1       ),
-            .din    ( dout      ),
+            .din    ( cpu_dout  ),
             .sel    ( 1'b1      ),
             .dout   ( ay1_dout  ),
             .sound  ( sound1    ),
