@@ -214,6 +214,10 @@ always @(posedge clk, negedge t80_rst_n) begin
         scr_hpos  <= 9'd0;
         scr2_hpos <= 16'd0;
         scr_vpos  <= 9'd0;
+        char_on   <= 1;
+        scr1_on   <= 1;
+        scr2_on   <= 1;
+        obj_on    <= 1;
     end else if(cpu_cen && scrpos_cs) begin
         if( !A[2] ) begin // redundant for GAME==1
             case(A[1:0])

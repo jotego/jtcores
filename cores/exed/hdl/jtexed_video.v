@@ -118,6 +118,7 @@ wire [5:0] scr2_pxl;
 jtgng_char #(
     .HOFFSET ( 8),
     .ROM_AW  (13),
+    .VFLIP   ( 6),
     .PALETTE ( 0)
 ) u_char (
     .clk        ( clk           ),
