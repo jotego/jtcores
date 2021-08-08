@@ -96,7 +96,7 @@ always @(*) begin
             psg1_wrn = A[2:0] == 2 && !wr_n;
             psg2_wrn = A[2:0] == 3 && !wr_n;
         end
-        3'b110: ay1_cs   = 1'b1;
+        3'b110: if( EXEDEXES==0 ) ay1_cs = 1'b1;
         default:;
     endcase
 end
@@ -227,9 +227,9 @@ generate
             .ch2    ( psg2      ),
             .ch3    (           ),
             // gain for each channel in 4.4 fixed point format
-            .gain0  ( 8'h10     ),
-            .gain1  ( 8'h10     ),
-            .gain2  ( 8'h10     ),
+            .gain0  ( 8'h08     ),
+            .gain1  ( 8'h04     ),
+            .gain2  ( 8'h04     ),
             .gain3  ( 8'h10     ),
             .mixed  ( snd       ),
             .peak   ( peak      )   // overflow signal (time enlarged)
