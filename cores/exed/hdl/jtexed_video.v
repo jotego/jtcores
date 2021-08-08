@@ -260,7 +260,7 @@ jtgng_obj #(
     .obj_pxl    ( obj_pxl     ),
     // palette PROM
     .prog_addr  ( prog_addr   ),
-    .prog_din   ( prom_din    ),
+    .prog_din   ( prom_din[3:0] ),
     .prom_hi_we ( 1'b0        ),
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( obj_on      )
