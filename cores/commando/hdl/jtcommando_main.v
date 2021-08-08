@@ -46,8 +46,8 @@ module jtcommando_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output reg [8:0]   scr_hpos,
-    output reg [8:0]   scr_vpos,
+    output reg [ 8:0]  scr_hpos,
+    output reg [10:0]  scr_vpos,
     // Scroll 2 of Trojan/Exed Exes
     output reg [15:0]  scr2_hpos,
     // Layer enable bits (only Exed Exes)
@@ -103,7 +103,8 @@ localparam SRES = GAME ? 6 : 4;
 
 wire [15:0] A;
 wire        t80_rst_n;
-reg         in_cs, ram_cs, misc_cs, scrpos_cs, snd_latch_cs, snd2_latch_cs;
+reg         in_cs, ram_cs, misc_cs, scrpos_cs, coin_cs;
+reg         snd_latch_cs, snd2_latch_cs;
 wire        rd_n, wr_n;
 // Commando does not use these:
 reg  [ 1:0] bank;
@@ -119,18 +120,19 @@ assign cpu_cen = !GAME ? cen6 // Commando
 assign bus_ack = ~busak_n;
 
 always @(*) begin
-    rom_cs        = 1'b0;
-    ram_cs        = 1'b0;
-    snd_latch_cs  = 1'b0;
-    snd2_latch_cs = 1'b0;
-    misc_cs       = 1'b0;
-    in_cs         = 1'b0;
-    char_cs       = 1'b0;
-    scr_cs        = 1'b0;
-    scrpos_cs     = 1'b0;
-    OKOUT         = 1'b0;
-    blue_cs       = 1'b0;
-    redgreen_cs   = 1'b0;
+    rom_cs        = 0;
+    ram_cs        = 0;
+    snd_latch_cs  = 0;
+    snd2_latch_cs = 0;
+    misc_cs       = 0;
+    in_cs         = 0;
+    char_cs       = 0;
+    scr_cs        = 0;
+    scrpos_cs     = 0;
+    OKOUT         = 0;
+    blue_cs       = 0;
+    redgreen_cs   = 0;
+    coin_cs       = 0;
     if( GAME==COMMANDO ) begin
         if( rfsh_n && !mreq_n ) casez(A[15:13])
             3'b0??,3'b10?: rom_cs = 1'b1; // 48 kB
@@ -162,6 +164,7 @@ always @(*) begin
                     0: in_cs = 1; // C000
                     1: if( !A[6] && !RnW ) begin // C800
                         snd_latch_cs = A[2:0]==0;
+                        coin_cs      = A[2:0]==4;
                         OKOUT        = A[2:0]==6;
                     end
                     2: char_cs   = 1; // D000-D7FF
@@ -203,8 +206,7 @@ always @(posedge clk, negedge t80_rst_n) begin
     if( !t80_rst_n ) begin
         scr_hpos  <= 9'd0;
         scr2_hpos <= 16'd0;
-        scr_vpos  <= 9'd0;
-        char_on   <= 1;
+        scr_vpos  <= 0;
         scr1_on   <= 1;
         scr2_on   <= 1;
         obj_on    <= 1;
@@ -214,13 +216,13 @@ always @(posedge clk, negedge t80_rst_n) begin
                 2'd0: scr_hpos[7:0] <= cpu_dout;
                 2'd1: scr_hpos[8]   <= cpu_dout[0];
                 2'd2: scr_vpos[7:0] <= cpu_dout;
-                2'd3: scr_vpos[8]   <= cpu_dout[0];
+                2'd3: scr_vpos[10:8]<= cpu_dout[2:0] & (GAME==EXEDEXES?3'b111:3'b001);
             endcase
         end else if(GAME==2 || GAME==EXEDEXES) begin // A[2]==1
             case(A[1:0])
                 2'd0: scr2_hpos[ 7:0] <= cpu_dout;
                 2'd1: scr2_hpos[15:8] <= cpu_dout;
-                2'd3: { char_on, obj_on, scr1_on, scr2_on } <= cpu_dout[7:4];
+                2'd3: { obj_on, scr1_on, scr2_on } <= cpu_dout[6:4];
             endcase
         end
     end
@@ -235,6 +237,7 @@ always @(posedge clk)
         nmi_mask   <= 1'b0;
         snd_latch  <= 8'd0;
         snd2_latch <= 8'd0;
+        char_on    <= 1;
     end
     else if(cpu_cen) begin
         if( misc_cs  && !wr_n ) begin
@@ -244,6 +247,9 @@ always @(posedge clk)
             if( GAME != 0 ) begin
                 bank <= cpu_dout[2:1];
             end
+        end
+        if( coin_cs && GAME==EXEDEXES ) begin
+            char_on <= cpu_dout[7];
         end
         if( snd_latch_cs && !wr_n ) begin
             snd_latch <= cpu_dout;
@@ -264,9 +270,9 @@ reg [7:0] cabinet_input;
 always @(*)
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input, // COINS
-                     4'hf,      // there doesn't seem to be a service input
-                                // Section Z seems to have a freeze input in
-                                // one of these four bits
+                     GAME == EXEDEXES ? service : 1'b1,
+                     3'h7,      // Section Z seems to have a freeze input in
+                                // one of these bits
                      start_button }; // START
         3'd1: cabinet_input = { 2'b11, joystick1 };
         3'd2: cabinet_input = { 2'b11, joystick2 };

@@ -83,7 +83,7 @@ wire HINIT;
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout;
 wire [15:0] scr2_hpos;
-wire [ 8:0] scr1_hpos, scr1_vpos;
+wire [10:0] scr1_hpos, scr1_vpos;
 wire        snd_cs, map1_cs, map2_cs;
 wire        char_cs, blue_cs, redgreen_cs;
 wire        flip;

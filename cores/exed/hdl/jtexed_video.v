@@ -52,7 +52,7 @@ module jtexed_video #(
     input       [15:0]  scr1_data,
     input               scr1_ok,
     input       [ 9:0]  scr1_hpos,
-    input       [ 9:0]  scr1_vpos,
+    input       [10:0]  scr1_vpos,
     output      [12:0]  map1_addr, // 16kB in 8 bits or 8kW in 16 bits
     input       [15:0]  map1_data,
     input               map1_ok,
