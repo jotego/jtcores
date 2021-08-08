@@ -318,10 +318,8 @@ wire [7:0] rom_opcode = rom_data; // do not decrypt test ROMs
 
 always @(*) begin
     case( GAME )
-        COMMANDO:
-            irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11
-        EXEDEXES:
-            irq_vector = { 4'hf,  int_ctrl[1:0], 2'b01  };    // Schematic M8
+        COMMANDO, EXEDEXES:
+            irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K11 / M8
         default:
             irq_vector = 8'hd7;  // Section Z (no PROM available)
     endcase
