@@ -28,6 +28,7 @@ $JTFRAME/hdl/clocking/jtframe_cendiv.v
 $JTFRAME/hdl/sound/jtframe_jt49_filters.v
 $JTFRAME/hdl/sound/jtframe_dcrm.v
 $JTFRAME/hdl/sound/jtframe_fir.v
+$JTFRAME/hdl/sound/jtframe_mixer.v
 # $JTFRAME/hdl/jtframe_sh.v
 
 -F $MODULES/jt12/jt89/hdl/jt89.f

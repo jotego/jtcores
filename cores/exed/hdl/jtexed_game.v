@@ -292,7 +292,7 @@ assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
-jt1942_sound u_sound (
+jt1942_sound #(.EXEDEXES(1)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
     .cen3           ( cen3           ),
