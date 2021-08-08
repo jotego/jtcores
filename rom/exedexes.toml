@@ -15,8 +15,8 @@ name="jtexed"
 
 [ROM]
 regions = [
-    { name="maincpu"  },
-    { name="soundcpu", rename="audiocpu",  start=$SND_START  },
+    { name="maincpu",  reverse=true },
+    { name="soundcpu", rename="audiocpu",  start=$SND_START, reverse=true },
     { name="maps",     rename="tilerom",   start=$MAP_START  },
     { name="char",     rename="gfx1",      start=$CHAR_START },
     { name="scr1",     rename="gfx3",      start=$SCR1_START },

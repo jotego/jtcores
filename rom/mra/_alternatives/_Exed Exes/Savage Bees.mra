@@ -34,11 +34,19 @@
     <mraauthor>jotego</mraauthor>
     <rom index="0" zip="savgbees.zip|exedexes.zip" md5="None">
         <!-- maincpu - starts at 0x0 -->
-        <part name="ee04e.11m" crc="c0caf442"/>
-        <part name="ee03e.10m" crc="9cd70ae1"/>
-        <part name="ee02e.9m" crc="a04e6368"/>
+        <interleave output="16">
+            <part name="ee04e.11m" crc="c0caf442" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="ee03e.10m" crc="9cd70ae1" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="ee02e.9m" crc="a04e6368" map="12"/>
+        </interleave>
         <!-- soundcpu - starts at 0xC000 -->
-        <part name="ee01e.11e" crc="93d3f952"/>
+        <interleave output="16">
+            <part name="ee01e.11e" crc="93d3f952" map="12"/>
+        </interleave>
         <!-- maps - starts at 0x10000 -->
         <part name="c01_ee07.bin" crc="3625a68d"/>
         <part name="h04_ee09.bin" crc="6057c907"/>
