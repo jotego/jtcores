@@ -95,10 +95,8 @@ module jtexed_video #(
     output      [3:0]   blue
 );
 
-localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 11;
 
-localparam PXL_CHRW=4;
 localparam SCR_OFFSET = 2;
 
 localparam PROM_CHAR  = 3,
@@ -110,13 +108,12 @@ localparam PROM_CHAR  = 3,
            PROM_GREEN = 1,
            PROM_BLUE  = 2;
 
-wire [PXL_CHRW-1:0] char_pxl;
-wire [6:0] obj_pxl;
-wire [3:0] scr1_pxl, scr2_pxl;
+wire [3:0] char_pxl;
+wire [7:0] obj_pxl;
+wire [3:0] scr1_pxl;
+wire [5:0] scr2_pxl;
 
 `ifndef NOCHAR
-
-wire [9:0] char_scan;
 
 jtgng_char #(
     .HOFFSET ( 8),
@@ -138,7 +135,7 @@ jtgng_char #(
     .busy       ( char_busy     ),
     // Pause screen
     .pause      ( 1'b0          ),
-    .scan       ( char_scan     ),
+    .scan       (               ),
     .msg_low    ( 8'd0          ),
     .msg_high   ( 8'd0          ),
     // ROM
@@ -230,12 +227,9 @@ jtgng_obj #(
     .PALW         (  3          ),
     .PXL_DLY      (  1          ),
     .LAYOUT       ( LAYOUT      ),
-    .PALETTE      (  1          ),
+    .PALETTE      (  1          )
 //    .OBJMAX_LINE  ( 31          ),
-    // Avatar parameters
-    .AVATAR_MAX   ( AVATAR_MAX  ),
-    .VERTICAL     ( 0           ))
-u_obj (
+) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .draw_cen   ( cen12       ),

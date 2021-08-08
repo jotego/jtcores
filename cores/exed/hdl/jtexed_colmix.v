@@ -24,8 +24,8 @@ module jtexed_colmix(
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code
     input [3:0]     scr1_pxl,
-    input [3:0]     scr2_pxl,
-    input [3:0]     obj_pxl,
+    input [4:0]     scr2_pxl,
+    input [7:0]     obj_pxl,
     // Palette and priority PROMs
     input   [7:0]   prog_addr,
     input   [2:0]   prom_rgb_we,
@@ -47,7 +47,7 @@ module jtexed_colmix(
 localparam BLANK_DLY = 2;
 
 wire [4:0] prio_addr;
-reg  [7:0] pxl_mux;
+reg  [7:0] pxl_mux;1'b0 /* prioa2 ?*/
 wire [7:0] prio_sel;
 
 wire char_blank_b = |(~char_pxl);
@@ -55,7 +55,7 @@ wire scr1_blank_b = |(~scr1_pxl[3:0]);
 wire scr2_blank_b = |(~scr2_pxl[3:0]);
 wire obj_blank_b  = |(~obj_pxl);
 
-assign prio_addr = { 1'b0, char_blank_b, 1'b0 /* prioa2 ?*/,
+assign prio_addr = { 1'b0, char_blank_b, obj_pxl[7],
                            obj_blank_b,
                            scr1_blank_b };
 
@@ -63,9 +63,9 @@ always @(*) begin
     pxl_mux[7:6] = prio_sel[1:0];
     case( prio_sel[1:0] )
         3: pxl_mux[3:0] = char_pxl;
-        2: pxl_mux[3:0] = scr2_pxl;
+        2: pxl_mux[3:0] = obj_pxl;
         1: pxl_mux[3:0] = scr1_pxl;
-        0: pxl_mux[3:0] = obj_pxl;
+        0: pxl_mux[3:0] = scr2_pxl;
     endcase
     pxl_mux[5:4] = 0; // for now
 end
