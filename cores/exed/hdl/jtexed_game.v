@@ -133,7 +133,7 @@ assign {dipsw_b, dipsw_a} = dipsw[15:0];
 
 always @(*) begin
     prom_we = 0;
-    if( promsel_we ) prom_we[ ioctl_addr[10:7] ] = 1;
+    if( promsel_we ) prom_we[ prog_addr[11:8] ] = 1;
 end
 
 jtframe_cen48 u_cen(
