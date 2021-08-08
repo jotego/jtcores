@@ -125,7 +125,8 @@ end else begin
         4'd0: id[IDWDIRECT-1:0] <= objbuf_data[ IDWDIRECT-1: 0 ];
         4'd1: case( LAYOUT )
             default: begin // GnG, Commando
-                id[9:8]     <= objbuf_data[7:6];
+                if( IDW>=8 ) // prevents Quartus error
+                    id[9:8] <= objbuf_data[7:6];
                 objpal[1:0] <= objbuf_data[5:4];
                 obj_vflip   <= objbuf_data[3];
                 obj_hflip   <= objbuf_data[2];

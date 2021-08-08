@@ -224,7 +224,7 @@ jt1943_scroll #(
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
-    .PALW         (  3          ),
+    .PALW         (  4          ),
     .PXL_DLY      (  1          ),
     .LAYOUT       ( LAYOUT      ),
     .PALETTE      (  1          )

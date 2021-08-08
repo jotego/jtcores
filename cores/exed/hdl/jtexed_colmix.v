@@ -47,13 +47,13 @@ module jtexed_colmix(
 localparam BLANK_DLY = 2;
 
 wire [4:0] prio_addr;
-reg  [7:0] pxl_mux;1'b0 /* prioa2 ?*/
+reg  [7:0] pxl_mux;
 wire [7:0] prio_sel;
 
-wire char_blank_b = |(~char_pxl);
-wire scr1_blank_b = |(~scr1_pxl[3:0]);
-wire scr2_blank_b = |(~scr2_pxl[3:0]);
-wire obj_blank_b  = |(~obj_pxl);
+wire char_blank_b = ~gfx_en[0] & |(~char_pxl);
+wire scr1_blank_b = ~gfx_en[1] & |(~scr1_pxl[3:0]);
+wire scr2_blank_b = ~gfx_en[2] & |(~scr2_pxl[3:0]);
+wire obj_blank_b  = ~gfx_en[3] & |(~obj_pxl);
 
 assign prio_addr = { 1'b0, char_blank_b, obj_pxl[7],
                            obj_blank_b,
@@ -106,7 +106,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_red(
     .rd_addr( pxl_mux        ),
     .wr_addr( prog_addr      ),
     .we     ( prom_rgb_we[1] ),
-    .q      ( pre_g          )
+    .q      ( pre_r          )
 );
 
 jtframe_prom #(.aw(8),.dw(4)) u_green(
@@ -126,7 +126,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_blue(
     .rd_addr( pxl_mux        ),
     .wr_addr( prog_addr      ),
     .we     ( prom_rgb_we[2] ),
-    .q      ( pre_g          )
+    .q      ( pre_b          )
 );
 
 endmodule
