@@ -99,14 +99,15 @@ localparam LAYOUT     = 11;
 
 localparam SCR_OFFSET = 2;
 
-localparam PROM_CHAR  = 3,
-           PROM_SCR1  = 5,
-           PROM_SCR2  = 4,
-           PROM_OBJ   = 6,
-           PROM_PRIO  =11,
-           PROM_RED   = 0,
-           PROM_GREEN = 1,
-           PROM_BLUE  = 2;
+localparam PROM_CHAR   = 3,
+           PROM_SCR1   = 5,
+           PROM_SCR2   = 4,
+           PROM_OBJ_LO = 6,
+           PROM_OBJ_HI = 6,
+           PROM_PRIO   =11,
+           PROM_RED    = 0,
+           PROM_GREEN  = 1,
+           PROM_BLUE   = 2;
 
 wire [3:0] char_pxl;
 wire [7:0] obj_pxl;
@@ -229,7 +230,6 @@ jtgng_obj #(
     .PXL_DLY      (  1          ),
     .LAYOUT       ( LAYOUT      ),
     .PALETTE      (  1          )
-//    .OBJMAX_LINE  ( 31          ),
 ) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -261,8 +261,8 @@ jtgng_obj #(
     // palette PROM
     .prog_addr  ( prog_addr   ),
     .prog_din   ( prom_din[3:0] ),
-    .prom_hi_we ( 1'b0        ),
-    .prom_lo_we ( 1'b0        ),
+    .prom_hi_we ( prom_we[ PROM_OBJ_HI] ),
+    .prom_lo_we ( prom_we[ PROM_OBJ_LO] ),
     .OBJON      ( obj_on      )
 );
 `else
