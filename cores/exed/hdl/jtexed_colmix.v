@@ -24,7 +24,7 @@ module jtexed_colmix(
     // pixel input from generator modules
     input [3:0]     char_pxl,        // character color code
     input [3:0]     scr1_pxl,
-    input [4:0]     scr2_pxl,
+    input [5:0]     scr2_pxl,
     input [7:0]     obj_pxl,
     // Palette and priority PROMs
     input   [7:0]   prog_addr,
@@ -67,7 +67,10 @@ always @(*) begin
         1: pxl_mux[3:0] = scr1_pxl;
         0: pxl_mux[3:0] = scr2_pxl;
     endcase
-    pxl_mux[5:4] = 0; // for now
+    pxl_mux[5:4] = gfx_en[2:1];
+//    { pxl_mux[4], pxl_mux[5] }
+//                 = ({2{prio_sel[3]}} & obj_pxl[5:4]) |
+//                   ({2{prio_sel[2]}} &scr2_pxl[5:4]);
 end
 
 wire [ 3:0] pre_r, pre_g, pre_b;

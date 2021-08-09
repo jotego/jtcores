@@ -194,6 +194,11 @@ localparam [21:0] CPU_OFFSET  = 22'h0,
                   OBJ_OFFSET  = `OBJ_START  >> 1,
                   PROM_OFFSET = `PROM_START;
 
+wire [21:0] pre_prog;
+
+assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ?
+    { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] } : pre_prog;
+
 jtframe_dwnld #(
     .PROM_START(PROM_OFFSET),
     .SWAB      (          1)  // regular byte order
@@ -203,7 +208,7 @@ jtframe_dwnld #(
     .ioctl_addr   ( ioctl_addr   ),
     .ioctl_dout   ( ioctl_dout   ),
     .ioctl_wr     ( ioctl_wr     ),
-    .prog_addr    ( prog_addr    ),
+    .prog_addr    ( pre_prog     ),
     .prog_data    ( prog_data    ),
     .prog_mask    ( prog_mask    ), // active low
     .prog_we      ( prog_we      ),

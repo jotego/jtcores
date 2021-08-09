@@ -63,10 +63,8 @@
         <part repeat="0x1C000"> FF</part>
         <!-- object - starts at 0x60000 -->
         <interleave output="16">
-            <part name="j11_ee10.bin" crc="bc83e265" map="12"/>
-        </interleave>
-        <interleave output="16">
-            <part name="j12_ee11.bin" crc="0e0f300d" map="12"/>
+            <part name="j12_ee11.bin" crc="0e0f300d" map="01"/>
+            <part name="j11_ee10.bin" crc="bc83e265" map="10"/>
         </interleave>
         <!-- proms - starts at 0x68000 -->
         <part name="02d_e-02.bin" crc="8d0d5935"/>
