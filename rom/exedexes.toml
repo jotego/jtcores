@@ -15,13 +15,13 @@ name="jtexed"
 
 [ROM]
 regions = [
-    { name="maincpu",  reverse=true },
-    { name="soundcpu", rename="audiocpu",  start=$SND_START, reverse=true },
+    { name="maincpu" },
+    { name="soundcpu", rename="audiocpu",  start=$SND_START  },
     { name="maps",     rename="tilerom",   start=$MAP_START  },
-    { name="char",     rename="gfx1",      start=$CHAR_START },
-    { name="scr1",     rename="gfx3",      start=$SCR1_START },
-    { name="scr2",     rename="gfx2",      start=$SCR2_START },
-    { name="object",   rename="gfx4",      start=$OBJ_START  },
+    { name="char",     rename="gfx1",      start=$CHAR_START, reverse=true },
+    { name="scr1",     rename="gfx3",      start=$SCR1_START, reverse=true },
+    { name="scr2",     rename="gfx2",      start=$SCR2_START, reverse=true },
+    { name="object",   rename="gfx4",      start=$OBJ_START, reverse=true  },
     { name="proms",                        start=$PROM_START, rom_len=0x100 }
 ]
 # { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region

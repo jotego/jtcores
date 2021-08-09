@@ -194,7 +194,7 @@ localparam [21:0] CPU_OFFSET  = 22'h0,
                   OBJ_OFFSET  = `OBJ_START  >> 1,
                   PROM_OFFSET = `PROM_START;
 
-jtframe_dwnld #(.PROM_START(PROM_OFFSET)) u_dwnld(
+jtframe_dwnld #(.PROM_START(PROM_OFFSET),.SWAB(1)) u_dwnld(
     .clk          ( clk          ),
     .downloading  ( downloading  ),
     .ioctl_addr   ( ioctl_addr   ),

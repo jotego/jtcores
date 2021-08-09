@@ -34,36 +34,40 @@
     <mraauthor>jotego</mraauthor>
     <rom index="0" zip="exedexes.zip" md5="None">
         <!-- maincpu - starts at 0x0 -->
-        <interleave output="16">
-            <part name="11m_ee04.bin" crc="44140dbd" map="12"/>
-        </interleave>
-        <interleave output="16">
-            <part name="10m_ee03.bin" crc="bf72cfba" map="12"/>
-        </interleave>
-        <interleave output="16">
-            <part name="09m_ee02.bin" crc="7ad95e2f" map="12"/>
-        </interleave>
+        <part name="11m_ee04.bin" crc="44140dbd"/>
+        <part name="10m_ee03.bin" crc="bf72cfba"/>
+        <part name="09m_ee02.bin" crc="7ad95e2f"/>
         <!-- soundcpu - starts at 0xC000 -->
-        <interleave output="16">
-            <part name="11e_ee01.bin" crc="73cdf3b2" map="12"/>
-        </interleave>
+        <part name="11e_ee01.bin" crc="73cdf3b2"/>
         <!-- maps - starts at 0x10000 -->
         <part name="c01_ee07.bin" crc="3625a68d"/>
         <part name="h04_ee09.bin" crc="6057c907"/>
         <part repeat="0x2000"> FF</part>
         <!-- char - starts at 0x18000 -->
-        <part name="05c_ee00.bin" crc="cadb75bd"/>
+        <interleave output="16">
+            <part name="05c_ee00.bin" crc="cadb75bd" map="12"/>
+        </interleave>
         <part repeat="0x6000"> FF</part>
         <!-- scr1 - starts at 0x20000 -->
-        <part name="a03_ee06.bin" crc="6039bdd1"/>
-        <part name="a02_ee05.bin" crc="b32d8252"/>
+        <interleave output="16">
+            <part name="a03_ee06.bin" crc="6039bdd1" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="a02_ee05.bin" crc="b32d8252" map="12"/>
+        </interleave>
         <part repeat="0x18000"> FF</part>
         <!-- scr2 - starts at 0x40000 -->
-        <part name="h01_ee08.bin" crc="96a65c1d"/>
+        <interleave output="16">
+            <part name="h01_ee08.bin" crc="96a65c1d" map="12"/>
+        </interleave>
         <part repeat="0x1C000"> FF</part>
         <!-- object - starts at 0x60000 -->
-        <part name="j11_ee10.bin" crc="bc83e265"/>
-        <part name="j12_ee11.bin" crc="0e0f300d"/>
+        <interleave output="16">
+            <part name="j11_ee10.bin" crc="bc83e265" map="12"/>
+        </interleave>
+        <interleave output="16">
+            <part name="j12_ee11.bin" crc="0e0f300d" map="12"/>
+        </interleave>
         <!-- proms - starts at 0x68000 -->
         <part name="02d_e-02.bin" crc="8d0d5935"/>
         <part name="03d_e-03.bin" crc="d3c17efc"/>
