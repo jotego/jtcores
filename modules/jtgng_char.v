@@ -24,6 +24,7 @@ module jtgng_char #(parameter
     PALW     = 4,
     LAYOUT   = 0, // 3: Tiger Road, 8: Side Arms, 9: Street Fighter,
                   // 10: The Speed Rumbler
+                  // 11: Exed Exes
     PALETTE  = 0, // 1 if the palette PROM is used
     DW       = LAYOUT==9 ? 16 : 8,
     ABW      = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10 ) ? 12 : 11,
@@ -181,7 +182,7 @@ always @(posedge clk) if(pxl_cen) begin
             end
             11:  begin // Exed Exes
                 char_addr  <= { { dout_high[7], dout_low}, V[2:0] ^ {3{dout_vflip}} };
-                char_attr0 <= dout_high[5:0];
+                char_attr0 <= { 1'b1, dout_high[5:0] };
             end
         endcase
     end

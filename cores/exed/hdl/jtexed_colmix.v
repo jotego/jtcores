@@ -105,7 +105,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_red(
     .data   ( prom_din[3:0]  ),
     .rd_addr( pxl_mux        ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_rgb_we[1] ),
+    .we     ( prom_rgb_we[0] ),
     .q      ( pre_r          )
 );
 
@@ -115,7 +115,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_green(
     .data   ( prom_din[3:0]  ),
     .rd_addr( pxl_mux        ),
     .wr_addr( prog_addr      ),
-    .we     ( prom_rgb_we[2] ),
+    .we     ( prom_rgb_we[1] ),
     .q      ( pre_g          )
 );
 

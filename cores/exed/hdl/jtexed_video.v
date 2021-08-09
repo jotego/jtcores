@@ -117,10 +117,13 @@ wire [5:0] scr2_pxl;
 `ifndef NOCHAR
 
 jtgng_char #(
-    .HOFFSET ( 8),
-    .ROM_AW  (13),
-    .VFLIP   ( 6),
-    .PALETTE ( 0)
+    .HOFFSET (      8 ),
+    .ROM_AW  (     13 ),
+    .VFLIP   (      6 ),
+    .HFLIP_EN(      0 ),
+    .PALETTE (      0 ),
+    .PALW    (      6 ),
+    .LAYOUT  ( LAYOUT )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -261,8 +264,8 @@ jtgng_obj #(
     // palette PROM
     .prog_addr  ( prog_addr   ),
     .prog_din   ( prom_din[3:0] ),
-    .prom_hi_we ( prom_we[ PROM_OBJ_HI] ),
-    .prom_lo_we ( prom_we[ PROM_OBJ_LO] ),
+    .prom_hi_we ( prom_we[PROM_OBJ_HI] ),
+    .prom_lo_we ( prom_we[PROM_OBJ_LO] ),
     .OBJON      ( obj_on      )
 );
 `else
