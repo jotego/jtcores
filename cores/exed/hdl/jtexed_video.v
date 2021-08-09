@@ -117,13 +117,13 @@ wire [5:0] scr2_pxl;
 `ifndef NOCHAR
 
 jtgng_char #(
-    .HOFFSET (      8 ),
-    .ROM_AW  (     13 ),
-    .VFLIP   (      6 ),
-    .HFLIP_EN(      0 ),
-    .PALETTE (      0 ),
-    .PALW    (      6 ),
-    .LAYOUT  ( LAYOUT )
+    .HOFFSET    (             4 ),
+    .ROM_AW     (            13 ),
+    .VFLIP      (             6 ),
+    .HFLIP_EN   (             0 ),
+    .PALETTE    (             1 ),
+    .PALW       (             6 ),
+    .LAYOUT     (        LAYOUT )
 ) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -228,11 +228,11 @@ jt1943_scroll #(
 
 `ifndef NOOBJ
 jtgng_obj #(
-    .ROM_AW       ( OBJW        ),
-    .PALW         (  4          ),
-    .PXL_DLY      (  1          ),
-    .LAYOUT       ( LAYOUT      ),
-    .PALETTE      (  1          )
+    .ROM_AW     ( OBJW        ),
+    .PALW       (  4          ),
+    .PXL_DLY    (  1          ),
+    .LAYOUT     ( LAYOUT      ),
+    .PALETTE    (  1          )
 ) u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
