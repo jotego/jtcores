@@ -286,7 +286,9 @@ always @(*)
 wire cpu_ram_we = ram_cs && !wr_n;
 assign cpu_AB = A[12:0];
 
-wire [12:0] RAM_addr = blcnten ? {4'b1111, obj_AB} : cpu_AB;
+wire [12:0] RAM_addr = blcnten ?
+        ( GAME==EXEDEXES ? { 1'b1, obj_AB[8:2], 3'b111, obj_AB[1:0]} : {4'b1111, obj_AB} )
+        : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
 jtframe_ram #(.aw(13),.cen_rd(0)) RAM(
