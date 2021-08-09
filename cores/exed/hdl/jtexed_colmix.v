@@ -44,7 +44,7 @@ module jtexed_colmix(
     input     [3:0] gfx_en
 );
 
-localparam BLANK_DLY = 2;
+localparam BLANK_DLY = 3;
 
 wire [4:0] prio_addr;
 reg  [7:0] pxl_mux;
@@ -88,13 +88,15 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
 );
 
 // priority PROM
+wire prio_we = prom_prio_we && prog_addr[7:5]==0;
+
 jtframe_prom #(.aw(5),.dw(8)) u_prio(
     .clk    ( clk            ),
     .cen    ( 1'b1           ),
     .data   ( prom_din       ),
     .rd_addr( prio_addr      ),
     .wr_addr( prog_addr[4:0] ),
-    .we     ( prom_prio_we   ),
+    .we     ( prio_we        ),
     .q      ( prio_sel       )
 );
 
