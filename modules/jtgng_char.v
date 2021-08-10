@@ -182,7 +182,7 @@ always @(posedge clk) if(pxl_cen) begin
             end
             11:  begin // Exed Exes
                 char_addr  <= { { dout_high[7], dout_low}, V[2:0] ^ {3{dout_vflip}} };
-                char_attr0 <= { 1'b1, dout_high[5:0] };
+                char_attr0 <= { flip, dout_high[5:0] };
             end
         endcase
     end

@@ -48,7 +48,7 @@ module jtexed_scr2 #(parameter
 );
 
 reg         hmsb;
-reg  [15:0] heff;
+reg  [15:0] heff, hadv;
 
 wire hflip = map2_data[6];
 wire vflip = map2_data[7];
@@ -58,7 +58,8 @@ assign map2_cs = 1;
 always @(*) begin
     hmsb = ~H[8] & H[6]; // not sure about this one
     heff = hpos + { {7{hmsb}}, H } + HOFFSET;
-    map2_addr = { heff[13:8], V[7:5], heff[7:5] }; // 6+3+3 = 12
+    hadv = heff + 16'd32;
+    map2_addr = { hadv[13:8], V[7:5], hadv[7:5] }; // 6+3+3 = 12
 end
 
 reg         h4l, hflip2;
