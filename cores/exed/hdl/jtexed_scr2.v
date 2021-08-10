@@ -36,7 +36,7 @@ module jtexed_scr2 #(parameter
     // Map ROM
     output reg [11:0] map2_addr,
     input      [15:0] map2_data,
-    output            map2_cs,
+    output reg        map2_cs,
     input             map2_ok,
 
     output reg [12:0] rom2_addr,
@@ -53,16 +53,13 @@ reg  [15:0] heff, hadv;
 wire hflip = map2_data[6];
 wire vflip = map2_data[7];
 
-assign map2_cs = 1;
-
 always @(*) begin
     hmsb = ~H[8] & H[6]; // not sure about this one
     heff = hpos + { {7{hmsb}}, H } + HOFFSET;
-    hadv = heff + 16'd32;
-    map2_addr = { hadv[13:8], V[7:5], hadv[7:5] }; // 6+3+3 = 12
+    hadv = heff + 16'd16;
 end
 
-reg         h4l, hflip2;
+reg         hflip2;
 reg  [15:0] pxl_msb, pxl_lsb;
 reg  [ 2:0] pal_hsb;
 wire [ 7:0] pal_addr;
@@ -70,20 +67,23 @@ wire [ 1:0] cur_pxl = hflip2 ? { pxl_msb[0], pxl_lsb[0] } : { pxl_msb[15], pxl_l
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        h4l       <= 0;
         rom2_addr <= 0;
         pxl_lsb   <= 0;
         pxl_msb   <= 0;
         pal_hsb   <= 0;
     end else if(pxl_cen) begin
-        h4l <= heff[4];
-        rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^hflip, 1'b0 }; // 6+5+1+1 = 13
-        if( h4l != heff[4] ) begin
+        if( heff[3:0]==0 ) begin
             pxl_msb <= { rom2_data[27:24], rom2_data[19:16], rom2_data[11: 8], rom2_data[3:0] };
             pxl_lsb <= { rom2_data[31:28], rom2_data[23:20], rom2_data[15:12], rom2_data[7:4] };
             hflip2   <= hflip;
             pal_hsb  <= map2_data[10:8];
+            map2_addr <= { hadv[13:8], V[7:5], hadv[7:5] }; // 6+3+3 = 12
+            map2_cs   <= 1;
         end else begin
+            if(map2_ok) begin
+                map2_cs <= 0;
+                rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^hflip, 1'b0 }; // 6+5+1+1 = 13
+            end
             if( hflip2 ) begin
                 pxl_lsb <= pxl_lsb >> 1;
                 pxl_msb <= pxl_msb >> 1;
