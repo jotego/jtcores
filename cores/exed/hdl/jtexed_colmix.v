@@ -52,7 +52,7 @@ wire [7:0] prio_sel;
 
 wire char_blank_b = gfx_en[0] & |(~char_pxl);
 wire scr1_blank_b = 0; // gfx_en[1] & |(~scr1_pxl[3:0]);
-wire scr2_blank_b = 0; // gfx_en[2] & |(~scr2_pxl[3:0]);
+wire scr2_blank_b = gfx_en[2] & |(~scr2_pxl[3:0]);
 wire obj_blank_b  = gfx_en[3] & |(~obj_pxl);
 
 assign prio_addr = { 1'b0, char_blank_b, obj_pxl[7],
@@ -63,14 +63,14 @@ always @(*) begin
     pxl_mux[7:6] = prio_sel[1:0];
     case( prio_sel[1:0] )
         3: pxl_mux[3:0] = char_pxl;
-        2: pxl_mux[3:0] = obj_pxl;
+        2: pxl_mux[3:0] = obj_pxl[3:0];
         1: pxl_mux[3:0] = scr1_pxl;
-        0: pxl_mux[3:0] = scr2_pxl;
+        0: pxl_mux[3:0] = scr2_pxl[3:0];
     endcase
-    pxl_mux[5:4] = gfx_en[2:1];
-//    { pxl_mux[4], pxl_mux[5] }
-//                 = ({2{prio_sel[3]}} & obj_pxl[5:4]) |
-//                   ({2{prio_sel[2]}} &scr2_pxl[5:4]);
+    //pxl_mux[5:4] = gfx_en[2:1];
+    { pxl_mux[4], pxl_mux[5] }
+                 = ({2{prio_sel[3]}} & obj_pxl[5:4]) |
+                   ({2{prio_sel[2]}} &scr2_pxl[5:4]);
 end
 
 wire [ 3:0] pre_r, pre_g, pre_b;

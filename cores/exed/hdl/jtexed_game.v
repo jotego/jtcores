@@ -90,10 +90,9 @@ wire        flip;
 wire        rd, cpu_cen;
 wire        char_busy;
 wire        scr1_ok, scr2_ok, map1_ok, map2_ok, char_ok;
-wire [ 2:0] scr1_pal, scr2_palbank;
+wire [ 2:0] scr1_pal, scr2_pal;
 
 localparam SCR1W=14, // 32 kB - read in 16-bit words
-           SCR2W=13, // 16 kB
            OBJW=14;  // 32 kB
 
 // ROM data
@@ -112,7 +111,7 @@ wire [11:0] map2_addr;
 
 wire [12:0] char_addr;
 wire [SCR1W-1:0] scr1_addr;
-wire [11:0] scr2_addr;
+wire [12:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
@@ -197,10 +196,11 @@ localparam [21:0] CPU_OFFSET  = 22'h0,
                   PROM_OFFSET = `PROM_START;
 
 // Address transformations for optimum SDRAM download
-wire [21:0] pre_prog, pre_io;
+wire [21:0] pre_prog;
+wire [24:0] pre_io;
 assign pre_io =
     ioctl_addr>=(MAP1_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 1
-    { ioctl_addr[21:7], ioctl_addr[5:0], ioctl_addr[6] } :
+    { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] } :
     ioctl_addr;
 
 assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ? // OBJ
@@ -340,7 +340,6 @@ always @(posedge clk) pause <= ~dip_pause;
 
 jtexed_video #(
     .SCR1W  ( SCR1W     ),
-    .SCR2W  ( SCR2W     ),
     .OBJW   ( OBJW      )
 )
 u_video(
@@ -373,15 +372,17 @@ u_video(
     // SCROLL 1 - ROM
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_data     ),
+    .scr1_ok    ( scr1_ok       ),
     .scr1_hpos  ( scr1_hpos     ),
     .scr1_vpos  ( scr1_vpos     ),
-    .scr1_ok    ( scr1_ok       ),
+    .scr1_pal   ( scr1_pal      ),
     .map1_addr  ( map1_addr     ), // 16kB in 8 bits or 8kW in 16 bits
     .map1_data  ( map1_data     ),
     .map1_cs    ( map1_cs       ),
     .map1_ok    ( map1_ok       ),
     // SCROLL 2
     .scr2_hpos  ( scr2_hpos     ),
+    .scr2_pal   ( scr2_pal      ),
     .scr2_addr  ( scr2_addr     ),
     .scr2_data  ( scr2_data     ),
     .scr2_ok    ( scr2_ok       ),
@@ -423,7 +424,7 @@ jtframe_rom #(
     .SLOT0_AW    ( 13              ), // Char
     .SLOT1_AW    ( SCR1W           ), // Scroll 1
     .SLOT2_AW    ( 12              ), // Scroll 2 Map
-    .SLOT3_AW    ( SCR2W           ), // Scroll 2
+    .SLOT3_AW    ( 13              ), // Scroll 2
     .SLOT4_AW    ( 13              ), // Scroll 1 Map
     .SLOT6_AW    ( 15              ), // Sound
     .SLOT7_AW    ( 17              ), // Main

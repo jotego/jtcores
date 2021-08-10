@@ -17,29 +17,29 @@
     Date: 9-8-2021 */
 
 module jtexed_scr2 #(parameter
-    HOFFSET  = 16'd0,
+    HOFFSET  = 16'd0
 ) (
-    input            rst,
-    input            clk,
-    input            pxl_cen,
-    input     [ 7:0] V,
-    input     [ 8:0] H,
-    input            flip,
-    input      [2:0] pal_bank,
-    input     [15:0] hpos,
+    input             rst,
+    input             clk,
+    input             pxl_cen,
+    input      [ 8:0] V,
+    input      [ 8:0] H,
+    input             flip,
+    input       [2:0] pal_bank,
+    input      [15:0] hpos,
 
     // PROM access
-    input     [ 7:0] prog_addr,
-    input     [ 3:0] prog_din,
-    input     [ 1:0] prom_we,
+    input      [ 7:0] prog_addr,
+    input      [ 3:0] prog_din,
+    input      [ 1:0] prom_we,
 
     // Map ROM
     output reg [11:0] map2_addr,
     input      [15:0] map2_data,
-    output            map2_cs
-    input             map2_ok
+    output            map2_cs,
+    input             map2_ok,
 
-    output reg [11:0] rom2_addr,
+    output reg [12:0] rom2_addr,
     input      [31:0] rom2_data,
     input             rom2_ok,
     // Output pixel
@@ -50,45 +50,45 @@ module jtexed_scr2 #(parameter
 reg         hmsb;
 reg  [15:0] heff;
 
-wire hflip = map_data[6];
-wire vflip = map_data[7];
+wire hflip = map2_data[6];
+wire vflip = map2_data[7];
 
 assign map2_cs = 1;
 
 always @(*) begin
-    hmsb = ;
+    hmsb = ~H[8] & H[6]; // not sure about this one
     heff = hpos + { {7{hmsb}}, H } + HOFFSET;
     map2_addr = { heff[13:8], V[7:5], heff[7:5] }; // 6+3+3 = 12
 end
 
-reg         h5l, hflip2;
+reg         h4l, hflip2;
 reg  [15:0] pxl_msb, pxl_lsb;
 reg  [ 2:0] pal_hsb;
 wire [ 7:0] pal_addr;
-wire [ 1:0] cur_pxl = hflip ? { pxl_msb[15], pxl_lsb[15] } : { pxl_msb[0], pxl_lsb[0] };
+wire [ 1:0] cur_pxl = hflip2 ? { pxl_msb[0], pxl_lsb[0] } : { pxl_msb[15], pxl_lsb[15] };
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        h5l       <= 0;
+        h4l       <= 0;
         rom2_addr <= 0;
         pxl_lsb   <= 0;
         pxl_msb   <= 0;
         pal_hsb   <= 0;
     end else if(pxl_cen) begin
-        h5l <= heff[5];
-        rom2_addr <= { map_data[5:0], V[4:0]^vflip, heff[5]^hflip }; // 6+5+1 = 12
-        if( h5l != heff[5] ) begin
+        h4l <= heff[4];
+        rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^hflip, 1'b0 }; // 6+5+1+1 = 13
+        if( h4l != heff[4] ) begin
             pxl_lsb <= { rom2_data[27:24], rom2_data[19:16], rom2_data[11: 8], rom2_data[3:0] };
             pxl_msb <= { rom2_data[31:28], rom2_data[23:20], rom2_data[15:12], rom2_data[7:4] };
             hflip2   <= hflip;
-            pal_hsb  <= map_data[10:8];
+            pal_hsb  <= map2_data[10:8];
         end else begin
             if( hflip2 ) begin
-                pxl_lsb <= pxl_lsb << 1;
-                pxl_msb <= pxl_msb << 1;
-            end else begin
                 pxl_lsb <= pxl_lsb >> 1;
                 pxl_msb <= pxl_msb >> 1;
+            end else begin
+                pxl_lsb <= pxl_lsb << 1;
+                pxl_msb <= pxl_msb << 1;
             end
         end
     end
@@ -119,7 +119,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_prom_l3(
 );
 
 
-assign scr2_pxl = (scr2_on|pause) ? prom_data[5:0] : 6'h3f;
+assign scr2_pxl = scr2_on ? prom_data[5:0] : 6'h3f;
 
 
 endmodule

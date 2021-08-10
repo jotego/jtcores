@@ -58,7 +58,7 @@ module jtexed_video #(
     input               map1_ok,
     output              map1_cs,
     // SCROLL 2
-    output      [11:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
+    output      [12:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
     input       [31:0]  scr2_data,
     input               scr2_ok,
     output      [11:0]  map2_addr, //  8kB in 8 bits or 4kW in 16 bits
@@ -199,8 +199,8 @@ jt1943_scroll #(
 
 wire [1:0] scr2_we = { prom_we[PROM_SCR2L3], prom_we[PROM_SCR2L4] };
 
-jtexed_scr2 #(parameter
-    .HOFFSET( 0 ),
+jtexed_scr2 #(
+    .HOFFSET      ( 0           )
 ) u_scroll2 (
     .rst          ( rst         ),
     .clk          ( clk         ),
@@ -219,8 +219,8 @@ jtexed_scr2 #(parameter
     // Map ROM
     .map2_addr    ( map2_addr   ),
     .map2_data    ( map2_data   ),
-    .map2_cs      ( map2_cs     )
-    .map2_ok      ( map2_ok     )
+    .map2_cs      ( map2_cs     ),
+    .map2_ok      ( map2_ok     ),
 
     .rom2_addr    ( scr2_addr   ),
     .rom2_data    ( scr2_data   ),
@@ -228,38 +228,6 @@ jtexed_scr2 #(parameter
     // Output pixel
     .scr2_on      ( scr2_on     ),
     .scr2_pxl     ( scr2_pxl    )
-);
-
-jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET+1 ),
-    .AS8MASK    ( 1'b0      ),
-    .ROM_AW     ( 15        ),
-    .LAYOUT     ( LAYOUT+1  )
-) u_scroll2 (
-    .rst          ( rst           ),
-    .clk          ( clk           ),
-    .cen6         ( cen6          ),
-    .LHBL         ( LHBL          ),
-    .V128         ( {1'b0, V[7:0]} ),
-    .H            ( H             ),
-    .hpos         ( scr2_hpos     ),
-    .SCxON        ( scr2_on       ),
-    .vpos         ( 8'd0          ),
-    .flip         ( flip          ),
-    // Palette PROMs
-    .prog_addr    ( prog_addr     ),
-    .prom_hi_we   ( 1'b0          ),
-    .prom_lo_we   ( prom_we[PROM_SCR2] ),
-    .prom_din     ( prom_din      ),
-
-    // ROM
-    .map_addr     ( map2_addr     ),
-    .map_data     ( map2_data     ),
-    .map_cs       ( map2_cs       ),
-    .map_ok       ( map2_ok       ),
-    .scr_addr     ( scr2_addr     ),
-    .scrom_data   ( scr2_data     ),
-    .scr_pxl      ( scr2_pxl      )
 );
 
 `ifndef NOOBJ
