@@ -18,7 +18,6 @@
 
 module jtexed_video #(
     parameter SCR1W = 14,
-    parameter SCR2W = 13,
     parameter OBJW  = 14
 )(
     input               rst,
@@ -53,18 +52,21 @@ module jtexed_video #(
     input               scr1_ok,
     input       [ 9:0]  scr1_hpos,
     input       [10:0]  scr1_vpos,
+    input       [ 2:0]  scr1_pal,
     output      [12:0]  map1_addr, // 16kB in 8 bits or 8kW in 16 bits
     input       [15:0]  map1_data,
     input               map1_ok,
     output              map1_cs,
     // SCROLL 2
-    output [SCR2W-1:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
-    input       [15:0]  scr2_data,
+    output      [11:0]  scr2_addr, // 64kB in 8 bits or 32kW in 16 bits
+    input       [31:0]  scr2_data,
+    input               scr2_ok,
     output      [11:0]  map2_addr, //  8kB in 8 bits or 4kW in 16 bits
     input       [15:0]  map2_data,
     input               map2_ok,
     output              map2_cs,
     input       [15:0]  scr2_hpos,
+    input       [ 2:0]  scr2_pal,
     // OBJ
     input               HINIT,
     output      [ 8:0]  obj_AB,
@@ -101,10 +103,11 @@ localparam SCR_OFFSET = 2;
 
 localparam PROM_CHAR   = 3,
            PROM_SCR1   = 5,
-           PROM_SCR2   = 4,
+           PROM_SCR2L4 = 4,
            PROM_OBJ_LO = 6,
            PROM_OBJ_HI = 6,
            PROM_PRIO   =11,
+           PROM_SCR2L3 =10,
            PROM_RED    = 0,
            PROM_GREEN  = 1,
            PROM_BLUE   = 2;
@@ -192,6 +195,39 @@ jt1943_scroll #(
     .scr_addr     ( scr1_addr     ),
     .scrom_data   ( scr1_data     ),
     .scr_pxl      ( scr1_pxl      )
+);
+
+wire [1:0] scr2_we = { prom_we[PROM_SCR2L3], prom_we[PROM_SCR2L4] };
+
+jtexed_scr2 #(parameter
+    .HOFFSET( 0 ),
+) u_scroll2 (
+    .rst          ( rst         ),
+    .clk          ( clk         ),
+    .pxl_cen      ( cen6        ),
+    .V            ( V           ),
+    .H            ( H           ),
+    .flip         ( flip        ),
+    .pal_bank     ( scr2_pal    ),
+    .hpos         ( scr2_hpos   ),
+
+    // PROM access
+    .prog_addr    ( prog_addr   ),
+    .prog_din     (prom_din[3:0]),
+    .prom_we      ( scr2_we     ),
+
+    // Map ROM
+    .map2_addr    ( map2_addr   ),
+    .map2_data    ( map2_data   ),
+    .map2_cs      ( map2_cs     )
+    .map2_ok      ( map2_ok     )
+
+    .rom2_addr    ( scr2_addr   ),
+    .rom2_data    ( scr2_data   ),
+    .rom2_ok      ( scr2_ok     ),
+    // Output pixel
+    .scr2_on      ( scr2_on     ),
+    .scr2_pxl     ( scr2_pxl    )
 );
 
 jt1943_scroll #(

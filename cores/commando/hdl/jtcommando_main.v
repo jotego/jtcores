@@ -55,6 +55,8 @@ module jtcommando_main(
     output reg         scr1_on,
     output reg         scr2_on,
     output reg         obj_on,
+    output reg [2:0]   scr1_pal,
+    output reg [2:0]   scr2_pal,
     // Palette
     output  reg        blue_cs,
     output  reg        redgreen_cs,
@@ -210,6 +212,8 @@ always @(posedge clk, negedge t80_rst_n) begin
         scr1_on   <= 1;
         scr2_on   <= 1;
         obj_on    <= 1;
+        scr1_pal  <= 0;     // only used by Exed Exes
+        scr2_pal  <= 0;
     end else if(cpu_cen && scrpos_cs) begin
         if( !A[2] ) begin // redundant for GAME==1
             case(A[1:0])
@@ -220,9 +224,10 @@ always @(posedge clk, negedge t80_rst_n) begin
             endcase
         end else if(GAME==2 || GAME==EXEDEXES) begin // A[2]==1
             case(A[1:0])
-                2'd0: scr2_hpos[ 7:0] <= cpu_dout;
-                2'd1: scr2_hpos[15:8] <= cpu_dout;
-                2'd3: { obj_on, scr1_on, scr2_on } <= cpu_dout[6:4];
+                0: scr2_hpos[ 7:0] <= cpu_dout;
+                1: scr2_hpos[15:8] <= cpu_dout;
+                2: { scr2_pal, scr1_pal } <= { cpu_dout[6:4], cpu_dout[2:0] };
+                3: { obj_on, scr1_on, scr2_on } <= cpu_dout[6:4];
             endcase
         end
     end

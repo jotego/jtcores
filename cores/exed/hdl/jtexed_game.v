@@ -90,13 +90,15 @@ wire        flip;
 wire        rd, cpu_cen;
 wire        char_busy;
 wire        scr1_ok, scr2_ok, map1_ok, map2_ok, char_ok;
+wire [ 2:0] scr1_pal, scr2_palbank;
 
 localparam SCR1W=14, // 32 kB - read in 16-bit words
            SCR2W=13, // 16 kB
            OBJW=14;  // 32 kB
 
 // ROM data
-wire [15:0] char_data, scr1_data, scr2_data, map1_data, map2_data;
+wire [15:0] char_data, scr1_data, map1_data, map2_data;
+wire [31:0] scr2_data;
 wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
@@ -110,7 +112,7 @@ wire [11:0] map2_addr;
 
 wire [12:0] char_addr;
 wire [SCR1W-1:0] scr1_addr;
-wire [SCR2W-1:0] scr2_addr;
+wire [11:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
@@ -194,10 +196,16 @@ localparam [21:0] CPU_OFFSET  = 22'h0,
                   OBJ_OFFSET  = `OBJ_START  >> 1,
                   PROM_OFFSET = `PROM_START;
 
-wire [21:0] pre_prog;
+// Address transformations for optimum SDRAM download
+wire [21:0] pre_prog, pre_io;
+assign pre_io =
+    ioctl_addr>=(MAP1_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 1
+    { ioctl_addr[21:7], ioctl_addr[5:0], ioctl_addr[6] } :
+    ioctl_addr;
 
-assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ?
-    { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] } : pre_prog;
+assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ? // OBJ
+    { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] } :
+    pre_prog;
 
 jtframe_dwnld #(
     .PROM_START(PROM_OFFSET),
@@ -205,7 +213,7 @@ jtframe_dwnld #(
 ) u_dwnld(
     .clk          ( clk          ),
     .downloading  ( downloading  ),
-    .ioctl_addr   ( ioctl_addr   ),
+    .ioctl_addr   ( pre_io       ),
     .ioctl_dout   ( ioctl_dout   ),
     .ioctl_wr     ( ioctl_wr     ),
     .prog_addr    ( pre_prog     ),
@@ -256,6 +264,8 @@ jtcommando_main #(.GAME(3)) u_main(
     .scr_busy   ( 1'b0          ),
     .scr_hpos   ( scr1_hpos     ),
     .scr_vpos   ( scr1_vpos     ),
+    .scr1_pal   ( scr1_pal      ),
+    .scr2_pal   ( scr2_pal      ),
     // SCROLL 2
     .scr2_hpos  ( scr2_hpos     ),
     // OBJ - bus sharing
@@ -374,6 +384,7 @@ u_video(
     .scr2_hpos  ( scr2_hpos     ),
     .scr2_addr  ( scr2_addr     ),
     .scr2_data  ( scr2_data     ),
+    .scr2_ok    ( scr2_ok       ),
     .map2_addr  ( map2_addr     ), // 8kB in 8 bits or 4kW in 16 bits
     .map2_data  ( map2_data     ),
     .map2_cs    ( map2_cs       ),
@@ -421,7 +432,7 @@ jtframe_rom #(
     .SLOT0_DW    ( 16              ), // Char
     .SLOT1_DW    ( 16              ), // Scroll
     .SLOT2_DW    ( 16              ), // Scroll Map
-    .SLOT3_DW    ( 16              ), // Scroll 2
+    .SLOT3_DW    ( 32              ), // Scroll 2
     .SLOT4_DW    ( 16              ), // Scroll 1 Map
     .SLOT6_DW    (  8              ), // Sound
     .SLOT7_DW    (  8              ), // Main
@@ -440,10 +451,10 @@ jtframe_rom #(
     .clk         ( clk           ),
 
     .slot0_cs    ( LVBL          ), // Char
-    .slot1_cs    ( LVBL          ), // Scroll
+    .slot1_cs    ( LVBL          ), // Scroll 1
     .slot2_cs    ( map2_cs       ), // Map 2
-    .slot3_cs    ( LVBL          ), // Map 1
-    .slot4_cs    ( map1_cs       ),
+    .slot3_cs    ( LVBL          ), // Scroll 2
+    .slot4_cs    ( map1_cs       ), // Map 1
     .slot5_cs    ( 1'b0          ),
     .slot6_cs    ( snd_cs        ),
     .slot7_cs    ( main_cs       ),

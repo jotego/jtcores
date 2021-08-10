@@ -17,8 +17,8 @@ if which ncverilog >/dev/null; then
     HEXDUMP=
 fi
 
-jtsim_sdram $HEXDUMP  \
-    -stop $PROM_START || exit $?
+# Do not use jtsim_sdram to generate the SDRAM files because
+# of the address transformations during download
 
 jtsim -mist -sysname $SYSNAME $SIMULATOR \
     -d JTFRAME_SIM_ROMRQ_NOCHECK -d JTFRAME_DWNLD_PROM_ONLY $* || exit $?
