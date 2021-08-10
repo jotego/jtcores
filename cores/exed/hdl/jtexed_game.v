@@ -188,7 +188,7 @@ wire [ 7:0] main_ram, game_cfg;
 localparam [21:0] CPU_OFFSET  = 22'h0,
                   SND_OFFSET  = `SND_START  >> 1,
                   MAP1_OFFSET = `MAP_START  >> 1,
-                  MAP2_OFFSET =  MAP1_OFFSET+22'h4000>>1,
+                  MAP2_OFFSET =  (`MAP_START+22'h4000)>>1,
                   CHAR_OFFSET = `CHAR_START >> 1,
                   SCR1_OFFSET = `SCR1_START >> 1,
                   SCR2_OFFSET = `SCR2_START >> 1,
@@ -198,9 +198,13 @@ localparam [21:0] CPU_OFFSET  = 22'h0,
 // Address transformations for optimum SDRAM download
 wire [21:0] pre_prog;
 wire [24:0] pre_io;
+
 assign pre_io =
-    ioctl_addr>=(MAP1_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 1
+    ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 2
     { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] } :
+
+    ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) ? // Scroll 2
+    { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[6], ioctl_addr[7], ioctl_addr[0] } :
     ioctl_addr;
 
 assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ? // OBJ

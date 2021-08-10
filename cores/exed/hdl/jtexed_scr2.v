@@ -78,8 +78,8 @@ always @(posedge clk, posedge rst) begin
         h4l <= heff[4];
         rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^hflip, 1'b0 }; // 6+5+1+1 = 13
         if( h4l != heff[4] ) begin
-            pxl_lsb <= { rom2_data[27:24], rom2_data[19:16], rom2_data[11: 8], rom2_data[3:0] };
-            pxl_msb <= { rom2_data[31:28], rom2_data[23:20], rom2_data[15:12], rom2_data[7:4] };
+            pxl_msb <= { rom2_data[27:24], rom2_data[19:16], rom2_data[11: 8], rom2_data[3:0] };
+            pxl_lsb <= { rom2_data[31:28], rom2_data[23:20], rom2_data[15:12], rom2_data[7:4] };
             hflip2   <= hflip;
             pal_hsb  <= map2_data[10:8];
         end else begin
