@@ -206,7 +206,7 @@ always @(*) begin
         pre_io = { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] };
 
     if ( ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) )  // Scroll 1
-        pre_io = { ioctl_addr[24:6], ioctl_addr[4:2], ioctl_addr[5], ioctl_addr[0] };
+        pre_io = { ioctl_addr[24:6], ioctl_addr[4:1], ioctl_addr[5], ioctl_addr[0] };
 
     if ( ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) )  // Scroll 2
         pre_io = { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
