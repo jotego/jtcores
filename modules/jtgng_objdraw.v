@@ -317,7 +317,7 @@ generate
             wire [7:0] avatar_pxl = prom_dout;
         `endif
 
-        always @(posedge clk ) if(cen && !rom_wait) begin
+        always @(posedge clk ) if (cen) begin // do not gate by !rom_wait
             pospal <= objpal1;
             posx2  <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
