@@ -166,7 +166,7 @@ assign char_mrdy = 1'b1;
 `endif
 
 jtexed_scr1 #(
-    .HOFFSET      ( 0           )
+    .HOFFSET      ( 4           )
 ) u_scroll1 (
     .rst          ( rst         ),
     .clk          ( clk         ),
@@ -201,7 +201,7 @@ jtexed_scr1 #(
 wire [1:0] scr2_we = { prom_we[PROM_SCR2L3], prom_we[PROM_SCR2L4] };
 
 jtexed_scr2 #(
-    .HOFFSET      ( 0           )
+    .HOFFSET      ( 4           )
 ) u_scroll2 (
     .rst          ( rst         ),
     .clk          ( clk         ),
@@ -236,7 +236,7 @@ jtexed_scr2 #(
 jtgng_obj #(
     .ROM_AW     ( OBJW        ),
     .PALW       (  4          ),
-    .PXL_DLY    (  1          ),
+    .PXL_DLY    (  0          ),
     .LAYOUT     ( LAYOUT      ),
     .PALETTE    (  1          )
 ) u_obj (
