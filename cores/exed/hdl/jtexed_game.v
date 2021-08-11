@@ -68,7 +68,8 @@ module jtexed_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [7:0]   debug_bus
 );
 
 // These signals are used by games which need
@@ -202,6 +203,9 @@ wire [24:0] pre_io;
 assign pre_io =
     ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 2
     { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] } :
+
+//    ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) ? // Scroll 1
+//    { ioctl_addr[24:6], ioctl_addr[4:2], ioctl_addr[5], ioctl_addr[0] } :
 
     ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) ? // Scroll 2
     { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] } :
@@ -416,7 +420,9 @@ u_video(
     .LVBL_obj   ( LVBL_obj      ),
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),
+    // Debug
     .gfx_en     ( gfx_en        ),
+    .debug_bus  ( debug_bus     ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),

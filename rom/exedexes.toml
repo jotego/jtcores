@@ -19,8 +19,8 @@ regions = [
     { name="soundcpu", rename="audiocpu",  start=$SND_START  },
     { name="maps",     rename="tilerom",   start=$MAP_START  },
     { name="char",     rename="gfx1",      start=$CHAR_START, reverse=true },
-    { name="scr1",     rename="gfx3",      start=$SCR1_START, reverse=true },
-    { name="scr2",     rename="gfx2",      start=$SCR2_START, reverse=true },
+    { name="scr1",     rename="gfx3",      start=$SCR1_START, width=16 },
+    { name="scr2",     rename="gfx2",      start=$SCR2_START },
     { name="object",   rename="gfx4",      start=$OBJ_START, width=16, reverse=true, no_offset=true  },
     { name="proms",                        start=$PROM_START, rom_len=0x100 }
 ]

@@ -50,16 +50,12 @@
         <part repeat="0x6000"> FF</part>
         <!-- scr1 - starts at 0x20000 -->
         <interleave output="16">
-            <part name="a03_ee06.bin" crc="6039bdd1" map="12"/>
-        </interleave>
-        <interleave output="16">
-            <part name="a02_ee05.bin" crc="b32d8252" map="12"/>
+            <part name="a03_ee06.bin" crc="6039bdd1" map="01"/>
+            <part name="a02_ee05.bin" crc="b32d8252" map="10"/>
         </interleave>
         <part repeat="0x18000"> FF</part>
         <!-- scr2 - starts at 0x40000 -->
-        <interleave output="16">
-            <part name="h01_ee08.bin" crc="96a65c1d" map="12"/>
-        </interleave>
+        <part name="h01_ee08.bin" crc="96a65c1d"/>
         <part repeat="0x1C000"> FF</part>
         <!-- object - starts at 0x60000 -->
         <interleave output="16">

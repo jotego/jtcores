@@ -44,7 +44,8 @@ module jtexed_scr2 #(parameter
     input             rom2_ok,
     // Output pixel
     input             scr2_on,    // low makes the output FF
-    output      [5:0] scr2_pxl
+    output      [5:0] scr2_pxl,
+    input       [7:0] debug_bus
 );
 
 reg         hmsb, yh7;
@@ -65,7 +66,7 @@ always @(*) begin
 //    else
 //        hfix = { 2'b}
 
-    heff = hpos + HOFFSET + { 8'd0, ~H[8], H[8] ? H[7] : ~H[7], H[6:0] };
+    heff = hpos + HOFFSET + { 8'd0, ~H[8], H[8] ? H[7] : ~H[7], H[6:0] } + {8'd0, debug_bus};
     hadv = heff;// + 16'd16;
 end
 
@@ -83,8 +84,8 @@ always @(posedge clk, posedge rst) begin
         pal_hsb   <= 0;
     end else if(pxl_cen) begin
         if( heff[3:0]==0 ) begin
-            pxl_msb <= { rom2_data[11: 8], rom2_data[3:0], rom2_data[27:24], rom2_data[19:16] };
-            pxl_lsb <= { rom2_data[15:12], rom2_data[7:4], rom2_data[31:28], rom2_data[23:20] };
+            pxl_msb <= { rom2_data[3:0], rom2_data[11: 8], rom2_data[19:16], rom2_data[27:24] };
+            pxl_lsb <= { rom2_data[7:4], rom2_data[15:12], rom2_data[23:20], rom2_data[31:28] };
             hflip2   <= hflip;
             pal_hsb  <= map2_data[10:8];
             vflip    <= map2_data[7]^flip;

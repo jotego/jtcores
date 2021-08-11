@@ -91,6 +91,7 @@ module jtexed_video #(
     input       [7:0]   prom_din,
     // Debug
     input       [3:0]   gfx_en,
+    input       [7:0]   debug_bus,
     // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
@@ -227,7 +228,8 @@ jtexed_scr2 #(
     .rom2_ok      ( scr2_ok     ),
     // Output pixel
     .scr2_on      ( scr2_on     ),
-    .scr2_pxl     ( scr2_pxl    )
+    .scr2_pxl     ( scr2_pxl    ),
+    .debug_bus    ( debug_bus   )
 );
 
 `ifndef NOOBJ
