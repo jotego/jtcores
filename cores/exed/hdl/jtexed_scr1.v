@@ -84,10 +84,10 @@ always @(posedge clk, posedge rst) begin
         pxl_z     <= 0;
     end else if(pxl_cen) begin
         if( heff[2:0]==0 ) begin
-            pxl_w <= { rom1_data[19:16], rom1_data[ 3: 0] };
-            pxl_x <= { rom1_data[23:20], rom1_data[ 7: 4] };
-            pxl_y <= { rom1_data[27:24], rom1_data[11: 8] };
-            pxl_z <= { rom1_data[31:28], rom1_data[15:12] };
+            pxl_z <= { rom1_data[19:16], rom1_data[ 3: 0] };
+            pxl_y <= { rom1_data[23:20], rom1_data[ 7: 4] };
+            pxl_x <= { rom1_data[27:24], rom1_data[11: 8] };
+            pxl_w <= { rom1_data[31:28], rom1_data[15:12] };
             map1_addr <= { veff[10:8], hadv[10:8], veff[7:4], hadv[7:4] }; // 3+3+4+4=14
             map1_cs   <= 1;
         end else begin

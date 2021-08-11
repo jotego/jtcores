@@ -198,19 +198,20 @@ localparam [24:0] CPU_OFFSET  = 0,
 
 // Address transformations for optimum SDRAM download
 wire [21:0] pre_prog;
-wire [24:0] pre_io;
+reg  [24:0] pre_io;
 
-assign pre_io =
-    ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 2
-    { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] } : (
+always @(*) begin
+    pre_io = ioctl_addr;
+    if ( ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ) // Map 2
+        pre_io = { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] };
 
-//    ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) ? // Scroll 1
-//    { ioctl_addr[24:6], ioctl_addr[4:2], ioctl_addr[5], ioctl_addr[0] } : (
+    if ( ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) )  // Scroll 1
+        pre_io = { ioctl_addr[24:6], ioctl_addr[4:2], ioctl_addr[5], ioctl_addr[0] };
 
-    ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) ? // Scroll 2
-    { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] } : (
+    if ( ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) )  // Scroll 2
+        pre_io = { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
 
-    ioctl_addr ));
+end
 
 assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ? // OBJ
     { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] } :
