@@ -1,12 +1,10 @@
 ../../hdl/jtexed_colmix.v
 ../../hdl/jtexed_game.v
 ../../hdl/jtexed_video.v
+../../hdl/jtexed_scr1.v
 ../../hdl/jtexed_scr2.v
 ../../../1942/hdl/jt1942_sound.v
 ../../../commando/hdl/jtcommando_main.v
-../../../1943/hdl/jt1943_scroll.v
-../../../1943/hdl/jt1943_map.v
-../../../1943/hdl/jt1943_map_cache.v
 -F $MODULES/jtgng_obj.f
 $MODULES/jtgng_timer.v
 $MODULES/jtgng_char.v

@@ -17,7 +17,6 @@
     Date: 6-8-2021 */
 
 module jtexed_video #(
-    parameter SCR1W = 14,
     parameter OBJW  = 14
 )(
     input               rst,
@@ -47,14 +46,14 @@ module jtexed_video #(
     output      [12:0]  char_addr,
     input       [15:0]  char_data,
     // SCROLL - ROM
-    output [SCR1W-1:0]  scr1_addr,
-    input       [15:0]  scr1_data,
+    output      [13:0]  scr1_addr,
+    input       [31:0]  scr1_data,
     input               scr1_ok,
-    input       [ 9:0]  scr1_hpos,
+    input       [10:0]  scr1_hpos,
     input       [10:0]  scr1_vpos,
     input       [ 2:0]  scr1_pal,
-    output      [12:0]  map1_addr, // 16kB in 8 bits or 8kW in 16 bits
-    input       [15:0]  map1_data,
+    output      [13:0]  map1_addr, // 16kB in 8 bits or 8kW in 16 bits
+    input       [ 7:0]  map1_data,
     input               map1_ok,
     output              map1_cs,
     // SCROLL 2
@@ -166,36 +165,37 @@ assign char_pxl  = ~7'd0;
 assign char_mrdy = 1'b1;
 `endif
 
-jt1943_scroll #(
-    .HOFFSET    (SCR_OFFSET+1 ),
-    .AS8MASK    ( 1'b0      ),
-    .ROM_AW     ( 15        ),
-    .LAYOUT     ( LAYOUT+1  )
+jtexed_scr1 #(
+    .HOFFSET      ( 0           )
 ) u_scroll1 (
-    .rst          ( rst           ),
-    .clk          ( clk           ),
-    .cen6         ( cen6          ),
-    .LHBL         ( LHBL          ),
-    .V128         ( {1'b0, V[7:0]} ),
-    .H            ( H             ),
-    .hpos         ( scr1_hpos     ),
-    .SCxON        ( scr1_on       ),
-    .vpos         ( scr1_vpos     ),
-    .flip         ( flip          ),
-    // Palette PROMs
-    .prog_addr    ( prog_addr     ),
-    .prom_hi_we   ( 1'b0          ),
-    .prom_lo_we   ( prom_we[PROM_SCR1] ),
-    .prom_din     ( prom_din      ),
+    .rst          ( rst         ),
+    .clk          ( clk         ),
+    .pxl_cen      ( cen6        ),
+    .V            ( V           ),
+    .H            ( H           ),
+    .flip         ( flip        ),
+    .pal_bank     ( scr1_pal    ),
+    .hpos         ( scr1_hpos   ),
+    .vpos         ( scr1_vpos   ),
 
-    // ROM
-    .map_addr     ( map1_addr     ),
-    .map_data     ( map1_data     ),
-    .map_cs       ( map1_cs       ),
-    .map_ok       ( map1_ok       ),
-    .scr_addr     ( scr1_addr     ),
-    .scrom_data   ( scr1_data     ),
-    .scr_pxl      ( scr1_pxl      )
+    // PROM access
+    .prog_addr    ( prog_addr   ),
+    .prog_din     (prom_din[3:0]),
+    .prom_we      ( prom_we[PROM_SCR1] ),
+
+    // Map ROM
+    .map1_addr    ( map1_addr   ),
+    .map1_data    ( map1_data   ),
+    .map1_cs      ( map1_cs     ),
+    .map1_ok      ( map1_ok     ),
+
+    .rom1_addr    ( scr1_addr   ),
+    .rom1_data    ( scr1_data   ),
+    .rom1_ok      ( scr1_ok     ),
+    // Output pixel
+    .scr1_on      ( scr1_on     ),
+    .scr1_pxl     ( scr1_pxl    ),
+    .debug_bus    ( debug_bus   )
 );
 
 wire [1:0] scr2_we = { prom_we[PROM_SCR2L3], prom_we[PROM_SCR2L4] };

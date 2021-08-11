@@ -46,7 +46,7 @@ module jtcommando_main(
     input   [7:0]      scr_dout,
     output  reg        scr_cs,
     input              scr_busy,
-    output reg [ 8:0]  scr_hpos,
+    output reg [10:0]  scr_hpos,
     output reg [10:0]  scr_vpos,
     // Scroll 2 of Trojan/Exed Exes
     output reg [15:0]  scr2_hpos,
@@ -206,8 +206,8 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, negedge t80_rst_n) begin
     if( !t80_rst_n ) begin
-        scr_hpos  <= 9'd0;
-        scr2_hpos <= 16'd0;
+        scr_hpos  <= 0;
+        scr2_hpos <= 0;
         scr_vpos  <= 0;
         scr1_on   <= 1;
         scr2_on   <= 1;
@@ -218,7 +218,10 @@ always @(posedge clk, negedge t80_rst_n) begin
         if( !A[2] ) begin // redundant for GAME==1
             case(A[1:0])
                 2'd0: scr_hpos[7:0] <= cpu_dout;
-                2'd1: scr_hpos[8]   <= cpu_dout[0];
+                2'd1: begin
+                    scr_hpos[8]    <= cpu_dout[0];
+                    scr_hpos[10:9] <= GAME==EXEDEXES ? cpu_dout[2:1] : 0;
+                end
                 2'd2: scr_vpos[7:0] <= cpu_dout;
                 2'd3: scr_vpos[10:8]<= cpu_dout[2:0] & (GAME==EXEDEXES?3'b111:3'b001);
             endcase

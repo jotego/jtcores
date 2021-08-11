@@ -93,12 +93,12 @@ wire        char_busy;
 wire        scr1_ok, scr2_ok, map1_ok, map2_ok, char_ok;
 wire [ 2:0] scr1_pal, scr2_pal;
 
-localparam SCR1W=14, // 32 kB - read in 16-bit words
-           OBJW=14;  // 32 kB
+localparam OBJW=14;  // 32 kB
 
 // ROM data
-wire [15:0] char_data, scr1_data, map1_data, map2_data;
-wire [31:0] scr2_data;
+wire [15:0] char_data, map2_data;
+wire [ 7:0] map1_data;
+wire [31:0] scr1_data, scr2_data;
 wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
@@ -107,11 +107,11 @@ wire [ 7:0] snd_data;
 wire [16:0] main_addr;
 wire [14:0] snd_addr;
 
-wire [12:0] map1_addr;
+wire [13:0] map1_addr;
 wire [11:0] map2_addr;
 
 wire [12:0] char_addr;
-wire [SCR1W-1:0] scr1_addr;
+wire [13:0] scr1_addr;
 wire [12:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -186,10 +186,10 @@ wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
 wire [ 7:0] main_ram, game_cfg;
 
-localparam [21:0] CPU_OFFSET  = 22'h0,
+localparam [24:0] CPU_OFFSET  = 0,
                   SND_OFFSET  = `SND_START  >> 1,
                   MAP1_OFFSET = `MAP_START  >> 1,
-                  MAP2_OFFSET =  (`MAP_START+22'h4000)>>1,
+                  MAP2_OFFSET =  (`MAP_START+25'h4000)>>1,
                   CHAR_OFFSET = `CHAR_START >> 1,
                   SCR1_OFFSET = `SCR1_START >> 1,
                   SCR2_OFFSET = `SCR2_START >> 1,
@@ -202,14 +202,15 @@ wire [24:0] pre_io;
 
 assign pre_io =
     ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ? // Map 2
-    { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] } :
+    { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] } : (
 
 //    ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) ? // Scroll 1
-//    { ioctl_addr[24:6], ioctl_addr[4:2], ioctl_addr[5], ioctl_addr[0] } :
+//    { ioctl_addr[24:6], ioctl_addr[4:2], ioctl_addr[5], ioctl_addr[0] } : (
 
     ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) ? // Scroll 2
-    { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] } :
-    ioctl_addr;
+    { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] } : (
+
+    ioctl_addr ));
 
 assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ? // OBJ
     { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] } :
@@ -312,8 +313,8 @@ assign char_cs     = 1'b0;
 assign bus_ack     = 1'b0;
 assign flip        = 1'b0;
 assign RnW         = 1'b1;
-assign scr1_hpos   = 9'd0;
-assign scr1_vpos   = 9'd0;
+assign scr1_hpos   = 0;
+assign scr1_vpos   = 0;
 assign cpu_cen     = cen3;
 `endif
 
@@ -347,7 +348,6 @@ reg pause;
 always @(posedge clk) pause <= ~dip_pause;
 
 jtexed_video #(
-    .SCR1W  ( SCR1W     ),
     .OBJW   ( OBJW      )
 )
 u_video(
@@ -432,19 +432,19 @@ u_video(
 // Scroll data: Z, Y, X
 jtframe_rom #(
     .SLOT0_AW    ( 13              ), // Char
-    .SLOT1_AW    ( SCR1W           ), // Scroll 1
+    .SLOT1_AW    ( 14              ), // Scroll 1
     .SLOT2_AW    ( 12              ), // Scroll 2 Map
     .SLOT3_AW    ( 13              ), // Scroll 2
-    .SLOT4_AW    ( 13              ), // Scroll 1 Map
+    .SLOT4_AW    ( 14              ), // Scroll 1 Map
     .SLOT6_AW    ( 15              ), // Sound
     .SLOT7_AW    ( 17              ), // Main
     .SLOT8_AW    ( OBJW            ), // OBJ
 
     .SLOT0_DW    ( 16              ), // Char
-    .SLOT1_DW    ( 16              ), // Scroll
-    .SLOT2_DW    ( 16              ), // Scroll Map
+    .SLOT1_DW    ( 32              ), // Scroll 1
+    .SLOT2_DW    ( 16              ), // Scroll 2 Map
     .SLOT3_DW    ( 32              ), // Scroll 2
-    .SLOT4_DW    ( 16              ), // Scroll 1 Map
+    .SLOT4_DW    (  8              ), // Scroll 1 Map
     .SLOT6_DW    (  8              ), // Sound
     .SLOT7_DW    (  8              ), // Main
     .SLOT8_DW    ( 16              ), // OBJ
