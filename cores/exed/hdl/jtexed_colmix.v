@@ -67,9 +67,7 @@ always @(*) begin
         1: pxl_mux[3:0] = scr1_pxl;
         0: pxl_mux[3:0] = scr2_pxl[3:0];
     endcase
-    //pxl_mux[5:4] = gfx_en[2:1];
-    { pxl_mux[4], pxl_mux[5] }
-                 = ({2{prio_sel[3]}} & obj_pxl[5:4]) |
+    pxl_mux[5:4] = ({2{prio_sel[3]}} & obj_pxl[5:4]) |
                    ({2{prio_sel[2]}} &scr2_pxl[5:4]);
 end
 

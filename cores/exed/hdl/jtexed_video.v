@@ -235,7 +235,7 @@ jtexed_scr2 #(
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW     ( OBJW        ),
-    .PALW       (  4          ),
+    .PALW       (  5          ),
     .PXL_DLY    (  0          ),
     .LAYOUT     ( LAYOUT      ),
     .PALETTE    (  1          )

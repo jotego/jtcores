@@ -193,10 +193,9 @@ end else begin
                 hover     <= objbuf_data[0];
             end
             11: begin // Exed Exes
-                objpal[3:0] <= objbuf_data[3:0];
+                objpal      <= { objbuf_data[6], objbuf_data[3:0] }; // MSB = priority
                 obj_hflip   <= objbuf_data[4];
                 obj_vflip   <= objbuf_data[5];
-                // obj_prio    <= objbuf_data[6];
                 hover       <= objbuf_data[7];
             end
         endcase
@@ -320,6 +319,8 @@ generate
             posx2  <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
                 new_pxl <= pause ? avatar_pxl : prom_dout;
+                if( LAYOUT==11 )
+                    new_pxl[7] <= objpal1[4];
                 posx    <= posx2;
             end else begin
                 new_pxl <= 8'hf;
