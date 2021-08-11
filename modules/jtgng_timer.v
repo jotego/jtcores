@@ -16,6 +16,13 @@
     Version: 1.0
     Date: 27-10-2017 */
 
+// The basic count for most games (LAYOUT==0) is
+// H goes from 80 to 1FF
+// LHBL goes down at 87 and back up at 107
+// V is incremented in the H=1FF to 80 transition
+// LVBL goes down at 1F0, when LHBL goes down too (at H=87)
+// LVBL goes up at 110, again when LHBL goes down at H=87
+
 module jtgng_timer(
     input               clk,
     input               cen6,   //  6 MHz

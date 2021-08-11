@@ -3,17 +3,14 @@
 SIMTIME=
 EXTRA2=-lxt
 
-if [ "$JTGNG" = "" ]; then
-    echo "JTGNG environment variable must be defined to point to"
-    echo "the jt_gng root foolder."
+if [[ -z "$JTUTIL" || -z "$JTFRAME" ]]; then
+    echo "JTUTIL and JTFRAME environment variables must be defined"
     exit 1
 fi
 
-FRAME=$JTGNG/modules/jtframe
-
-if [ ! -e $FRAME/cc/pcb2ver ]; then
+if [ ! -e $JTUTIL/src/pcb2ver ]; then
     x=$(pwd)
-    cd $FRAME/cc
+    cd $JTUTIL/src
     if ! make; then
         exit 1
     fi
@@ -21,8 +18,8 @@ if [ ! -e $FRAME/cc/pcb2ver ]; then
 fi
 
 echo "Importing netlist"
-if ! $FRAME/cc/pcb2ver ../commando.net \
-    --lib $FRAME/hdl/jt74.v \
+if ! $JTUTIL/src/pcb2ver ../commando.net \
+    --lib $JTFRAME/hdl/jt74.v \
     --ports pcb.v --wires \
     > pcb_model.v; then
     cat pcb_model.v
@@ -60,6 +57,6 @@ while [ $# -gt 0 ]; do
 done
 
 iverilog test.v pcb.v \
-    $FRAME/hdl/jt74.v \
+    $JTUTIL/hdl/jt74.v \
     $SIMTIME $EXTRA\
     -o sim -stest -DSIMULATION -DMEM_CHECK_TIME=1000_000 && sim $EXTRA2
