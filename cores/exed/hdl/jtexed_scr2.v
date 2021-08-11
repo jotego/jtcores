@@ -49,15 +49,24 @@ module jtexed_scr2 #(parameter
 
 reg         hmsb, yh7;
 reg  [15:0] heff, hadv;
+//reg  [ 8:0] hfix;
+reg         vflip;
 
-wire hflip = map2_data[6];
-wire vflip = map2_data[7];
+wire hflip = map2_data[6]^flip;
 
 always @(*) begin
     hmsb = ~H[8] & H[6];
     yh7  = H[6] ^ ( ~H[8] & ~H[6] );
-    heff = hpos + { {7{hmsb}}, ~H[8], yh7, H[6:0] } + HOFFSET;
-    hadv = heff + 16'd16;
+    //heff = hpos + { {7{hmsb}}, ~H[8], yh7, H[6:0] } + HOFFSET;
+//    if( H>=9'h100 )
+//        hfix = H ^ 9'h100;
+//    else if( H< 9'hC0 )
+//        hfix = { 2'b10, H[6:0] };
+//    else
+//        hfix = { 2'b}
+
+    heff = hpos + HOFFSET + { 8'd0, ~H[8], H[8] ? H[7] : ~H[7], H[6:0] };
+    hadv = heff;// + 16'd16;
 end
 
 reg         hflip2;
@@ -78,12 +87,13 @@ always @(posedge clk, posedge rst) begin
             pxl_lsb <= { rom2_data[31:28], rom2_data[23:20], rom2_data[15:12], rom2_data[7:4] };
             hflip2   <= hflip;
             pal_hsb  <= map2_data[10:8];
-            map2_addr <= { hadv[13:8], V[7:5], hadv[7:5] }; // 6+3+3 = 12
+            vflip    <= map2_data[7]^flip;
+            map2_addr <= { hadv[13:8], V[7:5]^{3{flip}}, hadv[7:5] }; // 6+3+3 = 12
             map2_cs   <= 1;
         end else begin
             if(map2_ok) begin
                 map2_cs <= 0;
-                rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^hflip, 1'b0 }; // 6+5+1+1 = 13
+                rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^hflip2, 1'b0 }; // 6+5+1+1 = 13
             end
             if( hflip2 ) begin
                 pxl_lsb <= pxl_lsb >> 1;
