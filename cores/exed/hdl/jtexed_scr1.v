@@ -72,7 +72,7 @@ end
 
 reg  [7:0] pxl_w, pxl_x, pxl_y, pxl_z;
 wire [7:0] pal_addr;
-wire [3:0] cur_pxl = flip ? { pxl_w[0], pxl_x[0], pxl_y[0], pxl_z[0] } :
+wire [3:0] cur_pxl =!flip ? { pxl_w[0], pxl_x[0], pxl_y[0], pxl_z[0] } :
                             { pxl_w[7], pxl_x[7], pxl_y[7], pxl_z[7] };
 
 always @(posedge clk, posedge rst) begin
@@ -84,10 +84,10 @@ always @(posedge clk, posedge rst) begin
         pxl_z     <= 0;
     end else if(pxl_cen) begin
         if( heff[2:0]==0 ) begin
-            pxl_z <= { rom1_data[19:16], rom1_data[ 3: 0] };
-            pxl_y <= { rom1_data[23:20], rom1_data[ 7: 4] };
-            pxl_x <= { rom1_data[27:24], rom1_data[11: 8] };
-            pxl_w <= { rom1_data[31:28], rom1_data[15:12] };
+            pxl_z <= { rom1_data[ 3: 0], rom1_data[19:16] };
+            pxl_y <= { rom1_data[ 7: 4], rom1_data[23:20] };
+            pxl_x <= { rom1_data[11: 8], rom1_data[27:24] };
+            pxl_w <= { rom1_data[15:12], rom1_data[31:28] };
             map1_addr <= { veff[10:8], hadv[10:8], veff[7:4], hadv[7:4] }; // 3+3+4+4=14
             map1_cs   <= 1;
         end else begin
@@ -95,7 +95,7 @@ always @(posedge clk, posedge rst) begin
                 map1_cs <= 0;
                 rom1_addr <= { map1_data, veff[3:0], heff[3] }; // 8+4+1=13
             end
-            if( flip ) begin
+            if( !flip ) begin
                 pxl_w <= pxl_w >> 1;
                 pxl_x <= pxl_x >> 1;
                 pxl_y <= pxl_y >> 1;

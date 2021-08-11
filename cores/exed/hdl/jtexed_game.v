@@ -48,7 +48,7 @@ module jtexed_game(
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
-    output  [21:0]  prog_addr,
+    output reg [21:0]  prog_addr,
     output  [ 7:0]  prog_data,
     output  [ 1:0]  prog_mask,
     output          prog_we,
@@ -201,21 +201,27 @@ wire [21:0] pre_prog;
 reg  [24:0] pre_io;
 
 always @(*) begin
+    // IOCTL
     pre_io = ioctl_addr;
-    if ( ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ) // Map 2
+    if( ioctl_addr>=(MAP2_OFFSET<<1) && ioctl_addr<(CHAR_OFFSET<<1) ) // Map 2
         pre_io = { ioctl_addr[24:7], ioctl_addr[5:0], ioctl_addr[6] };
 
-    if ( ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) )  // Scroll 1
-        pre_io = { ioctl_addr[24:6], ioctl_addr[4:1], ioctl_addr[5], ioctl_addr[0] };
+//    if ( ioctl_addr>=(SCR1_OFFSET<<1) && ioctl_addr<(SCR2_OFFSET<<1) )  // Scroll 1
+//        pre_io = { ioctl_addr[24:7], ioctl_addr[5:2], ioctl_addr[6], ioctl_addr[1:0] };
 
-    if ( ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) )  // Scroll 2
+    if( ioctl_addr>=(SCR2_OFFSET<<1) && ioctl_addr<(OBJ_OFFSET<<1) )  // Scroll 2
         pre_io = { ioctl_addr[24:8], ioctl_addr[5:1], ioctl_addr[7:6], ioctl_addr[0] };
+
+    // Programming address
+    prog_addr = pre_prog;
+    if( pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ) // OBJ
+        prog_addr = { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] };
+
+    if( pre_prog>=SCR1_OFFSET && pre_prog<SCR2_OFFSET ) // SCR1
+        prog_addr = { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] };
 
 end
 
-assign prog_addr = pre_prog>=OBJ_OFFSET && pre_prog<PROM_OFFSET ? // OBJ
-    { pre_prog[21:6], pre_prog[4:1], pre_prog[5], pre_prog[0] } :
-    pre_prog;
 
 jtframe_dwnld #(
     .PROM_START(PROM_OFFSET),
