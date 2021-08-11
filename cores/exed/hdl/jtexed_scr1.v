@@ -50,14 +50,15 @@ module jtexed_scr1 #(parameter
 );
 
 reg  [11:0] heff, veff;
+wire [10:0] hpos_adj = hpos + HOFFSET;
 
 always @(*) begin
     if( H>9'hc0 && H<9'h100 )
-        heff = hpos + { 4'hf, H[7:0] };
+        heff = hpos_adj + { 4'hf, H[7:0] };
     else if( H[8] )
-        heff = hpos + { 4'h0, H[7:0] };
+        heff = hpos_adj + { 4'h0, H[7:0] };
     else
-        heff = hpos + { 4'h1, H[7:0] };
+        heff = hpos_adj + { 4'h1, H[7:0] };
 
     veff = { 1'b0, vpos[10:0] } + { 4'd0, V[7:0] };
 end

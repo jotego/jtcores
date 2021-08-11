@@ -49,18 +49,18 @@ module jtexed_scr2 #(parameter
 );
 
 reg  [15:0] heff;
-//reg  [ 8:0] hfix;
 reg         vflip;
+wire [15:0] hpos_adj = hpos + HOFFSET;
 
 wire hflip = map2_data[6]^flip;
 
 always @(*) begin
     if( H>9'hc0 && H<9'h100 )
-        heff = hpos + { 8'hff, H[7:0] };
+        heff = hpos_adj + { 8'hff, H[7:0] };
     else if( H[8] )
-        heff = hpos + { 8'h0, H[7:0] };
+        heff = hpos_adj + { 8'h0, H[7:0] };
     else
-        heff = hpos + { 8'h1, H[7:0] };
+        heff = hpos_adj + { 8'h1, H[7:0] };
 end
 
 reg         hflip2;
