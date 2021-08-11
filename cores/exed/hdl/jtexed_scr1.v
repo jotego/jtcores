@@ -49,23 +49,15 @@ module jtexed_scr1 #(parameter
     input       [7:0] debug_bus
 );
 
-reg         hmsb, yh7;
-reg  [11:0] heff, hadv, veff;
-//reg  [ 8:0] hfix;
+reg  [11:0] heff, veff;
 
 always @(*) begin
-    hmsb = ~H[8] & H[6];
-    yh7  = H[6] ^ ( ~H[8] & ~H[6] );
-    //heff = hpos + { {7{hmsb}}, ~H[8], yh7, H[6:0] } + HOFFSET;
-//    if( H>=9'h100 )
-//        hfix = H ^ 9'h100;
-//    else if( H< 9'hC0 )
-//        hfix = { 2'b10, H[6:0] };
-//    else
-//        hfix = { 2'b}
-
-    heff = hpos + HOFFSET + { 4'd0, ~H[8], H[8] ? H[7] : ~H[7], H[6:0] }; // + {8'd0, debug_bus};
-    hadv = heff;// + 16'd16;
+    if( H>9'hc0 && H<9'h100 )
+        heff = hpos + { 4'hf, H[7:0] };
+    else if( H[8] )
+        heff = hpos + { 4'h0, H[7:0] };
+    else
+        heff = hpos + { 4'h1, H[7:0] };
 
     veff = { 1'b0, vpos[10:0] } + { 4'd0, V[7:0] };
 end
@@ -88,7 +80,7 @@ always @(posedge clk, posedge rst) begin
             pxl_x <= { rom1_data[ 7: 4], rom1_data[23:20] };
             pxl_y <= { rom1_data[11: 8], rom1_data[27:24] };
             pxl_z <= { rom1_data[15:12], rom1_data[31:28] };
-            map1_addr <= { veff[10:8], hadv[10:8], veff[7:4], hadv[7:4] }; // 3+3+4+4=14
+            map1_addr <= { veff[10:8], heff[10:8], veff[7:4], heff[7:4] }; // 3+3+4+4=14
             map1_cs   <= 1;
         end else begin
             if(map1_ok) begin
