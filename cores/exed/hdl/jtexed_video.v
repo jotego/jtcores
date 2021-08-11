@@ -120,7 +120,7 @@ wire [5:0] scr2_pxl;
 `ifndef NOCHAR
 
 jtgng_char #(
-    .HOFFSET    (             4 ),
+    .HOFFSET    (             6 ),
     .ROM_AW     (            13 ),
     .VFLIP      (             6 ),
     .HFLIP_EN   (             0 ),

@@ -49,16 +49,19 @@ module jtexed_scr1 #(parameter
     input       [7:0] debug_bus
 );
 
-reg  [11:0] heff, veff;
+reg  [11:0] heff, veff, hadv;
+reg  [ 9:0] Hfix;
 wire [10:0] hpos_adj = hpos + HOFFSET;
 
 always @(*) begin
     if( H>9'hc0 && H<9'h100 )
-        heff = hpos_adj + { 4'hf, H[7:0] };
+        Hfix = { 2'h3, H[7:0] };
     else if( H[8] )
-        heff = hpos_adj + { 4'h0, H[7:0] };
+        Hfix = { 2'h0, H[7:0] };
     else
-        heff = hpos_adj + { 4'h1, H[7:0] };
+        Hfix = { 2'h1, H[7:0] };
+    heff = hpos_adj + { {2{Hfix[9]}}, Hfix };
+    hadv = heff + 16'h8;
 
     veff = { 1'b0, vpos[10:0] } + { 4'd0, V[7:0] };
 end

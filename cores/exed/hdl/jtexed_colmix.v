@@ -44,7 +44,7 @@ module jtexed_colmix(
     input     [3:0] gfx_en
 );
 
-localparam BLANK_DLY = 3;
+localparam BLANK_DLY = 1;
 
 wire [4:0] prio_addr;
 reg  [7:0] pxl_mux;
