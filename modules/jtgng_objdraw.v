@@ -68,10 +68,13 @@ module jtgng_objdraw #(parameter
 localparam IDW = LAYOUT==3 ? 12 : (ROM_AW-6);
 // Width of ID code directly read from the buffer at step 0
 localparam IDWDIRECT = IDW<DW ? IDW : DW;
+localparam PW = LAYOUT==11 ? 5 : PALW; // Games that store extra information
+                        // can use bits defined in PW. Defining PALW as larger
+                        // than needed has side effects in jtgng_objpxl
 
 reg  [ IDW-1:0] id;
 reg  [ IDW-1:0] idalt;
-reg  [PALW-1:0] objpal, objpal1;
+reg  [  PW-1:0] objpal, objpal1;
 reg  [     8:0] objx;
 reg             obj_vflip, obj_hflip, hover;
 wire            posvflip;
