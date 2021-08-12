@@ -24,6 +24,7 @@ module jtexed_scr2 #(parameter
     input             pxl_cen,
     input      [ 8:0] V,
     input      [ 8:0] H,
+    output reg [ 9:0] HF,
     input             flip,
     input       [2:0] pal_bank,
     input      [15:0] hpos,
@@ -57,13 +58,20 @@ wire hflip = map2_data[6]^flip;
 
 always @(*) begin
     if( H>9'hc0 && H<9'h100 )
-        Hfix = { 2'h3, H[7:0] };
+        Hfix = { 2'h3 ^ {flip,1'b0}, H[7:0] };
     else if( H[8] )
         Hfix = { 2'h0, H[7:0] };
     else
-        Hfix = { 2'h1, H[7:0] };
+        Hfix = { 2'h1 ^ {flip,1'b0}, H[7:0] };
+    Hfix[7:0] = Hfix[7:0] ^ {8{flip}};
+
     heff = hpos_adj + { {6{Hfix[9]}}, Hfix };
-    hadv = heff + 16'h10;
+    if( flip ) heff = heff - 16'd3;
+    hadv = flip ? heff - 16'h10 : heff + 16'h10;
+end
+
+always @(posedge clk) begin
+    HF <= Hfix;
 end
 
 reg         hflip2;
@@ -90,7 +98,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             if(map2_ok) begin
                 map2_cs <= 0;
-                rom2_addr <= { map2_data[5:0], V[4:0]^vflip, heff[4]^~hflip2, 1'b0 }; // 6+5+1+1 = 13
+                rom2_addr <= { map2_data[5:0], V[4:0]^{5{vflip}}, heff[4]^~hflip2, 1'b0 }; // 6+5+1+1 = 13
             end
             if( hflip2 ) begin
                 pxl_lsb <= pxl_lsb >> 1;

@@ -24,6 +24,7 @@ module jtexed_scr1 #(parameter
     input             pxl_cen,
     input      [ 8:0] V,
     input      [ 8:0] H,
+    input      [ 9:0] HF,
     input             flip,
     input       [2:0] pal_bank,
     input      [10:0] hpos,
@@ -50,20 +51,15 @@ module jtexed_scr1 #(parameter
 );
 
 reg  [11:0] heff, veff, hadv;
-reg  [ 9:0] Hfix;
 wire [10:0] hpos_adj = hpos + HOFFSET;
+wire [ 7:0] VF = V[7:0]^{8{flip}};
 
 always @(*) begin
-    if( H>9'hc0 && H<9'h100 )
-        Hfix = { 2'h3, H[7:0] };
-    else if( H[8] )
-        Hfix = { 2'h0, H[7:0] };
-    else
-        Hfix = { 2'h1, H[7:0] };
-    heff = hpos_adj + { {2{Hfix[9]}}, Hfix };
-    hadv = heff + 16'h8;
+    heff = hpos_adj + { {2{HF[9]}}, HF };
+    if( flip ) heff = heff - 16'd3;
+    hadv = flip ? heff /*- 16'h8*/ : heff + 16'h8;
 
-    veff = { 1'b0, vpos[10:0] } + { 4'd0, V[7:0] };
+    veff = { 1'b0, vpos[10:0] } + { 4'd0, VF };
 end
 
 reg  [7:0] pxl_w, pxl_x, pxl_y, pxl_z;
@@ -89,7 +85,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             if(map1_ok) begin
                 map1_cs <= 0;
-                rom1_addr <= { map1_data, veff[3:0], heff[3], 1'b0 }; // 8+4+1+1=14
+                rom1_addr <= { map1_data, veff[3:0], heff[3]^flip, 1'b0 }; // 8+4+1+1=14
             end
             if( flip ) begin
                 pxl_w <= pxl_w >> 1;

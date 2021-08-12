@@ -116,6 +116,7 @@ wire [3:0] char_pxl;
 wire [7:0] obj_pxl;
 wire [3:0] scr1_pxl;
 wire [5:0] scr2_pxl;
+wire [9:0] HF;
 
 `ifndef NOCHAR
 
@@ -173,6 +174,7 @@ jtexed_scr1 #(
     .pxl_cen      ( cen6        ),
     .V            ( V           ),
     .H            ( H           ),
+    .HF           ( HF          ),
     .flip         ( flip        ),
     .pal_bank     ( scr1_pal    ),
     .hpos         ( scr1_hpos   ),
@@ -208,6 +210,7 @@ jtexed_scr2 #(
     .pxl_cen      ( cen6        ),
     .V            ( V           ),
     .H            ( H           ),
+    .HF           ( HF          ),
     .flip         ( flip        ),
     .pal_bank     ( scr2_pal    ),
     .hpos         ( scr2_hpos   ),
