@@ -56,7 +56,7 @@ wire [ 7:0] VF = V[7:0]^{8{flip}};
 
 always @(*) begin
     heff = hpos_adj + { {2{HF[9]}}, HF };
-    if( flip ) heff = heff - 16'd3;
+    if( flip ) heff = heff - 16'd11;
     hadv = flip ? heff /*- 16'h8*/ : heff + 16'h8;
 
     veff = { 1'b0, vpos[10:0] } + { 4'd0, VF };

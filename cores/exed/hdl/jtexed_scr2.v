@@ -66,7 +66,7 @@ always @(*) begin
     Hfix[7:0] = Hfix[7:0] ^ {8{flip}};
 
     heff = hpos_adj + { {6{Hfix[9]}}, Hfix };
-    if( flip ) heff = heff - 16'd3;
+    if( flip ) heff = heff - 16'd11;
     hadv = flip ? heff - 16'h10 : heff + 16'h10;
 end
 
