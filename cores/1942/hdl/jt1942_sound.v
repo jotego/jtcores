@@ -50,7 +50,7 @@ wire rd_n;
 wire wr_n;
 
 reg ay1_cs, ay0_cs, latch_cs, ram_cs;
-reg psg2_wrn, psg1_wrn;
+reg psg2_wr, psg1_wr;
 
 reg [7:0] AH;
 
@@ -87,14 +87,16 @@ always @(*) begin
     latch_cs = 1'b0;
     ay0_cs   = 1'b0;
     ay1_cs   = 1'b0;
+    psg1_wr  = 0;
+    psg2_wr  = 0;
     if( !mreq_n ) casez(A[15:13])
         3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
         3'b100: begin
-            ay0_cs   = EXEDEXES==0 || A[2:0]<2;
-            psg1_wrn = A[2:0] == 2 && !wr_n;
-            psg2_wrn = A[2:0] == 3 && !wr_n;
+            ay0_cs  = EXEDEXES==0 || A[2:0]<2;
+            psg1_wr = A[2:0] == 2 && !wr_n;
+            psg2_wr = A[2:0] == 3 && !wr_n;
         end
         3'b110: if( EXEDEXES==0 ) ay1_cs = 1'b1;
         default:;
@@ -191,7 +193,7 @@ generate
             .rst    ( rst       ),
             .clk    ( clk       ),
             .clk_en ( cen3      ),
-            .wr_n   ( psg1_wrn  ),
+            .wr_n   ( ~psg1_wr  ),
             .din    ( cpu_dout  ),
             .sound  ( psg1      ),
             .ready  (           )
@@ -201,7 +203,7 @@ generate
             .rst    ( rst       ),
             .clk    ( clk       ),
             .clk_en ( cen3      ),
-            .wr_n   ( psg2_wrn  ),
+            .wr_n   ( ~psg2_wr  ),
             .din    ( cpu_dout  ),
             .sound  ( psg2      ),
             .ready  (           )
