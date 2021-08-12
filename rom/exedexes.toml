@@ -1,6 +1,9 @@
 [global]
 mraauthor=["jotego"]
 
+[features]
+beta=true
+
 [parse]
 sourcefile="exedexes.cpp"
 
