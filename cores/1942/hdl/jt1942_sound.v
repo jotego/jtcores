@@ -229,10 +229,10 @@ generate
             .ch2    ( psg2      ),
             .ch3    (           ),
             // gain for each channel in 4.4 fixed point format
-            .gain0  ( 8'h08     ),
-            .gain1  ( 8'h04     ),
-            .gain2  ( 8'h04     ),
-            .gain3  ( 8'h10     ),
+            .gain0  ( 8'h05     ),
+            .gain1  ( 8'h08     ),
+            .gain2  ( 8'h08     ),
+            .gain3  ( 8'h0      ),
             .mixed  ( snd       ),
             .peak   ( peak      )   // overflow signal (time enlarged)
         );
