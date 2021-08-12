@@ -1,0 +1,94 @@
+\BExed Exes\W port by \RJotego\W
+  http://patreon.com/topapate
+
+       August 2021
+
+    Schematics for this
+   PCB are now available
+https://github.com/jt_gng/doc
+
+        \RDirectors\W
+
+      Porkchop Express
+AnotherJoe      Antonio Villena
+Bender          Boogermann
+Chris Gelatt    DJ Hard
+Filip Kindt     Frederic Mahe
+James D         Jeffrey Pierce
+Kevin Finist.   Louis Martinez
+Martin Birkeldh Michael Yount
+Suv             Purple Tinker
+Rysha           Shawn Henderson
+TT_Hipster1941  atrac17
+
+        \RThanks to\W
+
+           cohge
+Arcade Express  Brian Sallee
+Daniel Bauza    Eduard Rozenberg
+Jo Tomiyori     Phillip McMahon
+
+ARCADEAGES      Adam Davis
+Anders Rensberg Andreas Wester
+Andrew Francomb Andy Palmer
+Andyways        Arjan de
+Bob Gallardo    Chi Wai
+Chris Doyle     Chris Harvey
+Chris Jardine   Christian
+Connor Glynn    D.J. Estreito
+DMG             Darren Chell
+David Agudo     David Ashby
+David Mills     David Moylan
+Dean Winger     Don Gafford
+Ed Balan        Eduardo Javier
+Edward Rana     Gladius
+Gus Douboulidis Gwaland
+H. Osterholz    Henrik Nordstrom
+Ian Court       Ivo
+JPS (RetroFPGA) James Baker
+James Trautner  James Williams
+Jason Nagy      Jeffrey Haas
+Jim Weinhart    Joe Tassone
+Joeri van       John Casey
+Jorge Slowfret  Jose Pulgar
+Joseph Hsieh    Juan Francisco
+Krycek7o2       Leslie Law
+Lionel LENOBLE  MakeshiftMoney
+Marcelo C.      Marcus Hogue
+Marcus Sid      Martin DiPalma
+Matt Postema    Matthew Young
+MiSTerFPGA.co.uk    MoonZ
+Oliver Jaksch   Oliver Wndmth
+Oscar Laguna    Per Sweden
+Peter Bray      PsyFX
+ReTr0~g!GGles   RetroGameBro
+RetroPrez       Retroludo
+Richard MS      Robert MacLean
+Robert Mullings Roman Buser
+Simon Johnstone Steven Wilson
+Tarnjeet Bhachu Technoir1986
+The Collector   Theodore Huber
+Toby Boreham    Tony Richardson
+Torren Beitler  Tym Whitney
+Ulf Skutnabba   Ultrarobotninja
+Victor Gomariz  Vitor Duarte
+Xzarian         Younghoon Gong
+Zachary Muske   asdfgasfhsn
+birdybro        elrobertocarlos
+hyp36rmax       nullobject
+
+      \RGreetings to\W
+
+Thanks to Greyrogue for impro-
+ving the NeoGeo core. JT12 is
+now used in a better way and
+sound is way better... sweet!
+
+Thanks to Blackwine for the
+MC8123 decoding logic for SEGA
+system 1 titles. I'll borrow
+some lines for System16 :-)
+
+Thanks to Nathan from
+misterfpga.co.uk for the new
+SDRAM modules. Work great!
