@@ -6,6 +6,7 @@ on:
     branches:
       - build
       - sidi
+      - build_sectionz
 
 jobs:
 

@@ -6,6 +6,7 @@ on:
     branches:
       - build
       - mist
+      - build_gng
 
 jobs:
 

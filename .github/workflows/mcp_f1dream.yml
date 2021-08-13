@@ -6,6 +6,7 @@ on:
     branches:
       - build
       - mcp
+      - build_f1dream
 
 jobs:
 

@@ -6,6 +6,7 @@ on:
     branches:
       - build
       - mc2
+      - build_gng
 
 jobs:
 
