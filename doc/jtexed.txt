@@ -35,6 +35,10 @@ available in the schematics folder. The core is made based on the actual
 schematics, not emulators. Emulators miss a few points, but some of the
 missing hardware features seem not to be used by the game software.
 
+Note: to advance through the test screen press the fire button, except for
+the input screen, that requires fire+UP to advance. There is no music selection
+in the test menu, only a fixed tune is played in the output test screen.
+
 CREDITS
 =======
 
