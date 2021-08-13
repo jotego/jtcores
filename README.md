@@ -14,45 +14,47 @@ I hope you will have as much fun with it as I had it while making it!
 
 In chronological order:
 
- 1. Vulgus            (doc/jtvulgus.txt)
- 2. Higemaru          (doc/jthige.txt)
- 3. 1942              (doc/jt1942.txt)
- 4. Commando          (doc/jtcommando.txt)
- 5. Ghosts'n Goblins  (doc/jtgng.txt)
- 6. SectionZ          (doc/jtsectionz.txt)
- 7. GunSmoke          (doc/jtgunsmoke.txt)
- 8. Legendary Wings   (doc/jtsectionz.txt)
- 9. Trojan            (doc/jttrojan.txt)
-10. The Speed Rumbler (doc/jtrumble.txt)
-11. 1943              (doc/jt1943.txt)
-12. Black Tiger       (doc/jtbtiger.txt)
-13. Side Arms         (doc/jtsarms.txt)
-14. Tiger Road        (doc/jttora.txt)
-15. F1-Dream          (doc/jtf1dream.txt)
-16. Bionic Commando   (doc/jtbiocom.txt)
-17. Street Fighter    (doc/jtsf.txt)
+ 1. Vulgus            [readme](doc/jtvulgus.txt)
+ 2. Higemaru          [readme](doc/jthige.txt)
+ 3. 1942              [readme](doc/jt1942.txt)
+ 4. Commando          [readme](doc/jtcommando.txt)
+ 5. Exed Exes         [readme](doc/jtexed.txt)
+ 6. Ghosts'n Goblins  [readme](doc/jtgng.txt)
+ 7. SectionZ          [readme](doc/jtsectionz.txt)
+ 8. GunSmoke          [readme](doc/jtgunsmoke.txt)
+ 9. Legendary Wings   [readme](doc/jtsectionz.txt)
+10. Trojan            [readme](doc/jttrojan.txt)
+11. The Speed Rumbler [readme](doc/jtrumble.txt)
+12. 1943              [readme](doc/jt1943.txt)
+13. Black Tiger       [readme](doc/jtbtiger.txt)
+14. Side Arms         [readme](doc/jtsarms.txt)
+15. Tiger Road        [readme](doc/jttora.txt)
+16. F1-Dream          [readme](doc/jtf1dream.txt)
+17. Bionic Commando   [readme](doc/jtbiocom.txt)
+18. Street Fighter    [readme](doc/jtsf.txt)
 
 ### Dependencies
 
-Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149 | MSM5205
-------------------|------|-----|-------|------|---------|--------|--------|---------
-1942              |      |  X  |       |      |         |        |   X    |
-1943              |      |  X  |       |      |   X     |        |   X    |
-Bionic Commando   |      |  X  |   X   |  X   |         |   X    |        |
-Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |
-Commando          |      |  X  |       |      |   X     |        |   X    |
-F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |
-Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |
-Gun Smoke         |      |  X  |       |      |   X     |        |   X    |
-Higemaru          |      |  X  |       |      |         |        |   X    |
-Legendary Wings   |      |  X  |       |      |   X     |        |   X    |
-Section Z         |      |  X  |       |      |   X     |        |   X    |
-Side Arms         |      |  X  |       |      |   X     |        |   X    |
-Street Fighter    |      |  X  |   X   |  X   |         |   X    |        |   X
-The Speed Rumbler |  X   |  X  |       |      |   X     |        |   X    |
-Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X
-Trojan            |      |  X  |       |      |   X     |        |        |   X
-Vulgus            |      |  X  |       |      |         |        |   X    |
+Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149 | MSM5205 | SN76489AN
+------------------|------|-----|-------|------|---------|--------|--------|---------|-----------
+1942              |      |  X  |       |      |         |        |   X    |         |
+1943              |      |  X  |       |      |   X     |        |   X    |         |
+Bionic Commando   |      |  X  |   X   |  X   |         |   X    |        |         |
+Black Tiger       |      |  X  |       |  X   |   X     |        |   X    |         |
+Commando          |      |  X  |       |      |   X     |        |   X    |         |
+Exed Exes         |      |  X  |       |      |         |        |   X    |         |    X
+F1-Dream          |      |  X  |   X   |  X   |   X     |        |   X    |         |
+Ghosts'n Goblins  |  X   |  X  |       |      |   X     |        |   X    |         |
+Gun Smoke         |      |  X  |       |      |   X     |        |   X    |         |
+Higemaru          |      |  X  |       |      |         |        |   X    |         |
+Legendary Wings   |      |  X  |       |      |   X     |        |   X    |         |
+Section Z         |      |  X  |       |      |   X     |        |   X    |         |
+Side Arms         |      |  X  |       |      |   X     |        |   X    |         |
+Street Fighter    |      |  X  |   X   |  X   |         |   X    |        |   X     |
+The Speed Rumbler |  X   |  X  |       |      |   X     |        |   X    |         |
+Tiger Road        |      |  X  |   X   |      |   X     |        |   X    |   X     |
+Trojan            |      |  X  |       |      |   X     |        |        |   X     |
+Vulgus            |      |  X  |       |      |         |        |   X    |         |
 
 Games using 1943 scroll module
 
