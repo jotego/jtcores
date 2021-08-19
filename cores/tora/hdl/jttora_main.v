@@ -345,7 +345,8 @@ jtframe_68kdtack u_dtack( // 24 -> 10MHz
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( char_busy ),
-    .BUSn       ( BUSn      ),   // BUSn = ASn | (LDSn & UDSn)
+    .ASn        ( ASn       ),
+    .DSn        ({UDSn,LDSn}),
     .DTACKn     ( DTACKn    )
 );
 
