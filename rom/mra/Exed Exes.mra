@@ -78,7 +78,7 @@
         <part repeat="0xE0"> FF</part>
         <!-- Total 0x68C00 bytes - 419 kBytes -->
     </rom>
-    <rom index="16" zip="jtbeta.zip|beta.zip" md5="None">
+    <rom index="17" zip="jtbeta.zip" md5="None">
         <part name="beta.bin"/>
     </rom>
     <!-- Vertical game -->
