@@ -92,13 +92,13 @@ always @(posedge clk, posedge rst) begin
             pxl_lsb <= { rom2_data[7:4], rom2_data[15:12], rom2_data[23:20], rom2_data[31:28] };
             hflip2   <= hflip;
             pal_hsb  <= map2_data[10:8];
-            vflip    <= map2_data[7]^flip;
+            vflip    <= map2_data[7]^~flip;
             map2_addr <= { hadv[13:8], V[7:5]^{3{flip}}, hadv[7:5] }; // 6+3+3 = 12
             map2_cs   <= 1;
         end else begin
             if(map2_ok) begin
                 map2_cs <= 0;
-                rom2_addr <= { map2_data[5:0], V[4:0]^{5{vflip}}, heff[4]^~hflip2, 1'b0 }; // 6+5+1+1 = 13
+                rom2_addr <= { map2_data[5:0], V[4:0]^{5{~vflip}}, heff[4]^~hflip2, 1'b0 }; // 6+5+1+1 = 13
             end
             if( hflip2 ) begin
                 pxl_lsb <= pxl_lsb >> 1;
