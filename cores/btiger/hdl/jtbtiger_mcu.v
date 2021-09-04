@@ -23,10 +23,12 @@ module jtbtiger_mcu(
     input                rst,
     input                clk,
     input                clk6,
+    input                LVBL,
     // Main CPU interface
     output       [ 7:0]  mcu_dout,
     input        [ 7:0]  mcu_din,
     input                mcu_wr,
+    input                mcu_rd,
     // ROM programming
     input        [11:0]  prog_addr,
     input        [ 7:0]  prom_din,
@@ -49,7 +51,7 @@ reg last_mcu_wr;
 always @(posedge clk6) begin
     last_mcu_wr <= mcu_wr;
     if( mcu_wr && !last_mcu_wr ) mcu_int1 <= 1'b0;
-    if( !p3_o[1] ) mcu_int1 <= 1'b1;
+    if( !p3_o[1] || mcu_rd ) mcu_int1 <= 1'b1;
 end
 
 jtframe_8751mcu u_mcu(
@@ -63,13 +65,13 @@ jtframe_8751mcu u_mcu(
     .p0_i       ( mcu_din   ),
     .p0_o       ( mcu_dout  ),
 
-    .p1_i       (           ),
+    .p1_i       ( p1_i      ),
     .p1_o       ( p1_o      ),
 
-    .p2_i       (           ),
+    .p2_i       ( p2_o      ),
     .p2_o       ( p2_o      ),
 
-    .p3_i       (           ),
+    .p3_i       ( {p3_o[7:5], LVBL, p3_o[3:0] } ),
     .p3_o       ( p3_o      ),
 
     // external memory

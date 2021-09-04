@@ -64,7 +64,7 @@ wire [ 7:0] ram_data;
 wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
-wire [ 7:0] p1_o, p2_o, p3_o;
+wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
 (*keep*) reg         int0, int1;
 
 // interface with main CPU
@@ -138,16 +138,16 @@ jtframe_8751mcu #(.ROMBIN("../../../../rom/biocom/ts.2f")) u_mcu(
     .int0n      ( int0      ),
     .int1n      ( int1      ),
     // Ports
-    .p0_i       (           ),
-    .p0_o       (           ),
+    .p0_i       ( p0_o      ),
+    .p0_o       ( p0_o      ),
 
     .p1_i       ( snd_dout_latch   ),
     .p1_o       ( p1_o      ),
 
-    .p2_i       (           ),
+    .p2_i       ( p2_o      ),
     .p2_o       ( p2_o      ),
 
-    .p3_i       (           ),
+    .p3_i       ( p3_o      ),
     .p3_o       ( p3_o      ),
 
     .clk_rom    ( clk_rom   ),
