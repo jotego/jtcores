@@ -108,7 +108,7 @@ wire [16:0] scr_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 7:0] mcu_din, mcu_dout;
-wire        mcu_wr;
+wire        mcu_wr, mcu_rd;
 wire        cenfm;
 
 wire main_ok, snd_ok, obj_ok;
@@ -223,6 +223,7 @@ jtbtiger_main u_main(
     .mcu_din    ( mcu_din       ),
     .mcu_dout   ( mcu_dout      ),
     .mcu_wr     ( mcu_wr        ),
+    .mcu_rd     ( mcu_rd        ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -287,6 +288,7 @@ jtbtiger_mcu u_mcu(
     .mcu_dout   (  mcu_dout   ),
     .mcu_din    (  mcu_din    ),
     .mcu_wr     (  mcu_wr     ),
+    .mcu_rd     (  mcu_rd     ),
     .prog_addr  (  prog_addr  ),
     .prom_din   (  prog_data  ),
     .prom_we    (  prom_mcu   )

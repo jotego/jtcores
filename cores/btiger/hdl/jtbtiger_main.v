@@ -54,6 +54,7 @@ module jtbtiger_main(
     input      [7:0]   mcu_dout,
     output reg [7:0]   mcu_din,
     output reg         mcu_wr,
+    output reg         mcu_rd,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
@@ -183,14 +184,17 @@ always @(posedge clk)
         OBJON     <= 1'b1;
         scr_bank  <= 2'b0;
         mcu_wr    <= 1'b0;
+        mcu_rd    <= 0;
         scr_layout<= 1'b0;
     end
     else if(cpu_cen) begin
         mcu_wr   <= 1'b0;
+        mcu_rd   <= 0;
         if( bank_cs ) bank <= cpu_dout[3:0];
         if( mcu_cs ) begin
             mcu_din  <= cpu_dout;
-            mcu_wr   <= 1'b1;
+            mcu_wr   <= !wr_n;
+            mcu_rd   <= wr_n;
         end
         if( video_cs ) begin
             // bits 0,1 coin counters
