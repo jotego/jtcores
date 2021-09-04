@@ -91,16 +91,16 @@ jtframe_8751mcu u_mcu(
     .int0n      ( int0      ),
     .int1n      ( 1'b1      ),
 
-    .p0_i       (           ),
+    .p0_i       ( p0_o      ),
     .p0_o       ( p0_o      ),
 
-    .p1_i       (           ),
+    .p1_i       ( p1_o      ),
     .p1_o       ( p1_o      ),
 
-    .p2_i       (           ),
+    .p2_i       ( p2_o      ),
     .p2_o       ( p2_o      ),
 
-    .p3_i       (           ),
+    .p3_i       ( p3_i      ),
     .p3_o       ( p3_o      ),
 
     // external memory

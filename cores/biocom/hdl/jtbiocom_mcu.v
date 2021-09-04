@@ -36,6 +36,7 @@
 module jtbiocom_mcu(
     input                rst,
     input                clk_rom,
+    input                clk_cpu,
     input                clk,
     input                cen6a,       //  6   MHz
     // Main CPU interface
@@ -65,27 +66,27 @@ wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
-(*keep*) reg         int0, int1;
+(*keep*) reg         int0n, int1n;
 
 // interface with main CPU
 assign mcu_addr[13:9] = ~5'b0;
 assign { mcu_addr[16:14], mcu_addr[8:1] } = ext_addr[10:0];
-assign mcu_brn  = int0;
+assign mcu_brn  = int0n;
 assign DMAn     = p3_o[5];
 reg    last_DMAONn;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk_cpu, posedge rst) begin
     if( rst ) begin
-        int0 <= 1'b1;
-        last_DMAONn <= 1'b1;
+        int0n <= 1;
+        last_DMAONn <= 1;
     end else begin
         last_DMAONn <= DMAONn;
-        if( !p3_o[0] ) // CLR
-            int0 <= ~1'b0;
-        else if(!p3_o[1]) // PR
-            int0 <= ~1'b1;
+        if(!p3_o[0]) // CLR
+            int0n <= 1;
+        else if(!p3_o[1])
+            int0n <= 0; // PR
         else if( DMAONn && !last_DMAONn )
-            int0 <= ~1'b1;
+            int0n <= 0;
     end
 end
 
@@ -102,8 +103,8 @@ reg       snd_done;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        snd_dout_latch   <= 8'd0;
-        int1            <= 1'b1;
+        snd_dout_latch  <= 8'd0;
+        int1n           <= 1;
         last_snd_mcu_wr <= 1'b0;
         snd_done        <= 1'b1;
     end else begin
@@ -114,8 +115,8 @@ always @(posedge clk, posedge rst) begin
             snd_dout_latch <= snd_dout;
         // interrupt line
         if( !int1_clrn )
-            int1 <= 1'b1;
-        else if( posedge_snd ) int1 <= 1'b0;
+            int1n <= 1;
+        else if( posedge_snd ) int1n <= 0;
         // latch sound data
         if( posedge_snd_rd ) snd_done <= 1'b1;
         if( posedge_p3_6 && (snd_done || !snd_blank) ) begin
@@ -135,8 +136,8 @@ jtframe_8751mcu #(.ROMBIN("../../../../rom/biocom/ts.2f")) u_mcu(
     .x_addr     ( ext_addr  ),
     .x_wr       ( mcu_wr    ),
     // interrupts
-    .int0n      ( int0      ),
-    .int1n      ( int1      ),
+    .int0n      ( int0n     ),
+    .int1n      ( int1n     ),
     // Ports
     .p0_i       ( p0_o      ),
     .p0_o       ( p0_o      ),
@@ -157,10 +158,10 @@ jtframe_8751mcu #(.ROMBIN("../../../../rom/biocom/ts.2f")) u_mcu(
 );
 
 `ifdef SIMULATION
-always @(negedge int0)
-    $display ("MCU: int0 edge - main CPU");
+always @(negedge int0n)
+    $display ("MCU: int0n edge - main CPU");
 
-always @(negedge int1)
-    $display ("MCU: int1 edge - sound CPU");
+always @(negedge int1n)
+    $display ("MCU: int1n edge - sound CPU");
 `endif
 endmodule

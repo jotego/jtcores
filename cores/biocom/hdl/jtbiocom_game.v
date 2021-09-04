@@ -102,7 +102,7 @@ wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
 wire        rd, cpu_cen;
 wire        char_busy, scr1_busy, scr2_busy;
-wire        clk_mcu = clk24;
+wire        clk_mcu;
 
 // ROM data
 wire [15:0] char_data, scr1_data, scr2_data;
@@ -169,7 +169,7 @@ jtframe_cen24 u_cen24(
     .clk    ( clk24     ),
     .cen12  (           ),
     .cen12b (           ),
-    //.cen6   ( mcu_cen   ),
+    .cen6   ( mcu_cen   ),
     .cen3   ( cen3      ),
     // Unused:
     .cen6b  (           ),
@@ -182,7 +182,7 @@ jtframe_cen24 u_cen24(
     .cen3qb (           )
 );
 
-assign mcu_cen = pxl_cen;
+assign clk_mcu = clk24;
 
 wire LHBL_obj, LVBL_obj;
 
