@@ -237,13 +237,12 @@ wire [15:0] scrposh, scrposv;
 wire UDSWn, LDSWn;
 
 `ifndef NOMAIN
-jttora_main u_main(
+jtbiocom_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .clk_mcu    ( clk24         ),
-    .cen10      ( cen10         ),
-    .cen10b     ( cen10b        ),
     .cpu_cen    ( cpu_cen       ),
+    .cpu_cenb   (               ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -251,6 +250,7 @@ jttora_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .snd_latch  ( snd_latch     ),
+    .snd_nmi_n  (               ),
     // CHAR
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
@@ -259,9 +259,17 @@ jttora_main u_main(
     .UDSWn      ( UDSWn         ),
     .LDSWn      ( LDSWn         ),
     // SCROLL
-    .scrposh    ( scrposh       ),
-    .scrposv    ( scrposv       ),
+    .scr1_cs    (               ),
+    .scr1_busy  ( 1'b0          ),
+    .scr1_dout  (               ),
+    .scr1_hpos  ( scrposh       ),
+    .scr1_vpos  ( scrposv       ),
     .scr_bank   ( scr_addr[18]  ),
+    // SCROLL 2 - Unused
+    .scr2_cs    (               ),
+    .scr2_dout  (               ),
+    .scr2_hpos  (               ),
+    .scr2_vpos  (               ),
     // OBJ - bus sharing
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),

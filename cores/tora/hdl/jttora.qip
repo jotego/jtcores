@@ -1,12 +1,12 @@
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_colmix.v  ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_game.v    ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_main.v    ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_prom_we.v ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_dwnld.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_video.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_sound.v   ]
 set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jttora_adpcm.v   ]
 set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) ../../1943/hdl/jt1943_scroll.qip  ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../biocom/hdl/jtbiocom_main.v ]
 
 # Do not replace ../../modules with ../../../modules or it will create problems in F1-Dream compilation
 

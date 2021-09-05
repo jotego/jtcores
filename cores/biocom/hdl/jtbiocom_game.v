@@ -129,7 +129,6 @@ wire        LHBL, LVBL;
 
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
 wire        scr1_ok, scr2_ok, char_ok;
-wire        cen12, cen12b;
 wire        video_cen8;
 
 wire cen8;
@@ -247,9 +246,8 @@ jtbiocom_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .clk_mcu    ( clk_mcu       ),
-    .cen12      ( cen12         ),
-    .cen12b     ( cen12b        ),
     .cpu_cen    ( cpu_cen       ),
+    .cpu_cenb   (               ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -257,7 +255,6 @@ jtbiocom_main u_main(
     .LVBL       ( LVBL          ),
     // sound
     .snd_latch  ( snd_latch     ),
-    //.snd_hack   ( snd_hack      ),
     .snd_nmi_n  ( snd_nmi_n     ),
     // CHAR
     .char_dout  ( char_dout     ),
@@ -270,6 +267,7 @@ jtbiocom_main u_main(
     .scr1_busy  ( scr1_busy     ),
     .scr1_hpos  ( scr1_hpos     ),
     .scr1_vpos  ( scr1_vpos     ),
+    .scr_bank   (               ),  // only Tiger Road
     // SCROLL 2
     .scr2_dout  ( scr2_dout     ),
     .scr2_cs    ( scr2_cs       ),
@@ -277,6 +275,8 @@ jtbiocom_main u_main(
     .scr2_hpos  ( scr2_hpos     ),
     .scr2_vpos  ( scr2_vpos     ),
     // OBJ - bus sharing
+    .UDSWn      (               ),
+    .LDSWn      (               ),
     .obj_AB     ( obj_AB        ),
     .cpu_AB     ( cpu_AB        ),
     .oram_dout  ( oram_dout     ),
@@ -308,6 +308,7 @@ jtbiocom_main u_main(
 
     .RnW        ( RnW           ),
     // DIP switches
+    .service    ( service       ),
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
@@ -339,7 +340,7 @@ jtbiocom_main u_main(
     assign scr1_vpos   = `SIM_SCR1_VPOS;
     assign scr2_hpos   = `SIM_SCR2_HPOS;
     assign scr2_vpos   = `SIM_SCR2_VPOS;
-    assign cpu_cen     = cen12;
+    assign cpu_cen     = pxl2_cen;
     assign OKOUT       = 1'b0;
 `endif
 

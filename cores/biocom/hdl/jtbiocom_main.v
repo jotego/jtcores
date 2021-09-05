@@ -23,9 +23,8 @@ module jtbiocom_main(
     input              rst,
     input              clk,
     input              clk_mcu,
-    output             cen12,
-    output             cen12b,
-    (*direct_enable *) output cpu_cen,
+    output             cpu_cen,
+    output             cpu_cenb,
     // Timing
     output  reg        flip,
     input   [8:0]      V,
@@ -47,16 +46,19 @@ module jtbiocom_main(
     output  reg        scr2_cs,
     input              scr1_busy,
     input              scr2_busy,
-    output reg [9:0]   scr1_hpos,
-    output reg [9:0]   scr1_vpos,
+    output reg [15:0]  scr1_hpos,
+    output reg [15:0]  scr1_vpos,
     output reg [8:0]   scr2_hpos,
     output reg [8:0]   scr2_vpos,
+    output reg         scr_bank,
     // cabinet I/O
     input   [5:0]      joystick1,
     input   [5:0]      joystick2,
     input   [1:0]      start_button,
     input   [1:0]      coin_input,
     // BUS sharing
+    output             UDSWn,
+    output             LDSWn,
     output  [13:1]     cpu_AB,
     output  [15:0]     oram_dout,
     input   [13:1]     obj_AB,
@@ -83,10 +85,13 @@ module jtbiocom_main(
     input       [15:0] rom_data,
     input              rom_ok,
     // DIP switches
+    input              service,
     input              dip_pause,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
 );
+
+parameter GAME=0; // 0 for Bionic Commando, 1 for Tiger Road/F1Dream
 
 wire [19:1] A;
 wire [3:0] ncA;
@@ -106,13 +111,12 @@ reg  BERRn;
 
 // high during DMA transfer
 wire BUSn, UDSn, LDSn;
-wire UDSWn = RnW | UDSn;
-wire LDSWn = RnW | LDSn;
 
+assign UDSWn   = RnW | UDSn;
+assign LDSWn   = RnW | LDSn;
 assign BUSn    = ASn | (LDSn & UDSn);
 assign col_uw  = col_cs & ~UDSWn;
 assign col_lw  = col_cs & ~LDSWn;
-assign cpu_cen = cen12;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
 reg  [16:1] mcu_addr_s;
@@ -131,38 +135,36 @@ always @(*) begin
     OKOUT         = 1'b0;
     mcu_DMAONn    = 1'b1;   // for once, I leave the original active low setting
     scr1vpos_cs   = 1'b0;
-    scr2vpos_cs   = 1'b0;
     scr1hpos_cs   = 1'b0;
+    scr2vpos_cs   = 1'b0;
     scr2hpos_cs   = 1'b0;
 
     if( !CPUbus || A[19:17]==3'b111 )
         case( Aeff[16:14] )  // 111X
-            3'd0:   obj_cs  = 1'b1; // E_0000
-            3'd1:   io_cs   = 1'b1; // E_4000
-            3'd2: if( !UDSWn && !LDSWn && Aeff[4]) begin // E_8010
+            3'd0: obj_cs  = 1'b1; // E_0000
+            3'd1: begin
+                io_cs   = 1'b1; // E_4000
+                if( GAME==1 ) mcu_DMAONn = !(A[1] && !RnW);// E_4002
+            end
+            3'd2: if( !UDSWn && !LDSWn && (Aeff[4]^GAME==1)) begin // E_8010
                 // scrpt_cs
                 // $display("SCRPTn");
-                case( A[3:1]) // SCRPTn in the schematics
-                        3'd0: scr1hpos_cs = 1'b1;
-                        3'd1: scr1vpos_cs = 1'b1;
-                        3'd2: scr2hpos_cs = 1'b1;
-                        3'd3: scr2vpos_cs = 1'b1;
-                        3'd4: begin
-                            OKOUT       = 1'b1;
-                            //$display("OKOUT");
-                        end
-                        3'd5: begin
-                            mcu_DMAONn  = 1'b0; // to MCU
-                            //$display("mcu_DOMAONn");
-                        end
+                case( Aeff[3:1]) // SCRPTn in the schematics
+                        0: scr1hpos_cs = 1;
+                        1: scr1vpos_cs = 1;
+                        2: scr2hpos_cs = 1; // Unused if GAME==1
+                        3: scr2vpos_cs = 1;
+                        4: if( GAME==0 ) OKOUT = 1;
+                        5: if( GAME==0 ) mcu_DMAONn = 0; // to MCU
+                        7: if( GAME==1 ) OKOUT = 1;
                     default:;
                 endcase
             end
-            3'd3:   char_cs = 1'b1; // E_C000
-            3'd4:   scr1_cs = 1'b1; // F_0000
-            3'd5:   scr2_cs = 1'b1; // F_4000
-            3'd6:   col_cs  = 1'b1; // F_8000
-            3'd7:   ram_cs  = 1'b1; // F_C000
+            3'd3: char_cs = 1'b1; // E_C000
+            3'd4: scr1_cs = GAME==0; // F_0000
+            3'd5: scr2_cs = GAME==0; // F_4000
+            3'd6: col_cs  = 1'b1; // F_8000
+            3'd7: ram_cs  = 1'b1; // F_C000
         endcase
 end
 
@@ -179,15 +181,26 @@ end
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
     if( rst ) begin        
-        scr1_hpos <= 10'd0;
-        scr1_vpos <= 10'd0;
-        scr2_hpos <= 9'd0;
-        scr2_vpos <= 9'd0;
+        scr1_hpos <= 0;
+        scr1_vpos <= 0;
+        scr2_hpos <= 0;
+        scr2_vpos <= 0;
     end else if(cpu_cen) begin
-        if( scr1hpos_cs && !RnW) scr1_hpos <= cpu_dout[9:0];
-        if( scr1vpos_cs && !RnW) scr1_vpos <= cpu_dout[9:0];
-        if( scr2hpos_cs && !RnW) scr2_hpos <= cpu_dout[8:0];
-        if( scr2vpos_cs && !RnW) scr2_vpos <= cpu_dout[8:0];
+        if( GAME==0 ) begin
+            if( scr1hpos_cs && !RnW) scr1_hpos <= cpu_dout[9:0];
+            if( scr1vpos_cs && !RnW) scr1_vpos <= cpu_dout[9:0];
+            if( scr2hpos_cs && !RnW) scr2_hpos <= cpu_dout[8:0];
+            if( scr2vpos_cs && !RnW) scr2_vpos <= cpu_dout[8:0];
+        end else begin
+            if( scr1hpos_cs ) begin
+                if(!UDSWn) scr1_hpos[15:8] <= cpu_dout[15:8];
+                if(!LDSWn) scr1_hpos[ 7:0] <= cpu_dout[ 7:0];
+            end
+            if( scr1vpos_cs ) begin
+                if(!UDSWn) scr1_vpos[15:8] <= cpu_dout[15:8];
+                if(!LDSWn) scr1_vpos[ 7:0] <= cpu_dout[ 7:0];
+            end
+        end
     end
 end
 
@@ -197,19 +210,23 @@ always @(posedge clk) begin
         flip         <= 1'b0;
         snd_latch    <= 8'b0;
         snd_nmi_n    <= 1'b1;
-    end
-    else if(cpu_cen) begin
+        scr_bank     <= 1'b0;
+    end else if(cpu_cen) begin
         snd_nmi_n  <= 1'b1;
         if( !UDSWn && io_cs)
             case( { A[1]} )
-                1'b0: flip      <= cpu_dout[8];
+                1'b0: begin
+                    flip <= cpu_dout[GAME==0 ? 8 : 1];
+                    scr_bank  <= cpu_dout[2];
+                end
                 1'b1: begin
                     // sound latch is updated here on the actual PCB
                     // however, the main CPU software never writes a
                     // value here. This is only used to trigger the NMI
                     // in practice
-                    snd_latch <= cpu_dout[7:0]; // real PCB behaviour
-                    snd_nmi_n  <= 1'b0;
+                    snd_latch <= GAME==0 ? cpu_dout[7:0] : // real PCB behaviour
+                                           cpu_dout[15:8];
+                    snd_nmi_n  <= 1'b0; // only Biocom ?
                 end
             endcase
         // Hack to capture the sound code that is sent to the MCU
@@ -220,13 +237,26 @@ end
 
 reg [15:0] cabinet_input;
 
-always @(*) /*if(cpu_cen)*/ begin
-    cabinet_input = (!mcu_DMAn ? mcu_addr[1] : A[1]) ?
-        { dipsw_b, dipsw_a } :
-        { coin_input[0], coin_input[1],        // COINS
-          start_button[0], start_button[1],    // START
-          { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
-          { joystick2[3:0], joystick2[4], joystick2[5]} };
+always @(posedge clk) begin
+    if( GAME==0 ) // Bionic Commando:
+        cabinet_input = Aeff[1] ?
+            { dipsw_b, dipsw_a } :
+            { coin_input[0], coin_input[1],        // COINS
+              start_button[0], start_button[1],    // START
+              { joystick1[3:0], joystick1[4], joystick1[5]},   //  2 buttons
+              { joystick2[3:0], joystick2[4], joystick2[5]} };
+    else // Tiger Road:
+        case( A[2:1] )
+            2'b00: cabinet_input <= {
+                2'b11, joystick2[5:0],
+                2'b11, joystick1[5:0] };
+            2'b01: cabinet_input <=
+                { coin_input,
+                    service,
+                    2'b11,
+                    ~LVBL, start_button, 8'hff };
+            2'b10: cabinet_input <= { dipsw_a, dipsw_b };
+        endcase
 end
 
 /////////////////////////////////////////////////////
@@ -332,13 +362,16 @@ end
 
 wire DTACKn;
 
+localparam [4:0] DIV_NUM= GAME==0 ? 1 :  5;
+localparam [4:0] DIV_DEN= GAME==0 ? 4 : 24;
+
 jtframe_68kdtack u_dtack( // cen = 12MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
-    .num        ( 5'd1       ),
-    .den        ( 5'd4       ),
-    .cpu_cen    ( cen12      ),
-    .cpu_cenb   ( cen12b     ),
+    .num        ( DIV_NUM    ),
+    .den        ( DIV_DEN    ),
+    .cpu_cen    ( cpu_cen    ),
+    .cpu_cenb   ( cpu_cenb   ),
     .bus_cs     ( bus_cs     ),
     .bus_busy   ( bus_busy   ),
     .bus_legit  ( bus_legit  ),
@@ -382,7 +415,7 @@ assign bus_ack = ~BGACKn;
 jtframe_68kdma #(.BW(2)) u_arbitration(
     .clk        (  clk          ),
     .rst        (  rst          ),
-    .cen        (  cen12b       ),
+    .cen        (  cpu_cenb     ),
     .cpu_BRn    (  BRn          ),
     .cpu_BGACKn (  BGACKn       ),
     .cpu_BGn    (  BGn          ),
@@ -395,8 +428,8 @@ fx68k u_cpu(
     .clk        ( clk         ),
     .extReset   ( rst         ),
     .pwrUp      ( rst         ),
-    .enPhi1     ( cen12       ),
-    .enPhi2     ( cen12b      ),
+    .enPhi1     ( cpu_cen     ),
+    .enPhi2     ( cpu_cenb    ),
     .HALTn      ( 1'b1        ),
 
     // Buses
