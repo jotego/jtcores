@@ -54,7 +54,7 @@ reg    last_mcu_DMAONn;
 
 localparam CW=3;
 reg [CW-1:0] cencnt=1;
-wire cen8 = (mcu_sel & ~mcu_brn & ~ram_ok) ? 0 : cencnt[0];
+wire cen8 = (mcu_sel & ~mcu_brn & ~ram_ok) ? 0 : cencnt==0;
 
 assign mcu_cen = cen8;
 assign mcu_sel = ext_addr[15];
@@ -77,14 +77,8 @@ always @(posedge clk_cpu, posedge rst) begin
     end
 end
 
-//always @(posedge clk ) begin
-//    //addr_cpy <= ext_addr;
-//    //wr_cpy   <= mcu_wr;
-//    //if( addr_cpy != ext_addr || (mcu_wr && !wr_cpy) )
-//    if( cen8 )
-//end
 always @(*)
-        mcu_din8 = !mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
+    mcu_din8 = !mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
 
 jtframe_8751mcu #(.SINC_XDATA(1)) u_mcu(
     .rst        ( rst       ),

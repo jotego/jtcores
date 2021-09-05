@@ -137,7 +137,7 @@ jtframe_cen48 u_cen48(
 
 /////////////////////////////////////
 // 24 MHz based clock enable signals
-wire        cen3, mcu_cen;
+wire        cen3, mcu_cen, clk_mcu;
 wire        cen10, cenfm, cenp384;
 wire        nc,ncb;
 wire        cen10b;
@@ -157,6 +157,8 @@ jtframe_cen24 u_cen(
     .cen1p5 (           ),
     .cen1p5b(           )
 );
+
+assign clk_mcu = clk24;
 
 // jtframe_frac_cen u_cen10(
 //     .clk    ( clk24          ),
@@ -237,7 +239,8 @@ wire UDSWn, LDSWn;
 `ifndef NOMAIN
 jttora_main u_main(
     .rst        ( rst           ),
-    .clk        ( clk24         ),
+    .clk        ( clk           ),
+    .clk_mcu    ( clk24         ),
     .cen10      ( cen10         ),
     .cen10b     ( cen10b        ),
     .cpu_cen    ( cpu_cen       ),
@@ -327,11 +330,11 @@ jttora_main u_main(
 `endif
 
 `ifdef MCU
-jtbiocom_mcu #(.SINC_XDATA(0)) u_mcu(
+jtbiocom_mcu #(.SINC_XDATA(1)) u_mcu(
     .rst        ( rst             ),
-    .clk        ( clk24           ),
-    .clk_cpu    ( clk             ),
+    .clk        ( clk_mcu         ),
     .clk_rom    ( clk             ),
+    .clk_cpu    ( clk             ),
     .cen6a      ( mcu_cen         ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),
@@ -346,6 +349,7 @@ jtbiocom_mcu #(.SINC_XDATA(0)) u_mcu(
     .snd_din    ( snd_din         ),
     .snd_dout   ( snd_dout        ),
     .snd_mcu_wr ( snd_mcu_wr      ),
+    .snd_mcu_rd ( 1'b0            ),
     // ROM programming
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data       ),

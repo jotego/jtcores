@@ -23,6 +23,7 @@
 module jttora_main(
     input              rst,
     input              clk,
+    input              clk_mcu,
     output             cen10,
     output             cen10b,
     output             cpu_cen,
@@ -211,48 +212,29 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-always @(posedge clk) begin
+always @(posedge clk_mcu) begin
     mcu_din <= mcu_ram_cs ? wram_dout[7:0] : 8'hff;
 end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-reg [13:1]  work_A;
-reg         work_uwe, work_lwe;
-reg         ram_cen;
+wire [16:1] Aeff     = mcu_ram_cs ? mcu_addr : A[16:1];
+wire [ 1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
+wire        wmcu_wr  = mcu_wr & mcu_ram_cs;
 
-always @(*) begin
-    if( mcu_ram_cs ) begin
-        // MCU access
-        work_A   = mcu_addr[13:1];
-        work_uwe = 1'b0;
-        work_lwe = mcu_wr;
-        ram_cen  = 1;
-    end else begin
-        // CPU access
-        work_A   = A[13:1];
-        work_uwe = ram_cs & !UDSWn;
-        work_lwe = ram_cs & !LDSWn;
-        ram_cen  = cpu_cen;
-    end
-end
-
-jtframe_ram #(.aw(13),.cen_rd(1)) u_ramu(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( work_A           ),
-    .data       ( ram_udin         ),
-    .we         ( work_uwe         ),
-    .q          ( wram_dout[15:8]  )
-);
-
-jtframe_ram #(.aw(13),.cen_rd(1)) u_raml( // cen_rd must be set for proper MCU access
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( work_A           ),
-    .data       ( ram_ldin         ),
-    .we         ( work_lwe         ),
-    .q          ( wram_dout[7:0]   )
+jtframe_dual_ram16 #(.aw(13)) u_work_ram (
+    .clk0   ( clk            ),
+    .clk1   ( clk_mcu        ),
+    // Port 0: CPU
+    .data0  ( cpu_dout       ),
+    .addr0  ( Aeff[13:1]     ),
+    .we0    ( wram_dsn       ),
+    .q0     ( wram_dout      ),
+    // Port 1: MCU
+    .data1  ( { 8'hff, mcu_dout} ) ,
+    .addr1  ( mcu_addr[13:1] ),
+    .we1    ( {1'b0,wmcu_wr} ),
+    .q1     (                )
 );
 
 /////////////////////////////////////////////////////
@@ -339,7 +321,7 @@ jtframe_68kdtack u_dtack( // 24 -> 10MHz
     .rst        ( rst       ),
     .clk        ( clk       ),
     .num        ( 4'd5      ),
-    .den        ( 4'd12     ),
+    .den        ( 4'd24     ),
     .cpu_cen    ( cen10     ),
     .cpu_cenb   ( cen10b    ),
     .bus_cs     ( bus_cs    ),
@@ -349,27 +331,6 @@ jtframe_68kdtack u_dtack( // 24 -> 10MHz
     .DSn        ({UDSn,LDSn}),
     .DTACKn     ( DTACKn    )
 );
-
-/*
-(*keep*) reg DTACKn;
-
-always @(posedge clk, posedge rst) begin : dtack_gen
-    reg       last_ASn;
-    if( rst ) begin
-        DTACKn <= 1'b1;
-    end else if(cen10b) begin
-        DTACKn   <= 1'b1;
-        last_ASn <= ASn;
-        if( !ASn  ) begin
-            if( bus_cs ) begin
-                if (!bus_busy) DTACKn <= 1'b0;
-            end
-            else DTACKn <= 1'b0;
-        end
-        if( ASn && !last_ASn ) DTACKn <= 1'b1;
-    end
-end
-*/
 
 // interrupt generation
 reg        int1, int2;

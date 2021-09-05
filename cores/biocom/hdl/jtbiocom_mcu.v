@@ -67,7 +67,7 @@ wire        ram_we;
 wire [ 7:0] ram_q, rom_data;
 
 wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
-(*keep*) reg         int0n, int1n;
+reg         int0n, int1n;
 
 // interface with main CPU
 assign mcu_addr[13:9] = ~5'b0;
