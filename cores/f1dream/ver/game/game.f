@@ -1,7 +1,7 @@
 # fx68k_dummy.v
 ../../hdl/jttora_colmix.v
 ../../hdl/jttora_game.v
-../../hdl/jttora_main.v
+../../../biocom/hdl/jtbiocom_main.v
 ../../hdl/jttora_prom_we.v
 ../../hdl/jttora_video.v
 ../../hdl/jttora_dwnld.v
