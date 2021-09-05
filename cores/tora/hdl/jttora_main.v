@@ -193,6 +193,23 @@ always @(posedge clk)
             endcase
     end
 
+// Cabinet input
+reg [15:0] cabinet_input;
+
+always @(posedge clk) if(cpu_cen) begin
+    case( A[2:1] )
+        2'b00: cabinet_input <= {
+            2'b11, joystick2[5:0],
+            2'b11, joystick1[5:0] };
+        2'b01: cabinet_input <=
+            { coin_input,
+                service,
+                2'b11,
+                ~LVBL, start_button, 8'hff };
+        2'b10: cabinet_input <= { dipsw_a, dipsw_b };
+    endcase
+end
+
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
 always @(posedge clk_mcu) begin
@@ -242,26 +259,8 @@ jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .q1     (                )
 );
 
-// Cabinet input
-reg [15:0] cabinet_input;
-
-always @(posedge clk) if(cpu_cen) begin
-    case( A[2:1] )
-        2'b00: cabinet_input <= {
-            2'b11, joystick2[5:0],
-            2'b11, joystick1[5:0] };
-        2'b01: cabinet_input <=
-            { coin_input,
-                service,
-                2'b11,
-                ~LVBL, start_button, 8'hff };
-        2'b10: cabinet_input <= { dipsw_a, dipsw_b };
-    endcase
-end
-
 // Data bus input
 reg  [15:0] cpu_din;
-reg  [ 7:0] video_dout;
 reg  [15:0] owram_dout;
 wire        owram_cs = obj_cs | ram_cs;
 
@@ -286,7 +285,7 @@ wire       inta_n;
 wire DTACKn;
 wire BUSn = ASn | (LDSn & UDSn);
 
-jtframe_68kdtack u_dtack( // 24 -> 10MHz
+jtframe_68kdtack u_dtack( // 48 -> 10MHz
     .rst        ( rst       ),
     .clk        ( clk       ),
     .num        ( 4'd5      ),
