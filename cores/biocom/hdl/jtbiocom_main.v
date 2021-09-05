@@ -95,28 +95,29 @@ wire [3:0] ncA;
 wire [24:0] A_full = {ncA, A,1'b0};
 `endif
 wire [15:0] wram_dout;
+reg  [15:0] cpu_din;
 wire        BRn, BGACKn, BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scr1hpos_cs, scr2hpos_cs, scr1vpos_cs, scr2vpos_cs;
 wire        ASn;
 
 wire mreq_n, rfsh_n, busak_n;
-assign cpu_cen = cen12;
-reg BERRn;
+reg  BERRn;
 
 // high during DMA transfer
 wire BUSn, UDSn, LDSn;
 wire UDSWn = RnW | UDSn;
 wire LDSWn = RnW | LDSn;
 
-assign BUSn   = ASn | (LDSn & UDSn);
-assign col_uw = col_cs & ~UDSWn;
-assign col_lw = col_cs & ~LDSWn;
+assign BUSn    = ASn | (LDSn & UDSn);
+assign col_uw  = col_cs & ~UDSWn;
+assign col_lw  = col_cs & ~LDSWn;
+assign cpu_cen = cen12;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
+wire [16:1] Aeff = CPUbus ? A[16:1] : mcu_addr;
 
 always @(*) begin
-    rom_cs        = 1'b0;
     ram_cs        = 1'b0;
     obj_cs        = 1'b0;
     col_cs        = 1'b0;
@@ -131,57 +132,44 @@ always @(*) begin
     scr1hpos_cs   = 1'b0;
     scr2hpos_cs   = 1'b0;
 
+    if( !CPUbus || A[19:17]==3'b111 )
+        case( Aeff[16:14] )  // 111X
+            3'd0:   obj_cs  = 1'b1; // E_0000
+            3'd1:   io_cs   = 1'b1; // E_4000
+            3'd2: if( !UDSWn && !LDSWn && Aeff[4]) begin // E_8010
+                // scrpt_cs
+                // $display("SCRPTn");
+                case( A[3:1]) // SCRPTn in the schematics
+                        3'd0: scr1hpos_cs = 1'b1;
+                        3'd1: scr1vpos_cs = 1'b1;
+                        3'd2: scr2hpos_cs = 1'b1;
+                        3'd3: scr2vpos_cs = 1'b1;
+                        3'd4: begin
+                            OKOUT       = 1'b1;
+                            //$display("OKOUT");
+                        end
+                        3'd5: begin
+                            mcu_DMAONn  = 1'b0; // to MCU
+                            //$display("mcu_DOMAONn");
+                        end
+                    default:;
+                endcase
+            end
+            3'd3:   char_cs = 1'b1; // E_C000
+            3'd4:   scr1_cs = 1'b1; // F_0000
+            3'd5:   scr2_cs = 1'b1; // F_4000
+            3'd6:   col_cs  = 1'b1; // F_8000
+            3'd7:   ram_cs  = 1'b1; // F_C000
+        endcase
+end
+
+always @(*) begin
+    rom_cs        = 1'b0;
     BERRn         = 1'b1;
     // address decoder is not shared with MCU contrary to the original design
     if( CPUbus ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
-            2'd3: if(A[17]) case(A[16:14])  // 111X
-                    3'd0:   obj_cs  = 1'b1; // E_0000 
-                    3'd1:   io_cs   = 1'b1; // E_4000
-                    3'd2: if( !UDSWn && !LDSWn && A[4]) begin // E_8010
-                        // scrpt_cs
-                        // $display("SCRPTn");
-                        case( A[3:1]) // SCRPTn in the schematics
-                                3'd0: scr1hpos_cs = 1'b1;
-                                3'd1: scr1vpos_cs = 1'b1;
-                                3'd2: scr2hpos_cs = 1'b1;
-                                3'd3: scr2vpos_cs = 1'b1;
-                                3'd4: begin
-                                    OKOUT       = 1'b1;
-                                    //$display("OKOUT");
-                                end
-                                3'd5: begin
-                                    mcu_DMAONn  = 1'b0; // to MCU
-                                    //$display("mcu_DOMAONn");
-                                end
-                            default:;
-                        endcase
-                    end
-                    3'd3:   char_cs = 1'b1; // E_C000
-                    3'd4:   scr1_cs = 1'b1; // F_0000
-                    3'd5:   scr2_cs = 1'b1; // F_4000
-                    3'd6:   col_cs  = 1'b1; // F_8000
-                    3'd7:   ram_cs  = 1'b1; // F_C000
-                endcase
-        endcase
-end
-
-// MCU DMA address decoder
-reg mcu_obj_cs, mcu_ram_cs, mcu_io_cs, mcu_other_cs;
-reg [13:1]  work_A;
-
-always @(*) begin
-    mcu_obj_cs   = 1'b0;
-    mcu_ram_cs   = 1'b0;
-    mcu_io_cs    = 1'b0;
-    mcu_other_cs = 1'b0;
-    if( !mcu_DMAn && ~BGACKn )
-        case(mcu_addr[16:14])
-            3'd0:    mcu_obj_cs   = 1'b1;
-            3'd1:    mcu_io_cs    = 1'b1;
-            3'd7:    mcu_ram_cs   = 1'b1;
-            default: mcu_other_cs = 1'b1;
         endcase
 end
 
@@ -240,45 +228,38 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-wire [15:0] omcu_dout, wmcu_dout;
 
-always @(posedge clk) begin
-	if (mcu_cen)
-    case( {mcu_obj_cs, mcu_ram_cs, mcu_io_cs } )
-        3'b100:  mcu_din <= omcu_dout[7:0];
-        3'b010:  mcu_din <= wmcu_dout[7:0];
-        3'b001:  mcu_din <= cabinet_input[7:0];
-        default: mcu_din <= 8'hff;
-    endcase
+always @(posedge clk_mcu) begin
+    mcu_din <= cpu_din[7:0];
 end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
 wire [1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
-wire       wmcu_wr  = mcu_wr & mcu_ram_cs;
+wire       wmcu_wr  = mcu_wr & ram_cs;
 
 jtframe_dual_ram16 #(.aw(13)) u_work_ram (
     .clk0   ( clk            ),
     .clk1   ( clk_mcu        ),
     // Port 0: CPU
     .data0  ( cpu_dout       ),
-    .addr0  ( A[13:1]        ),
+    .addr0  ( Aeff[13:1]     ),
     .we0    ( wram_dsn       ),
     .q0     ( wram_dout      ),
     // Port 1: MCU
     .data1  ( { 8'hff, mcu_dout} ) ,
     .addr1  ( mcu_addr[13:1] ),
     .we1    ( {1'b0,wmcu_wr} ),
-    .q1     ( wmcu_dout      )
+    .q1     (                )
 );
 
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
-assign cpu_AB = A[13:1];
+assign cpu_AB = Aeff[13:1];
 
-wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : A[11:1];
+wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : Aeff[11:1];
 wire [ 1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
-wire        omcu_wr  = mcu_wr & mcu_obj_cs;
+wire        omcu_wr  = mcu_wr & obj_cs;
 
 jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .clk0   ( clk            ),
@@ -292,11 +273,10 @@ jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .data1  ( { 8'hff, mcu_dout} ) ,
     .addr1  ( mcu_addr[11:1] ),
     .we1    ( {1'b0,omcu_wr} ),
-    .q1     ( omcu_dout      )
+    .q1     (                )
 );
 
 // Data bus input
-reg  [15:0] cpu_din;
 reg  [ 7:0] video_dout;
 wire        video_cs = char_cs | scr2_cs | scr1_cs;
 reg  [15:0] owram_dout;
@@ -352,8 +332,8 @@ wire DTACKn;
 jtframe_68kdtack u_dtack( // cen = 12MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
-    .num        ( 4'd1       ),
-    .den        ( 4'd4       ),
+    .num        ( 5'd1       ),
+    .den        ( 5'd4       ),
     .cpu_cen    ( cen12      ),
     .cpu_cenb   ( cen12b     ),
     .bus_cs     ( bus_cs     ),

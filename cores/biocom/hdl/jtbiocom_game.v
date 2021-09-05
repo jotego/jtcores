@@ -33,8 +33,8 @@ module jtbiocom_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
