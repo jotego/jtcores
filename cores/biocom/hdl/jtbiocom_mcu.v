@@ -58,7 +58,6 @@ module jtbiocom_mcu(
     input                prom_we
 );
 
-(*keep*) wire [15:0] rom_addr;
 wire [15:0] ext_addr;
 wire [ 6:0] ram_addr;
 wire [ 7:0] ram_data;

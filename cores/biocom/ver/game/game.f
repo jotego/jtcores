@@ -17,6 +17,7 @@ $JTFRAME/hdl/jtframe_z80wait.v
 $JTFRAME/hdl/ram/jtframe_prom.v
 $JTFRAME/hdl/ram/jtframe_ram.v
 $JTFRAME/hdl/ram/jtframe_dual_ram.v
+$JTFRAME/hdl/ram/jtframe_dual_ram16.v
 $JTFRAME/hdl/clocking/jtframe_cencross_strobe.v
 $JTFRAME/hdl/clocking/jtframe_cen24.v
 $JTFRAME/hdl/video/jtframe_blank.v

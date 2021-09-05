@@ -348,6 +348,7 @@ jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
     .clk        ( clk_mcu       ),
     .clk_rom    ( clk           ),
+    .clk_cpu    ( clk           ),
     .cen6a      ( mcu_cen       ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn    ),
