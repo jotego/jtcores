@@ -338,7 +338,7 @@ jtbiocom_main #(.GAME(1)) u_main(
 `endif
 
 `ifdef MCU
-jtbiocom_mcu #(.SINC_XDATA(1)) u_mcu(
+jtbiocom_mcu u_mcu(
     .rst        ( rst             ),
     .clk        ( clk_mcu         ),
     .clk_rom    ( clk             ),
