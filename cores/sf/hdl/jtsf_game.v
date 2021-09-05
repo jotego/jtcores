@@ -440,6 +440,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     jtsf_mcu u_mcu(
         .rst        ( rst       ),
         .clk_rom    ( clk       ),
+        .clk_cpu    ( clk       ),
         .clk        ( clk24     ),
         // Main CPU interface
         .mcu_cen    ( mcu_cen   ),

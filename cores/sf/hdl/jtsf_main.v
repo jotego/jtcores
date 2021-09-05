@@ -227,7 +227,7 @@ assign ram_addr = mcu_master ? mcu_addr[15:1] : A[RAMW:1];
 assign ram_din  = mcu_master ? mcu_dout : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds, ~mcu_ds } : {UDSWn, LDSWn};
 assign ram_we   = mcu_master ? (ram_cs & mcu_wr) : !RnW;
-assign ram_cen  = mcu_master ? mcu_cen : cpu_cen; // only used for internal registers
+assign ram_cen  = mcu_master ? 1'b1 : cpu_cen; // only used for internal registers
 assign mcu_din  = mcu_sel    ? ram_data : cabinet_input; // it looks like only ram_data is used
 
 // SCROLL 1/2 H POSITION, it can be written by both the CPU and the MCU

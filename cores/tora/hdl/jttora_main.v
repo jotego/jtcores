@@ -227,7 +227,7 @@ always @(*) begin
         work_A   = mcu_addr[13:1];
         work_uwe = 1'b0;
         work_lwe = mcu_wr;
-        ram_cen  = mcu_cen;
+        ram_cen  = 1;
     end else begin
         // CPU access
         work_A   = A[13:1];

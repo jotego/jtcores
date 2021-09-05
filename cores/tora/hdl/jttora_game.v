@@ -327,10 +327,11 @@ jttora_main u_main(
 `endif
 
 `ifdef MCU
-jtbiocom_mcu u_mcu(
+jtbiocom_mcu #(.SINC_XDATA(0)) u_mcu(
     .rst        ( rst             ),
-    .clk_rom    ( clk             ),
     .clk        ( clk24           ),
+    .clk_cpu    ( clk             ),
+    .clk_rom    ( clk             ),
     .cen6a      ( mcu_cen         ),       //  6   MHz
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),

@@ -18,6 +18,7 @@
 
 module jtsf_mcu(
     input                rst,
+    input                clk_cpu,
     input                clk_rom,
     input                clk,       // 24MHz
     output               mcu_cen,
@@ -42,12 +43,12 @@ wire [ 7:0] mcu_dout8;
 reg  [ 7:0] mcu_din8;
 
 wire [ 7:0] p1_o, p2_o, p3_o;
-reg         int0;
+reg         int0n;
 assign      mcu_ds = p3_o[4];
 
 // interface with main CPU
 assign mcu_addr = ext_addr[14:0];
-assign mcu_brn  = int0;
+assign mcu_brn  = int0n;
 assign mcu_dout = {2{mcu_dout8}};
 reg    last_mcu_DMAONn;
 
@@ -59,18 +60,20 @@ assign mcu_cen = cen8;
 assign mcu_sel = ext_addr[15];
 
 // Clock enable for 8MHz, like MAME. I need to measure it on the PCB
+// The current i8751 softcore isn't cycle accurate, so it isn't
+// really relevant now
 always @(posedge clk) cencnt <= {cencnt[CW-2:0], cencnt[CW-1]};
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk_cpu, posedge rst) begin
     if( rst ) begin
-        int0 <= 1'b1;
-        last_mcu_DMAONn <= 1'b1;
+        int0n <= 1;
+        last_mcu_DMAONn <= 1;
     end else begin
         last_mcu_DMAONn <= mcu_DMAONn;
         if( !p3_o[1] ) // CLR
-            int0 <= ~1'b0;
+            int0n <= 1;
         else if( mcu_DMAONn && !last_mcu_DMAONn )
-            int0 <= ~1'b1;
+            int0n <= 0;
     end
 end
 
@@ -81,14 +84,14 @@ end
 //    if( cen8 )
 //end
 always @(*)
-        mcu_din8 = mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
+        mcu_din8 = !mcu_ds ? mcu_din[15:8] : mcu_din[7:0];
 
-jtframe_8751mcu u_mcu(
+jtframe_8751mcu #(.SINC_XDATA(1)) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen8      ),
 
-    .int0n      ( int0      ),
+    .int0n      ( int0n     ),
     .int1n      ( 1'b1      ),
 
     .p0_i       ( p0_o      ),
@@ -117,7 +120,7 @@ jtframe_8751mcu u_mcu(
 );
 
 `ifdef SIMULATION
-always @(negedge int0)
-    $display ("MCU: int0 edge - main CPU");
+always @(negedge int0n)
+    $display ("MCU: int0n edge - main CPU");
 `endif
 endmodule

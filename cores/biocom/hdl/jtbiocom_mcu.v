@@ -58,6 +58,8 @@ module jtbiocom_mcu(
     input                prom_we
 );
 
+parameter SINC_XDATA=1;
+
 wire [15:0] ext_addr;
 wire [ 6:0] ram_addr;
 wire [ 7:0] ram_data;
@@ -125,7 +127,10 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_8751mcu #(.ROMBIN("../../../../rom/biocom/ts.2f")) u_mcu(
+jtframe_8751mcu #(
+    .ROMBIN("../../../../rom/biocom/ts.2f"),
+    .SINC_XDATA(SINC_XDATA)
+) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen6a     ),
