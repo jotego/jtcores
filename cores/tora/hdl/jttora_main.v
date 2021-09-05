@@ -96,7 +96,8 @@ reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scrhpos_cs, scrvpos_cs;
 wire        ASn;
 wire        CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
-wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr;
+reg  [16:1] mcu_addr_s;
+wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
 
 
 assign cpu_cen = cen10;
@@ -109,6 +110,8 @@ assign LDSWn = RnW | LDSn;
 
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;
+
+always @(posedge clk) mcu_addr_s <= mcu_addr; // synchronizer
 
 always @(*) begin
     ram_cs     = 1'b0;

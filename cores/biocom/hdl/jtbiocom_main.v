@@ -115,7 +115,10 @@ assign col_lw  = col_cs & ~LDSWn;
 assign cpu_cen = cen12;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
-wire [16:1] Aeff = CPUbus ? A[16:1] : mcu_addr;
+reg  [16:1] mcu_addr_s;
+wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
+
+always @(posedge clk) mcu_addr_s <= mcu_addr; // synchronizer
 
 always @(*) begin
     ram_cs        = 1'b0;
