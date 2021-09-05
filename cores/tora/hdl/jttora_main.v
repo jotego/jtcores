@@ -94,7 +94,10 @@ wire [15:0] wram_dout;
 wire        BRn, BGACKn, BGn;
 reg         io_cs, ram_cs, obj_cs, col_cs;
 reg         scrhpos_cs, scrvpos_cs;
-(*keep*) wire        ASn;
+wire        ASn;
+wire        CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
+wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr;
+
 
 assign cpu_cen = cen10;
 reg BERRn;
@@ -107,10 +110,7 @@ assign LDSWn = RnW | LDSn;
 assign col_uw = col_cs & ~UDSWn;
 assign col_lw = col_cs & ~LDSWn;
 
-wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
-
 always @(*) begin
-    rom_cs     = 1'b0;
     ram_cs     = 1'b0;
     obj_cs     = 1'b0;
     col_cs     = 1'b0;
@@ -121,44 +121,41 @@ always @(*) begin
     scrvpos_cs = 1'b0;
     scrhpos_cs = 1'b0;
 
-    BERRn         = 1'b1;
+    // address decoder is not shared with MCU contrary to the original design
+    if( !CPUbus || A[19:17]==3'b111 )
+        case(Aeff[16:14])  // 111X
+            3'd0:   obj_cs  = 1'b1; // E_0000
+            3'd1:   begin
+                io_cs      = 1'b1; // E_4000
+                mcu_DMAONn = !(A[1] && !RnW);// E_4002
+            end
+            3'd2: if( (!UDSWn || !LDSWn) && !A[4]) begin // E_8000
+                // scrpt_cs
+                case( Aeff[3:1]) // SCRPTn in the schematics
+                        3'd0: scrhpos_cs = 1'b1;
+                        3'd1: scrvpos_cs = 1'b1;
+                        3'd7: begin
+                            OKOUT       = 1'b1;
+                            // $display("OKOUT");
+                        end
+                    default:;
+                endcase
+            end
+            3'd3:   char_cs = 1'b1; // E_C000
+            3'd6:   col_cs  = 1'b1; // F_8000
+            3'd7:   ram_cs  = 1'b1; // F_C000
+            default:;
+        endcase
+end
+
+always @(*) begin
+    rom_cs     = 0;
+    BERRn      = 1;
     // address decoder is not shared with MCU contrary to the original design
     if( CPUbus ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
-            2'd3: if(A[17]) case(A[16:14])  // 111X
-                    3'd0:   obj_cs  = 1'b1; // E_0000
-                    3'd1:   begin
-                        io_cs      = 1'b1; // E_4000
-                        mcu_DMAONn = !(A[1] && !RnW);// E_4002
-                    end
-                    3'd2: if( (!UDSWn || !LDSWn) && !A[4]) begin // E_8000
-                        // scrpt_cs
-                        case( A[3:1]) // SCRPTn in the schematics
-                                3'd0: scrhpos_cs = 1'b1;
-                                3'd1: scrvpos_cs = 1'b1;
-                                3'd7: begin
-                                    OKOUT       = 1'b1;
-                                    // $display("OKOUT");
-                                end
-                            default:;
-                        endcase
-                    end
-                    3'd3:   char_cs = 1'b1; // E_C000
-                    3'd6:   col_cs  = 1'b1; // F_8000
-                    3'd7:   ram_cs  = 1'b1; // F_C000
-                    default:;
-                endcase
         endcase
-end
-
-// MCU DMA address decoder
-reg mcu_ram_cs;
-
-always @(*) begin
-    mcu_ram_cs   = 1'b0;
-    if( !mcu_DMAn )
-        mcu_ram_cs   = 1'b1;
 end
 
 // SCROLL H/V POSITION
@@ -197,30 +194,15 @@ always @(posedge clk)
     end
 
 /////////////////////////////////////////////////////
-// RAMs data input mux
-reg [7:0] ram_udin, ram_ldin;
-
-always @(*) begin
-    if( !mcu_DMAn ) begin
-        ram_udin = 8'hff;       // unused
-        ram_ldin = mcu_dout;
-    end else begin
-        ram_udin = cpu_dout[15:8];
-        ram_ldin = cpu_dout[ 7:0];
-    end
-end
-
-/////////////////////////////////////////////////////
 // MCU DMA data output mux
 always @(posedge clk_mcu) begin
-    mcu_din <= mcu_ram_cs ? wram_dout[7:0] : 8'hff;
+    mcu_din <= cpu_din[7:0];
 end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
-wire [16:1] Aeff     = mcu_ram_cs ? mcu_addr : A[16:1];
 wire [ 1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
-wire        wmcu_wr  = mcu_wr & mcu_ram_cs;
+wire        wmcu_wr  = mcu_wr & ram_cs;
 
 jtframe_dual_ram16 #(.aw(13)) u_work_ram (
     .clk0   ( clk            ),
@@ -239,38 +221,25 @@ jtframe_dual_ram16 #(.aw(13)) u_work_ram (
 
 /////////////////////////////////////////////////////
 // Object RAM, 4kB
-assign cpu_AB = A[13:1];
-reg [10:0] oram_addr;
-reg  obj_uwe, obj_lwe;
+assign cpu_AB = Aeff[13:1];
 
-always @(*) begin
-    if( blcnten) begin // Object DMA
-        oram_addr = obj_AB[11:1];
-        obj_uwe   = 1'b0;
-        obj_lwe   = 1'b0;
-    end else begin
-        oram_addr = A[11:1];
-        obj_uwe   = obj_cs & !UDSWn;
-        obj_lwe   = obj_cs & !LDSWn;
-    end
-end
+wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : Aeff[11:1];
+wire [ 1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
+wire        omcu_wr  = mcu_wr & obj_cs;
 
-jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_ramu(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( oram_addr        ),
-    .data       ( ram_udin         ),
-    .we         ( obj_uwe          ),
-    .q          ( oram_dout[15:8]  )
-);
-
-jtframe_ram #(.aw(11),.cen_rd(0)) u_obj_raml(
-    .clk        ( clk              ),
-    .cen        ( ram_cen          ),
-    .addr       ( oram_addr        ),
-    .data       ( ram_ldin         ),
-    .we         ( obj_lwe          ),
-    .q          ( oram_dout[7:0]   )
+jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
+    .clk0   ( clk            ),
+    .clk1   ( clk_mcu        ),
+    // Port 0: CPU or Object DMA
+    .data0  ( cpu_dout       ),
+    .addr0  ( oram_addr      ),
+    .we0    ( oram_dsn       ),
+    .q0     ( oram_dout      ),
+    // Port 1: MCU
+    .data1  ( { 8'hff, mcu_dout} ) ,
+    .addr1  ( mcu_addr[11:1] ),
+    .we1    ( {1'b0,omcu_wr} ),
+    .q1     (                )
 );
 
 // Cabinet input
@@ -283,7 +252,7 @@ always @(posedge clk) if(cpu_cen) begin
             2'b11, joystick1[5:0] };
         2'b01: cabinet_input <=
             { coin_input,
-                service, // just a guess
+                service,
                 2'b11,
                 ~LVBL, start_button, 8'hff };
         2'b10: cabinet_input <= { dipsw_a, dipsw_b };
