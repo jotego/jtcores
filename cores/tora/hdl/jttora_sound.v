@@ -63,6 +63,14 @@ assign adpcm_snd  = jap ? prepcm_snd : 12'd0;
 
 always @(posedge clk) peak <= mix_peak | fm_peak;
 
+reg [1:0] level_s, level;
+
+always @(posedge clk) begin
+    level_s <= psg_level;
+    level   <= level_s;
+end
+
+
 jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
@@ -78,7 +86,7 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .snd_int    (  1'b1         ), // unused
     .enable_psg (  enable_psg   ),
     .enable_fm  (  enable_fm    ),
-    .psg_level  (  psg_level    ),
+    .psg_level  (  level        ),
     .rom_addr   (  rom_addr     ),
     .rom_cs     (  rom_cs       ),
     .rom_data   (  rom_data     ),
@@ -95,7 +103,7 @@ always @(posedge clk) begin
     if( !enable_psg )
         pcm_gain <= 8'h0;
     else begin
-        case( psg_level )
+        case( level )
             2'd0: pcm_gain <= 8'h04;
             2'd1: pcm_gain <= 8'h08;
             2'd2: pcm_gain <= 8'h10;

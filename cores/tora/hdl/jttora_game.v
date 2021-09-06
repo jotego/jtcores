@@ -140,7 +140,13 @@ jtframe_cen48 u_cen48(
 wire        cen3, mcu_cen, clk_mcu;
 wire        cen10, cenfm, cenp384;
 wire        nc,ncb;
-wire        cen10b;
+wire        cen10b, rst24;
+
+jtframe_rst_sync(
+    .rst        ( rst       ),
+    .clk        ( clk24     ),
+    .rst_sync   ( rst24     )
+);
 
 jtframe_cen24 u_cen(
     .clk    ( clk24     ),
@@ -148,13 +154,13 @@ jtframe_cen24 u_cen(
     .cen12b (           ),
     .cen8   (           ),
     .cen4   (           ),
-    .cen6   ( mcu_cen   ),
+    .cen6   (           ),
     .cen6b  (           ),
     .cen3   ( cen3      ),
     .cen3q  (           ),
     .cen3b  (           ),
     .cen3qb (           ),
-    .cen1p5 (           ),
+    .cen1p5 ( mcu_cen   ),
     .cen1p5b(           )
 );
 
@@ -340,7 +346,7 @@ jtbiocom_main #(.GAME(1)) u_main(
 
 `ifdef MCU
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
-    .rst        ( rst             ),
+    .rst        ( rst24           ),
     .clk        ( clk_mcu         ),
     .clk_rom    ( clk             ),
     .clk_cpu    ( clk             ),
@@ -375,7 +381,7 @@ assign mcu_dout =  8'd0;
 
 `ifndef NOSOUND
 jttora_sound u_sound (
-    .rst            ( rst            ),
+    .rst            ( rst24          ),
     .clk            ( clk24          ),
     .cen3           ( cen3           ),
     .cenfm          ( cenfm          ),

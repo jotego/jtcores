@@ -261,9 +261,11 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
+reg [7:0] mcu_dins;
 
 always @(posedge clk_mcu) begin
-    mcu_din <= cpu_din[7:0];
+    mcu_dins <= cpu_din[7:0];
+    mcu_din  <= mcu_dins;
 end
 
 /////////////////////////////////////////////////////

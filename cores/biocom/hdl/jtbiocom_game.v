@@ -168,11 +168,11 @@ jtframe_cen24 u_cen24(
     .clk    ( clk24     ),
     .cen12  (           ),
     .cen12b (           ),
-    .cen6   ( mcu_cen   ),
+    .cen6   (           ),
     .cen3   ( cen3      ),
     // Unused:
     .cen6b  (           ),
-    .cen1p5 (           ),
+    .cen1p5 ( mcu_cen   ),
     .cen1p5b(           ),
     .cen8   (           ),
     .cen4   (           ),
