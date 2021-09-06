@@ -267,6 +267,7 @@ jtbiocom_main #(.GAME(1)) u_main(
     .scr_bank   ( scr_addr[18]  ),
     // SCROLL 2 - Unused
     .scr2_cs    (               ),
+    .scr2_busy  ( 1'b0          ),
     .scr2_dout  (               ),
     .scr2_hpos  (               ),
     .scr2_vpos  (               ),
@@ -338,7 +339,7 @@ jtbiocom_main #(.GAME(1)) u_main(
 `endif
 
 `ifdef MCU
-jtbiocom_mcu u_mcu(
+jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .rst        ( rst             ),
     .clk        ( clk_mcu         ),
     .clk_rom    ( clk             ),

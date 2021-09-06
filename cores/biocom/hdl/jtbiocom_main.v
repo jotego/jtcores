@@ -377,7 +377,11 @@ jtframe_68kdtack u_dtack( // cen = 12MHz
     .bus_legit  ( bus_legit  ),
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
-    .DTACKn     ( DTACKn     )
+    .DTACKn     ( DTACKn     ),
+    // Unused
+    .fave       (            ),
+    .fworst     (            ),
+    .frst       (            )
 );
 
 // interrupt generation
