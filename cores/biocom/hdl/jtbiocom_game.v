@@ -20,6 +20,7 @@
 module jtbiocom_game(
     input           rst,
     input           clk,
+    input           rst24,
     input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
@@ -245,7 +246,6 @@ wire [8:0] scr2_hpos, scr2_vpos;
 jtbiocom_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .clk_mcu    ( clk_mcu       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_cenb   (               ),
     // Timing
@@ -346,8 +346,9 @@ jtbiocom_main u_main(
 
 `ifndef NOMCU
 jtbiocom_mcu u_mcu(
-    .rst        ( rst           ),
+    .rst        ( rst24         ),
     .clk        ( clk_mcu       ),
+    .rst_cpu    ( rst           ),
     .clk_rom    ( clk           ),
     .clk_cpu    ( clk           ),
     .cen6a      ( mcu_cen       ),       //  6   MHz

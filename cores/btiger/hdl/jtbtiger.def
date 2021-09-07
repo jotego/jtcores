@@ -4,8 +4,8 @@ GAMETOP=jtbtiger_game
 BUTTONS=2
 VIDEO_WIDTH=256
 VIDEO_HEIGHT=224
-# 6 MHz used in MCU to avoid timing errors
-JTFRAME_CLK6
+# 24 MHz used in MCU to avoid timing errors
+JTFRAME_CLK24
 
 # OSD options
 JTFRAME_OSD_VOL

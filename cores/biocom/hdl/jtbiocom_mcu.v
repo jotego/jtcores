@@ -35,6 +35,7 @@
 
 module jtbiocom_mcu(
     input                rst,
+    input                rst_cpu,
     input                clk_rom,
     input                clk_cpu,
     input                clk,
@@ -71,21 +72,36 @@ wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
 reg         int0n, int1n;
 
 // interface with main CPU
+wire [7:0] p3_os;
 assign mcu_addr[13:9] = ~5'b0;
 assign { mcu_addr[16:14], mcu_addr[8:1] } = ext_addr[10:0];
 assign mcu_brn  = int0n;
-assign DMAn     = p3_o[5];
+assign DMAn     = p3_os[5];
 reg    last_DMAONn;
 
-always @(posedge clk_cpu, posedge rst) begin
-    if( rst ) begin
+jtframe_sync #(.W(8)) u_p3sync(
+    .clk    ( clk_cpu   ),
+    .raw    ( p3_o      ),
+    .sync   ( p3_os     )
+);
+
+wire int0n_mcu;
+
+jtframe_sync #(.W(8)) u_intsync(
+    .clk    ( clk_cpu   ),
+    .raw    ( int0n     ),
+    .sync   ( int0n_mcu )
+);
+
+always @(posedge clk_cpu, posedge rst_cpu) begin
+    if( rst_cpu ) begin
         int0n <= 1;
         last_DMAONn <= 1;
     end else begin
         last_DMAONn <= DMAONn;
-        if(!p3_o[0]) // CLR
+        if(!p3_os[0]) // CLR
             int0n <= 1;
-        else if(!p3_o[1])
+        else if(!p3_os[1])
             int0n <= 0; // PR
         else if( DMAONn && !last_DMAONn )
             int0n <= 0;
@@ -128,6 +144,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+wire [7:0] mcu_din_s;
+
+jtframe_sync #(.W(8)) u_sync(
+    .clk    ( clk       ),
+    .raw    ( mcu_din   ),
+    .sync   ( mcu_din_s )
+);
+
 jtframe_8751mcu #(
     .ROMBIN(ROMBIN),
     .SINC_XDATA(SINC_XDATA)
@@ -136,24 +160,24 @@ jtframe_8751mcu #(
     .clk        ( clk       ),
     .cen        ( cen6a     ),
     // external memory: connected to main CPU
-    .x_din      ( mcu_din   ),
+    .x_din      ( mcu_din_s ),
     .x_dout     ( mcu_dout  ),
     .x_addr     ( ext_addr  ),
     .x_wr       ( mcu_wr    ),
     // interrupts
-    .int0n      ( int0n     ),
+    .int0n      ( int0n_mcu ),
     .int1n      ( int1n     ),
     // Ports
-    .p0_i       ( p0_o      ),
+    .p0_i       ( 8'hff     ),
     .p0_o       ( p0_o      ),
 
     .p1_i       ( snd_dout_latch   ),
     .p1_o       ( p1_o      ),
 
-    .p2_i       ( p2_o      ),
+    .p2_i       ( 8'hff     ),
     .p2_o       ( p2_o      ),
 
-    .p3_i       ( p3_o      ),
+    .p3_i       ( 8'hff     ),
     .p3_o       ( p3_o      ),
 
     .clk_rom    ( clk_rom   ),

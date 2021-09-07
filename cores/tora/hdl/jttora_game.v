@@ -20,6 +20,7 @@
 module jttora_game(
     input           rst,
     input           clk,
+    input           rst24,
     input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
@@ -140,13 +141,7 @@ jtframe_cen48 u_cen48(
 wire        cen3, mcu_cen, clk_mcu;
 wire        cen10, cenfm, cenp384;
 wire        nc,ncb;
-wire        cen10b, rst24;
-
-jtframe_rst_sync(
-    .rst        ( rst       ),
-    .clk        ( clk24     ),
-    .rst_sync   ( rst24     )
-);
+wire        cen10b;
 
 jtframe_cen24 u_cen(
     .clk    ( clk24     ),
@@ -246,7 +241,6 @@ wire UDSWn, LDSWn;
 jtbiocom_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .clk_mcu    ( clk24         ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_cenb   (               ),
     // Timing
@@ -348,6 +342,7 @@ jtbiocom_main #(.GAME(1)) u_main(
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .rst        ( rst24           ),
     .clk        ( clk_mcu         ),
+    .rst_cpu    ( rst             ),
     .clk_rom    ( clk             ),
     .clk_cpu    ( clk             ),
     .cen6a      ( mcu_cen         ),       //  6   MHz

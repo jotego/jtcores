@@ -20,6 +20,7 @@
 module jtgng_game(
     input           rst,
     input           clk,
+    input           rst24,
     input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
@@ -193,7 +194,7 @@ jtgng_prom_we u_prom_we(
 
 `ifndef NOMAIN
 jtgng_main u_main(
-    .rst        ( rst           ),
+    .rst        ( rst24         ),
     .clk        ( clk24         ),
     .cen6       ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
@@ -262,7 +263,7 @@ assign cpu_cen     = cen3;
 
 `ifndef NOSOUND
 jtgng_sound u_sound (
-    .rst            ( rst        ),
+    .rst            ( rst24      ),
     .clk            ( clk24      ),
     .cen3           ( cen3       ),
     .cen1p5         ( cen1p5     ),

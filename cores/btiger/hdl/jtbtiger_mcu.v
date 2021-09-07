@@ -21,8 +21,8 @@
 
 module jtbtiger_mcu(
     input                rst,
-    input                clk,
-    input                clk6,
+    input                clk,       // 24 MHz
+    input                clk_rom,
     input                LVBL,
     // Main CPU interface
     output       [ 7:0]  mcu_dout,
@@ -37,8 +37,17 @@ module jtbtiger_mcu(
 
 wire [ 7:0] p1_o, p2_o, p3_o;
 
-reg mcu_int1;
-reg last_mcu_wr;
+reg  mcu_int1;
+reg  last_mcu_wr;
+wire nc, cen;
+
+jtframe_frac_cen u_cen(
+    .clk    ( clk       ),
+    .n      ( 10'd1     ),
+    .m      ( 10'd24    ),
+    .cen    ( {nc, cen} ), // cen = 1MHz
+    .cenb   (           )
+);
 
 // Port 3. All bits active low
 // 4 output enable of from-CPU latch
@@ -48,7 +57,7 @@ reg last_mcu_wr;
 // Note that MAME clears the interrupt in a different way
 // as it does it when the main CPU reads from the MCU
 
-always @(posedge clk6) begin
+always @(posedge clk) begin
     last_mcu_wr <= mcu_wr;
     if( mcu_wr && !last_mcu_wr ) mcu_int1 <= 1'b0;
     if( !p3_o[1] || mcu_rd ) mcu_int1 <= 1'b1;
@@ -56,8 +65,8 @@ end
 
 jtframe_8751mcu u_mcu(
     .rst        ( rst       ),
-    .clk        ( clk6      ),
-    .cen        ( 1'b1      ),
+    .clk        ( clk       ),
+    .cen        ( cen       ),
 
     .int0n      ( 1'b1      ),
     .int1n      ( mcu_int1  ),
@@ -81,7 +90,7 @@ jtframe_8751mcu u_mcu(
     .x_wr       (           ),
 
     // ROM programming
-    .clk_rom    ( clk       ),
+    .clk_rom    ( clk_rom   ),
     .prog_addr  ( prog_addr ),
     .prom_din   ( prom_din  ),
     .prom_we    ( prom_we   )

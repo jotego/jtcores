@@ -22,7 +22,6 @@
 module jtbiocom_main(
     input              rst,
     input              clk,
-    input              clk_mcu,
     output             cpu_cen,
     output             cpu_cenb,
     // Timing
@@ -119,10 +118,16 @@ assign col_uw  = col_cs & ~UDSWn;
 assign col_lw  = col_cs & ~LDSWn;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
-reg  [16:1] mcu_addr_s;
+wire [16:1] mcu_addr_s;
+wire [ 7:0] mcu_dout_s;
+wire        mcu_wr_s;
 wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
 
-always @(posedge clk) mcu_addr_s <= mcu_addr; // synchronizer
+jtframe_sync #(.W(16+8+1)) u_mcus(
+    .clk    ( clk       ),
+    .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
+    .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
+);
 
 always @(*) begin
     ram_cs        = 1'b0;
@@ -261,28 +266,25 @@ end
 
 /////////////////////////////////////////////////////
 // MCU DMA data output mux
-reg [7:0] mcu_dins;
-
-always @(posedge clk_mcu) begin
-    mcu_dins <= cpu_din[7:0];
-    mcu_din  <= mcu_dins;
+always @(posedge clk) begin
+    mcu_din <= cpu_din[7:0];
 end
 
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
 wire [1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
-wire       wmcu_wr  = mcu_wr & ram_cs;
+wire       wmcu_wr  = mcu_wr_s & ram_cs;
 
 jtframe_dual_ram16 #(.aw(13)) u_work_ram (
     .clk0   ( clk            ),
-    .clk1   ( clk_mcu        ),
+    .clk1   ( clk            ),
     // Port 0: CPU
     .data0  ( cpu_dout       ),
     .addr0  ( Aeff[13:1]     ),
     .we0    ( wram_dsn       ),
     .q0     ( wram_dout      ),
     // Port 1: MCU
-    .data1  ( { 8'hff, mcu_dout} ) ,
+    .data1  ( { 8'hff, mcu_dout_s} ) ,
     .addr1  ( mcu_addr[13:1] ),
     .we1    ( {1'b0,wmcu_wr} ),
     .q1     (                )
@@ -294,18 +296,18 @@ assign cpu_AB = Aeff[13:1];
 
 wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : Aeff[11:1];
 wire [ 1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
-wire        omcu_wr  = mcu_wr & obj_cs;
+wire        omcu_wr  = mcu_wr_s & obj_cs;
 
 jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .clk0   ( clk            ),
-    .clk1   ( clk_mcu        ),
+    .clk1   ( clk        ),
     // Port 0: CPU or Object DMA
     .data0  ( cpu_dout       ),
     .addr0  ( oram_addr      ),
     .we0    ( oram_dsn       ),
     .q0     ( oram_dout      ),
     // Port 1: MCU
-    .data1  ( { 8'hff, mcu_dout} ) ,
+    .data1  ( { 8'hff, mcu_dout_s} ) ,
     .addr1  ( mcu_addr[11:1] ),
     .we1    ( {1'b0,omcu_wr} ),
     .q1     (                )

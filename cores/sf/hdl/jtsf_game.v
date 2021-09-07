@@ -19,9 +19,7 @@
 module jtsf_game(
     input           rst,
     input           clk,
-    `ifdef JTFRAME_CLK96
-    input           clk48,
-    `endif
+    input           rst24,
     input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
@@ -179,10 +177,13 @@ reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
 
+always @(negedge clk24) begin
+    snd_rst   <= rst24;
+end
+
 always @(negedge clk) begin
-    snd_rst   <= rst;
+    main_rst  <= rst24;
     video_rst <= rst;
-    main_rst  <= rst;
 end
 
 
@@ -317,7 +318,7 @@ assign dsn = {UDSWn, LDSWn};
 `ifndef NOMAIN
 jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rst        ( main_rst      ),
-    .clk        ( clk24         ),
+    .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
     .flip       ( flip          ),

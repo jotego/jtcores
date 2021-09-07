@@ -19,6 +19,7 @@
 module jtrumble_game(
     input           rst,
     input           clk,
+    input           rst24,
     input           clk24,
     output          pxl2_cen,   // 12   MHz
     output          pxl_cen,    //  6   MHz
@@ -168,7 +169,7 @@ jtframe_cendiv u_cendiv(
 );
 
 jtrumble_main u_main(
-    .rst        ( rst           ),
+    .rst        ( rst24         ),
     .clk        ( clk24         ),
     .cen8       ( cen24_8       ),
     .cpu_cen    ( cpu_cen       ),
@@ -286,7 +287,7 @@ jtgng_sound #(
     .LAYOUT (10 ),
     .PSG_ATT( 2 )   // Fx is very loud in this game
 ) u_fmcpu (
-    .rst        (  rst          ),
+    .rst        (  rst24        ),
     .clk        (  clk24        ),
     .cen3       (  cen24_4      ),
     .cen1p5     (  cen24_2      ), // unused
