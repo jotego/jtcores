@@ -144,7 +144,9 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire [7:0] mcu_din_s;
+wire [7:0] mcu_din_s, x_dout;
+assign mcu_wr = x_wr | ~p3_o[6]; // wr pin
+assign mcu_dout = x_wr ? x_dout : p0_o;
 
 jtframe_sync #(.W(8)) u_sync(
     .clk    ( clk       ),
@@ -161,9 +163,9 @@ jtframe_8751mcu #(
     .cen        ( cen6a     ),
     // external memory: connected to main CPU
     .x_din      ( mcu_din_s ),
-    .x_dout     ( mcu_dout  ),
+    .x_dout     ( x_dout    ),
     .x_addr     ( ext_addr  ),
-    .x_wr       ( mcu_wr    ),
+    .x_wr       ( x_wr      ),
     // interrupts
     .int0n      ( int0n_mcu ),
     .int1n      ( int1n     ),
