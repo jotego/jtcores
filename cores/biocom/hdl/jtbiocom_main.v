@@ -144,6 +144,7 @@ always @(*) begin
     scr2vpos_cs   = 1'b0;
     scr2hpos_cs   = 1'b0;
 
+    // The address decoder is shared with the MCU like the original design
     if( !CPUbus || A[19:17]==3'b111 )
         case( Aeff[16:14] )  // 111X
             3'd0: obj_cs  = 1'b1; // E_0000
@@ -176,7 +177,6 @@ end
 always @(*) begin
     rom_cs        = 1'b0;
     BERRn         = 1'b1;
-    // address decoder is not shared with MCU contrary to the original design
     if( CPUbus ) case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
@@ -369,7 +369,7 @@ wire DTACKn;
 localparam [4:0] DIV_NUM= GAME==0 ? 1 :  5;
 localparam [4:0] DIV_DEN= GAME==0 ? 4 : 24;
 
-jtframe_68kdtack u_dtack( // cen = 12MHz
+jtframe_68kdtack u_dtack( // cen = 12 or 10 MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
     .num        ( DIV_NUM    ),
