@@ -140,6 +140,10 @@ assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;
 assign addr     = A[MAINW:1];
 assign cpu_AB   = A[13:1];
+wire [16:1] mcu_addr_s;
+wire [ 7:0] mcu_dout_s;
+wire        mcu_wr_s, mcu_ds_s;
+wire [23:1] Aeff   = CPUbus ? A : { ~7'd0, mcu_addr_s };
 
 // obj_cs gates the object RAM clock for CPU access, this
 // helps with the hold time for the write (MiSTer target)
@@ -154,6 +158,12 @@ assign BUSn       = ASn | (LDSn & UDSn);
 `ifdef SIMULATION
 wire [24:0] A_full = {A,1'b0};
 `endif
+
+jtframe_sync #(.W(16+8+1+1)) u_mcus(
+    .clk    ( clk       ),
+    .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds } ),
+    .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s } )
+);
 
 reg regs_cs;
 
@@ -173,24 +183,24 @@ always @(*) begin
     snd_nmi_n  = 1;
 
     BERRn      = 1;
-    mcu_DMAONn     = 1;
+    mcu_DMAONn = 1;
     regs_cs    = 0;
 
-    if( !ASn && BGACKn ) begin
-        case(A[23:20])
-            4'h0: rom_cs  = 1;
+    if( !CPUbus || (!ASn && BGACKn) ) begin
+        case(Aeff[23:20])
+            4'h0: rom_cs  = 1;  // reading from the ROM may fail from the MCU, but it shouldn't matter
             4'h8: char_cs = 1;
             4'hb: col_cs  = 1;
-            4'hf: if( A[15]) begin  // 32kB!
-                if( A[14:13]==2'b11 && A[5:3]==3'd0 ) begin // FE - object RAM
+            4'hf: if( Aeff[15]) begin  // 32kB!
+                if( Aeff[14:13]==2'b11 && Aeff[5:3]==3'd0 ) begin // FE - object RAM
                     obj_cs = 1;
                 end else begin
                     pre_ram_cs = 1;
                 end
             end
-            4'hc: if(A[19:16]==4'd0) begin
-                io_cs = !A[4] && RnW;
-                if( A[4] && !RnW )
+            4'hc: if(Aeff[19:16]==4'd0) begin
+                io_cs = !Aeff[4] && RnW;
+                if( Aeff[4] && !RnW )
                     regs_cs = 1;
             end
             //default: BERRn = ASn;
@@ -201,7 +211,7 @@ always @(*) begin
     // output registers
     if( mcu_master & ~mcu_sel ) regs_cs = 1;
     if( regs_cs ) begin
-        case( mcu_master ? mcu_addr[3:1] : A[3:1] )
+        case( Aeff[3:1] )
             // 3'd1: coin_cs    = 1;  // coin counters
             3'd2: scr1pos_cs = 1;
             3'd4: scr2pos_cs = 1;
@@ -223,10 +233,10 @@ end
 
 // MCU and shared bus
 assign ram_cs   = mcu_master ? mcu_sel  : ( ~BUSn & (dsn_dly ? reg_ram_cs  : pre_ram_cs));
-assign ram_addr = mcu_master ? mcu_addr[15:1] : A[RAMW:1];
-assign ram_din  = mcu_master ? mcu_dout : cpu_dout;
-assign ram_dsn  = mcu_master ? { mcu_ds, ~mcu_ds } : {UDSWn, LDSWn};
-assign ram_we   = mcu_master ? (ram_cs & mcu_wr) : !RnW;
+assign ram_addr = Aeff[15:1];
+assign ram_din  = mcu_master ? mcu_dout_s : cpu_dout;
+assign ram_dsn  = mcu_master ? { mcu_ds_s, ~mcu_ds_s } : {UDSWn, LDSWn};
+assign ram_we   = mcu_master ? (ram_cs & mcu_wr_s) : !RnW;
 assign ram_cen  = mcu_master ? 1'b1 : cpu_cen; // only used for internal registers
 assign mcu_din  = mcu_sel    ? ram_data : cabinet_input; // it looks like only ram_data is used
 

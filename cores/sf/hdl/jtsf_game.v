@@ -150,7 +150,7 @@ wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
 wire [15:0]  mcu_din;
 wire [15:0]  mcu_dout;
-wire         mcu_cen, mcu_wr;
+wire         mcu_wr;
 wire [15:1]  mcu_addr;
 wire         mcu_sel, mcu_brn, mcu_DMAONn, mcu_ds;
 
@@ -355,7 +355,6 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .col_uw     ( col_uw        ),
     .col_lw     ( col_lw        ),
     // MCU interface
-    .mcu_cen    ( mcu_cen       ),
     .mcu_din    ( mcu_din       ),
     .mcu_dout   ( mcu_dout      ),
     .mcu_wr     ( mcu_wr        ),
@@ -439,12 +438,12 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
 
 `ifndef NOMCU
     jtsf_mcu u_mcu(
-        .rst        ( rst       ),
+        .rst        ( rst24     ),
         .clk_rom    ( clk       ),
+        .rst_cpu    ( rst       ),
         .clk_cpu    ( clk       ),
         .clk        ( clk24     ),
         // Main CPU interface
-        .mcu_cen    ( mcu_cen   ),
         .mcu_din    ( mcu_din   ),
         .mcu_dout   ( mcu_dout  ),
         .mcu_wr     ( mcu_wr    ),
