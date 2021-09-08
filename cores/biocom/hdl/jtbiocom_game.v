@@ -257,7 +257,7 @@ jtbiocom_main u_main(
     .snd_latch  ( snd_latch     ),
     .snd_nmi_n  ( snd_nmi_n     ),
     // CHAR
-    .char_dout  ( char_dout     ),
+    .char_dout  ( { 8'hff, char_dout } ), // upper 8 bits unused
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
     .char_busy  ( char_busy     ),

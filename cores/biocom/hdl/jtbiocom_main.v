@@ -34,7 +34,7 @@ module jtbiocom_main(
     //output  reg  [7:0] snd_hack,
     output  reg        snd_nmi_n,
     // Characters
-    input        [7:0] char_dout,
+    input       [15:0] char_dout,
     output      [15:0] cpu_dout,
     output  reg        char_cs,
     input              char_busy,
@@ -320,18 +320,19 @@ reg  [15:0] owram_dout;
 wire        owram_cs = obj_cs | ram_cs;
 
 always @(posedge clk) begin
+    owram_dout <= obj_cs ? oram_dout : wram_dout;
+    // GAME==0 uses this:
     case( {scr2_cs, scr1_cs} )
         2'b10:   video_dout <= scr2_dout;
         2'b01:   video_dout <= scr1_dout;
-        default: video_dout <= char_dout;
+        default: video_dout <= char_dout[7:0];
     endcase
-    owram_dout <= obj_cs ? oram_dout : wram_dout;
 end
 
 always @(*)
     case( {owram_cs, video_cs, io_cs} )
         3'b100:  cpu_din = owram_dout;
-        3'b010:  cpu_din = { 8'hff, video_dout };
+        3'b010:  cpu_din = GAME==1 ? char_dout : { 8'hff, video_dout };
         3'b001:  cpu_din = cabinet_input;
         default: cpu_din = rom_data;
     endcase
