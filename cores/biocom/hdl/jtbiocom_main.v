@@ -145,7 +145,7 @@ always @(*) begin
     scr2hpos_cs   = 1'b0;
 
     // The address decoder is shared with the MCU like the original design
-    if( !CPUbus || A[19:17]==3'b111 )
+    if( !CPUbus || (A[19:17]==3'b111 && !ASn) )
         case( Aeff[16:14] )  // 111X
             3'd0: obj_cs  = 1'b1; // E_0000
             3'd1: begin
@@ -285,7 +285,7 @@ jtframe_dual_ram16 #(.aw(13)) u_work_ram (
     .q0     ( wram_dout      ),
     // Port 1: MCU
     .data1  ( { 8'hff, mcu_dout_s} ) ,
-    .addr1  ( mcu_addr[13:1] ),
+    .addr1  ( mcu_addr_s[13:1] ),
     .we1    ( {1'b0,wmcu_wr} ),
     .q1     (                )
 );
@@ -308,7 +308,7 @@ jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
     .q0     ( oram_dout      ),
     // Port 1: MCU
     .data1  ( { 8'hff, mcu_dout_s} ) ,
-    .addr1  ( mcu_addr[11:1] ),
+    .addr1  ( mcu_addr_s[11:1] ),
     .we1    ( {1'b0,omcu_wr} ),
     .q1     (                )
 );
