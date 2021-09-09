@@ -75,7 +75,7 @@ module jtsf_main #(
     output             bus_ack,  // bus acknowledge
     input              blcnten,  // bus line counter enable
     // MCU interfcae
-    output     [15:0]  mcu_din,
+    output reg [15:0]  mcu_din,
     input      [ 7:0]  mcu_dout,
     input              mcu_wr,
     input              mcu_acc,
@@ -237,7 +237,8 @@ assign ram_din  = mcu_master ? {2{mcu_dout_s}} : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds_s, ~mcu_ds_s } : {UDSWn, LDSWn};
 assign ram_we   = mcu_master ? (ram_cs & mcu_wr_s) : !RnW;
 assign ram_cen  = mcu_master ? 1'b1 : cpu_cen; // only used for internal registers
-assign mcu_din  = mcu_sel_s  ? ram_data : cabinet_input; // it looks like only ram_data is used
+
+always @(posedge clk) mcu_din <= cpu_din;
 
 // SCROLL 1/2 H POSITION, it can be written by both the CPU and the MCU
 always @(posedge clk, posedge rst) begin
