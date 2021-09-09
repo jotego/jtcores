@@ -81,7 +81,7 @@ module jtsf_main #(
     input              mcu_acc,
     input      [15:1]  mcu_addr,
     input              mcu_sel, // 1 for RAM, 0 for cabinet I/O
-    input              mcu_brn, // RQBSQn    // Palette
+    input              mcu_brn, // RQBSQn
     output reg         mcu_DMAONn,
     input              mcu_ds,
     // Palette

@@ -56,7 +56,7 @@ reg    last_mcu_DMAONn;
 
 reg [5:0] cencnt=1;
 // If the original was 8MHz, the cen should be about 8/12=24/cen -> cen ~ 36
-wire cen1 = (mcu_sel & ~mcu_brn & ~ram_ok) ? 0 : cencnt==0;
+wire cen1 = (mcu_sel & mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : cencnt==0;
 
 assign mcu_sel = ext_addr[15];
 
