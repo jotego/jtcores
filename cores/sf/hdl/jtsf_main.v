@@ -143,7 +143,7 @@ assign cpu_AB   = A[13:1];
 wire [15:1] mcu_addr_s;
 wire [ 7:0] mcu_dout_s;
 wire        mcu_wr_s, mcu_ds_s, mcu_acc_s, mcu_sel_s;
-wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {6{mcu_sel_s}}, mcu_addr_s };
+wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {7{mcu_sel_s}}, mcu_addr_s[14:1] };
 
 // obj_cs gates the object RAM clock for CPU access, this
 // helps with the hold time for the write (MiSTer target)
@@ -307,7 +307,7 @@ end
 localparam BUT1=4, BUT2=5, BUT3=6, BUT4=7, BUT5=8, BUT6=9;
 
 always @(posedge clk) begin
-    case( mcu_master ? mcu_addr[3:1] : A[3:1] )
+    case( Aeff[3:1] )
         3'd0: cabinet_input <= { // IN0 in MAME
                 4'hf, // 15-12
                 1'b1, // 11
