@@ -50,9 +50,11 @@ module mist_dump(
             $shm_probe(frame_cnt);
             //$shm_probe(UUT.u_game.u_sound,"A");
             $shm_probe(UUT.u_game.u_main,"A");
-            $shm_probe(UUT.u_game.u_mcu,"A");
-            $shm_probe(UUT.u_game.u_mcu.u_mcu,"A");
-            $shm_probe(UUT.u_game.u_mcu.u_mcu.u_mcu,"A");
+            `ifndef NOMCU
+                $shm_probe(UUT.u_game.u_mcu,"A");
+                $shm_probe(UUT.u_game.u_mcu.u_mcu,"A");
+                $shm_probe(UUT.u_game.u_mcu.u_mcu.u_mcu,"A");
+            `endif
             //$shm_probe(UUT.u_game.u_sound.u_fmcpu,"A");
         `endif
     end

@@ -122,7 +122,7 @@ jtframe_8751mcu #(.SINC_XDATA(1)) u_mcu(
     .p2_i       ( p2_o      ),
     .p2_o       ( p2_o      ),
 
-    .p3_i       ( p3_i      ),
+    .p3_i       ( p3_o      ),
     .p3_o       ( p3_o      ),
 
     // external memory

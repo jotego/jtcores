@@ -61,7 +61,7 @@ module mist_dump(
                 `ifdef OBJLOAD
                     $shm_probe(UUT.u_game.u_objload,"A");
                 `else
-                $shm_probe(UUT.u_game,"A");
+                //$shm_probe(UUT.u_game,"A");
                 $shm_probe(UUT.u_game.u_main,"A");
                 $shm_probe(UUT.u_game.u_mcu,"A");
                 $shm_probe(UUT.u_game.u_mcu.u_mcu,"A");
