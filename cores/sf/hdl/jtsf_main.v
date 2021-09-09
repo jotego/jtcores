@@ -283,12 +283,24 @@ always @(posedge clk) begin
     end
 end
 
+`ifdef SIMULATION
+    initial begin
+        reg_ram_cs = 0;
+        dsn_dly    = 2'b11;
+    end
+`endif
+
 // ram_cs and vram_cs signals go down before DSWn signals
 // that causes a false read request to the SDRAM. In order
 // to avoid that a little bit of logic is needed:
-always @(posedge clk) if(cen8) begin
-    reg_ram_cs  <= pre_ram_cs;
-    dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
+always @(posedge clk, posedge rst)  begin
+    if(rst) begin
+        reg_ram_cs <= 0;
+        dsn_dly    <= 2'b11;
+    end else if(cen8) begin
+        reg_ram_cs  <= pre_ram_cs;
+        dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
+    end
 end
 
 // Cabinet input

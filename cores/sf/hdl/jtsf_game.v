@@ -182,7 +182,7 @@ always @(negedge clk24) begin
 end
 
 always @(negedge clk) begin
-    main_rst  <= rst24;
+    main_rst  <= rst;
     video_rst <= rst;
 end
 
