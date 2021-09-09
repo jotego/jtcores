@@ -107,7 +107,11 @@ jtframe_sync #(.W(16)) u_sync(
     .sync   ( mcu_din_s )
 );
 
-jtframe_8751mcu #(.SINC_XDATA(1)) u_mcu(
+jtframe_8751mcu #(
+    .SINC_XDATA(1),
+    //.ROMBIN("mcutest.bin")
+    .ROMBIN("../../../../rom/sfmcu.bin")
+) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen1      ),
