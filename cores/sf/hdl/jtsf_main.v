@@ -134,7 +134,7 @@ assign cpu_cen  = cen8;
 // high during DMA transfer
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
-assign CPUbus   = BGACKn && BGn; // main CPU in control of the bus
+assign CPUbus   = BGACKn; // main CPU in control of the bus
 
 assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;
@@ -358,8 +358,13 @@ wire       int1, int2;
 wire [2:0] FC;
 wire       inta_n;
 wire       bus_cs =   |{ rom_cs, char_cs, pre_ram_cs, ram_cs };
-wire       bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
+reg        bus_busy;
 wire       DTACKn;
+
+always @* begin
+    bus_busy = |{ rom_cs & ~rom_ok, char_busy, pre_ram_cs & ~ram_ok };
+    if( BUSn ) bus_busy=0;
+end
 
 jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
