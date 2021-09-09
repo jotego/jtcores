@@ -26,6 +26,7 @@ module jtsf_mcu(
     input        [15:0]  mcu_din,
     output       [15:0]  mcu_dout,
     output               mcu_wr,
+    output               mcu_acc,
     output       [15:1]  mcu_addr,
     output               mcu_sel, // 1 for RAM, 0 for cabinet I/O
     output               mcu_brn,   // RQBSQn
@@ -129,6 +130,7 @@ jtframe_8751mcu #(.SINC_XDATA(1)) u_mcu(
     .x_dout     ( mcu_dout8 ),
     .x_addr     ( ext_addr  ),
     .x_wr       ( mcu_wr    ),
+    .x_acc      ( mcu_acc   ),
 
     // ROM programming
     .clk_rom    ( clk_rom   ),
