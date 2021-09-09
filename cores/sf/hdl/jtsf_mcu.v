@@ -85,6 +85,8 @@ always @(posedge clk_cpu, posedge rst_cpu) begin
         last_mcu_DMAONn <= 1;
     end else begin
         last_mcu_DMAONn <= mcu_DMAONn;
+        if( !p3_os[0] ) // CLR
+            int0n <= 0;
         if( !p3_os[1] ) // CLR
             int0n <= 1;
         else if( mcu_DMAONn && !last_mcu_DMAONn )
