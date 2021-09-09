@@ -149,7 +149,7 @@ wire [31:0] map1_data, map2_data;
 wire [ 7:0] snd1_data, snd2_data;
 // MCU interface
 wire [15:0]  mcu_din;
-wire [15:0]  mcu_dout;
+wire [ 7:0]  mcu_dout;
 wire         mcu_wr, mcu_acc;
 wire [15:1]  mcu_addr;
 wire         mcu_sel, mcu_brn, mcu_DMAONn, mcu_ds;

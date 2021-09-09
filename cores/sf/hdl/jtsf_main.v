@@ -76,7 +76,7 @@ module jtsf_main #(
     input              blcnten,  // bus line counter enable
     // MCU interfcae
     output     [15:0]  mcu_din,
-    input      [15:0]  mcu_dout,
+    input      [ 7:0]  mcu_dout,
     input              mcu_wr,
     input              mcu_acc,
     input      [15:1]  mcu_addr,
@@ -134,16 +134,16 @@ assign cpu_cen  = cen8;
 // high during DMA transfer
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
-assign CPUbus   = !blcnten; // main CPU in control of the bus
+assign CPUbus   = !BGACKn && !BGn; // main CPU in control of the bus
 
 assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;
 assign addr     = A[MAINW:1];
 assign cpu_AB   = A[13:1];
-wire [16:1] mcu_addr_s;
+wire [15:1] mcu_addr_s;
 wire [ 7:0] mcu_dout_s;
 wire        mcu_wr_s, mcu_ds_s, mcu_acc_s, mcu_sel_s;
-wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {5{mcu_sel_s}}, mcu_addr_s };
+wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {6{mcu_sel_s}}, mcu_addr_s };
 
 // obj_cs gates the object RAM clock for CPU access, this
 // helps with the hold time for the write (MiSTer target)
@@ -159,7 +159,7 @@ assign BUSn       = ASn | (LDSn & UDSn);
 wire [24:0] A_full = {A,1'b0};
 `endif
 
-jtframe_sync #(.W(16+8+1+1+1+1)) u_mcus(
+jtframe_sync #(.W(15+8+1+1+1+1)) u_mcus(
     .clk    ( clk       ),
     .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc, mcu_sel } ),
     .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s, mcu_sel_s } )
@@ -233,7 +233,7 @@ end
 // MCU and shared bus
 assign ram_cs   = mcu_master ? pre_ram_cs : ( ~BUSn & (dsn_dly ? reg_ram_cs  : pre_ram_cs));
 assign ram_addr = Aeff[15:1];
-assign ram_din  = mcu_master ? mcu_dout_s : cpu_dout;
+assign ram_din  = mcu_master ? {2{mcu_dout_s}} : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds_s, ~mcu_ds_s } : {UDSWn, LDSWn};
 assign ram_we   = mcu_master ? (ram_cs & mcu_wr_s) : !RnW;
 assign ram_cen  = mcu_master ? 1'b1 : cpu_cen; // only used for internal registers
@@ -364,8 +364,8 @@ wire       DTACKn;
 jtframe_68kdtack u_dtack( // 48 -> 8MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
-    .num        ( 4'd1       ),
-    .den        ( 4'd6       ),
+    .num        ( 5'd1       ),
+    .den        ( 5'd6       ),
     .cpu_cen    ( cen8       ),
     .cpu_cenb   ( cen8b      ),
     .bus_cs     ( bus_cs     ),

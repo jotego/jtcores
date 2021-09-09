@@ -24,7 +24,7 @@ module jtsf_mcu(
     input                clk_rom,
     // Main CPU interface
     input        [15:0]  mcu_din,
-    output       [15:0]  mcu_dout,
+    output       [ 7:0]  mcu_dout,
     output               mcu_wr,
     output               mcu_acc,
     output       [15:1]  mcu_addr,
@@ -51,12 +51,11 @@ assign      mcu_ds = p3_o[4];
 wire [7:0] p3_os;
 assign mcu_addr = ext_addr[14:0];
 assign mcu_brn  = int0n;
-assign mcu_dout = {2{mcu_dout8}};
 reg    last_mcu_DMAONn;
 
 reg [5:0] cencnt=1;
 // If the original was 8MHz, the cen should be about 8/12=24/cen -> cen ~ 36
-wire cen1 = (mcu_sel & mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : cencnt==0;
+wire cen1 = /*(mcu_sel & mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : */cencnt==0;
 
 assign mcu_sel = ext_addr[15];
 
@@ -85,8 +84,8 @@ always @(posedge clk_cpu, posedge rst_cpu) begin
         last_mcu_DMAONn <= 1;
     end else begin
         last_mcu_DMAONn <= mcu_DMAONn;
-        // if( !p3_os[0] ) // CLR
-        //     int0n <= 0;
+        if( !p3_os[0] ) // PRESET, may not be in real hardware
+            int0n <= 0; // I use it for test
         if( !p3_os[1] ) // CLR
             int0n <= 1;
         else if( mcu_DMAONn && !last_mcu_DMAONn )
@@ -109,8 +108,8 @@ jtframe_sync #(.W(16)) u_sync(
 
 jtframe_8751mcu #(
     .SINC_XDATA(1),
-    //.ROMBIN("mcutest.bin")
-    .ROMBIN("../../../../rom/sfmcu.bin")
+    .ROMBIN("mcutest.bin")
+    //.ROMBIN("../../../../rom/sfmcu.bin")
 ) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -133,7 +132,7 @@ jtframe_8751mcu #(
 
     // external memory
     .x_din      ( mcu_din8  ),
-    .x_dout     ( mcu_dout8 ),
+    .x_dout     ( mcu_dout  ),
     .x_addr     ( ext_addr  ),
     .x_wr       ( mcu_wr    ),
     .x_acc      ( mcu_acc   ),
