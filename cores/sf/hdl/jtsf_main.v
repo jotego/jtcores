@@ -134,7 +134,7 @@ assign cpu_cen  = cen8;
 // high during DMA transfer
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
-assign CPUbus   = !BGACKn && !BGn; // main CPU in control of the bus
+assign CPUbus   = BGACKn && BGn; // main CPU in control of the bus
 
 assign col_uw   = col_cs & ~UDSWn;
 assign col_lw   = col_cs & ~LDSWn;

@@ -84,8 +84,10 @@ always @(posedge clk_cpu, posedge rst_cpu) begin
         last_mcu_DMAONn <= 1;
     end else begin
         last_mcu_DMAONn <= mcu_DMAONn;
-        if( !p3_os[0] ) // PRESET, may not be in real hardware
-            int0n <= 0; // I use it for test
+    `ifdef MCUTEST
+        if( !p3_os[0] )
+            int0n <= 0;
+    `endif
         if( !p3_os[1] ) // CLR
             int0n <= 1;
         else if( mcu_DMAONn && !last_mcu_DMAONn )
@@ -108,8 +110,11 @@ jtframe_sync #(.W(16)) u_sync(
 
 jtframe_8751mcu #(
     .SINC_XDATA(1),
+`ifdef MCUTEST
     .ROMBIN("mcutest.bin")
-    //.ROMBIN("../../../../rom/sfmcu.bin")
+`else
+    .ROMBIN("../../../../rom/sfmcu.bin")
+`endif
 ) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
