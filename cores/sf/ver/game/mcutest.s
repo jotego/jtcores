@@ -8,10 +8,10 @@ main:
 l0:	djnz r0,l0
 
 	; write 32kBytes of 0x55
-	mov dptr,#0x8000
+	mov dptr,#0xc000
 	clr  p3.0
 	mov  a,#0x55
-	mov  r0,#0x80
+	mov  r0,#0x40
 lram1:
 	mov  r1,#0
 lram2:
@@ -21,8 +21,8 @@ lram2:
 	djnz r0,lram1
 
 	; read it back
-	mov dptr,#0x8000
-	mov  r0,#0x80
+	mov dptr,#0xc000
+	mov  r0,#0x40
 lram3:
 	mov  r1,#0
 lram4:
