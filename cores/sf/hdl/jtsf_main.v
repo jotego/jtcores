@@ -142,7 +142,7 @@ assign cpu_AB   = A[13:1];
 wire [15:1] mcu_addr_s;
 wire [ 7:0] mcu_dout_s;
 wire        mcu_wr_s, mcu_ds_s, mcu_acc_s;
-wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {7{mcu_addr_s[15]}}, mcu_addr_s[14:1] };
+wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {6{mcu_addr_s[15]}}, mcu_addr_s };
 
 // obj_cs gates the object RAM clock for CPU access, this
 // helps with the hold time for the write (MiSTer target)
