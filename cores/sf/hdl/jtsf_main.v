@@ -120,7 +120,7 @@ wire        BUSn, UDSn, LDSn;
 wire        clk_obj, objram_ldw, objram_udw;
 reg         BERRn;
 wire [ 8:0] Aobj, obj_subAB;
-wire        mcu_master, ram_cen;
+wire        mcu_master, reg_cen;
 reg         dsn_dly;
 
 // obj RAM is split so only the 1kB used inside the 8kB is in BRAM
@@ -166,6 +166,7 @@ jtframe_sync #(.W(15+8+1+1+1+1)) u_mcus(
 );
 
 reg regs_cs;
+wire bus_wrn = mcu_master ? ~mcu_wr : RnW;
 
 always @(*) begin
     rom_cs     = 0;
@@ -199,9 +200,8 @@ always @(*) begin
                 end
             end
             4'hc: if(Aeff[19:16]==4'd0) begin
-                io_cs = !Aeff[4] && RnW;
-                if( Aeff[4] && !RnW )
-                    regs_cs = 1;
+                io_cs   =!Aeff[4] &&  bus_wrn;
+                regs_cs = Aeff[4] && !bus_wrn;
             end
             //default: BERRn = ASn;
             default:;
@@ -236,7 +236,7 @@ assign ram_addr = Aeff[15:1];
 assign ram_din  = mcu_master ? {2{mcu_dout_s}} : cpu_dout;
 assign ram_dsn  = mcu_master ? { mcu_ds_s, ~mcu_ds_s } : {UDSWn, LDSWn};
 assign ram_we   = mcu_master ? (ram_cs & mcu_wr_s) : !RnW;
-assign ram_cen  = mcu_master ? 1'b1 : cpu_cen; // only used for internal registers
+assign reg_cen  = mcu_master ? 1'b1 : cpu_cen; // only used for internal registers
 
 always @(posedge clk) mcu_din <= cpu_din;
 
@@ -245,7 +245,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         scr1posh <= 16'd0;
         scr2posh <= 16'd0;
-    end else if( ram_cen ) begin
+    end else if( reg_cen ) begin
         if( scr1pos_cs ) begin
             if(!ram_dsn[1]) scr1posh[15:8] <= ram_din[15:8];
             if(!ram_dsn[0]) scr1posh[ 7:0] <= ram_din[ 7:0];
@@ -267,7 +267,7 @@ always @(posedge clk) begin
         scr2on       <= 1;
         objon        <= 1;
     end
-    else if(ram_cen) begin
+    else if(reg_cen) begin
         if( misc_cs) begin
             if( !ram_dsn[0] ) begin
                 flip   <= ram_din[2];
