@@ -80,7 +80,6 @@ module jtsf_main #(
     input              mcu_wr,
     input              mcu_acc,
     input      [15:1]  mcu_addr,
-    input              mcu_sel, // 1 for RAM, 0 for cabinet I/O
     input              mcu_brn, // RQBSQn
     output reg         mcu_DMAONn,
     input              mcu_ds,
@@ -142,7 +141,7 @@ assign addr     = A[MAINW:1];
 assign cpu_AB   = A[13:1];
 wire [15:1] mcu_addr_s;
 wire [ 7:0] mcu_dout_s;
-wire        mcu_wr_s, mcu_ds_s, mcu_acc_s, mcu_sel_s;
+wire        mcu_wr_s, mcu_ds_s, mcu_acc_s;
 wire [23:1] Aeff   = CPUbus ? A : { 2'b11, {7{mcu_addr_s[15]}}, mcu_addr_s[14:1] };
 
 // obj_cs gates the object RAM clock for CPU access, this
@@ -159,10 +158,10 @@ assign BUSn       = ASn | (LDSn & UDSn);
 wire [24:0] A_full = {A,1'b0};
 `endif
 
-jtframe_sync #(.W(15+8+1+1+1+1)) u_mcus(
+jtframe_sync #(.W(15+8+1+1+1)) u_mcus(
     .clk    ( clk       ),
-    .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc, mcu_sel } ),
-    .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s, mcu_sel_s } )
+    .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc } ),
+    .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s } )
 );
 
 reg regs_cs;

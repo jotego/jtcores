@@ -28,7 +28,6 @@ module jtsf_mcu(
     output               mcu_wr,
     output               mcu_acc,
     output       [15:1]  mcu_addr,
-    output               mcu_sel, // 1 for RAM, 0 for cabinet I/O
     output               mcu_brn,   // RQBSQn
     input                mcu_DMAONn,
     output               mcu_ds,
@@ -55,9 +54,9 @@ reg    last_mcu_DMAONn;
 
 reg [5:0] cencnt=1;
 // If the original was 8MHz, the cen should be about 8/12=24/cen -> cen ~ 36
-wire cen1 = /*(mcu_sel & mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : */cencnt==0;
+// not gating the cen1 as it is so slow, RAM should always be ready
+wire cen1 = /*(mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : */cencnt==0;
 
-assign mcu_sel = ext_addr[15];
 
 // Clock enable for 8MHz, like MAME. I need to measure it on the PCB
 // The current i8751 softcore isn't cycle accurate, so it isn't

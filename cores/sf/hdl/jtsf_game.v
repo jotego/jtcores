@@ -152,7 +152,7 @@ wire [15:0]  mcu_din;
 wire [ 7:0]  mcu_dout;
 wire         mcu_wr, mcu_acc;
 wire [15:1]  mcu_addr;
-wire         mcu_sel, mcu_brn, mcu_DMAONn, mcu_ds;
+wire         mcu_brn, mcu_DMAONn, mcu_ds;
 
 // ROM addresses
 wire [MAINW  :1] main_addr;
@@ -360,7 +360,6 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .mcu_wr     ( mcu_wr        ),
     .mcu_acc    ( mcu_acc       ),
     .mcu_addr   ( mcu_addr      ),
-    .mcu_sel    ( mcu_sel       ),
     .mcu_brn    ( mcu_brn       ),
     .mcu_DMAONn ( mcu_DMAONn    ),
     .mcu_ds     ( mcu_ds        ),
@@ -450,7 +449,6 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
         .mcu_wr     ( mcu_wr    ),
         .mcu_acc    ( mcu_acc   ),
         .mcu_addr   ( mcu_addr  ),
-        .mcu_sel    ( mcu_sel   ),
         .mcu_brn    ( mcu_brn   ),
         .mcu_DMAONn ( mcu_DMAONn),
         .mcu_ds     ( mcu_ds    ),
@@ -462,7 +460,6 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     );
 `else
     assign mcu_brn = 1;
-    assign mcu_sel = 0;
 `endif
 
 `ifndef NOSOUND
