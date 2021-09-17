@@ -87,8 +87,8 @@ jtframe_sync #(.W(8)) u_p3sync(
 
 wire int0n_mcu;
 
-jtframe_sync #(.W(8)) u_intsync(
-    .clk    ( clk_cpu   ),
+jtframe_sync #(.W(1)) u_intsync(
+    .clk    ( clk       ),
     .raw    ( int0n     ),
     .sync   ( int0n_mcu )
 );
