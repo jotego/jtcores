@@ -156,7 +156,7 @@ jtframe_sync #(.W(8)) u_sync(
 
 jtframe_8751mcu #(
     .ROMBIN(ROMBIN),
-    .SINC_XDATA(SINC_XDATA)
+    .SYNC_XDATA(SINC_XDATA)
 ) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),

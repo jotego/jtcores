@@ -108,7 +108,7 @@ jtframe_sync #(.W(16)) u_sync(
 );
 
 jtframe_8751mcu #(
-    .SINC_XDATA(1),
+    .SYNC_XDATA(1),
 `ifdef MCUTEST
     .ROMBIN("mcutest.bin")
 `else
