@@ -1,7 +1,7 @@
 [all]
 CORENAME=JTBTIGER
 GAMETOP=jtbtiger_game
-BUTTONS=2
+JTFRAME_BUTTONS=2
 VIDEO_WIDTH=256
 VIDEO_HEIGHT=224
 # 24 MHz used in MCU to avoid timing errors
