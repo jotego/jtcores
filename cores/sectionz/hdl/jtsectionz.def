@@ -9,8 +9,8 @@ JTFRAME_OSD_NOLOAD
 JTFRAME_OSD_VOL
 
 JTFRAME_BUTTONS=2
-VIDEO_WIDTH=256
-VIDEO_HEIGHT=240
+JTFRAME_WIDTH=256
+JTFRAME_HEIGHT=240
 
 [sidi|mist]
 # Better to leave direct speed to zero as this game needs some extra
