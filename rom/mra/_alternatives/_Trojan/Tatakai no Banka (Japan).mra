@@ -22,7 +22,11 @@
 <misterromdescription>
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>Tatakai no Banka (Japan)</name>
+    <mameversion>0217</mameversion>
     <setname>trojanj</setname>
+    <year>1986</year>
+    <manufacturer>Capcom</manufacturer>
+    <category>Hack n Slash</category>
     <rbf>jttrojan</rbf>
     <rom index="0" zip="trojanj.zip|trojan.zip" type="merged" md5="None">
         <part>

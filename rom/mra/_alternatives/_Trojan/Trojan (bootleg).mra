@@ -22,7 +22,11 @@
 <misterromdescription>
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>Trojan (bootleg)</name>
+    <mameversion>0217</mameversion>
     <setname>trojanb</setname>
+     <year>1986</year>
+    <manufacturer>bootleg</manufacturer>
+    <category>Hack n Slash</category>
     <rbf>jttrojan</rbf>
     <rom index="0" zip="trojanb.zip|trojan.zip" type="merged" md5="None">
         <part>
@@ -92,9 +96,6 @@
         <!-- DSWA -->
         <dip name="Cabinet" bits="0,1" ids="Upright 1 Player,Upright 2 Players,Cocktail"/>
         <dip name="Bonus Life" bits="2,4" ids="None,40k 80k,20k 80k,20k 70k,20k 60k,30k 80k,30k 70k,30k 60k"/>
-        <dip name="Unused" bits="5" ids="On,Off"/>
-        <dip name="Unused" bits="6" ids="On,Off"/>
-        <dip name="Unused" bits="7" ids="On,Off"/>
         <!-- DSWB -->
         <dip name="Coin A" bits="8,9" ids="2/1,1/3,1/2,1/1"/>
         <dip name="Coin B" bits="10,11" ids="4/1,3/1,2/1,1/1"/>
