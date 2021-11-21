@@ -8,6 +8,11 @@ on:
       - mist
       - build_tora
 
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: rebuild
+
 jobs:
 
   mist_compilation:

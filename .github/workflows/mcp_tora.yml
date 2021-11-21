@@ -8,6 +8,11 @@ on:
       - mcp
       - build_tora
 
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: rebuild
+
 jobs:
 
   mcp_compilation:

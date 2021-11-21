@@ -8,6 +8,11 @@ on:
       - mcp
       - build_1943
 
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: rebuild
+
 jobs:
 
   mcp_compilation:

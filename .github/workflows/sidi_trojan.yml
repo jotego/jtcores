@@ -8,6 +8,11 @@ on:
       - sidi
       - build_trojan
 
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: rebuild
+
 jobs:
 
   sidi_compilation:

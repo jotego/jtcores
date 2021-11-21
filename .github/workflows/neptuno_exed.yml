@@ -8,6 +8,11 @@ on:
       - neptuno
       - build_exed
 
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: rebuild
+
 jobs:
 
   neptuno_compilation:

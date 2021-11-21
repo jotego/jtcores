@@ -3,6 +3,7 @@
 You can show your appreciation through
 * Patreon: https://patreon.com/topapate
 * Paypal: https://paypal.me/topapate
+* Github: https://github.com/sponsors/jotego
 
 Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST(er) is here to the rescue.
 
