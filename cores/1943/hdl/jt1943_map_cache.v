@@ -48,7 +48,7 @@ module jt1943_map_cache #(parameter
 localparam CACHEW = 5; //up to 32 tiles => 512 for 16x16 tiles
 
 reg  [1:0] st;
-reg        last_LHBL, okidle;
+reg        last_LHBL;
 reg  [8:0] hcnt;
 wire       map_we;
 
@@ -59,7 +59,6 @@ assign map_h      = busy ? hcnt : H;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         busy        <= 0;
-        okidle      <= 0;
         st          <= 0;
         last_LHBL   <= 0;
     end else begin

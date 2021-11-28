@@ -175,9 +175,9 @@ jtcommando_prom_we u_prom_we(
 wire prom_1d = prom_we[0];
 wire prom_2d = prom_we[1];
 wire prom_3d = prom_we[2];
-wire prom_1h = prom_we[3];
+// wire prom_1h = prom_we[3];
 wire prom_6l = prom_we[4];
-wire prom_6e = prom_we[5];
+// wire prom_6e = prom_we[5];
 
 wire scr_cs;
 wire [8:0] scr_hpos, scr_vpos;

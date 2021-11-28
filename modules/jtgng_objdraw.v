@@ -92,7 +92,7 @@ always @(*) begin
     // This is the same formula used on the schematics
 end
 
-always @(resize,repeated,id,Vsum, obj_hflip) begin
+always @(resize,repeated,id,Vsum, obj_hflip,obj_vflip) begin
     // idalt is -so far- only used by SF
     // note that extended size objects are built
     // by actually adding 1, 16 or 17 to the ID code
