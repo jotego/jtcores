@@ -127,7 +127,7 @@ always @(posedge clk, posedge rst)
                         if( dmaend ) begin
                             fill <= 1'b1;
                         end else begin
-                            {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 4;
+                            {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 3'd4;
                         end
                     end
                 end
@@ -143,7 +143,7 @@ always @(posedge clk, posedge rst)
                         post_scan <= post_scan+1'b1;
                         if( !extend[0] ) begin
                             // advance to next obj
-                            pre_scan <= pre_scan + 3;
+                            pre_scan <= pre_scan + 2'd3;
                             trf_state  <= SEARCH;
                             line_obj_we <= 1'b0;
                         end else begin

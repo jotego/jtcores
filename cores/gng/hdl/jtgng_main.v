@@ -170,7 +170,7 @@ always @(posedge clk)
     else if(cen_Q) begin
         if( flip_cs )
             case(A[2:0])
-                3'd0: flip <= cpu_dout[0];
+                3'd0: flip <= ~cpu_dout[0];
                 3'd1: sres_b <= cpu_dout[0];
                 3'd2: coin_cnt1 <= coin_cnt1+{ {(coinw-1){1'b0}}, cpu_dout[0] };
                 3'd3: coin_cnt2 <= coin_cnt2+{ {(coinw-1){1'b0}}, cpu_dout[0] };
