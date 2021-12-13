@@ -79,13 +79,17 @@ always @(posedge clk) begin
     end else begin
         if( posedge_h ) hcnt<= flip ? hcnt-1'd1 : hcnt+1'd1;
         if( posedge_v ) vcnt<= flip ? vcnt-1'd1 : vcnt+1'd1;
-        hsum <= hcnt + H;
+        hsum <= hcnt + H - 9'd8;
         vsum <= vcnt + V;
     end
 end
 
 always @(posedge clk) begin
-    if( &{hsum[4:0], rom_ok} ) data <= rom_data;
+    // hsum[1] input to the large NAND is not connected (by pulling the pin off)
+    // in the bootleg examined. Star field pictures from other boards match the
+    // image with the pin pulled off. For the fixed version of the star field
+    // I am connecting the pin as the designer intention.
+    if( &{hsum[4:2], hsum[1]|~fixed_n, hsum[0], rom_ok} ) data <= rom_data;
     if(pxl_cen) begin
         star_pxl <= STARON && &(hsum[4:1]^data[4:1]) && ~(hsum[0]^data[0])
                     && (vsum[2]^H[5]) && (!hsum[2] || !vsum[1]) ?
