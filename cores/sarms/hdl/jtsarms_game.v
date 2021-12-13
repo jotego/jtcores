@@ -68,7 +68,8 @@ module jtsarms_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [7:0]   debug_bus
 );
 
 // These signals are used by games which need
@@ -410,6 +411,7 @@ u_video(
     .LHBL_dly   ( LHBL_dly      ),
     .LVBL_dly   ( LVBL_dly      ),
     .gfx_en     ( gfx_en        ),
+    .debug_bus  ( debug_bus     ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),

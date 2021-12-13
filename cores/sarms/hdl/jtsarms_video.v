@@ -88,6 +88,7 @@ module jtsarms_video #(
     input               blue_cs,
     input               redgreen_cs,
     input       [3:0]   gfx_en,
+    input       [7:0]   debug_bus,
     // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
@@ -209,6 +210,7 @@ jtsarms_star u_star(
     .rom_data   ( star_data  ),
     .rom_ok     ( star_ok    ),
     // Output star
+    .debug_bus  ( debug_bus  ),
     .star_pxl   ( star_pxl   )
 );
 `else

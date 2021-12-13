@@ -46,11 +46,12 @@ module jtsarms_star(
     input               hscan,
     input               vscan,
     // To SDRAM
-    output      [14:0]  rom_addr,
+    output      [14:0]  rom_addr,   // 27256
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // Output star
-    output reg  [ 2:0]  star_pxl
+    output reg  [ 2:0]  star_pxl,
+    input       [ 7:0]  debug_bus
 );
 
 reg  [8:0] hcnt, hsum;
