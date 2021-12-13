@@ -23,7 +23,7 @@
 // change this in the future
 
 module jtsarms_colmix #(
-    parameter CHARW     = 7,
+    parameter CHARW     = 8,
               BLANK_DLY = 8
 ) (
     input            rst,

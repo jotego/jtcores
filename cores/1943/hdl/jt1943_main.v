@@ -187,7 +187,9 @@ always @(*) begin
                             end
                             in_cs = !rd_n;
                         end
+                        default:;
                     endcase
+                default:;
             endcase
         end
     end

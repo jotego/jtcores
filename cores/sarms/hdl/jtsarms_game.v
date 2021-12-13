@@ -90,6 +90,7 @@ wire        flip;
 wire        star_hscan, star_vscan;
 wire        rd, cpu_cen;
 wire        char_wait;
+wire        star_fix_n;
 
 localparam CHARW=14,SCRW=17, OBJW=17, MAPW=14, STARW=15;
 
@@ -117,6 +118,7 @@ assign pxl2_cen = cen16;
 assign pxl_cen  = cen8;
 
 assign sample=1'b1;
+assign star_fix_n = status[13];
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dipsw_c = 8'hff; // Only the freeze is contained here, and users often get
@@ -386,6 +388,7 @@ u_video(
     .star_addr  ( star_addr     ),
     .star_data  ( star_data     ),
     .star_ok    ( star_ok       ),
+    .star_fix_n ( star_fix_n    ),
     .STARON     ( STARON        ),
     // OBJ
     .HINIT      ( HINIT

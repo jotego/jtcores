@@ -61,6 +61,7 @@ module jtsarms_video #(
     input               star_ok,
     input               star_hscan,
     input               star_vscan,
+    input               star_fix_n,
     // OBJ
     input               HINIT,
     output      [12:0]  obj_AB,
@@ -200,6 +201,7 @@ jtsarms_star u_star(
     .pxl_cen    ( pxl_cen    ),
     .V          ( V          ),
     .H          ( H          ),
+    .fixed_n    ( star_fix_n ),
     // From CPU
     .STARON     ( STARON     ),
     .flip       ( flip       ),

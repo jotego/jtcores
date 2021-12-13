@@ -40,6 +40,7 @@ module jtsarms_star(
     input               pxl_cen,
     input       [ 7:0]  V,
     input       [ 8:0]  H,
+    input               fixed_n,
     // From CPU
     input               STARON,
     input               flip,
@@ -61,7 +62,8 @@ reg        last_h, last_v;
 wire       posedge_h = !last_h && hscan;
 wire       posedge_v = !last_v && vscan;
 
-assign rom_addr = { 3'b111, vsum, hsum[8:5] };
+// in aged PCBs hsum[8] gets stuck to 1
+assign rom_addr = { 3'b111, vsum, hsum[8] | fixed_n, hsum[7:5] };
 
 always @(posedge clk) begin
     last_h <= hscan;
@@ -82,11 +84,13 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk) if(pxl_cen) begin
-    if( hsum[4:0]==5'h1f ) data <= rom_data;
-    star_pxl <= STARON && &(hsum[4:1]^data[4:1]) && ~(hsum[0]^data[0])
-                && (vsum[2]^H[5]) && (!hsum[2] || !vsum[1]) ?
-        data[7:5] : 3'd0;
+always @(posedge clk) begin
+    if( &{hsum[4:0], rom_ok} ) data <= rom_data;
+    if(pxl_cen) begin
+        star_pxl <= STARON && &(hsum[4:1]^data[4:1]) && ~(hsum[0]^data[0])
+                    && (vsum[2]^H[5]) && (!hsum[2] || !vsum[1]) ?
+            data[7:5] : 3'd0;
+    end
 end
 
 endmodule

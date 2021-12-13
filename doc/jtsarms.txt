@@ -43,7 +43,7 @@ screen press both action buttons.
 REVISION HISTORY
 ================
 14th August, 2020: Beta release
-
+17th December, 2021: Final release, with correct star field
 
 
 CREDITS
