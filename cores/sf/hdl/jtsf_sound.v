@@ -51,6 +51,7 @@ localparam [7:0] FM_GAIN  = 8'h08;
 
 wire signed [12:0] adpcm_snd;
 wire signed [15:0] fm_left, fm_right;
+wire               cen1p5, adpcm_sample;
 
 wire               cen_fm, cen_fm2, cenp384;
 wire               cen3, cen_alt, cen3p5, cen1p7;

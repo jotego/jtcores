@@ -42,7 +42,7 @@ wire [15:0] ext_addr;
 wire [ 7:0] mcu_dout8;
 reg  [ 7:0] mcu_din8;
 
-wire [ 7:0] p1_o, p2_o, p3_o;
+wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
 reg         int0n;
 assign      mcu_ds = p3_o[4];
 
