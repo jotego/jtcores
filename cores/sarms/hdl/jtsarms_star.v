@@ -16,24 +16,6 @@
     Version: 1.0
     Date: 12-8-2020 */
 
-// This module is meant to be equivalent to schematic sheet 12/12
-// but the output doesn't agree to pictures from PCB
-// Possible reasons:
-// 1. Starfield ROM dump is wrong. Unless you pay close attention, you
-//    wouldn't notice.
-//    The size of the ROM dump does not agree with the size of the ROM
-//    in the schematics. The dump is not a 16kB ROM duplicated into 32kB,
-//    but data really is 32kB long.
-// 2. The schematic sheet is very hard to read. I might have got one or
-//    or more signals or gates wrong
-// 3. Data from the ROM is latched at the 1F to 00 transition of horizontal-
-//    sum bits. I think at that point the data latched actually correspond
-//    to the previous ROM address values as the data delay is smaller up to
-//    the latch clock input compared to the data inputs
-// 4. The top bit of the horizontal ripple counter is taken from the negative
-//    output, which I find confusing. But it wouldn't make sense if either
-//    the counter, or the HSUM were not continuous sequences
-
 module jtsarms_star(
     input               rst,
     input               clk,
