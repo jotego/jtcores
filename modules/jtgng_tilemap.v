@@ -33,7 +33,7 @@ module jtgng_tilemap #(parameter
     LAYOUT      = 0, // 0: all games, 8: Side Arms
     SCANW       = 10,
     BUSY_ON_H0  = 0,    // if 1, the busy signal is asserted only at H0 posedge, otherwise it uses the regular clock
-    SIMID       = "",
+    SIMID       = 0,    // selects the name for the simulation files
     VW          = 8,
     HW          = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10) ? 9 : 8
 ) (
@@ -65,6 +65,13 @@ module jtgng_tilemap #(parameter
 
 wire [7:0] scan_low, scan_high;
 reg        scan_sel = 1'b1;
+
+localparam LOWER_SIMFILE= SIMID==0 ? "char_lo.bin" :
+                          SIMID==1 ? "scr1_lo.bin" : "scr2_lo.bin";
+
+localparam UPPER_SIMFILE= SIMID==0 ? "char_hi.bin" :
+                          SIMID==1 ? "scr1_hi.bin" : "scr2_hi.bin";
+
 
 assign dout_low  = pause ? msg_low  : scan_low;
 assign dout_high = pause ? msg_high : scan_high;
@@ -139,16 +146,6 @@ always @(posedge clk) begin
             dout <= { mem_high, mem_low };
 end
 
-// Use these macros to add simulation files
-// like
-// ',.simhexfile("sim.hex")' or
-// ',.simfile("sim.bin")'
-// when calling the simulation script:
-// go.sh \
-//    -d JTCHAR_LOWER_SIMFILE=',.simfile("scr0.bin")' \
-//    -d JTCHAR_UPPER_SIMFILE=',.simfile("scr1.bin")'
-
-
 `ifndef JTCHAR_UPPER_SIMFILE
 `define JTCHAR_UPPER_SIMFILE
 `endif
@@ -157,7 +154,7 @@ end
 `define JTCHAR_LOWER_SIMFILE
 `endif
 
-jtframe_dual_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
+jtframe_dual_ram #(.aw(SCANW),.simfile(LOWER_SIMFILE)) u_ram_low(
     .clk0   ( clk      ),
     .clk1   ( clk      ),
     // CPU
@@ -175,7 +172,7 @@ jtframe_dual_ram #(.aw(SCANW) `JTCHAR_LOWER_SIMFILE) u_ram_low(
 // attributes
 // the default value for synthesis will display a ROM load message using
 // the palette attributes
-jtframe_dual_ram #(.aw(SCANW) `JTCHAR_UPPER_SIMFILE) u_ram_high(
+jtframe_dual_ram #(.aw(SCANW),.simfile(UPPER_SIMFILE)) u_ram_high(
     .clk0   ( clk      ),
     .clk1   ( clk      ),
     // CPU

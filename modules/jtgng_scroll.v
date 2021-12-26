@@ -29,7 +29,7 @@ module jtgng_scroll #(parameter
     SCANW    = 10,  // Tile map bit width, normally 10 bits, 9 bits for 1942,
     TILE4    = 0,   // Use 4 bpp instead of 3bpp
     LAYOUT   = 0,   // Only used for TILE 4
-    SIMID    = ""
+    SIMID    = 1    // scr1_lo/hi.bin for simulation files
 ) (
     input              clk,     // 24 MHz
     input              pxl_cen  /* synthesis direct_enable = 1 */,    //  6 MHz

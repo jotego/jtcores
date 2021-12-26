@@ -83,7 +83,7 @@ jtgng_tilemap #(
     .SCANW      ( 13        ),
     .VW         ( POSW-1    ),
     .HW         ( POSW-1    ),
-    .SIMID      ( "CHAR"    )
+    .SIMID      ( 1         )
 ) u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
