@@ -86,9 +86,11 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire        char_cs, flip, cpu_cen;
 wire        main_ok, char_ok, obj_ok;
 wire        cen12, cen6, cen3, cen1p5;
+wire        LHBL, LVBL;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
+assign game_led = 0;
 
 wire LHBL_obj, Hsub;
 
@@ -215,7 +217,6 @@ jthige_main u_main(
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
-    .coin_cnt   (               ),
     // Sound output
     .sample     ( sample        ),
     .snd        ( snd           )

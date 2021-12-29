@@ -70,7 +70,9 @@ localparam [21:0] ZERO_OFFSET = 22'd0,
                   SCR2_OFFSET = 22'h02_0000,
                    OBJ_OFFSET = 22'h10_0000;
 
-assign ba0_wr = 0;
+assign ba0_wr    = 0;
+assign ba0_din   = 0;
+assign ba0_din_m = 3;
 
 wire        obj_ok0;
 wire [15:0] obj_pre;

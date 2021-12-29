@@ -129,66 +129,60 @@ always @(*) begin
     misc_cs       = 0;
     star_cs       = 0;
     eres_n        = 1;
-    if( rfsh_n && !mreq_n ) begin
+    if( rfsh_n && !mreq_n && A[15:13]==3'b110 /* CSCD */ ) begin
         if( GAME==0 ) begin // 1943
-            casez(A[15:13])
-                3'b110: // cscd
-                    case(A[12:11])
-                        2'b00: // 0xC000 part 11B
-                            in_cs = 1'b1;
-                        2'b01: // 0xC800
-                            casez(A[2:0])
-                                3'b000: snd_latch_cs = 1'b1;
-                                3'b100: begin
-                                    bank_cs = 1;
-                                    misc_cs = 1;
-                                end
-                                3'b110: OKOUT        = 1'b1;
-                                3'b111: SECWR_cs     = 1'b1;
-                                default:;
-                            endcase
-                        2'b10: // D0CS (D phi CS on schematics)
-                            char_cs = 1'b1; // D0CS
-                        2'b11: // D8CS
-                            if( !A[3] && !wr_n) case(A[2:0])
-                                3'd0: scr1posh_cs = 2'b01; // LSB
-                                3'd1: scr1posh_cs = 2'b10; // MSB
-                                3'd2: scrposv_cs  = 1'b1;
-                                3'd3: scr2posh_cs = 2'b01; // LSB
-                                3'd4: scr2posh_cs = 2'b10; // MSB
-                                3'd6: gfxen_cs    = 1'b1;
-                                default:;
-                            endcase
-                    endcase
-            endcase
-        end else begin // Side Arms
-            casez(A[15:13])
-                3'b110: // cscd
-                    casez(A[12:11])
-                        2'b00: begin // 0xC000
-                            redgreen_cs = !A[10];
-                            blue_cs     =  A[10];
+            case(A[12:11])
+                2'b00: // 0xC000 part 11B
+                    in_cs = 1'b1;
+                2'b01: // 0xC800
+                    casez(A[2:0])
+                        3'b000: snd_latch_cs = 1'b1;
+                        3'b100: begin
+                            bank_cs = 1;
+                            misc_cs = 1;
                         end
-                        2'b01: begin // 0xC800
-                            if( !wr_n ) begin
-                                casez(A[3:0])
-                                    4'd0: snd_latch_cs  = 1;
-                                    4'd1: bank_cs       = 1;
-                                    4'd2: OKOUT         = 1;
-                                    4'd3: eres_n        = 0;
-                                    4'd4: misc_cs       = 1;
-                                    4'd5, 4'd6: star_cs = 1;
-                                    4'd8: scr1posh_cs = 2'b01; // LSB
-                                    4'd9: scr1posh_cs = 2'b10; // MSB
-                                    4'd10,4'd11: scrposv_cs  = 1'b1;
-                                    4'd12: gfxen_cs    = 1'b1;
-                                    default:;
-                                endcase
-                            end
-                            in_cs = !rd_n;
-                        end
+                        3'b110: OKOUT        = 1'b1;
+                        3'b111: SECWR_cs     = 1'b1;
                         default:;
                     endcase
+                2'b10: // D0CS (D phi CS on schematics)
+                    char_cs = 1'b1; // D0CS
+                2'b11: // D8CS
+                    if( !A[3] && !wr_n) case(A[2:0])
+                        3'd0: scr1posh_cs = 2'b01; // LSB
+                        3'd1: scr1posh_cs = 2'b10; // MSB
+                        3'd2: scrposv_cs  = 1'b1;
+                        3'd3: scr2posh_cs = 2'b01; // LSB
+                        3'd4: scr2posh_cs = 2'b10; // MSB
+                        3'd6: gfxen_cs    = 1'b1;
+                        default:;
+                    endcase
+                default:;
+            endcase
+        end else begin // Side Arms
+            casez(A[12:11])
+                2'b00: begin // 0xC000
+                    redgreen_cs = !A[10];
+                    blue_cs     =  A[10];
+                end
+                2'b01: begin // 0xC800
+                    if( !wr_n ) begin
+                        casez(A[3:0])
+                            4'd0: snd_latch_cs  = 1;
+                            4'd1: bank_cs       = 1;
+                            4'd2: OKOUT         = 1;
+                            4'd3: eres_n        = 0;
+                            4'd4: misc_cs       = 1;
+                            4'd5, 4'd6: star_cs = 1;
+                            4'd8: scr1posh_cs = 2'b01; // LSB
+                            4'd9: scr1posh_cs = 2'b10; // MSB
+                            4'd10,4'd11: scrposv_cs  = 1'b1;
+                            4'd12: gfxen_cs    = 1'b1;
+                            default:;
+                        endcase
+                    end
+                    in_cs = !rd_n;
+                end
                 default:;
             endcase
         end

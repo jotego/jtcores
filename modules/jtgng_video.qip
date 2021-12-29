@@ -1,9 +1,0 @@
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_char.v      ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_charmsg.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_scroll.v    ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_tilemap.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_tile3.v     ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_tile4.v     ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_timer.v     ]
-
-set_global_assignment -name QIP_FILE     [file join $::quartus(qip_path) jtgng_obj.qip     ]

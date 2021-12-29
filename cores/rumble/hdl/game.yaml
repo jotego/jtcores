@@ -1,0 +1,43 @@
+game:
+  - from: rumble
+    get:
+      - jtrumble_game.v
+      - jtrumble_main.v
+      - jtrumble_video.v
+      - jtrumble_sdram.v
+      - jtrumble_colmix.v
+      - jtrumble_dwnld.v
+      - jtrumble_banks.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_cendiv.v
+  - from: cpu
+    get:
+      - jtframe_z80wait.v
+      - jtframe_z80.v
+      - t80/T80.qip
+      - mc6809i.v
+      - jtframe_sys6809.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+modules:
+  other:
+    - get:
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_true_dual_ram.v
+      - jt12/hdl/jt12_rst.v
+      - jt12/jt49/hdl/jt49.qip
+      - jtgng_obj32.v
+      - jtgng_dual_ram.v

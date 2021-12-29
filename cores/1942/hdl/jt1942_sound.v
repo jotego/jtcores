@@ -164,8 +164,6 @@ wire        [ 9:0] sound0, sound1;
 
 wire bdir0 = ay0_cs & ~wr_n;
 wire bc0   = ay0_cs & ~wr_n & ~A[0];
-wire bdir1 = ay1_cs & ~wr_n;
-wire bc1   = ay1_cs & ~wr_n & ~A[0];
 
 jt49_bus #(.COMP(2'b10)) u_ay0( // note that input ports are not multiplexed
     .rst_n  ( reset_n   ),
@@ -210,6 +208,7 @@ generate
         );
 
         wire [9:0] dcrm_snd;
+        assign ay1_dout = 8'hff;
 
         jtframe_dcrm #(.SW(10)) u_dcrm(
             .rst    ( rst       ),
@@ -237,6 +236,9 @@ generate
             .peak   ( peak      )   // overflow signal (time enlarged)
         );
     end else begin
+        wire bdir1 = ay1_cs & ~wr_n;
+        wire bc1   = ay1_cs & ~wr_n & ~A[0];
+
         jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
             .rst_n  ( reset_n   ),
             .clk    ( clk       ),

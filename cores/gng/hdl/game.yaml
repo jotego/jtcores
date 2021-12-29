@@ -1,0 +1,34 @@
+game:
+  - from: gng
+    get:
+      - jtgng_main.v
+      - jtgng_game.v
+      - jtgng_prom_we.v
+jtframe:
+  - from: cpu
+    get:
+      - mc6809i.v
+      - jtframe_sys6809.v
+      - jtframe_z80wait.v
+      - jtframe_z80.v
+      - t80/T80.qip
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+modules:
+  other:
+    - get:
+      - jtgng_video.v
+      - jtgng_video.yaml
+      - jtgng_dual_ram.v
+      - jtgng_sound.yaml
+      - jtgng_colmix.v
+    - from: jt12/hdl
+      get:
+      - jt12_rst.v
+      - mixer/jt12_comb.v
+      - mixer/jt12_interpol.v

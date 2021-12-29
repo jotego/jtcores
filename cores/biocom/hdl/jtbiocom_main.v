@@ -109,11 +109,10 @@ wire mreq_n, rfsh_n, busak_n;
 reg  BERRn;
 
 // high during DMA transfer
-wire BUSn, UDSn, LDSn;
+wire UDSn, LDSn;
 
 assign UDSWn   = RnW | UDSn;
 assign LDSWn   = RnW | LDSn;
-assign BUSn    = ASn | (LDSn & UDSn);
 assign col_uw  = col_cs & ~UDSWn;
 assign col_lw  = col_cs & ~LDSWn;
 

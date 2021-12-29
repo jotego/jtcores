@@ -1,0 +1,15 @@
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cencross_strobe.v
+modules:
+  other:
+    - get:
+      - jtgng_obj.v
+      - jtgng_objbuf.v
+      - jtgng_objdma.v
+      - jtgng_objdraw.v
+      - jtgng_objpxl.v
+      - jtgng_objcnt.v
+      - jtgng_avatar.v
+

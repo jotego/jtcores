@@ -54,7 +54,7 @@ wire        WRn, rd_n, wr_n;
 wire [ 7:0] ram_dout, dout, fm_dout;
 reg  [ 7:0] din;
 reg         rom2_ok;
-wire        rom_good;
+// wire        rom_good;
 
 wire RAM_we = ram_cs && !WRn;
 
@@ -97,7 +97,7 @@ always @(posedge clk) begin
     end
 end
 
-assign     rom_good = rom_ok & rom2_ok;
+// assign     rom_good = rom_ok & rom2_ok;
 
 assign WRn      = wr_n | mreq_n;
 assign snd_dout = dout;
@@ -125,7 +125,7 @@ jtframe_ram #(.aw(11)) u_ram(
 );
 
 wire iorq_n, m1_n, nmiff_n;
-wire irq_ack = !iorq_n && !m1_n;
+// wire irq_ack = !iorq_n && !m1_n;
 
 /*
 jtframe_ff u_ff(

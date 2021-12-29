@@ -1,9 +1,0 @@
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_obj.v       ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_objbuf.v    ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_objdma.v    ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_objdraw.v   ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_objpxl.v    ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_objcnt.v    ]
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtgng_avatar.v    ]
-
-set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) jtframe/hdl/clocking/jtframe_cencross_strobe.v   ]

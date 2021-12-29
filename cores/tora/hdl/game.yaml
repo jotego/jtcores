@@ -1,0 +1,56 @@
+game:
+  - from: tora
+    get:
+      - jttora_colmix.v
+      - jttora_game.v
+      - jttora_prom_we.v
+      - jttora_dwnld.v
+      - jttora_video.v
+      - jttora_sound.v
+      - jttora_adpcm.v
+  - from: 1943
+    get:
+      - jt1943_scroll.yaml
+  - from: biocom
+    get:
+      - jtbiocom_main.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_z80wait.v
+      - jtframe_z80.v
+      - jtframe_m68k.yaml
+      - t80/T80.qip
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_blank.v
+      - jtframe_avatar.v
+  - from: sound
+    get:
+      - jtframe_jt49_filters.qip
+modules:
+  jt:
+    - name: jt51
+    - name: jt5205
+  other:
+    - get:
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_dual_ram.v
+      - jt12/hdl/jt12_rst.v
+      - jt12/jt49/hdl/jt49.qip
+      - jtgng_obj32.v
+      - jtgng_avatar_pal.v

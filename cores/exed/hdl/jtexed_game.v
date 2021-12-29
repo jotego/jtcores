@@ -24,8 +24,6 @@ module jtexed_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    // output          LHBL,
-    // output          LVBL,
     output          LHBL_dly,
     output          LVBL_dly,
     output          HS,
@@ -120,6 +118,7 @@ wire main_ok, snd_ok, obj_ok, obj_ok0;
 wire cen12, cen8, cen6, cen3, cen1p5;
 
 wire char_on, scr1_on, scr2_on, obj_on;
+wire LHBL, VHBL;
 
 // PROMs
 localparam PROM_IRQ = 8;
@@ -237,7 +236,7 @@ jtframe_dwnld #(
     .prog_mask    ( prog_mask    ), // active low
     .prog_we      ( prog_we      ),
     .prom_we      ( promsel_we   ),
-    .header       ( header       ),
+    .header       (              ),
     .sdram_ack    ( sdram_ack    )
 );
 
@@ -350,9 +349,6 @@ assign snd_addr = 15'd0;
 assign snd      = 16'd0;
 assign snd_cs   = 1'b0;
 `endif
-
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
 
 jtexed_video #(
     .OBJW   ( OBJW      )

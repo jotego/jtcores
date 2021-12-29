@@ -56,8 +56,6 @@ always @(posedge clk) if( cpu_cen ) begin
 end
 
 wire [6:0] scan = { objcnt, bufcnt[2:1] };
-wire [6:0] addr = over ? cpu_AB : scan;
-wire we = cpu_we;
 wire [7:0] ram_data;
 
 jtframe_dual_ram #(.aw(7),.simfile("obj.bin")/*,.synfile("objtest.hex")*/) u_ram(

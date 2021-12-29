@@ -176,7 +176,7 @@ jtgng_scroll #(
     .HOFFSET    ( SCR1_OFFSET   ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  1            ),
-    .SIMID      (  1            )
+    .SIMID      (  1            ))
 u_scroll1 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -218,7 +218,7 @@ jtgng_scroll #(
     .HOFFSET    ( SCR2_OFFSET   ),
     .TILE4      (  1            ), // 4bpp
     .LAYOUT     (  2            ),
-    .SIMID      (  2            )
+    .SIMID      (  2            ))
 u_scroll2 (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),

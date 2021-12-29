@@ -52,7 +52,7 @@ wire [7:0] prio_sel;
 
 wire char_blank_b = gfx_en[0] & |(~char_pxl);
 wire scr1_blank_b = gfx_en[1] & |(~scr1_pxl[3:0]);
-wire scr2_blank_b = gfx_en[2] & |(~scr2_pxl[3:0]);
+// wire scr2_blank_b = gfx_en[2] & |(~scr2_pxl[3:0]);
 wire obj_blank_b  = gfx_en[3] & |(~obj_pxl);
 
 assign prio_addr = { 1'b0, char_blank_b, obj_pxl[7],

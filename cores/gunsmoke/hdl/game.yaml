@@ -1,0 +1,35 @@
+game:
+  - from: gunsmoke
+    get:
+      - jtgunsmoke_game.v
+      - jtgunsmoke_main.v
+  - from: 1943
+    get:
+      - jt1943_colmix.v
+      - jt1943_prom_we.v
+      - jt1943_video.v
+      - jt1943_scroll.yaml
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+  - from: cpu
+    get:
+      - jtframe_z80wait.v
+      - jtframe_z80.v
+      - t80/T80.qip
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+  - from: video
+    get:
+      - jtframe_avatar.v
+modules:
+  other:
+    - get:
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_dual_ram.v
+      - jt12/hdl/jt12_rst.v
+      - jt12/jt49/hdl/jt49.qip
