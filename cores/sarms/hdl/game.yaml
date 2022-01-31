@@ -4,6 +4,7 @@ game:
       - jtsarms_game.v
       - jtsarms_video.v
       - jtsarms_colmix.v
+      - jtsarms_star.v
   - from: 1943
     get:
       - jt1943_main.v

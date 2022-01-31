@@ -16,7 +16,7 @@ game:
       - jttora_adpcm.v
   - from: 1943
     get:
-      - jt1943_scroll.qip
+      - jt1943_scroll.yaml
 jtframe:
   - from: clocking
     get:
