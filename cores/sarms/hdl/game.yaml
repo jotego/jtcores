@@ -29,7 +29,7 @@ jtframe:
       - jtframe_blank.v
 modules:
   jt:
-    -name: jt5205
+    - name: jt5205
   other:
     - get:
       - jtgng_video.v
