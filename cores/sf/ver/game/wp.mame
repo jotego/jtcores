@@ -1,0 +1,2 @@
+wp c00014,1,w,1,{printf "FG scroll %X",wpdata;go}
+wp c00018,1,w,1,{printf "BG scroll %X",wpdata;go}

@@ -35,14 +35,13 @@ if [ ! -e $ROM/$GAME.rom ]; then
 fi
 
 ln -srf $ROM/$GAME.rom rom.bin
-jtsim_sdram -nohex -banks 0x60000 0xa8000 0xec000
+# jtsim_sdram will garble the ROMs, use direct load
+# jtsim_sdram -nohex -banks 0x60000 0xa8000 0xec000
 
 export MEM_CHECK_TIME=146_000_000
 export CONVERT_OPTIONS="-resize 300%x300%"
-export YM2151=1
 export I8051=1
 export Z80=1
-export MSM5205=1
 
 # The sdram.hex file cannot be made with bin2hex
 # because of the prom_we loader. You need to run goload.sh

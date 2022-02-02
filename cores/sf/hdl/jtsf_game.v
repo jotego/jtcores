@@ -16,6 +16,14 @@
     Version: 1.0
     Date: 17-8-2020 */
 
+`ifndef SIM_SCR1POS
+    `define SIM_SCR1POS 0
+`endif
+
+`ifndef SIM_SCR2POS
+    `define SIM_SCR2POS 0
+`endif
+
 module jtsf_game(
     input           rst,
     input           clk,
@@ -172,6 +180,7 @@ wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
             snd1_ok, snd2_ok, obj_ok, char_ok;
 
 reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
+reg vrom_cs;
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
@@ -186,6 +195,9 @@ always @(negedge clk) begin
     video_rst <= rst;
 end
 
+always @(posedge clk) begin
+    vrom_cs <= LVBL || (V==9'hf0 || V==9'hf );
+end
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -400,9 +412,9 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign main_cs   = 0;
     assign bus_ack   = 1;
     assign flip      = 0;
-    assign scr1posh  = 16'd0;
-    assign scr2posh  = 16'd0;
-    assign cpu_cen   = cen24_8;
+    assign scr1posh  = `SIM_SCR1POS;
+    assign scr2posh  = `SIM_SCR2POS;
+    assign cpu_cen   = 0;
     assign charon    = 1;
     assign scr1on    = 1;
     assign scr2on    = 1;
@@ -683,9 +695,9 @@ jtframe_rom_3slots #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ),
+    .slot0_cs    ( vrom_cs       ),
+    .slot1_cs    ( vrom_cs       ),
+    .slot2_cs    ( vrom_cs       ),
 
     .slot0_ok    ( map1_ok       ),
     .slot1_ok    ( map2_ok       ),
@@ -724,9 +736,9 @@ jtframe_rom_3slots #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ),
+    .slot0_cs    ( vrom_cs       ),
+    .slot1_cs    ( vrom_cs       ),
+    .slot2_cs    ( vrom_cs       ),
 
     .slot0_ok    ( obj_ok        ),
     .slot1_ok    ( scr1_ok       ),
