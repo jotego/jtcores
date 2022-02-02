@@ -88,7 +88,7 @@ end
 
 // Palette is in RAM
 `ifdef GRAY
-assign pal_rgb = {3{pal_addr[3:0]}};
+assign pal_rgb = {3{pixel_mux[3:0]}};
 `else
 wire [3:0] nc;
 

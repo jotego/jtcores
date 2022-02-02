@@ -272,7 +272,7 @@ jtgng_obj #(
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LHBL       ( LHBL        ),
+    .LHBL       ( LHBL_dly    ),
     .LVBL       ( LVBL        ),
     .LVBL_obj   ( LVBL        ),
     .HINIT      ( HINIT       ),
