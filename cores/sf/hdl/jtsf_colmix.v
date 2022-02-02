@@ -53,11 +53,6 @@ localparam [1:0] SCR2=2'd0,SCR1=2'd1,OBJ=2'd2,CHAR=2'd3;
 
 reg  [ 9:0] pixel_mux;
 reg  [ 1:0] prio;
-
-// Address mux
-reg  [ 9:0] pal_addr;
-reg         pal_uwe, pal_lwe;
-wire [ 3:0] pal_red, pal_green, pal_blue;
 wire [11:0] pal_rgb;
 
 wire enable_char = gfx_en[0];
@@ -90,42 +85,26 @@ always @(posedge clk) if(pxl_cen) begin
     endcase
 end
 
-assign pal_rgb = {pal_red, pal_green, pal_blue};
-
-always @(*) begin
-    if( !LVBL ) begin
-        pal_addr  = AB;
-        pal_uwe   = col_uw;
-        pal_lwe   = col_lw;
-    end else begin
-        pal_addr = pixel_mux;
-        pal_uwe  = 1'b0;
-        pal_lwe  = 1'b0;
-    end
-end
 
 // Palette is in RAM
 `ifdef GRAY
-assign pal_red   = pal_addr[3:0];
-assign pal_green = pal_addr[3:0];
-assign pal_blue  = pal_addr[3:0];
+assign pal_rgb = {3{pal_addr[3:0]}};
 `else
-jtframe_ram #(.aw(10),.dw(4)) u_upal(
-    .clk        ( clk         ),
-    .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[11:8]    ),
-    .addr       ( pal_addr    ),
-    .we         ( pal_uwe     ),
-    .q          ( pal_red     )
-);
+wire [3:0] nc;
 
-jtframe_ram #(.aw(10),.dw(8)) u_lpal(
-    .clk        ( clk         ),
-    .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[7:0]     ),
-    .addr       ( pal_addr    ),
-    .we         ( pal_lwe     ),
-    .q          ( { pal_green, pal_blue } )
+jtframe_dual_ram16 #(.aw(10)) u_pal (
+    .clk0   ( clk       ),
+    .clk1   ( clk       ),
+    // Port 0 - CPU
+    .data0  ( DB        ),
+    .addr0  ( AB        ),
+    .we0    ( {col_uw,col_lw}    ),
+    .q0     (           ),
+    // Port 1 - Palette
+    .data1  (           ),
+    .addr1  ( pixel_mux ),
+    .we1    ( 2'b0      ),
+    .q1     ( { nc, pal_rgb } )
 );
 `endif
 
