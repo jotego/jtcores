@@ -127,7 +127,9 @@ always @(posedge clk, posedge rst)
                         if( dmaend ) begin
                             fill <= 1'b1;
                         end else begin
+                            /* verilator lint_off WIDTH */
                             {pre_scan_msb,pre_scan} <= {pre_scan_msb,pre_scan} + 3'd4;
+                            /* verilator lint_on WIDTH */
                         end
                     end
                 end

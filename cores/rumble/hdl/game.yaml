@@ -6,7 +6,6 @@ game:
       - jtrumble_video.v
       - jtrumble_sdram.v
       - jtrumble_colmix.v
-      - jtrumble_dwnld.v
       - jtrumble_banks.v
 jtframe:
   - from: clocking

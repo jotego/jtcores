@@ -8,9 +8,7 @@ DEF=
 OTHER=
 SCENE=
 
-AUXTMP=/tmp/$RANDOM$RANDOM
-jtcfgstr -output bash -def ../../hdl/jt${SYSNAME}.def|grep _START > $AUXTMP
-source $AUXTMP
+eval `jtcfgstr -output bash -core ${SYSNAME} | grep _START `
 
 ln -sf $ROM/srumbler.rom rom.bin
 
@@ -24,7 +22,9 @@ while [ $# -gt 0 ]; do
     case $1 in
         -s|-scene)
             shift
-            SCENE=$1;;
+            SCENE=$1
+            OTHER="-d NOSOUND -d NOMAIN -video 2"
+            ;;
         -h|-help)
             echo "Rumble simulation specific commands"
             echo "   -s|-scene  selects simulation scene. Turns off MAIN/SOUND simulation"
@@ -49,13 +49,11 @@ if [ -n "$SCENE" ]; then
         echo Cannot find scene folder "$SCENE"
         exit 1
     fi
-    dd if=$SCENE/char.bin of=char_lo.bin count=4
-    dd if=$SCENE/char.bin of=char_hi.bin seek=4 count=4
-    dd if=$SCENE/scr.bin of=scr_lo.bin count=8
-    dd if=$SCENE/scr.bin of=scr_hi.bin seek=8 count=8
+    cat $SCENE/char.bin | drop1    >  char_lo.bin
+    cat $SCENE/char.bin | drop1 -l >  char_hi.bin
+    cat $SCENE/scr.bin | drop1 -l  > scr1_lo.bin
+    cat $SCENE/scr.bin | drop1     > scr1_hi.bin
 fi
-
-exit 0
 
 jtsim -mist -sysname $SYSNAME $SIMULATOR \
 	-videow 352 -videoh 240 \

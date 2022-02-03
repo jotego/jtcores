@@ -231,7 +231,8 @@ mc6809i u_cpu (
     .RegData (         ),
     .AVMA    ( AVMA    ),
     .BUSY    (         ),
-    .LIC     (         )
+    .LIC     (         ),
+    .OP      (         )
 );
 
 jtrumble_banks u_banks(

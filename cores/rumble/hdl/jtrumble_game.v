@@ -113,14 +113,18 @@ wire [ 8:0] vdump;
 wire        scr_busy, char_busy;
 
 wire        main_rnw;
-wire        main_ok, snd_ok, obj_ok, dma_ok, ram_ok;
-wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs;
+wire        main_ok, snd_ok, char_ok, scr_ok,
+            obj_ok, dma_ok, ram_ok;
+wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs,
+            pal_cs, char_cs, scr_cs;
 
 wire [ 1:0] prom_bank;
 wire        prom_prior_we;
 
 wire        vmid, cen24_8, cen24_4, cen24_2;
 wire        sres_b, flip;
+wire        LVBL, LHBL;
+wire        bus_ack, bus_req, blcnten;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = ~flip;
@@ -168,6 +172,7 @@ jtframe_cendiv u_cendiv(
     .cen_da ( cen24_2   )
 );
 
+`ifndef NOMAIN
 jtrumble_main u_main(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
@@ -217,6 +222,14 @@ jtrumble_main u_main(
     .dipsw_a     ( dipsw_a      ),
     .dipsw_b     ( dipsw_b      )
 );
+`else
+assign main_cs  = 0;
+assign ram_cs   = 0;
+assign main_rnw = 1;
+assign cpu_dout = 0;
+assign char_cs  = 0;
+assign scr_cs   = 0;
+`endif
 
 jtrumble_video #(
     .CHARW  ( CHARW     ),
@@ -283,6 +296,7 @@ u_video(
     .blue       ( blue          )
 );
 
+`ifndef NOSOUND
 jtgng_sound #(
     .LAYOUT (10 ),
     .PSG_ATT( 2 )   // Fx is very loud in this game
@@ -304,8 +318,14 @@ jtgng_sound #(
     .rom_ok     (  snd_ok       ),
     .ym_snd     (  snd          ),
     .sample     (  sample       ),
-    .peak       (  fm_peak      )
+    .peak       (  game_led     )
 );
+`else
+    assign snd_cs=0;
+    assign sample=0;
+    assign snd = 0;
+    assign game_led=0;
+`endif
 
 jtrumble_sdram #(
     .MAINW  ( MAINW ),
