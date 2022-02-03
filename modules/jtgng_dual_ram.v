@@ -17,42 +17,29 @@
     Date: 23-12-2018 */
 
 module jtgng_dual_ram #(parameter dw=8, aw=10, simfile="")(
-    input   clk,
-    input   clk_en /* synthesis direct_enable = 1 */,
-    input   [dw-1:0] data,
-    input   [aw-1:0] rd_addr,
-    input   [aw-1:0] wr_addr,
-    input   we,
-    output reg [dw-1:0] q
+    input           clk,
+    input           clk_en,
+    input  [dw-1:0] data,
+    input  [aw-1:0] rd_addr,
+    input  [aw-1:0] wr_addr,
+    input           we,
+    output [dw-1:0] q
 );
 
-reg [dw-1:0] mem[0:(2**aw)-1];
+    jtframe_dual_ram #(.dw(dw),.aw(aw),.simfile(simfile))
+    u_ram(
+        .clk0   ( clk       ),
+        .clk1   ( clk       ),
+        // Port 0
+        .data0  ( data      ),
+        .addr0  ( wr_addr   ),
+        .we0    ( we & clk_en ),
+        .q0     (           ),
+        // Port 1
+        .data1  (           ),
+        .addr1  ( rd_addr   ),
+        .we1    ( 1'b0      ),
+        .q1     ( q         )
+    );
 
-`ifdef SIMULATION
-integer f, readcnt;
-initial
-if( simfile != "" ) begin
-    f=$fopen(simfile,"rb");
-    if( f==0 ) begin
-        $display("WARNING: %m cannot find file %s",simfile);
-    end else begin
-        readcnt=$fread( mem, f );
-        $display("INFO: read %s (%d bytes) %m", simfile, readcnt);
-        $fclose(f);
-    end
-    end
-else begin
-    for( readcnt=0; readcnt<(2**aw)-1; readcnt=readcnt+1 )
-        mem[readcnt] = {dw{1'b0}};
-    end
-`endif
-
-always @(posedge clk) begin
-    q <= mem[rd_addr];
-end
-
-always @(posedge clk) if( clk_en ) begin
-    if( we) mem[wr_addr] <= data;
-end
-
-endmodule // jtframe_ram
+endmodule
