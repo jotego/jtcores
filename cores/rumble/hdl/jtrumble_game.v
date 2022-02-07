@@ -94,14 +94,14 @@ localparam MAINW=18, RAMW=13, CHARW=13, SCRW=17, OBJW=17;
 wire [15:0] char_data;
 wire [15:0] scr_data;
 wire [15:0] obj_data, obj_pre;
-wire [ 7:0] main_data, dma_data, ram_data;
+wire [ 7:0] main_data, obj_din;
 wire [ 7:0] snd_data, snd_latch;
 wire [ 7:0] cpu_dout, scr_dout, char_dout;
 // ROM address
 wire [17:0] main_addr;
-wire [12:0] ram_addr;
+wire [12:0] cpu_AB;
 wire [14:0] snd_addr;
-wire [ 8:0] dma_addr;
+wire [ 8:0] obj_AB;
 wire [CHARW-1:0] char_addr;
 wire [SCRW-1:0] scr_addr;
 wire [OBJW-1:0] obj_addr;
@@ -114,8 +114,8 @@ wire        scr_busy, char_busy;
 
 wire        main_rnw;
 wire        main_ok, snd_ok, char_ok, scr_ok,
-            obj_ok, dma_ok, ram_ok;
-wire        main_cs, snd_cs, obj_cs, dma_cs, ram_cs,
+            obj_ok;
+wire        main_cs, snd_cs, obj_cs,
             pal_cs, char_cs, scr_cs;
 
 wire [ 1:0] prom_bank;
@@ -205,17 +205,15 @@ jtrumble_main u_main(
     // BUS sharing
     .bus_ack     ( bus_ack      ),
     .bus_req     ( bus_req      ),
+    .obj_AB      ( obj_AB       ),
+    .obj_din     ( obj_din      ),
     .RnW         ( main_rnw     ),
+    .cpu_AB      ( cpu_AB       ),
     // ROM access
     .rom_cs      ( main_cs      ),
     .rom_addr    ( main_addr    ),
     .rom_data    ( main_data    ),
     .rom_ok      ( main_ok      ),
-    // RAM access
-    .ram_cs      ( ram_cs       ),
-    .ram_addr    ( ram_addr     ),
-    .ram_data    ( ram_data     ),
-    .ram_ok      ( ram_ok       ),
     // DIP switches
     .service     ( service      ),
     .dip_pause   ( dip_pause    ),
@@ -224,7 +222,6 @@ jtrumble_main u_main(
 );
 `else
 assign main_cs  = 0;
-assign ram_cs   = 0;
 assign main_rnw = 1;
 assign cpu_dout = 0;
 assign char_cs  = 0;
@@ -242,7 +239,7 @@ u_video(
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
-    .cpu_AB     ( ram_addr[12:0]),
+    .cpu_AB     ( cpu_AB        ),
     .V          ( vdump         ),
     .RnW        ( main_rnw      ),
     .flip       ( flip          ),
@@ -266,17 +263,14 @@ u_video(
     .scr_vpos   ( scr_vpos      ),
     .scr_ok     ( scr_ok        ),
     // OBJ
-    .dma_addr   ( dma_addr      ),
-    .dma_data   ( dma_data      ),
-    .dma_ok     ( dma_ok        ),
-    .dma_cs     ( dma_cs        ),
-
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_ok     ( obj_ok        ),
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
+    .dma_addr   ( obj_AB        ),
+    .dma_data   ( obj_din       ),
     // PROMs
     .prog_addr  ( prog_addr[7:0]),
     .prom_prior_we(prom_prior_we),
@@ -341,24 +335,11 @@ jtrumble_sdram #(
 
     // Main CPU
     .main_cs    ( main_cs   ),
-    .ram_cs     ( ram_cs    ),
-
     .main_addr  ( main_addr ),
-    .ram_addr   ( ram_addr  ),
     .main_data  ( main_data ),
-    .ram_data   ( ram_data  ),
 
     .main_ok    ( main_ok   ),
-    .ram_ok     ( ram_ok    ),
-
     .main_dout  ( cpu_dout  ),
-    .main_rnw   ( main_rnw  ),
-
-    // DMA
-    .dma_cs     ( dma_cs    ),
-    .dma_addr   ( dma_addr  ),
-    .dma_ok     ( dma_ok    ),
-    .dma_data   ( dma_data  ),
 
     // Sound CPU
     .snd_addr   ( snd_addr  ),

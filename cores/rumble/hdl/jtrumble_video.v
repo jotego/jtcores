@@ -48,8 +48,6 @@ module jtrumble_video#(
     input       [ 9:0]  scr_hpos,
     input       [ 9:0]  scr_vpos,
     // DMA
-    output              dma_cs,
-    input               dma_ok,
     output      [ 8:0]  dma_addr,
     input       [ 7:0]  dma_data,
     // OBJ
@@ -231,21 +229,10 @@ assign scr_addr   = 17'd0;
 assign scr_dout   = 8'd0;
 `endif
 
-assign dma_cs = bus_ack;
-
-
 `ifndef NOOBJ
 reg  okout, last_match;
-reg  miss;
-wire dma_cen;
 wire match = V==9'h10c;
 
-// no tick recovery yet:
-assign dma_cen = pxl_cen & (~bus_ack | dma_ok | ~miss);
-
-always @(posedge clk) if(pxl_cen) begin
-    miss <= bus_req & (bus_ack&~dma_ok);
-end
 
 always @(posedge clk) begin
     last_match <= match;
@@ -265,7 +252,7 @@ u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .draw_cen   ( pxl2_cen    ),
-    .dma_cen    ( dma_cen     ),
+    .dma_cen    ( pxl_cen     ),
     .pxl_cen    ( pxl_cen     ),
     .AB         ( dma_addr    ),
     .DB         ( dma_data    ),

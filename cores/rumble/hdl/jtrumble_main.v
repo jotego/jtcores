@@ -48,17 +48,15 @@ module jtrumble_main(
     // BUS sharing
     output             bus_ack,
     input              bus_req,
+    input   [ 8:0]     obj_AB,
+    output  [12:0]     cpu_AB,
     output             RnW,
+    output  [7:0]      obj_din,
     // ROM access
     output             rom_cs,
     output  reg [17:0] rom_addr,
     input       [ 7:0] rom_data,
     input              rom_ok,
-    // RAM access
-    output  reg        ram_cs,
-    output      [12:0] ram_addr,
-    input       [ 7:0] ram_data,
-    input              ram_ok,
     // DIP switches
     input              service,
     input              dip_pause,
@@ -70,30 +68,29 @@ wire [15:0] A;
 wire        AVMA;
 wire        nRESET;
 wire        cen_E, cen_Q;
-reg         io_cs;
+reg         io_cs, ram_cs;
 reg  [ 7:0] bank;
-wire [ 7:0] mem_map, bank_addr0, bank_addr1, cpu_din;
+wire [ 7:0] mem_map, bank_addr0, bank_addr1, cpu_din,
+            ram_data;
+wire        RAM_we;
 
+assign RAM_we     = ram_cs && !RnW;
 assign bank_addr1 = { bank[7:4], A[15:12] };
 assign bank_addr0 = { bank[3:0], A[15:12] };
-assign ram_addr   = A[12:0];
 
 reg        VMA, pre_cs;
-reg        last_E, last_cs;
-reg [12:0] last_ram_addr;
+reg        last_cs;
 
 assign rom_cs = last_cs && pre_cs;
 assign sres_b = 1;
+assign cpu_AB = A[12:0];
 
 always @(posedge clk or negedge nRESET) begin
     if(!nRESET) begin
         VMA      <= 1;
-        last_E   <= 0;
         last_cs  <= 0;
         rom_addr <= 0;
     end else begin
-        last_ram_addr <= ram_addr;
-        last_E  <= cen_E;
         last_cs <= pre_cs;
         if( cen_E ) begin
             VMA <= AVMA;
@@ -103,15 +100,15 @@ always @(posedge clk or negedge nRESET) begin
 end
 
 always @(*) begin
-    ram_cs   = 0;
-    scr_cs      = 0;
-    io_cs       = 0;
-    pre_cs      = 0;
-    char_cs     = 0;
-    pal_cs      = 0;
+    ram_cs  = 0;
+    scr_cs  = 0;
+    io_cs   = 0;
+    pre_cs  = 0;
+    char_cs = 0;
+    pal_cs  = 0;
     if( VMA && nRESET ) begin
         casez(A[15:12])
-            4'b000?: ram_cs = last_ram_addr==ram_addr; // 0
+            4'b000?: ram_cs = 1;
             4'b001?: scr_cs = 1; // 2-3
             4'b0100: io_cs  = A[3]; // 4
             default: begin
@@ -122,6 +119,21 @@ always @(*) begin
         endcase
     end
 end
+
+jtframe_dual_ram #(.aw(13)) u_ram(
+    // CPU
+    .clk0   ( clk       ),
+    .data0  ( cpu_dout  ),
+    .addr0  ( A[12:0]   ),
+    .we0    ( RAM_we    ),
+    .q0     ( ram_data  ),
+    // Object controller
+    .clk1   ( clk       ),
+    .data1  (           ),
+    .addr1  ({4'hf,obj_AB}),
+    .we1    ( 1'b0      ),
+    .q1     ( obj_din   )
+);
 
 always @(posedge clk or negedge nRESET) begin
     if( !nRESET ) begin
@@ -196,8 +208,6 @@ always @(posedge clk) if(cen_Q) begin
 end
 
 wire bus_busy = scr_busy | char_busy;
-wire sdram_cs = pre_cs | ram_cs;
-wire sdram_ok = rom_ok | ram_ok;
 
 jtframe_6809wait u_wait(
     .rstn       ( nRESET    ),
@@ -205,8 +215,8 @@ jtframe_6809wait u_wait(
     .cen        ( cen8      ),
     .cpu_cen    ( cpu_cen   ),
     .dev_busy   ( bus_busy  ),
-    .rom_cs     ( sdram_cs  ),
-    .rom_ok     ( sdram_ok  ),
+    .rom_cs     ( pre_cs    ),
+    .rom_ok     ( rom_ok    ),
     .cen_E      ( cen_E     ),
     .cen_Q      ( cen_Q     )
 );

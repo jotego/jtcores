@@ -32,19 +32,9 @@ module jtrumble_sdram #(
     input              main_cs,
     input              ram_cs,
     input  [MAINW-1:0] main_addr,
-    input  [ RAMW-1:0] ram_addr,
     output      [ 7:0] main_data,
-    output      [ 7:0] ram_data,
     output             main_ok,
-    output             ram_ok,
     input       [ 7:0] main_dout,
-    input              main_rnw,
-
-    // DMA
-    input              dma_cs,
-    output             dma_ok,
-    input       [ 8:0] dma_addr,
-    output      [ 7:0] dma_data,
 
     // Sound CPU
     input              snd_cs,
@@ -106,9 +96,7 @@ module jtrumble_sdram #(
 );
 
 localparam [21:0] ZERO_OFFSET=0,
-                  RAM_OFFSET =22'h10_0000,
-                  SCR_OFFSET =(22'h4c000-22'h48000)>>1,
-                  DMA_OFFSET = RAM_OFFSET+22'h1e00;
+                  SCR_OFFSET =(22'h4c000-22'h48000)>>1;
 
 /* verilator lint_off WIDTH */
 localparam [24:0] BA1_START  = `BA1_START,
@@ -147,6 +135,9 @@ assign prog_mask = convert ? conv_mask : dwn_mask;
 assign prog_we   = convert ? conv_we   : dwn_we;
 assign prog_rd   = convert ? conv_rd   : dwn_rd;
 assign prog_ba   = convert ? 2'd3      : dwn_ba;
+assign ba_wr     = 0;
+assign ba0_din   = 0;
+assign ba0_din_m = 3;
 
 reg last_dwn;
 
@@ -205,60 +196,26 @@ jtgng_obj32 #(
 assign convert=0;
 `endif
 
-// main CPU ROM/RAM, OBJ DMA
-jtframe_ram_3slots #(
-    // RAM
-    .SLOT0_DW( 8),
-    .SLOT0_AW(RAMW),
-
+// main CPU ROM
+jtframe_rom_1slot #(
     // Game ROM
-    .SLOT1_DW( 8),
-    .SLOT1_AW(MAINW),
-
-    // DMA
-    .SLOT2_DW( 8),
-    .SLOT2_AW( 10)
+    .SLOT0_DW( 8),
+    .SLOT0_AW(MAINW)
 ) u_bank0(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .offset0    ( RAM_OFFSET),
-    .offset1    (ZERO_OFFSET),
-    .offset2    ( DMA_OFFSET),
-
-    .slot0_addr (  ram_addr ),
-    .slot1_addr ( main_addr ),
-    .slot2_addr ({dma_addr,1'b0} ),
-
-    //  output data
-    .slot0_dout (  ram_data ),
-    .slot1_dout ( main_data ),
-    .slot2_dout (  dma_data ),
-
-    .slot0_cs   (  ram_cs   ),
-    .slot1_cs   ( main_cs   ),
-    .slot2_cs   (  dma_cs   ),
-
-    .slot0_wen  ( ~main_rnw ),
-    .slot0_din  ( main_dout ),
-    .slot0_wrmask( 2'b10    ),
-
-    .slot1_clr  ( 1'b0      ),
-    .slot2_clr  ( 1'b0      ),
-
-    .slot0_ok   ( ram_ok    ),
-    .slot1_ok   ( main_ok   ),
-    .slot2_ok   (  dma_ok   ),
+    .slot0_addr ( main_addr ),
+    .slot0_dout ( main_data ),
+    .slot0_cs   ( main_cs   ),
+    .slot0_ok   ( main_ok   ),
 
     // SDRAM controller interface
     .sdram_ack   ( ba_ack[0] ),
-    .sdram_rd    ( ba_rd[0]  ),
-    .sdram_wr    ( ba_wr     ),
+    .sdram_req   ( ba_rd[0]  ),
     .sdram_addr  ( ba0_addr  ),
     .data_dst    ( ba_dst[0] ),
     .data_rdy    ( ba_rdy[0] ),
-    .data_write  ( ba0_din   ),
-    .sdram_wrmask( ba0_din_m ),
     .data_read   ( data_read )
 );
 
