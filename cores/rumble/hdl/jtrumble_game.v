@@ -176,6 +176,7 @@ jtframe_cendiv u_cendiv(
 jtrumble_main u_main(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
+    .clk_obj    ( clk           ),
     .cen8       ( cen24_8       ),
     .cpu_cen    ( cpu_cen       ),
     .LVBL       ( LVBL          ),   // vertical blanking when 0

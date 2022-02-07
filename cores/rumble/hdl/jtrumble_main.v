@@ -19,6 +19,7 @@
 module jtrumble_main(
     input              rst,
     input              clk,
+    input              clk_obj,
     input              cen8,
     output             cpu_cen,
     input              LVBL,   // vertical blanking when 0
@@ -128,7 +129,7 @@ jtframe_dual_ram #(.aw(13)) u_ram(
     .we0    ( RAM_we    ),
     .q0     ( ram_data  ),
     // Object controller
-    .clk1   ( clk       ),
+    .clk1   ( clk_obj   ),
     .data1  (           ),
     .addr1  ({4'hf,obj_AB}),
     .we1    ( 1'b0      ),
