@@ -80,7 +80,7 @@ module jtgng_obj #(
 );
 
 localparam LINEBUF_AW = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10) ? 9 : 8;
-localparam LINEBUF_H0 = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10) ? 9'h48 : 8'h0;
+localparam LINEBUF_H0 = (LAYOUT==8 || LAYOUT==9 || LAYOUT==10) ? 9'h48 : 9'h0;
 
 wire [DMA_AW-1:0] pre_scan;
 wire [DMA_DW-1:0] objbuf_data;

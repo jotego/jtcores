@@ -30,7 +30,6 @@ module jtrumble_sdram #(
 
     // Main CPU
     input              main_cs,
-    input              ram_cs,
     input  [MAINW-1:0] main_addr,
     output      [ 7:0] main_data,
     output             main_ok,

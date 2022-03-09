@@ -156,6 +156,7 @@ always @(posedge clk or negedge nRESET) begin
             3'd4: scr_vpos[7:0] <= cpu_dout;
             3'd5: scr_vpos[9:8] <= cpu_dout[1:0];
             3'd6: snd_latch     <= cpu_dout;
+            default:;
         endcase
     end
 end
@@ -199,7 +200,7 @@ assign bus_ack = BA && BS;
 always @(posedge clk) if(cen_Q) begin
     last_LVBL <= LVBL;
     last_vmid <= vmid;
-    if( {BS,BA}==2'b10 ) begin
+    if( {BS,BA}==2'b10 || rst ) begin
         nIRQ  <= 1'b1;
         nFIRQ <= 1'b1;
     end else begin

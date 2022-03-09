@@ -2,7 +2,7 @@
 
 SYSNAME=rumble
 HEXDUMP=-nohex
-SIMULATOR=-verilator
+#SIMULATOR=-verilator
 SDRAM_SNAP=
 DEF=
 OTHER=
@@ -35,14 +35,6 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
-
-jtsim_sdram $HEXDUMP  \
-    -banks $BA1_START $BA2_START $BA3_START \
-    -stop $PROM_START \
-    -dumpbin 63s141.12a 0xcc000 0x100 \
-    -dumpbin 63s141.13a 0xcc100 0x100 \
-    -dumpbin 63s141.8j  0xcc200 0x100 \
-    $SDRAM_SNAP || exit $?
 
 if [ -n "$SCENE" ]; then
     if [ ! -d "$SCENE" ]; then
