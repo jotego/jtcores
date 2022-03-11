@@ -31,7 +31,7 @@ jtframe:
   - from: sound
     get:
       - jtframe_mixer.v
-      - jtframe_jt49_filters.qip
+      - jtframe_jt49_filters.yaml
   - from: video
     get:
       - jtframe_blank.v

@@ -34,7 +34,7 @@ jtframe:
       - jtframe_blank.v
   - from: sound
     get:
-      - jtframe_jt49_filters.qip
+      - jtframe_jt49_filters.yaml
 modules:
   other:
     - get:
