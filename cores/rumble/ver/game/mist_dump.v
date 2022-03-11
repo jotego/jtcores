@@ -12,14 +12,13 @@ module mist_dump(
         // #(200*100*1000*1000);
         $display("DUMP enabled");
         $dumpfile("test.lxt");
-    end
     `ifdef LOADROM
-    always @(negedge led) if( $time > 20000 ) begin // led = downloading signal
         $display("DUMP starts");
-        $dumpvars(0,mist_test);
+        $dumpvars(0,mist_test.UUT.u_game.u_sdram);
         $dumpon;
+    `endif
     end
-    `else
+    `ifndef LOADROM
         `ifdef DUMP_START
         always @(negedge VGA_VS) if( frame_cnt==`DUMP_START ) begin
         `else
@@ -29,7 +28,9 @@ module mist_dump(
             `ifdef DEEPDUMP
                 $dumpvars(0,mist_test);
             `else
-                $dumpvars(1,mist_test.UUT.u_game.u_main);
+                $dumpvars(1,mist_test.UUT.u_game.u_sdram);
+                $dumpvars(1,mist_test.UUT.u_game.u_sdram.u_obj32);
+                $dumpvars(1,mist_test.UUT.u_game.u_sdram.u_dwnld);
                 $dumpvars(1,mist_test.frame_cnt);
             `endif
             $dumpon;

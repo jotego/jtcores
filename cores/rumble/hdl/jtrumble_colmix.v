@@ -74,6 +74,7 @@ reg         lsb;
 wire        scrwin   =   scr_pxl[7];
 wire       charwin   =  char_pxl[6];
 wire [7:0] prio_addr = { scr_pxl[3:0], obj_blank, charwin, scrwin, char_blankn };
+//wire [7:0] prio_addr = { scrwin, scr_pxl[3:0], obj_blank, charwin, char_blankn };
 
 assign pal_addr[8:7] = prio;
 assign pal_addr[6:0] = prio==CHAR_PAL ? { 1'b1, char_pxl[5:0]} :
@@ -98,7 +99,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_prom #(.dw(2),.aw(8),.simfile("63s141.8j")) u_prio(
+jtframe_prom #(.dw(2),.aw(8),.simfile("../../../../rom/rumble/63s141.8j")) u_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),

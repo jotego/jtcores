@@ -223,6 +223,7 @@ jtframe_6809wait u_wait(
     .cen_Q      ( cen_Q     )
 );
 
+/* verilator tracing_off */
 mc6809i u_cpu (
     .clk     ( clk     ),
     .cen_E   ( cen_E   ),
@@ -246,6 +247,7 @@ mc6809i u_cpu (
     .LIC     (         ),
     .OP      (         )
 );
+/* verilator tracing_on */
 
 jtrumble_banks u_banks(
     .msb_addr   ( bank_addr1   ),

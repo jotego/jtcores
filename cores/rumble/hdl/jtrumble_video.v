@@ -95,7 +95,13 @@ wire [8:0] H;
 always @(posedge clk) vmid<=V==9'h60;
 
 assign LVBL_obj = LVBL;
-assign LHBL_obj = LHBL;
+
+jtframe_sh #(.width(1), .stages(5) ) u_sh(
+    .clk    ( clk       ),
+    .clk_en ( pxl_cen   ),
+    .din    ( LHBL      ),
+    .drop   ( LHBL_obj  )
+);
 
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted

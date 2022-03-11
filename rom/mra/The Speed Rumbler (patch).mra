@@ -1,0 +1,105 @@
+<!--          FPGA compatible core for Capcom arcade hardware by Jotego
+
+              This core is available for hardware compatible with MiST and MiSTer
+              Other FPGA systems may be supported by the time you read this.
+              This work is not mantained by the MiSTer project. Please contact the
+              core author for issues and updates.
+
+              (c) Jose Tejada, 2021. Please support the author
+              Patreon: https://patreon.com/topapate
+              Paypal:  https://paypal.me/topapate
+
+              The author does not endorse or participate in illegal distribution
+              of copyrighted material. This work can be used with legally
+              obtained ROM dumps or with compatible homebrew software.
+
+              This file license is GNU GPLv2.
+              You can read the whole license file in
+              https://opensource.org/licenses/gpl-2.0.php
+
+-->
+
+<misterromdescription>
+    <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
+    <name>The Speed Rumbler (set 1)</name>
+    <setname>srumbler</setname>
+    <rbf>jtrumble</rbf>
+    <mameversion>0229</mameversion>
+    <year>1986</year>
+    <manufacturer>Capcom</manufacturer>
+    <players>2</players>
+    <joystick>8-way</joystick>
+    <rotation>vertical</rotation>
+    <region>World</region>
+    <rom index="0" zip="srumbler.zip" type="merged" md5="None">
+        <!-- user1 - starts at 0x0 -->
+        <part name="rc04.14e" crc="a68ce89c"/>
+        <part name="rc03.13e" crc="87bda812"/>
+        <part name="rc02.12e" crc="d8609cca"/>
+        <part name="rc01.11e" crc="27ec4776"/>
+        <part name="rc09.14f" crc="2146101d"/>
+        <part name="rc08.13f" crc="838369a6"/>
+        <part name="rc07.12f" crc="de785076"/>
+        <part name="rc06.11f" crc="a70f4fd4"/>
+        <!-- audiocpu - starts at 0x40000 -->
+        <part name="rc05.2f" crc="0177cebe"/>
+        <!-- char - starts at 0x48000 -->
+        <interleave output="16">
+            <part name="rc10.6g" crc="adabe271" map="12"/>
+        </interleave>
+        <!-- scr - starts at 0x4C000 -->
+        <interleave output="16">
+            <part name="rc15.11c" crc="ca3a3af3" map="01"/>
+            <part name="rc11.11a" crc="5fa042ba" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="rc16.13c" crc="c49a4a11" map="01"/>
+            <part name="rc12.13a" crc="a2db64af" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="rc17.14c" crc="aa80aaab" map="01"/>
+            <part name="rc13.14a" crc="f1df5499" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="rc18.15c" crc="ce67868e" map="01"/>
+            <part name="rc14.15a" crc="b22b31b3" map="10"/>
+        </interleave>
+        <!-- obj - starts at 0x8C000 -->
+        <interleave output="32">
+            <part name="rc26.15j" crc="d4f1732f" map="0001"/>
+            <part name="rc24.15h" crc="c972af3e" map="0010"/>
+            <part name="rc22.15f" crc="ab64161c" map="0100"/>
+            <part name="rc20.15e" crc="3924c861" map="1000"/>
+        </interleave>
+        <interleave output="32">
+            <part name="rc25.14j" crc="d2a4ea4f" map="0001"/>
+            <part name="rc23.14h" crc="8c9abf57" map="0010"/>
+            <part name="rc21.14f" crc="fd64bcd1" map="0100"/>
+            <part name="rc19.14e" crc="ff8f9129" map="1000"/>
+        </interleave>
+        <!-- proms - starts at 0xCC000 -->
+        <part name="63s141.12a" crc="8421786f"/>
+        <part name="63s141.13a" crc="6048583f"/>
+        <part name="63s141.8j" crc="1a89a7ff"/>
+        <!-- Total 0xCC300 bytes - 816 kBytes -->
+        <patch offset="0xc039"> 12 12 12 </patch>
+    </rom>
+    <!-- Vertical game -->
+    <rom index="1">
+        <part>01</part>
+    </rom>
+    <switches base="16" default="FF,FF">
+        <!-- DSW1 -->
+        <dip name="Coin B" bits="0,2" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
+        <dip name="Coin A" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
+        <dip name="Service Mode" bits="6" ids="On,Off"/>
+        <dip name="Flip Screen" bits="7" ids="On,Off"/>
+        <!-- DSW2 -->
+        <dip name="Lives" bits="8,9" ids="7,5,4,3"/>
+        <dip name="Cabinet" bits="10" ids="Upright,Cocktail"/>
+        <dip name="Bonus Life" bits="11,12" ids="30k 80k,20k 80k,30k 80k and every 80k,20k 70k and every 70k"/>
+        <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"/>
+        <dip name="Allow Continue" bits="15" ids="No,Yes"/>
+    </switches>
+    <buttons names="Shoot,Exit car,Start,Coin,Core credits" default="Y,X,R,L,Start" count="2"/>
+</misterromdescription>
