@@ -5,7 +5,7 @@ JTFRAME_MRA_DIP
 JTFRAME_ARX=5
 JTFRAME_ARY=4
 #Color width is really 3, but needs 4 to make it work with avatars
-COLORW=4
+JTFRAME_COLORW=4
 VULGUS
 JTFRAME_CREDITS
 
