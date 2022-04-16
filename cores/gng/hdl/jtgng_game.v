@@ -262,7 +262,7 @@ assign cpu_cen     = cen3;
 `endif
 
 `ifndef NOSOUND
-jtgng_sound u_sound (
+jtgng_sound #(.PSG_ATT(1)) u_sound (
     .rst            ( rst24      ),
     .clk            ( clk24      ),
     .cen3           ( cen3       ),
