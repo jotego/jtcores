@@ -62,6 +62,7 @@ module jtgng_colmix(
 parameter SCRWIN        = 1,
           BLUELOW       = 0, // used high or low nibble for blue palette
           PALETTE_PROM  = 0,
+          GNGPAL        = 0, // during non blanking, the CPU does not control the pal. address
           PALETTE_RED   = "../../../rom/commando/vtb1.1d",
           PALETTE_GREEN = "../../../rom/commando/vtb2.2d",
           PALETTE_BLUE  = "../../../rom/commando/vtb3.3d";
@@ -154,13 +155,19 @@ end else begin
     // Palette is in RAM
     wire we_rg = !LVBL && redgreen_cs;
     wire we_b  = !LVBL && blue_cs;
+    wire [7:0] eff_AB;
+
+    // This produces colours flashes when the screen is full
+    // of enemis in GnG, as it should. This is arguably a
+    // design flaw in the original
+    assign eff_AB = (GNGPAL==1 && LVBL) ? pixel_mux : AB;
 
     jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
         .clk        ( clk         ),
         .clk_en     ( cen6        ), // clock enable only applies to write operation
         .data       ( DB          ),
         .rd_addr    ( pixel_mux   ),
-        .wr_addr    ( AB          ),
+        .wr_addr    ( eff_AB      ),
         .we         ( we_rg       ),
         .q          ( {pal_red, pal_green}     )
     );
@@ -170,7 +177,7 @@ end else begin
         .clk_en     ( cen6        ), // clock enable only applies to write operation
         .data       ( BLUELOW ? DB[3:0] : DB[7:4] ),
         .rd_addr    ( pixel_mux   ),
-        .wr_addr    ( AB          ),
+        .wr_addr    ( eff_AB      ),
         .we         ( we_b        ),
         .q          ( pal_blue    )
     );

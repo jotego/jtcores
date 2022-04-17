@@ -295,7 +295,7 @@ assign snd      = 16'b0;
 wire char_ok, scr1_ok, scr2_ok, obj_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
-jtgng_video u_video(
+jtgng_video #(.GNGPAL(1)) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen12      ( pxl2_cen      ),

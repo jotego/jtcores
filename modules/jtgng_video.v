@@ -36,7 +36,8 @@ parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     // palettes for objects are stored
 
 // parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8
+parameter AVATAR_MAX    = 8,
+          GNGPAL        = 0
 ) (
     input               rst,
     input               clk,
@@ -260,7 +261,8 @@ jtgng_colmix #(
     .PALETTE_PROM ( PALETTE_PROM ),
     .PALETTE_RED  ( PALETTE_RED  ),
     .PALETTE_GREEN( PALETTE_GREEN),
-    .PALETTE_BLUE ( PALETTE_BLUE )
+    .PALETTE_BLUE ( PALETTE_BLUE ),
+    .GNGPAL       ( GNGPAL       )
 )u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
