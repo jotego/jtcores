@@ -159,9 +159,12 @@ end else begin
     wire [7:0] pre_rg;
     wire [3:0] pre_b;
 
-    // This produces colours flashes when the screen is full
-    // of enemies in GnG, as it should. This is arguably a
-    // design weakness in the original
+    // This is arguably a design weakness in the original
+    // but it doesn't seem to have practical effects. The
+    // CPU is able to always write to the palette in time
+    // The reported wrong colours in original PCBs are
+    // probably due to timing issues with ageing and temperature
+    // in the PCB, and not to a logic flaw.
     assign eff_AB = (GNGPAL==1 && LVBL) ? pixel_mux : AB;
     assign {pal_red, pal_green}  = (GNGPAL==1 && we_rg) ? DB : pre_rg;
     assign pal_blue              = (GNGPAL==1 && we_b)  ? DB : pre_b;
