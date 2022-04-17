@@ -156,11 +156,15 @@ end else begin
     wire we_rg = !LVBL && redgreen_cs;
     wire we_b  = !LVBL && blue_cs;
     wire [7:0] eff_AB;
+    wire [7:0] pre_rg;
+    wire [3:0] pre_b;
 
     // This produces colours flashes when the screen is full
-    // of enemis in GnG, as it should. This is arguably a
-    // design flaw in the original
+    // of enemies in GnG, as it should. This is arguably a
+    // design weakness in the original
     assign eff_AB = (GNGPAL==1 && LVBL) ? pixel_mux : AB;
+    assign {pal_red, pal_green}  = (GNGPAL==1 && we_rg) ? DB : pre_rg;
+    assign pal_blue              = (GNGPAL==1 && we_b)  ? DB : pre_b;
 
     jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
         .clk        ( clk         ),
@@ -169,7 +173,7 @@ end else begin
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( eff_AB      ),
         .we         ( we_rg       ),
-        .q          ( {pal_red, pal_green}     )
+        .q          ( pre_rg      )
     );
 
     jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
@@ -179,7 +183,7 @@ end else begin
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( eff_AB      ),
         .we         ( we_b        ),
-        .q          ( pal_blue    )
+        .q          ( pre_b       )
     );
 end
 endgenerate
