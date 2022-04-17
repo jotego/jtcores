@@ -80,7 +80,8 @@ assign DMAn     = p3_os[5];
 reg    last_DMAONn;
 
 jtframe_sync #(.W(8)) u_p3sync(
-    .clk    ( clk_cpu   ),
+    .clk_in ( 1'b0      ),
+    .clk_out( clk_cpu   ),
     .raw    ( p3_o      ),
     .sync   ( p3_os     )
 );
@@ -88,7 +89,8 @@ jtframe_sync #(.W(8)) u_p3sync(
 wire int0n_mcu;
 
 jtframe_sync #(.W(1)) u_intsync(
-    .clk    ( clk       ),
+    .clk_in ( 1'b0      ),
+    .clk_out( clk       ),
     .raw    ( int0n     ),
     .sync   ( int0n_mcu )
 );
@@ -149,7 +151,8 @@ assign mcu_wr = x_wr | ~p3_o[6]; // wr pin
 assign mcu_dout = x_wr ? x_dout : p0_o;
 
 jtframe_sync #(.W(8)) u_sync(
-    .clk    ( clk       ),
+    .clk_in ( clk_cpu   ),
+    .clk_out( clk       ),
     .raw    ( mcu_din   ),
     .sync   ( mcu_din_s )
 );

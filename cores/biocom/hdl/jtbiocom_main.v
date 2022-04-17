@@ -123,7 +123,8 @@ wire        mcu_wr_s;
 wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
 
 jtframe_sync #(.W(16+8+1)) u_mcus(
-    .clk    ( clk       ),
+    .clk_in ( 1'b0      ),
+    .clk_out( clk       ),
     .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
     .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
 );
