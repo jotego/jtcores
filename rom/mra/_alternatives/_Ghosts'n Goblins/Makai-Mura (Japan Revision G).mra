@@ -7,7 +7,7 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="makaimurg.zip" md5="b2c45890c22b282f6a1e799cfdc4c700" type="nonmerged">
 		<part name="mj03g.bin"/>
 		<part name="mj04g.bin"/>

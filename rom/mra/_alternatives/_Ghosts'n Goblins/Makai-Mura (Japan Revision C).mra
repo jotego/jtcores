@@ -7,7 +7,7 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="makaimurc.zip" md5="4986f3d2522f8461206db2bd3bc5bc6b" type="nonmerged">
 		<part name="mj03c.bin"/>
 		<part name="mj04c.bin"/>

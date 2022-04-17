@@ -7,7 +7,7 @@
 	<manufacturer>Capcom (Taito America license)</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="gngt.zip" md5="205229cb8941ae2ab651777018f91826" type="nonmerged">
 		<part name="mmt03d.8n"/>
 		<part name="mmt04d.10n"/>

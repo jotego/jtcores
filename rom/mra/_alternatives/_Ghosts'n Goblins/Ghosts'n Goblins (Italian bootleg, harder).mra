@@ -7,7 +7,7 @@
 	<manufacturer>bootleg</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="gngblita.zip" md5="3da9708518bfb1b90ba960b22f71e0c9" type="nonmerged">
 		<part name="4-5"/>
 		<part name="3"/>

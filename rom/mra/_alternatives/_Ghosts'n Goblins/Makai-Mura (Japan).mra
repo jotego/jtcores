@@ -7,7 +7,7 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="makaimur.zip" md5="f80a619acf3e03db0b5c38e1559d9932" type="nonmerged">
 		<part name="8n.rom"/>
 		<part name="10n.rom"/>

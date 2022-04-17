@@ -7,7 +7,7 @@
 	<manufacturer>Capcom</manufacturer>
 	<category>Adventure / Knights</category>
 	<category>Fighter / Warriors</category>
-	<rbf>gng</rbf>
+	<rbf>jtgng</rbf>
 	<rom index="0" zip="gngc.zip" md5="682b65e318744430685085daf95eb899" type="nonmerged">
 		<part name="mm_c_03"/>
 		<part name="mm_c_04"/>
