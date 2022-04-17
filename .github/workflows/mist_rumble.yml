@@ -39,5 +39,7 @@ jobs:
         with:
           submodules: true
           repository: ${{ github.repository }}
+      - name: Get YAML package
+        run: go get gopkg.in/yaml.v2
       - name: compile for mist
         run: /docked_build.sh rumble -mist  
