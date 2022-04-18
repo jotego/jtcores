@@ -84,6 +84,19 @@ Layout  |  Game
 11      | Exed Exes
 12      | Exed Exes (SCR2)
 
+## Wait States
+
+Bus contention is similar across the different boards.
+
+Game              |   Char Access Ok  |  Scr Access Ok
+------------------|-------------------|-----------------
+GnG               |  H[2:1]!=3        | H[2:0]<2
+1942              |  H[2:1]!=2        | H[2:0]<3
+1943, Side Arms   |  After H[2:0]==4  | No SCR RAM
+Commando          |  After H[2:0]==4  | Wait until H[0]==0
+
+
+
 ## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.

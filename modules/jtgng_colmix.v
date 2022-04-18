@@ -153,25 +153,29 @@ if( PALETTE_PROM==1) begin
 
 end else begin
     // Palette is in RAM
-    wire we_rg = !LVBL && redgreen_cs;
-    wire we_b  = !LVBL && blue_cs;
-    wire [7:0] eff_AB;
+    reg  we_rg, we_b;
+    reg  [7:0] eff_AB;
     wire [7:0] pre_rg;
     wire [3:0] pre_b;
 
-    // This is arguably a design weakness in the original
-    // but it doesn't seem to have practical effects. The
-    // CPU is able to always write to the palette in time
-    // The reported wrong colours in original PCBs are
-    // probably due to timing issues with ageing and temperature
-    // in the PCB, and not to a logic flaw.
-    assign eff_AB = (GNGPAL==1 && LVBL) ? pixel_mux : AB;
-    assign {pal_red, pal_green}  = (GNGPAL==1 && we_rg) ? DB : pre_rg;
-    assign pal_blue              = (GNGPAL==1 && we_b)  ? DB : pre_b;
+    assign { pal_red, pal_green } = (GNGPAL==1 && we_rg ) ? DB : pre_rg;
+    assign pal_blue               = (GNGPAL==1 && we_b  ) ? DB : pre_b;
+
+    always @* begin
+        if( GNGPAL==1 ) begin // GnG circuit:
+            we_rg  = redgreen_cs;
+            we_b   = blue_cs;
+            eff_AB = LVBL ? (LHBL ? pixel_mux : 8'd0) : AB;
+        end else begin // block the colour RAM if not in blanking
+            we_rg  = !LVBL & redgreen_cs;
+            we_b   = !LVBL & blue_cs;
+            eff_AB = AB;
+        end
+    end
 
     jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
         .clk        ( clk         ),
-        .clk_en     ( cen6        ), // clock enable only applies to write operation
+        .clk_en     ( 1'b1        ), // clock enable only applies to write operation
         .data       ( DB          ),
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( eff_AB      ),
@@ -181,7 +185,7 @@ end else begin
 
     jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
         .clk        ( clk         ),
-        .clk_en     ( cen6        ), // clock enable only applies to write operation
+        .clk_en     ( 1'b1        ), // clock enable only applies to write operation
         .data       ( BLUELOW ? DB[3:0] : DB[7:4] ),
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( eff_AB      ),

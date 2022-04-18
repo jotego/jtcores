@@ -48,11 +48,10 @@ module jtgng_tilemap #(parameter
     input         [HW-1:0] H,
     input                  flip,
     input         [DW-1:0] din,
-    output    reg [DW-1:0] dout,
+    output        [DW-1:0] dout,
     // Bus arbitrion
     input                  cs,
     input                  wr_n,
-    output       reg       busy,
     // Pause screen
     input                  pause,
     output reg [SCANW-1:0] scan,
@@ -63,15 +62,16 @@ module jtgng_tilemap #(parameter
     output           [7:0] dout_high
 );
 
-wire [7:0] scan_low, scan_high;
-reg        scan_sel = 1'b1;
-
 localparam LOWER_SIMFILE= SIMID==0 ? "char_lo.bin" :
                           SIMID==1 ? "scr1_lo.bin" : "scr2_lo.bin";
 
 localparam UPPER_SIMFILE= SIMID==0 ? "char_hi.bin" :
                           SIMID==1 ? "scr1_hi.bin" : "scr2_hi.bin";
 
+wire [7:0] scan_low, scan_high;
+reg        scan_sel = 1'b1;
+wire       we_low, we_high;
+wire [7:0] udin   , mem_low, mem_high;
 
 assign dout_low  = pause ? msg_low  : scan_low;
 assign dout_high = pause ? msg_high : scan_high;
@@ -96,22 +96,6 @@ always @(*) begin
     end
 end
 
-reg [SCANW-1:0] addr;
-reg we_low, we_high;
-wire [7:0] mem_low, mem_high;
-
-reg last_H0;
-wire posedge_H0 = BUSY_ON_H0 ? (!last_H0 && H[0] && pxl_cen) : 1'b1;
-
-// Although a dual port memory is used for easy synthesis
-// the bus wait state is complied by means of the 'busy' signal
-always @(posedge clk) begin : busy_latch
-    last_H0 <= H[0];
-    if( cs && scan_sel && posedge_H0 )
-        busy <= 1'b1;
-    else busy <= 1'b0;
-end
-
 always @(posedge clk) if(pxl_cen) begin : scan_select
     if( !cs )
         scan_sel <= 1'b1;
@@ -119,32 +103,20 @@ always @(posedge clk) if(pxl_cen) begin : scan_select
         scan_sel <= 1'b0;
 end
 
-reg [7:0] udlatch, ldlatch;
-reg last_scan, last_Asel;
 
-always @(posedge clk) begin
-    addr <= AB;
-    if( DW == 16 ) begin
-        we_low    <= cs && !wr_n && !dseln[0];
-        we_high   <= cs && !wr_n && !dseln[1];
-        udlatch   <= din[15:8];
-        ldlatch   <= din[7:0];
+generate
+    if(DW==8) begin
+        assign we_low  = cs && !wr_n && !Asel;
+        assign we_high = cs && !wr_n &&  Asel;
+        assign udin    = din;
+        assign dout    = Asel ? mem_high : mem_low;
     end else begin
-        we_low    <= cs && !wr_n && !Asel;
-        we_high   <= cs && !wr_n &&  Asel;
-        udlatch   <= din;
-        ldlatch   <= din;
+        assign we_low  = cs && !wr_n && !dseln[0];
+        assign we_high = cs && !wr_n && !dseln[1];
+        assign udin    = din[15:8];
+        assign dout    = { mem_high, mem_low };
     end
-    last_Asel <= Asel;
-
-    // Output latch
-    last_scan <= scan_sel;
-    if( !last_scan )
-        if(DW==8)
-            dout <= last_Asel ? mem_high : mem_low;
-        else
-            dout <= { mem_high, mem_low };
-end
+endgenerate
 
 `ifndef JTCHAR_UPPER_SIMFILE
 `define JTCHAR_UPPER_SIMFILE
@@ -158,8 +130,8 @@ jtframe_dual_ram #(.aw(SCANW),.simfile(LOWER_SIMFILE)) u_ram_low(
     .clk0   ( clk      ),
     .clk1   ( clk      ),
     // CPU
-    .data0  ( ldlatch  ),
-    .addr0  ( addr     ),
+    .data0  ( din[7:0] ),
+    .addr0  ( AB       ),
     .we0    ( we_low   ),
     .q0     ( mem_low  ),
     // GFX
@@ -176,8 +148,8 @@ jtframe_dual_ram #(.aw(SCANW),.simfile(UPPER_SIMFILE)) u_ram_high(
     .clk0   ( clk      ),
     .clk1   ( clk      ),
     // CPU
-    .data0  ( udlatch  ),
-    .addr0  ( addr     ),
+    .data0  ( udin     ),
+    .addr0  ( AB       ),
     .we0    ( we_high  ),
     .q0     ( mem_high ),
     // GFX

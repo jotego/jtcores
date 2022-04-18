@@ -75,16 +75,17 @@ module jtgng_char #(parameter
     output reg [PXLW-1:0]   char_pxl
 );
 
-localparam CHARW = PALETTE?4:PALW+2;
-
-reg [PALW-1:0] char_pal;
-reg [     1:0] char_col;
-
-
-wire [7:0] dout_low, dout_high;
-wire [HW-1:0] Hfix = H + HOFFSET[HW-1:0]; // Corrects pixel output offset
-
+localparam CHARW    = PALETTE?4:PALW+2;
 localparam DATAREAD = 3'd1;
+
+reg  [PALW-1:0] char_pal;
+reg  [     1:0] char_col;
+
+wire [   7:0] dout_low, dout_high;
+wire [HW-1:0] Hfix;
+
+assign Hfix = H + HOFFSET[HW-1:0]; // Corrects pixel output offset
+assign busy = H[2:1]!=3 && char_cs;
 
 jtgng_tilemap #(
     .DW      ( DW       ),
@@ -107,7 +108,6 @@ jtgng_tilemap #(
     // Bus arbitrion
     .cs         ( char_cs     ),
     .wr_n       ( wr_n        ),
-    .busy       ( busy        ),
     // Pause screen
     .pause      ( pause       ),
     .scan       ( scan        ),

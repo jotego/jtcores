@@ -80,7 +80,7 @@ always @(posedge clk, posedge rst)
                     bus_req <= 1'b0;
                     blen    <= 1'b0;
                 end
-            ST_WAIT: if( bus_ack && mem_sel == MEM_PREBUF /*&& !LVBL*/ ) begin
+            ST_WAIT: if( bus_ack && !LVBL ) begin
                 blen      <= 1'b1;
                 bus_state <= ST_BUSY;
             end
@@ -104,11 +104,11 @@ end
 always @(posedge clk, posedge rst)
     if(rst)
         mem_sel <= MEM_PREBUF;
-    else if(cen ) begin
+    else if( cen ) begin
         mem_sel <= ~mem_sel;
     end
 
-wire           ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
+wire ram_we  = mem_sel==MEM_PREBUF ? blen : 1'b0;
 
 reg  [DW-1:0] wr_data;
 

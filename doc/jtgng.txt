@@ -1,5 +1,9 @@
 Release history
 ===============
+
+18th Apr 2022
+    * Makes color flash bug possible, like the original board
+
 21st Nov 2019
     * Fixes bug in SDRAM controller
 13th  Nov 2019
