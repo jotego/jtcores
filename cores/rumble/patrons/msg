@@ -1,82 +1,101 @@
-\BThe Speed Rumbler\W port by \RJotego\W
-  http://patreon.com/topapate
+      \BThe Speed Rumbler\W
 
-        April 2021
+     FPGA port by \RJotego\W
 
-    Special release to
-  celebrate 2000 patrons
+  \Bhttp://patreon.com/topapate\W
 
-You are all making this happen
+          April 2021
+       Special release to
+     celebrate \R2000\W patrons
 
-JT cores enable 600+ MRA files
 
-2019 Ghosts'n Goblins, DDragon
-2020 CPS1, CPS1.5...
-2021 CPS2, System 16...
-2022 ...
+     JT cores enable over
+        600+ MRA files
+
+
+     2019 Ghosts'n Goblins,
+          DDragon
+     2020 CPS1, CPS1.5...
+     2021 CPS2, System 16...
+     2022 ...
+
 
 
         \RDirectors\W
 
-Andrew Moore    Antonio Villena
-Bender          Chris Gelatt
-Cornelle Janse  Frank Glaser
-Frederic Mahe   DJ Hard Rich
-John Lange      Louis Martinez
-Martin Birkeldh Michael Yount
-Purple Tinker   Silvercloud
-Shawn Henderson Spencer Bradley
-TT_Hipster1941  Atrac17
-Suv
+       Andrew Moore
+       Antonio Villena
+       Atrac17
+       Bender
+       Chris Gelatt
+       Cornelle Janse
+       Frank Glaser
+       Frederic Mahe
+       DJ Hard Rich
+       John Lange
+       Louis Martinez
+       Martin Birkeldh
+       Michael Yount
+       Purple Tinker
+       Silvercloud
+       Shawn Henderson
+       Spencer Bradley
+       Suv
+       TT_Hipster1941
 
 
-        \RThanks to\W
+       \BThanks to\R
 
-Arcade Express Brian Sallee
-Cohge          Daniel Bauza
-Jo Tomiyori    Phillip McMahon
+       Arcade Express
+       Brian Sallee
+       Cohge
+       Daniel Bauza
+       Jo Tomiyori
+       Phillip McMahon\W
 
 
-ARCADEAGES      Adam Davis
-Anders Rensberg Andrew Francomb
-Andyways        Arjan de
-Bob Gallardo    Chi Wai
-Chris Jardine   Christian
-Chris Brown     Chris Doyle
-Chris Harvey    Connor Glynn
-D.J. Estreito   Darren Chell
-David Ashby     David Mills
-David Moylan    Don Gafford
-Ed Balan        Edward Rana
-Epixjava        Gladius
-Gus Douboulidis Gwaland
-H. Osterholz    Henrik Nordstrom
-Ian Court       Ivo
-JPS (RetroFPGA) James Williams
-Joeri van       John Casey
-Jorge Slowfret  Joseph Hsieh
-Juan Francisco  Krycek7o2
-Leslie Law      M. Carrapatoso
-Marcus Hogue    Marcus Sid
-Martin Di       Matt Postema
-Matthew Young   MoonZ
-Oliver Jaksch   Oliver Wndmth
-Oscar Laguna    Per Sweden
-Peter Bray      PsyFX
-ReTr0~g!GGles   RetroPrez
-Retroludo       Richard MS
-Robert MacLean  Robert Mullings
-Roman Buser     Steven Wilson
-Tarnjeet Bhachu Technoir1986
-The Collector   Toby Boreham
-Torren Beitler  Ulf Skutnabba
-Ultrarobotninja Victor Gomariz
-Xzarian         Zachary Muske
-asdfgasfhsn     hyp36rmax
-nullobject      Jong-Gyu Bag
+  ARCADEAGES      Adam Davis
+  Anders Rensberg A. Francomb
+  Andyways        Arjan de
+  Bob Gallardo    Chi Wai
+  Chris Jardine   Christian
+  Chris Brown     Chris Doyle
+  Chris Harvey    Connor Glynn
+  D.J. Estreito   Darren Chell
+  David Ashby     David Mills
+  David Moylan    Don Gafford
+  Ed Balan        Edward Rana
+  Epixjava        Gladius
+  Gus Douboulidis Gwaland
+  H. Osterholz    H. Nordstrom
+  Ian Court       Ivo
+  JPS (RetroFPGA) James Williams
+  Joeri van       John Casey
+  Jorge Slowfret  Joseph Hsieh
+  Juan Francisco  Krycek7o2
+  Leslie Law      M. Carrapatoso
+  Marcus Hogue    Marcus Sid
+  Martin Di       Matt Postema
+  Matthew Young   MoonZ
+  Oliver Jaksch   Oliver Wndmth
+  Oscar Laguna    Per Sweden
+  Peter Bray      PsyFX
+  ReTr0~g!GGles   RetroPrez
+  Retroludo       Richard MS
+  Robert MacLean  Rob. Mullings
+  Roman Buser     Steven Wilson
+  Tarnjeet Bhachu Technoir1986
+  The Collector   Toby Boreham
+  Torren Beitler  Ulf Skutnabba
+  Ultrarobotninja Victor Gomariz
+  Xzarian         Zachary Muske
+  asdfgasfhsn     hyp36rmax
+  nullobject      Jong-Gyu Bag
 
         \RGreetings to\W
 
-Sorgelig, Rysha, Grego2d,
-Crabfists, Gehstock, Gyurco
-theypsilon, WydD & Skutis
+    Sorgelig, Rysha, Grego2d,
+    Crabfists, Gehstock, Gyurco
+    theypsilon, WydD & Skutis
+
+
