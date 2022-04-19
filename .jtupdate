@@ -36,7 +36,7 @@ tora
 f1dream
 
 [custom:mist|sidi]
-commando  -rename com
-gunsmoke  -rename gun
-f1dream   -rename f1drm
-sectionz  -rename sz
+commando  -rename jtcom
+gunsmoke  -rename jtgun
+f1dream   -rename jtf1drm
+sectionz  -rename jtsz

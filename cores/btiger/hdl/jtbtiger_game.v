@@ -71,7 +71,9 @@ module jtbtiger_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 // These signals are used by games which need
@@ -322,7 +324,8 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .sample         ( sample         ),
     .peak           ( game_led       ),
     // Unused
-    .snd2_latch     (                )
+    .snd2_latch     (                ),
+    .debug_view     ( debug_view     )
 );
 `else
 assign snd_addr = 15'd0;

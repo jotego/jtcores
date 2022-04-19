@@ -68,7 +68,9 @@ module jttrojan_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 // These signals are used by games which need
@@ -307,7 +309,8 @@ jttrojan_sound u_sound (
     // sound output
     .ym_snd         ( snd            ),
     .sample         ( sample         ),
-    .peak           ( game_led       )
+    .peak           ( game_led       ),
+    .debug_view     ( debug_view     )
 );
 `else
 assign snd_addr  = 15'd0;

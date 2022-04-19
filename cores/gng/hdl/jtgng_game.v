@@ -71,7 +71,9 @@ module jtgng_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [ 3:0]  gfx_en
+    input   [ 3:0]  gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 // These signals are used by games which need
@@ -283,13 +285,15 @@ jtgng_sound #(.PSG_ATT(1)) u_sound (
     // sound output
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
-    .peak           ( game_led   )
+    .peak           ( game_led   ),
+    .debug_view     ( debug_view )
 );
 `else
-assign snd_addr = 15'd0;
-assign sample   = 1'b0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
+    assign snd_addr   = 0;
+    assign sample     = 0;
+    assign snd_cs     = 0;
+    assign snd        = 0;
+    assign debug_view = 0;
 `endif
 
 wire char_ok, scr1_ok, scr2_ok, obj_ok;

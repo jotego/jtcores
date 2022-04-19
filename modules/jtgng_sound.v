@@ -52,13 +52,17 @@ module jtgng_sound(
     // Sound output
     output  signed [15:0] ym_snd,
     output  sample,
-    output  peak
+    output  peak,
+
+    // Debug
+    output  [ 7:0]   debug_view
 );
 
 parameter       LAYOUT=0;
     // 0 GnG, most games
-    // 1 Commando (smaller ROM)
-    // 3 Tiger Road:
+    // 1 Commando:
+    //      -Smaller ROM
+    // 3 Tiger Road/F1-Dream:
     //      -Can readback from FM chip
     //      -IRQ controlled by FM chips
     //      -FM clock speed same as CPU
@@ -72,6 +76,10 @@ parameter       LAYOUT=0;
     //      -IRQ controlled by FM chips
     //      -FM clock speed same as CPU
     //      -Different memory map from Tiger Road
+    // 10 The Speed Rumbler
+    //      -Can readback from FM chip
+    //      -IRQ controlled by FM chips
+    //      -FM clock speed same as CPU
 
 parameter [7:0] FM_GAIN=8'h08;
 parameter       PSG_ATT=0;      // adds attenuation to the psg_level values
@@ -85,10 +93,12 @@ wire        iorq_n, m1_n, wr_n, rd_n;
 wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg         fm1_cs,fm0_cs, latch_cs, ram_cs;
 wire        mreq_n, rfsh_n;
+wire [ 7:0] fm0_debug, fm1_debug;
 
 assign rom_addr   = A[14:0];
 // assign snd_dout   = dout;
 // assign snd_mcu_wr = 1'b0;
+assign debug_view = { fm1_debug[3:0], fm0_debug[3:0] };
 
 reg [7:0] psg_gain;
 
@@ -366,7 +376,8 @@ jt03 u_fm0(
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
-    .snd    (            )
+    .snd    (            ),
+    .debug_view( fm0_debug )
 );
 
 jt03 u_fm1(
@@ -389,7 +400,8 @@ jt03 u_fm1(
     .psg_B  (            ),
     .psg_C  (            ),
     .snd    (            ),
-    .snd_sample()
+    .snd_sample(         ),
+    .debug_view(fm1_debug)
 );
 
 `ifdef SIMULATION

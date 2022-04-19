@@ -85,7 +85,9 @@ module jtrumble_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 localparam MAINW=18, RAMW=13, CHARW=13, SCRW=17, OBJW=17;
@@ -313,7 +315,8 @@ jtgng_sound #(
     .rom_ok     (  snd_ok       ),
     .ym_snd     (  snd          ),
     .sample     (  sample       ),
-    .peak       (  game_led     )
+    .peak       (  game_led     ),
+    .debug_view ( debug_view    )
 );
 `else
     assign snd_addr=0;

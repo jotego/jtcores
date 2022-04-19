@@ -95,7 +95,24 @@ GnG               |  H[2:1]!=3        | H[2:0]<2
 1943, Side Arms   |  After H[2:0]==4  | No SCR RAM
 Commando          |  After H[2:0]==4  | Wait until H[0]==0
 
+## YM2203 Clock Divider
 
+These are the settings for the internal clock divider in YM2203 games. Each number refers to a YM22003 chip. This information can be viewed on the *debug_view* bus when compiled with *JTFRAME_DEBUG*.
+
+Game              | Divider   | FM IRQ
+------------------|-----------|---------
+1943              | no arra   |
+Black Tiger       |  2/2      | Yes
+Commando          |  0/0      | No
+F1-Dream          |  2/2      | Yes
+Ghosts'n Goblins  |  3/3      | No
+Gun Smoke         |  3/3      | No
+Legendary Wings   |  3/3      | No
+Section Z         |  3/3      | No
+Side Arms         |  2/2      | Yes
+The Speed Rumbler |  2/2      | Yes
+Tiger Road        |  2/2      | Yes
+Trojan            |  3/3      | No
 
 ## Troubleshooting
 

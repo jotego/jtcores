@@ -69,7 +69,9 @@ module jtsectionz_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 // These signals are used by games which need
@@ -294,7 +296,8 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
     // unused
     .sample         ( sample         ),
     .peak           ( game_led       ),
-    .snd2_latch     (                )
+    .snd2_latch     (                ),
+    .debug_view     ( debug_view     )
 );
 `else
 assign snd_addr = 15'd0;

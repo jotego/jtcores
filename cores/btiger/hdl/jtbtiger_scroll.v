@@ -56,6 +56,17 @@ wire H7 = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 reg [2:0] HSaux;
 reg       layout2;
 
+wire [7:0] dout_low, dout_high;
+
+localparam DATAREAD = 3'd1;
+
+wire [POSW-2:0] Vtilemap = VS[POSW-1:1];
+wire [POSW-2:0] Htilemap = HS[POSW-1:1];
+
+wire [12:0] tile_addr = { bank, AB[11:1] };
+
+assign busy = (HS[2:0]<2) && scr_cs;
+
 always @(posedge clk) if(pxl_cen) begin
     VS = vpos + { {POSW-8{1'b0}}, VF};
     { HS[POSW-1:3], HSaux } = hpos + { {POSW-8{~Hfix[8]}}, H7, HF[6:0]};
@@ -66,16 +77,6 @@ always @(posedge clk) if(pxl_cen) begin
         // I wonder if the original PCB was gating writes to this register
         // instead of latching at the beginning of the line
 end
-
-wire [7:0] dout_low, dout_high;
-
-localparam DATAREAD = 3'd1;
-
-wire [POSW-2:0] Vtilemap = VS[POSW-1:1];
-wire [POSW-2:0] Htilemap = HS[POSW-1:1];
-
-wire [12:0] tile_addr = { bank, AB[11:1] };
-
 
 jtgng_tilemap #(
     .INVERT_SCAN( 1         ),
@@ -98,7 +99,6 @@ jtgng_tilemap #(
     // Bus arbitrion
     .cs         ( scr_cs    ),
     .wr_n       ( wr_n      ),
-    .busy       ( busy      ),
     // Pause screen -unused for scroll-
     .pause      ( 1'b0      ),
     .scan       (           ),

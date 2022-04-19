@@ -68,7 +68,9 @@ module jt1943_game(
     input           enable_fm,
     input           enable_psg,
     // Debug
-    input   [3:0]   gfx_en
+    input   [3:0]   gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 // These signals are used by games which need
@@ -310,7 +312,8 @@ jtgng_sound u_sound (
     // sound output
     .ym_snd         ( snd        ),
     .sample         ( sample     ),
-    .peak           ( game_led   )
+    .peak           ( game_led   ),
+    .debug_view     ( debug_view )
 );
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth

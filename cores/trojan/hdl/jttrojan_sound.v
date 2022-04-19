@@ -43,8 +43,9 @@ module jttrojan_sound(
 
     // Sound output
     output signed [15:0] ym_snd,
-    output          sample,
-    output reg      peak
+    output               sample,
+    output reg           peak,
+    output        [ 7:0] debug_view
 );
 
 wire signed [15:0] fm_snd;
@@ -86,7 +87,8 @@ jtgng_sound #(.LAYOUT(0)) u_fmcpu (
     .rom_ok     (  rom_ok       ),
     .ym_snd     (  fm_snd       ),
     .sample     (  sample       ),
-    .peak       (  fm_peak      )
+    .peak       (  fm_peak      ),
+    .debug_view ( debug_view    )
 );
 
 jttora_adpcm u_adpcmcpu(

@@ -46,8 +46,9 @@ module jttora_sound(
 
     // Sound output
     output signed [15:0] ym_snd,
-    output          sample,
-    output  reg     peak
+    output               sample,
+    output  reg          peak,
+    output        [ 7:0] debug_view
 );
 
 wire signed [15:0] fm_snd;
@@ -67,7 +68,7 @@ wire [1:0] level;
 wire       psgen_s, fmen_s;
 
 jtframe_sync #(.W(4)) syncer(
-    .clk    ( clk       ),
+    .clk_out( clk       ),
     .raw    ( { enable_psg, enable_fm, psg_level } ),
     .sync   ( { psgen_s, fmen_s, level }           )
 );
@@ -94,7 +95,8 @@ jtgng_sound #(.LAYOUT(3)) u_fmcpu (
     .rom_ok     (  rom_ok       ),
     .ym_snd     (  fm_snd       ),
     .sample     (  sample       ),
-    .peak       (  fm_peak      )
+    .peak       (  fm_peak      ),
+    .debug_view ( debug_view    )
 );
 
 `ifndef F1DREAM
