@@ -55,7 +55,8 @@ module jtgng_sound(
     output  peak,
 
     // Debug
-    output  [ 7:0]   debug_view
+    input      [ 7:0] debug_bus,
+    output reg [ 7:0] debug_view
 );
 
 parameter       LAYOUT=0;
@@ -86,9 +87,9 @@ parameter       PSG_ATT=0;      // adds attenuation to the psg_level values
 
 localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
-localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4 || LAYOUT==8;
+localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 
-wire [15:0] A;
+wire [15:0] A, fave;
 wire        iorq_n, m1_n, wr_n, rd_n;
 wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg         fm1_cs,fm0_cs, latch_cs, ram_cs;
@@ -98,8 +99,6 @@ wire [ 7:0] fm0_debug, fm1_debug;
 assign rom_addr   = A[14:0];
 // assign snd_dout   = dout;
 // assign snd_mcu_wr = 1'b0;
-assign debug_view = { fm1_debug[3:0], fm0_debug[3:0] };
-
 reg [7:0] psg_gain;
 
 always @(posedge clk) begin
@@ -113,6 +112,14 @@ always @(posedge clk) begin
             2'd3: psg_gain <= 8'h20 >> PSG_ATT;
         endcase
     end
+end
+
+always @* begin
+    case( debug_bus[7:6] )
+        1: debug_view = fave[ 7:0];
+        3,2: debug_view = fave[15:8];
+        default: debug_view ={ fm1_debug[3:0], fm0_debug[3:0] };
+    endcase
 end
 
 always @(*) begin
@@ -337,6 +344,17 @@ jt49_dcrm2 #(.sw(11)) u_dcrm (
 
 wire signed [7:0]  fm_gain2 = enable_fm  ?  FM_GAIN : 8'h0;
 
+jtframe_freqinfo #(
+    .KHZ   (        0 ),
+    .MFREQ (   24_000 )
+) u_freqinfo(
+    .rst    ( rst   ),
+    .clk    ( clk   ),
+    .pulse  ( int_n ),
+    .fave   ( fave  ), // average cpu_cen frequency in kHz
+    .fworst (       ) // average cpu_cen frequency in kHz
+);
+
 jtframe_mixer #(.W2(11)) u_mixer(
     .rst    ( rst          ),
     .clk    ( clk          ),
@@ -377,6 +395,7 @@ jt03 u_fm0(
     .psg_B  (            ),
     .psg_C  (            ),
     .snd    (            ),
+    //.debug_bus ( debug_bus ),
     .debug_view( fm0_debug )
 );
 
@@ -401,7 +420,8 @@ jt03 u_fm1(
     .psg_C  (            ),
     .snd    (            ),
     .snd_sample(         ),
-    .debug_view(fm1_debug)
+    //.debug_bus ( debug_bus ),
+    .debug_view( fm1_debug )
 );
 
 `ifdef SIMULATION

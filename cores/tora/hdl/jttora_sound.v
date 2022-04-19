@@ -73,7 +73,7 @@ jtframe_sync #(.W(4)) syncer(
     .sync   ( { psgen_s, fmen_s, level }           )
 );
 
-jtgng_sound #(.LAYOUT(3)) u_fmcpu (
+jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
     .cen3       (  cenfm        ),

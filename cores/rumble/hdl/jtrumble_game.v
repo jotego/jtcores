@@ -316,6 +316,7 @@ jtgng_sound #(
     .ym_snd     (  snd          ),
     .sample     (  sample       ),
     .peak       (  game_led     ),
+    .debug_bus  ( debug_bus     ),
     .debug_view ( debug_view    )
 );
 `else

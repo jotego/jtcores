@@ -2,6 +2,9 @@ jtframe:
   - from: sound
     get:
       - jtframe_mixer.v
+  - from: clocking
+    get:
+      - jtframe_freqinfo.v
 modules:
   other:
     - get:

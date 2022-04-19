@@ -114,6 +114,8 @@ The Speed Rumbler |  2/2      | Yes
 Tiger Road        |  2/2      | Yes
 Trojan            |  3/3      | No
 
+Note that 2 is the default divider, so games using it may never set it explicitly.
+
 ## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think.
