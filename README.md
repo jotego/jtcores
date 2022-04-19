@@ -101,7 +101,7 @@ These are the settings for the internal clock divider in YM2203 games. Each numb
 
 Game              | Divider   | FM IRQ
 ------------------|-----------|---------
-1943              | no arra   |
+1943              |  0/0      | No
 Black Tiger       |  2/2      | Yes
 Commando          |  0/0      | No
 F1-Dream          |  2/2      | Yes
