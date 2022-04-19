@@ -17,6 +17,14 @@
 *.pin
 *.sof
 *.jdi
+*.f
+*.zip
+*.xml
+hosts.*
+test.cpp
+neptuno
+mc2
+mcp
 .simvision
 log/*
 sim
@@ -36,7 +44,6 @@ rom/gng/*
 rom/gngroms/*
 rom/commando/*
 rom/*zip
-rom/*
 *.smsg
 *.summary
 ncverilog.*

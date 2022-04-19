@@ -99,11 +99,6 @@ jtgng_tilemap #(
     // Bus arbitrion
     .cs         ( scr_cs    ),
     .wr_n       ( wr_n      ),
-    // Pause screen -unused for scroll-
-    .pause      ( 1'b0      ),
-    .scan       (           ),
-    .msg_low    ( 8'd0      ),
-    .msg_high   ( 8'd0      ),
     // Current tile
     .dout_low   ( dout_low  ),
     .dout_high  ( dout_high ),

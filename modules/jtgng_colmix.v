@@ -43,9 +43,6 @@ module jtgng_colmix(
     input            prom_green_we,
     input            prom_blue_we,
     input [3:0]      prom_din,
-    // Avatars
-    input [3:0]      avatar_idx,
-    input            pause,
     // CPU inteface
     input [7:0]      AB,
     input            blue_cs,
@@ -195,33 +192,9 @@ end else begin
 end
 endgenerate
 
-`ifdef AVATARS
-`ifdef MISTER
-`define AVATAR_PAL
-`endif
-`endif
-
-`ifdef AVATAR_PAL
-wire [11:0] avatar_pal;
-// Objects have their own palette during pause
-wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
-
-jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
-    .clk    ( clk           ),
-    .cen    ( pause         ),  // tiny power saving when not in pause
-    .data   ( 12'd0         ),
-    .addr   ( avatar_addr   ),
-    .we     ( 1'b0          ),
-    .q      ( avatar_pal    )
-);
-// Select the avatar palette output if we are on avatar mode
-wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
-`else 
-wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
-`endif
-
-
-always @(posedge clk) if (cen6)
-    {red, green, blue } <= pre_BL==2'b11 ? avatar_mux : 12'd0;
+always @(posedge clk) if (cen6) begin
+    {red, green, blue } <= pre_BL==2'b11 ?
+        {pal_red, pal_green, pal_blue} : 12'd0;
+end
 
 endmodule // jtgng_colmix

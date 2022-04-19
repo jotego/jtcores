@@ -22,7 +22,11 @@
 <misterromdescription>
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>Pirate Ship Higemaru</name>
+	<mameversion>0217</mameversion>
     <setname>higemaru</setname>
+     <year>1984</year>
+    <manufacturer>Capcom</manufacturer>
+    <category>Maze</category>
     <rbf>jthige</rbf>
     <rom index="0" zip="higemaru.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->

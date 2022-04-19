@@ -96,9 +96,6 @@ parameter [1:0] OBJ_PAL = 2'b01; // 01 for GnG, 10 for Commando
     // These two bits mark the region of the palette RAM/PROM where
     // palettes for objects are stored
 
-// parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8;
-
 localparam CHAR_OFFSET = 9'd5;
 localparam SCR1_OFFSET = 9'd1;
 localparam SCR2_OFFSET = 9'd1;
@@ -109,13 +106,6 @@ wire [7:0] obj_pxl;
 wire [3:0] scr1_col, scr2_col;
 wire [3:0] scr1_pal, scr2_pal;
 wire [3:0] cc;
-wire [3:0] avatar_idx;
-
-`ifndef NOCHAR
-
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high;
-wire [9:0] char_scan;
 
 jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .clk        ( clk           ),
@@ -131,11 +121,6 @@ jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -149,19 +134,6 @@ jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .prog_din   (               ),
     .prom_we    (               )
 );
-
-jtgng_charmsg #(.VERTICAL(0)) u_msg(
-    .clk         ( clk           ),
-    .cen6        ( cen6          ),
-    .avatar_idx  ( avatar_idx    ),
-    .scan        ( char_scan     ),
-    .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high )
-);
-`else
-assign char_mrdy = 1'b1;
-assign char_pxl  = ~6'd0;
-`endif
 
 `ifdef NOSCR
     `define NOSCR1
@@ -254,8 +226,6 @@ assign scr2_dout  = 8'd0;
 `endif
 
 jtgng_obj #(
-    .VERTICAL   ( 0          ),
-    .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( 3          ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
     .OBJMAX_LINE( 6'd32      ),
@@ -283,9 +253,6 @@ u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
-    // avatar display
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
@@ -332,10 +299,6 @@ jtbiocom_colmix u_colmix (
     .prog_addr    ( prog_addr     ),
     .prom_prio_we ( prom_prio_we  ),
     .prom_din     ( prom_din      ),
-
-    // Avatars
-    .pause        ( pause         ),
-    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

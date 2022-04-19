@@ -85,8 +85,7 @@ jtgng_obj #(
     .PALW            (  4          ),
     .PALETTE         (  1          ),
     .PALETTE1_SIMFILE( OBJ_PALHI   ),
-    .PALETTE0_SIMFILE( OBJ_PALLO   ),
-    .AVATAR_MAX      ( 8           ))
+    .PALETTE0_SIMFILE( OBJ_PALLO   ))
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -101,9 +100,6 @@ u_obj(
     .V              ( V[7:0]        ),
     .H              ( H             ),
     .flip           ( flip          ),
-    // Pause screen
-    .pause          ( 1'b0          ),
-    .avatar_idx     (               ),
     // CPU bus
     .AB             ( obj_AB        ),
     .DB             ( obj_DB        ),

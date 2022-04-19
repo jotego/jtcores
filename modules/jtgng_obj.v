@@ -38,9 +38,7 @@ module jtgng_obj #(
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used
     PALETTE1_SIMFILE = "", // only for simulation
-    PALETTE0_SIMFILE = "", // only for simulation
-    AVATAR_MAX  = 8, // only used if macro AVATARS is defined
-    VERTICAL    = 1  // 1 vertical game, 0 otherwise. Used by AVATARS only.
+    PALETTE0_SIMFILE = ""  // only for simulation
 ) (
     input               rst,
     input               clk,
@@ -55,9 +53,6 @@ module jtgng_obj #(
     input   [ 7:0]      V,
     input   [ 8:0]      H,
     input               flip,
-    // Pause screen
-    input               pause,
-    output  [ 3:0]      avatar_idx,
     // shared bus
     output [DMA_AW-1:0] AB,
     input  [DMA_DW-1:0] DB,
@@ -131,29 +126,6 @@ jtgng_objdma #(
     .dma_dout   ( dma_dout  )
 );
 
-`ifdef AVATARS
-jtgng_avatar #(
-    .VERTICAL   ( VERTICAL   ),
-    .DW         ( DMA_DW     ),
-    .AVATAR_MAX ( AVATAR_MAX ))
-u_avatar (
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen        ( draw_cen      ),
-    // screen
-    .LVBL       ( LVBL          ),
-    .pause      ( pause         ),
-    .avatar_idx ( avatar_idx    ),
-    // output data
-    .pre_scan   ( pre_scan[8:0] ),
-    .dma_dout   ( dma_dout      ),
-    .muxed_dout ( dma_muxed     )
-);
-`else
-assign dma_muxed  = dma_dout;
-assign avatar_idx = 4'd0;
-`endif
-
 // Parse sprite data per line
 jtgng_objbuf #(
     .DW         ( DMA_DW     ),
@@ -173,7 +145,7 @@ u_buf(
     .flip           ( flip          ),
     // sprite data scan
     .pre_scan       ( pre_scan      ),
-    .dma_dout       ( dma_muxed     ),
+    .dma_dout       ( dma_dout      ),
     // sprite data buffer
     .rom_wait       ( rom_wait      ),
     .objbuf_data    ( objbuf_data   ),
@@ -206,7 +178,6 @@ u_draw(
     .VF             ( VF            ),
     .pxlcnt         ( pxlcnt        ),
     .flip           ( flip          ),
-    .pause          ( pause         ),
     // per-line sprite data
     .objcnt         ( objcnt        ),
     .objbuf_data    ( objbuf_data   ),

@@ -1,29 +1,4 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
-
-              This core is available for hardware compatible with MiST and MiSTer
-              Other FPGA systems may be supported by the time you read this.
-              This work is not mantained by the MiSTer project. Please contact the
-              core author for issues and updates.
-
-              (c) Jose Tejada, 2020. Please support the author
-              Patreon: https://patreon.com/topapate
-              Paypal:  https://paypal.me/topapate
-
-              The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
-
-              This file license is GNU GPLv2.
-              You can read the whole license file in
-              https://opensource.org/licenses/gpl-2.0.php
-
--->
-
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
     <name>Section Z</name>
     <setname>sectionz</setname>
     <year>1985</year>
@@ -74,8 +49,8 @@
     </rom>
     <!-- horizontal screen -->
     <rom index="1"><part> 00 </part></rom>
-    <buttons names="Fire,Turn around,Start,Coin,Pause" default="A,B,R,L,Start"/>
-    <switches default="FF,FE" base="0x10">
+    <buttons names="Fire,Direction,Start,Coin,Pause" default="A,B,R,L,Start"/>
+    <switches page_id="1" page_name="Switches" default="FF,FE" base="0x10">
         <!-- A -->
         <dip bits="0"   name="Service Mode" ids="On,Off"/>
         <dip bits="1"   name="Flip Screen"  ids="On,Off"/>

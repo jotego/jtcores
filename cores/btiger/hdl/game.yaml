@@ -22,7 +22,6 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
-      - jtframe_avatar.v
   - from: ram
     get:
       - jtframe_ram.v

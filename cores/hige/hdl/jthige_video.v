@@ -94,11 +94,6 @@ jtgng_char #(
     .wr_n       ( wr_n          ),
     .busy       ( char_busy     ),
     .dseln      (               ),
-    // Pause screen
-    .pause      ( 1'b0          ),
-    .scan       (               ),
-    .msg_low    (               ),
-    .msg_high   (               ),
     // PROM access
     .prog_addr  ( prom_addr     ), // corrected address
     .prog_din   ( prog_din[3:0] ),

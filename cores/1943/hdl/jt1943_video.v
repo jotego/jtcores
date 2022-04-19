@@ -42,8 +42,7 @@ module jt1943_video #( parameter
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,
     OBJ_PALHI      = "../../../rom/1943/bm7.7c",
-    OBJ_PALLO      = "../../../rom/1943/bm8.8c",
-    AVATAR_MAX     = 10
+    OBJ_PALLO      = "../../../rom/1943/bm8.8c"
 ) (
     input               rst,
     input               clk,
@@ -59,7 +58,6 @@ module jt1943_video #( parameter
     input               wr_n,
     input               flip,
     input       [ 7:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     input               CHON,
@@ -138,21 +136,6 @@ wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 
-wire [3:0] avatar_idx;
-
-`ifdef AVATARS
-wire obj_pause=pause;
-`else
-wire obj_pause=1'b0;
-`endif
-
-`ifndef NOCHAR
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high;
-wire [9:0] char_scan;
-wire [4:0] char_pal;
-wire [1:0] char_col;
-
 jtgng_char #(
     .HOFFSET   ( 0),
     .ROM_AW    (14),
@@ -179,11 +162,6 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
     .busy       ( char_wait     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // PROM access
     .prog_addr  ( prog_addr     ),
     .prog_din   ( prog_din      ),
@@ -198,19 +176,6 @@ jtgng_char #(
     // Unused
     .dseln      (               )
 );
-
-jtgng_charmsg u_msg(
-    .clk         ( clk           ),
-    .cen6        ( cen6          ),
-    .avatar_idx  ( avatar_idx    ),
-    .scan        ( char_scan     ),
-    .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high )
-);
-`else
-assign char_wait_n = 1'b1;
-assign char_pxl = 4'hf;
-`endif
 
 `ifndef NOSCR
 jt1943_scroll #(
@@ -318,8 +283,7 @@ jtgng_obj #(
     .PALW            (  4          ),
     .PALETTE         (  1          ),
     .PALETTE1_SIMFILE( OBJ_PALHI   ),
-    .PALETTE0_SIMFILE( OBJ_PALLO   ),
-    .AVATAR_MAX      ( AVATAR_MAX  ))
+    .PALETTE0_SIMFILE( OBJ_PALLO   ))
 u_obj(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -334,9 +298,6 @@ u_obj(
     .V              ( V             ),
     .H              ( H             ),
     .flip           ( flip          ),
-    // Pause screen
-    .pause          ( obj_pause     ),
-    .avatar_idx     ( avatar_idx    ),
     // CPU bus
     .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),
     .DB             ( obj_DB        ),
@@ -383,9 +344,6 @@ u_colmix (
     .LHBL         ( LHBL          ),
     .LHBL_dly     ( LHBL_dly      ),
     .LVBL_dly     ( LVBL_dly      ),
-    // Avatars
-    .pause        ( obj_pause     ),
-    .avatar_idx   ( avatar_idx    ),
     // pixel input from generator modules
     .char_pxl     ( char_pxl      ),        // character color code
     .scr1_pxl     ( scr1_pxl      ),

@@ -57,11 +57,6 @@ module jtgng_char #(parameter
     input            wr_n,
     input     [ 1:0] dseln, // Select upper or lower byte for 16-bit access
     output           busy,
-    // Pause screen
-    input            pause,
-    output [ABW-2:0] scan,
-    input     [ 7:0] msg_low,
-    input     [ 7:0] msg_high,
     // PROM access
     input     [ 7:0] prog_addr,
     input     [ 3:0] prog_din,
@@ -108,11 +103,6 @@ jtgng_tilemap #(
     // Bus arbitrion
     .cs         ( char_cs     ),
     .wr_n       ( wr_n        ),
-    // Pause screen
-    .pause      ( pause       ),
-    .scan       ( scan        ),
-    .msg_low    ( msg_low     ),
-    .msg_high   ( msg_high    ),
     // Current tile
     .dout_low   ( dout_low    ),
     .dout_high  ( dout_high   )
@@ -217,7 +207,7 @@ generate
     if( PALETTE==0 ) begin
         // Add the same delay as if there was a palette PROM
         always @(posedge clk) if(pxl_cen)
-            char_pxl <= (char_on|pause) ? {char_pal, char_col} : {CHARW{1'b1}};
+            char_pxl <= char_on ? {char_pal, char_col} : {CHARW{1'b1}};
     end else begin
         wire [7:0] colour_addr = { {6-PALW{1'b0}}, char_pal, char_col };
         wire [3:0] prom_data;
@@ -230,7 +220,7 @@ generate
             .we     ( prom_we        ),
             .q      ( prom_data      )
         );
-        always @(*) char_pxl = (char_on|pause) ? prom_data : {PXLW{1'b1}};
+        always @(*) char_pxl = char_on ? prom_data : {PXLW{1'b1}};
     end
 endgenerate
 

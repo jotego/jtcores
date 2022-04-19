@@ -1,18 +1,17 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
+<!--          FPGA compatible core for Capcom arcade hardware by Jotego
 
               This core is available for hardware compatible with MiST and MiSTer
               Other FPGA systems may be supported by the time you read this.
               This work is not mantained by the MiSTer project. Please contact the
               core author for issues and updates.
 
-              (c) Jose Tejada, 2020. Please support the author
+              (c) Jose Tejada, 2021. Please support the author
               Patreon: https://patreon.com/topapate
               Paypal:  https://paypal.me/topapate
 
               The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
+              of copyrighted material. This work can be used with legally
+              obtained ROM dumps or with compatible homebrew software.
 
               This file license is GNU GPLv2.
               You can read the whole license file in
@@ -21,59 +20,67 @@
 -->
 
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
-	<name>Commando (World)</name>
-	<mameversion>0216</mameversion>
-	<setname>commando</setname>
-	<mratimestamp>201911270000</mratimestamp>
-	<year>1985</year>
-	<manufacturer>Capcom</manufacturer>
-	<category>Army / Fighter</category>
-    <mameversion>0217</mameversion>
-	<rbf alt="jtcom">jtcommando</rbf>
-	<rom index="0" zip="commando.zip" md5="5ba63333cd074858f8303dfbcb885c17" >
-		<part name="cm04.9m"/>
-		<part name="cm03.8m"/>
-		<part name="cm02.9f"/>
-		<part name="vt01.5d"/>
-		<part name="vt11.5a"/>
-		<part name="vt12.6a"/>
-		<part name="vt15.9a"/>
-		<part name="vt16.10a"/>
-		<part name="vt13.7a"/>
-		<part name="vt14.8a"/>
-		<part name="vt15.9a"/>
-		<part name="vt16.10a"/>
-		<part name="vt05.7e"/>
-		<part name="vt06.8e"/>
-		<part name="vt07.9e"/>
-		<part name="vt08.7h"/>
-		<part name="vt09.8h"/>
-		<part name="vt10.9h"/>
-		<part name="vtb1.1d"/>
-		<part name="vtb2.2d"/>
-		<part name="vtb3.3d"/>
-		<part name="vtb4.1h"/>
-		<part name="vtb5.6l"/>
-		<part name="vtb6.6e"/>
-	</rom>
-    <!-- enable vertical screen -->
-    <rom index="1"><part> 01 </part></rom>
-    <switches default="FF,FF" base="16">
-        <!-- DSW1 -->
-        <dip name="Starting Area" bits="0,1" ids="6,2,4,0"></dip>
-        <dip name="Lives" bits="2,3" ids="5,2,4,3"></dip>
-        <dip name="Coin B" bits="4,5" ids="4/1,2/1,3/1,1/1"></dip>
-        <dip name="Coin A" bits="6,7" ids="2/1,1/2,1/3,1/1"></dip>
-        <!-- DSW2 -->
-        <dip name="Bonus Life" bits="8,10" ids="None,20K 70K+,30K 80K+,10K 60K+,40K 100K+,20K 60K+,30K 70K+,10K 50K+"></dip>
-        <dip name="Demo Sounds" bits="11" ids="Off,On"></dip>
-        <dip name="Level" bits="12" ids="Hard,Normal"></dip>
-        <dip name="Flip Screen" bits="13" ids="Off,On"></dip>
-        <dip name="Cabinet" bits="14,15" ids="Upright,Upright 2P,Cocktail"></dip>
+    <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
+    <name>Commando (World)</name>
+    <setname>commando</setname>
+    <rbf alt="jtcom">jtcommando</rbf>
+    <year>1985</year>
+    <manufacturer>Capcom</manufacturer>
+    <players>2</players>
+    <joystick>8-way</joystick>
+    <rotation>Vertical</rotation>
+    <region>World</region>
+    <category>Shooter / Walking</category>
+    <mameversion>0230</mameversion>
+    <mratimestamp>20210418</mratimestamp>
+    <rom index="0" zip="commando.zip" type="merged|nonmerged|split" md5="none">
+        <!-- maincpu -->
+        <part name="cm04.9m" crc="8438b694"/>
+        <part name="cm03.8m" crc="35486542"/>
+        <!-- audiocpu -->
+        <part name="cm02.9f" crc="f9cc4a74"/>
+        <!-- gfx1 -->
+        <part name="vt01.5d" crc="505726e0"/>
+        <!-- gfx2 -->
+        <part name="vt11.5a" crc="7b2e1b48"/>
+        <part name="vt12.6a" crc="81b417d3"/>
+        <part name="vt15.9a" crc="de70babf"/>
+        <part name="vt16.10a" crc="14178237"/>
+        <part name="vt13.7a" crc="5612dbd2"/>
+        <part name="vt14.8a" crc="2b2dee36"/>
+        <part name="vt15.9a" crc="de70babf"/>
+        <part name="vt16.10a" crc="14178237"/>
+        <!-- gfx3 -->
+        <part name="vt05.7e" crc="79f16e3d"/>
+        <part name="vt06.8e" crc="26fee521"/>
+        <part name="vt07.9e" crc="ca88bdfd"/>
+        <part name="vt08.7h" crc="2019c883"/>
+        <part name="vt09.8h" crc="98703982"/>
+        <part name="vt10.9h" crc="f069d2f8"/>
+        <!-- proms -->
+        <part name="vtb1.1d" crc="3aba15a1"/>
+        <part name="vtb2.2d" crc="88865754"/>
+        <part name="vtb3.3d" crc="4c14c3f6"/>
+        <part name="vtb4.1h" crc="b388c246"/>
+        <part name="vtb5.6l" crc="712ac508"/>
+        <part name="vtb6.6e" crc="0eaf5158"/>
+    </rom>
+    <rom index="1">
+        <part>01</part>
+    </rom>
+    <switches page_id="1" page_name="DIP Switches" default="FF,3F" base="16">
+        <!-- SW1 -->
+        <dip name="Starting Area" bits="0,1" ids="7 (Desert 2),3 (Desert 1),5 (Forest 2),1 (Forest 1)"/>
+        <dip name="Lives" bits="2,3" ids="5,2,4,3"/>
+        <dip name="Coin B" bits="4,5" ids="2/1,1/2,1/3,1/1"/>
+        <dip name="Coin A" bits="6,7" ids="2/1,1/2,1/3,1/1"/>
+        <!-- SW2 -->
+        <dip name="Bonus Life" bits="8,10" ids="None,20K 70K+,30K 80K+,10K 60K+,40K 100K+,20K 60K+,30K 70K+,10K 50K+"/>
+        <dip name="Demo Sounds" bits="11" ids="Off,On"/>
+        <!-- Service Mode is accessed by pressing SHOOT1 during region warning screen -->
+        <dip name="Difficulty" bits="12" ids="Difficult,Normal"/>
+        <dip name="Flip Screen" bits="13" ids="Off,On"/>
+        <dip name="Cabinet" bits="14,15" ids="Upright 1P,Upright 2P,Cocktail"/>
     </switches>
-	<buttons names="Shot,Granade,Start,Coin,Pause" 
-		default="A,B,R,L,Start"/>
+    <buttons names="Fire Button,Grenade Button,Start,Coin,Pause" default="A,B,R,L,Start" count="2"/>
 </misterromdescription>

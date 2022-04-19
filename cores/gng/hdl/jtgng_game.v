@@ -311,7 +311,6 @@ jtgng_video #(.GNGPAL(1)) u_video(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( !dip_pause    ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),

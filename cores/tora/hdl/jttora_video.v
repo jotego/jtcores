@@ -35,7 +35,6 @@ module jttora_video(
     input               LDSWn,
     input               flip,
     input       [15:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     output      [15:0]  char_dout,
@@ -85,20 +84,11 @@ module jttora_video(
     output      [3:0]   blue
 );
 
-// parameters from jtgng_obj:
-localparam AVATAR_MAX    = 8;
-localparam LAYOUT        = 3;
+localparam LAYOUT = 3;
 
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
 wire [8:0] scr_pxl;
-wire [3:0] avatar_idx;
-
-`ifndef NOCHAR
-
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high;
-wire [9:0] char_scan;
 
 jtgng_char #(
     .HOFFSET(      0 ),
@@ -122,11 +112,6 @@ jtgng_char #(
     .wr_n       ( RnW           ),
     .dseln      ( {UDSWn, LDSWn}),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -139,24 +124,6 @@ jtgng_char #(
     .prog_din   (               ),
     .prom_we    (               )
 );
-
-wire [7:0] char_aux;
-jtgng_charmsg #(.VERTICAL(0)) u_msg(
-    .clk         ( clk           ),
-    .cen6        ( cen6          ),
-    .avatar_idx  ( avatar_idx    ),
-    .scan        ( char_scan     ),
-    .msg_low     ( char_aux      ),
-    .msg_high    (               )
-);
-
-assign char_msg_high = char_aux[7:6]==2'b11 ? { 3'b111, 5'd2 } : 8'd2;
-assign char_msg_low  = char_aux[7:6]==2'b11 ? {2'b01, char_aux[5:0]} : char_aux;
-
-`else
-assign char_mrdy = 1'b1;
-assign char_pxl  = 6'h3f;
-`endif
 
 `ifndef NOSCR
 jt1943_scroll #(
@@ -203,8 +170,6 @@ assign map_addr   = 14'd0;
 // and at 250ns per address, it can sweep 640 locations in 160us.
 
 jtgng_obj #(
-    .VERTICAL   ( 0          ),
-    .AVATAR_MAX ( AVATAR_MAX ),
     .LAYOUT     ( LAYOUT     ),
     .INVY       ( 1          ),
     .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
@@ -227,9 +192,6 @@ u_obj (
     .V          ( V[7:0]      ),
     .H          ( H           ),
     .flip       ( flip        ),
-    // Pause screen
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
     // CPU bus
     .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),
@@ -273,10 +235,6 @@ jttora_colmix u_colmix (
     .prog_addr    ( prog_addr     ),
     .prom_prio_we ( prom_prio_we  ),
     .prom_din     ( prom_din      ),
-
-    // Avatars
-    .pause        ( pause         ),
-    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

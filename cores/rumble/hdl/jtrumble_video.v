@@ -86,7 +86,6 @@ wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [7:0] scr_pxl;
 wire [3:0] cc;
-wire [3:0] avatar_idx;
 
 wire       HINIT;
 wire       LVBL_obj, LHBL_obj;
@@ -135,10 +134,6 @@ jtframe_vtimer #(
     .vrender1  (          )
 );
 
-`ifndef NOCHAR
-
-wire [9:0] char_scan;
-
 jtgng_char #(
     .HOFFSET (       7    ),
     .HFLIP_EN(       0    ),
@@ -160,11 +155,6 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( 1'b0          ),
-    .scan       (               ),
-    .msg_low    (               ),
-    .msg_high   (               ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -178,11 +168,6 @@ jtgng_char #(
     .prog_din   (               ),
     .prom_we    (               )
 );
-
-`else
-assign char_pxl  = ~7'd0;
-assign char_mrdy = 1'b1;
-`endif
 
 `ifndef NOSCR
 // wire [7:0] scr_pre;
@@ -250,10 +235,7 @@ jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
     .PXL_DLY      (  0          ),
-    .LAYOUT       ( LAYOUT      ),
-    // Avatar parameters
-    .AVATAR_MAX   ( 0           ),
-    .VERTICAL     ( 0           ))
+    .LAYOUT       ( LAYOUT      ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -273,9 +255,6 @@ u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]+8'd8 ),
     .H          ( H           ),
-    // avatar display
-    .pause      ( 1'b0        ),
-    .avatar_idx (             ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),

@@ -1,29 +1,4 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
-
-              This core is available for hardware compatible with MiST and MiSTer
-              Other FPGA systems may be supported by the time you read this.
-              This work is not mantained by the MiSTer project. Please contact the
-              core author for issues and updates.
-
-              (c) Jose Tejada, 2020. Please support the author
-              Patreon: https://patreon.com/topapate
-              Paypal:  https://paypal.me/topapate
-
-              The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
-
-              This file license is GNU GPLv2.
-              You can read the whole license file in
-              https://opensource.org/licenses/gpl-2.0.php
-
--->
-
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
 	<name>Bionic Commando (Euro)</name>
 	<setname>bionicc</setname>
 	<mratimestamp>201911270000</mratimestamp>
@@ -63,7 +38,7 @@
 		<part name="ts.2f"/>
 		<part name="63s141.18f"/>
 	</rom>
-    <switches default="FF,FF" base="16">
+    <switches page_id="1" page_name="Switches" default="FF,FF" base="16">
         <!-- DSW -->
         <dip name="Coin A" bits="0,2" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"></dip>
         <dip name="Coin B" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"></dip>
@@ -75,6 +50,6 @@
         <dip name="Level" bits="13,14" ids="Hardest,Hard,Easy,Medium"></dip>
         <dip name="Freeze" bits="15" ids="On,Off"></dip>
     </switches>
-	<buttons names="Hook,Shoot,Start,Coin,Pause" 
+	<buttons names="Shoot,Hook,Start,Coin,Pause"
 		default="A,B,R,L,Start"/>
 </misterromdescription>

@@ -1,29 +1,4 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
-
-              This core is available for hardware compatible with MiST and MiSTer
-              Other FPGA systems may be supported by the time you read this.
-              This work is not mantained by the MiSTer project. Please contact the
-              core author for issues and updates.
-
-              (c) Jose Tejada, 2020. Please support the author
-              Patreon: https://patreon.com/topapate
-              Paypal:  https://paypal.me/topapate
-
-              The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
-
-              This file license is GNU GPLv2.
-              You can read the whole license file in
-              https://opensource.org/licenses/gpl-2.0.php
-
--->
-
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
 	<name>Vulgus (set 1)</name>
 	<mameversion>0216</mameversion>
 	<setname>vulgus</setname>
@@ -65,9 +40,8 @@
 		<part name="j2.bin"/>
 		<part name="82s129.8n"/>
 	</rom>
-    <!-- enable vertical screen -->
-    <rom index="1"><part> 01 </part></rom>
-    <switches default="FF,FF" base="16">
+	<rom index="1"><part>01</part></rom>
+    <switches page_id="1" page_name="Switches" default="FF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Lives" bits="0,1" ids="5,1,2,3"></dip>
         <dip name="Coin B" bits="2,4" ids="2/1,4/1,1/2,5/1,1/3,3/1,1/1"></dip>
@@ -80,6 +54,6 @@
         <dip name="Bonus Life" bits="12,14" ids="None,10k 70k,20k 80k,10k 50k,30k 70k,10k 60k,20k 70k,20k 60k"></dip>
         <dip name="Cabinet" bits="15" ids="Upright,Cocktail"></dip>
     </switches>
-   	<buttons names="Shot,Missile,Start,Coin,Pause" 
+   	<buttons names="Fire,Missile,Start,Coin,Pause" 
         default="A,B,R,L,Start"/>
 </misterromdescription>

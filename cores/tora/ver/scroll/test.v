@@ -54,7 +54,6 @@ jt1943_scroll #(
     .vpos       ( hpos  ),
     .SCxON      (1'b1),
     .flip       (flip),
-    .pause      (1'b0),
     // Palette PROMs D1, D2
     .prog_addr  (),
     .prom_hi_we (),

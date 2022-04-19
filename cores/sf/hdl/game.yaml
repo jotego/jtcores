@@ -39,11 +39,10 @@ jtframe:
     get:
       - jtframe_blank.v
       - jtframe_vtimer.v
-      - jtframe_avatar.v
       - jtframe_tilebuf.v
   - from: sound
     get:
-      - jtframe_uprate2_fir.qip
+      - jtframe_uprate2_fir.yaml
       - jtframe_mixer.v
       - jtframe_dcrm.v
 modules:

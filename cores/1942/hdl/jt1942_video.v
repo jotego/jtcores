@@ -89,14 +89,6 @@ localparam SOFFSET = 9'd5;
 
 wire [3:0] char_pxl, obj_pxl;
 
-`ifndef NOCHAR
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high = 8'h2;
-wire [9:0] char_scan;
-wire [5:0] char_pal;
-wire [1:0] char_col;
-
-`ifndef NOCHAR
 jtgng_char #(
     .HOFFSET ( COFFSET ),
     .ROM_AW  ( 12      ),
@@ -121,11 +113,6 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // PROM access
     .prog_addr  ( prog_addr     ),
     .prog_din   ( prog_din      ),
@@ -138,23 +125,6 @@ jtgng_char #(
     .char_on    ( 1'b1          ),
     .char_pxl   ( char_pxl      )
 );
-`else
-assign char_addr = 12'd0;
-assign char_pxl  = 4'hf;
-`endif
-
-jtframe_ram #(.aw(10),.synfile("msg.hex"),.simfile("msg.bin")) u_char_msg(
-    .clk    ( clk          ),
-    .cen    ( cen6         ),
-    .data   ( 8'd0         ),
-    .addr   ( char_scan    ),
-    .we     ( 1'b0         ),
-    .q      ( char_msg_low )
-);
-`else
-assign char_wait_n = 1'b1;
-assign char_pxl = 4'hf;
-`endif
 
 `ifndef NOSCR
 wire [2:0] scr_col;

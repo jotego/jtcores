@@ -97,7 +97,7 @@ wire [ 2:0] obj_bank;
 // ROM data
 wire [15:0] char_data;
 wire [15:0] scr_data;
-wire [15:0] obj_data, obj_pre, map_data;
+wire [15:0] obj_data, map_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
@@ -299,10 +299,7 @@ assign snd_cs   = 1'b0;
 assign snd      = 16'b0;
 `endif
 
-wire scr_ok, map1_ok, char_ok, obj_ok, obj_ok0;
-
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
+wire scr_ok, map1_ok, char_ok, obj_ok;
 
 wire nc;
 wire [15:0] pre_obj_addr;
@@ -327,7 +324,6 @@ jt1943_video #(
     .OBJMAX_LINE   ( 6'd24                            ),
     .OBJ_LAYOUT    ( 2                                ),
     .OBJ_ROM_AW    ( 16                               ),
-    .AVATAR_MAX    ( 8                                ),
     // Colour mixer
     .PALETTE_RED   ( "../../../rom/gunsmoke/g-01.03b" ),
     .PALETTE_GREEN ( "../../../rom/gunsmoke/g-02.04b" ),
@@ -348,7 +344,6 @@ jt1943_video #(
     .wr_n          ( wr_n          ),
     .cpu_dout      ( cpu_dout      ),
     .flip          ( video_flip    ), // no software support for DIP flip in GunSmoke
-    .pause         ( pause         ),
     // CHAR
     .char_cs       ( char_cs       ),
     .chram_dout    ( char_dout     ),
@@ -454,7 +449,6 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    // .pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // char
     .slot1_cs    ( map1_cs       ), // map
     .slot2_cs    ( LVBL          ), // scroll
@@ -470,7 +464,7 @@ jtframe_rom #(
     .slot2_ok    ( scr_ok        ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok0       ),
+    .slot8_ok    ( obj_ok        ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( map_addr      ),
@@ -484,7 +478,7 @@ jtframe_rom #(
     .slot2_dout  ( scr_data      ),
     .slot6_dout  ( snd_data      ),
     .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_pre       ),
+    .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
@@ -494,18 +488,6 @@ jtframe_rom #(
     .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
-);
-
-
-jtframe_avatar u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
 );
 
 endmodule

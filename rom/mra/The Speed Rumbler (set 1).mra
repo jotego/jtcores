@@ -27,6 +27,7 @@
     <mameversion>0229</mameversion>
     <year>1986</year>
     <manufacturer>Capcom</manufacturer>
+    <category>Shooter</category>
     <players>2</players>
     <joystick>8-way</joystick>
     <rotation>vertical</rotation>
@@ -100,5 +101,5 @@
         <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"/>
         <dip name="Allow Continue" bits="15" ids="No,Yes"/>
     </switches>
-    <buttons names="Shoot,Exit car,Start,Coin,Core credits" default="Y,X,R,L,Start" count="2"/>
+    <buttons names="Fire,Escape,Start,Coin,Core credits" default="Y,X,R,L,Start" count="2"/>
 </misterromdescription>

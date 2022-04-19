@@ -22,7 +22,6 @@ module jtbiocom_sdram(
     input           clk,
 
     input           LVBL,
-    input           pause,
 
     input           main_cs,
     input           snd_cs,
@@ -73,9 +72,6 @@ localparam [21:0] ZERO_OFFSET = 22'd0,
 assign ba0_wr    = 0;
 assign ba0_din   = 0;
 assign ba0_din_m = 3;
-
-wire        obj_ok0;
-wire [15:0] obj_pre;
 
 // Bank 0: M68000
 jtframe_rom_1slot #(
@@ -172,13 +168,13 @@ jtframe_rom_2slots #(
     .slot1_cs    ( 1'b1          ), // obj
 
     .slot0_ok    ( scr2_ok       ),
-    .slot1_ok    ( obj_ok0       ),
+    .slot1_ok    ( obj_ok        ),
 
     .slot0_addr  ( scr2_addr     ),
     .slot1_addr  (  obj_addr     ),
 
     .slot0_dout  ( scr2_data     ),
-    .slot1_dout  ( obj_pre       ),
+    .slot1_dout  ( obj_data      ),
 
     .sdram_addr  ( ba3_addr      ),
     .sdram_req   ( ba_rd[3]      ),
@@ -186,17 +182,6 @@ jtframe_rom_2slots #(
     .data_dst    ( ba_dst[3]     ),
     .data_rdy    ( ba_rdy[3]     ),
     .data_read   ( data_read     )
-);
-
-jtframe_avatar u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
 );
 
 endmodule

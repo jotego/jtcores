@@ -36,7 +36,6 @@ parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     // palettes for objects are stored
 
 // parameters from jtgng_obj:
-parameter AVATAR_MAX    = 8,
           GNGPAL        = 0
 ) (
     input               rst,
@@ -118,10 +117,6 @@ wire [3:0] avatar_idx;
 
 `ifndef NOCHAR
 
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high;
-wire [9:0] char_scan;
-
 jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -136,11 +131,6 @@ jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -153,15 +143,6 @@ jtgng_char #(.HOFFSET(1),.ROM_AW(CHAR_AW)) u_char (
     .prog_addr  (               ),
     .prog_din   (               ),
     .prom_we    (               )
-);
-
-jtgng_charmsg u_msg(
-    .clk         ( clk           ),
-    .cen6        ( cen6          ),
-    .avatar_idx  ( avatar_idx    ),
-    .scan        ( char_scan     ),
-    .msg_low     ( char_msg_low  ),
-    .msg_high    ( char_msg_high )
 );
 `else
 assign char_mrdy = 1'b1;
@@ -210,8 +191,7 @@ assign scr_dout   = 8'd0;
 `ifndef NOOBJ
 jtgng_obj #(
     .ROM_AW    ( OBJ_AW     ),
-    .LAYOUT    ( OBJ_LAYOUT ),
-    .AVATAR_MAX( AVATAR_MAX )
+    .LAYOUT    ( OBJ_LAYOUT )
 )
 u_obj (
     .rst        ( rst         ),
@@ -232,9 +212,6 @@ u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
-    // avatar display
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
@@ -282,10 +259,6 @@ jtgng_colmix #(
     .prom_green_we( prom_green_we ),
     .prom_blue_we ( prom_blue_we  ),
     .prom_din     ( prom_din      ),
-
-    // Avatars
-    .pause        ( pause         ),
-    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

@@ -22,7 +22,11 @@
 <misterromdescription>
     <about author="jotego" webpage="https://patreon.com/topapate" source="https://github.com/jotego" twitter="@topapate"/>
     <name>Side Arms - Hyper Dyne (World, 861129)</name>
+	<mameversion>0217</mameversion>
     <setname>sidearms</setname>
+     <year>1986</year>
+    <manufacturer>Capcom</manufacturer>
+    <category>Shoot 'em up</category>
     <rbf>jtsarms</rbf>
     <rom index="0" zip="sidearms.zip" type="merged" md5="None">
         <!-- maincpu - starts at 0x0 -->
@@ -104,5 +108,5 @@
         <dip name="Allow Continue" bits="14" ids="No,Yes"/>
         <dip name="Demo Sounds" bits="15" ids="Off,On"/>
     </switches>
-    <buttons names="Fire-left,Fire-right,Option,Start,Coin,Pause" default="Y,X,B,R,L,Start"/>
+    <buttons names="Fire-Left,Fire-Right,Power,Start,Coin,Pause" default="Y,X,B,R,L,Start"/>
 </misterromdescription>

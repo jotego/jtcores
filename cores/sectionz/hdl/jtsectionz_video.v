@@ -16,17 +16,6 @@
     Version: 1.0
     Date: 4-4-2020 */
 
-/*
-    .SCR_AW       ( SCRW  ),
-    .SCR_TILE4    ( 1     ),
-    .OBJ_AW       ( OBJW  ),
-    .OBJ_LAYOUT   ( 4     ),
-    .OBJ_PAL      ( 2'b10 ),
-    .PALETTE_PROM ( 0     ),
-    .SCRWIN       ( 0     ),
-    .AVATAR_MAX   ( 9     )
-*/
-
 module jtsectionz_video#(
     parameter SCRW = 18,
     parameter OBJW = 17
@@ -44,7 +33,6 @@ module jtsectionz_video#(
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  char_dout,
@@ -95,7 +83,6 @@ module jtsectionz_video#(
     output      [3:0]   blue
 );
 
-localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 5;
 
 localparam PXL_CHRW=6;
@@ -104,13 +91,6 @@ wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [6:0] scr_pxl;
 wire [3:0] cc;
-wire [3:0] avatar_idx;
-
-`ifndef NOCHAR
-
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high=8'h0;
-wire [9:0] char_scan;
 
 jtgng_char #(
     .HOFFSET ( 7),
@@ -130,11 +110,6 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -148,21 +123,6 @@ jtgng_char #(
     .prog_din   (               ),
     .prom_we    (               )
 );
-
-wire [9:0] msg_scan = game_sel ? { ~char_scan[4:0], char_scan[9:5] } : char_scan;
-
-jtgng_charmsg u_msg(
-    .clk         ( clk           ),
-    .cen6        ( cen6          ),
-    .avatar_idx  ( avatar_idx    ),
-    .scan        ( msg_scan      ),
-    .msg_low     ( char_msg_low  ),
-    .msg_high    (               )
-);
-`else
-assign char_pxl  = ~7'd0;
-assign char_mrdy = 1'b1;
-`endif
 
 `ifndef NOSCR
 // wire [7:0] scr_pre;
@@ -218,10 +178,7 @@ jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
     .PXL_DLY      (  2          ),
-    .LAYOUT       ( LAYOUT      ),
-    // Avatar parameters
-    .AVATAR_MAX   ( AVATAR_MAX  ),
-    .VERTICAL     ( 0           ))
+    .LAYOUT       ( LAYOUT      ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -241,9 +198,6 @@ u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
-    // avatar display
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
@@ -286,10 +240,6 @@ u_colmix (
     // .prog_addr    ( prog_addr     ),
     // .prom_prior_we( prom_prior_we ),
     // .prom_din     ( prom_din      ),
-
-    // Avatars
-    .pause        ( pause         ),
-    .avatar_idx   ( avatar_idx    ),
 
     // DEBUG
     .gfx_en       ( gfx_en        ),

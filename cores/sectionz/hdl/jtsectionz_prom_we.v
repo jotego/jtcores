@@ -38,9 +38,8 @@ parameter [21:0] SCR_OFFSET=22'h0;
 parameter [21:0] OBJ_OFFSET=22'h0;
 
 localparam START_BYTES  = 8;
-localparam START_HEADER = 32;
 localparam STARTW=8*START_BYTES;
-localparam [21:0] FULL_HEADER = START_HEADER;
+localparam [21:0] FULL_HEADER = 32;
 
 reg  [STARTW-1:0] starts;
 wire       [15:0] snd_start, obj_start, scr_start, char_start;
@@ -62,7 +61,6 @@ wire is_cpu   = bulk_addr[21:8] < snd_start;
 wire is_snd   = bulk_addr[21:8] < char_start && bulk_addr[21:8]>=snd_start;
 wire is_char  = bulk_addr[21:8] < scr_start  && bulk_addr[21:8]>=char_start;
 wire is_scr   = bulk_addr[21:8] < obj_start  && bulk_addr[21:8]>=scr_start;
-wire is_obj   = bulk_addr[21:8] >=obj_start;
 
 reg [7:0] scr_buf;
 reg [3:0] scr_rewr;

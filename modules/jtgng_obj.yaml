@@ -11,5 +11,4 @@ modules:
       - jtgng_objdraw.v
       - jtgng_objpxl.v
       - jtgng_objcnt.v
-      - jtgng_avatar.v
 

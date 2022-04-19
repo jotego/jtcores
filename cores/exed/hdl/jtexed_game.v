@@ -67,13 +67,15 @@ module jtexed_game(
     input           enable_fm,
     // Debug
     input   [3:0]   gfx_en,
-    input   [7:0]   debug_bus
+    input   [7:0]   debug_bus,
+    output  [7:0]   debug_view
 );
 
 // These signals are used by games which need
 // to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
+assign prog_rd    = 0;
 assign dwnld_busy = downloading;
+assign debug_view = 0;
 
 wire [8:0] V;
 wire [8:0] H;

@@ -33,7 +33,6 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
-      - jtframe_avatar.v
   - from: sound
     get:
       - jtframe_jt49_filters.yaml

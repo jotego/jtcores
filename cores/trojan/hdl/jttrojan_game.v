@@ -109,7 +109,7 @@ wire [SCR2W-1:0] scr2_addr;
 wire [OBJW-1:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-wire main_ok, snd_ok, snd2_ok, obj_ok, obj_ok0;
+wire main_ok, snd_ok, snd2_ok, obj_ok;
 wire cen12, cen8, cen6, cen3, cen1p5;
 
 assign pxl2_cen = cen12;
@@ -321,9 +321,6 @@ assign snd       = 16'b0;
 `endif
 
 wire scr_ok, scr2_ok, map_ok, char_ok;
-
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
 
 jttrojan_video #(
     .SCRW   ( SCRW      ),

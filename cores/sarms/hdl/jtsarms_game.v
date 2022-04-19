@@ -452,7 +452,6 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // Char
     .slot1_cs    ( LVBL          ), // Scroll
     .slot2_cs    ( map_cs        ), // Map

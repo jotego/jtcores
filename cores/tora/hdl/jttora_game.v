@@ -90,7 +90,7 @@ wire        rd, cpu_cen;
 wire        char_busy;
 
 // ROM data
-wire [15:0] char_data, scr_data, obj_data, obj_pre;
+wire [15:0] char_data, scr_data, obj_data;
 wire [15:0] main_data, map_data;
 wire [ 7:0] snd_data, snd2_data;
 // MCU interface
@@ -112,7 +112,7 @@ wire [14:0] scr2_addr;
 wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, obj_ok0, char_ok;
+wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
 wire        video_cen8;
 
 // A and B are inverted in this game (or in MAME definition)
@@ -418,13 +418,6 @@ assign snd2_cs   = 1'b0;
 assign snd       = 16'b0;
 `endif
 
-`ifndef NOPAUSE
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
-`else
-wire pause=1'b0;
-`endif
-
 `ifndef NOVIDEO
 jttora_video u_video(
     .rst        ( rst           ),
@@ -441,7 +434,6 @@ jttora_video u_video(
     .LDSWn      ( LDSWn         ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -535,7 +527,6 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( map_cs        ),
     .slot2_cs    ( LVBL          ),
@@ -550,7 +541,7 @@ jtframe_rom #(
     .slot3_ok    ( main_ok       ),
     .slot5_ok    ( snd_ok        ),
     .slot6_ok    ( snd2_ok       ),
-    .slot8_ok    ( obj_ok0       ),
+    .slot8_ok    ( obj_ok        ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( map_addr      ),
@@ -566,7 +557,7 @@ jtframe_rom #(
     .slot3_dout  ( main_data     ),
     .slot5_dout  ( snd_data      ),
     .slot6_dout  ( snd2_data     ),
-    .slot8_dout  ( obj_pre       ),
+    .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
@@ -585,17 +576,6 @@ jtframe_rom #(
     .slot7_ok    (               ),
     .slot4_cs    ( 1'd0          ),
     .slot7_cs    ( 1'd0          )
-);
-
-jtframe_avatar u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
 );
 
 endmodule

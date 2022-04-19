@@ -85,20 +85,12 @@ module jtbtiger_video(
 );
 
 localparam OBJMAX       = 10'h200, // DMA buffer 512 bytes = 4*128
-           OBJMAX_LINE  = 6'd32,
-           AVATAR_MAX   = 9;
+           OBJMAX_LINE  = 6'd32;
 
 wire [6:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [7:0] scr_pxl;
 wire [3:0] cc;
-wire [3:0] avatar_idx;
-
-`ifndef NOCHAR
-
-wire [7:0] char_msg_low;
-wire [7:0] char_msg_high=8'h0;
-wire [9:0] char_scan;
 
 jtgng_char #(
     .HOFFSET ( 0),
@@ -121,11 +113,6 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( pause         ),
-    .scan       ( char_scan     ),
-    .msg_low    ( char_msg_low  ),
-    .msg_high   ( char_msg_high ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -140,18 +127,6 @@ jtgng_char #(
     .prom_we    (               )
 );
 
-jtgng_charmsg #(.VERTICAL(0)) u_msg(
-    .clk         ( clk           ),
-    .cen6        ( cen6          ),
-    .avatar_idx  ( avatar_idx    ),
-    .scan        ( char_scan     ),
-    .msg_low     ( char_msg_low  ),
-    .msg_high    (               )
-);
-`else
-assign char_pxl  = ~7'd0;
-assign char_mrdy = 1'b1;
-`endif
 
 `ifndef NOSCR
 wire [7:0] scr_pre;
@@ -204,9 +179,7 @@ jtgng_obj #(
     .ROM_AW       ( 17          ),
     .PALW         (  3          ),
     .PXL_DLY      (  8          ),
-    .LAYOUT       (  4          ),
-    .AVATAR_MAX   ( AVATAR_MAX  ),
-    .VERTICAL     ( 0           ))
+    .LAYOUT       (  4          ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -226,9 +199,6 @@ u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
-    // avatar display
-    .pause      ( pause       ),
-    .avatar_idx ( avatar_idx  ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),
@@ -267,10 +237,6 @@ jtbtiger_colmix u_colmix (
     .prog_addr    ( prog_addr     ),
     .prom_prior_we( prom_prior_we ),
     .prom_din     ( prom_din      ),
-
-    // Avatars
-    .pause        ( pause         ),
-    .avatar_idx   ( avatar_idx    ),
 
     // Layer control
     .CHRON        ( CHRON         ),

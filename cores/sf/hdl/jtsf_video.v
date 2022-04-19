@@ -138,11 +138,6 @@ jtgng_char #(
     .wr_n       ( RnW           ),
     .dseln      ( {UDSWn, LDSWn}),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( 1'b0          ),
-    .scan       (               ),
-    .msg_low    ( 8'd0          ),
-    .msg_high   ( 8'd0          ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -280,9 +275,6 @@ jtgng_obj #(
     .V          ( V[7:0]      ),
     .H          ( H           ),
     .OBJON      ( objon       ),
-    // avatar display
-    .pause      ( 1'b0        ),
-    .avatar_idx (             ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),

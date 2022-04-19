@@ -90,7 +90,7 @@ wire flip;
 wire [7:0] cpu_dout, chram_dout;
 wire rd;
 // ROM data
-wire [15:0]  char_data, obj_data, obj_pre,
+wire [15:0]  char_data, obj_data,
              map1_data, map2_data, scr1_data, scr2_data;
 wire [ 7:0]  main_data;
 // ROM address
@@ -101,7 +101,7 @@ wire [16:0]  scr1_addr;
 wire [14:0]  scr2_addr;
 wire [ 7:0]  dipsw_a, dipsw_b;
 
-wire main_ok, map1_ok, map2_ok, scr1_ok, scr2_ok, char_ok, obj_ok, obj_ok0;
+wire main_ok, map1_ok, map2_ok, scr1_ok, scr2_ok, char_ok, obj_ok;
 wire map1_cs, map2_cs;
 wire cen12, cen6, cen3, cen1p5;
 
@@ -341,9 +341,6 @@ jtframe_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1
 assign snd = 9'd0;
 `endif
 
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
-
 jt1943_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -359,7 +356,6 @@ jt1943_video u_video(
     .wr_n       ( wr_n          ),
     .cpu_dout   ( cpu_dout      ),
     .flip       ( video_flip    ),
-    .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
@@ -488,7 +484,7 @@ jtframe_rom #(
     .slot5_ok    (               ),
     .slot6_ok    (               ),
     .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok0       ),
+    .slot8_ok    ( obj_ok        ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( map1_addr     ),
@@ -506,7 +502,7 @@ jtframe_rom #(
     .slot4_dout  ( scr2_data     ),
     //.slot6_dout  ( snd_data      ),
     .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_pre       ),
+    .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
@@ -518,15 +514,5 @@ jtframe_rom #(
     .data_read   ( data_read     )
 );
 
-jtframe_avatar #(.AW(13)) u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
-);
 
 endmodule

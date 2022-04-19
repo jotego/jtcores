@@ -1,29 +1,4 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
-
-              This core is available for hardware compatible with MiST and MiSTer
-              Other FPGA systems may be supported by the time you read this.
-              This work is not mantained by the MiSTer project. Please contact the
-              core author for issues and updates.
-
-              (c) Jose Tejada, 2020. Please support the author
-              Patreon: https://patreon.com/topapate
-              Paypal:  https://paypal.me/topapate
-
-              The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
-
-              This file license is GNU GPLv2.
-              You can read the whole license file in
-              https://opensource.org/licenses/gpl-2.0.php
-
--->
-
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
 	<name>Gun Smoke (World, 851115)</name>
 	<mameversion>0216</mameversion>
 	<setname>gunsmoke</setname>
@@ -66,9 +41,8 @@
 		<part name="g-10.02j"/>
 		<part name="g-05.01f"/>
 	</rom>
-    <!-- enable vertical screen -->
-    <rom index="1"><part> 01 </part></rom>
-    <switches default="FF,FF" base="16">
+	<rom index="1"><part>01</part></rom>
+    <switches page_id="1" page_name="Switches" default="FF,FF" base="16">
         <!-- DSW1 -->
         <dip name="Bonus Life" bits="0,1" ids="30K 100K 150K+,30K 80K 80K+,30K 100K,30K 100K 100K+"></dip>
         <dip name="Demo" bits="2" ids="Off,On"></dip>
@@ -82,6 +56,6 @@
         <dip name="Allow Continue" bits="14" ids="No,Yes"></dip>
         <dip name="Demo Sounds" bits="15" ids="Off,On"></dip>
     </switches>
-	<buttons names="Fire left,Fire centre,Fire right,Start,Coin,Pause" 
+	<buttons names="Fire Left,Fire Center,Fire Right,Start,Coin,Pause" 
 		default="Y,X,A,R,L,Start"/>
 </misterromdescription>

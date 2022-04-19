@@ -100,7 +100,7 @@ wire       scr_layout;
 // ROM data
 wire [15:0] char_data;
 wire [15:0] scr_data;
-wire [15:0] obj_data, obj_pre;
+wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
@@ -460,7 +460,7 @@ jtframe_rom #(
     .slot1_dout  ( scr_data      ),
     .slot6_dout  ( snd_data      ),
     .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_pre       ),
+    .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
@@ -470,15 +470,6 @@ jtframe_rom #(
     .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
-);
-
-jtframe_avatar u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[12:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      )
 );
 
 endmodule

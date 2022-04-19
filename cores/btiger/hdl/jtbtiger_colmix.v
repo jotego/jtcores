@@ -34,9 +34,7 @@ module jtbtiger_colmix(
     input            LHBL,
     output           LHBL_dly,
     output           LVBL_dly,
-    // Avatars
-    input [3:0]      avatar_idx,
-    input            pause,
+
     // CPU inteface
     input [9:0]      AB,
     input            blue_cs,
@@ -139,31 +137,6 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
     .q      ( selbus        )
 );
 
-
-`ifdef AVATARS
-`ifdef MISTER
-`define AVATAR_PAL
-`endif
-`endif
-
-`ifdef AVATAR_PAL
-wire [11:0] avatar_pal; // Objects have their own palette during pause
-wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
-
-jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
-    .clk    ( clk           ),
-    .cen    ( pause         ),  // tiny power saving when not in pause
-    .data   ( 12'd0         ),
-    .addr   ( avatar_addr   ),
-    .we     ( 1'b0          ),
-    .q      ( avatar_pal    )
-);
-// Select the avatar palette output if we are on avatar mode
-wire [11:0] avatar_mux = (pause&&obj_sel[1]) ? avatar_pal : { pal_red, pal_green, pal_blue };
-`else 
-wire [11:0] avatar_mux = {pal_red, pal_green, pal_blue};
-`endif
-
 jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
@@ -171,7 +144,7 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .LVBL       ( LVBL                ),
     .LHBL_dly   ( LHBL_dly            ),
     .LVBL_dly   ( LVBL_dly            ),    
-    .rgb_in     ( avatar_mux          ),
+    .rgb_in     ( {pal_red, pal_green, pal_blue} ),
     .rgb_out    ( {red, green, blue } )
 );
 

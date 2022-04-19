@@ -60,9 +60,6 @@ module jtbiocom_colmix(
     input [7:0]      prog_addr,
     input            prom_prio_we,
     input [3:0]      prom_din,
-    // Avatars
-    input [3:0]      avatar_idx,
-    input            pause,
     // CPU inteface
     input [10:1]     AB,
     input            col_uw,
@@ -170,21 +167,6 @@ always @(posedge clk) begin
 end
 `endif
 
-wire [11:0] avatar_mux;
-
-jtgng_avatar_pal u_avatar(
-    .clk        (  clk          ),
-    .pause      (  pause        ),
-    .avatar_idx (  avatar_idx   ),
-    .obj_sel    (  obj_sel      ),
-    .obj_pxl    (  obj_pxl2     ),
-    .pal_red    (  pal_red      ),
-    .pal_green  (  pal_green    ),
-    .pal_blue   (  pal_blue     ),
-    .avatar_mux (  avatar_mux   )
-);
-
-
 // Clock must be faster than 6MHz so pre_prio is ready for the next
 // 6MHz clock cycle:
 jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_pre_prio(
@@ -202,7 +184,7 @@ reg [3:0] pre_bright;
 reg [7:0] step;
 
 wire [3:0] mux_red, mux_green, mux_blue;
-assign { mux_red, mux_green, mux_blue } = avatar_mux;
+assign { mux_red, mux_green, mux_blue } = {pal_red, pal_green, pal_blue};
 
 always @(posedge clk,posedge rst) begin
     if( rst ) begin

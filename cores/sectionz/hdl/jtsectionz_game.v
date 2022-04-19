@@ -307,9 +307,6 @@ assign snd      = 16'b0;
 
 wire scr_ok, char_ok;
 
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
-
 jtsectionz_video #(
     .SCRW   ( SCRW      )
 )
@@ -327,7 +324,6 @@ u_video(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( pause         ),
     // Palette
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
@@ -401,7 +397,6 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ), // Char
     .slot1_cs    ( LVBL          ), // Scroll
     .slot2_cs    ( 1'b0          ),

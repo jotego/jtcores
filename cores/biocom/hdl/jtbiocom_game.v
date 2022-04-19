@@ -427,15 +427,11 @@ assign snd_mcu_rd = 1'b0;
 assign snd_dout   = 8'd0;
 `endif
 
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
-
 `ifndef NOVIDEO
 jtbiocom_video #(
     .OBJ_PAL      (2'b10),
     .PALETTE_PROM (1),
-    .SCRWIN       (0),
-    .AVATAR_MAX   (9)
+    .SCRWIN       (0)
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -449,7 +445,6 @@ jtbiocom_video #(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -522,7 +517,6 @@ jtbiocom_sdram u_sdram(
     .clk         ( clk           ),
 
     .LVBL        ( LVBL          ),
-    .pause       ( pause         ),
 
     .main_cs     ( main_cs       ),
     .snd_cs      ( snd_cs        ),

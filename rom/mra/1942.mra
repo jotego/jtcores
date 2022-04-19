@@ -1,29 +1,4 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
-
-              This core is available for hardware compatible with MiST and MiSTer
-              Other FPGA systems may be supported by the time you read this.
-              This work is not mantained by the MiSTer project. Please contact the
-              core author for issues and updates.
-
-              (c) Jose Tejada, 2020. Please support the author
-              Patreon: https://patreon.com/topapate
-              Paypal:  https://paypal.me/topapate
-
-              The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
-
-              This file license is GNU GPLv2.
-              You can read the whole license file in
-              https://opensource.org/licenses/gpl-2.0.php
-
--->
-
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
 	<name>1942 (Revision B)</name>
 	<mameversion>0216</mameversion>
 	<setname>1942</setname>
@@ -65,9 +40,8 @@
 		<part name="sb-8.k3"/>
 		<part name="sb-9.m11"/>
 	</rom>
-    <!-- enable vertical screen -->
-    <rom index="1"><part> 01 </part></rom>
-    <switches default="EF,FF" base="16">
+    <rom index="1"><part>01</part></rom>
+    <switches page_id="1" page_name="Switches" default="EF,FF" base="16">
         <!-- DSWA -->
         <dip name="Coin A" bits="0,2" ids="Free Play,4 Coins/1 Credit,3 Coins/1 Credit,2 Coins/3 Credits,2 Coins/1 Credit,1 Coin/4 Credits,1 Coin/2 Credits,1 Coin/1 Credit" coin="yes"></dip>
         <dip name="Cabinet" bits="3" ids="Upright,Cocktail"></dip>
@@ -80,6 +54,6 @@
         <dip name="Level" bits="13,14" ids="Very Hard,Difficult,Easy,Normal"></dip>
         <dip name="Screen Stop" bits="15" ids="On,Off"></dip>
     </switches>
-    <buttons names="Shot,Loop,Start,Coin,Pause" 
+    <buttons names="Fire,Loop,Start,Coin,Pause" 
         default="A,B,R,L,Start"/>
 </misterromdescription>

@@ -52,11 +52,6 @@ module jtgng_tilemap #(parameter
     // Bus arbitrion
     input                  cs,
     input                  wr_n,
-    // Pause screen
-    input                  pause,
-    output reg [SCANW-1:0] scan,
-    input            [7:0] msg_low,
-    input            [7:0] msg_high,
     // Current tile
     output           [7:0] dout_low,
     output           [7:0] dout_high
@@ -69,12 +64,12 @@ localparam UPPER_SIMFILE= SIMID==0 ? "char_hi.bin" :
                           SIMID==1 ? "scr1_hi.bin" : "scr2_hi.bin";
 
 wire [7:0] scan_low, scan_high;
-reg        scan_sel = 1'b1;
 wire       we_low, we_high;
 wire [7:0] udin   , mem_low, mem_high;
+reg [SCANW-1:0] scan;
 
-assign dout_low  = pause ? msg_low  : scan_low;
-assign dout_high = pause ? msg_high : scan_high;
+assign dout_low  = scan_low;
+assign dout_high = scan_high;
 
 always @(*) begin
     if( SCANW <= 10) begin
@@ -95,14 +90,6 @@ always @(*) begin
             scan = { V[7:2], H[7:2] }; // SCANW assumed to be 12
     end
 end
-
-always @(posedge clk) if(pxl_cen) begin : scan_select
-    if( !cs )
-        scan_sel <= 1'b1;
-    else if(H[2:0]==DATAREAD)
-        scan_sel <= 1'b0;
-end
-
 
 generate
     if(DW==8) begin

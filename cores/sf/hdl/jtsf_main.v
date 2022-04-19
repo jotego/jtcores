@@ -159,7 +159,7 @@ wire [24:0] A_full = {A,1'b0};
 `endif
 
 jtframe_sync #(.W(15+8+1+1+1)) u_mcus(
-    .clk    ( clk       ),
+    .clk_out( clk       ),
     .raw    ( {mcu_addr, mcu_dout, mcu_wr, mcu_ds, mcu_acc } ),
     .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s, mcu_ds_s, mcu_acc_s } )
 );

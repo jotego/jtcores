@@ -41,9 +41,6 @@ module jt1943_colmix(
     input           LHBL,
     output  reg     LHBL_dly,
     output  reg     LVBL_dly,
-    // Avatars
-    input [3:0]     avatar_idx,
-    input           pause,
 
     output reg [3:0] red,
     output reg [3:0] green,
@@ -163,37 +160,9 @@ jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_PRIOR)) u_selbus(
     .q      ( selbus        )
 );
 
-
-`ifdef AVATARS
-wire [11:0] avatar_pal;
-// Objects have their own palette during pause
-wire [ 7:0] avatar_addr = { avatar_idx, obj_pxl[0], obj_pxl[1], obj_pxl[2], obj_pxl[3] };
-
-jtframe_ram #(.dw(12),.aw(8), .synfile("avatar_pal.hex"),.cen_rd(1))u_avatars(
-    .clk    ( clk           ),
-    .cen    ( pause         ),  // tiny power saving when not in pause
-    .data   ( 12'd0         ),
-    .addr   ( avatar_addr   ),
-    .we     ( 1'b0          ),
-    .q      ( avatar_pal    )
-);
-
-reg [1:0] obj_sel;
-
-always @(posedge clk) if(cen6) begin
-    obj_sel[0] <= selbus[1:0]==2'b10;
-    obj_sel[1] <= obj_sel[0];
-end
-`else 
-wire [11:0] avatar_pal = {pal_red, pal_green, pal_blue};
-wire [1:0] obj_sel = 2'b00;
-`endif
-
 always @(posedge clk) if(cen6) begin
     { red, green, blue } <= 
-        pre_BL==2'b11 ?
-            ( pause && obj_sel[1] ? avatar_pal : {pal_red, pal_green, pal_blue} ) :
-            12'd0; // blanking
+        pre_BL==2'b11 ?  {pal_red, pal_green, pal_blue} : 12'd0; // blanking
 end
 
 endmodule // jtgng_colmix

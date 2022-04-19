@@ -16,17 +16,6 @@
     Version: 1.0
     Date: 2-8-2020 */
 
-/*
-    .SCR_AW       ( SCRW  ),
-    .SCR_TILE4    ( 1     ),
-    .OBJ_AW       ( OBJW  ),
-    .OBJ_LAYOUT   ( 4     ),
-    .OBJ_PAL      ( 2'b10 ),
-    .PALETTE_PROM ( 0     ),
-    .SCRWIN       ( 0     ),
-    .AVATAR_MAX   ( 9     )
-*/
-
 module jttrojan_video #(
     parameter SCRW = 18,
     parameter OBJW = 18
@@ -113,10 +102,6 @@ wire [7:0] scr_pxl;
 wire [6:0] scr2_pxl;
 wire [3:0] cc;
 
-`ifndef NOCHAR
-
-wire [9:0] char_scan;
-
 jtgng_char #(
     .HOFFSET ( 8),
     .ROM_AW  (14),
@@ -135,11 +120,6 @@ jtgng_char #(
     .char_cs    ( char_cs       ),
     .wr_n       ( RnW           ),
     .busy       ( char_busy     ),
-    // Pause screen
-    .pause      ( 1'b0          ),
-    .scan       ( char_scan     ),
-    .msg_low    ( 8'd0          ),
-    .msg_high   ( 8'd0          ),
     // ROM
     .char_addr  ( char_addr     ),
     .rom_data   ( char_data     ),
@@ -153,10 +133,6 @@ jtgng_char #(
     .prog_din   (               ),
     .prom_we    (               )
 );
-`else
-assign char_pxl  = ~7'd0;
-assign char_mrdy = 1'b1;
-`endif
 
 `ifndef NOSCR
 // wire [7:0] scr_pre;
@@ -243,11 +219,8 @@ jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  3          ),
     .PXL_DLY      (  1          ),
-    .LAYOUT       ( LAYOUT      ),
 //    .OBJMAX_LINE  ( 31          ),
-    // Avatar parameters
-    .AVATAR_MAX   ( AVATAR_MAX  ),
-    .VERTICAL     ( 0           ))
+    .LAYOUT       ( LAYOUT      ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -267,9 +240,6 @@ u_obj (
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
     .H          ( H           ),
-    // avatar display
-    .pause      ( 1'b0        ),
-    .avatar_idx (             ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),
     .obj_data   ( obj_data    ),

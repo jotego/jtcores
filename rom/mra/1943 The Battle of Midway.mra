@@ -1,31 +1,5 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
-
-              This core is available for hardware compatible with MiST and MiSTer
-              Other FPGA systems may be supported by the time you read this.
-              This work is not mantained by the MiSTer project. Please contact the
-              core author for issues and updates.
-
-              (c) Jose Tejada, 2020. Please support the author
-              Patreon: https://patreon.com/topapate
-              Paypal:  https://paypal.me/topapate
-
-              The author does not endorse or participate in illegal distribution
-              of CAPCOM copyrighted material. This work can be used with legally
-              obtained ROM dumps of CAPCOM games or with homework software for
-              the arcade platform.
-
-              This file license is GNU GPLv2.
-              You can read the whole license file in
-              https://opensource.org/licenses/gpl-2.0.php
-
--->
-
 <misterromdescription>
-    <about author="jotego" webpage="https://patreon.com/topapate"
-                           source ="https://github.com/jotego/jtcps1"
-                           twitter="@topapate"/>
 	<name>1943 The Battle of Midway (US, Rev C)</name>
-	<mameversion>0216</mameversion>
 	<setname>1943u</setname>
 	<mratimestamp>201911270000</mratimestamp>
 	<year>1987</year>
@@ -34,47 +8,46 @@
 	<mameversion>0217</mameversion>
 	<rbf>jt1943</rbf>
 	<rom index="0" zip="1943.zip|1943u.zip" md5="9b5cfef91f91462265c977a365a453a6" >
-		<part name="bmu01c.12d"/>
-		<part name="bmu02c.13d"/>
-		<part name="bmu03c.14d"/>
-		<part name="bm05.4k"/>
-		<part name="bm04.5h"/>
-		<part name="bm14.5f"/>
-		<part name="bm23.8k"/>
-		<part name="bm15.10f"/>
-		<part name="bm19.10j"/>
-		<part name="bm16.11f"/>
-		<part name="bm20.11j"/>
-		<part name="bm17.12f"/>
-		<part name="bm21.12j"/>
-		<part name="bm18.14f"/>
-		<part name="bm22.14j"/>
-		<part name="bm24.14k"/>
-		<part name="bm25.14l"/>
-		<part name="bm06.10a"/>
-		<part name="bm10.10c"/>
-		<part name="bm07.11a"/>
-		<part name="bm11.11c"/>
-		<part name="bm08.12a"/>
-		<part name="bm12.12c"/>
-		<part name="bm09.14a"/>
-		<part name="bm13.14c"/>
-		<part name="bm10.7l"/>
-		<part name="bm11.12l"/>
-		<part name="bm1.12a"/>
-		<part name="bm12.12m"/>
-		<part name="bm2.13a"/>
-		<part name="bm3.14a"/>
-		<part name="bm4.12c"/>
-		<part name="bm5.7f"/>
-		<part name="bm6.4b"/>
-		<part name="bm7.7c"/>
-		<part name="bm8.8c"/>
-		<part name="bm9.6l"/>
+		<part name="bmu01c.12d" crc="c686cc5c"/>
+		<part name="bmu02c.13d" crc="d8880a41"/>
+		<part name="bmu03c.14d" crc="3f0ee26c"/>
+      	  	<part name="bm05.4k" crc="ee2bd2d7"/>
+        	<part name="bm04.5h" crc="46cb9d3d"/>
+        	<part name="bm14.5f" crc="4d3c6401"/>
+        	<part name="bm23.8k" crc="a52aecbd"/>
+        	<part name="bm15.10f" crc="6b1a0443"/>
+       		<part name="bm19.10j" crc="868ababc"/>
+        	<part name="bm16.11f" crc="23c908c2"/>
+        	<part name="bm20.11j" crc="0917e5d4"/>
+        	<part name="bm17.12f" crc="46bcdd07"/>
+        	<part name="bm21.12j" crc="9bfb0d89"/>
+        	<part name="bm18.14f" crc="e6ae7ba0"/>
+        	<part name="bm22.14j" crc="04f3c274"/>
+        	<part name="bm24.14k" crc="11134036"/>
+        	<part name="bm25.14l" crc="092cf9c1"/>
+        	<part name="bm06.10a" crc="97acc8af"/>
+        	<part name="bm10.10c" crc="8438a44a"/>
+        	<part name="bm07.11a" crc="d78f7197"/>
+        	<part name="bm11.11c" crc="6c69351d"/>
+        	<part name="bm08.12a" crc="1a626608"/>
+        	<part name="bm12.12c" crc="5e7efdb7"/>
+        	<part name="bm09.14a" crc="92408400"/>
+        	<part name="bm13.14c" crc="1143829a"/>
+        	<part name="bm10.7l" crc="33c2491c"/>
+        	<part name="bm11.12l" crc="405aae37"/>
+        	<part name="bm1.12a" crc="74421f18"/>
+        	<part name="bm12.12m" crc="c18aa136"/>
+        	<part name="bm2.13a" crc="ac27541f"/>
+        	<part name="bm3.14a" crc="251fb6ff"/>
+        	<part name="bm4.12c" crc="91a8a2e1"/>
+        	<part name="bm5.7f" crc="206713d0"/>
+        	<part name="bm6.4b" crc="0eaf5158"/>
+        	<part name="bm7.7c" crc="b56f30c3"/>
+        	<part name="bm8.8c" crc="c2010a9e"/>
+        	<part name="bm9.6l" crc="aeea4af7"/>
 	</rom>
-    <!-- enable vertical screen -->
-    <rom index="1"><part> 01 </part></rom>
-    <switches default="FF,FF" base="16">
+	<rom index="1"><part>01</part></rom>
+    <switches page_id="1" page_name="Switches" default="FF,FF" base="16">
         <!-- DSWA -->
         <dip name="Level" bits="0,3" ids="16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1"></dip>
         <dip name="2 Player Coins" bits="4" ids="1 Credit/2 Players,2 Credits/2 Players"></dip>

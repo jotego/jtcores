@@ -44,7 +44,6 @@ module jtgng_objdraw #(parameter
     input       [3:0]  pxlcnt,
     output reg  [8:0]  posx,
     input              flip,
-    input              pause,
     // per-line sprite data
     input       [4:0]  objcnt,
     input    [DW-1:0]  objbuf_data,
@@ -135,7 +134,7 @@ end else begin
                 hover       <= objbuf_data[0];
             end
             1: begin // 1943
-                id[10:8]  <= pause ? 3'd0 : objbuf_data[7:5];
+                id[10:8]  <= objbuf_data[7:5];
                 objpal    <= objbuf_data[3:0];
                 obj_vflip <= 1'b0;
                 obj_hflip <= 1'b0;
@@ -303,25 +302,11 @@ generate
 
         reg  [8:0] posx2;
 
-        `ifdef AVATARS
-        `ifdef MISTER
-        `define AVATAR_OBJDRAW
-        `endif
-        `endif
-
-        `ifdef AVATAR_OBJDRAW
-            reg  [7:0] avatar_pxl;
-            always @(posedge clk) if(cen)
-                avatar_pxl <= { 4'd0, new_col };
-        `else
-            wire [7:0] avatar_pxl = prom_dout;
-        `endif
-
         always @(posedge clk ) if (cen) begin // do not gate by !rom_wait
             pospal <= objpal1;
             posx2  <= posx1; // 1-clk delay to match the PROM data
             if( OBJON ) begin
-                new_pxl <= pause ? avatar_pxl : prom_dout;
+                new_pxl <= prom_dout;
                 if( LAYOUT==11 )
                     new_pxl[7] <= objpal1[4];
                 posx    <= posx2;

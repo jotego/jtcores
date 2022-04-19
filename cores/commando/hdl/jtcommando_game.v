@@ -96,7 +96,7 @@ wire char_busy, scr_busy;
 // ROM data
 wire [15:0] char_data;
 wire [23:0] scr_data;
-wire [15:0] obj_data, obj_pre;
+wire [15:0] obj_data;
 wire [ 7:0] main_data;
 wire [ 7:0] snd_data;
 // ROM address
@@ -108,7 +108,7 @@ wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
 
-wire main_ok, snd_ok, obj_ok, obj_ok0;
+wire main_ok, snd_ok, obj_ok;
 wire cen12, cen6, cen3, cen1p5;
 
 assign pxl2_cen = cen12;
@@ -289,17 +289,13 @@ assign snd      = 16'b0;
 wire scr1_ok, scr2_ok, char_ok;
 wire scr_ok = scr1_ok & scr2_ok;
 
-reg pause;
-always @(posedge clk) pause <= ~dip_pause;
-
 jtgng_video #(
     .OBJ_PAL      (2'b10),
     .PALETTE_PROM (1),
     .SCRWIN       (0),
     .PALETTE_RED  ("../../../rom/commando/vtb1.1d"),
     .PALETTE_GREEN("../../../rom/commando/vtb2.2d"),
-    .PALETTE_BLUE ("../../../rom/commando/vtb3.3d"),
-    .AVATAR_MAX   (9)
+    .PALETTE_BLUE ("../../../rom/commando/vtb3.3d")
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -312,7 +308,6 @@ jtgng_video #(
     .RnW        ( RnW           ),
     .flip       ( flip          ),
     .cpu_dout   ( cpu_dout      ),
-    .pause      ( pause         ),
     // CHAR
     .char_cs    ( char_cs       ),
     .char_dout  ( char_dout     ),
@@ -387,7 +382,6 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    //.pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
     .slot2_cs    ( LVBL          ),
@@ -403,7 +397,7 @@ jtframe_rom #(
     .slot2_ok    ( scr2_ok       ),
     .slot6_ok    ( snd_ok        ),
     .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok0       ),
+    .slot8_ok    ( obj_ok        ),
 
     .slot0_addr  ( char_addr     ),
     .slot1_addr  ( scr_addr      ),
@@ -417,7 +411,7 @@ jtframe_rom #(
     .slot2_dout  ( { scr_nc, scr_data[23:16]       } ),
     .slot6_dout  ( snd_data      ),
     .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_pre       ),
+    .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
     .sdram_req   ( sdram_req     ),
@@ -427,17 +421,6 @@ jtframe_rom #(
     .downloading ( downloading   ),
     .sdram_addr  ( sdram_addr    ),
     .data_read   ( data_read     )
-);
-
-jtframe_avatar #(.AW(14)) u_avatar(
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-    .pause       ( pause         ),
-    .obj_addr    ( obj_addr[13:0]),
-    .obj_data    ( obj_pre       ),
-    .obj_mux     ( obj_data      ),
-    .ok_in       ( obj_ok0       ),
-    .ok_out      ( obj_ok        )
 );
 
 endmodule
