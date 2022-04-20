@@ -18,7 +18,7 @@
 
 module jt1943_video #( parameter
     // Characters
-    CHAR_PAL       = "../../../rom/1943/bm5.7f",
+    CHAR_PAL       = "../../../../rom/1943/bm5.7f",
     CHAR_IDMSB0    = 5,
     CHAR_VFLIPEN   = 0,
     CHAR_HFLIPEN   = 0,
@@ -26,23 +26,23 @@ module jt1943_video #( parameter
     CHAR_HFLIP_XOR = 1'b0,
     // Scroll
     SCRPLANES      = 2,    // 1 or 2
-    SCR1_PALHI     = "../../../rom/1943/bm9.6l",
-    SCR1_PALLO     = "../../../rom/1943/bm10.7l",
-    SCR2_PALHI     = "../../../rom/1943/bm11.12l",
-    SCR2_PALLO     = "../../../rom/1943/bm12.12m",
+    SCR1_PALHI     = "../../../../rom/1943/bm9.6l",
+    SCR1_PALLO     = "../../../../rom/1943/bm10.7l",
+    SCR2_PALHI     = "../../../../rom/1943/bm11.12l",
+    SCR2_PALLO     = "../../../../rom/1943/bm12.12m",
     // From colour mixer:
     BLANK_OFFSET   = 8,
-    PALETTE_RED    = "../../../rom/1943/bm1.12a",
-    PALETTE_GREEN  = "../../../rom/1943/bm2.13a",
-    PALETTE_BLUE   = "../../../rom/1943/bm3.14a",
-    PALETTE_PRIOR  = "../../../rom/1943/bm4.12c",
+    PALETTE_RED    = "../../../../rom/1943/bm1.12a",
+    PALETTE_GREEN  = "../../../../rom/1943/bm2.13a",
+    PALETTE_BLUE   = "../../../../rom/1943/bm3.14a",
+    PALETTE_PRIOR  = "../../../../rom/1943/bm4.12c",
     // From objects
     OBJMAX         = 10'h200, // DMA buffer 512 bytes = 4*128
     OBJMAX_LINE    = 6'd32,
     OBJ_LAYOUT     = 1, // 1 for 1943, 2 for GunSmoke
     OBJ_ROM_AW     = 17,
-    OBJ_PALHI      = "../../../rom/1943/bm7.7c",
-    OBJ_PALLO      = "../../../rom/1943/bm8.8c"
+    OBJ_PALHI      = "../../../../rom/1943/bm7.7c",
+    OBJ_PALLO      = "../../../../rom/1943/bm8.8c"
 ) (
     input               rst,
     input               clk,
@@ -127,7 +127,8 @@ module jt1943_video #( parameter
     input               prom_objhi_we,
     input               prom_objlo_we,
     // Debug
-    input       [3:0]   gfx_en
+    input       [3:0]   gfx_en,
+    input       [7:0]   debug_bus
 );
 
 localparam SCR_OFFSET=4;
@@ -190,15 +191,9 @@ u_scroll1 (
     .V128         ( {1'b0, V[7:0]}),
     .H            ( H             ),
     .hpos         ( scr1posh      ),
-    `ifndef TESTSCR1
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
     .flip         ( flip          ),
-    `else // TEST:
-        .SCxON        ( 1'b1          ),
-        .vpos         ( 8'd0          ),
-        .flip         ( 1'b0          ),
-    `endif
     // Palette PROMs
     .prog_addr    ( prog_addr      ),
     .prom_hi_we   ( prom_scr1hi_we ),
@@ -212,7 +207,8 @@ u_scroll1 (
     .map_cs       ( map1_cs        ),
     .scr_addr     ( scr1_addr      ),
     .scrom_data   ( scr1_data      ),
-    .scr_pxl      ( scr1_pxl       )
+    .scr_pxl      ( scr1_pxl       ),
+    .debug_bus    ( debug_bus      )
 );
 
 generate
@@ -232,15 +228,9 @@ generate
             .V128         ( {1'b0, V[7:0]}),
             .H            ( H             ),
             .hpos         ( scr2posh      ),
-            `ifndef TESTSCR2
             .SCxON        ( SC2ON         ),
             .vpos         ( scrposv       ),
             .flip         ( flip          ),
-            `else // TEST
-                .SCxON        ( 1'b1          ),
-                .vpos         ( 8'd0          ),
-                .flip         ( 1'b0          ),
-            `endif
             // Palette PROMs
             .prog_addr    ( prog_addr      ),
             .prom_hi_we   ( prom_scr2hi_we ),
@@ -254,7 +244,8 @@ generate
             .map_cs       ( map2_cs       ),
             .scr_addr     ( { scr2_nc, scr2_addr} ),
             .scrom_data   ( scr2_data     ),
-            .scr_pxl      ( scr2_pxl      )
+            .scr_pxl      ( scr2_pxl      ),
+            .debug_bus    ( debug_bus     )
         );
         end else begin
             assign scr2_pxl  = ~6'h0;

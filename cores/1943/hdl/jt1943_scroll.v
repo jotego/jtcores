@@ -61,7 +61,8 @@ module jt1943_scroll #( parameter
     // Gfx ROM
     output  [ROM_AW-1:0] scr_addr,
     input         [15:0] scrom_data,
-    output    [PXLW-1:0] scr_pxl
+    output    [PXLW-1:0] scr_pxl,
+    input       [7:0]   debug_bus
 );
 
 localparam SHW = (LAYOUT==8 || LAYOUT==9) ?  9 : 8;
@@ -158,7 +159,8 @@ jt1943_map #(
     .dout_high  ( dout_high ),
     .dout_low   ( dout_low  ),
     .HS         ( HS        ),
-    .SVmap      ( SVmap     )
+    .SVmap      ( SVmap     ),
+    .debug_bus  ( debug_bus )
 );
 
 jtgng_tile4 #(

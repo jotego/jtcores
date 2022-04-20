@@ -18,9 +18,10 @@
 
 module jt1943_map_cache #(parameter
     // MAP SIZE
+    [8:0] HEND  = 9'h0,
+parameter
     MAPAW = 14, // address width
     MAPDW = 16, // data width
-    [8:0] HEND  = 9'h1F0,
     SHW   = 8
 ) (
     input                rst,

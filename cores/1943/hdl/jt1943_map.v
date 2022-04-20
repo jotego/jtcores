@@ -45,7 +45,8 @@ module jt1943_map #( parameter
     output reg   [SHW-1:0] SH,
     // Coordinates for tiler
     output reg       [4:0] HS,
-    output reg       [4:0] SVmap // SV latched at the time the map_addr is set
+    output reg       [4:0] SVmap, // SV latched at the time the map_addr is set
+    input            [7:0] debug_bus
 );
 
 localparam SVW = LAYOUT==8 ? 12 : 8;

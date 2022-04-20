@@ -118,11 +118,20 @@ assign {dipsw_b, dipsw_a} = dipsw[15:0];
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen8   ( cen8      ),
-    .cen6   ( cen6      ),
+    .cen1p5 ( cen1p5    ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
+    .cen6   ( cen6      ),
+    .cen8   ( cen8      ),
+    .cen12  ( cen12     ),
+    .cen4   (           ),
+    .cen4_12(           ),
+    .cen3q  (           ),
+    .cen16b (           ),
+    .cen12b (           ),
+    .cen6b  (           ),
+    .cen3b  (           ),
+    .cen3qb (           ),
+    .cen1p5b(           )
 );
 
 jtgng_timer u_timer(
@@ -264,22 +273,25 @@ jt1943_main u_main(
     .coin_cnt   (               )
 );
 `else
-assign scr1posh  = 16'b0;
-assign scr2posh  = 16'b0;
-assign char_cs   = 1'b0;
-assign SC1ON     = 1'b1;
-assign SC2ON     = 1'b1;
-assign OBJON     = 1'b1;
-assign  CHON     = 1'b1;
-assign main_addr = 18'd0;
-assign main_cs   = 1'b0;
-assign rd_n      = 1'b1;
-assign wr_n      = 1'b1;
-assign cpu_AB    = 13'b0;
-assign sres_b    = 1'b1;
-assign cpu_dout  = 8'b0;
-assign OKOUT     = 1'b0;
-assign flip      = 1'b0;
+    assign scr1posh  = 16'h5f3a;
+    assign scr2posh  = 16'h6000;
+    assign scrposv   = 0;
+    assign char_cs   = 0;
+    assign SC1ON     = 1;
+    assign SC2ON     = 1;
+    assign OBJON     = 1;
+    assign  CHON     = 1;
+    assign main_addr = 0;
+    assign main_cs   = 0;
+    assign main_ram  = 0;
+    assign rd_n      = 1;
+    assign wr_n      = 1;
+    assign cpu_AB    = 0;
+    assign sres_b    = 1;
+    assign cpu_dout  = 0;
+    assign OKOUT     = 0;
+    assign bus_ack   = 1;
+    assign flip      = 0;
 `endif
 
 `ifndef NOSOUND
@@ -318,7 +330,7 @@ jtgng_sound u_sound (
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
 // separated in two modules to make implementation easier
-jtframe_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0(
+jtframe_prom #(.aw(14),.dw(8),.simfile("audio_lo.bin")) u_prom0(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prog_data         ),
@@ -328,7 +340,7 @@ jtframe_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.lsb")) u_prom0
     .q      ( snd_data0         )
 );
 
-jtframe_prom #(.aw(14),.dw(8),.simfile("../../../rom/1943/bm05.4k.msb")) u_prom1(
+jtframe_prom #(.aw(14),.dw(8),.simfile("audio_hi.bin")) u_prom1(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prog_data         ),
@@ -422,6 +434,7 @@ jt1943_video u_video(
     .prom_objlo_we ( prom_8c_we    ),
     // Debug
     .gfx_en        ( gfx_en        ),
+    .debug_bus     ( debug_bus     ),
     // Pixel Output
     .red           ( red           ),
     .green         ( green         ),
@@ -491,7 +504,8 @@ jtframe_rom #(
     .slot2_addr  ( scr1_addr     ),
     .slot3_addr  ( map2_addr     ),
     .slot4_addr  ( scr2_addr     ),
-    //.slot6_addr  ( snd_addr      ),
+    .slot5_addr  (               ),
+    .slot6_addr  (               ),
     .slot7_addr  ( main_addr     ),
     .slot8_addr  ( obj_addr      ),
 
@@ -500,7 +514,8 @@ jtframe_rom #(
     .slot2_dout  ( scr1_data     ),
     .slot3_dout  ( map2_data     ),
     .slot4_dout  ( scr2_data     ),
-    //.slot6_dout  ( snd_data      ),
+    .slot5_dout  (               ),
+    .slot6_dout  (               ),
     .slot7_dout  ( main_data     ),
     .slot8_dout  ( obj_data      ),
 
