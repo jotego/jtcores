@@ -63,13 +63,13 @@ wire [ 8:0] HF = {9{flip}}^Hfix;
 wire        H7;
 wire [ 7:0] dout_low, dout_high;
 reg  [ 2:0] HSaux;
-reg  [POSW-1:0] HS;
+reg  [POSW-1:0] HS, hpos_s;
 wire [POSW-1:0] Hsum, VS;
 
 assign H7   = (~Hfix[8] & (~flip ^ HF[6])) ^HF[7];
 assign Hfix = H + HOFFSET[8:0]; // Corrects pixel output offset
 assign VS   = vpos + { {POSW-8{1'b0}}, VF};
-assign Hsum = hpos + ( LAYOUT==1 ?
+assign Hsum = hpos_s + ( LAYOUT==1 ?
             { {POSW-8{~Hfix[8]}}, HF[7:0]} : (
             LAYOUT==10 && SCANW==12 ?
             HF :
@@ -77,6 +77,7 @@ assign Hsum = hpos + ( LAYOUT==1 ?
 assign busy = (HS[2:0]<2) && scr_cs;
 
 always @(posedge clk) if(pxl_cen) begin
+    hpos_s <= hpos; // prevents a hold error in MiSTer
     if( Hsum[2:0]=={3{flip}} ) HS[POSW-1:3] <= Hsum[POSW-1:3];
     HS[2:0]      <= Hsum[2:0] ^ {3{flip}};
 end
