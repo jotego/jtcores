@@ -24,6 +24,7 @@ module jtgng_main(
     output             cpu_cen,
     input              rst,
     input              LVBL,   // vertical blanking when 0
+    input              block_flash,
     output  reg        blue_cs,
     output  reg        redgreen_cs,
     output  reg        flip,
@@ -109,8 +110,8 @@ always @(*) begin
                 2'd1: scr_cs  = 1'b1;
                 2'd2: in_cs   = 1'b1;
                 2'd3: case( A[10:8] )
-                    3'd0: redgreen_cs = 1'b1;
-                    3'd1: blue_cs     = 1'b1;
+                    3'd0: redgreen_cs = block_flash ? ~LVBL : 1'b1;
+                    3'd1: blue_cs     = block_flash ? ~LVBL : 1'b1;
                     3'd2: sound_cs    = 1'b1;
                     3'd3: scrpos_cs   = 1'b1;
                     3'd4: OKOUT       = 1'b1;

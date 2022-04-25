@@ -94,6 +94,7 @@ wire flip;
 wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
+wire block_flash;
 
 // ROM data
 wire [15:0] char_data;
@@ -113,6 +114,7 @@ wire main_ok, snd_ok;
 wire cen12, cen6, cen6b, cen3, cen1p5, cen1p5b;
 wire clk48_cen12, clk48_cen6;
 
+assign block_flash = status[13];
 assign pxl2_cen = clk48_cen12;
 assign pxl_cen  = clk48_cen6;
 
@@ -203,6 +205,7 @@ jtgng_main u_main(
     // Timing
     .flip       ( flip          ),
     .LVBL       ( LVBL          ),
+    .block_flash( block_flash   ),
 
     // sound
     .sres_b     ( sres_b        ),
