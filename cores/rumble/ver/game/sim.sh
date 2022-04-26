@@ -10,7 +10,7 @@ SCENE=
 
 eval `jtcfgstr -output bash -core ${SYSNAME} | grep _START `
 
-ln -sf $ROM/srumbler.rom rom.bin
+if [ ! -e rom.bin ]; then ln -s $ROM/srumbler.rom rom.bin; fi
 
 if which ncverilog >/dev/null; then
     # Options for non-verilator simulation
