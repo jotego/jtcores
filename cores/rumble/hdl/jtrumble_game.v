@@ -193,11 +193,13 @@ jtrumble_main u_main(
     .char_dout  ( char_dout     ),
     .cpu_dout   ( cpu_dout      ),
     .char_cs    ( char_cs       ),
-    .char_busy  ( char_busy     ),
+    //.char_busy  ( char_busy     ),
+    .char_busy  ( 1'b0     ),
     // scroll
     .scr_dout   ( scr_dout      ),
     .scr_cs     ( scr_cs        ),
-    .scr_busy   ( scr_busy      ),
+    //.scr_busy   ( scr_busy      ),
+    .scr_busy   ( 1'b0      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
     // cabinet I/O
@@ -224,11 +226,15 @@ jtrumble_main u_main(
     .dipsw_b     ( dipsw_b      )
 );
 `else
-assign main_cs  = 0;
-assign main_rnw = 1;
-assign cpu_dout = 0;
-assign char_cs  = 0;
-assign scr_cs   = 0;
+    assign main_cs  = 0;
+    assign main_rnw = 1;
+    assign main_addr= 0;
+    assign cpu_dout = 0;
+    assign char_cs  = 0;
+    assign scr_cs   = 0;
+    assign pal_cs   = 0;
+    assign flip     = 0;
+    assign cpu_AB   = 0;
 `endif
 
 jtrumble_video #(
@@ -320,11 +326,12 @@ jtgng_sound #(
     .debug_view ( debug_view    )
 );
 `else
-    assign snd_addr=0;
-    assign snd_cs=0;
-    assign snd = 0;
-    assign sample=0;
-    assign game_led=0;
+    assign snd_addr   = 0;
+    assign snd_cs     = 0;
+    assign snd        = 0;
+    assign sample     = 0;
+    assign game_led   = 0;
+    assign debug_view = 0;
 `endif
 
 jtrumble_sdram #(
