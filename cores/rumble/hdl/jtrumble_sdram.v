@@ -195,7 +195,7 @@ jtgng_obj32 #(
 assign convert=0;
 `endif
 
-/* verilator tracing_off */
+/* xxx tracing_off */
 // main CPU ROM
 jtframe_rom_1slot #(
     // Game ROM

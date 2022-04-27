@@ -82,6 +82,7 @@
         <part name="63s141.13a" crc="6048583f"/>
         <part name="63s141.8j" crc="1a89a7ff"/>
         <!-- Total 0xCC300 bytes - 816 kBytes -->
+        <!-- 0xc039 corresponds to main CPU address E039 -->
         <patch offset="0xc039"> 12 12 12 </patch>
     </rom>
     <!-- Vertical game -->
