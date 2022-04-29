@@ -128,7 +128,7 @@ assign prom_banks[0] = prom_we && prog_addr[9:8]==2'b00;
 assign prom_banks[1] = prom_we && prog_addr[9:8]==2'b01;
 
 assign prog_addr = convert ? conv_addr : (
-        { dwn_addr[21:6], dwn_ba==3 ? { dwn_addr[4:1], dwn_addr[5], dwn_addr[0] }: dwn_addr[5:0] });
+        { dwn_addr[21:6], (dwn_ba==3 && !prom_we) ? { dwn_addr[4:1], dwn_addr[5], dwn_addr[0] }: dwn_addr[5:0] });
 assign prog_data = convert ? {2{conv_data}} : dwn_data;
 assign prog_mask = convert ? conv_mask : dwn_mask;
 assign prog_we   = convert ? conv_we   : dwn_we;

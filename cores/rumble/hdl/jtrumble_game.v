@@ -59,6 +59,8 @@ module jtrumble_game(
     input   [24:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
+    // output  [ 7:0]  ioctl_din,
+    // input           ioctl_ram,
     output  [21:0]  prog_addr,
     output  [15:0]  prog_data,
     output  [ 1:0]  prog_mask,
@@ -131,6 +133,7 @@ wire        bus_ack, bus_req, blcnten;
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = ~flip;
 assign obj_cs   = 1;
+assign debug_view = { 7'd0, flip };
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
@@ -175,6 +178,32 @@ jtframe_cendiv u_cendiv(
 );
 
 `ifndef NOMAIN
+// reg  [13:0] nvram_addr;
+// wire        nvram_we = (scr_cs | char_cs ) & ~main_rnw;
+
+// always @* begin
+//     nvram_addr = {1'b0, cpu_AB };
+//     if( char_cs )
+//         nvram_addr[13:12] = 2'b10;
+// end
+
+jtframe_dual_ram #(.aw(14)
+//    simfile="", simhexfile="", synfile="", dumpfile="dump.hex"
+) u_nvram(
+    // Port 0
+    .clk0   ( clk24     ),
+    .data0  ( cpu_dout  ),
+    .addr0  ( nvram_addr    ),
+    .we0    ( nvram_we  ),
+    .q0     (           ),
+    // Port 1
+    .clk1   ( clk       ),
+    .addr1  ( ioctl_addr[13:0] ), // A, read only
+    .we1    ( 1'b0      ),
+    .data1  (           ),
+    .q1     ( ioctl_din )
+);
+
 jtrumble_main u_main(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
@@ -293,6 +322,7 @@ u_video(
     .HS         ( HS            ),
     .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),
+    .debug_bus  ( debug_bus     ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
@@ -302,7 +332,7 @@ u_video(
 `ifndef NOSOUND
 jtgng_sound #(
     .LAYOUT (10 ),
-    .PSG_ATT( 2 )   // Fx is very loud in this game
+    .PSG_ATT( 3 )   // Fx is very loud in this game
 ) u_fmcpu (
     .rst        (  rst24        ),
     .clk        (  clk24        ),
@@ -323,7 +353,7 @@ jtgng_sound #(
     .sample     (  sample       ),
     .peak       (  game_led     ),
     .debug_bus  ( debug_bus     ),
-    .debug_view ( debug_view    )
+    .debug_view (               )
 );
 `else
     assign snd_addr   = 0;
@@ -331,7 +361,7 @@ jtgng_sound #(
     assign snd        = 0;
     assign sample     = 0;
     assign game_led   = 0;
-    assign debug_view = 0;
+//    assign debug_view = 0;
 `endif
 
 jtrumble_sdram #(

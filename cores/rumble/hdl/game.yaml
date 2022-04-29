@@ -30,6 +30,8 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
+  - get:
+      - jtframe_sort.v
 modules:
   other:
     - get:

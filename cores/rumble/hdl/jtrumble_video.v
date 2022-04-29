@@ -72,6 +72,7 @@ module jtrumble_video#(
     // Palette RAM
     input               pal_cs,
     input       [3:0]   gfx_en,
+    input       [7:0]   debug_bus,
     // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
@@ -83,35 +84,39 @@ localparam LAYOUT = 10;
 localparam PXL_CHRW=7;
 
 wire [PXL_CHRW-1:0] char_pxl;
-wire [6:0] obj_pxl;
+wire [7:0] obj_pxl;
 wire [7:0] scr_pxl;
 wire [3:0] cc;
 
 wire       HINIT;
 wire       LVBL_obj, LHBL_obj;
+reg  [31:0] LHBL_sh;
 wire [8:0] H;
 
 always @(posedge clk) vmid<=V==9'h60;
 
-assign LVBL_obj = LVBL;
+always @(posedge clk) if(pxl_cen) LHBL_sh <= { LHBL_sh[30:0], !(H[8] ? H[7:0] > 9'h1A7 : H[7:0] < 9'h047) };
 
-jtframe_sh #(.width(1), .stages(5) ) u_sh(
-    .clk    ( clk       ),
-    .clk_en ( pxl_cen   ),
-    .din    ( LHBL      ),
-    .drop   ( LHBL_obj  )
-);
+assign LVBL_obj = ~V[8];
+assign LHBL_obj = flip ? LHBL_sh[8] : LHBL_sh[6]; // LHBL_sh[debug_bus[4:0]];
+
+// jtframe_sh #(.width(1), .stages(5) ) u_sh(
+//     .clk    ( clk       ),
+//     .clk_en ( pxl_cen   ),
+//     .din    ( LHBL      ),
+//     .drop   ( LHBL_obj  )
+// );
 
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
-    .HB_START ( 9'h1AF ),
+    .HB_START ( 9'h1B0 ),
     .HB_END   ( 9'h04F ),
     .HCNT_END ( 9'h1FF ),
-    .VB_START ( 9'hF0  ),
-    .VB_END   ( 9'h00  ),
+    .VB_START ( 9'hF8  ),
+    .VB_END   ( 9'h08  ),
     .VCNT_END ( 9'h10F ),
-    .VS_START ( 9'h0FF ),
+    .VS_START ( 9'h107 ),
     .HS_START ( 9'h1f0 ),
     .HS_END   ( 9'h027 ),
     .H_VB     ( 9'h7   ),
@@ -230,10 +235,17 @@ always @(posedge clk) begin
     okout <= match && !last_match;
 end
 
+// reg [8:0] Vadj;
+
+// always @* begin
+//     Vadj = V + {debug_bus[7], debug_bus};
+//     if( Vadj>9'h10F) Vadj = Vadj-9'h10f;
+// end
+
 jtgng_obj #(
     .OBJMAX       ( 10'h200     ),
     .ROM_AW       ( OBJW        ),
-    .PALW         (  3          ),
+    .PALW         (  4          ),
     .PXL_DLY      (  0          ),
     .LAYOUT       ( LAYOUT      ))
 u_obj (
@@ -249,11 +261,11 @@ u_obj (
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
     .LHBL       ( LHBL_obj    ),
-    .LVBL       ( LVBL        ),
+    .LVBL       ( LVBL_obj    ),
     .LVBL_obj   ( LVBL_obj    ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
-    .V          ( V[7:0]+8'd8 ),
+    .V          ( V[7:0]      ),
     .H          ( H           ),
     // SDRAM interface
     .obj_addr   ( obj_addr    ),

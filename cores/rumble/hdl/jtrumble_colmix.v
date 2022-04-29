@@ -32,7 +32,7 @@ module jtrumble_colmix(
     // pixel input from generator modules
     input [6:0]      char_pxl,        // character color code
     input [7:0]      scr_pxl,
-    input [6:0]      obj_pxl,
+    input [7:0]      obj_pxl,
     input            LVBL,
     input            LHBL,
     output           LHBL_dly,
@@ -53,7 +53,7 @@ module jtrumble_colmix(
     input      [3:0] gfx_en
 );
 
-parameter PXL_DLY = 8;
+parameter PXL_DLY = 7;
 
 parameter [1:0] OBJ_PAL = 2'b10,
                 SCR_PAL = 2'b01,
@@ -63,22 +63,20 @@ wire [ 8:0] pal_addr;
 reg  [ 7:0] last_out;
 reg         gray;       // gray output until the palette is 1st written
 
-wire obj_blank   =  &obj_pxl[3:0];//  | gfx_en[3];
-wire char_blankn = ~&char_pxl[1:0];// & gfx_en[0];
+// wire obj_blank   =  &obj_pxl[3:0]  | ~gfx_en[3];
+wire char_blankn = ~&char_pxl[1:0] &  gfx_en[0];
 wire pal_we      = pal_cs;
 wire [ 1:0] prio;
 wire [ 7:0] dump;
 reg  [11:0] pxl;
 reg         lsb;
 
-wire        scrwin   =   scr_pxl[7];
-wire       charwin   =  char_pxl[6];
-wire [7:0] prio_addr = { scr_pxl[3:0], obj_blank, charwin, scrwin, char_blankn };
-//wire [7:0] prio_addr = { scrwin, scr_pxl[3:0], obj_blank, charwin, char_blankn };
+// Addressing extracted directly from the PCB:
+wire [7:0] prio_addr = { scr_pxl[7], scr_pxl[3:0], obj_pxl[7], char_pxl[6], char_blankn };
 
 assign pal_addr[8:7] = prio;
 assign pal_addr[6:0] = prio==CHAR_PAL ? { 1'b1, char_pxl[5:0]} :
-                      (prio==OBJ_PAL  ? obj_pxl : scr_pxl[6:0]);
+                      (prio==OBJ_PAL  ? obj_pxl[6:0] : scr_pxl[6:0]);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

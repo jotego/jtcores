@@ -7,6 +7,7 @@ SDRAM_SNAP=
 DEF=
 OTHER=
 SCENE=
+SKIP="-d SKIPOBJ32"
 
 eval `jtcfgstr -output bash -core ${SYSNAME} | grep _START `
 
@@ -31,6 +32,9 @@ while [ $# -gt 0 ]; do
             echo -e " ----------------------\n"
             jtsim -sysname rumble -help
             exit 0;;
+        -load)
+            SKIP=
+            OTHER="$OTHER $1";;
         *) OTHER="$OTHER $1";;
     esac
     shift
@@ -49,7 +53,7 @@ fi
 
 jtsim -mist -sysname $SYSNAME $SIMULATOR \
 	-videow 352 -videoh 240 \
-    -d JTFRAME_SIM_ROMRQ_NOCHECK $OTHER \
+    -d JTFRAME_SIM_ROMRQ_NOCHECK $OTHER $SKIP \
     || exit $?
 
 if [[ ! -z "$SCENE" && -e frame_1.jpg ]]; then

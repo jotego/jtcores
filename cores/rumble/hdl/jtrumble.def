@@ -12,6 +12,9 @@ JTFRAME_WIDTH=352
 JTFRAME_HEIGHT=240
 JTFRAME_DEBUG
 
+# Use for dumping the video memory:
+# JTFRAME_IOCTL_RD=12228
+
 # ROM file layout
 BA1_START    =0x040000
 BA2_START    =0x048000
