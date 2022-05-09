@@ -20,8 +20,6 @@
 // Schematics pages 8/15...
 
 module jt1943_scroll #( parameter
-    [8:0] HOFFSET   = 9'd5,
-    parameter
     LAYOUT          = 0,   // 0 = 1943, 3 = Bionic Commando, 8 = Side Arms, 9=SF
                            // 11 = Exed Exes SCR1 (12 for SCR2)
     ROM_AW          = 17,
@@ -31,16 +29,17 @@ module jt1943_scroll #( parameter
     PALETTE         = 1,
     PXLW            = (LAYOUT==3 || LAYOUT==8) ? 9 :
                       (LAYOUT==7 /*Trojan SCR2*/ ? 7 :  (PALETTE?6:8)),
-    VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 16 : 8, // vertical offset bit width,
     // MAP SIZE
     MAPAW           = LAYOUT==9 ? 16 : 14, // address width
-    MAPDW           = LAYOUT==9 ? 32 : 16  // data width
+    MAPDW           = LAYOUT==9 ? 32 : 16, // data width
+    [8:0] HOFFSET   = 9'd5,
+    VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 9'd16 : 9'd8  // vertical offset bit width,
 )(
     input                rst,
     input                clk,  // >12 MHz
     input                cen6, //  6 MHz
     input         [ 8:0] V128, // V128-V1
-    input         [ 8:0] H, // H256-H1
+    input         [ 8:0] H,    // H256-H1
     input                LHBL,
 
     input         [15:0] hpos,

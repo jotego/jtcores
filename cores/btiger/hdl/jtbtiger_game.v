@@ -29,8 +29,6 @@ module jtbtiger_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -113,6 +111,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 7:0] mcu_din, mcu_dout;
 wire        mcu_wr, mcu_rd;
 wire        cenfm;
+wire        preLHBL, preLVBL;
 
 wire main_ok, snd_ok, obj_ok;
 wire cen12, cen6, cen3, cen1p5;
@@ -152,9 +151,9 @@ jtgng_timer u_timer(
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
     .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
     .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
@@ -393,12 +392,12 @@ jtbtiger_video u_video(
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
     // Color Mix
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

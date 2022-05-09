@@ -23,8 +23,8 @@ module jthige_video(
     input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
-    input       [ 7:0]  V,
-    input       [ 8:0]  H,
+    output      [ 7:0]  V,
+    output      [ 8:0]  H,
     input               rd_n,
     input               wr_n,
     input               flip,
@@ -38,16 +38,14 @@ module jthige_video(
     input               char_ok,
     // OBJ
     input               obj_cs,
-    input               HINIT,
     output      [14:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LHBL,
-    output              LHBL_dly,
-    output              LVBL_dly,
-    input               LHBL_obj,
+    output              LHBL,
+    output              LVBL,
+    output              HS,
+    output              VS,
     output      [2:0]   red,
     output      [2:0]   green,
     output      [2:0]   blue,
@@ -67,6 +65,22 @@ localparam COFFSET = 9'd5,
 
 wire [3:0] char_pxl, obj_pxl;
 wire [8:0] obj_AB = cpu_AB[8:0] - 9'h80;
+wire       preLHBL, preLVBL, HINIT, LHBL_obj;
+
+jtgng_timer u_timer(
+    .clk       ( clk      ),
+    .cen6      ( pxl_cen  ),
+    .V         ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .LHBL_obj  ( LHBL_obj ),
+    .LVBL_obj  (          ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          )
+);
 
 `ifndef NOCHAR
 jtgng_char #(
@@ -149,10 +163,10 @@ jthige_colmix u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .LVBL       ( LVBL          ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .LHBL       ( LHBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .LVBL       ( LVBL          ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),
     .obj_pxl    ( obj_pxl       ),

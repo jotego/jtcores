@@ -28,8 +28,8 @@ module jtsarms_video #(
     input               cpu_cen,
     input               cen12,
     input       [11:0]  cpu_AB,
-    input       [ 8:0]  V,
-    input       [ 8:0]  H,
+    output      [ 8:0]  V,
+    output      [ 8:0]  H,
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
@@ -63,7 +63,6 @@ module jtsarms_video #(
     input               star_vscan,
     input               star_fix_n,
     // OBJ
-    input               HINIT,
     output      [12:0]  obj_AB,
     input       [ 7:0]  main_ram,
     input               OKOUT,
@@ -74,11 +73,10 @@ module jtsarms_video #(
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LVBL_obj,
-    input               LHBL,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
+    output              HS,
+    output              VS,
     input               eres_n,        // clears palette error signal
     output              wrerr_n,       // marks an attempt to write in palette outside v-blanking
     // Priority PROMs
@@ -105,10 +103,45 @@ localparam       BLANK_DLY   = 3;
 localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
+wire       preLHBL, preLVBL, HINIT;
 
 wire [7:0] char_pxl, obj_pxl;
 wire [8:0] scr_pxl;
 wire [2:0] star_pxl;
+
+// Frame rate and blanking as the original
+// Sync pulses slightly adjusted
+jtframe_vtimer #(
+    .HB_START ( 9'h1CF ),
+    .HB_END   ( 9'h04F ),
+    .HCNT_END ( 9'h1FF ),
+    .VB_START ( 9'hF0  ),
+    .VB_END   ( 9'h10  ),
+    .VCNT_END ( 9'hFF  ),
+    //.VS_START ( 9'h0   ),
+    .VS_START ( 9'hF5   ),
+    //.VS_END   ( 9'h8   ),
+    .HS_START ( 9'h1F2 ),
+    .HS_END   ( 9'h01A ),
+    .H_VB     ( 9'h7   ),
+    .H_VS     ( 9'h1FF ),
+    .H_VNEXT  ( 9'h1FF ),
+    .HINIT    ( 9'h20 )
+) u_timer(
+    .clk       ( clk      ),
+    .pxl_cen   ( pxl_cen  ),
+    .vdump     ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          ),
+    // unused
+    .vrender   (          ),
+    .vrender1  (          )
+);
 
 `ifndef NOCHAR
 jtgng_char #(
@@ -237,7 +270,7 @@ jtgng_obj #(
     .blen       ( blcnten     ),
     .LHBL       ( LHBL        ),
     .LVBL       ( LVBL        ),
-    .LVBL_obj   ( LVBL_obj    ),
+    .LVBL_obj   ( LVBL        ),
     .HINIT      ( HINIT       ),
     .flip       ( flip        ),
     .V          ( V[7:0]      ),
@@ -279,10 +312,10 @@ u_colmix (
     .scr_pxl      ( scr_pxl       ),
     .star_pxl     ( star_pxl      ),
     .obj_pxl      ( obj_pxl       ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
 
     // Enable bits
     .CHON         ( CHON          ),

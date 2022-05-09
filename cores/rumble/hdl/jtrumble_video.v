@@ -61,8 +61,6 @@ module jtrumble_video#(
     output reg          vmid,
     output              LVBL,
     output              LHBL,
-    output              LHBL_dly,
-    output              LVBL_dly,
     output              HS,
     output              VS,
     // Priority PROMs
@@ -88,7 +86,7 @@ wire [7:0] obj_pxl;
 wire [7:0] scr_pxl;
 wire [3:0] cc;
 
-wire       HINIT;
+wire       HINIT, preLVBL, preLHBL;
 wire       LVBL_obj, LHBL_obj;
 reg  [31:0] LHBL_sh;
 wire [8:0] H;
@@ -129,8 +127,8 @@ jtframe_vtimer #(
     .vdump     ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LVBL      ( LVBL     ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
     .HS        ( HS       ),
     .VS        ( VS       ),
     .Vinit     (          ),
@@ -296,10 +294,10 @@ jtrumble_colmix u_colmix(
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
 
     // Priority PROM
     .prog_addr    ( prog_addr     ),

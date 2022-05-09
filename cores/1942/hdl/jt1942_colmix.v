@@ -35,10 +35,10 @@ module jt1942_colmix(
     input           prom_e10_we,
     input   [3:0]   prom_din,
 
-    input           LVBL,
-    input           LHBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    input           preLVBL,
+    input           preLHBL,
+    output          LHBL,
+    output          LVBL,
 
     output     [3:0] red,
     output     [3:0] green,
@@ -80,10 +80,10 @@ assign pal_rgb = { pre_r, pre_g, pre_b };
 jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),
     .preLBL     (                     ),
     .rgb_in     ( pal_rgb             ),
     .rgb_out    ( {red, green, blue } )

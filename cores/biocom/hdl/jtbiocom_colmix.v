@@ -52,10 +52,10 @@ module jtbiocom_colmix(
     input [7:0]      scr1_pxl,
     input [7:0]      scr2_pxl,
     input [7:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    input            preLVBL,
+    input            preLHBL,
+    output           LHBL,
+    output           LVBL,
     // Priority PROM
     input [7:0]      prog_addr,
     input            prom_prio_we,
@@ -83,7 +83,6 @@ wire enable_scr1 = gfx_en[1];
 wire enable_scr2 = gfx_en[2];
 wire enable_obj  = gfx_en[3];
 
-//reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] pre_prio;
 reg  [7:0] seladdr;
 reg  [1:0] prio, presel;
@@ -97,12 +96,7 @@ always @(*) begin
     prio         = pre_prio | ( enable_char ? {2{char_blank_n}} : 2'b0 );
 end
 
-reg       obj_sel;
-reg [3:0] obj_pxl2;
-
 always @(posedge clk) if(cen6) begin
-    obj_sel  <= prio==2'b10;
-    obj_pxl2 <= obj_pxl[3:0];
     case( prio )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl;
@@ -219,10 +213,10 @@ wire [14:0] pal_rgb = {pre_r, pre_g, pre_b};
 jtframe_blank #(.DLY(BLANK_DLY),.DW(15)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),
     .preLBL     ( preLBL              ),
     .rgb_in     ( pal_rgb             ),
     .rgb_out    ( {red, green, blue } )

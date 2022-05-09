@@ -23,8 +23,8 @@ module jt1942_video(
     input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
-    input       [ 7:0]  V,
-    input       [ 8:0]  H,
+    output      [ 7:0]  V,
+    output      [ 8:0]  H,
     input               rd_n,
     input               wr_n,
     input               flip,
@@ -49,16 +49,14 @@ module jt1942_video(
     input               scr_ok,
     // OBJ
     input               obj_cs,
-    input               HINIT,
     output      [14:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LHBL,
-    output              LHBL_dly,
-    output              LVBL_dly,
-    input               LHBL_obj,
+    output              LHBL,
+    output              LVBL,
+    output              HS,
+    output              VS,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue,
@@ -88,6 +86,21 @@ localparam COFFSET = 9'd5;
 localparam SOFFSET = 9'd5;
 
 wire [3:0] char_pxl, obj_pxl;
+wire       preLHBL, preLVBL, LHBL_obj, HINIT;
+
+jtgng_timer u_timer(
+    .clk       ( clk      ),
+    .cen6      ( cen6     ),
+    .V         ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .LHBL_obj  ( LHBL_obj ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          )
+);
 
 jtgng_char #(
     .HOFFSET ( COFFSET ),
@@ -265,10 +278,10 @@ jt1942_colmix #(.VULGUS(VULGUS)) u_colmix (
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .LVBL       ( LVBL          ),
     .LHBL       ( LHBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
     // pixel input from generator modules
     .char_pxl   ( char_pxl      ),        // character color code
     .scr_pxl    ( scr_pxl       ),

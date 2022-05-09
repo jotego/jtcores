@@ -25,10 +25,10 @@ module jttora_colmix(
     input [5:0]      char_pxl,        // character color code
     input [8:0]      scr_pxl,
     input [7:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    input            preLVBL,
+    input            preLHBL,
+    output           LHBL,
+    output           LVBL,
     // Priority PROM
     input [7:0]      prog_addr,
     input            prom_prio_we,
@@ -141,10 +141,10 @@ wire [11:0] pal_gray = {3{pal_addr[3:0]}};
 jtframe_blank #(.DLY(7),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),
     .preLBL     ( preLBL              ),
 `ifdef GRAY
     .rgb_in     ( pal_gray            ),

@@ -99,12 +99,12 @@ module jt1943_video #( parameter
     input               bus_ack,   // bus acknowledge
     output              blcnten,   // bus line counter enable
     // Color Mix
-    input               LVBL,
-    input               LVBL_obj,
-    input               LHBL,
+    input               preLHBL,
+    input               preLVBL,
     input               LHBL_obj,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    input               LVBL_obj,
+    output              LHBL,
+    output              LVBL,
     output      [3:0]   red,
     output      [3:0]   green,
     output      [3:0]   blue,
@@ -187,7 +187,7 @@ u_scroll1 (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
-    .LHBL         ( LHBL          ),
+    .LHBL         ( preLHBL       ),
     .V128         ( {1'b0, V[7:0]}),
     .H            ( H             ),
     .hpos         ( scr1posh      ),
@@ -224,7 +224,7 @@ generate
             .rst          ( rst           ),
             .clk          ( clk           ),
             .cen6         ( cen6          ),
-            .LHBL         ( LHBL          ),
+            .LHBL         ( preLHBL       ),
             .V128         ( {1'b0, V[7:0]}),
             .H            ( H             ),
             .hpos         ( scr2posh      ),
@@ -331,10 +331,10 @@ u_colmix (
     .rst          ( rst           ),
     .clk          ( clk           ),
     .cen6         ( cen6          ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
     // pixel input from generator modules
     .char_pxl     ( char_pxl      ),        // character color code
     .scr1_pxl     ( scr1_pxl      ),

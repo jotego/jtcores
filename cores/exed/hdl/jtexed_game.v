@@ -24,8 +24,8 @@ module jtexed_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    output          LHBL,
+    output          LVBL,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -79,7 +79,6 @@ assign debug_view = 0;
 
 wire [8:0] V;
 wire [8:0] H;
-wire HINIT;
 
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout;
@@ -120,7 +119,6 @@ wire main_ok, snd_ok, obj_ok, obj_ok0;
 wire cen12, cen8, cen6, cen3, cen1p5;
 
 wire char_on, scr1_on, scr2_on, obj_on;
-wire LHBL, VHBL;
 
 // PROMs
 localparam PROM_IRQ = 8;
@@ -157,23 +155,6 @@ jtframe_cen48 u_cen(
     .cen3b  (           ),
     .cen3qb (           ),
     .cen1p5b(           )
-);
-
-wire LHBL_obj, LVBL_obj;
-
-jtgng_timer u_timer(
-    .clk       ( clk      ),
-    .cen6      ( cen6     ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
-    .LVBL_obj  ( LVBL_obj ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
 );
 
 wire RnW;
@@ -404,7 +385,6 @@ u_video(
     .map2_cs    ( map2_cs       ),
     .map2_ok    ( map2_ok       ),
     // OBJ
-    .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
@@ -421,10 +401,8 @@ u_video(
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
-    .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     // Debug
     .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     ),

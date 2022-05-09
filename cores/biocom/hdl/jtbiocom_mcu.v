@@ -147,6 +147,8 @@ always @(posedge clk, posedge rst) begin
 end
 
 wire [7:0] mcu_din_s, x_dout;
+wire       x_wr;
+
 assign mcu_wr = x_wr | ~p3_o[6]; // wr pin
 assign mcu_dout = x_wr ? x_dout : p0_o;
 

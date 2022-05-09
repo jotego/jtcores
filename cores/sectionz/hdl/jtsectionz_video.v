@@ -28,8 +28,8 @@ module jtsectionz_video#(
     input               cpu_cen,
     input       [11:0]  cpu_AB,
     input               game_sel,
-    input       [ 7:0]  V,
-    input       [ 8:0]  H,
+    output      [ 7:0]  V,
+    output      [ 8:0]  H,
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
@@ -52,7 +52,6 @@ module jtsectionz_video#(
     input       [ 1:0]  scr_bank,
     input               scr_layout,
     // OBJ
-    input               HINIT,
     output      [ 8:0]  obj_AB,
     input       [ 7:0]  main_ram,
     input               OKOUT,
@@ -63,12 +62,10 @@ module jtsectionz_video#(
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LVBL_obj,
-    input               LHBL,
-    input               LHBL_obj,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
+    output              HS,
+    output              VS,
     // Palette PROMs
     // input       [7:0]   prog_addr,
     // input               prom_prior_we,
@@ -91,6 +88,22 @@ wire [PXL_CHRW-1:0] char_pxl;
 wire [6:0] obj_pxl;
 wire [6:0] scr_pxl;
 wire [3:0] cc;
+wire       LHBL_obj, LVBL_obj, HINIT, preLVBL, preLHBL;
+
+jtgng_timer #(.LAYOUT(5)) u_timer(
+    .clk       ( clk      ),
+    .cen6      ( cen6     ),
+    .V         ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .LHBL_obj  ( LHBL_obj ),
+    .LVBL_obj  ( LVBL_obj ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          )
+);
 
 jtgng_char #(
     .HOFFSET ( 7),
@@ -231,10 +244,10 @@ u_colmix (
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
 
     // Priority PROM
     // .prog_addr    ( prog_addr     ),

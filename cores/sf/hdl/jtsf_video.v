@@ -30,8 +30,8 @@ module jtsf_video #(
     input               pxl_cen,
     input               cpu_cen,
     input       [13:1]  cpu_AB,
-    input       [ 8:0]  V,
-    input       [ 8:0]  H,
+    output      [ 8:0]  V,
+    output      [ 8:0]  H,
     input               RnW,
     input               UDSWn,
     input               LDSWn,
@@ -66,7 +66,6 @@ module jtsf_video #(
     input       [31:0]  map2_data,
     input               map2_ok,
     // OBJ
-    input               HINIT,
     output      [12:0]  obj_AB,
     input       [15:0]  main_ram,
     input               OKOUT,
@@ -77,10 +76,10 @@ module jtsf_video #(
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LHBL,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
+    output              HS,
+    output              VS,
     // Priority PROMs
     // input       [7:0]   prog_addr,
     // input               prom_prio_we,
@@ -110,6 +109,43 @@ localparam [5:0] OBJMAX_LINE = 6'd32;
 wire [CHRPW-1:0] char_pxl;
 wire [OBJPW-1:0] obj_pxl;
 wire [SCRPW-1:0] scr1_pxl, scr2_pxl;
+
+wire preLHBL, preLVBL, HINIT;
+
+// Frame rate and blanking as the original
+// Sync pulses slightly adjusted
+jtframe_vtimer #(
+    .HB_START ( 9'h1C7 ),
+    .HB_END   ( 9'h047 ),
+    //.HB_END   ( 9'h04F ),
+    .HCNT_END ( 9'h1FF ),
+    .VB_START ( 9'hF0  ),
+    .VB_END   ( 9'h10  ),
+    .VCNT_END ( 9'hFF  ),
+    //.VS_START ( 9'h0   ),
+    .VS_START ( 9'hF5   ),
+    //.VS_END   ( 9'h8   ),
+    .HS_START ( 9'h1EA ),
+    .HS_END   ( 9'h012 ),
+    .H_VB     ( 9'h7   ),
+    .H_VS     ( 9'h1FF ),
+    .H_VNEXT  ( 9'h1FF ),
+    .HINIT    ( 9'h20 )
+) u_timer(
+    .clk       ( clk      ),
+    .pxl_cen   ( pxl_cen  ),
+    .vdump     ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          ),
+    // unused
+    .vrender   (          ),
+    .vrender1  (          )
+);
 
 `ifndef NOCHAR
 wire [8:0] ch;
@@ -267,7 +303,7 @@ jtgng_obj #(
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LHBL       ( LHBL_dly    ),
+    .LHBL       ( LHBL        ),
     .LVBL       ( LVBL        ),
     .LVBL_obj   ( LVBL        ),
     .HINIT      ( HINIT       ),
@@ -310,10 +346,10 @@ u_colmix (
     .scr1_pxl     ( scr1_pxl      ),
     .scr2_pxl     ( scr2_pxl      ),
     .obj_pxl      ( obj_pxl       ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
 
     // Enable bits
     // .charon       ( charon        ),

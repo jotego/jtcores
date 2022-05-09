@@ -27,8 +27,6 @@ module jtcommando_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -83,7 +81,7 @@ parameter CLK_SPEED=48;
 
 wire [8:0] V;
 wire [8:0] H;
-wire HINIT;
+wire       HINIT, preLVBL, preLHBL;
 
 wire [12:0] cpu_AB;
 wire snd_cs;
@@ -135,9 +133,9 @@ jtgng_timer u_timer(
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
     .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
     .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
@@ -346,8 +344,8 @@ jtgng_video #(
     .LVBL       ( LVBL          ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

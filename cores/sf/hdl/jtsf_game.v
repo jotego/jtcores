@@ -34,8 +34,8 @@ module jtsf_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    output          LHBL,
+    output          LVBL,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -132,8 +132,6 @@ localparam [24:0] PROM_START  = 25'h42_C000;
 
 wire [ 8:0] V;
 wire [ 8:0] H;
-wire        HINIT;
-wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
 wire        main_cs, ram_cs,
@@ -227,43 +225,6 @@ jtframe_cen96 u_cen96(
     .cen8   ( pxl_cen       )
 );
 `endif
-
-wire LHBL_obj, LVBL_obj;
-
-// Frame rate and blanking as the original
-// Sync pulses slightly adjusted
-jtframe_vtimer #(
-    .HB_START ( 9'h1C7 ),
-    .HB_END   ( 9'h047 ),
-    //.HB_END   ( 9'h04F ),
-    .HCNT_END ( 9'h1FF ),
-    .VB_START ( 9'hF0  ),
-    .VB_END   ( 9'h10  ),
-    .VCNT_END ( 9'hFF  ),
-    //.VS_START ( 9'h0   ),
-    .VS_START ( 9'hF5   ),
-    //.VS_END   ( 9'h8   ),
-    .HS_START ( 9'h1EA ),
-    .HS_END   ( 9'h012 ),
-    .H_VB     ( 9'h7   ),
-    .H_VS     ( 9'h1FF ),
-    .H_VNEXT  ( 9'h1FF ),
-    .HINIT    ( 9'h20 )
-) u_timer(
-    .clk       ( clk      ),
-    .pxl_cen   ( pxl_cen  ),
-    .vdump     ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LVBL      ( LVBL     ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          ),
-    // unused
-    .vrender   (          ),
-    .vrender1  (          )
-);
 
 wire       RnW;
 // sound
@@ -561,7 +522,6 @@ jtsf_video #(
     .scr2posh   ( scr2posh      ),
     .scr2_ok    ( scr2_ok       ),
     // OBJ
-    .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( dmaout        ),
     .obj_addr   ( obj_addr      ),
@@ -580,8 +540,8 @@ jtsf_video #(
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

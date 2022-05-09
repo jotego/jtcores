@@ -26,8 +26,6 @@ module jt1943_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -111,6 +109,7 @@ assign pxl_cen  = cen6;
 assign sample=1'b1;
 
 wire LHBL_obj, LVBL_obj;
+wire preLHBL, preLVBL;
 
 wire cen8;
 
@@ -140,9 +139,9 @@ jtgng_timer u_timer(
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
     .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
     .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
@@ -408,12 +407,12 @@ jt1943_video u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // Color Mix
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),

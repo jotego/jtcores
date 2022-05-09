@@ -33,10 +33,10 @@ module jtrumble_colmix(
     input [6:0]      char_pxl,        // character color code
     input [7:0]      scr_pxl,
     input [7:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    input            preLVBL,
+    input            preLHBL,
+    output           LHBL,
+    output           LVBL,
     // Palette PROMs and object priority
     input [7:0]      prog_addr,
     input            prom_prio_we,
@@ -125,10 +125,10 @@ jtframe_dual_ram #(.aw(10)) u_pal(
 jtframe_blank #(.DLY(PXL_DLY)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .preLHBL    ( preLHBL   ),
+    .preLVBL    ( preLVBL   ),
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .LHBL_dly   ( LHBL_dly  ),
-    .LVBL_dly   ( LVBL_dly  ),
     .preLBL     (           ),
     .rgb_in     ( pxl       ),
     .rgb_out    ({red,green,blue})

@@ -36,10 +36,10 @@ module jttrojan_colmix #(
     input [7:0]      scr_pxl,
     input [6:0]      scr2_pxl,
     input [6:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    input            preLVBL,
+    input            preLHBL,
+    output           LHBL,
+    output           LVBL,
     // CPU inteface
     input      [9:0] AB,
     input            blue_cs,
@@ -152,10 +152,10 @@ wire [11:0] pal_out = {pal_red, pal_green, pal_blue};
 jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),
     .rgb_in     ( pal_out             ),
     .rgb_out    ( {red, green, blue } ),
     // unused:

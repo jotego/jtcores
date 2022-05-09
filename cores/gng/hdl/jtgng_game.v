@@ -29,8 +29,6 @@ module jtgng_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -95,6 +93,7 @@ wire [7:0] cpu_dout, char_dout, scr_dout;
 wire rd, cpu_cen;
 wire char_busy, scr_busy;
 wire block_flash;
+wire preLHBL, preLVBL;
 
 // ROM data
 wire [15:0] char_data;
@@ -150,9 +149,9 @@ jtgng_timer u_timer(
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
     .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
     .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
@@ -342,12 +341,12 @@ jtgng_video #(.GNGPAL(1)) u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     // Color Mix
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
     .gfx_en     ( gfx_en        ),
     // Palette RAM
     .blue_cs    ( blue_cs       ),

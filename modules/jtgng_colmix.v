@@ -33,10 +33,10 @@ module jtgng_colmix(
     input [5:0]      char_pxl,        // character color code
     input [6:0]      scr_pxl,
     input [5:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output  reg      LHBL_dly,
-    output  reg      LVBL_dly,
+    input            preLHBL,
+    input            preLVBL,
+    output  reg      LHBL,
+    output  reg      LVBL,
     // Palette PROMs and object priority
     input [7:0]      prog_addr,
     input            prom_red_we,
@@ -104,11 +104,11 @@ wire [1:0] pre_BL;
 jtframe_sh #(.width(2),.stages(5)) u_hb_dly(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}     ),
+    .din    ( {preLHBL, preLVBL } ),
     .drop   ( pre_BL   )
 );
 
-always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
+always @(posedge clk) if(cen6) {LHBL, LVBL} <= pre_BL;
 
 wire [3:0] pal_red, pal_green, pal_blue;
 

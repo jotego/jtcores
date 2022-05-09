@@ -32,10 +32,10 @@ module jtsf_colmix #(
     input [7:0]      scr1_pxl,
     input [7:0]      scr2_pxl,
     input [7:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    input            preLVBL,
+    input            preLHBL,
+    output           LHBL,
+    output           LVBL,
     // CPU inteface
     input [10:1]     AB,
     input            col_uw,
@@ -111,10 +111,10 @@ jtframe_dual_ram16 #(.aw(10)) u_pal (
 jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),
     .preLBL     ( preLBL              ),
     .rgb_in     ( pal_rgb             ),
     .rgb_out    ( {red, green, blue } )

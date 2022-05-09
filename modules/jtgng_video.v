@@ -78,12 +78,12 @@ parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
+    input               preLHBL,
+    input               preLVBL,
     input               LVBL_obj,
-    input               LHBL,
     input               LHBL_obj,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
     // Palette PROMs
     input       [7:0]   prog_addr,
     input               prom_red_we,
@@ -248,10 +248,10 @@ jtgng_colmix #(
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( {scrwin, scr_pal, scr_col} ),
     .obj_pxl      ( obj_pxl       ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
 
     // PROMs
     .prog_addr    ( prog_addr     ),

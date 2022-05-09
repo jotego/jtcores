@@ -26,8 +26,8 @@ module jtrumble_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    output          LHBL,
+    output          LVBL,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -127,7 +127,6 @@ wire        prom_prior_we;
 
 wire        vmid, cen24_8, cen24_4, cen24_2;
 wire        sres_b, flip;
-wire        LVBL, LHBL;
 wire        bus_ack, bus_req, blcnten;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
@@ -317,8 +316,6 @@ u_video(
     .vmid       ( vmid          ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
     .HS         ( HS            ),
     .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),

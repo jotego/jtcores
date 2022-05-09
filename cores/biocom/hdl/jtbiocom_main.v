@@ -177,10 +177,13 @@ end
 always @(*) begin
     rom_cs        = 1'b0;
     BERRn         = 1'b1;
-    if( CPUbus ) case(A[19:18])
+    if( CPUbus ) begin
+        case(A[19:18])
             2'd0: rom_cs = 1'b1;
             2'd1, 2'd2: BERRn = ASn;
+            default:;
         endcase
+    end
 end
 
 // SCROLL H/V POSITION
@@ -367,8 +370,8 @@ end
 
 wire DTACKn;
 
-localparam [4:0] DIV_NUM= GAME==0 ? 1 :  5;
-localparam [4:0] DIV_DEN= GAME==0 ? 4 : 24;
+localparam [4:0] DIV_NUM= GAME==0 ? 5'd1 : 5'd5;
+localparam [4:0] DIV_DEN= GAME==0 ? 5'd4 : 5'd24;
 
 jtframe_68kdtack u_dtack( // cen = 12 or 10 MHz
     .rst        ( rst        ),

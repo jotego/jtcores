@@ -28,8 +28,8 @@ module jttora_video(
     input               cen6,
     input               cpu_cen,
     input       [13:1]  cpu_AB,
-    input       [ 8:0]  V,
-    input       [ 8:0]  H,
+    output      [ 8:0]  V,
+    output      [ 8:0]  H,
     input               RnW,
     input               UDSWn,
     input               LDSWn,
@@ -54,7 +54,6 @@ module jttora_video(
     input               map_ok,
     output              map_cs,
     // OBJ
-    input               HINIT,
     output      [13:1]  obj_AB,
     input       [11:0]  oram_dout,   // only 12 bits are read
     input               OKOUT,
@@ -65,12 +64,10 @@ module jttora_video(
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
-    input               LVBL_obj,
-    input               LHBL,
-    input               LHBL_obj,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LVBL,
+    output              LHBL,
+    output              HS,
+    output              VS,
     input               col_uw,
     input               col_lw,
     input       [3:0]   gfx_en,
@@ -89,6 +86,23 @@ localparam LAYOUT = 3;
 wire [5:0] char_pxl;
 wire [7:0] obj_pxl;
 wire [8:0] scr_pxl;
+
+wire LHBL_obj, LVBL_obj, preLHBL, preLVBL, HINIT;
+
+jtgng_timer u_timer(
+    .clk       ( clk      ),
+    .cen6      ( cen6     ),
+    .V         ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .LHBL_obj  ( LHBL_obj ),
+    .LVBL_obj  ( LVBL_obj ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          )
+);
 
 jtgng_char #(
     .HOFFSET(      0 ),
@@ -137,7 +151,7 @@ u_scroll (
     .cen6         ( cen6           ),
     .V128         ( V              ),
     .H            ( H              ),
-    .LHBL         ( LHBL           ),
+    .LHBL         ( preLHBL        ),
     .SCxON        ( 1'b1           ),
     .hpos         ( scrposh        ),
     .vpos         ( scrposv        ),
@@ -226,10 +240,10 @@ jttora_colmix u_colmix (
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
-    .LVBL         ( LVBL          ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
+    .LVBL         ( LVBL          ),
 
     // PROMs
     .prog_addr    ( prog_addr     ),

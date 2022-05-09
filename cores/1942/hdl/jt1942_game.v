@@ -27,8 +27,6 @@ module jt1942_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -85,7 +83,6 @@ parameter CLK_SPEED=48;
 
 wire [8:0] V;
 wire [8:0] H;
-wire HINIT;
 
 wire [12:0] cpu_AB;
 wire char_cs;
@@ -103,12 +100,9 @@ assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
 assign sample=1'b1;
-
-wire LHBL_obj, Hsub;
-
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 `ifndef VULGUS
-assign dip_flip = ~flip;
+    assign dip_flip = ~flip;
 `endif
 
 jtframe_cen48 u_cen(
@@ -117,20 +111,6 @@ jtframe_cen48 u_cen(
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    )
-);
-
-jtgng_timer u_timer(
-    .clk       ( clk      ),
-    .cen6      ( cen6     ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
 );
 
 wire wr_n, rd_n;
@@ -330,16 +310,14 @@ jt1942_video u_video(
     .scr_ok     ( scr_ok        ),
     // OBJ
     .obj_cs     ( obj_cs        ),
-    .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_ok     ( obj_ok        ),
     // Color Mix
     .LHBL       ( LHBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),

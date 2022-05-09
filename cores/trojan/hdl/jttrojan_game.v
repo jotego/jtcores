@@ -26,8 +26,6 @@ module jttrojan_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -137,23 +135,6 @@ jtframe_cen48 u_cen(
     .cen3b  (           ),
     .cen3qb (           ),
     .cen1p5b(           )
-);
-
-wire LHBL_obj, LVBL_obj;
-
-jtgng_timer #(.LAYOUT(6)) u_timer(
-    .clk       ( clk      ),
-    .cen6      ( cen6     ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
-    .LVBL_obj  ( LVBL_obj ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
 );
 
 wire RnW;
@@ -369,7 +350,6 @@ u_video(
     .map2_cs    ( map_cs        ),
     .map2_ok    ( map_ok        ),
     // OBJ
-    .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
@@ -386,10 +366,8 @@ u_video(
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
-    .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

@@ -27,8 +27,8 @@ module jttora_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    output          LHBL,
+    output          LVBL,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -78,8 +78,6 @@ parameter CLK_SPEED=48;
 
 wire [ 8:0] V;
 wire [ 8:0] H;
-wire        HINIT;
-wire        LHBL, LVBL;
 
 wire [13:1] cpu_AB;
 wire        snd_cs, snd2_cs;
@@ -182,23 +180,6 @@ jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
 jtframe_cenp384 #(.CLK24(1)) u_cenp384(
     .clk      ( clk24     ),
     .cen_p384 ( cenp384   )
-);
-
-wire LHBL_obj, LVBL_obj;
-
-jtgng_timer u_timer(
-    .clk       ( clk      ),
-    .cen6      ( pxl_cen  ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
-    .LVBL_obj  ( LVBL_obj ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
 );
 
 wire RnW;
@@ -416,6 +397,9 @@ assign snd2_addr = 15'd0;
 assign snd_cs    = 1'b0;
 assign snd2_cs   = 1'b0;
 assign snd       = 16'b0;
+assign debug_view= 0;
+assign game_led  = 0;
+assign sample    = 0;
 `endif
 
 `ifndef NOVIDEO
@@ -452,7 +436,6 @@ jttora_video u_video(
     .scrposv    ( scrposv       ),
     .scr_ok     ( scr_ok        ),
     // OBJ
-    .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .oram_dout  ( oram_dout[11:0] ),
     .obj_addr   ( obj_addr      ),
@@ -465,16 +448,14 @@ jttora_video u_video(
     .col_lw     ( col_lw        ),
     .obj_ok     ( obj_ok        ),
     // PROMs
-    .prog_addr    ( prog_addr[7:0]),
-    .prom_prio_we ( prom_we[0]    ),
-    .prom_din     ( prog_data[3:0]),
+    .prog_addr   ( prog_addr[7:0]),
+    .prom_prio_we( prom_we[0]    ),
+    .prom_din    ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
-    .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

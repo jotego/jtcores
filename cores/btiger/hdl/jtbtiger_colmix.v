@@ -30,10 +30,10 @@ module jtbtiger_colmix(
     input [6:0]      char_pxl,        // character color code
     input [7:0]      scr_pxl,
     input [6:0]      obj_pxl,
-    input            LVBL,
-    input            LHBL,
-    output           LHBL_dly,
-    output           LVBL_dly,
+    input            preLVBL,
+    input            preLHBL,
+    output           LHBL,
+    output           LVBL,
 
     // CPU inteface
     input [9:0]      AB,
@@ -140,10 +140,10 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
 jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( cen6                ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),    
     .rgb_in     ( {pal_red, pal_green, pal_blue} ),
     .rgb_out    ( {red, green, blue } )
 );

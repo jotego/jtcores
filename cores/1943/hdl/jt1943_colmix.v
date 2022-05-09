@@ -37,10 +37,10 @@ module jt1943_colmix(
     input           prom_prior_we,
     input [3:0]     prom_din,
 
-    input           LVBL,
-    input           LHBL,
-    output  reg     LHBL_dly,
-    output  reg     LVBL_dly,
+    input           preLVBL,
+    input           preLHBL,
+    output  reg     LHBL,
+    output  reg     LVBL,
 
     output reg [3:0] red,
     output reg [3:0] green,
@@ -109,11 +109,11 @@ wire [1:0] pre_BL;
 jtframe_sh #(.width(2),.stages(BLANK_OFFSET-1)) u_hb_dly(
     .clk    ( clk      ),
     .clk_en ( cen6     ),
-    .din    ( {LHBL, LVBL}     ),
+    .din    ( {preLHBL, preLVBL} ),
     .drop   ( pre_BL   )
 );
 
-always @(posedge clk) if(cen6) {LHBL_dly, LVBL_dly} <= pre_BL;
+always @(posedge clk) if(cen6) {LHBL, LVBL} <= pre_BL;
 
 // palette ROM
 wire [3:0] pal_red, pal_green, pal_blue;

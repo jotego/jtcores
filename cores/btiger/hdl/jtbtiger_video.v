@@ -64,12 +64,12 @@ module jtbtiger_video(
     input               obj_ok,
     input               OBJON,
     // Color Mix
-    input               LVBL,
+    input               preLHBL,
+    input               preLVBL,
     input               LVBL_obj,
-    input               LHBL,
     input               LHBL_obj,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
     // Palette PROMs
     input       [7:0]   prog_addr,
     input               prom_prior_we,
@@ -228,10 +228,10 @@ jtbtiger_colmix u_colmix (
     .char_pxl     ( char_pxl      ),
     .scr_pxl      ( scr_pxl       ),
     .obj_pxl      ( obj_pxl       ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
 
     // Priority PROM
     .prog_addr    ( prog_addr     ),

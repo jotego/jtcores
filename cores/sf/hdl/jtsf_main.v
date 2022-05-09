@@ -120,7 +120,7 @@ wire        clk_obj, objram_ldw, objram_udw;
 reg         BERRn;
 wire [ 8:0] Aobj, obj_subAB;
 wire        mcu_master, reg_cen;
-reg         dsn_dly;
+reg  [ 1:0] dsn_dly;
 
 // obj RAM is split so only the 1kB used inside the 8kB is in BRAM
 // potentially, there could be a problem if tryng to access 16 bits

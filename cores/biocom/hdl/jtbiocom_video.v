@@ -67,12 +67,12 @@ module jtbiocom_video(
     input       [15:0]  obj_data,
     input               obj_ok,
     // Color Mix
-    input               LVBL,
+    input               preLHBL,
+    input               preLVBL,
     input               LVBL_obj,
-    input               LHBL,
     input               LHBL_obj,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
     input               col_uw,
     input               col_lw,
     input       [3:0]   gfx_en,
@@ -292,8 +292,8 @@ jtbiocom_colmix u_colmix (
     .obj_pxl      ( obj_pxl       ),
     .LVBL         ( LVBL          ),
     .LHBL         ( LHBL          ),
-    .LHBL_dly     ( LHBL_dly      ),
-    .LVBL_dly     ( LVBL_dly      ),
+    .preLHBL      ( preLHBL       ),
+    .preLVBL      ( preLVBL       ),
 
     // PROMs
     .prog_addr    ( prog_addr     ),

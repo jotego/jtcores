@@ -27,8 +27,8 @@ module jtbiocom_game(
     output   [4:0]  red,
     output   [4:0]  green,
     output   [4:0]  blue,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    output          LHBL,
+    output          LVBL,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -126,7 +126,8 @@ wire [16:0] scr1_addr;
 wire [14:0] scr2_addr;
 wire [16:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        LHBL, LVBL;
+wire        preLHBL, preLVBL,
+            LHBL_obj, LVBL_obj;
 
 wire        main_ok, snd_ok, obj_ok, obj_ok0;
 wire        scr1_ok, scr2_ok, char_ok;
@@ -184,17 +185,15 @@ jtframe_cen24 u_cen24(
 
 assign clk_mcu = clk24;
 
-wire LHBL_obj, LVBL_obj;
-
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( pxl_cen  ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
+    .LHBL      ( preLHBL  ),
     .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
+    .LVBL      ( preLVBL  ),
     .LVBL_obj  ( LVBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
@@ -488,12 +487,12 @@ jtbiocom_video #(
     .prom_prio_we ( prom_prio_we  ),
     .prom_din     ( prog_data[3:0]),
     // Color Mix
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
     .LHBL_obj   ( LHBL_obj      ),
     .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .LHBL       ( LHBL          ),
+    .LVBL       ( LVBL          ),
     .gfx_en     ( gfx_en        ),
     // Pixel Output
     .red        ( red           ),

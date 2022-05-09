@@ -24,8 +24,8 @@ module jthige_game(
     output   [3:0]  red,
     output   [3:0]  green,
     output   [3:0]  blue,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    output          LHBL,
+    output          LVBL,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -78,7 +78,6 @@ assign dwnld_busy = downloading;
 
 wire [ 8:0] V;
 wire [ 8:0] H;
-wire        HINIT;
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout;
@@ -86,14 +85,11 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire        char_cs, flip, cpu_cen;
 wire        main_ok, char_ok, obj_ok;
 wire        cen12, cen6, cen3, cen1p5;
-wire        LHBL, LVBL;
+wire        preLHBL, preLVBL;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 assign game_led = 0;
-
-wire LHBL_obj, Hsub;
-
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
 
@@ -137,21 +133,6 @@ jtframe_cen48 u_cen(
     .cen3b  (           ),
     .cen3qb (           ),
     .cen1p5b(           )
-);
-
-jtgng_timer u_timer(
-    .clk       ( clk      ),
-    .cen6      ( cen6     ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL      ( LVBL     ),
-    .LVBL_obj  (          ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
 );
 
 jtframe_dwnld #(.PROM_START( PROM_START )) u_dwnld(
@@ -251,16 +232,14 @@ jthige_video u_video(
     .char_busy  ( char_busy     ),
     // OBJ
     .obj_cs     ( obj_cs        ),
-    .HINIT      ( HINIT         ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
     .obj_ok     ( obj_ok        ),
     // Color Mix
     .LHBL       ( LHBL          ),
-    .LHBL_obj   ( LHBL_obj      ),
     .LVBL       ( LVBL          ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .red        ( red[3:1]      ),
     .green      ( green[3:1]    ),
     .blue       ( blue[3:1]     ),

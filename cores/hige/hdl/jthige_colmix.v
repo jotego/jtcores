@@ -28,10 +28,10 @@ module jthige_colmix(
     input           prom_pal_we,
     input   [7:0]   prom_din,
 
-    input           LVBL,
-    input           LHBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
+    input           preLVBL,
+    input           preLHBL,
+    output          LHBL,
+    output          LVBL,
 
     output     [2:0] red,
     output     [2:0] green,
@@ -60,10 +60,10 @@ wire [ 8:0] pal_rgb;
 jtframe_blank #(.DLY(BLANK_DLY),.DW(9)) u_dly(
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
+    .preLHBL    ( preLHBL             ),
+    .preLVBL    ( preLVBL             ),
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
-    .LHBL_dly   ( LHBL_dly            ),
-    .LVBL_dly   ( LVBL_dly            ),
     .preLBL     (                     ),
     .rgb_in     ( pal_rgb             ),
     .rgb_out    ( {red, green, blue } )

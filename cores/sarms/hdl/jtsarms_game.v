@@ -26,8 +26,6 @@ module jtsarms_game(
     output   [3:0]  blue,
     output          LHBL,
     output          LVBL,
-    output          LHBL_dly,
-    output          LVBL_dly,
     output          HS,
     output          VS,
     // cabinet I/O
@@ -80,7 +78,6 @@ assign dwnld_busy = downloading;
 
 wire [8:0] V;
 wire [8:0] H;
-wire       HINIT;
 
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout, scr_dout;
@@ -143,44 +140,6 @@ jtframe_cen48 u_cen(
     .cen3qb (           ),
     .cen1p5b(           )
 );
-
-wire LVBL_obj;
-
-// Frame rate and blanking as the original
-// Sync pulses slightly adjusted
-jtframe_vtimer #(
-    .HB_START ( 9'h1CF ),
-    .HB_END   ( 9'h04F ),
-    .HCNT_END ( 9'h1FF ),
-    .VB_START ( 9'hF0  ),
-    .VB_END   ( 9'h10  ),
-    .VCNT_END ( 9'hFF  ),
-    //.VS_START ( 9'h0   ),
-    .VS_START ( 9'hF5   ),
-    //.VS_END   ( 9'h8   ),
-    .HS_START ( 9'h1F2 ),
-    .HS_END   ( 9'h01A ),
-    .H_VB     ( 9'h7   ),
-    .H_VS     ( 9'h1FF ),
-    .H_VNEXT  ( 9'h1FF ),
-    .HINIT    ( 9'h20 )
-) u_timer(
-    .clk       ( clk      ),
-    .pxl_cen   ( pxl_cen  ),
-    .vdump     ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( LHBL     ),
-    .LVBL      ( LVBL     ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          ),
-    // unused
-    .vrender   (          ),
-    .vrender1  (          )
-);
-
-assign LVBL_obj = LVBL;
 
 wire rd_n, wr_n;
 // sound
@@ -393,8 +352,6 @@ u_video(
     .star_fix_n ( star_fix_n    ),
     .STARON     ( STARON        ),
     // OBJ
-    .HINIT      ( HINIT
-      ),
     .obj_AB     ( obj_AB        ),
     .main_ram   ( main_ram      ),
     .obj_addr   ( obj_addr      ),
@@ -412,9 +369,8 @@ u_video(
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
-    .LVBL_obj   ( LVBL_obj      ),
-    .LHBL_dly   ( LHBL_dly      ),
-    .LVBL_dly   ( LVBL_dly      ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     ),
     // Pixel Output
