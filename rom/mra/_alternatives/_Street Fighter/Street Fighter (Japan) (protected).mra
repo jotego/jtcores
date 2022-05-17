@@ -5,7 +5,7 @@
               This work is not mantained by the MiSTer project. Please contact the
               core author for issues and updates.
 
-              (c) Jose Tejada, 2021. Please support the author
+              (c) Jose Tejada, 2022. Please support the author
               Patreon: https://patreon.com/topapate
               Paypal:  https://paypal.me/topapate
 
@@ -24,16 +24,18 @@
     <name>Street Fighter (Japan) (protected)</name>
     <setname>sfj</setname>
     <rbf>jtsf</rbf>
-    <mameversion>0229</mameversion>
+    <mameversion>0234</mameversion>
     <year>1987</year>
     <manufacturer>Capcom</manufacturer>
     <players>2</players>
     <joystick>8-way</joystick>
     <rotation>horizontal</rotation>
-    <region>Japan</region>
-    <mameversion>229</mameversion>
-    <category>Beat &apos;em up</category>
-    <rom index="0" zip="sfj.zip|sf.zip" type="merged" md5="None">
+    <region>World</region>
+    <platform>Capcom M68000</platform>
+    <category>Fighting</category>
+    <catver>Fighter / Versus</catver>
+    <mraauthor>jotego,atrac17</mraauthor>
+    <rom index="0" zip="sfj.zip|sf.zip" md5="None">
         <!-- maincpu - starts at 0x0 -->
         <interleave output="16">
             <part name="sf-19.2a" crc="116027d7" map="01"/>
@@ -58,7 +60,7 @@
         <interleave output="16">
             <part name="sf-01.1k" crc="86e0f0d5" map="12"/>
         </interleave>
-        <!-- maps - starts at 0xA8000 -->
+        <!-- tilerom - starts at 0xA8000 -->
         <interleave output="16">
             <part name="sf-33.4g" crc="3e99d3d5" map="01"/>
             <part name="sf-32.3g" crc="72df2bd9" map="10"/>
@@ -67,9 +69,9 @@
             <part name="sf-36.3h" crc="ea16df6c" map="01"/>
             <part name="sf-37.4h" crc="23d09d3d" map="10"/>
         </interleave>
-        <!-- char - starts at 0xE8000 -->
+        <!-- gfx4 - starts at 0xE8000 -->
         <part name="sf-27.4d" crc="2b09b36d"/>
-        <!-- scr1 - starts at 0xEC000 -->
+        <!-- gfx2 - starts at 0xEC000 -->
         <interleave output="16">
             <part name="sf-26.2d" crc="54ede9f5" map="01"/>
             <part name="sf-25.1d" crc="7f23042e" map="10"/>
@@ -86,7 +88,7 @@
             <part name="sf-35.2h" crc="70c00fb4" map="01"/>
             <part name="sf-34.1h" crc="96b6ae2e" map="10"/>
         </interleave>
-        <!-- scr2 - starts at 0x1EC000 -->
+        <!-- gfx1 - starts at 0x1EC000 -->
         <interleave output="16">
             <part name="sf-41.4k" crc="e0280495" map="01"/>
             <part name="sf-39.2k" crc="cee3d292" map="10"/>
@@ -95,7 +97,7 @@
             <part name="sf-40.3k" crc="c70b30de" map="01"/>
             <part name="sf-38.1k" crc="2ea99676" map="10"/>
         </interleave>
-        <!-- obj - starts at 0x26C000 -->
+        <!-- gfx3 - starts at 0x26C000 -->
         <interleave output="16">
             <part name="sf-17.3m" crc="69fac48e" map="01"/>
             <part name="sf-15.1m" crc="fc0113db" map="10"/>
@@ -124,14 +126,14 @@
             <part name="sf-05.3f" crc="538c7cbe" map="01"/>
             <part name="sf-03.1f" crc="5ca05781" map="10"/>
         </interleave>
-        <!-- mcu - starts at 0x42C000 -->
+        <!-- protcpu - starts at 0x42C000 -->
         <part name="sf_s.id8751h-8.14f" crc="6588891f"/>
         <!-- Total 0x42D000 bytes - 4276 kBytes -->
     </rom>
     <rom index="1">
         <part>00</part>
     </rom>
-    <switches base="8" default="FF,FF,FF">
+    <switches page_id="1" page_name="Switches" base="16" default="FF,FF">
         <!-- DSW1 -->
         <dip name="Coin A" bits="0,2" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
         <dip name="Coin B" bits="3,5" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
@@ -141,11 +143,11 @@
         <dip name="Demo Sounds" bits="13" ids="On,Off"/>
         <dip name="Service Mode" bits="15" ids="On,Off"/>
         <!-- DSW2 -->
-        <dip name="Game Continuation" bits="16,18" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
-        <dip name="Time" bits="19,20" ids="250,200,150,100"/>
+        <dip name="Game Continuation" bits="16,18" ids="None,1st Stage Maximum,2nd Stage Maximum,3rd Stage Maximum,4th Stage Maximum,5th Stage Maximum"/>
+        <dip name="Round Time Count" bits="19,20" ids="250,200,150,100"/>
         <dip name="Difficulty" bits="21,22" ids="Very Difficult,Difficult,Easy,Normal"/>
-        <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Max,2nd Stage Max,3rd Stage Max,4th Stage Max,5th Stage Max"/>
-        <dip name="Countries" bits="26" ids="4,2"/>
+        <dip name="Buy-In Feature" bits="23,25" ids="None,1st Stage Maximum,2nd Stage Maximum,3rd Stage Maximum,4th Stage Maximum,5th Stage Maximum"/>
+        <dip name="Number of Countries Selected" bits="26" ids="4,2"/>
     </switches>
-    <buttons names="Punch1,Punch2,Punch3,Kick1,Kick2,Kick3,Start,Coin,Core credits" default="Y,X,B,A,L,R,Select,Start,-" count="6"/>
+    <buttons names="Light Punch,Middle Punch,Heavy Punch,Light Kick,Middle Kick,Heavy Kick,Start,Coin,Core credits" default="Y,X,B,A,L,R,Select,Start,-" count="6"/>
 </misterromdescription>
