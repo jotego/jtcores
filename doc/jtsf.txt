@@ -22,16 +22,16 @@ here as in the original hardware.
 GAME VERSIONS
 =============
 
-Short name | Variation | MCU    |  Pneumatic buttons
------------|-----------|--------|----------
-sf         | US set 1  |        |
-sfua       | US set 2  | Yes    |
-sfj        | Japan     | Yes    |
-sfjan      | Japan     |        | Yes
-sfjbl      | Japan     | Yes    |
-sfan       | World     |        | Yes
-sfp        |           |        |
-sfw        | World     | Yes    |
+Short name | Variation | MCU    |  Pneumatic buttons  | Input style
+-----------|-----------|--------|---------------------|------------
+sf         | US set 1  |        |                     |
+sfua       | US set 2  | Yes    |                     | sfjp
+sfj        | Japan     | Yes    |                     | sfjp
+sfjan      | Japan     |        | Yes                 |
+sfjbl      | Japan     | Yes    |                     | sfjp
+sfan       | World     |        | Yes                 |
+sfp        |           |        |                     |
+sfw        | World     | Yes    |                     | sfw
 
 HARDWARE DIFFERENCES
 ====================

@@ -179,6 +179,7 @@ wire        main_ok, ram_ok,  map1_ok, map2_ok, scr1_ok, scr2_ok,
 
 reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
 reg vrom_cs;
+reg game_id=0; // 1 for SFJ style inputs
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
@@ -245,6 +246,12 @@ assign prog_addr = (prog_ba == 2'd3 && prog_addr>=OBJ_OFFSET && ioctl_addr[22:1]
     { pre_prog[21:6],pre_prog[4:1],pre_prog[5],pre_prog[0]} :
     pre_prog;
 
+// This distinguishes the games using SFJ-style input from the rest
+always @(posedge clk) begin
+    if( ioctl_addr==25'h19910 && ioctl_wr )
+        game_id <= ioctl_dout==6;
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         mcu_en   <= 0;
@@ -293,6 +300,7 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     .rst        ( main_rst      ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
+    .game_id    ( game_id       ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),

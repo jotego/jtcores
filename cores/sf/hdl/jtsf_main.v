@@ -65,6 +65,7 @@ module jtsf_main #(
     input       [ 1:0] start_button,
     input       [ 1:0] coin_input,
     input              service,
+    input              game_id,
     // BUS sharing
     output      [13:1] cpu_AB,
     output      [15:0] dmaout,
@@ -317,7 +318,7 @@ always @(posedge clk) begin
                 joystick1[BUT6], // 2
                 coin_input       // 1-0
             };
-        3'd1: cabinet_input <= { // IN1 in MAME
+        3'd1: cabinet_input <= game_id==0 ? { // IN1 in MAME
             joystick2[BUT5],
             joystick2[BUT4],
             joystick2[BUT2],
@@ -328,6 +329,29 @@ always @(posedge clk) begin
             joystick1[BUT2],
             joystick1[BUT1],
             joystick1[3:0]
+        } : {
+            1'b1,
+            joystick1[BUT6],
+            joystick1[BUT5],
+            joystick1[BUT4],
+            1'b1,
+            joystick1[BUT3],
+            joystick1[BUT2],
+            joystick1[BUT1],
+            4'b1111,
+            joystick1[3:0]
+        };
+        3'd2: cabinet_input <= game_id==0 ? 16'hffff : { // IN2 in MAME
+            1'b1,
+            joystick2[BUT6],
+            joystick2[BUT5],
+            joystick2[BUT4],
+            1'b1,
+            joystick2[BUT3],
+            joystick2[BUT2],
+            joystick2[BUT1],
+            4'b1111,
+            joystick2[3:0]
         };
         3'd4: cabinet_input <= dipsw_b;
         3'd5: cabinet_input <= dipsw_a;
