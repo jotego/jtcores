@@ -19,9 +19,7 @@ jtframe:
       - jtframe_cen48.v
   - from: cpu
     get:
-      - jtframe_z80wait.v
-      - jtframe_z80.v
-      - t80/T80.qip
+      - jtframe_z80.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v
