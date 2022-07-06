@@ -42,4 +42,4 @@ jobs:
       - name: Get YAML package
         run: go get gopkg.in/yaml.v2
       - name: compile for sidi
-        run: /docked_build.sh gunsmoke -sidi  -rename gun 
+        run: /docked_build.sh gunsmoke -sidi  -rename jtgun 

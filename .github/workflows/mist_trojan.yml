@@ -7,6 +7,7 @@ on:
       - build
       - mist
       - build_trojan
+      - master
 
   workflow_dispatch:
 

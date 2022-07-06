@@ -7,6 +7,7 @@ on:
       - build
       - mist
       - build_sf
+      - master
 
   workflow_dispatch:
 

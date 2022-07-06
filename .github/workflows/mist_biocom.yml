@@ -7,6 +7,7 @@ on:
       - build
       - mist
       - build_biocom
+      - master
 
   workflow_dispatch:
 

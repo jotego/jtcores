@@ -7,6 +7,7 @@ on:
       - build
       - mist
       - build_gunsmoke
+      - master
 
   workflow_dispatch:
 
@@ -42,4 +43,4 @@ jobs:
       - name: Get YAML package
         run: go get gopkg.in/yaml.v2
       - name: compile for mist
-        run: /docked_build.sh gunsmoke -mist  -rename gun 
+        run: /docked_build.sh gunsmoke -mist  -rename jtgun 

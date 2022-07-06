@@ -7,6 +7,7 @@ on:
       - build
       - mist
       - build_1943
+      - master
 
   workflow_dispatch:
 
