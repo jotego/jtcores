@@ -15,6 +15,7 @@ jtframe:
     get:
       - jtframe_cen48.v
       - jtframe_cen24.v
+      - jtframe_frac_cen.v
   - from: cpu
     get:
       - jtframe_z80.yaml
@@ -45,4 +46,3 @@ modules:
       - jt12/hdl/jt12_rst.v
       - jt12/jt49/hdl/jt49.qip
       - jtgng_obj32.v
-      - jtgng_avatar_pal.v
