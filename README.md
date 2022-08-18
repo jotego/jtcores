@@ -1,7 +1,7 @@
 # JT_GNG FPGA Clone of Early CAPCOM Arcade Games by Jose Tejada (@topapate)
 
 You can show your appreciation through
-* Patreon: https://patreon.com/topapate
+* Patreon: https://patreon.com/jotego
 * Paypal: https://paypal.me/topapate
 * Github: https://github.com/sponsors/jotego
 
