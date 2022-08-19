@@ -16,7 +16,7 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-      - 8051/mc8051.qip
+      - 8051/mc8051.yaml
   - from: video
     get:
       - jtframe_blank.v
