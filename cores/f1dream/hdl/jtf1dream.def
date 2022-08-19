@@ -1,6 +1,5 @@
 include ../../tora/hdl/common.def
 
-[all]
 CORENAME=JTF1DRM
 GAMETOP=jttora_game
 F1DREAM
