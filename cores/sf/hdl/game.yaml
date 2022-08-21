@@ -53,5 +53,4 @@ modules:
       - jtgng_video.yaml
       - jtgng_dual_ram.v
       - jt12/hdl/jt12_rst.v
-      - jt12/jt49/hdl/jt49.qip
       - jtgng_obj32.v

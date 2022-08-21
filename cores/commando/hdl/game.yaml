@@ -27,7 +27,3 @@ modules:
       - jt12/hdl/jt12_rst.v
       - jtgng_true_dual_ram.v
       - jtgng_dual_ram.v
-
-
-
-

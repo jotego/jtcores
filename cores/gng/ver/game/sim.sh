@@ -1,8 +1,10 @@
 #!/bin/bash
 
+eval `$JTCFGSTR -core gng -output bash`
+
 for i in ../../mist/*hex; do
     if [ ! -e $(basename "$i") ]; then
-        if [ -e "$i" ]; then ln -s "$i"; fi
+        if [ -e "$i" ]; then ln -sf "$i"; fi
     fi
 done
 
@@ -24,9 +26,5 @@ if [[ ! -e rg_ram.hex || ! -e b_ram.hex ]]; then
     done
 fi
 
-export MEM_CHECK_TIME=90_000_000
-export CONVERT_OPTIONS="-resize 300%x300%"
-export YM2203=1
-
 # Generic simulation script from JTFRAME
-$JTFRAME/bin/sim.sh $MIST -sysname gng $*
+$JTFRAME/bin/jtsim $MIST -sysname gng $*
