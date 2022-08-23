@@ -59,4 +59,5 @@ core.def
 macros.f
 jtsim.f
 jtsim_vhdl.f
-video.info
+video.info*-backups
+defmacros.h

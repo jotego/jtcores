@@ -13,3 +13,6 @@
 [submodule "modules/j12"]
 	path = modules/jt12
 	url = https://github.com/jotego/jt12
+[submodule "modules/jtkicad"]
+	path = modules/jtkicad
+	url = https://github.com/jotego/jtkicad
