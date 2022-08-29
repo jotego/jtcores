@@ -14,11 +14,6 @@ JTFRAME_CREDITS_PAGES=1
 JTFRAME_OSD_VOL
 JOIN_JOYSTICKS
 
-[mist|sidi]
-#Uses easy scan2x to save resources
-#otherwise it won't fit
-JTFRAME_WIDTH=384
-
 [sidi]
 JTFRAME_OSD_NOLOGO
 
