@@ -1,0 +1,11 @@
+include ../../tora/cfg/common.def
+
+CORENAME=JTF1DRM
+GAMETOP=jttora_game
+F1DREAM
+JTFRAME_CREDITS
+
+[sidi]
+# necessary to make it fit
+JTFRAME_OSD_NOLOGO
+

@@ -1,0 +1,11 @@
+game:
+  - from: tora
+    get:
+      - ../cfg/game.yaml
+  - from: biocom
+    get:
+      - jtbiocom_mcu.v
+jtframe:
+  - from: cpu
+    get:
+      - 8051/mc8051.yaml

@@ -56,7 +56,6 @@ wire obj_blank   = &obj_pxl[3:0];
 wire enable_obj  = gfx_en[3];
 wire preLBL;
 
-//reg  [2:0] obj_sel; // signals whether an object pixel is selected
 wire [1:0] prio;
 reg  [7:0] seladdr;
 reg  [1:0] presel;
@@ -71,12 +70,7 @@ always @(*) begin
         // will be imposed over the objects (colours 9 to 15)
 end
 
-reg       obj_sel;
-reg [3:0] obj_pxl2;
-
 always @(posedge clk) if(cen6) begin
-    obj_sel  <= prio==2'b10;
-    obj_pxl2 <= obj_pxl[3:0];
     case( prio )
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl; // 2301

@@ -1,0 +1,11 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="gng.cpp"
+
+[buttons]
+core=2 # max number of buttons supported by the core
+names=[
+    { names="Fire,Jump" }
+]

@@ -1,0 +1,48 @@
+game:
+  - from: biocom
+    get:
+      - jtbiocom_colmix.v
+      - jtbiocom_game.v
+      - jtbiocom_main.v
+      - jtbiocom_mcu.v
+      - jtbiocom_prom_we.v
+      - jtbiocom_video.v
+      - jtbiocom_sound.v
+      - jtbiocom_sdram.v
+      - jtbiocom_dwnld.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+      - 8051/mc8051.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: sound
+    get:
+      - jtframe_jt49_filters.yaml
+modules:
+  jt:
+    - name: jt51
+  other:
+    - get:
+      - jtgng_video.yaml
+      - jtgng_true_dual_ram.v
+      - jtgng_dual_ram.v
+      - jt12/hdl/jt12_rst.v
+      - jt12/jt49/hdl/jt49.yaml
+      - jtgng_obj32.v

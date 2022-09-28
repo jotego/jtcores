@@ -35,6 +35,7 @@ cores/*/zxuno/*
 cores/*/mist/*
 cores/*/sidi/*
 cores/*/mister/*
+cores/*/pocket/*
 */obj_dir/*
 .simvision
 ncverilog.*
