@@ -290,8 +290,11 @@ mc6809i u_cpu (
     .nRESET  ( nRESET  ),
     .nDMABREQ( 1'b1    ),
     // unused:
-    .RegData ( RegData )
-    //.AVMA()
+    .RegData ( RegData ),
+    .AVMA    (         ),
+    .BUSY    (         ),
+    .LIC     (         ),
+    .OP      (         )
 );
 
 `ifdef GNG_CPUDUMP
