@@ -3,6 +3,7 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="gng.cpp"
+skip.Setnames=["diamond"]
 
 [buttons]
 core=2 # max number of buttons supported by the core
