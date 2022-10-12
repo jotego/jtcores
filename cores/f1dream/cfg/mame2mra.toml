@@ -1,0 +1,13 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="tigeroad.cpp"
+skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant",
+    "tigeroad","tigeroadb","tigeroadu","toramich"]
+
+[buttons]
+core=2 # max number of buttons supported by the core
+names=[
+    { names="Low Gear,High Gear" }
+]
