@@ -1,0 +1,299 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"defaultval": 0,
+				"mask": "",
+				"options": null
+			},
+			{
+				"name": "Difficulty",
+				"id": 1,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 4,
+				"mask": "0xFFFFFFF8",
+				"options": [
+					{
+						"name": "7 (Hardest)",
+						"value": "0x0"
+					},
+					{
+						"name": "6",
+						"value": "0x1"
+					},
+					{
+						"name": "5",
+						"value": "0x2"
+					},
+					{
+						"name": "4",
+						"value": "0x3"
+					},
+					{
+						"name": "3 (Normal)",
+						"value": "0x4"
+					},
+					{
+						"name": "2",
+						"value": "0x5"
+					},
+					{
+						"name": "1",
+						"value": "0x6"
+					},
+					{
+						"name": "0 (Easiest)",
+						"value": "0x7"
+					}
+				]
+			},
+			{
+				"name": "Lives",
+				"id": 2,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFFF7",
+				"options": [
+					{
+						"name": "5",
+						"value": "0x0"
+					},
+					{
+						"name": "3",
+						"value": "0x8"
+					}
+				]
+			},
+			{
+				"name": "Bonus Life",
+				"id": 3,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"mask": "0xFFFFFFCF",
+				"options": [
+					{
+						"name": "200000 200000",
+						"value": "0x0"
+					},
+					{
+						"name": "150000 150000",
+						"value": "0x10"
+					},
+					{
+						"name": "100000 100000",
+						"value": "0x20"
+					},
+					{
+						"name": "100000",
+						"value": "0x30"
+					}
+				]
+			},
+			{
+				"name": "Flip Screen",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFFBF",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x40"
+					}
+				]
+			},
+			{
+				"name": "Service Mode",
+				"id": 5,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFF7F",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x80"
+					}
+				]
+			},
+			{
+				"name": "Coin A",
+				"id": 6,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"mask": "0xFFFFF8FF",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x100"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x200"
+					},
+					{
+						"name": "1 Coin/6 Credits",
+						"value": "0x300"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x400"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x500"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x600"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x700"
+					}
+				]
+			},
+			{
+				"name": "Coin B",
+				"id": 7,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"mask": "0xFFFFC7FF",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x800"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x1000"
+					},
+					{
+						"name": "1 Coin/6 Credits",
+						"value": "0x1800"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x2000"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x2800"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x3000"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x3800"
+					}
+				]
+			},
+			{
+				"name": "Allow Continue",
+				"id": 8,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFBFFF",
+				"options": [
+					{
+						"name": "No",
+						"value": "0x0"
+					},
+					{
+						"name": "Yes",
+						"value": "0x4000"
+					}
+				]
+			},
+			{
+				"name": "Demo Sounds",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFF7FFF",
+				"options": [
+					{
+						"name": "Off",
+						"value": "0x0"
+					},
+					{
+						"name": "On",
+						"value": "0x8000"
+					}
+				]
+			},
+			{
+				"name": "Freeze",
+				"id": 10,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFF7FFFF",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x80000"
+					}
+				]
+			}
+		],
+		"messages": []
+	}
+}

@@ -115,7 +115,6 @@ wire        cen16, cen12, cen8, cen6, cen4, cen3;
 assign pxl2_cen = cen16;
 assign pxl_cen  = cen8;
 
-assign sample=1'b1;
 assign star_fix_n = status[13];
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
@@ -294,9 +293,10 @@ jtgng_sound #(.LAYOUT(8)) u_sound (
     .debug_view     ( debug_view     )
 );
 `else
-assign snd_addr  = 15'd0;
-assign snd_cs    = 1'b0;
-assign snd       = 16'b0;
+assign snd_addr  = 0;
+assign snd_cs    = 0;
+assign snd       = 0;
+assign sample    = 0;
 `endif
 
 wire scr_ok, star_ok, map_ok, char_ok;

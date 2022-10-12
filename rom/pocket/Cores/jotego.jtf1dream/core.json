@@ -1,0 +1,36 @@
+{
+	"core":{
+		"magic": "APF_VER_1",
+		"metadata": {
+			"platform_ids": [
+				"jtf1dream"
+			],
+			"shortname": "jtf1dream",
+			"description": "Arcade hardware",
+			"author": "JOTEGO",
+			"url": "https://patreon.com/jotego",
+			"version": "noversion",
+			"date_release": "2022-10-12"
+		},
+		"framework": {
+			"target_product": "Analogue Pocket",
+			"version_required": "1.1",
+			"sleep_supported": false,
+			"dock": {
+				"supported": true,
+				"analog_output": false
+			},
+			"hardware": {
+				"link_port": false,
+				"cartridge_adapter": -1
+			}
+		},
+		"cores": [
+			{
+				"name": "jtf1dream",
+				"id": 0,
+				"filename": "JTF1DREAM.rbf_r"
+			}
+		]
+	}
+}

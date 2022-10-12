@@ -20,6 +20,7 @@
 *.f
 *.zip
 *.xml
+*.rbf_r
 hosts.*
 test.cpp
 neptuno

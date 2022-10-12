@@ -1,0 +1,22 @@
+{
+	"input":{
+		"magic": "APF_VER_1",
+		"controllers": [
+			{
+				"type": "default",
+				"mappings": [
+					{
+						"id": 0,
+						"name": "Low Gear",
+						"key": "pad_btn_a"
+					},
+					{
+						"id": 1,
+						"name": "High Gear",
+						"key": "pad_btn_b"
+					}
+				]
+			}
+		]
+	}
+}
