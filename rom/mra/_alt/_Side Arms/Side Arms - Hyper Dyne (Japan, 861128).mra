@@ -1,17 +1,17 @@
-<!--          FPGA compatible core of arcade hardware by Jotego
+<!--          FPGA arcade hardware by Jotego
 
               This core is available for hardware compatible with MiST and MiSTer
               Other FPGA systems may be supported by the time you read this.
               This work is not mantained by the MiSTer project. Please contact the
               core author for issues and updates.
 
-              (c) Jose Tejada, 2020. Please support the author
+              (c) Jose Tejada, 2022. Please support this research
               Patreon: https://patreon.com/jotego
-              Paypal:  https://paypal.me/topapate
 
               The author does not endorse or participate in illegal distribution
-              of copyrighted material. This work can be used with legally
-              obtained ROM dumps or with compatible homebrew software
+              of copyrighted material. This work can be used with compatible
+              software. This software can be homebrew projects or legally
+              obtained memory dumps of compatible games.
 
               This file license is GNU GPLv2.
               You can read the whole license file in
@@ -24,7 +24,15 @@
     <name>Side Arms - Hyper Dyne (Japan, 861128)</name>
     <setname>sidearmsj</setname>
     <rbf>jtsarms</rbf>
-    <rom index="0" zip="sidearmsj.zip|sidearms.zip" type="merged" md5="None">
+    <mameversion>0237</mameversion>
+    <year>1986</year>
+    <manufacturer>Capcom</manufacturer>
+    <players>2</players>
+    <joystick>8</joystick>
+    <rotation>horizontal</rotation>
+    <region>World</region>
+    <mraauthor>jotego</mraauthor>
+    <rom index="0" zip="sidearmsj.zip|sidearms.zip" md5="None">
         <!-- maincpu - starts at 0x0 -->
         <interleave output="16">
             <part name="a_15e.rom" crc="61ceb0cc" map="12"/>
@@ -39,7 +47,7 @@
         <interleave output="16">
             <part name="a_04k.rom" crc="34efe2d2" map="12"/>
         </interleave>
-        <!-- starfield - starts at 0x20000 -->
+        <!-- user1 - starts at 0x20000 -->
         <interleave output="16">
             <part name="b_11j.rom" crc="134dc35b" map="12"/>
         </interleave>
@@ -91,9 +99,9 @@
     <rom index="1">
         <part>00</part>
     </rom>
-    <switches base="16" default="FF,FF">
+    <switches page_id="1" page_name="Switches" base="16" default="fc,ff,0f">
         <!-- DSW0 -->
-        <dip name="Difficulty" bits="0,2" ids="7,6,5,4,3,2,1,0"/>
+        <dip name="Difficulty" bits="0,2" ids="7,6,5,4,3,2,1,0 "/>
         <dip name="Lives" bits="3" ids="5,3"/>
         <dip name="Bonus Life" bits="4,5" ids="20k0 20k0,150k 150k,10k0 10k0,10k0"/>
         <dip name="Flip Screen" bits="6" ids="On,Off"/>
@@ -103,6 +111,8 @@
         <dip name="Coin B" bits="11,13" ids="4/1,3/1,2/1,1/6,1/4,1/3,1/2,1/1"/>
         <dip name="Allow Continue" bits="14" ids="No,Yes"/>
         <dip name="Demo Sounds" bits="15" ids="Off,On"/>
+        <!-- SYSTEM -->
+        <dip name="Freeze" bits="19" ids="On,Off"/>
     </switches>
-    <buttons names="Fire-left,Fire-right,Option,Start,Coin,Pause" default="Y,X,B,R,L,Start"/>
+    <buttons names="Fire-Left,Fire-Right,Power,Start,Coin,Core credits" default="Y,X,B,Start,Select,-" count="3"/>
 </misterromdescription>

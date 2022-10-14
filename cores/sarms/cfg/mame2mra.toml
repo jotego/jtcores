@@ -20,3 +20,43 @@ core=3 # max number of buttons supported by the core
 names=[
     { names="Fire-Left,Fire-Right,Power" },
 ]
+
+[dipsw]
+bitcnt=19   # number 19 is freeze, active low
+
+[rom]
+regions=[
+    { name="maincpu", reverse=true  },
+    { name="audiocpu", reverse=true  },
+    { name="user1", reverse=true  }, # starfield
+    { name="gfx1"   },
+    # GFX2
+    { name="gfx2"  },
+    { machine="sidearms", name="gfx2", frac={parts=2, bytes=1}, Name_sort=[
+        "b_13d.rom",
+        "b_14d.rom",
+        "b_13e.rom",
+        "b_14e.rom",
+        "b_13f.rom",
+        "b_14f.rom",
+        "b_13g.rom",
+        "b_14g.rom",
+    ]  },
+    # GFX3
+    { name="gfx3" },
+    { machine="sidearms", name="gfx3", frac={parts=2, bytes=1}, Name_sort=[
+        "b_11b.rom",
+        "b_12b.rom",
+        "b_13b.rom",
+        "b_14b.rom",
+        "b_11a.rom",
+        "b_12a.rom",
+        "b_13a.rom",
+        "b_14a.rom",
+    ]  },
+    { name="gfx4"   },
+    { name="proms"   },
+]
+
+order = [ "maincpu","audiocpu", "user1",
+"gfx1", "gfx2", "gfx3", "gfx4", "proms" ]

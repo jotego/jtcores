@@ -101,23 +101,6 @@ find $OUTDIR -name "Street Fighter*.mra" -print0 | xargs -0 sed -i "s/Round Time
 if [[ $MAKELIST != all ]]; then exit 0; fi
 fi
 
-################## Side Arms
-# gfx2 = 32x32 tiles
-# gfx3 = OBJ
-if [[ $MAKELIST = all || $MAKELIST == sarms ]]; then
-set_alt "Side Arms"
-mame2dip sidearms.xml -outdir $OUTDIR -altfolder "$ALTDIR"\
-    -rbf jtsarms \
-    -frac gfx2 2 \
-    -frac gfx3 2 \
-    -rename starfield=user1 \
-    -swapbytes audiocpu maincpu starfield \
-    -rmdipsw Freeze \
-    -buttons "fire-left" "fire-right" "option"
-#    -order-roms gfx2  4 5 6 7 0 1 2 3
-if [[ $MAKELIST != all ]]; then exit 0; fi
-fi
-
 ################## Exed Exes
 # gfx3 = 16x16 tiles
 # gfx4 = OBJ
