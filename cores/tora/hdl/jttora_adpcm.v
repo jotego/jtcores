@@ -44,6 +44,7 @@ assign rom2_cs = !mreq_n && rfsh_n;
 wire [15:0] A;
 reg  [ 7:0] din;
 wire [ 7:0] dout;
+wire        sample;
 
 assign rom2_addr = A;
 
@@ -75,7 +76,9 @@ jt5205 u_adpcm(
     .sel        ( 2'b0          ),
     .din        ( pcm_data      ),
     .sound      ( snd           ),
-    .irq        ( irq_st        )
+    .irq        ( irq_st        ),
+    .sample     ( sample        ),
+    .vclk_o     (               )
 );
 
 `ifdef VERILATOR

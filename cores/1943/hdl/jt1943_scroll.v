@@ -32,7 +32,7 @@ module jt1943_scroll #( parameter
     // MAP SIZE
     MAPAW           = LAYOUT==9 ? 16 : 14, // address width
     MAPDW           = LAYOUT==9 ? 32 : 16, // data width
-    [8:0] HOFFSET   = 9'd5,
+    parameter [8:0] HOFFSET   = 9'd5,
     VPOSW           = (LAYOUT==3 || LAYOUT==8) ? 9'd16 : 9'd8  // vertical offset bit width,
 )(
     input                rst,

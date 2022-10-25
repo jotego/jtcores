@@ -75,6 +75,7 @@ always @(posedge clk) if(cen6) begin
         2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
         2'b10: pixel_mux[7:0] <= obj_pxl; // 2301
         2'b01: pixel_mux[7:0] <= scr_pxl[7:0];
+        default:;
     endcase
     pixel_mux[9:8] <= prio;
 end
