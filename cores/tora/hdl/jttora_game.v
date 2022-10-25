@@ -34,8 +34,8 @@ module jttora_game(
     // cabinet I/O
     input   [ 1:0]  start_button,
     input   [ 1:0]  coin_input,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
+    input   [ 5:0]  joystick1,
+    input   [ 5:0]  joystick2,
     // SDRAM interface
     input           downloading,
     output          dwnld_busy,
@@ -121,6 +121,7 @@ assign {dipsw_a, dipsw_b} = dipsw[15:0];
 jtframe_cen48 u_cen48(
     .clk    ( clk           ),
     .cen16  (               ),
+    .cen16b (               ),
     .cen12  ( pxl2_cen      ),
     .cen12b (               ),
     .cen8   ( video_cen8    ),
@@ -307,6 +308,8 @@ jtbiocom_main #(.GAME(1)) u_main(
     assign bus_ack     = 1'b0;
     assign flip        = 1'b0;
     assign RnW         = 1'b1;
+    assign UDSWn       = 1;
+    assign LDSWn       = 1;
     assign scrposh     = `SIM_SCR_HPOS;
     assign scrposv     = `SIM_SCR_VPOS;
     assign scr_addr[18]= `SIM_SCR_BANK;
@@ -541,7 +544,7 @@ jtframe_rom #(
     .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
-    .sdram_req   ( sdram_req     ),
+    .sdram_rd    ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
