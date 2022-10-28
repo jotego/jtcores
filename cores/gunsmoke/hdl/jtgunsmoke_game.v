@@ -479,7 +479,7 @@ jtframe_rom #(
     .slot8_dout  ( obj_data      ),
 
     // SDRAM interface
-    .sdram_req   ( sdram_req     ),
+    .sdram_rd    ( sdram_req     ),
     .sdram_ack   ( sdram_ack     ),
     .data_dst    ( data_dst      ),
     .data_rdy    ( data_rdy      ),
