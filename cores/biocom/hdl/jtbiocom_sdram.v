@@ -87,7 +87,7 @@ jtframe_rom_1slot #(
     .slot0_dout  ( main_data     ),
 
     .sdram_addr  ( ba0_addr      ),
-    .sdram_req   ( ba_rd[0]      ),
+    .sdram_rd   ( ba_rd[0]      ),
     .sdram_ack   ( ba_ack[0]     ),
     .data_dst    ( ba_dst[0]     ),
     .data_rdy    ( ba_rdy[0]     ),
@@ -108,7 +108,7 @@ jtframe_rom_1slot #(
     .slot0_dout  ( snd_data      ),
 
     .sdram_addr  ( ba1_addr      ),
-    .sdram_req   ( ba_rd[1]      ),
+    .sdram_rd   ( ba_rd[1]      ),
     .sdram_ack   ( ba_ack[1]     ),
     .data_dst    ( ba_dst[1]     ),
     .data_rdy    ( ba_rdy[1]     ),
@@ -142,7 +142,7 @@ jtframe_rom_2slots #(
     .slot1_dout  ( scr1_data     ),
 
     .sdram_addr  ( ba2_addr      ),
-    .sdram_req   ( ba_rd[2]      ),
+    .sdram_rd   ( ba_rd[2]      ),
     .sdram_ack   ( ba_ack[2]     ),
     .data_dst    ( ba_dst[2]     ),
     .data_rdy    ( ba_rdy[2]     ),
@@ -177,7 +177,7 @@ jtframe_rom_2slots #(
     .slot1_dout  ( obj_data      ),
 
     .sdram_addr  ( ba3_addr      ),
-    .sdram_req   ( ba_rd[3]      ),
+    .sdram_rd   ( ba_rd[3]      ),
     .sdram_ack   ( ba_ack[3]     ),
     .data_dst    ( ba_dst[3]     ),
     .data_rdy    ( ba_rdy[3]     ),
