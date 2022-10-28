@@ -680,7 +680,7 @@ jtframe_rom_3slots #(
     .slot2_dout  ( char_data     ),
 
     .sdram_addr  ( ba2_addr      ),
-    .sdram_req   ( ba_rd[2]      ),
+    .sdram_rd    ( ba_rd[2]      ),
     .sdram_ack   ( ba_ack[2]     ),
     .data_dst    ( ba_dst[2]     ),
     .data_rdy    ( ba_rdy[2]     ),
