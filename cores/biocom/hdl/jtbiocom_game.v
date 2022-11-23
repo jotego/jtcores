@@ -46,9 +46,15 @@ module jtbiocom_game(
     output   [21:0] ba2_addr,
     output   [21:0] ba3_addr,
     output   [15:0] ba0_din,
-    output   [ 1:0] ba0_din_m,  // write mask
+    output   [ 1:0] ba0_dsn,
+    output   [15:0] ba1_din,
+    output   [ 1:0] ba1_dsn,
+    output   [15:0] ba2_din,
+    output   [ 1:0] ba2_dsn,
+    output   [15:0] ba3_din,
+    output   [ 1:0] ba3_dsn,
     output   [ 3:0] ba_rd,
-    output          ba_wr,
+    output   [ 3:0] ba_wr,
     input    [ 3:0] ba_ack,
     input    [ 3:0] ba_dst,
     input    [ 3:0] ba_dok,
@@ -137,7 +143,15 @@ wire cen8;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign game_led = 0;
-assign ba_wr = 0;
+assign ba_wr    = 0;
+assign ba0_din  = 0;
+assign ba0_dsn  = 3;
+assign ba1_din  = 0;
+assign ba1_dsn  = 3;
+assign ba2_din  = 0;
+assign ba2_dsn  = 3;
+assign ba3_din  = 0;
+assign ba3_dsn  = 3;
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -552,8 +566,6 @@ jtbiocom_sdram u_sdram(
     .ba_ack      ( ba_ack        ),
     .ba_dst      ( ba_dst        ),
     .ba_rdy      ( ba_rdy        ),
-    .ba0_din     ( ba0_din       ),
-    .ba0_din_m   ( ba0_din_m     ),
 
     .data_read   ( data_read     )
 );

@@ -212,7 +212,7 @@ jtframe_rom_1slot #(
 
     // SDRAM controller interface
     .sdram_ack   ( ba_ack[0] ),
-    .sdram_req   ( ba_rd[0]  ),
+    .sdram_rd    ( ba_rd[0]  ),
     .sdram_addr  ( ba0_addr  ),
     .data_dst    ( ba_dst[0] ),
     .data_rdy    ( ba_rdy[0] ),
@@ -234,7 +234,7 @@ jtframe_rom_1slot #(
 
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[1] ),
-    .sdram_req  ( ba_rd[1]  ),
+    .sdram_rd   ( ba_rd[1]  ),
     .sdram_addr ( ba1_addr  ),
     .data_dst   ( ba_dst[1] ),
     .data_rdy   ( ba_rdy[1] ),
@@ -266,7 +266,7 @@ jtframe_rom_2slots #(
 
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[2] ),
-    .sdram_req  ( ba_rd[2]  ),
+    .sdram_rd   ( ba_rd[2]  ),
     .sdram_addr ( ba2_addr  ),
     .data_dst   ( ba_dst[2] ),
     .data_rdy   ( ba_rdy[2] ),
@@ -288,7 +288,7 @@ jtframe_rom_1slot #(
 
     // SDRAM controller interface
     .sdram_ack  ( ba_ack[3] ),
-    .sdram_req  ( ba_rd[3]  ),
+    .sdram_rd   ( ba_rd[3]  ),
     .sdram_addr ( ba3_addr  ),
     .data_dst   ( ba_dst[3] ),
     .data_rdy   ( ba_rdy[3] ),
