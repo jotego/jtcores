@@ -54,9 +54,15 @@ module jtsf_game(
     output   [21:0] ba2_addr,
     output   [21:0] ba3_addr,
     output   [15:0] ba0_din,
-    output   [ 1:0] ba0_din_m,  // write mask
+    output   [ 1:0] ba0_dsn,
+    output   [15:0] ba1_din,
+    output   [ 1:0] ba1_dsn,
+    output   [15:0] ba2_din,
+    output   [ 1:0] ba2_dsn,
+    output   [15:0] ba3_din,
+    output   [ 1:0] ba3_dsn,
     output   [ 3:0] ba_rd,
-    output          ba_wr,
+    output   [ 3:0] ba_wr,
     input    [ 3:0] ba_ack,
     input    [ 3:0] ba_dst,
     input    [ 3:0] ba_dok,
@@ -184,6 +190,9 @@ reg game_id=0; // 1 for SFJ style inputs
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[31:0];
 assign dwnld_busy         = downloading;
+assign ba_wr[3:1]         = 0;
+assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
+       ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
 
 always @(negedge clk24) begin
     snd_rst   <= rst24;
@@ -570,12 +579,13 @@ assign obj_br    = 1'b0;
 assign char_busy = 1'b0;
 `endif
 
-jtframe_ram_2slots #(
+jtframe_ram1_2slots #(
     .SLOT0_AW    ( RAMW          ), // Main CPU RAM
     .SLOT0_DW    ( 16            ),
 
     .SLOT1_AW    ( MAINW         ), // main ROM
     .SLOT1_DW    ( 16            ),
+    .SLOT1_OFFSET( MAIN_OFFSET   ),
     .REF_FILE    ("sdram_bank0.hex")
 ) u_bank0 (
     .rst         ( rst           ),
@@ -589,8 +599,7 @@ jtframe_ram_2slots #(
     .slot0_ok    ( ram_ok        ),
     .slot1_ok    ( main_ok       ),
 
-    .offset0     ( RAM_OFFSET    ),
-    .offset1     ( MAIN_OFFSET   ),
+    .slot0_offset( RAM_OFFSET    ),
 
     .slot0_din   ( ram_din       ),
     .slot0_wrmask( ram_dsn       ),
@@ -609,7 +618,7 @@ jtframe_ram_2slots #(
     .data_dst    ( ba_dst[0]     ),
     .data_rdy    ( ba_rdy[0]     ),
     .data_write  ( ba0_din       ),
-    .sdram_wrmask( ba0_din_m     ),
+    .sdram_wrmask( ba0_dsn     ),
     .data_read   ( data_read     )
 );
 
@@ -639,7 +648,7 @@ jtframe_rom_2slots #(
     .slot1_dout  ( snd2_data     ),
 
     .sdram_addr  ( ba1_addr      ),
-    .sdram_req   ( ba_rd[1]      ),
+    .sdram_rd    ( ba_rd[1]      ),
     .sdram_ack   ( ba_ack[1]     ),
     .data_dst    ( ba_dst[1]     ),
     .data_rdy    ( ba_rdy[1]     ),
@@ -721,7 +730,7 @@ jtframe_rom_3slots #(
     .slot2_dout  ( scr2_data     ),
 
     .sdram_addr  ( ba3_addr      ),
-    .sdram_req   ( ba_rd[3]      ),
+    .sdram_rd    ( ba_rd[3]      ),
     .sdram_ack   ( ba_ack[3]     ),
     .data_dst    ( ba_dst[3]     ),
     .data_rdy    ( ba_rdy[3]     ),
