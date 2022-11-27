@@ -6,7 +6,7 @@
 	<year>1985</year>
 	<manufacturer>Capcom</manufacturer>
 	<category>Army / Fighter</category>
-	<rbf>jtcommando</rbf>
+	<rbf>jtcommnd</rbf>
 	<rom index="0" zip="commandoj.zip" md5="c5c4e016fc69e6b5df21f169202f2d27" type="nonmerged">
 		<part name="so04.9m"/>
 		<part name="so03.8m"/>

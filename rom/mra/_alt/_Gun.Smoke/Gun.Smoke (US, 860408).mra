@@ -6,7 +6,7 @@
 	<year>1986</year>
 	<manufacturer>Capcom (Romstar license)</manufacturer>
 	<category>Adventure / Western</category>
-	<rbf>jtgunsmoke</rbf>
+	<rbf>jtgunsmk</rbf>
 	<rom index="0" zip="gunsmokeu.zip" md5="f8a2d3be6059d682867fd0137a57bd04" type="nonmerged">
 		<part name="gsa_03.9n"/>
 		<part name="gs04.10n"/>

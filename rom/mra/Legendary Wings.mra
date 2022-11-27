@@ -29,7 +29,7 @@
     <manufacturer>Capcom</manufacturer>
     <category>Shooter</category>
     <mameversion>0217</mameversion>
-    <rbf alt="jtsz">jtsectionz</rbf>
+    <rbf>jtsectnz</rbf>
     <rom index="0" zip="lwings.zip" md5="none">
         <!-- 32-byte Header -->
         <part> 01 00 00 00 00 00 00 00 </part>

@@ -6,7 +6,7 @@
 	<year>1985</year>
 	<manufacturer>Capcom (Data East USA license)</manufacturer>
 	<category>Army / Fighter</category>
-	<rbf>jtcommando</rbf>
+	<rbf>jtcommnd</rbf>
 	<rom index="0" zip="commandou2.zip" md5="b1b84583f097374a90de68f0f14d2501" type="nonmerged">
 		<part name="uc4.9m"/>
 		<part name="uc3.8m"/>

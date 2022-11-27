@@ -6,7 +6,7 @@
 	<year>1985</year>
 	<manufacturer>Twisty</manufacturer>
 	<category>Army / Fighter</category>
-	<rbf>jtcommando</rbf>
+	<rbf>jtcommnd</rbf>
 	<rom index="0" zip="/hbmame/commando.zip" md5="bca4e0cfc8d09094bbb065d285c8370e" type="merged">
 		<part name="cm04.9m"/>
 		<part name="cm03.8m"/>
