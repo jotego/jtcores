@@ -1,9 +1,9 @@
-# JT_GNG FPGA Clone of Early CAPCOM Arcade Games by Jose Tejada (@topapate)
+# JTGNG FPGA Arcade Hardware by Jose Tejada (@topapate)
 
 You can show your appreciation through
-* Patreon: https://patreon.com/jotego
-* Paypal: https://paypal.me/topapate
-* Github: https://github.com/sponsors/jotego
+* [Patreon](https://patreon.com/jotego)
+* [Paypal](https://paypal.me/topapate)
+* [Github](https://github.com/sponsors/jotego)
 
 Yes, you always wanted to have a Ghosts'n Goblins arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST(er) is here to the rescue.
 
@@ -182,32 +182,7 @@ Use `git clone --recurse-submodules` in order to get all submodules when you clo
 
 # Compilation
 
-I use linux as my development system. This means that I use many bash scripts, environment variables and symbolic links. I recommend using linux to compile the cores.
-
-## Requisites
-
-* Linux
-* Quartus 13 for MiST/SiDi compilation
-* Quartus 17 for MiSTer compilation
-* Add the path to quartus_sh to your PATH environment variable if JTCORE cannot automatically find it
-* PNG library for Python
-
-### Compilation Steps
-Go to the root directory of the repository and execute: `source set_prj.sh`
-
-That will create an alias called jtcore to directory modules/jtframe/bin/jtcore. This is a command line utility that will compile the cores. Like
-
-`jtcore gng`
-
-will compile Ghosts'n Goblins for MiST.
-
-`jtcore gng -mr`
-
-will compile it for MiSTer. And -sidi, will compile it for MiST. Support for Xilinx platforms is done by Neurorulez and is done through the GUI. Just check the files inside the cores folder for each game.
-
-Pnce compilation is triggered with jtcore, Quartus qpf and qsf files are created. This files are not part of the repository as they are considered output files, not input.
-
-There is another script called update_cores.sh that will run jtcore over all supported cores in parallel.
+Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructions.
 
 # Directory Structure
 
