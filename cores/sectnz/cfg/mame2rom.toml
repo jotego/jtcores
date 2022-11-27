@@ -1,0 +1,20 @@
+[global]
+mraauthor=["jotego"]
+
+[features]
+# beta = true
+# debug = true
+
+[parse]
+sourcefile="lwings.cpp"
+# skip = { bootlegs=true, setnames = [ "kikcubic", "kikcubicb", "buccanrs", "buccanrsa", "buccanrsb" ] }
+
+[buttons]
+core=$JTFRAME_BUTTONS
+# Names = [ { names="Punch, Kick "} ]
+
+[dipsw]
+bitcnt = 16
+delete = [ "Unused", "Unknown" ]
+
+# The MRA files for this core were not generated using the MRA tool

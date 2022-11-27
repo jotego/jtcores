@@ -1,3 +1,5 @@
+*.arc
+*.rom
 *.rbf
 *.hex
 *.lxt
