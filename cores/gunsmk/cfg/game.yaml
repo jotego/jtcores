@@ -1,5 +1,5 @@
 game:
-  - from: gunsmoke
+  - from: gunsmk
     get:
       - jtgunsmoke_game.v
       - jtgunsmoke_main.v

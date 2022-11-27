@@ -1,11 +1,11 @@
 game:
-  - from: sectionz
+  - from: sectnz
     get:
       - jtsectionz_game.v
       - jtsectionz_prom_we.v
       - jtsectionz_video.v
       - jtsectionz_colmix.v
-  - from: commando
+  - from: commnd
     get:
       - jtcommando_main.v
 jtframe:
