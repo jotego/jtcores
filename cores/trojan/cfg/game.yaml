@@ -5,7 +5,7 @@ game:
       - jttrojan_video.v
       - jttrojan_sound.v
       - jttrojan_colmix.v
-  - from: commando
+  - from: commnd
     get:
       - jtcommando_main.v
   - from: sectionz

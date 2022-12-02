@@ -1,5 +1,5 @@
 game:
-  - from: commando
+  - from: commnd
     get:
       - jtcommando_main.v
   - from: exed
