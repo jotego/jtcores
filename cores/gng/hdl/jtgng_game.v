@@ -351,6 +351,9 @@ jtgng_video #(.GNGPAL(1)) u_video(
     // Palette RAM
     .blue_cs    ( blue_cs       ),
     .redgreen_cs( redgreen_cs   ),
+    // PROM ports used to assign a non-zero starting value to the palette RAM
+    .prog_addr  ( prog_addr     ),
+    .prom_red_we( prog_we       ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),

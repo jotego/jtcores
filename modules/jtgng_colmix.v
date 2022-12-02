@@ -151,7 +151,7 @@ if( PALETTE_PROM==1) begin
 end else begin
     // Palette is in RAM
     reg  we_rg, we_b;
-    reg  [7:0] eff_AB;
+    reg  [7:0] eff_AB, pal_din;
     wire [7:0] pre_rg;
     wire [3:0] pre_b;
 
@@ -159,6 +159,7 @@ end else begin
     assign pal_blue               = (GNGPAL==1 && we_b  ) ? DB : pre_b;
 
     always @* begin
+        pal_din = DB;
         if( GNGPAL==1 ) begin // GnG circuit:
             we_rg  = redgreen_cs;
             we_b   = blue_cs;
@@ -168,12 +169,19 @@ end else begin
             we_b   = !LVBL & blue_cs;
             eff_AB = AB;
         end
+        // fills in a non blank palette for GnG
+        if( prom_red_we ) begin
+            eff_AB  = prog_addr;
+            pal_din = {2{prog_addr[3:0]}};
+            we_rg   = 1;
+            we_b    = 1;
+        end
     end
 
     jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
         .clk        ( clk         ),
         .clk_en     ( 1'b1        ), // clock enable only applies to write operation
-        .data       ( DB          ),
+        .data       ( pal_din     ),
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( eff_AB      ),
         .we         ( we_rg       ),
@@ -183,7 +191,7 @@ end else begin
     jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
         .clk        ( clk         ),
         .clk_en     ( 1'b1        ), // clock enable only applies to write operation
-        .data       ( BLUELOW ? DB[3:0] : DB[7:4] ),
+        .data       ( BLUELOW ? pal_din[3:0] : pal_din[7:4] ),
         .rd_addr    ( pixel_mux   ),
         .wr_addr    ( eff_AB      ),
         .we         ( we_b        ),
