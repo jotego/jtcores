@@ -8,7 +8,7 @@ game:
   - from: commnd
     get:
       - jtcommando_main.v
-  - from: sectionz
+  - from: sectnz
     get:
       - jtsectionz_prom_we.v
   - from: tora
@@ -44,7 +44,7 @@ modules:
       - jtgng_sound.yaml
       - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
-      - jt12/hdl/jt03.qip
+      - jt12/hdl/jt03.yaml
       - jtgng_obj32.v
       - jtgng_dual_ram.v
       - jtgng_colmix.v

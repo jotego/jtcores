@@ -9,9 +9,7 @@
 				"enabled": false,
 				"persist": false,
 				"address": "0xFF000000",
-				"defaultval": 0,
-				"mask": "",
-				"options": null
+				"value": 0
 			},
 			{
 				"name": "Coinage",
@@ -21,6 +19,7 @@
 				"persist": true,
 				"address": "0xfa000000",
 				"defaultval": 15,
+				"value": 0,
 				"mask": "0xFFFFFFF0",
 				"options": [
 					{
@@ -97,6 +96,7 @@
 				"persist": true,
 				"address": "0xfa000000",
 				"defaultval": 1,
+				"value": 0,
 				"mask": "0xFFFFFFEF",
 				"options": [
 					{
@@ -112,62 +112,37 @@
 			{
 				"name": "Demo Sounds",
 				"id": 3,
-				"type": "list",
+				"type": "check",
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 0,
-				"mask": "0xFFFFFFDF",
-				"options": [
-					{
-						"name": "On",
-						"value": "0x0"
-					},
-					{
-						"name": "Off",
-						"value": "0x20"
-					}
-				]
+				"value": 0,
+				"value_off": 32,
+				"mask": "0xFFFFFFDF"
 			},
 			{
 				"name": "Service Mode",
 				"id": 4,
-				"type": "list",
+				"type": "check",
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 1,
-				"mask": "0xFFFFFFBF",
-				"options": [
-					{
-						"name": "On",
-						"value": "0x0"
-					},
-					{
-						"name": "Off",
-						"value": "0x40"
-					}
-				]
+				"defaultval": 64,
+				"value": 0,
+				"value_off": 64,
+				"mask": "0xFFFFFFBF"
 			},
 			{
 				"name": "Flip Screen",
 				"id": 5,
-				"type": "list",
+				"type": "check",
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 1,
-				"mask": "0xFFFFFF7F",
-				"options": [
-					{
-						"name": "On",
-						"value": "0x0"
-					},
-					{
-						"name": "Off",
-						"value": "0x80"
-					}
-				]
+				"defaultval": 128,
+				"value": 0,
+				"value_off": 128,
+				"mask": "0xFFFFFF7F"
 			},
 			{
 				"name": "Lives",
@@ -177,6 +152,7 @@
 				"persist": true,
 				"address": "0xfa000000",
 				"defaultval": 3,
+				"value": 0,
 				"mask": "0xFFFFFCFF",
 				"options": [
 					{
@@ -204,7 +180,7 @@
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 0,
+				"value": 0,
 				"mask": "0xFFFFFBFF",
 				"options": [
 					{
@@ -225,6 +201,7 @@
 				"persist": true,
 				"address": "0xfa000000",
 				"defaultval": 3,
+				"value": 0,
 				"mask": "0xFFFFE7FF",
 				"options": [
 					{
@@ -253,6 +230,7 @@
 				"persist": true,
 				"address": "0xfa000000",
 				"defaultval": 3,
+				"value": 0,
 				"mask": "0xFFFF9FFF",
 				"options": [
 					{
@@ -276,22 +254,25 @@
 			{
 				"name": "Unused",
 				"id": 10,
-				"type": "list",
+				"type": "check",
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 1,
-				"mask": "0xFFFF7FFF",
-				"options": [
-					{
-						"name": "On",
-						"value": "0x0"
-					},
-					{
-						"name": "Off",
-						"value": "0x8000"
-					}
-				]
+				"defaultval": 32768,
+				"value": 0,
+				"value_off": 32768,
+				"mask": "0xFFFF7FFF"
+			},
+			{
+				"name": "Default",
+				"id": 1015,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"writeonly": true,
+				"address": "0xfa000000",
+				"defaultval": 24,
+				"value": 0
 			}
 		],
 		"messages": []
