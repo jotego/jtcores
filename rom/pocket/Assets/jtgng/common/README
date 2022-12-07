@@ -1,0 +1,26 @@
+Place the following files in this folder:
+
+gng.rom
+gnga.rom
+gngc.rom
+gngprot.rom
+gngt.rom
+makaimur.rom
+makaiurc.rom
+makaiurg.rom
+
+These files are generated using the mra tool in:
+https://github.com/sebdel/mra-tools-c/tree/master/release
+
+Boogermann's ORCA tool can also be used to generate the files:
+https://github.com/opengateware/tools-orca
+
+Check out the short tutorial in:
+https://github.com/jotego/jtbin/wiki/Analogue-Pocket-Cores
+
+There is also a video by Pixel Cherry Ninja:
+https://www.youtube.com/watch?v=PdcOtLS2KWE&t=98s
+
+DISCLAIMER: This PocketFPGA core is licensed to be used only
+with legally owned dumps of videogame data. It is also licensed
+to be used with freeware (homebrew) compatible with the platform.

@@ -3,14 +3,14 @@
 		"magic": "APF_VER_1",
 		"metadata": {
 			"platform_ids": [
-				"jtgng"
+				"jtsectionz"
 			],
-			"shortname": "jtgng",
+			"shortname": "jtsectionz",
 			"description": "Arcade hardware",
 			"author": "JOTEGO",
 			"url": "https://patreon.com/jotego",
 			"version": "noversion",
-			"date_release": "2022-12-07"
+			"date_release": "2022-10-14"
 		},
 		"framework": {
 			"target_product": "Analogue Pocket",
@@ -27,9 +27,9 @@
 		},
 		"cores": [
 			{
-				"name": "jtgng",
+				"name": "jtsectionz",
 				"id": 0,
-				"filename": "JTGNG.rbf_r"
+				"filename": "JTSECTIONZ.rbf_r"
 			}
 		]
 	}

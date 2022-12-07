@@ -1,0 +1,302 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"defaultval": 0,
+				"mask": "",
+				"options": null
+			},
+			{
+				"name": "Rotate controls",
+				"id": 1,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfb000000",
+				"defaultval": 0,
+				"mask": "0x-5",
+				"options": null
+			},
+			{
+				"name": "Unused",
+				"id": 2,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFFFE",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x1"
+					}
+				]
+			},
+			{
+				"name": "Allow Continue",
+				"id": 3,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 0,
+				"mask": "0xFFFFFFFD",
+				"options": [
+					{
+						"name": "Yes",
+						"value": "0x0"
+					},
+					{
+						"name": "No",
+						"value": "0x2"
+					}
+				]
+			},
+			{
+				"name": "Unused",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFFFB",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x4"
+					}
+				]
+			},
+			{
+				"name": "Flip Screen",
+				"id": 5,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFFF7",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x8"
+					}
+				]
+			},
+			{
+				"name": "Difficulty",
+				"id": 6,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFFEF",
+				"options": [
+					{
+						"name": "Hard",
+						"value": "0x0"
+					},
+					{
+						"name": "Easy",
+						"value": "0x10"
+					}
+				]
+			},
+			{
+				"name": "Lives",
+				"id": 7,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 5,
+				"mask": "0xFFFFFF1F",
+				"options": [
+					{
+						"name": "8",
+						"value": "0x0"
+					},
+					{
+						"name": "4",
+						"value": "0x20"
+					},
+					{
+						"name": "6",
+						"value": "0x40"
+					},
+					{
+						"name": "2",
+						"value": "0x60"
+					},
+					{
+						"name": "7",
+						"value": "0x80"
+					},
+					{
+						"name": "3",
+						"value": "0xA0"
+					},
+					{
+						"name": "5",
+						"value": "0xC0"
+					},
+					{
+						"name": "1",
+						"value": "0xE0"
+					}
+				]
+			},
+			{
+				"name": "Service Mode",
+				"id": 8,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFEFF",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x100"
+					}
+				]
+			},
+			{
+				"name": "Unused",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFFDFF",
+				"options": [
+					{
+						"name": "On",
+						"value": "0x0"
+					},
+					{
+						"name": "Off",
+						"value": "0x200"
+					}
+				]
+			},
+			{
+				"name": "Bonus Life",
+				"id": 10,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFF3FF",
+				"options": [
+					{
+						"name": "Every 200000",
+						"value": "0x0"
+					},
+					{
+						"name": "Every 150000",
+						"value": "0x400"
+					},
+					{
+						"name": "200000 only",
+						"value": "0x800"
+					},
+					{
+						"name": "150000 only",
+						"value": "0xC00"
+					}
+				]
+			},
+			{
+				"name": "Demo Sounds",
+				"id": 11,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"mask": "0xFFFFEFFF",
+				"options": [
+					{
+						"name": "Off",
+						"value": "0x0"
+					},
+					{
+						"name": "On",
+						"value": "0x1000"
+					}
+				]
+			},
+			{
+				"name": "Coinage",
+				"id": 12,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 6,
+				"mask": "0xFFFF1FFF",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x2000"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x4000"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x6000"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x8000"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0xA000"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0xE000"
+					}
+				]
+			}
+		],
+		"messages": []
+	}
+}
