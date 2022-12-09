@@ -116,6 +116,7 @@
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
+				"defaultval": 1,
 				"value": 0,
 				"value_off": 32,
 				"mask": "0xFFFFFFDF"
@@ -127,7 +128,6 @@
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 64,
 				"value": 0,
 				"value_off": 64,
 				"mask": "0xFFFFFFBF"
@@ -139,7 +139,6 @@
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 128,
 				"value": 0,
 				"value_off": 128,
 				"mask": "0xFFFFFF7F"
@@ -258,7 +257,6 @@
 				"enabled": true,
 				"persist": true,
 				"address": "0xfa000000",
-				"defaultval": 32768,
 				"value": 0,
 				"value_off": 32768,
 				"mask": "0xFFFF7FFF"
