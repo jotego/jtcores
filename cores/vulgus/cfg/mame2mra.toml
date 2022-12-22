@@ -1,0 +1,12 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="vulgus.cpp"
+# skip.Setnames=["diamond"]
+
+[buttons]
+core=2 # max number of buttons supported by the core
+names=[
+    { names="Shoot,Roll" }
+]

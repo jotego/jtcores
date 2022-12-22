@@ -1,0 +1,261 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"value": 0
+			},
+			{
+				"name": "Rotate screen",
+				"id": 1,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"writeonly": true,
+				"address": "0xfb000000",
+				"defaultval": 4,
+				"value": 4
+			},
+			{
+				"name": "Service Mode",
+				"id": 2,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"value_off": 1,
+				"mask": "0xFFFFFFFE"
+			},
+			{
+				"name": "Flip Screen",
+				"id": 3,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 2,
+				"value": 0,
+				"value_off": 2,
+				"mask": "0xFFFFFFFD"
+			},
+			{
+				"name": "Coin B",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFFFE3",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x4"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x8"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0xC"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x10"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x14"
+					},
+					{
+						"name": "1 Coin/6 Credits",
+						"value": "0x18"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x1C"
+					}
+				]
+			},
+			{
+				"name": "Coin A",
+				"id": 5,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFFF1F",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x20"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x40"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x60"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x80"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0xA0"
+					},
+					{
+						"name": "1 Coin/6 Credits",
+						"value": "0xC0"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0xE0"
+					}
+				]
+			},
+			{
+				"name": "Allow Continue",
+				"id": 6,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"mask": "0xFFFFFEFF",
+				"options": [
+					{
+						"name": "No",
+						"value": "0x0"
+					},
+					{
+						"name": "Yes",
+						"value": "0x100"
+					}
+				]
+			},
+			{
+				"name": "Demo Sounds",
+				"id": 7,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 512,
+				"value": 512,
+				"mask": "0xFFFFFDFF"
+			},
+			{
+				"name": "Difficulty",
+				"id": 8,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFF3FF",
+				"options": [
+					{
+						"name": "Very Hard",
+						"value": "0x0"
+					},
+					{
+						"name": "Easy",
+						"value": "0x400"
+					},
+					{
+						"name": "Hard",
+						"value": "0x800"
+					},
+					{
+						"name": "Normal",
+						"value": "0xC00"
+					}
+				]
+			},
+			{
+				"name": "Bonus Life",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFCFFF",
+				"options": [
+					{
+						"name": "30k 80k",
+						"value": "0x0"
+					},
+					{
+						"name": "20k 70k",
+						"value": "0x1000"
+					},
+					{
+						"name": "20k 80k",
+						"value": "0x2000"
+					},
+					{
+						"name": "20k 60k",
+						"value": "0x3000"
+					}
+				]
+			},
+			{
+				"name": "Lives",
+				"id": 10,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFF3FFF",
+				"options": [
+					{
+						"name": "6",
+						"value": "0x0"
+					},
+					{
+						"name": "4",
+						"value": "0x4000"
+					},
+					{
+						"name": "5",
+						"value": "0x8000"
+					},
+					{
+						"name": "3",
+						"value": "0xC000"
+					}
+				]
+			}
+		],
+		"messages": []
+	}
+}

@@ -1,0 +1,293 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"value": 0
+			},
+			{
+				"name": "Rotate screen",
+				"id": 1,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"writeonly": true,
+				"address": "0xfb000000",
+				"defaultval": 4,
+				"value": 4
+			},
+			{
+				"name": "Difficulty",
+				"id": 2,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 8,
+				"value": 0,
+				"mask": "0xFFFFFFF0",
+				"options": [
+					{
+						"name": "16 (Difficult)",
+						"value": "0x0"
+					},
+					{
+						"name": "15",
+						"value": "0x1"
+					},
+					{
+						"name": "14",
+						"value": "0x2"
+					},
+					{
+						"name": "13",
+						"value": "0x3"
+					},
+					{
+						"name": "12",
+						"value": "0x4"
+					},
+					{
+						"name": "11",
+						"value": "0x5"
+					},
+					{
+						"name": "10",
+						"value": "0x6"
+					},
+					{
+						"name": "9",
+						"value": "0x7"
+					},
+					{
+						"name": "8 (Normal)",
+						"value": "0x8"
+					},
+					{
+						"name": "7",
+						"value": "0x9"
+					},
+					{
+						"name": "6",
+						"value": "0xA"
+					},
+					{
+						"name": "5",
+						"value": "0xB"
+					},
+					{
+						"name": "4",
+						"value": "0xC"
+					},
+					{
+						"name": "3",
+						"value": "0xD"
+					},
+					{
+						"name": "2",
+						"value": "0xE"
+					},
+					{
+						"name": "1 (Easy)",
+						"value": "0xF"
+					}
+				]
+			},
+			{
+				"name": "2 Player Game",
+				"id": 3,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"mask": "0xFFFFFFEF",
+				"options": [
+					{
+						"name": "1 Credit/2 Players",
+						"value": "0x0"
+					},
+					{
+						"name": "2 Credits/2 Players",
+						"value": "0x10"
+					}
+				]
+			},
+			{
+				"name": "Cabinet",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"mask": "0xFFFFFFDF",
+				"options": [
+					{
+						"name": "Cocktail",
+						"value": "0x0"
+					},
+					{
+						"name": "Upright",
+						"value": "0x20"
+					}
+				]
+			},
+			{
+				"name": "Screen Stop",
+				"id": 5,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 64,
+				"value": 0,
+				"value_off": 64,
+				"mask": "0xFFFFFFBF"
+			},
+			{
+				"name": "Service Mode",
+				"id": 6,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 128,
+				"value": 0,
+				"value_off": 128,
+				"mask": "0xFFFFFF7F"
+			},
+			{
+				"name": "Coin A",
+				"id": 7,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFF8FF",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x100"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x200"
+					},
+					{
+						"name": "1 Coin/5 Credits",
+						"value": "0x300"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x400"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x500"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x600"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x700"
+					}
+				]
+			},
+			{
+				"name": "Coin B",
+				"id": 8,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFC7FF",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x800"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x1000"
+					},
+					{
+						"name": "1 Coin/5 Credits",
+						"value": "0x1800"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x2000"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x2800"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x3000"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x3800"
+					}
+				]
+			},
+			{
+				"name": "Allow Continue",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"mask": "0xFFFFBFFF",
+				"options": [
+					{
+						"name": "No",
+						"value": "0x0"
+					},
+					{
+						"name": "Yes",
+						"value": "0x4000"
+					}
+				]
+			},
+			{
+				"name": "Demo Sounds",
+				"id": 10,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 32768,
+				"value": 32768,
+				"mask": "0xFFFF7FFF"
+			}
+		],
+		"messages": []
+	}
+}

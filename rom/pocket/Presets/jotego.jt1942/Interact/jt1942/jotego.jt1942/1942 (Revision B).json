@@ -1,0 +1,261 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"value": 0
+			},
+			{
+				"name": "Rotate screen",
+				"id": 1,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"writeonly": true,
+				"address": "0xfb000000",
+				"defaultval": 4,
+				"value": 4
+			},
+			{
+				"name": "Coin A",
+				"id": 2,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFFFF8",
+				"options": [
+					{
+						"name": "Free Play",
+						"value": "0x0"
+					},
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x1"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x2"
+					},
+					{
+						"name": "2 Coins/3 Credits",
+						"value": "0x3"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x4"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x5"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x6"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x7"
+					}
+				]
+			},
+			{
+				"name": "Cabinet",
+				"id": 3,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"value": 0,
+				"mask": "0xFFFFFFF7",
+				"options": [
+					{
+						"name": "Upright",
+						"value": "0x0"
+					},
+					{
+						"name": "Cocktail",
+						"value": "0x8"
+					}
+				]
+			},
+			{
+				"name": "Bonus Life",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFFFCF",
+				"options": [
+					{
+						"name": "30K 100K 100K+",
+						"value": "0x0"
+					},
+					{
+						"name": "30K 80K 80K+",
+						"value": "0x10"
+					},
+					{
+						"name": "20K 100K 100K+",
+						"value": "0x20"
+					},
+					{
+						"name": "20K 80K 80K+",
+						"value": "0x30"
+					}
+				]
+			},
+			{
+				"name": "Lives",
+				"id": 5,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"mask": "0xFFFFFF3F",
+				"options": [
+					{
+						"name": "5",
+						"value": "0x0"
+					},
+					{
+						"name": "2",
+						"value": "0x40"
+					},
+					{
+						"name": "1",
+						"value": "0x80"
+					},
+					{
+						"name": "3",
+						"value": "0xC0"
+					}
+				]
+			},
+			{
+				"name": "Coin B",
+				"id": 6,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFF8FF",
+				"options": [
+					{
+						"name": "Free Play",
+						"value": "0x0"
+					},
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x100"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x200"
+					},
+					{
+						"name": "2 Coins/3 Credits",
+						"value": "0x300"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x400"
+					},
+					{
+						"name": "1 Coin/4 Credits",
+						"value": "0x500"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x600"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x700"
+					}
+				]
+			},
+			{
+				"name": "Service Mode",
+				"id": 7,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 2048,
+				"value": 0,
+				"value_off": 2048,
+				"mask": "0xFFFFF7FF"
+			},
+			{
+				"name": "Flip Screen",
+				"id": 8,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 4096,
+				"value": 0,
+				"value_off": 4096,
+				"mask": "0xFFFFEFFF"
+			},
+			{
+				"name": "Difficulty",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFF9FFF",
+				"options": [
+					{
+						"name": "Very Difficult",
+						"value": "0x0"
+					},
+					{
+						"name": "Difficult",
+						"value": "0x2000"
+					},
+					{
+						"name": "Easy",
+						"value": "0x4000"
+					},
+					{
+						"name": "Normal",
+						"value": "0x6000"
+					}
+				]
+			},
+			{
+				"name": "Screen Stop",
+				"id": 10,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 32768,
+				"value": 0,
+				"value_off": 32768,
+				"mask": "0xFFFF7FFF"
+			}
+		],
+		"messages": []
+	}
+}

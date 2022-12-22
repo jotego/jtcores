@@ -1,0 +1,233 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"value": 0
+			},
+			{
+				"name": "Rotate screen",
+				"id": 1,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"writeonly": true,
+				"address": "0xfb000000",
+				"defaultval": 4,
+				"value": 4
+			},
+			{
+				"name": "Flip Screen",
+				"id": 2,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 2,
+				"value": 0,
+				"value_off": 2,
+				"mask": "0xFFFFFFFD"
+			},
+			{
+				"name": "Lives",
+				"id": 3,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFFFF3",
+				"options": [
+					{
+						"name": "6",
+						"value": "0x0"
+					},
+					{
+						"name": "4",
+						"value": "0x4"
+					},
+					{
+						"name": "5",
+						"value": "0x8"
+					},
+					{
+						"name": "3",
+						"value": "0xC"
+					}
+				]
+			},
+			{
+				"name": "Coin B",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFFFCF",
+				"options": [
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x0"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x10"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x20"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x30"
+					}
+				]
+			},
+			{
+				"name": "Coin A",
+				"id": 5,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFFF3F",
+				"options": [
+					{
+						"name": "2 Coins/4 Credits",
+						"value": "0x0"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x40"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x80"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0xC0"
+					}
+				]
+			},
+			{
+				"name": "Difficulty",
+				"id": 6,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFF9FF",
+				"options": [
+					{
+						"name": "Hardest",
+						"value": "0x0"
+					},
+					{
+						"name": "Easy",
+						"value": "0x200"
+					},
+					{
+						"name": "Hard",
+						"value": "0x400"
+					},
+					{
+						"name": "Medium",
+						"value": "0x600"
+					}
+				]
+			},
+			{
+				"name": "Demo Sounds",
+				"id": 7,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 2048,
+				"value": 2048,
+				"mask": "0xFFFFF7FF"
+			},
+			{
+				"name": "Allow Continue",
+				"id": 8,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1,
+				"value": 0,
+				"mask": "0xFFFFEFFF",
+				"options": [
+					{
+						"name": "No",
+						"value": "0x0"
+					},
+					{
+						"name": "Yes",
+						"value": "0x1000"
+					}
+				]
+			},
+			{
+				"name": "Bonus Life",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFF1FFF",
+				"options": [
+					{
+						"name": "None",
+						"value": "0x0"
+					},
+					{
+						"name": "30000 and every 60000",
+						"value": "0x2000"
+					},
+					{
+						"name": "30000 and every 80000",
+						"value": "0x4000"
+					},
+					{
+						"name": "20000 and every 60000",
+						"value": "0x6000"
+					},
+					{
+						"name": "40000 and every 100000",
+						"value": "0x8000"
+					},
+					{
+						"name": "20000 and every 70000",
+						"value": "0xA000"
+					},
+					{
+						"name": "30000 and every 70000",
+						"value": "0xC000"
+					},
+					{
+						"name": "20000 and every 50000",
+						"value": "0xE000"
+					}
+				]
+			}
+		],
+		"messages": []
+	}
+}

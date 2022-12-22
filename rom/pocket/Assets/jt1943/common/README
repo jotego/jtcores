@@ -1,0 +1,20 @@
+Place the following files in this folder:
+
+1943.rom
+1943j.rom
+1943ja.rom
+1943jah.rom
+1943kai.rom
+1943mii.rom
+1943u.rom
+1943ua.rom
+
+These files are generated using the mra tool in:
+https://github.com/sebdel/mra-tools-c/tree/master/release
+
+Check out the short tutorial in:
+https://github.com/jotego/jtbin/wiki/Analogue-Pocket-Cores
+
+DISCLAIMER: This PocketFPGA core is licensed to be used only
+with legally owned dumps of videogame data. It is also licensed
+to be used with freeware (homebrew) compatible with the platform.

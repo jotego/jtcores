@@ -1,0 +1,254 @@
+{
+	"interact":{
+		"magic": "APF_VER_1",
+		"variables": [
+			{
+				"name": "Version",
+				"id": 1000,
+				"type": "number_u32",
+				"enabled": false,
+				"persist": false,
+				"address": "0xFF000000",
+				"value": 0
+			},
+			{
+				"name": "Rotate screen",
+				"id": 1,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"writeonly": true,
+				"address": "0xfb000000",
+				"defaultval": 4,
+				"value": 4
+			},
+			{
+				"name": "Lives",
+				"id": 2,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 3,
+				"value": 0,
+				"mask": "0xFFFFFFFC",
+				"options": [
+					{
+						"name": "5",
+						"value": "0x0"
+					},
+					{
+						"name": "1",
+						"value": "0x1"
+					},
+					{
+						"name": "2",
+						"value": "0x2"
+					},
+					{
+						"name": "3",
+						"value": "0x3"
+					}
+				]
+			},
+			{
+				"name": "Coin B",
+				"id": 3,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 6,
+				"value": 0,
+				"mask": "0xFFFFFFE3",
+				"options": [
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x4"
+					},
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x8"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0xC"
+					},
+					{
+						"name": "5 Coins/1 Credit",
+						"value": "0x10"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0x14"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0x18"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0x1C"
+					}
+				]
+			},
+			{
+				"name": "Coin A",
+				"id": 4,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFFFF1F",
+				"options": [
+					{
+						"name": "Free Play",
+						"value": "0x0"
+					},
+					{
+						"name": "2 Coins/1 Credit",
+						"value": "0x20"
+					},
+					{
+						"name": "4 Coins/1 Credit",
+						"value": "0x40"
+					},
+					{
+						"name": "1 Coin/2 Credits",
+						"value": "0x60"
+					},
+					{
+						"name": "5 Coins/1 Credit",
+						"value": "0x80"
+					},
+					{
+						"name": "1 Coin/3 Credits",
+						"value": "0xA0"
+					},
+					{
+						"name": "3 Coins/1 Credit",
+						"value": "0xC0"
+					},
+					{
+						"name": "1 Coin/1 Credit",
+						"value": "0xE0"
+					}
+				]
+			},
+			{
+				"name": "Unused",
+				"id": 5,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 256,
+				"value": 0,
+				"value_off": 256,
+				"mask": "0xFFFFFEFF"
+			},
+			{
+				"name": "Unused",
+				"id": 6,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 512,
+				"value": 0,
+				"value_off": 512,
+				"mask": "0xFFFFFDFF"
+			},
+			{
+				"name": "Demo Music",
+				"id": 7,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 1024,
+				"value": 1024,
+				"mask": "0xFFFFFBFF"
+			},
+			{
+				"name": "Demo Sounds",
+				"id": 8,
+				"type": "check",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 2048,
+				"value": 2048,
+				"mask": "0xFFFFF7FF"
+			},
+			{
+				"name": "Bonus Life",
+				"id": 9,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"defaultval": 7,
+				"value": 0,
+				"mask": "0xFFFF8FFF",
+				"options": [
+					{
+						"name": "None",
+						"value": "0x0"
+					},
+					{
+						"name": "10000 70000",
+						"value": "0x1000"
+					},
+					{
+						"name": "20000 80000",
+						"value": "0x2000"
+					},
+					{
+						"name": "10000 50000",
+						"value": "0x3000"
+					},
+					{
+						"name": "30000 70000",
+						"value": "0x4000"
+					},
+					{
+						"name": "10000 60000",
+						"value": "0x5000"
+					},
+					{
+						"name": "20000 70000",
+						"value": "0x6000"
+					},
+					{
+						"name": "20000 60000",
+						"value": "0x7000"
+					}
+				]
+			},
+			{
+				"name": "Cabinet",
+				"id": 10,
+				"type": "list",
+				"enabled": true,
+				"persist": true,
+				"address": "0xfa000000",
+				"value": 0,
+				"mask": "0xFFFF7FFF",
+				"options": [
+					{
+						"name": "Upright",
+						"value": "0x0"
+					},
+					{
+						"name": "Cocktail",
+						"value": "0x8000"
+					}
+				]
+			}
+		],
+		"messages": []
+	}
+}

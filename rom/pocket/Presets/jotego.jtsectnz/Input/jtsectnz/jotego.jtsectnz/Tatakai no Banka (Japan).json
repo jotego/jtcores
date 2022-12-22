@@ -1,0 +1,22 @@
+{
+	"input":{
+		"magic": "APF_VER_1",
+		"controllers": [
+			{
+				"type": "default",
+				"mappings": [
+					{
+						"id": 0,
+						"name": "button 0",
+						"key": "pad_btn_a"
+					},
+					{
+						"id": 1,
+						"name": "button 1",
+						"key": "pad_btn_b"
+					}
+				]
+			}
+		]
+	}
+}

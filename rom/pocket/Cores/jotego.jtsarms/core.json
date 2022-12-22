@@ -7,10 +7,10 @@
 			],
 			"shortname": "jtsarms",
 			"description": "Arcade hardware",
-			"author": "JOTEGO",
+			"author": "jotego",
 			"url": "https://patreon.com/jotego",
 			"version": "noversion",
-			"date_release": "2022-10-14"
+			"date_release": "2022-12-22"
 		},
 		"framework": {
 			"target_product": "Analogue Pocket",
@@ -29,7 +29,7 @@
 			{
 				"name": "jtsarms",
 				"id": 0,
-				"filename": "JTSARMS.rbf_r"
+				"filename": "jtsarms.rbf_r"
 			}
 		]
 	}
