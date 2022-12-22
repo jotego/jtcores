@@ -1,0 +1,35 @@
+jtsectnz - Arcade compatible hardware for Pocket FPGA
+Developed by JOTEGO - https://patreon.com/jotego
+
+The following arcade titles are compatible with this core. Generate
+the required .rom file using the mra tool (read below).
+Place the *.rom files in Assets/jtsectnz/common
+
+Avengers (US set 1) --> avengers.rom
+Avengers (US set 2) --> avengrs2.rom
+Hissatsu Buraiken (Japan) --> buraiken.rom
+Fire Ball (FM Work) --> fball.rom
+Legendary Wings (US set 1) --> lwings.rom
+Legendary Wings (US set 2) --> lwings2.rom
+Ares no Tsubasa (Japan) --> lwingsj.rom
+Ares no Tsubasa (Japan, rev. A) --> lwingsja.rom
+Section Z (set 1) --> sectionz.rom
+Section Z (set 2) --> sectinza.rom
+Trojan (US set 1) --> trojan.rom
+Trojan (US set 2) --> trojana.rom
+Tatakai no Banka (Japan) --> trojanj.rom
+Trojan (Romstar) --> trojanr.rom
+
+
+These files are generated using the mra tool in:
+https://github.com/sebdel/mra-tools-c/tree/master/release
+
+Boogermann's ORCA tool can also be used to generate the files:
+https://github.com/opengateware/tools-orca
+
+Check out the short tutorial in:
+https://github.com/jotego/jtbin/wiki/Analogue-Pocket-Cores
+
+DISCLAIMER: This PocketFPGA core is licensed to be used only
+with legally owned dumps of videogame data. It is also licensed
+to be used with freeware (homebrew) compatible with the platform.
