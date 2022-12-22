@@ -1,19 +1,12 @@
 Place the following files in this folder:
 
-avengers.rom
-avengrs2.rom
-buraiken.rom
-fball.rom
 lwings.rom
 lwings2.rom
+lwingsb.rom
 lwingsj.rom
 lwingsja.rom
 sectionz.rom
 sectinza.rom
-trojan.rom
-trojana.rom
-trojanj.rom
-trojanr.rom
 
 These files are generated using the mra tool in:
 https://github.com/sebdel/mra-tools-c/tree/master/release

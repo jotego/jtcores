@@ -7,7 +7,17 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="lwings.cpp"
-# skip = { bootlegs=true, setnames = [ "kikcubic", "kikcubicb", "buccanrs", "buccanrsa", "buccanrsb" ] }
+ skip = { bootlegs=true, setnames = [
+"avengers",
+"avengers2",
+"buraiken",
+"buraikenb",
+"fball",
+"trojan",
+"trojanb",
+"trojana",
+"trojanj",
+"trojanr"] }
 
 [buttons]
 core=$JTFRAME_BUTTONS

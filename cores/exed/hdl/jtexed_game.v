@@ -168,7 +168,7 @@ wire OKOUT, blcnten, bus_req, bus_ack;
 wire [ 8:0] obj_AB;
 wire [ 7:0] main_ram, game_cfg;
 
-localparam [24:0] CPU_OFFSET  = 0,
+localparam        CPU_OFFSET  = 0,
                   SND_OFFSET  = `SND_START  >> 1,
                   MAP1_OFFSET = `MAP_START  >> 1,
                   MAP2_OFFSET =  (`MAP_START+25'h4000)>>1,
@@ -432,14 +432,14 @@ jtframe_rom #(
     .SLOT7_DW    (  8              ), // Main
     .SLOT8_DW    ( 16              ), // OBJ
 
-    .SLOT0_OFFSET( CHAR_OFFSET ),
-    .SLOT1_OFFSET( SCR1_OFFSET ),
-    .SLOT2_OFFSET( MAP2_OFFSET ),
-    .SLOT3_OFFSET( SCR2_OFFSET ),
-    .SLOT4_OFFSET( MAP1_OFFSET ),
-    .SLOT6_OFFSET( SND_OFFSET  ),
-    .SLOT7_OFFSET( CPU_OFFSET  ),
-    .SLOT8_OFFSET( OBJ_OFFSET  )
+    .SLOT0_OFFSET( CHAR_OFFSET[21:0] ),
+    .SLOT1_OFFSET( SCR1_OFFSET[21:0] ),
+    .SLOT2_OFFSET( MAP2_OFFSET[21:0] ),
+    .SLOT3_OFFSET( SCR2_OFFSET[21:0] ),
+    .SLOT4_OFFSET( MAP1_OFFSET[21:0] ),
+    .SLOT6_OFFSET( SND_OFFSET[21:0]  ),
+    .SLOT7_OFFSET( CPU_OFFSET[21:0]  ),
+    .SLOT8_OFFSET( OBJ_OFFSET[21:0]  )
 ) u_rom (
     .rst         ( rst           ),
     .clk         ( clk           ),
