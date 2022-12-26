@@ -56,6 +56,7 @@ module jtgunsmoke_game(
     input   [31:0]  status,
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -113,8 +114,6 @@ wire cen12, cen6, cen3, cen1p5;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
-
-assign sample=1'b1;
 
 wire cen8;
 

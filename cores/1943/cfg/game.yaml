@@ -28,7 +28,7 @@ modules:
       - jtgng_sound.yaml
       - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
-      - jt12/hdl/jt03.qip
+      - jt12/hdl/jt03.yaml
       - jtgng_obj32.v
       - jtgng_dual_ram.v
       - jtgng_colmix.v

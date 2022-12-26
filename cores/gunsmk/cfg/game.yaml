@@ -20,8 +20,6 @@ jtframe:
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
-  - from: video
-    get:
 modules:
   other:
     - get:

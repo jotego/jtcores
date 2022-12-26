@@ -55,6 +55,7 @@ module jt1943_game(
     input   [31:0]  status,
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -347,7 +348,8 @@ jtframe_prom #(.aw(14),.dw(8),.simfile("audio_hi.bin")) u_prom1(
     .q      ( snd_data1         )
 );
 `else
-assign snd = 9'd0;
+    assign snd    = 0;
+    assign sample = 0;
 `endif
 
 jt1943_video u_video(

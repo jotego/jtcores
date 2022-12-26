@@ -136,6 +136,15 @@ localparam SCR_OFFSET=4;
 wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
+reg  [8:0] hadj;
+
+always @* begin
+    hadj = H;
+    if( flip ) begin
+        hadj = H + 9'h8;
+        if (hadj < 9'h80 ) hadj[7] = 1;
+    end
+end
 
 jtgng_char #(
     .HOFFSET   ( 0),
@@ -189,7 +198,7 @@ u_scroll1 (
     .cen6         ( cen6          ),
     .LHBL         ( preLHBL       ),
     .V128         ( {1'b0, V[7:0]}),
-    .H            ( H             ),
+    .H            ( hadj          ),
     .hpos         ( scr1posh      ),
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
@@ -226,7 +235,7 @@ generate
             .cen6         ( cen6          ),
             .LHBL         ( preLHBL       ),
             .V128         ( {1'b0, V[7:0]}),
-            .H            ( H             ),
+            .H            ( hadj          ),
             .hpos         ( scr2posh      ),
             .SCxON        ( SC2ON         ),
             .vpos         ( scrposv       ),
