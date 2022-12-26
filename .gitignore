@@ -39,6 +39,7 @@ cores/*/mist/*
 cores/*/sidi/*
 cores/*/mister/*
 cores/*/pocket/*
+cores/*/sockit/*
 */obj_dir/*
 .simvision
 ncverilog.*
