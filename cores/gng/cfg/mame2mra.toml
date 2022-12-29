@@ -10,3 +10,23 @@ core=2 # max number of buttons supported by the core
 names=[
     { names="Fire,Jump" }
 ]
+
+[dipsw]
+Rename = [
+    { name="Bonus Life", to="Bonus"}
+]
+
+[ROM]
+regions=[
+    { name="maincpu", sequence=[1,0,2], no_offset=true },
+    { setname="gngprot", name="maincpu", sequence=[1,2,0,3,4], no_offset=true },
+    { setname="gnga", name="maincpu", sequence=[1,2,0,3,4], no_offset=true },
+    { name="audiocpu" },
+    { name="gfx1" },
+    { name="gfx2", sequence=[2,3,4,5,0,1,0,1], no_offset=true },
+    { name="gfx3", sequence=[0,1,2,2,3,4,5,5], no_offset=true },
+    { name="proms", skip=true },
+    { name="plds", skip=true }
+]
+
+order = [ "maincpu", "gfx1", "audiocpu", "gfx2", "gfx3" ]

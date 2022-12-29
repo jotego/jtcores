@@ -23,6 +23,7 @@
 *.zip
 *.xml
 *.rbf_r
+.DS_Store
 hosts.*
 test.cpp
 neptuno
