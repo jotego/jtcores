@@ -10,3 +10,24 @@ core=2 # max number of buttons supported by the core
 names=[
     { names="Shoot,Roll" }
 ]
+
+# Need to re-order the PROM load in the
+# core so the regions don't get split
+# [ROM]
+# regions=[
+#     { name="maincpu", no_offset=true, sequence= [0,1,2,3,3,4] },
+#     { name="audiocpu" },
+#     { name="gfx1" },
+#     { name="gfx2", sequence=[2,3,0,1,4,5,4,5] },
+#     { name="gfx3", sequence=[0,2,1,3] },
+#     { name="proms" },
+#     { name="charprom" },
+#     { name="tileprom" },
+#     { name="sprprom" },
+#     { name="palproms" }
+# ]
+
+# order=["maincpu","audiocpu","gfx1", "gfx2", "gfx3",
+#     "proms", "palproms",
+#     "charprom","tileprom", "sprprom"
+# ]
