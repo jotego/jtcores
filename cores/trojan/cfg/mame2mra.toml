@@ -1,0 +1,35 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="lwings.cpp"
+skip.Machines=[ "avengers", "fball", "sectionz", "lwings"]
+[buttons]
+names=[
+    { names="Attack,Jump" },
+]
+
+[header]
+len=32
+data=[ {pointer=0, data="02" } ]
+offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3", "proms"]}
+
+[ROM]
+regions=[
+    { name="maincpu", sequence=[1,2,0] },
+    { name="gfx1", start=0x40000 },
+    { name="gfx5", reverse=true },
+    { name="gfx4", width=16 },
+    { name="gfx2", width=32, sequence=[
+        6,4,2,0,
+        7,5,3,1
+    ] },
+    { name="gfx3", width=16, sequence=[
+        0,4, 1,5, 2,6, 3,7 ] },
+
+]
+
+order=[ "maincpu", "soundcpu", "adpcm",
+    "gfx5", "gfx4", "gfx1", "gfx2",
+    "gfx3","proms"
+]
