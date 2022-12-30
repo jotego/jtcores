@@ -1,0 +1,36 @@
+[global]
+mraauthor=["jotego,atrac17"]
+
+[parse]
+sourcefile="sf.cpp"
+
+[buttons]
+names=[
+    { names="Light Punch,Middle Punch,Heavy Punch,Light Kick,Middle Kick,Heavy Kick" }
+]
+
+[dipsw]
+rename=[
+    {name="Game Continuation", to="Continue"},
+    {name="Buy-In Feature", to="Buy in"},
+    {name="Number of Countries Selected", to="Selectable countries"}
+]
+
+[ROM]
+regions=[
+    { name="maincpu", width=16, no_offset=true },
+    { name="audiocpu", reverse=true },
+    { name="audio2", reverse=true },
+    { name="tilerom", width=16, sequence=[3,2,1,0]},
+    { name="gfx4", no_offset=true },
+    { name="gfx2", width=16, sequence=[4,0,5,1,6,2,7,3], no_offset=true },
+    { name="gfx1", width=16, sequence=[2,0,3,1], no_offset=true },
+    { name="gfx3", width=16, sequence=[7,0,8,1,9,2,10,3,11,4,12,5,13,6], no_offset=true },
+    { name="protcpu" },
+    { name="proms", skip=true },
+    { name="plds", skip=true }
+]
+
+order=["maincpu","audiocpu", "audio2",
+    "tilerom","gfx4",
+    "gfx2","gfx1","gfx3", "protcpu" ]
