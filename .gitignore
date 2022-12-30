@@ -68,3 +68,4 @@ jtsim.f
 jtsim_vhdl.f
 video.info*-backups
 defmacros.h
+game_test.v

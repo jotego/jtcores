@@ -6,7 +6,6 @@ sourcefile="blktiger.cpp"
 skip.bootlegs=true
 
 [buttons]
-core=2 # max number of buttons supported by the core
 names=[
     { names="Attack,Jump" }
 ]

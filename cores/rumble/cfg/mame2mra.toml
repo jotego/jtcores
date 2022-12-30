@@ -1,0 +1,28 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="srumbler.cpp"
+
+[buttons]
+names=[
+    { names="Fire,Escape" }
+]
+
+[dipsw]
+rename=[ {name="Bonus Life", to="Bonus"} ]
+
+[ROM]
+regions=[
+    { name="user1", no_offset=true},
+    { name="audiocpu" },
+    { name="gfx1", reverse=true, no_offset=true },
+    { name="gfx2", width=16, sequence=[4,0,5,1,6,2,7,3], no_offset=true },
+    { name="gfx3", width=32, sequence=[6,4,2,0,7,5,3,1], no_offset=true },
+    { name="proms" }
+]
+
+order=[
+    "user1", "audiocpu", "gfx1",
+    "gfx2", "gfx3", "proms"
+]
