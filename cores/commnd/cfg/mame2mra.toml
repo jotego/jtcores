@@ -16,16 +16,13 @@ names=[
 # so regions don't get merged
 [ROM]
 regions=[
-    { name="maincpu", no_offset=true },
-    { name="audiocpu"},
-    { name="mcu", skip=true },
-    { name="gfx1" },
-    { name="gfx2", sequence=[0,1,4,5,2,3,4,5], no_offset=true },
-    { name="gfx3", no_offset=true },
-    { name="proms", no_offset=true },
-    { name="plds", skip=true }
+    { name="audiocpu", start=$JTFRAME_BA1_START },
+    { name="gfx1", start=$JTFRAME_BA2_START },
+    { name="gfx3", width=16, sequence=[0,3,1,4,2,5] },
+    { name="gfx2", width=32, sequence=[0,1,2,2,3,4,5,5], start=$JTFRAME_BA3_START },
+    { name="proms" },
+    { name="plds", skip=true },
 ]
 
 order=[ "maincpu", "audiocpu", "gfx1",
-    "gfx2", "gfx3", "proms"
-]
+    "gfx3", "gfx2", "proms" ]

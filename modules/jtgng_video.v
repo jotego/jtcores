@@ -49,7 +49,6 @@ parameter [1:0] OBJ_PAL = 2'b01, // 01 for GnG, 10 for Commando
     input               RnW,
     input               flip,
     input       [ 7:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  char_dout,

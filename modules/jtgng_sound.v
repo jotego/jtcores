@@ -58,8 +58,8 @@ module jtgng_sound(
     input      [ 7:0] debug_bus,
     output reg [ 7:0] debug_view
 );
-
 parameter       LAYOUT=0;
+`ifndef NOSOUND
     // 0 GnG, most games
     // 1 Commando:
     //      -Smaller ROM
@@ -391,6 +391,8 @@ jt03 u_fm0(
     // unused ports
     .IOA_in (            ),
     .IOB_in (            ),
+    .IOA_out(            ),
+    .IOB_out(            ),
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
@@ -415,6 +417,8 @@ jt03 u_fm1(
     // unused ports
     .IOA_in (            ),
     .IOB_in (            ),
+    .IOA_out(            ),
+    .IOB_out(            ),
     .psg_A  (            ),
     .psg_B  (            ),
     .psg_C  (            ),
@@ -433,5 +437,13 @@ jt03 u_fm1(
         $fwrite(fsnd,"%u", {fm0_snd, fm1_snd});
     end
 `endif
-
+`else
+    initial snd2_latch=0;
+    initial debug_view=0;
+    initial rom_cs=0;
+    assign rom_addr=0;
+    assign ym_snd=0;
+    assign sample=0;
+    assign peak=0;
+`endif
 endmodule // jtgng_sound

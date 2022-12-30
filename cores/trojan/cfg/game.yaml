@@ -7,7 +7,7 @@ game:
       - jttrojan_colmix.v
   - from: commnd
     get:
-      - jtcommando_main.v
+      - jtcommnd_main.v
   - from: sectnz
     get:
       - jtsectionz_prom_we.v

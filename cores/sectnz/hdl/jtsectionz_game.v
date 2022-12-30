@@ -177,7 +177,7 @@ wire [8:0] scr_hpos, scr_vpos;
 
 `ifndef NOMAIN
 
-jtcommando_main #(.GAME(1)) u_main(
+jtcommnd_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),

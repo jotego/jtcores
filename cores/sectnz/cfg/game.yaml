@@ -7,7 +7,7 @@ game:
       - jtsectionz_colmix.v
   - from: commnd
     get:
-      - jtcommando_main.v
+      - jtcommnd_main.v
 jtframe:
   - from: clocking
     get:

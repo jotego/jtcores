@@ -1,7 +1,7 @@
 game:
   - from: commnd
     get:
-      - jtcommando_main.v
+      - jtcommnd_main.v
   - from: exed
     get:
       - jtexed_game.v

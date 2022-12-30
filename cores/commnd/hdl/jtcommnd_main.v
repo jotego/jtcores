@@ -19,7 +19,7 @@
 // commando: Main CPU
 
 
-module jtcommando_main(
+module jtcommnd_main(
     input              rst,
     input              clk,
     input              cen6,   // 6MHz
@@ -89,7 +89,7 @@ module jtcommando_main(
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
 );
-
+`ifndef NOMAIN
 // 0: Commando
 // 1: Section Z
 // 3: EXEDEXES
@@ -473,4 +473,35 @@ jtframe_z80 u_cpu(
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
 );
+`else
+    assign bus_ack = 0;
+    assign cpu_AB = 0;
+    assign cpu_cen = 0;
+    assign cpu_dout = 0;
+    assign ram_dout = 0;
+    assign RnW = 0;
+    initial begin
+        blue_cs=0;
+        char_cs=0;
+        char_on=0;
+        flip=0;
+        obj_on=0;
+        OKOUT=0;
+        redgreen_cs=0;
+        rom_addr=0;
+        rom_cs=0;
+        scr1_on=0;
+        scr1_pal=0;
+        scr2_hpos=0;
+        scr2_on=0;
+        scr2_pal=0;
+        scr_cs=0;
+        scr_hpos=0;
+        scr_vpos=0;
+        snd2_latch=0;
+        snd_int=0;
+        snd_latch=0;
+        sres_b=0;
+    end
+`endif
 endmodule

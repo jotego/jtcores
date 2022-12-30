@@ -17,97 +17,43 @@
     Date: 29-6-2019 */
 
 
-module jtcommando_game(
-    input           rst,
-    input           clk,
-    output          pxl2_cen,   // 12   MHz
-    output          pxl_cen,    //  6   MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 6:0]  joystick1,
-    input   [ 6:0]  joystick2,
-    // SDRAM interface
-    input           downloading,
-    output          dwnld_busy,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
-    input           data_dst,
-    input           data_rdy,
-    input           sdram_ack,
-    // ROM LOAD
-    input   [21:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    input           ioctl_wr,
-    output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
-    output  [ 1:0]  prog_mask,
-    output          prog_we,
-    output          prog_rd,
-    // DIP switches
-    input   [31:0]  status,
-    input   [31:0]  dipsw,
-    input           service,
-    input           dip_pause,
-    inout           dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    // Sound output
-    output  signed [15:0] snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg,
-    input           enable_fm,
-    // Debug
-    input   [3:0]   gfx_en,
-    input   [ 7:0]  debug_bus,
-    output  [ 7:0]  debug_view
+module jtcommnd_game(
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
-
-parameter CLK_SPEED=48;
-
-wire [8:0] V;
-wire [8:0] H;
-wire       HINIT, preLVBL, preLHBL;
+wire [ 8:0] V, H;
+wire        HINIT, preLVBL, preLHBL;
 
 wire [12:0] cpu_AB;
-wire snd_cs;
-wire char_cs;
-wire flip;
-wire [7:0] cpu_dout, char_dout, scr_dout;
-wire rd, cpu_cen;
-wire char_busy, scr_busy;
+wire        flip;
+wire [ 7:0] cpu_dout, char_dout, scr_dout;
+wire        rd, cpu_cen, char_busy, scr_busy,
+            char_cs, scr_cs;
 
-// ROM data
-wire [15:0] char_data;
-wire [23:0] scr_data;
-wire [15:0] obj_data;
-wire [ 7:0] main_data;
-wire [ 7:0] snd_data;
-// ROM address
-wire [15:0] main_addr;
-wire [14:0] snd_addr;
-wire [12:0] char_addr;
-wire [14:0] scr_addr;
-wire [15:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
-
-
-wire main_ok, snd_ok, obj_ok;
 wire cen12, cen6, cen3, cen1p5;
+
+wire RnW;
+// sound
+wire sres_b, snd_int;
+wire [7:0] snd_latch;
+
+// OBJ
+wire OKOUT, blcnten, bus_req, bus_ack;
+wire [ 8:0] obj_AB;
+wire [7:0] main_ram;
+
+reg  [5:0] prom_sel;
+
+wire LHBL_obj, LVBL_obj;
+wire prom_1d = prom_sel[0];
+wire prom_2d = prom_sel[1];
+wire prom_3d = prom_sel[2];
+// wire prom_1h = prom_sel[3];
+wire prom_6l = prom_sel[4];
+// wire prom_6e = prom_sel[5];
+
+wire [8:0] scr_hpos, scr_vpos;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
@@ -116,16 +62,27 @@ assign sample=1'b1;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
+assign debug_view = 0;
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  ( cen12     ),
     .cen6   ( cen6      ),
     .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
+    .cen1p5 ( cen1p5    ),
+    // Unused
+    .cen16  (           ),
+    .cen8   (           ),
+    .cen4   (           ),
+    .cen4_12(           ),
+    .cen3q  (           ),
+    .cen3qb (           ),
+    .cen16b (           ),
+    .cen12b (           ),
+    .cen6b  (           ),
+    .cen3b  (           ),
+    .cen1p5b(           )
 );
-
-wire LHBL_obj, LVBL_obj;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -142,50 +99,12 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-wire RnW;
-// sound
-wire sres_b, snd_int;
-wire [7:0] snd_latch;
+always @* begin
+    prom_sel = 0;
+    prom_sel[ ioctl_addr[10:8] ] = 1;
+end
 
-wire        main_cs;
-// OBJ
-wire OKOUT, blcnten, bus_req, bus_ack;
-wire [ 8:0] obj_AB;
-wire [7:0] main_ram;
-
-wire [5:0] prom_we;
-
-jtcommando_prom_we u_prom_we(
-    .clk         ( clk           ),
-    .downloading ( downloading   ),
-
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_dout    ),
-
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_addr   ( prog_addr     ),
-    .prog_we     ( prog_we       ),
-
-    .prom_we     ( prom_we       ),
-    .sdram_ack   ( sdram_ack     )
-);
-
-wire prom_1d = prom_we[0];
-wire prom_2d = prom_we[1];
-wire prom_3d = prom_we[2];
-// wire prom_1h = prom_we[3];
-wire prom_6l = prom_we[4];
-// wire prom_6e = prom_we[5];
-
-wire scr_cs;
-wire [8:0] scr_hpos, scr_vpos;
-
-
-`ifndef NOMAIN
-
-jtcommando_main u_main(
+jtcommnd_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -240,21 +159,21 @@ jtcommando_main u_main(
     // DIP switches
     .dip_pause  ( dip_pause     ),
     .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       )
+    .dipsw_b    ( dipsw_b       ),
+    // Unused pins
+    .blue_cs     (              ),
+    .redgreen_cs (              ),
+    .char_on     (              ),
+    .snd2_latch  (              ),
+    .scr2_hpos   (              ),
+    .cen_sel     (              ),
+    .scr1_on     (              ),
+    .scr2_on     (              ),
+    .obj_on      (              ),
+    .scr1_pal    (              ),
+    .scr2_pal    (              )
 );
-`else
-assign main_addr   = 16'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-assign cpu_cen     = cen3;
-`endif
 
-`ifndef NOSOUND
 jtgng_sound #(.LAYOUT(1)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -276,16 +195,12 @@ jtgng_sound #(.LAYOUT(1)) u_sound (
     // sound output
     .ym_snd         ( snd            ),
     .sample         ( sample         ),
-    .peak           ( game_led       )
+    .peak           ( game_led       ),
+    // Unused
+    .debug_bus      ( debug_bus      ),
+    .debug_view     (                ),
+    .snd2_latch     (                )
 );
-`else
-assign snd_addr = 15'd0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
-`endif
-
-wire scr1_ok, scr2_ok, char_ok;
-wire scr_ok = scr1_ok & scr2_ok;
 
 jtgng_video #(
     .OBJ_PAL      (2'b10),
@@ -317,7 +232,7 @@ jtgng_video #(
     .scr_cs     ( scr_cs        ),
     .scr_dout   ( scr_dout      ),
     .scr_addr   ( scr_addr      ),
-    .scr_data   ( scr_data      ),
+    .scr_data   ( scr_data[23:0]),
     .scr_busy   ( scr_busy      ),
     .scr_hpos   ( scr_hpos      ),
     .scr_vpos   ( scr_vpos      ),
@@ -347,78 +262,12 @@ jtgng_video #(
     .preLHBL    ( preLHBL       ),
     .preLVBL    ( preLVBL       ),
     .gfx_en     ( gfx_en        ),
+    .blue_cs    ( 1'b0          ),
+    .redgreen_cs( 1'b0          ),
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          )
-);
-
-wire [7:0] scr_nc; // no connect
-
-// Scroll data: Z, Y, X
-jtframe_rom #(
-    .SLOT0_AW    ( 13              ), // Char
-    .SLOT1_AW    ( 15              ), // Scroll 1, bytes 0-1
-    .SLOT2_AW    ( 15              ), // Scroll 1, byte 2
-    .SLOT6_AW    ( 15              ), // Sound
-    .SLOT7_AW    ( 16              ), // Main
-    .SLOT8_AW    ( 16              ), // OBJ
-
-    .SLOT0_DW    ( 16              ), // Char
-    .SLOT1_DW    ( 16              ), // Scroll 1, bytes 0-1
-    .SLOT2_DW    ( 16              ), // Scroll 1, byte 2
-    .SLOT6_DW    (  8              ), // Sound
-    .SLOT7_DW    (  8              ), // Main
-    .SLOT8_DW    ( 16              ), // OBJ
-
-    .SLOT6_OFFSET( 22'h0_C000 >> 1 ),
-    .SLOT0_OFFSET( 22'h1_0000 >> 1 ),
-    .SLOT1_OFFSET( 22'h1_4000 >> 1 ),
-    .SLOT2_OFFSET( (22'h1_4000 >> 1) + 22'h0_8000 ),
-    .SLOT8_OFFSET( (22'h1_4000 >> 1) + 22'h1_0000 )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( LVBL          ),
-    .slot2_cs    ( LVBL          ),
-    .slot3_cs    ( 1'b0          ), // unused
-    .slot4_cs    ( 1'b0          ), // unused
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( snd_cs        ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( scr1_ok       ),
-    .slot2_ok    ( scr2_ok       ),
-    .slot6_ok    ( snd_ok        ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( scr_addr      ),
-    .slot2_addr  ( scr_addr      ),
-    .slot6_addr  ( snd_addr      ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( scr_data[15:0]),
-    .slot2_dout  ( { scr_nc, scr_data[23:16]       } ),
-    .slot6_dout  ( snd_data      ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
 );
 
 endmodule

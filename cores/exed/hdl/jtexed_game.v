@@ -225,7 +225,7 @@ jtframe_dwnld #(
 
 `ifndef NOMAIN
 
-jtcommando_main #(.GAME(3)) u_main(
+jtcommnd_main #(.GAME(3)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
