@@ -3,7 +3,7 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="blktiger.cpp"
-# skip.Setnames=["diamond"]
+skip.bootlegs=true
 
 [buttons]
 core=2 # max number of buttons supported by the core

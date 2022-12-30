@@ -1,0 +1,31 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="bionicc.cpp"
+# skip.Setnames=["diamond"]
+
+[buttons]
+names=[
+    { names="Shoot,Arm" }
+]
+
+# Need to reorder it in the core
+# so regions don't get merged
+# [ROM]
+# regions=[
+#     { name="maincpu", no_offset=true },
+#     { name="audiocpu"},
+#     { name="mcu", skip=true },
+#     { name="gfx1" },
+#     { name="gfx2", sequence=[0,4,1,5,2,6,3,7], no_offset=true },
+#     { name="gfx3", no_offset=true },
+#     { name="gfx4", sequence=[0,4,1,5,2,6,3,7], no_offset=true },
+#     { name="tilerom", no_offset=true },
+#     { name="proms", sequence=[4,7,0,6,1,2,10,3,11,9,8,5], no_offset=true },
+# ]
+
+# order=[ "maincpu", "audiocpu", "gfx1",
+#     "tilerom", "gfx2", "gfx3", "gfx4",
+#     "proms"
+# ]

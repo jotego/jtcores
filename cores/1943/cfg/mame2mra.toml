@@ -3,7 +3,6 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="1943.cpp"
-# skip.Setnames=["diamond"]
 
 [buttons]
 names=[

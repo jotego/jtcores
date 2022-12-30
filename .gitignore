@@ -50,6 +50,7 @@ rom/gng/*
 rom/gngroms/*
 rom/commando/*
 rom/*zip
+rom/pocket
 *.smsg
 *.summary
 ncverilog.*

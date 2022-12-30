@@ -1,0 +1,31 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="commando.cpp"
+# The first byte in these games is encoded, opposite to
+# other games
+skip.Setnames=["sinvasnb","mercenario","commandob"]
+
+[buttons]
+names=[
+    { names="Shoot,Grenade" }
+]
+
+# Need to reorder it in the core
+# so regions don't get merged
+[ROM]
+regions=[
+    { name="maincpu", no_offset=true },
+    { name="audiocpu"},
+    { name="mcu", skip=true },
+    { name="gfx1" },
+    { name="gfx2", sequence=[0,1,4,5,2,3,4,5], no_offset=true },
+    { name="gfx3", no_offset=true },
+    { name="proms", no_offset=true },
+    { name="plds", skip=true }
+]
+
+order=[ "maincpu", "audiocpu", "gfx1",
+    "gfx2", "gfx3", "proms"
+]

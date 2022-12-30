@@ -5,13 +5,7 @@ mraauthor=["jotego"]
 sourcefile="exedexes.cpp"
 
 [buttons]
-core=2
-names=[
-    {machine="exedexes", names="Shot,Bomb"},
-]
-
-[rbf]
-name="jtexed"
+names=[ { names="Shot,Bomb"} ]
 
 [ROM]
 regions = [
@@ -24,7 +18,7 @@ regions = [
     { name="object",   rename="gfx4",      start=$OBJ_START, width=16, reverse=true, no_offset=true  },
     { name="proms",                        start=$PROM_START, rom_len=0x100 }
 ]
-# { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
+
 order = [
     "maincpu", "soundcpu", "maps", "char", "scr1", "scr2",
     "object", "proms"
