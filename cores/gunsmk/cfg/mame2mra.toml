@@ -1,0 +1,22 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="gunsmoke.cpp"
+
+[buttons]
+names=[
+    { names="Shoot left,Shoot centre,Shoot right" }
+]
+
+[ROM]
+regions=[
+    { name="tiles", no_offset=true, sequence=[0,4,1,5,2,6,3,7] },
+    { name="sprites", no_offset=true, sequence=[0,4,1,5,2,6,3,7] },
+]
+
+order=[
+    "maincpu","audiocpu","chars",
+    "tiles", "bgtiles", "tiles",
+    "sprites", "proms"
+]
