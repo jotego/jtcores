@@ -13,13 +13,10 @@ names=[
 [ROM]
 regions=[
     { name="maincpu", no_offset=true },
-    { name="audiocpu", no_offset=true },
-    { name="samples"},
     { name="text",no_offset=true, start=$CHAR_START },
     { name="bgmap", sequence=[0,0], no_offset=true },
     { name="tiles", sequence=[4,5,6,7,0,1,2,3], no_offset=true },
     { name="spritegen", sequence=[3,2,1,0], no_offset=true },
-    { name="proms" }
 ]
 
 order=[ "maincpu", "audiocpu", "sample", "text", "bgmap", "tiles", "spritegen", "proms"]

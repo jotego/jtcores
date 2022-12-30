@@ -7,7 +7,17 @@ skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant",
     "tigeroad","tigeroadb","tigeroadu","toramich"]
 
 [buttons]
-core=2 # max number of buttons supported by the core
 names=[
     { names="Low Gear,High Gear" }
 ]
+
+[ROM]
+regions=[
+    { name="maincpu", no_offset=true },
+    { name="text",no_offset=true, start=$CHAR_START },
+    { name="bgmap", sequence=[0,0], no_offset=true },
+    { name="tiles", sequence=[4,5,6,7,0,1,2,3], no_offset=true },
+    { name="spritegen", sequence=[3,2,1,0], no_offset=true },
+]
+
+order=[ "maincpu", "audiocpu", "text", "bgmap", "tiles", "spritegen", "proms", "mcu" ]
