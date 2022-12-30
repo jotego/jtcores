@@ -6,9 +6,8 @@ sourcefile="1943.cpp"
 # skip.Setnames=["diamond"]
 
 [buttons]
-core=2 # max number of buttons supported by the core
 names=[
-    { names="Shoot,Roll" }
+    { names="Shoot,Bomb" }
 ]
 
 [ROM]

@@ -1,0 +1,20 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="higemaru.cpp"
+
+[buttons]
+names=[
+    { names="Action" }
+]
+
+[ROM]
+regions=[
+    { name="maincpu", no_offset=true, reverse=true },
+    { name="gfx1" },
+    { name="gfx2", width=16, sequence=[1,0], no_offset=true },
+    { name="proms", no_offset=true },
+]
+
+order=["maincpu","gfx1","gfx2","proms"]
