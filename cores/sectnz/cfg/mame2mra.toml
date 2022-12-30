@@ -1,30 +1,39 @@
 [global]
 mraauthor=["jotego"]
 
-[features]
-# beta = true
-# debug = true
-
 [parse]
 sourcefile="lwings.cpp"
- skip = { bootlegs=true, setnames = [
-"avengers",
-"avengers2",
-"buraiken",
-"buraikenb",
-"fball",
-"trojan",
-"trojanb",
-"trojana",
-"trojanj",
-"trojanr"] }
-
+skip.Machines=[ "avengers", "trojan", "fball", "sectionz" ]
 [buttons]
-core=$JTFRAME_BUTTONS
-# Names = [ { names="Punch, Kick "} ]
+names=[
+    { machine="sectionz", names="Shoot,Turn" },
+    { machine="lwings", names="Shoot,Bomb" },
+]
+
+[header]
+len=32
+data=[ { machine="sectionz", pointer=0, data="00" },
+       { machine="lwings",   pointer=0, data="01" } ]
+offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3", "proms"]}
 
 [dipsw]
-bitcnt = 16
-delete = [ "Unused", "Unknown" ]
+rename=[ {name="Bonus Life", to="Bonus"}]
 
-# The MRA files for this core were not generated using the MRA tool
+[ROM]
+regions=[
+    { name="maincpu", sequence=[1,2,0] },
+    { name="gfx1" },
+    { name="gfx5", reverse=true },
+    { name="gfx4", width=16 },
+    { name="gfx2", width=32, sequence=[
+        6,4,2,0,
+        7,5,3,1
+    ] },
+    { name="gfx3", width=16, sequence=[
+        0,2, 1,3 ] },
+]
+
+order=[ "maincpu", "soundcpu", "adpcm",
+    "gfx5", "gfx4", "gfx1", "gfx2",
+    "gfx3"
+]
