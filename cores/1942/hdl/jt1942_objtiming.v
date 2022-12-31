@@ -36,11 +36,7 @@ module jt1942_objtiming(
     output reg [3:0]   bufcnt,
     output reg         line,
     output reg         pxlcnt_lsb,
-    output reg         over,
-    // Timing PROM (unused)
-    input   [7:0]      prog_addr,
-    input              prom_m11_we,
-    input   [1:0]      prog_din
+    output reg         over
 );
 
 parameter LAYOUT=0;

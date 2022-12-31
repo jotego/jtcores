@@ -43,7 +43,6 @@ module jt1942_obj(
     input       [15:0] obj_data,
     // PROMs
     input   [7:0]      prog_addr,
-    input              prom_m11_we,
     input              prom_pal_we,
     input   [3:0]      prog_din,
     // pixel output
@@ -74,10 +73,6 @@ jt1942_objtiming #(.LAYOUT(LAYOUT)) u_timing(
     .flip        ( flip          ),
     .obj_ok      ( obj_ok        ),
     .over        ( over          ),
-    // Timing PROM
-    .prog_addr   ( prog_addr     ),
-    .prom_m11_we ( prom_m11_we   ),
-    .prog_din    ( prog_din[1:0] ),
     .pxlcnt      ( pxlcnt        ),
     .pxlcnt_lsb  ( pxlcnt_lsb    ),
     .objcnt      ( objcnt        ),

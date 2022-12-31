@@ -71,7 +71,6 @@ module jt1942_video(
     input               prom_e9_we,
     input               prom_e10_we,
     input               prom_obj_we,
-    input               prom_m11_we,
     // Debug
     input       [3:0]   gfx_en
 );
@@ -268,7 +267,6 @@ jt1942_obj #(.PXL_DLY(4),.LAYOUT( {1'b0,VULGUS} )) u_obj(
     .obj_ok         ( obj_ok      ),
     // PROMs
     .prog_addr      ( prog_addr   ),
-    .prom_m11_we    ( prom_m11_we ), // Object logic timing
     .prom_pal_we    ( prom_obj_we ),
     .prog_din       ( prog_din    ),
     // pixel output

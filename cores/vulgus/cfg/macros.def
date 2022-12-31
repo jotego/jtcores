@@ -1,3 +1,5 @@
 include ../../1942/cfg/macros.def
+
 CORENAME=JTVULGUS
+GAMETOP=jtvulgus_game_sdram
 VULGUS

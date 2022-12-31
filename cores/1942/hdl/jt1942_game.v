@@ -41,18 +41,19 @@ wire [ 2:0] scr_br;
 wire [ 8:0] scr_hpos, scr_vpos;
 wire        char_busy, scr_busy;
 
-wire prom_red_we   = prog_addr[11:8]==0; // sb-5.e8
-wire prom_green_we = prog_addr[11:8]==1; // sb-6.e9
-wire prom_blue_we  = prog_addr[11:8]==2; // sb-7.e10
+wire        prom_red_we, prom_green_we, prom_blue_we,
+            prom_char_we, prom_scr_we, prom_obj_we,
+            prom_d1_we, prom_d2_we, prom_irq_we;
 
-wire prom_char_we  = prog_addr[11:8]==3; // sb-0.f1
-wire prom_d6_we    = prog_addr[11:8]==4; // sb-4.d6
-wire prom_obj_we   = prog_addr[11:8]==5; // sb-8.k3
-
-wire prom_d1_we    = prog_addr[11:8]==6; // sb-2.d1
-wire prom_d2_we    = prog_addr[11:8]==7; // sb-3.d2
-wire prom_irq_we   = prog_addr[11:8]==8; // sb-1.k6
-wire prom_m11_we   = prog_addr[11:8]==9; // sb-9.m11
+assign prom_red_we   = prog_addr[11:8]==0; // sb-5.e8
+assign prom_green_we = prog_addr[11:8]==1; // sb-6.e9
+assign prom_blue_we  = prog_addr[11:8]==2; // sb-7.e10
+assign prom_char_we  = prog_addr[11:8]==3; // sb-0.f1
+assign prom_scr_we   = prog_addr[11:8]==4; // sb-4.d6
+assign prom_obj_we   = prog_addr[11:8]==5; // sb-8.k3
+assign prom_d1_we    = prog_addr[11:8]==6; // sb-2.d1 -- unused by Vulgus
+assign prom_d2_we    = prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
+assign prom_irq_we   = prog_addr[11:8]==8; // sb-1.k6
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
@@ -214,15 +215,14 @@ jt1942_video u_video(
     // PROM access
     .prog_addr  ( prog_addr[7:0]),
     .prog_din   ( prog_data[3:0]),
-    .prom_char_we ( prom_char_we    ),
+    .prom_char_we( prom_char_we ),
     .prom_d1_we ( prom_d1_we    ),
     .prom_d2_we ( prom_d2_we    ),
-    .prom_d6_we ( prom_d6_we    ),
+    .prom_d6_we ( prom_scr_we   ),
+    .prom_obj_we( prom_obj_we   ),
     .prom_e8_we ( prom_red_we   ),
     .prom_e9_we ( prom_green_we ),
-    .prom_e10_we( prom_blue_we  ),
-    .prom_obj_we( prom_obj_we   ),
-    .prom_m11_we( prom_m11_we   )
+    .prom_e10_we( prom_blue_we  )
 );
 
 endmodule
