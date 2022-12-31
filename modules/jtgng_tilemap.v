@@ -18,6 +18,11 @@
 
 // 2-word tile memory
 
+// Building the video with so many generate statements made
+// it impossible to have clean warnings in verilator
+/* verilator lint_off SELRANGE */
+/* verilator lint_off WIDTH */
+
 //////////////////////////////////////////////////////////////////
 // Original board behaviour
 // Commando / G&G / 1942 / 1943
@@ -147,3 +152,6 @@ jtframe_dual_ram #(.aw(SCANW),.simfile(UPPER_SIMFILE)) u_ram_high(
 );
 
 endmodule
+
+/* verilator lint_on SELRANGE */
+/* verilator lint_on WIDTH */

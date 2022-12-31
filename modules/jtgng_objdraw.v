@@ -16,6 +16,11 @@
     Version: 1.0
     Date: 11-1-2019 */
 
+// Building the video with so many generate statements made
+// it impossible to have clean warnings in verilator
+/* verilator lint_off SELRANGE */
+/* verilator lint_off WIDTH */
+
 module jtgng_objdraw #(parameter
     DW               = 8,   // data width of the DMA
     ROM_AW           = 16,
@@ -327,3 +332,5 @@ generate
 endgenerate
 
 endmodule // jtgng_objdraw
+/* verilator lint_on SELRANGE */
+/* verilator lint_on WIDTH */

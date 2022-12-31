@@ -17,7 +17,7 @@
     Date: 27-10-2017 */
 
 // Generic 2-bit per pixel no-scroll tile generator
-
+/* verilator lint_off WIDTH */
 
 module jtgng_char #(parameter
     ROM_AW   = 13,
@@ -225,3 +225,4 @@ generate
 endgenerate
 
 endmodule // jtgng_char
+/* verilator lint_on WIDTH */

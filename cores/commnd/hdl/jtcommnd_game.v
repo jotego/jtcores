@@ -23,17 +23,17 @@ module jtcommnd_game(
 
 wire [ 8:0] V, H;
 wire        HINIT, preLVBL, preLHBL;
+wire [10:0] scr_hpos, scr_vpos;
 
 wire [12:0] cpu_AB;
 wire        flip;
 wire [ 7:0] cpu_dout, char_dout, scr_dout;
 wire        rd, cpu_cen, char_busy, scr_busy,
-            char_cs, scr_cs;
+            char_cs, scr_cs, RnW;
 
 wire [ 7:0] dipsw_a, dipsw_b;
-wire cen12, cen6, cen3, cen1p5;
+wire        cen12, cen6, cen3, cen1p5;
 
-wire RnW;
 // sound
 wire sres_b, snd_int;
 wire [7:0] snd_latch;
@@ -53,8 +53,6 @@ wire prom_3d = prom_sel[2];
 wire prom_6l = prom_sel[4];
 // wire prom_6e = prom_sel[5];
 
-wire [8:0] scr_hpos, scr_vpos;
-
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
@@ -63,6 +61,15 @@ assign sample=1'b1;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
 assign debug_view = 0;
+
+localparam OBJ_START = `JTFRAME_BA2_START + (`OBJ_OFFSET<<1);
+
+always @* begin
+    post_addr = prog_addr;
+    if( ioctl_addr>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
+        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
+    end
+end
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -101,7 +108,7 @@ jtgng_timer u_timer(
 
 always @* begin
     prom_sel = 0;
-    prom_sel[ ioctl_addr[10:8] ] = 1;
+    prom_sel[ prog_addr[10:8] ] = 1;
 end
 
 jtcommnd_main u_main(
@@ -234,8 +241,8 @@ jtgng_video #(
     .scr_addr   ( scr_addr      ),
     .scr_data   ( scr_data[23:0]),
     .scr_busy   ( scr_busy      ),
-    .scr_hpos   ( scr_hpos      ),
-    .scr_vpos   ( scr_vpos      ),
+    .scr_hpos   ( scr_hpos[8:0] ),
+    .scr_vpos   ( scr_vpos[8:0] ),
     .scr_ok     ( scr_ok        ),
     // OBJ
     .HINIT      ( HINIT         ),
