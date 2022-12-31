@@ -2,3 +2,6 @@ game:
   - from: 1942
     get:
       - ../cfg/game.yaml
+  - from: vulgus
+    get:
+      - jtvulgus_game_sdram.v

@@ -77,14 +77,24 @@ module jt1942_main(
 );
 
 parameter VULGUS=1'b0;
-
+`ifndef NOMAIN
 wire [15:0] A;
-wire [ 7:0] ram_dout;
-reg t80_rst_n;
-reg in_cs, ram_cs, bank_cs, flip_cs, brt_cs;
-reg scrpos_cs;
+wire [ 7:0] ram_dout, irq_vector;
+reg         t80_rst_n, in_cs, ram_cs,
+            bank_cs, flip_cs, brt_cs, scrpos_cs;
 
-wire mreq_n, rfsh_n;
+wire        iorq_n, m1_n, busak_n, mreq_n, rfsh_n;
+reg [ 7:0] cabinet_input;
+// Data bus input
+reg  [ 7:0] cpu_din;
+wire [ 3:0] int_ctrl;
+wire        irq_ack = !iorq_n && !m1_n;
+// RAM, 8kB
+wire        cpu_ram_we = ram_cs && !wr_n;
+
+assign irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K10
+assign cpu_AB     = A[12:0];
+
 assign cpu_cen = cen3;
 
 always @(*) begin
@@ -142,7 +152,7 @@ always @(posedge clk, posedge rst) begin
                 2'b11: scr_hpos[  8] <= cpu_dout[0];
             endcase
         end else begin // 1942
-            scr_vpos <= 8'h0;
+            scr_vpos <= 0;
             if( A[0] )
                 scr_hpos[8]   <= cpu_dout[0];
             else
@@ -155,18 +165,15 @@ end
 reg [1:0] bank;
 always @(posedge clk)
     if( rst ) begin
-        bank     <= 2'd0;
-        scr_br   <= 3'b0;
-        flip     <= 1'b0;
+        bank     <= 0;
+        scr_br   <= 0;
+        flip     <= 0;
         sres_b   <= 1'b1;
-        coin_cnt <= 1'b0;
+        coin_cnt <= 0;
     end
     else if(cen3) begin
         if( bank_cs  ) begin
             bank   <= VULGUS ? 2'd0 : cpu_dout[1:0];
-            `ifdef SIMULATION
-            $display("Bank changed to %d", cpu_dout[1:0]);
-            `endif
         end
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin
@@ -180,23 +187,11 @@ always @(posedge clk)
         end
     end
 
-always @(posedge clk)
+always @(posedge clk) begin
     t80_rst_n <= ~rst;
+end
 
-`ifdef SIMULATION
-wire [7:0] random;
-
-noise_gen u_noise(
-    .rst    ( rst    ),
-    .clk    ( clk    ),
-    .cen    ( cen3   ),
-    .noise  ( random )
-);
-`endif
-
-reg [7:0] cabinet_input;
-
-always @(*)
+always @(*) begin
     case( A[2:0] )
         3'd0: cabinet_input = { coin_input[0], coin_input[1], // COINS
                      1'd1, // Tilt ?
@@ -208,20 +203,16 @@ always @(*)
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
 
-        `ifdef FIRMWARE_SIM
-        3'd5: cabinet_input = random;
-        3'd6: if(in_cs) begin
-                $display("INFO: Simulation finished as per firmware request. (%m)");
-                #100 $finish;
-            end
-        `endif
+        // `ifdef FIRMWARE_SIM
+        // 3'd5: cabinet_input = random;
+        // 3'd6: if(in_cs) begin
+        //         $display("INFO: Simulation finished as per firmware request. (%m)");
+        //         #100 $finish;
+        //     end
+        // `endif
         default: cabinet_input = 8'hff;
     endcase
-
-
-// RAM, 8kB
-wire cpu_ram_we = ram_cs && !wr_n;
-assign cpu_AB = A[12:0];
+end
 
 jtframe_ram #(.aw(12)) RAM(
     .clk        ( clk       ),
@@ -231,13 +222,6 @@ jtframe_ram #(.aw(12)) RAM(
     .we         ( cpu_ram_we),
     .q          ( ram_dout  )
 );
-
-// Data bus input
-reg [7:0] cpu_din;
-wire [3:0] int_ctrl;
-wire iorq_n, m1_n;
-wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Schematic K10
 
 always @(*)
     if( irq_ack ) // Interrupt address
@@ -294,6 +278,10 @@ jtframe_z80wait #(2) u_wait(
     .clk        ( clk       ),
     .cen_in     ( cpu_cen   ),
     .cen_out    ( cpu_cenw  ),
+    .iorq_n     ( iorq_n    ),
+    .mreq_n     ( mreq_n    ),
+    .busak_n    ( busak_n   ),
+    .gate       (           ),
     // manage access to shared memory
     .dev_busy   ( { scr_busy, char_busy } ),
     // manage access to ROM data from SDRAM
@@ -316,10 +304,32 @@ jtframe_z80 u_cpu(
     .wr_n       ( wr_n        ),
     .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
-    .busak_n    (             ),
+    .busak_n    ( busak_n     ),
     .A          ( A           ),
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
 );
-
-endmodule // jtgng_main
+`else
+    assign cpu_AB = 0;
+    assign rd_n = 1;
+    assign wr_n = 1;
+    assign cpu_cen = cen3;
+    assign cpu_dout = 0;
+    initial begin
+        flip = 0;
+        sres_b = 0;
+        snd_int = 0;
+        snd_latch0_cs = 0;
+        snd_latch1_cs = 0;
+        char_cs = 0;
+        scr_cs = 0;
+        scr_br = 0;
+        scr_hpos = 0;
+        scr_vpos = 0;
+        obj_cs = 0;
+        rom_cs = 0;
+        rom_addr = 0;
+        coin_cnt = 0;
+    end
+`endif
+endmodule

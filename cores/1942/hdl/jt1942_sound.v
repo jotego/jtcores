@@ -33,10 +33,10 @@ module jt1942_sound(
     input           main_latch1_cs, // Vulgus PCB also has two latches. MAME ignores one of them.
     input           snd_int,
     // ROM access
-    (*keep*)output  reg     rom_cs,
+    output  reg     rom_cs,
     output  [14:0]  rom_addr,
     input   [ 7:0]  rom_data,
-    (*keep*)input           rom_ok,
+    input           rom_ok,
     // Sound output
     output signed [15:0] snd,
     output           sample,
@@ -44,7 +44,7 @@ module jt1942_sound(
 );
 
 parameter EXEDEXES=0;
-
+`ifndef NOSOUND
 wire mreq_n;
 wire rd_n;
 wire wr_n;
@@ -112,12 +112,6 @@ if( rst ) begin
 end else if(cen3) begin
     if( main_latch1_cs ) latch1 <= main_dout;
     if( main_latch0_cs ) latch0 <= main_dout;
-    `ifdef SIMULATION
-        if( main_latch1_cs )
-            $display("(%X) SND LATCH 1 = $%X", $time/1000, main_dout );
-        if( main_latch0_cs )
-            $display("(%X) SND LATCH 0 = $%X", $time/1000, main_dout );
-    `endif
 end
 
 reg [7:0] din;
@@ -270,5 +264,11 @@ generate
         assign peak = 0;
     end
 endgenerate
-
+`else
+    initial rom_cs = 0;
+    assign  rom_addr = 0;
+    assign  snd = 0;
+    assign  sample = 0;
+    assign  peak = 0;
+`endif
 endmodule

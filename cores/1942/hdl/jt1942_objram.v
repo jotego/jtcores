@@ -79,6 +79,7 @@ always @(posedge clk) begin
         4'b01_1: objbuf_data1 <= ram_data;
         4'b10_1: objbuf_data2 <= ram_data;
         4'b11_1: objbuf_data3 <= ram_data;
+        default:;
     endcase
 end
 

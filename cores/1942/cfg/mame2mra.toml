@@ -3,30 +3,24 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="1942.cpp"
-# skip.Setnames=["diamond"]
+skip.setnames=["1942abl","1942p"]
 
 [buttons]
 names=[
     { names="Shoot,Roll" }
 ]
 
-# Need to re-order the PROM load in the
-# core so the regions don't get split
-# [ROM]
-# regions=[
-#     { name="maincpu", no_offset=true, sequence= [0,1,2,3,3,4] },
-#     { name="audiocpu" },
-#     { name="gfx1" },
-#     { name="gfx2", sequence=[2,3,0,1,4,5,4,5] },
-#     { name="gfx3", sequence=[0,2,1,3] },
-#     { name="proms" },
-#     { name="charprom" },
-#     { name="tileprom" },
-#     { name="sprprom" },
-#     { name="palproms" }
-# ]
+[ROM]
+regions=[
+    { name="maincpu", no_offset=true, sequence=[0,1,2,3,3,4] },
+    { name="audiocpu", start=$JTFRAME_BA1_START },
+    { name="gfx1", start=$JTFRAME_BA2_START, reverse=true },
+    { name="gfx3", width=16, sequence=[2,0,3,1] },
+    { name="gfx2", width=32, sequence=[0,2,4,4,1,3,5,5], start=$JTFRAME_BA3_START },
+    { name="palproms", start=$JTFRAME_PROM_START },
+]
 
-# order=["maincpu","audiocpu","gfx1", "gfx2", "gfx3",
-#     "proms", "palproms",
-#     "charprom","tileprom", "sprprom"
-# ]
+order=["maincpu","audiocpu","gfx1", "gfx3", "gfx2",
+    "palproms",
+    "charprom","tileprom", "sprprom", "proms"
+]

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! -e rom.bin ]; then
-    ln -sr $ROM/1942.rom rom.bin
+    ln -sr $ROM/vulgus.rom rom.bin
 fi
 
 if [ -e char.bin ]; then

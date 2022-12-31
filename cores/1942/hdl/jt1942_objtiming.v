@@ -36,11 +36,7 @@ module jt1942_objtiming(
     output reg [3:0]   bufcnt,
     output reg         line,
     output reg         pxlcnt_lsb,
-    output reg         over,
-    // Timing PROM (unused)
-    input   [7:0]      prog_addr,
-    input              prom_m11_we,
-    input   [1:0]      prog_din
+    output reg         over
 );
 
 parameter LAYOUT=0;
@@ -67,11 +63,11 @@ always @(posedge clk) begin
     last_LHBL <= LHBL;
     okdly     <= obj_ok;
     if( posedge_LHBL ) begin
-        pxlcnt    <= 4'd0;
-        over      <= 1'b0;
-        bufcnt    <= 3'b0;
-        pxlcnt_lsb<= 1'b0;
-        auxcnt    <= 5'd0;
+        pxlcnt    <= 0;
+        over      <= 0;
+        bufcnt    <= 0;
+        pxlcnt_lsb<= 0;
+        auxcnt    <= 0;
     end else begin // image scan
         if(bufcnt!=4'b1010)
             bufcnt <= bufcnt+4'd1;
