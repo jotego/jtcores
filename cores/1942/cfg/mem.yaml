@@ -1,0 +1,29 @@
+params:
+  - { name: OBJ_OFFSET }
+download:
+  post_addr: true
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 17
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+    - buses:
+      - name: char
+        addr_width: 13
+        data_width: 16
+        cs: LVBL
+      - name: obj
+        addr_width: 16
+        data_width: 16
+        offset: OBJ_OFFSET
+        cs: 1'b1
+    - buses:
+      - name: scr
+        addr_width: 16
+        data_width: 32
+        cs: LVBL

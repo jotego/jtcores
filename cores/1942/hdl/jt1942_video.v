@@ -23,7 +23,7 @@ module jt1942_video(
     input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
-    output      [ 7:0]  V,
+    output      [ 8:0]  V,
     output      [ 8:0]  H,
     input               rd_n,
     input               wr_n,
@@ -99,7 +99,8 @@ jtgng_timer u_timer(
     .LHBL_obj  ( LHBL_obj ),
     .HS        ( HS       ),
     .VS        ( VS       ),
-    .Vinit     (          )
+    .Vinit     (          ),
+    .LVBL_obj  (          )
 );
 
 jtgng_char #(
@@ -117,11 +118,12 @@ jtgng_char #(
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
+    .dseln      (               ),
     // Bus arbitrion
     .char_cs    ( char_cs       ),
     .wr_n       ( wr_n          ),
@@ -242,7 +244,7 @@ assign scr_addr  = 14'd0;
 assign scr_pxl   = ~6'h0;
 `endif
 
-jt1942_obj #(.PXL_DLY(4),.LAYOUT(VULGUS)) u_obj(
+jt1942_obj #(.PXL_DLY(4),.LAYOUT( {1'b0,VULGUS} )) u_obj(
     .rst            ( rst       ),
     .clk            ( clk       ),
     .cen6           ( cen6      ),
@@ -252,7 +254,7 @@ jt1942_obj #(.PXL_DLY(4),.LAYOUT(VULGUS)) u_obj(
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
     .LVBL           ( LVBL      ),
-    .V              ( V         ),
+    .V              ( V[7:0]    ),
     .H              ( H         ),
     .flip           ( flip      ),
     // CPU bus
