@@ -46,6 +46,7 @@ module jtbiocom_sound(
 );
 
 parameter LAYOUT=3; // 9 for SF
+`ifndef NOSOUND
 
 wire [15:0] A;
 reg         fm_cs, latch_cs, ram_cs, mcu_cs;
@@ -205,6 +206,19 @@ always @(posedge rom_cs) begin
     nmi_req <= 1'b0;
     if( A == 16'h66 ) $display("NMI ack");
 end
+`endif
+
+`else // NOSOUND
+    assign snd_dout   = 0;
+    assign snd_mcu_wr = 0;
+    assign snd_mcu_rd = 0;
+    assign left       = 0;
+    assign right      = 0;
+    assign sample     = 0;
+    initial begin
+        rom_addr = 0;
+        rom_cs = 0;
+    end
 `endif
 
 endmodule

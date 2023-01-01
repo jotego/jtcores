@@ -91,7 +91,7 @@ module jtbiocom_main(
 );
 
 parameter GAME=0; // 0 for Bionic Commando, 1 for Tiger Road/F1Dream
-
+`ifndef NOMAIN
 wire [19:1] A;
 wire [3:0] ncA;
 
@@ -478,5 +478,35 @@ fx68k u_cpu(
     .VMAn       (             ),
     .E          (             )
 );
-
+`else // NOMAIN
+    assign cpu_cen = 0;
+    assign cpu_cenb = 0;
+    assign cpu_dout = 0;
+    assign UDSWn = 1;
+    assign LDSWn = 1;
+    assign cpu_AB = 0;
+    assign oram_dout = 0;
+    assign RnW = 1;
+    assign bus_ack = 0;
+    assign col_uw = 0;
+    assign col_lw = 0;
+    assign rom_addr = 0;
+    initial begin
+        flip = 0;
+        snd_latch = 0;
+        snd_nmi_n = 1;
+        char_cs = 0;
+        scr1_cs = 0;
+        scr2_cs = 0;
+        scr1_hpos = `ifdef SIM_SCR1_HPOS `SIM_SCR1_HPOS `else 0 `endif;
+        scr1_vpos = `ifdef SIM_SCR1_VPOS `SIM_SCR1_VPOS `else 0 `endif;
+        scr2_hpos = `ifdef SIM_SCR2_HPOS `SIM_SCR2_HPOS `else 0 `endif;
+        scr2_vpos = `ifdef SIM_SCR2_VPOS `SIM_SCR2_VPOS `else 0 `endif;
+        scr_bank = `ifdef SIM_SCRBANK `SIM_SCRBANK `else 0 `endif;
+        OKOUT = 0;
+        mcu_din = 0;
+        mcu_DMAONn = 0;
+        rom_cs = 0;
+    end
+`endif
 endmodule

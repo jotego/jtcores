@@ -16,6 +16,9 @@
     Version: 1.0
     Date: 19-2-2019 */
 
+/* verilator lint_off SELRANGE */
+/* verilator lint_off WIDTH */
+
 module jtgng_tile4 #(parameter
     PALETTE     =  1, // 1 for palette PROMs
     ROM_AW      = 17,
@@ -302,3 +305,6 @@ generate
 endgenerate
 
 endmodule
+
+/* verilator lint_on SELRANGE */
+/* verilator lint_on WIDTH */

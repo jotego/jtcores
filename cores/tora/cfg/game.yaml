@@ -21,8 +21,12 @@ jtframe:
       - jtframe_cen24.v
       - jtframe_frac_cen.v
   - from: cpu
+    unless: NOSOUND
     get:
       - jtframe_z80.yaml
+  - from: cpu
+    unless: NOMAIN
+    get:
       - jtframe_m68k.yaml
   - from: sdram
     get:

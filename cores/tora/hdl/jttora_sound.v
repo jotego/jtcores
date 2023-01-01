@@ -64,15 +64,6 @@ assign adpcm_snd  = jap ? prepcm_snd : 12'd0;
 
 always @(posedge clk) peak <= mix_peak | fm_peak;
 
-wire [1:0] level;
-wire       psgen_s, fmen_s;
-
-jtframe_sync #(.W(4)) syncer(
-    .clk_out( clk       ),
-    .raw    ( { enable_psg, enable_fm, psg_level } ),
-    .sync   ( { psgen_s, fmen_s, level }           )
-);
-
 jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .rst        (  rst          ),
     .clk        (  clk          ),
@@ -86,9 +77,9 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
 `endif
     .snd2_latch (  snd2_latch   ),
     .snd_int    (  1'b1         ), // unused
-    .enable_psg (  psgen_s      ),
-    .enable_fm  (  fmen_s       ),
-    .psg_level  (  level        ),
+    .enable_psg (  enable_psg   ),
+    .enable_fm  (  enable_fm    ),
+    .psg_level  (  psg_level    ),
     .rom_addr   (  rom_addr     ),
     .rom_cs     (  rom_cs       ),
     .rom_data   (  rom_data     ),
@@ -96,6 +87,7 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .ym_snd     (  fm_snd       ),
     .sample     (  sample       ),
     .peak       (  fm_peak      ),
+    .debug_bus  ( 8'd0          ),
     .debug_view ( debug_view    )
 );
 
@@ -103,10 +95,10 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
 reg [7:0] pcm_gain;
 
 always @(posedge clk) begin
-    if( !psgen_s )
+    if( !enable_psg )
         pcm_gain <= 8'h0;
     else begin
-        case( level )
+        case( psg_level )
             2'd0: pcm_gain <= 8'h04;
             2'd1: pcm_gain <= 8'h08;
             2'd2: pcm_gain <= 8'h10;

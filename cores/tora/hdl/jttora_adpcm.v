@@ -28,10 +28,10 @@ module jttora_adpcm(
     output          rom2_cs,
     input   [ 7:0]  rom2_data,
     input           rom2_ok,
-    `ifdef VERILATOR
-    output  [ 3:0]  adpcm_din,
-    output          adpcm_irq,
-    `endif
+    // `ifdef VERILATOR
+    // output  [ 3:0]  adpcm_din,
+    // output          adpcm_irq,
+    // `endif
 
     // Sound output
     output signed [11:0] snd
@@ -81,10 +81,10 @@ jt5205 u_adpcm(
     .vclk_o     (               )
 );
 
-`ifdef VERILATOR
-assign adpcm_din = pcm_data;
-assign adpcm_irq = irq_st;
-`endif
+// `ifdef VERILATOR
+// assign adpcm_din = pcm_data;
+// assign adpcm_irq = irq_st;
+// `endif
 
 reg last_irq_st;
 

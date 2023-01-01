@@ -58,6 +58,7 @@ module jttora_game(
     input   [31:0]  status,
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,
@@ -113,6 +114,10 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
 wire        video_cen8;
 
+wire [15:0] scrposh, scrposv;
+wire        UDSWn, LDSWn;
+
+
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
 
@@ -140,7 +145,7 @@ jtframe_cen48 u_cen48(
 /////////////////////////////////////
 // 24 MHz based clock enable signals
 wire        cen3, mcu_cen, clk_mcu;
-wire        cen10, cenfm, cenp384;
+wire        cenfm, cenp384;
 wire        nc,ncb;
 wire        cen10b;
 
@@ -161,16 +166,6 @@ jtframe_cen24 u_cen(
 );
 
 assign clk_mcu = clk24;
-
-// jtframe_frac_cen u_cen10(
-//     .clk    ( clk24          ),
-//     .n      ( 10'd5          ),         // numerator
-//     .m      ( 10'd12         ),         // denominator
-//     .cen    ( {nc,  cen10  } ),
-//     .cenb   ( /*{ncb, cen10b }*/ )  // 180 shifted
-// );
-//
-// always @(posedge clk24) cen10b<=cen10;
 
 jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
     .clk      ( clk24     ),
@@ -218,10 +213,6 @@ jttora_dwnld u_dwnld(
     .data_ok     ( data_rdy        )
 );
 
-wire [15:0] scrposh, scrposv;
-wire UDSWn, LDSWn;
-
-`ifndef NOMAIN
 jtbiocom_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -292,31 +283,6 @@ jtbiocom_main #(.GAME(1)) u_main(
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
-`else
-    `ifndef SIM_SCR_VPOS
-    `define SIM_SCR_HPOS 16'd0
-    `define SIM_SCR_VPOS 16'd0
-    `define SIM_SCR_BANK 1'b0
-    `endif
-    `ifndef SIM_SND_LATCH
-    `define SIM_SND_LATCH 8'd0
-    `endif
-    assign main_addr   = 17'd0;
-    assign cpu_AB      = 13'd0;
-    assign cpu_dout    = 16'd0;
-    assign char_cs     = 1'b0;
-    assign bus_ack     = 1'b0;
-    assign flip        = 1'b0;
-    assign RnW         = 1'b1;
-    assign UDSWn       = 1;
-    assign LDSWn       = 1;
-    assign scrposh     = `SIM_SCR_HPOS;
-    assign scrposv     = `SIM_SCR_VPOS;
-    assign scr_addr[18]= `SIM_SCR_BANK;
-    assign cpu_cen     = cen10;
-    assign OKOUT       = 1'b0;
-    assign snd_latch   = `SIM_SND_LATCH;
-`endif
 
 `ifdef F1DREAM
 `ifndef NOMCU

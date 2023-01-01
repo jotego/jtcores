@@ -5,10 +5,8 @@ game:
       - jtbiocom_game.v
       - jtbiocom_main.v
       - jtbiocom_mcu.v
-      - jtbiocom_prom_we.v
       - jtbiocom_video.v
       - jtbiocom_sound.v
-      - jtbiocom_sdram.v
       - jtbiocom_dwnld.v
 jtframe:
   - from: clocking

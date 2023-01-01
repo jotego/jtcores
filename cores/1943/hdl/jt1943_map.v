@@ -16,6 +16,9 @@
     Version: 1.0
     Date: 18-4-2021 */
 
+/* verilator lint_off WIDTH */
+/* verilator lint_off SELRANGE */
+
 module jt1943_map #( parameter
     [8:0] HOFFSET   = 9'd5,
     parameter
@@ -160,3 +163,6 @@ assign dout_high = map_data[MAPDW/2-1:0];
 assign dout_low  = map_data[MAPDW-1:MAPDW/2];
 
 endmodule
+
+/* verilator lint_on WIDTH */
+/* verilator lint_on SELRANGE */

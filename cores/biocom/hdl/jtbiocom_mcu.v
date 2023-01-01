@@ -61,7 +61,7 @@ module jtbiocom_mcu(
 
 parameter SINC_XDATA=1;
 parameter ROMBIN="../../../../rom/biocom/ts.2f";
-
+`ifndef NOMCU
 wire [15:0] ext_addr;
 wire [ 6:0] ram_addr;
 wire [ 7:0] ram_data;
@@ -199,5 +199,13 @@ always @(negedge int0n)
 
 always @(negedge int1n)
     $display ("MCU: int1n edge - sound CPU");
+`endif
+`else // NOMCU
+    assign mcu_dout=0;
+    assign mcu_wr=0;
+    assign mcu_addr=0;
+    assign mcu_brn=1;
+    assign DMAn=1;
+    initial snd_din=0;
 `endif
 endmodule

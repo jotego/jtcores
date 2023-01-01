@@ -169,7 +169,8 @@ u_scroll (
     .map_cs       ( map_cs         ),
     .scr_addr     ( scr_addr       ),
     .scrom_data   ( scr_data       ),
-    .scr_pxl      ( scr_pxl        )
+    .scr_pxl      ( scr_pxl        ),
+    .debug_bus    ( 8'd0           )
 );
 
 `else

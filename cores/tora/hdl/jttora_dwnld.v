@@ -63,7 +63,7 @@ always @(posedge clk) begin
         prog_mask <= 2'b11;
         if(last_convert) begin
             `ifdef SIMULATION
-            $display("INFO: Rom conversion finished. %t",$time);
+            $display("INFO: Rom conversion finished");
             `endif
             dwnld_busy<= 1'b0;
         end
