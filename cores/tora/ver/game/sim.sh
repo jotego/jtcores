@@ -16,11 +16,11 @@ if [ ! -z "$SCENE" ]; then
         echo "Scene folder $SCENE does not exist"
         exit 1
     fi
-    cp $SCENE/* .
+    cp $SCENE/*.{hex,bin} .
     source scrpos.sh
-    jtsim -nosnd -d NOMAIN -d NOMCU -video 5 \
-        -d JTCHAR_UPPER_SIMFILE=',.simfile({"char_upper.bin"})' \
-        -d JTCHAR_LOWER_SIMFILE=',.simfile({"char_lower.bin"})' \
+    jtsim -nosnd -d NOMAIN -d NOMCU -video 3 \
+        -d JTCHAR_UPPER_SIMFILE=',.simfile({"char_hi.bin"})' \
+        -d JTCHAR_LOWER_SIMFILE=',.simfile({"char_lo.bin"})' \
         -d SIM_SCR_HPOS=16\'h$SCRHPOS \
         -d SIM_SCR_VPOS=16\'h$SCRVPOS \
         -d SIM_SCR_BANK=1\'b$SCRBANK \

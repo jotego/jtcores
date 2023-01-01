@@ -95,7 +95,7 @@ always @(posedge clk, posedge rst)
 
 always @(posedge clk) if(cen) begin
     if( !blen )
-        full_cnt <= {AW+2{1'b0}};
+        full_cnt <= 0;
     else begin
         full_cnt <= full_cnt + 1'b1;
     end

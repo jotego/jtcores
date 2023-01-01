@@ -60,8 +60,8 @@ module jttora_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [17:0]  obj_addr,
-    input       [15:0]  obj_data,
+    output      [18:2]  obj_addr,
+    input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
     output              LVBL,
@@ -184,28 +184,20 @@ assign map_addr   = 14'd0;
 // So address bus is toggling with a 4MHz clock
 // and at 250ns per address, it can sweep 640 locations in 160us.
 
-jtgng_obj #(
-    .LAYOUT     ( LAYOUT     ),
-    .INVY       ( 1          ),
-    .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
-    .OBJMAX_LINE( 6'd32      ),
-    .PALW       ( 4          ),
-    .ROM_AW     ( 18         ),
+jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
+    .ROM_AW     ( 19         ),
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
-u_obj (
+u_obj(
     .rst        ( rst         ),
     .clk        ( clk         ),
-    .draw_cen   ( cen12       ),
     .dma_cen    ( cen8        ),
     .pxl_cen    ( cen6        ),
     // screen
-    .HINIT      ( HINIT       ),
-    .LHBL       ( LHBL_obj    ),
+    .hs         ( HS          ),
     .LVBL       ( LVBL        ),
-    .LVBL_obj   ( LVBL_obj    ),
-    .V          ( V[7:0]      ),
-    .H          ( H           ),
+    .vdump      ( V           ),
+    .hdump      ( H           ),
     .flip       ( flip        ),
     // CPU bus
     .AB         ( obj_AB[10:1]),
@@ -216,17 +208,12 @@ u_obj (
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
     // SDRAM interface
-    .obj_addr   ( obj_addr    ),
-    .obj_data   ( obj_data    ),
+    .rom_addr   ( obj_addr    ),
+    .rom_data   ( obj_data    ),
+    .rom_cs     (             ),
     .rom_ok     ( obj_ok      ),
     // pixel data
-    .obj_pxl    ( obj_pxl     ),
-    // unused
-    .OBJON      ( 1'b1        ), // not used for non palette PROM games
-    .prog_addr  ( 8'd0        ),
-    .prom_hi_we ( 1'b0        ),
-    .prom_lo_we ( 1'b0        ),
-    .prog_din   ( 4'd0        )
+    .pxl        ( obj_pxl     )
 );
 
 assign obj_AB[13:11] = 3'b111;

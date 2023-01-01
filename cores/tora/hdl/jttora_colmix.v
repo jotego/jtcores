@@ -46,7 +46,7 @@ module jttora_colmix(
     input      [3:0] gfx_en
 );
 
-parameter SIM_PRIO = "../../../rom/tora/tr.9e";
+parameter SIM_PRIO = "../../../../rom/tora/tr.9e";
 
 reg [9:0] pixel_mux;
 

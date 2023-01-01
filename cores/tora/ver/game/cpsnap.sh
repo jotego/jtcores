@@ -65,7 +65,7 @@ if ! which drop1; then
 fi
 
 dd if=tora_char.bin 2>/dev/null | drop1    > $SCENE/char_lo.bin
-dd if=tora_char.bin 2>/dev/null | drop1 -l > $SCENE/char_up.bin
+dd if=tora_char.bin 2>/dev/null | drop1 -l > $SCENE/char_hi.bin
 
 # Palette
 if [ ! -e pal_bin2hex ]; then

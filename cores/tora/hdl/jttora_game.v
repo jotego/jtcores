@@ -18,80 +18,18 @@
 
 
 module jttora_game(
-    input           rst,
-    input           clk,
-    input           rst24,
-    input           clk24,
-    output          pxl2_cen,   // 12   MHz
-    output          pxl_cen,    //  6   MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 5:0]  joystick1,
-    input   [ 5:0]  joystick2,
-    // SDRAM interface
-    input           downloading,
-    output          dwnld_busy,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
-    input           data_dst,
-    input           data_rdy,
-    input           sdram_ack,
-    // ROM LOAD
-    input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    input           ioctl_wr,
-    output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
-    output  [ 1:0]  prog_mask,
-    output          prog_we,
-    output          prog_rd,
-    // DIP switches
-    input   [31:0]  status,
-    input   [31:0]  dipsw,
-    input           service,
-    input           tilt,
-    input           dip_pause,
-    input           dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    // Sound output
-    output  signed [15:0] snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg,
-    input           enable_fm,
-    // Debug
-    input   [3:0]   gfx_en,
-    input   [ 7:0]  debug_bus,
-    output  [ 7:0]  debug_view
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-parameter CLK_SPEED=48;
-
-wire [ 8:0] V;
-wire [ 8:0] H;
+wire [ 8:0] V, H;
 
 wire [13:1] cpu_AB;
-wire        snd_cs, snd2_cs;
-wire        char_cs, map_cs, col_uw, col_lw;
+wire        char_cs, col_uw, col_lw;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
-wire        rd, cpu_cen;
+wire        rd, cpu_cen, video_cen8;
 wire        char_busy;
 
-// ROM data
-wire [15:0] char_data, scr_data, obj_data;
-wire [15:0] main_data, map_data;
-wire [ 7:0] snd_data, snd2_data;
 // MCU interface
 wire [ 7:0] snd_din, snd_dout;
 wire        snd_mcu_wr;
@@ -100,26 +38,40 @@ wire [ 7:0] mcu_din, mcu_dout;
 wire [16:1] mcu_addr;
 wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 
-// ROM address
-wire [17:1] main_addr;
-wire [14:0] snd_addr;
-wire [15:0] snd2_addr;
-wire [13:0] map_addr;
-wire [13:0] char_addr;
-wire [18:0] scr_addr;
-wire [14:0] scr2_addr;
-wire [17:0] obj_addr;
 wire [ 7:0] dipsw_a, dipsw_b;
 
-wire        main_ok, map_ok, scr_ok, snd_ok, snd2_ok, obj_ok, char_ok;
-wire        video_cen8;
-
 wire [15:0] scrposh, scrposv;
-wire        UDSWn, LDSWn;
+wire        UDSWn, LDSWn,RnW;
+// sound
+wire [7:0] snd_latch;
 
+// OBJ
+wire OKOUT, blcnten, obj_br, bus_ack;
+wire [13:1] obj_AB;     // 1 more bit than older games
+wire [15:0] oram_dout;
+
+wire        prom_mcu, prom_prio;
+reg         jap;        // high if Japanese ROM was loaded
 
 // A and B are inverted in this game (or in MAME definition)
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
+assign dip_flip = flip;
+
+// ROM Download
+assign prom_prio = prom_we && ioctl_addr[12:8]==0;
+assign prom_mcu  = prom_we && ioctl_addr[12:8]!=0;
+
+always @(posedge clk) begin
+    if( ioctl_addr == 'h41 && prog_we )
+        jap <= prog_data==8'h4A;
+end
+
+always @* begin
+    post_addr = prog_addr;
+    if( ioctl_addr>=`OBJ_START && ioctl_addr<`JTFRAME_BA3_START ) begin
+        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
+    end
+end
 
 /////////////////////////////////////
 // 48 MHz based clock enable signals
@@ -146,7 +98,6 @@ jtframe_cen48 u_cen48(
 // 24 MHz based clock enable signals
 wire        cen3, mcu_cen, clk_mcu;
 wire        cenfm, cenp384;
-wire        nc,ncb;
 wire        cen10b;
 
 jtframe_cen24 u_cen(
@@ -178,41 +129,6 @@ jtframe_cenp384 #(.CLK24(1)) u_cenp384(
     .cen_p384 ( cenp384   )
 );
 
-wire RnW;
-// sound
-wire [7:0] snd_latch;
-
-wire        main_cs;
-// OBJ
-wire OKOUT, blcnten, obj_br, bus_ack;
-wire [13:1] obj_AB;     // 1 more bit than older games
-wire [15:0] oram_dout;
-
-wire [1:0]  prom_we;
-wire        jap;        // high if Japanese ROM was loaded
-
-jttora_dwnld u_dwnld(
-    .clk         ( clk             ),
-    .downloading ( downloading     ),
-    .jap         ( jap             ),
-
-    .ioctl_wr    ( ioctl_wr        ),
-    .ioctl_addr  ( ioctl_addr[21:0]),
-    .ioctl_dout  ( ioctl_dout      ),
-
-    .prog_data   ( prog_data       ),
-    .prog_mask   ( prog_mask       ),
-    .prog_addr   ( prog_addr       ),
-    .prog_we     ( prog_we         ),
-    .prog_rd     ( prog_rd         ),
-
-    .prom_we     ( prom_we         ),
-    .sdram_dout  ( data_read[15:0] ),
-    .dwnld_busy  ( dwnld_busy      ),
-    .sdram_ack   ( sdram_ack       ),
-    .data_ok     ( data_rdy        )
-);
-
 jtbiocom_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -239,7 +155,7 @@ jtbiocom_main #(.GAME(1)) u_main(
     .scr1_dout  (               ),
     .scr1_hpos  ( scrposh       ),
     .scr1_vpos  ( scrposv       ),
-    .scr_bank   ( scr_addr[18]  ),
+    .scr_bank   ( scr_addr[19]  ),
     // SCROLL 2 - Unused
     .scr2_cs    (               ),
     .scr2_busy  ( 1'b0          ),
@@ -315,14 +231,14 @@ jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     // ROM programming
     .prog_addr  ( prog_addr[11:0] ),
     .prom_din   ( prog_data       ),
-    .prom_we    ( prom_we[1]      )
+    .prom_we    ( prom_mcu        )
 );
 `else
-assign mcu_DMAn = 1'b1;
-assign mcu_brn  = 1'b1;
-assign mcu_wr   = 1'b0;
-assign mcu_addr = 16'd0;
-assign mcu_dout =  8'd0;
+assign mcu_DMAn = 1;
+assign mcu_brn  = 1;
+assign mcu_wr   = 0;
+assign mcu_addr = 0;
+assign mcu_dout = 0;
 `endif
 
 
@@ -361,11 +277,11 @@ jttora_sound u_sound (
     .debug_view     ( debug_view     )
 );
 `else
-assign snd_addr  = 15'd0;
-assign snd2_addr = 15'd0;
-assign snd_cs    = 1'b0;
-assign snd2_cs   = 1'b0;
-assign snd       = 16'b0;
+assign snd_addr  = 0;
+assign snd2_addr = 0;
+assign snd_cs    = 0;
+assign snd2_cs   = 0;
+assign snd       = 0;
 assign debug_view= 0;
 assign game_led  = 0;
 assign sample    = 0;
@@ -399,7 +315,7 @@ jttora_video u_video(
     .map_addr   ( map_addr      ),
     .map_cs     ( map_cs        ),
     .map_ok     ( map_ok        ),
-    .scr_addr   ( scr_addr[17:0]),
+    .scr_addr   ( scr_addr[18:1]),
     .scr_data   ( scr_data      ),
     .scrposh    ( scrposh       ),
     .scrposv    ( scrposv       ),
@@ -418,7 +334,7 @@ jttora_video u_video(
     .obj_ok     ( obj_ok        ),
     // PROMs
     .prog_addr   ( prog_addr[7:0]),
-    .prom_prio_we( prom_we[0]    ),
+    .prom_prio_we( prom_prio     ),
     .prom_din    ( prog_data[3:0]),
     // Color Mix
     .LHBL       ( LHBL          ),
@@ -444,7 +360,7 @@ assign obj_br    = 1'b0;
 assign char_busy = 1'b0;
 `endif
 
-// map2 ports are used for the ADPCM CPU (snd2)
+/*
 jtframe_rom #(
     .SLOT0_AW    ( 14              ), // Char
     .SLOT0_DW    ( 16              ),
@@ -471,61 +387,8 @@ jtframe_rom #(
     .SLOT6_OFFSET( 22'h4_8000 >> 1 ),
 
     .SLOT8_AW    ( 18              ), // Objects
-    .SLOT8_DW    ( 16              ),
+    .SLOT8_DW    ( 32              ),
     .SLOT8_OFFSET( 22'h20_0000     )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( map_cs        ),
-    .slot2_cs    ( LVBL          ),
-    .slot3_cs    ( main_cs       ),
-    .slot5_cs    ( snd_cs        ),
-    .slot6_cs    ( snd2_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    ( map_ok        ),
-    .slot2_ok    ( scr_ok        ),
-    .slot3_ok    ( main_ok       ),
-    .slot5_ok    ( snd_ok        ),
-    .slot6_ok    ( snd2_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  ( map_addr      ),
-    .slot2_addr  ( scr_addr      ),
-    .slot3_addr  ( main_addr     ),
-    .slot5_addr  ( snd_addr      ),
-    .slot6_addr  ( snd2_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  ( map_data      ),
-    .slot2_dout  ( scr_data      ),
-    .slot3_dout  ( main_data     ),
-    .slot5_dout  ( snd_data      ),
-    .slot6_dout  ( snd2_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .downloading ( dwnld_busy    ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     ),
-    // Unused
-    .slot4_addr  (               ),
-    .slot7_addr  (               ),
-    .slot4_dout  (               ),
-    .slot7_dout  (               ),
-    .slot4_ok    (               ),
-    .slot7_ok    (               ),
-    .slot4_cs    ( 1'd0          ),
-    .slot7_cs    ( 1'd0          )
-);
+*/
 
 endmodule
