@@ -137,7 +137,7 @@ jtframe_cen48 u_cen(
     .cen1p5b(           )
 );
 
-jtframe_dwnld #(.PROM_START( PROM_START )) u_dwnld(
+jtframe_dwnld #(.PROM_START( PROM_START ),.SWAB(1)) u_dwnld(
     .clk         ( clk           ),
     .downloading ( downloading   ),
 
