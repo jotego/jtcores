@@ -2,8 +2,6 @@ params:
   - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA1_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA2_START)>>1" }
   - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA3_START)>>1" }
-download:
-  post_addr: true
 sdram:
   banks:
     - buses:

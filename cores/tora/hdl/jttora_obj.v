@@ -103,7 +103,7 @@ jttora_objdata u_objdata(
     .dr_busy    ( dr_busy   )
 );
 
-jtframe_objdraw#(.ALPHA('hf)) u_draw (
+jtframe_objdraw#(.ALPHA('hf),.LATCH(1),.SWAPH(1)) u_draw (
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

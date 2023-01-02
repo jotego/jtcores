@@ -7,7 +7,6 @@ game:
       - jtbiocom_mcu.v
       - jtbiocom_video.v
       - jtbiocom_sound.v
-      - jtbiocom_dwnld.v
 jtframe:
   - from: clocking
     get:

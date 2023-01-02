@@ -17,13 +17,13 @@ if [ ! -z "$SCENE" ]; then
         exit 1
     fi
     cp $SCENE/*.{hex,bin} .
-    source scrpos.sh
+    source $SCENE/scrpos.sh
     jtsim -nosnd -d NOMAIN -d NOMCU -video 3 \
         -d JTCHAR_UPPER_SIMFILE=',.simfile({"char_hi.bin"})' \
         -d JTCHAR_LOWER_SIMFILE=',.simfile({"char_lo.bin"})' \
-        -d SIM_SCR_HPOS=16\'h$SCRHPOS \
-        -d SIM_SCR_VPOS=16\'h$SCRVPOS \
-        -d SIM_SCR_BANK=1\'b$SCRBANK \
+        -d SIM_SCR1_HPOS=16\'h$SIM_SCR1_HPOS \
+        -d SIM_SCR1_VPOS=16\'h$SIM_SCR1_VPOS \
+        -d SIM_SCR_BANK=1\'b$SIM_SCR_BANK \
         -d VIDEO_START=1 \
         -deep $OTHER
 else

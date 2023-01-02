@@ -50,7 +50,7 @@ assign lut_addr = { obj_cnt, st };
 
 always @(*) begin
     vf   = vdump[7:0]^{8{flip}};
-    Vsum = (~vf + { {7{~flip}}, 1'b1})+lut_data[7:0];
+    Vsum = (vf + { {7{~flip}}, 1'b1})+lut_data[7:0];
 end
 
 always @(posedge clk) begin
@@ -75,7 +75,7 @@ always @(posedge clk, posedge rst) begin
         dr_start <= 0;
         if( ~hs & hsl ) begin
             drawn   <= 0;
-            obj_cnt <= 0;
+            obj_cnt <= OBJMAX;
             st      <= 0;
             done    <= 0;
         end
@@ -85,7 +85,7 @@ always @(posedge clk, posedge rst) begin
                 0: dr_code <= lut_data;
                 1: begin
                     dr_vflip <= lut_data[0];
-                    dr_hflip <= lut_data[1];
+                    dr_hflip <= ~lut_data[1];
                     dr_pal   <= lut_data[5:2];
                 end
                 2: begin // Object Y is on objbuf_data at this step
@@ -93,11 +93,11 @@ always @(posedge clk, posedge rst) begin
                     vinzone <= &Vsum[7:4];
                 end
                 3: begin
-                    dr_xpos <= lut_data[8:0];
+                    dr_xpos <= lut_data[8:0]^9'h100;
                     if( !vinzone || !dr_busy ) begin
-                        obj_cnt <= obj_cnt + 1'd1;
+                        obj_cnt <= obj_cnt - 1'd1;
                         if( vinzone ) drawn <= drawn + 1'd1;
-                        done <= (vinzone && &drawn) || obj_cnt==OBJMAX;
+                        done <= (vinzone && &drawn) || obj_cnt==0;
                     end
                     if( vinzone ) begin
                         dr_start <= !dr_busy;

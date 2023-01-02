@@ -66,13 +66,6 @@ always @(posedge clk) begin
         jap <= prog_data==8'h4A;
 end
 
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr>=`OBJ_START && ioctl_addr<`JTFRAME_BA3_START ) begin
-        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
-    end
-end
-
 /////////////////////////////////////
 // 48 MHz based clock enable signals
 jtframe_cen48 u_cen48(
@@ -359,36 +352,5 @@ assign blcnten   = 1'b0;
 assign obj_br    = 1'b0;
 assign char_busy = 1'b0;
 `endif
-
-/*
-jtframe_rom #(
-    .SLOT0_AW    ( 14              ), // Char
-    .SLOT0_DW    ( 16              ),
-    .SLOT0_OFFSET( 22'h5_8000 >> 1 ),
-
-    .SLOT1_AW    ( 14              ),
-    .SLOT1_DW    ( 16              ),
-    .SLOT1_OFFSET( 22'h6_0000 >> 1 ), // Map
-
-    .SLOT2_AW    ( 19              ), // Scroll
-    .SLOT2_DW    ( 16              ),
-    .SLOT2_OFFSET( 22'h10_0000     ), // SCR and OBJ are not shifted
-
-    .SLOT3_AW    ( 17              ), // main
-    .SLOT3_DW    ( 16              ),
-    .SLOT3_OFFSET(  0              ),
-
-    .SLOT5_AW    ( 15              ), // Sound 1
-    .SLOT5_DW    (  8              ),
-    .SLOT5_OFFSET( 22'h4_0000 >> 1 ),
-
-    .SLOT6_AW    ( 16              ), // Sound 2
-    .SLOT6_DW    (  8              ),
-    .SLOT6_OFFSET( 22'h4_8000 >> 1 ),
-
-    .SLOT8_AW    ( 18              ), // Objects
-    .SLOT8_DW    ( 32              ),
-    .SLOT8_OFFSET( 22'h20_0000     )
-*/
 
 endmodule

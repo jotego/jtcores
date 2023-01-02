@@ -502,7 +502,7 @@ fx68k u_cpu(
         scr1_vpos = `ifdef SIM_SCR1_VPOS `SIM_SCR1_VPOS `else 0 `endif;
         scr2_hpos = `ifdef SIM_SCR2_HPOS `SIM_SCR2_HPOS `else 0 `endif;
         scr2_vpos = `ifdef SIM_SCR2_VPOS `SIM_SCR2_VPOS `else 0 `endif;
-        scr_bank = `ifdef SIM_SCRBANK `SIM_SCRBANK `else 0 `endif;
+        scr_bank = `ifdef SIM_SCR_BANK `SIM_SCR_BANK `else 0 `endif;
         OKOUT = 0;
         mcu_din = 0;
         mcu_DMAONn = 0;
