@@ -46,6 +46,9 @@ module jthige_main(
     output  [12:0]     cpu_AB,
     output             rd_n,
     output             wr_n,
+    // RAM
+    output             ram_we,
+    input       [ 7:0] ram_dout,
     // ROM access
     output  reg        rom_cs,
     output      [14:0] rom_addr,
@@ -61,15 +64,15 @@ module jthige_main(
 );
 
 wire [15:0] A;
-wire [ 7:0] ram_dout, ay0_dout, ay1_dout;
+wire [ 7:0] ay0_dout, ay1_dout;
 reg  [ 7:0] cabinet_input, cpu_din, irq_vector;
 wire [3:0] int_ctrl;
 reg         t80_rst_n, in_cs, ram_cs, misc_cs, ay0_cs, ay1_cs;
-wire        mreq_n, rfsh_n, iorq_n, m1_n, busak_n, irq_ack, cpu_ram_we;
+wire        mreq_n, rfsh_n, iorq_n, m1_n, busak_n, irq_ack;
 
 assign irq_ack    = !iorq_n && !m1_n;
 assign cpu_AB     = A[12:0];
-assign cpu_ram_we = ram_cs && !wr_n;
+assign ram_we     = ram_cs && !wr_n;
 assign irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Same as 1942 (Schematic K10)
 
 assign cpu_cen  = cen3;
@@ -135,16 +138,6 @@ always @(*) begin
         default: cabinet_input = 8'hff;
     endcase
 end
-
-jtframe_ram #(.aw(12)) RAM(
-    .clk        ( clk       ),
-    .cen        ( cen3      ),
-    .addr       ( A[11:0]   ),
-    .data       ( cpu_dout  ),
-    .we         ( cpu_ram_we),
-    .q          ( ram_dout  )
-);
-
 
 always @(*)
     if( irq_ack ) // Interrupt address

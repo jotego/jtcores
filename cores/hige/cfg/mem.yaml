@@ -1,3 +1,6 @@
+ports:
+  - { name: cpu_dout, msb: 7}
+  - { name: ram_we }
 sdram:
   banks:
     - buses:
@@ -14,3 +17,10 @@ sdram:
         addr_width: 16
         data_width: 16
         cs: 1'b1
+bram:
+  - name: ram
+    addr: main_addr[11:0]
+    addr_width: 12
+    data_width: 8
+    din: cpu_dout
+    rw: true

@@ -22,7 +22,7 @@ module jthige_game(
 
 wire [ 8:0] V, H;
 wire [12:0] cpu_AB;
-wire [ 7:0] cpu_dout, char_dout;
+wire [ 7:0] char_dout;
 wire [ 7:0] chram_dout;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        char_cs, flip, cpu_cen;
@@ -92,6 +92,9 @@ jthige_main u_main(
     .cpu_AB     ( cpu_AB        ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
+    // RAM
+    .ram_we     ( ram_we        ),
+    .ram_dout   ( ram_dout      ),
     // SDRAM / ROM access
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
