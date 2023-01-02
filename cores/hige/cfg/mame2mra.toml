@@ -11,9 +11,9 @@ names=[
 
 [ROM]
 regions=[
-    { name="maincpu", no_offset=true },
-    { name="gfx1", reverse=true },
-    { name="gfx2", width=16, no_offset=true },
+    { name="maincpu" },
+    { name="gfx1", reverse=true, start=$JTFRAME_BA1_START },
+    { name="gfx2", width=16, start=$JTFRAME_BA2_START },
 ]
 
 order=["maincpu","gfx1","gfx2","proms"]

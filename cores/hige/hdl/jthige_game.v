@@ -17,65 +17,8 @@
     Date: 20-1-2019 */
 
 module jthige_game(
-    input           rst,
-    input           clk,
-    output          pxl2_cen,   // 12   MHz
-    output          pxl_cen,    //  6   MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 5:0]  joystick1, // MSB unused
-    input   [ 5:0]  joystick2, // MSB unused
-
-    // SDRAM interface
-    input           downloading,
-    output          dwnld_busy,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
-    input           data_dst,
-    input           data_rdy,
-    input           sdram_ack,
-
-    // ROM LOAD
-    input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    input           ioctl_wr,
-    output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
-    output  [ 1:0]  prog_mask,
-    output          prog_we,
-    output          prog_rd,
-    // DIP switches
-    input   [31:0]  status,     // ignored
-    input   [31:0]  dipsw,
-    input           service,    // unused
-    input           tilt,    // unused
-    input           dip_pause,
-    inout           dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    // Sound output
-    output  [15:0]  snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg, // unused
-    input           enable_fm,  // unused
-    // Debug
-    input   [ 3:0]  gfx_en
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
-
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-assign prog_rd    = 1'b0;
-assign dwnld_busy = downloading;
 
 wire [ 8:0] V, H;
 wire [12:0] cpu_AB;
@@ -83,7 +26,6 @@ wire [ 7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        char_cs, flip, cpu_cen;
-wire        main_ok, char_ok, obj_ok;
 wire        cen12, cen6, cen3, cen1p5;
 wire        preLHBL, preLVBL;
 wire [ 2:0] pre_r, pre_g, pre_b;
@@ -98,24 +40,8 @@ assign red    = { pre_r, pre_r[2] };
 assign green  = { pre_g, pre_g[2] };
 assign blue   = { pre_b, pre_b[2] };
 
-localparam [21:0] CHAR_OFFSET = 22'h8000 >> 1,
-                  OBJ_OFFSET  = 22'hA000 >> 1,
-                  PROM_START  = 22'hE000;
-
-localparam CHAR_AW=12, OBJ_AW=15, MAIN_AW=15;
-
-// ROM data
-wire  [CHAR_AW-1:0] char_addr;
-wire  [ OBJ_AW-1:0] obj_addr;
-wire  [MAIN_AW-1:0] main_addr;
-
-wire  [15:0] char_data, obj_data;
-wire  [ 7:0] main_data;
-
 wire         wr_n, rd_n;
-wire         main_cs, obj_cs;
-wire         char_busy;
-wire         prom_we;
+wire         char_cs, obj_cs, char_busy;
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -137,26 +63,8 @@ jtframe_cen48 u_cen(
     .cen1p5b(           )
 );
 
-jtframe_dwnld #(.PROM_START( PROM_START ),.SWAB(1)) u_dwnld(
-    .clk         ( clk           ),
-    .downloading ( downloading   ),
-
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_dout    ),
-    .ioctl_wr    ( ioctl_wr      ),
-
-    .prog_addr   ( prog_addr     ),
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_we     ( prog_we       ),
-    .prom_we     ( prom_we       ),
-
-    .sdram_ack   ( sdram_ack     ),
-    .header      (               )
-);
-
-wire prom_pal_we   = prom_we && prog_addr < 22'he020;
-wire prom_char_we  = prom_we && prog_addr >=22'he020 && prog_addr < 22'he120;
+wire prom_pal_we   = prom_we && prog_addr <  22'he020;
+wire prom_char_we  = prom_we && prog_addr >= 22'he020 && prog_addr < 22'he120;
 wire prom_obj_we   = prom_we && prog_addr >= 22'he120 && prog_addr < 22'he220;
 wire prom_irq_we   = prom_we && prog_addr >= 22'he220 && prog_addr < 22'he320;
 
@@ -254,71 +162,6 @@ jthige_video u_video(
     .prom_char_we( prom_char_we ),
     .prom_obj_we( prom_obj_we   ),
     .prom_pal_we( prom_pal_we   )
-);
-
-jtframe_rom #(
-    .SLOT0_OFFSET( CHAR_OFFSET ),
-    .SLOT8_OFFSET( OBJ_OFFSET  ),
-
-    .SLOT0_DW    ( 16         ),
-    .SLOT7_DW    (  8         ),
-    .SLOT8_DW    ( 16         ),
-
-    .SLOT0_AW    ( CHAR_AW    ),    // char
-    .SLOT7_AW    ( MAIN_AW    ),    // main
-    .SLOT8_AW    ( OBJ_AW     )     // OBJ
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( LVBL          ),
-    .slot1_cs    ( 1'b0          ),
-    .slot2_cs    ( 1'b0          ),
-    .slot3_cs    ( 1'b0          ), // unused
-    .slot4_cs    ( 1'b0          ), // unused
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( 1'b0          ),
-    .slot7_cs    ( main_cs       ),
-    .slot8_cs    ( 1'b1          ),
-
-    .slot0_ok    ( char_ok       ),
-    .slot1_ok    (               ),
-    .slot2_ok    (               ),
-    .slot3_ok    (               ),
-    .slot4_ok    (               ),
-    .slot5_ok    (               ),
-    .slot6_ok    (               ),
-    .slot7_ok    ( main_ok       ),
-    .slot8_ok    ( obj_ok        ),
-
-    .slot0_addr  ( char_addr     ),
-    .slot1_addr  (               ),
-    .slot2_addr  (               ),
-    .slot3_addr  (               ),
-    .slot4_addr  (               ),
-    .slot5_addr  (               ),
-    .slot6_addr  (               ),
-    .slot7_addr  ( main_addr     ),
-    .slot8_addr  ( obj_addr      ),
-
-    .slot0_dout  ( char_data     ),
-    .slot1_dout  (               ),
-    .slot2_dout  (               ),
-    .slot3_dout  (               ),
-    .slot4_dout  (               ),
-    .slot5_dout  (               ),
-    .slot6_dout  (               ),
-    .slot7_dout  ( main_data     ),
-    .slot8_dout  ( obj_data      ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   ( data_read     )
 );
 
 endmodule
