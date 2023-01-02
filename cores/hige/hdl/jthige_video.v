@@ -23,7 +23,7 @@ module jthige_video(
     input               cen3,
     input               cpu_cen,
     input       [10:0]  cpu_AB,
-    output      [ 7:0]  V,
+    output      [ 8:0]  V,
     output      [ 8:0]  H,
     input               rd_n,
     input               wr_n,
@@ -98,7 +98,7 @@ jtgng_char #(
     .pxl_cen    ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB        ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout      ),
@@ -137,7 +137,7 @@ jt1942_obj #(.PXL_DLY(OBJ_DLY), .LAYOUT(2)) u_obj(
     .HINIT          ( HINIT     ),
     .LHBL           ( LHBL_obj  ),
     .LVBL           ( LVBL      ),
-    .V              ( V         ),
+    .V              ( V[7:0]    ),
     .H              ( H         ),
     .flip           ( flip      ),
     // CPU bus
@@ -151,7 +151,6 @@ jt1942_obj #(.PXL_DLY(OBJ_DLY), .LAYOUT(2)) u_obj(
     .obj_ok         ( obj_ok      ),
     // PROMs
     .prog_addr      ( prom_addr   ), // corrected address
-    .prom_m11_we    ( 1'b0        ), // unused
     .prom_pal_we    ( prom_obj_we ),
     .prog_din       ( prog_din[3:0] ),
     // pixel output

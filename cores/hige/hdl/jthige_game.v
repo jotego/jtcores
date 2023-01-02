@@ -57,6 +57,7 @@ module jthige_game(
     input   [31:0]  status,     // ignored
     input   [31:0]  dipsw,
     input           service,    // unused
+    input           tilt,    // unused
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
@@ -76,8 +77,7 @@ module jthige_game(
 assign prog_rd    = 1'b0;
 assign dwnld_busy = downloading;
 
-wire [ 8:0] V;
-wire [ 8:0] H;
+wire [ 8:0] V, H;
 wire [12:0] cpu_AB;
 wire [ 7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout;
@@ -86,6 +86,7 @@ wire        char_cs, flip, cpu_cen;
 wire        main_ok, char_ok, obj_ok;
 wire        cen12, cen6, cen3, cen1p5;
 wire        preLHBL, preLVBL;
+wire [ 2:0] pre_r, pre_g, pre_b;
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
@@ -93,9 +94,9 @@ assign game_led = 0;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
 
-assign red[0]   = red[3];
-assign green[0] = green[3];
-assign blue[0]  = blue[3];
+assign red    = { pre_r, pre_r[2] };
+assign green  = { pre_g, pre_g[2] };
+assign blue   = { pre_b, pre_b[2] };
 
 localparam [21:0] CHAR_OFFSET = 22'h8000 >> 1,
                   OBJ_OFFSET  = 22'hA000 >> 1,
@@ -124,6 +125,7 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    ),
     // unused
     .cen16  (           ),
+    .cen16b (           ),
     .cen8   (           ),
     .cen4   (           ),
     .cen4_12(           ),
@@ -149,7 +151,8 @@ jtframe_dwnld #(.PROM_START( PROM_START )) u_dwnld(
     .prog_we     ( prog_we       ),
     .prom_we     ( prom_we       ),
 
-    .sdram_ack   ( sdram_ack     )
+    .sdram_ack   ( sdram_ack     ),
+    .header      (               )
 );
 
 wire prom_pal_we   = prom_we && prog_addr < 22'he020;
@@ -217,7 +220,7 @@ jthige_video u_video(
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
-    .V          ( V[7:0]        ),
+    .V          ( V             ),
     .H          ( H             ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
@@ -240,9 +243,9 @@ jthige_video u_video(
     .LVBL       ( LVBL          ),
     .HS         ( HS            ),
     .VS         ( VS            ),
-    .red        ( red[3:1]      ),
-    .green      ( green[3:1]    ),
-    .blue       ( blue[3:1]     ),
+    .red        ( pre_r         ),
+    .green      ( pre_g         ),
+    .blue       ( pre_b         ),
     .gfx_en     ( gfx_en        ),
     // PROM access
     .prog_addr  ( prog_addr[7:0]),

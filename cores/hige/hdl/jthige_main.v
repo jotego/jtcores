@@ -62,10 +62,15 @@ module jthige_main(
 
 wire [15:0] A;
 wire [ 7:0] ram_dout, ay0_dout, ay1_dout;
-reg  [ 7:0] cabinet_input;
-reg         t80_rst_n;
-reg         in_cs, ram_cs, misc_cs, ay0_cs, ay1_cs;
-wire        mreq_n, rfsh_n;
+reg  [ 7:0] cabinet_input, cpu_din, irq_vector;
+wire [3:0] int_ctrl;
+reg         t80_rst_n, in_cs, ram_cs, misc_cs, ay0_cs, ay1_cs;
+wire        mreq_n, rfsh_n, iorq_n, m1_n, busak_n, irq_ack, cpu_ram_we;
+
+assign irq_ack    = !iorq_n && !m1_n;
+assign cpu_AB     = A[12:0];
+assign cpu_ram_we = ram_cs && !wr_n;
+assign irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Same as 1942 (Schematic K10)
 
 assign cpu_cen  = cen3;
 assign rom_addr = A[14:0];
@@ -102,21 +107,22 @@ always @(*) begin
 end
 
 // special registers
-always @(posedge clk, posedge rst)
+always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        flip     <= 1'b0;
-    end
-    else if(cen3) begin
+        flip     <= 0;
+    end else if(cen3) begin
         if( misc_cs  ) begin
             // cpu_dout[1:0] are coin counters
             flip <= cpu_dout[7];
         end
     end
+end
 
-always @(posedge clk)
+always @(posedge clk) begin
     t80_rst_n <= ~rst;
+end
 
-always @(*)
+always @(*) begin
     case( A[2:0] )
         3'd0: cabinet_input = { 4'hf, joystick1[3:0] };
         3'd1: cabinet_input = { 4'hf, joystick2[3:0] & joystick1[3:0] };
@@ -128,11 +134,7 @@ always @(*)
         3'd4: cabinet_input = dipsw_b;
         default: cabinet_input = 8'hff;
     endcase
-
-
-// RAM, 8kB
-wire cpu_ram_we = ram_cs && !wr_n;
-assign cpu_AB = A[12:0];
+end
 
 jtframe_ram #(.aw(12)) RAM(
     .clk        ( clk       ),
@@ -143,12 +145,6 @@ jtframe_ram #(.aw(12)) RAM(
     .q          ( ram_dout  )
 );
 
-// Data bus input
-reg [7:0] cpu_din;
-wire [3:0] int_ctrl;
-wire iorq_n, m1_n;
-wire irq_ack = !iorq_n && !m1_n;
-wire [7:0] irq_vector = {3'b110, int_ctrl[1:0], 3'b111 }; // Same as 1942 (Schematic K10)
 
 always @(*)
     if( irq_ack ) // Interrupt address
@@ -196,6 +192,9 @@ jtframe_z80wait #(1) u_wait(
     .cen_in     ( cpu_cen   ),
     .cen_out    ( cpu_cenw  ),
     .gate       (           ),
+    .iorq_n     ( iorq_n    ),
+    .mreq_n     ( mreq_n    ),
+    .busak_n    ( busak_n   ),
     // manage access to shared memory
     .dev_busy   ( char_busy ),
     // manage access to ROM data from SDRAM
@@ -218,7 +217,7 @@ jtframe_z80 u_cpu(
     .wr_n       ( wr_n        ),
     .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
-    .busak_n    (             ),
+    .busak_n    ( busak_n     ),
     .A          ( A           ),
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
@@ -262,6 +261,7 @@ jt49_bus #(.COMP(2'b10)) u_ay1( // note that input ports are not multiplexed
     .sel    ( 1'b1      ),
     .dout   ( ay1_dout  ),
     .sound  ( sound1    ),
+    .sample (           ),
     // unused
     .IOA_in ( 8'h0      ),
     .IOA_out(           ),

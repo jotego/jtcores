@@ -1,13 +1,15 @@
 [all]
 CORENAME=JTHIGE
 GAMETOP=jthige_game
-JTFRAME_ARX=5
-JTFRAME_ARY=4
-#Color width is really 3, but needs 4 to make it work with avatars
-JTFRAME_COLORW=4
+
 VULGUS
 JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=2
 
 JTFRAME_WIDTH=256
 JTFRAME_HEIGHT=224
+
+JTFRAME_ARX=5
+JTFRAME_ARY=4
+#Color width is really 3, but needs 4 to make it work with avatars
+JTFRAME_COLORW=4
