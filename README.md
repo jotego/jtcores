@@ -150,7 +150,7 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
 
 # ROM Generation
 
-Each core in the releases folder continues files for linux and windows to generate the ROM file starting from a MAME set. Follow the instructions of that file. There are also MRA files available in the rom/mra folder. MRA files are the recommended way. Use the MRA-to-ROM converter from Sebdel if your device does not accept MRA files natively.
+Each core in the releases folder continues files for linux and windows to generate the ROM file starting from a MAME set. Follow the instructions of that file. There are also MRA files available in the [JTBIN](https://github.com/jotego(jtbin)). MRA files are the recommended way. Use the MRA-to-ROM converter from Sebdel if your device does not accept MRA files natively.
 
 # SD Card
 

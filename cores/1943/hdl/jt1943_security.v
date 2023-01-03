@@ -34,7 +34,7 @@ always @(posedge clk) if(cen) begin
     if( cs && !wr_n ) begin
         security <= din;
         `ifdef SIMULATION
-        $display("INFO: security write %X - %m at time %d", din, $time());
+        $display("INFO: security write %X\n", din);
         `endif
     end
     case( security )
