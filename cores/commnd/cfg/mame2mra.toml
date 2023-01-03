@@ -14,10 +14,10 @@ names=[
 
 [ROM]
 regions=[
-    { name="audiocpu", start=$JTFRAME_BA1_START },
-    { name="gfx1", start=$JTFRAME_BA2_START, reverse=true },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="gfx1", start="JTFRAME_BA2_START", reverse=true },
     { name="gfx3", width=16, sequence=[3,0,4,1,5,2] },
-    { name="gfx2", width=32, sequence=[0,2,4,4,1,3,5,5], start=$JTFRAME_BA3_START },
+    { name="gfx2", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START" },
     { name="plds", skip=true },
 ]
 

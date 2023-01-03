@@ -14,10 +14,16 @@ names=[
 [ROM]
 regions=[
     { name="maincpu", no_offset=true },
-    { name="text",no_offset=true, start=$CHAR_START },
-    { name="bgmap", sequence=[0,0], no_offset=true },
-    { name="tiles", sequence=[4,5,6,7,0,1,2,3], no_offset=true },
-    { name="spritegen", sequence=[3,2,1,0], no_offset=true },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="text",no_offset=true, start="JTFRAME_BA2_START", reverse=true },
+    { name="bgmap", reverse=true, start="JTFRAME_BA3_START" },
+    { name="tiles", sequence=[4,0,5,1,6,2,7,3], width=16, start="SCR_START" },
+    { name="spritegen", width=32, reverse=true, no_offset=true },
 ]
 
-order=[ "maincpu", "audiocpu", "text", "bgmap", "tiles", "spritegen", "proms", "mcu" ]
+order=[ "maincpu",
+    "audiocpu", "sample",
+    "text", "spritegen",
+    "bgmap", "tiles",
+    "proms"
+]
