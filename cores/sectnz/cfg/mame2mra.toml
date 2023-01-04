@@ -30,6 +30,7 @@ regions=[
     ] },
     { name="gfx3", width=16, sequence=[
         0,2, 1,3 ] },
+    { name="proms", skip=true },
 ]
 
 order=[ "maincpu", "soundcpu", "adpcm",
