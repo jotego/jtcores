@@ -58,6 +58,7 @@ module jtbtiger_game(
     input   [31:0]  status,
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
