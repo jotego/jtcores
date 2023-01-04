@@ -25,7 +25,7 @@ wire [12:0] cpu_AB;
 wire [ 7:0] char_dout;
 wire [ 7:0] chram_dout;
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        char_cs, flip, cpu_cen;
+wire        flip, cpu_cen;
 wire        cen12, cen6, cen3, cen1p5;
 wire        preLHBL, preLVBL;
 wire [ 2:0] pre_r, pre_g, pre_b;
