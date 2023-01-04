@@ -13,6 +13,8 @@ JTFRAME_BUTTONS=2
 JTFRAME_WIDTH=256
 JTFRAME_HEIGHT=240
 
+JTFRAME_HEADER=32
+
 [sidi|mist]
 # Better to leave direct speed to zero as this game needs some extra
 # cycles in between ioctl_wr pulses
