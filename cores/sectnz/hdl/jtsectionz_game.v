@@ -55,6 +55,7 @@ module jtsectionz_game(
     // DIP switches
     input   [31:0]  status,     // only bits 31:16 are looked at
     input           service,
+    input           tilt,
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,

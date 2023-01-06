@@ -58,6 +58,7 @@ module jtgng_game(
     input   [31:0]  status,     // only bits 31:16 are looked at
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     inout           dip_flip,
     input           dip_test,
@@ -139,7 +140,7 @@ jtframe_cen48 u_cen48(
 );
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = dipsw_a[7];
+assign dip_flip = ~dipsw_a[7];
 
 wire LHBL_obj, LVBL_obj;
 

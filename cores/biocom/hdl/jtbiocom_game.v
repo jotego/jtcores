@@ -25,7 +25,6 @@ wire [ 8:0] V, H;
 wire        HINIT;
 
 wire [13:1] cpu_AB;
-wire        snd_cs;
 wire        char_cs, col_uw, col_lw;
 wire        flip;
 wire [ 7:0] char_dout, scr1_dout, scr2_dout;
@@ -45,8 +44,6 @@ wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 wire        preLHBL, preLVBL,
             LHBL_obj, LVBL_obj;
 
-wire        main_ok, snd_ok, obj_ok, obj_ok0;
-wire        scr1_ok, scr2_ok, char_ok;
 wire        video_cen8, cen8, cen3, mcu_cen, cen10, cenfm, cenp384,
             cen_fm, cen_fm2, cen10b;
 wire        nc,ncb;

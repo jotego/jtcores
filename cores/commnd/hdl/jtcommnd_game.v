@@ -56,8 +56,6 @@ wire prom_6l = prom_sel[4];
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
-assign sample=1'b1;
-
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
 assign debug_view = 0;

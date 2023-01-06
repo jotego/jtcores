@@ -64,8 +64,8 @@ module jthige_main(
 );
 
 wire [15:0] A;
-wire [ 7:0] ay0_dout, ay1_dout;
-reg  [ 7:0] cabinet_input, cpu_din, irq_vector;
+wire [ 7:0] ay0_dout, ay1_dout, irq_vector;
+reg  [ 7:0] cabinet_input, cpu_din;
 wire [3:0] int_ctrl;
 reg         t80_rst_n, in_cs, ram_cs, misc_cs, ay0_cs, ay1_cs;
 wire        mreq_n, rfsh_n, iorq_n, m1_n, busak_n, irq_ack;

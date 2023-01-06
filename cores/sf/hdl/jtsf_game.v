@@ -88,6 +88,7 @@ module jtsf_game(
     input   [31:0]  status,
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     input           dip_flip,
     input           dip_test,

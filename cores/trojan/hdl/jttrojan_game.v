@@ -114,10 +114,8 @@ wire cen12, cen8, cen6, cen3, cen1p5;
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
-assign sample=1'b1;
-
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = ~flip;
+assign dip_flip = flip;
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -263,7 +261,6 @@ assign scr_vpos    = 9'd0;
 assign cpu_cen     = cen3;
 `endif
 
-`ifndef NOSOUND
 jttrojan_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -294,13 +291,6 @@ jttrojan_sound u_sound (
     .peak           ( game_led       ),
     .debug_view     ( debug_view     )
 );
-`else
-assign snd_addr  = 15'd0;
-//assign snd2_addr = 14'd0;
-assign snd_cs    = 1'b0;
-//assign snd2_cs   = 1'b0;
-assign snd       = 16'b0;
-`endif
 
 wire scr_ok, scr2_ok, map_ok, char_ok;
 

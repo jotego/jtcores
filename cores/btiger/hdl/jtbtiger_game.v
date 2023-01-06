@@ -120,12 +120,10 @@ wire cen12, cen6, cen3, cen1p5;
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
-assign sample=1'b1;
-
 wire cen8;
 
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
-assign dip_flip = dipsw[6];
+assign dip_flip = ~dipsw[6];
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -300,7 +298,6 @@ jtbtiger_mcu u_mcu(
 assign mcu_dout = 8'hff;
 `endif
 
-`ifndef NOSOUND
 jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -327,11 +324,6 @@ jtgng_sound #(.LAYOUT(4),.FM_GAIN(8'h0C)) u_sound (
     .snd2_latch     (                ),
     .debug_view     ( debug_view     )
 );
-`else
-assign snd_addr = 15'd0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
-`endif
 
 wire scr_ok, char_ok;
 
@@ -433,7 +425,6 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    // .pause       ( pause         ),
     .slot0_cs    ( LVBL          ),
     .slot1_cs    ( LVBL          ),
     .slot2_cs    ( 1'b0          ), // unused
