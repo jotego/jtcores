@@ -15,6 +15,7 @@ game:
   - from: biocom
     get:
       - jtbiocom_main.v
+      - jtbiocom_mcu.v
 jtframe:
   - from: clocking
     get:

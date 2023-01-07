@@ -63,6 +63,7 @@ module jttora_video(
     output      [18:2]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
+    output              obj_cs,
     // Color Mix
     output              LVBL,
     output              LHBL,
@@ -212,7 +213,7 @@ u_obj(
     // SDRAM interface
     .rom_addr   ( obj_addr    ),
     .rom_data   ( obj_data    ),
-    .rom_cs     (             ),
+    .rom_cs     ( obj_cs      ),
     .rom_ok     ( obj_ok      ),
     // pixel data
     .pxl        ( obj_pxl     ),

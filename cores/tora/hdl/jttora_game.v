@@ -64,10 +64,14 @@ assign debug_view = debug_mux;
 assign prom_prio = prom_we && ioctl_addr[12:8]==0;
 assign prom_mcu  = prom_we && ioctl_addr[12:8]!=0;
 
-always @(posedge clk) begin
-    if( ioctl_addr == 'h41 && prog_we )
-        jap <= prog_data==8'h4A;
-end
+`ifndef F1DREAM
+    always @(posedge clk) begin
+        if( ioctl_addr == 'h83 && prog_we )
+            jap <= prog_data==8'h4A;
+    end
+`else
+    initial jap = 0;
+`endif
 
 always @* begin
     case( debug_bus[2:0] )
@@ -75,7 +79,7 @@ always @* begin
         1: debug_mux = scrposh[15:8];
         2: debug_mux = scrposv[ 7:0];
         3: debug_mux = scrposv[15:8];
-        4: debug_mux = { 7'd0, jap };
+        4: debug_mux = { 3'd0,scr_addr[19],3'd0, jap };
     endcase
 end
 
@@ -206,7 +210,6 @@ jtbiocom_main #(.GAME(1)) u_main(
     .dipsw_b    ( dipsw_b       )
 );
 
-`ifdef F1DREAM
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .rst        ( rst24           ),
     .clk        ( clk_mcu         ),
@@ -233,7 +236,6 @@ jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .prom_din   ( prog_data       ),
     .prom_we    ( prom_mcu        )
 );
-`endif
 
 jttora_sound u_sound (
     .rst            ( rst24          ),
@@ -307,6 +309,7 @@ jttora_video u_video(
     .oram_dout  ( oram_dout[11:0] ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
+    .obj_cs     ( obj_cs        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
