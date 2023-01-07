@@ -16,7 +16,7 @@ regions=[
 ]
 
 order=[
-    "maincpu","audiocpu","chars",
-    "tiles", "bgtiles", "tiles",
-    "sprites", "proms"
+    "maincpu","audiocpu",
+    "chars", "bgtiles",
+    "tiles", "sprites", "proms"
 ]

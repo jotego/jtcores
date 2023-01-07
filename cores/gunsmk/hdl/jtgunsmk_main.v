@@ -16,10 +16,7 @@
     Version: 1.0
     Date: 2-7-2019 */
 
-// commando: Main CPU
-
-
-module jtgunsmoke_main(
+module jtgunsmk_main(
     input              rst,
     input              clk,
     input              cen6,   // 6MHz
@@ -71,7 +68,7 @@ module jtgunsmoke_main(
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
 );
-
+`ifndef NOMAIN
 wire [15:0] A;
 wire t80_rst_n;
 reg in_cs, ram_cs, bank_cs, scrposv_cs, gfxen_cs, snd_latch_cs;
@@ -270,5 +267,28 @@ jtframe_z80 u_cpu(
     .din        ( cpu_din     ),
     .dout       ( cpu_dout    )
 );
-
-endmodule // jtgng_main
+`else // NOMAIN
+    initial begin
+        CHON      = 1;
+        SCRON     = 1;
+        OBJON     = 1;
+        sres_b    = 1;
+        flip      = 0;
+        snd_latch = 0;
+        char_cs   = 0;
+        scrposv   = 0;
+        scrposh   = 0;
+        OKOUT     = 0;
+        obj_bank  = 0;
+        rom_cs    = 0;
+        rom_addr  = 0;
+    end
+        assign cpu_cen  = 0;
+        assign cpu_dout = 0;
+        assign cpu_AB   = 0;
+        assign ram_dout = 0;
+        assign rd_n     = 0;
+        assign wr_n     = 0;
+        assign bus_ack  = 0;
+`endif
+endmodule

@@ -1,8 +1,8 @@
 game:
   - from: gunsmk
     get:
-      - jtgunsmoke_game.v
-      - jtgunsmoke_main.v
+      - jtgunsmk_game.v
+      - jtgunsmk_main.v
   - from: 1943
     get:
       - jt1943_colmix.v

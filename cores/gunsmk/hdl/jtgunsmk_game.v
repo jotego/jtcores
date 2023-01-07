@@ -17,7 +17,7 @@
     Date: 31-8-2019 */
 
 
-module jtgunsmoke_game(
+module jtgunsmk_game(
     input           rst,
     input           clk,
     output          pxl2_cen,   // 12   MHz
@@ -128,7 +128,7 @@ jtframe_cen48 u_cen(
     .cen1p5 ( cen1p5    )
 );
 
-wire LHBL_obj, LVBL_obj;
+wire LHBL_obj, LVBL_obj, preLHBL, preLVBL;
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -197,9 +197,7 @@ wire prom_prior_we = prom_we[9];
 wire [7:0] scrposv;
 wire [15:0] scrposh;
 
-`ifndef NOMAIN
-
-jtgunsmoke_main u_main(
+jtgunsmk_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen6       ( cen6          ),
@@ -251,21 +249,7 @@ jtgunsmoke_main u_main(
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       )
 );
-`else
-assign main_addr   = 17'd0;
-assign rd_n        = 'b1;
-assign wr_n        = 'b1;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-assign cpu_cen     = cen3;
-assign obj_bank    = 3'd0;
-`endif
 
-`ifndef NOSOUND
 jtgng_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -290,11 +274,6 @@ jtgng_sound u_sound (
     .peak           ( game_led       ),
     .debug_view     ( debug_view     )
 );
-`else
-assign snd_addr = 15'd0;
-assign snd_cs   = 1'b0;
-assign snd      = 16'b0;
-`endif
 
 wire scr_ok, map1_ok, char_ok, obj_ok;
 
