@@ -3,6 +3,7 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="tigeroad.cpp"
+skip.bootlegs=true
 skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant",
     "tigeroad","tigeroadb","tigeroadu","toramich"]
 
@@ -19,6 +20,7 @@ regions=[
     { name="bgmap", reverse=true, start="JTFRAME_BA3_START" },
     { name="tiles", sequence=[4,0,5,1,6,2,7,3], width=16, start="SCR_START" },
     { name="spritegen", width=32, reverse=true, no_offset=true },
+    { name="proms", start="JTFRAME_PROM_START" },
     { name="mcu", start="MCU_START" },
 ]
 

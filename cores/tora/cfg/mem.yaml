@@ -29,7 +29,6 @@ sdram:
       - name: map
         addr_width: 15
         data_width: 16
-        cs: ~rst
       - name: scr
         addr_width: 20
         data_width: 16
