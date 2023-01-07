@@ -3,11 +3,16 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="bionicc.cpp"
-# skip.Setnames=["diamond"]
+# skip.Setnames=["bioniccbl2"]
 
 [buttons]
 names=[
     { names="Shoot,Arm" }
+]
+
+[dipsw]
+rename=[
+    { name="Bonus Life", to="Bonus" },
 ]
 
 [ROM]

@@ -2,4 +2,3 @@ include common.def
 
 CORENAME=JTTORA
 GAMETOP=jttora_game_sdram
-NOMCU

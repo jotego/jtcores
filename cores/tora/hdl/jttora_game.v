@@ -206,6 +206,7 @@ jtbiocom_main #(.GAME(1)) u_main(
     .dipsw_b    ( dipsw_b       )
 );
 
+`ifdef F1DREAM
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .rst        ( rst24           ),
     .clk        ( clk_mcu         ),
@@ -232,6 +233,7 @@ jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .prom_din   ( prog_data       ),
     .prom_we    ( prom_mcu        )
 );
+`endif
 
 jttora_sound u_sound (
     .rst            ( rst24          ),

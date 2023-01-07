@@ -52,7 +52,7 @@ wire RnW;
 // sound
 wire [7:0] snd_latch;
 
-wire        main_cs, snd_nmi_n;
+wire        snd_nmi_n;
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
 wire [13:1] obj_AB;     // 1 more bit than older games
