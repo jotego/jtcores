@@ -10,6 +10,10 @@ names=[
     { names="Attack,Jump" },
 ]
 
+[dipsw]
+# Flip screen mode is not supported
+delete=[ "Flip Screen", "Cabinet" ]
+
 [ROM]
 regions=[
     { name="maincpu", width=16, reverse=true },

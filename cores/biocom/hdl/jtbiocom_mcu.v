@@ -171,6 +171,7 @@ jtframe_8751mcu #(
     .x_dout     ( x_dout    ),
     .x_addr     ( ext_addr  ),
     .x_wr       ( x_wr      ),
+    .x_acc      (           ),
     // interrupts
     .int0n      ( int0n_mcu ),
     .int1n      ( int1n     ),

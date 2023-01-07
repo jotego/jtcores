@@ -70,11 +70,12 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    case( debug_bus[1:0] )
+    case( debug_bus[2:0] )
         0: debug_mux = scrposh[ 7:0];
         1: debug_mux = scrposh[15:8];
         2: debug_mux = scrposv[ 7:0];
         3: debug_mux = scrposv[15:8];
+        4: debug_mux = { 7'd0, jap };
     endcase
 end
 
@@ -205,13 +206,6 @@ jtbiocom_main #(.GAME(1)) u_main(
     .dipsw_b    ( dipsw_b       )
 );
 
-`ifdef F1DREAM
-`ifndef NOMCU
-`define MCU
-`endif
-`endif
-
-`ifdef MCU
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .rst        ( rst24           ),
     .clk        ( clk_mcu         ),
@@ -238,16 +232,7 @@ jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .prom_din   ( prog_data       ),
     .prom_we    ( prom_mcu        )
 );
-`else
-assign mcu_DMAn = 1;
-assign mcu_brn  = 1;
-assign mcu_wr   = 0;
-assign mcu_addr = 0;
-assign mcu_dout = 0;
-`endif
 
-
-`ifndef NOSOUND
 jttora_sound u_sound (
     .rst            ( rst24          ),
     .clk            ( clk24          ),
@@ -281,16 +266,6 @@ jttora_sound u_sound (
     .peak           ( game_led       ),
     .debug_view     ( st_snd         )
 );
-`else
-assign snd_addr  = 0;
-assign snd2_addr = 0;
-assign snd_cs    = 0;
-assign snd2_cs   = 0;
-assign snd       = 0;
-assign st_snd    = 0;
-assign game_led  = 0;
-assign sample    = 0;
-`endif
 
 `ifndef NOVIDEO
 jttora_video u_video(

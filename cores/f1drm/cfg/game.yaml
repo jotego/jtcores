@@ -5,7 +5,10 @@ game:
   - from: biocom
     get:
       - jtbiocom_mcu.v
+  - from: f1drm
+    get:
+      - jtf1drm_game_sdram.v
 jtframe:
   - from: cpu
     get:
-      - 8051/mc8051.yaml
+      - jtframe_8751.yaml

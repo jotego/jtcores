@@ -50,7 +50,7 @@ module jttora_sound(
     output  reg          peak,
     output        [ 7:0] debug_view
 );
-
+`ifndef NOSOUND
 wire signed [15:0] fm_snd;
 wire signed [11:0] adpcm_snd, prepcm_snd;
 wire        [ 7:0] snd2_latch;
@@ -149,5 +149,16 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
 assign ym_snd   = fm_snd;
 assign mix_peak = 0;
 `endif
-
+`else // NOSOUND
+    assign snd_dout   = 0;
+    assign snd_mcu_wr = 0;
+    assign rom_addr   = 0;
+    assign rom_cs     = 0;
+    assign rom2_addr  = 0;
+    assign rom2_cs    = 0;
+    assign ym_snd     = 0;
+    assign sample     = 0;
+    assign debug_view = 0;
+    initial peak = 0;
+`endif
 endmodule

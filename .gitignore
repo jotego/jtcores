@@ -1,4 +1,6 @@
 rom/cp_*sh
+rom/*
+*fst.hier
 *-backups
 *.arc
 *.bak

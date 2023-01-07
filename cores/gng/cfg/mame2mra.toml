@@ -13,7 +13,8 @@ names=[
 
 [dipsw]
 Rename = [
-    { name="Bonus Life", to="Bonus"}
+    { name="Bonus Life", to="Bonus" },
+    { name="Invulnerability (Cheat)", to="Cheat" },
 ]
 
 [ROM]
