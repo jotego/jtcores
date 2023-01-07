@@ -18,7 +18,7 @@ regions=[
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="text",no_offset=true, start="JTFRAME_BA2_START", reverse=true },
     { name="bgmap", reverse=true, start="JTFRAME_BA3_START" },
-    { name="tiles", sequence=[4,0,5,1,6,2,7,3], width=16, start="SCR_START" },
+    { name="tiles", sequence=[3,0,4,1,5,2], width=16, start="SCR_START" },
     { name="spritegen", width=32, reverse=true, no_offset=true },
     { name="proms", start="JTFRAME_PROM_START" },
     { name="mcu", start="MCU_START" },
