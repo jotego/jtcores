@@ -12,6 +12,9 @@ names=[
     { names="Shoot,Grenade" }
 ]
 
+[dipsw]
+delete=[ "Cabinet" ]
+
 [ROM]
 regions=[
     { name="audiocpu", start="JTFRAME_BA1_START" },

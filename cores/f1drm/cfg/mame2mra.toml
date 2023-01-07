@@ -15,18 +15,18 @@ names=[
 [ROM]
 regions=[
     { name="maincpu", width=16, reverse=true },
-    { name="audiocpu", start="JTFRAME_BA1_START" },
-    { name="text",no_offset=true, start="JTFRAME_BA2_START", reverse=true },
-    { name="bgmap", reverse=true, start="JTFRAME_BA3_START" },
+    { name="bgmap", reverse=true, start="JTFRAME_BA1_START" },
     { name="tiles", sequence=[3,0,4,1,5,2], width=16, start="SCR_START" },
+    { name="audiocpu", start="JTFRAME_BA2_START" },
+    { name="text",no_offset=true, start="JTFRAME_BA3_START", reverse=true },
     { name="spritegen", width=32, reverse=true, no_offset=true },
     { name="proms", start="JTFRAME_PROM_START" },
     { name="mcu", start="MCU_START" },
 ]
 
 order=[ "maincpu",
+    "bgmap", "tiles",
     "audiocpu", "sample",
     "text", "spritegen",
-    "bgmap", "tiles",
     "proms", "mcu"
 ]

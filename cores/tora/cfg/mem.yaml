@@ -1,13 +1,22 @@
 params:
-  - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA1_START)>>1" }
-  - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA2_START)>>1" }
-  - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA3_START)>>1" }
+  - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA2_START)>>1" }
+  - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
 sdram:
   banks:
     - buses:
       - name: main
         addr_width: 18
         data_width: 16
+    - buses:
+      - name: map
+        addr_width: 15
+        data_width: 16
+      - name: scr
+        addr_width: 20
+        data_width: 16
+        offset: SCR_OFFSET
+        cs: LVBL
     - buses:
       - name: snd
         addr_width: 15
@@ -25,12 +34,3 @@ sdram:
         addr_width: 19
         data_width: 32
         offset: OBJ_OFFSET
-    - buses:
-      - name: map
-        addr_width: 15
-        data_width: 16
-      - name: scr
-        addr_width: 20
-        data_width: 16
-        offset: SCR_OFFSET
-        cs: LVBL
