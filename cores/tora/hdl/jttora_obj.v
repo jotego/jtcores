@@ -20,7 +20,6 @@ module jttora_obj #(
     parameter
     DMA_DW      = 12,        // Data width of each DMA transfer
     DMA_AW      = 10,        // Data width of each DMA transfer
-    PXL_DLY     = 7,
     ROM_AW      = 19
 ) (
     input               rst,
@@ -46,6 +45,7 @@ module jttora_obj #(
     input               rom_ok,
     output              rom_cs,
     // pixel output
+    input         [7:0] debug_bus,
     output        [7:0] pxl
 );
 
@@ -100,16 +100,18 @@ jttora_objdata u_objdata(
     .dr_ysub    ( dr_ysub   ),
     .dr_xpos    ( dr_xpos   ),
     .dr_start   ( dr_start  ),
-    .dr_busy    ( dr_busy   )
+    .dr_busy    ( dr_busy   ),
+
+    .debug_bus  ( debug_bus )
 );
 
-jtframe_objdraw#(.ALPHA('hf),.LATCH(1),.SWAPH(1)) u_draw (
+jtframe_objdraw#(.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdump^9'h100     ),
 
     .code       ( dr_code   ),
     .xpos       ( dr_xpos   ),

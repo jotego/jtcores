@@ -78,7 +78,9 @@ module jttora_video(
     // Pixel output
     output      [3:0]   red,
     output      [3:0]   green,
-    output      [3:0]   blue
+    output      [3:0]   blue,
+    // Debug
+    input       [7:0]   debug_bus
 );
 
 localparam LAYOUT = 3;
@@ -213,7 +215,8 @@ u_obj(
     .rom_cs     (             ),
     .rom_ok     ( obj_ok      ),
     // pixel data
-    .pxl        ( obj_pxl     )
+    .pxl        ( obj_pxl     ),
+    .debug_bus  ( debug_bus   )
 );
 
 assign obj_AB[13:11] = 3'b111;

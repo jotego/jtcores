@@ -18,7 +18,7 @@ if [ ! -z "$SCENE" ]; then
     fi
     cp $SCENE/*.{hex,bin} .
     source $SCENE/scrpos.sh
-    jtsim -nosnd -d NOMAIN -d NOMCU -video 3 \
+    jtsim -nosnd -d NOMAIN -d NOMCU -video 3 -zoom \
         -d JTCHAR_UPPER_SIMFILE=',.simfile({"char_hi.bin"})' \
         -d JTCHAR_LOWER_SIMFILE=',.simfile({"char_lo.bin"})' \
         -d SIM_SCR1_HPOS=16\'h$SIM_SCR1_HPOS \

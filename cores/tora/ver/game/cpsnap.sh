@@ -24,7 +24,7 @@ while [ $# -gt 0 ]; do
             shift
             mkdir -p $1
             SCENE=$1;;
-        -help)
+        -h|--help)
             cat <<EOF
 cpsnap.sh: copies MAME snapshot to a usable format in a folder
 
@@ -38,9 +38,6 @@ EOF
             exit 0;;
         *) echo "Unknown option $1. Use -help to see the list of options"; exit 1;;
     esac
-    if [ "$EXTRA" != "" ]; then
-        break
-    fi
     shift
 done
 

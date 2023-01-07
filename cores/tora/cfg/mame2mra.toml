@@ -12,7 +12,7 @@ names=[
 
 [ROM]
 regions=[
-    { name="maincpu", no_offset=true },
+    { name="maincpu", width=16, reverse=true },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="text",no_offset=true, start="JTFRAME_BA2_START", reverse=true },
     { name="bgmap", reverse=true, start="JTFRAME_BA3_START" },

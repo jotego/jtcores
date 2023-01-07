@@ -34,12 +34,14 @@ module jttora_objdata(
     output reg  [ 3:0]  dr_pal,
     output reg  [ 3:0]  dr_ysub,
     output reg          dr_start,
-    input               dr_busy
+    input               dr_busy,
+
+    input         [7:0] debug_bus
 );
 
 localparam [7:0] OBJMAX=159;
 
-reg  [ 7:0] Vsum, vf;
+reg  [ 8:0] Vsum, vf;
 reg  [ 3:0] Vobj;
 reg  [ 1:0] st;
 reg  [ 7:0] obj_cnt;
@@ -49,8 +51,8 @@ reg         vinzone, done, hsl, cen=0;
 assign lut_addr = { obj_cnt, st };
 
 always @(*) begin
-    vf   = vdump[7:0]^{8{flip}};
-    Vsum = (vf + { {7{~flip}}, 1'b1})+lut_data[7:0];
+    vf   = vdump^{9{flip}};
+    Vsum = vf + lut_data[8:0] + 8'd1;// + debug_bus;
 end
 
 always @(posedge clk) begin
@@ -90,10 +92,10 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin // Object Y is on objbuf_data at this step
                     dr_ysub <=  Vsum[3:0];
-                    vinzone <= &Vsum[7:4];
+                    vinzone <= &Vsum[8:4];
                 end
                 3: begin
-                    dr_xpos <= lut_data[8:0]^9'h100;
+                    dr_xpos <= lut_data[8:0] + 9'd13;
                     if( !vinzone || !dr_busy ) begin
                         obj_cnt <= obj_cnt - 1'd1;
                         if( vinzone ) drawn <= drawn + 1'd1;

@@ -39,11 +39,12 @@ wire [16:1] mcu_addr;
 wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 
 wire [ 7:0] dipsw_a, dipsw_b;
+reg  [ 7:0] debug_mux;
 
 wire [15:0] scrposh, scrposv;
 wire        UDSWn, LDSWn,RnW;
 // sound
-wire [7:0] snd_latch;
+wire [ 7:0] snd_latch, st_snd;
 
 // OBJ
 wire OKOUT, blcnten, obj_br, bus_ack;
@@ -57,6 +58,8 @@ reg         jap;        // high if Japanese ROM was loaded
 assign {dipsw_a, dipsw_b} = dipsw[15:0];
 assign dip_flip = flip;
 
+assign debug_view = debug_mux;
+
 // ROM Download
 assign prom_prio = prom_we && ioctl_addr[12:8]==0;
 assign prom_mcu  = prom_we && ioctl_addr[12:8]!=0;
@@ -64,6 +67,15 @@ assign prom_mcu  = prom_we && ioctl_addr[12:8]!=0;
 always @(posedge clk) begin
     if( ioctl_addr == 'h41 && prog_we )
         jap <= prog_data==8'h4A;
+end
+
+always @* begin
+    case( debug_bus[1:0] )
+        0: debug_mux = scrposh[ 7:0];
+        1: debug_mux = scrposh[15:8];
+        2: debug_mux = scrposv[ 7:0];
+        3: debug_mux = scrposv[15:8];
+    endcase
 end
 
 /////////////////////////////////////
@@ -267,7 +279,7 @@ jttora_sound u_sound (
     .ym_snd         ( snd            ),
     .sample         ( sample         ),
     .peak           ( game_led       ),
-    .debug_view     ( debug_view     )
+    .debug_view     ( st_snd         )
 );
 `else
 assign snd_addr  = 0;
@@ -275,7 +287,7 @@ assign snd2_addr = 0;
 assign snd_cs    = 0;
 assign snd2_cs   = 0;
 assign snd       = 0;
-assign debug_view= 0;
+assign st_snd    = 0;
 assign game_led  = 0;
 assign sample    = 0;
 `endif
@@ -338,7 +350,8 @@ jttora_video u_video(
     // Pixel Output
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          )
+    .blue       ( blue          ),
+    .debug_bus  ( debug_bus     )
 );
 `else
 // Video module may be ommitted for SDRAM load simulation
