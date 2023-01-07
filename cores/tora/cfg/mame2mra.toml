@@ -3,6 +3,7 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="tigeroad.cpp"
+skip.bootlegs=true
 skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant","f1dream","f1dreamb","f1dreamba"]
 
 [buttons]

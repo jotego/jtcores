@@ -163,7 +163,7 @@ always @(posedge clk) if(cen6) begin
                             SV[4:0],
                             HS[2]^scr_hflip };
             end
-        4: begin // Black111 Tiger, 16x16 tiles
+        4: begin // Black Tiger, 16x16 tiles
             scr_attr0  <= attr[6:3];
             scr_addr   <= { attr[2:0], id, // AS
                         HS[3]^scr_hflip,
