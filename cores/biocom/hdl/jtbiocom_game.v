@@ -25,7 +25,7 @@ wire [ 8:0] V, H;
 wire        HINIT;
 
 wire [13:1] cpu_AB;
-wire        char_cs, col_uw, col_lw;
+wire        char_cs, col_uw, col_lw, RnW;
 wire        flip;
 wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
@@ -48,32 +48,32 @@ wire        video_cen8, cen8, cen3, mcu_cen, cen10, cenfm, cenp384,
             cen_fm, cen_fm2, cen10b;
 wire        nc,ncb;
 
-wire RnW;
 // sound
 wire [7:0] snd_latch;
-
 wire        snd_nmi_n;
 // OBJ
 wire        OKOUT, blcnten, obj_br, bus_ack;
 wire [13:1] obj_AB;     // 1 more bit than older games
 wire [15:0] oram_dout;
 
-wire [ 1:0] prom_we;
-wire        prom_mcu_we  = prom_we[0];
-wire        prom_prio_we = prom_we[1];
+wire        prom_mcu_we, prom_prio_we;
 
 wire        scr1_cs, scr2_cs;
-wire [ 9:0] scr1_hpos, scr1_vpos;
+wire [15:0] scr1_hpos, scr1_vpos;
 wire [ 8:0] scr2_hpos, scr2_vpos;
 
 assign game_led = 0;
 assign clk_mcu = clk24;
+assign prom_mcu_we  = prom_we && !ioctl_addr[12];
+assign prom_prio_we = prom_we &&  ioctl_addr[12];
+
 
 jtframe_cen48 u_cen48(
     .clk    ( clk           ),
     .cen16  (               ),
     .cen12  ( pxl2_cen      ),
     .cen12b (               ),
+    .cen16b (               ),
     .cen8   ( video_cen8    ),
     .cen6   ( pxl_cen       ),
     .cen6b  (               ),
@@ -264,7 +264,7 @@ jtbiocom_video #(
     .cen6       ( pxl_cen       ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB        ),
-    .V          ( V[7:0]        ),
+    .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
     .flip       ( flip          ),
@@ -282,8 +282,8 @@ jtbiocom_video #(
     .scr1_addr  ( scr1_addr     ),
     .scr1_data  ( scr1_data     ),
     .scr1_busy  ( scr1_busy     ),
-    .scr1_hpos  ( scr1_hpos     ),
-    .scr1_vpos  ( scr1_vpos     ),
+    .scr1_hpos  ( scr1_hpos[9:0]),
+    .scr1_vpos  ( scr1_vpos[9:0]),
     .scr1_ok    ( scr1_ok       ),
     // SCROLL 2
     .scr2_cs    ( scr2_cs       ),
@@ -312,6 +312,7 @@ jtbiocom_video #(
     .prom_prio_we ( prom_prio_we  ),
     .prom_din     ( prog_data[3:0]),
     // Color Mix
+    .HS         ( HS            ),
     .preLHBL    ( preLHBL       ),
     .preLVBL    ( preLVBL       ),
     .LHBL_obj   ( LHBL_obj      ),

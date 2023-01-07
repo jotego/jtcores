@@ -7,6 +7,10 @@ game:
       - jtbiocom_mcu.v
       - jtbiocom_video.v
       - jtbiocom_sound.v
+  - from: tora
+    get:
+      - jttora_obj.v
+      - jttora_objdata.v
 jtframe:
   - from: clocking
     get:
@@ -17,7 +21,7 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
-      - 8051/mc8051.yaml
+      - jtframe_8751.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v
@@ -29,6 +33,7 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
+      - jtframe_obj.yaml
   - from: sound
     get:
       - jtframe_jt49_filters.yaml
@@ -42,4 +47,3 @@ modules:
       - jtgng_dual_ram.v
       - jt12/hdl/jt12_rst.v
       - jt12/jt49/hdl/jt49.yaml
-      - jtgng_obj32.v

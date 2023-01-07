@@ -24,12 +24,11 @@ module jtbiocom_video(
     input               cen6,
     input               cpu_cen,
     input       [13:1]  cpu_AB,
-    input       [ 7:0]  V,
+    input       [ 8:0]  V,
     input       [ 8:0]  H,
     input               RnW,
     input               flip,
     input       [15:0]  cpu_dout,
-    input               pause,
     // CHAR
     input               char_cs,
     output      [ 7:0]  char_dout,
@@ -63,10 +62,11 @@ module jtbiocom_video(
     output              bus_req, // Request bus
     input               bus_ack, // bus acknowledge
     output              blcnten,    // bus line counter enable
-    output      [16:0]  obj_addr,
-    input       [15:0]  obj_data,
+    output      [17:2]  obj_addr,
+    input       [31:0]  obj_data,
     input               obj_ok,
     // Color Mix
+    input               HS,
     input               preLHBL,
     input               preLVBL,
     input               LVBL_obj,
@@ -112,7 +112,7 @@ jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .pxl_cen    ( cen6          ),
     .cpu_cen    ( cpu_cen       ),
     .AB         ( cpu_AB[11:1]  ),
-    .V          ( V             ),
+    .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
     .flip       ( flip          ),
     .din        ( cpu_dout[7:0] ),
@@ -225,46 +225,37 @@ assign scr2_addr  = 15'd0;
 assign scr2_dout  = 8'd0;
 `endif
 
-jtgng_obj #(
-    .LAYOUT     ( 3          ),
-    .OBJMAX     ( 10'h280    ), // 160 objects max, buffer size = 640 bytes (280h)
-    .OBJMAX_LINE( 6'd32      ),
-    .PALW       ( 4          ),
-    .PXL_DLY    ( OBJ_DLY    ),
-    .ROM_AW     ( 17         ), // MSB is always zero
+jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
+    .ROM_AW     ( 18         ),
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))
 u_obj (
     .rst        ( rst         ),
     .clk        ( clk         ),
     .dma_cen    ( cen8        ),
-    .draw_cen   ( cen12       ),
     .pxl_cen    ( cen6        ),
+    // screen
+    .hs         ( HS          ),
+    .LVBL       ( LVBL        ),
+    .vdump      ( V           ),
+    .hdump      ( H           ),
+    .flip       ( flip        ),
+    // CPU bus
     .AB         ( obj_AB[10:1]),
     .DB         ( oram_dout   ),
+    // shared bus
     .OKOUT      ( OKOUT       ),
     .bus_req    ( bus_req     ),
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
-    .LHBL       ( LHBL_obj    ),
-    .LVBL       ( LVBL        ),
-    .LVBL_obj   ( LVBL_obj    ),
-    .HINIT      ( HINIT       ),
-    .flip       ( flip        ),
-    .V          ( V[7:0]      ),
-    .H          ( H           ),
     // SDRAM interface
-    .obj_addr   ( obj_addr    ),
-    .obj_data   ( obj_data    ),
+    .rom_addr   ( obj_addr    ),
+    .rom_data   ( obj_data    ),
+    .rom_cs     ( obj_cs      ),
     .rom_ok     ( obj_ok      ),
     // pixel data
-    .obj_pxl    ( obj_pxl     ),
-    // unused
-    .OBJON      ( 1'b1        ), // not used for non palette PROM games
-    .prog_addr  (             ),
-    .prom_hi_we (             ),
-    .prom_lo_we (             ),
-    .prog_din   (             )
+    .pxl        ( obj_pxl     ),
+    .debug_bus  ( 8'd0        )
 );
 
 assign obj_AB[13:11] = 3'b111;

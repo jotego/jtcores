@@ -52,7 +52,7 @@ assign lut_addr = { obj_cnt, st };
 
 always @(*) begin
     vf   = vdump^{9{flip}};
-    Vsum = vf + lut_data[8:0] + 8'd1;// + debug_bus;
+    Vsum = vf + lut_data[8:0] + 8'd1;
 end
 
 always @(posedge clk) begin
