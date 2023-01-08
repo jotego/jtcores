@@ -43,7 +43,7 @@ module jtsf_sound #(
     output               sample,
     output reg           peak
 );
-
+`ifndef NOSOUND
 // Sound effects via FM seem too loud compared to music
 // but that's the way the game is
 // Some PCM samples seem to have been recorded with clipping
@@ -180,6 +180,14 @@ jtframe_mixer #(.W0(16),.W1(13)) u_right_mix(
     .mixed  ( right     ),
     .peak   ( peak_r    )
 );
-
-
+`else
+    assign rom_addr  = 0;
+    assign rom_cs    = 0;
+    assign rom2_addr = 0;
+    assign rom2_cs   = 0;
+    assign left      = 0;
+    assign right     = 0;
+    assign sample    = 0;
+    initial peak     = 0;
+`endif
 endmodule

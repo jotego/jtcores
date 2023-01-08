@@ -1,7 +1,6 @@
 include ../../tora/cfg/common.def
 
 CORENAME=JTF1DRM
-GAMETOP=jtf1drm_game_sdram
 
 JTFRAME_PROM_START=0x1A8000
 MCU_START=0x1A9000

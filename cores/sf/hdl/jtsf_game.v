@@ -456,7 +456,6 @@ jtsf_main #( .MAINW(MAINW), .RAMW(RAMW) ) u_main (
     assign mcu_brn = 1;
 `endif
 
-`ifndef NOSOUND
 jtsf_sound #(
     .SND1W( SND1W ),
     .SND2W( SND2W )
@@ -483,14 +482,6 @@ jtsf_sound #(
     .sample         ( sample         ),
     .peak           ( game_led       )
 );
-`else
-assign snd1_addr = {SND1W{1'b0}};
-assign snd2_addr = {SND2W{1'b0}};
-assign snd1_cs   = 0;
-assign snd2_cs   = 0;
-assign snd_left  = 16'b0;
-assign snd_right = 16'b0;
-`endif
 
 `ifndef NOVIDEO
 jtsf_video #(

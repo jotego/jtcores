@@ -3,6 +3,15 @@ mraauthor=["jotego,atrac17"]
 
 [parse]
 sourcefile="sf.cpp"
+skip.bootlegs=true
+skip.setnames=[
+    # graphics wrong, game boots
+    "sfjan",
+    # wrong inputs
+    "sfan",
+    # won't boot
+    "sfp",
+]
 
 [buttons]
 names=[
