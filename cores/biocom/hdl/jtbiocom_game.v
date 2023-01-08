@@ -67,6 +67,13 @@ assign clk_mcu = clk24;
 assign prom_mcu_we  = prom_we && !ioctl_addr[12];
 assign prom_prio_we = prom_we &&  ioctl_addr[12];
 
+always @* begin
+    post_addr = prog_addr;
+    if( ioctl_addr>=`JTFRAME_BA2_START && ioctl_addr<`JTFRAME_BA3_START ) begin
+        post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
+    end
+end
+
 
 jtframe_cen48 u_cen48(
     .clk    ( clk           ),

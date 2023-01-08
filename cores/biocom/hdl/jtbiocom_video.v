@@ -108,6 +108,13 @@ wire [3:0] scr1_col, scr2_col;
 wire [3:0] scr1_pal, scr2_pal;
 wire [3:0] cc;
 
+reg [7:0] scr1_pxl, scr2_pxl;
+
+always @(posedge clk) if(cen6) begin
+    scr1_pxl <= { scr1_pal, scr1_col };
+    scr2_pxl <= { scr2_pal, scr2_col };
+end
+
 jtgng_char #(.HOFFSET(CHAR_OFFSET)) u_char (
     .clk        ( clk           ),
     .pxl_cen    ( cen6          ),
@@ -177,11 +184,11 @@ u_scroll1 (
     .scr_pal    ( scr1_pal      )
 );
 `else
-assign scr1_busy  = 1'b1;
+assign scr1_busy  = 0;
 assign scr1_col   = ~4'd0;
 assign scr1_pal   = ~4'd0;
-assign scr1_addr  = 15'd0;
-assign scr1_dout  = 8'd0;
+assign scr1_addr  = 0;
+assign scr1_dout  = 0;
 `endif
 
 `ifndef NOSCR2
@@ -219,11 +226,11 @@ u_scroll2 (
     .scr_pal    ( scr2_pal      )
 );
 `else
-assign scr2_busy  = 1'b0;
+assign scr2_busy  = 0;
 assign scr2_col   = ~4'd0;
 assign scr2_pal   = ~4'd0;
-assign scr2_addr  = 15'd0;
-assign scr2_dout  = 8'd0;
+assign scr2_addr  = 0;
+assign scr2_dout  = 0;
 `endif
 
 jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
@@ -261,16 +268,6 @@ u_obj (
 );
 
 assign obj_AB[13:11] = 3'b111;
-
-reg [7:0] scr1_pxl, scr2_pxl;
-
-//always @(*) begin
-//end
-
-always @(posedge clk) if(cen6) begin
-    scr1_pxl <= { scr1_pal, scr1_col };
-    scr2_pxl <= { scr2_pal, scr2_col };
-end
 
 `ifndef NOCOLMIX
 jtbiocom_colmix u_colmix (

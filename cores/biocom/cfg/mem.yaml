@@ -1,8 +1,8 @@
 params:
   - { name: FIX_OFFSET, value: "(`FIX_START-`JTFRAME_BA1_START)>>1" }
   - { name: OBJ_OFFSET, value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
-# download:
-#   post_addr: true
+download:
+  post_addr: true
 sdram:
   banks:
     - buses:
