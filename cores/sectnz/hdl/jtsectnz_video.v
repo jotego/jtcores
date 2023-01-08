@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 4-4-2020 */
 
-module jtsectionz_video#(
+module jtsectnz_video#(
     parameter SCRW = 18,
     parameter OBJW = 17
 )(
@@ -231,7 +231,7 @@ assign obj_pxl = ~6'd0;
 `endif
 
 `ifndef NOCOLMIX
-jtsectionz_colmix #(
+jtsectnz_colmix #(
     .CHARW  (   PXL_CHRW    )
 )
 u_colmix (

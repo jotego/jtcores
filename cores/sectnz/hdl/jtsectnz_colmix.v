@@ -17,7 +17,7 @@
     Date: 16-4-2020 */
 
 
-module jtsectionz_colmix #(
+module jtsectnz_colmix #(
     parameter CHARW = 6
 ) (
     input            rst,
@@ -60,7 +60,6 @@ wire enable_obj  = gfx_en[3];
 
 wire char_blank  = (&char_pxl[1:0]) | ~enable_char;
 wire obj_blank   = (&obj_pxl[3:0])  | ~enable_obj;
-wire scr_blank   = &scr_pxl[3:0];
 
 reg  [2:0] obj_sel; // signals whether an object pixel is selected
 

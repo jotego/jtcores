@@ -70,7 +70,7 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .cen3       (  cenfm        ),
     .cen1p5     (  cenfm        ), // unused
     .sres_b     (  1'b1         ),
-`ifndef F1DREAM
+`ifndef F1DRM
     .snd_latch  (  snd_latch    ),
 `else
     .snd_latch  (  snd_din      ), // from MCU
@@ -91,7 +91,7 @@ jtgng_sound #(.LAYOUT(3),.PSG_ATT(2)) u_fmcpu (
     .debug_view ( debug_view    )
 );
 
-`ifndef F1DREAM
+`ifndef F1DRM
 reg [7:0] pcm_gain;
 
 always @(posedge clk) begin

@@ -105,7 +105,7 @@ jttora_objdata u_objdata(
     .debug_bus  ( debug_bus )
 );
 
-jtframe_objdraw#(.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
+jtframe_objdraw#(.CW(11),.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -113,7 +113,7 @@ jtframe_objdraw#(.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
     .flip       ( flip      ),
     .hdump      ( hdump^9'h100     ),
 
-    .code       ( dr_code   ),
+    .code       ( dr_code[10:0] ),
     .xpos       ( dr_xpos   ),
     .ysub       ( dr_ysub   ),
     .hflip      ( dr_hflip  ),

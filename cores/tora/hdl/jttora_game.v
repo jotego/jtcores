@@ -64,7 +64,7 @@ assign debug_view = debug_mux;
 assign prom_prio = prom_we && ioctl_addr[12:8]==0;
 assign prom_mcu  = prom_we && ioctl_addr[12:8]!=0;
 
-`ifndef F1DREAM
+`ifndef F1DRM
     always @(posedge clk) begin
         if( ioctl_addr == 'h83 && prog_we )
             jap <= prog_data==8'h4A;

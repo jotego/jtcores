@@ -203,17 +203,28 @@ always @(*) begin
     end
 end
 
+`ifdef SECTNZ initial begin
+    scr2_hpos = 0;
+    scr1_on   = 1;
+    scr2_on   = 1;
+    obj_on    = 1;
+    scr1_pal  = 0;
+    scr2_pal  = 0;
+end `endif
+
 // SCROLL H/V POSITION
 always @(posedge clk, negedge t80_rst_n) begin
     if( !t80_rst_n ) begin
         scr_hpos  <= 0;
-        scr2_hpos <= 0;
         scr_vpos  <= 0;
+`ifndef SECTNZ // prevents a 'inferring latch' warning
+        scr2_hpos <= 0;
         scr1_on   <= 1;
         scr2_on   <= 1;
         obj_on    <= 1;
         scr1_pal  <= 0;     // only used by Exed Exes
         scr2_pal  <= 0;
+`endif
     end else if(cpu_cen && scrpos_cs) begin
         if( !A[2] ) begin // redundant for GAME==1
             case(A[1:0])

@@ -300,6 +300,7 @@ jtbiocom_video #(
     .oram_dout  ( oram_dout[11:0] ),
     .obj_addr   ( obj_addr      ),
     .obj_data   ( obj_data      ),
+    .obj_cs     ( obj_cs        ),
     .OKOUT      ( OKOUT         ),
     .bus_req    ( obj_br        ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge

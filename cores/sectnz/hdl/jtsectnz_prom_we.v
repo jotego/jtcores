@@ -17,7 +17,7 @@
     Date: 15-4-2020 */
 
 
-module jtsectionz_prom_we(
+module jtsectnz_prom_we(
     input                clk,
     input                downloading,
     input      [21:0]    ioctl_addr,
@@ -42,15 +42,14 @@ localparam STARTW=8*START_BYTES;
 localparam [21:0] FULL_HEADER = 32;
 
 reg  [STARTW-1:0] starts;
-wire       [15:0] snd_start, obj_start, scr_start, char_start;
+wire       [13:0] snd_start, obj_start, scr_start, char_start;
 
-assign obj_start  = starts[15: 0];
-assign scr_start  = starts[31:16];
-assign char_start = starts[47:32];
-assign snd_start  = starts[63:48];
+assign obj_start  = starts[13: 0];
+assign scr_start  = starts[29:16];
+assign char_start = starts[45:32];
+assign snd_start  = starts[61:48];
 
 wire [21:0] bulk_addr  = ioctl_addr - FULL_HEADER; // the header is excluded
-wire [21:0] cpu_addr   = bulk_addr ; // the header is excluded
 wire [21:0] snd_addr   = bulk_addr - { snd_start,  8'd0 };
 wire [21:0] char_addr  = bulk_addr - { char_start, 8'd0 };
 //wire [21:0] scr_addr   = bulk_addr - { scr_start,  8'd0 };

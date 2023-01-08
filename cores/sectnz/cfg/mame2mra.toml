@@ -3,7 +3,8 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="lwings.cpp"
-skip.Machines=[ "avengers", "trojan", "fball", "sectionz" ]
+skip.Machines=[ "avengers", "trojan", "fball" ]
+
 [buttons]
 names=[
     { machine="sectionz", names="Shoot,Turn" },

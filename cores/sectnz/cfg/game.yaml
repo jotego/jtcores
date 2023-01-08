@@ -1,10 +1,10 @@
 game:
   - from: sectnz
     get:
-      - jtsectionz_game.v
-      - jtsectionz_prom_we.v
-      - jtsectionz_video.v
-      - jtsectionz_colmix.v
+      - jtsectnz_game.v
+      - jtsectnz_prom_we.v
+      - jtsectnz_video.v
+      - jtsectnz_colmix.v
   - from: commnd
     get:
       - jtcommnd_main.v
@@ -32,7 +32,7 @@ modules:
       - jtgng_sound.yaml
       - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
-      - jt12/hdl/jt03.qip
+      - jt12/hdl/jt03.yaml
       - jtgng_obj32.v
       - jtgng_dual_ram.v
       - jtgng_colmix.v

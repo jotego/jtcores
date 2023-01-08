@@ -65,6 +65,7 @@ module jtbiocom_video(
     output      [17:2]  obj_addr,
     input       [31:0]  obj_data,
     input               obj_ok,
+    output              obj_cs,
     // Color Mix
     input               HS,
     input               preLHBL,

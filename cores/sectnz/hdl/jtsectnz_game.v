@@ -17,7 +17,7 @@
     Date: 29-6-2019 */
 
 
-module jtsectionz_game(
+module jtsectnz_game(
     input           rst,
     input           clk,
     output          pxl2_cen,   // 12   MHz
@@ -149,7 +149,7 @@ localparam [21:0] CHAR_OFFSET = 22'h2_0000 >> 1;
 localparam [21:0] SCR_OFFSET  = 22'h4_0000 >> 1;
 localparam [21:0] OBJ_OFFSET  = 22'h8_0000 >> 1;
 
-jtsectionz_prom_we #(
+jtsectnz_prom_we #(
     .CPU_OFFSET     ( CPU_OFFSET    ),
     .SND_OFFSET     ( SND_OFFSET    ),
     .CHAR_OFFSET    ( CHAR_OFFSET   ),
@@ -286,7 +286,7 @@ assign snd      = 16'b0;
 
 wire scr_ok, char_ok;
 
-jtsectionz_video #(
+jtsectnz_video #(
     .SCRW   ( SCRW      )
 )
 u_video(

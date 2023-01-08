@@ -1,7 +1,7 @@
 # Trojan macro file
 [all]
 CORENAME=JTTROJAN
-GAMETOP=jttrojan_game
+
 JTFRAME_CREDITS
 JTFRAME_OSD_VOL
 

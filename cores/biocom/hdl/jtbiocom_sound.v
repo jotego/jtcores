@@ -187,10 +187,7 @@ jt51 u_jt51(
     .right      (           ),
     // Full resolution output
     .xleft      ( left      ),
-    .xright     ( right     ),
-    // unsigned outputs for sigma delta converters, full resolution
-    .dacleft    (           ),
-    .dacright   (           )
+    .xright     ( right     )
 );
 
 `ifdef SIMULATION

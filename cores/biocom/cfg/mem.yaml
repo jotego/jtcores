@@ -32,4 +32,3 @@ sdram:
         addr_width: 18
         data_width: 32
         offset: OBJ_OFFSET
-        cs: 1'b1
