@@ -227,6 +227,7 @@ assign scr2_dout  = 8'd0;
 `endif
 
 jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
+    .VINV       (  0         ),
     .ROM_AW     ( 18         ),
     .DMA_AW     ( 10         ),
     .DMA_DW     ( 12         ))

@@ -22,7 +22,6 @@
 module jtbiocom_sound(
     input           rst,
     input           clk,
-    input           cen_alt,
     input           cen_fm,   // 14.31318/4   MHz ~ 3.5  MHz => 10/134 of 48MHz clock
     input           cen_fm2,  // 14.31318/4/8 MHz ~ 1.75 MHz =>  5/134 of 48MHz clock
     // Interface with main CPU
@@ -50,15 +49,14 @@ parameter LAYOUT=3; // 9 for SF
 
 wire [15:0] A;
 reg         fm_cs, latch_cs, ram_cs, mcu_cs;
-wire        mreq_n, rfsh_n, int_n;
-wire        WRn, rd_n, wr_n;
+wire        mreq_n, rfsh_n, int_n, iorq_n, m1_n, nmiff_n;
+wire        WRn, rd_n, wr_n, fm_csn, RAM_we;
 wire [ 7:0] ram_dout, dout, fm_dout;
 reg  [ 7:0] din;
 reg         rom2_ok;
-// wire        rom_good;
 
-wire RAM_we = ram_cs && !WRn;
-
+assign fm_csn     = ~fm_cs;
+assign RAM_we     = ram_cs && !WRn;
 assign snd_mcu_wr = mcu_cs && !WRn;
 assign snd_mcu_rd = mcu_cs &&  WRn;
 
@@ -98,8 +96,6 @@ always @(posedge clk) begin
     end
 end
 
-// assign     rom_good = rom_ok & rom2_ok;
-
 assign WRn      = wr_n | mreq_n;
 assign snd_dout = dout;
 
@@ -125,23 +121,8 @@ jtframe_ram #(.aw(11)) u_ram(
     .q      ( ram_dout )
 );
 
-wire iorq_n, m1_n, nmiff_n;
-// wire irq_ack = !iorq_n && !m1_n;
 
-/*
-jtframe_ff u_ff(
-    .clk    ( clk       ),
-    .rst    ( rst       ),
-    .cen    ( 1'b1      ),
-    .din    ( 1'b1      ),
-    .q      (           ),
-    .qn     ( nmiff_n   ),
-    .set    ( 1'b0      ),
-    .clr    ( irq_ack   ),    // active high
-    .sigedge( ~nmi_n    )
-);*/
-
-jtframe_z80_romwait u_cpu(
+jtframe_z80_romwait #(.RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
@@ -165,8 +146,6 @@ jtframe_z80_romwait u_cpu(
     // unused
     .cpu_cen    (             )
 );
-
-wire fm_csn = ~fm_cs;
 
 jt51 u_jt51(
     .rst        ( rst       ), // reset

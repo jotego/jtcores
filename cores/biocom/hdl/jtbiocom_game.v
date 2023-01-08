@@ -226,11 +226,6 @@ jtbiocom_mcu u_mcu(
 jtbiocom_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk24          ),
-    .cen_alt        ( cen3           ), // CPU CEN, it should be cen_fm really
-    //.cen_alt        ( cen_fm         ), // CPU CEN, it should be cen_fm really
-    // cen6    X
-    // cen_fm2 X
-    // cen_fm  O
     .cen_fm         ( cen_fm         ),
     .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU

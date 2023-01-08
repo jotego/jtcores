@@ -1,6 +1,6 @@
 params:
-  - { name: FIX_OFFSET, value: "`FIX_START-`JTFRAME_BA1_START" }
-  - { name: OBJ_OFFSET, value: "`OBJ_START-`JTFRAME_BA3_START" }
+  - { name: FIX_OFFSET, value: "(`FIX_START-`JTFRAME_BA1_START)>>1" }
+  - { name: OBJ_OFFSET, value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
 # download:
 #   post_addr: true
 sdram:
@@ -10,8 +10,8 @@ sdram:
         addr_width: 18
         data_width: 16
     - buses:
-      - name: scr1
-        addr_width: 18
+      - name: scr2
+        addr_width: 16
         data_width: 16
         cs: LVBL
       - name: char
@@ -20,8 +20,8 @@ sdram:
         offset: FIX_OFFSET
         cs: LVBL
     - buses:
-      - name: scr2
-        addr_width: 16
+      - name: scr1
+        addr_width: 18
         data_width: 16
         cs: LVBL
     - buses:

@@ -18,9 +18,9 @@ rename=[
 [ROM]
 regions=[
     { name="maincpu", width=16, reverse=true },
-    { name="gfx2", sequence=[0,4,1,5,2,6,3,7], start="JTFRAME_BA1_START" },
-    { name="gfx1", start="FIX_START" },
-    { name="gfx3", no_offset=true, start="JTFRAME_BA2_START" },
+    { name="gfx2", width=16, reverse=true, start="JTFRAME_BA1_START" },
+    { name="gfx1", start="FIX_START", reverse=true },
+    { name="gfx3", width=16, sequence=[4,0,5,1,6,2,7,3], start="JTFRAME_BA2_START" },
     { name="audiocpu", no_offset=true, start="JTFRAME_BA3_START" },
     { name="spritegen", width=32, reverse=true, no_offset=true },
     { name="mcu", start="JTFRAME_PROM_START" },

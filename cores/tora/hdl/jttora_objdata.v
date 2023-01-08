@@ -39,6 +39,8 @@ module jttora_objdata(
     input         [7:0] debug_bus
 );
 
+parameter VINV=1; // Assumes that the y position is inverted (needed for Tora, but not Biocom)
+
 localparam [7:0] OBJMAX=159;
 
 reg  [ 8:0] Vsum, vf;
@@ -51,7 +53,7 @@ reg         vinzone, done, hsl, cen=0;
 assign lut_addr = { obj_cnt, st };
 
 always @(*) begin
-    vf   = vdump^{9{flip}};
+    vf   = vdump^{flip,{8{flip^~VINV[0]}}};
     Vsum = vf + lut_data[8:0] + 8'd1;
 end
 
@@ -86,7 +88,7 @@ always @(posedge clk, posedge rst) begin
             case( st )
                 0: dr_code <= lut_data;
                 1: begin
-                    dr_vflip <= lut_data[0];
+                    dr_vflip <= lut_data[0]^~VINV[0];
                     dr_hflip <= ~lut_data[1];
                     dr_pal   <= lut_data[5:2];
                 end
