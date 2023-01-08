@@ -10,7 +10,7 @@ game:
       - jtcommnd_main.v
   - from: sectnz
     get:
-      - jtsectionz_prom_we.v
+      - jtsectnz_prom_we.v
   - from: tora
     get:
       - jttora_adpcm.v

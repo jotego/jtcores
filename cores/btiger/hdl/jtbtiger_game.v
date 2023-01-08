@@ -70,7 +70,7 @@ module jtbtiger_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en,
+    input   [ 3:0]  gfx_en,
     input   [ 7:0]  debug_bus,
     output  [ 7:0]  debug_view
 );

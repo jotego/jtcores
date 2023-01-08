@@ -67,7 +67,7 @@ module jttrojan_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en,
+    input   [ 3:0]  gfx_en,
     input   [ 7:0]  debug_bus,
     output  [ 7:0]  debug_view
 );
@@ -156,7 +156,7 @@ localparam [21:0] SCR_OFFSET  = 22'h4_4000 >> 1;
 localparam [21:0] SCR2_OFFSET = 22'h2_C000 >> 1;
 localparam [21:0] OBJ_OFFSET  = 22'h8_4000 >> 1;
 
-jtsectionz_prom_we #(
+jtsectnz_prom_we #(
     .CPU_OFFSET     ( CPU_OFFSET    ),
     .SND_OFFSET     ( SND_OFFSET    ),
     .CHAR_OFFSET    ( CHAR_OFFSET   ),

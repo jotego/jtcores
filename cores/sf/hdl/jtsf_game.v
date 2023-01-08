@@ -101,7 +101,9 @@ module jtsf_game(
     input           enable_psg,
     input           enable_fm,
     // Debug
-    input   [3:0]   gfx_en
+    input   [ 3:0]  gfx_en,
+    input   [ 7:0]  debug_bus,
+    output  [ 7:0]  debug_view
 );
 
 localparam
@@ -194,6 +196,7 @@ assign dwnld_busy         = downloading;
 assign ba_wr[3:1]         = 0;
 assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
        ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
+assign debug_view = 0;
 
 always @(negedge clk24) begin
     snd_rst   <= rst24;
