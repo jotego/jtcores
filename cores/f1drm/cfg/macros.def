@@ -8,4 +8,5 @@ MCU_START=0x1A9000
 [sidi]
 # necessary to make it fit
 -JTFRAME_CREDITS
+JTFRAME_OSD_NOLOGO
 
