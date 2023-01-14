@@ -54,7 +54,7 @@ module jtrumble_game(
     output   [15:0] ba3_din,
     output   [ 1:0] ba3_dsn,
     output   [ 3:0] ba_rd,
-    output          ba_wr,
+    output   [ 3:0] ba_wr,
     input    [ 3:0] ba_ack,
     input    [ 3:0] ba_dst,
     input    [ 3:0] ba_dok,
@@ -138,6 +138,11 @@ assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
 assign obj_cs   = 1;
 assign debug_view = { 7'd0, flip };
+
+// Banks 1-3 unused for writting
+assign ba1_din=0, ba2_din=0, ba3_din=0,
+       ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
+assign ba_wr[3:1]=0;
 
 jtframe_cen48 u_cen48(
     .clk    ( clk      ),
