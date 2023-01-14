@@ -282,7 +282,7 @@ wire [15:0] pre_obj_addr;
 reg         video_flip;
 
 always @(posedge clk)
-    video_flip <= ~dip_flip ^ flip; // Original Gun Smoke did not have this DIP bit.
+    video_flip <= dip_flip; // Original Gun Smoke did not have this DIP bit.
 
 jt1943_video #(
     .CHAR_PAL      ( "../../../rom/gunsmoke/g-01.03b" ),

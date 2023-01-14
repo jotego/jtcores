@@ -39,7 +39,7 @@ wire [ 7:0] snd_latch;
 wire        scr_cs, obj_cs;
 wire [ 2:0] scr_br;
 wire [ 8:0] scr_hpos, scr_vpos;
-wire        char_busy, scr_busy;
+wire        char_busy, scr_busy, eff_flip;
 
 wire        prom_red_we, prom_green_we, prom_blue_we,
             prom_char_we, prom_scr_we, prom_obj_we,
@@ -58,9 +58,7 @@ assign prom_irq_we   = prog_addr[11:8]==8; // sb-1.k6
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
-`ifndef VULGUS
-    assign dip_flip = ~flip;
-`endif
+assign eff_flip = `ifdef VULGUS dip_flip `else flip `endif;
 
 always @* begin
     post_addr = prog_addr;
@@ -140,7 +138,6 @@ jt1942_main #(.VULGUS(VULGUS)) u_main(
     // Cheat
     .cheat_invincible( 1'b0 ),
     // DIP switches
-    .dip_flip   ( dip_flip      ),
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   ),
     .coin_cnt   (               )
@@ -178,7 +175,7 @@ jt1942_video u_video(
     .H          ( H             ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
-    .flip       ( flip          ),
+    .flip       ( eff_flip      ),
     .cpu_dout   ( cpu_dout      ),
     .pause      ( ~dip_pause    ), //dipsw_a[7]    ),
     // CHAR

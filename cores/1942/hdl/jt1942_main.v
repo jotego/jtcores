@@ -66,7 +66,6 @@ module jt1942_main(
     input       [ 7:0] rom_data,
     input              rom_ok,
     // DIP switches
-    input              dip_flip,    // Not a DIP in the original board ;-)
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
     output reg         coin_cnt,
@@ -177,11 +176,7 @@ always @(posedge clk)
         end
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin
-            `ifdef VULGUS
-            flip     <=  cpu_dout[7] ^ ~dip_flip; // Vulgus doesn't have a real dip_flip
-            `else
-            flip     <=  cpu_dout[7];
-            `endif
+            flip     <= ~cpu_dout[7];
             sres_b   <= ~cpu_dout[4];
             coin_cnt <= ~cpu_dout[0];
         end

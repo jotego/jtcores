@@ -3,9 +3,9 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="vulgus.cpp"
+skip.setnames=[ "vulgusa" ]
 # vulgusa is flipped relative to the others
-# The OSD will be inverted in MiST, but it gives
-# another option to CRT users
+
 
 [buttons]
 core=2 # max number of buttons supported by the core

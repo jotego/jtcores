@@ -350,7 +350,7 @@ u_video(
     .V          ( V             ),
     .H          ( H             ),
     .RnW        ( RnW           ),
-    .flip       ( ~dip_flip     ),
+    .flip       ( dip_flip      ),
     .cpu_dout   ( cpu_dout      ),
     // Layer enable
     .char_on    ( char_on       ),
