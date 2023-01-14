@@ -147,7 +147,7 @@ always @(posedge clk or negedge nRESET) begin
         case(A[2:0])
             3'd0: bank <= cpu_dout;
             3'd1: begin
-                flip   <= ~cpu_dout[0]; // inverted to fit default MiSTer's orientation
+                flip   <= cpu_dout[0];
                 // coin counters go here too
                 // sres_b <= cpu_dout[4]; // it could be bit 5, not sure, they are toggled together
             end
