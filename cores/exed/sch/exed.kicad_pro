@@ -238,7 +238,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "srumbler.kicad_pro",
+    "filename": "exed.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -281,7 +281,7 @@
     "annotate_start_num": 0,
     "drawing": {
       "default_line_thickness": 6.0,
-      "default_text_size": 50.0,
+      "default_text_size": 49.0,
       "field_names": [],
       "intersheets_ref_own_page": false,
       "intersheets_ref_prefix": "",
@@ -309,7 +309,7 @@
       "workbook_filename": ""
     },
     "page_layout_descr_file": "",
-    "plot_directory": "",
+    "plot_directory": "../../../jtgng/doc/schematics/",
     "spice_adjust_passive_values": false,
     "spice_external_command": "spice \"%I\"",
     "subpart_first_id": 65,
@@ -317,12 +317,12 @@
   },
   "sheets": [
     [
-      "37ef57ac-33f2-4123-acd4-0e31f15d0579",
+      "4e2a4094-0e73-4c42-8ed0-49622d45116c",
       ""
     ],
     [
-      "00000000-0000-0000-0000-0000626c2258",
-      "timing"
+      "00000000-0000-0000-0000-00006bf9f3d0",
+      "video"
     ]
   ],
   "text_variables": {}

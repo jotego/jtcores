@@ -34,6 +34,14 @@ In chronological order:
 17. [Bionic Commando  ](doc/jtbiocom.txt)
 18. [Street Fighter   ](doc/jtsf.txt)
 
+# Schematics
+
+The KiCAD schematics developed by JOTEGO's team are in the sch folder of each core. Some of them only reproduce one aspect of the board that we needed to double check. A link to PDF versions is available below.
+
+- [JOTEGO's schematics for Exed Exes](https://github.com/jotego/jtbin/tree/master/sch/exed.pdf)
+- [JOTEGO's partial schematics for The Speed Rumbler](https://github.com/jotego/jtbin/tree/master/sch/rumble.pdf)
+- [JOTEGO's partial schematics for Side Arms](https://github.com/jotego/jtbin/tree/master/sch/sarms.pdf)
+
 ### Dependencies
 
 Game              | 6809 | Z80 | 68000 | MCU  | YM2203  | YM2151 | YM2149 | MSM5205 | SN76489AN

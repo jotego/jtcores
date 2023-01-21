@@ -66,13 +66,13 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "srumbler.kicad_prl",
+    "filename": "rumble.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "srumbler.kicad_sch",
+        "name": "rumble.kicad_sch",
         "open": false,
         "window": {
           "display": 0,
