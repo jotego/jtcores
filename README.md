@@ -190,36 +190,9 @@ hybrid_pwm_sd.v copied from FPGAgen source code. Unknown author
 
 Use `git clone --recurse-submodules` in order to get all submodules when you clone the repository.
 
-# Compilation
+# Compilation and Directory Structure
 
-Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructions.
-
-# Directory Structure
-
-model/gng/hdl/  replica of original PCB schematics
-model/gng/ver/  simulation files for original PCB
-modules         files shared by several games and external files
-modules/mist
-doc             documents related to original PCB
-doc/74          74' series data sheets
-rom             script to convert from MAME rom files to the required format
-                simulation files expect the rom files here
-cores/gng/        MiST board version of Ghosts'n Goblins.
-                  Latest core version is located in this folder and called core.rbf
-cores/gng/hdl     Verilog files of the clone for MiST
-cores/gng/doc     documents related to MiST clone or MiST hardware
-cores/gng/quartus project to synthesize the clone
-cores/gng/ver     simulation files of MiST clone
-
-cores/1942        MiST board version of 1942 arcade game
-cores/1942/hdl    Verilog files of the clone for MiST
-cores/1942/zxuno  files for ZX-UNO version
-cores/1942/mist   Quartus files for MiST version
-
-cores/1943        MiST board version of 1943 arcade game
-cores/1943/hdl    Verilog files of the clone for MiST
-cores/1943/mist   Quartus files for MiST version
-etc.
+Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructions and general information about how the cores are organized.
 
 # HDL Code Structure
 
