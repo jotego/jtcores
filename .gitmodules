@@ -16,3 +16,12 @@
 [submodule "modules/jtkicad"]
 	path = modules/jtkicad
 	url = https://github.com/jotego/jtkicad
+[submodule "modules/jtopl"]
+	path = modules/jtopl
+	url = https://github.com/jotego/jtopl.git
+[submodule "modules/jt6295"]
+	path = modules/jt6295
+	url = https://github.com/jotego/jt6295.git
+[submodule "modules/jteeprom"]
+	path = modules/jteeprom
+	url = https://github.com/jotego/jteeprom.git

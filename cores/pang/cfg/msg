@@ -1,0 +1,114 @@
+\RPang!\W compatible FPGA core
+       By \RJOTEGO\W
+   \Bpatreon.com/jotego\W
+
+        Reviewed by
+    the \RJTAlpha team\W
+
+    Thanks to skutis for
+    converting the PCB to
+     schematic diagrams.
+        Awesome work!
+
+      8th August 2022
+
+  Block Block:
+  -the main version plays
+   with joystick
+  -Other versions require
+   a mouse
+  -MiST supports two mice,
+   MiSTer only supports one
+
+     \Rknown issues\W
+
+  - Envelope times in the OPLL
+ chip are wrong. Working on it
+  - MiSTer does not support 2
+  mice for 2 players on
+  Block Block
+
+\B______ \RDIRECTORS\B _______\W
+80's spaceman   A. Villena
+AnotherJoe      Bender
+Boogermann      C. Castagnasso
+Chris Gelatt    DJ Hard Rich
+Darren Chell    Filip Kindt
+Frederic Mahe   James D
+Jeffrey Pierce  John Lange
+K. finisterre   atrac17
+Louis Martinez  Martin Birkeldh
+Rysha           Shawn Henderson
+TT_Hipster1941  Ulf Skutnabba
+    Porkchop Express
+
+
+       \BThanks to\W
+\RAndrea Bogazzi  Angel R Louzan
+\RArcade Express  Ben Sanborn
+\RBob Gallardo    Brian Sallee
+\R    Daniel Bauza
+\R    Eduard Rozenberg
+\R    Fulvio Venturelli
+\R    GiRo SiNToRNiLLoS
+\RJaviRodasG      Jim Weinhart
+\RJo Tomiyori     Joebot
+\R    MiSTerFPGA.co.uk
+\RPelayo Marinas  R. Martinazzo
+\RRetroWilly      SuperCowabunga
+\RSyro Tech       Tony Escobar
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis
+Adrian Nabarro  Andrew Francomb
+Andy Palmer     Andyways
+Arjan de Lang   Chi Wai Tran
+Chris Doyle     Chris Harvey
+Chris Jardine   Christian
+D.J. Estreito   DMG
+Dan Bayley      Daniel Cortes
+David Ashby     David Mills Jr.
+David Moylan    Dean Winger
+Derick2k        Don Gafford
+Ed Balan        Eduardo Javier
+Edward Rana     EmperorStorky
+Gladius         Grumpy Old
+Gus Douboulidis Gwaland
+H. Osterholz    H. Nordstrom
+Ian Court       Ivo
+JPS (RetroFPGA) James Williams
+Jason Nagy      Jeffrey Haas
+Jo le Zef       Joe Tassone
+Joeri van       John Casey
+Jorge Slowfret  Jose Pulgar
+Joseph Hsieh    Juan Francisco
+Juan Manuel     Juan Ramon
+Keith F. Kelly  Krycek7o2
+Leslie Law      Lionel LENOBLE
+Luis Alvarado   M. Ferguson
+M. Fornasini    MakeshiftMoney
+Marcus Hogue    Marcus Sid
+Martin DiPalma  Matthew Young
+Michael Johnson MoonZ
+Nima            Oliver Jaksch
+Blackstar   Oscar Laguna
+Peter Bray      PsyFX
+Renaissance 2K  RetroPrez
+Richard MS      Rob Jenkins
+Robert MacLean  Robert Mullings
+Roman Buser     Shane Lynch
+Steven Wilson   The Collector
+Theodore Huber  Toby Boreham
+Tony Richardson Torren Beitler
+Tym Whitney     Ultrarobotninja
+Victor Gomariz  Vitor Duarte
+Younghoon Gong  Zachary Muske
+amoore2600      asdfgasfhsn
+elrobertocarlos hyp36rmax
+qzxcvbn         taal.M
+    INAKI ECHEVARRIA
+
+  ________________________
+
+    Beta version -
+      Do not distribute
