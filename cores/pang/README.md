@@ -17,9 +17,9 @@ Thanks to Ulf Sktunabba for extracting the schematics from an original Pang! boa
 
 # Supported Games
 
-In chronological order:
-
  1. Pang!
+ 2. Super Pang!
+ 3. Block Block
 
 # Keyboard
 
@@ -56,7 +56,7 @@ MiSTerFPGA, MiST, SiDi, NeptUNO and MC+/2 platforms are supported. Look for your
 This project uses the [JTFRAME](https://github.com/jotego/JTFRAME) framework. Please refer to it.
 
 # Special thanks to Patreon subscribers
-
+```
 8bits4ever             Adam Leslie            Adam Small             Adrian Labastida
 Alan Shurvinton        Alda Alesio            Alden                  Alex Mandic
 Alexander Facchini     Alexander Lash         Alexander Upton        Alfonso Clemente
