@@ -2,9 +2,9 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cencross_strobe.v
-modules:
-  other:
-    - get:
+game:
+  - from: gng
+    get:
       - jtgng_obj.v
       - jtgng_objbuf.v
       - jtgng_objdma.v

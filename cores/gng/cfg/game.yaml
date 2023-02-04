@@ -4,6 +4,11 @@ game:
       - jtgng_main.v
       - jtgng_game.v
       - jtgng_prom_we.v
+      - jtgng_video.v
+      - jtgng_video.yaml
+      - jtgng_dual_ram.v
+      - jtgng_sound.yaml
+      - jtgng_colmix.v
 jtframe:
   - from: cpu
     get:
@@ -19,12 +24,6 @@ jtframe:
       - jtframe_ram.v
 modules:
   other:
-    - get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_dual_ram.v
-      - jtgng_sound.yaml
-      - jtgng_colmix.v
     - from: jt12/hdl
       get:
       - jt12_rst.v

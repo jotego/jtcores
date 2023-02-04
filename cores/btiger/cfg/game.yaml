@@ -8,6 +8,13 @@ game:
       - jtbtiger_prom_we.v
       - jtbtiger_colmix.v
       - jtbtiger_scroll.v
+  - from: gng
+    get:
+      - jtgng_video.v
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_dual_ram.v
+      - jtgng_colmix.v
 jtframe:
   - from: clocking
     get:
@@ -16,7 +23,7 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-      - 8051/mc8051.yaml
+      - jtframe_8751.yaml
   - from: video
     get:
       - jtframe_blank.v
@@ -26,9 +33,4 @@ jtframe:
 modules:
   other:
     - get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_dual_ram.v
-      - jtgng_colmix.v
       - jt12/hdl/jt12_rst.v

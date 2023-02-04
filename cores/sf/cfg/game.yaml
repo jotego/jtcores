@@ -12,6 +12,10 @@ game:
   - from: biocom
     get:
       - jtbiocom_sound.v
+  - from: gng
+    get:
+      - jtgng_video.yaml
+      - jtgng_dual_ram.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -50,7 +54,4 @@ modules:
     - name: jt5205
   other:
     - get:
-      - jtgng_video.yaml
-      - jtgng_dual_ram.v
       - jt12/hdl/jt12_rst.v
-      - jtgng_obj32.v

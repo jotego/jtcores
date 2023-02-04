@@ -1,1 +1,0 @@
-These are files common to all games.

@@ -1,23 +1,7 @@
 #!/bin/bash
 
-SYSNAME=rumble
-HEXDUMP=-nohex
-#SIMULATOR=-verilator
-SDRAM_SNAP=
-DEF=
 OTHER=
 SCENE=
-SKIP="-d SKIPOBJ32"
-
-eval `jtcfgstr -output bash -core ${SYSNAME} | grep _START `
-
-if [ ! -e rom.bin ]; then ln -s $ROM/srumbler.rom rom.bin; fi
-
-if which ncverilog >/dev/null; then
-    # Options for non-verilator simulation
-    SIMULATOR=
-    HEXDUMP=
-fi
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -32,9 +16,6 @@ while [ $# -gt 0 ]; do
             echo -e " ----------------------\n"
             jtsim -sysname rumble -help
             exit 0;;
-        -load)
-            SKIP=
-            OTHER="$OTHER $1";;
         *) OTHER="$OTHER $1";;
     esac
     shift
@@ -51,11 +32,4 @@ if [ -n "$SCENE" ]; then
     cat $SCENE/scr.bin | drop1     > scr1_hi.bin
 fi
 
-jtsim -mist -sysname $SYSNAME $SIMULATOR \
-	-videow 352 -videoh 240 \
-    -d JTFRAME_SIM_ROMRQ_NOCHECK $OTHER $SKIP \
-    || exit $?
-
-if [[ ! -z "$SCENE" && -e frame_1.jpg ]]; then
-	eom frame_1.jpg 2> /dev/null
-fi
+jtsim $*

@@ -12,6 +12,9 @@ game:
       - jt1942_game.v
       - jt1942_colmix.v
       - jt1942_video.v
+  - from: gng
+    get:
+      - jtgng_video.yaml
 jtframe:
   - from: clocking
     get:
@@ -35,8 +38,6 @@ jtframe:
 modules:
   other:
     - get:
-      - jtgng_video.yaml
-      - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
       - jt12/jt49/hdl/jt49.yaml
 

@@ -18,11 +18,11 @@ delete=[ "Cabinet" ]
 [ROM]
 regions=[
     { name="audiocpu", start="JTFRAME_BA1_START" },
-    { name="gfx1", start="JTFRAME_BA2_START", reverse=true },
-    { name="gfx3", width=16, sequence=[3,0,4,1,5,2] },
-    { name="gfx2", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START" },
+    { name="chars", start="JTFRAME_BA2_START", reverse=true },
+    { name="sprites", width=16, sequence=[3,0,4,1,5,2] },
+    { name="tiles", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START" },
     { name="plds", skip=true },
 ]
 
-order=[ "maincpu", "audiocpu", "gfx1",
-    "gfx3", "gfx2", "proms" ]
+order=[ "maincpu", "audiocpu", "chars",
+    "sprites", "tiles", "proms" ]

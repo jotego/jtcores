@@ -8,6 +8,13 @@ game:
       - jt1943_video.v
       - jt1943_security.v
       - jt1943_scroll.yaml
+  - from: gng
+    get:
+      - jtgng_video.v
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_dual_ram.v
+      - jtgng_colmix.v
 jtframe:
   - from: clocking
     get:
@@ -23,12 +30,5 @@ jtframe:
 modules:
   other:
     - get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
       - jt12/hdl/jt03.yaml
-      - jtgng_obj32.v
-      - jtgng_dual_ram.v
-      - jtgng_colmix.v

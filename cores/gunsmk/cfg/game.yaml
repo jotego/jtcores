@@ -9,6 +9,11 @@ game:
       - jt1943_prom_we.v
       - jt1943_video.v
       - jt1943_scroll.yaml
+  - from: gng
+    get:
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -23,8 +28,5 @@ jtframe:
 modules:
   other:
     - get:
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_dual_ram.v
       - jt12/hdl/jt12_rst.v
       - jt12/jt49/hdl/jt49.yaml

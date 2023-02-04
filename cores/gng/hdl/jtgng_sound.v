@@ -59,6 +59,8 @@ module jtgng_sound(
     output reg [ 7:0] debug_view
 );
 parameter       LAYOUT=0;
+parameter [7:0] FM_GAIN=8'h08;
+parameter       PSG_ATT=0;      // adds attenuation to the psg_level values
 `ifndef NOSOUND
     // 0 GnG, most games
     // 1 Commando:
@@ -81,9 +83,6 @@ parameter       LAYOUT=0;
     //      -Can readback from FM chip
     //      -IRQ controlled by FM chips
     //      -FM clock speed same as CPU
-
-parameter [7:0] FM_GAIN=8'h08;
-parameter       PSG_ATT=0;      // adds attenuation to the psg_level values
 
 localparam IRQ_FM     = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;

@@ -78,6 +78,7 @@ module jtvigil_game(
     input   [31:0]  status,
     input   [31:0]  dipsw,
     input           service,
+    input           tilt,
     input           dip_pause,
     output          dip_flip,
     input           dip_test,

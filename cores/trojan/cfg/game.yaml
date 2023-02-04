@@ -17,6 +17,12 @@ game:
   - from: 1943
     get:
       - jt1943_scroll.yaml
+  - from: gng
+    get:
+      - jtgng_video.v
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -39,12 +45,5 @@ modules:
     - name: jt5205
   other:
     - get:
-      - jtgng_video.v
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
       - jt12/hdl/jt03.yaml
-      - jtgng_obj32.v
-      - jtgng_dual_ram.v
-      - jtgng_colmix.v

@@ -56,7 +56,7 @@ module jtexed_game(
     input           service,
     input           tilt,
     input           dip_pause,
-    inout           dip_flip,
+    input           dip_flip,
     input           dip_test,
     input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
     input   [31:0]  dipsw,

@@ -19,7 +19,7 @@ regions=[
     { name="maincpu", sequence=[1,2,0] },
     { name="gfx1", start="CHAR_START" },
     { name="gfx5", reverse=true },
-    { name="gfx4", width=16 },
+    { name="gfx4", width=16, no_offset=true },
     { name="gfx2", width=32, sequence=[
         6,4,2,0,
         7,5,3,1

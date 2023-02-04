@@ -35,6 +35,7 @@ assign pxl_cen  = cen6;
 assign game_led = 0;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = ~flip;
+assign debug_view = 0;
 
 assign red    = { pre_r, pre_r[2] };
 assign green  = { pre_g, pre_g[2] };

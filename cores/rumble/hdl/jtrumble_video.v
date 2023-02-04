@@ -109,7 +109,7 @@ assign LHBL_obj = flip ? LHBL_sh[8] : LHBL_sh[6]; // LHBL_sh[debug_bus[4:0]];
 // Sync pulses slightly adjusted
 jtframe_vtimer #(
     .HB_START ( 9'h1B0 ),
-    .HB_END   ( 9'h04F ),
+    .HB_END   ( 9'h050 ),
     .HCNT_END ( 9'h1FF ),
     .VB_START ( 9'hF8  ),
     .VB_END   ( 9'h08  ),

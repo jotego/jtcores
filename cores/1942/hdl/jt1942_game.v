@@ -57,6 +57,7 @@ assign prom_irq_we   = prog_addr[11:8]==8; // sb-1.k6
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
+assign debug_view = 0;
 
 assign eff_flip = `ifdef VULGUS dip_flip `else flip `endif;
 

@@ -7,6 +7,12 @@ game:
       - jtrumble_sdram.v
       - jtrumble_colmix.v
       - jtrumble_banks.v
+  - from: gng
+    get:
+      - jtgng_video.yaml
+      - jtgng_sound.yaml
+      - jtgng_obj32.v
+      - jtgng_dual_ram.v
 jtframe:
   - from: clocking
     get:
@@ -33,10 +39,5 @@ jtframe:
 modules:
   other:
     - get:
-      - jtgng_video.yaml
-      - jtgng_sound.yaml
-      - jtgng_true_dual_ram.v
       - jt12/hdl/jt12_rst.v
       - jt12/jt49/hdl/jt49.yaml
-      - jtgng_obj32.v
-      - jtgng_dual_ram.v

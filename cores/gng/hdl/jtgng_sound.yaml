@@ -5,10 +5,12 @@ jtframe:
   - from: clocking
     get:
       - jtframe_freqinfo.v
+game:
+  - from: gng
+    get:
+      - jtgng_sound.v
 modules:
   other:
-    - get:
-      - jtgng_sound.v
     - from: jt12
       get:
         - hdl/jt03.yaml
