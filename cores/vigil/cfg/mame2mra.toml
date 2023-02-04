@@ -1,0 +1,35 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="vigilant.cpp"
+skip = { bootlegs=true, setnames = [ "bowmen", "kikcubic", "kikcubicb", "buccanrs", "buccanrsa", "buccanrsb" ] }
+
+[buttons]
+Names = [ { names="Punch, Kick "} ]
+
+[rbf]
+name="jtvigil"
+
+[dipsw]
+bitcnt = 16
+delete = [ "Unused", "Unknown", "Coinage", "Coin A", "Coin B" ]
+rename=[ { name="Invulnerability (Cheat)", to="Cheat"} ]
+
+[ROM]
+regions = [
+    { name="maincpu", No_offset=true   },
+    { name="soundcpu", start="BA1_START" },
+    { name="m72",      start="PCM_START" },
+
+    { name="gfx1", start="BA2_START", width=16, No_offset=true },
+    { name="gfx3", start="SCR2_START", No_offset=true }, # Background images
+    { name="gfx2", start="BA3_START", width=16, No_offset=true, sort_even=true },
+    { name="plds", skip=true },
+    { name="proms", skip=true }
+]
+
+order = [
+    "maincpu", "soundcpu", "m72",
+    "gfx1", "gfx3", "gfx2"
+]

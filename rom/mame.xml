@@ -5585,6 +5585,564 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="bowmen" sourcefile="irem/vigilant.cpp">
+		<description>Bowmen</description>
+		<year>1994</year>
+		<manufacturer>Ten-Level</manufacturer>
+		<rom name="4_27256.bin" size="32768" crc="e8dcabb6" sha1="d6baf9af0ebdced8b73a36486ffd9b48b0d446ca" region="maincpu" offset="0"/>
+		<rom name="3_27c512.bin" size="65536" crc="9c8af1eb" sha1="e36efb2b6d1df4b313bf81c083df64ccf6764bbc" region="maincpu" offset="10000"/>
+		<rom name="2_27c512.bin" size="65536" crc="477a5756" sha1="675e066adec5fa34c491d71520827d568a5f8d7a" region="soundcpu" offset="0"/>
+		<rom name="8_27c512.bin" size="65536" crc="782b0b7f" sha1="35eef9bd32ca2063c730026a71300a7cf2e55778" region="gfx1" offset="0"/>
+		<rom name="7_27c512.bin" size="65536" crc="449720ea" sha1="aa52ea17293ab86c87eeb04c0c4172001ec56379" region="gfx1" offset="10000"/>
+		<rom name="10_27c512.bin" size="65536" crc="8cf4e040" sha1="641a5d13a63ca0dc56fef42ea1ada3b5b28ca864" region="gfx2" offset="0"/>
+		<rom name="9_27c512.bin" size="65536" crc="3c06fdf7" sha1="cfce7eda1e6353b850777c38cabc304e1b123ea0" region="gfx2" offset="10000"/>
+		<rom name="5_27c040.bin" size="524288" crc="5bac2567" sha1="bd773761ce31192efc69d031fee13a95ab13b2fd" region="gfx3" offset="0"/>
+		<rom name="6_27c4001.bin" size="524288" crc="35b3b7bc" sha1="2b7dc0606deb52e5ac725cd63cd56e1e2ef040f8" region="gfx3" offset="80000"/>
+		<rom name="1_27c512.bin" size="65536" crc="456c478b" sha1="c8c8bf682dcc2b3a28ffbadcfaaba524141f792b" region="m72" offset="0"/>
+		<rom name="prom_4_82s129.bin" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<rom name="prom_3_82s129.bin" size="256" crc="e6506ef4" sha1="079841da7640b14d94aaaeb572bf018932b58293" region="proms" offset="100"/>
+		<rom name="prom_2_82s129.bin" size="256" crc="b43d094f" sha1="2bed4892d8a91d7faac5a07bf858d9294eb30606" region="proms" offset="200"/>
+		<rom name="prom_1_82s129.bin" size="256" crc="e0aa8869" sha1="ac8bdfeba69420ba56ec561bf3d0f1229d02cea2" region="proms" offset="300"/>
+		<rom name="1_16v8.bin" size="279" status="nodump" region="plds" offset="0"/>
+		<rom name="2_22v10.bin" size="512" status="nodump" region="plds" offset="200"/>
+		<rom name="3_20v8.bin" size="343" status="nodump" region="plds" offset="400"/>
+		<rom name="4_16v8.bin" size="279" status="nodump" region="plds" offset="600"/>
+		<rom name="5_22v10.bin" size="512" status="nodump" region="plds" offset="800"/>
+		<rom name="6_16v8.bin" size="279" status="nodump" region="plds" offset="a00"/>
+		<rom name="7_22v10.bin" size="512" status="nodump" region="plds" offset="c00"/>
+		<rom name="8_16v8.bin" size="279" status="nodump" region="plds" offset="e00"/>
+		<rom name="9_16v8.bin" size="279" status="nodump" region="plds" offset="1000"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="3000000"/>
+		<chip type="audio" tag="ym2" name="YM2203 OPN" clock="3000000"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="55.017606" pixclock="6000000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Screen Orientation" tag="DSW1" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Normal Screen" value="1" default="yes"/>
+			<dipvalue name="Inverted Screen" value="0"/>
+		</dipswitch>
+		<dipswitch name="Players" tag="DSW1" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Two Players" value="2" default="yes"/>
+			<dipvalue name="One Player" value="0"/>
+		</dipswitch>
+		<dipswitch name="Time for Round" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Free Time per Round" value="0"/>
+			<dipvalue name="30 Seconds per Round" value="4"/>
+			<dipvalue name="50 Seconds per Round" value="8"/>
+			<dipvalue name="60 Seconds per Round" value="12" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Very Hard" value="0"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Very Easy" value="32"/>
+			<dipvalue name="Normal" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Yes" value="64" default="yes"/>
+			<dipvalue name="No" value="0"/>
+		</dipswitch>
+		<dipswitch name="Test Type" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Easy Test" value="128" default="yes"/>
+			<dipvalue name="Advanced Test" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="15">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="5 Coins/1 Credit" value="1"/>
+			<dipvalue name="4 Coins/5 Credits" value="2"/>
+			<dipvalue name="4 Coins/3 Credits" value="3"/>
+			<dipvalue name="4 Coins/1 Credit" value="4"/>
+			<dipvalue name="3 Coins/5 Credits" value="5"/>
+			<dipvalue name="3 Coins/2 Credits" value="6"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="2 Coins/5 Credits" value="8"/>
+			<dipvalue name="2 Coins/3 Credits" value="9"/>
+			<dipvalue name="2 Coins/1 Credit" value="10"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="240">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="5 Coins/1 Credit" value="16"/>
+			<dipvalue name="4 Coins/5 Credits" value="32"/>
+			<dipvalue name="4 Coins/3 Credits" value="48"/>
+			<dipvalue name="4 Coins/1 Credit" value="64"/>
+			<dipvalue name="3 Coins/5 Credits" value="80"/>
+			<dipvalue name="3 Coins/2 Credits" value="96"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/5 Credits" value="128"/>
+			<dipvalue name="2 Coins/3 Credits" value="144"/>
+			<dipvalue name="2 Coins/1 Credit" value="160"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="47">
+			<dipvalue name="Off" value="47" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="buccanrs" sourcefile="irem/vigilant.cpp">
+		<description>Buccaneers (set 1)</description>
+		<year>1989</year>
+		<manufacturer>Duintronic</manufacturer>
+		<rom name="bc-011_k-163.u58" size="65536" crc="bf1d7e6f" sha1="55dcf993515b57c3eb1fab98097a2171df3e38ed" region="maincpu" offset="0"/>
+		<rom name="bc-012_k-163.u25" size="65536" crc="87303ba8" sha1="49a25393e853b9adf7df00a6f9c38a526a02ea4e" region="maincpu" offset="10000"/>
+		<rom name="bc-001_k-0161.u128" size="65536" crc="eb65f8c3" sha1="82566becb630ce92303905dc0c5bef9e80e9caad" region="soundcpu" offset="0"/>
+		<rom name="bc-003_k-0161.u212" size="65536" crc="95e3c517" sha1="9954830ebc3a6414a3236f4e41981db082e5ea19" region="gfx1" offset="0"/>
+		<rom name="bc-004_k-0161.u189" size="65536" crc="fe2377ab" sha1="8578c5466d98f140fdfc41e91cd841e725786e32" region="gfx1" offset="10000"/>
+		<rom name="bc-005_k-0161.u113" size="131072" crc="16dc435f" sha1="0c13e9786b356770c84f94684697e43d0ea9e7cc" region="gfx2" offset="0"/>
+		<rom name="bc-006_k-161.u80" size="65536" crc="4fe3bf97" sha1="7910ace1eed80bfafa1f9f057ed67e23aa446a22" region="gfx2" offset="10000"/>
+		<rom name="bc-008_k-161.u52" size="131072" crc="078aef7f" sha1="72e60d39d8af8bd31e9ae019b12620797eb0af7f" region="gfx2" offset="40000"/>
+		<rom name="bc-007_k-161.u70" size="65536" crc="f650fa90" sha1="c87081b4d6b09f865d08c5120da3d0fb3196a2c3" region="gfx2" offset="50000"/>
+		<rom name="bc-009_k-163.u49" size="131072" crc="0c6188fb" sha1="d49034384c6d0e94db2890223b32a2a49e79a639" region="gfx3" offset="20000"/>
+		<rom name="bc-010_k-163.u27" size="131072" crc="2d383ff8" sha1="3062baac27feba69c6ed94935c5ced72d89ed4fb" region="gfx3" offset="0"/>
+		<rom name="bc-002_k-0161.u74" size="65536" crc="36ee1dac" sha1="6dfd2a885c0b1c9347abc4b204ade66551c4b404" region="m72" offset="0"/>
+		<rom name="prom1.u54" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<rom name="prom4.u79" size="256" crc="e6506ef4" sha1="079841da7640b14d94aaaeb572bf018932b58293" region="proms" offset="100"/>
+		<rom name="prom3.u88" size="256" crc="b43d094f" sha1="2bed4892d8a91d7faac5a07bf858d9294eb30606" region="proms" offset="200"/>
+		<rom name="prom2.u99" size="256" crc="e0aa8869" sha1="ac8bdfeba69420ba56ec561bf3d0f1229d02cea2" region="proms" offset="300"/>
+		<rom name="pal16l8.u103" size="260" status="nodump" region="plds" offset="0"/>
+		<rom name="pal16l8.u156" size="260" status="nodump" region="plds" offset="200"/>
+		<rom name="pal16l8.u42" size="260" status="nodump" region="plds" offset="400"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="5068800"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="3072000"/>
+		<chip type="audio" tag="ym2" name="YM2203 OPN" clock="3072000"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="10"/>
+			<dipvalue name="3 Coins/2 Credits" value="6"/>
+			<dipvalue name="4 Coins/3 Credits" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/5 Credits" value="5"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="64"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="160"/>
+			<dipvalue name="3 Coins/2 Credits" value="96"/>
+			<dipvalue name="4 Coins/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/5 Credits" value="80"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="6">
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="2" value="6" default="yes"/>
+			<dipvalue name="3" value="4"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Normal" value="24" default="yes"/>
+			<dipvalue name="Invicibility (time still decrease)" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Upright" value="32" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="128"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="47">
+			<dipvalue name="Off" value="47" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="buccanrsa" sourcefile="irem/vigilant.cpp" cloneof="buccanrs" romof="buccanrs">
+		<description>Buccaneers (set 2)</description>
+		<year>1989</year>
+		<manufacturer>Duintronic</manufacturer>
+		<rom name="bc-011" size="32768" crc="6b657ef1" sha1="a3356654d4b04177af23b39e924cc5ad64930bb6" region="maincpu" offset="0"/>
+		<rom name="bc-012_k-163.u25" merge="bc-012_k-163.u25" size="65536" crc="87303ba8" sha1="49a25393e853b9adf7df00a6f9c38a526a02ea4e" region="maincpu" offset="10000"/>
+		<rom name="bc-001_k-0161.u128" merge="bc-001_k-0161.u128" size="65536" crc="eb65f8c3" sha1="82566becb630ce92303905dc0c5bef9e80e9caad" region="soundcpu" offset="0"/>
+		<rom name="bc-003_k-0161.u212" merge="bc-003_k-0161.u212" size="65536" crc="95e3c517" sha1="9954830ebc3a6414a3236f4e41981db082e5ea19" region="gfx1" offset="0"/>
+		<rom name="bc-004_k-0161.u189" merge="bc-004_k-0161.u189" size="65536" crc="fe2377ab" sha1="8578c5466d98f140fdfc41e91cd841e725786e32" region="gfx1" offset="10000"/>
+		<rom name="bc-005_k-0161.u113" merge="bc-005_k-0161.u113" size="131072" crc="16dc435f" sha1="0c13e9786b356770c84f94684697e43d0ea9e7cc" region="gfx2" offset="0"/>
+		<rom name="bc-006_k-161.u80" merge="bc-006_k-161.u80" size="65536" crc="4fe3bf97" sha1="7910ace1eed80bfafa1f9f057ed67e23aa446a22" region="gfx2" offset="10000"/>
+		<rom name="bc-008_k-161.u52" merge="bc-008_k-161.u52" size="131072" crc="078aef7f" sha1="72e60d39d8af8bd31e9ae019b12620797eb0af7f" region="gfx2" offset="40000"/>
+		<rom name="bc-007_k-161.u70" merge="bc-007_k-161.u70" size="65536" crc="f650fa90" sha1="c87081b4d6b09f865d08c5120da3d0fb3196a2c3" region="gfx2" offset="50000"/>
+		<rom name="bc-009_k-163.u49" merge="bc-009_k-163.u49" size="131072" crc="0c6188fb" sha1="d49034384c6d0e94db2890223b32a2a49e79a639" region="gfx3" offset="20000"/>
+		<rom name="bc-010_k-163.u27" merge="bc-010_k-163.u27" size="131072" crc="2d383ff8" sha1="3062baac27feba69c6ed94935c5ced72d89ed4fb" region="gfx3" offset="0"/>
+		<rom name="bc-002_k-0161.u74" merge="bc-002_k-0161.u74" size="65536" crc="36ee1dac" sha1="6dfd2a885c0b1c9347abc4b204ade66551c4b404" region="m72" offset="0"/>
+		<rom name="prom1.u54" merge="prom1.u54" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<rom name="prom4.u79" merge="prom4.u79" size="256" crc="e6506ef4" sha1="079841da7640b14d94aaaeb572bf018932b58293" region="proms" offset="100"/>
+		<rom name="prom3.u88" merge="prom3.u88" size="256" crc="b43d094f" sha1="2bed4892d8a91d7faac5a07bf858d9294eb30606" region="proms" offset="200"/>
+		<rom name="prom2.u99" merge="prom2.u99" size="256" crc="e0aa8869" sha1="ac8bdfeba69420ba56ec561bf3d0f1229d02cea2" region="proms" offset="300"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="5068800"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="3072000"/>
+		<chip type="audio" tag="ym2" name="YM2203 OPN" clock="3072000"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="10"/>
+			<dipvalue name="3 Coins/2 Credits" value="6"/>
+			<dipvalue name="4 Coins/3 Credits" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/5 Credits" value="5"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="64"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="160"/>
+			<dipvalue name="3 Coins/2 Credits" value="96"/>
+			<dipvalue name="4 Coins/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/5 Credits" value="80"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="6">
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="2" value="6" default="yes"/>
+			<dipvalue name="3" value="4"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Normal" value="24" default="yes"/>
+			<dipvalue name="Invicibility (time still decrease)" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Upright" value="32" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="128"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="244">
+			<dipvalue name="Off" value="244" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="buccanrsb" sourcefile="irem/vigilant.cpp" cloneof="buccanrs" romof="buccanrs">
+		<description>Buccaneers (set 3, harder)</description>
+		<year>1989</year>
+		<manufacturer>Duintronic</manufacturer>
+		<rom name="rr_du.u58" size="32768" crc="dcad3a8b" sha1="e961927bdff28db18b829ce3f64051ff1604d1e6" region="maincpu" offset="0"/>
+		<rom name="bc-012_k-163.u25" merge="bc-012_k-163.u25" size="65536" crc="87303ba8" sha1="49a25393e853b9adf7df00a6f9c38a526a02ea4e" region="maincpu" offset="10000"/>
+		<rom name="bc-001_k-0161.u128" merge="bc-001_k-0161.u128" size="65536" crc="eb65f8c3" sha1="82566becb630ce92303905dc0c5bef9e80e9caad" region="soundcpu" offset="0"/>
+		<rom name="bc-003_k-0161.u212" merge="bc-003_k-0161.u212" size="65536" crc="95e3c517" sha1="9954830ebc3a6414a3236f4e41981db082e5ea19" region="gfx1" offset="0"/>
+		<rom name="bc-004_k-0161.u189" merge="bc-004_k-0161.u189" size="65536" crc="fe2377ab" sha1="8578c5466d98f140fdfc41e91cd841e725786e32" region="gfx1" offset="10000"/>
+		<rom name="bc-005_k-0161.u113" merge="bc-005_k-0161.u113" size="131072" crc="16dc435f" sha1="0c13e9786b356770c84f94684697e43d0ea9e7cc" region="gfx2" offset="0"/>
+		<rom name="bc-006_k-161.u80" merge="bc-006_k-161.u80" size="65536" crc="4fe3bf97" sha1="7910ace1eed80bfafa1f9f057ed67e23aa446a22" region="gfx2" offset="10000"/>
+		<rom name="bc-008_k-161.u52" merge="bc-008_k-161.u52" size="131072" crc="078aef7f" sha1="72e60d39d8af8bd31e9ae019b12620797eb0af7f" region="gfx2" offset="40000"/>
+		<rom name="bc-007_k-161.u70" merge="bc-007_k-161.u70" size="65536" crc="f650fa90" sha1="c87081b4d6b09f865d08c5120da3d0fb3196a2c3" region="gfx2" offset="50000"/>
+		<rom name="bc-009_k-163.u49" merge="bc-009_k-163.u49" size="131072" crc="0c6188fb" sha1="d49034384c6d0e94db2890223b32a2a49e79a639" region="gfx3" offset="20000"/>
+		<rom name="bc-010_k-163.u27" merge="bc-010_k-163.u27" size="131072" crc="2d383ff8" sha1="3062baac27feba69c6ed94935c5ced72d89ed4fb" region="gfx3" offset="0"/>
+		<rom name="bc-002_k-0161.u74" merge="bc-002_k-0161.u74" size="65536" crc="36ee1dac" sha1="6dfd2a885c0b1c9347abc4b204ade66551c4b404" region="m72" offset="0"/>
+		<rom name="prom1.u54" merge="prom1.u54" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<rom name="prom4.u79" merge="prom4.u79" size="256" crc="e6506ef4" sha1="079841da7640b14d94aaaeb572bf018932b58293" region="proms" offset="100"/>
+		<rom name="prom3.u88" merge="prom3.u88" size="256" crc="b43d094f" sha1="2bed4892d8a91d7faac5a07bf858d9294eb30606" region="proms" offset="200"/>
+		<rom name="prom2.u99" merge="prom2.u99" size="256" crc="e0aa8869" sha1="ac8bdfeba69420ba56ec561bf3d0f1229d02cea2" region="proms" offset="300"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="5068800"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="3072000"/>
+		<chip type="audio" tag="ym2" name="YM2203 OPN" clock="3072000"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="10"/>
+			<dipvalue name="3 Coins/2 Credits" value="6"/>
+			<dipvalue name="4 Coins/3 Credits" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/5 Credits" value="5"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="64"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="5 Coins/2 Credits" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="160"/>
+			<dipvalue name="3 Coins/2 Credits" value="96"/>
+			<dipvalue name="4 Coins/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/5 Credits" value="80"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="6">
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="2" value="6" default="yes"/>
+			<dipvalue name="3" value="4"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Normal" value="24" default="yes"/>
+			<dipvalue name="Invicibility (time still decrease)" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Upright" value="32" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="128"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="47">
+			<dipvalue name="Off" value="47" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
 	<machine name="buraiken" sourcefile="capcom/lwings.cpp" cloneof="avengers" romof="avengers">
 		<description>Hissatsu Buraiken (Japan, revision A)</description>
 		<year>1987</year>
@@ -9905,6 +10463,300 @@
 		<port tag=":SYSTEM">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kikcubic" sourcefile="irem/vigilant.cpp">
+		<description>Meikyu Jima (Japan)</description>
+		<year>1988</year>
+		<manufacturer>Irem</manufacturer>
+		<rom name="mqj-p0" size="32768" crc="9cef394a" sha1="be9cc78420b4c35f8f9523b529bd56315749762c" region="maincpu" offset="0"/>
+		<rom name="mqj-b0" size="65536" crc="d9bcf4cd" sha1="f1f1cb8609343dae8637f115e5c96fd88a00f5eb" region="maincpu" offset="10000"/>
+		<rom name="mqj-b1" size="65536" crc="54a0abe1" sha1="0fb1d050c1e299394609214c903bcf4cf11329ff" region="maincpu" offset="20000"/>
+		<rom name="mqj-sp" size="65536" crc="bbcf3582" sha1="4a5b9d4161b26e3ca400573fa78268893e42d5db" region="soundcpu" offset="0"/>
+		<rom name="mqj-c0" size="65536" crc="975585c5" sha1="eb8245e458a5d4880add5b4a305a4468fa8f6491" region="gfx1" offset="0"/>
+		<rom name="mqj-c1" size="65536" crc="49d9936d" sha1="c4169ddd481c19e8e24457e2fe011db1b34db6d3" region="gfx1" offset="10000"/>
+		<rom name="mqj-00" size="262144" crc="7fb0c58f" sha1="f70ff39e2d648606686c87cf1a7a3ffb46c2656a" region="gfx2" offset="0"/>
+		<rom name="mqj-10" size="262144" crc="3a189205" sha1="063d664d4cf709931b5e3a5b6eb7c75bcd57b518" region="gfx2" offset="40000"/>
+		<rom name="mqj-v0" size="65536" crc="54762956" sha1="f08e983af28b16d27505d465ca64e7c7a93373a4" region="m72" offset="0"/>
+		<rom name="8d" size="256" crc="7379bb12" sha1="cf0c4e27911505f937004ea5eac1154956ec5d3b" region="proms" offset="0"/>
+		<rom name="6h" size="32" crc="face0cbb" sha1="c56aea3b7aaabbd4ff1b4546fcad94f51b473cde" region="proms" offset="100"/>
+		<rom name="7s" size="32" crc="face0cbb" sha1="c56aea3b7aaabbd4ff1b4546fcad94f51b473cde" region="proms" offset="120"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="256" refresh="55.017606" pixclock="8000000" htotal="512" hbend="64" hbstart="448" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="2" ways="4"/>
+			<control type="joy" player="2" buttons="2" ways="4"/>
+		</input>
+		<dipswitch name="Difficulty" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="1" value="8"/>
+			<dipvalue name="2" value="4"/>
+			<dipvalue name="3" value="12" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="112"/>
+			<dipvalue name="1 Coin/3 Credits" value="96"/>
+			<dipvalue name="1 Coin/4 Credits" value="80"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="48"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Level Select" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Player Adding" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="kikcubicb" sourcefile="irem/vigilant.cpp" cloneof="kikcubic" romof="kikcubic">
+		<description>Kickle Cubele</description>
+		<year>1988</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="1.bin" size="32768" crc="d3a589ba" sha1="be2fa4515ed3510fec2b182a3ffcf5ddb9d7256d" region="maincpu" offset="0"/>
+		<rom name="4.bin" size="65536" crc="9ae1e1a6" sha1="7f3099206300eaa275b003e829dff0b7b91d8cc8" region="maincpu" offset="10000"/>
+		<rom name="5.bin" size="32768" crc="a5a6bffd" sha1="372452c8c9b2c65307434af19eddcb60e7cd0fa3" region="maincpu" offset="20000"/>
+		<rom name="mqj-sp" merge="mqj-sp" size="65536" crc="bbcf3582" sha1="4a5b9d4161b26e3ca400573fa78268893e42d5db" region="soundcpu" offset="0"/>
+		<rom name="7.bin" size="65536" crc="1788d51a" sha1="bf7182379a34c366f192cb7d2494b26f6e27d97f" region="gfx1" offset="0"/>
+		<rom name="mqj-c1" merge="mqj-c1" size="65536" crc="49d9936d" sha1="c4169ddd481c19e8e24457e2fe011db1b34db6d3" region="gfx1" offset="10000"/>
+		<rom name="11.bin" size="65536" crc="0f0cac92" sha1="32cf4b274b61d69a6d9f0ad39aa903c7a99b981d" region="gfx2" offset="0"/>
+		<rom name="10.bin" size="65536" crc="7d3822a8" sha1="20e07a6edd46abf46b0d101a0ccee72f087f63b2" region="gfx2" offset="10000"/>
+		<rom name="9.bin" size="65536" crc="56fb4fa3" sha1="ed82602bfe98e60208d50f29f064c11cec01b3a7" region="gfx2" offset="40000"/>
+		<rom name="8.bin" size="65536" crc="947dbd4e" sha1="278ad7126bacb752886800cf48c6fe704427149d" region="gfx2" offset="50000"/>
+		<rom name="mqj-v0" merge="mqj-v0" size="65536" crc="54762956" sha1="f08e983af28b16d27505d465ca64e7c7a93373a4" region="m72" offset="0"/>
+		<rom name="8d" merge="8d" size="256" crc="7379bb12" sha1="cf0c4e27911505f937004ea5eac1154956ec5d3b" region="proms" offset="0"/>
+		<rom name="6h" merge="6h" size="32" crc="face0cbb" sha1="c56aea3b7aaabbd4ff1b4546fcad94f51b473cde" region="proms" offset="100"/>
+		<rom name="7s" merge="6h" size="32" crc="face0cbb" sha1="c56aea3b7aaabbd4ff1b4546fcad94f51b473cde" region="proms" offset="120"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="256" refresh="55.017606" pixclock="8000000" htotal="512" hbend="64" hbstart="448" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="2" ways="4"/>
+			<control type="joy" player="2" buttons="2" ways="4"/>
+		</input>
+		<dipswitch name="Difficulty" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="1" value="8"/>
+			<dipvalue name="2" value="4"/>
+			<dipvalue name="3" value="12" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="112"/>
+			<dipvalue name="1 Coin/3 Credits" value="96"/>
+			<dipvalue name="1 Coin/4 Credits" value="80"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="48"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Level Select" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Player Adding" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
 	</machine>
 	<machine name="lwings" sourcefile="capcom/lwings.cpp">
 		<description>Legendary Wings (US set 1)</description>
@@ -19685,6 +20537,1264 @@
 		<port tag=":IN4">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="vigilant" sourcefile="irem/vigilant.cpp">
+		<description>Vigilante (World, Rev E)</description>
+		<year>1988</year>
+		<manufacturer>Irem</manufacturer>
+		<rom name="vg_a-8h-e.ic55" size="32768" crc="0d4e6866" sha1="50ddeb34e72d3f6368b3da5cddf0f510693c8cce" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-a.ic57" size="65536" crc="690d812f" sha1="60d6513f8b27411018cdca1b25f94bc281476ae7" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="vg_b-4f-.ic34" size="65536" crc="01579d20" sha1="e58d8ca0ea0ac9d77225bf55faa499d1565924f9" region="gfx1" offset="0"/>
+		<rom name="vg_b-4j-.ic35" size="65536" crc="4f5872f0" sha1="6af21ba1c94097eecce30585983b4b07528c8635" region="gfx1" offset="10000"/>
+		<rom name="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="vg_b-1d-.ic2" size="65536" crc="81b1ee5c" sha1="2014165ec71f089fecb5a3e60b939cc0f565d7f1" region="gfx3" offset="0"/>
+		<rom name="vg_b-1f-.ic3" size="65536" crc="d0d33673" sha1="39761d97a71deaf7f17233d5bd5a55dbb1e6b30e" region="gfx3" offset="10000"/>
+		<rom name="vg_b-1h-.ic4" size="65536" crc="aae81695" sha1="ca8e136eca3543b27f3a61b105d4a280711cd6ea" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilanta" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (World, Rev A)</description>
+		<year>1988</year>
+		<manufacturer>Irem</manufacturer>
+		<rom name="vg_a-8h-a.ic55" size="32768" crc="97df1454" sha1="4c29e57529e20315459d36c1f1ad3d729546bef0" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-a.ic57" merge="vg_a-8l-a.ic57" size="65536" crc="690d812f" sha1="60d6513f8b27411018cdca1b25f94bc281476ae7" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-a.ic37" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="613.ic34" size="131072" crc="ee7a6c2f" sha1="e676654d5bdc53604d503fd1fe244a84372efaec" region="gfx1" offset="0"/>
+		<rom name="614.ic35" size="131072" crc="6422e8ba" sha1="7bb4e5d5362d352c3fa70bf101d10b09f25a4c66" region="gfx1" offset="10000"/>
+		<rom name="616.ic62" merge="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="615.ic61" merge="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="618.ic64" merge="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="617.ic63" merge="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="619.ic2" size="131072" crc="9e2f8759" sha1="2cc2f65b068c14e353e42f0b4adf921a97f0490a" region="gfx3" offset="0"/>
+		<rom name="612.ic4" size="131072" crc="85057c81" sha1="47663e17f08f47d847605c14e849266468ff39ba" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-a.ic26" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" merge="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilantb" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (US, Rev B)</description>
+		<year>1988</year>
+		<manufacturer>Irem (Data East license)</manufacturer>
+		<rom name="vg_a-8h-b.ic55" size="32768" crc="05350c2a" sha1="5fe932bcae34b8f85ffb519879db4115a5ff5464" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-.ic57" size="65536" crc="7f95799b" sha1="a371671c3c26976314aaac4e410bff0f13a8a085" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-.ic37" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="613.ic34" size="131072" crc="ee7a6c2f" sha1="e676654d5bdc53604d503fd1fe244a84372efaec" region="gfx1" offset="0"/>
+		<rom name="614.ic35" size="131072" crc="6422e8ba" sha1="7bb4e5d5362d352c3fa70bf101d10b09f25a4c66" region="gfx1" offset="10000"/>
+		<rom name="616.ic62" merge="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="615.ic61" merge="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="618.ic64" merge="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="617.ic63" merge="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="619.ic2" size="131072" crc="9e2f8759" sha1="2cc2f65b068c14e353e42f0b4adf921a97f0490a" region="gfx3" offset="0"/>
+		<rom name="612.ic4" size="131072" crc="85057c81" sha1="47663e17f08f47d847605c14e849266468ff39ba" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-.ic26" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" merge="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilantbl" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (bootleg)</description>
+		<year>1988</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="g07_c03.bin" size="32768" crc="9dcca081" sha1="6d086b70e6bf1fbafa746ef5c82334645f199be9" region="maincpu" offset="0"/>
+		<rom name="j07_c04.bin" size="65536" crc="e0159105" sha1="da6d74ec075863c67c0ce21b07a54029d138f688" region="maincpu" offset="10000"/>
+		<rom name="g05_c02.bin" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="f05_c08.bin" merge="vg_b-4f-.ic34" size="65536" crc="01579d20" sha1="e58d8ca0ea0ac9d77225bf55faa499d1565924f9" region="gfx1" offset="0"/>
+		<rom name="h05_c09.bin" merge="vg_b-4j-.ic35" size="65536" crc="4f5872f0" sha1="6af21ba1c94097eecce30585983b4b07528c8635" region="gfx1" offset="10000"/>
+		<rom name="n07_c12.bin" size="65536" crc="10af8eb2" sha1="664b178b248babc43a9af0fe140fe57bc7367762" region="gfx2" offset="0"/>
+		<rom name="k07_c10.bin" size="65536" crc="9576f304" sha1="0ec2a7d3d82208e2a9a4ef9ab2824e6fe26ebbe5" region="gfx2" offset="10000"/>
+		<rom name="o07_c13.bin" size="65536" crc="b1d9d4dc" sha1="1aacf6b0ff8d102880d3dce3b55cd1488edb90cf" region="gfx2" offset="20000"/>
+		<rom name="l07_c11.bin" size="65536" crc="4598be4a" sha1="6b68ec94bdee0e58133a8d3891054ef44a8ff0e5" region="gfx2" offset="30000"/>
+		<rom name="t07_c16.bin" size="65536" crc="f5425e42" sha1="c401263b6a266d3e9cd23133f1d823fb4b095e3d" region="gfx2" offset="40000"/>
+		<rom name="p07_c14.bin" size="65536" crc="cb50a17c" sha1="eb15704f715b6475ae7096f8d82f1b20f8277c71" region="gfx2" offset="50000"/>
+		<rom name="v07_c17.bin" size="65536" crc="959ba3c7" sha1="dcd2a885ae7b61210cbd55a38ccbe91c73d071b0" region="gfx2" offset="60000"/>
+		<rom name="s07_c15.bin" size="65536" crc="7f2e91c5" sha1="27dcc9b696834897c36c0b7a1c6202d93f41ad8d" region="gfx2" offset="70000"/>
+		<rom name="d01_c05.bin" merge="vg_b-1d-.ic2" size="65536" crc="81b1ee5c" sha1="2014165ec71f089fecb5a3e60b939cc0f565d7f1" region="gfx3" offset="0"/>
+		<rom name="e01_c06.bin" merge="vg_b-1f-.ic3" size="65536" crc="d0d33673" sha1="39761d97a71deaf7f17233d5bd5a55dbb1e6b30e" region="gfx3" offset="10000"/>
+		<rom name="f01_c07.bin" merge="vg_b-1h-.ic4" size="65536" crc="aae81695" sha1="ca8e136eca3543b27f3a61b105d4a280711cd6ea" region="gfx3" offset="20000"/>
+		<rom name="d04_c01.bin" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="p09_16l8.bin" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="m05_16l8.bin" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="b01_16l8.bin" size="260" crc="1beae498" sha1="031c2f589eb715dc3909614bab8d89994f69be80" region="plds" offset="400"/>
+		<rom name="a07_129.bin" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<rom name="t10_129a.bin" size="256" crc="1513df33" sha1="7ab5066e3b5eb47fc4d5498b168929a9ade9bb7c" region="proms" offset="100"/>
+		<rom name="u10_129b.bin" size="256" crc="06661d00" sha1="aa12a31751cad355ad545d92485432d6be12b45e" region="proms" offset="200"/>
+		<rom name="v10_129c.bin" size="256" crc="3f186bc8" sha1="e5270fbc16c5844294cf20b42e57f4edaabbe629" region="proms" offset="300"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilantc" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (World, Rev C)</description>
+		<year>1988</year>
+		<manufacturer>Irem</manufacturer>
+		<rom name="vg_a-8h-c.ic55" size="32768" crc="d72682e8" sha1="2401a6397164ff66d96f6023f021c615d70108a5" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-a.ic57" merge="vg_a-8l-a.ic57" size="65536" crc="690d812f" sha1="60d6513f8b27411018cdca1b25f94bc281476ae7" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-.ic37" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="613.ic34" size="131072" crc="ee7a6c2f" sha1="e676654d5bdc53604d503fd1fe244a84372efaec" region="gfx1" offset="0"/>
+		<rom name="614.ic35" size="131072" crc="6422e8ba" sha1="7bb4e5d5362d352c3fa70bf101d10b09f25a4c66" region="gfx1" offset="10000"/>
+		<rom name="616.ic62" merge="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="615.ic61" merge="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="618.ic64" merge="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="617.ic63" merge="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="619.ic2" size="131072" crc="9e2f8759" sha1="2cc2f65b068c14e353e42f0b4adf921a97f0490a" region="gfx3" offset="0"/>
+		<rom name="612.ic4" size="131072" crc="85057c81" sha1="47663e17f08f47d847605c14e849266468ff39ba" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-.ic26" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" merge="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilantd" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (Japan, Rev D)</description>
+		<year>1988</year>
+		<manufacturer>Irem</manufacturer>
+		<rom name="vg_a-8h-d.ic55" size="32768" crc="ba848713" sha1="b357cbf404fb1874d555797ed9fb37f946cc4340" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-d.ic57" size="65536" crc="3b12b1d8" sha1="2f9207f8d8ec41ea1b8f5bf3c69a97d1d09f6c3f" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-d.ic37" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="613.ic34" size="131072" crc="ee7a6c2f" sha1="e676654d5bdc53604d503fd1fe244a84372efaec" region="gfx1" offset="0"/>
+		<rom name="614.ic35" size="131072" crc="6422e8ba" sha1="7bb4e5d5362d352c3fa70bf101d10b09f25a4c66" region="gfx1" offset="10000"/>
+		<rom name="616.ic62" merge="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="615.ic61" merge="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="618.ic64" merge="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="617.ic63" merge="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="619.ic2" size="131072" crc="9e2f8759" sha1="2cc2f65b068c14e353e42f0b4adf921a97f0490a" region="gfx3" offset="0"/>
+		<rom name="612.ic4" size="131072" crc="85057c81" sha1="47663e17f08f47d847605c14e849266468ff39ba" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-d.ic26" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" merge="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilantg" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (US, Rev G)</description>
+		<year>1988</year>
+		<manufacturer>Irem (Data East license)</manufacturer>
+		<rom name="vg_a-8h-g.ic55" size="32768" crc="9444c04e" sha1="463d2dae48df2d237bd19d5e16cab032df0d9052" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-.ic57" size="65536" crc="7f95799b" sha1="a371671c3c26976314aaac4e410bff0f13a8a085" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-.ic37" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="vg_b-4f-.ic34" merge="vg_b-4f-.ic34" size="65536" crc="01579d20" sha1="e58d8ca0ea0ac9d77225bf55faa499d1565924f9" region="gfx1" offset="0"/>
+		<rom name="vg_b-4j-.ic35" merge="vg_b-4j-.ic35" size="65536" crc="4f5872f0" sha1="6af21ba1c94097eecce30585983b4b07528c8635" region="gfx1" offset="10000"/>
+		<rom name="vg_b-6l-.ic62" merge="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="vg_b-6k-.ic61" merge="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="vg_b-6p-.ic64" merge="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="vg_b-6n-.ic63" merge="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="vg_b-1d-.ic2" merge="vg_b-1d-.ic2" size="65536" crc="81b1ee5c" sha1="2014165ec71f089fecb5a3e60b939cc0f565d7f1" region="gfx3" offset="0"/>
+		<rom name="vg_b-1f-.ic3" merge="vg_b-1f-.ic3" size="65536" crc="d0d33673" sha1="39761d97a71deaf7f17233d5bd5a55dbb1e6b30e" region="gfx3" offset="10000"/>
+		<rom name="vg_b-1h-.ic4" merge="vg_b-1h-.ic4" size="65536" crc="aae81695" sha1="ca8e136eca3543b27f3a61b105d4a280711cd6ea" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-.ic26" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" merge="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="vigilanto" sourcefile="irem/vigilant.cpp" cloneof="vigilant" romof="vigilant">
+		<description>Vigilante (US)</description>
+		<year>1988</year>
+		<manufacturer>Irem (Data East license)</manufacturer>
+		<rom name="vg_a-8h-.ic55" size="32768" crc="8d15109e" sha1="9ef57047a0b53cd0143a260193b33e3d5680ca71" region="maincpu" offset="0"/>
+		<rom name="vg_a-8l-.ic57" size="65536" crc="7f95799b" sha1="a371671c3c26976314aaac4e410bff0f13a8a085" region="maincpu" offset="10000"/>
+		<rom name="vg_a-5j-.ic37" merge="vg_a-5j-.ic37" size="65536" crc="10582b2d" sha1="6e7e5f07c49b347b427572efeb180c89f49bf2c7" region="soundcpu" offset="0"/>
+		<rom name="613.ic34" size="131072" crc="ee7a6c2f" sha1="e676654d5bdc53604d503fd1fe244a84372efaec" region="gfx1" offset="0"/>
+		<rom name="614.ic35" size="131072" crc="6422e8ba" sha1="7bb4e5d5362d352c3fa70bf101d10b09f25a4c66" region="gfx1" offset="10000"/>
+		<rom name="616.ic62" merge="vg_b-6l-.ic62" size="131072" crc="fbe9552d" sha1="3c7c218f13c0a94bb624745d81d63db9423777ea" region="gfx2" offset="0"/>
+		<rom name="615.ic61" merge="vg_b-6k-.ic61" size="131072" crc="ae09d5c0" sha1="9da5b824b148c1e1478e3f4b44ba4348376ed7d5" region="gfx2" offset="10000"/>
+		<rom name="618.ic64" merge="vg_b-6p-.ic64" size="131072" crc="afb77461" sha1="18707768a4768b579c94092a260e286d3214b977" region="gfx2" offset="40000"/>
+		<rom name="617.ic63" merge="vg_b-6n-.ic63" size="131072" crc="5065cd35" sha1="9a03c5af024fcae6b3371bb04be3e811ecc390d7" region="gfx2" offset="50000"/>
+		<rom name="619.ic2" size="131072" crc="9e2f8759" sha1="2cc2f65b068c14e353e42f0b4adf921a97f0490a" region="gfx3" offset="0"/>
+		<rom name="612.ic4" size="131072" crc="85057c81" sha1="47663e17f08f47d847605c14e849266468ff39ba" region="gfx3" offset="20000"/>
+		<rom name="vg_a-4d-.ic26" merge="vg_a-4d-.ic26" size="65536" crc="9b85101d" sha1="6b8a0f33b9b66bb968f7b61e49d19a6afad8db95" region="m72" offset="0"/>
+		<rom name="vg_b-8r.ic90" merge="vg_b-8r.ic90" size="279" crc="df368a7a" sha1="597d85d1f90b7ee0188f2d849792ee02ff2ea48b" region="plds" offset="0"/>
+		<rom name="vg_b-4m.ic38" merge="vg_b-4m.ic38" size="279" crc="dbca4204" sha1="d8e190f2dc4d6285f22be331d01ed402520d2017" region="plds" offset="200"/>
+		<rom name="vg_b-1b.ic1" merge="vg_b-1b.ic1" size="279" crc="922e5167" sha1="08efdfdfeb35f3f73b6fd3d5c0c2a386dea5f617" region="plds" offset="400"/>
+		<rom name="tbp24s10_7a.ic52" merge="tbp24s10_7a.ic52" size="256" crc="c324835e" sha1="cf6ffe38523badfda211d341410e93e647de87a9" region="proms" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="rst_neg_buffer"/>
+		<device_ref name="m72_audio"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="lspeaker" name="Speaker"/>
+		<chip type="audio" tag="rspeaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="256" refresh="56.338028" pixclock="6144000" htotal="384" hbend="128" hbstart="384" vtotal="284" vbend="0" vbstart="256" />
+		<sound channels="2"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Normal" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Decrease of Energy" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Slow" value="8" default="yes"/>
+			<dipvalue name="Fast" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<condition tag="DSW2" mask="4" relation="eq" value="0"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW1" mask="240">
+			<condition tag="DSW2" mask="4" relation="ne" value="0"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="6 Coins/1 Credit" value="160"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="192"/>
+			<dipvalue name="3 Coins/1 Credit" value="208"/>
+			<dipvalue name="8 Coins/3 Credits" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="224"/>
+			<dipvalue name="5 Coins/3 Credits" value="32"/>
+			<dipvalue name="3 Coins/2 Credits" value="48"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="64"/>
+			<dipvalue name="1 Coin/2 Credits" value="144"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="112"/>
+			<dipvalue name="1 Coin/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Mode 1" value="4" default="yes"/>
+			<dipvalue name="Mode 2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stop Mode (Cheat)" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
 	</machine>
 	<machine name="vulgus" sourcefile="capcom/vulgus.cpp">
 		<description>Vulgus (set 1)</description>

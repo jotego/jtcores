@@ -1,0 +1,43 @@
+game:
+  - from: vigil
+    get:
+      - jtvigil_game.v
+      - jtvigil_main.v
+      - jtvigil_snd.v
+      - jtvigil_sdram.v
+      - jtvigil_video.v
+      - jtvigil_scr1.v
+      - jtvigil_scr2.v
+      - jtvigil_obj.v
+      - jtvigil_colmix.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: clocking
+    get:
+      - jtframe_cen24.v
+      - jtframe_cen48.v
+      - jtframe_frac_cen.v
+  - from: ram
+    get:
+      - jtframe_obj_buffer.v
+  - from: sound
+    get:
+      - jtframe_mixer.v
+      - jtframe_uprate2_fir.yaml
+      - jtframe_dcrm.v
+      - jtframe_pole.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+      - jtframe_sdram64.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_linebuf.v
+  - get:
+      - jtframe_sort.v
+modules:
+  jt:
+    - name: jt51
