@@ -25,3 +25,6 @@
 [submodule "modules/jteeprom"]
 	path = modules/jteeprom
 	url = https://github.com/jotego/jteeprom.git
+[submodule "modules/jttms"]
+	path = modules/jttms
+	url = https://github.com/jotego/jttms.git
