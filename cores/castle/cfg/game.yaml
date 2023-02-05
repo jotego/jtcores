@@ -1,0 +1,22 @@
+game:
+  - from: castle:
+    get:
+      - jtcastle_game.v
+      - jtcastle_main.v
+      - jtcastle_video.v
+      - jtcastle_sound.v
+      - jtcastle_game_sdram.v
+  - from: mx5k
+    get:
+      - jtmx5k_colmix.v
+  - from: contra
+    get:
+      - ../cfg/common.yaml
+modules:
+  other:
+    - get:
+      - jt007232.v
+      - jt051649.v
+  jt:
+    - name: jtopl
+

@@ -1,0 +1,38 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START) >> 1" }
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: main
+          addr_width: 18
+          data_width: 8
+    -
+      buses:
+        -
+          name: snd
+          addr_width: 15
+          data_width: 8
+        -
+          name: pcma
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmb
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+    -
+      buses:
+        -
+          name: gfx1
+          addr_width: 20
+          data_width: 16
+    -
+      buses:
+        -
+          name: gfx2
+          addr_width: 20
+          data_width: 16
