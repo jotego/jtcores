@@ -1,0 +1,3 @@
+wpset 3808,1,w,1,{printf "Attr     = %2X",wpdata;g}
+wpset 3809,1,w,1,{printf "Scroll x = %2X",wpdata;g}
+wpset 380a,1,w,1,{printf "Scroll y = %2X",wpdata;g}

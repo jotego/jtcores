@@ -1,0 +1,7 @@
+save char.bin,0,2000
+save pal_gr.bin,1000,200
+save pal_b.bin,1200,200
+save scr.bin,3000,800
+save scrpos.bin,3809,2
+save extra.bin,3808,1
+save obj.bin,2800,200

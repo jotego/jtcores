@@ -1,0 +1,51 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+platform="jtdd"
+
+[parse]
+sourcefile="ddragon.cpp"
+skip.setnames=[
+    "ddragonb2",
+    "ddragon2",
+    "ddragon2u",
+    "ddragon2j",
+    "ddragon2b",
+    "tstrike",
+    "tstrikea",
+    "ddungeon",
+    "ddungeone",
+    "darktowr",
+    "toffy",
+    "stoffy",
+    "stoffyu",
+    # 6809 as MCU
+    "ddragon6809", "ddragon6809a"
+]
+
+[buttons]
+Names = [
+    { names="Kick,Jump,Punch"},
+]
+
+[dipsw]
+# Flip screen not supported
+delete = [ "Unused", "Unknown" ]
+bitcnt = 16
+rename = [
+    { name="Bonus Life", to="Bonus" },
+]
+
+[ROM]
+regions=[
+    { name="maincpu", sequence=[1,2,3,3,4] },
+    { name="soundcpu", no_offset=true },
+    { name="gfx1", sequence=[0,0]},
+]
+
+order=[
+    "maincpu", "soundcpu",
+    "adpcm1", "adpcm2",
+    "gfx1", "gfx3", "gfx2",
+    "sub", "proms"
+]

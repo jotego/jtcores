@@ -1,0 +1,34 @@
+game:
+  - from: dd
+    get:
+      - jtdd_main.v
+      - jtdd_colmix.v
+      - jtdd_prom_we.v
+      - jtdd_video.v
+      - jtdd_char.v
+      - jtdd_obj.v
+      - jtdd_scroll.v
+      - jtdd_timing.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_frac_cen.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+  - from: cpu
+    get:
+      - mc6809i.v
+      - jtframe_sys6809.v
+      - jtframe_z80wait.v
+  - from: sound
+    get:
+      - jtframe_mixer.v
+modules:
+  jt:
+    - name: jt51

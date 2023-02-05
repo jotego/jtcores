@@ -1,0 +1,20 @@
+game:
+  - from: dd
+    get:
+      - jtdd_game.v
+      - jtdd_mcu.v
+      - jtdd_sound.v
+      - jtdd_adpcm.v
+      - ../cfg/common.yaml
+jtframe:
+  - from: sound
+    get:
+      - jtframe_mixer.v
+      - jtframe_uprate2_fir.yaml
+  - from: cpu
+    get:
+      - 6801_core.sv
+modules:
+  jt:
+    - name: jt5205
+
