@@ -1,0 +1,3 @@
+save chlo.bin,e000,400
+save chhi.bin,e400,400
+save obj.bin,ea00,100

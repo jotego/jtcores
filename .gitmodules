@@ -28,3 +28,6 @@
 [submodule "modules/jttms"]
 	path = modules/jttms
 	url = https://github.com/jotego/jttms.git
+[submodule "modules/jt49"]
+	path = modules/jt49
+	url = https://github.com/jotego/jt49.git

@@ -1,0 +1,39 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Sep  6 05:03:34 2022
+[*]
+[dumpfile] "/home/jtejada/repo/github/jtdeco/cores/kchamp/ver/game/test.fst"
+[dumpfile_mtime] "Mon Sep  5 19:16:25 2022"
+[dumpfile_size] 16295781
+[savefile] "/home/jtejada/repo/github/jtdeco/cores/kchamp/ver/game/cmp.gtkw"
+[timestart] 10416
+[size] 1920 997
+[pos] -1 -1
+*-36.382988 131466991824 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_video.u_obj.
+[sst_width] 223
+[signals_width] 218
+[sst_expanded] 1
+[sst_vpaned_height] 292
+@24
+TOP.game_test.frame_cnt[31:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_main.A[15:0]
+@28
+TOP.game_test.u_game.u_main.enc
+TOP.game_test.u_game.u_main.nmi_n
+@29
+TOP.game_test.u_game.u_main.nmi_on
+@28
+TOP.game_test.u_game.u_main.dip_pause
+TOP.game_test.u_game.u_main.LVBL
+TOP.game_test.u_game.u_main.u_nmi.clr[0]
+[pattern_trace] 1
+[pattern_trace] 0

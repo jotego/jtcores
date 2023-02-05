@@ -1,0 +1,43 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="kchamp.cpp"
+
+[buttons]
+Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]
+
+[dipsw]
+bitcnt = 8
+delete = [ "Unused", "Unknown" ]
+
+[ROM]
+regions = [
+    { name="audiocpu", start="SND_START" },
+
+    { name="gfx1", start="CHAR_START", width=16, sort_even=true },
+    { name="gfx2", start="OBJ_START", no_offset=true },
+    { name="proms", start="JTFRAME_PROM_START" }
+]
+
+order = [
+    "maincpu", "audiocpu",
+    "gfx1", "gfx2", "proms"
+]
+
+splits = [
+    { namehas="vs",  region="maincpu", offset=0xa000, min_len=0x4000 },
+]
+
+blanks = [
+    { region="gfx2", offset=0xc000, len=0x4000 },
+]
+
+# It isn't clear how the ROM decryption works for the first
+# four instructions. It is safe to just skip over them
+patches = [
+    { machine="kchampvs",  offset=0, value="69 6e B4" },
+    { machine="kchampvs3", offset=0, value="69 6e B4" },
+    { machine="kchampvs4", offset=0, value="69 6e B4" },
+    { machine="karatevs",  offset=0, value="69 6e B4" },
+]
