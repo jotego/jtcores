@@ -1,0 +1,31 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="rastan.cpp"
+
+[buttons]
+names=[
+    { names="Slash,Jump" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+rename=[
+    {name="Bonus Life", to="Bonus" }
+]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu", width=16, reverse=true, no_offset=true },
+    { name="audiocpu", start="SND_START" },
+    { name="adpcm", start="PCM_START"    },
+    { name="pc080sn", start="SCR_START", width=16, no_offset=true  },
+    { name="pc090oj", start="OBJ_START", width=16, no_offset=true  }
+]
+
+order = [
+    "maincpu", "audiocpu", "adpcm", "pc080sn", "pc090oj"
+]

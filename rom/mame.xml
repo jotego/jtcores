@@ -12833,6 +12833,846 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="karateda" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Dou (Arfyc bootleg)</description>
+		<year>1984</year>
+		<manufacturer>bootleg (Arfyc)</manufacturer>
+		<rom name="k-14_2764.d1" size="8192" crc="44e60aa0" sha1="6d007d7082c15182832f947444b00b7feb0e7738" region="maincpu" offset="0"/>
+		<rom name="k-15_2764.d2" size="8192" crc="a65e3793" sha1="bf1e8fbc6755e85414eb7629e6fab3bf154f6546" region="maincpu" offset="2000"/>
+		<rom name="k-16_2764.d4" size="8192" crc="151d8872" sha1="1bb27142fdb33e3aeaf95c7a0ad7e8c258bbcb66" region="maincpu" offset="4000"/>
+		<rom name="k-17_2764.d5" size="8192" crc="8f393b6a" sha1="f246a6e069a2f562c5b7de05a2b8a6a09c1f4d1b" region="maincpu" offset="6000"/>
+		<rom name="k-18_2764.d6" size="8192" crc="a09046ad" sha1="665973bffc38e36b8b0f6bc79e10db280be0613e" region="maincpu" offset="8000"/>
+		<rom name="k-19_2764.d7" size="8192" crc="0cdc4da9" sha1="405454deda311abb8badd58a47529e42ddce5f6a" region="maincpu" offset="a000"/>
+		<rom name="k-26_2764.e10" size="8192" crc="645232ba" sha1="97b78a9bb069d3fdbd348a4e83d5abdf8418e595" region="audiocpu" offset="0"/>
+		<rom name="k-25_2764.e9" size="8192" crc="253bf0da" sha1="33bae6401003dc57deaa14bf7f6a7ebad5b7efe3" region="audiocpu" offset="2000"/>
+		<rom name="k-24_2764.e8" size="8192" crc="e2c188af" sha1="b7a0801a4c634694f1556873fd21f7e13441be17" region="audiocpu" offset="4000"/>
+		<rom name="k-23_2764.e6" size="8192" crc="25262de1" sha1="6264cd82756be9e1cdcd9ad3c3dfc6fef78dab8f" region="audiocpu" offset="6000"/>
+		<rom name="k-22_2764.e5" size="8192" crc="38055c48" sha1="8406a52aaa7e56093a8d8552e928988b6fdd6c95" region="audiocpu" offset="8000"/>
+		<rom name="k-21_2764.e4" size="8192" crc="5f0efbe7" sha1="f831efd02c917adac827fe6db8449ca8707b3d44" region="audiocpu" offset="a000"/>
+		<rom name="k-20_2764.e2" size="8192" crc="cbe8a533" sha1="04cb41c487c2f951417628ed2888e04d59a39d29" region="audiocpu" offset="c000"/>
+		<rom name="k-0_2764.h3" size="8192" crc="cec020f2" sha1="07c501cc24797000f369fd98a26efe13875107bb" region="gfx1" offset="0"/>
+		<rom name="k-1_2764.h6" size="8192" crc="cd96271c" sha1="bcc71010e5489b19ad1553141c7b2e366bbbc68f" region="gfx1" offset="4000"/>
+		<rom name="k-13_2764.k15" size="8192" crc="fb358707" sha1="37124f1f545787723fecf466d8dcd31b88cdd75d" region="gfx2" offset="0"/>
+		<rom name="k-4_2764.j15" size="8192" crc="48372bf8" sha1="28231b3bdb1d7226d7856554ba667b6d61f4fe22" region="gfx2" offset="2000"/>
+		<rom name="k-12_2764.k13" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="k-3_2764.j13" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="k-11_2764.k12" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="k-2_2764.j12" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="k-7_2764.k4" size="8192" crc="40f2b6fb" sha1="8d9ee04d917a8e143bd00fa7582990213bfa42d3" region="gfx2" offset="c000"/>
+		<rom name="k-10_2764.k9" size="8192" crc="325c0a97" sha1="0159536ff0ebac8ccf65aac1a524a30b3fca3418" region="gfx2" offset="e000"/>
+		<rom name="k-6_2764.k2" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="k-9_2764.k8" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="k-5_2764.k1" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="k-8_2764.k7" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="1_dm74s287_82s129.f11" size="256" crc="f05bda76" sha1="0842092e28a15de3b4c198e48f650dbbe3cc95ce" region="proms" offset="0"/>
+		<rom name="2_dm74s287_82s129.f12" size="256" crc="d26d6fa9" sha1="72a30bdc3410f2704539a32aeef69ee803e39f82" region="proms" offset="100"/>
+		<rom name="3_dm74s287_82s129.f13" size="256" crc="111ccb15" sha1="4928a7ccc8649520cad3b119ff0b0ca1276c95ae" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac08"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4433619"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1108404"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1108404"/>
+		<chip type="audio" tag="dac" name="DAC08 DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="16">
+			<dipvalue name="Hard" value="0"/>
+			<dipvalue name="Normal" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW" mask="128">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="karatedo" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Dou (Japan)</description>
+		<year>1984</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="be14" size="8192" crc="44e60aa0" sha1="6d007d7082c15182832f947444b00b7feb0e7738" region="maincpu" offset="0"/>
+		<rom name="be15" size="8192" crc="a65e3793" sha1="bf1e8fbc6755e85414eb7629e6fab3bf154f6546" region="maincpu" offset="2000"/>
+		<rom name="be16" size="8192" crc="151d8872" sha1="1bb27142fdb33e3aeaf95c7a0ad7e8c258bbcb66" region="maincpu" offset="4000"/>
+		<rom name="be17" size="8192" crc="8f393b6a" sha1="f246a6e069a2f562c5b7de05a2b8a6a09c1f4d1b" region="maincpu" offset="6000"/>
+		<rom name="be18" size="8192" crc="a09046ad" sha1="665973bffc38e36b8b0f6bc79e10db280be0613e" region="maincpu" offset="8000"/>
+		<rom name="be19" size="8192" crc="0cdc4da9" sha1="405454deda311abb8badd58a47529e42ddce5f6a" region="maincpu" offset="a000"/>
+		<rom name="be26" size="8192" crc="999ab0a3" sha1="6aa545cee7a261f3dc5774dea2066f1412f63f49" region="audiocpu" offset="0"/>
+		<rom name="be25" size="8192" crc="253bf0da" sha1="33bae6401003dc57deaa14bf7f6a7ebad5b7efe3" region="audiocpu" offset="2000"/>
+		<rom name="be24" size="8192" crc="e2c188af" sha1="b7a0801a4c634694f1556873fd21f7e13441be17" region="audiocpu" offset="4000"/>
+		<rom name="be23" size="8192" crc="25262de1" sha1="6264cd82756be9e1cdcd9ad3c3dfc6fef78dab8f" region="audiocpu" offset="6000"/>
+		<rom name="be22" size="8192" crc="38055c48" sha1="8406a52aaa7e56093a8d8552e928988b6fdd6c95" region="audiocpu" offset="8000"/>
+		<rom name="be21" size="8192" crc="5f0efbe7" sha1="f831efd02c917adac827fe6db8449ca8707b3d44" region="audiocpu" offset="a000"/>
+		<rom name="be20" size="8192" crc="cbe8a533" sha1="04cb41c487c2f951417628ed2888e04d59a39d29" region="audiocpu" offset="c000"/>
+		<rom name="be00" size="8192" crc="cec020f2" sha1="07c501cc24797000f369fd98a26efe13875107bb" region="gfx1" offset="0"/>
+		<rom name="be01" size="8192" crc="cd96271c" sha1="bcc71010e5489b19ad1553141c7b2e366bbbc68f" region="gfx1" offset="4000"/>
+		<rom name="be13" size="8192" crc="fb358707" sha1="37124f1f545787723fecf466d8dcd31b88cdd75d" region="gfx2" offset="0"/>
+		<rom name="be04" size="8192" crc="48372bf8" sha1="28231b3bdb1d7226d7856554ba667b6d61f4fe22" region="gfx2" offset="2000"/>
+		<rom name="b012.bin" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="b003.bin" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="b011.bin" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="b002.bin" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="be07" size="8192" crc="40f2b6fb" sha1="8d9ee04d917a8e143bd00fa7582990213bfa42d3" region="gfx2" offset="c000"/>
+		<rom name="be10" size="8192" crc="325c0a97" sha1="0159536ff0ebac8ccf65aac1a524a30b3fca3418" region="gfx2" offset="e000"/>
+		<rom name="b006.bin" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="b009.bin" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="b005.bin" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="b008.bin" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac08"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1000000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1000000"/>
+		<chip type="audio" tag="dac" name="DAC08 DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="16">
+			<dipvalue name="Hard" value="0"/>
+			<dipvalue name="Normal" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW" mask="128">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="karatevs" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Taisen Karate Dou (Japan VS version)</description>
+		<year>1984</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="br24.d13" size="8192" crc="ea9cda49" sha1="7d753a8d391418d0fe5231eb88b3627f7d3fd99e" region="maincpu" offset="0"/>
+		<rom name="br23.d11" size="8192" crc="46074489" sha1="5593f819b6893820ef0c0fece13cf3ca83e1ab85" region="maincpu" offset="2000"/>
+		<rom name="br22.d10" size="8192" crc="294f67ba" sha1="45f13a7deb75bb167176c5405128de3ca76e22f0" region="maincpu" offset="4000"/>
+		<rom name="br21.d8" size="8192" crc="934ea874" sha1="dbc139715a1598033beedbf4f8fec73703b016d6" region="maincpu" offset="6000"/>
+		<rom name="br20.d7" size="8192" crc="97d7816a" sha1="e02f9306fc3539f4feaedfcabea66d172d09a510" region="maincpu" offset="8000"/>
+		<rom name="br19.d6" size="16384" crc="dd2239d2" sha1="0533d5abf8e25a4aeec2f7832b657eab56fd11f0" region="maincpu" offset="a000"/>
+		<rom name="br18.d4" size="8192" crc="00ccb8ea" sha1="83d69684dc3ad37aca03c901fd23c7652134766f" region="audiocpu" offset="0"/>
+		<rom name="bs17.d2" size="8192" crc="d71031ad" sha1="b168f4ef4feb4195305404df699acecb731eab02" region="audiocpu" offset="2000"/>
+		<rom name="br16.d1" size="8192" crc="2512d961" sha1="f0cd1be112b915d700e0587759606d48d115a83f" region="audiocpu" offset="4000"/>
+		<rom name="br12.k1" size="8192" crc="9ed6f00d" sha1="3def985deb29a7644309ede3bd82c225b4ae23f8" region="gfx1" offset="0"/>
+		<rom name="bs13.k3" size="8192" crc="750b66af" sha1="c7824994b977d4e846f3ecadfcfc51331f52b6f4" region="gfx1" offset="2000"/>
+		<rom name="br14.k5" size="8192" crc="fc399229" sha1="e8d633151b0d7fa49c455920c4b0588575a7084e" region="gfx1" offset="4000"/>
+		<rom name="bs15.k6" size="8192" crc="3b6d5de5" sha1="288fffcbc9369db5c75e7e0d6181612de6f12da3" region="gfx1" offset="6000"/>
+		<rom name="br00.a1" size="8192" crc="c46a8b88" sha1="a47e56a6dc7f36b896b8156e77a1da7e8be2332e" region="gfx2" offset="0"/>
+		<rom name="br06.c1" size="8192" crc="cf8982ff" sha1="aafb249503ad51f64b1f31ea2d869dfc0e065d19" region="gfx2" offset="2000"/>
+		<rom name="bs01.a3" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="bs07.c3" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="bs02.a5" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="bs08.c5" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="br03.a6" size="8192" crc="bde8a52b" sha1="1a0800472caf8c79a15cc977dad1a7bc97c74b2b" region="gfx2" offset="c000"/>
+		<rom name="br09.c6" size="8192" crc="e9a5f945" sha1="e6b21912bee97de06819c8ac85a45bbc70030f88" region="gfx2" offset="e000"/>
+		<rom name="bs04.a8" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="bs10.c8" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="bs05.a10" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="bs11.c10" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27.k10" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26.k9" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25.k8" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ls157"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="375000"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="59.100000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="48">
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Medium" value="32"/>
+			<dipvalue name="Hard" value="16" default="yes"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kchamp" sourcefile="dataeast/kchamp.cpp">
+		<description>Karate Champ (US)</description>
+		<year>1984</year>
+		<manufacturer>Data East USA</manufacturer>
+		<rom name="b014.bin" size="8192" crc="0000d1a0" sha1="0c584096825e1d3cc718e0bda1abb897a7f4d2df" region="maincpu" offset="0"/>
+		<rom name="b015.bin" size="8192" crc="03fae67e" sha1="3b6a30f39f5ad512415e3b8ba6e07f3118e28d9e" region="maincpu" offset="2000"/>
+		<rom name="b016.bin" size="8192" crc="3b6e1d08" sha1="ecf7d2b0f31f04c0be7d5a1f450b9c95d9f54d80" region="maincpu" offset="4000"/>
+		<rom name="b017.bin" size="8192" crc="c1848d1a" sha1="eb5f85d88e170e864d0cd4c372be2a193935caa2" region="maincpu" offset="6000"/>
+		<rom name="b018.bin" size="8192" crc="b824abc7" sha1="4a30fec025150e889600a78497700155e743c99e" region="maincpu" offset="8000"/>
+		<rom name="b019.bin" size="8192" crc="3b487a46" sha1="7837e480fd4648e0d3f792b79fa0019e063abdc6" region="maincpu" offset="a000"/>
+		<rom name="b026.bin" size="8192" crc="999ed2c7" sha1="f01e4ee81f8f7b0d1cf001d3ec01a9210f8109b4" region="audiocpu" offset="0"/>
+		<rom name="b025.bin" size="8192" crc="33171e07" sha1="55ee74c9f1d86ec13d92ea0d1b700bbe24b79def" region="audiocpu" offset="2000"/>
+		<rom name="b024.bin" size="8192" crc="910b48b9" sha1="c6a2f8266ff1f14b462b92d47a4a86542df77cdd" region="audiocpu" offset="4000"/>
+		<rom name="b023.bin" size="8192" crc="47f66aac" sha1="484802cfbff7c5f51dd97cb3b2321e137b03481c" region="audiocpu" offset="6000"/>
+		<rom name="b022.bin" size="8192" crc="5928e749" sha1="a4dbd6f2a6a7aa9597875dfd781e55b0fb14d49b" region="audiocpu" offset="8000"/>
+		<rom name="b021.bin" size="8192" crc="ca17e3ba" sha1="91a3ccd6045dcef5f3293d669fe5a4df59cd954b" region="audiocpu" offset="a000"/>
+		<rom name="b020.bin" size="8192" crc="ada4f2cd" sha1="15a4ed7497cb6c06f523ebe38bc4eb6dbcd09549" region="audiocpu" offset="c000"/>
+		<rom name="b000.bin" size="8192" crc="a4fa98a1" sha1="33b9a1a56d72ffa5f4e16b69e6e19af5a2882b2c" region="gfx1" offset="0"/>
+		<rom name="b001.bin" size="8192" crc="fea09f7c" sha1="174fc8022c455438538e6a3b67c7effc857ae634" region="gfx1" offset="4000"/>
+		<rom name="b013.bin" size="8192" crc="eaad4168" sha1="f31b05ffb86677157f3a44cdcf0f9a729e0ab259" region="gfx2" offset="0"/>
+		<rom name="b004.bin" size="8192" crc="10a47e2d" sha1="97fe2de3ce2b8dc017dceffce494be18695708d2" region="gfx2" offset="2000"/>
+		<rom name="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="b007.bin" size="8192" crc="cb91d16b" sha1="bf32a03e7882b74280b29fa004429b77ad52e5ee" region="gfx2" offset="c000"/>
+		<rom name="b010.bin" size="8192" crc="489c9c04" sha1="d920ef4f03e1b2e871df0cb2d672689c89febe96" region="gfx2" offset="e000"/>
+		<rom name="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac08"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1000000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1000000"/>
+		<chip type="audio" tag="dac" name="DAC08 DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="16">
+			<dipvalue name="Hard" value="0"/>
+			<dipvalue name="Normal" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW" mask="128">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kchamptec" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Champ (Tecfri bootleg)</description>
+		<year>1984</year>
+		<manufacturer>bootleg (Tecfri)</manufacturer>
+		<rom name="13.bin" merge="b014.bin" size="8192" crc="0000d1a0" sha1="0c584096825e1d3cc718e0bda1abb897a7f4d2df" region="maincpu" offset="0"/>
+		<rom name="12.bin" merge="b015.bin" size="8192" crc="03fae67e" sha1="3b6a30f39f5ad512415e3b8ba6e07f3118e28d9e" region="maincpu" offset="2000"/>
+		<rom name="11.bin" merge="b016.bin" size="8192" crc="3b6e1d08" sha1="ecf7d2b0f31f04c0be7d5a1f450b9c95d9f54d80" region="maincpu" offset="4000"/>
+		<rom name="10.bin" size="8192" crc="53036ef7" sha1="aeb56a7ab5f76907c83d250d8693d8532d515fb6" region="maincpu" offset="6000"/>
+		<rom name="9.bin" merge="b018.bin" size="8192" crc="b824abc7" sha1="4a30fec025150e889600a78497700155e743c99e" region="maincpu" offset="8000"/>
+		<rom name="8.bin" size="8192" crc="18cd5a0c" sha1="0b4c3d2f3487db0a487b9d882d8abaeeb2464539" region="maincpu" offset="a000"/>
+		<rom name="1.bin" merge="b026.bin" size="8192" crc="999ed2c7" sha1="f01e4ee81f8f7b0d1cf001d3ec01a9210f8109b4" region="audiocpu" offset="0"/>
+		<rom name="2.bin" merge="b025.bin" size="8192" crc="33171e07" sha1="55ee74c9f1d86ec13d92ea0d1b700bbe24b79def" region="audiocpu" offset="2000"/>
+		<rom name="3.bin" size="8192" crc="d5501588" sha1="3177a6bdf9408be25c5763cb0a7d8ea0acc80f89" region="audiocpu" offset="4000"/>
+		<rom name="4.bin" merge="b023.bin" size="8192" crc="47f66aac" sha1="484802cfbff7c5f51dd97cb3b2321e137b03481c" region="audiocpu" offset="6000"/>
+		<rom name="5.bin" merge="b022.bin" size="8192" crc="5928e749" sha1="a4dbd6f2a6a7aa9597875dfd781e55b0fb14d49b" status="baddump" region="audiocpu" offset="8000"/>
+		<rom name="6.bin" merge="b021.bin" size="8192" crc="ca17e3ba" sha1="91a3ccd6045dcef5f3293d669fe5a4df59cd954b" region="audiocpu" offset="a000"/>
+		<rom name="7.bin" merge="b020.bin" size="8192" crc="ada4f2cd" sha1="15a4ed7497cb6c06f523ebe38bc4eb6dbcd09549" region="audiocpu" offset="c000"/>
+		<rom name="27.bin" merge="b000.bin" size="8192" crc="a4fa98a1" sha1="33b9a1a56d72ffa5f4e16b69e6e19af5a2882b2c" region="gfx1" offset="0"/>
+		<rom name="26.bin" merge="b001.bin" size="8192" crc="fea09f7c" sha1="174fc8022c455438538e6a3b67c7effc857ae634" region="gfx1" offset="4000"/>
+		<rom name="14.bin" merge="b013.bin" size="8192" crc="eaad4168" sha1="f31b05ffb86677157f3a44cdcf0f9a729e0ab259" region="gfx2" offset="0"/>
+		<rom name="23.bin" merge="b004.bin" size="8192" crc="10a47e2d" sha1="97fe2de3ce2b8dc017dceffce494be18695708d2" region="gfx2" offset="2000"/>
+		<rom name="15.bin" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="24.bin" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="16.bin" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="25.bin" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="20.bin" merge="b007.bin" size="8192" crc="cb91d16b" sha1="bf32a03e7882b74280b29fa004429b77ad52e5ee" region="gfx2" offset="c000"/>
+		<rom name="17.bin" merge="b010.bin" size="8192" crc="489c9c04" sha1="d920ef4f03e1b2e871df0cb2d672689c89febe96" region="gfx2" offset="e000"/>
+		<rom name="21.bin" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="18.bin" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="22.bin" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="19.bin" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27.1" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26.2" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25.3" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac08"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1000000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1000000"/>
+		<chip type="audio" tag="dac" name="DAC08 DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="16">
+			<dipvalue name="Hard" value="0"/>
+			<dipvalue name="Normal" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW" mask="128">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kchampvs" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Champ (US VS version, set 1)</description>
+		<year>1984</year>
+		<manufacturer>Data East USA</manufacturer>
+		<rom name="bs24.d13" size="8192" crc="829da69b" sha1="3266e7686e537f34ee5ce4cccc349eb12fc65038" region="maincpu" offset="0"/>
+		<rom name="bs23.d11" size="8192" crc="091f810e" sha1="283edb08ce106835185a1c2d6b88f7544d75f3b4" region="maincpu" offset="2000"/>
+		<rom name="bs22.d10" size="8192" crc="d4df2a52" sha1="60d6cb1cb51c6f80a0f88913d4152ab8bda752d6" region="maincpu" offset="4000"/>
+		<rom name="bs21.d8" size="8192" crc="3d4ef0da" sha1="228c8e47bb7123b69746506402edb875a43d7af5" region="maincpu" offset="6000"/>
+		<rom name="bs20.d7" size="8192" crc="623a467b" sha1="5f150c67632f8e32769b75aa0615d0eb018afdc4" region="maincpu" offset="8000"/>
+		<rom name="bs19.d6" size="16384" crc="43e196c4" sha1="8029798ea0a560603c3dcde56db5a1ccde58c514" region="maincpu" offset="a000"/>
+		<rom name="bs18.d4" size="8192" crc="eaa646eb" sha1="cbd48f4d5d225b71c2dd0b14f420838561e3f83e" region="audiocpu" offset="0"/>
+		<rom name="bs17.d2" size="8192" crc="d71031ad" sha1="b168f4ef4feb4195305404df699acecb731eab02" region="audiocpu" offset="2000"/>
+		<rom name="bs16.d1" size="8192" crc="6f811c43" sha1="1d33ac8129562ab709bd7396b4c2457b6db99277" region="audiocpu" offset="4000"/>
+		<rom name="bs12.k1" size="8192" crc="4c574ecd" sha1="86914eef33da73463ba6261eecae75209d24fac1" region="gfx1" offset="0"/>
+		<rom name="bs13.k3" size="8192" crc="750b66af" sha1="c7824994b977d4e846f3ecadfcfc51331f52b6f4" region="gfx1" offset="2000"/>
+		<rom name="bs14.k5" size="8192" crc="9ad6227c" sha1="708af5e70927040cf7f2ae6f792344c19099530c" region="gfx1" offset="4000"/>
+		<rom name="bs15.k6" size="8192" crc="3b6d5de5" sha1="288fffcbc9369db5c75e7e0d6181612de6f12da3" region="gfx1" offset="6000"/>
+		<rom name="bs00.a1" size="8192" crc="51eda56c" sha1="31438e115e95c2a684ec65ed2bdb9125e3675226" region="gfx2" offset="0"/>
+		<rom name="bs06.c1" size="8192" crc="593264cf" sha1="866469f37b6c90afc65e53e6589b67ac4b25997e" region="gfx2" offset="2000"/>
+		<rom name="bs01.a3" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="bs07.c3" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="bs02.a5" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="bs08.c5" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="bs03.a6" size="8192" crc="8dcd271a" sha1="0abeaa46433a59c110815ecf188c7afd6fa387a4" region="gfx2" offset="c000"/>
+		<rom name="bs09.c6" size="8192" crc="4ee1dba7" sha1="717ce9a4e20f6e02adf678b1400af4aaecdbfb40" region="gfx2" offset="e000"/>
+		<rom name="bs04.a8" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="bs10.c8" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="bs05.a10" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="bs11.c10" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27.k10" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26.k9" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25.k8" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ls157"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="375000"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="59.100000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="48">
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Medium" value="32"/>
+			<dipvalue name="Hard" value="16" default="yes"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kchampvs2" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Champ (US VS version, set 2)</description>
+		<year>1984</year>
+		<manufacturer>Data East USA</manufacturer>
+		<rom name="lt.d13" size="8192" crc="eef41aa8" sha1="6d4e8159e9c3cd629337863c0397ff90b4c8d3fa" region="maincpu" offset="0"/>
+		<rom name="lt.d11" size="8192" crc="091f810e" sha1="283edb08ce106835185a1c2d6b88f7544d75f3b4" region="maincpu" offset="2000"/>
+		<rom name="lt.d10" size="8192" crc="d4df2a52" sha1="60d6cb1cb51c6f80a0f88913d4152ab8bda752d6" region="maincpu" offset="4000"/>
+		<rom name="lt.d8" size="8192" crc="3d4ef0da" sha1="228c8e47bb7123b69746506402edb875a43d7af5" region="maincpu" offset="6000"/>
+		<rom name="lt.d7" size="8192" crc="623a467b" sha1="5f150c67632f8e32769b75aa0615d0eb018afdc4" region="maincpu" offset="8000"/>
+		<rom name="lt.d6" size="16384" crc="c3bc6e46" sha1="a7b9420592905b0df5ff00c392d887f40395179f" region="maincpu" offset="a000"/>
+		<rom name="lt.d4" size="8192" crc="eaa646eb" sha1="cbd48f4d5d225b71c2dd0b14f420838561e3f83e" region="audiocpu" offset="0"/>
+		<rom name="lt.d2" size="8192" crc="d71031ad" sha1="b168f4ef4feb4195305404df699acecb731eab02" region="audiocpu" offset="2000"/>
+		<rom name="lt.d1" size="8192" crc="6f811c43" sha1="1d33ac8129562ab709bd7396b4c2457b6db99277" region="audiocpu" offset="4000"/>
+		<rom name="lt.k1" size="8192" crc="4c574ecd" sha1="86914eef33da73463ba6261eecae75209d24fac1" region="gfx1" offset="0"/>
+		<rom name="lt.k3" size="8192" crc="750b66af" sha1="c7824994b977d4e846f3ecadfcfc51331f52b6f4" region="gfx1" offset="2000"/>
+		<rom name="lt.k5" size="8192" crc="9ad6227c" sha1="708af5e70927040cf7f2ae6f792344c19099530c" region="gfx1" offset="4000"/>
+		<rom name="lt.k6" size="8192" crc="3b6d5de5" sha1="288fffcbc9369db5c75e7e0d6181612de6f12da3" region="gfx1" offset="6000"/>
+		<rom name="lt.a1" size="8192" crc="51eda56c" sha1="31438e115e95c2a684ec65ed2bdb9125e3675226" region="gfx2" offset="0"/>
+		<rom name="lt.c1" size="8192" crc="593264cf" sha1="866469f37b6c90afc65e53e6589b67ac4b25997e" region="gfx2" offset="2000"/>
+		<rom name="lt.a3" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="lt.c3" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="lt.a5" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="lt.c5" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="lt.a6" size="8192" crc="8dcd271a" sha1="0abeaa46433a59c110815ecf188c7afd6fa387a4" region="gfx2" offset="c000"/>
+		<rom name="lt.c6" size="8192" crc="4ee1dba7" sha1="717ce9a4e20f6e02adf678b1400af4aaecdbfb40" region="gfx2" offset="e000"/>
+		<rom name="lt.a8" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="lt.c8" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="lt.a10" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="lt.c10" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="lt.k10" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="lt.k9" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="lt.k8" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ls157"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="375000"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="59.100000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="48">
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Medium" value="32"/>
+			<dipvalue name="Hard" value="16" default="yes"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kchampvs3" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Champ (US VS version, set 3)</description>
+		<year>1984</year>
+		<manufacturer>Data East USA</manufacturer>
+		<rom name="bs24.d13" size="8192" crc="829da69b" sha1="3266e7686e537f34ee5ce4cccc349eb12fc65038" region="maincpu" offset="0"/>
+		<rom name="bs23.d11" size="8192" crc="091f810e" sha1="283edb08ce106835185a1c2d6b88f7544d75f3b4" region="maincpu" offset="2000"/>
+		<rom name="bs22.d10" size="8192" crc="d4df2a52" sha1="60d6cb1cb51c6f80a0f88913d4152ab8bda752d6" region="maincpu" offset="4000"/>
+		<rom name="bs21.d8" size="8192" crc="80839912" sha1="4a3c6ad8eba756ae8e89faf42b72b41f85731e67" region="maincpu" offset="6000"/>
+		<rom name="bs20.d7" size="8192" crc="623a467b" sha1="5f150c67632f8e32769b75aa0615d0eb018afdc4" region="maincpu" offset="8000"/>
+		<rom name="bs19.d6" size="16384" crc="43e196c4" sha1="8029798ea0a560603c3dcde56db5a1ccde58c514" region="maincpu" offset="a000"/>
+		<rom name="bs18.d4" size="8192" crc="eaa646eb" sha1="cbd48f4d5d225b71c2dd0b14f420838561e3f83e" region="audiocpu" offset="0"/>
+		<rom name="bs17.d2" size="8192" crc="d71031ad" sha1="b168f4ef4feb4195305404df699acecb731eab02" region="audiocpu" offset="2000"/>
+		<rom name="bs16.d1" size="8192" crc="6f811c43" sha1="1d33ac8129562ab709bd7396b4c2457b6db99277" region="audiocpu" offset="4000"/>
+		<rom name="bs12.k1" size="8192" crc="4c574ecd" sha1="86914eef33da73463ba6261eecae75209d24fac1" region="gfx1" offset="0"/>
+		<rom name="bs13.k3" size="8192" crc="750b66af" sha1="c7824994b977d4e846f3ecadfcfc51331f52b6f4" region="gfx1" offset="2000"/>
+		<rom name="bs14.k5" size="8192" crc="9ad6227c" sha1="708af5e70927040cf7f2ae6f792344c19099530c" region="gfx1" offset="4000"/>
+		<rom name="bs15.k6" size="8192" crc="3b6d5de5" sha1="288fffcbc9369db5c75e7e0d6181612de6f12da3" region="gfx1" offset="6000"/>
+		<rom name="bs00.a1" size="8192" crc="c46a8b88" sha1="a47e56a6dc7f36b896b8156e77a1da7e8be2332e" region="gfx2" offset="0"/>
+		<rom name="bs06.c1" size="8192" crc="cf8982ff" sha1="aafb249503ad51f64b1f31ea2d869dfc0e065d19" region="gfx2" offset="2000"/>
+		<rom name="bs01.a3" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="bs07.c3" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="bs02.a5" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="bs08.c5" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="bs03.a6" size="8192" crc="bde8a52b" sha1="1a0800472caf8c79a15cc977dad1a7bc97c74b2b" region="gfx2" offset="c000"/>
+		<rom name="bs09.c6" size="8192" crc="e9a5f945" sha1="e6b21912bee97de06819c8ac85a45bbc70030f88" region="gfx2" offset="e000"/>
+		<rom name="bs04.a8" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="bs10.c8" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="bs05.a10" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="bs11.c10" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27.k10" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26.k9" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25.k8" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ls157"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="375000"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="59.100000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="48">
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Medium" value="32"/>
+			<dipvalue name="Hard" value="16" default="yes"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="kchampvs4" sourcefile="dataeast/kchamp.cpp" cloneof="kchamp" romof="kchamp">
+		<description>Karate Champ (US VS version, set 4)</description>
+		<year>1984</year>
+		<manufacturer>Data East USA</manufacturer>
+		<rom name="bs24.d13" size="8192" crc="829da69b" sha1="3266e7686e537f34ee5ce4cccc349eb12fc65038" region="maincpu" offset="0"/>
+		<rom name="bs23.d11" size="8192" crc="091f810e" sha1="283edb08ce106835185a1c2d6b88f7544d75f3b4" region="maincpu" offset="2000"/>
+		<rom name="bs22.d10" size="8192" crc="d4df2a52" sha1="60d6cb1cb51c6f80a0f88913d4152ab8bda752d6" region="maincpu" offset="4000"/>
+		<rom name="bs21.d8" size="8192" crc="3d4ef0da" sha1="228c8e47bb7123b69746506402edb875a43d7af5" region="maincpu" offset="6000"/>
+		<rom name="bs20.d7" size="8192" crc="623a467b" sha1="5f150c67632f8e32769b75aa0615d0eb018afdc4" region="maincpu" offset="8000"/>
+		<rom name="bs19.d6" size="16384" crc="43e196c4" sha1="8029798ea0a560603c3dcde56db5a1ccde58c514" region="maincpu" offset="a000"/>
+		<rom name="bs18.d4" size="8192" crc="eaa646eb" sha1="cbd48f4d5d225b71c2dd0b14f420838561e3f83e" region="audiocpu" offset="0"/>
+		<rom name="bs17.d2" size="8192" crc="d71031ad" sha1="b168f4ef4feb4195305404df699acecb731eab02" region="audiocpu" offset="2000"/>
+		<rom name="bs16.d1" size="8192" crc="6f811c43" sha1="1d33ac8129562ab709bd7396b4c2457b6db99277" region="audiocpu" offset="4000"/>
+		<rom name="bs12.k1" size="8192" crc="4c574ecd" sha1="86914eef33da73463ba6261eecae75209d24fac1" region="gfx1" offset="0"/>
+		<rom name="bs13.k3" size="8192" crc="750b66af" sha1="c7824994b977d4e846f3ecadfcfc51331f52b6f4" region="gfx1" offset="2000"/>
+		<rom name="bs14.k5" size="8192" crc="9ad6227c" sha1="708af5e70927040cf7f2ae6f792344c19099530c" region="gfx1" offset="4000"/>
+		<rom name="bs15.k6" size="8192" crc="3b6d5de5" sha1="288fffcbc9369db5c75e7e0d6181612de6f12da3" region="gfx1" offset="6000"/>
+		<rom name="bs00.a1" size="8192" crc="c46a8b88" sha1="a47e56a6dc7f36b896b8156e77a1da7e8be2332e" region="gfx2" offset="0"/>
+		<rom name="bs06.c1" size="8192" crc="cf8982ff" sha1="aafb249503ad51f64b1f31ea2d869dfc0e065d19" region="gfx2" offset="2000"/>
+		<rom name="bs01.a3" merge="b012.bin" size="8192" crc="b4842ea9" sha1="471475f65edbd292b9162ad50e5cb0c7144845b0" region="gfx2" offset="4000"/>
+		<rom name="bs07.c3" merge="b003.bin" size="8192" crc="8cd166a5" sha1="4b623c4c0025d75b3ed9746f8b6730bf3e65d85a" region="gfx2" offset="6000"/>
+		<rom name="bs02.a5" merge="b011.bin" size="8192" crc="4cbd3aa3" sha1="a9a683dcc4f52b18450659a20434a4d2a7b411d9" region="gfx2" offset="8000"/>
+		<rom name="bs08.c5" merge="b002.bin" size="8192" crc="6be342a6" sha1="0b8ac7ef7c6a6464fbc027a9fd17fa7ce1ffd962" region="gfx2" offset="a000"/>
+		<rom name="bs03.a6" size="8192" crc="bde8a52b" sha1="1a0800472caf8c79a15cc977dad1a7bc97c74b2b" region="gfx2" offset="c000"/>
+		<rom name="bs09.c6" size="8192" crc="e9a5f945" sha1="e6b21912bee97de06819c8ac85a45bbc70030f88" region="gfx2" offset="e000"/>
+		<rom name="bs04.a8" merge="b006.bin" size="8192" crc="7346db8a" sha1="d2b2c1700ae0ff9c614a9981a3da3d69879e9f25" region="gfx2" offset="10000"/>
+		<rom name="bs10.c8" merge="b009.bin" size="8192" crc="b78714fc" sha1="4df7f15c37d56a9d66d0049aad65b32063e5c29a" region="gfx2" offset="12000"/>
+		<rom name="bs05.a10" merge="b005.bin" size="8192" crc="b2557102" sha1="ec4285029fc3ee1ad0adb05f363b234c67f8903d" region="gfx2" offset="14000"/>
+		<rom name="bs11.c10" merge="b008.bin" size="8192" crc="c85aba0e" sha1="4be21b38623c2a8ae7f1e7397fb002e4cb9e4614" region="gfx2" offset="16000"/>
+		<rom name="br27.k10" merge="br27" size="256" crc="f683c54a" sha1="92893990456b92f04a2be98b8e9626e97b7a2562" region="proms" offset="0"/>
+		<rom name="br26.k9" merge="br26" size="256" crc="3ddbb6c4" sha1="0eca5594d6812bc79f8b78f83fe003877d20c973" region="proms" offset="100"/>
+		<rom name="br25.k8" merge="br25" size="256" crc="ba4a5651" sha1="77e81bd64ab59a7466d20eabdff4be241e963c52" region="proms" offset="200"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ls157"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="375000"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="59.100000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="doublejoy" player="1" ways="4" ways2="4"/>
+			<control type="doublejoy" player="2" ways="4" ways2="4"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSW" mask="3">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="12">
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="48">
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Medium" value="32"/>
+			<dipvalue name="Hard" value="16" default="yes"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="64">
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="kikcubic" sourcefile="irem/vigilant.cpp">
 		<description>Meikyu Jima (Japan)</description>
 		<year>1988</year>
@@ -16786,6 +17626,1298 @@
 		<port tag=":IN2">
 		</port>
 		<port tag=":SYS0">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastan" sourcefile="taito/rastan.cpp">
+		<description>Rastan (World Rev 1)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation Japan</manufacturer>
+		<rom name="b04-38.19" size="65536" crc="1c91dbb1" sha1="17fc55e8546cc0b847aebd67fb4570a1e9f128f3" region="maincpu" offset="0"/>
+		<rom name="b04-37.7" size="65536" crc="ecf20bdd" sha1="92e46b1edef40a19be17091c09daba598d77bca8" region="maincpu" offset="1"/>
+		<rom name="b04-40.20" size="65536" crc="0930d4b3" sha1="c269b3856040ed9409de99cca48f22a2f355fc4c" region="maincpu" offset="20000"/>
+		<rom name="b04-39.8" size="65536" crc="d95ade5e" sha1="f47557dcfa9d3137e2a3838e45858fc21471cc91" region="maincpu" offset="20001"/>
+		<rom name="b04-42.21" size="65536" crc="1857a7cb" sha1="7d967d04ade648c6ddb19aad9e184b6e272856da" region="maincpu" offset="40000"/>
+		<rom name="b04-43-1.9" size="65536" crc="ca4702ff" sha1="0f8c2d7d332c4e35884c48d87ba9fd26924d1692" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastana" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan (World)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation Japan</manufacturer>
+		<rom name="b04-38.19" merge="b04-38.19" size="65536" crc="1c91dbb1" sha1="17fc55e8546cc0b847aebd67fb4570a1e9f128f3" region="maincpu" offset="0"/>
+		<rom name="b04-37.7" merge="b04-37.7" size="65536" crc="ecf20bdd" sha1="92e46b1edef40a19be17091c09daba598d77bca8" region="maincpu" offset="1"/>
+		<rom name="b04-40.20" merge="b04-40.20" size="65536" crc="0930d4b3" sha1="c269b3856040ed9409de99cca48f22a2f355fc4c" region="maincpu" offset="20000"/>
+		<rom name="b04-39.8" merge="b04-39.8" size="65536" crc="d95ade5e" sha1="f47557dcfa9d3137e2a3838e45858fc21471cc91" region="maincpu" offset="20001"/>
+		<rom name="b04-42.21" merge="b04-42.21" size="65536" crc="1857a7cb" sha1="7d967d04ade648c6ddb19aad9e184b6e272856da" region="maincpu" offset="40000"/>
+		<rom name="b04-43.9" size="65536" crc="c34b9152" sha1="6ed9247ad455bc3b71d78b541591b269969830cb" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastanb" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan (World, earlier code base)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation Japan</manufacturer>
+		<rom name="b04-14.19" size="65536" crc="a38ac909" sha1="66d792fee03c6bd87d15060b9d5cae74137c5ebd" region="maincpu" offset="0"/>
+		<rom name="b04-21.7" size="65536" crc="7c8dde9a" sha1="0cfc3b4f3bc7b940a6c07267ac95e4aae25801ea" region="maincpu" offset="1"/>
+		<rom name="b04-27.20" size="65536" crc="ce37694b" sha1="343c35d93f59c0696104e6934063057d117f4d9f" region="maincpu" offset="20000"/>
+		<rom name="b04-26.8" size="65536" crc="fbdb98c7" sha1="717aabf6ce0c7c6107c4bcaae646f7c67b644a54" region="maincpu" offset="20001"/>
+		<rom name="b04-29.21" size="65536" crc="90d7c6e8" sha1="6a36cd6db04fcefbf0487f574fccb0eab94e058f" region="maincpu" offset="40000"/>
+		<rom name="b04-28.9" size="65536" crc="d6440242" sha1="ba73ca01cc58a8e7bb4d6b7b927658445e97168f" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastanu" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan (US Rev 1)</description>
+		<year>1987</year>
+		<manufacturer>Taito America Corporation</manufacturer>
+		<rom name="b04-38.19" merge="b04-38.19" size="65536" crc="1c91dbb1" sha1="17fc55e8546cc0b847aebd67fb4570a1e9f128f3" region="maincpu" offset="0"/>
+		<rom name="b04-37.7" merge="b04-37.7" size="65536" crc="ecf20bdd" sha1="92e46b1edef40a19be17091c09daba598d77bca8" region="maincpu" offset="1"/>
+		<rom name="b04-45.20" size="65536" crc="362812dd" sha1="f7df037ef423d931ca780b34813d4e9e4db67054" region="maincpu" offset="20000"/>
+		<rom name="b04-44.8" size="65536" crc="51cc5508" sha1="2bd266351a4d1b94c8c3a489e4d267695d93db5e" region="maincpu" offset="20001"/>
+		<rom name="b04-42.21" merge="b04-42.21" size="65536" crc="1857a7cb" sha1="7d967d04ade648c6ddb19aad9e184b6e272856da" region="maincpu" offset="40000"/>
+		<rom name="b04-41-1.9" size="65536" crc="bd403269" sha1="14aee828d5efb65370a5e453c8fd1c7b3e718074" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastanua" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan (US)</description>
+		<year>1987</year>
+		<manufacturer>Taito America Corporation</manufacturer>
+		<rom name="b04-38.19" merge="b04-38.19" size="65536" crc="1c91dbb1" sha1="17fc55e8546cc0b847aebd67fb4570a1e9f128f3" region="maincpu" offset="0"/>
+		<rom name="b04-37.7" merge="b04-37.7" size="65536" crc="ecf20bdd" sha1="92e46b1edef40a19be17091c09daba598d77bca8" region="maincpu" offset="1"/>
+		<rom name="b04-45.20" size="65536" crc="362812dd" sha1="f7df037ef423d931ca780b34813d4e9e4db67054" region="maincpu" offset="20000"/>
+		<rom name="b04-44.8" size="65536" crc="51cc5508" sha1="2bd266351a4d1b94c8c3a489e4d267695d93db5e" region="maincpu" offset="20001"/>
+		<rom name="b04-42.21" merge="b04-42.21" size="65536" crc="1857a7cb" sha1="7d967d04ade648c6ddb19aad9e184b6e272856da" region="maincpu" offset="40000"/>
+		<rom name="b04-41.9" size="65536" crc="b44ca1c4" sha1="11f1ccc35b6b24aaf253c7994014f08007aba76b" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastanub" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan (US, earlier code base)</description>
+		<year>1987</year>
+		<manufacturer>Taito America Corporation</manufacturer>
+		<rom name="b04-14.19" size="65536" crc="a38ac909" sha1="66d792fee03c6bd87d15060b9d5cae74137c5ebd" region="maincpu" offset="0"/>
+		<rom name="b04-21.7" size="65536" crc="7c8dde9a" sha1="0cfc3b4f3bc7b940a6c07267ac95e4aae25801ea" region="maincpu" offset="1"/>
+		<rom name="b04-23.20" size="65536" crc="254b3dce" sha1="5126cd5268abaa78dfdcd2ca70621c093c79be67" region="maincpu" offset="20000"/>
+		<rom name="b04-22.8" size="65536" crc="98e8edcf" sha1="cc89ef36da6d21192efc19c3bbb215b1635b7ef3" region="maincpu" offset="20001"/>
+		<rom name="b04-25.21" size="65536" crc="d1e5adee" sha1="eafc275a0023aecb2efaff14cd890915fa162624" region="maincpu" offset="40000"/>
+		<rom name="b04-24.9" size="65536" crc="a3dcc106" sha1="3a8854530b08864a1f7f46c427e49ceec8297806" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastsaga" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan Saga (Japan Rev 1)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b04-32.19" merge="b04-38.19" size="65536" crc="1c91dbb1" sha1="17fc55e8546cc0b847aebd67fb4570a1e9f128f3" region="maincpu" offset="0"/>
+		<rom name="b04-31.7" size="65536" crc="4c62e89e" sha1="41673a1375a4ff3e59edbb6194915bb2348b70dd" region="maincpu" offset="1"/>
+		<rom name="b04-34-1.20" size="65536" crc="8f54dd19" sha1="ed9c221ebce3ba76c39dc83fed58acff3028e6c9" region="maincpu" offset="20000"/>
+		<rom name="b04-33-1.8" size="65536" crc="810a02a3" sha1="813a8d4d15d02c131dcae831d1b449c754d91f44" region="maincpu" offset="20001"/>
+		<rom name="b04-36.21" size="65536" crc="32e286c0" sha1="7f80aff6d9f5700932d970f7ebdc9efe10db7f76" region="maincpu" offset="40000"/>
+		<rom name="b04-35.9" size="65536" crc="ee5ec5bc" sha1="8bdd2cdcb4b664131ef9a394b3ab30b0fde71b02" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastsagaa" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan Saga (Japan Rev 1, earlier code base)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b04-14.19" size="65536" crc="a38ac909" sha1="66d792fee03c6bd87d15060b9d5cae74137c5ebd" region="maincpu" offset="0"/>
+		<rom name="b04-13.7" size="65536" crc="bad60872" sha1="e020f79b3ac3d2abccfcd5d135d2dc49e1335c7d" region="maincpu" offset="1"/>
+		<rom name="b04-16-1.20" size="65536" crc="00b59e60" sha1="545ab3eb9ef25c532dda5a9eec087665ba0cecc1" region="maincpu" offset="20000"/>
+		<rom name="b04-15-1.8" size="65536" crc="ff9e018a" sha1="37048eecec799f29564517fae9525ef0e3d9d9e5" region="maincpu" offset="20001"/>
+		<rom name="b04-18-1.21" size="65536" crc="b626c439" sha1="976e820edc4ba107c5b579edaaee1e354e85fb67" region="maincpu" offset="40000"/>
+		<rom name="b04-17-1.9" size="65536" crc="c928a516" sha1="fe87fdf2d1b7ba93e1986460eb6af648b58f42e4" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastsagaabl" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan Saga (bootleg, Japan Rev 1, earlier code base)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="9" size="65536" crc="a38ac909" sha1="66d792fee03c6bd87d15060b9d5cae74137c5ebd" region="maincpu" offset="0"/>
+		<rom name="12" size="65536" crc="bad60872" sha1="e020f79b3ac3d2abccfcd5d135d2dc49e1335c7d" region="maincpu" offset="1"/>
+		<rom name="10" size="65536" crc="00b59e60" sha1="545ab3eb9ef25c532dda5a9eec087665ba0cecc1" region="maincpu" offset="20000"/>
+		<rom name="13" size="65536" crc="ff9e018a" sha1="37048eecec799f29564517fae9525ef0e3d9d9e5" region="maincpu" offset="20001"/>
+		<rom name="11" size="65536" crc="b626c439" sha1="976e820edc4ba107c5b579edaaee1e354e85fb67" region="maincpu" offset="40000"/>
+		<rom name="14" size="65536" crc="c928a516" sha1="fe87fdf2d1b7ba93e1986460eb6af648b58f42e4" region="maincpu" offset="40001"/>
+		<rom name="2" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="8" size="65536" crc="6aac8f67" sha1="6042dc936eaa22b0afb200c8306be4bbddaad4d7" region="pc080sn" offset="0"/>
+		<rom name="5" size="65536" crc="8c184637" sha1="fcabe034aa331d3c0b05854b9f504edb4f04f5b8" region="pc080sn" offset="1"/>
+		<rom name="6" size="65536" crc="e8b64ced" sha1="17c09a26ce0ee0f10f3cbaa166f38f9716e7e4ea" region="pc080sn" offset="20000"/>
+		<rom name="3" size="65536" crc="27f6c59b" sha1="84697bd33ccd64914955f3cdb41684f0be428f54" region="pc080sn" offset="20001"/>
+		<rom name="7" size="65536" crc="225e19fa" sha1="14dd2f8b7d81e5f39fcf07f9c4421815f1fefe22" region="pc080sn" offset="40000"/>
+		<rom name="4" size="65536" crc="aa3a2d5e" sha1="1c6017e2c4604c315517e5acd7eced4e08515728" region="pc080sn" offset="40001"/>
+		<rom name="22" size="32768" crc="d9d09beb" sha1="cddbda5a1af7564a63d00926891f5d8c75715a2f" region="pc090oj" offset="0"/>
+		<rom name="18" size="32768" crc="d6fb44fe" sha1="ac0ef2f8771bfd9b5bbbecfb81ba8b6de1bd290a" region="pc090oj" offset="1"/>
+		<rom name="28" size="32768" crc="f19630f7" sha1="c6bd015185e883be8a6df97fdcfcd229d01496f6" region="pc090oj" offset="10000"/>
+		<rom name="25" size="32768" crc="d778ceea" sha1="398135f3dab4ff27d206e204fd49c06315788a3f" region="pc090oj" offset="10001"/>
+		<rom name="21" size="32768" crc="21453a7a" sha1="d7b18ad96ce9fc85138521404359a95d00fe01ff" region="pc090oj" offset="20000"/>
+		<rom name="17" size="32768" crc="5cd5c7e9" sha1="f50d595f5fa8eb59a8a50ce1968dd4e362d7ab04" region="pc090oj" offset="20001"/>
+		<rom name="27" size="32768" crc="2e66aa0b" sha1="6ab10ddba5cd94f995f02425090fff1b7c08b08b" region="pc090oj" offset="30000"/>
+		<rom name="24" size="32768" crc="88217cbc" sha1="149f54ae4ef00dacbc95a29f45b854efd53fc8a9" region="pc090oj" offset="30001"/>
+		<rom name="20" size="32768" crc="9cd627e1" sha1="31481048e4fcec8c31c247e16953774e063189ec" region="pc090oj" offset="40000"/>
+		<rom name="16" size="32768" crc="93d64eef" sha1="6faa76cb5bb8ffa77c7dce85678a0e6f1e1b9ba8" region="pc090oj" offset="40001"/>
+		<rom name="26" size="32768" crc="9bca4abc" sha1="ae88e5c7b75bb9a9d80582f10c56cdd70bc86412" region="pc090oj" offset="50000"/>
+		<rom name="23" size="32768" crc="cde8891b" sha1="8f52df3cfe585982bd1bb03c34b2de02b424490d" region="pc090oj" offset="50001"/>
+		<rom name="19" size="32768" crc="02ed3b16" sha1="2f92ba8181a6391afa9ccd290ba13b69cf735e51" region="pc090oj" offset="60000"/>
+		<rom name="15" size="32768" crc="3e4c41d4" sha1="4868ba2239d77659e63894898c81a0355214ea3b" region="pc090oj" offset="60001"/>
+		<rom name="1" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rastsagab" sourcefile="taito/rastan.cpp" cloneof="rastan" romof="rastan">
+		<description>Rastan Saga (Japan, earlier code base)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b04-14.19" size="65536" crc="a38ac909" sha1="66d792fee03c6bd87d15060b9d5cae74137c5ebd" region="maincpu" offset="0"/>
+		<rom name="b04-13.7" size="65536" crc="bad60872" sha1="e020f79b3ac3d2abccfcd5d135d2dc49e1335c7d" region="maincpu" offset="1"/>
+		<rom name="b04-16.20" size="65536" crc="6bcf70dc" sha1="3e369548ac01981c503150b44c2747e6c2cec12a" region="maincpu" offset="20000"/>
+		<rom name="b04-15.8" size="65536" crc="8838ecc5" sha1="42b43ab77969bbacdf178fbe73a0a27652ccb297" region="maincpu" offset="20001"/>
+		<rom name="b04-18-1.21" size="65536" crc="b626c439" sha1="976e820edc4ba107c5b579edaaee1e354e85fb67" region="maincpu" offset="40000"/>
+		<rom name="b04-17-1.9" size="65536" crc="c928a516" sha1="fe87fdf2d1b7ba93e1986460eb6af648b58f42e4" region="maincpu" offset="40001"/>
+		<rom name="b04-19.49" merge="b04-19.49" size="65536" crc="ee81fdd8" sha1="fa59dac2583a7d2979550dffc6f9c6c2bd67bfd5" region="audiocpu" offset="0"/>
+		<rom name="b04-01.40" merge="b04-01.40" size="131072" crc="cd30de19" sha1="f8d158d38cd07a24cb5ddefd4ce90beec706924d" region="pc080sn" offset="0"/>
+		<rom name="b04-02.67" merge="b04-02.67" size="131072" crc="54040fec" sha1="a2bea2ce1cebd25b33be41723299ca0512d95f9e" region="pc080sn" offset="1"/>
+		<rom name="b04-03.39" merge="b04-03.39" size="131072" crc="ab67e064" sha1="5c49f0ff9221cba9f2bb8da86eb4448c73012410" region="pc080sn" offset="40000"/>
+		<rom name="b04-04.66" merge="b04-04.66" size="131072" crc="94737e93" sha1="3df7f085fe6468bda11fab2e86252df6f74f7a99" region="pc080sn" offset="40001"/>
+		<rom name="b04-05.15" merge="b04-05.15" size="131072" crc="c22d94ac" sha1="04f69f9af7ac4242e95dba32988afa3616d75a92" region="pc090oj" offset="0"/>
+		<rom name="b04-06.28" merge="b04-06.28" size="131072" crc="002ccf39" sha1="fdc29f39198f9b488e298ee89b0eeb3417527733" region="pc090oj" offset="1"/>
+		<rom name="b04-07.14" merge="b04-07.14" size="131072" crc="b5632a51" sha1="da6ebe6afe245443a76b33714213549356c0c5c3" region="pc090oj" offset="40000"/>
+		<rom name="b04-08.27" merge="b04-08.27" size="131072" crc="feafca05" sha1="9de9ff1fcf037e5ab25c181b678245041238d6ae" region="pc090oj" offset="40001"/>
+		<rom name="b04-20.76" merge="b04-20.76" size="65536" crc="fd1a34cc" sha1="b1682959521fa295769207b75cf7d839e9ec95fd" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="ls157"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="100k 200k 400k 600k 800k" value="12" default="yes"/>
+			<dipvalue name="150k 300k 600k 900k 1200k" value="8"/>
+			<dipvalue name="200k 400k 800k 1200k 1600k" value="4"/>
+			<dipvalue name="250k 500k 1000k 1500k 2000k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+			<dipvalue name="5" value="16"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SPECIAL">
+		</port>
+		<port tag=":SYSTEM">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>

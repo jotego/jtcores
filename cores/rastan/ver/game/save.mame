@@ -1,0 +1,3 @@
+save pal.bin,200000,1000
+save vram.bin,c00000,10000
+save oram.bin,d00000,4000
