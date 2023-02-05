@@ -1,0 +1,3 @@
+save vram_lo.bin,3800,400
+save vram_hi.bin,3c00,400
+save obj.bin,2800,800

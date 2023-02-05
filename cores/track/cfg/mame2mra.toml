@@ -1,0 +1,36 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="trackfld.cpp"
+skip.bootlegs=true
+skip.setnames=["mastkin","wizzquiz","wizzquiza","reaktor","trackfldu"]
+
+[buttons]
+core=3 # max number of buttons supported by the core
+names=[
+    { names="Left, Centre, Right" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+rename = [
+    { name="World Records", to="Records"},
+    { name="After Last Event", to="After ending"}
+]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu" },
+    { name="audiocpu" },
+    { name="gfx2", no_offset=true, reverse=true, start="SCR_START" },
+    { name="gfx1", width=16, no_offset=true, start="OBJ_START", sort_even=true },
+    { name="vlm", start="PCM_START" },
+    { name="proms", start="JTFRAME_PROM_START" },
+]
+
+order = [
+    "maincpu", "audiocpu", "gfx2", "gfx1", "vlm", "proms"
+]

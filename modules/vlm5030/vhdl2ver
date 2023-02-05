@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Convert the VLM5030 VHDL logic to Verilog using a Docker container for ghdl
+
+function ghdl {
+    docker run -ti -w/mnt -v `pwd`:/mnt ghdl/ghdl:ubuntu22-llvm-11 ghdl $*
+}
+
+ghdl -a vlm5030_pack.vhd clock_functions_pack.vhd  vlm5030_subcircuits.vhd vlm5030_gl.vhd
+ghdl synth --out=verilog vlm5030_gl > vlm5030.v

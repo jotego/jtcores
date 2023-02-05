@@ -1,0 +1,39 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+
+[features]
+# qsound=true
+# debug=true
+
+[parse]
+sourcefile="shaolins.cpp"
+
+[buttons]
+names=[
+    { names="Kick,Jump" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+rename = [ {name="Bonus Life", to="Bonus"} ]
+# base = 16
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu", reverse=true },
+    { name="tiles", width=16, no_offset=true, sequence=[1,0] }, # start=$GFX1_START
+    { name="sprites", width=16, reverse=true, no_offset=true }, # start=$GFX2_START
+    { name="proms"          },
+]
+# { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
+order = [
+    "maincpu", "tiles", "sprites", "proms"
+]
+
+patches = [
+    { setname="kicker", offset=0x58c6, value="3d 3d" }
+]
+

@@ -1,0 +1,46 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="hyperspt.cpp"
+skip.bootlegs=true
+
+[buttons]
+names=[
+    { machine="roadf", names="Low gear,High gear" },
+    { machine="hyperspt", names="Left button, Centre button, Right button" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+bitcnt = 19
+extra = [
+    { machine="roadf", name="Flip", bits="16", Options="Off,On" }
+]
+rename = [
+    { name="After Last Event", To="After ending"},
+    { name="World Records", To="Records"},
+    { name="Number of Opponents", To ="Other cars"}
+]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu" },
+    { name="audiocpu" },
+    { name="tiles", width=16, no_offset=true, Sort_even=true, start="SCR_START" },
+    { machine="roadf", name="sprites", width=16, no_offset=true, start="OBJ_START" },
+    { machine="hyperspt", name="sprites", width=16, no_offset=true, start="OBJ_START", Name_sort=["c14","c18","c13","c17","c12","c16","c11","c15"] },
+    { name="vlm", start="PCM_START" },
+    { name="proms", start="JTFRAME_PROM_START" },
+]
+
+order = [
+    "maincpu", "audiocpu", "tiles", "sprites", "vlm", "proms"
+]
+
+blanks = [
+    { machine="hyperspt", region="tiles", offset=0x4000, len=0x4000 }
+]
+

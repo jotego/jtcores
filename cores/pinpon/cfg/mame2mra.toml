@@ -1,0 +1,34 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+
+[features]
+# debug=true
+
+[parse]
+sourcefile="pingpong.cpp"
+skip = { setnames=["merlinmm","cashquiz"], bootlegs=false }
+
+[buttons]
+names=[
+    { names="Button 1, button 2" }
+]
+
+[dipsw]
+bitcnt = 20
+delete = [ "Unused", "Unknown", "Coin A" ]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu" },
+    { name="audiocpu" },
+    { name="tiles", no_offset=true, reverse=true, start="SCR_START" },
+    { name="sprites", width=16, no_offset=true, start="OBJ_START", sort_even=true },
+    { name="proms", start="JTFRAME_PROM_START" },
+]
+
+order = [
+    "maincpu", "audiocpu", "tiles", "sprites", "proms"
+]

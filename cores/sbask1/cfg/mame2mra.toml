@@ -1,0 +1,38 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+
+[features]
+# qsound=true
+# debug=true
+
+[parse]
+sourcefile="sbasketb.cpp"
+skip.setnames=["sbasketh", "hypersptb"]
+
+[buttons]
+names=[
+    { names="Bounce,Throw,Pass" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+# base = 16
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu" },
+    { name="audiocpu" },
+    { name="gfx1" }, # start=$GFX1_START
+    { name="gfx2" }, # start=$GFX2_START
+    { name="vlm" },
+    { name="proms"          },
+]
+
+order = [
+    "maincpu", "audiocpu", "gfx1", "gfx2", "vlm", "proms"
+]
+
+

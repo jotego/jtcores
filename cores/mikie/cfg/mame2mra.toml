@@ -1,0 +1,36 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+
+[features]
+# qsound=true
+# debug=true
+
+[parse]
+sourcefile="mikie.cpp"
+
+[buttons]
+names=[
+    { names="Door,Headbutt" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+# base = 16
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu" },
+    { name="audiocpu" },
+    { name="tiles" }, # start="GFX1_START"
+    { name="sprites", start="OBJ_START", sort_even=true, no_offset=true },
+    { name="proms"          },
+]
+
+order = [
+    "maincpu", "audiocpu", "tiles", "sprites", "proms"
+]
+
+

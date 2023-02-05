@@ -1,0 +1,3 @@
+save obj1.bin,5000,400
+save obj2.bin,5400,400
+save vram.bin,5800,800

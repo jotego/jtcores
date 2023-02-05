@@ -1,0 +1,19 @@
+[all]
+include ../../kicker/cfg/common.def
+
+CORENAME=JTYIEAR
+
+VIDEO_MODULE=jtyiear_video
+MAIN_MODULE=jtyiear_main
+
+# Enable VLM5030 ROM
+PCM
+
+JTFRAME_PROM_START=0x26000
+MAIN_START=0x08000
+SCR_START =0x10000
+OBJ_START =0x14000
+PCM_START =0x24000
+
+# Video
+

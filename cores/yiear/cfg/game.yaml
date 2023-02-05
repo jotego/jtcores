@@ -1,0 +1,16 @@
+game:
+  - from: kicker
+    get:
+      - jtkicker_game.v
+      - ../cfg/common.yaml
+  - from: yiear
+    get:
+      - jtyiear_main.v
+      - jtyiear_video.v
+      - jtyiear_colmix.v
+      - jtyiear_game_sdram.v
+modules:
+  jt:
+    - name: jt89
+  other:
+    - get: [ vlm5030/vlm5030.qip ]

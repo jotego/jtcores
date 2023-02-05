@@ -1,0 +1,9 @@
+[all]
+include ../../kicker/cfg/common.def
+
+CORENAME=JTPINPON
+
+SCR_START=0x08000
+OBJ_START=0xa000
+JTFRAME_PROM_START=0xc000
+

@@ -1,0 +1,4 @@
+wp 2200,1,w,1,{print wpdata;go}
+save obj1.bin,5000,400
+save obj2.bin,5000,400
+save vram.bin,5800,800

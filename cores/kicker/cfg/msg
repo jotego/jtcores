@@ -1,0 +1,116 @@
+       \BKicker\W FPGA core
+         by \RJOTEGO\W
+       patreon.com/jotego
+
+
+        Reviewed by
+    the \RJTAlpha team\W
+
+
+        Known issues:
+    -Screen refresh rate
+     compatibility is poor
+     Use the 60Hz OSD option
+     if you run into trouble
+
+        \BHardware\W
+
+     Special thanks to
+     \RBrian Schinzel\W
+    for donating the board
+
+
+
+ \B______ \RDIRECTORS _______\W
+
+       80's spaceman
+       AnotherJoe
+       Antonio Villena
+       atrac17
+       Ben Roeder
+       Bender
+       Birkeldh
+       Chris Gelatt
+       DJ Hard Rich
+       Filip Kindt
+       Frederic Mahe
+       Henderson
+       James D
+       Jeffrey Pierce
+       John Lange
+       Kevin finisterre
+       Louis Martinez
+       Porkchop Express
+       Rysha
+       Skutnabba
+       Tinker
+       TT_Hipster1941
+
+       \BThanks to\R
+
+       Phillip McMahon
+       Arcade Express
+       Brian Sallee
+       Daniel Bauza
+       E. Rozenberg
+       JaviRodasG
+       Jo Tomiyori
+
+ \B_________ AND __________\W
+
+         nullobject
+      MiSTerFPGA.co.uk
+    ARCADEAGES   Adam Davis
+    A. Nabarro   A. Rensberg
+    A. Wester    A. Francomb
+    Andy Palmer  Andyways
+    Arjan Lang   Bob Gallardo
+    Chi Wai Tran Chris Doyle
+    Chris Harvey Chris Jardine
+    Christian    Connor Glynn
+    DJ Estreito  DMG
+    D. Cortes    Darren Chell
+    D. Ashby     David Mills
+    D. Moylan    Dean Winger
+    Derick2k     Don Gafford
+    Ed Balan     E. Javier
+    E. Rana      EmperorStorky
+    Gladius      G. Douboulidis
+    Gwaland      H. Osterholz
+    H. Nordstrom I. ECHEVARRIA
+    Ian Court    Ivo
+    RetroFPGA    James Trautner
+    J. Williams  Jason Nagy
+    J. Haas      Jim Weinhart
+    Joe Tassone  Joeri van
+    John Casey   Jorge Slowfret
+    J. Pulgar    Joseph Hsieh
+    J. Francisco Krycek7o2
+    Leslie Law   Lionel LENOBLE
+    Marcelo C.   Marcus Hogue
+    Marcus Sid   Martin DiPalma
+          Matthew Young
+    M. Johnson   MoonZ
+    O. Jaksch    Blackstar
+    Oscar Laguna Per Sweden
+    Peter Bray   PsyFX
+    Retroludo    Richard MS
+    R. MacLean   R. Mullings
+    Roman Buser  S. Johnstone
+    S. Wilson    SuperCowabunga
+    The Collector
+    T. Boreham   T. Richardson
+    T. Beitler   Tym Whitney
+    Ultrarobotninja
+                 Victor Gomariz
+    V. Duarte    Y. Gong
+    Z. Muske     asdfgasfhsn
+    hyp36rmax    Theodore Huber
+         elrobertocarlos
+
+    \B___Greetings to___\W
+
+    Caius,who made a replica for
+    one of the custom chips used
+    by Konami on this game
+

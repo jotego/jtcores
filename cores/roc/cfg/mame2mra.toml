@@ -1,0 +1,40 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+overrule=[ {rotate=90} ]
+[features]
+# debug=true
+# beta=true
+
+[parse]
+sourcefile="rocnrope.cpp"
+
+[buttons]
+names=[{ names="Rope,Flash" }]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+bitcnt = 23
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu", no_offset=true },
+    { name="timeplt_audio:tpsound", start="SND_START" },
+    { name="tiles", width=16, no_offset=true, Sort_even=true, start="SCR_START" },
+    { name="sprites", width=16, no_offset=true, start="OBJ_START", sort_even=true },
+    { name="proms", start="JTFRAME_PROM_START", name_sort=["b16_prom.bin","rocnrope.pr3","a17_prom.bin"], no_offset=true },
+    { name="pal_cpuvidbd", skip=true },
+    { name="pals_daughterbd", skip=true }
+]
+
+order = [
+    "maincpu", "timeplt_audio:tpsound", "tiles", "sprites",  "proms"
+]
+
+# MAME applies this patch: fixes a bad dump?
+patches = [
+    { setname="rocnrope", offset=0x103d, value="BA" },
+    { setname="ropeman", offset=0x103d, value="BA" }
+]

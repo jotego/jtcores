@@ -1,0 +1,37 @@
+params:
+  - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
+  - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
+  - { name: PCM_OFFSET, value: "`PCM_START >> 1" }
+  - { name: SND_OFFSET, value: "`SND_START >> 1" }
+download:
+  post_addr: true
+  post_data: true
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: scr
+          addr_width: 16
+          data_width: 32
+          offset: SCR_OFFSET
+          cs: LVBL
+        -
+          name: objrom
+          addr_width: 16
+          data_width: 32
+          offset: OBJ_OFFSET
+        -
+          name: pcm
+          addr_width: 16
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: snd
+          addr_width: 14
+          data_width: 8
+          offset: SND_OFFSET
+        -
+          name: main
+          addr_width: 16
+          data_width: 8

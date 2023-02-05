@@ -1,0 +1,6 @@
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) vlm5030_gl.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) vlm5030_pack.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) vlm5030_subcircuits.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) clock_functions_pack.vhd ]
+
+
