@@ -79,6 +79,7 @@ module jtkunio_game(
     // DIP switches
     input   [31:0]  status,
     input   [31:0]  dipsw,
+    input           tilt,
     input           service,
     input           dip_pause,
     output          dip_flip,

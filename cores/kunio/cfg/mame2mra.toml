@@ -1,19 +1,12 @@
 [global]
 # info = [ {tag="mameversion", value="0229"} ]
 mraauthor=["jotego"]
-platform="jtkunio"
-
-[features]
-# ddr = true
-# cheat=true
-# beta=true
-# nvram = 43008
-# qsound=true
 
 [parse]
 sourcefile="renegade.cpp"
 # Original games don't work because of the MCU
 skip.setnames = [ "kuniokun", "renegade" ]
+main="renegadeb"
 
 [buttons]
 Names = [

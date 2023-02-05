@@ -2,7 +2,6 @@
 
 OTHER=
 SCENE=
-eval `$JTCFGSTR -core kunio -output bash`
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -33,8 +32,4 @@ if [ -n "$SCENE" ]; then
     cp $SCENE/pal.bin .
 fi
 
-if [ ! -e rom.bin ]; then
-    ln -sr $ROM/renegdeb.rom rom.bin || exit $?
-fi
-
-$JTFRAME/bin/jtsim -d JTFRAME_SIM_ROMRQ_NOCHECK $OTHER
+jtsim -d JTFRAME_SIM_ROMRQ_NOCHECK $OTHER
