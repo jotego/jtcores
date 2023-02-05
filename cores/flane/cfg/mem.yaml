@@ -1,0 +1,37 @@
+params:
+  - { name: GFX_OFFSET, value: "`GFX_START>>1" }
+  - { name: PCM0_OFFSET, value: "22'hA_0000>>1" }
+  - { name: PCM1_OFFSET, value: "22'hC_0000>>1" }
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: gfx
+          addr_width: 19
+          data_width: 16
+          offset: GFX_OFFSET
+        -
+          name: pcma
+          addr_width: 17
+          data_width: 8
+          offset: PCM0_OFFSET
+        -
+          name: pcmb
+          addr_width: 17
+          data_width: 8
+          offset: PCM0_OFFSET
+        -
+          name: pcmc
+          addr_width: 19
+          data_width: 8
+          offset: PCM1_OFFSET  
+        -
+          name: pcmd
+          addr_width: 19
+          data_width: 8
+          offset: PCM1_OFFSET    
+        -
+          name: main
+          addr_width: 17
+          data_width: 8

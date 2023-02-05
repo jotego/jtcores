@@ -1,0 +1,22 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="labyrunr.cpp"
+
+[buttons]
+names = [
+    { names="Shoot,Bomb" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+
+[ROM]
+regions=[
+    {name="maincpu", no_offset=true },
+    {name="gfx", width=16 },
+]
+order=[
+    "maincpu","gfx","proms"
+]

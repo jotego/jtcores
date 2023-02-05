@@ -1,0 +1,27 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="fastlane.cpp"
+
+[buttons]
+names = [
+    { names="Accelerate,Jump" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+rename = [ {name="Bonus Life", to="Bonus"} ]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu", no_offset=true  },
+    { name="gfx",     start="GFX_START", width=16 }
+]
+# { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
+order = [
+    "maincpu", "gfx", "k007232_1", "k007232_2", "proms"
+]

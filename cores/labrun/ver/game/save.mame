@@ -1,0 +1,4 @@
+save gfx_obj.bin,2000,1000
+save gfx_tile.bin,3000,1000
+save pal.bin,1000,100
+save gfx_cfg.bin,0,60

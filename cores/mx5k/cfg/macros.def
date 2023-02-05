@@ -1,0 +1,34 @@
+[all]
+CORENAME=JTMX5K
+JTFRAME_VERTICAL
+JTFRAME_CLK24
+JTFRAME_COLORW=5
+JTFRAME_WIDTH=280
+JTFRAME_HEIGHT=224
+JTFRAME_BUTTONS=3
+JTFRAME_CREDITS
+# There is a large blank period
+# in the credits because going over
+# 4 pages, automatically requires 8 pages
+# in memory
+JTFRAME_CREDITS_PAGES=5
+JTFRAME_SDRAM_BANKS
+
+# ROM offsets
+SND_START=0x10000
+GFX_START=0x20000
+PCM_START=0xA0000
+
+JTFRAME_OSD_VOL
+
+[mist|sidi]
+# OSD credits cannot be used when
+# DIP base is less than 13
+JTFRAME_OSD_NOCREDITS
+
+[mister]
+JTFRAME_OSD_NOLOAD
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+JTFRAME_NOHQ2X
+JTFRAME_CHEAT

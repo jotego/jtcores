@@ -1,0 +1,17 @@
+params:
+  - { name: GFX_OFFSET, value: "22'h2_0000>>1"}
+download:
+  post_addr: true
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: gfx
+          addr_width: 19
+          data_width: 16
+          offset: GFX_OFFSET 
+        -
+          name: main
+          addr_width: 17
+          data_width: 8

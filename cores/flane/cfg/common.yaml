@@ -1,0 +1,22 @@
+jtframe:
+  - get: [ jtframe_ff.v ]
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_frac_cen.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_credits.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_prom.v
+      - jtframe_obj_buffer.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
