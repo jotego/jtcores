@@ -1,0 +1,7 @@
+include ../../dd/cfg/macros.def
+
+[all]
+CORENAME=JTDD2
+GAMETOP=jtdd2_game
+DD2
+TV80S

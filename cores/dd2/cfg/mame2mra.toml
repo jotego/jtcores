@@ -1,0 +1,55 @@
+[global]
+mraauthor=["jotego"]
+platform="jtdd2"
+
+[parse]
+sourcefile="ddragon.cpp"
+skip.setnames=[
+    "ddragon",
+    "ddragonw",
+    "ddragonw1",
+    "ddragonu",
+    "ddragonua",
+    "ddragonub",
+    "ddragonb2",
+    "ddragonb",
+    "ddragonba",
+    "ddragon6809",
+    "ddragon6809a",
+    "tstrike",
+    "tstrikea",
+    "ddungeon",
+    "ddungeone",
+    "darktowr",
+    "toffy",
+    "stoffy",
+    "stoffyu",
+]
+
+[buttons]
+Names = [
+    { names="Left Attack,Jump,Right Attack"},
+]
+
+[dipsw]
+# Flip screen not supported
+delete = [ "Unused", "Unknown" ]
+bitcnt = 16
+rename = [
+    { name="Bonus Life", to="Bonus" },
+]
+
+[ROM]
+regions=[
+{ name="maincpu", sequence=[1,2,3,3,4] },
+{ name="soundcpu", no_offset=true },
+{ name="gfx1" },
+{ name="proms", no_offset=true}
+]
+
+order=[
+    "maincpu", "soundcpu",
+    "sub", "oki",
+    "gfx1", "gfx3", "gfx2",
+    "proms"
+]
