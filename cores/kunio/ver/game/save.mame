@@ -1,0 +1,4 @@
+save pal.bin,3000,200
+save char.bin,0,2000
+save scr.bin,2800,800
+save obj.bin,2000,400

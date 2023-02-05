@@ -1,0 +1,45 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego"]
+platform="jtkunio"
+
+[features]
+# ddr = true
+# cheat=true
+# beta=true
+# nvram = 43008
+# qsound=true
+
+[parse]
+sourcefile="renegade.cpp"
+# Original games don't work because of the MCU
+skip.setnames = [ "kuniokun", "renegade" ]
+
+[buttons]
+Names = [
+    { names="Hit Left,Jump,Hit Right"},
+]
+
+[rbf]
+name="jtkunio"
+
+[dipsw]
+# Flip screen not supported. Hard-wired as disabled in jtkunio_main
+delete = [ "Unused", "Unknown", "Flip Screen", "Cabinet" ]
+bitcnt = 16
+
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="audiocpu", start="BA1_START", No_offset=true },
+    { name="chars",    start="BA2_START" },
+    { name="sprites",  start="BA3_START" },
+    { name="mcu:mcu",  start="PROM_START"},
+]
+
+order = [
+    "maincpu", "audiocpu", "adpcm", "chars",
+    "tiles", "sprites", "mcu:mcu"
+]
