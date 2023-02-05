@@ -1,0 +1,15 @@
+game:
+  - from: contra
+    get:
+      - jtcontra_main.v
+      - jtcontra_video.v
+      - jtcontra_gfx.v
+      - jtcontra_gfx_tilemap.v
+      - jtcontra_gfx_obj.v
+      - jtcontra_colmix.v
+      - jtcontra_007452.v
+      - ../cfg/base.yaml
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_6809.yaml

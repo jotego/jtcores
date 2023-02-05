@@ -1,0 +1,32 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="contra.cpp"
+skip.setnames=[
+    # odd number of GFX ROMs
+    "contrab",
+    "contrabj",
+    "contrabj1",
+]
+
+[buttons]
+names = [
+    { names="Shoot,Jump" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+
+
+[ROM]
+regions = [
+    { name="audiocpu", start="SND_START" },
+    { name="k007121_1", reverse=true, start="GFX1_START", width=16 },
+    { name="k007121_2", reverse=true, start="GFX2_START", width=16 },
+    { name="proms", start="JTFRAME_PROM_START" },
+    { name="plds", skip=true },
+    { name="pals", skip=true },
+]
+
+order = [ "maincpu", "audiocpu", "k007121_1", "k007121_2", "proms" ]
