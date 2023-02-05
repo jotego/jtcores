@@ -1,0 +1,3 @@
+save objram.bin,80000,1000
+save vram.bin,a0000,800
+save scrram.bin,a1000,800

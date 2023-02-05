@@ -1,0 +1,10 @@
+include ../../cop/cfg/macros.def
+
+CORENAME=JTMIDRES
+JTFRAME_AUTOFIRE0
+NOHUC
+NOTRACKBALL
+# Enable DEC1 core variations
+DEC1
+
+JTFRAME_CREDITS

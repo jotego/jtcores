@@ -1,0 +1,17 @@
+include ../../cop/cfg/macros.def
+
+CORENAME=JTNINJA
+JTFRAME_VERTICAL
+MCU=1
+JTFRAME_AUTOFIRE0
+NOHUC
+-NOTRACKBALL
+
+JTFRAME_CREDITS
+
+[mister]
+# The second analogue stick
+# can be used in MiSTer to control
+# the player orientation. This
+# feature requires the cheat engine
+JTFRAME_CHEAT

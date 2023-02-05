@@ -1,0 +1,1 @@
+../../../midres/ver/game/sim.sh

@@ -1,0 +1,2 @@
+wp c0008,2,w,1,{printf "scroll X=%X",wpdata;g}
+wp c000A,2,w,1,{printf "scroll Y=%X",wpdata;g}

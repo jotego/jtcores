@@ -1,0 +1,4 @@
+wp 200000,20,w,1,{printf "%X <- %X",wpaddr>>1,wpdata;go}
+wp 280000,20,w,1,{printf "%X <- %X",wpaddr>>1,wpdata;go}
+wp 300000,20,w,1,{printf "%X <- %X",wpaddr>>1,wpdata;go}
+wp 160000, 2,w,1,{printf "%X <- %X",wpaddr>>1,wpdata;go}

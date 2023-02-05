@@ -1,0 +1,17 @@
+game:
+  - from: cop
+    get:
+      - ../cfg/common.yaml
+  - from: slyspy
+    get:
+      - jtslyspy_decoder.v
+      - jtslyspy_snd.v
+      - jtslyspy_colmix.v
+jtframe:
+  - get:
+    - jtframe_sort.v
+modules:
+  other:
+    - unless: NOSOUND
+      get:
+        - HUC6280/HUC6280.yaml

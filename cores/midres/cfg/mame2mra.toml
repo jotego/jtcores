@@ -1,0 +1,50 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="dec0.cpp"
+skip.bootlegs=true
+mustbe.machines=[
+    "midres",
+]
+
+[buttons]
+Names = [
+    { machine="midres", names="Shot,Jump,Turn left,Turn right"},
+]
+
+[dipsw]
+bitcnt = 16
+base = 17
+delete = [ "Unused", "Unknown" ]
+rename = [
+    { name="Enemy Power Decrease on Continue", to="Player strength"},
+    { name="Control Panel Type", to="Panel" },
+    { name="Player & Enemy Energy", to="Energy scale"},
+    { name="L/R control related (keep off)", to="Unknown" }
+]
+[ROM]
+regions = [
+    { name="maincpu",  width=16, reverse=true },
+    { name="audiocpu", start="SND_START", No_offset=true  },
+    { name="oki",      start="PCM_START" },
+
+    { name="gfx1",     start="BA2_START", width=16, No_offset=true },
+    { name="gfx2",     start="GFX2_START",width=16, No_offset=true,  name_sort=[
+    "fl09", "fl07", "fl08", "fl06"] },
+    { name="gfx3",     width=16, No_offset=true },
+
+    { name="gfx4",     start="BA3_START", width=32, No_offset=true, name_sort=[
+        "fl01","fl03","fl00","fl02"] },
+
+    { name="gfx4",     start="BA3_START", width=32, No_offset=true, sort_even=true },
+    { name="sub",      start="MCU_START" },
+    { name="mcu",      start="MCU_START" },
+    { name="proms",    start="JTFRAME_PROM_START" },
+    { name="plds",     skip=true         }
+]
+
+order = [
+    "maincpu", "audiocpu", "oki",
+    "gfx1", "gfx2", "gfx3", "gfx4", "mcu", "sub", "proms"
+]

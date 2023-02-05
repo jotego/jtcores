@@ -1,0 +1,73 @@
+[global]
+mraauthor=["jotego"]
+
+[cheat]
+enable=true
+files=[
+    { skip=true },
+    { machine="hbarrel",asmfile="hbarrel.s"}
+]
+
+[parse]
+sourcefile="dec0.cpp"
+skip.bootlegs=true
+mustbe.machines=[
+    "baddudes",
+    "hbarrel",
+]
+
+[buttons]
+Names = [
+    { machine="baddudes", names="Attack,Jump"},
+]
+
+
+[dipsw]
+bitcnt = 16
+base = 17
+delete = [ "Unused", "Unknown" ]
+rename = [
+    { name="Enemy Power Decrease on Continue", to="Player strenght"},
+    { name="Control Panel Type", to="Panel" },
+    { name="Player & Enemy Energy", to="Energy scale"},
+    { name="L/R control related (keep off)", to="Unknown" }
+]
+
+[ROM]
+regions = [
+    { name="maincpu",  width=16, reverse=true },
+    { name="audiocpu", start="SND_START", no_offset=true  },
+    { name="oki",      start="PCM_START" },
+
+    # GFX1
+    { name="gfx1",     start="BA2_START", width=16, no_offset=true },
+
+    # GFX2
+    { name="gfx2",     start="GFX2_START",width=16, no_offset=true,  ext_sort=[
+    "14d","14f","12d","12f","17d","17f","15d","15f","9h","9f","8h","8f"], sort_even=true },
+
+    # GFX3
+    { name="gfx3",     start="GFX3_START", width=16, sequence=[3,1,2,0]  },
+
+    { name="gfx4",     start="BA3_START", width=32, no_offset=true, sort_even=true },
+    { name="sub",      skip=true },
+    { name="mcu",      start="MCU_START" },
+    { name="proms",    start="JTFRAME_PROM_START" },
+    { name="plds",     skip=true         }
+]
+
+order = [
+    "maincpu", "audiocpu", "oki",
+    "gfx1", "gfx2", "gfx3", "gfx4", "mcu", "proms"
+]
+
+splits = [
+    { machine="baddudes", region="gfx1", offset=0x4000, min_len=0x10000 },
+    { machine="baddudes", region="gfx3", offset=0x8000, min_len=0x20000 },
+    { machine="birdtry",  region="gfx1", offset=0x4000, min_len=0x10000 }
+]
+
+blanks = [
+    { machine="baddudes", region="gfx2", offset=0x20000, len=0x20000 },
+]
+

@@ -1,0 +1,9 @@
+include ../../midres/cfg/macros.def
+
+CORENAME=JTSLYSPY
+NOTRACKBALL
+-JTFRAME_CHEAT
+
+# Enable DEC1 core variations
+-JTFRAME_AUTOFIRE0
+

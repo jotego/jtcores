@@ -1,0 +1,76 @@
+params:
+  - { name: RAM_OFFSET, value: "32'h100000" }
+  - { name: SCR_OFFSET, value: "32'h4000" }
+ports:
+    - { name: vram_we,   msb:  1 }
+    - { name: scrram_we, msb:  1 }
+    - { name: objram_we, msb:  1 }
+    - { name: main_dsn,  msb:  1 }
+    - { name: main_dout, msb: 15 }
+    - { name: dma_addr, msb: 11, lsb: 1 }
+    - { name: vram2main_data, msb: 15, input: true }
+    - { name: scrram2main_data, msb: 15, input: true }
+    - { name: objram2main_data, msb: 15, input: true }
+    - { name: objbuf2dma_data, msb: 15, input: true }
+sdram:
+  banks:
+    - buses:
+        - name: main
+          data_width: 16
+          addr_width: 19
+    - buses:
+        - name: snd
+          data_width: 8
+          addr_width: 16
+    - buses:
+        - name: fix
+          data_width: 32
+          addr_width: 15
+        - name: scr
+          data_width: 32
+          addr_width: 18
+          offset: SCR_OFFSET
+    - buses:
+        - name: ram
+          data_width: 16
+          addr_width: 14
+          addr: "main_addr[13:1]"
+          rw: true
+          offset: RAM_OFFSET
+          # Rename some signals
+          din: main_dout
+          dsn: main_dsn
+        - name: obj
+          data_width: 32
+          addr_width: 19
+bram:
+  - name: vram
+    data_width: 16
+    addr_width: 11
+    sim_file: true
+    dual_port: { name: main, we: vram_we, rw: true }
+
+  - name: scrram
+    data_width: 16
+    addr_width: 11
+    sim_file: true
+    dual_port: { name: main, we: scrram_we, rw: true }
+
+  - name: objram
+    data_width: 16
+    addr_width: 12
+    addr: dma_addr
+    sim_file: true
+    dual_port: { name: main, we: objram_we, rw: true }
+
+  - name: objbuf
+    data_width: 16
+    addr_width: 12
+    dual_port: { name: dma, din: objram_dout, rw: true }
+
+
+  # - name: objram
+  #   data_width: 16
+  #   addr_width: 12
+  #   sim_file: true
+  #   dual_port: { name: main, cs: objram_cs, rw: true, dmacopy: true }

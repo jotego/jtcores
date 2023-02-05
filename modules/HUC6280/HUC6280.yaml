@@ -1,0 +1,8 @@
+here:
+  - HUC6280.vhd
+  - HUC6280_CPU.vhd
+  - HUC6280_PKG.vhd
+  - HUC6280_MC.vhd
+  - HUC6280_ALU.vhd
+  - HUC6280_AG.vhd
+  - AddSubBCD.vhd

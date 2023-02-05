@@ -1,0 +1,53 @@
+game:
+  - from: cop
+    get:
+      - jtcop_bac06.v
+      - jtcop_game.v
+      - jtcop_main.v
+      - jtcop_sdram.v
+      - jtcop_ongen.v
+      - jtcop_obj.v
+      - jtcop_obj_buffer.v
+      - jtcop_obj_draw.v
+      - jtcop_video.v
+jtframe:
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+      - jtframe_dual_nvram.v
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+  - from: keyboard
+    get:
+      - jt4701.v
+  - from: clocking
+    get:
+      - jtframe_cen24.v
+      - jtframe_cen48.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_linebuf.v
+  - from: sound
+    get:
+      - jtframe_dcrm.v
+      - jtframe_uprate2_fir.yaml
+  - from: cpu
+    unless: NOMAIN
+    get:
+      - jtframe_m68k.yaml
+  - from: ver
+    get:
+      - jtframe_simwr_68k.v
+modules:
+  jt:
+    - name: jt6295
+  other:
+    - get:
+      - jt12/hdl/jt03.yaml
+      - jtopl/hdl/jtopl2.yaml
