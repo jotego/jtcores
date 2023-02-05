@@ -1,16 +1,15 @@
-JTF1Dream FPGA clone of F1 Dream arcade faithful to original hardware
-=====================================================================
+JTTora FPGA clone of Tiger Road arcade faithful to original hardware
+======================================================================
 
 Please, read the main README file too.
 
-You have just got an expensive $200 PCB as this is the price I paid for it. 
-You have in your hands a faithful conversion of the circuits on the F1 Dream PCB to FPGA.
-If you come from the emulation world here are some of the things different from emulators:
+You have just got an expensive $295 PCB according to eBay. You have in your hands
+a faithful conversion of the circuits on the Tiger Road PCB to FPGA. If you come from
+the emulation world here are some of the things different from emulators:
 
 -Real CPU/GPU bus sharing with delays
--Real CPU/MCU bus sharing with accurate delays
 -Sprites handled with DMA exactly as in the original hardware
--MCU/CPU interaction with same bus timings as original hardware
+-Palettes determined by the original PROMs
 -Graphics priority handled by the original PROM
 -No lag between image and input. Data is being sent to the screen in real time.
 -Sound sampling rate: 41.663 kHz (original, 125/3 kHz)
@@ -23,8 +22,7 @@ here as in the original hardware.
 GAME PLAY
 =========
 
-The game uses two buttons: low gear and high gear. In turbo mode you press the two
-at the same time to set the turbo.
+The game uses two buttons: shot and jump.
 
 Note that by default the continue prompt is disabled. If you want to
 be able to continue, change this in the OSD. You can then save your settings
@@ -37,20 +35,29 @@ screen press both action buttons.
 
 TECHNICAL INFORMATION
 =====================
--This board seems to be the same as Tiger Road but it has the MCU socket filled
- whereas Tiger Road didn't have one. On the other hand, it has no chips in the
- sockets for the second Z80 and its ROM. It should be possible to convert an
- original Tiger Road board into a F1 Dream board and vice versa quite easily.
--YM2203 phi M =3.7MHz
+-All PSG channels had no load on the bootleg board
+-YM2203 phi M =3.7MHz, phi S = 1.2MHz (measured with broken Z80, so default divider)
+-DMA duration was measured to be xxx, matching the expected behaviour
 
 REVISION HISTORY
 ================
-24th Dec 2019
-    * Public release
-    * Latest MiSTer and jtframe framework
 21st Nov 2019
-    * Fixes bug in SDRAM controller
-17 Nov 2019: Beta release (MiST and MiSTer)
+    - Fixes bug in SDRAM controller
+14 Nov 2019: Public release (MiST and MiSTer)
+13 Nov 2019: beta 3
+    * Adds ADPCM sound to Japanese version
+    * Updated to latest JT12 sound module. Fixes bug in JT49 envelope duration
+    * Set JT49 compression to level 1 (29.1dB)
+1  Nov 2019: beta release 2
+    * FX sound added for western versions
+    * Sprite glithces fixed
+    * Still missing ADPCM sound on Japanese version
+27 Oct 2019: beta release.
+    * No FX sound. I don't understand why.
+    * Sprite glitches due to 8-pixel data loading 
+      (instead of 4 pixels as other CPS0 games)
+
+
 
 CREDITS
 =======
@@ -58,199 +65,96 @@ CREDITS
 Brought to you by Jose Tejada, aka jotego. Meet me in twitter @topapate
 Checkout my patreon page here: http://patreon.com/jotego
 
-Special thanks to all November '19 patrons.
+Special thanks to all October '19 patrons.
 
 Tier +3 Patrons Thanks!!
 ========================
 
-Adam Forrester
-Adrian
-AkaiFutari
-Alan Steremberg
-albconde
-Alexander Kholodov
-Allen Tipper
-Amosfear
-Andrew Boudreau
-Andrew Francomb
-Andrew Moore
-Andylithia
-Andyways
-Anthony Bolek
-AtariSTFan
-Bibiabho Astoporri
-Blue1597
-Brian Sallee
-Bruno Silva
-Bryan Siemon
-Buster D
-Carl Hagström
-Carlos Del Alamo
-Charles Sagett
-Chris Jardine
-Chris Mawman
-Christian Auby
-Christian Bailey
-Christopher Harvey
-Christopher rumford
-Christopher Tuckwell
-Dacide
-Dana Rich
-Daniel Bauza
-Daniel Casadevall
-Daniel Hochman
-DarkStar7
-Darren Newman
-Don Gafford
-Duane Hembrick
-Ed Balan
-emceebois
-Eoin Gibney
-Evan Clarke
-Fabio
-Fay Dek
-Filip Kindt
-foyde
-FRANCISCO JAVIER FUENTES MORENO
-Frank Wolf
-Fred Fryolator
-Frédéric Mahé
-Fredrik Berglind
-FULLSET
-Funkycochise
-furrtek
-Gary Shepherdson
-Geert Oost 
-George Stravopodis
-Gonzalo López
-Gregory Hogan
-Guillermo Tunon
-Guinness
-Henry R
-Herbert Krammer
-Humanoide70
-Ishmael Hallin
-James DeRose
-JD
-Jeff Gerstmann
-Jeff O'Meara
-Jeremy Glass
-Jeremy Hopkins
-Jeremy Kaiman
-Jérôme Moreau
-Jeruro
-Jesus Garcia
-Jo Tomiyori
-Joe Kalwitz
-Johannes Reß
-John Kelley
-John Klimek
-John Perry
-John Stringer
-Jootec from Mars
-Jorge Galán
-Jorge Slowfret
-Juan Diego Sánchez Noguera
-Juan Manuel Sandoval Jr
-Keith Kelly
-Ken ottosson
-Kevin Bidwell
-Kris Butler
-Kyle Good
-Kyle Troutman
-Leslie Law
-Lewis Waddington
-loloC2C
-Mahen
-Manuel
-Manuel Antoni
-Manuel Astudillo
-Manuel Fernández
-Manuelfx
-Marco Tavian
-Mario Salvini
-Mary Marshall
-Matt Charlesworth
-Matt Elder
-Matteo Parolin
-Matthew Langtry
-Matthew Young
-McNathan
-Michael Scanlon
-Michael Stegen
-Michael Troelsen
-Michael's Workshop
-Miguel Angel Rodriguez Jodar
-Mikael Tillander
-Mike Holzinger
-Mister JBAM
-Neil Maguire
-Nelson Melo
-Niall O'Higgins
-Nicolas Hamel
-Obiwantje
-Oliver Jaksch
-Oliver Seitz
-Oliver Wndmth
-olivier bernhard
-Oscar Jacobsson
-Oscar Laguna Garcia
-Outchocinco
-Owlnonymous
-PAOLO CAMANO
-Phillip McMahon
-Pierre Paul
-Popov
-Porkchop Express
-PsyFX
-QcRetro
-Raziel
-remowilliams
-Renan Eler
-RetroShop.pt
-Richard Gregory
-Rob Young
-Roberto Lari
-Roland
-Roman Buser
-Ryan Fig
-Rysha
-Salvador Perugorria Lorente
-Samuli Tuomola
-sawf01
-Scralings
-Sembiance
-Shane Lynch
-Shawn Wheatley
-Shogun7
-Siampumpkin
-SJohansson
-skywalky
-SmokeMonster
-Stefan Nordkvist
-Stephen Marshall
-Stephen Pearce
-Steve Suavek
-Steven
-Steven Wilson
-Stuart Fisk
-Suvodip Mitra
-Sweetlilmre
-Thomas Davies
-Thomas Tahsin-Bey
-Toby Boreham
-Tony Peters
-type78
-UKShark
-Ultrarobotninja
-Víctor Gomariz Ladrón de Guevara
-Videodr0me
-Violeta Martin Fernandez
-Visa-Valtteri Pimiä
-vladimir
-Vorvek
-William Clemens
-wvc
-Xtro
+```
+Adam Forrester          Leslie Law
+Adrian                  Lewis Waddington
+AkaiFutari              loloC2C
+Alan Steremberg         Manuel
+albconde                Manuel Antoni
+Alexander Kholodov      Manuel Astudillo
+Allen Tipper            Manuel Fernández
+Amosfear                Manuelfx
+Andrew Boudreau         Marco Tavian
+Andrew Moore            Mario Salvini
+Andylithia              Mark Kohler (NML32)
+Andyways                Mary Marshall
+Anthony Bolek           Matt Charlesworth
+AtariSTFan              Matt Elder
+Brian Sallee            Matthew Langtry
+Bruno Silva             Matthew Young
+Bryan Siemon            Michael Stegen
+Buster D                Michael Troelsen
+Carl Hagström           Michael's Workshop
+Carlos Del Alamo        Miguel Angel Rodriguez Jodar
+Chris Jardine           Mikael Tillander
+Chris Mawman            Mike Holzinger
+Christian Auby          Mr.B
+Christian Bailey        Neil Maguire
+Christopher Harvey      Nelson Melo
+Christopher rumford     Nicolas Hamel
+Christopher Tuckwell    Obiwantje
+Dacide                  Oliver Jaksch
+Daniel Bauza            Oliver Seitz
+Daniel Casadevall       Oliver Wndmth
+Daniel Hochman          Oscar Jacobsson
+Daniel Renner           Oscar Laguna Garcia
+DarkStar7               Owlnonymous
+Darren Newman           Phillip McMahon
+Don Gafford             Popov
+Duane Hembrick          Porkchop Express
+Dustin Hubbard          PsyFX
+Ed Balan                QcRetro
+Eoin Gibney             remowilliams
+Fabio                   Renan Eler
+Fay Dek                 RetroShop.pt
+Filip Kindt             RetroTyke
+foyde                   Richard Gregory
+FRANCISCO FUENTES       Rob Young
+Frank Wolf              robert fisher
+Fred Fryolator          Roberto Lari
+Frédéric Mahé           Roland
+Fredrik Berglind        Roman Buser
+FULLSET                 Ryan Fig
+Funkycochise            Rysha
+furrtek                 Salvador Perugorria
+Gary Shepherdson        Samuli Tuomola
+Geert Oost              sawf01
+Gonzalo López           Scralings
+Gregory Hogan           Sembiance
+Guillermo Tunon         Shane Lynch
+Guinness                Shogun7
+Henry R                 Siampumpkin
+Herbert Krammer         SJohansson
+James DeRose            skywalky
+JD                      SmokeMonster
+Jeff Gerstmann          Stefan Nordkvist
+Jeremy Glass            Stephen Marshall
+Jeremy Hopkins          Stephen Pearce
+Jeremy Kaiman           Steve Suavek
+Jérôme Moreau           Steven Wilson
+Jeruro                  Stuart Fisk
+Jesus Garcia            Suvodip Mitra
+Jo Tomiyori             Sweetlilmre
+Joe Kalwitz             Thomas Davies
+Johannes Reß            Thomas Tahsin-Bey
+John Kelley             Toby Boreham
+John Klimek             Tony Peters
+John Perry              type78
+John Stringer           UKShark
+Jootec from Mars        Ultrarobotninja
+Jorge Galán             Víctor Gomariz Ladrón de Guevara
+Jorge Slowfret          Videodr0me
+Juan Diego Sánchez      Violeta Martin Fernandez
+Juan M. Sandoval Jr     Visa-Valtteri Pimiä
+Keith Kelly             vladimir
+Ken ottosson            Vorvek
+Kevin Bidwell           William Clemens
+Kyle Good               wvc
+Kyle Troutman           Xtro
 Xzarian
-
+```
