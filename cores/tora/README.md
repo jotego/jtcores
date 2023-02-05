@@ -70,174 +70,91 @@ Special thanks to all October '19 patrons.
 Tier +3 Patrons Thanks!!
 ========================
 
-Adam Forrester
-Adrian
-AkaiFutari
-Alan Steremberg
-albconde
-Alexander Kholodov
-Allen Tipper
-Amosfear
-Andrew Boudreau
-Andrew Moore
-Andylithia
-Andyways
-Anthony Bolek
-AtariSTFan
-Brian Sallee
-Bruno Silva
-Bryan Siemon
-Buster D
-Carl Hagström
-Carlos Del Alamo
-Chris Jardine
-Chris Mawman
-Christian Auby
-Christian Bailey
-Christopher Harvey
-Christopher rumford
-Christopher Tuckwell
-Dacide
-Daniel Bauza
-Daniel Casadevall
-Daniel Hochman
-Daniel Renner
-DarkStar7
-Darren Newman
-Don Gafford
-Duane Hembrick
-Dustin Hubbard
-Ed Balan
-Eoin Gibney
-Fabio
-Fay Dek
-Filip Kindt
-foyde
-FRANCISCO JAVIER FUENTES MORENO
-Frank Wolf
-Fred Fryolator
-Frédéric Mahé
-Fredrik Berglind
-FULLSET
-Funkycochise
-furrtek
-Gary Shepherdson
-Geert Oost 
-Gonzalo López
-Gregory Hogan
-Guillermo Tunon
-Guinness
-Henry R
-Herbert Krammer
-James DeRose
-JD
-Jeff Gerstmann
-Jeremy Glass
-Jeremy Hopkins
-Jeremy Kaiman
-Jérôme Moreau
-Jeruro
-Jesus Garcia
-Jo Tomiyori
-Joe Kalwitz
-Johannes Reß
-John Kelley
-John Klimek
-John Perry
-John Stringer
-Jootec from Mars
-Jorge Galán
-Jorge Slowfret
-Juan Diego Sánchez Noguera
-Juan Manuel Sandoval Jr
-Keith Kelly
-Ken ottosson
-Kevin Bidwell
-Kyle Good
-Kyle Troutman
-Leslie Law
-Lewis Waddington
-loloC2C
-Manuel
-Manuel Antoni
-Manuel Astudillo
-Manuel Fernández
-Manuelfx
-Marco Tavian
-Mario Salvini
-Mark Kohler (NML32)
-Mary Marshall
-Matt Charlesworth
-Matt Elder
-Matthew Langtry
-Matthew Young
-Michael Stegen
-Michael Troelsen
-Michael's Workshop
-Miguel Angel Rodriguez Jodar
-Mikael Tillander
-Mike Holzinger
-Mr.B
-Neil Maguire
-Nelson Melo
-Nicolas Hamel
-Obiwantje
-Oliver Jaksch
-Oliver Seitz
-Oliver Wndmth
-Oscar Jacobsson
-Oscar Laguna Garcia
-Owlnonymous
-Phillip McMahon
-Popov
-Porkchop Express
-PsyFX
-QcRetro
-remowilliams
-Renan Eler
-RetroShop.pt
-RetroTyke
-Richard Gregory
-Rob Young
-robert fisher
-Roberto Lari
-Roland
-Roman Buser
-Ryan Fig
-Rysha
-Salvador Perugorria Lorente
-Samuli Tuomola
-sawf01
-Scralings
-Sembiance
-Shane Lynch
-Shogun7
-Siampumpkin
-SJohansson
-skywalky
-SmokeMonster
-Stefan Nordkvist
-Stephen Marshall
-Stephen Pearce
-Steve Suavek
-Steven Wilson
-Stuart Fisk
-Suvodip Mitra
-Sweetlilmre
-Thomas Davies
-Thomas Tahsin-Bey
-Toby Boreham
-Tony Peters
-type78
-UKShark
-Ultrarobotninja
-Víctor Gomariz Ladrón de Guevara
-Videodr0me
-Violeta Martin Fernandez
-Visa-Valtteri Pimiä
-vladimir
-Vorvek
-William Clemens
-wvc
-Xtro
+```
+Adam Forrester          Leslie Law
+Adrian                  Lewis Waddington
+AkaiFutari              loloC2C
+Alan Steremberg         Manuel
+albconde                Manuel Antoni
+Alexander Kholodov      Manuel Astudillo
+Allen Tipper            Manuel Fernández
+Amosfear                Manuelfx
+Andrew Boudreau         Marco Tavian
+Andrew Moore            Mario Salvini
+Andylithia              Mark Kohler (NML32)
+Andyways                Mary Marshall
+Anthony Bolek           Matt Charlesworth
+AtariSTFan              Matt Elder
+Brian Sallee            Matthew Langtry
+Bruno Silva             Matthew Young
+Bryan Siemon            Michael Stegen
+Buster D                Michael Troelsen
+Carl Hagström           Michael's Workshop
+Carlos Del Alamo        Miguel Angel Rodriguez Jodar
+Chris Jardine           Mikael Tillander
+Chris Mawman            Mike Holzinger
+Christian Auby          Mr.B
+Christian Bailey        Neil Maguire
+Christopher Harvey      Nelson Melo
+Christopher rumford     Nicolas Hamel
+Christopher Tuckwell    Obiwantje
+Dacide                  Oliver Jaksch
+Daniel Bauza            Oliver Seitz
+Daniel Casadevall       Oliver Wndmth
+Daniel Hochman          Oscar Jacobsson
+Daniel Renner           Oscar Laguna Garcia
+DarkStar7               Owlnonymous
+Darren Newman           Phillip McMahon
+Don Gafford             Popov
+Duane Hembrick          Porkchop Express
+Dustin Hubbard          PsyFX
+Ed Balan                QcRetro
+Eoin Gibney             remowilliams
+Fabio                   Renan Eler
+Fay Dek                 RetroShop.pt
+Filip Kindt             RetroTyke
+foyde                   Richard Gregory
+FRANCISCO FUENTES       Rob Young
+Frank Wolf              robert fisher
+Fred Fryolator          Roberto Lari
+Frédéric Mahé           Roland
+Fredrik Berglind        Roman Buser
+FULLSET                 Ryan Fig
+Funkycochise            Rysha
+furrtek                 Salvador Perugorria
+Gary Shepherdson        Samuli Tuomola
+Geert Oost              sawf01
+Gonzalo López           Scralings
+Gregory Hogan           Sembiance
+Guillermo Tunon         Shane Lynch
+Guinness                Shogun7
+Henry R                 Siampumpkin
+Herbert Krammer         SJohansson
+James DeRose            skywalky
+JD                      SmokeMonster
+Jeff Gerstmann          Stefan Nordkvist
+Jeremy Glass            Stephen Marshall
+Jeremy Hopkins          Stephen Pearce
+Jeremy Kaiman           Steve Suavek
+Jérôme Moreau           Steven Wilson
+Jeruro                  Stuart Fisk
+Jesus Garcia            Suvodip Mitra
+Jo Tomiyori             Sweetlilmre
+Joe Kalwitz             Thomas Davies
+Johannes Reß            Thomas Tahsin-Bey
+John Kelley             Toby Boreham
+John Klimek             Tony Peters
+John Perry              type78
+John Stringer           UKShark
+Jootec from Mars        Ultrarobotninja
+Jorge Galán             Víctor Gomariz Ladrón de Guevara
+Jorge Slowfret          Videodr0me
+Juan Diego Sánchez      Violeta Martin Fernandez
+Juan M. Sandoval Jr     Visa-Valtteri Pimiä
+Keith Kelly             vladimir
+Ken ottosson            Vorvek
+Kevin Bidwell           William Clemens
+Kyle Good               wvc
+Kyle Troutman           Xtro
 Xzarian
+```
