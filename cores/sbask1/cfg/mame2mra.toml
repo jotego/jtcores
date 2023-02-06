@@ -25,14 +25,14 @@ delete = [ "Unused", "Unknown" ]
 regions = [
     { name="maincpu" },
     { name="audiocpu" },
-    { name="gfx1" }, # start=$GFX1_START
-    { name="gfx2" }, # start=$GFX2_START
+    { name="tiles" }, # start=$GFX1_START
+    { name="sprites" }, # start=$GFX2_START
     { name="vlm" },
     { name="proms"          },
 ]
 
 order = [
-    "maincpu", "audiocpu", "gfx1", "gfx2", "vlm", "proms"
+    "maincpu", "audiocpu", "tiles", "sprites", "vlm", "proms"
 ]
 
 
