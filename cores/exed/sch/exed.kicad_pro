@@ -323,6 +323,38 @@
     [
       "00000000-0000-0000-0000-00006bf9f3d0",
       "video"
+    ],
+    [
+      "34b91267-4ce7-453f-ae95-f9097a351fbd",
+      "h_scroll"
+    ],
+    [
+      "843b5835-3ba7-443b-98cc-8e60dd8901a8",
+      "v_scroll"
+    ],
+    [
+      "82821697-67f4-45ac-a7ac-fe9a2019e249",
+      "scroll1"
+    ],
+    [
+      "637ffd45-9964-4aaa-bbc1-764208947b0c",
+      "scroll2"
+    ],
+    [
+      "64b28853-03fe-40b0-a0b5-81626192ecc0",
+      "object_table"
+    ],
+    [
+      "11c22825-3fca-43a5-ab18-eb911970fcae",
+      "bus_control_dma"
+    ],
+    [
+      "19e6ada2-7d18-4800-8db0-b96f4345ab70",
+      "obj_lut"
+    ],
+    [
+      "467cbc84-66f3-4c4f-ad14-91a2fa5db01c",
+      "obj_mx"
     ]
   ],
   "text_variables": {}
