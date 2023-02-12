@@ -1,3 +1,6 @@
+core.mod
+setnames.txt
+cores/*/ver/regrun
 rom/cp_*sh
 rom/*
 *fst.hier
