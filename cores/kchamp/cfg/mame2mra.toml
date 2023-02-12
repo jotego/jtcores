@@ -3,6 +3,10 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="kchamp.cpp"
+skip.setnames=[
+    # won't boot
+    "karatevs",
+]
 
 [buttons]
 Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]

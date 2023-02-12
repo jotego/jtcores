@@ -111,7 +111,7 @@ wire [ 7:0] pre_data;
 
 assign prog_rd    = 0;
 assign dwnld_busy = downloading;
-assign flip       = dip_flip ^ main_flip;
+assign flip       = ~dip_flip ^ main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
 assign link_joys  = status[13];
 

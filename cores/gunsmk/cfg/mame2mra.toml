@@ -3,6 +3,12 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="gunsmoke.cpp"
+skip.setnames=[
+    # dump unavailable
+    "gunsmokeua",
+    # won't boot
+    "gunsmokeub",
+]
 
 [buttons]
 names=[

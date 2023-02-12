@@ -8,6 +8,10 @@ overrule=[ {rotate=90} ]
 
 [parse]
 sourcefile="rocnrope.cpp"
+skip.setnames=[
+    # bad colors
+    "ropeman",
+]
 
 [buttons]
 names=[{ names="Rope,Flash" }]
