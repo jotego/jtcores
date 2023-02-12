@@ -1,0 +1,56 @@
+game:
+  - from: cps1
+    get:
+      - jtcps1_video.v
+      - jtcps1_scroll.v
+      - jtcps1_timing.v
+      - jtcps1_tilemap.v
+      - jtcps1_colmix.v
+      - jtcps1_pal.v
+      - jtcps1_mmr.v
+      - jtcps1_obj_line_table.v
+      - jtcps1_obj_tile_match.v
+      - jtcps1_obj_draw.v
+      - jtcps1_obj_line.v
+      - jtcps1_prom_we.v
+      - jtcps1_stars.v
+      - jtcps1_gfx_mappers.v
+      - jtcps1_cpucen.v
+      - jtcps1_dma.v
+      - jtcps1_sdram.v
+      - jtcps1_watch.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_virq.v
+      - jtframe_m68k.yaml
+  - from: sdram
+    get:
+      - jtframe_romrq.v
+      - jtframe_ram_rq.v
+  - from: video
+    get:
+      - jtframe_credits.v
+  - from: keyboard
+    get:
+      - jt4701.v
+      - jtframe_dial.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_ram.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen96.v
+      - jtframe_frac_cen.v
+  - from: sound
+    get:
+      - jtframe_mixer.v
+modules:
+  other:
+    - from: jteeprom/hdl
+      get:
+      - jt9346_16b8b.v
+      - jt9346.v

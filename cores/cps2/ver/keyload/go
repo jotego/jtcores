@@ -1,0 +1,14 @@
+#!/bin/bash
+TOP=jtcps2_keyload
+
+verilator -f gather.f -cc test.cc cps2crypt.cpp -exe -I.
+export CPPFLAGS="$CPPFLAGS -O2"
+
+if ! make -j -C obj_dir -f V${TOP}.mk V${TOP} > make.log; then
+    cat make.log
+    exit $?
+else
+    rm make.log
+fi
+
+obj_dir/V$TOP

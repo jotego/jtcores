@@ -1,0 +1,17 @@
+game:
+  - from: cps1
+    get:
+      - jtcps1_game.v
+      - jtcps1_main.v
+      - jtcps1_sound.v
+      - jtcps1_obj.v
+      - ../cfg/common.yaml
+jtframe:
+  - from: sound
+    get:
+      - jtframe_uprate2_fir.yaml
+      - jtframe_pole.v
+modules:
+  jt:
+    - name: jt51
+    - name: jt6295

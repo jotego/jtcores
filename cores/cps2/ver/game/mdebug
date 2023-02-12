@@ -1,0 +1,3 @@
+#!/bin/bash
+echo Press enter a few times when MAME loads
+mame $1 -debug -debugscript regs.mame

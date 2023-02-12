@@ -1,0 +1,4 @@
+wp 800108,2,w,1,{printf "14-Row     base = %X",wpdata; g}
+wp 800166,2,w,1,{printf "12-layer = %X",wpdata; g}
+wp 800170,2,w,1,{printf "13-pal_page = %X",wpdata; g}
+wp 804166,2,w,1,{printf "12-layer = %X",wpdata; g}

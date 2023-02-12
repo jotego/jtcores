@@ -1,0 +1,4 @@
+wp 804150,6,w,1,{printf "Raster (%X) = %X",wpaddr&0xf,wpdata;g}
+wp 800150,6,w,1,{printf "Raster (%X) = %X",wpaddr&0xf,wpdata;g}
+
+go

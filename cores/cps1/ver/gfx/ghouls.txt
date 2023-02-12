@@ -1,0 +1,20 @@
+Ghouls
+SCR1 base = 9000
+SCR2 base = 9040
+SCR3 base = 9080
+
+snap 0:
+SCR1 X = ffc0
+SCR1 Y = 0
+SCR2 X = 140
+SCR2 Y = 300
+SCR3 X = 0
+SCR3 Y = 0
+
+snap 1:
+SCR1 X = 1c0
+SCR1 Y = 100
+SCR2 X = 3c0
+SCR2 Y = 100
+SCR3 X = 7c0
+SCR3 Y = 700

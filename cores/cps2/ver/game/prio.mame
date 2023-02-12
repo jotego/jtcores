@@ -1,0 +1,15 @@
+wp 800122,2,w,1,{printf "16-Video control= %X",wpdata; g}
+wp 800168,2,w,1,{printf "17-prio0 = %X",wpdata;g}
+wp 80016a,2,w,1,{printf "18-prio1 = %X",wpdata;g}
+wp 80016c,2,w,1,{printf "19-prio2 = %X",wpdata;g}
+wp 80016e,2,w,1,{printf "20-prio3 = %X",wpdata;g}
+wp 804122,2,w,1,{printf "16-Video control= %X",wpdata; g}
+wp 804168,2,w,1,{printf "17-prio0 = %X",wpdata;g}
+wp 80416a,2,w,1,{printf "18-prio1 = %X",wpdata;g}
+wp 80416c,2,w,1,{printf "19-prio2 = %X",wpdata;g}
+wp 80416e,2,w,1,{printf "20-prio3 = %X",wpdata;g}
+wp 400004,2,w,1,{printf "CPS2-Layer prio = %X",wpdata;g}
+wp 400008,2,w,1,{printf "CPS2-Layer x-off = %X",wpdata;g}
+wp 40000a,2,w,1,{printf "CPS2-Layer y-off = %X",wpdata;g}
+wp 8040e0,2,w,1,{printf "CPS2-Layer OBJ bank = %X",wpdata;g}
+go

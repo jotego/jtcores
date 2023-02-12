@@ -213,7 +213,7 @@ assign debug_view = st_dout;
 assign ba1_din=0, ba2_din=0, ba3_din=0; // unused
 assign ba1_dsn=3, ba2_dsn=3, ba3_dsn=3; // unused
 assign sta_video = ioctl_ram ? ioctl_addr[7:0] : st_addr; // dump data to SD card
-/* verilator tracing_off */
+
 always @(posedge clk) begin
     st_dout <= 0;
     case( st_addr[7:6] )
@@ -314,7 +314,7 @@ jtcop_main u_main(
     .st_addr     ( st_addr    ),
     .st_dout     ( st_main    )
 );
-
+/* verilator tracing_off */
 jtcop_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -420,7 +420,7 @@ jtcop_video u_video(
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 // NB: this module is different for jtmidres
 jtcop_snd u_sound(
     .rst        ( rst       ),

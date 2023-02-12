@@ -1,0 +1,58 @@
+wp 800100,2,w,1,{printf "1-OBJ     base = %X",wpdata; g}
+wp 800102,2,w,1,{printf "2-SCROLL1 base = %X",wpdata; g}
+wp 800104,2,w,1,{printf "3-SCROLL2 base = %X",wpdata; g}
+wp 800106,2,w,1,{printf "4-SCROLL3 base = %X",wpdata; g}
+wp 800108,2,w,1,{printf "14-Row     base = %X",wpdata; g}
+wp 80010A,2,w,1,{printf "5-Palette base = %X", wpdata; g}
+wp 80010C,2,w,1,{printf "6-Scroll1 X    = %X", wpdata; g}
+wp 80010E,2,w,1,{printf "7-Scroll1 Y    = %X", wpdata; g}
+wp 800110,2,w,1,{printf "8-Scroll2 X    = %X", wpdata; g}
+wp 800112,2,w,1,{printf "9-Scroll2 Y    = %X", wpdata; g}
+wp 800114,2,w,1,{printf "10-Scroll3 X    = %X",wpdata; g}
+wp 800116,2,w,1,{printf "11-Scroll3 Y    = %X",wpdata; g}
+wp 800120,2,w,1,{printf "15-Row offset   = %X",wpdata; g}
+wp 800122,2,w,1,{printf "16-Video control= %X",wpdata; g}
+wp 800140,2,w,1,{printf "mult1 = %X",wpdata;g}
+wp 800142,2,w,1,{printf "mult2 = %X",wpdata;g}
+wp 800144,2,w,1,{printf "rslt0 = %X",wpdata;g}
+wp 800146,2,w,1,{printf "rslt1 = %X",wpdata;g}
+wp 800166,2,w,1,{printf "12-layer = %X",wpdata; g}
+wp 800168,2,w,1,{printf "17-prio0 = %X",wpdata; g}
+wp 80016a,2,w,1,{printf "18-prio1 = %X",wpdata; g}
+wp 80016c,2,w,1,{printf "19-prio2 = %X",wpdata; g}
+wp 80016e,2,w,1,{printf "20-prio3 = %X",wpdata; g}
+wp 800140,2,w,1,{printf "in2 = %X",wpdata;g}
+wp 800140,2,w,1,{printf "in3 = %X",wpdata;g}
+wp 800170,2,w,1,{printf "13-pal_page = %X",wpdata; g}
+wp 804100,2,w,1,{printf "1-OBJ     base = %X",wpdata; g}
+wp 804102,2,w,1,{printf "2-SCROLL1 base = %X",wpdata; g}
+wp 804104,2,w,1,{printf "3-SCROLL2 base = %X",wpdata; g}
+wp 804106,2,w,1,{printf "4-SCROLL3 base = %X",wpdata; g}
+wp 804108,2,w,1,{printf "14-Row     base = %X",wpdata;g}
+wp 80410A,2,w,1,{printf "5-Palette base = %X",wpdata; g}
+wp 80410C,2,w,1,{printf "6-Scroll1 X    = %X",wpdata; g}
+wp 80410E,2,w,1,{printf "7-Scroll1 Y    = %X",wpdata; g}
+wp 804110,2,w,1,{printf "8-Scroll2 X    = %X",wpdata; g}
+wp 804112,2,w,1,{printf "9-Scroll2 Y    = %X",wpdata; g}
+wp 804114,2,w,1,{printf "10-Scroll3 X    = %X",wpdata; g}
+wp 804116,2,w,1,{printf "11-Scroll3 Y    = %X",wpdata; g}
+wp 804120,2,w,1,{printf "15-Row offset   = %X",wpdata; g}
+wp 804122,2,w,1,{printf "16-Video control= %X",wpdata; g}
+wp 804140,2,w,1,{printf "mult1 = %X",wpdata;g}
+wp 804142,2,w,1,{printf "mult2 = %X",wpdata;g}
+wp 804144,2,w,1,{printf "rslt0 = %X",wpdata;g}
+wp 804146,2,w,1,{printf "rslt1 = %X",wpdata;g}
+wp 804166,2,w,1,{printf "12-layer = %X",wpdata; g}
+wp 804168,2,w,1,{printf "17-prio0 = %X",wpdata; g}
+wp 80416a,2,w,1,{printf "18-prio1 = %X",wpdata; g}
+wp 80416c,2,w,1,{printf "19-prio2 = %X",wpdata; g}
+wp 80416e,2,w,1,{printf "20-prio3 = %X",wpdata; g}
+wp 804140,2,w,1,{printf "in2 = %X",wpdata;g}
+wp 804140,2,w,1,{printf "in3 = %X",wpdata;g}
+wp 804170,2,w,1,{printf "13-pal_page = %X",wpdata; g}
+go
+
+
+
+
+

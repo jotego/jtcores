@@ -1,0 +1,2 @@
+wp 400000,2,w,1,{printf "%X",wpdata;go}
+go

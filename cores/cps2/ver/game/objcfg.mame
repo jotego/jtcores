@@ -1,0 +1,2 @@
+wp 400000,10,w,1,{printf "%X - %04X",wpaddr&0xf,wpdata;go}
+go

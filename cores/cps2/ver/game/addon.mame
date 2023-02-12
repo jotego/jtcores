@@ -1,0 +1,1 @@
+wp 660000,4000,rw,1,{printf "Addon (%X)",wpaddr;g}

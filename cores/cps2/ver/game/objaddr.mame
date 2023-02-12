@@ -1,0 +1,2 @@
+wp 700000,100000,w,1,{printf "%X",wpaddr&0xfe000;go}
+go

@@ -37,3 +37,6 @@
 [submodule "modules/jt7759"]
 	path = modules/jt7759
 	url = https://github.com/jotego/jt7759.git
+[submodule "modules/jtdsp16"]
+	path = modules/jtdsp16
+	url = https://github.com/jotego/jtdsp16.git

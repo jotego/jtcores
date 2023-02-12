@@ -1,0 +1,76 @@
+[global]
+mraauthor=["jotego"]
+zip.alt="qsound.zip"
+
+[parse]
+sourcefile="cps1.cpp"
+mustbe.devices=["qsound_hle"]
+skip.bootlegs=true
+
+[dipsw]
+delete=[ "Unused" ]
+
+[buttons]
+names=[
+    { names="Attack,Jump" },
+    { machine="slammast",  names="Grab,Attack,Jump" },
+    { machine="mbombrd",  names="Grab,Attack,Jump" },
+]
+
+[header]
+fill=0xff
+offset={ bits=10, regions=["audiocpu","qsound","gfx","firmware"], reverse=true }
+data=[
+    {machine="dino", pointer=16, data="""
+        ff ff ff ff ff ff 0a 0c
+        0e 00 02 00 00 04 16 16
+        16 00 05 40 88 73 ff 20
+        ff ff ff ff ff ff ff ff
+        76 54 32 10 24 60 13 57
+        43 43 43 ff ff ff ff ff """},
+    {machine="mbombrd", pointer=16, data="""
+        1e c2 ff ff ff ff 2a 2c
+        2e 30 32 00 00 1c 04 08
+        10 00 10 40 c8 73 f7 20
+        ff ff ff ff ff ff ff ff
+        54 32 10 76 65 43 21 07
+        31 31 19 ff ff ff ff ff """},
+    {machine="slammast", pointer=16, data="""
+        2e c1 ff ff ff ff 16 00
+        02 28 2a 00 00 2c 04 08
+        10 00 10 40 c8 73 f7 20
+        ff ff ff ff ff ff ff ff
+        54 32 10 76 65 43 21 07
+        31 31 19 ff ff ff ff ff """},
+    {machine="punisher", pointer=16, data="""
+        0e c0 ff ff ff ff 12 14
+        16 08 0a 00 00 0c 04 02
+        20 00 17 40 88 73 ff 20
+        ff ff ff ff ff ff ff ff
+        67 45 21 03 75 31 60 24
+        22 22 22 ff ff ff ff ff  """},
+    {machine="wof", pointer=16, data="""
+        ff ff ff ff ff ff 22 24
+        26 28 2a 00 00 2c 10 08
+        04 00 25 40 88 73 ff 20
+        ff ff ff ff ff ff ff ff
+        01 23 45 67 54 16 30 72
+        51 51 51 ff ff ff ff ff """},
+]
+
+[rom]
+regions=[
+    # The Q-Sound may fail because the dl-1425.bin length is larger than 0x2000
+    { name="maincpu", width=16, reverse=true },
+    { name="gfx",     width=64 },
+    { name="firmware", files=[ { name="dl-1425.bin", crc="d6cf5ef5", size=0x2000 } ], rom_len=0x2000 },
+    { name="aboardplds", skip=true },
+    { name="bboardplds", skip=true },
+    { name="cboardplds", skip=true },
+    { name="dboardplds", skip=true },
+]
+
+order=[
+    "maincpu", "audiocpu", "qsound",
+    "gfx","firmware"
+]

@@ -1,0 +1,13 @@
+include ../../cps1/cfg/common.def
+
+CPS15
+CORENAME=JTCPS15
+GAMETOP=jtcps15_game
+
+JTFRAME_HEADER=64
+# CPS1.5 games don't have DIP switches
+# but use NVRAM instead
+JTFRAME_OSD_TEST
+JTFRAME_MIST_DIPBASE=16
+
+JTFRAME_CREDITS

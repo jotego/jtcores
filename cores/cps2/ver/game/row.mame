@@ -1,0 +1,12 @@
+wp 800104,2,w,1,{printf "3-SCROLL2 base = %X",wpdata; g}
+wp 800108,2,w,1,{printf "14-Row     base = %X",wpdata; g}
+wp 800110,2,w,1,{printf "8-Scroll2 X    = %X",wpdata; g}
+wp 800112,2,w,1,{printf "9-Scroll2 Y    = %X",wpdata; g}
+wp 800120,2,w,1,{printf "15-Row offset   = %X",wpdata; g}
+wp 800122,2,w,1,{printf "16-Video control= %X",wpdata; g}
+wp 804104,2,w,1,{printf "3-SCROLL2 base = %X",wpdata; g}
+wp 804108,2,w,1,{printf "14-Row     base = %X",wpdata; g}
+wp 804110,2,w,1,{printf "8-Scroll2 X    = %X",wpdata; g}
+wp 804112,2,w,1,{printf "9-Scroll2 Y    = %X",wpdata; g}
+wp 804120,2,w,1,{printf "15-Row offset   = %X",wpdata; g}
+wp 804122,2,w,1,{printf "16-Video control= %X",wpdata; g}

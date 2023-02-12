@@ -1,0 +1,29 @@
+include ../../cps1/cfg/common.def
+
+CPS2
+GAMETOP=jtcps2_game
+CORENAME=JTCPS2
+JTFRAME_SDRAM_LARGE
+
+# OSD options
+CORE_OSD+=O7,1P_hold_for_slow,Off,On;
+# CPS1.5 games don't have DIP switches
+# but use NVRAM instead
+JTFRAME_OSD_TEST
+JTFRAME_MIST_DIPBASE=16
+JTFRAME_DIAL
+JTFRAME_IOCTL_RD=128
+CPS1_NOOBJ
+JTFRAME_HEADER=44
+
+[mist|sidi]
+# Not enough BRAM to show the credits
+JTFRAME_OSD_NOLOGO
+# Not enough BRAM for the interpolator
+NOFIR
+
+[mister]
+# JTFRAME_CHEAT
+JTFRAME_CREDITS
+JTFRAME_CREDITS_NOROTATE
+JTFRAME_MR_DDRLOAD

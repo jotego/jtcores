@@ -1,0 +1,3 @@
+wp 708000,a,w,1,{printf "OBJ %X = %X",wpaddr,wpdata;g}
+wp 8040e0,2,w,1,{printf "bank = %X",wpdata;g}
+
