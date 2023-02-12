@@ -19,6 +19,8 @@ skip.setnames=[
     "toffy",
     "stoffy",
     "stoffyu",
+    # broken bootlegs
+    "ddragonb", "ddragonba",
     # 6809 as MCU
     "ddragon6809", "ddragon6809a"
 ]
