@@ -24,6 +24,10 @@ skip.setnames=[
     "toffy",
     "stoffy",
     "stoffyu",
+    # not booting correctly
+    "ddragon2b",
+    "ddragon2u",
+    "ddragon2j",
 ]
 
 [buttons]
