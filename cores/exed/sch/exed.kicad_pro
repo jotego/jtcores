@@ -224,7 +224,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "unannotated": "error",
@@ -323,6 +323,74 @@
     [
       "00000000-0000-0000-0000-00006bf9f3d0",
       "video"
+    ],
+    [
+      "34b91267-4ce7-453f-ae95-f9097a351fbd",
+      "h_scroll"
+    ],
+    [
+      "843b5835-3ba7-443b-98cc-8e60dd8901a8",
+      "v_scroll"
+    ],
+    [
+      "82821697-67f4-45ac-a7ac-fe9a2019e249",
+      "scroll1"
+    ],
+    [
+      "637ffd45-9964-4aaa-bbc1-764208947b0c",
+      "scroll2"
+    ],
+    [
+      "64b28853-03fe-40b0-a0b5-81626192ecc0",
+      "object_table"
+    ],
+    [
+      "11c22825-3fca-43a5-ab18-eb911970fcae",
+      "bus_control_dma"
+    ],
+    [
+      "19e6ada2-7d18-4800-8db0-b96f4345ab70",
+      "obj_lut"
+    ],
+    [
+      "467cbc84-66f3-4c4f-ad14-91a2fa5db01c",
+      "obj_mx"
+    ],
+    [
+      "a0046b78-aa4b-4575-bc00-228b2f02bd3e",
+      "sound"
+    ],
+    [
+      "d828cc57-8149-4000-ba5d-1b74a0c6af08",
+      "snd_c_latch"
+    ],
+    [
+      "d6aab237-4bd1-439a-95ea-a492404fd3b6",
+      "colmix"
+    ],
+    [
+      "0ecdb413-335d-4c35-b85f-5ff4ffad0338",
+      "char"
+    ],
+    [
+      "6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9",
+      "main"
+    ],
+    [
+      "0eb68cad-8443-4e41-a6f0-b2487a8c0006",
+      "interruption"
+    ],
+    [
+      "61df1e9a-27d4-41fa-a2d2-cc5209d0c536",
+      "v_counter"
+    ],
+    [
+      "62e36b13-4a96-4406-90f0-153eded72cba",
+      "h_counter"
+    ],
+    [
+      "e59e7abc-dbd1-4e79-a58c-2f05c5a36c88",
+      "obj_ram"
     ]
   ],
   "text_variables": {}
