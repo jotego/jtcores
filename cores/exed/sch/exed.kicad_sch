@@ -2450,7 +2450,7 @@
   )
 
   (sheet (at 190.5 57.15) (size 25.4 7.62) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid) (color 0 194 194 1))
+    (stroke (width 0.1524) (type solid) (color 0 0 0 0))
     (fill (color 0 0 0 0.0000))
     (uuid 0ecdb413-335d-4c35-b85f-5ff4ffad0338)
     (property "Sheet name" "char" (id 0) (at 190.5 56.4384 0)
@@ -2498,7 +2498,7 @@
   )
 
   (sheet (at 190.5 40.64) (size 25.4 7.62) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid) (color 255 0 255 1))
+    (stroke (width 0.1524) (type solid) (color 0 0 0 0))
     (fill (color 0 0 0 0.0000))
     (uuid a0046b78-aa4b-4575-bc00-228b2f02bd3e)
     (property "Sheet name" "sound" (id 0) (at 190.5 39.9284 0)
@@ -2510,7 +2510,7 @@
   )
 
   (sheet (at 190.5 72.39) (size 25.4 7.62) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid) (color 194 0 0 1))
+    (stroke (width 0.1524) (type solid) (color 0 0 0 0))
     (fill (color 0 0 0 0.0000))
     (uuid d6aab237-4bd1-439a-95ea-a492404fd3b6)
     (property "Sheet name" "colmix" (id 0) (at 190.5 71.6784 0)
