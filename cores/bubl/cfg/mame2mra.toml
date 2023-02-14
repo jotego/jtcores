@@ -34,6 +34,9 @@ names=[
 [dipsw]
 bitcnt = 16
 delete = [ "Unused", "Unknown", "Mode" ]
+defaults = [
+    { value="ff,ff" },
+]
 extra = [
     { machine="bublbobl", name="Language", Options="English,Japanese", Bits="0" },
     { machine="bublbobl", name="Operation", Options="Test,Game", Bits="2" },

@@ -52,7 +52,7 @@ Names = [
 ]
 
 [dipsw]
-delete=[ "Unused" ]
+delete=[ "Unused", "Unknown", "Coinage" ]
 rename=[
     {name="2 Coins to Start, 1 to Continue", to="2 to start, 1 continue"},
     {name="Lives (Midnight Wanderers)", to="Lives (Mid.W.)"},
