@@ -391,6 +391,10 @@
     [
       "e59e7abc-dbd1-4e79-a58c-2f05c5a36c88",
       "obj_ram"
+    ],
+    [
+      "7a2fbcae-34f5-4759-957c-79506d9a7c4b",
+      "ram_rom_main"
     ]
   ],
   "text_variables": {}
