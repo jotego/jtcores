@@ -67,7 +67,7 @@ jtframe_vtimer #(
     .HB_END  ( 9'd383 ),
     .V_START ( 9'd016 ),
     .VS_START( 9'd254 ),
-    .VB_START( 9'd240 ),
+    .VB_START( 9'd239 ),
     .VB_END  ( 9'd279 )
 )
 u_timer(

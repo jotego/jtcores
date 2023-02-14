@@ -227,6 +227,10 @@ jt03 u_2203(
     .snd_sample ( sample     ),
     .irq_n      ( intn_fm0   ),
     // unused outputs
+    .IOA_in     ( 8'd0       ),
+    .IOB_in     ( 8'd0       ),
+    .IOA_out    (            ),
+    .IOB_out    (            ),
     .psg_A      (            ),
     .psg_B      (            ),
     .psg_C      (            ),

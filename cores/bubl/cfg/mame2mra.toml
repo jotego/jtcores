@@ -58,7 +58,8 @@ regions = [
             "34$",
             "17$",
             "35$" ] },
-    { name="proms", start="JTFRAME_PROM_START"}
+    { name="proms", start="JTFRAME_PROM_START"},
+    { name="plds", skip=true },
 ]
 
 order = [
