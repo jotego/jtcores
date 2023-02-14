@@ -6,7 +6,20 @@ sourcefile="cps1.cpp"
 skip.bootlegs=true
 mustbe.devices=["ym2151"]
 # Need to fix the mix of gfx ROMs of 8 and 16 bits:
-skip.setnames=["sf2mkot"]
+skip.setnames=[
+	# won't boot
+	"sf2mkot",
+	"sf2um",
+	"sf2ue",
+	"sf2ef",
+	"sf2ee",
+	"ganbare",
+	"3wondersu",
+	"3wonders1",
+	"ffightjh",
+	# no roms
+	"mpumpkin",
+]
 skip.machines=["forgottn", "pang3"]
 
 
