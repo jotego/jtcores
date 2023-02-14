@@ -1,0 +1,9 @@
+wp c000,2,r,1,{printf "%X -> %X",wpaddr,wpdata;go}
+wp c000,2,w,1,{printf "%X <- %X",wpaddr,wpdata;go}
+focus 2
+bpset 2d
+bpset 30
+bpset 44
+bpset 4e
+bpset c9
+bpset e5

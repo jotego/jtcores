@@ -1,0 +1,6 @@
+focus sub
+trace /home/jtejada/git/jtbubl/cores/kiwi/ver/game/sub.tr,sub,noloop
+wp d000,2000,r,1,{tracelog "/%04X -> %02X/ ",wpaddr,wpdata;go}
+wp d000,2000,w,1,{tracelog "/%04X <- %02X/ ",wpaddr,wpdata;go}
+gtime #3000
+quit

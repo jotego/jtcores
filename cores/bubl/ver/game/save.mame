@@ -1,0 +1,2 @@
+save vram.bin,c000,2000
+save pal.bin,f800,200

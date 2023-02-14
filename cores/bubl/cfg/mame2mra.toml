@@ -1,0 +1,66 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="bublbobl.cpp"
+skip.bootlegs=true
+skip.setnames=[
+    # Blank screen
+    "boblbobl", "bbredux", "bub68705", "bublboblb",
+    # Garbled graphics
+    # "dland",
+    # No graphics
+    "boblcave",
+    # 8749 MCU
+    "bub8749",
+    # Tokio hardware - Nees MCU support
+    "bublboblp",
+    "tokio",
+    "tokioo",
+    "tokiou",
+    # wrong inputs?
+    "sboblbobl",
+    "sboblbobla",
+    "sboblboblb",
+    "sboblboblc",
+    "sboblbobld"
+]
+
+[buttons]
+names=[
+    { names="Shoot,Jump" }
+]
+
+[dipsw]
+bitcnt = 16
+delete = [ "Unused", "Unknown", "Mode" ]
+extra = [
+    { machine="bublbobl", name="Language", Options="English,Japanese", Bits="0" },
+    { machine="bublbobl", name="Operation", Options="Test,Game", Bits="2" },
+]
+
+[ROM]
+regions = [
+    { name="maincpu", No_offset=true, reverse=true },
+    { name="subcpu", No_offset=true, reverse=true,   start="SUB_START" },
+    { name="audiocpu", No_offset=true, reverse=true, start="SND_START" },
+    { name="mcu", No_offset=true, reverse=true,      start="MCU_START" },
+    { name="gfx1", width=16, start="GFX_START", regex_sort=[
+            "12$",
+            "30$",
+            "13$",
+            "31$",
+            "14$",
+            "32$",
+            "15$",
+            "33$",
+            "16$",
+            "34$",
+            "17$",
+            "35$" ] },
+    { name="proms", start="JTFRAME_PROM_START"}
+]
+
+order = [
+    "maincpu", "subcpu", "audiocpu", "mcu", "gfx1", "proms"
+]

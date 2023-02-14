@@ -1,0 +1,600 @@
+save mainmem_0.bin,e000,1000
+snap   0
+gv
+save mainmem_1.bin,e000,1000
+snap   1
+gv
+save mainmem_2.bin,e000,1000
+snap   2
+gv
+save mainmem_3.bin,e000,1000
+snap   3
+gv
+save mainmem_4.bin,e000,1000
+snap   4
+gv
+save mainmem_5.bin,e000,1000
+snap   5
+gv
+save mainmem_6.bin,e000,1000
+snap   6
+gv
+save mainmem_7.bin,e000,1000
+snap   7
+gv
+save mainmem_8.bin,e000,1000
+snap   8
+gv
+save mainmem_9.bin,e000,1000
+snap   9
+gv
+save mainmem_10.bin,e000,1000
+snap  10
+gv
+save mainmem_11.bin,e000,1000
+snap  11
+gv
+save mainmem_12.bin,e000,1000
+snap  12
+gv
+save mainmem_13.bin,e000,1000
+snap  13
+gv
+save mainmem_14.bin,e000,1000
+snap  14
+gv
+save mainmem_15.bin,e000,1000
+snap  15
+gv
+save mainmem_16.bin,e000,1000
+snap  16
+gv
+save mainmem_17.bin,e000,1000
+snap  17
+gv
+save mainmem_18.bin,e000,1000
+snap  18
+gv
+save mainmem_19.bin,e000,1000
+snap  19
+gv
+save mainmem_20.bin,e000,1000
+snap  20
+gv
+save mainmem_21.bin,e000,1000
+snap  21
+gv
+save mainmem_22.bin,e000,1000
+snap  22
+gv
+save mainmem_23.bin,e000,1000
+snap  23
+gv
+save mainmem_24.bin,e000,1000
+snap  24
+gv
+save mainmem_25.bin,e000,1000
+snap  25
+gv
+save mainmem_26.bin,e000,1000
+snap  26
+gv
+save mainmem_27.bin,e000,1000
+snap  27
+gv
+save mainmem_28.bin,e000,1000
+snap  28
+gv
+save mainmem_29.bin,e000,1000
+snap  29
+gv
+save mainmem_30.bin,e000,1000
+snap  30
+gv
+save mainmem_31.bin,e000,1000
+snap  31
+gv
+save mainmem_32.bin,e000,1000
+snap  32
+gv
+save mainmem_33.bin,e000,1000
+snap  33
+gv
+save mainmem_34.bin,e000,1000
+snap  34
+gv
+save mainmem_35.bin,e000,1000
+snap  35
+gv
+save mainmem_36.bin,e000,1000
+snap  36
+gv
+save mainmem_37.bin,e000,1000
+snap  37
+gv
+save mainmem_38.bin,e000,1000
+snap  38
+gv
+save mainmem_39.bin,e000,1000
+snap  39
+gv
+save mainmem_40.bin,e000,1000
+snap  40
+gv
+save mainmem_41.bin,e000,1000
+snap  41
+gv
+save mainmem_42.bin,e000,1000
+snap  42
+gv
+save mainmem_43.bin,e000,1000
+snap  43
+gv
+save mainmem_44.bin,e000,1000
+snap  44
+gv
+save mainmem_45.bin,e000,1000
+snap  45
+gv
+save mainmem_46.bin,e000,1000
+snap  46
+gv
+save mainmem_47.bin,e000,1000
+snap  47
+gv
+save mainmem_48.bin,e000,1000
+snap  48
+gv
+save mainmem_49.bin,e000,1000
+snap  49
+gv
+save mainmem_50.bin,e000,1000
+snap  50
+gv
+save mainmem_51.bin,e000,1000
+snap  51
+gv
+save mainmem_52.bin,e000,1000
+snap  52
+gv
+save mainmem_53.bin,e000,1000
+snap  53
+gv
+save mainmem_54.bin,e000,1000
+snap  54
+gv
+save mainmem_55.bin,e000,1000
+snap  55
+gv
+save mainmem_56.bin,e000,1000
+snap  56
+gv
+save mainmem_57.bin,e000,1000
+snap  57
+gv
+save mainmem_58.bin,e000,1000
+snap  58
+gv
+save mainmem_59.bin,e000,1000
+snap  59
+gv
+save mainmem_60.bin,e000,1000
+snap  60
+gv
+save mainmem_61.bin,e000,1000
+snap  61
+gv
+save mainmem_62.bin,e000,1000
+snap  62
+gv
+save mainmem_63.bin,e000,1000
+snap  63
+gv
+save mainmem_64.bin,e000,1000
+snap  64
+gv
+save mainmem_65.bin,e000,1000
+snap  65
+gv
+save mainmem_66.bin,e000,1000
+snap  66
+gv
+save mainmem_67.bin,e000,1000
+snap  67
+gv
+save mainmem_68.bin,e000,1000
+snap  68
+gv
+save mainmem_69.bin,e000,1000
+snap  69
+gv
+save mainmem_70.bin,e000,1000
+snap  70
+gv
+save mainmem_71.bin,e000,1000
+snap  71
+gv
+save mainmem_72.bin,e000,1000
+snap  72
+gv
+save mainmem_73.bin,e000,1000
+snap  73
+gv
+save mainmem_74.bin,e000,1000
+snap  74
+gv
+save mainmem_75.bin,e000,1000
+snap  75
+gv
+save mainmem_76.bin,e000,1000
+snap  76
+gv
+save mainmem_77.bin,e000,1000
+snap  77
+gv
+save mainmem_78.bin,e000,1000
+snap  78
+gv
+save mainmem_79.bin,e000,1000
+snap  79
+gv
+save mainmem_80.bin,e000,1000
+snap  80
+gv
+save mainmem_81.bin,e000,1000
+snap  81
+gv
+save mainmem_82.bin,e000,1000
+snap  82
+gv
+save mainmem_83.bin,e000,1000
+snap  83
+gv
+save mainmem_84.bin,e000,1000
+snap  84
+gv
+save mainmem_85.bin,e000,1000
+snap  85
+gv
+save mainmem_86.bin,e000,1000
+snap  86
+gv
+save mainmem_87.bin,e000,1000
+snap  87
+gv
+save mainmem_88.bin,e000,1000
+snap  88
+gv
+save mainmem_89.bin,e000,1000
+snap  89
+gv
+save mainmem_90.bin,e000,1000
+snap  90
+gv
+save mainmem_91.bin,e000,1000
+snap  91
+gv
+save mainmem_92.bin,e000,1000
+snap  92
+gv
+save mainmem_93.bin,e000,1000
+snap  93
+gv
+save mainmem_94.bin,e000,1000
+snap  94
+gv
+save mainmem_95.bin,e000,1000
+snap  95
+gv
+save mainmem_96.bin,e000,1000
+snap  96
+gv
+save mainmem_97.bin,e000,1000
+snap  97
+gv
+save mainmem_98.bin,e000,1000
+snap  98
+gv
+save mainmem_99.bin,e000,1000
+snap  99
+gv
+save mainmem_100.bin,e000,1000
+snap 100
+gv
+save mainmem_101.bin,e000,1000
+snap 101
+gv
+save mainmem_102.bin,e000,1000
+snap 102
+gv
+save mainmem_103.bin,e000,1000
+snap 103
+gv
+save mainmem_104.bin,e000,1000
+snap 104
+gv
+save mainmem_105.bin,e000,1000
+snap 105
+gv
+save mainmem_106.bin,e000,1000
+snap 106
+gv
+save mainmem_107.bin,e000,1000
+snap 107
+gv
+save mainmem_108.bin,e000,1000
+snap 108
+gv
+save mainmem_109.bin,e000,1000
+snap 109
+gv
+save mainmem_110.bin,e000,1000
+snap 110
+gv
+save mainmem_111.bin,e000,1000
+snap 111
+gv
+save mainmem_112.bin,e000,1000
+snap 112
+gv
+save mainmem_113.bin,e000,1000
+snap 113
+gv
+save mainmem_114.bin,e000,1000
+snap 114
+gv
+save mainmem_115.bin,e000,1000
+snap 115
+gv
+save mainmem_116.bin,e000,1000
+snap 116
+gv
+save mainmem_117.bin,e000,1000
+snap 117
+gv
+save mainmem_118.bin,e000,1000
+snap 118
+gv
+save mainmem_119.bin,e000,1000
+snap 119
+gv
+save mainmem_120.bin,e000,1000
+snap 120
+gv
+save mainmem_121.bin,e000,1000
+snap 121
+gv
+save mainmem_122.bin,e000,1000
+snap 122
+gv
+save mainmem_123.bin,e000,1000
+snap 123
+gv
+save mainmem_124.bin,e000,1000
+snap 124
+gv
+save mainmem_125.bin,e000,1000
+snap 125
+gv
+save mainmem_126.bin,e000,1000
+snap 126
+gv
+save mainmem_127.bin,e000,1000
+snap 127
+gv
+save mainmem_128.bin,e000,1000
+snap 128
+gv
+save mainmem_129.bin,e000,1000
+snap 129
+gv
+save mainmem_130.bin,e000,1000
+snap 130
+gv
+save mainmem_131.bin,e000,1000
+snap 131
+gv
+save mainmem_132.bin,e000,1000
+snap 132
+gv
+save mainmem_133.bin,e000,1000
+snap 133
+gv
+save mainmem_134.bin,e000,1000
+snap 134
+gv
+save mainmem_135.bin,e000,1000
+snap 135
+gv
+save mainmem_136.bin,e000,1000
+snap 136
+gv
+save mainmem_137.bin,e000,1000
+snap 137
+gv
+save mainmem_138.bin,e000,1000
+snap 138
+gv
+save mainmem_139.bin,e000,1000
+snap 139
+gv
+save mainmem_140.bin,e000,1000
+snap 140
+gv
+save mainmem_141.bin,e000,1000
+snap 141
+gv
+save mainmem_142.bin,e000,1000
+snap 142
+gv
+save mainmem_143.bin,e000,1000
+snap 143
+gv
+save mainmem_144.bin,e000,1000
+snap 144
+gv
+save mainmem_145.bin,e000,1000
+snap 145
+gv
+save mainmem_146.bin,e000,1000
+snap 146
+gv
+save mainmem_147.bin,e000,1000
+snap 147
+gv
+save mainmem_148.bin,e000,1000
+snap 148
+gv
+save mainmem_149.bin,e000,1000
+snap 149
+gv
+save mainmem_150.bin,e000,1000
+snap 150
+gv
+save mainmem_151.bin,e000,1000
+snap 151
+gv
+save mainmem_152.bin,e000,1000
+snap 152
+gv
+save mainmem_153.bin,e000,1000
+snap 153
+gv
+save mainmem_154.bin,e000,1000
+snap 154
+gv
+save mainmem_155.bin,e000,1000
+snap 155
+gv
+save mainmem_156.bin,e000,1000
+snap 156
+gv
+save mainmem_157.bin,e000,1000
+snap 157
+gv
+save mainmem_158.bin,e000,1000
+snap 158
+gv
+save mainmem_159.bin,e000,1000
+snap 159
+gv
+save mainmem_160.bin,e000,1000
+snap 160
+gv
+save mainmem_161.bin,e000,1000
+snap 161
+gv
+save mainmem_162.bin,e000,1000
+snap 162
+gv
+save mainmem_163.bin,e000,1000
+snap 163
+gv
+save mainmem_164.bin,e000,1000
+snap 164
+gv
+save mainmem_165.bin,e000,1000
+snap 165
+gv
+save mainmem_166.bin,e000,1000
+snap 166
+gv
+save mainmem_167.bin,e000,1000
+snap 167
+gv
+save mainmem_168.bin,e000,1000
+snap 168
+gv
+save mainmem_169.bin,e000,1000
+snap 169
+gv
+save mainmem_170.bin,e000,1000
+snap 170
+gv
+save mainmem_171.bin,e000,1000
+snap 171
+gv
+save mainmem_172.bin,e000,1000
+snap 172
+gv
+save mainmem_173.bin,e000,1000
+snap 173
+gv
+save mainmem_174.bin,e000,1000
+snap 174
+gv
+save mainmem_175.bin,e000,1000
+snap 175
+gv
+save mainmem_176.bin,e000,1000
+snap 176
+gv
+save mainmem_177.bin,e000,1000
+snap 177
+gv
+save mainmem_178.bin,e000,1000
+snap 178
+gv
+save mainmem_179.bin,e000,1000
+snap 179
+gv
+save mainmem_180.bin,e000,1000
+snap 180
+gv
+save mainmem_181.bin,e000,1000
+snap 181
+gv
+save mainmem_182.bin,e000,1000
+snap 182
+gv
+save mainmem_183.bin,e000,1000
+snap 183
+gv
+save mainmem_184.bin,e000,1000
+snap 184
+gv
+save mainmem_185.bin,e000,1000
+snap 185
+gv
+save mainmem_186.bin,e000,1000
+snap 186
+gv
+save mainmem_187.bin,e000,1000
+snap 187
+gv
+save mainmem_188.bin,e000,1000
+snap 188
+gv
+save mainmem_189.bin,e000,1000
+snap 189
+gv
+save mainmem_190.bin,e000,1000
+snap 190
+gv
+save mainmem_191.bin,e000,1000
+snap 191
+gv
+save mainmem_192.bin,e000,1000
+snap 192
+gv
+save mainmem_193.bin,e000,1000
+snap 193
+gv
+save mainmem_194.bin,e000,1000
+snap 194
+gv
+save mainmem_195.bin,e000,1000
+snap 195
+gv
+save mainmem_196.bin,e000,1000
+snap 196
+gv
+save mainmem_197.bin,e000,1000
+snap 197
+gv
+save mainmem_198.bin,e000,1000
+snap 198
+gv
+save mainmem_199.bin,e000,1000
+snap 199
+gv

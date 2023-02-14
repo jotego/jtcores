@@ -1,0 +1,8 @@
+trace maincpu.log,0
+trace sndcpu.log,1
+trackmem 1,0
+trackmem 1,1
+gvblank
+gvblank
+gvblank
+quit
