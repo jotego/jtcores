@@ -1890,7 +1890,7 @@
     (effects (font (size 1.2446 1.2446)) (justify left bottom))
     (uuid 3b172eb4-e670-4b9d-ab11-c11ed94018cf)
   )
-  (label "VDD" (at 233.68 57.15 270)
+  (label "VCC" (at 233.68 57.15 270)
     (effects (font (size 1.2446 1.2446)) (justify right bottom))
     (uuid 3d3bad00-66e7-4686-abb3-6cd07b1e7ff4)
   )
