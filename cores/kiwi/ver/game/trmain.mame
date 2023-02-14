@@ -1,0 +1,5 @@
+trace /home/jtejada/git/jtbubl/cores/kiwi/ver/game/main.tr,maincpu,noloop
+wp e000,1000,r,1,{tracelog "/%04X -> %02X/ ",wpaddr,wpdata;go}
+wp e000,1000,w,1,{tracelog "/%04X <- %02X/ ",wpaddr,wpdata;go}
+gtime #3000
+

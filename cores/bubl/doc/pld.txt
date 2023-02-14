@@ -1,0 +1,242 @@
+Files from https://www.jammarcade.net/wiki/index.php?title=Bubble_Bobble
+
+IC 12
+=====
+Schematic 4-2 (MS CPU PC BOARD)
+Purpose: MCU memory driver
+
+Inputs:
+
+2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19
+
+i1 = clk
+i2 = /MCRAM, RAM select signal coming from main CPU addr decoder
+i3 = port P2.4 of MCU
+i4 = port P1.7 of MCU (data direction)
+i5 = /LWR main CPU WRn
+i6 = /LRD main CPU RDn
+i7 = /VECT = main CPU /IORQ
+i8 = i1 = clk
+
+Outputs:
+
+12 SCI (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Registered, Output feedback registered, Active low)
+15 (Registered, Output feedback registered, Active low)
+16 COMM access (Registered, Output feedback registered, Active low)
+17 (Registered, Output feedback registered, Active high)
+18 (Combinatorial, Output feedback output, Active low)
+19 (Combinatorial, Output feedback output, Active low)
+
+
+// combinational outputs
+/o12 = SCI input of MCU
+/o13 = low if MCU drives the memory
+/o18 = mux select. if low main CPU drives the memory
+                  if high MCU drives the memory
+/o19 = COMM RAM /WE
+
+Equations:
+
+/o12 = i4 & /rf14 +
+       i4 & /i8 & /o13 & /rf15 & /rf16 & o18
+/SCI = MCU_RD & /rf14 
+
+/o13 = i4 & rf14 & /rf15 & /rf16 & o18 +
+       i2 & rf14 & /rf15 & /rf16 & o18
+
+/rf14 := /rf15 +
+         /i2 & /i3 & /rf14 +
+         /i3 & /i7 & /rf14
+
+/rf15 := i2 & i7 & /rf16
+/rf15 := /MCRAM & /VECT
+
+/rf16 := i2 & /i3 & i7
+/rf16 := /MCRAM & ~/SORAM & /VECT = COMM access
+
+rf17 := i2 & i7 +
+        i5 & i6 & i7
+rf17.oe = OE
+
+/o18 = /i7 & o13 +
+       /i2 & /i5 & i6 & o13 +
+       /i2 & /i6 & o13 & /rf17
+o18.oe = vcc
+
+/o19 = /i4 & rf14 & /rf15 & /rf16 & rf17 +
+       /i2 & /i5 & rf17
+o19.oe = vcc
+
+====================================================================
+IC 41
+====================================================================
+
+=====Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19
+
+Outputs:
+
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active high)
+16 (Combinatorial, No output feedback, Active high)
+17 (Combinatorial, Output feedback output, Active low)
+18 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+/o12 = 
+o12.oe = vcc
+
+/o13 = i4 & i5 & i6 & i7 & i19 +
+       i1 & i19
+o13.oe = vcc
+
+/o14 = i1 & /i2 & i19 +
+       /i1 & i4 & i5 & i6 & i7 & i19
+o14.oe = vcc
+
+o15 = i2 & i4 & i5 & i6 & i7 & i19 +
+      i1 & i4 & i19
+o15.oe = vcc
+
+o16 = i3 & i4 & i5 & i6 & i7 & i19 +
+      i1 & i7 & i19
+o16.oe = vcc
+
+/o17 = 
+o17.oe = vcc
+
+/o18 = 
+o18.oe = vcc
+
+====================================================================
+IC 43 - Controls access to Main-Sub shared RAM
+====================================================================
+
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16, 17, 18
+
+i1  = LA12
+i2  = /LMR
+i3  = /LWR
+i4  = SBA12
+i5  = SBA13
+i6  = SBA14
+i7  = /SBMR
+i8  = /SBWR
+i9  = /LRD
+i11 = /WORK
+i17 = CLK
+
+Outputs: Combinatorial, Active low
+
+12 /WCS - No output feedback
+13 /LDE Master CPU drives - Output feedback output
+14 /WAIT - Output feedback output
+15 /SDE Sub CPU drives - Output feedback output
+16 /SBWAIT - Output feedback output
+18 Output feedback output
+19 No output feedback
+
+Equations:
+
+/o12 = /i5 & i6 & /i7 & i8 & o13 & /o15 & o16 & o18 +
+       /i2 & /i9 & /i11 & /o13 & o15 +
+       i5 & i6 & /i8 & o13 +
+       i6 & /i8 & o13 & /o15 +
+       /i3 & /i11 & o15
+
+/o13 = /i2 & /i11 & o15 +
+       /i3 & /i11 & o15
+/LDE
+
+/o14 = /i2 & /i7 & /i11 & o13 & /o15
+/WAIT = /LMR & /SBMR & /WORK & ~/LDE & /SDE
+
+/o15 = i6 & /i7 & o13 & /o15 +
+       i6 & /i7 & o13 & o15 & /i17
+/SDE
+
+/o16 = /i2 & i6 & /i7 & /i11 & /o13 & o15
+/SBWAIT = /LMR & SBA14 & /SBMR & /WORK & /LDE & ~/SDE
+
+/o18 = /i3 & /i11 & o15 +
+       i6 & /i7 & /i8 & o13 & o16 +
+       i6 & i7 & /i8 & o13 & o14 & o15 & o16
+
+/o19 = /i1 & /i2 & /i11 & /o13 & o15 +
+       /i1 & /i3 & /i11 & /o13 & o15 +
+       /i4 & o13
+
+====================================================================
+IC 49. Schematics 4-1 main CPU address decoder
+====================================================================
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19
+i1 = MA15
+i2 = MA14
+i3 = MA13
+i4 = MA12
+i5 = MA11
+i6 = MA10
+i7 = MA9
+i8 = /IORQ
+i9 = /RD (?) cannot read it
+i11= /ME = /MREQ | ~/RFSH
+
+Outputs:
+All of them are Combinatorial, Active low
+
+12 to second decoder - Output feedback output
+13 /COLOR - Output feedback output
+14 ROM bank select - Output feedback output
+15 /MCRAM - No output feedback
+16 Enables ML data bus for main CPU - No output feedback
+17 /MRD   - Output feedback output
+18 /WORK  - Output feedback output
+19 /V-RAM - Output feedback output
+
+Equations:
+
+/o12 = i1 & i2 & i3 & i4 & i5 & /i6 & i7 & /i11
+SECOND=A[15:11] && A[10:9]==2'b01 && /MREQ
+
+/o13 = i1 & i2 & i3 & i4 & i5 & /i6 & /i7 & /i11
+COLOR = &A[15:11] && A[10:9]==2'b00 && /MREQ
+
+/o14 = i1 & /i2 & /i11
+bank = MA15 & A[14:13]==2'b00
+
+/o15 = i1 & i2 & i3 & i4 & i5 & i6 & /i11
+/MCRAM = &A[15:10] && /MREQ
+
+/o16 = i1 & i2 & i3 & i7 +
+       i1 & i2 & i3 & i6 +
+       /i8 +
+       i1 & i2 & i3 & /i5 +
+       i1 & i2 & i3 & /i4
+/MLBUS = (A[15:13]==3'b111 && (MA9 || MA10 || ~MA11 || ~MA12)) || /IORQ
+  A == 1110 
+       111?_0
+       111?_?1
+       111?_??1
+       ---------
+       1110_000?
+
+/o17 = /i8 +
+       /i9 & /i11
+/MRD = ~/IORQ | (~/RD & ~/MREQ)
+
+/o18 = i1 & i2 & i3 & /i5 +
+       i1 & i2 & i3 & /i4
+/WORK = A[15:13]==3'b111 && (!A[12] || !A[11])
+
+/o19 = i1 & i2 & /i3
+/VRAM = A[15:13]==3'b110

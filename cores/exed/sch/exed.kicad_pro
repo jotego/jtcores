@@ -345,8 +345,8 @@
       "object_table"
     ],
     [
-      "11c22825-3fca-43a5-ab18-eb911970fcae",
-      "bus_control_dma"
+      "79d13ffd-b626-4a30-aa9d-ddd799742948",
+      "char"
     ],
     [
       "19e6ada2-7d18-4800-8db0-b96f4345ab70",
@@ -365,12 +365,8 @@
       "snd_c_latch"
     ],
     [
-      "d6aab237-4bd1-439a-95ea-a492404fd3b6",
+      "cc832e92-a394-4e04-adb5-ecf25ff3275c",
       "colmix"
-    ],
-    [
-      "0ecdb413-335d-4c35-b85f-5ff4ffad0338",
-      "char"
     ],
     [
       "6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9",
@@ -391,6 +387,14 @@
     [
       "e59e7abc-dbd1-4e79-a58c-2f05c5a36c88",
       "obj_ram"
+    ],
+    [
+      "7a2fbcae-34f5-4759-957c-79506d9a7c4b",
+      "ram_rom"
+    ],
+    [
+      "9a02f806-9f9b-4316-8130-9919e71fe46d",
+      "last_u"
     ]
   ],
   "text_variables": {}

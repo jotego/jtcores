@@ -1,0 +1,86 @@
+[global]
+mraauthor=["jotego"]
+platform="jtkiwi"
+
+[features]
+beta = true
+# debug = true
+
+[parse]
+sourcefile="tnzs.cpp"
+skip = { setnames = [
+# i8742 MCU
+# "extrmatn",
+# "extrmatnj",
+# "extrmatnu",
+# "extrmatnur",
+
+# Not ready yet
+"drtoppel",
+"drtoppelj",
+"drtoppelu",
+"chukatai",
+"chukataij",
+"chukataija",
+"chukataiu",
+"tnzso",
+"tnzsjo",
+"tnzsuo",
+"tnzsoa",
+"tnzsop",
+"plumppop",
+
+# No MCU dump
+"arknoid2",
+"arknoid2j",
+"arknoid2u",
+"arknoid2b",
+
+# Graphics
+"kabukiz",
+"kabukizj",
+
+# Three Z80
+"tnzs",
+"tnzsj",
+# Korean hack on mostly unrelated hardware
+"jpopnics",
+ ] }
+
+ [header]
+ # len=$JTFRAME_HEADER
+ data=[
+    { machine="extrmatn", data="03" }, # MCU - Color PROM
+    { machine="kabukiz",  data="04" }, # Kabuki Z sound subsystem
+    { machine="kageki" ,  data="08" }, # Kageki   sound subsystem
+ ]
+
+[buttons]
+Names = [ { machine="insectx",  names="Fire,Warp"},
+          { machine="extrmatn", names="Fire,Warp"},
+          { machine="kageki",   names="Left jab,Right hook"} ]
+
+[dipsw]
+bitcnt = 16
+delete = [ "Unused", "Unknown" ]
+
+[ROM]
+regions = [
+    { name="maincpu", No_offset=true   },
+    { name="sub", start="JTFRAME_BA1_START" },
+    { name="audiocpu", start="JTFRAME_BA2_START" },
+    { name="samples", start="PCM_START" },
+    { name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[2,0,3,1] },
+    { machine="kageki", name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 5,1,7,3] },
+    { machine="insectx", name="gfx1", start="JTFRAME_BA3_START", width=16 },
+    { name="proms", start="JTFRAME_PROM_START", No_offset=true },
+    { name="mcu", start="MCU_START", No_offset=true   },
+    { name="pal", skip=true },
+]
+
+order = [
+    "maincpu", "sub", "audiocpu", "samples",
+    "gfx1", "proms", "mcu"
+]
+
+
