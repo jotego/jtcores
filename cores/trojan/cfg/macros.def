@@ -12,6 +12,7 @@ JTFRAME_HEIGHT=240
 JTFRAME_HEADER=32
 CHAR_START=0x40000
 
+JTFRAME_SIM_SLOWLOAD
 [sidi|mist]
 # Better to leave direct speed to zero as this game needs some extra
 # cycles in between ioctl_wr pulses

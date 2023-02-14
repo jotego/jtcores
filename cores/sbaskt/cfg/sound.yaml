@@ -14,4 +14,4 @@ modules:
   jt:
     - name: jt89
   other:
-    - get: [ vlm5030/vlm5030.qip ]
+    - get: [ vlm5030/vlm5030.yaml ]
