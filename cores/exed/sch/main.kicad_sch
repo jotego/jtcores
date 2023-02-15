@@ -5357,7 +5357,7 @@
   (symbol (lib_id "jt74:74LS367") (at 123.19 127 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid a96eff30-88f3-460d-9838-22f67ab26473)
-    (property "Reference" "B6" (id 0) (at 129.54 113.03 0))
+    (property "Reference" "6B" (id 0) (at 129.54 113.03 0))
     (property "Value" "74LS367" (id 1) (at 125.73 138.43 0))
     (property "Footprint" "" (id 2) (at 123.19 127 0)
       (effects (font (size 1.27 1.27)) hide)

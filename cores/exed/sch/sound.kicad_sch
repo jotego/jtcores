@@ -3447,7 +3447,7 @@
   (symbol (lib_id "CPU:Z80CPU") (at 82.55 63.5 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid dcba10a0-4015-4338-87d8-b424d83612dc)
-    (property "Reference" "C10" (id 0) (at 93.98 27.94 0))
+    (property "Reference" "10C" (id 0) (at 93.98 27.94 0))
     (property "Value" "Z80CPU" (id 1) (at 82.55 63.5 0))
     (property "Footprint" "" (id 2) (at 82.55 53.34 0)
       (effects (font (size 1.27 1.27)) hide)

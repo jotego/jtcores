@@ -2221,7 +2221,7 @@
   (symbol (lib_id "jt74:74LS367") (at 93.98 104.14 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid a0733bcb-d8c8-4c46-ac4a-c404406ab289)
-    (property "Reference" "C9" (id 0) (at 93.98 87.1982 0))
+    (property "Reference" "9C" (id 0) (at 93.98 87.1982 0))
     (property "Value" "74LS367" (id 1) (at 93.98 89.5096 0))
     (property "Footprint" "" (id 2) (at 93.98 104.14 0)
       (effects (font (size 1.27 1.27)) hide)
