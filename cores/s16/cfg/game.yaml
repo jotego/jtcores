@@ -39,7 +39,7 @@ jtframe:
   - from: cpu
     get:
       - jtframe_m68k.yaml
-      - 8051/mc8051.yaml
+      - jtframe_8751.yaml
       - t8243/t8243.yaml
       - t48/t48.yaml
       - jtframe_z80.yaml
