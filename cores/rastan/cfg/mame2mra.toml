@@ -12,7 +12,7 @@ names=[
 [dipsw]
 delete = [ "Unused", "Unknown" ]
 rename=[
-    {name="Bonus Life", to="Bonus" }
+    {name="Bonus Life", to="1PUP" }
 ]
 
 [ROM]

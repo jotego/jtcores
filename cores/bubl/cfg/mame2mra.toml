@@ -41,6 +41,9 @@ extra = [
     { machine="bublbobl", name="Language", Options="English,Japanese", Bits="0" },
     { machine="bublbobl", name="Operation", Options="Test,Game", Bits="2" },
 ]
+Rename = [
+    {Name="ROM Type",To="Type"},
+]
 
 [ROM]
 regions = [
