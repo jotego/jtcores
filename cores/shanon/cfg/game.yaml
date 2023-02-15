@@ -1,0 +1,20 @@
+game:
+  - from: shanon
+    get:
+      - jtshanon_colmix.v
+      - jtshanon_game_sdram.v
+  - from: outrun
+    get:
+      - ../cfg/common.yaml
+  - from: s16
+    get:
+      - jts16_obj.v
+      - jts16_obj_ram.v
+      - jts16_obj_scan.v
+      - jts16_obj_draw.v
+      - ../cfg/tilemap.yaml
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v

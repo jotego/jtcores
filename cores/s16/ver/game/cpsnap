@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ $# != 2 ]; then
+    echo use exactly two arguments
+    echo "cpsnap <MAME game name> <index>"
+    exit 1
+fi
+
+mkdir -p $1
+
+for i in char.bin obj.bin pal.bin scr.bin; do
+    mv $i $1/$(basename $i .bin)$2.bin
+done
+
+
+MAMESNAP=~/.mame/snap/$1
+
+if [ ! -d $MAMESNAP ]; then
+    echo Warning: no MAME snapshot for $1
+else
+    # copy latest snap file from MAME
+    LATEST=$(ls $MAMESNAP -t | head -n 1)
+    cp $MAMESNAP/$LATEST $1/$2.png
+fi
+
+git add $1/*$2.bin $1/$2.png

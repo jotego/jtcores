@@ -1,0 +1,54 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile="segaorun.cpp"
+skip.descriptions=[ "Out Run" ]
+
+[buttons]
+Names = [
+    { machine="outrun",  names="Accelerate,Brake,Gear (Low / High)"},
+    { machine="toutrun", names="Accelerate,Brake,Gear (Low / High),Nitro"},
+    { machine="shangon", names="Accelerate,Brake,-,Supercharger"},
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+bitcnt = 16
+
+[header]
+fill=0
+dev = [
+    { byte=0, dev="fd1089a", value=2 },
+    { byte=0, dev="fd1089b", value=3 },
+    { byte=0, dev="fd1094",  value=4 },
+]
+data = [
+    { machine="shangon", pointer=1, data="01" },
+    { machine="toutrun", pointer=1, data="02" }
+]
+
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu",     width=16, reverse=true },
+    { name="subcpu",      start="JTFRAME_BA1_START", width=16, reverse=true },
+    { name="soundcpu",    start="SND_START" },
+    { name="pcm",         start="PCM_START", No_offset=true, Rom_len=0x10000 },
+    { name="gfx1",        start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sort_byext=true },
+    { name="sprites",     start="JTFRAME_BA3_START", width=16, reverse=true },
+    { name="segaic16road",start="ROAD_START", width=16, No_offset=true, singleton=true },
+    { name="maincpu:key", start="JTFRAME_PROM_START", len=0x2000 },
+    { name="fd1089",      start="FD1089_START" },
+]
+
+order = [
+    "maincpu", "subcpu", "soundcpu", "pcm", "gfx1",
+    "sprites", "segaic16road", "maincpu:key"
+]
+
+# blanks = [
+#     { region="subcpu", offset=0x20000, len=0x20000}
+# ]

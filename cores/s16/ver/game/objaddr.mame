@@ -1,0 +1,2 @@
+wp 440000,100000,r,(wpaddr&0x7)>=5,{printf "%X",wpaddr;go}
+go

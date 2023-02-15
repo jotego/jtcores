@@ -1,0 +1,284 @@
+[global]
+# info = [ {tag="mameversion", value="0229"} ]
+mraauthor=["jotego","atrac17"]
+
+[parse]
+sourcefile="segas16b.cpp"
+# Games with S16A parents need explicit listing
+# the description is used to make the alternate folders
+parents= [
+    {name="shinobi", description="Shinobi"},
+    {name="afighter", description="Action Fighter"},
+    {name="sdi", description="SDI"},
+    {name="tetris", description="Tetris"}
+]
+
+[parse.skip]
+descriptions = [ "16A", "Taito" ]
+setnames = [ "lockonph" ]
+bootlegs = true
+
+[buttons]
+#Sega System 16B
+#Sega System 16B - Charon
+#Sega System 16C
+#Sega System 16B - Korean
+names = [
+    { machine="aceattac", names="none" },
+    { machine="afighter", names="Shot,Special Weapon" },
+    { setname="afightere", names="Shot,Weapon A, Weapong B, Weapon C" },
+    { setname="afighterf", names="Shot,Weapon A, Weapong B, Weapon C" },
+    { machine="aliensyn", names="Shot" },
+    { machine="altbeast", names="Punch,Kick,Jump" },
+    { machine="aurail",   names="Rapid Shot,Kite/Turn,Shield" },
+    { machine="bayroute", names="Shot,Jump,Select" },
+    { machine="bullet",   names="Shot (Up),Shot (Right),Shot (Behind),Shot (Left)" },
+    { machine="cotton",   names="Shoot/Magic,Bomb/Nymphs" },
+    { machine="ddux",     names="Shot,Jump" },
+    { machine="dunkshot", names="Shot,Pass" },
+    { machine="eswat",    names="Shot,Jump,Special Weapons" },
+    { machine="exctleag", names="Change,Select,Chase" },
+    { machine="fpoint",   names="Rotate,Rotate,Rotate" },
+    { machine="goldnaxe", names="Attack,Jump,Magic" },
+    { machine="hwchamp",  names="none" },
+    { machine="mvp",      names="Change,Select,Chase" },
+    { machine="passsht",  names="Flat,Slice,Lob,Top Spin" },
+    { machine="riotcity", names="Attack,Jump" },
+    { machine="ryukyu",   names="Cancel,Decide" },
+    { machine="sdi",      names="Shot" },
+    { machine="sonicbom", names="Shot,Super Shot" },
+    { machine="shinobi",  names="Shuriken,Jump,Magic" },
+    { machine="sjryuko",  names="none" },
+    { machine="suprleag", names="Change,Select,Chase" },
+    { machine="tetris",   names="Rotate,Rotate,Rotate" },
+    { machine="timescan", names="L. Flipper/Ball Start,R. Flipper/Lane Shift" },
+    { machine="toryumon", names="Block Turn" },
+    { machine="tturf",    names="Punch,Kick,Jump" },
+    { machine="ultracin", names="Attack" },
+    { machine="wb3",      names="Shot,Jump" },
+    { machine="wrestwar", names="Punch,Kick" },
+    { machine="fantzn2x", names="Shot,Bomb" },
+    { machine="atomicp",  names="Rotate" },
+    { machine="snapper",  names="Left,Right,Shot" },
+    { machine="lockonph", names="Shot,Bomb" },
+    { machine="dfjail",   names="Assault Rifle,Jump,R.P.G" }
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown", "Advertise Coin Indication" ]
+bitcnt = 16
+rename = [
+    { name="Bonus Life", to="Bonus" },
+    { name="Extended Score", to="Bonus" },
+    { name="Continues", to="Cont." },
+    { name="Advertise Sound Interval", to="Demo Sounds" },
+    { name="VS Time", to="VS Time", Values=[ "shorter","short","long","longer"]},
+]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu",       width=16, reverse=true },
+    { name="mcu",           start="MCU_START", len=0x1000, custom={ dev="i8751" } },
+    { name="soundcpu",      start="JTFRAME_BA1_START" },
+    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sort_byext=true, len=0x100000 },
+    { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true },
+    { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
+    { name="soundcpu:key",  start="SNDKEY_START", len=0x2000 },
+    { name="fd1089",        start="FD1089_START" },
+    { name="plds",          skip=true }
+]
+# { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
+order = [
+    "maincpu", "soundcpu", "gfx1",
+    "sprites", "mcu", "maincpu:key", "soundcpu:key"
+]
+splits = [
+    { machine="riotcity", region="sprites", offset=0x100000 },
+    { machine="goldnaxe", region="sprites", offset=0x100000 },
+    { setname="eswat",    region="sprites", offset=0x100000 },
+    { setname="eswatj",   region="sprites", offset=0x100000 },
+    { setname="eswatu",   region="sprites", offset=0x100000 },
+    { machine="mvp",      region="sprites", offset=0x100000 },
+    { machine="ultracin", region="sprites", offset=0x100000 },
+    # Do not split
+    { setname="eswatj1",  offset=0 },
+    { setname="eswatj1d", offset=0 },
+    { setname="mvpj",     offset=0 },
+]
+
+[header]
+fill=0
+dev = [
+    { byte=0x10, dev="fd1089a", value=1 },
+    { byte=0x10, dev="fd1089b", value=2 },
+    { byte=0x11, dev="fd1094",  value=1 },
+    { byte=0x12, dev="mc8123",  value=1 },
+    { byte=0x13, dev="i8751",   value=1 }
+]
+# init_generic_5521 = 0
+# init_hwchamp_5521 = 1
+# init_altbeasj_5521 = 2
+# init_altbeas4_5521 = 3
+# init_shinobi4_5521 = 4
+# init_generic_korean = 8
+# init_snapper = 9
+# init_lockonph = 0xa
+# init_generic_5358        = 0x10
+# init_generic_5358_small  = 0x11
+# init_sdi_5358_small      = 0x12
+# init_passshtj_5358       = 0x13
+# init_dunkshot_5358_small = 0x14
+# init_exctleag_5358       = 0x15
+# init_aliensyn7_5358_small= 0x16
+# init_aceattac_5358       = 0x17
+# init_cencourt_5358       = 0x18
+# init_defense_5358_small  = 0x19
+# init_shinobi3_5358       = 0x1a
+# init_sjryuko_5358_small  = 0x1b
+# init_timescan_5358_small = 0x1c
+#      afighter_analog     = 0x1d
+# init_generic_5797        = 0x20
+# init_generic_5704        = 0x40
+# init_tturf_5704          = 0x41
+# init_wb3_5704            = 0x42
+# init_generic_bootleg = 0x80
+# This must match the definitions in jts16b.def
+machines = [
+    { setname="aceattac",   byte=0x18, value=0x17 },
+    { setname="aliensyn",   byte=0x18, value=0x11 },
+    { setname="aliensyn7",  byte=0x18, value=0x11 }, # same as the others
+    { setname="aliensyn3",  byte=0x18, value=0x11 },
+    { setname="aliensynj",  byte=0x18, value=0x11 },
+    { setname="afightere",  byte=0x18, value=0x1d },
+    { setname="afighterf",  byte=0x18, value=0x1d },
+    { setname="afighterg",  byte=0x18, value=0x11 },
+    { setname="afighterh",  byte=0x18, value=0x11 },
+    { setname="altbeast",   byte=0x18, value=0 },
+    { setname="altbeastj",  byte=0x18, value=2 },
+    { setname="altbeast6",  byte=0x18, value=0 },
+    { setname="altbeast5",  byte=0x18, value=0 },
+    { setname="altbeast4",  byte=0x18, value=3 },
+    { setname="altbeastj3", byte=0x18, value=0 },
+    { setname="altbeast2",  byte=0x18, value=3 },
+    { setname="altbeastj1", byte=0x18, value=0 },
+    { setname="aurail",     byte=0x18, value=0x40 },
+    { setname="aurail1",    byte=0x18, value=0x40 },
+    { setname="aurailj",    byte=0x18, value=0x40 },
+    { setname="bayroute",   byte=0x18, value=0x40 },
+    { setname="bayroutej",  byte=0x18, value=0x40 },
+    { setname="bayroute1",  byte=0x18, value=0x10 },
+    { setname="bullet",     byte=0x18, value=0x16 },
+    { setname="cotton",     byte=0x18, value=0x40 },
+    { setname="cottonu",    byte=0x18, value=0x40 },
+    { setname="cottonj",    byte=0x18, value=0x40 },
+    { setname="cottonja",   byte=0x18, value=0x40 },
+    { setname="ddux",       byte=0x18, value=0 },
+    { setname="dduxj",      byte=0x18, value=0 },
+    { setname="ddux1",      byte=0x18, value=0x40 },
+    { setname="dunkshot",   byte=0x18, value=0x14 },
+    { setname="dunkshota",  byte=0x18, value=0x14 },
+    { setname="dunkshoto",  byte=0x18, value=0x14 },
+    { setname="eswat",      byte=0x18, value=0x20 },
+    { setname="eswatu",     byte=0x18, value=0x20 },
+    { setname="eswatj",     byte=0x18, value=0x20 },
+    { setname="eswatj1",    byte=0x18, value=0x40 },
+    { setname="exctleag",   byte=0x18, value=0x15 },
+    { setname="fpoint",     byte=0x18, value=0x10 },
+    { setname="fpoint1",    byte=0x18, value=0x40 },
+    { setname="goldnaxe",   byte=0x18, value=0x20 },
+    { setname="goldnaxeu",  byte=0x18, value=0x20 },
+    { setname="goldnaxej",  byte=0x18, value=0x40 },
+    { setname="goldnaxe3",  byte=0x18, value=0x40 },
+    { setname="goldnaxe2",  byte=0x18, value=0x40 },
+    { setname="goldnaxe1",  byte=0x18, value=0x20 },
+    { setname="hwchamp",    byte=0x18, value=1 },
+    { setname="hwchampj",   byte=0x18, value=1 },
+    { setname="mvp",        byte=0x18, value=0x20 },
+    { setname="mvpj",       byte=0x18, value=0x40 },
+    { setname="passsht",    byte=0x18, value=0x10 },
+    { setname="passshta",   byte=0x18, value=0x13 },
+    { setname="passshtj",   byte=0x18, value=0x13 },
+    { setname="cencourt",   byte=0x18, value=0x18 },
+    { setname="riotcity",   byte=0x18, value=0x40 },
+    { setname="ryukyu",     byte=0x18, value=0x40 },
+    { setname="ryukyua",    byte=0x18, value=0x40 },
+    { setname="defense",    byte=0x18, value=0x19 },
+    { setname="sdib",       byte=0x18, value=0x19 },
+    { setname="sdibl",      byte=0x18, value=0x12 },
+    { setname="shinobi6",   byte=0x18, value=0 },
+    { setname="shinobi5",   byte=0x18, value=0x10 },
+    { setname="shinobi4",   byte=0x18, value=4 },
+    { setname="shinobi3",   byte=0x18, value=0x1a },
+    { setname="shinobi2",   byte=0x18, value=0x10 },
+    { setname="sonicbom",   byte=0x18, value=0x10 },
+    { setname="sjryuko",    byte=0x18, value=0x1b },
+    { setname="suprleag",   byte=0x18, value=0x15 },
+    { setname="tetris2",    byte=0x18, value=0x40 },
+    { setname="tetris1",    byte=0x18, value=0x11 },
+    { setname="timescan",   byte=0x18, value=0x1c },
+    { setname="toryumon",   byte=0x18, value=0x20 },
+    { setname="tturf",      byte=0x18, value=0x41 },
+    { setname="tturfu",     byte=0x18, value=0x10 },
+    { setname="ultracin",   byte=0x18, value=0x20 },
+    { setname="wb3",        byte=0x18, value=0x42 },
+    { setname="wb34",       byte=0x18, value=0x40 },
+    { setname="wb33",       byte=0x18, value=0x40 },
+    { setname="wb32",       byte=0x18, value=0x10 },
+    { setname="wrestwar",   byte=0x18, value=0x40 },
+    { setname="wrestwar2",  byte=0x18, value=0x40 },
+    { setname="wrestwar1",  byte=0x18, value=0x40 },
+    { setname="fantzn2x",   byte=0x18, value=0x43 },
+    { setname="fantzn2xp",  byte=0x18, value=0x43 },
+    { setname="fantzoneta", byte=0x18, value=0x40 },
+    { setname="atomicp",    byte=0x18, value=8 },
+    { setname="snapper",    byte=0x18, value=9 },
+    { setname="lockonph",   byte=0x18, value=0xa },
+    { setname="dfjail",     byte=0x18, value=  8 },
+    { setname="shinobi2d",  byte=0x18, value=0x10 },
+    { setname="fpointd",    byte=0x18, value=0x10 },
+    { setname="fpoint1d",   byte=0x18, value=0x40 },
+    { setname="tetris2d",   byte=0x18, value=0x40 },
+    { setname="tetris1d",   byte=0x18, value=0x11 },
+    { setname="dduxd",      byte=0x18, value=0 },
+    { setname="dduxjd",     byte=0x18, value=0 },
+    { setname="altbeast5d", byte=0x18, value=0 },
+    { setname="altbeastj3d",byte=0x18, value=0 },
+    { setname="aurail1d",   byte=0x18, value=0x40 },
+    { setname="aurailjd",   byte=0x18, value=0x40 },
+    { setname="mvpd",       byte=0x18, value=0x20 },
+    { setname="mvpjd",      byte=0x18, value=0x40 },
+    { setname="cottond",    byte=0x18, value=0x40 },
+    { setname="cottonud",   byte=0x18, value=0x40 },
+    { setname="cottonjad",  byte=0x18, value=0x40 },
+    { setname="cottonjd",   byte=0x18, value=0x40 },
+    { setname="bayrouted",  byte=0x18, value=0x40 },
+    { setname="bayroutejd", byte=0x18, value=0x40 },
+    { setname="exctleagd",  byte=0x18, value=0x15 },
+    { setname="sonicbomd",  byte=0x18, value=0x10 },
+    { setname="ryukyud",    byte=0x18, value=0x40 },
+    { setname="hwchampjd",  byte=0x18, value=1 },
+    { setname="bulletd",    byte=0x18, value=0x11 },
+    { setname="eswatd",     byte=0x18, value=0x20 },
+    { setname="eswatud",    byte=0x18, value=0x20 },
+    { setname="eswatjd",    byte=0x18, value=0x20 },
+    { setname="eswatj1d",   byte=0x18, value=0x40 },
+    { setname="goldnaxeud", byte=0x18, value=0x20 },
+    { setname="goldnaxe3d", byte=0x18, value=0x40 },
+    { setname="goldnaxe1d", byte=0x18, value=0x20 },
+    { setname="goldnaxejd", byte=0x18, value=0x40 },
+    { setname="passshtd",   byte=0x18, value=0x10 },
+    { setname="passshtad",  byte=0x18, value=0x13 },
+    { setname="passshtjd",  byte=0x18, value=0x13 },
+    { setname="wb34d",      byte=0x18, value=0x40 },
+    { setname="wb33d",      byte=0x18, value=0x40 },
+    { setname="wb32d",      byte=0x18, value=0x10 },
+    { setname="wrestwar2d", byte=0x18, value=0x40 },
+    { setname="wrestwar1d", byte=0x18, value=0x40 },
+    { setname="sdibl2",     byte=0x18, value=0x12 },
+    { setname="sdibl3",     byte=0x18, value=0x12 },
+    { setname="sdibl4",     byte=0x18, value=0x12 },
+    { setname="sdibl5",     byte=0x18, value=0x12 },
+    { setname="sdibl6",     byte=0x18, value=0x12 }
+]

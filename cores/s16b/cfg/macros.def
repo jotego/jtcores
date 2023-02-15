@@ -1,0 +1,33 @@
+include ../../s16/cfg/macros.def
+
+[mist]
+-JTFRAME_CREDITS
+
+[all]
+S16B
+
+# instance names
+GAMETOP=jts16b_game_sdram
+CORENAME=JTS16B
+JTS16_MAIN=jts16b_main
+JTS16_SND=jts16b_snd
+
+# Redefine memory regions
+JTFRAME_BA1_START    =0x080000
+PCM_START    =0x100000
+JTFRAME_BA2_START    =0x140000
+JTFRAME_BA3_START    =0x240000
+MCU_START    =0x440000
+MAINKEY_START=0x442000
+N7751_START  =0x444000
+FD1089_START =0x44A000
+SNDKEY_START =0x448000
+
+# Make it the same as MCU_START
+JTFRAME_PROM_START=0x440000
+
+# Redefine memory size
+VRAMW=19
+
+[mister]
+JTFRAME_IOCTL_RD=75777

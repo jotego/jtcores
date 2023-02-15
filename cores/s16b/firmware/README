@@ -1,0 +1,3 @@
+These MCU files are not dumps from the original chips, but a homebrew replacement made by JOTEGO.
+
+The Makefile can be used to assemble and test them but `jtframe mra` will automatically embed the hexadecimal dump of the code, so no extra files are required.

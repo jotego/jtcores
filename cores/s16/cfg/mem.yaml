@@ -1,0 +1,38 @@
+params:
+  - { name: MCU_PROM,    value: "`MCU_START"     }
+  - { name: N7751_PROM,  value: "`N7751_START"   }
+  - { name: KEY_PROM,    value: "`MAINKEY_START" }
+  - { name: MC8123_PROM, value: "`SNDKEY_START"  }
+  - { name: FD_PROM,     value: "`FD1089_START"  }
+  - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
+  - { name: SRAM_OFFSET, value: 22'h18_0000 }
+ports:
+  - name: gfx_cs
+sdram:
+  banks:
+    # Bank 0 for the main and sub CPUs
+    - 
+      buses:
+        - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
+        - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+        - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+        - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+
+    # Bank 1 for sound & frame buffer
+    -
+      buses:
+        - { name: snd, addr_width: 19, data_width: 8 }
+        - { name: pcm, addr_width: 17, data_width: 8, offset: PCM_OFFSET }
+
+    # Bank 2 for tile graphics
+    -
+      buses:
+        - { name: char, addr_width: 20, data_width: 32, cs: gfx_cs }
+        - { name: scr1, addr_width: 20, data_width: 32, cs: gfx_cs }
+        - { name: scr2, addr_width: 20, data_width: 32, cs: gfx_cs }
+
+    # Bank 3 objects
+    -
+      buses:
+        - { name: obj, addr_width: 21, data_width: 16 }

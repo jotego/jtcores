@@ -1,0 +1,1278 @@
+ Sega "X-Board" hardware notes
+ by Charles MacDonald
+ WWW: http://cgfm2.emuviews.com
+
+ Unpublished work Copyright 2004 Charles MacDonald
+
+ This document is in a very preliminary state and is subject to change.
+ Most everything within has been tested and verified on the X-Board hardware,
+ but please be aware that my testing methods or interpretations of
+ results could be flawed. I can't guarantee that everything is 100% accurate.
+
+ Last updated: 12/03/04
+
+ Table of contents
+
+ - Overview
+ - System timing and interrupts
+ - Main CPU memory map
+ - Sub CPU memory map
+ - 315-5248
+ - 315-5249
+ - 315-5250
+ - Timer overview
+ - Palette
+ - Sprites
+ - I/O hardware
+ - I/O chip #1
+ - I/O chip #2
+ - Analog inputs
+ - Sound hardware
+ - Miscellaneous
+ - 315-5290
+ - 315-5291
+ - 315-5278
+ - Video priority mixer
+ - 315-5280
+ - Assistance Needed
+ - Credits and Acknowledgements
+ - Disclaimer
+
+ ----------------------------------------------------------------------------
+ Overview
+ ----------------------------------------------------------------------------
+
+ Processors
+                MC68000 (Main CPU)
+                MC68000 (Sub CPU)
+                Z80
+ Video hardware
+                315-5197  - Tilemap generator
+                315-5211A - Sprite generator
+                315-5242  - Color encoder
+                315-5275  - Road generator
+ Others
+                315-5248  - Hardware multiplier (x2)
+                315-5249  - Hardware divider (x2)
+                315-5250  - 68000 / Z80 interface, hardware comparator
+           Sony CXD1095Q  - I/O chip (x2)
+                ADC0801   - Single channel ADC
+ Sound
+                YM2151
+                315-5218 (16 channel stereo PCM controller)
+ PALs
+                315-5290  - Main CPU address decoding
+                315-5291  - Main CPU address decoding
+                315-5278  - Sprite ROM bank control
+                315-5304  - Video priority mixer (LOF)
+                315-5279  - Video priority mixer (AB,AB2)
+                315-5280  - Z80 address decoding
+
+ Description
+
+ The "X-Board" hardware is an interesting mix between different platforms.
+ It has two CPUs and a road generator like Enduro Racer, the System 16B
+ tilemap chip, and a new sprite system that is programmed similar to the
+ line sprites from both systems, but is actually framebuffer based like
+ the later "Y-Board" and System 24 hardware.
+
+ ----------------------------------------------------------------------------
+ System timing and interrupts
+ ----------------------------------------------------------------------------
+
+ Clock speeds
+
+ 68000          12.5 MHz
+ 68000          12.5 MHz
+ Z80             4.0 MHz
+ YM2151          4.0 MHz
+ 315-5218       16.0 MHz
+ ADC0801         1.25 MHz
+
+ The 315-5218 may actually run at some fraction of the input clock, it is
+ directly connected to a 16 MHz oscillator.
+
+ Display timing
+
+ - Pixel clock: 6.25 MHz
+ - Horizontal scan rate: 15.720 KHz
+ - 60 frames per second
+ - 262 lines per frame
+
+ Interrupts
+
+ The main CPU has the following connections:
+
+ /IPL2 = /GXINT from 315-5275 (Vertical blank)
+ /IPL1 = /68KINT0 from 315-5230 (Timer)
+ /IPL0 = +5V
+
+ The vertical blank interrupt occurs at the start of scanline 223 and does
+ not have to be acknowledged.
+
+ The timer interrupt is explained in more detail later.
+
+ When the vertical blank and timer interrupts occur at the same time, a
+ level 6 interrupt is triggered.
+
+ ----------------------------------------------------------------------------
+ Main CPU memory map
+ ----------------------------------------------------------------------------
+
+ Address bits A23 through A22 are unused.
+
+ 000000-03FFFF : ROM (IC58,63)
+ 040000-07FFFF : ROM (IC57,62)
+ 080000-09FFFF : Work RAM #2 (16K) (IC60, 55)
+ 0A0000-0BFFFF : Work RAM #1 (16K) (IC61, 56)
+ 0C0000-0CFFFF : Tile RAM (64K) (IC135,34)
+ 0D0000-0DFFFF : Text RAM (4K) (IC133,132)
+ 0E0000-0E3FFF : Hardware multiplier (315-5248, IC107)
+ 0E4000-0E7FFF : Hardware divider    (315-5249, IC108)
+ 0E8000-0EBFFF : Hardware comparator, timer, Z80 communication (315-5250, IC53)
+ 0EC000-0FFFFF : Unused. Lockup on read or write.
+ 100000-10FFFF : Sprite RAM (4K accessible of 8K total)
+ 110000-11FFFF : 315-5211A render trigger (w/o, lockup on read)
+ 120000-12FFFF : Color RAM (16K)
+ 130000-13FFFF : ADC
+ 140000-14FFFF : I/O chip #1 (IC160)
+ 150000-15FFFF : I/O chip #2 (IC159)
+ 160000-16FFFF : I/O control (w/o) (w/o, lockup on read)
+ 170000-17FFFF : (Unmapped, no DTACK) (w/o, lockup on read)
+ 180000-1FFFFF : Unused. Lockup on read or write.
+ 200000-23FFFF : ROM (IC20,29)
+ 240000-27FFFF : ROM (IC21,30)
+ 280000-29FFFF : RAM (16K) (IC31,22)
+ 2A0000-2BFFFF : RAM (16K) (IC32,23)
+ 2C0000-2DFFFF : Unused. Reads return "open bus" value of the sub CPU.
+ 2E0000-2E3FFF : Hardware multiplier (315-5248, IC107)
+ 2E4000-2E7FFF : Hardware divider (315-5249, IC108)
+ 2E8000-2EBFFF : Hardware comparator (315-5250, IC53)
+ 2EC000-2EDFFF : Road RAM (4K accessible of 8K total) (IC39,38)
+ 2EE000-2EFFFF : Road generator internal register(s) (315-5275, IC42)
+ 2F0000-2F3FFF : Expansion connector. If nothing attached, reads return "open bus" value of the sub CPU and writes do nothing.
+ 2F4000-2FFFFF : Unused. Reads return "open bus" value of the sub CPU.
+ 300000-3F7FFF : Unused. Lockup on read or write.
+ 3F8000-3FBFFF : Work RAM #2 (16K) (mirror)
+ 3FC000-3FFFFF : Work RAM #1 (16K) (mirror)
+
+ ----------------------------------------------------------------------------
+ Sub CPU memory map
+ ----------------------------------------------------------------------------
+
+ Address bits A23 through A20 are unused.
+
+ 000000-03FFFF : ROM (IC20,29)
+ 040000-07FFFF : ROM (IC21,30)
+ 080000-09FFFF : RAM (16K) (IC31,22)
+ 0A0000-0BFFFF : RAM (16K) (IC32,23)
+ 0C0000-0DFFFF : Unused(Unmapped, reads return garbage, writes unused)
+ 0E0000-0E3FFF : Hardware multiplier (315-5248, IC107)
+ 0E4000-0E7FFF : Hardware divider (315-5249, IC108)
+ 0E8000-0EBFFF : Hardware comparator (315-5250, IC53)
+ 0EC000-0EDFFF : Road RAM (8K, accessible in two 4K banks mirrored twice) (IC39,38)
+ 0EE000-0EFFFF : Road generator internal register(s) (315-5275, IC42)
+ 0F0000-0F3FFF : /EXCS (CN I)
+ 0F4000-0FFFFF : (Unmapped, lock if r/w)
+
+ ----------------------------------------------------------------------------
+ 315-5248 - Hardware multiplier
+ ----------------------------------------------------------------------------
+
+ The 315-5248 performs a fast 16x16 signed multiply with a 32-bit result.
+ It has four registers:
+
+ $0000 : Operand A
+ $0002 : Operand B
+ $0004 : Result (bits 31-16)
+ $0006 : Result (bits 15-0)
+
+ The operands can be written to in any order to produce a correct result,
+ and the result is updates as soon as either register is written to.
+
+ Byte writes to $0000 or $0002 loads the high and low bytes with bits 7-0 of
+ the data written.
+
+ Byte writes to $0001 or $0003 does nothing and the existing value is not
+ modified.
+
+ Word and byte reads from any address are valid.
+
+ ----------------------------------------------------------------------------
+ 315-5249
+ ----------------------------------------------------------------------------
+
+
+ ----------------------------------------------------------------------------
+ 315-5250
+ ----------------------------------------------------------------------------
+
+ This chip has several functions:
+
+ - Provides interface for main CPU to access sub CPU memory map.
+ - Communication with the Z80.
+ - Has a 12-bit timer.
+ - Has two sets of registers for performing comparisons.
+
+ Main CPU registers:
+
+ Address    Acc.    Description
+
+ $0E8000    r/w     Bound #1
+ $0E8002    r/w     Bound #2
+ $0E8004    r/w     Value
+ $0E8006    r/o     Status
+ $0E8008    r/w     History (write to clear history)
+ $0E800A    r/o     Bound #2 (mirror)
+ $0E800C    r/w     Value (mirror, writes do not update history)
+ $0E800E    r/o     Result
+ $0E8010    w/o     Timer frequency
+ $0E8012    r/w     Timer interrupt acknowledge
+ $0E8014    w/o     Timer start/stop
+ $0E8016    w/o     Z80 sound command
+ $0E8018    w/o     Timer frequency (mirror)
+ $0E801A    r/w     Timer interrupt acknowledge (mirror)
+ $0E801C    w/o     Timer start/stop (mirror)
+ $0E801E    w/o     Z80 sound command (mirror)
+
+ (Repeats every 16 words)
+
+ Sub CPU registers:
+
+ $0E8000    r/w     Bound #1
+ $0E8002    r/w     Bound #2
+ $0E8004    r/w     Value
+ $0E8006    r/o     Status
+ $0E8008    r/w     History (write to clear history)
+ $0E800A    r/o     Bound #2 (mirror)
+ $0E800C    r/w     Value (mirror, writes do not update history)
+ $0E800E    r/o     Result
+
+ (Repeats every 8 words)
+
+ ----------------------------------------------------------------------------
+ Timer overview
+ ----------------------------------------------------------------------------
+
+ The 315-5250 contains a 12-bit up-counter clocked by the EXCK pin.
+ Jumpers S15 through S17 allow this pin to be connected to the following
+ sources:
+
+ Jumper  Pin   Source                              Frequency
+ S15     V0    315-5275 scanline counter, bit 0    131 pulses per frame
+ S16     V1    315-5275 scanline counter, bit 1    65.5 pulses per frame
+ S17     V2    315-5275 scanline counter, bit 2    32.75 pulses per frame
+
+ Typically jumper S15 is shorted, giving the timer a granularity of 127.22us.
+ Most games use a value of $FE0 to cause an interrupt ever 4ms.
+
+ Registers are
+
+ $0E8010 : Timer count
+
+ MSB             LSB
+ ---- nnnn nnnn nnnn
+
+ n = Timer count (0= slowest, 1= fastest)
+ - = Not used
+
+ $0E8012 : Timer interrupt acknowledge
+
+ Reading or writing this register (byte or word access OK) will acknowledge
+ the timer interrupt.
+
+ $0E8014 : Timer enable
+
+ MSB             LSB
+ ---- ---- ---- ---e
+
+ e = Timer enable (0= off, 1= on)
+ - = Not used
+
+ Timer quirks
+
+ If the timer count value is $FFF, it will generate interrupts at the same
+ rate as the input clock regardless of the timer enable bit.
+
+ Assuming V0 was used as the clock source, this would give 131 interrupts
+ per frame.
+
+ ----------------------------------------------------------------------------
+ Palette
+ ----------------------------------------------------------------------------
+
+ Color RAM is 16K, organized as 8K 16-bit entries:
+
+ D15 : Shadow/hilight (0= off, 1= on)
+ D14 : Blue component, bit 0
+ D13 : Green component, bit 0
+ D12 : Red component, bit 0
+ D11 : Blue component, bit 4
+ D10 : Blue component, bit 3
+ D9  : Blue component, bit 2
+ D8  : Blue component, bit 1
+ D7  : Green component, bit 4
+ D6  : Green component, bit 3
+ D5  : Green component, bit 2
+ D4  : Green component, bit 1
+ D3  : Red component, bit 4
+ D2  : Red component, bit 3
+ D1  : Red component, bit 2
+ D0  : Red component, bit 1
+
+ Color RAM is divided up as follows (preliminary)
+
+ 0000-1FFF : Sprites (256 16-color palettes)
+ 2000-2FFF : Road layer
+ 2F00-2FFF : Road line color table (128 entries)
+ 3000-3FFF : Text layer (256 8-color palettes) (not correct)
+
+ See the section on the video priority mixing detail for a more in-depth
+ look at how color RAM is accessed by the rest of the video hardware.
+
+ Color RAM access
+
+ Access to color RAM is shared beteween the video hardware and CPU. Accesses
+ by the CPU take precendence, so if color RAM is written to or read during
+ the active display period, whatever value that was written or read is also
+ displayed as the color for the currently displayed pixel.
+
+ ----------------------------------------------------------------------------
+ Sprites
+ ----------------------------------------------------------------------------
+
+ The 315-5211A has acess to 8K of RAM divided into two 4K banks, and 512K
+ of RAM divided into two 512x256 16-bit framebuffers. The 315-5211A controls
+ selection of which 4K bank is available.
+
+ Generally speaking the 315-5211A parses one list while giving the CPU access
+ to the other, and renders to one framebuffer while displaying the other.
+ Writing to $110000 triggers the rendering sequence and further writes are
+ ignored until rendering stops.
+
+ The only indicator the 315-5211A gets about the display state is the
+ VBlank interrupt, so it most likely stops rendering at that point.
+
+ Each 4K bank of sprite RAM contains 256 16-byte entries describing a single
+ sprite. The sprites are rendered to the framebuffer in the same order they
+ appear in the list, so sprite #255 overwrites sprite #0.
+
+ With enough sprites displayed it is possible to have the render process
+ aborted due to a lack of time, in which case the last sprite being drawn
+ may only be partially drawn to the framebuffer.
+
+ Sprites are clipped when drawn to the framebuffer; any portion of a sprite
+ that exceeds the 512x256 framebuffer space is not drawn.
+
+ Sprite ROM data is arranged as 256K banks (64Kx32-bits) Each 32-bit word
+ read from sprite ROM holds eight 4-bit pixels. The pitch is added to the
+ 16-bit offset after each line rendered, much like System 16B.
+
+ For pixel data, $0 is transparent, $A is a shadow/hilight pen when a sprite's
+ shadow/hilight enable bit is set, and $F is an end marker (also transparent).
+
+ The format of each entry in sprite RAM is:
+
+ Offset $00
+
+     D15 : End of sprite list (1= stop, 0= continue)
+     D14 : Hide sprite (1= hide, 0= visible)
+     D13 : ?
+     D12 : Hide sprite (1= hide, 0= visible)
+ D11-D10 : Sprite ROM bank select (fed to a PAL)
+   D7-D0 : Starting line in framebuffer ($0000 = line 0)
+
+ Offset $02
+
+ D15-D0  : Sprite ROM bank offset
+
+ Offset $04
+
+ D15-D9  : Sprite pitch
+ D8-D0   : Starting pixel in framebuffer ($00B8 = pixel 0)
+
+ OFfset $06
+
+ D15     : ?
+ D14     : Shadow/hilight enable (1= Pen $A is shadow/hilight, 0= Pen $A is normal)
+ D13-D12 : Sprite priority (relating to tilemaps only)
+ D11-D0  : Sprite vertical zoom:
+           $0000 = 8x tall
+           $0080 = 4x tall
+           $0100 = 2x tall
+           $0200 = Normal height
+           $03FF = 1/2 tall
+     $0400-$05FF = 1/2 tall (all settings are the same as $400)
+     $0600-$0700 = Normal height (doubled)
+           $0780 = 2x tall (doubled)
+           $07C0 = 4x tall (doubled)
+
+ The zoom value is only valid for $0000-$03FF. Values of $0400-$05FF are
+ identical, and from $0600-$7FF the sprite gradually becomes taller again
+ but the wrong lines are doubled. I think this is unintentional and these
+ values are not supposed to be used.
+
+ Shadow/hilight mode is controlled by the tilemap chip, so I'm not sure
+ how the road layer is affected.
+
+ Offset $08
+
+ D15     : Render vertical direction (1= start line going upwards, 0= start line going downwards)
+ D14     : Sprite flip (1= flip, 0= normal) Relates to order in which end codes are parsed.
+ D13     : Render horizontal direction (1= start pixel going left, 0= start pixel going right)
+ D12     : Unknown. May disable or change end code pixel value.
+ D11-D0  : Sprite horizontal zoom:
+           $0000 = 8x wide
+           $0080 = 4x wide
+           $0100 = 2x wide
+           $0200 = Normal width
+           $0300 = 1/2 wide
+           $0400 = 1/4 wide
+     $0400-$0FFF = Invalid
+
+ Bits 15 and 13 change the direction data is rendered to the framebuffer;
+ e.g. setting bit 13 renders pixels in a line from the starting pixel going
+ backwards, setting bit 15 renders pixels from the starting line going upwards.
+
+ This does not change how the end codes are parsed; bit 14 is a true
+ horizontal flip bit in that sense. (data still rendered in the order specified
+ by bits 15, 13)
+
+ Much like the Y-zooming, X-zoom values of $0400-$0FFF start off at 1/4th
+ wide and gradually expand to reach 8x wide at the end ($0FFF). However these
+ values are invalid and while the sprite shrinks down to something like 1/8th
+ or 1/16th, there are many rendering errors (end codes skipped, all sorts of
+ garbage) probably due to the wrong data being returned.
+
+ Offset $0A
+
+ D15-D12 : ?
+ D11-D0  : Sprite height in framebuffer.
+
+ The framebuffer is only 256 lines tall, so values larger than that are
+ clipped.
+
+ Offset $0C
+
+ D15-D8  : ?
+ D7-D0   : Sprite palette.
+
+ Offset $0F
+
+ Does nothing.
+
+ ----------------------------------------------------------------------------
+ I/O hardware
+ ----------------------------------------------------------------------------
+
+ Two Sony CXD1095Q I/O chips are used. Each has the following capabilities:
+
+ - Five I/O ports; A through D are 8 bits and E is 4 bits.
+ - Pin direction can be set for bit groups 7-4 or 3-0 for ports A through D.
+ - Pin direction can be set for bits 3-0 individually for port E.
+ - Output-disable pin to force input mode for ports A through D.
+
+ Each port consists of an output latch which is loaded when the port
+ is written to, and an input buffer. When in output mode, reading a port
+ returns the latch contents. When in input mode, the latch does nothing
+ (though it can still be written to) and reading a port returns the input
+ buffer data.
+
+ Commonly used addresses are:
+
+ $140000-$14000F : I/O chip #1
+ $150000-$15000F : I/O chip #2
+ $160000         : I/O chip output control
+
+ Each chip has eight internal registers:
+
+ $0001 - Port A data (r/w)
+ $0003 - Port B data (r/w)
+ $0005 - Port C data (r/w)
+ $0007 - Port D data (r/w)
+ $0009 - Port E data (r/w)
+ $000B - Unused
+ $000D - REG1 (w/o)
+ $000F - REG2 (w/o)
+
+ The upper 4 bits of port E, the unused register, and REG1, REG2 return zero
+ when read.
+
+ REG1 has the following layout:
+
+ Bit 7 : Port D bits 7-4 pin direction (0= output, 1= input)
+ Bit 6 : Port D bits 3-0 pin direction (0= output, 1= input)
+ Bit 5 : Port C bits 7-4 pin direction (0= output, 1= input)
+ Bit 4 : Port C bits 3-0 pin direction (0= output, 1= input)
+ Bit 3 : Port B bits 7-4 pin direction (0= output, 1= input)
+ Bit 2 : Port B bits 3-0 pin direction (0= output, 1= input)
+ Bit 1 : Port A bits 7-4 pin direction (0= output, 1= input)
+ Bit 0 : Port A bits 3-0 pin direction (0= output, 1= input)
+
+ REG2 has the following layout:
+
+ Bit 7 : Unused
+ Bit 6 : Unused
+ Bit 5 : Unused
+ Bit 4 : Unused
+ Bit 3 : Bit 3 pin direction (0= output, 1= input)
+ Bit 2 : Bit 2 pin direction (0= output, 1= input)
+ Bit 1 : Bit 1 pin direction (0= output, 1= input)
+ Bit 0 : Bit 0 pin direction (0= output, 1= input)
+
+ For the X-Board hardware these should be initialized to $03 and $FF,
+ respectively.
+
+ Default states
+
+ When the ports are inputs (by /ODEN==L or REG1=$FF), their values
+ (as read by the CPU) are:
+
+ $140001 = $00
+ $140003 = $00
+ $140005 = $00
+ $140007 = $00
+ $140009 = $00
+
+ $150001 = $FF
+ $150003 = $FF
+ $150005 = $FF
+ $150007 = $FF
+ $150009 = $00
+
+ Output disable control
+
+ Each I/O chip has an input called /ODEN. When pulled low, ports A through D
+ become inputs in all eight bits.
+
+ Writing to ports A-D will update the internal latch, but the pin state
+ is unchanged. Reading ports A-D will return their input data, just as
+ if REG1 = $FF (though REG1 hasn't changed).
+
+ Accessing any location within $160000-$16FFFF latches bit 0 of the data
+ bus and outputs it to the /ODEN pin of both I/O chips. When /ODEN is low,
+ all pins of ports A through D become inputs. When /ODEN is high, the ports
+ are programmable through REG2.
+
+ Port E is unaffected by /ODEN, and none of the internal registers are
+ modified while /ODEN is low; furthermore changes to registers are
+ accepted though direction changes are not noticable until /ODEN is high.
+
+ ----------------------------------------------------------------------------
+ I/O chip #1
+ ----------------------------------------------------------------------------
+
+ Port A
+
+ D7: (Not connected)
+ D6: /INTR of ADC0804
+ D5: CN C pin 24 (switch state 0= open, 1= closed)
+ D4: CN C pin 23 (switch state 0= open, 1= closed)
+ D3: CN C pin 22 (switch state 0= open, 1= closed)
+ D2: CN C pin 21 (switch state 0= open, 1= closed)
+ D1: CN C pin 20 (switch state 0= open, 1= closed)
+ D0: CN C pin 19 (switch state 0= open, 1= closed)
+
+ Port B
+
+ D7: CN C pin 17
+ D6: CN C pin 15
+ D5: CN C pin 13
+ D4: CN C pin 11
+ D3: CN C pin 9
+ D2: CN C pin 7
+ D1: CN C pin 5
+ D0: CN C pin 3
+
+ Output state (to rest of hardware) when port is an input is $FF.
+
+ Port C
+
+ D7: (Not connected)
+ D6: (/WDC)
+ D5: Screen display (1= blanked, 0= displayed)
+ D4: (ADC2)
+ D3: (ADC1)
+ D2: (ADC0)
+ D1: (CONT)
+ D0: Sound section reset (1= normal operation, 0= reset)
+
+ CONT is connected to the sprite generator. When set to '1', the rendering
+ time seems to be reduced. Normally left at '0'.
+
+ /WDC is the output to the watchdog clock. Depending on the positions of
+ jumpers S35 and S36, /WDC either needs to be pulsed or the watchdog clock
+ is automatically pulsed by the V-Blank interrupt.
+
+ Bit 0 is a common reset line to the Z80, YM2151, YM3012, and 315-5218.
+
+ Output state (to rest of hardware) when port is an input is $00.
+
+ Port D
+
+ D7: Amplifier mute control (1= sounding, 0= muted)
+ D6: CN D pin A17 (output level 1= high, 0= low)
+ D5: CN D pin A18 (output level 1= high, 0= low)
+ D4: CN D pin A19 (output level 1= high, 0= low)
+ D3: CN D pin A20 (output level 1= high, 0= low)
+ D2: CN D pin A21 (output level 1= high, 0= low)
+ D1: CN D pin A22 (output level 1= high, 0= low)
+ D0: CN D pin A23 (output level 1= high, 0= low)
+
+ Output state (to rest of hardware) when port is an input is $00.
+
+ Port E
+
+ D3: (Not connected)
+ D2: (Not connected)
+ D1: (Not connected)
+ D0: (Not connected)
+
+ ----------------------------------------------------------------------------
+ I/O chip #2
+ ----------------------------------------------------------------------------
+
+ Port A
+
+ D7: CN D pin A1 (switch state 1= open, 0= closed)
+ D6: CN D pin A2 (switch state 1= open, 0= closed)
+ D5: CN D pin A3 (switch state 1= open, 0= closed)
+ D4: CN D pin A4 (switch state 1= open, 0= closed)
+ D3: CN D pin A5 (switch state 1= open, 0= closed)
+ D2: CN D pin A6 (switch state 1= open, 0= closed)
+ D1: CN D pin A7 (switch state 1= open, 0= closed)
+ D0: CN D pin A8 (switch state 1= open, 0= closed)
+
+ Port B
+
+ D7: CN D pin A9  (switch state 1= open, 0= closed)
+ D6: CN D pin A10 (switch state 1= open, 0= closed)
+ D5: CN D pin A11 (switch state 1= open, 0= closed)
+ D4: CN D pin A12 (switch state 1= open, 0= closed)
+ D3: CN D pin A13 (switch state 1= open, 0= closed)
+ D2: CN D pin A14 (switch state 1= open, 0= closed)
+ D1: CN D pin A15 (switch state 1= open, 0= closed)
+ D0: CN D pin A16 (switch state 1= open, 0= closed)
+
+ Port C (DIP switch A)
+
+ D7: Switch 1 (1= off, 0= on)
+ D6: Switch 2 (1= off, 0= on)
+ D5: Switch 3 (1= off, 0= on)
+ D4: Switch 4 (1= off, 0= on)
+ D3: Switch 5 (1= off, 0= on)
+ D2: Switch 6 (1= off, 0= on)
+ D1: Switch 7 (1= off, 0= on)
+ D0: Switch 8 (1= off, 0= on)
+
+ Port D (DIP switch B)
+
+ D7: Switch 1 (1= off, 0= on)
+ D6: Switch 2 (1= off, 0= on)
+ D5: Switch 3 (1= off, 0= on)
+ D4: Switch 4 (1= off, 0= on)
+ D3: Switch 5 (1= off, 0= on)
+ D2: Switch 6 (1= off, 0= on)
+ D1: Switch 7 (1= off, 0= on)
+ D0: Switch 8 (1= off, 0= on)
+
+ Port E
+
+ D3: (Not connected)
+ D2: (Not connected)
+ D1: (Not connected)
+ D0: (Not connected)
+
+ ----------------------------------------------------------------------------
+ Analog inputs
+ ----------------------------------------------------------------------------
+
+ An ADC0801 (single channel ADC) is used along with a multiplexer to provide
+ eight (six usable) analog inputs.
+
+ The ADC is typically accessed at any odd address within $130001-$13FFFF.
+ Writing to it will start the conversion process; /INTR will remain high
+ until the conversion has finished. Then /INTR will remain low until the ADC
+ is read, returning an 8-bit value.
+
+ Bits 5-3 of I/O chip #1 port C select one of eight analog inputs to be
+ sampled. Inputs 6 and 7 are tied to ground, and their digitized
+ representation is always zero.
+
+ With nothing connected to a given input, it tends to be at a mid-range level
+ ($50-$80) after power-up and decay over several minutes to values in the
+ range of $08-$1F.
+
+ The ADC0801 is clocked by the E output of the main 68000; this gives it
+ an effective rate of 1.25 MHz.
+
+ ----------------------------------------------------------------------------
+ Sound hardware
+ ----------------------------------------------------------------------------
+
+ Timing
+
+ Z80 @ 4 MHz
+ YM2151 @ 4 MHz
+ 315-5218 @ 16MHz (input clock, operating frequency unknown)
+
+ Z80 memory map
+
+ 0000-EFFF : ROM (IC17)
+ F000-F7FF : 315-5218 memory (256 bytes) (IC10, IC9)
+ F800-FFFF : Work RAM (IC16)
+
+ The upper 4K of ROM is inaccessible.
+
+ Z80 port map
+
+ 00-3F : YM2151 register status and data
+ 40-7F : Sound command
+ 80-FF : Unused
+
+ There is no hardware mapped to port $C0, though some games will write to
+ it during their startup routine.
+
+ Interrupts
+
+ /INT - From the YM2151 timers
+ /NMI - Triggered when a sound command is issued by the main CPU.
+
+ Overview
+
+ The 315-5218 can play back 16 channels of 8-bit PCM data in stereo. It
+ has no internal registers, instead it is connected to 4K of RAM (only 256
+ bytes are accessible) that stores settings for each channel.
+
+ Sample banking (preliminary)
+
+ The sample ROM address bus is 16 bits wide, and multiplexed so the lower
+ 16 bits are output when /GL is high, and the upper 16 bits are output when
+ /GL is low.
+
+ External hardware manages ROM selection based on the upper bits, which
+ are used as follows when /GL is asserted:
+
+ DD15 (SA31) - Unused
+ DD14 (SA30) - Unused
+ DD13 (SA29) - Unused
+ DD12 (SA28) - Unused
+ DD11 (SA27) - Unused
+ DD10 (SA26) - Unused
+ DD9  (SA25) - Unused
+ DD8  (SA24) - Unused
+ DD7  (SA23) - Unused
+ DD6  (SA22) - ROM select bit 1
+ DD5  (SA21) - ROM select bit 0
+ DD4  (SA20) - Sample ROM(s) A16
+ DD3  (SA19) - Unused
+ DD2  (SA18) - Unused
+ DD1  (SA17) - Unused
+ DD0  (SA16) - Unused
+
+ The select bit values are:
+
+ DD6 DD5
+  0   0     IC11
+  0   1     IC12
+  1   0     IC13
+  1   1     None selected (data returned is always $FF)
+
+ Sample address         ROM     ROM offset
+
+ $00000000-$000FFFFF    IC11    $000000-$00FFFF
+ $00100000-$001FFFFF    IC11    $100000-$01FFFF
+ $00200000-$002FFFFF    IC12    $000000-$00FFFF
+ $00300000-$003FFFFF    IC12    $100000-$01FFFF
+ $00400000-$004FFFFF    IC13    $000000-$00FFFF
+ $00500000-$005FFFFF    IC13    $100000-$01FFFF
+
+ Sound output
+
+ The 315-5218 output has a resolution of 12 bits; however only the upper 10
+ bits are sent to a 10-bit DAC and the lower 2 are unused.
+
+ ----------------------------------------------------------------------------
+ Miscellaneous
+ ----------------------------------------------------------------------------
+
+ The main CPU can access the sub CPU address space at any time, the sub CPU
+ is halted while an access occurs.
+
+ On power-up, the sub CPU is running. To synchronize with the main CPU, it
+ typically enters a loop waiting for RAM to change.
+
+ The main CPU can reset the sub CPU at by executing a RESET instruction at
+ any time.
+
+ When reading "open bus" locations on the sub CPU side through the main CPU,
+ using an instruction that performs consecutive memory accesses allows the
+ data bus of the sub CPU to be read at each cycle.
+
+ For example, here is a program the main CPU would execute:
+
+ move.l   #'SEGA', $29C000
+ reset                          ; Reset sub CPU
+ movem.l  $2F0000, d0-d7/a0-a7  ; Read memory continuously
+ movem.l  d0-d7/a0-a7, buffer   ; Store result
+
+ The sub CPU has the following vector table and startup code sequence in
+ this example:
+
+ SP:      $000A4000                         ; 000000 00 0A 40 00
+ PC:      $00000406                         ; 000004 00 00 04 06
+ MOVE     #$2700,SR                         ; 000406 46 FC 27 00
+ CLR.L    $0009C000                         ; 00040A 42 B9 00 09 C0 00
+ MOVE.L   $0009C000,D0                      ; 000410 20 39 00 09 C0 00
+ CMPI.L   #$44414920,D0                     ; 000416 0C 80 44 41 49 20
+ BNE.S    *-$0C       [00000410]            ; 00041C 66 F2
+ MOVEQ    #$00,D0                           ; 00041E 70 00
+
+ Data read back is:
+
+ FFFF   Internal operation (end of reset)
+ 000A   Stack pointer high word
+ 4000   Stack pointer low word
+ 0000   Program counter high word
+ 0406   Program counter low word
+ 46FC   Opcode (move.w #$2700, sr)
+ 2700   Operand
+ 42B9   Opcode (clr.l $0009C000)
+ 42B9   ?
+ 0009   Operand high word
+ C000   Operand low word
+ 2039   Opcode (move.l $0009C000, d0) (loop start)
+ 5345   Data @ $09C000 ("SE", should have been cleared?)
+ 4741   Data @ $09C002 ("GA", should have been cleared?)
+ 0009   Operand high word
+ 0000   ?
+ 0000   ?
+ C000   Operand low word
+ 0C80   Opcode (cmpi.l #$44414920, d0)
+ 0000   Data @ $09C000 (now zero)
+ 0000   Data @ $09C002 (now zero)
+ 4441   Operand high word
+ 4920   Operand low word
+ 66F2   Opcode (bne.s loop)
+ 7000   Prefetch value (moveq #$00, d0)
+ 2039   Start of loop again
+
+ After the RESET instruction, a single NOP will skip one cycle on the sub
+ CPU side, so you can get a detailed view of the sub CPU bus activity down
+ to the per-cycle level.
+
+ ----------------------------------------------------------------------------
+ 315-5290
+ ----------------------------------------------------------------------------
+
+                +----v----+
+           MA21 |01 i   20| VCC
+           MA20 |02 i o 19| /DTAP0
+           MA19 |03 i o 18| /COLOR
+           MA18 |04 i o 17| /MMCS
+           MA17 |05 i o 16| /MCCS
+           MA16 |06 i o 15| /RAM_1
+           MA15 |07 i o 14| /RAM_0
+           MA14 |08 i o 13| /ROM_1
+           /MAS |09 i o 12| /ROM_0
+            GND |10   i 11| /RESET
+                +---------+
+
+ /ROM_0 asserted when /MAS low for $000000-$03FFFF.
+ /ROM_1 asserted when /MAS low for $040000-$07FFFF.
+ /RAM_0 asserted when /MAS low and /RESET high for $0A0000-$0BFFFF and $3FC000-$3FFFFF..
+ /RAM_1 asserted when /MAS low and /RESET high for $080000-$09FFFF and $3F8000-$3FBFFF..
+ /MCCS asserted when when /MAS low for $0E8000-$0EBFFF.
+ /MMCS asserted when when /MAS low for $0E0000-$0E3FFF.
+ /COLOR asserted when when /MAS low for $120000-$12FFFF.
+ /DTAP0 asserted when /MAS and:
+    /RESET low for $000000-$07FFFF, $0E0000-$0E3FFF, $0E8000-$0EBFFF, $120000-$12FFFF,
+    /RESET high for $080000-$0BFFFF and $3F8000-$3FFFFF.
+
+ - RAM is disabled during a reset.
+ - DTACK is generated for both ROMs, 315-5248 registers, 315-5250 registers, color RAM, and work RAM.
+
+ ----------------------------------------------------------------------------
+ 315-5291
+ ----------------------------------------------------------------------------
+
+                +----v----+
+           MA21 |01 i   20| VCC
+           MA20 |02 i o 19| /OTHER
+           MA19 |03 i o 18| /MDCS
+           MA18 |04 i o 17| /MSCS
+           MA17 |05 i o 16| /VRAM
+           MA16 |06 i o 15| /OBJ
+           MA15 |07 i o 14| /ADC
+           MA14 |08 i o 13| /OBJBK
+           /MAS |09 i o 12| /IO
+            GND |10   i 11| MRD
+                +---------+
+
+ /IO asserted when /MAS low for $140000-$17FFFF
+ /OBJBK asserted when /MAS low and MRD low for $110000-$11FFFF.
+ /ADC asserted when /MAS low for $130000-$13FFFF
+ /OBJ asserted when /MAS low for $100000-$10FFFF.
+ /VRAM asserted when /MAS low for $0C0000-$0DFFFF.
+ /MSCS asserted when /MAS low for $200000-$2FFFFF.
+ /MDCS asserted when /MAS low for $0E4000-$0E7FFF.
+ /OTHER asserted for: $0C0000-$0DFFFF, $100000-$10FFFF, $120000-$17FFFF,
+
+ - The range $170000-$17FFFF is unused.
+ - /OTHER enables buffers on data bus MDC.
+
+ ----------------------------------------------------------------------------
+ 315-5278
+ ----------------------------------------------------------------------------
+
+                +----v----+
+           SD16 |01 i   20| VCC
+           SD17 |02 i o 19| A16/BOE
+           SD18 |03 i o 18| AOE/B16
+           SD19 |04 i o 17| C16/DOE
+          ADLCH |05 i o 16| COE/D16
+            A/B |06 i o 15| /CG_0
+            C/D |07 i o 14| /CG_1
+        A16/BOE |08 i o 13| /CG_2
+         (N.C.) |09 i o 12| /CG_3
+            GND |10   o 11| /CG_3
+                +---------+
+
+ /CG_0 is /CE for IC102, IC98, IC94, IC90
+ /CG_1 is /CE for IC103, IC99, IC95, IC91
+ /CG_2 is /CE for IC104, IC100, IC96, IC92
+ /CG_3 is /CE for IC105, IC101, IC97, IC93
+
+ A16/BOE goes to ROM pin 24 for IC102, IC98, IC94, IC90, IC103, IC99, IC95, IC91
+ AOE/B16 goes to ROM pin 2 for IC102, IC98, IC94, IC90, IC103, IC99, IC95, IC91
+ C16/DOE goes to ROM pin 24 for IC104, IC100, IC96, IC92, IC105, IC101, IC97, IC93
+ COE/D16 goes to ROM pin 2 for IC104, IC100, IC96, IC92, IC105, IC101, IC97, IC93
+
+ Pins 11,12 are tied together.
+ Pin 8 is an input from pin 19.
+
+ Pin A/B is connected to a jumper to select the type of data output
+ on the A16/BOE and AOE/B16 pins:
+
+ A/B    A16/BOE     AOE/B16
+  1     ROM A16     ROM /OE     MASK pinout (A16 and /OE swapped)
+  0     ROM /OE     ROM A16     JEDEC pinout (standard)
+
+ C/D    C16/DOE     COE/D16
+  1     ROM A16     ROM /OE     MASK pinout (A16 and /OE swapped)
+  0     ROM /OE     ROM A16     JEDEC pinout (standard)
+
+ ----------------------------------------------------------------------------
+ Video priority mixer
+ ----------------------------------------------------------------------------
+
+ IC127 is the video priority mixer. I'll discuss the general connections to
+ this chip that apply to 315-5279, 315-5304, etc.
+
+                +----v----+
+            /6M |01 i   20| VCC
+           CCS1 |02 i o 19| CAD10
+           CCS2 |03 i o 18| /OBJ
+           /FIX |04 i o 17| /SCR
+            /SA |05 i o 16| CAD11
+            /SB |06 i o 15| CAD12
+            RC3 |07 i x 14| (N.C.)
+            RC4 |08 i o 13| /RCAD
+          OBJ15 |09 i x 12| (N.C.)
+            GND |10     11| GND
+                +---------+
+
+ /6M   - Pixel clock
+ CCS1  - Tilemap background priority
+ CCS2  - Tilemap foreground priority
+ /FIX  - Tilemap text layer opacity
+ /SA   - Tilemap foreground opacity
+ /SB   - Tilemap background opacity
+ RC3   - Road layer priority
+ RC4   - Road layer priority
+ OBJ15 - Sprite framebuffer data bit 15
+ /RCAD - Enables pixel bus output from 315-5275; and disables pixel bus
+         output from 315-5197.
+ CAD12 - Color RAM address bit 12
+ CAD11 - Color RAM address bit 11
+ CAD10 - Color RAM address bit 10
+ /OBJ  - Enables output of OBJ8-OBJ15 to CAD4-10
+ /SCR  - Enables output of CA4-7 to CAD4-7
+
+ Part of the tilemap and road generator pixel bus are tied together, however
+ only one or the other can be enabled.
+
+ The tilemap chip has a pixel bus input which was originally used to accept
+ data from the System 16B sprite line buffers. Here are it's connections
+ for that platform and from the X-Board framebuffer:
+
+ Signal     System 16B          X-Board
+
+ CD0        OBJ0 (Pixel 0)      OBJ0 (Pixel 0)
+ CD1        OBJ1 (Pixel 1)      OBJ1 (Pixel 1)
+ CD2        OBJ2 (Pixel 2)      OBJ2 (Pixel 2)
+ CD3        OBJ3 (Pixel 3)      OBJ3 (Pixel 3)
+ CD4        OBJ4 (Palette 0)   !OBJ0 (Pixel 0)
+ CD5        OBJ5 (Palette 1)    OBJ1 (Pixel 1)
+ CD6        OBJ6 (Palette 2)   !OBJ2 (Pixel 2)
+ CD7        OBJ7 (Palette 3)    OBJ3 (Pixel 3)
+ CD8        OBJ8 (Palette 4)    OBJ6 (?)
+ CD9        OBJ9 (Palette 5)    OBJ6 (?)
+ CD10       OBJ10 (Priority 0)  OBJ4 (?)
+ CD11       OBJ11 (Priority 1)  OBJ5 (?)
+
+ The tilemap generator outputs the shadow/hilight enable signal.
+ For System 16B this happens when the sprite palette is $3F (OBJ4-9 are set).
+
+ Sprites have their own shadow/hilight enable bit and a specific pen used
+ for this mode. Based on the above, the sprite pixel stream has to be:
+
+ MSB             LSB
+ xxxx xxxx ?1xx 1010
+
+ This assigns the shadow/hilight color to pen $A. We can therefore assume
+ the following layout:
+
+ OBJ3-OBJ0      Pixel data from ROM
+ OBJ5-OBJ4      Sprite priority (bits 13-12 of word $3) (priority between sprites and tilemaps ONLY; not counting purpose of OBJ15)
+ OBJ6           Sprite shadow/hilight control (bit 14 of word $3, 0=normal, 1=shadow/hilight)
+ OBJ7           Not used
+ OBJ15-OBJ8     Sprite palette (bits 7-0 of word $7)
+
+ Normally OBJ15 would drive the most significant bit of the color RAM bus,
+ instead this is fed to IC127 which does the same thing. So OBJ15 may
+ double as a priority bit or have some additional function.
+
+ The tilemap chip has a second bus for outputting mixed tilemap and sprite
+ data, which was used to directly address color RAM for System 16B:
+
+            System 16B      System 16B      X-Board     X-Board
+            Tilemap         Sprite          Tilemap     Sprite
+ CA0        Pixel 0         Pixel 0         Pixel 0     Pixel 0
+ CA1        Pixel 1         Pixel 1         Pixel 1     Pixel 1
+ CA2        Pixel 2         Pixel 2         Pixel 2     Pixel 2
+ CA3        Palette 0       Pixel 3         Palette 0   Pixel 3
+ CA4        Palette 1       Palette 0       Palette 1   ?
+ CA5        Palette 2       Palette 1       Palette 2   ?
+ CA6        Palette 3       Palette 2       Palette 3   ?
+ CA7        Palette 4       Palette 3       Palette 4   ?
+ CA8        Palette 5       Palette 4       Palette 5   ?
+ CA9        Palette 6       Palette 5       Palette 6   ?
+ CA10       Fixed '0'       Fixed '1'       Fixed '0'   ?
+
+ The color RAM bus is composed of the following:
+
+ CAD = Tilemap/Object generator pixel bus (was CA from the tilemap pixel bus output)
+ MC  = Road generator pixel bus
+ OBJ = Object generator pixel bus
+
+ CAD0       CA0 or MC0
+ CAD1       CA1 or MC1
+ CAD2       CA2 or MC2
+ CAD3       CA3 or MC3
+ CAD4       OBJ8  (/OBJ) or CA4 (/SCR) or MC4 (/RCUL) or fixed '1' (pull-up resistor)
+ CAD5       OBJ9  (/OBJ) or CA5 (/SCR) or MC5 (/RCUL) or fixed '1' (pull-up resistor)
+ CAD6       OBJ10 (/OBJ) or CA6 (/SCR) or MC6 (/RCUL) or fixed '1' (pull-up resistor)
+ CAD7       OBJ11 (/OBJ) or CA7 (/SCR) or MC7 (/RCUL) or fixed '1' (pull-up resistor)
+ CAD8       OBJ12 (/OBJ) or CA8 (/SCR) or MC8 (/RCUL) or fixed '1' (pull-up resistor)
+ CAD9       OBJ13 (/OBJ) or CA9 (/SCR) or MC9 (/RCUL) or fixed '1' (pull-up resistor)
+ CAD10      OBJ14 (/OBJ) or fixed '1' (pull-up resistor)
+ CAD11      From IC127 pin 14
+ CAD12      From IC127 pin 15
+
+ * Line of Fire doesn't have the pull-up resistor, the values tend to always
+   be zero though they technically are floating.
+
+ ----------------------------------------------------------------------------
+ 315-5280
+ ----------------------------------------------------------------------------
+
+                +----v----+
+             A6 |01 i   20| VCC
+             A7 |02 i o 19| /ZCS
+            A11 |03 i i 18| DD4
+            A12 |04 i o 17| SA16
+            A13 |05 i o 16| /DACS
+            A14 |06 i o 15| /FMCS
+            A15 |07 i o 14| /RAMCS
+          /MREQ |08 i o 13| /ROMCS
+          /IORQ |09 i i 12| /GL
+            GND |10   i 11| /M1
+                +---------+
+
+ /FMCS is asserted for I/O ports $00-$3F. (YM2151)
+ /ZCS is asserted for I/O ports $40-$7F. (Sound command latch from 315-5250)
+ /RAMCS is asserted for memory $F800-$FFFF. (2K work RAM)
+ /ROMCS is asserted for memory $0000-$EFFF. (64K program ROM)
+ /DACS is asserted for memory $F000-$F7FF. (315-5218)
+
+ SA16 follows DD4 when /GL is low, else SA15 is high.
+
+ ----------------------------------------------------------------------------
+ Assistance Needed
+ ----------------------------------------------------------------------------
+
+ The Line of Fire manual says IC127 (video priority mixer) is a custom part,
+ and it seems to be different for each game. Here's a list of what I have
+ so far:
+
+ Game               Part No.
+ After Burner       315-5279
+ Line of Fire       315-5304
+ GP Rider           ?
+ Super Monaco GP    ?
+ AB Cop             ?
+ Thunder Blade      ?
+ Last Survivor      ?
+
+ I'd like to get better quality scans of the After Burner schematics,
+ particularly of sheet 9.
+
+ ----------------------------------------------------------------------------
+ Board information
+ ----------------------------------------------------------------------------
+
+ "Line of Fire" (Japan version)
+
+ Main CPU: FD1094 (315-0134)
+ Sub CPU:  68000
+
+ Board numbers:
+
+ 834-7218 (label)
+ 834-6335 (silkscreen)
+
+ Jumper settings
+
+ S1  = Open
+ S2  = Closed
+
+ S3  = Resistor
+ S4  = Open
+
+ S5  "MASK"  = Resistor         IC20,29 pin 24 is SA17      (27C100)
+ S6  "JEDEC" = Open             IC20,29 pin 24 is /CE_0     (27C010)
+ S7  "MASK"  = Resistor         IC20,29 pin 2 is /CE_0      (27C100)
+ S8  "JEDEC" = Open             IC20,29 pin 2 is SA17       (27C010)
+
+ S9  "MASK"  = Resistor         IC21,30 pin 24 is SA17      (27C100)
+ S10 "JEDEC" = Open             IC21,30 pin 24 is /CE_0     (27C010)
+ S11 "MASK"  = Resistor         IC21,30 pin 2 is /CE_0      (27C100)
+ S12 "JEDEC" = Open             IC21,30 pin 2 is SA17       (27C010)
+
+ S13 = Open                     IC40 pin 1 to +5V                  (27C256)
+ S14 = Resistor                 IC40 pin 1 to 315-5275 pin (H2) 15 (27C512)
+
+ S15 = Resistor
+ S16 = Open
+ S17 = Open
+
+ S18 "MASK"  = Resistor         IC58,63 pin 24 is MAB17     (27C100)
+ S19 "JEDEC" = Open             IC58,63 pin 24 is /ROM_0    (27C010)
+ S20 "MASK"  = Resistor         IC58,63 pin 2 is /ROM_0     (27C100)
+ S21 "JEDEC" = Open             IC58,63 pin 2 is MAB17      (27C010)
+
+ S22 "MASK"  = Resistor         IC57,62 pin 24 is MAB17   (27C100)
+ S23 "JEDEC" = Open             IC57,62 pin 24 is /ROM_0  (27C010)
+ S24 "MASK"  = Resistor         IC57,62 pin 2 is /ROM_0   (27C100)
+ S25 "JEDEC" = Open             IC57,62 pin 2 is MAB17    (27C010)
+
+ S26 = Open                     315-5278 A/B to GND
+ S27 = Open                     315-5278 C/D to GND
+ S28 = Resistor                 315-5278 A/B to +5V
+ S29 = Resistor                 315-5278 C/D to +5V
+
+ S30 = Resistor
+
+ S31 = Open
+ S32 = Resistor
+
+ S33 = Resistor
+ S34 = Open
+
+ S35 = Open                     MB3773 CK from /WDC (I/O chip #1 port C bit 6)
+ S36 = Resistor                 MB3773 CK from /GXINT (V-Blank interrupt)
+
+ MOV-SW (IC80 "F373")
+ Resistors across all 8 pads
+
+ MOV-SW (IC81 "F373")
+ Resistors across all 8 pads
+
+ ROMs
+
+ Part Number    Pos.    Type                            Purpose
+
+ EPR-12775      IC93    Mitsubishi M5M27C100K-2         Object
+ EPR-12779      IC92    Mitsubishi M5M27C100K-2         Object
+ EPR-12783      IC91    Mitsubishi M5M27C100K-2         Object
+ EPR-12787      IC90    Mitsubishi M5M27C100K-2         Object
+ EPR-12776      IC97    Mitsubishi M5M27C100K-2         Object
+ EPR-12780      IC96    Mitsubishi M5M27C100K-2         Object
+ EPR-12784      IC95    Mitsubishi M5M27C100K-2         Object
+ EPR-12788      IC94    Mitsubishi M5M27C100K-2         Object
+ EPR-12777      IC101   Mitsubishi M5M27C100K-2         Object
+ EPR-12781      IC100   Mitsubishi M5M27C100K-2         Object
+ EPR-12785      IC99    Mitsubishi M5M27C100K-2         Object
+ EPR-12789      IC98    Mitsubishi M5M27C100K-2         Object
+ EPR-12778      IC105   Mitsubishi M5M27C100K-2         Object
+ EPR-12782      IC104   Mitsubishi M5M27C100K-2         Object
+ EPR-12786      IC103   Mitsubishi M5M27C100K-2         Object
+ EPR-12790      IC102   Mitsubishi M5M27C100K-2         Object
+
+ OPR-12791      IC154   Texas Instruments 27C512-2      Fix
+ OPR-12792      IC153   Texas Instruments 27C512-2      Fix
+ OPR-12793      IC152   Texas Instruments 27C512-2      Fix
+
+ EPR-12794      IC58    Mitsubishi M5M27C100K-2         Main program
+ EPR-12795      IC63    Mitsubishi M5M27C100K-2         Main program
+ Unused         IC57    "1M-EP" on silkscreen           Main program
+ Unused         IC62    "1M-EP" on silkscreen           Main program
+
+ EPR-12798      IC17    Texas Instruments 27C512-15     Sound program
+
+ EPR-12799      IC11    Mitsubishi M5M27C100K-2         Sound data
+ EPR-12800      IC12    Mitsubishi M5M27C100K-2         Sound data
+ EPR-12801      IC13    Mitsubishi M5M27C100K-2         Sound data
+
+ EPR-12802      IC21    Mitsubishi M5M27C100K-2         Sub program
+ EPR-12803      IC30    Mitsubishi M5M27C100K-2         Sub program
+ EPR-12804      IC20    Mitsubishi M5M27C100K-2         Sub program
+ EPR-12805      IC29    NEC D27C1000A-12                Sub program
+
+ Unused         IC40    "27C512" on silkscreen          Road
+
+ ----------------------------------------------------------------------------
+ Credits and Acknowledgements
+ ----------------------------------------------------------------------------
+
+ - B.Moto for generously donating a "Line of Fire" board.
+ - Spies Wiretap Archive for the After Burner schematics.
+
+ ----------------------------------------------------------------------------
+ Disclaimer
+ ----------------------------------------------------------------------------
+
+ If you use any information from this document, please credit me
+ (Charles MacDonald) and optionally provide a link to my webpage
+ (http://cgfm2.emuviews.com/) so interested parties can access it.
+
+ The credit text should be present in the accompanying documentation of
+ whatever project which used the information, or even in the program
+ itself (e.g. an about box).
+
+ Regarding distribution, you cannot put this document on another
+ website, nor link directly to it.
+
+ ----------------------------------------------------------------------------
+
+ TO DO:
+ - Divide chip (read/write order seems important)
+ - Road layer (switch lists on VBlank)
+ - Tilemaps (scroll registers latched in VBlank, what about row/col tables?)
+ - How are sample address bits 15-0 selected? What values are actually
+   used for the upper 16 bits?
+ - Can't display a sprite using entry #255? Any kind of list flow control?
+ - OBJ15 relating to priority. (road?)
+ - Is CAD10 an output or an input? (if input, either '1' or driven by OBJ14)
+
