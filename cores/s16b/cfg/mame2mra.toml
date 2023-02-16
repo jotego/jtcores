@@ -82,7 +82,14 @@ regions = [
     { name="maincpu",       width=16, reverse=true },
     { name="mcu",           start="MCU_START", len=0x1000, custom={ dev="i8751" } },
     { name="soundcpu",      start="JTFRAME_BA1_START" },
-    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sort_byext=true, len=0x100000 },
+
+    # six smaller ROM files
+    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sequence=[0,2,4,4,1,3,5,5], len=0x100000 },
+    # only three large ROM files
+    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sequence=[0,1,2,2], len=0x100000, machine="eswat" },
+    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sequence=[0,1,2,2], len=0x100000, machine="mvp" },
+    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4}, sequence=[0,1,2,2], len=0x100000, machine="toryumon" },
+
     { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true },
     { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
     { name="soundcpu:key",  start="SNDKEY_START", len=0x2000 },

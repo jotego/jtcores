@@ -116,12 +116,8 @@ parameter [8:0] HB_END = 9'h0bf;
 localparam [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
 localparam [9:0] SCR1_DLY= SCR2_DLY;
 
-`ifdef JTFRAME_OSD_FLIP
-    assign flipx = ext_flip ^ flip;
-`else
-    assign flipx = flip;
-    assign ext_flip = ~flip;
-`endif
+assign flipx    = flip;
+assign ext_flip = ~flip;
 
 wire [ 6:0] char_pxl;
 wire [10:0] scr1_pxl, scr2_pxl;

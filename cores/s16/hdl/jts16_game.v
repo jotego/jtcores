@@ -168,7 +168,7 @@ jts16_cen u_cen(
     .joyana3     ( joyana_l3  ),
     .joyana4     ( joyana_l4  ),
     .start_button(start_button),
-    .coin_input  ( coin_input ),
+    .coin_input  (coin_input[1:0]),
     .service     ( service    ),
     // ROM access
     .rom_cs      ( main_cs    ),
@@ -326,7 +326,9 @@ jts16_cen u_cen(
 );
 `else
     assign snd_cs=0;
+    assign sample=0;
     assign snd_addr=0;
+    assign snd_ack=1;
     `ifdef SIMULATION
     assign pcm_cs=0;
     assign pcm_addr=0;
