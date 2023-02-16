@@ -20,35 +20,35 @@ skip.setnames = [
 [header]
 data = [
     # Kabuki codes
-    { machine="cworld",   pointer=0, data="04 15 26 37 40 51 62 73 57 51 43" },
-    { machine="pang",     pointer=0, data="01 23 45 67 76 54 32 10 65 48 24" },
-    { machine="hatena",   pointer=0, data="45 67 01 23 45 67 01 23 57 51 43" },
-    { machine="spang",    pointer=0, data="45 67 01 23 45 67 01 23 58 52 43" },
+    { machine="cworld",   offset=0, data="04 15 26 37 40 51 62 73 57 51 43" },
+    { machine="pang",     offset=0, data="01 23 45 67 76 54 32 10 65 48 24" },
+    { machine="hatena",   offset=0, data="45 67 01 23 45 67 01 23 57 51 43" },
+    { machine="spang",    offset=0, data="45 67 01 23 45 67 01 23 58 52 43" },
     # keep these two below spang
-    { setname="spangj",   pointer=0, data="45 12 36 70 67 01 23 45 55 aa 5a" },
-    { setname="sbbros",   pointer=0, data="45 67 01 23 45 67 01 23 21 30 12" },
+    { setname="spangj",   offset=0, data="45 12 36 70 67 01 23 45 55 aa 5a" },
+    { setname="sbbros",   offset=0, data="45 67 01 23 45 67 01 23 21 30 12" },
 
 
-    { machine="dokaben",  pointer=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
-    { machine="dokaben2", pointer=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
-    { machine="pkladies", pointer=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
-    { machine="marukin",  pointer=0, data="54 32 10 76 54 32 10 76 48 54 4f" },
-    { machine="mgakuen2", pointer=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
+    { machine="dokaben",  offset=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
+    { machine="dokaben2", offset=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
+    { machine="pkladies", offset=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
+    { machine="marukin",  offset=0, data="54 32 10 76 54 32 10 76 48 54 4f" },
+    { machine="mgakuen2", offset=0, data="76 54 32 10 01 23 45 67 aa 55 a5" },
 
 
-    { machine="qtono1",   pointer=0, data="12 34 56 70 12 34 56 70 11 11 11" },
-    { machine="qsangoku", pointer=0, data="23 45 67 01 23 45 67 01 18 28 18" },
-    { machine="block",    pointer=0, data="02 46 13 57 64 20 75 31 00 02 01" },
+    { machine="qtono1",   offset=0, data="12 34 56 70 12 34 56 70 11 11 11" },
+    { machine="qsangoku", offset=0, data="23 45 67 01 23 45 67 01 18 28 18" },
+    { machine="block",    offset=0, data="02 46 13 57 64 20 75 31 00 02 01" },
     # GFX encoding
-    { machine="marukin",  pointer=14, data="01" },
+    { machine="marukin",  offset=14, data="01" },
     # Input type
-    { setname="blockbl",   pointer=15, data="01" },
-    { setname="blockj",   pointer=15, data="01" },
-    { setname="blockr1",   pointer=15, data="01" },
-    { setname="blockr2",   pointer=15, data="01" },
-    { setname="block",   pointer=15, data="03" },
-    { machine="qtono1",  pointer=15, data="02" },
-    { machine="cworld",  pointer=15, data="02" }
+    { setname="blockbl",   offset=15, data="01" },
+    { setname="blockj",   offset=15, data="01" },
+    { setname="blockr1",   offset=15, data="01" },
+    { setname="blockr2",   offset=15, data="01" },
+    { setname="block",   offset=15, data="03" },
+    { machine="qtono1",  offset=15, data="02" },
+    { machine="cworld",  offset=15, data="02" }
 ]
 
 [dipsw]

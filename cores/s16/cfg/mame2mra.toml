@@ -85,25 +85,23 @@ rename = [
 
 [header]
 fill=0
-dev = [
-    { byte=0x10, dev="fd1089a", value=1 },
-    { byte=0x10, dev="fd1089b", value=2 },
-    { byte=0x11, dev="fd1094",  value=1 },
-    { byte=0x13, dev="i8751",   value=1 }
-]
-machines = [
-    { byte=0x18, machine="sdi",      value=0x19 },  # enable trackball
-    { byte=0x18, setname="afighterb",value="GAME_AFIGHTAN" },  # enable analogue input
-    { byte=0x18, setname="afighterd",value="GAME_AFIGHTAN" },  # enable analogue input
-    { byte=0x18, machine="passsht",  value=2 },  # enable four players
-    { byte=0x18, setname="quartet",  value=4 },  # enable four players
-    { byte=0x18, setname="quarteta", value=4 }   # enable four players
+data = [
+    { offset=0x10, dev="fd1089a",      data="01" },
+    { offset=0x10, dev="fd1089b",      data="02" },
+    { offset=0x11, dev="fd1094",       data="01" },
+    { offset=0x13, dev="i8751",        data="01" },
+    { offset=0x18, machine="sdi",      data="19" },  # enable trackball
+    { offset=0x18, setname="afighterb",data="1d" },  # enable analogue input
+    { offset=0x18, setname="afighterd",data="1d" },  # enable analogue input
+    { offset=0x18, machine="passsht",  data="02" },  # enable four players
+    { offset=0x18, setname="quartet",  data="04" },  # enable four players
+    { offset=0x18, setname="quarteta", data="04" }   # enable four players
 ]
 
 # Sample header data
 # data=[
-#     { pointer=8,    data=[0xff, 0x43, 0x34] },
-#     { pointer=0x10, data=[0xca, 0xfe] }
+#     { offset=8,    data=[0xff, 0x43, 0x34] },
+#     { offset=0x10, data=[0xca, 0xfe] }
 # ]
 
 [ROM]

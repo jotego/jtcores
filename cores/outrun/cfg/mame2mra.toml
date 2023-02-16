@@ -22,14 +22,12 @@ bitcnt = 16
 
 [header]
 fill=0
-dev = [
-    { byte=0, dev="fd1089a", value=2 },
-    { byte=0, dev="fd1089b", value=3 },
-    { byte=0, dev="fd1094",  value=4 },
-]
 data = [
-    { machine="shangon", pointer=1, data="01" },
-    { machine="toutrun", pointer=1, data="02" }
+    { dev="fd1089a",     offset=0, data="02" },
+    { dev="fd1089b",     offset=0, data="03" },
+    { dev="fd1094",      offset=0, data="04" },
+    { machine="shangon", offset=1, data="01" },
+    { machine="toutrun", offset=1, data="02" }
 ]
 
 

@@ -43,7 +43,7 @@ names=[
 fill=0xff
 offset={ bits=10, regions=["audiocpu","qsound","gfx","firmware"], reverse=true }
 data=[
-    { pointer=16, data="""
+    { offset=16, data="""
         32 ff 00 02 04 06 26 28 2a 2c 2e 00 00 30 02 04 08 30 """ },
 # byte 40 configures joystick mode in bits 1:0
 # 0 = 6 buttons
@@ -52,27 +52,27 @@ data=[
 # 3 = 4 buttons
 
     # 6-button games:
-    { machine="dstlk",    pointer=40, data="fc" },
-    { machine="hsf2",     pointer=40, data="fc" },
-    { machine="msh",      pointer=40, data="fc" },
-    { machine="mshvsf",   pointer=40, data="fc" },
-    { machine="mvsc",     pointer=40, data="fc" },
-    { machine="nwarr",    pointer=40, data="fc" },
-    { machine="ringdest", pointer=40, data="fc" },
-    { machine="sfa",      pointer=40, data="fc" },
-    { machine="sfa2",     pointer=40, data="fc" },
-    { machine="sfa3",     pointer=40, data="fc" },
-    { machine="sfz2al",   pointer=40, data="fc" },
-    { machine="ssf2",     pointer=40, data="fc" },
-    { machine="ssf2t",    pointer=40, data="fc" },
-    { machine="vhunt2",   pointer=40, data="fc" },
-    { machine="vsav",     pointer=40, data="fc" },
-    { machine="vsav2",    pointer=40, data="fc" },
-    { machine="xmcota",   pointer=40, data="fc" },
-    { machine="xmvsf",    pointer=40, data="fc" },
+    { machine="dstlk",    offset=40, data="fc" },
+    { machine="hsf2",     offset=40, data="fc" },
+    { machine="msh",      offset=40, data="fc" },
+    { machine="mshvsf",   offset=40, data="fc" },
+    { machine="mvsc",     offset=40, data="fc" },
+    { machine="nwarr",    offset=40, data="fc" },
+    { machine="ringdest", offset=40, data="fc" },
+    { machine="sfa",      offset=40, data="fc" },
+    { machine="sfa2",     offset=40, data="fc" },
+    { machine="sfa3",     offset=40, data="fc" },
+    { machine="sfz2al",   offset=40, data="fc" },
+    { machine="ssf2",     offset=40, data="fc" },
+    { machine="ssf2t",    offset=40, data="fc" },
+    { machine="vhunt2",   offset=40, data="fc" },
+    { machine="vsav",     offset=40, data="fc" },
+    { machine="vsav2",    offset=40, data="fc" },
+    { machine="xmcota",   offset=40, data="fc" },
+    { machine="xmvsf",    offset=40, data="fc" },
     # Spinner games:
-    { machine="pzloop2",  pointer=40, data="fd" },
-    { machine="ecofghtr", pointer=40, data="fe" },
+    { machine="pzloop2",  offset=40, data="fd" },
+    { machine="ecofghtr", offset=40, data="fe" },
 ]
 
 [rom]
