@@ -4819,7 +4819,7 @@
       (effects (font (size 1.2446 1.2446)) (justify right) hide)
     )
   )
-  (global_label "SR_CLK" (shape input) (at 208.28 66.04 180) (fields_autoplaced)
+  (global_label "PAL_CLK" (shape input) (at 208.28 66.04 180) (fields_autoplaced)
     (effects (font (size 1.2446 1.2446)) (justify right))
     (uuid 29dc0958-78fa-4216-9a24-0733708ba0ea)
     (property "Referencias entre hojas" "${INTERSHEET_REFS}" (id 0) (at 199.1274 65.9622 0)

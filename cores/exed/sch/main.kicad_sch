@@ -5124,7 +5124,7 @@
   (symbol (lib_id "jt74:74LS245") (at 123.19 96.52 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 76cb3efd-cb62-4199-98c7-84c4e33e5950)
-    (property "Reference" "K8" (id 0) (at 123.19 92.71 0))
+    (property "Reference" "8K" (id 0) (at 123.19 92.71 0))
     (property "Value" "74LS245" (id 1) (at 125.73 110.49 0))
     (property "Footprint" "" (id 2) (at 123.19 96.52 0)
       (effects (font (size 1.27 1.27)) hide)
