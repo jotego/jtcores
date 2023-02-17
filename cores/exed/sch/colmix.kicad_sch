@@ -4279,7 +4279,7 @@
   (symbol (lib_id "jt74:74LS174") (at 54.61 41.91 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 266d32d9-f14d-4ad2-b9c0-7d5a37bf6f04)
-    (property "Reference" "H1" (id 0) (at 54.61 24.9682 0))
+    (property "Reference" "1H" (id 0) (at 54.61 24.9682 0))
     (property "Value" "74LS174" (id 1) (at 54.61 27.2796 0))
     (property "Footprint" "" (id 2) (at 54.61 41.91 0)
       (effects (font (size 1.27 1.27)) hide)
