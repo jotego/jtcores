@@ -15,43 +15,50 @@ parents= [
 ]
 rename = [
     {setname="aceattaca", name="Ace Attacker (Japan, S16A) [FD1094 317-0060]"},
-    {setname="afighter", name="Action Fighter (World, S16A) [FD1089A 317-0018]"},
+    {setname="afighter",  name="Action Fighter (World, S16A) [FD1089A 317-0018]"},
     {setname="afightera", name="Action Fighter (World, S16A) [No Protection]"},
     {setname="afighterb", name="Action Fighter (World, S16A) [No Protection] [Analog Controls]"},
     {setname="afighterc", name="Action Fighter (World, S16A) [FD1089B 317-xxxx]"},
     {setname="afighterd", name="Action Fighter (World, S16A) [FD1089B 317-xxxx] [Analog Controls]"},
     {setname="aliensyn2", name="Alien Syndrome (Set 2, World, S16A) [FD1089A 317-0033]"},
     {setname="aliensyn5", name="Alien Syndrome (Set 5, World, S16A) [FD1089B 317-0037]"},
-    {setname="aliensynjo", name="Alien Syndrome (Set 1, Japan, S16A) [FD1089A 317-0033]"},
-    {setname="fantzone", name="Fantasy Zone (Rev A, World, S16A) [No Protection]"},
+    {setname="aliensynjo",name="Alien Syndrome (Set 1, Japan, S16A) [FD1089A 317-0033]"},
+    {setname="fantzone",  name="Fantasy Zone (Rev A, World, S16A) [No Protection]"},
     {setname="fantzone1", name="Fantasy Zone (World, S16A) [No Protection]"},
     {setname="fantzonee", name="Fantasy Zone (World, S16A) [FD1089B 317-0016]"},
     {setname="fantzonep", name="Fantasy Zone (World, S16A) [317-5000]"},
-    {setname="fantzonepr", name="Fantasy Zone (Prototype, S16A) [No Protection]"},
-    {setname="mjleague", name="Major League (World, S16A) [No Protection]"},
-    {setname="quartet", name="Quartet (Rev A, 4p, World, S16A) [8751 315-5194]"},
-    {setname="quartet2", name="Quartet 2 (World, S16A) [8751 317-0010]"},
+    {setname="fantzonepr",name="Fantasy Zone (Prototype, S16A) [No Protection]"},
+    {setname="mjleague",  name="Major League (World, S16A) [No Protection]"},
+    {setname="quartet",   name="Quartet (Rev A, 4p, World, S16A) [8751 315-5194]"},
+    {setname="quartet2",  name="Quartet 2 (World, S16A) [8751 317-0010]"},
     {setname="quartet2a", name="Quartet 2 (World, S16A) [No Protection]"},
-    {setname="quarteta", name="Quartet (4p, World, S16A) [8751 315-5194]"},
-    {setname="sjryuko1", name="Sukeban Jansi Ryuko (Set 1, Japan, S16A) [FD1089B 317-5021]"},
+    {setname="quarteta",  name="Quartet (4p, World, S16A) [8751 315-5194]"},
+    {setname="sjryuko1",  name="Sukeban Jansi Ryuko (Set 1, Japan, S16A) [FD1089B 317-5021]"},
     {setname="timescan1", name="Time Scanner (Set 1, World, S16A) [FD1089B 317-0024]"},
-    {setname="bodyslam", name="Body Slam (World, S16) [8751 317-0015]"},
-    {setname="dumpmtmt", name="Dump Matsumoto (Japan, S16A) [8751 317-0011a]"},
-    {setname="sdi", name="SDI: Strategic Defense Initiative (Japan, New Ver., S16A) [FD1089B 317-0027]"},
-    {setname="sdia", name="SDI: Strategic Defense Initiative (Japan, Old Ver., S16A) [FD1089B 317-0027]"},
-    {setname="tetris", name="Tetris (Set 4, Japan, S16A) [FD1094 317-0093]"},
-    {setname="tetris3", name="Tetris (Set 3, Japan, S16A) [FD1094 317-0093a]"},
-    {setname="wb31", name="Wonder Boy III Monster Lair (Set 1, Japan, S16A) [FD1094 317-0084]"},
-    {setname="wb35", name="Wonder Boy III Monster Lair (Set 5, Japan, S16A) [FD1089A 317-0086]"},
-    {setname="alexkidd", name="Alex Kidd: The Lost Stars (Set 2, World, S16A) [No Protection]"},
+    {setname="bodyslam",  name="Body Slam (World, S16) [8751 317-0015]"},
+    {setname="dumpmtmt",  name="Dump Matsumoto (Japan, S16A) [8751 317-0011a]"},
+    {setname="sdi",       name="SDI: Strategic Defense Initiative (Japan, New Ver., S16A) [FD1089B 317-0027]"},
+    {setname="sdia",      name="SDI: Strategic Defense Initiative (Japan, Old Ver., S16A) [FD1089B 317-0027]"},
+    {setname="tetris",    name="Tetris (Set 4, Japan, S16A) [FD1094 317-0093]"},
+    {setname="tetris3",   name="Tetris (Set 3, Japan, S16A) [FD1094 317-0093a]"},
+    {setname="wb31",      name="Wonder Boy III Monster Lair (Set 1, Japan, S16A) [FD1094 317-0084]"},
+    {setname="wb35",      name="Wonder Boy III Monster Lair (Set 5, Japan, S16A) [FD1089A 317-0086]"},
+    {setname="alexkidd",  name="Alex Kidd: The Lost Stars (Set 2, World, S16A) [No Protection]"},
     {setname="alexkidd1", name="Alex Kidd: The Lost Stars (Set 1, World, S16A) [FD1089A 317-0021]"},
-    {setname="passsht16a", name="Passing Shot (Japan, 4p, S16A) [FD1094 317-0071]"},
-    {setname="shinobi", name="Shinobi (Set 6, World, S16A) [No Protection]"},
-    {setname="shinobi1", name="Shinobi (Set 1, World, S16A) [FD1094 317-0050]"}
+    {setname="passsht16a",name="Passing Shot (Japan, 4p, S16A) [FD1094 317-0071]"},
+    {setname="shinobi",   name="Shinobi (Set 6, World, S16A) [No Protection]"},
+    {setname="shinobi1",  name="Shinobi (Set 1, World, S16A) [FD1094 317-0050]"}
 ]
 
 skip.bootlegs = true
 skip.descriptions = [ "16B", "Taito" ]
+skit.setnames=[
+    # won't boot
+    "aceattac", # note that aceattaca works
+]
+main_setnames=[
+    "aceattaca", # replaces aceattac
+]
 
 [buttons]
 names = [
