@@ -9,6 +9,25 @@ parents= [
 ]
 skip.bootlegs=true
 skip.setnames=["ssf2us2"]
+skip.pocket.machines=[
+# Games with over 20MB of GFX don't seem to work yet
+    "cybots",
+    "ddsom",
+    "dstlk",
+    "dstlkr",
+    "hsf2",
+    "mmatrix",
+    "msh",
+    "mshvsf",
+    "mvsc",
+    "nwarr",
+    "sfa3",
+    "vhunt2",
+    "vsav",
+    "vsav2",
+    "xmcota",
+    "xmvsf",
+]
 
 [dipsw]
 delete=[ "Unused" ]

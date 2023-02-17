@@ -13,9 +13,31 @@ parents= [
     {name="tetris", description="Tetris"}
 ]
 
+main_setnames=[
+    "tturfu",
+]
+
 [parse.skip]
 descriptions = [ "16A", "Taito" ]
-setnames = [ "lockonph" ]
+setnames = [
+    # won't boot
+    "cencourt", # Note that the main Passing Shot set works ok
+    "passshta",
+    "passshtj",
+    "aceattac", # one S16A set works
+    # Korean
+    "atomicp",
+    "lockonph",
+    "snapper",
+    "dfjail", # boots, unmapped inputs, bad GFX
+    # boots in test menu
+    "tturf", # tturfu used instead
+]
+machines = [
+    # controls not mapped
+    "hwchamp",
+    "ultracin",
+]
 bootlegs = true
 
 [buttons]
@@ -26,8 +48,8 @@ bootlegs = true
 names = [
     { machine="aceattac", names="none" },
     { machine="afighter", names="Shot,Special Weapon" },
-    { setname="afightere", names="Shot,Weapon A, Weapong B, Weapon C" },
-    { setname="afighterf", names="Shot,Weapon A, Weapong B, Weapon C" },
+    { setname="afightere",names="Shot,Weapon A, Weapong B, Weapon C" },
+    { setname="afighterf",names="Shot,Weapon A, Weapong B, Weapon C" },
     { machine="aliensyn", names="Shot" },
     { machine="altbeast", names="Punch,Kick,Jump" },
     { machine="aurail",   names="Rapid Shot,Kite/Turn,Shield" },
@@ -72,7 +94,8 @@ rename = [
     { name="Extended Score", to="Bonus" },
     { name="Continues", to="Cont." },
     { name="Advertise Sound Interval", to="Demo Sounds" },
-    { name="VS Time", to="VS Time", Values=[ "shorter","short","long","longer"]},
+    { name="VS Time", to="VS Time", values=[ "shorter","short","long","longer"]},
+    { name="CPU Starts With +6 Pts.", to="CPU +6 Pts" },
 ]
 
 [ROM]
@@ -100,6 +123,7 @@ regions = [
         "exctleagd",
         "mvpj",
         "mvpjd",
+        "riotcity",
     ], machines=["aurail","cotton","hwchamp"] },
 
     { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true },
