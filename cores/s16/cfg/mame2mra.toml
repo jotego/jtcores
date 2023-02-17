@@ -52,12 +52,18 @@ rename = [
 
 skip.bootlegs = true
 skip.descriptions = [ "16B", "Taito" ]
-skit.setnames=[
+skip.setnames=[
     # won't boot
-    "aceattac", # note that aceattaca works
+    "aceattac",
+    "bodyslam",
+    "dumpmtmt",
+    "quartet",
+    "quarteta",
+    "quartet2",
 ]
 main_setnames=[
-    "aceattaca", # replaces aceattac
+    "aceattaca",
+    "quartet2a",
 ]
 
 [buttons]

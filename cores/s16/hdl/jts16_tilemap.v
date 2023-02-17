@@ -117,7 +117,7 @@ localparam [9:0] SCR2_DLY= MODEL ? 10'd9 : 10'd17;
 localparam [9:0] SCR1_DLY= SCR2_DLY;
 
 assign flipx    = flip;
-assign ext_flip = ~flip;
+assign ext_flip = flip^debug_bus[0];
 
 wire [ 6:0] char_pxl;
 wire [10:0] scr1_pxl, scr2_pxl;
