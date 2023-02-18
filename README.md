@@ -34,7 +34,7 @@ In chronological order:
 17. [Bionic Commando  ](doc/jtbiocom.txt)
 18. [Street Fighter   ](doc/jtsf.txt)
 
-Plus the games supported by the [JTPANG](cores/pang/README.md) and [JTBOWL](cores/bowl/README.md) cores. Refer to those README files for matters spicific to those cores.
+Plus the games supported by the [JTPANG](cores/pang/README.md) and [JTBOWL](cores/bowl/README.md) cores. Refer to those README files for matters specific to those cores.
 
 # Schematics
 
@@ -173,8 +173,8 @@ You can press F12 to bring the OSD menu up. You can turn off music, or sound eff
 # Misc
 
 Original filter for sound (GnG)
-    -high pass filter with cut-off freq. at 1.6Hz
-    -low pass filter with cut-off freq. at 32.3kHz
+- high pass filter with cut-off freq. at 1.6Hz
+- low pass filter with cut-off freq. at 32.3kHz
 
 ## Modules
 
