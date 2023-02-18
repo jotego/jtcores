@@ -40,6 +40,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          source setprj.sh
-          jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
+          setprj.sh jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
 
