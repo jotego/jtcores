@@ -52,5 +52,6 @@ jobs:
           cd ../..
       - id: compile
         run: |
+          export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
           ./setprj.sh jtcore ${{ matrix.core }} --target ${{matrix.target}} --nodbg
 
