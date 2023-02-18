@@ -45,7 +45,7 @@ jobs:
           cd ../..
       - id: compile
         run: |
-          docker run jotego/jtcore17 -v `pwd`:/jtcores "cd /jtcores;. setprj.sh;jtcore ${{matrix.core}} -mister --nodbg;exit"
+          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
