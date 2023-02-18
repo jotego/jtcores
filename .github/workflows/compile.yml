@@ -2,6 +2,7 @@ name: Compile all cores
 
 on:
   workflow_dispatch:
+
   repository_dispatch:
     types: rebuild
 
@@ -25,10 +26,10 @@ jobs:
         CORES=$(tree -J -d -L 1 | jq -c '.[0].contents | map(.name)')
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
-
-
   compile_cores:
-    runs-on: jotego/jtcore13
+    runs-on: ubuntu-latest
+    container:
+      image: jotego/jtcore13
     needs:
       - list_cores
     strategy:
