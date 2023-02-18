@@ -19,7 +19,7 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - id: generate-matrix
       run: |
         cd cores
@@ -54,7 +54,7 @@ jobs:
       - id: compile
         run: |
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
-          ./setprj.sh jtcore ${{ matrix.core }} --target ${{matrix.target}} --nodbg
+          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg
       - id: upload
         uses: actions/upload-artifact@v3
         with:
