@@ -40,14 +40,18 @@ jobs:
         target: [ sidi, mist, pocket ]
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - run: |
+      - id: submodules
+        run: |
+          git submodule init
+          git submodule update --depth 1
+          cd modules
+          cd jt12
+          git submodule init
+          git submodule update --depth 1
+          cd ../..
+      - id: compile
+        run: |
           pwd
-          ls
-          JTROOT=`pwd`
-          JTFRAME=$JTROOT/modules/jtframe
-          ls $JTFRAME
-          source $JTFRAME/bin/setprj.sh
+          source setprj.sh
           jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
 
