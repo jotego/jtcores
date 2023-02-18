@@ -1,0 +1,40 @@
+name: Compile all cores
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - cores/**
+      - modules/**
+
+jobs:
+  list_cores:
+    runs-on: ubuntu-latest
+    outputs:
+      cores: ${{ steps.generate-matrix.outputs.cores }}
+    steps:
+    - uses: actions/checkout@v2
+    - id: generate-matrix
+      run: |
+        cd cores
+        CORES=$(tree -J -d -L 1 | jq -c '.[0].contents | map(.name)')
+        echo $CORES
+        echo "cores=${CORES}" >> $GITHUB_OUTPUT
+
+
+  compile_cores:
+    runs-on: jotego/jtcore13
+    needs:
+      - list_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+        target: [ sidi, mist, pocket ]
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+        . setprj.sh
+        jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
+
