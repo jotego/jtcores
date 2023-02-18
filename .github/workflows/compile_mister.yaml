@@ -1,4 +1,4 @@
-name: Compile all cores
+name: Compile all MiSTer cores
 
 on:
   workflow_dispatch:
@@ -27,21 +27,21 @@ jobs:
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
-  compile_cores13:
+  compile_cores17:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     container:
-      image: jotego/jtcore13
+      image: jotego/jtcore17
+      network:
+        host
     needs:
       - list_cores
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
-        # add pocket in the future:
-        target: [ sidi, mist ]
     steps:
       - uses: actions/checkout@v3
       - id: submodules
@@ -56,11 +56,10 @@ jobs:
           cd ../..
       - id: compile
         run: |
-          export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
-          ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg
+          export PATH=$PATH:/usr/local/go/bin:/opt/intelFPGA_lite/17.1/quartus/bin
+          ./setprj.sh jtseed 5 ${{ matrix.core }} --target mister --nodbg
       - id: upload
         uses: actions/upload-artifact@v3
         with:
-          name: jtcore13_rbf
+          name: jtcore17_rbf
           path: release
-
