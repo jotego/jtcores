@@ -37,7 +37,8 @@ jobs:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
-        target: [ sidi, mist, pocket ]
+        # add pocket in the future:
+        target: [ sidi, mist ]
     steps:
       - uses: actions/checkout@v3
       - id: submodules
@@ -54,4 +55,9 @@ jobs:
         run: |
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
           ./setprj.sh jtcore ${{ matrix.core }} --target ${{matrix.target}} --nodbg
+      - id: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: jtcore13_rbf
+          path: release
 
