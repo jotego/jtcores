@@ -27,8 +27,6 @@ jobs:
         shell: bash
     container:
       image: jotego/jtcore17
-      network:
-        host
     needs:
       - list_cores
     strategy:
