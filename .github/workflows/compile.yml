@@ -52,6 +52,5 @@ jobs:
           cd ../..
       - id: compile
         run: |
-          ls modules/jtframe/bin
-          ./setprj.sh jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
+          ./setprj.sh jtcore ${{ matrix.core }} --target ${{matrix.target}} --nodbg
 
