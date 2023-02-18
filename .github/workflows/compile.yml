@@ -2,6 +2,8 @@ name: Compile all cores
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: rebuild
 
   push:
     branches:
