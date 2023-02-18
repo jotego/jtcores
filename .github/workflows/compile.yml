@@ -26,6 +26,7 @@ jobs:
         CORES=$(tree -J -d -L 1 | jq -c '.[0].contents | map(.name)')
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
+
   compile_cores:
     runs-on: ubuntu-latest
     container:
@@ -40,6 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          cd /jtcores
-          setprj.sh jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
+          pwd
+          ls
+          JTROOT=`pwd`
+          JTFRAME=$JTROOT/modules/jtframe
+          ls $JTFRAME
+          source $JTFRAME/bin/setprj.sh
+          jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
 
