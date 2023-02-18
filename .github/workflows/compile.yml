@@ -6,13 +6,6 @@ on:
   repository_dispatch:
     types: rebuild
 
-  push:
-    branches:
-      - master
-    paths:
-      - cores/**
-      - modules/**
-
 jobs:
   list_cores:
     runs-on: ubuntu-latest
