@@ -54,6 +54,6 @@ jobs:
         run: |
           pwd
           echo $SHELL
-          source setprj.sh
+          . setprj.sh
           jtcore {{ matrix.core }} --target {{matrix.target}} --nodbg
 
