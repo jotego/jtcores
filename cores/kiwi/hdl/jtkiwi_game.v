@@ -24,13 +24,16 @@ wire        sub_rnw, shr_cs, mshramen, snd_rstn;
 wire [ 7:0] shr_din, shr_dout, main_st, gfx_st, snd_st,
             vram_dout, pal_dout, cpu_dout;
 wire [ 8:0] hdump;
+wire [ 1:0] eff_coin;
 wire [12:0] shr_addr, cpu_addr;
 wire        cen6, cen3, cen1p5;
 
-wire        vram_cs,  pal_cs, flip;
+wire        bram_cs, vram_cs,  pal_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
             colprom_we, mcuprom_we;
-reg         colprom_en=0, kabuki=0, kageki=0, mcu_en=0;
+reg         coin_xor=0, banked_ram=0,
+            kageki=0, kabuki=0,
+            colprom_en=0, mcu_en=0;
 
 assign dip_flip   = flip;
 assign debug_view = st_addr[7:6]==0 ? { 4'd0, kageki, kabuki, colprom_en, mcu_en } :
@@ -39,10 +42,16 @@ assign debug_view = st_addr[7:6]==0 ? { 4'd0, kageki, kabuki, colprom_en, mcu_en
 assign colprom_we = prom_we && ioctl_addr[15:10]==0;
 assign mcuprom_we = prom_we && ioctl_addr >= `MCU_START;
 assign st_dout    = debug_view;
+// Banked RAM
+assign bram_we    = bram_cs & ~cpu_rnw;
+// assign bram_dsn   = { 1'd1, bram_cs & cpu_rnw };
+assign bram_din   = cpu_dout;
+assign eff_coin   = {2{coin_xor}}^coin_input;
 
 always @(posedge clk) begin
     if( prog_we && header && prog_addr==0 ) begin
-        { kageki, kabuki, colprom_en, mcu_en } <= prog_data[3:0];
+        { coin_xor, banked_ram, kageki,
+            kabuki, colprom_en, mcu_en } <= prog_data[5:0];
     end
 end
 
@@ -62,6 +71,12 @@ jtkiwi_main u_main(
     .LVBL           ( LVBL          ),
     .hcnt           ( hdump         ),
     .colprom_en     ( colprom_en    ),
+    // Banked RAM
+    .banked_ram     ( banked_ram    ),
+    .bram_cs        ( bram_cs       ),
+    .bram_ok        ( 1'b1 ), //bram_ok       ),
+    .bram_data      ( bram_dout     ),
+    .bram_addr      ( bram_addr     ),
     // Main CPU ROM
     .rom_addr       ( main_addr     ),
     .rom_cs         ( main_cs       ),
@@ -95,7 +110,7 @@ jtkiwi_main u_main(
     .st_dout        ( main_st       )
 );
 
-/* verilator tracing_off */
+/* xxverilator tracing_off */
 jtkiwi_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -170,7 +185,7 @@ jtkiwi_snd u_sound(
 
     // cabinet I/O
     .start_button( start_button ),
-    .coin_input ( coin_input    ),
+    .coin_input ( eff_coin      ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
     .service    ( service       ),

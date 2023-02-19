@@ -74,8 +74,8 @@ module jtkiwi_snd(
     output               sample,
     output               peak,
     // Debug
-    input      [ 7:0]   st_addr,
-    output reg [ 7:0]   st_dout
+    input      [ 7:0]    st_addr,
+    output reg [ 7:0]    st_dout
 );
 `ifndef NOSOUND
 
@@ -102,6 +102,7 @@ assign ram_din  = dout;
 assign ram_addr = A[12:0];
 assign cpu_rnw  = wr_n | ~cpu_cen;
 assign mcu_comb_rst = ~(mcu_rstn & comb_rstn);
+// assign mcu_comb_rst = ~comb_rstn;
 assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
 

@@ -1,6 +1,7 @@
 params:
   - name: PCM_OFFSET
     value: "(`PCM_START-`JTFRAME_BA2_START)>>1"
+  - name: BRAM_OFFSET
 
 sdram:
   # post_addr: true
@@ -31,3 +32,9 @@ sdram:
         - name: obj
           addr_width: 20
           data_width: 32
+bram:
+  - name: bram
+    addr_width: 15
+    data_width: 8
+    rw: true
+    # offset: BRAM_OFFSET

@@ -48,6 +48,12 @@ module jtkiwi_main(
 
     input               dip_pause,
 
+    // Banked RAM (TNZS)
+    input               banked_ram,
+    input      [ 7:0]   bram_data,
+    output reg [14:0]   bram_addr,
+    output reg          bram_cs,
+    input               bram_ok,
     // ROM interface
     output     [16:0]   rom_addr,
     output reg          rom_cs,
@@ -64,7 +70,8 @@ reg  [ 7:0] din;
 wire [ 7:0] dout, ram_dout;
 reg  [ 2:0] bank;
 wire [15:0] A;
-reg         ram_cs, bank_cs, sshramen, dev_busy, obj_vram_en;
+reg         ram_cs, bank_cs,
+            sshramen, dev_busy, obj_vram_en;
 wire        mem_acc;
 
 assign cpu_rnw  = wr_n | ~cpu_cen;
@@ -81,14 +88,32 @@ assign mem_acc  = ~mreq_n & rfsh_n;
 wire rombank_cs = rom_cs && A[15:12]>=8;
 `endif
 
-always @(posedge clk) begin
-    rom_cs   <= mem_acc && A[15:12]  < 4'hc;
-    vram_cs  <= mem_acc && A[15:13] == 3'b110; // C,D
-    ram_cs   <= mem_acc && A[15:12] == 4'he; // A[12:0] used in Insector X (?)
-    vctrl_cs <= mem_acc && A[15:10] == 6'b1111_00; // internal RAM and config registers
-    vflag_cs <= mem_acc && A[15: 9] == 7'b1111_010 && !wr_n; // config registers
-    bank_cs  <= mem_acc && A[15: 9] == 7'b1111_011 && !wr_n; // f6xx/f7xx
-    pal_cs   <= mem_acc && A[15:11] == 5'h1f && !colprom_en;
+always @(posedge clk, posedge rst) begin
+    if ( rst ) begin
+        bram_cs   <= 0;
+        rom_cs    <= 0;
+        vram_cs   <= 0;
+        ram_cs    <= 0;
+        vctrl_cs  <= 0;
+        vflag_cs  <= 0;
+        bank_cs   <= 0;
+        pal_cs    <= 0;
+        bram_addr <= 0;
+    end else begin
+        bram_cs  <= 0;
+        rom_cs   <= mem_acc && A[15:12]  < 4'hc;
+        vram_cs  <= mem_acc && A[15:13] == 3'b110; // C,D
+        ram_cs   <= mem_acc && A[15:12] == 4'he; // A[12:0] used in Insector X (?)
+        vctrl_cs <= mem_acc && A[15:10] == 6'b1111_00; // internal RAM and config registers
+        vflag_cs <= mem_acc && A[15: 9] == 7'b1111_010 && !wr_n; // config registers
+        bank_cs  <= mem_acc && A[15: 9] == 7'b1111_011 && !wr_n; // f6xx/f7xx
+        pal_cs   <= mem_acc && A[15:11] == 5'h1f && !colprom_en;
+        if( mem_acc && banked_ram && bank<2 && A[15:12]>=8 && A[15:12]<4'hc ) begin
+            rom_cs  <= 0;
+            bram_cs <= 1;
+            bram_addr <= { bank[0], A[13:0] };
+        end
+    end
 end
 
 always @* begin
@@ -96,12 +121,13 @@ always @* begin
        (A[15:11]==5'b11110 && !A[9]) ||
        A[15:10]==6'b111100 ||
        A[15:13]==3'b110 );
-    dev_busy = (sshramen & ram_cs) || (obj_vram_en && hcnt[1:0]!=0);
+    dev_busy = (sshramen & ram_cs) || (obj_vram_en && hcnt[1:0]!=0) || (bram_cs&&!bram_ok);
 end
 
 always @(posedge clk) begin
     din <= rom_cs  ? rom_data  :
         ram_cs  ? ram_dout  :
+        bram_cs ? bram_data :
         (vram_cs | vctrl_cs) ? vram_dout :
         pal_cs  ? pal_dout  : 8'h00;
 end
