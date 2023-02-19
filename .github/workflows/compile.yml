@@ -60,6 +60,7 @@ jobs:
           cd ../..
       - id: compile
         run: |
+          # Compilation on Quartus 13
           export PATH=$PATH:/usr/local/go/bin:/opt/altera/13.1/quartus/bin
           ./setprj.sh jtseed 10 ${{ matrix.core }} --target ${{matrix.target}} --nodbg
       - id: upload
@@ -93,7 +94,7 @@ jobs:
           cd ../..
       - id: compile
         run: |
-          # Do not attempt to compile core in progress
+          # Compilation on Quartus 17
           docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
       - id: upload
         uses: actions/upload-artifact@v3
