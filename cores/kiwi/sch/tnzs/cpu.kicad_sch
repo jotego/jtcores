@@ -1759,7 +1759,7 @@
           (stroke (width -25.4) (type default) (color 0 0 0 0))
           (fill (type background))
         )
-        (arc (start 3.81 0) (mid 2.2198 2.8385) (end -0.6096 4.445)
+        (arc (start 3.81 0) (mid 2.2198 2.8386) (end -0.6096 4.445)
           (stroke (width 0.254) (type default) (color 0 0 0 0))
           (fill (type background))
         )
@@ -1864,7 +1864,7 @@
           (stroke (width -25.4) (type default) (color 0 0 0 0))
           (fill (type background))
         )
-        (arc (start 3.81 0) (mid 2.2198 2.8385) (end -0.6096 4.445)
+        (arc (start 3.81 0) (mid 2.2198 2.8386) (end -0.6096 4.445)
           (stroke (width 0.254) (type default) (color 0 0 0 0))
           (fill (type background))
         )
@@ -2787,6 +2787,7 @@
       )
     )
   )
+
 
   (junction (at 163.83 16.51) (diameter 0) (color 0 0 0 0)
     (uuid 14890109-2f2c-4dd6-ab32-1248ccd536c3)
