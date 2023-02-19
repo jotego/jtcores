@@ -45,7 +45,10 @@ jobs:
           cd ../..
       - id: compile
         run: |
-          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          # Do not attempt to compile core in progress
+          if [ -e cores/$${matrix.core}/cfg/macros.def ]; then
+            docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          fi
       - id: upload
         uses: actions/upload-artifact@v3
         with:

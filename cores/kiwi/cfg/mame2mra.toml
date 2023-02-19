@@ -9,45 +9,39 @@ beta = true
 [parse]
 sourcefile="tnzs.cpp"
 skip = { setnames = [
-# i8742 MCU
-# "extrmatn",
-# "extrmatnj",
-# "extrmatnu",
-# "extrmatnur",
+    # Not ready yet
+    "drtoppel",
+    "drtoppelj",
+    "drtoppelu",
+    "chukatai",
+    "chukataij",
+    "chukataija",
+    "chukataiu",
+    "tnzsjo",
+    "tnzsuo",
+    "tnzsoa",
+    "tnzsop",
+    "plumppop",
 
-# Not ready yet
-"drtoppel",
-"drtoppelj",
-"drtoppelu",
-"chukatai",
-"chukataij",
-"chukataija",
-"chukataiu",
-"tnzso",
-"tnzsjo",
-"tnzsuo",
-"tnzsoa",
-"tnzsop",
-"plumppop",
+    # No MCU dump
+    "arknoid2",
+    "arknoid2j",
+    "arknoid2u",
+    "arknoid2b",
 
-# No MCU dump
-"arknoid2",
-"arknoid2j",
-"arknoid2u",
-"arknoid2b",
+    # Graphics
+    "kabukiz",
+    "kabukizj",
 
-# Graphics
-"kabukiz",
-"kabukizj",
+    # Three Z80
+    "tnzs",
+    "tnzsj",
+    # Korean hack on mostly unrelated hardware
+    "jpopnics",
+] }
+main_setnames=[ "tnzso" ]
 
-# Three Z80
-"tnzs",
-"tnzsj",
-# Korean hack on mostly unrelated hardware
-"jpopnics",
- ] }
-
- [header]
+[header]
  # len=$JTFRAME_HEADER
  data=[
     { machine="extrmatn", data="03" }, # MCU - Color PROM
@@ -58,6 +52,7 @@ skip = { setnames = [
 [buttons]
 Names = [ { machine="insectx",  names="Fire,Warp"},
           { machine="extrmatn", names="Fire,Warp"},
+          { machine="tnzs",     names="Shoot,Jump"},
           { machine="kageki",   names="Left jab,Right hook"} ]
 
 [dipsw]

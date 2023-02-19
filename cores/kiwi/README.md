@@ -1,4 +1,4 @@
-# FPGA Clone of Bubble Bobble Arcade Game
+# FPGA Clone of TNZS Arcade Game
 
 By Jose Tejada (aka jotego - @topapate)
 
@@ -6,7 +6,7 @@ You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)
 * [Paypal](https://paypal.me/topapate)
 
-Yes, you always wanted to have a Bubble Bobble arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST(er) is here to the rescue.
+Yes, you always wanted to have a The New Zealand Story arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, MiST(er) is here to the rescue.
 
 I hope you will have as much fun with it as I had it while making it!
 
@@ -14,12 +14,10 @@ I hope you will have as much fun with it as I had it while making it!
 
 In chronological order:
 
- 1. Tokio (Scrambled Formation)
- 2. Bubble Bobble
- 3. Extermination
- 4. Insector X
- 5. The New Zealand Story
- 6. Kageki
+ 1. Extermination
+ 2. Insector X
+ 3. The New Zealand Story
+ 4. Kageki
 
 Some of the MRA files provided may not work as there is some variation in Bubble Bobble bootleg hardware which is not implemented. Official Tokio MRA file will not work because the MCU hardware is not yet implemented in the core. Only the bootleg MRA for Tokio works.
 
@@ -45,23 +43,6 @@ There are dumps of the PLD logic in
 
 1. [Insector X](https://wiki.pldarchive.co.uk/index.php?title=Insector_X)
 2. [The New Zealand Story](https://wiki.pldarchive.co.uk/index.php?title=The_New_Zealand_Story)
-
-### Bubble Bobble
-
-Set mode to Japanese and test on to enter the test screen. Press 1P start to advance to the input and sound test screen.
-
-Sound codes for music
-
-Sound Code   | Music
--------------|------------
-  7          | intro + main theme
-  8          | credits
-  9          | Super drunk
- 10          | Bonus
- 11          | Game over
- 15          | hurry theme
- 16          | Extend
- 20          | Real ending
 
 ## Keyboard
 
@@ -118,35 +99,7 @@ Jose Tejada Gomez. Twitter @topapate
 Project is hosted in http://www.github.com/jotego/jt_gng
 License: GPL3, you are obligued to publish your code if you use mine
 
-## JTBUBL Supporters
-
-Thank you to June 2020 patrons for supporting **JTBUBL** development and especially to:
-
-```
-Alonso J. Núñez       Filip Kindt         Michael Fuerst
-Andrea Chiavazza      Francis B           Michael Yount
-Andreas Micklei       Frank Hoedemakers   Mike Jegenjan
-Andrew Boudreau       Gavin               Mike Parks
-Andy Palmer           Greg                Nailbomb
-Angelo Kanaris        Gregory Val         natalie
-Anthony Monaco        HFSPlay             Neil St Clair
-atrac17               Human0Target        Nico Stamp
-Ben Toman             hyp36rmax           Paweł Mandes
-Bob G                 Jesse Clark         Richard Eng
-Brent Fraser W.       Johan Smolinski     Richard Murillo
-Carrboroman           Justin D'Arcangelo  SNIPERMikeUK
-Clinton Cronin        Keith Duncan        Spank Minister
-Daniel Estreito       KnC                 Stephen Goldberg
-Darren Wootton        Lee Osborne         Steven Yedwab
-David Fleetwood       Luc JOLY            taal.M
-David Jones           Magnus Kvevlander   Thomas Irwin
-DrMnike               Matthew Woodford    Trifle
-Eric J Faulkes        M. Penkert-Hennig   VickiViperZabel
-Fabio Michelin        Michael Deshaies    Victor Bly
-                           XC-3730C
-```
-
-## JTKIWI Supporters
+# JTKIWI Supporters
 
 Thank you to Dec 2022 patrons for supporting **JTKIWI** development and especially to:
 

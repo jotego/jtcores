@@ -9,6 +9,9 @@ on:
 jobs:
   list_cores:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
@@ -16,7 +19,15 @@ jobs:
     - id: generate-matrix
       run: |
         cd cores
-        CORES=$(tree -J -d -L 1 | jq -c '.[0].contents | map(.name)')
+        # Get list of cores ready for compilation
+        CORES='['
+        for i in *; do
+          if [[ -e $i/cfg/macros.def && ! -e $i/cfg/skip ]]; then
+            if [ "$CORES" != '[' ]; then CORES="$CORES, "; fi
+            CORES="$CORES \"$i\""
+          fi
+        done
+        CORES="$CORES ]"
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
@@ -54,6 +65,38 @@ jobs:
       - id: upload
         uses: actions/upload-artifact@v3
         with:
-          name: jtcore13_rbf
+          name: jtcores
           path: release
 
+  compile_cores17:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs:
+      - list_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: submodules
+        run: |
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git submodule init
+          git submodule update --depth 1
+          cd modules
+          cd jt12
+          git submodule init
+          git submodule update --depth 1
+          cd ../..
+      - id: compile
+        run: |
+          # Do not attempt to compile core in progress
+          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+      - id: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: jtcores
+          path: release
