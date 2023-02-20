@@ -2354,7 +2354,7 @@
   (symbol (lib_id "jt74:74LS30") (at 135.89 106.68 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 9e372b06-47ca-4c9a-851b-a630a73c6235)
-    (property "Reference" "K3" (id 0) (at 135.89 105.41 0))
+    (property "Reference" "3K" (id 0) (at 135.89 105.41 0))
     (property "Value" "74LS30" (id 1) (at 135.89 107.95 0))
     (property "Footprint" "" (id 2) (at 135.89 106.68 0)
       (effects (font (size 1.27 1.27)) hide)

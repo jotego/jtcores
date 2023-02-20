@@ -2358,7 +2358,7 @@
   (symbol (lib_id "arcade:SN76489AN") (at 147.32 106.68 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid e8c3db8b-ae4b-4011-9b20-1bddb80c3b74)
-    (property "Reference" "F11" (id 0) (at 147.955 89.8398 0)
+    (property "Reference" "11F" (id 0) (at 147.955 89.8398 0)
       (effects (font (size 1.2446 1.2446)))
     )
     (property "Value" "SN76489AN" (id 1) (at 147.955 92.1258 0)

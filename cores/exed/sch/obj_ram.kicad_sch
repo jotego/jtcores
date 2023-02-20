@@ -4263,7 +4263,7 @@
   (symbol (lib_id "jt74:74LS112") (at 48.26 77.47 0) (unit 2)
     (in_bom yes) (on_board yes)
     (uuid 78116fae-0112-45cb-a9fb-f50d9d1cdfbf)
-    (property "Reference" "M3" (id 0) (at 48.26 77.47 0))
+    (property "Reference" "3M" (id 0) (at 48.26 77.47 0))
     (property "Value" "74LS112" (id 1) (at 48.26 87.63 0))
     (property "Footprint" "" (id 2) (at 48.26 77.47 0)
       (effects (font (size 1.27 1.27)) hide)

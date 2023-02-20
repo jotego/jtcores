@@ -3004,7 +3004,7 @@
   (symbol (lib_id "jt74:74LS283") (at 49.53 167.64 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 27cf05b8-ef21-4666-bea8-ddb5e1312823)
-    (property "Reference" "U?" (id 0) (at 49.53 172.72 0))
+    (property "Reference" "E11" (id 0) (at 49.53 172.72 0))
     (property "Value" "74LS283" (id 1) (at 50.8 175.26 0))
     (property "Footprint" "" (id 2) (at 49.53 167.64 0)
       (effects (font (size 1.27 1.27)) hide)

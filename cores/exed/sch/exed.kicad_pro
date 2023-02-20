@@ -399,6 +399,10 @@
     [
       "801a647e-171a-42d0-8fcb-521651a3d06a",
       "logics_gates"
+    ],
+    [
+      "20cb5816-2d88-4d4d-b3d3-f9a222ba5e22",
+      "capacitors"
     ]
   ],
   "text_variables": {}

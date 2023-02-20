@@ -3383,7 +3383,7 @@
   (symbol (lib_id "oki:MSM2128-20RS") (at 134.62 54.61 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid c51e8a31-0220-46e7-99d7-2331f1425bcc)
-    (property "Reference" "E10" (id 0) (at 139.7 34.29 0))
+    (property "Reference" "10E" (id 0) (at 139.7 34.29 0))
     (property "Value" "MSM2128-20RS" (id 1) (at 134.62 55.88 90))
     (property "Footprint" "" (id 2) (at 134.62 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
