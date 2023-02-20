@@ -31,12 +31,13 @@ wire        cen6, cen3, cen1p5;
 wire        bram_cs, vram_cs,  pal_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
             colprom_we, mcuprom_we;
-reg         coin_xor=0, banked_ram=0,
+reg         dip_flip_xor=0, coin_xor=0, banked_ram=0,
             kageki=0, kabuki=0,
             colprom_en=0, mcu_en=0;
 
-assign dip_flip   = flip;
-assign debug_view = st_addr[7:6]==0 ? { 4'd0, kageki, kabuki, colprom_en, mcu_en } :
+assign dip_flip   = flip ^ dip_flip_xor;
+assign debug_view = st_addr[7:6]==0 ? { 1'b0, dip_flip_xor, coin_xor, banked_ram,
+                                        kageki, kabuki, colprom_en, mcu_en } :
                     st_addr[7:6]==1 ? main_st :
                     st_addr[7:6]==2 ? gfx_st  : snd_st;
 assign colprom_we = prom_we && ioctl_addr[15:10]==0;
@@ -50,8 +51,8 @@ assign eff_coin   = {2{coin_xor}}^coin_input;
 
 always @(posedge clk) begin
     if( prog_we && header && prog_addr==0 ) begin
-        { coin_xor, banked_ram, kageki,
-            kabuki, colprom_en, mcu_en } <= prog_data[5:0];
+        { dip_flip_xor, coin_xor, banked_ram, kageki,
+            kabuki, colprom_en, mcu_en } <= prog_data[6:0];
     end
 end
 

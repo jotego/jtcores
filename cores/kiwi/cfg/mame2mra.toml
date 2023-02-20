@@ -48,9 +48,10 @@ info="""bit 0 = MCU
              bit 2 = Kabuzi Z (specific sound features)
              bit 3 = Kageki   (specific sound features)
              bit 4 = banked RAM
-             bit 5 = coin XOR                          """
+             bit 5 = coin XOR
+             bit 6 = dip_flip XOR                        """
 data=[
-    { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="31" }, # Banked RAM, MCU
+    { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="71" }, # Banked RAM, MCU
     { machine="extrmatn", data="03" }, # MCU - Color PROM
     { machine="kabukiz",  data="04" }, # Kabuki Z sound subsystem
     { machine="kageki" ,  data="08" }, # Kageki   sound subsystem

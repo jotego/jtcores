@@ -101,7 +101,7 @@ assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
 assign cpu_din  = yram_cs ? yram_dout :
                   vram_cs ? (cpu_addr[12] ? vram_dout[15:8] : vram_dout[7:0]) : 8'h00;
-assign st_dout  = { flip, 1'd0, col0, col_cfg };
+assign st_dout  = { flip, video_en, col0, col_cfg };
 
 always @* begin
     yram_cs = 0;

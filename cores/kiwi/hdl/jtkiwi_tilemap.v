@@ -51,13 +51,13 @@ module jtkiwi_tilemap(
     input      [ 7:0]   debug_bus
 );
 
-reg         line, done, hsl;
+reg         line, done, hsl, video_en;
 reg  [ 4:0] col_cnt, dr_pal;
 reg  [ 3:0] dr_ysub, col_end;
 reg  [ 8:0] eff_h, eff_v, dr_xpos;
 reg  [ 7:0] yscr;
 reg  [ 8:0] xscr;
-wire [ 8:0] vf;
+wire [ 8:0] vf, raw_pxl;
 reg  [ 1:0] st;
 reg         dr_draw, dr_hflip, dr_vflip, hflip, vflip;
 reg  [12:0] dr_code, code;
@@ -68,6 +68,7 @@ wire        buf_we;
 assign tm_addr  = { page, 1'b1, st[0], eff_h[8:5], eff_v[7:4], eff_h[4] }; // 1 + 1 + 1 + 4 + 5 = 12
 assign col_addr = { col_cnt[4:1], 1'd0, st[0], 2'd0 };
 assign vf       = {9{~flip}} ^ vrender;
+assign pxl      = video_en ? raw_pxl : 9'd0;
 
 always @* begin
     eff_v = vf + { 1'b0, yscr };
@@ -85,16 +86,18 @@ always @(posedge clk, posedge rst) begin
         dr_vflip <= 0;
         dr_xpos  <= 0;
         dr_ysub  <= 0;
+        video_en <= 0;
     end else begin
         hsl <= hs;
         dr_draw <= 0;
         if ( hs & ~hsl ) line <= ~line;
         if( hs || (vrender>9'hf0 && vrender<9'h116) || col_cfg==0 ) begin
-            col_cnt <= 0;
-            done    <= col_cfg==0; // don't do anything for col_cfg==0
-            st      <= 0;
-            dr_draw <= 0;
-            col_end <= col_cfg==1 ? 4'hf : col_cfg-4'd1;
+            col_cnt  <= 0;
+            done     <= col_cfg==0; // don't do anything for col_cfg==0
+            video_en <= col_cfg!=0;
+            st       <= 0;
+            dr_draw  <= 0;
+            col_end  <= col_cfg==1 ? 4'hf : col_cfg-4'd1;
         end else if( !done && tm_cen ) begin
             st <= st + 1'd1;
             case( st )
@@ -169,7 +172,7 @@ jtframe_dual_ram #(.aw(10),.dw(9)) u_linebuf(
     .data1  ( 9'd0      ),
     .we1    ( 1'b0      ),
     .addr1  ( {~line, hdump } ),
-    .q1     ( pxl       )
+    .q1     ( raw_pxl   )
 );
 
 
