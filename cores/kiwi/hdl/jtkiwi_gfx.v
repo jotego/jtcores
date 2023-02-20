@@ -160,6 +160,7 @@ end
 jtkiwi_tilemap u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
     .tm_cen     ( tm_cen    ),
 
     .hs         ( hs        ),

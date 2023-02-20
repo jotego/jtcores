@@ -169,5 +169,4 @@ jtframe_obj_buffer #(
     .rd_data( pxl       )
 );
 
-
 endmodule

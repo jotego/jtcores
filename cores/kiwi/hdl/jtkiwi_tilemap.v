@@ -23,6 +23,7 @@
 module jtkiwi_tilemap(
     input               rst,
     input               clk,
+    input               pxl_cen,
     input               tm_cen,
 
     input               hs,
@@ -155,25 +156,25 @@ jtkiwi_draw #(.SWAP_HALVES(1'b1)) u_draw(
     //.debug_bus  ( debug_bus     )
 );
 
-// During HS the contents of the memory are cleared
-wire [8:0] mux_din  = hs ? 9'd0  : buf_din;
-wire [8:0] mux_addr = hs ? hdump : buf_addr;
-wire       mux_we   = hs ? 1'b1  : buf_we;
+// The tilemap is made of transparent tiles
+// that can be drawn on top of other ones. That's
+// how the sky in TNZS intro scene is drawn
 
-jtframe_dual_ram #(.aw(10),.dw(9)) u_linebuf(
-    .clk0   ( clk       ),
-    .clk1   ( clk       ),
+jtframe_obj_buffer #(
+    .DW   ( 9 ),
+    .ALPHA( 0 )
+) u_linebuf(
+    .clk    ( clk       ),
+    .flip   ( 1'b0      ),
+    .LHBL   ( ~hs       ),
     // New line writting
-    .data0  ( mux_din   ),
-    .addr0  ( { line, mux_addr}  ),
-    .we0    ( mux_we    ),
-    .q0     (           ),
+    .we     ( buf_we    ),
+    .wr_data( buf_din   ),
+    .wr_addr( buf_addr  ),
     // Previous line reading
-    .data1  ( 9'd0      ),
-    .we1    ( 1'b0      ),
-    .addr1  ( {~line, hdump } ),
-    .q1     ( raw_pxl   )
+    .rd     ( pxl_cen   ),
+    .rd_addr( hdump     ),
+    .rd_data( raw_pxl   )
 );
-
 
 endmodule

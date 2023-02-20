@@ -67,9 +67,12 @@ assign promlo_we = prom_we &  prog_addr[9];
 
 always @* begin
     obj_sel = obj_pxl[3:0] != 4'h0;
-    if( !gfx_en[0] ) obj_sel = 1;
-    if( !gfx_en[3] ) obj_sel = 0;
-    col_addr = obj_sel ? obj_pxl : scr_pxl; // simple priority for now.
+    case( {gfx_en[3],gfx_en[0]})
+        2'b00: col_addr = 0;
+        2'b01: col_addr = scr_pxl;
+        2'b10: col_addr = obj_pxl;
+        2'b11: col_addr = obj_sel ? obj_pxl : scr_pxl; // simple priority for now.
+    endcase
 end
 
 always @(posedge clk) begin
