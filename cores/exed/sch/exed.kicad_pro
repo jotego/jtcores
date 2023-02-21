@@ -403,6 +403,10 @@
     [
       "20cb5816-2d88-4d4d-b3d3-f9a222ba5e22",
       "capacitors"
+    ],
+    [
+      "15627eac-7153-4ba3-b12d-4a355f6cbd47",
+      "mux_ot"
     ]
   ],
   "text_variables": {}
