@@ -7,6 +7,7 @@ beta=true
 [parse]
 sourcefile="segaorun.cpp"
 skip.machines=["shangon"]
+skip.bootlegs=true
 
 [buttons]
 Names = [
@@ -17,7 +18,7 @@ Names = [
 
 
 [dipsw]
-delete = [ "Unused", "Unknown" ]
+delete = [ "Unused", "Unknown", "Credits" ]
 bitcnt = 16
 
 [header]
