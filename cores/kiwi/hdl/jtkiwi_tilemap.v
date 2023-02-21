@@ -92,7 +92,7 @@ always @(posedge clk, posedge rst) begin
         hsl <= hs;
         dr_draw <= 0;
         if ( hs & ~hsl ) line <= ~line;
-        if( hs || (vrender>9'hf0 && vrender<9'h116) || col_cfg==0 ) begin
+        if( hs || (vrender>9'hf0 && vrender<8) || col_cfg==0 ) begin
             col_cnt  <= 0;
             done     <= col_cfg==0; // don't do anything for col_cfg==0
             video_en <= col_cfg!=0;

@@ -183,7 +183,7 @@ jtkiwi_tilemap u_tilemap(
     .rom_ok     ( scr_ok    ),
     .rom_data   ( scr_data  ),
 
-    .vrender    ( vrender   ),
+    .vrender    ( vdump     ),
     .hdump      ( hdump     ),
     .pxl        ( scr_pxl   ),
     .debug_bus  ( debug_bus )
