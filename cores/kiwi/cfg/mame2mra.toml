@@ -71,7 +71,7 @@ regions = [
     { name="samples", start="PCM_START" },
     { name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[2,0,3,1] },
     { machines=["kageki", "tnzs"], name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 5,1,7,3] },
-    { machine="insectx",           name="gfx1", start="JTFRAME_BA3_START", width=16 },
+    { machine="insectx",           name="gfx1", start="JTFRAME_BA3_START", width=16, no_offset=true },
     { name="proms", start="JTFRAME_PROM_START", No_offset=true },
     { name="mcu", start="MCU_START", No_offset=true   },
     { name="pal", skip=true },
