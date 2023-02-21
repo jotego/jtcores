@@ -110,10 +110,10 @@ always @(posedge clk, posedge rst) begin
                         dr_hflip <= hflip^flip;
                         dr_vflip <= vflip;
                         dr_pal   <= pal;
-                        dr_xpos <= xpos;
-                        dr_ysub <= ~ysub;
-                        objcnt <=  objcnt - 1'd1;
-                        done    <= objcnt==0;
+                        dr_xpos  <= xpos;
+                        dr_ysub  <= ~ysub;
+                        objcnt   <= objcnt - 1'd1;
+                        done     <= objcnt==0;
                     end else begin
                         st <= st;
                     end
