@@ -4535,7 +4535,7 @@
     (effects (font (size 1.2446 1.2446)) (justify left bottom))
     (uuid 70eb6848-e0c4-4430-b4d3-f86acd7144a8)
   )
-  (label "XH6" (at 78.74 95.25 0)
+  (label "XH7" (at 78.74 95.25 0)
     (effects (font (size 1.2446 1.2446)) (justify left bottom))
     (uuid 7205c766-0e80-4dd3-8c08-ec01be80c125)
   )

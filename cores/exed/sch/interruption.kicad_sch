@@ -1555,7 +1555,7 @@
     (uuid ec03ab0d-e08b-4026-957b-e6540fa34850)
   )
 
-  (global_label "V[6..0]" (shape input) (at 39.37 110.49 180) (fields_autoplaced)
+  (global_label "V[8..0]" (shape input) (at 39.37 110.49 180) (fields_autoplaced)
     (effects (font (size 1.2446 1.2446)) (justify right))
     (uuid 1cbe858a-6b9c-475d-aa97-536be0bdda12)
     (property "Referencias entre hojas" "${INTERSHEET_REFS}" (id 0) (at 30.81 110.4122 0)

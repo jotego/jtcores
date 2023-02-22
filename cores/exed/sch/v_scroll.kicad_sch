@@ -2843,7 +2843,7 @@
       (effects (font (size 1.2446 1.2446)) (justify right) hide)
     )
   )
-  (global_label "V[7..0]" (shape input) (at 105.41 30.48 180) (fields_autoplaced)
+  (global_label "V[8..0]" (shape input) (at 105.41 30.48 180) (fields_autoplaced)
     (effects (font (size 1.2446 1.2446)) (justify right))
     (uuid 99df52c4-71da-46bb-aad3-197a2e1b4c49)
     (property "Referencias entre hojas" "${INTERSHEET_REFS}" (id 0) (at 96.85 30.4022 0)
