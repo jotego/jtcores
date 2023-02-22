@@ -9,27 +9,25 @@ beta = true
 [parse]
 sourcefile="tnzs.cpp"
 skip = { setnames = [
-    # Not ready yet
+    # Inputs not working
     "drtoppel",
     "drtoppelj",
     "drtoppelu",
-    "chukatai",
+    "plumppop",     # most left column missing, see service screen
+    "chukatai",     # top screen row missing for objects plus garbage at top left
     "chukataij",
     "chukataija",
     "chukataiu",
-    "plumppop",
 
-    # No MCU dump
+    # No MCU dump - won't boot
     "arknoid2",
     "arknoid2j",
     "arknoid2u",
     "arknoid2b",
 
-    # Graphics
+    # Three Z80
     "kabukiz",
     "kabukizj",
-
-    # Three Z80
     "tnzs",
     "tnzsj",
     # Korean hack on mostly unrelated hardware
@@ -48,7 +46,9 @@ info="""bit 0 = MCU
              bit 6 = dip_flip XOR                        """
 data=[
     { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="71" }, # Banked RAM, MCU
-    { machine="extrmatn", data="03" }, # MCU - Color PROM
+    { machines=["chukatai"], data="01" }, # MCU
+    { machines=["drtoppel"], data="43" },
+    { machines=["extrmatn","plumppop","arkanoid2"], data="03" }, # MCU - Color PROM
     { machine="kabukiz",  data="04" }, # Kabuki Z sound subsystem
     { machine="kageki" ,  data="08" }, # Kageki   sound subsystem
 ]
@@ -62,6 +62,7 @@ Names = [ { machine="insectx",  names="Fire,Warp"},
 [dipsw]
 bitcnt = 16
 delete = [ "Unused", "Unknown" ]
+rename = [{ name="P1 & P2 Children Collision", to="P1/P2 Collision" }]
 
 [ROM]
 regions = [
@@ -70,7 +71,8 @@ regions = [
     { name="audiocpu", start="JTFRAME_BA2_START" },
     { name="samples", start="PCM_START" },
     { name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[2,0,3,1] },
-    { machines=["kageki", "tnzs"], name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 5,1,7,3] },
+    { machines=["kageki", "tnzs", "chukatai","drtoppel" ], name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 5,1,7,3] },
+    { machines=["plumppop"], name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 4,0,6,2, 5,1,7,3, 5,1,7,3 ] },
     { machine="insectx",           name="gfx1", start="JTFRAME_BA3_START", width=16, no_offset=true },
     { name="proms", start="JTFRAME_PROM_START", No_offset=true },
     { name="mcu", start="MCU_START", No_offset=true   },
