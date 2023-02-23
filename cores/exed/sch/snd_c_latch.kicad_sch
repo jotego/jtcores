@@ -2299,7 +2299,7 @@
   (symbol (lib_id "arcade:SN76489AN") (at 147.32 74.93 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid c184c428-0474-498a-a56f-d843b3219e98)
-    (property "Reference" "H10" (id 0) (at 147.955 58.0898 0)
+    (property "Reference" "10H" (id 0) (at 147.955 58.0898 0)
       (effects (font (size 1.2446 1.2446)))
     )
     (property "Value" "SN76489AN" (id 1) (at 147.955 60.3758 0)
