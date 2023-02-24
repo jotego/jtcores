@@ -85,7 +85,7 @@ always @(posedge clk, posedge rst) begin
         dr_ysub <= 0;
     end else begin
         dr_draw <= 0;
-        if( hs || (vdump>9'hf0 && vdump<9'h116) ) begin
+        if( hs || vdump>9'hf8 ) begin
             objcnt  <= 9'h1ff;
             done    <= 0;
             st      <= 0;

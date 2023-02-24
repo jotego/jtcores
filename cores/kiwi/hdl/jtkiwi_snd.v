@@ -122,10 +122,10 @@ end
 
 always @(posedge clk) begin
     case( fx_level )
-        2'd0: psg_gain <= 8'h03;
-        2'd1: psg_gain <= 8'h06;
-        2'd2: psg_gain <= 8'h08;
-        2'd3: psg_gain <= 8'h0a;
+        2'd0: psg_gain <= 8'h02;
+        2'd1: psg_gain <= 8'h05;
+        2'd2: psg_gain <= 8'h07;
+        2'd3: psg_gain <= 8'h09;
     endcase
     if( !psg_en ) psg_gain <= 0;
     pcm_gain <= kageki ? 8'h0A : 8'h0;

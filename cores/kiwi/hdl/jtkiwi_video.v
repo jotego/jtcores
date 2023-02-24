@@ -22,6 +22,7 @@ module jtkiwi_video(
     input               clk_cpu,
     input               pxl2_cen,
     input               pxl_cen,
+    input               hb_dly,
 
     output              LHBL,
     output              LVBL,
@@ -66,12 +67,18 @@ module jtkiwi_video(
 
 wire [ 8:0] vrender, vrender1, vdump;
 wire [ 8:0] scr_pxl, obj_pxl;
+reg         LHBL_l;
+wire        preLHBL;
+
+assign LHBL = hb_dly ? LHBL_l : preLHBL;
+
+always @(posedge clk) LHBL_l <= preLHBL;
 
 jtframe_vtimer #(
-    .HB_START( 9'd257 ),
+    .HB_START( 9'd256 ),
     .HS_START( 9'd297 ),
     .HCNT_END( 9'd383 ),
-    .HB_END  ( 9'd1   ),
+    .HB_END  ( 9'd0   ),
     .V_START ( 9'd008 ),
     .VS_START( 9'd254 ),
     .VB_START( 9'd239 ),
@@ -86,7 +93,7 @@ jtframe_vtimer #(
     .H          ( hdump      ),
     .Hinit      (            ),
     .Vinit      (            ),
-    .LHBL       ( LHBL       ),
+    .LHBL       ( preLHBL    ),
     .LVBL       ( LVBL       ),
     .HS         ( HS         ),
     .VS         ( VS         )
