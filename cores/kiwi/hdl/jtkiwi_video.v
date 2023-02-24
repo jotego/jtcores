@@ -67,12 +67,15 @@ module jtkiwi_video(
 
 wire [ 8:0] vrender, vrender1, vdump;
 wire [ 8:0] scr_pxl, obj_pxl;
-reg         LHBL_l;
+reg  [ 7:0] LHBL_l;
 wire        preLHBL;
 
-assign LHBL = hb_dly ? LHBL_l : preLHBL;
+assign LHBL = hb_dly ? LHBL_l[4] : preLHBL; // used by JTKIWI
 
-always @(posedge clk) LHBL_l <= preLHBL;
+always @(posedge clk) begin
+    LHBL_l <= LHBL_l<<1;
+    LHBL_l[0] <= preLHBL;
+end
 
 jtframe_vtimer #(
     .HB_START( 9'd256 ),
