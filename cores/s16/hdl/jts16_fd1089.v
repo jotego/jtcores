@@ -254,7 +254,7 @@ always @(preval,key,op_n) begin
     val_b = lastb;
 end
 
-jtframe_prom #(.aw(8),.simfile("fd1089.bin")) u_lut(
+jtframe_prom #(.AW(8),.SIMFILE("fd1089.bin")) u_lut(
     .clk    ( clk            ),
     .cen    ( 1'b1           ),
     .data   ( prog_data      ),

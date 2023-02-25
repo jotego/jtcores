@@ -285,7 +285,7 @@ generate
         wire [3:0] new_col = poshflip2 ? {w[0],x[0],y[0],z[0]} : {w[3],x[3],y[3],z[3]};
         wire [7:0] pal_addr = { objpal1[3:0], new_col };
 
-        jtframe_prom #(.aw(8),.dw(4), .simfile(PALETTE1_SIMFILE) ) u_prom_msb(
+        jtframe_prom #(.AW(8),.DW(4), .SIMFILE(PALETTE1_SIMFILE) ) u_prom_msb(
             .clk    ( clk            ),
             .cen    ( cen            ),
             .data   ( prog_din       ),
@@ -295,7 +295,7 @@ generate
             .q      ( prom_dout[7:4] )
         );
 
-        jtframe_prom #(.aw(8),.dw(4), .simfile(PALETTE0_SIMFILE) ) u_prom_lsb(
+        jtframe_prom #(.AW(8),.DW(4), .SIMFILE(PALETTE0_SIMFILE) ) u_prom_lsb(
             .clk    ( clk            ),
             .cen    ( cen            ),
             .data   ( prog_din       ),

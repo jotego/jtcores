@@ -69,9 +69,9 @@ reg  [ 8:0] code, vf, vfr, hf;
 assign we = ~dswn & {2{char_cs}};
 
 jtframe_dual_ram16 #(
-    .aw(11),
-    .simfile_lo("char_lo.bin"),
-    .simfile_hi("char_hi.bin")
+    .AW(11),
+    .SIMFILE_LO("char_lo.bin"),
+    .SIMFILE_HI("char_hi.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),

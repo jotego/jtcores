@@ -3,7 +3,7 @@
 module jt_gng_a5_tb;
 
 	initial begin
-		$dumpfile("test.lxt");
+		$DUMPFILE("test.lxt");
 		$dumpvars;
 		$dumpon;
 	end

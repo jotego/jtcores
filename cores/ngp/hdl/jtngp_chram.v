@@ -72,9 +72,9 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtframe_dual_ram16 #(
-    .aw         ( 12            ),
-    .simfile_lo ("ch_lo.bin"    ),
-    .simfile_hi ("ch_hi.bin"    )
+    .AW         ( 12            ),
+    .SIMFILE_LO ("ch_lo.bin"    ),
+    .SIMFILE_HI ("ch_hi.bin"    )
 ) u_chram(
     // Port 0
     .clk0   ( clk       ),

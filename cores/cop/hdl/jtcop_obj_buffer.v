@@ -98,9 +98,9 @@ always @(posedge clk, posedge rst) begin
 end
 
 
-jtframe_dual_nvram16 #(.aw(10),
-    .simfile_lo("obj_lo.bin"),
-    .simfile_hi("obj_hi.bin")
+jtframe_dual_nvram16 #(.AW(10),
+    .SIMFILE_LO("obj_lo.bin"),
+    .SIMFILE_HI("obj_hi.bin")
 ) u_buffer(
     // Port 0: CPU
     .clk0   ( clk_cpu   ),
@@ -120,9 +120,9 @@ jtframe_dual_nvram16 #(.aw(10),
     .q1b    ( ioctl_din )
 );
 
-jtframe_dual_ram16 #(.aw(10)/*,
-    .simfile_lo("obj_lo.bin"),
-    .simfile_hi("obj_hi.bin")*/
+jtframe_dual_ram16 #(.AW(10)/*,
+    .SIMFILE_LO("obj_lo.bin"),
+    .SIMFILE_HI("obj_hi.bin")*/
 ) u_copy(
     // Port 0: DMA
     .clk0   ( clk       ),

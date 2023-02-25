@@ -58,7 +58,7 @@ end
 wire [6:0] scan = { objcnt, bufcnt[2:1] };
 wire [7:0] ram_data;
 
-jtframe_dual_ram #(.aw(7),.simfile("obj.bin")/*,.synfile("objtest.hex")*/) u_ram(
+jtframe_dual_ram #(.AW(7),.SIMFILE("obj.bin")/*,.SYNFILE("objtest.hex")*/) u_ram(
     // Scan
     .clk0   ( clk         ),
     .data0  ( 8'h0        ),

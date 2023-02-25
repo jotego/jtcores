@@ -81,7 +81,7 @@ assign col_addr = { gfx_mux, pal_half };
 
 assign { blue, green, red } = col_out;
 
-jtframe_dual_ram #(.aw(8)) u_ram(
+jtframe_dual_ram #(.AW(8)) u_ram(
     .clk0   ( clk24     ),
     .clk1   ( clk       ),
     // Port 0

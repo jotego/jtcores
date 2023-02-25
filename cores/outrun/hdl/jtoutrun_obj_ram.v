@@ -50,9 +50,9 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtframe_dual_ram16 #(
-    .aw(11),
-    .simfile_lo("obj_lo.bin"),
-    .simfile_hi("obj_hi.bin")
+    .AW(11),
+    .SIMFILE_LO("obj_lo.bin"),
+    .SIMFILE_HI("obj_hi.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),

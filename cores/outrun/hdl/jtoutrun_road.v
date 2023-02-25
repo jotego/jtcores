@@ -105,7 +105,7 @@ module jtoutrun_road(
         end
     end
 
-    jtframe_dual_nvram16 #(.aw(12),.simfile_lo("roadram_lo.bin"),.simfile_hi("roadram_hi.bin"))
+    jtframe_dual_nvram16 #(.AW(12),.SIMFILE_LO("roadram_lo.bin"),.SIMFILE_HI("roadram_hi.bin"))
     u_vram0(
         // CPU
         .clk0   ( clk       ),

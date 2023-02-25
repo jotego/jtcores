@@ -55,9 +55,9 @@ assign Hinit = LHBL & ~LHBLl;
 
 // 256 bytes = 64 objects
 jtframe_dual_ram16 #(
-    .aw         (  7          ),
-    .simfile_lo ("obj_lo.bin" ),
-    .simfile_hi ("obj_hi.bin" )
+    .AW         (  7          ),
+    .SIMFILE_LO ("obj_lo.bin" ),
+    .SIMFILE_HI ("obj_hi.bin" )
 ) u_objram(
     // Port 0
     .clk0   ( clk       ),

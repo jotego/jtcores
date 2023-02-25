@@ -133,7 +133,7 @@ end
 
 wire [10:0] dmp_addr = ioctl_ram ? ioctl_addr[10:0] : rd_addr;
 
-jtframe_dual_ram #(.simfile("vram_lo.bin"),.aw(11)) u_low(
+jtframe_dual_ram #(.SIMFILE("vram_lo.bin"),.AW(11)) u_low(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
@@ -148,7 +148,7 @@ jtframe_dual_ram #(.simfile("vram_lo.bin"),.aw(11)) u_low(
     .q1     ( code          )
 );
 
-jtframe_dual_ram #(.simfile("vram_hi.bin"),.aw(11)) u_high(
+jtframe_dual_ram #(.SIMFILE("vram_hi.bin"),.AW(11)) u_high(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
@@ -164,9 +164,9 @@ jtframe_dual_ram #(.simfile("vram_hi.bin"),.aw(11)) u_high(
 );
 
 jtframe_prom #(
-    .dw ( 4     ),
-    .aw ( 8     )
-//    simfile = "477j09.b8",
+    .DW ( 4     ),
+    .AW ( 8     )
+//    SIMFILE = "477j09.b8",
 ) u_palette(
     .clk    ( clk       ),
     .cen    ( pxl_cen   ),

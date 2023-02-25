@@ -59,7 +59,7 @@ assign raw_g    = pal_raw[ 7: 4]; // b
 assign raw_b    = pal_raw[ 3: 0]; // g
 `endif
 
-jtframe_ram #(.aw(8),.synfile("pal_lut.hex")) u_lut (
+jtframe_ram #(.AW(8),.SYNFILE("pal_lut.hex")) u_lut (
     .clk    ( clk                  ),
     .cen    ( 1'b1                 ),
     .data   ( 8'd0                 ),

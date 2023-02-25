@@ -64,9 +64,9 @@ wire [11:0] raw, rgb;
 assign {red,green,blue} = rgb;
 
 jtframe_prom #(
-    .dw ( 4     ),
-    .aw ( 8     )
-//    simfile = "477j10.a12",
+    .DW ( 4     ),
+    .AW ( 8     )
+//    SIMFILE = "477j10.a12",
 ) u_red(
     .clk    ( clk       ),
     .cen    ( pxl_cen   ),
@@ -79,9 +79,9 @@ jtframe_prom #(
 );
 
 jtframe_prom #(
-    .dw ( 4     ),
-    .aw ( 8     )
-//    simfile = "477j11.a13",
+    .DW ( 4     ),
+    .AW ( 8     )
+//    SIMFILE = "477j11.a13",
 ) u_green(
     .clk    ( clk       ),
     .cen    ( pxl_cen   ),
@@ -94,9 +94,9 @@ jtframe_prom #(
 );
 
 jtframe_prom #(
-    .dw ( 4     ),
-    .aw ( 8     )
-//    simfile = "477j12.a14",
+    .DW ( 4     ),
+    .AW ( 8     )
+//    SIMFILE = "477j12.a14",
 ) u_blue(
     .clk    ( clk       ),
     .cen    ( pxl_cen   ),

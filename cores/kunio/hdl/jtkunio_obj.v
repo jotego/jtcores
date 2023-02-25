@@ -199,7 +199,7 @@ always @* begin
     endcase
 end
 
-jtframe_dual_ram #(.aw(9),.simfile("obj.bin")) u_ram(
+jtframe_dual_ram #(.AW(9),.SIMFILE("obj.bin")) u_ram(
     .clk0   ( clk         ),
     .data0  ( cpu_dout    ),
     .addr0  ( cpu_addr    ),

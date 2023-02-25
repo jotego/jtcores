@@ -172,7 +172,7 @@ T65 u_cpu(
     .DO     ( cpu_dout  )
 );
 
-jtframe_ram #(.aw(11)) u_ram(
+jtframe_ram #(.AW(11)) u_ram(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( cpu_dout      ),

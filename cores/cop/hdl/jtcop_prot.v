@@ -200,7 +200,7 @@ jtframe_ff u_ff (
     .sigedge( set_irq   )
 );
 
-jtframe_ram #(.aw(13)) u_ram(
+jtframe_ram #(.AW(13)) u_ram(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( dout      ),
@@ -209,7 +209,7 @@ jtframe_ram #(.aw(13)) u_ram(
     .q      ( ram_dout  )
 );
 
-jtframe_dual_ram #(.aw(11)) u_shared(
+jtframe_dual_ram #(.AW(11)) u_shared(
     .clk0   ( clk_cpu   ),
     .clk1   ( clk       ),
     // Main CPU

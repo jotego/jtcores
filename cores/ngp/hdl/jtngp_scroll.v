@@ -17,8 +17,8 @@
     Date: 23-3-2022 */
 
 module jtngp_scr #( parameter
-    simfile_lo = "scr1_lo.bin",
-    simfile_hi = "scr1_hi.bin"
+    SIMFILE_LO = "scr1_lo.bin",
+    SIMFILE_HI = "scr1_hi.bin"
 )(
     input             rst,
     input             clk,
@@ -60,9 +60,9 @@ end
 
 // 2048 bytes = 32x32 characters
 jtframe_dual_ram16 #(
-    .aw         (  10         ),
-    .simfile_lo ( simfile_lo  ),
-    .simfile_hi ( simfile_hi  )
+    .AW         (  10         ),
+    .SIMFILE_LO ( SIMFILE_LO  ),
+    .SIMFILE_HI ( SIMFILE_HI  )
 ) u_objram(
     // Port 0
     .clk0   ( clk       ),

@@ -218,7 +218,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_ram #(.aw(13),.dumpfile("mainmem")) u_comm(
+jtframe_dual_ram #(.AW(13),.DUMPFILE("mainmem")) u_comm(
     .clk0   ( clk        ),
     .clk1   ( clk        ),
     // Main CPU

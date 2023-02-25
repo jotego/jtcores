@@ -224,9 +224,9 @@ jtkiwi_obj u_obj(
 // memory for the CPU
 // In MAME the lower half is called spritecodelow
 // and the upper spritecodehigh
-jtframe_dual_ram16 #(.aw(12),
-    .simfile_lo("vram_lo.bin"),
-    .simfile_hi("vram_hi.bin")
+jtframe_dual_ram16 #(.AW(12),
+    .SIMFILE_LO("vram_lo.bin"),
+    .SIMFILE_HI("vram_hi.bin")
 ) u_vram(
     .clk0   ( clk_cpu    ),
     .clk1   ( clk        ),
@@ -244,7 +244,7 @@ jtframe_dual_ram16 #(.aw(12),
 
 // This memory is internal to the SETA-X1-001 chip
 // this is called spriteylow by MAME
-jtframe_dual_ram #(.aw(10),.simfile("col.bin")) u_yram(
+jtframe_dual_ram #(.AW(10),.SIMFILE("col.bin")) u_yram(
     .clk0   ( clk_cpu    ),
     .clk1   ( clk        ),
     // Main CPU

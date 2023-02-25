@@ -96,7 +96,7 @@ jtframe_sort u_sort(
 );
 
 // Palette RAM X1-007 chip
-jtframe_dual_ram #(.aw(10),.simfile("pal.bin")) u_comm(
+jtframe_dual_ram #(.AW(10),.SIMFILE("pal.bin")) u_comm(
     .clk0   ( clk_cpu      ),
     .clk1   ( clk          ),
     // Main CPU
@@ -112,7 +112,7 @@ jtframe_dual_ram #(.aw(10),.simfile("pal.bin")) u_comm(
 );
 
 // PROM for Extermination
-jtframe_prom #( .aw(9), .simfile("../../../../rom/extrmatn/b06-09.15f")) u_promhi(
+jtframe_prom #( .AW(9), .SIMFILE("../../../../rom/extrmatn/b06-09.15f")) u_promhi(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),
@@ -122,7 +122,7 @@ jtframe_prom #( .aw(9), .simfile("../../../../rom/extrmatn/b06-09.15f")) u_promh
     .q      ( prom_dout[15:8] )
 );
 
-jtframe_prom #( .aw(9), .simfile("../../../../rom/extrmatn/b06-08.17f")) u_promlo(
+jtframe_prom #( .AW(9), .SIMFILE("../../../../rom/extrmatn/b06-08.17f")) u_promlo(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),

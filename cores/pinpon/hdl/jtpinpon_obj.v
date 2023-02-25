@@ -66,7 +66,7 @@ wire        sel;
 
 assign obj_we  = oram_cs & ~cpu_rnw;
 
-jtframe_dual_ram #(.aw(11),.simfile("oram.bin")) u_hi(
+jtframe_dual_ram #(.AW(11),.SIMFILE("oram.bin")) u_hi(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),

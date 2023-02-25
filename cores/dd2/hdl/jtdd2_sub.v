@@ -169,7 +169,7 @@ always @* begin
     weB   = !main_wrn && com_cs && halted;
 end
 
-jtframe_dual_ram #(.aw(10),.dumpfile("sub.hex")) u_shared(
+jtframe_dual_ram #(.AW(10),.DUMPFILE("sub.hex")) u_shared(
     .clk0   ( clk         ),
     .clk1   ( clk         ),
 

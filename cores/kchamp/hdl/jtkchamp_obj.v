@@ -172,7 +172,7 @@ always @(posedge clk, posedge rst)  begin
     end
 end
 
-jtframe_dual_ram #(.aw(8),.simfile("obj.bin")) u_lut(
+jtframe_dual_ram #(.AW(8),.SIMFILE("obj.bin")) u_lut(
     // CPU
     .clk0   ( clk24     ),
     .data0  ( cpu_dout  ),

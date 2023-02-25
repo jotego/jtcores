@@ -180,7 +180,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_ram #(.aw(11)) u_ram(
+jtframe_ram #(.AW(11)) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dout     ),

@@ -165,8 +165,8 @@ jtngp_chram u_chram(
 );
 
 jtngp_scr #(
-    .simfile_lo("scr1_lo.bin"),
-    .simfile_hi("scr1_hi.bin")
+    .SIMFILE_LO("scr1_lo.bin"),
+    .SIMFILE_HI("scr1_hi.bin")
 ) u_scr1 (
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -191,8 +191,8 @@ jtngp_scr #(
 );
 
 jtngp_scr #(
-    .simfile_lo("scr2_lo.bin"),
-    .simfile_hi("scr2_hi.bin")
+    .SIMFILE_LO("scr2_lo.bin"),
+    .SIMFILE_HI("scr2_hi.bin")
 ) u_scr2 (
     .rst        ( rst       ),
     .clk        ( clk       ),

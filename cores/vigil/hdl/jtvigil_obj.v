@@ -207,7 +207,7 @@ end
 
 // The original address multiplexer only lets
 // the CPU address go through while in V blanking
-jtframe_dual_ram #(.aw(8),.simfile("obj.bin")) u_vram(
+jtframe_dual_ram #(.AW(8),.SIMFILE("obj.bin")) u_vram(
     // CPU
     .clk0 ( clk_cpu   ),
     .addr0( main_addr ),

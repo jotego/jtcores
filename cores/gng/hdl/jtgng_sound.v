@@ -197,13 +197,13 @@ wire intn_fm0, intn_fm1;
 
 wire RAM_we = ram_cs && !wr_n;
 
-// `define SIM_SND_RAM ,.simfile("snd_ram.hex")
+// `define SIM_SND_RAM ,.SIMFILE("snd_ram.hex")
 `ifndef SIM_SND_RAM
 `define SIM_SND_RAM
 `endif
 
 jtframe_ram #(
-    .aw(11)
+    .AW(11)
     `SIM_SND_RAM
 ) u_ram(
     .clk    ( clk      ),

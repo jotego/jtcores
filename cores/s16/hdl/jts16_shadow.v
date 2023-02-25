@@ -78,7 +78,7 @@ always @(posedge clk_rom) begin
         dout_latch <= dout;
 end
 
-jtframe_dual_ram16 #(.aw(VRAMW)) u_vram(
+jtframe_dual_ram16 #(.AW(VRAMW)) u_vram(
     .clk0       ( clk       ),
     .clk1       ( clk_rom   ),
     // CPU writes
@@ -93,7 +93,7 @@ jtframe_dual_ram16 #(.aw(VRAMW)) u_vram(
     .q1         ( vram_dout )
 );
 
-jtframe_dual_ram16 #(.aw(11)) u_char(
+jtframe_dual_ram16 #(.AW(11)) u_char(
     .clk0       ( clk       ),
     .clk1       ( clk_rom   ),
     // CPU writes
@@ -108,7 +108,7 @@ jtframe_dual_ram16 #(.aw(11)) u_char(
     .q1         ( char_dout )
 );
 
-jtframe_dual_ram16 #(.aw(11)) u_pal(
+jtframe_dual_ram16 #(.AW(11)) u_pal(
     .clk0       ( clk       ),
     .clk1       ( clk_rom   ),
     // CPU writes
@@ -123,7 +123,7 @@ jtframe_dual_ram16 #(.aw(11)) u_pal(
     .q1         ( pal_dout )
 );
 
-jtframe_dual_ram16 #(.aw(10)) u_objram(
+jtframe_dual_ram16 #(.AW(10)) u_objram(
     .clk0       ( clk       ),
     .clk1       ( clk_rom   ),
     // CPU writes

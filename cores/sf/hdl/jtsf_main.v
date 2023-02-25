@@ -412,7 +412,7 @@ jtframe_68kdtack u_dtack( // 48 -> 8MHz
 // some noise was heard
 // Up to commit 6327e7 OBJ RAM was in SDRAM, just for reference
 
-jtframe_dual_ram #(.aw(9)) u_objlow(
+jtframe_dual_ram #(.AW(9)) u_objlow(
     .clk0       ( clk_obj       ),
     .clk1       ( clk           ),
     // Port 0: CPU
@@ -427,7 +427,7 @@ jtframe_dual_ram #(.aw(9)) u_objlow(
     .q1         ( dmaout[7:0]   )
 );
 
-jtframe_dual_ram #(.aw(9)) u_objhi(
+jtframe_dual_ram #(.AW(9)) u_objhi(
     .clk0       ( clk_obj       ),
     .clk1       ( clk           ),
     // Port 0: CPU

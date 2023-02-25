@@ -166,7 +166,7 @@ always @(posedge clk) begin
         rom_cs ? { rom_data[0], rom_data[6:1], rom_data[7] } : 8'hff;
 end
 
-jtframe_ram #(.aw(11)) u_ram( // only 2kB
+jtframe_ram #(.AW(11)) u_ram( // only 2kB
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( dout      ),

@@ -142,9 +142,9 @@ end
 // end
 
 jtframe_dual_nvram16 #(
-    .aw        (13          ),
-    .simfile_lo("pal_lo.bin"),
-    .simfile_hi("pal_hi.bin")
+    .AW        (13          ),
+    .SIMFILE_LO("pal_lo.bin"),
+    .SIMFILE_HI("pal_hi.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),

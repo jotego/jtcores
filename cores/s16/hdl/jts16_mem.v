@@ -140,7 +140,7 @@ always @(posedge clk) begin
     dec_en <= fd1089_en | fd1094_en;
 end
 
-jtframe_prom #(.aw(13),.simfile("317-5021.key")) u_key(
+jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( key_din   ),

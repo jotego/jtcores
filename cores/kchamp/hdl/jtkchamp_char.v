@@ -76,7 +76,7 @@ always @(posedge clk) if( pxl_cen ) begin
     end
 end
 
-jtframe_dual_ram #(.simfile("chlo.bin")) u_low(
+jtframe_dual_ram #(.SIMFILE("chlo.bin")) u_low(
     // CPU
     .clk0   ( clk24     ),
     .data0  ( cpu_dout  ),
@@ -91,7 +91,7 @@ jtframe_dual_ram #(.simfile("chlo.bin")) u_low(
     .q1     ( scan_dout[7:0] )
 );
 
-jtframe_dual_ram #(.simfile("chhi.bin")) u_high(
+jtframe_dual_ram #(.SIMFILE("chhi.bin")) u_high(
     // CPU
     .clk0   ( clk24     ),
     .data0  ( cpu_dout  ),

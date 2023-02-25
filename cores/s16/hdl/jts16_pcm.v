@@ -158,7 +158,7 @@ t8243_sync_notri u_8243(
 );
 `endif
 
-jtframe_prom #(.simfile("7751.bin")) u_prom(
+jtframe_prom #(.SIMFILE("7751.bin")) u_prom(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prog_data     ),
@@ -168,7 +168,7 @@ jtframe_prom #(.simfile("7751.bin")) u_prom(
     .q      ( rom_data      )
 );
 
-jtframe_ram #(.aw(8)) u_ram(
+jtframe_ram #(.AW(8)) u_ram(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( ram_din       ),

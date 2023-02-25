@@ -239,7 +239,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_ram #(.aw(11),.simhexfile("vram0.hex")) u_ram0(
+jtframe_dual_ram #(.AW(11),.SIMHEXFILE("vram0.hex")) u_ram0(
     .clk0   ( clk_cpu   ),
     .clk1   ( clk       ),
     // Port 0
@@ -254,7 +254,7 @@ jtframe_dual_ram #(.aw(11),.simhexfile("vram0.hex")) u_ram0(
     .q1     ( scan0_data)
 );
 
-jtframe_dual_ram #(.aw(11),.simhexfile("vram1.hex")) u_ram1(
+jtframe_dual_ram #(.AW(11),.SIMHEXFILE("vram1.hex")) u_ram1(
     .clk0   ( clk_cpu   ),
     .clk1   ( clk       ),
     // Port 0
@@ -269,7 +269,7 @@ jtframe_dual_ram #(.aw(11),.simhexfile("vram1.hex")) u_ram1(
     .q1     ( scan1_data)
 );
 
-jtframe_dual_ram #(.aw(11),.simhexfile("vram2.hex")) u_ram2(
+jtframe_dual_ram #(.AW(11),.SIMHEXFILE("vram2.hex")) u_ram2(
     .clk0   ( clk_cpu     ),
     .clk1   ( clk       ),
     // Port 0
@@ -284,7 +284,7 @@ jtframe_dual_ram #(.aw(11),.simhexfile("vram2.hex")) u_ram2(
     .q1     ( scan2_data)
 );
 
-jtframe_dual_ram #(.aw(11),.simhexfile("vram3.hex")) u_ram3(
+jtframe_dual_ram #(.AW(11),.SIMHEXFILE("vram3.hex")) u_ram3(
     .clk0   ( clk_cpu     ),
     .clk1   ( clk       ),
     // Port 0
@@ -299,7 +299,7 @@ jtframe_dual_ram #(.aw(11),.simhexfile("vram3.hex")) u_ram3(
     .q1     ( scan3_data)
 );
 
-jtframe_prom #(.dw(4),.aw(8), .simfile("a71-25.41")) u_prom(
+jtframe_prom #(.DW(4),.AW(8), .SIMFILE("a71-25.41")) u_prom(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),

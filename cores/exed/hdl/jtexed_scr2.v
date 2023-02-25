@@ -115,7 +115,7 @@ assign pal_addr = { pal_bank, pal_hsb, cur_pxl };
 
 wire [7:0] prom_data;
 
-jtframe_prom #(.aw(8),.dw(4)) u_prom_l4(
+jtframe_prom #(.AW(8),.DW(4)) u_prom_l4(
     .clk    ( clk        ),
     .cen    ( 1'b1       ),
     .data   ( prog_din   ),
@@ -125,7 +125,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_prom_l4(
     .q      ( prom_data[3:0]  )
 );
 
-jtframe_prom #(.aw(8),.dw(4)) u_prom_l3(
+jtframe_prom #(.AW(8),.DW(4)) u_prom_l3(
     .clk    ( clk        ),
     .cen    ( 1'b1       ),
     .data   ( prog_din   ),

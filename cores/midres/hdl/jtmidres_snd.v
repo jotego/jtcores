@@ -119,7 +119,7 @@ always @(posedge clk) begin
 end
 
 /* verilator tracing_off */
-jtframe_ram #(.aw(13)) u_ram(
+jtframe_ram #(.AW(13)) u_ram(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( dout      ),
