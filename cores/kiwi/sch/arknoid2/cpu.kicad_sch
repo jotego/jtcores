@@ -1757,9 +1757,9 @@
     )
   )
 
-  (bus_alias "SHRAM" (members "~{MSHRAMRQ}" "~{OBJORVRAMEN}"))
-  (bus_alias "OBJC" (members "~{OBJCODELO}" "~{OBJCODEHI}"))
   (bus_alias "SHRAM2" (members "~{SSHRAMEN}" "~{MSHRAMEN}" "~{SHRAMCS}" "~{SHRAMWR}"))
+  (bus_alias "OBJC" (members "~{OBJCODELO}" "~{OBJCODEHI}"))
+  (bus_alias "SHRAM" (members "~{MSHRAMRQ}" "~{OBJORVRAMEN}"))
   (junction (at 300.99 201.93) (diameter 0) (color 0 0 0 0)
     (uuid 035592fb-f188-4f4d-b15f-355dc7e7010a)
   )

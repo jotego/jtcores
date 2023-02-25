@@ -2439,10 +2439,9 @@
     )
   )
 
-  (bus_alias "PLR" (members "~{1P_LEFT}" "~{1P_RIGHT}" "~{2P_LEFT}" "~{2P_RIGHT}"))
-  (bus_alias "P2" (members "P[20..27]" "COINGND"))
   (bus_alias "COIN" (members "COINGND" "COIN_1_B" "COIN_2_B"))
-
+  (bus_alias "P2" (members "P[20..27]" "COINGND"))
+  (bus_alias "PLR" (members "~{1P_LEFT}" "~{1P_RIGHT}" "~{2P_LEFT}" "~{2P_RIGHT}"))
   (junction (at 242.57 177.8) (diameter 0) (color 0 0 0 0)
     (uuid 04412803-3ac8-4b33-9fac-6c4f839a9de5)
   )
