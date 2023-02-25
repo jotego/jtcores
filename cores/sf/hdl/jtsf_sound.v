@@ -75,7 +75,7 @@ always @(posedge clk) begin
     endcase
 end
 
-jtframe_cen24 u_cenalt(
+jtframe_cen48 u_cenalt(
     .clk    ( clk       ),
     .cen12  (           ),
     .cen12b (           ),
@@ -92,18 +92,18 @@ jtframe_cen24 u_cenalt(
 );
 
 
-jtframe_cen3p57 #(.CLK24(1)) u_cen (
+jtframe_cen3p57 u_cen (
     .clk        ( clk       ),
     .cen_3p57   ( cen3p5    ),
     .cen_1p78   ( cen1p7    )
 );
 
-jtframe_cenp384 #(.CLK24(1)) u_cenp384(
+jtframe_cenp384 u_cenp384(
     .clk      ( clk       ),
     .cen_p384 ( cenp384   )
 );
 
-jtbiocom_sound #(.LAYOUT(9)) u_fmcpu(
+jtbiocom_sound #(.LAYOUT(9),.RECOVERY(1)) u_fmcpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_fm     ( cen_fm    ),

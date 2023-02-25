@@ -21,6 +21,8 @@ module jtbiocom_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
+localparam SND24=0;
+
 wire [ 8:0] V, H;
 wire        HINIT;
 
@@ -61,7 +63,10 @@ wire        prom_mcu_we, prom_prio_we;
 wire        scr1_cs, scr2_cs;
 wire [15:0] scr1_hpos, scr1_vpos;
 wire [ 8:0] scr2_hpos, scr2_vpos;
+wire        clk_snd, rst_snd;
 
+assign clk_snd  = SND24 ? clk24 : clk;
+assign rst_snd  = SND24 ? rst24 : rst;
 assign game_led = 0;
 assign clk_mcu = clk24;
 assign prom_mcu_we  = prom_we && !ioctl_addr[12];
@@ -111,8 +116,8 @@ jtframe_cen24 u_cen24(
     .cen3qb (           )
 );
 
-jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
-    .clk        ( clk24     ),       // 48 MHz
+jtframe_cen3p57 #(.CLK24(SND24)) u_cen3p57(
+    .clk        ( clk_snd   ),       // 48 MHz
     .cen_3p57   ( cen_fm    ),
     .cen_1p78   ( cen_fm2   )
 );
@@ -230,9 +235,9 @@ jtbiocom_mcu u_mcu(
     .prom_we    ( prom_mcu_we     )
 );
 
-jtbiocom_sound u_sound (
-    .rst            ( rst            ),
-    .clk            ( clk24          ),
+jtbiocom_sound #(.RECOVERY(~SND24[0])) u_sound (
+    .rst            ( rst_snd        ),
+    .clk            ( clk_snd        ),
     .cen_fm         ( cen_fm         ),
     .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU
