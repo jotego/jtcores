@@ -71,6 +71,8 @@ assign game_led = 0;
 assign clk_mcu = clk24;
 assign prom_mcu_we  = prom_we && !ioctl_addr[12];
 assign prom_prio_we = prom_we &&  ioctl_addr[12];
+assign debug_view   = 0;
+assign dip_flip     = ~flip;
 
 always @* begin
     post_addr = prog_addr;
