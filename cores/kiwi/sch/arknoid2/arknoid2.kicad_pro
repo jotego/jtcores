@@ -16,6 +16,7 @@
       "diff_pair_dimensions": [],
       "drc_exclusions": [],
       "rules": {
+        "min_copper_edge_clearance": 0.0,
         "solder_mask_clearance": 0.0,
         "solder_mask_min_width": 0.0
       },
@@ -224,7 +225,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "error",
+      "pin_to_pin": "warning",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "unannotated": "error",
@@ -238,7 +239,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "exed.kicad_pro",
+    "filename": "arknoid2.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -281,7 +282,7 @@
     "annotate_start_num": 0,
     "drawing": {
       "default_line_thickness": 6.0,
-      "default_text_size": 49.0,
+      "default_text_size": 50.0,
       "field_names": [],
       "intersheets_ref_own_page": false,
       "intersheets_ref_prefix": "",
@@ -289,9 +290,9 @@
       "intersheets_ref_show": false,
       "intersheets_ref_suffix": "",
       "junction_size_choice": 3,
-      "label_size_ratio": 0.25,
-      "pin_symbol_size": 0.0,
-      "text_offset_ratio": 0.08
+      "label_size_ratio": 0.375,
+      "pin_symbol_size": 25.0,
+      "text_offset_ratio": 0.15
     },
     "legacy_lib_dir": "",
     "legacy_lib_list": [],
@@ -309,7 +310,7 @@
       "workbook_filename": ""
     },
     "page_layout_descr_file": "",
-    "plot_directory": "../../../jtgng/doc/schematics/",
+    "plot_directory": "/home/skutis/Documents/",
     "spice_adjust_passive_values": false,
     "spice_external_command": "spice \"%I\"",
     "subpart_first_id": 65,
@@ -317,104 +318,28 @@
   },
   "sheets": [
     [
-      "4e2a4094-0e73-4c42-8ed0-49622d45116c",
+      "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
       ""
     ],
     [
-      "00000000-0000-0000-0000-00006bf9f3d0",
-      "video"
+      "f3837873-836f-404e-8467-0bad0fb96a30",
+      "CPU"
     ],
     [
-      "34b91267-4ce7-453f-ae95-f9097a351fbd",
-      "h_scroll"
+      "7b1f5bd5-dc6c-454e-babf-5e9196e5b512",
+      "GFX"
     ],
     [
-      "843b5835-3ba7-443b-98cc-8e60dd8901a8",
-      "v_scroll"
+      "c76d4423-ef1b-4a6f-8176-33d65f2877bb",
+      "IO"
     ],
     [
-      "82821697-67f4-45ac-a7ac-fe9a2019e249",
-      "scroll1"
+      "785c1caf-cb0d-4c3a-bcca-02fc34cafb5a",
+      "Sound"
     ],
     [
-      "637ffd45-9964-4aaa-bbc1-764208947b0c",
-      "scroll2"
-    ],
-    [
-      "64b28853-03fe-40b0-a0b5-81626192ecc0",
-      "object_table"
-    ],
-    [
-      "79d13ffd-b626-4a30-aa9d-ddd799742948",
-      "char"
-    ],
-    [
-      "19e6ada2-7d18-4800-8db0-b96f4345ab70",
-      "obj_lut"
-    ],
-    [
-      "467cbc84-66f3-4c4f-ad14-91a2fa5db01c",
-      "obj_counters"
-    ],
-    [
-      "a0046b78-aa4b-4575-bc00-228b2f02bd3e",
-      "sound"
-    ],
-    [
-      "d828cc57-8149-4000-ba5d-1b74a0c6af08",
-      "snd_c_latch"
-    ],
-    [
-      "cc832e92-a394-4e04-adb5-ecf25ff3275c",
-      "colmix"
-    ],
-    [
-      "6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9",
-      "main"
-    ],
-    [
-      "0eb68cad-8443-4e41-a6f0-b2487a8c0006",
-      "interruption"
-    ],
-    [
-      "61df1e9a-27d4-41fa-a2d2-cc5209d0c536",
-      "v_counter"
-    ],
-    [
-      "62e36b13-4a96-4406-90f0-153eded72cba",
-      "h_counter"
-    ],
-    [
-      "e59e7abc-dbd1-4e79-a58c-2f05c5a36c88",
-      "obj_ram"
-    ],
-    [
-      "7a2fbcae-34f5-4759-957c-79506d9a7c4b",
-      "ram_rom"
-    ],
-    [
-      "9a02f806-9f9b-4316-8130-9919e71fe46d",
-      "last_u"
-    ],
-    [
-      "801a647e-171a-42d0-8fcb-521651a3d06a",
-      "logics_gates"
-    ],
-    [
-      "20cb5816-2d88-4d4d-b3d3-f9a222ba5e22",
-      "capacitors"
-    ],
-    [
-      "15627eac-7153-4ba3-b12d-4a355f6cbd47",
-      "mux_ot"
-    ],
-    [
-      "c5a67f5f-3f2e-4d81-b443-11f61a3af7da",
-      "rom_olut"
-    ],
-    [
-      "6a611186-2c40-4461-a9da-ff435775c8bd",
-      "coin_l"
+      "2c44fe6d-514d-46ce-9fad-5a37894de851",
+      "Misc"
     ]
   ],
   "text_variables": {}

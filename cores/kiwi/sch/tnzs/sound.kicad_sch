@@ -3012,8 +3012,8 @@
     )
   )
 
-  (bus_alias "SROM" (members "~{ROMOE}" "ROMA[14..15]" "~{ROMCS}"))
   (bus_alias "S2ROM" (members "~{ROMOE}" "ROMA15" "~{ROMCS}" "ROMA14"))
+  (bus_alias "SROM" (members "~{ROMOE}" "ROMA[14..15]" "~{ROMCS}"))
 
   (junction (at 222.885 153.035) (diameter 0) (color 0 0 0 0)
     (uuid 02426f1d-3628-479d-b11b-09b4af616e63)
