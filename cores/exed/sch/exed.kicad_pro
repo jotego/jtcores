@@ -354,7 +354,7 @@
     ],
     [
       "467cbc84-66f3-4c4f-ad14-91a2fa5db01c",
-      "obj_mx"
+      "obj_counters"
     ],
     [
       "a0046b78-aa4b-4575-bc00-228b2f02bd3e",
@@ -399,6 +399,22 @@
     [
       "801a647e-171a-42d0-8fcb-521651a3d06a",
       "logics_gates"
+    ],
+    [
+      "20cb5816-2d88-4d4d-b3d3-f9a222ba5e22",
+      "capacitors"
+    ],
+    [
+      "15627eac-7153-4ba3-b12d-4a355f6cbd47",
+      "mux_ot"
+    ],
+    [
+      "c5a67f5f-3f2e-4d81-b443-11f61a3af7da",
+      "rom_olut"
+    ],
+    [
+      "6a611186-2c40-4461-a9da-ff435775c8bd",
+      "coin_l"
     ]
   ],
   "text_variables": {}
