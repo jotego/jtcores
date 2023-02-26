@@ -7,18 +7,18 @@ skip.bootlegs=true
 skip.setnames=[
     # Blank screen
     "boblbobl", "bbredux", "bub68705", "bublboblb",
-    # Garbled graphics
+    # Garbled graphics, ripoff
     # "dland",
     # No graphics
     "boblcave",
-    # 8749 MCU
+    # 8749 MCU - doesn't boot on MAME
     "bub8749",
     # Tokio hardware - Nees MCU support
     "bublboblp",
     "tokio",
     "tokioo",
     "tokiou",
-    # wrong inputs?
+    # wrong inputs and no MCU?
     "sboblbobl",
     "sboblbobla",
     "sboblboblb",
