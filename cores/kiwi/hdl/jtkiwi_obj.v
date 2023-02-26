@@ -85,7 +85,7 @@ always @(posedge clk, posedge rst) begin
         dr_ysub <= 0;
     end else begin
         dr_draw <= 0;
-        if( hs || (vdump>9'hf0 && vdump<9'h116) ) begin
+        if( hs || vdump>9'hf8 ) begin
             objcnt  <= 9'h1ff;
             done    <= 0;
             st      <= 0;
@@ -110,10 +110,10 @@ always @(posedge clk, posedge rst) begin
                         dr_hflip <= hflip^flip;
                         dr_vflip <= vflip;
                         dr_pal   <= pal;
-                        dr_xpos <= xpos;
-                        dr_ysub <= ~ysub;
-                        objcnt <=  objcnt - 1'd1;
-                        done    <= objcnt==0;
+                        dr_xpos  <= xpos;
+                        dr_ysub  <= ~ysub;
+                        objcnt   <= objcnt - 1'd1;
+                        done     <= objcnt==0;
                     end else begin
                         st <= st;
                     end
@@ -168,6 +168,5 @@ jtframe_obj_buffer #(
     .rd_addr( hdump     ),
     .rd_data( pxl       )
 );
-
 
 endmodule

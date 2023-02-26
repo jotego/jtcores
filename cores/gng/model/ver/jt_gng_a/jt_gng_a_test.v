@@ -9,7 +9,7 @@
 module jt_gng_a_test;
 	`ifdef DUMP
 	initial begin
-		$dumpfile("test.lxt");
+		$DUMPFILE("test.lxt");
 		$dumpvars(0,UUT.A1);
 		$dumpvars(1,UUT.A2);
 		//$dumpvars(1,UUT.A2.u_2C);

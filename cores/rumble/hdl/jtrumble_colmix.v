@@ -97,7 +97,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_prom #(.dw(2),.aw(8),.simfile("../../../../rom/rumble/63s141.8j")) u_prio(
+jtframe_prom #(.DW(2),.AW(8),.SIMFILE("../../../../rom/rumble/63s141.8j")) u_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),
@@ -107,7 +107,7 @@ jtframe_prom #(.dw(2),.aw(8),.simfile("../../../../rom/rumble/63s141.8j")) u_pri
     .q      ( prio          )
 );
 
-jtframe_dual_ram #(.aw(10)) u_pal(
+jtframe_dual_ram #(.AW(10)) u_pal(
     .clk0   ( clk           ),
     .clk1   ( clk           ),
     // Port 0: CPU writes

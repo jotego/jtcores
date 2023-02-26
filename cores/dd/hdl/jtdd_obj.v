@@ -159,7 +159,7 @@ always @(*) begin
     ram_addr  = obj_cs ? cpu_AB : ( scan + {5'd0,offset} );
 end
 
-jtframe_ram #(.aw(9),.simfile("obj.bin")) u_ram(
+jtframe_ram #(.AW(9),.SIMFILE("obj.bin")) u_ram(
     .clk    ( clk         ),
     .cen    ( cen_Q       ),
     .data   ( cpu_dout    ),
@@ -282,7 +282,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_ram #(.aw(10)) u_line(
+jtframe_ram #(.AW(10)) u_line(
     .clk    ( clk         ),
     .cen    ( 1'b1        ),
     .data   ( ln_data     ),

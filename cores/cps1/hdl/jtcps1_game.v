@@ -111,6 +111,7 @@ wire        clk_gfx, rst_gfx;
 wire        snd_cs, adpcm_cs, main_ram_cs, main_vram_cs, main_rom_cs,
             rom0_cs, rom1_cs,
             vram_dma_cs;
+wire [ 1:0] joymode;
 wire [15:0] snd_addr;
 wire [17:0] adpcm_addr;
 wire [ 7:0] snd_data, adpcm_data;
@@ -230,6 +231,7 @@ jtcps1_main u_main(
     .cen10b     ( cpu_cenb          ),
     .cpu_cen    (                   ),
     .turbo      ( turbo             ),
+    .joymode    ( joymode           ),
     // Timing
     .V          ( vdump             ),
     .LVBL       ( LVBL              ),
@@ -540,7 +542,7 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .kabuki_we   (               ),
     // Unused CPS2 ports
     .cps2_key_we (               ),
-    .cps2_joymode(               ),
+    .cps2_joymode( joymode       ),
     .rom0_bank   (               ),
 
     // EEPROM

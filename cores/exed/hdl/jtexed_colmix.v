@@ -91,7 +91,7 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
 // priority PROM
 wire prio_we = prom_prio_we && prog_addr[7:5]==0;
 
-jtframe_prom #(.aw(5),.dw(8)) u_prio(
+jtframe_prom #(.AW(5),.DW(8)) u_prio(
     .clk    ( clk            ),
     .cen    ( 1'b1           ),
     .data   ( prom_din       ),
@@ -102,7 +102,7 @@ jtframe_prom #(.aw(5),.dw(8)) u_prio(
 );
 
 // palette ROM
-jtframe_prom #(.aw(8),.dw(4)) u_red(
+jtframe_prom #(.AW(8),.DW(4)) u_red(
     .clk    ( clk            ),
     .cen    ( pxl_cen        ),
     .data   ( prom_din[3:0]  ),
@@ -112,7 +112,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_red(
     .q      ( pre_r          )
 );
 
-jtframe_prom #(.aw(8),.dw(4)) u_green(
+jtframe_prom #(.AW(8),.DW(4)) u_green(
     .clk    ( clk            ),
     .cen    ( pxl_cen        ),
     .data   ( prom_din[3:0]  ),
@@ -122,7 +122,7 @@ jtframe_prom #(.aw(8),.dw(4)) u_green(
     .q      ( pre_g          )
 );
 
-jtframe_prom #(.aw(8),.dw(4)) u_blue(
+jtframe_prom #(.AW(8),.DW(4)) u_blue(
     .clk    ( clk            ),
     .cen    ( pxl_cen        ),
     .data   ( prom_din[3:0]  ),

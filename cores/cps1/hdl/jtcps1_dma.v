@@ -189,7 +189,7 @@ reg [15:0] tile_din, obj_din, pal_din;
 assign vram_clr = 0;
 
 // Tile cache
-jtframe_dual_ram #(.dw(16), .aw(9)) u_tile_cache(
+jtframe_dual_ram #(.DW(16), .AW(9)) u_tile_cache(
     .clk0   ( clk           ),
     .clk1   ( clk           ),
     // Port 0: write
@@ -205,7 +205,7 @@ jtframe_dual_ram #(.dw(16), .aw(9)) u_tile_cache(
 );
 
 // OBJ table
-jtframe_dual_ram #(.dw(16), .aw(11)) u_obj_cache(
+jtframe_dual_ram #(.DW(16), .AW(11)) u_obj_cache(
     .clk0   ( clk           ),
     .clk1   ( clk           ),
     // Port 0: write
@@ -223,7 +223,7 @@ jtframe_dual_ram #(.dw(16), .aw(11)) u_obj_cache(
 assign wr_pal_addr = { pal_wr_page, pal_wr_cnt };
 
 // Palette RAM (this was phisically outside of CPS-A/B chips)
-jtframe_dual_ram #(.dw(16), .aw(12)) u_pal_ram(
+jtframe_dual_ram #(.DW(16), .AW(12)) u_pal_ram(
     .clk0   ( clk           ),
     .clk1   ( clk           ),
     // Port 0: write

@@ -19,7 +19,7 @@
 // Object Line Buffer
 
 module jtgng_objpxl #(
-    parameter          dw=4,
+    parameter          DW=4,
                        palw=0,
                        AW=8,
     parameter [AW-1:0] PXL_DLY=7,
@@ -35,8 +35,8 @@ module jtgng_objpxl #(
     input       [8:0]  posx,
     input              line,
     // pixel data
-    input       [dw-1:0]  new_pxl,
-    output      [dw-1:0]  obj_pxl
+    input       [DW-1:0]  new_pxl,
+    output      [DW-1:0]  obj_pxl
 );
 
 localparam lineA=1'b0, lineB=1'b1;
@@ -46,8 +46,8 @@ localparam lineA=1'b0, lineB=1'b1;
 reg [AW-1:0] addrA, addrB;
 reg [AW-1:0] Hcnt;
 
-wire [dw-1:0] lineA_q, lineB_q;
-reg  [dw-1:0] dataA, dataB;
+wire [DW-1:0] lineA_q, lineB_q;
+reg  [DW-1:0] dataA, dataB;
 reg           weA, weB;
 reg           pxlbuf_line;
 
@@ -63,21 +63,21 @@ always @(posedge clk) if(pxl_cen) begin
     else Hcnt <= Hcnt+1'd1;
 end
 
-wire [dw-1:0] blank = {dw{1'b1}};
+wire [DW-1:0] blank = {DW{1'b1}};
 
 reg [AW-1:0] addr_wr;
-reg [dw-1:0] data_wr;
+reg [DW-1:0] data_wr;
 reg          pxl_wr;
 
 always @(posedge clk) if(cen) begin
     data_wr <= new_pxl;
     addr_wr <= {AW{flip}} ^ posx[AW-1:0];
     // pxl_wr enable if !posx[8] for AW=8, always if AW=9
-    pxl_wr  <= (AW!=8 || !posx[8]) && (new_pxl[dw-palw-1:0]!=blank[dw-palw-1:0]); // && !DISPTM_b && LHBL;
+    pxl_wr  <= (AW!=8 || !posx[8]) && (new_pxl[DW-palw-1:0]!=blank[DW-palw-1:0]); // && !DISPTM_b && LHBL;
 end
 
 reg [   3:0] st;
-reg [dw-1:0] obj_pxl0;
+reg [DW-1:0] obj_pxl0;
 
 always @(posedge clk,posedge rst) begin
     if(rst) begin
@@ -110,7 +110,7 @@ always @(*) begin
     end
 end
 
-jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineA_buf(
+jtframe_ram #(.AW(AW),.DW(DW),.CEN_RD(0)) lineA_buf(
     .clk     ( clk             ),
     .cen     ( 1'b1            ),
     .addr    ( addrA           ),
@@ -119,7 +119,7 @@ jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineA_buf(
     .q       ( lineA_q         )
 );
 
-jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineB_buf(
+jtframe_ram #(.AW(AW),.DW(DW),.CEN_RD(0)) lineB_buf(
     .clk     ( clk             ),
     .cen     ( 1'b1            ),
     .addr    ( addrB           ),
@@ -131,7 +131,7 @@ jtframe_ram #(.aw(AW),.dw(dw),.cen_rd(0)) lineB_buf(
 generate
     if( AW==8 )begin : shifter
     // Delay pixel output in order to be aligned with the other layers
-    jtframe_sh #(.width(dw), .stages(PXL_DLY)) u_sh(
+    jtframe_sh #(.width(DW), .stages(PXL_DLY)) u_sh(
         .clk            ( clk           ),
         .clk_en         ( pxl_cen       ), // important: pixel cen!
         .din            ( obj_pxl0      ),

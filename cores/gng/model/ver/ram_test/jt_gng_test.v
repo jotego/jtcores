@@ -11,7 +11,7 @@ module jt_gng_test;
 	initial begin
 		// #(200*100*1000*1000);
 		$display("DUMP ON");
-		$dumpfile("test.lxt");
+		$DUMPFILE("test.lxt");
 		$dumpvars(0,UUT.boardA);
 		$dumpvars(0,UUT.boardB);
 		$dumpvars(1,UUT.boardA.A1);

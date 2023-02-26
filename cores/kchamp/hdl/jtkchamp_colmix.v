@@ -59,7 +59,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_prom #(.dw(4)) u_prom (
+jtframe_prom #(.DW(4)) u_prom (
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),

@@ -80,7 +80,7 @@ assign obj2_we  = obj_cs &  cpu_addr[10] & ~cpu_rnw;
 
 // four 4-bit RAM chips connected as one 16-bit RAM
 // in the original
-jtframe_dual_ram #(.simfile("obj_lo.bin")) u_lo(
+jtframe_dual_ram #(.SIMFILE("obj_lo.bin")) u_lo(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
@@ -95,7 +95,7 @@ jtframe_dual_ram #(.simfile("obj_lo.bin")) u_lo(
     .q1     ( rd1_dout      )
 );
 
-jtframe_dual_ram #(.simfile("obj_hi.bin")) u_hi(
+jtframe_dual_ram #(.SIMFILE("obj_hi.bin")) u_hi(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),

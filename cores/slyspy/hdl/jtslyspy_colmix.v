@@ -119,9 +119,9 @@ jtframe_blank #(.DLY(2),.DW(12)) u_blank(
 // grounded for the colour mixer. The CPU can still
 // use them too.
 jtframe_dual_nvram16 #(
-    .aw        (  10        ),
-    .simfile_lo("pal_lo.bin"),
-    .simfile_hi("pal_hi.bin")
+    .AW        (  10        ),
+    .SIMFILE_LO("pal_lo.bin"),
+    .SIMFILE_HI("pal_hi.bin")
 ) u_ram_gr(
     // CPU writes
     .clk0   ( clk_cpu   ),
@@ -147,9 +147,9 @@ jtframe_dual_nvram16 #(
 `endif
 
 jtframe_prom #(
-    .aw     ( 8             ),
-    .dw     ( 2             ),
-    .simfile("../../../../rom/secretag/mb7114h.21k")
+    .AW     ( 8             ),
+    .DW     ( 2             ),
+    .SIMFILE("../../../../rom/secretag/mb7114h.21k")
 ) u_selbus(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),

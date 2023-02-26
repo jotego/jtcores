@@ -105,7 +105,7 @@ module jtrastan_pc060(
     );
 
     // Force 1kB RAM to be used, so synthesis works
-    jtframe_dual_ram #(.dw(4),.aw(10)) u_share(
+    jtframe_dual_ram #(.DW(4),.AW(10)) u_share(
         // Port 0: main
         .clk0   ( clk48         ),
         .data0  ( main_dout     ),

@@ -9,60 +9,59 @@ beta = true
 [parse]
 sourcefile="tnzs.cpp"
 skip = { setnames = [
-# i8742 MCU
-# "extrmatn",
-# "extrmatnj",
-# "extrmatnu",
-# "extrmatnur",
+    # Inputs not working
+    "plumppop",     # most left column missing, see service screen
+    "chukatai",     # top screen row missing for objects plus garbage at top left
+    "chukataij",
+    "chukataija",
+    "chukataiu",
 
-# Not ready yet
-"drtoppel",
-"drtoppelj",
-"drtoppelu",
-"chukatai",
-"chukataij",
-"chukataija",
-"chukataiu",
-"tnzso",
-"tnzsjo",
-"tnzsuo",
-"tnzsoa",
-"tnzsop",
-"plumppop",
+    # No MCU dump - won't boot
+    "arknoid2",
+    "arknoid2j",
+    "arknoid2u",
+    "arknoid2b",
 
-# No MCU dump
-"arknoid2",
-"arknoid2j",
-"arknoid2u",
-"arknoid2b",
+    # Three Z80
+    "kabukiz",
+    "kabukizj",
+    "tnzs",
+    "tnzsj",
+    # Korean hack on mostly unrelated hardware
+    "jpopnics",
+] }
+main_setnames=[ "tnzso" ]
 
-# Graphics
-"kabukiz",
-"kabukizj",
-
-# Three Z80
-"tnzs",
-"tnzsj",
-# Korean hack on mostly unrelated hardware
-"jpopnics",
- ] }
-
- [header]
+[header]
  # len=$JTFRAME_HEADER
- data=[
-    { machine="extrmatn", data="03" }, # MCU - Color PROM
+info="""bit 0 = MCU
+             bit 1 = color PROM
+             bit 2 = Kabuzi Z (specific sound features)
+             bit 3 = Kageki   (specific sound features)
+             bit 4 = banked RAM
+             bit 5 = coin XOR
+             bit 6 = dip_flip XOR
+             bit 7 = HB delay                            """
+data=[
+    { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1" }, # HB dly, Banked RAM, MCU
+    { machines=["chukatai"], data="41" }, # MCU
+    { machines=["insectx"],  data="40" }, # dip_flip inversion
+    { machines=["drtoppel"], data="03" },
+    { machines=["extrmatn","plumppop","arkanoid2"], data="03" }, # MCU - Color PROM
     { machine="kabukiz",  data="04" }, # Kabuki Z sound subsystem
     { machine="kageki" ,  data="08" }, # Kageki   sound subsystem
- ]
+]
 
 [buttons]
 Names = [ { machine="insectx",  names="Fire,Warp"},
           { machine="extrmatn", names="Fire,Warp"},
+          { machine="tnzs",     names="Shoot,Jump"},
           { machine="kageki",   names="Left jab,Right hook"} ]
 
 [dipsw]
 bitcnt = 16
 delete = [ "Unused", "Unknown" ]
+rename = [{ name="P1 & P2 Children Collision", to="P1/P2 Collision" }]
 
 [ROM]
 regions = [
@@ -71,8 +70,9 @@ regions = [
     { name="audiocpu", start="JTFRAME_BA2_START" },
     { name="samples", start="PCM_START" },
     { name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[2,0,3,1] },
-    { machine="kageki", name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 5,1,7,3] },
-    { machine="insectx", name="gfx1", start="JTFRAME_BA3_START", width=16 },
+    { machines=["kageki", "tnzs", "chukatai","drtoppel" ], name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 5,1,7,3] },
+    { machines=["plumppop"], name="gfx1", start="JTFRAME_BA3_START", width=32, sequence=[4,0,6,2, 4,0,6,2, 5,1,7,3, 5,1,7,3 ] },
+    { machine="insectx",           name="gfx1", start="JTFRAME_BA3_START", width=16, no_offset=true },
     { name="proms", start="JTFRAME_PROM_START", No_offset=true },
     { name="mcu", start="MCU_START", No_offset=true   },
     { name="pal", skip=true },

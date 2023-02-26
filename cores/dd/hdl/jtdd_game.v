@@ -286,7 +286,7 @@ assign mcu_irqmain = irqmain;
 assign mcu_ban = 1'b0;
 always @(posedge clk) irqmain <= mcu_nmi_set;
 wire shared_we = com_cs && !cpu_wrn;
-jtframe_ram #(.aw(9)) u_shared(
+jtframe_ram #(.AW(9)) u_shared(
     .clk    ( clk         ),
     .cen    ( cpu_cen     ),
     .data   ( cpu_dout    ),

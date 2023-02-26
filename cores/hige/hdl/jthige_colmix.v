@@ -70,7 +70,7 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(9)) u_dly(
 );
 
 // palette ROM
-jtframe_prom #(.aw(8),.dw(8),.simfile("../../../rom/hige/hgb3.l6")) u_palette(
+jtframe_prom #(.AW(8),.DW(8),.SIMFILE("../../../rom/hige/hgb3.l6")) u_palette(
     .clk    ( clk                 ),
     .cen    ( pxl_cen             ),
     .data   ( prom_din            ),

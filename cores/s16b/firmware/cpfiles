@@ -1,0 +1,11 @@
+#!/bin/bash
+zip s16mcu_alt.zip 317-0104.c2 317-0098.c2 README
+cp s16mcu_alt.zip /opt/mame
+echo "Copying to MiSTer"
+scp s16mcu_alt.zip root@MiSTer.home:/media/fat/games/mame
+echo "Copying to MiST"
+cd ../rom/mra
+mra -z /opt/mame "Tough Turf (set 2, Japan) (8751 317-0104).mra"
+if [ -d /m/MIST ]; then
+    cp -v tturf.rom /m/MIST
+fi

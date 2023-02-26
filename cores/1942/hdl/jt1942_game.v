@@ -59,7 +59,12 @@ assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 assign debug_view = 0;
 
-assign eff_flip = `ifdef VULGUS dip_flip `else flip `endif;
+`ifndef VULGUS
+assign dip_flip = flip;
+assign eff_flip = flip;
+`else
+assign eff_flip = dip_flip;
+`endif
 
 always @* begin
     post_addr = prog_addr;

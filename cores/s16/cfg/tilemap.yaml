@@ -1,0 +1,8 @@
+game:
+  - from: s16
+    get:
+      - jts16_mmr.v
+      - jts16_char.v
+      - jts16_scr.v
+      - jts16_prio.v
+      - jts16_tilemap.v

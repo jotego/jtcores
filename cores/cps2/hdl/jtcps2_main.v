@@ -88,7 +88,7 @@ module jtcps2_main(
     input       [12:0] volume,
     // Debug
     input       [ 7:0] debug_bus,
-    output      [ 7:0] st_dout
+    output reg  [ 7:0] st_dout
 );
 
 localparam [1:0] BUT6   = 2'b00,
@@ -115,6 +115,8 @@ wire        dial_cs;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
 reg         dsn_dly, one_wait;
+wire [11:0] spin1p, spin2p;
+wire        dir1p,  dir2p;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -141,7 +143,13 @@ assign vram_cs  = ~BUSn & (dsn_dly ? reg_vram_cs : pre_vram_cs);
 assign oram_cs  = ~BUSn & (dsn_dly ? reg_oram_cs : pre_oram_cs);
 assign ppu_rstn = 1'b1;
 
-assign st_dout  = { 2'd0, dir2p, dir1p, 2'd0, dipsw[0], paddle_en };
+always @(posedge clk) begin
+    case( debug_bus[1:0] )
+        2: st_dout <= spin1p[7:0];
+        3: st_dout <= spin1p[11:8];
+        default: st_dout <= { 2'd0, dir2p, dir1p, 2'd0, dipsw[0], paddle_en };
+    endcase
+end
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -245,9 +253,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire [11:0] spin1p, spin2p;
-wire        dir1p,  dir2p;
-
 always @(posedge clk) begin
     // This still doesn't cover all cases
     // Base system, 4 players, 4 buttons
@@ -286,7 +291,8 @@ jt4701_axis u_spin1p(
     .flag_clrn  ( 1'b1      ),
     .flagn      (           ),
     .axis       ( spin1p    ),
-    .dir        ( dir1p     )
+    .dir        ( dir1p     ),
+    .step       (           )
 );
 
 jt4701_axis u_spin2p(
@@ -296,7 +302,8 @@ jt4701_axis u_spin2p(
     .flag_clrn  ( 1'b1      ),
     .flagn      (           ),
     .axis       ( spin2p    ),
-    .dir        ( dir2p     )
+    .dir        ( dir2p     ),
+    .step       (           )
 );
 
 

@@ -95,7 +95,7 @@ always @(posedge clk) if(pxl_cen) begin
     endcase
 end
 
-jtframe_dual_ram #(.aw(10),.simfile("scr_hi.bin")) u_ram_high(
+jtframe_dual_ram #(.AW(10),.SIMFILE("scr_hi.bin")) u_ram_high(
     .clk0   ( clk         ),
     .data0  ( cpu_dout    ),
     .addr0  ( cpu_AB[10:1]),
@@ -109,7 +109,7 @@ jtframe_dual_ram #(.aw(10),.simfile("scr_hi.bin")) u_ram_high(
     .q1     ( hi_data     )
 );
 
-jtframe_dual_ram #(.aw(10),.simfile("scr_lo.bin")) u_ram_low(
+jtframe_dual_ram #(.AW(10),.SIMFILE("scr_lo.bin")) u_ram_low(
     .clk0   ( clk         ),
     .data0  ( cpu_dout    ),
     .addr0  ( cpu_AB[10:1]),

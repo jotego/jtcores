@@ -1,0 +1,23 @@
+game:
+  - from: ngp
+    get:
+      - jtngp_game.v
+      - jtngp_chram.v
+      - jtngp_clocks.v
+      - jtngp_video.v
+      - jtngp_vtimer.v
+      - jtngp_scroll.v
+      - jtngp_obj.v
+      - jtngp_colmix.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v

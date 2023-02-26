@@ -11,7 +11,7 @@ names=[
 ]
 
 [header]
-data=[ {pointer=0, data="02" } ]
+data=[ {offset=0, data="02" } ]
 offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3", "proms"]}
 
 [ROM]

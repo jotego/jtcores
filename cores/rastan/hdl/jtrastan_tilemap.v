@@ -151,8 +151,8 @@ end
 */
 // Not a double line buffer
 jtframe_dual_ram #(
-    .dw (4+7    ),
-    .aw ( 9     )  // 320 points
+    .DW (4+7    ),
+    .AW ( 9     )  // 320 points
 ) u_buffer(
     // Port 0
     .clk0   ( clk       ),

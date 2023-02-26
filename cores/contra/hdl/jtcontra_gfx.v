@@ -505,7 +505,7 @@ generate
     if( BYPASS_VPROM != 0 ) begin : bypass_vprom
         assign vprom_data = BYPASS_VPROM == 2 ? vprom_addr[7:4] : vprom_addr[3:0];
     end else begin : uses_vprom
-        jtframe_prom #(.dw(4),.aw(8) ) u_vprom(
+        jtframe_prom #(.DW(4),.AW(8) ) u_vprom(
             .clk        ( clk                       ),
             .cen        ( 1'b1                      ),
             .data       ( prog_data                 ),
@@ -521,7 +521,7 @@ generate
     if( BYPASS_OPROM != 0 ) begin : bypass_oprom
         assign oprom_data = BYPASS_OPROM==2 ? oprom_addr[7:4] : oprom_addr[3:0];
     end else begin : uses_oprom
-        jtframe_prom #(.dw(4),.aw(8),.ASYNC(1) ) u_oprom(
+        jtframe_prom #(.DW(4),.AW(8),.ASYNC(1) ) u_oprom(
             .clk        ( clk                       ),
             .cen        ( 1'b1                      ),
             .data       ( prog_data                 ),
@@ -533,7 +533,7 @@ generate
     end
 endgenerate
 
-jtframe_dual_ram #(.dw(9),.aw(10)) u_line_scr(
+jtframe_dual_ram #(.DW(9),.AW(10)) u_line_scr(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0
@@ -548,7 +548,7 @@ jtframe_dual_ram #(.dw(9),.aw(10)) u_line_scr(
     .q1     ( scr_pxl   )
 );
 
-jtframe_dual_ram #(.aw(11),.simfile(SIMATTR)) u_attr_ram(
+jtframe_dual_ram #(.AW(11),.SIMFILE(SIMATTR)) u_attr_ram(
     .clk0   ( clk24     ),
     .clk1   ( clk       ),
     // Port 0
@@ -563,7 +563,7 @@ jtframe_dual_ram #(.aw(11),.simfile(SIMATTR)) u_attr_ram(
     .q1     ( attr_scan )
 );
 
-jtframe_dual_ram #(.aw(11),.simfile(SIMCODE)) u_code_ram(
+jtframe_dual_ram #(.AW(11),.SIMFILE(SIMCODE)) u_code_ram(
     .clk0   ( clk24     ),
     .clk1   ( clk       ),
     // Port 0
@@ -578,7 +578,7 @@ jtframe_dual_ram #(.aw(11),.simfile(SIMCODE)) u_code_ram(
     .q1     ( code_scan )
 );
 
-jtframe_dual_ram #(.aw(12),.simfile(SIMOBJ)) u_obj_ram(
+jtframe_dual_ram #(.AW(12),.SIMFILE(SIMOBJ)) u_obj_ram(
     .clk0   ( clk24         ),
     .clk1   ( clk           ),
     // Port 0

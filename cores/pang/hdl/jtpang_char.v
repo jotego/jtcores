@@ -92,7 +92,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // Upper half = objects, lower half = tile map
-jtframe_dual_ram #(.aw(13)) u_vram (
+jtframe_dual_ram #(.AW(13)) u_vram (
     // CPU
     .clk0  ( clk        ),
     .data0 ( cpu_dout   ),
@@ -107,7 +107,7 @@ jtframe_dual_ram #(.aw(13)) u_vram (
     .q1    ( code_dout  )
 );
 
-jtframe_dual_ram #(.aw(11)) u_attr (
+jtframe_dual_ram #(.AW(11)) u_attr (
     // CPU
     .clk0  ( clk        ),
     .data0 ( cpu_dout   ),

@@ -90,7 +90,7 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_dly(
 );
 
 // palette ROM
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-5.e8")) u_red(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -100,7 +100,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-5.e8")) u_red(
     .q      ( pre_r       )
 );
 
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-6.e9")) u_green(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),
@@ -110,7 +110,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-6.e9")) u_green(
     .q      ( pre_g       )
 );
 
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/1942/sb-7.e10")) u_blue(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/1942/sb-7.e10")) u_blue(
     .clk    ( clk         ),
     .cen    ( cen6        ),
     .data   ( prom_din    ),

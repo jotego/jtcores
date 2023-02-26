@@ -81,7 +81,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // even address
-jtframe_dual_ram #(.aw(10),.simfile("obj.bin")) u_hi(
+jtframe_dual_ram #(.AW(10),.SIMFILE("obj.bin")) u_hi(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
@@ -99,7 +99,7 @@ jtframe_dual_ram #(.aw(10),.simfile("obj.bin")) u_hi(
 // frame buffer for 64 sprites (256 bytes)
 wire [8:0] rd_addr;
 
-jtframe_dual_ram #(.aw(9)) u_low(
+jtframe_dual_ram #(.AW(9)) u_low(
     // Port 0, write
     .clk0   ( clk           ),
     .data0  ( scan_dout     ),

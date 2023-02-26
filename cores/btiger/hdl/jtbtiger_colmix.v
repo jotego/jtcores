@@ -105,7 +105,7 @@ wire [3:0] pal_red, pal_green, pal_blue;
 wire we_rg = /* !LVBL && */ redgreen_cs;
 wire we_b  = /* !LVBL && */ blue_cs;
 
-jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
+jtgng_dual_ram #(.AW(10),.SIMFILE("rg_ram.bin")) u_redgreen(
     .clk        ( clk         ),
     .clk_en     ( cen6        ), // clock enable only applies to write operation
     .data       ( DB          ),
@@ -115,7 +115,7 @@ jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
     .q          ( {pal_red, pal_green}     )
 );
 
-jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
+jtgng_dual_ram #(.AW(10),.DW(4),.SIMFILE("b_ram.bin")) u_blue(
     .clk        ( clk         ),
     .clk_en     ( cen6        ), // clock enable only applies to write operation
     .data       ( DB[3:0]     ),
@@ -127,7 +127,7 @@ jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
 
 // Clock must be faster than 6MHz so selbus is ready for the next
 // 6MHz clock cycle:
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/btiger/bd01.8j")) u_selbus(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/btiger/bd01.8j")) u_selbus(
     .clk    ( clk           ),
     .cen    ( cen12         ),
     .data   ( prom_din      ),

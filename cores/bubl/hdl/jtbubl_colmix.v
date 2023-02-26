@@ -52,7 +52,7 @@ assign green    = col_out[3:0];
 assign blue     = col_out[15:12];
 assign pal_dout = !cpu_addr[0] ? pal_even : pal_odd;
 
-jtframe_dual_ram #(.aw(8),.simhexfile("pal_even.hex")) u_ram0(
+jtframe_dual_ram #(.AW(8),.SIMHEXFILE("pal_even.hex")) u_ram0(
     .clk0   ( clk_cpu      ),
     .clk1   ( clk          ),
     // Port 0
@@ -67,7 +67,7 @@ jtframe_dual_ram #(.aw(8),.simhexfile("pal_even.hex")) u_ram0(
     .q1     ( co_bus[7:0]  )
 );
 
-jtframe_dual_ram #(.aw(8),.simhexfile("pal_odd.hex")) u_ram1(
+jtframe_dual_ram #(.AW(8),.SIMHEXFILE("pal_odd.hex")) u_ram1(
     .clk0   ( clk_cpu      ),
     .clk1   ( clk          ),
     // Port 0

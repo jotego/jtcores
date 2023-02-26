@@ -206,7 +206,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // DMA buffer
-jtframe_dual_ram #(.aw(9)) u_table (
+jtframe_dual_ram #(.AW(9)) u_table (
     // CPU
     .clk0  ( clk        ),
     .data0 ( dma_din    ),

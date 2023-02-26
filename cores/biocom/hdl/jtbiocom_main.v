@@ -278,7 +278,7 @@ end
 wire [1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
 wire       wmcu_wr  = mcu_wr_s & ram_cs;
 
-jtframe_dual_ram16 #(.aw(13)) u_work_ram (
+jtframe_dual_ram16 #(.AW(13)) u_work_ram (
     .clk0   ( clk            ),
     .clk1   ( clk            ),
     // Port 0: CPU
@@ -301,7 +301,7 @@ wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : Aeff[11:1];
 wire [ 1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
 wire        omcu_wr  = mcu_wr_s & obj_cs;
 
-jtframe_dual_ram16 #(.aw(11)) u_obj_ram (
+jtframe_dual_ram16 #(.AW(11)) u_obj_ram (
     .clk0   ( clk            ),
     .clk1   ( clk        ),
     // Port 0: CPU or Object DMA

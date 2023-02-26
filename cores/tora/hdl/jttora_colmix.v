@@ -99,7 +99,7 @@ end
 
 // Palette is in RAM
 
-jtframe_ram #(.aw(10),.dw(4),.simhexfile("palr.hex")) u_upal(
+jtframe_ram #(.AW(10),.DW(4),.SIMHEXFILE("palr.hex")) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[11:8]    ),
@@ -108,7 +108,7 @@ jtframe_ram #(.aw(10),.dw(4),.simhexfile("palr.hex")) u_upal(
     .q          ( pal_red     )
 );
 
-jtframe_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
+jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palgb.hex")) u_lpal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[7:0]     ),
@@ -119,7 +119,7 @@ jtframe_ram #(.aw(10),.dw(8),.simhexfile("palgb.hex")) u_lpal(
 
 // Clock must be faster than 6MHz so prio is ready for the next
 // 6MHz clock cycle:
-jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
+jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIM_PRIO)) u_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),

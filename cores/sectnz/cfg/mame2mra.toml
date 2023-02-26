@@ -12,8 +12,8 @@ names=[
 ]
 
 [header]
-data=[ { machine="sectionz", pointer=0, data="00" },
-       { machine="lwings",   pointer=0, data="01" } ]
+data=[ { machine="sectionz", offset=0, data="00" },
+       { machine="lwings",   offset=0, data="01" } ]
 offset={ bits=8, start=8, regions = ["soundcpu", "gfx1", "gfx2", "gfx3"]}
 
 [dipsw]

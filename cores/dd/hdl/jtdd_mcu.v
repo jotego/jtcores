@@ -155,7 +155,7 @@ m6801 u_6801(
     .irq_sci    ( 1'b0          )
 );
 
-jtframe_dual_ram #(.aw(9)) u_shared(
+jtframe_dual_ram #(.AW(9)) u_shared(
     .clk0   ( clk         ),
     .clk1   ( clk         ),
 
@@ -172,7 +172,7 @@ jtframe_dual_ram #(.aw(9)) u_shared(
 
 wire intram_we = ram_cs & ~rnw;
 
-jtframe_ram #(.aw(8)) u_intram(
+jtframe_ram #(.AW(8)) u_intram(
     .clk    ( clk         ),
     .cen    ( cpu_cen     ),
     .data   ( mcu_dout    ),

@@ -125,7 +125,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_ram #(.aw(11)) u_vram(
+jtframe_dual_ram #(.AW(11)) u_vram(
     // CPU
     .clk0 ( clk_cpu   ),
     .addr0( main_addr ),

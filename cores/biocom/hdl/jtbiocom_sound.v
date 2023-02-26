@@ -26,7 +26,7 @@ module jtbiocom_sound(
     input           cen_fm2,  // 14.31318/4/8 MHz ~ 1.75 MHz =>  5/134 of 48MHz clock
     // Interface with main CPU
     input   [7:0]   snd_latch,
-    (*keep*) input           nmi_n,
+    input           nmi_n,
     // Interface with MCU
     input   [7:0]   snd_din,
     output  [7:0]   snd_dout,
@@ -44,7 +44,8 @@ module jtbiocom_sound(
     output                sample
 );
 
-parameter LAYOUT=3; // 9 for SF
+parameter LAYOUT  = 3, // 9 for SF
+          RECOVERY= 0;
 `ifndef NOSOUND
 
 wire [15:0] A;
@@ -112,7 +113,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_ram #(.aw(11)) u_ram(
+jtframe_ram #(.AW(11)) u_ram(
     .clk    ( clk      ),
     .cen    ( 1'b1     ),
     .data   ( dout     ),
@@ -122,7 +123,7 @@ jtframe_ram #(.aw(11)) u_ram(
 );
 
 
-jtframe_z80_romwait #(.RECOVERY(0)) u_cpu(
+jtframe_z80_romwait #(.RECOVERY(RECOVERY)) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),

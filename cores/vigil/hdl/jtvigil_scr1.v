@@ -64,7 +64,7 @@ assign scan_addr = { v[7:3], hsum[8:3], hsum[0] };
 assign hraw = {1'b0, h[8], h[7]|h[8], h[6:0] } +
             (v[7:3] >= SCORE_ROW ? { 1'b0, scrpos } : 10'd0)
             + 10'h7f;
-jtframe_dual_ram #(.aw(12)) u_vram(
+jtframe_dual_ram #(.AW(12)) u_vram(
     // CPU
     .clk0 ( clk_cpu   ),
     .addr0( main_addr ),

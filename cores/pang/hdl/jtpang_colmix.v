@@ -67,7 +67,7 @@ always @(posedge clk) begin
         nr <= col_half[3:0];
 end
 
-jtframe_dual_ram #(.aw(12)) u_dual_ram (
+jtframe_dual_ram #(.AW(12)) u_dual_ram (
     // CPU
     .clk0  ( clk        ),
     .data0 ( cpu_dout   ),

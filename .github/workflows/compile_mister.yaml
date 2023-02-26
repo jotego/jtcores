@@ -1,0 +1,56 @@
+name: Compile all MiSTer cores
+
+on:
+  workflow_dispatch:
+
+  repository_dispatch:
+    types: rebuild
+
+jobs:
+  list_cores:
+    runs-on: ubuntu-latest
+    outputs:
+      cores: ${{ steps.generate-matrix.outputs.cores }}
+    steps:
+    - uses: actions/checkout@v3
+    - id: generate-matrix
+      run: |
+        cd cores
+        CORES=$(tree -J -d -L 1 | jq -c '.[0].contents | map(.name)')
+        echo $CORES
+        echo "cores=${CORES}" >> $GITHUB_OUTPUT
+
+  compile_cores17:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs:
+      - list_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: submodules
+        run: |
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git submodule init
+          git submodule update --depth 1
+          cd modules
+          cd jt12
+          git submodule init
+          git submodule update --depth 1
+          cd ../..
+      - id: compile
+        run: |
+          # Do not attempt to compile core in progress
+          if [ -e cores/$${matrix.core}/cfg/macros.def ]; then
+            docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
+          fi
+      - id: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: jtcore17_rbf
+          path: release

@@ -115,7 +115,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_ram #(.dw(11), .aw(10)) u_line1(
+jtframe_dual_ram #(.DW(11), .AW(10)) u_line1(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0: write
@@ -130,7 +130,7 @@ jtframe_dual_ram #(.dw(11), .aw(10)) u_line1(
     .q1     ( pre1_pxl  )
 );
 
-jtframe_dual_ram #(.dw(11), .aw(10)) u_line2(
+jtframe_dual_ram #(.DW(11), .AW(10)) u_line2(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0: write
@@ -145,7 +145,7 @@ jtframe_dual_ram #(.dw(11), .aw(10)) u_line2(
     .q1     ( pre2_pxl  )
 );
 
-jtframe_dual_ram #(.dw(11), .aw(10)) u_line3(
+jtframe_dual_ram #(.DW(11), .AW(10)) u_line3(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0: write

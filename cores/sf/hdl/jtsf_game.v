@@ -198,8 +198,8 @@ assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
        ba1_dsn = 3, ba2_dsn = 3, ba3_dsn = 3;
 assign debug_view = 0;
 
-always @(negedge clk24) begin
-    snd_rst   <= rst24;
+always @(negedge clk) begin
+    snd_rst   <= rst;
 end
 
 always @(negedge clk) begin
@@ -461,7 +461,7 @@ jtsf_sound #(
     .SND2W( SND2W )
 ) u_sound (
     .rst            ( snd_rst        ),
-    .clk            ( clk24          ),
+    .clk            ( clk            ),
     .pcm_level      ( dip_fxlevel    ),
     // Interface with main CPU
     .snd_latch      ( snd_latch      ),

@@ -10,7 +10,7 @@ module jt_gng_test;
 	`ifdef DUMP
 	initial begin
 		$display("DUMP ON");
-		$dumpfile("test.lxt");
+		$DUMPFILE("test.lxt");
 		$dumpvars(2,UUT.boardA);
 		$dumpvars(2,UUT.boardB);
 		$dumpvars(1,UUT.boardA.A1);

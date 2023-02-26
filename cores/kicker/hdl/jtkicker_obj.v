@@ -84,7 +84,7 @@ assign obj1_we  = obj1_cs & ~cpu_rnw;
 assign obj2_we  = obj2_cs & ~cpu_rnw;
 
 // Mapped at 0x3000
-jtframe_dual_ram #(.simfile("obj2.bin")) u_hi(
+jtframe_dual_ram #(.SIMFILE("obj2.bin")) u_hi(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
@@ -100,7 +100,7 @@ jtframe_dual_ram #(.simfile("obj2.bin")) u_hi(
 );
 
 // Mapped at 0x2800
-jtframe_dual_ram #(.simfile("obj1.bin")) u_low(
+jtframe_dual_ram #(.SIMFILE("obj1.bin")) u_low(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
