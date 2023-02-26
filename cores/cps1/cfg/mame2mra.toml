@@ -175,4 +175,6 @@ data=[
 	{ data="FF 00 FF FF FF FF 30 2E 2C 2A 28 00 00 26 20 10 08 00 29 40 88 73 FF 00", offset=16, setnames=[ "willow", "willowj", "willowu", "willowuo" ] },
 	{ data="32 FF 00 02 04 06 26 28 2A 2C 2E 36 00 30 02 04 08 30 25 40 88 73 FF 03", offset=16, setnames=[ "wofhfh" ] },
 	{ data="32 80 0E 0C 0A 08 28 26 24 22 20 00 00 30 20 04 08 12 1C 20 64 31 33 00", offset=16, setnames=[ "wonder3" ] },
+    # Special controls
+    { machine="pokonyan", offset=40, data="FE" },
 ]
