@@ -65,7 +65,7 @@ assign col_addr = MERGE ? { gfx1_pxl[4],  gfx1_pal[3:0], gfx1_pxl[3:0], pal_half
 
 assign { blue, green, red } = col_out;
 
-jtframe_dual_ram #(.aw(10)) u_ram(
+jtframe_dual_ram #(.AW(10)) u_ram(
     .clk0   ( clk24     ),
     .clk1   ( clk       ),
     // Port 0

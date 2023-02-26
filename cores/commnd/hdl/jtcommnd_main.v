@@ -310,7 +310,7 @@ wire [12:0] RAM_addr = blcnten ?
         : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
-jtframe_ram #(.aw(13),.cen_rd(0)) RAM(
+jtframe_ram #(.AW(13),.CEN_RD(0)) RAM(
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),
     .addr       ( RAM_addr  ),
@@ -391,7 +391,7 @@ jtframe_z80wait #(2) u_wait(
     .gate       (           )
 );
 
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/commando/vtb5.6l")) u_vprom(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/commando/vtb5.6l")) u_vprom(
     .clk    ( clk          ),
     .cen    ( cen6         ),
     .data   ( prog_din     ),

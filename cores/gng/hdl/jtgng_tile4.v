@@ -277,7 +277,7 @@ generate
         wire [7:0] pal_addr = SCxON ? { scr_pal0, scr_col0 } : 8'hFF;
 
         // Palette
-        jtframe_prom #(.aw(8),.dw(2),.simfile(SIMFILE_MSB)) u_prom_msb(
+        jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIMFILE_MSB)) u_prom_msb(
             .clk    ( clk            ),
             .cen    ( cen6           ),
             .data   ( prom_din[1:0]  ),
@@ -287,7 +287,7 @@ generate
             .q      ( scr_pxl[5:4]   )
         );
 
-        jtframe_prom #(.aw(8),.dw(4),.simfile(SIMFILE_LSB)) u_prom_lsb(
+        jtframe_prom #(.AW(8),.DW(4),.SIMFILE(SIMFILE_LSB)) u_prom_lsb(
             .clk    ( clk            ),
             .cen    ( cen6           ),
             .data   ( prom_din       ),

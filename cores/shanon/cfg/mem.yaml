@@ -1,0 +1,47 @@
+# include: [ {game:outrun } ]
+game: outrun
+params:
+  - { name: ROAD_START }
+  - { name: FD_PROM,     value: "`FD1089_START" }
+  - { name: SND_OFFSET, value: "(`SND_START-BA1_START)>>1" }
+  - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
+  - { name: SRAM_OFFSET, value: 22'h18_0000 }
+  - { name: RD0_OFFSET,  value: (ROAD_START-BA3_START)>>1 }
+  - { name: RD1_OFFSET,  value: RD0_OFFSET+22'h4000 }
+ports:
+  - name: gfx_cs
+sdram:
+  banks:
+    # Bank 0 for the main and sub CPUs
+    -
+      buses:
+        - { name: xram,   addr_width: 17, data_width: 16, offset: VRAM_OFFSET, rw: true }
+        - { name: subram, addr_width: 15, data_width: 16, offset: SRAM_OFFSET, rw: true }
+        - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+        - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+        - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+      # dump:
+      #   - { dst_addr: 16384, offset: VRAM_OFFSET, addr_width: 16 }
+
+    # Bank 1 for sound & frame buffer
+    -
+      buses:
+        - { name: subrom, addr_width: 19, data_width: 16 } # ok latch 0, # latch 0
+        - { name: snd, addr_width: 16, data_width: 8, offset: SND_OFFSET }
+        - { name: pcm, addr_width: 19, data_width: 8, offset: PCM_OFFSET }
+
+    # Bank 2 for tile graphics
+    -
+      buses:
+        # - { name: fbuf, addr_width: 18, data_width: 16, offset: FBUF_OFFSET, rw: true }
+        - { name: char, addr_width: 14, data_width: 32, cs: gfx_cs }
+        - { name: scr1, addr_width: 18, data_width: 32, cs: gfx_cs }
+        - { name: scr2, addr_width: 18, data_width: 32, cs: gfx_cs }
+
+    # Bank 3 for objects and roads
+    -
+      buses:
+        - { name: obj, addr_width: 21, data_width: 16 } # this line is different in Out Run
+        - { name: rd0, addr_width: 15, data_width: 16, offset: RD0_OFFSET }
+        - { name: rd1, addr_width: 15, data_width: 16, offset: RD1_OFFSET }

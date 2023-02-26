@@ -8,7 +8,7 @@ mustbe.devices=["qsound_hle"]
 skip.bootlegs=true
 
 [dipsw]
-delete=[ "Unused" ]
+delete=[ "Unused", "Unknown" ]
 
 [buttons]
 names=[
@@ -21,35 +21,35 @@ names=[
 fill=0xff
 offset={ bits=10, regions=["audiocpu","qsound","gfx","firmware"], reverse=true }
 data=[
-    {machine="dino", pointer=16, data="""
+    {machine="dino", offset=16, data="""
         ff ff ff ff ff ff 0a 0c
         0e 00 02 00 00 04 16 16
         16 00 05 40 88 73 ff 20
         ff ff ff ff ff ff ff ff
         76 54 32 10 24 60 13 57
         43 43 43 ff ff ff ff ff """},
-    {machine="mbombrd", pointer=16, data="""
+    {machine="mbombrd", offset=16, data="""
         1e c2 ff ff ff ff 2a 2c
         2e 30 32 00 00 1c 04 08
         10 00 10 40 c8 73 f7 20
         ff ff ff ff ff ff ff ff
         54 32 10 76 65 43 21 07
         31 31 19 ff ff ff ff ff """},
-    {machine="slammast", pointer=16, data="""
+    {machine="slammast", offset=16, data="""
         2e c1 ff ff ff ff 16 00
         02 28 2a 00 00 2c 04 08
         10 00 10 40 c8 73 f7 20
         ff ff ff ff ff ff ff ff
         54 32 10 76 65 43 21 07
         31 31 19 ff ff ff ff ff """},
-    {machine="punisher", pointer=16, data="""
+    {machine="punisher", offset=16, data="""
         0e c0 ff ff ff ff 12 14
         16 08 0a 00 00 0c 04 02
         20 00 17 40 88 73 ff 20
         ff ff ff ff ff ff ff ff
         67 45 21 03 75 31 60 24
         22 22 22 ff ff ff ff ff  """},
-    {machine="wof", pointer=16, data="""
+    {machine="wof", offset=16, data="""
         ff ff ff ff ff ff 22 24
         26 28 2a 00 00 2c 10 08
         04 00 25 40 88 73 ff 20

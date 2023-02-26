@@ -44,7 +44,7 @@ wire [9:0]    addr1 = erase ? {~vdump, last_h} : { ~vdump, hdf    }; // read
 wire [DW-1:0] pre_pxl;
 wire          wr1 = buf_wr && buf_data[3:0]!=4'hf;
 
-jtframe_dual_ram #(.dw(DW), .aw(10)) u_line(
+jtframe_dual_ram #(.DW(DW), .AW(10)) u_line(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0: write

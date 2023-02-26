@@ -72,9 +72,9 @@ end
 // only during blankings.
 `ifndef GRAY
 jtframe_dual_ram16 #(
-    .aw         (           11  ),
-    .simfile_lo ( "pal_lo.bin"  ),
-    .simfile_hi ( "pal_hi.bin"  )
+    .AW         (           11  ),
+    .SIMFILE_LO ( "pal_lo.bin"  ),
+    .SIMFILE_HI ( "pal_hi.bin"  )
 ) u_palram(
     // Port 0: CPU
     .clk0   ( clk       ),

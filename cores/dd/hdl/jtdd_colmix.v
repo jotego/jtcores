@@ -91,7 +91,7 @@ always @(posedge clk) if(pxl_cen) begin
     { blue, green, red } <= BL ? 12'd0 : { pal_b, pal_gr };
 end
 
-jtframe_ram #(.aw(9),.simfile("pal_gr.bin")) u_pal_gr(
+jtframe_ram #(.AW(9),.SIMFILE("pal_gr.bin")) u_pal_gr(
     .clk    ( clk         ),
     .cen    ( cen_Q     ),
     .data   ( pal_din     ),
@@ -100,7 +100,7 @@ jtframe_ram #(.aw(9),.simfile("pal_gr.bin")) u_pal_gr(
     .q      ( pal_gr      )
 );
 
-jtframe_ram #(.aw(9),.dw(4),.simfile("pal_b.bin")) u_pal_b(
+jtframe_ram #(.AW(9),.DW(4),.SIMFILE("pal_b.bin")) u_pal_b(
     .clk    ( clk           ),
     .cen    ( cen_Q       ),
     .data   ( cpu_dout[3:0] ),
@@ -109,7 +109,7 @@ jtframe_ram #(.aw(9),.dw(4),.simfile("pal_b.bin")) u_pal_b(
     .q      ( pal_b         )
 );
 
-jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_prio(
+jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIM_PRIO)) u_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),

@@ -114,9 +114,9 @@ jtframe_blank #(.DLY(2),.DW(24)) u_blank(
 
 // Red - Green palette RAM
 jtframe_dual_ram16 #(
-    .aw        ( 10          ),
-    .simfile_lo("pal0_lo.bin"),
-    .simfile_hi("pal0_hi.bin")
+    .AW        ( 10          ),
+    .SIMFILE_LO("pal0_lo.bin"),
+    .SIMFILE_HI("pal0_hi.bin")
 ) u_ram_gr(
     // CPU writes
     .clk0   ( clk_cpu   ),
@@ -142,8 +142,8 @@ jtframe_dual_ram16 #(
 
 // Blue palette RAM
 jtframe_dual_ram #(
-    .aw     ( 10       ),
-    .simfile("pal1_lo.bin")
+    .AW     ( 10       ),
+    .SIMFILE("pal1_lo.bin")
 ) u_ram_b(
     // CPU writes
     .clk0   ( clk_cpu   ),
@@ -163,9 +163,9 @@ jtframe_dual_ram #(
 );
 
 jtframe_prom #(
-    .aw     ( 10            ),
-    .dw     ( 2             ),
-    .simfile("../../../../rom/robocop/mb7122e_a-2.17e")
+    .AW     ( 10            ),
+    .DW     ( 2             ),
+    .SIMFILE("../../../../rom/robocop/mb7122e_a-2.17e")
 ) u_selbus(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),

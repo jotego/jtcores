@@ -18,16 +18,14 @@ skip.setnames=[
     "ddragon6809a",
     "tstrike",
     "tstrikea",
+    # Bad rip-offs from other games
+    # not worth the effort:
     "ddungeon",
     "ddungeone",
     "darktowr",
     "toffy",
     "stoffy",
     "stoffyu",
-    # not booting correctly
-    "ddragon2b",
-    "ddragon2u",
-    "ddragon2j",
 ]
 
 [buttons]
@@ -48,7 +46,11 @@ regions=[
 { name="maincpu", sequence=[1,2,3,3,4] },
 { name="soundcpu", no_offset=true },
 { name="gfx1" },
-{ name="proms", no_offset=true}
+# In MAME versions past 0.251 the explicit PROMS may not be needed
+{ name="proms", no_offset=true, files =[
+        { name="21j-k-0", size=256, crc="fdb130a9" },
+        { name="prom.16", size=512, crc="46339529" }
+    ]},
 ]
 
 order=[

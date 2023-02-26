@@ -3,7 +3,14 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="1942.cpp"
-skip.setnames=["1942abl","1942p"]
+skip.setnames=[
+    "1942abl",
+    "1942p",
+    "1942fpa",
+    "1942hc64",
+    "1942gx64",
+    "galagax",
+]
 
 [buttons]
 names=[

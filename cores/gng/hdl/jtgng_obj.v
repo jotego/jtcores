@@ -209,7 +209,7 @@ generate
 endgenerate
 
 jtgng_objpxl #(
-    .dw     ( PXLW        ),
+    .DW     ( PXLW        ),
     .palw   ( PALW        ),
     .PXL_DLY( PXL_DLY     ),
     .AW     ( LINEBUF_AW  ),

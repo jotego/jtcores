@@ -118,7 +118,7 @@ always @(posedge clk) if(cen6) {LHBL, LVBL} <= pre_BL;
 // palette ROM
 wire [3:0] pal_red, pal_green, pal_blue;
 
-jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_RED)) u_red(
     .clk    ( clk         ),
     .cen    ( 1'b1        ),
     .data   ( prom_din    ),
@@ -128,7 +128,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
     .q      ( pal_red     )
 );
 
-jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_GREEN)) u_green(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din      ),
@@ -138,7 +138,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
     .q      ( pal_green     )
 );
 
-jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_BLUE)) u_blue(
     .clk    ( clk          ),
     .cen    ( 1'b1         ),
     .data   ( prom_din     ),
@@ -150,7 +150,7 @@ jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
 
 // Clock must be faster than 6MHz so selbus is ready for the next
 // 6MHz clock cycle:
-jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_PRIOR)) u_selbus(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_PRIOR)) u_selbus(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din      ),

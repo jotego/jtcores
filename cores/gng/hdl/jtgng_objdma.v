@@ -124,7 +124,7 @@ end
 `define OBJDMA_SIMFILE "objdma.bin"
 `endif
 
-jtgng_dual_ram #(.aw(AW),.dw(DW),.simfile(`OBJDMA_SIMFILE)) u_objram (
+jtgng_dual_ram #(.AW(AW),.DW(DW),.SIMFILE(`OBJDMA_SIMFILE)) u_objram (
     .clk        ( clk         ),
     .clk_en     ( 1'b1        ),
     .data       ( wr_data     ),

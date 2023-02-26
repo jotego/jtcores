@@ -118,7 +118,7 @@ generate
 if( PALETTE_PROM==1) begin
     // palette is in PROM
 
-    jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_RED)) u_red(
+    jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_RED)) u_red(
         .clk    ( clk          ),
         .cen    ( 1'b1         ),
         .data   ( prom_din     ),
@@ -128,7 +128,7 @@ if( PALETTE_PROM==1) begin
         .q      ( pal_red      )
     );
 
-    jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_GREEN)) u_green(
+    jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_GREEN)) u_green(
         .clk    ( clk          ),
         .cen    ( 1'b1         ),
         .data   ( prom_din     ),
@@ -138,7 +138,7 @@ if( PALETTE_PROM==1) begin
         .q      ( pal_green    )
     );
 
-    jtframe_prom #(.aw(8),.dw(4),.simfile(PALETTE_BLUE)) u_blue(
+    jtframe_prom #(.AW(8),.DW(4),.SIMFILE(PALETTE_BLUE)) u_blue(
         .clk    ( clk          ),
         .cen    ( 1'b1         ),
         .data   ( prom_din     ),
@@ -178,7 +178,7 @@ end else begin
         end
     end
 
-    jtgng_dual_ram #(.aw(8),.simfile("rg_ram.hex")) u_redgreen(
+    jtgng_dual_ram #(.AW(8),.SIMFILE("rg_ram.hex")) u_redgreen(
         .clk        ( clk         ),
         .clk_en     ( 1'b1        ), // clock enable only applies to write operation
         .data       ( pal_din     ),
@@ -188,7 +188,7 @@ end else begin
         .q          ( pre_rg      )
     );
 
-    jtgng_dual_ram #(.aw(8),.dw(4),.simfile("b_ram.hex")) u_blue(
+    jtgng_dual_ram #(.AW(8),.DW(4),.SIMFILE("b_ram.hex")) u_blue(
         .clk        ( clk         ),
         .clk_en     ( 1'b1        ), // clock enable only applies to write operation
         .data       ( BLUELOW ? pal_din[3:0] : pal_din[7:4] ),

@@ -4,7 +4,7 @@ module jtgng_vga_test;
 
 `ifndef NCVERILOG
     initial begin
-        $dumpfile("test.lxt");
+        $DUMPFILE("test.lxt");
         `ifndef SIMPLL
         $dumpvars;
         `else

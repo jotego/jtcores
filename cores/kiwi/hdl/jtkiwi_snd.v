@@ -74,8 +74,8 @@ module jtkiwi_snd(
     output               sample,
     output               peak,
     // Debug
-    input      [ 7:0]   st_addr,
-    output reg [ 7:0]   st_dout
+    input      [ 7:0]    st_addr,
+    output reg [ 7:0]    st_dout
 );
 `ifndef NOSOUND
 
@@ -102,6 +102,7 @@ assign ram_din  = dout;
 assign ram_addr = A[12:0];
 assign cpu_rnw  = wr_n | ~cpu_cen;
 assign mcu_comb_rst = ~(mcu_rstn & comb_rstn);
+// assign mcu_comb_rst = ~comb_rstn;
 assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
 
@@ -121,10 +122,10 @@ end
 
 always @(posedge clk) begin
     case( fx_level )
-        2'd0: psg_gain <= 8'h03;
-        2'd1: psg_gain <= 8'h06;
-        2'd2: psg_gain <= 8'h08;
-        2'd3: psg_gain <= 8'h0a;
+        2'd0: psg_gain <= 8'h02;
+        2'd1: psg_gain <= 8'h05;
+        2'd2: psg_gain <= 8'h07;
+        2'd3: psg_gain <= 8'h09;
     endcase
     if( !psg_en ) psg_gain <= 0;
     pcm_gain <= kageki ? 8'h0A : 8'h0;

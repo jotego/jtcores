@@ -196,8 +196,8 @@ always @(posedge clk ) begin
     end
 end
 
-jtframe_prom #(.aw(8),.dw(4),
-    .simfile("../../../rom/1942/sb-8.k3")
+jtframe_prom #(.AW(8),.DW(4),
+    .SIMFILE("../../../rom/1942/sb-8.k3")
 ) u_prom_k3(
     .clk    ( clk            ),
     .cen    ( 1'b1           ),

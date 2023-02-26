@@ -77,6 +77,7 @@ ncverilog.*
 obj_dir
 old/*
 release/*
+release.bak/*
 rom/mra
 rom/pocket
 sim

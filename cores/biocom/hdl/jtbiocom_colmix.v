@@ -129,7 +129,7 @@ assign coloff = ~preLBL;
 // Palette is in RAM
 
 `ifndef GRAY
-jtframe_ram #(.aw(10),.dw(8),.simhexfile("palrg.hex")) u_upal(
+jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palrg.hex")) u_upal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[15:8]    ),
@@ -138,7 +138,7 @@ jtframe_ram #(.aw(10),.dw(8),.simhexfile("palrg.hex")) u_upal(
     .q          ( {pal_red, pal_green } )
 );
 
-jtframe_ram #(.aw(10),.dw(8),.simhexfile("palbb.hex")) u_lpal(
+jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palbb.hex")) u_lpal(
     .clk        ( clk         ),
     .cen        ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[7:0]     ),
@@ -163,7 +163,7 @@ end
 
 // Clock must be faster than 6MHz so pre_prio is ready for the next
 // 6MHz clock cycle:
-jtframe_prom #(.aw(8),.dw(2),.simfile(SIM_PRIO)) u_pre_prio(
+jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIM_PRIO)) u_pre_prio(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prom_din[1:0] ),

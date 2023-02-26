@@ -118,7 +118,7 @@ endgenerate
 `define JTCHAR_LOWER_SIMFILE
 `endif
 
-jtframe_dual_ram #(.aw(SCANW),.simfile(LOWER_SIMFILE)) u_ram_low(
+jtframe_dual_ram #(.AW(SCANW),.SIMFILE(LOWER_SIMFILE)) u_ram_low(
     .clk0   ( clk      ),
     .clk1   ( clk      ),
     // CPU
@@ -136,7 +136,7 @@ jtframe_dual_ram #(.aw(SCANW),.simfile(LOWER_SIMFILE)) u_ram_low(
 // attributes
 // the default value for synthesis will display a ROM load message using
 // the palette attributes
-jtframe_dual_ram #(.aw(SCANW),.simfile(UPPER_SIMFILE)) u_ram_high(
+jtframe_dual_ram #(.AW(SCANW),.SIMFILE(UPPER_SIMFILE)) u_ram_high(
     .clk0   ( clk      ),
     .clk1   ( clk      ),
     // CPU

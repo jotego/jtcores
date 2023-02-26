@@ -32,6 +32,7 @@ module jtcps1_main(
     output reg         ppu2_cs,
     output reg         ppu_rstn,
     input   [15:0]     mmr_dout,
+    input   [ 1:0]     joymode,
     // Sound
     output  reg  [7:0] snd_latch0,
     output  reg  [7:0] snd_latch1,
@@ -78,8 +79,7 @@ module jtcps1_main(
     input    [7:0]     dipsw_b,
     input    [7:0]     dipsw_c
     // QSound
-    `ifdef CPS15
-    ,
+    `ifdef CPS15 ,
     output reg         eeprom_sclk,
     output reg         eeprom_sdi,
     input              eeprom_sdo,
@@ -328,7 +328,10 @@ always @(posedge clk) begin
     else if( joy4_cs )
         sys_data <= { 2{start_button[3], coin_input[3], joystick4[5:0] }};
 `else
-    if( joy_cs ) sys_data <= { joystick2[7:0], joystick1[7:0] };
+    if( joy_cs ) begin
+        sys_data <= { joystick2[7:0], joystick1[7:0] };
+        if( !joymode[0] ) sys_data[1:0]=dial_x;
+    end
 `endif
     else if(sys_cs) begin
         case( A[2:1] )

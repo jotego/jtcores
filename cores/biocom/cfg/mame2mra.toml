@@ -18,7 +18,8 @@ rename=[
 [ROM]
 regions=[
     { name="maincpu", width=16, reverse=true },
-    { name="gfx2", width=16, reverse=true, start="JTFRAME_BA1_START" },
+    # gfx2 = scroll 2
+    { name="gfx2", width=16, reverse=true, start="JTFRAME_BA1_START", no_offset=true },
     { name="gfx1", start="FIX_START", reverse=true },
     { name="gfx3", width=16, sequence=[4,0,5,1,6,2,7,3], start="JTFRAME_BA2_START" },
     { name="audiocpu", no_offset=true, start="JTFRAME_BA3_START" },

@@ -7,5 +7,10 @@ else
     export JTROOT=$(pwd)
     export JTFRAME=$JTROOT/modules/jtframe
 
-    source $JTFRAME/bin/setprj.sh $*
+    source $JTFRAME/bin/setprj.sh
+fi
+if [ ! -z "$*" ]; then
+    # execute the rest as a command
+    echo "Executing " $*
+    $*
 fi

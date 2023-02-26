@@ -241,7 +241,7 @@ jtcps15_z80wait u_extrawait(
     .cen_cpu( cen_extra )
 );
 
-jtframe_ram #(.aw(13)) u_z80ram( // 8 kB!
+jtframe_ram #(.AW(13)) u_z80ram( // 8 kB!
     .clk    ( clk48         ),
     .cen    ( 1'b1          ),
     .data   ( bus_din       ),

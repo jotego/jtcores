@@ -208,7 +208,7 @@ always @(*) begin
     wr_en   = line_obj_we & draw_cen;
 end
 
-jtframe_dual_ram #(.dw(DW),.aw(8)) u_objbuf(
+jtframe_dual_ram #(.DW(DW),.AW(8)) u_objbuf(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0: writes

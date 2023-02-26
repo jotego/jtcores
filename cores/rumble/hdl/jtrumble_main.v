@@ -121,7 +121,7 @@ always @(*) begin
     end
 end
 
-jtframe_dual_ram #(.aw(13)) u_ram(
+jtframe_dual_ram #(.AW(13)) u_ram(
     // CPU
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),

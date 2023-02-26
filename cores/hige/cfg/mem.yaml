@@ -1,6 +1,5 @@
 ports:
   - { name: cpu_dout, msb: 7}
-  - { name: ram_we }
 sdram:
   banks:
     - buses:

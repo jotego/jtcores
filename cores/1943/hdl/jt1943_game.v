@@ -328,7 +328,7 @@ jtgng_sound u_sound (
 
 // full 32kB ROM is inside the FPGA to alleviate SDRAM bandwidth
 // separated in two modules to make implementation easier
-jtframe_prom #(.aw(14),.dw(8),.simfile("audio_lo.bin")) u_prom0(
+jtframe_prom #(.AW(14),.DW(8),.SIMFILE("audio_lo.bin")) u_prom0(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prog_data         ),
@@ -338,7 +338,7 @@ jtframe_prom #(.aw(14),.dw(8),.simfile("audio_lo.bin")) u_prom0(
     .q      ( snd_data0         )
 );
 
-jtframe_prom #(.aw(14),.dw(8),.simfile("audio_hi.bin")) u_prom1(
+jtframe_prom #(.AW(14),.DW(8),.SIMFILE("audio_hi.bin")) u_prom1(
     .clk    ( clk               ),
     .cen    ( cen3              ),
     .data   ( prog_data         ),

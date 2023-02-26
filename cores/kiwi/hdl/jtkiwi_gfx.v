@@ -101,7 +101,7 @@ assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
 assign cpu_din  = yram_cs ? yram_dout :
                   vram_cs ? (cpu_addr[12] ? vram_dout[15:8] : vram_dout[7:0]) : 8'h00;
-assign st_dout  = { flip, 1'd0, col0, col_cfg };
+assign st_dout  = { flip, video_en, col0, col_cfg };
 
 always @* begin
     yram_cs = 0;
@@ -160,6 +160,7 @@ end
 jtkiwi_tilemap u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
     .tm_cen     ( tm_cen    ),
 
     .hs         ( hs        ),
@@ -182,7 +183,7 @@ jtkiwi_tilemap u_tilemap(
     .rom_ok     ( scr_ok    ),
     .rom_data   ( scr_data  ),
 
-    .vrender    ( vrender   ),
+    .vrender    ( vdump     ),
     .hdump      ( hdump     ),
     .pxl        ( scr_pxl   ),
     .debug_bus  ( debug_bus )
@@ -223,9 +224,9 @@ jtkiwi_obj u_obj(
 // memory for the CPU
 // In MAME the lower half is called spritecodelow
 // and the upper spritecodehigh
-jtframe_dual_ram16 #(.aw(12),
-    .simfile_lo("vram_lo.bin"),
-    .simfile_hi("vram_hi.bin")
+jtframe_dual_ram16 #(.AW(12),
+    .SIMFILE_LO("vram_lo.bin"),
+    .SIMFILE_HI("vram_hi.bin")
 ) u_vram(
     .clk0   ( clk_cpu    ),
     .clk1   ( clk        ),
@@ -243,7 +244,7 @@ jtframe_dual_ram16 #(.aw(12),
 
 // This memory is internal to the SETA-X1-001 chip
 // this is called spriteylow by MAME
-jtframe_dual_ram #(.aw(10),.simfile("col.bin")) u_yram(
+jtframe_dual_ram #(.AW(10),.SIMFILE("col.bin")) u_yram(
     .clk0   ( clk_cpu    ),
     .clk1   ( clk        ),
     // Main CPU

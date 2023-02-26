@@ -111,7 +111,7 @@ assign scan_dout= obj_frame ? rd2_dout : rd1_dout;
 assign ioctl_din= ioctl_addr[10] ? rd2_dout : rd1_dout;
 
 // two sprite tables
-jtframe_dual_ram #(.simfile("obj_lo.bin")) u_hi(
+jtframe_dual_ram #(.SIMFILE("obj_lo.bin")) u_hi(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),
@@ -126,7 +126,7 @@ jtframe_dual_ram #(.simfile("obj_lo.bin")) u_hi(
     .q1     ( rd1_dout      )
 );
 
-jtframe_dual_ram #(.simfile("obj_hi.bin")) u_low(
+jtframe_dual_ram #(.SIMFILE("obj_hi.bin")) u_low(
     // Port 0, CPU
     .clk0   ( clk24         ),
     .data0  ( cpu_dout      ),

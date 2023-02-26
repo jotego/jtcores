@@ -207,7 +207,7 @@ jtcontra_gfx #(
     .gfx_en     ( gfx_en[3:2]   )
 );
 
-jtframe_prom #(.dw(4), .aw(8)) u_prio (
+jtframe_prom #(.DW(4), .AW(8)) u_prio (
     .clk    ( clk           ),
     .cen    ( pxl_cen       ),
     .data   ( prog_data     ),

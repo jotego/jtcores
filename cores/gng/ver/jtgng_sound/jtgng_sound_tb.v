@@ -88,7 +88,7 @@ end
 
 initial begin
 	$display("DUMP enabled");
-	$dumpfile("test.lxt");
+	$DUMPFILE("test.lxt");
 	$dumpvars(1,jtgng_sound_tb.uut);
 	$dumpvars(1,jtgng_sound_tb.uut.fm0.u_mmr);
 	$dumpvars(1,jtgng_sound_tb.uut.fm1.u_mmr);

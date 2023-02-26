@@ -111,9 +111,9 @@ always @(posedge clk) if(pxl_cen) begin
 end
 
 jtframe_dual_ram16 #(
-    .aw           ( 10         ),
-    .simfile_lo   ("scr_lo.bin"),
-    .simfile_hi   ("scr_hi.bin")
+    .AW           ( 10         ),
+    .SIMFILE_LO   ("scr_lo.bin"),
+    .SIMFILE_HI   ("scr_hi.bin")
 ) u_ram( // 2kB
     .clk0   ( clk_cpu     ),
     .data0  ({2{cpu_dout}}),

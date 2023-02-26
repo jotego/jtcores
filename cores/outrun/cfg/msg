@@ -1,0 +1,133 @@
+         \BJTOUTRUN\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+   v. \C \D
+
+       PCB donated by
+         Travis Brown
+         @travistyoj
+
+      Based on the PCB
+      schematics and chip
+         measurements
+
+        Known Issues:
+ - Blank in the middle of the road
+ - Blank lines in the sprite layer
+ for very busy scenes
+ - radio panel not visible in
+ music selection screen
+ - PCM too loud
+ - Sprites are one frame ahead
+ - Only main MRA available
+
+         \BJTKCHAMP\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+       PCB donated by
+        DJ Hard Rich
+        Atrac17
+
+      Based on the PCB
+      schematics and chip
+         measurements
+
+        Reviewed by
+    the \RJTAlpha team\W
+
+ \B______ \RPRODUCERS\B _______\W
+Bender          DJ Hard Rich
+
+ \B______ \RDIRECTORS\B _______\W
+A. Villena      Bender
+Blue Abs        Boogermann
+    Carlo Castagnasso
+Chris Gelatt    Darren Chell
+Filip Kindt     Frederic Mahe
+    Fulvio Venturelli
+James D         JaviRodasG
+Jeffrey Pierce  John Lange
+    Ksenia Anastasia
+Louis Martinez  Martin Birkeldh
+    Porkchop Express
+    Pramod Somashekar
+Rysha           Shawn Henderson
+TT_Hipster1941  Tulio Adriano
+Ulf Skutnabba
+
+
+       \BThanks to\W
+\RAndrea Bogazzi  Arcade Express
+\RArjan de Lang   Ben Sanborn
+\RBob Gallardo    Brian Sallee
+\RDan Avedikian   Daniel Bauza
+\RER              Eric Lewis
+\R    GiRo SiNToRNiLLoS
+\RJim Weinhart    Jo Tomiyori
+\RJoebot          Martin Donlon
+\R    MiSTerFPGA.co.uk
+\RMycah Mattox    Pelayo Marinas
+\RR. Martinazzo   Renaissance 2K
+\RRetroWilly      SYRO
+\R    Tatton Partington
+\RTony Escobar    aoalej
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis
+Adrian Nabarro  Andrew Francomb
+Andy Palmer     Andyways
+Blackstar       Bryan Adams
+Carrboroman     Chris Doyle
+Chris Harvey    Chris Jardine
+Christian       D.J. Estreito
+DMG             Dan Bayley
+Daniel Cortes   David Ashby
+David Mills Jr. David Moylan
+Dean Winger     Don Gafford
+Ed Balan        Eduardo Javier
+Edward Rana     EmperorStorky
+Gladius         Gus Douboulidis
+    Hendrik Osterholz
+    Henrik Nordstrom
+    Inaki Echevarria
+Ian Court       Ivo
+JPS (RetroFPGA) James Williams
+Jason Nagy      Jeffrey Haas
+    Jerome Braconnier
+Jo le Zef       Joe Castle
+Joe Tassone     Joeri van
+John Casey      Jorge Slowfret
+Jose Pulgar     Joseph Hsieh
+Josh O'Roake    Juan Francisco
+Juan Ramon      Juan Sandoval
+Keith F. Kelly  Krycek7o2
+Leslie Law      Lionel Lenoble
+    Luis Alvarado
+    Lukas Hinterleitner
+M. Ferguson     M. Fornasini
+Marcus Hogue    Matthew Pollard
+    Matthew Young
+    Michael Blackman
+    Michael Ferguson
+Michael Johnson MoonZ
+Nima            Oliver Jaksch
+Oscar Laguna    Peter Bray
+RetroBen64      RetroPrez
+Richard MS      Rob Jenkins
+Robert MacLean  Robert Mullings
+Roman Buser     Shane Lynch
+Steven Wilson   The Collector
+Theodore Huber  Thompson Orcino
+Torren Beitler  Tym Whitney
+Victor Gomariz  Vitor Duarte
+Younghoon Gong  Zachary Muske
+albertprime     amoore2600
+emerald4224     hyp36rmax
+taal.M
+
+  ________________________
+
+      - Beta version -
+      Do not distribute

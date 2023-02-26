@@ -92,7 +92,7 @@ assign pal_rgb = {3{pixel_mux[3:0]}};
 `else
 wire [3:0] nc;
 
-jtframe_dual_ram16 #(.aw(10)) u_pal (
+jtframe_dual_ram16 #(.AW(10)) u_pal (
     .clk0   ( clk       ),
     .clk1   ( clk       ),
     // Port 0 - CPU

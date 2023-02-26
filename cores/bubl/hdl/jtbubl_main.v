@@ -259,7 +259,7 @@ always @(*) begin
 end
 */
 // Time shared
-jtframe_dual_ram #(.aw(13)) u_work(
+jtframe_dual_ram #(.AW(13)) u_work(
     .clk0   ( clk24           ),
     .clk1   ( clk24           ),
     .data0  ( main_dout       ),
@@ -432,7 +432,7 @@ always @(posedge clk24) begin
 end
 */
 // Time shared
-jtframe_dual_ram #(.aw(10)) u_comm(
+jtframe_dual_ram #(.AW(10)) u_comm(
     .clk0   ( clk24              ),
     .clk1   ( clk24              ),
     // Main CPU

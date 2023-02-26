@@ -204,7 +204,6 @@ Marvel Super Heroes   | 4.0 MB  |  256 kB     | 32 MB   | 4 MB    |        |    
 Marvel vs SF          | 4.0 MB  |  256 kB     | 32 MB   | 8 MB    |        |       | 336
 Marvel vs CAPCOM      | 4.0 MB  |  256 kB     | 32 MB   | 8 MB    |        |       | 377
 Megaman 2             | 1.5 MB  |  256 kB     |  8 MB   | 4 MB    |        |       | 225
-Darkstalker's revenge | 4.0 MB  |  256 kB     | 32 MB   | 4 MB    |        |       |  54
 Progear               | 1.0 MB  |  128 kB     | 16 MB   | 8 MB    | 7080   |  No   |  72
 Puzz Loop 2           | 2.0 MB  |  128 kB     | 16 MB   | 4 MB    | 7000   |       |  16
 Quiz Nanairo Dreams   | 2.0 MB  |  128 kB     |  8 MB   | 4 MB    |        |       |   8

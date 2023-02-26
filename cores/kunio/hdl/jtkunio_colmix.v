@@ -76,7 +76,7 @@ always @(posedge clk) begin
         nb <= col_half[3:0];
 end
 
-jtframe_dual_ram #(.aw(9),.simfile("pal.bin")) u_dual_ram (
+jtframe_dual_ram #(.AW(9),.SIMFILE("pal.bin")) u_dual_ram (
     // CPU
     .clk0  ( clk        ),
     .data0 ( cpu_dout   ),

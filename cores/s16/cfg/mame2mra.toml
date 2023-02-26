@@ -1,0 +1,141 @@
+[global]
+mraauthor=["jotego","atrac17"]
+
+[parse]
+sourcefile="segas16a.cpp"
+# Games with S16B parents need explicit listing
+# the description is used to make the alternate folders
+parents= [
+    {name="aliensyn", description="Alien Syndrome"},
+    {name="aceattac", description="Ace Attacker"},
+    {name="passsht",  description="Passing Shot"},
+    {name="sjryuko",  description="Sukeban Jansi Ryuko"},
+    {name="timescan", description="Time Scanner"},
+    {name="wb3",      description="Wonder Boy III"}
+]
+rename = [
+    {setname="aceattaca", name="Ace Attacker (Japan, S16A) [FD1094 317-0060]"},
+    {setname="afighter",  name="Action Fighter (World, S16A) [FD1089A 317-0018]"},
+    {setname="afightera", name="Action Fighter (World, S16A) [No Protection]"},
+    {setname="afighterb", name="Action Fighter (World, S16A) [No Protection] [Analog Controls]"},
+    {setname="afighterc", name="Action Fighter (World, S16A) [FD1089B 317-xxxx]"},
+    {setname="afighterd", name="Action Fighter (World, S16A) [FD1089B 317-xxxx] [Analog Controls]"},
+    {setname="aliensyn2", name="Alien Syndrome (Set 2, World, S16A) [FD1089A 317-0033]"},
+    {setname="aliensyn5", name="Alien Syndrome (Set 5, World, S16A) [FD1089B 317-0037]"},
+    {setname="aliensynjo",name="Alien Syndrome (Set 1, Japan, S16A) [FD1089A 317-0033]"},
+    {setname="fantzone",  name="Fantasy Zone (Rev A, World, S16A) [No Protection]"},
+    {setname="fantzone1", name="Fantasy Zone (World, S16A) [No Protection]"},
+    {setname="fantzonee", name="Fantasy Zone (World, S16A) [FD1089B 317-0016]"},
+    {setname="fantzonep", name="Fantasy Zone (World, S16A) [317-5000]"},
+    {setname="fantzonepr",name="Fantasy Zone (Prototype, S16A) [No Protection]"},
+    {setname="mjleague",  name="Major League (World, S16A) [No Protection]"},
+    {setname="quartet",   name="Quartet (Rev A, 4p, World, S16A) [8751 315-5194]"},
+    {setname="quartet2",  name="Quartet 2 (World, S16A) [8751 317-0010]"},
+    {setname="quartet2a", name="Quartet 2 (World, S16A) [No Protection]"},
+    {setname="quarteta",  name="Quartet (4p, World, S16A) [8751 315-5194]"},
+    {setname="sjryuko1",  name="Sukeban Jansi Ryuko (Set 1, Japan, S16A) [FD1089B 317-5021]"},
+    {setname="timescan1", name="Time Scanner (Set 1, World, S16A) [FD1089B 317-0024]"},
+    {setname="bodyslam",  name="Body Slam (World, S16) [8751 317-0015]"},
+    {setname="dumpmtmt",  name="Dump Matsumoto (Japan, S16A) [8751 317-0011a]"},
+    {setname="sdi",       name="SDI: Strategic Defense Initiative (Japan, New Ver., S16A) [FD1089B 317-0027]"},
+    {setname="sdia",      name="SDI: Strategic Defense Initiative (Japan, Old Ver., S16A) [FD1089B 317-0027]"},
+    {setname="tetris",    name="Tetris (Set 4, Japan, S16A) [FD1094 317-0093]"},
+    {setname="tetris3",   name="Tetris (Set 3, Japan, S16A) [FD1094 317-0093a]"},
+    {setname="wb31",      name="Wonder Boy III Monster Lair (Set 1, Japan, S16A) [FD1094 317-0084]"},
+    {setname="wb35",      name="Wonder Boy III Monster Lair (Set 5, Japan, S16A) [FD1089A 317-0086]"},
+    {setname="alexkidd",  name="Alex Kidd: The Lost Stars (Set 2, World, S16A) [No Protection]"},
+    {setname="alexkidd1", name="Alex Kidd: The Lost Stars (Set 1, World, S16A) [FD1089A 317-0021]"},
+    {setname="passsht16a",name="Passing Shot (Japan, 4p, S16A) [FD1094 317-0071]"},
+    {setname="shinobi",   name="Shinobi (Set 6, World, S16A) [No Protection]"},
+    {setname="shinobi1",  name="Shinobi (Set 1, World, S16A) [FD1094 317-0050]"}
+]
+
+skip.bootlegs = true
+skip.descriptions = [ "16B", "Taito" ]
+skip.setnames=[
+    # won't boot
+    "aceattac",
+    "bodyslam",
+    "dumpmtmt",
+    "quartet",
+    "quarteta",
+    "quartet2",
+]
+main_setnames=[
+    "aceattaca",
+    "quartet2a",
+]
+
+[buttons]
+names = [
+    { machine="afighter",  names="Shot,Special Weapon" },
+    { setname="afighterb", names="Shot,Weapon A, Weapong B, Weapon C" },
+    { setname="afighterd", names="Shot,Weapon A, Weapong B, Weapon C" },
+    { machine="shinobi",   names="Shuriken,Jump,Magic" },
+    { machine="alexkidd",  names="Jump/Swim,Shot" },
+    { machine="sdi",       names="Shot" },
+    { machine="quartet",   names="Jump,Shot" },
+    { machine="fantzone",  names="Shot,Bomb" },
+    { machine="tetris",    names="Rotate,Rotate,Rotate" },
+    { machine="aliensyn",  names="Shot" },
+    { machine="bodyslam",  names="Punch/Throw,Kick/Pin,Get Up/Tag" },
+    { machine="timescan",  names="L. Flipper/Ball Start,R. Flipper/Lane Shift" },
+    { machine="passsht",   names="Flat,Slice,Lob,Top Spin" },
+    { machine="wb3",       names="Shot,Jump" }
+# aceattac  Ace Attacker" "None" "ff,ff" "Sports" "Sports/Volleyball" "Sega S16A"
+# sjryuko   Sukeban" "None" "ff,ff" "Puzzle" "Tabletop/Mahjong * Mature *" "Sega S16A"
+# mjleague  Major League" "Open Stance,Curb/Shoot/Fork,Close Stance,Pinch Hitter/Sliding/Runner" "ff,ff" "Sports" "Sports/Baseball" "Sega S16A"
+]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+bitcnt = 16
+rename = [
+    { name="Bonus Life", to="Bonus" },
+    { name="Extended Score", to="Bonus" },
+    { name="Continues", to="Cont." },
+]
+
+[header]
+fill=0
+data = [
+    { offset=0x10, dev="fd1089a",      data="01" },
+    { offset=0x10, dev="fd1089b",      data="02" },
+    { offset=0x11, dev="fd1094",       data="01" },
+    { offset=0x13, dev="i8751",        data="01" },
+    { offset=0x18, machine="sdi",      data="19" },  # enable trackball
+    { offset=0x18, setname="afighterb",data="1d" },  # enable analogue input
+    { offset=0x18, setname="afighterd",data="1d" },  # enable analogue input
+    { offset=0x18, machine="passsht",  data="02" },  # enable four players
+    { offset=0x18, setname="quartet",  data="04" },  # enable four players
+    { offset=0x18, setname="quarteta", data="04" }   # enable four players
+]
+
+# Sample header data
+# data=[
+#     { offset=8,    data=[0xff, 0x43, 0x34] },
+#     { offset=0x10, data=[0xca, 0xfe] }
+# ]
+
+[ROM]
+regions = [
+    { name="maincpu",       width=16, reverse=true },
+    { name="mcu",           start="MCU_START", len=0x1000 },
+    { name="soundcpu",      start="JTFRAME_BA1_START" },
+    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4} },
+    { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true, rom_len=0x10000 },
+    { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
+    { name="n7751",         start="N7751_START", len=0x400 },
+    { name="n7751data",     start="PCM_START" },
+    { name="fd1089",        start="FD1089_START" },
+    { name="plds",          skip=true }
+]
+# { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
+order = [
+    "maincpu", "soundcpu", "n7751data", "gfx1",
+    "sprites", "mcu", "maincpu:key", "n7751"
+]
+
+remove = [
+    "ic93-de1b.bin", "ic17-5f7c.bin" # fantzonepr
+]

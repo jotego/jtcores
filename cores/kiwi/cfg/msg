@@ -14,11 +14,6 @@
  Extermination schematics by
         JOTEGO
 
- Known Problems
-
- The sprite layer is not well
- aligned with the background
-
         Reviewed by
     the \RJTAlpha team\W
 
@@ -47,19 +42,19 @@ Tulio Adriano   Ulf Skutnabba
        \BThanks to\W
 \RAndrea Bogazzi  Arcade Express
 \RArjan de Lang   Ben Sanborn
-\RBob Gallardo    Brian Sallee
-\RDan Avedikian   Daniel Bauza
-\RER              Eric Lewis
+\RBob Gallardo    Brad
+\RBrian Sallee    Dan Avedikian
+\RDaniel Bauza    ER
+\R    Eric Lewis
 \R    GiRo SiNToRNiLLoS
-\RJim Weinhart    Jo Tomiyori
-\R    Martin Donlon
+\RJim Weinhart    Martin Donlon
 \R    MiSTerFPGA.co.uk
-\RMycah Mattox    Pelayo Marinas
+\RPelayo Marinas  Peter Vessenes
 \RR. Martinazzo   Renaissance 2K
 \RRetroWilly      Robert Moran
 \R    Tatton Partington
 \RTony Escobar    Tony Mika
-\Raoalej          syro
+\R          Silo
 
  \B_________ AND __________\W
 ARCADEAGES      Adam Davis
@@ -67,52 +62,53 @@ Adrian Nabarro  Andrew Francomb
 Andy Palmer     Andyways
 Blackstar       Bryan Adams
 Carrboroman     Chris Doyle
-Chris Harvey    Chris Jardine
-Christian       D.J. Estreito
-DMG             Dan Bayley
-Daniel Cortes   David Ashby
-David Mills Jr. David Moylan
-Dean Winger     Don Gafford
-Ed Balan        Eduardo Javier
-Edward Rana     EmperorStorky
+Chris Harvey    Christian
+D.J. Estreito   DMG
+Dan Bayley      Daniel Cortes
+David Ashby     David Mills Jr.
+David Moylan    Dean Winger
+Don Gafford     Ed Balan
+Eduardo Javier  Edward Rana
+EmperorStorky   Gareth Jones
 Gladius         Gus Douboulidis
     Hendrik Osterholz
     Henrik Nordstrom
     INAKI ECHEVARRIA
 Ian Court       Ivo
 JFRoco          JPS (RetroFPGA)
-James Williams  Jason Nagy
-    Jeffrey Haas
+James Stroup    James Williams
+Jason Nagy      Jeffrey Haas
     Jerome Braconnier
 Jo le Zef       Joe Castle
 Joe Tassone     Joeri van
-John Casey      Jorge Slowfret
-Jose Pulgar     Joseph Hsieh
-Josh O'Roake    Juan Ramon
-Juan Sandoval   Keith F. Kelly
-Krycek7o2       Leslie Law
-Lionel LENOBLE  Luis Alvarado
+John Casey      John Silva
+Jorge Slowfret  Jose Pulgar
+Joseph Hsieh    Josh O'Roake
+Juan Ramon      Juan Sandoval
+Keith F. Kelly  Krycek7o2
+Leslie Law      Lionel LENOBLE
+    Luis Alvarado
     Lukas Hinterleitner
 M. Ferguson     M. Fornasini
 Marcus Hogue    Matthew Pollard
     Matthew Young
     Michael Blackman
     Michael Ferguson
-Michael Johnson MoonZ
-Nima            Oliver Jaksch
-Oscar Laguna    Peter Bray
-RetroBen64      RetroPrez
+Michael Johnson Michael Thomas
+MoonZ           Nima
+Oliver Jaksch   Oscar Laguna
+Peter Bray      RetroPrez
 Richard MS      Rob Jenkins
 Robert MacLean  Robert Mullings
-Shane Lynch     Steven Wilson
-The Collector   Theodore Huber
-Thompson Orcino Torren Beitler
-Tym Whitney     Victor Gomariz
-Vitor Duarte    Younghoon Gong
-Zachary Muske   albertprime
-amoore2600      emerald4224
-hyp36rmax       taal.M
-
+Roman Buser     Shane Lynch
+Steven Wilson   The Collector
+Theodore Huber  Thompson Orcino
+Torren Beitler  Tym Whitney
+Victor Gomariz  Vitor Duarte
+Younghoon Gong  Zachary Muske
+albertprime     amoore2600
+emerald4224     hyp36rmax
+taal.M
   ________________________
 
       - Beta version -

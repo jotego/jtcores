@@ -148,9 +148,9 @@ always @(posedge clk) begin
 end
 
 jtframe_prom #(
-    .dw     ( 4         ),
-    .aw     ( 8         )
-//    simfile = "477j08.f16",
+    .DW     ( 4         ),
+    .AW     ( 8         )
+//    SIMFILE = "477j08.f16",
 ) u_palette(
     .clk    ( clk       ),
     .cen    ( 1'b1      ),

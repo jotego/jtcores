@@ -1,0 +1,1241 @@
+ Sega System 16B hardware notes
+ by Charles MacDonald
+ WWW: http://cgfm2.emuviews.com
+
+ Unpublished work Copyright 2001, 2002, 2003 Charles MacDonald
+
+ This document is in a very preliminary state and is subject to change.
+ Most everything within has been tested and verified on a System 16 board,
+ but please be aware that my testing methods or interpretations of
+ results could be flawed. I can't guarantee that everything is 100% accurate.
+
+ What's new:
+
+ [01/12/03]
+ - Added information on ROM board 171-5704
+ - Added some ROM board connector pin assignments
+
+ [12/31/02]
+ - Added information on ROM boards 171-5358, 171-5797.
+ - Added information about tile and sprite banking.
+ - Added information on custom 68000 and MCUs.
+ - Added information about alternate background layers.
+ - Expanded description of sprite RAM attributes.
+ - Expanded description of configuration registers.
+ - Removed System 18 information (see s18tech.txt instead)
+
+ Initial release:
+ - Added information on sprite X coordinate range
+ - Added priority information
+ - Added wire harness pinout and I/O information
+ - Added information on Z80 sound command address
+ - Added more information about I/O area memory map
+ - Added information on sprite rendering
+ - Added info on foreground/background layers
+
+ Table of contents
+
+  1. Hardware overview
+  2. 68000 memory map
+  3. Sprites
+  4. Display timing and interrupts
+  5. Palette
+  6. Background and tile RAM
+  7. Text layer and text RAM
+  8. Layer priorities
+  9. Custom CPUs and MCUs
+ 10. Wire harness pinout
+ 11. Assistance needed
+ 12. Credits and acknowledgements
+ 13. Disclaimer
+
+ ----------------------------------------------------------------------------
+ 1. Hardware overview
+ ----------------------------------------------------------------------------
+
+ The Sega System 16B hardware consists of the following:
+
+ 68000        - 16-bit CPU used for game logic, inputs, video
+ Z80-B        - 8-bit CPU used for sound playback
+ YM2151       - 8-channel 4-operator FM sound chip, for music & effects
+ uPD7759C     - ADPCM sample player, used for voices & effects
+
+ It also has a socket for a 8751 microcontroller which seems to be present
+ in certain versions of some games.
+
+ I confirmed that the 68000 runs at 10MHz, but I don't know about the
+ other parts.
+
+ Sega custom IC's:
+
+ 315-5195     - Unknown (connected to 68000, MCU)
+ 315-5196     - Sprite generator
+ 315-5197     - Tilemap generator
+ 315-5213     - Unknown (PAL)
+ 315-5214     - Unknown (PAL)
+
+ Memory:
+
+ 2x TC5565APL-12   -  8Kx8 for the 68000
+ 1x TMM2115BP-10   -  2Kx8 for the Z80-B
+ 2x TMM2115BP-10   -  2Kx8 for the color RAM
+ 2x TMM2115BP-10   -  2Kx8 text layer name table
+ 2x HM65256BLSP-10 - 32Kx8 for the foreground/background layer name tables
+ 2x TMM2018D-45    -  2Kx8 ?
+ 4x TMM2018D-45    -  2Kx8 ?
+
+ If the System 16B hardware implements sprites anything like Galaxy Force II,
+ then of the latter six 2K RAMs listed, two are used with the high address
+ bit tied to ground to form 2Kx16 sprite RAM. The remaining four make up
+ two 512 entry by 12-bit word line buffers, which is probably for doing
+ double buffered sprite rendering. But apart from the sprite RAM, the rest
+ of this memory isn't accessible by the CPU.
+
+ ROM boards
+
+ The System 16B hardware has three types of boards which hold all of the
+ ROMs. Each one can implements sprite banking differently, and can optionally
+ have tile banking and extra hardware for software to use.
+
+ System 16B mainboard to ROM board connector pinout (incomplete):
+
+ CN4 A15 - /OE for region 1
+ CN4 B15 - /OE for region 2
+ CN4 B16 - /OE for region 3
+ CN2 A9  - Sprite bank bit 0 (CGB0)
+ CN2 B9  - Sprite bank bit 1 (CGB1)
+ CN2 A10 - Sprite bank bit 2 (CGB2)
+ CN2 B10 - Sprite bank bit 3 (CGB3)
+ CN1 A13 - Background tile index bit 12
+ CN4 A13 - /CE for all program ROMs (should be unique? 171-5358 only)
+ CN4 B13 - /LWR from 68000 (?)
+
+ ROM board descriptions
+
+ Board number: 171-5358
+ Used by: Shinobi, Tough Turf, etc.
+
+ Socket     Type    Description
+
+ A1         27512   68000 program code (odd)
+ A2         27512   68000 program code (odd)
+ A3         27512   68000 program code (odd)
+ A4         27512   68000 program code (even)
+ A5         27512   68000 program code (even)
+ A6         27512   68000 program code (even)
+ A7         27256   Z80 program code
+ A8         27256   uPD7759 samples
+ A9         27256   uPD7759 samples
+ A10        27256   uPD7759 samples
+ A11        27256   uPD7759 samples
+
+ B1         27512   Sprite data (odd, bank 0)
+ B2         27512   Sprite data (odd, bank 1)
+ B3         27512   Sprite data (odd, bank 2)
+ B4         27512   Sprite data (odd, bank 3)
+ B5         27512   Sprite data (even, bank 0)
+ B6         27512   Sprite data (even, bank 1)
+ B7         27512   Sprite data (even, bank 2)
+ B8         27512   Sprite data (even, bank 3)
+ B9         27512   Background tiles, bitplane 0
+ B10        27512   Background tiles, bitplane 1
+ B11        27512   Background tiles, bitplane 2
+
+ Region 0 is used for the chip enable for program ROMs A1 and A4.
+ Region 1 is used for the chip enable for program ROMs A2 and A5.
+ Region 2 is used for the chip enable for program ROMs A3 and A6.
+ Any unpopulated program ROM sockets return the prefetch value when read.
+
+ There are no provisions for tile banking, so bit 12 of each background tile
+ index has no special meaning.
+
+ The 4-bit sprite bank value taken from sprite RAM is used as a chip select
+ for each of the four sprite ROM banks:
+
+ CGB3 : 0= Enable bank 3, 1= Disable bank 3
+ CGB2 : 0= Enable bank 2, 1= Disable bank 2
+ CGB1 : 0= Enable bank 1, 1= Disable bank 1
+ CGB0 : 0= Enable bank 0, 1= Disable bank 0
+
+ If multiple banks are enabled there is a bus conflict and random data from
+ the enabled banks is shown.
+
+ If no banks are enabled it looks like a constant value is shown for every
+ group of four pixels, across the entire width of the display as no end
+ marker is being read. This repeats for the full height of all sprites
+ on-screen.
+
+ Board number: 171-5704
+ Used by: Tetris, Altered Beast, Cotton, etc.
+
+ Socket     Type    Description
+
+ A1         27010   Sprite data (odd, pair e)
+ A2         27010   Sprite data (odd, pair f)
+ A3         27010   Sprite data (odd, pair g)
+ A4         27010   Sprite data (odd, pair h)
+ A5         27010   68000 program code (odd)
+ A6         27010   68000 program code (odd)
+ A7         27010   68000 program code (even)
+ A8         27010   68000 program code (even)
+
+ A10        27256   Z80 program code
+ A11        27010   uPD7759 samples
+ A12        27010   uPD7759 samples
+ A13        27010   uPD7759 samples
+ A14        27010   Background tiles, bitplane 0 (banks 0,1)
+ A15        27010   Background tiles, bitplane 1 (banks 0,1)
+ A16        27010   Background tiles, bitplane 2 (banks 0,1)
+
+ B1         27010   Sprite data (odd, pair a)
+ B2         27010   Sprite data (odd, pair b)
+ B3         27010   Sprite data (odd, pair c)
+ B4         27010   Sprite data (odd, pair d)
+ B5         27010   Sprite data (even, pair a)
+ B6         27010   Sprite data (even, pair b)
+ B7         27010   Sprite data (even, pair c)
+ B8         27010   Sprite data (even, pair d)
+
+ B10        27010   Sprite data (even, pair e)
+ B11        27010   Sprite data (even, pair f)
+ B12        27010   Sprite data (even, pair g)
+ B13        27010   Sprite data (even, pair h)
+ B14        27010   Background tiles, bitplane 0 (banks 2,3)
+ B15        27010   Background tiles, bitplane 1 (banks 2,3)
+ B16        27010   Background tiles, bitplane 2 (banks 2,3)
+
+ Region 0 is used for the chip enable for program ROMs A5 and A7.
+ Region 1 is used for the chip enable for program ROMs A5 and A6.
+ Region 2 is used for tile banking.
+
+ Tile banking is implemented with a PLS153. The entire area of region 2 maps
+ to it's tile banking registers (The region 2 /OE signal is tied to it's
+ enable input). The PLS153 uses data bits 2-0 and address bit 1 when decoding
+ this area, to form a four byte region with two 3-bit registers mapped to
+ the odd bytes only:
+
+ $0001 - Bits 2-0 specify the tile bank for text layer tiles and background
+         tiles with bit 12 cleared.
+
+ $0003 - Bits 2-0 specify the tile bank for background tiles with bit 12 set.
+
+ This divides the tile ROMs into eight banks of 4096 tiles.
+
+ Reading any location in this range returns the prefetch value. The PLS153
+ initializes the tile banks to $07 on power-up.
+
+ Sprite banking
+
+ The 4-bit sprite bank value is shared between an address line of the ROM
+ sockets and a 74LS138 as follows:
+
+ CGB3 = Input C of 74LS138
+ CGB2 = Input B of 74LS138
+ CGB1 = Input A of 74LS138
+ CGB0 = A16 of each 27C010
+
+ Outputs 1Y0-1Y7 map directly to chip enables for sprite ROM pairs a-h.
+ This gives the following table of what ROMs and address offsets are
+ selected depending on the bank value used:
+
+ Bank bits      ROMs enabled    Offset selected
+
+ 0 0 0 0        B1/B5           00000-0FFFF
+ 0 0 0 1        B1/B5           10000-1FFFF
+ 0 0 1 0        B2/B6           00000-0FFFF
+ 0 0 1 1        B2/B6           10000-1FFFF
+ 0 1 0 0        B3/B7           00000-0FFFF
+ 0 1 0 1        B3/B7           10000-1FFFF
+ 0 1 1 0        B4/B8           00000-0FFFF
+ 0 1 1 1        B4/B8           10000-1FFFF
+ 1 0 0 0        A1/B10          00000-0FFFF
+ 1 0 0 1        A1/B10          10000-1FFFF
+ 1 0 1 0        A2/B11          00000-0FFFF
+ 1 0 1 1        A2/B11          10000-1FFFF
+ 1 1 0 0        A3/B12          00000-0FFFF
+ 1 1 0 1        A3/B12          10000-1FFFF
+ 1 1 1 0        A4/B13          00000-0FFFF
+ 1 1 1 1        A4/B13          10000-1FFFF
+
+ Some games such as Tetris do not have some or most of the sockets
+ populated, so bank values selecting those sockets are invalid. The sprite
+ data shown in this case looks the same way as when no banks are selected
+ for the 171-5358 board.
+
+ Board number: 171-5797
+ Used by: E-Swat, Golden Axe, etc.
+
+ Socket     Type    Description
+
+ A1         27020   68000 program code (odd)
+ A2         27020   68000 program code (even)
+ A11        27010   uPD7759 samples
+ A12        27010   uPD7759 samples
+ A13        27256   Z80 program code
+
+ B1         27020   Sprite data (odd, pair a)
+ B2         27020   Sprite data (odd, pair b)
+ B3         27020   Sprite data (odd, pair c)
+ B4         27020   Sprite data (even, pair a)
+ B5         27020   Sprite data (even, pair b)
+ B6         27020   Sprite data (even, pair c)
+ B7         27020   Sprite data (odd, pair d)
+ B8         27020   Sprite data (even, pair d)
+ B11        27020   Background tiles, bitplane 0
+ B12        27020   Background tiles, bitplane 1
+ B13        27020   Background tiles, bitplane 2
+
+ Region 0 provides the chip select for the program ROMs.
+ Region 1 provides the chip select for the tile bank and math chip hardware.
+ It's not clear what region 2 is used for.
+
+ Overview
+
+ The board has two main components, a PLS153 PAL used to implement tile
+ banking, and the 315-5248 / 315-5250 custom chips. These are part of a set
+ of chips used in several games:
+
+ 315-5248 : Math chip (multiplication) in After Burner, Galaxy Force II
+ 315-5249 : Math chip (division) in After Burner, Galaxy Force II
+ 315-5250 : Math chip (compare) and Z80 sound command latch in After Burner
+
+ A 74LS139 is used to divide the memory map into four regions. The /OE signal
+ for region 1 enables the 74LS139, and 68K A13, A12 are used as select inputs.
+ 1Y0 goes to the /CEx pins of the 315-5248, 1Y1 goes to the /MCCS pin of the
+ 315-5250, and 1Y2 goes to pin 6 of the PLS153. 1Y3 is unconnected. This
+ gives the following offsets in region 1:
+
+ xx0000-xx0FFF : Multiplication registers (315-5248)
+ xx1000-xx1FFF : Compare registers (315-5250)
+ xx2000-xx2FFF : Tile banking (PLS153)
+ xx3000-xx3FFF : Unused (1Y3 is unconnected)
+
+ xx is the address specified by the base address and memory control registers
+ for region 1.
+
+ This 16K area is repeated througout the bank(s) allocated to region 1.
+
+ Offsets $0000-$0FFF hold the input and output registers for multiplication.
+ The 315-5248 can multiply two signed 16-bit numbers and provide a signed
+ 32-bit result. It has four word sized registers that repeat throughout
+ the 4K space mapped to it:
+
+ Offset    Read                           Write
+ $0000  -  Return operand A               Set operand A
+ $0002  -  Return operand B               Set operand B
+ $0004  -  Return high 31-16 of result    Set operand A
+ $0006  -  Return bits 15-0 of result     Set operand B
+
+ The result is always ready after updating the operand registers. Reading
+ the result in the opposite order, or multiple times, has no effect.
+ Writing to the operand registers in opposite order or multiple times also
+ does not change the expected result.
+
+ When writing in byte-sized units, writes to odd addresses have no effect
+ and writes to even addresses duplicate data in the LSB to the MSB. For
+ example:
+
+        move.b  #$AB, $3E0006
+        move.b  #$CD, $3E0007
+
+ This will set operand B to $ABAB, not $ABCD as expected. On the other hand,
+ byte reads from any address function normally.
+
+ Offsets $1000-$1FFF are for the internal registers of the 315-5250. Based
+ on the After Burner schematics, this chip handles comparisons. To the CPU
+ it looks like 24 word-sized registers that repeat throughout the 4K area
+ it's mapped to. I haven't done any testing with it at the moment.
+
+ Offsets $2000-$2FFF are for tile banking. The PLS153 uses data bits 2-0
+ and address bit 1 when decoding this area, to form a four byte region
+ with two 3-bit registers mapped to the odd bytes only:
+
+ $2001 - Bits 2-0 specify the tile bank for text layer tiles and background
+         tiles with bit 12 cleared.
+
+ $2003 - Bits 2-0 specify the tile bank for background tiles with bit 12 set.
+
+ This divides the tile ROMs into eight banks of 4096 tiles.
+
+ Reading any location in this range returns the prefetch value. The PLS153
+ initializes the tile banks to $07 on power-up.
+
+ Offsets $3000-3FFF are unused. Writes do nothing and reads return the
+ prefetch value.
+
+ Regarding region 2, E-Swat initializes the memory map like so:
+
+ Region 1 at $3E0000, 64K in size
+ Region 2 at $3F0000, 512K in size
+
+ This setup makes region 2 actually occupy $380000-$3FFFFF, with region 1
+ overlapping at $3E0000-$3EFFFF. E-Swat uses $3E2001 for tile banking only,
+ and doesn't try to use the math chip or any part of region 2.
+
+ Trying to access region 2 for the multiplication features of the math chip
+ seems to return the correct values on occassion, but mostly $FFFF is read
+ back. Maybe it's for expansion only, and without extra hardware conflicts
+ with the math chip.
+
+ Sprite banking
+
+ The 4-bit sprite bank value is used like so:
+
+ CGB3 = A17 of each 27C020
+ CGB2 = Select B1 input of 74LS139
+ CGB1 = Select A1 input of 74LS139
+ CGB0 = A16 of each 27C020
+
+ Outputs of the 74LS139: (which is always enabled)
+
+ 1Y0 - /CE for sprite ROM sockets B1 and B4
+ 1Y1 - /CE for sprite ROM sockets B2 and B5
+ 1Y2 - /CE for sprite ROM sockets B3 and B6
+ 1Y3 - /CE for sprite ROM sockets B7 and B8
+
+ This gives the following table of what ROMs and address offsets are
+ selected depending on the bank value used:
+
+ Bank bits      ROMs enabled    Offset selected
+
+ 0 0 0 0        B1/B4           00000-0FFFF
+ 0 0 0 1        B1/B4           10000-1FFFF
+ 0 0 1 0        B2/B5           00000-0FFFF
+ 0 0 1 1        B2/B5           10000-1FFFF
+ 0 1 0 0        B3/B6           00000-0FFFF
+ 0 1 0 1        B3/B6           10000-1FFFF
+ 0 1 1 0        B7/B8           00000-0FFFF
+ 0 1 1 1        B7/B8           10000-1FFFF
+ 1 0 0 0        B1/B4           20000-2FFFF
+ 1 0 0 1        B1/B4           30000-3FFFF
+ 1 0 1 0        B2/B5           20000-2FFFF
+ 1 0 1 1        B2/B5           30000-3FFFF
+ 1 1 0 0        B3/B6           20000-2FFFF
+ 1 1 0 1        B3/B6           30000-3FFFF
+ 1 1 1 0        B7/B8           20000-2FFFF
+ 1 1 1 1        B7/B8           30000-3FFFF
+
+ There are several games (E-Swat, Golden Axe) which do not have sockets
+ B7 and B8 populated, so bank values of 6/7 and E/F are invalid. The sprite
+ data shown in this case looks the same way as when no banks are selected
+ for the 171-5358 board.
+
+ PLS153N pinout
+ As used for tile banking in 171-5358, 171-5704 boards
+
+ 1  = 68000 D0              20 = To tile ROM /OE (all)
+ 2  = 68000 D1              19 = To tile ROM /CE (Low three ROMs)
+ 3  = 68000 D2              18 = To tile ROM /CE (High three ROMs)
+ 4  = From CN1 A13          17 = ?
+ 5  = 68000 A1              16 = ?
+ 6  = Enable input          15 = ?
+ 7  = From CN4 B13          14 = ?
+ 8  = (Unused)              13 = ?
+ 9  = (Unused)              12 = ?
+ 10 = Ground                11 = +5v
+
+ Pin 6 enables the PLS153N internal registers when held low.
+ Pin 4 is an input from bit 12 of the tilemap generator tile index.
+ Pin 7 is the /LWR signal from the 68000.
+
+
+ ----------------------------------------------------------------------------
+ 2. 68000 memory map
+ ----------------------------------------------------------------------------
+
+ On power up, the first 64K of 68000 program ROM is mapped to the first 64K
+ of the 68000's address space. The memory map can be changed by software
+ through a set of configuration registers.
+
+ There are 32 of these write-only, byte sized registers mapped to odd
+ addresses within any 64K bank which has not been defined through the
+ registers themselves. They are mirrored every 64 bytes. Most games access
+ the registers at the following locations:
+
+ $FE00xx, $FF00xx, $C000xx
+
+ The first 16 do nothing except as follows:
+
+ $05 : 68000 is halted when any value is written.
+ $07 : Value written is sent to Z80 sound command latch, and an NMI signal
+       is sent to the Z80.
+ $09 : 68000 is repeatedly reset when any value is written.
+
+ The remaining 16 control the 68000 memory map:
+
+ $21 : Memory control for region 0
+ $23 : Bits 23-16 of region 0 base address
+ $25 : Memory control for region 1
+ $27 : Bits 23-16 of region 1 base address
+ $29 : Memory control for region 2
+ $2B : Bits 23-16 of region 2 base address
+ $2D : Memory control for region 3
+ $2F : Bits 23-16 of region 3 base address
+ $31 : Memory control for region 4
+ $33 : Bits 23-16 of region 4 base address
+ $35 : Memory control for region 5
+ $37 : Bits 23-16 of region 5 base address
+ $39 : Memory control for region 6
+ $3B : Bits 23-16 of region 6 base address
+ $3D : Memory control for region 7
+ $3F : Bits 23-16 of region 7 base address
+
+ Word access to even addresses is OK, the data must be in the LSB.
+ Riot City does this when setting up the memory map.
+
+ It would seem that for each region, any addresses that fall within the
+ defined memory range cause a unique chip enable signal to be generated.
+ The memory map is divided into 64K banks, though the memory control
+ register can allocate more banks for a particular region.
+
+ Regions 1 and 2 can be used for additional program ROMs or other hardware.
+ All games use the remaining regions as follows:
+
+ Region 0 - Program ROM
+ Region 3 - 68000 work RAM
+ Region 4 - Text/tile RAM
+ Region 5 - Object RAM
+ Region 6 - Color RAM
+ Region 7 - I/O area
+
+ The memory control register has the following layout:
+
+ MSB  LSB
+ ----mmss
+
+ s = These bits define how many 64K banks are allocated for a particular
+     region. Bits 20-16 of the base address specified are masked out
+     depending on the total size:
+
+     D0 D1      Size    Mask
+      0  0      64K     None ($FF0000)
+      0  1      128K    $FE0000
+      1  0      512K    $F80000
+      1  1      2MB     $E00000
+
+     If whatever is mapped to a region is smaller than the number of banks
+     allocated for it, it is repeatedly mirrored throughout that region.
+     For example, allocating 2MB for object RAM results in the 2K of RAM
+     being mirrored 1024 times.
+
+     Tile/text RAM must be set to 128K or larger. Normally the hardware
+     places the tile RAM first and the text RAM at the next bank up. If the
+     size is 64K, then using an even bank only has the text RAM mapped to
+     it, and using on odd bank only has the tile RAM mapped to it.
+
+ m = The exact use is unknown. For all areas but text/tile RAM, having none
+     or either bit set has no effect, but having both set causes a lock-up.
+
+     For tile/text RAM only, both bits must be set. If not, the tile/text
+     RAM areas are not mapped to memory and a combination of the prefetch
+     value mixed with garbage data is returned from where the tile/text RAM
+     areas should be.
+
+     E-Swat sets bit 3 for the I/O area. This causes offsets $0000-0FFF and
+     $3000-$3FFF to have seemingly random data returned in the lower 4 bits
+     of data read from these areas. Maybe it enables more I/O ports.
+
+ - = Unknown, probably unused
+
+ All unmapped memory locations return the last word left on the data bus,
+ which is usually the opcode of the instruction following the one that read
+ memory, due to the prefetching. For example:
+
+    move.w #$330000, d0 ; Assume $33xxxx is unmapped
+    nop                 ; D0 = $4E71
+
+ A few addresses in the I/O area only use some bits of the data bus, and the
+ unused ones are set as shown above.
+
+ I/O information
+
+ The I/O area is 16K in size, mirrored repeatedly throughout the 64K segment
+ it's mapped to (e.g. Shinobi has the I/O area set to $C40000, and that
+ address is the same as $C44000 or $C48000). The 16K chunk is divided as so:
+
+ $0000-0FFF : Reads from any address return the next value off the data bus.
+              Writes to any address go to the miscellaneous control register.
+              (described later)
+
+ $1000-1FFF : Returns inputs 0, 1, 2, 3 in the LSB of each word, the MSB is
+              set to the next value off the data bus. Only A0 and A1 are
+              used, so the inputs are mirrored every four bytes.
+
+ $2000-2FFF : Returns DIP switches 0, 1 in the LSB of each word, the MSB is
+              set to the next value off the data bus. Only A0 is used, so the
+              DIP switches are mirrored every two bytes.
+
+ $3000-3FFF : Reads from any address return the next value off the data bus.
+              Shinobi writes to $C43007 once on startup and modifies bits 1
+              and 2 of $C43001 during gameplay, though I don't know what
+              this is for (or how these bits are mirrored).
+
+ The following is a description of various addresses in the I/O area. I'm
+ using the addresses that Shinobi accesses, but remember that the I/O area
+ can be mapped to different addresses and that some locations are mirrored
+ within their respective 4K areas.
+
+ For inputs 1-4, they all come from the wire harness. (CN1)
+
+ $C40001 : Miscellaneous control
+
+ D7 : ?
+ D6 : 1= Screen flip, 0= Normal screen display
+ D5 : 1= Display on, 0= Display off
+ D4 : ?
+ D3 : Output to lamp 2 (1= On, 0= Off)
+ D2 : Output to lamp 1 (1= On, 0= Off)
+ D1 : (Output to coin counter 2?)
+ D0 : Output to coin counter 1
+
+ When the screen is flipped through bit 6, the background and text layers
+ are flipped vertically and horizontally, and the sprites are flipped
+ horizontally but *not* vertically - so you'd have to swap the top and
+ bottom line values for each sprite to get them to display properly.
+
+ Bits 3 and 2 are for the lamps, Alien Syndrome uses them and the same
+ pins are assigned to lamps on the System 24 board.
+
+ I haven't been able to test bit 1, but the wire harness does allow for
+ two coin counters so in all likelihood this is the second one.
+
+ $C41001 : Input #1
+
+ D7 : Pin a
+ D6 : Pin Z
+ D5 : Pin Y
+ D4 : Pin X
+ D3 : Pin 23
+ D2 : Pin 22
+ D1 : Pin 21
+ D0 : Pin 20
+
+ $C41003 : Input #2
+
+ D7 : Pin 15
+ D6 : Pin 14
+ D5 : Pin 13
+ D4 : Pin 12
+ D3 : Pin 11
+ D2 : Pin 10
+ D1 : Pin 9
+ D0 : Pin 8
+
+ $C41005 : Input #3
+
+ D7 : Pin W
+ D6 : Pin V
+ D5 : Pin U
+ D4 : Pin T
+ D3 : Pin 19
+ D2 : Pin 18
+ D1 : Pin 17
+ D0 : Pin 16
+
+ $C41007 : Input #4
+
+ D7 : Pin S
+ D6 : Pin R
+ D5 : Pin P
+ D4 : Pin N
+ D3 : Pin M
+ D2 : Pin L
+ D1 : Pin K
+ D0 : Pin J
+
+ $C42001 : DIP switch #2
+
+ D7 : Switch 1 (0= ON, 1=OFF)
+ D6 : Switch 2 (0= ON, 1=OFF)
+ D5 : Switch 3 (0= ON, 1=OFF)
+ D4 : Switch 4 (0= ON, 1=OFF)
+ D3 : Switch 5 (0= ON, 1=OFF)
+ D2 : Switch 6 (0= ON, 1=OFF)
+ D1 : Switch 7 (0= ON, 1=OFF)
+ D0 : Switch 8 (0= ON, 1=OFF)
+
+ $C42003 : DIP switch #1
+
+ D7 : Switch 1 (0= ON, 1=OFF)
+ D6 : Switch 2 (0= ON, 1=OFF)
+ D5 : Switch 3 (0= ON, 1=OFF)
+ D4 : Switch 4 (0= ON, 1=OFF)
+ D3 : Switch 5 (0= ON, 1=OFF)
+ D2 : Switch 6 (0= ON, 1=OFF)
+ D1 : Switch 7 (0= ON, 1=OFF)
+ D0 : Switch 8 (0= ON, 1=OFF)
+
+ ----------------------------------------------------------------------------
+ 3. Sprites
+ ----------------------------------------------------------------------------
+
+ General information
+
+ The System 16 sprites are fairly unique, while most video hardware
+ implements sprites as collections of tiles, the System 16 sprites are made
+ out of horizontal strips of graphics data that can span any height and
+ length.
+
+ A single sprite is defined by 16 bytes of sprite RAM. There is enough
+ space to define 128 sprites. Each entry has the following format:
+
+     MSB          LSB
+ 00: bbbbbbbbtttttttt
+ 02: -------xxxxxxxxx
+ 04: eh-----fpppppppp
+ 06: aaaaaaaaaaaaaaaa
+ 08: 1111bbbbppcccccc
+ 0A: 000000vvvvvhhhhh
+ 0C: ----------------
+ 0E: mmmmmmmmmmmmmmmm
+
+ b : Bottom line of sprite
+ t : Top line of sprite
+ x : Sprite X position
+ e : 1= Hide this sprite and remaining sprites in list
+ h : 1= Hide this sprite
+ f : 1= Flip sprite horizontally
+ p : Sprite pitch (width, signed)
+ a : Start address of sprite graphics within 128K bank (word address)
+ 1 : Either unused or more sprite bank select bits
+ b : Sprite bank select bits. (implementation dependant)
+ p : Sprite priority level
+ c : Sprite palette
+ 0 : Sprite Y zoom information
+ v : Sprite Y zoom (0=normal, 31=50% reduction in height)
+ h : Sprite X zoom (0=normal, 31=50% reduction in width)
+ m : Sprite end address
+ - : Unused
+
+ The bottom and top line values define the sprite height. If the top value
+ is equal to or greater than the bottom value, the sprite is not displayed.
+
+ The sprite X position defines the starting location of the sprite. The
+ leftmost pixel of the screen is $00B6, and the rightmost is $1F5.
+
+ The two hide bits are used to disable individual sprites or to mark the
+ end of the sprite list, which prevents the current sprite and all following
+ sprites from being drawn.
+
+ The sprite pitch is a signed 8-bit number which is added to the sprite
+ bank address after each line is rendered. If the pitch is zero, then the
+ address never changes and the same graphics data is shown for every line.
+ A negative pitch is used to draw vertically flipped sprites, by setting
+ the start address to the last line of the sprite and stepping backwards
+ through the graphics data.
+
+ The start address specifies a word offset within a 128K bank. The address
+ is used internally by the sprite hardware and is not modified; the final
+ address used when the sprite has been rendered is written to the sprite
+ end address field (word 7) of the sprite RAM entry.
+
+ The sprite bank bits are output to the ROM board while a sprite is being
+ rendered. Hardware on the board uses the value to select what 128K bank
+ will be selected. See the section on ROM boards for more information.
+
+ The sprite priority level defines where sprites are placed between the
+ tile and text layers. See the section on priority for more information.
+
+ The sprite palette selects which one of 64 16-color palettes will be
+ use to draw the sprite. A palette of $3F is a special case and enables
+ shadow/hilight processing, see the palette section for more information.
+
+ The X and Y zoom values shrink the sprite by skipping pixels and lines
+ to cause up to a 50% reduction of height and width. Not all games use
+ this feature.
+
+ Word 7 of each entry is filled in by the sprite generator. It writes the
+ address of the last word it accessed within a sprite bank while rendering a
+ sprite. If the sprite has a pitch of zero, is hidden, or if the bottom line
+ is smaller than the top line, the start address is written as the end
+ address. (so no sprite data accessed)
+
+ The end address is only affected by the start address, height, pitch,
+ and Y zoom. The sprite X position, horizontal scaling and flip, and actual
+ graphics data from a bank has no effect on it.
+
+ In the same way bits 15-10 of word 5 of each entry are also filled in by
+ the sprite generator. Normally zero is written if the Y zoom value is zero,
+ and it changes based on a non-zero Y zoom value, the start address, pitch,
+ and top/bottom line values. I'm not sure what it is supposed to represent,
+ however. It may be the top few bits of a larger internal value, such as the
+ number of words skipped during zooming.
+
+ The sprite generator writes this information sometime after the active
+ display period, probably during vblank. If you write a value into the high
+ bits of the zoom word or the end address word, you can read the value back
+ until the sprite hardware renders sprites for this frame and fills in the
+ values itself.
+
+ Sprite data
+
+ Sprite pattern data is arranged as groups of words, within each word every
+ four bits defines one pixel, like so:
+
+ MSB          LSB
+ aaaabbbbccccdddd
+
+ a = Pixel 0
+ b = Pixel 1
+ c = Pixel 2
+ d = Pixel 3
+
+ Some sprite pixel values have special meanings. Zero is transparent; such
+ pixels are not displayed. A value of 15 indicates an end marker - this is
+ also transparent, but additionally tells the sprite generator to stop
+ drawing the current line of a sprite. It's the end markers that define the
+ width of the sprite, which can vary on every line. I'll discuss the end
+ markers later on.
+
+ The pitch attribute for each sprite defines the value added to the start
+ address after a line of the sprite has been rendered. The value is a signed
+ byte, so $01 is 1 word, $FF is -1 word, and $00 really is zero, meaning the
+ address is never changed.
+
+ To draw vertically flipped sprites, the sprite pitch is made negative and
+ the address is set to the end of the sprite rather than the beginning.
+ The sprite generator will draw the last line of the sprite, then decrement
+ the address to point the next to last line, render it, and so on.
+
+ Sprite rendering
+
+ For normal sprites, the sprite generator adds the pitch to the base address
+ first, then starts reading words from the current bank and displays pixels
+ accordingly. If the last pixel of any four pixel group is set to $0F, it
+ stops rendering the sprite once the other pixels have been drawn. The pitch
+ is then added to the base address, and the process repeats for the next line.
+ This occurs on all lines that the sprite falls within.
+
+ For horizontally flipped sprites, the sprite generator starts reading words
+ from the base address plus an offset which is set to the pitch value. The
+ offset is decreased as each group of four pixels is displayed. If the first
+ pixel from any four pixel group is set to $0F, it stops rendering the sprite
+ once the other pixels have been drawn.
+
+ Sprite banks
+
+ Graphics data for the sprites is stored in banks that are 128K in size,
+ comprised of two 8-bit ROMs which are interleaved to form a 64K-word bank.
+ While the starting address in the sprite attributes is only 16 bits in size,
+ the sprite generator fetches data in units of one 16-bit word at a time,
+ so this is enough to span an entire 128K bank.
+
+ When the sprite generator accesses data from a bank, it's address into
+ the bank wraps at $FFFF back to zero. For example, a particularly large
+ sprite that had data at $FE80 would use data up to $FFFF, and then start
+ using data from $0000 onwards, of the *same* bank.
+
+ ----------------------------------------------------------------------------
+ 4. Display timing and interrupts
+ ----------------------------------------------------------------------------
+
+ The video hardware generates a 262-line frame 60 times a second. Within
+ each frame, the active display period uses 224 lines and the remainder
+ is for vertical blanking and retrace.
+
+ At the start of line 223, a level 4 interrupt is generated which signifies
+ the beginning of the vertical blanking period. Since this happens on the
+ last line of the active display area, changes to the palette (or any other
+ kind of memory that alters the display) will still be visible.
+
+ The level 4 interrupt is automatically acknowledged by the video hardware.
+ If it is masked by SR when it is supposed to occur, the interrupt will be
+ generated as soon as SR is changed to permit it (even on a different
+ scanline or frame).
+
+ ----------------------------------------------------------------------------
+ 5. Palette
+ ----------------------------------------------------------------------------
+
+ The output of the tilemap and sprite generators is combined by custom
+ hardware which determines priority between the various layers and ends
+ up with a 12-bit index into the 4K of color RAM.
+
+ Each 16-bit entry in color RAM has the following layout:
+
+ D15 : Shade hi/lo
+ D14 : Blue bit 0
+ D13 : Green bit 0
+ D12 : Red bit 0
+ D11 : Blue bit 4
+ D10 : Blue bit 3
+  D9 : Blue bit 2
+  D8 : Blue bit 1
+  D7 : Green bit 4
+  D6 : Green bit 3
+  D5 : Green bit 2
+  D4 : Green bit 1
+  D3 : Red bit 4
+  D2 : Red bit 3
+  D1 : Red bit 2
+  D0 : Red bit 1
+
+ Shadow / hilight mode is explained later. Up to 32768 colors can be
+ generated by the video hardware.
+
+ Palette usage:
+
+ Tiles from the text layer use color entries 0 to 63, divided into eight
+ 8-color palettes.
+
+ Tiles from the foreground and background layers use color entries 0-1023,
+ divided into 128 8-color palettes.
+
+ Sprites use color entries 1024-2047, divided into 64 16-color palettes.
+
+ The backdrop color is shown behind all layers in the active display area
+ and is selected from palette entry #0*. The remainder of the frame (meaning
+ overscan, vertical retrace, and vertical blank) is always shown as black.
+ If the display is turned off through bit 5 of $C40001, the affected lines
+ are also shown as black.
+
+ * entry #0 of SCR2 palette (JOTEGO)
+
+ Palette flicker:
+
+ The color RAM has one data bus that is shared between the video hardware
+ and the CPU. If you try to read or write color RAM during the active
+ display period, the CPU access has precendence and the data it reads
+ or writes will select the color for the current pixel being displayed.
+
+ This does not occur outside of the active display period or when the
+ display is turned off, since color RAM is not being used.
+
+ Shadow / hilight processing:
+
+ If a sprite uses palette $3F, its' pixels with values 1 to 14 change how
+ underlying pixels from the background are shown (Values 0 and 15 are
+ still treated as transparent).
+
+ For each background pixel that is obscured by the sprite in question,
+ bit 15 of its' corresponding entry from color RAM is checked. If cleared,
+ the color is shown at half intensity. If set, the color is shown at double
+ intensity (or brightness, if that's a better way to describe it). The actual
+ sprite pixel is not shown at all. Most games leave bit 15 cleared in all
+ entries, so any sprite using palette $3F will create a shadow.
+
+ Sprite priority still works in the same way: if a shadow or hilight sprite
+ is behind one layer but in front of another, only the pixels behind the
+ sprite are affected. Shadow and hilight processing affects the backdrop
+ color, text layer, and both the foreground and background layers. It has no
+ effect on other sprites.
+
+ If two sprites overlap each other and one of them uses palette $3F, the last
+ one drawn (having the highest inter-sprite priority) will select how the
+ background is affected.
+
+ ----------------------------------------------------------------------------
+ 6. Background and tile RAM
+ ----------------------------------------------------------------------------
+
+ The System 16 video hardware has two tiled backgrounds, which are called
+ the background and foreground. Each one is defined by a 128x64 virtual
+ name table, which is itself composed of four smaller 64x32 name tables.
+
+ The tile RAM holds sixteen 64x32 name tables which are selected through the
+ page selection registers (in text RAM). The four nibbles from the page
+ select register sets up the corresponding layer like so:
+
+ Name Table A           Name Table B
+ Name Table C           Name Table D
+
+ The advantage of this system is that the same subtables can be used to
+ save space while forming a larger virtual name table.
+
+ Each entry in tile RAM is one word. Some bits have several attributes mapped
+ to them, so the following layout shows each function for each bit:
+
+ MSB          LSB
+ ---nnnnnnnnnnnnn Tile index (0-8191)
+ ---ccccccc------ Palette (0-127)
+ p--------------- Priority flag
+ -??------------- Unknown
+
+ The tile index picks one of 8192 tiles to display. Depending on the ROM
+ board used, some games implement tile banking by using bit 12 of the
+ tile index to select one of two banks, and the remaining bits as an offset
+ into a 4096-tile bank. See the section on ROM boards for more details.
+
+ The palette is associated with the tile index used. Some games have the
+ same graphics duplicated in the tile ROMs so they can be used with different
+ palettes.
+
+ The priority flag is explained in the priority section later on. It affects
+ the background tile's relation with sprites only, not with other layers.
+
+ Bits 14, 13 have no effect on the tile priority (with the sprites or
+ background), the tile colors, or the tile index. They could be unused.
+
+ ----------------------------------------------------------------------------
+ 7. Text layer and text RAM
+ ----------------------------------------------------------------------------
+
+ Text RAM is used to store the name table data for the text layer, as well as
+ holding data for controlling the background and foreground layers. There is
+ 4K of text RAM, and it is mapped 64K higher than the base of the tile RAM.
+
+ Text RAM layout:
+
+ $000-DFF : Text layer name table (64x28)
+ $E00-E7F : Unused
+ $E80-EFF : Unused, except for the following addresses:
+
+ $E80     : Foreground page select
+ $E84     : Foreground page select (alternate)
+ $E90     : Foreground vertical scroll / column scroll enable
+ $E94     : Foreground vertical scroll (alternate)
+ $E98     : Foreground horizontal scroll / row scroll enable
+ $E9C     : Foreground horizontal scroll (alternate)
+ $F00-F3F : Foreground column scroll table
+ $F80-FBF : Foreground row scroll table
+
+ $E82     : Background page select
+ $E86     : Background page select (alternate)
+ $E92     : Background vertical scroll / column scroll enable
+ $E96     : Background vertical scroll (alternate)
+ $E9A     : Background horizontal scroll / row scroll enable
+ $E9E     : Background horizontal scroll (alternate)
+ $F40-F7F : Background column scroll table
+ $FC0-FFF : Background row scroll table
+
+ Text layer name table format:
+
+ MSB          LSB
+ p???cccn nnnn nnnn
+
+ p : Priority. If 0, sprites with priority level 3 are shown over the text.
+     If 1, the text layer is shown over sprites regardless of priority.
+ c : Color palette
+ n : Tile index to use
+ ? : Unknown
+
+ The name table is 64x28, but only 40x28 is shown. The viewable portion of
+ the name table starts at column 24 and goes to column 63, which maps to
+ screen columns 0 through 39.
+
+ Page select registers:
+
+ MSB          LSB
+ aaaabbbbccccdddd
+
+ a : Page # for upper left page
+ b : Page # for upper right page
+ c : Page # for lower left page
+ d : Page # for lower right page
+
+ Vertical scroll / column scroll enable registers:
+
+ MSB          LSB
+ e???-???y-yyyy-yyyy
+
+ e : 1= Enable column-based scroll, 0= Enable whole screen vertical scroll
+ y : Scroll value for whole screen vertical scroll
+ ? : Unknown
+
+ Horizontal scroll / row scroll enable registers:
+
+ MSB          LSB
+ e???-??xx-xxxx-xxxx
+
+ e : 1= Enable row-based horizontal scroll, 0= Enable whole screen horizontal
+     scroll
+ y : Scroll value for whole screen horizontal scroll
+ ? : Unknown
+
+ Column scroll table format:
+
+ MSB          LSB
+ ???????yyyyyyyyy
+
+ y : Scroll value
+ ? : Unknown
+
+ Row scroll table format:
+
+ MSB          LSB
+ e?????xxxxxxxxxx
+
+ e : Enable alternate foreground or background layer for this row
+ x : Scroll value
+ ? : Unknown
+
+ The row scroll works on units of 8 scanlines, the column scroll works on
+ units of 16 pixels (two tiles).
+
+ In column scroll mode, the columns aren't affected by horizontal scrolling
+ (either whole screen or row based), rather the vertical scroll value from
+ the column scroll table is applied to the display based on the current pair
+ of tiles being displayed (0 to 19). Each column is offset to the right by
+ the lower 3 bits of the horizontal scroll value, and the upper 7 bits select
+ an offset into the name table (this is almost identical to how the Sega
+ Genesis VDP handles column-based vertical scrolling).
+
+ For any entry in the row scroll table, having bit 15 set disables the
+ main foreground or background layer respectively and enables an alternate
+ foreground or background layer for that row only, which uses the page and
+ scroll values provided by the alternate layer registers. The alternate
+ layers cannot have row or column scrolling applied. They are shown in
+ replacement of the main layers, and are not additional ones (so still only
+ one foreground and one background plane are available)
+
+ This feature would be most useful for split screens and status screens,
+ which would otherwise need an entire background layer used exclusively for
+ them, or require use of raster effects.
+
+ ----------------------------------------------------------------------------
+ 8. Layer priorities
+ ----------------------------------------------------------------------------
+
+ The priority order is as follows:
+
+ Highest                                      Lowest
+ T1 > S3 > T0 > F1 > S2 > F0 > B1 > S1 > B0 > S0 > G
+
+ Key:
+
+ G = Backdrop color
+ S = Sprites (0-3)
+ B = Background layer (0-1)
+ F = Foreground layer (0-1)
+ T = Text layer (0-1)
+
+ The foreground, background, and text layer have two priority levels, while
+ sprites have four.
+
+ The tilemap priority settings only affect sprites; they cannot make tiles
+ from any layer appear over or under any others. (So the default order is
+ always T > F > B > G not counting sprites)
+
+ And likewise, the sprite priority settings only affect their relationship
+ with the tilemaps; the inter-sprite priority is not changed.
+
+ ----------------------------------------------------------------------------
+ 9. Custom CPUs and MCUs
+ ----------------------------------------------------------------------------
+
+ Some System 16B games have a custom 68000 or Z80 that executes encrypted
+ program code. They may also have an Intel 8751 MCU.
+
+ The custom 68000 is a black epoxy block with a plastic shell around it.
+ The shell has a metal lid over the top which covers a small rectangular
+ recession, containing a regular CR2032-looking battery that is connected
+ to two wires that come from holes in either wall. A third wire is soldered
+ from the battery to the underside of the metal lid, meaning the battery
+ will be ripped out if the lid is removed too quickly or without enough
+ caution. The metal lid has the text "HITACHI FD1094", and a sticker
+ labeled "SEGA 315-0197". This number changes depnding on the game it's
+ used with, all encrypted games have different Sega part numbers.
+
+ The 68000 executes encrypted program code. It will not run unencrypted
+ code located in the ROM area or at higher addresses outside of the ROM
+ region (I tried tile RAM at $400000). The initial PC and SP values are
+ also encrypted, and the rest of the vector table is not encrypted.
+
+ The custom Z80 used in some versions of Shinobi is a black epoxy block
+ with a plastic shell around it. The shell has the text "NEC MC-8123B 651"
+ printed on the top, and a sticker labeled "SEGA 317-0054".
+
+ Inside the epoxy block is a 3 volt battery, the one I have was labeled
+ "MATSUSHITA ELECTRIC BR1125 LITHIUM". There's also a Fujitsu MB3771 power
+ supply monitor which switches between the battery or the regular 5 volt
+ source when the board is powered on. I think the drain on the battery
+ is fairly low, as the board I have is from 1986 and still works with
+ very infrequent usage.
+
+ The custom Z80 can be replaced with a regular Z80-B and unencrypted program
+ code from another version of Shinobi (but System 16B only, as the System 16A
+ sound hardware is a bit different), and the sound will work - I've read that
+ this has been done to fix boards that had no sound output but otherwise
+ worked OK. Presumably in this case the battery had died and the Z80 could
+ no longer decrypt the program code.
+
+ Here are my observations of how an 8751 MCU is used in Tough Turf:
+
+ The MCU reads the input ports (player 1, 2, service) and stores their values
+ into 68000 work RAM. It also accesses the Z80 sound command latch itself,
+ presumably taking the proper value to use from a location in work RAM.
+
+ It seems that if the first 32K-48K or so of ROM data is modified, the MCU
+ causes the hardware to lock up. Perhaps it compares a checksum of ROM to an
+ expected value, and hangs the machine if they don't match.
+
+ If the MCU is removed, the game functions normally except for missing
+ inputs and no sound.
+
+ ----------------------------------------------------------------------------
+ 10. Wire harness pinout
+ ----------------------------------------------------------------------------
+
+ The System 16B boards use a non-JAMMA pinout that is also used with the
+ System 24 board. (and possibly others)
+
+          Component Side       Pin #     Solder Side
+
+          Ground               1   A     Ground
+          Ground               2   B     Ground
+          +5 Volts DC          3   C     +5 Volts DC
+          +5 Volts DC          4   D     +5 Volts DC
+          +12 Volts DC         5   E     +12 Volts DC
+          Coin Meter 1         6   F     Coin Meter 2
+          Lamp 1               7   H     Lamp 2
+          Input                8   J     Input
+          Input                9   K     Input
+          Input                10  L     Input
+          Input                11  M     Input
+          Input                12  N     Input
+          Input                13  P     Input
+          Input                14  R     Input
+          Input                15  S     Input
+          Input                16  T     Input
+          Input                17  U     Input
+          Input                18  V     Input
+          Input                19  W     Input
+          Input                20  X     Input
+          Input                21  Y     Input
+          Input                22  Z     Input
+          Input                23  a     Input
+          Speaker (+)          24  b     Speaker (-)
+          Monitor Red          25  c     Monitor Green
+          Monitor Blue         26  d     Composite Sync
+          Ground               27  e     Ground
+          Ground               28  f     Ground
+
+ Since the function of the various inputs is dependant on the game used,
+ I haven't listed any specifics (such as joystick or button use).
+
+ I modified the System 24 pinout found on spies.com for the above layout,
+ so thanks to whomever typed that up in the first place. ;)
+
+ ----------------------------------------------------------------------------
+ 11. Assistance needed
+ ----------------------------------------------------------------------------
+
+ - Schematics for pre System-16, System 16A/16B or System 18 boards would be
+   greatly appreciated. :)
+
+ - Are there any other types of ROM boards beyond than the three I've
+   documented?
+
+ ----------------------------------------------------------------------------
+ 12. Credits and acknowledgements
+ ----------------------------------------------------------------------------
+
+ - Sega for their great arcade games.
+ - Thierry Lescot and Nao for the System 16 emulator.
+ - The MAME team for the System 16/18 drivers.
+ - Sixtoe for maintaining the Sega Museum / System 16 website.
+
+ ----------------------------------------------------------------------------
+ 13. Disclaimer
+ ----------------------------------------------------------------------------
+
+ If you use any information from this document, please credit me
+ (Charles MacDonald) and optionally provide a link to my webpage
+ (http://cgfm2.emuviews.com/) so interested parties can access it.
+
+ The credit text should be present in the accompanying documentation of
+ whatever project which used the information, or even in the program
+ itself (e.g. an about box).
+
+ Regarding distribution, you cannot put this document on another
+ website, nor link directly to it.

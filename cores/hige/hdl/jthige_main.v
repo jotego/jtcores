@@ -152,7 +152,7 @@ always @(*)
     endcase
 
 
-jtframe_prom #(.aw(8),.dw(4),.simfile("../../../rom/hige/hgb4.l9")) u_vprom(
+jtframe_prom #(.AW(8),.DW(4),.SIMFILE("../../../rom/hige/hgb4.l9")) u_vprom(
     .clk    ( clk          ),
     .cen    ( cen6         ),
     .data   ( prog_din     ),

@@ -81,7 +81,7 @@ reg  sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
 //    if( !dump_on ) begin
 //        dump_on <= 1'b1;
 //        $display("DUMP starts because of CS edge");
-//        $dumpfile("test.lxt");
+//        $DUMPFILE("test.lxt");
 //        $dumpvars(0,mist_test);
 //        $dumpon;
 //    end
@@ -210,7 +210,7 @@ assign cpu_AB = A[12:0];
 wire [12:0] RAM_addr = blcnten ? { 4'hf, obj_AB } : cpu_AB;
 wire RAM_we   = blcnten ? 1'b0 : cpu_ram_we;
 
-jtframe_ram #(.aw(13)) u_ram(
+jtframe_ram #(.AW(13)) u_ram(
     .clk        ( clk       ),
     .cen        ( cen_Q     ),
     .addr       ( RAM_addr  ),

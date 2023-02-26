@@ -16,17 +16,17 @@
     Version: 1.0
     Date: 23-12-2018 */
 
-module jtgng_dual_ram #(parameter dw=8, aw=10, simfile="")(
+module jtgng_dual_ram #(parameter DW=8, AW=10, SIMFILE="")(
     input           clk,
     input           clk_en,
-    input  [dw-1:0] data,
-    input  [aw-1:0] rd_addr,
-    input  [aw-1:0] wr_addr,
+    input  [DW-1:0] data,
+    input  [AW-1:0] rd_addr,
+    input  [AW-1:0] wr_addr,
     input           we,
-    output [dw-1:0] q
+    output [DW-1:0] q
 );
 
-    jtframe_dual_ram #(.dw(dw),.aw(aw),.simfile(simfile))
+    jtframe_dual_ram #(.DW(DW),.AW(AW),.SIMFILE(SIMFILE))
     u_ram(
         .clk0   ( clk       ),
         .clk1   ( clk       ),

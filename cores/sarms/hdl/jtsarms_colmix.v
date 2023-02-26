@@ -135,7 +135,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 `ifndef PAL_GRAY
-jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
+jtgng_dual_ram #(.AW(10),.SIMFILE("rg_ram.bin")) u_redgreen(
     .clk        ( clk         ),
     .clk_en     ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB          ),
@@ -145,7 +145,7 @@ jtgng_dual_ram #(.aw(10),.simfile("rg_ram.bin")) u_redgreen(
     .q          ( {pal_red, pal_green}     )
 );
 
-jtgng_dual_ram #(.aw(10),.dw(4),.simfile("b_ram.bin")) u_blue(
+jtgng_dual_ram #(.AW(10),.DW(4),.SIMFILE("b_ram.bin")) u_blue(
     .clk        ( clk         ),
     .clk_en     ( cpu_cen     ), // clock enable only applies to write operation
     .data       ( DB[3:0]     ),

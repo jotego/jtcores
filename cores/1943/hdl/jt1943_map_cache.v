@@ -97,7 +97,7 @@ end
 
 wire [CACHEW-1:0] addr = SH[SHW-1 -: CACHEW];
 
-jtframe_ram #(.dw(MAPDW),.aw(CACHEW)) u_cache(
+jtframe_ram #(.DW(MAPDW),.AW(CACHEW)) u_cache(
     .clk    ( clk         ),
     .cen    ( 1'b1        ),
     .addr   ( addr        ),

@@ -237,7 +237,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 /*
-jtframe_prom #(.aw(11)) u_mcu_prom (
+jtframe_prom #(.AW(11)) u_mcu_prom (
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),

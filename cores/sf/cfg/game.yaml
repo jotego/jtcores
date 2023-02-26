@@ -29,7 +29,7 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
-      - 8051/mc8051.yaml
+      - jtframe_8751.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v

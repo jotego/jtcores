@@ -6,7 +6,7 @@ mraauthor=["jotego"]
 sourcefile="renegade.cpp"
 # Original games don't work because of the MCU
 skip.setnames = [ "kuniokun", "renegade" ]
-main="renegadeb"
+main_setnames=["renegadeb"]
 
 [buttons]
 Names = [
