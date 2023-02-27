@@ -5455,7 +5455,7 @@
   (symbol (lib_id "Device:C_Small") (at 217.17 36.83 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid ba9e369a-684c-4a82-8a1c-d7f002351146)
-    (property "Reference" "C1" (id 0) (at 217.424 35.052 0)
+    (property "Reference" "CP136" (id 0) (at 217.424 35.052 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "102" (id 1) (at 217.424 38.862 0)

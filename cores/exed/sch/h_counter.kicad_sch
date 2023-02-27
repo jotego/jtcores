@@ -3666,7 +3666,7 @@
   (symbol (lib_id "jt74:74LS00") (at 119.38 153.67 0) (unit 4)
     (in_bom yes) (on_board yes)
     (uuid 450efd65-98d9-4887-812b-cacf533bf2e3)
-    (property "Reference" "H5" (id 0) (at 119.38 152.4 0))
+    (property "Reference" "5H" (id 0) (at 119.38 152.4 0))
     (property "Value" "74LS00" (id 1) (at 119.38 154.94 0))
     (property "Footprint" "" (id 2) (at 119.38 153.67 0)
       (effects (font (size 1.27 1.27)) hide)
