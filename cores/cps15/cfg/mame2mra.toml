@@ -6,6 +6,10 @@ zip.alt="qsound.zip"
 sourcefile="cps1.cpp"
 mustbe.devices=["qsound_hle"]
 skip.bootlegs=true
+skip.setnames=[
+    # To do: add mapper header
+    "wofch"
+]
 
 [dipsw]
 delete=[ "Unused", "Unknown" ]
@@ -61,7 +65,7 @@ data=[
 [rom]
 regions=[
     # The Q-Sound may fail because the dl-1425.bin length is larger than 0x2000
-    { name="maincpu", width=16, reverse=true },
+    { name="maincpu", width=16, reverse=true, reverse_only=[8] },
     { name="gfx",     width=64 },
     { name="firmware", files=[ { name="dl-1425.bin", crc="d6cf5ef5", size=0x2000 } ], rom_len=0x2000 },
     { name="aboardplds", skip=true },
