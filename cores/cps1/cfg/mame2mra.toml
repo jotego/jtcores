@@ -44,6 +44,7 @@ Names = [
     { machine="pnickj",   names="Rotate left,Rotate right"},
     { machine="sf2",      names="LP,MP,SP,LK,MK,HK"},
     { machine="sf2ce",    names="LP,MP,SP,LK,MK,HK"},
+    { machine="sf2hf",    names="LP,MP,SP,LK,MK,HK"},
     { machine="strider",  names="Attack,Jump"},
     { machine="varth",    names="Shoot,Bomb"},
     { machine="willow",   names="Attack,Jump"},
