@@ -23,13 +23,14 @@ skip.machines=["forgottn", "pang3"]
 
 [buttons]
 Names = [
+    { machine="3wonders", names="Attack/Shot/P.Block,Jump/T.Shot/P.Block"},
     { machine="1941",     names="Shoot,Bomb"},
     { machine="unsquad",  names="Shoot,Bomb"},
     { machine="captcomm", names="Attack,Jump"},
     { machine="cawing",   names="Shoot,Bomb"},
     { machine="mtwins",   names="Attack,Jump,Special"},
     { machine="ghouls",   names="Attack,Jump"},
-    { machine="dynwars",  names="Attack left,Attack right,Special"},
+    { machine="dynwar",   names="Attack left,Attack right,Special"},
     { machine="ffight",   names="Attack,Jump"},
     { machine="forgottn", names="Shoot,Rotate left,Rotate right"},
     { machine="knights",  names="Slay,Jump"},
@@ -43,6 +44,8 @@ Names = [
     { machine="pnickj",   names="Rotate left,Rotate right"},
     { machine="sf2",      names="LP,MP,SP,LK,MK,HK"},
     { machine="sf2ce",    names="LP,MP,SP,LK,MK,HK"},
+    { machine="sf2hf",    names="LP,MP,SP,LK,MK,HK"},
+    { machine="sfzch",    names="LP,MP,SP,LK,MK,HK"},
     { machine="strider",  names="Attack,Jump"},
     { machine="varth",    names="Shoot,Bomb"},
     { machine="willow",   names="Attack,Jump"},
