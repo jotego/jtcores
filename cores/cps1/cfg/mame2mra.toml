@@ -36,6 +36,7 @@ Names = [
     { machine="knights",  names="Slay,Jump"},
     { machine="kod",      names="Slay,Jump"},
     { machine="msword",   names="Slay,Jump"},
+    { machine="mpumpkin", names="Kitty,Keroppi,Badtz-Maru"},
     { machine="megaman",  names="Attack,Jump"},
     { machine="mercs",    names="Shoot,Bomb"},
     { machine="mbombrd",  names="Hit,Grab,Jump"},
@@ -179,5 +180,5 @@ data=[
 	{ data="32 FF 00 02 04 06 26 28 2A 2C 2E 36 00 30 02 04 08 30 25 40 88 73 FF 03", offset=16, setnames=[ "wofhfh" ] },
 	{ data="32 80 0E 0C 0A 08 28 26 24 22 20 00 00 30 20 04 08 12 1C 20 64 31 33 00", offset=16, setnames=[ "wonder3" ] },
     # Special controls
-    { machine="pokonyan", offset=40, data="FE" },
+    { machine="mpumpkin", offset=40, data="FE" },
 ]

@@ -316,6 +316,19 @@ wire [7:0] dial_dout;
 `endif
 
 reg [15:0] sys_data;
+reg [ 1:0] dial_xl;
+reg        dial_en;
+
+// Detects the dial
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        dial_en <= 0;
+        dial_xl <= 0;
+    end else if( !LVBL && last_LVBL ) begin
+        dial_xl <= dial_x;
+        if( dial_xl != dial_x ) dial_en <= 1;
+    end
+end
 
 always @(posedge clk) begin
 `ifdef CPS15
@@ -330,7 +343,9 @@ always @(posedge clk) begin
 `else
     if( joy_cs ) begin
         sys_data <= { joystick2[7:0], joystick1[7:0] };
-        if( !joymode[0] ) sys_data[1:0]=dial_x;
+        if( !joymode[0] && dial_en ) begin
+            sys_data[1:0] <= ~dial_x;
+        end
     end
 `endif
     else if(sys_cs) begin
