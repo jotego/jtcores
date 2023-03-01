@@ -1869,6 +1869,7 @@
     )
   )
 
+
   (junction (at 266.7 83.82) (diameter 0) (color 0 0 0 0)
     (uuid 2fc8416a-494a-4c95-81d7-ead99561ebdc)
   )
@@ -4306,8 +4307,8 @@
   (symbol (lib_id "jt74:74LS153") (at 132.08 106.68 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 24cad761-b9d1-4eab-93e1-c6b1ad47e500)
-    (property "Reference" "E1" (id 0) (at 132.08 82.1182 0))
-    (property "Value" "74LS153" (id 1) (at 132.08 84.4296 0))
+    (property "Reference" "1E" (id 0) (at 137.16 85.09 0))
+    (property "Value" "74LS153" (id 1) (at 132.08 104.14 0))
     (property "Footprint" "" (id 2) (at 132.08 106.68 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -4485,7 +4486,7 @@
   (symbol (lib_id "jt74:74LS153") (at 132.08 55.88 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 5a227cda-a502-406b-99d4-016484f5e425)
-    (property "Reference" "E2" (id 0) (at 137.16 34.29 0))
+    (property "Reference" "2E" (id 0) (at 137.16 34.29 0))
     (property "Value" "74LS153" (id 1) (at 132.08 53.34 0))
     (property "Footprint" "" (id 2) (at 132.08 55.88 0)
       (effects (font (size 1.27 1.27)) hide)
