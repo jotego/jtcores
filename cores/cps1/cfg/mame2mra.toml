@@ -52,6 +52,7 @@ Names = [
     { machine="willow",   names="Attack,Jump"},
     { machine="wof",      names="Attack,Jump"},
 ]
+Dial = [ { machine="mpumpkin", raw=true, reverse=true }, ]
 
 [dipsw]
 delete=[ "Unused", "Unknown", "Coinage" ]

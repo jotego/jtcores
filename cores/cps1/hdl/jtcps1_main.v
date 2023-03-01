@@ -344,7 +344,7 @@ always @(posedge clk) begin
     if( joy_cs ) begin
         sys_data <= { joystick2[7:0], joystick1[7:0] };
         if( !joymode[0] && dial_en ) begin
-            sys_data[1:0] <= ~dial_x;
+            sys_data[1:0] <= dial_x;
         end
     end
 `endif
