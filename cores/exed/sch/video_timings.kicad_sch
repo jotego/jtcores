@@ -4,6 +4,16 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Exed Exes board B")
+    (date "2021")
+    (rev "José Tejada G")
+    (company "JOTEGO")
+    (comment 1 "https://patreon.com/topapate")
+    (comment 2 "Extracted by Jose Tejada, 2021")
+    (comment 3 "supplemented by E.Triana")
+  )
+
   (lib_symbols
     (symbol "74xx:74LS74" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
       (property "Reference" "U" (id 0) (at -7.62 8.89 0)
