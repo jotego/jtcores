@@ -4107,7 +4107,7 @@
   (symbol (lib_id "Connector_Generic:Conn_02x25_Odd_Even") (at 44.45 54.61 180) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 00000000-0000-0000-0000-00006b8d8780)
-    (property "Reference" "CN1_A" (id 0) (at 43.18 21.59 0))
+    (property "Reference" "CN1_A1" (id 0) (at 43.18 21.59 0))
     (property "Value" "Conn_02x25_Odd_Even" (id 1) (at 43.18 87.63 0))
     (property "Footprint" "" (id 2) (at 44.45 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -4170,7 +4170,7 @@
   (symbol (lib_id "Connector_Generic:Conn_02x25_Odd_Even") (at 53.34 151.13 180) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 00000000-0000-0000-0000-00006c0a2e7f)
-    (property "Reference" "CN2_A" (id 0) (at 52.07 116.84 0))
+    (property "Reference" "CN2_A1" (id 0) (at 52.07 116.84 0))
     (property "Value" "Conn_02x25_Odd_Even" (id 1) (at 52.07 184.8104 0))
     (property "Footprint" "" (id 2) (at 53.34 151.13 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -4281,7 +4281,7 @@
   (symbol (lib_id "Connector_Generic:Conn_02x25_Odd_Even") (at 104.14 151.13 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 448dc37b-dae5-4a1c-975c-8ac319a3d81b)
-    (property "Reference" "CN2_B" (id 0) (at 105.41 116.84 0))
+    (property "Reference" "CN2_B1" (id 0) (at 105.41 116.84 0))
     (property "Value" "Conn_02x25_Odd_Even" (id 1) (at 105.41 184.8104 0))
     (property "Footprint" "" (id 2) (at 104.14 151.13 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -4495,7 +4495,7 @@
   (symbol (lib_id "Connector_Generic:Conn_02x25_Odd_Even") (at 80.01 54.61 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid e911b132-737c-4a0f-a3d0-e5b193e1399f)
-    (property "Reference" "CN1_B" (id 0) (at 81.28 21.59 0))
+    (property "Reference" "CN1_B1" (id 0) (at 81.28 21.59 0))
     (property "Value" "Conn_02x25_Odd_Even" (id 1) (at 81.28 87.63 0))
     (property "Footprint" "" (id 2) (at 80.01 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -4836,478 +4836,478 @@
       (reference "#PWR0141") (unit 1) (value "VSS") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/7aa505ca-79e6-44c5-8713-7cdf513f037e"
-      (reference "1D") (unit 1) (value "74LS273") (footprint "")
+      (reference "1D1") (unit 1) (value "74LS273") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/24cad761-b9d1-4eab-93e1-c6b1ad47e500"
-      (reference "1E") (unit 1) (value "74LS153") (footprint "")
+      (reference "1E1") (unit 1) (value "74LS153") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/125d7e40-0c97-43dc-bed6-21bd49d347f4"
-      (reference "1F") (unit 1) (value "74LS174") (footprint "")
+      (reference "1F1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/266d32d9-f14d-4ad2-b9c0-7d5a37bf6f04"
-      (reference "1H") (unit 1) (value "74LS174") (footprint "")
+      (reference "1H1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/62e36b13-4a96-4406-90f0-153eded72cba/94fed3d1-3f98-4d6a-926d-3834063a1bc9"
-      (reference "1J") (unit 1) (value "74LS161") (footprint "")
+      (reference "1J1") (unit 1) (value "74LS161") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/e64208c0-a32f-4a91-8035-84c3546ae65d"
-      (reference "1K") (unit 1) (value "74LS161") (footprint "")
+      (reference "1K1") (unit 1) (value "74LS161") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/abc906c3-a08f-473d-8eb1-08ab564d76aa"
-      (reference "1L") (unit 2) (value "74LS04") (footprint "")
+      (reference "1L1") (unit 2) (value "74LS04") (footprint "")
     )
     (path "/62e36b13-4a96-4406-90f0-153eded72cba/e7948020-1b0f-4cd2-88f7-dd4c5ebb6d64"
-      (reference "1L") (unit 4) (value "74LS04") (footprint "")
+      (reference "1L1") (unit 4) (value "74LS04") (footprint "")
     )
     (path "/62e36b13-4a96-4406-90f0-153eded72cba/c6d5a150-3a25-429a-a878-353c1aac28e4"
-      (reference "1L") (unit 5) (value "74LS04") (footprint "")
+      (reference "1L1") (unit 5) (value "74LS04") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/92eaca7e-e5d7-44ff-b69d-4e1e13e8f28f"
-      (reference "1L") (unit 6) (value "74LS04") (footprint "")
+      (reference "1L1") (unit 6) (value "74LS04") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/cdb0af58-dca8-4d4c-b386-5a34be31a012"
-      (reference "1L") (unit 7) (value "74LS04") (footprint "")
+      (reference "1L1") (unit 7) (value "74LS04") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/35929a47-02f6-46b6-85f6-2d9addeb697f"
-      (reference "2A") (unit 1) (value "74LS245") (footprint "")
+      (reference "2A1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/e7815532-1a14-43f0-9fe6-a93cf80ecd62"
-      (reference "2B") (unit 1) (value "74LS245") (footprint "")
+      (reference "2B1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/ca284bfe-9c6d-45b0-86a4-b024d6548ab1"
-      (reference "2D") (unit 1) (value "TBP24S10N") (footprint "")
+      (reference "2D1") (unit 1) (value "TBP24S10N") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/5a227cda-a502-406b-99d4-016484f5e425"
-      (reference "2E") (unit 1) (value "74LS153") (footprint "")
+      (reference "2E1") (unit 1) (value "74LS153") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/bcc84b3c-88c5-4bc1-a7cb-df027846b247"
-      (reference "2F") (unit 1) (value "74LS174") (footprint "")
+      (reference "2F1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/dbf5dfcb-38f8-4ce8-8893-ae6bf6ad8cad"
-      (reference "2H") (unit 1) (value "74LS174") (footprint "")
+      (reference "2H1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/62e36b13-4a96-4406-90f0-153eded72cba/ef106ce7-670e-422a-82bf-a8bf2e34156c"
-      (reference "2J") (unit 1) (value "74LS161") (footprint "")
+      (reference "2J1") (unit 1) (value "74LS161") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/f0c30605-3ca6-45a5-829e-a2f04f4e605e"
-      (reference "2K") (unit 1) (value "74LS161") (footprint "")
+      (reference "2K1") (unit 1) (value "74LS161") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/fec064a6-747d-4d0d-ab10-56a85ce7e580"
-      (reference "2L") (unit 1) (value "74LS74") (footprint "")
+      (reference "2L1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/c68c24e0-a365-4da5-8635-102766598dd9"
-      (reference "2L") (unit 2) (value "74LS74") (footprint "")
+      (reference "2L1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/bfe9499d-71a6-4219-827d-fe7a8c431889"
-      (reference "2M") (unit 1) (value "74LS138") (footprint "")
+      (reference "2M1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/baca89ff-32a1-4fb8-a5d9-59ac15bba617"
-      (reference "3A") (unit 1) (value "74LS138") (footprint "")
+      (reference "3A1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/a4b8a961-16f7-49a3-8700-6564de89a1d2"
-      (reference "3B") (unit 1) (value "74LS139") (footprint "")
+      (reference "3B1") (unit 1) (value "74LS139") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/b9ef38cf-2ddb-44d9-838f-86cea0ef806b"
-      (reference "3B") (unit 2) (value "74LS139") (footprint "")
+      (reference "3B1") (unit 2) (value "74LS139") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/3e700d07-a859-4d59-955a-109ef0917556"
-      (reference "3D") (unit 1) (value "TBP24S10N") (footprint "")
+      (reference "3D1") (unit 1) (value "TBP24S10N") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/8d7ddae4-932a-44ab-a712-fef013674ca7"
-      (reference "3E") (unit 1) (value "TBP18S030") (footprint "")
+      (reference "3E1") (unit 1) (value "TBP18S030") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/e5c95607-343b-411e-a3c3-2a4f6c5c36f5"
-      (reference "3F") (unit 1) (value "74LS20") (footprint "")
+      (reference "3F1") (unit 1) (value "74LS20") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/e4d17ea4-f20e-4502-86a4-da89fa138703"
-      (reference "3F") (unit 2) (value "74LS20") (footprint "")
+      (reference "3F1") (unit 2) (value "74LS20") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/79e5f997-d9fa-4e05-b72d-a498f522ab0e"
-      (reference "3H") (unit 2) (value "74LS20") (footprint "")
+      (reference "3H1") (unit 2) (value "74LS20") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/ea1c439d-7d52-4d57-b6ff-ee52fa18f3af"
-      (reference "3J") (unit 1) (value "74LS74") (footprint "")
+      (reference "3J1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/dad619e6-2a8c-457c-b1f1-e95070f93595"
-      (reference "3J") (unit 2) (value "74LS74") (footprint "")
+      (reference "3J1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/9e372b06-47ca-4c9a-851b-a630a73c6235"
-      (reference "3K") (unit 1) (value "74LS30") (footprint "")
+      (reference "3K1") (unit 1) (value "74LS30") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/46689ab8-b5d3-4c61-aa30-bd76b9c2d925"
-      (reference "3L") (unit 1) (value "74LS74") (footprint "")
+      (reference "3L1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/95d3bda3-9398-4821-8185-fe60c267af23"
-      (reference "3L") (unit 2) (value "74LS74") (footprint "")
+      (reference "3L1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/34b53af4-4d18-43e8-85bd-4474ec03c83a"
-      (reference "3M") (unit 2) (value "74LS112") (footprint "")
+      (reference "3M1") (unit 2) (value "74LS112") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/e23985c0-c349-47da-a382-e264aea28cda"
-      (reference "4B") (unit 1) (value "74LS367") (footprint "")
+      (reference "4B1") (unit 1) (value "74LS367") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/8504c7cf-0669-4ed4-b4ab-1abf290e8f1b"
-      (reference "4D") (unit 1) (value "TBP24S10N") (footprint "")
+      (reference "4D1") (unit 1) (value "TBP24S10N") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/037aaf1b-3d50-454d-99bc-3fd86dea01fd"
-      (reference "4E") (unit 1) (value "74LS32") (footprint "")
+      (reference "4E1") (unit 1) (value "74LS32") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/533cce1c-fe5a-42c9-9c67-56c5e1b6a1f6"
-      (reference "4E") (unit 2) (value "74LS32") (footprint "")
+      (reference "4E1") (unit 2) (value "74LS32") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/b203b5a0-6b03-4c39-9eb9-ee77f777bd9d"
-      (reference "4E") (unit 3) (value "74LS32") (footprint "")
+      (reference "4E1") (unit 3) (value "74LS32") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/d011c1ec-1094-452a-9801-a5d5e4d13326"
-      (reference "4E") (unit 4) (value "74LS32") (footprint "")
+      (reference "4E1") (unit 4) (value "74LS32") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/3ed859ab-c412-455b-813d-19924d7d2a04"
-      (reference "4E") (unit 5) (value "74LS32") (footprint "")
+      (reference "4E1") (unit 5) (value "74LS32") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/19839ea5-6353-4e71-9649-910f9d30ba59"
-      (reference "4F") (unit 1) (value "74LS08") (footprint "")
+      (reference "4F1") (unit 1) (value "74LS08") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/0d8cd771-3afa-4db6-b998-757fdb998535"
-      (reference "4F") (unit 2) (value "74LS08") (footprint "")
+      (reference "4F1") (unit 2) (value "74LS08") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/b84d8593-f424-4dd4-935f-fda8b50f8156"
-      (reference "4F") (unit 3) (value "74LS08") (footprint "")
+      (reference "4F1") (unit 3) (value "74LS08") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/25815b06-845d-4ac3-85c2-ef2eb9a2baea"
-      (reference "4F") (unit 4) (value "74LS08") (footprint "")
+      (reference "4F1") (unit 4) (value "74LS08") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/be1cb4c0-92a9-4ec7-ad34-38c252bc3d22"
-      (reference "4H") (unit 1) (value "74LS74") (footprint "")
+      (reference "4H1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/cc832e92-a394-4e04-adb5-ecf25ff3275c/5c30f52b-05e0-4519-a25e-098e6e4e3a9a"
-      (reference "4H") (unit 2) (value "74LS74") (footprint "")
+      (reference "4H1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/2e8b7b00-1883-4f35-b128-1c7c10776154"
-      (reference "4H") (unit 3) (value "74LS74") (footprint "")
+      (reference "4H1") (unit 3) (value "74LS74") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/ac9b0455-0df0-435c-80a0-ff827759c69f"
-      (reference "4J") (unit 1) (value "74LS138") (footprint "")
+      (reference "4J1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/26245a6d-a684-46c2-9bfa-e3c83c735253"
-      (reference "4K") (unit 1) (value "74LS08") (footprint "")
+      (reference "4K1") (unit 1) (value "74LS08") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/282db352-9fcf-4ed6-8d8b-f9bf6be60829"
-      (reference "4K") (unit 2) (value "74LS08") (footprint "")
+      (reference "4K1") (unit 2) (value "74LS08") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/ce2bd85a-4de9-43bd-a0be-e8bdea1dfc9b"
-      (reference "4K") (unit 3) (value "74LS08") (footprint "")
+      (reference "4K1") (unit 3) (value "74LS08") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/c5988b19-aeb3-4735-a216-e42f5df5c3e5"
-      (reference "4K") (unit 4) (value "74LS08") (footprint "")
+      (reference "4K1") (unit 4) (value "74LS08") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/403fd7b3-18e8-4f30-b771-0d37aa6bb074"
-      (reference "4L") (unit 1) (value "74LS74") (footprint "")
+      (reference "4L1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/c2ae7e5a-bca5-4565-ac86-0fa576a19f30"
-      (reference "4L") (unit 2) (value "74LS74") (footprint "")
+      (reference "4L1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/43dd527b-5b9b-4073-a0ca-2443f0cdf9d9"
-      (reference "4M") (unit 1) (value "74LS74") (footprint "")
+      (reference "4M1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/74a36269-813b-4687-bfeb-7627882e4d07"
-      (reference "4M") (unit 2) (value "74LS74") (footprint "")
+      (reference "4M1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/0673617f-7750-4d99-90e0-a78f16591c62"
-      (reference "5B") (unit 1) (value "74LS367") (footprint "")
+      (reference "5B1") (unit 1) (value "74LS367") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/dc42bdd2-9d2a-4d78-8488-4550d8fe7bb1"
-      (reference "5C") (unit 1) (value "2764") (footprint "Package_DIP:DIP-28_W15.24mm")
+      (reference "5C1") (unit 1) (value "2764") (footprint "Package_DIP:DIP-28_W15.24mm")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/51aff924-5525-44ca-9c5b-1aaca3660647"
-      (reference "5E") (unit 1) (value "74LS194") (footprint "")
+      (reference "5E1") (unit 1) (value "74LS194") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/a0ebe696-f091-4d80-8fee-a82e0fa83c99"
-      (reference "5F") (unit 1) (value "74LS157") (footprint "")
+      (reference "5F1") (unit 1) (value "74LS157") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/12fb6996-426d-43b4-9d9c-33a45f69f97b"
-      (reference "5H") (unit 1) (value "74LS00") (footprint "")
+      (reference "5H1") (unit 1) (value "74LS00") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/784c2b08-27fe-4eda-8362-cc17e6a27db6/d2df0dd7-e5c0-48b6-b550-419b3d64cb3c"
-      (reference "5H") (unit 2) (value "74LS00") (footprint "")
+      (reference "5H1") (unit 2) (value "74LS00") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/698b1cf1-cc88-4813-a685-b41eb29cb5dd"
-      (reference "5H") (unit 3) (value "74LS00") (footprint "")
+      (reference "5H1") (unit 3) (value "74LS00") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/2a81b184-0e52-481f-b262-2cc0bad228bf"
-      (reference "5H") (unit 4) (value "74LS00") (footprint "")
+      (reference "5H1") (unit 4) (value "74LS00") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/cf1c028e-b7b1-48c6-a8e3-c98973e940e6"
-      (reference "5H") (unit 5) (value "74LS00") (footprint "")
+      (reference "5H1") (unit 5) (value "74LS00") (footprint "")
     )
     (path "/62e36b13-4a96-4406-90f0-153eded72cba/8b5ccf24-2dcc-4743-9307-d5cf54c03b6f"
-      (reference "5J") (unit 1) (value "74LS367") (footprint "")
+      (reference "5J1") (unit 1) (value "74LS367") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/90550770-cec9-45cb-9a80-8c9c8d581b3a"
-      (reference "5K") (unit 1) (value "74LS10") (footprint "")
+      (reference "5K1") (unit 1) (value "74LS10") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/9f7e1e73-dfa3-4d34-98b2-65bad3c0d1ca"
-      (reference "5K") (unit 3) (value "74LS10") (footprint "")
+      (reference "5K1") (unit 3) (value "74LS10") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/ecc8cecf-89d9-40fa-9bca-cb913ae04d6f"
-      (reference "5L") (unit 1) (value "74LS04") (footprint "")
+      (reference "5L1") (unit 1) (value "74LS04") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/28b3e477-b3bb-4ae3-a47a-75a02f44849a"
-      (reference "5L") (unit 2) (value "74LS04") (footprint "")
+      (reference "5L1") (unit 2) (value "74LS04") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/4c2c20b7-cb3a-424f-8405-e7ba86a43c58"
-      (reference "5L") (unit 4) (value "74LS04") (footprint "")
+      (reference "5L1") (unit 4) (value "74LS04") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/eae1b9fc-2a3e-45d0-a07d-306f5e558539"
-      (reference "5L") (unit 5) (value "74LS04") (footprint "")
+      (reference "5L1") (unit 5) (value "74LS04") (footprint "")
     )
     (path "/61df1e9a-27d4-41fa-a2d2-cc5209d0c536/bd8a9f03-2355-47f8-9231-ee0a5ba57054"
-      (reference "5L") (unit 6) (value "74LS04") (footprint "")
+      (reference "5L1") (unit 6) (value "74LS04") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/73f50fe2-3abe-4fef-a2ac-c4192aafaefa"
-      (reference "5M") (unit 1) (value "74LS08") (footprint "")
+      (reference "5M1") (unit 1) (value "74LS08") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/d79e9dac-55e2-429a-8fd8-c58e59e1e207"
-      (reference "5M") (unit 2) (value "74LS08") (footprint "")
+      (reference "5M1") (unit 2) (value "74LS08") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/75db3e8e-23a9-4374-803d-1d66696c8a94"
-      (reference "5M") (unit 3) (value "74LS08") (footprint "")
+      (reference "5M1") (unit 3) (value "74LS08") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/67af781f-fff0-456d-a068-1684321408da"
-      (reference "5M") (unit 4) (value "74LS08") (footprint "")
+      (reference "5M1") (unit 4) (value "74LS08") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/868e52c9-0142-44f4-a543-19ae2aae395e"
-      (reference "6B") (unit 1) (value "74LS367") (footprint "")
+      (reference "6B1") (unit 1) (value "74LS367") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/c494f33c-c8c0-49f0-96f5-cb2c92327151"
-      (reference "6C") (unit 1) (value "74LS86") (footprint "")
+      (reference "6C1") (unit 1) (value "74LS86") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/13b3d4b7-5bc8-4a81-a38b-47260856e276"
-      (reference "6C") (unit 2) (value "74LS86") (footprint "")
+      (reference "6C1") (unit 2) (value "74LS86") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/9c5d4666-dd43-497b-8a84-9e5e9711e66f"
-      (reference "6C") (unit 3) (value "74LS86") (footprint "")
+      (reference "6C1") (unit 3) (value "74LS86") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/12d1960b-f531-4efb-b37b-497846e90b49"
-      (reference "6C") (unit 4) (value "74LS86") (footprint "")
+      (reference "6C1") (unit 4) (value "74LS86") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/9c96154e-ec6d-4a45-8a56-da134ba14020"
-      (reference "6D") (unit 1) (value "74LS194") (footprint "")
+      (reference "6D1") (unit 1) (value "74LS194") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/4bcc7352-521f-465b-a9f7-5303bbdd2214"
-      (reference "6E") (unit 1) (value "74LS174") (footprint "")
+      (reference "6E1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/5978eddb-0bb5-44b7-ba7e-88e2a30b5aa6"
-      (reference "6F") (unit 1) (value "TBP24S10N") (footprint "")
+      (reference "6F1") (unit 1) (value "TBP24S10N") (footprint "")
     )
     (path "/0eb68cad-8443-4e41-a6f0-b2487a8c0006/5dfd6acd-b721-44a9-a1ea-4c9ac6b9404c"
-      (reference "6H") (unit 2) (value "74LS32") (footprint "")
+      (reference "6H1") (unit 2) (value "74LS32") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/c9a27980-f2ce-471c-9868-60561fda4a52"
-      (reference "6J") (unit 1) (value "74LS00") (footprint "")
+      (reference "6J1") (unit 1) (value "74LS00") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/e7f378bc-fb15-4071-87d8-3e466d4a84be"
-      (reference "6J") (unit 2) (value "74LS00") (footprint "")
+      (reference "6J1") (unit 2) (value "74LS00") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/8bb70e34-2413-4f41-9f51-83ed453afa8c"
-      (reference "6J") (unit 3) (value "74LS00") (footprint "")
+      (reference "6J1") (unit 3) (value "74LS00") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/0c4487e5-4809-4cf7-89c2-bc2943af4f57"
-      (reference "6J") (unit 4) (value "74LS00") (footprint "")
+      (reference "6J1") (unit 4) (value "74LS00") (footprint "")
     )
     (path "/0eb68cad-8443-4e41-a6f0-b2487a8c0006/e35e55af-b7c6-4698-8dfd-2dba7f6def2a"
-      (reference "6K") (unit 1) (value "74LS74") (footprint "")
+      (reference "6K1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/0eb68cad-8443-4e41-a6f0-b2487a8c0006/47095322-bf6e-4ab6-96d0-4cee20e68989"
-      (reference "6K") (unit 2) (value "74LS74") (footprint "")
+      (reference "6K1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/0eb68cad-8443-4e41-a6f0-b2487a8c0006/03068ebc-f00f-4561-8ec8-d8172d4d5e5d"
-      (reference "6L") (unit 1) (value "TBP24S10N") (footprint "")
+      (reference "6L1") (unit 1) (value "TBP24S10N") (footprint "")
     )
     (path "/0eb68cad-8443-4e41-a6f0-b2487a8c0006/0de655d7-347d-4626-bc73-83c2c8249b6e"
-      (reference "6M") (unit 1) (value "74LS374") (footprint "")
+      (reference "6M1") (unit 1) (value "74LS374") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/784c2b08-27fe-4eda-8362-cc17e6a27db6/a1fa45c0-04ef-43b5-b424-bf3e6d376643"
-      (reference "7A") (unit 1) (value "74LS174") (footprint "")
+      (reference "7A1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/bb83ab28-b5fe-4ab6-9d80-a45de83a1a6f"
-      (reference "7B") (unit 1) (value "74LS138") (footprint "")
+      (reference "7B1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/80191ab4-4470-4f3b-bff0-d560aae57f10"
-      (reference "7C") (unit 1) (value "74LS174") (footprint "")
+      (reference "7C1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/784c2b08-27fe-4eda-8362-cc17e6a27db6/155d37a6-de86-4080-bdfb-9138a939c42f"
-      (reference "7D") (unit 1) (value "74LS04") (footprint "")
+      (reference "7D1") (unit 1) (value "74LS04") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/0ed3b61c-1ce7-4a0c-b24f-a8f86fad586a"
-      (reference "7D") (unit 2) (value "74LS04") (footprint "")
+      (reference "7D1") (unit 2) (value "74LS04") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/a0e48798-2777-4cb1-bac5-3354c5cccd22"
-      (reference "7D") (unit 3) (value "74LS04") (footprint "")
+      (reference "7D1") (unit 3) (value "74LS04") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/cad0f849-aafd-482c-9622-86537fc00c8e"
-      (reference "7D") (unit 4) (value "74LS04") (footprint "")
+      (reference "7D1") (unit 4) (value "74LS04") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/ab16a904-c648-47ac-b814-1fa85fa3724f"
-      (reference "7D") (unit 6) (value "74LS04") (footprint "")
+      (reference "7D1") (unit 6) (value "74LS04") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/a2b9635d-3cb6-49a1-bf23-2dc0c3b5b2b4"
-      (reference "7D") (unit 7) (value "74LS04") (footprint "")
+      (reference "7D1") (unit 7) (value "74LS04") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/c7cf1862-6050-4e4d-a2e2-75b72d390a43"
-      (reference "7E") (unit 1) (value "74LS273") (footprint "")
+      (reference "7E1") (unit 1) (value "74LS273") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/e59e7abc-dbd1-4e79-a58c-2f05c5a36c88/712ad1fa-787f-4b51-bc4a-c10bb6f73af7"
-      (reference "7F") (unit 1) (value "74LS245") (footprint "")
+      (reference "7F1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/e59e7abc-dbd1-4e79-a58c-2f05c5a36c88/12ca532a-5ebc-406e-a3f8-3210ced40114"
-      (reference "7H") (unit 1) (value "74LS157") (footprint "")
+      (reference "7H1") (unit 1) (value "74LS157") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/8b75bc7d-cf3b-4d55-b835-5a04d891c3cd"
-      (reference "7J") (unit 1) (value "74LS74") (footprint "")
+      (reference "7J1") (unit 1) (value "74LS74") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/33ed7527-9ea1-4554-9585-dbd1884bf31d"
-      (reference "7J") (unit 2) (value "74LS74") (footprint "")
+      (reference "7J1") (unit 2) (value "74LS74") (footprint "")
     )
     (path "/0eb68cad-8443-4e41-a6f0-b2487a8c0006/9efc644b-2e8d-4350-8e56-04451525ffb5"
-      (reference "7K") (unit 1) (value "74LS174") (footprint "")
+      (reference "7K1") (unit 1) (value "74LS174") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/371031f8-3e33-4bf8-a3ab-a5540ee2c7c3"
-      (reference "8B") (unit 1) (value "74HC74") (footprint "")
+      (reference "8B1") (unit 1) (value "74HC74") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/94f3609c-8b7f-425d-ba96-5cbfe2c3290e"
-      (reference "8B") (unit 2) (value "74HC74") (footprint "")
+      (reference "8B1") (unit 2) (value "74HC74") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/f58e8a35-5c04-482e-a96d-6eb203b60875"
-      (reference "8C") (unit 1) (value "74HC74") (footprint "")
+      (reference "8C1") (unit 1) (value "74HC74") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/0b8cba4d-a93b-4b49-92ab-f065b6d0cc1d"
-      (reference "8C") (unit 2) (value "74HC74") (footprint "")
+      (reference "8C1") (unit 2) (value "74HC74") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/942739cd-9c63-4baa-a0d1-e2e6cc45ffba"
-      (reference "8D") (unit 1) (value "74LS273") (footprint "")
+      (reference "8D1") (unit 1) (value "74LS273") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/79d13ffd-b626-4a30-aa9d-ddd799742948/5e568d9f-bc56-4101-8160-4d882ce4b4fd"
-      (reference "8E") (unit 1) (value "74LS273") (footprint "")
+      (reference "8E1") (unit 1) (value "74LS273") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/e59e7abc-dbd1-4e79-a58c-2f05c5a36c88/b7baeaaa-44cb-4c4f-a40f-d06a4374b59a"
-      (reference "8F") (unit 1) (value "MSM2128-20RS") (footprint "")
+      (reference "8F1") (unit 1) (value "MSM2128-20RS") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/e59e7abc-dbd1-4e79-a58c-2f05c5a36c88/ddd53528-7cbc-4a84-bc4b-700d2818b2a9"
-      (reference "8H") (unit 1) (value "74LS157") (footprint "")
+      (reference "8H1") (unit 1) (value "74LS157") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/eb367cd1-8c30-4cd7-9038-e68adb1772cd"
-      (reference "8J") (unit 1) (value "74LS367") (footprint "")
+      (reference "8J1") (unit 1) (value "74LS367") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/76cb3efd-cb62-4199-98c7-84c4e33e5950"
-      (reference "8K") (unit 1) (value "74LS245") (footprint "")
+      (reference "8K1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/b6e2f42a-83cd-4c73-aaa4-7eae0b96a11a"
-      (reference "8M") (unit 1) (value "TC5565") (footprint "")
+      (reference "8M1") (unit 1) (value "TC5565") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/c66f0cc3-9b89-467b-8fff-254009900949"
-      (reference "9B") (unit 1) (value "74LS138") (footprint "")
+      (reference "9B1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/a0733bcb-d8c8-4c46-ac4a-c404406ab289"
-      (reference "9C") (unit 1) (value "74LS367") (footprint "")
+      (reference "9C1") (unit 1) (value "74LS367") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/2545eb81-fa5f-4a8c-b84b-91bf92aeab6e"
-      (reference "9D") (unit 1) (value "74LS08") (footprint "")
+      (reference "9D1") (unit 1) (value "74LS08") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/ddb28c2b-24fc-4f13-a1e0-fb0b415a9e33"
-      (reference "9D") (unit 2) (value "74LS08") (footprint "")
+      (reference "9D1") (unit 2) (value "74LS08") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/8c1aa5a7-b14a-46c6-a138-03c182e8924c"
-      (reference "9D") (unit 3) (value "74LS08") (footprint "")
+      (reference "9D1") (unit 3) (value "74LS08") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/0bbc78d3-04d9-4604-a1fa-4816b8bd049f"
-      (reference "9D") (unit 4) (value "74LS08") (footprint "")
+      (reference "9D1") (unit 4) (value "74LS08") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/611ceeef-03fe-48a9-b47b-d3cb7fd0b216"
-      (reference "9D") (unit 5) (value "74LS08") (footprint "")
+      (reference "9D1") (unit 5) (value "74LS08") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/11c27731-2a67-4420-bc17-d22af4b0d8f3"
-      (reference "9E") (unit 1) (value "74LS138") (footprint "")
+      (reference "9E1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/e94b30c9-ae66-498e-a53f-03234a828cc9"
-      (reference "9F") (unit 1) (value "74LS374") (footprint "")
+      (reference "9F1") (unit 1) (value "74LS374") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/e59e7abc-dbd1-4e79-a58c-2f05c5a36c88/0777a16c-2e0f-4ebb-950d-a9971bc8db3a"
-      (reference "9H") (unit 1) (value "74LS157") (footprint "")
+      (reference "9H1") (unit 1) (value "74LS157") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/a72de7e2-0e01-4f72-aeac-4fce492c3cc6"
-      (reference "9J") (unit 1) (value "74LS245") (footprint "")
+      (reference "9J1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/df6a5203-3875-4a72-8f93-2a753b51171e"
-      (reference "9K") (unit 1) (value "74LS08") (footprint "")
+      (reference "9K1") (unit 1) (value "74LS08") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/f0ba07cb-3d04-4635-a6fa-8449f6ad0d98"
-      (reference "9K") (unit 2) (value "74LS08") (footprint "")
+      (reference "9K1") (unit 2) (value "74LS08") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/9210059e-1473-4d5f-84e2-9345e21951f8"
-      (reference "9K") (unit 3) (value "74LS08") (footprint "")
+      (reference "9K1") (unit 3) (value "74LS08") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/a57ca05c-f398-4a19-a66e-d631bfda040d"
-      (reference "9K") (unit 4) (value "74LS08") (footprint "")
+      (reference "9K1") (unit 4) (value "74LS08") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/1c6a6623-884b-4199-8152-0b4e6ad715c9"
-      (reference "9M") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
+      (reference "9M1") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/c51e8a31-0220-46e7-99d7-2331f1425bcc"
-      (reference "10E") (unit 1) (value "MSM2128-20RS") (footprint "")
+      (reference "10E1") (unit 1) (value "MSM2128-20RS") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/e0f834e0-52b1-4920-aca1-ae6c495b656d"
-      (reference "10F") (unit 1) (value "74LS245") (footprint "")
+      (reference "10F1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/c184c428-0474-498a-a56f-d843b3219e98"
-      (reference "10H") (unit 1) (value "SN76489AN") (footprint "")
+      (reference "10H1") (unit 1) (value "SN76489AN") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/5067f7ee-4be1-4bbd-b74e-0dcf35a8c030"
-      (reference "10J") (unit 1) (value "74LS245") (footprint "")
+      (reference "10J1") (unit 1) (value "74LS245") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/ebd153a8-cb6e-4a54-ab7d-4c6af02d7555"
-      (reference "10K") (unit 1) (value "74LS138") (footprint "")
+      (reference "10K1") (unit 1) (value "74LS138") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/8d72f576-08fe-4476-901b-e393cfeec516"
-      (reference "10M") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
+      (reference "10M1") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/784c2b08-27fe-4eda-8362-cc17e6a27db6/1004ba7e-6cba-4fa1-b7dc-bbd3a74344c8"
-      (reference "11A") (unit 1) (value "HA1368-R") (footprint "")
+      (reference "11A1") (unit 1) (value "HA1368-R") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/784c2b08-27fe-4eda-8362-cc17e6a27db6/30aac23c-44d7-4014-8615-87b1e71104d5"
-      (reference "11C") (unit 1) (value "AY-3-8910") (footprint "")
+      (reference "11C1") (unit 1) (value "AY-3-8910") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/84988011-da21-4cf0-b316-b5fe19b2c073"
-      (reference "11E") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
+      (reference "11E1") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/e8c3db8b-ae4b-4011-9b20-1bddb80c3b74"
-      (reference "11F") (unit 1) (value "SN76489AN") (footprint "")
+      (reference "11F1") (unit 1) (value "SN76489AN") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/71acb1b3-4166-4d14-be01-5ba92c7c4985"
-      (reference "11H") (unit 1) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 1) (value "74LS14") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/72e55b89-44c1-441b-ab6d-4ff2a5af1591"
-      (reference "11H") (unit 2) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 2) (value "74LS14") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/e855b472-3e82-44f1-a75a-719459866b73"
-      (reference "11H") (unit 3) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 3) (value "74LS14") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/53912c89-28a6-489b-bd1d-37ac02edb8ac"
-      (reference "11H") (unit 4) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 4) (value "74LS14") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/d828cc57-8149-4000-ba5d-1b74a0c6af08/cf6fa5d1-1709-405e-9f61-864190388be9"
-      (reference "11H") (unit 5) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 5) (value "74LS14") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/d318044d-5211-4c3d-844b-c327f9013051"
-      (reference "11H") (unit 6) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 6) (value "74LS14") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/0d1737cf-9f92-46a5-8ec7-76f49dc61fb2"
-      (reference "11H") (unit 7) (value "74LS14") (footprint "")
+      (reference "11H1") (unit 7) (value "74LS14") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/a1b933c5-196b-474d-99c1-2690d27571ce"
-      (reference "11J") (unit 1) (value "Z80CPU") (footprint "")
+      (reference "11J1") (unit 1) (value "Z80CPU") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/7a2fbcae-34f5-4759-957c-79506d9a7c4b/6edf4965-966f-431b-b79c-770f3eaf6fcb"
-      (reference "11M") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
+      (reference "11M1") (unit 1) (value "27128") (footprint "Package_DIP:DIP-28_W15.24mm")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/82821697-67f4-45ac-a7ac-fe9a2019e249/350a297f-9970-4198-be09-3ab263c43a90"
       (reference "A1") (unit 1) (value "74LS273") (footprint "")
@@ -5547,16 +5547,16 @@
       (reference "C11") (unit 3) (value "74LS74") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006b8d8780"
-      (reference "CN1_A") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
+      (reference "CN1_A1") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
     )
     (path "/e911b132-737c-4a0f-a3d0-e5b193e1399f"
-      (reference "CN1_B") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
+      (reference "CN1_B1") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006c0a2e7f"
-      (reference "CN2_A") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
+      (reference "CN2_A1") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
     )
     (path "/448dc37b-dae5-4a1c-975c-8ac319a3d81b"
-      (reference "CN2_B") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
+      (reference "CN2_B1") (unit 1) (value "Conn_02x25_Odd_Even") (footprint "")
     )
     (path "/20cb5816-2d88-4d4d-b3d3-f9a222ba5e22/75ecda93-7bb8-4960-855e-3bdfe99a6d16"
       (reference "CP1") (unit 1) (value "103") (footprint "")
@@ -6087,7 +6087,7 @@
       (reference "CP179") (unit 1) (value "C") (footprint "")
     )
     (path "/a0046b78-aa4b-4575-bc00-228b2f02bd3e/dcba10a0-4015-4338-87d8-b424d83612dc"
-      (reference "CPUSND") (unit 1) (value "Z80CPU") (footprint "")
+      (reference "CPUSND1") (unit 1) (value "Z80CPU") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/34b91267-4ce7-453f-ae95-f9097a351fbd/fa548fef-b071-4aa1-bf61-3ca4dfb84ffa"
       (reference "D1") (unit 1) (value "74LS283") (footprint "")
@@ -6138,10 +6138,10 @@
       (reference "DIO2") (unit 1) (value "D") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/dd81ae7f-4f6d-4268-8900-a6d48b421294"
-      (reference "DIP-A") (unit 1) (value "SW_DIP_x08") (footprint "")
+      (reference "DIP-A1") (unit 1) (value "SW_DIP_x08") (footprint "")
     )
     (path "/6d36b0ec-8401-4a43-b03f-6d05dbbbfcd9/37006760-7ec6-40d8-8b2f-3c72d9556d3b/e1336742-9cde-440a-9393-0cda22e752ab"
-      (reference "DIP-B") (unit 1) (value "SW_DIP_x08") (footprint "")
+      (reference "DIP-B1") (unit 1) (value "SW_DIP_x08") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006bf9f3d0/843b5835-3ba7-443b-98cc-8e60dd8901a8/2ab3ab29-c2b2-4770-a044-9c5e8e6cea15"
       (reference "E1") (unit 1) (value "74LS283") (footprint "")
@@ -6864,10 +6864,10 @@
       (reference "TR3") (unit 1) (value "Q_NPN_ECB") (footprint "")
     )
     (path "/9a02f806-9f9b-4316-8130-9919e71fe46d/2feae26e-f49e-4195-8d11-d949a6a2bb3c"
-      (reference "U4K") (unit 5) (value "74LS08") (footprint "")
+      (reference "U4K1") (unit 5) (value "74LS08") (footprint "")
     )
     (path "/adeeb4e3-92e4-4915-a585-ff3a02ce450c/5f034ca9-fe98-47b1-8659-974678880433"
-      (reference "U7D") (unit 5) (value "74LS04") (footprint "")
+      (reference "U7D1") (unit 5) (value "74LS04") (footprint "")
     )
   )
 )

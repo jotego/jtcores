@@ -4174,8 +4174,8 @@
     (pin "8" (uuid dd57d5f8-407d-45f3-b5e5-83a87c7aaf90))
     (pin "9" (uuid a2a6d2bd-3955-47e1-bd5d-c1c91afe865a))
     (pin "10" (uuid 2c201272-2fc0-4822-abce-9ff833be26d3))
-    (pin "14" (uuid 628f6b43-e4b7-40a8-a3cc-36026759acea))
-    (pin "7" (uuid 3fa0872b-a2f4-40eb-9636-64596e8bded1))
+    (pin "14" (uuid 628f6b43-e4b7-40a8-a3cc-36026759aceb))
+    (pin "7" (uuid 3fa0872b-a2f4-40eb-9636-64596e8bded2))
   )
 
   (symbol (lib_id "arcade:TBP24S10N") (at 247.65 43.18 0) (unit 1)

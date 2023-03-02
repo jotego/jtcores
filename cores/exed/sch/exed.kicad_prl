@@ -70,19 +70,6 @@
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "exed.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 960,
-          "pos_y": 28,
-          "size_x": 960,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }
