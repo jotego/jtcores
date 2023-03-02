@@ -7,8 +7,7 @@ sourcefile="cps2.cpp"
 parents= [
     {name="megaman", description="Megaman: The Power Battle"},
 ]
-skip.bootlegs=true
-skip.setnames=["ssf2us2"]
+skip.setnames=["ssf2us2","gigaman2"]
 skip.pocket.machines=[
 # Games with over 20MB of GFX don't seem to work yet
     "cybots",
