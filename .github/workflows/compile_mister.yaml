@@ -16,7 +16,15 @@ jobs:
     - id: generate-matrix
       run: |
         cd cores
-        CORES=$(tree -J -d -L 1 | jq -c '.[0].contents | map(.name)')
+        # Get list of cores ready for compilation
+        CORES='['
+        for i in *; do
+          if [[ -e $i/cfg/macros.def && ! -e $i/cfg/skip ]]; then
+            if [ "$CORES" != '[' ]; then CORES="$CORES, "; fi
+            CORES="$CORES \"$i\""
+          fi
+        done
+        CORES="$CORES ]"
         echo $CORES
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
@@ -45,10 +53,8 @@ jobs:
           cd ../..
       - id: compile
         run: |
-          # Do not attempt to compile core in progress
-          if [ -e cores/$${matrix.core}/cfg/macros.def ]; then
-            docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
-          fi
+          # Compilation on Quartus 17
+          docker run --network host -v `pwd`:/jtcores jotego/jtcore17x xjtcore.sh ${{matrix.core}}
       - id: upload
         uses: actions/upload-artifact@v3
         with:
