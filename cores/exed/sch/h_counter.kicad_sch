@@ -1017,7 +1017,7 @@
     )
   )
 
-  (text "Horizontal\ncounter" (at 179.07 54.61 0)
+  (text "Horizontal\ncounter" (at 172.72 44.45 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 2944c5a9-70e5-45ec-80aa-47c610b4600c)
   )

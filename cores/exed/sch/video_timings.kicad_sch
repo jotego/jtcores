@@ -2943,8 +2943,8 @@
     )
   )
 
-  (text "Video Timings" (at 45.72 21.59 0)
-    (effects (font (size 3 3)) (justify left bottom))
+  (text "Video Timings" (at 81.28 21.59 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 38673c05-fe79-4d70-9c5c-dfbb36427ae5)
   )
   (text "12MHz" (at 125.73 48.26 0)
