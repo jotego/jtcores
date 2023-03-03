@@ -57,7 +57,7 @@ assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
-assign dip_flip = ~flip;
+assign dip_flip = flip;
 assign debug_view = 0;
 
 localparam OBJ_START = `JTFRAME_BA2_START + (`OBJ_OFFSET<<1);
