@@ -137,7 +137,7 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mixer(
     // gain for each channel in 4.4 fixed point format
     // adpcm_snd doesn't seem to be used in its full dynamic range
     // so I can multiply by x2
-    .gain0  ( 8'h10     ),
+    .gain0  ( fm_gain   ),
     .gain1  ( pcm_gain  ),
     .gain2  ( 8'h00     ),
     .gain3  ( 8'h00     ),
