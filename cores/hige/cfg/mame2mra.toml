@@ -13,7 +13,7 @@ names=[
 regions=[
     { name="maincpu" },
     { name="chars", reverse=true, start="JTFRAME_BA1_START" },
-    { name="sprites", width=16, start="JTFRAME_BA2_START" },
+    { name="sprites", width=16, start="JTFRAME_BA2_START", no_offset=true },
 ]
 
 order=["maincpu","chars","sprites","proms"]
