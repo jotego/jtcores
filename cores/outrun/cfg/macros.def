@@ -54,16 +54,16 @@ JTFRAME_PROM_START=0x298000
 [pocket|mister]
 # Take clock down to 50MHz and use the
 # line-based frame buffer for objects
-# JTFRAME_LF_BUFFER
+JTFRAME_LF_BUFFER
 -JTFRAME_SDRAM96
 -JTFRAME_OSD_NOLOGO
 -NODEC
+JTFRAME_CREDITS
+JTFRAME_CREDITS_PAGES=3
+JTFRAME_CREDITS_HSTART=32
 
 [mister]
 # Controller options have only been tested on MiSTer
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 #JTFRAME_CHEAT
-JTFRAME_CREDITS
-JTFRAME_CREDITS_PAGES=3
-JTFRAME_CREDITS_HSTART=32
 

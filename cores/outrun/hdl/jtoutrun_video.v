@@ -354,6 +354,7 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
         .buf_addr  (                ),
         .buf_data  (                ),
         .buf_we    (                ),
+        .ln_done   (                ),
         .pxl       ( obj_pxl        ),
 `endif
         .LHBL      ( ~HS            ),
