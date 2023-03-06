@@ -13,7 +13,7 @@ delete=[ "Unused", "Unknown" ]
 [buttons]
 names=[
     { names="Attack,Jump" },
-    { machine="slammast",  names="Grab,Attack,Jump" },
+    { machine="slammast",  names="Grab/Attack,Jump" },
     { machine="mbombrd",  names="Grab,Attack,Jump" },
 ]
 

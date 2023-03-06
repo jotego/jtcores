@@ -182,7 +182,7 @@ jtframe_dcrm #(.SW(10)) u_dcrm1(
     .dout   ( ac1    )
 );
 
-jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_3     ),
