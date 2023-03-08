@@ -23,6 +23,9 @@ names=[
 
 [dipsw]
 bitcnt=19   # number 19 is freeze, active low
+defaults=[
+    { value="fc,ff" },
+]
 
 [rom]
 regions=[
