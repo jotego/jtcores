@@ -1,3 +1,4 @@
+
 core.mod
 setnames.txt
 cores/*/ver/regrun
@@ -88,3 +89,6 @@ vsim.do
 waiver
 work
 x
+_autosave-*
+cores/*/sch/*/*pdf
+cores/*/sch/*pdf
