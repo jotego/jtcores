@@ -7,8 +7,7 @@ sourcefile="cps2.cpp"
 parents= [
     {name="megaman", description="Megaman: The Power Battle"},
 ]
-skip.bootlegs=true
-skip.setnames=["ssf2us2"]
+skip.setnames=["ssf2us2","gigaman2"]
 skip.pocket.machines=[
 # Games with over 20MB of GFX don't seem to work yet
     "cybots",
@@ -40,6 +39,7 @@ names=[
     { names="Light Punch,Middle Punch,Heavy Punch,Light Kick,Middle Kick,Heavy Kick" },
     { machine="1944", names="Shot,Bomb" },
     { machine="19xx", names="Shot,Bomb" },
+    { machine="armwar", names="Attack,Jump,Sub Weapons" },
     { machine="avsp", names="Shoot,Attack,Jump/Dash" },
     { machine="csclub", names="Shoot/Weak Shot,Pass/Strong Shot,Dash/Lob/Jump" },
     { machine="cybots", names="Attack 1,Attack 2,Boost,Weapon" },
@@ -53,7 +53,7 @@ names=[
     { machine="mmatrix", names="Shot" },
     { machine="megaman2", names="Attack,Jump,Weapon Change" },
     { machine="mpang", names="Shot" },
-    { machine="progear", names="Shot" },
+    { machine="progear", names="Shot,Bomb,Rapid Shot" },
     { machine="pzloop2", names="Shot" },
     { machine="qndream", names="Button 1,Button 2,Button 3,Button 4" },
     { machine="ringdest", names="Grab,Light Punch,Heavy Punch,Unused,Light Kick,Heavy Kick" },

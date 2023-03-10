@@ -109,8 +109,8 @@ generate
             VF          = flip ? 9'd240-V128[8:0] : V128[8:0];
             {PICV, SV } = { {7{VF[8]}}, VF } - vpos;
         end
-        wire [7:0] col = {PIC,  SH}>>(LAYOUT==3 ? 8'd5 : 8'd4);
-        wire [7:0] row = {PICV, SV}>>(LAYOUT==3 ? 8'd5 : 8'd4);
+        wire [15:0] col = {PIC,  SH}>>(LAYOUT==3 ? 8'd5 : 8'd4); // upper 8 bits unused
+        wire [15:0] row = {PICV, SV}>>(LAYOUT==3 ? 8'd5 : 8'd4); // upper 8 bits unused
         always @(posedge clk) if(pxl_cen) begin
             // always update the map at the same pixel count
             if( adv ) begin

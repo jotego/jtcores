@@ -1,7 +1,5 @@
 #!/bin/bash
 
-SYSNAME=outrun
-GAME=jtoutrun
 EXTRA=
 
 if [ -e obj.bin ]; then
@@ -33,6 +31,4 @@ fi
 # dd if=rom.bin of=sdram_bank0.bin ibs=16 skip=1 conv=swab
 $JTFRAME/bin/rom2sdram.sh $SYSNAME --header 16 --swab || exit $?
 
-jtsim -mist -sysname $SYSNAME $SIMULATOR \
-	-d JTFRAME_DWNLD_PROM_ONLY -d JTFRAME_SIM_DIPS=$(printf "%d" 0xfeff) \
-    -d JTFRAME_SIM_ROMRQ_NOCHECK $EXTRA $* || exit $?
+jtsim -d JTFRAME_SIM_ROMRQ_NOCHECK $EXTRA $* || exit $?

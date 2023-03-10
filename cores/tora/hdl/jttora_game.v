@@ -80,6 +80,7 @@ always @* begin
         2: debug_mux = scrposv[ 7:0];
         3: debug_mux = scrposv[15:8];
         4: debug_mux = { 3'd0,scr_addr[19],3'd0, jap };
+        default: debug_mux = 0;
     endcase
 end
 
