@@ -37,7 +37,7 @@ Names = [
     { machine="kod",      names="Slay,Jump"},
     { machine="msword",   names="Slay,Jump"},
     { machine="mpumpkin", names="Kitty,Keroppi,Badtz-Maru"},
-    { machine="megaman",  names="Attack,Jump"},
+    { machine="megaman",  names="Attack,Jump,Weapon Change" },
     { machine="mercs",    names="Shoot,Bomb"},
     { machine="mbombrd",  names="Hit,Grab,Jump"},
     { machine="nemo",     names="Attack,Jump"},
