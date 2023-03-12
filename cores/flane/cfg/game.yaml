@@ -2,7 +2,6 @@ game:
   - from: flane
     get:
       - jtflane_game.v
-      - jtflane_game_sdram.v
       - jtflane_main.v
       - ../cfg/common.yaml
   - from: labrun

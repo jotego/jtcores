@@ -10,7 +10,6 @@ game:
       - jtkiwi_obj.v
       - jtkiwi_draw.v
       - jtkiwi_tilemap.v
-      - jtkiwi_game_sdram.v
 jtframe:
   - get:
       - jtframe_ff.v

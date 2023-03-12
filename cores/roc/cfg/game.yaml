@@ -2,7 +2,6 @@ game:
   - from: roc
     get:
       - jtroc_game.v
-      - jtroc_game_sdram.v
       - jtroc_main.v
       - jtroc_snd.v
       - jtroc_video.v

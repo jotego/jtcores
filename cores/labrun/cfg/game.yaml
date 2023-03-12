@@ -2,7 +2,6 @@ game:
   - from: labrun
     get:
       - jtlabrun_game.v
-      - jtlabrun_game_sdram.v
       - jtlabrun_main.v
       - jtlabrun_video.v
       - jtlabrun_colmix.v

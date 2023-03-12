@@ -8,7 +8,6 @@ game:
       - jtyiear_main.v
       - jtyiear_video.v
       - jtyiear_colmix.v
-      - jtyiear_game_sdram.v
 modules:
   jt:
     - name: jt89

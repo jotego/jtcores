@@ -6,7 +6,6 @@ game:
   - from: mikie
     get:
       - jtmikie_game.v
-      - jtmikie_game_sdram.v
       - jtmikie_main.v
       - jtmikie_video.v
       - jtmikie_snd.v

@@ -7,7 +7,6 @@ game:
     get:
       - jtcomsc_main_decoder.v
       - jtcomsc_sound.v
-      - jtcomsc_game_sdram.v
 jtframe:
   - from: cpu
     get:

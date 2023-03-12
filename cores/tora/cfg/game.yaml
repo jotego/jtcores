@@ -3,7 +3,6 @@ game:
     get:
       - jttora_colmix.v
       - jttora_game.v
-      - jttora_game_sdram.v
       - jttora_video.v
       - jttora_sound.v
       - jttora_adpcm.v

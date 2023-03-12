@@ -2,7 +2,6 @@ game:
   - from: track
     get:
       - jttrack_game.v
-      - jttrack_game_sdram.v
       - jttrack_main.v
       - jttrack_video.v
       - jttrack_scroll.v

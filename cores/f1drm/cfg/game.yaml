@@ -5,9 +5,6 @@ game:
   - from: biocom
     get:
       - jtbiocom_mcu.v
-  - from: f1drm
-    get:
-      - jtf1drm_game_sdram.v
 jtframe:
   - from: cpu
     get:

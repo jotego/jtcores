@@ -2,7 +2,6 @@ game:
   - from: shanon
     get:
       - jtshanon_colmix.v
-      - jtshanon_game_sdram.v
   - from: outrun
     get:
       - ../cfg/common.yaml

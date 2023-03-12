@@ -5,7 +5,6 @@ game:
       - jtkarnov_main.v
       - jtkarnov_video.v
       - jtkarnov_obj.v
-      - jtkarnov_game_sdram.v
   - from: cop
     get:
       - jtcop_snd.v
