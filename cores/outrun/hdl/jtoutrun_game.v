@@ -457,13 +457,13 @@ jtoutrun_video u_video(
 `endif
 
     // Road ROMs
-    .rd0_ok     ( rd0_ok     ),
-    .rd0_cs     ( rd0_cs     ),
+    .rd0_ok     ( 1'b1       ), // implemented in BRAM
+    .rd0_cs     (            ),
     .rd0_addr   ( rd0_addr   ),
     .rd0_data   ( rd0_data   ),
 
-    .rd1_ok     ( rd1_ok     ),
-    .rd1_cs     ( rd1_cs     ),
+    .rd1_ok     ( 1'b1       ),
+    .rd1_cs     (            ),
     .rd1_addr   ( rd1_addr   ),
     .rd1_data   ( rd1_data   ),
 

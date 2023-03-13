@@ -5,7 +5,7 @@ params:
   - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
   - { name: SRAM_OFFSET, value: 22'h18_0000 }
-  - { name: RD0_OFFSET,  value: (ROAD_START-BA3_START)>>1 }
+  - { name: RD0_OFFSET,  value: "3<<22 | (ROAD_START-`JTFRAME_BA3_START)>>1" }
   - { name: RD1_OFFSET,  value: RD0_OFFSET+22'h4000 }
 ports:
   - name: gfx_cs
@@ -41,8 +41,10 @@ sdram:
     -
       buses:
         - { name: obj, addr_width: 20, data_width: 32 }
-        - { name: rd0, addr_width: 15, data_width: 16, offset: RD0_OFFSET }
-        - { name: rd1, addr_width: 15, data_width: 16, offset: RD1_OFFSET }
+# The ROAD 32kBx2 memories must go in BRAM to guarantee correct data reads at 48 MHz
+bram:
+  - { name: rd0, addr_width: 15, data_width: 16, rom: { offset: RD0_OFFSET } }
+  - { name: rd1, addr_width: 15, data_width: 16, rom: { offset: RD1_OFFSET } }
 # bram:
 #   - { name: palram, addr_width: 14, data_width: 16, simfile: pal,
 #       nvram: {
