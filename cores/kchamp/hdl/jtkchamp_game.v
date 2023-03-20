@@ -17,61 +17,7 @@
     Date: 15-8-2022 */
 
 module jtkchamp_game(
-    input           rst,
-    input           clk,
-    input           rst24,
-    input           clk24,
-    input           pxl2_cen,   // 12   MHz
-    input           pxl_cen,    //  6   MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 7:0]  joystick1,
-    input   [ 7:0]  joystick2,
-    // SDRAM interface
-    input           downloading,
-    output          dwnld_busy,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    input   [15:0]  data_read,
-    input           data_dst,
-    input           data_rdy,
-    input           sdram_ack,
-    // ROM LOAD
-    input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    input           ioctl_wr,
-    output   [21:0] prog_addr,
-    output   [ 7:0] prog_data,
-    output   [ 1:0] prog_mask,
-    output          prog_we,
-    output          prog_rd,
-    // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
-    input   [31:0]  dipsw,
-    input           dip_pause,
-    input           tilt,
-    input           service,
-    input           dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    // Sound output
-    output  signed [15:0] snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg,
-    input           enable_fm,
-    // Debug
-    input      [3:0] gfx_en,
-    input      [7:0] debug_bus,
-    output     [7:0] debug_view
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 // SDRAM offsets
