@@ -27,9 +27,7 @@ module jt1942_objram(
     input   [3:0]      pxlcnt,
     input   [4:0]      objcnt,
     input   [3:0]      bufcnt,
-    input              LHBL,
     input              LVBL,
-    input              over,
     // CPU interface
     input   [7:0]      DB,
     input   [6:0]      AB,

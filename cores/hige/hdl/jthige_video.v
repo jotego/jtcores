@@ -58,6 +58,17 @@ module jthige_video(
     input               prom_pal_we,
     // Debug
     input       [3:0]   gfx_en
+`ifdef JTFRAME_LF_BUFFER ,
+    output   [ 7:0] game_vrender,
+    output   [ 8:0] game_hdump,
+    output   [ 8:0] ln_addr,
+    output   [15:0] ln_data,
+    output          ln_done,
+    output          ln_we,
+    input           ln_hs,
+    input    [15:0] ln_pxl,
+    input    [ 7:0] ln_v
+`endif
 );
 
 localparam COFFSET = 9'd5,
@@ -66,6 +77,11 @@ localparam COFFSET = 9'd5,
 wire [3:0] char_pxl, obj_pxl;
 wire [8:0] obj_AB = cpu_AB[8:0] - 9'h80;
 wire       preLHBL, preLVBL, HINIT, LHBL_obj;
+
+`ifdef JTFRAME_LF_BUFFER
+    assign game_vrender = V[7:0],
+           game_hdump   = H;
+`endif
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -155,6 +171,15 @@ jt1942_obj #(.PXL_DLY(OBJ_DLY), .LAYOUT(2)) u_obj(
     .prog_din       ( prog_din[3:0] ),
     // pixel output
     .obj_pxl        ( obj_pxl   )
+`ifdef JTFRAME_LF_BUFFER ,
+    .ln_addr        ( ln_addr   ),
+    .ln_data        ( ln_data   ),
+    .ln_done        ( ln_done   ),
+    .ln_we          ( ln_we     ),
+    .ln_hs          ( ln_hs     ),
+    .ln_pxl         ( ln_pxl    ),
+    .ln_v           ( ln_v      )
+`endif
 );
 
 

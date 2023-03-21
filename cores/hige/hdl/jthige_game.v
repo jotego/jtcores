@@ -166,6 +166,17 @@ jthige_video u_video(
     .prom_char_we( prom_char_we ),
     .prom_obj_we( prom_obj_we   ),
     .prom_pal_we( prom_pal_we   )
+`ifdef JTFRAME_LF_BUFFER ,
+    .game_vrender   ( game_vrender  ),
+    .game_hdump     ( game_hdump    ),
+    .ln_addr        ( ln_addr       ),
+    .ln_data        ( ln_data       ),
+    .ln_done        ( ln_done       ),
+    .ln_we          ( ln_we         ),
+    .ln_hs          ( ln_hs         ),
+    .ln_pxl         ( ln_pxl        ),
+    .ln_v           ( ln_v          )
+`endif
 );
 
 endmodule

@@ -47,6 +47,15 @@ module jt1942_obj(
     input   [3:0]      prog_din,
     // pixel output
     output       [3:0] obj_pxl
+`ifdef JTFRAME_LF_BUFFER ,
+    output   [ 8:0] ln_addr,
+    output   [15:0] ln_data,
+    output          ln_done,
+    output          ln_we,
+    input           ln_hs,
+    input    [15:0] ln_pxl,
+    input    [ 7:0] ln_v
+`endif
 );
 
 parameter PXL_DLY = 7,
@@ -54,7 +63,7 @@ parameter PXL_DLY = 7,
 
 
 wire line, fill, line_obj_we;
-wire [7:0]  objbuf_data0, objbuf_data1, objbuf_data2, objbuf_data3;
+wire [7:0]  objbuf_data0, objbuf_data1, objbuf_data2, objbuf_data3, V_eff;
 
 wire [3:0] pxlcnt, bufcnt;
 wire [4:0] objcnt;
@@ -66,9 +75,9 @@ jt1942_objtiming #(.LAYOUT(LAYOUT)) u_timing(
     .clk         ( clk           ),
     .cen6        ( cen6          ),    //  6 MHz
     // screen
-    .LHBL        ( LHBL          ),
+    .LHBL        ( LHBL_eff      ),
     .HINIT       ( HINIT         ),
-    .V           ( V             ),
+    .V           ( V_eff         ),
     .H           ( H             ),
     .flip        ( flip          ),
     .obj_ok      ( obj_ok        ),
@@ -80,6 +89,7 @@ jt1942_objtiming #(.LAYOUT(LAYOUT)) u_timing(
     .line        ( line          )
 );
 
+wire LHBL_eff;
 
 jt1942_objram u_ram(
     .rst            ( rst           ),
@@ -89,14 +99,12 @@ jt1942_objram u_ram(
     .objcnt         ( objcnt        ),
     .pxlcnt         ( pxlcnt        ),
     .bufcnt         ( bufcnt        ),
-    .LHBL           ( LHBL          ),
     .LVBL           ( LVBL          ),
     // CPU interface
     .DB             ( DB            ),
     .AB             ( AB            ),
     .wr_n           ( wr_n          ),
     .obj_cs         ( obj_cs        ),
-    .over           ( over          ),
     // memory output
     .objbuf_data0   ( objbuf_data0  ),
     .objbuf_data1   ( objbuf_data1  ),
@@ -127,7 +135,7 @@ jt1942_objdraw #(.LAYOUT(LAYOUT)) u_draw(
     .clk            ( clk           ),
     .cen6           ( cen6          ),    //  6 MHz
     // screen
-    .V              ( V             ),
+    .V              ( V_eff         ),
     .H              ( H             ),
     .pxlcnt         ( pxlcnt        ),
     .pxlcnt_lsb     ( pxlcnt_lsb    ),
@@ -155,19 +163,32 @@ jt1942_objdraw #(.LAYOUT(LAYOUT)) u_draw(
     .new_pxl        ( new_pxl       )
 );
 
-jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
-    .rst            ( rst           ),
-    .clk            ( clk           ),
-    .cen            ( 1'b1          ),
-    .pxl_cen        ( cen6          ),    //  6 MHz
-    // screen
-    .LHBL           ( LHBL          ),
-    .flip           ( flip          ),
-    .posx           ( posx          ),
-    .line           ( line          ),
-    // pixel data
-    .new_pxl        ( new_pxl       ),
-    .obj_pxl        ( obj_pxl       )
-);
+`ifndef JTFRAME_LF_BUFFER
+    assign LHBL_eff = LHBL,
+           V_eff    = V;
+    jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
+        .rst            ( rst           ),
+        .clk            ( clk           ),
+        .cen            ( 1'b1          ),
+        .pxl_cen        ( cen6          ),    //  6 MHz
+        // screen
+        .LHBL           ( LHBL          ),
+        .flip           ( flip          ),
+        .posx           ( posx          ),
+        .line           ( line          ),
+        // pixel data
+        .new_pxl        ( new_pxl       ),
+        .obj_pxl        ( obj_pxl       )
+    );
+`else
+    // Define the macro JTFRAME_LFBUF_CLR=15
+    assign ln_data  = {12'd0, new_pxl },
+           ln_done  = over,
+           ln_addr  = posx^9'h100, // Objects will be offset because we are not using PXL_DLY
+           ln_we    = !over && new_pxl!=4'hf,
+           LHBL_eff = ln_hs,
+           obj_pxl  = ln_pxl[3:0],
+           V_eff    = ln_v;
+`endif
 
 endmodule
