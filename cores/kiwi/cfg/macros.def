@@ -3,6 +3,7 @@ CORENAME=JTKIWI
 JTFRAME_BUTTONS=3
 JTFRAME_CREDITS
 JTFRAME_JOY_DURL
+JTFRAME_SKIP
 
 # Extermination, Kageki, etc. are vertical games
 JTFRAME_VERTICAL
@@ -37,11 +38,5 @@ JTFRAME_PXLCLK=6
 JTFRAME_ARX=5
 JTFRAME_ARY=4
 
-[mist|sidi]
-# The OSD seems to get broken. Some firmware problem?
--JTFRAME_OSD_SND_EN
--JTFRAME_OSD_VOL
-# No enough BRAM for everything, after the 32kB of RAM
-# for tnzs was added
--JTFRAME_CREDITS
--JTFRAME_OSD_NOLOGO
+[mister|pocket]
+-JTFRAME_SKIP
