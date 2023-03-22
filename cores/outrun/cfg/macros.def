@@ -6,6 +6,10 @@ JTFRAME_ANALOG
 JTFRAME_ANALOG_DUAL
 JTFRAME_STEREO
 
+# This game is skipped for
+# all platforms except Pocket and MiSTer
+JTFRAME_SKIP
+
 # The decrypter module is
 # omitted by default to save BRAM
 NODEC
@@ -52,6 +56,7 @@ JTFRAME_OSD_NOLOGO
 JTFRAME_PROM_START=0x298000
 
 [pocket|mister]
+-JTFRAME_SKIP
 # Take clock down to 50MHz and use the
 # line-based frame buffer for objects
 JTFRAME_LF_BUFFER

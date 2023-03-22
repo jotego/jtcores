@@ -1,9 +1,6 @@
 [global]
 mraauthor=["jotego"]
 
-[features]
-beta=true
-
 [parse]
 sourcefile="segaorun.cpp"
 skip.machines=["shangon"]
