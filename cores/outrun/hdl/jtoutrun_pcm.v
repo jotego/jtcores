@@ -27,7 +27,7 @@ module jtoutrun_pcm(
     input              cen, // original clock was 16MHz
 
     input        [7:0] debug_bus,
-    output       [7:0] st_dout,
+    output reg   [7:0] st_dout,
 
     // CPU interface
     input        [7:0] cpu_addr,
@@ -82,7 +82,7 @@ jtframe_dual_ram #(.AW(8)) u_ram(
     // Port 1
     .clk1   ( clk       ),
     .data1  ( cfg_din   ),
-    .addr1  ( { cfg_addr[3], cur_ch, cfg_addr[2:0] } ),
+    .addr1  ( st==14 ? { debug_bus[7], debug_bus[3:0], debug_bus[6:4] } : { cfg_addr[3], cur_ch, cfg_addr[2:0] } ),
     .we1    ( cfg_we    ),
     .q1     ( cfg_data  )
 );
@@ -168,23 +168,24 @@ always @(posedge clk, posedge rst) begin
             4: delta            <= cfg_data;
             5: loop_addr[15: 8] <= cfg_data;
             6: loop_addr[23:16] <= cfg_data;
-            7: if( cur_addr[23:16] >= cfg_data ) begin
+            7: if( cur_addr[23:16] == (cfg_data+8'd1) ) begin
                 if( cfg_en[1] ) begin
                     cfg_en[0] <= 1; // no loop
                     cur_addr[7:0] <= 0;
                 end else
                     cur_addr <= {loop_addr,8'd0}; // loop around
             end
-            8: begin
+            8: if( !cfg_en[0] ) begin
+                rom_cs   <= 1;
                 rom_addr <= { bank, cur_addr[23:8] };
-                rom_cs   <= ~cfg_en[0];
                 cur_addr <= cur_addr + { 16'd0, delta };
             end
             12: vol_left  <= {1'b0, cfg_data[6:0]};
             13: vol_right <= {1'b0, cfg_data[6:0]};
             14: begin
-                rom_cs <= 0; // ROM data must be good by now
-                buf_r  <= mul_data;
+                rom_cs  <= 0; // ROM data must be good by now
+                buf_r   <= mul_data;
+                st_dout <= cfg_data;
             end
             15: begin
                 cur_ch <= cur_ch + 1'd1;
