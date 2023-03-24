@@ -81,7 +81,7 @@ reg  [ 1:0] game_id;
 wire [ 2:0] ctrl_type = status[22:20];
 
 // Status report
-wire [7:0] st_video, st_main, st_sub;
+wire [7:0] st_video, st_main, st_sub, st_snd;
 reg  [7:0] st_mux;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
@@ -372,7 +372,8 @@ jtoutrun_snd u_sound(
     .snd_right  ( snd_right ),
     .sample     ( sample    ),
     .peak       ( snd_clip  ),
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_snd    )
 );
 `else
     assign snd_cs    = 0;

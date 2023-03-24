@@ -40,6 +40,7 @@ module jtoutrun_snd(
     input                mapper_pbf, // pbf signal == buffer full ?
 
     input         [ 7:0] debug_bus,
+    output        [ 7:0] st_dout,
     // ROM
     output        [15:0] rom_addr,
     output    reg        rom_cs,
@@ -216,6 +217,8 @@ jtoutrun_pcm u_pcm(
     .clk        ( clk           ),
     .cen        ( cen_pcm       ),
 
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       ),
     // CPU interface
     .cpu_addr   ( A[7:0]        ),
     .cpu_dout   ( cpu_dout      ),

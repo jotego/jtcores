@@ -26,6 +26,9 @@ module jtoutrun_pcm(
     input              clk,
     input              cen, // original clock was 16MHz
 
+    input        [7:0] debug_bus,
+    output       [7:0] st_dout,
+
     // CPU interface
     input        [7:0] cpu_addr,
     input        [7:0] cpu_dout,
