@@ -15,12 +15,8 @@
         Known Issues:
  - Blank in the middle of the road
  - Blank lines in the sprite layer
- for very busy scenes
- - radio panel not visible in
- music selection screen
- - PCM too loud
- - Sprites are one frame ahead
- - Only main MRA available
+ for very large sprites
+ - car-passing-by sound wrong
 
          \BJTKCHAMP\W
     FPGA core by \RJOTEGO\W
@@ -126,8 +122,3 @@ Younghoon Gong  Zachary Muske
 albertprime     amoore2600
 emerald4224     hyp36rmax
 taal.M
-
-  ________________________
-
-      - Beta version -
-      Do not distribute
