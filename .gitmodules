@@ -43,3 +43,6 @@
 [submodule "modules/jt8255"]
 	path = modules/jt8255
 	url = https://www.github.com/jotego/jt8255
+[submodule "modules/jtkcpu"]
+	path = modules/jtkcpu
+	url = https://github.com/JTFPGA/jtkcpu.git
