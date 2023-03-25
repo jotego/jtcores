@@ -16,7 +16,8 @@
  - Blank in the middle of the road
  - Blank lines in the sprite layer
  for very large sprites
- - car-passing-by sound wrong
+ - Black pixels on the right border
+   of sprites
 
          \BJTKCHAMP\W
     FPGA core by \RJOTEGO\W
