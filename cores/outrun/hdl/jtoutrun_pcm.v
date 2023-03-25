@@ -103,7 +103,7 @@ endfunction
 // 8-bit address of the current sample
 // It is not clear which one should be used, but
 // using 4'o13 breaks the sound of pass-by cars
-wire [4:0] addrlo = 4'o17; //debug_bus[4:0];
+wire [3:0] addrlo = 4'o17; //debug_bus[4:0];
 
 always @* begin
     case( st )
