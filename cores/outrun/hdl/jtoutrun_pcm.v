@@ -45,15 +45,15 @@ module jtoutrun_pcm(
     // sound output
     output reg signed [15:0] snd_left,
     output reg signed [15:0] snd_right,
-    output               sample
+    output reg           sample
 );
 
+parameter SIMHEXFILE="";
+
 wire        we = cpu_cs & ~cpu_rnw;
-reg  [ 8:0] cen_cnt=0;
 reg  [ 3:0] st;
 wire [ 2:0] bank;
 wire [ 7:0] cfg_data;
-reg         sample_cen=0;
 reg  [ 3:0] cur_ch;
 reg  [ 3:0] cfg_addr;
 reg  [23: 0] cur_addr;
@@ -69,10 +69,9 @@ reg  signed [15:0] mul_data;
 reg  signed [15:0] acc_l, acc_r, buf_r;
 
 assign bank     = cfg_en[6:4];
-assign sample   = sample_cen;
 assign pcm_data = rom_data - 8'h80;
 
-jtframe_dual_ram #(.AW(8)) u_ram(
+jtframe_dual_ram #(.AW(8),.SIMHEXFILE(SIMHEXFILE)) u_ram(
     // Port 0: CPU
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
@@ -82,14 +81,13 @@ jtframe_dual_ram #(.AW(8)) u_ram(
     // Port 1
     .clk1   ( clk       ),
     .data1  ( cfg_din   ),
-    .addr1  ( st==14 ? { debug_bus[7], debug_bus[3:0], debug_bus[6:4] } : { cfg_addr[3], cur_ch, cfg_addr[2:0] } ),
+    .addr1  ( { cfg_addr[3], cur_ch, cfg_addr[2:0] } ),
     .we1    ( cfg_we    ),
     .q1     ( cfg_data  )
 );
 
 always @(posedge clk) begin
-    if(cen) cen_cnt <= cen_cnt + 9'd1;
-    sample_cen <= cen_cnt==0 && cen;
+    sample <= st==0 && cur_ch==0 && cen;
 end
 
 function signed [15:0] clip_sum( input signed [15:0] a, b );
@@ -101,10 +99,16 @@ function signed [15:0] clip_sum( input signed [15:0] a, b );
     end
 endfunction
 
+// RAM address used as scratch for lower
+// 8-bit address of the current sample
+// It is not clear which one should be used, but
+// using 4'o13 breaks the sound of pass-by cars
+wire [4:0] addrlo = 4'o17; //debug_bus[4:0];
+
 always @* begin
     case( st )
          0: cfg_addr = 4'o16; // enable
-         1: cfg_addr = 4'o13; // addr 7-0
+         1: cfg_addr = addrlo; // addr 7-0
          2: cfg_addr = 4'o14; // addr 15-8
          3: cfg_addr = 4'o15; // addr 23-16
          4: cfg_addr = 4'o07; // addr delta
@@ -112,7 +116,7 @@ always @* begin
          6: cfg_addr = 4'o05; // loop addr 23-16
          7: cfg_addr = 4'o06; // end addr
          8: cfg_addr = 4'o16; // enable (wr)
-         9: cfg_addr = 4'o13; // addr  7- 0 (wr)
+         9: cfg_addr = addrlo; // addr  7- 0 (wr)
         10: cfg_addr = 4'o14; // addr 15- 8 (wr)
         11: cfg_addr = 4'o15; // addr 23-16 (wr)
         12: cfg_addr = 4'o02; // vol. left

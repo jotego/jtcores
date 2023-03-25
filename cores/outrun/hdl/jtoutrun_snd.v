@@ -108,17 +108,10 @@ end
 always @(posedge clk ) begin
     fmgain <= enable_fm ? FMGAIN : 8'h0;
     case( fxlevel )
-`ifdef SHANON
         2'd0: pcmgain <= 8'h04;
         2'd1: pcmgain <= 8'h08;
         2'd2: pcmgain <= 8'h0C;
         2'd3: pcmgain <= 8'h10;
-`else
-        2'd0: pcmgain <= 8'h02;
-        2'd1: pcmgain <= 8'h04;
-        2'd2: pcmgain <= 8'h08;
-        2'd3: pcmgain <= 8'h0C;
-`endif
     endcase
 
     if( !enable_psg ) pcmgain <= 0;
