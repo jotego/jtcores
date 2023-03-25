@@ -42,7 +42,9 @@ module jtoutrun_obj_draw(
     // Buffer
     output     [13:0]  bf_data,
     output             bf_we,
-    output reg [ 8:0]  bf_addr
+    output reg [ 8:0]  bf_addr,
+
+    input      [ 7:0]  debug_bus
 );
 
 reg  [31:0] pxl_data;

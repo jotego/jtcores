@@ -117,8 +117,8 @@ jtoutrun_obj_scan #(.PXL_DLY(0)) u_scan(
     .hstart    ( hstart         ),
     .vrender   ( vrender        ),
     .st_addr   ( st_addr        ),
-    .st_dout   ( st_dout        )
-    // .debug_bus ( debug_bus      )
+    .st_dout   ( st_dout        ),
+    .debug_bus ( debug_bus      )
 );
 
 jtoutrun_obj_draw u_draw(
@@ -148,8 +148,8 @@ jtoutrun_obj_draw u_draw(
     // Buffer
     .bf_data   ( buf_data       ),
     .bf_we     ( buf_we         ),
-    .bf_addr   ( buf_addr       )
-    // .debug_bus ( debug_bus      )
+    .bf_addr   ( buf_addr       ),
+    .debug_bus ( debug_bus      )
 );
 
 reg [8:0] hobj;

@@ -45,6 +45,7 @@ module jtoutrun_obj_scan(
     input              hstart,
     input      [ 8:0]  vrender,
 
+    input      [ 7:0]  debug_bus,
     // System info
     input      [ 7:0]  st_addr,
     output reg [ 7:0]  st_dout        // late or max number of sprites drawn in a line
