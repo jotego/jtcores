@@ -68,7 +68,8 @@ wire [15:0] pal_out;
 wire [14:0] rgb;
 reg  [11:0] pal_addr, pre_addr;
 reg  [13:0] objl;
-reg         muxsel;
+reg         muxsel, shadowl;
+reg  [14:0] gated;
 // reg  [ 1:0] blink;
 
 assign we = ~dswn & {2{pal_cs}};
@@ -100,8 +101,6 @@ function [4:0] light;
     end
 endfunction
 
-reg [14:0] gated;
-
 // Super Hang On Equations 315-5251
 // muxel ==0 selects tile mapper output, ==1 selects road
 // muxsel = obj0 & obj1 & obj2 & obj3 & FIX & !rc3q #
@@ -110,10 +109,11 @@ reg [14:0] gated;
 
 always @(posedge clk) if(pxl_cen) begin
     pal_addr <= pre_addr;
+    shadowl  <= shadow;
     objl     <= obj_pxl;
 
     gated <= //!video_en ? 15'd0 :
-         !shadow      ? { rpal, gpal, bpal }                      : // no shade effect
+         !shadowl     ? { rpal, gpal, bpal }                      : // no shade effect
           pal_out[15] ? { light(rpal), light(gpal), light(bpal) } : // brighter
                         { dim(rpal), dim(gpal), dim(bpal) };        // dimmer
 end
@@ -126,12 +126,9 @@ always @(*) begin
             ((objl[3:0]==4'h0 || shadow)  && (!rc[3] || (!sa && !sb) )) ||
             ( objl[11:10]==2'b01 && objl[3:0]==4'b1010 )); // using the signal polarity in the
                 // original equation breaks the columns in stage 2 left
-    // muxsel = (objl[3:0]==4'hf && !fix && (!rc[3] || (!sa && !sb) )) ||
-    //          (objl[11:10]==2'b01 && objl[3:0]==4'b1010 && !fix );
-    //if( debug_bus[7] ) muxsel=0;
     pre_addr = muxsel ? { 2'b01, {3{rd_pxl[7]}}, rd_pxl[6:0] } :
           (sa | sb | fix ) ? { 1'b0, tmap_addr }:
-                              { 1'b1, obj_pxl[13:7], obj_pxl[3:0]}; // skips the shadow and priority bits
+                              { 1'b1, objl[13:7], objl[3:0]}; // skips the shadow and priority bits
 end
 
 // reg LVBLl;

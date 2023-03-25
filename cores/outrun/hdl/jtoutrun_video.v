@@ -406,7 +406,7 @@ jtoutrun_colmix u_colmix(
     .red       ( red            ),
     .green     ( green          ),
     .blue      ( blue           ),
-    .debug_bus ( /*debug_bus*/ 8'd0 ),
+    .debug_bus ( debug_bus      ),
 `ifndef SHANON
     .prog_addr ( prog_addr      ),
     .prog_data ( prog_data      ),
