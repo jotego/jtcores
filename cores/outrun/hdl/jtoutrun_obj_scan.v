@@ -207,22 +207,12 @@ always @(posedge clk, posedge rst) begin
             end
             10: begin
                 if( !dr_busy ) begin
-`ifdef SIMULATION
-                    // if( /*cur_obj == 7'h2e*/ 1 ) begin
-                    //     $display("Object 0x%0x.From %0d to %0d (hflip=%0d, vflip=%0d) x=%d %s",cur_obj, top, bottom, hflip, vflip, xpos, first ? "FIRST" : "" );
-                    //     $display("offset 0x%4X. Pitch=%0d (0x%X). V-zoom 0x%X / 0x%x",offset,pitch, pitch, vzoom, vacc );
-                    // end
-                    if( pitch==0 && vrender<224 ) begin
-                        $display("Assertion failed: object drawn with pitch==0 (%m)");
-                        $finish;
-                    end
-`endif
                     dr_xpos   <= xpos; //+PXL_DLY;
                     dr_offset <= offset;
                     dr_pal    <= pal;
                     dr_prio   <= prio;
                     dr_shadow <= shadow;
-                    dr_start  <= 1;
+                    dr_start  <= pitch!=0;
                     dr_hflip  <= hflip;
                     dr_backwd <= backwd;
                     dr_hzoom  <= hzoom;

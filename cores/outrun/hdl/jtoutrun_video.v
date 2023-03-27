@@ -125,7 +125,7 @@ module jtoutrun_video(
     // SD card dumps
     input      [21:0]  ioctl_addr,
     input              ioctl_ram,
-    output     [ 7:0]  ioctl_din,
+    output reg [ 7:0]  ioctl_din,
     // Get some random data during start-up for the palette
     input      [21:0]  prog_addr,
     input      [ 7:0]  prog_data,
@@ -137,7 +137,7 @@ wire        flipx;
 wire        sa, sb, fix;
 
 // SD card dump
-wire [ 7:0] pal_dump, road_dump;
+wire [ 7:0] pal_dump, road_dump, obj_dump;
 
 // video layers
 wire [ 4:3] rc;
@@ -156,7 +156,14 @@ wire [13:0] obj_pxl;
 assign obj2tile = { obj_pxl[5:4], {2{obj_pxl[6]}}, {2{obj_pxl[3:0]}}^8'h50 }; // schematics video 1/7
 `endif
 
-assign ioctl_din = ioctl_addr[14] ? road_dump : pal_dump;
+always @* begin
+    case( ioctl_addr[15:12] )
+        0,1: ioctl_din = pal_dump;  // first 8kB of pal RAM dumped
+        1,2: ioctl_din = road_dump; // 8 kB
+        3:   ioctl_din = obj_dump;
+        default: ioctl_din = 0;
+    endcase
+end
 
 always @(posedge clk) begin
     case(st_addr[5:4])
@@ -360,9 +367,12 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
         .LHBL      ( ~HS            ),
         .flip      ( flipx          ),
         .hdump     ( hdump          ),
+
         .st_addr   ( st_addr        ),
         .st_dout   ( st_obj         ),
-        .debug_bus ( debug_bus      )
+        .debug_bus ( debug_bus      ),
+        .ioctl_addr(ioctl_addr[11:0]),
+        .ioctl_din ( obj_dump       )
     );
 `ifdef JTFRAME_LF_BUFFER
     assign obj_pxl        = ln_pxl[13:0];

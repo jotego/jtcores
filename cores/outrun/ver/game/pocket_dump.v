@@ -18,10 +18,10 @@ module pocket_dump(
         `else
             $display("Verilog sim will dump selected signals");
             // $dumpvars(frame_cnt);
-            $dumpvars(2,UUT.u_frame.u_base.u_lf_buf);
+            // $dumpvars(2,UUT.u_frame.u_base.u_lf_buf);
             $dumpvars(1,UUT.u_game.u_game.u_video);
             $dumpvars(2,UUT.u_game.u_game.u_video.u_obj);
-            $dumpvars(0,u_harness.u_cram0);
+            // $dumpvars(0,u_harness.u_cram0);
             $dumpvars(2,UUT);
 
             `ifndef NOMAIN

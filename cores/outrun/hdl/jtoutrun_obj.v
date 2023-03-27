@@ -48,9 +48,13 @@ module jtoutrun_obj(
     input      [ 8:0]  vrender,
     input      [ 8:0]  hdump,
     output     [13:0]  pxl,
+
+    // Debug
     input      [ 7:0]  st_addr,
     output     [ 7:0]  st_dout,
-    input      [ 7:0]  debug_bus
+    input      [ 7:0]  debug_bus,
+    input      [11:0]  ioctl_addr,
+    output     [ 7:0]  ioctl_din
 );
 
 parameter [8:0] PXL_DLY=8;
@@ -85,7 +89,10 @@ jtoutrun_obj_ram u_ram(
     .tbl_addr  ( tbl_addr       ),
     .tbl_dout  ( tbl_dout       ),
     .tbl_we    ( tbl_we         ),
-    .tbl_din   ( tbl_din        )
+    .tbl_din   ( tbl_din        ),
+    // SD dump
+    .ioctl_addr( ioctl_addr     ),
+    .ioctl_din ( ioctl_din      )
 );
 
 jtoutrun_obj_scan #(.PXL_DLY(0)) u_scan(

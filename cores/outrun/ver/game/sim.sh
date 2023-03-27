@@ -1,34 +1,43 @@
 #!/bin/bash
 
 EXTRA=
+SCENE=
 
-if [ -e obj.bin ]; then
-    drop1    < obj.bin >  obj_hi.bin
-    drop1    < obj.bin >> obj_hi.bin
-    drop1 -l < obj.bin >  obj_lo.bin
-    drop1 -l < obj.bin >> obj_lo.bin
-fi
+function parse_args {
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -s|-scene) shift; SCENE=$1;;
+        esac
+        shift
+    done
+}
 
-if [ -e roadram.bin ]; then
-    drop1    < roadram.bin > roadram_lo.bin
-    drop1 -l < roadram.bin > roadram_hi.bin
-    EXTRA="$EXTRA -d SIM_ROAD_CTRL"
-fi
+parse_args $*
 
 # Core dump from MiST
-if [ -e OUTRUN.RAM ]; then
-    dd if=OUTRUN.RAM of=pal.bin count=16
-    drop1 -l < pal.bin > pal_lo.bin
-    drop1    < pal.bin > pal_hi.bin
-    dd if=OUTRUN.RAM of=roadram.bin count=8 skip=16
-    drop1 -l < pal.bin > roadram_lo.bin
-    drop1    < pal.bin > roadram_hi.bin
-    rm -f pal.bin roadram.bin
+if [ ! -z "$SCENE" ]; then
+    DUMP=$SCENE/dump.nvm
+    if [ ! -e $DUMP ]; then
+        echo "Cannot open $DUMP"
+        echo "Generate it using MiSTer"
+        exit 1
+    fi
+    dd if=$DUMP of=aux.bin count=16
+    drop1 -l < aux.bin > pal_lo.bin
+    drop1    < aux.bin > pal_hi.bin
+    dd if=$DUMP of=aux.bin count=16 skip=16
+    drop1 -l < aux.bin > roadram_lo.bin
+    drop1    < aux.bin > roadram_hi.bin
+    dd if=$DUMP of=obj.bin count=8 skip=32
+    drop1 -l < aux.bin > obj_lo.bin
+    drop1    < aux.bin > obj_hi.bin
+    rm -f aux.bin
+    EXTRA="-d NOMAIN -d NOSOUND -d NOMCU"
 fi
 
 # Fast load
 # rm -f sdram_bank*
 # dd if=rom.bin of=sdram_bank0.bin ibs=16 skip=1 conv=swab
-$JTFRAME/bin/rom2sdram.sh $SYSNAME --header 16 --swab || exit $?
+# $JTFRAME/bin/rom2sdram.sh $SYSNAME --header 16 --swab || exit $?
 
 jtsim -d JTFRAME_SIM_ROMRQ_NOCHECK $EXTRA $* || exit $?

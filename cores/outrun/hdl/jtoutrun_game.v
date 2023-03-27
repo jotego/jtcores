@@ -269,6 +269,7 @@ jtoutrun_main u_main(
     assign pal_cs      = 0;
     assign objram_cs   = 0;
     assign ram_cs      = 0;
+    assign sub_br      = 0;
     assign vram_cs     = 0;
     assign main_rnw    = 1;
     assign main_dout   = 0;
@@ -278,6 +279,7 @@ jtoutrun_main u_main(
     assign obj_cfg     = 0;
     assign snd_rstb    = 0;
     assign mute        = 0;
+    assign creset      = 0;
 `endif
 
 `ifndef NOSUB
@@ -386,6 +388,7 @@ jtoutrun_snd u_sound(
     assign snd_right = 0;
     assign sndmap_rd = 0;
     assign sndmap_wr = 0;
+    assign st_snd    = 0;
 `endif
 
 jtoutrun_video u_video(
