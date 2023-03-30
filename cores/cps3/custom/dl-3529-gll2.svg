@@ -4468,9 +4468,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.029930215"
-     inkscape:cx="-4029.0468"
-     inkscape:cy="-1675.9829"
+     inkscape:zoom="0.23944172"
+     inkscape:cx="-724.00041"
+     inkscape:cy="649.91533"
      inkscape:document-units="mm"
      inkscape:current-layer="layer5"
      showgrid="false"
@@ -4503,12 +4503,12 @@
     <image
        sodipodi:absref="/home/espe/jtcores/cores/cps3/custom/capcom_dl-3529-gll2_furrtek_mz.jpg"
        xlink:href="capcom_dl-3529-gll2_furrtek_mz.jpg"
-       y="-1973.313"
-       x="-2119.1274"
-       id="image10937"
-       preserveAspectRatio="none"
+       width="4222.0444"
        height="4249.2085"
-       width="4222.0444" />
+       preserveAspectRatio="none"
+       id="image10937"
+       x="-2119.1274"
+       y="-1973.313" />
   </g>
   <g
      inkscape:groupmode="layer"
