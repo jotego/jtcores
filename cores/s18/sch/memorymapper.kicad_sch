@@ -4305,6 +4305,11 @@
     (effects (font (size 2.9972 2.9972)) (justify left bottom))
     (uuid 4058ea26-8219-4382-9729-209101ed522e)
   )
+  (text "Used as ADC\ninputs from gun\nin Laser Ghost\non board:\n837-7536\n171-5993A"
+    (at 337.82 149.86 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 4557c13c-337e-4b47-bff3-43c105f1e441)
+  )
   (text "?" (at 231.14 86.36 0)
     (effects (font (size 2.9972 2.9972)) (justify left bottom))
     (uuid 67484f7e-52d9-4cf4-9e70-99e78be2eeb4)

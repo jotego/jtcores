@@ -2957,6 +2957,10 @@
     (effects (font (size 5.0038 5.0038)) (justify left bottom))
     (uuid c4a20591-d89e-4e97-86c8-26d02247760e)
   )
+  (text "262, 144-BIT DUAL PORT DRAM" (at 152.4 237.49 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid dbf5e001-d7f4-471d-b96a-6497f917c241)
+  )
 
   (label "AD4" (at 195.58 219.71 270)
     (effects (font (size 1.27 1.27)) (justify right bottom))
