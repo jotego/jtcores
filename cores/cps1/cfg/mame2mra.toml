@@ -55,6 +55,23 @@ Names = [
 Dial = [ { machine="mpumpkin", raw=true, reverse=true }, ]
 
 [dipsw]
+defaults=[
+    { value="ff,9a,99", machines=[ "3wonders" ] },
+    { value="ff,bc,bf", machines=[ "msword" ] },
+    { value="ff,f4,9f", machines=[ "ffight" ] },
+    { value="ff,f4,bf", machines=[ "captcomm", "varth" ] },
+    { value="ff,fa,ff", machines=[ "megaman" ] },
+    { value="ff,fc,9f", machines=[ "1941", "mercs", "sf2", "sf2ce", "sf2hf", "unsquad" ] },
+    { value="ff,fc,bf", machines=[ "cawing", "knights", "mtwins", "nemo" ] },
+    { value="ff,fc,ff", machines=[ "cworld2j", "forgottn", "pnickj", "qtono2j" ] },
+    { value="ff,ff,ff", machines=[ "dynwar" ] },
+    { value="7f,ff,ff", setnames=[ "daimakai", "daimakair", "striderj", "striderjr", "willowj" ] },
+    { value="ff,f4,ff", setnames=[ "qad" ] },
+    { value="ff,fc,9f", setnames=[ "kodu" ] },
+    { value="ff,fc,bf", setnames=[ "kod", "kodj", "kodja", "kodr1", "kodr2" ] },
+    { value="ff,fd,ff", setnames=[ "ghouls", "ghoulsu", "qadjr", "strider", "striderua", "strideruc" ] },
+    { value="ff,ff,fa", setnames=[ "willow", "willowu", "willowuo" ] },
+]
 delete=[ "Unused", "Unknown", "Coinage" ]
 rename=[
     {name="2 Coins to Start, 1 to Continue", to="2 to start, 1 continue"},
