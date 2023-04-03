@@ -30,4 +30,7 @@ module jt051649(
     output signed [10:0] snd
 );
 
+assign dout = 0;
+assign snd = 0;
+
 endmodule

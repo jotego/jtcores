@@ -13,6 +13,10 @@ game:
       - ../cfg/common.yaml
       - jt007232.v
       - jt051649.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
 modules:
   jt:
     - name: jtopl

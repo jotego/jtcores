@@ -40,6 +40,7 @@ wire        prio;
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dipsw_c    = dipsw[23:20];
 assign debug_view = debug_mux;
+assign ram_din    = cpu_dout;
 
 always @(posedge clk) begin
     case( debug_bus[1:0] )
@@ -79,11 +80,14 @@ jtcastle_main u_main(
     .rom_cs         ( main_cs       ),
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
+    // RAM
+    .ram_we         ( ram_we        ),
+    .ram_dout       ( ram_dout      ),
     // cabinet I/O
     .start_button   ( start_button  ),
     .coin_input     ( coin_input    ),
-    .joystick1      ({1'b1,joystick1}),
-    .joystick2      ({1'b1,joystick2}),
+    .joystick1      ( joystick1     ),
+    .joystick2      ( joystick2     ),
     .service        ( service       ),
     // GFX
     .cpu_addr       ( cpu_addr      ),

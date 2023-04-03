@@ -36,3 +36,9 @@ sdram:
           name: gfx2
           addr_width: 20
           data_width: 16
+bram:
+  - name: ram
+    addr_width: 12
+    data_width: 8
+    rw: true
+    addr: main_addr[11:0]

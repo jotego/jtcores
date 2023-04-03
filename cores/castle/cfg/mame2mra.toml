@@ -6,7 +6,7 @@ sourcefile="hcastle.cpp"
 
 [buttons]
 names = [
-    { names="Shoot/Attack,Jump" }
+    { names="Attack,Jump" }
 ]
 
 [dipsw]

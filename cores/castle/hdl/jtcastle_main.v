@@ -27,13 +27,16 @@ module jtcastle_main(
     input               clk,        // 48 MHz
     output              cpu_cen,
     // communication with sound CPU
-    output              snd_irq,
-    output      [ 7:0]  snd_latch,
+    output reg          snd_irq,
+    output reg  [ 7:0]  snd_latch,
     // ROM
     output      [17:0]  rom_addr,
     output              rom_cs,
     input       [ 7:0]  rom_data,
     input               rom_ok,
+    // RAM
+    output              ram_we,
+    input       [ 7:0]  ram_dout,
     // cabinet I/O
     input       [ 1:0]  start_button,
     input       [ 1:0]  coin_input,
@@ -47,9 +50,9 @@ module jtcastle_main(
     input               gfx_firqn,
     input               gfx_irqn,
     input               gfx_nmin,
-    inout               gfx1_cs,
-    inout               gfx2_cs,
-    inout               pal_cs,
+    inout  reg          gfx1_cs,
+    inout  reg          gfx2_cs,
+    inout  reg          pal_cs,
 
     output     [1:0]    video_bank,
     output              prio,
@@ -66,11 +69,13 @@ module jtcastle_main(
 
 localparam RAM_AW = 13;
 
-wire [ 7:0] ram_dout, cpu_din, Aupper;
+wire [ 7:0] Aupper;
+reg  [ 7:0] cpu_din;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n, irq_ack;
 wire        irq_trigger, nmi_trigger, firq_trigger;
-wire        ram_cs, VMA, cpu_we, dtack;
+reg         ram_cs;
+wire        cpu_we, dtack;
 wire        cen24, cen12;
 
 assign irq_trigger  = ~gfx_irqn  & dip_pause;
@@ -80,6 +85,7 @@ assign cpu_addr     = A;
 assign cpu_rnw      = ~cpu_we;
 assign dtack        = ~rom_cs | rom_ok;
 assign cpu_cen      = cen24;
+assign ram_we       = ram_cs & cpu_we;
 
 reg        io_cs;
 reg  [4:0] bank; // MSB unused
@@ -99,18 +105,10 @@ jtframe_frac_cen #(.W(2),.WC(2)) u_cen(
 // with small ROM chips, whereas all available dumps
 // use a 32kB+128kB combination
 always @(*) begin
-    pal_cs   = 0;
-    io_cs    = 0;
-    ram_cs   = 0;
-    if( A[15:12]==0 ) begin
-        case(A[11:8])
-            4'd4: io_cs  = 1;
-            4'd6: pal_cs = 1;
-            4'd7: ram_cs = 1; // RAM A[11] is driven in a funny way in the sch
-            default:;
-        endcase
-    end
-    rom_cs   = A[15:12]>=6 && !cpu_we && VMA;
+    io_cs    = A[15:8]==4;
+    pal_cs   = A[15:8]==6;
+    ram_cs   = A[15:8]>=8'h07 && A[15:8]<8'h20;
+    rom_cs   = A[15:12]>=6 && !cpu_we;
     gfx1_cs  = A[15:8]==0 || A[15:13]==3'd2>>1;
     gfx2_cs  = A[15:8]==2 || A[15:13]==3'd4>>1;
     rom_addr = { A[15], A[15] ? {2'd0,A[14:13]} : bank[3:0], A[12:0] };
@@ -135,7 +133,7 @@ always @(posedge clk, posedge rst) begin
         video_bank <= 0;
     end else if(cen12 && io_cs ) begin
         case( A[4:2] )
-            0: bank <= cpu_dout[5:0]; // coin lock and a bit for a RAM bank seem to be here too
+            0: bank <= cpu_dout[4:0]; // coin lock and a bit for a RAM bank seem to be here too
             1: snd_latch <= cpu_dout;
             2: snd_irq   <= 1;
             // 3: AFR in sch ?
@@ -170,32 +168,5 @@ jtkcpu u_cpu(
     .addr   ({Aupper, A}),
     .we     ( cpu_we    )
 );
-
-
-// jtframe_sys6809 #(.RAM_AW(RAM_AW),.KONAMI(2)) u_cpu(
-//     .rstn       ( ~rst      ),
-//     .clk        ( clk       ),
-//     .cen        ( cen12     ),   // This is normally the input clock to the CPU
-//     .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
-
-//     // Interrupts
-//     .nIRQ       ( irq_n     ),
-//     .nFIRQ      ( firq_n    ),
-//     .nNMI       ( nmi_n     ),
-//     .irq_ack    ( irq_ack   ),
-//     // Bus sharing
-//     .bus_busy   ( 1'b0      ),
-//     // memory interface
-//     .A          ( A         ),
-//     .RnW        ( RnW       ),
-//     .VMA        ( VMA       ),
-//     .ram_cs     ( ram_cs    ),
-//     .rom_cs     ( rom_cs    ),
-//     .rom_ok     ( rom_ok    ),
-//     // Bus multiplexer is external
-//     .ram_dout   ( ram_dout  ),
-//     .cpu_dout   ( cpu_dout  ),
-//     .cpu_din    ( cpu_din   )
-// );
 
 endmodule

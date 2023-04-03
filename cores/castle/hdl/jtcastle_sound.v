@@ -228,11 +228,14 @@ jt051649 u_scc(
 );
 
 `else
-assign rom_cs   = 0;
-assign pcm_cs   = 0;
-assign rom_addr = 15'd0;
-assign snd      = 0;
-assign peak     = 0;
-assign sample   = 0;
+assign rom_cs    = 0;
+assign pcma_cs   = 0;
+assign pcma_addr = 0;
+assign pcmb_cs   = 0;
+assign pcmb_addr = 0;
+assign rom_addr  = 0;
+assign snd       = 0;
+assign peak      = 0;
+assign sample    = 0;
 `endif
 endmodule

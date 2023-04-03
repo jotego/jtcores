@@ -60,7 +60,7 @@ wire        gfx1_blank = gfx1_pxl[3:0]==4'h0;
 
 
 assign col_addr = MERGE ? { gfx1_pxl[4],  gfx1_pal[3:0], gfx1_pxl[3:0], pal_half } : // used on MX5000
-                          { 1'b0, gfx1_pxl, pal_half }; // used on Haunted Castle
+                          { 2'b0, gfx1_pxl, pal_half }; // used on Haunted Castle
 
 
 assign { blue, green, red } = col_out;
