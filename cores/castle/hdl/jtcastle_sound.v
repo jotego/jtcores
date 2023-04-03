@@ -30,12 +30,12 @@ module jtcastle_sound(
     input           rom_ok,
     // ADPCM ROM
     output   [18:0] pcma_addr,
-    input    [ 7:0] pcma_dout,
+    input    [ 7:0] pcma_data,
     output          pcma_cs,
     input           pcma_ok,
 
     output   [18:0] pcmb_addr,
-    input    [ 7:0] pcmb_dout,
+    input    [ 7:0] pcmb_data,
     output          pcmb_cs,
     input           pcmb_ok,
 
@@ -184,7 +184,7 @@ jtopl u_opl(
     .irq_n      ( nmi_n     ),
     // combined output
     .snd        ( snd_fm    ),
-    .sample     ( sample    ), // marks new output sample
+    .sample     ( sample    )  // marks new output sample
 );
 
 jt007232 u_pcm(
@@ -201,12 +201,12 @@ jt007232 u_pcm(
     // External memory - the original chip
     // only had one bus
     .roma_addr  ( pcma_addr[16:0] ),
-    .roma_dout  ( pcma_dout ),
+    .roma_dout  ( pcma_data ),
     .roma_cs    ( pcma_cs   ),
     .roma_ok    ( pcma_ok   ),
 
     .romb_addr  ( pcmb_addr[16:0] ),
-    .romb_dout  ( pcmb_dout ),
+    .romb_dout  ( pcmb_data ),
     .romb_cs    ( pcmb_cs   ),
     .romb_ok    ( pcmb_ok   ),
     // sound output - raw
@@ -221,7 +221,7 @@ jt051649 u_scc(
     .cen        ( cen_fm    ),
     .cs         ( scc_cs    ),
     .wrn        ( wr_n      ),
-    .addr       ( {4'b1001, cpu_addr[11:0] }), // bits 10-8 ignored
+    .addr       ( {4'b1001, A[11:0] }), // bits 10-8 ignored
     .din        ( cpu_din   ),
     .dout       ( scc_dout  ),
     .snd        ( scc_snd   )

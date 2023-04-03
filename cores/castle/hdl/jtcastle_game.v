@@ -23,7 +23,7 @@ module jtcastle_game(
 wire        snd_irq;
 
 wire [ 7:0] snd_latch;
-wire        cen12, cen3, cen1p5;
+wire        cpu_cen, cen12, cen3, cen1p5;
 
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 3:0] dipsw_c;
@@ -32,7 +32,7 @@ reg  [ 7:0] debug_mux;
 wire [15:0] cpu_addr;
 wire        gfx1_ramcs, gfx2_ramcs, gfx1_cfg_cs, gfx2_cfg_cs, pal_cs;
 wire        gfx1_vram_cs, gfx2_vram_cs;
-wire        cpu_cen, cpu_rnw, cpu_irqn, cpu_firqn, cpu_nmin;
+wire        cpu_rnw, cpu_irqn, cpu_firqn, cpu_nmin;
 wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout;
 wire [ 1:0] video_bank;
 wire        prio;
@@ -68,9 +68,8 @@ jtframe_cen24 u_cen(
 );
 
 jtcastle_main u_main(
-    .clk            ( clk24         ),        // 24 MHz
-    .rst            ( rst24         ),
-    .cen12          ( cen12         ),
+    .clk            ( clk           ),        // 24 MHz
+    .rst            ( rst           ),
     .cpu_cen        ( cpu_cen       ),
     // communication with main CPU
     .snd_irq        ( snd_irq       ),
@@ -161,11 +160,9 @@ jtcastle_video u_video (
 );
 
 jtcastle_sound u_sound(
-    .clk        ( clk24         ), // 24 MHz
     .rst        ( rst24         ),
-    .cen12      ( cen12         ),
-    .cen3       ( cen3          ),
-    .cen1p5     ( cen1p5        ),
+    .clk        ( clk24         ), // 24 MHz
+    .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -175,13 +172,17 @@ jtcastle_sound u_sound(
     .rom_data   ( snd_data      ),
     .rom_ok     ( snd_ok        ),
     // ADPCM ROM
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( pcm_cs        ),
-    .pcm_data   ( pcm_data      ),
-    .pcm_ok     ( pcm_ok        ),
+    .pcma_addr  ( pcma_addr     ),
+    .pcma_cs    ( pcma_cs       ),
+    .pcma_data  ( pcma_data     ),
+    .pcma_ok    ( pcma_ok       ),
+
+    .pcmb_addr  ( pcmb_addr     ),
+    .pcmb_cs    ( pcmb_cs       ),
+    .pcmb_data  ( pcmb_data     ),
+    .pcmb_ok    ( pcmb_ok       ),
     // Sound output
-    .snd_left   ( snd_right     ), // channels reversed in
-    .snd_right  ( snd_left      ), // the real PCB too
+    .snd        ( snd           ), // channels reversed in
     .sample     ( sample        ),
     .peak       ( game_led      )
 );

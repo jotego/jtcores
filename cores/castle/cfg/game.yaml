@@ -1,5 +1,5 @@
 game:
-  - from: castle:
+  - from: castle
     get:
       - jtcastle_game.v
       - jtcastle_main.v
@@ -11,11 +11,10 @@ game:
   - from: contra
     get:
       - ../cfg/common.yaml
-modules:
-  other:
-    - get:
       - jt007232.v
       - jt051649.v
+modules:
   jt:
     - name: jtopl
+    - name: jtkcpu
 

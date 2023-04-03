@@ -23,9 +23,8 @@
 // Q is 1/4th of wave advanced
 
 module jtcastle_main(
-    input               clk,        // 24 MHz
     input               rst,
-    input               cen12,
+    input               clk,        // 48 MHz
     output              cpu_cen,
     // communication with sound CPU
     output              snd_irq,
@@ -67,22 +66,33 @@ module jtcastle_main(
 
 localparam RAM_AW = 13;
 
-wire [ 7:0] ram_dout, cpu_din;
+wire [ 7:0] ram_dout, cpu_din, Aupper;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n, irq_ack;
 wire        irq_trigger, nmi_trigger, firq_trigger;
-wire        ram_cs, VMA;
+wire        ram_cs, VMA, cpu_we, dtack;
+wire        cen24, cen12;
 
 assign irq_trigger  = ~gfx_irqn  & dip_pause;
 assign firq_trigger = ~gfx_firqn & dip_pause;
 assign nmi_trigger  = ~gfx_nmin  & dip_pause;
 assign cpu_addr     = A;
-assign cpu_rnw      = RnW;
+assign cpu_rnw      = ~cpu_we;
+assign dtack        = ~rom_cs | rom_ok;
+assign cpu_cen      = cen24;
 
 reg        io_cs;
 reg  [4:0] bank; // MSB unused
 reg  [7:0] port_in;
 wire [7:0] div_dout;
+
+jtframe_frac_cen #(.W(2),.WC(2)) u_cen(
+    .clk    ( clk           ),
+    .n      ( 2'd1          ),
+    .m      ( 2'd2          ),
+    .cen    ( {cen12,cen24} ),
+    .cenb   (               )
+);
 
 // Decoder 052127 takes as inputs A[15:9]
 // The schematics available are for a board version
@@ -100,10 +110,10 @@ always @(*) begin
             default:;
         endcase
     end
-    rom_cs   = A[15:12]>=6 && RnW && VMA;
+    rom_cs   = A[15:12]>=6 && !cpu_we && VMA;
     gfx1_cs  = A[15:8]==0 || A[15:13]==3'd2>>1;
     gfx2_cs  = A[15:8]==2 || A[15:13]==3'd4>>1;
-    rom_addr = { A[15], A[15] ? {2'd0,A[14:13]} : bank[3:0], A[12:0] }
+    rom_addr = { A[15], A[15] ? {2'd0,A[14:13]} : bank[3:0], A[12:0] };
 end
 
 always @(posedge clk) begin
@@ -123,7 +133,7 @@ always @(posedge clk, posedge rst) begin
         port_in    <= 0;
         prio       <= 0;
         video_bank <= 0;
-    end else if(cpu_cen && io_cs ) begin
+    end else if(cen12 && io_cs ) begin
         case( A[4:2] )
             0: bank <= cpu_dout[5:0]; // coin lock and a bit for a RAM bank seem to be here too
             1: snd_latch <= cpu_dout;
@@ -142,30 +152,50 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_sys6809 #(.RAM_AW(RAM_AW),.KONAMI(2)) u_cpu(
-    .rstn       ( ~rst      ),
-    .clk        ( clk       ),
-    .cen        ( cen12     ),   // This is normally the input clock to the CPU
-    .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
+jtkcpu u_cpu(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cen12     ),
+    .cen2   ( cen24     ),
 
-    // Interrupts
-    .nIRQ       ( irq_n     ),
-    .nFIRQ      ( firq_n    ),
-    .nNMI       ( nmi_n     ),
-    .irq_ack    ( irq_ack   ),
-    // Bus sharing
-    .bus_busy   ( 1'b0      ),
-    // memory interface
-    .A          ( A         ),
-    .RnW        ( RnW       ),
-    .VMA        ( VMA       ),
-    .ram_cs     ( ram_cs    ),
-    .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
-    // Bus multiplexer is external
-    .ram_dout   ( ram_dout  ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_din    ( cpu_din   )
+    .halt   ( 1'd0      ),
+    .dtack  ( dtack     ),
+    .nmi_n  ( gfx_nmin ),
+    .irq_n  ( gfx_irqn ),
+    .firq_n (gfx_firqn ),
+
+    // memory bus
+    .din    ( cpu_din   ),
+    .dout   ( cpu_dout  ),
+    .addr   ({Aupper, A}),
+    .we     ( cpu_we    )
 );
+
+
+// jtframe_sys6809 #(.RAM_AW(RAM_AW),.KONAMI(2)) u_cpu(
+//     .rstn       ( ~rst      ),
+//     .clk        ( clk       ),
+//     .cen        ( cen12     ),   // This is normally the input clock to the CPU
+//     .cpu_cen    ( cpu_cen   ),   // 1/4th of cen -> 3MHz
+
+//     // Interrupts
+//     .nIRQ       ( irq_n     ),
+//     .nFIRQ      ( firq_n    ),
+//     .nNMI       ( nmi_n     ),
+//     .irq_ack    ( irq_ack   ),
+//     // Bus sharing
+//     .bus_busy   ( 1'b0      ),
+//     // memory interface
+//     .A          ( A         ),
+//     .RnW        ( RnW       ),
+//     .VMA        ( VMA       ),
+//     .ram_cs     ( ram_cs    ),
+//     .rom_cs     ( rom_cs    ),
+//     .rom_ok     ( rom_ok    ),
+//     // Bus multiplexer is external
+//     .ram_dout   ( ram_dout  ),
+//     .cpu_dout   ( cpu_dout  ),
+//     .cpu_din    ( cpu_din   )
+// );
 
 endmodule

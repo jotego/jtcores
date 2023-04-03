@@ -78,7 +78,7 @@ wire [ 8:0] prio_addr;
 wire [ 7:0] prio_mux;
 wire [ 3:0] prio_sel;
 
-assign prio_addr = { prio, gfx2_pxl[4], gfx1_pxl[4], |gfx2_pxl[3:0], gfx1_pxl[3:0] }
+assign prio_addr = { prio, gfx2_pxl[4], gfx1_pxl[4], |gfx2_pxl[3:0], gfx1_pxl[3:0] };
 assign pal_addr  = { 2'd0, cpu_addr[7:0]^8'd1 };
 
 assign gfx1_addr_in  = cpu_addr[13:0];
