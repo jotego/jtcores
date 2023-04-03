@@ -5,7 +5,7 @@
   (paper "A3")
 
   (title_block
-    (title "System 18")
+    (title "System 18  MODEL 837-7178")
     (date "2022-03-18")
     (rev "José Tejada G.")
     (company "JOTEGO")
@@ -4674,7 +4674,7 @@
     (property "Reference" "CP38" (id 0) (at 129.54 193.04 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "152k" (id 1) (at 129.54 190.5 90)
+    (property "Value" "152" (id 1) (at 129.54 190.5 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "" (id 2) (at 133.35 192.7352 0)

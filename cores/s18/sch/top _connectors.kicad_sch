@@ -4,6 +4,14 @@
 
   (paper "A4")
 
+  (title_block
+    (title "System 18  MODEL 837-7178")
+    (date "2022-03-18")
+    (rev "José Tejada G.")
+    (company "JOTEGO")
+    (comment 1 "Esperanza Triana")
+  )
+
   (lib_symbols
     (symbol "Connector_Generic:Conn_02x25_Row_Letter_First" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (id 0) (at 1.27 33.02 0)

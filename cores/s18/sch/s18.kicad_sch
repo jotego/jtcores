@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (title "System 18")
+    (title "System 18  MODEL 837-7178")
     (date "2022-03-18")
     (rev "José Tejada G.")
     (company "JOTEGO")
@@ -1618,6 +1618,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 5b07b611-563e-4f2a-ac9b-d3523182f792)
   )
+  (text "\nOK\n" (at 234.95 156.21 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 721b2f1d-8e6b-4a07-9d88-5f4d74a941fb)
+  )
   (text "CONECTAR" (at 143.51 33.02 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 87453324-2e6e-4259-8931-4b105bda3949)
@@ -3103,12 +3107,6 @@
     (path "/00000000-0000-0000-0000-0000663f8e80"
       (reference "#PWR0102") (unit 1) (value "VCC") (footprint "")
     )
-    (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-000062581b3c"
-      (reference "#PWR0103") (unit 1) (value "VSS") (footprint "")
-    )
-    (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-000062581fec"
-      (reference "#PWR0104") (unit 1) (value "VSS") (footprint "")
-    )
     (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-0000655f63a5/00000000-0000-0000-0000-0000657843b7"
       (reference "#PWR0105") (unit 1) (value "VSS") (footprint "")
     )
@@ -3388,18 +3386,6 @@
     (path "/00000000-0000-0000-0000-00006527ec42/00000000-0000-0000-0000-000062fe89b3"
       (reference "C26") (unit 1) (value "102k") (footprint "")
     )
-    (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-0000625261a7"
-      (reference "C?") (unit 1) (value "470uF/16V") (footprint "")
-    )
-    (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-000062582108"
-      (reference "C?") (unit 1) (value "470uF/16V") (footprint "")
-    )
-    (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-00006258253f"
-      (reference "C?") (unit 1) (value "470uF/16V") (footprint "")
-    )
-    (path "/00000000-0000-0000-0000-000062382335/00000000-0000-0000-0000-0000625c0159"
-      (reference "C?") (unit 1) (value "470uF/16V") (footprint "")
-    )
     (path "/71bcf772-2284-4e08-b0d7-e9290094f9ba/22ef70dc-cd02-4cb8-80ab-9d659e1e0b1e"
       (reference "CN1") (unit 1) (value "Conn_02x30_Row_Letter_First") (footprint "")
     )
@@ -3470,7 +3456,7 @@
       (reference "CP36") (unit 1) (value "CP_100uF") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006527ec42/00000000-0000-0000-0000-0000665310cb"
-      (reference "CP38") (unit 1) (value "152k") (footprint "")
+      (reference "CP38") (unit 1) (value "152") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006527ec42/00000000-0000-0000-0000-0000645b86c9"
       (reference "CP39") (unit 1) (value "CP_10uF") (footprint "")
@@ -3804,6 +3790,18 @@
     )
     (path "/00000000-0000-0000-0000-00006db420ae/00000000-0000-0000-0000-000062f86777"
       (reference "CP151") (unit 1) (value "0.10F") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00006db420ae/270656f4-e2c4-4bf6-a4b2-ef05a210227c"
+      (reference "CP152") (unit 1) (value "470uF/16V") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00006db420ae/72199565-2f13-4a4c-a6cb-c1f3e8bc3926"
+      (reference "CP153") (unit 1) (value "470uF/16V") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00006db420ae/a38e9311-4f6c-4ded-b79d-95f84707cc06"
+      (reference "CP154") (unit 1) (value "470uF/16V") (footprint "")
+    )
+    (path "/00000000-0000-0000-0000-00006db420ae/b3f7a793-a365-413c-8b84-6a750ccba6dc"
+      (reference "CP155") (unit 1) (value "470uF/16V") (footprint "")
     )
     (path "/00000000-0000-0000-0000-00006662eaed/00000000-0000-0000-0000-000064bae739/00000000-0000-0000-0000-000064bc1a1c"
       (reference "CR6") (unit 1) (value "DIODE") (footprint "")
