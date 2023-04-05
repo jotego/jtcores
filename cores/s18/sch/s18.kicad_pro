@@ -395,6 +395,10 @@
     [
       "bd7a2ccc-70a6-4f02-a0b9-1878d2888f98",
       "i_o controller"
+    ],
+    [
+      "b55acd91-bf2d-4c52-b8e5-91abd8510e38",
+      "io_cabinet"
     ]
   ],
   "text_variables": {}
