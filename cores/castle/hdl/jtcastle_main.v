@@ -84,11 +84,10 @@ assign nmi_trigger  = ~gfx_nmin  & dip_pause;
 assign cpu_addr     = A;
 assign cpu_rnw      = ~cpu_we;
 assign dtack        = ~rom_cs | rom_ok;
-assign cpu_cen      = cen24;
 assign ram_we       = ram_cs & cpu_we;
 
 reg        io_cs;
-reg  [4:0] bank; // MSB unused
+reg  [3:0] bank; // 5 bits in schematics, but MSB is unused, so pruning it here
 reg  [7:0] port_in;
 wire [7:0] div_dout;
 
@@ -99,6 +98,10 @@ jtframe_frac_cen #(.W(2),.WC(2)) u_cen(
     .cen    ( {cen12,cen24} ),
     .cenb   (               )
 );
+
+`ifdef SIMULATION
+wire banked_cs = A[15:12]>=6 && A[15:12]<8;
+`endif
 
 // Decoder 052127 takes as inputs A[15:9]
 // The schematics available are for a board version
@@ -111,11 +114,11 @@ always @(*) begin
     rom_cs   = A[15:12]>=6 && !cpu_we;
     gfx1_cs  = A[15:8]==0 || A[15:13]==3'd2>>1;
     gfx2_cs  = A[15:8]==2 || A[15:13]==3'd4>>1;
-    rom_addr = { A[15], A[15] ? {2'd0,A[14:13]} : bank[3:0], A[12:0] };
+    rom_addr = { A[15], A[15] ? {2'd0,A[14:13]} : bank, A[12:0] };
 end
 
-always @(posedge clk) begin
-    cpu_din<= rom_cs  ? rom_data  :
+always @* begin
+    cpu_din = rom_cs  ? rom_data  :
               ram_cs  ? ram_dout  :
               io_cs   ? port_in   :
               pal_cs  ? pal_dout  :
@@ -131,9 +134,9 @@ always @(posedge clk, posedge rst) begin
         port_in    <= 0;
         prio       <= 0;
         video_bank <= 0;
-    end else if(cen12 && io_cs ) begin
+    end else if( io_cs && cpu_we ) begin
         case( A[4:2] )
-            0: bank <= cpu_dout[4:0]; // coin lock and a bit for a RAM bank seem to be here too
+            0: bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
             1: snd_latch <= cpu_dout;
             2: snd_irq   <= 1;
             // 3: AFR in sch ?
@@ -154,6 +157,7 @@ jtkcpu u_cpu(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen2   ( cen24     ),
+    .cen_out( cpu_cen   ),
 
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
