@@ -153,7 +153,6 @@ end
 jtkcpu u_cpu(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .cen    ( cen12     ),
     .cen2   ( cen24     ),
 
     .halt   ( 1'd0      ),

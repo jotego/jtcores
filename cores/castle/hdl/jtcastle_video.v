@@ -19,7 +19,6 @@
 module jtcastle_video(
     input               rst,
     input               clk,
-    input               clk24,
     output              pxl2_cen,
     output              pxl_cen,
     output              LHBL,
@@ -116,7 +115,7 @@ jtcontra_gfx #(
 ) u_gfx1(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .clk24      ( clk24         ),
+    .clk24      ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
@@ -166,7 +165,7 @@ jtcontra_gfx #(
 ) u_gfx2(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .clk24      ( clk24         ),
+    .clk24      ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
@@ -221,7 +220,7 @@ jtframe_prom #(.DW(4), .AW(8)) u_prio (
 jtmx5k_colmix #(.MERGE(0)) u_colmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .clk24      ( clk24         ),
+    .clk24      ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),

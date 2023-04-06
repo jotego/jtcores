@@ -38,7 +38,7 @@ sdram:
           data_width: 16
 bram:
   - name: ram
-    addr_width: 12
+    addr_width: 13
     data_width: 8
     rw: true
-    addr: main_addr[11:0]
+    addr: main_addr[12:0]

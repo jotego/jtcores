@@ -116,7 +116,6 @@ jtcastle_main u_main(
 jtcastle_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .clk24          ( clk24         ),
     .pxl2_cen       ( pxl2_cen      ),
     .pxl_cen        ( pxl_cen       ),
     .LHBL           ( LHBL          ),
