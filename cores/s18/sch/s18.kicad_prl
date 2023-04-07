@@ -73,12 +73,12 @@
     "files": [
       {
         "name": "s18.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 946,
-          "pos_y": 37,
+          "pos_x": 689,
+          "pos_y": 568,
           "size_x": 962,
           "size_y": 711
         }

@@ -9553,7 +9553,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid c35e2c7b-66c6-49ff-8c52-6d1538493313)
   )
-  (hierarchical_label "~{CS2_IOA}" (shape input) (at 118.11 127 180)
+  (hierarchical_label "~{CS2}SRAM" (shape input) (at 118.11 127 180)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid d314c0e6-1d99-4cda-8289-e9eb76422540)
   )

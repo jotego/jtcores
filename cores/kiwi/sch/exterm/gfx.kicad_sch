@@ -3565,6 +3565,12 @@
     )
   )
 
+  (text "Measures Seta X1-001:\nCLK_IN.............12MHz\nCLK_OUT..........11.07~12.01MHz\n~{VBLK}...............59.2Hz\nVBLK.................59.3Hz\n~{HBLK2}............15.6KHz\n~{HBLK}..............15.6KHz\n~{VSYNC}............59.2Hz\n\nObservatión: Pin 46 (HC0) does not \ncorrespond to the sequence of the HC[8..0] counter."
+    (at 256.54 190.5 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 8f82ac39-f27e-4d63-ab36-28674992664f)
+  )
+
   (label "VA7" (at 171.45 229.87 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 01c3bc97-a26a-413d-90ba-1726c208535e)
