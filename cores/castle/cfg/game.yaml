@@ -5,6 +5,7 @@ game:
       - jtcastle_main.v
       - jtcastle_video.v
       - jtcastle_sound.v
+      - jtcastle_colmix.v
   - from: mx5k
     get:
       - jtmx5k_colmix.v

@@ -30,8 +30,8 @@ module jtcastle_main(
     output reg          snd_irq,
     output reg  [ 7:0]  snd_latch,
     // ROM
-    output      [17:0]  rom_addr,
-    output              rom_cs,
+    output reg  [17:0]  rom_addr,
+    output reg          rom_cs,
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // RAM
@@ -54,8 +54,8 @@ module jtcastle_main(
     inout  reg          gfx2_cs,
     inout  reg          pal_cs,
 
-    output     [1:0]    video_bank,
-    output              prio,
+    output reg [1:0]    video_bank,
+    output reg          prio,
 
     input      [7:0]    gfx1_dout,
     input      [7:0]    gfx2_dout,

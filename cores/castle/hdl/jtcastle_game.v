@@ -112,7 +112,7 @@ jtcastle_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-
+/* verilator tracing_off */
 jtcastle_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -127,7 +127,7 @@ jtcastle_video u_video (
     .start_button   ( &start_button ),
     // PROMs
     .prom_we        ( prom_we       ),
-    .prog_addr      ( prog_addr[9:0]),
+    .prog_addr      (prog_addr[10:0]),
     .prog_data      ( prog_data[3:0]),
     // GFX - CPU interface
     .cpu_firqn      ( cpu_firqn     ),
@@ -161,6 +161,7 @@ jtcastle_video u_video (
     // Test
     .gfx_en         ( gfx_en        )
 );
+/* verilator tracing_on */
 
 jtcastle_sound u_sound(
     .rst        ( rst24         ),
