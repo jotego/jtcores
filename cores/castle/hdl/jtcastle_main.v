@@ -134,12 +134,12 @@ always @(posedge clk, posedge rst) begin
         port_in    <= 0;
         prio       <= 0;
         video_bank <= 0;
-    end else if( io_cs && cpu_we ) begin
+    end else if( io_cs ) begin
         case( A[4:2] )
-            0: bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
-            1: snd_latch <= cpu_dout;
-            2: snd_irq   <= 1;
-            // 3: AFR in sch ?
+            0: if( cpu_we ) bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
+            1: if( cpu_we ) snd_latch <= cpu_dout;
+            2: if( cpu_we ) snd_irq   <= 1;
+            // 3: AFR in sch - watchdog
             4: case( A[1:0] ) // COINEN in sch.
                 0: port_in <= {3'b111, start_button, service, coin_input };
                 1: port_in <= {2'b11, joystick1[5:0] };
@@ -147,7 +147,10 @@ always @(posedge clk, posedge rst) begin
                 3: port_in <= {2'b11, joystick2[6], joystick1[6], dipsw_c[3:0] };
             endcase
             5: port_in <= A[0] ? dipsw_b : dipsw_a;
-            6: { prio, video_bank } <= cpu_dout[2:0];
+            6: begin
+                if( cpu_we ) { prio, video_bank } <= cpu_dout[2:0];
+                port_in <= {5'd0, prio, video_bank};
+            end
             default: port_in <= 8'hff;
         endcase
     end

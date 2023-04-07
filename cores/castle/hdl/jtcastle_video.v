@@ -63,6 +63,7 @@ module jtcastle_video(
     output     [ 4:0]   green,
     output     [ 4:0]   blue,
     // Test
+    input      [ 7:0]   debug_bus,
     input      [ 3:0]   gfx_en
 );
 
@@ -87,8 +88,8 @@ assign pal_addr  = { 2'd0, cpu_addr[7:0]^8'd1 };
 
 assign gfx1_addr_in  = cpu_addr[13:0];
 assign gfx2_addr_in  = { ^cpu_addr[14:13], cpu_addr[12:10], (~cpu_addr[14])^cpu_addr[9], cpu_addr[8:0] };
-assign gfx1_addr[18] = video_bank[0];
-assign gfx2_addr[18] = video_bank[1];
+assign gfx1_addr[18] = video_bank[0] &  gfx1_sel;
+assign gfx2_addr[18] = video_bank[1] & ~gfx2_sel;
 
 jtframe_cen48 u_cen(
     .clk        ( clk       ),    // 48 MHz

@@ -47,7 +47,7 @@ always @(posedge clk) begin
         0: debug_mux <= dipsw_a;
         1: debug_mux <= dipsw_b;
         2: debug_mux <= {4'd0, dipsw_c};
-        3: debug_mux <= 0;
+        3: debug_mux <= { 5'd0, prio, video_bank };
     endcase
 end
 
@@ -159,6 +159,7 @@ jtcastle_video u_video (
     .green          ( green         ),
     .blue           ( blue          ),
     // Test
+    .debug_bus      ( debug_bus     ),
     .gfx_en         ( gfx_en        )
 );
 /* verilator tracing_on */
