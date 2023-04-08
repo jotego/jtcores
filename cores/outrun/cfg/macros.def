@@ -7,7 +7,7 @@ JTFRAME_ANALOG_DUAL
 JTFRAME_STEREO
 
 # This game is skipped for
-# all platforms except Pocket and MiSTer
+# all platforms except Pocket, MiSTer & family and NeptUNO
 JTFRAME_SKIP
 
 # The decrypter module is
@@ -53,7 +53,7 @@ JTFRAME_OSD_NOLOGO
 # Make it the same as KEY_START
 JTFRAME_PROM_START=0x298000
 
-[pocket|mister]
+[pocket|mister|sockit|de1soc|de10standard|neptuno]
 -JTFRAME_SKIP
 # Take clock down to 50MHz and use the
 # line-based frame buffer for objects
@@ -64,7 +64,7 @@ JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=3
 JTFRAME_CREDITS_HSTART=32
 
-[mister]
+[mister|sockit|de1soc|de10standard]
 # Controller options have only been tested on MiSTer
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 #JTFRAME_CHEAT
