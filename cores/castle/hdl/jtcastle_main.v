@@ -64,7 +64,8 @@ module jtcastle_main(
     input               dip_pause,
     input      [7:0]    dipsw_a,
     input      [7:0]    dipsw_b,
-    input      [3:0]    dipsw_c
+    input      [3:0]    dipsw_c,
+    output              buserror
 );
 
 localparam RAM_AW = 13;
@@ -73,14 +74,10 @@ wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n, irq_ack;
-wire        irq_trigger, nmi_trigger, firq_trigger;
 reg         ram_cs;
 wire        cpu_we, dtack;
 wire        cen24, cen12;
 
-assign irq_trigger  = ~gfx_irqn  & dip_pause;
-assign firq_trigger = ~gfx_firqn & dip_pause;
-assign nmi_trigger  = ~gfx_nmin  & dip_pause;
 assign cpu_addr     = A;
 assign cpu_rnw      = ~cpu_we;
 assign dtack        = ~rom_cs | rom_ok;
@@ -91,10 +88,10 @@ reg  [3:0] bank; // 5 bits in schematics, but MSB is unused, so pruning it here
 reg  [7:0] port_in;
 wire [7:0] div_dout;
 
-jtframe_frac_cen #(.W(2),.WC(2)) u_cen(
+jtframe_frac_cen #(.W(2),.WC(3)) u_cen(
     .clk    ( clk           ),
-    .n      ( 2'd1          ),
-    .m      ( 2'd2          ),
+    .n      ( 3'd1          ),
+    .m      ( 3'd2          ),
     .cen    ( {cen12,cen24} ),
     .cenb   (               )
 );
@@ -126,6 +123,23 @@ always @* begin
               gfx2_cs ? gfx2_dout : 8'hff;
 end
 
+reg ram_wel;
+
+always @(posedge clk) begin
+    ram_wel <= ram_we;
+    if( ram_we && !ram_wel ) begin
+        $display("%02X -> %04X",cpu_dout,cpu_addr );
+    end
+end
+
+// localparam [15:0] TSTADDR=16'h14b2;
+// wire bug_wr = cpu_addr==TSTADDR && cpu_we;
+
+// always @(posedge clk) begin
+//     // if( cpu_addr=='h1006 && cpu_we ) $display("Written %X to %X",cpu_dout,cpu_addr);
+//     if( cpu_addr==TSTADDR && cpu_we ) $display("Written %X to %X",cpu_dout,cpu_addr);
+// end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         bank       <= 0;
@@ -156,17 +170,21 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+assign buserror=0;
+
 jtkcpu u_cpu(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen2   ( cen24     ),
     .cen_out( cpu_cen   ),
 
+    //.buserror(buserror  ),
+
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
-    .nmi_n  ( gfx_nmin ),
-    .irq_n  ( gfx_irqn ),
-    .firq_n (gfx_firqn ),
+    .nmi_n  ( gfx_nmin               ),
+    .irq_n  ( gfx_irqn  | ~dip_pause ),
+    .firq_n (gfx_firqn               ),
 
     // memory bus
     .din    ( cpu_din   ),

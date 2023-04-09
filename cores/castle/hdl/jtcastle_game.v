@@ -35,7 +35,7 @@ wire        gfx1_vram_cs, gfx2_vram_cs;
 wire        cpu_rnw, cpu_irqn, cpu_firqn, cpu_nmin;
 wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout;
 wire [ 1:0] video_bank;
-wire        prio;
+wire        prio, buserror;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dipsw_c    = dipsw[23:20];
@@ -47,7 +47,7 @@ always @(posedge clk) begin
         0: debug_mux <= dipsw_a;
         1: debug_mux <= dipsw_b;
         2: debug_mux <= {4'd0, dipsw_c};
-        3: debug_mux <= { 5'd0, prio, video_bank };
+        3: debug_mux <= { buserror, 4'd0, prio, video_bank };
     endcase
 end
 
@@ -110,7 +110,8 @@ jtcastle_main u_main(
     .dip_pause      ( dip_pause     ),
     .dipsw_a        ( dipsw_a       ),
     .dipsw_b        ( dipsw_b       ),
-    .dipsw_c        ( dipsw_c       )
+    .dipsw_c        ( dipsw_c       ),
+    .buserror       ( buserror      )
 );
 /* verilator tracing_off */
 jtcastle_video u_video (

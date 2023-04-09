@@ -1,0 +1,1 @@
+wpset 700,1900,w,1,{ printf "%02X -> %04X",wpdata, wpaddr; go }

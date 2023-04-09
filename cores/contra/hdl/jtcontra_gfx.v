@@ -84,7 +84,7 @@ parameter   CFGFILE="gfx_cfg.hex",
 localparam  RCNT=8, ZURECNT=32;
 
 reg         last_LVBL, last_irqn;
-wire        gfx_we;
+wire        gfx_we, gfx_rd;
 wire        done, scr_we;
 wire        vram_cs, cfg_cs;
 
@@ -172,6 +172,7 @@ assign zure_cs   = (addr>='h20 && addr<'h60 && cs);
 assign vram_cs   = addr[13] && cs;
 assign col_cs    = addr[13:12]=='b01 && cs;
 assign gfx_we    = cpu_cen & ~cpu_rnw & vram_cs;
+assign gfx_rd    = cpu_cen &  cpu_rnw & vram_cs;
 assign obj_we    = gfx_we &  addr[12];
 assign attr_we   = gfx_we & ~addr[12] & ~addr[10];
 assign code_we   = gfx_we & ~addr[12] &  addr[10];
