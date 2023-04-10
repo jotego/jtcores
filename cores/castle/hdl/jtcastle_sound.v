@@ -52,12 +52,15 @@ reg         [ 3:0]  banks;
 wire                m1_n, mreq_n, rd_n, wr_n, int_n, nmi_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, scc_cs, dac_cs, bank_cs;
 wire signed [15:0]  snd_fm;
-wire                cen_fm, cen_fm2;
+wire                cen_fm2,     // 1.8 MHz
+                    cen_fm,     //  3.6 MHz
+                    cen2_fm,    //  7.2 MHz
+                    cen4_fm;    // 14.3 MHz
 wire                cpu_cen, irq_ack;
 reg                 mem_acc, mem_upper;
 wire        [ 7:0]  div_dout;
 wire signed [11:0]  pcm_snd;
-wire signed [10:0]  scc_snd;
+wire signed [14:0]  scc_snd;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
@@ -68,10 +71,12 @@ assign irq_ack   = !m1_n && !iorq_n;
 assign pcma_addr[18:17] = banks[1:0];
 assign pcmb_addr[18:17] = banks[3:2];
 
-jtframe_cen3p57 #(.CLK24(1)) u_cen(
-    .clk        ( clk       ),
-    .cen_3p57   ( cen_fm    ),
-    .cen_1p78   ( cen_fm2   )
+jtframe_frac_cen #(.W(4),.WC(12)) u_cen(
+    .clk        ( clk       ),  // 24 MHz
+    .n          ( 12'd0735  ),  // 0.01% error
+    .m          ( 12'd2464  ),
+    .cen        ( {cen_fm2, cen_fm, cen2_fm, cen4_fm } ),
+    .cenb       (           )
 );
 
 always @(*) begin
@@ -83,8 +88,8 @@ always @(*) begin
     scc_cs    = mem_upper && A[14:12]==1; // 9xxx - 051649
     fm_cs     = mem_upper && A[14:12]==2; // Axxx
     dac_cs    = mem_upper && A[14:12]==3; // Bxxx
-    bank_cs   = mem_upper && A[14:12]==6; // Cxxx
-    latch_cs  = mem_upper && A[14:12]==6; // Dxxx
+    bank_cs   = mem_upper && A[14:12]==4; // Cxxx
+    latch_cs  = mem_upper && A[14:12]==5; // Dxxx
 
 end
 
@@ -118,7 +123,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_mixer #(.W0(16),.W1(11),.W2(12)) u_mixer(
+jtframe_mixer #(.W0(16),.W1(15),.W2(12)) u_mixer(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
@@ -172,7 +177,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rom_ok     ( rom_ok    )
 );
 
-jtopl u_opl(
+jtopl2 u_opl(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
     .cen        ( cen_fm    ),
@@ -218,7 +223,7 @@ jt007232 u_pcm(
 jt051649 u_scc(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen_fm    ),
+    .cen4       ( cen4_fm   ),
     .cs         ( scc_cs    ),
     .wrn        ( wr_n      ),
     .addr       ( {4'b1001, A[11:0] }), // bits 10-8 ignored

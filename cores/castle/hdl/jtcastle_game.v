@@ -23,7 +23,7 @@ module jtcastle_game(
 wire        snd_irq;
 
 wire [ 7:0] snd_latch;
-wire        cpu_cen, cen12, cen3, cen1p5;
+wire        cpu_cen;
 
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 3:0] dipsw_c;
@@ -51,25 +51,8 @@ always @(posedge clk) begin
     endcase
 end
 
-jtframe_cen24 u_cen(
-    .clk        ( clk24         ),    // 24 MHz
-    .cen12      ( cen12         ),
-    .cen8       (               ),
-    .cen6       (               ),
-    .cen4       (               ),
-    .cen3       ( cen3          ),
-    .cen3q      (               ), // 1/4 advanced with respect to cen3
-    .cen1p5     ( cen1p5        ),
-    // 180 shifted signals
-    .cen12b     (               ),
-    .cen6b      (               ),
-    .cen3b      (               ),
-    .cen3qb     (               ),
-    .cen1p5b    (               )
-);
-
 jtcastle_main u_main(
-    .clk            ( clk           ),        // 24 MHz
+    .clk            ( clk           ),
     .rst            ( rst           ),
     .cpu_cen        ( cpu_cen       ),
     // communication with main CPU
@@ -166,8 +149,8 @@ jtcastle_video u_video (
 /* verilator tracing_on */
 
 jtcastle_sound u_sound(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ), // 24 MHz
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),

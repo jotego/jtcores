@@ -123,14 +123,14 @@ always @* begin
               gfx2_cs ? gfx2_dout : 8'hff;
 end
 
-reg ram_wel;
+// reg ram_wel;
 
-always @(posedge clk) begin
-    ram_wel <= ram_we;
-    if( ram_we && !ram_wel ) begin
-        $display("%02X -> %04X",cpu_dout,cpu_addr );
-    end
-end
+// always @(posedge clk) begin
+//     ram_wel <= ram_we;
+//     if( ram_we && !ram_wel ) begin
+//         $display("%02X -> %04X",cpu_dout,cpu_addr );
+//     end
+// end
 
 // localparam [15:0] TSTADDR=16'h14b2;
 // wire bug_wr = cpu_addr==TSTADDR && cpu_we;
@@ -148,30 +148,33 @@ always @(posedge clk, posedge rst) begin
         port_in    <= 0;
         prio       <= 0;
         video_bank <= 0;
-    end else if( io_cs ) begin
-        case( A[4:2] )
-            0: if( cpu_we ) bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
-            1: if( cpu_we ) snd_latch <= cpu_dout;
-            2: if( cpu_we ) snd_irq   <= 1;
-            // 3: AFR in sch - watchdog
-            4: case( A[1:0] ) // COINEN in sch.
-                0: port_in <= {3'b111, start_button, service, coin_input };
-                1: port_in <= {2'b11, joystick1[5:0] };
-                2: port_in <= {2'b11, joystick2[5:0] };
-                3: port_in <= {2'b11, joystick2[6], joystick1[6], dipsw_c[3:0] };
+    end else begin
+        if(cpu_cen) snd_irq <= 0;
+        if( io_cs ) begin
+            case( A[4:2] )
+                0: if( cpu_we ) bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
+                1: if( cpu_we ) snd_latch <= cpu_dout;
+                2: if( cpu_we ) snd_irq   <= 1;
+                // 3: AFR in sch - watchdog
+                4: case( A[1:0] ) // COINEN in sch.
+                    0: port_in <= {3'b111, start_button, service, coin_input };
+                    1: port_in <= {2'b11, joystick1[5:0] };
+                    2: port_in <= {2'b11, joystick2[5:0] };
+                    3: port_in <= {2'b11, joystick2[6], joystick1[6], dipsw_c[3:0] };
+                endcase
+                5: port_in <= A[0] ? dipsw_b : dipsw_a;
+                6: begin
+                    if( cpu_we ) { prio, video_bank } <= cpu_dout[2:0];
+                    port_in <= {5'd0, prio, video_bank};
+                end
+                default: port_in <= 8'hff;
             endcase
-            5: port_in <= A[0] ? dipsw_b : dipsw_a;
-            6: begin
-                if( cpu_we ) { prio, video_bank } <= cpu_dout[2:0];
-                port_in <= {5'd0, prio, video_bank};
-            end
-            default: port_in <= 8'hff;
-        endcase
+        end
     end
 end
 
 assign buserror=0;
-
+/* verilator tracing_off */
 jtkcpu u_cpu(
     .rst    ( rst       ),
     .clk    ( clk       ),
@@ -192,5 +195,5 @@ jtkcpu u_cpu(
     .addr   ({Aupper, A}),
     .we     ( cpu_we    )
 );
-
+/* verilator tracing_on */
 endmodule

@@ -19,6 +19,10 @@ jtframe:
     get:
       - jtframe_z80.yaml
 modules:
+  other:
+    - from: jtopl/hdl
+      get:
+        - jtopl2.v
   jt:
     - name: jtopl
     - name: jtkcpu
