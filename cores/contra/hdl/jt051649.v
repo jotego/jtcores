@@ -24,7 +24,7 @@ module jt051649(
     input                cen4,  // set to 4x the frequency on schematics
     input                cs,
     input                wrn,
-    input         [15:0] addr, // bits 15-8 ignored
+    input         [15:0] addr,
     input         [ 7:0] din,
     output        [ 7:0] dout,
     output reg signed [14:0] snd    // Do not clamp at this level
@@ -32,7 +32,8 @@ module jt051649(
 
 localparam SW=12, OW=15;
 
-wire [ 7:0] cfg_dout;
+wire [ 7:0] cfg_dout, pre_dout;
+wire        cs2;
 reg  [ 7:0] test, cfg_addr, wr_addr;
 reg  [ 4:0] kon;
 reg         cpu_we, cfg_we;
@@ -62,13 +63,14 @@ always @(posedge clk) begin
 end
 `endif
 
-assign snd = 0;
-assign wav = cfg_dout;
+assign wav  = cfg_dout;
+assign cs2  = addr[15:12]==9 && addr[11];
 assign chsnd_sex = { {OW-SW{chsnd[SW-1]}}, chsnd };
+assign dout = addr[7] ? 8'hff : pre_dout;
 
 always @* begin
     wr_addr = addr[7:0];
-    cpu_we  = cs & ~wrn;
+    cpu_we  = cs & cs2 & ~wrn;
     if( addr[7] ) wr_addr[4]=0;     // the volume in the RAM cannot be reset
     if( addr[7:5]>3'b100 ) cpu_we = 0;
 end
@@ -88,7 +90,7 @@ jtframe_dual_ram #(.AW(8)) u_ram(
     .data0  ( din        ),
     .addr0  ( wr_addr    ),
     .we0    ( cpu_we     ),
-    .q0     ( dout       ),
+    .q0     ( pre_dout   ),
     // Port 1
     .clk1   ( clk        ),
     .data1  ( cfg_din    ),
@@ -101,7 +103,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         test <= 0;
         kon  <= 0;
-    end else begin
+    end else if(cs&&cs2) begin
         if( &addr[7:5] & cs & ~wrn ) test <= din;
         if(  addr[7:0]==8'h8F ) kon <= din[4:0];
     end
