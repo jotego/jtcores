@@ -61,7 +61,7 @@ wire                cpu_cen, irq_ack;
 reg                 mem_acc, mem_upper;
 wire        [ 7:0]  div_dout;
 wire signed [11:0]  pcm_snd;
-wire signed [14:0]  scc_snd;
+wire signed [10:0]  scc_snd;
 
 assign rom_addr  = A[14:0];
 assign irq_ack   = !m1_n && !iorq_n;
@@ -109,10 +109,10 @@ reg [7:0] fxgain;
 
 always @(*) begin
     case( fxlevel )
-        0: fxgain = 8'h02;
-        1: fxgain = 8'h04;
-        2: fxgain = 8'h08;
-        3: fxgain = 8'h10;
+        0: fxgain = 8'h08;
+        1: fxgain = 8'h0C;
+        2: fxgain = 8'h10;
+        3: fxgain = 8'h14;
     endcase
 end
 
@@ -124,7 +124,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_mixer #(.W0(16),.W1(15),.W2(12)) u_mixer(
+jtframe_mixer #(.W0(16),.W1(11),.W2(12)) u_mixer(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
@@ -132,9 +132,9 @@ jtframe_mixer #(.W0(16),.W1(15),.W2(12)) u_mixer(
     .ch1    ( scc_snd    ),
     .ch2    ( pcm_snd    ),
     .ch3    ( 16'd0      ),
-    .gain0  ( 8'b0 ), //debug_bus[0] ? 8'h0 : 8'h08      ),
-    .gain1  ( debug_bus[1] ? 8'h0 : 8'h20      ),
-    .gain2  ( 8'b0 ), //debug_bus[2] ? 8'h0 : fxgain     ),
+    .gain0  ( 8'h08      ),
+    .gain1  ( 8'h06      ),
+    .gain2  ( fxgain     ),
     .gain3  ( 8'd0       ),
     .mixed  ( snd        ),
     .peak   ( peak       )

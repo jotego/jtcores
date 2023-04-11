@@ -6,6 +6,7 @@ game:
       - jtcastle_video.v
       - jtcastle_sound.v
       - jtcastle_colmix.v
+      - jt051649.v
   - from: mx5k
     get:
       - jtmx5k_colmix.v
@@ -13,7 +14,6 @@ game:
     get:
       - ../cfg/common.yaml
       - jt007232.v
-      - jt051649.v
 jtframe:
   - from: cpu
     get:

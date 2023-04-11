@@ -27,31 +27,29 @@ module jt051649(
     input         [15:0] addr,
     input         [ 7:0] din,
     output        [ 7:0] dout,
-    output reg signed [14:0] snd    // Do not clamp at this level
+    output reg signed [10:0] snd    // Do not clamp at this level
 );
 
-localparam SW=8+5, OW=15;
-
-wire [ 7:0] cfg_dout, pre_dout;
+wire [ 8:0] cfg_dout, pre_dout;
 wire        cs2;
 reg  [ 7:0] test, cfg_addr, wr_addr;
 reg  [ 4:0] kon;
-reg         cpu_we, cfg_we;
+reg         cpu_we, cfg_we, sinc;
 
 // Current channel data
-reg  [ 3:0] st; // 16 states x 8 ch = 128, cen4 / 128 = cen/32
+reg  [ 2:0] st; // 8 states x 8 ch = 64, cen4 / 128 = cen/16
 reg  [ 2:0] ch;
 reg  [ 1:0] ch45;   // ch>4 ignored
-reg  [11:0] freq, cnt;
+reg  [11:0] freq, cnt, nx_cnt;
 reg  [ 3:0] vol;
 reg  [ 4:0] scnt;
-reg  [ 7:0] cfg_din;
+reg  [ 8:0] cfg_din;
 
-reg  signed [ 7:0] wav;
+wire signed [ 7:0] wav;
 wire signed [ 4:0] vol_sex;
-reg  signed [14:0] acc, acc_nx;
-wire signed [14:0] chsnd_sex;
-reg  signed [SW-1:0] chsnd;
+reg  signed [10:0] acc;
+reg  signed [11:0] acc_nx;
+reg  signed [12:0] chsnd;
 
 `ifdef SIMULATION
 reg cenl=0;
@@ -64,10 +62,10 @@ always @(posedge clk) begin
 end
 `endif
 
+assign wav  = cfg_dout[7:0];
 assign cs2  = addr[15:12]==9 && addr[11];
-assign chsnd_sex = kon[ch] ? { {OW-SW{chsnd[SW-1]}}, chsnd } : 15'd0;
 assign vol_sex = { 1'b0, vol };
-assign dout = addr[7] ? 8'hff : pre_dout;
+assign dout = addr[7] ? 8'hff : pre_dout[7:0];
 
 always @* begin
     wr_addr = addr[7:0];
@@ -84,11 +82,12 @@ end
 // 80 ~ 89 frequency data, 16-bit values, little endian
 // 8A ~ 8E volume, 4-bit values
 // A0 ~ A9 channel freq counters
-// AA ~ AE channel sample counters
-jtframe_dual_ram #(.AW(8)) u_ram(
+//         even address: low byte
+//         odd  address: sample counter, freq. cnt high nibble
+jtframe_dual_ram #(.DW(9),.AW(8)) u_ram(
     // Port 0
     .clk0   ( clk        ),
-    .data0  ( din        ),
+    .data0  ( {1'd0, din}),
     .addr0  ( wr_addr    ),
     .we0    ( cpu_we     ),
     .q0     ( pre_dout   ),
@@ -106,7 +105,7 @@ always @(posedge clk, posedge rst) begin
         kon  <= 0;
     end else if( cs && cs2 && !wrn ) begin
         if( &addr[7:5] ) test <= din;
-        if(  addr[7:0]==8'h8F ) kon <= {4'd0,din[0]};//din[4:0];
+        if(  addr[7:0]==8'h8F ) kon <= din[4:0];
     end
 end
 
@@ -115,33 +114,39 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    acc_nx  = acc + chsnd_sex;
+    acc_nx  = {acc[10], acc } + { chsnd[12], chsnd[12:2] };
+    // limiter
+    if( acc_nx[11]^acc_nx[10] ) acc_nx = { acc_nx[11], {10{~acc_nx[11]}} };
+    nx_cnt = {cfg_dout[3:0],cnt[7:0]}+12'd5;
+    if( nx_cnt >= freq ) begin
+        sinc = 1;
+        nx_cnt = nx_cnt - freq;
+    end else begin
+        sinc = 0;
+    end
+end
+
+always @* begin
     ch45    = ch[2] ? 2'd3 : ch[1:0];
     cfg_we  = 0;
-    cfg_din = cnt[7:0];
+    cfg_din = {1'd0, cnt[7:0]};
     case( st )
         0: cfg_addr = {4'h8, ch, 1'd0 }; // frequency
         1: cfg_addr = {4'h8, ch, 1'd1 };
-        2: cfg_addr = {4'hA, ch, 1'd0 }; // freq counter
-        3: cfg_addr = {4'hA, ch, 1'd1 };
-        4: cfg_addr = {4'h8, 4'hA + {1'd0,ch} };  // volume
-        5: cfg_addr = {4'hA, 4'hA + {1'd0,ch} };  // sample counter
-        6: begin
-            cfg_addr = {4'hA, 4'hA + {1'd0,ch} };  // sample counter
-            cfg_din = {3'd0, scnt};
-            cfg_we  = 1;
-        end
-        7: begin
+        2: cfg_addr = {4'h8, 4'hA + {1'd0,ch} };  // volume
+        3: cfg_addr = {4'hA, ch, 1'd0 }; // freq counter low
+        4: cfg_addr = {4'hA, ch, 1'd1 }; // freq cnt high and sample counter
+        5: begin
             cfg_addr = {4'hA, ch, 1'd0 }; // freq counter (low)
-            cfg_din = cnt[7:0];
+            cfg_din = {1'd0, cnt[7:0]};
             cfg_we  = 1;
         end
-        8: begin
-            cfg_addr = {4'hA, ch, 1'd1 }; // freq counter (high)
-            cfg_din = {4'd0,cnt[11:8]};
+        6: begin
+            cfg_addr = {4'hA, ch, 1'd1 };  // freq cnt hi, sample cnt
+            cfg_din = {scnt,cnt[11:8]};
             cfg_we  = 1;
         end
-        default: cfg_addr = { 1'd0, ch45, scnt }; // new sample
+        7: cfg_addr = { 1'd0, ch45, scnt }; // new sample
     endcase
     if( ch>4 ) cfg_we = 0;
 end
@@ -154,38 +159,34 @@ always @(posedge clk, posedge rst) begin
         scnt <= 0;
         freq <= 0;
         st   <= 0;
-        wav  <= 0;
+        snd  <= 0;
     end else if(cen4) begin
         st <= st+1'd1;
         case( st )
-            0: freq[ 7:0] <= cfg_dout;
+            0: freq[ 7:0] <= cfg_dout[7:0];
             1: freq[11:8] <= cfg_dout[3:0];
-            2:  cnt[ 7:0] <= cfg_dout;
-            3:  cnt[11:8] <= cfg_dout[3:0];
-            4:  vol       <= cfg_dout[3:0];
-            5: begin
+            2:  vol       <= cfg_dout[3:0];
+            3:  cnt[ 7:0] <= cfg_dout[7:0];
+            4: begin
                 if( !kon[ch] || freq<9 ) begin
                     cnt  <= 0;
                     scnt <= 0;
                 end else begin
-                    cnt <= cnt==freq ? 12'd0 : cnt+1'd1;
-                    scnt<= cnt==freq ? cfg_dout[4:0]+1'd1 : cfg_dout[4:0];
+                    cnt <= nx_cnt;
+                    scnt<= sinc ? cfg_dout[8:4]+1'd1 : cfg_dout[8:4];
                 end
-            // 6 - write scnt
-            // 7 - write cnt low
-            // 8 - write cnt high
+            // 5 - write cnt low
+            // 6 - write scnt, cnt high
             end
-            9: wav <= cfg_dout;
-            10: begin
+            7: begin
+                ch <= ch==4 ? 3'd0 : ch+1'd1;
                 if( ch==0 ) begin
-                    acc <= chsnd_sex;
+                    acc <= chsnd[12:2];
                     snd <= acc;
                 end else if(ch<5) begin
                     acc <= acc_nx;
                 end
             end
-            15: ch <= ch+1'd1;
-            default:;
         endcase
     end
 end
