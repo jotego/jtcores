@@ -23,6 +23,7 @@ module jtcastle_sound(
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
+    input   [ 7:0]  debug_bus,
     // ROM
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
@@ -131,9 +132,9 @@ jtframe_mixer #(.W0(16),.W1(15),.W2(12)) u_mixer(
     .ch1    ( scc_snd    ),
     .ch2    ( pcm_snd    ),
     .ch3    ( 16'd0      ),
-    .gain0  ( 8'h08      ),
-    .gain1  ( 8'h08      ),
-    .gain2  ( fxgain     ),
+    .gain0  ( 8'b0 ), //debug_bus[0] ? 8'h0 : 8'h08      ),
+    .gain1  ( debug_bus[1] ? 8'h0 : 8'h20      ),
+    .gain2  ( 8'b0 ), //debug_bus[2] ? 8'h0 : fxgain     ),
     .gain3  ( 8'd0       ),
     .mixed  ( snd        ),
     .peak   ( peak       )
@@ -176,7 +177,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-
+/* verilator tracing_off */
 jtopl2 u_opl(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
@@ -219,7 +220,7 @@ jt007232 u_pcm(
     .sndb       (           ),
     .snd        ( pcm_snd   )
 );
-
+/* verilator tracing_on */
 jt051649 u_scc(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -227,7 +228,7 @@ jt051649 u_scc(
     .cs         ( scc_cs    ),
     .wrn        ( wr_n      ),
     .addr       ( {4'b1001, A[11:0] }), // bits 10-8 ignored
-    .din        ( cpu_din   ),
+    .din        ( cpu_dout  ),
     .dout       ( scc_dout  ),
     .snd        ( scc_snd   )
 );

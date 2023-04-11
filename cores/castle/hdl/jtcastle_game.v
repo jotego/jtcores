@@ -173,7 +173,8 @@ jtcastle_sound u_sound(
     // Sound output
     .snd        ( snd           ), // channels reversed in
     .sample     ( sample        ),
-    .peak       ( game_led      )
+    .peak       ( game_led      ),
+    .debug_bus  ( debug_bus     )
 );
 
 endmodule

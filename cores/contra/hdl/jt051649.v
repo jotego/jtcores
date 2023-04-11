@@ -30,7 +30,7 @@ module jt051649(
     output reg signed [14:0] snd    // Do not clamp at this level
 );
 
-localparam SW=12, OW=15;
+localparam SW=8+5, OW=15;
 
 wire [ 7:0] cfg_dout, pre_dout;
 wire        cs2;
@@ -47,10 +47,11 @@ reg  [ 3:0] vol;
 reg  [ 4:0] scnt;
 reg  [ 7:0] cfg_din;
 
-wire signed [ 7:0] wav;
+reg  signed [ 7:0] wav;
+wire signed [ 4:0] vol_sex;
 reg  signed [14:0] acc, acc_nx;
 wire signed [14:0] chsnd_sex;
-reg  signed [11:0] chsnd;
+reg  signed [SW-1:0] chsnd;
 
 `ifdef SIMULATION
 reg cenl=0;
@@ -63,16 +64,16 @@ always @(posedge clk) begin
 end
 `endif
 
-assign wav  = cfg_dout;
 assign cs2  = addr[15:12]==9 && addr[11];
-assign chsnd_sex = { {OW-SW{chsnd[SW-1]}}, chsnd };
+assign chsnd_sex = kon[ch] ? { {OW-SW{chsnd[SW-1]}}, chsnd } : 15'd0;
+assign vol_sex = { 1'b0, vol };
 assign dout = addr[7] ? 8'hff : pre_dout;
 
 always @* begin
     wr_addr = addr[7:0];
     cpu_we  = cs & cs2 & ~wrn;
-    if( addr[7] ) wr_addr[4]=0;     // the volume in the RAM cannot be reset
-    if( addr[7:5]>3'b100 ) cpu_we = 0;
+    if( addr[7] ) wr_addr[4]=0;     // converts 90-9F to 80-8F
+    if( addr[7:4]>9 ) cpu_we = 0;
 end
 
 // RAM map
@@ -103,14 +104,14 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         test <= 0;
         kon  <= 0;
-    end else if(cs&&cs2) begin
-        if( &addr[7:5] & cs & ~wrn ) test <= din;
-        if(  addr[7:0]==8'h8F ) kon <= din[4:0];
+    end else if( cs && cs2 && !wrn ) begin
+        if( &addr[7:5] ) test <= din;
+        if(  addr[7:0]==8'h8F ) kon <= {4'd0,din[0]};//din[4:0];
     end
 end
 
 always @(posedge clk) begin
-    chsnd = wav * vol;
+    chsnd = wav * vol_sex;
 end
 
 always @* begin
@@ -153,6 +154,7 @@ always @(posedge clk, posedge rst) begin
         scnt <= 0;
         freq <= 0;
         st   <= 0;
+        wav  <= 0;
     end else if(cen4) begin
         st <= st+1'd1;
         case( st )
@@ -167,14 +169,14 @@ always @(posedge clk, posedge rst) begin
                     scnt <= 0;
                 end else begin
                     cnt <= cnt==freq ? 12'd0 : cnt+1'd1;
-                    if( cnt == freq ) scnt<=cfg_dout[4:0]+1'd1;
+                    scnt<= cnt==freq ? cfg_dout[4:0]+1'd1 : cfg_dout[4:0];
                 end
             // 6 - write scnt
             // 7 - write cnt low
             // 8 - write cnt high
             end
-            9: begin
-                ch <= ch+1'd1;
+            9: wav <= cfg_dout;
+            10: begin
                 if( ch==0 ) begin
                     acc <= chsnd_sex;
                     snd <= acc;
@@ -182,6 +184,7 @@ always @(posedge clk, posedge rst) begin
                     acc <= acc_nx;
                 end
             end
+            15: ch <= ch+1'd1;
             default:;
         endcase
     end
