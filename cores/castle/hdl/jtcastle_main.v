@@ -132,6 +132,16 @@ end
 //     end
 // end
 
+wire gfx2_we = A[15:12]==4 && cpu_we;
+reg gfx2_wel;
+
+always @(posedge clk) begin
+    gfx2_wel <= gfx2_we;
+    if( gfx2_we && !gfx2_wel ) begin
+        $display("%02X -> %04X",cpu_dout,cpu_addr );
+    end
+end
+
 // localparam [15:0] TSTADDR=16'h14b2;
 // wire bug_wr = cpu_addr==TSTADDR && cpu_we;
 

@@ -64,6 +64,7 @@ module jtcastle_video(
     output     [ 4:0]   blue,
     // Test
     input      [ 7:0]   debug_bus,
+    output reg [ 7:0]   st_dout,
     input      [ 3:0]   gfx_en
 );
 
@@ -75,7 +76,7 @@ wire        preLHBL, preLVBL;
 wire        prio_we;
 wire [ 9:0] pal_addr;
 wire [ 7:0] prio_addr;
-wire [ 7:0] prio_mux;
+wire [ 7:0] prio_mux, st_dout1, st_dout2;
 wire [ 3:0] prio_sel;
 wire        gfx1_prom_we, gfx2_prom_we;
 
@@ -90,6 +91,8 @@ assign gfx1_addr_in  = cpu_addr[13:0];
 assign gfx2_addr_in  = { ^cpu_addr[14:13], cpu_addr[12:10], (~cpu_addr[14])^cpu_addr[9], cpu_addr[8:0] };
 assign gfx1_addr[18] = video_bank[0] &  gfx1_sel;
 assign gfx2_addr[18] = video_bank[1] & ~gfx2_sel;
+
+always @(posedge clk) st_dout <= debug_bus[3] ? st_dout2 : st_dout1;
 
 jtframe_cen48 u_cen(
     .clk        ( clk       ),    // 48 MHz
@@ -156,7 +159,9 @@ jtcontra_gfx #(
     .col_cs     (               ),
     .pxl_pal    (               ),
     // Test
-    .gfx_en     ( gfx_en[1:0]   )
+    .gfx_en     ( gfx_en[1:0]   ),
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout1      )
 );
 
 jtcontra_gfx #(
@@ -206,7 +211,9 @@ jtcontra_gfx #(
     .col_cs     (               ),
     .pxl_pal    (               ),
     // Test
-    .gfx_en     ( gfx_en[3:2]   )
+    .gfx_en     ( gfx_en[3:2]   ),
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout2      )
 );
 
 jtframe_prom #(.DW(4), .AW(8)) u_prio (

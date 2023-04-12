@@ -1,1 +1,4 @@
+# print writes to RAM
 wpset 700,1900,w,1,{ printf "%02X -> %04X",wpdata, wpaddr; go }
+# print writes to GFX2
+wpset 4000,1000,w,1,{ printf "%02X -> %04X",wpdata, wpaddr; go }

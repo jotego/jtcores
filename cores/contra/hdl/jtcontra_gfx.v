@@ -67,6 +67,8 @@ module jtcontra_gfx(
     output reg [ 6:0]    pxl_out,
     output reg [ 3:0]    pxl_pal,
     // test
+    input      [ 7:0]    debug_bus,
+    output reg [ 7:0]    st_dout,
     input      [ 1:0]    gfx_en
 );
 
@@ -164,7 +166,7 @@ reg  [ 1:0] last_cs;
 // Memory map
 // 3XXX -> OBJ
 // 2XXX -> Tiles
-// 1XXX -> Col CS
+// 1XXX -> Color CS (external palette)
 // 0XXX -> CFG registers
 
 assign cfg_cs    = (addr < RCNT) && cs;
@@ -181,6 +183,10 @@ assign strip_pos = zure[ strip_addr ];
 assign LVBshort  = LVBL || vdump==15;
 
 wire [7:0] zure_cpu = zure[addr[4:0]];
+
+always @(posedge clk) begin
+    st_dout <= mmr[debug_bus[2:0]];
+end
 
 // Data bus mux. It'd be nice to latch this:
 always @(*) begin
@@ -411,8 +417,10 @@ jtcontra_gfx_tilemap u_tilemap(
     .scr_we             ( scr_we            ),
     .line_din           ( line_din          ),
     .scan_addr          ( scan_addr         ),
+    // Text mode
     .txt_en             ( txt_en            ),
     .layout             ( layout            ),
+    .no_txt             ( prio_en[1]        ),
     .txt_line           ( txt_line          ),
     .hflip_en           ( hflip_en          ),
     .vflip_en           ( vflip_en          ),
