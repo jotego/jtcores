@@ -3447,7 +3447,7 @@
     (uuid ff44f785-19bc-428a-b00f-5b75d5c74026)
   )
 
-  (hierarchical_label "CLK_ADRS" (shape output) (at 246.38 97.79 0)
+  (hierarchical_label "MAIN_CLK" (shape output) (at 246.38 97.79 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 03654faf-d1a1-437b-85b9-0db796aa2463)
   )

@@ -4155,7 +4155,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 0e044fca-054b-49a1-b65e-2db2265ce9ed)
   )
-  (hierarchical_label "CLK_ADRS" (shape input) (at 41.91 57.15 180)
+  (hierarchical_label "MAIN_CLK" (shape input) (at 41.91 57.15 180)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 0fe02194-ddc9-4cf0-abef-fc2f727f39df)
   )
