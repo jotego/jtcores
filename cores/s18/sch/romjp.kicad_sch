@@ -659,7 +659,7 @@
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 71ef5c43-339e-4c2f-bfb7-3ddfb62e94e9)
   )
-  (text "          TOP \n(POSITION BETWEEN A3~4)" (at 137.16 41.91 0)
+  (text "          TOP \n(POSITION BETWEEN MAIN_A3~4)" (at 137.16 41.91 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8d9a7a41-448d-4641-b95f-974a0ddb7475)
   )
