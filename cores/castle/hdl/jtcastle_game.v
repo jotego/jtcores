@@ -33,7 +33,7 @@ wire [15:0] cpu_addr;
 wire        gfx1_ramcs, gfx2_ramcs, gfx1_cfg_cs, gfx2_cfg_cs, pal_cs;
 wire        gfx1_vram_cs, gfx2_vram_cs;
 wire        cpu_rnw, cpu_irqn, cpu_firqn, cpu_nmin;
-wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout;
+wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout, st_video;
 wire [ 1:0] video_bank;
 wire        prio, buserror;
 
@@ -43,11 +43,11 @@ assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
 
 always @(posedge clk) begin
-    case( debug_bus[1:0] )
-        0: debug_mux <= dipsw_a;
-        1: debug_mux <= dipsw_b;
-        2: debug_mux <= {4'd0, dipsw_c};
-        3: debug_mux <= { buserror, 4'd0, prio, video_bank };
+    case( debug_bus[7:6] )
+        0: debug_mux <= st_video;
+        1: debug_mux <= dipsw_a;
+        2: debug_mux <= dipsw_b;
+        3: debug_mux <= { dipsw_c, buserror, prio, video_bank };
     endcase
 end
 
@@ -96,7 +96,7 @@ jtcastle_main u_main(
     .dipsw_c        ( dipsw_c       ),
     .buserror       ( buserror      )
 );
-/* verilator tracing_off */
+/* xxxverilator tracing_off */
 jtcastle_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -144,9 +144,9 @@ jtcastle_video u_video (
     .blue           ( blue          ),
     // Test
     .debug_bus      ( debug_bus     ),
-    .gfx_en         ( gfx_en        )
+    .gfx_en         ( gfx_en        ),
+    .st_dout        ( st_video      )
 );
-/* verilator tracing_on */
 
 jtcastle_sound u_sound(
     .rst        ( rst           ),

@@ -144,7 +144,9 @@ jtcontra_gfx #(
     .pxl_out    ( gfx1_pxl      ),
     .pxl_pal    ( gfx1_pal      ),
     // Test
-    .gfx_en     ( gfx_en[1:0]   )
+    .gfx_en     ( gfx_en[1:0]   ),
+    .debug_bus  ( 8'd0          ),
+    .st_dout    (               )
 );
 
 // The second K007121 is only used to

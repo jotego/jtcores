@@ -168,7 +168,9 @@ jtcontra_gfx #(
     .col_cs     (               ),
     .pxl_pal    (               ),
     // Test
-    .gfx_en     ( gfx_en[1:0]   )
+    .gfx_en     ( gfx_en[1:0]   ),
+    .debug_bus  ( 8'd0          ),
+    .st_dout    (               )
 );
 
 jtcontra_gfx #(
@@ -218,7 +220,9 @@ jtcontra_gfx #(
     .col_cs     (               ),
     .pxl_pal    (               ),
     // Test
-    .gfx_en     ( gfx_en[3:2]   )
+    .gfx_en     ( gfx_en[3:2]   ),
+    .debug_bus  ( 8'd0          ),
+    .st_dout    (               )
 );
 
 jtcontra_colmix #(.GAME(GAME)) u_colmix(
