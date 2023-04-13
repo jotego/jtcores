@@ -86,7 +86,7 @@ parameter   CFGFILE="gfx_cfg.hex",
 localparam  RCNT=8, ZURECNT=32;
 
 reg         last_LVBL, last_irqn;
-wire        gfx_we, gfx_rd;
+wire        gfx_we;
 wire        done, scr_we;
 wire        vram_cs, cfg_cs;
 
@@ -125,6 +125,8 @@ wire        scrwin_en  = mmr[6][3];
 wire [1:0]  pal_bank   = mmr[6][5:4];
 wire        extra_en   = 1; // there must be a bit in the MMR that turns off all the extra_bits above
                             // because Contra doesn't need them but seems to write to them
+reg no_txt;
+// wire [7:0] txt_mmr = mmr[debug_bus[5:3]];
 
 assign      { code12_sel, code11_sel, code10_sel, code9_sel } = mmr[5];
 // Other configuration
@@ -174,7 +176,6 @@ assign zure_cs   = (addr>='h20 && addr<'h60 && cs);
 assign vram_cs   = addr[13] && cs;
 assign col_cs    = addr[13:12]=='b01 && cs;
 assign gfx_we    = cpu_cen & ~cpu_rnw & vram_cs;
-assign gfx_rd    = cpu_cen &  cpu_rnw & vram_cs;
 assign obj_we    = gfx_we &  addr[12];
 assign attr_we   = gfx_we & ~addr[12] & ~addr[10];
 assign code_we   = gfx_we & ~addr[12] &  addr[10];
@@ -184,8 +185,15 @@ assign LVBshort  = LVBL || vdump==15;
 
 wire [7:0] zure_cpu = zure[addr[4:0]];
 
-always @(posedge clk) begin
-    st_dout <= mmr[debug_bus[2:0]];
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        st_dout <= 0;
+        no_txt  <= 0;
+    end else begin
+        st_dout <= mmr[debug_bus[2:0]];
+        // no_txt <= txt_mmr[debug_bus[2:0]]^debug_bus[6];
+        no_txt <= ~layout & ~strip_txt;
+    end
 end
 
 // Data bus mux. It'd be nice to latch this:
@@ -420,7 +428,7 @@ jtcontra_gfx_tilemap u_tilemap(
     // Text mode
     .txt_en             ( txt_en            ),
     .layout             ( layout            ),
-    .no_txt             ( prio_en[1]        ),
+    .no_txt             ( no_txt            ),
     .txt_line           ( txt_line          ),
     .hflip_en           ( hflip_en          ),
     .vflip_en           ( vflip_en          ),

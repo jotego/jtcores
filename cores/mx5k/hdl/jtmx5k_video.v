@@ -48,7 +48,9 @@ module jtmx5k_video(
     output     [ 4:0]   green,
     output     [ 4:0]   blue,
     // Test
-    input      [ 3:0]   gfx_en
+    input      [ 3:0]   gfx_en,
+    input      [ 7:0]   debug_bus,
+    output     [ 7:0]   st_dout
 );
 
 parameter GAME=0;
@@ -145,8 +147,8 @@ jtcontra_gfx #(
     .pxl_pal    ( gfx1_pal      ),
     // Test
     .gfx_en     ( gfx_en[1:0]   ),
-    .debug_bus  ( 8'd0          ),
-    .st_dout    (               )
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
 );
 
 // The second K007121 is only used to

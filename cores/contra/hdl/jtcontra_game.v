@@ -40,7 +40,7 @@ wire [15:0] cpu_addr;
 wire        gfx1_ramcs, gfx2_ramcs, gfx1_cfg_cs, gfx2_cfg_cs, pal_cs;
 wire        gfx1_vram_cs, gfx2_vram_cs;
 wire        cpu_cen, cpu_rnw, cpu_irqn, cpu_nmin;
-wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout;
+wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout, st_video;
 wire [ 7:0] video_bank;
 wire        prio_latch;
 
@@ -49,11 +49,11 @@ assign dipsw_c    = dipsw[23:20];
 assign debug_view = debug_mux;
 
 always @(posedge clk) begin
-    case( debug_bus[1:0] )
-        0: debug_mux <= dipsw_a;
-        1: debug_mux <= dipsw_b;
-        2: debug_mux <= {4'd0, dipsw_c};
-        3: debug_mux <= 0;
+    case( debug_bus[7:6] )
+        0: debug_mux <= st_video;
+        1: debug_mux <= dipsw_a;
+        2: debug_mux <= dipsw_b;
+        3: debug_mux <= {4'd0, dipsw_c};
     endcase
 end
 
@@ -191,7 +191,9 @@ jtcontra_video #(.GAME(GAME)) u_video (
     .green          ( green         ),
     .blue           ( blue          ),
     // Test
-    .gfx_en         ( gfx_en        )
+    .gfx_en         ( gfx_en        ),
+    .debug_bus      ( debug_bus     ),
+    .st_dout        ( st_video      )
 );
 `endif
 
