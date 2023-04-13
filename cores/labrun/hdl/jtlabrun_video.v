@@ -54,7 +54,9 @@ module jtlabrun_video(
     output     [ 4:0]   green,
     output     [ 4:0]   blue,
     // Test
-    input      [ 3:0]   gfx_en
+    input      [ 3:0]   gfx_en,
+    input      [ 7:0]   debug_bus,
+    output     [ 7:0]   st_dout
 );
 
 localparam LABRUN=0, FLANE=1;
@@ -138,8 +140,8 @@ jtcontra_gfx #(
     .pxl_pal    (               ),
     // Test
     .gfx_en     ( gfx_en[1:0]   ),
-    .debug_bus  ( 8'd0          ),
-    .st_dout    (               )
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
 );
 
 

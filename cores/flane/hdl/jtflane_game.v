@@ -31,7 +31,7 @@ wire        cpu_cen, cpu_rnw, cpu_irqn, cpu_nmin;
 wire [ 7:0] pal_dout, cpu_dout, gfx_dout;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
-assign debug_view = 0;
+assign debug_view = st_video;
 
 jtframe_cen24 u_cen(
     .clk        ( clk24         ),    // 24 MHz
@@ -155,7 +155,9 @@ u_video (
     .green          ( green         ),
     .blue           ( blue          ),
     // Test
-    .gfx_en         ( gfx_en        )
+    .gfx_en         ( gfx_en        ),
+    .debug_bus      ( debug_bus     ),
+    .st_dout        ( st_video      )
 );
 `endif
 

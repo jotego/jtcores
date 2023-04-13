@@ -86,6 +86,17 @@ Address    |   Purpose
 2000-2FFF  | VRAM
 3000-3FFF  | OBJ RAM
 
+## 00007121 Video config
+
+Byte 3 usage. Bit 3 will normally toggle every frame.
+
+Game           | Chip 1    | Chip 2  | Remarks
+---------------|-----------|---------|---------
+Contra         |   B6      |  B6     |  1st level
+Combat School  |   24      |  24     |  Scenes with no scroll
+Combat School  |   6C      |  6C     |  1st/3rd/4th levels
+Haunted Castle |   25      |  00     |  1st level
+
 ## Tilemap
 
 Attribute byte

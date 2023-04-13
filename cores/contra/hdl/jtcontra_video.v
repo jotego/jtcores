@@ -63,7 +63,9 @@ module jtcontra_video(
     output     [ 4:0]   green,
     output     [ 4:0]   blue,
     // Test
-    input      [ 3:0]   gfx_en
+    input      [ 3:0]   gfx_en,
+    input      [ 7:0]   debug_bus,
+    output reg [ 7:0]   st_dout
 );
 
 parameter GAME=0;
@@ -74,7 +76,9 @@ wire [17:0] gfx1_pre, gfx2_pre;
 wire [13:0] gfx_addr_in;
 wire        gfx1_sel, gfx2_sel;
 wire        preLHBL, preLVBL;
+wire [ 7:0] st_dout1, st_dout2;
 
+always @(posedge clk) st_dout <= debug_bus[3] ? st_dout2 : st_dout1;
 
 generate
 case( GAME )
@@ -169,8 +173,8 @@ jtcontra_gfx #(
     .pxl_pal    (               ),
     // Test
     .gfx_en     ( gfx_en[1:0]   ),
-    .debug_bus  ( 8'd0          ),
-    .st_dout    (               )
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout1      )
 );
 
 jtcontra_gfx #(
@@ -221,8 +225,8 @@ jtcontra_gfx #(
     .pxl_pal    (               ),
     // Test
     .gfx_en     ( gfx_en[3:2]   ),
-    .debug_bus  ( 8'd0          ),
-    .st_dout    (               )
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout2      )
 );
 
 jtcontra_colmix #(.GAME(GAME)) u_colmix(

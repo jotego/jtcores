@@ -34,12 +34,12 @@ wire [15:0] cpu_addr;
 wire        gfx1_ramcs, gfx2_ramcs, gfx1_cfg_cs, gfx2_cfg_cs, pal_cs;
 wire        gfx1_vram_cs, gfx2_vram_cs;
 wire        cpu_cen, cpu_rnw, cpu_irqn, cpu_nmin;
-wire [ 7:0] gfx1_dout, pal_dout, cpu_dout;
+wire [ 7:0] gfx1_dout, pal_dout, cpu_dout, st_video;
 wire [ 7:0] video_bank;
 wire        prio_latch;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
-assign debug_view = 0;
+assign debug_view = st_video;
 
 jtframe_cen24 u_cen(
     .clk        ( clk24         ),    // 24 MHz
@@ -144,7 +144,9 @@ jtmx5k_video u_video (
     .green          ( green         ),
     .blue           ( blue          ),
     // Test
-    .gfx_en         ( gfx_en        )
+    .gfx_en         ( gfx_en        ),
+    .debug_bus      ( debug_bus     ),
+    .st_dout        ( st_video      )
 );
 `endif
 
