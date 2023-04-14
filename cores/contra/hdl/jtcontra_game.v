@@ -44,8 +44,7 @@ wire [ 7:0] gfx1_dout, gfx2_dout, pal_dout, cpu_dout, st_video;
 wire [ 7:0] video_bank;
 wire        prio_latch;
 
-assign { dipsw_b, dipsw_a } = dipsw[15:0];
-assign dipsw_c    = dipsw[23:20];
+assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = debug_mux;
 
 always @(posedge clk) begin
