@@ -9946,7 +9946,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid d827ba79-c27f-42f3-94a7-1ad8cd127963)
   )
-  (hierarchical_label "XTAL24MHz" (shape input) (at 445.77 171.45 180)
+  (hierarchical_label "SND_~{CLK}" (shape input) (at 445.77 171.45 180)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid d9ba02bc-6e7d-4c64-bf60-eea9d815b681)
   )
