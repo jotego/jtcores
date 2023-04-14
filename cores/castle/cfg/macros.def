@@ -21,6 +21,7 @@ JTFRAME_PROM_START=0x2b0000
 [mist|sidi]
 # OSD credits cannot be used when
 # DIP base is less than 13
+JTFRAME_CREDITS_PAGES=4
 JTFRAME_OSD_NOCREDITS
 JTFRAME_MIST_DIPBASE=8
 
