@@ -4,65 +4,81 @@
 
   Version \C - \D
 
-    Thanks to Alfred
+      Based on the PCB
+  schematics, chip measurements
+  Furrtek's 007121 RE work
+  and MAME documentation
+  for the Konami CPU
+
+  Real chip Measurements for the
+  Konami CPU are planned and
+  the core will be updated
+  accordingly
 
         Reviewed by
     the \RJTAlpha team\W
 
  \B______ \RPRODUCERS\B _______\W
-        DJ Hard Rich
+ atrac17    DJ Hard Rich
+ Bender     LightCaster Games
 
  \B______ \RDIRECTORS\B _______\W
-A. Villena      Bender
-Blue Abs        Boogermann
+80's spaceman   A. Villena
+Bender          Blue Abs
+Boogermann      Brad
     Carlo Castagnasso
-Chris Gelatt    Darren Chell
+Chris Gelatt    Cornelle Janse
+DJ Lethal       Darren Chell
 Filip Kindt     Frederic Mahe
     Fulvio Venturelli
 James D         JaviRodasG
-Jeffrey Pierce  John Lange
-    John Smith
+Jeffrey Pierce  John Biscevic
+John Lange      John Smith
     Ksenia Anastasia
 Louis Martinez  Luke Rowe
-    Martin Birkeldh
+Martin Birkeldh Michael Yount
     Porkchop Express
     Pramod Somashekar
 Rysha           Shawn Henderson
-Tulio Adriano   Ulf Skutnabba
+Trent Reznor    Tulio Adriano
+Ulf Skutnabba
 
 
        \BThanks to\W
 \RAndrea Bogazzi  Arcade Express
-\RArjan de Lang   Ben Sanborn
-\RBob Gallardo    Brad
-\RBrian Sallee    Dan Avedikian
-\RDaniel Bauza    ER
-\R    Eric Lewis
+\RBob Gallardo    Brian Sallee
+\RDan Avedikian   Daniel Bauza
+\RER              Eric Lewis
 \R    GiRo SiNToRNiLLoS
-\RJim Weinhart    Martin Donlon
+\RJim Weinhart    Jo Tomiyori
+\RJoebot          Martin Donlon
 \R    MiSTerFPGA.co.uk
-\RPelayo Marinas  Peter Vessenes
-\RR. Martinazzo   Renaissance 2K
+\RMycah Mattox    Pelayo Marinas
+\RPeter Vessenes  R. Martinazzo
+\RRafael Vitorio  Renaissance 2K
 \RRetroWilly      Robert Moran
+\RSanborn         Syro
 \R    Tatton Partington
 \RTony Escobar    Tony Mika
-\R          Silo
+\Raoalej
 
  \B_________ AND __________\W
 ARCADEAGES      Adam Davis
-Adrian Nabarro  Andrew Francomb
+Adrian Nabarro  Andreas Wester
 Andy Palmer     Andyways
 Blackstar       Bryan Adams
-Carrboroman     Chris Doyle
-Chris Harvey    Christian
-D.J. Estreito   DMG
-Dan Bayley      Daniel Cortes
+Carrboroman     Chi Wai Tran
+Chris Doyle     Chris Harvey
+Christian       D.J. Estreito
+DMG             Dan Bayley
+Dana Ross       Daniel Cortes
 David Ashby     David Mills Jr.
 David Moylan    Dean Winger
-Don Gafford     Ed Balan
-Eduardo Javier  Edward Rana
-EmperorStorky   Gareth Jones
-Gladius         Gus Douboulidis
+Derick2k        Don Gafford
+Ed Balan        Eduardo Javier
+Edward Rana     EmperorStorky
+Gareth Jones    Gladius
+Gus Douboulidis Heihachi
     Hendrik Osterholz
     Henrik Nordstrom
     INAKI ECHEVARRIA
@@ -72,37 +88,49 @@ James Stroup    James Williams
 Jason Nagy      Jeffrey Haas
     Jerome Braconnier
 Jo le Zef       Joe Castle
-Joe Tassone     Joeri van
-John Casey      John Silva
-Jorge Slowfret  Jose Pulgar
-Joseph Hsieh    Josh O'Roake
+Joe Tassone     JoeAverage
+Joeri van       John Casey
+John Silva      Jorge Slowfret
+Jose Pulgar     Joseph Hsieh
+Josh O'Roake    Juan E. Gayon
 Juan Ramon      Juan Sandoval
 Keith F. Kelly  Krycek7o2
+Kyle Good       LAURENT LIEBEN
 Leslie Law      Lionel LENOBLE
     Luis Alvarado
     Lukas Hinterleitner
 M. Ferguson     M. Fornasini
-Marcus Hogue    Matthew Pollard
+MakeshiftMoney  Marcelo C.
+Marcus Hogue    Marcus Sid
+Martin DiPalma  Matthew Pollard
     Matthew Young
     Michael Blackman
     Michael Ferguson
 Michael Johnson Michael Thomas
 MoonZ           Nima
 Oliver Jaksch   Oscar Laguna
-Peter Bray      RetroPrez
+Per Sweden      Peter Bray
+PsyFX           RetroGameBro
+RetroPrez       Retroludo
 Richard MS      Rob Jenkins
 Robert MacLean  Robert Mullings
-Roman Buser     Shane Lynch
-Steven Wilson   The Collector
+    Roman Buser
+    Scott Redepenning
+Shane Lynch     Simon Johnstone
+Steven Wilson   StormCrow56k
+Suavek          The Collector
 Theodore Huber  Thompson Orcino
-Torren Beitler  Tym Whitney
+Tony Richardson Torren Beitler
+Tym Whitney     Ultrarobotninja
 Victor Gomariz  Vitor Duarte
 Younghoon Gong  Zachary Muske
 albertprime     amoore2600
+asdfgasfhsn     elrobertocarlos
 emerald4224     hyp36rmax
+nullobject      qzxcvbn
 taal.M
+
   ________________________
 
       - Beta version -
       Do not distribute
-
