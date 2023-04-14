@@ -75,16 +75,13 @@ wire        gfx1_sel, gfx2_sel;
 wire        preLHBL, preLVBL;
 wire        prio_we;
 wire [ 9:0] pal_addr;
-wire [ 7:0] prio_addr;
 wire [ 7:0] prio_mux, st_dout1, st_dout2;
-wire [ 3:0] prio_sel;
 wire        gfx1_prom_we, gfx2_prom_we;
 
 assign gfx1_prom_we = (prog_addr[10:9]==0) && prom_we;
 assign gfx2_prom_we = (prog_addr[10:9]==1) && prom_we;
 assign prio_we      = (prog_addr[10:9]==2) && prom_we;
 
-assign prio_addr = { prio, gfx2_pxl[4], gfx1_pxl[4], |gfx2_pxl[3:0], gfx1_pxl[3:0] };
 assign pal_addr  = { 2'd0, cpu_addr[7:0]^8'd1 };
 
 assign gfx1_addr_in  = cpu_addr[13:0];
@@ -216,16 +213,6 @@ jtcontra_gfx #(
     .st_dout    ( st_dout2      )
 );
 
-jtframe_prom #(.DW(4), .AW(8)) u_prio (
-    .clk    ( clk           ),
-    .cen    ( pxl_cen       ),
-    .data   ( prog_data     ),
-    .rd_addr( prio_addr     ),
-    .wr_addr(prog_addr[7:0] ),
-    .we     ( prio_we       ),
-    .q      ( prio_sel      )
-);
-
 // Chip ID 007327
 jtcastle_colmix u_colmix(
     .rst        ( rst           ),
@@ -239,13 +226,17 @@ jtcastle_colmix u_colmix(
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // CPU      interface
+    .prio_cfg   ( prio          ),
     .pal_cs     ( pal_cs        ),
     .cpu_rnw    ( cpu_rnw       ),
     .cpu_addr   ( pal_addr      ),
     .cpu_dout   ( cpu_dout      ),
     .pal_dout   ( pal_dout      ),
+    // PROMs
+    .prog_addr  ( prog_addr     ),
+    .prog_data  ( prog_data     ),
+    .prom_we    ( prio_we       ),
     // Colours
-    .prio       ( prio_sel[0]   ),
     .gfx1_pxl   ( gfx1_pxl      ),
     .gfx2_pxl   ( gfx2_pxl      ),
     .red        ( red           ),
