@@ -119,7 +119,7 @@ EXTRA ADDRESSING SPACE USED BY X-MEN:
 5000-57ff: layer B tilemap (code high bits)
 
 The main CPU doesn't have direct acces to the RAM used by the 052109, it has
-to through the chip.
+to go through the chip.
 */
 
 #include "emu.h"

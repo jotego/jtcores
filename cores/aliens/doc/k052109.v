@@ -228,7 +228,7 @@ FDN CC52(TRIG_NMI, 1'b0, REG1D00[0], NMI,);
 // VRAM and registers mapping / hardware configuration
 // I don't really understand how this works, but it does
 // Since this is PCB-related, it makes sense that REG1C00[4:0] is set at startup and never changed again
-wire A126;
+wire A126; // Selects RAM[2]
 assign B123 = |{CPU_VRAM_CS0, RDEN, ~REG1C00[4]};
 assign B129 = |{A126, RDEN, ~REG1C00[4]};
 assign B121 = ~REG1C00[4] & REG1C00[3];
@@ -238,10 +238,8 @@ assign A154 = ~|{CPU_VRAM_CS1, RDEN};
 assign B137 = ~&{A154, ~B119, ~B121};
 assign B143 = ~&{A154, ~B119, B121};
 assign B139 = ~&{A154, B119, ~B121};
-assign B147 = B123 & B143;
-assign B149 = B137 & B147;
 assign VD_SEL = B129 & B139;	// VRAM upper/lower read select
-assign DB_DIR = B149 & VD_SEL;
+assign DB_DIR = B137 & B123 & B143 & VD_SEL;
 
 assign REG_WR = ~RWE[1];
 
