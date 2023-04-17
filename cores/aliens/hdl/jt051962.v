@@ -36,8 +36,23 @@
 // the first one visible. These Konami chips read scroll data during blanking
 // so those extra 8 pixels needed to read data in advanced are not available
 
-// Note that for the fix layer, as it has no scroll, the shift register
-// approach is still valid
+// But the original chip gets the tile data at the pixel rate, whereas that rate
+// is hard to get with the SDRAM. It is easier to give 8-pixel margin to the
+// SDRAM to get the data from the three layers. That means 64 48MHz-clock ticks
+// to make 3 requests of about 9 ticks each, adding up to 27 ticks, or half the
+// available time. It's quite demanding but arrenging the tile data during
+// SDRAM download so the V bits go up and enabling 64-bit reads, will make the
+// cache work for most of layer A/B and some parts of the fix layer
+// That will reduce the SDRAM ticks used for tiles to about 30 out of 128
+// or ~25% instead of the ~50% without cache
+
+// If data reads require an 8-pixel margin, using a decoder would require an
+// 8-clock delay for the sub-tile indexes, or 3x2x8=48 flip flops. The color
+// bytes may also require per-pixel delay instead of per-tile.
+
+// So, I'd rather change what the tile mapper does during blanking so data can
+// be grabbed at the edge of blanking and a regular bit shifting approach
+// can be used to save flip flop count
 
 module jt051962(
     input             rst,
@@ -58,9 +73,6 @@ module jt051962(
     input      [ 7:0] lyra_col,
     input      [ 7:0] lyrb_col,
 
-    input      [ 2:0] lyra_hsub,   // original pins: { ZA4H, ZA2H, ZA1H }
-    input      [ 2:0] lyrb_hsub,   // original pins: { ZB4H, ZB2H, ZB1H }
-
     ouput      [ 8:0] hdump,    // not an output in the original
     ouput      [ 8:0] vdump,
     output            lhbl,
@@ -68,15 +80,16 @@ module jt051962(
     output            hs,
     output            vs,
 
-    output reg        lyrf_blank,
-    output reg        lyra_blank,
-    output reg        lyrb_blank,
+    output            lyrf_blnk_n,
+    output            lyra_blnk_n,
+    output            lyrb_blnk_n,
     output     [ 7:0] lyrf_pxl,
     output     [11:0] lyra_pxl,
     output     [11:0] lyrb_pxl
 );
 
-wire [3:0] pxl_a, pxl_b;
+reg  [7:0] cola_pre, colb_pre, colf_pre,
+           cola    , colb    , colf;
 
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
@@ -107,33 +120,53 @@ jtframe_vtimer #(
     .VS         ( vs        )
 );
 
-function [3:0] pxl_decod( input [2:0] sel, input [2:0] data);
-    case(sel)
-        0: pxl_decod = { data[24], data[16], data[ 8], data[0] };
-        1: pxl_decod = { data[25], data[17], data[ 9], data[1] };
-        2: pxl_decod = { data[26], data[18], data[10], data[2] };
-        3: pxl_decod = { data[27], data[19], data[11], data[3] };
-        4: pxl_decod = { data[28], data[20], data[12], data[4] };
-        5: pxl_decod = { data[29], data[21], data[13], data[5] };
-        6: pxl_decod = { data[30], data[22], data[14], data[6] };
-        7: pxl_decod = { data[31], data[23], data[15], data[7] };
-    endcase
+function [3:0] colidx( input hf, input [31:0] data );
+    colidx = hf ? {data[31],data[23],data[15],data[7]} :
+                  {data[24],data[16],data[ 8],data[0]};
 endfunction
 
-assign pxl_a = pxl_decod( lyra_hsel, lyra_data );
-assign pxl_b = pxl_decod( lyrb_hsel, lyrb_data );
-assign pxl_f = pxl_decod( lyrf_hsel, lyrf_data );
+function [31:0] shift( input hf, input [31:0] data);
+    shift = hf ? data << 1 : data >> 1;
+endfunction
 
+// Tile ROM reads by the CPU
+// This will need to include a wait state
 always @(posedge clk) begin
-    if( pxl_cen ) begin
+    case( cpu_addr )
+        2'd0: cpu_din <= lyra_data[ 7: 0];
+        2'd1: cpu_din <= lyra_data[15: 8];
+        2'd2: cpu_din <= lyra_data[23:16];
+        2'd3: cpu_din <= lyra_data[31:24];
+    endcase
+end
+assign lyra_pxl = { cola,     colidx(hflipa, pxla_data) };
+assign lyrb_pxl = { colb,     colidx(hflipb, pxlb_data) };
+assign lyrf_pxl = { colf[7:4] colidx(hflipf, pxlf_data) };
+
+assign lyra_blnk_n = lyra_pxl[3:0]!=0;
+assign lyrb_blnk_n = lyrb_pxl[3:0]!=0;
+assign lyrf_blnk_n = lyrf_pxl[3:0]!=0;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+
+    end else if( pxl_cen ) begin
         if( hdump[2:0]==0 ) begin
-            nx_cola     <= lyra_col;
-            nx_colb     <= lyrb_col;
-            nx_colf     <= lyrf_col;
-            lyra_blank  <= pxl_a==0;
-            lyrb_blank  <= pxl_b==0;
-            lyrf_blank  <= pxl_fix==0;
-            lyra_pxl[3:0] <=
+            pxla_data <= lyra_data;
+            pxlb_data <= lyrb_data;
+            pxlf_data <= lyrf_data;
+            cola_pre  <= lyra_col;
+            colb_pre  <= lyrb_col;
+            colf_pre  <= lyrf_col;
+            cola      <= cola_pre;
+            colb      <= colb_pre;
+            colf      <= colf_pre;
+            hflipa    <= (hflip_en & cola_pre[0]) ^ flip;
+            hflipb    <= (hflip_en & colb_pre[0]) ^ flip;
+        end else begin
+            pxla_data <= shift( hflipa, pxla_data );
+            pxlb_data <= shift( hflipb, pxlb_data );
+            pxlf_data <= shift( hflipf, pxlf_data );
         end
     end
 end

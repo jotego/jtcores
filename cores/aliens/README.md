@@ -8,9 +8,8 @@
 - Frame period 16.895ms => 59.18 Hz
 - Tile map bandwidth = 384x4x3/64us = 72 Mbit/s
 - Tile map 2.25 Mreq/s (SDRAM requests) = 144 req/line
-- Hcnt from 20 to 19F. 20-60 = HB (64 pixels)?
-- Vcnt from F8 to 1FF. 1F0 -> F8 -> 110 = VB (40 lines)?
-- VB start at F8
+- Hcnt from 20 to 19F. 20-60 = HB (64 pixels). 40-5A = HS
+- Vcnt from F8 to 1FF. 1F0 -> F8 -> 110 = VB. F8-100 = VS
 
 ## RAM Usage
 

@@ -34,9 +34,9 @@ module jt052109(
 
     // CPU interface
     input             we,
-    input      [ 7:0] din,      // data can be written to any RAM chip attached
-    input      [15:0] addr,
-    output            dout,     // only half data bus available upon settings
+    input      [ 7:0] cpu_dout,      // data can be written to any RAM chip attached
+    input      [15:0] cpu_addr,
+    output     [ 7:0] cpu_din,     // only half data bus available upon settings
     output            rst8,     // reset signal at 8th frame
 
     // control
@@ -59,7 +59,7 @@ module jt052109(
     output reg [12:0] fix_addr,
     output reg [12:0] lyra_addr,
     output reg [12:0] lyrb_addr,
-    output reg [ 7:0] fix_col,
+    output reg [ 7:0] lyrf_col,
     output reg [ 7:0] lyra_col,
     output reg [ 7:0] lyrb_col,
 
@@ -121,8 +121,7 @@ assign flip        = mmr[REG_FLIP][0];
 assign hflip_en    = mmr[REG_FLIP][1];
 assign vflip_en    = mmr[REG_FLIP][2];
 assign same_col_n  = cfg[5];
-assign rom_addr   = { cab, tile_lsb };
-assign {attr,code} = din;
+assign {attr,code} = scan_dout;
 assign { cscrb_en, rscrb, cscra_en, rscra } = mmr[REG_SCR];
 assign fine_row    = {mmr[REG_SCR][3], mmr[REG_SCR][0]};
 // read vpos when col scr is disabled
@@ -171,7 +170,7 @@ always @* begin
     vc = { scan_dout[7:0], vmux^{3{vflip}} };
     if( rmrd    ) begin
         col_cfg = mmr[REG_RMRD];
-        vc      = addr[12:2];
+        vc      = cpu_addr[12:2];
     end
 end
 
@@ -181,7 +180,7 @@ always @(posedge clk, posedge rst) begin
         mmr[0] <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
         mmr[4] <= 0; mmr[5] <= 0; mmr[6] <= 0; mmr[7] <= 0;
     end else begin
-        if( &{reg_we,A[12:10]} ) mmr[A[9:7]] <= din;
+        if( &{reg_we,cpu_addr[12:10]} ) mmr[cpu_addr[9:7]] <= cpu_dout;
     end
 end
 
@@ -207,7 +206,7 @@ always @(posedge clk) begin
     if( rst ) begin
         rd_rowscr <= 0;
         vaddr     <= 0;
-        fix_col   <= 0;
+        lyrf_col   <= 0;
         lyra_col  <= 0;
         lyrb_col  <= 0;
         fix_addr  <= 0;
@@ -217,7 +216,7 @@ always @(posedge clk) begin
         vaddr <= vaddr_nx;
         if(pxl_cen) case( hdump[2:1] )
             // 0: if(rd_vpos||)
-            1: begin fix_col  <= col_cfg; fix_addr  <= { cab, vc }; end
+            1: begin lyrf_col  <= col_cfg; fix_addr  <= { cab, vc }; end
             2: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
             2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
         endcase
@@ -228,7 +227,7 @@ end
 jtframe_dual_ram #(.AW(13)) u_ram(
     // Port 0: CPU
     .clk0   ( clk            ),
-    .data0  ( din            ),
+    .data0  ( cpu_dout       ),
     .addr0  ( cpu_addr[12:0] ),
     .we0    ( we[1]          ),
     .q0     ( cpu_code       ),
@@ -243,7 +242,7 @@ jtframe_dual_ram #(.AW(13)) u_ram(
 jtframe_dual_ram #(.AW(13)) u_ram(
     // Port 0: CPU
     .clk0   ( clk            ),
-    .data0  ( din            ),
+    .data0  ( cpu_dout       ),
     .addr0  ( cpu_addr[12:0] ),
     .we0    ( we[2]          ),
     .q0     ( cpu_code       ),

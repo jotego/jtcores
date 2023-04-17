@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-4-2023 */
 
-module jtaliens_scroll(
+module jtaliens_video(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -28,15 +28,14 @@ module jtaliens_scroll(
     output            vs,
 
     // CPU interface
-    input             cpu_we,
-    input      [ 7:0] cpu_dout
     input      [15:0] cpu_addr,
+    input      [ 7:0] cpu_dout
     output     [ 7:0] cpu_din,
+    input             cpu_we,
     output            rst8,     // reset signal at 8th frame
 
     // control
     input             rmrd,     // Tile ROM read mode
-    output     [ 8:0] hdump,
 
     output            irq_n,
     output            firq_n,
@@ -53,25 +52,25 @@ module jtaliens_scroll(
     input      [31:0] lyra_data,
     input      [31:0] lyrb_data,
 
-    // Final pixels
-    output            lyrf_blnk_n,
-    output            lyra_blnk_n,
-    output            lyrb_blnk_n,
-    output     [ 7:0] lyrf_pxl,
-    output     [11:0] lyra_pxl,
-    output     [11:0] lyrb_pxl
+    input      [ 3:0] gfx_en,
+    input      [ 7:0] debug_bus
 );
 
-wire [ 7:0] lyrf_col,
-            lyra_col,  lyrb_col;
-wire [ 2:0] lyra_hsub, lyrb_hsub;
-wire        hflip_en;
 wire [ 8:0] hdump;
+wire [ 7:0] lyrf_pxl;
+wire [11:0] lyra_pxl, lyrb_pxl;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n;
 
-jt052109 u_tilemap(
+jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+
+    // Base Video
+    .lhbl       ( lhbl      ),
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+    .vs         ( vs        ),
 
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
@@ -83,56 +82,23 @@ jt052109 u_tilemap(
     // control
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
 
     .irq_n      ( irq_n     ),
     .firq_n     ( firq_n    ),
     .nmi_n      ( nmi_n     ),
     .flip       ( flip      ),
-    .hflip_en   ( hflip_en  ),
 
-    // tile ROM addressing
-    // original pins: { CAB2,CAB1,VC[10:0] }
-    // [2:0] tile row (8 lines)
+
+    // Tile ROMs
     .fix_addr   ( fix_addr  ),
     .lyra_addr  ( lyra_addr ),
     .lyrb_addr  ( lyrb_addr ),
-
-    .lyrf_col   ( lyrf_col  ),
-    .lyra_col   ( lyra_col  ),
-    .lyrb_col   ( lyrb_col  ),
-
-    // subtile addressing
-    .lyra_hsub  (           ),   // original pins: { ZA4H, ZA2H, ZA1H }
-    .lyrb_hsub  (           )    // original pins: { ZB4H, ZB2H, ZB1H }
-);
-
-jt051962 u_draw(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-
-    .flip       ( flip      ),
-    .hflip_en   ( hflip_en  ),
-
-    .cpu_addr   ( cpu_addr  ),
-    .cpu_din    ( cpu_din   ),
 
     .lyrf_data  ( lyrf_data ),
     .lyra_data  ( lyra_data ),
     .lyrb_data  ( lyrb_data ),
 
-    .lyrf_col   ( lyrf_col  ),
-    .lyra_col   ( lyra_col  ),
-    .lyrb_col   ( lyrb_col  ),
-
-    .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
-    .lhbl       ( lhbl      ),
-    .lvbl       ( lvbl      ),
-    .hs         ( hs        ),
-    .vs         ( vs        ),
-
+    // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
     .lyra_blnk_n(lyra_blnk_n),
     .lyrb_blnk_n(lyrb_blnk_n),
