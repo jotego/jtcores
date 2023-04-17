@@ -53,18 +53,20 @@ module jt052109(
                                 // info was allowed to flow by means of the
                                 // BEN pin. This approach is clearer
 
-    // tile map addressing
-    output     [12:1] vaddr,
-    input      [15:0] din,
 
     // tile ROM addressing
-    output     [12:0] rom_addr, // original pins: { CAB2,CAB1,VC[10:0] }
-                                // [2:0] tile row (8 lines)
-    output reg [ 7:0] col,
+    // original pins: { CAB2,CAB1,VC[10:0] }
+    // [2:0] tile row (8 lines)
+    output reg [12:0] fix_addr,
+    output reg [12:0] lyra_addr,
+    output reg [12:0] lyrb_addr,
+    output reg [ 7:0] fix_col,
+    output reg [ 7:0] lyra_col,
+    output reg [ 7:0] lyrb_col,
 
     // subtile addressing
-    output     [ 2:0] hsub_a,   // original pins: { ZA4H, ZA2H, ZA1H }
-    output     [ 2:0] hsub_b,   // original pins: { ZB4H, ZB2H, ZB1H }
+    output     [ 2:0] lyra_hsub,   // original pins: { ZA4H, ZA2H, ZA1H }
+    output     [ 2:0] lyrb_hsub,   // original pins: { ZB4H, ZB2H, ZB1H }
 
     // config to drawing chip 051962
     output            flip_up,  // original pin: BEN
@@ -95,19 +97,25 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
 // Attr RAM mapped to the higher 8kB
 // CPU  RAM mapped in the middle of the two
 
-reg  [7:0] mmr[0:6];
-reg  [7:0] lyra_attr, lyrb_attr;
-wire [7:0] bank0, bank1,
-           code, attr, int_en;
-reg  [1:0] col_mux_a;
-reg  [1:0] cab,         // tile address MSB
-           ba_lsb,      // bank lower 2 bits
-           v8, vflip_en,
-           rscra, rscrb;// row scroll
-wire [1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
-wire       same_col_n;  // layer B uses the same attribute data as layer A
-reg        v4_l;
-reg        reg_we, cscra_en, cscrb_en;
+
+// tile map addressing
+wire [15:0] scan_dout,
+reg  [ 7:0] mmr[0:6], col_cfg,
+            vposa, vposb;
+reg  [ 8:0] hposa, hposb;
+wire [ 7:0] bank0, bank1,
+            code, attr, int_en;
+reg  [10:0] map_a, map_b;
+reg  [12:0] vaddr, vaddr_nx;
+reg  [ 1:0] col_aux;
+reg  [ 1:0] cab,         // tile address MSB
+            ba_lsb,      // bank lower 2 bits
+            v8, vflip_en,
+            rscra, rscrb;// row scroll
+wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
+wire        same_col_n;  // layer B uses the same attribute data as layer A
+reg         v4_l;
+reg         reg_we, cscra_en, cscrb_en;
 
 assign bank0       = mmr[REG_BANK0];
 assign bank1       = mmr[REG_BANK1];
@@ -119,18 +127,55 @@ assign same_col_n  = cfg[5];
 assign rom_addr   = { cab, tile_lsb };
 assign {attr,code} = din;
 assign { cscrb_en, rscrb, cscra_en, rscra } = mmr[REG_SCR];
-assign fine_row    = {mmr[REG_SCR][5], mmr[REG_SCR][2]};
+assign fine_row    = {mmr[REG_SCR][3], mmr[REG_SCR][0]};
+// read vpos when col scr is disabled
+assign rd_vpos     = |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]};
 
-always @(*) begin
-    act_col = (same_col_n & some_sel) ? lyra_attr : lyrb_attr;
-    case(act_col[3:2])
-        2'd0: {cab, ba_lsb } = bank0[3:0];
-        2'd1: {cab, ba_lsb } = bank0[7:4];
-        2'd2: {cab, ba_lsb } = bank1[3:0];
-        2'd3: {cab, ba_lsb } = bank1[7:4];
+always @* begin
+    heff_a = { {6{flip}},  1'b0, {2{flip}} } + hposa;
+    // H part of the scan
+    { map_a[5:0],hsuba_nx } =
+        { hdumpf[8:3] + heff_a[8:3], hdump[2:0] + (heff_a[2:0]^{3{flip}})};
+    { map_b[5:0],hsubb_nx } =
+        { hdumpf[8:3] + heff_b[8:3], hdump[2:0] + (heff_b[2:0]^{3{flip}})};
+    // V part of the scan
+    { map_a[10:6], vsub_a } = vdump + vposa;
+    { map_b[10:6], vsub_b } = vdump + vposb;
+    scrlyr_sel = hdump[3];
+    hdumpf = hdump^{9{flip}};
+    rd_scr = rd_rowscr
+
+    case( hdump[2:1] )
+        0: vaddr_nx = { 3'b110, rd_rowscr ?
+            {1'b1, hdump[7:3], hdump[2:0] & {3{fine_row[scrlyr_sel]}}, scrlyr_sel } :
+            {4'd0, hdumpf[8:3] + {6{flip}} } };
+        1: vaddr_nx = { 2'b01, map_a }; // tilemap A
+        2: vaddr_nx = { 2'b10, map_b }; // tilemap B
+        3: vaddr_nx = { 2'b00, vpos[7:3], hdump[8:3] }; // fix
     endcase
-    lyr_col = act_col;
-    if( cfg[5] ) lyr_col[3:2] = ba_lsb;
+end
+
+always @* begin
+    col_cfg = scan_dout[15:8];
+    case(col_cfg[3:2])
+        2'd0: { cab, col_aux } = bank0[3:0];
+        2'd1: { cab, col_aux } = bank0[7:4];
+        2'd2: { cab, col_aux } = bank1[3:0];
+        2'd3: { cab, col_aux } = bank1[7:4];
+    endcase
+    if( !cfg[5] ) col_cfg[3:2] = col_aux;
+    // ROM address
+    case( hdump[2:1] )
+        1: vmux = vsub_a;
+        2: vmux = vsub_b;
+        default:  vmux = vdump[2:0]; // this is latched in the original
+    endcase
+    vflip = col_cfg[1] & vflip_en;
+    vc = { scan_dout[7:0], vmux^{3{vflip}} };
+    if( rmrd    ) begin
+        col_cfg = mmr[REG_RMRD];
+        vc      = addr[12:2];
+    end
 end
 
 // Register map
@@ -161,30 +206,56 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @* begin
-    scrlyr_sel = hdump[3];
-    hdumpf = hdump^{9{flip}};
-    case( hdump[2:1] )
-        0: vaddr_nx = { 3'b110, rd_rowscr ?
-            {1'b1, hdump[7:3], hdump[2:0] & {3{fine_row[scrlyr_sel]}}, scrlyr_sel } :
-            {4'd0, hdumpf[8:3] + {6{flip}} } };
-        1: vaddr_nx = { 2'b01, }; // tilemap A
-        2: vaddr_nx = { 2'b10, }; // tilemap B
-        3: vaddr_nx = { 2'b00, vpos[7:3], hdump[8:3] };
-    endcase
-end
-
 always @(posedge clk) begin
     if( rst ) begin
         rd_rowscr <= 0;
+        vaddr     <= 0;
+        fix_col   <= 0;
+        lyra_col  <= 0;
+        lyrb_col  <= 0;
+        fix_addr  <= 0;
+        lyra_addr <= 0;
+        lyrb_addr <= 0;
     end else begin
+        vaddr <= vaddr_nx;
+        if(pxl_cen) case( hdump[2:1] )
+            // 0: if(rd_vpos||)
+            1: begin fix_col  <= col_cfg; fix_addr  <= { cab, vc }; end
+            2: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
+            2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
+        endcase
         rd_rowscr <= hpos<9'h60;
-        col <= rmrd ? mmr[REG_RMRD] : lyr_col;
-        tile_lsb <= rmrd ? cpu_addr[12:2] : { lyr_code, lyr_v ^ {3{vflip_en&lyr_col[1]}} };
-        // at some specific state
-        lyra_attr <= attr;
-        lyrb_attr <= attr;
     end
 end
+
+jtframe_dual_ram #(.AW(13)) u_ram(
+    // Port 0: CPU
+    .clk0   ( clk            ),
+    .data0  ( din            ),
+    .addr0  ( cpu_addr[12:0] ),
+    .we0    ( we[1]          ),
+    .q0     ( cpu_code       ),
+    // Port 1
+    .clk1   ( clk            ),
+    .data1  ( 8'd0           ),
+    .addr1  ( vaddr          ),
+    .we1    ( 1'b0           ),
+    .q1     ( scan_dout[15:8])
+);
+
+jtframe_dual_ram #(.AW(13)) u_ram(
+    // Port 0: CPU
+    .clk0   ( clk            ),
+    .data0  ( din            ),
+    .addr0  ( cpu_addr[12:0] ),
+    .we0    ( we[2]          ),
+    .q0     ( cpu_code       ),
+    // Port 1
+    .clk1   ( clk            ),
+    .data1  ( 8'd0           ),
+    .addr1  ( vaddr          ),
+    .we1    ( 1'b0           ),
+    .q1     ( scan_dout[ 7:0])
+);
 
 endmodule

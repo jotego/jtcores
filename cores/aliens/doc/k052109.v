@@ -101,8 +101,8 @@ wire [12:0] RA_MUX_C;
 // 1			01 MAP_A[10:0]							Tilemap A
 // 2			10 MAP_B[10:0]							Tilemap B
 // 3			00 ROW[7:3] PXH[8:5] PXHF[4:3]	Fixmap
-assign RA_MUX_A = ~PXH[1] ? {3'b110, SCROLL_RAM_A} : {2'b01, MAP_A[10:0]};
-assign RA_MUX_B = PXH[1] ? {2'b00, ROW[7:3], PXHF} : {2'b10, MAP_B[10:0]};
+assign RA_MUX_A = ~PXH[1] ? {3'b110, SCROLL_RAM_A} : { 2'b01, MAP_A };
+assign RA_MUX_B = PXH[1] ? {2'b00, ROW[7:3], PXHF} : { 2'b10, MAP_B };
 assign RA_MUX_C = ~PXH[2] ? RA_MUX_A : RA_MUX_B;
 assign RA = nCPU_ACCESS ? RA_MUX_C : AB[12:0];
 
@@ -387,7 +387,7 @@ end
 
 // Layer A and B scroll
 
-assign BB33 = |{PXHF[8:7], ~PXHF[6:5], PXHF[4], PXH[3]};
+assign BB33 = |{PXHF[8:7], ~PXHF[6:5], PXHF[4], PXH[3]}; // PXH=='h60
 
 assign X57 = ~|{ROW[7:0]};
 assign READ_SCROLL_A = &{~G4_Q, PXH[5], REG1C80[1] | X57, RES_SYNC};

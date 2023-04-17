@@ -138,7 +138,6 @@ Contact via:
 * https://github.com/jotego
 
 You can show your appreciation through
-* Github:
 * Patreon: https://patreon.com/jotego
 * Paypal: https://paypal.me/topapate
 
