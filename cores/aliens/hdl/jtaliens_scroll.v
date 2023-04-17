@@ -51,33 +51,10 @@ module jtaliens_scroll(
     output     [12:0] lyrb_addr,
 );
 
-jtframe_vtimer #(
-    .HCNT_START ( 9'h020    ),
-    .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h19F    ),
-    .HB_END     ( 9'h05F    ),  // 10.6 us
-    .HS_START   ( 9'h033    ),
-    .HS_END     ( 9'h04D    ),  //  4.33 us
-
-    .V_START    ( 9'h0F8    ),
-    .VB_START   ( 9'h1F0    ),
-    .VB_END     ( 9'h110    ),  //  2.56 ms
-    .VS_START   ( 9'h0FA    ),
-    .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
-) u_vtimer(
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vdump     ),
-    .vrender    (           ),
-    .vrender1   (           ),
-    .H          ( hdump     ),
-    .Hinit      (           ),
-    .Vinit      (           ),
-    .LHBL       ( lhbl      ),
-    .LVBL       ( lvbl      ),
-    .HS         ( hs        ),
-    .VS         ( vs        )
-);
+wire [ 7:0] fix_col,
+            lyra_col,  lyrb_col;
+wire [ 2:0] lyra_hsub, lyrb_hsub;
+wire        hflip_en;
 
 jt052109 u_tilemap(
     .rst        ( rst       ),
@@ -100,24 +77,21 @@ jt052109 u_tilemap(
     .firq_n     ( firq_n    ),
     .nmi_n      ( nmi_n     ),
     .flip       ( flip      ),
-
+    .hflip_en   ( hflip_en  ),
 
     // tile ROM addressing
     // original pins: { CAB2,CAB1,VC[10:0] }
     // [2:0] tile row (8 lines)
-    output reg [12:0] fix_addr,
-    output reg [12:0] lyra_addr,
-    output reg [12:0] lyrb_addr,
-    output reg [ 7:0] fix_col,
-    output reg [ 7:0] lyra_col,
-    output reg [ 7:0] lyrb_col,
+    .fix_addr   ( fix_addr  ),
+    .lyra_addr  ( lyra_addr ),
+    .lyrb_addr  ( lyrb_addr ),
+    .fix_col    ( fix_col   ),
+    .lyra_col   ( lyra_col  ),
+    .lyrb_col   ( lyrb_col  ),
 
     // subtile addressing
-    output     [ 2:0] lyra_hsub,   // original pins: { ZA4H, ZA2H, ZA1H }
-    output     [ 2:0] lyrb_hsub,   // original pins: { ZB4H, ZB2H, ZB1H }
-
-    // config to drawing chip 051962
-    output            flip_up,  // original pin: BEN
+    .lyra_hsub  ( lyra_hsub ),   // original pins: { ZA4H, ZA2H, ZA1H }
+    .lyrb_hsub  ( lyrb_hsub )    // original pins: { ZB4H, ZB2H, ZB1H }
 );
 
 endmodule

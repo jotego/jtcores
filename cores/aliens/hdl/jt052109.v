@@ -50,9 +50,8 @@ module jt052109(
     output            firq_n,
     output            nmi_n,
     output            flip,     // not a pin in the original, but the flip
-                                // info was allowed to flow by means of the
+    output            hflip_en, // info was allowed to flow by means of the
                                 // BEN pin. This approach is clearer
-
 
     // tile ROM addressing
     // original pins: { CAB2,CAB1,VC[10:0] }
@@ -66,10 +65,7 @@ module jt052109(
 
     // subtile addressing
     output     [ 2:0] lyra_hsub,   // original pins: { ZA4H, ZA2H, ZA1H }
-    output     [ 2:0] lyrb_hsub,   // original pins: { ZB4H, ZB2H, ZB1H }
-
-    // config to drawing chip 051962
-    output            flip_up,  // original pin: BEN
+    output     [ 2:0] lyrb_hsub    // original pins: { ZB4H, ZB2H, ZB1H }
 );
 
 // MMR go from 1C00 to 1F00
@@ -122,6 +118,7 @@ assign bank1       = mmr[REG_BANK1];
 assign cfg         = mmr[REG_CFG];
 assign int_en      = mmr[REG_INT];
 assign flip        = mmr[REG_FLIP][0];
+assign hflip_en    = mmr[REG_FLIP][1];
 assign vflip_en    = mmr[REG_FLIP][2];
 assign same_col_n  = cfg[5];
 assign rom_addr   = { cab, tile_lsb };
