@@ -26,8 +26,6 @@ module jtcastle_video(
     output              HS,
     output              VS,
     output              flip,
-    input               dip_pause,
-    input               start_button,
     // PROMs
     input      [10:0]   prog_addr,
     input      [ 3:0]   prog_data,

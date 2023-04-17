@@ -30,30 +30,49 @@ module jtaliens_video(
     // CPU interface
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout
-    output     [ 7:0] cpu_din,
-    input             cpu_we,
+    output     [ 7:0] pal_dout,
+    output     [ 7:0] tilemap_dout,
+    output     [ 7:0] tilerom_dout,
+    input             pal_we,
+    input             tilemap_we,
     output            rst8,     // reset signal at 8th frame
 
     // control
     input             rmrd,     // Tile ROM read mode
+    input      [ 2:0] prio_cfg,
 
-    output            irq_n,
-    output            firq_n,
-    output            nmi_n,
+    output            cpu_irq_n,
+    output            cpu_firq_n,
+    output            cpu_nmi_n,
     output            flip,
 
+    // PROMs
+    input      [ 7:0] prog_addr,
+    input      [ 1:0] prog_data,
+    input             prom_we,
 
     // Tile ROMs
     output     [12:0] fix_addr,
     output     [12:0] lyra_addr,
     output     [12:0] lyrb_addr,
 
+    output            fix_cs,
+    output            lyra_cs,
+    output            lyrb_cs,
+
     input      [31:0] lyrf_data,
     input      [31:0] lyra_data,
     input      [31:0] lyrb_data,
 
+    // Color
+    output     [ 5:0] red,
+    output     [ 5:0] green,
+    output     [ 5:0] blue,
+
+    // Debug
     input      [ 3:0] gfx_en,
-    input      [ 7:0] debug_bus
+    input      [ 7:0] debug_bus,
+    output     [ 7:0] st_dout
 );
 
 wire [ 8:0] hdump;
@@ -76,16 +95,16 @@ jtaliens_scroll u_scroll(
     .cpu_addr   ( cpu_addr  ),
     .cpu_din    ( cpu_din   ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_we     ( cpu_we    ),
+    .cpu_we     ( tilemap_we),
     .rst8       ( rst8      ),
 
     // control
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
 
-    .irq_n      ( irq_n     ),
-    .firq_n     ( firq_n    ),
-    .nmi_n      ( nmi_n     ),
+    .irq_n      ( cpu_irq_n ),
+    .firq_n     ( cpu_firq_n),
+    .nmi_n      ( cpu_nmi_n ),
     .flip       ( flip      ),
 
 
@@ -93,6 +112,10 @@ jtaliens_scroll u_scroll(
     .fix_addr   ( fix_addr  ),
     .lyra_addr  ( lyra_addr ),
     .lyrb_addr  ( lyrb_addr ),
+
+    .fix_cs     ( fix_cs    ),
+    .lyra_cs    ( lyra_cs   ),
+    .lyrb_cs    ( lyrb_cs   ),
 
     .lyrf_data  ( lyrf_data ),
     .lyra_data  ( lyra_data ),
@@ -104,7 +127,47 @@ jtaliens_scroll u_scroll(
     .lyrb_blnk_n(lyrb_blnk_n),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
-    .lyrb_pxl   ( lyrb_pxl  )
+    .lyrb_pxl   ( lyrb_pxl  ),
+
+    // Debug
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dout   ),
+);
+
+jtaliens_colmix u_colmix(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    // Base Video
+    .lhbl       ( lhbl      ),
+    .lvbl       ( lvbl      ),
+
+    input      [ 2:0] prio_cfg,
+    // CPU interface
+    .cpu_addr   ( cpu_addr  ),
+    .cpu_din    ( pal_dout  ),
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_we     ( pal_we    ),
+
+    // PROMs
+    .prog_addr  ( prog_addr ),
+    .prog_data  ( prog_data ),
+    .prom_we    ( prom_we   ),
+
+    // Final pixels
+    .lyrf_blnk_n(lyrf_blnk_n),
+    .lyra_blnk_n(lyra_blnk_n),
+    .lyrb_blnk_n(lyrb_blnk_n),
+    .lyro_blnk_n( 1'b0      ),
+    .lyrf_pxl   ( lyrf_pxl  ),
+    .lyra_pxl   ( lyra_pxl  ),
+    .lyrb_pxl   ( lyrb_pxl  ),
+    .lyro_pxl   ( 8'd0      ),
+    .red        ( red       ),
+    .green      ( green     ),
+    .blue       ( blue      )
 );
 
 endmodule

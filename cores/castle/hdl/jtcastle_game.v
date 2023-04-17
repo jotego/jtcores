@@ -106,8 +106,6 @@ jtcastle_video u_video (
     .HS             ( HS            ),
     .VS             ( VS            ),
     .flip           ( dip_flip      ),
-    .dip_pause      ( dip_pause     ),
-    .start_button   ( &start_button ),
     // PROMs
     .prom_we        ( prom_we       ),
     .prog_addr      (prog_addr[10:0]),

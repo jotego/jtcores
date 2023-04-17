@@ -31,7 +31,8 @@ module jtaliens_scroll(
     input             cpu_we,
     input      [ 7:0] cpu_dout
     input      [15:0] cpu_addr,
-    output     [ 7:0] cpu_din,
+    output     [ 7:0] tilemap_dout,
+    output     [ 7:0] tilerom_dout,
     output            rst8,     // reset signal at 8th frame
 
     // control
@@ -49,6 +50,10 @@ module jtaliens_scroll(
     output     [12:0] lyra_addr,
     output     [12:0] lyrb_addr,
 
+    output            fix_cs,
+    output            lyra_cs,
+    output            lyrb_cs,
+
     input      [31:0] lyrf_data,
     input      [31:0] lyra_data,
     input      [31:0] lyrb_data,
@@ -59,7 +64,12 @@ module jtaliens_scroll(
     output            lyrb_blnk_n,
     output     [ 7:0] lyrf_pxl,
     output     [11:0] lyra_pxl,
-    output     [11:0] lyrb_pxl
+    output     [11:0] lyrb_pxl,
+
+    // Debug
+    input      [ 3:0] gfx_en,
+    input      [ 7:0] debug_bus,
+    output     [ 7:0] st_dout
 );
 
 wire [ 7:0] lyrf_col,
@@ -68,6 +78,10 @@ wire [ 2:0] lyra_hsub, lyrb_hsub;
 wire        hflip_en;
 wire [ 8:0] hdump;
 
+assign fix_cs  = gfx_en[0];
+assign lyra_cs = gfx_en[1];
+assign lyra_cs = gfx_en[2];
+
 jt052109 u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -75,7 +89,7 @@ jt052109 u_tilemap(
 
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
-    .cpu_din    ( cpu_din   ),
+    .cpu_din    (tilemap_dout),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( cpu_we    ),
     .rst8       ( rst8      ),
@@ -104,7 +118,11 @@ jt052109 u_tilemap(
 
     // subtile addressing
     .lyra_hsub  (           ),   // original pins: { ZA4H, ZA2H, ZA1H }
-    .lyrb_hsub  (           )    // original pins: { ZB4H, ZB2H, ZB1H }
+    .lyrb_hsub  (           ),   // original pins: { ZB4H, ZB2H, ZB1H }
+
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dout   )
 );
 
 jt051962 u_draw(
@@ -116,7 +134,7 @@ jt051962 u_draw(
     .hflip_en   ( hflip_en  ),
 
     .cpu_addr   ( cpu_addr  ),
-    .cpu_din    ( cpu_din   ),
+    .cpu_din    (tilerom_dout),
 
     .lyrf_data  ( lyrf_data ),
     .lyra_data  ( lyra_data ),
@@ -138,7 +156,10 @@ jt051962 u_draw(
     .lyrb_blnk_n(lyrb_blnk_n),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
-    .lyrb_pxl   ( lyrb_pxl  )
+    .lyrb_pxl   ( lyrb_pxl  ),
+
+    // Debug
+    .gfx_en     ( gfx_en    )
 );
 
 endmodule

@@ -65,7 +65,11 @@ module jt052109(
 
     // subtile addressing
     output     [ 2:0] lyra_hsub,   // original pins: { ZA4H, ZA2H, ZA1H }
-    output     [ 2:0] lyrb_hsub    // original pins: { ZB4H, ZB2H, ZB1H }
+    output     [ 2:0] lyrb_hsub,   // original pins: { ZB4H, ZB2H, ZB1H }
+
+    // Debug
+    input      [ 7:0] debug_bus,
+    output reg [ 7:0] st_dout
 );
 
 // MMR go from 1C00 to 1F00
@@ -101,7 +105,7 @@ reg  [ 7:0] mmr[0:6], col_cfg,
 reg  [ 8:0] hposa, hposb;
 wire [ 7:0] bank0, bank1,
             code, attr, int_en;
-reg  [10:0] map_a, map_b;
+reg  [10:0] map_a, map_b, vc;
 reg  [12:0] vaddr, vaddr_nx;
 reg  [ 1:0] col_aux;
 reg  [ 1:0] cab,         // tile address MSB
@@ -177,10 +181,12 @@ end
 // Register map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        mmr[0] <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
-        mmr[4] <= 0; mmr[5] <= 0; mmr[6] <= 0; mmr[7] <= 0;
+        mmr[0]  <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
+        mmr[4]  <= 0; mmr[5] <= 0; mmr[6] <= 0; mmr[7] <= 0;
+        st_dout <= 0;
     end else begin
         if( &{reg_we,cpu_addr[12:10]} ) mmr[cpu_addr[9:7]] <= cpu_dout;
+        st_dout <= mmr[debug_bus[2:0]];
     end
 end
 
@@ -216,7 +222,7 @@ always @(posedge clk) begin
         vaddr <= vaddr_nx;
         if(pxl_cen) case( hdump[2:1] )
             // 0: if(rd_vpos||)
-            1: begin lyrf_col  <= col_cfg; fix_addr  <= { cab, vc }; end
+            1: begin lyrf_col <= col_cfg; fix_addr  <= { cab, vc }; end
             2: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
             2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
         endcase

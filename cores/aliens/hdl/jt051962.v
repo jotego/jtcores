@@ -85,7 +85,9 @@ module jt051962(
     output            lyrb_blnk_n,
     output     [ 7:0] lyrf_pxl,
     output     [11:0] lyra_pxl,
-    output     [11:0] lyrb_pxl
+    output     [11:0] lyrb_pxl,
+
+    input      [ 3:0] gfx_en
 );
 
 reg  [7:0] cola_pre, colb_pre, colf_pre,
@@ -139,13 +141,13 @@ always @(posedge clk) begin
         2'd3: cpu_din <= lyra_data[31:24];
     endcase
 end
+assign lyrf_pxl = { colf[7:4] colidx(hflipf, pxlf_data) };
 assign lyra_pxl = { cola,     colidx(hflipa, pxla_data) };
 assign lyrb_pxl = { colb,     colidx(hflipb, pxlb_data) };
-assign lyrf_pxl = { colf[7:4] colidx(hflipf, pxlf_data) };
 
-assign lyra_blnk_n = lyra_pxl[3:0]!=0;
-assign lyrb_blnk_n = lyrb_pxl[3:0]!=0;
-assign lyrf_blnk_n = lyrf_pxl[3:0]!=0;
+assign lyrf_blnk_n = lyrf_pxl[3:0]!=0 & gfx_en[0];
+assign lyra_blnk_n = lyra_pxl[3:0]!=0 & gfx_en[1];
+assign lyrb_blnk_n = lyrb_pxl[3:0]!=0 & gfx_en[2];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
