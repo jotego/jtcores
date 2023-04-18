@@ -286,7 +286,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_dual_ram #(.AW(13)) u_attr(
+jtframe_dual_ram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),
@@ -301,7 +301,7 @@ jtframe_dual_ram #(.AW(13)) u_attr(
     .q1     ( scan_dout[15:8])
 );
 
-jtframe_dual_ram #(.AW(13)) u_code(
+jtframe_dual_ram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),

@@ -79,7 +79,11 @@ always @(posedge clk) begin
         green    <= 0;
         blue     <= 0;
     end else begin
-        pxl_aux  <= { pxl_aux[6:0], pal_dout };
+`ifndef GRAY
+        pxl_aux <= { pxl_aux[6:0], pal_dout };
+`else
+        pxl_aux <= {3{pxl[4:0]}};
+`endif
         if( pxl_cen ) begin
             {blue,green,red} <= (lvbl & lhbl ) ? pxl_aux : 15'd0;
             pal_half <= 1;

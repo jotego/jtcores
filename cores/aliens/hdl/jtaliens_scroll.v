@@ -82,9 +82,9 @@ assign lyrf_cs = gfx_en[0];
 assign lyra_cs = gfx_en[1];
 assign lyrb_cs = gfx_en[2];
 
-assign lyrf_addr = { pre_f[11], lyrf_col[5:0], pre_f[10:0] };
-assign lyra_addr = { pre_a[11], lyra_col[5:0], pre_a[10:0] };
-assign lyrb_addr = { pre_b[11], lyrb_col[5:0], pre_b[10:0] };
+assign lyrf_addr = { pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
+assign lyra_addr = { pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
+assign lyrb_addr = { pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
 
 jt052109 u_tilemap(
     .rst        ( rst       ),
