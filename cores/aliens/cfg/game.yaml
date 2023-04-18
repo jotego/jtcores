@@ -12,7 +12,13 @@ game:
   # - from: contra
   #   get:
   #     - jt007232.v
-# jtframe:
+jtframe:
+    - from: video
+      get:
+        - jtframe_vtimer.v
+    - from: sdram
+      get:
+        - jtframe_dwnld.v
 #   - from: cpu
 #     get:
 #       - jtframe_z80.yaml

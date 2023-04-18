@@ -27,7 +27,7 @@ sdram:
     -
       buses:
         -
-          name: fix
+          name: lyrf
           addr_width: 21
           data_width: 32
         -

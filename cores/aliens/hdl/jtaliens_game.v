@@ -31,15 +31,33 @@ reg  [ 7:0] debug_mux;
 
 wire [15:0] cpu_addr;
 wire        pal_we=0, tilemap_we=0;
-wire        gfx1_vram_cs, gfx2_vram_cs;
-wire        cpu_rnw, cpu_irqn, cpu_firqn, cpu_nmin;
-wire [ 7:0] tilemap_dout, obj_dout, pal_dout, cpu_dout, st_video;
+wire        cpu_rnw, cpu_irq_n, cpu_firq_n, cpu_nmi_n;
+wire [ 7:0] tilemap_dout, tilerom_dout,
+            obj_dout, pal_dout, cpu_dout, st_video;
 wire [ 2:0] prio;
+wire        rmrd, rst8;
 // wire        buserror;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = debug_mux;
-assign ram_din    = cpu_dout;
+// assign ram_din    = cpu_dout;
+assign cpu_dout   = 0;
+assign cpu_addr   = 0;
+assign pal_we     = 0;
+assign prio       = 0;
+assign tilemap_we = 0;
+assign rmrd       = 0;
+assign snd_addr   = 0;
+assign snd_cs     = 0;
+assign pcma_cs    = 0;
+assign pcmb_cs    = 0;
+assign pcma_addr  = 0;
+assign pcmb_addr  = 0;
+assign main_cs    = 0;
+assign main_addr  = 0;
+assign game_led   = 0;
+assign sample     = 0;
+assign snd        = 0;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -61,42 +79,45 @@ end
 /* xxxverilator tracing_off */
 jtaliens_video u_video (
     .rst            ( rst           ),
+    .rst8           ( rst8          ),
     .clk            ( clk           ),
-    .pxl2_cen       ( pxl2_cen      ),
     .pxl_cen        ( pxl_cen       ),
-    .LHBL           ( LHBL          ),
-    .LVBL           ( LVBL          ),
-    .HS             ( HS            ),
-    .VS             ( VS            ),
+    .lhbl           ( LHBL          ),
+    .lvbl           ( LVBL          ),
+    .hs             ( HS            ),
+    .vs             ( VS            ),
     .flip           ( dip_flip      ),
     // PROMs
     .prom_we        ( prom_we       ),
-    .prog_addr      (prog_addr[10:0]),
-    .prog_data      ( prog_data[3:0]),
+    .prog_addr      (prog_addr[ 7:0]),
+    .prog_data      ( prog_data[1:0]),
     // GFX - CPU interface
-    .cpu_firqn      ( cpu_firqn     ),
-    .cpu_irqn       ( cpu_irqn      ),
-    .cpu_nmin       ( cpu_nmin      ),
-
     .tilemap_we     ( tilemap_we    ),
     .pal_we         ( pal_we        ),
     .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( cpu_dout      ),
     .tilemap_dout   ( tilemap_dout  ),
+    .tilerom_dout   ( tilerom_dout  ),
     // .gfx2_dout      ( gfx2_dout     ),
     .pal_dout       ( pal_dout      ),
-    .video_bank     ( video_bank    ),
     .prio_cfg       ( prio          ),
+    .rmrd           ( rmrd          ),
+    .cpu_irq_n      ( cpu_irq_n     ),
+    .cpu_firq_n     ( cpu_firq_n    ),
+    .cpu_nmi_n      ( cpu_nmi_n     ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
-    .fix_addr       ( fix_addr      ),
+    .lyrf_addr      ( lyrf_addr     ),
+    .lyro_addr      ( lyro_addr     ),
     .lyra_data      ( lyra_data     ),
     .lyrb_data      ( lyrb_data     ),
+    .lyro_data      ( lyro_data     ),
     .lyrf_data      ( lyrf_data     ),
-    .fix_cs         ( fix_cs        ),
+    .lyrf_cs        ( lyrf_cs       ),
     .lyra_cs        ( lyra_cs       ),
     .lyrb_cs        ( lyrb_cs       ),
+    .lyro_cs        ( lyro_cs       ),
     // pixels
     .red            ( red           ),
     .green          ( green         ),

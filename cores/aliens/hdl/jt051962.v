@@ -63,7 +63,7 @@ module jt051962(
     input             hflip_en,
 
     input      [ 1:0] cpu_addr,
-    output     [ 7:0] cpu_din,
+    output reg [ 7:0] cpu_din,
 
     input      [31:0] lyrf_data,
     input      [31:0] lyra_data,
