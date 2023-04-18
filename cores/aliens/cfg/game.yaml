@@ -9,14 +9,14 @@ game:
       - jtaliens_colmix.v
       - jt052109.v
       - jt051962.v
-  - from: contra
-    get:
-      - jt007232.v
-jtframe:
-  - from: cpu
-    get:
-      - jtframe_z80.yaml
-modules:
-  jt:
-    - name: jtkcpu
+  # - from: contra
+  #   get:
+  #     - jt007232.v
+# jtframe:
+#   - from: cpu
+#     get:
+#       - jtframe_z80.yaml
+# modules:
+#   jt:
+#     - name: jtkcpu
 

@@ -73,8 +73,8 @@ module jt051962(
     input      [ 7:0] lyra_col,
     input      [ 7:0] lyrb_col,
 
-    ouput      [ 8:0] hdump,    // not an output in the original
-    ouput      [ 8:0] vdump,
+    output     [ 8:0] hdump,    // not an output in the original
+    output     [ 8:0] vdump,
     output            lhbl,
     output            lvbl,
     output            hs,
@@ -92,6 +92,8 @@ module jt051962(
 
 reg  [7:0] cola_pre, colb_pre, colf_pre,
            cola    , colb    , colf;
+reg [31:0] pxlf_data, pxla_data, pxlb_data;
+reg        hflipa, hflipb;
 
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
@@ -141,7 +143,7 @@ always @(posedge clk) begin
         2'd3: cpu_din <= lyra_data[31:24];
     endcase
 end
-assign lyrf_pxl = { colf[7:4] colidx(hflipf, pxlf_data) };
+assign lyrf_pxl = { colf[7:4],colidx(  flip, pxlf_data) };
 assign lyra_pxl = { cola,     colidx(hflipa, pxla_data) };
 assign lyrb_pxl = { colb,     colidx(hflipb, pxlb_data) };
 
@@ -168,7 +170,7 @@ always @(posedge clk, posedge rst) begin
         end else begin
             pxla_data <= shift( hflipa, pxla_data );
             pxlb_data <= shift( hflipb, pxlb_data );
-            pxlf_data <= shift( hflipf, pxlf_data );
+            pxlf_data <= shift(  flip , pxlf_data );
         end
     end
 end

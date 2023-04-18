@@ -65,9 +65,9 @@ module jtaliens_video(
     input      [31:0] lyrb_data,
 
     // Color
-    output     [ 5:0] red,
-    output     [ 5:0] green,
-    output     [ 5:0] blue,
+    output     [ 4:0] red,
+    output     [ 4:0] green,
+    output     [ 4:0] blue,
 
     // Debug
     input      [ 3:0] gfx_en,
@@ -79,6 +79,9 @@ wire [ 8:0] hdump;
 wire [ 7:0] lyrf_pxl;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n;
+wire        prio_we;
+
+assign prio_we = prom_we & ~prog_addr[7];
 
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
@@ -152,9 +155,9 @@ jtaliens_colmix u_colmix(
     .cpu_we     ( pal_we    ),
 
     // PROMs
-    .prog_addr  ( prog_addr ),
+    .prog_addr  (prog_addr[6:0]),
     .prog_data  ( prog_data ),
-    .prom_we    ( prom_we   ),
+    .prom_we    ( prio_we   ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),

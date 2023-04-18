@@ -33,7 +33,7 @@ module jt052109(
     input             pxl_cen,
 
     // CPU interface
-    input             we,
+    input             cpu_we,
     input      [ 7:0] cpu_dout,      // data can be written to any RAM chip attached
     input      [15:0] cpu_addr,
     output     [ 7:0] cpu_din,     // only half data bus available upon settings
@@ -62,10 +62,6 @@ module jt052109(
     output reg [ 7:0] lyrf_col,
     output reg [ 7:0] lyra_col,
     output reg [ 7:0] lyrb_col,
-
-    // subtile addressing
-    output     [ 2:0] lyra_hsub,   // original pins: { ZA4H, ZA2H, ZA1H }
-    output     [ 2:0] lyrb_hsub,   // original pins: { ZB4H, ZB2H, ZB1H }
 
     // Debug
     input      [ 7:0] debug_bus,
@@ -99,19 +95,24 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
 
 
 // tile map addressing
-wire [15:0] scan_dout,
-reg  [ 7:0] mmr[0:6], col_cfg,
-            vposa, vposb;
-reg  [ 8:0] hposa, hposb;
+wire [15:0] scan_dout;
+reg  [ 7:0] mmr[0:6], col_cfg, cfg,
+            vposa, vposb,
+            vflip, vflip_en;
+reg  [ 8:0] hposa, hposb, heff_a, heff_b, flipk;
 wire [ 7:0] bank0, bank1,
-            code, attr, int_en;
+            code, attr, int_en,
+            cpu_attr, cpu_code;
+wire [ 8:0] hdumpf;
 reg  [10:0] map_a, map_b, vc;
 reg  [12:0] vaddr, vaddr_nx;
 reg  [ 1:0] col_aux;
 reg  [ 1:0] cab,         // tile address MSB
             ba_lsb,      // bank lower 2 bits
-            v8, vflip_en,
+            v8,
             rscra, rscrb;// row scroll
+reg  [ 2:1] we;
+reg  [ 2:0] vsub_a, vsub_b, vmux, cs, nc;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
 wire        same_col_n;  // layer B uses the same attribute data as layer A
 reg         v4_l;
@@ -131,41 +132,65 @@ assign fine_row    = {mmr[REG_SCR][3], mmr[REG_SCR][0]};
 // read vpos when col scr is disabled
 assign rd_vpos     = |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]};
 
+reg [5:0] range;
+// CPU Memory Mapper
 always @* begin
-    heff_a = { {6{flip}},  1'b0, {2{flip}} } + hposa;
+    casez( cpu_addr[15:13] )
+        0: range <= 6'b111110;    // 0000~1FFF
+        1: range <= 6'b111101;    // 2000~3FFF
+        2: range <= 6'b111011;    // 4000~5FFF
+        3: range <= 6'b110111;    // 6000~7FFF
+        4: range <= 6'b101111;    // 8000~9FFF
+        5: range <= 6'b011111;    // A000~BFFF
+        default: range <= 6'b111111;
+    endcase
+    cs[0] = range[5:2][~cfg[1:0]];
+    cs[1] = range[3:0][~cfg[1:0]];
+    cs[2] = range[4:1][~cfg[1:0]];
+    // WARNING: these are external connections and could change on
+    // some games. If so, cs[2:0] should go out and re-tied at an upper level
+    cpu_din = cs[1] ? cpu_attr : cpu_code;
+    we[1]   = cs[1] & cpu_we;
+    we[2]   = cs[2] & cpu_we;
+end
+
+always @* begin
+    flipk  = { {6{flip}},  1'b0, {2{flip}} };
+    heff_a = flipk + hposa;
+    heff_b = flipk + hposb;
     // H part of the scan
-    { map_a[5:0],hsuba_nx } =
+    { map_a[5:0], nc } =
         { hdumpf[8:3] + heff_a[8:3], hdump[2:0] + (heff_a[2:0]^{3{flip}})};
-    { map_b[5:0],hsubb_nx } =
+    { map_b[5:0], nc } =
         { hdumpf[8:3] + heff_b[8:3], hdump[2:0] + (heff_b[2:0]^{3{flip}})};
     // V part of the scan
     { map_a[10:6], vsub_a } = vdump + vposa;
     { map_b[10:6], vsub_b } = vdump + vposb;
     scrlyr_sel = hdump[3];
     hdumpf = hdump^{9{flip}};
-    rd_scr = rd_rowscr
+    rd_scr = rd_rowscr;
 
-    case( hdump[2:1] )
-        0: vaddr_nx = { 3'b110, rd_rowscr ?
-            {1'b1, hdump[7:3], hdump[2:0] & {3{fine_row[scrlyr_sel]}}, scrlyr_sel } :
-            {4'd0, hdumpf[8:3] + {6{flip}} } };
+    case( hdump[1:0] )
+        0: vaddr_nx = { 2'b00, vdump[7:3], hdump[8:3] }; // fix
         1: vaddr_nx = { 2'b01, map_a }; // tilemap A
         2: vaddr_nx = { 2'b10, map_b }; // tilemap B
-        3: vaddr_nx = { 2'b00, vpos[7:3], hdump[8:3] }; // fix
+        3: vaddr_nx = { 3'b110, rd_rowscr ?
+            {1'b1, hdump[7:3], hdump[2:0] & {3{fine_row[scrlyr_sel]}}, scrlyr_sel } :
+            {4'd0, hdumpf[8:3] + {6{flip}} } };
     endcase
 end
 
 always @* begin
     col_cfg = scan_dout[15:8];
     case(col_cfg[3:2])
-        2'd0: { cab, col_aux } = bank0[3:0];
-        2'd1: { cab, col_aux } = bank0[7:4];
-        2'd2: { cab, col_aux } = bank1[3:0];
-        2'd3: { cab, col_aux } = bank1[7:4];
+        0: { cab, col_aux } = bank0[3:0];
+        1: { cab, col_aux } = bank0[7:4];
+        2: { cab, col_aux } = bank1[3:0];
+        3: { cab, col_aux } = bank1[7:4];
     endcase
     if( !cfg[5] ) col_cfg[3:2] = col_aux;
     // ROM address
-    case( hdump[2:1] )
+    case( hdump[1:0] )
         1: vmux = vsub_a;
         2: vmux = vsub_b;
         default:  vmux = vdump[2:0]; // this is latched in the original
@@ -197,7 +222,7 @@ always @(posedge clk, posedge rst) begin
         v8     <= 0;
         irq_n  <= 0;
         firq_n <= 0;
-        nirq_n <= 0;
+        nmi_n  <= 0;
     end else if( pxl_cen ) begin
         v4_l <= vdump[2];
         if( vdump[2] && !v4_l ) v8 <= v8+2'd1;
@@ -220,23 +245,22 @@ always @(posedge clk) begin
         lyrb_addr <= 0;
     end else begin
         vaddr <= vaddr_nx;
-        if(pxl_cen) case( hdump[2:1] )
-            // 0: if(rd_vpos||)
-            1: begin lyrf_col <= col_cfg; fix_addr  <= { cab, vc }; end
-            2: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
+        if(pxl_cen) case( hdump[1:0] )
+            0: begin lyrf_col <= col_cfg; fix_addr  <= { cab, vc }; end
+            1: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
             2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
         endcase
         rd_rowscr <= hpos<9'h60;
     end
 end
 
-jtframe_dual_ram #(.AW(13)) u_ram(
+jtframe_dual_ram #(.AW(13)) u_attr(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),
     .addr0  ( cpu_addr[12:0] ),
     .we0    ( we[1]          ),
-    .q0     ( cpu_code       ),
+    .q0     ( cpu_attr       ),
     // Port 1
     .clk1   ( clk            ),
     .data1  ( 8'd0           ),
@@ -245,7 +269,7 @@ jtframe_dual_ram #(.AW(13)) u_ram(
     .q1     ( scan_dout[15:8])
 );
 
-jtframe_dual_ram #(.AW(13)) u_ram(
+jtframe_dual_ram #(.AW(13)) u_code(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),

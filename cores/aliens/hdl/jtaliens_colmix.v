@@ -28,14 +28,14 @@ module jtaliens_colmix(
     input      [ 2:0] prio_cfg,
     // CPU interface
     input             cpu_we,
-    input      [ 7:0] cpu_dout
+    input      [ 7:0] cpu_dout,
     input      [ 9:0] cpu_addr,
     output     [ 7:0] cpu_din,
 
     // PROMs
-    input      [ 7:0]   prog_addr,
-    input      [ 1:0]   prog_data,
-    input               prom_we,
+    input      [ 6:0] prog_addr,
+    input      [ 1:0] prog_data,
+    input             prom_we,
 
     // Final pixels
     input             lyrf_blnk_n,
@@ -46,16 +46,18 @@ module jtaliens_colmix(
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
     input      [ 7:0] lyro_pxl,
-    output reg [ 5:0] red,
-    output reg [ 5:0] green,
-    output reg [ 5:0] blue
+    output reg [ 4:0] red,
+    output reg [ 4:0] green,
+    output reg [ 4:0] blue
 );
 
-wire [1:0] prio_sel;
-wire [7:0] prio_addr;
-reg        pal_half;
-reg  [7:0] pxl;
-wire [9:0] pal_addr;
+wire [ 1:0] prio_sel;
+wire [ 7:0] pal_dout;
+wire [ 6:0] prio_addr;
+reg         pal_half;
+reg  [ 7:0] pxl;
+reg  [14:0] pxl_aux;
+wire [ 9:0] pal_addr;
 
 assign prio_addr = { prio_cfg[0], prio_cfg[1], prio_cfg[2],
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
@@ -77,7 +79,7 @@ always @(posedge clk) begin
         green    <= 0;
         blue     <= 0;
     end else begin
-        pxl_aux  <= { pxl_aux[6:0], col_data };
+        pxl_aux  <= { pxl_aux[6:0], pal_dout };
         if( pxl_cen ) begin
             {blue,green,red} <= (lvbl & lhbl ) ? pxl_aux : 15'd0;
             pal_half <= 1;
@@ -86,7 +88,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_prom #(.DW(2), .AW(8)) u_prio (
+jtframe_prom #(.DW(2), .AW(7)) u_prio (
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prog_data     ),

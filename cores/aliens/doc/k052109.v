@@ -263,12 +263,14 @@ end
 REG1C00_D[1:0]:
 
         Regs
-   RWE0 RWE1
-   VCS0 VCS1 RWE2
+   RWE0 RWE1 RWE2
+   VCS0 VCS1
 00 A~B  6~7  8~9  Reset state
 01 8~9  4~5  6~7
 10 6~7  2~3  4~5
 11 4~5  0~1  2~3  TMNT setting
+
+VCS2 is not a pin. RAM's CS is always tied down
 */
 
 T5A A111(range[2], range[3], range[5], range[4], REG1C00[0], REG1C00[1], A111_OUT);

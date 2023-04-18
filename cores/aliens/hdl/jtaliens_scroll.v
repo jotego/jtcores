@@ -116,10 +116,6 @@ jt052109 u_tilemap(
     .lyra_col   ( lyra_col  ),
     .lyrb_col   ( lyrb_col  ),
 
-    // subtile addressing
-    .lyra_hsub  (           ),   // original pins: { ZA4H, ZA2H, ZA1H }
-    .lyrb_hsub  (           ),   // original pins: { ZB4H, ZB2H, ZB1H }
-
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )
