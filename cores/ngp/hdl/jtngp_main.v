@@ -26,11 +26,25 @@ wire [23:0] addr;
 wire [15:0] dout;
 wire [ 1:0] we;
 wire [ 2:0] intrq;
+wire        cpu_cen; // 6.144 MHz
+
+function in_range( input [23:0] min, max );
+    in_range = addr>=min && addr<max;
+endfunction
+
+always @* begin
+    io_cs     = in_range(24'h00_0080, 24'h00_00c0);
+    ram_cs    = in_range(24'h00_4000, 24'h00_8000);
+    gfx_cs    = in_range(24'h00_8000, 24'h00_c000);
+    flash0_cs = in_range(24'h20_0000, 24'h40_0000);
+    flash1_cs = in_range(24'h80_0000, 24'hA0_0000);
+    rom_cs    = in_range(24'hFF_0000, 24'h00_0000);
+end
 
 jt900h u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    input             cen,
+    .cen        ( cpu_cen   ),
 
     .addr       ( addr      ),
     .din        ( din       ),
