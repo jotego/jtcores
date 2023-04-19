@@ -14,32 +14,39 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 23-12-2018 */
+    Date: 19-3-2023 */
 
-module jtgng_dual_ram #(parameter DW=8, AW=10, SIMFILE="")(
-    input           clk,
-    input           clk_en,
-    input  [DW-1:0] data,
-    input  [AW-1:0] rd_addr,
-    input  [AW-1:0] wr_addr,
-    input           we,
-    output [DW-1:0] q
+module jtngp_main(
+    input             rst,
+    input             clk,
 );
 
-    jtframe_dual_ram #(.DW(DW),.AW(AW),.SIMFILE(SIMFILE))
-    u_ram(
-        .clk0   ( clk       ),
-        .clk1   ( clk       ),
-        // Port 0
-        .data0  ( data      ),
-        .addr0  ( wr_addr   ),
-        .we0    ( we & clk_en ),
-        .q0     (           ),
-        // Port 1
-        .data1  (           ),
-        .addr1  ( rd_addr   ),
-        .we1    ( 1'b0      ),
-        .q1     ( q         )
-    );
+reg  [15:0] din;
+wire [23:0] addr;
+wire [15:0] dout;
+wire [ 1:0] we;
+wire [ 2:0] intrq;
+
+jt900h u_cpu(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    input             cen,
+
+    .addr       ( addr      ),
+    .din        ( din       ),
+    .dout       ( dout      ),
+    .we         ( we        ),
+
+    .intrq      ( intrq     ),     // interrupt request
+    // Register dump
+    .dmp_addr   (           ),     // dump
+    .dmp_dout   (           )
+    `ifdef SIMULATION
+    .sim_xix    (           ),
+    .sim_xiy    (           ),
+    .sim_xiz    (           ),
+    .sim_xsp    (           )
+    `endif
+);
 
 endmodule

@@ -80,7 +80,7 @@ wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS,
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
 test_harness #(.sdram_instance(0),
-    .GAME_ROMNAME("../../../rom/JTGNG.rom"),
+    .GAME_ROMNAME("../../../rom/JTCORES.rom"),
     .TX_LEN(32'h10000))
 u_harness(
     .rst         ( rst           ),

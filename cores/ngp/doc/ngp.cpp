@@ -48,43 +48,43 @@ to the block.
 
 The relation between block number and flash chip is as follows:
 
- # |  16Mbit (2f)  |  8Mbit (2c) |  4Mbit (ab)
----+---------------+-------------+-------------
- 0 | 000000-00ffff | 00000-0ffff | 00000-0ffff
- 1 | 010000-01ffff | 10000-1ffff | 10000-1ffff
- 2 | 020000-02ffff | 20000-2ffff | 20000-2ffff
- 3 | 030000-03ffff | 30000-3ffff | 30000-3ffff
- 4 | 040000-01ffff | 40000-4ffff | 40000-4ffff
- 5 | 050000-01ffff | 50000-5ffff | 50000-5ffff
- 6 | 060000-01ffff | 60000-6ffff | 60000-6ffff
- 7 | 070000-01ffff | 70000-7ffff | 70000-77fff
- 8 | 080000-01ffff | 80000-8ffff | 78000-79fff
- 9 | 090000-01ffff | 90000-9ffff | 7a000-7bfff
-10 | 0a0000-01ffff | a0000-affff | 7c000-7ffff
-11 | 0b0000-01ffff | b0000-bffff |
-12 | 0c0000-01ffff | c0000-cffff |
-13 | 0d0000-01ffff | d0000-dffff |
-14 | 0e0000-01ffff | e0000-effff |
-15 | 0f0000-01ffff | f0000-f7fff |
-16 | 100000-10ffff | f8000-f9fff |
-17 | 110000-11ffff | fa000-fbfff |
-18 | 120000-12ffff | fc000-fffff |
-19 | 130000-13ffff |             |
-20 | 140000-14ffff |             |
-21 | 150000-15ffff |             |
-22 | 160000-16ffff |             |
-23 | 170000-17ffff |             |
-24 | 180000-18ffff |             |
-25 | 190000-19ffff |             |
-26 | 1a0000-1affff |             |
-27 | 1b0000-1bffff |             |
-28 | 1c0000-1cffff |             |
-29 | 1d0000-1dffff |             |
-30 | 1e0000-1effff |             |
-31 | 1f0000-1f7fff |             |
-32 | 1f8000-1f9fff |             |
-33 | 1fa000-1fbfff |             |
-34 | 1fc000-1fffff |             |
+ # |  16Mbit (2f)    |  8Mbit (2c)   |  4Mbit (ab)
+---+-----------------+---------------+-------------
+ 0 | 00'0000-00'ffff | 0'0000-0'ffff | 0'0000-0'ffff
+ 1 | 01'0000-01'ffff | 1'0000-1'ffff | 1'0000-1'ffff
+ 2 | 02'0000-02'ffff | 2'0000-2'ffff | 2'0000-2'ffff
+ 3 | 03'0000-03'ffff | 3'0000-3'ffff | 3'0000-3'ffff
+ 4 | 04'0000-01'ffff | 4'0000-4'ffff | 4'0000-4'ffff
+ 5 | 05'0000-01'ffff | 5'0000-5'ffff | 5'0000-5'ffff
+ 6 | 06'0000-01'ffff | 6'0000-6'ffff | 6'0000-6'ffff
+ 7 | 07'0000-01'ffff | 7'0000-7'ffff | 7'0000-7'7fff
+ 8 | 08'0000-01'ffff | 8'0000-8'ffff | 7'8000-7'9fff
+ 9 | 09'0000-01'ffff | 9'0000-9'ffff | 7'a000-7'bfff
+10 | 0a'0000-01'ffff | a'0000-a'ffff | 7'c000-7'ffff
+11 | 0b'0000-01'ffff | b'0000-b'ffff |
+12 | 0c'0000-01'ffff | c'0000-c'ffff |
+13 | 0d'0000-01'ffff | d'0000-d'ffff |
+14 | 0e'0000-01'ffff | e'0000-e'ffff |
+15 | 0f'0000-01'ffff | f'0000-f'7fff |
+16 | 10'0000-10'ffff | f'8000-f'9fff |
+17 | 11'0000-11'ffff | f'a000-f'bfff |
+18 | 12'0000-12'ffff | f'c000-f'ffff |
+19 | 13'0000-13'ffff |               |
+20 | 14'0000-14'ffff |               |
+21 | 15'0000-15'ffff |               |
+22 | 16'0000-16'ffff |               |
+23 | 17'0000-17'ffff |               |
+24 | 18'0000-18'ffff |               |
+25 | 19'0000-19'ffff |               |
+26 | 1a'0000-1a'ffff |               |
+27 | 1b'0000-1b'ffff |               |
+28 | 1c'0000-1c'ffff |               |
+29 | 1d'0000-1d'ffff |               |
+30 | 1e'0000-1e'ffff |               |
+31 | 1f'0000-1f'7fff |               |
+32 | 1f'8000-1f'9fff |               |
+33 | 1f'a000-1f'bfff |               |
+34 | 1f'c000-1f'ffff |               |
 
 The last block is always reserved for use by the system. The Neogeo Pocket Color
 bios does some tests on this last block to see if the flash functionality is
@@ -104,10 +104,9 @@ the Neogeo Pocket.
 #include "cpu/z80/z80.h"
 #include "sound/t6w28.h"
 #include "sound/dac.h"
-#include "sound/volt_reg.h"
-#include "video/k1ge.h"
+#include "k1ge.h"
 #include "screen.h"
-#include "softlist.h"
+#include "softlist_dev.h"
 #include "speaker.h"
 
 enum flash_state
@@ -217,8 +216,8 @@ private:
 	required_ioport m_io_power;
 
 	virtual void nvram_default() override;
-	virtual void nvram_read(emu_file &file) override;
-	virtual void nvram_write(emu_file &file) override;
+	virtual bool nvram_read(util::read_stream &file) override;
+	virtual bool nvram_write(util::write_stream &file) override;
 };
 
 
@@ -662,10 +661,8 @@ void ngp_state::machine_start()
 		std::string region_tag;
 		uint8_t *cart = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str())->base();
 
-		m_maincpu->space(AS_PROGRAM).install_read_bank(0x200000, 0x3fffff, "flash0");
-		m_maincpu->space(AS_PROGRAM).install_read_bank(0x800000, 0x9fffff, "flash1");
-		membank("flash0")->set_base(cart);
-		membank("flash1")->set_base(cart + 0x200000);
+		m_maincpu->space(AS_PROGRAM).install_rom(0x200000, 0x3fffff, cart);
+		m_maincpu->space(AS_PROGRAM).install_rom(0x800000, 0x9fffff, cart + 0x200000);
 
 		m_flash_chip[0].data = cart;
 		m_flash_chip[0].org_data[0] = m_flash_chip[0].data[0];
@@ -709,7 +706,7 @@ void ngp_state::machine_start()
 		m_maincpu->space(AS_PROGRAM).unmap_read(0x800000, 0x9fffff);
 	}
 
-	m_seconds_timer = machine().scheduler().timer_alloc(timer_expired_delegate(FUNC(ngp_state::ngp_seconds_callback),this));
+	m_seconds_timer = timer_alloc(FUNC(ngp_state::ngp_seconds_callback), this);
 	m_seconds_timer->adjust(attotime::from_seconds(1), 0, attotime::from_seconds(1));
 
 	save_item(NAME(m_io_reg));
@@ -757,7 +754,7 @@ DEVICE_IMAGE_LOAD_MEMBER(ngp_state::load_ngp_cart)
 
 	if (size != 0x8000 && size != 0x80000 && size != 0x100000 && size != 0x200000 && size != 0x400000)
 	{
-		image.seterror(IMAGE_ERROR_UNSPECIFIED, "Unsupported cartridge size");
+		image.seterror(image_error::INVALIDIMAGE, "Unsupported cartridge size");
 		return image_init_result::FAIL;
 	}
 
@@ -813,16 +810,22 @@ void ngp_state::nvram_default()
 }
 
 
-void ngp_state::nvram_read(emu_file &file)
+bool ngp_state::nvram_read(util::read_stream &file)
 {
-	file.read(m_mainram, 0x3000);
-	m_nvram_loaded = true;
+	size_t actual;
+	if (!file.read(m_mainram, 0x3000, actual) && actual == 0x3000)
+	{
+		m_nvram_loaded = true;
+		return true;
+	}
+	return false;
 }
 
 
-void ngp_state::nvram_write(emu_file &file)
+bool ngp_state::nvram_write(util::write_stream &file)
 {
-	file.write(m_mainram, 0x3000);
+	size_t actual;
+	return !file.write(m_mainram, 0x3000, actual) && actual == 0x3000;
 }
 
 
@@ -851,9 +854,6 @@ void ngp_state::ngp_common(machine_config &config)
 
 	DAC_8BIT_R2R(config, m_ldac, 0).add_route(ALL_OUTPUTS, "lspeaker", 0.25); // unknown DAC
 	DAC_8BIT_R2R(config, m_rdac, 0).add_route(ALL_OUTPUTS, "rspeaker", 0.25); // unknown DAC
-	voltage_regulator_device &vref(VOLTAGE_REGULATOR(config, "vref"));
-	vref.add_route(0, "ldac", 1.0, DAC_VREF_POS_INPUT); vref.add_route(0, "ldac", -1.0, DAC_VREF_NEG_INPUT);
-	vref.add_route(0, "rdac", 1.0, DAC_VREF_POS_INPUT); vref.add_route(0, "rdac", -1.0, DAC_VREF_NEG_INPUT);
 }
 
 

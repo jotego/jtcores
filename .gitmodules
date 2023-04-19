@@ -46,3 +46,6 @@
 [submodule "modules/jtkcpu"]
 	path = modules/jtkcpu
 	url = https://github.com/JTFPGA/jtkcpu.git
+[submodule "modules/jt900h"]
+	path = modules/jt900h
+	url = https://github.com/jotego/jt900h.git

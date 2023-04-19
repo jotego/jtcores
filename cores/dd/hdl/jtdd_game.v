@@ -1,16 +1,16 @@
-/*  This file is part of JTDD.
-    JTDD program is free software: you can redistribute it and/or modify
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    JTDD program is distributed in the hope that it will be useful,
+    JTCORES program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with JTDD.  If not, see <http://www.gnu.org/licenses/>.
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
@@ -377,7 +377,7 @@ jtdd_video u_video(
     .gfx_en       (  gfx_en          )
 );
 
-// Same as locations inside JTDD.rom file
+// Same as locations inside JTCORES.rom file
 localparam BANK_ADDR   = 22'h0_0000;
 localparam MAIN_ADDR   = 22'h2_0000;
 localparam SND_ADDR    = 22'h2_8000;

@@ -1,16 +1,16 @@
-/*  This file is part of JTGNG.
-    JTGNG program is free software: you can redistribute it and/or modify
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    JTGNG program is distributed in the hope that it will be useful,
+    JTCORES program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with JTGNG.  If not, see <http://www.gnu.org/licenses/>.
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
@@ -40,16 +40,16 @@ parameter [21:0] OBJ_END  =22'h24_0000;
 
 `ifdef SIMULATION
 `ifdef FAST_LOAD
-`define JTGNG_OBJ32_FAST
+`define JTCORES_OBJ32_FAST
 `endif
 `endif
 
-`ifdef JTGNG_OBJ32_FAST
+`ifdef JTCORES_OBJ32_FAST
 localparam OBJ_END1 = OBJ_START+((OBJ_END-OBJ_START)>>6); // make conversion length 32 times shorter
 `else
 localparam OBJ_END1 = OBJ_END;
 `endif
-`undef  JTGNG_OBJ32_FAST
+`undef  JTCORES_OBJ32_FAST
 
 reg [31:0] obj_data;
 reg last_down, wait_ack;

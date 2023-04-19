@@ -2,6 +2,7 @@ game:
   - from: ngp
     get:
       - jtngp_game.v
+      - jtngp_main.v
       - jtngp_chram.v
       - jtngp_clocks.v
       - jtngp_video.v
