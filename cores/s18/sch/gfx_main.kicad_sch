@@ -3467,7 +3467,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 3ece7fe0-d343-428a-adce-95868b8a58f4)
   )
-  (hierarchical_label "SPA_B" (shape bidirectional) (at 243.84 120.65 0)
+  (hierarchical_label "SP_A{slash}B" (shape bidirectional) (at 243.84 120.65 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 51819533-4849-402a-9f5d-b0017f2f1edc)
   )

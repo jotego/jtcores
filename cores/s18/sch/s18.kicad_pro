@@ -386,7 +386,7 @@
     ],
     [
       "b6130ee0-4938-4f02-91df-ca8824a64080",
-      "amp"
+      "amplifier"
     ],
     [
       "71bcf772-2284-4e08-b0d7-e9290094f9ba",
@@ -403,6 +403,10 @@
     [
       "b398a842-3d5e-489d-9599-44252b4dd919",
       "comm_snd"
+    ],
+    [
+      "891676fa-fc20-4146-938e-374831dcefe1",
+      "audio_amplifier"
     ]
   ],
   "text_variables": {}
