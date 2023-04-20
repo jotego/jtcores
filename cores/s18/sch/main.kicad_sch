@@ -4175,7 +4175,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 15c45ac9-f05b-477f-8d7c-2d9de5b4a859)
   )
-  (hierarchical_label "R~{W}" (shape output) (at 105.41 168.91 0)
+  (hierarchical_label "MAIN_R~{W}" (shape output) (at 105.41 168.91 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 19efb396-df13-436d-b239-56f6eeabbeb9)
   )

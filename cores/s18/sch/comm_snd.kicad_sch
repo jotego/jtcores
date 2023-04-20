@@ -2564,7 +2564,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 00933214-1e55-496d-bedf-76104cf1da40)
   )
-  (label "PAL4" (at 137.16 109.22 0)
+  (label "SPRPAL4" (at 137.16 109.22 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 01f4e1a6-45f7-47a9-901d-5a238b913b0d)
   )

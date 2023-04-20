@@ -407,6 +407,10 @@
     [
       "891676fa-fc20-4146-938e-374831dcefe1",
       "audio_amplifier"
+    ],
+    [
+      "0acfb19d-ae76-4ecb-b0ad-2c37b7d320ff",
+      "spriteram"
     ]
   ],
   "text_variables": {}
