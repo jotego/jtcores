@@ -3219,7 +3219,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 5c57ed08-31d3-445e-ba4d-72f9a9ab9a7c)
   )
-  (hierarchical_label "MCK" (shape output) (at 180.34 73.66 0)
+  (hierarchical_label "VPD_MCK" (shape output) (at 180.34 73.66 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 6d26cd24-efc0-4cd9-bba9-3cef89be2ea7)
   )
