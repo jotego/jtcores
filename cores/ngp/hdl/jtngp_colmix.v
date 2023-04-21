@@ -22,6 +22,13 @@ module jtngp_colmix(
 
     input             scr_order,
 
+    // CPU access
+    input      [ 8:1] cpu_addr,
+    output     [15:0] cpu_din,
+    input      [15:0] cpu_dout,
+    input      [ 1:0] dsn,
+    input             pal_cs,
+
     input             LHBL,
     input             LVBL,
     output reg        LHBL_dly,
@@ -38,23 +45,25 @@ module jtngp_colmix(
     input       [3:0] gfx_en
 );
 
-reg  [2:0] pxl;
-wire [4:0] pxldly;
-wire [1:0] prio = obj_pxl[4:3];
-reg  [1:0] lyr;
-wire [3:0] raw;
-wire scr1_blank = scr1_pxl[1:0]==0 || !gfx_en[0];
-wire scr2_blank = scr2_pxl[1:0]==0 || !gfx_en[1];
-wire obj_blank  = obj_pxl[1:0]==0 || prio==0 || !gfx_en[3];
+reg  [ 2:0] pxl;
+wire [ 4:0] pxldly;
+wire [ 1:0] prio = obj_pxl[4:3];
+reg  [ 1:0] lyr;
+wire [ 3:0] raw, scr_eff;
+wire [15:0] pal_dout;
+wire        scr1_blank, scr2_blank, obj_blank;
 
-wire [3:0] scr_eff = scr_order ? 
-    ( !scr2_blank ? {1'b0,scr2_pxl} : {1'b1,scr1_pxl} ) :
-    ( !scr1_blank ? {1'b0,scr1_pxl} : {1'b1,scr2_pxl} );
 
-assign raw   = {pxldly[2:0],pxldly[2]};
-assign red   = pxldly[4] ? raw : 4'd0; // obj
-assign blue  = pxldly[4:3]==1 ? raw : 4'd0; // scr2
-assign green = pxldly[4:3]==0 ? raw : 4'd0; // scr1
+assign scr1_blank = scr1_pxl[1:0]==0 || !gfx_en[0],
+       scr2_blank = scr2_pxl[1:0]==0 || !gfx_en[1],
+       obj_blank  = obj_pxl[1:0]==0 || prio==0 || !gfx_en[3],
+       scr_eff    = scr_order ?
+            ( !scr2_blank ? {1'b0,scr2_pxl} : {1'b1,scr1_pxl} ) :
+            ( !scr1_blank ? {1'b0,scr1_pxl} : {1'b1,scr2_pxl} );
+       raw        = {pxldly[2:0],pxldly[2]};
+       red        = pxldly[4] ? raw : 4'd0; // obj
+       blue       = pxldly[4:3]==1 ? raw : 4'd0; // scr2
+       green      = pxldly[4:3]==0 ? raw : 4'd0; // scr1
 
 always @(posedge clk) begin
     // layer mixing
@@ -71,6 +80,24 @@ always @(posedge clk) begin
         endcase
     end
 end
+
+// 256 entries, each is 16 bits
+jtframe_dual_ram16 #(
+    .AW     (  8        )
+) u_objram(
+    // Port 0
+    .clk0   ( clk       ),
+    .data0  ( cpu_dout  ),
+    .addr0  ( cpu_addr  ),
+    .we0    ( we        ),
+    .q0     ( cpu_din   ),
+    // Port 1
+    .clk1   ( clk       ),
+    .data1  (           ),
+    .addr1  ( scan_addr ),
+    .we1    ( 2'b0      ),
+    .q1     ( pal_dout  )
+);
 
 jtframe_blank #(.DLY(18),.DW(5)) u_blank(
     .clk        ( clk       ),
