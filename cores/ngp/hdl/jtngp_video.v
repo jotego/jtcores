@@ -28,21 +28,11 @@ module jtngp_video(
     output              snd_cen,
 
     // CPU
-    input        [12:1] cpu_addr,
+    input        [13:1] cpu_addr,
     input        [15:0] cpu_dout,
+    output reg   [15:0] cpu_din,
     input        [ 1:0] dsn,
-
-    input               chram_cs,
-    input               obj_cs,
-    input               scr1_cs,
-    input               scr2_cs,
-    input               regs_cs,
-
-    output       [15:0] regs_dout,
-    output       [15:0] cha_dout,
-    output       [15:0] obj_dout,
-    output       [15:0] scr1_dout,
-    output       [15:0] scr2_dout,
+    input               gfx_cs,
 
     output              hirq,
     output              virq,
@@ -65,6 +55,9 @@ wire        LHBL, LVBL;
 wire [ 4:0] multi_cen;
 wire [ 1:0] video_cen;
 
+// Memory map
+reg   fix_cs, obj_cs,  obj2_cs, pal_cs,
+      scr1_cs,  scr2_cs, regs_cs;
 // video access
 wire [15:0] scr1_data, scr2_data, obj_data;
 wire [12:1] scr1_addr, scr2_addr, obj_addr;
@@ -82,10 +75,36 @@ wire [ 4:0] obj_pxl;
 wire [ 2:0] scr1_pxl, scr2_pxl;
 wire        hint_en=1, vint_en=1;
 
+wire [15:0] regs_dout, fix_dout,
+            obj_dout,  pal_dout,
+            scr1_dout, scr2_dout;
+
+function in_range( input [13:0] min, max );
+    in_range = cpu_addr>=min[13:1] && cpu_addr<max[13:1];
+endfunction
+
 assign snd_cen  = multi_cen[1];
 assign cpu_cen  = multi_cen[0]; // fixed for now
 assign hoffset  = 0;
 assign voffset  = 0;
+
+always @* begin
+    regs_cs = gfx_cs && in_range(14'h0000,14'h00C0);
+    pal_cs  = gfx_cs && in_range(14'h0200,14'h0400);
+    obj_cs  = gfx_cs && in_range(14'h0800,14'h0900);
+    obj2_cs = gfx_cs && in_range(14'h0C00,14'h0C40);
+    scr1_cs = gfx_cs && in_range(14'h1000,14'h1800);
+    scr2_cs = gfx_cs && in_range(14'h1800,14'h2000);
+    fix_cs  = gfx_cs && in_range(14'h2000,14'h0000); // 2000-4000
+end
+
+always @(posedge clk) begin
+    cpu_din <= pal_cs   ? pal_dout  :
+               scr1_cs  ? scr1_dout :
+               scr2_cs  ? scr2_dout :
+               regs_cs  ? regs_dout :
+               fix_cs   ? fix_dout : obj_dout;
+end
 
 jtngp_clocks u_clocks(
     .status     ( status    ),
@@ -148,10 +167,10 @@ jtngp_chram u_chram(
     .clk        ( clk       ),
     // CPU access
     .cpu_addr   ( cpu_addr  ),
-    .cpu_din    ( cha_dout  ),
-    .cpu_dout   ( cha_dout  ),
+    .cpu_din    ( fix_dout  ),
+    .cpu_dout   ( cpu_dout  ),
     .dsn        ( dsn       ),
-    .chram_cs   ( chram_cs  ),
+    .fix_cs   ( fix_cs  ),
     // video access
     .obj_rd     ( obj_rd    ),
     .obj_ok     ( obj_ok    ),
@@ -233,6 +252,7 @@ jtngp_obj u_obj(
     .cpu_dout   ( cpu_dout  ),
     .dsn        ( dsn       ),
     .obj_cs     ( obj_cs    ),
+    .obj2_cs    ( obj2_cs   ),
     // Character RAM
     .chram_addr ( obj_addr  ),
     .chram_data ( obj_data  ),
@@ -247,6 +267,13 @@ jtngp_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
 
     .scr_order  ( scr_order ),
+
+    // CPU access
+    .cpu_addr   ( cpu_addr[8:1] ),
+    .cpu_din    ( pal_dout  ),
+    .cpu_dout   ( cpu_dout  ),
+    .dsn        ( dsn       ),
+    .scr_cs     ( pal_cs    ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),

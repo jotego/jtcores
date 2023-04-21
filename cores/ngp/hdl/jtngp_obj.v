@@ -33,7 +33,8 @@ module jtngp_obj #(
     output     [15:0] cpu_din,
     input      [15:0] cpu_dout,
     input      [ 1:0] dsn,
-    input             obj_cs,
+    input             obj_cs,   // 64 objects, 4 bytes per object
+    input             obj2_cs,  // additional byte in K2GE chip
     // Character RAM
     output     [12:1] chram_addr,
     input      [15:0] chram_data,
@@ -53,22 +54,24 @@ wire        Hinit;
 assign we    = ~dsn & {2{obj_cs}};
 assign Hinit = LHBL & ~LHBLl;
 
-// 256 bytes = 64 objects
+// 256 bytes = 64 objects, extra 64 bytes in K2GE
+// the extra byte is mapped up in the BRAM
 jtframe_dual_ram16 #(
-    .AW         (  7          ),
+    .AW         (  8          ),
     .SIMFILE_LO ("obj_lo.bin" ),
     .SIMFILE_HI ("obj_hi.bin" )
 ) u_objram(
     // Port 0
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
-    .addr0  ( cpu_addr  ),
+    .addr0  ( { obj2_cs, cpu_addr } ),
     .we0    ( we        ),
     .q0     ( cpu_din   ),
     // Port 1
     .clk1   ( clk       ),
     .data1  (           ),
-    .addr1  ( scan_addr^7'h7e ), // inverts the scan order
+    // ignoring the extra byte for now...
+    .addr1  ( { 1'b0, scan_addr^7'h7e } ), // inverts the scan order
     .we1    ( 2'b0      ),
     .q1     ( scan_dout )
 );
