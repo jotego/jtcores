@@ -19,14 +19,25 @@
 module jtngp_main(
     input             rst,
     input             clk,
+
+    // Bus access
+    output       [15:1] cpu_addr,
+    output       [15:0] cpu_dout,
+    input        [15:0] gfx_dout,
+    output       [ 1:0] we,
+
+    // Firmware access
+    input        [15:0] rom_data,
+    input               rom_ok
 );
 
 reg  [15:0] din;
 wire [23:0] addr;
 wire [15:0] dout, ram0_dout, ram1_dout;
-wire [ 1:0] we;
 wire [ 2:0] intrq;
 wire        cpu_cen; // 6.144 MHz
+
+assign cpu_addr = addr[15:1];
 
 function in_range( input [23:0] min, max );
     in_range = addr>=min && addr<max;
@@ -41,6 +52,11 @@ always @* begin
     flash0_cs = in_range(24'h20_0000, 24'h40_0000);
     flash1_cs = in_range(24'h80_0000, 24'hA0_0000);
     rom_cs    = in_range(24'hFF_0000, 24'h00_0000);
+end
+
+always @(posedge clk) begin
+    din = gfx_cs ? gfx_dout :
+          rom_cs ? rom_ok;
 end
 
 jtframe_ram16 #(.AW(12)) u_ram0(

@@ -22,9 +22,9 @@ module jtngp_game(
 
 wire [12:1] cpu_addr=0;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
-wire [15:0] cpu_dout=0;
+wire [15:0] cpu_dout=0, gfx_dout;
 wire [ 1:0] dsn=3;
-wire        chram_cs=0, obj_cs=0, scr1_cs=0, scr2_cs=0, regs_cs=0;
+wire        gfx_cs;
 wire        cpu_cen, snd_cen;
 wire        hirq, virq;
 
@@ -55,13 +55,9 @@ jtngp_video u_video(
     // CPU
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
+    .cpu_din    ( gfx_dout  ),
     .dsn        ( dsn       ),
-
-    .chram_cs   ( chram_cs  ),
-    .obj_cs     ( obj_cs    ),
-    .scr1_cs    ( scr1_cs   ),
-    .scr2_cs    ( scr2_cs   ),
-    .regs_cs    ( regs_cs   ),
+    .gfx_cs  (gfx_cs),
 
     .regs_dout  ( regs_dout ),
     .cha_dout   ( cha_dout  ),
