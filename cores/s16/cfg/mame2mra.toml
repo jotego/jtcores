@@ -136,6 +136,16 @@ order = [
     "sprites", "mcu", "maincpu:key", "n7751"
 ]
 
+splits = [
+    { setname="aceattaca",  region="sprites", offset=0x40000 },
+    { machine="aliensyn",   region="sprites", offset=0x40000 },
+    { machine="sdi",        region="sprites", offset=0x40000 },
+    { machine="shinobi",    region="sprites", offset=0x40000 },
+    { machine="wb3",        region="sprites", offset=0x40000 },
+    { setname="passsht16a", region="sprites", offset=0x40000 },
+    { setname="sjryuko1",   region="sprites", offset=0x40000 },
+]
+
 remove = [
     "ic93-de1b.bin", "ic17-5f7c.bin" # fantzonepr
 ]
