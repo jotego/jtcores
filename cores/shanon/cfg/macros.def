@@ -1,4 +1,5 @@
 include ../../outrun/cfg/macros.def
+-JTFRAME_IOCTL_RD
 
 CORENAME=JTSHANON
 GAMETOP=jtshanon_game_sdram
