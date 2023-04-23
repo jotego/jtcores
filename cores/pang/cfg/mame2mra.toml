@@ -7,15 +7,19 @@ skip.setnames = [
     "mstworld", "mstworld2",
     "spangbl","spangbl2",
     "pangba","pangbb","pangbc",
-    # control problems
-    "pkladies", "mgakuen2",
     # wrong obj shown
-    "hatena", "marukin",
+    "hatena", "mgakuen2",
     # Missing ROM
     "dokaben2",
     # Not booting
     "blockbl", "qtono1", "qsangoku"
 ]
+skip.machines = [
+    # control problems
+    "pkladies", "mgakuen",
+    "marukin",
+]
+skip.bootlegs=true
 
 [header]
 data = [
