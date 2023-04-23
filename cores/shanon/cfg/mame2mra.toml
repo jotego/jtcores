@@ -35,7 +35,7 @@ regions = [
     { name="subcpu",      start="JTFRAME_BA1_START", width=16, reverse=true },
     { name="soundcpu",    start="SND_START" },
     { name="pcm",         start="PCM_START" },
-    { name="gfx1",        start="JTFRAME_BA2_START", frac={ bytes=1, parts=4} },
+    { name="gfx1",        start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
     { name="sprites",     start="JTFRAME_BA3_START", width=16, reverse=true },
     { name="segaic16road",start="ROAD_START", width=16, No_offset=true, singleton=true },
     { name="maincpu:key", start="JTFRAME_PROM_START", len=0x2000 },

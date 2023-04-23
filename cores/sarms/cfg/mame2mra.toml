@@ -24,7 +24,7 @@ names=[
 [dipsw]
 bitcnt=19   # number 19 is freeze, active low
 defaults=[
-    { value="fc,ff" },
+    { value="fc,ff,ff" },
 ]
 
 [rom]
@@ -35,28 +35,10 @@ regions=[
     { name="gfx1"   },
     # GFX2
     { name="gfx2"  },
-    { machine="sidearms", name="gfx2", frac={parts=2, bytes=1}, Name_sort=[
-        "b_13d.rom",
-        "b_14d.rom",
-        "b_13e.rom",
-        "b_14e.rom",
-        "b_13f.rom",
-        "b_14f.rom",
-        "b_13g.rom",
-        "b_14g.rom",
-    ]  },
+    { machine="sidearms", name="gfx2", width=16, sequence=[0,4,1,5,2,6,3,7] },
     # GFX3
     { name="gfx3" },
-    { machine="sidearms", name="gfx3", frac={parts=2, bytes=1}, Name_sort=[
-        "b_11b.rom",
-        "b_12b.rom",
-        "b_13b.rom",
-        "b_14b.rom",
-        "b_11a.rom",
-        "b_12a.rom",
-        "b_13a.rom",
-        "b_14a.rom",
-    ]  },
+    { machine="sidearms", name="gfx3", width=16, sequence=[0,4,1,5,2,6,3,7] },
     { name="gfx4"   },
     { name="proms"   },
 ]
