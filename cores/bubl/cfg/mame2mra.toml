@@ -3,7 +3,6 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile="bublbobl.cpp"
-skip.bootlegs=true
 skip.setnames=[
     # Blank screen
     "boblbobl", "bbredux", "bub68705", "bublboblb",
@@ -23,8 +22,12 @@ skip.setnames=[
     "sboblbobla",
     "sboblboblb",
     "sboblboblc",
-    "sboblbobld"
+    "sboblbobld",
+    # untested
+    "sboblboble",
+    "sboblboblf"
 ]
+main_setnames=["tokiob"]
 
 [buttons]
 names=[
