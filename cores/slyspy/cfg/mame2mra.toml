@@ -51,7 +51,7 @@ order = [
 ]
 
 splits = [
-    { machine="secretag", region="gfx1", offset=0x4000, min_len=0x10000 },
-    { machine="birdtry",  region="gfx1", offset=0x4000, min_len=0x10000 }
+    { machine="secretag", region="gfx1", offset=0x10000 },
+    # { machine="birdtry",  region="gfx1", offset=0x4000, min_len=0x10000 }
 ]
 

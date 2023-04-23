@@ -146,7 +146,7 @@ assign ba2_dsn    = 3;
 assign ba3_din    = 0;
 assign ba3_dsn    = 3;
 assign debug_view = debug_bus[0] ? mouse_1p[15:8] : mouse_1p[7:0];
-assign dip_flip   = ~flip;
+assign dip_flip   = flip;
 
 // The sound uses the 24 MHz clock
 jtframe_frac_cen #( .W( 4), .WC( 4)) u_cen24(

@@ -62,9 +62,9 @@ order = [
 ]
 
 splits = [
-    { machine="baddudes", region="gfx1", offset=0x4000, min_len=0x10000 },
-    { machine="baddudes", region="gfx3", offset=0x8000, min_len=0x20000 },
-    { machine="birdtry",  region="gfx1", offset=0x4000, min_len=0x10000 }
+    { machine="baddudes", region="gfx1", offset=0x10000 },
+    { machine="baddudes", region="gfx3", offset=0x8000 },
+    # { machine="birdtry",  region="gfx1", offset=0x4000, min_len=0x10000 }
 ]
 
 blanks = [

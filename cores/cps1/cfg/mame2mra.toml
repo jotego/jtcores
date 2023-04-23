@@ -18,8 +18,7 @@ skip.setnames=[
 	"3wonders1",
 	"ffightjh",
 ]
-skip.machines=["forgottn", "pang3"]
-
+skip.machine="pang3"
 
 [buttons]
 Names = [
