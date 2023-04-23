@@ -122,7 +122,7 @@ regions = [
     { name="maincpu",       width=16, reverse=true },
     { name="mcu",           start="MCU_START", len=0x1000 },
     { name="soundcpu",      start="JTFRAME_BA1_START" },
-    { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4} },
+    { name="gfx1",          start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
     { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true, rom_len=0x10000, no_offset=true },
     { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
     { name="n7751",         start="N7751_START", len=0x400 },
