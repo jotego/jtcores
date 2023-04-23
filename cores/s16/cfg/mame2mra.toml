@@ -123,7 +123,7 @@ regions = [
     { name="mcu",           start="MCU_START", len=0x1000 },
     { name="soundcpu",      start="JTFRAME_BA1_START" },
     { name="gfx1",          start="JTFRAME_BA2_START", frac={ bytes=1, parts=4} },
-    { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true, rom_len=0x10000 },
+    { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true, rom_len=0x10000, no_offset=true },
     { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
     { name="n7751",         start="N7751_START", len=0x400 },
     { name="n7751data",     start="PCM_START" },
@@ -134,16 +134,6 @@ regions = [
 order = [
     "maincpu", "soundcpu", "n7751data", "gfx1",
     "sprites", "mcu", "maincpu:key", "n7751"
-]
-
-splits = [
-    { setname="aceattaca",  region="sprites", offset=0x40000 },
-    { machine="aliensyn",   region="sprites", offset=0x40000 },
-    { machine="sdi",        region="sprites", offset=0x40000 },
-    { machine="shinobi",    region="sprites", offset=0x40000 },
-    { machine="wb3",        region="sprites", offset=0x40000 },
-    { setname="passsht16a", region="sprites", offset=0x40000 },
-    { setname="sjryuko1",   region="sprites", offset=0x40000 },
 ]
 
 remove = [
