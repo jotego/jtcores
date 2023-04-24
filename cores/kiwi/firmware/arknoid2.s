@@ -144,6 +144,9 @@ T1C:	MOV R1,A	; save the new coins
 	JZ NOCOINS
 	XRL A,OLDCOIN
 	JZ NOCOINS
+	MV A,CREDITS
+	ADD A,#$F7
+	JC NOCOINS	; Do not pass 9 credits
 	INC CREDITS
 	; Compare with previous state
 NOCOINS:
