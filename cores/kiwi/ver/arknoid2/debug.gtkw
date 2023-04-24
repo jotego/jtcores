@@ -1,0 +1,71 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Mon Apr 24 17:09:43 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/kiwi/ver/arknoid2/test.fst"
+[dumpfile_mtime] "Mon Apr 24 15:40:03 2023"
+[dumpfile_size] 55508778
+[savefile] "/home/jtejada/jtcores/cores/kiwi/ver/arknoid2/debug.gtkw"
+[timestart] 1824705000000
+[size] 1278 996
+[pos] -1 -1
+*-26.124638 1824874044336 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.
+[sst_width] 260
+[signals_width] 288
+[sst_expanded] 1
+[sst_vpaned_height] 292
+@24
+TOP.game_test.frame_cnt[31:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_sound.coin_input[1:0]
+TOP.game_test.u_game.u_game.u_sound.start_button[1:0]
+@200
+-
+@22
+[color] 2
+TOP.game_test.u_game.u_game.u_sound.u_mcu.rom_addr[10:0]
+TOP.game_test.u_game.u_game.u_sound.u_mcu.rom_data[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.alu_b.accumulator_q[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_mcu.p2_dout[7:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.mcu_rstn
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.mcu_dout[7:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_sound.mcu_rd[1:0]
+TOP.game_test.u_game.u_game.u_sound.mcu_we[1:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.dout[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.db_bus_b.sts_q[3:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.db_bus_b.ibf_q
+[color] 2
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.db_bus_b.obf_q
+@22
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.db_bus_b.dbbin_q[7:0]
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.db_bus_b.dbbout_q[7:0]
+@201
+-
+@28
+TOP.game_test.u_game.u_game.u_sound.u_mcu.u_t48.db_bus_b.f1_i
+[pattern_trace] 1
+[pattern_trace] 0
