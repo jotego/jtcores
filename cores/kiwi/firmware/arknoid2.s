@@ -20,7 +20,10 @@
 
 	RELAXED ON
 
-CMD	EQU	$20
+CMD	EQU	R4
+RDSEL  EQU	R5
+OLDCOIN	EQU	R6
+CREDITS	EQU	R7
 
 TOMAIN  MACRO   VAL
 	MOV A,#VAL
@@ -58,32 +61,93 @@ START:      ; ADDRESS 7
 	CLR F0
 	CLR F1
 
+
 	TOMAIN $55
-	WAITFF
+	; Clear the memory
+	MOV R0,#$20
+	MOV R1,#$60
+	MOV A,#0
+$$LOOP:	MOV @R0,A
+	INC R0
+	DJNZ R1,$$LOOP
 
 	TOMAIN $AA
 
 	; Get 4 values for the coin settings
 	MOV R0,#$30
 	MOV R1,#4
-RDCOIN:
+COINAGE:
 	READDB
 	CLR F1
 	MOV @R0,A
 	INC R0
-	DJNZ R1,RDCOIN
+	DJNZ R1,COINAGE
 
-	TOMAIN $5A
+	TOMAIN $5A	; final initialization signal
 
-L:  	MOV R0,#CMD
-	JNIBF CKCMD
+L:  	JNIBF CKCMD
 	IN A,DBB
-	JF0 A0WR
+	JF1 A1WR
+	; check if command is 41
+	; then add the data received
+	MOV R0,A	; keep the data
+	MOV A,CMD
+	ADD A,#$BF	; -$41
+	JNZ CKCMD	; it wasn't $41, ignore
+	MOV A,CREDITS
+	ADD A,R0
+	MOV CREDITS,A
+	JMP CKCMD	; continue
+A1WR:
 	CLR F1
-	MOV @R0,A
+	MOV CMD,A
+	; If CMD=C1, set the read port selection to zero
+	ADD A,#$3F	; -$C1
+	JNZ CK15
+	MOV A,#0
+	MOV RDSEL,A
 	JMP CKCMD
-A0WR:
-CKCMD:	MOV A,#0
-	MOV STS,A
+CK15:	; if CMD=15, decrement the credits by 1
+	MOV A,CMD
+	ADD A,#$EB	; -$15
+	JNZ CKCMD
+	MOV A,CREDITS
+	JZ CKCMD
+	DEC CREDITS
+CKCMD:	CALL RDCOINS	; Update STS with coin information
+	JOBF L		; do not output new data
+	; if cmd is 41, return the number of credits
+	MOV A,CMD
+	ADD A,#$BF
+	JNZ RDDATA
+	MOV A,CREDITS
 	OUT DBB,A
 	JMP L
+RDDATA:	MOV A,RDSEL
+	JNZ RDBUT
+	INC RDSEL
+	MOV A,CREDITS
+	OUT DBB,A
+	JMP L
+RDBUT:	; output buttons, all zero for now
+	MOV A,#0
+	OUT DBB,A
+	JMP L
+
+RDCOINS:
+	MOV A,#0
+	JNT0 T0C
+	ORL A,#0x10
+T0C:	JNT1 T1C
+	ORL A,#0x20
+T1C:	MOV R1,A	; save the new coins
+	JZ NOCOINS
+	XRL A,OLDCOIN
+	JZ NOCOINS
+	INC CREDITS
+	; Compare with previous state
+NOCOINS:
+	MOV A,R1
+	MOV OLDCOIN,A
+	MOV STS,A
+	RET
