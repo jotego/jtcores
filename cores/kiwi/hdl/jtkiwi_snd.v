@@ -90,7 +90,8 @@ reg         bank_cs, fm_cs, cab_cs, mcu_cs,
             dev_busy, fm_busy, fmcs_l,
             mcu_rstn, comb_rstn=0;
 wire signed [15:0] fm_snd;
-wire        mem_acc, mcu_we, mcu_comb_rst;
+wire        mem_acc, mcu_comb_rst;
+wire  [1:0] mcu_we, mcu_rd;
 
 `ifdef SIMULATION
 wire shared_rd = ram_cs && !A[0] && !rd_n;
@@ -105,6 +106,8 @@ assign mcu_comb_rst = ~(mcu_rstn & comb_rstn);
 // assign mcu_comb_rst = ~comb_rstn;
 assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
+assign mcu_we   = {2{mcu_cs & ~wr_n}} & { A[0], ~A[0] };
+assign mcu_rd   = {2{mcu_cs &  wr_n}} & { A[0], ~A[0] };
 
 assign irq_ack = /*!m1_n &&*/ !iorq_n; // The original PCB just uses iorq_n,
     // the orthodox way to do it is to use m1_n too
@@ -339,7 +342,9 @@ jtframe_z80_devwait #(.RECOVERY(1)) u_gamecpu(
 );
 
 `ifndef NOMCU
-jtframe_i8742 u_mcu(
+jtframe_i8742 #(
+    .SIMFILE("../../firmware/arknoid2.bin")
+) u_mcu(
     .rst        ( mcu_comb_rst ),
     .clk        ( clk        ),
     .cen        ( cen6       ),

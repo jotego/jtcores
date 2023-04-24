@@ -64,7 +64,7 @@ jtframe_frac_cen #(.WC(4),.W(3)) u_cen24(
     .cen    ( { cen1p5, cen3, cen6 } ),
     .cenb   (           )
 );
-
+/* verilator tracing_off */
 jtkiwi_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -112,7 +112,7 @@ jtkiwi_main u_main(
     .st_dout        ( main_st       )
 );
 
-/* xxverilator tracing_off */
+/* verilator tracing_off */
 jtkiwi_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
