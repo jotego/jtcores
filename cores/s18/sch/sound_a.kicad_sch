@@ -6852,7 +6852,7 @@
     (uuid fe90a33e-d1b2-4619-a9e6-83da784b0ad8)
   )
 
-  (hierarchical_label "SRAM_~{CS2}" (shape input) (at 35.56 107.95 0)
+  (hierarchical_label "SRAMAIN_~{CS2}" (shape input) (at 35.56 107.95 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 12bdfdcb-df7c-442e-b36d-54a0d5479c38)
   )

@@ -411,6 +411,10 @@
     [
       "0acfb19d-ae76-4ecb-b0ad-2c37b7d320ff",
       "spriteram"
+    ],
+    [
+      "2ea0f01d-e26e-49fb-9f69-9817cd047695",
+      "tilemapg_ram"
     ]
   ],
   "text_variables": {}
