@@ -39,6 +39,8 @@ module jtkiwi_snd(
     input      [ 1:0]   coin_input,
     input      [ 6:0]   joystick1,
     input      [ 6:0]   joystick2,
+    input      [ 1:0]   dial_x,
+    input      [ 1:0]   dial_y,
 
     // ROM interface
     output reg [15:0]   rom_addr,
@@ -82,11 +84,12 @@ module jtkiwi_snd(
 wire        irq_ack, mreq_n, m1_n, iorq_n, rd_n, wr_n,
             fmint_n, int_n, cpu_cen, rfsh_n;
 reg  [ 7:0] din, cab_dout, psg_gain, fm_gain, pcm_gain, p1_din, porta_din;
-wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, portb_dout;
-reg  [ 1:0] bank;
+wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, portb_dout,
+            dial_dout;
+reg  [ 1:0] bank, dial_rst;
 wire [15:0] A;
 wire [ 9:0] psg_snd;
-reg         bank_cs, fm_cs, cab_cs, mcu_cs,
+reg         bank_cs, fm_cs, cab_cs, mcu_cs, dial_cs,
             dev_busy, fm_busy, fmcs_l,
             mcu_rstn, comb_rstn=0;
 wire signed [15:0] fm_snd;
@@ -150,15 +153,18 @@ always @(posedge clk) begin
     cab_cs  <= mem_acc &&  A[15:12] == 4'hc && !mcu_en;
     mcu_cs  <= mem_acc &&  A[15:12] == 4'hc &&  mcu_en;
     ram_cs  <= mem_acc && (A[15:12] == 4'hd || A[15:12] == 4'he);
+    dial_cs <= mem_acc &&  A[15:12] == 4'hf;
 end
 
 always @(posedge clk, negedge comb_rstn) begin
     if( !comb_rstn ) begin
         bank     <= 0;
         mcu_rstn <= 1;
+        dial_rst <= 0;
     end else begin
         if( bank_cs ) begin
             bank     <= dout[1:0];
+            dial_rst <= dout[3:2];
             mcu_rstn <= dout[4];
 `ifdef SIMULATION
             if( !mcu_rstn && dout[4] ) $display("MCU reset released");
@@ -187,7 +193,8 @@ always @(posedge clk) begin
            ram_cs ? ram_dout :
            fm_cs  ? fm_dout  :
            mcu_cs ? mcu_dout :
-           cab_cs ? cab_dout : 8'h00;
+           cab_cs ? cab_dout :
+           dial_cs? dial_dout: 8'h00;
 end
 
 always @(posedge clk) begin
@@ -390,6 +397,26 @@ always @(posedge clk) begin
         endcase
     end else porta_din <= dipsw[7:0];
 end
+
+// only used by Arkanoid 2
+jt4701 u_dial(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .x_in   ( dial_x    ),
+    .y_in   ( dial_y    ),
+    .rightn ( service   ),
+    .leftn  (coin_input[0]),
+    .middlen(coin_input[1]),
+    .x_rst  (dial_rst[0]),
+    .y_rst  (dial_rst[1]),
+    .csn    ( ~dial_cs  ),
+    .uln    ( A[0]      ),
+    .xn_y   ( A[1]      ),
+    .cfn    (           ),
+    .sfn    (           ),
+    .dout   ( dial_dout ),
+    .dir    (           )
+);
 
 `ifndef VERILATOR_KEEP_JT03
 /* verilator tracing_off */

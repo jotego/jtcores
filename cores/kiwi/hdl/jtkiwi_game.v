@@ -193,6 +193,8 @@ jtkiwi_snd u_sound(
     .joystick2  ( joystick2     ),
     .service    ( service       ),
     .tilt       ( tilt          ),
+    .dial_x     ( dial_x        ),
+    .dial_y     ( dial_y        ),
     // DIP switches
     .dipsw      ( dipsw[15:0]   ),
     .dip_pause  ( dip_pause     ),
