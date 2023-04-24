@@ -18,7 +18,6 @@ skip.setnames=[
 	"3wonders1",
 	"ffightjh",
 ]
-skip.machine="pang3"
 
 [buttons]
 Names = [
@@ -63,7 +62,7 @@ defaults=[
     { value="ff,fc,9f", machines=[ "1941", "mercs", "sf2", "sf2ce", "sf2hf", "unsquad" ] },
     { value="ff,fc,bf", machines=[ "cawing", "knights", "mtwins", "nemo" ] },
     { value="ff,fc,ff", machines=[ "cworld2j", "forgottn", "pnickj", "qtono2j" ] },
-    { value="ff,ff,ff", machines=[ "dynwar" ] },
+    { value="ff,ff,ff", machines=[ "dynwar", "pang3" ] },
     { value="7f,ff,ff", setnames=[ "daimakai", "daimakair", "striderj", "striderjr", "willowj" ] },
     { value="ff,f4,ff", setnames=[ "qad" ] },
     { value="ff,fc,9f", setnames=[ "kodu" ] },
@@ -86,6 +85,9 @@ rename=[
     {name="Internal Diff. on Life Loss", to="Life Loss"},
     {name="2 Players Game", to="2P Game"},
     {name="Wisdom (questions to win game)", to="Questions"},
+]
+extra=[
+    { machine="pang3", name="Freeze", options="On,Off", bits="23" },
 ]
 
 [rom]
@@ -114,6 +116,15 @@ regions=[
             ], reverse=false },
     ] },
     { name="gfx", width=64 },
+    # So far, Pang!3 is too specific. It needs to break each file in two and
+    # merge them back in different locations. Instead of parsing MAME's XML
+    # the desigred parts are done manually:
+    { name="gfx", width=64, machine="pang3", parts=[
+        { name="pa3-01m.2c", crc="068a152c", map="00000021", length=0x100000, offset=0 },
+        { name="pa3-07m.2f", crc="3a4a619d", map="00002100", length=0x100000, offset=0 },
+        { name="pa3-01m.2c", crc="068a152c", map="00210000", length=0x100000, offset=0x100000 },
+        { name="pa3-07m.2f", crc="3a4a619d", map="21000000", length=0x100000, offset=0x100000 },
+    ] },
     { name="oki", len=0x40000 },
     { name="aboardplds", skip=true },
     { name="bboardplds", skip=true },
