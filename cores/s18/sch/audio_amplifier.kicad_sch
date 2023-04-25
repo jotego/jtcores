@@ -595,6 +595,7 @@
     )
   )
 
+
   (junction (at 167.64 76.2) (diameter 0) (color 0 0 0 0)
     (uuid 12824e09-df80-4d4f-a2b5-a0f83120dee8)
   )
@@ -1681,7 +1682,7 @@
   (symbol (lib_id "power:VSS") (at 115.57 163.83 180) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 83933c07-e6f8-42b8-9a4d-913e0e65c83d)
-    (property "Reference" "#PWR?" (id 0) (at 115.57 160.02 0)
+    (property "Reference" "#PWR0134" (id 0) (at 115.57 160.02 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VSS" (id 1) (at 115.57 167.64 0))

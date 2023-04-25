@@ -52,7 +52,7 @@
         0,
         2,
         0,
-        1,
+        0,
         0,
         0,
         1,
@@ -78,13 +78,13 @@
       ],
       [
         0,
+        0,
+        0,
+        0,
+        0,
+        0,
         1,
         0,
-        0,
-        0,
-        0,
-        1,
-        1,
         2,
         1,
         1,
@@ -136,7 +136,7 @@
         0,
         0,
         0,
-        1,
+        0,
         0,
         0,
         1,
@@ -224,7 +224,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "unannotated": "error",
@@ -415,6 +415,10 @@
     [
       "2ea0f01d-e26e-49fb-9f69-9817cd047695",
       "tilemapg_ram"
+    ],
+    [
+      "0930dcee-5931-4905-9b51-4e91a9303565",
+      "watch drivers"
     ]
   ],
   "text_variables": {}

@@ -864,6 +864,7 @@
     )
   )
 
+
   (junction (at 139.7 36.83) (diameter 0) (color 0 0 0 0)
     (uuid 19d5cbd2-70a8-47a9-840f-fd8c6cf20142)
   )
@@ -3131,7 +3132,7 @@
   (symbol (lib_id "power:VCC") (at 199.39 20.32 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid fb003a18-38ea-47ac-ace8-0f445edfc0c2)
-    (property "Reference" "#PWR?" (id 0) (at 199.39 24.13 0)
+    (property "Reference" "#PWR0129" (id 0) (at 199.39 24.13 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (id 1) (at 199.39 16.51 0))
