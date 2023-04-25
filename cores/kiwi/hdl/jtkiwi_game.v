@@ -30,10 +30,10 @@ wire        cen6, cen3, cen1p5;
 
 wire        bram_cs, vram_cs,  pal_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
-            colprom_we, mcuprom_we;
+            colprom_we, mcuprom_we, eff_service;
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
-            kageki=0, kabuki=0,
+            kageki=0, kabuki=0, service_xor=0,
             colprom_en=0, mcu_en=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
@@ -49,11 +49,15 @@ assign bram_we    = bram_cs & ~cpu_rnw;
 // assign bram_dsn   = { 1'd1, bram_cs & cpu_rnw };
 assign bram_din   = cpu_dout;
 assign eff_coin   = {2{coin_xor}}^coin_input;
+assign eff_service= service_xor ^ service;
 
 always @(posedge clk) begin
-    if( prog_we && header && prog_addr==0 ) begin
-        { hb_dly, dip_flip_xor, coin_xor, banked_ram,
-          kageki, kabuki, colprom_en, mcu_en } <= prog_data;
+    if( prog_we && header ) begin
+        if( prog_addr==0 )
+            { hb_dly, dip_flip_xor, coin_xor, banked_ram,
+              kageki, kabuki, colprom_en, mcu_en } <= prog_data;
+        else if( prog_addr==1 )
+            service_xor <= prog_data[0];
     end
 end
 
@@ -191,7 +195,7 @@ jtkiwi_snd u_sound(
     .coin_input ( eff_coin      ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
-    .service    ( service       ),
+    .service    ( eff_service   ),
     .tilt       ( tilt          ),
     .dial_x     ( dial_x        ),
     .dial_y     ( dial_y        ),
@@ -225,6 +229,7 @@ jtkiwi_snd u_sound(
     .sample     ( sample        ),
     .peak       ( game_led      ),
     // Debug
+    .debug_bus  ( debug_bus     ),
     .st_addr    ( st_addr       ),
     .st_dout    ( snd_st        )
 );
