@@ -35,13 +35,16 @@ info="""bit 0 = MCU
              bit 4 = banked RAM
              bit 5 = coin XOR
              bit 6 = dip_flip XOR
-             bit 7 = HB delay                            """
+             bit 7 = HB delay
+             Byte 1:
+             bit 0 = service XOR                         """
 data=[
     { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1" }, # HB dly, Banked RAM, MCU
     { machines=["chukatai"], data="41" }, # MCU
     { machines=["insectx"],  data="40" }, # dip_flip inversion
     { machines=["drtoppel"], data="03" },
-    { machines=["extrmatn","plumppop","arknoid2"], data="03" }, # MCU - Color PROM
+    { machines=["extrmatn","plumppop" ], data="03" }, # MCU - Color PROM
+    { machines=["arknoid2"], data="03 01" }, # MCU - Color PROM, Service XOR
     { machine="kabukiz",  data="04" }, # Kabuki Z sound subsystem
     { machine="kageki" ,  data="08" }, # Kageki   sound subsystem
 ]

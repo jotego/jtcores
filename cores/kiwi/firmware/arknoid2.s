@@ -21,7 +21,7 @@
 	RELAXED ON
 
 CMD	EQU	R4
-RDSEL  EQU	R5
+RDSEL  	EQU	R5
 OLDCOIN	EQU	R6
 CREDITS	EQU	R7
 
@@ -83,6 +83,10 @@ COINAGE:
 	INC R0
 	DJNZ R1,COINAGE
 
+	; Prepare counter
+	MOV A,#211
+	MOV T,A
+	STRT T
 	TOMAIN $5A	; final initialization signal
 
 L:  	JNIBF CKCMD
@@ -104,8 +108,7 @@ A1WR:
 	; If CMD=C1, set the read port selection to zero
 	ADD A,#$3F	; -$C1
 	JNZ CK15
-	MOV A,#0
-	MOV RDSEL,A
+	MOV RDSEL,#0
 	JMP CKCMD
 CK15:	; if CMD=15, decrement the credits by 1
 	MOV A,CMD
@@ -130,11 +133,15 @@ RDDATA:	MOV A,RDSEL
 	OUT DBB,A
 	JMP L
 RDBUT:	; output buttons, all zero for now
-	MOV A,#0
+	MOV A,#$00
 	OUT DBB,A
 	JMP L
 
 RDCOINS:
+	MOV A,T
+	JZ UPDATE
+	RET
+UPDATE:
 	MOV A,#0
 	JNT0 T0C
 	ORL A,#0x10
@@ -144,13 +151,17 @@ T1C:	MOV R1,A	; save the new coins
 	JZ NOCOINS
 	XRL A,OLDCOIN
 	JZ NOCOINS
-	MV A,CREDITS
+	MOV A,CREDITS
 	ADD A,#$F7
 	JC NOCOINS	; Do not pass 9 credits
 	INC CREDITS
-	; Compare with previous state
+	MOV A,R1
+	MOV STS,A
+	MOV OLDCOIN,A
+	RET
 NOCOINS:
 	MOV A,R1
 	MOV OLDCOIN,A
-	MOV STS,A
+	MOV A,#0
+	MOV STS,A	; No activity to report
 	RET

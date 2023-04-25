@@ -76,6 +76,7 @@ module jtkiwi_snd(
     output               sample,
     output               peak,
     // Debug
+    input      [ 7:0]    debug_bus,
     input      [ 7:0]    st_addr,
     output reg [ 7:0]    st_dout
 );
@@ -85,7 +86,7 @@ wire        irq_ack, mreq_n, m1_n, iorq_n, rd_n, wr_n,
             fmint_n, int_n, cpu_cen, rfsh_n;
 reg  [ 7:0] din, cab_dout, psg_gain, fm_gain, pcm_gain, p1_din, porta_din;
 wire [ 7:0] fm_dout, dout, p2_din, p2_dout, mcu_dout, mcu_st, portb_dout,
-            dial_dout;
+            dial_dout, p1_dout;
 reg  [ 1:0] bank, dial_rst;
 wire [15:0] A;
 wire [ 9:0] psg_snd;
@@ -367,7 +368,7 @@ jtframe_i8742 #(
     // Ports
     .p1_din     ( p1_din     ),
     .p2_din     ( p2_din     ),
-    .p1_dout    (            ),
+    .p1_dout    ( p1_dout    ),
     .p2_dout    ( p2_dout    ),
 
     // Test pins (used in the assembler TEST instruction)
