@@ -388,7 +388,7 @@
       (property "Datasheet" "" (id 3) (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_keywords" "power-flag" (id 4) (at 0 0 0)
+      (property "ki_keywords" "global power" (id 4) (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (property "ki_description" "Power symbol creates a global label with name \"VSS\"" (id 5) (at 0 0 0)
@@ -422,7 +422,6 @@
       )
     )
   )
-
 
   (junction (at 35.56 105.41) (diameter 0) (color 0 0 0 0)
     (uuid 00aa12fd-4a51-466f-8ac7-01d7362df87b)
