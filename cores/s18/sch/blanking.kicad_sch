@@ -210,23 +210,29 @@
         )
       )
     )
-    (symbol "Device:CP1_Small" (pin_numbers hide) (pin_names (offset 0.254) hide) (in_bom yes) (on_board yes)
+    (symbol "Device:C_Polarized_Small_US" (pin_numbers hide) (pin_names (offset 0.254) hide) (in_bom yes) (on_board yes)
       (property "Reference" "C" (id 0) (at 0.254 1.778 0)
         (effects (font (size 1.27 1.27)) (justify left))
       )
-      (property "Value" "Device_CP1_Small" (id 1) (at 0.254 -2.032 0)
+      (property "Value" "C_Polarized_Small_US" (id 1) (at 0.254 -2.032 0)
         (effects (font (size 1.27 1.27)) (justify left))
       )
       (property "Footprint" "" (id 2) (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "Datasheet" "" (id 3) (at 0 0 0)
+      (property "Datasheet" "~" (id 3) (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (property "ki_fp_filters" "CP_*" (id 4) (at 0 0 0)
+      (property "ki_keywords" "cap capacitor" (id 4) (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "CP1_Small_0_1"
+      (property "ki_description" "Polarized capacitor, small US symbol" (id 5) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_fp_filters" "CP_*" (id 6) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "C_Polarized_Small_US_0_1"
         (polyline
           (pts
             (xy -1.524 0.508)
@@ -256,7 +262,7 @@
           (fill (type none))
         )
       )
-      (symbol "CP1_Small_1_1"
+      (symbol "C_Polarized_Small_US_1_1"
         (pin passive line (at 0 2.54 270) (length 2.032)
           (name "~" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
@@ -1072,7 +1078,6 @@
       )
     )
   )
-
 
   (junction (at 139.7 36.83) (diameter 0) (color 0 0 0 0)
     (uuid 19d5cbd2-70a8-47a9-840f-fd8c6cf20142)
@@ -2752,7 +2757,7 @@
     (uuid f9fe5e7e-0404-456c-a0ad-cd371a908858)
   )
 
-  (symbol (lib_id "Device:CP1_Small") (at 139.7 52.07 0) (mirror y) (unit 1)
+  (symbol (lib_id "Device:C_Polarized_Small_US") (at 139.7 52.07 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 00000000-0000-0000-0000-000064bc19da)
     (property "Reference" "CP142" (id 0) (at 147.32 50.8 0)
@@ -2935,7 +2940,7 @@
     (pin "9" (uuid 0a40aeb5-80a2-49e9-9bb9-897d00c37f90))
   )
 
-  (symbol (lib_id "Device:CP1_Small") (at 199.39 52.07 0) (mirror y) (unit 1)
+  (symbol (lib_id "Device:C_Polarized_Small_US") (at 199.39 52.07 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 00000000-0000-0000-0000-000064bc1a38)
     (property "Reference" "CP143" (id 0) (at 207.01 50.8 0)
@@ -3019,7 +3024,7 @@
     (pin "3" (uuid ef91784d-d88a-4333-9a80-7a2c87e75259))
   )
 
-  (symbol (lib_id "Device:CP1_Small") (at 252.73 52.07 0) (mirror y) (unit 1)
+  (symbol (lib_id "Device:C_Polarized_Small_US") (at 252.73 52.07 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 00000000-0000-0000-0000-000064bc1a67)
     (property "Reference" "CP144" (id 0) (at 260.35 50.8 0)
@@ -3301,7 +3306,7 @@
   (symbol (lib_id "arcade:PLUS153DN") (at 58.42 146.05 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid dc55363e-d9a4-4b93-ad79-78f5de605baa)
-    (property "Reference" "D11" (id 0) (at 63.5 160.02 0))
+    (property "Reference" "PD11" (id 0) (at 63.5 160.02 0))
     (property "Value" "PLUS153DN" (id 1) (at 57.15 144.78 90))
     (property "Footprint" "" (id 2) (at 57.15 144.78 90)
       (effects (font (size 1.27 1.27)) hide)
