@@ -9,7 +9,8 @@
     (date "2022-03-18")
     (rev "José Tejada G.")
     (company "JOTEGO")
-    (comment 1 "Esperanza Triana")
+    (comment 1 "patreon.com/jotego")
+    (comment 2 "Esperanza Triana")
   )
 
   (lib_symbols
@@ -170,8 +171,8 @@
     (uuid f1c3e188-15e5-42a7-92c4-bd426eb812b6)
   )
 
-  (image (at 276.86 173.99) (scale 0.226664)
-    (uuid 0acb7b0a-508e-41a5-912f-ca2b4bb91c80)
+  (image (at 276.86 173.99) (scale 0.198066)
+    (uuid f7a54635-f051-4448-b6b2-b9e2bbf2edc3)
     (data
       iVBORw0KGgoAAAANSUhEUgAAAxoAAAMaCAIAAACOIqcFAAAAA3NCSVQICAjb4U/gAAAACXBIWXMA
       AA50AAAOdAFrJLPWAAAgAElEQVR4nOzdd3wcV73//5ndlVZlV5ItS+6y5SbHvReV1ToESC4BEkgD

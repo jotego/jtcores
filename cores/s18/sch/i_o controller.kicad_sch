@@ -9,7 +9,8 @@
     (date "2022-03-18")
     (rev "José Tejada G.")
     (company "JOTEGO")
-    (comment 1 "Esperanza Triana")
+    (comment 1 "patreon.com/jotego")
+    (comment 2 "Esperanza Triana")
   )
 
   (lib_symbols
@@ -3107,8 +3108,8 @@
           (name "MAIN_A13" (effects (font (size 1.27 1.27))))
           (number "62" (effects (font (size 1.27 1.27))))
         )
-        (pin no_connect line (at 7.62 36.83 270) (length 5.08)
-          (name "UK" (effects (font (size 1.27 1.27))))
+        (pin output line (at 7.62 36.83 270) (length 5.08)
+          (name "COLMIX" (effects (font (size 1.27 1.27))))
           (number "63" (effects (font (size 1.27 1.27))))
         )
         (pin no_connect line (at 5.08 36.83 270) (length 5.08)
@@ -4059,6 +4060,10 @@
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 6da73a11-1a02-4057-b990-38f6884bbf58)
   )
+  (wire (pts (xy 99.06 44.45) (xy 99.06 49.53))
+    (stroke (width 0) (type default) (color 0 0 0 0))
+    (uuid 6f58c064-a852-4869-aa3c-1b419089f30b)
+  )
   (wire (pts (xy 140.97 68.58) (xy 140.97 71.12))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 6f5928a2-7054-4299-b287-2bc34339dac1)
@@ -4792,8 +4797,8 @@
     (uuid ff8e314a-c937-4dcd-b8a4-78f1cec332ee)
   )
 
-  (image (at 276.86 173.99) (scale 0.25)
-    (uuid 41b5a357-7208-45b2-8461-8e1afebeadbc)
+  (image (at 275.59 173.99) (scale 0.198066)
+    (uuid a6577052-a916-4ccb-8742-511a14a1a040)
     (data
       iVBORw0KGgoAAAANSUhEUgAAAxoAAAMaCAIAAACOIqcFAAAAA3NCSVQICAjb4U/gAAAACXBIWXMA
       AA50AAAOdAFrJLPWAAAgAElEQVR4nOzdd3wcV73//5ndlVZlV5ItS+6y5SbHvReV1ToESC4BEkgD
@@ -5295,10 +5300,6 @@
     (at 41.91 152.4 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b9e185dc-ad75-456c-8508-878a9b4c40ff)
-  )
-  (text "OK" (at 248.92 90.17 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid e7339288-076a-4407-931d-3098f14b7183)
   )
 
   (label "VSS" (at 198.12 71.12 0)
@@ -5989,6 +5990,10 @@
   (hierarchical_label "1P_BTN_2" (shape input) (at 267.97 45.72 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid f47d01f9-e3a4-44d1-bd60-17cd511473ab)
+  )
+  (hierarchical_label "PALCOL" (shape output) (at 99.06 44.45 90)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid f7977ac4-3416-4c2c-a512-afc353606528)
   )
   (hierarchical_label "1P_BTN_3" (shape input) (at 267.97 48.26 0)
     (effects (font (size 1.27 1.27)) (justify left))

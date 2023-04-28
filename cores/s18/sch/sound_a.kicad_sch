@@ -9,7 +9,8 @@
     (date "2022-03-18")
     (rev "José Tejada G.")
     (company "JOTEGO")
-    (comment 1 "Esperanza Triana")
+    (comment 1 "patreon.com/jotego")
+    (comment 2 "Esperanza Triana")
   )
 
   (lib_symbols
@@ -7822,8 +7823,8 @@
     (uuid ffea2f72-c8d8-48d2-a076-fd0d03b42560)
   )
 
-  (image (at 276.86 173.99) (scale 0.25)
-    (uuid 44bc67fc-6602-4217-8aea-568ff7b48451)
+  (image (at 276.86 173.99) (scale 0.198066)
+    (uuid e57d8f12-7bb1-46a5-8cd3-566cc0fc3e6b)
     (data
       iVBORw0KGgoAAAANSUhEUgAAAxoAAAMaCAIAAACOIqcFAAAAA3NCSVQICAjb4U/gAAAACXBIWXMA
       AA50AAAOdAFrJLPWAAAgAElEQVR4nOzdd3wcV73//5ndlVZlV5ItS+6y5SbHvReV1ToESC4BEkgD
@@ -8291,10 +8292,6 @@
     )
   )
 
-  (text "OK" (at 142.24 161.29 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 9036e257-5480-4d82-aa0c-859a0adfa06b)
-  )
   (text "24MHz" (at 219.71 92.71 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 9bb4ce11-6645-4186-ac13-d1874db922f7)
