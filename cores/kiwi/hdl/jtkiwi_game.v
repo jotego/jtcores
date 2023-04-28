@@ -30,11 +30,12 @@ wire        cen6, cen3, cen1p5;
 
 wire        bram_cs, vram_cs,  pal_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
+            button_aid, // merges 1P, coin and
             colprom_we, mcuprom_we, eff_service;
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
             kageki=0, kabuki=0, service_xor=0,
-            colprom_en=0, mcu_en=0;
+            colprom_en=0, mcu_en=0, aid_en;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
 assign debug_view = st_addr[7:6]==0 ? { hb_dly, dip_flip_xor, coin_xor, banked_ram,
@@ -48,8 +49,11 @@ assign st_dout    = debug_view;
 assign bram_we    = bram_cs & ~cpu_rnw;
 // assign bram_dsn   = { 1'd1, bram_cs & cpu_rnw };
 assign bram_din   = cpu_dout;
-assign eff_coin   = {2{coin_xor}}^coin_input;
+// button_aid will make up/down inputs to work as coins too. This helps
+// button mapping for spinners in MiSTer
+assign eff_coin   = {2{coin_xor}}^( coin_input & ({2{~button_aid}}| {&joystick2[3:2],&joystick1[3:2]}));
 assign eff_service= service_xor ^ service;
+assign button_aid = status[13]&aid_en;
 
 always @(posedge clk) begin
     if( prog_we && header ) begin
@@ -57,7 +61,7 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            service_xor <= prog_data[0];
+            { aid_en, service_xor } <= prog_data[1:0];
     end
 end
 
@@ -199,6 +203,7 @@ jtkiwi_snd u_sound(
     .tilt       ( tilt          ),
     .dial_x     ( dial_x        ),
     .dial_y     ( dial_y        ),
+    .button_aid ( button_aid    ),
     // DIP switches
     .dipsw      ( dipsw[15:0]   ),
     .dip_pause  ( dip_pause     ),
