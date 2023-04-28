@@ -37,6 +37,7 @@ JTFRAME_PXLCLK=6
 [mister]
 JTFRAME_ARX=5
 JTFRAME_ARY=4
+CORE_OSD=OD,Button aid,Off,On
 
 [mister|pocket]
 -JTFRAME_SKIP

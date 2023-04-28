@@ -41,6 +41,7 @@ module jtkiwi_snd(
     input      [ 6:0]   joystick2,
     input      [ 1:0]   dial_x,
     input      [ 1:0]   dial_y,
+    input               button_aid,
 
     // ROM interface
     output reg [15:0]   rom_addr,
@@ -200,8 +201,14 @@ end
 
 always @(posedge clk) begin
     case( p2_dout[2:0] )
-        3'h4: p1_din <= { start_button[0], joystick1 };
-        3'h5: p1_din <= { start_button[1], joystick2 };
+        // button_aid links 1P and shot buttons. This is good for Arkanoid 2
+        // because MiSTer wastes spinner buttons as directions so you are left
+        // out with not enough buttons to map the 1P
+        // It also makes continue easier
+        3'h4: p1_din <= { start_button[0] & (~button_aid | joystick1[4]),
+                            joystick1 };
+        3'h5: p1_din <= { start_button[1] & (~button_aid | joystick2[4]),
+                            joystick2 };
         3'h2: p1_din <= { 6'h3f, tilt, service };
         default: p1_din <= 8'hff;
     endcase
