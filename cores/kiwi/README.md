@@ -18,10 +18,13 @@ In chronological order:
  2. Insector X
  3. The New Zealand Story
  4. Kageki
+ 5. Arkanoid Revenge of Doh
 
-Some of the MRA files provided may not work as there is some variation in Bubble Bobble bootleg hardware which is not implemented. Official Tokio MRA file will not work because the MCU hardware is not yet implemented in the core. Only the bootleg MRA for Tokio works.
+**Arkanoid 2** supports spinner on the MiSTer and joystick controls on both MiSTer and Pocket. On the MiSTer the joystick control will require setting the sensitivity to low on the OSD menu. The spinner will likely need a higher setting.
 
-Note for developers: Tokio hangs up after a life is lost if the RBF is compiled without sound.
+MiSTer forces you to map the joystick directions to spinner buttons. Because of that, you may run out of buttons on the spinner before mapping the coin inputs. Enabling the *button aid* option in the OSD will map the coin button to the up/down buttons, letting you use those forced mappings.
+
+Arkanoid 2 uses a homebrew firmware for the microcontroller ROM as there is no ROM dump available for it. This firmware works ok most of the time but it may produce a **COIN OVERFLOW** error some times and you will need to reboot the game. You can reboot through the OSD on MiSTer. On the Pocket, you can reboot by changing any game setting through the OSD or simply by re-loading the game.
 
 ## Documentation
 
@@ -36,6 +39,7 @@ PCB                    |  sch location            | Author              | PDF
 Extermination          | cores/kiwi/sch/exterm    | JOTEGO (E. Triana)  | [pdf](https://github.com/jotego/jtbin/tree/master/sch/exterm.pdf)
 Insector X             | cores/kiwi/sch/insectx   | Skutis              | [pdf](https://github.com/jotego/jtbin/tree/master/sch/insectx.pdf)
 The New Zealand Story  | cores/kiwi/sch/tnzs      | Skutis              | [pdf](https://github.com/jotego/jtbin/tree/master/sch/tnzs.pdf)
+Arkanoid Revenge of Doh| cores/kiwi/sch/arknoid2  | Skutis              | [pdf](https://github.com/jotego/jtbin/tree/master/sch/arknoid2.pdf)
 
 ## PLD Data
 

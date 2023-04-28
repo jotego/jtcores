@@ -53,7 +53,7 @@ assign bram_din   = cpu_dout;
 // button mapping for spinners in MiSTer
 assign eff_coin   = {2{coin_xor}}^( coin_input & ({2{~button_aid}}| {&joystick2[3:2],&joystick1[3:2]}));
 assign eff_service= service_xor ^ service;
-assign button_aid = status[13]&aid_en;
+assign button_aid = `ifdef MISTER status[13]&aid_en `else 0 `endif ;
 
 always @(posedge clk) begin
     if( prog_we && header ) begin
@@ -203,7 +203,6 @@ jtkiwi_snd u_sound(
     .tilt       ( tilt          ),
     .dial_x     ( dial_x        ),
     .dial_y     ( dial_y        ),
-    .button_aid ( button_aid    ),
     // DIP switches
     .dipsw      ( dipsw[15:0]   ),
     .dip_pause  ( dip_pause     ),
