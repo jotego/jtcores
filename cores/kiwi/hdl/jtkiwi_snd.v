@@ -111,7 +111,7 @@ assign mcu_comb_rst = ~(mcu_rstn & comb_rstn);
 assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
 assign mcu_we   = {2{mcu_cs & ~wr_n}} & { A[0], ~A[0] };
-assign mcu_rd   = {2{mcu_cs &  wr_n}} & { A[0], ~A[0] };
+assign mcu_rd   = {2{mcu_cs & ~rd_n}} & { A[0], ~A[0] };
 
 assign irq_ack = /*!m1_n &&*/ !iorq_n; // The original PCB just uses iorq_n,
     // the orthodox way to do it is to use m1_n too
@@ -350,6 +350,17 @@ jtframe_z80_devwait #(.RECOVERY(1)) u_gamecpu(
 );
 
 `ifndef NOMCU
+`ifdef SIMULATION
+    reg mcu_rdl, mcu_wel;
+
+    always @(posedge clk ) begin
+        mcu_rdl <= |mcu_rd;
+        mcu_wel <= |mcu_we;
+        if( mcu_we==0 && mcu_wel ) $display("Wr %X to   %X", dout, A);
+        if( mcu_rd==0 && mcu_rdl ) $display("Rd %X from %X",din, A);
+    end
+`endif
+
 jtframe_i8742 #(
     .SIMFILE("../../firmware/arknoid2.bin")
 ) u_mcu(

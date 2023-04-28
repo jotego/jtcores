@@ -83,13 +83,13 @@ COINAGE:
 	INC R0
 	DJNZ R1,COINAGE
 
-	; Prepare counter
-	MOV A,#211
-	MOV T,A
-	STRT T
 	TOMAIN $5A	; final initialization signal
 
-L:  	JNIBF CKCMD
+	MOV CREDITS,#0
+	; infinite loop to read cabinet inputs
+L:  	JOBF L2
+	JMP CKCMD
+L2:	JNIBF L
 	IN A,DBB
 	JF1 A1WR
 	; check if command is 41
@@ -97,11 +97,12 @@ L:  	JNIBF CKCMD
 	MOV R0,A	; keep the data
 	MOV A,CMD
 	ADD A,#$BF	; -$41
-	JNZ CKCMD	; it wasn't $41, ignore
+	JNZ L		; it wasn't $41, ignore
 	MOV A,CREDITS
 	ADD A,R0
 	MOV CREDITS,A
-	JMP CKCMD	; continue
+	OUT DBB,A
+	JMP L		; should we output the new credit count? / continue
 A1WR:
 	CLR F1
 	MOV CMD,A
@@ -109,45 +110,44 @@ A1WR:
 	ADD A,#$3F	; -$C1
 	JNZ CK15
 	MOV RDSEL,#0
-	JMP CKCMD
+	CALL RDCOINS	; Update STS with coin information
+	MOV A,CREDITS
+	OUT DBB,A
+	JMP L
 CK15:	; if CMD=15, decrement the credits by 1
 	MOV A,CMD
 	ADD A,#$EB	; -$15
-	JNZ CKCMD
+	JNZ L
 	MOV A,CREDITS
 	JZ CKCMD
 	DEC CREDITS
-CKCMD:	CALL RDCOINS	; Update STS with coin information
-	JOBF L		; do not output new data
-	; if cmd is 41, return the number of credits
-	MOV A,CMD
-	ADD A,#$BF
-	JNZ RDDATA
-	MOV A,CREDITS
-	OUT DBB,A
 	JMP L
-RDDATA:	MOV A,RDSEL
-	JNZ RDBUT
-	INC RDSEL
-	MOV A,CREDITS
-	OUT DBB,A
-	JMP L
-RDBUT:	; output buttons, all zero for now
-	MOV A,#$00
-	OUT DBB,A
+
+CKCMD:	; output buttons, all inactive for now
+	MOV A,#4
+	OUTL P2,A
+	IN A,P1
+	ORL A,#$0F
+	MOV R0,A	; 1P inputs here
+	MOV A,#5
+	OUTL P2,A
+	IN A,P1
+	RR A
+	RR A
+	RR A
+	RR A
+	ORL A,#$F0
+	ANL A,R0	; 1P+2P inputs ready
+       	OUT DBB,A
 	JMP L
 
 RDCOINS:
-	MOV A,T
-	JZ UPDATE
-	RET
-UPDATE:
 	MOV A,#0
-	JNT0 T0C
+	JNT0 T0C	; T0/1 high when coin is held
 	ORL A,#0x10
 T0C:	JNT1 T1C
 	ORL A,#0x20
-T1C:	MOV R1,A	; save the new coins
+T1C:	MOV R0,A	; save the new coins
 	JZ NOCOINS
 	XRL A,OLDCOIN
 	JZ NOCOINS
@@ -155,12 +155,12 @@ T1C:	MOV R1,A	; save the new coins
 	ADD A,#$F7
 	JC NOCOINS	; Do not pass 9 credits
 	INC CREDITS
-	MOV A,R1
+	MOV A,R0
 	MOV STS,A
 	MOV OLDCOIN,A
 	RET
 NOCOINS:
-	MOV A,R1
+	MOV A,R0
 	MOV OLDCOIN,A
 	MOV A,#0
 	MOV STS,A	; No activity to report
