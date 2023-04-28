@@ -1,0 +1,3 @@
+focus 1
+wp c000,2,r,1,{ printf "Rd %x from %x", wpdata, wpaddr; go}
+wp c000,2,w,1,{ printf "Wr %x to   %x", wpdata, wpaddr; go}
