@@ -1,9 +1,12 @@
 [all]
 CORENAME=JTKIWI
-JTFRAME_BUTTONS=3
 JTFRAME_CREDITS
+
+# Controls
+JTFRAME_BUTTONS=3
 JTFRAME_JOY_DURL
 JTFRAME_DIAL
+JTFRAME_DIALEMU_LEFT=0
 
 # Extermination, Kageki, etc. are vertical games
 JTFRAME_VERTICAL
@@ -41,3 +44,8 @@ CORE_OSD=OD,Button aid,Off,On
 
 [mister|pocket]
 -JTFRAME_SKIP
+
+[pocket]
+# Fixed sensitivty for Arkanoid 2 as there is
+# no OSD control for this at the moment
+JTFRAME_DIAL_SENSTY=2

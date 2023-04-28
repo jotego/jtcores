@@ -8,8 +8,8 @@
         Conrad Fenech &
         Matthew Azzopardi
 
- Insector X, TNZS schematics by
-        Skutis
+  Insector X, TNZS, Arknoid 2
+    schematics by skutis77
 
  Extermination schematics by
         JOTEGO
@@ -19,10 +19,11 @@
 
  \B______ \RPRODUCERS\B _______\W
         DJ Hard Rich
+     LightCaster Games LLC
 
  \B______ \RDIRECTORS\B _______\W
-A. Villena      Bender
-Blue Abs        Boogermann
+Bender         Blue Abs
+Boogermann     Brad
     Carlo Castagnasso
 Chris Gelatt    Darren Chell
 Filip Kindt     Frederic Mahe
@@ -31,8 +32,7 @@ James D         JaviRodasG
 Jeffrey Pierce  John Lange
     John Smith
     Ksenia Anastasia
-Louis Martinez  Luke Rowe
-    Martin Birkeldh
+Louis Martinez  Martin Birkeldh
     Porkchop Express
     Pramod Somashekar
 Rysha           Shawn Henderson
@@ -41,43 +41,41 @@ Tulio Adriano   Ulf Skutnabba
 
        \BThanks to\W
 \RAndrea Bogazzi  Arcade Express
-\RArjan de Lang   Ben Sanborn
-\RBob Gallardo    Brad
-\RBrian Sallee    Dan Avedikian
-\RDaniel Bauza    ER
-\R    Eric Lewis
+\RBob Gallardo    Brian Sallee
+\RDan Avedikian   Daniel Bauza
+\RER              Eric Lewis
 \R    GiRo SiNToRNiLLoS
 \RJim Weinhart    Martin Donlon
 \R    MiSTerFPGA.co.uk
 \RPelayo Marinas  Peter Vessenes
 \RR. Martinazzo   Renaissance 2K
 \RRetroWilly      Robert Moran
+\RSanborn         Syro
 \R    Tatton Partington
 \RTony Escobar    Tony Mika
-\R          Silo
 
  \B_________ AND __________\W
 ARCADEAGES      Adam Davis
-Adrian Nabarro  Andrew Francomb
-Andy Palmer     Andyways
-Blackstar       Bryan Adams
-Carrboroman     Chris Doyle
-Chris Harvey    Christian
-D.J. Estreito   DMG
-Dan Bayley      Daniel Cortes
-David Ashby     David Mills Jr.
-David Moylan    Dean Winger
-Don Gafford     Ed Balan
-Eduardo Javier  Edward Rana
-EmperorStorky   Gareth Jones
-Gladius         Gus Douboulidis
+Adrian Nabarro  Andy Palmer
+Andyways        Blackstar
+Bryan Adams     Carrboroman
+Chris Doyle     Chris Harvey
+Christian       D.J. Estreito
+DMG             Dan Bayley
+Daniel Cortes   David Ashby
+David Mills Jr. David Moylan
+Dean Winger     Don Gafford
+Ed Balan        Eduardo Javier
+Edward Rana     EmperorStorky
+Gareth Jones    Gladius
+    Gus Douboulidis
     Hendrik Osterholz
     Henrik Nordstrom
     INAKI ECHEVARRIA
 Ian Court       Ivo
 JFRoco          JPS (RetroFPGA)
-James Stroup    James Williams
-Jason Nagy      Jeffrey Haas
+James Stroup    Jason Nagy
+    Jeffrey Haas
     Jerome Braconnier
 Jo le Zef       Joe Castle
 Joe Tassone     Joeri van
@@ -90,25 +88,24 @@ Leslie Law      Lionel LENOBLE
     Luis Alvarado
     Lukas Hinterleitner
 M. Ferguson     M. Fornasini
-Marcus Hogue    Matthew Pollard
-    Matthew Young
+MakeshiftMoney  Marcus Hogue
+Matthew Pollard Matthew Young
     Michael Blackman
     Michael Ferguson
-Michael Johnson Michael Thomas
-MoonZ           Nima
-Oliver Jaksch   Oscar Laguna
-Peter Bray      RetroPrez
-Richard MS      Rob Jenkins
-Robert MacLean  Robert Mullings
-Roman Buser     Shane Lynch
-Steven Wilson   The Collector
-Theodore Huber  Thompson Orcino
-Torren Beitler  Tym Whitney
-Victor Gomariz  Vitor Duarte
-Younghoon Gong  Zachary Muske
-albertprime     amoore2600
-emerald4224     hyp36rmax
-taal.M
+Michael Johnson MoonZ
+Nima            Oliver Jaksch
+Oscar Laguna    Peter Bray
+RetroPrez       Richard MS
+Rob Jenkins     Robert MacLean
+Robert Mullings Roman Buser
+Shane Lynch     Steven Wilson
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+Tym Whitney     Victor Gomariz
+Vitor Duarte    Younghoon Gong
+Zachary Muske   albertprime
+amoore2600      emerald4224
+hyp36rmax       taal.M
   ________________________
 
       - Beta version -
