@@ -28,7 +28,6 @@ JTFRAME_IOCTL_RD=0xf840
 
 # Cores specific
 NOTRACKBALL
-NOMCU
 
 # ROM file layout
 # BA0, RAM

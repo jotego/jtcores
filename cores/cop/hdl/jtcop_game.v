@@ -174,7 +174,7 @@ wire [ 7:0] adpcm_data;
 wire        adpcm_ok;
 
 wire        flip;
-wire        cen_opl, cen_opn, cen_mcu;
+wire        cen_opl, cen_opn;
 wire        mcu_we;
 
 wire [15:0] ba0_dout, ba1_dout, ba2_dout;
@@ -228,7 +228,7 @@ jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen3   ( cen_opl   ),
     .cen1p5 ( cen_opn   ),
-    .cen8   ( cen_mcu   ),
+    .cen8   (           ),
     // unused
     .cen12(), .cen6(),   .cen4(),
     .cen3q(), .cen12b(), .cen6b(),
@@ -460,7 +460,7 @@ jtcop_snd u_sound(
     wire [7:0] mcu_p0o, mcu_p1o, mcu_p2o, mcu_p3o, mcu_p3i;
     reg  [7:0] mcu_p0i;
     reg        mcu_intn, mcu_sel0l;
-    wire       mcu_wrlo, mcu_wrhi, mcr_rdhi, mcu_rdlo;
+    wire       mcu_wrlo, mcu_wrhi, mcu_rdhi, mcu_rdlo, cen_mcu;
 
     assign mcu_p3i = { mcu_sel[5:3], mcu_p3o[4:0] };
     assign { sndflag, b1flg, b0flg, mixflg } = mcu_p1o[6:0];
@@ -498,6 +498,14 @@ jtcop_snd u_sound(
                 mcu_dout[7:0] <= mcu_p0o;
         end
     end
+
+    jtframe_frac_cen #(.WC(3)) u_cenmcu(
+        .clk ( clk24    ),
+        .n   ( 3'd1     ),
+        .m   ( 3'd3     ),
+        .cen ( cen_mcu  ),
+        .cenb(          )
+    );
 
     jtframe_8751mcu #(
         .ROMBIN     ("../../../../rom/ei31.9a"),
