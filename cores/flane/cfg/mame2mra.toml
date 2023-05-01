@@ -1,5 +1,4 @@
 [global]
-# info = [ {tag="mameversion", value="0229"} ]
 mraauthor=["jotego"]
 
 [parse]
@@ -19,7 +18,10 @@ rename = [ {name="Bonus Life", to="Bonus"} ]
 # or arguments passed to mame2mra
 regions = [
     { name="maincpu", no_offset=true  },
-    { name="gfx",     start="GFX_START", width=16 }
+    { name="gfx",       start="GFX_START", width=16 },
+    { name="k007232_1", start="PCM0_START" },
+    { name="k007232_2", start="PCM1_START" },
+    { name="proms",     start="JTFRAME_PROM_START"},
 ]
 # { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
 order = [

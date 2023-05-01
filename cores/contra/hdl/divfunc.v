@@ -44,31 +44,26 @@ module divfunc
 );
 
     reg               ready    `N(XLEN+1);
-    reg `N(XLEN)      dividend `N(XLEN+1);  
+    reg `N(XLEN)      dividend `N(XLEN+1);
     reg `N(XLEN)      divisor  `N(XLEN+1);
-    reg `N(XLEN)      quotient `N(XLEN+1);     
+    reg `N(XLEN)      quotient `N(XLEN+1);
 
     always@* begin
-        ready[0]    = vld;    
+        ready[0]    = vld;
         dividend[0] = a;
         divisor[0]  = b;
         quotient[0] = 0;
-    end   
+    end
 
     generate
     	genvar i;
     	for (i=0;i<XLEN;i=i+1) begin:gen_div
 
             wire [i:0]      m = dividend[i]>>(XLEN-i-1);
-             
-            wire [i:0]      n = divisor[i];
-     
+            wire [i:0]      n = divisor[i][i:0];
     	    wire            q = (|(divisor[i]>>(i+1))) ? 1'b0 : ( m>=n );
-     
     	    wire [i:0]      t = q ? (m - n) : m;
-
 			wire [XLEN-1:0] u = dividend[i]<<(i+1);
-			    
     	    wire [XLEN+i:0] d = {t,u}>>(i+1);
 
             if (STAGE_LIST[XLEN-i-1]) begin:gen_ff
@@ -83,13 +78,13 @@ module divfunc
 
                 `FFx(quotient[i+1],0)
                 quotient[i+1] <= quotient[i]|(q<<(XLEN-i-1));
-               
+
             end else begin:gen_comb
                 always @* begin
                 	ready[i+1]    = ready[i];
-                	dividend[i+1] = d;
+                	dividend[i+1] = d[0+:XLEN];
                     divisor[i+1]  = divisor[i];
-                	quotient[i+1] = quotient[i]|(q<<(XLEN-i-1));                	
+                	quotient[i+1] = quotient[i]|(q<<(XLEN-i-1));
                 end
             end
         end

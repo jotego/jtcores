@@ -28,7 +28,7 @@ wire [ 3:0] dipsw_c;
 wire [13:0] cpu_addr;
 wire        gfx_irqn, pal_cs, gfx_ramcs;
 wire        cpu_cen, cpu_rnw, cpu_irqn, cpu_nmin;
-wire [ 7:0] pal_dout, cpu_dout, gfx_dout;
+wire [ 7:0] pal_dout, cpu_dout, gfx_dout, st_video;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
