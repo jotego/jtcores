@@ -333,6 +333,8 @@ PRINT_ST8:
     ; modifies s2
     ; s0 updated to point to the next column
 PRINT_HEX:
+    return  ; Disabled
+
     output s0,VRAM_COL
     load s2,s1
     sr0 s2
