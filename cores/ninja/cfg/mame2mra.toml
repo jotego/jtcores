@@ -20,7 +20,7 @@ mustbe.machines=[
 Names = [
     { machine="baddudes", names="Attack,Jump"},
     # No button names in the manual:
-    { machine="hbarrel",  names="Shot,Granade,Turn left,Turn right"},
+    { machine="hbarrel",  names="Shot,Bomb,Turn left,Turn right"},
 ]
 
 
