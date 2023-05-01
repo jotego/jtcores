@@ -137,10 +137,10 @@ jtframe_frac_cen #(.WC(11)) u_cpucen(
     .cenb (              )
 );
 
-jtframe_frac_cen #(.WC(13)) u_pcmcen(
-    .clk  ( clk          ),
-    .n    ( 13'd63       ),
-    .m    ( 13'd6671     ),
+jtframe_frac_cen #(.WC(8)) u_pcmcen(
+    .clk  ( clk          ), // clk = 24 *6.667/6.0 = 26.668 MHz
+    .n    ( 8'd2         ), // 2/139*26.668 MHz = 384 kHz
+    .m    ( 8'd139       ),
     .cen  ({nc,pcm_cen } ),
     .cenb (              )
 );
@@ -165,7 +165,7 @@ jtrastan_pc060 u_pc060(
     .snd_rst    ( pc6_rst   )
 );
 
-jtframe_sysz80 u_cpu(
+jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),
     .cen        ( cen4      ),
