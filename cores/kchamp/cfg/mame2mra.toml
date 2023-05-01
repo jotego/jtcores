@@ -30,7 +30,12 @@ order = [
 ]
 
 splits = [
-    { namehas="vs",  region="maincpu", offset=0xa000, min_len=0x4000 },
+    { region="maincpu", offset=0xa000, min_len=0x4000, setnames=[
+        "kchampvs",
+        "kchampvs2",
+        "kchampvs3",
+        "kchampvs4",
+    ] },
 ]
 
 blanks = [
@@ -40,8 +45,5 @@ blanks = [
 # It isn't clear how the ROM decryption works for the first
 # four instructions. It is safe to just skip over them
 patches = [
-    { machine="kchampvs",  offset=0, value="69 6e B4" },
-    { machine="kchampvs3", offset=0, value="69 6e B4" },
-    { machine="kchampvs4", offset=0, value="69 6e B4" },
-    { machine="karatevs",  offset=0, value="69 6e B4" },
+    { setnames=["kchampvs", "kchampvs3", "kchampvs4", "karatevs", ], offset=0, value="69 6e B4" },
 ]

@@ -49,7 +49,7 @@ wire        m1_n, mreq_n, iorq_n, rd_n, wr_n,
             wcen, vcen, int_n, tempo_n;
 reg         nmi_on, iord_cs, iowr_cs, pcm_cs, ctrl_cs,
             latch_cs, dac_cs, pcm_nmin;
-reg  [ 7:0] cpu_din, pcm_data, dac, dac_gain, pcm_gain;
+reg  [ 7:0] cpu_din, pcm_data, dac_gain, pcm_gain;
 wire [ 7:0] psg0_dout, psg1_dout;
 reg  [ 1:0] ctrl;
 wire [15:0] A;
@@ -58,6 +58,7 @@ wire [ 3:0] pcm_din;
 reg         ram_cs, pcm_sel, tempo_en;
 reg  [ 1:0] bdir, bc1;
 // sound signals
+reg  signed [ 7:0] dac;
 wire        [ 9:0] snd0, snd1;
 wire signed [ 9:0] ac0, ac1;
 wire signed [11:0] pcm_snd;
@@ -103,7 +104,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         dac_gain <=  enc ? 8'h0 : DAC_GAIN;
         pcm_gain <= !enc ? 8'h0 : PCM_GAIN;
-        if( dac_cs ) dac <= cpu_dout;
+        if( dac_cs ) dac <= cpu_dout-8'd127;
         if( pcm_cs  ) pcm_data <= cpu_dout;
         if( ctrl_cs ) begin
             ctrl     <= cpu_dout[1:0];
