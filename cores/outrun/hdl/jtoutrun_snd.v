@@ -157,7 +157,7 @@ jtframe_mixer u_mixer_right(
     .peak   ( peak_right)
 );
 
-jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .rst_n      ( ~mix_rst    ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
