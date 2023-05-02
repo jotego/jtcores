@@ -123,7 +123,7 @@ jts16_cen u_cen(
 );
 
 `ifndef NOMAIN
-`JTCORES_MAIN u_main(
+`JTS16_MAIN u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .clk_rom    ( clk       ),  // same clock - at least for now
@@ -268,7 +268,7 @@ jts16_cen u_cen(
 `endif
 
 `ifndef NOSOUND
-`JTCORES_SND u_sound(
+`JTS16_SND u_sound(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
 
