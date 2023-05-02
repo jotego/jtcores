@@ -26,12 +26,10 @@ wire [ 7:0] char_dout;
 wire [ 7:0] chram_dout;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        flip, cpu_cen;
-wire        cen12, cen6, cen3, cen1p5;
+wire        cen3, cen1p5;
 wire        preLHBL, preLVBL;
 wire [ 2:0] pre_r, pre_g, pre_b;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 assign game_led = 0;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = flip;
@@ -46,8 +44,8 @@ wire         char_cs, obj_cs, char_busy;
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
+    .cen12  (           ),
+    .cen6   (           ),
     .cen3   ( cen3      ),
     .cen1p5 ( cen1p5    ),
     // unused
@@ -75,7 +73,7 @@ wire [8:0] prom_addr = prog_addr[8:0] - 9'h20;
 jthige_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
+    .cen6       ( pxl_cen       ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
     .cpu_cen    ( cpu_cen       ),
@@ -128,7 +126,7 @@ assign flip      = 1'b0;
 jthige_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .pxl_cen    ( cen6          ),
+    .pxl_cen    ( pxl_cen       ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[10:0]  ),
