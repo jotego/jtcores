@@ -65,7 +65,7 @@ reg  [24:0] post_addr;
 wire        is_obj = ioctl_addr[21:0] >= OBJ_START && ioctl_addr[21:0]<PROM_START[21:0];
 
 always @(*) begin
-    post_addr = ioctl_addr;
+    post_addr = ioctl_addr[24:0];
     if( is_obj ) begin
         post_addr[0]     =~ioctl_addr[13]; // pixels 8-15
         post_addr[1]     = ioctl_addr[16]; // bit plane
