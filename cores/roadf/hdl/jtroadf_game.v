@@ -80,11 +80,7 @@ jtkicker_clocks u_clocks(
     .snd_cen    ( snd_cen   ),
     .psg_cen    ( psg_cen   ),
     .ti1_cen    (           ),
-    .ti2_cen    (           ),
-    // 48 MHz domain
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  )
+    .ti2_cen    (           )
 );
 
 `ifndef NOMAIN
@@ -222,7 +218,7 @@ jtroadf_video u_video(
     .scr_addr   ( scr_addr  ),
     .scr_data   ( scr_data  ),
     .scr_ok     ( scr_ok    ),
-    
+
     // Objects
     .obj_addr   ( objrom_addr ),
     .obj_data   ( objrom_data ),

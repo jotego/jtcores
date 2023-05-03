@@ -63,11 +63,7 @@ jtkicker_clocks u_clocks(
     .snd_cen    (           ),
     .psg_cen    (           ),
     .ti1_cen    ( ti1_cen   ),
-    .ti2_cen    ( ti2_cen   ),
-    // 48 MHz domain
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  )
+    .ti2_cen    ( ti2_cen   )
 );
 
 `ifndef NOMAIN
