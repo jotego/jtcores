@@ -4553,9 +4553,9 @@
     (property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/BAV99_SER.pdf" (id 3) (at 210.82 59.69 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "" (uuid f04ee850-2cdd-42b7-bf71-23d3e1795e4d))
-    (pin "" (uuid f04ee850-2cdd-42b7-bf71-23d3e1795e4d))
-    (pin "" (uuid f04ee850-2cdd-42b7-bf71-23d3e1795e4d))
+    (pin "" (uuid f04ee850-2cdd-42b7-bf71-23d3e1795e4f))
+    (pin "" (uuid f04ee850-2cdd-42b7-bf71-23d3e1795e4f))
+    (pin "" (uuid f04ee850-2cdd-42b7-bf71-23d3e1795e4f))
   )
 
   (symbol (lib_id "Device:Opamp_Dual") (at 156.21 138.43 0) (unit 2)
