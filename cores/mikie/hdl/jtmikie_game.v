@@ -32,7 +32,7 @@ wire [ 1:0] dipsw_c;
 wire        V16;
 
 wire [ 2:0] pal_sel;
-wire        cpu_cen, cpu4_cen, ti1_cen, ti2_cen;
+wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs, flip;
 wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout;
@@ -67,17 +67,6 @@ always @(*) begin
         pre_addr[6:3] =  { ioctl_addr[6], ioctl_addr[3:1] };
     end
 end
-
-jtkicker_clocks u_clocks(
-    .status     ( status    ),
-    // 24 MHz domain
-    .clk24      ( clk24     ),
-    .cpu4_cen   ( cpu4_cen  ),
-    .snd_cen    (           ),
-    .psg_cen    (           ),
-    .ti1_cen    ( ti1_cen   ),
-    .ti2_cen    ( ti2_cen   )
-);
 
 `ifndef NOMAIN
 jtmikie_main u_main(

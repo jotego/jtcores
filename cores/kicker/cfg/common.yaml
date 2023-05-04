@@ -5,7 +5,6 @@ game:
       - jtkicker_scroll.v
       - jtkicker_obj.v
       - jtkicker_objdraw.v
-      - jtkicker_clocks.v
 jtframe:
   - get:
       - jtframe_ff.v

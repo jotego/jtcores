@@ -3,6 +3,20 @@ params:
   - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
   - { name: PCM_OFFSET, value: "`PCM_START >> 1" }
   - { name: SND_OFFSET, value: "`SND_START >> 1" }
+
+clocks:
+  clk24:
+    - mul: 1
+      div: 4
+      outputs:
+        - cpu4
+        - ti1
+        - ti2
+    - freq: 3579545
+      outputs:
+        - snd
+        - psg
+
 download:
   post_data: true
 sdram:

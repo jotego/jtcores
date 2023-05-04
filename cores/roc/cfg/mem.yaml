@@ -2,6 +2,14 @@ params:
   - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
   - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
   - { name: SND_OFFSET, value: "`SND_START >> 1" }
+
+clocks:
+  clk24:
+    - mul: 1
+      div: 4
+      outputs:
+        - cpu4
+
 download:
   post_addr: true
 sdram:

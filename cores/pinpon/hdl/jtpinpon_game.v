@@ -30,7 +30,7 @@ wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 2:0] dipsw_c; // The bit 3 is not connected on the board
 wire        V16;
 
-wire        cpu_cen, cpu4_cen, ti1_cen, ti2_cen;
+wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, oram_cs, flip;
 wire [ 7:0] vram_dout, obj_dout, cpu_dout;
@@ -56,17 +56,6 @@ always @(*) begin
         pre_addr[5:2] =  { ioctl_addr[5], ioctl_addr[2:0] }; // making [5] explicit for now
     end
 end
-
-jtkicker_clocks u_clocks(
-    .status     ( status    ),
-    // 24 MHz domain
-    .clk24      ( clk24     ),
-    .cpu4_cen   ( cpu4_cen  ),
-    .snd_cen    (           ),
-    .psg_cen    (           ),
-    .ti1_cen    ( ti1_cen   ),
-    .ti2_cen    ( ti2_cen   )
-);
 
 `ifndef NOMAIN
 assign snd[4:0]=0;

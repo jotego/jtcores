@@ -30,7 +30,7 @@ wire [ 3:0] dipsw_c;
 wire        V16;
 
 wire [ 2:0] pal_sel;
-wire        cpu_cen, cpu4_cen, ti1_cen, ti2_cen;
+wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vscr_cs, vram_cs, obj1_cs, obj2_cs, flip;
 wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout;
@@ -54,17 +54,6 @@ always @(*) begin
         post_addr[5:2] =  { prog_addr[5], prog_addr[2:0] }; // making [5] explicit for now
     end
 end
-
-jtkicker_clocks u_clocks(
-    .status     ( status    ),
-    // 24 MHz domain
-    .clk24      ( clk24     ),
-    .cpu4_cen   ( cpu4_cen  ),
-    .snd_cen    (           ),
-    .psg_cen    (           ),
-    .ti1_cen    ( ti1_cen   ),
-    .ti2_cen    ( ti2_cen   )
-);
 
 `ifndef NOMAIN
 `MAIN_MODULE u_main(
