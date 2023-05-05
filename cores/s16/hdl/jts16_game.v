@@ -33,9 +33,7 @@ module jts16_game(
 `endif
 
 // clock enable signals
-wire    cpu_cen, cpu_cenb,
-        cen_fm,  cen_fm2, cen_snd,
-        cen_pcm, cen_pcmb;
+wire    cpu_cen, cpu_cenb;
 
 // video signals
 wire [ 8:0] vrender;
@@ -69,7 +67,7 @@ wire        n7751_prom;
 wire        key_we, fd1089_we;
 wire        dec_en, dec_type,
             fd1089_en, fd1094_en, mc8123_en;
-wire        mcu_en, mcu_we, mcu_cen;
+wire        mcu_en, mcu_we;
 wire [ 7:0] key_data;
 wire [12:0] key_addr, key_mcaddr;
 
@@ -107,20 +105,6 @@ always @(posedge clk) begin
         2,3: st_mux <= st_main;
     endcase
 end
-
-jts16_cen u_cen(
-    .clk        ( clk       ),
-    .pxl2_cen   ( pxl2_cen  ),
-    .pxl_cen    ( pxl_cen   ),
-
-    .clk24      ( clk24     ),
-    .mcu_cen    ( mcu_cen   ),
-    .fm2_cen    ( cen_fm2   ),
-    .fm_cen     ( cen_fm    ),
-    .snd_cen    ( cen_snd   ),
-    .pcm_cen    ( cen_pcm   ),
-    .pcm_cenb   ( cen_pcmb  )
-);
 
 `ifndef NOMAIN
 `JTS16_MAIN u_main(
@@ -274,7 +258,6 @@ jts16_cen u_cen(
 
     .cen_fm     ( cen_fm    ),   // 4MHz or 5MHz
     .cen_fm2    ( cen_fm2   ),   // 2MHz
-    .cen_pcm    ( cen_pcm   ),   // 6MHz or 640kHz
 
     .fxlevel    (dip_fxlevel),
     .enable_fm  ( enable_fm ),
@@ -283,6 +266,7 @@ jts16_cen u_cen(
 `ifdef S16B
     // System 16B
     .cen_snd    ( cen_snd   ),  // 5MHz
+    .cen_pcm    ( cen_pcm   ),  // 640kHz
     // .cen_snd    ( mcu_cen   ),  // 8MHz - keeps the tempo in Cotton but it isn't the right value
     .mapper_rd  ( sndmap_rd ),
     .mapper_wr  ( sndmap_wr ),
@@ -296,7 +280,7 @@ jts16_cen u_cen(
     .key_data   ( key_data  ),
 `else
     // System 16A
-    .cen_pcmb   ( cen_pcmb  ),   // 6MHz
+    .cen_pcm    ( cen6      ),  // 6MHz
     .sound_en   ( sound_en  ),
 
     .latch      ( snd_latch ),

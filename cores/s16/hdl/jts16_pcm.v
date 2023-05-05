@@ -23,7 +23,6 @@ module jts16_pcm(
     input                clk,
 
     input                cen_pcm,   // 6 MHz
-    input                cen_pcmb,
 
     input                soft_rstn,
     input         [ 7:0] ctrl,

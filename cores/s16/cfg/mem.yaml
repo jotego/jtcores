@@ -7,12 +7,28 @@ params:
   - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
   - { name: SRAM_OFFSET, value: 22'h18_0000 }
+clocks:
+  clk24:
+    - freq: 8000000
+      outputs:
+        - mcu_cen
+        - cen_fm
+        - cen_fm2
+    - freq: 5000000
+      outputs:
+        - cen_snd
+    - freq: 6000000
+      outputs:
+        - cen6
+    - freq: 640000
+      outputs:
+        - cen_pcm
 ports:
   - name: gfx_cs
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
-    - 
+    -
       buses:
         - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0

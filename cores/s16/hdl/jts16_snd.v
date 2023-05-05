@@ -25,7 +25,6 @@ module jts16_snd(
     input                cen_fm,    // 4MHz
     input                cen_fm2,   // 2MHz
     input                cen_pcm,   // 6MHz
-    input                cen_pcmb,
 
     input                sound_en,
     // options
@@ -206,7 +205,6 @@ jts16_pcm u_pcm(
     .soft_rstn  ( pcm_rstn  ),
 
     .cen_pcm    ( cen_pcm   ),   // 6 MHz
-    .cen_pcmb   ( cen_pcmb  ),
 
     .ctrl       ( pcm_cmd   ),
     .irqn       ( pcm_irqn  ),
