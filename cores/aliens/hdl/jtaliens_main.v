@@ -85,8 +85,9 @@ always @(*) begin
     // after second decoder:
     io_cs      = A[15:7]==9'b0101_1111_1; // 5f8x
     pal_cs     = A[15:8]<4;
-    tilesys_cs = A[15:8]>=8'h40 && A[15:8]<( init ? 8'h7c : 8'h80 );
-    objsys_cs  = A[15:8]>=8'h7c && A[15:8]<8'h80 && init;
+    tilesys_cs = A[15:8]>=8'h40 && A[15:8]<8'h80;
+    // tilesys_cs = A[15:8]>=8'h40 && A[15:8]<( init ? 8'h7c : 8'h80 );
+    // objsys_cs  = A[15:8]>=8'h7c && A[15:8]<8'h80 && init;
     if( pal_cs && work ) begin
         ram_cs = 1;     // work RAM has priority if the work bit is set
         pal_cs = 0;

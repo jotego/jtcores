@@ -46,25 +46,25 @@ Other games using the KONAMI-2 CPU:
 
 From Caius dump for Haunted Castle's 052127 chip:
 
-o12 = /i6 & i11 +
-      i6 & i7
+o12 = /A12 & WORKBK +
+      A12 & A11
 
-/o13 = /i3 & /i4 & /i5 & /i6 & /i7 & i8 & /i9
+/o13 = /A15 & /A14 & /A13 & /A12 & /A11 & i8 & /i9
 
-/o14 = /i1 & /i3 & /i4 & /i5 & /i6 & /i7 & i8 & i9
+/o14 = /NAS & /A15 & /A14 & /A13 & /A12 & /A11 & i8 & i9
 
-/o15 = /i3 & /i4 & /i5 & /i6 & /i7 & i8 & i9
+/o15 = /A15 & /A14 & /A13 & /A12 & /A11 & i8 & i9
 
-/o16 = /i1 & /i3 & /i4 & /i5 & /i6 & i7 +
-       /i1 & /i3 & /i4 & /i5 & i6
+/WORKCS = /NAS & /A15 & /A14 & /A13 & /A12 & A11 +
+       /NAS & /A15 & /A14 & /A13 & A12
 
-/o17 = /i1 & /i3 & /i4 & i5 +
-       /i1 & /i3 & /i4 & /i6 & /i7 & /i8 & /i9
+/o17 = /NAS & /A15 & /A14 & A13 +
+       /NAS & /A15 & /A14 & /A12 & /A11 & /i8 & /i9
 
-/o18 = /i1 & /i3 & /i5 & /i6 & /i7 & /i8 & i9 +
-       /i1 & /i3 & i4 & /i5
+/o18 = /NAS & /A15 & /A13 & /A12 & /A11 & /i8 & i9 +
+       /NAS & /A15 & A14 & /A13
 
-/o19 = /i1 & /i3 & i4 & i5
+/o19 = /NAS & /A15 & A14 & A13
 
 
 # Supported FPGA Platforms

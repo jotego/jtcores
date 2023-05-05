@@ -25,6 +25,62 @@ Total       | 28
 
 The 051960 has an embedded double line buffer
 
+## PAL Equations
+
+From D21
+
+```
+/y = /o12 = /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & W0C0
+
+/WORK = /AS & /A15 & /A14 & /A13 & /A12 & /A11 & A10 +
+       /AS & /A15 & /A14 & /A13 & /A12 & A11 +
+       /AS & /A15 & /A14 & /A13 & A12 +
+       /AS & /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & /W0C0
+
+/BANK = /AS & /BK4 & /A15 & /A14 & A13
+
+/x = /o15 = /AS & /A15 & A14 & /A13 & A12 & A11 & A10
+
+/z = /o16 = INIT & /A15 & A14 & A13 & A12 & A11
+
+/p = /o17 = /AS & /A15 & A14 +
+       /AS & /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & W0C0
+
+/PROG = /AS & A15 +
+       /AS & BK4 & /A15 & /A14 & A13
+
+/o19 = /AS & A15 +
+       /AS & BK4 & /A15 & /A14 & A13 +
+       /AS & /A15 & /A14 & /A13 & /A12 & /A11 & A10 +
+       /AS & /A15 & /A14 & /A13 & /A12 & A11 +
+       /AS & /A15 & /A14 & /A13 & A12 +
+       /AS & /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & /W0C0 +
+       /AS & /BK4 & /A15 & /A14 & A13
+```
+
+From D20
+
+```
+/DTAC' = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /i9 & /i11 & /z +
+       /p' & /RMRD & A10 & /z +
+       /p' & /p & IOCS & aux
+
+/IOCS = A9 & A8 & A7 & /i9 & /x
+
+/aux = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /i9 & /i11 & /z +
+       /p' & /RMRD & A10 & /z
+
+/CRAMCS = /p' & /i8
+
+/VRAMCS = /p' & /p & i8 & IOCS & aux
+
+/OBJCS = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /i9 & /i11 & /z +
+       /p' & /RMRD & A10 & /z
+
+```
+
+
+
 # Support
 
 The *jotego* nickname had already been used by other people so on some networks
