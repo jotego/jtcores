@@ -65,7 +65,7 @@ module jtaliens_main(
 wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din, port_in;
 wire [15:0] A;
-reg         ram_cs, banked_cs, io_cs, pal_cs, work;
+reg         ram_cs, banked_cs, io_cs, pal_cs, work, init;
 wire        dtack;  // to do: add delay for io_cs
 
 assign rom_addr   = banked_cs ? { Aupper[4:0], A[12:0] } // 5+13=18
@@ -85,8 +85,8 @@ always @(*) begin
     // after second decoder:
     io_cs      = A[15:7]==9'b0101_1111_1; // 5f8x
     pal_cs     = A[15:8]<4;
-    tilesys_cs = A[15:8]>=8'h40 && A[15:8]<8'h7c;
-    objsys_cs  = A[15:8]>=8'h7c && A[15:8]<8'h80;
+    tilesys_cs = A[15:8]>=8'h40 && A[15:8]<( init ? 8'h7c : 8'h80 );
+    objsys_cs  = A[15:8]>=8'h7c && A[15:8]<8'h80 && init;
     if( pal_cs && work ) begin
         ram_cs = 1;     // work RAM has priority if the work bit is set
         pal_cs = 0;
@@ -116,7 +116,7 @@ always @(posedge clk, posedge rst) begin
                 case( A[3:0] )
                     4'h8: begin
                         // bit 7 seems to disable IOCS during start up
-                        { rmrd, work } <= cpu_dout[6:5];
+                        { init, rmrd, work } <= cpu_dout[7:5];
                         // bits 1:0 are coin counters
                     end
                     4'hc: begin

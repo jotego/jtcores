@@ -1,5 +1,11 @@
 params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START) >> 1" }
+clocks:
+  clk48:
+    - freq: 24000000
+      outputs:
+        - cen24
+        - cen12
 sdram:
   banks:
     -
@@ -45,9 +51,9 @@ sdram:
           name: lyro
           addr_width: 21
           data_width: 32
-# bram:
-#   - name: ram
-#     addr_width: 13
-#     data_width: 8
-#     rw: true
-#     addr: main_addr[12:0]
+bram:
+  - name: ram
+    addr_width: 13
+    data_width: 8
+    rw: true
+    addr: main_addr[12:0]

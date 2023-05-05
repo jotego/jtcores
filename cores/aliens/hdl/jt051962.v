@@ -125,12 +125,12 @@ jtframe_vtimer #(
 );
 
 function [3:0] colidx( input hf, input [31:0] data );
-    colidx = hf ? {data[31],data[23],data[15],data[7]} :
-                  {data[24],data[16],data[ 8],data[0]};
+    colidx = hf ? {data[24],data[16],data[ 8],data[0]} :
+                  {data[31],data[23],data[15],data[7]};
 endfunction
 
 function [31:0] shift( input hf, input [31:0] data);
-    shift = hf ? data << 1 : data >> 1;
+    shift = hf ? data >> 1 : data << 1;
 endfunction
 
 // Tile ROM reads by the CPU

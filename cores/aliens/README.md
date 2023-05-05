@@ -2,6 +2,8 @@
 
 # Technical Details
 
+The PALs were dumped by Caius and are published [here](https://wiki.pldarchive.co.uk/index.php?title=Aliens). They can be found in the _doc_ folder and follow the GAL16V8 format.
+
 ## Video
 
 - Pixel clock 12MHz

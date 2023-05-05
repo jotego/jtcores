@@ -35,6 +35,7 @@ module jt052109(
     input             pxl_cen,
 
     // CPU interface
+    input             gfx_cs,
     input             cpu_we,
     input      [ 7:0] cpu_dout,      // data can be written to any RAM chip attached
     input      [15:0] cpu_addr,
@@ -98,11 +99,11 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
 
 // tile map addressing
 wire [15:0] scan_dout;
-reg  [ 7:0] mmr[0:6], col_cfg, cfg,
+reg  [ 7:0] mmr[0:6], col_cfg,
             vposa, vposb;
 reg  [ 8:0] hposa, hposb, heff_a, heff_b, flipk;
 wire [ 8:0] hdumpf;
-wire [ 7:0] bank0, bank1,
+wire [ 7:0] bank0, bank1, cfg,
             code, attr, int_en,
             cpu_attr, cpu_code;
 reg  [10:0] map_a, map_b, vc;
@@ -117,11 +118,9 @@ reg  [ 2:0] vsub_a, vsub_b, vmux, cs, nc, rst_cnt;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
 wire        same_col_n,  // layer B uses the same attribute data as layer A
             rd_vpos, rd_hpos, scrlyr_sel;
-reg         v4_l, rd_rowscr,
-            vflip, vflip_en,
-            reg_we,
-            cscra_en, cscrb_en,
-            rscra_en, rscrb_en;
+reg         v4_l, rd_rowscr, vflip;
+wire        cscra_en, cscrb_en, reg_we,
+            rscra_en, rscrb_en, vflip_en;
 
 assign bank0       = mmr[REG_BANK0];
 assign bank1       = mmr[REG_BANK1];
@@ -139,10 +138,13 @@ assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
     // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; instead?
 assign rd_hpos     = vdump==0;
 assign scrlyr_sel  = hdump[1];
-assign reg_we      = we[1];
+assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
 assign hdumpf      = hdump^{9{flip}};
 
-reg [5:0] range;
+reg  [5:0] range;
+wire [3:0] range0 = range[5:2],
+           range1 = range[3:0],
+           range2 = range[4:1];
 // CPU Memory Mapper
 always @* begin
     casez( cpu_addr[15:13] )
@@ -154,14 +156,14 @@ always @* begin
         5: range = 6'b011111;    // A000~BFFF
         default: range = 6'b111111;
     endcase
-    cs[0] = ~range[5:2][~cfg[1:0]];
-    cs[1] = ~range[3:0][~cfg[1:0]];
-    cs[2] = ~range[4:1][~cfg[1:0]];
+    cs[0] = ~range0[~cfg[1:0]];
+    cs[1] = ~range1[~cfg[1:0]];
+    cs[2] = ~range2[~cfg[1:0]];
     // WARNING: these are external connections and could change on
     // some games. If so, cs[2:0] should go out and re-tied at an upper level
     cpu_din = cs[1] ? cpu_attr : cpu_code;
-    we[1]   = cs[1] & cpu_we;
-    we[2]   = cs[2] & cpu_we;
+    we[1]   = cs[1] & cpu_we & gfx_cs;
+    we[2]   = cs[2] & cpu_we & gfx_cs;
 end
 
 always @* begin
@@ -219,7 +221,7 @@ always @(posedge clk, posedge rst) begin
         mmr[4]  <= 0; mmr[5] <= 0; mmr[6] <= 0;
         st_dout <= 0;
     end else begin
-        if( &{reg_we,cpu_addr[12:10]} ) mmr[cpu_addr[9:7]] <= cpu_dout;
+        if( reg_we ) mmr[cpu_addr[9:7]] <= cpu_dout;
         st_dout <= mmr[debug_bus[2:0]];
     end
 end
@@ -237,13 +239,11 @@ always @(posedge clk, posedge rst) begin
     end else if( pxl_cen ) begin
         v4_l <= vdump[2];
         if( vdump[2] && !v4_l ) v8 <= v8+2'd1;
-        if( vdump[7:0]=='hf8 ) begin
-            irq_n <= int_en[2]; // once per frame
-            if( !rst8 ) { rst8, rst_cnt } <= { rst8, rst_cnt } + 1'd1;
-        end
+        if( vdump[7:0]=='hf8 && !rst8 ) { rst8, rst_cnt } <= { rst8, rst_cnt } + 1'd1;
         if( vdump     =='h10 ) irq_n <= 1;
-        firq_n <= vdump[0] && int_en[1]; // once every 2 lines
-        nmi_n  <= v8[1]    && int_en[0]; // once every 32 lines
+        irq_n  <= vdump[7:0]=='hf8 || !int_en[2]; // once per frame
+        firq_n <= vdump[0] || !int_en[1]; // once every 2 lines
+        nmi_n  <= v8[1]    || !int_en[0]; // once every 32 lines
     end
 end
 

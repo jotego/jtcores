@@ -20,41 +20,24 @@ module jtaliens_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        snd_irq;
-
 wire [ 7:0] snd_latch;
-wire        cpu_cen;
-
-wire [ 7:0] dipsw_a, dipsw_b;
-wire [ 3:0] dipsw_c;
-reg  [ 7:0] debug_mux;
-
-wire [15:0] cpu_addr;
-wire        pal_we=0, tilemap_we=0;
+wire        cpu_cen, snd_irq, rmrd, rst8;
+wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
 wire        cpu_rnw, cpu_irq_n, cpu_firq_n, cpu_nmi_n;
-wire [ 7:0] tilemap_dout, tilerom_dout,
+wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout, st_video;
 wire [ 2:0] prio;
-wire        rmrd, rst8;
-// wire        buserror;
+reg  [ 7:0] debug_mux;
 
-assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = debug_mux;
-// assign ram_din    = cpu_dout;
-assign cpu_dout   = 0;
-assign cpu_addr   = 0;
-assign pal_we     = 0;
-assign prio       = 0;
-assign tilemap_we = 0;
-assign rmrd       = 0;
+assign ram_din    = cpu_dout;
+
 assign snd_addr   = 0;
 assign snd_cs     = 0;
 assign pcma_cs    = 0;
 assign pcmb_cs    = 0;
 assign pcma_addr  = 0;
 assign pcmb_addr  = 0;
-assign main_cs    = 0;
-assign main_addr  = 0;
 assign game_led   = 0;
 assign sample     = 0;
 assign snd        = 0;
@@ -62,8 +45,6 @@ assign snd        = 0;
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_video;
-        1: debug_mux <= dipsw_a;
-        2: debug_mux <= dipsw_b;
         default: debug_mux <= 0;
         //3: debug_mux <= { dipsw_c, buserror, prio, video_bank };
     endcase
@@ -75,6 +56,53 @@ end
 //         post_addr[]
 //     end
 // end
+
+jtaliens_main u_main(
+    .rst            ( rst24         ),
+    .clk            ( clk24         ),
+    .cen24          ( cen24         ),
+    .cen12          ( cen12         ),
+    .cpu_cen        ( cpu_cen       ),
+
+    .cpu_dout       ( cpu_dout      ),
+    .cpu_we         ( cpu_we        ),
+
+    .rom_addr       ( main_addr     ),
+    .rom_data       ( main_data     ),
+    .rom_cs         ( main_cs       ),
+    .rom_ok         ( main_ok       ),
+    // RAM
+    .ram_we         ( ram_we        ),
+    .ram_dout       ( ram_dout      ),
+    // cabinet I/O
+    .start_button   ( start_button  ),
+    .coin_input     ( coin_input    ),
+    .joystick1      ( joystick1     ),
+    .joystick2      ( joystick2     ),
+    .service        ( service       ),
+
+    // From video
+    .rst8           ( rst8          ),
+    .irq_n          ( cpu_irq_n     ),
+    .firq_n         ( cpu_firq_n    ),
+    .nmi_n          ( cpu_nmi_n     ),
+
+    .tilesys_dout   ( tilesys_dout  ),
+    .objsys_dout    ( objsys_dout   ),
+
+    .pal_dout       ( pal_dout      ),
+    // To video
+    .objsys_cs      ( objsys_cs     ),
+    .tilesys_cs     ( tilesys_cs    ),
+    .rmrd           ( rmrd          ),
+    .pal_we         ( pal_we        ),
+    // To sound
+    .snd_latch      ( snd_latch     ),
+    .snd_irq        ( snd_irq       ),
+    // DIP switches
+    .dip_pause      ( dip_pause     ),
+    .dipsw          ( dipsw[19:0]   )
+);
 
 /* xxxverilator tracing_off */
 jtaliens_video u_video (
@@ -92,15 +120,15 @@ jtaliens_video u_video (
     .prog_addr      (prog_addr[ 7:0]),
     .prog_data      ( prog_data[1:0]),
     // GFX - CPU interface
-    .tilemap_we     ( tilemap_we    ),
+    .cpu_we         ( cpu_we        ),
+    .objsys_cs      ( objsys_cs     ),
+    .tilesys_cs     ( tilesys_cs    ),
     .pal_we         ( pal_we        ),
-    .cpu_addr       ( cpu_addr      ),
+    .cpu_addr       (main_addr[15:0]),
     .cpu_dout       ( cpu_dout      ),
-    .tilemap_dout   ( tilemap_dout  ),
-    .tilerom_dout   ( tilerom_dout  ),
-    // .gfx2_dout      ( gfx2_dout     ),
+    .tilesys_dout   ( tilesys_dout  ),
+    .objsys_dout    ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),
-    .prio_cfg       ( prio          ),
     .rmrd           ( rmrd          ),
     .cpu_irq_n      ( cpu_irq_n     ),
     .cpu_firq_n     ( cpu_firq_n    ),

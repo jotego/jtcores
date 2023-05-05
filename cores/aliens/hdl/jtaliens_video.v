@@ -31,15 +31,16 @@ module jtaliens_video(
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout,
     output     [ 7:0] pal_dout,
-    output     [ 7:0] tilemap_dout,
-    output     [ 7:0] tilerom_dout,
+    output     [ 7:0] tilesys_dout,
+    output     [ 7:0] objsys_dout,
     input             pal_we,
-    input             tilemap_we,
+    input             cpu_we,
+    input             tilesys_cs,
+    input             objsys_cs,
     output            rst8,     // reset signal at 8th frame
 
     // control
     input             rmrd,     // Tile ROM read mode
-    input      [ 2:0] prio_cfg,
 
     output            cpu_irq_n,
     output            cpu_firq_n,
@@ -81,6 +82,7 @@ module jtaliens_video(
 wire [ 8:0] hdump;
 wire [ 7:0] lyrf_pxl;
 wire [11:0] lyra_pxl, lyrb_pxl;
+wire [10:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n;
 wire        prio_we;
 
@@ -88,6 +90,7 @@ assign prio_we = prom_we & ~prog_addr[7];
 
 assign lyro_cs   = 0;
 assign lyro_addr = 0;
+assign lyro_pxl  = 0;
 
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
@@ -103,10 +106,10 @@ jtaliens_scroll u_scroll(
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_we     ( tilemap_we),
+    .cpu_we     ( cpu_we    ),
+    .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
-    .tilemap_dout(tilemap_dout),
-    .tilerom_dout(tilerom_dout),
+    .tile_dout  ( tilesys_dout ),
 
     // control
     .rmrd       ( rmrd      ),
@@ -145,6 +148,23 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_dout   )
 );
 
+jt051960 u_obj(    // sprite logic
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    // CPU interface
+    .cs         ( objsys_cs ),
+    .cpu_addr   (cpu_addr[10:0]),
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_we     ( cpu_we    ),
+    .cpu_din    ( objsys_dout),
+
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    (           )
+);
+
 jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -154,7 +174,6 @@ jtaliens_colmix u_colmix(
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
 
-    .prio_cfg   ( prio_cfg  ),
     // CPU interface
     .cpu_addr   (cpu_addr[9:0]),
     .cpu_din    ( pal_dout  ),
@@ -174,7 +193,7 @@ jtaliens_colmix u_colmix(
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
-    .lyro_pxl   ( 8'd0      ),
+    .lyro_pxl   ( lyro_pxl  ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      )

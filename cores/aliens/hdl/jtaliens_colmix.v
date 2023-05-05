@@ -25,7 +25,6 @@ module jtaliens_colmix(
     input             lhbl,
     input             lvbl,
 
-    input      [ 2:0] prio_cfg,
     // CPU interface
     input             cpu_we,
     input      [ 7:0] cpu_dout,
@@ -45,7 +44,7 @@ module jtaliens_colmix(
     input      [ 7:0] lyrf_pxl,
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
-    input      [ 7:0] lyro_pxl,
+    input      [10:0] lyro_pxl,
     output reg [ 4:0] red,
     output reg [ 4:0] green,
     output reg [ 4:0] blue
@@ -59,7 +58,7 @@ reg  [ 7:0] pxl;
 reg  [14:0] pxl_aux;
 wire [ 9:0] pal_addr;
 
-assign prio_addr = { prio_cfg[0], prio_cfg[1], prio_cfg[2],
+assign prio_addr = { lyro_pxl[8], lyro_pxl[8], lyro_pxl[10],
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 assign pal_addr  = { pal_half, prio_sel[1] & ~prio_sel[0], pxl };
 
@@ -67,7 +66,7 @@ always @* begin
     case( prio_sel )
         0: pxl = { 2'b01, lyra_pxl[7:6], lyra_pxl[3:0] };
         1: pxl = { 2'b10, lyrb_pxl[7:6], lyrb_pxl[3:0] };
-        2: pxl = lyro_pxl;
+        2: pxl = lyro_pxl[7:0];
         3: pxl = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
     endcase
 end
