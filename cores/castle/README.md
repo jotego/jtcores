@@ -42,6 +42,31 @@ Other games using the KONAMI-2 CPU:
 * Thunder Cross
 * Vendetta
 
+# PAL Equations
+
+From Caius dump for Haunted Castle's 052127 chip:
+
+o12 = /i6 & i11 +
+      i6 & i7
+
+/o13 = /i3 & /i4 & /i5 & /i6 & /i7 & i8 & /i9
+
+/o14 = /i1 & /i3 & /i4 & /i5 & /i6 & /i7 & i8 & i9
+
+/o15 = /i3 & /i4 & /i5 & /i6 & /i7 & i8 & i9
+
+/o16 = /i1 & /i3 & /i4 & /i5 & /i6 & i7 +
+       /i1 & /i3 & /i4 & /i5 & i6
+
+/o17 = /i1 & /i3 & /i4 & i5 +
+       /i1 & /i3 & /i4 & /i6 & /i7 & /i8 & /i9
+
+/o18 = /i1 & /i3 & /i5 & /i6 & /i7 & /i8 & i9 +
+       /i1 & /i3 & i4 & /i5
+
+/o19 = /i1 & /i3 & i4 & i5
+
+
 # Supported FPGA Platforms
 
 Binary RBF files for MiST, MiSTer and SiDi will be provided for in

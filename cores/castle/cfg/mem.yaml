@@ -47,4 +47,4 @@ bram:
     addr_width: 13
     data_width: 8
     rw: true
-    addr: main_addr[12:0]
+    # addr: main_addr[12:0]

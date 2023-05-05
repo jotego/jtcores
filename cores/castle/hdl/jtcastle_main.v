@@ -37,6 +37,7 @@ module jtcastle_main(
     input       [ 7:0]  rom_data,
     input               rom_ok,
     // RAM
+    output      [12:0]  ram_addr,
     output              ram_we,
     input       [ 7:0]  ram_dout,
     // cabinet I/O
@@ -75,14 +76,15 @@ localparam RAM_AW = 13;
 wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din;
 wire [15:0] A;
-wire        RnW, irq_n, nmi_n, irq_ack;
-reg         ram_cs;
+wire        irq_n, nmi_n, irq_ack;
+reg         ram_cs, work;
 wire        cpu_we, dtack;
 
 assign cpu_addr     = A;
 assign cpu_rnw      = ~cpu_we;
 assign dtack        = ~rom_cs | rom_ok;
 assign ram_we       = ram_cs & cpu_we;
+assign ram_addr = { A[12], A[12] ? A[11] : work, A[10:0] };
 
 reg        io_cs;
 reg  [3:0] bank; // 5 bits in schematics, but MSB is unused, so pruning it here
@@ -100,7 +102,7 @@ wire banked_cs = A[15:12]>=6 && A[15:12]<8;
 always @(*) begin
     io_cs    = A[15:8]==4;
     pal_cs   = A[15:8]==6;
-    ram_cs   = A[15:8]>=8'h07 && A[15:8]<8'h20;
+    ram_cs   = A[15:8]>=8'h08 && A[15:8]<8'h20;
     rom_cs   = A[15:12]>=6 && !cpu_we;
     gfx1_cs  = A[15:8]==0 || A[15:13]==3'd2>>1;
     gfx2_cs  = A[15:8]==2 || A[15:13]==3'd4>>1;
@@ -155,7 +157,10 @@ always @(posedge clk, posedge rst) begin
         if(cpu_cen) snd_irq <= 0;
         if( io_cs ) begin
             case( A[4:2] )
-                0: if( cpu_we ) bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
+                0: if( cpu_we ) begin
+                    work <= cpu_dout[5];
+                    bank <= cpu_dout[3:0]; // coin lock and a bit for a RAM bank seem to be here too
+                end
                 1: if( cpu_we ) snd_latch <= cpu_dout;
                 2: if( cpu_we ) snd_irq   <= 1;
                 // 3: AFR in sch - watchdog

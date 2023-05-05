@@ -65,6 +65,7 @@ jtcastle_main u_main(
     .rom_data       ( main_data     ),
     .rom_ok         ( main_ok       ),
     // RAM
+    .ram_addr       ( ram_addr      ),
     .ram_we         ( ram_we        ),
     .ram_dout       ( ram_dout      ),
     // cabinet I/O
