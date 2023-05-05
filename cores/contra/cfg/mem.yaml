@@ -5,6 +5,15 @@ params:
   - { name: GFX1_OFFSET, value: "`GFX1_START>>1" }
   - { name: GFX2_OFFSET, value: "`GFX2_START>>1" }
   - { name: PCM_OFFSET,  value: "`PCM_START >>1" }
+
+clocks:
+  clk24:
+    - freq: 12000000
+      outputs:
+        - cen12
+        - cen6
+        - cen3
+        - cen1p5
 sdram:
   banks:
     -
@@ -28,7 +37,7 @@ sdram:
           name: snd
           addr_width: 15
           data_width: 8
-          offset: SND_OFFSET    
+          offset: SND_OFFSET
         -
           name: main
           addr_width: 18

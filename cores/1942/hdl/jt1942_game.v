@@ -31,7 +31,6 @@ wire flip;
 wire [ 7:0] cpu_dout, char_dout;
 wire [ 7:0] chram_dout,scram_dout;
 wire        cpu_cen, wr_n, rd_n;
-wire        cen12, cen6, cen3, cen1p5;
 // sound
 wire        sres_b, snd_latch0_cs, snd_latch1_cs, snd_int;
 wire [ 7:0] snd_latch;
@@ -72,26 +71,6 @@ always @* begin
         post_addr[5:1] = { post_addr[4:1], post_addr[5] };
     end
 end
-
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    ),
-    // Unused
-    .cen16  (           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen3qb (           ),
-    .cen16b (           ),
-    .cen12b (           ),
-    .cen6b  (           ),
-    .cen3b  (           ),
-    .cen1p5b(           )
-);
 
 jt1942_main #(.VULGUS(VULGUS)) u_main(
     .rst        ( rst           ),

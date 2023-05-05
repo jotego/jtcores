@@ -32,7 +32,6 @@ wire        rd, cpu_cen, char_busy, scr_busy,
             char_cs, scr_cs, RnW;
 
 wire [ 7:0] dipsw_a, dipsw_b;
-wire        cen12, cen6, cen3, cen1p5;
 
 // sound
 wire sres_b, snd_int;
@@ -68,26 +67,6 @@ always @* begin
         post_addr[5:1] = { post_addr[4:1], post_addr[5] };
     end
 end
-
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    ),
-    // Unused
-    .cen16  (           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen3qb (           ),
-    .cen16b (           ),
-    .cen12b (           ),
-    .cen6b  (           ),
-    .cen3b  (           ),
-    .cen1p5b(           )
-);
 
 jtgng_timer u_timer(
     .clk       ( clk      ),

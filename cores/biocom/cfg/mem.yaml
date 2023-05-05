@@ -1,6 +1,20 @@
 params:
   - { name: FIX_OFFSET, value: "(`FIX_START-`JTFRAME_BA1_START)>>1" }
   - { name: OBJ_OFFSET, value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
+clocks:
+  clk48:
+    - freq: 8000000
+      outputs:
+        - video_cen8
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+  clk24:
+    - freq: 3000000
+      outputs:
+        - cen3
+        - mcu_cen
 download:
   post_addr: true
 sdram:

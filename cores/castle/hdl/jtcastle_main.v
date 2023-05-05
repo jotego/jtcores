@@ -25,6 +25,8 @@
 module jtcastle_main(
     input               rst,
     input               clk,        // 48 MHz
+    input               cen24,
+    input               cen12,
     output              cpu_cen,
     // communication with sound CPU
     output reg          snd_irq,
@@ -76,7 +78,6 @@ wire [15:0] A;
 wire        RnW, irq_n, nmi_n, irq_ack;
 reg         ram_cs;
 wire        cpu_we, dtack;
-wire        cen24, cen12;
 
 assign cpu_addr     = A;
 assign cpu_rnw      = ~cpu_we;
@@ -87,14 +88,6 @@ reg        io_cs;
 reg  [3:0] bank; // 5 bits in schematics, but MSB is unused, so pruning it here
 reg  [7:0] port_in;
 wire [7:0] div_dout;
-
-jtframe_frac_cen #(.W(2),.WC(3)) u_cen(
-    .clk    ( clk           ),
-    .n      ( 3'd1          ),
-    .m      ( 3'd2          ),
-    .cen    ( {cen12,cen24} ),
-    .cenb   (               )
-);
 
 `ifdef SIMULATION
 wire banked_cs = A[15:12]>=6 && A[15:12]<8;

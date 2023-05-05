@@ -1,5 +1,14 @@
 params:
   - { name: GFX_OFFSET, value: "22'h2_0000>>1"}
+
+clocks:
+  clk24:
+    - freq: 12000000
+      outputs:
+        - cen12
+        - cen6
+        - cen3
+        - cen1p5
 download:
   post_addr: true
 sdram:
@@ -10,7 +19,7 @@ sdram:
           name: gfx
           addr_width: 19
           data_width: 16
-          offset: GFX_OFFSET 
+          offset: GFX_OFFSET
         -
           name: main
           addr_width: 17

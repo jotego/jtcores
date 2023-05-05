@@ -20,7 +20,6 @@ module jtlabrun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        cen12, cen3, cen1p5;
 wire        gfx2_cs;
 
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -39,23 +38,6 @@ always @* begin
     if( prog_addr<'h8000 )
         post_addr[14] = ~post_addr[14];
 end
-
-jtframe_cen24 u_cen(
-    .clk        ( clk24         ),    // 24 MHz
-    .cen12      ( cen12         ),
-    .cen8       (               ),
-    .cen6       (               ),
-    .cen4       (               ),
-    .cen3       ( cen3          ),
-    .cen3q      (               ), // 1/4 advanced with respect to cen3
-    .cen1p5     ( cen1p5        ),
-    // 180 shifted signals
-    .cen12b     (               ),
-    .cen6b      (               ),
-    .cen3b      (               ),
-    .cen3qb     (               ),
-    .cen1p5b    (               )
-);
 
 `ifdef GFX_ONLY
 jtlabrun_simloader u_simloader(

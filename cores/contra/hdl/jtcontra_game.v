@@ -30,7 +30,6 @@ localparam GAME=`JTCORES_PCB;
 wire        snd_irq;
 
 wire [ 7:0] snd_latch;
-wire        cen12, cen3, cen1p5;
 
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 3:0] dipsw_c;
@@ -55,23 +54,6 @@ always @(posedge clk) begin
         3: debug_mux <= {4'd0, dipsw_c};
     endcase
 end
-
-jtframe_cen24 u_cen(
-    .clk        ( clk24         ),    // 24 MHz
-    .cen12      ( cen12         ),
-    .cen8       (               ),
-    .cen6       (               ),
-    .cen4       (               ),
-    .cen3       ( cen3          ),
-    .cen3q      (               ), // 1/4 advanced with respect to cen3
-    .cen1p5     ( cen1p5        ),
-    // 180 shifted signals
-    .cen12b     (               ),
-    .cen6b      (               ),
-    .cen3b      (               ),
-    .cen3qb     (               ),
-    .cen1p5b    (               )
-);
 
 `ifdef GFX_ONLY
 jtcontra_simloader u_simloader(

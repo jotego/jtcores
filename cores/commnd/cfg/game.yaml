@@ -11,9 +11,6 @@ game:
       - jtgng_dual_ram.v
       - jtgng_colmix.v
 jtframe:
-  - from: clocking
-    get:
-      - jtframe_cen48.v
   - from: cpu
     get:
       - jtframe_z80.yaml

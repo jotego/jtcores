@@ -21,8 +21,6 @@ module jtbiocom_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam SND24=0;
-
 wire [ 8:0] V, H;
 wire        HINIT;
 
@@ -46,8 +44,6 @@ wire        mcu_wr, mcu_DMAn, mcu_DMAONn;
 wire        preLHBL, preLVBL,
             LHBL_obj, LVBL_obj;
 
-wire        video_cen8, cen8, cen3, mcu_cen, cen10, cenfm, cenp384,
-            cen_fm, cen_fm2, cen10b;
 wire        nc,ncb;
 
 // sound
@@ -63,10 +59,7 @@ wire        prom_mcu_we, prom_prio_we;
 wire        scr1_cs, scr2_cs;
 wire [15:0] scr1_hpos, scr1_vpos;
 wire [ 8:0] scr2_hpos, scr2_vpos;
-wire        clk_snd, rst_snd;
 
-assign clk_snd  = SND24 ? clk24 : clk;
-assign rst_snd  = SND24 ? rst24 : rst;
 assign game_led = 0;
 assign clk_mcu = clk24;
 assign prom_mcu_we  = prom_we && !ioctl_addr[12];
@@ -80,49 +73,6 @@ always @* begin
         post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
     end
 end
-
-
-jtframe_cen48 u_cen48(
-    .clk    ( clk           ),
-    .cen16  (               ),
-    .cen12  ( pxl2_cen      ),
-    .cen12b (               ),
-    .cen16b (               ),
-    .cen8   ( video_cen8    ),
-    .cen6   ( pxl_cen       ),
-    .cen6b  (               ),
-    .cen4   (               ),
-    .cen4_12(               ),
-    .cen3   (               ),
-    .cen3b  (               ),
-    .cen3q  (               ),
-    .cen3qb (               ),
-    .cen1p5 (               ),
-    .cen1p5b(               )
-);
-
-jtframe_cen24 u_cen24(
-    .clk    ( clk24     ),
-    .cen12  (           ),
-    .cen12b (           ),
-    .cen6   (           ),
-    .cen3   ( cen3      ),
-    // Unused:
-    .cen6b  (           ),
-    .cen1p5 ( mcu_cen   ),
-    .cen1p5b(           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen3q  (           ),
-    .cen3b  (           ),
-    .cen3qb (           )
-);
-
-jtframe_cen3p57 #(.CLK24(SND24)) u_cen3p57(
-    .clk        ( clk_snd   ),       // 48 MHz
-    .cen_3p57   ( cen_fm    ),
-    .cen_1p78   ( cen_fm2   )
-);
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -237,9 +187,9 @@ jtbiocom_mcu u_mcu(
     .prom_we    ( prom_mcu_we     )
 );
 
-jtbiocom_sound #(.RECOVERY(~SND24[0])) u_sound (
-    .rst            ( rst_snd        ),
-    .clk            ( clk_snd        ),
+jtbiocom_sound #(.RECOVERY(1)) u_sound (
+    .rst            ( rst            ),
+    .clk            ( clk            ),
     .cen_fm         ( cen_fm         ),
     .cen_fm2        ( cen_fm2        ),
     // Interface with main CPU

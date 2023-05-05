@@ -1,6 +1,15 @@
 params:
   - { name: RAM_OFFSET, value: "32'h100000" }
   - { name: SCR_OFFSET, value: "32'h4000" }
+clocks:
+  clk24:
+    - freq: 8000000
+      outputs:
+        - cen_mcu
+    - freq: 3000000
+      outputs:
+        - cen_opl
+        - cen_opn
 ports:
     - { name: vram_we,   msb:  1 }
     - { name: scrram_we, msb:  1 }

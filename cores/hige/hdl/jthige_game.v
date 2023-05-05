@@ -26,7 +26,6 @@ wire [ 7:0] char_dout;
 wire [ 7:0] chram_dout;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        flip, cpu_cen;
-wire        cen3, cen1p5;
 wire        preLHBL, preLVBL;
 wire [ 2:0] pre_r, pre_g, pre_b;
 
@@ -41,26 +40,6 @@ assign blue   = { pre_b, pre_b[2] };
 
 wire         wr_n, rd_n;
 wire         char_cs, obj_cs, char_busy;
-
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen12  (           ),
-    .cen6   (           ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    ),
-    // unused
-    .cen16  (           ),
-    .cen16b (           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen12b (           ),
-    .cen6b  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5b(           )
-);
 
 wire prom_pal_we   = prom_we && prog_addr <  22'he020;
 wire prom_char_we  = prom_we && prog_addr >= 22'he020 && prog_addr < 22'he120;

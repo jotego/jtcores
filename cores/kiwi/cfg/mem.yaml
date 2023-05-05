@@ -2,7 +2,13 @@ params:
   - name: PCM_OFFSET
     value: "(`PCM_START-`JTFRAME_BA2_START)>>1"
   - name: BRAM_OFFSET
-
+clocks:
+  clk48:
+    - freq: 6000000
+      outputs:
+        - cen6
+        - cen3
+        - cen1p5
 sdram:
   # post_addr: true
   banks:

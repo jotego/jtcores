@@ -16,9 +16,6 @@ game:
     get:
       - jtgng_video.yaml
 jtframe:
-  - from: clocking
-    get:
-      - jtframe_cen48.v
   - from: cpu
     get:
       - jtframe_z80.yaml

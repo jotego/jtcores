@@ -2,6 +2,14 @@ params:
   - { name: GFX_OFFSET,  value: "`GFX_START >>1" }
   - { name: PCM0_OFFSET, value: "`PCM0_START>>1" }
   - { name: PCM1_OFFSET, value: "`PCM1_START>>1" }
+clocks:
+  clk24:
+    - freq: 12000000
+      outputs:
+        - cen12
+        - cen6
+        - cen3
+        - cen1p5
 sdram:
   banks:
     -

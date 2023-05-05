@@ -20,8 +20,6 @@ module jtflane_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        cen12, cen3, cen1p5;
-
 wire [ 7:0] dipsw_a, dipsw_b;
 wire [ 3:0] dipsw_c;
 
@@ -32,23 +30,6 @@ wire [ 7:0] pal_dout, cpu_dout, gfx_dout, st_video;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
-
-jtframe_cen24 u_cen(
-    .clk        ( clk24         ),    // 24 MHz
-    .cen12      ( cen12         ),
-    .cen8       (               ),
-    .cen6       (               ),
-    .cen4       (               ),
-    .cen3       ( cen3          ),
-    .cen3q      (               ), // 1/4 advanced with respect to cen3
-    .cen1p5     ( cen1p5        ),
-    // 180 shifted signals
-    .cen12b     (               ),
-    .cen6b      (               ),
-    .cen3b      (               ),
-    .cen3qb     (               ),
-    .cen1p5b    (               )
-);
 
 `ifndef NOMAIN
 jtflane_main u_main(

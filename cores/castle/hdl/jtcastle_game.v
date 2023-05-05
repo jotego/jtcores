@@ -51,9 +51,11 @@ always @(posedge clk) begin
 end
 
 jtcastle_main u_main(
-    .clk            ( clk           ),
     .rst            ( rst           ),
+    .clk            ( clk           ),
     .cpu_cen        ( cpu_cen       ),
+    .cen24          ( cen24         ),
+    .cen12          ( cen12         ),
     // communication with main CPU
     .snd_irq        ( snd_irq       ),
     .snd_latch      ( snd_latch     ),

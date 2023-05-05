@@ -26,7 +26,6 @@ wire [ 7:0] shr_din, shr_dout, main_st, gfx_st, snd_st,
 wire [ 8:0] hdump;
 wire [ 1:0] eff_coin;
 wire [12:0] shr_addr, cpu_addr;
-wire        cen6, cen3, cen1p5;
 
 wire        bram_cs, vram_cs,  pal_cs, flip;
 wire        cpu_rnw, vctrl_cs, vflag_cs,
@@ -65,13 +64,6 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_frac_cen #(.WC(4),.W(3)) u_cen24(
-    .clk    ( clk       ),    // 24 MHz
-    .n      ( 4'd1      ),
-    .m      ( 4'd8      ),
-    .cen    ( { cen1p5, cen3, cen6 } ),
-    .cenb   (           )
-);
 /* verilator tracing_off */
 jtkiwi_main u_main(
     .rst            ( rst           ),

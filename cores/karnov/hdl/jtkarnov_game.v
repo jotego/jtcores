@@ -20,7 +20,7 @@ module jtkarnov_game(
     `include "jtframe_game_ports.inc"
 );
 
-wire        cen_opl, cen_opn, cen_mcu, flip;
+wire        flip;
 wire [ 7:0] snd_latch, st_snd, st_main;
 wire [ 8:0] scrx, scry, hdump;
 wire        snreq, snd_bank, mcu2main_irq,
@@ -48,17 +48,6 @@ assign sdtkn = 0;
 always @(posedge clk) begin
     if( ioctl_addr=='h163 ) wndrplnt <= prog_data==2;
 end
-
-jtframe_cen24 u_cen(
-    .clk    ( clk24     ),
-    .cen3   ( cen_opl   ),
-    .cen1p5 ( cen_opn   ),
-    .cen8   ( cen_mcu   ),
-    // unused
-    .cen12(), .cen6(), .cen4(),
-    .cen3q(), .cen12b(), .cen6b(),
-    .cen3b(), .cen3qb(), .cen1p5b()
-);
 
 jtkarnov_main u_main(
     .rst        ( rst           ),
