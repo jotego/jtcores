@@ -44,7 +44,10 @@ module jtaliens_sound(
     // Sound output
     output signed [15:0] snd,
     output               sample,
-    output               peak
+    output               peak,
+    // Debug
+    input    [ 7:0] debug_bus,
+    output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
 
@@ -53,7 +56,7 @@ localparam [7:0] FMGAIN=8'h10;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
-wire                m1_n, mreq_n, rd_n, wr_n, int_n, iorq_n, rfsh_n,
+wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
                     pcma_msb, pcmb_msb;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, iock;
 wire signed [15:0]  fm_left, fm_right;
@@ -61,7 +64,8 @@ wire                cpu_cen;
 reg                 mem_acc, mem_upper;
 wire signed [11:0]  pcm_snd;
 
-assign rom_addr  = A[14:0];
+assign rom_addr = A[14:0];
+assign st_dout  = { 6'd0, pcmb_msb, pcma_msb };
 
 // This connection is done through the NE output
 // of the 007232 on the board by using a latch
@@ -76,10 +80,10 @@ always @(*) begin
     mem_upper = mem_acc && A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
-    ram_cs    = mem_upper && A[14:11]==0; // 8000 ~ 87FFF
-    fm_cs     = mem_upper && A[14:12]==2; // Axxx
-    latch_cs  = mem_upper && A[14:12]==4; // Cxxx
-    dac_cs    = mem_upper && A[14:12]==6; // Exxx
+    ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
+    fm_cs     = mem_upper && A[14:13]==1; // A/Bxxx
+    latch_cs  = mem_upper && A[14:13]==2; // C/Dxxx
+    dac_cs    = mem_upper && A[14:13]==3; // E/Fxxx
 end
 
 always @(*) begin
@@ -167,7 +171,7 @@ jt51 u_jt51(
     .xright     ( fm_right  )
 );
 
-jt007232 u_pcm(
+jt007232 #(.REG12A(0)) u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -198,7 +202,9 @@ jt007232 u_pcm(
 initial rom_cs   = 0;
 assign  pcma_cs  = 0;
 assign  pcmb_cs  = 0;
-assign  rom_addr = 15'd0;
+assign  pcma_addr= 0;
+assign  pcmb_addr= 0;
+assign  rom_addr = 0;
 assign  snd      = 0;
 assign  peak     = 0;
 assign  sample   = 0;

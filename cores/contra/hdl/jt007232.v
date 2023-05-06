@@ -53,7 +53,12 @@ module jt007232(
     output reg signed [11:0] snd       // snd_a + snd, scaled by register 12
 );
 
-parameter REG12A=1, // location of CHA gain
+parameter REG12A=1, // location of CHA gain, the gain device is external to the
+                    // chip. Thre is normally an 8-bit latch attached. It holds
+                    // the value at mmr[12], which isn't internal but just sets
+                    // the SLEV pin when set.
+                    // MX5000 uses the upper nibble for channel A, but
+                    // aliens uses the lower.
           INVA0 =0; // invert A0? The real chip did, we don't by default
 
 reg [7:0] mmr[0:13]; // Not all bits are used
