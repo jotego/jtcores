@@ -136,7 +136,7 @@ assign { cscrb_en, rscrb_en, fine_row[1], cscra_en, rscra_en, fine_row[0] }
 // read vpos when col scr is disabled
 assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
     // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; instead?
-assign rd_hpos     = vdump==0;
+assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
 assign hdumpf      = hdump^{9{flip}};

@@ -98,7 +98,7 @@ jtaliens_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* xxxverilator tracing_off */
+/* verilator tracing_off */
 jtaliens_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
