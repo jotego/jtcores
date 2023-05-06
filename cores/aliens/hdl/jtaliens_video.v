@@ -203,7 +203,8 @@ jtaliens_colmix u_colmix(
     .lyro_pxl   ( lyro_pxl  ),
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+    .debug_bus  ( debug_bus )
 );
 
 endmodule

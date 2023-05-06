@@ -28,3 +28,6 @@ regions = [
 ]
 
 order = [ "maincpu", "audiocpu", "k007232", "k052109", "k051960", "proms" ]
+
+# Skips the RAM check
+patches = [ { setname="aliens", offset=0x2806a, value="AE AE AE" } ]

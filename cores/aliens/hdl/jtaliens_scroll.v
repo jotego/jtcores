@@ -74,7 +74,7 @@ module jtaliens_scroll(
 wire [ 7:0] lyrf_col,
             lyra_col,  lyrb_col,
             tilemap_dout, tilerom_dout;
-wire [ 2:0] lyra_hsub, lyrb_hsub;
+wire [ 2:0] hsub_a, hsub_b;
 wire        hflip_en;
 wire [12:0] pre_a, pre_b, pre_f;
 
@@ -105,6 +105,10 @@ jt052109 u_tilemap(
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
+
+    // Fine grain scroll
+    .hsub_a     ( hsub_a    ),
+    .hsub_b     ( hsub_b    ),
 
     .irq_n      ( irq_n     ),
     .firq_n     ( firq_n    ),
@@ -143,9 +147,13 @@ jt051962 u_draw(
     .lyra_data  ( lyra_data ),
     .lyrb_data  ( lyrb_data ),
 
-    .lyrf_col   ( lyrf_col  ),
-    .lyra_col   ( lyra_col  ),
-    .lyrb_col   ( lyrb_col  ),
+    .lyrf_col   ( { lyrf_col[7:6], 6'd0 } ),
+    .lyra_col   ( { lyra_col[7:6], 6'd0 } ),
+    .lyrb_col   ( { lyrb_col[7:6], 6'd0 } ),
+
+    // Fine grain scroll
+    .hsub_a     ( hsub_a    ),
+    .hsub_b     ( hsub_b    ),
 
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),

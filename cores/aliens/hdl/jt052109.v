@@ -42,6 +42,9 @@ module jt052109(
     output reg [ 7:0] cpu_din,     // only half data bus available upon settings
     output reg        rst8,     // reset signal at 8th frame
 
+    // Fine grain scroll
+    output reg [ 2:0] hsub_a, hsub_b,
+
     // control
     input             rmrd,     // Tile ROM read mode
     input      [ 8:0] hdump,    // Not inputs in the original, but
@@ -114,7 +117,7 @@ reg  [ 1:0] cab,         // tile address MSB
             v8,
             rscra, rscrb;// row scroll
 reg  [ 2:1] we;
-reg  [ 2:0] vsub_a, vsub_b, vmux, cs, nc, rst_cnt;
+reg  [ 2:0] vsub_a, vsub_b, vmux, cs, rst_cnt;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
 wire        same_col_n,  // layer B uses the same attribute data as layer A
             rd_vpos, rd_hpos, scrlyr_sel;
@@ -166,15 +169,19 @@ always @* begin
     we[2]   = cs[2] & cpu_we & gfx_cs;
 end
 
+reg ca, cb;
+
 always @* begin
     flipk  = { {6{flip}},  1'b0, {2{flip}} };
     heff_a = flipk + hposa;
     heff_b = flipk + hposb;
     // H part of the scan
-    { map_a[5:0], nc } =
-        { hdumpf[8:3] + heff_a[8:3], hdump[2:0] + (heff_a[2:0]^{3{flip}})};
-    { map_b[5:0], nc } =
-        { hdumpf[8:3] + heff_b[8:3], hdump[2:0] + (heff_b[2:0]^{3{flip}})};
+    { ca, hsub_a } = { 1'b0, hdump[2:0] } + (heff_a[2:0]^{3{flip}});
+    { cb, hsub_b } = { 1'b0, hdump[2:0] } + (heff_b[2:0]^{3{flip}});
+    map_a[5:0] = hdumpf[8:3] + heff_a[8:3] + ca;
+        // { hdumpf[8:3] + heff_a[8:3], hdump[2:0] + (heff_a[2:0]^{3{flip}})};
+    map_b[5:0] = hdumpf[8:3] + heff_b[8:3] + cb;
+        // { hdumpf[8:3] + heff_b[8:3], hdump[2:0] + (heff_b[2:0]^{3{flip}})};
     // V part of the scan
     { map_a[10:6], vsub_a } = vdump[7:0] + vposa;
     { map_b[10:6], vsub_b } = vdump[7:0] + vposb;
@@ -224,7 +231,7 @@ always @(posedge clk, posedge rst) begin
         if( reg_we ) begin
             mmr[cpu_addr[9:7]] <= cpu_dout;
 `ifdef SIMULATION
-            $display("TILE mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[9:7], cpu_dout, cpu_addr);
+            // $display("TILE mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[9:7], cpu_dout, cpu_addr);
 `endif
         end
         st_dout <= mmr[debug_bus[2:0]];

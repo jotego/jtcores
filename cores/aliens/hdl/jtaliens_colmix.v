@@ -47,7 +47,9 @@ module jtaliens_colmix(
     input      [10:0] lyro_pxl,
     output reg [ 4:0] red,
     output reg [ 4:0] green,
-    output reg [ 4:0] blue
+    output reg [ 4:0] blue,
+    // debug
+    input      [ 7:0] debug_bus
 );
 
 wire [ 1:0] prio_sel;

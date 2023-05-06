@@ -73,6 +73,10 @@ module jt051962(
     input      [ 7:0] lyra_col,
     input      [ 7:0] lyrb_col,
 
+    // Fine grain scroll
+    input      [ 2:0] hsub_a, hsub_b,
+
+
     output     [ 8:0] hdump,    // not an output in the original
     output     [ 8:0] vdump,
     output            lhbl,
@@ -104,8 +108,8 @@ jtframe_vtimer #(
     .HS_END     ( 9'h059    ),  //  5.33 us
 
     .V_START    ( 9'h0F8    ),
-    .VB_START   ( 9'h1F0    ),
-    .VB_END     ( 9'h110    ),  //  2.56 ms
+    .VB_START   ( 9'h1EF    ),
+    .VB_END     ( 9'h10F    ),  //  2.56 ms
     .VS_START   ( 9'h1FF    ),
     .VS_END     ( 9'h0FF    ),
     .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
@@ -155,21 +159,29 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
 
     end else if( pxl_cen ) begin
-        if( hdump[2:0]==0 ) begin
+        if( hsub_a[2:0]==0 ) begin
             pxla_data <= lyra_data;
-            pxlb_data <= lyrb_data;
-            pxlf_data <= lyrf_data;
-            cola_pre  <= lyra_col;
-            colb_pre  <= lyrb_col;
-            colf_pre  <= lyrf_col;
-            cola      <= cola_pre;
-            colb      <= colb_pre;
-            colf      <= colf_pre;
+            // cola_pre  <= lyra_col;
+            cola      <= lyra_col;
             hflipa    <= (hflip_en & cola_pre[0]) ^ flip;
-            hflipb    <= (hflip_en & colb_pre[0]) ^ flip;
         end else begin
             pxla_data <= shift( hflipa, pxla_data );
+        end
+
+        if( hsub_b[2:0]==0 ) begin
+            pxlb_data <= lyrb_data;
+            // colb_pre  <= lyrb_col;
+            colb      <= lyrb_col;
+            hflipb    <= (hflip_en & colb_pre[0]) ^ flip;
+        end else begin
             pxlb_data <= shift( hflipb, pxlb_data );
+        end
+
+        if( hdump[2:0]==0 ) begin
+            pxlf_data <= lyrf_data;
+            colf_pre  <= lyrf_col;
+            colf      <= colf_pre;
+        end else begin
             pxlf_data <= shift(  flip , pxlf_data );
         end
     end
