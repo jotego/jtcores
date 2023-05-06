@@ -161,7 +161,7 @@ wire        cpu_cen, cpu_cenb;
 wire        charger;
 wire        turbo, pcmfilter_en, video_flip;
 
-`ifdef JTCORES_TURBO
+`ifdef JTCPS_TURBO
 assign turbo = 1;
 `else
     `ifdef MISTER

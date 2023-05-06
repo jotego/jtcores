@@ -164,7 +164,7 @@ wire        cen16, cen12, cen8, cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        turbo;
 
-`ifdef JTCORES_TURBO
+`ifdef JTCPS_TURBO
 assign turbo = 1;
 `else
 assign turbo = status[6];

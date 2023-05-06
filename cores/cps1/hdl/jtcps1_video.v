@@ -203,7 +203,7 @@ assign scrdma_en = ppu_ctrl[3:1];
 assign row_en    = ppu_ctrl[0];
 assign flip      = ppu_ctrl[15];
 
-`ifdef JTCORES_WATCH
+`ifdef JTCPS_WATCH
 jtcps1_watch u_watch(
     .rst            ( rst           ),
     .clk            ( clk           ),

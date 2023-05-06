@@ -40,16 +40,16 @@ parameter [21:0] OBJ_END  =22'h24_0000;
 
 `ifdef SIMULATION
 `ifdef FAST_LOAD
-`define JTCORES_OBJ32_FAST
+`define JTGNG_OBJ32_FAST
 `endif
 `endif
 
-`ifdef JTCORES_OBJ32_FAST
+`ifdef JTGNG_OBJ32_FAST
 localparam OBJ_END1 = OBJ_START+((OBJ_END-OBJ_START)>>6); // make conversion length 32 times shorter
 `else
 localparam OBJ_END1 = OBJ_END;
 `endif
-`undef  JTCORES_OBJ32_FAST
+`undef  JTGNG_OBJ32_FAST
 
 reg [31:0] obj_data;
 reg last_down, wait_ack;

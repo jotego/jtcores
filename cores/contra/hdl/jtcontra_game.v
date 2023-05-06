@@ -21,11 +21,11 @@ module jtcontra_game(
 );
 
 // Defines which game to render
-`ifndef JTCORES_PCB
-`define  JTCORES_PCB 0
+`ifndef JTCONTRA_PCB
+`define  JTCONTRA_PCB 0
 `endif
 
-localparam GAME=`JTCORES_PCB;
+localparam GAME=`JTCONTRA_PCB;
 
 wire        snd_irq;
 
