@@ -30,18 +30,18 @@ The 051960 has an embedded double line buffer
 From D21
 
 ```
-/y = /o12 = /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & W0C0
-
 /WORK = /AS & /A15 & /A14 & /A13 & /A12 & /A11 & A10 +
-       /AS & /A15 & /A14 & /A13 & /A12 & A11 +
-       /AS & /A15 & /A14 & /A13 & A12 +
-       /AS & /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & /W0C0
+        /AS & /A15 & /A14 & /A13 & /A12 & A11 +
+        /AS & /A15 & /A14 & /A13 &  A12 +
+        /AS & /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & /W0C0
 
-/BANK = /AS & /BK4 & /A15 & /A14 & A13
+/BANK = /AS & /BK4 & /A15 & /A14 & A13 = /BK4 & A[15:14]==001
 
 /x = /o15 = /AS & /A15 & A14 & /A13 & A12 & A11 & A10
 
 /z = /o16 = INIT & /A15 & A14 & A13 & A12 & A11
+
+/y = /o12 = /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & W0C0
 
 /p = /o17 = /AS & /A15 & A14 +
        /AS & /A15 & /A14 & /A13 & /A12 & /A11 & /A10 & W0C0
@@ -58,24 +58,26 @@ From D21
        /AS & /BK4 & /A15 & /A14 & A13
 ```
 
+- /p' is /p sampled at CLKQ, reset when /AS goes high.
+
 From D20
 
 ```
-/DTAC' = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /i9 & /i11 & /z +
+/DTAC' = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /(A6+A5) & /(A4+A3) & /z +
        /p' & /RMRD & A10 & /z +
        /p' & /p & IOCS & aux
 
-/IOCS = A9 & A8 & A7 & /i9 & /x
+/IOCS = A9 & A8 & A7 & /(A6+A5) & /x
 
-/aux = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /i9 & /i11 & /z +
-       /p' & /RMRD & A10 & /z
+/aux = /p' & /RMRD & /z & /A10 & /A9 & /A8 & /A7 & /(A6+A5) & /(A4+A3) +
+       /p' & /RMRD & /z &  A10
 
-/CRAMCS = /p' & /i8
+/CRAMCS = /p' & /y
 
-/VRAMCS = /p' & /p & i8 & IOCS & aux
+/VRAMCS = /p' & /p & y & IOCS & aux
 
-/OBJCS = /p' & /RMRD & /A10 & /A9 & /A8 & /A7 & /i9 & /i11 & /z +
-       /p' & /RMRD & A10 & /z
+/OBJCS = /p' & /RMRD & /z & /A10 & /A9 & /A8 & /A7 & /(A6+A5) & /(A4+A3)  +
+         /p' & /RMRD & /z &  A10
 
 ```
 

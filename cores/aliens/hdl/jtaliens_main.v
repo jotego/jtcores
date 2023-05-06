@@ -79,19 +79,15 @@ assign pal_we     = pal_cs & cpu_we;
 // OBJCS, VRAMCS, CRAMCS, IOCS
 always @(*) begin
     // PROG, BANK and WORK in sch
-    banked_cs  = A[15:13]==1; // 2000-3FFFF
+    banked_cs  = /*!Aupper[4] &&*/ A[15:13]==1; // 2000-3FFFF
     rom_cs     = A[15] || banked_cs; // >=8000
-    ram_cs     = A[15:8]>=4 && A[15:8]<8'h20;
+    ram_cs     = A[15:13]==0 && ( A[12] || A[11] || A[10] || !work);
     // after second decoder:
-    io_cs      = A[15:7]==9'b0101_1111_1; // 5f8x
-    pal_cs     = A[15:8]<4;
-    tilesys_cs = A[15:8]>=8'h40 && A[15:8]<8'h80;
-    // tilesys_cs = A[15:8]>=8'h40 && A[15:8]<( init ? 8'h7c : 8'h80 );
-    // objsys_cs  = A[15:8]>=8'h7c && A[15:8]<8'h80 && init;
-    if( pal_cs && work ) begin
-        ram_cs = 1;     // work RAM has priority if the work bit is set
-        pal_cs = 0;
-    end
+    io_cs      = A[15:7]=='b0101_1111_1 && ~|A[6:5];
+    pal_cs     = A[15:10]==0 && work; // CRAMCS in sch
+    objsys_cs  = A[15:11]=='b01111 && !rmrd && init &&
+                    (A[10] || (A[9:7]==0 && ~|A[6:5] && ~|A[4:3]));
+    tilesys_cs = A[15:14]==1 && !io_cs && !pal_cs && !objsys_cs;
 end
 
 always @* begin
@@ -116,7 +112,6 @@ always @(posedge clk, posedge rst) begin
             if( cpu_we ) begin
                 case( A[3:0] )
                     4'h8: begin
-                        // bit 7 seems to disable IOCS during start up
                         { init, rmrd, work } <= cpu_dout[7:5];
                         // bits 1:0 are coin counters
                     end
