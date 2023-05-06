@@ -215,7 +215,7 @@ always @* begin
     endcase
     vflip = col_cfg[1] & vflip_en;
     vc = { scan_dout[7:0], vmux^{3{vflip}} };
-    if( rmrd    ) begin
+    if( rmrd ) begin
         col_cfg = mmr[REG_RMRD];
         vc      = cpu_addr[12:2];
     end
@@ -310,7 +310,7 @@ jtframe_dual_ram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     .data1  ( 8'd0           ),
     .addr1  ( vaddr          ),
     .we1    ( 1'b0           ),
-    .q1     ( scan_dout[15:8])
+    .q1     ( scan_dout[15:8])  // color
 );
 
 jtframe_dual_ram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
@@ -325,7 +325,7 @@ jtframe_dual_ram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
     .data1  ( 8'd0           ),
     .addr1  ( vaddr          ),
     .we1    ( 1'b0           ),
-    .q1     ( scan_dout[ 7:0])
+    .q1     ( scan_dout[ 7:0])  // code
 );
 
 endmodule

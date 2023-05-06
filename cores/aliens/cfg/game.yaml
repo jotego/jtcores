@@ -5,6 +5,7 @@ game:
       - jtaliens_main.v
       - jtaliens_video.v
       - jtaliens_scroll.v
+      - jtaliens_obj.v
       - jtaliens_sound.v
       - jtaliens_colmix.v
       - jt052109.v

@@ -147,7 +147,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_dout   )
 );
 
-jt051960 u_obj(    // sprite logic
+jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

@@ -24,10 +24,10 @@ module k051960 (
 
 	output P1H,
 	output P2H,
-	
+
 	input HVIN,
 	output HVOT,	// Frame sync tick
-	
+
 	output PQ, PE,	// 6809
 
 	output WRP, WREN, RDEN,	// ? Unused
@@ -39,11 +39,15 @@ module k051960 (
 	input [7:0] DB_IN,
 	output [7:0] DB_OUT,
 	input [10:0] AB,
-	
+
 	// k051937 interface
-	output OHF, OREG, HEND, LACH, CARY,
-	output [8:0] HP,	// X position
-	output [7:0] OC,	// Attributes
+	output 		OHF,	// H flip
+				OREG,	// MMR are selected
+				HEND,	// sprite done (?)
+				LACH, 	// sequence
+				CARY,   // H zoom carry bit
+	output [8:0] HP,	// H position
+	output [7:0] OC,	// Color (Attributes)
 
 	// GFX ROMs interface
 	output [17:0] CA,
@@ -54,7 +58,7 @@ module k051960 (
 	output OWR, OOE,
 	input [7:0] OD_in,
 	output [7:0] OD_out,
-	
+
 	output DB_DIR
 );
 
@@ -217,13 +221,13 @@ always @(*) begin
 	case({X148, Y72, Y73})
 		// Front
 		3'd0: RAM_addr <= SPR_PRIO[6:0];	// B1
-		3'd1: RAM_addr <= ATTR_A[9:3];	// B2
+		3'd1: RAM_addr <= ATTR_A[9:3];		// B2 - DMA count
 		3'd2: RAM_addr <= KREG_C;			// A2
 		3'd3: RAM_addr <= KREG_D;			// A1
 		// Back
 		3'd4: RAM_addr <= KREG_B;			// B1
 		3'd5: RAM_addr <= KREG_A;			// B2
-		3'd6: RAM_addr <= PARSE_A[6:0];	// A2
+		3'd6: RAM_addr <= PARSE_A[6:0];		// A2
 		3'd7: RAM_addr <= OA_in[9:3];		// A1 Shouldn't be used outside of test mode ?
 	endcase
 end
@@ -239,8 +243,8 @@ ram_sim #(8, 7, "") RAMA(RAM_addr, ~RAM_A_WE, AB19, RAM_din, RAM_A_dout);
 ram_sim #(8, 7, "") RAMB(RAM_addr, ~RAM_B_WE, AB19, RAM_din, RAM_B_dout);
 ram_sim #(8, 7, "") RAMC(RAM_addr, ~RAM_C_WE, AB19, RAM_din, RAM_C_dout);
 ram_sim #(8, 7, "") RAMD(RAM_addr, ~RAM_D_WE, AB19, RAM_din, RAM_D_dout);
-ram_sim #(8, 7, "") RAME(RAM_addr, ~RAM_E_WE, AB19, RAM_din, RAM_E_dout);
-ram_sim #(8, 7, "") RAMF(RAM_addr, ~RAM_F_WE, AB19, RAM_din, RAM_F_dout);
+ram_sim #(8, 7, "") RAME(RAM_addr, ~RAM_E_WE, AB19, RAM_din, RAM_E_dout); // Tile code LSB
+ram_sim #(8, 7, "") RAMF(RAM_addr, ~RAM_F_WE, AB19, RAM_din, RAM_F_dout); // sprite size, code msb
 ram_sim #(8, 7, "") RAMG(RAM_addr, ~RAM_G_WE, AB19, RAM_din, RAM_G_dout);
 
 // Sprite RAM CPU read
@@ -398,7 +402,7 @@ always @(posedge clk_12M or negedge RES_SYNC) begin
 			SPR_COL <= RAM_C_dout;
 			{SPR_SIZE, SPR_CODE[12:8]} <= RAM_F_dout;
 			SPR_ATTR_X <= RAM_G_dout;
-			
+
 			SPR_CODE[0] <= RAM_E_dout[0];
 			SPR_CODE[2] <= RAM_E_dout[2];
 			SPR_CODE[4] <= RAM_E_dout[4];
@@ -407,9 +411,9 @@ always @(posedge clk_12M or negedge RES_SYNC) begin
 			// HERE
 
 		end
-		
+
 		SPR_COL_DELAY <= SPR_COL;
-		
+
 		AD227_Q[1:0] <= SPR_CODE[12:11];
 	end
 end
@@ -526,8 +530,8 @@ assign SUBTILE_HFLIP = {3{SPR_HFLIP}} ^ SUBTILE_H[3:1];
 reg [2:0] HTILE_SUB;
 always @(*) begin
 	case({~SPR_W64P, ~SPR_SIZE[0]})
-		2'd0: HTILE_SUB <= SUBTILE_HFLIP[2:0];										// B1
-		2'd1: HTILE_SUB <= {SPR_CODE[4], SUBTILE_HFLIP[1:0]};					// B2
+		2'd0: HTILE_SUB <= SUBTILE_HFLIP[2:0];								// B1
+		2'd1: HTILE_SUB <= {SPR_CODE[4], SUBTILE_HFLIP[1:0]};				// B2
 		2'd2: HTILE_SUB <= {SPR_CODE[4], SPR_CODE[2], SUBTILE_HFLIP[0]};	// A2
 		2'd3: HTILE_SUB <= {SPR_CODE[4], SPR_CODE[2], SPR_CODE[0]};			// A1
 	endcase
@@ -726,21 +730,21 @@ reg [7:0] SPR_ATTR_ZY;
 always @(posedge clk_6M or negedge RES_SYNC) begin
 	if (!RES_SYNC) begin
 		SPR_ATTR_ZY <= 8'h00;
-		
+
 		SPR_Y8 <= 1'b0;
 		SPR_VFLIP <= 1'b0;
 		SPR_ATTR_ZY_DELAY <= 6'h00;
-		
+
 		AM195_Q <= 4'h0;
 		AN195_Q <= 4'h0;
 	end else begin
 		if (!P1) begin
 			SPR_ATTR_ZY <= RAM_D_dout;
-			
+
 			SPR_Y8 <= SPR_ATTR_ZY[0] ^ AL191_S[4];
 			SPR_VFLIP <= SPR_ATTR_ZY[1];
 			SPR_ATTR_ZY_DELAY <= SPR_ATTR_ZY[7:2];
-			
+
 			AM195_Q <= {PARSE_DONE, VBLANK_SYNC, RAM_F_dout[6:5]};	// Part of sprite size attribute
 			{AN195_Q, SPR_SIZE_DELAY[0], SPR_SIZE_DELAY[1]} <= {~&{SPR_Y8, AN195_Q[2]}, ~|{AM195_Q[3:2]}, AM195_Q[1:0]};
 		end
