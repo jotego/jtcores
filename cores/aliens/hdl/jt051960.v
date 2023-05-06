@@ -80,7 +80,7 @@ always @(posedge clk, posedge rst) begin
         if( reg_we ) begin
             mmr[cpu_addr[2:0]] <= cpu_dout;
 `ifdef SIMULATION
-            $display("OBJ mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[2:0], cpu_dout, cpu_addr);
+            // $display("OBJ mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[2:0], cpu_dout, cpu_addr);
 `endif
         end
         case( debug_bus[2:0] )

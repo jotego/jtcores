@@ -57,7 +57,10 @@ module jtaliens_main(
     output reg  [ 7:0]  snd_latch,
     // DIP switches
     input               dip_pause,
-    input       [19:0]  dipsw
+    input       [19:0]  dipsw,
+    // Debug
+    input       [ 7:0]  debug_bus,
+    output      [ 7:0]  st_dout
 );
 
 wire [ 7:0] Aupper;
@@ -65,12 +68,14 @@ reg  [ 7:0] cpu_din, port_in;
 wire [15:0] A;
 reg         ram_cs, banked_cs, io_cs, pal_cs, work, init;
 wire        dtack;  // to do: add delay for io_cs
+reg         rst_cmb;
 
 assign rom_addr   = banked_cs ? { Aupper[4:0], A[12:0] } // 5+13=18
                               : { 2'b10, A }; // 2+16=18
 assign dtack      = ~rom_cs | rom_ok;
 assign ram_we     = ram_cs & cpu_we;
 assign pal_we     = pal_cs & cpu_we;
+assign st_dout    = Aupper;
 
 // Decoder 053326 takes as inputs A[15:10], BK4, W0C0
 // Decoder 053327 after it, takes A[10:7] for generating
@@ -78,7 +83,7 @@ assign pal_we     = pal_cs & cpu_we;
 always @(*) begin
     // PROG, BANK and WORK in sch
     banked_cs  = /*!Aupper[4] &&*/ A[15:13]==1; // 2000-3FFFF
-    rom_cs     = A[15] || banked_cs; // >=8000
+    rom_cs     = !rst_cmb && (A[15] || banked_cs); // >=8000
     ram_cs     = A[15:13]==0 && ( A[12] || A[11] || A[10] || !work);
     // after second decoder:
     io_cs      = A[15:7]=='b0101_1111_1 && ~|A[6:5];
@@ -132,10 +137,10 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-/* xxverilator tracing_off */
-reg  rst_cmb;
+/* xverilator tracing_off */
 // there is a reset for the first 8 frames, skip it in sims
-always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
+// always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
+always @(posedge clk) rst_cmb <= rst | rst8;
 
 jtkcpu u_cpu(
     .rst    ( rst_cmb   ),

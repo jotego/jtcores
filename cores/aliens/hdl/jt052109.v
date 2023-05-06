@@ -240,11 +240,11 @@ always @(posedge clk, posedge rst) begin
         firq_n  <= 0;
         nmi_n   <= 0;
         rst_cnt <= 0;
-        rst8    <= 0;
+        rst8    <= 1;
     end else if( pxl_cen ) begin
         v4_l <= vdump[2];
         if( vdump[2] && !v4_l ) v8 <= v8+2'd1;
-        if( vdump[7:0]=='hf8 && !rst8 ) { rst8, rst_cnt } <= { rst8, rst_cnt } + 1'd1;
+        if( vdump=='hf8 && rst8 && v4_l ) { rst8, rst_cnt } <= { rst8, rst_cnt } + 1'd1;
         if( vdump     =='h10 ) irq_n <= 1;
         irq_n  <= vdump[7:0]=='hf8 || !int_en[2]; // once per frame
         firq_n <= vdump[0] || !int_en[1]; // once every 2 lines

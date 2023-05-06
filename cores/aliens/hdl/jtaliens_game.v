@@ -25,7 +25,7 @@ wire        cpu_cen, snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
 wire        cpu_rnw, cpu_irq_n;
 wire [ 7:0] tilesys_dout, objsys_dout,
-            obj_dout, pal_dout, cpu_dout, st_video;
+            obj_dout, pal_dout, cpu_dout, st_main, st_video;
 wire [ 2:0] prio;
 reg  [ 7:0] debug_mux;
 
@@ -44,7 +44,8 @@ assign snd        = 0;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= st_video;
+        0: debug_mux <= st_main;
+        1: debug_mux <= st_video;
         default: debug_mux <= 0;
         //3: debug_mux <= { dipsw_c, buserror, prio, video_bank };
     endcase
@@ -58,8 +59,8 @@ end
 // end
 
 jtaliens_main u_main(
-    .rst            ( rst24         ),
-    .clk            ( clk24         ),
+    .rst            ( rst           ),
+    .clk            ( clk           ),
     .cen24          ( cen24         ),
     .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
@@ -99,7 +100,10 @@ jtaliens_main u_main(
     .snd_irq        ( snd_irq       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    .dipsw          ( dipsw[19:0]   )
+    .dipsw          ( dipsw[19:0]   ),
+    // Debug
+    .debug_bus      ( debug_bus     ),
+    .st_dout        ( st_main       )
 );
 
 /* xxxverilator tracing_off */
