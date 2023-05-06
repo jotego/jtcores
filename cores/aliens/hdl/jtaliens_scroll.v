@@ -170,7 +170,9 @@ jt051962 u_draw(
     .lyrb_pxl   ( lyrb_pxl  ),
 
     // Debug
-    .gfx_en     ( gfx_en    )
+    .gfx_en     ( gfx_en    ),
+    // Debug
+    .debug_bus  ( debug_bus )
 );
 
 endmodule

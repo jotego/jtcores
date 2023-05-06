@@ -91,7 +91,8 @@ module jt051962(
     output     [11:0] lyra_pxl,
     output     [11:0] lyrb_pxl,
 
-    input      [ 3:0] gfx_en
+    input      [ 3:0] gfx_en,
+    input      [ 7:0] debug_bus
 );
 
 reg  [7:0] cola_pre, colb_pre, colf_pre,
@@ -147,6 +148,7 @@ always @(posedge clk) begin
         2'd3: cpu_din <= lyra_data[31:24];
     endcase
 end
+
 assign lyrf_pxl = { colf[7:4],colidx(  flip, pxlf_data) };
 assign lyra_pxl = { cola,     colidx(hflipa, pxla_data) };
 assign lyrb_pxl = { colb,     colidx(hflipb, pxlb_data) };
