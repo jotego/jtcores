@@ -43,8 +43,6 @@ module jtaliens_video(
     input             rmrd,     // Tile ROM read mode
 
     output            cpu_irq_n,
-    output            cpu_firq_n,
-    output            cpu_nmi_n,
     output            flip,
 
     // PROMs
@@ -79,7 +77,7 @@ module jtaliens_video(
     output     [ 7:0] st_dout
 );
 
-wire [ 8:0] hdump;
+wire [ 8:0] hdump, vdump;
 wire [ 7:0] lyrf_pxl;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [10:0] lyro_pxl;
@@ -114,10 +112,11 @@ jtaliens_scroll u_scroll(
     // control
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
 
-    .irq_n      ( cpu_irq_n ),
-    .firq_n     ( cpu_firq_n),
-    .nmi_n      ( cpu_nmi_n ),
+    .irq_n      (           ),
+    .firq_n     (           ),
+    .nmi_n      (           ),
     .flip       ( flip      ),
 
 
@@ -153,6 +152,11 @@ jt051960 u_obj(    // sprite logic
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    // Base Video (inputs)
+    .vs         ( vs        ),
+    .lvbl       ( lvbl      ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
     // CPU interface
     .cs         ( objsys_cs ),
     .cpu_addr   (cpu_addr[10:0]),
@@ -160,6 +164,9 @@ jt051960 u_obj(    // sprite logic
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( objsys_dout),
 
+    .irq_n      ( cpu_irq_n ),
+    .firq_n     (           ),
+    .nmi_n      (           ),
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    (           )

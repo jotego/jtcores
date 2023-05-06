@@ -221,7 +221,12 @@ always @(posedge clk, posedge rst) begin
         mmr[4]  <= 0; mmr[5] <= 0; mmr[6] <= 0;
         st_dout <= 0;
     end else begin
-        if( reg_we ) mmr[cpu_addr[9:7]] <= cpu_dout;
+        if( reg_we ) begin
+            mmr[cpu_addr[9:7]] <= cpu_dout;
+`ifdef SIMULATION
+            $display("TILE mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[9:7], cpu_dout, cpu_addr);
+`endif
+        end
         st_dout <= mmr[debug_bus[2:0]];
     end
 end

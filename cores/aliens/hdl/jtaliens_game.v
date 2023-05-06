@@ -23,7 +23,7 @@ module jtaliens_game(
 wire [ 7:0] snd_latch;
 wire        cpu_cen, snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
-wire        cpu_rnw, cpu_irq_n, cpu_firq_n, cpu_nmi_n;
+wire        cpu_rnw, cpu_irq_n;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout, st_video;
 wire [ 2:0] prio;
@@ -84,8 +84,6 @@ jtaliens_main u_main(
     // From video
     .rst8           ( rst8          ),
     .irq_n          ( cpu_irq_n     ),
-    .firq_n         ( cpu_firq_n    ),
-    .nmi_n          ( cpu_nmi_n     ),
 
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
@@ -131,8 +129,6 @@ jtaliens_video u_video (
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
     .cpu_irq_n      ( cpu_irq_n     ),
-    .cpu_firq_n     ( cpu_firq_n    ),
-    .cpu_nmi_n      ( cpu_nmi_n     ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),

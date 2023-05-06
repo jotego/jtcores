@@ -26,7 +26,7 @@ module jtaliens_scroll(
     output            lvbl,
     output            hs,
     output            vs,
-    output     [ 8:0] hdump,
+    output     [ 8:0] hdump, vdump,
 
     // CPU interface
     input             gfx_cs,
@@ -76,7 +76,6 @@ wire [ 7:0] lyrf_col,
             tilemap_dout, tilerom_dout;
 wire [ 2:0] lyra_hsub, lyrb_hsub;
 wire        hflip_en;
-wire [ 8:0] vdump;
 wire [12:0] pre_a, pre_b, pre_f;
 
 assign lyrf_cs = gfx_en[0];

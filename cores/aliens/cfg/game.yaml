@@ -14,6 +14,8 @@ game:
   #   get:
   #     - jt007232.v
 jtframe:
+    - get:
+      - jtframe_edge.v
     - from: video
       get:
         - jtframe_vtimer.v

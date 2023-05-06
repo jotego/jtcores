@@ -43,8 +43,6 @@ module jtaliens_main(
     // From video
     input               rst8,
     input               irq_n,
-    input               firq_n,
-    input               nmi_n,
 
     input      [7:0]    tilesys_dout, objsys_dout,
     input      [7:0]    pal_dout,
@@ -134,7 +132,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-/* verilator tracing_off */
+/* xxverilator tracing_off */
 reg  rst_cmb;
 // there is a reset for the first 8 frames, skip it in sims
 always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
@@ -147,9 +145,9 @@ jtkcpu u_cpu(
 
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
-    .nmi_n  ( nmi_n     ),
+    .nmi_n  ( 1'b1      ),
     .irq_n  ( irq_n | ~dip_pause ),
-    .firq_n ( firq_n    ),
+    .firq_n ( 1'b1      ),
 
     // memory bus
     .din    ( cpu_din   ),
