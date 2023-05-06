@@ -6,6 +6,10 @@ clocks:
       outputs:
         - cen24
         - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
 sdram:
   banks:
     -

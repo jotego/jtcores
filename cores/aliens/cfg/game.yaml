@@ -5,27 +5,28 @@ game:
       - jtaliens_main.v
       - jtaliens_video.v
       - jtaliens_scroll.v
-      # - jtaliens_sound.v
+      - jtaliens_sound.v
       - jtaliens_colmix.v
       - jt052109.v
       - jt051962.v
       - jt051960.v
-  # - from: contra
-  #   get:
-  #     - jt007232.v
+  - from: contra
+    get:
+      - jt007232.v
 jtframe:
-    - get:
-      - jtframe_edge.v
-    - from: video
-      get:
-        - jtframe_vtimer.v
-    - from: sdram
-      get:
-        - jtframe_dwnld.v
-#   - from: cpu
-#     get:
-#       - jtframe_z80.yaml
+  - get:
+    - jtframe_edge.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
 modules:
   jt:
     - name: jtkcpu
+    - name: jt51
 

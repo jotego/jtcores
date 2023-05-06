@@ -32,16 +32,6 @@ reg  [ 7:0] debug_mux;
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
 
-assign snd_addr   = 0;
-assign snd_cs     = 0;
-assign pcma_cs    = 0;
-assign pcmb_cs    = 0;
-assign pcma_addr  = 0;
-assign pcmb_addr  = 0;
-assign game_led   = 0;
-assign sample     = 0;
-assign snd        = 0;
-
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
@@ -105,6 +95,39 @@ jtaliens_main u_main(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_main       )
 );
+
+/* xxxverilator tracing_off */
+jtaliens_sound u_sound(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen_fm     ( cen_fm        ),
+    .cen_fm2    ( cen_fm2       ),
+    .fxlevel    ( dip_fxlevel   ),
+    // communication with main CPU
+    .snd_irq    ( snd_irq       ),
+    .snd_latch  ( snd_latch     ),
+    // ROM
+    .rom_addr   ( snd_addr      ),
+    .rom_cs     ( snd_cs        ),
+    .rom_data   ( snd_data      ),
+    .rom_ok     ( snd_ok        ),
+    // ADPCM ROM
+    .pcma_addr  ( pcma_addr     ),
+    .pcma_dout  ( pcma_data     ),
+    .pcma_cs    ( pcma_cs       ),
+    .pcma_ok    ( pcma_ok       ),
+
+    .pcmb_addr  ( pcmb_addr     ),
+    .pcmb_dout  ( pcmb_data     ),
+    .pcmb_cs    ( pcmb_cs       ),
+    .pcmb_ok    ( pcmb_ok       ),
+
+    // Sound output
+    .snd        ( snd           ),
+    .sample     ( sample        ),
+    .peak       ( game_led      )
+);
+/* verilator tracing_on */
 
 /* xxxverilator tracing_off */
 jtaliens_video u_video (
