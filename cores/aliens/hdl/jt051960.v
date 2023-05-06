@@ -41,11 +41,11 @@ module jt051960(    // sprite logic
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output     [17:0] rom_addr, // CA pins, actual rom addr pins may not connect directly
-                                // 13 = code + 4 v + 1 h = 18
+    output     [12:0] code,
     output reg [ 7:0] attr,     // OC pins
     output reg        hflip, vflip,
     output reg [ 8:0] hpos,
+    output     [ 3:0] ysub,
 
     // control
     input      [ 8:0] hdump,    // Not inputs in the original, but
@@ -54,6 +54,7 @@ module jt051960(    // sprite logic
                                 // Vdump goes from F8 to 1FF, 264 lines
     input             vs,
     input             lvbl,
+    input             lhbl,
 
     // draw module / 051937
     output reg        dr_start,
@@ -76,14 +77,14 @@ localparam [ 2:0] REG_INT   = 0, // interrupt control, ROM read
 wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we;
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] hzoom, vzoom;
-reg  [12:0] code;
 reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub;
-reg  [ 8:0] ydiff;
+reg  [ 8:0] ydiff, y;
 reg  [ 6:0] dma_prio, scan_obj;
-reg         dma_clr, dma_done, inzone;
-wire [ 7:0] ram_dout, scan_data;
-wire [ 2:0] int_en, size;
+reg         dma_clr, dma_done, inzone, lhbl_l, done;
+wire [ 7:0] ram_dout, scan_dout, dma_data;
+wire [ 2:0] int_en;
+reg  [ 2:0] size;
 wire [ 7:0] romrd_bank, dma_din;
 wire [ 9:0] romrd_msb, scan_addr;
 reg         vb_start_n; // low for the first six lines of VBLANK
@@ -99,7 +100,7 @@ assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
 assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | ~dma_done);
 assign scan_addr = { scan_obj, scan_sub };
-assign rom_addr  = { code, 1'b0, ydiff[3:0] };
+assign ysub = ydiff[3:0];
 
 always @* begin
     ydiff  = y - (vdump+1'd1); // to do: add 1, flip...
@@ -127,7 +128,7 @@ always @(posedge clk, posedge rst) begin
                 if( dma_addr[2:0]==0 ) begin
                     dma_prio <= dma_data[6:0];
                     if( !dma_data[7] )
-                        { dma_done, dma_addr } <= { 1'b0, dma_addr[9:3], 3'd0 } + 4'd8;
+                        { dma_done, dma_addr } <= { 1'b0, dma_addr[9:3], 3'd0 } + 11'd8;
                 end
             end
         end
@@ -146,7 +147,7 @@ always @(posedge clk, posedge rst) begin
         scan_sub <= 0;
     end else if( cen2 ) begin
         lhbl_l <= lhbl;
-        if( !lhbl && lhbl_l ) begin
+        if( !lhbl && lhbl_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 1;
@@ -237,7 +238,7 @@ jtframe_dual_ram #(.SIMFILE("obj.bin")) u_lut(
     .q1     ( dma_data       )
 );
 
-jtframe_dual_ram #(.SIMFILE("obj.bin")) u_lut(
+jtframe_dual_ram #(.SIMFILE("obj.bin")) u_copy(
     // Port 0: DMA
     .clk0   ( clk            ),
     .data0  ( dma_din        ),

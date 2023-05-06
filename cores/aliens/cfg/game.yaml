@@ -11,6 +11,7 @@ game:
       - jt052109.v
       - jt051962.v
       - jt051960.v
+      # - jt051937.v
   - from: contra
     get:
       - jt007232.v
@@ -20,6 +21,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_obj.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v

@@ -61,6 +61,8 @@ module jtaliens_video(
     output            lyrb_cs,
     output            lyro_cs,
 
+    input             lyro_ok,
+
     input      [31:0] lyrf_data,
     input      [31:0] lyra_data,
     input      [31:0] lyrb_data,
@@ -80,15 +82,11 @@ module jtaliens_video(
 wire [ 8:0] hdump, vdump;
 wire [ 7:0] lyrf_pxl;
 wire [11:0] lyra_pxl, lyrb_pxl;
-wire [10:0] lyro_pxl;
+wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n;
 wire        prio_we;
 
 assign prio_we = prom_we & ~prog_addr[7];
-
-assign lyro_cs   = 0;
-assign lyro_addr = 0;
-assign lyro_pxl  = 0;
 
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
@@ -153,8 +151,10 @@ jtaliens_obj u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
 
     // Base Video (inputs)
+    .hs         ( hs        ),
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
+    .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     // CPU interface
@@ -165,8 +165,12 @@ jtaliens_obj u_obj(    // sprite logic
     .cpu_din    ( objsys_dout),
 
     .irq_n      ( cpu_irq_n ),
-    .firq_n     (           ),
-    .nmi_n      (           ),
+    // ROM
+    .rom_addr   ( lyro_addr ),
+    .rom_data   ( lyro_data ),
+    .rom_ok     ( lyro_ok   ),
+    .rom_cs     ( lyro_cs   ),
+    .pxl        ( lyro_pxl  ),
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    (           )

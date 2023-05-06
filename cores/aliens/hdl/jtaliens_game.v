@@ -174,6 +174,7 @@ jtaliens_video u_video (
     .lyra_cs        ( lyra_cs       ),
     .lyrb_cs        ( lyrb_cs       ),
     .lyro_cs        ( lyro_cs       ),
+    .lyro_ok        ( lyro_ok       ),
     // pixels
     .red            ( red           ),
     .green          ( green         ),

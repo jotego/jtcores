@@ -44,7 +44,7 @@ module jtaliens_colmix(
     input      [ 7:0] lyrf_pxl,
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
-    input      [10:0] lyro_pxl,
+    input      [11:0] lyro_pxl,
     output reg [ 4:0] red,
     output reg [ 4:0] green,
     output reg [ 4:0] blue,

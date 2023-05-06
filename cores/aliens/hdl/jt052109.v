@@ -176,12 +176,10 @@ always @* begin
     heff_a = flipk + hposa;
     heff_b = flipk + hposb;
     // H part of the scan
-    { ca, hsub_a } = { 1'b0, hdump[2:0] } + (heff_a[2:0]^{3{flip}});
-    { cb, hsub_b } = { 1'b0, hdump[2:0] } + (heff_b[2:0]^{3{flip}});
-    map_a[5:0] = hdumpf[8:3] + heff_a[8:3] + ca;
-        // { hdumpf[8:3] + heff_a[8:3], hdump[2:0] + (heff_a[2:0]^{3{flip}})};
-    map_b[5:0] = hdumpf[8:3] + heff_b[8:3] + cb;
-        // { hdumpf[8:3] + heff_b[8:3], hdump[2:0] + (heff_b[2:0]^{3{flip}})};
+    { ca, hsub_a } = { 1'b0, hdump[2:0] } + ({1'd0,heff_a[2:0]}^{1'd0,{3{flip}}});
+    { cb, hsub_b } = { 1'b0, hdump[2:0] } + ({1'd0,heff_b[2:0]}^{1'd0,{3{flip}}});
+    map_a[5:0] = hdumpf[8:3] + heff_a[8:3] + {5'd0,ca};
+    map_b[5:0] = hdumpf[8:3] + heff_b[8:3] + {5'd0,cb};
     // V part of the scan
     { map_a[10:6], vsub_a } = vdump[7:0] + vposa;
     { map_b[10:6], vsub_b } = vdump[7:0] + vposb;

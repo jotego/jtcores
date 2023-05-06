@@ -38,24 +38,26 @@ module jtaliens_obj(
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
+    input             hs,
     input             vs,
     input             lvbl,
-
+    input             lhbl,
 
     output            irq_n,
-    output            firq_n,
-    output            nmi_n,
 
+    output     [11:0] pxl,
     // Debug
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
 );
 
-wire [ 7:0] attr;     // OC pins
+wire [ 7:0] pal;     // OC pins
 wire        hflip, vflip;
-wire [ 8:0] hpos;
-wire [17:0] base_addr;
+wire [ 8:0] xpos;
+wire [12:0] code;
+wire [ 3:0] ysub;
 wire        dr_start, dr_busy, hflip, vflip;
+wire        flip=0;
 
 jt051960 u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -65,31 +67,60 @@ jt051960 u_scan(    // sprite logic
     // Base Video (inputs)
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
+    .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     // CPU interface
-    .cs         ( objsys_cs ),
+    .cs         ( cs        ),
     .cpu_addr   (cpu_addr[10:0]),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( cpu_we    ),
-    .cpu_din    ( objsys_dout),
+    .cpu_din    ( cpu_din   ),
 
     // drawing interface
     .dr_start   ( dr_start  ),
     .dr_busy    ( dr_busy   ),
     // tile details
-    .hpos       ( hpos      ),
+    .hpos       ( xpos      ),
     .vflip      ( vflip     ),
     .hflip      ( hflip     ),
-    .attr       ( attr      ),
-    .rom_addr   ( base_addr ),
+    .attr       ( pal       ),
+    .code       ( code      ),
+    .ysub       ( ysub      ),
 
-    .irq_n      ( cpu_irq_n ),
+    .irq_n      ( irq_n     ),
     .firq_n     (           ),
     .nmi_n      (           ),
     // Debug
     .debug_bus  ( debug_bus ),
-    .st_dout    (           )
+    .st_dout    ( st_dout   )
+);
+
+jtframe_objdraw #(.CW(13),.PW(12),.LATCH(1)) u_draw(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .hs         ( hs        ),
+    .flip       ( flip      ),
+    .hdump      ( hdump     ),
+
+    .draw       ( dr_start  ),
+    .busy       ( dr_busy   ),
+    .code       ( code      ),
+    .xpos       ( xpos      ),
+    .ysub       ( ysub      ),
+
+    .hflip      ( hflip     ),
+    .vflip      ( vflip     ),
+    .pal        ( pal       ),
+
+    .rom_addr   ( rom_addr  ),
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    ),
+    .rom_data   ( rom_data  ),
+
+    .pxl        ( pxl       )
 );
 
 endmodule

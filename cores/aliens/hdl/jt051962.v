@@ -95,7 +95,7 @@ module jt051962(
     input      [ 7:0] debug_bus
 );
 
-reg  [7:0] cola_pre, colb_pre, colf_pre,
+reg  [7:0] //cola_pre, colb_pre, colf_pre,
            cola    , colb    , colf;
 reg [31:0] pxlf_data, pxla_data, pxlb_data;
 reg        hflipa, hflipb;
@@ -165,7 +165,7 @@ always @(posedge clk, posedge rst) begin
             pxla_data <= lyra_data;
             // cola_pre  <= lyra_col;
             cola      <= lyra_col;
-            hflipa    <= (hflip_en & cola_pre[0]) ^ flip;
+            hflipa    <= (hflip_en & lyra_col[0]) ^ flip;
         end else begin
             pxla_data <= shift( hflipa, pxla_data );
         end
@@ -174,15 +174,15 @@ always @(posedge clk, posedge rst) begin
             pxlb_data <= lyrb_data;
             // colb_pre  <= lyrb_col;
             colb      <= lyrb_col;
-            hflipb    <= (hflip_en & colb_pre[0]) ^ flip;
+            hflipb    <= (hflip_en & lyrb_col[0]) ^ flip;
         end else begin
             pxlb_data <= shift( hflipb, pxlb_data );
         end
 
         if( hdump[2:0]==0 ) begin
             pxlf_data <= lyrf_data;
-            colf_pre  <= lyrf_col;
-            colf      <= colf_pre;
+            //colf_pre  <= lyrf_col;
+            colf      <= lyrf_col;
         end else begin
             pxlf_data <= shift(  flip , pxlf_data );
         end
