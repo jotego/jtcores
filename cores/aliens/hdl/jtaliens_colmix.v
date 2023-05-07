@@ -81,7 +81,7 @@ always @(posedge clk) begin
         blue     <= 0;
     end else begin
 `ifndef GRAY
-        pxl_aux <= { pxl_aux[7:0], pal_dout }; // to do: MSB seems to control brightness
+        pxl_aux <= { pxl_aux[7:0], pal_dout };
 `else
         pxl_aux <= {1'b0,{3{pxl[4:0]}}};
 `endif
