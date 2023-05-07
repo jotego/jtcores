@@ -83,7 +83,7 @@ wire [ 8:0] hdump, vdump;
 wire [ 7:0] lyrf_pxl;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        prio_we;
 
 assign prio_we = prom_we & ~prog_addr[7];
@@ -170,8 +170,11 @@ jtaliens_obj u_obj(    // sprite logic
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
+    // pixel output
     .pxl        ( lyro_pxl  ),
+    .blank_n    (lyro_blnk_n),
     // Debug
+    .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    (           )
 );
@@ -200,7 +203,7 @@ jtaliens_colmix u_colmix(
     .lyrf_blnk_n(lyrf_blnk_n),
     .lyra_blnk_n(lyra_blnk_n),
     .lyrb_blnk_n(lyrb_blnk_n),
-    .lyro_blnk_n( 1'b0      ),
+    .lyro_blnk_n(lyro_blnk_n),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),

@@ -29,7 +29,7 @@ module jtaliens_obj(
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output     [17:0] rom_addr,
+    output     [18:0] rom_addr,
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
@@ -46,18 +46,21 @@ module jtaliens_obj(
     output            irq_n,
 
     output     [11:0] pxl,
+    output            blank_n,
     // Debug
+    input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 wire [ 7:0] pal;     // OC pins
-wire        hflip, vflip;
 wire [ 8:0] xpos;
 wire [12:0] code;
 wire [ 3:0] ysub;
 wire        dr_start, dr_busy, hflip, vflip;
 wire        flip=0;
+
+assign blank_n = pxl[3:0]!=0 && gfx_en[3];
 
 jt051960 u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -96,7 +99,7 @@ jt051960 u_scan(    // sprite logic
     .st_dout    ( st_dout   )
 );
 
-jtframe_objdraw #(.CW(13),.PW(12),.LATCH(1)) u_draw(
+jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1)) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -107,13 +110,13 @@ jtframe_objdraw #(.CW(13),.PW(12),.LATCH(1)) u_draw(
 
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),
-    .code       ( code      ),
+    .code       ( { pal[7], code } ),
     .xpos       ( xpos      ),
     .ysub       ( ysub      ),
 
     .hflip      ( hflip     ),
     .vflip      ( vflip     ),
-    .pal        ( pal       ),
+    .pal        ( { 1'b0, pal[6:0] } ),
 
     .rom_addr   ( rom_addr  ),
     .rom_cs     ( rom_cs    ),

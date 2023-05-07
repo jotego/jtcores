@@ -41,7 +41,7 @@ module jt051960(    // sprite logic
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output     [12:0] code,
+    output reg [12:0] code,
     output reg [ 7:0] attr,     // OC pins
     output reg        hflip, vflip,
     output reg [ 8:0] hpos,
@@ -69,12 +69,13 @@ module jt051960(    // sprite logic
     output reg [ 7:0] st_dout
 );
 
-localparam [ 2:0] REG_INT   = 0, // interrupt control, ROM read
+localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
                   REG_ROM_L = 2, // ROM address during ROM read
                   REG_ROM_H = 3,
                   REG_ROM_VH= 4;
 
-wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we;
+wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we,
+            flip, obj_en;
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] hzoom, vzoom;
 reg  [ 9:0] dma_addr;
@@ -93,8 +94,10 @@ assign lut_we  = cs & cpu_we & cpu_addr[10];
 assign reg_we  = &{ cpu_we,cpu_addr[10:3]==0,cs};
 assign reg_rd  = &{~cpu_we,cpu_addr[10:0]==0,cs};
 assign cpu_din = { ram_dout[7:1], reg_rd ? vb_start_n : ram_dout[0] };
-assign int_en  = mmr[REG_INT][2:0];
-assign romrd   = mmr[REG_INT][4];
+assign int_en  = mmr[REG_CFG][2:0];
+assign flip    = mmr[REG_CFG][3];
+assign obj_en  = mmr[REG_CFG][4];
+assign romrd   = mmr[REG_CFG][5];
 assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
     { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H], mmr[REG_ROM_L] };
 assign dma_din = dma_clr ? 8'd0 : dma_data;
@@ -103,7 +106,7 @@ assign scan_addr = { scan_obj, scan_sub };
 assign ysub = ydiff[3:0];
 
 always @* begin
-    ydiff  = y - (vdump+1'd1); // to do: add 1, flip...
+    ydiff  = y + vdump; // to do: add 1, flip...
     inzone = ydiff[8:4]==0;
 end
 
@@ -147,6 +150,7 @@ always @(posedge clk, posedge rst) begin
         scan_sub <= 0;
     end else if( cen2 ) begin
         lhbl_l <= lhbl;
+        dr_start <= 0;
         if( !lhbl && lhbl_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
@@ -182,7 +186,7 @@ end
 // Register map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        mmr[0]  <= 0; mmr[2] <= 0; mmr[3] <= 0; mmr[4]  <= 0;
+        mmr[0]  <= 8'h10; mmr[2] <= 0; mmr[3] <= 0; mmr[4]  <= 0;
         st_dout <= 0;
     end else begin
         if( reg_we ) begin

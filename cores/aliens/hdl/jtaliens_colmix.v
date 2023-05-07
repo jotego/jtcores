@@ -66,8 +66,8 @@ assign pal_addr  = { prio_sel[1] & ~prio_sel[0], pxl, pal_half };
 
 always @* begin
     case( prio_sel )
-        0: pxl = { 2'b01, lyra_pxl[7:6], lyra_pxl[3:0] };
-        1: pxl = { 2'b10, lyrb_pxl[7:6], lyrb_pxl[3:0] };
+        0: pxl = { 2'b01, lyra_pxl[11:10], lyra_pxl[3:0] };
+        1: pxl = { 2'b10, lyrb_pxl[11:10], lyrb_pxl[3:0] };
         2: pxl = lyro_pxl[7:0];
         3: pxl = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
     endcase
@@ -83,7 +83,7 @@ always @(posedge clk) begin
 `ifndef GRAY
         pxl_aux <= { pxl_aux[7:0], pal_dout }; // to do: MSB seems to control brightness
 `else
-        pxl_aux <= {3{pxl[4:0]}};
+        pxl_aux <= {1'b0,{3{pxl[4:0]}}};
 `endif
         if( pxl_cen ) begin
             {blue,green,red} <= (lvbl & lhbl ) ? pxl_aux[14:0] : 15'd0;
