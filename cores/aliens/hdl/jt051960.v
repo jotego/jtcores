@@ -103,7 +103,7 @@ assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
 assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | ~dma_done);
 assign scan_addr = { scan_obj, scan_sub };
-assign ysub = ydiff[3:0];
+assign ysub = ydiff[3:0]^{4{vflip}};
 
 always @* begin
     ydiff  = y + vdump; // to do: add 1, flip...
@@ -154,11 +154,16 @@ always @(posedge clk, posedge rst) begin
         if( !lhbl && lhbl_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
-            scan_sub <= 1;
+            scan_sub <= 0;
         end
         if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
+                0: if( !scan_dout[7] ) begin
+                    scan_sub <= 0;
+                    scan_obj <= scan_obj + 1'd1;
+                    if( &scan_obj ) done <= 1;
+                end
                 1: { size, code[12:8] } <= scan_dout;
                 2: code[7:0] <= scan_dout;
                 3: attr <= scan_dout;
@@ -171,7 +176,7 @@ always @(posedge clk, posedge rst) begin
                     hpos[7:0] <= scan_dout;
                     if( !dr_busy || !inzone ) begin
                         dr_start <= inzone;
-                        scan_sub <= 1;
+                        scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( &scan_obj ) done <= 1;
                     end else begin
