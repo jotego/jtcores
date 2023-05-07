@@ -432,8 +432,8 @@ void k051960_device::k051960_sprites_draw( bitmap_ind16 &bitmap, const rectangle
 		*/
 		static const int xoffset[8] = { 0, 1, 4, 5, 16, 17, 20, 21 };
 		static const int yoffset[8] = { 0, 2, 8, 10, 32, 34, 40, 42 };
-		static const int width[8] =  { 1, 2, 1, 2, 4, 2, 4, 8 };
-		static const int height[8] = { 1, 1, 2, 2, 2, 4, 4, 8 };
+		static const int width[8] =  { 1,2,1,2,  4,2,4,8 };
+		static const int height[8] = { 1,1,2,2,  2,4,4,8 };
 
 		offs = sortedlist[pri_code];
 		if (offs == -1)

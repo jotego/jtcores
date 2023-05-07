@@ -82,13 +82,14 @@ reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub, hstep, hcode;
 reg  [ 8:0] ydiff, y, vlatch;
 reg  [ 6:0] dma_prio, scan_obj;
-reg         dma_clr, dma_done, inzone, lhbl_l, done, hdone;
+reg         dma_clr, dma_done, inzone, lhbl_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
 wire [ 2:0] int_en;
 reg  [ 2:0] size;
 wire [ 7:0] romrd_bank, dma_din;
 wire [ 9:0] romrd_msb, scan_addr;
 reg         vb_start_n; // low for the first six lines of VBLANK
+wire        busy_g;
 
 assign lut_we  = cs & cpu_we & cpu_addr[10];
 assign reg_we  = &{ cpu_we,cpu_addr[10:3]==0,cs};
@@ -104,6 +105,7 @@ assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | ~dma_done);
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub = ydiff[3:0]^{4{vflip}};
+assign busy_g = busy_l | dr_busy;
 
 always @* begin
     ydiff  = y + vlatch; // to do: add 1, flip...
@@ -166,8 +168,10 @@ always @(posedge clk, posedge rst) begin
         hflip    <= 0;
         vzoom    <= 0;
         hzoom    <= 0;
+        busy_l   <= 0;
     end else if( cen2 ) begin
         lhbl_l <= lhbl;
+        busy_l <= dr_busy;
         dr_start <= 0;
         if( !lhbl && lhbl_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
@@ -196,20 +200,21 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                     // Add the vertical offset to the code
                     case( size ) // could be + or |
-                        2,3,4: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} | { 2'd0,ydiff[4]^vflip   };
-                        5,6  : {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} | { 1'd0,ydiff[5:4]^{2{vflip}} };
-                        7    : {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} | (ydiff[6:4]^{3{vflip}});
+                        2,3,4: {code[5],code[3],code[1]} <= { code[5], code[3], ydiff[4]^vflip   };
+                        5,6  : {code[5],code[3],code[1]} <= { code[5], ydiff[5:4]^{2{vflip}} };
+                        7    : {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
                     endcase
                     hcode <= {code[4],code[2],code[0]};
                 end
                 7: begin
                     scan_sub <= 7;
-                    if( (!dr_start && !dr_busy) || !inzone ) begin
-                        if( size!=0 && size!=2 )
-                            {code[4],code[2],code[0]} <=  debug_bus[0] ?
-                                hcode + (hstep[2:0]^{3{hflip}}) :
-                                {code[4],code[2],code[0]} + 3'd1;
-                            // {code[4],code[2],code[0]} <= {code[4],code[2],code[0]} + 3'd1;
+                    if( (!dr_start && !busy_g) || !inzone ) begin
+                        case( size )
+                            0,2:   {code[4],code[2],code[0]} <= hcode;
+                            1,3,5: {code[4],code[2],code[0]} <= {hcode[2],hcode[1],hstep[0]^hflip};
+                            4,6:   {code[4],code[2],code[0]} <= {hcode[2],hstep[1:0]^{2{hflip}}};
+                            7:     {code[4],code[2],code[0]} <= hstep[2:0]^{3{hflip}};
+                        endcase
                         if( hstep==0 )
                             hpos[7:0] <= scan_dout;
                         else begin
