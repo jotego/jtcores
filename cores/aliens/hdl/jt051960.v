@@ -116,7 +116,7 @@ always @* begin
         7:     inzone = ydiff[8]==0;   // 128
     endcase
     case( size )
-        0,2:   hdone = 0;
+        0,2:   hdone = 1;
         1,3,5: hdone = hstep==1;
         4,6:   hdone = hstep==3;
         7:     hdone = hstep==7;
@@ -216,7 +216,7 @@ always @(posedge clk, posedge rst) begin
                             7:     {code[4],code[2],code[0]} <= hstep[2:0]^{3{hflip}};
                         endcase
                         if( hstep==0 )
-                            hpos[7:0] <= scan_dout;
+                            hpos <= { hpos[8], scan_dout } + 9'd9; //{debug_bus[7], debug_bus };
                         else begin
                             hpos <= hpos + 9'h10;
                         end
