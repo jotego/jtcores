@@ -104,7 +104,7 @@ jtframe_prom #(.DW(2), .AW(7)) u_prio (
 );
 
 
-jtframe_dual_ram u_ram(
+jtframe_dual_ram #(.SIMFILE("pal.bin")) u_ram(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout      ),

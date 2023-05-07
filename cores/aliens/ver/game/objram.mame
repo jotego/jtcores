@@ -1,1 +1,3 @@
 wpset 7C00,400,w,1,{printf "%04X=%02X", wpaddr, wpdata; go}
+wpset 0000,400,w,1,{printf "%04X=%02X", wpaddr, wpdata; go}
+go
