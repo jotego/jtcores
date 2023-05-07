@@ -87,8 +87,9 @@ wire [ 7:0] ram_dout, scan_dout, dma_data;
 wire [ 2:0] int_en;
 reg  [ 2:0] size;
 wire [ 7:0] romrd_bank, dma_din;
-wire [ 9:0] romrd_msb, scan_addr;
-reg         vb_start_n; // low for the first six lines of VBLANK
+wire [ 9:0] romrd_msb, scan_addr, dma_wr_addr;
+reg         vb_start_n, // low for the first six lines of VBLANK
+            dma_ok;
 wire        busy_g;
 
 assign lut_we  = cs & cpu_we & cpu_addr[10];
@@ -102,7 +103,8 @@ assign romrd   = mmr[REG_CFG][5];
 assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
     { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H], mmr[REG_ROM_L] };
 assign dma_din = dma_clr ? 8'd0 : dma_data;
-assign dma_we  = ~vb_start_n & (dma_clr | ~dma_done);
+assign dma_we  = ~vb_start_n & (dma_clr | dma_ok);
+assign dma_wr_addr = dma_clr ? dma_addr : { dma_prio, dma_addr[2:0] };
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub = ydiff[3:0]^{4{vflip}};
 assign busy_g = busy_l | dr_busy;
@@ -130,22 +132,29 @@ always @(posedge clk, posedge rst) begin
         dma_clr    <= 0;
         dma_done   <= 0;
         dma_addr   <= 0;
-    end else if( pxl_cen) begin
+    end else if( pxl_cen ) begin
         vb_start_n <= !(vdump>=9'h1f1 && vdump<9'h1f7); // 8 lines
         if( vb_start_n ) begin
             dma_done <= 0;
             dma_clr  <= 1;
             dma_addr <= 0;
+            dma_ok   <= 0;
         end else begin
             if( dma_clr) begin // clear the full buffer first
                 { dma_clr, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
+                dma_ok <= 0;
             end else if( !dma_done && !lut_we && !romrd ) begin // copy by priority order
                 { dma_done, dma_addr } <= { 1'b0, dma_addr } + 1'd1;
                 if( dma_addr[2:0]==0 ) begin
                     dma_prio <= dma_data[6:0];
-                    if( !dma_data[7] )
+                    if( !dma_data[7] ) begin
                         { dma_done, dma_addr } <= { 1'b0, dma_addr[9:3], 3'd0 } + 11'd8;
+                        dma_ok <= 0;
+                    end else begin
+                        dma_ok <= 1;
+                    end
                 end
+                if( dma_addr[2:0]==7 ) dma_ok <= 0;
             end
         end
     end
@@ -182,11 +191,6 @@ always @(posedge clk, posedge rst) begin
         if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                0: if( !scan_dout[7] ) begin
-                    scan_sub <= 0;
-                    scan_obj <= scan_obj + 1'd1;
-                    if( &scan_obj ) done <= 1;
-                end
                 1: begin
                     { size, code[12:8] } <= scan_dout;
                     hstep <= 0;
@@ -297,7 +301,7 @@ jtframe_dual_ram #(.SIMFILE("obj.bin")) u_copy(
     // Port 0: DMA
     .clk0   ( clk            ),
     .data0  ( dma_din        ),
-    .addr0  ( { dma_prio, dma_addr[2:0] } ),
+    .addr0  ( dma_wr_addr    ),
     .we0    ( dma_we         ),
     .q0     (                ),
     // Port 1: scan
