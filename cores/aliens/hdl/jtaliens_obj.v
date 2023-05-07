@@ -29,7 +29,7 @@ module jtaliens_obj(
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output     [18:0] rom_addr,
+    output reg [18:0] rom_addr,
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
@@ -59,8 +59,14 @@ wire [12:0] code;
 wire [ 3:0] ysub;
 wire        dr_start, dr_busy, hflip, vflip;
 wire        flip=0;
+wire [18:0] pre_addr;
 
 assign blank_n = pxl[3:0]!=0 && gfx_en[3];
+
+always @* begin
+    rom_addr = pre_addr;
+    rom_addr[4:3] = { pre_addr[3], pre_addr[4] };
+end
 
 jt051960 u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -99,7 +105,7 @@ jt051960 u_scan(    // sprite logic
     .st_dout    ( st_dout   )
 );
 
-jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1)) u_draw(
+jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1)) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -114,11 +120,11 @@ jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1)) u_draw(
     .xpos       ( xpos      ),
     .ysub       ( ysub      ),
 
-    .hflip      ( hflip     ),
+    .hflip      ( ~hflip    ),
     .vflip      ( vflip     ),
     .pal        ( { 1'b0, pal[6:0] } ),
 
-    .rom_addr   ( rom_addr  ),
+    .rom_addr   ( pre_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),

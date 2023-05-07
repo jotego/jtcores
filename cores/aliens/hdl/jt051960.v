@@ -79,10 +79,10 @@ wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we,
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] hzoom, vzoom;
 reg  [ 9:0] dma_addr;
-reg  [ 2:0] scan_sub;
-reg  [ 8:0] ydiff, y;
+reg  [ 2:0] scan_sub, hstep, hcode;
+reg  [ 8:0] ydiff, y, vlatch;
 reg  [ 6:0] dma_prio, scan_obj;
-reg         dma_clr, dma_done, inzone, lhbl_l, done;
+reg         dma_clr, dma_done, inzone, lhbl_l, done, hdone;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
 wire [ 2:0] int_en;
 reg  [ 2:0] size;
@@ -106,8 +106,19 @@ assign scan_addr = { scan_obj, scan_sub };
 assign ysub = ydiff[3:0]^{4{vflip}};
 
 always @* begin
-    ydiff  = y + vdump; // to do: add 1, flip...
-    inzone = ydiff[8:4]==0;
+    ydiff  = y + vlatch; // to do: add 1, flip...
+    case( size )
+        0,1:   inzone = ydiff[8:4]==0; // 16
+        2,3,4: inzone = ydiff[8:5]==0; // 32
+        5,6:   inzone = ydiff[8:6]==0; // 64
+        7:     inzone = ydiff[8]==0;   // 128
+    endcase
+    case( size )
+        0,2:   hdone = 0;
+        1,3,5: hdone = hstep==1;
+        4,6:   hdone = hstep==3;
+        7:     hdone = hstep==7;
+    endcase
 end
 
 // DMA logic
@@ -148,6 +159,13 @@ always @(posedge clk, posedge rst) begin
         lhbl_l   <= 0;
         scan_obj <= 0;
         scan_sub <= 0;
+        hstep    <= 0;
+        code     <= 0;
+        attr     <= 0;
+        vflip    <= 0;
+        hflip    <= 0;
+        vzoom    <= 0;
+        hzoom    <= 0;
     end else if( cen2 ) begin
         lhbl_l <= lhbl;
         dr_start <= 0;
@@ -155,6 +173,7 @@ always @(posedge clk, posedge rst) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
+            vlatch   <= vdump;
         end
         if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
@@ -164,23 +183,45 @@ always @(posedge clk, posedge rst) begin
                     scan_obj <= scan_obj + 1'd1;
                     if( &scan_obj ) done <= 1;
                 end
-                1: { size, code[12:8] } <= scan_dout;
+                1: begin
+                    { size, code[12:8] } <= scan_dout;
+                    hstep <= 0;
+                end
                 2: code[7:0] <= scan_dout;
                 3: attr <= scan_dout;
                 4: { vzoom, vflip, y[8] } <= scan_dout;
                 5: y[7:0] <= scan_dout;
                 6: begin
                     { hzoom, hflip, hpos[8] } <= scan_dout;
+                    hstep <= 0;
+                    // Add the vertical offset to the code
+                    case( size ) // could be + or |
+                        2,3,4: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} | { 2'd0,ydiff[4]^vflip   };
+                        5,6  : {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} | { 1'd0,ydiff[5:4]^{2{vflip}} };
+                        7    : {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} | (ydiff[6:4]^{3{vflip}});
+                    endcase
+                    hcode <= {code[4],code[2],code[0]};
                 end
                 7: begin
-                    hpos[7:0] <= scan_dout;
-                    if( !dr_busy || !inzone ) begin
+                    scan_sub <= 7;
+                    if( (!dr_start && !dr_busy) || !inzone ) begin
+                        if( size!=0 && size!=2 )
+                            {code[4],code[2],code[0]} <=  debug_bus[0] ?
+                                hcode + (hstep[2:0]^{3{hflip}}) :
+                                {code[4],code[2],code[0]} + 3'd1;
+                            // {code[4],code[2],code[0]} <= {code[4],code[2],code[0]} + 3'd1;
+                        if( hstep==0 )
+                            hpos[7:0] <= scan_dout;
+                        else begin
+                            hpos <= hpos + 9'h10;
+                        end
+                        hstep <= hstep + 1'd1;
                         dr_start <= inzone;
-                        scan_sub <= 0;
-                        scan_obj <= scan_obj + 1'd1;
-                        if( &scan_obj ) done <= 1;
-                    end else begin
-                        scan_sub <= 7;
+                        if( hdone || !inzone ) begin
+                            scan_sub <= 0;
+                            scan_obj <= scan_obj + 1'd1;
+                            if( &scan_obj ) done <= 1;
+                        end
                     end
                 end
             endcase

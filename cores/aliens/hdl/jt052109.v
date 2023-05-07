@@ -173,8 +173,8 @@ reg ca, cb;
 
 always @* begin
     flipk  = { {6{flip}},  1'b0, {2{flip}} };
-    heff_a = flipk + hposa;
-    heff_b = flipk + hposb;
+    heff_a = flipk + hposa - 9'd6; //{1'd0,debug_bus};
+    heff_b = flipk + hposb - 9'd6; //{1'd0,debug_bus};
     // H part of the scan
     { ca, hsub_a } = { 1'b0, hdump[2:0] } + ({1'd0,heff_a[2:0]}^{1'd0,{3{flip}}});
     { cb, hsub_b } = { 1'b0, hdump[2:0] } + ({1'd0,heff_b[2:0]}^{1'd0,{3{flip}}});
