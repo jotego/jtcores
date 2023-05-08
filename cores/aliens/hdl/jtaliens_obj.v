@@ -57,7 +57,8 @@ wire [ 7:0] pal;     // OC pins
 wire [ 8:0] xpos;
 wire [12:0] code;
 wire [ 3:0] ysub;
-wire        dr_start, dr_busy, hflip, vflip;
+wire [ 5:0] hzoom;
+wire        dr_start, dr_busy, hflip, vflip, hz_keep;
 wire        flip=0;
 wire [18:0] pre_addr;
 
@@ -96,6 +97,8 @@ jt051960 u_scan(    // sprite logic
     .attr       ( pal       ),
     .code       ( code      ),
     .ysub       ( ysub      ),
+    .hzoom      ( hzoom     ),
+    .hz_keep    ( hz_keep   ),
 
     .irq_n      ( irq_n     ),
     .firq_n     (           ),
@@ -119,6 +122,8 @@ jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1)) u_draw(
     .code       ( { pal[7], code } ),
     .xpos       ( xpos      ),
     .ysub       ( ysub      ),
+    .hz_keep    ( hz_keep   ),
+    .hzoom      ( hzoom     ),
 
     .hflip      ( ~hflip    ),
     .vflip      ( vflip     ),

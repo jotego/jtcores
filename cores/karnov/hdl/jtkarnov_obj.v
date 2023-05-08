@@ -135,6 +135,10 @@ jtframe_objdraw #(.HJUMP(1)) u_objdraw(
     .xpos       ( dr_xpos   ),
     .ysub       ( dr_ysub   ),
 
+    // No zoom
+    .hzoom      ( 6'd0      ),
+    .hz_keep    ( 1'b0      ),
+
     .hflip      ( dr_hflip  ),
     .vflip      ( dr_vflip  ),
     .pal        ( dr_pal    ),
@@ -157,4 +161,4 @@ jtframe_bram_dma u_dma(
 );
 
 
-endmodule    
+endmodule

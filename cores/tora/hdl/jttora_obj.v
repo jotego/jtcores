@@ -119,6 +119,11 @@ jtframe_objdraw#(.CW(12),.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
     .ysub       ( dr_ysub   ),
     .hflip      ( dr_hflip  ),
     .vflip      ( dr_vflip  ),
+
+    // No zoom
+    .hzoom      ( 6'd0      ),
+    .hz_keep    ( 1'b0      ),
+
     .pal        ( dr_pal    ),
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),
