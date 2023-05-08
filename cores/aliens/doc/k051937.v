@@ -156,12 +156,14 @@ assign HVOT = ~|{A89_CO, nHVIN_DELAY};
 
 
 wire [3:0] AP4_Q;
-C43 AP4(clk_12M, {3'b000, HP[0]}, AR44_Q, CARY, CARY, nRES, AP4_Q);
+C43 AP4(clk_12M, {3'b000, HP[0]}, AR44_Q, CARY, CARY, nRES, AP4_Q,);
 
 
 FDM AR33(clk_12M, CARY, AR33_Q);
 FDM AN93(clk_12M, ~&{AP4_Q[0], AR33_Q}, AN93_Q);	// AR76
-FDM AM104(clk_12M, AN93_Q, AM104_Q);
+FDM AM104(clk_12M, AN93_Q, AM104_Q, ); // do not write pixel if AN93_Q is low
+									   // do not count if AM104_Q is low
+									   // AM104_Q = AN93_Q delayed 1 tick
 
 
 assign H137 = nNEW_LINE & (NHBK | (PXH[6] & C89_COUT));

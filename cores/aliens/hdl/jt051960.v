@@ -46,6 +46,8 @@ module jt051960(    // sprite logic
     output reg        hflip, vflip,
     output reg [ 8:0] hpos,
     output     [ 3:0] ysub,
+    output reg [ 5:0] hzoom,
+    output reg        hz_keep,
 
     // control
     input      [ 8:0] hdump,    // Not inputs in the original, but
@@ -77,10 +79,10 @@ localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
 wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we,
             flip, obj_en;
 reg  [ 7:0] mmr[0:4];
-reg  [ 5:0] hzoom, vzoom;
+reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub, hstep, hcode;
-reg  [ 8:0] ydiff, y, vlatch;
+reg  [ 8:0] ydiff, y, vlatch, hadd;
 reg  [ 6:0] dma_prio, scan_obj;
 reg         dma_clr, dma_done, inzone, lhbl_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
@@ -122,6 +124,12 @@ always @* begin
         1,3,5: hdone = hstep==1;
         4,6:   hdone = hstep==3;
         7:     hdone = hstep==7;
+    endcase
+    case( size )
+        0,2:   hadd = 0;
+        1,3,5: hadd = 9'h10;
+        4,6:   hadd = 9'h40;
+        7:     hadd = 9'h80;
     endcase
 end
 
@@ -177,6 +185,7 @@ always @(posedge clk, posedge rst) begin
         hflip    <= 0;
         vzoom    <= 0;
         hzoom    <= 0;
+        hz_keep  <= 0;
         busy_l   <= 0;
     end else if( cen2 ) begin
         lhbl_l <= lhbl;
@@ -187,13 +196,13 @@ always @(posedge clk, posedge rst) begin
             scan_obj <= 0;
             scan_sub <= 0;
             vlatch   <= vdump;
-        end
-        if( !done ) begin
+        end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
                 1: begin
                     { size, code[12:8] } <= scan_dout;
-                    hstep <= 0;
+                    hstep   <= 0;
+                    hz_keep <= 0;
                 end
                 2: code[7:0] <= scan_dout;
                 3: attr <= scan_dout;
@@ -209,6 +218,12 @@ always @(posedge clk, posedge rst) begin
                         7    : {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
                     endcase
                     hcode <= {code[4],code[2],code[0]};
+                    if( !inzone ) begin
+                        scan_sub <= 1;
+                        scan_obj <= scan_obj + 1'd1;
+                        if( &scan_obj ) done <= 1;
+                    end
+                    // attr[6:0] <= attr[6:0]^{7{scan_dout[1]}}; // highlight hflipped sprite
                 end
                 7: begin
                     scan_sub <= 7;
@@ -223,11 +238,12 @@ always @(posedge clk, posedge rst) begin
                             hpos <= { hpos[8], scan_dout } + 9'd9; //{debug_bus[7], debug_bus };
                         else begin
                             hpos <= hpos + 9'h10;
+                            hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
                         dr_start <= inzone;
                         if( hdone || !inzone ) begin
-                            scan_sub <= 0;
+                            scan_sub <= 1;
                             scan_obj <= scan_obj + 1'd1;
                             if( &scan_obj ) done <= 1;
                         end
@@ -297,7 +313,7 @@ jtframe_dual_ram #(.SIMFILE("obj.bin")) u_lut(
     .q1     ( dma_data       )
 );
 
-jtframe_dual_ram #(.SIMFILE("obj.bin")) u_copy(
+jtframe_dual_ram u_copy(
     // Port 0: DMA
     .clk0   ( clk            ),
     .data0  ( dma_din        ),
