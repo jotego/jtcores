@@ -105,8 +105,7 @@ jtframe_vtimer #(
     .HCNT_END   ( 9'h19F    ),
     .HB_START   ( 9'h197    ),
     .HB_END     ( 9'h057    ),  // 10.6 us
-    .HS_START   ( 9'h039    ),
-    .HS_END     ( 9'h059    ),  //  5.33 us
+    .HS_START   ( 9'h030    ),
 
     .V_START    ( 9'h0F8    ),
     .VB_START   ( 9'h1EF    ),

@@ -60,7 +60,7 @@ reg  [ 7:0] pxl;
 reg  [15:0] pxl_aux;
 wire [ 9:0] pal_addr;
 
-assign prio_addr = { lyro_pxl[8], lyro_pxl[8], lyro_pxl[10],
+assign prio_addr = { lyro_pxl[8], lyro_pxl[9], lyro_pxl[10],
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 assign pal_addr  = { prio_sel[1] & ~prio_sel[0], pxl, pal_half };
 
