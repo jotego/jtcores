@@ -224,6 +224,7 @@ always @(posedge clk, posedge rst) begin
                         if( &scan_obj ) done <= 1;
                     end
                     // attr[6:0] <= attr[6:0]^{7{scan_dout[1]}}; // highlight hflipped sprite
+                    // attr[2:0] <= size;
                 end
                 7: begin
                     scan_sub <= 7;

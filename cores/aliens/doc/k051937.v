@@ -108,7 +108,7 @@ ram_k051937_shadow RAMH(RAM_EFGH_A, RAM_EFGH_CK, RAM_H_DIN, RAM_H_WE, RAM_H_DOUT
 // CLOCK & VIDEO SYNC
 
 // Reset input sync
-FDE AS24(clk_24M, 1'b1, nRES, RES_SYNC);
+FDE AS24(clk_24M, 1'b1, nRES, RES_SYNC,);
 
 // Clocks
 FDN AS44(clk_24M, nclk_12M, RES_SYNC, clk_12M, nclk_12M);
@@ -122,17 +122,17 @@ wire [8:0] PXH;
 wire D89;
 assign H91 = ~&{(~NHSY | ~D89), (PXH[5] | D89)};
 assign NCBK = NVBK & NHBK;
-FDN F89(clk_6M, H91, RES_SYNC & ~NHBK, NHSY);
+FDN F89(clk_6M, H91, RES_SYNC & ~NHBK, NHSY,);
 
 // H/V COUNTERS
 
-FDE AS65(clk_24M, clk_3M, RES_SYNC, AS65_Q);	// = PE
+FDE AS65(clk_24M, clk_3M, RES_SYNC, AS65_Q,);	// = PE
 
 // H counter
 // 9-bit counter, resets to 9'h020 after 9'h19F, effectively counting 384 pixels
-FDO K89(clk_6M, AS65_Q, RES_SYNC, PXH[0]);
+FDO K89(clk_6M, AS65_Q, RES_SYNC, PXH[0],);
 C43 C89(clk_6M, 4'b0000, nNEW_LINE, PXH[0], PXH[0], RES_SYNC, PXH[4:1], C89_COUT);
-C43 E93(clk_6M, 4'b0001, nNEW_LINE, C89_COUT, C89_COUT, RES_SYNC, PXH[8:5]);
+C43 E93(clk_6M, 4'b0001, nNEW_LINE, C89_COUT, C89_COUT, RES_SYNC, PXH[8:5],);
 assign P1H = PXH[0];
 assign P2H = PXH[1];
 
@@ -144,12 +144,12 @@ wire [8:0] ROW;
 
 // V counter
 // 9-bit counter, resets to 9'h0F8 after 9'h1FF, effectively counting 264 raster lines
-FDO F117(clk_6M, ~|{(~ROW[0] ^ G137), nHVIN_DELAY}, RES_SYNC, ROW[0]);
+FDO F117(clk_6M, ~|{(~ROW[0] ^ G137), nHVIN_DELAY}, RES_SYNC, ROW[0],);
 C43 B90(clk_6M, 4'b1100, HVOT, ROW[0], G137 & ROW[0], RES_SYNC, ROW[4:1], B90_CO);
 C43 A89(clk_6M, 4'b0111, HVOT, ROW[0], B90_CO, RES_SYNC, ROW[8:5], A89_CO);
 
 FDO F110(ROW[8], &{ROW[3:1]}, RES_SYNC, , NVBK);	// B138
-LTL F132(ROW[4], NHSY, RES_SYNC, NVSY);
+LTL F132(ROW[4], NHSY, RES_SYNC, NVSY,);
 
 assign NCSY = &{NVSY, NHSY};
 assign HVOT = ~|{A89_CO, nHVIN_DELAY};
@@ -159,19 +159,19 @@ wire [3:0] AP4_Q;
 C43 AP4(clk_12M, {3'b000, HP[0]}, AR44_Q, CARY, CARY, nRES, AP4_Q,);
 
 
-FDM AR33(clk_12M, CARY, AR33_Q);
-FDM AN93(clk_12M, ~&{AP4_Q[0], AR33_Q}, AN93_Q);	// AR76
+FDM AR33(clk_12M, CARY, AR33_Q,);
+FDM AN93(clk_12M, ~&{AP4_Q[0], AR33_Q}, AN93_Q, );	// AR76
 FDM AM104(clk_12M, AN93_Q, AM104_Q, ); // do not write pixel if AN93_Q is low
 									   // do not count if AM104_Q is low
 									   // AM104_Q = AN93_Q delayed 1 tick
 
 
 assign H137 = nNEW_LINE & (NHBK | (PXH[6] & C89_COUT));
-FDO F103(clk_6M, H137, RES_SYNC, NHBK);
+FDO F103(clk_6M, H137, RES_SYNC, NHBK,);
 
 
 assign AT137 = clk_24M;	// AT137 must be used for delaying M24 !
-FDM AV96(~AT137, clk_12M, AV96_Q);
+FDM AV96(~AT137, clk_12M, AV96_Q,);
 assign AV139 = ~&{AT137, AV96_Q};
 
 wire AN106_XQ;
@@ -248,25 +248,25 @@ wire [3:0] PIXELB;
 
 assign MUX_SH48 = SPR_HFLIP ? SH4_OUT[3] : SH8_OUT[0];	// AP158 AP156
 assign MUX_SH84 = SPR_HFLIP ? SH8_OUT[3] : SH4_OUT[0];
-FDM AW89(clk_12M, MUX_SH48, MUX_SH48_D);
+FDM AW89(clk_12M, MUX_SH48, MUX_SH48_D,);
 assign PIXELA[3] = AR135_Q ? 1'b0 : AS129_Q ? MUX_SH84 : MUX_SH48;
 assign PIXELB[3] = AR104_XQ ? 1'b0 : AS129_Q ? MUX_SH48_D : MUX_SH84;
 
 assign MUX_SH37 = SPR_HFLIP ? SH3_OUT[3] : SH7_OUT[0];	// AP154 AP142
 assign MUX_SH73 = SPR_HFLIP ? SH7_OUT[3] : SH3_OUT[0];
-FDM AW95(clk_12M, MUX_SH37, MUX_SH37_D);
+FDM AW95(clk_12M, MUX_SH37, MUX_SH37_D,);
 assign PIXELA[2] = AR135_Q ? 1'b0 : AS129_Q ? MUX_SH73 : MUX_SH37;
 assign PIXELB[2] = AR104_XQ ? 1'b0 : AS129_Q ? MUX_SH37_D : MUX_SH73;
 
 assign MUX_SH26 = SPR_HFLIP ? SH2_OUT[3] : SH6_OUT[0];	// AP152 AP150
 assign MUX_SH62 = SPR_HFLIP ? SH6_OUT[3] : SH2_OUT[0];
-FDM AW104(clk_12M, MUX_SH26, MUX_SH26_D);
+FDM AW104(clk_12M, MUX_SH26, MUX_SH26_D,);
 assign PIXELA[1] = AR135_Q ? 1'b0 : AS129_Q ? MUX_SH62 : MUX_SH26;
 assign PIXELB[1] = AR104_XQ ? 1'b0 : AS129_Q ? MUX_SH26_D : MUX_SH62;
 
 assign MUX_SH15 = SPR_HFLIP ? SH1_OUT[3] : SH5_OUT[0];	// AX128 AX130
 assign MUX_SH51 = SPR_HFLIP ? SH5_OUT[3] : SH1_OUT[0];
-FDM AX132(clk_12M, MUX_SH15, MUX_SH15_D);
+FDM AX132(clk_12M, MUX_SH15, MUX_SH15_D,);
 assign PIXELA[0] = AR135_Q ? 1'b0 : AS129_Q ? MUX_SH51 : MUX_SH15;
 assign PIXELB[0] = AR104_XQ ? 1'b0 : AS129_Q ? MUX_SH15_D :  MUX_SH51;
 
@@ -276,7 +276,7 @@ assign PIXELB[0] = AR104_XQ ? 1'b0 : AS129_Q ? MUX_SH15_D :  MUX_SH51;
 // Render counters
 wire [8:1] RENDERH;
 C43 G89(clk_12M, HP[4:1], AP71_Q, AM104_Q, AM104_Q, 1'b1, RENDERH[4:1], G89_CO);
-C43 S89(clk_12M, HP[8:5], AP71_Q, G89_CO, G89_CO, 1'b1, RENDERH[8:5]);
+C43 S89(clk_12M, HP[8:5], AP71_Q, G89_CO, G89_CO, 1'b1, RENDERH[8:5],);
 
 
 /*assign CD0_OUT = nROMRD[0] ? 8'h00 : DB_IN;	// TODO
@@ -306,7 +306,7 @@ end
 
 // LB ADDRESS
 
-FDO AB95(AAC98, DB_IN[3], RES_SYNC, AB95_Q);
+FDO AB95(AAC98, DB_IN[3], RES_SYNC, AB95_Q,);
 assign K108 = PXH[0] ^ AB95_Q;
 assign AK183 = ~K108;
 
@@ -320,13 +320,13 @@ always @(posedge PXH[0]) begin
 	AK196_Q <= PAIR ? RAM_G_DOUT : RAM_C_DOUT;
 	AK154_Q <= PAIR ? RAM_H_DOUT : RAM_D_DOUT;
 end
-FDM AL196(clk_6M, K108 ? AK154_Q : AK196_Q, AL196_Q);
+FDM AL196(clk_6M, K108 ? AK154_Q : AK196_Q, AL196_Q,);
 
 wire [2:0] REG1;
 
 assign AAC104 = |{AV104, OREG, ~(AB[1:0] == 2'd1)};
-FDO AJ128(AAC104, DB_IN[0], RES_SYNC, REG1[0]);
-FDO AJ91(AAC104, DB_IN[1], RES_SYNC, REG1[1]);
+FDO AJ128(AAC104, DB_IN[0], RES_SYNC, REG1[0],);
+FDO AJ91(AAC104, DB_IN[1], RES_SYNC, REG1[1],);
 FDO AJ84(AAC104, DB_IN[2], RES_SYNC, , REG1[2]);
 
 assign SHAD = ^{AL196_Q, REG1[0]};
@@ -335,24 +335,24 @@ assign AK112 = PAL_LATCH1[7] | REG1[1];
 
 
 assign SHADOWA = &{REG1[2], AK112, &{PIXELA}};
-FDM AJ55(clk_12M, SHADOWA, AJ55_Q);
+FDM AJ55(clk_12M, SHADOWA, AJ55_Q,);
 
 assign SHADOWB = &{REG1[2], AK112, &{PIXELB}};
-FDM AJ135(clk_12M, SHADOWB, AJ135_Q);
+FDM AJ135(clk_12M, SHADOWB, AJ135_Q,);
 
-FDM AH65(AJ1, &{AJ55_Q, PAIR}, RAM_C_DIN);
-FDM AH108(AJ1, &{AJ135_Q, PAIR}, RAM_D_DIN);
-FDM AH132(AK13, &{AJ55_Q, ~PAIR}, RAM_G_DIN);
-FDM AH114(AK13, &{AJ135_Q, ~PAIR}, RAM_H_DIN);
+FDM AH65(AJ1, &{AJ55_Q, PAIR}, RAM_C_DIN,);
+FDM AH108(AJ1, &{AJ135_Q, PAIR}, RAM_D_DIN,);
+FDM AH132(AK13, &{AJ55_Q, ~PAIR}, RAM_G_DIN,);
+FDM AH114(AK13, &{AJ135_Q, ~PAIR}, RAM_H_DIN,);
 
 
 // ROOT SHEET 7
 
 FDO AT106(clk_24M, nclk_3M, RES_SYNC, AT106_Q, AT106_XQ);
-FDO AT89(clk_24M, AT106_Q, RES_SYNC, AT89_Q);
-FDO AT96(clk_24M, AT89_Q, RES_SYNC, AT96_Q);
+FDO AT89(clk_24M, AT106_Q, RES_SYNC, AT89_Q,);
+FDO AT96(clk_24M, AT89_Q, RES_SYNC, AT96_Q,);
 
-FDO AV89(clk_24M, ~&{AT106_XQ, AT96_Q, NRD}, RES_SYNC, AV104);
+FDO AV89(clk_24M, ~&{AT106_XQ, AT96_Q, NRD}, RES_SYNC, AV104,);
 
 
 assign AR73 = ~|{(SPR_HFLIP & NEW_SPR), (OHF & ~NEW_SPR)};
@@ -363,13 +363,13 @@ FDO AM90(AAC98, DB_IN[5], RES_SYNC, , nROMRDEN);
 
 
 assign AN116 = HVIN & nRES;
-FDN AN130(clk_12M, ~^{AP134, ~FLIP}, AN116, FLIP);
+FDN AN130(clk_12M, ~^{AP134, ~FLIP}, AN116, FLIP,);
 FDN AN106(clk_12M, FLIP, AN116, AN106_Q, AN106_XQ);
 assign PAIR = AN106_Q;		// Must be delayed !
 //assign nPAIR = AN106_XQ;	// Must be delayed !
 
 
-FDM AR16(~clk_12M, ~|{~PXH[0], clk_6M}, AR16_Q);
+FDM AR16(~clk_12M, ~|{~PXH[0], clk_6M}, AR16_Q,);
 assign AS34 = ~|{AR16_Q & ~OHF, 1'b1 & OHF};
 FDM AS90(clk_12M, AS34, , AS90_XQ);
 
@@ -477,8 +477,8 @@ end
 
 assign nHVIN_DELAY = ~DELAY_HVIN[7];
 
-FDN AN84(clk_6M, AN15_Q, nRES, AN84_Q);
-FDM AP52(~clk_12M, AN84_Q | clk_6M, AP52_Q);
+FDN AN84(clk_6M, AN15_Q, nRES, AN84_Q,);
+FDM AP52(~clk_12M, AN84_Q | clk_6M, AP52_Q,);
 reg [4:0] AN15_DELAY;
 always @(posedge clk_12M or negedge nRES) begin
 	if (!nRES) begin

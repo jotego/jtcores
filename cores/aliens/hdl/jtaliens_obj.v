@@ -108,7 +108,7 @@ jt051960 u_scan(    // sprite logic
     .st_dout    ( st_dout   )
 );
 
-jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1)) u_draw(
+jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7)) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -123,7 +123,7 @@ jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1)) u_draw(
     .xpos       ( xpos      ),
     .ysub       ( ysub      ),
     .hz_keep    ( hz_keep   ),
-    .hzoom      ( hzoom     ),
+    .hzoom      ({1'b0,hzoom}),
 
     .hflip      ( ~hflip    ),
     .vflip      ( vflip     ),
