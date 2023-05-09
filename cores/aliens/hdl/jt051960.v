@@ -82,7 +82,7 @@ reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub, hstep, hcode;
-reg  [ 8:0] ydiff, y, vlatch, hadd;
+reg  [ 8:0] ydiff, ydiff_b, y, vlatch, hadd;
 reg  [ 6:0] dma_prio, scan_obj;
 reg         dma_clr, dma_done, inzone, lhbl_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
@@ -90,6 +90,7 @@ wire [ 2:0] int_en;
 reg  [ 2:0] size;
 wire [ 7:0] romrd_bank, dma_din;
 wire [ 9:0] romrd_msb, scan_addr, dma_wr_addr;
+reg  [17:0] yz_add;
 reg         vb_start_n, // low for the first six lines of VBLANK
             dma_ok;
 wire        busy_g;
@@ -112,12 +113,13 @@ assign ysub = ydiff[3:0]^{4{vflip}};
 assign busy_g = busy_l | dr_busy;
 
 always @* begin
-    ydiff  = y + vlatch; // to do: add 1, flip...
+    ydiff_b= y + vlatch; // to do: add 1, flip...
+    ydiff  = ydiff_b+yz_add[17-:9];
     case( size )
-        0,1:   inzone = ydiff[8:4]==0; // 16
-        2,3,4: inzone = ydiff[8:5]==0; // 32
-        5,6:   inzone = ydiff[8:6]==0; // 64
-        7:     inzone = ydiff[8]==0;   // 128
+        0,1:   inzone = ydiff_b[8:4]==0 && ydiff[8:4]==0; // 16
+        2,3,4: inzone = ydiff_b[8:5]==0 && ydiff[8:5]==0; // 32
+        5,6:   inzone = ydiff_b[8:6]==0 && ydiff[8:6]==0; // 64
+        7:     inzone = ydiff_b[8:7]==0 && ydiff[8:7]==0;   // 128
     endcase
     case( size )
         0,2:   hdone = 1;
@@ -171,6 +173,12 @@ end
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
+
+always @(posedge clk) begin
+    /* verilator lint_off WIDTH */
+    yz_add <= (({vzoom,3'b0}>>debug_bus[1:0])*ydiff_b);
+    /* verilator lint_on WIDTH */
+end
 
 // Table scan
 always @(posedge clk, posedge rst) begin
