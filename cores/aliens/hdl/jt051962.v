@@ -95,17 +95,16 @@ module jt051962(
     input      [ 7:0] debug_bus
 );
 
-reg  [7:0] //cola_pre, colb_pre, colf_pre,
-           cola    , colb    , colf;
+reg  [7:0] cola, colb, colf;
 reg [31:0] pxlf_data, pxla_data, pxlb_data;
 reg        hflipa, hflipb;
 
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h197    ),
-    .HB_END     ( 9'h057    ),  // 10.6 us
-    .HS_START   ( 9'h030    ),
+    .HB_START   ( 9'h027    ),
+    .HB_END     ( 9'h067    ),  // 10.6 us
+    .HS_START   ( 9'h034    ),
 
     .V_START    ( 9'h0F8    ),
     .VB_START   ( 9'h1EF    ),
@@ -158,11 +157,17 @@ assign lyrb_blnk_n = lyrb_pxl[3:0]!=0 & gfx_en[2];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-
+        pxla_data <= 0;
+        pxlb_data <= 0;
+        pxlf_data <= 0;
+        cola      <= 0;
+        colb      <= 0;
+        colf      <= 0;
+        hflipa    <= 0;
+        hflipb    <= 0;
     end else if( pxl_cen ) begin
         if( hsub_a[2:0]==0 ) begin
             pxla_data <= lyra_data;
-            // cola_pre  <= lyra_col;
             cola      <= lyra_col;
             hflipa    <= (hflip_en & lyra_col[0]) ^ flip;
         end else begin
@@ -171,7 +176,6 @@ always @(posedge clk, posedge rst) begin
 
         if( hsub_b[2:0]==0 ) begin
             pxlb_data <= lyrb_data;
-            // colb_pre  <= lyrb_col;
             colb      <= lyrb_col;
             hflipb    <= (hflip_en & lyrb_col[0]) ^ flip;
         end else begin
@@ -180,7 +184,6 @@ always @(posedge clk, posedge rst) begin
 
         if( hdump[2:0]==0 ) begin
             pxlf_data <= lyrf_data;
-            //colf_pre  <= lyrf_col;
             colf      <= lyrf_col;
         end else begin
             pxlf_data <= shift(  flip , pxlf_data );

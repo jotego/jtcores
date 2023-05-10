@@ -176,7 +176,7 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     /* verilator lint_off WIDTH */
-    yz_add <= (({vzoom,3'b0}>>debug_bus[1:0])*ydiff_b);
+    yz_add <= {vzoom,3'b0}*ydiff_b;
     /* verilator lint_on WIDTH */
 end
 

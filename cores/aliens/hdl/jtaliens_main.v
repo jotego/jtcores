@@ -90,7 +90,7 @@ always @(*) begin
     pal_cs     = A[15:10]==0 && work; // CRAMCS in sch
     objsys_cs  = A[15:11]=='b01111 && !rmrd && init &&
                     (A[10] || (A[9:7]==0 && ~|A[6:5] && ~|A[4:3]));
-    tilesys_cs = A[15:14]==1 && !io_cs && !pal_cs && !objsys_cs;
+    tilesys_cs = A[15:14]==1 && ( !init || (!io_cs && !pal_cs && !objsys_cs));
 end
 
 always @* begin
@@ -109,6 +109,7 @@ always @(posedge clk, posedge rst) begin
         port_in   <= 0;
         work      <= 0;
         rmrd      <= 0;
+        init      <= 0; // missing this will result in garbled scroll after reset
     end else begin
         if(cpu_cen) snd_irq <= 0;
         if( io_cs ) begin
