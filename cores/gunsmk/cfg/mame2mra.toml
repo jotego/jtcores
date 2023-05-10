@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="gunsmoke.cpp"
+sourcefile=[ "gunsmoke.cpp" ]
 skip.setnames=[
     # dump unavailable
     "gunsmokeua",

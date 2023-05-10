@@ -3,7 +3,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="renegade.cpp"
+sourcefile=[ "renegade.cpp" ]
 # Original games don't work because of the MCU
 skip.setnames = [ "kuniokun", "renegade" ]
 main_setnames=["renegadeb"]

@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="blktiger.cpp"
+sourcefile=[ "blktiger.cpp" ]
 skip.bootlegs=true
 
 [buttons]

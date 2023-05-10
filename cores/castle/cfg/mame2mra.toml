@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="hcastle.cpp"
+sourcefile=[ "hcastle.cpp" ]
 
 [buttons]
 names = [

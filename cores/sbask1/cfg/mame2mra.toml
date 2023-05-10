@@ -7,7 +7,7 @@ mraauthor=["jotego"]
 # debug=true
 
 [parse]
-sourcefile="sbasketb.cpp"
+sourcefile=[ "sbasketb.cpp" ]
 skip.setnames=["sbasketh", "hypersptb"]
 
 [buttons]

@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="cps1.cpp"
+sourcefile=[ "cps1.cpp" ]
 skip.bootlegs=true
 mustbe.devices=["ym2151"]
 # Need to fix the mix of gfx ROMs of 8 and 16 bits:

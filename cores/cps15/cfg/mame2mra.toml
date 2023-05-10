@@ -3,7 +3,7 @@ mraauthor=["jotego"]
 zip.alt="qsound.zip"
 
 [parse]
-sourcefile="cps1.cpp"
+sourcefile=[ "cps1.cpp" ]
 mustbe.devices=["qsound_hle"]
 skip.bootlegs=true
 

@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="higemaru.cpp"
+sourcefile=[ "higemaru.cpp" ]
 
 [buttons]
 names=[

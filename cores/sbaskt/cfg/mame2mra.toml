@@ -7,7 +7,7 @@ mraauthor=["jotego"]
 # debug=true
 
 [parse]
-sourcefile="sbasketb.cpp"
+sourcefile=[ "sbasketb.cpp" ]
 main_setnames=["sbasketh"]
 # This version only works with the unprotected set
 skip.setnames=["sbasketb","sbasketg","sbaskete","hypersptb"]

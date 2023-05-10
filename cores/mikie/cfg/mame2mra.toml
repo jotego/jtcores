@@ -7,7 +7,7 @@ mraauthor=["jotego"]
 # debug=true
 
 [parse]
-sourcefile="mikie.cpp"
+sourcefile=[ "mikie.cpp" ]
 
 [buttons]
 names=[

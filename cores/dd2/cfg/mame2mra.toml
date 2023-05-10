@@ -3,7 +3,7 @@ mraauthor=["jotego"]
 platform="jtdd2"
 
 [parse]
-sourcefile="ddragon.cpp"
+sourcefile=[ "ddragon.cpp" ]
 skip.setnames=[
     "ddragon",
     "ddragonw",

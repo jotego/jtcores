@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="1942.cpp"
+sourcefile=[ "1942.cpp" ]
 skip.setnames=[
     "1942abl",
     "1942p",

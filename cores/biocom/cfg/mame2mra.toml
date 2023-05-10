@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="bionicc.cpp"
+sourcefile=[ "bionicc.cpp" ]
 # skip.Setnames=["bioniccbl2"]
 
 [buttons]

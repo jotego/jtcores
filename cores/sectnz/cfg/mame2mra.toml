@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="lwings.cpp"
+sourcefile=[ "lwings.cpp" ]
 skip.Machines=[ "avengers", "trojan", "fball" ]
 
 [buttons]

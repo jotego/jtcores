@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="hyperspt.cpp"
+sourcefile=[ "hyperspt.cpp" ]
 skip.bootlegs=true
 
 [buttons]

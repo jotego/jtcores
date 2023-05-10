@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="kchamp.cpp"
+sourcefile=[ "kchamp.cpp" ]
 
 [buttons]
 Names = [ { names="left(2),right(2),up(2),bottom(2)"} ]

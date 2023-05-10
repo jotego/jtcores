@@ -6,7 +6,7 @@ mraauthor=["jotego"]
 # debug=true
 
 [parse]
-sourcefile="pingpong.cpp"
+sourcefile=[ "pingpong.cpp" ]
 skip = { setnames=["merlinmm","cashquiz"], bootlegs=false }
 
 [buttons]

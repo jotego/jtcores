@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="trackfld.cpp"
+sourcefile=[ "trackfld.cpp" ]
 skip.bootlegs=true
 skip.setnames=["mastkin","wizzquiz","wizzquiza","reaktor","trackfldu"]
 

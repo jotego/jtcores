@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="vigilant.cpp"
+sourcefile=[ "vigilant.cpp" ]
 skip = { bootlegs=true, setnames = [ "bowmen", "kikcubic", "kikcubicb", "buccanrs", "buccanrsa", "buccanrsb" ] }
 
 [buttons]

@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="yiear.cpp"
+sourcefile=[ "yiear.cpp" ]
 
 [buttons]
 names=[

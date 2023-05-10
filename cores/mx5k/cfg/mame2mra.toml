@@ -3,7 +3,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="flkatck.cpp"
+sourcefile=[ "flkatck.cpp" ]
 
 [buttons]
 names = [

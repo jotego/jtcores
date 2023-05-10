@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="aliens.cpp"
+sourcefile=[ "aliens.cpp", "thunderx.cpp" ]
 
 [buttons]
 names = [
@@ -11,6 +11,8 @@ names = [
 
 [dipsw]
 delete = [ "Unused", "Unknown" ]
+rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]
+
 # rename = [
 #     {  name="Difficulty 1 (Game)", To="Gameplay" },
 #     {  name="Difficulty 2 (Strength)", To="Strength" },

@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="mitchell.cpp"
+sourcefile=[ "mitchell.cpp" ]
 skip.setnames = [
     "mstworld", "mstworld2",
     "spangbl","spangbl2",

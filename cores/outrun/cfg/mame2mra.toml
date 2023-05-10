@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="segaorun.cpp"
+sourcefile=[ "segaorun.cpp" ]
 skip.machines=["shangon"]
 skip.bootlegs=true
 

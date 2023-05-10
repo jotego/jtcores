@@ -3,7 +3,7 @@ mraauthor=["jotego"]
 beta = true
 
 [parse]
-sourcefile="karnov.cpp"
+sourcefile=[ "karnov.cpp" ]
 skip.bootlegs=true
 
 [buttons]

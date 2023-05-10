@@ -3,7 +3,7 @@ mraauthor=["jotego,atrac17"]
 zip.alt="qsound.zip"
 
 [parse]
-sourcefile="cps2.cpp"
+sourcefile=[ "cps2.cpp" ]
 parents= [
     {name="megaman", description="Megaman: The Power Battle"},
 ]

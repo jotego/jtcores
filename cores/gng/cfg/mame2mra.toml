@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="gng.cpp"
+sourcefile=[ "gng.cpp" ]
 skip.Setnames=["diamond","gngbl"]
 
 [buttons]

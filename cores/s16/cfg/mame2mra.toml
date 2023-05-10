@@ -2,7 +2,7 @@
 mraauthor=["jotego","atrac17"]
 
 [parse]
-sourcefile="segas16a.cpp"
+sourcefile=[ "segas16a.cpp" ]
 # Games with S16B parents need explicit listing
 # the description is used to make the alternate folders
 parents= [

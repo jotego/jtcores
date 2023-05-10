@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="sidearms.cpp"
+sourcefile=[ "sidearms.cpp" ]
 skip.Setnames=[
     "dyger",
     "dygera",

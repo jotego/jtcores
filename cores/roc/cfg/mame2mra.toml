@@ -7,7 +7,7 @@ overrule=[ {rotate=90} ]
 # beta=true
 
 [parse]
-sourcefile="rocnrope.cpp"
+sourcefile=[ "rocnrope.cpp" ]
 skip.setnames=[
     # bad colors
     "ropeman",

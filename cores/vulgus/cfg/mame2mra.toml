@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="vulgus.cpp"
+sourcefile=[ "vulgus.cpp" ]
 skip.setnames=[ "vulgusa" ]
 # vulgusa is flipped relative to the others
 

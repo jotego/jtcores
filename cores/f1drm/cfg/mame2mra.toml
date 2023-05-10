@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="tigeroad.cpp"
+sourcefile=[ "tigeroad.cpp" ]
 skip.bootlegs=true
 skip.Setnames=["bballs","bballsa","pushman","pushmana", "pushmans", "pushmant",
     "tigeroad","tigeroadb","tigeroadu","toramich"]

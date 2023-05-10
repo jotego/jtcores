@@ -7,7 +7,7 @@ beta = true
 # debug = true
 
 [parse]
-sourcefile="tnzs.cpp"
+sourcefile=[ "tnzs.cpp" ]
 skip = { setnames = [
     # Inputs not working
     "plumppop",     # most left column missing, see service screen
@@ -27,7 +27,6 @@ skip = { setnames = [
 main_setnames=[ "tnzso" ]
 
 [header]
- # len=$JTFRAME_HEADER
 info="""bit 0 = MCU
              bit 1 = color PROM
              bit 2 = Kabuzi Z (specific sound features)

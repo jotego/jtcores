@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="bublbobl.cpp"
+sourcefile=[ "bublbobl.cpp" ]
 skip.setnames=[
     # Blank screen
     "boblbobl", "bbredux", "bub68705", "bublboblb",

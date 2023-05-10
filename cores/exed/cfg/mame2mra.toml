@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="exedexes.cpp"
+sourcefile=[ "exedexes.cpp" ]
 
 [buttons]
 names=[ { names="Shot,Bomb"} ]

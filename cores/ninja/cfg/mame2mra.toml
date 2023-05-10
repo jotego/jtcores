@@ -9,7 +9,7 @@ files=[
 ]
 
 [parse]
-sourcefile="dec0.cpp"
+sourcefile=[ "dec0.cpp" ]
 skip.bootlegs=true
 mustbe.machines=[
     "baddudes",

@@ -2,7 +2,7 @@
 mraauthor=["jotego,atrac17"]
 
 [parse]
-sourcefile="sf.cpp"
+sourcefile=[ "sf.cpp" ]
 skip.bootlegs=true
 skip.setnames=[
     # graphics wrong, game boots

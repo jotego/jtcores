@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="contra.cpp"
+sourcefile=[ "contra.cpp" ]
 skip.setnames=[
     # odd number of GFX ROMs
     "contrab",

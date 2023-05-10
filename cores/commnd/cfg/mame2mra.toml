@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="commando.cpp"
+sourcefile=[ "commando.cpp" ]
 # The first byte in these games is encoded, opposite to
 # other games
 skip.Setnames=["sinvasnb","mercenario","commandob"]

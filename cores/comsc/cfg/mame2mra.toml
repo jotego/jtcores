@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="combatsc.cpp"
+sourcefile=[ "combatsc.cpp" ]
 skip.bootlegs=true
 skip.setnames= [
     # trackball versions not supported

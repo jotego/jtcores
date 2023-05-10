@@ -2,7 +2,7 @@
 mraauthor=["jotego"]
 
 [parse]
-sourcefile="labyrunr.cpp"
+sourcefile=[ "labyrunr.cpp" ]
 
 [buttons]
 names = [
