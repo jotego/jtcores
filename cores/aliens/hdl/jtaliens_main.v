@@ -147,7 +147,7 @@ always @(posedge clk, posedge rst) begin
                     2: snd_irq   <= 1;
                     // 3: AFR (watchdog)
                     6: rmrd <= cpu_dout[0];
-                    7: init <= cpu_dout[0];
+                    7: init <= ~cpu_dout[0];
                     default:;
                 endcase
             end else if(A[4]) case( A[3:0] )
