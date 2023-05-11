@@ -9,6 +9,13 @@ names = [
     { names="Shoot standing,Shoot crouching" }
 ]
 
+[header]
+data = [
+    { machine="scontra",  offset=0, data="01" },
+    { machine="thunderx", offset=0, data="01" },
+    { machine="gbusters", offset=0, data="01" },
+]
+
 [dipsw]
 delete = [ "Unused", "Unknown" ]
 rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]

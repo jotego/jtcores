@@ -22,6 +22,7 @@ module jtaliens_sound(
     input           cen_fm,
     input           cen_fm2,
     input   [ 1:0]  fxlevel,
+    input           cfg,        // board configuration
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -31,12 +32,12 @@ module jtaliens_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output   [17:0] pcma_addr,
+    output   [18:0] pcma_addr,
     input    [ 7:0] pcma_dout,
     output          pcma_cs,
     input           pcma_ok,
 
-    output   [17:0] pcmb_addr,
+    output   [18:0] pcmb_addr,
     input    [ 7:0] pcmb_dout,
     output          pcmb_cs,
     input           pcmb_ok,
@@ -51,27 +52,41 @@ module jtaliens_sound(
 );
 `ifndef NOSOUND
 
-localparam [7:0] FMGAIN=8'h10;
+localparam [7:0] FMGAIN=8'h0C;
 
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
-wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
-                    pcma_msb, pcmb_msb;
-reg                 ram_cs, latch_cs, fm_cs, dac_cs, iock;
+wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
+reg                 ram_cs, latch_cs, fm_cs, dac_cs, bank_cs, iock;
 wire signed [15:0]  fm_left, fm_right;
 wire                cpu_cen;
 reg                 mem_acc, mem_upper;
+reg         [ 3:0]  pcm_bank;
 wire signed [11:0]  pcm_snd;
+wire        [ 1:0]  ct;
+reg         [ 3:0]  pcm_msb;
+
 
 assign rom_addr = A[14:0];
-assign st_dout  = { 6'd0, pcmb_msb, pcma_msb };
+assign st_dout  = { 4'd0, pcm_msb };
 
 // This connection is done through the NE output
 // of the 007232 on the board by using a latch
 // I can simplify it here:
-assign pcma_addr[17] = pcma_msb;
-assign pcmb_addr[17] = pcmb_msb;
+assign pcma_addr[18:17] = pcm_msb[1:0];
+assign pcmb_addr[18:17] = pcm_msb[3:2];
+
+always @(posedge clk) begin
+    case( cfg )
+        0: begin
+            pcm_msb[1:0] <= {1'b0,ct[0]};
+            pcm_msb[3:2] <= {1'b0,ct[1]};
+        end
+        1: pcm_msb <= pcm_bank;
+        default: pcm_msb <= 0;
+    endcase
+end
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -80,10 +95,22 @@ always @(*) begin
     mem_upper = mem_acc && A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
-    ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
-    fm_cs     = mem_upper && A[14:13]==1; // A/Bxxx
-    latch_cs  = mem_upper && A[14:13]==2; // C/Dxxx
-    dac_cs    = mem_upper && A[14:13]==3; // E/Fxxx
+    case( cfg )
+        0: begin // aliens
+            ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
+            fm_cs     = mem_upper && A[14:13]==1; // A/Bxxx
+            latch_cs  = mem_upper && A[14:13]==2; // C/Dxxx
+            dac_cs    = mem_upper && A[14:13]==3; // E/Fxxx
+            bank_cs   = 0;
+        end
+        1: begin // super contra, thunder cross
+            ram_cs    = mem_upper && A[14:12]==0; // 8/9xxx
+            latch_cs  = mem_upper && A[14:12]==2; // Axxx
+            dac_cs    = mem_upper && A[14:12]==3; // Bxxx
+            fm_cs     = mem_upper && A[14:12]==4; // Cxxx
+            bank_cs   = mem_upper && A[14:12]==7; // Fxxx
+        end
+    endcase
 end
 
 always @(*) begin
@@ -94,6 +121,14 @@ always @(*) begin
         fm_cs:       cpu_din = fm_dout;
         default:     cpu_din = 8'hff;
     endcase
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        pcm_bank <= 0;
+    end else begin
+        if( bank_cs ) pcm_bank <= cpu_dout[3:0];
+    end
 end
 
 reg [7:0] fxgain;
@@ -159,8 +194,8 @@ jt51 u_jt51(
     .a0         ( A[0]      ),
     .din        ( cpu_dout  ), // data in
     .dout       ( fm_dout   ), // data out
-    .ct1        ( pcma_msb  ),
-    .ct2        ( pcmb_msb  ),
+    .ct1        ( ct[0]     ),
+    .ct2        ( ct[1]     ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
     .sample     ( sample    ), // marks new output sample

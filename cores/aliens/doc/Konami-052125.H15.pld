@@ -1,0 +1,51 @@
+/* Dedicated input pins */
+
+pin 1   = I0;  /* Input */
+pin 2   = I1;  /* Input */
+pin 3   = I2;  /* Input */
+pin 4   = I3;  /* Input */
+pin 5   = I4;  /* Input */
+pin 6   = I5;  /* Input */
+pin 7   = I6;  /* Input */
+pin 8   = I7;  /* Input */
+pin 9   = I8;  /* Input */
+pin 10  = I9;  /* Input */
+pin 11  = I10; /* Input */
+pin 13  = I11; /* Unused input */
+
+/* Programmable output pins */
+
+pin 14  = B0;  /* Combinatorial output */
+pin 15  = B1;  /* Combinatorial output */
+pin 16  = B2;  /* Combinatorial output */
+pin 17  = B3;  /* Combinatorial output */
+pin 18  = B4;  /* Combinatorial output */
+pin 19  = B5;  /* Combinatorial output */
+pin 20  = B6;  /* Combinatorial output */
+pin 21  = B7;  /* Combinatorial output */
+pin 22  = B8;  /* Combinatorial output */
+pin 23  = B9;  /* Combinatorial output */
+
+/* Output equations */
+
+!B9 = !I0 & I1 & !I2 & I3
+  # !I0 & !I2 & !I4
+  # !I0 & !I2 & !I3;
+!B8 =!I0 & I2
+  # !I0 & !I1 & I3 & I4 & !I5;
+!B7 = !I0 & !I1 & !I2 &  I3 &  I4 &  I5;
+!B6 = !I2 & !I3 &  I4 &  I6 &  I7;
+!B5 =  I1 & !I2 &  I3 &  I4;
+!B4 = !I2 & !I3 & !I4;
+!B3 =!I0 & !I2 & I3 & !I4 & !I7 & I8
+  # !I0 & !I2 & I3 & !I4 & I9
+  # !I0 & !I2 & I3 & !I4 & !I8;
+!B2 = !I0 & !I2 &  I3 & !I4 &  I7 &  I8 & !I9;
+!B1 = !I0 & !I2 &  I3 & !I4 &  I7 &  I8 & !I9;
+ B0 = I1 & !I2 & I3 & I4 & I10
+  # !I2 & !I3 & I10;
+
+/* End */
+
+
+ 

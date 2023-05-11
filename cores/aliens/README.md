@@ -27,6 +27,27 @@ The 051960 has an embedded double line buffer
 
 ## PAL Equations
 
+### Super Contra
+
+
+From H13
+
+```
+/o17 = i3 & i4 & i5 & i6 & i7 & /i14 & i15
+
+o18 = i1 +
+      i13 & i16 +
+      /i2 & i3 & i4 & i13 +
+      i3 & i4 & i5 & i6 & i7 & i13 & /i14 & i15 +
+      /i2 & i3 & /i5 & /i6 & /i7 & /i8 & /i9 & /i11 & /i12 & i13
+
+/o19 = /i1 & /i2 & i3 & i4 +
+       /i1 & /i2 & i3 & /i5 & /i6 & /i7 & /i8 & /i9 & /i11 & /i12
+```
+
+
+### Aliens
+
 From D21
 
 ```
@@ -81,7 +102,16 @@ From D20
 
 ```
 
+# Game Library
 
+The following games used the 052001 CPU as the main processor and have a very similar board design. The main differences are related to memory decoding and GFX chip connectivity. JTALIENS is planned to support the following titles
+
+Games                          | Setname        | Source        | Schematics
+-------------------------------|----------------|---------------|------------
+Aliens                         | aliens         | aliens.cpp    |  Yes
+Super Contra                   | scontra        | thunderx.cpp  |  Yes
+Thunder Cross                  | thunderx       | thunderx.cpp  |  Yes
+Gang Busters / Crazy Cop       | gbusters       | thunderx.cpp  |  No
 
 # Support
 

@@ -22,13 +22,13 @@ module jtaliens_game(
 
 wire [ 7:0] snd_latch;
 wire        cpu_cen, snd_irq, rmrd, rst8;
-wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
+wire        pal_we, cpu_we, tilesys_cs, objsys_cs, prio;
 wire        cpu_rnw, cpu_irq_n;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
-wire [ 2:0] prio;
 reg  [ 7:0] debug_mux;
+reg         snd_cfg;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -38,9 +38,13 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        default: debug_mux <= 0;
+        default: debug_mux <= {3'd0, prio, 3'd0, snd_cfg};
         //3: debug_mux <= { dipsw_c, buserror, prio, video_bank };
     endcase
+end
+
+always @(posedge clk) begin
+    if( prog_addr==0 && prog_we && header ) snd_cfg <= prog_data[0];
 end
 
 // always @(*) begin
@@ -57,6 +61,7 @@ jtaliens_main u_main(
     .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
 
+    .cfg            ( snd_cfg       ),
     .cpu_dout       ( cpu_dout      ),
     .cpu_we         ( cpu_we        ),
 
@@ -83,6 +88,7 @@ jtaliens_main u_main(
 
     .pal_dout       ( pal_dout      ),
     // To video
+    .prio           ( prio          ),
     .objsys_cs      ( objsys_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
     .rmrd           ( rmrd          ),
@@ -105,6 +111,7 @@ jtaliens_sound u_sound(
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .fxlevel    ( dip_fxlevel   ),
+    .cfg        ( snd_cfg       ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),

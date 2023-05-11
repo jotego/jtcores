@@ -26,12 +26,12 @@ sdram:
           data_width: 8
         -
           name: pcma
-          addr_width: 18
+          addr_width: 19
           data_width: 8
           offset: PCM_OFFSET
         -
           name: pcmb
-          addr_width: 18
+          addr_width: 19
           data_width: 8
           offset: PCM_OFFSET
     -
