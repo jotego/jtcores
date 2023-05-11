@@ -147,6 +147,9 @@ jtaliens_video u_video (
     .rst8           ( rst8          ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
+    .cfg            ( snd_cfg       ),
+    .cpu_prio       ( prio          ),
+
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),
     .hs             ( HS            ),
@@ -155,7 +158,7 @@ jtaliens_video u_video (
     // PROMs
     .prom_we        ( prom_we       ),
     .prog_addr      (prog_addr[ 7:0]),
-    .prog_data      ( prog_data[1:0]),
+    .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( objsys_cs     ),

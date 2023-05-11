@@ -94,12 +94,13 @@ end
 always @(*) begin
     case( cfg )
         1: begin // Super Contra
-            banked_cs  = A[15:13]==3; // 6000-7FFFF
-            pal_cs     = A[15:12]==5 && A[10] && work; // CRAMCS in sch
+            banked_cs  = A[15:13]==3 && !cpu_we; // 6000-7FFFF
+            pal_cs     = A[15:12]==5 && A[11] && work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && !pal_cs;
             io_cs      = A[15:8]==8'h1f && A[7];
             objsys_cs  = A[15:11]==5'b00111 && !rmrd && init; // 38xx-
-            tilesys_cs = A[15:12]<4 && (!init || (!io_cs && !objsys_cs));
+            tilesys_cs = (A[15:13]==3 && cpu_we) ||
+                (A[15:12]<4 && (!init || (!io_cs && !objsys_cs)));
         end
         default: begin
             banked_cs  = /*!Aupper[4] &&*/ A[15:13]==1; // 2000-3FFFF
@@ -112,7 +113,7 @@ always @(*) begin
             tilesys_cs = A[15:14]==1 && ( !init || (!io_cs && !pal_cs && !objsys_cs));
         end
     endcase
-    rom_cs     = !rst_cmb && (A[15] || banked_cs); // >=8000
+    rom_cs = !rst_cmb && (A[15] || banked_cs); // >=8000
 end
 
 always @* begin
@@ -153,7 +154,7 @@ always @(posedge clk, posedge rst) begin
                 0: port_in <= { 3'b111, start_button, service, coin_input };
                 1: port_in <= { 2'b11, joystick1[5:0] };
                 2: port_in <= { 2'b11, joystick2[5:0] };
-                3: port_in <= { joystick1[6], joystick2[6], dipsw[19:16] };
+                3: port_in <= { 2'b11, joystick1[6], joystick2[6], dipsw[19:16] };
                 4: port_in <= dipsw[ 7:0];
                 5: port_in <= dipsw[15:8];
                 // 8 watchdog

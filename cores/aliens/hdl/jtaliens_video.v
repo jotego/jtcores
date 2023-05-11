@@ -20,6 +20,8 @@ module jtaliens_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             cfg,
+    input             cpu_prio,
 
     // Base Video
     output            lhbl,
@@ -47,7 +49,7 @@ module jtaliens_video(
 
     // PROMs
     input      [ 7:0] prog_addr,
-    input      [ 1:0] prog_data,
+    input      [ 2:0] prog_data,
     input             prom_we,
 
     // Tile ROMs
@@ -86,12 +88,13 @@ wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        prio_we;
 
-assign prio_we = prom_we & ~prog_addr[7];
+assign prio_we = prom_we & (cfg | ~prog_addr[7]);
 
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .cfg        ( cfg       ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -183,19 +186,22 @@ jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .cfg        ( cfg       ),
+    .cpu_prio   ( cpu_prio  ),
+    .shadow     ( 1'b0      ),
 
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
 
     // CPU interface
-    .cpu_addr   (cpu_addr[9:0]),
+    .cpu_addr   (cpu_addr[10:0]),
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( pal_we    ),
 
     // PROMs
-    .prog_addr  (prog_addr[6:0]),
+    .prog_addr  ( prog_addr ),
     .prog_data  ( prog_data ),
     .prom_we    ( prio_we   ),
 

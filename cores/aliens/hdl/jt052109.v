@@ -244,7 +244,7 @@ always @(posedge clk, posedge rst) begin
         irq_n   <= 0;
         firq_n  <= 0;
         nmi_n   <= 0;
-        rst_cnt <= 0;
+        rst_cnt <= `ifdef SIMULATION 7 `else 0 `endif;
         rst8    <= 1;
     end else if( pxl_cen ) begin
         v4_l <= vdump[2];

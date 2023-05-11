@@ -20,6 +20,7 @@ module jtaliens_scroll(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             cfg,
 
     // Base Video
     output            lhbl,
@@ -82,11 +83,18 @@ assign lyrf_cs = gfx_en[0];
 assign lyra_cs = gfx_en[1];
 assign lyrb_cs = gfx_en[2];
 
-assign lyrf_addr = { pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
-assign lyra_addr = { pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
-assign lyrb_addr = { pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
+assign lyrf_addr = cfg ? { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] }:
+                         {       pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
+assign lyra_addr = cfg ? { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] }:
+                         {       pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
+assign lyrb_addr = cfg ? { 1'b0, pre_b[12:11], lyrb_col[4:0], pre_b[10:0] }:
+                         {       pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
 
 assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
+
+function [7:0] cgate( input [7:0] c);
+    cgate = cfg ? { c[7:5], 5'd0 } : { c[7:6], 6'd0 };
+endfunction
 
 jt052109 u_tilemap(
     .rst        ( rst       ),
@@ -147,9 +155,9 @@ jt051962 u_draw(
     .lyra_data  ( lyra_data ),
     .lyrb_data  ( lyrb_data ),
 
-    .lyrf_col   ( { lyrf_col[7:6], 6'd0 } ),
-    .lyra_col   ( { lyra_col[7:6], 6'd0 } ),
-    .lyrb_col   ( { lyrb_col[7:6], 6'd0 } ),
+    .lyrf_col   ( cgate( lyrf_col ) ),
+    .lyra_col   ( cgate( lyra_col ) ),
+    .lyrb_col   ( cgate( lyrb_col ) ),
 
     // Fine grain scroll
     .hsub_a     ( hsub_a    ),

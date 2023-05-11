@@ -20,6 +20,9 @@ module jtaliens_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             cfg,
+    input             cpu_prio,
+    input             shadow,
 
     // Base Video
     input             lhbl,
@@ -28,12 +31,12 @@ module jtaliens_colmix(
     // CPU interface
     input             cpu_we,
     input      [ 7:0] cpu_dout,
-    input      [ 9:0] cpu_addr,
+    input      [10:0] cpu_addr,
     output     [ 7:0] cpu_din,
 
     // PROMs
-    input      [ 6:0] prog_addr,
-    input      [ 1:0] prog_data,
+    input      [ 7:0] prog_addr,
+    input      [ 2:0] prog_data,
     input             prom_we,
 
     // Final pixels
@@ -54,23 +57,34 @@ module jtaliens_colmix(
 
 wire [ 1:0] prio_sel;
 wire [ 7:0] pal_dout;
-wire [ 6:0] prio_addr;
+wire [ 7:0] prio_addr;
 reg         pal_half;
-reg  [ 7:0] pxl;
+reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
-wire [ 9:0] pal_addr;
+wire [10:0] pal_addr;
+wire        shad;
 
-assign prio_addr = { lyro_pxl[8], lyro_pxl[9], lyro_pxl[10],
-    lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
-assign pal_addr  = { prio_sel[1] & ~prio_sel[0], pxl, pal_half };
+assign prio_addr = {
+    cfg ? { cpu_prio, shadow, lyro_pxl[9:8] } :
+          { 1'b0, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] },
+    { lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n } };
+assign pal_addr  = { pxl, pal_half };
 
 always @* begin
-    case( prio_sel )
-        0: pxl = { 2'b01, lyra_pxl[11:10], lyra_pxl[3:0] };
-        1: pxl = { 2'b10, lyrb_pxl[11:10], lyrb_pxl[3:0] };
-        2: pxl = lyro_pxl[7:0];
-        3: pxl = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
-    endcase
+    if( cfg ) case( prio_sel ) // Super Contra
+        0: pxl = { 3'b000, lyra_pxl[7:5], lyra_pxl[3:0] };
+        1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+        2: pxl = { 2'b10,  lyro_pxl[7:0] };
+        3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+    endcase else begin
+        case( prio_sel ) // Aliens
+            0: pxl[7:0] = { 2'b01, lyra_pxl[11:10], lyra_pxl[3:0] };
+            1: pxl[7:0] = { 2'b10, lyrb_pxl[11:10], lyrb_pxl[3:0] };
+            2: pxl[7:0] = lyro_pxl[7:0];
+            3: pxl[7:0] = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
+        endcase
+        pxl[9:8] = { 1'b0, prio_sel[1] & ~prio_sel[0] };
+    end
 end
 
 always @(posedge clk) begin
@@ -93,18 +107,18 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_prom #(.DW(2), .AW(7)) u_prio (
+jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( prog_data     ),
     .rd_addr( prio_addr     ),
     .wr_addr( prog_addr     ),
     .we     ( prom_we       ),
-    .q      ( prio_sel      )
+    .q      ({shad,prio_sel})
 );
 
-
-jtframe_dual_ram #(.SIMFILE("pal.bin")) u_ram(
+// Aliens only uses 1kB, Super Contra uses 2kB
+jtframe_dual_ram #(.AW(11),.SIMFILE("pal.bin")) u_ram(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout      ),
