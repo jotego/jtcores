@@ -105,7 +105,7 @@ always @(*) begin
             banked_cs  = A[15:13]==3 && !cpu_we; // 6000-7FFFF
             pal_cs     = A[15:12]==5 && A[11] && work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && !pal_cs;
-            io_cs      = A[15:8]==8'h1f && A[7] && (init || cpu_we);
+            io_cs      = A[15:8]==8'h1f && A[7] && !A[5] && (init || cpu_we);
             objsys_cs  = A[15:11]==5'b00111 && !rmrd && init; // 38xx-
             tilesys_cs = (A[15:13]==3 && cpu_we) ||
                 (A[15:12]<4 && (/*!init || */(!io_cs && !objsys_cs)));

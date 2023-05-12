@@ -2,10 +2,6 @@
 mraauthor=["jotego"]
 platform="jtkiwi"
 
-[features]
-beta = true
-# debug = true
-
 [parse]
 sourcefile=[ "tnzs.cpp" ]
 skip = { setnames = [
