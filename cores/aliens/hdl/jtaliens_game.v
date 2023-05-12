@@ -22,13 +22,15 @@ module jtaliens_game(
 
 wire [ 7:0] snd_latch;
 wire        cpu_cen, snd_irq, rmrd, rst8;
-wire        pal_we, cpu_we, tilesys_cs, objsys_cs, prio;
-wire        cpu_rnw, cpu_irq_n;
+wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
+wire        cpu_rnw, cpu_irq_n, cpu_nmi_n;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
+wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg         snd_cfg;
+reg  [ 1:0] cpu_cfg;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -38,13 +40,13 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        default: debug_mux <= {3'd0, prio, 3'd0, snd_cfg};
-        //3: debug_mux <= { dipsw_c, buserror, prio, video_bank };
+        3: debug_mux <= {2'd0, prio, 3'd0, snd_cfg};
     endcase
 end
 
 always @(posedge clk) begin
-    if( prog_addr==0 && prog_we && header ) snd_cfg <= prog_data[0];
+    if( prog_addr==0 && prog_we && header )
+        { cpu_cfg, snd_cfg } <= prog_data[2:0];
 end
 
 // always @(*) begin
@@ -61,7 +63,7 @@ jtaliens_main u_main(
     .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
 
-    .cfg            ( snd_cfg       ),
+    .cfg            ( cpu_cfg       ),
     .cpu_dout       ( cpu_dout      ),
     .cpu_we         ( cpu_we        ),
 
@@ -82,6 +84,7 @@ jtaliens_main u_main(
     // From video
     .rst8           ( rst8          ),
     .irq_n          ( cpu_irq_n     ),
+    .nmi_n          ( cpu_nmi_n     ),
 
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
@@ -147,6 +150,7 @@ jtaliens_video u_video (
     .rst8           ( rst8          ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
+    .col_cfg        ( cpu_cfg       ),
     .cfg            ( snd_cfg       ),
     .cpu_prio       ( prio          ),
 
@@ -171,6 +175,7 @@ jtaliens_video u_video (
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
     .cpu_irq_n      ( cpu_irq_n     ),
+    .cpu_nmi_n      ( cpu_nmi_n     ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),

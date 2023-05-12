@@ -44,6 +44,7 @@ module jtaliens_obj(
     input             lhbl,
 
     output            irq_n,
+    output            nmi_n,
 
     output     [11:0] pxl,
     output            blank_n,
@@ -102,7 +103,7 @@ jt051960 u_scan(    // sprite logic
 
     .irq_n      ( irq_n     ),
     .firq_n     (           ),
-    .nmi_n      (           ),
+    .nmi_n      ( nmi_n     ),
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )

@@ -106,12 +106,12 @@ From D20
 
 The following games used the 052001 CPU as the main processor and have a very similar board design. The main differences are related to memory decoding and GFX chip connectivity. JTALIENS is planned to support the following titles
 
-Games                          | Setname        | Source        | Schematics
+Games                          | Konami Code    | CPU           | Schematics
 -------------------------------|----------------|---------------|------------
-Aliens                         | aliens         | aliens.cpp    |  Yes
-Super Contra                   | scontra        | thunderx.cpp  |  Yes
-Thunder Cross                  | thunderx       | thunderx.cpp  |  Yes
-Gang Busters / Crazy Cop       | gbusters       | thunderx.cpp  |  No
+Aliens                         | GX875          | 052256        |  Yes
+Super Contra                   | GX775          | 052001        |  Yes
+Thunder Cross                  | GX873          | 052526/052001 |  Yes
+Gang Busters / Crazy Cop       | GX878          | 052526        |  No
 
 # Support
 

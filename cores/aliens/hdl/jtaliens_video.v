@@ -21,7 +21,7 @@ module jtaliens_video(
     input             clk,
     input             pxl_cen,
     input             cfg,
-    input             cpu_prio,
+    input      [ 1:0] col_cfg, cpu_prio,
 
     // Base Video
     output            lhbl,
@@ -45,6 +45,7 @@ module jtaliens_video(
     input             rmrd,     // Tile ROM read mode
 
     output            cpu_irq_n,
+    output            cpu_nmi_n,
     output            flip,
 
     // PROMs
@@ -168,6 +169,7 @@ jtaliens_obj u_obj(    // sprite logic
     .cpu_din    ( objsys_dout),
 
     .irq_n      ( cpu_irq_n ),
+    .nmi_n      ( cpu_nmi_n ),
     // ROM
     .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),
@@ -186,7 +188,7 @@ jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .cfg        ( cfg       ),
+    .cfg        ( col_cfg   ),
     .cpu_prio   ( cpu_prio  ),
     .shadow     ( 1'b0      ),
 

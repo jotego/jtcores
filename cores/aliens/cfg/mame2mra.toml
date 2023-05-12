@@ -10,10 +10,13 @@ names = [
 ]
 
 [header]
+info="""
+    bit   0: sound config, 0=Aliens, 1=Super Contra
+                 bit 2:1: main config,  0=Aliens, 1=Super Contra, 2=Thunder Cross"""
 data = [
-    { machine="scontra",  offset=0, data="01" },
-    { machine="thunderx", offset=0, data="01" },
-    { machine="gbusters", offset=0, data="01" },
+    { machine="scontra",  offset=0, data="03" },
+    { machine="thunderx", offset=0, data="05" },
+    { machine="gbusters", offset=0, data="05" },
 ]
 
 [dipsw]

@@ -20,8 +20,8 @@ module jtaliens_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             cfg,
-    input             cpu_prio,
+    input      [ 1:0] cfg,
+    input      [ 1:0] cpu_prio,
     input             shadow,
 
     // Base Video
@@ -65,13 +65,14 @@ wire [10:0] pal_addr;
 wire        shad;
 
 assign prio_addr = {
-    cfg ? { cpu_prio, shadow, lyro_pxl[9:8] } :
-          { 1'b0, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] },
+    cfg==2 ? { cpu_prio[0], shadow, lyro_pxl[9:8] } :
+    cfg==1 ? { cpu_prio,            lyro_pxl[9:8] } :
+            { 1'b0, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] },
     { lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n } };
 assign pal_addr  = { pxl, pal_half };
 
 always @* begin
-    if( cfg ) case( prio_sel ) // Super Contra
+    if( cfg!=0 ) case( prio_sel ) // Super Contra
         0: pxl = { 3'b000, lyra_pxl[7:5], lyra_pxl[3:0] };
         1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
         2: pxl = { 2'b10,  lyro_pxl[7:0] };

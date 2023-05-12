@@ -23,7 +23,7 @@ module jtaliens_main(
     input               cen12,
     output              cpu_cen,
 
-    input               cfg,
+    input       [ 1:0]  cfg,
     output      [ 7:0]  cpu_dout,
 
     output reg  [17:0]  rom_addr,
@@ -44,12 +44,14 @@ module jtaliens_main(
     // From video
     input               rst8,
     input               irq_n,
+    input               nmi_n,
 
     input      [7:0]    tilesys_dout, objsys_dout,
     input      [7:0]    pal_dout,
 
     // To video
-    output reg          rmrd, prio,
+    output reg          rmrd,
+    output reg [ 1:0]   prio,
     output              pal_we,
     output reg          tilesys_cs,
     output reg          objsys_cs,
@@ -67,6 +69,7 @@ module jtaliens_main(
 wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din, port_in;
 reg  [ 3:0] bank;
+reg  [ 3:0] eff_bank;
 wire [15:0] A;
 reg         ram_cs, banked_cs, io_cs, pal_cs, work, init;
 wire        dtack;  // to do: add delay for io_cs
@@ -78,27 +81,32 @@ assign pal_we     = pal_cs & cpu_we;
 assign st_dout    = Aupper;
 
 always @(*) begin
-    rom_addr = banked_cs ? {  Aupper[4:0], A[12:0] } // 5+13=18
-                              : { 2'b10, A }; // 2+16=18
-    if( cfg ) begin
-        rom_addr[17] = 0;
-        rom_addr[16] = banked_cs && bank[3];
-        rom_addr[15] = banked_cs && bank[3] ? bank[2] : A[15];
-        rom_addr[14:13] = banked_cs ? bank[1:0] : A[14:13];
-        rom_addr[12:0] = A[12:0];
-    end
+    case( cfg )
+        1,2: begin // Super Contra
+            rom_addr[17] = 0;
+            rom_addr[16] = banked_cs && eff_bank[3];
+            rom_addr[15] = (banked_cs && eff_bank[3]) ? eff_bank[2] : A[15];
+            rom_addr[14:13] = banked_cs ? eff_bank[1:0] : A[14:13];
+            rom_addr[12:0]  = A[12:0];
+        end
+        default: begin // Aliens
+            rom_addr = banked_cs ? {  Aupper[4:0], A[12:0] } // 5+13=18
+                                  : { 2'b10, A }; // 2+16=18
+        end
+    endcase
 end
+
 // Decoder 053326 takes as inputs A[15:10], BK4, W0C0
 // Decoder 053327 after it, takes A[10:7] for generating
 // OBJCS, VRAMCS, CRAMCS, IOCS
 always @(*) begin
     case( cfg )
-        1: begin // Super Contra
+        1,2: begin // Super Contra
             banked_cs  = A[15:13]==3 && !cpu_we; // 6000-7FFFF
             pal_cs     = A[15:12]==5 && A[11] && work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && !pal_cs;
             io_cs      = A[15:8]==8'h1f && A[7];
-            objsys_cs  = A[15:11]==5'b00111 && !rmrd && init; // 38xx-
+            objsys_cs  = A[15:11]==5'b00111 && !rmrd /*&& init*/; // 38xx-
             tilesys_cs = (A[15:13]==3 && cpu_we) ||
                 (A[15:12]<4 && (!init || (!io_cs && !objsys_cs)));
         end
@@ -134,14 +142,22 @@ always @(posedge clk, posedge rst) begin
         prio      <= 0;
         rmrd      <= 0;
         init      <= 0; // missing this will result in garbled scroll after reset
+        eff_bank  <= 0;
     end else begin
+        eff_bank <= cfg==1 ? bank : Aupper[3:0]; // Only Super Contra uses a latch
         if(cpu_cen) snd_irq <= 0;
-        if( io_cs && cfg==1 ) begin // Super Contra
+        if( io_cs && cfg!=0 ) begin // Super Contra
             if( cpu_we ) begin
                 if( !A[5] ) case( A[4:2] )
                     0: begin
-                        prio <= cpu_dout[7]; // 6-5 are the coin counters, ignored
-                        { work, bank } <= cpu_dout[4:0];
+                        if( cfg==1 ) begin
+                            prio <= {1'd0, cpu_dout[7]}; // 6-5 are the coin counters, ignored
+                            { work, bank } <= cpu_dout[4:0];
+                        end else begin
+                            prio <= { cpu_dout[5], cpu_dout[3] };
+                            // second WORK/PMC at bit 4 ignored
+                            work <= cpu_dout[0];
+                        end
                     end
                     1: snd_latch <= cpu_dout;
                     2: snd_irq   <= 1;
@@ -200,7 +216,7 @@ jtkcpu u_cpu(
 
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
-    .nmi_n  ( 1'b1      ),
+    .nmi_n  ( nmi_n     ),
     .irq_n  ( irq_n | ~dip_pause ),
     .firq_n ( 1'b1      ),
 
