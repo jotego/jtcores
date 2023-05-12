@@ -29,20 +29,37 @@ The 051960 has an embedded double line buffer
 
 ### Super Contra
 
+From H15, 052125
+```
+/ROMEN = /NAS & NINITSET & /A15 & A14
+  + /NAS & /A15 & /A13
+  + /NAS & /A15 & /A14;
+/ROM1CS =/NAS & A15
+  + /NAS & /NINITSET & A14 & A13 & /BK3;
+/ROM2CS = /NAS & /NINITSET & /A15 &  A14 &  A13 &  BK3;
+/CHAIN = /A15 & /A14 &  A13 &  NRMRD &  A12;
+/INCS =  NINITSET & /A15 &  A14 &  A13;
+/IOOUT = /A15 & /A14 & /A13;
+/WORKCS =/NAS & /A15 & A14 & /A13 & /A12 & A11
+  + /NAS & /A15 & A14 & /A13 & WORK_COL
+  + /NAS & /A15 & A14 & /A13 & /A11;
+/COLORSEL = /NAS & /A15 &  A14 & /A13 &  A12 &  A11 & /WORK_COL;
+/COLORCS = /NAS & /A15 &  A14 & /A13 &  A12 &  A11 & /WORK_COL;
+ SYCS = NINITSET & /A15 & A14 & A13 & NIOCS
+  + /A15 & /A14 & NIOCS;
+```
 
-From H13
+From H13, 052124
 
 ```
-/o17 = i3 & i4 & i5 & i6 & i7 & /i14 & i15
+NVRAMEN=o18 = NAS +
+      INCS & (A15+A14) +
+      /CHAIN & A11 & A10 & INCS +
+      A11 & A10 & A9 & A8 & A7 & INCS & /IOOUT & A12 +
+      /CHAIN & A11 & /A9 & /A8 & /A7 & /A6 & /A5 & /A4 & /A3 & INCS
 
-o18 = i1 +
-      i13 & i16 +
-      /i2 & i3 & i4 & i13 +
-      i3 & i4 & i5 & i6 & i7 & i13 & /i14 & i15 +
-      /i2 & i3 & /i5 & /i6 & /i7 & /i8 & /i9 & /i11 & /i12 & i13
-
-/o19 = /i1 & /i2 & i3 & i4 +
-       /i1 & /i2 & i3 & /i5 & /i6 & /i7 & /i8 & /i9 & /i11 & /i12
+NOBJEN=/o19 = /NAS & /CHAIN & A11 & A10 +
+       /NAS & /CHAIN & A11 & /A9 & /A8 & /A7 & /A6 & /A5 & /A4 & /A3
 ```
 
 
