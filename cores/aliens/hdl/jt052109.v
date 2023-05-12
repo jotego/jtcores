@@ -34,6 +34,7 @@ module jt052109(
     input             clk,
     input             pxl_cen,
 
+    input             lvbl,
     // CPU interface
     input             gfx_cs,
     input             cpu_we,
@@ -52,9 +53,9 @@ module jt052109(
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
 
-    output reg        irq_n,
-    output reg        firq_n,
-    output reg        nmi_n,
+    output            irq_n,
+    output            firq_n,
+    output            nmi_n,
     output            flip,     // not a pin in the original, but the flip
     output            hflip_en, // info was allowed to flow by means of the
                                 // BEN pin. This approach is clearer
@@ -114,7 +115,6 @@ reg  [12:0] vaddr, vaddr_nx;
 reg  [ 1:0] col_aux;
 reg  [ 1:0] cab,         // tile address MSB
             ba_lsb,      // bank lower 2 bits
-            v8,
             rscra, rscrb;// row scroll
 reg  [ 2:1] we;
 reg  [ 2:0] vsub_a, vsub_b, vmux, cs, rst_cnt;
@@ -124,7 +124,9 @@ wire        same_col_n,  // layer B uses the same attribute data as layer A
 reg         v4_l, rd_rowscr, vflip;
 wire        cscra_en, cscrb_en, reg_we,
             rscra_en, rscrb_en, vflip_en;
+wire [ 2:0] reg_addr;
 
+assign reg_addr    = cpu_addr[9:7];
 assign bank0       = mmr[REG_BANK0];
 assign bank1       = mmr[REG_BANK1];
 assign cfg         = mmr[REG_CFG];
@@ -227,9 +229,9 @@ always @(posedge clk, posedge rst) begin
         st_dout <= 0;
     end else begin
         if( reg_we ) begin
-            mmr[cpu_addr[9:7]] <= cpu_dout;
+            mmr[reg_addr] <= cpu_dout;
 `ifdef SIMULATION
-            // $display("TILE mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[9:7], cpu_dout, cpu_addr);
+            $display("TILE mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[9:7], cpu_dout, cpu_addr);
 `endif
         end
         st_dout <= mmr[debug_bus[2:0]];
@@ -237,23 +239,38 @@ always @(posedge clk, posedge rst) begin
 end
 
 // Interrupt handling
+jtframe_edge #(.QSET(0)) u_irq(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( ~lvbl     ),
+    .clr    (~int_en[0] ),
+    .q      ( irq_n     )
+);
+
+jtframe_edge #(.QSET(0)) u_firq(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( vdump[0]  ),
+    .clr    (~int_en[1] ),
+    .q      ( firq_n    )
+);
+
+jtframe_edge #(.QSET(0)) u_nmi(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( vdump[4:0]==4 ), // every 32 lines
+    .clr    (~int_en[2] ),
+    .q      ( nmi_n     )
+);
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         v4_l    <= 0;
-        v8      <= 0;
-        irq_n   <= 0;
-        firq_n  <= 0;
-        nmi_n   <= 0;
         rst_cnt <= `ifdef SIMULATION 7 `else 0 `endif;
         rst8    <= 1;
     end else if( pxl_cen ) begin
         v4_l <= vdump[2];
-        if( vdump[2] && !v4_l ) v8 <= v8+2'd1;
         if( vdump=='hf8 && rst8 && v4_l ) { rst8, rst_cnt } <= { rst8, rst_cnt } + 1'd1;
-        if( vdump     =='h10 ) irq_n <= 1;
-        irq_n  <= vdump[7:0]=='hf8 || !int_en[2]; // once per frame
-        firq_n <= vdump[0] || !int_en[1]; // once every 2 lines
-        nmi_n  <= v8[1]    || !int_en[0]; // once every 32 lines
     end
 end
 

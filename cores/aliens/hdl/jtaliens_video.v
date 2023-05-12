@@ -87,9 +87,13 @@ wire [ 7:0] lyrf_pxl;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        prio_we;
+wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin;
 
 assign prio_we = prom_we & (cfg | ~prog_addr[7]);
+// Aliens programs the interrupts on the sprite chip, but
+// the other games use the tilemapper chip instead
+assign cpu_irq_n = cfg ? tile_irqn : obj_irqn;
+assign cpu_nmi_n = cfg ? tile_nmin : obj_nmin;
 
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
@@ -116,9 +120,9 @@ jtaliens_scroll u_scroll(
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
 
-    .irq_n      (           ),
+    .irq_n      ( tile_irqn ),
     .firq_n     (           ),
-    .nmi_n      (           ),
+    .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
 
 
@@ -168,8 +172,8 @@ jtaliens_obj u_obj(    // sprite logic
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( objsys_dout),
 
-    .irq_n      ( cpu_irq_n ),
-    .nmi_n      ( cpu_nmi_n ),
+    .irq_n      ( obj_irqn  ),
+    .nmi_n      ( obj_nmin  ),
     // ROM
     .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),

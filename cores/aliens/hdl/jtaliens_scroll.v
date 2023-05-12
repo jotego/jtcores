@@ -101,6 +101,7 @@ jt052109 u_tilemap(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    .lvbl       ( lvbl      ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .cpu_din    (tilemap_dout),

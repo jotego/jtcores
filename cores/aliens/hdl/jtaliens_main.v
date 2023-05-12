@@ -105,10 +105,10 @@ always @(*) begin
             banked_cs  = A[15:13]==3 && !cpu_we; // 6000-7FFFF
             pal_cs     = A[15:12]==5 && A[11] && work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && !pal_cs;
-            io_cs      = A[15:8]==8'h1f && A[7];
-            objsys_cs  = A[15:11]==5'b00111 && !rmrd /*&& init*/; // 38xx-
+            io_cs      = A[15:8]==8'h1f && A[7] && (init || cpu_we);
+            objsys_cs  = A[15:11]==5'b00111 && !rmrd && init; // 38xx-
             tilesys_cs = (A[15:13]==3 && cpu_we) ||
-                (A[15:12]<4 && (!init || (!io_cs && !objsys_cs)));
+                (A[15:12]<4 && (/*!init || */(!io_cs && !objsys_cs)));
         end
         default: begin
             banked_cs  = /*!Aupper[4] &&*/ A[15:13]==1; // 2000-3FFFF
@@ -163,7 +163,7 @@ always @(posedge clk, posedge rst) begin
                     2: snd_irq   <= 1;
                     // 3: AFR (watchdog)
                     6: rmrd <= cpu_dout[0];
-                    7: init <= ~cpu_dout[0];
+                    7: init <= cpu_dout[0];
                     default:;
                 endcase
             end else if(A[4]) case( A[3:0] )
