@@ -270,7 +270,10 @@ jt007232 #(.INVA0(1)) u_pcm1(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm1_snd  )
+    .snd        ( pcm1_snd  ),
+    // debug
+    .debug_bus  ( 8'd0      ),
+    .st_dout    (           )
 );
 
 jtframe_mixer #(.W0(12),.W1(12)) u_mixer(

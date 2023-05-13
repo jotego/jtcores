@@ -76,7 +76,10 @@ module jt007232(
     // sound output - raw
     output signed [ 7:0] snda,
     output signed [ 7:0] sndb,
-    output reg signed [11:0] snd       // snd_a + snd, scaled by register 12
+    output reg signed [11:0] snd,      // snd_a + snd, scaled by register 12
+    // debug
+    input         [ 7:0] debug_bus,
+    output reg    [ 7:0] st_dout
 );
 
 parameter REG12A=1, // location of CHA gain, the gain device is external to the
@@ -131,6 +134,7 @@ always @(posedge clk, posedge rst) begin
         mmr[12] <= 0; mmr[13] <= 0;
         cha_play <= 0;
         chb_play <= 0;
+        st_dout  <= 0;
     end else begin
         cha_load <= 0;
         chb_load <= 0;
@@ -141,6 +145,7 @@ always @(posedge clk, posedge rst) begin
         end
         cha_play <= dacs && addrj==5;
         chb_play <= dacs && addrj==11;
+        st_dout  <= mmr[debug_bus[3:0]];
     end
 end
 

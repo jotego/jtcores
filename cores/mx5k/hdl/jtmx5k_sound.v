@@ -219,7 +219,10 @@ jt007232 u_pcm(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm_snd   )
+    .snd        ( pcm_snd   ),
+    // debug
+    .debug_bus  ( 8'd0      ),
+    .st_dout    (           )
 );
 `else
 initial rom_cs   = 0;

@@ -54,7 +54,7 @@ module jtaliens_sound(
 
 localparam [7:0] FMGAIN=8'h0C;
 
-wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
+wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
@@ -69,7 +69,7 @@ reg         [ 3:0]  pcm_msb;
 
 
 assign rom_addr = A[14:0];
-assign st_dout  = { 4'd0, pcm_msb };
+assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, pcm_msb };
 
 // This connection is done through the NE output
 // of the 007232 on the board by using a latch
@@ -80,8 +80,8 @@ assign pcmb_addr[18:17] = pcm_msb[3:2];
 always @(posedge clk) begin
     case( cfg )
         0: begin
-            pcm_msb[1:0] <= {1'b0,ct[0]};
-            pcm_msb[3:2] <= {1'b0,ct[1]};
+            pcm_msb[1:0] <= {1'b0,ct[1]};
+            pcm_msb[3:2] <= {1'b0,ct[0]};
         end
         1: pcm_msb <= pcm_bank;
         default: pcm_msb <= 0;
@@ -183,7 +183,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-
+/* verilator tracing_off */
 jt51 u_jt51(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
@@ -205,6 +205,7 @@ jt51 u_jt51(
     .xleft      ( fm_left   ),
     .xright     ( fm_right  )
 );
+/* verilator tracing_on */
 
 jt007232 #(.REG12A(0)) u_pcm(
     .rst        ( rst       ),
@@ -231,7 +232,10 @@ jt007232 #(.REG12A(0)) u_pcm(
     // sound output - raw
     .snda       (           ),
     .sndb       (           ),
-    .snd        ( pcm_snd   )
+    .snd        ( pcm_snd   ),
+    // debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_pcm    )
 );
 `else
 initial rom_cs   = 0;
