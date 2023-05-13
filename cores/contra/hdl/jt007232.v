@@ -20,6 +20,32 @@
 // 2-channel PCM. The two channels connect to the same
 // external ROM. The connections are separated for convenience
 // in this implementation
+
+// This chip seems to be usually hooked to a rough resistor DAC for
+// channel volume. The DAC is made of four resistors which are not linear
+// 24k, 40k, 100k, 200k (instead of 25, 50, 100, 200). This creates a small
+// lineary error. Converting the DAC gain to an 8-bit number:
+// Code Real  Ideal    Error
+//  0     0       0        0
+//  1     16      17       -1
+//  2     31      34       -3
+//  3     47      51       -4
+//  4     78      68       10
+//  5     94      85       9
+//  6     109     102      7
+//  7     125     119      6
+//  8     130     136      -6
+//  9     146     153      -7
+//  10    161     170      -9
+//  11    177     187      -10
+//  12    208     204      4
+//  13    224     221      3
+//  14    239     238      1
+//  15    255     255      0
+// This is specially bad in the code 7 to 8 transition
+// I am not modelling this effect as the music probably sounds better
+// using the linear model rather than the *authentic* one
+
 module jt007232(
     input             rst,
     input             clk,
