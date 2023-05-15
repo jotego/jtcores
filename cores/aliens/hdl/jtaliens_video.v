@@ -95,6 +95,7 @@ assign prio_we = prom_we & (cfg | ~prog_addr[7]);
 assign cpu_irq_n = cfg ? tile_irqn : obj_irqn;
 assign cpu_nmi_n = cfg ? tile_nmin : obj_nmin;
 
+/* verilator tracing_off */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -153,6 +154,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_dout   )
 );
 
+/* verilator tracing_on */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -188,6 +190,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    (           )
 );
 
+/* verilator tracing_off */
 jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

@@ -20,6 +20,7 @@ module jtaliens_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
+/* verilator tracing_off */
 wire [ 7:0] snd_latch;
 wire        cpu_cen, snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
@@ -56,11 +57,11 @@ end
 //     end
 // end
 
+/* verilator tracing_off */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen24          ( cen24         ),
-    .cen12          ( cen12         ),
     .cpu_cen        ( cpu_cen       ),
 
     .cfg            ( cpu_cfg       ),
@@ -142,9 +143,8 @@ jtaliens_sound u_sound(
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
 );
-/* verilator tracing_on */
 
-/* xxxverilator tracing_off */
+/* verilator tracing_on */
 jtaliens_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

@@ -2,10 +2,12 @@ params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START) >> 1" }
 clocks:
   clk48:
-    - freq: 24000000
+    # making this frequency larger than 18MHz causes sprite
+    # corruption in the 1st boss of Aliens.
+    # See https://github.com/jotego/jtcores/issues/267
+    - freq: 18000000
       outputs:
         - cen24
-        - cen12
     - freq: 3579545
       outputs:
         - cen_fm

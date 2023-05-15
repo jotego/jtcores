@@ -20,7 +20,6 @@ module jtaliens_main(
     input               rst,
     input               clk,
     input               cen24,
-    input               cen12,
     output              cpu_cen,
 
     input       [ 1:0]  cfg,
