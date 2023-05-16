@@ -54,18 +54,18 @@ The relation between block number and flash chip is as follows:
  1 | 01'0000-01'ffff | 1'0000-1'ffff | 1'0000-1'ffff
  2 | 02'0000-02'ffff | 2'0000-2'ffff | 2'0000-2'ffff
  3 | 03'0000-03'ffff | 3'0000-3'ffff | 3'0000-3'ffff
- 4 | 04'0000-01'ffff | 4'0000-4'ffff | 4'0000-4'ffff
- 5 | 05'0000-01'ffff | 5'0000-5'ffff | 5'0000-5'ffff
- 6 | 06'0000-01'ffff | 6'0000-6'ffff | 6'0000-6'ffff
- 7 | 07'0000-01'ffff | 7'0000-7'ffff | 7'0000-7'7fff
- 8 | 08'0000-01'ffff | 8'0000-8'ffff | 7'8000-7'9fff
- 9 | 09'0000-01'ffff | 9'0000-9'ffff | 7'a000-7'bfff
-10 | 0a'0000-01'ffff | a'0000-a'ffff | 7'c000-7'ffff
-11 | 0b'0000-01'ffff | b'0000-b'ffff |
-12 | 0c'0000-01'ffff | c'0000-c'ffff |
-13 | 0d'0000-01'ffff | d'0000-d'ffff |
-14 | 0e'0000-01'ffff | e'0000-e'ffff |
-15 | 0f'0000-01'ffff | f'0000-f'7fff |
+ 4 | 04'0000-04'ffff | 4'0000-4'ffff | 4'0000-4'ffff
+ 5 | 05'0000-05'ffff | 5'0000-5'ffff | 5'0000-5'ffff
+ 6 | 06'0000-06'ffff | 6'0000-6'ffff | 6'0000-6'ffff
+ 7 | 07'0000-07'ffff | 7'0000-7'ffff | 7'0000-7'7fff
+ 8 | 08'0000-08'ffff | 8'0000-8'ffff | 7'8000-7'9fff
+ 9 | 09'0000-09'ffff | 9'0000-9'ffff | 7'a000-7'bfff
+10 | 0a'0000-0a'ffff | a'0000-a'ffff | 7'c000-7'ffff
+11 | 0b'0000-0b'ffff | b'0000-b'ffff |
+12 | 0c'0000-0c'ffff | c'0000-c'ffff |
+13 | 0d'0000-0d'ffff | d'0000-d'ffff |
+14 | 0e'0000-0e'ffff | e'0000-e'ffff |
+15 | 0f'0000-0f'ffff | f'0000-f'7fff |
 16 | 10'0000-10'ffff | f'8000-f'9fff |
 17 | 11'0000-11'ffff | f'a000-f'bfff |
 18 | 12'0000-12'ffff | f'c000-f'ffff |

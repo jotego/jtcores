@@ -23,14 +23,13 @@ module jtngp_game(
 wire [12:1] cpu_addr=0;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
 wire [15:0] cpu_dout=0, gfx_dout;
+wire [ 7:0] sub_comm;
 wire [ 1:0] dsn=3;
 wire        gfx_cs;
 wire        cpu_cen, snd_cen;
-wire        hirq, virq;
+wire        hirq, virq, sub_irqn;
 
 assign debug_view = 0;
-assign snd = 0;
-assign sample = 0;
 assign prog_rd = 0;
 assign prog_we = 0;
 assign prog_mask = 0;
@@ -40,6 +39,22 @@ assign sdram_addr = 0;
 assign sdram_req = 0;
 assign dwnld_busy = downloading;
 assign game_led  = 0;
+
+jtngp_snd u_snd(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+
+    .main_addr  ( main_addr ),
+    .main_dout  ( main_dout ),
+    .main_din   ( main_din  ),
+    .main_we    ( main_we   ),
+    .main_irqn  ( main_irqn ),
+    .comm       ( sub_comm  ),      // where do we store these 8 bits?
+    .int_n      ( sub_irqn  ),
+
+    .sample     ( sample    ),
+    .snd        ( snd       )
+);
 
 jtngp_video u_video(
     .rst        ( rst       ),

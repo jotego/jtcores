@@ -29,7 +29,7 @@ module jtngp_snd(
     input                int_n,
 
     output               sample,
-    output signed [11:0] snd
+    output signed [15:0] snd
 );
 
 wire [15:0] cpu_addr;
