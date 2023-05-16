@@ -79,11 +79,11 @@ module jtaliens_video(
     // Debug
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output     [ 7:0] st_dout
+    output reg [ 7:0] st_dout
 );
 
 wire [ 8:0] hdump, vdump;
-wire [ 7:0] lyrf_pxl;
+wire [ 7:0] lyrf_pxl, st_scr, st_obj;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
@@ -94,6 +94,8 @@ assign prio_we = prom_we & (cfg | ~prog_addr[7]);
 // the other games use the tilemapper chip instead
 assign cpu_irq_n = cfg ? tile_irqn : obj_irqn;
 assign cpu_nmi_n = cfg ? tile_nmin : obj_nmin;
+
+always @(posedge clk) st_dout <= debug_bus[5] ? st_obj : st_scr;
 
 /* verilator tracing_off */
 jtaliens_scroll u_scroll(
@@ -151,7 +153,7 @@ jtaliens_scroll u_scroll(
     // Debug
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
-    .st_dout    ( st_dout   )
+    .st_dout    ( st_scr    )
 );
 
 /* verilator tracing_on */
@@ -187,7 +189,7 @@ jtaliens_obj u_obj(    // sprite logic
     // Debug
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
-    .st_dout    (           )
+    .st_dout    ( st_obj    )
 );
 
 /* verilator tracing_off */

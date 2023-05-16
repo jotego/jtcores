@@ -567,7 +567,7 @@ wire W101_CO;
 FDO V110(VBLANK, P94_Q, RES_SYNC, V110_Q, );
 assign V89 = ~VBLANK | V110_Q;
 FDO V82(clk_6M, V89, RES_SYNC, , V82_XQ); // = ~V89
-assign V101 = ~&{(W101_CO | ~VBLANK_SYNC), (V89 | V82_XQ)};
+assign V101 = ~&{(W101_CO | ~VBLANK_SYNC), (V89 | V82_XQ) /* VBLANK edge */};
 assign V117 = ~&{VBLANK, V101};
 FDN V103(clk_6M, V117, RES_SYNC, , VBLANK_SYNC);
 

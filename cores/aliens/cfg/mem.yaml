@@ -5,7 +5,7 @@ clocks:
     # making this frequency larger than 18MHz causes sprite
     # corruption in the 1st boss of Aliens.
     # See https://github.com/jotego/jtcores/issues/267
-    - freq: 18000000
+    - freq: 24000000
       outputs:
         - cen24
     - freq: 3579545
