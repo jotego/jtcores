@@ -20,11 +20,13 @@ module jtkiwi_snd(
     input               rst,
     input               clk,
     input               cen6,
+    input               cen3,
     input               cen1p5,
 
     input               LVBL,
     input               fm_en,
     input               psg_en,
+    input               fast_fm,
 
     // MCU
     input               mcu_en,
@@ -433,10 +435,14 @@ jt4701 u_dial(
 `ifndef VERILATOR_KEEP_JT03
 /* verilator tracing_off */
 `endif
+reg fm_cen;
+
+always @(negedge clk) fm_cen <= fast_fm ? cen3 : cen1p5;
+
 jt03 u_2203(
     .rst        ( ~comb_rstn ),
     .clk        ( clk        ),
-    .cen        ( cen1p5     ),
+    .cen        ( fm_cen     ),
     .din        ( dout       ),
     .dout       ( fm_dout    ),
     .addr       ( A[0]       ),

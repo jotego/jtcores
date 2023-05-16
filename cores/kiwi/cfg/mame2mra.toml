@@ -33,9 +33,10 @@ info="""bit 0 = MCU
              bit 7 = HB delay
              Byte 1:
              bit 0 = service XOR
-             bit 1 = button aid                          """
+             bit 1 = button aid
+             bit 2 = 3 MHz for FM module                 """
 data=[
-    { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1" }, # HB dly, Banked RAM, MCU
+    { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1 04" }, # HB dly, Banked RAM, MCU, 3MHz FM
     { machines=["chukatai"], data="41" }, # MCU
     { machines=["insectx"],  data="40" }, # dip_flip inversion
     { machines=["drtoppel"], data="03" },

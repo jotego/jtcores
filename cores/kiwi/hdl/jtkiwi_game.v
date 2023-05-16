@@ -34,7 +34,7 @@ wire        cpu_rnw, vctrl_cs, vflag_cs,
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
             kageki=0, kabuki=0, service_xor=0,
-            colprom_en=0, mcu_en=0, aid_en;
+            colprom_en=0, mcu_en=0, aid_en, fast_fm=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
 assign debug_view = st_addr[7:6]==0 ? { hb_dly, dip_flip_xor, coin_xor, banked_ram,
@@ -60,7 +60,7 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            { aid_en, service_xor } <= prog_data[1:0];
+            { fast_fm, aid_en, service_xor } <= prog_data[2:0];
     end
 end
 
@@ -170,7 +170,9 @@ jtkiwi_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .snd_rstn   ( snd_rstn      ),
+    .fast_fm    ( fast_fm       ),
     .cen6       ( cen6          ),
+    .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),
     .LVBL       ( LVBL          ),
     .fm_en      ( enable_fm     ),

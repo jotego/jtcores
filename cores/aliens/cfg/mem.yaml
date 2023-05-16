@@ -8,6 +8,7 @@ clocks:
     - freq: 24000000
       outputs:
         - cen24
+        - cen12
     - freq: 3579545
       outputs:
         - cen_fm
