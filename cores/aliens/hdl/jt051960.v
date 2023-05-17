@@ -98,7 +98,7 @@ wire        busy_g;
 assign lut_we  = cs & cpu_we & cpu_addr[10];
 assign reg_we  = &{ cpu_we,cpu_addr[10:3]==0,cs};
 assign reg_rd  = &{~cpu_we,cpu_addr[10:0]==0,cs};
-assign cpu_din = { ram_dout[7:1], reg_rd ? vb_start_n : ram_dout[0] };
+assign cpu_din = { ram_dout[7:1], reg_rd ? ~vb_start_n : ram_dout[0] };
 assign int_en  = mmr[REG_CFG][2:0];
 assign flip    = mmr[REG_CFG][3];
 assign obj_enb = mmr[REG_CFG][4];
@@ -145,7 +145,7 @@ always @(posedge clk, posedge rst) begin
         dma_cen    <= 0; // 3 MHz
     end else if( pxl_cen ) begin
         dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
-        if( lvbl || obj_enb ) begin
+        if( lvbl ) begin
             dma_done   <= 0;
             dma_clr    <= 1;
             dma_addr   <= 0;
@@ -156,7 +156,7 @@ always @(posedge clk, posedge rst) begin
             if( dma_clr && dma_cen ) begin // clear the full buffer (341.3 us as original)
                 { dma_clr, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
                 dma_ok <= 0;
-            end else if( !dma_clr && !dma_done /*&& !romrd */ ) begin // copy by priority order
+            end else if( !dma_clr && !dma_done && !obj_enb ) begin // copy by priority order
                 { dma_done, dma_addr } <= { 1'b0, dma_addr } + 1'd1;
                 if( dma_addr[2:0]==0 ) begin
                     dma_prio <= dma_data[6:0];
