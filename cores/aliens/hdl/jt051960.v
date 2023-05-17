@@ -77,7 +77,7 @@ localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
                   REG_ROM_VH= 4;
 
 wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we,
-            flip, obj_enb;
+            flip;
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
@@ -92,7 +92,7 @@ wire [ 7:0] romrd_bank, dma_din;
 wire [ 9:0] romrd_msb, scan_addr, dma_wr_addr;
 reg  [17:0] yz_add;
 reg         vb_start_n, // low for the first six lines of VBLANK
-            dma_ok;
+            dma_ok, obj_enb, lvbl_l;
 wire        busy_g;
 
 assign lut_we  = cs & cpu_we & cpu_addr[10];
@@ -101,7 +101,6 @@ assign reg_rd  = &{~cpu_we,cpu_addr[10:0]==0,cs};
 assign cpu_din = { ram_dout[7:1], reg_rd ? ~vb_start_n : ram_dout[0] };
 assign int_en  = mmr[REG_CFG][2:0];
 assign flip    = mmr[REG_CFG][3];
-assign obj_enb = mmr[REG_CFG][4];
 assign romrd   = mmr[REG_CFG][5];
 assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
     { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H], mmr[REG_ROM_L] };
@@ -143,7 +142,11 @@ always @(posedge clk, posedge rst) begin
         dma_done   <= 0;
         dma_addr   <= 0;
         dma_cen    <= 0; // 3 MHz
+        obj_enb    <= 0;
+        lvbl_l     <= 0;
     end else if( pxl_cen ) begin
+        lvbl_l <= lvbl;
+        if( !lvbl && lvbl_l ) obj_enb <= mmr[REG_CFG][4];
         dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
         if( lvbl ) begin
             dma_done   <= 0;
@@ -151,12 +154,12 @@ always @(posedge clk, posedge rst) begin
             dma_addr   <= 0;
             dma_ok     <= 0;
             vb_start_n <= 1;
-        end else begin
+        end else if(!obj_enb && dma_cen) begin
             vb_start_n <= !(dma_clr || !dma_done);
-            if( dma_clr && dma_cen ) begin // clear the full buffer (341.3 us as original)
+            if( dma_clr ) begin // clear the full buffer (341.3 us as original)
                 { dma_clr, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
                 dma_ok <= 0;
-            end else if( !dma_clr && !dma_done && !obj_enb ) begin // copy by priority order
+            end else if( !dma_clr && !dma_done ) begin // copy by priority order
                 { dma_done, dma_addr } <= { 1'b0, dma_addr } + 1'd1;
                 if( dma_addr[2:0]==0 ) begin
                     dma_prio <= dma_data[6:0];
