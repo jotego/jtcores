@@ -1885,7 +1885,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid af6aefac-6690-49b4-8229-a15dab6dec63)
   )
-  (hierarchical_label "S~{RESET}" (shape input) (at 123.19 85.09 180)
+  (hierarchical_label "~{RESET}" (shape input) (at 123.19 85.09 180)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid c3c02330-5a67-444d-8a9b-a0aa284d1304)
   )

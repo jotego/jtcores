@@ -350,12 +350,12 @@
       "capacitors"
     ],
     [
-      "1e3c0d4a-c6cf-485d-a08c-416eccfac5d9",
-      "amplifiers"
-    ],
-    [
       "f77ef12d-4fae-4492-854a-8904da97faa2",
       "maincpu_sndcpu"
+    ],
+    [
+      "a6774e1c-13eb-4aac-8698-807248f75e99",
+      "rgb"
     ]
   ],
   "text_variables": {}
