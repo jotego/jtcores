@@ -70,6 +70,19 @@
     "version": 3
   },
   "project": {
-    "files": []
+    "files": [
+      {
+        "name": "paroda.kicad_sch",
+        "open": true,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 2443,
+          "pos_y": 210,
+          "size_x": 966,
+          "size_y": 1052
+        }
+      }
+    ]
   }
 }
