@@ -1,0 +1,24 @@
+# clocks:
+#   clk24:
+#     - freq: 12000000
+#       outputs:
+#         - cen12
+#         - cen6
+#         - cen3
+#         - cen1p5
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: rom
+          addr_width: 15
+          data_width: 16
+        -
+          name: cart0
+          addr_width: 20
+          data_width: 8
+        -
+          name: cart1
+          addr_width: 20
+          data_width: 8

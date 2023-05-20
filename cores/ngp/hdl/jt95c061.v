@@ -24,28 +24,39 @@ module jt95c061(
     output     [23:0]     addr,
     output reg [ 3:0]     map_cs, // cs[0] used as flash chip 0, cs[1] chip 1
                                   // cs[2/3] used for BIOS ROM
-
+    input      [15:0]     din,
+    output     [15:0]     dout,
+    output     [ 1:0]     we
 );
 
 wire port_cs;
 reg  [7:0] mmr[0:63];
 reg  [3:0] pre_map_cs;
+wire [2:0] intrq;
 
 assign port_cs = addr[23:7]==0;
+assign intrq = 0;
 
 // memory mapper
 // MSA registers set the starting address, counting in 64kB pages
 // MAM registers set the size, from 256 bytes to 8MB
 // the starting address is a multiple of the size, rounded down to the nearest
 // 64kB page
-localparam [6:0] MSAR0 = 7'h3C, // set to 20 by NGPC firmware
+localparam [6:0]
+                 // 34~37 event capture, ignored
+                 MSAR0 = 7'h3C, // set to 20 by NGPC firmware
                  MAMR0 = 7'h3D, // set to FF by NGPC firmware
                  MSAR1 = 7'h3E, // set to 80 by NGPC firmware
                  MAMR1 = 7'h3F, // set to 7F by NGPC firmware
+                 // 44~47 event capture, ignored
+                 // 4C~4E pattern generator, ignored
+                 DREFCR= 7'h5A, // DRAM refresh rate, ignored
+                 DMEMCR= 7'h5B, // DRAM mode, ignored
                  MSAR2 = 7'h5C, // set to FF by NGPC firmware
                  MAMR2 = 7'h5D, // set to FF by NGPC firmware
                  MSAR3 = 7'h5E, // set to FF by NGPC firmware
                  MAMR3 = 7'h5F, // set to FF by NGPC firmware
+                 // 60~67 ADC, ignored
                  B0CS  = 7'h68, // set to 17 = 8 bits, 0 wait
                  B1CS  = 7'h69, // set to 17
                  B2CS  = 7'h6A, // set to 03 = 16 bits, 0 wait
@@ -87,7 +98,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jt900h u_cpu(
+jt900h #(.PC_RSTVAL(32'hFF1800)) u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),
