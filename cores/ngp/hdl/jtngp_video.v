@@ -31,7 +31,7 @@ module jtngp_video(
     input        [13:1] cpu_addr,
     input        [15:0] cpu_dout,
     output reg   [15:0] cpu_din,
-    input        [ 1:0] dsn,
+    input        [ 1:0] we,
     input               gfx_cs,
 
     output              hirq,
@@ -39,8 +39,8 @@ module jtngp_video(
 
     output              HS,
     output              VS,
-    output              LHBL_dly,
-    output              LVBL_dly,
+    output              LHBL,
+    output              LVBL,
     output       [ 3:0] red,
     output       [ 3:0] green,
     output       [ 3:0] blue,
@@ -51,9 +51,8 @@ wire [ 9:0] hcnt;
 wire [ 7:0] vdump;
 wire [ 7:0] vrender;
 wire [ 8:0] hdump;
-wire        LHBL, LVBL;
 wire [ 4:0] multi_cen;
-wire [ 1:0] video_cen;
+wire [ 1:0] video_cen, dsn;
 
 // Memory map
 reg   fix_cs, obj_cs,  obj2_cs, pal_cs,
@@ -87,6 +86,7 @@ assign snd_cen  = multi_cen[1];
 assign cpu_cen  = multi_cen[0]; // fixed for now
 assign hoffset  = 0;
 assign voffset  = 0;
+assign dsn      = ~we;
 
 always @* begin
     regs_cs = gfx_cs && in_range(14'h0000,14'h00C0);
@@ -170,7 +170,7 @@ jtngp_chram u_chram(
     .cpu_din    ( fix_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .dsn        ( dsn       ),
-    .fix_cs   ( fix_cs  ),
+    .fix_cs     ( fix_cs    ),
     // video access
     .obj_rd     ( obj_rd    ),
     .obj_ok     ( obj_ok    ),
@@ -272,13 +272,11 @@ jtngp_colmix u_colmix(
     .cpu_addr   ( cpu_addr[8:1] ),
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
-    .dsn        ( dsn       ),
-    .scr_cs     ( pal_cs    ),
+    .we         ( we        ),
+    .pal_cs     ( pal_cs    ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
-    .LHBL_dly   ( LHBL_dly  ),
-    .LVBL_dly   ( LVBL_dly  ),
 
     .scr1_pxl   ( scr1_pxl  ),
     .scr2_pxl   ( scr2_pxl  ),

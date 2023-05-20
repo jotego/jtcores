@@ -19,10 +19,11 @@
 module jtngp_snd(
     input                rst,
     input                clk,
+    input                cen3,
 
-    input         [11:0] main_addr,
+    input         [11:1] main_addr,
     input         [15:0] main_dout,
-    input         [15:0] main_din,
+    output        [15:0] main_din,
     input         [ 1:0] main_we,
     output               main_irqn,
     input         [ 7:0] comm,      // where do we store these 8 bits?
@@ -35,19 +36,13 @@ module jtngp_snd(
 wire [15:0] cpu_addr;
 wire [ 1:0] ram_bwe;
 reg  [ 7:0] cpu_din;
-wire [ 7:0] ram_lsb, ram_msb;
+wire [ 7:0] ram_lsb, ram_msb, cpu_dout;
 reg         ram_cs, psg_cs, latch_cs, intset_cs;
-wire        wr_n, mreq_n, cen_snd;
+wire        wr_n, mreq_n, iorq_n;
 
 assign sample  = 0;
 assign snd     = 0;
 assign ram_bwe = {2{ram_cs&~wr_n}} & { cpu_addr[0], ~cpu_addr[0] };
-
-jtframe_cen3p57 u_cen(
-    .clk        ( clk       ),
-    .cen_3p57   ( cen_snd   ),
-    .cen_1p78   (           )
-);
 
 always @* begin
     ram_cs    = !mreq_n && cpu_addr[15:14]==0;
@@ -58,7 +53,7 @@ end
 
 always @(posedge clk) begin
     cpu_din <=  latch_cs ? comm :
-                ram_cs   ? (cpu_addr[0] ? ram_msb : ram_lsb );
+                ram_cs   ? (cpu_addr[0] ? ram_msb : ram_lsb ) : 8'h00;
 end
 
 jtframe_edge #(.QSET(0)) u_mainint(
@@ -73,7 +68,7 @@ jtframe_dual_ram #(.AW(11)) u_ramlow(
     // Port 0
     .clk0   ( clk             ),
     .data0  ( main_dout[7:0]  ),
-    .addr0  ( main_addr[11:1] ),
+    .addr0  ( main_addr       ),
     .we0    ( main_we[0]      ),
     .q0     ( main_din[7:0]   ),
     // Port 1
@@ -88,7 +83,7 @@ jtframe_dual_ram #(.AW(11)) u_ramhi(
     // Port 0
     .clk0   ( clk             ),
     .data0  ( main_dout[15:8] ),
-    .addr0  ( main_addr[11:1] ),
+    .addr0  ( main_addr       ),
     .we0    ( main_we[1]      ),
     .q0     ( main_din[15:8]  ),
     // Port 1
@@ -102,7 +97,7 @@ jtframe_dual_ram #(.AW(11)) u_ramhi(
 jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
-    .cen        ( cen_snd   ),
+    .cen        ( cen3      ),
     .cpu_cen    (           ),
     .int_n      ( int_n     ),
     .nmi_n      ( 1'b1      ),
@@ -116,9 +111,8 @@ jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( cpu_addr  ),
-    .cpu_din    ( cpu_din   ),
-    .cpu_dout   ( cpu_dout  ),
-    .ram_dout   ( ram_dout  ),
+    .din        ( cpu_din   ),
+    .dout       ( cpu_dout  ),
     // ROM access
     .rom_cs     ( 1'b0      ),
     .rom_ok     ( 1'b1      )

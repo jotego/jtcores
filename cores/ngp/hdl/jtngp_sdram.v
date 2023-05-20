@@ -63,4 +63,28 @@ jtframe_dwnld u_dwnld(
     .sdram_ack      ( sdram_ack     )
 );
 
+/*
+jtngp_flash u_flash(
+    input             rst,
+    input             clk,
+
+    input      [ 2:0] dev_type, // see below
+    // interface to CPU
+    input      [20:0] cpu_addr,
+    input             cpu_cs,
+    input             cpu_we,
+    input      [ 7:0] cpu_dout,
+    output     [ 7:0] cpu_din,
+    output            rdy,      // rdy / ~bsy pin
+    output            cpu_ok,   // read data available
+
+    // interface to SDRAM
+    output reg [20:0] cart_addr,
+    output reg        cart_we,
+    output reg        cart_cs,
+    input             cart_ok,
+    input      [ 7:0] cart_data,
+    output reg [ 7:0] cart_din
+);
+*/
 endmodule

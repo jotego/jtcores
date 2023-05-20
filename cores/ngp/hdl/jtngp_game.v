@@ -20,49 +20,75 @@ module jtngp_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [12:1] cpu_addr=0;
+wire [15:1] cpu_addr;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
-wire [15:0] cpu_dout=0, gfx_dout;
+wire [15:0] cpu_dout, gfx_dout, shd_dout;
 wire [ 7:0] sub_comm;
-wire [ 1:0] dsn=3;
+wire [ 1:0] we, shd_we;
 wire        gfx_cs;
 wire        cpu_cen, snd_cen;
 wire        hirq, virq, sub_irqn;
 
 assign debug_view = 0;
-assign sdram_addr = 0;
-assign sdram_req = 0;
 assign game_led  = 0;
 
-jtngp_sdram u_sdram(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+assign rom_addr = cpu_addr;
+assign dip_flip = 0;
 
-    .downloading( downloading   ),
-    .dwnld_busy ( dwnld_busy    ),
+// jtngp_sdram u_sdram(
+//     .rst        ( rst           ),
+//     .clk        ( clk           ),
 
-    .ioctl_addr ( ioctl_addr    ), // max 64 MB
-    .ioctl_dout ( ioctl_dout    ),
-    .ioctl_wr   ( ioctl_wr      ),
-    .ioctl_idx  ( ioctl_idx     ),
-    .prog_addr  ( prog_addr     ),
-    .prog_data  ( prog_data     ),
-    .prog_mask  ( prog_mask     ), // active low
-    .prog_we    ( prog_we       ),
-    .prog_rd    ( prog_rd       ),
-    .prog_ba    ( prog_ba       ),
+//     .downloading( downloading   ),
+//     .dwnld_busy ( dwnld_busy    ),
 
-    .sdram_ack  ( sdram_ack     )
+//     .ioctl_addr ( ioctl_addr    ), // max 64 MB
+//     .ioctl_dout ( ioctl_dout    ),
+//     .ioctl_wr   ( ioctl_wr      ),
+//     .ioctl_idx  ( ioctl_idx     ),
+//     .prog_addr  ( prog_addr     ),
+//     .prog_data  ( prog_data     ),
+//     .prog_mask  ( prog_mask     ), // active low
+//     .prog_we    ( prog_we       ),
+//     .prog_rd    ( prog_rd       ),
+//     .prog_ba    ( prog_ba       ),
+
+//     .sdram_ack  ( sdram_ack     )
+// );
+
+jtngp_main u_main(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen6       ( cen6      ),
+
+    // Bus access
+    .cpu_addr   ( cpu_addr  ),
+    .cpu_dout   ( cpu_dout  ),
+    .gfx_dout   ( gfx_dout  ),
+    .we         ( we        ),
+    .shd_we     ( shd_we    ),
+    .shd_dout   ( shd_dout  ),
+    .gfx_cs     ( gfx_cs    ),
+
+    // Cartridge
+    .flash0_cs  (           ),
+    .flash1_cs  (           ),
+
+    // Firmware access
+    .rom_data   ( rom_data  ),
+    .rom_cs     ( rom_cs    ),
+    .rom_ok     ( rom_ok    )
 );
 
 jtngp_snd u_snd(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen3       ( cen3      ),
 
-    .main_addr  ( main_addr ),
-    .main_dout  ( main_dout ),
-    .main_din   ( main_din  ),
-    .main_we    ( main_we   ),
+    .main_addr  (cpu_addr[11:1]),
+    .main_dout  ( cpu_dout  ),
+    .main_din   ( shd_dout  ),
+    .main_we    ( shd_we    ),
     .main_irqn  ( main_irqn ),
     .comm       ( sub_comm  ),      // where do we store these 8 bits?
     .int_n      ( sub_irqn  ),
@@ -86,22 +112,16 @@ jtngp_video u_video(
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( gfx_dout  ),
-    .dsn        ( dsn       ),
-    .gfx_cs  (gfx_cs),
-
-    .regs_dout  ( regs_dout ),
-    .cha_dout   ( cha_dout  ),
-    .obj_dout   ( obj_dout  ),
-    .scr1_dout  ( scr1_dout ),
-    .scr2_dout  ( scr2_dout ),
+    .we         ( we        ),
+    .gfx_cs     ( gfx_cs    ),
 
     .hirq       ( hirq      ),
     .virq       ( virq      ),
 
     .HS         ( HS        ),
     .VS         ( VS        ),
-    .LHBL_dly   ( LHBL_dly  ),
-    .LVBL_dly   ( LVBL_dly  ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),

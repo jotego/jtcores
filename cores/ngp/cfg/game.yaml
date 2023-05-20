@@ -4,7 +4,6 @@ game:
       - jtngp_game.v
       - jtngp_main.v
       - jt95c061.v
-      - jtngp_sdram.v
       - jtngp_chram.v
       - jtngp_clocks.v
       - jtngp_video.v
@@ -13,6 +12,8 @@ game:
       - jtngp_obj.v
       - jtngp_colmix.v
 jtframe:
+  - get:
+      - jtframe_edge.v
   - from: clocking
     get:
       - jtframe_frac_cen.v
@@ -23,4 +24,14 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram16.v
+      - jtframe_ram16.v
       - jtframe_obj_buffer.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+modules:
+  jt:
+    - name: jt900h
