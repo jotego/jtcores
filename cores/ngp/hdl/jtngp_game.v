@@ -30,15 +30,30 @@ wire        cpu_cen, snd_cen;
 wire        hirq, virq, sub_irqn;
 
 assign debug_view = 0;
-assign prog_rd = 0;
-assign prog_we = 0;
-assign prog_mask = 0;
-assign prog_data = 0;
-assign prog_addr = 0;
 assign sdram_addr = 0;
 assign sdram_req = 0;
-assign dwnld_busy = downloading;
 assign game_led  = 0;
+
+jtngp_sdram u_sdram(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+
+    .downloading( downloading   ),
+    .dwnld_busy ( dwnld_busy    ),
+
+    .ioctl_addr ( ioctl_addr    ), // max 64 MB
+    .ioctl_dout ( ioctl_dout    ),
+    .ioctl_wr   ( ioctl_wr      ),
+    .ioctl_idx  ( ioctl_idx     ),
+    .prog_addr  ( prog_addr     ),
+    .prog_data  ( prog_data     ),
+    .prog_mask  ( prog_mask     ), // active low
+    .prog_we    ( prog_we       ),
+    .prog_rd    ( prog_rd       ),
+    .prog_ba    ( prog_ba       ),
+
+    .sdram_ack  ( sdram_ack     )
+);
 
 jtngp_snd u_snd(
     .rst        ( rst       ),

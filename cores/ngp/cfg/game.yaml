@@ -3,6 +3,8 @@ game:
     get:
       - jtngp_game.v
       - jtngp_main.v
+      - jt95c061.v
+      - jtngp_sdram.v
       - jtngp_chram.v
       - jtngp_clocks.v
       - jtngp_video.v
