@@ -17,9 +17,11 @@
     Date: 19-3-2023 */
 
 module jtngp_snd(
-    input                rst,
+    input                rstn,
     input                clk,
     input                cen3,
+
+    input                snd_en,
 
     input         [11:1] main_addr,
     input         [15:0] main_dout,
@@ -28,9 +30,14 @@ module jtngp_snd(
     output               main_irqn,
     input         [ 7:0] comm,      // where do we store these 8 bits?
     input                int_n,
+    input                nmi,
+    output               irq_ack,
+
+    input  signed [ 7:0] snd_dacl, snd_dacr,
+
 
     output               sample,
-    output signed [15:0] snd
+    output signed [15:0] snd_l, snd_r
 );
 
 wire [15:0] cpu_addr;
@@ -38,11 +45,13 @@ wire [ 1:0] ram_bwe;
 reg  [ 7:0] cpu_din;
 wire [ 7:0] ram_lsb, ram_msb, cpu_dout;
 reg         ram_cs, psg_cs, latch_cs, intset_cs;
-wire        wr_n, mreq_n, iorq_n;
+wire        wr_n, m1_n, mreq_n, iorq_n;
 
 assign sample  = 0;
-assign snd     = 0;
+assign snd_l   = { snd_dacl, 8'd0 };
+assign snd_r   = { snd_dacr, 8'd0 };
 assign ram_bwe = {2{ram_cs&~wr_n}} & { cpu_addr[0], ~cpu_addr[0] };
+assign irq_ack = !m1_n && !iorq_n;
 
 always @* begin
     ram_cs    = !mreq_n && cpu_addr[15:14]==0;
@@ -57,7 +66,7 @@ always @(posedge clk) begin
 end
 
 jtframe_edge #(.QSET(0)) u_mainint(
-    .rst    ( rst       ),
+    .rst    ( ~rstn     ),
     .clk    ( clk       ),
     .edgeof ( intset_cs ),
     .clr    ( ~iorq_n   ),
@@ -95,14 +104,14 @@ jtframe_dual_ram #(.AW(11)) u_ramhi(
 );
 
 jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
-    .rst_n      ( ~rst      ),
+    .rst_n      ( rstn      ),
     .clk        ( clk       ),
     .cen        ( cen3      ),
     .cpu_cen    (           ),
     .int_n      ( int_n     ),
-    .nmi_n      ( 1'b1      ),
+    .nmi_n      ( ~nmi      ),
     .busrq_n    ( 1'b1      ),
-    .m1_n       (           ),
+    .m1_n       ( m1_n      ),
     .mreq_n     ( mreq_n    ),
     .iorq_n     ( iorq_n    ),
     .rd_n       (           ),

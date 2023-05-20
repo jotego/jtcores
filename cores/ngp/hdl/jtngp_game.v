@@ -26,8 +26,10 @@ wire [15:0] cpu_dout, gfx_dout, shd_dout;
 wire [ 7:0] sub_comm;
 wire [ 1:0] we, shd_we;
 wire        gfx_cs;
-wire        cpu_cen, snd_cen;
-wire        hirq, virq, sub_irqn;
+wire        cpu_cen, snd_cen, snd_ack, snd_nmi, snd_en, snd_rstn;
+wire        hirq, virq, sub_irqn, snd_nmi;
+
+wire signed [ 7:0] snd_dacl, snd_dacr;
 
 assign debug_view = 0;
 assign game_led  = 0;
@@ -61,6 +63,8 @@ jtngp_main u_main(
     .clk        ( clk       ),
     .cen6       ( cen6      ),
 
+    .joystick1  ( joystick1 ),
+    .start_button(start_button[0]),
     // Bus access
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
@@ -69,6 +73,14 @@ jtngp_main u_main(
     .shd_we     ( shd_we    ),
     .shd_dout   ( shd_dout  ),
     .gfx_cs     ( gfx_cs    ),
+
+    // Sound
+    .snd_nmi    ( snd_nmi   ),
+    .snd_rstn   ( snd_rstn  ),
+    .snd_en     ( snd_en    ),
+    .snd_ack    ( snd_ack   ),
+    .snd_dacl   ( snd_dacl  ),
+    .snd_dacr   ( snd_dacr  ),
 
     // Cartridge
     .flash0_cs  (           ),
@@ -81,9 +93,13 @@ jtngp_main u_main(
 );
 
 jtngp_snd u_snd(
-    .rst        ( rst       ),
+    .rstn       ( snd_rstn  ),
     .clk        ( clk       ),
     .cen3       ( cen3      ),
+
+    .snd_en     ( snd_en    ),
+    .snd_dacl   ( snd_dacl  ),
+    .snd_dacr   ( snd_dacr  ),
 
     .main_addr  (cpu_addr[11:1]),
     .main_dout  ( cpu_dout  ),
@@ -91,10 +107,13 @@ jtngp_snd u_snd(
     .main_we    ( shd_we    ),
     .main_irqn  ( main_irqn ),
     .comm       ( sub_comm  ),      // where do we store these 8 bits?
+    .irq_ack    ( snd_ack   ),
     .int_n      ( sub_irqn  ),
+    .nmi        ( snd_nmi   ),
 
     .sample     ( sample    ),
-    .snd        ( snd       )
+    .snd_l      ( snd_left  ),
+    .snd_r      ( snd_right )
 );
 
 jtngp_video u_video(
@@ -109,7 +128,7 @@ jtngp_video u_video(
     .snd_cen    ( snd_cen   ),
 
     // CPU
-    .cpu_addr   ( cpu_addr  ),
+    .cpu_addr   (cpu_addr[13:1]),
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( gfx_dout  ),
     .we         ( we        ),

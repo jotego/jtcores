@@ -279,7 +279,7 @@ void ngp_state::ngp_io_w(offs_t offset, uint8_t data)
 	{
 	case 0x20:      /* t6w28 "right" */
 	case 0x21:      /* t6w28 "left" */
-		if (m_io_reg[0x38] == 0x55 && m_io_reg[0x39] == 0xAA)
+		if (m_io_reg[0x38] == 0x55 && m_io_reg[0x39] == 0xAA) // snd enable and Z80 disabled
 		{
 			m_t6w28->write(0, data);
 		}

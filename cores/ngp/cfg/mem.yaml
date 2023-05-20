@@ -10,7 +10,7 @@ sdram:
       buses:
         -
           name: rom
-          addr_width: 15
+          addr_width: 16
           data_width: 16
         # -
         #   name: cart0

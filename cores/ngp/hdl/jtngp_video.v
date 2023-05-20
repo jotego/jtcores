@@ -143,7 +143,7 @@ jtngp_mmr u_mmr(
     .vdump      ( vdump     ),
     .LVBL       ( LVBL      ),
     // CPU access
-    .cpu_addr   ( cpu_addr  ),
+    .cpu_addr   (cpu_addr[12:1]),
     .cpu_din    ( regs_dout ),
     .cpu_dout   ( cpu_dout  ),
     .dsn        ( dsn       ),
@@ -166,7 +166,7 @@ jtngp_chram u_chram(
     .rst        ( rst       ),
     .clk        ( clk       ),
     // CPU access
-    .cpu_addr   ( cpu_addr  ),
+    .cpu_addr   (cpu_addr[12:1]),
     .cpu_din    ( fix_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .dsn        ( dsn       ),
