@@ -23,6 +23,8 @@ module jt95c061(
     input                 clk,
     input                 cen,
 
+    input                 int4,
+
     output     [23:0]     addr,
     input      [15:0]     din,
     output     [15:0]     dout,
@@ -37,9 +39,12 @@ reg  [7:0] mmr[0:63];
 reg  [3:0] pre_map_cs;
 
 // interrupts
-wire [2:0] intrq;
-wire       irq_ack;
-reg        irq;
+wire [ 2:0] intrq;
+reg  [ 2:0] nx_ilvl, ilvl;
+reg  [ 7:0] nx_iaddr, iaddr;
+reg  [21:0] act, nx_act;
+wire        irq_ack;
+reg         irq;
 
 assign port_cs = addr[23:7]==0;
 assign intrq = 0;
@@ -51,23 +56,23 @@ assign intrq = 0;
 // 64kB page
 localparam [5:0]
                  // 34~37 event capture, ignored
-                 MSAR0 = 6'h3C, // set to 20 by NGPC firmware
-                 MAMR0 = 6'h3D, // set to FF by NGPC firmware
-                 MSAR1 = 6'h3E, // set to 80 by NGPC firmware
-                 MAMR1 = 6'h3F, // set to 7F by NGPC firmware
+                 MSAR0   = 6'h3C, // set to 20 by NGPC firmware
+                 MAMR0   = 6'h3D, // set to FF by NGPC firmware
+                 MSAR1   = 6'h3E, // set to 80 by NGPC firmware
+                 MAMR1   = 6'h3F, // set to 7F by NGPC firmware
                  // 44~47 event capture, ignored
                  // 4C~4E pattern generator, ignored
-                 DREFCR= 6'h5A, // DRAM refresh rate, ignored
-                 DMEMCR= 6'h5B, // DRAM mode, ignored
-                 MSAR2 = 6'h5C, // set to FF by NGPC firmware
-                 MAMR2 = 6'h5D, // set to FF by NGPC firmware
-                 MSAR3 = 6'h5E, // set to FF by NGPC firmware
-                 MAMR3 = 6'h5F, // set to FF by NGPC firmware
+                 DREFCR  = 6'h5A, // DRAM refresh rate, ignored
+                 DMEMCR  = 6'h5B, // DRAM mode, ignored
+                 MSAR2   = 6'h5C, // set to FF by NGPC firmware
+                 MAMR2   = 6'h5D, // set to FF by NGPC firmware
+                 MSAR3   = 6'h5E, // set to FF by NGPC firmware
+                 MAMR3   = 6'h5F, // set to FF by NGPC firmware
                  // 60~67 ADC, ignored
-                 B0CS  = 6'h68, // set to 17 = 8 bits, 0 wait
-                 B1CS  = 6'h69, // set to 17
-                 B2CS  = 6'h6A, // set to 03 = 16 bits, 0 wait
-                 B3CS  = 6'h6B, // set to 03
+                 B0CS    = 6'h68, // set to 17 = 8 bits, 0 wait
+                 B1CS    = 6'h69, // set to 17
+                 B2CS    = 6'h6A, // set to 03 = 16 bits, 0 wait
+                 B3CS    = 6'h6B, // set to 03
                  // interrupt controller
                  INTE0AD = 6'h70,
                  INTE45  = 6'h71,
@@ -127,6 +132,31 @@ if( inttc2& mmr[INTTC23][3] )
 if( inttc3& mmr[INTTC23][7] )
     */
 
+`ifdef SIMULATION
+wire [2:0] inttc3_lvl =  mmr[INTTC23][6:4];
+wire [2:0] inttc2_lvl =  mmr[INTTC23][2:0];
+wire [2:0] inttc1_lvl =  mmr[INTTC01][6:4];
+wire [2:0] inttc0_lvl =  mmr[INTTC01][2:0];
+wire [2:0] inte0ad_lvl =  mmr[INTE0AD][6:4];
+wire [2:0] intetx1_lvl  =  mmr[INTES1 ][6:4];
+wire [2:0] interx1_lvl  =  mmr[INTES1 ][2:0];
+wire [2:0] intetx0_lvl  =  mmr[INTES0 ][6:4];
+wire [2:0] interx0_lvl  =  mmr[INTES0 ][2:0];
+wire [2:0] intet7_lvl =  mmr[INTET67][6:4];
+wire [2:0] intet6_lvl =  mmr[INTET67][2:0];
+wire [2:0] intet5_lvl =  mmr[INTET45][6:4];
+wire [2:0] intet4_lvl =  mmr[INTET45][2:0];
+wire [2:0] intet3_lvl =  mmr[INTET23][6:4];
+wire [2:0] intet2_lvl =  mmr[INTET23][2:0];
+wire [2:0] intet1_lvl =  mmr[INTET01][6:4];
+wire [2:0] intet0_lvl =  mmr[INTET01][2:0];
+wire [2:0] inte7_lvl  =  mmr[INTE67 ][6:4];
+wire [2:0] inte6_lvl  =  mmr[INTE67 ][2:0];
+wire [2:0] inte5_lvl  =  mmr[INTE45 ][6:4];
+wire [2:0] inte4_lvl  =  mmr[INTE45 ][2:0];
+wire [2:0] inte0_lvl  =  mmr[INTE0AD][2:0];
+`endif
+
 always @* begin // TMP95C061.pdf pages 12, 19
     nx_ilvl  = ilvl;
     nx_iaddr = iaddr;
@@ -182,8 +212,8 @@ always @(posedge clk, posedge rst) begin
         for( k=0; k<64; k=k+1 ) mmr[k] <= 0;
     end else begin
         if( port_cs ) begin
-            if( we[0] ) mmr[ {addr[5:1],1'b0} ] <= dout[ 7:0];
-            if( we[1] ) mmr[ {addr[5:1],1'b1} ] <= dout[15:8];
+            if( we[0] ) begin mmr[ {addr[5:1],1'b0} ] <= dout[ 7:0]; $display("MMR[%X]=%X",{addr[5:1],1'b0}, dout[ 7:0] ); end
+            if( we[1] ) begin mmr[ {addr[5:1],1'b1} ] <= dout[15:8]; $display("MMR[%X]=%X",{addr[5:1],1'b1}, dout[15:8] ); end
         end
         // interrupt flip flop
         if( irq_ack && act[00] ) mmr[INTTC23][7] <= 0;
@@ -208,6 +238,8 @@ always @(posedge clk, posedge rst) begin
         if( irq_ack && act[19] ) mmr[INTE45 ][7] <= 0;
         if( irq_ack && act[20] ) mmr[INTE45 ][3] <= 0;
         if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
+        // interrupt set
+        if( int4 ) mmr[INTE45 ][3] <= 1;
     end
 end
 
@@ -225,6 +257,8 @@ jt900h #(.PC_RSTVAL(32'hFF1800)) u_cpu(
     .irq        ( irq       ),
     .intrq      ( ilvl      ),
     .irq_ack    ( irq_ack   ),
+    .inta_en    ( irq       ),
+    .int_addr   ( iaddr     ),
     // Register dump
     .dmp_addr   (           ),     // dump
     .dmp_dout   (           )

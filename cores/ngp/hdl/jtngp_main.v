@@ -17,9 +17,11 @@
     Date: 19-3-2023 */
 
 module jtngp_main(
-    input             rst,
-    input             clk,
-    input             cen6,
+    input               rst,
+    input               clk,
+    input               cen6,
+
+    input               lvbl,
 
     input               start_button,
     input       [ 5:0]  joystick1,
@@ -53,7 +55,8 @@ reg  [15:0] din;
 wire [23:0] addr;
 wire [15:0] ram0_dout, ram1_dout, io_dout;
 reg         ram0_cs, ram1_cs,
-            shd_cs,  io_cs;
+            shd_cs,  io_cs,
+            int4;
 wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
 wire        cpu_cen;
@@ -127,10 +130,21 @@ jtframe_ram16 #(.AW(11)) u_ram1(
     .q      ( ram1_dout     )
 );
 
+jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( 1'b1      ),
+    .sigin  ( lvbl      ),
+    .pulse  ( int4      )
+);
+
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),
+
+    // interrupt sources
+    .int4       ( int4      ),
 
     .addr       ( addr      ),
     .din        ( din       ),

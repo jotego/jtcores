@@ -63,6 +63,9 @@ jtngp_main u_main(
     .clk        ( clk       ),
     .cen6       ( cen6      ),
 
+    // interrupt sources
+    .lvbl       ( LVBL      ),
+    // player inputs
     .joystick1  ( joystick1 ),
     .start_button(start_button[0]),
     // Bus access
