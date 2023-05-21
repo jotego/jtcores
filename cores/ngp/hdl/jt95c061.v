@@ -32,10 +32,14 @@ module jt95c061(
                                   // cs[2/3] used for BIOS ROM
 );
 
-wire port_cs;
+wire       port_cs;
 reg  [7:0] mmr[0:63];
 reg  [3:0] pre_map_cs;
+
+// interrupts
 wire [2:0] intrq;
+wire       irq_ack;
+reg        irq;
 
 assign port_cs = addr[23:7]==0;
 assign intrq = 0;
@@ -63,7 +67,19 @@ localparam [5:0]
                  B0CS  = 6'h68, // set to 17 = 8 bits, 0 wait
                  B1CS  = 6'h69, // set to 17
                  B2CS  = 6'h6A, // set to 03 = 16 bits, 0 wait
-                 B3CS  = 6'h6B; // set to 03
+                 B3CS  = 6'h6B, // set to 03
+                 // interrupt controller
+                 INTE0AD = 6'h70,
+                 INTE45  = 6'h71,
+                 INTE67  = 6'h72,
+                 INTET01 = 6'h73,
+                 INTET23 = 6'h74,
+                 INTET45 = 6'h75,
+                 INTET67 = 6'h76,
+                 INTES0  = 6'h77,
+                 INTES1  = 6'h78,
+                 INTTC01 = 6'h79,
+                 INTTC23 = 6'h7A;
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -86,6 +102,74 @@ always @* begin
                     addr[15] | mmr[MAMR3][0], ~pre_map_cs[2:0]
                 };
 end
+/*
+if( int0  & mmr[INTE0AD][3] )
+if( intad & mmr[INTE0AD][7] )
+if( int4  & mmr[INTE45 ][3] )
+if( int5  & mmr[INTE45 ][7] )
+if( int6  & mmr[INTE67 ][3] )
+if( int7  & mmr[INTE67 ][7] )
+if( intt0 & mmr[INTET01][3] )
+if( intt1 & mmr[INTET01][7] )
+if( intt2 & mmr[INTET23][3] )
+if( intt3 & mmr[INTET23][7] )
+if( inttr4& mmr[INTET45][3] )
+if( inttr5& mmr[INTET45][7] )
+if( inttr6& mmr[INTET67][3] )
+if( inttr7& mmr[INTET67][7] )
+if( intrx0& mmr[INTES0 ][3] )
+if( inttx0& mmr[INTES0 ][7] )
+if( intrx1& mmr[INTES1 ][3] )
+if( inttx1& mmr[INTES1 ][7] )
+if( inttc0& mmr[INTTC01][3] )
+if( inttc1& mmr[INTTC01][7] )
+if( inttc2& mmr[INTTC23][3] )
+if( inttc3& mmr[INTTC23][7] )
+    */
+
+always @* begin // TMP95C061.pdf pages 12, 19
+    nx_ilvl  = ilvl;
+    nx_iaddr = iaddr;
+    nx_act   = act;
+    // If all are set to the same level, priority is given by the vector
+    // address: smaller addresses are served first
+    if( mmr[INTTC23][7] && mmr[INTTC23][6:4]>nx_ilvl ) { nx_act[00], nx_iaddr, nx_ilvl } = { 1'b1, 8'h80, mmr[INTTC23][6:4] }; else
+    if( mmr[INTTC23][3] && mmr[INTTC23][2:0]>nx_ilvl ) { nx_act[01], nx_iaddr, nx_ilvl } = { 1'b1, 8'h7C, mmr[INTTC23][2:0] }; else
+    if( mmr[INTTC01][7] && mmr[INTTC01][6:4]>nx_ilvl ) { nx_act[02], nx_iaddr, nx_ilvl } = { 1'b1, 8'h78, mmr[INTTC01][6:4] }; else
+    if( mmr[INTTC01][3] && mmr[INTTC01][2:0]>nx_ilvl ) { nx_act[03], nx_iaddr, nx_ilvl } = { 1'b1, 8'h74, mmr[INTTC01][2:0] }; else
+    if( mmr[INTE0AD][7] && mmr[INTE0AD][6:4]>nx_ilvl ) { nx_act[04], nx_iaddr, nx_ilvl } = { 1'b1, 8'h70, mmr[INTE0AD][6:4] }; else
+    if( mmr[INTES1 ][7] && mmr[INTES1 ][6:4]>nx_ilvl ) { nx_act[05], nx_iaddr, nx_ilvl } = { 1'b1, 8'h6C, mmr[INTES1 ][6:4] }; else
+    if( mmr[INTES1 ][3] && mmr[INTES1 ][2:0]>nx_ilvl ) { nx_act[06], nx_iaddr, nx_ilvl } = { 1'b1, 8'h68, mmr[INTES1 ][2:0] }; else
+    if( mmr[INTES0 ][7] && mmr[INTES0 ][6:4]>nx_ilvl ) { nx_act[07], nx_iaddr, nx_ilvl } = { 1'b1, 8'h64, mmr[INTES0 ][6:4] }; else
+    if( mmr[INTES0 ][3] && mmr[INTES0 ][2:0]>nx_ilvl ) { nx_act[08], nx_iaddr, nx_ilvl } = { 1'b1, 8'h60, mmr[INTES0 ][2:0] }; else
+    if( mmr[INTET67][7] && mmr[INTET67][6:4]>nx_ilvl ) { nx_act[09], nx_iaddr, nx_ilvl } = { 1'b1, 8'h5C, mmr[INTET67][6:4] }; else
+    if( mmr[INTET67][3] && mmr[INTET67][2:0]>nx_ilvl ) { nx_act[10], nx_iaddr, nx_ilvl } = { 1'b1, 8'h58, mmr[INTET67][2:0] }; else
+    if( mmr[INTET45][7] && mmr[INTET45][6:4]>nx_ilvl ) { nx_act[11], nx_iaddr, nx_ilvl } = { 1'b1, 8'h54, mmr[INTET45][6:4] }; else
+    if( mmr[INTET45][3] && mmr[INTET45][2:0]>nx_ilvl ) { nx_act[12], nx_iaddr, nx_ilvl } = { 1'b1, 8'h50, mmr[INTET45][2:0] }; else
+    if( mmr[INTET23][7] && mmr[INTET23][6:4]>nx_ilvl ) { nx_act[13], nx_iaddr, nx_ilvl } = { 1'b1, 8'h4C, mmr[INTET23][6:4] }; else
+    if( mmr[INTET23][3] && mmr[INTET23][2:0]>nx_ilvl ) { nx_act[14], nx_iaddr, nx_ilvl } = { 1'b1, 8'h48, mmr[INTET23][2:0] }; else
+    if( mmr[INTET01][7] && mmr[INTET01][6:4]>nx_ilvl ) { nx_act[15], nx_iaddr, nx_ilvl } = { 1'b1, 8'h44, mmr[INTET01][6:4] }; else
+    if( mmr[INTET01][3] && mmr[INTET01][2:0]>nx_ilvl ) { nx_act[16], nx_iaddr, nx_ilvl } = { 1'b1, 8'h40, mmr[INTET01][2:0] }; else
+    if( mmr[INTE67 ][7] && mmr[INTE67 ][6:4]>nx_ilvl ) { nx_act[17], nx_iaddr, nx_ilvl } = { 1'b1, 8'h38, mmr[INTE67 ][6:4] }; else
+    if( mmr[INTE67 ][3] && mmr[INTE67 ][2:0]>nx_ilvl ) { nx_act[18], nx_iaddr, nx_ilvl } = { 1'b1, 8'h34, mmr[INTE67 ][2:0] }; else
+    if( mmr[INTE45 ][7] && mmr[INTE45 ][6:4]>nx_ilvl ) { nx_act[19], nx_iaddr, nx_ilvl } = { 1'b1, 8'h30, mmr[INTE45 ][6:4] }; else
+    if( mmr[INTE45 ][3] && mmr[INTE45 ][2:0]>nx_ilvl ) { nx_act[20], nx_iaddr, nx_ilvl } = { 1'b1, 8'h2c, mmr[INTE45 ][2:0] }; else
+    if( mmr[INTE0AD][3] && mmr[INTE0AD][2:0]>nx_ilvl ) { nx_act[21], nx_iaddr, nx_ilvl } = { 1'b1, 8'h28, mmr[INTE0AD][2:0] };
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        ilvl  <= 0;
+        iaddr <= 0;
+        act   <= 0;
+        irq   <= 0;
+    end else begin
+        ilvl  <= nx_ilvl;
+        iaddr <= nx_iaddr;
+        act   <= nx_act;
+        irq   <= |nx_act;
+    end
+end
 
 always @(posedge clk) begin
     map_cs <= pre_map_cs;
@@ -101,6 +185,29 @@ always @(posedge clk, posedge rst) begin
             if( we[0] ) mmr[ {addr[5:1],1'b0} ] <= dout[ 7:0];
             if( we[1] ) mmr[ {addr[5:1],1'b1} ] <= dout[15:8];
         end
+        // interrupt flip flop
+        if( irq_ack && act[00] ) mmr[INTTC23][7] <= 0;
+        if( irq_ack && act[01] ) mmr[INTTC23][3] <= 0;
+        if( irq_ack && act[02] ) mmr[INTTC01][7] <= 0;
+        if( irq_ack && act[03] ) mmr[INTTC01][3] <= 0;
+        if( irq_ack && act[04] ) mmr[INTE0AD][7] <= 0;
+        if( irq_ack && act[05] ) mmr[INTES1 ][7] <= 0;
+        if( irq_ack && act[06] ) mmr[INTES1 ][3] <= 0;
+        if( irq_ack && act[07] ) mmr[INTES0 ][7] <= 0;
+        if( irq_ack && act[08] ) mmr[INTES0 ][3] <= 0;
+        if( irq_ack && act[09] ) mmr[INTET67][7] <= 0;
+        if( irq_ack && act[10] ) mmr[INTET67][3] <= 0;
+        if( irq_ack && act[11] ) mmr[INTET45][7] <= 0;
+        if( irq_ack && act[12] ) mmr[INTET45][3] <= 0;
+        if( irq_ack && act[13] ) mmr[INTET23][7] <= 0;
+        if( irq_ack && act[14] ) mmr[INTET23][3] <= 0;
+        if( irq_ack && act[15] ) mmr[INTET01][7] <= 0;
+        if( irq_ack && act[16] ) mmr[INTET01][3] <= 0;
+        if( irq_ack && act[17] ) mmr[INTE67 ][7] <= 0;
+        if( irq_ack && act[18] ) mmr[INTE67 ][3] <= 0;
+        if( irq_ack && act[19] ) mmr[INTE45 ][7] <= 0;
+        if( irq_ack && act[20] ) mmr[INTE45 ][3] <= 0;
+        if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
     end
 end
 
@@ -114,17 +221,15 @@ jt900h #(.PC_RSTVAL(32'hFF1800)) u_cpu(
     .dout       ( dout      ),
     .we         ( we        ),
 
-    .intrq      ( intrq     ),     // interrupt request
+    // interrupts
+    .irq        ( irq       ),
+    .intrq      ( ilvl      ),
+    .irq_ack    ( irq_ack   ),
     // Register dump
     .dmp_addr   (           ),     // dump
     .dmp_dout   (           )
-    `ifdef SIMULATION
-    ,.sim_xix   (           )
-    ,.sim_xiy   (           )
-    ,.sim_xiz   (           )
-    ,.sim_xsp   (           )
-    `endif
 );
 
 
 endmodule
+
