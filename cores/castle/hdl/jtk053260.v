@@ -42,7 +42,7 @@ module jt053260 (
 wire        [ 1:0] ch;
 reg         [ 3:0] st;
 reg         [ 7:0] ch_mmr[0:31];
-reg         [ 7:0] portdata[0:4];
+reg         [ 7:0] portdata[0:3];
 reg         [ 3:0] key_on, mode;
 reg         [ 3:0] ch_st, adpcm, loop;
 reg         [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan, pan;
@@ -84,7 +84,7 @@ wire        [ 3:0] nibble;
 wire        [ 7:0] reg2e;
 
 
-assign reg2e        = mode[0] ? rom_data : portdata[addr[2:0]];
+assign reg2e        = mode[0] ? rom_data : portdata[addr[1:0]];
 assign nx_pitch_cnt = {1'd0, pitch_cnt[ch] } + { 1'd0, pitch };
 assign nibble       = adpcm_cnt[ch] ? rom_data[7:4] : rom_data[3:0];
 assign sample       = cen64;
@@ -138,21 +138,12 @@ always @(posedge clk, posedge rst) begin
         portdata[2]  <= 0; portdata[3]   <= 0;
         mdout   <= 0;
         ch0_pan <= 0; ch1_pan <= 0; ch2_pan <= 0; ch3_pan <= 0;
-        key_on  <= 4'hF; loop <= 0; mode    <= 0; ch_st   <= 0; adpcm <=0;
+        key_on  <= 4'hF; loop <= 0; mode    <= 0; ch_st   <= 0; adpcm <= 0;
     end else begin
         if ( mcs && !mr_wn ) begin
-            case ( addr )
-                6'h00: portdata[addr[2:0]] <= mdin;
-                6'h01: portdata[addr[2:0]] <= mdin;
-                default: ;
-            endcase
-        end else begin
-            case ( addr )
-                6'h02: mdout <= portdata[addr[2:0]];
-                6'h03: mdout <= portdata[addr[2:0]];
-                default: ;
-            endcase
+            portdata[addr[1:0]] <= mdin;
         end
+        mdout <= portdata[addr[1:0]];
         if ( cs && !r_wn ) begin
             if (addr >= 6'h08 && addr <= 6'h27) begin
                 m_addr = addr - 8;
@@ -169,10 +160,6 @@ always @(posedge clk, posedge rst) begin
         end else begin
             case ( addr )
                 6'h29: ch_st <= key_on[3:0];
-                6'h2E: begin
-                       // if ( mode[0] )
-
-                       end
                 default: ;
             endcase
         end
@@ -270,16 +257,17 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        ch_snd_l  <= 0;
-        ch_snd_r  <= 0;
+        st       <= 0;
+        up[0]    <= 0; up[1] <= 0; up[2] <= 0; up[3] <= 0;
+        keyon_l  <= 0;
+        rom_cs   <= 0;
+        ch_snd_l <= 0;
+        ch_snd_r <= 0;
         pitch_cnt[0] <= 0; pitch_cnt[1] <= 0; pitch_cnt[2] <= 0; pitch_cnt[3] <= 0;
         adpcm_cnt[0] <= 0; adpcm_cnt[1] <= 0; adpcm_cnt[2] <= 0; adpcm_cnt[3] <= 0;
-        cur_addr[0] <= 0; cur_addr[1] <= 0; cur_addr[2] <= 0; cur_addr[3] <= 0;
-        cur_snd[0]  <= 0; cur_snd[1]  <= 0; cur_snd[2]  <= 0; cur_snd[3]  <= 0;
-        cur_cnt[0]  <= 0; cur_cnt[1]  <= 0; cur_cnt[2]  <= 0; cur_cnt[3]  <= 0;
-        up[0] <= 0; up[1] <= 0; up[2] <= 0; up[3] <= 0;
-        st <= 0;
-        keyon_l <= 0;
+         cur_addr[0] <= 0;  cur_addr[1] <= 0;  cur_addr[2] <= 0;  cur_addr[3] <= 0;
+          cur_snd[0] <= 0;   cur_snd[1] <= 0;   cur_snd[2] <= 0;   cur_snd[3] <= 0;
+          cur_cnt[0] <= 0;   cur_cnt[1] <= 0;   cur_cnt[2] <= 0;   cur_cnt[3] <= 0;
     end else if( dly_cen ) begin
         st <= cen16 ? 4'd0 : st + 1'd1;
         case( st )

@@ -50,9 +50,8 @@ initial begin
     r_wn = 1;
     mr_wn = 1;
     #10 rst=1;
-    din = 0;
     #10 rst=0;
-    repeat (100) @(posedge clk);
+    repeat (64) @(posedge clk);
 
     // @(posedge clk);
     // cs=1;
@@ -71,19 +70,12 @@ initial begin
     mcs=1;
     r_wn=0;
     mr_wn=0;
+    rom_ok = 1;
     addr=2;
     mdin=8'h06;
     @(posedge clk);
-    cs=1;
-    r_wn=0;
     addr=03;
     mdin=8'h0F;
-    // key_on
-    @(posedge clk);
-    addr=6'h38;
-    din=8'h07;
-    mdin=8'h02;
-    rom_ok = 1;
     // ch pan
     @(posedge clk);
     addr=6'h2C;
@@ -97,20 +89,12 @@ initial begin
     // mode
     @(posedge clk);
     addr=6'h2F;
-    din=8'h01;
-    addr=6'h2F;
-    din=8'h02;
-    @(posedge clk);
-    addr=6'h2F;
     din=8'h03;
     @(posedge clk);
-    addr=6'h31;
-    din=8'h54;
-    @(posedge clk);
     addr=6'h2A;
-    din=8'h02;
+    din=8'h00;
     @(posedge clk);
-    addr=6'h3;
+    addr=6'h03;
     din=8'h02;
     @(posedge clk);
     addr=6'h28;
@@ -166,4 +150,8 @@ module watcher;
                 cnt1  = uut.cur_cnt[1],
                 cnt2  = uut.cur_cnt[2],
                 cnt3  = uut.cur_cnt[3];
+    wire [16:0] port0 = uut.portdata[0],
+                port1 = uut.portdata[1],
+                port2 = uut.portdata[2],
+                port3 = uut.portdata[3];
 endmodule
