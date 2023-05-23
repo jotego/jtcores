@@ -20,6 +20,7 @@ The following TLCS-900/H input sources are known:
 - INT4 - VBlank irq
 - INT5 - Interrupt from Z80
 - AN0 - Analog input which is used to determine the battery level
+        First interrupt ran during boot-up
 - NMI - Triggered by power button
 - TIO - HBlank signal
 

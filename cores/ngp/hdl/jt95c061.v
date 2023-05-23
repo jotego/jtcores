@@ -46,9 +46,18 @@ reg  [ 7:0] nx_iaddr, iaddr;
 reg  [21:0] act, nx_act;
 wire        irq_ack;
 reg         irq;
+reg  [10:0] adc_cnt;
+
+// ADC
+wire adc_bsy, adc_end;
+reg  adc_go;
 
 assign port_cs = addr[23:7]==0;
 assign intrq = 0;
+assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
+
+localparam      ADC_BSY = 6,
+                ADC_END = 7;
 
 // memory mapper
 // MSA registers set the starting address, counting in 64kB pages
@@ -74,6 +83,16 @@ localparam [6:0]
                  B1CS    = 7'h69, // set to 17
                  B2CS    = 7'h6A, // set to 03 = 16 bits, 0 wait
                  B3CS    = 7'h6B, // set to 03
+                 // ADC
+                 ADREG0L = 7'h60,
+                 ADREG0H = 7'h61,
+                 ADREG1L = 7'h62,
+                 ADREG1H = 7'h63,
+                 ADREG2L = 7'h64,
+                 ADREG2H = 7'h65,
+                 ADREG3L = 7'h66,
+                 ADREG3H = 7'h67,
+                 ADMOD   = 7'h6D,
                  // interrupt controller
                  INTE0AD = 7'h70,
                  INTE45  = 7'h71,
@@ -201,7 +220,6 @@ jtframe_ff u_nmi_ff (
     .sigedge(nmi    )
 );
 
-
 always @* begin // TMP95C061.pdf pages 12, 19
     nx_ilvl  = ilvl;
     nx_iaddr = iaddr;
@@ -260,9 +278,23 @@ integer k;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         for( k=0; k<64; k=k+1 ) mmr[k] <= 0;
+        // Fake ADC
+        mmr[ADREG0H] <=8'hff;   // channel 0 is the battery, we give it a high reading
+        mmr[ADREG0L] <=8'hff;
+        adc_go <= 0;
+        adc_cnt <= 0;
     end else begin
         if( port_cs ) begin
-            if( addr[6:0]<7'h70 || addr[6:0]>7'h7a ) begin
+            if( addr[6:0]==ADMOD ) begin
+                if( we[0] ) begin
+                    mmr[ ADMOD ][5:0] <= { dout[5:3], 1'b0, dout[1:0] };
+                    if( dout[2] ) begin
+                        $display("ADC conversion requested");
+                        adc_go <= 1;
+                        mmr[ADMOD][7:6] <= 0;
+                    end
+                end
+            end else if( addr[6:0]<7'h70 || addr[6:0]>7'h7a ) begin
                 if( we[0] ) begin mmr[ {addr[6:1],1'b0} ] <= dout[ 7:0]; /*$display("MMR[%X]=%X",{addr[6:1],1'b0}, dout[ 7:0] );*/ end
                 if( we[1] ) begin mmr[ {addr[6:1],1'b1} ] <= dout[15:8]; /*$display("MMR[%X]=%X",{addr[6:1],1'b1}, dout[16:8] );*/ end
             end else begin // interrupt control
@@ -300,6 +332,20 @@ always @(posedge clk, posedge rst) begin
         if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
         // interrupt set
         if( int4 ) mmr[INTE45][3] <= 1;
+        // ADC
+        if( adc_go &&  !adc_bsy ) begin
+            adc_go <= 0;
+            mmr[ADMOD][ADC_END] <= 0;
+            mmr[ADMOD][ADC_BSY] <= 1;
+            adc_cnt <= 11'd1228 >> ~mmr[ADMOD][3]; // 12.8us for high speed, 25.6us for low
+        end
+        if( adc_bsy && !adc_end ) begin // count for 48MHz clock
+            { mmr[ADMOD][ADC_END], adc_cnt } <= {1'd0, adc_cnt} - 1'd1;
+        end
+        if( adc_end && adc_bsy ) begin
+            mmr[INTE0AD][ADC_BSY] <= 0;
+            mmr[INTE0AD][7] <= 1; // set interrupt flag
+        end
     end
 end
 
