@@ -119,6 +119,7 @@ jtngp_snd u_snd(
     .snd_r      ( snd_right )
 );
 
+/* verilator tracing_off */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

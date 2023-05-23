@@ -277,26 +277,26 @@ void ngp_state::ngp_io_w(offs_t offset, uint8_t data)
 {
 	switch (offset)
 	{
-	case 0x20:      /* t6w28 "right" */
-	case 0x21:      /* t6w28 "left" */
+	case 0x20:      /* t6w28 "right" */ // A0
+	case 0x21:      /* t6w28 "left" */  // A1
 		if (m_io_reg[0x38] == 0x55 && m_io_reg[0x39] == 0xAA) // snd enable and Z80 disabled
 		{
 			m_t6w28->write(0, data);
 		}
 		break;
 
-	case 0x22:      /* DAC right */
+	case 0x22:      /* DAC right - A2 */
 		m_rdac->write(data);
 		break;
-	case 0x23:      /* DAC left */
+	case 0x23:      /* DAC left - A3 */
 		m_ldac->write(data);
 		break;
 
 	/* Internal eeprom related? */
-	case 0x36:
-	case 0x37:
+	case 0x36: // B6
+	case 0x37: // B7
 		break;
-	case 0x38:  /* Sound enable/disable. */
+	case 0x38:  /* Sound enable/disable. B8 */
 		switch (data)
 		{
 		case 0x55:      /* Enabled sound */
@@ -308,7 +308,7 @@ void ngp_state::ngp_io_w(offs_t offset, uint8_t data)
 		}
 		break;
 
-	case 0x39:  /* Z80 enable/disable. */
+	case 0x39:  /* Z80 enable/disable. B9 */
 		switch (data)
 		{
 		case 0x55:      /* Enable Z80 */
@@ -322,7 +322,7 @@ void ngp_state::ngp_io_w(offs_t offset, uint8_t data)
 		}
 		break;
 
-	case 0x3a:  /* Trigger Z80 NMI */
+	case 0x3a:  /* Trigger Z80 NMI BA */
 		m_z80->pulse_input_line(INPUT_LINE_NMI, attotime::zero);
 		break;
 	}

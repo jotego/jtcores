@@ -60,6 +60,8 @@ reg         ram0_cs, ram1_cs,
 wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
 wire        cpu_cen;
+reg         poweron;
+reg  [6:0]  pwr_cnt;
 
 assign cpu_addr  = addr[15:1];
 assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
@@ -68,7 +70,7 @@ assign ram0_we   = {2{ram0_cs}} & we,
        ram1_we   = {2{ram1_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
 // to do: do we need to keep track of data written to the IO space in 80~C0?
-assign io_dout   = addr[7:1]==7'b11_000 ? { 8'd3, 1'b0, ~start_button, ~joystick1 } : 16'd0;
+assign io_dout   = addr[7:1]==7'b11_000 ? { 8'd3, 1'b0, ~poweron, ~joystick1 } : 16'd0;
 assign cpu_cen   = (~rom_cs | rom_ok) & cen6;
 
 function in_range( input [23:0] min, max );
@@ -86,6 +88,15 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
+        poweron <= 0;
+        pwr_cnt <= 0;
+    end else begin
+        if( int4 && !poweron ) { poweron, pwr_cnt } <= { 1'b0, pwr_cnt } + 1'd1;
+    end
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
         snd_rstn <= 0;
         snd_en   <= 0;
         snd_nmi  <= 0;
@@ -94,12 +105,12 @@ always @(posedge clk, posedge rst) begin
     end else begin
         if( snd_ack ) snd_nmi <= 0;
         if( io_cs ) begin
-            // to do: 0x20, 0x21: write to t6w28 (sound generator) but Z80 takes precedence
-            if( we[0] && addr[7:1]==7'b11_100 ) snd_en   <= cpu_dout[0]; // 38
-            if( we[1] && addr[7:1]==7'b11_100 ) { snd_rstn, snd_nmi } <= { cpu_dout[8], 1'b0 }; // 39
-            if( we[0] && addr[7:1]==7'b11_101 ) snd_nmi  <= 1;       // 3A
-            if( we[0] && addr[7:1]==7'b10_010 ) snd_dacr <= cpu_dout[ 7:0]; // 22
-            if( we[1] && addr[7:1]==7'b10_010 ) snd_dacl <= cpu_dout[15:8]; // 23
+            // to do: 0xA0, 0xA1: write to t6w28 (sound generator) but Z80 takes precedence
+            if( we[0] && addr[5:1]==5'b11_100 ) snd_en   <= cpu_dout[0]; // B8
+            if( we[1] && addr[5:1]==5'b11_100 ) { snd_rstn, snd_nmi } <= { cpu_dout[8], 1'b0 }; // B9
+            if( we[0] && addr[5:1]==5'b11_101 ) snd_nmi  <= 1;       // BA
+            if( we[0] && addr[5:1]==5'b10_010 ) snd_dacr <= cpu_dout[ 7:0]; // B2
+            if( we[1] && addr[5:1]==5'b10_010 ) snd_dacl <= cpu_dout[15:8]; // B3
         end
     end
 end
@@ -145,6 +156,7 @@ jt95c061 u_mcu(
 
     // interrupt sources
     .int4       ( int4      ),
+    .nmi        ( poweron   ),
 
     .addr       ( addr      ),
     .din        ( din       ),

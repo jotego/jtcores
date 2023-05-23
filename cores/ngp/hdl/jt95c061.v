@@ -24,6 +24,7 @@ module jt95c061(
     input                 cen,
 
     input                 int4,
+    input                 nmi,
 
     output     [23:0]     addr,
     input      [15:0]     din,
@@ -35,7 +36,7 @@ module jt95c061(
 );
 
 wire       port_cs;
-reg  [7:0] mmr[0:63];
+reg  [7:0] mmr[0:127];
 reg  [3:0] pre_map_cs;
 
 // interrupts
@@ -54,37 +55,37 @@ assign intrq = 0;
 // MAM registers set the size, from 256 bytes to 8MB
 // the starting address is a multiple of the size, rounded down to the nearest
 // 64kB page
-localparam [5:0]
+localparam [6:0]
                  // 34~37 event capture, ignored
-                 MSAR0   = 6'h3C, // set to 20 by NGPC firmware
-                 MAMR0   = 6'h3D, // set to FF by NGPC firmware
-                 MSAR1   = 6'h3E, // set to 80 by NGPC firmware
-                 MAMR1   = 6'h3F, // set to 7F by NGPC firmware
+                 MSAR0   = 7'h3C, // set to 20 by NGPC firmware
+                 MAMR0   = 7'h3D, // set to FF by NGPC firmware
+                 MSAR1   = 7'h3E, // set to 80 by NGPC firmware
+                 MAMR1   = 7'h3F, // set to 7F by NGPC firmware
                  // 44~47 event capture, ignored
                  // 4C~4E pattern generator, ignored
-                 DREFCR  = 6'h5A, // DRAM refresh rate, ignored
-                 DMEMCR  = 6'h5B, // DRAM mode, ignored
-                 MSAR2   = 6'h5C, // set to FF by NGPC firmware
-                 MAMR2   = 6'h5D, // set to FF by NGPC firmware
-                 MSAR3   = 6'h5E, // set to FF by NGPC firmware
-                 MAMR3   = 6'h5F, // set to FF by NGPC firmware
+                 DREFCR  = 7'h5A, // DRAM refresh rate, ignored
+                 DMEMCR  = 7'h5B, // DRAM mode, ignored
+                 MSAR2   = 7'h5C, // set to FF by NGPC firmware
+                 MAMR2   = 7'h5D, // set to FF by NGPC firmware
+                 MSAR3   = 7'h5E, // set to FF by NGPC firmware
+                 MAMR3   = 7'h5F, // set to FF by NGPC firmware
                  // 60~67 ADC, ignored
-                 B0CS    = 6'h68, // set to 17 = 8 bits, 0 wait
-                 B1CS    = 6'h69, // set to 17
-                 B2CS    = 6'h6A, // set to 03 = 16 bits, 0 wait
-                 B3CS    = 6'h6B, // set to 03
+                 B0CS    = 7'h68, // set to 17 = 8 bits, 0 wait
+                 B1CS    = 7'h69, // set to 17
+                 B2CS    = 7'h6A, // set to 03 = 16 bits, 0 wait
+                 B3CS    = 7'h6B, // set to 03
                  // interrupt controller
-                 INTE0AD = 6'h70,
-                 INTE45  = 6'h71,
-                 INTE67  = 6'h72,
-                 INTET01 = 6'h73,
-                 INTET23 = 6'h74,
-                 INTET45 = 6'h75,
-                 INTET67 = 6'h76,
-                 INTES0  = 6'h77,
-                 INTES1  = 6'h78,
-                 INTTC01 = 6'h79,
-                 INTTC23 = 6'h7A;
+                 INTE0AD = 7'h70,
+                 INTE45  = 7'h71,
+                 INTE67  = 7'h72,
+                 INTET01 = 7'h73,
+                 INTET23 = 7'h74,
+                 INTET45 = 7'h75,
+                 INTET67 = 7'h76,
+                 INTES0  = 7'h77,
+                 INTES1  = 7'h78,
+                 INTTC01 = 7'h79,
+                 INTTC23 = 7'h7A;
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -133,29 +134,73 @@ if( inttc3& mmr[INTTC23][7] )
     */
 
 `ifdef SIMULATION
-wire [2:0] inttc3_lvl =  mmr[INTTC23][6:4];
-wire [2:0] inttc2_lvl =  mmr[INTTC23][2:0];
-wire [2:0] inttc1_lvl =  mmr[INTTC01][6:4];
-wire [2:0] inttc0_lvl =  mmr[INTTC01][2:0];
-wire [2:0] inte0ad_lvl =  mmr[INTE0AD][6:4];
-wire [2:0] intetx1_lvl  =  mmr[INTES1 ][6:4];
-wire [2:0] interx1_lvl  =  mmr[INTES1 ][2:0];
-wire [2:0] intetx0_lvl  =  mmr[INTES0 ][6:4];
-wire [2:0] interx0_lvl  =  mmr[INTES0 ][2:0];
-wire [2:0] intet7_lvl =  mmr[INTET67][6:4];
-wire [2:0] intet6_lvl =  mmr[INTET67][2:0];
-wire [2:0] intet5_lvl =  mmr[INTET45][6:4];
-wire [2:0] intet4_lvl =  mmr[INTET45][2:0];
-wire [2:0] intet3_lvl =  mmr[INTET23][6:4];
-wire [2:0] intet2_lvl =  mmr[INTET23][2:0];
-wire [2:0] intet1_lvl =  mmr[INTET01][6:4];
-wire [2:0] intet0_lvl =  mmr[INTET01][2:0];
-wire [2:0] inte7_lvl  =  mmr[INTE67 ][6:4];
-wire [2:0] inte6_lvl  =  mmr[INTE67 ][2:0];
-wire [2:0] inte5_lvl  =  mmr[INTE45 ][6:4];
-wire [2:0] inte4_lvl  =  mmr[INTE45 ][2:0];
-wire [2:0] inte0_lvl  =  mmr[INTE0AD][2:0];
+    wire [2:0] inttc3_lvl =  mmr[INTTC23][6:4];
+    wire [2:0] inttc2_lvl =  mmr[INTTC23][2:0];
+    wire [2:0] inttc1_lvl =  mmr[INTTC01][6:4];
+    wire [2:0] inttc0_lvl =  mmr[INTTC01][2:0];
+    wire [2:0] inte0ad_lvl =  mmr[INTE0AD][6:4];
+    wire [2:0] intetx1_lvl  =  mmr[INTES1 ][6:4];
+    wire [2:0] interx1_lvl  =  mmr[INTES1 ][2:0];
+    wire [2:0] intetx0_lvl  =  mmr[INTES0 ][6:4];
+    wire [2:0] interx0_lvl  =  mmr[INTES0 ][2:0];
+    wire [2:0] intet7_lvl =  mmr[INTET67][6:4];
+    wire [2:0] intet6_lvl =  mmr[INTET67][2:0];
+    wire [2:0] intet5_lvl =  mmr[INTET45][6:4];
+    wire [2:0] intet4_lvl =  mmr[INTET45][2:0];
+    wire [2:0] intet3_lvl =  mmr[INTET23][6:4];
+    wire [2:0] intet2_lvl =  mmr[INTET23][2:0];
+    wire [2:0] intet1_lvl =  mmr[INTET01][6:4];
+    wire [2:0] intet0_lvl =  mmr[INTET01][2:0];
+    wire [2:0] inte7_lvl  =  mmr[INTE67 ][6:4];
+    wire [2:0] inte6_lvl  =  mmr[INTE67 ][2:0];
+    wire [2:0] inte5_lvl  =  mmr[INTE45 ][6:4];
+    wire [2:0] inte4_lvl  =  mmr[INTE45 ][2:0];
+    wire [2:0] inte0_lvl  =  mmr[INTE0AD][2:0];
+    wire int3_ff   = mmr[INTTC23][7];
+    wire int2_ff   = mmr[INTTC23][3];
+    wire inttc1_ff = mmr[INTTC01][7];
+    wire inttc0_ff = mmr[INTTC01][3];
+    wire intad_ff  = mmr[INTE0AD][7];
+    wire inttx1_ff = mmr[INTES1 ][7];
+    wire intrx1_ff = mmr[INTES1 ][3];
+    wire inttx0_ff = mmr[INTES0 ][7];
+    wire intrx0_ff = mmr[INTES0 ][3];
+    wire intt7_ff  = mmr[INTET67][7];
+    wire intt6_ff  = mmr[INTET67][3];
+    wire intt5_ff  = mmr[INTET45][7];
+    wire intt4_ff  = mmr[INTET45][3];
+    wire intt3_ff  = mmr[INTET23][7];
+    wire intt2_ff  = mmr[INTET23][3];
+    wire intt1_ff  = mmr[INTET01][7];
+    wire intt0_ff  = mmr[INTET01][3];
+    wire int7_ff   = mmr[INTE67 ][7];
+    wire int6_ff   = mmr[INTE67 ][3];
+    wire int5_ff   = mmr[INTE45 ][7];
+    wire int4_ff   = mmr[INTE45 ][3];
+    wire int0_ff   = mmr[INTE0AD][3];
+    reg [21:0] act_l;
+    always @(posedge clk) begin
+        act_l <= act;
+        if( act != act_l ) $display("Interrupts changed to %h",act);
+    end
 `endif
+
+wire nmi_rq, nmi_clr;
+
+assign nmi_clr = irq_ack && nmi_rq && ilvl==7;
+
+jtframe_ff u_nmi_ff (
+    .rst    (rst    ),
+    .clk    (clk    ),
+    .cen    (1'b1   ),
+    .din    (1'b1   ), // TODO: Check connection ! Signal/port not matching : Expecting logic [0:0]  -- Found logic [15:0]
+    .q      (nmi_rq ),
+    .qn     (       ),
+    .set    ( 1'b0  ),
+    .clr    (nmi_clr),
+    .sigedge(nmi    )
+);
+
 
 always @* begin // TMP95C061.pdf pages 12, 19
     nx_ilvl  = ilvl;
@@ -185,6 +230,11 @@ always @* begin // TMP95C061.pdf pages 12, 19
     if( mmr[INTE45 ][7] && mmr[INTE45 ][6:4]>nx_ilvl ) { nx_act[19], nx_iaddr, nx_ilvl } = { 1'b1, 8'h30, mmr[INTE45 ][6:4] }; else
     if( mmr[INTE45 ][3] && mmr[INTE45 ][2:0]>nx_ilvl ) { nx_act[20], nx_iaddr, nx_ilvl } = { 1'b1, 8'h2c, mmr[INTE45 ][2:0] }; else
     if( mmr[INTE0AD][3] && mmr[INTE0AD][2:0]>nx_ilvl ) { nx_act[21], nx_iaddr, nx_ilvl } = { 1'b1, 8'h28, mmr[INTE0AD][2:0] };
+    // NMI
+    if( nmi_rq ) begin
+        nx_ilvl = 7;
+        nx_act  = 0;
+    end
 end
 
 always @(posedge clk, posedge rst) begin
@@ -197,7 +247,7 @@ always @(posedge clk, posedge rst) begin
         ilvl  <= nx_ilvl;
         iaddr <= nx_iaddr;
         act   <= nx_act;
-        irq   <= |nx_act;
+        irq   <= |{ nx_act, nmi_rq };
     end
 end
 
@@ -212,8 +262,18 @@ always @(posedge clk, posedge rst) begin
         for( k=0; k<64; k=k+1 ) mmr[k] <= 0;
     end else begin
         if( port_cs ) begin
-            if( we[0] ) begin mmr[ {addr[5:1],1'b0} ] <= dout[ 7:0]; $display("MMR[%X]=%X",{addr[5:1],1'b0}, dout[ 7:0] ); end
-            if( we[1] ) begin mmr[ {addr[5:1],1'b1} ] <= dout[15:8]; $display("MMR[%X]=%X",{addr[5:1],1'b1}, dout[15:8] ); end
+            if( addr[6:0]<7'h70 || addr[6:0]>7'h7a ) begin
+                if( we[0] ) begin mmr[ {addr[6:1],1'b0} ] <= dout[ 7:0]; /*$display("MMR[%X]=%X",{addr[6:1],1'b0}, dout[ 7:0] );*/ end
+                if( we[1] ) begin mmr[ {addr[6:1],1'b1} ] <= dout[15:8]; /*$display("MMR[%X]=%X",{addr[6:1],1'b1}, dout[16:8] );*/ end
+            end else begin // interrupt control
+                if( we[0] ) begin { mmr[ {addr[6:1],1'b0} ][6:4], mmr[ {addr[6:1],1'b0} ][2:0] } <= { dout[ 6:4], dout[ 2:0]}; $display("MMR[%X]=%X",{addr[6:1],1'b0}, dout[ 7:0] ); end
+                if( we[1] ) begin { mmr[ {addr[6:1],1'b1} ][6:4], mmr[ {addr[6:1],1'b1} ][2:0] } <= { dout[14:12],dout[10:8]}; $display("MMR[%X]=%X",{addr[6:1],1'b1}, dout[15:8] ); end
+                // clear the interrupt flip flop
+                if( we[0] && !dout[ 3] ) mmr[ {addr[6:1],1'b0} ][3] <= 0;
+                if( we[0] && !dout[ 7] ) mmr[ {addr[6:1],1'b0} ][7] <= 0;
+                if( we[1] && !dout[11] ) mmr[ {addr[6:1],1'b1} ][3] <= 0;
+                if( we[1] && !dout[15] ) mmr[ {addr[6:1],1'b1} ][7] <= 0;
+            end
         end
         // interrupt flip flop
         if( irq_ack && act[00] ) mmr[INTTC23][7] <= 0;
@@ -239,7 +299,7 @@ always @(posedge clk, posedge rst) begin
         if( irq_ack && act[20] ) mmr[INTE45 ][3] <= 0;
         if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
         // interrupt set
-        if( int4 ) mmr[INTE45 ][3] <= 1;
+        if( int4 ) mmr[INTE45][3] <= 1;
     end
 end
 
