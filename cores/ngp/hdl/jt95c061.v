@@ -47,6 +47,7 @@ reg  [21:0] act, nx_act;
 wire        irq_ack;
 reg         irq;
 reg  [10:0] adc_cnt;
+reg         inta_en, nx_intaen;
 
 // ADC
 wire adc_bsy, adc_end;
@@ -252,7 +253,11 @@ always @* begin // TMP95C061.pdf pages 12, 19
     if( nmi_rq ) begin
         nx_ilvl = 7;
         nx_act  = 0;
+        nx_intaen = 0;
+    end else begin
+        nx_intaen = |{nx_act, inta_en};
     end
+    if( irq_ack ) nx_act = 0;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -266,6 +271,7 @@ always @(posedge clk, posedge rst) begin
         iaddr <= nx_iaddr;
         act   <= nx_act;
         irq   <= |{ nx_act, nmi_rq };
+        inta_en <= nx_intaen;
     end
 end
 
@@ -284,9 +290,9 @@ always @(posedge clk, posedge rst) begin
         adc_go <= 0;
         adc_cnt <= 0;
     end else begin
-        if( port_cs ) begin
+        if( port_cs && cen ) begin
             if( addr[6:0]==ADMOD ) begin
-                if( we[0] ) begin
+                if( we[1] ) begin
                     mmr[ ADMOD ][5:0] <= { dout[5:3], 1'b0, dout[1:0] };
                     if( dout[2] ) begin
                         $display("ADC conversion requested");
@@ -343,7 +349,7 @@ always @(posedge clk, posedge rst) begin
             { mmr[ADMOD][ADC_END], adc_cnt } <= {1'd0, adc_cnt} - 1'd1;
         end
         if( adc_end && adc_bsy ) begin
-            mmr[INTE0AD][ADC_BSY] <= 0;
+            mmr[ADMOD][ADC_BSY] <= 0;
             mmr[INTE0AD][7] <= 1; // set interrupt flag
         end
     end
@@ -363,7 +369,7 @@ jt900h #(.PC_RSTVAL(32'hFF1800)) u_cpu(
     .irq        ( irq       ),
     .intrq      ( ilvl      ),
     .irq_ack    ( irq_ack   ),
-    .inta_en    ( irq       ),
+    .inta_en    ( inta_en   ),
     .int_addr   ( iaddr     ),
     // Register dump
     .dmp_addr   (           ),     // dump
