@@ -35,9 +35,10 @@ module jt95c061(
                                   // cs[2/3] used for BIOS ROM
 );
 
-wire       port_cs;
-reg  [7:0] mmr[0:127];
-reg  [3:0] pre_map_cs;
+wire        port_cs;
+wire [15:0] din_mux;
+reg  [ 7:0] mmr[0:127];
+reg  [ 3:0] pre_map_cs;
 
 // interrupts
 wire [ 2:0] intrq;
@@ -56,6 +57,7 @@ reg  adc_go;
 assign port_cs = addr[23:7]==0;
 assign intrq = 0;
 assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
+assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
 
 localparam      ADC_BSY = 6,
                 ADC_END = 7;
@@ -361,7 +363,7 @@ jt900h #(.PC_RSTVAL(32'hFF1800)) u_cpu(
     .cen        ( cen       ),
 
     .addr       ( addr      ),
-    .din        ( din       ),
+    .din        ( din_mux   ),
     .dout       ( dout      ),
     .we         ( we        ),
 

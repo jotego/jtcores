@@ -103,6 +103,7 @@ jtframe_dual_ram #(.AW(11)) u_ramhi(
     .q1     ( ram_msb         )
 );
 
+`ifndef NOSOUND
 jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
     .rst_n      ( rstn      ),
     .clk        ( clk       ),
@@ -126,5 +127,9 @@ jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
     .rom_cs     ( 1'b0      ),
     .rom_ok     ( 1'b1      )
 );
+`else
+    assign m1_n=1, mreq_n=1, iorq_n=1, wr_n=1,
+           cpu_addr=0, cpu_dout=0;
+`endif
 
 endmodule

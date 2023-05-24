@@ -1,11 +1,11 @@
 bpset ff1de8
 bpset ff1f3a
 bpset ff1898
-bpset ff1f8c
+bpset ff1f8c,1,{printf "INT 5 (Z80) interrupt"}
 bpset ff1faf
 bpset ff1fd3
 bpset ff1fd7
-bpset ff29ef
+bpset ff29ef,1,{printf "ADC interrupt"}
 bpset ff2006
 bpset ff2426
 bpset ff1f43
@@ -25,9 +25,10 @@ bpset ff1fe9
 bpset ff1ff4
 bpset ff1f31
 bpset ff1f55
-bpset ff1e92
+bpset ff1e92,1,{printf "VBLANK interrupt"}
 bpset ff1fae
 bpset ff1fca
 bpset ff1fd6
 bpset ff1fea
 bpset ff1ffd
+wp 7000,1000,w,1,{printf "writes to shared RAM";go}
