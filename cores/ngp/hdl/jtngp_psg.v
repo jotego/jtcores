@@ -29,15 +29,22 @@ module jtngp_psg(
 );
 
 // _numer (ch_0) is channel square and _n (ch_n) is channel noise
-reg         [8:0] ch_0, ch_1, ch_3, ch_n;
+reg         [9:0] ch_0, ch_1, ch_3, ch_n;
 reg         [3:0] vol_0, vol_1, vol_2, vol_n;
 reg         [9:0] tone_0, tone_1, tone_2;
-reg         [2:0] tone_n;
+reg         [2:0] noise;
 
 reg         [3:0] reg_sel;
 
 reg               cen16;
 reg         [3:0] cnt_cen = 0;
+
+// reg               addr;
+// reg         [9:0] mmr[0:16];
+
+// reg         [9:0] tone_0 = mmr[1];
+// reg         [9:0] tone_1 = mmr[2];
+// reg         [9:0] tone_2 = mmr[3];
 
 
 always @(posedge clk) begin
@@ -49,24 +56,38 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-         tone0 <= tone1 <= tone2 <= tone_n <= 0;
-         vol0  <= vol1  <= vol2  <= vol_n  <= 0;
+         tone_0 <= tone_1 <= tone_2 <= noise <= 0;
+         vol_0  <= vol_1  <= vol_2  <= vol_n  <= 0;
     end else begin
         if( !cs && !r_wn ) begin
             case( reg_sel )
-                3'b000: tone_2 <= ;
-                3'b001: vol0   <= din[3:0];
-                3'b010: tone_1 <= ;
-                3'b011: vol1   <= din[3:0];
-                3'b100: tone_0 <= ;
-                3'b101: vol2   <= din[3:0];
-                3'b110: tone_n <= ;
+                3'b000: begin
+                            if( din[7] )
+                                tone_0[3:0] <= din[3:0];
+                            else
+                                tone_0[9:4] <= din[5:0];
+                        end
+                3'b001: vol_0  <= din[3:0];
+                3'b010: begin
+                            if( din[7] )
+                                tone_1[3:0] <= din[3:0];
+                            else
+                                tone_1[9:4] <= din[5:0];
+                        end
+                3'b011: vol_1  <= din[3:0];
+                3'b100: begin
+                            if( din[7] )
+                                tone_0[3:0] <= din[3:0];
+                            else
+                                tone_0[9:4] <= din[5:0];
+                        end
+                3'b101: vol_2  <= din[3:0];
+                3'b110: noise  <= din[2:0];;
                 3'b111: vol_n  <= din[3:0];
                 default: ;
             endcase
         end
     end
 end
-
 
 endmodule
