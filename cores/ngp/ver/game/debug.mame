@@ -31,4 +31,4 @@ bpset ff1fca
 bpset ff1fd6
 bpset ff1fea
 bpset ff1ffd
-wp 7000,1000,w,1,{printf "writes to shared RAM";go}
+wp 7000,1000,w,1,{printf "writes to shared RAM"}

@@ -70,7 +70,7 @@ assign ram0_we   = {2{ram0_cs}} & we,
        ram1_we   = {2{ram1_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
 // to do: do we need to keep track of data written to the IO space in 80~C0?
-assign io_dout   = addr[5:1]==5'b11_000 ? { 8'd3, 1'b0, poweron, ~joystick1 } : 16'd0;
+assign io_dout   = addr[5:1]==5'b11_000 ? { 8'd3, 1'b0, /*poweron*/1'b0, ~joystick1 } : 16'd0;
 assign cpu_cen   = (~rom_cs | rom_ok) & cen6;
 
 function in_range( input [23:0] min, max );
@@ -156,7 +156,8 @@ jt95c061 u_mcu(
 
     // interrupt sources
     .int4       ( int4      ),
-    .nmi        ( poweron   ),
+    //.nmi        ( poweron   ),
+    .nmi        ( 1'b0      ),
 
     .addr       ( addr      ),
     .din        ( din       ),

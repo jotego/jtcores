@@ -259,7 +259,10 @@ always @* begin // TMP95C061.pdf pages 12, 19
     end else begin
         nx_intaen = |{nx_act, inta_en};
     end
-    if( irq_ack ) nx_act = 0;
+    if( irq_ack ) begin
+        nx_act = 0;
+        nx_ilvl = 0;
+    end
 end
 
 always @(posedge clk, posedge rst) begin
