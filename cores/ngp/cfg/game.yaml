@@ -36,3 +36,4 @@ jtframe:
 modules:
   jt:
     - name: jt900h
+    - name: jt89
