@@ -315,7 +315,7 @@ void ngp_state::ngp_io_w(offs_t offset, uint8_t data)
 		case 0x55:      /* Enable Z80 */
 			m_z80->resume(SUSPEND_REASON_HALT);
 			m_z80->reset();
-			m_z80->set_input_line(0, CLEAR_LINE);
+			m_z80->set_input_line(0/*INPUT_LINE_IRQ0*/, CLEAR_LINE);
 			break;
 		case 0xAA:      /* Disable Z80 */
 			m_z80->suspend(SUSPEND_REASON_HALT, 1);

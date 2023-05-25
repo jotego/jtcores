@@ -27,10 +27,10 @@ module jtngp_snd(
     input         [15:0] main_dout,
     output        [15:0] main_din,
     input         [ 1:0] main_we,
-    output               main_irqn,
+    output               main_int5,
     input         [ 7:0] comm,      // where do we store these 8 bits?
-    input                int_n,
     input                nmi,
+    input                irq,
     output               irq_ack,
 
     input  signed [ 7:0] snd_dacl, snd_dacr,
@@ -52,6 +52,7 @@ assign snd_l   = { snd_dacl, 8'd0 };
 assign snd_r   = { snd_dacr, 8'd0 };
 assign ram_bwe = {2{ram_cs&~wr_n}} & { cpu_addr[0], ~cpu_addr[0] };
 assign irq_ack = !m1_n && !iorq_n;
+assign main_int5 = intset_cs;
 
 always @* begin
     ram_cs    = !mreq_n && cpu_addr[15:14]==0;
@@ -65,13 +66,13 @@ always @(posedge clk) begin
                 ram_cs   ? (cpu_addr[0] ? ram_msb : ram_lsb ) : 8'h00;
 end
 
-jtframe_edge #(.QSET(0)) u_mainint(
-    .rst    ( ~rstn     ),
-    .clk    ( clk       ),
-    .edgeof ( intset_cs ),
-    .clr    ( ~iorq_n   ),
-    .q      ( main_irqn )
-);
+// jtframe_edge #(.QSET(0)) u_mainint(
+//     .rst    ( ~rstn     ),
+//     .clk    ( clk       ),
+//     .edgeof ( intset_cs ),
+//     .clr    ( ~iorq_n   ),
+//     .q      ( main_int5 )
+// );
 
 jtframe_dual_ram #(.AW(11)) u_ramlow(
     // Port 0
@@ -109,7 +110,7 @@ jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
     .clk        ( clk       ),
     .cen        ( cen3      ),
     .cpu_cen    (           ),
-    .int_n      ( int_n     ),
+    .int_n      ( ~irq      ),
     .nmi_n      ( ~nmi      ),
     .busrq_n    ( 1'b1      ),
     .m1_n       ( m1_n      ),

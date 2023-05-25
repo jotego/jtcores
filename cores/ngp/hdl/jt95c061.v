@@ -24,7 +24,10 @@ module jt95c061(
     input                 cen,
 
     input                 int4,
+    input                 int5,
     input                 nmi,
+
+    output     [ 3:0]     porta_dout,
 
     output     [23:0]     addr,
     input      [15:0]     din,
@@ -54,11 +57,6 @@ reg         inta_en, nx_intaen;
 wire adc_bsy, adc_end;
 reg  adc_go;
 
-assign port_cs = addr[23:7]==0;
-assign intrq = 0;
-assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
-assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
-
 localparam      ADC_BSY = 6,
                 ADC_END = 7;
 
@@ -68,6 +66,10 @@ localparam      ADC_BSY = 6,
 // the starting address is a multiple of the size, rounded down to the nearest
 // 64kB page
 localparam [6:0]
+                 // 1E, 2C, 2D Port A
+                 PA      = 7'h1E,
+                 PACR    = 7'h2C,
+                 PAFC    = 7'h2D,
                  // 34~37 event capture, ignored
                  MSAR0   = 7'h3C, // set to 20 by NGPC firmware
                  MAMR0   = 7'h3D, // set to FF by NGPC firmware
@@ -108,6 +110,12 @@ localparam [6:0]
                  INTES1  = 7'h78,
                  INTTC01 = 7'h79,
                  INTTC23 = 7'h7A;
+
+assign port_cs = addr[23:7]==0;
+assign intrq = 0;
+assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
+assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
+assign porta_dout = mmr[PA][3:0];
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -343,6 +351,7 @@ always @(posedge clk, posedge rst) begin
         if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
         // interrupt set
         if( int4 ) mmr[INTE45][3] <= 1;
+        if( int5 ) mmr[INTE45][7] <= 1;
         // ADC
         if( adc_go &&  !adc_bsy ) begin
             adc_go <= 0;

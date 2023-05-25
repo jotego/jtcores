@@ -40,9 +40,11 @@ module jtngp_main(
 
     // Sound
     output reg          snd_nmi,
+    output              snd_irq,
     output reg          snd_rstn,
     output reg          snd_en,
     input               snd_ack,
+    input               main_int5,
     output reg   [ 7:0] snd_dacl, snd_dacr,
 
     // Firmware access
@@ -61,7 +63,8 @@ wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
 wire        cpu_cen;
 reg         poweron;
-reg  [3:0]  pwr_cnt;
+reg  [ 3:0] pwr_cnt;
+wire [ 3:0] porta_dout;
 
 assign cpu_addr  = addr[15:1];
 assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
@@ -72,6 +75,7 @@ assign ram0_we   = {2{ram0_cs}} & we,
 // to do: do we need to keep track of data written to the IO space in 80~C0?
 assign io_dout   = addr[5:1]==5'b11_000 ? { 8'd3, 1'b0, /*poweron*/1'b0, ~joystick1 } : 16'd0;
 assign cpu_cen   = (~rom_cs | rom_ok) & cen6;
+assign snd_irq   = porta_dout[3];
 
 function in_range( input [23:0] min, max );
     in_range = addr>=min && addr<max;
@@ -156,8 +160,10 @@ jt95c061 u_mcu(
 
     // interrupt sources
     .int4       ( int4      ),
+    .int5       ( main_int5 ),
     //.nmi        ( poweron   ),
     .nmi        ( 1'b0      ),
+    .porta_dout ( porta_dout),
 
     .addr       ( addr      ),
     .din        ( din       ),

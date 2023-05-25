@@ -26,8 +26,8 @@ wire [15:0] cpu_dout, gfx_dout, shd_dout;
 wire [ 7:0] sub_comm;
 wire [ 1:0] we, shd_we;
 wire        gfx_cs;
-wire        cpu_cen, snd_cen, snd_ack, snd_nmi, snd_en, snd_rstn;
-wire        hirq, virq, sub_irqn, snd_nmi;
+wire        cpu_cen, snd_cen, snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
+wire        hirq, virq, snd_nmi, main_int5;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
@@ -79,11 +79,13 @@ jtngp_main u_main(
 
     // Sound
     .snd_nmi    ( snd_nmi   ),
+    .snd_irq    ( snd_irq   ),
     .snd_rstn   ( snd_rstn  ),
     .snd_en     ( snd_en    ),
     .snd_ack    ( snd_ack   ),
     .snd_dacl   ( snd_dacl  ),
     .snd_dacr   ( snd_dacr  ),
+    .main_int5  ( main_int5 ),
 
     // Cartridge
     .flash0_cs  (           ),
@@ -108,11 +110,11 @@ jtngp_snd u_snd(
     .main_dout  ( cpu_dout  ),
     .main_din   ( shd_dout  ),
     .main_we    ( shd_we    ),
-    .main_irqn  ( main_irqn ),
+    .main_int5  ( main_int5 ),
     .comm       ( sub_comm  ),      // where do we store these 8 bits?
     .irq_ack    ( snd_ack   ),
-    .int_n      ( sub_irqn  ),
     .nmi        ( snd_nmi   ),
+    .irq        ( snd_irq   ),
 
     .sample     ( sample    ),
     .snd_l      ( snd_left  ),
