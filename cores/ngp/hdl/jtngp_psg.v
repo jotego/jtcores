@@ -17,54 +17,52 @@
     Date: 23-5-2023 */
 
 module jtngp_psg(
-    input                rst,
-    input                clk,
-    input                cen,
+    input                    rst,
+    input                    clk,
+    input                    cen,
 
-    input                r_wn,
-    input                cs,
-    input         [ 7:0] din,
-    output reg           ready,
-    output signed [11:0] snd_l,
-    output signed [11:0] snd_r
+    input                    r_wn,
+    input                    cs,
+    input                    a0,
+    input             [ 7:0] din,
+    output                   ready,
+    output reg signed [11:0] snd
 );
 
-reg         [10:0] tone, noise;
-// wire        [9:0] att0, att1, att2;
-// assign   att0 = att1 = att2 = tone;
+reg  signed [10:0] tone, noise;
+wire        [ 1:0] cs_n, rdy;
+
+assign ready = &rdy;
+assign cs_n = ~({2{cs}} & {a0, ~a0});
 
 always @(posedge clk, posedge rst) begin
-    snd_l <= { {1{tone[10]}}, tone } + { {1{noise[10]}}, noise };
-    snd_r <= { {1{tone[10]}}, tone } + { {1{noise[10]}}, noise };
+    if( rst ) begin
+        snd <= 0;
+    end else begin
+        snd <= {tone[10], tone } + {noise[10], noise };
+    end
 end
 
-/*always @(posedge clk, posedge rst) begin
-        snd_l <= { {2{att0[9]}}, att0 } + { {2{att1[9]}}, att1 } + { {2{att2[9]}}, att2 } + { {2{noise[9]}}, noise };
-        snd_r <= { {2{att0[9]}}, att0 } + { {2{att1[9]}}, att1 } + { {2{att2[9]}}, att2 } + { {2{noise[9]}}, noise };
-    end
-end*/
-
-
-jt89 u_jt89right(
+jt89 u_jt89_0(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .clk_en ( cen       ),
     .wr_n   ( r_wn      ),
-    .cs_n   ( cs        ),
+    .cs_n   ( cs_n[0]   ),
     .din    ( din       ),
     .sound  ( noise     ),
-    .ready  ( ready     )
+    .ready  ( rdy[0]    )
 );
 
-jt89 u_jt89left(
+jt89 u_jt89_1(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .clk_en ( cen       ),
     .wr_n   ( r_wn      ),
-    .cs_n   ( cs        ),
+    .cs_n   ( cs_n[1]   ),
     .din    ( din       ),
     .sound  ( tone      ),
-    .ready  ( ready     )
+    .ready  ( rdy[1]    )
 );
 
 endmodule
