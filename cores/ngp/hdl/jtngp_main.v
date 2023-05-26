@@ -20,6 +20,7 @@ module jtngp_main(
     input               rst,
     input               clk,
     input               cen6,
+    input               phi1_cen,
 
     input               lvbl,
 
@@ -157,6 +158,7 @@ jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),
+    .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
     .int4       ( int4      ),

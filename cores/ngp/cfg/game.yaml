@@ -4,6 +4,7 @@ game:
       - jtngp_game.v
       - jtngp_main.v
       - jt95c061.v
+      - jt95c061_timer.v
       - jtngp_chram.v
       - jtngp_clocks.v
       - jtngp_video.v

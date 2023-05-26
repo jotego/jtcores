@@ -1,9 +1,13 @@
 clocks:
   clk48:
-    - freq: 6144000
+    - freq:  6144000
       outputs:
         - cen6
         - cen3
+    - freq: 12500000
+      outputs:
+        - phi1_cen
+        - nc
 sdram:
   banks:
     -

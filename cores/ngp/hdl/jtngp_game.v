@@ -62,6 +62,7 @@ jtngp_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen6       ( cen6      ),
+    .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
     .lvbl       ( LVBL      ),

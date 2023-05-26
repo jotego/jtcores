@@ -22,6 +22,7 @@ module jt95c061(
     input                 rst,
     input                 clk,
     input                 cen,
+    input                 phi1_cen, // 12.5 MHz, phi1 and phi2 on TMP95C061.pdf page 73
 
     input                 int4,
     input                 int5,
@@ -53,12 +54,24 @@ reg         irq;
 reg  [10:0] adc_cnt;
 reg         inta_en, nx_intaen;
 
+// timers
+reg  [9:0] prescaler;
+wire [3:0] tout, tover;
 // ADC
 wire adc_bsy, adc_end;
 reg  adc_go;
 
 localparam      ADC_BSY = 6,
                 ADC_END = 7;
+// prescaler indexes
+localparam      T0   = 0,
+                T1   = 1,
+                T2   = 2,
+                T4   = 3,
+                T8   = 4,
+                T16  = 5,
+                T32  = 6,
+                T256 = 9;
 
 // memory mapper
 // MSA registers set the starting address, counting in 64kB pages
@@ -70,6 +83,15 @@ localparam [6:0]
                  PA      = 7'h1E,
                  PACR    = 7'h2C,
                  PAFC    = 7'h2D,
+                 // Timers
+                 TRUN    = 7'h20,
+                 TREG0   = 7'h22,
+                 TREG1   = 7'h23,
+                 T01MOD  = 7'h24,
+                 TFFCR   = 7'h25,
+                 TREG2   = 7'h26,
+                 TREG3   = 7'h27,
+                 T23MOD  = 7'h28,
                  // 34~37 event capture, ignored
                  MSAR0   = 7'h3C, // set to 20 by NGPC firmware
                  MAMR0   = 7'h3D, // set to FF by NGPC firmware
@@ -115,7 +137,8 @@ assign port_cs = addr[23:7]==0;
 assign intrq = 0;
 assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
 assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
-assign porta_dout = mmr[PA][3:0];
+assign porta_dout = { mmr[PAFC][3] ? tout[3] : mmr[PA][3],
+                      mmr[PAFC][2] ? tout[1] : mmr[PA][2], mmr[PA][1:0] };
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -208,6 +231,10 @@ if( inttc3& mmr[INTTC23][7] )
     wire int5_ff   = mmr[INTE45 ][7];
     wire int4_ff   = mmr[INTE45 ][3];
     wire int0_ff   = mmr[INTE0AD][3];
+    wire [7:0] treg3  = mmr[TREG3];
+    wire [7:0] t23mod = mmr[T23MOD];
+    wire [7:0] trun   = mmr[TRUN];
+    wire [7:0] tffcr  = mmr[TFFCR];
     reg [21:0] act_l;
     always @(posedge clk) begin
         act_l <= act;
@@ -288,6 +315,35 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// prescaler & timers
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        prescaler <= 0;
+    end else if( phi1_cen ) begin
+        if( mmr[TRUN][7] )
+            prescaler <= prescaler + 1'd1;
+        else
+            prescaler <= 0;
+    end
+end
+
+jt95c061_timer u_timers[3:0](
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .clk_muxin  ( { prescaler[T256], prescaler[T16], prescaler[T1], tover[2], // timer 3
+                    prescaler[T16],  prescaler[T4],  prescaler[T1], 1'b0,     // timer 2
+                    prescaler[T256], prescaler[T16], prescaler[T1], tover[0], // timer 1
+                    prescaler[T16],  prescaler[T4],  prescaler[T1], 1'b0 /* pin TI0 */ } ), // timer 0
+    .clk_muxsel ( {mmr[T23MOD][3:0],mmr[T01MOD][3:0] }          ),
+    .ff_ctrl    ( {mmr[TFFCR][7:4],4'd0,mmr[TFFCR][3:0],4'd0}   ),
+    .cntmax     ( {mmr[TREG3],mmr[TREG2],mmr[TREG1],mmr[TREG0]} ),
+    .run        ( mmr[TRUN][3:0]                                ),
+    .daisy_over ( { tover[2],1'b0, tover[0], 1'b0 }             ),
+    .over       ( tover                                         ),
+    .tout       ( tout                                          )
+);
+
 always @(posedge clk) begin
     map_cs <= pre_map_cs;
 end
@@ -298,11 +354,17 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         for( k=0; k<64; k=k+1 ) mmr[k] <= 0;
         // Fake ADC
-        mmr[ADREG0H] <=8'hff;   // channel 0 is the battery, we give it a high reading
-        mmr[ADREG0L] <=8'hff;
+        mmr[ADREG0H] <= 8'hff;   // channel 0 is the battery, we give it a high reading
+        mmr[ADREG0L] <= 8'hff;
+        mmr[PACR]    <= 8'h0c;   // Port A bits 3,2 set as timer outputs TO3, TO1
+        mmr[PAFC]    <= 8'h0c;
         adc_go <= 0;
         adc_cnt <= 0;
     end else begin
+        // bits active for 1 clock cycle only, leave this at the top
+        mmr[TFFCR][7:6] <= 3;
+        mmr[TFFCR][3:2] <= 3;
+        // port writes by CPU
         if( port_cs && cen ) begin
             if( addr[6:0]==ADMOD ) begin
                 if( we[1] ) begin
