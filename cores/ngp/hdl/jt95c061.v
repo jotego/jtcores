@@ -264,28 +264,28 @@ always @* begin // TMP95C061.pdf pages 12, 19
     nx_act   = act;
     // If all are set to the same level, priority is given by the vector
     // address: smaller addresses are served first
-    if( mmr[INTTC23][7] && mmr[INTTC23][6:4]>nx_ilvl ) { nx_act[00], nx_iaddr, nx_ilvl } = { 1'b1, 8'h80, mmr[INTTC23][6:4] }; else
-    if( mmr[INTTC23][3] && mmr[INTTC23][2:0]>nx_ilvl ) { nx_act[01], nx_iaddr, nx_ilvl } = { 1'b1, 8'h7C, mmr[INTTC23][2:0] }; else
-    if( mmr[INTTC01][7] && mmr[INTTC01][6:4]>nx_ilvl ) { nx_act[02], nx_iaddr, nx_ilvl } = { 1'b1, 8'h78, mmr[INTTC01][6:4] }; else
-    if( mmr[INTTC01][3] && mmr[INTTC01][2:0]>nx_ilvl ) { nx_act[03], nx_iaddr, nx_ilvl } = { 1'b1, 8'h74, mmr[INTTC01][2:0] }; else
-    if( mmr[INTE0AD][7] && mmr[INTE0AD][6:4]>nx_ilvl ) { nx_act[04], nx_iaddr, nx_ilvl } = { 1'b1, 8'h70, mmr[INTE0AD][6:4] }; else
-    if( mmr[INTES1 ][7] && mmr[INTES1 ][6:4]>nx_ilvl ) { nx_act[05], nx_iaddr, nx_ilvl } = { 1'b1, 8'h6C, mmr[INTES1 ][6:4] }; else
-    if( mmr[INTES1 ][3] && mmr[INTES1 ][2:0]>nx_ilvl ) { nx_act[06], nx_iaddr, nx_ilvl } = { 1'b1, 8'h68, mmr[INTES1 ][2:0] }; else
-    if( mmr[INTES0 ][7] && mmr[INTES0 ][6:4]>nx_ilvl ) { nx_act[07], nx_iaddr, nx_ilvl } = { 1'b1, 8'h64, mmr[INTES0 ][6:4] }; else
-    if( mmr[INTES0 ][3] && mmr[INTES0 ][2:0]>nx_ilvl ) { nx_act[08], nx_iaddr, nx_ilvl } = { 1'b1, 8'h60, mmr[INTES0 ][2:0] }; else
-    if( mmr[INTET67][7] && mmr[INTET67][6:4]>nx_ilvl ) { nx_act[09], nx_iaddr, nx_ilvl } = { 1'b1, 8'h5C, mmr[INTET67][6:4] }; else
-    if( mmr[INTET67][3] && mmr[INTET67][2:0]>nx_ilvl ) { nx_act[10], nx_iaddr, nx_ilvl } = { 1'b1, 8'h58, mmr[INTET67][2:0] }; else
-    if( mmr[INTET45][7] && mmr[INTET45][6:4]>nx_ilvl ) { nx_act[11], nx_iaddr, nx_ilvl } = { 1'b1, 8'h54, mmr[INTET45][6:4] }; else
-    if( mmr[INTET45][3] && mmr[INTET45][2:0]>nx_ilvl ) { nx_act[12], nx_iaddr, nx_ilvl } = { 1'b1, 8'h50, mmr[INTET45][2:0] }; else
-    if( mmr[INTET23][7] && mmr[INTET23][6:4]>nx_ilvl ) { nx_act[13], nx_iaddr, nx_ilvl } = { 1'b1, 8'h4C, mmr[INTET23][6:4] }; else
-    if( mmr[INTET23][3] && mmr[INTET23][2:0]>nx_ilvl ) { nx_act[14], nx_iaddr, nx_ilvl } = { 1'b1, 8'h48, mmr[INTET23][2:0] }; else
-    if( mmr[INTET01][7] && mmr[INTET01][6:4]>nx_ilvl ) { nx_act[15], nx_iaddr, nx_ilvl } = { 1'b1, 8'h44, mmr[INTET01][6:4] }; else
-    if( mmr[INTET01][3] && mmr[INTET01][2:0]>nx_ilvl ) { nx_act[16], nx_iaddr, nx_ilvl } = { 1'b1, 8'h40, mmr[INTET01][2:0] }; else
-    if( mmr[INTE67 ][7] && mmr[INTE67 ][6:4]>nx_ilvl ) { nx_act[17], nx_iaddr, nx_ilvl } = { 1'b1, 8'h38, mmr[INTE67 ][6:4] }; else
-    if( mmr[INTE67 ][3] && mmr[INTE67 ][2:0]>nx_ilvl ) { nx_act[18], nx_iaddr, nx_ilvl } = { 1'b1, 8'h34, mmr[INTE67 ][2:0] }; else
-    if( mmr[INTE45 ][7] && mmr[INTE45 ][6:4]>nx_ilvl ) { nx_act[19], nx_iaddr, nx_ilvl } = { 1'b1, 8'h30, mmr[INTE45 ][6:4] }; else
-    if( mmr[INTE45 ][3] && mmr[INTE45 ][2:0]>nx_ilvl ) { nx_act[20], nx_iaddr, nx_ilvl } = { 1'b1, 8'h2c, mmr[INTE45 ][2:0] }; else
-    if( mmr[INTE0AD][3] && mmr[INTE0AD][2:0]>nx_ilvl ) { nx_act[21], nx_iaddr, nx_ilvl } = { 1'b1, 8'h28, mmr[INTE0AD][2:0] };
+    if( mmr[INTTC23][7] && mmr[INTTC23][6:4]>nx_ilvl && mmr[INTTC23][6:4]!=7 ) { nx_act[00], nx_iaddr, nx_ilvl } = { 1'b1, 8'h80, mmr[INTTC23][6:4] }; else
+    if( mmr[INTTC23][3] && mmr[INTTC23][2:0]>nx_ilvl && mmr[INTTC23][2:0]!=7 ) { nx_act[01], nx_iaddr, nx_ilvl } = { 1'b1, 8'h7C, mmr[INTTC23][2:0] }; else
+    if( mmr[INTTC01][7] && mmr[INTTC01][6:4]>nx_ilvl && mmr[INTTC01][6:4]!=7 ) { nx_act[02], nx_iaddr, nx_ilvl } = { 1'b1, 8'h78, mmr[INTTC01][6:4] }; else
+    if( mmr[INTTC01][3] && mmr[INTTC01][2:0]>nx_ilvl && mmr[INTTC01][2:0]!=7 ) { nx_act[03], nx_iaddr, nx_ilvl } = { 1'b1, 8'h74, mmr[INTTC01][2:0] }; else
+    if( mmr[INTE0AD][7] && mmr[INTE0AD][6:4]>nx_ilvl && mmr[INTE0AD][6:4]!=7 ) { nx_act[04], nx_iaddr, nx_ilvl } = { 1'b1, 8'h70, mmr[INTE0AD][6:4] }; else
+    if( mmr[INTES1 ][7] && mmr[INTES1 ][6:4]>nx_ilvl && mmr[INTES1 ][6:4]!=7 ) { nx_act[05], nx_iaddr, nx_ilvl } = { 1'b1, 8'h6C, mmr[INTES1 ][6:4] }; else
+    if( mmr[INTES1 ][3] && mmr[INTES1 ][2:0]>nx_ilvl && mmr[INTES1 ][2:0]!=7 ) { nx_act[06], nx_iaddr, nx_ilvl } = { 1'b1, 8'h68, mmr[INTES1 ][2:0] }; else
+    if( mmr[INTES0 ][7] && mmr[INTES0 ][6:4]>nx_ilvl && mmr[INTES0 ][6:4]!=7 ) { nx_act[07], nx_iaddr, nx_ilvl } = { 1'b1, 8'h64, mmr[INTES0 ][6:4] }; else
+    if( mmr[INTES0 ][3] && mmr[INTES0 ][2:0]>nx_ilvl && mmr[INTES0 ][2:0]!=7 ) { nx_act[08], nx_iaddr, nx_ilvl } = { 1'b1, 8'h60, mmr[INTES0 ][2:0] }; else
+    if( mmr[INTET67][7] && mmr[INTET67][6:4]>nx_ilvl && mmr[INTET67][6:4]!=7 ) { nx_act[09], nx_iaddr, nx_ilvl } = { 1'b1, 8'h5C, mmr[INTET67][6:4] }; else
+    if( mmr[INTET67][3] && mmr[INTET67][2:0]>nx_ilvl && mmr[INTET67][2:0]!=7 ) { nx_act[10], nx_iaddr, nx_ilvl } = { 1'b1, 8'h58, mmr[INTET67][2:0] }; else
+    if( mmr[INTET45][7] && mmr[INTET45][6:4]>nx_ilvl && mmr[INTET45][6:4]!=7 ) { nx_act[11], nx_iaddr, nx_ilvl } = { 1'b1, 8'h54, mmr[INTET45][6:4] }; else
+    if( mmr[INTET45][3] && mmr[INTET45][2:0]>nx_ilvl && mmr[INTET45][2:0]!=7 ) { nx_act[12], nx_iaddr, nx_ilvl } = { 1'b1, 8'h50, mmr[INTET45][2:0] }; else
+    if( mmr[INTET23][7] && mmr[INTET23][6:4]>nx_ilvl && mmr[INTET23][6:4]!=7 ) { nx_act[13], nx_iaddr, nx_ilvl } = { 1'b1, 8'h4C, mmr[INTET23][6:4] }; else
+    if( mmr[INTET23][3] && mmr[INTET23][2:0]>nx_ilvl && mmr[INTET23][2:0]!=7 ) { nx_act[14], nx_iaddr, nx_ilvl } = { 1'b1, 8'h48, mmr[INTET23][2:0] }; else
+    if( mmr[INTET01][7] && mmr[INTET01][6:4]>nx_ilvl && mmr[INTET01][6:4]!=7 ) { nx_act[15], nx_iaddr, nx_ilvl } = { 1'b1, 8'h44, mmr[INTET01][6:4] }; else
+    if( mmr[INTET01][3] && mmr[INTET01][2:0]>nx_ilvl && mmr[INTET01][2:0]!=7 ) { nx_act[16], nx_iaddr, nx_ilvl } = { 1'b1, 8'h40, mmr[INTET01][2:0] }; else
+    if( mmr[INTE67 ][7] && mmr[INTE67 ][6:4]>nx_ilvl && mmr[INTE67 ][6:4]!=7 ) { nx_act[17], nx_iaddr, nx_ilvl } = { 1'b1, 8'h38, mmr[INTE67 ][6:4] }; else
+    if( mmr[INTE67 ][3] && mmr[INTE67 ][2:0]>nx_ilvl && mmr[INTE67 ][2:0]!=7 ) { nx_act[18], nx_iaddr, nx_ilvl } = { 1'b1, 8'h34, mmr[INTE67 ][2:0] }; else
+    if( mmr[INTE45 ][7] && mmr[INTE45 ][6:4]>nx_ilvl && mmr[INTE45 ][6:4]!=7 ) { nx_act[19], nx_iaddr, nx_ilvl } = { 1'b1, 8'h30, mmr[INTE45 ][6:4] }; else
+    if( mmr[INTE45 ][3] && mmr[INTE45 ][2:0]>nx_ilvl && mmr[INTE45 ][2:0]!=7 ) { nx_act[20], nx_iaddr, nx_ilvl } = { 1'b1, 8'h2c, mmr[INTE45 ][2:0] }; else
+    if( mmr[INTE0AD][3] && mmr[INTE0AD][2:0]>nx_ilvl && mmr[INTE0AD][2:0]!=7 ) { nx_act[21], nx_iaddr, nx_ilvl } = { 1'b1, 8'h28, mmr[INTE0AD][2:0] };
     // NMI
     if( nmi_rq ) begin
         nx_ilvl = 7;
@@ -408,8 +408,8 @@ always @(posedge clk, posedge rst) begin
         if( irq_ack && act[16] ) mmr[INTET01][3] <= 0;
         if( irq_ack && act[17] ) mmr[INTE67 ][7] <= 0;
         if( irq_ack && act[18] ) mmr[INTE67 ][3] <= 0;
-        if( irq_ack && act[19] ) mmr[INTE45 ][7] <= 0;
-        if( irq_ack && act[20] ) mmr[INTE45 ][3] <= 0;
+        if( irq_ack && act[19] ) mmr[INTE45 ][7] <= 0; // INT5 enable
+        if( irq_ack && act[20] ) mmr[INTE45 ][3] <= 0; // INT4 enable
         if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
         // interrupt set
         if( int4 ) mmr[INTE45][3] <= 1;
