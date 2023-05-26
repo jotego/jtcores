@@ -37,3 +37,6 @@ wp 20,1,w,1,{printf "TRUN = %X", wpdata }
 wp 2C,2,w,1,{printf "writes to MCU port A CR/FC regs (port A config)"}
 wp 27,1,w,1,{printf "TREG3 = %X",  wpdata }
 wp 28,1,w,1,{printf "T23MOD = %X", wpdata }
+// NGP ports
+wp 80,40,r,1,{printf "NGP port %X read",wpaddr; go}
+wp 80,40,w,1,{printf "NGP port %X <- %X",wpaddr,wpdata; go}

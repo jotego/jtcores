@@ -23,7 +23,7 @@ module jtngp_game(
 wire [15:1] cpu_addr;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
 wire [15:0] cpu_dout, gfx_dout, shd_dout;
-wire [ 7:0] sub_comm;
+wire [ 7:0] snd_latch, main_latch;
 wire [ 1:0] we, shd_we;
 wire        gfx_cs;
 wire        cpu_cen, snd_cen, snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
@@ -87,6 +87,8 @@ jtngp_main u_main(
     .snd_dacl   ( snd_dacl  ),
     .snd_dacr   ( snd_dacr  ),
     .main_int5  ( main_int5 ),
+    .snd_latch  ( snd_latch ),
+    .main_latch ( main_latch),
 
     // Cartridge
     .flash0_cs  (           ),
@@ -112,7 +114,8 @@ jtngp_snd u_snd(
     .main_din   ( shd_dout  ),
     .main_we    ( shd_we    ),
     .main_int5  ( main_int5 ),
-    .comm       ( sub_comm  ),      // where do we store these 8 bits?
+    .snd_latch  ( snd_latch ),
+    .main_latch ( main_latch),
     .irq_ack    ( snd_ack   ),
     .nmi        ( snd_nmi   ),
     .irq        ( snd_irq   ),

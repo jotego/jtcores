@@ -28,13 +28,14 @@ module jtngp_snd(
     output        [15:0] main_din,
     input         [ 1:0] main_we,
     output               main_int5,
-    input         [ 7:0] comm,      // where do we store these 8 bits?
     input                nmi,
     input                irq,
     output               irq_ack,
 
-    input  signed [ 7:0] snd_dacl, snd_dacr,
+    input         [ 7:0] snd_latch,
+    output reg    [ 7:0] main_latch,
 
+    input  signed [ 7:0] snd_dacl, snd_dacr,
 
     output               sample,
     output signed [15:0] snd_l, snd_r
@@ -62,8 +63,9 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    cpu_din <=  latch_cs ? comm :
+    cpu_din <=  latch_cs ? snd_latch :
                 ram_cs   ? (cpu_addr[0] ? ram_msb : ram_lsb ) : 8'h00;
+    if( !wr_n && latch_cs ) main_latch <= cpu_dout;
 end
 
 // jtframe_edge #(.QSET(0)) u_mainint(

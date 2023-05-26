@@ -56,6 +56,8 @@ reg         inta_en, nx_intaen;
 
 // timers
 reg  [9:0] prescaler;
+reg  [5:0] adj;         // frequency adjustment for prescaler to match MAME results
+                        // instead of the TMP95C061 datasheet
 wire [3:0] tout, tover;
 // ADC
 wire adc_bsy, adc_end;
@@ -320,11 +322,12 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         prescaler <= 0;
+        adj <= 0;
     end else if( phi1_cen ) begin
         if( mmr[TRUN][7] )
-            prescaler <= prescaler + 1'd1;
+            { prescaler, adj } <= { prescaler, adj } + 1'd1;
         else
-            prescaler <= 0;
+            { prescaler, adj } <= 0;
     end
 end
 
