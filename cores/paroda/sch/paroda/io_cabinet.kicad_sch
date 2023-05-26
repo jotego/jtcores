@@ -4328,7 +4328,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 23e3251a-4b6c-430a-bbb9-c341f3726673)
   )
-  (hierarchical_label "BANK0~{CS}" (shape input) (at 68.58 170.18 180)
+  (hierarchical_label "~{OUTCS}" (shape input) (at 68.58 170.18 180)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 30996bfc-30b6-495d-82dc-28221f35e92c)
   )
