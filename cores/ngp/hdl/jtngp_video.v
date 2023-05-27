@@ -55,7 +55,7 @@ wire [ 4:0] multi_cen;
 wire [ 1:0] video_cen, dsn;
 
 // Memory map
-reg   fix_cs, obj_cs,  obj2_cs, pal_cs,
+reg   ram_cs, obj_cs,  obj2_cs, pal_cs,
       scr1_cs,  scr2_cs, regs_cs;
 // video access
 wire [15:0] scr1_data, scr2_data, obj_data;
@@ -95,7 +95,7 @@ always @* begin
     obj2_cs = gfx_cs && in_range(14'h0C00,14'h0C40);
     scr1_cs = gfx_cs && in_range(14'h1000,14'h1800);
     scr2_cs = gfx_cs && in_range(14'h1800,14'h2000);
-    fix_cs  = gfx_cs && in_range(14'h2000,14'h0000); // 2000-4000
+    ram_cs  = gfx_cs && cpu_addr[13:1] >= 13'h1000; // 2000-4000
 end
 
 always @(posedge clk) begin
@@ -103,9 +103,9 @@ always @(posedge clk) begin
                scr1_cs  ? scr1_dout :
                scr2_cs  ? scr2_dout :
                regs_cs  ? regs_dout :
-               fix_cs   ? fix_dout : obj_dout;
+               ram_cs   ? fix_dout : obj_dout;
 end
-
+/* verilator tracing_off */
 jtngp_clocks u_clocks(
     .status     ( status    ),
     // 24 MHz domain
@@ -170,7 +170,7 @@ jtngp_chram u_chram(
     .cpu_din    ( fix_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .dsn        ( dsn       ),
-    .fix_cs     ( fix_cs    ),
+    .ram_cs     ( ram_cs    ),
     // video access
     .obj_rd     ( obj_rd    ),
     .obj_ok     ( obj_ok    ),

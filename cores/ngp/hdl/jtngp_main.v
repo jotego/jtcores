@@ -141,7 +141,7 @@ always @(posedge clk) begin
            // snd_cs   ?  :
 end
 
-jtframe_ram16 #(.AW(12)) u_ram0(
+jtframe_ram16 #(.AW(12),.VERBOSE(1),.VERBOSE_OFFSET('h4000)) u_ram0(
     .clk    ( clk           ),
     .data   ( cpu_dout      ),
     .addr   ( addr[12:1]    ),
@@ -149,7 +149,7 @@ jtframe_ram16 #(.AW(12)) u_ram0(
     .q      ( ram0_dout     )
 );
 
-jtframe_ram16 #(.AW(11)) u_ram1(
+jtframe_ram16 #(.AW(11),.VERBOSE(1),.VERBOSE_OFFSET('h6000)) u_ram1(
     .clk    ( clk           ),
     .data   ( cpu_dout      ),
     .addr   ( addr[11:1]    ),

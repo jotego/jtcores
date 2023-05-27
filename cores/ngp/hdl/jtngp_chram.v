@@ -24,7 +24,7 @@ module jtngp_chram(
     output     [15:0] cpu_din,
     input      [15:0] cpu_dout,
     input      [ 1:0] dsn,
-    input             fix_cs,
+    input             ram_cs,
     // video access
     input             obj_rd,
     output reg        obj_ok,
@@ -43,7 +43,7 @@ reg  [12:1] chram_addr;
 wire [15:0] chram_dout;
 reg  [ 1:0] st;
 
-assign we = ~dsn & {2{fix_cs}};
+assign we = ~dsn & {2{ram_cs}};
 
 always @* begin
     case( st )

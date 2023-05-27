@@ -261,10 +261,10 @@ uint8_t ngp_state::ngp_io_r(offs_t offset)
 
 	switch (offset)
 	{
-	case 0x30:  /* Read controls */
+	case 0x30:  /* Read controls - B0 */
 		data = m_io_controls->read();
 		break;
-	case 0x31:
+	case 0x31: /* B1 */
 		data = m_io_power->read() & 0x01;
 		/* Sub-batttery OK */
 		data |= 0x02;
