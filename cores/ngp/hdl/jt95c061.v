@@ -292,7 +292,8 @@ always @* begin // TMP95C061.pdf pages 12, 19
     if( nmi_rq ) begin
         nx_ilvl = 7;
         nx_act  = 0;
-        nx_intaen = 0;
+        nx_intaen = 1;
+        nx_iaddr  = 'h20;
     end else begin
         nx_intaen = |{nx_act, inta_en};
     end
@@ -434,7 +435,11 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jt900h #(.PC_RSTVAL(32'hFF1800)) u_cpu(
+// To do: jt900h should read the reset vector
+// the rst vector for NGP and NGPC is different
+localparam NGP_RST=32'hFF1DE8;
+
+jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),

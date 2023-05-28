@@ -63,7 +63,7 @@ reg  [15:0] io_dout;
 reg         ram0_cs, ram1_cs,
             shd_cs,  io_cs,
             int4;
-reg  [ 7:0] ngp_ports [0:63];
+reg  [ 7:0] ngp_ports[0:63]; // mapped to 80~BF
 wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
 wire        cpu_cen;
@@ -86,9 +86,11 @@ endfunction
 
 always @* begin
     case( addr[5:1] )
-        5'b11_000: io_dout = { 8'd3, 1'b0, /*poweron*/1'b0, ~joystick1 }; // B0
+        5'b11_000: io_dout = { 7'b1,
+                               1'b0, // power button: it should be zero for it to power up
+             /* lower byte: */ 2'd0, ~joystick1 }; // B0-B1
         5'b11_110: io_dout = { 8'd0, main_latch}; // written by the z80
-        default:   io_dout = 0;
+        default:   io_dout = { ngp_ports[{addr[5:1],1'b1}], ngp_ports[{addr[5:1],1'b0}] };
     endcase
 end
 
@@ -104,7 +106,7 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         poweron <= 0;
-        pwr_cnt <= 0;
+        pwr_cnt <= 8;
     end else begin
         if( int4 && !poweron ) { poweron, pwr_cnt } <= { 1'b0, pwr_cnt } + 1'd1;
     end
@@ -127,6 +129,9 @@ always @(posedge clk, posedge rst) begin
             if( we[1] && addr[5:1]==5'b11_100 ) { snd_rstn, snd_nmi } <= { cpu_dout[8], 1'b0 }; // B9
             if( we[0] && addr[5:1]==5'b11_101 ) snd_nmi  <= 1;       // BA
             if( we[0] && addr[5:1]==5'b11_110 ) snd_latch <= cpu_dout[7:0]; // BC
+            // assume that all ports are readable back
+            if( we[0] ) ngp_ports[ { addr[5:1],1'b0} ] <= cpu_dout[ 7:0];
+            if( we[1] ) ngp_ports[ { addr[5:1],1'b1} ] <= cpu_dout[15:8];
         end
     end
 end
@@ -141,7 +146,10 @@ always @(posedge clk) begin
            // snd_cs   ?  :
 end
 
-jtframe_ram16 #(.AW(12),.VERBOSE(1),.VERBOSE_OFFSET('h4000)) u_ram0(
+jtframe_ram16 #(
+    .AW(12)
+    // ,.VERBOSE(1),.VERBOSE_OFFSET('h4000)
+) u_ram0(
     .clk    ( clk           ),
     .data   ( cpu_dout      ),
     .addr   ( addr[12:1]    ),
@@ -149,7 +157,10 @@ jtframe_ram16 #(.AW(12),.VERBOSE(1),.VERBOSE_OFFSET('h4000)) u_ram0(
     .q      ( ram0_dout     )
 );
 
-jtframe_ram16 #(.AW(11),.VERBOSE(1),.VERBOSE_OFFSET('h6000)) u_ram1(
+jtframe_ram16 #(
+    .AW(11)
+    // ,.VERBOSE(1),.VERBOSE_OFFSET('h6000)
+) u_ram1(
     .clk    ( clk           ),
     .data   ( cpu_dout      ),
     .addr   ( addr[11:1]    ),
@@ -174,8 +185,7 @@ jt95c061 u_mcu(
     // interrupt sources
     .int4       ( int4      ),
     .int5       ( main_int5 ),
-    //.nmi        ( poweron   ),
-    .nmi        ( 1'b0      ),
+    .nmi        ( poweron   ),
     .porta_dout ( porta_dout),
 
     .addr       ( addr      ),
