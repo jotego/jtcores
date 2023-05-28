@@ -53,4 +53,5 @@ comadd ff20bb,"copy $12 bytes from ROM to RAM @ 6fb8"
 comadd ff1a24,"countdown wait for BC=$B4 to $0"
 comadd ff1a14,"countdown wait for BC=$B4 to $0"
 comadd ff1a1f,"read power button"
-bpset ff1a1f,1,{printf "checks power button"}
+bpset ff1a1f,1,{printf "checks power button";go}
+bpset ff1ae6
