@@ -68,7 +68,7 @@ wire [ 7:0] hoffset, voffset,
             scr2_hpos, scr2_vpos,
             view_width, view_height,
             view_startx,view_starty;
-wire        scr_order=0;
+wire        scr_order;
 
 wire [ 4:0] obj_pxl;
 wire [ 2:0] scr1_pxl, scr2_pxl;
@@ -84,8 +84,6 @@ endfunction
 
 assign snd_cen  = multi_cen[1];
 assign cpu_cen  = multi_cen[0]; // fixed for now
-assign hoffset  = 0;
-assign voffset  = 0;
 assign dsn      = ~we;
 
 always @* begin

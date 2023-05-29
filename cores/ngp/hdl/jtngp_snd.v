@@ -42,18 +42,19 @@ module jtngp_snd(
 );
 
 wire [15:0] cpu_addr;
+wire signed [11:0] snd_psg;
 wire [ 1:0] ram_bwe;
 reg  [ 7:0] cpu_din;
 wire [ 7:0] ram_lsb, ram_msb, cpu_dout;
 reg         ram_cs, psg_cs, latch_cs, intset_cs;
-wire        wr_n, m1_n, mreq_n, iorq_n;
+wire        wr_n, m1_n, mreq_n, iorq_n, rdy;
 
 assign sample  = 0;
-assign snd_l   = { snd_dacl, 8'd0 };
-assign snd_r   = { snd_dacr, 8'd0 };
 assign ram_bwe = {2{ram_cs&~wr_n}} & { cpu_addr[0], ~cpu_addr[0] };
 assign irq_ack = !m1_n && !iorq_n;
 assign main_int5 = intset_cs;
+assign snd_l = { snd_dacl[7], snd_dacl, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
+assign snd_r = { snd_dacr[7], snd_dacr, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
 
 always @* begin
     ram_cs    = !mreq_n && cpu_addr[15:14]==0;
@@ -68,13 +69,18 @@ always @(posedge clk) begin
     if( !wr_n && latch_cs ) main_latch <= cpu_dout;
 end
 
-// jtframe_edge #(.QSET(0)) u_mainint(
-//     .rst    ( ~rstn     ),
-//     .clk    ( clk       ),
-//     .edgeof ( intset_cs ),
-//     .clr    ( ~iorq_n   ),
-//     .q      ( main_int5 )
-// );
+jtngp_psg u_psg(
+    .rst    ( ~rstn         ),
+    .clk    ( clk           ),
+    .cen    ( cen3          ),
+
+    .r_wn   ( wr_n          ),
+    .cs     ( psg_cs        ),
+    .a0     ( cpu_addr[0]   ),
+    .din    ( cpu_dout      ),
+    .ready  ( rdy           ),
+    .snd    ( snd_psg       )
+);
 
 jtframe_dual_ram #(.AW(11)) u_ramlow(
     // Port 0

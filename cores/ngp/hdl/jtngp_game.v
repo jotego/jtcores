@@ -27,7 +27,7 @@ wire [ 7:0] snd_latch, main_latch;
 wire [ 1:0] we, shd_we;
 wire        gfx_cs;
 wire        cpu_cen, snd_cen, snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
-wire        hirq, virq, snd_nmi, main_int5;
+wire        hirq, virq, main_int5;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
 

@@ -29,7 +29,7 @@ module jtngp_psg(
     output reg signed [11:0] snd
 );
 
-reg  signed [10:0] tone, noise;
+wire signed [10:0] tone, noise;
 wire        [ 1:0] cs_n, rdy;
 
 assign ready = &rdy;

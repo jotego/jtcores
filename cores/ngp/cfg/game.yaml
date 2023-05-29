@@ -12,6 +12,8 @@ game:
       - jtngp_scroll.v
       - jtngp_obj.v
       - jtngp_colmix.v
+      - jtngp_snd.v
+      - jtngp_psg.v
 jtframe:
   - get:
       - jtframe_edge.v

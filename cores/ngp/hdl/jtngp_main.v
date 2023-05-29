@@ -51,7 +51,7 @@ module jtngp_main(
     output reg   [ 7:0] snd_dacl, snd_dacr,
 
     // Firmware access
-    output              rom_cs,
+    output reg          rom_cs,
     input        [15:0] rom_data,
     input               rom_ok
 );
@@ -61,12 +61,12 @@ wire [23:0] addr;
 wire [15:0] ram0_dout, ram1_dout;
 reg  [15:0] io_dout;
 reg         ram0_cs, ram1_cs,
-            shd_cs,  io_cs,
-            int4;
+            shd_cs,  io_cs;
 reg  [ 7:0] ngp_ports[0:63]; // mapped to 80~BF
 wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
-wire        cpu_cen;
+wire        cpu_cen,
+            int4;
 reg         poweron;
 reg  [ 3:0] pwr_cnt;
 wire [ 3:0] porta_dout;
