@@ -148,7 +148,8 @@ end
 
 jtframe_ram16 #(
     .AW(12)
-    // ,.VERBOSE(1),.VERBOSE_OFFSET('h4000)
+`ifdef DUMP_RAM
+    ,.VERBOSE(1),.VERBOSE_OFFSET('h4000) `endif
 ) u_ram0(
     .clk    ( clk           ),
     .data   ( cpu_dout      ),
@@ -159,7 +160,8 @@ jtframe_ram16 #(
 
 jtframe_ram16 #(
     .AW(11)
-    // ,.VERBOSE(1),.VERBOSE_OFFSET('h6000)
+`ifdef DUMP_RAM
+    ,.VERBOSE(1),.VERBOSE_OFFSET('h6000) `endif
 ) u_ram1(
     .clk    ( clk           ),
     .data   ( cpu_dout      ),

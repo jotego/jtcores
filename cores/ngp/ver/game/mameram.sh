@@ -5,3 +5,6 @@ cat debug.log | tr [:upper:] [:lower:] > writes.emu
 #delete lines starting with a character or with >
 sed -i '/^[a-z>]/d' writes.emu
 rm -f debug.log
+
+echo "Generate the simulation file with simram.sh. Then, run this command:"
+echo "sdiff -d writes.emu writes.sim > d"

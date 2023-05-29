@@ -393,28 +393,30 @@ always @(posedge clk, posedge rst) begin
             end
         end
         // interrupt flip flop
-        if( irq_ack && act[00] ) mmr[INTTC23][7] <= 0;
-        if( irq_ack && act[01] ) mmr[INTTC23][3] <= 0;
-        if( irq_ack && act[02] ) mmr[INTTC01][7] <= 0;
-        if( irq_ack && act[03] ) mmr[INTTC01][3] <= 0;
-        if( irq_ack && act[04] ) mmr[INTE0AD][7] <= 0;
-        if( irq_ack && act[05] ) mmr[INTES1 ][7] <= 0;
-        if( irq_ack && act[06] ) mmr[INTES1 ][3] <= 0;
-        if( irq_ack && act[07] ) mmr[INTES0 ][7] <= 0;
-        if( irq_ack && act[08] ) mmr[INTES0 ][3] <= 0;
-        if( irq_ack && act[09] ) mmr[INTET67][7] <= 0;
-        if( irq_ack && act[10] ) mmr[INTET67][3] <= 0;
-        if( irq_ack && act[11] ) mmr[INTET45][7] <= 0;
-        if( irq_ack && act[12] ) mmr[INTET45][3] <= 0;
-        if( irq_ack && act[13] ) mmr[INTET23][7] <= 0;
-        if( irq_ack && act[14] ) mmr[INTET23][3] <= 0;
-        if( irq_ack && act[15] ) mmr[INTET01][7] <= 0;
-        if( irq_ack && act[16] ) mmr[INTET01][3] <= 0;
-        if( irq_ack && act[17] ) mmr[INTE67 ][7] <= 0;
-        if( irq_ack && act[18] ) mmr[INTE67 ][3] <= 0;
-        if( irq_ack && act[19] ) mmr[INTE45 ][7] <= 0; // INT5 enable
-        if( irq_ack && act[20] ) mmr[INTE45 ][3] <= 0; // INT4 enable
-        if( irq_ack && act[21] ) mmr[INTE0AD][3] <= 0;
+        if( irq_ack ) begin
+            if( act[00] ) mmr[INTTC23][7] <= 0; else
+            if( act[01] ) mmr[INTTC23][3] <= 0; else
+            if( act[02] ) mmr[INTTC01][7] <= 0; else
+            if( act[03] ) mmr[INTTC01][3] <= 0; else
+            if( act[04] ) mmr[INTE0AD][7] <= 0; else
+            if( act[05] ) mmr[INTES1 ][7] <= 0; else
+            if( act[06] ) mmr[INTES1 ][3] <= 0; else
+            if( act[07] ) mmr[INTES0 ][7] <= 0; else
+            if( act[08] ) mmr[INTES0 ][3] <= 0; else
+            if( act[09] ) mmr[INTET67][7] <= 0; else
+            if( act[10] ) mmr[INTET67][3] <= 0; else
+            if( act[11] ) mmr[INTET45][7] <= 0; else
+            if( act[12] ) mmr[INTET45][3] <= 0; else
+            if( act[13] ) mmr[INTET23][7] <= 0; else
+            if( act[14] ) mmr[INTET23][3] <= 0; else
+            if( act[15] ) mmr[INTET01][7] <= 0; else
+            if( act[16] ) mmr[INTET01][3] <= 0; else
+            if( act[17] ) mmr[INTE67 ][7] <= 0; else
+            if( act[18] ) mmr[INTE67 ][3] <= 0; else
+            if( act[19] ) mmr[INTE45 ][7] <= 0; else // INT5 enable
+            if( act[20] ) mmr[INTE45 ][3] <= 0; else // INT4 enable
+            if( act[21] ) mmr[INTE0AD][3] <= 0;
+        end
         // interrupt set
         if( int4 ) mmr[INTE45][3] <= 1;
         if( int5 ) mmr[INTE45][7] <= 1;
