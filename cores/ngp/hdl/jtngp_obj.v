@@ -36,7 +36,7 @@ module jtngp_obj #(
     input             obj_cs,   // 64 objects, 4 bytes per object
     input             obj2_cs,  // additional byte in K2GE chip
     // Character RAM
-    output     [12:1] chram_addr,
+    output reg [12:1] chram_addr,
     input      [15:0] chram_data,
     output reg        chram_rd,
     input             chram_ok,
@@ -106,6 +106,7 @@ always @* begin
     ydelta = vrender - ypos[7:0];
     // objects that start out of the screen may be wrong, check scene #2
     inzone = ydelta < 8'h8 || (ydelta>248 && ypos[7] && vrender<8);
+    vsub   = ydelta[2:0] ^ {3{dr_attr_code[14]}}; // vflip
 end
 
 always @(posedge clk) begin
@@ -121,6 +122,7 @@ always @(posedge clk, posedge rst) begin
         dr_start  <= 0;
         hlast     <= 0;
         vlast     <= 0;
+        chram_addr<= 0;
     end else if( cen ) begin
         LHBLl <= LHBL;
         dr_start <= 0;
@@ -132,6 +134,7 @@ always @(posedge clk, posedge rst) begin
             end
             3: begin
                 if( (inzone && !dr_busy) || !inzone ) begin
+                    chram_addr <= { dr_attr_code[8:0], vsub };
                     dr_start <= inzone && !hidden;
                     hlast    <= scan_dout[7:0] + (hchain ? hlast : hoffset );
                     vlast    <= ypos;
@@ -158,7 +161,6 @@ wire [ 4:0] line_din;
 reg         buff_we;
 
 assign line_din   = { prio, pal, hflip ? obj_data[1:0] : obj_data[15:14]};
-assign chram_addr = { code, vsub };
 
 // drawing
 always @(posedge clk, posedge rst) begin
@@ -187,9 +189,7 @@ always @(posedge clk, posedge rst) begin
             end
         end else if( dr_start ) begin
             { hflip, pal, prio } <= { dr_attr_code[15], dr_attr_code[13:11] };
-            code     <= dr_attr_code[8:0];
             hpos     <= hlast;
-            vsub     <= ydelta[2:0] ^ {3{dr_attr_code[14]}}; // vflip
             dr_busy  <= 1;
             chram_rd <= 1;
             dr_cnt   <= 7;

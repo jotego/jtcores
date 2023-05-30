@@ -37,6 +37,10 @@ module jtngp_vtimer(
     output reg          virq
 );
 
+localparam HOFFSET= 48,
+           HBSTART=(160*3-1+HOFFSET)%514,
+           HBEND  =(514+HOFFSET)%514;
+
 reg [2:0] three=1;
 
 initial begin
@@ -53,13 +57,13 @@ always @(posedge clk) begin
             hirq <= 0;
             virq <= 0;
         end
-        if( hcnt==(160*3-1) ) begin
+        if( hcnt==HBSTART ) begin
             LHBL <= 0;
         end
+        if( hcnt==HBEND ) LHBL <= 1;
         if( hcnt == 500 ) HS <= 1;
         if( hcnt==514 ) begin
             HS       <= 0;
-            LHBL     <= 1;
             hdump    <= 0;
             three    <= 1;
             pxl_cen  <= 1;
