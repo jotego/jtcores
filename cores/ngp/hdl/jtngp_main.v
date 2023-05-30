@@ -55,7 +55,7 @@ module jtngp_main(
     input        [15:0] rom_data,
     input               rom_ok
 );
-
+`ifndef NOMAIN
 reg  [15:0] din;
 wire [23:0] addr;
 wire [15:0] ram0_dout, ram1_dout;
@@ -196,6 +196,12 @@ jt95c061 u_mcu(
     .we         ( we        ),
 
     .map_cs     ( map_cs    )
-);
-
+); // NOMAIN
+`else
+    assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq } = 0;
+    initial begin
+        snd_rstn = 1;
+        { gfx_cs, snd_nmi, snd_en, snd_latch, snd_dacl, snd_dacr, rom_cs } = 0;
+    end
+`endif
 endmodule

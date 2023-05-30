@@ -69,7 +69,7 @@ always @(posedge clk) begin
             vdump    <= vrender;
             virq  <= vint_en && vdump==151;
             hirq  <= hint_en && (vdump<150 || vdump==198 );
-            if( vdump==159 )
+            if( vdump==151 )
                 LVBL <= 0;
             else if( vdump==198 )
                 LVBL <= 1;

@@ -2,14 +2,6 @@
 
 for i in $*; do
     case $i in
-        -g)
-            shift
-            if [ ! -e $ROM/$1.rom ]; then
-                echo Cannot find $ROM/$1.rom
-                exit 1
-            fi
-            ln -sf $ROM/$1.rom rom.bin
-            ;;
         -s)
             shift
             SCENE=$1
@@ -40,4 +32,4 @@ if [ -n "$SCENE" ]; then
     # rm -f objram.bin charam.bin
 fi
 
-jtsim -load $OTHER
+jtsim $OTHER

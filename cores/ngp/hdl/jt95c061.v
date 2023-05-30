@@ -240,7 +240,7 @@ if( inttc3& mmr[INTTC23][7] )
     reg [21:0] act_l;
     always @(posedge clk) begin
         act_l <= act;
-        if( act != act_l ) $display("Interrupts changed to %h",act);
+        // if( act != act_l ) $display("Interrupts changed to %h",act);
     end
 `endif
 
