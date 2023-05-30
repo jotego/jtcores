@@ -39,6 +39,7 @@ module jtngp_scr #( parameter
     output reg [12:1] chram_addr,
     input      [15:0] chram_data,
     // video output
+    input             en,
     output     [ 2:0] pxl
 );
 
@@ -78,7 +79,7 @@ jtframe_dual_ram16 #(
     .q1     ( scan_dout )
 );
 
-assign pxl = { pal, hflip ? pxl_data[1:0] : pxl_data[15:14] };
+assign pxl = en ? { pal, hflip ? pxl_data[1:0] : pxl_data[15:14] } : 3'd0;
 
 // scanner
 always @(posedge clk, posedge rst) begin

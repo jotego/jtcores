@@ -29,8 +29,8 @@ module jtngp_mmr(
     input      [ 1:0] dsn,
     input             regs_cs,
     // video access
-    output reg [ 7:0] hoffset,
-    output reg [ 7:0] voffset,
+    output reg [ 7:0] hoffset,      // sprite global horizontal offset
+    output reg [ 7:0] voffset,      //               vertical
     output reg [ 7:0] scr1_hpos,
     output reg [ 7:0] scr1_vpos,
     output reg [ 7:0] scr2_hpos,

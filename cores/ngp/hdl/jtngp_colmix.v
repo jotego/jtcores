@@ -44,9 +44,8 @@ module jtngp_colmix #( parameter
 
     output      [3:0] red,
     output      [3:0] green,
-    output      [3:0] blue,
-
-    input       [3:0] gfx_en
+    output      [3:0] blue
+    // gfx_en is handled at the scroll and obj modules
 );
 
 reg  [ 2:0] pxl;
@@ -69,9 +68,9 @@ reg [2:0] bg_pal;
 
 assign cpu_din = 0;
 
-assign  scr1_blank = scr1_pxl[1:0]==0 || !gfx_en[0],
-        scr2_blank = scr2_pxl[1:0]==0 || !gfx_en[1],
-        obj_blank  = obj_pxl[1:0]==0 || prio==0 || !gfx_en[3],
+assign  scr1_blank = scr1_pxl[1:0]==0,
+        scr2_blank = scr2_pxl[1:0]==0,
+        obj_blank  = obj_pxl[1:0]==0 || prio==0,
         scr_eff    = scr_order ?
             ( !scr2_blank ? {1'b0,scr2_palout} : {1'b1,scr1_palout} ) :
             ( !scr1_blank ? {1'b0,scr1_palout} : {1'b1,scr2_palout} ),

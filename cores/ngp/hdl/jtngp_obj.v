@@ -41,7 +41,8 @@ module jtngp_obj #(
     output reg        chram_rd,
     input             chram_ok,
     // video output
-    output [PXLW-1:0] pxl
+    input             en,
+    output reg [PXLW-1:0] pxl
 );
 
 wire [ 1:0] we;
@@ -50,9 +51,15 @@ reg  [ 2:0] scan_st;
 wire [15:0] scan_dout;
 reg         LHBLl;
 wire        Hinit;
+wire [PXLW-1:0] pre_pxl;
 
 assign we    = ~dsn & {2{obj_cs}};
 assign Hinit = LHBL & ~LHBLl;
+
+always @* begin
+    pxl = pre_pxl;
+    if(!en) pxl[1:0] = 0;
+end
 
 // 256 bytes = 64 objects, extra 64 bytes in K2GE
 // the extra byte is mapped up in the BRAM
@@ -71,7 +78,7 @@ jtframe_dual_ram16 #(
     .clk1   ( clk       ),
     .data1  (           ),
     // ignoring the extra byte for now...
-    .addr1  ( { 1'b0, scan_addr^7'h7e } ), // inverts the scan order
+    .addr1  ( { 1'b0, scan_addr } ),
     .we1    ( 2'b0      ),
     .q1     ( scan_dout )
 );
@@ -79,25 +86,26 @@ jtframe_dual_ram16 #(
 
 // scan
 reg        cen = 0;
-reg  [8:0] code, hpos;
+reg  [8:0] code;
+reg  [7:0] hpos;
 reg [15:0] dr_attr_code;
-reg        hflip, vflip, pal, vchain;
+reg        hflip, vflip, pal;
 reg  [1:0] prio;
 reg  [2:0] vsub;
-reg  [8:0] ypos, ydelta, vlast, hlast;
+reg  [7:0] ypos, ydelta, vlast, hlast;
 reg        inzone, dr_start, dr_busy;
-wire       done, hchain;
+wire       done, hchain, vchain;
 wire       hidden;
 
 assign done   = &scan_addr[6:1];
-assign hchain = dr_attr_code[10];
+assign { hchain, vchain } = dr_attr_code[10:9];
 assign hidden = dr_attr_code[12:11]==0;
 
 always @* begin
-    ypos   = {1'b0,scan_dout[15:8]} + (vchain ? vlast : 9'd0) + voffset;
+    ypos   = scan_dout[15:8] + (vchain ? vlast : voffset );
     ydelta = vrender - ypos[7:0];
     // objects that start out of the screen may be wrong, check scene #2
-    inzone = ydelta < 9'h8 || (ydelta>248 && ypos[7] && vrender<8);
+    inzone = ydelta < 8'h8 || (ydelta>248 && ypos[7] && vrender<8);
 end
 
 always @(posedge clk) begin
@@ -111,30 +119,34 @@ always @(posedge clk, posedge rst) begin
         scan_st   <= 0;
         LHBLl     <= 0;
         dr_start  <= 0;
+        hlast     <= 0;
+        vlast     <= 0;
     end else if( cen ) begin
         LHBLl <= LHBL;
         dr_start <= 0;
         case( scan_st )
-            0: if( Hinit) begin
-                scan_addr <= 0;
-                scan_st   <= 1;
-            end
-            1: begin
+            2: begin
                 dr_attr_code <= scan_dout;
-                vchain       <= scan_dout[10];
-                scan_st      <= 2;
+                scan_st      <= 3;
                 scan_addr    <= scan_addr + 7'd1;
             end
-            2: begin
+            3: begin
                 if( (inzone && !dr_busy) || !inzone ) begin
-                    vlast     <= ypos;
-                    dr_start  <= inzone && !hidden;
+                    dr_start <= inzone && !hidden;
+                    hlast    <= scan_dout[7:0] + (hchain ? hlast : hoffset );
+                    vlast    <= ypos;
                     // if( !hidden && vrender<10) begin
                     //     $display("(%d) -- %d (%d) -> %d",vrender,ypos, ydelta, inzone);
                     // end
                     scan_addr <= scan_addr + 7'd1;
-                    scan_st   <= done ? 0 : 1;
+                    scan_st   <= done ? 0 : 2;
                 end
+            end
+            default: if( Hinit) begin
+                scan_addr <= 0;
+                hlast     <= 0;
+                vlast     <= 0;
+                scan_st   <= 2;
             end
         endcase
     end
@@ -166,7 +178,7 @@ always @(posedge clk, posedge rst) begin
                 end
             end else begin
                 dr_cnt <= dr_cnt - 1;
-                hpos <= hpos + 9'd1;
+                hpos <= hpos + 8'd1;
                 obj_data <= hflip ? obj_data>>2 : obj_data<<2;
                 if( dr_cnt==0 ) begin
                     dr_busy <= 0;
@@ -176,8 +188,7 @@ always @(posedge clk, posedge rst) begin
         end else if( dr_start ) begin
             { hflip, pal, prio } <= { dr_attr_code[15], dr_attr_code[13:11] };
             code     <= dr_attr_code[8:0];
-            hpos     <= {1'b0,scan_dout[7:0]} + (hchain ? hlast : 9'd0) + {1'b0,hoffset};
-            hlast    <= {1'b0,scan_dout[7:0]};
+            hpos     <= hlast;
             vsub     <= ydelta[2:0] ^ {3{dr_attr_code[14]}}; // vflip
             dr_busy  <= 1;
             chram_rd <= 1;
@@ -193,12 +204,12 @@ u_linebuffer(
     .flip   ( 1'b0      ),
     // New data writes
     .wr_data( line_din  ),
-    .wr_addr( hpos      ),
+    .wr_addr( {1'd0,hpos} ),
     .we     ( buff_we   ),
     // Old data reads (and erases)
     .rd_addr( hdump - 9'd16    ),
     .rd     ( pxl_cen   ),
-    .rd_data( pxl       )
+    .rd_data( pre_pxl   )
 );
 
 

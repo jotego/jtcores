@@ -209,6 +209,7 @@ jtngp_scr #(
     .chram_addr ( scr1_addr ),
     .chram_data ( scr1_data ),
     // video output
+    .en         ( gfx_en[0] ),
     .pxl        ( scr1_pxl  )
 );
 
@@ -235,6 +236,7 @@ jtngp_scr #(
     .chram_addr ( scr2_addr ),
     .chram_data ( scr2_data ),
     // video output
+    .en         ( gfx_en[1] ),
     .pxl        ( scr2_pxl  )
 );
 
@@ -262,6 +264,7 @@ jtngp_obj u_obj(
     .chram_rd   ( obj_rd    ),
     .chram_ok   ( obj_ok    ),
     // video output
+    .en         ( gfx_en[3] ),
     .pxl        ( obj_pxl   )
 );
 
@@ -290,8 +293,7 @@ jtngp_colmix u_colmix(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      ),
-    .gfx_en     ( gfx_en    )
+    .blue       ( blue      )
 );
 
 endmodule
