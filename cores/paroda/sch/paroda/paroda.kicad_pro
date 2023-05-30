@@ -326,36 +326,36 @@
       "main"
     ],
     [
-      "fce18e79-2cc3-4aa0-a9fd-760414886979",
-      "sound"
-    ],
-    [
       "738db462-ecf7-4782-b6c0-b51ff05271c0",
       "io_cabinet"
-    ],
-    [
-      "f4542c68-089e-4b0f-a6b3-8df02e621902",
-      "colmix"
     ],
     [
       "71593c72-d5d9-4c4f-ae59-12397f6ecdda",
       "scroll"
     ],
     [
-      "a6774e1c-13eb-4aac-8698-807248f75e99",
-      "rgb"
-    ],
-    [
       "f885c825-ca85-4fb9-83bd-a266030b7213",
       "objects"
     ],
     [
-      "8a03793f-6726-4bf5-92b8-d0b53e67a444",
-      "capacitors"
+      "f4542c68-089e-4b0f-a6b3-8df02e621902",
+      "colmix"
+    ],
+    [
+      "a6774e1c-13eb-4aac-8698-807248f75e99",
+      "rgb"
+    ],
+    [
+      "fce18e79-2cc3-4aa0-a9fd-760414886979",
+      "sound"
     ],
     [
       "f77ef12d-4fae-4492-854a-8904da97faa2",
       "pcm"
+    ],
+    [
+      "8a03793f-6726-4bf5-92b8-d0b53e67a444",
+      "capacitors"
     ],
     [
       "f18db35c-32e6-479e-aff8-5ae79fab5756",
