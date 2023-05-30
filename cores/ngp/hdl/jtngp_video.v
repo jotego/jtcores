@@ -55,7 +55,7 @@ wire [ 4:0] multi_cen;
 wire [ 1:0] video_cen, dsn;
 
 // Memory map
-reg   ram_cs, obj_cs,  obj2_cs, pal_cs,
+reg   ram_cs, obj_cs,  obj2_cs, pal_cs, palrgb_cs,
       scr1_cs,  scr2_cs, regs_cs;
 // video access
 wire [15:0] scr1_data, scr2_data, obj_data;
@@ -68,10 +68,10 @@ wire [ 7:0] hoffset, voffset,
             scr2_hpos, scr2_vpos,
             view_width, view_height,
             view_startx,view_starty;
-wire        scr_order;
+wire        scr_order, hirq_en, virq_en, lcd_neg;
 
 wire [ 4:0] obj_pxl;
-wire [ 2:0] scr1_pxl, scr2_pxl;
+wire [ 2:0] scr1_pxl, scr2_pxl, oowc;
 wire        hint_en=1, vint_en=1;
 
 wire [15:0] regs_dout, fix_dout,
@@ -87,13 +87,14 @@ assign cpu_cen  = multi_cen[0]; // fixed for now
 assign dsn      = ~we;
 
 always @* begin
-    regs_cs = gfx_cs && in_range(14'h0000,14'h00C0);
-    pal_cs  = gfx_cs && in_range(14'h0200,14'h0400);
-    obj_cs  = gfx_cs && in_range(14'h0800,14'h0900);
-    obj2_cs = gfx_cs && in_range(14'h0C00,14'h0C40);
-    scr1_cs = gfx_cs && in_range(14'h1000,14'h1800);
-    scr2_cs = gfx_cs && in_range(14'h1800,14'h2000);
-    ram_cs  = gfx_cs && cpu_addr[13:1] >= 13'h1000; // 2000-4000
+    regs_cs   = gfx_cs && in_range(14'h0000,14'h00C0);
+    pal_cs    = gfx_cs && in_range(14'h0100,14'h0118); // monochrome palette
+    palrgb_cs = gfx_cs && in_range(14'h0200,14'h0400); // color palette
+    obj_cs    = gfx_cs && in_range(14'h0800,14'h0900); // OBJ, NGP mode
+    obj2_cs   = gfx_cs && in_range(14'h0C00,14'h0C40); // OBJ, NPGC addition
+    scr1_cs   = gfx_cs && in_range(14'h1000,14'h1800); // Scroll VRAM, 1st half
+    scr2_cs   = gfx_cs && in_range(14'h1800,14'h2000); //              2nd half
+    ram_cs    = gfx_cs && cpu_addr[13:1] >= 13'h1000;  // 2000-4000 character RAM
 end
 
 always @(posedge clk) begin
@@ -103,7 +104,7 @@ always @(posedge clk) begin
                regs_cs  ? regs_dout :
                ram_cs   ? fix_dout : obj_dout;
 end
-/* verilator tracing_off */
+/* xxverilator tracing_off */
 jtngp_clocks u_clocks(
     .status     ( status    ),
     // 24 MHz domain
@@ -135,29 +136,33 @@ jtngp_vtimer u_vtimer(
 );
 
 jtngp_mmr u_mmr(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .hcnt       ( hcnt      ),
-    .vdump      ( vdump     ),
-    .LVBL       ( LVBL      ),
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .hcnt       ( hcnt        ),
+    .vdump      ( vdump       ),
+    .LVBL       ( LVBL        ),
     // CPU access
     .cpu_addr   (cpu_addr[12:1]),
-    .cpu_din    ( regs_dout ),
-    .cpu_dout   ( cpu_dout  ),
-    .dsn        ( dsn       ),
-    .regs_cs    ( regs_cs   ),
+    .cpu_din    ( regs_dout   ),
+    .cpu_dout   ( cpu_dout    ),
+    .dsn        ( dsn         ),
+    .regs_cs    ( regs_cs     ),
     // video access
-    .hoffset    ( hoffset   ),
-    .voffset    ( voffset   ),
-    .scr1_hpos  ( scr1_hpos ),
-    .scr1_vpos  ( scr1_vpos ),
-    .scr2_hpos  ( scr2_hpos ),
-    .scr2_vpos  ( scr2_vpos ),
+    .hoffset    ( hoffset     ),
+    .voffset    ( voffset     ),
+    .scr1_hpos  ( scr1_hpos   ),
+    .scr1_vpos  ( scr1_vpos   ),
+    .scr2_hpos  ( scr2_hpos   ),
+    .scr2_vpos  ( scr2_vpos   ),
     .view_width ( view_width  ),
     .view_height( view_height ), // it influences when interrupts occur too
     .view_startx( view_startx ),
     .view_starty( view_starty ),
-    .scr_order  ( scr_order )
+    .scr_order  ( scr_order   ),
+    .oowc       ( oowc        ),
+    .hirq_en    ( hirq_en     ),
+    .virq_en    ( virq_en     ),
+    .lcd_neg    ( lcd_neg     )
 );
 
 jtngp_chram u_chram(
@@ -261,9 +266,11 @@ jtngp_obj u_obj(
 );
 
 jtngp_colmix u_colmix(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    .lcd_neg    ( lcd_neg   ),
     .scr_order  ( scr_order ),
 
     // CPU access
@@ -272,6 +279,7 @@ jtngp_colmix u_colmix(
     .cpu_dout   ( cpu_dout  ),
     .we         ( we        ),
     .pal_cs     ( pal_cs    ),
+    .palrgb_cs  ( palrgb_cs ),
 
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),

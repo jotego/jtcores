@@ -39,12 +39,19 @@ module jtngp_mmr(
     output reg [ 7:0] view_height, // it influences when interrupts occur too
     output reg [ 7:0] view_startx,
     output reg [ 7:0] view_starty,
-    output reg        scr_order
+    output reg        scr_order,
+    output reg        virq_en,  // active high
+    output reg        hirq_en,
+    output reg [ 2:0] oowc,     // outside window color
+    output reg        lcd_neg   // negative/positive screen switch
 );
 
-wire [9:0] hdiff = 10'd514-hcnt;
+wire [9:0] hdiff = 10'd514-hcnt; // the value read decreases from left to right
+                                 // the LCD does not have scan lines
 
 `define SETREG(a,b) begin if(!dsn[1]) a<=cpu_dout[15:8]; if(!dsn[0]) b<=cpu_dout[7:0]; cpu_din<={a,b}; end
+`define SET8L(b)    begin if(!dsn[0]) b<=cpu_dout[ 7:0]; cpu_din<=b; end
+`define SET8H(a)    begin if(!dsn[1]) a<=cpu_dout[15:8]; cpu_din<=a; end
 
 `ifdef SIMULATION
 reg [7:0] zeroval[0:63];
@@ -67,6 +74,9 @@ initial begin
         scr1_vpos   = zeroval[6'h33];
         scr2_hpos   = zeroval[6'h34];
         scr2_vpos   = zeroval[6'h35];
+        {virq_en, hirq_en } = zeroval[6'h00][7:6];
+        lcd_neg     = zeroval[6'h12][7];
+        oowc        = zeroval[6'h12][2:0];
         $display("View window (%0d,%0d) size = %0dx%0d",view_startx,view_starty,view_width,view_height);
         $display("Sprite offset = %0d,%0d",hoffset,voffset);
         $display("SCR1 %d,%d",scr1_hpos,scr1_vpos);
@@ -98,10 +108,12 @@ always @(posedge clk, posedge rst) begin
     end else begin
         if( regs_cs ) begin
             case( cpu_addr[7:1] )
-                7'h02>>1: `SETREG(view_starty,view_startx)
-                7'h04>>1: `SETREG(view_height,view_width)
-                7'h08>>1: cpu_din <= { vdump, hdiff[9:2] };
-                7'h10>>1: cpu_din <= { 8'h0, 1'b0 /* char over*/, ~LVBL, 6'd0 };
+                7'h00>>1: if(!dsn[0]) { virq_en, hirq_en } <= cpu_dout[7:6];     // 8000
+                7'h02>>1: `SETREG(view_starty,view_startx)  // 8002
+                7'h04>>1: `SETREG(view_height,view_width)   // 8004
+                7'h08>>1: cpu_din <= { vdump, hdiff[9:2] }; // 8008
+                7'h10>>1: cpu_din <= { 8'h0, 1'b0 /* char over*/, ~LVBL, 6'd0 }; // 8010
+                7'h12>>1: if(!dsn[0]) { lcd_neg, oowc } <= { cpu_dout[7], cpu_dout[2:0] }; // 8012
                 7'h20>>1: `SETREG(voffset,hoffset) // offset for sprite position
                 7'h30>>1: begin // scroll layer order
                     if(!dsn[0]) scr_order<=cpu_dout[7];
