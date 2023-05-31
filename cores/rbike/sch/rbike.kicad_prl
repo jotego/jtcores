@@ -66,13 +66,13 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "rally bike.kicad_prl",
+    "filename": "rbike.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "rally bike.kicad_sch",
+        "name": "rbike.kicad_sch",
         "open": false,
         "window": {
           "display": 0,

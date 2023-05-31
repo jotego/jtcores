@@ -239,7 +239,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "rally bike.kicad_pro",
+    "filename": "rbike.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -316,6 +316,55 @@
     "subpart_first_id": 65,
     "subpart_id_separator": 0
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "bc311621-394b-4535-9238-fb09c46750da",
+      ""
+    ],
+    [
+      "7a6575e2-01a7-46b0-bf00-bdc567d993a6",
+      "main"
+    ],
+    [
+      "377ff918-79a1-409f-a497-261eac5e4b11",
+      "io_cabinet"
+    ],
+    [
+      "c9b35366-f97c-48fb-8455-4930421de491",
+      "scroll"
+    ],
+    [
+      "c14c30bf-37a7-4f33-a76d-85b810a08abd",
+      "objects"
+    ],
+    [
+      "cbcfc5b5-cd3a-4e32-ba89-975db11af4c4",
+      "colmix"
+    ],
+    [
+      "fd18d839-6977-4922-a5e9-d7caadfc4461",
+      "rgb"
+    ],
+    [
+      "9814ad9d-7c24-4820-8a3a-060d52095293",
+      "sound"
+    ],
+    [
+      "9e476fef-5da2-49f2-8c94-f9f6771adf08",
+      "amplifiers"
+    ],
+    [
+      "44f41e44-0225-4d78-a1e1-090b8e4a7ef5",
+      "capacitors_lu"
+    ],
+    [
+      "f1317af8-786c-4f7a-bcb6-e472c1c85c24",
+      "description"
+    ],
+    [
+      "3b8c51a9-f008-41f7-af9e-3db2f26f166b",
+      "clocks"
+    ]
+  ],
   "text_variables": {}
 }
