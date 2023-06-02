@@ -67,6 +67,7 @@ jtframe_dual_ram16 #(
     .AW         (  8          ),
     .SIMFILE_LO ("obj_lo.bin" ),
     .SIMFILE_HI ("obj_hi.bin" )
+    ,.VERBOSE(1),.VERBOSE_OFFSET('h8800)
 ) u_objram(
     // Port 0
     .clk0   ( clk       ),

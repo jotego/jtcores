@@ -25,7 +25,7 @@ bpset ff1fe9,1,{printf "some interrupt"}
 bpset ff1ff4,1,{printf "some interrupt"}
 bpset ff1f31,1,{printf "some interrupt"}
 bpset ff1f55,1,{printf "some interrupt"}
-bpset ff1e92,1,{printf "VBLANK interrupt";go}
+//bpset ff1e92,1,{printf "VBLANK interrupt";go}
 bpset ff1fae,1,{printf "some interrupt"}
 bpset ff1fca,1,{printf "some interrupt"}
 bpset ff1fd6,1,{printf "some interrupt"}
@@ -54,6 +54,6 @@ comadd ff1a24,"countdown wait for BC=$B4 to $0"
 comadd ff1a14,"countdown wait for BC=$B4 to $0"
 comadd ff1a1f,"read power button"
 bpset ff1a1f,1,{printf "checks power button";go}
-//bpset ff4a49,1,{printf "HERE!"}
-//bpset ff468c,1,{printf "HERE!"}
+bpset ff2a6d,1,{printf "HERE!"}
+//wpset 6440,2,w,wpdata==30af,{printf "HERE!"}
 go

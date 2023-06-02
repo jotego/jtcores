@@ -51,7 +51,7 @@ reg  [ 7:0] nx_iaddr, iaddr;
 reg  [21:0] act, nx_act;
 wire        irq_ack;
 reg         irq;
-reg  [10:0] adc_cnt;
+reg  [ 8:0] adc_cnt;
 reg         inta_en, nx_intaen;
 
 // timers
@@ -237,6 +237,7 @@ if( inttc3& mmr[INTTC23][7] )
     wire [7:0] t23mod = mmr[T23MOD];
     wire [7:0] trun   = mmr[TRUN];
     wire [7:0] tffcr  = mmr[TFFCR];
+    wire [7:0] admod  = mmr[ADMOD];
     reg [21:0] act_l;
     always @(posedge clk) begin
         act_l <= act;
@@ -362,7 +363,7 @@ always @(posedge clk, posedge rst) begin
         mmr[ADREG0L] <= 8'hff;
         mmr[PACR]    <= 8'h0c;   // Port A bits 3,2 set as timer outputs TO3, TO1
         mmr[PAFC]    <= 8'h0c;
-        adc_go <= 0;
+        adc_go  <= 0;
         adc_cnt <= 0;
     end else begin
         // bits active for 1 clock cycle only, leave this at the top
@@ -425,9 +426,9 @@ always @(posedge clk, posedge rst) begin
             adc_go <= 0;
             mmr[ADMOD][ADC_END] <= 0;
             mmr[ADMOD][ADC_BSY] <= 1;
-            adc_cnt <= 11'd1228 >> ~mmr[ADMOD][3]; // 12.8us for high speed, 25.6us for low
+            adc_cnt <= 9'd320 >> ~mmr[ADMOD][3]; // 12.8us for high speed, 25.6us for low
         end
-        if( adc_bsy && !adc_end ) begin // count for 48MHz clock
+        if( adc_bsy && !adc_end && phi1_cen ) begin // count for 12.5 MHz clock
             { mmr[ADMOD][ADC_END], adc_cnt } <= {1'd0, adc_cnt} - 1'd1;
         end
         if( adc_end && adc_bsy ) begin
