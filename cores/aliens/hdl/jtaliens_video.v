@@ -20,8 +20,8 @@ module jtaliens_video(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             cfg,
-    input      [ 1:0] col_cfg, cpu_prio,
+    input      [ 1:0] cfg,
+    input      [ 1:0] cpu_prio,
 
     // Base Video
     output            lhbl,
@@ -93,7 +93,7 @@ wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin;
 
-assign prio_we = prom_we & (cfg | ~prog_addr[7]);
+assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 // Aliens programs the interrupts on the sprite chip, but
 // the other games use the tilemapper chip instead
 assign cpu_irq_n = cfg==ALIENS ? obj_irqn : tile_irqn;
@@ -166,6 +166,7 @@ jtaliens_obj u_obj(    // sprite logic
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    .cfg        ( cfg       ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -201,7 +202,7 @@ jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .cfg        ( col_cfg   ),
+    .cfg        ( cfg       ),
     .cpu_prio   ( cpu_prio  ),
     .shadow     ( 1'b0      ),
 

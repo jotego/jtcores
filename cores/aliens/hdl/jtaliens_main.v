@@ -165,7 +165,7 @@ always @(posedge clk, posedge rst) begin
         eff_nmi_n <= 1;
     end else begin
         eff_nmi_n <= cfg==ALIENS ? nmi_n : 1'b1;
-        eff_bank <= cfg==1 ? bank : Aupper[3:0]; // Only Super Contra uses a latch
+        eff_bank <= cfg==SCONTRA ? bank : Aupper[3:0]; // Only Super Contra uses a latch
         if(cpu_cen) snd_irq <= 0;
         if( io_cs ) case(cfg)
             THUNDERX: begin // Thunder Cross

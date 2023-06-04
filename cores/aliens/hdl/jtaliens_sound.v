@@ -52,8 +52,8 @@ module jtaliens_sound(
 );
 `ifndef NOSOUND
 
-localparam [7:0] FMGAIN=8'h0C;
 
+reg         [ 7:0]  fmgain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
@@ -95,6 +95,7 @@ always @(*) begin
     mem_upper = mem_acc && A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
+    fmgain = 8'h0C;
     case( cfg )
         0: begin // aliens
             ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
@@ -109,6 +110,7 @@ always @(*) begin
             dac_cs    = mem_upper && A[14:12]==3; // Bxxx
             fm_cs     = mem_upper && A[14:12]==4; // Cxxx
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
+            fmgain    = 8'h10;
         end
     endcase
 end
@@ -150,8 +152,8 @@ jtframe_mixer #(.W0(16),.W1(16),.W2(12)) u_mixer(
     .ch1    ( fm_right   ),
     .ch2    ( pcm_snd    ),
     .ch3    ( 16'd0      ),
-    .gain0  ( FMGAIN     ),
-    .gain1  ( FMGAIN     ),
+    .gain0  ( fmgain     ),
+    .gain1  ( fmgain     ),
     .gain2  ( fxgain     ),
     .gain3  ( 8'd0       ),
     .mixed  ( snd        ),

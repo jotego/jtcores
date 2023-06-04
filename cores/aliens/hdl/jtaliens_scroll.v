@@ -20,7 +20,7 @@ module jtaliens_scroll(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             cfg,
+    input      [ 1:0] cfg,
 
     // Base Video
     output            lhbl,
@@ -46,9 +46,9 @@ module jtaliens_scroll(
 
 
     // Tile ROMs
-    output     [20:2] lyrf_addr,
-    output     [20:2] lyra_addr,
-    output     [20:2] lyrb_addr,
+    output reg [20:2] lyrf_addr,
+    output reg [20:2] lyra_addr,
+    output reg [20:2] lyrb_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -72,6 +72,10 @@ module jtaliens_scroll(
     output     [ 7:0] st_dout
 );
 
+localparam [1:0]    ALIENS=0,
+                    SCONTRA=1,
+                    THUNDERX=2;
+
 wire [ 7:0] lyrf_col,
             lyra_col,  lyrb_col,
             tilemap_dout, tilerom_dout;
@@ -83,17 +87,25 @@ assign lyrf_cs = gfx_en[0];
 assign lyra_cs = gfx_en[1];
 assign lyrb_cs = gfx_en[2];
 
-assign lyrf_addr = cfg ? { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] }:
-                         {       pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
-assign lyra_addr = cfg ? { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] }:
-                         {       pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
-assign lyrb_addr = cfg ? { 1'b0, pre_b[12:11], lyrb_col[4:0], pre_b[10:0] }:
-                         {       pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
+always @* begin
+    case( cfg )
+        SCONTRA: begin
+            lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] };
+            lyra_addr = { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] };
+            lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[4:0], pre_b[10:0] };
+        end
+        default: begin
+            lyrf_addr = { pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
+            lyra_addr = { pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
+            lyrb_addr = { pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
+        end
+    endcase
+end
 
 assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 function [7:0] cgate( input [7:0] c);
-    cgate = cfg ? { c[7:5], 5'd0 } : { c[7:6], 6'd0 };
+    cgate = cfg==SCONTRA ? { c[7:5], 5'd0 } : { c[7:6], 6'd0 };
 endfunction
 
 jt052109 u_tilemap(

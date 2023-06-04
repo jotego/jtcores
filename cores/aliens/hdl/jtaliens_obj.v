@@ -21,6 +21,8 @@ module jtaliens_obj(
     input             clk,
     input             pxl_cen,
 
+    input      [ 1:0] cfg,
+
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -54,9 +56,14 @@ module jtaliens_obj(
     output     [ 7:0] st_dout
 );
 
-wire [ 7:0] pal;     // OC pins
+localparam [1:0]    ALIENS=0,
+                    SCONTRA=1,
+                    THUNDERX=2;
+
+wire [ 7:0] pal, pal_eff;     // OC pins
 wire [ 8:0] xpos;
 wire [12:0] code;
+wire [13:0] code_eff;
 wire [ 3:0] ysub;
 wire [ 5:0] hzoom;
 wire        dr_start, dr_busy, hflip, vflip, hz_keep;
@@ -64,6 +71,9 @@ wire        flip=0;
 wire [18:0] pre_addr;
 
 assign blank_n = pxl[3:0]!=0 && gfx_en[3];
+
+assign pal_eff  = cfg==SCONTRA ? pal : { 1'b0, pal[6:0] };
+assign code_eff = cfg==SCONTRA ? { 1'b0, code } : { pal[7], code };
 
 always @* begin
     rom_addr = pre_addr;
@@ -120,7 +130,7 @@ jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7)) u_draw(
 
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),
-    .code       ( { pal[7], code } ),
+    .code       ( code_eff  ),
     .xpos       ( xpos      ),
     .ysub       ( ysub      ),
     .hz_keep    ( hz_keep   ),
@@ -128,7 +138,7 @@ jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7)) u_draw(
 
     .hflip      ( ~hflip    ),
     .vflip      ( vflip     ),
-    .pal        ( { 1'b0, pal[6:0] } ),
+    .pal        ( pal_eff   ),
 
     .rom_addr   ( pre_addr  ),
     .rom_cs     ( rom_cs    ),
