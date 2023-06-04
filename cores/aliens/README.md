@@ -39,14 +39,14 @@ From H15, 052125
 /ROM1CS =/NAS & A15
   + /NAS & /NINITSET & A14 & A13 & /BK3;
 /ROM2CS = /NAS & /NINITSET & /A15 &  A14 &  A13 &  BK3;
-/CHAIN = /A15 & /A14 &  A13 &  NRMRD &  A12;
+/CHAIN = NRMRD & /A15 & /A14 &  A13 & A12;
 /INCS =  NINITSET & /A15 &  A14 &  A13;
 /IOOUT = /A15 & /A14 & /A13;
 /WORKCS =/NAS & /A15 & A14 & /A13 & /A12 & A11
   + /NAS & /A15 & A14 & /A13 & WORK_COL
   + /NAS & /A15 & A14 & /A13 & /A11;
 /COLORSEL = /NAS & /A15 &  A14 & /A13 &  A12 &  A11 & /WORK_COL;
-/COLORCS = /NAS & /A15 &  A14 & /A13 &  A12 &  A11 & /WORK_COL;
+/COLORCS  = /NAS & /A15 &  A14 & /A13 &  A12 &  A11 & /WORK_COL;
  SYCS = NINITSET & /A15 & A14 & A13 & NIOCS
   + /A15 & /A14 & NIOCS;
 ```
@@ -54,14 +54,18 @@ From H15, 052125
 From H13, 052124
 
 ```
-NVRAMEN=o18 = NAS +
-      INCS & (A15+A14) +
-      /CHAIN & A11 & A10 & INCS +
-      A11 & A10 & A9 & A8 & A7 & INCS & /IOOUT & A12 +
-      /CHAIN & A11 & /A9 & /A8 & /A7 & /A6 & /A5 & /A4 & /A3 & INCS
+NVRAMEN= o18 = !(
+      NAS + INCS & (
+              (A15+A14) +
+              /CHAIN & A11 & ( A10 +
+                              (/A9 & /A8 & /A7 & /A6 & /A5 & /A4 & /A3)) +
+              A12 & A11 & A10 & A9 & A8 & A7 & /IOOUT
+      ))
 
 NOBJEN=/o19 = /NAS & /CHAIN & A11 & A10 +
        /NAS & /CHAIN & A11 & /A9 & /A8 & /A7 & /A6 & /A5 & /A4 & /A3
+NIOCS= A12 & A11 & A10 & A9 & A8 & A7 & /IOOUT
+
 ```
 
 

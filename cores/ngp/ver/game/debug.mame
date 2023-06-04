@@ -5,7 +5,7 @@ bpset ff1f8c,1,{printf "INT 5 (req by Z80)";go}
 bpset ff1faf,1,{printf "some interrupt"}
 bpset ff1fd3,1,{printf "some interrupt"}
 bpset ff1fd7,1,{printf "some interrupt"}
-bpset ff29ef,1,{printf "ADC interrupt";go}
+bpset ff29ef,1,{printf "ADC interrupt";}
 bpset ff2006,1,{printf "some interrupt"}
 bpset ff2426,1,{printf "some interrupt"}
 bpset ff1f43,1,{printf "some interrupt"}
@@ -54,6 +54,6 @@ comadd ff1a24,"countdown wait for BC=$B4 to $0"
 comadd ff1a14,"countdown wait for BC=$B4 to $0"
 comadd ff1a1f,"read power button"
 bpset ff1a1f,1,{printf "checks power button";go}
-bpset ff2a6d,1,{printf "HERE!"}
+bpset ff1d70,1,{printf "HERE!"}
 //wpset 6440,2,w,wpdata==30af,{printf "HERE!"}
-go
+//go

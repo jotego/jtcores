@@ -3,22 +3,26 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile=[ "aliens.cpp",
-    #"thunderx.cpp"
+    "thunderx.cpp"
     ]
+skip = { machines=["thunderx", "gbusters"] }
 
 [buttons]
 names = [
-    { names="Shoot standing,Shoot crouching" }
+    { machine="aliens", names="Shoot standing,Shoot crouching" },
+    { machine="thunderx", names="Shoot,Option adjust" },
+    { machine="scontra", names="Shoot,Jump" },
+    { machine="gbusters", names="Shoot,Super shot" },
 ]
 
 [header]
 info="""
-    bit   0: sound config, 0=Aliens, 1=Super Contra
-                 bit 2:1: main config,  0=Aliens, 1=Super Contra, 2=Thunder Cross"""
+    bit   0 = sound config, 0=Aliens, 1=Super Contra
+                 bits 2:1 = main config,  0=Aliens, 1=Super Contra, 2=Thunder Cross"""
 data = [
     { machine="scontra",  offset=0, data="03" },
     { machine="thunderx", offset=0, data="05" },
-    { machine="gbusters", offset=0, data="05" },
+    # { machine="gbusters", offset=0, data="05" },
 ]
 
 [dipsw]

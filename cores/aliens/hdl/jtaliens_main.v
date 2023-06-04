@@ -65,14 +65,19 @@ module jtaliens_main(
     output      [ 7:0]  st_dout
 );
 
+localparam [1:0]    ALIENS=0,
+                    SCONTRA=1,
+                    THUNDERX=2;
+
 wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din, port_in;
 reg  [ 3:0] bank;
 reg  [ 3:0] eff_bank;
 wire [15:0] A;
-reg         ram_cs, banked_cs, io_cs, pal_cs, work, init;
+reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work, init,
+            ioout, incs , chain;
 wire        dtack;  // to do: add delay for io_cs
-reg         rst_cmb;
+reg         rst_cmb, eff_nmi_n;
 
 assign dtack      = ~rom_cs | rom_ok;
 assign ram_we     = ram_cs & cpu_we;
@@ -81,7 +86,7 @@ assign st_dout    = Aupper;
 
 always @(*) begin
     case( cfg )
-        1,2: begin // Super Contra
+        SCONTRA, THUNDERX: begin
             rom_addr[17] = 0;
             rom_addr[16] = banked_cs && eff_bank[3];
             rom_addr[15] = (banked_cs && eff_bank[3]) ? eff_bank[2] : A[15];
@@ -98,16 +103,30 @@ end
 // Decoder 053326 takes as inputs A[15:10], BK4, W0C0
 // Decoder 053327 after it, takes A[10:7] for generating
 // OBJCS, VRAMCS, CRAMCS, IOCS
+wire bad_cs =
+        { 3'd0, rom_cs     } +
+        { 3'd0, pal_cs     } +
+        { 3'd0, ram_cs     } +
+        { 3'd0, io_cs      } +
+        { 3'd0, objsys_cs  } +
+        { 3'd0, tilesys_cs } > 1;
 always @(*) begin
+    ioout = 0;
+    chain = 0;
     case( cfg )
-        1,2: begin // Super Contra
-            banked_cs  = A[15:13]==3 && !cpu_we; // 6000-7FFFF
-            pal_cs     = A[15:12]==5 && A[11] && work; // CRAMCS in sch
-            ram_cs     = A[15:13]==2 && !pal_cs;
-            io_cs      = A[15:8]==8'h1f && A[7] && !A[5] && (init || cpu_we);
-            objsys_cs  = A[15:11]==5'b00111 && !rmrd && init; // 38xx-
-            tilesys_cs = (A[15:13]==3 && cpu_we) ||
-                (A[15:12]<4 && (/*!init || */(!io_cs && !objsys_cs)));
+        SCONTRA, THUNDERX: begin
+            banked_cs  = A[15:13]==3 && init; // 6000-7FFFF
+            pal_cs     = A[15:12]==5 && A[11] && ~work; // CRAMCS in sch
+            ram_cs     = A[15:13]==2 && (!A[11] || !A[12]&&A[11] || work);
+            ioout      = A[15:13]==0;
+            incs       = !init && A[15:13]==3'b011;
+            chain      = A[15:12]==4'b11 && !rmrd;
+            io_cs      = ioout && A[12:8]==5'h1f && A[7];
+            objsys_cs  = chain && A[11] && ( A[10] || A[9:3]==0 );
+            tilesys_cs = !( !incs && (
+                        A[15:14]!=0 ||
+                        chain && A[11] && (A[10] || A[9:3]==0) ||
+                        &A[12:7] && ioout ));
         end
         default: begin
             banked_cs  = /*!Aupper[4] &&*/ A[15:13]==1; // 2000-3FFFF
@@ -138,67 +157,88 @@ always @(posedge clk, posedge rst) begin
         snd_latch <= 0;
         port_in   <= 0;
         work      <= 0;
+        pmc_work  <= 0;
         prio      <= 0;
         rmrd      <= 0;
         init      <= 0; // missing this will result in garbled scroll after reset
         eff_bank  <= 0;
+        eff_nmi_n <= 1;
     end else begin
+        eff_nmi_n <= cfg==ALIENS ? nmi_n : 1'b1;
         eff_bank <= cfg==1 ? bank : Aupper[3:0]; // Only Super Contra uses a latch
         if(cpu_cen) snd_irq <= 0;
-        if( io_cs && cfg!=0 ) begin // Super Contra
-            if( cpu_we ) begin
+        if( io_cs ) case(cfg)
+            THUNDERX: begin // Thunder Cross
                 if( !A[5] ) case( A[4:2] )
                     0: begin
-                        if( cfg==1 ) begin
-                            prio <= {1'd0, cpu_dout[7]}; // 6-5 are the coin counters, ignored
-                            { work, bank } <= cpu_dout[4:0];
-                        end else begin
-                            prio <= { cpu_dout[5], cpu_dout[3] };
-                            // second WORK/PMC at bit 4 ignored
-                            work <= cpu_dout[0];
-                        end
+                        { prio[1], pmc_work, prio[0], work } <= { cpu_dout[5:3], cpu_dout[0] };
                     end
                     1: snd_latch <= cpu_dout;
                     2: snd_irq   <= 1;
                     // 3: AFR (watchdog)
+                    4: begin // COINEN
+                        case( A[1:0] )
+                            0: port_in <= { 3'b111, start_button, service, coin_input };
+                            1: port_in <= { 2'b11, joystick1[5:0] };
+                            2: port_in <= { 2'b11, joystick2[5:0] };
+                            3: port_in <= { 2'b11, joystick1[6], joystick2[6], dipsw[19:16] };
+                            default: port_in <= 8'hff;
+                        endcase
+                    end
+                    5: port_in <= A[0] ? dipsw[15:8] : dipsw[7:0];
+                    6: rmrd <= cpu_dout[0]; // To do: complete this case
+                    default:;
+                endcase
+            end
+            SCONTRA: begin
+                if( !A[5] ) case( A[4:2] )
+                    0: begin
+                        prio[1:0] <= {1'b0, cpu_dout[7]};
+                        { work, bank } <= cpu_dout[4:0];
+                    end
+                    1: snd_latch <= cpu_dout;
+                    2: snd_irq   <= 1;
+                    // 3: AFR (watchdog)
+                    4: begin // COINEN
+                        case( A[1:0] )
+                            0: port_in <= { 3'b111, start_button, service, coin_input };
+                            1: port_in <= { 2'b11, joystick1[5:0] };
+                            2: port_in <= { 2'b11, joystick2[5:0] };
+                            3: port_in <= { 2'b11, joystick1[6], joystick2[6], dipsw[19:16] };
+                            default: port_in <= 8'hff;
+                        endcase
+                    end
+                    5: port_in <= A[0] ? dipsw[15:8] : dipsw[7:0];
                     6: rmrd <= cpu_dout[0];
                     7: init <= cpu_dout[0];
                     default:;
                 endcase
-            end else if(A[4]) case( A[3:0] )
-                0: port_in <= { 3'b111, start_button, service, coin_input };
-                1: port_in <= { 2'b11, joystick1[5:0] };
-                2: port_in <= { 2'b11, joystick2[5:0] };
-                3: port_in <= { 2'b11, joystick1[6], joystick2[6], dipsw[19:16] };
-                4: port_in <= dipsw[ 7:0];
-                5: port_in <= dipsw[15:8];
-                // 8 watchdog
-                default: port_in <= 8'hff;
-            endcase
-        end
-        if( io_cs && cfg==0 ) begin // Aliens
-            if( cpu_we ) begin
-                case( A[3:0] )
-                    4'h8: begin
-                        { init, rmrd, work } <= cpu_dout[7:5];
-                        // bits 1:0 are coin counters
-                    end
-                    4'hc: begin
-                        snd_latch <= cpu_dout;
-                        snd_irq   <= 1;
-                    end
-                    default:;
+            end
+            ALIENS: begin // Aliens
+                if( cpu_we ) begin
+                    case( A[3:0] )
+                        4'h8: begin
+                            { init, rmrd, work } <= cpu_dout[7:5];
+                            // bits 1:0 are coin counters
+                        end
+                        4'hc: begin
+                            snd_latch <= cpu_dout;
+                            snd_irq   <= 1;
+                        end
+                        default:;
+                    endcase
+                end else case( A[3:0] )
+                    0: port_in <= { 3'b111, service, dipsw[19:16] };
+                    1: port_in <= { start_button[0], coin_input[0], joystick1[5:0] };
+                    2: port_in <= { start_button[1], coin_input[1], joystick2[5:0] };
+                    3: port_in <= dipsw[15:8];
+                    4: port_in <= dipsw[ 7:0];
+                    // 8 watchdog
+                    default: port_in <= 8'hff;
                 endcase
-            end else case( A[3:0] )
-                0: port_in <= { 3'b111, service, dipsw[19:16] };
-                1: port_in <= { start_button[0], coin_input[0], joystick1[5:0] };
-                2: port_in <= { start_button[1], coin_input[1], joystick2[5:0] };
-                3: port_in <= dipsw[15:8];
-                4: port_in <= dipsw[ 7:0];
-                // 8 watchdog
-                default: port_in <= 8'hff;
-            endcase
-        end
+            end
+            default:;
+        endcase
     end
 end
 
@@ -215,7 +255,7 @@ jtkcpu u_cpu(
 
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
-    .nmi_n  ( nmi_n     ),
+    .nmi_n  ( eff_nmi_n ),
     .irq_n  ( irq_n | ~dip_pause ),
     .firq_n ( 1'b1      ),
 

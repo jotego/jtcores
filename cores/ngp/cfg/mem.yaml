@@ -1,7 +1,9 @@
 clocks:
   clk48:
-    - freq:  6144000
+    - freq:  24576000
       outputs:
+        - cen24
+        - cen12
         - cen6
         - cen3
     - freq: 12500000

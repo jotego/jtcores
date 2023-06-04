@@ -238,12 +238,12 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// Interrupt handling
+// Interrupt handling - the bit mask is different in the K051960 (objects)
 jtframe_edge #(.QSET(0)) u_irq(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( ~lvbl     ),
-    .clr    (~int_en[0] ),
+    .clr    (~int_en[2] ),
     .q      ( irq_n     )
 );
 
@@ -259,7 +259,7 @@ jtframe_edge #(.QSET(0)) u_nmi(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( vdump[4:0]==4 ), // every 32 lines
-    .clr    (~int_en[2] ),
+    .clr    (~int_en[0] ),
     .q      ( nmi_n     )
 );
 

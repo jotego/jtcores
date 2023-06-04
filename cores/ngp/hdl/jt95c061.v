@@ -34,12 +34,13 @@ module jt95c061(
     input      [15:0]     din,
     output     [15:0]     dout,
     output     [ 1:0]     we,
+    input                 bus_busy,
 
     output reg [ 3:0]     map_cs  // cs[0] used as flash chip 0, cs[1] chip 1
                                   // cs[2/3] used for BIOS ROM
 );
 
-wire        port_cs;
+wire        port_cs, buserror;
 wire [15:0] din_mux;
 reg  [ 7:0] mmr[0:127];
 reg  [ 3:0] pre_map_cs;
@@ -242,6 +243,10 @@ if( inttc3& mmr[INTTC23][7] )
     always @(posedge clk) begin
         act_l <= act;
         // if( act != act_l ) $display("Interrupts changed to %h",act);
+        if( buserror ) begin
+            $display("TC900H bus error");
+            $finish;
+        end
     end
 `endif
 
@@ -451,6 +456,7 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .din        ( din_mux   ),
     .dout       ( dout      ),
     .we         ( we        ),
+    .busy       ( bus_busy  ),
 
     // interrupts
     .irq        ( irq       ),
@@ -459,6 +465,7 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .inta_en    ( inta_en   ),
     .int_addr   ( iaddr     ),
     // Register dump
+    .buserror   ( buserror  ),
     .dmp_addr   (           ),     // dump
     .dmp_dout   (           )
 );

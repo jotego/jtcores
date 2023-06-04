@@ -19,6 +19,8 @@
 module jtngp_main(
     input               rst,
     input               clk,
+    input               cen24,
+    input               cen12,
     input               cen6,
     input               phi1_cen,
 
@@ -65,20 +67,24 @@ reg         ram0_cs, ram1_cs,
 reg  [ 7:0] ngp_ports[0:63]; // mapped to 80~BF
 wire [ 1:0] ram0_we, ram1_we;
 wire [ 3:0] map_cs;
-wire        cpu_cen,
-            int4;
+wire        int4;
+// reg         cpu_cen=0;
 reg         poweron;
 reg  [ 3:0] pwr_cnt;
 wire [ 3:0] porta_dout;
+wire        bus_busy;
 
+assign bus_busy  = rom_cs & ~rom_ok;
 assign cpu_addr  = addr[15:1];
 assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
 assign ram0_we   = {2{ram0_cs}} & we,
        ram1_we   = {2{ram1_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
-assign cpu_cen   = (~rom_cs | rom_ok) & cen6;
+// assign cpu_clk   = cpu_cen & clk;
 assign snd_irq   = porta_dout[3];
+
+// always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
 function in_range( input [23:0] min, max );
     in_range = addr>=min && addr<max;
@@ -136,8 +142,8 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk) begin
-    din <= gfx_cs  ? gfx_dout  :
+always @* begin
+    din =  gfx_cs  ? gfx_dout  :
            rom_cs  ? rom_data  :
            ram0_cs ? ram0_dout :
            ram1_cs ? ram1_dout :
@@ -181,7 +187,7 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cpu_cen   ),
+    .cen        ( cen12     ),  // this is still too slow...
     .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources
@@ -194,6 +200,7 @@ jt95c061 u_mcu(
     .din        ( din       ),
     .dout       ( cpu_dout  ),
     .we         ( we        ),
+    .bus_busy   ( bus_busy  ),
 
     .map_cs     ( map_cs    )
 ); // NOMAIN

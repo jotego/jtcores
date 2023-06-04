@@ -1,0 +1,4 @@
+trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x* ",pc,cc,dp,a,b,x,y,u,s}
+// simulate 5 seconds
+go

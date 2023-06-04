@@ -82,6 +82,10 @@ module jtaliens_video(
     output reg [ 7:0] st_dout
 );
 
+localparam [1:0]    ALIENS=0,
+                    SCONTRA=1,
+                    THUNDERX=2;
+
 wire [ 8:0] hdump, vdump;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj;
 wire [11:0] lyra_pxl, lyrb_pxl;
@@ -92,12 +96,12 @@ wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin;
 assign prio_we = prom_we & (cfg | ~prog_addr[7]);
 // Aliens programs the interrupts on the sprite chip, but
 // the other games use the tilemapper chip instead
-assign cpu_irq_n = cfg ? tile_irqn : obj_irqn;
-assign cpu_nmi_n = cfg ? tile_nmin : obj_nmin;
+assign cpu_irq_n = cfg==ALIENS ? obj_irqn : tile_irqn;
+assign cpu_nmi_n = cfg==ALIENS ? obj_nmin : tile_nmin;
 
 always @(posedge clk) st_dout <= debug_bus[5] ? st_obj : st_scr;
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -156,7 +160,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
