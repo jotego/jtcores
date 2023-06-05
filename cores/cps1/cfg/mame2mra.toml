@@ -88,6 +88,7 @@ rename=[
 ]
 extra=[
     { machine="pang3", name="Freeze", options="On,Off", bits="23" },
+    { setname="daimakair", name="Starting Level", options="-,-,-,-,6,6,5-2,5,4-2,4,3-2,3,2-2,2,1-2,1", bits="16,19" },
 ]
 
 [rom]
