@@ -111,7 +111,7 @@ assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | dma_ok);
 assign dma_wr_addr = dma_clr ? dma_addr : { dma_prio, dma_addr[2:0] };
 assign scan_addr = { scan_obj, scan_sub };
-assign ysub = ydiff[3:0]^{4{vflip}};
+assign ysub = ydiff[3:0];
 assign busy_g = busy_l | dr_busy;
 
 always @* begin
