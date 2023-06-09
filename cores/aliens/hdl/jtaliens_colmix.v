@@ -48,9 +48,9 @@ module jtaliens_colmix(
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
     input             shadow,
-    output reg [ 4:0] red,
-    output reg [ 4:0] green,
-    output reg [ 4:0] blue,
+    output reg [ 7:0] red,
+    output reg [ 7:0] green,
+    output reg [ 7:0] blue,
     // debug
     input      [ 7:0] debug_bus
 );
@@ -92,8 +92,13 @@ always @* begin
     end
 end
 
-function [14:0] dim( input [14:0] cin );
-    dim = !shl ? { cin[14:10]>>1, cin[9:5]>>1, cin[4:0]>>1 } : cin;
+function [23:0] dim( input [14:0] cin );
+    dim = !shl ? {    1'b0, cin[14:10], cin[14:13],
+                      1'b0, cin[ 9: 5], cin[ 9: 8],
+                      1'b0, cin[ 4: 0], cin[ 4: 3] } :
+                 { cin[14:10], cin[14:12],
+                   cin[ 9: 5], cin[ 9: 7],
+                   cin[ 4: 0], cin[ 4: 2] };
 endfunction
 
 always @(posedge clk) begin
@@ -111,7 +116,7 @@ always @(posedge clk) begin
 `endif
         if( pxl_cen ) begin
             shl <= shad;
-            {blue,green,red} <= (lvbl & lhbl ) ? dim(pxl_aux[14:0]) : 15'd0;
+            {blue,green,red} <= (lvbl & lhbl ) ? dim(pxl_aux[14:0]) : 17'd0;
             pal_half <= 0;
         end else
             pal_half <= ~pal_half;

@@ -72,9 +72,9 @@ module jtaliens_video(
     input      [31:0] lyro_data,
 
     // Color
-    output     [ 4:0] red,
-    output     [ 4:0] green,
-    output     [ 4:0] blue,
+    output     [ 7:0] red,
+    output     [ 7:0] green,
+    output     [ 7:0] blue,
 
     // Debug
     input      [ 3:0] gfx_en,
