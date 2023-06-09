@@ -110,7 +110,7 @@ always @(*) begin
             dac_cs    = mem_upper && A[14:12]==3; // Bxxx
             fm_cs     = mem_upper && A[14:12]==4; // Cxxx
             bank_cs   = mem_upper && A[14:12]==7; // Fxxx
-            fmgain    = 8'h10;
+            // fmgain    = 8'h10;
         end
     endcase
 end

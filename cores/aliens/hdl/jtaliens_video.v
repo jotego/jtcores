@@ -86,7 +86,7 @@ localparam [1:0]    ALIENS=0,
                     SCONTRA=1,
                     THUNDERX=2;
 
-wire [ 8:0] hdump, vdump;
+wire [ 8:0] hdump, vdump, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
@@ -126,6 +126,7 @@ jtaliens_scroll u_scroll(
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
+    .vrender1   ( vrender1  ),
 
     .irq_n      ( tile_irqn ),
     .firq_n     (           ),
@@ -173,7 +174,7 @@ jtaliens_obj u_obj(    // sprite logic
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
+    .vdump      ( vrender1  ),
     // CPU interface
     .cs         ( objsys_cs ),
     .cpu_addr   (cpu_addr[10:0]),

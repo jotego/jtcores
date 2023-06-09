@@ -103,6 +103,7 @@ end
 // Decoder 053326 takes as inputs A[15:10], BK4, W0C0
 // Decoder 053327 after it, takes A[10:7] for generating
 // OBJCS, VRAMCS, CRAMCS, IOCS
+`ifdef SIMULATION
 wire bad_cs =
         { 3'd0, rom_cs     } +
         { 3'd0, pal_cs     } +
@@ -110,8 +111,10 @@ wire bad_cs =
         { 3'd0, io_cs      } +
         { 3'd0, objsys_cs  } +
         { 3'd0, tilesys_cs } > 1;
+`endif
 always @(*) begin
     ioout = 0;
+    incs  = 0;
     chain = 0;
     case( cfg )
         SCONTRA, THUNDERX: begin

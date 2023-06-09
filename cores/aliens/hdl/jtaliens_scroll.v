@@ -27,7 +27,7 @@ module jtaliens_scroll(
     output            lvbl,
     output            hs,
     output            vs,
-    output     [ 8:0] hdump, vdump,
+    output     [ 8:0] hdump, vdump, vrender1,
 
     // CPU interface
     input             gfx_cs,
@@ -179,6 +179,7 @@ jt051962 u_draw(
 
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
+    .vrender1   ( vrender1  ),
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
