@@ -72,6 +72,7 @@ module jt051960(    // sprite logic
 );
 
 localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
+                  REG_SHA   = 1, // shadow register, physically i
                   REG_ROM_L = 2, // ROM address during ROM read
                   REG_ROM_H = 3,
                   REG_ROM_VH= 4;

@@ -22,7 +22,6 @@ module jtaliens_colmix(
     input             pxl_cen,
     input      [ 1:0] cfg,
     input      [ 1:0] cpu_prio,
-    input             shadow,
 
     // Base Video
     input             lhbl,
@@ -66,7 +65,7 @@ reg         pal_half;
 reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 wire [10:0] pal_addr;
-wire        shad;
+wire        shad, shadow=0;
 
 assign prio_addr = {
     cfg==SCONTRA  ? { cpu_prio[0], shadow, lyro_pxl[9:8] } :
@@ -83,8 +82,8 @@ always @* begin
         3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
     endcase else begin
         case( prio_sel ) // Aliens
-            0: pxl[7:0] = { 2'b01, lyra_pxl[11:10], lyra_pxl[3:0] };
-            1: pxl[7:0] = { 2'b10, lyrb_pxl[11:10], lyrb_pxl[3:0] };
+            0: pxl[7:0] = { 2'b01, lyra_pxl[7:6], lyra_pxl[3:0] };
+            1: pxl[7:0] = { 2'b10, lyrb_pxl[7:6], lyrb_pxl[3:0] };
             2: pxl[7:0] = lyro_pxl[7:0];
             3: pxl[7:0] = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
         endcase

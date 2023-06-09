@@ -205,7 +205,6 @@ jtaliens_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
     .cfg        ( cfg       ),
     .cpu_prio   ( cpu_prio  ),
-    .shadow     ( 1'b0      ),
 
     // Base Video
     .lhbl       ( lhbl      ),

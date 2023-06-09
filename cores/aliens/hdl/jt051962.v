@@ -149,8 +149,8 @@ always @(posedge clk) begin
 end
 
 assign lyrf_pxl = { colf[7:4],colidx(  flip, pxlf_data) };
-assign lyra_pxl = { cola,     colidx(hflipa, pxla_data) };
-assign lyrb_pxl = { colb,     colidx(hflipb, pxlb_data) };
+assign lyra_pxl = { cola[3:0], cola[7:4], colidx(hflipa, pxla_data) };
+assign lyrb_pxl = { colb[3:0], colb[7:4], colidx(hflipb, pxlb_data) };
 
 assign lyrf_blnk_n = lyrf_pxl[3:0]!=0 & gfx_en[0];
 assign lyra_blnk_n = lyra_pxl[3:0]!=0 & gfx_en[1];
