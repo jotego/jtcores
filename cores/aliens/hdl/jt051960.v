@@ -98,7 +98,10 @@ wire        busy_g;
 assign lut_we  = cs & cpu_we & cpu_addr[10];
 assign reg_we  = &{ cpu_we,cpu_addr[10:3]==0,cs};
 assign reg_rd  = &{~cpu_we,cpu_addr[10:0]==0,cs};
-assign cpu_din = { ram_dout[7:1], reg_rd ? ~vb_start_n : ram_dout[0] };
+// original hardware outputs ram_dout[7:1],
+// leaving 7'd0 for compatibility with MAME traces
+// and it also simplifies logic
+assign cpu_din = reg_rd ? { 7'd0, ~vb_start_n }  : ram_dout;
 assign int_en  = mmr[REG_CFG][2:0];
 assign flip    = mmr[REG_CFG][3];
 assign romrd   = mmr[REG_CFG][5];

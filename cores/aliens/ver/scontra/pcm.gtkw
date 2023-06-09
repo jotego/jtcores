@@ -1,0 +1,60 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sat May 13 06:55:06 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/aliens/ver/game/test.fst"
+[dumpfile_mtime] "Sat May 13 06:54:47 2023"
+[dumpfile_size] 2111132
+[savefile] "/home/jtejada/jtcores/cores/aliens/ver/game/pcm.gtkw"
+[timestart] 4326200000000
+[size] 1278 996
+[pos] -1 -1
+*-29.352118 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.u_pcm.
+[sst_width] 223
+[signals_width] 220
+[sst_expanded] 1
+[sst_vpaned_height] 292
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.u_pcm.roma_addr[16:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_cha.play
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_pcm.romb_addr[16:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_chb.loop
+TOP.game_test.u_game.u_game.u_sound.u_pcm.u_chb.play
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.snda[7:0]
+@20000
+-
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.sndb[7:0]
+@20000
+-
+@8420
+TOP.game_test.u_game.u_game.u_sound.u_pcm.snd[11:0]
+@20000
+-
+@22
+TOP.game_test.u_game.u_game.u_sound.u_pcm.cha_gain[4:0]
+TOP.game_test.u_game.u_game.u_sound.u_pcm.chb_gain[4:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.dac_cs
+@10420
+TOP.game_test.u_game.u_game.u_sound.fm_left[15:0]
+@28
+TOP.game_test.u_game.u_game.u_sound.cfg
+TOP.game_test.u_game.u_game.u_sound.ct[1:0]
+TOP.game_test.u_game.u_game.u_sound.fm_cs
+[pattern_trace] 1
+[pattern_trace] 0

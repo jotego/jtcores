@@ -49,4 +49,5 @@ order = [ "maincpu", "audiocpu", "k007232", "k052109", "k051960", "proms" ]
 
 # Skips the RAM check
 patches = [ { setname="aliens",  offset=0x2806a, value="AE AE AE" },
-            { setname="scontra", offset=0x0808e, value="68 03 83" } ] # @ 808E -> 8414
+            { setname="scontra", offset=0x0808e, value="68 03 83" },
+        ] # @ 808E -> 8414

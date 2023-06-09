@@ -19,7 +19,7 @@
 module jtaliens_main(
     input               rst,
     input               clk,
-    input               cen24,
+    input               cen_ref,
     output              cpu_cen,
 
     input       [ 1:0]  cfg,
@@ -250,13 +250,14 @@ always @(posedge clk) rst_cmb <= rst | rst8;
 jtkcpu u_cpu(
     .rst    ( rst_cmb   ),
     .clk    ( clk       ),
-    .cen2   ( cen24     ),
+    .cen2   ( cen_ref   ),
     .cen_out( cpu_cen   ),
 
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
     .nmi_n  ( eff_nmi_n ),
     .irq_n  ( irq_n | ~dip_pause ),
+    // .irq_n  ( 1'b1      ),
     .firq_n ( 1'b1      ),
 
     // memory bus
