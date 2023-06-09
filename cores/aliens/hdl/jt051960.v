@@ -58,6 +58,10 @@ module jt051960(    // sprite logic
     input             lvbl,
     input             lhbl,
 
+    // shadow
+    input      [11:0] pxl,
+    output            shadow,
+
     // draw module / 051937
     output reg        dr_start,
     input             dr_busy,
@@ -87,7 +91,7 @@ reg  [ 8:0] ydiff, ydiff_b, y, vlatch, hadd;
 reg  [ 6:0] dma_prio, scan_obj;
 reg         dma_clr, dma_done, dma_cen, inzone, lhbl_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
-wire [ 2:0] int_en;
+wire [ 2:0] int_en, sha_cfg;
 reg  [ 2:0] size;
 wire [ 7:0] romrd_bank, dma_din;
 wire [ 9:0] romrd_msb, scan_addr, dma_wr_addr;
@@ -114,6 +118,8 @@ assign dma_wr_addr = dma_clr ? dma_addr : { dma_prio, dma_addr[2:0] };
 assign scan_addr = { scan_obj, scan_sub };
 assign ysub = ydiff[3:0];
 assign busy_g = busy_l | dr_busy;
+assign sha_cfg = mmr[REG_SHA][2:0];
+assign shadow = &{(pxl[11]|sha_cfg[1]),~sha_cfg[2],pxl[3:0]}^sha_cfg[0];
 
 always @* begin
     ydiff_b= y + vlatch; // to do: add 1, flip...

@@ -49,6 +49,7 @@ module jtaliens_obj(
     output            nmi_n,
 
     output     [11:0] pxl,
+    output            shadow,
     output            blank_n,
     // Debug
     input      [ 3:0] gfx_en,
@@ -70,7 +71,7 @@ wire        dr_start, dr_busy, hflip, vflip, hz_keep;
 wire        flip=0;
 wire [18:0] pre_addr;
 
-assign blank_n = pxl[3:0]!=0 && gfx_en[3];
+assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
 
 assign pal_eff  = cfg==SCONTRA ? pal : { 1'b0, pal[6:0] };
 assign code_eff = cfg==SCONTRA ? { 1'b0, code } : { pal[7], code };
@@ -114,6 +115,10 @@ jt051960 u_scan(    // sprite logic
     .irq_n      ( irq_n     ),
     .firq_n     (           ),
     .nmi_n      ( nmi_n     ),
+
+    // Shadow
+    .pxl        ( pxl       ),
+    .shadow     ( shadow    ),
     // Debug
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )

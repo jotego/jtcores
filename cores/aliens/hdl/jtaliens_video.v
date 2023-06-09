@@ -91,7 +91,7 @@ wire [ 7:0] lyrf_pxl, st_scr, st_obj;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin;
+wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 
 assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 // Aliens programs the interrupts on the sprite chip, but
@@ -101,7 +101,7 @@ assign cpu_nmi_n = cfg==ALIENS ? obj_nmin : tile_nmin;
 
 always @(posedge clk) st_dout <= debug_bus[5] ? st_obj : st_scr;
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -161,7 +161,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -192,13 +192,14 @@ jtaliens_obj u_obj(    // sprite logic
     // pixel output
     .pxl        ( lyro_pxl  ),
     .blank_n    (lyro_blnk_n),
+    .shadow     ( shadow    ),
     // Debug
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -230,6 +231,8 @@ jtaliens_colmix u_colmix(
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
     .lyro_pxl   ( lyro_pxl  ),
+    .shadow     ( shadow    ),
+
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),

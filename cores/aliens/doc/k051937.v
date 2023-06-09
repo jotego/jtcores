@@ -334,10 +334,10 @@ assign SHAD = ^{AL196_Q, REG1[0]};
 assign AK112 = PAL_LATCH1[7] | REG1[1];
 
 
-assign SHADOWA = &{REG1[2], AK112, &{PIXELA}};
+assign SHADOWA = &{~REG1[2], AK112, &{PIXELA}};
 FDM AJ55(clk_12M, SHADOWA, AJ55_Q,);
 
-assign SHADOWB = &{REG1[2], AK112, &{PIXELB}};
+assign SHADOWB = &{~REG1[2], AK112, &{PIXELB}};
 FDM AJ135(clk_12M, SHADOWB, AJ135_Q,);
 
 FDM AH65(AJ1, &{AJ55_Q, PAIR}, RAM_C_DIN,);
@@ -447,8 +447,8 @@ wire [11:0] PARITY_SEL = K108 ? PAIR_SEL_EVEN_REG : PAIR_SEL_ODD_REG;
 always @(posedge clk_6M)
 	PARITY_SEL_REG <= PARITY_SEL;
 
-assign PCOF = ~|{~PARITY_SEL_REG[3:0]};
-assign NCO0 = ~&{~PARITY_SEL_REG[3:0]};
+assign PCOF = ~|{~PARITY_SEL_REG[3:0]}; // high if data[3:0] == 'b1111
+assign NCO0 = ~&{~PARITY_SEL_REG[3:0]}; //  low if data[3:0] == 'b0000
 
 
 // DELAYS

@@ -47,6 +47,7 @@ module jtaliens_colmix(
     input      [11:0] lyra_pxl,
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
+    input             shadow,
     output reg [ 4:0] red,
     output reg [ 4:0] green,
     output reg [ 4:0] blue,
@@ -61,11 +62,11 @@ localparam [1:0]    ALIENS=0,
 wire [ 1:0] prio_sel;
 wire [ 7:0] pal_dout;
 wire [ 7:0] prio_addr;
-reg         pal_half;
+reg         pal_half, shl;
 reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 wire [10:0] pal_addr;
-wire        shad, shadow=0;
+wire        shad;
 
 assign prio_addr = {
     cfg==SCONTRA  ? { cpu_prio[0], shadow, lyro_pxl[9:8] } :
@@ -91,12 +92,17 @@ always @* begin
     end
 end
 
+function [14:0] dim( input [14:0] cin );
+    dim = !shl ? { cin[14:10]>>1, cin[9:5]>>1, cin[4:0]>>1 } : cin;
+endfunction
+
 always @(posedge clk) begin
     if( rst ) begin
         pal_half <= 0;
         red      <= 0;
         green    <= 0;
         blue     <= 0;
+        shl      <= 0;
     end else begin
 `ifndef GRAY
         pxl_aux <= { pxl_aux[7:0], pal_dout };
@@ -104,7 +110,8 @@ always @(posedge clk) begin
         pxl_aux <= {1'b0,{3{pxl[4:0]}}};
 `endif
         if( pxl_cen ) begin
-            {blue,green,red} <= (lvbl & lhbl ) ? pxl_aux[14:0] : 15'd0;
+            shl <= shad;
+            {blue,green,red} <= (lvbl & lhbl ) ? dim(pxl_aux[14:0]) : 15'd0;
             pal_half <= 0;
         end else
             pal_half <= ~pal_half;

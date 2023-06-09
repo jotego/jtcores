@@ -259,8 +259,11 @@ jtkcpu u_cpu(
     .halt   ( 1'd0      ),
     .dtack  ( dtack     ),
     .nmi_n  ( eff_nmi_n ),
+`ifdef SIMULATION
+    .irq_n  ( 1'b1      ),
+`else
     .irq_n  ( irq_n | ~dip_pause ),
-    // .irq_n  ( 1'b1      ),
+`endif
     .firq_n ( 1'b1      ),
 
     // memory bus
