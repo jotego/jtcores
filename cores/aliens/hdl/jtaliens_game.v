@@ -57,7 +57,7 @@ end
 //     end
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -193,8 +193,11 @@ jtaliens_video u_video (
     .red            ( red           ),
     .green          ( green         ),
     .blue           ( blue          ),
-    // Test
+    // Debug
     .debug_bus      ( debug_bus     ),
+    .ioctl_addr     (ioctl_addr[14:0]),
+    .ioctl_din      ( ioctl_din     ),
+    .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )
 );

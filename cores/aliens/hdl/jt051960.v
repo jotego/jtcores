@@ -57,6 +57,7 @@ module jt051960(    // sprite logic
     input             vs,
     input             lvbl,
     input             lhbl,
+    output            flip,
 
     // shadow
     input      [11:0] pxl,
@@ -71,6 +72,10 @@ module jt051960(    // sprite logic
     output            nmi_n,
 
     // Debug
+    input      [10:0] ioctl_addr,
+    input             ioctl_ram,
+    output reg [ 7:0] ioctl_din,
+
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
 );
@@ -81,8 +86,7 @@ localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
                   REG_ROM_H = 3,
                   REG_ROM_VH= 4;
 
-wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we,
-            flip;
+wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we;
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
@@ -219,7 +223,7 @@ always @(posedge clk, posedge rst) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
-            vlatch   <= vdump;
+            vlatch   <= (vdump^{1'b0,{8{flip}}})-{8'd0,flip};
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
@@ -279,10 +283,32 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+`ifdef SIMULATION
+reg [7:0] mmr_init[0:4];
+integer f,fcnt=0;
+
+initial begin
+    f=$fopen("obj_mmr.bin","rb");
+    if( f!=0 ) begin
+        fcnt=$fread(mmr_init,f);
+        $fclose(f);
+    end
+end
+`endif
+
 // Register map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         mmr[0]  <= 8'h10; mmr[2] <= 0; mmr[3] <= 0; mmr[4]  <= 0;
+`ifdef SIMULATION
+        if( fcnt!=0 ) begin
+            mmr[0] <= mmr_init[0];
+            mmr[1] <= mmr_init[1];
+            mmr[2] <= mmr_init[2];
+            mmr[3] <= mmr_init[3];
+            mmr[4] <= mmr_init[4];
+        end
+`endif
         st_dout <= 0;
     end else begin
         if( reg_we ) begin
@@ -295,6 +321,10 @@ always @(posedge clk, posedge rst) begin
             0,2,3,4: st_dout <= mmr[debug_bus[2:0]];
             default: st_dout <= 0; // keep it to 0 so we can merge it with the output from 051937
         endcase
+        // first 1kB, VRAM, after that, MMR
+        ioctl_din <= dma_data;
+        if( ioctl_addr[10] )
+            ioctl_din <= mmr[ioctl_addr[2:0]];
     end
 end
 
@@ -323,7 +353,7 @@ jtframe_edge #(.QSET(0)) u_nmi(
     .q      ( nmi_n     )
 );
 
-jtframe_dual_ram #(.SIMFILE("obj.bin")) u_lut(
+jtframe_dual_nvram #(.SIMFILE("obj.bin")) u_lut(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),
@@ -333,8 +363,10 @@ jtframe_dual_ram #(.SIMFILE("obj.bin")) u_lut(
     // Port 1
     .clk1   ( clk            ),
     .data1  ( 8'd0           ),
-    .addr1  ( dma_addr       ),
-    .we1    ( 1'b0           ),
+    .addr1a ( dma_addr       ),
+    .addr1b ( ioctl_addr[9:0]),
+    .sel_b  ( ioctl_ram      ),
+    .we_b   ( 1'b0           ),
     .q1     ( dma_data       )
 );
 

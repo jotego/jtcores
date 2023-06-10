@@ -51,7 +51,12 @@ module jtaliens_obj(
     output     [11:0] pxl,
     output            shadow,
     output            blank_n,
+
     // Debug
+    input      [10:0] ioctl_addr,
+    input             ioctl_ram,
+    output     [ 7:0] ioctl_din,
+
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
@@ -68,7 +73,7 @@ wire [13:0] code_eff;
 wire [ 3:0] ysub;
 wire [ 5:0] hzoom;
 wire        dr_start, dr_busy, hflip, vflip, hz_keep;
-wire        flip=0;
+wire        flip;
 wire [18:0] pre_addr;
 
 assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
@@ -92,6 +97,7 @@ jt051960 u_scan(    // sprite logic
     .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
+    .flip       ( flip      ), // output
     // CPU interface
     .cs         ( cs        ),
     .cpu_addr   (cpu_addr[10:0]),
@@ -119,12 +125,18 @@ jt051960 u_scan(    // sprite logic
     // Shadow
     .pxl        ( pxl       ),
     .shadow     ( shadow    ),
+
     // Debug
+    .ioctl_addr ( ioctl_addr),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_ram  ( ioctl_ram ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )
 );
 
-jtframe_objdraw #(.CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7)) u_draw(
+jtframe_objdraw #(
+    .CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'h1C0)
+) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

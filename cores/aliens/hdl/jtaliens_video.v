@@ -77,6 +77,10 @@ module jtaliens_video(
     output     [ 7:0] blue,
 
     // Debug
+    input      [14:0] ioctl_addr,
+    input             ioctl_ram,
+    output reg [ 7:0] ioctl_din,
+
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -87,7 +91,8 @@ localparam [1:0]    ALIENS=0,
                     THUNDERX=2;
 
 wire [ 8:0] hdump, vdump, vrender1;
-wire [ 7:0] lyrf_pxl, st_scr, st_obj;
+wire [ 7:0] lyrf_pxl, st_scr, st_obj,
+            dump_scr, dump_obj, dump_pal;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
@@ -99,9 +104,25 @@ assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 assign cpu_irq_n = cfg==ALIENS ? obj_irqn : tile_irqn;
 assign cpu_nmi_n = cfg==ALIENS ? obj_nmin : tile_nmin;
 
-always @(posedge clk) st_dout <= debug_bus[5] ? st_obj : st_scr;
+// Debug
+always @(posedge clk) begin
+    st_dout <= debug_bus[5] ? st_obj : st_scr;
+    // VRAM dumps - 16+2+3 = 19kB +16 bytes = 19472 bytes
+    if( !ioctl_addr[14] )
+        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+    else if( !ioctl_addr[11] )
+        ioctl_din <= dump_pal;  // 2kB 4000~47FF
+    else if( !ioctl_addr[10] )
+        ioctl_din <= dump_obj;  // 1kB 4800~4C00
+    else if( !ioctl_addr[3] )
+        ioctl_din <= dump_scr;  // 8 bytes, MMR 4C07
+    else if (ioctl_addr[2:0]!=7)
+        ioctl_din <= dump_obj;  // 7 bytes, MMR 4C0E
+    else
+        ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
+end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -156,6 +177,10 @@ jtaliens_scroll u_scroll(
     .lyrb_pxl   ( lyrb_pxl  ),
 
     // Debug
+    .ioctl_addr ( ioctl_addr[14:0]),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_din  ( dump_scr  ),
+
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
@@ -193,7 +218,12 @@ jtaliens_obj u_obj(    // sprite logic
     .pxl        ( lyro_pxl  ),
     .blank_n    (lyro_blnk_n),
     .shadow     ( shadow    ),
+
     // Debug
+    .ioctl_addr ( ioctl_addr[10:0]),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_din  ( dump_obj  ),
+
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_obj    )
@@ -236,6 +266,12 @@ jtaliens_colmix u_colmix(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
+
+    // Debug
+    .ioctl_addr ( ioctl_addr[10:0]),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_din  ( dump_pal  ),
+
     .debug_bus  ( debug_bus )
 );
 

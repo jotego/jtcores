@@ -71,6 +71,10 @@ module jt052109(
     output reg [ 7:0] lyrb_col,
 
     // Debug
+    input      [14:0] ioctl_addr,
+    input             ioctl_ram,
+    output reg [ 7:0] ioctl_din,
+
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
 );
@@ -105,7 +109,7 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
 wire [15:0] scan_dout;
 reg  [ 7:0] mmr[0:6], col_cfg,
             vposa, vposb;
-reg  [ 8:0] hposa, hposb, heff_a, heff_b, flipk;
+reg  [ 8:0] hposa, hposb, heff_a, heff_b, flipk, vdumpf;
 wire [ 8:0] hdumpf;
 wire [ 7:0] bank0, bank1, cfg,
             code, attr, int_en,
@@ -183,17 +187,18 @@ always @* begin
     map_a[5:0] = hdumpf[8:3] + heff_a[8:3] + {5'd0,ca};
     map_b[5:0] = hdumpf[8:3] + heff_b[8:3] + {5'd0,cb};
     // V part of the scan
-    { map_a[10:6], vsub_a } = vdump[7:0] + vposa;
-    { map_b[10:6], vsub_b } = vdump[7:0] + vposb;
+    { map_a[10:6], vsub_a } = vdumpf[7:0] + vposa;
+    { map_b[10:6], vsub_b } = vdumpf[7:0] + vposb;
 
+    // scan address
     if( rd_rowscr ) begin
-        vaddr_nx = { 4'b110_1, vdump[7:3],
+        vaddr_nx = { 4'b110_1, vdumpf[7:3],
             vdump[2:0] & {3{fine_row[scrlyr_sel]}}, hdump[0] };
     end else begin case( hdump[1:0] )
-            0: vaddr_nx = { 7'b110_0000, hdumpf[8:3] + {6{flip}} }; // col. scroll
+            0: vaddr_nx = { 7'b110_0000, hdumpf[8:3] /*+ {6{flip}}*/ }; // col. scroll
             1: vaddr_nx = { 2'b01, map_a }; // tilemap A
             2: vaddr_nx = { 2'b10, map_b }; // tilemap B
-            3: vaddr_nx = { 2'b00, vdump[7:3], hdump[8:3] }; // fix
+            3: vaddr_nx = { 2'b00, vdumpf[7:3], hdumpf[8:3] }; // fix
         endcase
     end
 end
@@ -221,11 +226,35 @@ always @* begin
     end
 end
 
+`ifdef SIMULATION
+reg [7:0] mmr_init[0:6];
+integer f,fcnt=0;
+
+initial begin
+    f=$fopen("scr_mmr.bin","rb");
+    if( f!=0 ) begin
+        fcnt=$fread(mmr_init,f);
+        $fclose(f);
+    end
+end
+`endif
+
 // Register map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         mmr[0]  <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
         mmr[4]  <= 0; mmr[5] <= 0; mmr[6] <= 0;
+`ifdef SIMULATION
+        if( fcnt!=0 ) begin
+            mmr[0] <= mmr_init[0];
+            mmr[1] <= mmr_init[1];
+            mmr[2] <= mmr_init[2];
+            mmr[3] <= mmr_init[3];
+            mmr[4] <= mmr_init[4];
+            mmr[5] <= mmr_init[5];
+            mmr[6] <= mmr_init[6];
+        end
+`endif
         st_dout <= 0;
     end else begin
         if( reg_we ) begin
@@ -235,6 +264,11 @@ always @(posedge clk, posedge rst) begin
 // `endif
         end
         st_dout <= mmr[debug_bus[2:0]];
+
+        // first 16kB, VRAM, after that, MMR
+        ioctl_din <= ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
+        if( ioctl_addr[14] )
+            ioctl_din <= mmr[ioctl_addr[2:0]];
     end
 end
 
@@ -288,9 +322,11 @@ always @(posedge clk) begin
         hposb     <= 0;
         vposa     <= 0;
         vposb     <= 0;
+        vdumpf    <= 0;
     end else begin
         vaddr     <= vaddr_nx;
         rd_rowscr <= hdump<9'h4f;
+        vdumpf    <= vdump^{9{flip}};
         if( pxl_cen ) begin
             if( !rd_rowscr ) case( hdump[1:0] )
                 0: begin
@@ -301,7 +337,7 @@ always @(posedge clk) begin
                 end
                 1: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
                 2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
-                3: begin lyrf_col <= col_cfg; lyrf_addr  <= { cab, vc }; end
+                3: begin lyrf_col <= col_cfg; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
             endcase
         end else begin case( hdump[1:0] )
                 0: if( rd_hpos || rscra_en ) hposa[7:0] <= scan_dout[15:8];
@@ -313,7 +349,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_dual_ram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
+jtframe_dual_nvram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),
@@ -322,13 +358,15 @@ jtframe_dual_ram #(.AW(13),.SIMFILE("scr0.bin")) u_attr(
     .q0     ( cpu_attr       ),
     // Port 1
     .clk1   ( clk            ),
+    .addr1a ( vaddr          ),
+    .addr1b (ioctl_addr[12:0]),
+    .sel_b  ( ioctl_ram      ),
     .data1  ( 8'd0           ),
-    .addr1  ( vaddr          ),
-    .we1    ( 1'b0           ),
+    .we_b   ( 1'b0           ),
     .q1     ( scan_dout[15:8])  // color
 );
 
-jtframe_dual_ram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
+jtframe_dual_nvram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
     // Port 0: CPU
     .clk0   ( clk            ),
     .data0  ( cpu_dout       ),
@@ -337,9 +375,11 @@ jtframe_dual_ram #(.AW(13),.SIMFILE("scr1.bin")) u_code(
     .q0     ( cpu_code       ),
     // Port 1
     .clk1   ( clk            ),
+    .addr1a ( vaddr          ),
+    .addr1b (ioctl_addr[12:0]),
+    .sel_b  ( ioctl_ram      ),
     .data1  ( 8'd0           ),
-    .addr1  ( vaddr          ),
-    .we1    ( 1'b0           ),
+    .we_b   ( 1'b0           ),
     .q1     ( scan_dout[ 7:0])  // code
 );
 

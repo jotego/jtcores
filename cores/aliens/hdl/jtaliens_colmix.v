@@ -51,7 +51,12 @@ module jtaliens_colmix(
     output reg [ 7:0] red,
     output reg [ 7:0] green,
     output reg [ 7:0] blue,
-    // debug
+
+    // Debug
+    input      [10:0] ioctl_addr,
+    input             ioctl_ram,
+    output     [ 7:0] ioctl_din,
+
     input      [ 7:0] debug_bus
 );
 
@@ -74,6 +79,7 @@ assign prio_addr = {
             { 1'b0, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] },
     { lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n } };
 assign pal_addr  = { pxl, pal_half };
+assign ioctl_din = pal_dout;
 
 always @* begin
     if( cfg!=ALIENS ) case( prio_sel ) // Super Contra
@@ -116,7 +122,7 @@ always @(posedge clk) begin
 `endif
         if( pxl_cen ) begin
             shl <= shad;
-            {blue,green,red} <= (lvbl & lhbl ) ? dim(pxl_aux[14:0]) : 17'd0;
+            {blue,green,red} <= (lvbl & lhbl ) ? dim(pxl_aux[14:0]) : 24'd0;
             pal_half <= 0;
         end else
             pal_half <= ~pal_half;
@@ -134,7 +140,7 @@ jtframe_prom #(.DW(3), .AW(8)) u_prio (
 );
 
 // Aliens only uses 1kB, Super Contra uses 2kB
-jtframe_dual_ram #(.AW(11),.SIMFILE("pal.bin")) u_ram(
+jtframe_dual_nvram #(.AW(11),.SIMFILE("pal.bin")) u_ram(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout      ),
@@ -144,8 +150,10 @@ jtframe_dual_ram #(.AW(11),.SIMFILE("pal.bin")) u_ram(
     // Port 1
     .clk1   ( clk           ),
     .data1  ( 8'd0          ),
-    .addr1  ( pal_addr      ),
-    .we1    ( 1'b0          ),
+    .addr1a ( pal_addr      ),
+    .addr1b ( ioctl_addr    ),
+    .sel_b  ( ioctl_ram     ),
+    .we_b   ( 1'b0          ),
     .q1     ( pal_dout      )
 );
 

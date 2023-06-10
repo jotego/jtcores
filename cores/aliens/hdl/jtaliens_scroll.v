@@ -67,6 +67,10 @@ module jtaliens_scroll(
     output     [11:0] lyrb_pxl,
 
     // Debug
+    input      [14:0] ioctl_addr,
+    input             ioctl_ram,
+    output     [ 7:0] ioctl_din,
+
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
@@ -149,6 +153,10 @@ jt052109 u_tilemap(
     .lyrb_col   ( lyrb_col  ),
 
     // Debug
+    .ioctl_addr ( ioctl_addr),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_ram  ( ioctl_ram ),
+
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )
 );

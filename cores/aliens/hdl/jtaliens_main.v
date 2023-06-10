@@ -64,7 +64,7 @@ module jtaliens_main(
     input       [ 7:0]  debug_bus,
     output      [ 7:0]  st_dout
 );
-
+`ifndef NOMAIN
 localparam [1:0]    ALIENS=0,
                     SCONTRA=1,
                     THUNDERX=2;
@@ -273,5 +273,34 @@ jtkcpu u_cpu(
     .we     ( cpu_we    )
 );
 /* verilator tracing_on */
+`else
+    assign cpu_cen  = 0;
+    assign cpu_dout = 0;
+    assign ram_we   = 0;
+    assign cpu_we   = 0;
+    assign st_dout  = 0;
+    assign pal_we   = 0;
+    assign rom_addr = 0;
 
+    reg [7:0] prio_init[0:0];
+    integer f,fcnt=0;
+    initial begin
+        rom_cs     = 0;
+        rmrd       = 0;
+        prio       = 0;
+        tilesys_cs = 0;
+        objsys_cs  = 0;
+        snd_irq    = 0;
+        snd_latch  = 0;
+
+        f=$fopen("prio.bin","rb");
+        if( f!=0 ) begin
+            fcnt=$fread(prio_init,f);
+            $fclose(f);
+            prio = prio_init[0][1:0];
+        end else begin
+            prio = 0;
+        end
+    end
+`endif
 endmodule

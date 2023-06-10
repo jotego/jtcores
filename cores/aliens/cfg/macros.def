@@ -24,6 +24,9 @@ JTFRAME_BA2_START =0x0B8000
 JTFRAME_BA3_START =0x240000
 JTFRAME_PROM_START=0x3C0000
 
+# Debugging
+JTFRAME_IOCTL_RD=19472
+
 [mist|sidi]
 # OSD credits cannot be used when
 # DIP base is less than 13
