@@ -40,7 +40,7 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= {2'd0, prio, 3'd0, snd_cfg};
+        3: debug_mux <= {2'd0, prio, 2'd0, cpu_cfg};
     endcase
 end
 
