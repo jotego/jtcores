@@ -103,8 +103,8 @@ reg        hflipa, hflipb;
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h02F    ),
-    .HB_END     ( 9'h06F    ),  // 10.67 us in RE verilog model
+    .HB_START   ( 9'h027    ),
+    .HB_END     ( 9'h067    ),  // 10.67 us in RE verilog model
     .HS_START   ( 9'h034    ),
 
     .V_START    ( 9'h0F8    ),

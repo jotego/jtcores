@@ -126,7 +126,7 @@ assign sha_cfg = mmr[REG_SHA][2:0];
 assign shadow = &{(pxl[11]|sha_cfg[1]),~sha_cfg[2],pxl[3:0]}^sha_cfg[0];
 
 always @* begin
-    ydiff_b= y + vlatch; // to do: add 1, flip...
+    ydiff_b= y + vlatch;
     ydiff  = ydiff_b+yz_add[17-:9];
     case( size )
         0,1:   inzone = ydiff_b[8:4]==0 && ydiff[8:4]==0; // 16
@@ -223,7 +223,7 @@ always @(posedge clk, posedge rst) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
-            vlatch   <= (vdump^{1'b0,{8{flip}}})-{8'd0,flip};
+            vlatch   <= (vdump^{1'b0,{8{flip}}});
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )

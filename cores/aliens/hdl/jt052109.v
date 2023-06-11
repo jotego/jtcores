@@ -109,7 +109,7 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
 wire [15:0] scan_dout;
 reg  [ 7:0] mmr[0:6], col_cfg,
             vposa, vposb;
-reg  [ 8:0] hposa, hposb, heff_a, heff_b, flipk, vdumpf;
+reg  [ 8:0] hposa, hposb, heff_a, heff_b, vdumpf;
 wire [ 8:0] hdumpf;
 wire [ 7:0] bank0, bank1, cfg,
             code, attr, int_en,
@@ -144,11 +144,11 @@ assign { cscrb_en, rscrb_en, fine_row[1], cscra_en, rscra_en, fine_row[0] }
                    = mmr[REG_SCR][5:0];
 // read vpos when col scr is disabled
 assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
-    // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; instead?
+    // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; //instead?
 assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
-assign hdumpf      = hdump^{9{flip}};
+assign hdumpf      = rd_rowscr ? hdump : hdump^{9{flip}};
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
@@ -178,9 +178,13 @@ end
 reg ca, cb;
 
 always @* begin
-    flipk  = { {6{flip}},  1'b0, {2{flip}} };
-    heff_a = flipk + hposa - 9'd6; //{1'd0,debug_bus};
-    heff_b = flipk + hposb - 9'd6; //{1'd0,debug_bus};
+    if( flip ) begin
+        heff_a = hposa + {debug_bus[7],debug_bus};
+        heff_b = hposb + {debug_bus[7],debug_bus};
+    end else begin
+        heff_a = hposa - 9'd6;
+        heff_b = hposb - 9'd6;
+    end
     // H part of the scan
     { ca, hsub_a } = { 1'b0, hdump[2:0] } + ({1'd0,heff_a[2:0]}^{1'd0,{3{flip}}});
     { cb, hsub_b } = { 1'b0, hdump[2:0] } + ({1'd0,heff_b[2:0]}^{1'd0,{3{flip}}});
@@ -195,7 +199,7 @@ always @* begin
         vaddr_nx = { 4'b110_1, vdumpf[7:3],
             vdump[2:0] & {3{fine_row[scrlyr_sel]}}, hdump[0] };
     end else begin case( hdump[1:0] )
-            0: vaddr_nx = { 7'b110_0000, hdumpf[8:3] /*+ {6{flip}}*/ }; // col. scroll
+            0: vaddr_nx = { 7'b110_0000, hdump[8:3] }; // col. scroll
             1: vaddr_nx = { 2'b01, map_a }; // tilemap A
             2: vaddr_nx = { 2'b10, map_b }; // tilemap B
             3: vaddr_nx = { 2'b00, vdumpf[7:3], hdumpf[8:3] }; // fix
@@ -263,7 +267,19 @@ always @(posedge clk, posedge rst) begin
 //             $display("TILE mmr[%d] <= %02X (cpu_addr=%x)", cpu_addr[9:7], cpu_dout, cpu_addr);
 // `endif
         end
-        st_dout <= mmr[debug_bus[2:0]];
+        if( debug_bus[3] ) begin
+            case( debug_bus[2:0] )
+                0: st_dout <= hposa[7:0];
+                1: st_dout <= hposa[8:1];
+                2: st_dout <= vposa[7:0];
+                4: st_dout <= hposb[7:0];
+                5: st_dout <= hposb[8:1];
+                6: st_dout <= vposb[7:0];
+                7: st_dout <= { flip, 1'd0, rscra_en, rscrb_en, 2'd0, cscra_en, cscrb_en };
+            endcase
+        end else begin
+            st_dout <= mmr[debug_bus[2:0]];
+        end
 
         // first 16kB, VRAM, after that, MMR
         ioctl_din <= ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
@@ -326,7 +342,7 @@ always @(posedge clk) begin
     end else begin
         vaddr     <= vaddr_nx;
         rd_rowscr <= hdump<9'h4f;
-        vdumpf    <= vdump^{9{flip}};
+        vdumpf    <= rd_rowscr ? vdump : vdump^{9{flip}};
         if( pxl_cen ) begin
             if( !rd_rowscr ) case( hdump[1:0] )
                 0: begin
