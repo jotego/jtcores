@@ -22,7 +22,7 @@ module jtaliens_sound(
     input           cen_fm,
     input           cen_fm2,
     input   [ 1:0]  fxlevel,
-    input           cfg,        // board configuration
+    input   [ 1:0]  cfg,        // board configuration
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -52,6 +52,9 @@ module jtaliens_sound(
 );
 `ifndef NOSOUND
 
+localparam [1:0]    ALIENS=0,
+                    SCONTRA=1,
+                    THUNDERX=2;
 
 reg         [ 7:0]  fmgain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
@@ -61,7 +64,7 @@ wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, bank_cs, iock;
 wire signed [15:0]  fm_left, fm_right;
 wire                cpu_cen;
-reg                 mem_acc, mem_upper;
+reg                 mem_acc, mem_upper, pcm_swap;
 reg         [ 3:0]  pcm_bank;
 wire signed [11:0]  pcm_snd;
 wire        [ 1:0]  ct;
@@ -79,12 +82,15 @@ assign pcmb_addr[18:17] = pcm_msb[3:2];
 
 always @(posedge clk) begin
     case( cfg )
-        0: begin
+        ALIENS: begin
             pcm_msb[1:0] <= {1'b0,ct[1]};
             pcm_msb[3:2] <= {1'b0,ct[0]};
+            pcm_swap     <= 0;
         end
-        1: pcm_msb <= pcm_bank;
-        default: pcm_msb <= 0;
+        default: begin
+            pcm_msb <= pcm_bank;
+            pcm_swap     <= 1;
+        end
     endcase
 end
 
@@ -97,14 +103,14 @@ always @(*) begin
     // isn't connected on the real PCB
     fmgain = 8'h0C;
     case( cfg )
-        0: begin // aliens
+        ALIENS: begin // aliens
             ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
             fm_cs     = mem_upper && A[14:13]==1; // A/Bxxx
             latch_cs  = mem_upper && A[14:13]==2; // C/Dxxx
             dac_cs    = mem_upper && A[14:13]==3; // E/Fxxx
             bank_cs   = 0;
         end
-        1: begin // super contra, thunder cross
+        default: begin // super contra, thunder cross
             ram_cs    = mem_upper && A[14:12]==0; // 8/9xxx
             latch_cs  = mem_upper && A[14:12]==2; // Axxx
             dac_cs    = mem_upper && A[14:12]==3; // Bxxx
@@ -219,6 +225,7 @@ jt007232 #(.REG12A(0)) u_pcm(
     .cen_e      (           ),
     .wr_n       ( wr_n      ),
     .din        ( cpu_dout  ),
+    .swap_gains ( pcm_swap  ),
 
     // External memory - the original chip
     // only had one bus

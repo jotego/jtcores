@@ -30,7 +30,6 @@ wire [ 7:0] tilesys_dout, objsys_dout,
             st_main, st_video, st_snd;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-reg         snd_cfg;
 reg  [ 1:0] cpu_cfg;
 
 assign debug_view = debug_mux;
@@ -47,7 +46,7 @@ end
 
 always @(posedge clk) begin
     if( prog_addr==0 && prog_we && header )
-        { cpu_cfg, snd_cfg } <= prog_data[2:0];
+        cpu_cfg <= prog_data[2:1];
 end
 
 // always @(*) begin
@@ -57,7 +56,7 @@ end
 //     end
 // end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -108,14 +107,14 @@ jtaliens_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .fxlevel    ( dip_fxlevel   ),
-    .cfg        ( snd_cfg       ),
+    .cfg        ( cpu_cfg       ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -144,7 +143,7 @@ jtaliens_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

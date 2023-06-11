@@ -61,6 +61,7 @@ module jt007232(
     output reg        cen_q, // equivalent to NE pin
     output reg        cen_e, // equivalent to NQ pin
     // output     [ 7:0] dout,
+    input             swap_gains,   // makes ^ with REG12A below
 
     // External memory - the original chip
     // only had one bus
@@ -98,7 +99,7 @@ wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
 wire [ 1:0] cha_presel = mmr[1][5:4];
 reg         cha_play, cha_load;
 wire        cha_loop = mmr[13][0];
-wire signed [4:0] cha_gain = {1'b0, REG12A ? mmr[12][7:4] : mmr[12][3:0] };
+wire signed [4:0] cha_gain = {1'b0, REG12A^swap_gains ? mmr[12][7:4] : mmr[12][3:0] };
 
 // Channel B control
 wire [11:0] chb_pres = { mmr[7][3:0], mmr[6] };
@@ -106,7 +107,7 @@ wire [16:0] chb_addr = { mmr[10][0], mmr[9], mmr[8] };
 wire [ 1:0] chb_presel = mmr[7][5:4];
 reg         chb_play, chb_load;
 wire        chb_loop = mmr[13][1];
-wire signed [4:0] chb_gain = {1'b0, !REG12A ? mmr[12][7:4] : mmr[12][3:0] };
+wire signed [4:0] chb_gain = {1'b0, ~(REG12A^swap_gains) ? mmr[12][7:4] : mmr[12][3:0] };
 
 // assign cen_2m = 0;
 
