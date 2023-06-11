@@ -18,7 +18,7 @@
 
 module jtaliens_sound(
     input           rst,
-    input           clk,        // 24 MHz
+    input           clk,
     input           cen_fm,
     input           cen_fm2,
     input   [ 1:0]  fxlevel,

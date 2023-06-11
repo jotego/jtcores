@@ -183,7 +183,7 @@ always @(posedge clk, posedge rst) begin
             pxlb_data <= shift( hflipb, pxlb_data );
         end
 
-        if( hdump[2:0]==0 ) begin
+        if( hdump[2:0]==(flip ? 3'd4 : 3'd0) ) begin
             pxlf_data <= lyrf_data;
             colf      <= lyrf_col;
         end else begin

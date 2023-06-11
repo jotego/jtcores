@@ -186,7 +186,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -229,7 +229,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

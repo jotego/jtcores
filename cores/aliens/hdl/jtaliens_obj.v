@@ -135,7 +135,7 @@ jt051960 u_scan(    // sprite logic
 );
 
 jtframe_objdraw #(
-    .CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'h6)
+    .CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'he) // 0xE for SCR -9
 ) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),

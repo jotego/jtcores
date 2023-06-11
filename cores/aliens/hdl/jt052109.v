@@ -110,7 +110,7 @@ wire [15:0] scan_dout;
 reg  [ 7:0] mmr[0:6], col_cfg,
             vposa, vposb;
 reg  [ 8:0] hposa, hposb, heff_a, heff_b, vdumpf;
-wire [ 8:0] hdumpf;
+reg  [ 8:0] hdumpf;
 wire [ 7:0] bank0, bank1, cfg,
             code, attr, int_en,
             cpu_attr, cpu_code;
@@ -148,7 +148,6 @@ assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
 assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
-assign hdumpf      = rd_rowscr ? hdump : hdump^{9{flip}};
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
@@ -178,16 +177,14 @@ end
 reg ca, cb;
 
 always @* begin
-    if( flip ) begin
-        heff_a = hposa + {debug_bus[7],debug_bus};
-        heff_b = hposb + {debug_bus[7],debug_bus};
-    end else begin
-        heff_a = hposa - 9'd6;
-        heff_b = hposb - 9'd6;
-    end
+    hdumpf = rd_rowscr || !flip ? hdump : ~hdump-9'd4;
+    if( hdumpf > 9'h19f ) hdumpf = hdumpf-9'h180;
+    heff_a = hposa - 9'd5;
+    heff_b = hposb - 9'd5;
+
     // H part of the scan
-    { ca, hsub_a } = { 1'b0, hdump[2:0] } + ({1'd0,heff_a[2:0]}^{1'd0,{3{flip}}});
-    { cb, hsub_b } = { 1'b0, hdump[2:0] } + ({1'd0,heff_b[2:0]}^{1'd0,{3{flip}}});
+    { ca, hsub_a } = { 1'b0, hdumpf[2:0] } + {1'd0,heff_a[2:0]};
+    { cb, hsub_b } = { 1'b0, hdumpf[2:0] } + {1'd0,heff_b[2:0]};
     map_a[5:0] = hdumpf[8:3] + heff_a[8:3] + {5'd0,ca};
     map_b[5:0] = hdumpf[8:3] + heff_b[8:3] + {5'd0,cb};
     // V part of the scan
@@ -324,6 +321,9 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// integer framecnt=0;
+// integer vdumpl=0;
+
 always @(posedge clk) begin
     if( rst ) begin
         rd_rowscr <= 0;
@@ -334,14 +334,19 @@ always @(posedge clk) begin
         lyrf_addr  <= 0;
         lyra_addr <= 0;
         lyrb_addr <= 0;
-        hposa     <= 0;
-        hposb     <= 0;
+        // hposa     <= 0;
+        // hposb     <= 0;
         vposa     <= 0;
         vposb     <= 0;
         vdumpf    <= 0;
     end else begin
+// `ifdef SIMULATION
+//         vdumpl <= vdump;
+//         if( vdump==8'hfc && vdumpl!=8'hfc  ) framecnt <= framecnt+1;
+// `endif
         vaddr     <= vaddr_nx;
-        rd_rowscr <= hdump<9'h4f;
+        // rd_rowscr: 9'h27 prevents wrong data on right border on (flip mode)
+        rd_rowscr <= hdump<9'h4f && hdump>9'h27;
         vdumpf    <= rd_rowscr ? vdump : vdump^{9{flip}};
         if( pxl_cen ) begin
             if( !rd_rowscr ) case( hdump[1:0] )

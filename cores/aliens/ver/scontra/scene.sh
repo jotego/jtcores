@@ -38,4 +38,4 @@ $NULLDD of=obj_mmr.bin count=1 skip=2433 ibs=8
 # Priority config
 $NULLDD of=prio.bin count=1 skip=19471 ibs=1
 
-jtsim -sysname aliens -nosnd -d NOMAIN -video 3 -zoom $OTHER
+jtsim -sysname aliens -nosnd -d NOMAIN -video 1 -zoom $OTHER
