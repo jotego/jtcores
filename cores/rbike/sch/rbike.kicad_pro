@@ -279,7 +279,7 @@
     "page_layout_descr_file": ""
   },
   "schematic": {
-    "annotate_start_num": 40,
+    "annotate_start_num": 24,
     "drawing": {
       "default_line_thickness": 6.0,
       "default_text_size": 50.0,
@@ -338,20 +338,12 @@
       "objects"
     ],
     [
-      "cbcfc5b5-cd3a-4e32-ba89-975db11af4c4",
-      "colmix"
-    ],
-    [
-      "fd18d839-6977-4922-a5e9-d7caadfc4461",
-      "rgb"
+      "04bab2f2-7aa8-4efd-8960-613c339b8e09",
+      "colmix_rgb"
     ],
     [
       "9814ad9d-7c24-4820-8a3a-060d52095293",
       "sound"
-    ],
-    [
-      "4ed08d64-facd-4ccc-aea6-291f49b79aea",
-      "amplifiers"
     ],
     [
       "44f41e44-0225-4d78-a1e1-090b8e4a7ef5",
