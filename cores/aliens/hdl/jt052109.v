@@ -177,10 +177,12 @@ end
 reg ca, cb;
 
 always @* begin
-    hdumpf = rd_rowscr || !flip ? hdump : ~hdump-9'd4;
-    if( hdumpf > 9'h19f ) hdumpf = hdumpf-9'h180;
-    heff_a = hposa - 9'd5;
-    heff_b = hposb - 9'd5;
+    hdumpf = rd_rowscr || !flip ? hdump : ~hdump+9'd1;
+    // 20~19F range moved to 30~1AF, active video from 60~19F
+    if( hdumpf < 9'h030 ) hdumpf = hdumpf+9'h180;
+    if( hdumpf > 9'h1af ) hdumpf = hdumpf-9'h180;
+    heff_a = hposa - 9'd6;
+    heff_b = hposb - 9'd6;
 
     // H part of the scan
     { ca, hsub_a } = { 1'b0, hdumpf[2:0] } + {1'd0,heff_a[2:0]};

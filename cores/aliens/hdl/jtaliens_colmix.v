@@ -48,9 +48,9 @@ module jtaliens_colmix(
     input      [11:0] lyrb_pxl,
     input      [11:0] lyro_pxl,
     input             shadow,
-    output reg [ 7:0] red,
-    output reg [ 7:0] green,
-    output reg [ 7:0] blue,
+    output     [ 7:0] red,
+    output     [ 7:0] green,
+    output     [ 7:0] blue,
 
     // Debug
     input      [10:0] ioctl_addr,
@@ -70,6 +70,7 @@ wire [ 7:0] prio_addr;
 reg         pal_half, shl;
 reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
+reg  [23:0] bgr;
 wire [10:0] pal_addr;
 wire        shad;
 
@@ -80,6 +81,7 @@ assign prio_addr = {
     { lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n } };
 assign pal_addr  = { pxl, pal_half };
 assign ioctl_din = pal_dout;
+assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 always @* begin
     if( cfg!=ALIENS ) case( prio_sel ) // Super Contra
@@ -98,8 +100,8 @@ always @* begin
     end
 end
 
-function [23:0] dim( input [14:0] cin );
-    dim = !shl ? {    1'b0, cin[14:10], cin[14:13],
+function [23:0] dim( input [14:0] cin, input shade );
+    dim = !shade? {   1'b0, cin[14:10], cin[14:13],
                       1'b0, cin[ 9: 5], cin[ 9: 8],
                       1'b0, cin[ 4: 0], cin[ 4: 3] } :
                  { cin[14:10], cin[14:12],
@@ -110,9 +112,7 @@ endfunction
 always @(posedge clk) begin
     if( rst ) begin
         pal_half <= 0;
-        red      <= 0;
-        green    <= 0;
-        blue     <= 0;
+        bgr      <= 0;
         shl      <= 0;
     end else begin
 `ifndef GRAY
@@ -122,7 +122,7 @@ always @(posedge clk) begin
 `endif
         if( pxl_cen ) begin
             shl <= shad;
-            {blue,green,red} <= (lvbl & lhbl ) ? dim(pxl_aux[14:0]) : 24'd0;
+            bgr <= dim(pxl_aux[14:0], shl);
             pal_half <= 0;
         end else
             pal_half <= ~pal_half;

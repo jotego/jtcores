@@ -103,8 +103,8 @@ reg        hflipa, hflipb;
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h027    ),
-    .HB_END     ( 9'h067    ),  // 10.67 us in RE verilog model
+    .HB_START   ( 9'h029    ),
+    .HB_END     ( 9'h069    ),  // 10.67 us in RE verilog model
     .HS_START   ( 9'h034    ),
 
     .V_START    ( 9'h0F8    ),
@@ -183,7 +183,7 @@ always @(posedge clk, posedge rst) begin
             pxlb_data <= shift( hflipb, pxlb_data );
         end
 
-        if( hdump[2:0]==(flip ? 3'd4 : 3'd0) ) begin
+        if( hdump[2:0]==0 ) begin
             pxlf_data <= lyrf_data;
             colf      <= lyrf_col;
         end else begin

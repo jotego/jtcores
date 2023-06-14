@@ -161,7 +161,7 @@ jt052109 u_tilemap(
     .st_dout    ( st_dout   )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jt051962 u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),

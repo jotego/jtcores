@@ -107,7 +107,7 @@ jtaliens_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -143,7 +143,7 @@ jtaliens_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
