@@ -1,5 +1,6 @@
 {
   "board": {
+    "3dviewports": [],
     "design_settings": {
       "defaults": {
         "board_outline_line_width": 0.1,
@@ -23,7 +24,8 @@
       "track_widths": [],
       "via_dimensions": []
     },
-    "layer_presets": []
+    "layer_presets": [],
+    "viewports": []
   },
   "boards": [],
   "cvpcb": {
@@ -53,7 +55,7 @@
         0,
         2,
         0,
-        1,
+        0,
         0,
         0,
         1,
@@ -79,7 +81,7 @@
       ],
       [
         0,
-        1,
+        0,
         0,
         0,
         0,
@@ -207,27 +209,33 @@
     "rule_severities": {
       "bus_definition_conflict": "error",
       "bus_entry_needed": "error",
-      "bus_label_syntax": "error",
       "bus_to_bus_conflict": "error",
       "bus_to_net_conflict": "error",
+      "conflicting_netclasses": "error",
       "different_unit_footprint": "error",
       "different_unit_net": "error",
       "duplicate_reference": "error",
       "duplicate_sheet_names": "error",
+      "endpoint_off_grid": "warning",
       "extra_units": "error",
       "global_label_dangling": "warning",
       "hier_label_mismatch": "error",
       "label_dangling": "error",
       "lib_symbol_issues": "warning",
+      "missing_bidi_pin": "warning",
+      "missing_input_pin": "ignore",
+      "missing_power_pin": "ignore",
+      "missing_unit": "ignore",
       "multiple_net_names": "warning",
       "net_not_bus_member": "warning",
       "no_connect_connected": "warning",
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
+      "simulation_model_issue": "ignore",
       "unannotated": "error",
       "unit_value_mismatch": "error",
       "unresolved_variable": "error",
@@ -239,13 +247,13 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "rbike.kicad_pro",
+    "filename": "risle.kicad_pro",
     "version": 1
   },
   "net_settings": {
     "classes": [
       {
-        "bus_width": 12.0,
+        "bus_width": 12,
         "clearance": 0.2,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
@@ -259,13 +267,15 @@
         "track_width": 0.25,
         "via_diameter": 0.8,
         "via_drill": 0.4,
-        "wire_width": 6.0
+        "wire_width": 6
       }
     ],
     "meta": {
-      "version": 2
+      "version": 3
     },
-    "net_colors": null
+    "net_colors": null,
+    "netclass_assignments": null,
+    "netclass_patterns": []
   },
   "pcbnew": {
     "last_paths": {
@@ -279,8 +289,10 @@
     "page_layout_descr_file": ""
   },
   "schematic": {
-    "annotate_start_num": 24,
+    "annotate_start_num": 0,
     "drawing": {
+      "dashed_lines_dash_length_ratio": 12.0,
+      "dashed_lines_gap_length_ratio": 3.0,
       "default_line_thickness": 6.0,
       "default_text_size": 50.0,
       "field_names": [],
@@ -300,62 +312,48 @@
       "version": 1
     },
     "net_format_name": "",
-    "ngspice": {
-      "fix_include_paths": true,
-      "fix_passive_vals": false,
-      "meta": {
-        "version": 0
-      },
-      "model_mode": 0,
-      "workbook_filename": ""
-    },
     "page_layout_descr_file": "",
-    "plot_directory": "",
-    "spice_adjust_passive_values": false,
+    "plot_directory": "C:/Users/ulf/Desktop/",
+    "spice_current_sheet_as_root": false,
     "spice_external_command": "spice \"%I\"",
+    "spice_model_current_sheet_as_root": true,
+    "spice_save_all_currents": false,
+    "spice_save_all_voltages": false,
     "subpart_first_id": 65,
     "subpart_id_separator": 0
   },
   "sheets": [
     [
-      "bc311621-394b-4535-9238-fb09c46750da",
+      "20d13cc1-cf0c-42ad-8d3f-a2c3dcfddef6",
       ""
     ],
     [
-      "7a6575e2-01a7-46b0-bf00-bdc567d993a6",
-      "main"
+      "0c8d59bd-2d82-4102-b0dc-d4055c20b5ca",
+      "CPU main"
     ],
     [
-      "377ff918-79a1-409f-a497-261eac5e4b11",
-      "io_cabinet"
+      "6fa3456d-0bc4-4266-9783-d4f6e89cf83d",
+      "Tile layers"
     ],
     [
-      "c9b35366-f97c-48fb-8455-4930421de491",
-      "scroll"
+      "4c940b4d-9543-4c4b-b973-4eb33ebd0ba9",
+      "Sprites"
     ],
     [
-      "c14c30bf-37a7-4f33-a76d-85b810a08abd",
-      "objects"
+      "efa2c21a-9672-47c9-9089-5641c5fd55a6",
+      "Color mixer"
     ],
     [
-      "04bab2f2-7aa8-4efd-8960-613c339b8e09",
-      "colmix_rgb"
+      "7fbf8b17-39f7-4764-83cc-be6436d718a9",
+      "IO"
     ],
     [
-      "9814ad9d-7c24-4820-8a3a-060d52095293",
-      "sound"
+      "8822a704-aca3-47e1-bead-8c52a7ca664f",
+      "Sound"
     ],
     [
-      "44f41e44-0225-4d78-a1e1-090b8e4a7ef5",
-      "capacitors_lu"
-    ],
-    [
-      "f1317af8-786c-4f7a-bcb6-e472c1c85c24",
-      "description"
-    ],
-    [
-      "3b8c51a9-f008-41f7-af9e-3db2f26f166b",
-      "clocks"
+      "b3a5d697-0be5-4fb9-a9be-a63c54b05c9b",
+      "Misc"
     ]
   ],
   "text_variables": {}
