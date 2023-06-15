@@ -4173,6 +4173,10 @@
     (uuid 857ecf29-85b2-491b-9f3c-1701b226fb05)
   )
 
+  (wire (pts (xy 184.15 208.28) (xy 191.77 208.28))
+    (stroke (width 0) (type default) (color 0 0 0 0))
+    (uuid 85d6163d-84e3-4e66-b6f8-43e96528dd59)
+  )
   (wire (pts (xy 191.77 247.65) (xy 182.88 247.65))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 8674353c-2070-4603-9977-40a52ac275c8)
