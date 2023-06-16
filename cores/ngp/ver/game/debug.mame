@@ -54,6 +54,6 @@ comadd ff1a24,"countdown wait for BC=$B4 to $0"
 comadd ff1a14,"countdown wait for BC=$B4 to $0"
 comadd ff1a1f,"read power button"
 bpset ff1a1f,1,{printf "checks power button";go}
-bpset ff6077,1,{printf "HERE!"}
+bpset ff46fc,1,{printf "HERE!"}
 //wpset 6440,2,w,wpdata==30af,{printf "HERE!"}
 go
