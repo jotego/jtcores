@@ -101,7 +101,7 @@ jtngp_main u_main(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-
+/* verilator tracing_off */
 jtngp_snd u_snd(
     .rstn       ( snd_rstn  ),
     .clk        ( clk       ),
@@ -126,7 +126,7 @@ jtngp_snd u_snd(
     .snd_l      ( snd_left  ),
     .snd_r      ( snd_right )
 );
-
+/* verilator tracing_off */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
