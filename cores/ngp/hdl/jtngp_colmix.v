@@ -29,7 +29,7 @@ module jtngp_colmix #( parameter
 
     // CPU access
     input      [ 8:1] cpu_addr,
-    output     [15:0] cpu_din,
+    output reg [15:0] cpu_din,
     input      [15:0] cpu_dout,
     input      [ 1:0] we,
     input             pal_cs,
@@ -65,8 +65,6 @@ reg [2:0] scr1_pal1 [1:3];
 reg [2:0] scr2_pal0 [1:3];
 reg [2:0] scr2_pal1 [1:3];
 reg [2:0] bg_pal;
-
-assign cpu_din = 0;
 
 assign  scr1_blank = scr1_pxl[1:0]==0,
         scr2_blank = scr2_pxl[1:0]==0,
@@ -134,8 +132,47 @@ always @(posedge clk, posedge rst) begin
               bg_pal     <= zeroval[20+4][2:0];
         end
 `endif
-    end else if( pal_cs ) begin
+    end else begin
+        cpu_din <= 0;
         case( cpu_addr[4:1] )
+            4'b0_000: cpu_din[10:8] <= obj_pal0[1];
+            4'b0_001: begin
+                cpu_din[ 2:0] <= obj_pal0[2];
+                cpu_din[10:8] <= obj_pal0[3];
+            end
+            4'b0_010: cpu_din[10:8] <= obj_pal1[1];
+            4'b0_011: begin
+                cpu_din[ 2:0] <= obj_pal1[2];
+                cpu_din[10:8] <= obj_pal1[3];
+            end
+            // Scroll 1
+            4'b0_100: cpu_din[10:8] <= scr1_pal0[1];
+            4'b0_101: begin
+                cpu_din[ 2:0] <= scr1_pal0[2];
+                cpu_din[10:8] <= scr1_pal0[3];
+            end
+            4'b0_110: cpu_din[10:8] <= scr1_pal1[1];
+            4'b0_111: begin
+                cpu_din[ 2:0] <= scr1_pal1[2];
+                cpu_din[10:8] <= scr1_pal1[3];
+            end
+            // Scroll 2
+            4'b1_000: cpu_din[10:8] <= scr2_pal0[1];
+            4'b1_001: begin
+                cpu_din[ 2:0] <= scr2_pal0[2];
+                cpu_din[10:8] <= scr2_pal0[3];
+            end
+            4'b1_010: cpu_din[10:8] <= scr2_pal1[1];
+            4'b1_011: begin
+                cpu_din[ 2:0] <= scr2_pal1[2];
+                cpu_din[10:8] <= scr2_pal1[3];
+            end
+            // Background
+            4'b1_100: cpu_din[2:0] <= bg_pal;
+            default:;
+        endcase
+
+        if( pal_cs ) case( cpu_addr[4:1] )
             4'b0_000: if( we[1] ) obj_pal0[1] <= cpu_dout[10:8];
             4'b0_001: begin
                 if( we[0] ) obj_pal0[2] <= cpu_dout[ 2:0];

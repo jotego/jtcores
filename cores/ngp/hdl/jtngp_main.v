@@ -164,16 +164,71 @@ jtframe_ram16 #(
     .q      ( ram0_dout     )
 );
 
-jtframe_ram16 #(
-    .AW(11)
+// jtframe_ram16 #(
+//     .AW(11)     // 4kB
+// `ifdef DUMP_RAM
+//     ,.VERBOSE(1),.VERBOSE_OFFSET('h6000) `endif
+// ) u_ram1(
+//     .clk    ( clk           ),
+//     .data   ( cpu_dout      ),
+//     .addr   ( addr[11:1]    ),
+//     .we     ( ram1_we       ),
+//     .q      ( ram1_dout     )
+// );
+
+wire [15:0] over16;
+reg [11:1] over_k;
+reg [7:0] over_data[0:2**12-1];
+reg lvbl_l, halted_l;
+reg copy=0;
+integer framecnt, f, fcnt;
+
+initial begin
+    f=$fopen("ram1.bin","rb");
+    if( f!=0 ) begin
+        fcnt=$fread(over_data,f);
+        $display("Read %X bytes from ram1.bin",fcnt);
+        $fclose(f);
+    end else begin
+        $display("Cannot open ram1.bin");
+        $finish;
+    end
+end
+
+assign over16 = { over_data[{over_k,1'b1}], over_data[{over_k,1'b0}] };
+
+always @(posedge clk) begin
+    lvbl_l <= lvbl;
+    halted_l <= u_mcu.u_cpu.u_ctrl.halted;
+    if( u_mcu.u_cpu.u_ctrl.halted && !halted_l && framecnt==524 ) begin
+        copy   <= 1;
+        over_k <= 0;
+        $display("ram1 overwrite starts");
+    end
+    if( !lvbl && lvbl_l ) begin
+        framecnt <= framecnt+1;
+    end
+    if( copy ) begin
+        { copy, over_k } <= { copy, over_k } + 1'd1;
+    end
+end
+
+jtframe_dual_ram16 #(
+    .AW(11)     // 4kB
 `ifdef DUMP_RAM
     ,.VERBOSE(1),.VERBOSE_OFFSET('h6000) `endif
 ) u_ram1(
-    .clk    ( clk           ),
-    .data   ( cpu_dout      ),
-    .addr   ( addr[11:1]    ),
-    .we     ( ram1_we       ),
-    .q      ( ram1_dout     )
+    .clk0   ( clk           ),
+    .data0  ( cpu_dout      ),
+    .addr0  ( addr[11:1]    ),
+    .we0    ( ram1_we       ),
+    .q0     ( ram1_dout     ),
+    // memory overwrite
+    .clk1   ( clk           ),
+    .data1  ( over16        ),
+    .addr1  ( over_k[11:1]  ),
+    .we1    ( {2{copy}}     ),
+    .q1     (               )
 );
 
 jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
