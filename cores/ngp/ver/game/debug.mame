@@ -32,8 +32,8 @@ bpset ff1fd6,1,{printf "some interrupt"}
 bpset ff1fea,1,{printf "some interrupt"}
 bpset ff1ffd,1,{printf "some interrupt"}
 // shows RAM transactions
-wp 4000,3000,w,1,{printf " %x <- %02x (RAM)", wpaddr, wpdata;go}
-wp 4000,3000,r,1,{printf " %x -> %02x (RAM)", wpaddr, wpdata;go}
+//wp 4000,3000,w,1,{printf " %x <- %02x (RAM)", wpaddr, wpdata;go}
+//wp 4000,3000,r,1,{printf " %x -> %02x (RAM)", wpaddr, wpdata;go}
 // wp 7000,1000,w,1,{printf "writes to shared RAM"}
 wp 1E,1,w,1,{printf "writes to MCU port A (Z80 IRQ)";go}
 wp 20,1,w,1,{printf "TRUN = %X", wpdata; go }
@@ -54,6 +54,5 @@ comadd ff1a24,"countdown wait for BC=$B4 to $0"
 comadd ff1a14,"countdown wait for BC=$B4 to $0"
 comadd ff1a1f,"read power button"
 bpset ff1a1f,1,{printf "checks power button";go}
-bpset ff46fc,1,{printf "HERE!"}
 //wpset 6440,2,w,wpdata==30af,{printf "HERE!"}
 go

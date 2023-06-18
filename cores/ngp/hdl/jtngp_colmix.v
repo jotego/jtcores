@@ -75,13 +75,29 @@ assign  scr1_blank = scr1_pxl[1:0]==0,
         pal_addr   = 0,
         raw        = { pxl[2:0], pxl[2] }^{4{~lcd_neg}},
         obj_palout = obj_pxl[2] ? obj_pal1[obj_pxl[1:0]] : obj_pal0[obj_pxl[1:0]],
-        scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr2_pxl[1:0]],
+        scr1_palout= scr1_pxl[2] ? scr1_pal1[scr1_pxl[1:0]] : scr1_pal0[scr1_pxl[1:0]],
         scr2_palout= scr2_pxl[2] ? scr2_pal1[scr2_pxl[1:0]] : scr2_pal0[scr2_pxl[1:0]];
 
 // to do: connect to actual palette RAM
 assign  red        = raw,
         blue       = raw,
         green      = raw;
+
+always @(posedge clk) begin
+    // layer mixing
+    pxl <= scr_eff[2:0];
+    lyr[1] <= 0;
+    lyr[0] <= scr_eff[3] ^ scr_order;
+    if( !obj_blank ) begin
+        lyr[1] <= 1;
+        case( prio )
+            3: pxl <= obj_palout;
+            2: if( scr_eff[3] ) pxl <= obj_palout;
+            1: if( scr_eff[1:0]==0) pxl <= obj_palout;
+            default: lyr[1] <= 0;
+        endcase
+    end
+end
 
 `ifdef SIMULATION
 reg [7:0] zeroval[0:24];
@@ -208,22 +224,6 @@ always @(posedge clk, posedge rst) begin
             // Background
             4'b1_100: if( we[0] ) bg_pal <= cpu_dout[2:0];
             default:;
-        endcase
-    end
-end
-
-always @(posedge clk) begin
-    // layer mixing
-    pxl <= scr_eff[2:0];
-    lyr[1] <= 0;
-    lyr[0] <= scr_eff[3] ^ scr_order;
-    if( !obj_blank ) begin
-        lyr[1] <= 1;
-        case( prio )
-            3: pxl <= obj_palout;
-            2: if( scr_eff[3] ) pxl <= obj_palout;
-            1: if( scr_eff[1:0]==0) pxl <= obj_palout;
-            default: lyr[1] <= 0;
         endcase
     end
 end

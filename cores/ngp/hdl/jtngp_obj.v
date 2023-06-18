@@ -46,7 +46,8 @@ module jtngp_obj #(
 );
 
 wire [ 1:0] we;
-reg  [ 6:0] scan_addr;
+wire [ 6:0] scan_addr;
+reg  [ 5:0] scan_obj;
 reg  [ 2:0] scan_st;
 wire [15:0] scan_dout;
 reg         LHBLl;
@@ -55,6 +56,7 @@ wire [PXLW-1:0] pre_pxl;
 
 assign we    = ~dsn & {2{obj_cs}};
 assign Hinit = LHBL & ~LHBLl;
+assign scan_addr = { scan_obj, scan_st[0] };
 
 always @* begin
     pxl = pre_pxl;
@@ -78,7 +80,7 @@ jtframe_dual_ram16 #(
     // Port 1
     .clk1   ( clk       ),
     .data1  (           ),
-    // ignoring the extra byte for now...
+    // ignoring the extra NGPC byte for now...
     .addr1  ( { 1'b0, scan_addr } ),
     .we1    ( 2'b0      ),
     .q1     ( scan_dout )
@@ -117,7 +119,7 @@ end
 // scanner
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        scan_addr <= 0;
+        scan_obj  <= 0;
         scan_st   <= 0;
         LHBLl     <= 0;
         dr_start  <= 0;
@@ -131,7 +133,6 @@ always @(posedge clk, posedge rst) begin
             2: begin
                 dr_attr_code <= scan_dout;
                 scan_st      <= 3;
-                scan_addr    <= scan_addr + 7'd1;
             end
             3: begin
                 if( (inzone && !dr_busy) || !inzone ) begin
@@ -142,15 +143,15 @@ always @(posedge clk, posedge rst) begin
                     // if( !hidden && vrender<10) begin
                     //     $display("(%d) -- %d (%d) -> %d",vrender,ypos, ydelta, inzone);
                     // end
-                    scan_addr <= scan_addr + 7'd1;
-                    scan_st   <= done ? 0 : 2;
+                    scan_obj <= scan_obj + 6'd1;
+                    scan_st  <= done ? 0 : 2;
                 end
             end
             default: if( Hinit) begin
-                scan_addr <= 0;
-                hlast     <= 0;
-                vlast     <= 0;
-                scan_st   <= 2;
+                scan_obj <= 0;
+                hlast    <= 0;
+                vlast    <= 0;
+                scan_st  <= 2;
             end
         endcase
     end
