@@ -172,7 +172,7 @@ always @(posedge clk, posedge rst) begin
         buff_we  <= 0;
         obj_data <= 0;
         dr_cnt   <= 0;
-    end else begin
+    end else if(cen) begin
         if( dr_busy ) begin
             if( chram_rd ) begin
                 if( chram_ok ) begin
@@ -199,7 +199,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_obj_buffer #(.DW(PXLW),.ALPHA(0))
+jtframe_obj_buffer #(.DW(PXLW),.ALPHA(0),.ALPHAW(2),.KEEP_OLD(1))
 u_linebuffer(
     .clk    ( clk       ),
     .LHBL   ( LHBL      ),
