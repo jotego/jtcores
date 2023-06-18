@@ -38,8 +38,10 @@ module jtngp_vtimer(
 );
 
 localparam HOFFSET= 48,
-           HBSTART=(160*3-1+HOFFSET)%514,
-           HBEND  =(514+HOFFSET)%514;
+           HBSTART= 14, // 11->17
+           HBEND  =HBSTART+35,
+           HS_START = HBSTART+8,
+           HS_END   = HS_START+4;
 
 reg [2:0] three=1;
 
@@ -61,14 +63,19 @@ always @(posedge clk) begin
             LHBL <= 0;
         end
         if( hcnt==HBEND ) LHBL <= 1;
-        if( hcnt == 500 ) HS <= 1;
         if( hcnt==514 ) begin
-            HS       <= 0;
             hdump    <= 0;
+            hcnt     <= 0;
             three    <= 1;
             pxl_cen  <= 1;
             pxl2_cen <= 1;
-            hcnt     <= 0;
+        end else begin
+            if( three[2] ) hdump <= hdump + 9'd1;
+            hcnt  <= hcnt  +10'd1;
+        end
+        if( hcnt == HS_END   ) HS <= 0;
+        if( hcnt == HS_START ) begin
+            HS       <= 1;
             vrender  <= (vrender==198) ? 8'd0 : (vrender+8'd1);
             vdump    <= vrender;
             virq  <= vint_en && vdump==151;
@@ -81,9 +88,6 @@ always @(posedge clk) begin
                 VS <= 1;
             else if( vdump==183 )
                 VS <= 0;
-        end else begin
-            if( three[2] ) hdump <= hdump + 9'd1;
-            hcnt  <= hcnt  +10'd1;
         end
     end
 end

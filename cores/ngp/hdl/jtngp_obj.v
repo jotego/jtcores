@@ -22,7 +22,7 @@ module jtngp_obj #(
     input             rst,
     input             clk,
 
-    input             LHBL,
+    input             HS,
     input             pxl_cen,
     input      [ 8:0] hdump,
     input      [ 7:0] vrender,
@@ -50,17 +50,17 @@ wire [ 6:0] scan_addr;
 reg  [ 5:0] scan_obj;
 reg  [ 2:0] scan_st;
 wire [15:0] scan_dout;
-reg         LHBLl;
+reg         HSl;
 wire        Hinit;
 wire [PXLW-1:0] pre_pxl;
 
 assign we    = ~dsn & {2{obj_cs}};
-assign Hinit = LHBL & ~LHBLl;
+assign Hinit = ~HS & HSl;
 assign scan_addr = { scan_obj, scan_st[0] };
 
-always @* begin
-    pxl = pre_pxl;
-    if(!en) pxl[1:0] = 0;
+always @(posedge clk) if(pxl_cen) begin
+    pxl <= pre_pxl;
+    if(!en) pxl[1:0] <= 0;
 end
 
 // 256 bytes = 64 objects, extra 64 bytes in K2GE
@@ -121,13 +121,13 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         scan_obj  <= 0;
         scan_st   <= 0;
-        LHBLl     <= 0;
+        HSl     <= 0;
         dr_start  <= 0;
         hlast     <= 0;
         vlast     <= 0;
         chram_addr<= 0;
     end else if( cen ) begin
-        LHBLl <= LHBL;
+        HSl <= HS;
         dr_start <= 0;
         case( scan_st )
             2: begin
@@ -202,14 +202,14 @@ end
 jtframe_obj_buffer #(.DW(PXLW),.ALPHA(0),.ALPHAW(2),.KEEP_OLD(1))
 u_linebuffer(
     .clk    ( clk       ),
-    .LHBL   ( LHBL      ),
+    .LHBL   ( ~HS       ),
     .flip   ( 1'b0      ),
     // New data writes
     .wr_data( line_din  ),
     .wr_addr( {1'd0,hpos} ),
     .we     ( buff_we   ),
     // Old data reads (and erases)
-    .rd_addr( hdump - 9'd16    ),
+    .rd_addr( hdump - 9'd15    ),
     .rd     ( pxl_cen   ),
     .rd_data( pre_pxl   )
 );

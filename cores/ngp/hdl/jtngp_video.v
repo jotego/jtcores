@@ -244,7 +244,7 @@ jtngp_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .LHBL       ( LHBL      ),
+    .HS         ( HS        ),
     .pxl_cen    ( pxl_cen   ),
     .hdump      ( hdump     ),
     .vrender    (vrender[7:0]),
