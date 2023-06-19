@@ -1,7 +1,7 @@
 {
   "board": {
     "active_layer": 0,
-    "active_layer_preset": "",
+    "active_layer_preset": "All Layers",
     "auto_track_width": true,
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -72,8 +72,20 @@
   "project": {
     "files": [
       {
-        "name": "rbike.kicad_sch",
+        "name": "rbike.kicad_pcb",
         "open": false,
+        "window": {
+          "display": 1,
+          "maximized": true,
+          "pos_x": 36,
+          "pos_y": 13,
+          "size_x": 1848,
+          "size_y": 1053
+        }
+      },
+      {
+        "name": "rbike.kicad_sch",
+        "open": true,
         "window": {
           "display": 0,
           "maximized": true,
