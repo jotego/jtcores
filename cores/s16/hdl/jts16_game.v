@@ -92,7 +92,6 @@ assign st_dout              = st_mux;
 assign xram_dsn             = dsn;
 assign xram_we              = ~main_rnw;
 assign xram_din             = main_dout;
-assign {pxl2_cen,pxl_cen}   = { vcen12, vcen6 };
 
 always @(posedge clk) begin
     case( st_addr[7:4] )

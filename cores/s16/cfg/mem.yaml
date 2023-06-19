@@ -23,11 +23,6 @@ clocks:
     - freq: 640000
       outputs:
         - cen_pcm
-  clk48:
-    - freq: 12587400
-      outputs:
-        - vcen12
-        - vcen6
 ports:
   - name: gfx_cs
 sdram:
