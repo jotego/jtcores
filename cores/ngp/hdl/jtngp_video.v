@@ -20,12 +20,11 @@ module jtngp_video(
     input               rst,
     input               clk,
     input               clk24,
+    input        [ 1:0] video_cen,
     output              pxl_cen,
     output              pxl2_cen,
 
     input        [31:0] status,
-    output              cpu_cen,
-    output              snd_cen,
 
     // CPU
     input        [13:1] cpu_addr,
@@ -51,8 +50,7 @@ wire [ 9:0] hcnt;
 wire [ 7:0] vdump;
 wire [ 7:0] vrender;
 wire [ 8:0] hdump;
-wire [ 4:0] multi_cen;
-wire [ 1:0] video_cen, dsn;
+wire [ 1:0] dsn;
 
 // Memory map
 reg   ram_cs, obj_cs,  obj2_cs, pal_cs, palrgb_cs,
@@ -82,8 +80,6 @@ function in_range( input [13:0] min, max );
     in_range = cpu_addr>=min[13:1] && cpu_addr<max[13:1];
 endfunction
 
-assign snd_cen  = multi_cen[1];
-assign cpu_cen  = multi_cen[0]; // fixed for now
 assign dsn      = ~we;
 
 always @* begin
@@ -104,16 +100,6 @@ always @(posedge clk) begin
                regs_cs  ? regs_dout :
                ram_cs   ? fix_dout : obj_dout;
 end
-/* xxverilator tracing_off */
-jtngp_clocks u_clocks(
-    .status     ( status    ),
-    // 24 MHz domain
-    .clk24      ( clk24     ),
-    .multi_cen  ( multi_cen ),
-    // 48 MHz domain
-    .clk        ( clk       ),
-    .video_cen  ( video_cen )
-);
 
 jtngp_vtimer u_vtimer(
     .clk        ( clk       ),

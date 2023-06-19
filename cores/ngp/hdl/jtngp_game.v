@@ -26,7 +26,7 @@ wire [15:0] cpu_dout, gfx_dout, shd_dout;
 wire [ 7:0] snd_latch, main_latch;
 wire [ 1:0] we, shd_we;
 wire        gfx_cs;
-wire        cpu_cen, snd_cen, snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
+wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
 wire        hirq, virq, main_int5;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
@@ -133,10 +133,9 @@ jtngp_video u_video(
     .clk24      ( clk24     ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
+    .video_cen  ( {vcen12, vcen6} ),
 
     .status     ( status    ),
-    .cpu_cen    ( cpu_cen   ),
-    .snd_cen    ( snd_cen   ),
 
     // CPU
     .cpu_addr   (cpu_addr[13:1]),

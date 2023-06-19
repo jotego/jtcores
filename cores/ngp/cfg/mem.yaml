@@ -1,6 +1,10 @@
 clocks:
   clk48:
-    - freq:  24576000
+    - freq: 12582912
+      outputs:
+        - vcen12
+        - vcen6
+    - freq: 24576000
       outputs:
         - cen24
         - cen12
