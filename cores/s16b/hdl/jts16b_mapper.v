@@ -117,6 +117,7 @@ reg         mcu_vintn, mcu_snd_intn;
 reg  [ 2:0] bus_wait;
 
 wire [23:1] rdaddr, wraddr;
+reg  [23:1] mcu_amux; // address mux
 wire [15:0] wrdata;
 wire [ 1:0] cpu_dswn;
 wire        bus_avail;    // the MCU controls the bus
@@ -162,7 +163,7 @@ assign {dtack7, size7 } = mmr[ {1'b1, 3'd7, 1'b0 }];
 /* verilator lint_on WIDTH */
 `endif
 
-assign addr_out  = bus_mcu ? (rdmem ? rdaddr : wraddr ) : addr;
+assign addr_out  = bus_mcu ? mcu_amux : addr;
 assign bus_din   = bus_mcu ? wrdata : cpu_dout;
 assign mapper_dout = {mmr[5'd0], mmr[5'd1]}; // for test the output is {mmr[5'hd], mmr[5'he]} (or is it the other way around)
 
@@ -219,6 +220,7 @@ end
 
 // Data to MCU
 always @(posedge clk) begin
+    mcu_amux <= rdmem ? rdaddr : wraddr;
     case( mcu_addr_s[1:0] )
         0: mcu_din <= mmr[0];
         1: mcu_din <= mmr[1];
