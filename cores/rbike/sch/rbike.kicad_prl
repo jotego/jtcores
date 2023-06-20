@@ -72,20 +72,8 @@
   "project": {
     "files": [
       {
-        "name": "rbike.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 1,
-          "maximized": true,
-          "pos_x": 36,
-          "pos_y": 13,
-          "size_x": 1848,
-          "size_y": 1053
-        }
-      },
-      {
         "name": "rbike.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
           "display": 0,
           "maximized": true,
