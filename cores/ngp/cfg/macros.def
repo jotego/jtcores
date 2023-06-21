@@ -8,3 +8,8 @@ JTFRAME_SDRAM_BANKS
 
 JTFRAME_WIDTH=160
 JTFRAME_HEIGHT=152
+# Using the regular 6MHz clock would make the cen12 signal
+# in mem.yaml to have consequitive active pulses, which
+# will not work for jt900h because of
+# https://github.com/jotego/jt900h/issues/2
+JTFRAME_PLL=jtframe_pll6144

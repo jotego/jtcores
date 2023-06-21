@@ -59,9 +59,8 @@ assign dip_flip = 0;
 // );
 
 jtngp_main u_main(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen24      ( cen24     ),
+    .rst        ( rst24     ),
+    .clk        ( clk24     ),
     .cen12      ( cen12     ),
     .cen6       ( cen6      ),
     .phi1_cen   ( phi1_cen  ),
@@ -104,7 +103,7 @@ jtngp_main u_main(
 /* verilator tracing_off */
 jtngp_snd u_snd(
     .rstn       ( snd_rstn  ),
-    .clk        ( clk       ),
+    .clk        ( clk24     ),
     .cen3       ( cen3      ),
 
     .snd_en     ( snd_en    ),
@@ -126,7 +125,7 @@ jtngp_snd u_snd(
     .snd_l      ( snd_left  ),
     .snd_r      ( snd_right )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

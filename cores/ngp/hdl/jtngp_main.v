@@ -19,7 +19,6 @@
 module jtngp_main(
     input               rst,
     input               clk,
-    input               cen24,
     input               cen12,
     input               cen6,
     input               phi1_cen,

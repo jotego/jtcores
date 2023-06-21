@@ -113,11 +113,10 @@ jtframe_dual_ram #(.AW(11)) u_ramhi(
 );
 
 `ifndef NOSOUND
-jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
+jtframe_z80 #(.CLR_INT(1)) u_cpu(
     .rst_n      ( rstn      ),
     .clk        ( clk       ),
     .cen        ( cen3      ),
-    .cpu_cen    (           ),
     .int_n      ( ~irq      ),
     .nmi_n      ( ~nmi      ),
     .busrq_n    ( 1'b1      ),
@@ -129,12 +128,10 @@ jtframe_z80_romwait #(.CLR_INT(1)) u_cpu(
     .rfsh_n     (           ),
     .halt_n     (           ),
     .busak_n    (           ),
+    .wait_n     ( 1'b1      ),
     .A          ( cpu_addr  ),
     .din        ( cpu_din   ),
-    .dout       ( cpu_dout  ),
-    // ROM access
-    .rom_cs     ( 1'b0      ),
-    .rom_ok     ( 1'b1      )
+    .dout       ( cpu_dout  )
 );
 `else
     assign m1_n=1, mreq_n=1, iorq_n=1, wr_n=1,

@@ -4,9 +4,9 @@ clocks:
       outputs:
         - vcen12
         - vcen6
-    - freq: 24576000
+  clk24:
+    - freq: 12288000
       outputs:
-        - cen24
         - cen12
         - cen6
         - cen3
