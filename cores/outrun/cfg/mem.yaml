@@ -7,6 +7,16 @@ params:
   - { name: SRAM_OFFSET, value: 22'h18_0000 }
   - { name: RD0_OFFSET,  value: "3<<22 | (ROAD_START-`JTFRAME_BA3_START)>>1" }
   - { name: RD1_OFFSET,  value: RD0_OFFSET+22'h4000 }
+clocks:
+  clk48:
+    - freq: 8000000
+      outputs:
+        - cen_pcm
+        - cen_fm
+        - cen_fm2
+    - freq: 5000000
+      outputs:
+        - cen_snd
 ports:
   - name: gfx_cs
 sdram:

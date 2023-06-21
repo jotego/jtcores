@@ -23,20 +23,11 @@ module jtoutrun_game(
 localparam [24:0] KEY_PROM = `JTFRAME_PROM_START,
                   FD_PROM  = `FD1089_START;
 
-`ifndef JTFRAME_CLK48
-wire clk48, rst48;
-assign clk48 = clk;
-assign rst48 = rst;
-`endif
-
-
 // Main CPU RAM access
 wire    ram_cs, vram_cs;
 
 // clock enable signals
-wire    cpu_cen, cpu_cenb,
-        cen_fm,  cen_fm2, cen_snd,
-        cen_pcm;
+wire    cpu_cen, cpu_cenb;
 
 // video signals
 wire [ 8:0] vrender, hdump;
@@ -159,26 +150,6 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
 `else
     assign key_data = 0;
 `endif
-
-jts16_cen #(
-`ifdef JTFRAME_SDRAM96
-    .CLK96(1)
-`else
-    .CLK96(0)
-`endif
-) u_cen(
-    .clk        ( clk       ),
-    .pxl2_cen   ( pxl2_cen  ),
-    .pxl_cen    ( pxl_cen   ),
-
-    .clk24      ( clk24     ),
-    .mcu_cen    ( cen_pcm   ), // 8 MHz
-    .fm2_cen    ( cen_fm2   ), // 4 MHz
-    .fm_cen     ( cen_fm    ),
-    .snd_cen    ( cen_snd   ),
-    .pcm_cen    (           ),
-    .pcm_cenb   (           )
-);
 
 `ifndef NOMAIN
 jtoutrun_main u_main(
@@ -336,8 +307,8 @@ jtoutrun_sub u_sub(
 
 `ifndef NOSOUND
 jtoutrun_snd u_sound(
-    .rst        ( rst24     ),
-    .clk        ( clk24     ),
+    .rst        ( rst48     ),
+    .clk        ( clk48     ),
     .snd_rstb   ( snd_rstb  ),
 
     .cen_fm     ( cen_fm    ),   // 4MHz
