@@ -8,10 +8,9 @@ params:
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
   - { name: SRAM_OFFSET, value: 22'h18_0000 }
 clocks:
-  clk24:
-    - freq: 8000000
+  clk48:
+    - freq: 4000000
       outputs:
-        - mcu_cen
         - cen_fm
         - cen_fm2
     - freq: 5000000
@@ -23,6 +22,10 @@ clocks:
     - freq: 640000
       outputs:
         - cen_pcm
+  clk24:
+    - freq: 8000000
+      outputs:
+        - mcu_cen
 ports:
   - name: gfx_cs
 sdram:

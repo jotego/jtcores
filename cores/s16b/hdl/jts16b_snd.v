@@ -204,7 +204,7 @@ jtmc8123 u_dec(
     .key_data   ( key_data  )
 );
 
-jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
     .rst_n      ( ~rst        ),
     .clk        ( clk         ),
     .cen        ( cen_snd     ),

@@ -253,8 +253,8 @@ end
 
 `ifndef NOSOUND
 `JTS16_SND u_sound(
-    .rst        ( rst24     ),
-    .clk        ( clk24     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
 
     .cen_fm     ( cen_fm    ),   // 4MHz or 5MHz
     .cen_fm2    ( cen_fm2   ),   // 2MHz
