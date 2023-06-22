@@ -13,3 +13,9 @@ JTFRAME_HEIGHT=152
 # will not work for jt900h because of
 # https://github.com/jotego/jt900h/issues/2
 JTFRAME_PLL=jtframe_pll6144
+
+[mister]
+JTFRAME_OSD_LOAD
+
+[mist|sidi|neptuno|mcp|mc2]
+JTFRAME_SKIP

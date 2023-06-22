@@ -1,0 +1,7 @@
+[parse]
+sourcefile=[ "ngp.cpp" ]
+
+[ROM]
+order = ["maincpu"]
+
+
