@@ -1,5 +1,9 @@
 clocks:
   clk48:
+    - freq: 1024
+      outputs:
+        - rtc_cen
+        - nc2
     - freq: 12582912
       outputs:
         - vcen12

@@ -22,6 +22,7 @@ module jtngp_main(
     input               cen12,
     input               cen6,
     input               phi1_cen,
+    input               rtc_cen,
 
     input               lvbl,
 
@@ -72,6 +73,8 @@ reg         poweron;
 reg  [ 3:0] pwr_cnt;
 wire [ 3:0] porta_dout;
 wire        bus_busy;
+wire [ 7:0] rtc_sec, rtc_min, rtc_hour;
+wire [ 2:0] rtc_we;
 
 assign bus_busy  = rom_cs & ~rom_ok;
 assign cpu_addr  = addr[15:1];
@@ -82,6 +85,9 @@ assign ram0_we   = {2{ram0_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
 // assign cpu_clk   = cpu_cen & clk;
 assign snd_irq   = porta_dout[3];
+assign rtc_we[0] = io_cs && we==1 && addr[5:1]==5'b01_010; // 80+14 = 94
+assign rtc_we[1] = io_cs && we==2 && addr[5:1]==5'b01_010; // 80+15 = 95
+assign rtc_we[2] = io_cs && we==1 && addr[5:1]==5'b01_011; // 80+16 = 96
 
 // always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
@@ -91,6 +97,8 @@ endfunction
 
 always @* begin
     case( addr[5:1] )
+        5'b01_010: io_dout = { rtc_min, rtc_hour }; // 14-15
+        5'b01_011: io_dout = { 8'd0, rtc_sec };     // 16
         5'b11_000: io_dout = { 7'b1,
                                1'b0, // power button: it should be zero for it to power up
              /* lower byte: */ 2'd0, ~joystick1 }; // B0-B1
@@ -150,6 +158,17 @@ always @* begin
            shd_cs  ? shd_dout  : 16'h0;
            // snd_cs   ?  :
 end
+
+jtframe_rtc u_rtc(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .cen    ( rtc_cen       ),   // 1-second clock enable
+    .din    ( cpu_dout[7:0] ),
+    .we     ( rtc_we        ),    // overwrite hour, min, sec
+    .sec    ( rtc_sec       ),
+    .min    ( rtc_min       ),
+    .hour   ( rtc_hour      )
+);
 
 jtframe_ram16 #(
     .AW(12)

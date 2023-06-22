@@ -61,6 +61,7 @@ assign dip_flip = 0;
 jtngp_main u_main(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
+    .rtc_cen    ( rtc_cen   ),
     .cen12      ( cen12     ),
     .cen6       ( cen6      ),
     .phi1_cen   ( phi1_cen  ),
