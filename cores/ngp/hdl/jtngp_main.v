@@ -85,9 +85,9 @@ assign ram0_we   = {2{ram0_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
 // assign cpu_clk   = cpu_cen & clk;
 assign snd_irq   = porta_dout[3];
-assign rtc_we[0] = io_cs && we==1 && addr[5:1]==5'b01_010; // 80+14 = 94
-assign rtc_we[1] = io_cs && we==2 && addr[5:1]==5'b01_010; // 80+15 = 95
-assign rtc_we[2] = io_cs && we==1 && addr[5:1]==5'b01_011; // 80+16 = 96
+assign rtc_we[2] = io_cs && we[0] && addr[5:1]==5'b01_010; // 80+14 = 94 - hours
+assign rtc_we[1] = io_cs && we[1] && addr[5:1]==5'b01_010; // 80+15 = 95 - minutes
+assign rtc_we[0] = io_cs && we[0] && addr[5:1]==5'b01_011; // 80+16 = 96 - seconds
 
 // always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
