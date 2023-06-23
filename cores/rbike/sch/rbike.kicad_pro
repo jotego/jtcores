@@ -338,6 +338,18 @@
       "objects"
     ],
     [
+      "77cabce3-eafc-4cd9-953e-7073493db028",
+      "obj_memories"
+    ],
+    [
+      "21d218b4-3f01-4c8b-ae43-c35b0b76ab17",
+      "obj_pxl"
+    ],
+    [
+      "617bd8d8-1c53-47e4-a5f9-029a9281f251",
+      "Obj_fms"
+    ],
+    [
       "04bab2f2-7aa8-4efd-8960-613c339b8e09",
       "colmix_rgb"
     ],
@@ -352,14 +364,6 @@
     [
       "f1317af8-786c-4f7a-bcb6-e472c1c85c24",
       "description"
-    ],
-    [
-      "77cabce3-eafc-4cd9-953e-7073493db028",
-      "obj_memories"
-    ],
-    [
-      "3b8c51a9-f008-41f7-af9e-3db2f26f166b",
-      "clocks"
     ]
   ],
   "text_variables": {}
