@@ -76,9 +76,7 @@ module jtaliens_scroll(
     output     [ 7:0] st_dout
 );
 
-localparam [1:0]    ALIENS=0,
-                    SCONTRA=1,
-                    THUNDERX=2;
+`include "jtaliens.inc"
 
 wire [ 7:0] lyrf_col,
             lyra_col,  lyrb_col,
@@ -93,6 +91,11 @@ assign lyrb_cs = gfx_en[2];
 
 always @* begin
     case( cfg )
+        CRIMFGHT: begin
+            lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] }; // maybe col[5] instead of pre[11]
+            lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
+            lyrb_addr = { 2'b0, pre_b[11], lyrb_col[4:0], pre_b[10:0] };
+        end
         SCONTRA: begin
             lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] };
             lyra_addr = { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] };
@@ -109,7 +112,9 @@ end
 assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 function [7:0] cgate( input [7:0] c);
-    cgate = cfg==SCONTRA ? { c[7:5], 5'd0 } : { c[7:6], 6'd0 };
+    cgate = cfg==SCONTRA  ?   { c[7:5], 5'd0 } :
+            cfg==CRIMFGHT ? : { c[7:6], 5'd0, c[5] } :
+                              { c[7:6], 6'd0 };
 endfunction
 
 jt052109 u_tilemap(

@@ -65,9 +65,7 @@ module jtaliens_main(
     output      [ 7:0]  st_dout
 );
 `ifndef NOMAIN
-localparam [1:0]    ALIENS=0,
-                    SCONTRA=1,
-                    THUNDERX=2;
+`include "jtaliens.inc"
 
 wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din, port_in;

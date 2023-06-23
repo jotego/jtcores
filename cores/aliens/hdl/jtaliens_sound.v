@@ -52,9 +52,7 @@ module jtaliens_sound(
 );
 `ifndef NOSOUND
 
-localparam [1:0]    ALIENS=0,
-                    SCONTRA=1,
-                    THUNDERX=2;
+`include "jtaliens.inc"
 
 reg         [ 7:0]  fmgain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
@@ -82,7 +80,7 @@ assign pcmb_addr[18:17] = pcm_msb[3:2];
 
 always @(posedge clk) begin
     case( cfg )
-        ALIENS: begin
+        ALIENS,CRIMFGHT: begin
             pcm_msb[1:0] <= {1'b0,ct[1]};
             pcm_msb[3:2] <= {1'b0,ct[0]};
             pcm_swap     <= 0;
@@ -103,7 +101,7 @@ always @(*) begin
     // isn't connected on the real PCB
     fmgain = 8'h0C;
     case( cfg )
-        ALIENS: begin // aliens
+        ALIENS,CRIMFGHT: begin // aliens
             ram_cs    = mem_upper && A[14:13]==0; // 8/9xxx
             fm_cs     = mem_upper && A[14:13]==1; // A/Bxxx
             latch_cs  = mem_upper && A[14:13]==2; // C/Dxxx

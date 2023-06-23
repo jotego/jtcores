@@ -60,9 +60,7 @@ module jtaliens_colmix(
     input      [ 7:0] debug_bus
 );
 
-localparam [1:0]    ALIENS=0,
-                    SCONTRA=1,
-                    THUNDERX=2;
+`include "jtaliens.inc"
 
 wire [ 1:0] prio_sel;
 wire [ 7:0] pal_dout;
@@ -75,29 +73,35 @@ wire [10:0] pal_addr;
 wire        shad;
 
 assign prio_addr = {
-    cfg==SCONTRA  ? { cpu_prio[0], shadow, lyro_pxl[9:8] } :
-    cfg==THUNDERX ? { cpu_prio,            lyro_pxl[9:8] } :
+    cfg==SCONTRA  ? { cpu_prio[0], shadow, lyro_pxl[ 9:8] } :
+    cfg==THUNDERX ? { cpu_prio,            lyro_pxl[ 9:8] } :
+    cfg==CRIMFGHT ? {              shadow, lyro_pxl[10:8] } :
             { 1'b0, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] },
     { lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n } };
+
 assign pal_addr  = { pxl, pal_half };
 assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 always @* begin
-    if( cfg!=ALIENS ) case( prio_sel ) // Super Contra
-        0: pxl = { 3'b000, lyra_pxl[7:5], lyra_pxl[3:0] };
-        1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-        2: pxl = { 2'b10,  lyro_pxl[7:0] };
-        3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
-    endcase else begin
-        case( prio_sel ) // Aliens
-            0: pxl[7:0] = { 2'b01, lyra_pxl[7:6], lyra_pxl[3:0] };
-            1: pxl[7:0] = { 2'b10, lyrb_pxl[7:6], lyrb_pxl[3:0] };
-            2: pxl[7:0] = lyro_pxl[7:0];
-            3: pxl[7:0] = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
+    pxl = 0;
+    case( cfg )
+        ALIENS,CRIMFGHT: begin
+            case( prio_sel ) // Aliens
+                0: pxl[7:0] = { 2'b01, lyra_pxl[7:6], lyra_pxl[3:0] };
+                1: pxl[7:0] = { 2'b10, lyrb_pxl[7:6], lyrb_pxl[3:0] };
+                2: pxl[7:0] = lyro_pxl[7:0];
+                3: pxl[7:0] = { 2'b00, lyrf_pxl[7:6], lyrf_pxl[3:0] };
+            endcase
+            pxl[9:8] = { 1'b0, prio_sel[1] & ~prio_sel[0] };
+        end
+        SCONTRA: case( prio_sel ) // Super Contra
+            0: pxl = { 3'b000, lyra_pxl[7:5], lyra_pxl[3:0] };
+            1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+            2: pxl = { 2'b10,  lyro_pxl[7:0] };
+            3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
         endcase
-        pxl[9:8] = { 1'b0, prio_sel[1] & ~prio_sel[0] };
-    end
+    endcase
 end
 
 function [23:0] dim( input [14:0] cin, input shade );

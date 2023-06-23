@@ -3,7 +3,8 @@ mraauthor=["jotego"]
 
 [parse]
 sourcefile=[ "aliens.cpp",
-    "thunderx.cpp"
+    "thunderx.cpp",
+    "crimfght.cpp",
     ]
 skip = { machines=["thunderx", "gbusters"] }
 
@@ -22,6 +23,7 @@ info="""
 data = [
     { machine="scontra",  offset=0, data="02" },
     { machine="thunderx", offset=0, data="04" },
+    { machine="crimfght", offset=0, data="06" },
     # { machine="gbusters", offset=0, data="05" },
 ]
 

@@ -62,9 +62,7 @@ module jtaliens_obj(
     output     [ 7:0] st_dout
 );
 
-localparam [1:0]    ALIENS=0,
-                    SCONTRA=1,
-                    THUNDERX=2;
+`include "jtaliens.inc"
 
 wire [ 7:0] pal, pal_eff;     // OC pins
 wire [ 8:0] xpos;
@@ -78,8 +76,8 @@ wire [18:0] pre_addr;
 
 assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
 
-assign pal_eff  = cfg==SCONTRA ? pal : { 1'b0, pal[6:0] };
-assign code_eff = cfg==SCONTRA ? { 1'b0, code } : { pal[7], code };
+assign pal_eff  = cfg==SCONTRA || cfg==CRIMFGHT ? pal : { 1'b0, pal[6:0] };
+assign code_eff = cfg==SCONTRA || cfg==CRIMFGHT ? { 1'b0, code } : { pal[7], code };
 
 always @* begin
     rom_addr = pre_addr;

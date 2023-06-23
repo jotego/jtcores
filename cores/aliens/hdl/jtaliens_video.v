@@ -86,9 +86,7 @@ module jtaliens_video(
     output reg [ 7:0] st_dout
 );
 
-localparam [1:0]    ALIENS=0,
-                    SCONTRA=1,
-                    THUNDERX=2;
+`include "jtaliens.inc"
 
 wire [ 8:0] hdump, vdump, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
