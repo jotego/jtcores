@@ -3,11 +3,15 @@ CORENAME=JTNGP
 JTFRAME_STEREO
 JTFRAME_JOY_RLDU
 
-JTFRAME_CLK24
-JTFRAME_SDRAM_BANKS
-
 JTFRAME_WIDTH=160
 JTFRAME_HEIGHT=152
+
+# First 64 kB for firmware, games loaded in bank 1
+JTFRAME_CART_OFFSET=0x10000
+JTFRAME_BA1_START=0x10000
+JTFRAME_BA1_WEN
+
+JTFRAME_CLK24
 # Using the regular 6MHz clock would make the cen12 signal
 # in mem.yaml to have consequitive active pulses, which
 # will not work for jt900h because of

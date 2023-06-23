@@ -30,7 +30,7 @@ module jtngp_main(
     input       [ 5:0]  joystick1,
 
     // Bus access
-    output       [15:1] cpu_addr,
+    output       [20:1] cpu_addr,
     output       [15:0] cpu_dout,
     input        [15:0] gfx_dout,
     input        [15:0] shd_dout,
@@ -77,7 +77,7 @@ wire [ 7:0] rtc_sec, rtc_min, rtc_hour;
 wire [ 2:0] rtc_we;
 
 assign bus_busy  = rom_cs & ~rom_ok;
-assign cpu_addr  = addr[15:1];
+assign cpu_addr  = addr[20:1];
 assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
 assign ram0_we   = {2{ram0_cs}} & we,
@@ -158,7 +158,7 @@ always @* begin
            shd_cs  ? shd_dout  : 16'h0;
            // snd_cs   ?  :
 end
-
+/* verilator tracing_off */
 jtframe_rtc u_rtc(
     .rst    ( rst           ),
     .clk    ( clk           ),
@@ -194,11 +194,13 @@ jtframe_ram16 #(
 //     .q      ( ram1_dout     )
 // );
 `ifdef SIMULATION
+    reg [11:1] over_k=0;
+    reg copy=0;
     wire [15:0] over16;
-    reg [11:1] over_k;
+// for trace comparisons with MAME, swap the RAM memory contents at frame 524
+`ifdef TRACE
     reg [7:0] over_data[0:2**12-1];
     reg lvbl_l, halted_l;
-    reg copy=0;
     integer framecnt, f, fcnt;
 
     initial begin
@@ -232,6 +234,10 @@ jtframe_ram16 #(
     end
 `else
     wire [15:0] over_data = 0;
+    assign over16=0;
+`endif
+`else
+    wire [15:0] over_data = 0;
     wire [11:1] over_k = 0;
     wire        copy = 0;
 `endif
@@ -261,7 +267,7 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
     .sigin  ( lvbl      ),
     .pulse  ( int4      )
 );
-
+/* verilator tracing_off */
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),

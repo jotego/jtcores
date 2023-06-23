@@ -22,21 +22,21 @@ module jtngp_flash(
 
     input      [ 2:0] dev_type, // see below
     // interface to CPU
-    input      [20:0] cpu_addr,
+    input      [20:1] cpu_addr,
     input             cpu_cs,
     input             cpu_we,
-    input      [ 7:0] cpu_dout,
-    output     [ 7:0] cpu_din,
+    input      [15:0] cpu_dout,
+    output     [15:0] cpu_din,
     output            rdy,      // rdy / ~bsy pin
     output            cpu_ok,   // read data available
 
     // interface to SDRAM
-    output reg [20:0] cart_addr,
+    output reg [20:1] cart_addr,
     output reg        cart_we,
     output reg        cart_cs,
     input             cart_ok,
-    input      [ 7:0] cart_data,
-    output reg [ 7:0] cart_din
+    input      [15:0] cart_data,
+    output reg [15:0] cart_din
 );
 
 localparam [2:0] DEV_2F = 0, //   2 or 4 MB
@@ -70,7 +70,7 @@ reg         erase_start, prog_start, erase_bsy, prog_bsy,
 wire        last;
 
 assign last = &{ cart_addr[15:13] | prog_size, cart_addr[12:0] };
-assign cpu_din = id ? id_data : cart_data;
+assign cpu_din = id ? {2{id_data}} : cart_data;
 assign cpu_ok  = id | cart_ok;
 assign cpu_cswe = cpu_cs && cpu_we;
 assign we_edge  = cpu_cswe && !cswe_l;

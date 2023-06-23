@@ -20,7 +20,7 @@ module jtngp_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [15:1] cpu_addr;
+wire [20:1] cpu_addr;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
 wire [15:0] cpu_dout, gfx_dout, shd_dout;
 wire [ 7:0] snd_latch, main_latch;
@@ -34,7 +34,7 @@ wire signed [ 7:0] snd_dacl, snd_dacr;
 assign debug_view = 0;
 assign game_led  = 0;
 
-assign rom_addr = cpu_addr;
+assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
 
 // jtngp_sdram u_sdram(
@@ -100,6 +100,29 @@ jtngp_main u_main(
     .rom_data   ( rom_data  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
+);
+
+jtngp_flash u_flash(
+    .rst        ( rst24     ),
+    .clk        ( clk24     ),
+
+    .dev_type   ( 3'd0      ), // 2MB for now
+    // interface to CPU
+    .cpu_addr   (
+    input             cpu_cs,
+    input             cpu_we,
+    input      [ 7:0] cpu_dout,
+    output     [ 7:0] cpu_din,
+    output            rdy,      // rdy / ~bsy pin
+    output            cpu_ok,   // read data available
+
+    // interface to SDRAM
+    .cart_addr  ( cart0_addr),
+    .cart_we    ( cart0_we  ),
+    .cart_cs    ( cart0_cs  ),
+    .cart_ok    ( cart0_ok  ),
+    .cart_data  ( cart0_data),
+    .cart_din   ( cart0_din )
 );
 /* verilator tracing_off */
 jtngp_snd u_snd(
