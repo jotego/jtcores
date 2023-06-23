@@ -6,6 +6,7 @@ game:
       - jt95c061.v
       - jt95c061_timer.v
       - jtngp_chram.v
+      - jtngp_flash.v
       - jtngp_video.v
       - jtngp_vtimer.v
       - jtngp_scroll.v

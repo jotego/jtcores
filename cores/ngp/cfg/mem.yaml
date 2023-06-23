@@ -26,10 +26,12 @@ sdram:
           name: rom
           addr_width: 16
           data_width: 16
+    -
+      buses:
         -
           name: cart0
           addr_width: 21
-          data_width: 8
+          data_width: 16
           rw: true
         # -
         #   name: cart1

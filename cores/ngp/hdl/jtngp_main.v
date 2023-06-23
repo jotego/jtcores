@@ -38,8 +38,9 @@ module jtngp_main(
     output       [ 1:0] shd_we,
 
     output reg          gfx_cs,
-    output              flash0_cs,
-    output              flash1_cs,
+    output reg          flash0_cs,
+    output reg          flash1_cs,
+    input        [15:0] flash0_dout,
 
     // Sound
     output reg          snd_nmi,
@@ -78,8 +79,8 @@ wire [ 2:0] rtc_we;
 
 assign bus_busy  = rom_cs & ~rom_ok;
 assign cpu_addr  = addr[20:1];
-assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
-       flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
+// assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
+//        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
 assign ram0_we   = {2{ram0_cs}} & we,
        ram1_we   = {2{ram1_cs}} & we,
        shd_we    = {2{ shd_cs}} & we;
@@ -113,6 +114,8 @@ always @* begin
     ram1_cs   = in_range(24'h00_6000, 24'h00_7000); //  4kB exclusive
     shd_cs    = in_range(24'h00_7000, 24'h00_8000); //  4kB shared
     gfx_cs    = in_range(24'h00_8000, 24'h00_c000); // 16kB GFX RAM
+    flash0_cs = in_range(24'h20_0000, 24'h40_0000);
+    flash1_cs = in_range(24'h80_0000, 24'hA0_0000);
     rom_cs    = addr >= 24'hFF_0000;                // maybe map_cs[2/3] could be used too?
 end
 
@@ -150,13 +153,13 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @* begin
-    din =  gfx_cs  ? gfx_dout  :
-           rom_cs  ? rom_data  :
-           ram0_cs ? ram0_dout :
-           ram1_cs ? ram1_dout :
-           io_cs   ? io_dout :
-           shd_cs  ? shd_dout  : 16'h0;
-           // snd_cs   ?  :
+    din =  gfx_cs    ? gfx_dout    :
+           rom_cs    ? rom_data    :
+           ram0_cs   ? ram0_dout   :
+           ram1_cs   ? ram1_dout   :
+           io_cs     ? io_dout     :
+           flash0_cs ? flash0_dout :
+           shd_cs    ? shd_dout    : 16'h0;
 end
 /* verilator tracing_off */
 jtframe_rtc u_rtc(
@@ -193,6 +196,17 @@ jtframe_ram16 #(
 //     .we     ( ram1_we       ),
 //     .q      ( ram1_dout     )
 // );
+`ifdef SIMULATION
+    reg flash0_csl, flash0_msg = 0;
+    always @(posedge clk) begin
+        flash0_csl <= flash0_cs;
+        if( flash0_cs && !flash0_csl && !flash0_msg ) begin
+            flash0_msg <= 1;
+            $display("Flash accessed");
+        end
+    end
+`endif
+
 `ifdef SIMULATION
     reg [11:1] over_k=0;
     reg copy=0;

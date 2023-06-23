@@ -1,0 +1,78 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Jun 18 11:02:40 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/test.fst"
+[dumpfile_mtime] "Sun Jun 18 11:02:25 2023"
+[dumpfile_size] 1131389
+[savefile] "/home/jtejada/jtcores/cores/ngp/ver/game/obj.gtkw"
+[timestart] 16296533000
+[size] 1264 1013
+[pos] -1 -1
+*-16.432766 16296632404 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[sst_width] 219
+[signals_width] 233
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@28
+TOP.game_test.u_game.u_game.u_video.LVBL
+TOP.game_test.u_game.u_game.u_video.LHBL
+@24
+TOP.game_test.u_game.u_game.u_video.vdump[7:0]
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_video.u_colmix.scr1_pxl[2:0]
+TOP.game_test.u_game.u_game.u_video.u_colmix.scr2_pxl[2:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_colmix.obj_pxl[4:0]
+@800024
+TOP.game_test.u_game.u_game.u_video.u_colmix.prio[1:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_colmix.prio[1:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_colmix.prio[1:0]
+TOP.game_test.u_game.u_game.u_video.u_colmix.scr_order
+TOP.game_test.u_game.u_game.u_video.u_colmix.scr1_blank
+@1001200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_video.u_colmix.scr2_blank
+@200
+-OBJ
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.scan_st[2:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.cen
+TOP.game_test.u_game.u_game.u_video.u_obj.inzone
+TOP.game_test.u_game.u_game.u_video.u_obj.dr_start
+TOP.game_test.u_game.u_game.u_video.u_obj.hidden
+TOP.game_test.u_game.u_game.u_video.u_obj.dr_busy
+@200
+-
+@8022
+TOP.game_test.u_game.u_game.u_video.u_obj.scan_obj[5:0]
+@23
+TOP.game_test.u_game.u_game.u_video.u_obj.scan_obj[5:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.scan_dout[15:0]
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.ypos[7:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.hchain
+TOP.game_test.u_game.u_game.u_video.u_obj.vchain
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.dr_attr_code[15:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.chram_addr[12:1]
+TOP.game_test.u_game.u_game.u_video.u_obj.hoffset[7:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.voffset[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

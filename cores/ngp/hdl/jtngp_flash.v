@@ -16,6 +16,9 @@
     Version: 1.0
     Date: 17-5-2023 */
 
+// the original flash has an 8-bit interface
+// adapted here for 16 bits
+
 module jtngp_flash(
     input             rst,
     input             clk,
@@ -24,7 +27,7 @@ module jtngp_flash(
     // interface to CPU
     input      [20:1] cpu_addr,
     input             cpu_cs,
-    input             cpu_we,
+    input      [ 1:0] cpu_we,
     input      [15:0] cpu_dout,
     output     [15:0] cpu_din,
     output            rdy,      // rdy / ~bsy pin
@@ -36,6 +39,7 @@ module jtngp_flash(
     output reg        cart_cs,
     input             cart_ok,
     input      [15:0] cart_data,
+    output     [ 1:0] cart_dsn,
     output reg [15:0] cart_din
 );
 
@@ -43,12 +47,14 @@ localparam [2:0] DEV_2F = 0, //   2 or 4 MB
                  DEV_2C = 1, //   1 MB
                  DEV_AB = 2; // <=512 kB
 
-localparam [2:0] READ     = 0,
-                 PROG1    = 1,
-                 PROG2    = 3,
-                 CMD      = 2,
-                 AUTOPROG = 7,
-                 PROTECT  = 6;
+localparam [2:0] IDLE     = 0,
+                 READ     = 1,
+                 PROG1    = 2,
+                 CMD      = 3,
+                 PROG2    = 4,
+                 PRERD    = 5,
+                 PROTECT  = 6,
+                 AUTOPROG = 7;
 
 localparam [2:0] BA_64K = 3'b000,
                  BA_32K = 3'b100,
@@ -56,33 +62,36 @@ localparam [2:0] BA_64K = 3'b000,
                  BA_8K  = 3'b111;
 
 reg  [ 2:0] st;
-reg  [20:0] ba_addr, eff_addr, prog_ba, prog_addr;
+reg  [20:1] ba_addr, eff_addr, prog_ba, prog_addr;
 reg  [ 2:0] ba_size, prog_size;
-reg  [ 7:0] cmd, id_data;
+reg  [ 7:0] cmd;
+reg  [15:0] id_data;
 wire        cpu_cswe, we_edge;
 reg         cswe_l, id;
 // cartridge access
-reg  [ 1:0] erase_st;
+reg  [ 1:0] erase_st, prog_dsn;
 reg  [ 2:0] prog_st;
-reg  [ 7:0] prog_data;
+reg  [15:0] prog_data;
 reg         erase_start, prog_start, erase_bsy, prog_bsy,
             ba_full, rd_bsy;
 wire        last;
 
-assign last = &{ cart_addr[15:13] | prog_size, cart_addr[12:0] };
-assign cpu_din = id ? {2{id_data}} : cart_data;
+assign last = &{ cart_addr[15:13] | prog_size, cart_addr[12:1] };
+assign cpu_din = id ? id_data : cart_data;
 assign cpu_ok  = id | cart_ok;
-assign cpu_cswe = cpu_cs && cpu_we;
+assign cpu_cswe = cpu_cs && cpu_we!=0;
 assign we_edge  = cpu_cswe && !cswe_l;
 assign rdy      = ~|{erase_bsy,prog_bsy,rd_bsy};
 
 always @* begin
-    case( cpu_addr[1:0] )
-        0: id_data = 8'h98; // manufacturer ID
-        1: id_data = dev_type == DEV_AB ? 8'hAB :
-                     dev_type == DEV_2C ? 8'h2C : 8'h2F;
-        2: id_data = 2;
-        3: id_data = 8'h80;
+    case( { cpu_addr[6], cpu_addr[1] } )
+        0: id_data = { dev_type == DEV_AB ? 8'hAB :
+                       dev_type == DEV_2C ? 8'h2C : 8'h2F, 8'h98 };
+        1: id_data = 16'h80_02;
+        default: id_data = 0; // protected/unprotected
+        // 0: id_data = { dev_type == DEV_AB ? 8'hAB :
+        //                dev_type == DEV_2C ? 8'h2C : 8'h2F,
+        //                8'h98 }; // manufacturer ID
     endcase
 end
 
@@ -91,11 +100,11 @@ always @* begin
     eff_addr = cpu_addr;
     case( dev_type )
         DEV_AB: eff_addr[20:19] = 0;
-        DEV_2C: eff_addr[20] = 0;
+        DEV_2C: eff_addr[20]    = 0;
         default:;
     endcase
     // get the block starting address
-    ba_addr = { eff_addr[20:13], 13'd0 };
+    ba_addr = { eff_addr[20:13], 12'd0 };
     ba_size = BA_64K;
     case( dev_type )
         DEV_AB:  ba_full = ~&eff_addr[18:16];
@@ -132,6 +141,7 @@ always @(posedge clk, posedge rst ) begin
         cart_we   <= 0;
         cart_cs   <= 0;
         cart_din  <= 0;
+        cart_dsn  <= 0;
         erase_bsy <= 0;
         prog_bsy  <= 0;
         erase_st  <= 0;
@@ -140,26 +150,28 @@ always @(posedge clk, posedge rst ) begin
             if( erase_start ) begin
                 erase_bsy <= 1;
                 cart_addr <= prog_addr;
-                cart_din  <= 8'hff;
+                cart_din  <= 16'hffff;
                 cart_we   <= 1;
+                cart_dsn  <= 0;
                 erase_st  <= 0;
             end
             if( prog_start ) begin
                 prog_bsy <= 1;
                 prog_st  <= 0;
             end
-            if( cpu_cs && !cpu_we ) begin // will cpu_we go high after cpu_cs? It could cause an unnecessary read
+            if( cpu_cs && cpu_we==0 && st==READ ) begin // will cpu_we go high after cpu_cs? It could cause an unnecessary read
                 cart_addr <= eff_addr;
-                { cart_we, cart_cs } <= 1;
-                rd_bsy <= 1;
+                cart_dsn  <= 0;
+                rd_bsy    <= 1;
+                { cart_we, cart_cs } <= 2'b01;
             end
         end else begin
             if( erase_bsy ) begin
                 erase_st <= erase_st + 1'd1;
                 case( erase_st )
-                    0: cart_cs <= 1;
+                    0: { cart_dsn, cart_cs } <= 3'b001;
                     2: if( !cart_ok ) erase_st <= 2; else cart_cs <= 0;
-                    3: if( last ) { cart_we, erase_bsy } <= 0; else cart_addr[15:0] <= cart_addr[15:0] + 16'd1;
+                    3: if( last ) { cart_we, erase_bsy } <= 0; else cart_addr[15:1] <= cart_addr[15:1] + 15'd1;
                 endcase
             end
             if( prog_bsy ) begin
@@ -167,12 +179,13 @@ always @(posedge clk, posedge rst ) begin
                 case( prog_st )
                     0: { cart_addr, cart_we, cart_cs } <= { prog_addr, 2'b01 };
                     2: if( !cart_ok ) prog_st <= 2; else begin cart_cs <= 0; cart_din <= cart_data & prog_data; end
-                    3: { cart_we, cart_cs } <= 2'b11;
+                    3: { cart_dsn, cart_we, cart_cs } <= { prog_dsn, 2'b11 };
                     4: if( !cart_ok ) prog_st <= 4; else { prog_bsy, cart_we, cart_cs } <= 0;
                 endcase
             end
             if( rd_bsy && cart_ok ) { rd_bsy, cart_cs } <= 0;
         end
+        if( !cpu_cs && cart_ok ) cart_cs <= 0;
     end
 end
 
@@ -193,29 +206,34 @@ always @(posedge clk, posedge rst) begin
 
         if( we_edge ) begin
             case( st )
+                IDLE: begin
+                    if( cpu_addr[15:1]==15'h5555>>1 && cpu_dout[7:0]=='haa ) st <= PROG1;
+                    id  <= 0;
+                    cmd <= 0;
+                end
                 READ: begin
-                    st  <= cpu_addr[15:0]=='h5555 && cpu_dout=='haa ? PROG1 : READ;
+                    st  <= cpu_addr[15:1]==15'h5555>>1 && cpu_dout[7:0]=='haa ? PROG1 : READ;
                     id  <= 0;
                     cmd <= 0;
                 end
                 PROG1: begin
-                    st <= cpu_addr[15:0]=='h2aaa && cpu_dout=='h55 ? PROG2 : READ;
+                    st <= cpu_addr[15:1]==15'h2aaa>>1 && cpu_dout[7:0]=='h55 ? PROG2 : READ;
                 end
                 PROG2: begin
-                    if( cpu_dout=='h30 ) begin
-                        if( cpu_dout=='h80 ) begin
-                            prog_ba    <= ba_addr;
-                            prog_size  <= ba_size;
+                    if( cpu_dout[7:0]=='h30 ) begin
+                        if( cpu_dout[7:0]=='h80 ) begin
+                            prog_ba     <= ba_addr;
+                            prog_size   <= ba_size;
                             erase_start <= 1;   // auto erase
                         end
-                    end else if( cpu_addr[15:0]=='h5555 ) begin
-                        case( cpu_dout )
+                    end else if( cpu_addr[15:1]==15'h5555>>1 ) begin
+                        case( cpu_dout[7:0] )
                             8'h80: begin
                                 cmd <= 8'h80;
                                 st  <= CMD;
                             end
                             8'h90: begin // ID read
-                                st <= READ;
+                                st <= PRERD;
                                 id <= 1;
                             end
                             8'h9a: begin
@@ -229,29 +247,33 @@ always @(posedge clk, posedge rst) begin
                             8'ha0: begin
                                 st <= AUTOPROG;
                             end
+                            8'hf0: begin // reset
+                                st <= IDLE;
+                            end
                             default: begin
-                                st <= READ;
+                                st <= IDLE;
+                                id <= 0;
                             end
                         endcase
                     end
                 end
                 CMD: begin
-                    st <= cpu_addr[15:0]=='h5555 && cpu_dout=='haa ? PROG1 : READ;
+                    st <= cpu_addr[15:1]==15'h5555>>1 && cpu_dout[7:0]=='haa ? PROG1 : READ;
                 end
                 AUTOPROG: begin
                     // read data first and apply a logic and to only program
                     // bits set to zero
                     prog_addr  <= eff_addr;
                     prog_data  <= cpu_dout;
+                    prog_dsn   <= ~cpu_we;
                     prog_start <= 1;
-                    st <= READ;
+                    st         <= READ;
                 end
                 default: begin
-                    st <= READ;
-                    id <= 0;
+                    st <= IDLE;
                 end
             endcase
-        end
+        end else if( st==PRERD && !cpu_cs ) st <= READ;
     end
 end
 

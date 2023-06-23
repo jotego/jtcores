@@ -22,41 +22,21 @@ module jtngp_game(
 
 wire [20:1] cpu_addr;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
-wire [15:0] cpu_dout, gfx_dout, shd_dout;
+wire [15:0] cpu_dout, gfx_dout, shd_dout, flash0_dout;
 wire [ 7:0] snd_latch, main_latch;
-wire [ 1:0] we, shd_we;
-wire        gfx_cs;
+wire [ 1:0] cpu_we, shd_we;
+wire        gfx_cs,
+            flash0_cs, flash0_rdy, flash0_ok;
 wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
 wire        hirq, virq, main_int5;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
 assign debug_view = 0;
-assign game_led  = 0;
+assign game_led   = 0;
 
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
-
-// jtngp_sdram u_sdram(
-//     .rst        ( rst           ),
-//     .clk        ( clk           ),
-
-//     .downloading( downloading   ),
-//     .dwnld_busy ( dwnld_busy    ),
-
-//     .ioctl_addr ( ioctl_addr    ), // max 64 MB
-//     .ioctl_dout ( ioctl_dout    ),
-//     .ioctl_wr   ( ioctl_wr      ),
-//     .ioctl_idx  ( ioctl_idx     ),
-//     .prog_addr  ( prog_addr     ),
-//     .prog_data  ( prog_data     ),
-//     .prog_mask  ( prog_mask     ), // active low
-//     .prog_we    ( prog_we       ),
-//     .prog_rd    ( prog_rd       ),
-//     .prog_ba    ( prog_ba       ),
-
-//     .sdram_ack  ( sdram_ack     )
-// );
 
 jtngp_main u_main(
     .rst        ( rst24     ),
@@ -75,7 +55,7 @@ jtngp_main u_main(
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
     .gfx_dout   ( gfx_dout  ),
-    .we         ( we        ),
+    .we         ( cpu_we    ),
     .shd_we     ( shd_we    ),
     .shd_dout   ( shd_dout  ),
     .gfx_cs     ( gfx_cs    ),
@@ -93,7 +73,8 @@ jtngp_main u_main(
     .main_latch ( main_latch),
 
     // Cartridge
-    .flash0_cs  (           ),
+    .flash0_cs  ( flash0_cs ),
+    .flash0_dout(flash0_dout),
     .flash1_cs  (           ),
 
     // Firmware access
@@ -108,13 +89,13 @@ jtngp_flash u_flash(
 
     .dev_type   ( 3'd0      ), // 2MB for now
     // interface to CPU
-    .cpu_addr   (
-    input             cpu_cs,
-    input             cpu_we,
-    input      [ 7:0] cpu_dout,
-    output     [ 7:0] cpu_din,
-    output            rdy,      // rdy / ~bsy pin
-    output            cpu_ok,   // read data available
+    .cpu_addr   ( cpu_addr  ),
+    .cpu_cs     ( flash0_cs ),
+    .cpu_we     ( cpu_we    ),
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_din    (flash0_dout),
+    .rdy        ( flash0_rdy),      // rdy / ~bsy pin
+    .cpu_ok     ( flash0_ok ),   // read data available
 
     // interface to SDRAM
     .cart_addr  ( cart0_addr),
@@ -122,6 +103,7 @@ jtngp_flash u_flash(
     .cart_cs    ( cart0_cs  ),
     .cart_ok    ( cart0_ok  ),
     .cart_data  ( cart0_data),
+    .cart_dsn   ( cart0_dsn ),
     .cart_din   ( cart0_din )
 );
 /* verilator tracing_off */
@@ -164,7 +146,7 @@ jtngp_video u_video(
     .cpu_addr   (cpu_addr[13:1]),
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( gfx_dout  ),
-    .we         ( we        ),
+    .we         ( cpu_we    ),
     .gfx_cs     ( gfx_cs    ),
 
     .hirq       ( hirq      ),
