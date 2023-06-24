@@ -112,9 +112,9 @@ end
 assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 function [7:0] cgate( input [7:0] c);
-    cgate = cfg==SCONTRA  ?   { c[7:5], 5'd0 } :
-            cfg==CRIMFGHT ? : { c[7:6], 5'd0, c[5] } :
-                              { c[7:6], 6'd0 };
+    cgate = cfg==SCONTRA  ? { c[7:5], 5'd0       } :
+            cfg==CRIMFGHT ? { c[7:6], 5'd0, c[5] } :
+                            { c[7:6], 6'd0       };
 endfunction
 
 jt052109 u_tilemap(

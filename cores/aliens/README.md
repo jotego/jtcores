@@ -125,6 +125,67 @@ From D20
 
 ```
 
+### Crime Fighters
+
+From Caius equivalent equations [here](https://wiki.pldarchive.co.uk/index.php?title=Crime_Fighters).
+
+From E19
+```
+/o12 = A[15:10]==0 & W0C0
+
+/WORK = (/AS && A[15:13]==0) && (A[12:10]!=0 || /W0C0)
+/BANK = /AS & ( A15 || (INIT && A[14:13]==2'b11) )
+
+/o15 = /AS && INIT && A[15:10]==6'b001111
+
+/o16 = INIT && A[15:11]==5'b01011
+
+/o17 = /AS & /A15 & ( A14 & /INIT |
+                     /A14 &  A13  |
+                      A14 & /A13  |
+                     /A14 & /A12 & /A11 & /A10 & W0C0 )
+
+// o19 only used for DTAC generation
+/o19 = /AS & ( A15 |
+       INIT & A14 &  A13 |
+             /A14 & /A13 & A12 |
+             /A14 & /A13 & A11 |
+             /A14 & /A13 & A10 |
+             /A14 & /A13 & /W0C0 )
+```
+
+From E18
+```
+// o12 only used for DTAC generation
+/o12 = /E19_o17l & /RMRD & A10 & /E19_o16 |
+       /E19_o17l & /RMRD & /A9 & /A8 & /A7 & /(A6|A5) & /(A4|A3) & /E19_o16 |
+       /E19_o17l & /E19_o17 & /A9 |
+       /E19_o17l & /E19_o17 & /A8 |
+       /E19_o17l & /E19_o17 & /A7 |
+       /E19_o17l & /E19_o17 & (A6|A5) |
+       /E19_o17l & /E19_o17 & E19_o15
+
+/IOCS = A9 & A8 & A7 & /(A6|A5) & /E19_o15
+
+// unconnected
+/o15 = /E19_o17l & /RMRD & A10 & /E19_o16 |
+       /E19_o17l & /RMRD & /A9 & /A8 & /A7 & /(A6|A5) & /(A4|A3) & /E19_o16
+
+/CRAMCS = /E19_o17l & /E19_o12
+
+// must invert later:
+VRAMCS = E19_o17l |
+      /RMRD & A10 & /E19_o16 |
+      /RMRD & /A9 & /A8 & /A7 & /(A6|A5) & /(A4|A3) & /E19_o16 |
+      E19_o17 |
+      /E19_o12 |
+      A9 & A8 & A7 & /(A6|A5) & /E19_o15
+
+/OBJCS = /E19_o17l & /RMRD & A10 & /E19_o16 |
+         /E19_o17l & /RMRD & /A9 & /A8 & /A7 & /(A6|A5) & /(A4|A3) & /E19_o16
+```
+
+
 # Game Library
 
 The following games used the 052001 CPU as the main processor and have a very similar board design. The main differences are related to memory decoding and GFX chip connectivity. JTALIENS is planned to support the following titles

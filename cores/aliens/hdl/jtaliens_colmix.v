@@ -84,7 +84,6 @@ assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 always @* begin
-    pxl = 0;
     case( cfg )
         ALIENS,CRIMFGHT: begin
             case( prio_sel ) // Aliens
@@ -101,6 +100,7 @@ always @* begin
             2: pxl = { 2'b10,  lyro_pxl[7:0] };
             3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
         endcase
+        default: pxl=0;
     endcase
 end
 

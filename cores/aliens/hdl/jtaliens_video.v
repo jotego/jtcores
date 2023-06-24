@@ -99,8 +99,9 @@ wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 // Aliens programs the interrupts on the sprite chip, but
 // the other games use the tilemapper chip instead
-assign cpu_irq_n = cfg==ALIENS ? obj_irqn : tile_irqn;
-assign cpu_nmi_n = cfg==ALIENS ? obj_nmin : tile_nmin;
+assign cpu_irq_n = cfg==ALIENS || cfg==CRIMFGHT ? obj_irqn : tile_irqn;
+assign cpu_nmi_n = cfg==ALIENS   ? obj_nmin :
+                   cfg==CRIMFGHT ? 1'b1 : tile_nmin;
 
 // Debug
 always @(posedge clk) begin

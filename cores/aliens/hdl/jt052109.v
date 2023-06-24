@@ -111,8 +111,7 @@ reg  [ 7:0] mmr[0:6], col_cfg,
             vposa, vposb;
 reg  [ 8:0] hposa, hposb, heff_a, heff_b, vdumpf;
 reg  [ 8:0] hdumpf;
-wire [ 7:0] bank0, bank1, cfg,
-            code, attr, int_en,
+wire [ 7:0] bank0, bank1, cfg, int_en,
             cpu_attr, cpu_code;
 reg  [10:0] map_a, map_b, vc;
 reg  [12:0] vaddr, vaddr_nx;
@@ -139,7 +138,6 @@ assign flip        = mmr[REG_FLIP][0];
 assign hflip_en    = mmr[REG_FLIP][1];
 assign vflip_en    = mmr[REG_FLIP][2];
 assign same_col_n  = cfg[5];
-assign {attr,code} = scan_dout;
 assign { cscrb_en, rscrb_en, fine_row[1], cscra_en, rscra_en, fine_row[0] }
                    = mmr[REG_SCR][5:0];
 // read vpos when col scr is disabled

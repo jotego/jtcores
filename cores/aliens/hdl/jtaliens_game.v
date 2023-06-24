@@ -56,7 +56,7 @@ end
 //     end
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -79,6 +79,8 @@ jtaliens_main u_main(
     .coin_input     ( coin_input    ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
+    .joystick3      ( joystick3     ),
+    .joystick4      ( joystick4     ),
     .service        ( service       ),
 
     // From video
