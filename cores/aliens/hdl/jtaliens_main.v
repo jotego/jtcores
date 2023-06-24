@@ -359,6 +359,7 @@ jtkcpu u_cpu(
         objsys_cs  = 0;
         snd_irq    = 0;
         snd_latch  = 0;
+        init       = 0;
 
         f=$fopen("prio.bin","rb");
         if( f!=0 ) begin
