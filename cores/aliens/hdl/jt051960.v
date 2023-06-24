@@ -56,7 +56,7 @@ module jt051960(    // sprite logic
                                 // Vdump goes from F8 to 1FF, 264 lines
     input             vs,
     input             lvbl,
-    input             lhbl,
+    input             hs,
     output            flip,
 
     // shadow
@@ -93,7 +93,7 @@ reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub, hstep, hcode;
 reg  [ 8:0] ydiff, ydiff_b, y, vlatch, hadd;
 reg  [ 6:0] dma_prio, scan_obj;
-reg         dma_clr, dma_done, dma_cen, inzone, lhbl_l, done, hdone, busy_l;
+reg         dma_clr, dma_done, dma_cen, inzone, hs_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
 wire [ 2:0] int_en, sha_cfg;
 reg  [ 2:0] size;
@@ -203,7 +203,7 @@ end
 // Table scan
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        lhbl_l   <= 0;
+        hs_l     <= 0;
         scan_obj <= 0;
         scan_sub <= 0;
         hstep    <= 0;
@@ -216,10 +216,10 @@ always @(posedge clk, posedge rst) begin
         hz_keep  <= 0;
         busy_l   <= 0;
     end else if( cen2 ) begin
-        lhbl_l <= lhbl;
+        hs_l <= hs;
         busy_l <= dr_busy;
         dr_start <= 0;
-        if( !lhbl && lhbl_l && vdump>9'h10D && vdump<9'h1f1) begin
+        if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;

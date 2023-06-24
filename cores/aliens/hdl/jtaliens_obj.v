@@ -92,7 +92,7 @@ jt051960 u_scan(    // sprite logic
     // Base Video (inputs)
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
+    .hs         ( hs        ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     .flip       ( flip      ), // output
