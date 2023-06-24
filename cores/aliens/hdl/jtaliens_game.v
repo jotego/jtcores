@@ -22,7 +22,7 @@ module jtaliens_game(
 
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
-wire        cpu_cen, snd_irq, rmrd, rst8;
+wire        cpu_cen, snd_irq, rmrd, rst8, init;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
 wire        cpu_rnw, cpu_irq_n, cpu_nmi_n;
 wire [ 7:0] tilesys_dout, objsys_dout,
@@ -40,7 +40,7 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= {2'd0, prio, 2'd0, cpu_cfg};
+        3: debug_mux <= {init,rmrd, prio, 2'd0, cpu_cfg};
     endcase
 end
 
@@ -96,6 +96,7 @@ jtaliens_main u_main(
     .prio           ( prio          ),
     .objsys_cs      ( objsys_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
+    .init           ( init          ),
     .rmrd           ( rmrd          ),
     .pal_we         ( pal_we        ),
     // To sound

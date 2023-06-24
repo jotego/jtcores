@@ -24,6 +24,7 @@ module jtaliens_main(
 
     input       [ 1:0]  cfg,
     output      [ 7:0]  cpu_dout,
+    output reg          init,
 
     output reg  [17:0]  rom_addr,
     input       [ 7:0]  rom_data,
@@ -74,7 +75,7 @@ reg  [ 7:0] cpu_din, port_in;
 reg  [ 3:0] bank;
 reg  [ 3:0] eff_bank;
 wire [15:0] A;
-reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work, init,
+reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work,
             ioout, incs , chain,
             e19_o16, e19_o12, objaux;
 wire        dtack;  // to do: add delay for io_cs
@@ -105,6 +106,7 @@ always @(*) begin
                                   : { 2'b10, A }; // 2+16=18
         end
     endcase
+    if( !rom_cs ) rom_addr[15:0] = A[15:0]; // necessary to address gfx chips correctly
 end
 
 // Decoder 053326 takes as inputs A[15:10], BK4, W0C0
@@ -118,6 +120,9 @@ wire bad_cs =
         { 3'd0, io_cs      } +
         { 3'd0, objsys_cs  } +
         { 3'd0, tilesys_cs } > 1;
+wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs, tilesys_cs };
+wire test_cs = A[15:0]>=16'h2000 && A[15:0]<16'h6000;
+wire bad2_cs = test_cs & ~tilesys_cs & ~objsys_cs;
 `endif
 
 always @(*) begin

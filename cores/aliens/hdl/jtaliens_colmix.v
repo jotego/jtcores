@@ -75,7 +75,7 @@ wire        shad;
 assign prio_addr = {
     cfg==SCONTRA  ? { cpu_prio[0], shadow, lyro_pxl[ 9:8] } :
     cfg==THUNDERX ? { cpu_prio,            lyro_pxl[ 9:8] } :
-    cfg==CRIMFGHT ? {              shadow, lyro_pxl[10:8] } :
+    cfg==CRIMFGHT ? {              shadow, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] } :
             { 1'b0, lyro_pxl[8], lyro_pxl[9], lyro_pxl[10] },
     { lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n } };
 
@@ -86,7 +86,7 @@ assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 always @* begin
     case( cfg )
         ALIENS,CRIMFGHT: begin
-            case( prio_sel ) // Aliens
+            case( prio_sel )
                 0: pxl[7:0] = { 2'b01, lyra_pxl[7:6], lyra_pxl[3:0] };
                 1: pxl[7:0] = { 2'b10, lyrb_pxl[7:6], lyrb_pxl[3:0] };
                 2: pxl[7:0] = lyro_pxl[7:0];
