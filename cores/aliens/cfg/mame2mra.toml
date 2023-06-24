@@ -13,6 +13,7 @@ names = [
     { machine="aliens", names="Shoot standing,Shoot crouching" },
     { machine="thunderx", names="Shoot,Option adjust" },
     { machine="scontra", names="Shoot,Jump" },
+    { machine="crimfght", names="Punch,Kick,Back Kick" },
     { machine="gbusters", names="Shoot,Super shot" },
 ]
 
