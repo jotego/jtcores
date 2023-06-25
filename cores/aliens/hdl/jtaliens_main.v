@@ -65,7 +65,7 @@ module jtaliens_main(
     input       [19:0]  dipsw,
     // Debug
     input       [ 7:0]  debug_bus,
-    output      [ 7:0]  st_dout
+    output reg  [ 7:0]  st_dout
 );
 `ifndef NOMAIN
 `include "jtaliens.inc"
@@ -74,9 +74,10 @@ wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din, port_in;
 reg  [ 3:0] bank;
 reg  [ 3:0] eff_bank;
-wire [15:0] A;
+wire [15:0] A, pcbad;
+wire        buserror;
 reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work,
-            ioout, incs , chain,
+            ioout, incs , chain, berr_l,
             e19_o16, e19_o12, objaux;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb, eff_nmi_n;
@@ -85,9 +86,17 @@ wire        norA65, norA43;
 assign dtack   = ~rom_cs | rom_ok;
 assign ram_we  = ram_cs & cpu_we;
 assign pal_we  = pal_cs & cpu_we;
-assign st_dout = Aupper;
 assign norA65  = ~|A[6:5],
        norA43  = ~|A[4:3];
+
+always @(*) begin
+    case( debug_bus[1:0] )
+        0: st_dout = Aupper;
+        1: st_dout = { 7'd0, berr_l };
+        2: st_dout = pcbad[7:0];
+        3: st_dout = pcbad[15:8];
+    endcase
+end
 
 always @(*) begin
     case( cfg )
@@ -203,7 +212,9 @@ always @(posedge clk, posedge rst) begin
         init      <= 0; // missing this will result in garbled scroll after reset
         eff_bank  <= 0;
         eff_nmi_n <= 1;
+        berr_l    <= 0;
     end else begin
+        if( buserror ) berr_l <= 1;
         eff_nmi_n <= cfg==ALIENS ? nmi_n : 1'b1;
         eff_bank <= cfg==SCONTRA ? bank : Aupper[3:0]; // Only Super Contra uses a latch
         if( cfg==CRIMFGHT ) begin
@@ -220,7 +231,7 @@ always @(posedge clk, posedge rst) begin
                             0: port_in <= { 3'b111, service, coin_input };
                             1: port_in <= { start_button[0], joystick1[6:0] };
                             2: port_in <= { start_button[1], joystick2[6:0] };
-                            3: port_in <= dipsw[7:0];
+                            3: port_in <= dipsw[15:8];
                         endcase
                     end
                     1: begin // CONTROL2 in schematics
@@ -228,7 +239,7 @@ always @(posedge clk, posedge rst) begin
                             0: port_in <= { init, rmrd, work, 1'b1, dipsw[19:16] };
                             1: port_in <= { start_button[2], joystick3[6:0] };
                             2: port_in <= { start_button[3], joystick4[6:0] };
-                            3: port_in <= dipsw[15:8];
+                            3: port_in <= dipsw[7:0];
                         endcase
                     end
                     // 2: watchdog
@@ -323,7 +334,7 @@ jtkcpu u_cpu(
     .cen2   ( cen_ref   ),
     .cen_out( cpu_cen   ),
 
-    .halt   ( 1'd0      ),
+    .halt   ( berr_l    ),
     .dtack  ( dtack     ),
     .nmi_n  ( eff_nmi_n ),
 // `ifdef SIMULATION
@@ -332,6 +343,8 @@ jtkcpu u_cpu(
     .irq_n  ( irq_n | ~dip_pause ),
 // `endif
     .firq_n ( 1'b1      ),
+    .pcbad  ( pcbad     ),
+    .buserror( buserror ),
 
     // memory bus
     .din    ( cpu_din   ),

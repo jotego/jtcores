@@ -14,6 +14,7 @@
 *.log
 *.lst
 *.lxt
+*.mp4
 *.mra
 *.ods#
 *.p
@@ -83,6 +84,7 @@ rom/*
 rom/cp_*sh
 rom/mra
 rom/pocket
+sdram.old
 setnames.txt
 sim
 test.cpp
@@ -92,4 +94,3 @@ vsim.do
 waiver
 work
 x
-sdram.old
