@@ -88,7 +88,7 @@ module jtaliens_video(
 
 `include "jtaliens.inc"
 
-wire [ 8:0] hdump, vdump, vrender1;
+wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal;
 wire [11:0] lyra_pxl, lyrb_pxl;
@@ -146,6 +146,7 @@ jtaliens_scroll u_scroll(
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
+    .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
 
     .irq_n      ( tile_irqn ),
@@ -198,7 +199,7 @@ jtaliens_obj u_obj(    // sprite logic
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
-    .vdump      ( vrender1  ),
+    .vdump      ( vrender   ),
     // CPU interface
     .cs         ( objsys_cs ),
     .cpu_addr   (cpu_addr[10:0]),

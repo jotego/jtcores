@@ -78,8 +78,7 @@ module jt051962(
 
 
     output     [ 8:0] hdump,    // not an output in the original
-    output     [ 8:0] vdump,
-    output     [ 8:0] vrender1,
+    output     [ 8:0] vdump, vrender, vrender1,
     output            lhbl,
     output            lvbl,
     output            hs,
@@ -117,7 +116,7 @@ jtframe_vtimer #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .vdump      ( vdump     ),
-    .vrender    (           ),
+    .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
     .H          ( hdump     ),
     .Hinit      (           ),
