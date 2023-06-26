@@ -22,6 +22,7 @@
 *.png
 *.qpf
 *.qsf
+*.RAM
 *.raw
 *.rbf
 *.rbf_r
@@ -31,6 +32,8 @@
 *.smsg
 *.sof
 *.summary
+*.trace
+*.vcd
 *.wav
 *.zip
 */mist
@@ -73,6 +76,7 @@ macros.f
 mame.xml
 mem_ports.inc
 microrom.mem
+mist_dump.v
 nanorom.mem
 ncverilog.*
 ncverilog.*

@@ -1,0 +1,74 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun Jun 11 14:52:05 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/aliens/ver/scontra/test.fst"
+[dumpfile_mtime] "Sun Jun 11 14:45:34 2023"
+[dumpfile_size] 7391729
+[savefile] "/home/jtejada/jtcores/cores/aliens/ver/scontra/flip.gtkw"
+[timestart] 10416
+[size] 1262 1024
+[pos] -1 -1
+*-35.374981 18185596464 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scroll.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.
+[sst_width] 223
+[signals_width] 229
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@25
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.framecnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.lvbl
+[color] 1
+TOP.game_test.u_game.u_game.u_video.lhbl
+@22
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vdump[8:0]
+@200
+-
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+(12)TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.vaddr[12:0]
+@1401200
+-group_end
+@200
+-
+@22
+TOP.game_test.frame_cnt[31:0]
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.heff_a[8:0]
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.heff_b[8:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.pxl_cen
+@22
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.hdump[8:0]
+TOP.game_test.u_game.u_game.u_video.u_scroll.u_tilemap.hdumpf[8:0]
+@8024
+TOP.game_test.u_game.u_game.u_video.u_scroll.hsub_a[2:0]
+@24
+TOP.game_test.u_game.u_game.u_video.u_scroll.hsub_b[2:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.blue[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

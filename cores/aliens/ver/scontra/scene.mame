@@ -1,0 +1,8 @@
+focus 0
+// Tiles
+wpset 0,3000,1,{printf "%04X=%02X", wpaddr, wpdata; go}
+// Objects
+wpset 3C00,400,w,1,{printf "%04X=%02X", wpaddr, wpdata; go}
+// Palette
+wpset 5800,800,w,1,{printf "%04X=%02X", wpaddr, wpdata; go}
+go

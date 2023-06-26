@@ -1,0 +1,60 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri Apr  7 06:54:13 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/castle/ver/game/test.fst"
+[dumpfile_mtime] "Fri Apr  7 06:47:30 2023"
+[dumpfile_size] 22370465
+[savefile] "/home/jtejada/jtcores/cores/castle/ver/game/int.gtkw"
+[timestart] 15175024125000
+[size] 2560 997
+[pos] -1 -1
+*-19.591024 15175028204784 366124160304 335507286576 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.
+[sst_width] 223
+[signals_width] 228
+[sst_expanded] 1
+[sst_vpaned_height] 401
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+[color] 1
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.buserror
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_addr[15:0]
+@28
+TOP.game_test.u_game.ram_we
+TOP.game_test.u_game.u_game.u_main.ram_cs
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_dout[7:0]
+[color] 3
+TOP.game_test.u_game.u_game.u_main.cpu_din[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.cpu_we
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.int_en
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.psh_go
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.pul_go
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_memctrl.is_int
+@29
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.rti_cc
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pc[15:0]
+[color] 2
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.op[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

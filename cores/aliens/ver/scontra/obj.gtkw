@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Mon Jun 12 05:09:54 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/aliens/ver/scontra/test.fst"
+[dumpfile_mtime] "Sun Jun 11 15:41:51 2023"
+[dumpfile_size] 87220724
+[savefile] "/home/jtejada/jtcores/cores/aliens/ver/scontra/obj.gtkw"
+[timestart] 1504673996784
+[size] 1262 1024
+[pos] -2 -28
+*0.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_sound.
+[sst_width] 223
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+TOP.game_test.u_game.u_game.LVBL
+TOP.game_test.u_game.u_game.LHBL
+@201
+-
+[pattern_trace] 1
+[pattern_trace] 0

@@ -1,0 +1,104 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Jun 24 14:10:34 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/aliens/ver/crime/test.fst"
+[dumpfile_mtime] "Sat Jun 24 14:01:27 2023"
+[dumpfile_size] 993307
+[savefile] "/home/jtejada/jtcores/cores/aliens/ver/crime/obj.gtkw"
+[timestart] 12217370000
+[size] 1264 1013
+[pos] -1 -1
+*-21.582983 12225665424 12225144624 12228977712 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[sst_width] 219
+[signals_width] 221
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@c00024
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+@1401200
+-group_end
+@c00024
+#{vdump[7:0]} (1)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (2)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (3)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (4)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (5)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (6)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (7)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0] (8)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+@28
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vdump[8:0]
+@1401200
+-group_end
+@28
+TOP.game_test.u_game.u_game.u_video.u_scroll.lhbl
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.inzone
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_addr[9:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_dout[7:0]
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_obj[6:0]
+@8022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_obj[6:0]
+@8024
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_sub[2:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dr_start
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hpos[8:0]
+@c00024
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.buf_addr[8:0]
+@1401200
+-group_end
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.size[2:0]
+@200
+-
+@24
+[color] 2
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hstep[2:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hdone
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.busy_l
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vlatch[8:0]
+@200
+-
+@29
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.done
+[pattern_trace] 1
+[pattern_trace] 0

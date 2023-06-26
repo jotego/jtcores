@@ -168,7 +168,13 @@ always @(posedge clk, posedge rst) begin
             dma_addr   <= 0;
             dma_ok     <= 0;
             vb_start_n <= 1;
-        end else if(!obj_enb && dma_cen) begin
+        end else if(!obj_enb /*&& dma_cen*/) begin
+            // using dma_cen matches the DMA time length with the original
+            // but it seems that JTKCPU is a bit faster than, at least, the 052001
+            // and Crime Fighters may write data (lut_we signal) before the DMA
+            // is done and that will make sprites flicker. So for now, dma_cen
+            // is commented out. That way the DMA takes half the time to process
+            // and there are no visual artifacts
             vb_start_n <= !(dma_clr || !dma_done);
             if( dma_clr ) begin // clear the full buffer (341.3 us as original)
                 { dma_clr, dma_addr } <= { 1'b1, dma_addr } + 1'd1;

@@ -1,0 +1,5 @@
+bp 808e
+go
+// skip the memory test
+pc=8414
+gtime #30
