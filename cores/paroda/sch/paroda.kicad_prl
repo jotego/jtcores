@@ -73,12 +73,12 @@
     "files": [
       {
         "name": "paroda.kicad_sch",
-        "open": true,
+        "open": false,
         "window": {
           "display": 1,
-          "maximized": false,
-          "pos_x": 308,
-          "pos_y": 25,
+          "maximized": true,
+          "pos_x": 187,
+          "pos_y": 47,
           "size_x": 966,
           "size_y": 1024
         }
