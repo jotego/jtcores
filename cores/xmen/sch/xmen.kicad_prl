@@ -66,23 +66,10 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "paroda.kicad_prl",
+    "filename": "xmen.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "paroda.kicad_sch",
-        "open": true,
-        "window": {
-          "display": 1,
-          "maximized": false,
-          "pos_x": 308,
-          "pos_y": 25,
-          "size_x": 966,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }
