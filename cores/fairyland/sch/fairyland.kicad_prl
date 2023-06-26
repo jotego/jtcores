@@ -1,7 +1,7 @@
 {
   "board": {
     "active_layer": 0,
-    "active_layer_preset": "All Layers",
+    "active_layer_preset": "",
     "auto_track_width": true,
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -66,23 +66,10 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "rbike.kicad_prl",
+    "filename": "fairyland.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "rbike.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 1,
-          "maximized": true,
-          "pos_x": 477,
-          "pos_y": 14,
-          "size_x": 966,
-          "size_y": 1052
-        }
-      }
-    ]
+    "files": []
   }
 }
