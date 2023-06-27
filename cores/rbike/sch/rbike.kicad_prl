@@ -75,12 +75,12 @@
         "name": "rbike.kicad_sch",
         "open": false,
         "window": {
-          "display": 1,
+          "display": 0,
           "maximized": true,
-          "pos_x": 477,
-          "pos_y": 14,
+          "pos_x": 2225,
+          "pos_y": 84,
           "size_x": 966,
-          "size_y": 1052
+          "size_y": 1024
         }
       }
     ]
