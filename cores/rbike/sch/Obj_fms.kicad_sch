@@ -2404,7 +2404,6 @@
     )
   )
 
-
   (junction (at 116.84 254) (diameter 0) (color 0 0 0 0)
     (uuid 0d8e2145-88ae-4240-a263-033a2c720685)
   )
@@ -3810,11 +3809,11 @@
     )
   )
 
-  (text "?" (at 228.6 58.42 0)
+  (text "0 Ó 1?" (at 228.6 58.42 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 41546b91-7fa9-4797-8c90-5a3e14b8b6af)
   )
-  (text "FINITE STATE MACHINE" (at 170.18 22.86 0)
+  (text "FINITE STATE MACHINE" (at 186.69 24.13 0)
     (effects (font (size 3 3)) (justify left bottom))
     (uuid 68cfaffc-e3ff-4aa6-a942-b8775c1c45fe)
   )
@@ -3823,6 +3822,10 @@
     (uuid f4162a33-831c-41af-b554-9a27c40a07f9)
   )
 
+  (label "T[7..0]" (at 153.67 148.59 90)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 08baac0b-7a7f-4206-9582-cf7afdb11a52)
+  )
   (label "VSS" (at 166.37 163.83 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 0b0e3a38-c4e9-4b31-bb75-b6299da42d3d)
@@ -3834,6 +3837,10 @@
   (label "4" (at 200.66 118.11 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 104444ea-e082-428b-b3bd-64adbd06672b)
+  )
+  (label "[6..1]" (at 198.12 138.43 90)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 10944672-44cc-40a5-b4f4-57bba2b73b6e)
   )
   (label "VSS" (at 166.37 133.35 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))

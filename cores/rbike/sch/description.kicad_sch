@@ -17,7 +17,7 @@
   )
 
 
-  (image (at 69.85 104.14) (scale 4.72999)
+  (image (at 69.85 97.79) (scale 4.72999)
     (uuid 43fd28ec-77a7-40f5-bb45-bb0c8eae8fd9)
     (data
       iVBORw0KGgoAAAANSUhEUgAAANwAAAEbCAIAAAA+on1uAAAAA3NCSVQICAjb4U/gAAAgAElEQVR4
@@ -2096,7 +2096,7 @@
       h/GZb9U5zI0ezjku+aHd2HUzFIcCRRDLxZUg4sCOh9H9Ev8/74N9AfjROL8AAAAASUVORK5CYII=
     )
   )
-  (image (at 240.03 207.01) (scale 3.34532)
+  (image (at 240.03 200.66) (scale 3.34532)
     (uuid 91f07377-a008-4a8e-b1cc-658ee55659c6)
     (data
       iVBORw0KGgoAAAANSUhEUgAAA1QAAAECCAIAAAB2SwHJAAAAA3NCSVQICAjb4U/gAAAgAElEQVR4
@@ -3411,22 +3411,22 @@
     )
   )
 
-  (text "Rally Bike" (at 171.45 38.1 0)
+  (text "Rally Bike" (at 171.45 31.75 0)
     (effects (font (size 5 5) (thickness 1) bold) (justify left bottom))
     (uuid 44c97fae-b0b1-48f9-b6d5-097b90567565)
   )
   (text "Source: https://en.wikipedia.org/wiki/Rally_Bike\n		http://www.system16.com/hardware.php?id=966&gid=3368#3368"
-    (at 115.57 271.78 0)
+    (at 119.38 256.54 0)
     (effects (font (size 3 3) italic) (justify left bottom))
     (uuid 586f7869-98e5-45ca-bcc6-c895758bf05a)
   )
   (text "HARDWARE DESCRIPTION\n\nMain CPU : 68000 @ 10 MHz\nSound CPU : Z80 or Z180 @ 3.5 MHz\nSound Chip : YM3812 @ 3.5 MHz\nOther : Demons World has an additional TMS32010 @ 14MHz\nBCU : NEC D6508IR077\nSCU : NEC D65024GF035"
-    (at 125.73 161.29 0)
+    (at 125.73 154.94 0)
     (effects (font (size 3 3)) (justify left bottom))
     (uuid 5bd1a1f4-d128-45b9-970f-d906b650753a)
   )
   (text "Rally Bike is a racing arcade video game originally \ndeveloped by Toaplan and published by Taito in May 1988.\nIn Rally Bike, players compete against computer-controlled \nopponents in races across locations in the United States.\nInitially released in arcades, the game was ported to the \nNintendo Entertainment System and X68000 by different \ndevelopers.\nRally Bike was met with mixed reception from video game \nmagazines and dedicated outlets that reviewed the game when\nit launched in arcades and its ports. As of 2019, the rights \nto the title is owned by Tatsujin, a company founded in 2017 \nby former Toaplan member Masahiro Yuge and now-affiliate of\nJapanese arcade manufacturer exA-Arcadia alongside many other\nToaplan IPs. "
-    (at 127 114.3 0)
+    (at 127 107.95 0)
     (effects (font (size 3 3)) (justify left bottom))
     (uuid eb9025dd-9523-4162-bc56-9720a000899d)
   )
