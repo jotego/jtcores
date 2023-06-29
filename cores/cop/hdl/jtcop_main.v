@@ -104,7 +104,7 @@ module jtcop_main(
     input      [7:0]   st_addr,
     output reg [7:0]   st_dout
 );
-
+`ifndef NOMAIN
 wire [23:1] A;
 //wire        BERRn;
 wire [ 2:0] FC;
@@ -559,5 +559,47 @@ jtframe_m68k u_cpu(
     assign FC   = 0;
     // assign obj_copy = !LVBL && LVBL_l;
 `endif
+`else
+    // sound
+    // reg [7:0]   snd_aux;
+    // always @* snd_latch = snd_aux;
 
+    jtframe_sim_sndcmd #(.CMDCNT(8)) u_sndcmd(
+        .rst  ( rst     ),
+        .clk  ( clk     ),
+        .irq  ( snreq   ),
+        .lvbl ( LVBL    ),
+        .cmd  (snd_latch),
+        .frame_list( { 16'd4, 16'd67, 16'd73,16'd76,16'd79, 16'd341, 16'd695, 16'd747 }  ),
+        .cmd_list  ( {  8'h1,  8'h5e,  8'h01, 8'h3a, 8'h5e,   8'h59,  8'h0d,   8'h59  }  )
+    );
+
+    assign  cpu_dout = 0,
+            //cpu_addr = 0,
+            UDSWn    = 1,
+            LDSWn    = 1,
+            RnW      = 0,
+            sec      = 0,
+            pal_cs   = 0,
+            // fmode_cs = 0,
+            fsft_cs  = 0,
+            fmap_cs  = 0,
+            // bmode_cs = 0,
+            bsft_cs  = 0,
+            bmap_cs  = 0,
+            // cmode_cs = 0,
+            csft_cs  = 0,
+            cmap_cs  = 0,
+            huc_cs   = 0,
+            obj_cs   = 0,
+            obj_copy = 0,
+            ram_cs   = 0,
+            rom_cs   = 0;
+    initial begin
+        mcu_din = 0;
+        prisel  = 0;
+        mixpsel = 0;
+        st_dout = 0;
+    end
+`endif
 endmodule

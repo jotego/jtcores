@@ -7,7 +7,7 @@ module mist_dump(
 );
 
 `ifdef DUMP
-`ifndef NCVERILOG // iVerilog:
+`ifndef XCELIUM // iVerilog:
     initial begin
         // #(200*100*1000*1000);
         $display("DUMP enabled");

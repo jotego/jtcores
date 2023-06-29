@@ -83,8 +83,8 @@ end
 
 /* verilator tracing_on */
 jtopl2 u_opl(
-    .rst    ( rst       ),   
-    .clk    ( clk       ),   
+    .rst    ( rst       ),
+    .clk    ( clk       ),
     .cen    ( cen_opl   ),
     .din    ( cpu_dout  ),
     .addr   ( cpu_a0    ),
@@ -97,8 +97,8 @@ jtopl2 u_opl(
 );
 /* verilator tracing_off */
 jt03 u_2203(
-    .rst    ( rst       ),   
-    .clk    ( clk       ),   
+    .rst    ( rst       ),
+    .clk    ( clk       ),
     .cen    ( cen_opn   ),
     .din    ( cpu_dout  ),
     .addr   ( cpu_a0    ),
@@ -113,6 +113,8 @@ jt03 u_2203(
     .IOA_out(           ),
     .IOB_out(           ),
     .debug_view(        ),
+    .IOA_oe (           ),
+    .IOB_oe (           ),
     // 10 kOhm resistors
     .psg_A  (           ),
     .psg_B  (           ),

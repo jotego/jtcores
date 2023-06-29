@@ -223,7 +223,7 @@ always @(posedge clk) begin
         3: st_dout <= std_video;
     endcase
 end
-
+/* verilator tracing_off */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen3   ( cen_opl   ),
@@ -235,7 +235,7 @@ jtframe_cen48 u_cen(
     .cen3b(), .cen3qb(), .cen1p5b(),
     .cen16(), .cen16b(), .cen4_12()
 );
-
+/* verilator tracing_off */
 jtcop_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -420,7 +420,7 @@ jtcop_video u_video(
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 // NB: this module is different for jtmidres
 jtcop_snd u_sound(
     .rst        ( rst       ),
@@ -546,7 +546,8 @@ jtcop_snd u_sound(
     );
 `else
     assign { sndflag, b1flg, b0flg, mixflg } = 0;
-    assign crback = 0;
+    assign crback    = 0;
+    assign mcu_sel2  = 0;
     initial mcu_dout = 0;
 `endif
 
@@ -585,6 +586,7 @@ jtcop_snd u_sound(
     assign ba2mcu_addr = 0;
     assign ba2mcu_rnw  = 1;
     assign ba2mcu_cs   = 0;
+    assign ba2mcu_dout = 0;
     assign ba2mcu_mode = 0;
     assign huc_dout = 0;
     assign mcu_cs   = 0;

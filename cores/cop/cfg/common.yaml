@@ -44,6 +44,10 @@ jtframe:
   - from: ver
     get:
       - jtframe_simwr_68k.v
+  - from: ver
+    when: SIMULATION
+    get:
+      - jtframe_sim_sndcmd.v
 modules:
   jt:
     - name: jt6295
