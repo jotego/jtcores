@@ -4036,6 +4036,10 @@
     )
   )
 
+  (text "USADO" (at 270.51 121.92 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 90632955-e6c2-45d0-b629-d55c220b05bf)
+  )
   (text "4.7kΩx4" (at 99.06 127 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid de098e5b-e218-4d83-ba3f-6c36a4766372)
