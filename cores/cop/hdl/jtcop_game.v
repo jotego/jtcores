@@ -17,95 +17,7 @@
     Date: 25-9-2021 */
 
 module jtcop_game(
-    input           rst,
-    input           clk,
-    input           rst24,
-    input           clk24,
-    output          pxl2_cen,   // 12   MHz
-    output          pxl_cen,    //  6   MHz
-    output   [7:0]  red,
-    output   [7:0]  green,
-    output   [7:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 8:0]  joystick1,
-    input   [ 8:0]  joystick2,
-    input   [15:0]  joyana_l1,
-    input   [15:0]  joyana_l2,
-    input   [15:0]  joyana_r1,
-    input   [15:0]  joyana_r2,
-    input   [ 1:0]  dial_x,
-    input   [ 1:0]  dial_y,
-
-    // SDRAM interface
-    input           downloading,
-    output          dwnld_busy,
-
-    // Bank 0: allows R/W
-    output   [21:0] ba0_addr,
-    output   [21:0] ba1_addr,
-    output   [21:0] ba2_addr,
-    output   [21:0] ba3_addr,
-    output   [ 3:0] ba_rd,
-    output   [ 3:0] ba_wr,
-    output   [15:0] ba0_din,
-    output   [ 1:0] ba0_dsn,  // write mask
-    output   [15:0] ba1_din,
-    output   [ 1:0] ba1_dsn,  // write mask
-    output   [15:0] ba2_din,
-    output   [ 1:0] ba2_dsn,  // write mask
-    output   [15:0] ba3_din,
-    output   [ 1:0] ba3_dsn,  // write mask
-    input    [ 3:0] ba_ack,
-    input    [ 3:0] ba_dst,
-    input    [ 3:0] ba_dok,
-    input    [ 3:0] ba_rdy,
-
-    input    [15:0] data_read,
-
-    // RAM/ROM LOAD
-    input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    output  [ 7:0]  ioctl_din,
-    input           ioctl_wr,
-    input           ioctl_ram,
-    output  [21:0]  prog_addr,
-    output  [15:0]  prog_data,
-    output  [ 1:0]  prog_mask,
-    output  [ 1:0]  prog_ba,
-    output          prog_we,
-    output          prog_rd,
-    input           prog_ack,
-    input           prog_dok,
-    input           prog_dst,
-    input           prog_rdy,
-    // DIP switches
-    input   [31:0]  status,
-    input   [31:0]  dipsw,
-    input           service,
-    input           tilt,
-    input           dip_pause,
-    output          dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    // Sound output
-    output  signed [15:0] snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg,
-    input           enable_fm,
-    // Debug
-    input   [3:0]   gfx_en,
-    input   [7:0]   debug_bus,
-    output  [7:0]   debug_view,
-    // status dump
-    input      [7:0] st_addr,
-    output reg [7:0] st_dout
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 // SDRAM interface
@@ -204,23 +116,25 @@ wire [ 7:0] dipsw_a, dipsw_b;
 // Status report
 wire [7:0] sta_video, std_video,
            st_snd, st_main, pal_dmp, obj_dmp;
+reg  [7:0] st_mux;
 wire [1:0] game_id;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dsn = { UDSWn, LDSWn };
 assign dip_flip = flip;
 assign debug_view = st_dout;
+assign st_dout    = st_mux;
 assign ba1_din=0, ba2_din=0, ba3_din=0; // unused
 assign ba1_dsn=3, ba2_dsn=3, ba3_dsn=3; // unused
 assign sta_video = ioctl_ram ? ioctl_addr[7:0] : st_addr; // dump data to SD card
 
 always @(posedge clk) begin
-    st_dout <= 0;
+    st_mux <= 0;
     case( st_addr[7:6] )
-        0: st_dout <= st_main;
-        1: st_dout <= st_snd;
-        2: st_dout <= snd_latch;
-        3: st_dout <= std_video;
+        0: st_mux <= st_main;
+        1: st_mux <= st_snd;
+        2: st_mux <= snd_latch;
+        3: st_mux <= std_video;
     endcase
 end
 /* verilator tracing_off */
