@@ -233,13 +233,7 @@ jtcps1_prom_we #(
 ) u_prom_we(
     .clk            ( clk           ),
     .downloading    ( downloading   ),
-`ifdef MIST
-    // This prevents a 1'bz for MSB in simulation
-    // Not important for implementation
-    .ioctl_addr     ( {1'b0, ioctl_addr[24:0] } ),
-`else
     .ioctl_addr     ( ioctl_addr    ),
-`endif
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),
     .ioctl_ram      ( ioctl_ram     ),
