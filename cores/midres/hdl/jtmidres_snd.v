@@ -65,6 +65,27 @@ wire        ram_we;
 reg         rom_good;
 wire        opn_irqn, opl_irqn;
 
+// The Hu CPU has its own cen signal generated internally that will produce
+// 6.89 MHz for a 48 MHz clock. This seems to be related with issue #198
+// https://github.com/jotego/jtcores/issues/198
+// Gating the Hu clock by 3, getting closer to 2Mhz, fixes the music problems
+// in midres. The reason probably is that cpu_din is not ready in time with
+// the ungated clock. The Hu CPU seems to execute functions at different clock
+// cycles in between the internal cen signal so it may be getting the data
+// before its ready unless the clock is gated
+
+reg [1:0] cencnt;
+reg       hu_cen;
+wire      hu_clk = clk & hu_cen;
+
+always @(posedge clk) begin
+    cencnt <= cencnt==2 ? 2'd0 : cencnt+2'd1; // 6.89/3 = 2.29 MHz
+end
+
+always @(negedge clk) begin
+    hu_cen <= cencnt==0;
+end
+
 assign irqn     = opn_irqn & opl_irqn;
 assign snd_bank = 0;
 assign oki_wrn  = ~(oki_cs & ~wrn);
@@ -129,7 +150,7 @@ jtframe_ram #(.AW(13)) u_ram(
 );
 
 HUC6280 u_huc(
-    .CLK        ( clk       ),
+    .CLK        ( hu_clk    ),
     .RST_N      ( ~rst      ),
     .WAIT_N     ( rom_good  ),
     .SX         ( SX        ),
