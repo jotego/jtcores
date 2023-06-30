@@ -38,7 +38,6 @@ module jtbubl_video(
     output     [ 7:0]   pal_dout,
     input               black_n,
     input               cpu_rnw,
-    input               cpu_cen,
     input      [12:0]   cpu_addr,
     input      [ 7:0]   cpu_dout,
     input               vram_cs,
@@ -138,7 +137,7 @@ jtbubl_colmix u_colmix(
     // Colour output
     .red        ( red            ),
     .green      ( green          ),
-    .blue       ( blue           )    
+    .blue       ( blue           )
 );
 
 endmodule

@@ -22,7 +22,6 @@ module jtbubl_main(
     input               cen12,
     input               cen6,
     input               cen4,
-    input               cpu_start,
 
     // game selection
     input               tokio,
@@ -221,6 +220,7 @@ always @(posedge clk24 ) begin
             case( cpu_addr[1:0] )
                 2'b00: snd_latch <= main_dout;
                 2'b11: snd_rstn  <= ~main_dout[0];
+                default:;
             endcase
     end else snd_stb <= 0;
 end
@@ -482,13 +482,13 @@ wire      cen_mcu_eff;      // effective MCU gated clock after ROM CS blind time
 
 always @(posedge clk24) begin
     if( mcu_rst ) begin
-        clrcnt <= 4'd0;
+        clrcnt <= 0;
         last_sub_int_n <= 1;
         mcuirq <= 0;
     end else if(cen_mcu) begin
         last_sub_int_n <= sub_int_n;
         if( last_sub_int_n && !sub_int_n ) begin
-            clrcnt <= 4'd0;
+            clrcnt <= 0;
             mcuirq <= 1;
         end else if(mcuirq) begin
             clrcnt<=clrcnt+1'd1;

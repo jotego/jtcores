@@ -21,7 +21,6 @@ module jtbubl_sound(
     input             rstn,   // from Main
     input             clk,
     input             cen3,   //  3   MHz
-    input             start,
 
     input      [ 1:0] fx_level,
     input             tokio,
@@ -117,6 +116,7 @@ always @(posedge clk, negedge snd_rstn) begin
                     end
                     2'd1: nmi_en     <= 1; // enables NMI
                     2'd2: nmi_en     <= 0;
+                    default:;
                 endcase
             end
         end else begin
@@ -227,6 +227,8 @@ jt03 u_2203(
     .snd_sample ( sample     ),
     .irq_n      ( intn_fm0   ),
     // unused outputs
+    .IOA_oe     (            ),
+    .IOB_oe     (            ),
     .IOA_in     ( 8'd0       ),
     .IOB_in     ( 8'd0       ),
     .IOA_out    (            ),
@@ -234,7 +236,8 @@ jt03 u_2203(
     .psg_A      (            ),
     .psg_B      (            ),
     .psg_C      (            ),
-    .snd        (            )
+    .snd        (            ),
+    .debug_view (            )
 );
 
 jtopl u_opl(

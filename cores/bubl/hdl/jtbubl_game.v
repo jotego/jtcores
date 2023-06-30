@@ -17,61 +17,7 @@
     Date: 02-05-2020 */
 
 module jtbubl_game(
-    input           rst,
-    input           clk,
-    input           rst24,
-    input           clk24,
-    input           pxl2_cen,   // 12   MHz
-    input           pxl_cen,    //  6   MHz
-    output   [3:0]  red,
-    output   [3:0]  green,
-    output   [3:0]  blue,
-    output          LHBL,
-    output          LVBL,
-    output          HS,
-    output          VS,
-    // cabinet I/O
-    input   [ 1:0]  start_button,
-    input   [ 1:0]  coin_input,
-    input   [ 5:0]  joystick1,
-    input   [ 5:0]  joystick2,
-    // SDRAM interface
-    input           downloading,
-    output          dwnld_busy,
-    output          sdram_req,
-    output  [21:0]  sdram_addr,
-    input   [31:0]  data_read,
-    input           data_dst,
-    input           data_rdy,
-    input           sdram_ack,
-    // ROM LOAD
-    input   [24:0]  ioctl_addr,
-    input   [ 7:0]  ioctl_dout,
-    input           ioctl_wr,
-    output  [21:0]  prog_addr,
-    output  [ 7:0]  prog_data,
-    output  [ 1:0]  prog_mask,
-    output          prog_we,
-    output          prog_rd,
-    // DIP switches
-    input   [31:0]  status,     // only bits 31:16 are looked at
-    input   [31:0]  dipsw,
-    input           service,
-    input           tilt,
-    input           dip_pause,
-    inout           dip_flip,
-    input           dip_test,
-    input   [ 1:0]  dip_fxlevel, // Not a DIP on the original PCB
-    // Sound output
-    output  signed [15:0] snd,
-    output          sample,
-    output          game_led,
-    input           enable_psg,
-    input           enable_fm,
-    // Debug
-    input   [ 7:0]  debug_bus,
-    output  [ 7:0]  debug_view,
-    input   [ 3:0]  gfx_en
+    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 wire        main_cs, sub_cs, mcu_cs, snd_cs, gfx_cs;
@@ -92,11 +38,12 @@ wire        main_flag, main_stb, snd_stb;
 
 wire [12:0] cpu_addr;
 wire        vram_cs,  pal_cs;
-wire        cpu_cen, cpu_rnw, cpu_irqn;
+wire        cpu_rnw, cpu_irqn;
 wire [ 7:0] vram_dout, pal_dout, cpu_dout;
 wire        snd_flag;
 
 assign prog_rd    = 0;
+assign debug_view = 0;
 assign dwnld_busy = downloading;
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
@@ -153,20 +100,9 @@ u_dwnld(
 `endif
 
 always @(posedge clk) begin
-    if( ioctl_wr && ioctl_addr==25'd0 )
+    if( ioctl_wr && ioctl_addr==0 )
         tokio <= ioctl_dout==8'h7e; // single byte detection. Both tokyo and tokyob start like this
 end
-
-reg cpu_start;
-
-always @(posedge clk24, posedge rst24) begin
-    if( rst24 ) begin
-        cpu_start <= 0;
-    end else begin
-        if( &{ main_ok, sub_ok, mcu_ok, snd_ok } ) cpu_start <= 1;
-    end
-end
-
 
 `ifndef NOMAIN
 jtbubl_main u_main(
@@ -175,8 +111,6 @@ jtbubl_main u_main(
     .cen12          ( cen12         ),
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
-    .cpu_start      ( cpu_start     ),
-    //.cpu_cen        ( cpu_cen       ),
 
     .tokio          ( tokio         ),
     // Main CPU ROM
@@ -231,7 +165,6 @@ assign main_cs = 0;
 assign cpu_rnw = 1;
 assign vram_cs = 0;
 assign pal_cs  = 0;
-assign cpu_cen = 0;
 assign black_n = 1;
 `endif
 
@@ -256,7 +189,6 @@ jtbubl_video u_video(
     .vram_cs        ( vram_cs       ),
     .pal_cs         ( pal_cs        ),
     .cpu_rnw        ( cpu_rnw       ),
-    .cpu_cen        ( cpu_cen       ),
     .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( cpu_dout      ),
     .vram_dout      ( vram_dout     ),
@@ -282,7 +214,6 @@ jtbubl_sound u_sound(
     //.rstn       ( snd_rstn      ),
     .rstn       ( 1'b1          ),
     .cen3       ( cen3          ),
-    .start      ( cpu_start     ),
     .fx_level   ( dip_fxlevel   ),
 
     .tokio      ( tokio         ),
@@ -337,10 +268,10 @@ jtframe_rom #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
-    .slot0_cs    ( main_cs  | ~cpu_start     ),
-    .slot1_cs    ( sub_cs   | ~cpu_start     ),
-    .slot2_cs    ( mcu_cs   | ~cpu_start     ),
-    .slot3_cs    ( snd_cs   | ~cpu_start     ), // unused
+    .slot0_cs    ( main_cs       ),
+    .slot1_cs    ( sub_cs        ),
+    .slot2_cs    ( mcu_cs        ),
+    .slot3_cs    ( snd_cs        ), // unused
     .slot4_cs    ( gfx_cs        ),
     .slot5_cs    ( 1'b0          ), // unused
     .slot6_cs    ( 1'b0          ),
