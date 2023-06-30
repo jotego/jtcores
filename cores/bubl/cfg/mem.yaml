@@ -1,7 +1,5 @@
 params:
   - { name: SUB_OFFSET, value: "22'h2_8000 >> 1" }
-  - { name: SND_OFFSET, value: "22'h3_0000 >> 1" }
-  - { name: MCU_OFFSET, value: "22'h3_8000 >> 1" }
 
 clocks:
   clk48:
@@ -27,16 +25,18 @@ sdram:
           addr_width: 15
           data_width: 8
           offset: SUB_OFFSET
-        -
-          name: mcu
-          addr_width: 12
-          data_width: 8
-          offset: MCU_OFFSET
+    -
+      buses:
         -
           name: snd
           addr_width: 15
           data_width: 8
-          offset: SND_OFFSET
+    -
+      buses:
+        -
+          name: mcu
+          addr_width: 12
+          data_width: 8
     -
       buses:
         -
