@@ -39,7 +39,7 @@ module jtbubl_gfx(
     input      [12:0]   cpu_addr,
     input      [ 7:0]   cpu_dout,
     // SDRAM interface
-    output     [17:0]   rom_addr,
+    output     [18:2]   rom_addr,
     input      [31:0]   rom_data,
     input               rom_ok,
     output reg          rom_cs,
@@ -98,8 +98,8 @@ wire        lden_b, next;
 reg         half, newdata;
 
 assign cbus      = ch ? { sa[10:6],oa[0],sa[4:0] } : {1'b1, oatop, oa };
-assign rom_addr  = { bank, code_mux, vsub[2:0]^{3{vf_mux}}, 1'b0 }; // 18 bits
-assign sa        = { sa_base[7]&sa_base[5], sa_base[4:0], 1'b1 /*unused bit*/, 
+assign rom_addr  = { bank, code_mux, vsub[2:0]^{3{vf_mux}}  }; // 17 bits
+assign sa        = { sa_base[7]&sa_base[5], sa_base[4:0], 1'b1 /*unused bit*/,
                      dec_dout[1:0], vsub[5:3] };
 assign dec_addr  = { LVBL, sa_base[7:5], vsub[7:4] };
 assign vrmux     = sa[11] ? {scan3_data, scan2_data} : {scan1_data, scan0_data};
@@ -153,7 +153,7 @@ always @(posedge clk, posedge rst) begin
                         code0   <= vrmux[9:0];
                         pal0    <= vrmux[13:10];
                         hflip[0]<= vrmux[14];
-                        vflip[0]<= vrmux[15];                    
+                        vflip[0]<= vrmux[15];
                     end
                     2'd3: begin
                         code1   <= vrmux[9:0];
@@ -188,7 +188,7 @@ always @(posedge clk, posedge rst) begin
         /*if( !LHBL ) begin
             busy    <= 0;
             line_we <= 0;
-            rom_cs  <= 0;            
+            rom_cs  <= 0;
         end else*/
         if( newdata & ~next) begin
             busy        <= 1;
@@ -204,7 +204,7 @@ always @(posedge clk, posedge rst) begin
         end else if(busy) begin
             waitok[0] <= 0;
             if( waitok[1] && rom_ok ) begin
-                pxl_data <= { 
+                pxl_data <= {
                     rom_data[19:16], rom_data[ 3: 0], // plane 0
                     rom_data[23:20], rom_data[ 7: 4], // plane 1
                     rom_data[27:24], rom_data[11: 8], // plane 2

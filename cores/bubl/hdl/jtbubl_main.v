@@ -19,7 +19,6 @@
 module jtbubl_main(
     input               rst,
     input               clk24,
-    input               cen12,
     input               cen6,
     input               cen4,
 
@@ -414,23 +413,7 @@ jtframe_ff u_mcu2main (
     // it can come from P1[6] or from VBL
     .sigedge( tokio ? VBL_gated : p1_out[6] )
 );
-/*
-always @(posedge clk24) begin
-    if( cen12 ) begin
-        if(cen6) begin
-            comm_addr <= main_addr[9:0];
-            comm_we   <= mcram_we;
-            comm_din  <= main_dout;
-            comm2mcu  <= comm_dout;
-        end else begin
-            comm_addr <= mcu_bus[9:0];
-            comm_we   <= rammcu_we;
-            comm_din  <= rammcu_din;
-            comm2main <= comm_dout;
-        end
-    end
-end
-*/
+
 // Time shared
 jtframe_dual_ram #(.AW(10)) u_comm(
     .clk0   ( clk24              ),

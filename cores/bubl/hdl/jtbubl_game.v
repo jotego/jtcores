@@ -20,17 +20,17 @@ module jtbubl_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        main_cs, sub_cs, mcu_cs, snd_cs, gfx_cs;
-wire        main_ok, sub_ok, mcu_ok, snd_ok, gfx_ok;
+// wire        main_cs, sub_cs, mcu_cs, snd_cs, gfx_cs;
+// wire        main_ok, sub_ok, mcu_ok, snd_ok, gfx_ok;
 wire        snd_rstn, black_n, flip;
-wire [31:0] gfx_data;
-wire [17:0] gfx_addr;
+// wire [31:0] gfx_data;
+// wire [17:0] gfx_addr;
 
-wire [ 7:0] main_data, sub_data, mcu_data, snd_data, snd_latch, main_latch;
-wire [14:0] snd_addr, sub_addr;
-wire [11:0] mcu_addr;
-wire [17:0] main_addr;
-wire        cen12, cen6, cen4, cen3, prom_we;
+wire [ 7:0] snd_latch, main_latch;
+// wire [14:0] snd_addr, sub_addr;
+// wire [11:0] mcu_addr;
+// wire [17:0] main_addr;
+wire        cen12, cen6, cen4, cen3;
 reg         tokio;
 
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -42,17 +42,15 @@ wire        cpu_rnw, cpu_irqn;
 wire [ 7:0] vram_dout, pal_dout, cpu_dout;
 wire        snd_flag;
 
-assign prog_rd    = 0;
-assign debug_view = 0;
-assign dwnld_busy = downloading;
+assign debug_view = {7'd0, tokio};
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
 
-localparam [21:0] SUB_OFFSET = 22'h2_8000 >> 1;
-localparam [21:0] SND_OFFSET = 22'h3_0000 >> 1;
-localparam [21:0] MCU_OFFSET = 22'h3_8000 >> 1;
-localparam [21:0] GFX_OFFSET = 22'h4_0000 >> 1;
-localparam [24:0] PROM_START = 25'hC_0000;
+// localparam [21:0] SUB_OFFSET = 22'h2_8000 >> 1;
+// localparam [21:0] SND_OFFSET = 22'h3_0000 >> 1;
+// localparam [21:0] MCU_OFFSET = 22'h3_8000 >> 1;
+// localparam [21:0] GFX_OFFSET = 22'h4_0000 >> 1;
+// localparam [24:0] PROM_START = 25'hC_0000;
 
 jtframe_cen24 u_cen(
     .clk        ( clk24         ),    // 24 MHz
@@ -71,23 +69,21 @@ jtframe_cen24 u_cen(
     .cen1p5b    (               )
 );
 
-wire [7:0] nc;
-
-jtframe_dwnld #(.PROM_START(PROM_START))
-u_dwnld(
-    .clk            ( clk           ),
-    .downloading    ( downloading   ),
-    .ioctl_addr     ( ioctl_addr    ),
-    .ioctl_dout     ( ioctl_dout    ),
-    .ioctl_wr       ( ioctl_wr      ),
-    .prog_addr      ( prog_addr     ),
-    .prog_data      ( {nc,prog_data}),
-    .prog_mask      ( prog_mask     ), // active low
-    .prog_we        ( prog_we       ),
-    .prom_we        ( prom_we       ),
-    .sdram_ack      ( sdram_ack     ),
-    .header         (               )
-);
+// jtframe_dwnld #(.PROM_START(PROM_START))
+// u_dwnld(
+//     .clk            ( clk           ),
+//     .downloading    ( downloading   ),
+//     .ioctl_addr     ( ioctl_addr    ),
+//     .ioctl_dout     ( ioctl_dout    ),
+//     .ioctl_wr       ( ioctl_wr      ),
+//     .prog_addr      ( prog_addr     ),
+//     .prog_data      ( {nc,prog_data}),
+//     .prog_mask      ( prog_mask     ), // active low
+//     .prog_we        ( prog_we       ),
+//     .prom_we        ( prom_we       ),
+//     .sdram_ack      ( sdram_ack     ),
+//     .header         (               )
+// );
 
 `ifdef SIMULATION
 `ifndef LOADROM
@@ -100,15 +96,14 @@ u_dwnld(
 `endif
 
 always @(posedge clk) begin
-    if( ioctl_wr && ioctl_addr==0 )
-        tokio <= ioctl_dout==8'h7e; // single byte detection. Both tokyo and tokyob start like this
+    if( prog_we && ioctl_addr==1 )
+        tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this
 end
 
 `ifndef NOMAIN
 jtbubl_main u_main(
     .rst            ( rst24         ),
     .clk24          ( clk24         ),        // 24 MHz
-    .cen12          ( cen12         ),
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
 
@@ -237,13 +232,13 @@ jtbubl_sound u_sound(
 );
 `else
 assign snd_cs   = 0;
-assign snd_addr = 15'd0;
-assign snd      = 16'd0;
+assign snd_addr = 0;
+assign snd      = 0;
 assign sample   = 0;
 assign snd_flag = 0;
 assign main_stb = 0;
 `endif
-
+/*
 jtframe_rom #(
     .SLOT0_AW    ( 18              ),
     .SLOT0_DW    (  8              ),
@@ -317,5 +312,5 @@ jtframe_rom #(
     .sdram_addr  ( sdram_addr    ),
     .data_read   (data_read[15:0])
 );
-
+*/
 endmodule

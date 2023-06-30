@@ -44,7 +44,7 @@ module jtbubl_video(
     output     [ 7:0]   vram_dout,
     //output              cpu_irqn,
     // SDRAM interface
-    output     [17:0]   rom_addr,
+    output     [18:2]   rom_addr,
     input      [31:0]   rom_data,
     input               rom_ok,
     output              rom_cs,

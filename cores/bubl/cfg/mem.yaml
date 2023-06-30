@@ -1,0 +1,36 @@
+params:
+  - { name: SUB_OFFSET, value: "22'h2_8000 >> 1" }
+  - { name: SND_OFFSET, value: "22'h3_0000 >> 1" }
+  - { name: MCU_OFFSET, value: "22'h3_8000 >> 1" }
+  - { name: GFX_OFFSET, value: "22'h4_0000 >> 1" }
+
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: main
+          addr_width: 18
+          data_width: 8
+        -
+          name: sub
+          addr_width: 15
+          data_width: 8
+          offset: SUB_OFFSET
+        -
+          name: mcu
+          addr_width: 12
+          data_width: 8
+          offset: MCU_OFFSET
+        -
+          name: snd
+          addr_width: 15
+          data_width: 8
+          offset: SND_OFFSET
+        -
+          name: gfx
+          addr_width: 19
+          data_width: 32
+          offset: GFX_OFFSET
+
+
