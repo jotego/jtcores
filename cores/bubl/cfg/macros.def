@@ -8,9 +8,6 @@ JTFRAME_VERTICAL
 JTFRAME_OSD_VOL
 JTFRAME_JOY_UDRL
 
-# The 24MHz clock could create problems because of cycle recovery
-# If something is reported, try moving up to 48MHz
-JTFRAME_CLK24
 JTFRAME_PXLCLK=6
 
 SUB_START=0x28000

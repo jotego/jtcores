@@ -4,7 +4,7 @@ params:
   - { name: MCU_OFFSET, value: "22'h3_8000 >> 1" }
 
 clocks:
-  clk24:
+  clk48:
     - freq: 6000000
       outputs:
         - cen6

@@ -20,7 +20,7 @@ module jtbubl_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire        snd_rstn, black_n, flip;
+wire        snd_rst, black_n, flip;
 wire [ 7:0] snd_latch, main_latch;
 reg  [ 7:0] debug_mux;
 
@@ -33,7 +33,9 @@ wire        vram_cs,  pal_cs;
 wire        cpu_rnw, cpu_irqn;
 wire [ 7:0] vram_dout, pal_dout, cpu_dout;
 wire        snd_flag;
+wire        snd_rstn_eff;
 
+assign snd_rstn_eff = ~(tokio ? snd_rst : rst);
 assign debug_view = debug_mux;
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
@@ -54,8 +56,8 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    case( debug_bus[1:0] )
-        0: debug_mux <= { 3'd0, snd_rstn, 3'd0, tokio};
+    case( debug_bus[7:6] )
+        0: debug_mux <= { 2'd0, snd_rstn_eff, snd_rst, 3'd0, tokio};
         1: debug_mux <= main_latch;
         2: debug_mux <= snd_latch;
         default: debug_mux <= 0;
@@ -64,8 +66,8 @@ end
 
 `ifndef NOMAIN
 jtbubl_main u_main(
-    .rst            ( rst24         ),
-    .clk24          ( clk24         ),        // 24 MHz
+    .rst            ( rst           ),
+    .clk24          ( clk           ),        // 24 MHz
     .cen6           ( cen6          ),
     .cen4           ( cen4          ),
 
@@ -93,7 +95,7 @@ jtbubl_main u_main(
     .main_stb       ( main_stb      ),
     .main_flag      ( main_flag     ),
     .main_latch     ( main_latch    ),
-    .snd_rstn       ( snd_rstn      ),
+    .snd_rst       ( snd_rst      ),
     // cabinet I/O
     .start_button   ( start_button  ),
     .coin_input     ( coin_input    ),
@@ -128,7 +130,7 @@ assign black_n = 1;
 jtbubl_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .clk_cpu        ( clk24         ),
+    .clk_cpu        ( clk           ),
     .pxl2_cen       ( pxl2_cen      ),
     .pxl_cen        ( pxl_cen       ),
     .LHBL           ( LHBL          ),
@@ -164,16 +166,10 @@ jtbubl_video u_video(
     .gfx_en         ( gfx_en        )
 );
 
-reg snd_rstn_eff;
-
-always @(negedge clk) begin
-    snd_rstn_eff <= tokio ? ~snd_rstn : ~rst;
-end
-
 `ifndef NOSOUND
 jtbubl_sound u_sound(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ), // 24 MHz
+    .rst        ( rst           ),
+    .clk        ( clk           ), // 24 MHz
     .rstn       ( snd_rstn_eff  ),
     .cen3       ( cen3          ),
     .fx_level   ( dip_fxlevel   ),

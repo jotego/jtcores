@@ -137,7 +137,7 @@ jtframe_ff u_flag(
     .sigedge( snd_stb  )
 );
 
-jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .rst_n      ( snd_rstn    ),
     .clk        ( clk         ),
     .cen        ( cen3        ),

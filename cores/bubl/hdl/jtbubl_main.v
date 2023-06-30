@@ -49,7 +49,7 @@ module jtbubl_main(
     input               snd_flag,
     input               main_stb,
     output              main_flag,
-    output reg          snd_rstn, // active high
+    output reg          snd_rst,
 
     // Main CPU ROM interface
     output     [17:0]   main_rom_addr,
@@ -211,14 +211,14 @@ end
 always @(posedge clk24 ) begin
     if( !main_rst_n ) begin
         snd_latch <= 8'd0;
-        snd_rstn  <= 1;     // Sound CPU starts up
+        snd_rst   <= 0;
         snd_stb   <= 0;
     end else if(sound_cs) begin
         snd_stb <= !main_wrn && cpu_addr[1:0]==2'b00;
         if( !main_wrn )
             case( cpu_addr[1:0] )
                 2'b00: snd_latch <= main_dout;
-                2'b11: snd_rstn  <= main_dout[0];
+                2'b11: snd_rst   <= main_dout[0];
                 default:;
             endcase
     end else snd_stb <= 0;
@@ -327,7 +327,7 @@ jtframe_z80 u_maincpu(
     .dout     ( main_dout      )
 );
 
-jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
+jtframe_z80wait #(.DEVCNT(2)) u_mainwait(
     .rst_n    ( main_rst_n      ),
     .clk      ( clk24           ),
     .cen_in   ( cen6            ),
@@ -369,7 +369,7 @@ jtframe_z80 u_subcpu(
     .dout     ( sub_dout       )
 );
 
-jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
+jtframe_z80wait #(.DEVCNT(1)) u_subwait(
     .rst_n    ( sub_rst_n       ),
     .clk      ( clk24           ),
     .cen_in   ( cen6            ),
