@@ -12,6 +12,11 @@ names=[
     { names="Low Gear,High Gear" }
 ]
 
+[dipsw]
+# Requires explicit values because the tag used in mame.xml is the same
+# for all DIP switches. diplocation name was used instead
+defaults=[ {value="fb,ff" } ]
+
 [ROM]
 regions=[
     { name="maincpu", width=16, reverse=true },
