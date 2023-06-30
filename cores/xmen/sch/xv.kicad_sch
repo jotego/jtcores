@@ -1590,7 +1590,7 @@
           (name "~{R}" (effects (font (size 1.27 1.27))))
           (number "13" (effects (font (size 1.27 1.27))))
         )
-        (pin output line (at 7.62 -2.54 180) (length 2.54)
+        (pin output inverted (at 7.62 -2.54 180) (length 2.54)
           (name "~{Q}" (effects (font (size 1.27 1.27))))
           (number "8" (effects (font (size 1.27 1.27))))
         )
