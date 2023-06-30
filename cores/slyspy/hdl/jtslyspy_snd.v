@@ -69,6 +69,18 @@ wire        opn_irqn, opl_irqn;
 reg         st_cnt, st_cntl,
             st_clr, st_clrl;
 
+reg [1:0] cencnt;
+reg       hu_cen;
+wire      hu_clk = clk & hu_cen;
+
+always @(posedge clk) begin
+    cencnt <= cencnt==2 ? 2'd0 : cencnt+2'd1; // 6.89/3 = 2.29 MHz
+end
+
+always @(negedge clk) begin
+    hu_cen <= cencnt==0;
+end
+
 assign irqn     = opn_irqn & opl_irqn;
 assign snd_bank = 0;
 assign oki_wrn  = ~(oki_cs & ~wrn);
@@ -177,7 +189,7 @@ jtframe_ram #(.AW(11)) u_ram( // only 2kB
 
 `ifndef VERILATOR
 HUC6280 u_huc(
-    .CLK        ( clk       ),
+    .CLK        ( hu_clk    ),
     .RST_N      ( ~rst      ),
     .WAIT_N     ( rom_good  ),
     .SX         ( SX        ),
