@@ -2,7 +2,17 @@ params:
   - { name: SUB_OFFSET, value: "22'h2_8000 >> 1" }
   - { name: SND_OFFSET, value: "22'h3_0000 >> 1" }
   - { name: MCU_OFFSET, value: "22'h3_8000 >> 1" }
-  - { name: GFX_OFFSET, value: "22'h4_0000 >> 1" }
+
+clocks:
+  clk24:
+    - freq: 6000000
+      outputs:
+        - cen6
+        - cen3
+    - freq: 4000000
+      outputs:
+        - cen4
+        - cen2
 
 sdram:
   banks:
@@ -27,10 +37,11 @@ sdram:
           addr_width: 15
           data_width: 8
           offset: SND_OFFSET
+    -
+      buses:
         -
           name: gfx
           addr_width: 19
           data_width: 32
-          offset: GFX_OFFSET
 
 

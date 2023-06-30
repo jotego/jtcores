@@ -20,19 +20,11 @@ module jtbubl_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// wire        main_cs, sub_cs, mcu_cs, snd_cs, gfx_cs;
-// wire        main_ok, sub_ok, mcu_ok, snd_ok, gfx_ok;
 wire        snd_rstn, black_n, flip;
-// wire [31:0] gfx_data;
-// wire [17:0] gfx_addr;
-
 wire [ 7:0] snd_latch, main_latch;
-// wire [14:0] snd_addr, sub_addr;
-// wire [11:0] mcu_addr;
-// wire [17:0] main_addr;
-wire        cen12, cen6, cen4, cen3;
-reg         tokio;
+reg  [ 7:0] debug_mux;
 
+reg         tokio;
 wire [ 7:0] dipsw_a, dipsw_b;
 wire        main_flag, main_stb, snd_stb;
 
@@ -42,48 +34,9 @@ wire        cpu_rnw, cpu_irqn;
 wire [ 7:0] vram_dout, pal_dout, cpu_dout;
 wire        snd_flag;
 
-assign debug_view = {7'd0, tokio};
+assign debug_view = debug_mux;
 assign { dipsw_b, dipsw_a }   = dipsw[15:0];
 assign dip_flip               = flip;
-
-// localparam [21:0] SUB_OFFSET = 22'h2_8000 >> 1;
-// localparam [21:0] SND_OFFSET = 22'h3_0000 >> 1;
-// localparam [21:0] MCU_OFFSET = 22'h3_8000 >> 1;
-// localparam [21:0] GFX_OFFSET = 22'h4_0000 >> 1;
-// localparam [24:0] PROM_START = 25'hC_0000;
-
-jtframe_cen24 u_cen(
-    .clk        ( clk24         ),    // 24 MHz
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
-    .cen4       ( cen4          ),
-    .cen3       ( cen3          ),
-    .cen8       (               ),
-    .cen3q      (               ), // 1/4 advanced with respect to cen3
-    .cen1p5     (               ),
-    // 180 shifted signals
-    .cen12b     (               ),
-    .cen6b      (               ),
-    .cen3b      (               ),
-    .cen3qb     (               ),
-    .cen1p5b    (               )
-);
-
-// jtframe_dwnld #(.PROM_START(PROM_START))
-// u_dwnld(
-//     .clk            ( clk           ),
-//     .downloading    ( downloading   ),
-//     .ioctl_addr     ( ioctl_addr    ),
-//     .ioctl_dout     ( ioctl_dout    ),
-//     .ioctl_wr       ( ioctl_wr      ),
-//     .prog_addr      ( prog_addr     ),
-//     .prog_data      ( {nc,prog_data}),
-//     .prog_mask      ( prog_mask     ), // active low
-//     .prog_we        ( prog_we       ),
-//     .prom_we        ( prom_we       ),
-//     .sdram_ack      ( sdram_ack     ),
-//     .header         (               )
-// );
 
 `ifdef SIMULATION
 `ifndef LOADROM
@@ -98,6 +51,15 @@ jtframe_cen24 u_cen(
 always @(posedge clk) begin
     if( prog_we && ioctl_addr==1 )
         tokio <= prog_data==8'h7e; // single byte detection. Both tokyo and tokyob start like this
+end
+
+always @(posedge clk) begin
+    case( debug_bus[1:0] )
+        0: debug_mux <= { 3'd0, snd_rstn, 3'd0, tokio};
+        1: debug_mux <= main_latch;
+        2: debug_mux <= snd_latch;
+        default: debug_mux <= 0;
+    endcase
 end
 
 `ifndef NOMAIN
@@ -202,12 +164,17 @@ jtbubl_video u_video(
     .gfx_en         ( gfx_en        )
 );
 
+reg snd_rstn_eff;
+
+always @(negedge clk) begin
+    snd_rstn_eff <= tokio ? ~snd_rstn : ~rst;
+end
+
 `ifndef NOSOUND
 jtbubl_sound u_sound(
     .rst        ( rst24         ),
     .clk        ( clk24         ), // 24 MHz
-    //.rstn       ( snd_rstn      ),
-    .rstn       ( 1'b1          ),
+    .rstn       ( snd_rstn_eff  ),
     .cen3       ( cen3          ),
     .fx_level   ( dip_fxlevel   ),
 
@@ -238,79 +205,5 @@ assign sample   = 0;
 assign snd_flag = 0;
 assign main_stb = 0;
 `endif
-/*
-jtframe_rom #(
-    .SLOT0_AW    ( 18              ),
-    .SLOT0_DW    (  8              ),
-    .SLOT0_OFFSET(  0              ), // Main
 
-    .SLOT1_AW    ( 15              ),
-    .SLOT1_DW    (  8              ),
-    .SLOT1_OFFSET(  SUB_OFFSET     ), // Sub
-
-    .SLOT2_AW    ( 12              ),
-    .SLOT2_DW    (  8              ),
-    .SLOT2_OFFSET(  MCU_OFFSET     ), // MCU
-
-    .SLOT3_AW    ( 15              ), // Sound
-    .SLOT3_DW    (  8              ),
-    .SLOT3_OFFSET( SND_OFFSET      ),
-
-    .SLOT4_AW    ( 18              ), // GFX
-    .SLOT4_DW    ( 32              ),
-    .SLOT4_OFFSET( GFX_OFFSET      )
-) u_rom (
-    .rst         ( rst           ),
-    .clk         ( clk           ),
-
-    .slot0_cs    ( main_cs       ),
-    .slot1_cs    ( sub_cs        ),
-    .slot2_cs    ( mcu_cs        ),
-    .slot3_cs    ( snd_cs        ), // unused
-    .slot4_cs    ( gfx_cs        ),
-    .slot5_cs    ( 1'b0          ), // unused
-    .slot6_cs    ( 1'b0          ),
-    .slot7_cs    ( 1'b0          ), // unused
-    .slot8_cs    ( 1'b0          ),
-
-    .slot0_ok    ( main_ok       ),
-    .slot1_ok    ( sub_ok        ),
-    .slot2_ok    ( mcu_ok        ),
-    .slot3_ok    ( snd_ok        ),
-    .slot4_ok    ( gfx_ok        ),
-    .slot5_ok    (               ),
-    .slot6_ok    (               ),
-    .slot7_ok    (               ),
-    .slot8_ok    (               ),
-
-    .slot0_addr  ( main_addr     ),
-    .slot1_addr  ( sub_addr      ),
-    .slot2_addr  ( mcu_addr      ),
-    .slot3_addr  ( snd_addr      ),
-    .slot4_addr  ( gfx_addr      ),
-    .slot5_addr  (               ),
-    .slot6_addr  (               ),
-    .slot7_addr  (               ),
-    .slot8_addr  (               ),
-
-    .slot0_dout  ( main_data     ),
-    .slot1_dout  ( sub_data      ),
-    .slot2_dout  ( mcu_data      ),
-    .slot3_dout  ( snd_data      ),
-    .slot4_dout  ( gfx_data      ),
-    .slot5_dout  (               ),
-    .slot6_dout  (               ),
-    .slot7_dout  (               ),
-    .slot8_dout  (               ),
-
-    // SDRAM interface
-    .sdram_rd    ( sdram_req     ),
-    .sdram_ack   ( sdram_ack     ),
-    .data_dst    ( data_dst      ),
-    .data_rdy    ( data_rdy      ),
-    .downloading ( downloading   ),
-    .sdram_addr  ( sdram_addr    ),
-    .data_read   (data_read[15:0])
-);
-*/
 endmodule

@@ -31,7 +31,7 @@ main_setnames=["tokiob"]
 
 [buttons]
 names=[
-    { names="Shoot,Jump" }
+    { names="Jump,Shoot" }
 ]
 
 [dipsw]

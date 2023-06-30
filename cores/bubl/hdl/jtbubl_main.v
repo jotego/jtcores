@@ -218,7 +218,7 @@ always @(posedge clk24 ) begin
         if( !main_wrn )
             case( cpu_addr[1:0] )
                 2'b00: snd_latch <= main_dout;
-                2'b11: snd_rstn  <= ~main_dout[0];
+                2'b11: snd_rstn  <= main_dout[0];
                 default:;
             endcase
     end else snd_stb <= 0;
@@ -327,7 +327,7 @@ jtframe_z80 u_maincpu(
     .dout     ( main_dout      )
 );
 
-jtframe_z80wait #(.DEVCNT(2)) u_mainwait(
+jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
     .rst_n    ( main_rst_n      ),
     .clk      ( clk24           ),
     .cen_in   ( cen6            ),
@@ -369,7 +369,7 @@ jtframe_z80 u_subcpu(
     .dout     ( sub_dout       )
 );
 
-jtframe_z80wait #(.DEVCNT(1)) u_subwait(
+jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
     .rst_n    ( sub_rst_n       ),
     .clk      ( clk24           ),
     .cen_in   ( cen6            ),
@@ -438,8 +438,8 @@ always @(posedge clk24) begin
         case( mcu_bus[1:0] )
             2'd0: p3_in <= dipsw_a;
             2'd1: p3_in <= dipsw_b;
-            2'd2: p3_in <= {1'b1, start_button[0], joystick1[4], joystick1[5], joystick1[3:0] };
-            2'd3: p3_in <= {1'b1, start_button[1], joystick2[4], joystick2[5], joystick2[3:0] };
+            2'd2: p3_in <= {1'b1, start_button[0], joystick1[5:0] };
+            2'd3: p3_in <= {1'b1, start_button[1], joystick2[5:0] };
         endcase // mcu_bus[1:0]
     end
 end
@@ -450,8 +450,8 @@ always @(posedge clk24) begin
         3'd3: cab_dout <= dipsw_a;
         3'd4: cab_dout <= dipsw_b;
         3'd5: cab_dout <= {2'b11, 2'b11 /* MCU related */, coin_input, service, 1'b1 };
-        3'd6: cab_dout <= {1'b1, start_button[0], joystick1[4], joystick1[5], joystick1[3:0] };
-        3'd7: cab_dout <= {1'b1, start_button[1], joystick2[4], joystick2[5], joystick2[3:0] };
+        3'd6: cab_dout <= {1'b1, start_button[0], joystick1[5:0] };
+        3'd7: cab_dout <= {1'b1, start_button[1], joystick2[5:0] };
         default: cab_dout <= 8'hff;
     endcase
 end
