@@ -66,23 +66,10 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "paroda.kicad_prl",
+    "filename": "fairyland.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "paroda.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2225,
-          "pos_y": 84,
-          "size_x": 966,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }

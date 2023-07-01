@@ -53,7 +53,7 @@
         0,
         2,
         0,
-        0,
+        1,
         0,
         0,
         1,
@@ -79,56 +79,14 @@
       ],
       [
         0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        1,
-        1,
-        2
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
         1,
         0,
         0,
         0,
         0,
-        2
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        2
-      ],
-      [
         1,
         1,
-        1,
-        1,
-        1,
-        0,
-        1,
-        1,
-        1,
+        2,
         1,
         1,
         2
@@ -138,6 +96,48 @@
         0,
         0,
         0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
         0,
         0,
         1,
@@ -151,7 +151,7 @@
         0,
         2,
         1,
-        0,
+        2,
         0,
         0,
         1,
@@ -225,7 +225,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "error",
+      "pin_to_pin": "warning",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "unannotated": "error",
@@ -239,7 +239,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "rbike.kicad_pro",
+    "filename": "fairyland.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -279,7 +279,7 @@
     "page_layout_descr_file": ""
   },
   "schematic": {
-    "annotate_start_num": 24,
+    "annotate_start_num": 0,
     "drawing": {
       "default_line_thickness": 6.0,
       "default_text_size": 50.0,
@@ -318,51 +318,39 @@
   },
   "sheets": [
     [
-      "bc311621-394b-4535-9238-fb09c46750da",
+      "f5eb1c9e-3094-41e4-b993-3476e3a4b758",
       ""
     ],
     [
-      "7a6575e2-01a7-46b0-bf00-bdc567d993a6",
-      "main"
-    ],
-    [
-      "377ff918-79a1-409f-a497-261eac5e4b11",
+      "805fec21-08ac-4fe3-ba05-5c1ef8326531",
       "io_cabinet"
     ],
     [
-      "c9b35366-f97c-48fb-8455-4930421de491",
+      "02acca1d-bbea-4030-919d-ab27cbc343d1",
       "scroll"
     ],
     [
-      "c14c30bf-37a7-4f33-a76d-85b810a08abd",
+      "c390cb2e-f868-499c-8d5c-c75efb799de2",
       "objects"
     ],
     [
-      "77cabce3-eafc-4cd9-953e-7073493db028",
-      "obj_memories"
+      "ee9a6692-7e20-4076-8da2-ad8bb94039e5",
+      "main"
     ],
     [
-      "21d218b4-3f01-4c8b-ae43-c35b0b76ab17",
-      "obj_pxl"
-    ],
-    [
-      "617bd8d8-1c53-47e4-a5f9-029a9281f251",
-      "Obj_fms"
-    ],
-    [
-      "04bab2f2-7aa8-4efd-8960-613c339b8e09",
+      "71be1ed6-916a-4dbc-a644-e42fe23e69f6",
       "colmix_rgb"
     ],
     [
-      "9814ad9d-7c24-4820-8a3a-060d52095293",
+      "dceca2ed-c4f4-4b96-afed-6e3228263183",
       "sound"
     ],
     [
-      "44f41e44-0225-4d78-a1e1-090b8e4a7ef5",
+      "b3195ec8-4a0e-4706-a564-dff00e24157a",
       "capacitors_lu"
     ],
     [
-      "f1317af8-786c-4f7a-bcb6-e472c1c85c24",
+      "833d2fd1-6694-4d4e-894e-07da1c87933b",
       "description"
     ]
   ],
