@@ -15,6 +15,10 @@ You will not find the list of supported games anywhere in this repository as tha
 
 The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/jotego/jtbin). Most cores are released early for [patrons](https://patreon.com/jotego) so check it out too. [JTFRAME](https://github.com/jotego/jtframe) supports more FPGA platforms than the ones publised in JTBIN. You are welcome to compile the cores for the other platforms. Distribution of the core binary files together with copyrighted ROM files is not permitted.
 
+# JTFRAME
+
+Detailed technical documentation about the framework can be read [here](modules/jtframe/README.md)
+
 # Schematics
 
 Some core have KiCAD schematics for the arcade PCB. This is part of the core research effort and it is important on its own. The schematics folders are called *sch* and can be found in some core folders.

@@ -237,14 +237,14 @@ always @(posedge clk) begin
     endcase
 end
 
-`ifdef SIMULATION
+// `ifdef SIMULATION
 
-always @(posedge clk) begin
-    if( bus_wait==1 && wrmem ) begin
-        $display("\tMCU - %X (active %X) - Wr  %X", wraddr, active, wrdata);
-    end
-end
-`endif
+// always @(posedge clk) begin
+//     if( bus_wait==1 && wrmem ) begin
+//         $display("\tMCU - %X (active %X) - Wr  %X", wraddr, active, wrdata);
+//     end
+// end
+// `endif
 
 
 function check(input [2:0] region );
@@ -346,7 +346,7 @@ always @(posedge clk) begin
                 if( rdmem ) begin
                     {mmr[0], mmr[1]} <= bus_dout;
                     `ifdef SIMULATION
-                    $display("\tMCU - %X (active %X) - %X  Rd", rdaddr, active, bus_dout );
+                    // $display("\tMCU - %X (active %X) - %X  Rd", rdaddr, active, bus_dout );
                     `endif
                 end
             end
