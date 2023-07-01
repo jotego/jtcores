@@ -1,0 +1,15 @@
+FROM jotego/jtcore-base
+LABEL maintainer=jotego@gmail.com
+
+# 32-bit support
+RUN dpkg --add-architecture i386 && apt update
+
+# 32-bit libraries
+RUN ln -fs /usr/share/zoneinfo/Europe/Madrid /etc/localtime && apt-get install -y tzdata && dpkg-reconfigure --frontend noninteractive tzdata
+RUN apt install make:i386 libxdmcp6:i386 libxau6:i386 libxext6:i386 libxft-dev:i386 libxft2:i386 libxrender1:i386 libxt6:i386 libfontconfig1-dev:i386 libxtst6:i386 libx11-6:i386 unixodbc:i386 libzmq3-dev:i386 libxext6:i386 libxi6:i386 -y
+# missing ncurses-base:i386 -y
+
+COPY 13.1 /opt/altera/13.1
+ENV PATH $PATH:/opt/altera/13.1/quartus/bin
+
+ENTRYPOINT ["bash"]

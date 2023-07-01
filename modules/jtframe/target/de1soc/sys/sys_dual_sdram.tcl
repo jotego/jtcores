@@ -1,0 +1,1 @@
+../../sockit/sys/sys_dual_sdram.tcl

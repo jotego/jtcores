@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="jtframe_pll6671_sim/jtframe_pll6671.vo" type="VERILOG" />
+ <topLevel name="jtframe_pll6671" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

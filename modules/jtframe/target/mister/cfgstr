@@ -1,0 +1,41 @@
+J{{.CORENAME}};;
+{{ if .JTFRAME_OSD_LOAD }}          F,rom;                    {{ end }}
+{{ if not (.JTFRAME_NOMRA_DIP) }}   DIP;                      {{ end }}
+{{ if .JTFRAME_CHEAT }}             CHEAT;                    {{ end }}
+    P1,Video;
+{{ if .JTFRAME_OSD60HZ }}           P1OJ,Force 60Hz, Off, On; {{ end }}
+    P1oLO,CRT H offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
+    P1oPS,CRT V offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
+    P1oG,CRT scale enable,Off,On;
+    H2P1oHK,CRT scale factor,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
+P1{{ .SEPARATOR }}
+{{ if .JTFRAME_NOHQ2X }}            d3P1O35,Scandoubler Fx,None,N/A,CRT 25%,CRT 50%,CRT 75%;
+        {{ else }}                  d3P1O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%; {{ end }}
+H0P1OGH,Aspect ratio,Original,Full screen,[ARC1],[ARC2];
+{{ if .JTFRAME_VERTICAL }}
+    {{ if .JTFRAME_ROTATE }}        H4P1o78,Rotate screen,Yes,No (original),No (flip);
+    {{ else }}
+        {{ if .JTFRAME_OSD_FLIP }}  P1O1,Flip screen,Off,On; {{ end }}
+                                    H1P1O2,Rotate screen,Yes,No;
+    {{ end }}
+{{ end }}
+d5P1o9,Vertical Crop,Disabled,216p(5x);
+d5P1oAD,Crop Offset,0,2,4,8,10,12,-12,-10,-8,-6,-4,-2;
+P1oEF,Scale,Normal,V-Integer,Narrower HV-Integer,Wider HV-Integer;
+{{ .SEPARATOR }}
+{{ if .CORE_OSD }}
+    {{ .CORE_OSD }}
+{{ end }}
+{{ if .JTFRAME_OSD_VOL }}           O67,FX volume,high,highest,lowest,low; {{ end }}
+{{ if .JTFRAME_OSD_SND_EN }}        O8,FX,On,Off; O9,FM,On,Off; {{ end }}
+{{ if .JTFRAME_OSD_TEST }}          OA,Service mode,Off,On; {{ end }}
+{{ if .JTFRAME_AUTOFIRE0}}          OI,Autofire button 0,Off,On; {{ end }}
+{{ if .JTFRAME_DIAL }}              o03,Sensitivity,high,highest,lowest,low;{{end}}
+{{ if .JTFRAME_UART }}
+    {{ if .JTFRAME_NO_DB15 }}       o6,User port,Off,UART; {{ else }}
+                                    o56,User port,Off,DB15 Joystick,UART; {{ end }}
+    {{ else }}                      o5,User port,Off,DB15 Joystick; {{ end }}
+{{ if .JTFRAME_CREDITS }} OC,Show credits in pause,On,Off; {{ end }}
+R0,Reset;
+{{ with .CORE_KEYMAP }} {{ . }} {{ end }}
+V,v{{ .COMMIT }};

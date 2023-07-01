@@ -1,0 +1,1 @@
+../../mister/sys/sdram_clk48.sdc

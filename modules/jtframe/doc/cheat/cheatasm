@@ -1,0 +1,2 @@
+#!/bin/bash
+opbasm -6 -x -m 1024 $*

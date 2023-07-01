@@ -1,0 +1,27 @@
+#set_global_assignment -name QIP_FILE           [file join $::quartus(qip_path) ../../hdl/jtframe.qip                 ]
+here:
+  - jtframe_emu.sv
+  - jtframe_mister.sv
+  - jtframe_mister_dwnld.v
+  - jtframe_mr_ddrmux.v
+  - jtframe_mr_ddrtest.v
+  - jtframe_joymux.v
+  - ../../hdl/sdram/jtframe_shadow.v
+  - ../../hdl/video/jtframe_hsize.v
+  - ../../hdl/clocking/jtframe_rst_sync.v
+  - ../../hdl/clocking/jtframe_sync.v
+  # Sys (MiSTer framework)
+  - sys/sys.qip
+  # PLLs
+  - sys/pll.qip
+  - pll6144/jtframe_pll6144.qip
+  - pll6293/jtframe_pll6293.qip
+  - pll6671/jtframe_pll6671.qip
+  # DB15 support (Antonio Villena's MiSTer)
+  - joydb15.v
+jtframe:
+  - from: video
+    get:
+      - jtframe_lfbuf_ddr.v
+      - jtframe_lfbuf_ddr_ctrl.v
+      - jtframe_lfbuf_line.v

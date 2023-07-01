@@ -1,0 +1,26 @@
+jtframe:
+  - from: sdram
+    get:
+      - jtframe_sdram64.v
+      - jtframe_sdram64_bank.v
+      - jtframe_sdram64_init.v
+      - jtframe_sdram64_rfsh.v
+      - jtframe_sdram64_latch.v
+      - jtframe_ram1_1slot.v
+      - jtframe_ram1_2slots.v
+      - jtframe_ram1_3slots.v
+      - jtframe_ram1_4slots.v
+      - jtframe_ram1_5slots.v
+      - jtframe_ram2_4slots.v
+      - jtframe_ram2_5slots.v
+      - jtframe_ram2_6slots.v
+      - jtframe_rom_1slot.v
+      - jtframe_rom_2slots.v
+      - jtframe_rom_3slots.v
+      - jtframe_rom_4slots.v
+      - jtframe_rom_5slots.v
+      - jtframe_rom_6slots.v
+      - jtframe_romrq.v
+      - jtframe_rom.v
+      - jtframe_ram_rq.v
+      - jtframe_rom_sync.v

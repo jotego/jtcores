@@ -46,3 +46,6 @@
 [submodule "modules/jt900h"]
 	path = modules/jt900h
 	url = https://github.com/jotego/jt900h.git
+[submodule "modules/jtframe/target/pocket"]
+	path = modules/jtframe/target/pocket
+	url = git@github.com:jotego/pocket.git

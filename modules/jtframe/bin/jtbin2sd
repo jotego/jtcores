@@ -1,0 +1,95 @@
+#!/bin/bash
+# Copies the contents of JTBIN to the SD card
+
+function show_help {
+cat<<HELP
+    JTFRAME (c) Jose Tejada 2023
+
+Copies the contents of JTBIN or the release folder to
+a SD card with the name of the target device.
+
+Usage:
+
+jtbin2sd.sh [-l|--local]
+
+-l, --local     Uses JTROOT/release instead of JTBIN (default)
+-g, --git       Uses JTBIN as the target folder
+-v, --verbose
+
+future options:
+-s, --setname   Uses the given setname as the core.arc
+HELP
+}
+
+LOCAL=1
+V=
+CNT=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -l|--local) LOCAL=1;;
+        -g|--git)
+            LOCAL=0;; # JTBIN will not be modified
+        -v|--verbose)
+            V=-v;;
+        -h|--help)
+            show_help
+            exit 1;;
+        *) echo "Unknown argument $1"; exit 1;;
+    esac
+    shift
+done
+
+if [ $LOCAL = 1 ]; then
+    export JTBIN=$JTROOT/release
+fi
+
+cd $JTBIN/mra
+
+function cp_mist {
+    cp $V $ROM/*rom $DST
+    cp $V $JTBIN/${i,,}/*rbf $DST
+    find $JTBIN/mra -name "*.mra" -print0 | parallel -0 mra -z $HOME/.mame/roms -O /media/$USER/$i -A -s
+    # Get the main MRA as the core's arc for JTAG programming
+    for CORE in $JTBIN/mister/*; do
+        MR=$CORE/releases
+        if [ ! -d "$MR" ]; then continue; fi
+        cd $MR
+        CORENAME=JT$(basename $CORE)
+        CORENAME=${CORENAME^^}
+        FIRST=`find . -name "*.mra" | head -n 1`
+        if [ -z "$FIRST" ]; then continue; fi
+        mra -A -s -a $DST/$CORENAME.arc "$FIRST"
+        cp $V --no-clobber $DST/$CORENAME.arc $DST/core.arc
+    done
+}
+
+for i in SIDI MIST POCKET; do
+    DST=/media/$USER/$i
+    if [ ! -d $DST ]; then
+        continue
+    fi
+    echo "`basename $DST` found"
+    rm -rf $DST/* &
+    wait
+    cd $ROM
+    if [ $i = POCKET ]; then
+        cp -r $V $JTBIN/pocket/raw/* $DST
+        # Copy Pocket assets
+        for k in $ROM/cp_*sh; do
+            if [ ! -z "$V" ]; then
+                echo $k $ROM
+            fi
+            $k $ROM
+        done
+    else
+        cp_mist $i &
+    fi
+    CNT=$((CNT+1))
+done
+
+wait
+
+if [ $CNT = 0 ]; then
+    echo "Nothing done"
+fi

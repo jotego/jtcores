@@ -1,0 +1,106 @@
+#!/bin/bash
+
+echo SDRAM_SHIFT macro is currently disabled in MiSTer pll_0002.v file
+echo enabled it and fixed the SHIFTS variable in this script. Before running
+echo the script again.
+exit 1
+
+MIN=-11000
+MAX=11000
+CORE=
+EXTRA=
+DRYRUN=
+MRA=
+SKIP=0
+
+SHIFTS="12500 6510 8506 9765 10503 2994 1736 729 5000 1041 1996 3993 10000 5989 7986 11024 8984 11979 260 1250 2256 3515 3750 4253 520 4774 5208 10243 9505 10329 9244 10763 8750 11284 8246 7725 7500 1475 4513 7291 6979 11458 6770 5520 2734 6250 3255 11770 2500 5729 12239"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -mra)
+            shift
+            MRA=$1;;
+        -skip)
+            SKIP=1;;
+        -min)
+            shift
+            MIN=$1;;
+        -max)
+            shift
+            MAX=$1;;
+        -core)
+            shift
+            CORE=$1;;
+        -96)
+            echo "96MHz clock selected"
+            SHIFTS="-520 -1041 -1475 -1996 -2517 -2994 -3515 -3993 -4253 -4513 -4774 -5034 -5208"
+            ;;
+        -dryrun)
+            DRYRUN=echo;;
+        -h|-help)
+            echo Usage: jtseed -core "<name>" "[-min value]" "-max [value]" "[-96] [-dryrun] : [args for jtcore]"
+            echo -96    : enable 96MHz shift values
+            echo -dryrun: show commands without executing them
+            echo Valid delays for 48MHz:
+            echo 0 260 520 729 1041 1250 1475 1736 1996 2256 2500 2734 2994 3255 3515 3750 3993
+            echo 4253 4513 4774 5000 5208 5520 5729 5989 6250 6510 6770 6979 7291 7500 7725 7986
+            echo 8246 8506 8750 8984 9244 9505 9765 10000 10243 10329
+            echo 10503 10763 11024 11284 11458 11770 11979 12239 12500
+            echo
+            echo Valid delays for 96MHz:
+            echo "0 -520 -1041 -1475 -1996 -2517 -2994 -3515 -3993"
+            exit 0
+            ;;
+        :)
+            shift
+            EXTRA="$*"
+            break
+            ;;
+        *)
+            echo "Unknown parameter $1"
+            exit 1;;
+    esac
+    shift
+done
+
+if [ -z "$CORE" ]; then
+    echo "Must give corename with -core option"
+    exit 1
+fi
+
+CORE_DIR=$JTROOT
+
+if [ -d $JTROOT/cores/$CORE ];then
+    CORE_DIR=$JTROOT/cores/$CORE
+fi
+
+for DELAY in $SHIFTS;
+do
+    if [[ $DELAY -lt $MIN || $DELAY -gt $MAX ]]; then
+        continue
+    fi
+    if [ $SKIP = 0 ]; then
+        echo Using ${DELAY}ps delay
+        $DRYRUN jtcore ${CORE} -mr -d SDRAM_SHIFT=\\\"$DELAY\\\" $EXTRA
+    fi
+    if [ -e "$MRA" ]; then
+        MRANAME=$(basename $MRA .mra)_${DELAY}ps.mra
+        $DRYRUN cp $MRA $MRANAME
+        $DRYRUN sed -i s/jt${CORE}/jt${CORE}_${DELAY}ps/ $MRANAME
+    fi
+    if [[ -n "$DRYRUN" || $SKIP = 1 ]]; then
+        continue
+    fi
+    OUTPUT=$CORE_DIR/mister/output_1/jt${CORE}.rbf
+    if [ -e $OUTPUT ]; then
+        cp $OUTPUT jt${CORE}_${DELAY}ps.rbf
+        mv $JTROOT/log/mister/jt${CORE}.log jt${CORE}_${DELAY}ps.log
+    else
+        echo "Missing output RBF file for ${DELAY}ps"
+        exit 1
+    fi
+done
+
+if [ $SKIP = 0 ]; then
+    $DRYRUN 7za a jt${CORE}_shift.7z jt${CORE}*.log jt${CORE}*.rbf
+fi

@@ -1,0 +1,198 @@
+###########################################
+## Copy to MiST, SiDi and Pocket
+###########################################
+#!/bin/bash
+# This file is part of JTFRAME.
+# JTFRAME program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# JTFRAME program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+# Author: Jose Tejada Gomez. Twitter: @topapate
+# Version: 1.0
+# Date: 12-1-2023
+
+set -e
+
+function show_usage() {
+    cat << EOF
+JTBETA Beta release preparation. (c) Jose Tejada 2021, @topapate
+
+    jtbeta core master_branch [options for jtupdate]
+    JTUTIL must point to the JTUTIL repository
+
+    Beta preparation:
+
+    -A "week" branch must exist
+    -The "week" branch will be compared to the master branch in the arguments.
+     They must be equal to proceed. The work is done in the master branch.
+    -If a patrons/msg file exist, it must have been modified since the
+     last beta tag
+    -The builds.log file is reset off git
+    -The jtupdate script is run with the added options:
+        * --all
+        * --seed
+        * --beta
+    -If all compilations are succesful:
+        * commit the builds.log
+        * tag the commit as "beta_core_month_day"
+
+    The output files will be available in the $JTROOT/releases folder
+
+    See also: cpmra2bin to copy the MRA files from a folder to JTBIN in the
+    right way
+EOF
+}
+
+# Check arguments
+if [ $# -lt 1 ]; then
+    show_usage
+    exit 1
+fi
+
+if [ ! -d "$JTUTIL" ]; then
+    echo "You need to export the environment variable JTUTIL pointing to the JTFPGA/JTUTIL repository"
+    exit 1
+fi
+
+# Check that MiSTer is reachable
+if ! ping MiSTer.home -c 1 -W 1 > /dev/null; then
+    echo "MiSTer.home is not reachable. Fix the problem and try again"
+    exit 1
+fi
+
+MASTER=master
+CORE=$1
+CORESTAMP=$(date --date=friday +"%Y%m%d")
+shift
+if [[ ! $1 =~ -.* && -n "$1" ]]; then
+    MASTER=$1
+    shift
+fi
+
+if [ ! -d $CORES/$CORE ]; then
+    echo "Unknown core $CORE"
+    exit 1
+fi
+
+WEEK_COMMIT=$(git rev-parse week)
+if [ $? != 0 ]; then
+    echo The week branch does not exist in git
+    exit 1
+fi
+
+MASTER_COMMIT=$(git rev-parse $MASTER)
+if [ $? != 0 ]; then
+    echo The $MASTER branch does not exist in git
+    exit 1
+fi
+
+if (git status --short | grep -i "^ M " > /dev/null); then
+    echo "the git repository is not clean. Commit the changes before runing jtbeta"
+    exit 1
+fi
+
+if ! version_ok.sh > /dev/null; then
+    echo "Missing version tag"
+    exit $?
+fi
+
+if [ $WEEK_COMMIT != $MASTER_COMMIT ]; then
+    echo The $MASTER branch is not at the same commit as the week branch.
+    echo Caution: you may have not merged the changes from week correctly.
+    echo "continue y/n?"
+    read CONT
+    if [ $CONT != y ]; then
+        exit 1
+    fi
+fi
+
+git checkout $MASTER || exit $?
+
+# If the release folder exists, it may be better to delete it
+if [ -d $JTROOT/release ]; then
+    cat <<EOF
+The release folder exists. It is recommended to start from
+a clean folder.
+Delete it y/n?
+EOF
+    read CONT
+    if [ $CONT = y ]; then rm -rf $JTROOT/release; fi
+fi
+
+# Check whether the patrons/msg file has been updated
+if [ -e $CORES/$CORE/patrons/msg ]; then
+    MSGFILE=$CORES/$CORE/patrons/msg
+    for REV in $(git tag | grep beta_$CORE); do
+        if [ $(git diff $REV -- $MSGFILE|wc -l) = 0 ]; then
+            echo "The msg file $MSGFILE has not changed since tag $REV"
+            echo "Continue y/n?"
+            read CONT
+            if [ $CONT != y ]; then exit 1; fi
+        fi
+    done
+fi
+
+# Beta keys are kept in $JTUTIL/.jtbeta
+if [ ! -s $JTUTIL/.jtbeta ]; then
+    echo "Missing JTUTIL/.jtbeta"
+    exit 1
+fi
+
+source $JTUTIL/.jtbeta
+# generate the jtbeta.zip file
+# the assembler file for the pico is in asm/beta.s
+cd $JTUTIL/pico
+echo cheatzip beta -beta $BETAKEY
+cheatzip beta -beta $BETAKEY
+
+jtupdate --cores $CORE --seed $DEFAULT_TARGET \
+    --beta $BETAKEY --corestamp $CORESTAMP $* \
+|| exit $?
+
+echo -e "\n****** COMPILATION COMPLETE *********\n"
+
+# keep track of beta keys
+echo "$CORE $CORESTAMP BETAKEY=$BETAKEY=0x$(printf %X $BETAKEY)" >> $JTUTIL/betakey.log
+
+# Tag both code and JTBIN repositories
+cd $JTROOT
+# The MiSTer is the only one added to JTBIN
+TAG="jtfriday_${CORESTAMP}"
+git tag --force $TAG
+git push --tags --force
+
+cd $JTROOT/release
+cp -r mister mra $JTBIN
+cd $JTBIN
+git add *
+git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
+git tag --force $TAG
+
+echo "Adding the reference to JTBIN's wiki"
+cd $JTBIN/../jtbin.wiki
+git pull
+if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
+    ./addcore.sh $CORE
+    git commit -m "Added $CORE"
+    # git push
+fi
+
+# Prepare the zip files
+echo "Creating zip files"
+cpbeta.sh $CORE
+
+# Show problems
+BETALOG=$JTROOT/log/update.log
+if grep FAIL $BETALOG; then
+    echo "Warning: Not all targets compiled correctly"
+    exit 1
+fi

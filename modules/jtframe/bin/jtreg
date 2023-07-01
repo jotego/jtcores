@@ -1,0 +1,30 @@
+#!/bin/bash
+START_TIME=$(date +%s)
+CORE=$1
+shift
+
+if [ -z "$CORE" ]; then echo "Missing core name"; exit 1; fi
+if [ ! -d "$CORES/$CORE" ]; then echo "No core named $CORE in $CORES"; exit 1; fi
+
+jtframe mra $CORE
+SETNAMES=`cat $CORES/$CORE/ver/setnames.txt`
+
+if [ -z "$SETNAMES" ]; then
+    echo "No MAME set supported for $CORENAME ($CORE)"
+    exit 0
+fi
+
+REGDIR=$CORES/$CORE/ver/regrun
+mkdir -p $REGDIR || exit $?
+cd $REGDIR || exit $?
+find -not -name "." -type d | xargs rm -rf
+
+export JTFRAME_REGRESSION=1
+parallel --jobs 75% --delay 0.5 jtsim -sysname $CORE -video 900 -dir -skipROM $* -setname ::: $SETNAMES
+END_TIME=$(date +%s)
+COMPILE_TIME=$[$END_TIME - $START_TIME]
+HOURS=$[$COMPILE_TIME / 3600]
+MINUTES=$[$COMPILE_TIME / 60]
+SECONDS=$[$COMPILE_TIME % 60]
+
+echo "====== $CORE regression finished in "$HOURS:$MINUTES:$SECONDS hours" ======" > /dev/stderr

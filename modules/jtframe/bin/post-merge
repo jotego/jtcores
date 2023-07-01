@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# recompile the jtframe utility after a git pull or merge
+
+if [ ! -z "$JTFRAME" ]; then
+	rm -f $JTFRAME/src/jtframe/jtframe
+	$JTFRAME/bin/jtframe
+fi
+exit 0
+

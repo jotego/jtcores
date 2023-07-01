@@ -1,0 +1,14 @@
+jtframe:
+  - from: cpu/j68
+    get:
+      - cpu_j68.v
+      - j68_addsub_32.v
+      - j68_alu.v
+      - j68_decode_rom.v
+      - j68_decode.v
+      - j68_dpram_2048x20.v
+      - j68_flags.v
+      - j68_loop.v
+      - j68_mem_io.v
+      - j68_test.v
+      - jtframe_j68.v

@@ -1,0 +1,9 @@
+jtframe:
+  - from: cpu
+    get:
+      - mc6809i.v
+      - jtframe_sys6809.v
+      - jtframe_z80wait.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v

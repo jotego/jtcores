@@ -1,0 +1,6 @@
+here:
+  - common.yaml
+  - jtframe_mist_top.sv
+  - jtframe_mist.sv
+  - user_io.v
+  - data_io.v

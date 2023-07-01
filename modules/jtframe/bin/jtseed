@@ -1,0 +1,57 @@
+#!/bin/bash
+# This file is part of JTFRAME.
+# JTFRAME program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# JTFRAME program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+# Author: Jose Tejada Gomez. Twitter: @topapate
+# Version: 1.0
+# Date: 5-11-2022
+
+echo "Create a jtseed.last file at this folder to stop at the next compilation"
+
+rm -f jtseed.last
+
+MAXREPS=100
+
+re='^[0-9]+$'
+if [[ $1 =~ $re ]] ; then
+   MAXREPS=$1
+   shift
+else
+    echo "Call jtseed with a number as the first argument to limit the iterations"
+fi
+
+for i in $*; do
+    if [ $i = -s ]; then
+        echo "Error: cannot invoke jtseed with the -s (skip) option"
+        exit 1
+    fi
+done
+
+while [ $MAXREPS -gt 0 ]; do
+    if jtcore $* --seed $RANDOM; then
+        break
+    fi
+    # parallel jtcore $* -seed {} ::: $RANDOM $RANDOM | tee -a $1_seed.log
+    if [ -e jtseed.last ]; then
+        rm jtseed.last
+        exit 0
+    fi
+    MAXREPS=$((MAXREPS-1))
+done
+
+if [ $MAXREPS = 0 ]; then
+    # aborted before completing because of reaching the iteration limit
+    echo Maximum number of seed trial reached
+    exit 1
+fi

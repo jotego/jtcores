@@ -1,0 +1,12 @@
+jtframe:
+  - get:
+      - cpu/jtframe_8751mcu.v
+  - unless: VERILATOR,IVERILOG
+    get:
+      - cpu/8051/mc8051.yaml
+
+  # Verilog-only version, good for verilog simulators
+  # but compiles slowly
+  - when: VERILATOR,IVERILOG
+    get:
+      - cpu/mc8051.v

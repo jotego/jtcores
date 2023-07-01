@@ -1,0 +1,128 @@
+#!/bin/bash
+# This file is part of JTFRAME.
+# JTFRAME program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# JTFRAME program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+# Author: Jose Tejada Gomez. Twitter: @topapate
+# Version: 1.0
+# Date: 12-1-2023
+
+MAX_JOBS=
+DRYRUN=
+NETWORK=
+GIT=
+KEEP=
+CORESTAMP=$(date +"%Y%m%d")
+
+function parse_args {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --jobs)
+                shift
+                MAX_JOBS="--jobs $1"
+                ;;
+            --corestamp)
+                shift
+                CORESTAMP=$1
+                ;;
+            --dry)
+                DRYRUN=--dry-run
+                KEEP=keep
+                ;;
+            --keep)
+                KEEP=keep
+                ;;
+            --git)
+                GIT=1
+                ;;
+            --network)
+                NETWORK="--sshloginfile .."
+                ;;
+            --actions)
+                ACTIONS=yes
+                ;;
+            -h|--help)
+                jtframe update --help
+                exit 0;;
+        esac
+        shift
+    done
+}
+
+parse_args $* || exit $?
+
+if [ -z "$GIT" ]; then
+    # Output to the release folder
+    export JTBIN=$JTROOT/release
+    if [ -z "$KEEP" ]; then
+        rm -rf $JTROOT/release.bak
+        mv $JTROOT/release $JTROOT/release.bak
+        rm -rf $JTBIN
+    fi
+    mkdir -p $JTBIN
+else
+    # Output to JTBIN
+    cd $JTBIN
+    if git status --short | grep -i "^ M " > /dev/null; then
+        echo "JTBIN has uncommited changes. Do you want to continue [y/n]?"
+        read CONT
+        if [ $CONT != y ]; then
+            exit 1
+        fi
+    fi
+    if [ `git branch --show-current` = master ]; then
+        git checkout -b `basename $JTROOT`_$CORESTAMP || exit $?
+    fi
+fi
+if [ -z "$KEEP" ]; then rm -f $ROM/cp_*.sh $ROM/*.rom; fi
+
+# TASKS is a temporary file with the list of tasks
+TASKS=`mktemp`
+
+if [ -z "$ACTIONS" ]; then
+    jtframe update $* >> $TASKS || exit 1
+else
+    # updates the action files
+    jtframe update $*
+    exit $?
+fi
+
+if [ $(cat $TASKS|wc -l) = 0 ]; then
+    echo no jobs
+    exit 1
+fi
+
+if [[ -z "$DRYRUN" && -z "$KEEP" ]]; then
+    rm -f $JTROOT/log/builds.log
+fi
+
+# transfer the environment variables to each parallel server
+source `which env_parallel.bash`
+
+mkdir -p $JTROOT/log
+rm -rf $JTROOT/log/*
+if [ ! -z "$NETWORK" ]; then
+    TEMP=`mktemp`
+    while read LINE; do
+        echo "./modules/jtframe/bin/jtnet.sh $JTBIN $LINE" >> $TEMP
+    done < $TASKS
+    rm -f $TASKS
+    TASKS=$TEMP
+fi
+
+cat $TASKS | parallel --no-run-if-empty --colsep " " --sshdelay 0.25 \
+    --load 80% --memfree 4G --shuf  --workdir $JTROOT \
+    $DRYRUN $NETWORK $MAX_JOBS\
+    --delay 0.25 $CMD {} $EXTRA | tee $JTROOT/log/update.log
+
+rm -f $TASKS

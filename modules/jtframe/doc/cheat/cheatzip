@@ -1,0 +1,7 @@
+#!/bin/bash
+FILE=$(basename $1 .s)
+opbasm -6 -x -m 1024 $FILE.s || exit $?
+pico2hex $FILE.hex
+zip cheat.zip $FILE.bin || exit $?
+sshpass -p 1 scp cheat.zip root@MiSTer.home:/media/fat/games/mame
+

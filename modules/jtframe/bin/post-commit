@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if git status -u no | grep ahead; then
+	git push
+fi

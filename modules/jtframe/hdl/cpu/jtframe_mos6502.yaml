@@ -1,0 +1,5 @@
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_mos6502.v
+      - chip_6502.v

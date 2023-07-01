@@ -1,0 +1,707 @@
+#!/bin/bash
+# This file is part of JTFRAME.
+# JTFRAME program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# JTFRAME program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+# Author: Jose Tejada Gomez. Twitter: @topapate
+# Version: 1.0
+# Date: 7-7-2022
+
+function show_usage() {
+    cat << EOF
+JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
+    Argument without - is the core name, like gng, or 1943
+
+    Macro definition
+    --def | -d   Defines a verilog macro. Macros are removed from qsf file after
+                 compilation.
+                 Useful macros:
+                   NOSOUND             the core is compiled without sound (faster)
+                   MISTER_VIDEO_MIXER  uses the Mr video modules
+                   JTFRAME_SCAN2X      uses simple scan doubler from JTFRAME
+                   MISTER_DEBUG_NOHDMI skips MiSTer HDMI related logic. Speeds up compilation.
+    --undef | -u Undefines a macro
+
+    Target selection
+    -mist       compiles the MiST version. This is the default
+    -mister     compiles the MiSTer version
+    -sidi       compiles the SIDI version. This uses MiST's folders and settings but different pinout
+    -neptuno    compiles the NeptUNO version
+    -mc2        compiles the MultiCore2  version
+    -mcp        compiles the MultiCore2+ version
+    -pocket     compiles the PocketFPGA version
+    -sockit     compiles the Arrow SoCKit version
+    -de1soc     compiles the Terasic DE1-SoC version
+    -de10standard compiles the Terasic DE10-Standard version
+    -folder     any folder present in $JTFRAME/target/folder can be used as the target
+
+    General options
+
+    --corestamp     Sets the date string attached to the RBF file name. Defaults to today
+    --credits       Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
+    --force | -f    Forces --git even if it is not clean.
+    --git           Output to $JTBIN. Defines JTFRAME_RELEASE
+    -mrq            Compiles MiSTer with no HDMI nor logo but with sound
+    --mrpasswd      Sets the SSH pasword to use on MiSTer
+    --nodbg         Defines JTFRAME_RELEASE
+    --nosta         skips the STA check and marks as PASS compilations with timing problems
+    --program | -p  Programs the FPGA via JTAG
+    --quick |-q     Quick compilation. Defines NOSOUND and JTFRAME_OSD_NOLOGO
+                    Disables JTFRAME_CREDITS and HQ2X.
+    -qs             Same as -q but with sound.
+    --quicker | -qq Same as -q but it also disabled HDMI output and sets MiSTer as target
+    --seed          Sets random seed for compilation
+    --sim           Prepares Quartus simulation
+    --skip | -s     skips the compilation but executes the rest of the commands
+    --showmacros    Shows the macros used for compilation and exits
+    --target | -t <target>
+                    Specifies the target platform
+    --verbose | -v  verbose
+    --version       Shows the core version. Use "jtmerge -v" to see the JTFRAME version
+
+    --help          Displays this message
+EOF
+   exit 0
+}
+
+BETA=FALSE
+CORESTAMP=$(date +"%Y%m%d")
+EXT=rbf
+FAIL=0
+FORCE=
+GIT=FALSE
+MACROS=
+OUTPUTDIR=output_files
+PRJ=
+PROG=FALSE
+SEED=1
+SKIPTIMING=
+SIM=FALSE
+SKIP_COMPILE=FALSE
+TARGET=mist
+UNMACROS=
+
+# Device names for JTAG programming
+# Only MiST programming is fully implemented
+DEVICE_MIST=EP3C25E144
+DEVICE_POCKET=5CEBA4F23C8
+DEVICE=$DEVICE_MIST
+
+# Define colours if running on a terminal
+if [ -t 1 ]; then
+    red=`tput setaf 1`
+    green=`tput setaf 2`
+    blue=`tput setaf 4`
+    white=`tput setaf 7`
+    rBG=`tput setab 1; tput setaf 7`
+    gBG=`tput setab 2; tput setaf 7`
+    bBG=`tput setab 4; tput setaf 7`
+    yBG=`tput setab 3; tput setaf 7`
+    wBG=`tput setab 7; tput setaf 0`
+    NC=`tput sgr0`
+fi
+
+function is_mister_family {
+    if [[ $TARGET = mister || $TARGET = sockit || $TARGET = de1soc || $TARGET = de10standard ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function parse_args {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --corestamp)
+                if [ -z "$1" ]; then echo "Error: expecting word after --corestamp"; exit 1; fi
+                shift
+                CORESTAMP=$1;;
+            --credits)
+                MACROS="$MACROS NOSOUND MISTER_DEBUG_NOHDMI NOMAIN"
+                TARGET=mister;;
+            --def|-d)
+                shift
+                if [ ! -z "$1" ]; then
+                    if [ $1 = BETA ]; then BETA=TRUE; fi
+                    MACROS="$1 $MACROS"
+                fi
+                ;;
+            --force|-f) FORCE=TRUE;;
+            --git|-g) GIT=TRUE; MACROS="$MACROS JTFRAME_RELEASE";;
+            --prog|-p) PROG=TRUE;;
+            --prog-only | -w)
+                PROG=TRUE
+                SKIP_COMPILE=TRUE;;
+            --quick|-q)
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                GIT=FALSE;;
+            -qs)
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                GIT=FALSE;;
+            --skip | -s) SKIP_COMPILE=TRUE;;
+            --quicker|-qq)
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                TARGET=mister
+                GIT=FALSE;;
+            -mr)
+                TARGET=mister;;
+            --mrpasswd)
+                shift
+                if [ -z "$1" ]; then echo "Error: expecting word after --mrpasswd"; exit 1; fi
+                MISTERPASSWD=$1;;
+            -mrq)
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                GIT=FALSE
+                TARGET=mister;;
+            --nodbg)      MACROS="$MACROS JTFRAME_RELEASE";;
+            --nosta)      SKIPTIMING=1;;
+            --sim)        SIM=TRUE;;
+            --showmacros) SHOWMACROS=1;;
+            --target|-t)
+                shift
+                if [[ ! -d "$JTFRAME/target/$1" || -z "$1" ]]; then
+                    echo "Target $1 does not exist in $JTFRAME/target"
+                    exit 1
+                fi
+                TARGET=$1;;
+            --seed)
+                shift
+                if [[ ! $1 =~ ^[0-9]+$ ]]; then
+                    echo "Error: use an integer after --seed"
+                    exit 1
+                fi
+                SEED=$1;;
+            --undef|-u)
+                shift
+                if [ -z "$1" ]; then echo "Error: expecting word after --undef"; exit 1; fi
+                UNMACROS="$1 $UNMACROS"
+                ;;
+            --verbose | -v)
+                VERBOSE=-v;;
+            --version)
+                cd $JTROOT; latest.sh
+                exit 0;;
+            --help | -h)
+                show_usage;;
+            *)  if [[ -z "$PRJ" && ${1:0:1} != - ]]; then
+                    PRJ=$1
+                elif [ -d "$JTFRAME/target/${1:1}" ]; then
+                    # the name is a valid target because there was a folder for it in $JTFRAME/target
+                    TARGET=${1:1}
+                else
+                    echo "Project name had already been defined to " $PRJ
+                    echo -e "${rBG}ERROR:${NC}${wBG} Unknown option ${red}$1${NC}";
+                    exit 1
+                fi
+                ;;
+        esac
+        shift
+    done
+}
+
+parse_args $JTCORE_DEFAULT
+parse_args $*
+
+# Is the root folder environment variable set?
+
+if [ "$JTROOT" = "" ]; then
+    cd ${0%%modules/jtframe/bin/jtcore}
+    if [ -e setprj.sh ]; then
+        source setprj.sh --quiet
+    else
+        echo -e "${yBG}WARNING:${NC}${wBG} cannot find setprj.sh in ${red}$(pwd)${NC}"
+        exit 1
+    fi
+fi
+
+if [ "$JTROOT" = "" ]; then
+    echo -e "${rBG}ERROR:${NC}${wBG} Missing JTROOT environment variable.${NC}"
+    echo -e "      ${wBG}Source JTFRAME/bin/setprj.sh in bash before compiling.${NC}"
+    exit 1
+fi
+
+if [ -e $JTROOT/.jtcore ]; then source $JTROOT/.jtcore; fi
+
+cd $JTROOT
+MODULES=$JTROOT/modules
+JTFRAME=$MODULES/jtframe
+
+# Sets the commit string to a short commit and an optional -dirty suffix
+function is_dirty {
+    git status --short | grep -i "^ M " > /dev/null
+}
+
+# Removes the initial v from a word if exists.
+# Used to remove the v in version codes without
+# affecting the git id, in the case it's used instead
+function no_v {
+    if [ ${1:0:1} = v ]; then
+        echo ${1:1}
+    else
+        echo $1
+    fi
+}
+
+if is_dirty; then
+    PRJCOMMIT="$(git rev-parse --short HEAD)-dirty"
+else
+    PRJCOMMIT=`version_ok.sh`
+    if [[ $? != 0 && $GIT = TRUE ]]; then
+        cat << EOF
+Error: cannot use --git if there is no version tag for the commit
+Create the first version tag manually. Use jtmerge to create the tags after that
+EOF
+        exit 1
+    fi
+fi
+
+if [ "$VERBOSE" = -v ]; then echo "Using version tag $PRJCOMMIT"; fi
+
+if [ ! -e "$JTFRAME" ]; then
+    echo -e "${rBG}ERROR:${NC}${wBG} cannot locate jtframe folder.${NC}"
+    echo -e "      ${wBG} It should be at ${red}$JTFRAME${NC}"
+    exit 1
+fi
+
+# Is the project defined?
+case "$PRJ" in
+    "")
+        echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
+        show_usage
+        exit 1;;
+    -help | -h | --help)
+        show_usage;;
+esac
+
+if [ ${PRJ:0:1} = - ]; then
+    echo -e "${rBG}ERROR:${NC}${wBG} Missing project name.${NC}"
+    exit 1
+fi
+
+if [ -e $JTROOT/cores/$PRJ ]; then
+    PRJPATH=$JTROOT/cores/$PRJ
+else
+    echo -e "${rBG}ERROR:${NC}${wBG} Cannot find a valid project path${NC}"
+    exit 1
+fi
+shift
+
+if [ -e $CORES/$PRJ/cfg/skip ]; then
+    echo "Skipping compilation of $PRJ because of cfg/skip file"
+    exit 0
+fi
+
+if [ $GIT = TRUE ]; then
+    is_dirty
+    if [[ $? = 0 && -z "$FORCE" ]]; then
+        echo "Error: cannot use -git if git isn't clean. Commit and try again"
+        git status --short
+        exit 1
+    fi
+    if [ ! -z $VERBOSE ]; then echo "Using $JTBIN as JTBIN"; fi
+else
+    # Use the local release folder
+    if [ ! -z $VERBOSE ]; then echo "Using 'release' as JTBIN"; fi
+    export JTBIN=$JTROOT/release
+    mkdir -p $JTBIN
+fi
+
+if [[ -z "$JTBIN" || ! -d "$JTBIN" ]]; then
+    echo "JTBIN ($JTBIN) is not valid"
+    exit 1
+fi
+
+OUTPUTDIR=output_files
+
+# Check Quartus path
+case $TARGET in
+    mister|sockit|de1soc|de10standard)
+        if ! (which quartus_sh|grep intelFPGA_lite -q); then
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            if [ -d /opt/intelFPGA_lite ]; then
+                cd /opt/intelFPGA_lite
+                cd $(ls | head -n 1)
+                PATH=$PATH:`pwd`/quartus/bin
+            else
+                echo "Cannot find Quartus in /opt/intelFPGA_lite (`hostname`)"
+                exit 1
+            fi
+        fi;;
+    *)
+        if ! (which quartus_sh|grep 13 -q); then
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+            if [ -d "/opt/altera/13.1" ]; then
+                PATH=$PATH:/opt/altera/13.1/quartus/bin
+            else
+                echo "Cannot find Quartus 13 in /opt/altera/13.1 (`hostname`)"
+                exit 1
+            fi
+        fi;;
+esac
+export PATH=$PATH:$JTFRAME/bin
+
+function escape_bars {
+    echo ${1//\//\\/}
+}
+
+function parse_macros {
+    local MM=""
+    for i in $MACROS; do
+        MM="$i,$MM"
+    done
+    if [ ! -z "$MM" ]; then
+        MM="--def $MM"
+    fi
+    local UM=""
+    for i in $UNMACROS; do
+        UM="$i,$UM"
+    done
+    if [ ! -z "$UM" ]; then
+        UM="--undef $UM"
+    fi
+    if [ ! -z "$VERBOSE" ]; then
+        echo jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` $MM $UM --output $* > /dev/stderr
+    fi
+    jtframe cfgstr $PRJ --target=$TARGET --commit `no_v $PRJCOMMIT` $MM $UM --output $*
+}
+
+# qsf line to disable SOUND synthesis
+# set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
+function copy_templates {
+    datestr=$(date "+%H:%M:%S %B %e, %Y")
+    # Replace core name and path to modules
+    # do not leave a space in the line below sedstr!
+    sedstr='s/${CORENAME}/'$corename'/g;s/${DATE}/'${datestr}'/g;s/${MODULES}/'$(escape_bars ${MODULES})'/g;s/${PRJPATH}/'$(escape_bars ${PRJPATH})'/g;'\
+'s/${OUTPUTDIR}/'${OUTPUTDIR}'/g;s/${TARGET}/'${TARGET}'/g'
+    sed "$sedstr" $JTFRAME/target/$TARGET/$TARGET.qpf > $PRJPATH/$TARGET/$corename.qpf
+    sed "$sedstr" $JTFRAME/target/$TARGET/$TARGET.qsf > $PRJPATH/$TARGET/$corename.qsf
+    # TCL in HDL folder is always appended
+    TCL=$PRJPATH/cfg/$corename.tcl
+    MACROS_FILE=$PRJPATH/cfg/macros.def
+    QSF=$PRJPATH/$TARGET/$corename.qsf
+    if [ -e $TCL ]; then
+        cat $TCL >> $QSF
+    fi
+    # TCL in platform folder is added if it exists
+    if [ -e $PRJPATH/$TARGET/$corename.tcl ]; then
+        cat $PRJPATH/$TARGET/$corename.tcl >> $QSF
+    fi
+    # Add definitions in "macros" files
+    if [ -e $MACROS_FILE ]; then
+        (parse_macros quartus | sort >> $QSF) || exit $?
+        if [ -n "$SHOWMACROS" ]; then
+            gawk -f $JTFRAME/bin/jtmacros.awk target=$TARGET $MACROS_FILE
+            exit 0
+        fi
+        # Prepare config string
+        parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
+    fi
+    # Copy SDC file and SDRAM constraints
+    if is_mister_family; then
+        if grep JTFRAME_SDRAM96 $QSF; then
+            cp $JTFRAME/target/$TARGET/sys/sdram_clk96.sdc $PRJPATH/$TARGET/sys_top.sdc
+        else
+            cp $JTFRAME/target/$TARGET/sys/sdram_clk48.sdc $PRJPATH/$TARGET/sys_top.sdc
+            cat $JTFRAME/target/$TARGET/slew_rate.tcl >> $QSF
+        fi
+        cat $JTFRAME/target/$TARGET/sys/sys_top.sdc >> $PRJPATH/$TARGET/sys_top.sdc
+        # Adds local SDC file if exists (only MiSTer)
+        if [ -e $PRJPATH/$TARGET/$corename.sdc ]; then
+            cat <(echo -e "\n") $PRJPATH/$TARGET/$corename.sdc >> $PRJPATH/$TARGET/sys_top.sdc
+        fi
+    fi
+}
+
+
+function report {
+    cd $JTFRAME
+    JTFRAMECOMMIT=$(git rev-parse --short HEAD)
+    cd -
+    printf "%-14s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
+        $PRJ $TARGET $CORESTAMP $SEED $1 \
+        $PRJCOMMIT $JTFRAMECOMMIT >> $JTROOT/log/builds.log
+}
+
+# Define the CORENAME macro
+`eval parse_macros bash | grep CORENAME | tr -d \" `
+# lower case version
+corename=${CORENAME,,}
+
+if (eval parse_macros bash | grep JTFRAME_SKIP > /dev/null); then
+    echo "Compilation skipped for $TARGET because of JTFRAME_SKIP"
+    echo "PASS"
+    exit 0
+fi
+
+START_TIME=$(date +%s)
+echo =============== JTCORE =======================
+echo -e "${wBG}$CORENAME $TARGET compilation ${blue}starts${NC}${wBG} at ${red}$(date +%T)${NC}${wBG} with seed ${red}$SEED${NC}${wBG} on $(hostname)${NC}"
+if [ "$MACROS" != "" ]; then
+    echo Explicit macros: $MACROS
+fi
+
+################ compilation
+if [ $SKIP_COMPILE = FALSE ]; then
+    if ! which quartus_sh>/dev/null; then
+        echo -e "${rBG}ERROR:${NC}${wBG} cannot find quartus_sh in the path. Please add the correct path${NC}"
+        echo -e "      ${wBG} to the PATH environment variable${NC}"
+        exit 1
+    fi
+    mkdir -p $PRJPATH/$TARGET
+    cd $PRJPATH/$TARGET || exit 1
+    ############################################
+    # Credits via jtframe_credits:
+    if [[ -e $PRJPATH/cfg/msg ]]; then
+        jtframe msg $PRJ --commit `no_v $PRJCOMMIT` || exit $?
+    fi
+    # Update Avatars
+    if [ -e $PRJPATH/patrons/lut ]; then
+        $JTFRAME/bin/lut2hex $PRJPATH/patrons/lut || (echo while running lut2hex on patrons/lut; exit $? )
+        if [ -e $PRJPATH/patrons/avatars ]; then
+            $JTFRAME/bin/avatar.py $PRJ > /tmp/avatar_$PRJ.log || ( cat /tmp/avatar_$PRJ.log; exit 1 )
+            cp $PRJPATH/patrons/avatar{,_pal}.hex $PRJPATH/$TARGET || exit $?
+        fi
+    fi
+    # Fonts and graphics
+    ln -srf $JTFRAME/bin/font0.hex
+    ln -srf $JTFRAME/hdl/video/jtframe_logo.hex
+    ############################################
+    # Link filter files in case they are needed
+    for i in $JTFRAME/hdl/sound/*.hex; do
+        ln -srf $i $(basename $i) || exit $?
+    done
+
+    # If JT6295 exists, adds its filter file to the folder
+    if [ -d $MODULES/jt6295 ]; then
+        ln -srf $MODULES/jt6295/hdl/jt6295_up4.hex .
+        ln -srf $MODULES/jt6295/hdl/jt6295_up4_soft.hex .
+    fi
+
+    # Link .hex files in hdl, if they exist
+    for i in $PRJPATH/hdl/*.hex; do
+        if [ -e "$i" ]; then
+            ln -srf $i $PRJPATH/$TARGET/$(basename $i)
+        fi
+    done
+
+    ############################################
+    # Recompile
+    rm -rf db incremental_db output_files
+    mkdir -p $JTROOT/log/$TARGET
+    LOG="$JTROOT/log/$TARGET/$corename.log"
+    echo Log file: $LOG
+    copy_templates
+    echo -e "\nset_global_assignment -name seed $SEED" >> $corename.qsf
+    if [ $SIM = FALSE ]; then
+        # Create the QIP file
+        jtframe mem $PRJ --target=$TARGET || exit $?
+        jtframe files syn $PRJ --target=$TARGET
+        # Compilation
+        quartus_sh --flow compile $corename > "$LOG"
+        if ! grep "Full Compilation was successful" "$LOG"; then
+            grep -i error "$LOG" -A 2
+            echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
+            report FAIL
+            exit 1
+        fi
+        if [ ! -e $corename.map.rpt ]; then
+            RPTPATH=$OUTPUTDIR
+        else
+            RPTPATH=.
+        fi
+        grep "SDRAM_.* is stuck" $RPTPATH/$corename.map.rpt | grep "SDRAM_[^\"]*" -o > $RPTPATH/sdram_stuck.rpt
+        gawk -f $JTFRAME/bin/jtioreg.awk $RPTPATH/$corename.fit.rpt > $RPTPATH/sdram_io.rpt
+        cat $RPTPATH/sdram_stuck.rpt $RPTPATH/sdram_io.rpt | sort | uniq --unique > sdram_badio.rpt
+        if [ -s sdram_badio.rpt ]; then
+            echo -e "${yBG}WARNING:${NC}${wBG} some SDRAM signals are not IO registers${NC}"
+            cat sdram_badio.rpt
+        fi
+        if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
+            echo "Warning: latch inferred"
+        fi
+        # Report connectivity problems
+        grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
+        | grep -v altera_cyclonev_pll\\.v \
+        | grep -v "\.data_a.*has no driver or initial value" \
+        | grep -v "\.waddr_a.*has no driver or initial value" \
+        | grep -v "\.we_a.*has no driver or initial value"
+        # Report timing
+        grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"
+        if [[ $? = 0 && -z "$SKIPTIMING" ]]; then
+            FAIL=1
+            report FAIL
+            echo FAIL $PRJ
+        else
+            echo PASS
+            report PASS
+        fi
+    else
+        # Simulation
+        echo Preparing simulation netlist. Logfile:
+        echo $LOG
+        quartus_map $CORENAME --64bit --parallel=1 --efort=fast > "$LOG"
+        exit $?
+    fi
+elif [ ! -z "$VERBOSE" ]; then
+    echo "Skipping compilation"
+fi
+
+function append_if_exists {
+    val=
+    while [ $# -gt 0 ]; do
+        if [ -e "$1" ]; then
+            val="$val $1"
+        fi
+        shift
+    done
+    echo $val
+}
+
+function announce {
+    if [ ! -z "$VERBOSE" ]; then echo "== $* =="; fi
+}
+
+################# Store output file
+# Determine file extension
+case $TARGET in
+    neptuno) EXT=np1;;
+    mc2) EXT=mc2;;
+    mcp) EXT=mcp;;
+    pocket) EXT=rbf_r;;
+    *) EXT=rbf;;
+esac
+
+# Rename output file
+cd $JTROOT
+
+if [ $SEED != 1 ]; then
+    SEED_SUFFIX=_$SEED
+fi
+
+# Do not use [[ ]] in this if statement !!
+if is_mister_family || test $TARGET = neptuno; then
+    echo $TARGET
+    RBF=$PRJPATH/${TARGET}/$OUTPUTDIR/$corename.rbf
+else
+    RBF=$PRJPATH/${TARGET}/$corename.rbf
+fi
+
+if [ ! -e $RBF ]; then
+    echo -e "${rBG}ERROR:${NC}${wBG} file ${red}$RBF${NC}${wBG} does not exist. You need to recompile.${NC}"
+    exit 1
+fi
+
+if [ $TARGET = pocket ]; then
+    # The Pocket must have something misconnected inside
+    # and it requires the bit order in each RBF byte to
+    # be reversed
+    if [ ! -e $JTFRAME/bin/reverse_bits ]; then
+        echo "Compiling reverse_bits"
+        cd $JTFRAME/cc
+        make
+        cd -
+    fi
+    $JTFRAME/bin/reverse_bits $RBF ${RBF}_r
+    RBF=${RBF}_r
+fi
+
+# Copy to JTBIN  if --git is set, except for cores in beta
+# in which case only the MiSTer version is copied
+if [[ ( "$GIT" = FALSE || (( is_mister_family || "$BETA" != TRUE ) && "$FAIL" = 0 )) ]]; then
+    announce "Copy to $JTBIN"
+    if is_mister_family; then
+        BINFOLDER=$JTBIN/$TARGET/$PRJ
+        BINRBF=$BINFOLDER/releases/$corename.$EXT
+        mkdir -p $BINFOLDER/releases
+    else
+        BINFOLDER=$JTBIN/$TARGET
+        if [ $TARGET = pocket ]; then
+            BINFOLDER=$BINFOLDER/raw/Cores/jotego.$corename
+        fi
+        BINRBF=$BINFOLDER/$corename.$EXT
+    fi
+    mkdir -p $(dirname $BINRBF)
+    cp -v $RBF $BINRBF || exit 1
+
+    cd $JTBIN
+    RELEASE=$corename_$CORESTAMP
+    if [ -e $BINFOLDER/version.log ]; then
+        sed -i /$RELEASE/d  $BINFOLDER/version.log
+    fi
+    printf "%-24s %s\n" ${RELEASE} $PRJCOMMIT >> $BINFOLDER/version.log
+
+    if is_mister_family; then
+        OTHER=$(append_if_exists $JTROOT/doc/$corename.md $JTROOT/cores/$PRJ/README.md $JTROOT/README.md $JTROOT/README.txt )
+        # remove blanks
+        OTHER=${OTHER## }
+        if [ ! -z "$OTHER" ]; then
+            cp $OTHER $BINFOLDER;
+        fi
+    fi
+    cd - > /dev/null
+elif [ ! -z "$VERBOSE" ]; then
+    echo "Skipping copy to JTBIN or release"
+fi
+rm -f $corename.rbf
+
+###########################################
+## Program the target device via JTAG
+if [ $PROG = TRUE ]; then
+    announce "Device programming"
+    if [ $TARGET = mister ]; then
+        CABLE="DE-SoC"
+        cd $PRJPATH/mister
+        FILE=jtag.cdf
+    else
+        # if the cable is not recognized, run quartus_pgm -l
+        # and copy the cable name here
+        # this is not done automatically to speed up compilation
+        # as this rarely changes
+        CABLE=$(jtagconfig | grep -o "USB-Blaster.*")
+        FILE=$PRJPATH/${TARGET}/$corename.cdf
+        cat > $FILE << EOF
+JedecChain;
+    FileRevision(JESD32A);
+    DefaultMfr(6E);
+    P ActionCode(Cfg)
+        Device PartName($DEVICE) Path("") File("$corename.sof") MfrSpec(OpMask(1));
+ChainEnd;
+
+AlteraBegin;
+    ChainType(JTAG);
+AlteraEnd;
+EOF
+    fi
+    PROGRETRY=2
+    while ! quartus_pgm -c "$CABLE" $FILE; do
+        PROGRETRY=$((PROGRETRY-1))
+        if [ $PROGRETRY -lt 0 ]; then
+            echo "Failed to program the device $DEVICE"
+            echo "See file $FILE for programming details"
+            break;
+        fi
+    done
+fi
+
+# Show compilation  time
+END_TIME=$(date +%s)
+COMPILE_TIME=$[$END_TIME - $START_TIME]
+MINUTES=$[$COMPILE_TIME / 60]
+SECONDS=$[$COMPILE_TIME % 60]
+
+echo -e "${gBG}completed${NC}${wBG} at $(date) - compile Time: ${red}${MINUTES}m${SECONDS}s${NC}"
+exit $FAIL

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# This tool prepares an Ubuntu system to work with
+# USB blaster cables
+
+if [ $USER != root ]; then
+    echo ERROR: You must execute this script as root
+    exit 1
+fi
+
+cat > /etc/udev/rules.d/51-usbblaster.rules <<FIN
+# USB-Blaster 
+BUS=="usb", SYSFS{idVendor}=="09fb", SYSFS{idProduct}=="6001", MODE="0666" 
+BUS=="usb", SYSFS{idVendor}=="09fb", SYSFS{idProduct}=="6002", MODE="0666" 
+BUS=="usb", SYSFS{idVendor}=="09fb", SYSFS{idProduct}=="6003", MODE="0666" 
+
+# USB-Blaster II 
+BUS=="usb", SYSFS{idVendor}=="09fb", SYSFS{idProduct}=="6010", MODE="0666" 
+BUS=="usb", SYSFS{idVendor}=="09fb", SYSFS{idProduct}=="6810", MODE="0666"
+FIN
+
+cat > /etc/udev/rules.d/92-usbblaster.rules <<FIN
+# USB-Blaster 
+SUBSYSTEM=="usb", ATTR{idVendor}=="09fb", ATTR{idProduct}=="6001", MODE="0666" 
+SUBSYSTEM=="usb", ATTR{idVendor}=="09fb", ATTR{idProduct}=="6002", MODE="0666" 
+SUBSYSTEM=="usb", ATTR{idVendor}=="09fb", ATTR{idProduct}=="6003", MODE="0666" 
+
+# USB-Blaster II 
+SUBSYSTEM=="usb", ATTR{idVendor}=="09fb", ATTR{idProduct}=="6010", MODE="666" 
+SUBSYSTEM=="usb", ATTR{idVendor}=="09fb", ATTR{idProduct}=="6810", MODE="666"
+FIN
+
+udevadm control --reload

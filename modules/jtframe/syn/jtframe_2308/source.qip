@@ -1,0 +1,3 @@
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) ../../hdl/mister/jtframe_2308.v    ]
+set_global_assignment -name VERILOG_FILE [file join $::quartus(qip_path) adc_test.v     ]
+set_global_assignment -name SDC_FILE     [file join $::quartus(qip_path) adc_test.sdc   ]

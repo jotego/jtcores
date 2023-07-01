@@ -1,0 +1,56 @@
+jtframe:
+  - get:
+      - jtframe_board.v
+      - jtframe_debug.v
+      - jtframe_led.v
+      - jtframe_enlarger.v
+      - jtframe_reset.v
+      - jtframe_uart.v
+      - jtframe_dip.v
+      - jtframe_sh.v
+      - jtframe_sys_info.v
+      - jtframe_bcd_cnt.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+      - jtframe_pxlcen.v
+  - from: keyboard
+    get:
+      - jtframe_keyboard.v
+      - jtframe_4wayjoy.v
+      - jtframe_inputs.v
+      - jtframe_paddle.v
+      - jtframe_mouse.v
+      - jtframe_dial.v
+      - jt4701.v
+      - ps2_intf_v.v
+  - from: video
+    get:
+      - jtframe_resync.v
+      - jtframe_credits.v
+      - jtframe_wirebw.v
+  - from: sdram
+    get:
+      - jtframe_sdram.v
+      - jtframe_sdram64.yaml
+      - jtframe_sdram_stats.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_rpwp_ram.v
+      - jtframe_bram_rom.v
+      - jtframe_prom.v
+      - jtframe_ram.v
+  # Cheat system (enabled with JTFRAME_CHEAT)
+  - from: cpu/pauloblaze
+    get:
+      - pauloblaze.qip
+  - from: cheat
+    get:
+      - jtframe_cheat.v
+      - jtframe_cheat_rom.v
+  - from: sound
+    get:
+      - jtframe_mixer_en.v
+      - jtframe_mixer.v
+      - jtframe_uprate2_fir.yaml

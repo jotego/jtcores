@@ -1,0 +1,30 @@
+#!/bin/bash
+if [ -z "$JTFRAME" ]; then
+    echo "Missing JTFRAME environment variable definition"
+    exit 1
+fi
+
+RECOMPILE=FALSE
+BIN=$JTFRAME/src/jtutil/jtutil
+
+if [ ! -e $BIN ]; then
+    RECOMPILE=TRUE
+else
+    # Find out whether the jtutil file is older
+    # than the JTFRAME's commit
+    cd $JTFRAME > /dev/null
+    COMMIT_DATE=`date -d "$(git show -s --format=%ci)" +"%s"`
+    COMPILED_DATE=`stat -c %Y $BIN`
+    if [ $COMPILED_DATE -lt $COMMIT_DATE ]; then
+        RECOMPILE=TRUE
+    fi
+    cd - > /dev/null
+fi
+
+if [ $RECOMPILE = TRUE ]; then
+    cd $JTFRAME/src/jtutil > /dev/null
+    go build . || exit $?
+    cd - > /dev/null
+fi
+
+$BIN $*

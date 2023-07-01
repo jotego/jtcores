@@ -1,0 +1,37 @@
+#!/bin/bash
+POCKET=
+
+if [ -z "$JTFRAME" ]; then
+    echo "Missing JTFRAME environment variable definition"
+    exit 1
+fi
+
+RECOMPILE=FALSE
+BIN=$JTFRAME/src/jtframe/jtframe
+
+if [ ! -e $BIN ]; then
+    RECOMPILE=TRUE
+else
+    # Find out whether the jtframe file is older
+    # than the JTFRAME's commit
+    cd $JTFRAME > /dev/null
+    COMMIT_DATE=`date -d "$(git show -s --format=%ci)" +"%s"`
+    COMPILED_DATE=`stat -c %Y $BIN`
+    if [ $COMPILED_DATE -lt $COMMIT_DATE ]; then
+        RECOMPILE=TRUE
+    fi
+    cd - > /dev/null
+fi
+
+if [ $RECOMPILE = TRUE ]; then
+    if [ -e $JTFRAME/target/pocket/pocket.go ]; then
+        ln -sf $JTFRAME/target/pocket/pocket.go $JTFRAME/src/jtframe/mra/pocket.go
+        POCKET="-tags pocket"
+        echo "Compiling jtframe with Pocket support" > /dev/stderr
+    fi
+    cd $JTFRAME/src/jtframe > /dev/null
+    go build $POCKET . || exit $?
+    cd - > /dev/null
+fi
+
+$BIN $*
