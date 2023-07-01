@@ -1,0 +1,41 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 74HC4066
+F https://pdf1.alldatasheet.com/datasheet-pdf/view/15614/PHILIPS/74HC4066.html
+$ENDCMP
+#
+$CMP DAC0832LCN
+F https://pdf1.alldatasheet.com/datasheet-pdf/view/517555/TI/DAC0832LCN.html
+$ENDCMP
+#
+$CMP HD6417604F28_SH2
+F https://segaretro.org/images/2/2c/SH7604_Hardware_Manual.pdf
+$ENDCMP
+#
+$CMP MAX809
+D Power-on reset
+K POR
+F https://datasheet.lcsc.com/lcsc/1810121840_Maxim-Integrated-MAX809JEUR-T_C114477.pdf
+$ENDCMP
+#
+$CMP MB3733-31
+F https://datasheetspdf.com/pdf-file/555058/Fujitsu/MB3731/1
+$ENDCMP
+#
+$CMP MC68705P5S
+F file:///gdrive/jotego/arcade/components/MC68705P5-Motorola.pdf
+$ENDCMP
+#
+$CMP PALACE16V8H-25
+F https://pdf1.alldatasheet.com/datasheet-pdf/view/114064/CYPRESS/PALCE16V8-25.html
+$ENDCMP
+#
+$CMP UM6502
+F http://archive.6502.org/datasheets/mos_65ce02_mpu.pdf
+$ENDCMP
+#
+$CMP uPD7759
+D ADPCM SPEECH SYNTHESIZER
+$ENDCMP
+#
+#End Doc Library

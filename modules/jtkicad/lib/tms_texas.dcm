@@ -1,0 +1,19 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MC3403N
+F https://www.ti.com/lit/ds/symlink/mc3403.pdf?ts=1654506300021&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FMC3403%253Futm_source%253Dsupplyframe%2526utm_medium%253DSEP%2526utm_campaign%253Dnot_alldatasheet%2526DCM%253Dyes%2526dclid%253DCLXZ35S8mPgCFcQfBgAdqKAPIA
+$ENDCMP
+#
+$CMP TMS34061FNL
+F https://cdn.preterhuman.net/texts/computing/msx/TMS34061.pdf
+$ENDCMP
+#
+$CMP TMS34070NL
+F https://www.ebay.com/itm/224744340476
+$ENDCMP
+#
+$CMP TMS4461-15NL
+F https://source.z2data.com/2018/9/18/8/2/54/848/2111764422/RSELS00805-1.pdf
+$ENDCMP
+#
+#End Doc Library

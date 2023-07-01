@@ -1,0 +1,15 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP OKI-HM51161-60AJ
+F https://34.212.245.10/pdf/download.php?id=6ceea3a94db280e2efb6ad0f1c3f1fc3334031&type=M&term=HM5116160ALTT8
+$ENDCMP
+#
+$CMP OKI-M514260C-60J
+F https://datasheet4u.com/datasheet-pdf/HitachiSemiconductor/HM514260A/pdf.php?id=662366
+$ENDCMP
+#
+$CMP OKI-M5205
+F https://console5.com/techwiki/images/f/f8/MSM5205.pdf
+$ENDCMP
+#
+#End Doc Library

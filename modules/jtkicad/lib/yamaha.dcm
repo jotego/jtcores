@@ -1,0 +1,35 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 4741-JCR
+F https://datasheetspdf.com/pdf-file/1257435/Exar/XR-4741/1
+$ENDCMP
+#
+$CMP 93C56X
+F https://pdf1.alldatasheet.es/datasheet-pdf/view/552102/MICROCHIP/93LC56.html
+$ENDCMP
+#
+$CMP 93LC56
+F https://pdf1.alldatasheet.es/datasheet-pdf/view/552102/MICROCHIP/93LC56.html
+$ENDCMP
+#
+$CMP YAC513-M
+F http://map.grauw.nl/resources/sound/yamaha_yac513.pdf
+$ENDCMP
+#
+$CMP YAC516-M
+F https://www.datasheet.live/pdfviewer?url=https%3A%2F%2Fpdf.datasheet.live%2F17c394cb%2Ftoko.com%2FYAC516-M.pdf
+$ENDCMP
+#
+$CMP YM2203
+F https://pdf1.alldatasheet.com/datasheet-pdf/view/90458/ETC/YM2203.html
+$ENDCMP
+#
+$CMP YM3014
+F https://pdf1.alldatasheet.com/datasheet-pdf/view/1132271/YAMAHA/YM3014B.html
+$ENDCMP
+#
+$CMP YMF278B-F
+F https://www.datasheets360.com/pdf/3992474402729400532
+$ENDCMP
+#
+#End Doc Library

@@ -23,6 +23,8 @@ Detailed technical documentation about the framework can be read [here](modules/
 
 Some core have KiCAD schematics for the arcade PCB. This is part of the core research effort and it is important on its own. The schematics folders are called *sch* and can be found in some core folders.
 
+All schematics use the same set of symbol components from [JTKICAD](modules/jtkicad/README.md)
+
 ## Troubleshooting
 
 * If you have in-game problems, please read the text file specific to that core. Sometimes it's just that the games has more buttons than you think
