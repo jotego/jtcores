@@ -15,9 +15,9 @@ You will not find the list of supported games anywhere in this repository as tha
 
 The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/jotego/jtbin). Most cores are released early for [patrons](https://patreon.com/jotego) so check it out too. [JTFRAME](https://github.com/jotego/jtframe) supports more FPGA platforms than the ones publised in JTBIN. You are welcome to compile the cores for the other platforms. Distribution of the core binary files together with copyrighted ROM files is not permitted.
 
-# JTFRAME
+# Compilation - JTFRAME
 
-Detailed technical documentation about the framework can be read [here](modules/jtframe/README.md)
+Refer to [JTFRAME](modules/jtframe/README.md) for compilation instructions and general information about how the cores are organized.
 
 # Schematics
 
@@ -49,10 +49,6 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
 
     R,F,G,D 2P direction
     Q,S,A   2P buttons 3,2 and 1
-
-# Compilation and Directory Structure
-
-Refer to [JTFRAME](https://github.com/jotego/jtframe) for compilation instructions and general information about how the cores are organized.
 
 # Credits
 
