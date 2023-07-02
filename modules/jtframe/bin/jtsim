@@ -297,7 +297,12 @@ case "$1" in
         ;;
     -dipsw)
         shift
-        add_macro JTFRAME_SIM_DIPS=0x${1#0x};;
+        if [ -e $ROM/$1.dip ]; then
+            echo "Using rom/$1.dip"
+            add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$1.dip)
+        else
+            add_macro JTFRAME_SIM_DIPS=0x${1#0x}
+        fi;;
     -test)
         add_macro DIP_TEST;;
     -gates)

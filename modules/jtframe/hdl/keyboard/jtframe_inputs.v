@@ -168,6 +168,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         firecnt  <= 0;
         autofire <= 1;
+        vsl      <= 0;
     end else begin
         vsl <= vs;
         if( vbl_in ) firecnt <= firecnt+1'd1;
