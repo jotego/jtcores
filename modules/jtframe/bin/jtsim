@@ -91,6 +91,12 @@ Please support the development: https://patreon.com/jotego
     -dipsw     Set the DIP sw for simulation. Use with hexadecimal number
                Default DIP switch values for each game are dumped in ASCII
                to .dip files in $ROM.
+               You can also use the setname with -dipsw and it will load the
+               matching .dip file from $ROM
+                    -dipsw shinobi2 --> loads $ROM/shinobi2.dip
+               If the simulation is run from a folder whose name matches a
+               .dip file in $ROM, and -dipsw is not set, then jtsim will load
+               the matching file automatically
     -frame     Number of frames to simulate
     -gates     Gate-level simulation
     -fx68k     Keep FX68K files for Icarus Verilog
@@ -423,14 +429,8 @@ fi
 echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
 
 if [ -z "$SYSNAME" ]; then
-    AUX=`pwd`
-    AUX=${AUX%/ver/game}
-    SYSNAME=`basename $AUX`
-    if [ -d $CORES/$SYSNAME/ver/game ]; then
-        echo "Using $SYSNAME as the system name"
-    else
-        SYSNAME=
-    fi
+    SYSNAME=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
+    echo "Using $SYSNAME as the system name"
 fi
 require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
@@ -444,6 +444,14 @@ function shorten_name {
     fi
 }
 
+# Load DIP switches when there is a matching file in $ROM and
+# none have been specified yet
+if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*${JTFRAME_SIM_DIPS}.*"` -eq 0 ]]; then
+    add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
+    echo "Using DIP switches from rom/$(basename `pwd`).dip"
+fi
+
+# Load a specific rom set
 if [ ! -z "$SETNAME" ]; then
     if [ ! -z "$DIR" ]; then # Run the simulation inside a folder named after the set
         mkdir -p "$SETNAME" || exit $?
