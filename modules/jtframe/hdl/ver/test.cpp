@@ -1,0 +1,927 @@
+/*  This file is part of JT_FRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 9-5-2022 */
+
+// All screen output should go through stderr using C functions
+// Do not use C++ IO functions like cout or cerr because it
+// can mess up with verilog $display and $fdisplay calls
+// see https://github.com/verilator/verilator/issues/3799
+
+#include <cstring>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "UUT.h"
+#include "defmacros.h"
+
+// fork
+#include <sys/types.h>
+#include <unistd.h>
+
+#ifdef _DUMP
+    #include "verilated_vcd_c.h"
+#endif
+
+#ifndef _DUMP_START
+    const int _DUMP_START=0;
+#endif
+
+#ifndef _JTFRAME_COLORW
+    #define _JTFRAME_COLORW 4
+#endif
+
+
+#ifndef _JTFRAME_GAMEPLL
+    #define _JTFRAME_GAMEPLL "jtframe_pll6000"
+#endif
+
+using namespace std;
+
+#ifdef _JTFRAME_SDRAM_LARGE
+    const int BANK_LEN = 0x100'0000;
+#else
+    const int BANK_LEN = 0x080'0000;
+#endif
+
+#ifndef _JTFRAME_SIM_DIPS
+    #define _JTFRAME_SIM_DIPS 0xffffffff
+#endif
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
+class WaveWritter {
+    std::ofstream fsnd, fhex;
+    std::string name;
+    bool dump_hex;
+    void Constructor(const char *filename, int sample_rate, bool hex );
+public:
+    WaveWritter(const char *filename, int sample_rate, bool hex ) {
+        Constructor( filename, sample_rate, hex );
+    }
+    WaveWritter(const std::string &filename, int sample_rate, bool hex ) {
+        Constructor( filename.c_str(), sample_rate, hex );
+    }
+    void write( int16_t *lr );
+    ~WaveWritter();
+};
+
+class SDRAM {
+    UUT& dut;
+    char *banks[4];
+    int rd_st[4], ba_blen[4], ba_addr[4];
+    //int last_rd[5];
+    char header[32];
+    int burst_len, burst_mask;
+    int read_offset( int region );
+    int read_bank( char *bank, int addr );
+    void write_bank16( char *bank,  int addr, int val, int dm /* act. low */ );
+    void change_burst();
+public:
+    SDRAM(UUT& _dut);
+    ~SDRAM();
+    void update();
+    void dump();
+};
+
+class SimInputs {
+    ifstream fin;
+    UUT& dut;
+    int line;
+    bool done;
+public:
+    SimInputs( UUT& _dut) : dut(_dut) {
+        dut.dip_pause=1;
+        dut.joystick1 = 0xff;
+        dut.joystick2 = 0xff;
+#ifdef _JTFRAME_4PLAYERS
+        dut.joystick3 = 0xff;
+        dut.joystick4 = 0xff;
+#endif
+        dut.start_button = 0xf;
+        dut.coin_input   = 0xf;
+        dut.service      = 1;
+        dut.tilt         = 1;
+        dut.dip_test     = 1;
+#ifdef _JTFRAME_OSD_FLIP
+        dut.dip_flip     = 1; // Disable OSD-based flip
+#endif
+#ifdef _SIM_INPUTS
+        line = 0;
+        done = false;
+        fin.open("sim_inputs.hex");
+        if( fin.bad() ) {
+            fputs("ERROR: (test.cpp)  could not open sim_inputs.hex\n", stderr );
+        } else {
+            fputs("reading sim_inputs.hex\n", stderr );
+        }
+        next();
+#else
+        done = true;
+#endif
+    }
+    void next() {
+        if( !done && fin.good() ) {
+            string s;
+            unsigned v;
+            ++line;
+            getline( fin, s );
+            sscanf( s.c_str(),"%x", &v );
+            v = ~v;
+            auto coin_l  = dut.coin_input&3;
+            dut.start_button = 0xc | ((v>>2)&3);
+            dut.coin_input   = 0xc | (v&3);
+            dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
+            v >>= 4;    // directions:
+            dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
+#ifdef _JTFRAME_JOY_LRUD
+            dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
+#endif
+#ifdef _JTFRAME_JOY_RLDU
+            dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
+#endif
+#ifdef _JTFRAME_JOY_DURL
+            dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+#ifdef _JTFRAME_JOY_UDRL
+            dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+            if( coin_l != (dut.coin_input&3) && coin_l!=3 ) {
+                cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
+            }
+            if( fin.eof() ) {
+                done = true;
+                fprintf(stderr,"\nsim_inputs.hex finished at line %d\n", line);
+                fin.close();
+            }
+        } else {
+            dut.start_button = 0xf;
+            dut.coin_input   = 0xf;
+            dut.joystick1    = 0x3ff;
+        }
+    }
+};
+
+class Download {
+    UUT& dut;
+    int addr, din, ticks,len;
+    char *buf;
+    bool done, full_download;
+    int read_buf() {
+        return (buf!=nullptr && addr<len) ? buf[addr] : 0;
+    }
+public:
+    Download(UUT& _dut) : dut(_dut) {
+        done = false;
+        buf = nullptr;
+        ifstream fin( "rom.bin", ios_base::binary );
+        fin.seekg( 0, ios_base::end );
+        len = (int)fin.tellg();
+        if( len == 0 || fin.bad() ) {
+            fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
+        } else {
+            buf = new char[len];
+            fin.seekg(0, ios_base::beg);
+            fin.read(buf,len);
+            if( fin.bad() ) {
+                fputs("Verilator test.cpp: problem while reading rom.bin\n",stderr);
+            } else {
+                fprintf(stderr,"Read %d bytes from rom.bin\n",len);
+            }
+        }
+    };
+    ~Download() {
+        delete []buf;
+        buf=nullptr;
+    };
+    bool FullDownload() { return full_download; }
+    void start( bool download ) {
+        full_download = download; // At least the first 32 bytes will always be downloaded
+        if( !full_download ) {
+            if ( len > 32 ) {
+                fputs("ROM download shortened to 32 bytes\n",stderr);
+                len=32;
+            } else {
+                fputs("Short ROM download\n",stderr);
+            }
+        }
+        ticks = 0;
+        done = false;
+        dut.downloading = 1;
+        dut.ioctl_addr = 0;
+        dut.ioctl_dout = read_buf();
+        dut.ioctl_wr   = 0;
+        addr = -1;
+    }
+    void update() {
+        dut.ioctl_wr = 0;
+        if( !done && dut.downloading ) {
+#ifdef _JTFRAME_SIM_SLOWLOAD
+            const int STEP=31;
+#else
+            const int STEP=15;
+#endif
+            switch( ticks & STEP ) { // ~ 12 MBytes/s - at 6MHz jtframe_sdram64 misses writes
+                case 0:
+                    addr++;
+                    dut.ioctl_addr = addr;
+                    dut.ioctl_dout = read_buf();
+                    break;
+                case 1:
+                    if( addr < len ) {
+                        dut.ioctl_wr = 1;
+                    } else {
+                        dut.downloading = 0;
+                        done = true;
+                    }
+                    break;
+            }
+            ticks++;
+        } else {
+            ticks=0;
+        }
+    }
+};
+
+const int VIDEO_BUFLEN = _JTFRAME_WIDTH*_JTFRAME_HEIGHT;
+
+class JTSim {
+    vluint64_t simtime;
+    vluint64_t semi_period;
+    WaveWritter wav;
+    string convert_options;
+    int coremod;
+
+    void parse_args( int argc, char *argv[] );
+    void video_dump();
+    void get_coremod();
+    bool trace;   // trace enable or not
+    bool dump_ok; // can we dump? (provided trace is enabled)
+    bool download;
+    VerilatedVcdC* tracer;
+    SDRAM sdram;
+    SimInputs sim_inputs;
+    Download dwn;
+    int frame_cnt, last_VS;
+    // Video dump
+    struct t_dump{
+        ofstream fout;
+        int k, half;
+        int32_t buffer0[VIDEO_BUFLEN];
+        int32_t buffer1[VIDEO_BUFLEN];
+        int32_t *buffer;
+        void reset() {
+            buffer = !half ? buffer0 : buffer1;
+            half = 1-half;
+            k = 0;
+        }
+        bool diff() {
+#ifdef _JTFRAME_SIM_VIDEO
+            return true;
+#endif
+            for(int j=0;j<VIDEO_BUFLEN;j++) {
+                if(buffer0[j]!=buffer1[j]) return true;
+            }
+            return false;
+        }
+        char *prev_buffer() {
+            return (char*)(half ? buffer1 : buffer0 );
+        }
+        t_dump() {
+            half=0;
+            reset();
+        }
+        void push(int32_t val) {
+            if( k<VIDEO_BUFLEN ) {
+                *buffer++ = val;
+                k++;
+            }
+        }
+    } dump;
+    int color8(int c) {
+        switch(_JTFRAME_COLORW) {
+            case 8: return c;
+            case 5: return (c<<3) | ((c>>2)&3);
+            case 4: return (c<<4) | c;
+            default: return c;
+        }
+    }
+    void reset(int r);
+public:
+    int finish_time, finish_frame, totalh, totalw, activeh, activew;
+    bool done() {
+        if( game.contextp()->gotFinish() ) return true;
+        return (finish_frame>0 ? frame_cnt > finish_frame :
+                simtime/1000'000'000 >= finish_time ) && (!game.downloading && !game.dwnld_busy);
+    };
+    UUT& game;
+    int get_frame() { return frame_cnt; }
+    void update_wav();
+    JTSim( UUT& g, int argc, char *argv[] );
+    ~JTSim();
+    void clock(int n);
+};
+
+////////////////////////////////////////////////////////////////////////
+//////////////////////// SDRAM /////////////////////////////////////////
+
+
+int SDRAM::read_bank( char *bank, int addr ) {
+    const int mask = (BANK_LEN>>1)-1; // 8/16MB in 16-bit words
+    addr &= mask;
+    int16_t *b16 =(int16_t*)bank;
+    int v = b16[addr]&0xffff;
+    //printf("\tread %x\n", addr );
+    return v;
+}
+
+void SDRAM::write_bank16( char *bank, int addr, int val, int dm /* act. low */ ) {
+    const int mask = (BANK_LEN>>1)-1; // 8/16MB in 16-bit words
+    addr &= mask;
+    int16_t *b16 =(int16_t*)bank;
+
+    int v = (int)b16[addr];
+    if( (dm&1) == 0 ) {
+        v &= 0xff00;
+        v |= val&0xff;
+    }
+    if( (dm&2) == 0 ) {
+        v &= 0xff;
+        v |= val&0xff00;
+    }
+    v &= 0xffff;
+    b16[addr] = (int16_t)v;
+    //if(verbose) printf("%04X written to %X\n", v,addr);
+}
+
+void SDRAM::dump() {
+    char *aux=new char[BANK_LEN];
+    for( int k=0; k<4; k++ ) {
+        char fname[32];
+        snprintf(fname,32,"sdram_bank%d.bin",k);
+        ofstream fout(fname,ios_base::binary);
+        if( !fout.good() ) {
+            fprintf(stderr,"ERROR: (test.cpp) creating %s\n", fname );
+        }
+        // reverse bytes because 16-bit access operation
+        // use the wrong endianness in intel machines
+        // this makes the dump compatible with other verilog simulators
+        for( int j=0;j<BANK_LEN;j++) {
+            aux[j^1] = banks[k][j];
+        }
+        fout.write(aux,BANK_LEN);
+        if( !fout.good() ) {
+            fprintf(stderr, "ERROR: (test.cpp) saving to %s\n", fname );
+        }
+        fprintf(stderr,"\t%s dumped\n", fname );
+#ifndef _JTFRAME_SDRAM_BANKS
+        break;
+#endif
+    }
+    delete[] aux;
+}
+
+void SDRAM::change_burst() {
+    int mode = dut.SDRAM_A;
+    burst_len = 1 << (mode&3);
+    // for(int k=0; k<4; k++ ) ba_blen[k]=burst_len+1;
+    burst_mask = ~(burst_len-1);
+    fprintf(stderr, "SDRAM burst mode changed to %d mask 0x%X -> ",  burst_len, burst_mask );
+    if( burst_len>4 ) {
+        throw "\nERROR: (test.cpp)  support for bursts larger than 4 is not implemented in test.cpp\n";
+    }
+    // Update bank burst lengths
+#ifdef _JTFRAME_BA0_LEN
+    ba_blen[0] = (_JTFRAME_BA0_LEN>>4)+1;
+#else
+    ba_blen[0] = 3; // default burst is 2, then +1 for read logic
+#endif
+#ifdef _JTFRAME_BA1_LEN
+    ba_blen[1] = (_JTFRAME_BA1_LEN>>4)+1;
+#else
+    ba_blen[1] = 3; // default burst is 2, then +1 for read logic
+#endif
+#ifdef _JTFRAME_BA2_LEN
+    ba_blen[2] = (_JTFRAME_BA2_LEN>>4)+1;
+#else
+    ba_blen[2] = 3; // default burst is 2, then +1 for read logic
+#endif
+#ifdef _JTFRAME_BA3_LEN
+    ba_blen[3] = (_JTFRAME_BA3_LEN>>4)+1;
+#else
+    ba_blen[3] = 3; // default burst is 2, then +1 for read logic
+#endif
+    fprintf(stderr,"burst per bank = {");
+    for(int k=0, first=1; k<4; k++, first=0 ) fprintf(stderr,"%s %d", first ? "" : ",", ba_blen[k]-1);
+    fprintf(stderr," }\n");
+}
+
+void SDRAM::update() {
+    static auto last_clk = dut.SDRAM_CLK;
+    static int maxwarn=25;
+    bool neg_edge = !dut.SDRAM_CLK && last_clk;
+    int cur_ba = dut.SDRAM_BA;
+    cur_ba &= 3;
+    if( !dut.SDRAM_nCS && neg_edge ) {
+        if( !dut.SDRAM_nRAS && !dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Mode register
+            change_burst();
+        }
+        if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && dut.SDRAM_nWE ) { // Row address - Activate command
+            ba_addr[ cur_ba ] = dut.SDRAM_A << 9; // 32MB module
+            ba_addr[ cur_ba ] &= 0x3fffff;
+        }
+        if( dut.SDRAM_nRAS && !dut.SDRAM_nCAS ) {
+            ba_addr[ cur_ba ] &= ~0x1ff;
+            ba_addr[ cur_ba ] |= (dut.SDRAM_A & 0x1ff);
+            if( dut.SDRAM_nWE ) { // enque read
+                rd_st[ cur_ba ] = ba_blen[cur_ba];
+            } else {
+                int dqm = dut.SDRAM_DQM;
+                // cout << "Write bank " << cur_ba <<
+                //         " ADDR = " << std::hex << ba_addr[cur_ba] <<
+                //         " DATA = " << dut.SDRAM_DIN << " Mask = " << dqm << std::dec<< '\n';
+                write_bank16( banks[cur_ba], ba_addr[cur_ba], dut.SDRAM_DIN, dqm );
+            }
+        }
+        int ba_busy=-1;
+        for( int k=0; k<4; k++ ) {
+            // switch( k ) {
+            //  case 0: dut.SDRAM_BA_ADDR0 = ba_addr[0]; break;
+            //  case 1: dut.SDRAM_BA_ADDR1 = ba_addr[1]; break;
+            //  case 2: dut.SDRAM_BA_ADDR2 = ba_addr[2]; break;
+            //  case 3: dut.SDRAM_BA_ADDR3 = ba_addr[3]; break;
+            // }
+            if( rd_st[k]>0 && rd_st[k]<=burst_len ) { // Tested with 32 and 64-bit reads (JTFRAME_BAx_LEN=64)
+                // May fail when using 96MHz for SDRAM. Needs investigation
+                if( ba_busy>=0 && maxwarn>0 ) {
+                    maxwarn--;
+                    fputs("WARNING: (test.cpp) SDRAM reads clashed. This may happen if only some banks are used for longer bursts.\n",stderr);
+                    // fprintf(stderr,"\tba_blen[%d]=%d\n\tba_blen[%d]=%d\n", ba_busy, ba_blen[ba_busy], k, ba_blen[k]);
+                }
+                // if( rd_st[k]==burst_len ) printf("Read start\n");
+                auto data_read = read_bank( banks[k], ba_addr[k] );
+                //cout << "Read " << std::hex << data_read << " from bank " << k << '\n';
+                dut.SDRAM_DQ = data_read;
+                if( burst_len>1 ) {
+                    // Increase the column within the burst
+                    auto col = ba_addr[k]&0x1ff;
+                    auto col_inc = (col+1) & ~burst_mask;
+                    col &= burst_mask;
+                    col |= col_inc;
+                    ba_addr[k] &= ~0x1ff;
+                    ba_addr[k] |= col;
+                }
+                ba_busy = k;
+            }
+            if(rd_st[k]>0) rd_st[k]--;
+        }
+    }
+    last_clk = dut.SDRAM_CLK;
+}
+
+
+int SDRAM::read_offset( int region ) {
+    if( region>=32 ) {
+        region = 0;
+        printf("ERROR: (test.cpp)  tried to read past the header\n");
+        return 0;
+    }
+    int offset = (((int)header[region]<<8) | ((int)header[region+1]&0xff)) & 0xffff;
+    return offset<<8;
+}
+
+SDRAM::SDRAM(UUT& _dut) : dut(_dut) {
+#ifdef _JTFRAME_SDRAM_BANKS
+    fputs("Multibank SDRAM enabled\n",stderr);
+    const int MAXBANK=3;
+#else
+    const int MAXBANK=0;
+#endif
+    banks[0] = nullptr;
+    burst_len= 1;
+    for( int k=0; k<4; k++ ) {
+        banks[k] = new char[BANK_LEN];
+        rd_st[k]=0;
+        ba_addr[k]=0;
+        // delete the content
+        memset( banks[k], 0, BANK_LEN );
+        // Try to load a file for it
+        char fname[32];
+        snprintf(fname,32,"sdram_bank%d.bin",k);
+        ifstream fin( fname, ios_base::binary );
+        if( fin ) {
+            fin.seekg( 0, fin.end );
+            auto len = fin.tellg();
+            fin.seekg( 0, fin.beg );
+            if( len>BANK_LEN ) len=BANK_LEN;
+            char *aux=new char[BANK_LEN];
+            fin.read( aux, len );
+            auto pos = fin.tellg();
+            fprintf(stderr, "Read %X from %s\n", (int)pos, fname );
+            // reverse the byte order
+            for( int j=0;j<pos;j++) {
+                banks[k][j] = aux[j^1];
+            }
+            delete []aux;
+            // Reset the rest of the SDRAM bank
+            if( pos<BANK_LEN )
+                memset( (void*)&banks[k][pos], 0, BANK_LEN-pos);
+        } else {
+            if( k<=MAXBANK ) fprintf( stderr, "WARNING: (test.cpp)%s not found\n", fname);
+        }
+    }
+}
+
+SDRAM::~SDRAM() {
+    for( int k=0; k<4; k++ ) {
+        delete [] banks[k];
+        banks[k] = nullptr;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////
+//////////////////////// JTSIM /////////////////////////////////////////
+
+void JTSim::reset( int v ) {
+    game.rst = v;
+#ifdef _JTFRAME_CLK96
+    game.rst96 = v;
+#endif
+#ifdef _JTFRAME_CLK24
+    game.rst24 = v;
+#endif
+}
+
+JTSim::JTSim( UUT& g, int argc, char *argv[]) :
+    game(g), sdram(g), dwn(g), sim_inputs(g), wav("snd.wav",48000,false)
+{
+    simtime   = 0;
+    frame_cnt = 0;
+    last_VS   = 0;
+    char *opt = getenv("CONVERT_OPTIONS");
+    if ( opt!=NULL ) convert_options = opt;
+    get_coremod();
+    // Derive the clock speed from _JTFRAME_PLL
+#ifdef _JTFRAME_PLL
+    semi_period = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
+#elif _JTFRAME_CLK96 || _JTFRAME_SDRAM96
+    semi_period = (vluint64_t)(10416/2); // 96MHz
+#else
+    semi_period = (vluint64_t)10416; // 48MHz
+#endif
+    fprintf(stderr,"Simulation clock period set to %d ps (%f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
+#ifdef _LOADROM
+    download = true;
+#else
+    download = false;
+#endif
+    game.enable_fm  = 1;
+    game.enable_psg = 1;
+#ifdef _JTFRAME_SIM_DEBUG
+    game.debug_bus = _JTFRAME_SIM_DEBUG;
+#endif
+    parse_args( argc, argv );
+#ifdef _DUMP
+    if( trace ) {
+        Verilated::traceEverOn(true);
+        tracer = new VerilatedVcdC;
+        game.trace( tracer, 99 );
+        tracer->open("test.vcd");
+        fputs("Verilator will dump to test.vcd\n",stderr);
+    } else {
+        tracer = nullptr;
+    }
+#endif
+#ifdef _JTFRAME_SIM_GFXEN
+    game.gfx_en=_JTFRAME_SIM_GFXEN;    // enable selected layers
+#else
+    game.gfx_en=0xf;    // enable all layers
+#endif
+    game.dipsw=_JTFRAME_SIM_DIPS;
+    fprintf(stderr,"DIP sw set to %X\n",game.dipsw);
+    reset(0);
+    game.sdram_rst = 0; // the initial non-reset time should be short or JTKCPU
+    clock(24);          // will signal a bus error
+    game.sdram_rst = 1;
+    reset(1);
+    clock(48);
+    game.sdram_rst = 0;
+#ifdef _JTFRAME_CLK96
+    game.rst96 = 0;
+#endif
+    clock(10);
+    // Wait for the SDRAM initialization
+    for( int k=0; k<1000 && game.sdram_init==1; k++ ) clock(1000);
+    // Download the game ROM
+    dwn.start(download);
+}
+
+void JTSim::get_coremod() {
+#ifdef _JTFRAME_VERTICAL
+    coremod=1;
+#else
+    coremod=0;
+#endif
+    ifstream fin("core.mod",ios_base::binary);
+    char c;
+    if(fin.good()) {
+        fin >> c;
+        coremod = ((int)c)&0xff;
+    }
+    // fprintf(stderr,"coremod=%X\n",coremod);
+}
+
+JTSim::~JTSim() {
+#ifdef _DUMP
+    delete tracer;
+#endif
+}
+
+void JTSim::clock(int n) {
+    static int ticks=0;
+    static int last_dwnd=0;
+    while( n-- > 0 ) {
+        int cur_dwn = game.downloading | game.dwnld_busy;
+        game.clk = 1;
+#ifdef _JTFRAME_CLK24    // not supported together with _JTFRAME_CLK96
+        game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;
+#endif
+#ifdef _JTFRAME_CLK48
+        game.clk48 = 1-game.clk48;
+#endif
+#ifdef _JTFRAME_CLK96
+        game.clk96 = game.clk;
+#endif
+        game.eval();
+        if( game.contextp()->gotFinish() ) return;
+        sdram.update();
+        dwn.update();
+        if( !cur_dwn && last_dwnd ) {
+            // Download finished
+            fprintf(stderr,"\nROM file transfered (frame %d)\n",frame_cnt);
+            if( finish_time>0 ) finish_time += simtime/1000'000'000;
+            if( finish_frame>0 && _DUMP_START==0 ) {
+                finish_frame += frame_cnt; // the finish frame value is
+                // counted from the time the download finishes, unless
+                // _DUMP_START was set by calling jtsim -w frame#
+                // in that case the total frame count will include the download
+                // frames to avoid situations where the finish_frame could
+                // be lower than the -w frame#, which would be confusing
+            }
+            if ( dwn.FullDownload() ) sdram.dump();
+            reset(0);
+        }
+#ifdef _RST_DLY // reset delay in us
+        reset( simtime < RST_DLY*1000'000L ? 1 : 0);
+#endif
+        last_dwnd = cur_dwn;
+        simtime += semi_period;
+#ifdef _DUMP
+        if( tracer && dump_ok ) tracer->dump(simtime);
+#endif
+        game.clk = 0;
+#ifdef _JTFRAME_CLK96
+        game.clk96 = game.clk;
+#endif
+        game.eval();
+        if( game.contextp()->gotFinish() ) return;
+        sdram.update();
+        simtime += semi_period;
+        ticks++;
+
+#ifdef _DUMP
+        if( tracer && dump_ok ) tracer->dump(simtime);
+#endif
+        // frame counter & inputs
+        if( game.VS && !last_VS ) {
+            fprintf(stderr,ANSI_COLOR_RED "%X" ANSI_COLOR_RESET, frame_cnt&0xf); // do not flush the streams. It can mess up
+            frame_cnt++;
+            if( frame_cnt == _DUMP_START && !dump_ok ) {
+                dump_ok = 1;
+                fprintf(stderr,"\nDump starts (frame %d)\n", frame_cnt);
+            }
+            // the display and fdisplay output of the verilog files
+            if( (frame_cnt & 0x3f)==0 ) fprintf(stderr," - %4d\n", frame_cnt);
+            sim_inputs.next();
+#ifdef _JTFRAME_SIM_DEBUG
+            game.debug_bus++;
+#endif
+        }
+        last_VS = game.VS;
+
+        // Video dump
+        video_dump();
+    }
+}
+
+void JTSim::video_dump() {
+    static int LHBLl, LVBLl;
+    static int cntw[2], cnth[2];
+    if( game.pxl_cen ) {
+        // Dump the video
+        if( game.LHBL && game.LVBL && frame_cnt>0 ) {
+            const int MASK = (1<<_JTFRAME_COLORW)-1;
+            int red   = game.red   & MASK;
+            int green = game.green & MASK;
+            int blue  = game.blue  & MASK;
+            int mix = 0xFF000000 |
+                ( color8(blue ) << 16 ) |
+                ( color8(green) <<  8 ) |
+                ( color8(red  )       );
+            dump.push( mix );
+        }
+        // Count the video size
+        if( !game.LHBL && LHBLl!=0 ) {
+            totalw = cntw[0];
+            activew= cntw[1];
+            cntw[0]=0; cntw[1]=0;
+            if( !game.LVBL && LVBLl!=0 ) {
+                totalh = cnth[0];
+                activeh= cnth[1];
+                cnth[0]=0; cnth[1]=0;
+                dump.reset();
+                int CCW = (coremod&2)>>2;
+#ifndef _JTFRAME_OSD_FLIP
+                CCW ^= game.dip_flip&1;
+#endif
+                if( dump.diff() ) {
+                    // converts image to jpg in a different fork
+                    // I suppose a thread would be faster...
+                    if( fork()==0 ) {
+                        dump.fout.open("frame.raw",ios_base::binary);
+                        if( dump.fout.good() ) {
+                            dump.fout.write( dump.prev_buffer(), (activew*activeh)<<2 );
+                            dump.fout.close();
+                            char exes[512];
+                            snprintf(exes,512,"convert -filter Point "
+                                "-size %dx%d %s -depth 8 RGBA:frame.raw %s frame_%05d.jpg",
+                                activew, activeh,
+                                (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "", // rotate vertical games
+                                convert_options.c_str(), frame_cnt);
+                            if( system(exes) ) {
+                                printf("WARNING: (test.cpp) convert tool did not succeed\n");
+                            }
+                        }
+                        exit(0);
+                    }
+                }
+            } else {
+                cnth[0]++;
+                if( game.LVBL!=0 ) cnth[1]++;
+            }
+            LVBLl = game.LVBL;
+        } else {
+            cntw[0]++;
+            if( game.LHBL!=0 ) cntw[1]++;
+        }
+        LHBLl = game.LHBL;
+    }
+}
+
+void JTSim::update_wav() {
+    int16_t snd[2];
+    snd[0] = game.snd_left;
+    snd[1] = game.snd_right;
+    wav.write(snd);
+}
+
+void JTSim::parse_args( int argc, char *argv[] ) {
+    trace = false;
+    finish_frame = -1;
+    finish_time  = 10;
+    for( int k=1; k<argc; k++ ) {
+        if( strcmp( argv[k], "--trace")==0 ) {
+            trace=true;
+            dump_ok = _DUMP_START==0;
+            continue;
+        }
+        if( strcmp( argv[k], "-time")==0 ) {
+            if( ++k >= argc ) {
+                fputs("ERROR: (test.cpp)  expecting time after -time argument\n", stderr);
+            } else {
+                finish_time = atol(argv[k]);
+            }
+            continue;
+        }
+        if( strcmp( argv[k], "-frame")==0 ) {
+            if( ++k >= argc ) {
+                fputs("ERROR: (test.cpp)  expecting frame count after -frame argument\n", stderr);
+            } else {
+                finish_frame = atol(argv[k]);
+            }
+            continue;
+        }
+    }
+    #ifdef _MAXFRAME
+    finish_frame = _MAXFRAME;
+    #endif
+}
+
+void WaveWritter::write( int16_t* lr ) {
+    fsnd.write( (char*)lr, sizeof(int16_t)*2 );
+    if( dump_hex ) {
+        fhex << hex << lr[0] << '\n';
+        fhex << hex << lr[1] << '\n';
+    }
+}
+
+void WaveWritter::Constructor( const char *filename, int sample_rate, bool hex ) {
+    name = filename;
+    fsnd.open(filename, ios_base::binary);
+    dump_hex = hex;
+    if( dump_hex ) {
+        char *hexname;
+        hexname = new char[strlen(filename)+1];
+        strcpy(hexname,filename);
+        strcpy( hexname+strlen(filename)-4, ".hex" );
+        cerr << "Hex file " << hexname << '\n';
+        fhex.open(hexname);
+        delete[] hexname;
+    }
+    // write header
+    char zero=0;
+    for( int k=0; k<45; k++ ) fsnd.write( &zero, 1 );
+    fsnd.seekp(0);
+    fsnd.write( "RIFF", 4 );
+    fsnd.seekp(8);
+    fsnd.write( "WAVEfmt ", 8 );
+    int32_t number32 = 16;
+    fsnd.write( (char*)&number32, 4 );
+    int16_t number16 = 1;
+    fsnd.write( (char*) &number16, 2);
+    number16=2;
+    fsnd.write( (char*) &number16, 2);
+    number32 = sample_rate;
+    fsnd.write( (char*)&number32, 4 );
+    number32 = sample_rate*2*2;
+    fsnd.write( (char*)&number32, 4 );
+    number16=2*2;   // Block align
+    fsnd.write( (char*) &number16, 2);
+    number16=16;
+    fsnd.write( (char*) &number16, 2);
+    fsnd.write( "data", 4 );
+    fsnd.seekp(44);
+}
+
+WaveWritter::~WaveWritter() {
+    int32_t number32;
+    streampos file_length = fsnd.tellp();
+    number32 = (int32_t)file_length-8;
+    fsnd.seekp(4);
+    fsnd.write( (char*)&number32, 4);
+    fsnd.seekp(40);
+    number32 = (int32_t)file_length-44;
+    fsnd.write( (char*)&number32, 4);
+}
+
+
+////////////////////////////////////////////////////
+// Main
+
+int main(int argc, char *argv[]) {
+    VerilatedContext context;
+    context.commandArgs(argc, argv);
+
+    fputs("Verilator sim starts\n", stderr);
+    try {
+        UUT game{&context};
+        JTSim sim(game, argc, argv);
+        while( !sim.done() ) {
+            sim.clock(1'000); // if the clock is 48MHz, this will dump at 48kHz
+            sim.update_wav(); // Other clock rates will not have exact wav dumps
+            if( sim.get_frame()==2 ) {
+                if( sim.activeh != _JTFRAME_HEIGHT || sim.activew != _JTFRAME_WIDTH ) {
+                    fprintf(stderr, "\nERROR: (test.cpp)  video size mismatch. Macros define it as %dx%d but the core outputs %dx%d\n",
+                        _JTFRAME_WIDTH, _JTFRAME_HEIGHT, sim.activew, sim.activeh );
+                    break;
+                }
+            }
+        }
+        if( sim.get_frame()>1 ) fputc('\n',stderr);
+    } catch( const char *error ) {
+        fputs(error,stderr);
+        fputc('\n',stderr);
+        return 1;
+    }
+    return 0;
+}

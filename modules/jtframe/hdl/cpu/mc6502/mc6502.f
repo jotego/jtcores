@@ -1,0 +1,9 @@
+MC6502Accumulator.v
+MC6502ExecutionController.v
+MC6502InstructionDecode.v
+MC6502InterruptLogic.v
+MC6502MemoryController.v
+MC6502ProcessorStatusRegister.v
+MC6502RegisterFile.v
+MC6502Shifter.v
+MC6502.v
