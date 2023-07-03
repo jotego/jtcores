@@ -25,6 +25,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
     mame_st := &MAMEState{ alias: mame_alias }
     sim_st := &SimState{ data: ss }
     ignore := make(boolSet)
+    kmax := 4
 
     cmd_diff := func() {
         if diff( mame_st, fmt.Sprintf("trace at %d - vcd time %s",trace.line,formatTime(vcd.time)), true, ignore )==0 {
@@ -61,7 +62,7 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
         if len(tokens)==0 { continue }
         if( nested[0]!=scn ) { fmt.Println(">",lt) } // echo if we are parsing a file
         switch tokens[0] {
-        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy )
+        case "g","go": searchDiff( vcd, trace, sim_st, mame_st, ignore, alu_busy, kmax )
         case "ds","display": {
             var t []string
             if len(tokens)>1 { t = tokens[1:]}
@@ -93,9 +94,9 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
                 for k, each := range mame_st.alias {
                     fmt.Printf("%s -> %s.%s\n",k,each.Scope, each.Name)
                 }
-                fmt.Printf("Use alias clear to delete all aliases\n")
+                fmt.Printf("\nUse alias clear to delete all aliases\n")
                 fmt.Printf("Use alias mame-name=vcd-name to declare a new alias")
-                fmt.Printf("Use alias -name to delete one alias")
+                fmt.Printf("Use alias -name to delete one alias\n")
             } else {
                 if tokens[1]=="clear" {
                     mame_st.alias = make(mameAlias)
@@ -158,6 +159,18 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
         case "il", "ignore-list": {
             for k,_ := range ignore {
                 fmt.Printf("%s\n",k)
+            }
+        }
+        case "kmax": {
+            if len(tokens)!=2 {
+                fmt.Println("Wrong arguments. Use kmax <number>")
+                break
+            }
+            aux,_ := strconv.ParseUint(tokens[1],0,64)
+            kmax = int(aux)
+            if kmax < 2 {
+                fmt.Printf("Setting KMAX to minimum (2)")
+                kmax=2
             }
         }
         case "q","quit": break prompt_loop
@@ -452,6 +465,7 @@ func parseAlias( t []string, ss vcdData, mame_alias mameAlias ) {
                 mame_alias[tokens[0]]=s
             }
         }
+        fmt.Printf("Cannot find VCD signal for %s\n",tokens[0])
     }
 }
 
@@ -537,7 +551,7 @@ func diff( st *MAMEState, context string, verbose bool, ignore boolSet ) int {
         for _,name := range diffs {
             p,_ := st.alias[name]
             if p==nil { continue }
-            fmt.Printf("\t%-4s %4X <-> %4X (%s.%s)\n", name, st.data[name], p.Value, p.Scope, p.Name )
+            fmt.Printf("\t%-4s %4X <-> %4X (%s.%s)\n", name, st.data[name], p.FullValue(), p.Scope, p.Name )
         }
     }
     return d
@@ -624,13 +638,12 @@ func nxTraceChange( trace *LnFile, mame_st *MAMEState ) (NameValue,bool) {
 }
 
 func searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
-        ignore boolSet, alu_busy *VCDSignal ) {
+        ignore boolSet, alu_busy *VCDSignal, KMAX int ) {
     if mame_st.data==nil || len(mame_st.data)==0 {
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
     }
 
-    const KMAX=4
     var good bool
     tvcd := vcd.time
     var div_time uint64
@@ -794,13 +807,23 @@ func GetSignals( file *LnFile ) vcdData {
                             Scope: scope,
                             alias: tokens[3],
                         }
-                        bracket := strings.Index(tokens[4],"[")
-                        if bracket == -1 {
+                        bracket_str := tokens[4]
+                        bracket := 0
+                        if tokens[5][0]=='[' { // bus expression is separated
+                            bracket_str = tokens[5]
                             s.Name = tokens[4]
                         } else {
-                            s.Name = tokens[4][0:bracket]
-                            bend := strings.Index(tokens[4],"]")
-                            parts := strings.Split(tokens[4][bracket:bend-1],":")
+                            bracket = strings.Index(tokens[4],"[")
+                            if bracket == -1 {
+                                s.Name = tokens[4]
+                                bracket_str = ""
+                            } else {
+                                s.Name = tokens[4][0:bracket]
+                            }
+                        }
+                        if bracket_str!="" {
+                            bend := strings.Index(bracket_str,"]")
+                            parts := strings.Split(bracket_str[bracket:bend-1],":")
                             s.MSB,_ = strconv.Atoi(parts[0])
                             if len(parts)==2 {
                                 s.LSB,_ = strconv.Atoi(parts[1])

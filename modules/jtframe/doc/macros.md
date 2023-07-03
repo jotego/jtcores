@@ -178,6 +178,7 @@ JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for c
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIMULATION               |         | Enables simulation features
 VERILATOR_KEEP_CPU       |verilator| Keeps Z80 signals during simulation
+VERILATOR_KEEP_68K       |verilator| Keeps M68000 signals during simulation
 VERILATOR_KEEP_VTIMER    |verilator| Keeps jtframe_vtimer signals
 VIDEO_START              |         | First frame for which video output is provided use it to prevent a split first frame
 

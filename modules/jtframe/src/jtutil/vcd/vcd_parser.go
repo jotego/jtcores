@@ -80,6 +80,73 @@ func (this vcdData)Get(name string) *VCDSignal {
 	return nil
 }
 
+func RenameRegs( ss vcdData ) {
+	// Rename signals for some CPUs
+	// fx68k
+	for _,each := range ss {
+		switch each.Name {
+		case "regs68L[0]": each.Name="D0"
+		case "regs68L[1]": each.Name="D1"
+		case "regs68L[2]": each.Name="D2"
+		case "regs68L[3]": each.Name="D3"
+		case "regs68L[4]": each.Name="D4"
+		case "regs68L[5]": each.Name="D5"
+		case "regs68L[6]": each.Name="D6"
+		case "regs68L[7]": each.Name="D7"
+
+		case "regs68H[0]": each.Name="D0H"
+		case "regs68H[1]": each.Name="D1H"
+		case "regs68H[2]": each.Name="D2H"
+		case "regs68H[3]": each.Name="D3H"
+		case "regs68H[4]": each.Name="D4H"
+		case "regs68H[5]": each.Name="D5H"
+		case "regs68H[6]": each.Name="D6H"
+		case "regs68H[7]": each.Name="D7H"
+
+		case "regs68L[8]": each.Name="A0"
+		case "regs68L[9]": each.Name="A1"
+		case "regs68L[10]": each.Name="A2"
+		case "regs68L[11]": each.Name="A3"
+		case "regs68L[12]": each.Name="A4"
+		case "regs68L[13]": each.Name="A5"
+		case "regs68L[14]": each.Name="A6"
+		case "regs68L[16]": each.Name="A7"
+
+		case "regs68H[8]": each.Name="A0H"
+		case "regs68H[9]": each.Name="A1H"
+		case "regs68H[10]": each.Name="A2H"
+		case "regs68H[11]": each.Name="A3H"
+		case "regs68H[12]": each.Name="A4H"
+		case "regs68H[13]": each.Name="A5H"
+		case "regs68H[14]": each.Name="A6H"
+		case "regs68H[16]": each.Name="A7H"
+		}
+	}
+	concatHL := func( H,L string ) {
+		for _, each := range ss {
+			if each.Name==L {
+				for _, eachH := range ss {
+					if eachH.Name==H && eachH.Scope == each.Scope {
+						each.Concat.p = eachH
+						each.Concat.at = 16
+					}
+				}
+			}
+		}
+	}
+	concatSeries := func( prefix string ) {
+		for k:=0;k<8;k++ {
+			L := fmt.Sprintf("%s%d",prefix,k)
+			H := fmt.Sprintf("%s%dH",prefix,k)
+			concatHL( H, L )
+		}
+	}
+
+	concatSeries("D")
+	concatSeries("A")
+	concatHL("PcH","PcL")
+}
+
 func formatTime( t uint64 ) string {
 	t /= 1000 // ignore ps
 	if t==0 { return "0 s" }

@@ -431,6 +431,10 @@ echo "${wBG}=========== JTSIM starts for $TARGET ===========${NC}" > /dev/stderr
 if [ -z "$SYSNAME" ]; then
     SYSNAME=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
     echo "Using $SYSNAME as the system name"
+    if [ $(basename `pwd`) != game ]; then
+        # generate the .dip files
+        getset.sh $SYSNAME $(basename `pwd`) --skipROM --skipPocket
+    fi
 fi
 require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
@@ -446,7 +450,7 @@ function shorten_name {
 
 # Load DIP switches when there is a matching file in $ROM and
 # none have been specified yet
-if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*${JTFRAME_SIM_DIPS}.*"` -eq 0 ]]; then
+if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
     add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
     echo "Using DIP switches from rom/$(basename `pwd`).dip"
 fi

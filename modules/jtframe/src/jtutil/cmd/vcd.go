@@ -54,6 +54,7 @@ func runVCD() { //////////////// command's main function
 	vcdf.Open("debug.vcd")
 	defer vcdf.Close()
 	signals := vcd.GetSignals(vcdf)
+	vcd.RenameRegs( signals )
 
 	trace.Open("debug.trace")
 	defer trace.Close()

@@ -43,6 +43,7 @@ CORENAME=$1
 SETNAME=$2
 shift
 shift
+# The rest of the arguments are passed to jtframe
 
 function require {
     if [ ! -e "$1" ]; then

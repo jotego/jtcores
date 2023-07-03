@@ -14,6 +14,7 @@ jtbin2sd.sh [-l|--local]
 
 -l, --local     Uses JTROOT/release instead of JTBIN (default)
 -g, --git       Uses JTBIN as the target folder
+-s, --setname   Uses the given set name as the game to load on power up (core.arc file)
 -v, --verbose
 
 future options:
@@ -24,12 +25,16 @@ HELP
 LOCAL=1
 V=
 CNT=0
+SETNAME=
 
 while [ $# -gt 0 ]; do
     case "$1" in
         -l|--local) LOCAL=1;;
         -g|--git)
             LOCAL=0;; # JTBIN will not be modified
+        -s|--setname)
+            shift
+            SETNAME=$1;;
         -v|--verbose)
             V=-v;;
         -h|--help)
@@ -62,6 +67,14 @@ function cp_mist {
         mra -A -s -a $DST/$CORENAME.arc "$FIRST"
         cp $V --no-clobber $DST/$CORENAME.arc $DST/core.arc
     done
+    if [ ! -z "$SETNAME" ]; then
+        local MAINSET=`grep -i $SETNAME $DST/*.arc --files-with-matches`
+        if [ ! -z "$MAINSET" ]; then
+            cp "$MAINSET" $DST/core.arc
+        else
+            echo "Cannot find any arc file for $SETNAME"
+        fi
+    fi
 }
 
 for i in SIDI MIST POCKET; do
