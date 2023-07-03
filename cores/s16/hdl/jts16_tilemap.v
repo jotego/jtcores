@@ -166,7 +166,8 @@ jtframe_vtimer #(
     //.VS_START ( 9'h0   ),
     .VS_START ( 9'hEF   ),
     //.VS_END   ( 9'h8   ),
-    .HS_START ( 9'h080 )
+    .HS_START ( 9'h080 ),
+    .HS_END   ( 9'h09E )  // 4.8us measured in PCB
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
