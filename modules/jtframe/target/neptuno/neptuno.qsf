@@ -1,0 +1,238 @@
+##   This file is part of JTFRAME.
+##
+##   JTFRAME program is free software: you can redistribute it and/or modify
+##   it under the terms of the GNU General Public License as published by
+##   the Free Software Foundation, either version 3 of the License, or
+##   (at your option) any later version.
+##
+##   JTFRAME program is distributed in the hope that it will be useful,
+##   but WITHOUT ANY WARRANTY; without even the implied warranty of
+##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##   GNU General Public License for more details.
+##
+##   You should have received a copy of the GNU General Public License
+##   along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+##   Author: Jose Tejada Gomez. Twitter: @topapate
+##   Version: 1.0
+
+
+
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE55F23C8
+set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION OFF
+
+set_global_assignment -name TOP_LEVEL_ENTITY neptuno_top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:14:01  JUNE 12, 2021"
+set_global_assignment -name LAST_QUARTUS_VERSION 13.1
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY ${OUTPUTDIR}
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED"
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name CYCLONEIII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+
+# LED for NeptUNO
+set_location_assignment PIN_E4 -to LED
+
+# NeptUNO has a single input clock
+set_location_assignment PIN_T2 -to CLK50
+
+# NeptUNO has direct connection to the PS2 keyboard
+set_location_assignment PIN_N19 -to PS2_CLK
+set_location_assignment PIN_N20 -to PS2_DATA
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_CLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_DATA
+
+# NeptUNO has direct connection to the PS2 mouse
+set_location_assignment PIN_C21 -to PS2_MOUSE_CLK
+set_location_assignment PIN_B21 -to PS2_MOUSE_DATA
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MOUSE_CLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MOUSE_DATA
+
+# NeptUNO has direct connection to joystick ports
+set_location_assignment PIN_AA18 -to JOY_SELECT
+set_location_assignment PIN_A20  -to JOY_CLK
+set_location_assignment PIN_B19  -to JOY_DATA
+set_location_assignment PIN_B20  -to JOY_LOAD
+
+
+# NeptUNO communication with STM32 MCU
+set_location_assignment PIN_N22 -to SPI_SS2
+set_location_assignment PIN_N21 -to SPI_SCK
+set_location_assignment PIN_M21 -to SPI_DO
+set_location_assignment PIN_K22 -to SPI_DI
+
+set_location_assignment PIN_Y21 -to STM_RESET
+
+# Video for NeptUNO
+set_location_assignment PIN_F1 -to VGA_R[5]
+set_location_assignment PIN_D2 -to VGA_R[4]
+set_location_assignment PIN_E1 -to VGA_R[3]
+set_location_assignment PIN_C2 -to VGA_R[2]
+set_location_assignment PIN_C1 -to VGA_R[1]
+set_location_assignment PIN_B1 -to VGA_R[0]
+set_location_assignment PIN_P2 -to VGA_G[5]
+set_location_assignment PIN_N2 -to VGA_G[4]
+set_location_assignment PIN_M2 -to VGA_G[3]
+set_location_assignment PIN_J2 -to VGA_G[2]
+set_location_assignment PIN_H2 -to VGA_G[1]
+set_location_assignment PIN_F2 -to VGA_G[0]
+set_location_assignment PIN_R1 -to VGA_B[5]
+set_location_assignment PIN_P1 -to VGA_B[4]
+set_location_assignment PIN_N1 -to VGA_B[3]
+set_location_assignment PIN_M1 -to VGA_B[2]
+set_location_assignment PIN_J1 -to VGA_B[1]
+set_location_assignment PIN_H1 -to VGA_B[0]
+set_location_assignment PIN_B3 -to VGA_HS
+set_location_assignment PIN_B2 -to VGA_VS
+
+# SDRAM for NeptUNO
+set_location_assignment PIN_V2 -to SDRAM_A[0]
+set_location_assignment PIN_V1 -to SDRAM_A[1]
+set_location_assignment PIN_U2 -to SDRAM_A[2]
+set_location_assignment PIN_U1 -to SDRAM_A[3]
+set_location_assignment PIN_V3 -to SDRAM_A[4]
+set_location_assignment PIN_V4 -to SDRAM_A[5]
+set_location_assignment PIN_Y2 -to SDRAM_A[6]
+set_location_assignment PIN_AA1 -to SDRAM_A[7]
+set_location_assignment PIN_Y3 -to SDRAM_A[8]
+set_location_assignment PIN_V5 -to SDRAM_A[9]
+set_location_assignment PIN_W1 -to SDRAM_A[10]
+set_location_assignment PIN_Y4 -to SDRAM_A[11]
+set_location_assignment PIN_V6 -to SDRAM_A[12]
+set_location_assignment PIN_W2 -to SDRAM_BA[1]
+set_location_assignment PIN_Y1 -to SDRAM_BA[0]
+set_location_assignment PIN_AA4 -to SDRAM_nCAS
+set_location_assignment PIN_W6 -to SDRAM_CKE
+set_location_assignment PIN_Y6 -to SDRAM_CLK
+set_location_assignment PIN_AA3 -to SDRAM_nCS
+set_location_assignment PIN_V11 -to SDRAM_DQ[15]
+set_location_assignment PIN_W10 -to SDRAM_DQ[14]
+set_location_assignment PIN_Y10 -to SDRAM_DQ[13]
+set_location_assignment PIN_V10 -to SDRAM_DQ[12]
+set_location_assignment PIN_V9 -to SDRAM_DQ[11]
+set_location_assignment PIN_Y8 -to SDRAM_DQ[10]
+set_location_assignment PIN_W8 -to SDRAM_DQ[9]
+set_location_assignment PIN_Y7 -to SDRAM_DQ[8]
+set_location_assignment PIN_AB5 -to SDRAM_DQ[7]
+set_location_assignment PIN_AA7 -to SDRAM_DQ[6]
+set_location_assignment PIN_AB7 -to SDRAM_DQ[5]
+set_location_assignment PIN_AA8 -to SDRAM_DQ[4]
+set_location_assignment PIN_AB8 -to SDRAM_DQ[3]
+set_location_assignment PIN_AA9 -to SDRAM_DQ[2]
+set_location_assignment PIN_AB9 -to SDRAM_DQ[1]
+set_location_assignment PIN_AA10 -to SDRAM_DQ[0]
+set_location_assignment PIN_AA5 -to SDRAM_DQML
+set_location_assignment PIN_AB3 -to SDRAM_nRAS
+set_location_assignment PIN_W7 -to SDRAM_DQMH
+set_location_assignment PIN_AB4 -to SDRAM_nWE
+
+# Audio for NeptUNO
+set_location_assignment PIN_A3 -to AUDIO_L
+set_location_assignment PIN_B4 -to AUDIO_R
+set_location_assignment PIN_AA13 -to AUDIO_INPUT
+
+set_location_assignment PIN_M20 -to I2S_BCLK
+set_location_assignment PIN_AA15 -to I2S_DATA 
+set_location_assignment PIN_AB14 -to I2S_LRCLK
+
+# KEY
+set_location_assignment PIN_W13 -to KEY[0]
+set_location_assignment PIN_Y13 -to KEY[1]
+
+#NEPTUNO SRAM#
+set_location_assignment PIN_AB15 -to SRAM_A[20]
+set_location_assignment PIN_U21 -to SRAM_A[19]
+set_location_assignment PIN_A17 -to SRAM_A[18]
+set_location_assignment PIN_B18 -to SRAM_A[17]
+set_location_assignment PIN_A18 -to SRAM_A[16]
+set_location_assignment PIN_A19 -to SRAM_A[15]
+set_location_assignment PIN_A5 -to SRAM_A[14]
+set_location_assignment PIN_A15 -to SRAM_A[13]
+set_location_assignment PIN_B6 -to SRAM_A[12]
+set_location_assignment PIN_A14 -to SRAM_A[11]
+set_location_assignment PIN_A8 -to SRAM_A[10]
+set_location_assignment PIN_B13 -to SRAM_A[9]
+set_location_assignment PIN_B10 -to SRAM_A[8]
+set_location_assignment PIN_B14 -to SRAM_A[7]
+set_location_assignment PIN_B15 -to SRAM_A[6]
+set_location_assignment PIN_B9 -to SRAM_A[5]
+set_location_assignment PIN_A7 -to SRAM_A[4]
+set_location_assignment PIN_A6 -to SRAM_A[3]
+set_location_assignment PIN_B5 -to SRAM_A[2]
+set_location_assignment PIN_C3 -to SRAM_A[1]
+set_location_assignment PIN_A4 -to SRAM_A[0]
+set_location_assignment PIN_F21 -to SRAM_Q[15]
+set_location_assignment PIN_J22 -to SRAM_Q[14]
+set_location_assignment PIN_L21 -to SRAM_Q[13]
+set_location_assignment PIN_M22 -to SRAM_Q[12]
+set_location_assignment PIN_L22 -to SRAM_Q[11]
+set_location_assignment PIN_H22 -to SRAM_Q[10]
+set_location_assignment PIN_H21 -to SRAM_Q[9]
+set_location_assignment PIN_F22 -to SRAM_Q[8]
+set_location_assignment PIN_B17 -to SRAM_Q[7]
+set_location_assignment PIN_A16 -to SRAM_Q[6]
+set_location_assignment PIN_B16 -to SRAM_Q[5]
+set_location_assignment PIN_C4 -to SRAM_Q[4]
+set_location_assignment PIN_A9 -to SRAM_Q[3]
+set_location_assignment PIN_B8 -to SRAM_Q[2]
+set_location_assignment PIN_A13 -to SRAM_Q[1]
+set_location_assignment PIN_B7 -to SRAM_Q[0]
+set_location_assignment PIN_A10 -to SRAM_WE
+set_location_assignment PIN_AA20 -to SRAM_OE
+set_location_assignment PIN_R2 -to SRAM_UB
+set_location_assignment PIN_AA16 -to SRAM_LB
+
+
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+
+set_global_assignment -name ENABLE_SIGNALTAP OFF
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+set_global_assignment -name SEED 0
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+# set_global_assignment -name CDF_FILE jtag.cdf
+
+# SDRAM
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_*
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]
+set_global_assignment -name FORCE_SYNCH_CLEAR ON
+
+set_global_assignment -name QIP_FILE game.qip
+
+# NeptUNO also shares the MIST macro
+set_global_assignment -name VERILOG_MACRO "MIST=1"
+
+# set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to SPI_SCK
+set_global_assignment -name SEARCH_PATH "../hdl"
+set_global_assignment -name SEARCH_PATH "${MODULES}/jtframe/hdl/inc"
+# Leave the blank line
