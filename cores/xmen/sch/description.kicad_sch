@@ -1,0 +1,19 @@
+(kicad_sch (version 20211123) (generator eeschema)
+
+  (uuid c1bf3053-ab02-4fad-84ab-c8e684c26dec)
+
+  (paper "A3")
+
+  (title_block
+    (title "X-men")
+    (date "2023-06-26")
+    (rev "José Tejada G.")
+    (company "Esperanza Triana")
+    (comment 1 "www.patreon.com/jotego")
+    (comment 2 "JOTEGO")
+  )
+
+  (lib_symbols
+  )
+
+)
