@@ -240,7 +240,7 @@ data = [
     { setname="passsht",    offset=0x18, data="10" },
     { setname="passshta",   offset=0x18, data="13" },
     { setname="passshtj",   offset=0x18, data="13" },
-    { setname="cencourt",   offset=0x18, data="18" },
+    { setname="cencourt",   offset=0x18, data="13" },
     { setname="riotcity",   offset=0x18, data="40" },
     { setname="ryukyu",     offset=0x18, data="40" },
     { setname="ryukyua",    offset=0x18, data="40" },
