@@ -357,10 +357,6 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= active[REG_PAL];
             io_cs     <= active[REG_IO];
 
-            mul_cs    <= 0;
-            cmp_cs    <= 0;
-            cmp2_cs   <= 0;
-            tbank_cs  <= 0;
             if( pcb_5797 ) begin
                 if( active[1] ) begin
                     case(A[13:12])
@@ -389,6 +385,8 @@ always @(posedge clk, posedge rst) begin
             pal_cs    <= 0;
             io_cs     <= 0;
             mul_cs    <= 0;
+            cmp_cs    <= 0;
+            cmp2_cs   <= 0;
             wdog_cs   <= 0;
             vram_cs   <= 0;
             ram_cs    <= 0;
