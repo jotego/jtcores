@@ -112,7 +112,7 @@ module jts16b_main(
     // status dump
     input       [ 7:0] debug_bus,
     input       [ 7:0] st_addr,
-    output      [ 7:0] st_dout
+    output reg  [ 7:0] st_dout
 );
 
 //  Region 0 - Program ROM
@@ -130,6 +130,7 @@ localparam [2:0] REG_RAM  = 3,
 wire [23:1] A,cpu_A;
 wire        BERRn;
 wire [ 2:0] FC;
+wire [ 7:0] st_mapper, st_timer;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -169,6 +170,8 @@ assign pcb_5797 = game_id[5]; // MVP, etc.
 
 always @(posedge clk) begin
     pcb_5358L <= game_id==8'h10 || game_id==8'h13 || game_id==8'h15 || game_id==8'h1a;
+
+    st_dout <= st_addr[5:4]==2'b11 ? st_timer : st_mapper;
 end
 
 always @(*) begin
@@ -261,7 +264,7 @@ jts16b_mapper u_mapper(
     .debug_bus  ( debug_bus      ),
     //.debug_bus  ( 8'd0           ),
     .st_addr    ( st_addr        ),
-    .st_dout    ( st_dout        )
+    .st_dout    ( st_mapper      )
 );
 
 reg mcu_rst;
@@ -353,6 +356,11 @@ always @(posedge clk, posedge rst) begin
             objram_cs <= active[REG_ORAM];
             pal_cs    <= active[REG_PAL];
             io_cs     <= active[REG_IO];
+
+            mul_cs    <= 0;
+            cmp_cs    <= 0;
+            cmp2_cs   <= 0;
+            tbank_cs  <= 0;
             if( pcb_5797 ) begin
                 if( active[1] ) begin
                     case(A[13:12])
@@ -416,15 +424,18 @@ jts16b_mul u_mul(
 );
 
 jts16b_timer u_timer1(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .A      ( A         ),
-    .dsn    ({UDSn,LDSn}),
-    .rnw    ( RnW       ),
-    .cs     ( cmp_cs    ),
-    .din    ( cpu_dout  ),
-    .dout   ( cmp_dout  ),
-    .snd_irq(           )
+    .rst    ( rst               ),
+    .clk    ( clk               ),
+    .A      ( A                 ),
+    .dsn    ({UDSn,LDSn}        ),
+    .rnw    ( RnW               ),
+    .cs     ( cmp_cs            ),
+    .din    ( cpu_dout          ),
+    .dout   ( cmp_dout          ),
+    .snd_irq(                   ),
+
+    .st_addr( debug_bus[3:0]    ),
+    .st_dout( st_timer          )
 );
 
 jts16b_timer u_timer2(

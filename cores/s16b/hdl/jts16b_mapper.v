@@ -167,14 +167,16 @@ assign addr_out  = bus_mcu ? mcu_amux : addr;
 assign bus_din   = bus_mcu ? wrdata : cpu_dout;
 assign mapper_dout = {mmr[5'd0], mmr[5'd1]}; // for test the output is {mmr[5'hd], mmr[5'he]} (or is it the other way around)
 
-assign cpu_haltn = ~mmr[2][1];
+// MMR[2][1:0] is ignored if cpu_sel is 1 because the PCB will either have
+// the POR chip or the MCU, but not both
+assign cpu_haltn = ~mmr[2][1] | cpu_sel;
 assign cpu_berrn = 1;
 assign sndmap_dout = mmr[3];
 
 reg rst_aux, status_msb;
 
 always @(negedge clk) begin
-    { cpu_rst, rst_aux } <= { rst_aux, mmr[2][0] | rst };
+    { cpu_rst, rst_aux } <= { rst_aux, (mmr[2][0]&~cpu_sel) | rst };
 end
 
 wire [15:0] mcu_addr_s;
@@ -386,12 +388,18 @@ always @(posedge clk) begin
 end
 
 // interrupt generation
-reg        last_vint;
+reg        last_vint, vint_n;
 
 assign cpu_vpan = inta_n;
-assign cpu_ipln = cpu_sel ? { ~vint, 2'b11 } : mmr[4][2:0];
+assign cpu_ipln = cpu_sel ? { vint_n, 2'b11 } : mmr[4][2:0];
+
+always @(posedge clk) begin
+    if( vint && !last_vint ) vint_n <= 0;
+    if( !vint || !inta_n   ) vint_n <= 1;
+end
 
 reg [8:0] mcu_cnt;
+
 
 always @(posedge clk) begin
     if( rst ) begin
