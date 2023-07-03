@@ -198,11 +198,11 @@ always @(posedge clk, posedge rst) begin
             shift_en <= 0;
         end
         if(io_cs) case( A[13:12] )
-            0: if( !LDSWn ) begin
+            0: if( !LDSWn ) begin // $000x
                 flip     <= cpu_dout[6];
                 video_en <= cpu_dout[5];
             end
-            1:
+            1: // $100x
                 case( A[2:1] )
                     0: begin  // Service
                         cab_dout <= sys_inputs;
@@ -259,8 +259,8 @@ always @(posedge clk, posedge rst) begin
                             sort2;
                     end
                 endcase
-            2: cab_dout <= { A[1] ? dipsw_a : dipsw_b };
-            3: begin // custom inputs
+            2: cab_dout <= { A[1] ? dipsw_a : dipsw_b }; // $200x
+            3: begin // $300x - custom inputs
                 case( game_id )
                     GAME_HWCHAMP: begin // Heavy Champion
                         if( A[5:4]==2 && (!LDSn || !UDSn)) begin
@@ -280,7 +280,7 @@ always @(posedge clk, posedge rst) begin
                     end
                     GAME_PASSSHT2: begin // Passing Shot (J)
                         //if( A[9:8]== 2'b10 ) begin
-                            case( debug_bus[0] ? A[2:1] : { A[1], LDSWn } )
+                            case( A[2:1] )
                                 0: cab_dout <= pass_joy( joystick1 );
                                 1: cab_dout <= pass_joy( joystick2 );
                                 2: cab_dout <= pass_joy( joystick3 );

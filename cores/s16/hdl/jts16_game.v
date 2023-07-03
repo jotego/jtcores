@@ -102,7 +102,8 @@ always @(posedge clk) begin
                 2: st_mux <= game_id;
                 3: st_mux <= { 3'd0, dec_type, mc8123_en, fd1089_en, fd1094_en, dec_en };
             endcase
-        2,3: st_mux <= st_main;
+        2: st_mux <= st_main;
+        3: st_mux <= st_addr[0] ? dipsw_b : dipsw_a;
     endcase
 end
 

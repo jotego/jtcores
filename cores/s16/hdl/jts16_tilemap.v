@@ -42,7 +42,7 @@ module jts16_tilemap(
     input      [ 1:0]  dswn,
 
     output     [15:0]  char_dout,
-    output             vint,    
+    output             vint,
 
     // Other configuration
     input              flip,
@@ -72,14 +72,14 @@ module jts16_tilemap(
 
     input              scr2_ok,
     output     [17:2]  scr2_addr, // 1 bank + 12 addr + 3 vertical = 15 bits
-    input      [31:0]  scr2_data,    
+    input      [31:0]  scr2_data,
 
     // Video signal
     output             HS,
     output             VS,
     output             preLHBL,
     output             preLVBL,
-    output             hstart,    
+    output             hstart,
     output             flipx,
     output      [ 8:0] hdump,
     output      [ 8:0] vdump,
@@ -140,6 +140,9 @@ wire [15:0] scr1_pages,      scr2_pages,
             scr2_hpos,       scr2_vpos;
 
 
+// Measured on PCB
+// vint lasts 64us, starts one line before blanking
+// vsync occurs 16 lines later
 assign vint = vdump==223 && dip_pause;
 assign scr_bad = scr1_bad | scr2_bad;
 
@@ -161,7 +164,7 @@ jtframe_vtimer #(
     .VB_END    ( 9'h105 ),
     .VCNT_END  ( 9'h105 ), // 262 lines
     //.VS_START ( 9'h0   ),
-    .VS_START ( 9'hF0   ),
+    .VS_START ( 9'hEF   ),
     //.VS_END   ( 9'h8   ),
     .HS_START ( 9'h080 )
 ) u_timer(

@@ -168,7 +168,7 @@ reg  pcb_5358L;
 assign pcb_5797 = game_id[5]; // MVP, etc.
 
 always @(posedge clk) begin
-    pcb_5358L <= game_id==8'h10 || game_id==8'h15 || game_id==8'h1a;
+    pcb_5358L <= game_id==8'h10 || game_id==8'h13 || game_id==8'h15 || game_id==8'h1a;
 end
 
 always @(*) begin
