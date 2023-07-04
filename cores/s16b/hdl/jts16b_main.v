@@ -422,30 +422,38 @@ jts16b_mul u_mul(
 );
 
 jts16b_timer u_timer1(
-    .rst    ( rst               ),
-    .clk    ( clk               ),
-    .A      ( A                 ),
-    .dsn    ({UDSn,LDSn}        ),
-    .rnw    ( RnW               ),
-    .cs     ( cmp_cs            ),
-    .din    ( cpu_dout          ),
-    .dout   ( cmp_dout          ),
-    .snd_irq(                   ),
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .A        ( A               ),
+    .dsn      ({UDSn,LDSn}      ),
+    .rnw      ( RnW             ),
+    .cs       ( cmp_cs          ),
+    .din      ( cpu_dout        ),
+    .dout     ( cmp_dout        ),
+    // unused
+    .cnt_up   ( 1'b0            ),
+    .main_irqn(                 ),
+    .snd_irq  (                 ),
 
-    .st_addr( debug_bus[3:0]    ),
-    .st_dout( st_timer          )
+    .st_addr  ( debug_bus[3:0]  ),
+    .st_dout  ( st_timer        )
 );
 
 jts16b_timer u_timer2(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .A      ( A         ),
-    .dsn    ({UDSn,LDSn}),
-    .rnw    ( RnW       ),
-    .cs     ( cmp2_cs   ),
-    .din    ( cpu_dout  ),
-    .dout   ( cmp2_dout ),
-    .snd_irq(           )
+    .rst      ( rst             ),
+    .clk      ( clk             ),
+    .A        ( A               ),
+    .dsn      ({UDSn,LDSn}      ),
+    .rnw      ( RnW             ),
+    .cs       ( cmp2_cs         ),
+    .din      ( cpu_dout        ),
+    .dout     ( cmp2_dout       ),
+    // unused
+    .cnt_up   ( 1'b0            ),
+    .main_irqn(                 ),
+    .snd_irq  (                 ),
+    .st_addr  ( 4'd0            ),
+    .st_dout  (                 )
 );
 
 jts16b_cabinet u_cabinet(

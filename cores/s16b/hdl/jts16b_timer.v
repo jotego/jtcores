@@ -68,14 +68,14 @@ end
 
 always @* begin
     if( value<min ) begin
-        nx_mmr7 <= min;
-        nx_mmr3 <= 16'h8000;
+        nx_mmr7 = min;
+        nx_mmr3 = 16'h8000;
     end else if( value>max ) begin
-        nx_mmr7 <= max;
-        nx_mmr3 <= 16'h4000;
+        nx_mmr7 = max;
+        nx_mmr3 = 16'h4000;
     end else begin
-        nx_mmr7 <= value;
-        nx_mmr3 <= 16'h0000;
+        nx_mmr7 = value;
+        nx_mmr3 = 16'h0000;
     end
 end
 
@@ -91,7 +91,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         cntup_l <= cnt_up;
         if( cnt_up && !cntup_l ) begin
-            if( mmr[10][0] ) mmr[CNTA][11:0] <= mmr[CNTA][11:0]+16'd1;
+            if( mmr[10][0] ) mmr[CNTA][11:0] <= mmr[CNTA][11:0]+1'd1;
             if( &mmr[CNTA][11:0] ) begin
                 main_irqn <= 0;
                 mmr[CNTA][11:0] <= mmr[8][11:0];
@@ -140,7 +140,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end else begin
-            sel4 <= sel4+up_sel4;
+            sel4 <= sel4+{3'd0,up_sel4};
             up_sel4 <= 0;
         end
     end
