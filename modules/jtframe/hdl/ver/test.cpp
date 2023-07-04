@@ -149,6 +149,7 @@ public:
             sscanf( s.c_str(),"%x", &v );
             v = ~v;
             auto coin_l  = dut.coin_input&3;
+            dut.dip_test     = (v & 0x800) ? 1 : 0;
             dut.start_button = 0xc | ((v>>2)&3);
             dut.coin_input   = 0xc | (v&3);
             dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
