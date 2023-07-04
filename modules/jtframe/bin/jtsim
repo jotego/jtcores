@@ -438,6 +438,7 @@ if [ -z "$SYSNAME" ]; then
 fi
 require "$SYSNAME" "Missing core name. Specify it with -sysname"
 
+# fits set name in 8 characters, matching the mra tool behavior
 function shorten_name {
     if [ ${#1} -le 8 ]; then
         echo $1;
@@ -451,7 +452,9 @@ function shorten_name {
 # Load DIP switches when there is a matching file in $ROM and
 # none have been specified yet
 if [[ -z "$SETNAME" && -e $ROM/$(basename `pwd`).dip && `expr match "$ALLMACROS" ".*JTFRAME_SIM_DIPS.*"` -eq 0 ]]; then
+    AUX=$(shorten_name $(basename `pwd`))
     add_macro JTFRAME_SIM_DIPS=0x$(cat $ROM/$(basename `pwd`).dip)
+    if [ -e $ROM/$AUX.mod ]; then cp $ROM/$AUX.mod core.mod; fi
     echo "Using DIP switches from rom/$(basename `pwd`).dip"
 fi
 
