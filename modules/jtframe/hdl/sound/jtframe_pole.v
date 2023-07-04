@@ -24,7 +24,8 @@
 // y[k] = a * y[k-1] + (1-a) * x[k]
 //
 // where a = exp(-wc ), a<1
-// wc = radian normalized frequency
+// wc = radian normalized frequency = 2*pi*fc/fs
+// fc = cut-off frequency, fs = sampling frequency
 // There is no overflow check
 
 module jtframe_pole #(parameter
