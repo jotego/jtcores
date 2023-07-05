@@ -59,7 +59,7 @@ reg  [6:0] cur_obj;  // current object
 reg  [2:0] idx;
 reg  [STW-1:0] st;
 reg [15:0] zoom;
-reg        first, stop, visible;
+reg        first, stop, visible, hstart_l;
 
 // Object data
 //reg        [7:0] bottom, top;
@@ -117,11 +117,13 @@ always @(posedge clk, posedge rst) begin
         dr_bank   <= 0;
         dr_prio   <= 0;
         dr_pal    <= 0;
+        hstart_l  <= 0;
     end else begin
         idx <= idx>=LAST_IDX ? 3'd7 : (idx + 3'd1); // 7 is the scratch location
         if( !stop ) begin
             st <= st+1'd1;
         end
+        hstart_l <= hstart;
         stop     <= 0;
         dr_start <= 0;
         tbl_we   <= 0;
@@ -130,7 +132,7 @@ always @(posedge clk, posedge rst) begin
                 cur_obj  <= 0;
                 stop     <= 0;
                 dr_start <= 0;
-                if( !hstart || vrender>223 ) begin // holds it still
+                if( !(hstart && !hstart_l) || vrender>223 ) begin // holds it still
                     st  <= 0;
                     idx <= 0;
                 end
