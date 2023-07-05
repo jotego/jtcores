@@ -31,8 +31,8 @@ module jts16b_mul(
     output reg [15:0]  dout
 );
 
-reg [15:0] factors[0:1];
-reg [31:0] mul;
+reg signed [15:0] factors[0:1];
+reg signed [31:0] mul;
 
 always @(posedge clk or posedge rst) begin 
     if(rst) begin
