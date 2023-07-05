@@ -23,6 +23,7 @@ module jts16_scr(
     input              pxl_cen,   // pixel clock enable
 
     input              LHBL,
+    input              start,
     input              alt_en,
 
     // MMR
@@ -109,7 +110,7 @@ always @(*) begin
 end
 
 reg [1:0] map_st;
-reg       last_LHBL, col_busyl;
+reg       start_l, col_busyl;
 
 always @(posedge clk) begin
     col_busyl <= col_busy;
@@ -161,19 +162,19 @@ always @(posedge clk, posedge rst) begin
         attr     <= 0;
         pxl_data <= 0;
 
-        last_LHBL <= 0;
-        done      <= 0;
-        busy      <= 0;
-        hscan     <= 0;
-        bad       <= 0;
-        scr_addr  <= 0;
-        vscan     <= 0;
+        start_l  <= 0;
+        done     <= 0;
+        busy     <= 0;
+        hscan    <= 0;
+        bad      <= 0;
+        scr_addr <= 0;
+        vscan    <= 0;
     end else begin
-        last_LHBL <= LHBL;
+        start_l <= start;
         scr_good  <= { scr_good[0] & scr_ok, scr_ok };
         if( scr_good==2'b01 ) pxl_data <= scr_data[23:0];
 
-        if( !LHBL && last_LHBL ) begin
+        if( start && !start_l ) begin
             vscan <= vrf;
             done  <= 0;
             busy  <= 0;
@@ -195,9 +196,12 @@ always @(posedge clk, posedge rst) begin
             scr_addr <= { MODEL ? map_data[12:0] : { bank, map_data[11:0] }, // code
                         vpos[2:0] };
             scr_good <= 2'd0;
-        end else if( busy!=0 && &scr_good && pxl2_cen) begin // This could work
+        end else if( busy!=0 && &scr_good && (pxl2_cen||!LHBL)) begin // This could work
             // without pxl2_cen, but it stresses the SDRAM too much, causing
             // glitches in the char layer.
+            // some games, like Cotton in the title screen would not finish some lines
+            // using pxl2_cen sort of a few pixels. Letting go of pxl2_cen during
+            // horizontal blanking speeds it enough to finish all lines
             pxl_data[23:16] <= pxl_data[23:16]<<1;
             pxl_data[15: 8] <= pxl_data[15: 8]<<1;
             pxl_data[ 7: 0] <= pxl_data[ 7: 0]<<1;
@@ -213,7 +217,7 @@ end
 
 jtframe_linebuf #(.DW(11),.AW(9)) u_linebuf(
     .clk    ( clk      ),
-    .LHBL   ( LHBL     ),
+    .LHBL   ( ~start   ),
     // New data writes
     .wr_addr( hscan    ),
     .wr_data( buf_data ),
