@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// vcdCmd represents the vcd command
-var vcdCmd = &cobra.Command{
-	Use:   "vcd",
+// traceCmd represents the trace command
+var traceCmd = &cobra.Command{
+	Use:   "trace",
 	Short: "Compare VCD file with MAME trace output",
 	Long: `Use to debug a simulation against MAME.
 Prepare a MAME trace file with register dumps, and a VCD file with the registers
@@ -30,25 +30,25 @@ The comparison is interactive, although a script can also be run to help in
 debugging sessions. Type help to obtain the list of commands.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		runVCD()
+		runTrace()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(vcdCmd)
+	rootCmd.AddCommand(traceCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// vcdCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// traceCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// vcdCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// traceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func runVCD() { //////////////// command's main function
+func runTrace() { //////////////// command's main function
 	trace := &vcd.LnFile{}
 	vcdf  := &vcd.LnFile{}
 	vcdf.Open("debug.vcd")
