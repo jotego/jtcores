@@ -581,7 +581,7 @@ func nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias, alu_busy
         if p==nil {
             log.Fatal("Error: bad pointer to VCDSignal\n")
         }
-        // Skip busy secionts
+        // Skip busy sections
         if alu_busy!=nil && alu_busy.Value==1 {
             was_alu = true
             continue
@@ -768,86 +768,3 @@ func parseValue( txt string ) ( string, uint64 ) {
     }
 }
 
-func GetSignals( file *LnFile ) vcdData {
-    ss := make(vcdData)
-    scope := ""
-    type Mode int
-    const(
-        SCAN Mode = iota
-        PASS
-        INIT
-    )
-    mode := SCAN
-    scan_through:
-    for ; file.scn.Scan(); file.line++ {
-        txt := file.scn.Text()
-        switch(mode) {
-            case SCAN: {
-                tokens := strings.Fields(txt)
-                switch(tokens[0]) {
-                    case "$date","$version","$timescale": mode=PASS
-                    case "$scope": {
-                        if tokens[1]!="module" {
-                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
-                        }
-                        if scope!="" { scope += "." }
-                        scope += tokens[2]
-                    }
-                    case "$upscope": {
-                        if i := strings.LastIndex(scope,"."); i!=-1 {
-                            scope = scope[0:i]
-                        }
-                    }
-                    case "$var": {
-                        if tokens[1]!="wire" {
-                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
-                            break
-                        }
-                        s := &VCDSignal{
-                            Scope: scope,
-                            alias: tokens[3],
-                        }
-                        bracket_str := tokens[4]
-                        bracket := 0
-                        if tokens[5][0]=='[' { // bus expression is separated
-                            bracket_str = tokens[5]
-                            s.Name = tokens[4]
-                        } else {
-                            bracket = strings.Index(tokens[4],"[")
-                            if bracket == -1 {
-                                s.Name = tokens[4]
-                                bracket_str = ""
-                            } else {
-                                s.Name = tokens[4][0:bracket]
-                            }
-                        }
-                        if bracket_str!="" {
-                            bend := strings.Index(bracket_str,"]")
-                            parts := strings.Split(bracket_str[bracket:bend-1],":")
-                            s.MSB,_ = strconv.Atoi(parts[0])
-                            if len(parts)==2 {
-                                s.LSB,_ = strconv.Atoi(parts[1])
-                            }
-                        }
-                        ss[s.alias] = s
-                    }
-                    case "$dumpvars": mode = INIT
-                }
-            }
-            case INIT: {
-                if txt=="$end" {
-                    file.line++
-                    break scan_through
-                }
-                a, v := parseValue( txt )
-                assign( a, v, ss )
-            }
-            case PASS : {
-                if txt=="$end" {
-                    mode = SCAN
-                }
-            }
-        }
-    }
-    return ss
-}

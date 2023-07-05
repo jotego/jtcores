@@ -178,10 +178,10 @@ always @(posedge clk, posedge rst) begin
             done  <= 0;
             busy  <= 0;
             bad   <= !done;
+            hscan <= HSCAN0;
         end
 
         if( done ) begin
-            hscan <= HSCAN0;
             bad   <= 0;
         end
 
