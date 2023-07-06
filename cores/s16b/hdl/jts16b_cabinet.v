@@ -289,7 +289,7 @@ always @(posedge clk, posedge rst) begin
                         //end
                     end
                     GAME_DUNKSHOT: begin
-                        cab_dout <= dunkshot_joy( trackball[A[4:2]] );
+                        cab_dout <= dunkshot_joy( trackball[A[4:2]]^{12{A[3]}} );
                     end
                     GAME_EXCTLEAG,GAME_SDI,GAME_SDIBL: begin // SDI / Defense
                         case( A[3:2] )
