@@ -22,6 +22,7 @@ module jts16_scr(
     input              pxl2_cen,  // pixel clock enable (2x)
     input              pxl_cen,   // pixel clock enable
 
+    input              LVBL,
     input              LHBL,
     input              start,
     input              alt_en,
@@ -174,11 +175,11 @@ always @(posedge clk, posedge rst) begin
         scr_good  <= { scr_good[0] & scr_ok, scr_ok };
         if( scr_good==2'b01 ) pxl_data <= scr_data[23:0];
 
-        if( start && !start_l ) begin
+        if( (start && !start_l) ) begin
             vscan <= vrf;
             done  <= 0;
             busy  <= 0;
-            bad   <= !done;
+            bad   <= LVBL && !done; // SDRAM activity halted during most of VB
             hscan <= HSCAN0;
         end
 

@@ -78,7 +78,7 @@ module jtframe_68kdtack
 localparam CW=W+WD;
 
 reg [CW-1:0] cencnt=0;
-reg  [2:0]   wait1;
+reg  [1:0]   waitsh;
 wire         halt;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
 wire over = cencnt>den-num2;
@@ -94,26 +94,24 @@ reg  risefall=0;
     wire rstl=0;
 `endif
 
-assign halt = !rstl && RECOVERY==1 && !ASn && wait1==0 && (bus_cs && bus_busy && !bus_legit);
+assign halt = !rstl && RECOVERY==1 && !ASn && waitsh==0 && (bus_cs && bus_busy && !bus_legit);
 
 
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
         DTACKn <= 1;
-        wait1  <= 3'b111;
+        waitsh <= 0;
     end else begin
         if( ASn | &DSn ) begin // DSn is needed for read-modify-write cycles
                // performed on the SDRAM. Just checking the DSn rising edge
                // is not enough on Rastan
             DTACKn <= 1;
-            wait1  <= 3'b111;
+            waitsh <= {wait3,wait2 | ASn} ; // ASn will be high for read-modify-write cycles
+            // those cycles need special attention as they easily get broken
+            // See https://github.com/ijor/fx68k/issues/7
         end else if( !ASn ) begin
-            if( cpu_cen ) case( {wait3,wait2} )
-                0: wait1 <= 0;
-                1: wait1 <= {2'b0, wait1[1] };
-                2,3: wait1 <= {1'b0, wait1[2:1] };
-            endcase
-            if( wait1==0 /*&& (!bus_cs || (bus_cs && !bus_busy))*/ ) begin
+            if( cpu_cen ) waitsh <= waitsh>>1;
+            if( waitsh==0 ) begin
                 DTACKn <= 0;
             end
         end

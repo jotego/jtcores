@@ -262,6 +262,7 @@ jts16_scr #(.PXL_DLY(SCR1_DLY),.HB_END(HB_END),.MODEL(MODEL)) u_scr1(
     .pxl2_cen  ( pxl2_cen       ),
     .pxl_cen   ( pxl_cen        ),
     .LHBL      ( preLHBL        ),
+    .LVBL      ( preLVBL        ),
 
     .start     ( scr_start      ),
     .alt_en    ( alt_en         ),
@@ -301,6 +302,7 @@ jts16_scr #(.PXL_DLY(SCR2_DLY[8:0]),.MODEL(MODEL)) u_scr2(
     .pxl2_cen  ( pxl2_cen       ),
     .pxl_cen   ( pxl_cen        ),
     .LHBL      ( preLHBL        ),
+    .LVBL      ( preLVBL        ),
 
     .start     ( scr_start      ),
     .alt_en    ( alt_en         ),
