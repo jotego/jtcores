@@ -106,13 +106,11 @@ always @(posedge clk) begin : dtack_gen
                // performed on the SDRAM. Just checking the DSn rising edge
                // is not enough on Rastan
             DTACKn <= 1;
-            waitsh <= {wait3,wait2 | ASn} ; // ASn will be high for read-modify-write cycles
-            // those cycles need special attention as they easily get broken
-            // See https://github.com/ijor/fx68k/issues/7
+            waitsh <= {wait3,wait2};
         end else if( !ASn ) begin
             if( cpu_cen ) waitsh <= waitsh>>1;
             if( waitsh==0 ) begin
-                DTACKn <= 0;
+                DTACKn <= bus_cs && bus_busy;
             end
         end
     end
