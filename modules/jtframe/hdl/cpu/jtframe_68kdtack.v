@@ -107,13 +107,13 @@ always @(posedge clk) begin : dtack_gen
                // is not enough on Rastan
             DTACKn <= 1;
             wait1  <= 3'b111;
-        end else if( !ASn && cpu_cen ) begin
-            case( {wait3,wait2} )
+        end else if( !ASn ) begin
+            if( cpu_cen ) case( {wait3,wait2} )
                 0: wait1 <= 0;
                 1: wait1 <= {2'b0, wait1[1] };
                 2,3: wait1 <= {1'b0, wait1[2:1] };
             endcase
-            if( wait1==0 && (!bus_cs || (bus_cs && !bus_busy)) ) begin
+            if( wait1==0 /*&& (!bus_cs || (bus_cs && !bus_busy))*/ ) begin
                 DTACKn <= 0;
             end
         end
