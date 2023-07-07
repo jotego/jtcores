@@ -152,12 +152,14 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[s
 		}
 		header = int(h)
 	}
-	if header != 0 {
-		root.AddNode(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
-			header)).comment=true
-	}
+	warned := true
 	for _, each := range cfg.ROM.Patches {
 		if each.Match(machine) > 0 {
+			if header != 0 && !warned {
+				warned = true
+				root.AddNode(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
+					header)).comment=true
+			}
 			// apply the patch
 			root.AddNode("patch", each.Value).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
 		}
