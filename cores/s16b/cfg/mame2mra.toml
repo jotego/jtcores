@@ -13,10 +13,6 @@ parents= [
     {name="tetris", description="Tetris"}
 ]
 
-main_setnames=[
-    "tturfu",
-]
-
 [parse.skip]
 descriptions = [ "16A", "Taito" ]
 setnames = [
@@ -27,9 +23,8 @@ setnames = [
     "lockonph",
     "snapper",
     "dfjail", # boots, unmapped inputs, bad GFX
-    # boots in test menu
-    "tturf", # tturfu used instead
 ]
+
 machines = [
     # controls not mapped
     "hwchamp",
