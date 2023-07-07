@@ -1,7 +1,7 @@
 {
   "board": {
     "active_layer": 0,
-    "active_layer_preset": "",
+    "active_layer_preset": "All Layers",
     "auto_track_width": true,
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -77,10 +77,22 @@
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 2225,
-          "pos_y": 84,
-          "size_x": 966,
+          "pos_x": 2353,
+          "pos_y": 28,
+          "size_x": 968,
           "size_y": 1024
+        }
+      },
+      {
+        "name": "xmen.kicad_pcb",
+        "open": false,
+        "window": {
+          "display": 1,
+          "maximized": true,
+          "pos_x": 36,
+          "pos_y": 13,
+          "size_x": 1848,
+          "size_y": 1053
         }
       }
     ]
