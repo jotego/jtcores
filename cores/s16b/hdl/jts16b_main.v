@@ -267,26 +267,6 @@ jts16b_mapper u_mapper(
     .st_dout    ( st_mapper      )
 );
 
-reg mcu_rst;
-reg [1:0] mcu_aux;
-reg vintl;
-
-always @(posedge clk24) vintl <= vint;
-
-always @(posedge clk24, posedge rst24) begin
-    if( rst24 )
-        mcu_aux <= 0;
-    else if( vint && !vintl )
-        mcu_aux <= { mcu_aux[0], 1'b1 };
-end
-
-always @(negedge clk24, posedge rst24) begin
-    if( rst24 )
-        mcu_rst <= 1;
-    else if(mcu_aux==2'b11)
-        mcu_rst <= 0;
-end
-
 
 jtframe_8751mcu #(
     .DIVCEN     ( 1             ),
@@ -294,7 +274,7 @@ jtframe_8751mcu #(
     .SYNC_P1    ( 1             ),
     .SYNC_INT   ( 1             )
 ) u_mcu(
-    .rst        ( mcu_rst       ),
+    .rst        ( rst24         ),
     .clk        ( clk24         ),
     .cen        ( mcu_cen       ),
 
@@ -304,7 +284,7 @@ jtframe_8751mcu #(
     .p0_i       ( mcu_din       ),
     .p1_i       ( sys_inputs    ),
     .p2_i       ( 8'hff         ),
-    .p3_i       ( 8'hff          ),
+    .p3_i       ( 8'hff         ),
 
     .p0_o       (               ),
     .p1_o       (               ),

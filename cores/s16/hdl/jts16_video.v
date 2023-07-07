@@ -201,7 +201,7 @@ jts16_obj #(.PXL_DLY(OBJ_DLY),.MODEL(MODEL)) u_obj(
     .hstart    ( hstart         ),
     .hsn       ( ~HS            ),
     .flip      ( flipx          ),
-    .vrender   ( vdump          ),
+    .vrender   ( vrender        ), // using vdump here breaks WB3 title screen
     .hdump     ( hdump          ),
     .pxl       ( obj_pxl        ),
     .debug_bus ( debug_bus      )

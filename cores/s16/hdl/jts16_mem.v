@@ -26,6 +26,8 @@ module jts16_mem(
     input      [5:0] tile_bank, // always 0 for S16A
     output           gfx_cs,
 
+    output reg       pulse_tst,
+
     // Encryption
     output           fd1089_we,
     output           key_we,
@@ -135,6 +137,7 @@ always @(posedge clk) begin
         if( prog_addr[4:0]==5'h11 ) fd1094_en <= prog_data[0];
         if( prog_addr[4:0]==5'h12 ) mc8123_en <= prog_data[0];
         if( prog_addr[4:0]==5'h13 ) mcu_en    <= prog_data[0];
+        if( prog_addr[4:0]==5'h13 ) pulse_tst <= prog_data[0];
         if( prog_addr[4:0]==5'h18 ) game_id   <= prog_data;
     end
     dec_en <= fd1089_en | fd1094_en;
