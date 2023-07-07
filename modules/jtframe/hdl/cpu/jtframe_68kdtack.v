@@ -83,7 +83,7 @@ wire         halt;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
 wire over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx;
-reg  risefall=0;
+reg         risefall=0, wait1;
 
 `ifdef SIMULATION
     // This is needed to prevent X's at the start of simulation
@@ -101,16 +101,19 @@ always @(posedge clk) begin : dtack_gen
     if( rst ) begin
         DTACKn <= 1;
         waitsh <= 0;
+        wait1  <= 0;
     end else begin
         if( ASn | &DSn ) begin // DSn is needed for read-modify-write cycles
                // performed on the SDRAM. Just checking the DSn rising edge
                // is not enough on Rastan
             DTACKn <= 1;
+            wait1  <= 1; // gives a clock cycle to bus_busy to toggle
             waitsh <= {wait3,wait2};
         end else if( !ASn ) begin
+            wait1 <= 0;
             if( cpu_cen ) waitsh <= waitsh>>1;
-            if( waitsh==0 ) begin
-                DTACKn <= bus_cs && bus_busy;
+            if( waitsh==0 && !wait1 ) begin
+                DTACKn <= DTACKn && bus_cs && bus_busy;
             end
         end
     end
