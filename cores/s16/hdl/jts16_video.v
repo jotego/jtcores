@@ -201,7 +201,7 @@ jts16_obj #(.PXL_DLY(OBJ_DLY),.MODEL(MODEL)) u_obj(
     .hstart    ( hstart         ),
     .hsn       ( ~HS            ),
     .flip      ( flipx          ),
-    .vrender   ( vrender        ),
+    .vrender   ( vdump          ),
     .hdump     ( hdump          ),
     .pxl       ( obj_pxl        ),
     .debug_bus ( debug_bus      )
