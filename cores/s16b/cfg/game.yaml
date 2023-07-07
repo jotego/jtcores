@@ -11,6 +11,7 @@ game:
       - jts16b_mul.v
       - jts16b_timer.v
       - jtmc8123.v
+      - ../syn/timing.sdc
 jtframe:
   - from: cpu
     get:

@@ -20,6 +20,7 @@ game:
       - jts16_fd1094.v
       - jts16_fd1094_dec.v
       - jts16_fd1094_ctrl.v
+      - ../syn/timing.sdc
 jtframe:
   - get:
       - jtframe_ff.v

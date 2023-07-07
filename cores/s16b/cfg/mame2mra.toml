@@ -21,7 +21,6 @@ main_setnames=[
 descriptions = [ "16A", "Taito" ]
 setnames = [
     # won't boot
-    # "cencourt", # Note that the main Passing Shot set works ok
     "aceattac", # one S16A set works
     # Korean
     "atomicp",
