@@ -32,3 +32,4 @@ set_false_path -from [get_keepers {cfg_custom_p1[*]}] -to [get_keepers {adj_addr
 set_false_path -from [get_keepers {cfg_custom_p2[*]}] -to [get_keepers {adj_data[*]}]
 set_false_path -from [get_keepers {cfg_got}] -to [get_keepers {gotd}]
 set_false_path -from [get_keepers {cfg_custom_t}] -to [get_keepers {custd}]
+set_false_path -from [get_keepers {pll_hdmi_adj:pll_hdmi_adj|i_vss_delay}] -to [get_keepers {pll_hdmi_adj:pll_hdmi_adj|ivss}]
