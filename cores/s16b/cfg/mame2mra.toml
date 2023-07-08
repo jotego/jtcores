@@ -13,11 +13,15 @@ parents= [
     {name="tetris", description="Tetris"}
 ]
 
+main_setnames=["tturfu"]
+
 [parse.skip]
 descriptions = [ "16A", "Taito" ]
 setnames = [
     # won't boot
     "aceattac", # one S16A set works
+    # Boots in service mode and needs custom firmware
+    "tturf",
     # Korean
     "atomicp",
     "lockonph",
@@ -31,6 +35,7 @@ machines = [
     "ultracin",
 ]
 bootlegs = true
+
 
 [buttons]
 #Sega System 16B
