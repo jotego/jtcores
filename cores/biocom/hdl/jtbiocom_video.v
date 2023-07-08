@@ -84,7 +84,9 @@ module jtbiocom_video(
     // Pixel output: 5 bits per colour!
     output      [4:0]   red,
     output      [4:0]   green,
-    output      [4:0]   blue
+    output      [4:0]   blue,
+
+    input       [7:0]   debug_bus
 );
 
 // parameters from jtgng_colmix:
@@ -191,6 +193,8 @@ assign scr1_addr  = 0;
 assign scr1_dout  = 0;
 `endif
 
+
+
 `ifndef NOSCR2
 jtgng_scroll #(
     .ROM_AW     ( 15            ),
@@ -234,7 +238,7 @@ assign scr2_dout  = 0;
 `endif
 
 wire nc;
-
+/* verilator tracing_off */
 jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
     .VINV       (  0         ),
     .ROM_AW     ( 18         ),
@@ -270,7 +274,7 @@ u_obj (
 );
 
 assign obj_AB[13:11] = 3'b111;
-
+/* verilator tracing_on */
 `ifndef NOCOLMIX
 jtbiocom_colmix u_colmix (
     .rst          ( rst           ),

@@ -96,7 +96,7 @@ wire [19:1] A;
 wire [3:0] ncA;
 
 `ifdef SIMULATION
-wire [24:0] A_full = {ncA, A,1'b0};
+wire [23:0] A_full = {ncA, A,1'b0};
 `endif
 wire [15:0] wram_dout;
 reg  [15:0] cpu_din;
@@ -188,7 +188,7 @@ end
 
 // SCROLL H/V POSITION
 always @(posedge clk, posedge rst) begin
-    if( rst ) begin        
+    if( rst ) begin
         scr1_hpos <= 0;
         scr1_vpos <= 0;
         scr2_hpos <= 0;
@@ -361,9 +361,9 @@ always @(posedge clk, posedge rst) begin : io_busy_gen
         last_iocs   <= 1'b0;
     end else if(cpu_cen) begin
         last_iocs <= io_cs;
-        if( io_cs && !last_iocs ) 
+        if( io_cs && !last_iocs )
             io_busy_cnt <= ~8'd0;
-        else 
+        else
             io_busy_cnt <= io_busy_cnt>>1;
     end
 end

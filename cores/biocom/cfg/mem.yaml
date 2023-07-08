@@ -6,6 +6,7 @@ clocks:
     - freq: 8000000
       outputs:
         - video_cen8
+        - nc_cen4
     - freq: 3579545
       outputs:
         - cen_fm

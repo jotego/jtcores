@@ -107,59 +107,31 @@ always @(posedge clk) if(cen6) begin
 end
 
 // Address mux
-reg  [9:0] pal_addr;
-reg        pal_uwe, pal_lwe;
 wire       coloff; // colour off
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
 
-always @(*) begin
-    if( !preLBL ) begin
-        pal_addr  = AB;
-        pal_uwe   = col_uw;
-        pal_lwe   = col_lw;
-    end else begin
-        pal_addr = pixel_mux;
-        pal_uwe  = 1'b0;
-        pal_lwe  = 1'b0;
-    end
-end
-
 assign coloff = ~preLBL;
 
-// Palette is in RAM
+jtframe_dual_ram16 #(
+    .AW        (10          ),
+    .SIMFILE_LO("pal_lo.bin"), // palrg.hex
+    .SIMFILE_HI("pal_hi.bin")  // palbb.hex
+) u_ram(
+    .clk0   ( clk       ),
+    .clk1   ( clk       ),
 
-`ifndef GRAY
-jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palrg.hex")) u_upal(
-    .clk        ( clk         ),
-    .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[15:8]    ),
-    .addr       ( pal_addr    ),
-    .we         ( pal_uwe     ),
-    .q          ( {pal_red, pal_green } )
+    // CPU writes
+    .addr0  ( AB  ),
+    .data0  ( DB        ),
+    .we0    ( {col_uw, col_lw} ),
+    .q0     (           ),
+
+    // Video reads
+    .addr1  ( pixel_mux ),
+    .data1  (           ),
+    .we1    ( 2'b0      ),
+    .q1     ( {pal_red, pal_green, pal_blue, pal_bright } )
 );
-
-jtframe_ram #(.AW(10),.DW(8),.SIMHEXFILE("palbb.hex")) u_lpal(
-    .clk        ( clk         ),
-    .cen        ( cpu_cen     ), // clock enable only applies to write operation
-    .data       ( DB[7:0]     ),
-    .addr       ( pal_addr    ),
-    .we         ( pal_lwe     ),
-    .q          ( { pal_blue, pal_bright } )
-);
-`else
-// for some reason I'm not getting the palette
-// right for scroll 2 in simulation
-reg [3:0] gray;
-
-assign pal_red   = gray;
-assign pal_green = gray;
-assign pal_blue  = gray;
-assign pal_bright= 4'b1000;
-
-always @(posedge clk) begin
-    gray <= pal_addr[3:0];
-end
-`endif
 
 // Clock must be faster than 6MHz so pre_prio is ready for the next
 // 6MHz clock cycle:

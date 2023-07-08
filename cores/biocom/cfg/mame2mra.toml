@@ -27,6 +27,11 @@ regions=[
     { name="mcu", start="JTFRAME_PROM_START" },
 ]
 
+patches=[
+    { setname="topsecrt2", offset=4, value="00 00 a8 42" }, # skip initial test
+    { setname="topsecrt",  offset=4, value="00 00 90 42" }, # skip initial test
+]
+
 order=[ "maincpu",
     "gfx2", "gfx1",
     "gfx3",
