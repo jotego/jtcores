@@ -53,7 +53,7 @@ wire [12:1] cpu_addr;
 wire [15:0] main_dout, char_dout, pal_dout, obj_dout;
 wire [ 1:0] dsn;
 wire        UDSWn, LDSWn, main_rnw;
-wire        char_cs, scr1_cs, pal_cs, objram_cs, pulse_tst;
+wire        char_cs, scr1_cs, pal_cs, objram_cs;
 
 // Sound CPU
 wire [SNDW-1:0] pre_snd_addr;
@@ -105,26 +105,6 @@ always @(posedge clk) begin
         2: st_mux <= st_main;
         3: st_mux <= st_addr[0] ? dipsw_b : dipsw_a;
     endcase
-end
-
-reg       tstg, LVBLl;
-reg [3:0] fcnt;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        fcnt  <= 0;
-        tstg  <= 0;
-        LVBLl <= 0;
-    end else begin
-        LVBLl <= LVBL;
-        if( ~LVBL & LVBLl & ~&fcnt) fcnt <= fcnt+1'd1;
-        case( fcnt )
-            0:  tstg <= 1;
-            14: tstg <= 0;
-            15: tstg <= 1;
-        endcase
-        if( !pulse_tst ) tstg <= 1;
-    end
 end
 
 `ifndef NOMAIN
@@ -213,7 +193,7 @@ end
     .prog_addr   ( prog_addr[12:0] ),
     .prog_data   ( prog_data[ 7:0] ),
     // DIP switches
-    .dip_test    ( dip_test & tstg ),
+    .dip_test    ( dip_test   ),
     .dipsw_a     ( dipsw_a    ),
     .dipsw_b     ( dipsw_b    ),
     // Status report
@@ -429,7 +409,6 @@ jts16_mem u_mem(
     .tile_bank  ( tile_bank ),
     .gfx_cs     ( gfx_cs    ),
     .n7751_prom ( n7751_prom),
-    .pulse_tst  ( pulse_tst ),
 
     .dec_en     ( dec_en    ),
     .fd1089_en  ( fd1089_en ),
