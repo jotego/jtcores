@@ -1,5 +1,4 @@
 include ../../outrun/cfg/macros.def
--JTFRAME_IOCTL_RD
 
 CORENAME=JTSHANON
 GAMETOP=jtshanon_game_sdram
@@ -8,8 +7,6 @@ SHANON=1
 # No need for 96MHz
 -JTFRAME_SDRAM96
 JTFRAME_CLK48
-
-JTFRAME_PXLCLK=6
 
 # System 16B Objects don't work
 # well with 64-bit bursts. I just

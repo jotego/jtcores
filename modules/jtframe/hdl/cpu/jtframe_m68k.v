@@ -110,6 +110,5 @@ fx68k u_cpu(
     .FC1        ( FC[1]       ),
     .FC2        ( FC[2]       )
 );
-/* verilator tracing_on */
 `endif
 endmodule

@@ -220,7 +220,7 @@ jtoutrun_road u_road(
     .ioctl_din  ( road_dump  ),
     .ioctl_addr ( ioctl_addr )
 );
-
+/* verilator tracing_off */
 jts16_tilemap #(.MODEL(1)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -291,7 +291,7 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
     .st_dout    ( st_tile   ),
     .scr_bad    ( scr_bad   )
 );
-
+/* verilator tracing_off */
 `ifdef SHANON
     wire nc;
 
@@ -327,7 +327,7 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
     );
     assign st_obj = 0;
 `else
-    jtoutrun_obj #(.PXL_DLY(9'd14)) u_obj(
+    jtoutrun_obj #(.PXL_DLY(9'd19)) u_obj(
         .rst       ( rst            ),
         .clk       ( clk            ),
         .pxl_cen   ( pxl_cen        ),
@@ -379,7 +379,7 @@ jts16_tilemap #(.MODEL(1)) u_tilemap(
     assign ln_data[15:14] = 0;
 `endif
 `endif
-
+/* verilator tracing_on */
 `ifdef SHANON
 jtshanon_colmix u_colmix(
 `else

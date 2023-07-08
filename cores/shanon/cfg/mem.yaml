@@ -8,7 +8,7 @@ params:
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
   - { name: SRAM_OFFSET, value: 22'h18_0000 }
   - { name: RD0_OFFSET,  value: (ROAD_START-BA3_START)>>1 }
-  - { name: RD1_OFFSET,  value: RD0_OFFSET+22'h4000 }
+  - { name: RD1_OFFSET,  value: RD0_OFFSET+26'h4000 }
 clocks:
   clk48:
     - freq: 8000000
