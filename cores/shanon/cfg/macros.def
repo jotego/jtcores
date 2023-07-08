@@ -4,10 +4,6 @@ CORENAME=JTSHANON
 GAMETOP=jtshanon_game_sdram
 SHANON=1
 
-# No need for 96MHz
--JTFRAME_SDRAM96
-JTFRAME_CLK48
-
 # System 16B Objects don't work
 # well with 64-bit bursts. I just
 # revert to default 32-bit bursts

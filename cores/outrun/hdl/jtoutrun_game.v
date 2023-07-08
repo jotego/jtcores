@@ -432,22 +432,20 @@ jtoutrun_video u_video(
 `endif
 
     // Road ROMs
-`ifdef OUTRUN
     .rd0_ok     ( 1'b1       ), // implemented in BRAM
     .rd0_cs     (            ),
-    .rd1_ok     ( 1'b1       ),
-    .rd1_cs     (            ),
-`else
-    .rd0_ok     ( rd0_ok     ), // implemented in SDRAM
-    .rd0_cs     ( rd0_cs     ),
-    .rd1_ok     ( rd1_ok     ),
-    .rd1_cs     ( rd1_cs     ),
-`endif
     .rd0_addr   ( rd0_addr   ),
     .rd0_data   ( rd0_data   ),
 
+    .rd1_ok     ( 1'b1       ), // implemented in BRAM
+    .rd1_cs     (            ),
+`ifdef OUTRUN
     .rd1_addr   ( rd1_addr   ),
     .rd1_data   ( rd1_data   ),
+`else
+    .rd1_addr   (            ), // shanon only has one road ROM
+    .rd1_data   ( 16'd0      ),
+`endif
 
     // Video signal
     .HS         ( HS        ),

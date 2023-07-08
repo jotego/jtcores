@@ -7,7 +7,7 @@ params:
   - { name: PCM_OFFSET,  value: (`PCM_START-BA1_START)>>1 }
   - { name: VRAM_OFFSET, value: 22'h10_0000 }
   - { name: SRAM_OFFSET, value: 22'h18_0000 }
-  - { name: RD0_OFFSET,  value: (ROAD_START-BA3_START)>>1 }
+  - { name: RD0_OFFSET,  value: "3<<22 | (ROAD_START-`JTFRAME_BA3_START)>>1" }
   - { name: RD1_OFFSET,  value: RD0_OFFSET+26'h4000 }
 clocks:
   clk48:
@@ -49,9 +49,11 @@ sdram:
         - { name: scr1, addr_width: 18, data_width: 32, cs: gfx_cs }
         - { name: scr2, addr_width: 18, data_width: 32, cs: gfx_cs }
 
-    # Bank 3 for objects and roads
+    # Bank 3 for objects
     -
       buses:
         - { name: obj, addr_width: 21, data_width: 16 } # this line is different in Out Run
-        - { name: rd0, addr_width: 15, data_width: 16, offset: RD0_OFFSET }
-        - { name: rd1, addr_width: 15, data_width: 16, offset: RD1_OFFSET }
+
+# The ROAD 32kBx2 memories must go in BRAM to guarantee correct data reads at 48 MHz
+bram:
+  - { name: rd0, addr_width: 15, data_width: 16, rom: { offset: RD0_OFFSET } }
