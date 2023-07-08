@@ -53,7 +53,7 @@ module jttora_obj #(
 localparam OBJMAX='h280;
 
 wire [DMA_AW-1:0] lut_addr;
-wire [DMA_DW-1:0] lut_data;
+wire [11:0] lut_data;
 
 wire [11:0] dr_code;
 wire [ 8:0] dr_xpos;
@@ -106,7 +106,7 @@ jttora_objdata #(.VINV(VINV)) u_objdata(
     .debug_bus  ( debug_bus )
 );
 
-jtframe_objdraw#(.CW(12),.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
+jtframe_objdraw#(.CW(ROM_AW-7),.ALPHA('hf),.LATCH(1),.SWAPH(1),.HJUMP(1)) u_draw (
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

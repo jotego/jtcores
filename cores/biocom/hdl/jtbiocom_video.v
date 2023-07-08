@@ -84,9 +84,7 @@ module jtbiocom_video(
     // Pixel output: 5 bits per colour!
     output      [4:0]   red,
     output      [4:0]   green,
-    output      [4:0]   blue,
-
-    input       [7:0]   debug_bus
+    output      [4:0]   blue
 );
 
 // parameters from jtgng_colmix:
@@ -237,7 +235,6 @@ assign scr2_addr  = 0;
 assign scr2_dout  = 0;
 `endif
 
-wire nc;
 /* verilator tracing_off */
 jttora_obj #( // 160 objects scanned. Max 31 objects drawn per line
     .VINV       (  0         ),
@@ -264,7 +261,7 @@ u_obj (
     .bus_ack    ( bus_ack     ),
     .blen       ( blcnten     ),
     // SDRAM interface
-    .rom_addr   ({nc,obj_addr}),
+    .rom_addr   ( obj_addr    ),
     .rom_data   ( obj_data    ),
     .rom_cs     ( obj_cs      ),
     .rom_ok     ( obj_ok      ),

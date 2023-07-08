@@ -61,7 +61,6 @@
 // 14     15  17  19  21  24  26  28  30
 // 15     16  18  20  22  25  27  29  31
 
-
 module jtbiocom_colmix(
     input            rst,
     input            clk,
@@ -96,41 +95,38 @@ module jtbiocom_colmix(
 parameter SIM_PRIO = "../../../rom/biocom/63s141.18f";
 localparam BLANK_DLY=2;
 
-reg [9:0] pixel_mux;
+reg [9:0] pxl_mux;
 
-wire enable_char = gfx_en[0];
-wire enable_scr1 = gfx_en[1];
-wire enable_scr2 = gfx_en[2];
-wire enable_obj  = gfx_en[3];
+wire char_en = gfx_en[0];
+wire scr1_en = gfx_en[1];
+wire scr2_en = gfx_en[2];
+wire obj_en  = gfx_en[3];
 
 wire [1:0] pre_prio;
 reg  [7:0] seladdr;
 reg  [1:0] prio, presel;
-wire       char_blank_n = |(~char_pxl[1:0]);
+wire       char_blank_n = ~&char_pxl[1:0];
 wire       preLBL;
 
 always @(*) begin
-    seladdr[0]   = enable_scr2 ? (|(~scr2_pxl[3:0])) : 1'b0;
-    seladdr[6:1] = enable_scr1 ? ({ scr1_pxl[7:6], scr1_pxl[3:0] }) : 6'h3f;
-    seladdr[7]   = enable_obj  ? (|(~obj_pxl[3:0])) : 1'b0;
-    prio         = pre_prio | ( enable_char ? {2{char_blank_n}} : 2'b0 );
+    seladdr[0]   = scr2_en ? ~&scr2_pxl[3:0] : 1'b0;
+    seladdr[6:1] = scr1_en ? { scr1_pxl[7:6], scr1_pxl[3:0] } : 6'h3f;
+    seladdr[7]   = obj_en  ? ~&obj_pxl[3:0] : 1'b0;
+    prio         = pre_prio  | ( char_en ? {2{char_blank_n}} : 2'b0 );
 end
 
 always @(posedge clk) if(cen6) begin
     case( prio )
-        2'b11: pixel_mux[7:0] <= { 2'b0, char_pxl };
-        2'b10: pixel_mux[7:0] <= obj_pxl;
-        2'b01: pixel_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
-        2'b00: pixel_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
+        2'b11: pxl_mux[7:0] <= { 2'b0, char_pxl };
+        2'b10: pxl_mux[7:0] <= obj_pxl;
+        2'b01: pxl_mux[7:0] <= { 2'b0, scr1_pxl[5:0] };
+        2'b00: pxl_mux[7:0] <= { 1'b0, scr2_pxl[6:0] };
     endcase
-    pixel_mux[9:8] <= prio;
+    pxl_mux[9:8] <= prio;
 end
 
 // Address mux
-wire       coloff; // colour off
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
-
-assign coloff = ~preLBL;
 
 jtframe_dual_ram16 #(
     .AW        (10          ),
@@ -147,7 +143,7 @@ jtframe_dual_ram16 #(
     .q0     (           ),
 
     // Video reads
-    .addr1  ( pixel_mux ),
+    .addr1  ( pxl_mux ),
     .data1  (           ),
     .we1    ( 2'b0      ),
     .q1     ( {pal_red, pal_green, pal_blue, pal_bright } )
@@ -166,41 +162,18 @@ jtframe_prom #(.AW(8),.DW(2),.SIMFILE(SIM_PRIO)) u_pre_prio(
 );
 
 reg [4:0] pre_r, pre_g, pre_b;
-reg [3:0] pre_bright;
-reg [7:0] step;
 
-wire [3:0] mux_red, mux_green, mux_blue;
-assign { mux_red, mux_green, mux_blue } = {pal_red, pal_green, pal_blue};
-
-always @(posedge clk,posedge rst) begin
-    if( rst ) begin
-        step <= 8'd1;
+always @(posedge clk) begin
+    if( ~preLBL ) begin
+        pre_r <= 5'd0;
+        pre_g <= 5'd0;
+        pre_b <= 5'd0;
     end else begin
-        step <= { step[6:0], step[7] };
-        if( step[0] ) begin
-            pre_bright <= pal_bright;
-            if( coloff ) begin
-                pre_r <= 5'd0;
-                pre_g <= 5'd0;
-                pre_b <= 5'd0;
-            end else begin
-                pre_r <= { mux_red,  mux_red[3]   } >> ~pal_bright[3];
-                pre_g <= { mux_green,mux_green[3] } >> ~pal_bright[3];
-                pre_b <= { mux_blue, mux_blue[3]  } >> ~pal_bright[3];
-            end
-        end
-        else begin
-            if( !pre_bright[3] && pre_bright[2:0]!=3'd0 ) begin
-                pre_r <= pre_r + 5'd2;
-                pre_g <= pre_g + 5'd2;
-                pre_b <= pre_b + 5'd2;
-                pre_bright[2:0] <= pre_bright[2:0] - 3'd1;
-            end
-        end
+        pre_r <= pal_bright[3] ? { pal_red,  pal_red[3]   } : { 1'b0, pal_red   } + { 1'b0, pal_bright[2:0], pal_bright[2]};
+        pre_g <= pal_bright[3] ? { pal_green,pal_green[3] } : { 1'b0, pal_green } + { 1'b0, pal_bright[2:0], pal_bright[2]};
+        pre_b <= pal_bright[3] ? { pal_blue, pal_blue[3]  } : { 1'b0, pal_blue  } + { 1'b0, pal_bright[2:0], pal_bright[2]};
     end
 end
-
-wire [14:0] pal_rgb = {pre_r, pre_g, pre_b};
 
 jtframe_blank #(.DLY(BLANK_DLY),.DW(15)) u_dly(
     .clk        ( clk                 ),
@@ -210,8 +183,8 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(15)) u_dly(
     .LHBL       ( LHBL                ),
     .LVBL       ( LVBL                ),
     .preLBL     ( preLBL              ),
-    .rgb_in     ( pal_rgb             ),
-    .rgb_out    ( {red, green, blue } )
+    .rgb_in     ( {pre_r, pre_g, pre_b}),
+    .rgb_out    ( {red, green, blue }  )
 );
 
-endmodule // jtgng_colmix
+endmodule
