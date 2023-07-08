@@ -123,7 +123,7 @@ always @(posedge clk, posedge rst) begin
             14: tstg <= 0;
             15: tstg <= 1;
         endcase
-        if( pulse_tst ) tstg <= 1;
+        if( !pulse_tst ) tstg <= 1;
     end
 end
 
