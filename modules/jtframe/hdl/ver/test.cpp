@@ -183,11 +183,17 @@ public:
     }
 };
 
+int fileLength( const char *name ) {
+    ifstream fin( name, ios_base::binary );
+    fin.seekg( 0, ios_base::end );
+    return (int)fin.tellg();
+}
+
 class Download {
     UUT& dut;
-    int addr, din, ticks,len;
+    int addr, din, ticks,len, cart_start;
     char *buf;
-    bool done, full_download;
+    bool done, cart, full_download;
     int read_buf() {
         return (buf!=nullptr && addr<len) ? buf[addr] : 0;
     }
@@ -201,13 +207,28 @@ public:
         if( len == 0 || fin.bad() ) {
             fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
         } else {
+            int cart_len = fileLength("cart.bin");
+            if( cart_len != 0 ) {
+                cart = true;
+                cart_start = len; // starts after rom.bin
+                len += cart_len;
+            }
             buf = new char[len];
             fin.seekg(0, ios_base::beg);
             fin.read(buf,len);
             if( fin.bad() ) {
                 fputs("Verilator test.cpp: problem while reading rom.bin\n",stderr);
             } else {
-                fprintf(stderr,"Read %d bytes from rom.bin\n",len);
+                fprintf(stderr,"Read %d bytes from rom.bin\n",len-cart_len);
+            }
+            if( cart ) {
+                ifstream fcart( "cart.bin", ios_base::binary );
+                fcart.read( buf+cart_start, cart_len );
+                if( fin.bad() ) {
+                    fputs("Verilator test.cpp: problem while reading cart.bin\n",stderr);
+                } else {
+                    fprintf(stderr,"Read %d bytes from cart.bin (starts at %x)\n",cart_len,cart_start);
+                }
             }
         }
     };
@@ -246,6 +267,11 @@ public:
                 case 0:
                     addr++;
                     dut.ioctl_addr = addr;
+#ifdef _JTFRAME_CART_OFFSET
+                    if( addr>=cart_start ) {
+                        dut.ioctl_addr += _JTFRAME_CART_OFFSET-cart_start;
+                    }
+#endif
                     dut.ioctl_dout = read_buf();
                     break;
                 case 1:
