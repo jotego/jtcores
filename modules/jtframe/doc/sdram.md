@@ -28,7 +28,9 @@ If a system has a BIOS (firmware) plus cartridge ROMs, like NeoGeo Pocket, then 
 
 The core logic does not have access to the download index as that is *target* specific. Instead, the core should define the **JTFRAME_CART_OFFSET** as the download address start for cartridge data. JTFRAME will add that offset to **ioctl_addr** when sending data to the core.
 
-This can be matched with **JTFRAME_BA1_START** so data is automatically sent to bank 1, for instance.
+**JTFRAME_CART_OFFSET** can be matched with **JTFRAME_BA1_START** so data is automatically sent to bank 1, for instance.
+
+Declaring **JTFRAME_CART_OFFSET** will also enable the load option for the cartridge index in the MiSTer OSD menu. See [MiSTer's config string](../target/mister/cfgstr) and [MiSTer's documentation](https://github.com/MiSTer-devel/Wiki_MiSTer/wiki/Core-configuration-string).
 
 There are two files linking what to be loaded during simulation:
 

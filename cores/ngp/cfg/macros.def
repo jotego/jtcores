@@ -19,8 +19,5 @@ JTFRAME_CLK24
 JTFRAME_PLL=jtframe_pll6144
 JTFRAME_IOCTL_RD=12288
 
-[mister]
-JTFRAME_OSD_LOAD
-
 [mist|sidi|neptuno|mcp|mc2]
 JTFRAME_SKIP

@@ -143,10 +143,10 @@ always @(posedge clk, posedge rst) begin
         pwr_cnt <= 8;
     end else begin
         if( int4 && !poweron ) { poweron, pwr_cnt } <= { 1'b0, pwr_cnt } + 1'd1;
-        if( !pwr_button ) begin
-            poweron <= 0;
-            pwr_cnt <= 8;
-        end
+        // if( !pwr_button ) begin
+        //     poweron <= 0;
+        //     pwr_cnt <= 8;
+        // end
     end
 end
 
@@ -320,8 +320,7 @@ jt95c061 u_mcu(
     // interrupt sources
     .int4       ( int4      ),
     .int5       ( main_int5 ),
-    // .nmi        ( poweron   ),
-    .nmi        ( 1'b0   ),
+    .nmi        ( poweron   ),
     .porta_dout ( porta_dout),
 
     .addr       ( addr      ),
