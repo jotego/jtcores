@@ -19,6 +19,7 @@
 module jtngp_main(
     input               rst,
     input               clk,
+    input               clk_rom,
     input               cen12,
     input               cen6,
     input               phi1_cen,
@@ -27,6 +28,7 @@ module jtngp_main(
     input               lvbl,
 
     input               start_button,
+    input               pwr_button,
     input       [ 5:0]  joystick1,
 
     // Bus access
@@ -39,8 +41,9 @@ module jtngp_main(
 
     output reg          gfx_cs,
     output reg          flash0_cs,
-    output reg          flash1_cs,
+    input               flash0_rdy,
     input        [15:0] flash0_dout,
+    output reg          flash1_cs,
 
     // Sound
     output reg          snd_nmi,
@@ -56,7 +59,14 @@ module jtngp_main(
     // Firmware access
     output reg          rom_cs,
     input        [15:0] rom_data,
-    input               rom_ok
+    input               rom_ok,
+
+    // NVRAM
+    input        [13:0] ioctl_addr,
+    input        [ 7:0] ioctl_dout,
+    output reg   [ 7:0] ioctl_din,
+    input               ioctl_ram,
+    input               ioctl_wr
 );
 `ifndef NOMAIN
 reg  [15:0] din;
@@ -77,7 +87,11 @@ wire        bus_busy;
 wire [ 7:0] rtc_sec, rtc_min, rtc_hour;
 wire [ 2:0] rtc_we;
 
-assign bus_busy  = rom_cs & ~rom_ok;
+// NVRAM
+wire        nvram0_we, nvram1_we;
+wire [ 7:0] nvram0_dout, nvram1_dout;
+
+assign bus_busy  = (rom_cs & ~rom_ok) | (flash0_cs & ~flash0_rdy);
 assign cpu_addr  = addr[20:1];
 // assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
 //        flash1_cs = map_cs[1]; // in_range(24'h80_0000, 24'hA0_0000);
@@ -90,6 +104,8 @@ assign rtc_we[2] = io_cs && we[0] && addr[5:1]==5'b01_010; // 80+14 = 94 - hours
 assign rtc_we[1] = io_cs && we[1] && addr[5:1]==5'b01_010; // 80+15 = 95 - minutes
 assign rtc_we[0] = io_cs && we[0] && addr[5:1]==5'b01_011; // 80+16 = 96 - seconds
 
+assign nvram0_we = ioctl_ram & ioctl_wr & ~ioctl_addr[13];
+assign nvram1_we = ioctl_ram & ioctl_wr &  ioctl_addr[13];
 // always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
 function in_range( input [23:0] min, max );
@@ -119,12 +135,18 @@ always @* begin
     rom_cs    = addr >= 24'hFF_0000;                // maybe map_cs[2/3] could be used too?
 end
 
+always @(posedge clk) ioctl_din <= ioctl_addr[13] ? nvram1_dout : nvram0_dout;
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         poweron <= 0;
         pwr_cnt <= 8;
     end else begin
         if( int4 && !poweron ) { poweron, pwr_cnt } <= { 1'b0, pwr_cnt } + 1'd1;
+        if( !pwr_button ) begin
+            poweron <= 0;
+            pwr_cnt <= 8;
+        end
     end
 end
 
@@ -173,29 +195,27 @@ jtframe_rtc u_rtc(
     .hour   ( rtc_hour      )
 );
 
-jtframe_ram16 #(
-    .AW(12)
+jtframe_dual_nvram16 #(
+    .AW(12)     // 8kB
 `ifdef DUMP_RAM
     ,.VERBOSE(1),.VERBOSE_OFFSET('h4000) `endif
 ) u_ram0(
-    .clk    ( clk           ),
-    .data   ( cpu_dout      ),
-    .addr   ( addr[12:1]    ),
-    .we     ( ram0_we       ),
-    .q      ( ram0_dout     )
+    .clk0   ( clk           ),
+    .data0  ( cpu_dout      ),
+    .addr0  ( addr[12:1]    ),
+    .we0    ( ram0_we       ),
+    .q0     ( ram0_dout     ),
+    // memory dump
+    .clk1   ( clk_rom       ),
+    .addr1a ( 12'd0         ),
+    .q1a    (               ),
+    .addr1b (ioctl_addr[12:0]),
+    .data1  ( ioctl_dout    ),
+    .sel_b  ( 1'b1          ),
+    .we1b   ( nvram0_we     ),
+    .q1b    ( nvram0_dout   )
 );
 
-// jtframe_ram16 #(
-//     .AW(11)     // 4kB
-// `ifdef DUMP_RAM
-//     ,.VERBOSE(1),.VERBOSE_OFFSET('h6000) `endif
-// ) u_ram1(
-//     .clk    ( clk           ),
-//     .data   ( cpu_dout      ),
-//     .addr   ( addr[11:1]    ),
-//     .we     ( ram1_we       ),
-//     .q      ( ram1_dout     )
-// );
 `ifdef SIMULATION
     reg flash0_csl, flash0_msg = 0;
     always @(posedge clk) begin
@@ -256,7 +276,7 @@ jtframe_ram16 #(
     wire        copy = 0;
 `endif
 
-jtframe_dual_ram16 #(
+jtframe_dual_nvram16 #(
     .AW(11)     // 4kB
 `ifdef DUMP_RAM
     ,.VERBOSE(1),.VERBOSE_OFFSET('h6000) `endif
@@ -266,12 +286,21 @@ jtframe_dual_ram16 #(
     .addr0  ( addr[11:1]    ),
     .we0    ( ram1_we       ),
     .q0     ( ram1_dout     ),
+    // memory dump
+    .clk1   ( clk_rom       ),
+    .addr1a ( 11'd0         ),
+    .q1a    (               ),
+    .addr1b (ioctl_addr[11:0]),
+    .data1  ( ioctl_dout    ),
+    .sel_b  ( 1'b1          ),
+    .we1b   ( nvram1_we     ),
+    .q1b    ( nvram1_dout   )
     // memory overwrite
-    .clk1   ( clk           ),
-    .data1  ( over16        ),
-    .addr1  ( over_k[11:1]  ),
-    .we1    ( {2{copy}}     ),
-    .q1     (               )
+    // .clk1   ( clk           ),
+    // .data1  ( over16        ),
+    // .addr1  ( over_k[11:1]  ),
+    // .we1    ( {2{copy}}     ),
+    // .q1     (               )
 );
 
 jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
@@ -281,7 +310,7 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
     .sigin  ( lvbl      ),
     .pulse  ( int4      )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -291,7 +320,8 @@ jt95c061 u_mcu(
     // interrupt sources
     .int4       ( int4      ),
     .int5       ( main_int5 ),
-    .nmi        ( poweron   ),
+    // .nmi        ( poweron   ),
+    .nmi        ( 1'b0   ),
     .porta_dout ( porta_dout),
 
     .addr       ( addr      ),

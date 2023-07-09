@@ -25,7 +25,9 @@
 `endif
 `ifdef JTFRAME_IOCTL_RD
     input           ioctl_ram,
+    input           ioctl_wr,
     output   [ 7:0] ioctl_din,
+    input    [ 7:0] ioctl_dout,
 `endif
     // Explicit ports
 {{- range .Ports}}

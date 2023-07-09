@@ -358,11 +358,24 @@ always @(posedge clk) begin
     map_cs <= pre_map_cs;
 end
 
-integer k;
-
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        for( k=0; k<64; k=k+1 ) mmr[k] <= 0;
+        mmr[ 0] <= 0; mmr[ 1] <= 0; mmr[ 2] <= 0; mmr[ 3] <= 0;
+        mmr[ 4] <= 0; mmr[ 5] <= 0; mmr[ 6] <= 0; mmr[ 7] <= 0;
+        mmr[ 8] <= 0; mmr[ 9] <= 0; mmr[10] <= 0; mmr[11] <= 0;
+        mmr[12] <= 0; mmr[13] <= 0; mmr[14] <= 0; mmr[15] <= 0;
+        mmr[16] <= 0; mmr[17] <= 0; mmr[18] <= 0; mmr[19] <= 0;
+        mmr[20] <= 0; mmr[21] <= 0; mmr[22] <= 0; mmr[23] <= 0;
+        mmr[24] <= 0; mmr[25] <= 0; mmr[26] <= 0; mmr[27] <= 0;
+        mmr[28] <= 0; mmr[29] <= 0; mmr[30] <= 0; mmr[31] <= 0;
+        mmr[32] <= 0; mmr[33] <= 0; mmr[34] <= 0; mmr[35] <= 0;
+        mmr[36] <= 0; mmr[37] <= 0; mmr[38] <= 0; mmr[39] <= 0;
+        mmr[40] <= 0; mmr[41] <= 0; mmr[42] <= 0; mmr[43] <= 0;
+        mmr[44] <= 0; mmr[45] <= 0; mmr[46] <= 0; mmr[47] <= 0;
+        mmr[48] <= 0; mmr[49] <= 0; mmr[50] <= 0; mmr[51] <= 0;
+        mmr[52] <= 0; mmr[53] <= 0; mmr[54] <= 0; mmr[55] <= 0;
+        mmr[56] <= 0; mmr[57] <= 0; mmr[58] <= 0; mmr[59] <= 0;
+        mmr[60] <= 0; mmr[61] <= 0; mmr[62] <= 0; mmr[63] <= 0;
         // Fake ADC
         mmr[ADREG0H] <= 8'hff;   // channel 0 is the battery, we give it a high reading
         mmr[ADREG0L] <= 8'hff;
@@ -445,7 +458,8 @@ end
 
 // To do: jt900h should read the reset vector
 // the rst vector for NGP and NGPC is different
-localparam NGP_RST=32'hFF1DE8;
+// localparam NGP_RST=32'hFF1DE8;
+localparam NGP_RST=32'hFF1800; // NVRAM loaded
 
 jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .rst        ( rst       ),
@@ -470,6 +484,4 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .dmp_dout   (           )
 );
 
-
 endmodule
-

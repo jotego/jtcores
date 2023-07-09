@@ -205,6 +205,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `ifdef JTFRAME_IOCTL_RD
     .ioctl_ram    ( ioctl_ram      ),
     .ioctl_din    ( ioctl_din      ),
+    .ioctl_dout   ( ioctl_dout     ),
+    .ioctl_wr     ( ioctl_wr       ),
 `endif
     // Debug
     .debug_bus    ( debug_bus      ),

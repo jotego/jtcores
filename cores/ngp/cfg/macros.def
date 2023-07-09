@@ -17,6 +17,7 @@ JTFRAME_CLK24
 # will not work for jt900h because of
 # https://github.com/jotego/jt900h/issues/2
 JTFRAME_PLL=jtframe_pll6144
+JTFRAME_IOCTL_RD=12288
 
 [mister]
 JTFRAME_OSD_LOAD

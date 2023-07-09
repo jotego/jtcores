@@ -32,7 +32,7 @@ sdram:
           name: cart0
           addr_width: 21
           data_width: 16
-          rw: true
+          # rw: true
         # -
         #   name: cart1
         #   addr_width: 20

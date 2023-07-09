@@ -41,6 +41,7 @@ assign dip_flip = 0;
 jtngp_main u_main(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
+    .clk_rom    ( clk       ),
     .rtc_cen    ( rtc_cen   ),
     .cen12      ( cen12     ),
     .cen6       ( cen6      ),
@@ -51,6 +52,7 @@ jtngp_main u_main(
     // player inputs
     .joystick1  ( joystick1 ),
     .start_button(start_button[0]),
+    .pwr_button ( coin_input[0]),
     // Bus access
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
@@ -74,13 +76,21 @@ jtngp_main u_main(
 
     // Cartridge
     .flash0_cs  ( flash0_cs ),
+    .flash0_rdy ( flash0_rdy),
     .flash0_dout(flash0_dout),
     .flash1_cs  (           ),
 
     // Firmware access
     .rom_data   ( rom_data  ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    )
+    .rom_ok     ( rom_ok    ),
+
+    // NVRAM
+    .ioctl_addr ( ioctl_addr[13:0]),
+    .ioctl_dout ( ioctl_dout),
+    .ioctl_wr   ( ioctl_wr  ),
+    .ioctl_din  ( ioctl_din ),
+    .ioctl_ram  ( ioctl_ram )
 );
 
 jtngp_flash u_flash(

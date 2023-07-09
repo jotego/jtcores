@@ -39,7 +39,7 @@ module jtngp_flash(
     output reg        cart_cs,
     input             cart_ok,
     input      [15:0] cart_data,
-    output     [ 1:0] cart_dsn,
+    output reg [ 1:0] cart_dsn,
     output reg [15:0] cart_din
 );
 
@@ -64,10 +64,11 @@ localparam [2:0] BA_64K = 3'b000,
 reg  [ 2:0] st;
 reg  [20:1] ba_addr, eff_addr, prog_ba, prog_addr;
 reg  [ 2:0] ba_size, prog_size;
+reg  [20:1] addr_l;
 reg  [ 7:0] cmd;
 reg  [15:0] id_data;
-wire        cpu_cswe, we_edge;
-reg         cswe_l, id;
+wire        cpu_cswe, cpu_csrd, we_edge, cs_edge;
+reg         cswe_l, cs_l, id;
 // cartridge access
 reg  [ 1:0] erase_st, prog_dsn;
 reg  [ 2:0] prog_st;
@@ -80,7 +81,9 @@ assign last = &{ cart_addr[15:13] | prog_size, cart_addr[12:1] };
 assign cpu_din = id ? id_data : cart_data;
 assign cpu_ok  = id | cart_ok;
 assign cpu_cswe = cpu_cs && cpu_we!=0;
+assign cpu_csrd = cpu_cs && cpu_we==0;
 assign we_edge  = cpu_cswe && !cswe_l;
+assign cs_edge  = cpu_cs && (!cs_l || addr_l!=cpu_addr);
 assign rdy      = ~|{erase_bsy,prog_bsy,rd_bsy};
 
 always @* begin
@@ -159,7 +162,10 @@ always @(posedge clk, posedge rst ) begin
                 prog_bsy <= 1;
                 prog_st  <= 0;
             end
-            if( cpu_cs && cpu_we==0 && st==READ ) begin // will cpu_we go high after cpu_cs? It could cause an unnecessary read
+            // only reads we at the cs edge! if we changes later
+            // it would have already issued a cartridge read.
+            // Address changes while cs is high will re-issue cart_cs
+            if( cs_edge && cpu_we==0 && st==READ && !id ) begin // will cpu_we go high after cpu_cs? It could cause an unnecessary read
                 cart_addr <= eff_addr;
                 cart_dsn  <= 0;
                 rd_bsy    <= 1;
@@ -199,10 +205,13 @@ always @(posedge clk, posedge rst) begin
         prog_data   <= 0;
         prog_addr   <= 0;
         cswe_l      <= 0;
+        cs_l        <= 0;
     end else begin
         erase_start <= 0;
         prog_start  <= 0;
         cswe_l      <= cpu_cswe;
+        cs_l        <= cpu_cs;
+        addr_l      <= cpu_addr;
 
         if( we_edge ) begin
             case( st )
@@ -248,7 +257,8 @@ always @(posedge clk, posedge rst) begin
                                 st <= AUTOPROG;
                             end
                             8'hf0: begin // reset
-                                st <= IDLE;
+                                id <= 0;
+                                st <= READ;
                             end
                             default: begin
                                 st <= IDLE;

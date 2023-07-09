@@ -191,9 +191,9 @@ int fileLength( const char *name ) {
 
 class Download {
     UUT& dut;
-    int addr, din, ticks,len, cart_start;
+    int addr, din, ticks,len, cart_start, nvram_start;
     char *buf;
-    bool done, cart, full_download;
+    bool done, cart, nvram, full_download;
     int read_buf() {
         return (buf!=nullptr && addr<len) ? buf[addr] : 0;
     }
@@ -204,22 +204,30 @@ public:
         ifstream fin( "rom.bin", ios_base::binary );
         fin.seekg( 0, ios_base::end );
         len = (int)fin.tellg();
+        int rom_len = len;
         if( len == 0 || fin.bad() ) {
             fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
         } else {
             int cart_len = fileLength("cart.bin");
-            if( cart_len != 0 ) {
+            if( cart_len > 0 ) {
                 cart = true;
                 cart_start = len; // starts after rom.bin
                 len += cart_len;
             }
+            int nvram_len = fileLength("nvram.bin");
+            if( nvram_len > 0 ) {
+                nvram = true;
+                nvram_start = len; // starts after cart.bin
+                len += nvram_len;
+            }
+
             buf = new char[len];
             fin.seekg(0, ios_base::beg);
             fin.read(buf,len);
             if( fin.bad() ) {
                 fputs("Verilator test.cpp: problem while reading rom.bin\n",stderr);
             } else {
-                fprintf(stderr,"Read %d bytes from rom.bin\n",len-cart_len);
+                fprintf(stderr,"Read %d bytes from rom.bin\n",rom_len);
             }
             if( cart ) {
                 ifstream fcart( "cart.bin", ios_base::binary );
@@ -228,6 +236,15 @@ public:
                     fputs("Verilator test.cpp: problem while reading cart.bin\n",stderr);
                 } else {
                     fprintf(stderr,"Read %d bytes from cart.bin (starts at %x)\n",cart_len,cart_start);
+                }
+            }
+            if( nvram ) {
+                ifstream fcart( "nvram.bin", ios_base::binary );
+                fcart.read( buf+nvram_start, nvram_len );
+                if( fin.bad() ) {
+                    fputs("Verilator test.cpp: problem while reading nvram.bin\n",stderr);
+                } else {
+                    fprintf(stderr,"Read %d bytes from nvram.bin (starts at %x)\n",nvram_len,nvram_start);
                 }
             }
         }
@@ -268,16 +285,21 @@ public:
                     addr++;
                     dut.ioctl_addr = addr;
 #ifdef _JTFRAME_CART_OFFSET
-                    if( addr>=cart_start ) {
+                    if( cart && addr>=cart_start ) {
                         dut.ioctl_addr += _JTFRAME_CART_OFFSET-cart_start;
                     }
 #endif
+                    if( nvram && addr>=nvram_start) {
+                        dut.ioctl_addr -= nvram_start;
+                        dut.ioctl_ram = 1;
+                    }
                     dut.ioctl_dout = read_buf();
                     break;
                 case 1:
                     if( addr < len ) {
                         dut.ioctl_wr = 1;
                     } else {
+                        dut.ioctl_ram   = 0;
                         dut.downloading = 0;
                         done = true;
                     }
