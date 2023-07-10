@@ -73,7 +73,7 @@
     "files": [
       {
         "name": "xmen.kicad_sch",
-        "open": false,
+        "open": true,
         "window": {
           "display": 0,
           "maximized": true,
@@ -81,18 +81,6 @@
           "pos_y": 28,
           "size_x": 968,
           "size_y": 1024
-        }
-      },
-      {
-        "name": "xmen.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 1,
-          "maximized": true,
-          "pos_x": 36,
-          "pos_y": 13,
-          "size_x": 1848,
-          "size_y": 1053
         }
       }
     ]
