@@ -14,6 +14,7 @@ game:
       - jtngp_colmix.v
       - jtngp_snd.v
       - jtngp_psg.v
+      - jtngp_mmr.v
 jtframe:
   - get:
       - jtframe_edge.v

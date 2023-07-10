@@ -38,7 +38,10 @@ module jtngp_snd(
     input  signed [ 7:0] snd_dacl, snd_dacr,
 
     output               sample,
-    output signed [15:0] snd_l, snd_r
+    output signed [15:0] snd_l, snd_r,
+    // Debug
+    input         [ 7:0] debug_bus,
+    output reg    [ 7:0] st_dout
 );
 
 wire [15:0] cpu_addr;
@@ -49,9 +52,18 @@ wire [ 7:0] ram_lsb, ram_msb, cpu_dout;
 reg         ram_cs, psg_cs, latch_cs, intset_cs;
 wire        wr_n, m1_n, mreq_n, iorq_n, rdy;
 
+always @(posedge clk) begin
+    case( debug_bus[1:0] )
+        0: st_dout <= cpu_addr[ 7:0];
+        1: st_dout <= cpu_addr[15:8];
+        2: st_dout <= ram_lsb;
+        3: st_dout <= ram_msb;
+    endcase
+end
+
 assign sample  = 0;
 assign ram_bwe = {2{ram_cs&~wr_n}} & { cpu_addr[0], ~cpu_addr[0] };
-assign irq_ack = !m1_n && !iorq_n;
+assign irq_ack = /*!m1_n && */ !iorq_n;
 assign main_int5 = intset_cs;
 assign snd_l = { snd_dacl[7], snd_dacl, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
 assign snd_r = { snd_dacr[7], snd_dacr, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };

@@ -68,6 +68,7 @@ if [ -d $JTBIN/mister ]; then
         cp $i/releases/*.rbf $CORES
         cp $i/releases/*.mra $ROOT
     done
+    if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
 fi
 
 cp -r $JTBIN/mra/_alternatives $ROOT

@@ -66,7 +66,10 @@ module jtngp_main(
     input        [ 7:0] ioctl_dout,
     output reg   [ 7:0] ioctl_din,
     input               ioctl_ram,
-    input               ioctl_wr
+    input               ioctl_wr,
+    // Debug
+    input        [ 7:0] debug_bus,
+    output reg   [ 7:0] st_dout
 );
 `ifndef NOMAIN
 reg  [15:0] din;
@@ -108,6 +111,10 @@ assign nvram0_we = ioctl_ram & ioctl_wr & ~ioctl_addr[13];
 assign nvram1_we = ioctl_ram & ioctl_wr &  ioctl_addr[13];
 // always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
+always @(posedge clk) begin
+    st_dout <= ngp_ports[debug_bus[5:0]];
+end
+
 function in_range( input [23:0] min, max );
     in_range = addr>=min && addr<max;
 endfunction
@@ -143,10 +150,10 @@ always @(posedge clk, posedge rst) begin
         pwr_cnt <= 8;
     end else begin
         if( int4 && !poweron ) { poweron, pwr_cnt } <= { 1'b0, pwr_cnt } + 1'd1;
-        // if( !pwr_button ) begin
-        //     poweron <= 0;
-        //     pwr_cnt <= 8;
-        // end
+        if( !pwr_button ) begin
+            poweron <= 0;
+            pwr_cnt <= 8;
+        end
     end
 end
 

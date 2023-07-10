@@ -144,7 +144,7 @@ always @(posedge clk, posedge rst) begin
                     //     $display("(%d) -- %d (%d) -> %d",vrender,ypos, ydelta, inzone);
                     // end
                     scan_obj <= scan_obj + 6'd1;
-                    scan_st  <= done ? 0 : 2;
+                    scan_st  <= done ? 3'd0 : 3'd2;
                 end
             end
             default: if( Hinit) begin
@@ -181,7 +181,7 @@ always @(posedge clk, posedge rst) begin
                     buff_we  <= 1;
                 end
             end else begin
-                dr_cnt <= dr_cnt - 1;
+                dr_cnt <= dr_cnt - 1'd1;
                 hpos <= hpos + 8'd1;
                 obj_data <= hflip ? obj_data>>2 : obj_data<<2;
                 if( dr_cnt==0 ) begin

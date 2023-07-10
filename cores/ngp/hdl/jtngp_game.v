@@ -23,8 +23,10 @@ module jtngp_game(
 wire [20:1] cpu_addr;
 wire [15:0] cha_dout, obj_dout, scr1_dout, scr2_dout, regs_dout;
 wire [15:0] cpu_dout, gfx_dout, shd_dout, flash0_dout;
-wire [ 7:0] snd_latch, main_latch;
+wire [ 7:0] snd_latch, main_latch,
+            st_video, st_main, st_snd;
 wire [ 1:0] cpu_we, shd_we;
+reg  [ 7:0] st_mux;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
 wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
@@ -32,11 +34,25 @@ wire        hirq, virq, main_int5;
 
 wire signed [ 7:0] snd_dacl, snd_dacr;
 
-assign debug_view = 0;
+assign debug_view = st_mux;
 assign game_led   = 0;
 
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
+
+always @(posedge clk) begin
+    case( debug_bus[7:6] )
+        0: st_mux <= st_video;
+        1: st_mux <= st_main;
+        2: st_mux <= st_snd;
+        3: case( debug_bus[5:4] )
+            0: st_mux <= snd_latch;
+            1: st_mux <= main_latch;
+            2: st_mux <= { 5'd0, snd_nmi, snd_irq, snd_rstn };
+            default: st_mux <= 0;
+        endcase
+    endcase
+end
 
 jtngp_main u_main(
     .rst        ( rst24     ),
@@ -90,7 +106,10 @@ jtngp_main u_main(
     .ioctl_dout ( ioctl_dout),
     .ioctl_wr   ( ioctl_wr  ),
     .ioctl_din  ( ioctl_din ),
-    .ioctl_ram  ( ioctl_ram )
+    .ioctl_ram  ( ioctl_ram ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_main   )
 );
 
 jtngp_flash u_flash(
@@ -139,7 +158,10 @@ jtngp_snd u_snd(
 
     .sample     ( sample    ),
     .snd_l      ( snd_left  ),
-    .snd_r      ( snd_right )
+    .snd_r      ( snd_right ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_snd    )
 );
 /* verilator tracing_off */
 jtngp_video u_video(
@@ -169,7 +191,10 @@ jtngp_video u_video(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
-    .gfx_en     ( gfx_en    )
+    .gfx_en     ( gfx_en    ),
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  )
 );
 
 endmodule

@@ -43,7 +43,10 @@ module jtngp_video(
     output       [ 3:0] red,
     output       [ 3:0] green,
     output       [ 3:0] blue,
-    input        [ 3:0] gfx_en
+    input        [ 3:0] gfx_en,
+    // Debug
+    input        [ 7:0] debug_bus,
+    output reg   [ 7:0] st_dout
 );
 
 wire [ 9:0] hcnt;
@@ -70,7 +73,6 @@ wire        scr_order, hirq_en, virq_en, lcd_neg;
 
 wire [ 4:0] obj_pxl;
 wire [ 2:0] scr1_pxl, scr2_pxl, oowc;
-wire        hint_en=1, vint_en=1;
 
 wire [15:0] regs_dout, fix_dout,
             obj_dout,  pal_dout,
@@ -81,6 +83,22 @@ function in_range( input [13:0] min, max );
 endfunction
 
 assign dsn      = ~we;
+
+always @(posedge clk) begin
+    case( debug_bus[3:0] )
+        0: st_dout <= scr1_hpos;
+        1: st_dout <= scr1_vpos;
+        2: st_dout <= scr2_hpos;
+        3: st_dout <= scr2_vpos;
+        4: st_dout <= view_width;
+        5: st_dout <= view_height;
+        6: st_dout <= view_startx;
+        7: st_dout <= view_starty;
+        8: st_dout <= hoffset;
+        9: st_dout <= voffset;
+        default: st_dout <= { 2'd0, scr_order, lcd_neg, 2'd0, hirq_en, virq_en };
+    endcase
+end
 
 always @* begin
     regs_cs   = gfx_cs && in_range(14'h0000,14'h00C0);
@@ -106,8 +124,8 @@ jtngp_vtimer u_vtimer(
     .video_cen  ( video_cen ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-    .hint_en    ( hint_en   ),
-    .vint_en    ( vint_en   ),
+    .hint_en    ( hirq_en   ),
+    .vint_en    ( virq_en   ),
     // outputs:
     .hcnt       ( hcnt      ),
     .hdump      ( hdump     ),
