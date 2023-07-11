@@ -106,7 +106,7 @@ always @(*) begin
         2'b01: page = pages[ 3: 0]; // lower right
     endcase
     if( MODEL==0 ) page[3]=0; // Only 3-bit pages for System 16A
-    hdly = flip ? 9'hb0 -hdump : hdump;
+    hdly = flip ? 9'hc0 -hdump : hdump;
     //if( debug_bus!=0 ) page=debug_bus[3:0];
 end
 
