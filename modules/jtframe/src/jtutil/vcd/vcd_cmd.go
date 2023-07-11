@@ -251,6 +251,9 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
         case "match-trace": { // moves the trace until it matches the VCD data
             if !matchTrace( trace, sim_st, mame_st, ignore ) { break }
         }
+        case "match-vcd": { // moves the VCD until it matches MAME data
+            if !matchVCD( vcd, sim_st, mame_alias, alu_busy, mame_st, ignore ) { break }
+        }
         case "?","help": {
             fmt.Println(`
 a,alias             links a MAME variable name with a signal name in the VCD
@@ -267,6 +270,7 @@ h,hierarchy         shows the signal hierarchy in the simulation
 i,ignore foo boo    ignores the given MAME variables in comparison
 il,ignore-list      shows the list of ignored variables
 match-trace         moves MAME forward until it matches simulation
+match-vcd           moves the simulation forward until it matches MAME data
 mt,mt-trace foo     moves MAME forward until the given condition is met
 mv,mv-vcd foo       moves simulation forward until the given condition is met
 p,print             evaluates an expression. Use to test conditions
@@ -676,15 +680,35 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
         mame_st.data = parseTrace(trace.Text())
     }
 
-    var good bool
+    var good, matched bool
     for {
         mame_st.data, good = nxTraceChange( trace, mame_st )
-        if !good || diff( mame_st, "", false, ignore )==0 { break }
+        matched = diff( mame_st, "", false, ignore )==0
+        if !good || matched { break }
     }
     // display the difference
-    fmt.Printf("Impossible to match")
-    diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
-    return good
+    if !matched {
+        fmt.Printf("Impossible to match MAME to VCD")
+        diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
+    }
+    return matched
+}
+
+func matchVCD( file *LnFile, sim_st *SimState, mame_alias mameAlias, alu_busy *VCDSignal, mame_st *MAMEState, ignore boolSet ) bool {
+    var good, matched bool
+    for {
+        mv := 0
+        mv, good = nxVCDChange( file, sim_st, mame_alias, alu_busy )
+        fmt.Printf("Moved by %d lines\n",mv)
+        matched = diff( mame_st, "", false, ignore )==0
+        if !good || matched { break }
+    }
+    // display the difference
+    if !matched {
+        fmt.Printf("Impossible to match VCD to MAME")
+        diff( mame_st, fmt.Sprintf("sim at time %d",file.time), true, ignore )
+    }
+    return matched
 }
 
 
