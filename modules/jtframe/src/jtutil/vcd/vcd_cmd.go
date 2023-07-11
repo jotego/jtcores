@@ -307,9 +307,11 @@ func mvTrace( trace *LnFile, mame_st *MAMEState, expr string ) bool {
             fmt.Printf("Not a boolean expression\n")
             break
         }
-        var good bool
-        mame_st.data, good = nxTraceChange(trace, mame_st )
-        if !good { return false }
+        if !trace.Scan() {
+            fmt.Println("Trace EOF")
+            return false
+        }
+        mame_st.data = parseTrace(trace.Text())
     }
     delete(mame_st.data,"line")
     return true
