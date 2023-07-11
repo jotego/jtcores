@@ -44,7 +44,7 @@ F1 serves as the power button. You probably need to press F1 if the emulator sho
 
 MAME may save the main CPU RAM (12kB) to `~/.mame/nvram/ngp`. Then it will boot from it the next time MAME is run. When it boots from NVRAM, it starts at a different PC address (PC=FF1800). This skips the configuration screen and tries to emulate the standby mode of the original hardware.
 
-You may have NVRAM savings enabled by default, which can make the boot process confusing. Disable it in the `~/.mame/mame.ini` by setting `nvram_save 0`. If you want to save the NVRAM at some point, call MAME with `-nvram_save`
+You may have NVRAM savings enabled by default, which can make the boot process confusing. Disable it in the `~/.mame/mame.ini` by setting `nvram_save 0`. If you want to save the NVRAM at some point, call MAME with `-nvram_save` and press F1 to power off the device. Then quit MAME and a valid NVRAM should have been generated at `~/.mame/nvram`.
 
 # Cartridge
 

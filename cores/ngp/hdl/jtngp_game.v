@@ -27,6 +27,7 @@ wire [ 7:0] snd_latch, main_latch,
             st_video, st_main, st_snd;
 wire [ 1:0] cpu_we, shd_we;
 reg  [ 7:0] st_mux;
+reg  [ 2:0] cart_size;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok;
 wire        snd_ack, snd_nmi, snd_irq, snd_en, snd_rstn;
@@ -39,6 +40,13 @@ assign game_led   = 0;
 
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
+
+always @(posedge clk) begin
+    if( prog_ba==1 && !ioctl_ram && ioctl_wr )
+        cart_size <= ioctl_addr[21] ? 3'b100 :
+                     ioctl_addr[20] ? 3'b010 :
+                     ioctl_addr[19] ? 3'b001 : 3'b0 ;
+end
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -116,7 +124,7 @@ jtngp_flash u_flash(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
 
-    .dev_type   ( 3'd0      ), // 2MB for now
+    .dev_type   ( cart_size ),
     // interface to CPU
     .cpu_addr   ( cpu_addr  ),
     .cpu_cs     ( flash0_cs ),

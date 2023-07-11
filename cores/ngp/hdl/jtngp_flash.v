@@ -43,9 +43,9 @@ module jtngp_flash(
     output reg [15:0] cart_din
 );
 
-localparam [2:0] DEV_2F = 0, //   2 or 4 MB
-                 DEV_2C = 1, //   1 MB
-                 DEV_AB = 2; // <=512 kB
+localparam [2:0] DEV_2F = 4, //   2 or 4 MB
+                 DEV_2C = 2, //   1 MB
+                 DEV_AB = 1; // <=512 kB
 
 localparam [2:0] IDLE     = 0,
                  READ     = 1,

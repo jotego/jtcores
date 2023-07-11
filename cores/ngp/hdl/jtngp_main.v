@@ -327,7 +327,7 @@ jt95c061 u_mcu(
     // interrupt sources
     .int4       ( int4      ),
     .int5       ( main_int5 ),
-    .nmi        ( poweron   ),
+    .nmi        ( poweron   ), // should this be gated by bit mmr[0x33][2] ?
     .porta_dout ( porta_dout),
 
     .addr       ( addr      ),

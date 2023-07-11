@@ -574,7 +574,7 @@ uint8_t ngp_state::ngp_z80_comm_r()
 
 void ngp_state::ngp_z80_comm_w(uint8_t data)
 {
-	m_io_reg[0x3c] = data;
+	m_io_reg[0x3c] = data; // 0000BC in TC900H's memory map
 }
 
 

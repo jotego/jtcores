@@ -458,8 +458,11 @@ end
 
 // To do: jt900h should read the reset vector
 // the rst vector for NGP and NGPC is different
+`ifndef NVRAM
 localparam NGP_RST=32'hFF1DE8; // NGP reset
-// localparam NGP_RST=32'hFF1800; // NVRAM loaded
+`else
+localparam NGP_RST=32'hFF1800; // NVRAM loaded
+`endif
 
 jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .rst        ( rst       ),

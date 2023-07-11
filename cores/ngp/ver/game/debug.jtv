@@ -1,10 +1,3 @@
-go
-mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc==$FF3038
-step
-go
-## skip a while
-mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc==$FF6077
-mt PC==$ff6077
-step
-go
-
+st
+frame 537
+match-vcd
