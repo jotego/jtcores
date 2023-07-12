@@ -4858,7 +4858,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 023a3623-9291-4d76-823d-ae4743356ee8)
   )
-  (hierarchical_label "PAIRCS" (shape output) (at 190.5 217.17 0)
+  (hierarchical_label "PAIR~{CS}" (shape output) (at 190.5 217.17 0)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 05cf5c9a-2fa7-4dc3-86c8-07aaef430c45)
   )
