@@ -143,7 +143,7 @@ jtngp_flash u_flash(
     .cart_dsn   ( cart0_dsn ),
     .cart_din   ( cart0_din )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtngp_snd u_snd(
     .rstn       ( snd_rstn  ),
     .clk        ( clk24     ),

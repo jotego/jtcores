@@ -138,6 +138,15 @@ always @* begin
     end
 end
 
+`ifdef SIMULATION
+reg cart_wel;
+
+always @(posedge clk) begin
+    cart_wel <= cart_we;
+    if( cart_we && !cart_wel ) $display("Flash written to");
+end
+`endif
+
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin
         cart_addr <= 0;

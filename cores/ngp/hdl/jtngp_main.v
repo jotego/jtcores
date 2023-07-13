@@ -146,7 +146,7 @@ always @(posedge clk) ioctl_din <= ioctl_addr[13] ? nvram1_dout : nvram0_dout;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        poweron <= 0;
+        poweron <= `ifdef NVRAM 1 `else 0 `endif; // power-on button press not needed when using a NVRAM file
         pwr_cnt <= 8;
     end else begin
         if( int4 && !poweron ) { poweron, pwr_cnt } <= { 1'b0, pwr_cnt } + 1'd1;

@@ -461,7 +461,7 @@ end
 `ifndef NVRAM
 localparam NGP_RST=32'hFF1DE8; // NGP reset
 `else
-localparam NGP_RST=32'hFF1800; // NVRAM loaded
+localparam NGP_RST=32'hFF1800; // NVRAM loaded - bypasses power button
 `endif
 
 jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(

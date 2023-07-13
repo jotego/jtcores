@@ -1,7 +1,15 @@
 #!/bin/bash
 
-for i in $*; do
-    case $i in
+while [ $# -gt 0 ]; do
+    case $1 in
+        -nvram)
+            cp nvram nvram.bin
+            OTHER="$OTHER -d NVRAM"
+            ;;
+        -cart)
+            shift
+            ln -sf "$1" cart.bin || exit $?
+            ;;
         -s)
             shift
             SCENE=$1
