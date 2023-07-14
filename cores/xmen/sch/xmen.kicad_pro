@@ -53,7 +53,7 @@
         0,
         2,
         0,
-        1,
+        0,
         0,
         0,
         1,
@@ -79,13 +79,13 @@
       ],
       [
         0,
+        0,
+        0,
+        0,
+        0,
+        0,
         1,
         0,
-        0,
-        0,
-        0,
-        1,
-        1,
         2,
         1,
         1,
@@ -137,7 +137,7 @@
         0,
         0,
         0,
-        1,
+        0,
         0,
         0,
         1,
@@ -225,7 +225,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "unannotated": "error",
@@ -360,10 +360,6 @@
     [
       "193a6858-16d2-47fe-9c43-498e7e6935e2",
       "rgb"
-    ],
-    [
-      "a6cc834e-ec8f-4d1e-942e-5f444dd42f96",
-      "xv"
     ]
   ],
   "text_variables": {}
