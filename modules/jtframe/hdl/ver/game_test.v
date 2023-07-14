@@ -71,6 +71,8 @@ module game_test(
     input   [25:0]  ioctl_addr,
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
+    input           ioctl_ram,
+    output  [ 7:0]  ioctl_din,
 
     // DIP switches
     input   [31:0]  status,
@@ -128,10 +130,6 @@ module game_test(
     output  [7:0]   st_dout,
     input   [7:0]   debug_bus,
     output  [7:0]   debug_view
-    `ifdef JTFRAME_IOCTL_RD
-    ,input           ioctl_ram
-    ,output  [ 7:0]  ioctl_din
-    `endif
 );
 
 `ifdef JTFRAME_SDRAM_LARGE
@@ -223,6 +221,10 @@ wire        SDRAM_DQML;     // SDRAM Low-byte Data Mask
 wire        SDRAM_DQMH;     // SDRAM High-byte Data Mask
 
 assign SDRAM_DQM= { SDRAM_DQMH, SDRAM_DQML };
+
+`ifndef JTFRAME_IOCTL_RD
+    assign ioctl_din = 0;
+`endif
 
 `ifndef JTFRAME_SDRAM_BANKS
     wire [ 7:0] prog_data8;
