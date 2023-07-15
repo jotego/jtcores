@@ -239,7 +239,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 PROG2: begin
                     if( cpu_dout[7:0]=='h30 ) begin
-                        if( cpu_dout[7:0]=='h80 ) begin
+                        if( cmd=='h80 ) begin
                             prog_ba     <= ba_addr;
                             prog_size   <= ba_size;
                             erase_start <= 1;   // auto erase
@@ -247,7 +247,7 @@ always @(posedge clk, posedge rst) begin
                     end else if( cpu_addr[15:1]==15'h5555>>1 ) begin
                         case( cpu_dout[7:0] )
                             8'h80: begin
-                                cmd <= 8'h80;
+                                cmd <= cpu_dout[7:0];
                                 st  <= CMD;
                             end
                             8'h90: begin // ID read
@@ -258,7 +258,7 @@ always @(posedge clk, posedge rst) begin
                                 if( cmd==8'h9A ) begin
                                     st <= PROTECT; // ignored
                                 end else begin
-                                    cmd <= 8'h9a;
+                                    cmd <= cpu_dout[7:0];
                                     st <= CMD;
                                 end
                             end

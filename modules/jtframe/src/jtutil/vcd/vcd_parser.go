@@ -148,6 +148,7 @@ func RenameRegs( ss vcdData ) {
 }
 
 func formatTime( t uint64 ) string {
+	tpico := t
 	t /= 1000 // ignore ps
 	if t==0 { return "0 s" }
 	o := 0
@@ -163,6 +164,7 @@ func formatTime( t uint64 ) string {
 		if s!="" { s=","+s}
 		s = fmt.Sprintf("%d%s%s",parts[k],units[k],s)
 	}
+	s = fmt.Sprintf("%s= %d",s,tpico)
 	return s
 }
 

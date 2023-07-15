@@ -41,11 +41,13 @@ assign game_led   = 0;
 assign rom_addr = cpu_addr[15:1];
 assign dip_flip = 0;
 
+`ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
+
 always @(posedge clk) begin
     if( prog_ba==1 && !ioctl_ram && ioctl_wr )
         cart_size <= ioctl_addr[21] ? 3'b100 :
                      ioctl_addr[20] ? 3'b010 :
-                     ioctl_addr[19] ? 3'b001 : 3'b0 ;
+                     ioctl_addr[19] ? 3'b001 : 3'b0;
 end
 
 always @(posedge clk) begin

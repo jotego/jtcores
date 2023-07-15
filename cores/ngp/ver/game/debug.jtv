@@ -1,3 +1,19 @@
-st
-frame 537
-match-vcd
+frame 492
+mv TOP.game_test.u_game.u_game.u_main.flash0_cs==1
+go
+s
+s
+s
+s
+go
+# mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc==$FF1F8C
+match-trace
+go
+match-trace
+go
+# 30279
+mt PC==$FF1E92
+
+# RETI
+mt PC==$2001D0
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc==$2001D0

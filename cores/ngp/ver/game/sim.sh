@@ -24,6 +24,18 @@ while [ $# -gt 0 ]; do
         -cart)
             shift
             ln -sf "$1" cart.bin || exit $?
+            dd if=cart.bin of=sdram_bank1.bin conv=swab
+            CART_MB=$(expr $(stat -L -c %s cart.bin) / 1024 / 1024)
+            # Determine the value for CARTSIZE based on the file size
+            if [ $CART_MB -lt 1 ]; then
+              CARTSIZE=1
+            elif [ $CART_MB -lt 2 ]; then
+              CARTSIZE=2
+            else
+              CARTSIZE=4
+            fi
+            OTHER="$OTHER -d CARTSIZE=$CARTSIZE"
+            echo "NB: the NEOGEO logo sequence takes 479 frames"
             ;;
         -s)
             shift

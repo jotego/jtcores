@@ -120,14 +120,15 @@ function in_range( input [23:0] min, max );
 endfunction
 
 always @* begin
+    io_dout = { ngp_ports[{addr[5:1],1'b1}], ngp_ports[{addr[5:1],1'b0}] };
     case( addr[5:1] )
         5'b01_010: io_dout = { rtc_min, rtc_hour }; // 14-15
-        5'b01_011: io_dout = { 8'd0, rtc_sec };     // 16
+        5'b01_011: io_dout[7:0] = rtc_sec;          // 16
         5'b11_000: io_dout = { 7'b1,
                                1'b0, // power button: it should be zero for it to power up
              /* lower byte: */ 2'd0, ~joystick1 }; // B0-B1
         5'b11_110: io_dout = { 8'd0, main_latch}; // written by the z80
-        default:   io_dout = { ngp_ports[{addr[5:1],1'b1}], ngp_ports[{addr[5:1],1'b0}] };
+        default:;
     endcase
 end
 
@@ -156,7 +157,17 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
+`ifdef SIMULATION
+    reg locked = 0;
+    reg [23:0] last_addr = addr;
 
+    // synchronize with MAME
+    always @(posedge clk) begin
+        last_addr <= addr;
+        if( addr==23'h20015A && addr!=last_addr ) locked <= 1;
+        if( !lvbl ) locked <= 0;
+    end
+`endif
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         snd_rstn <= 0;
@@ -164,6 +175,13 @@ always @(posedge clk, posedge rst) begin
         snd_nmi  <= 0;
         snd_dacl <= 0;
         snd_dacr <= 0;
+`ifdef NVRAM
+        // RTC values at start up
+        ngp_ports['h11] = 8'h98; // year
+        ngp_ports['h12] = 8'h01; // month
+        ngp_ports['h13] = 8'h01; // day
+        ngp_ports['h17] = 8'h24; // hour format?
+`endif
     end else begin
         if( snd_ack ) snd_nmi <= 0;
         if( io_cs ) begin
@@ -202,6 +220,7 @@ jtframe_rtc u_rtc(
     .hour   ( rtc_hour      )
 );
 
+/* verilator tracing_on */
 jtframe_dual_nvram16 #(
     .AW(12)     // 8kB
 `ifdef DUMP_RAM
@@ -234,15 +253,12 @@ jtframe_dual_nvram16 #(
     end
 `endif
 
-`ifdef SIMULATION
-    reg [11:1] over_k=0;
-    reg copy=0;
-    wire [15:0] over16;
-// for trace comparisons with MAME, swap the RAM memory contents at frame 524
 `ifdef TRACE
-    reg [7:0] over_data[0:2**12-1];
-    reg lvbl_l, halted_l;
-    integer framecnt, f, fcnt;
+// for trace comparisons with MAME, swap the RAM memory contents at frame 524
+    reg [11:0] over_k=0;
+    reg [ 7:0] over_data[0:2**12-1];
+    reg        copy=0, copy_done=0, lvbl_l, halted_l;
+    integer framecnt=1, f, fcnt;
 
     initial begin
         f=$fopen("ram1.bin","rb");
@@ -256,31 +272,21 @@ jtframe_dual_nvram16 #(
         end
     end
 
-    assign over16 = { over_data[{over_k,1'b1}], over_data[{over_k,1'b0}] };
 
     always @(posedge clk) begin
         lvbl_l <= lvbl;
         halted_l <= u_mcu.u_cpu.u_ctrl.halted;
-        if( u_mcu.u_cpu.u_ctrl.halted && !halted_l && framecnt==524 ) begin
+        if( /*u_mcu.u_cpu.u_ctrl.halted && !halted_l &&*/ flash0_cs && framecnt>=`TRACE && !copy_done && !copy ) begin
             copy   <= 1;
-            over_k <= 0;
             $display("ram1 overwrite starts");
         end
         if( !lvbl && lvbl_l ) begin
             framecnt <= framecnt+1;
         end
-        if( copy ) begin
-            { copy, over_k } <= { copy, over_k } + 1'd1;
+        if( copy && !copy_done ) begin
+            { copy_done, over_k } <= { copy_done, over_k } + 1'd1;
         end
     end
-`else
-    wire [15:0] over_data = 0;
-    assign over16=0;
-`endif
-`else
-    wire [15:0] over_data = 0;
-    wire [11:1] over_k = 0;
-    wire        copy = 0;
 `endif
 
 jtframe_dual_nvram16 #(
@@ -294,20 +300,22 @@ jtframe_dual_nvram16 #(
     .we0    ( ram1_we       ),
     .q0     ( ram1_dout     ),
     // memory dump
-    .clk1   ( clk_rom       ),
+    .sel_b  ( 1'b1          ),
     .addr1a ( 11'd0         ),
     .q1a    (               ),
+    .q1b    ( nvram1_dout   ),
+`ifdef TRACE
+    // memory overwrite
+    .clk1   ( clk           ),
+    .addr1b ( over_k        ),
+    .data1  ( over_data[over_k] ),
+    .we1b   ( copy          )
+`else
+    .clk1   ( clk_rom       ),
     .addr1b (ioctl_addr[11:0]),
     .data1  ( ioctl_dout    ),
-    .sel_b  ( 1'b1          ),
-    .we1b   ( nvram1_we     ),
-    .q1b    ( nvram1_dout   )
-    // memory overwrite
-    // .clk1   ( clk           ),
-    // .data1  ( over16        ),
-    // .addr1  ( over_k[11:1]  ),
-    // .we1    ( {2{copy}}     ),
-    // .q1     (               )
+    .we1b   ( nvram1_we     )
+`endif
 );
 
 jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
@@ -321,7 +329,11 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen12     ),  // this is still too slow...
+`ifdef SIMULATION
+    .cen        ( cen12 & ~(copy^copy_done) & ~locked  ),  // this is still too slow...
+`else
+    .cen        ( cen12     ),
+`endif
     .phi1_cen   ( phi1_cen  ),
 
     // interrupt sources

@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Mon Jul 10 19:59:55 2023
+[*] Sat Jul 15 08:26:36 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/test.fst"
-[dumpfile_mtime] "Mon Jul 10 19:53:03 2023"
-[dumpfile_size] 60543945
+[dumpfile_mtime] "Sat Jul 15 08:10:36 2023"
+[dumpfile_size] 20080143
 [savefile] "/home/jtejada/jtcores/cores/ngp/ver/game/debug.gtkw"
-[timestart] 10172
-[size] 2528 1014
+[timestart] 4015457846000
+[size] 1264 1013
 [pos] -28 -51
-*-38.194538 15550409977804 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.194538 4015458957652 15550409977804 15550409977804 15550409977804 4015458957652 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
@@ -21,15 +21,16 @@
 [sst_width] 219
 [signals_width] 276
 [sst_expanded] 1
-[sst_vpaned_height] 525
+[sst_vpaned_height] 561
 @24
 TOP.game_test.frame_cnt[31:0]
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.riff[2:0]
 @28
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.buserror
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.halted
-@29
 TOP.game_test.u_game.u_game.u_main.flash0_cs
+@29
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.alu_busy
 @200
 -
 @22
@@ -61,8 +62,6 @@ TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.sr[15:0]
 -group_end
 @28
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.intproc
-@24
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.intnest[15:0]
 @2022
 ^1 /home/jtejada/jtcores/modules/jt900h/ver/top/ctrl.st
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.op_phase[4:0]

@@ -249,10 +249,10 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             if !mvTrace( trace, mame_st, expr ) { break } // EOF
         }
         case "match-trace": { // moves the trace until it matches the VCD data
-            if !matchTrace( trace, sim_st, mame_st, ignore ) { break }
+            matchTrace( trace, sim_st, mame_st, ignore )
         }
         case "match-vcd": { // moves the VCD until it matches MAME data
-            if !matchVCD( vcd, sim_st, mame_alias, alu_busy, mame_st, ignore ) { break }
+            matchVCD( vcd, sim_st, mame_alias, alu_busy, mame_st, ignore )
         }
         case "?","help": {
             fmt.Println(`
@@ -380,7 +380,7 @@ func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope s
             fmt.Printf("Not a boolean expression")
             return false
         }
-        stepVCD( vcd, sim_st )
+        if !stepVCD( vcd, sim_st ) { break }
         if vcd.time-t0>1000000000 { // 1ms
             fmt.Print(".")
             t0=vcd.time
@@ -690,6 +690,8 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
     if !matched {
         fmt.Printf("Impossible to match MAME to VCD")
         diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
+    } else {
+        fmt.Println("Matched")
     }
     return matched
 }
