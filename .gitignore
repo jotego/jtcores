@@ -63,6 +63,7 @@ cores/*/sidi/*
 cores/*/sockit/*
 cores/*/ver/regrun
 cores/*/zxuno/*
+default.dip
 defmacros.h
 game.qip
 game_env.F
