@@ -43,8 +43,9 @@ cp 8039dasm asm48 /usr/local/bin
 
 # macro assembler for many, many CPUs
 cd /tmp
-git clone https://github.com/jotego/asl.git
-cd asl
+wget http://john.ccac.rwth-aachen.de:8000/ftp/as/source/c_version/asl-current.tar.gz
+tar xfz asl-current.tar.gz
+cd asl-current
 make
-cp alink asl p2bin p2hex pbind plist /usr/local/bin
+cp alink asl p2bin p2hex pbind plist *.msg /usr/local/bin
 cp man/* /usr/local/share/man/man1/
