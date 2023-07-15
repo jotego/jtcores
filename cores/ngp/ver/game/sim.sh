@@ -1,9 +1,24 @@
 #!/bin/bash
 
+function try {
+    while [ $# -gt 0 ]; do
+        if [ ! -e $1/ngp ]; then continue; fi
+        cp $1/ngp nvram.bin
+        return 0
+    done
+    return 1
+}
+
 while [ $# -gt 0 ]; do
     case $1 in
         -nvram)
-            cp nvram nvram.bin
+            if [ ! -e nvram.bin ]; then
+                if ! try ~/.mame/nvram/ngp $JOTEGO/simfiles/ngp; then
+                    echo "Create a NVRAM file in MAME first"
+                    exit 1
+                fi
+            fi
+            go run fixnvram.go  # prevents running the setup
             OTHER="$OTHER -d NVRAM"
             ;;
         -cart)

@@ -398,6 +398,8 @@ case "$1" in
         rm -f video.bin
         rm -f frame_*.jpg
         rm -f frame.raw
+        rm -rf frames
+        mkdir frames
         VIDEO_DUMP=TRUE
         ;;
     -load)
