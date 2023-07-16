@@ -100,7 +100,7 @@ assign st_dout    = st_addr[0] ? fave[15:8] : fave[7:0]; // 10,000kHz = 2710 in 
 assign bus_cs     = pre_ram_cs || rom_cs;
 assign disp_cs    = vram_cs | scrram_cs;
 assign disp_busy  = hdump[1]; // This has approximately the same effect as the original 4-flip flop circuit
-assign bus_busy   = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ram_ok, disp_cs & disp_busy };
+assign bus_busy   = |{ rom_cs & ~ok_dly, ram_cs & ~ram_ok, disp_cs & disp_busy };
 assign bus_legit  = disp_cs;
 assign BUSn       = ASn | &dsn;
 assign ram_cs     = ~BUSn & pre_ram_cs;
