@@ -136,7 +136,7 @@ reg  [14:0] prio_lfsr;
 wire [12:0] bx0_a, bx1_a, bx2_a, bx3_a, init_a, next_a, rfsh_a,
             ba0_row, ba1_row, ba2_row, ba3_row;
 wire [ 1:0] next_ba, prio;
-wire [15:0] din;
+reg  [15:0] din;
 
 wire [AW-1:0] ba0_addr_l, ba1_addr_l, ba2_addr_l, ba3_addr_l;
 wire    [3:0] rd_l, wr_l;
@@ -176,10 +176,6 @@ assign mask_mux = prog_en ? prog_dsn :
                   (bg[2] && BA2_WEN) ? ba2_dsn :
                   (bg[1] && BA1_WEN) ? ba1_dsn : ba0_dsn;
 
-assign din      = (bg[3] && BA3_WEN) ? ba3_din :
-                  (bg[2] && BA2_WEN) ? ba2_din :
-                  (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
-
 `ifdef SIMULATION
     always @(posedge clk) begin
         if( wr[3] & ~BA3_WEN ) begin $display("%m attempt to write to SDRAM bank 3, but it is not enable. Set JTFRAME_BA3_WEN"); $finish; end
@@ -218,6 +214,10 @@ always @(posedge clk) begin
 
     sdram_ba      <= next_ba;
     sdram_a[10:0] <= next_a[10:0];
+
+    din <= (bg[3] && BA3_WEN) ? ba3_din :
+           (bg[2] && BA2_WEN) ? ba2_din :
+           (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
 
 `ifndef VERILATOR
     dq_pad <= wr_cycle ? (prog_en ? prog_din : din) : 16'hzzzz;
