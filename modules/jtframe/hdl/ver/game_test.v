@@ -287,7 +287,7 @@ endgenerate
 // clock is shifted or not.
 /* verilator tracing_off */
 wire prog_en = downloading | dwnld_busy;
-
+/* verilator tracing_off */
 jtframe_sdram64 #(
     .AW           ( SDRAMW        ),
     .BA0_LEN      ( BA0_LEN       ),
@@ -374,31 +374,22 @@ jtframe_sdram64 #(
     .rfsh       ( !prog_en & ~LHBL ) // Do not refresh during programming
                                      // the verilator code sends the data too fast
 );
+/* verilator tracing_off */
 
-`ifdef SIMULATION
-    // jtframe_romrq_rdy_check u_rdy_check(
-    //     .rst       ( rst        ),
-    //     .clk       ( clk_rom    ),
-    //     .ba_rd     ( ba_rd      ),
-    //     .ba_wr     ( ba_wr      ),
-    //     .ba_ack    ( ba_ack     ),
-    //     .ba_rdy    ( ba_rdy     )
-    // );
-
-    `ifdef JTFRAME_SDRAM_STATS
-    jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
-        .rst        ( sdram_rst     ),
-        .clk        ( clk_rom       ),
-        // SDRAM interface
-        .sdram_a    ( SDRAM_A       ),
-        .sdram_ba   ( SDRAM_BA      ),
-        .sdram_nwe  ( SDRAM_nWE     ),
-        .sdram_ncas ( SDRAM_nCAS    ),
-        .sdram_nras ( SDRAM_nRAS    ),
-        .sdram_ncs  ( SDRAM_nCS     )
-    );
-    `endif
+`ifdef JTFRAME_SDRAM_STATS
+jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
+    .rst        ( sdram_rst     ),
+    .clk        ( clk_rom       ),
+    // SDRAM interface
+    .sdram_a    ( SDRAM_A       ),
+    .sdram_ba   ( SDRAM_BA      ),
+    .sdram_nwe  ( SDRAM_nWE     ),
+    .sdram_ncas ( SDRAM_nCAS    ),
+    .sdram_nras ( SDRAM_nRAS    ),
+    .sdram_ncs  ( SDRAM_nCS     )
+);
 `endif
+
 /* verilator tracing_on */
 `ifdef JTFRAME_LF_BUFFER
         wire  [ 7:0] game_vrender;
