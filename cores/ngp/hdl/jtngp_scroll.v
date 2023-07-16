@@ -64,7 +64,7 @@ jtframe_dual_ram16 #(
     .AW         (  10         ),
     .SIMFILE_LO ( SIMFILE_LO  ),
     .SIMFILE_HI ( SIMFILE_HI  )
-) u_objram(
+) u_ram(
     // Port 0
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
