@@ -174,11 +174,11 @@ assign prio     = prio_lfsr[1:0];
 assign mask_mux = prog_en ? prog_dsn :
                   (bg[3] && BA3_WEN) ? ba3_dsn :
                   (bg[2] && BA2_WEN) ? ba2_dsn :
-                  (bg[2] && BA1_WEN) ? ba1_dsn : ba0_dsn;
+                  (bg[1] && BA1_WEN) ? ba1_dsn : ba0_dsn;
 
 assign din      = (bg[3] && BA3_WEN) ? ba3_din :
                   (bg[2] && BA2_WEN) ? ba2_din :
-                  (bg[2] && BA1_WEN) ? ba1_din : ba0_din;
+                  (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
 
 `ifdef SIMULATION
     always @(posedge clk) begin
