@@ -228,17 +228,37 @@ func check_banks( macros map[string]string, cfg MemConfig ) {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
 	}
 	bad := false
-	if len(cfg.SDRAM.Banks)>1 && macros["JTFRAME_BA1_START"]=="" {
-		fmt.Println("Missing JTFRAME_BA1_START")
-		bad = true
+	check_we := func( ba int, macro_name string) {
+		for _,each := range cfg.SDRAM.Banks[ba].Buses {
+			if each.Rw {
+				_, found := macros[macro_name]
+				if !found {
+					fmt.Printf("Missing %s. Define it if using bank %d for R/W access\n", macro_name, ba)
+					bad=true
+				}
+			}
+		}
 	}
-	if len(cfg.SDRAM.Banks)>2 && macros["JTFRAME_BA2_START"]=="" {
-		fmt.Println("Missing JTFRAME_BA2_START")
-		bad = true
+	if len(cfg.SDRAM.Banks)>1  {
+		if macros["JTFRAME_BA1_START"]=="" {
+			fmt.Println("Missing JTFRAME_BA1_START")
+			bad = true
+		}
+		check_we( 1, "JTFRAME_BA1_WEN" )
 	}
-	if len(cfg.SDRAM.Banks)>3 && macros["JTFRAME_BA3_START"]=="" {
-		fmt.Println("Missing JTFRAME_BA3_START")
-		bad = true
+	if len(cfg.SDRAM.Banks)>2 {
+		if macros["JTFRAME_BA2_START"]=="" {
+			fmt.Println("Missing JTFRAME_BA2_START")
+			bad = true
+		}
+		check_we( 2, "JTFRAME_BA2_WEN" )
+	}
+	if len(cfg.SDRAM.Banks)>3 {
+		if macros["JTFRAME_BA3_START"]=="" {
+			fmt.Println("Missing JTFRAME_BA3_START")
+			bad = true
+		}
+		check_we( 3, "JTFRAME_BA3_WEN" )
 	}
 	if bad {
 		os.Exit(1)
