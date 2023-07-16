@@ -242,7 +242,9 @@ always @(posedge clk, posedge rst) begin
                         if( cmd=='h80 ) begin
                             prog_ba     <= ba_addr;
                             prog_size   <= ba_size;
+                            prog_addr   <= eff_addr;
                             erase_start <= 1;   // auto erase
+                            st          <= READ;
                         end
                     end else if( cpu_addr[15:1]==15'h5555>>1 ) begin
                         case( cpu_dout[7:0] )
@@ -265,12 +267,8 @@ always @(posedge clk, posedge rst) begin
                             8'ha0: begin
                                 st <= AUTOPROG;
                             end
-                            8'hf0: begin // reset
-                                id <= 0;
-                                st <= READ;
-                            end
                             default: begin
-                                st <= IDLE;
+                                st <= READ;
                                 id <= 0;
                             end
                         endcase

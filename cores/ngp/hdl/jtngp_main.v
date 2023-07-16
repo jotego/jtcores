@@ -162,11 +162,11 @@ end
     reg [23:0] last_addr = addr;
 
     // synchronize with MAME
-    always @(posedge clk) begin
-        last_addr <= addr;
-        if( addr==23'h20015A && addr!=last_addr ) locked <= 1;
-        if( !lvbl ) locked <= 0;
-    end
+    // always @(posedge clk) begin
+    //     last_addr <= addr;
+    //     if( addr==23'h20015A && addr!=last_addr ) locked <= 1;
+    //     if( !lvbl ) locked <= 0;
+    // end
 `endif
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -220,7 +220,7 @@ jtframe_rtc u_rtc(
     .hour   ( rtc_hour      )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtframe_dual_nvram16 #(
     .AW(12)     // 8kB
 `ifdef DUMP_RAM
@@ -287,6 +287,8 @@ jtframe_dual_nvram16 #(
             { copy_done, over_k } <= { copy_done, over_k } + 1'd1;
         end
     end
+`else
+    wire copy=0, copy_done=0;
 `endif
 
 jtframe_dual_nvram16 #(

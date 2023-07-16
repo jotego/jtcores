@@ -287,7 +287,7 @@ endgenerate
 // clock is shifted or not.
 /* verilator tracing_off */
 wire prog_en = downloading | dwnld_busy;
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_sdram64 #(
     .AW           ( SDRAMW        ),
     .BA0_LEN      ( BA0_LEN       ),
