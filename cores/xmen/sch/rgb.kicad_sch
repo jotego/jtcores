@@ -6,12 +6,12 @@
 
   (title_block
     (title "X-men")
-    (date "2023-06-26")
+    (date "2023-07-17")
     (rev "José Tejada G.")
-    (company "Esperanza Triana")
+    (company "KONAMI PWB353018A GX065")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "JOTEGO")
-    (comment 3 "KONAMI PWB353018A GX065")
+    (comment 2 "Esperanza Triana")
+    (comment 3 "JOTEGO")
   )
 
   (lib_symbols
@@ -1252,7 +1252,6 @@
       )
     )
   )
-
 
   (junction (at 320.04 140.97) (diameter 0) (color 0 0 0 0)
     (uuid 13eec353-a7c7-44cb-9b8e-d155ad4624e6)
@@ -3426,7 +3425,7 @@
   (symbol (lib_name "052535_1") (lib_id "konami:052535") (at 334.01 134.62 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 7801ac09-0a18-48da-8ef2-9d9d3b03011c)
-    (property "Reference" "B9G" (id 0) (at 339.598 124.587 0))
+    (property "Reference" "BG9" (id 0) (at 339.598 124.587 0))
     (property "Value" "052535" (id 1) (at 334.01 140.97 0))
     (property "Footprint" "" (id 2) (at 334.01 134.62 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -3491,7 +3490,7 @@
   (symbol (lib_name "052535_2") (lib_id "konami:052535") (at 334.01 212.09 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 7b2839a4-5e94-469e-9596-a25d926f3dd8)
-    (property "Reference" "B9R" (id 0) (at 339.598 200.787 0))
+    (property "Reference" "BR9" (id 0) (at 339.598 200.787 0))
     (property "Value" "052535" (id 1) (at 334.01 218.44 0))
     (property "Footprint" "" (id 2) (at 334.01 212.09 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -3791,7 +3790,7 @@
   (symbol (lib_id "konami:052535") (at 334.01 74.93 0) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid ff9628d8-8862-4402-ba32-726f1e63a5c5)
-    (property "Reference" "B9B" (id 0) (at 339.09 64.77 0))
+    (property "Reference" "BB9" (id 0) (at 339.09 64.77 0))
     (property "Value" "052535" (id 1) (at 334.01 81.28 0))
     (property "Footprint" "" (id 2) (at 334.01 74.93 0)
       (effects (font (size 1.27 1.27)) hide)

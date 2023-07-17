@@ -6,12 +6,12 @@
 
   (title_block
     (title "X-men")
-    (date "2023-06-26")
+    (date "2023-07-17")
     (rev "José Tejada G.")
-    (company "Esperanza Triana")
+    (company "KONAMI PWB353018A GX065")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "JOTEGO")
-    (comment 3 "KONAMI PWB353018A GX065")
+    (comment 2 "Esperanza Triana")
+    (comment 3 "JOTEGO")
   )
 
   (lib_symbols
@@ -6098,7 +6098,7 @@
   (symbol (lib_id "Switch:SW_MEC_5E") (at 279.4 62.23 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid dba2ed37-9275-4666-a999-a427f8d67009)
-    (property "Reference" "SW17A" (id 0) (at 278.765 56.515 0)
+    (property "Reference" "SW17" (id 0) (at 278.765 56.515 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "EVQ-QS5-07K" (id 1) (at 279.4 63.5 0))

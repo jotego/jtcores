@@ -6,12 +6,12 @@
 
   (title_block
     (title "X-men")
-    (date "2023-06-26")
+    (date "2023-07-17")
     (rev "José Tejada G.")
-    (company "Esperanza Triana")
+    (company "KONAMI PWB353018A GX065")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "JOTEGO")
-    (comment 3 "KONAMI PWB353018A GX065")
+    (comment 2 "Esperanza Triana")
+    (comment 3 "JOTEGO")
   )
 
   (lib_symbols

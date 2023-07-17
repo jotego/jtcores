@@ -6,12 +6,12 @@
 
   (title_block
     (title "X-men")
-    (date "2023-06-26")
+    (date "2023-07-17")
     (rev "José Tejada G.")
-    (company "Esperanza Triana")
+    (company "KONAMI PWB353018A GX065")
     (comment 1 "www.patreon.com/jotego")
-    (comment 2 "JOTEGO")
-    (comment 3 "KONAMI PWB353018A GX065")
+    (comment 2 "Esperanza Triana")
+    (comment 3 "JOTEGO")
   )
 
   (lib_symbols
@@ -6349,6 +6349,10 @@
   (text "MASK 2M" (at 294.64 121.92 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid d29af9f7-caab-42a9-82a0-dd1410621a8e)
+  )
+  (text "16MHz" (at 105.41 45.72 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid d9620083-2fef-462a-b7e3-3622d3517699)
   )
   (text "VSS" (at 346.71 45.72 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
