@@ -82,7 +82,7 @@ function in_range( input [13:0] min, max );
     in_range = cpu_addr>=min[13:1] && cpu_addr<max[13:1];
 endfunction
 
-assign dsn      = ~we;
+assign dsn = ~we;
 
 always @(posedge clk) begin
     case( debug_bus[3:0] )

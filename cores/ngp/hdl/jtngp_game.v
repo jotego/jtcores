@@ -180,7 +180,7 @@ jtngp_video u_video(
     .clk24      ( clk24     ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-    .video_cen  ( {vcen12, vcen6} ),
+    .video_cen  ( {vcen6, vcen12} ),
 
     .status     ( status    ),
 

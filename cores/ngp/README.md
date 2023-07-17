@@ -57,6 +57,45 @@ Size (kB) | Device ID | Chip count
 2048      |   0x2F    |    1
 4096      |   0x2F    |    2
 
+## NGP Compatible Games
+
+According to MAME:
+
+**Purely monochrome**
+| Short name | full name                                                                |
+|:-----------|:-------------------------------------------------------------------------|
+| kofr1      | Pocket Fighting Series - King of Fighters R-1 (Euro, Jpn)                |
+| kof_mlon   | King of Fighters R-1 & Melon-chan no Seichou Nikki (Jpn, Prototype)      |
+| samsho     | Pocket Fighting Series - Samurai Spirit! (Jpn) ~ Samurai Shodown! (Euro) |
+| shougi     | Shougi no Tatsujin (Jpn)                                                 |
+| neocup98   | Pocket Sports Series - Neo Geo Cup '98 (Euro, Jpn)                       |
+| neocher    | Pocket Casino Series - Neo Cherry Master (Euro, Jpn)                     |
+| melonchn   | Melon-chan no Seichou Nikki (Jpn)                                        |
+| tsunapn    | Renketsu Puzzle Tsunagete Pon! (Jpn)                                     |
+| bstars     | Pocket Sports Series - Baseball Stars (Euro, Jpn)                        |
+| ptennis    | Pocket Sports Series - Pocket Tennis (Euro, Jpn)                         |
+
+**Compatible color games**
+
+| Short name | full name                                                   |
+|:-----------|:------------------------------------------------------------|
+| snkgalsj   | SNK Gals' Fighters (Jpn)                                    |
+| kofr2      | Pocket Fighting Series - King of Fighters R-2 (World)       |
+| rockmanb   | Rockman - Battle & Fighters (Jpn)                           |
+| bigbang    | Big Bang Pro Wrestling (Jpn)                                |
+| divealrmj  | Dive Alert - Barn Hen (Jpn)                                 |
+| memories   | Memories Off - Pure (Jpn)                                   |
+| rockmanbd  | Rockman - Battle & Fighters (Jpn, Demo)                     |
+| samsho2    | Pocket Fighting Series - Samurai Shodown! 2 (World)         |
+| svccardp   | SNK vs. Capcom - Gekitotsu Card Fighters (Jpn, Demo)        |
+| kofpara    | The King of Fighters - Battle de Paradise (Jpn)             |
+| dynaslug   | Dynamite Slugger (Euro, Jpn)                                |
+| pachinko   | Pachinko Hisshou Guide - Pocket Parlor (Jpn)                |
+| kofr2d     | Pocket Fighting Series - King of Fighters R-2 (World, Demo) |
+| magdropj   | Magical Drop Pocket (Jpn)                                   |
+| cotton     | Fantastic Night Dreams Cotton (Euro)                        |
+| infinity   | Infinity Cure (Jpn)                                         |
+
 # Contact
 
 * https://twitter.com/topapate

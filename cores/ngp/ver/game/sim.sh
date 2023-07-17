@@ -40,7 +40,7 @@ while [ $# -gt 0 ]; do
         -s)
             shift
             SCENE=$1
-            OTHER="$OTHER -d NOMAIN -d NOSND -video 2"
+            OTHER="$OTHER -d NOMAIN -d NOSND -video 2 -w"
             if [ ! -d $SCENE ]; then
                 echo Cannot find scene $SCENE
                 exit 1

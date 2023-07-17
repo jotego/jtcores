@@ -315,8 +315,13 @@ jtframe_dual_nvram16 #(
 `else
     .clk1   ( clk_rom       ),
     .addr1b (ioctl_addr[11:0]),
+`endif
+`ifdef SIMULATION    // for sims, NVRAM is supported to skip the set up menu
     .data1  ( ioctl_dout    ),
     .we1b   ( nvram1_we     )
+`else // for compilation, delete the RAM when something is loaded
+    .data1  ( 8'd0          ),
+    .we1b   ( ioctl_wr      )
 `endif
 );
 
