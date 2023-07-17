@@ -4,7 +4,7 @@ clocks:
       outputs:
         - rtc_cen
         - nc2
-    - freq: 12582912
+    - freq: 12288000
       outputs:
         - vcen12
         - vcen6
