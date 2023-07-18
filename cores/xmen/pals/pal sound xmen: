@@ -1,0 +1,24 @@
+pal sound xmen:
+
+/SNDPAL5 = A15 & A14 & A13 & /A12 & A9 & A10 +
+       /SM1 & /A15 & A14 +
+       /SM1 & /A14
+
+/o13 = /srfsh & /smreq & /A15 & A14 +
+       /srfsh & /smreq & /A14
+
+/SCEN' = /srfsh & /smreq & A15 & A14 & A13 & A12 & A9 & /A10
+
+/SNDPAL5 = /srfsh & /smreq & A15 & A14 & A13 & A12 & /A9
+
+/YMCS = /srfsh & /smreq & A15 & A14 & A13 & /A12 & A9
+
+/SNDPAL3 = /srfsh & /smreq & A15 & A14 & A13 & /A12 & /A9
+
+/SRAMCS1 = /srfsh & /smreq & A15 & A14 & /A13
+
+/SROMCE = /srd & /srfsh & /smreq & /A15 & A14 +
+       /srd & /srfsh & /smreq & /A14
+
+-- NOT CONNECTED --
+o13?
