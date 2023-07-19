@@ -7549,7 +7549,7 @@
       (reference "C13") (unit 5) (value "74LS32") (footprint "")
     )
     (path "/8feb91fb-90fa-4630-bc88-471460f2ea38/018c9188-2913-4427-9843-d519ce1ac83c"
-      (reference "C14") (unit 1) (value "PAL20RS10") (footprint "")
+      (reference "C14") (unit 1) (value "GAL22V10") (footprint "")
     )
     (path "/9c56aad9-e6c3-4f6d-885b-232535f88367/4622ae7d-275e-48aa-a307-a0d6dab1c957"
       (reference "C15") (unit 1) (value "74LS257") (footprint "")
