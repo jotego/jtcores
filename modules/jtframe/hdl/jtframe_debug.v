@@ -121,6 +121,7 @@ end
 
 // Video overlay
 reg  [8:0] vcnt,hcnt;
+reg  [8:3] vosd;
 reg        lhbl_l, osd_on, view_on, bus_hex_on, view_hex_on;
 reg        show_view;
 wire [8:0] veff, heff;
@@ -130,19 +131,20 @@ assign heff = hcnt ^ { 1'b0, {8{dip_flip}}};
 
 always @(posedge clk) if(pxl_cen) begin
     lhbl_l <= lhbl;
-    if (!lvbl)
+    if (!lvbl) begin
         vcnt <= 0;
-    else if( lhbl && !lhbl_l )
+        vosd <= vcnt[8:3]-6'd4;
+    end else if( lhbl && !lhbl_l )
         vcnt <= vcnt + 9'd1;
     if(!lhbl)
         hcnt <= 0;
     else hcnt <= hcnt + 9'd1;
     // display of debug_bus
-    osd_on     <= debug_bus  != 0 && veff[8:3]==6'h18 && heff[8:6] == 3'b010;
-    bus_hex_on <= debug_bus  != 0 && veff[8:3] == 6'h18 && heff[8:4] == 5'b01101;
+    osd_on     <= debug_bus != 0 && veff[8:3]==vosd && heff[8:6] == 3'b010;
+    bus_hex_on <= debug_bus != 0 && veff[8:3]==vosd && heff[8:4] == 5'b01101;
 
     // display of debug_view
-    show_view   <= (view_mux!=0 || view_sel!=0 || debug_bus!=0) && veff[8:3] == 6'h1A;
+    show_view   <= (view_mux!=0 || view_sel!=0 || debug_bus!=0) && veff[8:3] == (vosd+6'd2);
     view_on     <= show_view && heff[8:6] == 3'b010;
     view_hex_on <= show_view && heff[8:4] == 5'b01101;
 end
