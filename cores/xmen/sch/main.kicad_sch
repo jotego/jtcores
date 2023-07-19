@@ -6346,6 +6346,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8a4156cd-9d4c-488e-bbb3-963ac720e1ff)
   )
+  (text "THERE ARE NO EQUATIONS STORED IN JEDUTIL,\nFROM THE GAL22V10 DEVICE (Konami_054683)"
+    (at 12.7 148.59 0)
+    (effects (font (size 1.27 1.27) bold) (justify left bottom))
+    (uuid 9cef26d8-3e0f-40a6-9fc3-5f2ca27ac0a1)
+  )
   (text "MASK 2M" (at 294.64 121.92 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid d29af9f7-caab-42a9-82a0-dd1410621a8e)
@@ -6357,6 +6362,10 @@
   (text "VSS" (at 346.71 45.72 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid ed396b55-a03d-44ee-be67-de5392058955)
+  )
+  (text "GAL22V10" (at 44.45 101.6 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid f3337cbb-c810-4aed-82d2-3f74bbb396f5)
   )
 
   (label "MAIN_D4" (at 323.85 55.88 180)

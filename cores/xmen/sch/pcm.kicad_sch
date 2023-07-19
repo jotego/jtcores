@@ -4635,7 +4635,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e344e283-683d-437d-9832-3471cf55e8b5)
   )
-  (text "Audio module reproduction" (at 299.72 171.45 0)
+  (text "Audio module" (at 299.72 171.45 0)
     (effects (font (size 3 3)) (justify left bottom))
     (uuid e82fb643-f4f8-4a2e-9a95-9c5b9ef3fe11)
   )
