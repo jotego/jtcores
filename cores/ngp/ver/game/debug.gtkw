@@ -1,23 +1,23 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Sat Jul 15 19:44:59 2023
+[*] Wed Jul 19 04:53:39 2023
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/ngp/ver/game/test.fst"
-[dumpfile_mtime] "Sat Jul 15 16:50:25 2023"
-[dumpfile_size] 392037593
+[dumpfile_mtime] "Tue Jul 18 18:02:22 2023"
+[dumpfile_size] 196177360
 [savefile] "/home/jtejada/jtcores/cores/ngp/ver/game/debug.gtkw"
-[timestart] 3338450674644
+[timestart] 7735412810000
 [size] 1264 1013
-[pos] -29 -51
-*-19.194538 9209534423252 15550409977804 15550409977804 15550409977804 4015458957652 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-20.206947 7735417270000 7820701877000 7752148154000 7735427209000 7735414409000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
 [treeopen] TOP.game_test.u_game.u_game.u_main.
-[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.
-[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.
 [treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_ram1.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
 [sst_width] 219
 [signals_width] 276
 [sst_expanded] 1
@@ -34,11 +34,20 @@ TOP.game_test.u_game.u_game.u_main.flash0_cs
 TOP.game_test.u_game.u_game.u_flash.st[2:0]
 @28
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.alu_busy
+TOP.game_test.u_game.u_game.u_main.int4
+@22
+TOP.game_test.u_game.u_game.u_video.u_mmr.view_starty[7:0]
+@24
+TOP.game_test.u_game.u_game.u_video.u_mmr.view_height[7:0]
 @200
 -
+@28
+TOP.game_test.u_game.u_game.u_main.copy
+TOP.game_test.u_game.u_game.u_main.copy_done
 @22
 TOP.game_test.u_game.u_game.u_main.addr[23:0]
 @28
+TOP.game_test.u_game.u_game.u_main.int4
 TOP.game_test.u_game.u_game.u_main.u_mcu.adc_go
 @200
 -CTRL
@@ -71,12 +80,87 @@ TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_dma.intnest[15:0]
 [color] 2
 ^2 /home/jtejada/jtcores/modules/jt900h/ver/top/ctrl.st
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_ctrl.op_phase[4:0]
-@23
+@c00022
 [color] 2
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+@28
+[color] 2
+(0)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(1)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(2)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(3)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(4)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(5)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(6)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(7)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(8)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 3
+(9)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 3
+(10)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(11)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(12)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(13)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(14)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(15)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(16)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(17)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(18)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(19)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(20)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(21)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(22)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(23)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(24)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(25)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(26)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(27)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(28)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(29)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(30)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+[color] 2
+(31)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.pc[31:0]
+@1401200
+-group_end
 @2022
 ^3 /home/jtejada/jtcores/modules/jt900h/ver/top/alu.st
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_alu.sel[6:0]
+@22
+[color] 1
+TOP.game_test.u_game.u_game.u_main.r6c18[15:0]
+@28
+TOP.game_test.u_game.u_game.u_main.copy_bsy
+@22
+TOP.game_test.u_game.u_game.u_main.u_ram1.addr0[11:1]
+TOP.game_test.u_game.u_game.u_main.u_ram1.addr1a[11:1]
 @200
 -REGS
 @24
@@ -90,22 +174,6 @@ TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xbc0[31:0]
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xde0[31:0]
 [color] 5
 TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xhl0[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa1[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xbc1[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xde1[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xhl1[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa2[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xbc2[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xde2[31:0]
-[color] 5
-TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xhl2[31:0]
 @200
 -
 @22
@@ -157,5 +225,24 @@ TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xsp[31:0]
 (31)TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xsp[31:0]
 @1401200
 -group_end
+@201
+-
+@22
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa1[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xbc1[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xde1[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xhl1[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa2[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xbc2[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xde2[31:0]
+[color] 5
+TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xhl2[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

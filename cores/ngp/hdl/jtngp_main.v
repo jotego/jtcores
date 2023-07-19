@@ -127,7 +127,7 @@ always @* begin
         5'b11_000: io_dout = { 7'b1,
                                1'b0, // power button: it should be zero for it to power up
              /* lower byte: */ 2'd0, ~joystick1 }; // B0-B1
-        5'b11_110: io_dout = { 8'd0, main_latch}; // written by the z80
+        5'b11_110: io_dout = { 8'd0, main_latch}; //  BC - written by the z80
         default:;
     endcase
 end
@@ -220,7 +220,7 @@ jtframe_rtc u_rtc(
     .hour   ( rtc_hour      )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_dual_nvram16 #(
     .AW(12)     // 8kB
 `ifdef DUMP_RAM
@@ -254,10 +254,11 @@ jtframe_dual_nvram16 #(
 `endif
 
 `ifdef TRACE
-// for trace comparisons with MAME, swap the RAM memory contents at frame 524
+// for trace comparisons with MAME, swap the RAM memory contents at a given frame
     reg [11:0] over_k=0;
     reg [ 7:0] over_data[0:2**12-1];
     reg        copy=0, copy_done=0, lvbl_l, halted_l;
+    wire       copy_bsy = copy & ~copy_done;
     integer framecnt=1, f, fcnt;
 
     initial begin
@@ -288,8 +289,10 @@ jtframe_dual_nvram16 #(
         end
     end
 `else
-    wire copy=0, copy_done=0;
+    wire copy=0, copy_done=0, copy_bsy=0;
 `endif
+
+wire [15:0] r6c18;
 
 jtframe_dual_nvram16 #(
     .AW(11)     // 4kB
@@ -302,26 +305,27 @@ jtframe_dual_nvram16 #(
     .we0    ( ram1_we       ),
     .q0     ( ram1_dout     ),
     // memory dump
-    .sel_b  ( 1'b1          ),
-    .addr1a ( 11'd0         ),
-    .q1a    (               ),
+    .addr1a ( 11'h60c       ), // 6c18 >> 1
+    .q1a    ( r6c18         ),
     .q1b    ( nvram1_dout   ),
 `ifdef TRACE
     // memory overwrite
     .clk1   ( clk           ),
+    .sel_b  ( copy_bsy      ),
     .addr1b ( over_k        ),
     .data1  ( over_data[over_k] ),
-    .we1b   ( copy          )
+    .we1b   ( copy_bsy )
 `else
     .clk1   ( clk_rom       ),
+    .sel_b  ( 1'b1          ),
     .addr1b (ioctl_addr[11:0]),
-`endif
 `ifdef SIMULATION    // for sims, NVRAM is supported to skip the set up menu
     .data1  ( ioctl_dout    ),
     .we1b   ( nvram1_we     )
 `else // for compilation, delete the RAM when something is loaded
     .data1  ( 8'd0          ),
     .we1b   ( ioctl_wr      )
+`endif
 `endif
 );
 

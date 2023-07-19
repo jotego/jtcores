@@ -135,6 +135,9 @@ jtngp_vtimer u_vtimer(
     .LVBL       ( LVBL      ),
     .HS         ( HS        ),
     .VS         ( VS        ),
+    // interrupts
+    .view_height(view_height),
+    .view_starty(view_starty),
     .hirq       ( hirq      ),
     .virq       ( virq      )
 );
@@ -168,7 +171,7 @@ jtngp_mmr u_mmr(
     .virq_en    ( virq_en     ),
     .lcd_neg    ( lcd_neg     )
 );
-
+/* verilator tracing_off */
 jtngp_chram u_chram(
     .rst        ( rst       ),
     .clk        ( clk       ),

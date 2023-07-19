@@ -173,7 +173,7 @@ jtngp_snd u_snd(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtngp_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

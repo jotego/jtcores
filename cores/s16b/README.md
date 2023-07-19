@@ -15,6 +15,12 @@ Most games work correctly. Some games have problems mapping their inputs because
 
 Developer's note: encrypted games don't work if the core is compiled using the J68 CPU module for M68000.
 
+# Flip on Vertical Games
+
+System 16 games cannot be flipped in a different way than the originally intended by the software because of their peculiar sprite hardware. If you need to flip the screen because your LCD is rotated the opposite way, you can still do it in the video menu at the price of 1-frame delay. Nonetheless, there is no possibility for flipping on the CRT output.
+
+Whatever SEGA made available in the DIP menu is what we can have on the CRT.
+
 # Special Inputs
 
 Game           |  Players |  Analog    | Other

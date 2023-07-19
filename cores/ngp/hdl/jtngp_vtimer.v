@@ -26,8 +26,8 @@ module jtngp_vtimer(
     output reg          pxl2_cen,
     output reg  [9:0]   hcnt,       // top 8 bits
     output reg  [8:0]   hdump,
-    output reg  [7:0]   vdump,
-    output reg  [7:0]   vrender,
+    output reg  [7:0]   vdump, vrender,
+    input       [7:0]   view_height, view_starty,
     output reg          LHBL,
     output reg          LVBL,
     output reg          HS,
@@ -44,6 +44,7 @@ localparam HOFFSET= 48,
            HS_END   = HS_START+4;
 
 reg [2:0] three=1;
+reg [7:0] virq_line;
 
 initial begin
     hirq = 0;
@@ -53,6 +54,7 @@ end
 always @(posedge clk) begin
     pxl_cen  <= video_cen[1] & three[2];
     pxl2_cen <= video_cen[1] & (three[2] | three[0]);
+    virq_line <= view_height+view_starty;
     if( video_cen[1] ) begin
         three <= { three[1:0], three[2] };
         if( hcnt==6 ) begin
@@ -78,7 +80,7 @@ always @(posedge clk) begin
             HS       <= 1;
             vrender  <= (vrender==198) ? 8'd0 : (vrender+8'd1);
             vdump    <= vrender;
-            virq  <= vint_en && vdump==151;
+            virq  <= vint_en && vdump==virq_line;
             hirq  <= hint_en && (vdump<150 || vdump==198 );
             if( vdump==151 )
                 LVBL <= 0;
