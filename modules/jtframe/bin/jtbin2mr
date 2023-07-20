@@ -65,9 +65,19 @@ mkdir -p $CORES
 if [ -d $JTBIN/mister ]; then
     cd $JTBIN/mister
     for i in *; do
-        cp $i/releases/*.rbf $CORES
-        cp $i/releases/*.mra $ROOT
+        if [ `ls $i/releases/*.rbf 2>/dev/null | wc -l` -gt 0 ]; then
+            cp $i/releases/*.rbf $CORES
+        else
+            echo "No RBF files for $i"
+        fi
+        if [ `ls $i/releases/*.mra 2>/dev/null | wc -l` -gt 0 ]; then
+            cp $i/releases/*.mra $ROOT
+        elif [ $i != ngp ]; then
+            echo "No MRA files for $i"
+        fi
     done
+    # NeoGeo Pocket core shoult not go inside the cores folder, but
+    # to the root level
     if [ -e $CORES/jtngp.rbf ]; then mv $CORES/jtngp.rbf $ROOT; fi
 fi
 

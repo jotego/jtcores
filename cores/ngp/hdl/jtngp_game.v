@@ -52,8 +52,8 @@ end
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: st_mux <= st_video;
-        1: st_mux <= st_main;
+        0: st_mux <= st_main;
+        1: st_mux <= st_video;
         2: st_mux <= st_snd;
         3: case( debug_bus[5:4] )
             0: st_mux <= snd_latch;

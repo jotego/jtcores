@@ -36,8 +36,10 @@ module jt95c061(
     output     [ 1:0]     we,
     input                 bus_busy,
 
-    output reg [ 3:0]     map_cs  // cs[0] used as flash chip 0, cs[1] chip 1
+    output reg [ 3:0]     map_cs, // cs[0] used as flash chip 0, cs[1] chip 1
                                   // cs[2/3] used for BIOS ROM
+    input      [ 7:0]     debug_bus,
+    output     [ 7:0]     st_dout
 );
 
 wire        port_cs, buserror;
@@ -484,7 +486,9 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     // Register dump
     .buserror   ( buserror  ),
     .dmp_addr   (           ),     // dump
-    .dmp_dout   (           )
+    .dmp_dout   (           ),
+    .st_addr    ( debug_bus ),
+    .st_dout    ( st_dout   )
 );
 
 endmodule

@@ -94,6 +94,8 @@ wire [ 2:0] rtc_we;
 wire        nvram0_we, nvram1_we;
 wire [ 7:0] nvram0_dout, nvram1_dout;
 
+wire [ 7:0] st_cpu;
+
 assign bus_busy  = (rom_cs & ~rom_ok) | (flash0_cs & ~flash0_rdy);
 assign cpu_addr  = addr[20:1];
 // assign flash0_cs = map_cs[0], // in_range(24'h20_0000, 24'h40_0000);
@@ -112,7 +114,7 @@ assign nvram1_we = ioctl_ram & ioctl_wr &  ioctl_addr[13];
 // always @(negedge clk) cpu_cen <= (~rom_cs | rom_ok) & ~cpu_cen;
 
 always @(posedge clk) begin
-    st_dout <= ngp_ports[debug_bus[5:0]];
+    st_dout <= joystick1[4] ? st_cpu : ngp_ports[debug_bus[5:0]];
 end
 
 function in_range( input [23:0] min, max );
@@ -363,7 +365,9 @@ jt95c061 u_mcu(
     .we         ( we        ),
     .bus_busy   ( bus_busy  ),
 
-    .map_cs     ( map_cs    )
+    .map_cs     ( map_cs    ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_cpu    )
 ); // NOMAIN
 `else
     assign { cpu_addr, cpu_dout, we, shd_we, flash0_cs, flash1_cs, snd_irq } = 0;
