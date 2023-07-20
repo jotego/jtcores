@@ -120,10 +120,10 @@ always @(posedge clk, posedge rst) begin
 end
 
 // Video overlay
-localparam [8:0] HBIN=(`JTFRAME_WIDTH-5*6)>>1,
-                 HHEX=HBIN+10*6,
-                 VOSD=`JTFRAME_HEIGHT-8*4, // 4 rows above bottom
-                 VVIEW=VOSD+14;
+wire [8:0] HBIN=((`JTFRAME_WIDTH&9'h1f8)>>1)-9'h10,
+                 HHEX=HBIN+9'h50,
+                 VOSD=(`JTFRAME_HEIGHT & 9'h1f8)-8*4, // 4 rows above bottom
+                 VVIEW=VOSD+8*2;
 
 reg  [8:0] vcnt,hcnt;
 reg        lhbl_l, osd_on, view_on, bus_hex_on, view_hex_on;
@@ -133,23 +133,34 @@ wire [8:0] veff, heff;
 assign veff = vcnt ^ { 1'b0, {8{dip_flip}}};
 assign heff = hcnt ^ { 1'b0, {8{dip_flip}}};
 
-always @(posedge clk) if(pxl_cen) begin
-    lhbl_l <= lhbl;
-    if (!lvbl) begin
-        vcnt <= 0;
-    end else if( lhbl && !lhbl_l )
-        vcnt <= vcnt + 9'd1;
-    if (!lhbl)
-        hcnt <= 0;
-    else hcnt <= hcnt + 9'd1;
-    // display of debug_bus
-    osd_on     <= debug_bus!=0 && veff[8:3]==VOSD[8:3] && heff[8:6]==HBIN[8:6];
-    bus_hex_on <= debug_bus!=0 && veff[8:3]==VOSD[8:3] && heff[8:2]==HHEX[8:2];
+always @(posedge clk,posedge rst) begin
+    if( rst ) begin
+        lhbl_l      <= 0;
+        vcnt        <= 0;
+        hcnt        <= 0;
+        osd_on      <= 0;
+        bus_hex_on  <= 0;
+        show_view   <= 0;
+        view_on     <= 0;
+        view_hex_on <= 0;
+    end else if(pxl_cen) begin
+        lhbl_l <= lhbl;
+        if (!lvbl) begin
+            vcnt <= 0;
+        end else if( lhbl && !lhbl_l )
+            vcnt <= vcnt + 9'd1;
+        if (!lhbl)
+            hcnt <= 0;
+        else hcnt <= hcnt + 9'd1;
+        // display of debug_bus
+        osd_on     <= debug_bus!=0 && veff[8:3]==VOSD[8:3] && heff[8:6]==HBIN[8:6];
+        bus_hex_on <= debug_bus!=0 && veff[8:3]==VOSD[8:3] && heff[8:4]==HHEX[8:4];
 
-    // display of debug_view
-    show_view   <= (view_mux!=0 || view_sel!=0 || debug_bus!=0) && veff[8:2]==VVIEW[8:2];
-    view_on     <= show_view && heff[8:6] == HBIN[8:6];
-    view_hex_on <= show_view && heff[8:2] == HHEX[8:2];
+        // display of debug_view
+        show_view   <= (view_mux!=0 || view_sel!=0 || debug_bus!=0) && veff[8:3]==VVIEW[8:3];
+        view_on     <= show_view && heff[8:6] == HBIN[8:6];
+        view_hex_on <= show_view && heff[8:4] == HHEX[8:4];
+    end
 end
 
 reg [0:19] font [0:15]; // 4x5 font

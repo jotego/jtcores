@@ -43,7 +43,7 @@ parameter MFREQ = `JTFRAME_MCLK;
 reg rst;
 
 // Frame counter
-wire [15:0] frame_bcd; // frame count in BCD format
+wire [19:0] frame_bcd; // frame count in BCD format
 wire        frame_up;
 // Frequency reporting
 reg  [16:0] freq_cnt=0; // Must be able to count up to 96000
@@ -68,7 +68,13 @@ always @(posedge clk, posedge rst) begin
         LVBLl <= LVBL;
         case( st_addr[7:6] )
             0: st_dout <= stats;
-            1: st_dout <= st_addr[0] ? frame_bcd[15:8] : frame_bcd[7:0];
+            1:
+                case( st_addr[1:0] )
+                    0: st_dout <= frame_bcd[7:0];
+                    1: st_dout <= frame_bcd[15:8];
+                    2: st_dout <= {4'd0, frame_bcd[19:16]};
+                    default: st_dout <= 0;
+                endcase
             2: st_dout <= srate;
             3: begin
                 case( st_addr[5:4] )
@@ -83,7 +89,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_bcd_cnt #(.DIGITS(4)) u_frame_cnt(
+jtframe_bcd_cnt #(.DIGITS(5)) u_frame_cnt(
     .rst        ( rst        ),
     .clk        ( clk        ),
     .clr        ( 1'b0       ),
