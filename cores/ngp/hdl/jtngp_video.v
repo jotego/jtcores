@@ -90,10 +90,10 @@ always @(posedge clk) begin
         1: st_dout <= scr1_vpos;
         2: st_dout <= scr2_hpos;
         3: st_dout <= scr2_vpos;
-        4: st_dout <= view_width;
-        5: st_dout <= view_height;
-        6: st_dout <= view_startx;
-        7: st_dout <= view_starty;
+        4: st_dout <= view_width;  // WSI.H
+        5: st_dout <= view_height; // WSI.V
+        6: st_dout <= view_startx; // WBA.H
+        7: st_dout <= view_starty; // WBA.V
         8: st_dout <= hoffset;
         9: st_dout <= voffset;
         default: st_dout <= { 2'd0, scr_order, lcd_neg, 2'd0, hirq_en, virq_en };

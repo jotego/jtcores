@@ -124,8 +124,8 @@ endfunction
 always @* begin
     io_dout = { ngp_ports[{addr[5:1],1'b1}], ngp_ports[{addr[5:1],1'b0}] };
     case( addr[5:1] )
-        5'b01_010: io_dout = { rtc_min, rtc_hour }; // 14-15
-        5'b01_011: io_dout[7:0] = rtc_sec;          // 16
+        5'b01_010: io_dout = { rtc_min, rtc_hour }; // 94-95
+        5'b01_011: io_dout[7:0] = rtc_sec;          // 96
         5'b11_000: io_dout = { 7'b1,
                                1'b0, // power button: it should be zero for it to power up
              /* lower byte: */ 2'd0, ~joystick1 }; // B0-B1
@@ -163,12 +163,12 @@ end
     reg locked = 0;
     reg [23:0] last_addr = addr;
 
-    // synchronize with MAME
-    // always @(posedge clk) begin
-    //     last_addr <= addr;
-    //     if( addr==23'h20015A && addr!=last_addr ) locked <= 1;
-    //     if( !lvbl ) locked <= 0;
-    // end
+    // synchronize VB with MAME
+    always @(posedge clk) begin
+        last_addr <= addr;
+        if( addr==23'h20015A && addr!=last_addr ) locked <= 1;
+        if( !lvbl ) locked <= 0;
+    end
 `endif
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -339,6 +339,7 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_vblank(
     .pulse  ( int4      )
 );
 /* verilator tracing_on */
+
 jt95c061 u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),

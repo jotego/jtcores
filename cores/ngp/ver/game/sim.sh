@@ -2,18 +2,23 @@
 
 function try {
     while [ $# -gt 0 ]; do
-        if [ ! -e $1/ngp ]; then continue; fi
+        if [ ! -e $1 ]; then
+            shift
+            continue
+        fi
         cp $1/ngp nvram.bin
         return 0
     done
     return 1
 }
 
+INPUTS=
+
 while [ $# -gt 0 ]; do
     case $1 in
         -nvram)
             if [ ! -e nvram.bin ]; then
-                if ! try ~/.mame/nvram/ngp $JOTEGO/simfiles/ngp; then
+                if ! try nvram.old ~/.mame/nvram/ngp $JOTEGO/simfiles/ngp; then
                     echo "Create a NVRAM file in MAME first"
                     exit 1
                 fi
@@ -46,11 +51,20 @@ while [ $# -gt 0 ]; do
                 exit 1
             fi
             ;;
+        -inputs)
+            OTHER="$OTHER $1"
+            INPUTS=1;;
         *)
             OTHER="$OTHER $1";;
     esac
     shift
 done
+
+if [ -z "$INPUTS" ]; then
+    # skip the logo animation
+    cp nologo.hex sim_inputs.hex
+    OTHER="$OTHER -inputs"
+fi
 
 function split {
     cat ${1}ram.bin | drop1    > ${1}_hi.bin
@@ -68,4 +82,5 @@ if [ -n "$SCENE" ]; then
     # rm -f objram.bin charam.bin
 fi
 
+echo jtsim $OTHER
 jtsim $OTHER

@@ -157,8 +157,8 @@ func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
             }
         }
         case "il", "ignore-list": {
-            for k,_ := range ignore {
-                fmt.Printf("%s\n",k)
+            for k, each := range ignore {
+                if each { fmt.Printf("%s\n",k) }
             }
         }
         case "kmax": {

@@ -3,10 +3,14 @@
 - Loading firmware+nvram+1MB flash takes 45 frames
 - There is a language/time setting menu which lasts for ~706 frames. Use -inputs
 to get the right key presses to get through it
-- The NeoGeo logo animation after the settings lasts for ~479 frames
+- The NeoGeo logo animation after the settings lasts for ~479 frames. It can be skipped by holding button B.
 - Overall, loading, setting menu and NeoGeo logo is about ~1215 frames. The logo
 becomes static at frame 1148
 - cart size should be loaded
+- simplify the trace to load it in a text editor
+> sed s/XWA1=0,XBC1=0,XDE1=0,XHL1=0,XWA2=0,XBC2=0,XDE2=0,XHL2=0,// debug.trace > view.trace
+
+To compare MAME with the core, the RTC timer values must be equal. If the simulation skips the setup stage (by using an NVRAM file), the timer start up values must be set with the macro `JTFRAME_SIM_RTC=n`, where n is a hex number containing hour-min-sec. It is enough to set the seconds. The number required is usally between 5 to 9, depending on how quickly you go through the menu in MAME.
 
 ## Firmware Hack
 

@@ -144,6 +144,7 @@ assign {adc_end, adc_bsy} = mmr[ADMOD][7:6];
 assign din_mux = port_cs ? { mmr[{addr[6:1],1'b1}], mmr[{addr[6:1],1'b0}]} : din;
 assign porta_dout = { mmr[PAFC][3] ? tout[3] : mmr[PA][3],
                       mmr[PAFC][2] ? tout[1] : mmr[PA][2], mmr[PA][1:0] };
+assign addr[0]=0;
 
 always @* begin
     pre_map_cs[0]=&{addr[23:21]^mmr[MSAR0][7:5],
@@ -471,7 +472,7 @@ jt900h #(.PC_RSTVAL(NGP_RST)) u_cpu(
     .clk        ( clk       ),
     .cen        ( cen       ),
 
-    .addr       ( addr      ),
+    .addr       ( addr[23:1]),
     .din        ( din_mux   ),
     .dout       ( dout      ),
     .we         ( we        ),
