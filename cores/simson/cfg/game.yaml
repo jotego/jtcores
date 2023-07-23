@@ -6,8 +6,8 @@ game:
       - jtsimson_video.v
       - jtsimson_scroll.v
       - jtsimson_obj.v
-      # - jtsimson_sound.v
-      # - jt053260.v
+      - jtsimson_sound.v
+      - jt053260.v
       - jtsimson_colmix.v
   - from: aliens
     get:

@@ -43,13 +43,6 @@ always @(posedge clk) begin
     endcase
 end
 
-// always @(*) begin
-//     post_addr = prog_addr;
-//     if( prog_ba[1] ) begin
-//         post_addr[]
-//     end
-// end
-
 /* verilator tracing_off */
 jtsimson_main u_main(
     .rst            ( rst           ),
@@ -96,48 +89,61 @@ jtsimson_main u_main(
     .snd_latch      ( snd_latch     ),
     .snd_irq        ( snd_irq       ),
     // DIP switches
+    .dip_test       ( dip_test      ),
     .dip_pause      ( dip_pause     ),
-    .dipsw          ( dipsw[19:0]   ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_main       )
 );
 
 /* verilator tracing_off */
-// jtsimson_sound u_sound(
-//     .rst        ( rst           ),
-//     .clk        ( clk           ),
-//     .cen_fm     ( cen_fm        ),
-//     .cen_fm2    ( cen_fm2       ),
-//     .fxlevel    ( dip_fxlevel   ),
-//     .cfg        ( cpu_cfg       ),
-//     // communication with main CPU
-//     .snd_irq    ( snd_irq       ),
-//     .snd_latch  ( snd_latch     ),
-//     // ROM
-//     .rom_addr   ( snd_addr      ),
-//     .rom_cs     ( snd_cs        ),
-//     .rom_data   ( snd_data      ),
-//     .rom_ok     ( snd_ok        ),
-//     // ADPCM ROM
-//     .pcma_addr  ( pcma_addr     ),
-//     .pcma_dout  ( pcma_data     ),
-//     .pcma_cs    ( pcma_cs       ),
-//     .pcma_ok    ( pcma_ok       ),
+jtsimson_sound u_sound(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen_fm     ( cen_fm        ),
+    .cen_fm2    ( cen_fm2       ),
+    .fxlevel    ( dip_fxlevel   ),
+    // communication with main CPU
+    .snd_irq    ( snd_irq       ),
+    input   [ 7:0]  main_dout,
+    output  [ 7:0]  main_din,
+    input           snd_reg,
+    input           main_addr,
+    input           main_rnw,
+    // ROM
+    .rom_addr   ( snd_addr      ),
+    .rom_cs     ( snd_cs        ),
+    .rom_data   ( snd_data      ),
+    .rom_ok     ( snd_ok        ),
+    // ADPCM ROM
+    .pcma_addr  ( pcma_addr     ),
+    .pcma_dout  ( pcma_data     ),
+    .pcma_cs    ( pcma_cs       ),
+    .pcma_ok    ( pcma_ok       ),
 
-//     .pcmb_addr  ( pcmb_addr     ),
-//     .pcmb_dout  ( pcmb_data     ),
-//     .pcmb_cs    ( pcmb_cs       ),
-//     .pcmb_ok    ( pcmb_ok       ),
+    .pcmb_addr  ( pcmb_addr     ),
+    .pcmb_dout  ( pcmb_data     ),
+    .pcmb_cs    ( pcmb_cs       ),
+    .pcmb_ok    ( pcmb_ok       ),
 
-//     // Sound output
-//     .snd        ( snd           ),
-//     .sample     ( sample        ),
-//     .peak       ( game_led      ),
-//     // Debug
-//     .debug_bus  ( debug_bus     ),
-//     .st_dout    ( st_snd        )
-// );
+    .pcmc_addr  ( pcmc_addr     ),
+    .pcmc_dout  ( pcmc_data     ),
+    .pcmc_cs    ( pcmc_cs       ),
+    .pcmc_ok    ( pcmc_ok       ),
+
+    .pcmd_addr  ( pcmd_addr     ),
+    .pcmd_dout  ( pcmd_data     ),
+    .pcmd_cs    ( pcmd_cs       ),
+    .pcmd_ok    ( pcmd_ok       ),
+    // Sound output
+    .snd_l      ( snd_left      ),
+    .snd_r      ( snd_right     ),
+    .sample     ( sample        ),
+    .peak       ( game_led      ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_snd        )
+);
 
 /* verilator tracing_on */
 jtsimson_video u_video (

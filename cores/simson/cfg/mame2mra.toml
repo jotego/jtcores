@@ -4,7 +4,7 @@ sourcefile=[ "simpsons.cpp" ]
 
 [buttons]
 names = [
-    { names="Attack,Jump" },
+    { names="Attack,Jump,-" },
 ]
 
 [dipsw]
