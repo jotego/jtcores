@@ -507,7 +507,7 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 	start_pos := *pos
 	for _, r := range reg_roms {
 		offset := r.Offset
-		if reg_cfg.No_offset {
+		if reg_cfg.No_offset || ((offset&0xfffffff0)==0) {
 			offset = 0
 		} else {
 			if delta := fill_upto(pos, ((offset&-2)-reg_pos)+*pos, p); delta < 0 {
