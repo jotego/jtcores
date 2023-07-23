@@ -8,7 +8,7 @@ game:
       - jtsimson_obj.v
       - jtsimson_sound.v
       - jt053260.v
-      - jtsimson_colmix.v
+      - jtcolmix_053251.v
   - from: aliens
     get:
       - jt052109.v
