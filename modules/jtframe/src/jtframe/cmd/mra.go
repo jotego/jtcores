@@ -86,7 +86,8 @@ data = [
 	...
 ]
 
-offset = { bits=8, reverse=true, regions=["maincpu","gfx1"...]}
+# region offset table at "start" byte in the header
+offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 
 [buttons]
 names=[
