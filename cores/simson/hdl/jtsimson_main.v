@@ -63,7 +63,7 @@ module jtsimson_main(
     output reg          mono,
     input       [ 7:0]  snd2main,
     // EEPROM
-    input       [ 5:0]  ioctl_addr,
+    input       [ 6:0]  ioctl_addr,
     input       [ 7:0]  ioctl_dout,
     output      [ 7:0]  ioctl_din,
     input               ioctl_wr,
@@ -86,11 +86,11 @@ wire [15:0] A, pcbad;
 wire        buserror;
 reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work, snd_cs,
             berr_l, prog_cs, eeprom_cs, joystk_cs, objcha,
-            i6, i7;
+            i6n, i7n;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
 wire        norA65, norA43;
-wire        eep_rdy, eep_do, eep_we;
+wire        eep_rdy, eep_do, eep_we, firqn_ff;
 reg         eep_di, eep_clk, eep_cs, firqen, W0C1, W0C0;
 
 assign dtack   = ~rom_cs | rom_ok;
@@ -124,18 +124,16 @@ wire bad_cs =
         { 3'd0, pcu_cs     } +
         { 3'd0, joystk_cs  } +
         { 3'd0, tilesys_cs } > 1;
-wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs, tilesys_cs };
-wire test_cs = A[15:0]>=16'h2000 && A[15:0]<16'h6000;
-wire bad2_cs = test_cs & ~tilesys_cs & ~objsys_cs;
+wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs, objreg_cs, pcu_cs, joystk_cs, tilesys_cs };
 `endif
 
-reg A98;
+reg io_aux;
 
 always @(*) begin
-    i6 = A[15:10]==7 && (!init && A[15:10]==6'h1f);
-    i7 = (A[15:10]==7 && !W0C0) || (
-        init ? A[15:13]==1 || (A[15:13]==0 && !W0C0) || A[15:12]==1 :
-               A[15:10]==7 && (W0C1 || W0C0) );
+    i6n = ~(A[15:10]==7 || (!init && A[15:10]==6'h1f ));
+    i7n = ~((A[15:10]==7 && !W0C0) || (
+            init ? (A[15:13]==1 && !W0C1) || (A[15:13]==0 && !W0C0) || A[15:12]==1 :
+                    A[15:10]==7 && (W0C1  || W0C0) ));
 
     banked_cs  =  init && A[15:13]==3 && !Aupper[4]; // 6000~7FFF
     prog_cs    = (init && A[14:13]==3 &&  Aupper[4]) || A[15];
@@ -143,24 +141,27 @@ always @(*) begin
     // after second decoder:
     pal_cs     = A[15:12]==0 && W0C0; // COLOCS in sch
     objsys_cs  = A[15:13]==1 && W0C1 && init;
-    A98        = &A[9:8];
-    objreg_cs  = i6 && i7 && A98 && A[6:4]==3'b010;
-    eeprom_cs  = i6 && i7 && A98 && A[6:4]==3'b000;
-    pcu_cs     = i6 && i7 && A98 && A[6:4]==3'b011; // 053251
-    joystk_cs  = i6 && i7 && A98 && A[6:4]==3'b001;
-    io_cs      = i6 && i7 && A98 && A[6:4]==3'b100;
-    tilesys_cs = A[15:14]==1 && ( !init || (!io_cs && !pal_cs && !objsys_cs));
+    io_aux     = &{ ~i6n, ~i7n, A[9:7] };
+    eeprom_cs  = io_aux && A[6:4]==3'b000;
+    joystk_cs  = io_aux && A[6:4]==3'b001;
+    objreg_cs  = io_aux && A[6:4]==3'b010;
+    pcu_cs     = io_aux && A[6:4]==3'b011; // 053251
+    io_cs      = io_aux && A[6:4]==3'b100;
+    tilesys_cs = (~i6n & (~A[9] | ~A[8] | ~A[7] | (A[6]&(A[5]|A[4])))) | (i6n^i7n);
+
+    snd_irq    = io_cs && A[3:1]==2;
+    snd_cs     = io_cs && A[3:1]==3;
 
     rom_cs     = prog_cs | banked_cs;
     rom_addr[12: 0] = A[12:0];
     rom_addr[16:13] = A[15] ? {2'b11,A[14:13]} : Aupper[3:0];
     rom_addr[17]    = A[15] | Aupper[5];
-    rom_addr[18]    = banked_cs;
+    rom_addr[18]    = ~banked_cs;
     if( !rom_cs ) rom_addr[15:0] = A[15:0]; // necessary to address gfx chips correctly
 end
 
 always @* begin
-    cpu_din = rom_cs     ? rom_data  :
+    cpu_din = rom_cs     ? rom_data  : // maximum priority
               ram_cs     ? ram_dout  :
               (joystk_cs|eeprom_cs ) ? port_in : // io_cs must take precedence over tilesys_cs (?)
               pal_cs     ? pal_dout  :
@@ -171,8 +172,6 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        snd_irq   <= 0;
-        snd_cs   <= 0;
         port_in   <= 0;
         work      <= 0;
         pmc_work  <= 0;
@@ -182,12 +181,9 @@ always @(posedge clk, posedge rst) begin
         berr_l    <= 0;
     end else begin
         if( buserror ) berr_l <= 1;
-        if(cpu_cen) snd_irq <= 0;
         if( io_cs ) case( A[3:1] )
             0: { objcha, init, rmrd, mono } <= cpu_dout[5:2]; // bits 1:0 are coin counters
             1: { eep_di, eep_clk, eep_cs, firqen, W0C1, W0C0 } <= { cpu_dout[7], cpu_dout[4:0] };
-            2: snd_irq <= 1;
-            3: snd_cs <= 1;
             // 4: CRCS ?
             // 5: AFR (watchdog)
             default:;
@@ -218,11 +214,20 @@ jt5911 u_eeprom(
     .dump_clk   ( clk       ),
     .dump_addr  ( ioctl_addr),
     .dump_we    ( eep_we    ),
-    .dump_din   ( ioctl_dout),
-    .dump_dout  ( ioctl_din ),
+    .dump_din   ( ioctl_din ),
+    .dump_dout  ( ioctl_dout),
     // NVRAM contents changed
     .dump_clr   ( 1'b0      ),
     .dump_flag  (           )
+);
+
+
+jtframe_edge #(.QSET(0)) u_firq (
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( firq_n    ),
+    .clr    ( ~firqen   ),
+    .q      ( firqn_ff  )
 );
 
 /* xverilator tracing_off */
@@ -239,12 +244,8 @@ jtkcpu u_cpu(
     .halt   ( berr_l    ),
     .dtack  ( dtack     ),
     .nmi_n  ( 1'b1      ),
-// `ifdef SIMULATION
-//     .irq_n  ( 1'b1      ),
-// `else
     .irq_n  ( irq_n | ~dip_pause ),
-// `endif
-    .firq_n ( firq_n    ),
+    .firq_n ( firqn_ff  ),
     .pcbad  ( pcbad     ),
     .buserror( buserror ),
 

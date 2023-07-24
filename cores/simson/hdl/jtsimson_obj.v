@@ -27,7 +27,8 @@ module jtsimson_obj(
     input             lhbl, // not an input in the original
 
     // CPU interface
-    input             cs,
+    input             ram_cs,
+    input             reg_cs,
     input             cpu_we,
     input      [15:0] cpu_dout, // 16-bit interface
     input      [13:1] cpu_addr, // 16 kB!
@@ -50,23 +51,37 @@ module jtsimson_obj(
     output     [ 7:0] st_dout
 );
 
-wire [1:0] we;
+wire [1:0] ram_we;
+reg  [7:0] mmr[0:7];
 
-assign we       = {2{cpu_we}} & ~cpu_dsn;
+wire irq_en;
+
+assign ram_we   = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign shd      = 0;
 assign prio     = 0;
 assign pxl      = 0;
 assign rom_cs   = 0;
 assign rom_addr = 0;
-assign irqn     = 1;
+assign irq_en   = mmr[5][4];
+assign irqn     = lvbl | ~irq_en;
 assign st_dout  = 0;
+
+always @(posedge clk,posedge rst) begin
+    if( rst ) begin
+        mmr[0] <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
+        mmr[4] <= 0; mmr[5] <= 0; mmr[6] <= 0; mmr[7] <= 0;
+    end else begin
+        if( reg_cs && cpu_we && !cpu_dsn[0] ) mmr[ {cpu_addr[2:1],1'b0} ] <= cpu_dout[ 7:0];
+        if( reg_cs && cpu_we && !cpu_dsn[1] ) mmr[ {cpu_addr[2:1],1'b1} ] <= cpu_dout[15:8];
+    end
+end
 
 jtframe_dual_ram16 #(.AW(13)) u_ram(
     // Port 0 - CPU access
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
     .addr0  ( cpu_addr  ),
-    .we0    ( we        ),
+    .we0    ( ram_we        ),
     .q0     ( cpu_din   ),
     // Port 1 - Video access
     .clk1   ( clk       ),

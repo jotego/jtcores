@@ -262,9 +262,11 @@ initial rom_cs   = 0;
 assign  pcma_cs  = 0, pcmb_cs=0, pcmc_cs=0, pcmd_cs=0;
 assign  pcma_addr= 0, pcmb_addr=0, pcmc_addr=0, pcmd_addr=0;
 assign  rom_addr = 0;
-assign  snd      = 0;
+assign  snd_l    = 0;
+assign  snd_r    = 0;
 assign  peak     = 0;
 assign  sample   = 0;
 assign  st_dout  = 0;
+assign  main_din = 0;
 `endif
 endmodule

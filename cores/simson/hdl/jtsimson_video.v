@@ -42,6 +42,7 @@ module jtsimson_video(
     input             pcu_cs,   // priority control unit
     input             tilesys_cs,
     input             objsys_cs,
+    input             objreg_cs,
 
     // control
     input             rmrd,     // Tile ROM read mode
@@ -136,8 +137,8 @@ jtsimson_scroll u_scroll(
     .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
 
-    .irq_n      ( cpu_irqn  ),
-    .firq_n     (           ),
+    .irq_n      (           ),
+    .firq_n     ( cpu_irqn  ),
     .nmi_n      (           ),
     .flip       ( flip      ),
 
@@ -173,7 +174,7 @@ jtsimson_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on  */
 jtsimson_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -187,10 +188,11 @@ jtsimson_obj u_obj(    // sprite logic
     // .hdump      ( hdump     ),
     // .vdump      ( vrender   ),
     // CPU interface
-    .cs         ( objsys_cs ),
+    .ram_cs     ( objsys_cs ),
+    .reg_cs     ( objreg_cs ),
     .cpu_addr   (cpu_addr[13:1]),
     .cpu_dout   ({2{cpu_dout}}),
-    .cpu_dsn    ({cpu_addr[0],~cpu_addr[0]}),
+    .cpu_dsn    ({~cpu_addr[0],cpu_addr[0]}),
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( obj16_dout),
 

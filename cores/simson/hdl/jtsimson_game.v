@@ -92,7 +92,7 @@ jtsimson_main u_main(
     .snd_wrn        ( snd_wrn       ),
     .mono           ( mono          ),
     // EEPROM
-    .ioctl_addr     (ioctl_addr[5:0]),
+    .ioctl_addr     (ioctl_addr[6:0]),
     .ioctl_din      ( ioctl_din     ),
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),
@@ -154,7 +154,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_on  */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -181,6 +181,7 @@ jtsimson_video u_video (
     .pcu_cs         ( pcu_cs        ),
     .tilesys_cs     ( tilesys_cs    ),
     .objsys_cs      ( objsys_cs     ),
+    .objreg_cs      ( objreg_cs     ),
 
     // control
     .rmrd           ( rmrd          ),
