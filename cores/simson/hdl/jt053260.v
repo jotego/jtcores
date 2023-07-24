@@ -27,8 +27,8 @@ module jt053260 (
     input                    ma0,
     input                    mrdnw,
     input                    mcs,
-    input             [ 7:0] mdin,
-    output reg        [ 7:0] mdout,
+    input             [ 7:0] mdout,
+    output reg        [ 7:0] mdin,
     // Sound CPU control
     input             [ 5:0] addr,
     input                    wr_n,
@@ -43,15 +43,19 @@ module jt053260 (
     output            [20:0] roma_addr,
     input             [ 7:0] roma_data,
     output                   roma_cs,
+
     output            [20:0] romb_addr,
     input             [ 7:0] romb_data,
     output                   romb_cs,
+
     output            [20:0] romc_addr,
     input             [ 7:0] romc_data,
     output                   romc_cs,
+
     output            [20:0] romd_addr,
     input             [ 7:0] romd_data,
     output                   romd_cs,
+
     output reg signed [11:0] snd_l,
     output reg signed [11:0] snd_r,
     output                   sample
@@ -135,10 +139,10 @@ module jt053260 (
             pm2s[0] <= 0;
             pm2s[1] <= 0;
         end else begin
-            if ( !mrdnw ) begin
-                pm2s[ma0] <= mdin;
+            if ( mcs && !mrdnw ) begin
+                pm2s[ma0] <= mdout;
             end
-            mdout <= ps2m[ma0];
+            mdin <= ps2m[ma0];
         end
     end
 

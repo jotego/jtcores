@@ -24,6 +24,9 @@ jtframe:
   - from: sdram
     get:
       - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
   - from: cpu
     get:
       - jtframe_z80.yaml
@@ -31,4 +34,7 @@ modules:
   jt:
     - name: jtkcpu
     - name: jt51
+  other:
+    - from: jteeprom
+      get: [ hdl/jt5911.sv ]
 

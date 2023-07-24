@@ -18,46 +18,41 @@
 
 module jtsimson_video(
     input             rst,
+    output            rst8,     // reset signal at 8th frame
     input             clk,
-    input             pxl_cen,
-    input      [ 1:0] cfg,
-    input      [ 1:0] cpu_prio,
 
     // Base Video
+    input             pxl_cen,
     output            lhbl,
     output            lvbl,
     output            hs,
     output            vs,
+    output            flip,
 
     // CPU interface
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout,
+    input             cpu_we,
+
     output     [ 7:0] pal_dout,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
+
     input             pal_we,
-    input             cpu_we,
+    input             pcu_cs,   // priority control unit
     input             tilesys_cs,
     input             objsys_cs,
-    output            rst8,     // reset signal at 8th frame
 
     // control
     input             rmrd,     // Tile ROM read mode
-
-    output            cpu_irq_n,
-    output            cpu_nmi_n,
-    output            flip,
-
-    // PROMs
-    input      [ 7:0] prog_addr,
-    input      [ 2:0] prog_data,
-    input             prom_we,
+    output            cpu_irqn,
+    output            cpu_firqn,
 
     // Tile ROMs
-    output     [20:2] lyrf_addr,
-    output     [20:2] lyra_addr,
-    output     [20:2] lyrb_addr,
-    output     [20:2] lyro_addr,
+    output     [19:2] lyrf_addr,
+    output     [19:2] lyra_addr,
+    output     [19:2] lyrb_addr,
+    output     [21:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -79,54 +74,46 @@ module jtsimson_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
 );
 
-`include "jtsimson.inc"
-
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal;
 wire [11:0] lyra_pxl, lyrb_pxl;
-wire [11:0] lyro_pxl;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
+wire [ 8:0] lyro_pxl;
+wire [ 1:0] obj_shd;
+wire [ 4:0] obj_prio;
+wire [15:0] obj16_dout;
 
-assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
-// simson programs the interrupts on the sprite chip, but
-// the other games use the tilemapper chip instead
-assign cpu_irq_n = cfg==simson || cfg==CRIMFGHT ? obj_irqn : tile_irqn;
-assign cpu_nmi_n = cfg==simson   ? obj_nmin :
-                   cfg==CRIMFGHT ? 1'b1 : tile_nmin;
+assign objsys_dout = cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
+assign ioctl_din   = 0;
 
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? st_obj : st_scr;
     // VRAM dumps - 16+2+3 = 19kB +16 bytes = 19472 bytes
-    if( !ioctl_addr[14] )
-        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    else if( !ioctl_addr[11] )
-        ioctl_din <= dump_pal;  // 2kB 4000~47FF
-    else if( !ioctl_addr[10] )
-        ioctl_din <= dump_obj;  // 1kB 4800~4C00
-    else if( !ioctl_addr[3] )
-        ioctl_din <= dump_scr;  // 8 bytes, MMR 4C07
-    else if (ioctl_addr[2:0]!=7)
-        ioctl_din <= dump_obj;  // 7 bytes, MMR 4C0E
-    else
-        ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
+    // if( !ioctl_addr[14] )
+    //     ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+    // else if( !ioctl_addr[11] )
+    //     ioctl_din <= dump_pal;  // 2kB 4000~47FF
+    // else if( !ioctl_addr[10] )
+    //     ioctl_din <= dump_obj;  // 1kB 4800~4C00
+    // else if( !ioctl_addr[3] )
+    //     ioctl_din <= dump_scr;  // 8 bytes, MMR 4C07
+    // else if (ioctl_addr[2:0]!=7)
+    //     ioctl_din <= dump_obj;  // 7 bytes, MMR 4C0E
 end
 
 /* verilator tracing_on */
-jtaliens_scroll u_scroll(
+jtsimson_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .cfg        ( cfg       ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -149,9 +136,9 @@ jtaliens_scroll u_scroll(
     .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
 
-    .irq_n      ( tile_irqn ),
+    .irq_n      ( cpu_irqn  ),
     .firq_n     (           ),
-    .nmi_n      ( tile_nmin ),
+    .nmi_n      (           ),
     .flip       ( flip      ),
 
 
@@ -169,9 +156,9 @@ jtaliens_scroll u_scroll(
     .lyrb_data  ( lyrb_data ),
 
     // Final pixels
-    .lyrf_blnk_n(lyrf_blnk_n),
-    .lyra_blnk_n(lyra_blnk_n),
-    .lyrb_blnk_n(lyrb_blnk_n),
+    .lyrf_blnk_n(           ),
+    .lyra_blnk_n(           ),
+    .lyrb_blnk_n(           ),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
@@ -192,23 +179,22 @@ jtsimson_obj u_obj(    // sprite logic
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .cfg        ( cfg       ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
-    .hdump      ( hdump     ),
-    .vdump      ( vrender   ),
+    // .hdump      ( hdump     ),
+    // .vdump      ( vrender   ),
     // CPU interface
     .cs         ( objsys_cs ),
-    .cpu_addr   (cpu_addr[10:0]),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_addr   (cpu_addr[13:1]),
+    .cpu_dout   ({2{cpu_dout}}),
+    .cpu_dsn    ({cpu_addr[0],~cpu_addr[0]}),
     .cpu_we     ( cpu_we    ),
-    .cpu_din    ( objsys_dout),
+    .cpu_din    ( obj16_dout),
 
-    .irq_n      ( obj_irqn  ),
-    .nmi_n      ( obj_nmin  ),
+    .irqn       ( cpu_firqn ),
     // ROM
     .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),
@@ -216,16 +202,15 @@ jtsimson_obj u_obj(    // sprite logic
     .rom_cs     ( lyro_cs   ),
     // pixel output
     .pxl        ( lyro_pxl  ),
-    .blank_n    (lyro_blnk_n),
-    .shadow     ( shadow    ),
-
+    .shd        ( obj_shd   ),
+    .prio       ( obj_prio  ),
     // Debug
-    .ioctl_addr ( ioctl_addr[10:0]),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_din  ( dump_obj  ),
+    // .ioctl_addr ( ioctl_addr[10:0]),
+    // .ioctl_ram  ( ioctl_ram ),
+    // .ioctl_din  ( dump_obj  ),
 
-    .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus ),
+    // .gfx_en     ( gfx_en    ),
+    // .debug_bus  ( debug_bus ),
     .st_dout    ( st_obj    )
 );
 
@@ -233,42 +218,34 @@ jtsimson_obj u_obj(    // sprite logic
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .cfg        ( cfg       ),
-    .cpu_prio   ( cpu_prio  ),
 
     // Base Video
+    .pxl_cen    ( pxl_cen   ),
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
 
     // CPU interface
-    .cpu_addr   (cpu_addr[10:0]),
+    .cpu_addr   (cpu_addr[11:0]),
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( pal_we    ),
-
-    // PROMs
-    .prog_addr  ( prog_addr ),
-    .prog_data  ( prog_data ),
-    .prom_we    ( prio_we   ),
+    .pcu_cs     ( pcu_cs    ),
 
     // Final pixels
-    .lyrf_blnk_n(lyrf_blnk_n),
-    .lyra_blnk_n(lyra_blnk_n),
-    .lyrb_blnk_n(lyrb_blnk_n),
-    .lyro_blnk_n(lyro_blnk_n),
-    .lyrf_pxl   ( lyrf_pxl  ),
-    .lyra_pxl   ( lyra_pxl  ),
-    .lyrb_pxl   ( lyrb_pxl  ),
+    .lyrf_pxl   ( { 1'b0, lyrf_pxl[7:6], lyrf_pxl[3:0] } ),
+    .lyra_pxl   ( { 1'b0, lyra_pxl[7:6], lyra_pxl[3:0] } ),
+    .lyrb_pxl   ( { 1'b0, lyrb_pxl[7:6], lyrb_pxl[3:0] } ),
     .lyro_pxl   ( lyro_pxl  ),
-    .shadow     ( shadow    ),
+
+    .obj_prio   ( obj_prio  ),
+    .obj_shd    ( obj_shd   ),
 
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
 
     // Debug
-    .ioctl_addr ( ioctl_addr[10:0]),
+    .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
 

@@ -25,7 +25,7 @@ module jtsimson_main(
     output      [ 7:0]  cpu_dout,
     output reg          init,
 
-    output reg  [17:0]  rom_addr,
+    output reg  [18:0]  rom_addr,
     input       [ 7:0]  rom_data,
     output reg          rom_cs,
     input               rom_ok,
@@ -52,13 +52,23 @@ module jtsimson_main(
 
     // To video
     output reg          rmrd,
-    output reg [ 1:0]   prio,
     output              pal_we,
+    output reg          pcu_cs,
     output reg          tilesys_cs,
     output reg          objsys_cs,
+    output reg          objreg_cs,
     // To sound
     output reg          snd_irq,
-    output reg          snd_reg,
+    output              snd_wrn,
+    output reg          mono,
+    input       [ 7:0]  snd2main,
+    // EEPROM
+    input       [ 5:0]  ioctl_addr,
+    input       [ 7:0]  ioctl_dout,
+    output      [ 7:0]  ioctl_din,
+    input               ioctl_wr,
+    input               eep_dwn,
+
     // DIP switches
     input               dip_test,
     input               dip_pause,
@@ -74,18 +84,22 @@ reg  [ 3:0] bank;
 reg  [ 3:0] eff_bank;
 wire [15:0] A, pcbad;
 wire        buserror;
-reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work,
-            ioout, incs , chain, berr_l,
-            e19_o16, e19_o12, objaux;
+reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work, snd_cs,
+            berr_l, prog_cs, eeprom_cs, joystk_cs, objcha,
+            i6, i7;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
 wire        norA65, norA43;
+wire        eep_rdy, eep_do, eep_we;
+reg         eep_di, eep_clk, eep_cs, firqen, W0C1, W0C0;
 
 assign dtack   = ~rom_cs | rom_ok;
 assign ram_we  = ram_cs & cpu_we;
+assign snd_wrn = ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
 assign norA65  = ~|A[6:5],
        norA43  = ~|A[4:3];
+assign eep_we  = ioctl_wr & eep_dwn;
 
 always @(*) begin
     case( debug_bus[1:0] )
@@ -106,6 +120,9 @@ wire bad_cs =
         { 3'd0, ram_cs     } +
         { 3'd0, io_cs      } +
         { 3'd0, objsys_cs  } +
+        { 3'd0, objreg_cs  } +
+        { 3'd0, pcu_cs     } +
+        { 3'd0, joystk_cs  } +
         { 3'd0, tilesys_cs } > 1;
 wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs, tilesys_cs };
 wire test_cs = A[15:0]>=16'h2000 && A[15:0]<16'h6000;
@@ -115,12 +132,8 @@ wire bad2_cs = test_cs & ~tilesys_cs & ~objsys_cs;
 reg A98;
 
 always @(*) begin
-    ioout = 0;
-    incs  = 0;
-    chain = 0;
-    objaux  = 0;
     i6 = A[15:10]==7 && (!init && A[15:10]==6'h1f);
-    i7 = (A[15:10]==7 && !w0c0) || (
+    i7 = (A[15:10]==7 && !W0C0) || (
         init ? A[15:13]==1 || (A[15:13]==0 && !W0C0) || A[15:12]==1 :
                A[15:10]==7 && (W0C1 || W0C0) );
 
@@ -149,38 +162,32 @@ end
 always @* begin
     cpu_din = rom_cs     ? rom_data  :
               ram_cs     ? ram_dout  :
-              io_cs      ? port_in   :    // io_cs must take precedence over tilesys_cs
+              (joystk_cs|eeprom_cs ) ? port_in : // io_cs must take precedence over tilesys_cs (?)
               pal_cs     ? pal_dout  :
               tilesys_cs ? tilesys_dout :
+              snd_cs    ? snd2main  :
               objsys_cs  ? objsys_dout  : 8'hff;
 end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         snd_irq   <= 0;
-        snd_reg   <= 0;
+        snd_cs   <= 0;
         port_in   <= 0;
         work      <= 0;
         pmc_work  <= 0;
-        prio      <= 0;
         rmrd      <= 0;
         init      <= 0; // missing this will result in garbled scroll after reset
         eff_bank  <= 0;
         berr_l    <= 0;
     end else begin
         if( buserror ) berr_l <= 1;
-        eff_bank <= cfg==SCONTRA ? bank : Aupper[3:0]; // Only Super Contra uses a latch
-        if( cfg==CRIMFGHT ) begin
-            init <= Aupper[7];
-            rmrd <= Aupper[6];
-            work <= Aupper[5];
-        end
         if(cpu_cen) snd_irq <= 0;
         if( io_cs ) case( A[3:1] )
             0: { objcha, init, rmrd, mono } <= cpu_dout[5:2]; // bits 1:0 are coin counters
             1: { eep_di, eep_clk, eep_cs, firqen, W0C1, W0C0 } <= { cpu_dout[7], cpu_dout[4:0] };
             2: snd_irq <= 1;
-            3: snd_reg <= 1;
+            3: snd_cs <= 1;
             // 4: CRCS ?
             // 5: AFR (watchdog)
             default:;
@@ -193,10 +200,30 @@ always @(posedge clk, posedge rst) begin
             2'd3: port_in <= { start_button[3], joystick4[6:0] };
         endcase
 
-        if( eeprom_cs ) port_in <= A[0] ? { 2'b11, eeprom_rdy, eeprom_dout, 3'b111, dip_test }
+        if( eeprom_cs ) port_in <= A[0] ? { 2'b11, eep_rdy, eep_do, 3'b111, dip_test }
                                         : { {4{service}}, coin_input };
     end
 end
+
+jt5911 u_eeprom(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    // chip interface
+    .sclk       ( eep_clk   ),       // serial clock
+    .sdi        ( eep_di    ),         // serial data in
+    .sdo        ( eep_do    ),         // serial data out
+    .rdy        ( eep_rdy   ),
+    .scs        ( eep_cs    ),         // chip select, active high. Goes low in between instructions
+    // Dump access
+    .dump_clk   ( clk       ),
+    .dump_addr  ( ioctl_addr),
+    .dump_we    ( eep_we    ),
+    .dump_din   ( ioctl_dout),
+    .dump_dout  ( ioctl_din ),
+    // NVRAM contents changed
+    .dump_clr   ( 1'b0      ),
+    .dump_flag  (           )
+);
 
 /* xverilator tracing_off */
 // there is a reset for the first 8 frames, skip it in sims
@@ -237,26 +264,15 @@ jtkcpu u_cpu(
     assign pal_we   = 0;
     assign rom_addr = 0;
 
-    reg [7:0] prio_init[0:0];
     integer f,fcnt=0;
     initial begin
         rom_cs     = 0;
         rmrd       = 0;
-        prio       = 0;
         tilesys_cs = 0;
         objsys_cs  = 0;
         snd_irq    = 0;
         snd_latch  = 0;
         init       = 0;
-
-        f=$fopen("prio.bin","rb");
-        if( f!=0 ) begin
-            fcnt=$fread(prio_init,f);
-            $fclose(f);
-            prio = prio_init[0][1:0];
-        end else begin
-            prio = 0;
-        end
     end
 `endif
 endmodule

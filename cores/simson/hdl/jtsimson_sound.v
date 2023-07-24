@@ -26,9 +26,9 @@ module jtsimson_sound(
     input           snd_irq,
     input   [ 7:0]  main_dout,
     output  [ 7:0]  main_din,
-    input           snd_reg,
     input           main_addr,
     input           main_rnw,
+    input           mono,
     // ROM
     output   [16:0] rom_addr,
     output reg      rom_cs,
@@ -63,15 +63,14 @@ module jtsimson_sound(
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
+localparam  [ 7:0]  FMGAIN=8'h10;
 
-`include "jtsimson.inc"
-
-reg         [ 7:0]  fmgain;
-wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
+wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
-wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
-reg                 ram_cs, latch_cs, fm_cs, dac_cs, bank_cs, iock;
+wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
+                    peak_l, peak_r;
+reg                 ram_cs, latch_cs, fm_cs, pcm_cs, bank_cs;
 wire signed [15:0]  fm_l, fm_r;
 wire                cpu_cen;
 reg                 mem_acc, mem_upper, pcm_swap;
@@ -82,7 +81,7 @@ reg         [ 3:0]  pcm_msb;
 reg                 af;
 
 
-assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:10] };
+assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
 assign st_dout  = 0;
 
 always @(*) begin
@@ -90,14 +89,14 @@ always @(*) begin
     af       = A[15:12]!=4'hf;
     rom_cs   = mem_acc && af;
     bank_cs  = 0;
-    nmi_clr  = 0;
+    // nmi_clr  = 0;
     fm_cs    = 0;
     pcm_cs   = 0;
     ram_cs   = 0;
     if( mem_acc && !af ) case(A[11:9])
         7: bank_cs = 1;
         6: pcm_cs  = 1;
-        5: nmi_clr = 1;
+        // 5: nmi_clr = 1; // this is not really needed for operation
         4: fm_cs   = 1;
         default: ram_cs=1;
     endcase
@@ -107,7 +106,7 @@ always @(*) begin
     case(1'b1)
         rom_cs:      cpu_din = rom_data;
         ram_cs:      cpu_din = ram_dout;
-        latch_cs:    cpu_din = snd_latch;
+        pcm_cs:      cpu_din = pcm_dout;
         fm_cs:       cpu_din = fm_dout;
         default:     cpu_din = 8'hff;
     endcase
@@ -138,27 +137,11 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mix_l(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
-    .ch0    ( fm_left    ),
-    .ch1    ( pcm_l      ),
-    .ch2    ( 16'd0      ),
-    .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
-    .gain1  ( fxgain     ),
-    .gain2  ( 8'd0       ),
-    .gain3  ( 8'd0       ),
-    .mixed  ( snd_l      ),
-    .peak   ( peak_l     )
-);
-
-jtframe_mixer #(.W0(16),.W1(12)) u_mix_l(
-    .rst    ( rst        ),
-    .clk    ( clk        ),
-    .cen    ( cen_fm     ),
     .ch0    ( fm_l       ),
     .ch1    ( pcm_l      ),
     .ch2    ( 16'd0      ),
     .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
+    .gain0  ( FMGAIN     ),
     .gain1  ( fxgain     ),
     .gain2  ( 8'd0       ),
     .gain3  ( 8'd0       ),
@@ -174,7 +157,7 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mix_r(
     .ch1    ( pcm_r      ),
     .ch2    ( 16'd0      ),
     .ch3    ( 16'd0      ),
-    .gain0  ( fmgain     ),
+    .gain0  ( FMGAIN     ),
     .gain1  ( fxgain     ),
     .gain2  ( 8'd0       ),
     .gain3  ( 8'd0       ),
@@ -188,7 +171,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .cen        ( cen_fm    ),
     .cpu_cen    ( cpu_cen   ),
     .int_n      ( ~snd_irq  ),
-    .nmi_n      ( 1'b1      ),
+    .nmi_n      ( sample    ),
     .busrq_n    ( 1'b1      ),
     .m1_n       ( m1_n      ),
     .mreq_n     ( mreq_n    ),
@@ -230,7 +213,6 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 /* verilator tracing_on */
-
 jt053260 u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -238,37 +220,38 @@ jt053260 u_pcm(
     // Main CPU interface
     .ma0        ( main_addr ),
     .mrdnw      ( main_rnw  ),
-    .mcs        ( snd_reg   ),
+    .mcs        ( 1'b1      ),
     .mdin       ( main_din  ),
     .mdout      ( main_dout ),
     // Sub CPU control
     .addr       ( A[5:0]    ),
-    .dacs       ( dac_cs    ), // active high
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
+    .cs         ( pcm_cs    ),
+    .dout       ( pcm_dout  ),
     .din        ( cpu_dout  ),
 
     // External memory - the original chip
     // only had one bus
     .roma_addr  ( pcma_addr ),
-    .roma_dout  ( pcma_dout ),
+    .roma_data  ( pcma_dout ),
     .roma_cs    ( pcma_cs   ),
-    .roma_ok    ( pcma_ok   ),
+    // .roma_ok    ( pcma_ok   ),
 
     .romb_addr  ( pcmb_addr ),
-    .romb_dout  ( pcmb_dout ),
+    .romb_data  ( pcmb_dout ),
     .romb_cs    ( pcmb_cs   ),
-    .romb_ok    ( pcmb_ok   ),
+    // .romb_ok    ( pcmb_ok   ),
 
     .romc_addr  ( pcmc_addr ),
-    .romc_dout  ( pcmc_dout ),
+    .romc_data  ( pcmc_dout ),
     .romc_cs    ( pcmc_cs   ),
-    .romc_ok    ( pcmc_ok   ),
+    // .romc_ok    ( pcmc_ok   ),
 
     .romd_addr  ( pcmd_addr ),
-    .romd_dout  ( pcmd_dout ),
+    .romd_data  ( pcmd_dout ),
     .romd_cs    ( pcmd_cs   ),
-    .romd_ok    ( pcmd_ok   ),
+    // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
     .snd_l      ( pcm_l     ),
     .snd_r      ( pcm_r     ),

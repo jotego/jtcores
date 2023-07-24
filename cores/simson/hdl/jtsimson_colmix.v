@@ -22,8 +22,14 @@
 module jtsimson_colmix(
     input             rst,
     input             clk,
+
+    // Base Video
     input             pxl_cen,
+    input             lhbl,
+    input             lvbl,
+
     // CPU interface
+    input             pcu_cs,       // priority control unit
     input             cpu_we,
     input      [11:0] cpu_addr,
     input       [7:0] cpu_dout,
@@ -31,10 +37,9 @@ module jtsimson_colmix(
 
     // Final pixels
     input      [ 6:0] lyrf_pxl, lyra_pxl, lyrb_pxl,
-    input      [ 9:0] lyro_pxl,
-    input      [ 4:0] prio,
+    input      [ 8:0] lyro_pxl,
+    input      [ 4:0] obj_prio,
     input      [ 1:0] obj_shd,
-    input             shadow,
 
     output     [ 7:0] red,
     output     [ 7:0] green,
@@ -49,9 +54,27 @@ module jtsimson_colmix(
 
 wire [10:0] pxl;
 wire [11:0] pal_addr;
-wire [ 1:0] shd_eff;
+wire [ 1:0] pre_shd;
+wire        shd;
+wire [ 7:0] pal_dout;
+reg  [23:0] bgr;
+reg         pal_half, shl;
+reg  [ 9:0] pxl;
+reg  [15:0] pxl_aux;
 
 assign pal_addr = { pxl, pal_half };
+assign shd      = ~|pre_shd;
+assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
+assign ioctl_din = 0;
+
+function [23:0] dim( input [14:0] cin, input shade );
+    dim = !shade? {   1'b0, cin[14:10], cin[14:13],
+                      1'b0, cin[ 9: 5], cin[ 9: 8],
+                      1'b0, cin[ 4: 0], cin[ 4: 3] } :
+                 { cin[14:10], cin[14:12],
+                   cin[ 9: 5], cin[ 9: 7],
+                   cin[ 4: 0], cin[ 4: 2] };
+endfunction
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -65,7 +88,7 @@ always @(posedge clk) begin
         pxl_aux <= {1'b0,{3{pxl[4:0]}}};
 `endif
         if( pxl_cen ) begin
-            shl <= shad;
+            shl <= shd;
             bgr <= dim(pxl_aux[14:0], shl);
             pal_half <= 0;
         end else
@@ -78,13 +101,13 @@ jtcolmix_053251 u_prio(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     // CPU interface
-    .cs         ( cs        ),
+    .cs         ( pcu_cs    ),
     .addr       (cpu_addr[3:0]),
     .din        (cpu_dout[5:0]),
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),
-    .pri1       ({prio,1'b0}),
+    .pri1       ({obj_prio,1'b0}),
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),
@@ -94,7 +117,7 @@ jtcolmix_053251 u_prio(
     .ci4        ({1'b0,lyrb_pxl}),
     // shadow
     .shd_in     ( obj_shd   ),
-    .shd_out    ( shd_eff   ),
+    .shd_out    ( pre_shd   ),
 
     .cout       ( pxl       ),
     .brit       (           ),
