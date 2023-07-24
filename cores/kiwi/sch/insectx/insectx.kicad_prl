@@ -3,10 +3,12 @@
     "active_layer": 0,
     "active_layer_preset": "All Layers",
     "auto_track_width": true,
+    "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
     "net_color_mode": 1,
     "opacity": {
+      "images": 0.6,
       "pads": 1.0,
       "tracks": 1.0,
       "vias": 1.0,
@@ -70,6 +72,19 @@
     "version": 3
   },
   "project": {
-    "files": []
+    "files": [
+      {
+        "name": "insectx.kicad_sch",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 477,
+          "pos_y": 28,
+          "size_x": 966,
+          "size_y": 1024
+        }
+      }
+    ]
   }
 }
