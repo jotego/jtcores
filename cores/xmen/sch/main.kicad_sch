@@ -7413,7 +7413,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 382fcb71-73a1-4bd2-8e52-414e714c1d05)
   )
-  (hierarchical_label "MAB~{CE}" (shape input) (at 30.48 35.56 180)
+  (hierarchical_label "OBJ~{IRQ}" (shape input) (at 30.48 35.56 180)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 420f914e-bf3a-4f48-b10c-de59a561bb80)
   )

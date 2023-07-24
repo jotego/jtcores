@@ -70,6 +70,19 @@
     "version": 3
   },
   "project": {
-    "files": []
+    "files": [
+      {
+        "name": "xmen.kicad_sch",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 477,
+          "pos_y": 28,
+          "size_x": 966,
+          "size_y": 1024
+        }
+      }
+    ]
   }
 }
