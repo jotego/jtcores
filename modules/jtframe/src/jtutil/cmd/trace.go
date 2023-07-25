@@ -28,6 +28,12 @@ command.
 
 The comparison is interactive, although a script can also be run to help in
 debugging sessions. Type help to obtain the list of commands.
+
+The VCD comparison will not be done while these signals are high:
+
+- alu_busy      the ALU is busy solving a long operation
+- str_busy      a long string operation is in progress
+- stack_busy    processing long stack related operations
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		runTrace()

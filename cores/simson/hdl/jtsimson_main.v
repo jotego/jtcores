@@ -124,7 +124,8 @@ wire bad_cs =
         { 3'd0, pcu_cs     } +
         { 3'd0, joystk_cs  } +
         { 3'd0, tilesys_cs } > 1;
-wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs, objreg_cs, pcu_cs, joystk_cs, tilesys_cs };
+wire none_cs = ~|{ rom_cs, pal_cs, ram_cs, io_cs, objsys_cs,
+    objreg_cs, pcu_cs, joystk_cs, tilesys_cs, eeprom_cs };
 `endif
 
 reg io_aux;
@@ -167,7 +168,7 @@ always @* begin
               pal_cs     ? pal_dout  :
               tilesys_cs ? tilesys_dout :
               snd_cs    ? snd2main  :
-              objsys_cs  ? objsys_dout  : 8'hff;
+              objsys_cs  ? objsys_dout  : 8'h00;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -196,7 +197,9 @@ always @(posedge clk, posedge rst) begin
             2'd3: port_in <= { start_button[3], joystick4[6:0] };
         endcase
 
-        if( eeprom_cs ) port_in <= A[0] ? { 2'b11, eep_rdy, eep_do, 3'b111, dip_test }
+        if( eeprom_cs ) port_in <= A[0] ? /*{ W0C1, W0C0, eep_rdy, eep_do,
+                                            eep_di, eep_clk, eep_cs, dip_test } // real PCB */
+                                        { 2'b11, eep_rdy, eep_do, 3'b111, dip_test } // use for MAME comparisons
                                         : { {4{service}}, coin_input };
     end
 end
