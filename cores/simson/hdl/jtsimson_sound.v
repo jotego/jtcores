@@ -86,19 +86,20 @@ assign st_dout  = 0;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
-    af       = A[15:12]!=4'hf;
-    rom_cs   = mem_acc && af;
+    af       = A[15:12]==4'hf;
+    rom_cs   = mem_acc && !af;
     bank_cs  = 0;
     // nmi_clr  = 0;
     fm_cs    = 0;
     pcm_cs   = 0;
     ram_cs   = 0;
-    if( mem_acc && !af ) case(A[11:9])
+    if( mem_acc && af ) case(A[11:9])
         7: bank_cs = 1;
         6: pcm_cs  = 1;
         // 5: nmi_clr = 1; // this is not really needed for operation
         4: fm_cs   = 1;
-        default: ram_cs=1;
+        3,2,1,0: ram_cs=1;
+        default:;
     endcase
 end
 

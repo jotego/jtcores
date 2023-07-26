@@ -81,15 +81,13 @@ module jtsimson_main(
 wire [ 7:0] Aupper;
 reg  [ 7:0] cpu_din, port_in;
 reg  [ 3:0] bank;
-reg  [ 3:0] eff_bank;
 wire [15:0] A, pcbad;
 wire        buserror;
-reg         ram_cs, banked_cs, io_cs, pal_cs, work, pmc_work, snd_cs,
+reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
             berr_l, prog_cs, eeprom_cs, joystk_cs, objcha,
             i6n, i7n;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
-wire        norA65, norA43;
 wire        eep_rdy, eep_do, eep_we, firqn_ff;
 reg         eep_di, eep_clk, eep_cs, firqen, W0C1, W0C0;
 
@@ -97,8 +95,6 @@ assign dtack   = ~rom_cs | rom_ok;
 assign ram_we  = ram_cs & cpu_we;
 assign snd_wrn = ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
-assign norA65  = ~|A[6:5],
-       norA43  = ~|A[4:3];
 assign eep_we  = ioctl_wr & eep_dwn;
 
 always @(*) begin
@@ -174,11 +170,8 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         port_in   <= 0;
-        work      <= 0;
-        pmc_work  <= 0;
         rmrd      <= 0;
         init      <= 0; // missing this will result in garbled scroll after reset
-        eff_bank  <= 0;
         berr_l    <= 0;
     end else begin
         if( buserror ) berr_l <= 1;
@@ -204,7 +197,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jt5911 u_eeprom(
+jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
     .rst        ( rst       ),
     .clk        ( clk       ),
     // chip interface

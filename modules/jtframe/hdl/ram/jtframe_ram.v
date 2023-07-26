@@ -74,8 +74,7 @@ if( SIMFILE != 0 ) begin
     end else begin
         $display("WARNING: %m cannot open file: %s", SIMFILE);
     end
-    end
-else begin
+end else begin
     if( SIMHEXFILE != 0 ) begin
         $readmemh(SIMHEXFILE,mem);
         $display("INFO: Read %14s (hex) for %m", SIMHEXFILE);

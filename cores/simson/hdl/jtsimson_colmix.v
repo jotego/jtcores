@@ -59,7 +59,6 @@ wire        shd;
 wire [ 7:0] pal_dout;
 reg  [23:0] bgr;
 reg         pal_half, shl;
-reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 
 assign pal_addr = { pxl, pal_half };

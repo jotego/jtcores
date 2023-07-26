@@ -21,7 +21,7 @@ module jtsimson_game(
 );
 
 /* verilator tracing_off */
-wire [ 7:0] snd2main;
+wire [ 7:0] snd2main, video_dump;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
 wire        cpu_rnw, cpu_irqn, cpu_firqn, snd_wrn, mono, objreg_cs;
@@ -105,7 +105,7 @@ jtsimson_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -209,7 +209,7 @@ jtsimson_video u_video (
     // Debug
     .debug_bus      ( debug_bus     ),
     .ioctl_addr     (ioctl_addr[14:0]),
-    .ioctl_din      ( ioctl_din     ),
+    .ioctl_din      ( video_dump    ),
     .ioctl_ram      ( 1'b0          ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )

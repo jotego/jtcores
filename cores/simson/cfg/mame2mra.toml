@@ -12,7 +12,7 @@ delete = [ "Unused", "Unknown" ]
 
 [ROM]
 regions = [
-    { name="maincpu" }, # First 32kB go to $8000, the rest are banked at $6000
+    { name="maincpu", sequence=[0,2,1,3] }, # First 32kB go to $8000, the rest are banked at $6000
     { name="audiocpu",  start="JTFRAME_BA1_START" },
     { name="pcm",       start="PCM_START", rename="k053260" },
     { name="tiles",     start="JTFRAME_BA2_START", width=32, rename="k052109" }, # tiles
