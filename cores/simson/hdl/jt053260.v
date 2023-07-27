@@ -81,26 +81,26 @@ module jt053260 (
     wire          ch0_key  = key_on[0];
     wire          ch0_loop = loop[0];
 
-    wire   [11:0] ch1_pitch  = { ch_mmr[9][3:0], ch_mmr[8] };
-    wire   [15:0] ch1_length = { ch_mmr[11], ch_mmr[10] };
-    wire   [20:0] ch1_start  = { ch_mmr[14][4:0], ch_mmr[13], ch_mmr[12] };
-    wire   [ 6:0] ch1_volume = { ch_mmr[15][6:0] };
+    wire   [11:0] ch1_pitch  = { ch_mmr[4'o11][3:0], ch_mmr[4'o10] };
+    wire   [15:0] ch1_length = { ch_mmr[4'o13], ch_mmr[4'o12] };
+    wire   [20:0] ch1_start  = { ch_mmr[4'o16][4:0], ch_mmr[4'o15], ch_mmr[4'o14] };
+    wire   [ 6:0] ch1_volume = { ch_mmr[4'o17][6:0] };
     reg    [ 2:0] ch1_pan;
     wire          ch1_key  = key_on[1];
     wire          ch1_loop = loop[1];
 
-    wire   [11:0] ch2_pitch  = { ch_mmr[17][3:0], ch_mmr[16] };
-    wire   [15:0] ch2_length = { ch_mmr[19], ch_mmr[18] };
-    wire   [20:0] ch2_start  = { ch_mmr[22][4:0], ch_mmr[21], ch_mmr[20] };
-    wire   [ 6:0] ch2_volume = { ch_mmr[23][6:0] };
+    wire   [11:0] ch2_pitch  = { ch_mmr[4'o21][3:0], ch_mmr[4'o20] };
+    wire   [15:0] ch2_length = { ch_mmr[4'o23], ch_mmr[4'o22] };
+    wire   [20:0] ch2_start  = { ch_mmr[4'o26][4:0], ch_mmr[4'o25], ch_mmr[4'o24] };
+    wire   [ 6:0] ch2_volume = { ch_mmr[4'o27][6:0] };
     reg    [ 2:0] ch2_pan;
     wire          ch2_key  = key_on[2];
     wire          ch2_loop = loop[2];
 
-    wire   [11:0] ch3_pitch  = { ch_mmr[25][3:0], ch_mmr[24] };
-    wire   [15:0] ch3_length = { ch_mmr[27], ch_mmr[26] };
-    wire   [20:0] ch3_start  = { ch_mmr[30][4:0], ch_mmr[29], ch_mmr[28] };
-    wire   [ 6:0] ch3_volume = { ch_mmr[31][6:0] };
+    wire   [11:0] ch3_pitch  = { ch_mmr[4'o31][3:0], ch_mmr[4'o30] };
+    wire   [15:0] ch3_length = { ch_mmr[4'o33], ch_mmr[4'o32] };
+    wire   [20:0] ch3_start  = { ch_mmr[4'o36][4:0], ch_mmr[4'o35], ch_mmr[4'o34] };
+    wire   [ 6:0] ch3_volume = { ch_mmr[4'o37][6:0] };
     reg    [ 2:0] ch3_pan;
     wire          ch3_key  = key_on[3];
     wire          ch3_loop = loop[3];
