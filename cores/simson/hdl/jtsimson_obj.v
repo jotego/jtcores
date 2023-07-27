@@ -63,7 +63,7 @@ assign pxl      = 0;
 assign rom_cs   = 0;
 assign rom_addr = 0;
 assign irq_en   = mmr[5][4];
-assign irqn     = lvbl | ~irq_en;
+assign irqn     = ~vs | ~irq_en;
 assign st_dout  = 0;
 
 always @(posedge clk,posedge rst) begin

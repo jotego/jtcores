@@ -16,9 +16,6 @@
     Version: 1.0
     Date: 14-4-2023 */
 
-//  NOTE: this sound chip does not have connected the registers
-//  main-to-sub or sub-to-main
-
 module jt053260 (
     input                    rst,
     input                    clk,
@@ -65,13 +62,14 @@ module jt053260 (
     // input               aux2,
     // output              rdnwp,
     // output              tim2,
-    // output              cen_e,     // M6809 clock
+    // output              cen_e,    // M6809 clock
     // output              cen_q     // M6809 clock
 );
     reg    [ 7:0] ch_mmr[0:31];
     reg    [ 7:0] pm2s[0:1], ps2m[0:1];
 
-    reg    [ 3:0] key_on, mode, over;
+    reg    [ 3:0] key_on, mode;
+    wire   [ 3:0] over;
     reg    [ 3:0] adpcm_en, loop;
 
     // 4 channels for register of 8 bit
@@ -91,7 +89,7 @@ module jt053260 (
     wire          ch1_key  = key_on[1];
     wire          ch1_loop = loop[1];
 
-    wire   [11:0] ch2_pitch   = { ch_mmr[17][3:0], ch_mmr[16] };
+    wire   [11:0] ch2_pitch  = { ch_mmr[17][3:0], ch_mmr[16] };
     wire   [15:0] ch2_length = { ch_mmr[19], ch_mmr[18] };
     wire   [20:0] ch2_start  = { ch_mmr[22][4:0], ch_mmr[21], ch_mmr[20] };
     wire   [ 6:0] ch2_volume = { ch_mmr[23][6:0] };
@@ -99,7 +97,7 @@ module jt053260 (
     wire          ch2_key  = key_on[2];
     wire          ch2_loop = loop[2];
 
-    wire   [11:0] ch3_pitch   = { ch_mmr[25][3:0], ch_mmr[24] };
+    wire   [11:0] ch3_pitch  = { ch_mmr[25][3:0], ch_mmr[24] };
     wire   [15:0] ch3_length = { ch_mmr[27], ch_mmr[26] };
     wire   [20:0] ch3_start  = { ch_mmr[30][4:0], ch_mmr[29], ch_mmr[28] };
     wire   [ 6:0] ch3_volume = { ch_mmr[31][6:0] };
@@ -135,11 +133,9 @@ module jt053260 (
         if( rst ) begin
             pm2s[0] <= 0;
             pm2s[1] <= 0;
-        end else begin
-            if ( mcs && !mrdnw ) begin
-                pm2s[ma0] <= mdout;
-            end
+        end else if(mcs) begin
             mdin <= ps2m[ma0];
+            if ( !mrdnw ) pm2s[ma0] <= mdout;
         end
     end
 
@@ -164,7 +160,7 @@ module jt053260 (
                         ch_mmr[ addr8[4:0] ] <= din;
                     end
                     case ( addr )
-                        2,3: ps2m[addr[0]] <= din;
+                        2,3:   ps2m[addr[0]] <= din;
                         6'h28: key_on <= din[3:0];
                         6'h2A: { adpcm_en, loop } <= din;
                         6'h2C: { ch1_pan, ch0_pan } <= din[5:0];
@@ -173,14 +169,12 @@ module jt053260 (
                         default: ;
                     endcase
                 end
-                if( !rd_n ) begin
-                    case ( addr )
-                        0,1:     dout <= pm2s[addr[0]];
-                        6'h29:   dout <= {4'd0,~over};
-                        6'h2E:   dout <= mode ? roma_data : 8'd0;
-                        default: dout <= 0;
-                    endcase
-                end
+                if (!rd_n) case ( addr )
+                    0,1:     dout <= pm2s[addr[0]];
+                    6'h29:   dout <= {4'd0,~over};
+                    6'h2E:   dout <= mode ? roma_data : 8'd0;
+                    default: dout <= 0;
+                endcase
             end
         end
     end

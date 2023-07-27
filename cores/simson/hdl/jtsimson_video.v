@@ -137,8 +137,8 @@ jtsimson_scroll u_scroll(
     .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
 
-    .irq_n      (           ),
-    .firq_n     ( cpu_irqn  ),
+    .irq_n      ( cpu_irqn  ),
+    .firq_n     (           ),
     .nmi_n      (           ),
     .flip       ( flip      ),
 

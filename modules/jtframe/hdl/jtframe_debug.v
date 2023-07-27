@@ -122,8 +122,8 @@ end
 // Video overlay
 wire [8:0] HBIN=((`JTFRAME_WIDTH&9'h1f8)>>1)-9'h10,
                  HHEX=HBIN+9'h50,
-                 VOSD=(`JTFRAME_HEIGHT & 9'h1f8)-8*4, // 4 rows above bottom
-                 VVIEW=VOSD+8*2;
+                 VOSD=(`JTFRAME_HEIGHT & 9'h1f8)-9'd8*9'd4, // 4 rows above bottom
+                 VVIEW=VOSD+9'd8*9'd2;
 
 reg  [8:0] vcnt,hcnt;
 reg        lhbl_l, osd_on, view_on, bus_hex_on, view_hex_on;
