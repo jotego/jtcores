@@ -66,7 +66,8 @@ module jt053260 (
     // output              cen_q     // M6809 clock
 );
     reg    [ 7:0] ch_mmr[0:31];
-    reg    [ 7:0] pm2s[0:1], ps2m[0:1];
+    reg    [ 7:0] pm2s[0:1];
+    reg    [ 7:0] ps2m[0:1];
 
     reg    [ 3:0] key_on, mode;
     wire   [ 3:0] over;
@@ -81,26 +82,26 @@ module jt053260 (
     wire          ch0_key  = key_on[0];
     wire          ch0_loop = loop[0];
 
-    wire   [11:0] ch1_pitch  = { ch_mmr[4'o11][3:0], ch_mmr[4'o10] };
-    wire   [15:0] ch1_length = { ch_mmr[4'o13], ch_mmr[4'o12] };
-    wire   [20:0] ch1_start  = { ch_mmr[4'o16][4:0], ch_mmr[4'o15], ch_mmr[4'o14] };
-    wire   [ 6:0] ch1_volume = { ch_mmr[4'o17][6:0] };
+    wire   [11:0] ch1_pitch  = { ch_mmr[5'o11][3:0], ch_mmr[5'o10] };
+    wire   [15:0] ch1_length = { ch_mmr[5'o13], ch_mmr[5'o12] };
+    wire   [20:0] ch1_start  = { ch_mmr[5'o16][4:0], ch_mmr[5'o15], ch_mmr[5'o14] };
+    wire   [ 6:0] ch1_volume = { ch_mmr[5'o17][6:0] };
     reg    [ 2:0] ch1_pan;
     wire          ch1_key  = key_on[1];
     wire          ch1_loop = loop[1];
 
-    wire   [11:0] ch2_pitch  = { ch_mmr[4'o21][3:0], ch_mmr[4'o20] };
-    wire   [15:0] ch2_length = { ch_mmr[4'o23], ch_mmr[4'o22] };
-    wire   [20:0] ch2_start  = { ch_mmr[4'o26][4:0], ch_mmr[4'o25], ch_mmr[4'o24] };
-    wire   [ 6:0] ch2_volume = { ch_mmr[4'o27][6:0] };
+    wire   [11:0] ch2_pitch  = { ch_mmr[5'o21][3:0], ch_mmr[5'o20] };
+    wire   [15:0] ch2_length = { ch_mmr[5'o23], ch_mmr[5'o22] };
+    wire   [20:0] ch2_start  = { ch_mmr[5'o26][4:0], ch_mmr[5'o25], ch_mmr[5'o24] };
+    wire   [ 6:0] ch2_volume = { ch_mmr[5'o27][6:0] };
     reg    [ 2:0] ch2_pan;
     wire          ch2_key  = key_on[2];
     wire          ch2_loop = loop[2];
 
-    wire   [11:0] ch3_pitch  = { ch_mmr[4'o31][3:0], ch_mmr[4'o30] };
-    wire   [15:0] ch3_length = { ch_mmr[4'o33], ch_mmr[4'o32] };
-    wire   [20:0] ch3_start  = { ch_mmr[4'o36][4:0], ch_mmr[4'o35], ch_mmr[4'o34] };
-    wire   [ 6:0] ch3_volume = { ch_mmr[4'o37][6:0] };
+    wire   [11:0] ch3_pitch  = { ch_mmr[5'o31][3:0], ch_mmr[5'o30] };
+    wire   [15:0] ch3_length = { ch_mmr[5'o33], ch_mmr[5'o32] };
+    wire   [20:0] ch3_start  = { ch_mmr[5'o36][4:0], ch_mmr[5'o35], ch_mmr[5'o34] };
+    wire   [ 6:0] ch3_volume = { ch_mmr[5'o37][6:0] };
     reg    [ 2:0] ch3_pan;
     wire          ch3_key  = key_on[3];
     wire          ch3_loop = loop[3];
@@ -150,6 +151,7 @@ module jt053260 (
             ch_mmr[5] <= 0; ch_mmr[13] <= 0; ch_mmr[21] <= 0; ch_mmr[29] <= 0;
             ch_mmr[6] <= 0; ch_mmr[14] <= 0; ch_mmr[22] <= 0; ch_mmr[30] <= 0;
             ch_mmr[7] <= 0; ch_mmr[15] <= 0; ch_mmr[23] <= 0; ch_mmr[31] <= 0;
+            ps2m[0]   <= 0; ps2m[1]    <= 0;
             ch0_pan <= 0; ch1_pan <= 0; ch2_pan <= 0; ch3_pan <= 0;
             key_on  <= 4'hF; loop <= 0; mode    <= 0; adpcm_en <=0;
             dout <= 0;
@@ -172,7 +174,7 @@ module jt053260 (
                 if (!rd_n) case ( addr )
                     0,1:     dout <= pm2s[addr[0]];
                     6'h29:   dout <= {4'd0,~over};
-                    6'h2E:   dout <= mode ? roma_data : 8'd0;
+                    6'h2E:   dout <= mode!=0 ? roma_data : 8'd0;
                     default: dout <= 0;
                 endcase
             end

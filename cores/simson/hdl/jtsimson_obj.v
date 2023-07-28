@@ -41,6 +41,7 @@ module jtsimson_obj(
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
+    input             objcha_n,
 
     // pixel output
     output     [ 1:0] shd,
@@ -53,18 +54,37 @@ module jtsimson_obj(
 
 wire [1:0] ram_we;
 reg  [7:0] mmr[0:7];
+wire [15:0] off_x, off_y, ram_data;
+wire [23:0] rmrd_addr;
 
-wire irq_en;
+wire irq_en, scr_hflip, scr_vflip;
 
-assign ram_we   = {2{cpu_we&ram_cs}} & ~cpu_dsn;
-assign shd      = 0;
-assign prio     = 0;
-assign pxl      = 0;
-assign rom_cs   = 0;
-assign rom_addr = 0;
-assign irq_en   = mmr[5][4];
-assign irqn     = ~vs | ~irq_en;
-assign st_dout  = 0;
+assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
+assign shd       = 0;
+assign prio      = 0;
+assign pxl       = 0;
+assign rom_cs    = ~objcha_n;
+assign rom_addr  = rmrd_addr[21:2];
+assign irq_en    = mmr[5][4];
+assign scr_hflip = mmr[5][0];
+assign scr_vflip = mmr[5][0];
+assign irqn      = ~vs | ~irq_en;
+assign st_dout   = 0;
+
+assign rmrd_addr = { mmr[6], mmr[7], mmr[4] };
+assign off_x     = { mmr[1], mmr[0] };
+assign off_y     = { mmr[3], mmr[2] };
+
+assign cpu_din = ram_cs ? ram_data : rom_data;
+
+always @* begin
+    case( cpu_addr[1:0] ) begin
+        0: rmrd_data = rom_data[ 7: 0];
+        1: rmrd_data = rom_data[15: 8];
+        2: rmrd_data = rom_data[23:16];
+        3: rmrd_data = rom_data[31:24];
+    end
+end
 
 always @(posedge clk,posedge rst) begin
     if( rst ) begin
@@ -81,8 +101,8 @@ jtframe_dual_ram16 #(.AW(13)) u_ram(
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
     .addr0  ( cpu_addr  ),
-    .we0    ( ram_we        ),
-    .q0     ( cpu_din   ),
+    .we0    ( ram_we    ),
+    .q0     ( ram_data  ),
     // Port 1 - Video access
     .clk1   ( clk       ),
     .data1  ( 16'd0     ),

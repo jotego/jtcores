@@ -57,6 +57,7 @@ module jtsimson_main(
     output reg          tilesys_cs,
     output reg          objsys_cs,
     output reg          objreg_cs,
+    output reg          objcha_n,
     // To sound
     output reg          snd_irq,
     output              snd_wrn,
@@ -84,7 +85,7 @@ reg  [ 3:0] bank;
 wire [15:0] A, pcbad;
 wire        buserror;
 reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
-            berr_l, prog_cs, eeprom_cs, joystk_cs, objcha,
+            berr_l, prog_cs, eeprom_cs, joystk_cs,
             i6n, i7n;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
@@ -176,7 +177,7 @@ always @(posedge clk, posedge rst) begin
     end else begin
         if( buserror ) berr_l <= 1;
         if( io_cs ) case( A[3:1] )
-            0: { objcha, init, rmrd, mono } <= cpu_dout[5:2]; // bits 1:0 are coin counters
+            0: { objcha_n, init, rmrd, mono } <= cpu_dout[5:2]; // bits 1:0 are coin counters
             1: { eep_di, eep_clk, eep_cs, firqen, W0C1, W0C0 } <= { cpu_dout[7], cpu_dout[4:0] };
             // 4: CRCS ?
             // 5: AFR (watchdog)

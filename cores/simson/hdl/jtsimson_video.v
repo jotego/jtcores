@@ -46,6 +46,7 @@ module jtsimson_video(
 
     // control
     input             rmrd,     // Tile ROM read mode
+    input             objcha_n, // object ROM read mode
     output            cpu_irqn,
     output            cpu_firqn,
 
@@ -202,6 +203,7 @@ jtsimson_obj u_obj(    // sprite logic
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
+    .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl  ),
     .shd        ( obj_shd   ),
