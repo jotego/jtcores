@@ -75,16 +75,8 @@ assign rmrd_addr = { mmr[6], mmr[7], mmr[4] };
 assign off_x     = { mmr[1], mmr[0] };
 assign off_y     = { mmr[3], mmr[2] };
 
-assign cpu_din = ram_cs ? ram_data : rom_data;
-
-always @* begin
-    case( cpu_addr[1:0] ) begin
-        0: rmrd_data = rom_data[ 7: 0];
-        1: rmrd_data = rom_data[15: 8];
-        2: rmrd_data = rom_data[23:16];
-        3: rmrd_data = rom_data[31:24];
-    end
-end
+assign cpu_din = ram_cs      ? ram_data :
+                 cpu_addr[1] ? rom_data[31:16] : rom_data[15:0];
 
 always @(posedge clk,posedge rst) begin
     if( rst ) begin

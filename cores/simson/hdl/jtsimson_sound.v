@@ -69,16 +69,14 @@ wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
-                    peak_l, peak_r;
+                    peak_l, peak_r, nmi_n;
 reg                 ram_cs, latch_cs, fm_cs, pcm_cs, bank_cs;
 wire signed [15:0]  fm_l, fm_r;
 wire                cpu_cen;
-reg                 mem_acc, mem_upper, pcm_swap;
+reg                 mem_acc, af, nmi_clr;
 reg         [ 2:0]  bank;
 wire signed [11:0]  pcm_l, pcm_r;
-wire        [ 1:0]  ct;
 reg         [ 3:0]  pcm_msb;
-reg                 af;
 
 
 assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
@@ -88,17 +86,16 @@ always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
     af       = A[15:12]==4'hf;
     rom_cs   = mem_acc && !af;
+    ram_cs   = mem_acc && af && !A[11];
     bank_cs  = 0;
-    // nmi_clr  = 0;
+    nmi_clr  = 0;
     fm_cs    = 0;
     pcm_cs   = 0;
-    ram_cs   = 0;
     if( mem_acc && af ) case(A[11:9])
         7: bank_cs = 1;
         6: pcm_cs  = 1;
-        // 5: nmi_clr = 1; // this is not really needed for operation
+        5: nmi_clr = 1; // this is not really needed for operation
         4: fm_cs   = 1;
-        3,2,1,0: ram_cs=1;
         default:;
     endcase
 end
@@ -133,6 +130,14 @@ always @(*) begin
         3: fxgain = 8'h10;
     endcase
 end
+
+jtframe_edge #(.QSET(0)) u_edge (
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( sample    ),
+    .clr    ( nmi_clr   ),
+    .q      ( nmi_n     )
+);
 
 jtframe_mixer #(.W0(16),.W1(12)) u_mix_l(
     .rst    ( rst        ),
@@ -172,7 +177,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .cen        ( cen_fm    ),
     .cpu_cen    ( cpu_cen   ),
     .int_n      ( ~snd_irq  ),
-    .nmi_n      ( sample    ),
+    .nmi_n      ( nmi_n     ),
     .busrq_n    ( 1'b1      ),
     .m1_n       ( m1_n      ),
     .mreq_n     ( mreq_n    ),
@@ -202,11 +207,11 @@ jt51 u_jt51(
     .a0         ( A[0]      ),
     .din        ( cpu_dout  ), // data in
     .dout       ( fm_dout   ), // data out
-    .ct1        ( ct[0]     ),
-    .ct2        ( ct[1]     ),
+    .ct1        (           ),
+    .ct2        (           ),
     .irq_n      (           ),
     // Low resolution output (same as real chip)
-    .sample     ( sample    ), // marks new output sample
+    .sample     ( sample    ), // marks new output sample and NMI
     .left       (           ),
     .right      (           ),
     // Full resolution output

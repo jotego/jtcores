@@ -21,3 +21,6 @@ regions = [
 ]
 
 order = [ "maincpu", "audiocpu", "pcm", "tiles", "obj", "eeprom" ]
+
+# Skips the RAM check
+patches = [ { setname="simpsons", offset=0x787fb, value="68 00 a9" } ] # jump from 88fb to 88a7

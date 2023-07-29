@@ -107,7 +107,7 @@ Please support the development: https://patreon.com/jotego
                if necessary by JTFRAME logic,
                The format is:
                bit  |  Meaning
-               3:0  | start[1:0], coin[1:0]
+               3:0  | { start[1:0], coin[1:0] }
                7:4  | joystick for 1P
                     | UP, DOWN, LEFT, RIGHT
                10:8 | buttons
