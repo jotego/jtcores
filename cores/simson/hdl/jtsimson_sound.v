@@ -102,11 +102,11 @@ end
 
 always @(*) begin
     case(1'b1)
-        rom_cs:      cpu_din = rom_data;
-        ram_cs:      cpu_din = ram_dout;
-        pcm_cs:      cpu_din = pcm_dout;
-        fm_cs:       cpu_din = fm_dout;
-        default:     cpu_din = 8'hff;
+        rom_cs:  cpu_din = rom_data;
+        ram_cs:  cpu_din = ram_dout;
+        pcm_cs:  cpu_din = pcm_dout;
+        fm_cs:   cpu_din = fm_dout;
+        default: cpu_din = 8'hff;
     endcase
 end
 
@@ -124,10 +124,10 @@ reg [7:0] fxgain;
 
 always @(*) begin
     case( fxlevel )
-        0: fxgain = 8'h02;
-        1: fxgain = 8'h04;
-        2: fxgain = 8'h08;
-        3: fxgain = 8'h10;
+        0: fxgain = 8'h04;
+        1: fxgain = 8'h08;
+        2: fxgain = 8'h10;
+        3: fxgain = 8'h20;
     endcase
 end
 
@@ -261,7 +261,8 @@ jt053260 u_pcm(
     // sound output - raw
     .snd_l      ( pcm_l     ),
     .snd_r      ( pcm_r     ),
-    .sample     (           )
+    .sample     (           ),
+    .debug_bus  ( debug_bus )
 );
 `else
 initial rom_cs   = 0;

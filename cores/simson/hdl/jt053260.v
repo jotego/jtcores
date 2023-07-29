@@ -55,7 +55,8 @@ module jt053260 (
 
     output reg signed [11:0] snd_l,
     output reg signed [11:0] snd_r,
-    output                   sample
+    output                   sample,
+    input             [ 7:0] debug_bus
     // slots unconnected
     // input               st1,
     // input               st2,
@@ -71,18 +72,7 @@ module jt053260 (
     reg    [ 3:0] keyon, mode;
     wire   [ 3:0] over, mmr_we;
     reg    [ 3:0] adpcm_en, loop;
-
-    reg    [ 2:0] ch0_pan;
-    wire          ch0_loop = loop[0];
-
-    reg    [ 2:0] ch1_pan;
-    wire          ch1_loop = loop[1];
-
-    reg    [ 2:0] ch2_pan;
-    wire          ch2_loop = loop[2];
-
-    reg    [ 2:0] ch3_pan;
-    wire          ch3_loop = loop[3];
+    reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
 
     wire          ch0_sample, ch1_sample, ch2_sample, ch3_sample;
     wire signed [9:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
@@ -90,12 +80,10 @@ module jt053260 (
 
     reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
                   pan2_l, pan2_r, pan3_l, pan3_r;
-    reg           cen64;
-    reg    [ 5:0] cen_cnt = 0;
     wire          mmr_en;
 
     assign sample = |{ch0_sample,ch1_sample,ch2_sample,ch3_sample};
-    assign mmr_en = addr>=8 && addr<6'h28;
+    assign mmr_en = addr[5:3]>=1 && addr[5:3]<=4;
     assign mmr_we = {4{ cs & ~wr_n & mmr_en }} &
                     { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
 
@@ -111,7 +99,7 @@ module jt053260 (
             if( mode[1] ) begin
                 snd_l <= acc( ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l );
                 snd_r <= acc( ch0_snd_r, ch1_snd_r, ch2_snd_r, ch3_snd_r );
-            end else if(cen64) begin // fade out
+            end else if(cen) begin // fade out
                 snd_l <= snd_l >>> 1;
                 snd_r <= snd_r >>> 1;
             end
@@ -196,15 +184,10 @@ module jt053260 (
         pan3_r = pan_dec_r( ch3_pan );
     end
 
-    always @(posedge clk) begin
-        if( cen ) cen_cnt <= cen_cnt + 1'd1;
-        cen64 <= cen_cnt==0 && cen;
-    end
-
     jt053260_channel u_ch0(
         .rst      ( rst         ),
         .clk      ( clk         ),
-        .cen64    ( cen64       ),
+        .cen      ( cen         ),
 
         // MMR
         .addr     ( addr[2:0]   ),
@@ -214,7 +197,7 @@ module jt053260 (
         .pan_l    ( pan0_l      ),
         .pan_r    ( pan0_r      ),
         .keyon    ( keyon[0]    ),
-        .loop     ( ch0_loop    ),
+        .loop     ( loop[0]     ),
         .sample   ( ch0_sample  ),
         .over     ( over[0]     ),
 
@@ -223,13 +206,14 @@ module jt053260 (
         .rom_cs   ( roma_cs     ),
         .adpcm_en ( adpcm_en[0] ),
         .snd_l    ( ch0_snd_l   ),
-        .snd_r    ( ch0_snd_r   )
+        .snd_r    ( ch0_snd_r   ),
+        .debug_bus( debug_bus   )
     );
 
     jt053260_channel u_ch1(
         .rst      ( rst         ),
         .clk      ( clk         ),
-        .cen64    ( cen64       ),
+        .cen      ( cen         ),
 
         // MMR
         .addr     ( addr[2:0]   ),
@@ -239,7 +223,7 @@ module jt053260 (
         .pan_l    ( pan1_l      ),
         .pan_r    ( pan1_r      ),
         .keyon    ( keyon[1]    ),
-        .loop     ( ch1_loop    ),
+        .loop     ( loop[1]     ),
         .sample   ( ch1_sample  ),
         .over     ( over[1]     ),
 
@@ -248,13 +232,14 @@ module jt053260 (
         .rom_cs   ( romb_cs     ),
         .adpcm_en ( adpcm_en[1] ),
         .snd_l    ( ch1_snd_l   ),
-        .snd_r    ( ch1_snd_r   )
+        .snd_r    ( ch1_snd_r   ),
+        .debug_bus( debug_bus   )
     );
 
     jt053260_channel u_ch2(
         .rst      ( rst         ),
         .clk      ( clk         ),
-        .cen64    ( cen64       ),
+        .cen      ( cen         ),
 
         // MMR
         .addr     ( addr[2:0]   ),
@@ -264,7 +249,7 @@ module jt053260 (
         .pan_l    ( pan2_l      ),
         .pan_r    ( pan2_r      ),
         .keyon    ( keyon[2]    ),
-        .loop     ( ch2_loop    ),
+        .loop     ( loop[2]     ),
         .sample   ( ch2_sample  ),
         .over     ( over[2]     ),
 
@@ -273,13 +258,14 @@ module jt053260 (
         .rom_cs   ( romc_cs     ),
         .adpcm_en ( adpcm_en[2] ),
         .snd_l    ( ch2_snd_l   ),
-        .snd_r    ( ch2_snd_r   )
+        .snd_r    ( ch2_snd_r   ),
+        .debug_bus( debug_bus   )
     );
 
     jt053260_channel u_ch3(
         .rst      ( rst         ),
         .clk      ( clk         ),
-        .cen64    ( cen64       ),
+        .cen      ( cen         ),
 
         // MMR
         .addr     ( addr[2:0]   ),
@@ -289,7 +275,7 @@ module jt053260 (
         .pan_l    ( pan3_l      ),
         .pan_r    ( pan3_r      ),
         .keyon    ( keyon[3]    ),
-        .loop     ( ch3_loop    ),
+        .loop     ( loop[3]     ),
         .sample   ( ch3_sample  ),
         .over     ( over[3]     ),
 
@@ -298,7 +284,8 @@ module jt053260 (
         .rom_cs   ( romd_cs     ),
         .adpcm_en ( adpcm_en[3] ),
         .snd_l    ( ch3_snd_l   ),
-        .snd_r    ( ch3_snd_r   )
+        .snd_r    ( ch3_snd_r   ),
+        .debug_bus( debug_bus   )
     );
 
 endmodule
@@ -307,7 +294,7 @@ endmodule
 module jt053260_channel(
     input                    rst,
     input                    clk,
-    input                    cen64,
+    input                    cen,
     // MMR interface
     input             [ 2:0] addr,
     input             [ 7:0] din,
@@ -324,7 +311,8 @@ module jt053260_channel(
     output reg signed [ 9:0] snd_l,
     output reg signed [ 9:0] snd_r,
     output                   over,
-    output                   sample
+    output                   sample,
+    input             [ 7:0] debug_bus
 );
     // MMR
     reg         [ 7:0] mmr[0:7];
@@ -337,8 +325,8 @@ module jt053260_channel(
     reg         [15:0] inc;
     reg         [11:0] pitch_cnt;
     reg  signed [ 9:0] pre_snd;
-    reg         [ 7:0] kadpcm;
-    reg                adpcm_cnt;
+    reg         [ 8:0] kadpcm;
+    reg                adpcm_cnt, rom_up, cnt_up;
     wire signed [17:0] mul_l;
     wire signed [17:0] mul_r;
 
@@ -352,35 +340,35 @@ module jt053260_channel(
     assign pitch  = { mmr[1][3:0], mmr[0] };
     assign volume = { mmr[7][6:0] };
 
-    assign nx_pitch_cnt = {1'd0, pitch_cnt } + { 1'd0, pitch };
+    assign nx_pitch_cnt = {1'd0, pitch_cnt } + 13'd1;
     assign nibble       = adpcm_cnt ? rom_data[7:4] : rom_data[3:0];
-    assign sample       = nx_pitch_cnt[12] & cen64;
+    assign sample       = nx_pitch_cnt[12] & cen;
     assign vol_l        = volume | pan_l;
     assign vol_r        = volume | pan_r;
     assign svl          = {1'b0, vol_l};
     assign svr          = {1'b0, vol_r};
     assign mul_l        = pre_snd * svl;
     assign mul_r        = pre_snd * svr;
-    assign over         = cnt[16];
+    assign over         = cnt[16] & keyon;
 
     always @* begin
         case ( nibble )
-            4'h0: kadpcm =  8'd0;
-            4'h1: kadpcm =  8'd1;
-            4'h2: kadpcm =  8'd2;
-            4'h3: kadpcm =  8'd4;
-            4'h4: kadpcm =  8'd8;
-            4'h5: kadpcm =  8'd16;
-            4'h6: kadpcm =  8'd32;
-            4'h7: kadpcm =  8'd64;
-            4'h8: kadpcm = -8'd128;
-            4'h9: kadpcm = -8'd64;
-            4'hA: kadpcm = -8'd32;
-            4'hB: kadpcm = -8'd16;
-            4'hC: kadpcm = -8'd8;
-            4'hD: kadpcm = -8'd4;
-            4'hE: kadpcm = -8'd2;
-            4'hF: kadpcm = -8'd1;
+            4'h0: kadpcm =  9'd0;
+            4'h1: kadpcm =  9'd1;
+            4'h2: kadpcm =  9'd2;
+            4'h3: kadpcm =  9'd4;
+            4'h4: kadpcm =  9'd8;
+            4'h5: kadpcm =  9'd16;
+            4'h6: kadpcm =  9'd32;
+            4'h7: kadpcm =  9'd64;
+            4'h8: kadpcm = -9'd128;
+            4'h9: kadpcm = -9'd64;
+            4'hA: kadpcm = -9'd32;
+            4'hB: kadpcm = -9'd16;
+            4'hC: kadpcm = -9'd8;
+            4'hD: kadpcm = -9'd4;
+            4'hE: kadpcm = -9'd2;
+            4'hF: kadpcm = -9'd1;
         endcase
     end
 
@@ -396,6 +384,10 @@ module jt053260_channel(
     always @(posedge clk) begin
         snd_l <= mul_l[17-:10];
         snd_r <= mul_r[17-:10];
+        if( !keyon ) begin
+            snd_l <= 0;
+            snd_r <= 0;
+        end
     end
 
     always @(posedge clk, posedge rst) begin
@@ -405,36 +397,40 @@ module jt053260_channel(
             adpcm_cnt <= 0;
             pitch_cnt <= 0;
             rom_cs    <= 0;
-        end else if( cen64 ) begin
+            rom_up    <= 0;
+            cnt_up    <= 0;
+        end else begin
+            rom_up <= 0;
+            cnt_up <= 0;
+            rom_cs <= 1;
+            if( rom_up ) rom_addr <= rom_addr + 1'd1;
+            if( cnt_up ) cnt <= cnt - 1'd1;
             if( !keyon ) begin
                 rom_addr  <= start;
                 cnt       <= {1'd0, length};
                 adpcm_cnt <= 0;
                 pre_snd   <= pre_snd>>>1; // fade out
                 rom_cs    <= 0;
-                pitch_cnt <= 0;
-            end else begin
-                rom_cs <= 1;
-                pitch_cnt <= nx_pitch_cnt[11:0];
-                if( adpcm_en ) begin
-                    pre_snd <= pre_snd + {1'd0, kadpcm };
-                end else begin
-                    pre_snd <= { rom_data, 2'd0 };
-                end
+                pitch_cnt <= pitch;
+                rom_up    <= 1; // skip the first byte
+                cnt_up    <= 0;
+            end else if( cen ) begin
+                // ROM address increment and sample cnt decrement
                 if( !cnt[16] && nx_pitch_cnt[12] ) begin
-                    // addr start increment and cnt decrement
-                    if( adpcm_en ) begin
-                        { rom_addr[20:0], adpcm_cnt } <= { rom_addr[20:0], adpcm_cnt } + 1'd1;
-                        cnt <= cnt - {15'd0, adpcm_cnt};
-                    end else begin
-                        rom_addr[20:0] <= rom_addr[20:0] + 1'd1;
-                        cnt <=  cnt - 1'd1;
-                    end
-                    if( cnt==0 && loop && (adpcm_cnt || !adpcm_en) ) begin
-                        rom_addr <= start;
-                        cnt      <= {1'd0, length};
+                    adpcm_cnt <= ~adpcm_cnt;
+                    if( adpcm_cnt || !adpcm_en ) begin
+                        rom_up <= 1;
+                        cnt_up <= 1;
+                        if( cnt==0 && loop ) begin
+                            rom_addr <= start;
+                            cnt      <= {1'd0, length};
+                            cnt_up   <= 0;
+                            rom_up   <= 0;
+                        end
                     end
                 end
+                pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
+                pre_snd <= adpcm_en ? pre_snd + kadpcm : { rom_data, 2'd0 };
             end
         end
     end
