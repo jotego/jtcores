@@ -218,7 +218,7 @@ jtsimson_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

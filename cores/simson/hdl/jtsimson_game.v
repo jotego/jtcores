@@ -155,7 +155,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off  */
+/* verilator tracing_on */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

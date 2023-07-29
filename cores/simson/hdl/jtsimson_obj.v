@@ -61,7 +61,7 @@ wire irq_en, scr_hflip, scr_vflip;
 
 assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
 assign shd       = 0;
-assign prio      = 0;
+assign prio      = 5'h1f;
 assign pxl       = 0;
 assign rom_cs    = ~objcha_n;
 assign rom_addr  = rmrd_addr[21:2];

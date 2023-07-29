@@ -326,7 +326,7 @@ module jt053260_channel(
     reg         [11:0] pitch_cnt;
     reg  signed [ 9:0] pre_snd;
     reg         [ 8:0] kadpcm;
-    reg                adpcm_cnt, rom_up, cnt_up;
+    reg                adpcm_cnt, cnt_up;
     wire signed [17:0] mul_l;
     wire signed [17:0] mul_r;
 
@@ -397,35 +397,30 @@ module jt053260_channel(
             adpcm_cnt <= 0;
             pitch_cnt <= 0;
             rom_cs    <= 0;
-            rom_up    <= 0;
             cnt_up    <= 0;
         end else begin
-            rom_up <= 0;
             cnt_up <= 0;
             rom_cs <= 1;
-            if( rom_up ) rom_addr <= rom_addr + 1'd1;
             if( cnt_up ) cnt <= cnt - 1'd1;
             if( !keyon ) begin
-                rom_addr  <= start;
+                rom_addr  <= start+21'd1; // skip first byte for ADPCM
                 cnt       <= {1'd0, length};
                 adpcm_cnt <= 0;
                 pre_snd   <= pre_snd>>>1; // fade out
                 rom_cs    <= 0;
                 pitch_cnt <= pitch;
-                rom_up    <= 1; // skip the first byte
                 cnt_up    <= 0;
             end else if( cen ) begin
                 // ROM address increment and sample cnt decrement
                 if( !cnt[16] && nx_pitch_cnt[12] ) begin
                     adpcm_cnt <= ~adpcm_cnt;
                     if( adpcm_cnt || !adpcm_en ) begin
-                        rom_up <= 1;
+                        rom_addr <= rom_addr + 1'd1;
                         cnt_up <= 1;
                         if( cnt==0 && loop ) begin
                             rom_addr <= start;
                             cnt      <= {1'd0, length};
                             cnt_up   <= 0;
-                            rom_up   <= 0;
                         end
                     end
                 end

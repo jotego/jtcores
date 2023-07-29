@@ -103,11 +103,11 @@ always @(posedge clk, posedge rst) begin
     end else begin
         st <= st+3'd1;
         if( pxl_cen ) begin
-            pri0_mux <= op[0] ? (mmr[EXTEN][0] ? mmr[0] : pri0) : 6'h3f;
-            pri1_mux <= op[1] ? (mmr[EXTEN][1] ? mmr[1] : pri1) : 6'h3f;
-            pri2_mux <= op[2] ? (mmr[EXTEN][2] ? mmr[2] : pri2) : 6'h3f;
-            pri3_mux <= op[3] ?                  mmr[3]         : 6'h3f;
-            pri4_mux <= op[4] ?                  mmr[4]         : 6'h3f;
+            pri0_mux <= op[0] ? 6'h3f : (mmr[EXTEN][0] ? mmr[0] : pri0);
+            pri1_mux <= op[1] ? 6'h3f : (mmr[EXTEN][1] ? mmr[1] : pri1);
+            pri2_mux <= op[2] ? 6'h3f : (mmr[EXTEN][2] ? mmr[2] : pri2);
+            pri3_mux <= op[3] ? 6'h3f :                  mmr[3]        ;
+            pri4_mux <= op[4] ? 6'h3f :                  mmr[4]        ;
             pre_n <= op;
             cl0   <= ci0; cl1 <= ci1; cl2 <= ci2; cl3 <= ci3; cl4 <= ci4;
             shd_l <= shd_in;
