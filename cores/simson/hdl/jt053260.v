@@ -55,8 +55,7 @@ module jt053260 (
 
     output reg signed [13:0] snd_l,
     output reg signed [13:0] snd_r,
-    output                   sample,
-    input             [ 7:0] debug_bus
+    output                   sample
     // unsupported pins
     // input               st1,
     // input               st2,
@@ -206,8 +205,7 @@ module jt053260 (
         .rom_cs   ( roma_cs     ),
         .adpcm_en ( adpcm_en[0] ),
         .snd_l    ( ch0_snd_l   ),
-        .snd_r    ( ch0_snd_r   ),
-        .debug_bus( debug_bus   )
+        .snd_r    ( ch0_snd_r   )
     );
 
     jt053260_channel u_ch1(
@@ -232,8 +230,7 @@ module jt053260 (
         .rom_cs   ( romb_cs     ),
         .adpcm_en ( adpcm_en[1] ),
         .snd_l    ( ch1_snd_l   ),
-        .snd_r    ( ch1_snd_r   ),
-        .debug_bus( debug_bus   )
+        .snd_r    ( ch1_snd_r   )
     );
 
     jt053260_channel u_ch2(
@@ -258,8 +255,7 @@ module jt053260 (
         .rom_cs   ( romc_cs     ),
         .adpcm_en ( adpcm_en[2] ),
         .snd_l    ( ch2_snd_l   ),
-        .snd_r    ( ch2_snd_r   ),
-        .debug_bus( debug_bus   )
+        .snd_r    ( ch2_snd_r   )
     );
 
     jt053260_channel u_ch3(
@@ -284,8 +280,7 @@ module jt053260 (
         .rom_cs   ( romd_cs     ),
         .adpcm_en ( adpcm_en[3] ),
         .snd_l    ( ch3_snd_l   ),
-        .snd_r    ( ch3_snd_r   ),
-        .debug_bus( debug_bus   )
+        .snd_r    ( ch3_snd_r   )
     );
 
 endmodule
@@ -311,8 +306,7 @@ module jt053260_channel(
     output reg signed [11:0] snd_l,
     output reg signed [11:0] snd_r,
     output                   over,
-    output                   sample,
-    input             [ 7:0] debug_bus
+    output                   sample
 );
     // MMR
     reg         [ 7:0] mmr[0:7];

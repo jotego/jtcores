@@ -262,8 +262,7 @@ jt053260 u_pcm(
     // sound output - raw
     .snd_l      ( pcm_l     ),
     .snd_r      ( pcm_r     ),
-    .sample     (           ),
-    .debug_bus  ( debug_bus )
+    .sample     (           )
 );
 `else
 initial rom_cs   = 0;
