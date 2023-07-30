@@ -149,13 +149,13 @@ module jt053260 (
 
     function [6:0] pan_dec_l( input [2:0] code );
         case ( code )
-            3'b001:  pan_dec_l = 7'b1111111;
-            3'b010:  pan_dec_l = 7'b1110100;
-            3'b011:  pan_dec_l = 7'b1101000;
-            3'b100:  pan_dec_l = 7'b1011010;
-            3'b101:  pan_dec_l = 7'b1001001;
-            3'b110:  pan_dec_l = 7'b0110100;
-            3'b111:  pan_dec_l = 7'b0000000;
+            3'b001:  pan_dec_l = 7'b1111111; // 127 /   0
+            3'b010:  pan_dec_l = 7'b1110100; // 116 /  52
+            3'b011:  pan_dec_l = 7'b1101000; // 104 /  73
+            3'b100:  pan_dec_l = 7'b1011010; //  90 /  90
+            3'b101:  pan_dec_l = 7'b1001001; //  73 / 104
+            3'b110:  pan_dec_l = 7'b0110100; //  52 / 116
+            3'b111:  pan_dec_l = 7'b0000000; //   0 / 127
             default: pan_dec_l = 0;
         endcase
     endfunction
@@ -325,14 +325,14 @@ module jt053260_channel(
     reg         [15:0] inc;
     reg         [11:0] pitch_cnt;
     reg  signed [ 9:0] pre_snd;
-    reg         [ 8:0] kadpcm;
+    reg         [ 9:0] kadpcm;
     reg                adpcm_cnt, cnt_up;
     wire signed [17:0] mul_l;
     wire signed [17:0] mul_r;
 
     wire        [12:0] nx_pitch_cnt;
     wire signed [ 7:0] svl, svr;
-    wire        [ 6:0] vol_l, vol_r;
+    reg         [13:0] vol_l, vol_r;
     wire        [ 3:0] nibble;
 
     assign start  = { mmr[6][4:0], mmr[5], mmr[4] };
@@ -343,32 +343,30 @@ module jt053260_channel(
     assign nx_pitch_cnt = {1'd0, pitch_cnt } + 13'd1;
     assign nibble       = adpcm_cnt ? rom_data[7:4] : rom_data[3:0];
     assign sample       = nx_pitch_cnt[12] & cen;
-    assign vol_l        = volume | pan_l;
-    assign vol_r        = volume | pan_r;
-    assign svl          = {1'b0, vol_l};
-    assign svr          = {1'b0, vol_r};
+    assign svl          = {1'b0, vol_l[13-:7]};
+    assign svr          = {1'b0, vol_r[13-:7]};
     assign mul_l        = pre_snd * svl;
     assign mul_r        = pre_snd * svr;
     assign over         = cnt[16] & keyon;
 
     always @* begin
         case ( nibble )
-            4'h0: kadpcm =  9'd0;
-            4'h1: kadpcm =  9'd1;
-            4'h2: kadpcm =  9'd2;
-            4'h3: kadpcm =  9'd4;
-            4'h4: kadpcm =  9'd8;
-            4'h5: kadpcm =  9'd16;
-            4'h6: kadpcm =  9'd32;
-            4'h7: kadpcm =  9'd64;
-            4'h8: kadpcm = -9'd128;
-            4'h9: kadpcm = -9'd64;
-            4'hA: kadpcm = -9'd32;
-            4'hB: kadpcm = -9'd16;
-            4'hC: kadpcm = -9'd8;
-            4'hD: kadpcm = -9'd4;
-            4'hE: kadpcm = -9'd2;
-            4'hF: kadpcm = -9'd1;
+            4'h0: kadpcm =  0;
+            4'h1: kadpcm =  1;
+            4'h2: kadpcm =  2;
+            4'h3: kadpcm =  4;
+            4'h4: kadpcm =  8;
+            4'h5: kadpcm =  16;
+            4'h6: kadpcm =  32;
+            4'h7: kadpcm =  64;
+            4'h8: kadpcm = -128;
+            4'h9: kadpcm = -64;
+            4'hA: kadpcm = -32;
+            4'hB: kadpcm = -16;
+            4'hC: kadpcm = -8;
+            4'hD: kadpcm = -4;
+            4'hE: kadpcm = -2;
+            4'hF: kadpcm = -1;
         endcase
     end
 
@@ -382,11 +380,13 @@ module jt053260_channel(
     end
 
     always @(posedge clk) begin
+        vol_l <= volume * pan_l;
+        vol_r <= volume * pan_r;
         snd_l <= mul_l[17-:10];
         snd_r <= mul_r[17-:10];
         if( !keyon ) begin
-            snd_l <= 0;
-            snd_r <= 0;
+            snd_l <= snd_l >>> 1;
+            snd_r <= snd_r >>> 1;
         end
     end
 
@@ -406,7 +406,7 @@ module jt053260_channel(
                 rom_addr  <= start+21'd1; // skip first byte for ADPCM
                 cnt       <= {1'd0, length};
                 adpcm_cnt <= 0;
-                pre_snd   <= pre_snd>>>1; // fade out
+                pre_snd   <= 0;
                 rom_cs    <= 0;
                 pitch_cnt <= pitch;
                 cnt_up    <= 0;
@@ -423,9 +423,9 @@ module jt053260_channel(
                             cnt_up   <= 0;
                         end
                     end
+                    pre_snd <= adpcm_en ? pre_snd + kadpcm : { rom_data, 2'd0 };
                 end
                 pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
-                pre_snd <= adpcm_en ? pre_snd + kadpcm : { rom_data, 2'd0 };
             end
         end
     end
