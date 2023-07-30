@@ -146,39 +146,42 @@ public:
             unsigned v;
             ++line;
             getline( fin, s );
-            sscanf( s.c_str(),"%x", &v );
-            v = ~v;
-            auto coin_l  = dut.coin_input&3;
-            dut.dip_test     = (v & 0x800) ? 1 : 0;
-            dut.start_button = 0xc | ((v>>2)&3);
-            dut.coin_input   = 0xc | (v&3);
-            dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
-            v >>= 4;    // directions:
-            dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
-#ifdef _JTFRAME_JOY_LRUD
-            dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
-#endif
-#ifdef _JTFRAME_JOY_RLDU
-            dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
-#endif
-#ifdef _JTFRAME_JOY_DURL
-            dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
-#endif
-#ifdef _JTFRAME_JOY_UDRL
-            dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
-#endif
-            if( coin_l != (dut.coin_input&3) && coin_l!=3 ) {
-                cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
-            }
+            if( sscanf( s.c_str(),"%x", &v )==1 ) parse_inputs(v);
             if( fin.eof() ) {
                 done = true;
                 fprintf(stderr,"\nsim_inputs.hex finished at line %d\n", line);
                 fin.close();
             }
+
         } else {
             dut.start_button = 0xf;
             dut.coin_input   = 0xf;
             dut.joystick1    = 0x3ff;
+        }
+    }
+    void parse_inputs( unsigned v ) {
+        v = ~v;
+        auto coin_l  = dut.coin_input&3;
+        dut.dip_test     = (v & 0x800) ? 1 : 0;
+        dut.start_button = 0xc | ((v>>2)&3);
+        dut.coin_input   = 0xc | (v&3);
+        dut.joystick1    = 0x30f | ((v>>4)&0xf0); // buttons 1~4
+        v >>= 4;    // directions:
+        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
+#ifdef _JTFRAME_JOY_LRUD
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
+#endif
+#ifdef _JTFRAME_JOY_RLDU
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
+#endif
+#ifdef _JTFRAME_JOY_DURL
+        dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+#ifdef _JTFRAME_JOY_UDRL
+        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
+#endif
+        if( coin_l != (dut.coin_input&3) && coin_l!=3 ) {
+            cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
         }
     }
 };
