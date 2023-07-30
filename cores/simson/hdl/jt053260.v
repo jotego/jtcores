@@ -53,11 +53,11 @@ module jt053260 (
     input             [ 7:0] romd_data,
     output                   romd_cs,
 
-    output reg signed [11:0] snd_l,
-    output reg signed [11:0] snd_r,
+    output reg signed [13:0] snd_l,
+    output reg signed [13:0] snd_r,
     output                   sample,
     input             [ 7:0] debug_bus
-    // slots unconnected
+    // unsupported pins
     // input               st1,
     // input               st2,
     // input               aux2,
@@ -75,8 +75,8 @@ module jt053260 (
     reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
 
     wire          ch0_sample, ch1_sample, ch2_sample, ch3_sample;
-    wire signed [9:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
-                      ch0_snd_r, ch1_snd_r, ch2_snd_r, ch3_snd_r;
+    wire signed [11:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
+                       ch0_snd_r, ch1_snd_r, ch2_snd_r, ch3_snd_r;
 
     reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
                   pan2_l, pan2_r, pan3_l, pan3_r;
@@ -87,8 +87,8 @@ module jt053260 (
     assign mmr_we = {4{ cs & ~wr_n & mmr_en }} &
                     { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
 
-    function [11:0] acc( input [9:0] c0, c1, c2, c3 );
-        acc = { {2{c0[9]}}, c0 } + { {2{c1[9]}}, c1 } + { {2{c2[9]}}, c2 } + { {2{c3[9]}}, c3 };
+    function [13:0] acc( input [11:0] c0, c1, c2, c3 );
+        acc = { {2{c0[11]}}, c0 } + { {2{c1[11]}}, c1 } + { {2{c2[11]}}, c2 } + { {2{c3[11]}}, c3 };
     endfunction
 
     always @(posedge clk, posedge rst) begin
@@ -308,8 +308,8 @@ module jt053260_channel(
 
     output reg        [20:0] rom_addr,
     output reg               rom_cs,
-    output reg signed [ 9:0] snd_l,
-    output reg signed [ 9:0] snd_r,
+    output reg signed [11:0] snd_l,
+    output reg signed [11:0] snd_r,
     output                   over,
     output                   sample,
     input             [ 7:0] debug_bus
@@ -324,13 +324,12 @@ module jt053260_channel(
     reg         [16:0] cnt;
     reg         [15:0] inc;
     reg         [11:0] pitch_cnt;
-    reg  signed [ 9:0] pre_snd;
-    reg         [ 9:0] kadpcm;
+    reg  signed [ 7:0] pre_snd;
+    reg  signed [ 7:0] kadpcm;
     reg                adpcm_cnt, cnt_up;
-    wire signed [17:0] mul_l;
-    wire signed [17:0] mul_r;
 
     wire        [12:0] nx_pitch_cnt;
+    wire signed [15:0] mul_l, mul_r;
     wire signed [ 7:0] svl, svr;
     reg         [13:0] vol_l, vol_r;
     wire        [ 3:0] nibble;
@@ -359,14 +358,14 @@ module jt053260_channel(
             4'h5: kadpcm =  16;
             4'h6: kadpcm =  32;
             4'h7: kadpcm =  64;
-            4'h8: kadpcm = -128;
-            4'h9: kadpcm = -64;
-            4'hA: kadpcm = -32;
-            4'hB: kadpcm = -16;
-            4'hC: kadpcm = -8;
-            4'hD: kadpcm = -4;
-            4'hE: kadpcm = -2;
-            4'hF: kadpcm = -1;
+            4'h8: kadpcm = -8'd128; // 8'd explicit to prevent warning in Quartus
+            4'h9: kadpcm = -8'd64;
+            4'hA: kadpcm = -8'd32;
+            4'hB: kadpcm = -8'd16;
+            4'hC: kadpcm = -8'd8;
+            4'hD: kadpcm = -8'd4;
+            4'hE: kadpcm = -8'd2;
+            4'hF: kadpcm = -8'd1;
         endcase
     end
 
@@ -382,8 +381,8 @@ module jt053260_channel(
     always @(posedge clk) begin
         vol_l <= volume * pan_l;
         vol_r <= volume * pan_r;
-        snd_l <= mul_l[17-:10];
-        snd_r <= mul_r[17-:10];
+        snd_l <= mul_l[15-:12];
+        snd_r <= mul_r[15-:12];
         if( !keyon ) begin
             snd_l <= snd_l >>> 1;
             snd_r <= snd_r >>> 1;
@@ -423,9 +422,10 @@ module jt053260_channel(
                             cnt_up   <= 0;
                         end
                     end
-                    pre_snd <= adpcm_en ? pre_snd + kadpcm : { rom_data, 2'd0 };
+                    pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
                 end
                 pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
+                if( over ) pre_snd <= pre_snd >>> 1; // fade out to keep dc level low
             end
         end
     end

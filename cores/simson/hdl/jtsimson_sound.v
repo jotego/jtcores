@@ -22,6 +22,8 @@ module jtsimson_sound(
     input           cen_fm,
     input           cen_fm2,
     input   [ 1:0]  fxlevel,
+    input           enable_fm,
+    input           enable_psg,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  main_dout,
@@ -75,8 +77,9 @@ wire signed [15:0]  fm_l, fm_r;
 wire                cpu_cen;
 reg                 mem_acc, af, nmi_clr;
 reg         [ 2:0]  bank;
-wire signed [11:0]  pcm_l, pcm_r;
+wire signed [13:0]  pcm_l, pcm_r;
 reg         [ 3:0]  pcm_msb;
+reg         [ 7:0]  fmgain, fxgain;
 
 
 assign rom_addr = { A[15] ? bank : { 2'd0, A[14] }, A[13:0] };
@@ -112,23 +115,21 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        bank <= 0;
-        peak <= 0;
+        bank   <= 0;
+        peak   <= 0;
+        fmgain <= 0;
     end else begin
+        fmgain <= enable_fm ? FMGAIN : 8'd0;
+        case( fxlevel )
+            0: fxgain <= 8'h10;
+            1: fxgain <= 8'h18;
+            2: fxgain <= 8'h20;
+            3: fxgain <= 8'h28;
+        endcase
+        if( !enable_psg ) fxgain <= 0;
         if( bank_cs ) bank <= cpu_dout[2:0];
         peak <= peak_r | peak_l;
     end
-end
-
-reg [7:0] fxgain;
-
-always @(*) begin
-    case( fxlevel )
-        0: fxgain = 8'h04;
-        1: fxgain = 8'h08;
-        2: fxgain = 8'h10;
-        3: fxgain = 8'h20;
-    endcase
 end
 
 jtframe_edge #(.QSET(0)) u_edge (
@@ -139,7 +140,7 @@ jtframe_edge #(.QSET(0)) u_edge (
     .q      ( nmi_n     )
 );
 
-jtframe_mixer #(.W0(16),.W1(12)) u_mix_l(
+jtframe_mixer #(.W0(16),.W1(14)) u_mix_l(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
@@ -147,7 +148,7 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mix_l(
     .ch1    ( pcm_l      ),
     .ch2    ( 16'd0      ),
     .ch3    ( 16'd0      ),
-    .gain0  ( FMGAIN     ),
+    .gain0  ( fmgain     ),
     .gain1  ( fxgain     ),
     .gain2  ( 8'd0       ),
     .gain3  ( 8'd0       ),
@@ -155,7 +156,7 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mix_l(
     .peak   ( peak_l     )
 );
 
-jtframe_mixer #(.W0(16),.W1(12)) u_mix_r(
+jtframe_mixer #(.W0(16),.W1(14)) u_mix_r(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
@@ -163,7 +164,7 @@ jtframe_mixer #(.W0(16),.W1(12)) u_mix_r(
     .ch1    ( pcm_r      ),
     .ch2    ( 16'd0      ),
     .ch3    ( 16'd0      ),
-    .gain0  ( FMGAIN     ),
+    .gain0  ( fmgain     ),
     .gain1  ( fxgain     ),
     .gain2  ( 8'd0       ),
     .gain3  ( 8'd0       ),

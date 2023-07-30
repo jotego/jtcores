@@ -232,6 +232,7 @@ jtframe_edge #(.QSET(0)) u_firq (
 // always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
 always @(posedge clk) rst_cmb <= rst | rst8;
 
+/* verilator tracing_off */
 jtkcpu u_cpu(
     .rst    ( rst_cmb   ),
     .clk    ( clk       ),

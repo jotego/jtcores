@@ -424,7 +424,7 @@ void k053260_device::KDSC_Voice::update_pan_volume()
 
 void k053260_device::KDSC_Voice::key_on()
 {
-	m_position = m_kadpcm ? 1 : 0; // for kadpcm low bit is nybble offset, so must start at 1 due to preincrement
+	m_position = m_kadpcm ? 1 : 0; // for kadpcm low bit is nibble offset, so must start at 1 due to preincrement
 	m_counter = 0x1000 - CLOCKS_PER_SAMPLE; // force update on next sound_stream_update
 	m_output = 0;
 	m_playing = true;
@@ -475,7 +475,7 @@ void k053260_device::KDSC_Voice::play(s32 *outputs)
 
 		if (m_kadpcm)
 		{
-			if (m_position & 1) romdata >>= 4; // decode low nybble, then high nybble
+			if (m_position & 1) romdata >>= 4; // decode low nibble, then high nibble
 			static const s8 kadpcm_table[] = {0,1,2,4,8,16,32,64,-128,-64,-32,-16,-8,-4,-2,-1};
 			m_output += kadpcm_table[romdata & 0xf];
 		}

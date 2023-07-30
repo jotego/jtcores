@@ -17,10 +17,21 @@ regions = [
     { name="pcm",       start="PCM_START", rename="k053260" },
     { name="tiles",     start="JTFRAME_BA2_START", width=32, rename="k052109" }, # tiles
     { name="obj",       start="JTFRAME_BA3_START", rename="k053246" }, # sprites
-    { name="eeprom",    start="JTFRAME_PROM_START" } # last one is the priority encoder
+    { name="eeprom",    skip=true }
 ]
 
-order = [ "maincpu", "audiocpu", "pcm", "tiles", "obj", "eeprom" ]
+order = [ "maincpu", "audiocpu", "pcm", "tiles", "obj" ]
 
 # Skips the RAM check
 patches = [ { setname="simpsons", offset=0x787fb, value="68 00 a9" } ] # jump from 88fb to 88a7
+
+nvram = { defaults=[
+    { data="""00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 01 00 01 01 00 00
+00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 04""" },
+] }
