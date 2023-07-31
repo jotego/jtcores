@@ -10728,7 +10728,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 435aedb2-ed3d-43b4-8179-735a4ee227b5)
   )
-  (hierarchical_label "MAIN~{RST}" (shape output) (at 73.66 167.64 90) (fields_autoplaced)
+  (hierarchical_label "RESET" (shape output) (at 73.66 167.64 90) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 558c94b7-574d-4d8d-a592-dbdc7f644ae4)
   )

@@ -75,11 +75,11 @@
     "files": [
       {
         "name": "cps3.kicad_sch",
-        "open": false,
+        "open": true,
         "window": {
           "display": 0,
           "maximized": true,
-          "pos_x": 477,
+          "pos_x": 2397,
           "pos_y": 28,
           "size_x": 966,
           "size_y": 1024
