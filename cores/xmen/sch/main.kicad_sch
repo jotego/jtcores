@@ -7425,7 +7425,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 54093b1d-3a3f-485e-a5c8-d1ef4fb59e01)
   )
-  (hierarchical_label "RESET" (shape input) (at 46.99 78.74 180) (fields_autoplaced)
+  (hierarchical_label "~{RESET}" (shape input) (at 46.99 78.74 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 64e6fd65-ba3f-4335-b5ff-940f5f063b4d)
   )
