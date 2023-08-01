@@ -24,6 +24,7 @@ The sprite RAM format is very similar to the 053245.
 005     W  bit 0 = flip screen X
            bit 1 = flip screen Y
            bit 2 = unknown
+           bit 3 = low when CPU updates LUT (JT)
            bit 4 = interrupt enable
            bit 5 = unknown
 006-007 W  high 16 bits of the ROM address to read

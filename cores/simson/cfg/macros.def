@@ -21,6 +21,8 @@ JTFRAME_BA1_START =0x80000
 PCM_START         =0x0A0000
 JTFRAME_BA2_START =0x1E0000
 JTFRAME_BA3_START =0x2E0000
+# consider using 4 byte bursts as objects will benefit:
+#JTFRAME_BA3_LEN   = 64
 JTFRAME_PROM_START=0x6E0000
 
 # Debugging

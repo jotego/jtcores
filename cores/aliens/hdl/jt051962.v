@@ -109,7 +109,7 @@ jtframe_vtimer #(
     .V_START    ( 9'h0F8    ),
     .VB_START   ( 9'h1EF    ),
     .VB_END     ( 9'h10F    ),  //  2.56 ms
-    .VS_START   ( 9'h1FF    ),
+    .VS_START   ( 9'h1FF    ),  // ~512.5us, measured on X-Men PCB
     .VS_END     ( 9'h0FF    ),
     .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
 ) u_vtimer(

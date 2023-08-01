@@ -9,6 +9,7 @@ game:
       - jtsimson_sound.v
       - jtsimson_colmix.v
       - jt053260.v
+      - jt053246.v
       - jtcolmix_053251.v
   - from: aliens
     get:
@@ -28,6 +29,7 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
   - from: cpu
     get:
       - jtframe_z80.yaml

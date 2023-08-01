@@ -24,7 +24,7 @@ module jtsimson_game(
 wire [ 7:0] snd2main, video_dump;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
-wire        cpu_rnw, cpu_irqn, cpu_firqn, snd_wrn, mono, objreg_cs;
+wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
@@ -44,7 +44,7 @@ always @(posedge clk) begin
     endcase
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -73,7 +73,7 @@ jtsimson_main u_main(
     // From video
     .rst8           ( rst8          ),
     .irq_n          ( cpu_irqn      ),
-    .firq_n         ( cpu_firqn     ),
+    .dma_bsy        ( dma_bsy       ),
 
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
@@ -106,7 +106,7 @@ jtsimson_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -158,7 +158,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -166,6 +166,7 @@ jtsimson_video u_video (
 
     // base video
     .pxl_cen        ( pxl_cen       ),
+    .pxl2_cen       ( pxl2_cen      ),
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),
     .hs             ( HS            ),
@@ -191,7 +192,7 @@ jtsimson_video u_video (
     .rmrd           ( rmrd          ),
     .objcha_n       ( objcha_n      ),
     .cpu_irqn       ( cpu_irqn      ),
-    .cpu_firqn      ( cpu_firqn     ),
+    .dma_bsy        ( dma_bsy       ),
 
     // SDRAM
     .lyra_addr      ( lyra_addr     ),

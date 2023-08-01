@@ -45,7 +45,7 @@ module jtsimson_main(
     // From video
     input               rst8,
     input               irq_n,  // from tile map
-    input               firq_n,
+    input               dma_bsy,
 
     input      [7:0]    tilesys_dout, objsys_dout,
     input      [7:0]    pal_dout,
@@ -191,9 +191,9 @@ always @(posedge clk, posedge rst) begin
             2'd3: port_in <= { start_button[3], joystick4[6:0] };
         endcase
 
-        if( eeprom_cs ) port_in <= A[0] ? /*{ W0C1, W0C0, eep_rdy, eep_do,
+        if( eeprom_cs ) port_in <= A[0] ? { W0C1, W0C0, eep_rdy, eep_do,
                                             eep_di, eep_clk, eep_cs, dip_test } // real PCB */
-                                        { 2'b11, eep_rdy, eep_do, 3'b111, dip_test } // use for MAME comparisons
+                                        //{ 2'b11, eep_rdy, eep_do, 3'b111, dip_test } // use for MAME comparisons
                                         : { {4{service}}, coin_input };
     end
 end
@@ -222,7 +222,7 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 jtframe_edge #(.QSET(0)) u_firq (
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( firq_n    ),
+    .edgeof ( ~dma_bsy  ), // FIRQ triggered at the end of the DMA transfer
     .clr    ( ~firqen   ),
     .q      ( firqn_ff  )
 );

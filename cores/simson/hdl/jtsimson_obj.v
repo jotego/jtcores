@@ -21,6 +21,9 @@ module jtsimson_obj(
     input             clk,
 
     input             pxl_cen,
+    input             pxl2_cen,
+    input      [ 8:0] hdump,
+    input      [ 8:0] vdump,
     input             hs,
     input             vs,
     input             lvbl, // not an input in the original
@@ -31,10 +34,10 @@ module jtsimson_obj(
     input             reg_cs,
     input             cpu_we,
     input      [15:0] cpu_dout, // 16-bit interface
-    input      [13:1] cpu_addr, // 16 kB!
+    input      [13:1] cpu_addr, // 16 kB (?)
     output     [15:0] cpu_din,
     input      [ 1:0] cpu_dsn,
-    output            irqn,
+    output            dma_bsy,
 
     // ROM addressing
     output     [21:2] rom_addr,
@@ -44,63 +47,114 @@ module jtsimson_obj(
     input             objcha_n,
 
     // pixel output
-    output     [ 1:0] shd,
+    output     [ 1:0] shd,      // shadow
     output     [ 4:0] prio,
     output     [ 8:0] pxl,
 
     // debug
-    output     [ 7:0] st_dout
+    input             ioctl_ram,
+    input      [13:0] ioctl_addr,
+    output     [ 7:0] dump_ram,
+    output     [ 7:0] dump_reg,
+    output     [ 7:0] st_obj,
+    input      [ 7:0] debug_bus
 );
 
-wire [1:0] ram_we;
-reg  [7:0] mmr[0:7];
-wire [15:0] off_x, off_y, ram_data;
-wire [23:0] rmrd_addr;
+wire [ 1:0] ram_we;
+wire [15:0] off_x, off_y, ram_data, dma_data;
+wire [21:1] rmrd_addr;
+wire [13:1] dma_addr;
+
+// Draw module
+wire        dr_start, dr_busy;
+wire [15:0] code;
+wire [ 7:0] attr;     // OC pins
+wire        hflip, vflip, hz_keep;
+wire [ 8:0] hpos;
+wire [ 3:0] ysub;
+wire [ 9:0] hzoom;
 
 wire irq_en, scr_hflip, scr_vflip;
 
 assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
-assign shd       = 0;
 assign prio      = 5'h1f;
 assign pxl       = 0;
 assign rom_cs    = ~objcha_n;
 assign rom_addr  = rmrd_addr[21:2];
-assign irq_en    = mmr[5][4];
-assign scr_hflip = mmr[5][0];
-assign scr_vflip = mmr[5][0];
-assign irqn      = ~vs | ~irq_en;
-assign st_dout   = 0;
+assign cpu_din   = objcha_n ? ram_data :
+                   rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
+assign dr_busy   = 0;
+assign st_obj    = 0;
 
-assign rmrd_addr = { mmr[6], mmr[7], mmr[4] };
-assign off_x     = { mmr[1], mmr[0] };
-assign off_y     = { mmr[3], mmr[2] };
+jt053246 u_scan(    // sprite logic
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl2_cen   ( pxl2_cen  ),
+    .pxl_cen    ( pxl_cen   ),
 
-assign cpu_din = ram_cs      ? ram_data :
-                 cpu_addr[1] ? rom_data[31:16] : rom_data[15:0];
+    // CPU interface
+    .cs         ( reg_cs    ),
+    .cpu_we     ( cpu_we    ),
+    .cpu_addr   (cpu_addr[2:1]),
+    .cpu_dsn    ( cpu_dsn   ),
+    .cpu_dout   ( cpu_dout  ),
+    .rmrd_addr  ( rmrd_addr ),
 
-always @(posedge clk,posedge rst) begin
-    if( rst ) begin
-        mmr[0] <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
-        mmr[4] <= 0; mmr[5] <= 0; mmr[6] <= 0; mmr[7] <= 0;
-    end else begin
-        if( reg_cs && cpu_we && !cpu_dsn[0] ) mmr[ {cpu_addr[2:1],1'b0} ] <= cpu_dout[ 7:0];
-        if( reg_cs && cpu_we && !cpu_dsn[1] ) mmr[ {cpu_addr[2:1],1'b1} ] <= cpu_dout[15:8];
-    end
-end
+    // External RAM
+    .dma_addr   ( dma_addr  ), // up to 16 kB
+    .dma_data   ( dma_data  ),
+    .dma_bsy    ( dma_bsy   ),
 
-jtframe_dual_ram16 #(.AW(13)) u_ram(
+    // ROM addressing 22 bits in total
+    .code       ( code      ),
+    .attr       ( attr      ),     // OC pins
+    .hflip      ( hflip     ),
+    .vflip      ( vflip     ),
+    .hpos       ( hpos      ),
+    .ysub       ( ysub      ),
+    .hzoom      ( hzoom     ),
+    .hz_keep    ( hz_keep   ),
+
+    // control
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
+    .vs         ( vs        ),
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+
+    // shadow
+    .pxl        ( pxl       ),
+    .shd        ( shd       ),
+
+    // draw module / 053247
+    .dr_start   ( dr_start  ),
+    .dr_busy    ( dr_busy   ),
+
+    // Debug
+    .debug_bus  ( debug_bus ),
+    .st_addr    (ioctl_addr[7:0]),
+    .st_dout    ( dump_reg  )
+);
+
+localparam RAMW=12;
+
+jtframe_dual_nvram16 #(.AW(RAMW)) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
     // Port 0 - CPU access
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),
-    .addr0  ( cpu_addr  ),
+    .addr0  ( cpu_addr[RAMW:1] ),
     .we0    ( ram_we    ),
     .q0     ( ram_data  ),
     // Port 1 - Video access
     .clk1   ( clk       ),
-    .data1  ( 16'd0     ),
-    .addr1  ( 13'd0     ),
-    .we1    ( 2'd0      ),
-    .q1     (           )
+    .addr1a ( dma_addr[RAMW:1] ),
+    .q1a    ( dma_data  ),
+    // 8-bit IOCTL access
+    .data1  ( 8'd0      ),
+    .addr1b ( ioctl_addr[RAMW:0] ),
+    .we1b   ( 1'd0      ),
+    .q1b    ( dump_ram  ),
+    .sel_b  ( ioctl_ram )
 );
 
 endmodule

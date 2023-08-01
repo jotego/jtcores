@@ -23,6 +23,7 @@ module jtsimson_video(
 
     // Base Video
     input             pxl_cen,
+    input             pxl2_cen,
     output            lhbl,
     output            lvbl,
     output            hs,
@@ -48,7 +49,7 @@ module jtsimson_video(
     input             rmrd,     // Tile ROM read mode
     input             objcha_n, // object ROM read mode
     output            cpu_irqn,
-    output            cpu_firqn,
+    output            dma_bsy,
 
     // Tile ROMs
     output     [19:2] lyrf_addr,
@@ -76,7 +77,7 @@ module jtsimson_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output     [ 7:0] ioctl_din,
+    output reg [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -85,7 +86,7 @@ module jtsimson_video(
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
-            dump_scr, dump_obj, dump_pal;
+            dump_scr, dump_obj, dump_pal, dump_reg;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
@@ -93,25 +94,24 @@ wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 
 assign objsys_dout = cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
-assign ioctl_din   = 0;
 
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? st_obj : st_scr;
-    // VRAM dumps - 16+2+3 = 19kB +16 bytes = 19472 bytes
-    // if( !ioctl_addr[14] )
-    //     ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    // else if( !ioctl_addr[11] )
-    //     ioctl_din <= dump_pal;  // 2kB 4000~47FF
-    // else if( !ioctl_addr[10] )
-    //     ioctl_din <= dump_obj;  // 1kB 4800~4C00
-    // else if( !ioctl_addr[3] )
-    //     ioctl_din <= dump_scr;  // 8 bytes, MMR 4C07
-    // else if (ioctl_addr[2:0]!=7)
-    //     ioctl_din <= dump_obj;  // 7 bytes, MMR 4C0E
+    // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 19472 bytes
+    if( !ioctl_addr[14] )
+        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+    else if( !ioctl_addr[12] )
+        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
+    else if( ioctl_addr<'h6000 )
+        ioctl_din <= dump_obj;  // 4kB 5000~5FFF
+    else if( !ioctl_addr[3] )
+        ioctl_din <= dump_scr;  // 8 bytes, MMR 6007
+    else if(ioctl_addr[3:0]!=7)
+        ioctl_din <= dump_reg;  // 7 bytes, MMR
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -180,14 +180,15 @@ jtsimson_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
 
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
-    // .hdump      ( hdump     ),
-    // .vdump      ( vrender   ),
+    .hdump      ( hdump     ),
+    .vdump      ( vrender   ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
     .reg_cs     ( objreg_cs ),
@@ -197,7 +198,7 @@ jtsimson_obj u_obj(    // sprite logic
     .cpu_we     ( cpu_we    ),
     .cpu_din    ( obj16_dout),
 
-    .irqn       ( cpu_firqn ),
+    .dma_bsy    ( dma_bsy   ),
     // ROM
     .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),
@@ -209,16 +210,17 @@ jtsimson_obj u_obj(    // sprite logic
     .shd        ( obj_shd   ),
     .prio       ( obj_prio  ),
     // Debug
-    // .ioctl_addr ( ioctl_addr[10:0]),
-    // .ioctl_ram  ( ioctl_ram ),
-    // .ioctl_din  ( dump_obj  ),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_addr ( ioctl_addr[13:0]-14'h5000 ),
+    .dump_ram   ( dump_obj  ),
+    .dump_reg   ( dump_reg  ),
+    .st_obj      ( st_obj   ),
 
     // .gfx_en     ( gfx_en    ),
-    // .debug_bus  ( debug_bus ),
-    .st_dout    ( st_obj    )
+    .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
