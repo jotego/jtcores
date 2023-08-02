@@ -97,7 +97,7 @@ reg  [ 2:0] scan_sub, hstep, hcode;
 reg  [ 8:0] ydiff, ydiff_b, vlatch;
 reg  [ 9:0] y, x;
 reg  [ 7:0] dma_prio, scan_obj; // max 256 objects
-reg         dma_clr, dma_done, inzone, hs_l, done, hdone, busy_l;
+reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_dout;
 reg  [ 3:0] size;
 wire [15:0] dma_din;
@@ -114,7 +114,7 @@ assign dma_en  = cfg[4];
 assign vflip   = pre_vf & ~vmir;
 assign hflip   = pre_hf & ~hmir;
 
-assign dma_din     = dma_clr ? 16'hffff : dma_data;
+assign dma_din     = dma_clr ? 16'h0 : dma_data;
 assign dma_we      = dma_bsy & (dma_clr | dma_ok);
 assign dma_wr_addr = dma_clr ? dma_addr[11:1] : { dma_prio, dma_addr[3:1] };
 
@@ -144,37 +144,34 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_bsy  <= 0;
         dma_clr  <= 0;
-        dma_done <= 0;
         dma_addr <= 0;
-    end else if( pxl2_cen ) begin
-        if( dma_done && !dma_clr ) dma_bsy <= 0;
+        dma_bsy  <= 0;
+    end else if( pxl_cen ) begin
+        if( vdump==9'h1f8 ) begin
+            dma_clr <= dma_en;
+            dma_addr <= 0;
+        end else if( dma_clr ) begin
+            { dma_clr, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
+        end
         if( vdump==9'h101 ) begin
-            dma_done <= ~dma_en;
+            dma_bsy  <= dma_en;
             dma_addr <= 0;
             dma_clr  <= 0;
             dma_ok   <= 0;
-            dma_bsy  <= 0;
             dma_prio <= 0;
-        end else if( !dma_done ) begin // copy by priority order
+        end else if( dma_bsy ) begin // copy by priority order
             dma_bsy  <= 1;
-            { dma_done, dma_addr } <= { 1'b0, dma_addr } + 1'd1;
             if( dma_addr[3:1]==0 ) begin
-                dma_prio <= dma_data[7:0];
-                if( dma_data==0 ) begin
-                    dma_done <= 1;
-                    dma_clr  <= 1; // clear the rest of the list
-                    dma_addr[11:1] <= { dma_prio, 3'd0 };
-                    dma_ok   <= 0;
-                end else if( !dma_data[15] ) begin // skip this one
-                    { dma_done, dma_addr[11:1] } <= { 1'b0, dma_addr[11:4], 3'd0 } + 12'd8;
+                dma_prio <= dma_data[7:0]; // is dma_prio==0 special?
+                if( !dma_data[15] ) begin // skip this one
+                    { dma_bsy, dma_addr[11:1] } <= { 1'b1, dma_addr[11:4], 3'd0 } + 12'd8;
                     dma_ok  <= 0;
                 end else begin
                     dma_ok <= 1;
                 end
             end
+            if( dma_ok ) { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
             if( dma_addr[3:1]==7 ) dma_ok <= 0;
-        end else if( dma_clr ) begin
-            { dma_clr, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
         end
     end
 end

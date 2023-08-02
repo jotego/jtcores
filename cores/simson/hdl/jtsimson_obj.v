@@ -76,7 +76,7 @@ wire [ 9:0] hzoom;
 
 wire irq_en, scr_hflip, scr_vflip;
 
-assign ram_we    = {2{cpu_we&ram_cs}} & ~cpu_dsn;
+assign ram_we    = {2{cpu_we&ram_cs}} & ~{cpu_dsn[0],cpu_dsn[1]};
 assign prio      = 5'h1f;
 assign pxl       = 0;
 assign rom_cs    = ~objcha_n;

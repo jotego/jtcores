@@ -93,7 +93,7 @@ wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 
-assign objsys_dout = cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
+assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
 
 // Debug
 always @(posedge clk) begin
