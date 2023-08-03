@@ -1,4 +1,4 @@
-(kicad_sch (version 20230121) (generator eeschema)
+(kicad_sch (version 20211123) (generator eeschema)
 
   (uuid c1bf3053-ab02-4fad-84ab-c8e684c26dec)
 
@@ -2590,7 +2590,7 @@
     (effects (font (size 3 3)) (justify left bottom))
     (uuid 999b4d81-8b3e-47d4-a226-1b5cec7453d9)
   )
-  (text "HARDWARE DESCRIPTION\n\nVideo Chips : 052109 051962 053247 053246 053251 \n\nCPU : 68000 (~{RESET} generator 051550)\n\nSound : Z80 YM2151 054539 054544 (PCM054321 AD1868R) \n\n"
+  (text "HARDWARE DESCRIPTION\n\nVideo Chips : 052109 051962 053247 053246 053251 \n\nCPU : 68000 (Reset generator 051550)\n\nSound : Z80 YM2151 054539 054544 (PCM054321 AD1868R) \n\n"
     (at 151.13 191.77 0)
     (effects (font (size 3 3) italic) (justify left bottom))
     (uuid c76a6024-face-430d-a761-ed5369d6d503)
