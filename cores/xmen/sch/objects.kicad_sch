@@ -13036,7 +13036,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 18ca3063-a45c-4877-a2d9-f919fff5b6aa)
   )
-  (hierarchical_label "ORAM~{WE}H" (shape input) (at 314.96 184.15 180) (fields_autoplaced)
+  (hierarchical_label "ORAM~{WE}L" (shape input) (at 314.96 184.15 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 311472bf-02a5-46a6-9d7d-a29f6d0dd5cb)
   )
@@ -13084,7 +13084,7 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid c0fd4dee-c7c4-482b-a32a-0848c0256dc3)
   )
-  (hierarchical_label "ORAM~{WE}L" (shape input) (at 314.96 238.76 180) (fields_autoplaced)
+  (hierarchical_label "ORAM~{WE}H" (shape input) (at 314.96 238.76 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid d68d116e-d918-4ce9-a70e-aa7751844cf8)
   )
@@ -13145,7 +13145,7 @@
   (symbol (lib_id "fujitsu:MB8464A-10W-15W") (at 327.66 219.71 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1be71d20-7e33-496f-bbea-6107456678b8)
-    (property "Reference" "U104" (at 334.01 194.31 0)
+    (property "Reference" "J5" (at 334.01 194.31 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "MB8464A-80-10-15/L-LL" (at 334.01 234.95 90)
@@ -13188,7 +13188,7 @@
     (instances
       (project "xmen"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/aae819c6-b113-452b-ad93-d7b3f91744fc"
-          (reference "U104") (unit 1)
+          (reference "J5") (unit 1)
         )
       )
     )
