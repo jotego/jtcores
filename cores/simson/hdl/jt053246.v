@@ -104,6 +104,7 @@ reg  [ 3:0] size;
 wire [15:0] dma_din;
 wire [11:1] dma_wr_addr;
 wire [11:2] scan_addr;
+wire        last_obj;
 reg  [17:0] yz_add;
 reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr;
 wire        busy_g, cpu_bsy;
@@ -123,6 +124,7 @@ assign dma_wr_addr = dma_clr ? dma_addr[11:1] : { dma_prio, dma_addr[3:1] };
 assign scan_addr   = { scan_obj, scan_sub };
 assign ysub        = ydiff[3:0];
 assign busy_g      = busy_l | dr_busy;
+assign last_obj    = &scan_obj;
 
 always @* begin
     ydiff_b= y[8:0] + vlatch;
@@ -220,6 +222,11 @@ always @(posedge clk, posedge rst) begin
                     code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
+                    if( !scan_even[15] ) begin
+                        scan_sub <= 0;
+                        scan_obj <= scan_obj + 1'd1;
+                        if( last_obj ) done <= 1;
+                    end
                 end
                 1: begin
                     y <= gvf ? -scan_even[9:0] : scan_even[9:0];
@@ -228,8 +235,8 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  x - xoffset;
-                    y <= -y - yoffset;
+                    x <=  x + xoffset;
+                    y <=  y + yoffset;
                     vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
@@ -242,9 +249,9 @@ always @(posedge clk, posedge rst) begin
                         3: {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
                     endcase
                     if( !inzone ) begin
-                        scan_sub <= 1;
+                        scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
-                        if( &scan_obj ) done <= 1;
+                        if( last_obj ) done <= 1;
                     end else begin
                         indr     <= 1;
                         scan_sub <= 3;
@@ -268,10 +275,10 @@ always @(posedge clk, posedge rst) begin
                         hstep <= hstep + 1'd1;
                         dr_start <= inzone;
                         if( hdone || !inzone ) begin
-                            scan_sub <= 1;
+                            scan_sub <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
-                            if( &scan_obj ) done <= 1;
+                            if( last_obj ) done <= 1;
                         end
                     end
                 end

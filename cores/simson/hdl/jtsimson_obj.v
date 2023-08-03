@@ -61,7 +61,7 @@ module jtsimson_obj(
 );
 
 wire [ 1:0] ram_we;
-wire [15:0] off_x, off_y, ram_data, dma_data;
+wire [15:0] ram_data, dma_data;
 wire [21:1] rmrd_addr;
 wire [13:1] dma_addr;
 
