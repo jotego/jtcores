@@ -73,7 +73,7 @@ module jt053246(    // sprite logic
     input      [ 8:0] pxl,
     output reg [ 1:0] shd,
 
-    // draw module / 051937
+    // indr module / 051937
     output reg        dr_start,
     input             dr_busy,
 
@@ -93,17 +93,19 @@ reg  [ 7:0] cfg;
 reg  [ 1:0] reserved, effect;
 
 reg  [ 9:0] vzoom;
-reg  [ 2:0] scan_sub, hstep, hcode;
+reg  [ 2:0] hstep, hcode;
+reg  [ 1:0] scan_sub;
 reg  [ 8:0] ydiff, ydiff_b, vlatch;
 reg  [ 9:0] y, x;
 reg  [ 7:0] dma_prio, scan_obj; // max 256 objects
 reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
-wire [15:0] scan_dout;
+wire [15:0] scan_even, scan_odd;
 reg  [ 3:0] size;
 wire [15:0] dma_din;
-wire [11:1] scan_addr, dma_wr_addr;
+wire [11:1] dma_wr_addr;
+wire [11:2] scan_addr;
 reg  [17:0] yz_add;
-reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf;
+reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
 
@@ -115,7 +117,7 @@ assign vflip   = pre_vf & ~vmir;
 assign hflip   = pre_hf & ~hmir;
 
 assign dma_din     = dma_clr ? 16'h0 : dma_data;
-assign dma_we      = dma_bsy & (dma_clr | dma_ok);
+assign dma_we      = dma_clr | dma_ok;
 assign dma_wr_addr = dma_clr ? dma_addr[11:1] : { dma_prio, dma_addr[3:1] };
 
 assign scan_addr   = { scan_obj, scan_sub };
@@ -200,6 +202,7 @@ always @(posedge clk, posedge rst) begin
         hzoom    <= 0;
         hz_keep  <= 0;
         busy_l   <= 0;
+        indr     <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         busy_l <= dr_busy;
@@ -211,44 +214,44 @@ always @(posedge clk, posedge rst) begin
             vlatch   <= vdump;
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
-            case( scan_sub )
-                0: { sq, pre_vf, pre_hf, size } <= scan_dout[14:8];
-                1: begin
-                    code    <= scan_dout;
+            case( {indr, scan_sub} )
+                0: begin
+                    { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
+                    code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
                 end
-                2: y <= scan_dout[9:0]^{10{gvf}};
-                3: x <= scan_dout[9:0]^{10{ghf}};
-                4: begin
-                    x <= x + {9'd0,ghf};
-                    y <= x + {9'd0,gvf};
-                    vzoom <= scan_dout[9:0];
-                    hzoom <= scan_dout[9:0];
+                1: begin
+                    y <= gvf ? -scan_even[9:0] : scan_even[9:0];
+                    x <= ghf ? -scan_odd[ 9:0] : scan_odd[ 9:0];
+                    hcode <= {code[4],code[2],code[0]};
+                    hstep <= 0;
                 end
-                5: begin
-                    if(!sq) hzoom <= scan_dout[9:0];
+                2: begin
                     x <=  x - xoffset;
                     y <= -y - yoffset;
+                    vzoom <= scan_even[9:0];
+                    hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
-                6: begin
-                    { vmir, hmir, reserved, shd, effect, attr } <= scan_dout;
-                    hstep <= 0;
+                3: begin
+                    { vmir, hmir, reserved, shd, effect, attr } <= scan_even;
                     // Add the vertical offset to the code
                     case( size ) // could be + or |
                         1: {code[5],code[3],code[1]} <= { code[5], code[3], ydiff[4]^vflip   };
                         2: {code[5],code[3],code[1]} <= { code[5], ydiff[5:4]^{2{vflip}} };
                         3: {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
                     endcase
-                    hcode <= {code[4],code[2],code[0]};
                     if( !inzone ) begin
                         scan_sub <= 1;
                         scan_obj <= scan_obj + 1'd1;
                         if( &scan_obj ) done <= 1;
+                    end else begin
+                        indr     <= 1;
+                        scan_sub <= 3;
                     end
                 end
-                7: begin
-                    scan_sub <= 7;
+                default: begin // in draw state
+                    scan_sub <= 3;
                     if( (!dr_start && !busy_g) || !inzone ) begin
                         case( size )
                             0: {code[4],code[2],code[0]} <= hcode;
@@ -267,6 +270,7 @@ always @(posedge clk, posedge rst) begin
                         if( hdone || !inzone ) begin
                             scan_sub <= 1;
                             scan_obj <= scan_obj + 1'd1;
+                            indr     <= 0;
                             if( &scan_obj ) done <= 1;
                         end
                     end
@@ -333,19 +337,37 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_ram16 #(.AW(11)) u_copy( // 11:0 -> 4kB
+wire dma_wel = dma_we & ~dma_wr_addr[1] & pxl_cen;
+wire dma_weh = dma_we &  dma_wr_addr[1] & pxl_cen;
+
+jtframe_dual_ram16 #(.AW(10)) u_even( // 10:0 -> 2kB
     // Port 0: DMA
     .clk0   ( clk            ),
     .data0  ( dma_din        ),
-    .addr0  ( dma_wr_addr    ),
-    .we0    ( {2{dma_we}}    ),
+    .addr0  (dma_wr_addr[11:2]),
+    .we0    ( {2{dma_wel}}   ),
     .q0     (                ),
     // Port 1: scan
     .clk1   ( clk            ),
     .data1  ( 16'd0          ),
     .addr1  ( scan_addr      ),
     .we1    ( 2'b0           ),
-    .q1     ( scan_dout      )
+    .q1     ( scan_even      )
+);
+
+jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB
+    // Port 0: DMA
+    .clk0   ( clk            ),
+    .data0  ( dma_din        ),
+    .addr0  (dma_wr_addr[11:2]),
+    .we0    ( {2{dma_weh}}   ),
+    .q0     (                ),
+    // Port 1: scan
+    .clk1   ( clk            ),
+    .data1  ( 16'd0          ),
+    .addr1  ( scan_addr      ),
+    .we1    ( 2'b0           ),
+    .q1     ( scan_odd       )
 );
 
 endmodule
