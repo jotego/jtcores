@@ -52,7 +52,7 @@ module jt053246(    // sprite logic
     // ROM addressing 22 bits in total
     output reg [15:0] code,
     // There are 22 bits communicating both chips on the PCB
-    output reg [ 7:0] attr,     // OC pins
+    output reg [ 9:0] attr,     // OC pins
     output            hflip,
     output            vflip,
     output reg [ 8:0] hpos,
@@ -90,7 +90,7 @@ localparam [2:0] REG_XOFF  = 0, // X offset
 wire        vb_rd, dma_we;
 reg  [ 9:0] xoffset, yoffset;
 reg  [ 7:0] cfg;
-reg  [ 1:0] reserved, effect;
+reg  [ 1:0] reserved;
 
 reg  [ 9:0] vzoom;
 reg  [ 2:0] hstep, hcode;
@@ -237,11 +237,11 @@ always @(posedge clk, posedge rst) begin
                 2: begin
                     x <=  x + xoffset;
                     y <=  y + yoffset;
-                    vzoom <= scan_even[9:0];
-                    hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
+                    vzoom <= 0; // scan_even[9:0];
+                    hzoom <= 0; // sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
-                    { vmir, hmir, reserved, shd, effect, attr } <= scan_even;
+                    { vmir, hmir, reserved, shd, attr } <= scan_even;
                     // Add the vertical offset to the code
                     case( size ) // could be + or |
                         1: {code[5],code[3],code[1]} <= { code[5], code[3], ydiff[4]^vflip   };

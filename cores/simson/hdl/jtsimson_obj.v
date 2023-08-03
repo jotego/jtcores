@@ -60,16 +60,17 @@ module jtsimson_obj(
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] ram_we;
+wire [ 1:0] ram_we, pre_shd;
 wire [15:0] ram_data, dma_data;
-wire [21:1] rmrd_addr;
+wire [21:1] rmrd_addr, pre_addr;
 wire [13:1] dma_addr;
+wire [15:0] pre_pxl;
 
 // Draw module
 wire        dr_start, dr_busy;
 wire [15:0] code;
-wire [ 7:0] attr;     // OC pins
-wire        hflip, vflip, hz_keep;
+wire [ 9:0] attr;     // OC pins
+wire        hflip, vflip, hz_keep, pre_cs;
 wire [ 8:0] hpos;
 wire [ 3:0] ysub;
 wire [ 9:0] hzoom;
@@ -77,14 +78,13 @@ wire [ 9:0] hzoom;
 wire irq_en, scr_hflip, scr_vflip;
 
 assign ram_we    = {2{cpu_we&ram_cs}} & ~{cpu_dsn[0],cpu_dsn[1]};
-assign prio      = 5'h1f;
-assign pxl       = 0;
-assign rom_cs    = ~objcha_n;
-assign rom_addr  = rmrd_addr[21:2];
+assign rom_cs    = ~objcha_n | pre_cs;
+assign rom_addr  = objcha_n ? pre_addr[21:2] : rmrd_addr[21:2];
 assign cpu_din   = objcha_n ? ram_data :
                    rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
-assign dr_busy   = 0;
 assign st_obj    = 0;
+
+assign { shd, prio, pxl } = pre_pxl;
 
 jt053246 u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -124,7 +124,7 @@ jt053246 u_scan(    // sprite logic
 
     // shadow
     .pxl        ( pxl       ),
-    .shd        ( shd       ),
+    .shd        ( pre_shd   ),
 
     // draw module / 053247
     .dr_start   ( dr_start  ),
@@ -135,6 +135,40 @@ jt053246 u_scan(    // sprite logic
     .st_addr    (ioctl_addr[7:0]),
     .st_dout    ( dump_reg  )
 );
+
+jtframe_objdraw #(
+    .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'h12)
+) u_draw(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .hs         ( hs        ),
+    .flip       ( 1'b0      ),
+    .hdump      ( hdump     ),
+
+    .draw       ( dr_start  ),
+    .busy       ( dr_busy   ),
+    .code       ( code      ),
+    .xpos       ( hpos      ),
+    .ysub       ( ysub      ),
+    .hz_keep    ( 1'b0      ),
+    .hzoom      ( 7'd0      ),
+    // .hz_keep    ( hz_keep   ),
+    // .hzoom      ({1'b0,hzoom}),
+
+    .hflip      ( ~hflip    ),
+    .vflip      ( vflip     ),
+    .pal        ({pre_shd, attr}),
+
+    .rom_addr   ( pre_addr  ),
+    .rom_cs     ( pre_cs    ),
+    .rom_ok     ( rom_ok    ),
+    .rom_data   ( rom_data  ),
+
+    .pxl        ( pre_pxl   )
+);
+
 
 localparam RAMW=12;
 
