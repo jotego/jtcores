@@ -131,10 +131,10 @@ public:
 
 		xa = ya = 0;
 		if (code & 0x01) xa += 1;
-		if (code & 0x02) ya += 1;
 		if (code & 0x04) xa += 2;
-		if (code & 0x08) ya += 2;
 		if (code & 0x10) xa += 4;
+		if (code & 0x02) ya += 1;
+		if (code & 0x08) ya += 2;
 		if (code & 0x20) ya += 4;
 		code &= ~0x3f;
 

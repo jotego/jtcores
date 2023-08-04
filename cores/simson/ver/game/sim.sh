@@ -19,6 +19,8 @@ if [ -e SIMPSONS.RAM ]; then
     dd if=SIMPSONS.RAM of=scr_mmr.bin bs=1 count=8 skip=$((48*512))
     dd if=SIMPSONS.RAM of=obj_mmr.bin bs=1 count=8 skip=$((48*512+8))
     dd if=SIMPSONS.RAM of=nvram.bin bs=1 count=128 skip=$((48*512+128))
+else
+    rm -f {scr?,pal,obj_??,???_mmr}.bin
 fi
 
 jtsim $*
