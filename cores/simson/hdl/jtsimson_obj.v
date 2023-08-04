@@ -81,19 +81,41 @@ wire irq_en, scr_hflip, scr_vflip;
 
 assign ram_we    = {2{cpu_we&ram_cs}} & ~{cpu_dsn[0],cpu_dsn[1]};
 assign rom_cs    = ~objcha_n | pre_cs;
-assign rom_addr  = objcha_n ? { pre_addr[21:7], pre_addr[5:2], pre_addr[6] } :
+assign rom_addr  = objcha_n ? { pre_addr[21:7], pre_addr[5:2], pre_addr[6]^debug_bus[2] } :
                               rmrd_addr[21:2];
 assign cpu_din   = objcha_n ? ram_data :
                    rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
 assign st_obj    = 0;
 
 assign { shd, prio, pxl } = pre_pxl;
-assign sorted = {
+assign sorted = debug_bus[1:0]==0 ? {
     rom_data[23], rom_data[19], rom_data[31], rom_data[27], rom_data[7], rom_data[3], rom_data[15], rom_data[11],
     rom_data[22], rom_data[18], rom_data[30], rom_data[26], rom_data[6], rom_data[2], rom_data[14], rom_data[10],
     rom_data[21], rom_data[17], rom_data[29], rom_data[25], rom_data[5], rom_data[1], rom_data[13], rom_data[ 9],
     rom_data[20], rom_data[16], rom_data[28], rom_data[24], rom_data[4], rom_data[0], rom_data[12], rom_data[ 8]
+} : debug_bus[1:0]==1 ? {
+    rom_data[11], rom_data[15], rom_data[3], rom_data[7], rom_data[27], rom_data[31], rom_data[19], rom_data[23],
+    rom_data[10], rom_data[14], rom_data[2], rom_data[6], rom_data[26], rom_data[30], rom_data[18], rom_data[22],
+    rom_data[ 9], rom_data[13], rom_data[1], rom_data[5], rom_data[25], rom_data[29], rom_data[17], rom_data[21],
+    rom_data[ 8], rom_data[12], rom_data[0], rom_data[4], rom_data[24], rom_data[28], rom_data[16], rom_data[20]
+} : debug_bus[1:0]==2 ? {
+    rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],
+    rom_data[14], rom_data[10], rom_data[6], rom_data[2], rom_data[30], rom_data[26], rom_data[22], rom_data[18],
+    rom_data[13], rom_data[ 9], rom_data[5], rom_data[1], rom_data[29], rom_data[25], rom_data[21], rom_data[17],
+    rom_data[12], rom_data[ 8], rom_data[4], rom_data[0], rom_data[28], rom_data[24], rom_data[20], rom_data[16],
+} : {
+    rom_data[3], rom_data[7], rom_data[11], rom_data[15],  rom_data[19], rom_data[23],rom_data[27], rom_data[31],
+    rom_data[2], rom_data[6], rom_data[10], rom_data[14],  rom_data[18], rom_data[22],rom_data[26], rom_data[30],
+    rom_data[1], rom_data[5], rom_data[ 9], rom_data[13],  rom_data[17], rom_data[21],rom_data[25], rom_data[29],
+    rom_data[0], rom_data[4], rom_data[ 8], rom_data[12],  rom_data[16], rom_data[20],rom_data[24], rom_data[28]
 };
+
+// assign sorted = {
+//     rom_data[19], rom_data[31], rom_data[27], rom_data[7], rom_data[3], rom_data[15], rom_data[11], rom_data[23],
+//     rom_data[18], rom_data[30], rom_data[26], rom_data[6], rom_data[2], rom_data[14], rom_data[10], rom_data[22],
+//     rom_data[17], rom_data[29], rom_data[25], rom_data[5], rom_data[1], rom_data[13], rom_data[ 9], rom_data[21],
+//     rom_data[16], rom_data[28], rom_data[24], rom_data[4], rom_data[0], rom_data[12], rom_data[ 8], rom_data[20]
+// };
 
 jt053246 u_scan(    // sprite logic
     .rst        ( rst       ),
