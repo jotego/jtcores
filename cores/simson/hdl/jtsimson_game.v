@@ -27,13 +27,13 @@ wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
 wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
-            st_main, st_video, st_snd;
+            st_main, st_video, st_snd, nvram_dump;
 reg  [ 7:0] debug_mux;
 wire        eep_dwn;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
-assign eep_dwn    = ioctl_ram;
+assign eep_dwn    = ioctl_ram && ioctl_addr>='h6080;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -43,6 +43,8 @@ always @(posedge clk) begin
         3: debug_mux <= {init,rmrd, 6'd0 };
     endcase
 end
+
+assign ioctl_din = ioctl_addr < 'h6080 ? video_dump : nvram_dump;
 
 /* verilator tracing_on */
 jtsimson_main u_main(
@@ -94,7 +96,7 @@ jtsimson_main u_main(
     .mono           ( mono          ),
     // EEPROM
     .ioctl_addr     (ioctl_addr[6:0]),
-    .ioctl_din      ( ioctl_din     ),
+    .ioctl_din      ( nvram_dump    ),
     .ioctl_dout     ( ioctl_dout    ),
     .ioctl_wr       ( ioctl_wr      ),
     .eep_dwn        ( eep_dwn       ),
@@ -216,7 +218,7 @@ jtsimson_video u_video (
     .debug_bus      ( debug_bus     ),
     .ioctl_addr     (ioctl_addr[14:0]),
     .ioctl_din      ( video_dump    ),
-    .ioctl_ram      ( 1'b0          ),
+    .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )
 );

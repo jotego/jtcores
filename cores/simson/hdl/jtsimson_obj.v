@@ -62,7 +62,8 @@ module jtsimson_obj(
 
 wire [ 1:0] ram_we, pre_shd;
 wire [15:0] ram_data, dma_data;
-wire [21:1] rmrd_addr, pre_addr;
+wire [22:2] pre_addr;
+wire [21:1] rmrd_addr;
 wire [13:1] dma_addr;
 wire [15:0] pre_pxl;
 
@@ -79,7 +80,8 @@ wire irq_en, scr_hflip, scr_vflip;
 
 assign ram_we    = {2{cpu_we&ram_cs}} & ~{cpu_dsn[0],cpu_dsn[1]};
 assign rom_cs    = ~objcha_n | pre_cs;
-assign rom_addr  = objcha_n ? pre_addr[21:2] : rmrd_addr[21:2];
+assign rom_addr  = objcha_n ? { pre_addr[21:7], pre_addr[5:2], pre_addr[6] } :
+                              rmrd_addr[21:2];
 assign cpu_din   = objcha_n ? ram_data :
                    rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
 assign st_obj    = 0;
@@ -172,7 +174,11 @@ jtframe_objdraw #(
 
 localparam RAMW=12;
 
-jtframe_dual_nvram16 #(.AW(RAMW)) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
+jtframe_dual_nvram16 #(
+    .AW        ( RAMW       ),
+    .SIMFILE_LO("obj_lo.bin"),
+    .SIMFILE_HI("obj_hi.bin")
+) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
     // Port 0 - CPU access
     .clk0   ( clk       ),
     .data0  ( cpu_dout  ),

@@ -101,14 +101,13 @@ always @(posedge clk) begin
     // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 19472 bytes
     if( !ioctl_addr[14] )
         ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    else if( !ioctl_addr[12] )
+    else if( ioctl_addr<'h5000 )
         ioctl_din <= dump_pal;  // 4kB 4000~4FFF
     else if( ioctl_addr<'h6000 )
         ioctl_din <= dump_obj;  // 4kB 5000~5FFF
     else if( !ioctl_addr[3] )
         ioctl_din <= dump_scr;  // 8 bytes, MMR 6007
-    else if(ioctl_addr[3:0]!=7)
-        ioctl_din <= dump_reg;  // 7 bytes, MMR
+    else ioctl_din <= dump_reg;  // 7 bytes, MMR
 end
 
 /* verilator tracing_off */
@@ -220,7 +219,7 @@ jtsimson_obj u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

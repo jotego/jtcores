@@ -122,7 +122,7 @@ always @(posedge clk, posedge rst) begin
         case( st )
             1: begin
                 mix1  <= l1 ? {mmr[COLHI0][3:2],cl1} : {mmr[COLHI0][1:0],cl0};
-                mix1p <= ~(l1 | mmr[11][5]) ? pri1_mux : pri0_mux;
+                mix1p <= (l1 | mmr[11][5]) ? pri1_mux : pri0_mux;
                 col1_n<= l1 ? pre_n[1] : pre_n[0];
             end
             2: begin

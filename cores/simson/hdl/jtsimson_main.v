@@ -80,8 +80,7 @@ module jtsimson_main(
 `ifndef NOMAIN
 
 wire [ 7:0] Aupper;
-reg  [ 7:0] cpu_din, port_in;
-reg  [ 3:0] bank;
+reg  [ 7:0] cpu_din, port_in;reg  [ 3:0] bank;
 wire [15:0] A, pcbad;
 wire        buserror;
 reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
@@ -255,23 +254,29 @@ jtkcpu u_cpu(
 );
 /* verilator tracing_on */
 `else
-    assign cpu_cen  = 0;
-    assign cpu_dout = 0;
-    assign ram_we   = 0;
-    assign cpu_we   = 0;
-    assign st_dout  = 0;
-    assign pal_we   = 0;
-    assign rom_addr = 0;
+    assign cpu_cen   = 0;
+    assign cpu_dout  = 0;
+    assign ram_we    = 0;
+    assign cpu_we    = 0;
+    assign st_dout   = 0;
+    assign pal_we    = 0;
+    assign rom_addr  = 0;
+    assign snd_wrn   = 1;
+    assign ioctl_din = 0;
 
-    integer f,fcnt=0;
     initial begin
+        init       = 0;
+        rom_addr   = 0;
         rom_cs     = 0;
         rmrd       = 0;
+        pcu_cs     = 0;
         tilesys_cs = 0;
         objsys_cs  = 0;
+        objreg_cs  = 0;
+        objcha_n   = 0;
         snd_irq    = 0;
-        snd_latch  = 0;
-        init       = 0;
+        mono       = 0;
+        st_dout    = 0;
     end
 `endif
 endmodule

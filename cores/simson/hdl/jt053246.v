@@ -24,9 +24,20 @@
 // DMA transfer takes 297.5us, and occurs 1 line after VS finishes
 // The PCB may detect end of the DMA transfer and set
 // an interrupt on it
-// DMA duration may depend on the number of elements to transfer
-// If all table entries were copied, it would take:
-// 256 x 8 = 2048 -> 642 @ 3MHz, 341us @ 6MHz or 170.6us @ 12MHz
+
+// The chip can operate in either 8-bit or 16-bit mode, so it can
+// connect to an 8-bit CPU (and RAM) or a 16-bit system
+// Is the 8-bit mode set by an MMR?
+// DMA A0 line max speed is 3MHz (166ns low, 166ns high)
+// in 8-bit mode, not all 8 positions have low & high bytes read
+// if all were read, DMA should last for 682.67us but it is 596.9us
+// so 14 out of 16 bytes are read for each object
+// MSB is read first, so the order is
+// 1,0,3,2,5,4,7,6,9,8,B,A,D,C
+// Note that F,E are missing. Could they be enabled with some MMR?
+
+// In X-Men (16-bit mode) DMA lasts for 298.7us, half the time
+// than in 8-bit mode (accounting for some inaccuracy in the measurement)
 
 module jt053246(    // sprite logic
     input             rst,
@@ -66,8 +77,8 @@ module jt053246(    // sprite logic
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
     input             vs,
-    input             lvbl,
     input             hs,
+    input             lvbl,
 
     // shadow
     input      [ 8:0] pxl,
@@ -100,13 +111,15 @@ reg  [ 9:0] y, x;
 reg  [ 7:0] dma_prio, scan_obj; // max 256 objects
 reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_even, scan_odd;
+reg  [15:0] dma_bufd;
 reg  [ 3:0] size;
 wire [15:0] dma_din;
 wire [11:1] dma_wr_addr;
+reg  [11:1] dma_bufa;
 wire [11:2] scan_addr;
 wire        last_obj;
 reg  [17:0] yz_add;
-reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr;
+reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
 
@@ -117,9 +130,9 @@ assign dma_en  = cfg[4];
 assign vflip   = pre_vf & ~vmir;
 assign hflip   = pre_hf & ~hmir;
 
-assign dma_din     = dma_clr ? 16'h0 : dma_data;
+assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
-assign dma_wr_addr = dma_clr ? dma_addr[11:1] : { dma_prio, dma_addr[3:1] };
+assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 
 assign scan_addr   = { scan_obj, scan_sub };
 assign ysub        = ydiff[3:0];
@@ -149,33 +162,42 @@ always @(posedge clk, posedge rst) begin
         dma_bsy  <= 0;
         dma_clr  <= 0;
         dma_addr <= 0;
+        dma_bufa <= 0;
+        dma_bufd <= 0;
         dma_bsy  <= 0;
-    end else if( pxl_cen ) begin
+        hsl      <= 0;
+    end else if( pxl2_cen ) begin
+        hsl <= hs;
         if( vdump==9'h1f8 ) begin
             dma_clr <= dma_en;
             dma_addr <= 0;
         end else if( dma_clr ) begin
             { dma_clr, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
         end
-        if( vdump==9'h101 ) begin
+        if( vdump==9'h102 && hs && !hsl ) begin
             dma_bsy  <= dma_en;
             dma_addr <= 0;
+            dma_bufa <= 0;
             dma_clr  <= 0;
             dma_ok   <= 0;
             dma_prio <= 0;
         end else if( dma_bsy ) begin // copy by priority order
             dma_bsy  <= 1;
+            dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
-                dma_prio <= dma_data[7:0]; // is dma_prio==0 special?
+                dma_bufa <= { dma_data[7:0], 3'd0 }; // is dma_prio==0 special?
                 if( !dma_data[15] ) begin // skip this one
-                    { dma_bsy, dma_addr[11:1] } <= { 1'b1, dma_addr[11:4], 3'd0 } + 12'd8;
+                    //{ dma_bsy, dma_addr[11:1] } <= { 1'b1, dma_addr[11:4], 3'd0 } + 12'd8;
                     dma_ok  <= 0;
                 end else begin
                     dma_ok <= 1;
                 end
             end
-            if( dma_ok ) { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
-            if( dma_addr[3:1]==7 ) dma_ok <= 0;
+            { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
+            dma_bufa[3:1] <= dma_addr[3:1];
+            if( dma_addr[3:1]==6 ) begin
+                { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 14'd2; // skip 7
+            end
         end
     end
 end
@@ -185,7 +207,8 @@ always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
     /* verilator lint_off WIDTH */
-    yz_add <= {vzoom,3'b0}*ydiff_b;
+    // yz_add <= {vzoom,3'b0}*ydiff_b;
+    yz_add <= 0;
     /* verilator lint_on WIDTH */
 end
 
@@ -235,10 +258,10 @@ always @(posedge clk, posedge rst) begin
                     hstep <= 0;
                 end
                 2: begin
-                    x <=  x + xoffset;
-                    y <=  y + yoffset;
-                    vzoom <= 0; // scan_even[9:0];
-                    hzoom <= 0; // sq ? scan_even[9:0] : scan_odd[9:0];
+                    //x <=  x - xoffset[8:0] // + { {2{debug_bus[7]}}, debug_bus };
+                    y <=  y /*- yoffset[8:0];*/- 10'h80;
+                    vzoom <= scan_even[9:0];
+                    hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
                     { vmir, hmir, reserved, shd, attr } <= scan_even;
@@ -344,8 +367,8 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire dma_wel = dma_we & ~dma_wr_addr[1] & pxl_cen;
-wire dma_weh = dma_we &  dma_wr_addr[1] & pxl_cen;
+wire dma_wel = dma_we & ~dma_wr_addr[1];
+wire dma_weh = dma_we &  dma_wr_addr[1];
 
 jtframe_dual_ram16 #(.AW(10)) u_even( // 10:0 -> 2kB
     // Port 0: DMA
