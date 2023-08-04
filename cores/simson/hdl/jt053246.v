@@ -266,7 +266,7 @@ always @(posedge clk, posedge rst) begin
                 3: begin
                     { vmir, hmir, reserved, shd, attr } <= scan_even;
                     // Add the vertical offset to the code
-                    case( size ) // could be + or |
+                    case( size[3:2] ) // could be + or |
                         1: {code[5],code[3],code[1]} <= { code[5], code[3], ydiff[4]^vflip   };
                         2: {code[5],code[3],code[1]} <= { code[5], ydiff[5:4]^{2{vflip}} };
                         3: {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
@@ -283,7 +283,7 @@ always @(posedge clk, posedge rst) begin
                 default: begin // in draw state
                     scan_sub <= 3;
                     if( (!dr_start && !busy_g) || !inzone ) begin
-                        case( size )
+                        case( size[1:0] )
                             0: {code[4],code[2],code[0]} <= hcode;
                             1: {code[4],code[2],code[0]} <= {hcode[2],hcode[1],hstep[0]^hflip};
                             2: {code[4],code[2],code[0]} <= {hcode[2],hstep[1:0]^{2{hflip}}};

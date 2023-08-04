@@ -75,6 +75,7 @@ wire        hflip, vflip, hz_keep, pre_cs;
 wire [ 8:0] hpos;
 wire [ 3:0] ysub;
 wire [ 9:0] hzoom;
+wire [31:0] sorted;
 
 wire irq_en, scr_hflip, scr_vflip;
 
@@ -87,6 +88,12 @@ assign cpu_din   = objcha_n ? ram_data :
 assign st_obj    = 0;
 
 assign { shd, prio, pxl } = pre_pxl;
+assign sorted = {
+    rom_data[23], rom_data[19], rom_data[31], rom_data[27], rom_data[7], rom_data[3], rom_data[15], rom_data[11],
+    rom_data[22], rom_data[18], rom_data[30], rom_data[26], rom_data[6], rom_data[2], rom_data[14], rom_data[10],
+    rom_data[21], rom_data[17], rom_data[29], rom_data[25], rom_data[5], rom_data[1], rom_data[13], rom_data[ 9],
+    rom_data[20], rom_data[16], rom_data[28], rom_data[24], rom_data[4], rom_data[0], rom_data[12], rom_data[ 8]
+};
 
 jt053246 u_scan(    // sprite logic
     .rst        ( rst       ),
@@ -139,7 +146,7 @@ jt053246 u_scan(    // sprite logic
 );
 
 jtframe_objdraw #(
-    .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'h12)
+    .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(0),.ZW(7),.FLIP_OFFSET(9'h12)
 ) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -166,7 +173,7 @@ jtframe_objdraw #(
     .rom_addr   ( pre_addr  ),
     .rom_cs     ( pre_cs    ),
     .rom_ok     ( rom_ok    ),
-    .rom_data   ( rom_data  ),
+    .rom_data   ( sorted    ),
 
     .pxl        ( pre_pxl   )
 );
