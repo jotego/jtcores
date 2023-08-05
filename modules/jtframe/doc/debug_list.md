@@ -50,7 +50,7 @@ This text can be used in GitHub to generate a check list to use during code deve
 - [ ] Color mixer
 - [ ] Graphics are correct
 - [ ] Top level simulation hooked up correctly
-- [ ] Simulation starts up correctly (See #27)
+- [ ] Simulation starts up correctly
 - [ ] Music sounds
 - [ ] OSD sound options (FX level, FM/PSG enable)
 - [ ] Synthesis ok

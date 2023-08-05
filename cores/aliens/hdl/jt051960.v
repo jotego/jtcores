@@ -125,6 +125,12 @@ assign busy_g = busy_l | dr_busy;
 assign sha_cfg = mmr[REG_SHA][2:0];
 assign shadow = &{(pxl[11]|sha_cfg[1]),~sha_cfg[2],pxl[3:0]}^sha_cfg[0];
 
+always @(posedge clk) begin
+    /* verilator lint_off WIDTH */
+    yz_add <= {vzoom,3'b0}*ydiff_b;
+    /* verilator lint_on WIDTH */
+end
+
 always @* begin
     ydiff_b= y + vlatch;
     ydiff  = ydiff_b+yz_add[17-:9];
@@ -199,12 +205,6 @@ end
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
-
-always @(posedge clk) begin
-    /* verilator lint_off WIDTH */
-    yz_add <= {vzoom,3'b0}*ydiff_b;
-    /* verilator lint_on WIDTH */
-end
 
 // Table scan
 always @(posedge clk, posedge rst) begin

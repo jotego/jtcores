@@ -150,7 +150,7 @@ public:
 		if (!(temp4 & 0x4000))
 		{
 			scalex = zoomx = gx_spriteram[offs+5] & 0x3ff;
-			if (zoomx) zoomx = (0x400000+(zoomx>>1)) / zoomx;
+			if (zoomx) zoomx = (0x40'0000+(zoomx>>1)) / zoomx;
 			else zoomx = 0x800000;
 		}
 		else { zoomx = zoomy; scalex = scaley; }
