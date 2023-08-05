@@ -140,8 +140,16 @@ assign busy_g      = busy_l | dr_busy;
 assign last_obj    = &scan_obj;
 
 always @* begin
-    ydiff_b= y[8:0] + vlatch;
+    case( size[3:2] )
+        1: ydiff_b = 9'h08;
+        2: ydiff_b = 9'h18;
+        3: ydiff_b = 9'h28;
+        default: ydiff_b = 0;
+    endcase
+    ydiff_b= ydiff_b + y[8:0] + vlatch;
     ydiff  = ydiff_b+yz_add[17-:9];
+    // if( size[3:2]==debug_bus[7:6] )
+    //     ydiff = ydiff + { debug_bus[3:0], 4'd0 };
     case( size[3:2] )
         0: inzone = ydiff_b[8:4]==0 && ydiff[8:4]==0; // 16
         1: inzone = ydiff_b[8:5]==0 && ydiff[8:5]==0; // 32
@@ -209,6 +217,7 @@ always @(posedge clk) begin
     /* verilator lint_off WIDTH */
     // yz_add <= {vzoom,3'b0}*ydiff_b;
     yz_add <= 0;
+
     /* verilator lint_on WIDTH */
 end
 
@@ -259,17 +268,19 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     //x <=  x - xoffset[8:0] // + { {2{debug_bus[7]}}, debug_bus };
-                    y <=  y /*- yoffset[8:0];*/- 10'h80;
+                    x <=  x + 10'h20;
+                    y <=  y /*- yoffset[8:0]*/ + 10'h380;
                     vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
-                    { vmir, hmir, reserved, shd, attr } <= scan_even;
+                    //{ vmir, hmir, reserved, shd, attr } <= scan_even;
+                    { vmir, hmir, reserved, shd, attr } <= {2'd0,scan_even[13:0]};
                     // Add the vertical offset to the code
                     case( size[3:2] ) // could be + or |
-                        1: {code[5],code[3],code[1]} <= { code[5], code[3], ydiff[4]^vflip   };
-                        2: {code[5],code[3],code[1]} <= { code[5], ydiff[5:4]^{2{vflip}} };
-                        3: {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
+                        1: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + { 2'd0, ydiff[4]^vflip   };
+                        2: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + { 1'd0, ydiff[5:4]^{2{vflip}} };
+                        3: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + ( ydiff[6:4]^{3{vflip}});
                     endcase
                     if( !inzone ) begin
                         scan_sub <= 0;
@@ -285,13 +296,18 @@ always @(posedge clk, posedge rst) begin
                     if( (!dr_start && !busy_g) || !inzone ) begin
                         case( size[1:0] )
                             0: {code[4],code[2],code[0]} <= hcode;
-                            1: {code[4],code[2],code[0]} <= {hcode[2],hcode[1],hstep[0]^hflip};
-                            2: {code[4],code[2],code[0]} <= {hcode[2],hstep[1:0]^{2{hflip}}};
-                            3: {code[4],code[2],code[0]} <= hstep[2:0]^{3{hflip}};
+                            1: {code[4],code[2],code[0]} <= hcode + {2'd0,hstep[0]^hflip};
+                            2: {code[4],code[2],code[0]} <= hcode + {1'd0,hstep[1:0]^{2{hflip}}};
+                            3: {code[4],code[2],code[0]} <= hcode + (hstep[2:0]^{3{hflip}});
                         endcase
-                        if( hstep==0 )
-                            hpos <= x[8:0]; //{debug_bus[7], debug_bus };
-                        else begin
+                        if( hstep==0 ) begin
+                            case( size[1:0])
+                                1: hpos <= x[8:0] - 9'h08;//{ 2'd0, debug_bus[2:0],3'd0};
+                                2: hpos <= x[8:0] - 9'h18;//{ 2'd0, debug_bus[5:3],3'd0};
+                                3: hpos <= x[8:0] - 9'h28;//{ 2'd0, debug_bus[7:6],4'd0};
+                                default: hpos <= x[8:0]; //{debug_bus[7], debug_bus };
+                            endcase
+                        end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
                         end

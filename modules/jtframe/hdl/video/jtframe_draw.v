@@ -20,10 +20,11 @@
 // It could be extended to 32x32 easily
 
 module jtframe_draw#( parameter
-    CW    = 12,    // code width
-    PW    =  8,    // pixel width (lower four bits come from ROM)
-    ZW    =  6,    // zoom step width
-    SWAPH =  0     // swaps the two horizontal halves of the tile
+    CW       = 12,    // code width
+    PW       =  8,    // pixel width (lower four bits come from ROM)
+    ZW       =  6,    // zoom step width
+    SWAPH    =  0,    // swaps the two horizontal halves of the tile
+    KEEP_OLD =  0     // slows down drawing to be compatible with jtframe_obj_buffer's KEEP_OLD parameter
 )(
     input               rst,
     input               clk,
@@ -62,6 +63,7 @@ wire   [ 3:0] ysubf, pxl;
 reg  [ZW-1:0] hz_cnt;
 wire [ZW-1:0] nx_hz;
 wire          skip;
+reg           cen=0;
 
 assign ysubf   = ysub^{4{vflip}};
 assign buf_din = { pal, pxl };
@@ -72,6 +74,8 @@ assign pxl     = hflip ?
 assign rom_addr = { code, rom_lsb^SWAPH[0], ysubf[3:0] };
 assign buf_we   = busy & ~cnt[3];
 assign { skip, nx_hz } = {1'b0, hz_cnt}+{1'b0,hzoom};
+
+always @(posedge clk) cen <= ~cen;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -93,7 +97,7 @@ always @(posedge clk, posedge rst) begin
                     buf_addr <= xpos;
                 end
             end
-        end else begin
+        end else if(KEEP_OLD==0 || cen) begin
             if( rom_ok && rom_cs && cnt[3]) begin
                 pxl_data <= rom_data;
                 cnt[3]   <= 0;

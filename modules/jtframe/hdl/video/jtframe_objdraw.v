@@ -33,6 +33,7 @@ module jtframe_objdraw#( parameter
                    // See note below about hdump fix for HJUMP==0
     LATCH =  0,    // If set, latches code, xpos, ysub, hflip, vflip and pal when draw is set and busy is low
     FLIP_OFFSET=0, // Added to ~hdump when flip==1 and HJUMP==0
+    KEEP_OLD  = 0, // new writes do not overwrite old ones (reverse priority)
     // object line buffer
     ALPHA       = 0
 )(
@@ -142,10 +143,11 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtframe_draw #(
-    .CW   ( CW    ),
-    .PW   ( PW    ),
-    .ZW   ( ZW    ),
-    .SWAPH( SWAPH )
+    .CW      ( CW       ),
+    .PW      ( PW       ),
+    .ZW      ( ZW       ),
+    .SWAPH   ( SWAPH    ),
+    .KEEP_OLD( KEEP_OLD )
 )u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -171,7 +173,8 @@ jtframe_draw #(
 
 jtframe_obj_buffer #(
     .DW         ( PW          ),
-    .ALPHA      ( ALPHA       )
+    .ALPHA      ( ALPHA       ),
+    .KEEP_OLD   ( KEEP_OLD    )
 ) u_linebuf(
     .clk        ( clk       ),
     .flip       ( 1'b0      ),      // flip is solved before this instance
