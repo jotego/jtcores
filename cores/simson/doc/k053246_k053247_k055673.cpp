@@ -245,8 +245,8 @@ int k053247_device::k053246_is_irq_enabled(void)
  *   1  | xxxxxxxxxxxxxxxx | sprite code
  *   2  | ------xxxxxxxxxx | y position
  *   3  | ------xxxxxxxxxx | x position
- *   4  | xxxxxxxxxxxxxxxx | zoom y (0x40 = normal, <0x40 = enlarge, >0x40 = reduce)
- *   5  | xxxxxxxxxxxxxxxx | zoom x (0x40 = normal, <0x40 = enlarge, >0x40 = reduce)
+ *   4  | ------xxxxxxxxxx | zoom y (0x40 = normal, <0x40 = enlarge, >0x40 = reduce)
+ *   5  | ------xxxxxxxxxx | zoom x (0x40 = normal, <0x40 = enlarge, >0x40 = reduce)
  *   6  | x--------------- | mirror y (top half is drawn as mirror image of the bottom)
  *   6  | -x-------------- | mirror x (right half is drawn as mirror image of the left)
  *   6  | --xx------------ | reserved (sprites with these two bits set don't seem to be graphics data at all)

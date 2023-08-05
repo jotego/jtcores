@@ -139,6 +139,13 @@ assign ysub        = ydiff[3:0];
 assign busy_g      = busy_l | dr_busy;
 assign last_obj    = &scan_obj;
 
+
+always @(posedge clk) begin
+    /* verilator lint_off WIDTH */
+    yz_add <= vzoom[8:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
+    /* verilator lint_on WIDTH */
+end
+
 always @* begin
     case( size[3:2] )
         1: ydiff_b = 9'h08;
@@ -147,9 +154,7 @@ always @* begin
         default: ydiff_b = 0;
     endcase
     ydiff_b= ydiff_b + y[8:0] + vlatch;
-    ydiff  = ydiff_b+yz_add[17-:9];
-    // if( size[3:2]==debug_bus[7:6] )
-    //     ydiff = ydiff + { debug_bus[3:0], 4'd0 };
+    ydiff  = ydiff_b + yz_add[17-:9];
     case( size[3:2] )
         0: inzone = ydiff_b[8:4]==0 && ydiff[8:4]==0; // 16
         1: inzone = ydiff_b[8:5]==0 && ydiff[8:5]==0; // 32
@@ -212,14 +217,6 @@ end
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
-
-always @(posedge clk) begin
-    /* verilator lint_off WIDTH */
-    // yz_add <= {vzoom,3'b0}*ydiff_b;
-    yz_add <= 0;
-
-    /* verilator lint_on WIDTH */
-end
 
 // Table scan
 always @(posedge clk, posedge rst) begin
