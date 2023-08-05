@@ -158,10 +158,10 @@ always @* begin
     ydiff  = /*ydiff_b +*/ yz_add>>6;
     /* verilator lint_on WIDTH */
     case( size[3:2] )
-        0: inzone = ydiff_b[8:4]==0 && ydiff[8:4]==0; // 16
-        1: inzone = ydiff_b[8:5]==0 && ydiff[8:5]==0; // 32
-        2: inzone = ydiff_b[8:6]==0 && ydiff[8:6]==0; // 64
-        3: inzone = ydiff_b[8:7]==0 && ydiff[8:7]==0; // 128
+        0: inzone = ydiff_b[8:5]==0 && ydiff[8:4]==0; // 16
+        1: inzone = ydiff_b[8:6]==0 && ydiff[8:5]==0; // 32
+        2: inzone = ydiff_b[8:7]==0 && ydiff[8:6]==0; // 64
+        3: inzone = ydiff_b[8  ]==0 && ydiff[8:7]==0; // 128
     endcase
     case( size[1:0] )
         0: hdone = 1;
