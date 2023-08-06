@@ -203,7 +203,8 @@ always @(posedge clk, posedge rst) begin
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
                 dma_bufa <= { dma_data[7:0], 3'd0 };
-                dma_ok <= dma_data[15] && !(dma_data[7:0]==debug_bus && flicker);
+                dma_ok <= dma_data[15] && dma_data[7:0]!=0 // priority 0 is skipped. See Simpsons scene 4
+                `ifndef SIMULATION && !(dma_data[7:0]==debug_bus && flicker)`endif ;
             end
             { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];
