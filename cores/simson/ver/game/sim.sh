@@ -31,8 +31,8 @@ if [ ! -z "$SCENE" ]; then
     # The first 128 bytes are NVRAM
     dd if="$SCENE/SIMPSONS.RAM" of=nvram.bin bs=128 count=1 2> /dev/null
     dd if="$SCENE/SIMPSONS.RAM" of=$TMP bs=128 skip=1 2> /dev/null
-    dd if=$TMP of=scr0.bin count=16         2> /dev/null
-    dd if=$TMP of=scr1.bin count=16 skip=16 2> /dev/null
+    dd if=$TMP of=scr1.bin count=16         2> /dev/null
+    dd if=$TMP of=scr0.bin count=16 skip=16 2> /dev/null
     dd if=$TMP of=pal.bin count=8 skip=32   2> /dev/null
     dd if=$TMP of=obj.bin count=8 skip=40   2> /dev/null
     dd if=/dev/zero of=obj.bin conv=notrunc oflag=append count=8 2> /dev/null
