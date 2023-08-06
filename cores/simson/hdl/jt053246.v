@@ -108,7 +108,7 @@ reg  [ 2:0] hstep, hcode;
 reg  [ 1:0] scan_sub;
 reg  [ 8:0] ydiff, ydiff_b, vlatch;
 reg  [ 9:0] y, x;
-reg  [ 7:0] dma_prio, scan_obj; // max 256 objects
+reg  [ 7:0] scan_obj; // max 256 objects
 reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_even, scan_odd;
 reg  [15:0] dma_bufd;
@@ -198,13 +198,12 @@ always @(posedge clk, posedge rst) begin
             dma_bufa <= 0;
             dma_clr  <= 0;
             dma_ok   <= 0;
-            dma_prio <= 0;
         end else if( dma_bsy ) begin // copy by priority order
             dma_bsy  <= 1;
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
-                dma_bufa <= { dma_data[7:0], 3'd0 }; // is dma_prio==0 special?
-                dma_ok <= dma_data[15] && !(dma_prio==debug_bus && flicker);
+                dma_bufa <= { dma_data[7:0], 3'd0 };
+                dma_ok <= dma_data[15] && !(dma_data[7:0]==debug_bus && flicker);
             end
             { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];
