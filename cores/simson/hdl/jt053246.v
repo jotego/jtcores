@@ -119,7 +119,8 @@ reg  [11:1] dma_bufa;
 wire [11:2] scan_addr;
 wire        last_obj;
 reg  [18:0] yz_add;
-reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl;
+reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
+            vmir_eff;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
 
@@ -127,8 +128,8 @@ assign ghf     = cfg[0]; // global flip
 assign gvf     = cfg[1];
 assign cpu_bsy = cfg[3];
 assign dma_en  = cfg[4];
-assign vflip   = pre_vf;// & ~vmir;
-assign hflip   = pre_hf;// & ~hmir;
+assign vflip   = pre_vf ^ vmir_eff;
+assign hflip   = pre_hf ^ hmir;
 
 assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
@@ -157,6 +158,8 @@ always @* begin
     /* verilator lint_off WIDTH */
     ydiff  = /*ydiff_b +*/ yz_add>>6;
     /* verilator lint_on WIDTH */
+    // assuming  mirroring applies to a single 16x16 tile, not the whole size
+    vmir_eff = vmir & ~ydiff[3];
     case( size[3:2] )
         0: inzone = ydiff_b[8:5]==0 && ydiff[8:4]==0; // 16
         1: inzone = ydiff_b[8:6]==0 && ydiff[8:5]==0; // 32
