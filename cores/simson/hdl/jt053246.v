@@ -159,7 +159,7 @@ always @* begin
     ydiff  = /*ydiff_b +*/ yz_add>>6;
     /* verilator lint_on WIDTH */
     // assuming  mirroring applies to a single 16x16 tile, not the whole size
-    vmir_eff = vmir & ~ydiff[3];
+    vmir_eff = vmir && size[3:2]==0 && !ydiff[3];
     case( size[3:2] )
         0: inzone = ydiff_b[8:5]==0 && ydiff[8:4]==0; // 16
         1: inzone = ydiff_b[8:6]==0 && ydiff[8:5]==0; // 32
@@ -308,7 +308,10 @@ always @(posedge clk, posedge rst) begin
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
-                        dr_start <= inzone;
+                        // would !x[9] create problems in large sprites
+                        // it is needed to prevent the police car from showing up
+                        // at the end of level 1 in Simpsons (see scene 3)
+                        dr_start <= inzone && !x[9];
                         if( hdone || !inzone ) begin
                             scan_sub <= 0;
                             scan_obj <= scan_obj + 1'd1;
