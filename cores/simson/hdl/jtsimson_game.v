@@ -115,8 +115,7 @@ jtsimson_sound u_sound(
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .fxlevel    ( dip_fxlevel   ),
-    // .enable_fm  ( enable_fm     ),
-    .enable_fm  ( 1'b0     ),
+    .enable_fm  ( enable_fm     ),
     .enable_psg ( enable_psg    ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),

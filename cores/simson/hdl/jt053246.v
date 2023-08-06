@@ -201,12 +201,7 @@ always @(posedge clk, posedge rst) begin
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
                 dma_bufa <= { dma_data[7:0], 3'd0 }; // is dma_prio==0 special?
-                if( !dma_data[15] ) begin // skip this one
-                    //{ dma_bsy, dma_addr[11:1] } <= { 1'b1, dma_addr[11:4], 3'd0 } + 12'd8;
-                    dma_ok  <= 0;
-                end else begin
-                    dma_ok <= 1;
-                end
+                dma_ok <= dma_data[15];
             end
             { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];

@@ -67,12 +67,12 @@ assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign ioctl_din = 0;
 
 function [23:0] dim( input [14:0] cin, input shade );
-    dim = !shade? {   1'b0, cin[14:10], cin[14:13],
+    dim = !shade? {   1'b0, cin[14:10], cin[14:13],    // dim
                       1'b0, cin[ 9: 5], cin[ 9: 8],
                       1'b0, cin[ 4: 0], cin[ 4: 3] } :
-                 { cin[14:10], cin[14:12],
-                   cin[ 9: 5], cin[ 9: 7],
-                   cin[ 4: 0], cin[ 4: 2] };
+                  {         cin[14:10], cin[14:12],    // do not dim
+                            cin[ 9: 5], cin[ 9: 7],
+                            cin[ 4: 0], cin[ 4: 2] };
 endfunction
 
 always @(posedge clk) begin
@@ -88,7 +88,7 @@ always @(posedge clk) begin
 `endif
         if( pxl_cen ) begin
             shl <= shd;
-            bgr <= dim(pxl_aux[14:0], shl);
+            bgr <= dim(pxl_aux[14:0], shd);
             pal_half <= 0;
         end else
             pal_half <= ~pal_half;

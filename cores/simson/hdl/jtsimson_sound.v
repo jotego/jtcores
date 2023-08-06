@@ -121,10 +121,10 @@ always @(posedge clk, posedge rst) begin
     end else begin
         fmgain <= enable_fm ? FMGAIN : 8'd0;
         case( fxlevel )
-            0: fxgain <= 8'h10;
-            1: fxgain <= 8'h18;
-            2: fxgain <= 8'h20;
-            3: fxgain <= 8'h28;
+            0: fxgain <= 8'h18;
+            1: fxgain <= 8'h20;
+            2: fxgain <= 8'h28;
+            3: fxgain <= 8'h30;
         endcase
         if( !enable_psg ) fxgain <= 0;
         if( bank_cs ) bank <= cpu_dout[2:0];

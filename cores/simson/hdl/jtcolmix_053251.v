@@ -141,7 +141,7 @@ always @(posedge clk, posedge rst) begin
                 col4_n<= l4 ? pre_n[4] : col3_n;
             end
             5: begin
-                shd_sel <= mix4p < shd_p;
+                shd_sel <= shd_p < mix4p;
             end
             default:;
         endcase

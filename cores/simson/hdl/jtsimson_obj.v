@@ -76,6 +76,7 @@ wire [ 8:0] hpos;
 wire [ 3:0] ysub;
 wire [ 9:0] hzoom;
 wire [31:0] sorted;
+wire        pen15;
 
 wire irq_en, scr_hflip, scr_vflip;
 
@@ -87,7 +88,19 @@ assign cpu_din   = objcha_n ? ram_data :
                    rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
 assign st_obj    = 0;
 
-assign { shd, prio, pxl } = pre_pxl;
+// Shadow understanding so far
+// The 053251 color mixer lets shadow pass based on numerical priority only
+// and independently of what layer is selected. As the object layer should not
+// be drawn directly over a shadow, it looks like the logic must be like this
+// - in the LUT the shadow bits are set for the whole sprite
+// - when drawing the sprite, if the shadow is enabled and the sprite pen is
+//   15 (bits 3:0 high), output the shadow bits but set the pen to 0 (transparent)
+// - otherwise, output 0 for shadow bits and let the pen go through unaltered
+// - Some bits in upper byte of register 2 are unknown in MAME and could be
+//   related to selecting shadow pens
+assign pen15     = &pre_pxl[3:0];
+assign { shd, prio, pxl } = { pre_pxl[15:14] & {2{pen15}}, pre_pxl[13:4], (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0 };
+
 assign sorted = {
     rom_data[15], rom_data[11], rom_data[7], rom_data[3], rom_data[31], rom_data[27], rom_data[23], rom_data[19],
     rom_data[14], rom_data[10], rom_data[6], rom_data[2], rom_data[30], rom_data[26], rom_data[22], rom_data[18],

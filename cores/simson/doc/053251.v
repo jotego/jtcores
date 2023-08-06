@@ -35,7 +35,7 @@ module k053251(
 
     input [1:0] SDI,
     output reg [1:0] SDO,
-    
+
     output reg [10:0] CO,
     output reg BRIT,
     output reg NCOL
@@ -118,8 +118,8 @@ reg [1:0] SDI_W3;
 
 
 wire [5:0] PRSHA = (SDI_W3 == 2'd0) ? 6'h3F :
-                    (SDI_W3 == 2'd1) ? REG6 :
-                    (SDI_W3 == 2'd2) ? REG7 : REG8;
+                   (SDI_W3 == 2'd1) ? REG6 :
+                   (SDI_W3 == 2'd2) ? REG7 : REG8;
 
 wire A49 = (PR1MUX < PR0MUX);
 wire SEL_L2 = (PR2_W1 < PR0PR1MIX);
@@ -180,37 +180,37 @@ always @(posedge CLK) begin
     PR0_Q <= PR0;
     PR1_Q <= PR1;
     PR2_Q <= PR2;
-    
+
     TRANSP0_W1 <= TRANSP0;
     TRANSP1_W1 <= TRANSP1;
     TRANSP2_W1 <= TRANSP2;
     TRANSP4_W1 <= TRANSP4;
-    
+
     L0L1L2MIX_Q <= L0L1L2MIX;
     T0T1T2MIX_Q <= T0T1T2MIX;
-    
+
     L0L1L2L3MIX_Q <= L0L1L2L3MIX;
     T0T1T2T3MIX_Q <= T0T1T2T3MIX;
-    
+
     CO <= L0L1L2L3L4MIX;
     NCOL <= T0T1T2T3T4MIX;
-    
+
     PR2_W1 <= PR2MUX;
     PR4_W1 <= PR4;
-    
+
     SEL_W1 <= SEL;
     SEL_W2 <= SEL_W1;
-    
+
     PR0MUX_Q <= PR0MUX;
     PR1MUX_Q <= PR1MUX;
-    
+
     PR0PR1PR2MIX_Q <= PR0PR1PR2MIX;
     PR0PR1PR2PR3MIX_Q <= PR0PR1PR2PR3MIX;
-    
+
     SEL_L1 <= A49;
     SEL_L4 <= G93;
     BRIT <= J122A;
-    
+
     SDI_Q <= SDI;
     SDI_W1 <= SDI_Q;
     SDI_W2 <= SDI_W1;

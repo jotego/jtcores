@@ -30,7 +30,7 @@ Callback procedures for non-standard shadows:
 2) shift shadow code left by K053247_SHDSHIFT and add the K053247_CUSTOMSHADOW flag
 3) combine the result with sprite color
 */
-#define K053247_CUSTOMSHADOW    0x20000000
+#define K053247_CUSTOMSHADOW    0x2000'0000
 #define K053247_SHDSHIFT        20
 
 #ifdef GX_DEBUG
