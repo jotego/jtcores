@@ -74,6 +74,7 @@ module jtsimson_scroll(
     output     [ 7:0] st_dout
 );
 
+parameter [8:0] HB_OFFSET=0;
 
 wire [ 7:0] lyrf_col,
             lyra_col,  lyrb_col,
@@ -148,7 +149,7 @@ jt052109 u_tilemap(
 );
 
 /* verilator tracing_on */
-jt051962 u_draw(
+jt051962 #(.HB_OFFSET(HB_OFFSET)) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

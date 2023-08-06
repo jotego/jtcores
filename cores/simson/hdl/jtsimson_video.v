@@ -111,7 +111,7 @@ always @(posedge clk) begin
 end
 
 /* verilator tracing_off */
-jtsimson_scroll u_scroll(
+jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

@@ -95,6 +95,8 @@ module jt051962(
     input      [ 7:0] debug_bus
 );
 
+parameter [8:0] HB_OFFSET=0;
+
 reg  [7:0] cola, colb, colf;
 reg [31:0] pxlf_data, pxla_data, pxlb_data;
 reg        hflipa, hflipb;
@@ -102,8 +104,8 @@ reg        hflipa, hflipb;
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h029    ),
-    .HB_END     ( 9'h069    ),  // 10.67 us in RE verilog model
+    .HB_START   ( 9'h029+HB_OFFSET ),
+    .HB_END     ( 9'h069+HB_OFFSET ),  // 10.67 us in RE verilog model
     .HS_START   ( 9'h034    ),
 
     .V_START    ( 9'h0F8    ),
