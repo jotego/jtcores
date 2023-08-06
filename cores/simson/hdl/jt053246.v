@@ -127,8 +127,8 @@ assign ghf     = cfg[0]; // global flip
 assign gvf     = cfg[1];
 assign cpu_bsy = cfg[3];
 assign dma_en  = cfg[4];
-assign vflip   = pre_vf & ~vmir;
-assign hflip   = pre_hf & ~hmir;
+assign vflip   = pre_vf;// & ~vmir;
+assign hflip   = pre_hf;// & ~hmir;
 
 assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
@@ -268,8 +268,7 @@ always @(posedge clk, posedge rst) begin
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
-                    //{ vmir, hmir, reserved, shd, attr } <= scan_even;
-                    { vmir, hmir, reserved, shd, attr } <= {2'd0,scan_even[13:0]};
+                    { vmir, hmir, reserved, shd, attr } <= scan_even;
                     // Add the vertical offset to the code
                     case( size[3:2] ) // could be + or |
                         1: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + { 2'd0, ydiff[4]^vflip   };
