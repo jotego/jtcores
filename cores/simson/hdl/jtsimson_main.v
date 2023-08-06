@@ -273,7 +273,7 @@ jtkcpu u_cpu(
         tilesys_cs = 0;
         objsys_cs  = 0;
         objreg_cs  = 0;
-        objcha_n   = 0;
+        objcha_n   = 1;
         snd_irq    = 0;
         mono       = 0;
         st_dout    = 0;

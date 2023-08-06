@@ -48,6 +48,7 @@ module jtsimson_colmix(
     input      [11:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
+    output     [ 7:0] dump_mmr,
 
     input      [ 7:0] debug_bus
 );
@@ -64,7 +65,7 @@ reg  [15:0] pxl_aux;
 assign pal_addr = { pxl, pal_half };
 assign shd      = ~|pre_shd;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
-assign ioctl_din = 0;
+assign ioctl_din = pal_dout;
 
 function [23:0] dim( input [14:0] cin, input shade );
     dim = !shade? {   1'b0, cin[14:10], cin[14:13],    // dim
@@ -117,6 +118,9 @@ jtcolmix_053251 u_prio(
     // shadow
     .shd_in     ( obj_shd   ),
     .shd_out    ( pre_shd   ),
+    // dump to SD card
+    .ioctl_addr ( ioctl_addr[3:0]),
+    .ioctl_din  ( dump_mmr  ),
 
     .cout       ( pxl       ),
     .brit       (           ),

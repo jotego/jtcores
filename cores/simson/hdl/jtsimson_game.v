@@ -24,16 +24,20 @@ module jtsimson_game(
 wire [ 7:0] snd2main, video_dump;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
-wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
+wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs, io_nvram;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd, nvram_dump;
+wire [14:0] video_dumpa;
 reg  [ 7:0] debug_mux;
 wire        eep_dwn;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
-assign eep_dwn    = ioctl_ram && ioctl_addr>='h6080;
+assign io_nvram   = ioctl_addr[14:0] < 15'h80;
+assign eep_dwn    = ioctl_ram && io_nvram;
+assign ioctl_din  = io_nvram ?  nvram_dump : video_dump;
+assign video_dumpa= ioctl_addr[14:0]-15'h80;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -44,7 +48,6 @@ always @(posedge clk) begin
     endcase
 end
 
-assign ioctl_din = ioctl_addr < 'h6080 ? video_dump : nvram_dump;
 
 /* verilator tracing_on */
 jtsimson_main u_main(
@@ -215,7 +218,7 @@ jtsimson_video u_video (
     .blue           ( blue          ),
     // Debug
     .debug_bus      ( debug_bus     ),
-    .ioctl_addr     (ioctl_addr[14:0]),
+    .ioctl_addr     ( video_dumpa   ),
     .ioctl_din      ( video_dump    ),
     .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),

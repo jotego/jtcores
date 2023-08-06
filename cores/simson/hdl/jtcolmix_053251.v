@@ -36,6 +36,9 @@ module jtcolmix_053251(
     // shadow
     input       [1:0] shd_in,
     output reg  [1:0] shd_out,
+    // MMR dump
+    input       [3:0] ioctl_addr,
+    output      [7:0] ioctl_din,
 
     output reg [10:0] cout,
     output reg        brit,     // bright
@@ -60,6 +63,8 @@ reg  [ 2:0] st;
 reg         shd_sel, col1_n, col2_n, col3_n, col4_n;
 
 reg  p1win, l1, l2, l3, l4;
+
+assign ioctl_din = {2'd0, mmr[ioctl_addr]};
 
 always @* begin
     op[0] = opaque(mmr[FULL][0],ci0[7:0]);
@@ -87,6 +92,20 @@ function opaque( input full, input [7:0] col );
     opaque = ~|col[3:0];
     if(full) opaque = opaque & ~|col[7:4];
 endfunction
+
+`ifdef SIMULATION
+reg [5:0] mmr_init[0:12];
+integer f,fcnt=0;
+
+initial begin
+    f=$fopen("pal_mmr.bin","rb");
+    if( f!=0 ) begin
+        fcnt=$fread(mmr_init,f);
+        $fclose(f);
+        $display("Read %1d bytes for 053251 MMR (priority color mixer)", fcnt);
+    end
+end
+`endif
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -153,6 +172,14 @@ always @(posedge clk, posedge rst) begin
         mmr[0] <= 0; mmr[1] <= 0; mmr[ 2] <= 0; mmr[ 3] <= 0;
         mmr[4] <= 0; mmr[5] <= 0; mmr[ 6] <= 0; mmr[ 7] <= 0;
         mmr[8] <= 0; mmr[9] <= 0; mmr[10] <= 0; mmr[11] <= 0; mmr[12] <= 0;
+`ifdef SIMULATION
+        if( fcnt!=0 ) begin
+            mmr[0] <= mmr_init[0]; mmr[1] <= mmr_init[1]; mmr[2] <= mmr_init[2];
+            mmr[3] <= mmr_init[3]; mmr[4] <= mmr_init[4]; mmr[5] <= mmr_init[5];
+            mmr[6] <= mmr_init[6]; mmr[7] <= mmr_init[7]; mmr[8] <= mmr_init[8];
+            mmr[9] <= mmr_init[9]; mmr[10] <= mmr_init[10]; mmr[11] <= mmr_init[11];
+        end
+`endif
     end else begin
         if( cs ) mmr[addr] <= din;
     end

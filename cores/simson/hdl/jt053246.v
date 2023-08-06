@@ -329,6 +329,8 @@ initial begin
     if( f!=0 ) begin
         fcnt=$fread(mmr_init,f);
         $fclose(f);
+        $display("Read %1d bytes for 053246 MMR", fcnt);
+        mmr_init[5][4] = 1; // enable DMA, which will be low if the game was paused for the dump
     end
 end
 `endif

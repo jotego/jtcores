@@ -86,7 +86,7 @@ module jtsimson_video(
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
-            dump_scr, dump_obj, dump_pal, dump_reg;
+            dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [ 8:0] lyro_pxl;
 wire [ 1:0] obj_shd;
@@ -98,16 +98,19 @@ assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? st_obj : st_scr;
-    // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 19472 bytes
-    if( !ioctl_addr[14] )
+    // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 24592 bytes
+    if( ioctl_addr<'h4000 )
         ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
         ioctl_din <= dump_pal;  // 4kB 4000~4FFF
     else if( ioctl_addr<'h6000 )
         ioctl_din <= dump_obj;  // 4kB 5000~5FFF
+    else if( ioctl_addr<'h6010 )//     6000~600F
+        ioctl_din <= pal_mmr;
     else if( !ioctl_addr[3] )
-        ioctl_din <= dump_scr;  // 8 bytes, MMR 6007
-    else ioctl_din <= dump_reg;  // 7 bytes, MMR
+        ioctl_din <= scr_mmr;  // 8 bytes, MMR ~6017
+    else
+        ioctl_din <= obj_mmr; // 7 bytes, MMR ~601F
 end
 
 /* verilator tracing_off */
@@ -168,6 +171,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .ioctl_addr ( ioctl_addr[14:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_scr  ),
+    .mmr_dump   ( scr_mmr   ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
@@ -212,7 +216,7 @@ jtsimson_obj u_obj(    // sprite logic
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_addr ( ioctl_addr[13:0]-14'h5000 ),
     .dump_ram   ( dump_obj  ),
-    .dump_reg   ( dump_reg  ),
+    .dump_reg   ( obj_mmr   ),
     .st_obj      ( st_obj   ),
 
     // .gfx_en     ( gfx_en    ),
@@ -253,6 +257,7 @@ jtsimson_colmix u_colmix(
     .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
+    .dump_mmr   ( pal_mmr   ),
 
     .debug_bus  ( debug_bus )
 );
