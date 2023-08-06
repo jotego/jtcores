@@ -119,7 +119,7 @@ jtcolmix_053251 u_prio(
     .shd_in     ( obj_shd   ),
     .shd_out    ( pre_shd   ),
     // dump to SD card
-    .ioctl_addr ( ioctl_addr[3:0]),
+    .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
     .ioctl_din  ( dump_mmr  ),
 
     .cout       ( pxl       ),

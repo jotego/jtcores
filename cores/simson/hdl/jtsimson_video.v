@@ -85,7 +85,7 @@ module jtsimson_video(
 );
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
-wire [ 7:0] lyrf_pxl, st_scr, st_obj,
+wire [ 7:0] lyrf_pxl, st_scr,
             dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [ 8:0] lyro_pxl;
@@ -97,7 +97,7 @@ assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0];
 
 // Debug
 always @(posedge clk) begin
-    st_dout <= debug_bus[5] ? st_obj : st_scr;
+    st_dout <= debug_bus[5] ? (debug_bus[4] ? pal_mmr : obj_mmr) : st_scr;
     // VRAM dumps - 16+4+4 = 24kB, then MMR +16 bytes = 24592 bytes
     if( ioctl_addr<'h4000 )
         ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
@@ -217,8 +217,6 @@ jtsimson_obj u_obj(    // sprite logic
     .ioctl_addr ( ioctl_addr[13:0]-14'h5000 ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
-    .st_obj      ( st_obj   ),
-
     // .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );

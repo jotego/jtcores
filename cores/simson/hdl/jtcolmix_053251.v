@@ -177,7 +177,8 @@ always @(posedge clk, posedge rst) begin
             mmr[0] <= mmr_init[0]; mmr[1] <= mmr_init[1]; mmr[2] <= mmr_init[2];
             mmr[3] <= mmr_init[3]; mmr[4] <= mmr_init[4]; mmr[5] <= mmr_init[5];
             mmr[6] <= mmr_init[6]; mmr[7] <= mmr_init[7]; mmr[8] <= mmr_init[8];
-            mmr[9] <= mmr_init[9]; mmr[10] <= mmr_init[10]; mmr[11] <= mmr_init[11];
+            mmr[9] <= mmr_init[9]; mmr[10] <= mmr_init[10];
+            mmr[11] <= mmr_init[11]; mmr[12] <= mmr_init[12];
         end
 `endif
     end else begin

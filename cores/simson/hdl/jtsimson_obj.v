@@ -56,7 +56,6 @@ module jtsimson_obj(
     input      [13:0] ioctl_addr,
     output     [ 7:0] dump_ram,
     output     [ 7:0] dump_reg,
-    output     [ 7:0] st_obj,
     input      [ 7:0] debug_bus
 );
 
@@ -86,7 +85,6 @@ assign rom_addr  = objcha_n ? { pre_addr[21:7], pre_addr[5:2], pre_addr[6] } :
                               rmrd_addr[21:2];
 assign cpu_din   = objcha_n ? ram_data :
                    rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0];
-assign st_obj    = 0;
 
 // Shadow understanding so far
 // The 053251 color mixer lets shadow pass based on numerical priority only
@@ -154,7 +152,7 @@ jt053246 u_scan(    // sprite logic
 
     // Debug
     .debug_bus  ( debug_bus ),
-    .st_addr    (ioctl_addr[7:0]),
+    .st_addr    ( ioctl_ram ? ioctl_addr[7:0] : debug_bus ),
     .st_dout    ( dump_reg  )
 );
 

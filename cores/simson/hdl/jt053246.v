@@ -120,7 +120,7 @@ wire [11:2] scan_addr;
 wire        last_obj;
 reg  [18:0] yz_add;
 reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
-            vmir_eff;
+            vmir_eff, flicker, vs_l;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
 
@@ -204,7 +204,7 @@ always @(posedge clk, posedge rst) begin
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
                 dma_bufa <= { dma_data[7:0], 3'd0 }; // is dma_prio==0 special?
-                dma_ok <= dma_data[15];
+                dma_ok <= dma_data[15] && !(dma_prio==debug_bus && flicker);
             end
             { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];
@@ -234,10 +234,13 @@ always @(posedge clk, posedge rst) begin
         hz_keep  <= 0;
         busy_l   <= 0;
         indr     <= 0;
+        flicker  <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
+        vs_l <= vs;
         busy_l <= dr_busy;
         dr_start <= 0;
+        if( vs && !vs_l ) flicker <= ~flicker;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
