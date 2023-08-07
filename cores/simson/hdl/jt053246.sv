@@ -271,9 +271,9 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     //x <=  x - xoffset[8:0] // + { {2{debug_bus[7]}}, debug_bus };
-                    x <=  x + 10'h20;
+                    x <=  x + 10'h28;
                     y <=  y /*- yoffset[8:0]*/ + 10'h380;
-                    vzoom <= debug_bus[7] ? 10'h40 : scan_even[9:0];
+                    vzoom <= scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
@@ -303,12 +303,7 @@ always @(posedge clk, posedge rst) begin
                             3: {code[4],code[2],code[0]} <= hcode + (hstep[2:0]^{3{hflip}});
                         endcase
                         if( hstep==0 ) begin
-                            case( size[1:0])
-                                1: hpos <= x[8:0] - 9'h08;//{ 2'd0, debug_bus[2:0],3'd0};
-                                2: hpos <= x[8:0] - 9'h18;//{ 2'd0, debug_bus[5:3],3'd0};
-                                3: hpos <= x[8:0] - 9'h28;//{ 2'd0, debug_bus[7:6],4'd0};
-                                default: hpos <= x[8:0]; //{debug_bus[7], debug_bus };
-                            endcase
+                            hpos <= x[8:0] - zmove( size[1:0], hscl );
                         end else begin
                             hpos <= hpos + 9'h10;
                             hz_keep <= 1;
