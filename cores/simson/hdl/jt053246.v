@@ -107,7 +107,7 @@ reg  [ 9:0] vzoom;
 reg  [ 2:0] hstep, hcode;
 reg  [ 1:0] scan_sub;
 reg  [ 8:0] ydiff, ydiff_b, vlatch;
-reg  [ 9:0] y, x;
+reg  [ 9:0] y, x, ymove;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_even, scan_odd;
@@ -123,6 +123,7 @@ reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
             vmir_eff, flicker, vs_l;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
+reg  [ 8:0] full_h, vscl;
 
 assign ghf     = cfg[0]; // global flip
 assign gvf     = cfg[1];
@@ -143,21 +144,26 @@ assign last_obj    = &scan_obj;
 
 always @(posedge clk) begin
     /* verilator lint_off WIDTH */
-    yz_add <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
+    yz_add  <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
     /* verilator lint_on WIDTH */
 end
 
 always @* begin
     case( size[3:2] )
-        1: ydiff_b = 9'h08;
-        2: ydiff_b = 9'h18;
-        3: ydiff_b = 9'h28;
-        default: ydiff_b = 0;
+        0: full_h = vscl>>1;
+        1: full_h = vscl;
+        2: full_h = vscl<<1;
+        3: full_h = vscl<<2;
     endcase
-    ydiff_b= ydiff_b + y[8:0] + vlatch;
-    /* verilator lint_off WIDTH */
-    ydiff  = /*ydiff_b +*/ yz_add>>6;
-    /* verilator lint_on WIDTH */
+    ymove = full_h>>1;
+    // case( size[3:2] )
+    //     1: ymove = 10'h08;
+    //     2: ymove = 10'h18;
+    //     3: ymove = 10'h38;
+    //     default: ymove = 0;
+    // endcase
+    ydiff_b= ymove + y[8:0] + vlatch - 9'd8;
+    ydiff  = /*ydiff_b +*/ yz_add[6+:9];
     // assuming  mirroring applies to a single 16x16 tile, not the whole size
     vmir_eff = vmir && size[3:2]==0 && !ydiff[3];
     case( size[3:2] )
@@ -203,8 +209,7 @@ always @(posedge clk, posedge rst) begin
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
                 dma_bufa <= { dma_data[7:0], 3'd0 };
-                dma_ok <= dma_data[15] && dma_data[7:0]!=0 // priority 0 is skipped. See Simpsons scene 4
-                `ifndef SIMULATION && !(dma_data[7:0]==debug_bus && flicker)`endif ;
+                dma_ok <= dma_data[15] && dma_data[7:0]!=0; // priority 0 is skipped. See Simpsons scene 4
             end
             { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];
@@ -254,7 +259,7 @@ always @(posedge clk, posedge rst) begin
                     code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
-                    if( !scan_even[15] ) begin
+                    if( !scan_even[15] || (scan_obj[6:0]==debug_bus[6:0] && flicker)) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -270,7 +275,7 @@ always @(posedge clk, posedge rst) begin
                     //x <=  x - xoffset[8:0] // + { {2{debug_bus[7]}}, debug_bus };
                     x <=  x + 10'h20;
                     y <=  y /*- yoffset[8:0]*/ + 10'h380;
-                    vzoom <= scan_even[9:0];
+                    vzoom <= debug_bus[7] ? 10'h40 : scan_even[9:0];
                     hzoom <= sq ? scan_even[9:0] : scan_odd[9:0];
                 end
                 3: begin
@@ -419,5 +424,265 @@ jtframe_dual_ram16 #(.AW(10)) u_odd( // 10:0 -> 2kB
     .we1    ( 2'b0           ),
     .q1     ( scan_odd       )
 );
+
+always @(posedge clk) begin
+    case( vzoom[7:0] )
+        1:   vscl <= 511;
+        2:   vscl <= 511;
+        3:   vscl <= 511;
+        4:   vscl <= 511;
+        5:   vscl <= 410;
+        6:   vscl <= 341;
+        7:   vscl <= 293;
+        8:   vscl <= 256;
+        9:   vscl <= 228;
+        10:  vscl <= 205;
+        11:  vscl <= 186;
+        12:  vscl <= 171;
+        13:  vscl <= 158;
+        14:  vscl <= 146;
+        15:  vscl <= 137;
+        16:  vscl <= 128;
+        17:  vscl <= 120;
+        18:  vscl <= 114;
+        19:  vscl <= 108;
+        20:  vscl <= 102;
+        21:  vscl <= 98;
+        22:  vscl <= 93;
+        23:  vscl <= 89;
+        24:  vscl <= 85;
+        25:  vscl <= 82;
+        26:  vscl <= 79;
+        27:  vscl <= 76;
+        28:  vscl <= 73;
+        29:  vscl <= 71;
+        30:  vscl <= 68;
+        31:  vscl <= 66;
+        32:  vscl <= 64;
+        33:  vscl <= 62;
+        34:  vscl <= 60;
+        35:  vscl <= 59;
+        36:  vscl <= 57;
+        37:  vscl <= 55;
+        38:  vscl <= 54;
+        39:  vscl <= 53;
+        40:  vscl <= 51;
+        41:  vscl <= 50;
+        42:  vscl <= 49;
+        43:  vscl <= 48;
+        44:  vscl <= 47;
+        45:  vscl <= 46;
+        46:  vscl <= 45;
+        47:  vscl <= 44;
+        48:  vscl <= 43;
+        49:  vscl <= 42;
+        50:  vscl <= 41;
+        51:  vscl <= 40;
+        52:  vscl <= 39;
+        53:  vscl <= 39;
+        54:  vscl <= 38;
+        55:  vscl <= 37;
+        56:  vscl <= 37;
+        57:  vscl <= 36;
+        58:  vscl <= 35;
+        59:  vscl <= 35;
+        60:  vscl <= 34;
+        61:  vscl <= 34;
+        62:  vscl <= 33;
+        63:  vscl <= 33;
+        64:  vscl <= 32;
+        65:  vscl <= 32;
+        66:  vscl <= 31;
+        67:  vscl <= 31;
+        68:  vscl <= 30;
+        69:  vscl <= 30;
+        70:  vscl <= 29;
+        71:  vscl <= 29;
+        72:  vscl <= 28;
+        73:  vscl <= 28;
+        74:  vscl <= 28;
+        75:  vscl <= 27;
+        76:  vscl <= 27;
+        77:  vscl <= 27;
+        78:  vscl <= 26;
+        79:  vscl <= 26;
+        80:  vscl <= 26;
+        81:  vscl <= 25;
+        82:  vscl <= 25;
+        83:  vscl <= 25;
+        84:  vscl <= 24;
+        85:  vscl <= 24;
+        86:  vscl <= 24;
+        87:  vscl <= 24;
+        88:  vscl <= 23;
+        89:  vscl <= 23;
+        90:  vscl <= 23;
+        91:  vscl <= 23;
+        92:  vscl <= 22;
+        93:  vscl <= 22;
+        94:  vscl <= 22;
+        95:  vscl <= 22;
+        96:  vscl <= 21;
+        97:  vscl <= 21;
+        98:  vscl <= 21;
+        99:  vscl <= 21;
+        100: vscl <= 20;
+        101: vscl <= 20;
+        102: vscl <= 20;
+        103: vscl <= 20;
+        104: vscl <= 20;
+        105: vscl <= 20;
+        106: vscl <= 19;
+        107: vscl <= 19;
+        108: vscl <= 19;
+        109: vscl <= 19;
+        110: vscl <= 19;
+        111: vscl <= 18;
+        112: vscl <= 18;
+        113: vscl <= 18;
+        114: vscl <= 18;
+        115: vscl <= 18;
+        116: vscl <= 18;
+        117: vscl <= 18;
+        118: vscl <= 17;
+        119: vscl <= 17;
+        120: vscl <= 17;
+        121: vscl <= 17;
+        122: vscl <= 17;
+        123: vscl <= 17;
+        124: vscl <= 17;
+        125: vscl <= 16;
+        126: vscl <= 16;
+        127: vscl <= 16;
+        128: vscl <= 16;
+        129: vscl <= 16;
+        130: vscl <= 16;
+        131: vscl <= 16;
+        132: vscl <= 16;
+        133: vscl <= 15;
+        134: vscl <= 15;
+        135: vscl <= 15;
+        136: vscl <= 15;
+        137: vscl <= 15;
+        138: vscl <= 15;
+        139: vscl <= 15;
+        140: vscl <= 15;
+        141: vscl <= 15;
+        142: vscl <= 14;
+        143: vscl <= 14;
+        144: vscl <= 14;
+        145: vscl <= 14;
+        146: vscl <= 14;
+        147: vscl <= 14;
+        148: vscl <= 14;
+        149: vscl <= 14;
+        150: vscl <= 14;
+        151: vscl <= 14;
+        152: vscl <= 13;
+        153: vscl <= 13;
+        154: vscl <= 13;
+        155: vscl <= 13;
+        156: vscl <= 13;
+        157: vscl <= 13;
+        158: vscl <= 13;
+        159: vscl <= 13;
+        160: vscl <= 13;
+        161: vscl <= 13;
+        162: vscl <= 13;
+        163: vscl <= 13;
+        164: vscl <= 12;
+        165: vscl <= 12;
+        166: vscl <= 12;
+        167: vscl <= 12;
+        168: vscl <= 12;
+        169: vscl <= 12;
+        170: vscl <= 12;
+        171: vscl <= 12;
+        172: vscl <= 12;
+        173: vscl <= 12;
+        174: vscl <= 12;
+        175: vscl <= 12;
+        176: vscl <= 12;
+        177: vscl <= 12;
+        178: vscl <= 12;
+        179: vscl <= 11;
+        180: vscl <= 11;
+        181: vscl <= 11;
+        182: vscl <= 11;
+        183: vscl <= 11;
+        184: vscl <= 11;
+        185: vscl <= 11;
+        186: vscl <= 11;
+        187: vscl <= 11;
+        188: vscl <= 11;
+        189: vscl <= 11;
+        190: vscl <= 11;
+        191: vscl <= 11;
+        192: vscl <= 11;
+        193: vscl <= 11;
+        194: vscl <= 11;
+        195: vscl <= 11;
+        196: vscl <= 10;
+        197: vscl <= 10;
+        198: vscl <= 10;
+        199: vscl <= 10;
+        200: vscl <= 10;
+        201: vscl <= 10;
+        202: vscl <= 10;
+        203: vscl <= 10;
+        204: vscl <= 10;
+        205: vscl <= 10;
+        206: vscl <= 10;
+        207: vscl <= 10;
+        208: vscl <= 10;
+        209: vscl <= 10;
+        210: vscl <= 10;
+        211: vscl <= 10;
+        212: vscl <= 10;
+        213: vscl <= 10;
+        214: vscl <= 10;
+        215: vscl <= 10;
+        216: vscl <= 9;
+        217: vscl <= 9;
+        218: vscl <= 9;
+        219: vscl <= 9;
+        220: vscl <= 9;
+        221: vscl <= 9;
+        222: vscl <= 9;
+        223: vscl <= 9;
+        224: vscl <= 9;
+        225: vscl <= 9;
+        226: vscl <= 9;
+        227: vscl <= 9;
+        228: vscl <= 9;
+        229: vscl <= 9;
+        230: vscl <= 9;
+        231: vscl <= 9;
+        232: vscl <= 9;
+        233: vscl <= 9;
+        234: vscl <= 9;
+        235: vscl <= 9;
+        236: vscl <= 9;
+        237: vscl <= 9;
+        238: vscl <= 9;
+        239: vscl <= 9;
+        240: vscl <= 9;
+        241: vscl <= 8;
+        242: vscl <= 8;
+        243: vscl <= 8;
+        244: vscl <= 8;
+        245: vscl <= 8;
+        246: vscl <= 8;
+        247: vscl <= 8;
+        248: vscl <= 8;
+        249: vscl <= 8;
+        250: vscl <= 8;
+        251: vscl <= 8;
+        252: vscl <= 8;
+        253: vscl <= 8;
+        254: vscl <= 8;
+        255: vscl <= 8;
+    endcase
+end
 
 endmodule
