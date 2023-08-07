@@ -146,7 +146,7 @@ localparam COIN_BIT   = 7+(BUTTONS-2);
 localparam PAUSE_BIT  = 8+(BUTTONS-2);
 
 reg        last_pause, last_osd_pause, last_joypause, last_reset;
-wire       joy_pause;
+wire       joy_pause, joy_test;
 wire [3:0] joy_start, joy_coin;
 wire       vbl_in, vbl_out;
 reg        autofire, vsl, service_l, pause_frame;
@@ -154,12 +154,14 @@ reg  [2:0] firecnt;
 
 `ifdef POCKET   // The Pocket only uses the small buttons at the front for these functions
     assign joy_pause = board_coin[0] & board_joy1[4];
+    assign joy_test  = board_start[0] & board_joy1[4];
     assign joy_start = 0;
     assign joy_coin  = 0;
 `else
     assign joy_pause = joy1_sync[PAUSE_BIT] | joy2_sync[PAUSE_BIT] | joy3_sync[PAUSE_BIT] | joy4_sync[PAUSE_BIT];
     assign joy_start = { joy4_sync[START_BIT], joy3_sync[START_BIT], joy2_sync[START_BIT], joy1_sync[START_BIT]};
     assign joy_coin  = { joy4_sync[COIN_BIT] , joy3_sync[COIN_BIT] , joy2_sync[COIN_BIT] , joy1_sync[COIN_BIT]};
+    assign joy_test  = 0;
 `endif
 assign vbl_in    = vs && !vsl;
 assign vbl_out   =!vs &&  vsl;
@@ -219,7 +221,7 @@ endfunction
     end
     assign game_test = sim_inputs[frame_cnt][11];
 `else
-    assign game_test = key_test;
+    assign game_test = key_test | joy_test;
 `endif
 
 assign pre_order1 = apply_rotation( joy1_sync[9:0] | key_joy1 | { 3'd0, mouse_but_1p, 4'd0}, rot_control, ~dip_flip, autofire );
