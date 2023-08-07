@@ -2496,6 +2496,11 @@
     )
   )
 
+  (text "M6\n" (at 104.14 172.72 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid a0f68e9b-2006-41e0-becc-26c5544a52f3)
+  )
+
   (label "B10" (at 246.38 104.14 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 00324950-66f1-4fe8-ad9f-8953bdf4451a)
@@ -3467,7 +3472,7 @@
   (symbol (lib_id "jt74:74LS04") (at 143.51 92.71 0) (unit 6)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6357d030-4ff6-48cc-9d33-3834b0db7583)
-    (property "Reference" "H?" (at 143.51 91.44 0)
+    (property "Reference" "F3" (at 143.51 91.44 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS04" (at 143.51 93.98 0)
@@ -3496,7 +3501,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "H?") (unit 6)
+          (reference "F3") (unit 6)
         )
       )
     )
