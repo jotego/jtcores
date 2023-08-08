@@ -2737,7 +2737,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid a6abe2c7-0ed4-4078-a9b8-7c742fe42575)
   )
-  (label "~{SHADOW}" (at 204.47 90.17 180) (fields_autoplaced)
+  (label "~{SHD}" (at 204.47 90.17 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid aa1b508d-9e6d-48f4-a2b2-ebb8a1949be4)
   )
@@ -2753,7 +2753,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b82e42df-3e79-42e4-b073-0d83e90ebcdb)
   )
-  (label "~{SHADOW}" (at 213.36 168.91 0) (fields_autoplaced)
+  (label "~{SHD}" (at 213.36 168.91 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b8761883-9f9b-4137-a37e-bbc4abba56c3)
   )
@@ -2899,10 +2899,10 @@
     (uuid f460e5fa-1978-49d5-84f1-26a4fe0d597e)
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 154.94 0) (unit 5)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 154.94 0) (unit 4)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 09766a59-e69b-46e3-8104-78002c975fe6)
-    (property "Reference" "CC?" (at 269.24 153.67 0)
+    (property "Reference" "D8" (at 269.24 153.67 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 156.21 0)
@@ -2931,16 +2931,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "CC?") (unit 5)
+          (reference "D8") (unit 4)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 201.93 109.22 0) (unit 2)
+  (symbol (lib_id "74xx:74LS07") (at 201.93 109.22 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0a3af5f3-a69b-4c34-aed4-a8ebc2f4d869)
-    (property "Reference" "B?" (at 201.93 107.95 0)
+    (property "Reference" "D7" (at 201.93 107.95 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 201.93 110.49 0)
@@ -2969,16 +2969,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "B?") (unit 2)
+          (reference "D7") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 146.05 0) (unit 6)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 146.05 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0c67867b-8df4-4857-8ae3-bc29cd370b50)
-    (property "Reference" "CC?" (at 269.24 144.78 0)
+    (property "Reference" "C7" (at 269.24 144.78 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 147.32 0)
@@ -3007,7 +3007,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "CC?") (unit 6)
+          (reference "C7") (unit 1)
         )
       )
     )
@@ -3016,10 +3016,10 @@
   (symbol (lib_id "Device:R_US") (at 304.8 81.28 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0deec17d-4150-4212-88a3-2ac79504ed3a)
-    (property "Reference" "R?" (at 299.72 80.01 90)
+    (property "Reference" "R9" (at 299.72 80.01 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "1.5KΩ" (at 299.72 82.55 90)
+    (property "Value" "2.7KΩ" (at 299.72 82.55 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 304.546 80.264 90)
@@ -3033,7 +3033,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "R?") (unit 1)
+          (reference "R9") (unit 1)
         )
       )
     )
@@ -3042,7 +3042,7 @@
   (symbol (lib_id "jt74:74LS273") (at 179.07 85.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0ee48a33-8db4-49dc-b383-30c58486074c)
-    (property "Reference" "C?" (at 179.07 82.55 0)
+    (property "Reference" "E7" (at 179.07 82.55 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS273" (at 181.61 99.06 0)
@@ -3075,16 +3075,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 1)
+          (reference "E7") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 201.93 175.26 0) (unit 6)
+  (symbol (lib_id "74xx:74LS07") (at 201.93 175.26 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 156b2e2f-1044-47bf-958d-d0e27e3ce5af)
-    (property "Reference" "C?" (at 201.93 173.99 0)
+    (property "Reference" "C8" (at 201.93 173.99 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 201.93 176.53 0)
@@ -3113,25 +3113,25 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 6)
+          (reference "C8") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 68.58 0) (unit 4)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 77.47 0) (mirror x) (unit 4)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 242e1321-13d1-4e8f-a905-e596247ba219)
-    (property "Reference" "C?" (at 269.24 67.31 0)
+    (property "Reference" "D7" (at 269.24 78.74 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "74LS07" (at 269.24 69.85 0)
+    (property "Value" "74LS07" (at 269.24 76.2 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 269.24 68.58 0)
+    (property "Footprint" "" (at 269.24 77.47 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf" (at 269.24 68.58 0)
+    (property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf" (at 269.24 77.47 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 7d1ce967-94b3-49a2-87d3-e0ce8ea5852e))
@@ -3151,19 +3151,19 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 4)
+          (reference "D7") (unit 4)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 137.16 0) (mirror x) (unit 2)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 137.16 0) (unit 5)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 28b734b6-d47b-4c2a-b086-44a9081b9d6a)
-    (property "Reference" "C?" (at 269.24 138.43 0)
+    (property "Reference" "D8" (at 269.24 135.89 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "74LS07" (at 269.24 135.89 0)
+    (property "Value" "74LS07" (at 269.24 138.43 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 269.24 137.16 0)
@@ -3189,16 +3189,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 2)
+          (reference "D8") (unit 5)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 95.25 0) (unit 5)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 95.25 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3bba2196-4b58-48e9-919e-1521a9f6c96f)
-    (property "Reference" "B?" (at 269.24 93.98 0)
+    (property "Reference" "D8" (at 269.24 93.98 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 96.52 0)
@@ -3210,33 +3210,33 @@
     (property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf" (at 269.24 95.25 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 480a2278-8f88-455d-85b2-b70e420adbb8))
-    (pin "2" (uuid 8cac43ab-3206-474b-8d02-1f1906dfa078))
-    (pin "3" (uuid 42f6a314-b907-480a-ba64-81194559dd33))
-    (pin "4" (uuid efb808c1-4fba-4400-a2a6-71bf9b23fcdc))
-    (pin "5" (uuid 4c43d435-a27e-4f6a-befb-74cb18489296))
-    (pin "6" (uuid 6957de22-0ee2-4e1c-b12f-3046d47dfa62))
-    (pin "8" (uuid 5c343bac-e625-4717-8eae-eabfb8525f80))
-    (pin "9" (uuid d7abf0f6-f8cb-47d0-857e-5ba389d49ab9))
-    (pin "10" (uuid 7bee0abd-59e7-4837-88fb-1c2ea4929f80))
-    (pin "11" (uuid 692bec13-3e9b-4405-9f1d-837dfca9f63c))
-    (pin "12" (uuid 5f3d2b54-6ecc-4935-a0ea-346508e880c9))
-    (pin "13" (uuid fb2cd9ff-7f28-42a5-82ca-7ce0dc90c3ec))
-    (pin "14" (uuid 5a0c9040-18a4-495c-8fe1-a7d4288970a2))
-    (pin "7" (uuid e1120d08-61cd-4e21-8d63-4f28d65af765))
+    (pin "1" (uuid 81c5e0a8-d489-46ed-80bf-c6489130f289))
+    (pin "2" (uuid 22acef5d-bb2c-426b-b1a0-71896453f2c2))
+    (pin "3" (uuid 3e702fd7-8faa-4d83-b03f-5f18c057abda))
+    (pin "4" (uuid 4b12a103-d2e6-4e3c-952f-0baece69d865))
+    (pin "5" (uuid c594bdca-f44e-43da-8916-32cd361b4648))
+    (pin "6" (uuid cbeb37f3-afc2-470a-840b-327645cb32bd))
+    (pin "8" (uuid 82afd5a7-5bea-4c2f-96ad-ffc87f4b9107))
+    (pin "9" (uuid 2cb0ec8e-d764-409e-b696-4ff2bf10f590))
+    (pin "10" (uuid 35aebf5a-61ec-49fe-8acc-6977417ba410))
+    (pin "11" (uuid f729edc9-ba2a-455f-9b3c-c2f1e221465b))
+    (pin "12" (uuid 1e8a5285-5b10-426c-837a-924de24b73da))
+    (pin "13" (uuid b4b1e8d3-b58b-4785-827b-bdaf2eaec8e6))
+    (pin "14" (uuid a16fbebf-9a69-4cba-9702-5290060a77bc))
+    (pin "7" (uuid e94bced8-c900-4f92-8285-cd0d124b6f7b))
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "B?") (unit 5)
+          (reference "D8") (unit 2)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 198.12 0) (unit 5)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 198.12 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 42a4c3a9-f322-4a5c-b85d-9285359417bd)
-    (property "Reference" "C?" (at 269.24 196.85 0)
+    (property "Reference" "D8" (at 269.24 196.85 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 199.39 0)
@@ -3265,16 +3265,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 5)
+          (reference "D8") (unit 3)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 128.27 0) (mirror x) (unit 1)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 128.27 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 45742cf0-0138-4082-9f5f-6070e4ce450f)
-    (property "Reference" "C?" (at 269.24 132.08 0)
+    (property "Reference" "C7" (at 269.24 127 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 129.54 0)
@@ -3303,16 +3303,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 1)
+          (reference "C7") (unit 2)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 233.68 114.3 0) (unit 3)
+  (symbol (lib_id "74xx:74LS07") (at 233.68 114.3 0) (unit 5)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 46f722fa-24de-4e9f-b680-7981b41a7107)
-    (property "Reference" "CC?" (at 233.68 113.03 0)
+    (property "Reference" "D7" (at 233.68 113.03 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 233.68 116.84 0)
@@ -3341,7 +3341,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "CC?") (unit 3)
+          (reference "D7") (unit 5)
         )
       )
     )
@@ -3392,7 +3392,7 @@
   (symbol (lib_id "jt74:74LS273") (at 179.07 52.07 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 515f0812-90cc-4d65-b113-a707c352352b)
-    (property "Reference" "C?" (at 179.07 49.53 0)
+    (property "Reference" "E8" (at 179.07 49.53 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS273" (at 181.61 66.04 0)
@@ -3425,16 +3425,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 1)
+          (reference "E8") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 104.14 0) (unit 4)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 104.14 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 5ada1d2c-c8af-4a8d-95e2-50b3e8cd7856)
-    (property "Reference" "CC?" (at 269.24 102.87 0)
+    (property "Reference" "D7" (at 269.24 102.87 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 105.41 0)
@@ -3446,24 +3446,24 @@
     (property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf" (at 269.24 104.14 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 7558cde8-aca6-4d21-9caf-8712184ae4b1))
-    (pin "2" (uuid bd9e93da-19bd-499f-8995-cfec8529b2f3))
-    (pin "3" (uuid ab03e536-8ee1-4491-84a4-5a020a7b43f4))
-    (pin "4" (uuid b25288cb-73bf-49f3-a120-e281a796dd2c))
-    (pin "5" (uuid 1e51d25b-5a6a-4cfa-bec1-d5ca1f0f4b7c))
-    (pin "6" (uuid ac43b9f5-d880-4680-aecb-177afc9cac66))
-    (pin "8" (uuid d48cd0e6-d8f1-4470-9b99-04acf576a212))
-    (pin "9" (uuid c7c2c7f7-c4f7-4645-bc20-80982beb8040))
-    (pin "10" (uuid c138a8e4-5cb6-4893-b13d-0c5ae96591c1))
-    (pin "11" (uuid 19d8a1f2-f1e0-44e0-8bbe-40310462c47f))
-    (pin "12" (uuid a52c24d7-0e63-4ef7-a0c9-0432b8ef1a89))
-    (pin "13" (uuid a116a626-9300-4230-8d68-5988fc75b896))
-    (pin "14" (uuid 0399d5c3-9f0a-4325-82d7-da371e3e30a8))
-    (pin "7" (uuid 925fd214-f266-4fba-9500-c89edc9e0015))
+    (pin "1" (uuid fed9cf8c-da3a-4212-927f-f759f786e01d))
+    (pin "2" (uuid 1131d344-c975-4724-8de9-6e453a42f905))
+    (pin "3" (uuid 44732ac6-9076-4254-8cfe-4928185aad43))
+    (pin "4" (uuid 9c6cc4da-01b9-4826-93c3-38d65fa7359e))
+    (pin "5" (uuid 67602fde-8797-4d68-8630-7ab5de794ea5))
+    (pin "6" (uuid 869511ea-9ae3-4564-bda8-8fabf0ad098f))
+    (pin "8" (uuid e1f144fa-191c-4413-bc2a-bbfa9509e0b1))
+    (pin "9" (uuid fc4adb1b-aa2a-4fd3-88a9-18e0dc21fd90))
+    (pin "10" (uuid 8bc4242e-c5fd-476f-b584-b3b2c17b5403))
+    (pin "11" (uuid ba054a43-7167-4b41-b1c1-921c1de9f13c))
+    (pin "12" (uuid 1c862d89-0513-44e7-9672-c3c4bc0ed3ca))
+    (pin "13" (uuid b92cc55b-8201-461a-9155-f903c2151a60))
+    (pin "14" (uuid 11ecc265-d0ca-4ea8-a92d-ef08509ea266))
+    (pin "7" (uuid 7f7bc66a-de27-4f66-9a15-746716f39d29))
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "CC?") (unit 4)
+          (reference "D7") (unit 1)
         )
       )
     )
@@ -3507,10 +3507,10 @@
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 233.68 223.52 0) (unit 2)
+  (symbol (lib_id "74xx:74LS07") (at 233.68 223.52 0) (unit 4)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 646f3e69-24c7-4fa5-b098-99eafbd54425)
-    (property "Reference" "CC?" (at 233.68 222.25 0)
+    (property "Reference" "C7" (at 233.68 222.25 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 233.68 224.79 0)
@@ -3539,7 +3539,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "CC?") (unit 2)
+          (reference "C7") (unit 4)
         )
       )
     )
@@ -3548,10 +3548,10 @@
   (symbol (lib_id "Device:R_US") (at 304.8 140.97 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 64a67837-db37-4320-8aa5-2b5c487f66d4)
-    (property "Reference" "R?" (at 299.72 139.7 90)
+    (property "Reference" "R8" (at 299.72 139.7 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "1.5KΩ" (at 299.72 142.24 90)
+    (property "Value" "2.7KΩ" (at 299.72 142.24 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 304.546 139.954 90)
@@ -3565,16 +3565,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "R?") (unit 1)
+          (reference "R8") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 218.44 0) (unit 6)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 218.44 0) (unit 5)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6a53ca8c-8ade-473d-8dc1-ad366dab5ea7)
-    (property "Reference" "C?" (at 269.24 217.17 0)
+    (property "Reference" "C8" (at 269.24 217.17 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 219.71 0)
@@ -3603,16 +3603,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 6)
+          (reference "C8") (unit 5)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 233.68 168.91 0) (unit 3)
+  (symbol (lib_id "74xx:74LS07") (at 233.68 168.91 0) (unit 6)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6d6460ff-b3d8-45b9-89f9-656d95b043d6)
-    (property "Reference" "B?" (at 232.41 167.64 0)
+    (property "Reference" "D7" (at 232.41 167.64 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 233.68 170.18 0)
@@ -3641,7 +3641,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "B?") (unit 3)
+          (reference "D7") (unit 6)
         )
       )
     )
@@ -3650,7 +3650,7 @@
   (symbol (lib_name "052535_1") (lib_id "konami:052535") (at 334.01 134.62 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7801ac09-0a18-48da-8ef2-9d9d3b03011c)
-    (property "Reference" "BG?" (at 339.598 124.587 0)
+    (property "Reference" "BG8" (at 339.598 124.587 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "052535" (at 334.01 140.97 0)
@@ -3674,16 +3674,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "BG?") (unit 1)
+          (reference "BG8") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 180.34 0) (unit 6)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 180.34 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 78681d3f-6a29-4107-8907-f15da4a062b9)
-    (property "Reference" "B?" (at 269.24 179.07 0)
+    (property "Reference" "C7" (at 269.24 179.07 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 181.61 0)
@@ -3712,7 +3712,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "B?") (unit 6)
+          (reference "C7") (unit 3)
         )
       )
     )
@@ -3746,7 +3746,7 @@
   (symbol (lib_name "052535_2") (lib_id "konami:052535") (at 334.01 212.09 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7b2839a4-5e94-469e-9596-a25d926f3dd8)
-    (property "Reference" "BR?" (at 339.598 200.787 0)
+    (property "Reference" "BR8" (at 339.598 200.787 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "052535" (at 334.01 218.44 0)
@@ -3770,16 +3770,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "BR?") (unit 1)
+          (reference "BR8") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 189.23 0) (unit 1)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 189.23 0) (unit 4)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9818dd18-3048-4a85-af67-d920622888fb)
-    (property "Reference" "B?" (at 269.24 187.96 0)
+    (property "Reference" "C8" (at 269.24 187.96 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 190.5 0)
@@ -3808,16 +3808,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "B?") (unit 1)
+          (reference "C8") (unit 4)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 163.83 0) (unit 4)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 163.83 0) (unit 6)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a53c9f27-dea8-498d-ab1d-593f010ecd25)
-    (property "Reference" "C?" (at 269.24 162.56 0)
+    (property "Reference" "D8" (at 269.24 162.56 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 165.1 0)
@@ -3846,7 +3846,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 4)
+          (reference "D8") (unit 6)
         )
       )
     )
@@ -3893,7 +3893,7 @@
   (symbol (lib_id "jt74:74LS164") (at 158.75 171.45 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bc4cf87a-36a0-4872-a197-9c78db3d72ab)
-    (property "Reference" "G?" (at 162.56 156.21 0)
+    (property "Reference" "E12" (at 162.56 156.21 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS164" (at 158.75 158.75 0)
@@ -3922,16 +3922,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "G?") (unit 1)
+          (reference "E12") (unit 1)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 86.36 0) (unit 4)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 86.36 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid be9e6bdc-41db-4349-a95c-ed8dd73dee19)
-    (property "Reference" "B?" (at 269.24 85.09 0)
+    (property "Reference" "D7" (at 269.24 85.09 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 87.63 0)
@@ -3960,7 +3960,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "B?") (unit 4)
+          (reference "D7") (unit 2)
         )
       )
     )
@@ -4011,7 +4011,7 @@
   (symbol (lib_id "74xx:74LS07") (at 269.24 208.28 0) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid cb488af1-04ea-4125-9b8f-861f208a8700)
-    (property "Reference" "C?" (at 269.24 207.01 0)
+    (property "Reference" "C8" (at 269.24 207.01 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 269.24 209.55 0)
@@ -4040,25 +4040,25 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 3)
+          (reference "C8") (unit 3)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 269.24 77.47 0) (unit 5)
+  (symbol (lib_id "74xx:74LS07") (at 269.24 68.58 0) (mirror x) (unit 3)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e5971434-0d55-471c-85c7-4b9167692449)
-    (property "Reference" "C?" (at 269.24 76.2 0)
+    (property "Reference" "D7" (at 269.24 69.85 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "74LS07" (at 269.24 78.74 0)
+    (property "Value" "74LS07" (at 269.24 67.31 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 269.24 77.47 0)
+    (property "Footprint" "" (at 269.24 68.58 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf" (at 269.24 77.47 0)
+    (property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf" (at 269.24 68.58 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid b2d6fd6a-de67-41ac-ab04-7ab71fc81cfd))
@@ -4078,16 +4078,16 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "C?") (unit 5)
+          (reference "D7") (unit 3)
         )
       )
     )
   )
 
-  (symbol (lib_id "74xx:74LS07") (at 201.93 231.14 0) (unit 1)
+  (symbol (lib_id "74xx:74LS07") (at 201.93 231.14 0) (unit 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e668bdea-e5b7-4481-8092-55a19e168a9b)
-    (property "Reference" "CC?" (at 201.93 229.87 0)
+    (property "Reference" "C8" (at 201.93 229.87 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 201.93 232.41 0)
@@ -4116,7 +4116,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "CC?") (unit 1)
+          (reference "C8") (unit 2)
         )
       )
     )
@@ -4150,10 +4150,10 @@
   (symbol (lib_id "Device:R_US") (at 304.8 218.44 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f87749a1-eca0-4690-9a33-359ac93c7938)
-    (property "Reference" "R?" (at 299.72 217.17 90)
+    (property "Reference" "R7" (at 299.72 217.17 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "1.5KΩ" (at 299.72 219.71 90)
+    (property "Value" "2.7KΩ" (at 299.72 219.71 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 304.546 217.424 90)
@@ -4167,7 +4167,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "R?") (unit 1)
+          (reference "R7") (unit 1)
         )
       )
     )
@@ -4176,7 +4176,7 @@
   (symbol (lib_id "konami:052535") (at 334.01 74.93 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ff9628d8-8862-4402-ba32-726f1e63a5c5)
-    (property "Reference" "BB?" (at 339.09 64.77 0)
+    (property "Reference" "BB8" (at 339.09 64.77 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "052535" (at 334.01 81.28 0)
@@ -4200,7 +4200,7 @@
     (instances
       (project "tsimpsons"
         (path "/b2532043-1bc6-481f-b85e-02a5b9b5cc00/b7286211-d54d-4da5-b787-d67d10f33c0b/193a6858-16d2-47fe-9c43-498e7e6935e2"
-          (reference "BB?") (unit 1)
+          (reference "BB8") (unit 1)
         )
       )
     )
