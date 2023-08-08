@@ -146,6 +146,8 @@ assign last_obj    = &scan_obj;
 always @(posedge clk) begin
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
+                              // opposite to the one in Aliens, which always
+                              // shrunk for non-zero zoom values
     /* verilator lint_on WIDTH */
 end
 

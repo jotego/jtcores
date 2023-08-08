@@ -157,7 +157,8 @@ jt053246 u_scan(    // sprite logic
 );
 
 jtframe_objdraw #(
-    .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),.ZW(6),
+    .CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
+    .ZW(10),.ZI(6),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(1)
 ) u_draw(
     .rst        ( rst       ),
@@ -174,7 +175,7 @@ jtframe_objdraw #(
     .xpos       ( hpos      ),
     .ysub       ( ysub      ),
     .hz_keep    ( hz_keep   ),
-    .hzoom      ( hzoom[5:0]),
+    .hzoom      ( hzoom     ),
 
     .hflip      ( ~hflip    ),
     .vflip      ( vflip     ),

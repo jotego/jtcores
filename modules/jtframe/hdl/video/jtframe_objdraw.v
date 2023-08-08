@@ -25,7 +25,8 @@
 module jtframe_objdraw#( parameter
     CW    = 12,    // code width
     PW    =  8,    // pixel width (lower four bits come from ROM)
-    ZW    =  6,    // zoom step width
+    ZW    =  6,    // zoom step width - see description in jtframe_draw
+    ZI    = ZW-1,  // integer part of the zoom width
     SWAPH =  0,    // swaps the two horizontal halves of the tile
     HJUMP =  0,    // set to 0 if hdump is a continuous count
                    // set to 1 if hdump jumps from  FF to 180  (like KIWI)
@@ -146,6 +147,7 @@ jtframe_draw #(
     .CW      ( CW       ),
     .PW      ( PW       ),
     .ZW      ( ZW       ),
+    .ZI      ( ZI       ),
     .SWAPH   ( SWAPH    ),
     .KEEP_OLD( KEEP_OLD )
 )u_draw(
