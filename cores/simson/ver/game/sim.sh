@@ -17,7 +17,7 @@ while [ $# -gt 0 ]; do
             shift
             SCENE=$1
             OTHER="-d NOMAIN -d NOSOUND -video 2 -w"
-            if [ ! -d $1 ]; then
+            if [ ! -d scenes/$1 ]; then
                 echo "Cannot open folder $SCENE"
                 exit 1
             fi;;
@@ -29,8 +29,8 @@ done
 if [ ! -z "$SCENE" ]; then
     TMP=`mktemp`
     # The first 128 bytes are NVRAM
-    dd if="$SCENE/SIMPSONS.RAM" of=nvram.bin bs=128 count=1 2> /dev/null
-    dd if="$SCENE/SIMPSONS.RAM" of=$TMP bs=128 skip=1 2> /dev/null
+    dd if="scenes/$SCENE/SIMPSONS.RAM" of=nvram.bin bs=128 count=1 2> /dev/null
+    dd if="scenes/$SCENE/SIMPSONS.RAM" of=$TMP bs=128 skip=1 2> /dev/null
     dd if=$TMP of=scr1.bin count=16         2> /dev/null
     dd if=$TMP of=scr0.bin count=16 skip=16 2> /dev/null
     dd if=$TMP of=pal.bin count=8 skip=32   2> /dev/null
