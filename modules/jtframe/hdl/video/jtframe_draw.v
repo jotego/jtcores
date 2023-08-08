@@ -65,6 +65,7 @@ reg      [ 3:0] cnt;
 wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
+wire  [ZI-1: 0] hzfrac;
 reg             cen=0, moveon, readon;
 
 assign ysubf   = ysub^{4{vflip}};
@@ -75,14 +76,14 @@ assign pxl     = hflip ?
 
 assign rom_addr = { code, rom_lsb^SWAPH[0], ysubf[3:0] };
 assign buf_we   = busy & ~cnt[3];
-assign hzint    = hz_cnt[ZW-1:ZI];
+assign { hzint, hzfrac } = hz_cnt;
 // assign { skip, nx_hz } = {1'b0, hz_cnt}+{1'b0,hzoom};
 
 always @* begin
-    readon = hzint>=1;
-    moveon = hzint<=1;
-    nx_hz = moveon ? hz_cnt - HZONE : hz_cnt;
-    if( readon ) nx_hz = nx_hz + hzoom;
+    readon = hzint >= 1; // tile pixels read (reduce)
+    moveon = hzint <= 1; // buffer moves (enlarge)
+    nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
+    if( moveon ) nx_hz = nx_hz + hzoom;
 end
 
 always @(posedge clk) cen <= ~cen;
@@ -103,7 +104,7 @@ always @(posedge clk, posedge rst) begin
                 busy    <= 1;
                 cnt     <= 8;
                 if( !hz_keep ) begin
-                    hz_cnt   <= HZONE;
+                    hz_cnt   <= 0;
                     buf_addr <= xpos;
                 end
             end
