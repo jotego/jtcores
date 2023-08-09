@@ -252,7 +252,7 @@ always @(posedge clk, posedge rst) begin
             scan_sub <= 0;
             vlatch   <= vdump;
         end else if( !done ) begin
-            scan_sub <= scan_sub + 1'd1;
+            {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
             case( {indr, scan_sub} )
                 0: begin
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
@@ -280,23 +280,23 @@ always @(posedge clk, posedge rst) begin
                 end
                 3: begin
                     { vmir, hmir, reserved, shd, attr } <= scan_even;
-                    // Add the vertical offset to the code
+                end
+                4: begin
+                    // Add the vertical offset to the code, must wait for zoom
+                    // calculations, so it cannot be done at step 3
                     case( size[3:2] ) // could be + or |
                         1: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + { 2'd0, ydiff[4]^vflip   };
                         2: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + { 1'd0, ydiff[5:4]^{2{vflip}} };
                         3: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + ( ydiff[6:4]^{3{vflip}});
                     endcase
                     if( !inzone ) begin
-                        scan_sub <= 0;
+                        { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
-                    end else begin
-                        indr     <= 1;
-                        scan_sub <= 3;
                     end
                 end
                 default: begin // in draw state
-                    scan_sub <= 3;
+                    {indr, scan_sub} <= 5; // stay here
                     if( (!dr_start && !busy_g) || !inzone ) begin
                         case( size[1:0] )
                             0: {code[4],code[2],code[0]} <= hcode;
@@ -311,12 +311,12 @@ always @(posedge clk, posedge rst) begin
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
-                        // would !x[9] create problems in large sprites
+                        // will !x[9] create problems in large sprites?
                         // it is needed to prevent the police car from showing up
                         // at the end of level 1 in Simpsons (see scene 3)
                         dr_start <= inzone && !x[9];
                         if( hdone || !inzone ) begin
-                            scan_sub <= 0;
+                            { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
                             if( last_obj ) done <= 1;

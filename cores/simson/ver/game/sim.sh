@@ -48,3 +48,7 @@ else
 fi
 
 jtsim $OTHER
+
+if [[ ! -z "SCENE" && -e frames/frame_00001.jpg ]]; then
+    cp frames/* scenes/$SCENE
+fi
