@@ -107,7 +107,7 @@ reg  [ 9:0] vzoom;
 reg  [ 2:0] hstep, hcode;
 reg  [ 1:0] scan_sub;
 reg  [ 8:0] ydiff, ydiff_b, vlatch, ymove;
-reg  [ 9:0] y, x;
+reg  [ 9:0] y, y2, x;
 reg  [ 7:0] scan_obj; // max 256 objects
 reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_even, scan_odd;
@@ -162,16 +162,18 @@ endfunction
 
 always @* begin
     ymove = zmove( size[3:2], vscl );
-    ydiff_b= ymove + y[8:0] + vlatch - 9'd8;
+    y2    = y + {1'b0,ymove};
+    ydiff_b= y2[8:0] + vlatch - 9'd8;
     ydiff  = /*ydiff_b +*/ yz_add[6+:9];
     // assuming  mirroring applies to a single 16x16 tile, not the whole size
     vmir_eff = vmir && size[3:2]==0 && !ydiff[3];
     case( size[3:2] )
-        0: inzone = ydiff_b[8:5]==0 && ydiff[8:4]==0; // 16
-        1: inzone = ydiff_b[8:6]==0 && ydiff[8:5]==0; // 32
-        2: inzone = ydiff_b[8:7]==0 && ydiff[8:6]==0; // 64
-        3: inzone = ydiff_b[8  ]==0 && ydiff[8:7]==0; // 128
+        0: inzone = ydiff_b[8]==ydiff[8] && ydiff[8:4]==0; // 16
+        1: inzone = ydiff_b[8]==ydiff[8] && ydiff[8:5]==0; // 32
+        2: inzone = ydiff_b[8]==ydiff[8] && ydiff[8:6]==0; // 64
+        3: inzone = ydiff_b[8]==ydiff[8] && ydiff[8:7]==0; // 128
     endcase
+    if( y2[9] ) inzone=0;
     case( size[1:0] )
         0: hdone = 1;
         1: hdone = hstep==1;
