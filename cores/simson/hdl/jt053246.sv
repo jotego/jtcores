@@ -178,6 +178,7 @@ always @* begin
         2: hdone = hstep==3;
         3: hdone = hstep==7;
     endcase
+    if( y[9] ) inzone=0;
 end
 
 // DMA logic
