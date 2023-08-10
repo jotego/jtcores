@@ -194,6 +194,7 @@ always @(posedge clk, posedge rst) begin
         dma_bsy  <= 0;
         hsl      <= 0;
         vs_sh    <= 2'b10; // starts with a DMA transfer for scene simulations
+        flicker  <= 0;
     end else if( pxl2_cen ) begin
         hsl <= hs;
         if( hs & ~hsl ) begin
@@ -243,7 +244,6 @@ always @(posedge clk, posedge rst) begin
         hz_keep  <= 0;
         busy_l   <= 0;
         indr     <= 0;
-        flicker  <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         busy_l <= dr_busy;

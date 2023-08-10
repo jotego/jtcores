@@ -24,6 +24,7 @@ module jtframe_draw#( parameter
     PW       =  8,    // pixel width (lower four bits come from ROM)
     ZW       =  6,    // zoom step width
     ZI       =  ZW-1, // integer part of the zoom, use for enlarging. ZI=ZW-1=no enlarging
+    ZENLARGE =  0,    // enable zoom enlarging
     SWAPH    =  0,    // swaps the two horizontal halves of the tile
     KEEP_OLD =  0     // slows down drawing to be compatible with jtframe_obj_buffer's KEEP_OLD parameter
 )(
@@ -80,10 +81,15 @@ assign { hzint, hzfrac } = hz_cnt;
 // assign { skip, nx_hz } = {1'b0, hz_cnt}+{1'b0,hzoom};
 
 always @* begin
-    readon = hzint >= 1; // tile pixels read (reduce)
-    moveon = hzint <= 1; // buffer moves (enlarge)
-    nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
-    if( moveon ) nx_hz = nx_hz + hzoom;
+    if( ZENLARGE==1 ) begin
+        readon = hzint >= 1; // tile pixels read (reduce)
+        moveon = hzint <= 1; // buffer moves (enlarge)
+        nx_hz = readon ? hz_cnt - HZONE : hz_cnt;
+        if( moveon ) nx_hz = nx_hz + hzoom;
+    end else begin
+        readon = 1;
+        { moveon, nx_hz } = {1'b1, hz_cnt}-{1'b0,hzoom};
+    end
 end
 
 always @(posedge clk) cen <= ~cen;
