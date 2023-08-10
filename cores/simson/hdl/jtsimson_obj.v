@@ -26,8 +26,8 @@ module jtsimson_obj(
     input      [ 8:0] vdump,
     input             hs,
     input             vs,
-    input             lvbl, // not an input in the original
     input             lhbl, // not an input in the original
+    input             lvbl,
 
     // CPU interface
     input             ram_cs,
@@ -138,8 +138,7 @@ jt053246 u_scan(    // sprite logic
     // control
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
-    .vs         ( vs        ),
-    .lvbl       ( lvbl      ),
+    .vs         ( lvbl      ), // this board uses VB here, instead of VS
     .hs         ( hs        ),
 
     // shadow

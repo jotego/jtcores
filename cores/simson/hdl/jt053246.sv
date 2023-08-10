@@ -76,9 +76,10 @@ module jt053246(    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    input             vs,
+    input             vs,       // DMA is triggered one line after vs
+                                // depending on the game, it can be connected
+                                // to VB or VS
     input             hs,
-    input             lvbl,
 
     // shadow
     input      [ 8:0] pxl,
@@ -101,7 +102,7 @@ localparam [2:0] REG_XOFF  = 0, // X offset
 wire        vb_rd, dma_we;
 reg  [ 9:0] xoffset, yoffset;
 reg  [ 7:0] cfg;
-reg  [ 1:0] reserved;
+reg  [ 1:0] reserved, vs_sh;
 
 reg  [ 9:0] vzoom;
 reg  [ 2:0] hstep, hcode;
@@ -109,7 +110,7 @@ reg  [ 1:0] scan_sub;
 reg  [ 8:0] ydiff, ydiff_b, vlatch, ymove;
 reg  [ 9:0] y, y2, x;
 reg  [ 7:0] scan_obj; // max 256 objects
-reg         dma_clr, inzone, hs_l, done, hdone, busy_l;
+reg         inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_even, scan_odd;
 reg  [15:0] dma_bufd;
 reg  [ 3:0] size;
@@ -120,7 +121,7 @@ wire [11:2] scan_addr;
 wire        last_obj;
 reg  [18:0] yz_add;
 reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
-            vmir_eff, flicker, vs_l;
+            vmir_eff, flicker;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
 reg  [ 8:0] full_h, vscl, hscl, full_w;
@@ -133,9 +134,9 @@ assign dma_en  = cfg[4];
 assign vflip   = pre_vf ^ vmir_eff;
 assign hflip   = pre_hf ^ hmir;
 
-assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
-assign dma_we      = dma_clr | dma_ok;
-assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
+assign dma_din     = dma_ok ? dma_bufd : 16'h0;
+assign dma_we      = dma_bsy;
+assign dma_wr_addr = dma_bufa;
 
 assign scan_addr   = { scan_obj, scan_sub };
 assign ysub        = ydiff[3:0];
@@ -187,27 +188,27 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_bsy  <= 0;
-        dma_clr  <= 0;
         dma_addr <= 0;
         dma_bufa <= 0;
         dma_bufd <= 0;
         dma_bsy  <= 0;
         hsl      <= 0;
+        vs_sh    <= 2'b10; // starts with a DMA transfer for scene simulations
     end else if( pxl2_cen ) begin
         hsl <= hs;
-        if( vdump==9'h1f8 ) begin
-            dma_clr <= dma_en;
-            dma_addr <= 0;
-        end else if( dma_clr ) begin
-            { dma_clr, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
+        if( hs & ~hsl ) begin
+            vs_sh    <= vs_sh<<1;
+            vs_sh[0] <= vs;
+            if( vs_sh==2'b10 ) begin
+                dma_bsy <= dma_en;
+                flicker <= ~flicker;
+            end
         end
-        if( vdump==9'h102 && hs && !hsl ) begin
-            dma_bsy  <= dma_en;
+        if( !dma_bsy ) begin
             dma_addr <= 0;
             dma_bufa <= 0;
-            dma_clr  <= 0;
             dma_ok   <= 0;
-        end else if( dma_bsy ) begin // copy by priority order
+        end else begin // copy by priority order
             dma_bsy  <= 1;
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
@@ -245,10 +246,8 @@ always @(posedge clk, posedge rst) begin
         flicker  <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
-        vs_l <= vs;
         busy_l <= dr_busy;
         dr_start <= 0;
-        if( vs && !vs_l ) flicker <= ~flicker;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
             scan_obj <= 0;
