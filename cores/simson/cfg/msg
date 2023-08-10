@@ -4,30 +4,33 @@
 
   Version \C - \D
 
-      Based on partial PCB
-      schematics, chip data
-    from Furrtek & Caius and
-      MAME documentation
+  Based on PCB schematics,
+  chip data from Furrtek
+  & Caius, MAME docs and
+   our own lab research
+
+      PCB loaned by
+   Museo Arcade Vintage
 
         Reviewed by
     the \RJTAlpha team\W
 
  \B______ \RPRODUCERS\B _______\W
-    DJ Hard Rich
-    LightCaster Games
+           Luke Rowe
 
  \B______ \RDIRECTORS\B _______\W
-Bender          Brad
-Blue Abs        Boogermann
+A. Villena      Bender
+    Blue Abs
     Carlo Castagnasso
-Chris Gelatt    Darren Chell
-Filip Kindt     Frederic Mahe
+Chris Gelatt    Filip Kindt
+    Frederic Mahe
     Fulvio Venturelli
 James D         JaviRodasG
 Jeffrey Pierce  John Lange
     John Smith
     Ksenia Anastasia
-Louis Martinez  Martin Birkeldh
+    LightCaster Games
+Martin Birkeldh Martin Donlon
     Porkchop Express
     Pramod Somashekar
 Rysha           Shawn Henderson
@@ -40,12 +43,12 @@ Tulio Adriano   Ulf Skutnabba
 \RDan Avedikian   Daniel Bauza
 \RER              Eric Lewis
 \R    GiRo SiNToRNiLLoS
-\RJim Weinhart    Martin Donlon
+\R    Jim Weinhart
 \R    MiSTerFPGA.co.uk
-\RPelayo Marinas  Peter Vessenes
-\RR. Martinazzo   Renaissance 2K
-\RRetroWilly      Robert Moran
-\R    Sanborn
+\RNick Taylor     Pelayo Marinas
+\RPeter Vessenes  R. Martinazzo
+\RRenaissance 2K  RetroWilly
+\R    Robert Moran
 \R    Tatton Partington
 \RTony Escobar    Tony Mika
 
@@ -57,12 +60,13 @@ Bryan Adams     Carrboroman
 Chris Doyle     Chris Harvey
 Christian       D.J. Estreito
 DMG             Dan Bayley
-Daniel Cortes   David Ashby
-David Mills Jr. David Moylan
+Daniel Cortes   Darren Chell
+David Ashby     David Moylan
 Dean Winger     Don Gafford
 Ed Balan        Eduardo Javier
 Edward Rana     EmperorStorky
-Gareth Jones    Gladius
+Fred Jorge      Gareth Jones
+Gelszinnis      Gladius
     Gus Douboulidis
     Hendrik Osterholz
     Henrik Nordstrom
@@ -72,20 +76,18 @@ JFRoco          JPS (RetroFPGA)
 James Stroup    Jason Nagy
     Jeffrey Haas
     Jerome Braconnier
-Jo le Zef       Joe Castle
-Joe Tassone     Joeri van
-John Casey      John Silva
-Jorge Slowfret  Jose Pulgar
+Joe Castle      Joe Tassone
+Joeri van       John Casey
+John S          Jose Pulgar
 Joseph Hsieh    Josh O'Roake
 Juan Ramon      Juan Sandoval
-Keith F. Kelly  Krycek7o2
-Leslie Law      Lionel LENOBLE
-    Luis Alvarado
+Keith F. Kelly  Kent Pendragon
+Krycek7o2       Leslie Law
+Lionel LENOBLE  Luis Alvarado
     Lukas Hinterleitner
 M. Ferguson     M. Fornasini
-MakeshiftMoney  Marcus Hogue
+Marcus Hogue    Martin DiPalma
 Matthew Pollard Matthew Young
-    Michael Blackman
     Michael Ferguson
 Michael Johnson MoonZ
 Nima            Oliver Jaksch
@@ -93,17 +95,16 @@ Oscar Laguna    Peter Bray
 RetroPrez       Retro_Brewz
 Richard MS      Rob Jenkins
 Robert MacLean  Robert Mullings
-Roman Buser     Shane Lynch
-Steven Wilson   The Collector
-Theodore Huber  Thompson Orcino
-Torren Beitler  Tym Whitney
-Victor Gomariz  Vitor Duarte
-Zachary Muske   albertprime
-amoore2600      emerald4224
-hyp36rmax       taal.M
-
+Roman Buser     Sanborn
+Shane Lynch     Steven Wilson
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+Tym Whitney     Victor Gomariz
+Vitor Duarte    Zachary Muske
+albertprime     amoore2600
+emerald4224     hyp36rmax
+taal.M          ultimatekd
   ________________________
 
       - Beta version -
       Do not distribute
-
