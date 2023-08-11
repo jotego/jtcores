@@ -68,23 +68,10 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "vendetta.kicad_prl",
+    "filename": "asterix.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "vendetta.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2395,
-          "pos_y": 28,
-          "size_x": 972,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }

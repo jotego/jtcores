@@ -68,13 +68,13 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "vendetta.kicad_prl",
+    "filename": "rng.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "vendetta.kicad_sch",
+        "name": "rng.kicad_sch",
         "open": false,
         "window": {
           "display": 0,
