@@ -175,10 +175,10 @@ always @* begin
     // assuming  mirroring applies to a single 16x16 tile, not the whole size
     vmir_eff = vmir && size[3:2]==0 && !ydiff[3];
     case( size[3:2] )
-        0: inzone = ydiff[9:4]==0; // 16
-        1: inzone = ydiff[9:5]==0; // 32
-        2: inzone = ydiff[9:6]==0; // 64
-        3: inzone = ydiff[9:7]==0; // 128
+        0: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:4]==0; // 16
+        1: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:5]==0; // 32
+        2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
+        3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
     if( y2[9] ) inzone=0;
     case( size[1:0] )
