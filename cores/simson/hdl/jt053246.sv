@@ -37,7 +37,15 @@
 // Note that F,E are missing. Could they be enabled with some MMR?
 
 // In X-Men (16-bit mode) DMA lasts for 298.7us, half the time
-// than in 8-bit mode (accounting for some inaccuracy in the measurement)
+// than in 8-bit mode (595us, accounting for some inaccuracy in the measurement)
+
+// This implementation has a first phase that clears out the internal buffer
+// and then sprites are copied by their priority code into memory, so they
+// naturally fall in order.
+// The original one likely has the same clear phase but executed right after
+// the vs edge and lasting for a whole line.
+// The DMA timing has been matched with the original, despite of the different
+// buffer-clear logic
 
 module jt053246(    // sprite logic
     input             rst,
@@ -76,9 +84,7 @@ module jt053246(    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    input             vs,       // DMA is triggered one line after vs
-                                // depending on the game, it can be connected
-                                // to VB or VS
+    input             vs,
     input             hs,
 
     // shadow
@@ -110,7 +116,7 @@ reg  [ 1:0] scan_sub;
 reg  [ 8:0] ydiff, ydiff_b, vlatch, ymove;
 reg  [ 9:0] y, y2, x;
 reg  [ 7:0] scan_obj; // max 256 objects
-reg         inzone, hs_l, done, hdone, busy_l;
+reg         dma_clr, dma_wait, inzone, hs_l, done, hdone, busy_l;
 wire [15:0] scan_even, scan_odd;
 reg  [15:0] dma_bufd;
 reg  [ 3:0] size;
@@ -121,7 +127,7 @@ wire [11:2] scan_addr;
 wire        last_obj;
 reg  [18:0] yz_add;
 reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
-            vmir_eff, flicker;
+            vmir_eff, flicker, vs_l;
 wire        busy_g, cpu_bsy;
 wire        ghf, gvf, dma_en;
 reg  [ 8:0] full_h, vscl, hscl, full_w;
@@ -134,9 +140,9 @@ assign dma_en  = cfg[4];
 assign vflip   = pre_vf ^ vmir_eff;
 assign hflip   = pre_hf ^ hmir;
 
-assign dma_din     = dma_ok ? dma_bufd : 16'h0;
-assign dma_we      = dma_bsy;
-assign dma_wr_addr = dma_bufa;
+assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
+assign dma_we      = dma_clr | dma_ok;
+assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 
 assign scan_addr   = { scan_obj, scan_sub };
 assign ysub        = ydiff[3:0];
@@ -188,12 +194,14 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_bsy  <= 0;
+        dma_clr  <= 0;
+        dma_wait <= 0;
         dma_addr <= 0;
         dma_bufa <= 0;
         dma_bufd <= 0;
         dma_bsy  <= 0;
+        dma_wait <= 0;
         hsl      <= 0;
-        vs_sh    <= 2'b10; // starts with a DMA transfer for scene simulations
         flicker  <= 0;
     end else if( pxl2_cen ) begin
         hsl <= hs;
@@ -202,24 +210,32 @@ always @(posedge clk, posedge rst) begin
             vs_sh[0] <= vs;
             if( vs_sh==2'b10 ) begin
                 dma_bsy <= dma_en;
-                flicker <= ~flicker;
+                dma_clr  <= 1;
+                dma_wait <= 1;
+                flicker  <= ~flicker;
+                dma_addr <= 0;
             end
         end
+        // this implementation matches 8-bit speed, ie 595us vs 297.5us for 16-bit mode
         if( !dma_bsy ) begin
             dma_addr <= 0;
             dma_bufa <= 0;
             dma_ok   <= 0;
-        end else begin // copy by priority order
-            dma_bsy  <= 1;
+        end else if( dma_clr ) begin // copy by priority order
+            { dma_clr, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
+            if( &dma_addr[11:1] ) dma_addr[11:1] <= 'h218; // extra 126us wait
+        end else if(dma_wait) begin // extra time to match the original speed
+            { dma_wait, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
+        end else begin
             dma_bufd <= dma_data;
             if( dma_addr[3:1]==0 ) begin
                 dma_bufa <= { dma_data[7:0], 3'd0 };
                 dma_ok <= dma_data[15] && dma_data[7:0]!=0; // priority 0 is skipped. See Simpsons scene 4
             end
-            { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 1'd1;
+            { dma_bsy, dma_addr[12:1] } <= { 1'b1, dma_addr[12:1] } + 1'd1;
             dma_bufa[3:1] <= dma_addr[3:1];
             if( dma_addr[3:1]==6 ) begin
-                { dma_bsy, dma_addr } <= { 1'b1, dma_addr } + 14'd2; // skip 7
+                { dma_bsy, dma_addr[12:1] } <= { 1'b1, dma_addr[12:1] } + 13'd2; // skip 7
             end
         end
     end
@@ -246,6 +262,7 @@ always @(posedge clk, posedge rst) begin
         indr     <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
+        vs_l <= vs;
         busy_l <= dr_busy;
         dr_start <= 0;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
