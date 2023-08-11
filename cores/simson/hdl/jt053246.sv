@@ -199,7 +199,7 @@ always @(posedge clk, posedge rst) begin
         dma_addr <= 0;
         dma_bufa <= 0;
         dma_bufd <= 0;
-        dma_bsy  <= 0;
+        dma_bsy  <= 1;  // resetting to 1 makes the scene simulation produce an output in the 1st frame
         dma_wait <= 0;
         hsl      <= 0;
         flicker  <= 0;
