@@ -307,7 +307,10 @@ always @(posedge clk, posedge rst) begin
                         2: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + { 1'd0, ydiff[5:4]^{2{vflip}} };
                         3: {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + ( ydiff[6:4]^{3{vflip}});
                     endcase
-                    if( !inzone ) begin
+                    // will !x[9] create problems in large sprites?
+                    // it is needed to prevent the police car from showing up
+                    // at the end of level 1 in Simpsons (see scene 3)
+                    if( !inzone || x[9]) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -329,10 +332,7 @@ always @(posedge clk, posedge rst) begin
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
-                        // will !x[9] create problems in large sprites?
-                        // it is needed to prevent the police car from showing up
-                        // at the end of level 1 in Simpsons (see scene 3)
-                        dr_start <= inzone && !x[9];
+                        dr_start <= inzone;
                         if( hdone || !inzone ) begin
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;

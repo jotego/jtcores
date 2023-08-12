@@ -116,7 +116,10 @@ always @(posedge clk, posedge rst) begin
                     hz_cnt <= nx_hz;
                 end
             end
-        end else if(KEEP_OLD==0 || cen) begin
+        end else if(KEEP_OLD==0 || cen || cnt[3] ) begin
+            // cen is required when old buffer data must be preserved but it
+            // slows down the process. That wait is not needed while cnt[3]
+            // is high, so it can be used to gain back some time
             if( rom_ok && rom_cs && cnt[3]) begin
                 pxl_data <= rom_data;
                 cnt[3]   <= 0;
