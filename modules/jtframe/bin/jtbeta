@@ -183,6 +183,7 @@ git pull
 if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
     ./addcore.sh $CORE
     git commit -m "Added $CORE"
+    echo "Remember to push jtbin.wiki"
     # git push
 fi
 

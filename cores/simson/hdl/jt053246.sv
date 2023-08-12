@@ -149,7 +149,6 @@ assign ysub        = ydiff[3:0];
 assign busy_g      = busy_l | dr_busy;
 assign last_obj    = &scan_obj;
 
-
 always @(posedge clk) begin
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
