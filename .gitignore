@@ -12,6 +12,7 @@
 *.json
 *.kicad_sch-bak
 *.log
+*.lck
 *.lst
 *.lxt
 *.mp4

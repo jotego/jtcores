@@ -112,6 +112,8 @@ always @(posedge clk, posedge rst) begin
                 if( !hz_keep ) begin
                     hz_cnt   <= 0;
                     buf_addr <= xpos;
+                end else begin
+                    hz_cnt <= nx_hz;
                 end
             end
         end else if(KEEP_OLD==0 || cen) begin
@@ -132,7 +134,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 if( moveon ) buf_addr <= buf_addr+1'd1;
                 rom_lsb  <= ~hflip;
-                if( cnt[2:0]==7 && !rom_cs ) busy <= 0;
+                if( cnt[2:0]==7 && !rom_cs && readon ) busy <= 0;
             end
         end
     end

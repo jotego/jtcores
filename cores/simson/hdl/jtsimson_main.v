@@ -197,7 +197,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
+jt5911 #(.SIMFILE("nvram.bin"),.SYNHEX("default.hex")) u_eeprom(
     .rst        ( rst       ),
     .clk        ( clk       ),
     // chip interface
