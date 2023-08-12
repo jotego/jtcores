@@ -74,7 +74,7 @@ always @* begin
     op[4] = opaque(mmr[FULL][4],ci4[7:0]);
 
     p1win = pri1_mux < pri0_mux;
-    l1    = ~(sel & mmr[11][5]) & ~( ~p1win & mmr[11][5]);
+    l1    = ~(~sel & mmr[11][5]) & ~( ~p1win & ~mmr[11][5]);
 
     l2    = pri2_mux < mix1p;
     l3    = pri3_mux < mix2p;
