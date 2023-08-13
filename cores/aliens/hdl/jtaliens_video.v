@@ -132,7 +132,7 @@ end
 always @* begin
     case( cfg )
         CRIMFGHT: begin
-            lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] }; // maybe col[5] instead of pre[11]
+            lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] };
             lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
             lyrb_addr = { 2'b0, pre_b[11], lyrb_col[4:0], pre_b[10:0] };
         end

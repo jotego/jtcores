@@ -44,7 +44,7 @@ rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 an
 
 [ROM]
 regions = [
-    { name="maincpu", width=16 }, # First 32kB go to $8000, the rest are banked at $6000
+    { name="maincpu", width=16, reverse=true  }, # First 32kB go to $8000, the rest are banked at $6000
     { name="audiocpu",  start="JTFRAME_BA1_START" },
     { name="k007232",   start="PCM_START" },
     { name="upd",       start="UPD_START" },

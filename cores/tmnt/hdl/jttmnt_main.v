@@ -74,6 +74,10 @@ reg  [15:0] cpu_din;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy;
 
+`ifdef SIMULATION
+wire [23:0] A_full = {A,1'b0};
+`endif
+
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
@@ -137,6 +141,7 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         LVBLl <= 0;
+        intn  <= 1;
     end else begin
         LVBLl <= LVBL;
         if( !LVBL && LVBLl )
@@ -175,7 +180,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(6)) u_dtack(
+jtframe_68kdtack #(.W(6),.RECOVERY(0)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

@@ -66,7 +66,6 @@ reg      [ 3:0] cnt;
 wire     [ 3:0] ysubf, pxl;
 reg    [ZW-1:0] hz_cnt, nx_hz;
 wire  [ZW-1:ZI] hzint;
-wire  [ZI-1: 0] hzfrac;
 reg             cen=0, moveon, readon;
 
 assign ysubf   = ysub^{4{vflip}};
@@ -77,7 +76,7 @@ assign pxl     = hflip ?
 
 assign rom_addr = { code, rom_lsb^SWAPH[0], ysubf[3:0] };
 assign buf_we   = busy & ~cnt[3];
-assign { hzint, hzfrac } = hz_cnt;
+assign hzint    = hz_cnt[ZW-1:ZI];
 // assign { skip, nx_hz } = {1'b0, hz_cnt}+{1'b0,hzoom};
 
 always @* begin

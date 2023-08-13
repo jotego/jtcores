@@ -274,15 +274,19 @@ jt7759 u_upd(
 );
 
 `else
-initial rom_cs   = 0;
-assign  pcma_cs  = 0;
-assign  pcmb_cs  = 0;
-assign  pcma_addr= 0;
-assign  pcmb_addr= 0;
-assign  rom_addr = 0;
-assign  snd      = 0;
-assign  peak     = 0;
-assign  sample   = 0;
-assign  st_dout  = 0;
+initial rom_cs     = 0;
+initial title_cs   = 0;
+initial title_addr = 0;
+assign  pcma_cs    = 0;
+assign  pcmb_cs    = 0;
+assign  upd_cs     = 0;
+assign  pcma_addr  = 0;
+assign  pcmb_addr  = 0;
+assign  upd_addr   = 0;
+assign  rom_addr   = 0;
+assign  snd        = 0;
+assign  peak       = 0;
+assign  sample     = 0;
+assign  st_dout    = 0;
 `endif
 endmodule

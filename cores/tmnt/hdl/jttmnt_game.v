@@ -57,7 +57,7 @@ end
 //     end
 // end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -105,7 +105,7 @@ jttmnt_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -167,7 +167,7 @@ jttmnt_video u_video (
     .flip           ( dip_flip      ),
     // PROMs
     .prom_we        ( prom_we       ),
-    .prog_addr      (prog_addr[ 7:0]),
+    .prog_addr      ( prog_addr[8:0]),
     .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),

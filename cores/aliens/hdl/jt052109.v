@@ -358,7 +358,10 @@ always @(posedge clk) begin
                         vposb <= scan_dout[ 7:0];
                 end
                 1: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
-                2: begin lyrb_col <= col_cfg; lyrb_addr <= { cab, vc }; end
+                2: begin
+                    lyrb_col  <= same_col_n ? col_cfg : lyra_col;
+                    lyrb_addr <= { cab, vc };
+                end
                 3: begin lyrf_col <= col_cfg; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
             endcase else case( hdump[1:0] ) // row scroll position reading
                 0: if( rd_hpos || rscra_en ) hposa[7:0] <= scan_dout[15:8];

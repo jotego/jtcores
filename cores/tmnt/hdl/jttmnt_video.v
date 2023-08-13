@@ -48,7 +48,7 @@ module jttmnt_video(
     output            flip,
 
     // PROMs
-    input      [ 7:0] prog_addr,
+    input      [ 8:0] prog_addr,
     input      [ 2:0] prog_data,
     input             prom_we,
 
@@ -96,12 +96,15 @@ wire [11:0] lyro_pxl;
 wire [10:0] cpu_oaddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [13:0] ocode_eff;
+wire [19:1] preo_addr;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
+wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
 assign ioctl_din = 0;
+assign gfx_we    = prom_we & ~prog_addr[8];
+assign prio_we   = prom_we &  prog_addr[8];
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? st_obj : st_scr;
@@ -120,6 +123,52 @@ always @(posedge clk) begin
     // else
     //     ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
 end
+
+wire [7:0] gfx_addr;
+wire [2:0] gfx_de;
+reg  [9:1] oa; // see sch object page (A column)
+wire [9:0] ca;
+
+assign gfx_addr = preo_addr[11+:8];
+assign ca = preo_addr[10:1];
+
+function [31:0] sort( input [31:0] x );
+    sort={
+        x[31], x[27], x[23], x[19],
+        x[15], x[11], x[ 7], x[ 3],
+        x[30], x[26], x[22], x[18],
+        x[14], x[10], x[ 6], x[ 2],
+        x[29], x[25], x[21], x[17],
+        x[13], x[ 9], x[ 5], x[ 1],
+        x[28], x[24], x[20], x[16],
+        x[12], x[ 8], x[ 4], x[ 0]
+    };
+endfunction
+
+// object encoding is different from what 051960 expects
+jtframe_prom #(.DW(3), .AW(8)) u_gfx (
+    .clk    ( clk        ),
+    .cen    ( 1'b1       ),
+    .data   ( prog_data  ),
+    .rd_addr( gfx_addr   ),
+    .wr_addr(prog_addr[7:0]),
+    .we     ( gfx_we     ),
+    .q      ( gfx_de     )
+);
+
+always @* begin
+    // the game seems to use different encondigs depending on the ROM region
+    case( gfx_de )
+        0:   oa = { ca[9:4], ca[2:0] }; // 6+3=9
+        1:   oa = { ca[9:7], ca[5], ca[6], ca[4], ca[2:0] }; // 3+3+3=9
+        2,3: oa = { ca[9:6], ca[4], ca[2:0], ca[5] }; // 4+1+3+1=9
+        4:   oa = { ca[9], ca[7], ca[8], ca[6], ca[4], ca[2:0], ca[5] }; // 9
+        5,6: oa = { ca[9:8], ca[6], ca[4], ca[2:0], ca[7], ca[5] }; // 9
+        7:   oa = { ca[8], ca[6], ca[4], ca[2:0], ca[9], ca[7], ca[5] }; // 9
+    endcase
+end
+
+assign lyro_addr = { preo_addr[19:10], oa };
 
 always @* begin
     lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
@@ -184,9 +233,9 @@ jtaliens_scroll u_scroll(
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
 
-    .lyrf_data  ( lyrf_data ),
-    .lyra_data  ( lyra_data ),
-    .lyrb_data  ( lyrb_data ),
+    .lyrf_data  ( sort(lyrf_data) ),
+    .lyra_data  ( sort(lyra_data) ),
+    .lyrb_data  ( sort(lyrb_data) ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
@@ -234,7 +283,7 @@ jtaliens_obj u_obj(    // sprite logic
     .pal        ( opal      ),
     .pal_eff    ( opal_eff  ),
     // ROM
-    .rom_addr   ( lyro_addr ),
+    .rom_addr   ( preo_addr ),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
@@ -272,9 +321,9 @@ jttmnt_colmix u_colmix(
     .cpu_we     ( pal_we    ),
 
     // PROMs
-    .prog_addr  ( prog_addr ),
+    .prog_addr  (prog_addr[7:0]),
     .prog_data  ( prog_data ),
-    .prom_we    ( prom_we   ),
+    .prom_we    ( prio_we   ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),

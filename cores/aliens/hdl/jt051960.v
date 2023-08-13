@@ -41,11 +41,11 @@ module jt051960(    // sprite logic
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output reg [12:0] code,
+    output reg [12:0] code, // pins CA16~4
     output reg [ 7:0] attr,     // OC pins
     output reg        hflip, vflip,
     output reg [ 8:0] hpos,
-    output     [ 3:0] ysub,
+    output     [ 3:0] ysub, // pins CA3~0
     output reg [ 5:0] hzoom,
     output reg        hz_keep,
 
