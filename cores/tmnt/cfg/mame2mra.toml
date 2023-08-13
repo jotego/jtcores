@@ -1,0 +1,57 @@
+[global]
+mraauthor=["jotego"]
+
+[parse]
+sourcefile=[ "tmnt.cpp" ]
+skip = { machines=[
+    "cuebrick",
+    "punkshot",
+    "lgtnfght",
+    "blswhstl",
+    "glfgreat",
+    "tmnt2",
+    "qgakumon",
+    "ssriders",
+    "thndrx2",
+    "prmrsocr",
+], bootlegs=true }
+
+[buttons]
+names = [
+    { machine="tmnt", names="Attack,Jump" },
+]
+
+# [header]
+# info="""
+#     bit   0 = ignored
+#                  bits 2:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross"""
+# data = [
+#     { machine="scontra",  offset=0, data="02" },
+#     { machine="thunderx", offset=0, data="04" },
+#     { machine="crimfght", offset=0, data="06" },
+#     # { machine="gbusters", offset=0, data="05" },
+# ]
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]
+
+# rename = [
+#     {  name="Difficulty 1 (Game)", To="Gameplay" },
+#     {  name="Difficulty 2 (Strength)", To="Strength" },
+#     {  name="Allow Continue", To="Continue" },
+# ]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16 }, # First 32kB go to $8000, the rest are banked at $6000
+    { name="audiocpu",  start="JTFRAME_BA1_START" },
+    { name="k007232",   start="PCM_START" },
+    { name="upd",       start="UPD_START" },
+    { name="title",     start="TITLE_START" },
+    { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
+    { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
+    { name="proms",     start="JTFRAME_PROM_START" } # last one is the priority encoder
+]
+
+order = [ "maincpu", "audiocpu", "k007232", "upd", "title", "k052109", "k051960", "proms" ]
