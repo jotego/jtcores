@@ -183,7 +183,7 @@ endfunction
 assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
 assign ocode_eff = { opal[4], ocode };
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),

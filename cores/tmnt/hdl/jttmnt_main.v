@@ -72,7 +72,7 @@ reg         io_cs, out_cs, otport1_cs, pal_cs,
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 reg         intn, LVBLl;
-wire        bus_cs, bus_busy;
+wire        bus_cs, bus_busy, BUSn;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -81,8 +81,9 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
-assign bus_cs   = rom_cs | vram_cs | ram_cs;
+assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
+assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_d8   = UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
 assign cpu_we   = ~RnW;
@@ -106,7 +107,7 @@ always @* begin
     if(!ASn) begin
         if(!A[20]) case( A[19:17] )
             0,1,2: rom_cs = 1;
-            3: ram_cs = 1;
+            3: ram_cs = ~BUSn;
             4: pal_cs = 1;
             5: if(!A[16]) case( { RnW, A[4:3] } )
                     0: iowr_cs = 1;

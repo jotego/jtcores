@@ -34,7 +34,7 @@ reg  [ 7:0] debug_mux;
 
 assign debug_view = debug_mux;
 assign ram_addr   = main_addr[13:1];
-assign ram_we     = ~cpu_we; // active low!
+assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
@@ -105,7 +105,7 @@ jttmnt_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
