@@ -91,10 +91,11 @@ module jtaliens_video(
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
-            lyrf_col, lyra_col, lyrb_col;
+            lyrf_col, lyra_col, lyrb_col,
+            opal, opal_eff;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
-wire [12:0] pre_f, pre_a, pre_b;
+wire [12:0] pre_f, pre_a, pre_b, ocode, ocode_eff;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 
@@ -104,6 +105,10 @@ assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 assign cpu_irq_n = cfg==ALIENS || cfg==CRIMFGHT ? obj_irqn : tile_irqn;
 assign cpu_nmi_n = cfg==ALIENS   ? obj_nmin :
                    cfg==CRIMFGHT ? 1'b1 : tile_nmin;
+
+assign opal_eff  = cfg==SCONTRA || cfg==CRIMFGHT ? opal : { 1'b0, opal[6:0] };
+assign ocode_eff = cfg==SCONTRA || cfg==CRIMFGHT ? { 1'b0, ocode } : { opal[7], ocode };
+
 
 // Debug
 always @(posedge clk) begin
@@ -245,6 +250,11 @@ jtaliens_obj u_obj(    // sprite logic
 
     .irq_n      ( obj_irqn  ),
     .nmi_n      ( obj_nmin  ),
+    // external connection
+    .pal        ( opal      ),
+    .code       ( ocode     ),
+    .code_eff   ( ocode_eff ),
+    .pal_eff    ( opal_eff  ),
     // ROM
     .rom_addr   ( lyro_addr ),
     .rom_data   ( lyro_data ),

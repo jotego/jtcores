@@ -48,6 +48,12 @@ module jtaliens_obj(
     output            irq_n,
     output            nmi_n,
 
+    // external connection
+    output     [12:0] code,
+    input      [13:0] code_eff,
+    output     [ 7:0] pal,       // OC pins
+    input      [ 7:0] pal_eff,
+
     output     [11:0] pxl,
     output            shadow,
     output            blank_n,
@@ -62,12 +68,7 @@ module jtaliens_obj(
     output     [ 7:0] st_dout
 );
 
-`include "jtaliens.inc"
-
-wire [ 7:0] pal, pal_eff;     // OC pins
 wire [ 8:0] xpos;
-wire [12:0] code;
-wire [13:0] code_eff;
 wire [ 3:0] ysub;
 wire [ 5:0] hzoom;
 wire        dr_start, dr_busy, hflip, vflip, hz_keep;
@@ -75,9 +76,6 @@ wire        flip;
 wire [18:0] pre_addr;
 
 assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
-
-assign pal_eff  = cfg==SCONTRA || cfg==CRIMFGHT ? pal : { 1'b0, pal[6:0] };
-assign code_eff = cfg==SCONTRA || cfg==CRIMFGHT ? { 1'b0, code } : { pal[7], code };
 
 always @* begin
     rom_addr = pre_addr;
