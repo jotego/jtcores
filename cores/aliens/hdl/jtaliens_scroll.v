@@ -20,7 +20,6 @@ module jtaliens_scroll(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input      [ 1:0] cfg,
 
     // Base Video
     output            lhbl,

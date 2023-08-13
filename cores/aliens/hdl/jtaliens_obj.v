@@ -21,8 +21,6 @@ module jtaliens_obj(
     input             clk,
     input             pxl_cen,
 
-    input      [ 1:0] cfg,
-
     // CPU interface
     input             cs,
     input             cpu_we,

@@ -95,7 +95,8 @@ wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             opal, opal_eff;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
-wire [12:0] pre_f, pre_a, pre_b, ocode, ocode_eff;
+wire [12:0] pre_f, pre_a, pre_b, ocode;
+wire [13:0] ocode_eff;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 
@@ -159,7 +160,6 @@ jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .cfg        ( cfg       ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -233,7 +233,6 @@ jtaliens_obj u_obj(    // sprite logic
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .cfg        ( cfg       ),
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
