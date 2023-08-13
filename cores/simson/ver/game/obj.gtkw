@@ -1,0 +1,85 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Aug 12 07:05:24 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/simson/ver/game/test.fst"
+[dumpfile_mtime] "Sat Aug 12 07:05:13 2023"
+[dumpfile_size] 837358
+[savefile] "/home/jtejada/jtcores/cores/simson/ver/game/obj.gtkw"
+[timestart] 26825080000
+[size] 1264 1013
+[pos] -1 -1
+*-20.313053 26830180000 26822939472 26825939280 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_colmix.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.
+[sst_width] 219
+[signals_width] 230
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.vdump[8:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.lvbl
+TOP.game_test.u_game.u_game.u_video.u_obj.lhbl
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_obj[7:0]
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_sub[1:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cen2
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.indr
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vzoom[9:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hzoom[9:0]
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hstep[2:0]
+@29
+[color] 1
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.hz_keep
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dr_start
+@200
+-
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.pxl[8:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.size[3:0]
+@200
+-
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hscl[8:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.busy
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.moveon
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.readon
+@800022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.cnt[3:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.cnt[3:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.cnt[3:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.cnt[3:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.cnt[3:0]
+@1001200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.buf_addr[8:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.hzint[9:6]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.hz_cnt[9:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.dr_hz_keep
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.draw
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.dr_draw
+[pattern_trace] 1
+[pattern_trace] 0

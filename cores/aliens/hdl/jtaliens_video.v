@@ -54,9 +54,9 @@ module jtaliens_video(
     input             prom_we,
 
     // Tile ROMs
-    output     [20:2] lyrf_addr,
-    output     [20:2] lyra_addr,
-    output     [20:2] lyrb_addr,
+    output reg [20:2] lyrf_addr,
+    output reg [20:2] lyra_addr,
+    output reg [20:2] lyrb_addr,
     output     [20:2] lyro_addr,
 
     output            lyrf_cs,
@@ -90,9 +90,11 @@ module jtaliens_video(
 
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
-            dump_scr, dump_obj, dump_pal;
+            dump_scr, dump_obj, dump_pal,
+            lyrf_col, lyra_col, lyrb_col;
 wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
+wire [12:0] pre_f, pre_a, pre_b;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 
@@ -120,6 +122,32 @@ always @(posedge clk) begin
     else
         ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
 end
+
+always @* begin
+    case( cfg )
+        CRIMFGHT: begin
+            lyrf_addr = { 2'b0, pre_f[11], lyrf_col[4:0], pre_f[10:0] }; // maybe col[5] instead of pre[11]
+            lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
+            lyrb_addr = { 2'b0, pre_b[11], lyrb_col[4:0], pre_b[10:0] };
+        end
+        SCONTRA: begin
+            lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] };
+            lyra_addr = { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] };
+            lyrb_addr = { 1'b0, pre_b[12:11], lyrb_col[4:0], pre_b[10:0] };
+        end
+        default: begin
+            lyrf_addr = { pre_f[12:11], lyrf_col[5:0], pre_f[10:0] };
+            lyra_addr = { pre_a[12:11], lyra_col[5:0], pre_a[10:0] };
+            lyrb_addr = { pre_b[12:11], lyrb_col[5:0], pre_b[10:0] };
+        end
+    endcase
+end
+
+function [7:0] cgate( input [7:0] c);
+    cgate = cfg==SCONTRA  ? { c[7:5], 5'd0       } :
+            cfg==CRIMFGHT ? { c[7:6], 5'd0, c[5] } :
+                            { c[7:6], 6'd0       };
+endfunction
 
 /* verilator tracing_on */
 jtaliens_scroll u_scroll(
@@ -154,11 +182,19 @@ jtaliens_scroll u_scroll(
     .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
 
+    // color byte connection
+    .lyrf_col   ( lyrf_col  ),
+    .lyra_col   ( lyra_col  ),
+    .lyrb_col   ( lyrb_col  ),
+
+    .lyrf_cg    (cgate(lyrf_col)),
+    .lyra_cg    (cgate(lyra_col)),
+    .lyrb_cg    (cgate(lyrb_col)),
 
     // Tile ROMs
-    .lyrf_addr  ( lyrf_addr ),
-    .lyra_addr  ( lyra_addr ),
-    .lyrb_addr  ( lyrb_addr ),
+    .lyrf_addr  ( pre_f     ),
+    .lyra_addr  ( pre_a     ),
+    .lyrb_addr  ( pre_b     ),
 
     .lyrf_cs    ( lyrf_cs   ),
     .lyra_cs    ( lyra_cs   ),
