@@ -22,9 +22,9 @@ module jttmnt_game(
 
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
-wire        cpu_cen, snd_irq, rmrd, rst8, init;
+wire        snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
-wire        cpu_rnw, cpu_irq_n, cpu_nmi_n;
+wire        cpu_rnw;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_d8,
             st_main, st_video, st_snd;
@@ -33,14 +33,15 @@ reg  [ 7:0] debug_mux;
 // reg  [ 1:0] cpu_cfg;
 
 assign debug_view = debug_mux;
-assign ram_din    = cpu_dout;
+assign ram_addr   = main_addr[13:1];
+assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
+        0: debug_mux <= st_video;
+        1: debug_mux <= st_snd;
+        2: debug_mux <= { 1'b0, rmrd, prio, 4'd0 };
         0: debug_mux <= st_main;
-        1: debug_mux <= st_video;
-        2: debug_mux <= st_snd;
-        3: debug_mux <= {init,rmrd, prio, 2'd0, cpu_cfg};
     endcase
 end
 
@@ -60,21 +61,22 @@ end
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .cpu_cen        ( cpu_cen       ),
     .LVBL           ( LVBL          ),
 
     // .cfg            ( cpu_cfg       ),
     .cpu_d8         ( cpu_d8        ),
     .cpu_we         ( cpu_we        ),
-    .cpu_dout       ( cpu_dout      ),
+    .cpu_dout       ( ram_din       ),
 
-    .rom_addr       ( main_addr     ),
+    .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
     .rom_cs         ( main_cs       ),
     .rom_ok         ( main_ok       ),
     // RAM
-    .ram_we         ( ram_we        ),
-    .ram_dout       ( ram_dout      ),
+    .ram_dsn        ( ram_dsn       ),
+    .ram_dout       ( ram_data      ),
+    .ram_cs         ( ram_cs        ),
+    .ram_ok         ( ram_ok        ),
     // cabinet I/O
     .start_button   ( start_button  ),
     .coin_input     ( coin_input    ),
@@ -84,25 +86,22 @@ jttmnt_main u_main(
     .joystick4      ( joystick4     ),
     .service        ( service       ),
 
-
     .vram_dout      ( tilesys_dout  ),
     .oram_dout      ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),
     // To video
     .prio           ( prio          ),
+    .rmrd           ( rmrd          ),
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
-    .init           ( init          ),
-    .rmrd           ( rmrd          ),
     .pal_we         ( pal_we        ),
     // To sound
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    .dipsw          ( dipsw[23:0]   ),
+    .dipsw          ( dipsw[19:0]   ),
     // Debug
-    .debug_bus      ( debug_bus     ),
     .st_dout        ( st_main       )
 );
 
@@ -112,8 +111,9 @@ jttmnt_sound u_sound(
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
+    .cen_640    ( cen_640       ),
+    .cen_20     ( cen_20        ),
     .fxlevel    ( dip_fxlevel   ),
-    .cfg        ( cpu_cfg       ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -137,6 +137,11 @@ jttmnt_sound u_sound(
     .upd_cs     ( upd_cs        ),
     .upd_data   ( upd_data      ),
     .upd_ok     ( upd_ok        ),
+    // Title music
+    .title_data ( title_data    ),
+    .title_cs   ( title_cs      ),
+    .title_addr ( title_addr    ),
+    .title_ok   ( title_ok      ),
     // Sound output
     .snd        ( snd           ),
     .sample     ( sample        ),
@@ -169,7 +174,8 @@ jttmnt_video u_video (
     .objsys_cs      ( objsys_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_we         ( pal_we        ),
-    .cpu_addr       (main_addr[15:0]),
+    .cpu_addr       (main_addr[16:1]),
+    .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( cpu_d8        ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
@@ -196,8 +202,8 @@ jttmnt_video u_video (
     // Debug
     .debug_bus      ( debug_bus     ),
     .ioctl_addr     (ioctl_addr[14:0]),
-    .ioctl_din      ( ioctl_din     ),
-    .ioctl_ram      ( ioctl_ram     ),
+    .ioctl_din      ( /*ioctl_din*/ ),
+    .ioctl_ram      ( 1'b0          ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )
 );

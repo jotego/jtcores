@@ -21,8 +21,9 @@ module jttmnt_sound(
     input           clk,
     input           cen_fm,
     input           cen_fm2,
+    input           cen_640,
+    input           cen_20,
     input   [ 1:0]  fxlevel,
-    input   [ 1:0]  cfg,        // board configuration
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -32,12 +33,12 @@ module jttmnt_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output   [18:0] pcma_addr,
+    output   [16:0] pcma_addr,
     input    [ 7:0] pcma_dout,
     output          pcma_cs,
     input           pcma_ok,
 
-    output   [18:0] pcmb_addr,
+    output   [16:0] pcmb_addr,
     input    [ 7:0] pcmb_dout,
     output          pcmb_cs,
     input           pcmb_ok,
@@ -46,6 +47,11 @@ module jttmnt_sound(
     output          upd_cs,
     input   [ 7:0]  upd_data,
     input           upd_ok,
+    // Title theme
+    input    [15:0] title_data,
+    output reg      title_cs,
+    output reg [18:1] title_addr,
+    input           title_ok,
 
     // Sound output
     output signed [15:0] snd,
@@ -57,28 +63,29 @@ module jttmnt_sound(
 );
 `ifndef NOSOUND
 
-reg         [ 7:0]  fmgain, updgain;
+reg         [ 7:0]  fmgain, updgain, title_gain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
-reg                 ram_cs, latch_cs, fm_cs, dac_cs, bank_cs, iock;
+reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs;
 wire signed [15:0]  fm_left, fm_right;
 wire signed [ 8:0]  upd_snd;
 wire                cpu_cen;
-reg                 mem_acc, mem_upper, pcm_swap;
+reg                 mem_acc, mem_upper;
 reg         [ 3:0]  pcm_bank;
 wire signed [11:0]  pcm_snd;
 wire        [ 1:0]  ct;
-reg         [ 3:0]  pcm_msb;
 reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rst;
-reg         [ 7:0]  upd_play;
+reg         [ 7:0]  upd_latch;
 wire                upd_rst, upd_bsyn;
+reg         [ 7:0]  fxgain;
+reg signed  [16:0]  title_snd; // bit 0 is always discarded
 
 assign upd_rst  = ~upd_rstn | rst;
 
 assign rom_addr = A[14:0];
-assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, pcm_msb };
+assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, 4'd0 };
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -120,15 +127,23 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// Title screen music
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        pcm_bank <= 0;
+        title_cs   <= 0;
+        title_addr <= 0;
+        title_snd  <= 0;
     end else begin
-        if( bank_cs ) pcm_bank <= cpu_dout[3:0];
+        if( title_rst ) begin
+            title_cs   <= 0;
+            title_addr <= 0;
+            title_snd  <= 0;
+        end else if( cen_20 ) begin
+            title_addr <= title_addr + 1'd1;
+            title_snd  <= { 7'd0, title_data[9:0] } << title_data[12:10];
+        end
     end
 end
-
-reg [7:0] fxgain;
 
 always @(*) begin
     case( fxlevel )
@@ -137,8 +152,9 @@ always @(*) begin
         2: fxgain = 8'h08;
         3: fxgain = 8'h10;
     endcase
-    fmgain  = 8'h10;
-    updgain = 8'h10;
+    fmgain     = 8'h10;
+    updgain    = 8'h10;
+    title_gain = 8'h10;
 end
 
 jtframe_mixer #(.W0(16),.W1(16),.W2(12),.W3(9)) u_mixer(
@@ -146,11 +162,11 @@ jtframe_mixer #(.W0(16),.W1(16),.W2(12),.W3(9)) u_mixer(
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
     .ch0    ( fm_left    ),
-    .ch1    ( fm_right   ),
+    .ch1    (title_snd[16:1]),
     .ch2    ( pcm_snd    ),
     .ch3    ( upd_snd    ),
     .gain0  ( fmgain     ),
-    .gain1  ( fmgain     ),
+    .gain1  ( title_gain ),
     .gain2  ( fxgain     ),
     .gain3  ( updgain    ),
     .mixed  ( snd        ),
@@ -216,16 +232,16 @@ jt007232 #(.REG12A(0)) u_pcm(
     .cen_e      (           ),
     .wr_n       ( wr_n      ),
     .din        ( cpu_dout  ),
-    .swap_gains ( pcm_swap  ),
+    .swap_gains ( 1'b0      ),
 
     // External memory - the original chip
     // only had one bus
-    .roma_addr  ( pcma_addr[16:0] ),
+    .roma_addr  ( pcma_addr ),
     .roma_dout  ( pcma_dout ),
     .roma_cs    ( pcma_cs   ),
     .roma_ok    ( pcma_ok   ),
 
-    .romb_addr  ( pcmb_addr[16:0] ),
+    .romb_addr  ( pcmb_addr ),
     .romb_dout  ( pcmb_dout ),
     .romb_cs    ( pcmb_cs   ),
     .romb_ok    ( pcmb_ok   ),

@@ -5,11 +5,11 @@ game:
       - jttmnt_main.v
       - jttmnt_sound.v
       - jttmnt_video.v
+      - jttmnt_colmix.v
   - from: aliens
     get:
       - jtaliens_scroll.v
       - jtaliens_obj.v
-      - jtaliens_colmix.v
       - jt052109.v
       - jt051962.v
       - jt051960.v
@@ -25,6 +25,10 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_obj.yaml
+  - from: cpu
+    unless: NOMAIN
+    get:
+      - jtframe_m68k.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v

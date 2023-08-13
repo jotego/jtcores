@@ -139,6 +139,7 @@ jt052109 u_tilemap(
     .ioctl_ram  ( ioctl_ram ),
 
     .debug_bus  ( debug_bus ),
+    .mmr_dump   (           ),
     .st_dout    ( st_dout   )
 );
 

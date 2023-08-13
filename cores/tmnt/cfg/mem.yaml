@@ -12,6 +12,11 @@ clocks:
     - freq: 640000
       outputs:
         - cen_640
+        - cen_320
+        - cen_160
+        - cen_80
+        - cen_40
+        - cen_20
 sdram:
   banks:
     -
@@ -50,7 +55,7 @@ sdram:
         -
           name: title
           addr_width: 19
-          data_width: 8
+          data_width: 16
           offset: TITLE_OFFSET
     -
       buses:

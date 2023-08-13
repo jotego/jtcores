@@ -20,7 +20,7 @@ module jttmnt_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input      [ 1:0] cfg,
+    // input      [ 1:0] cfg,
     input      [ 1:0] cpu_prio,
 
     // Base Video
@@ -30,7 +30,7 @@ module jttmnt_colmix(
     // CPU interface
     input             cpu_we,
     input      [ 7:0] cpu_dout,
-    input      [11:0] cpu_addr,
+    input      [12:1] cpu_addr,
     output     [ 7:0] cpu_din,
 
     // PROMs
@@ -53,7 +53,7 @@ module jttmnt_colmix(
     output     [ 7:0] blue,
 
     // Debug
-    input      [10:0] ioctl_addr,
+    input      [11:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
 
@@ -126,11 +126,13 @@ jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .q      ({shad,prio_sel})
 );
 
+// this does not follow the same arrangement of the original
+// it's only important if you try to load a dump from MAME
 jtframe_dual_nvram #(.AW(12),.SIMFILE("pal.bin")) u_ram(
     // Port 0: CPU
     .clk0   ( clk           ),
     .data0  ( cpu_dout      ),
-    .addr0  ( { cpu_addr[0], cpu_addr[11:1] } ),
+    .addr0  ( cpu_addr      ),
     .we0    ( cpu_we        ),
     .q0     ( cpu_din       ),
     // Port 1
