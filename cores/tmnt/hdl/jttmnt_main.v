@@ -66,9 +66,8 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         io_cs, out_cs, otport1_cs, pal_cs,
-            wdog_cs, inport_cs, snddt_cs, shoot_cs,
-            dip_cs, dip3_cs, syswr_cs, iowr_cs, int16e_n;
+reg         pal_cs, snddt_cs, shoot_cs,
+            dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 reg         intn, LVBLl;
@@ -110,12 +109,12 @@ always @* begin
             3: ram_cs = ~BUSn;
             4: pal_cs = 1;
             5: if(!A[16]) case( { RnW, A[4:3] } )
-                    0: iowr_cs = 1;
-                    1: snddt_cs= 1;
+                    0: iowr_cs  = 1;
+                    1: snddt_cs = 1;
                     // 2: watchdog
                     4: shoot_cs = 1;
-                    6: dip_cs = 1;
-                    7: dip3_cs = 1;
+                    6: dip_cs   = 1;
+                    7: dip3_cs  = 1;
                     default:;
                 endcase
             6: syswr_cs = 1;
@@ -147,7 +146,7 @@ always @(posedge clk, posedge rst) begin
         LVBLl <= LVBL;
         if( !LVBL && LVBLl )
             intn <= 0;
-        if( int16e_n )
+        if( !int16en )
             intn <= 1;
     end
 end
@@ -169,14 +168,14 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        prio     <= 0;
-        rmrd     <= 0;
-        int16e_n <= 0;
-        sndon    <= 0;
+        prio    <= 0;
+        rmrd    <= 0;
+        int16en <= 0;
+        sndon   <= 0;
     end else begin
         if( syswr_cs ) prio <= cpu_dout[3:2];
         if( iowr_cs  )
-            { rmrd, int16e_n, sndon } <= {cpu_dout[7], cpu_dout[5], cpu_dout[3]};
+            { rmrd, int16en, sndon } <= {cpu_dout[7], cpu_dout[5], cpu_dout[3]};
         if( snddt_cs ) snd_latch <= cpu_dout[7:0];
     end
 end

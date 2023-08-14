@@ -151,7 +151,7 @@ jttmnt_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

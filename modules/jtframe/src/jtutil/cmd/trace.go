@@ -6,8 +6,15 @@ package cmd
 
 import (
 	"jtutil/vcd"
+	"fmt"
+	"os"
+	"strings"
 	"github.com/spf13/cobra"
 )
+
+var trace_flags struct {
+	make string
+}
 
 // traceCmd represents the trace command
 var traceCmd = &cobra.Command{
@@ -42,19 +49,16 @@ The VCD comparison will not be done while these signals are high:
 
 func init() {
 	rootCmd.AddCommand(traceCmd)
+	flg  := traceCmd.Flags()
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// traceCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// traceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	flg.StringVarP(&trace_flags.make,"make","m", "", "Create MAME trace file for the given CPU")
 }
 
 func runTrace() { //////////////// command's main function
+	if trace_flags.make != "" {
+		makeMAME(trace_flags.make)
+		return
+	}
 	trace := &vcd.LnFile{}
 	vcdf  := &vcd.LnFile{}
 	vcdf.Open("debug.vcd")
@@ -68,4 +72,39 @@ func runTrace() { //////////////// command's main function
 	trace.Scan()
 	mame_alias := vcd.MakeAlias(trace.Text(), signals)
 	vcd.Prompt( vcdf, trace, signals, mame_alias  )
+}
+
+func makeMAME( cpu string ) {
+	var s string
+	switch strings.ToLower(cpu) {
+		case "t900h": s=`trace debug.trace,maincpu,noloop,{tracelog "PC=%X,XWA0=%X,XBC0=%X,XDE0=%X,XHL0=%X,XWA1=%X,XBC1=%X,XDE1=%X,XHL1=%X,XWA2=%X,XBC2=%X,XDE2=%X,XHL2=%X,XWA3=%X,XBC3=%X,XDE3=%X,XHL3=%X,XIX=%X,XIY=%X,XIZ=%X,XSP=%X,* ",pc,xwa0,xbc0,xde0,xhl0,xwa1,xbc1,xde1,xhl1,xwa2,xbc2,xde2,xhl2,xwa3,xbc3,xde3,xhl3,xix,xiy,xiz,xssp}
+go
+`
+		case "m68000","m68k","68k","68000":
+			s=`focus 0
+trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%X,SSP=%X,D0=%X,D1=%X,D2=%X,D3=%X,D4=%X,D5=%X,D6=%X,D7=%X,A0=%X,A1=%X,A2=%X,A3=%X,A4=%X,A5=%X,A6=%X,A7=%X,IR=%X,frame_cnt=%x* ",pc,ssp,d0,d1,d2,d3,d4,d5,d6,d7,a0,a1,a2,a3,a4,a5,a6,a7,ir,frame}
+go
+`
+		case "konami","kcpu": s=`focus 0
+trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,frame}
+go
+`
+		case "qsnd","qsound": s=`trace debug.trace,2,,{tracelog "! pc=%X pt=%X pr=%X pi=%X i=%X r0=%X r1=%X r2=%X r3=%X rb=%X re=%X j=%X k=%X x=%X y=%X p=%X a0=%X a1=%X c0=%X c1=%X c2=%X auc=%X psw=%X\n",pc,pt,pr,pi,i,r0,r1,r2,r3,rb,re,j,k,x,y,p,a0,a1,c0,c1,c2,auc,psw}
+go
+`
+	}
+	if s=="" {
+		fmt.Printf("No default trace.mame file for %s CPU. Add it to trace.go\n", cpu)
+		return
+	}
+	f, e := os.Create("trace.mame")
+	defer f.Close()
+	if e!=nil {
+		fmt.Println(e)
+		return
+	}
+	f.WriteString(s)
+	fmt.Println("trace.mame created")
 }
