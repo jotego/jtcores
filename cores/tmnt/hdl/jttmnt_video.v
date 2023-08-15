@@ -306,7 +306,7 @@ jtaliens_obj u_obj(    // sprite logic
     .pal        ( opal      ),
     .pal_eff    ( opal_eff  ),
     // ROM
-    .rom_addr   ( { preo_addr[19:6], preo_addr[4], preo_addr[5], preo_addr[3:1] } ),
+    .rom_addr   ( preo_addr ),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),

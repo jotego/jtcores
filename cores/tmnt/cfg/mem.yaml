@@ -53,7 +53,7 @@ sdram:
           data_width: 8
           offset: UPD_OFFSET
         -
-          name: theme
+          name: title
           addr_width: 19
           data_width: 16
           offset: TITLE_OFFSET

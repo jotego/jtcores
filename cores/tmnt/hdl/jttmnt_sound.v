@@ -150,10 +150,10 @@ reg dbg_l;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         st_dout    <= 0;
-        fmgain     <= 8'h10;
-        fxgain     <= 8'h10;
-        updgain    <= 8'h10;
-        title_gain <= 8'h10;
+        fmgain     <= 8'h0c;
+        fxgain     <= 8'h0c; // percussion in 1st stage theme
+        updgain    <= 8'h0c; // cowa bunga
+        title_gain <= 8'h04;
         dbg_l      <= 0;
     end else begin
         dbg_l <= debug_bus[5];
@@ -183,10 +183,10 @@ jtframe_mixer #(.W0(16),.W1(16),.W2(12),.W3(9)) u_mixer(
     .ch1    ( title_snd  ),
     .ch2    ( pcm_snd    ),
     .ch3    ( upd_snd    ),
-    .gain0  ( fmgain     ),
-    .gain1  ( title_gain ),
-    .gain2  ( fxgain     ),
-    .gain3  ( updgain    ),
+    .gain0  ( {3'd0,fmgain[4:0]}     ),
+    .gain1  ( {3'd0,title_gain[4:0]} ),
+    .gain2  ( {3'd0,fxgain[4:0]}     ),
+    .gain3  ( {3'd0,updgain[4:0]}    ),
     .mixed  ( snd        ),
     .peak   ( peak       )
 );
@@ -240,7 +240,7 @@ jt51 u_jt51(
 );
 /* verilator tracing_on */
 
-jt007232 #(.REG12A(0)) u_pcm(
+jt007232 #(.REG12A(0),.INVA0(1)) u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),

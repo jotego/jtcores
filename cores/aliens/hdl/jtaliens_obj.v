@@ -76,6 +76,8 @@ wire [18:0] pre_addr;
 
 assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
 
+// jtframe_draw outputs H[3],V[3:0]
+// swap bits 3 and 4 to comply with Konami ROM order
 always @* begin
     rom_addr = pre_addr;
     rom_addr[4:3] = { pre_addr[3], pre_addr[4] };
