@@ -58,8 +58,8 @@ module jttmnt_sound(
     output               sample,
     output               peak,
     // Debug
-    input    [ 7:0] debug_bus,
-    output   [ 7:0] st_dout
+    input      [7:0] debug_bus,
+    output reg [7:0] st_dout
 );
 `ifndef NOSOUND
 
@@ -85,7 +85,6 @@ reg signed  [15:0]  title_snd; // bit 0 is always discarded
 assign upd_rst  = ~upd_rstn | rst;
 
 assign rom_addr = A[14:0];
-assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, 4'd0 };
 assign title_cs = 1;
 
 always @(*) begin
@@ -146,16 +145,33 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(*) begin
-    case( fxlevel )
-        0: fxgain = 8'h01;
-        1: fxgain = 8'h02;
-        2: fxgain = 8'h04;
-        3: fxgain = 8'h08;
-    endcase
-    fmgain     = 8'h08;
-    updgain    = 8'h20;
-    title_gain = 8'h08;
+reg dbg_l;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        st_dout    <= 0;
+        fmgain     <= 8'h10;
+        fxgain     <= 8'h10;
+        updgain    <= 8'h10;
+        title_gain <= 8'h10;
+        dbg_l      <= 0;
+    end else begin
+        dbg_l <= debug_bus[5];
+        case( debug_bus[7:6])
+            0: st_dout <= fmgain;
+            1: st_dout <= updgain;
+            2: st_dout <= fxgain;
+            3: st_dout <= title_gain;
+        endcase
+        if( dbg_l && !debug_bus[5] ) begin
+            case( debug_bus[7:6])
+                0: fmgain[4:0]     <= debug_bus[4:0];
+                1: updgain[4:0]    <= debug_bus[4:0];
+                2: fxgain[4:0]     <= debug_bus[4:0];
+                3: title_gain[4:0] <= debug_bus[4:0];
+            endcase
+        end
+    end
 end
 
 /* verilator tracing_off */
@@ -234,7 +250,7 @@ jt007232 #(.REG12A(0)) u_pcm(
     .cen_e      (           ),
     .wr_n       ( wr_n      ),
     .din        ( cpu_dout  ),
-    .swap_gains ( 1'b0      ),
+    .swap_gains ( 1'b1      ),
 
     // External memory - the original chip
     // only had one bus
