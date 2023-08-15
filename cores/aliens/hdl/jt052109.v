@@ -126,8 +126,7 @@ reg  [ 1:0] cab,         // tile address MSB
 reg  [ 2:1] we;
 reg  [ 2:0] vsub_a, vsub_b, vmux, cs, rst_cnt;
 wire [ 1:0] fine_row;    // high sets scroll per row, otherwise per 8 rows
-wire        same_col_n,  // layer B uses the same attribute data as layer A
-            rd_vpos, rd_hpos, scrlyr_sel;
+wire        rd_vpos, rd_hpos, scrlyr_sel;
 reg         v4_l, rd_rowscr, vflip;
 wire        cscra_en, cscrb_en, reg_we,
             rscra_en, rscrb_en, vflip_en;
@@ -141,7 +140,6 @@ assign int_en      = mmr[REG_INT];
 assign flip        = mmr[REG_FLIP][0];
 assign hflip_en    = mmr[REG_FLIP][1];
 assign vflip_en    = mmr[REG_FLIP][2];
-assign same_col_n  = cfg[5];
 assign { cscrb_en, rscrb_en, fine_row[1], cscra_en, rscra_en, fine_row[0] }
                    = mmr[REG_SCR][5:0];
 // read vpos when col scr is disabled
@@ -367,10 +365,7 @@ always @(posedge clk) begin
                         vposb <= scan_dout[ 7:0];
                 end
                 1: begin lyra_col <= col_cfg; lyra_addr <= { cab, vc }; end
-                2: begin
-                    lyrb_col  <= same_col_n ? col_cfg : lyra_col;
-                    lyrb_addr <= { cab, vc };
-                end
+                2: begin lyrb_col  <= col_cfg; lyrb_addr <= { cab, vc };end
                 3: begin lyrf_col <= col_cfg; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
             endcase else case( hdump[1:0] ) // row scroll position reading
                 0: if( rd_hpos || rscra_en ) hposa[7:0] <= scan_dout[15:8];

@@ -49,7 +49,7 @@ module jttmnt_sound(
     input           upd_ok,
     // Title theme
     input    [15:0] title_data,
-    output reg      title_cs,
+    output          title_cs,
     output reg [18:1] title_addr,
     input           title_ok,
 
@@ -80,12 +80,13 @@ reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rstn;
 reg         [ 7:0]  upd_latch;
 wire                upd_rst, upd_bsyn;
 reg         [ 7:0]  fxgain;
-reg signed  [16:0]  title_snd; // bit 0 is always discarded
+reg signed  [15:0]  title_snd; // bit 0 is always discarded
 
 assign upd_rst  = ~upd_rstn | rst;
 
 assign rom_addr = A[14:0];
 assign st_dout  = debug_bus[4] ? st_pcm : { pcmb_cs, pcma_cs, ct, 4'd0 };
+assign title_cs = 1;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -127,21 +128,20 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+wire signed [15:0] title_raw = { title_data[12:3], 6'd0 };
+
 // Title screen music
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        title_cs   <= 0;
         title_addr <= 0;
         title_snd  <= 0;
-    end else begin
+    end else if( cen_20 ) begin
         if( !title_rstn ) begin
-            title_cs   <= 0;
             title_addr <= 0;
             title_snd  <= 0;
-        end else if( cen_20 ) begin
-            title_cs   <= 1;
+        end else begin
             title_addr <= title_addr + 1'd1;
-            title_snd  <= { ~title_data[12], title_data[11:3], 7'd0 } >>> title_data[15:13];
+            title_snd  <= title_raw >>> ~title_data[15:13];
         end
     end
 end
@@ -153,9 +153,9 @@ always @(*) begin
         2: fxgain = 8'h08;
         3: fxgain = 8'h10;
     endcase
-    fmgain     = 8'h10;
-    updgain    = 8'h10;
-    title_gain = 8'h10;
+    fmgain     = 8'h08;
+    updgain    = 8'h08;
+    title_gain = 8'h08;
 end
 
 /* verilator tracing_off */
@@ -164,7 +164,7 @@ jtframe_mixer #(.W0(16),.W1(16),.W2(12),.W3(9)) u_mixer(
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
     .ch0    ( fm_left    ),
-    .ch1    (title_snd[16:1]),
+    .ch1    ( title_snd  ),
     .ch2    ( pcm_snd    ),
     .ch3    ( upd_snd    ),
     .gain0  ( fmgain     ),
@@ -277,8 +277,8 @@ jt7759 u_upd(
 
 `else
 initial rom_cs     = 0;
-initial title_cs   = 0;
 initial title_addr = 0;
+assign  title_cs   = 0;
 assign  pcma_cs    = 0;
 assign  pcmb_cs    = 0;
 assign  upd_cs     = 0;

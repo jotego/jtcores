@@ -74,6 +74,7 @@ module jt051960(    // sprite logic
     // Debug
     input      [10:0] ioctl_addr,
     input             ioctl_ram,
+    input             ioctl_mmr,
     output reg [ 7:0] ioctl_din,
 
     input      [ 7:0] debug_bus,
@@ -329,7 +330,7 @@ always @(posedge clk, posedge rst) begin
         endcase
         // first 1kB, VRAM, after that, MMR
         ioctl_din <= dma_data;
-        if( ioctl_addr[10] )
+        if( ioctl_mmr )
             ioctl_din <= mmr[ioctl_addr[2:0]];
     end
 end

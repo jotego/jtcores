@@ -82,7 +82,7 @@ always @* begin
         0: pxl[7:0] = { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
         1: pxl[7:0] = { 1'b1, lyrb_pxl[7:5], lyrb_pxl[3:0] };
         2: pxl[7:0] = lyro_pxl[7:0];
-        3: pxl[7:0] = { 1'b1, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+        3: pxl[7:0] = { 1'b0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
     endcase
     pxl[9:8] = { ~prio_sel[1], ~|{prio_sel[0], ~prio_sel[1]} };
 end

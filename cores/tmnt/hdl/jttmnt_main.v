@@ -63,7 +63,7 @@ module jttmnt_main(
     input         [19:0] dipsw,
     output        [ 7:0] st_dout
 );
-
+`ifndef NOMAIN
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
@@ -231,7 +231,7 @@ jtframe_m68k u_cpu(
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
-    .HALTn      ( /*dip_pause*/ 1'b1   ),
+    .HALTn      ( dip_pause   ),
     .BRn        ( 1'b1        ),
     .BGACKn     ( 1'b1        ),
     .BGn        (             ),
@@ -239,5 +239,24 @@ jtframe_m68k u_cpu(
     .DTACKn     ( dtac_mux    ),
     .IPLn       ( IPLn        ) // VBLANK
 );
-
+`else
+    initial begin
+        rmrd      = 0;
+        prio      = 0;
+        rom_cs    = 0;
+        ram_cs    = 0;
+        vram_cs   = 0;
+        obj_cs    = 0;
+        snd_latch = 0;
+        sndon     = 0;
+    end
+    assign
+        st_dout   = 0,
+        main_addr = 0,
+        ram_dsn   = 0,
+        cpu_dout  = 0,
+        cpu_d8    = 0,
+        cpu_we    = 0,
+        pal_we    = 0;
+`endif
 endmodule

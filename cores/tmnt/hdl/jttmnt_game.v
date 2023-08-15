@@ -153,7 +153,7 @@ jttmnt_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -207,8 +207,8 @@ jttmnt_video u_video (
     // Debug
     .debug_bus      ( debug_bus     ),
     .ioctl_addr     (ioctl_addr[14:0]),
-    .ioctl_din      ( /*ioctl_din*/ ),
-    .ioctl_ram      ( 1'b0          ),
+    .ioctl_din      ( ioctl_din     ),
+    .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )
 );

@@ -81,7 +81,7 @@ module jttmnt_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output     [ 7:0] ioctl_din,
+    output reg [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -101,32 +101,33 @@ wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [13:0] ocode_eff;
 wire [19:1] preo_addr;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
-            e, q;
+            e, q, ioctl_mmr;
 wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
 reg         pre_odtac, pre_vdtac;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
-assign ioctl_din = 0;
 assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
+assign ioctl_mmr = ioctl_addr>='h5800;
+
 // Debug
 always @(posedge clk) begin
     st_dout <= debug_bus[5] ? st_obj : st_scr;
     // remember to drive ioctl_ram from game module:
-    // VRAM dumps - 16+2+3 = 19kB +16 bytes = 19472 bytes
-    // if( !ioctl_addr[14] )
-    //     ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
-    // else if( !ioctl_addr[11] )
-    //     ioctl_din <= dump_pal;  // 2kB 4000~47FF
-    // else if( !ioctl_addr[10] )
-    //     ioctl_din <= dump_obj;  // 1kB 4800~4C00
-    // else if( !ioctl_addr[3] )
-    //     ioctl_din <= dump_scr;  // 8 bytes, MMR 4C07
-    // else if (ioctl_addr[2:0]!=7)
-    //     ioctl_din <= dump_obj;  // 7 bytes, MMR 4C0E
-    // else
-    //     ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 4C0F
+    // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
+    if( ioctl_addr<'h4000 )
+        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+    else if( ioctl_addr<'h5000 )
+        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
+    else if( ioctl_addr<'h5800 )
+        ioctl_din <= dump_obj;  // 1kB 5000~5800
+    else if( ioctl_addr<'h5808 )
+        ioctl_din <= dump_scr;  // 8 bytes, MMR 5807
+    else if (ioctl_addr<'h5810)
+        ioctl_din <= dump_obj;  // 7 bytes, MMR 580F
+    else
+        ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 5810
 end
 
 wire [7:0] gfx_addr;
@@ -202,7 +203,7 @@ endfunction
 assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
 assign ocode_eff = { opal[4], ocode };
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -277,7 +278,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -317,6 +318,7 @@ jtaliens_obj u_obj(    // sprite logic
     // Debug
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_ram  ( ioctl_ram ),
+    .ioctl_mmr  ( ioctl_mmr ),
     .ioctl_din  ( dump_obj  ),
 
     .gfx_en     ( gfx_en    ),
@@ -324,7 +326,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
