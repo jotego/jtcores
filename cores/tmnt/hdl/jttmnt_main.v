@@ -105,10 +105,10 @@ always @* begin
     obj_cs   = 0;
     if(!ASn) begin
         if(!A[20]) case( A[19:17] )
-            0,1,2: rom_cs = 1;
-            3: ram_cs = ~BUSn;
-            4: pal_cs = 1;
-            5: if(!A[16]) case( { RnW, A[4:3] } )
+            0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
+            3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
+            4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
+            5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
                     0: iowr_cs  = 1;
                     1: snddt_cs = 1;
                     // 2: watchdog
@@ -117,9 +117,9 @@ always @* begin
                     7: dip3_cs  = 1;
                     default:;
                 endcase
-            6: syswr_cs = 1;
+            6: syswr_cs = 1;    // C'0000 ~ C'FFFF
             default:;
-        endcase else case(A[18:17])
+        endcase else case(A[18:17]) // 10'0000 ~
             0: vram_cs = 1;
             2: obj_cs  = 1;
             default:;
