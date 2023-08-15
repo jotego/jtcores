@@ -179,12 +179,12 @@ jtframe_prom #(.DW(3), .AW(8)) u_gfx (
 always @* begin
     // the game seems to use different encondigs depending on the ROM region
     case( gfx_de )
-        0:   oa = { ca[9:4], ca[2:0] }; // 6+3=9
-        1:   oa = { ca[9:7], ca[5], ca[6], ca[4], ca[2:0] }; // 3+3+3=9
-        2,3: oa = { ca[9:6], ca[4], ca[2:0], ca[5] }; // 4+1+3+1=9
-        4:   oa = { ca[9], ca[7], ca[8], ca[6], ca[4], ca[2:0], ca[5] }; // 9
-        5,6: oa = { ca[9:8], ca[6], ca[4], ca[2:0], ca[7], ca[5] }; // 9
         7:   oa = { ca[8], ca[6], ca[4], ca[2:0], ca[9], ca[7], ca[5] }; // 9
+        5,6: oa = { ca[9:8], ca[6], ca[4], ca[2:0], ca[7], ca[5] }; // 9
+        4:   oa = { ca[9], ca[7], ca[8], ca[6], ca[4], ca[2:0], ca[5] }; // 9
+        2,3: oa = { ca[9:6], ca[4], ca[2:0], ca[5] }; // 4+1+3+1=9
+        1:   oa = { ca[9:7], ca[5], ca[6], ca[4], ca[2:0] }; // 3+3+3=9
+        0:   oa = { ca[9:4], ca[2:0] }; // 6+3=9
     endcase
 end
 

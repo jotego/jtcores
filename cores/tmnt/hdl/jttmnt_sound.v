@@ -128,7 +128,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire signed [15:0] title_raw = { title_data[12:3], 6'd0 };
+wire signed [15:0] title_raw = { ~title_data[12], title_data[11:3], 6'd0 };
 
 // Title screen music
 always @(posedge clk, posedge rst) begin
@@ -148,13 +148,13 @@ end
 
 always @(*) begin
     case( fxlevel )
-        0: fxgain = 8'h02;
-        1: fxgain = 8'h04;
-        2: fxgain = 8'h08;
-        3: fxgain = 8'h10;
+        0: fxgain = 8'h01;
+        1: fxgain = 8'h02;
+        2: fxgain = 8'h04;
+        3: fxgain = 8'h08;
     endcase
     fmgain     = 8'h08;
-    updgain    = 8'h08;
+    updgain    = 8'h20;
     title_gain = 8'h08;
 end
 
