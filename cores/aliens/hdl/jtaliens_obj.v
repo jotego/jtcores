@@ -29,7 +29,7 @@ module jtaliens_obj(
     output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output reg [18:0] rom_addr,
+    output reg [18:0] rom_addr, // code_eff + 5 bits (V-HVVV)
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,

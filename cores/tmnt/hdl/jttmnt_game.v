@@ -41,7 +41,7 @@ always @(posedge clk) begin
         0: debug_mux <= st_video;
         1: debug_mux <= st_snd;
         2: debug_mux <= { 1'b0, rmrd, prio, 4'd0 };
-        0: debug_mux <= st_main;
+        3: debug_mux <= st_main;
     endcase
 end
 

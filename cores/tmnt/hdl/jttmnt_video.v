@@ -99,7 +99,7 @@ wire [11:0] lyro_pxl;
 wire [10:0] cpu_oaddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [13:0] ocode_eff;
-wire [19:1] preo_addr;
+wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ioctl_mmr;
 wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
@@ -130,10 +130,8 @@ always @(posedge clk) begin
         ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 5810
 end
 
-wire [7:0] gfx_addr;
 wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
-wire [9:0] ca;
 
 always @(posedge clk) begin
     if( pxl2_cen ) begin
@@ -148,9 +146,6 @@ always @(posedge clk) begin
     if( !tilesys_cs ) { pre_vdtac, vdtac } <= 1;
 
 end
-
-assign gfx_addr = preo_addr[11+:8];
-assign ca = preo_addr[10:1];
 
 function [31:0] sort( input [31:0] x );
     sort={
@@ -170,7 +165,7 @@ jtframe_prom #(.DW(3), .AW(8)) u_gfx (
     .clk    ( clk        ),
     .cen    ( 1'b1       ),
     .data   ( prog_data  ),
-    .rd_addr( gfx_addr   ),
+    .rd_addr( ca[11+:8]  ),
     .wr_addr(prog_addr[7:0]),
     .we     ( gfx_we     ),
     .q      ( gfx_de     )
@@ -188,7 +183,7 @@ always @* begin
     endcase
 end
 
-assign lyro_addr = { preo_addr[19:10], oa };
+assign lyro_addr = { ca[18:10], oa, ~ca[3] };
 
 always @* begin
     lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
@@ -306,8 +301,8 @@ jtaliens_obj u_obj(    // sprite logic
     .pal        ( opal      ),
     .pal_eff    ( opal_eff  ),
     // ROM
-    .rom_addr   ( preo_addr ),
-    .rom_data   ( lyro_data ),
+    .rom_addr   ( ca        ),
+    .rom_data   ( sort(lyro_data) ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
     // pixel output
