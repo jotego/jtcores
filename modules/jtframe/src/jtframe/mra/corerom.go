@@ -161,7 +161,7 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[s
 					header)).comment=true
 			}
 			// apply the patch
-			root.AddNode("patch", each.Value).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
+			root.AddNode("patch", each.Data).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
 		}
 	}
 }

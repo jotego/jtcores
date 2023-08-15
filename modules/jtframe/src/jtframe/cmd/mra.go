@@ -128,7 +128,7 @@ splits=[
 # Patch the final ROM file, the offset will be automatically adjusted
 # to add JTFRAME_HEADER
 patches = [
-	{ machine="...", setname="...", offset=0x0000, value="01 02 03..." },...
+	{ machine="...", setname="...", offset=0x0000, data="01 02 03..." },...
 ]
 `,
 	Run: func(cmd *cobra.Command, args []string) {

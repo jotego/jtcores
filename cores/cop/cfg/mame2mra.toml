@@ -65,8 +65,8 @@ blanks = [
 ]
 
 patches = [
-    {machine="hippodrm", offset=0x210189, value=" 60 "},
-    {machine="hippodrm", offset=0x2101af, value=" 60 "},
-    {machine="hippodrm", offset=0x2101db, value=" 60 "},
-    {machine="hippodrm", offset=0x21021a, value=" 60 "}
+    {machine="hippodrm", offset=0x210189, data=" 60 "},
+    {machine="hippodrm", offset=0x2101af, data=" 60 "},
+    {machine="hippodrm", offset=0x2101db, data=" 60 "},
+    {machine="hippodrm", offset=0x21021a, data=" 60 "}
 ]

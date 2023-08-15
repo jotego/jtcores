@@ -34,7 +34,6 @@ names = [
 
 [dipsw]
 delete = [ "Unused", "Unknown" ]
-rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]
 
 # rename = [
 #     {  name="Difficulty 1 (Game)", To="Gameplay" },
@@ -55,3 +54,8 @@ regions = [
 ]
 
 order = [ "maincpu", "audiocpu", "k007232", "upd", "title", "k052109", "k051960", "proms" ]
+
+patches = [
+    # { machine="tmnt", offset=0x106e, data="4E 71 4E 71 4E 71" } # no memory check
+    { machine="tmnt", offset=0x106e, data="71 4E 71 4E 71 4E" } # no memory check
+]

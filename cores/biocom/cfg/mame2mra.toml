@@ -28,8 +28,8 @@ regions=[
 ]
 
 patches=[
-    { setname="topsecrt2", offset=4, value="00 00 a8 42" }, # skip initial test
-    { setname="topsecrt",  offset=4, value="00 00 90 42" }, # skip initial test
+    { setname="topsecrt2", offset=4, data="00 00 a8 42" }, # skip initial test
+    { setname="topsecrt",  offset=4, data="00 00 90 42" }, # skip initial test
 ]
 
 order=[ "maincpu",

@@ -689,7 +689,7 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
         trace.Scan()
         mame_st.data = parseTrace(trace.Text())
     }
-
+    line0 := trace.line
     var good, matched bool
     for {
         mame_st.data, good = nxTraceChange( trace, mame_st )
@@ -701,7 +701,7 @@ func matchTrace( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore boo
         fmt.Printf("Impossible to match MAME to VCD")
         diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
     } else {
-        fmt.Println("Matched")
+        fmt.Printf("Matched (+ %d lines)\n",trace.line-line0)
     }
     return matched
 }

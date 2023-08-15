@@ -1,5 +1,4 @@
 [global]
-# info = [ {tag="mameversion", value="0229"} ]
 mraauthor=["jotego"]
 overrule=[ {rotate=90} ]
 [features]
@@ -39,6 +38,6 @@ order = [
 
 # MAME applies this patch: fixes a bad dump?
 patches = [
-    { setname="rocnrope", offset=0x103d, value="BA" },
-    { setname="ropeman", offset=0x103d, value="BA" }
+    { setname="rocnrope", offset=0x103d, data="BA" },
+    { setname="ropeman",  offset=0x103d, data="BA" }
 ]

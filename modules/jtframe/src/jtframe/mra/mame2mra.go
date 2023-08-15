@@ -229,7 +229,7 @@ type Mame2MRA struct {
 		Patches []struct {
 			Selectable
 			Offset           int
-			Value            string
+			Data             string
 		}
 		Nvram struct {
 			Selectable
