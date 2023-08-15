@@ -20,6 +20,7 @@ module jttmnt_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen,
     // input      [ 1:0] cfg,
     input      [ 1:0] cpu_prio,
 
@@ -36,6 +37,8 @@ module jttmnt_video(
     output     [ 7:0] pal_dout,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
+    output reg        odtac,
+    output reg        vdtac,
     input             pal_we,
     input             cpu_we,
     input             tilesys_cs,
@@ -97,8 +100,10 @@ wire [10:0] cpu_oaddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [13:0] ocode_eff;
 wire [19:1] preo_addr;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
+            e, q;
 wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
+reg         pre_odtac, pre_vdtac;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
@@ -128,6 +133,20 @@ wire [7:0] gfx_addr;
 wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
 wire [9:0] ca;
+
+always @(posedge clk) begin
+    if( pxl2_cen ) begin
+        if( q ) begin
+            pre_odtac <= 0;
+            pre_vdtac <= 0;
+        end
+        odtac <= pre_odtac;
+        vdtac <= pre_vdtac;
+    end
+    if( !objsys_cs  ) { pre_odtac, odtac } <= 1;
+    if( !tilesys_cs ) { pre_vdtac, vdtac } <= 1;
+
+end
 
 assign gfx_addr = preo_addr[11+:8];
 assign ca = preo_addr[10:1];
@@ -188,6 +207,7 @@ jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
 
     // Base Video
     .lhbl       ( lhbl      ),
@@ -214,6 +234,8 @@ jtaliens_scroll u_scroll(
     .firq_n     (           ),
     .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
+    .q          ( q         ),
+    .e          ( e         ),
 
     // color byte connection
     .lyrf_col   ( lyrf_col  ),

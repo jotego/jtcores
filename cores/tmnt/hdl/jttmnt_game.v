@@ -24,7 +24,7 @@ module jttmnt_game(
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
-wire        cpu_rnw;
+wire        cpu_rnw, odtac, vdtac;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_d8,
             st_main, st_video, st_snd;
@@ -67,6 +67,8 @@ jttmnt_main u_main(
     .cpu_d8         ( cpu_d8        ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
+    .odtac          ( odtac         ),
+    .vdtac          ( vdtac         ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -151,12 +153,13 @@ jttmnt_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
+    .pxl2_cen       ( pxl2_cen      ),
     // .cfg            ( cpu_cfg       ),
     .cpu_prio       ( prio          ),
 
@@ -177,6 +180,8 @@ jttmnt_video u_video (
     .cpu_addr       (main_addr[16:1]),
     .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( cpu_d8        ),
+    .odtac          ( odtac         ),
+    .vdtac          ( vdtac         ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( objsys_dout   ),
     .pal_dout       ( pal_dout      ),

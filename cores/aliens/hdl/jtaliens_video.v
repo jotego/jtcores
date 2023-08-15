@@ -20,6 +20,7 @@ module jtaliens_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen,
     input      [ 1:0] cfg,
     input      [ 1:0] cpu_prio,
 
@@ -97,7 +98,8 @@ wire [11:0] lyra_pxl, lyrb_pxl;
 wire [11:0] lyro_pxl;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [13:0] ocode_eff;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
+            e, q;
 wire        prio_we, tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow;
 
 assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
@@ -160,6 +162,7 @@ jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
 
     // Base Video
     .lhbl       ( lhbl      ),

@@ -33,6 +33,7 @@ module jt052109(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen, // used for E/Q generation
 
     input             lvbl,
     // CPU interface
@@ -69,6 +70,8 @@ module jt052109(
     output reg [ 7:0] lyrf_col,
     output reg [ 7:0] lyra_col,
     output reg [ 7:0] lyrb_col,
+
+    output reg         e, q,        // 3MHz signals, Q is 1/4 wave ahead
 
     // Debug
     input      [14:0] ioctl_addr,
@@ -153,6 +156,12 @@ reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
            range1 = range[3:0],
            range2 = range[4:1];
+
+always @(posedge clk) begin // 3MHz signals
+    if( pxl_cen  ) q <= ~q;
+    if( pxl2_cen ) e <= q;
+end
+
 // CPU Memory Mapper
 always @* begin
     casez( cpu_addr[15:13] )

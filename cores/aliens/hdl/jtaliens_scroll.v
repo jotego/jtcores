@@ -20,6 +20,7 @@ module jtaliens_scroll(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen,
 
     // Base Video
     output            lhbl,
@@ -42,6 +43,7 @@ module jtaliens_scroll(
     output            firq_n,
     output            nmi_n,
     output            flip,
+    output            e, q,
 
 
     // Tile ROMs
@@ -97,6 +99,7 @@ jt052109 u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
 
     .lvbl       ( lvbl      ),
     // CPU interface
@@ -111,6 +114,8 @@ jt052109 u_tilemap(
     .rmrd       ( rmrd      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
+    .q          ( q         ),
+    .e          ( e         ),
 
     // Fine grain scroll
     .hsub_a     ( hsub_a    ),
