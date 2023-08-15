@@ -139,7 +139,8 @@ wire [ 1:0] next_ba, prio;
 reg  [15:0] din;
 
 wire [AW-1:0] ba0_addr_l, ba1_addr_l, ba2_addr_l, ba3_addr_l;
-wire    [3:0] rd_l, wr_l;
+wire    [3:0] rd_l, wr_aux;
+reg     [3:0] wr_l;
 wire    [4:0] wr_busy, idle;
 wire          wr_cycle;
 
@@ -215,6 +216,7 @@ always @(posedge clk) begin
     sdram_ba      <= next_ba;
     sdram_a[10:0] <= next_a[10:0];
 
+    wr_l <= wr_aux;
     din <= (bg[3] && BA3_WEN) ? ba3_din :
            (bg[2] && BA2_WEN) ? ba2_din :
            (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
@@ -263,7 +265,7 @@ jtframe_sdram64_latch #(.LATCH(LATCH),.AW(AW)) u_latch(
     .rd         ( rd        ),
     .rd_l       ( rd_l      ),
     .wr         ( wr        ),
-    .wr_l       ( wr_l      ),
+    .wr_l       ( wr_aux    ),
     .noreq      ( noreq     )
 );
 

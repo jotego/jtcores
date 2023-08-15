@@ -76,7 +76,7 @@ reg                 mem_acc, mem_upper;
 reg         [ 3:0]  pcm_bank;
 wire signed [11:0]  pcm_snd;
 wire        [ 1:0]  ct;
-reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rst;
+reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rstn;
 reg         [ 7:0]  upd_latch;
 wire                upd_rst, upd_bsyn;
 reg         [ 7:0]  fxgain;
@@ -121,7 +121,7 @@ always @(posedge clk, posedge rst) begin
         upd_latch <= 8'd0;
         upd_play  <= 1;
     end else begin
-        if( upd_sres && !wr_n ) { title_rst, upd_rstn } <= cpu_dout[2:1];
+        if( upd_sres && !wr_n ) { title_rstn, upd_rstn } <= cpu_dout[2:1];
         if( upd_vdin && !wr_n ) upd_latch <= cpu_dout;
         if( upd_vst  && !wr_n ) upd_play  <= ~cpu_dout[0];
     end
@@ -134,13 +134,14 @@ always @(posedge clk, posedge rst) begin
         title_addr <= 0;
         title_snd  <= 0;
     end else begin
-        if( title_rst ) begin
+        if( !title_rstn ) begin
             title_cs   <= 0;
             title_addr <= 0;
             title_snd  <= 0;
         end else if( cen_20 ) begin
+            title_cs   <= 1;
             title_addr <= title_addr + 1'd1;
-            title_snd  <= { 7'd0, title_data[9:0] } << title_data[12:10];
+            title_snd  <= { ~title_data[12], title_data[11:3], 7'd0 } >>> title_data[15:13];
         end
     end
 end
@@ -157,6 +158,7 @@ always @(*) begin
     title_gain = 8'h10;
 end
 
+/* verilator tracing_off */
 jtframe_mixer #(.W0(16),.W1(16),.W2(12),.W3(9)) u_mixer(
     .rst    ( rst        ),
     .clk    ( clk        ),

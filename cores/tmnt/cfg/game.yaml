@@ -37,7 +37,6 @@ jtframe:
       - jtframe_z80.yaml
 modules:
   jt:
-    - name: jtkcpu
     - name: jt51
     - name: jt7759
 

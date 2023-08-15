@@ -41,6 +41,8 @@ module jttmnt_main(
     input         [15:0] rom_data,
     input                ram_ok,
     input                rom_ok,
+    input                vdtac,
+    input                odtac,
 
     // Sound interface
     output reg    [ 7:0] snd_latch,
@@ -71,7 +73,9 @@ reg         pal_cs, snddt_cs, shoot_cs,
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 reg         intn, LVBLl;
+reg         arst;
 wire        bus_cs, bus_busy, BUSn;
+wire        io_cs, dtac_mux;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -88,60 +92,64 @@ assign cpu_d8   = UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & ~LDSn & ~RnW;
 
-assign st_dout  = 0;
+assign st_dout  = { 7'd0, arst };
 assign VPAn     = ~( A[23] & ~ASn );
+assign io_cs    = !ASn && A[20:16]=='ha;
+assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
 
-always @* begin
-    rom_cs   = 0;
-    ram_cs   = 0;
-    pal_cs   = 0;
-    iowr_cs  = 0;
-    snddt_cs = 0;
-    shoot_cs = 0;
-    dip_cs   = 0;
-    dip3_cs  = 0;
-    syswr_cs = 0;
-    vram_cs  = 0;
-    obj_cs   = 0;
-    if(!ASn) begin
-        if(!A[20]) case( A[19:17] )
-            0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
-            3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
-            4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
-            5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
-                    0: iowr_cs  = 1;
-                    1: snddt_cs = 1;
-                    // 2: watchdog
-                    4: shoot_cs = 1;
-                    6: dip_cs   = 1;
-                    7: dip3_cs  = 1;
-                    default:;
-                endcase
-            6: syswr_cs = 1;    // C'0000 ~ C'FFFF
-            default:;
-        endcase else case(A[18:17]) // 10'0000 ~
-            0: vram_cs = 1;
-            2: obj_cs  = 1;
-            default:;
-        endcase
-    end
-end
+always @(posedge clk) arst <= A[23:1]=='h1000>>1;
 
 always @(posedge clk) begin
-    cpu_din <= rom_cs  ? rom_data  :
+    rom_cs   <= !ASn && A[20:17]<3;
+    ram_cs   <= !ASn && A[20:17]==3 && ~BUSn;
+    pal_cs   <= !ASn && A[20:17]==4;
+    iowr_cs  <= io_cs && !RnW && A[4:3]==0;
+    snddt_cs <= io_cs && !RnW && A[4:3]==1;
+    shoot_cs <= io_cs &&  RnW && A[4:3]==0;
+    dip_cs   <= io_cs &&  RnW && A[4:3]==2;
+    dip3_cs  <= io_cs &&  RnW && A[4:3]==3;
+    syswr_cs <= !ASn && A[20:17]==6;
+    vram_cs  <= !ASn && A[20] && A[18:17]==0 && ~BUSn;
+    obj_cs   <= !ASn && A[20] && A[18:17]==2 && ~BUSn;
+    // if(!ASn) begin
+    //     if(!A[20]) case( A[19:17] )
+    //         0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
+    //         3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
+    //         4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
+    //         5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
+    //                 0: iowr_cs  = 1;
+    //                 1: snddt_cs = 1;
+    //                 // 2: watchdog
+    //                 4: shoot_cs = 1;
+    //                 6: dip_cs   = 1;
+    //                 7: dip3_cs  = 1;
+    //                 default:;
+    //             endcase
+    //         6: syswr_cs = 1;    // C'0000 ~ C'FFFF
+    //         default:;
+    //     endcase else case(A[18:17]) // 10'0000 ~
+    //         0: vram_cs = 1;
+    //         2: obj_cs  = 1;
+    //         default:;
+    //     endcase
+    // end
+end
+
+always @* begin
+    cpu_din =  rom_cs  ? rom_data  :
                ram_cs  ? ram_dout  :
                obj_cs  ? {2{oram_dout}} :
                vram_cs ? {2{vram_dout}} :
                pal_cs  ? {2{pal_dout}}  :
                dip3_cs ? { 12'd0, dipsw[19:16] } :
                (shoot_cs | dip_cs) ? { 8'd0, cab_dout } :
-               16'hffff;
+               { 15'hffff, arst};
 end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         LVBLl <= 0;
-        intn  <= 1;
+        intn  <= 0;
     end else begin
         LVBLl <= LVBL;
         if( !LVBL && LVBLl )
@@ -180,7 +188,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
+jtframe_68kdtack #(.W(6),.RECOVERY(0)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -223,12 +231,12 @@ jtframe_m68k u_cpu(
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
-    .HALTn      ( dip_pause   ),
+    .HALTn      ( /*dip_pause*/ 1'b1   ),
     .BRn        ( 1'b1        ),
     .BGACKn     ( 1'b1        ),
     .BGn        (             ),
 
-    .DTACKn     ( DTACKn      ),
+    .DTACKn     ( dtac_mux    ),
     .IPLn       ( IPLn        ) // VBLANK
 );
 

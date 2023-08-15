@@ -107,7 +107,7 @@ jttmnt_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -153,7 +153,7 @@ jttmnt_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
