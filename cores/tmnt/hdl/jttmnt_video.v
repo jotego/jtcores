@@ -104,12 +104,14 @@ wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ioctl_mmr;
 wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
 reg         pre_odtac, pre_vdtac;
+wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
 assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
 assign ioctl_mmr = ioctl_addr>='h5800;
+assign cpu_weg   = cpu_we && cpu_dsn!=3;
 
 // Debug
 always @(posedge clk) begin
@@ -214,7 +216,7 @@ jtaliens_scroll u_scroll(
     // CPU interface
     .cpu_addr   ( cpu_saddr ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_we     ( cpu_we    ),
+    .cpu_we     ( cpu_weg   ),
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
     .tile_dout  ( tilesys_dout ),
@@ -290,7 +292,7 @@ jtaliens_obj u_obj(    // sprite logic
     .cs         ( objsys_cs ),
     .cpu_addr   ( cpu_oaddr ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_we     ( cpu_we    ),
+    .cpu_we     ( cpu_weg   ),
     .cpu_din    ( objsys_dout),
 
     .irq_n      ( obj_irqn  ),
