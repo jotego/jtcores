@@ -392,7 +392,7 @@ always @(posedge clk, posedge rst) begin
         mmr[TFFCR][3:2] <= 3;
         // port writes by CPU
         if( port_cs && cen ) begin
-            if( addr[6:0]==ADMOD ) begin
+            if( addr[6:1]==ADMOD[6:1] ) begin
                 if( we[1] ) begin
                     mmr[ ADMOD ][5:0] <= { dout[5:3], 1'b0, dout[1:0] };
                     if( dout[2] ) begin
