@@ -220,7 +220,7 @@ endfunction
 assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
 assign ocode_eff = { opal[4], ocode };
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -343,7 +343,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

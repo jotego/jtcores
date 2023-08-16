@@ -88,7 +88,7 @@ assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
-assign cpu_d8   = UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
+assign cpu_d8   = ~UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & ~LDSn & ~RnW;
 
