@@ -76,7 +76,7 @@ module jt052109(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
     output     [ 7:0] mmr_dump,
 
     input      [ 7:0] debug_bus,
@@ -149,6 +149,7 @@ assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
 assign reg_we      = &{cpu_we,we[1],cpu_addr[12:10],gfx_cs};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
+assign ioctl_din   = ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
 
 reg  [5:0] range;
 wire [3:0] range0 = range[5:2],
@@ -287,9 +288,6 @@ always @(posedge clk, posedge rst) begin
         end else begin
             st_dout <= mmr[debug_bus[2:0]];
         end
-
-        // first 16kB, VRAM, after that, MMR
-        ioctl_din <= ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0];
     end
 end
 

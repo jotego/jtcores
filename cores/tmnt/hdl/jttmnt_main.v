@@ -99,44 +99,44 @@ assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
 
 always @(posedge clk) arst <= A[23:1]=='h1000>>1;
 
-always @(posedge clk) begin
-    rom_cs   <= !ASn && A[20:17]<3;
-    ram_cs   <= !ASn && A[20:17]==3 && ~BUSn;
-    pal_cs   <= !ASn && A[20:17]==4;
-    iowr_cs  <= io_cs && !RnW && A[4:3]==0;
-    snddt_cs <= io_cs && !RnW && A[4:3]==1;
-    shoot_cs <= io_cs &&  RnW && A[4:3]==0;
-    dip_cs   <= io_cs &&  RnW && A[4:3]==2;
-    dip3_cs  <= io_cs &&  RnW && A[4:3]==3;
-    syswr_cs <= !ASn && A[20:17]==6;
-    vram_cs  <= !ASn && A[20] && A[18:17]==0 && ~BUSn;
-    obj_cs   <= !ASn && A[20] && A[18:17]==2 && ~BUSn;
-    // if(!ASn) begin
-    //     if(!A[20]) case( A[19:17] )
-    //         0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
-    //         3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
-    //         4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
-    //         5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
-    //                 0: iowr_cs  = 1;
-    //                 1: snddt_cs = 1;
-    //                 // 2: watchdog
-    //                 4: shoot_cs = 1;
-    //                 6: dip_cs   = 1;
-    //                 7: dip3_cs  = 1;
-    //                 default:;
-    //             endcase
-    //         6: syswr_cs = 1;    // C'0000 ~ C'FFFF
-    //         default:;
-    //     endcase else case(A[18:17]) // 10'0000 ~
-    //         0: vram_cs = 1;
-    //         2: obj_cs  = 1;
-    //         default:;
-    //     endcase
-    // end
+always @* begin
+    rom_cs   = 0;  // 0'0000 ~ 5'FFFF
+    ram_cs   = 0;  // 6'0000 ~ 7'FFFF
+    pal_cs   = 0;      // 8'0000 ~ 9'FFFF
+    iowr_cs  = 0;
+    snddt_cs = 0;
+    shoot_cs = 0;
+    dip_cs   = 0;
+    dip3_cs  = 0;
+    syswr_cs = 0;    // C'0000 ~ C'FFFF
+    vram_cs  = 0;
+    obj_cs   = 0;
+    if(!ASn) begin
+        if(!A[20]) case( A[19:17] )
+            0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
+            3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
+            4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
+            5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
+                    0: iowr_cs  = 1;
+                    1: snddt_cs = 1;
+                    // 2: watchdog
+                    4: shoot_cs = 1;
+                    6: dip_cs   = 1;
+                    7: dip3_cs  = 1;
+                    default:;
+                endcase
+            6: syswr_cs = 1;    // C'0000 ~ C'FFFF
+            default:;
+        endcase else case(A[18:17]) // 10'0000 ~
+            0: vram_cs = 1;
+            2: obj_cs  = 1;
+            default:;
+        endcase
+    end
 end
 
-always @* begin
-    cpu_din =  rom_cs  ? rom_data  :
+always @(posedge clk) begin
+    cpu_din <= rom_cs  ? rom_data  :
                ram_cs  ? ram_dout  :
                obj_cs  ? {2{oram_dout}} :
                vram_cs ? {2{vram_dout}} :

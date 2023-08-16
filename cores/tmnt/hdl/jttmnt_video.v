@@ -114,22 +114,22 @@ assign ioctl_mmr = ioctl_addr>='h5800;
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
 
 // Debug
-always @(posedge clk) begin
-    st_dout <= debug_bus[5] ? st_obj : st_scr;
+always @* begin
+    st_dout = debug_bus[5] ? st_obj : st_scr;
     // remember to drive ioctl_ram from game module:
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
     if( ioctl_addr<'h4000 )
-        ioctl_din <= dump_scr;  // 16 kB 0000~3FFF
+        ioctl_din = dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
-        ioctl_din <= dump_pal;  // 4kB 4000~4FFF
+        ioctl_din = dump_pal;  // 4kB 4000~4FFF
     else if( ioctl_addr<'h5800 )
-        ioctl_din <= dump_obj;  // 1kB 5000~5800
+        ioctl_din = dump_obj;  // 1kB 5000~5800
     else if( ioctl_addr<'h5808 )
-        ioctl_din <= dump_scr;  // 8 bytes, MMR 5807
+        ioctl_din = dump_scr;  // 8 bytes, MMR 5807
     else if (ioctl_addr<'h5810)
-        ioctl_din <= dump_obj;  // 7 bytes, MMR 580F
+        ioctl_din = dump_obj;  // 7 bytes, MMR 580F
     else
-        ioctl_din <= { 6'd0, cpu_prio }; // 1 byte, 5810
+        ioctl_din = { 6'd0, cpu_prio }; // 1 byte, 5810
 end
 
 wire [2:0] gfx_de;
@@ -162,6 +162,26 @@ function [31:0] sort( input [31:0] x );
     };
 endfunction
 
+function [31:0] sorto( input [31:0] x );
+    sorto={
+        x[12], x[ 8], x[ 4], x[ 0],
+        x[28], x[24], x[20], x[16],
+        x[13], x[ 9], x[ 5], x[ 1],
+        x[29], x[25], x[21], x[17],
+        x[14], x[10], x[ 6], x[ 2],
+        x[30], x[26], x[22], x[18],
+        x[15], x[11], x[ 7], x[ 3],
+        x[31], x[27], x[23], x[19]
+    };
+endfunction
+
+wire [31:0] odata = sorto(
+    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } );
+wire [3:0] opxls;
+
+jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
+
+
 // object encoding is different from what 051960 expects
 jtframe_prom #(.DW(3), .AW(8)) u_gfx (
     .clk    ( clk        ),
@@ -185,7 +205,7 @@ always @* begin
     endcase
 end
 
-assign lyro_addr = { ca[18:10], oa, ~ca[3] };
+assign lyro_addr = { ca[18:10], oa, ca[3] };
 
 always @* begin
     lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
@@ -304,7 +324,7 @@ jtaliens_obj u_obj(    // sprite logic
     .pal_eff    ( opal_eff  ),
     // ROM
     .rom_addr   ( ca        ),
-    .rom_data   ( sort(lyro_data) ),
+    .rom_data   ( odata     ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
     // pixel output
@@ -354,7 +374,7 @@ jttmnt_colmix u_colmix(
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
-    .lyro_pxl   ( lyro_pxl  ),
+    .lyro_pxl   ( {lyro_pxl[11:4],opxls}  ),
     .shadow     ( shadow    ),
 
     .red        ( red       ),
