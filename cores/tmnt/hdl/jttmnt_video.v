@@ -177,9 +177,9 @@ endfunction
 
 wire [31:0] odata = sorto(
     { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } );
-wire [3:0] opxls;
+// wire [3:0] opxls;
 
-jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
+// jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
 
 
 // object encoding is different from what 051960 expects
@@ -328,7 +328,7 @@ jtaliens_obj u_obj(    // sprite logic
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
     // pixel output
-    .pxl        ( lyro_pxl  ),
+    .pxl        ( { lyro_pxl[11:4], lyro_pxl[0], lyro_pxl[1], lyro_pxl[2], lyro_pxl[3] } ),
     .blank_n    (lyro_blnk_n),
     .shadow     ( shadow    ),
 
@@ -374,7 +374,7 @@ jttmnt_colmix u_colmix(
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
-    .lyro_pxl   ( {lyro_pxl[11:4],opxls}  ),
+    .lyro_pxl   ( lyro_pxl  ),
     .shadow     ( shadow    ),
 
     .red        ( red       ),

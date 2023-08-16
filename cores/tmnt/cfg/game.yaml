@@ -20,7 +20,7 @@ game:
 jtframe:
   - get:
     - jtframe_edge.v
-    - jtframe_sort.v
+    # - jtframe_sort.v
   - from: video
     get:
       - jtframe_vtimer.v
