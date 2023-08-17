@@ -162,9 +162,9 @@ end
 always @(posedge clk) begin
     if(dip_cs) case( A[2:1] )
         ~2'd0: cab_dout <= 0;
-        ~2'd1: cab_dout <= dipsw[7:0];
+        ~2'd1: cab_dout <= { start_button[3], joystick4[6:0] };
         ~2'd2: cab_dout <= dipsw[15:8];
-        ~2'd3: cab_dout <= { start_button[3], joystick4[6:0] };
+        ~2'd3: cab_dout <= dipsw[7:0];
     endcase
     else case( A[2:1] )
         ~2'd0: cab_dout <= { start_button[2], joystick3[6:0] };
@@ -240,6 +240,11 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
+    integer framecnt=0;
+    always @(posedge LVBL) begin
+        framecnt <=framecnt+1;
+        sndon    <=framecnt==10;
+    end
     initial begin
         rmrd      = 0;
         prio      = 0;
@@ -247,8 +252,8 @@ jtframe_m68k u_cpu(
         ram_cs    = 0;
         vram_cs   = 0;
         obj_cs    = 0;
-        snd_latch = 0;
-        sndon     = 0;
+        snd_latch = 'h63;
+        // sndon     = 0;
     end
     assign
         st_dout   = 0,
