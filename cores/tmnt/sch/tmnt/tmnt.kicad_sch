@@ -1163,6 +1163,10 @@
     )
   )
 
+  (text "OK" (at 200.66 120.65 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 929ec09d-4805-407b-bafc-1ff2cccf5875)
+  )
   (text "OK" (at 201.93 68.58 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e039fac1-0774-4654-b3c7-c05fac7133e8)
