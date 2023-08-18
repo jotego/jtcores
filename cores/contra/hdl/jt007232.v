@@ -99,7 +99,7 @@ wire [16:0] cha_addr = { mmr[4][0], mmr[3], mmr[2] };
 wire [ 1:0] cha_presel = mmr[1][5:4];
 reg         cha_play, cha_load;
 wire        cha_loop = mmr[13][0];
-wire signed [4:0] cha_gain = {1'b0, REG12A[0]^swap_gains ? mmr[12][7:4] : mmr[12][3:0] };
+wire signed [4:0] cha_gain = {1'b0, (REG12A[0]^swap_gains) ? mmr[12][7:4] : mmr[12][3:0] };
 
 // Channel B control
 wire [11:0] chb_pres = { mmr[7][3:0], mmr[6] };
