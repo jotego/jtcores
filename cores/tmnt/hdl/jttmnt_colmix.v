@@ -87,10 +87,14 @@ always @* begin
     pxl[9:8] = { ~prio_sel[1], ~|{prio_sel[0], ~prio_sel[1]} };
 end
 
+function [7:0] dim75( input [7:0] d );
+    dim75 = d - (d>>2);
+endfunction
+
 function [23:0] dim( input [14:0] cin, input shade );
-    dim = !shade? {   1'b0, cin[14:10], cin[14:13],
-                      1'b0, cin[ 9: 5], cin[ 9: 8],
-                      1'b0, cin[ 4: 0], cin[ 4: 3] } :
+    dim = !shade? { dim75( {cin[14:10], cin[14:12]} ),
+                    dim75( {cin[ 9: 5], cin[ 9: 7]} ),
+                    dim75( {cin[ 4: 0], cin[ 4: 2]} ) } :
                  { cin[14:10], cin[14:12],
                    cin[ 9: 5], cin[ 9: 7],
                    cin[ 4: 0], cin[ 4: 2] };

@@ -278,6 +278,6 @@ assign  rom_addr   = 0;
 assign  snd        = 0;
 assign  peak       = 0;
 assign  sample     = 0;
-initial st_dout    = 0;
+assign  st_dout    = 0;
 `endif
 endmodule
