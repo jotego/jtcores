@@ -57,12 +57,11 @@ module jttmnt_sound(
     output               sample,
     output               peak,
     // Debug
-    input      [7:0] debug_bus,
-    output reg [7:0] st_dout
+    input         [ 7:0] debug_bus,
+    output        [ 7:0] st_dout
 );
 `ifndef NOSOUND
 
-reg         [ 7:0]  fmgain, pcmgain, updgain, title_gain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
@@ -87,14 +86,7 @@ assign upd_rst  = ~upd_rstn | rst;
 assign rom_addr = A[14:0];
 assign title_cs = 1;
 assign fm_mono  = fm_left+fm_right;
-
-always @(*) begin
-    case( debug_bus[5:4])
-        2: st_dout = snd[7:0];
-        3: st_dout = snd[15:8];
-        default: st_dout = snd_latch;
-    endcase
-end
+assign st_dout  = snd_latch;
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -154,27 +146,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// `ifdef JTFRAME_RELEASE
-initial begin
-    fmgain     = 8'h0c; // music
-    pcmgain    = 8'h04; // percussion
-    updgain    = 8'h02; // voices (fire! hang on April)
-    title_gain = 8'h02; // theme song
-end
-// `else
-// always @(posedge clk, posedge rst) begin
-//     fmgain     <= 8'h01 << debug_bus[7:6];
-//     updgain    <= 8'h01 << debug_bus[5:4];
-//     pcmgain    <= 8'h01 << debug_bus[3:2];
-//     title_gain <= 8'h01 << debug_bus[1:0];
-// end
-// `endif
-
-assign snd = debug_bus[2:0] == 0 ? snd_mix :
-             debug_bus[2:0] == 1 ? fm_mono[16:1] :
-             debug_bus[2:0] == 2 ? {pcm_snd,4'd0} :
-             debug_bus[2:0] == 3 ? {upd_snd,7'd0} : title_snd;
-
 /* verilator tracing_on */
 jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
     .rst    ( rst        ),
@@ -184,11 +155,11 @@ jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
     .ch1    ( pcm_snd    ),
     .ch2    ( upd_snd    ),
     .ch3    ( title_snd  ),
-    .gain0  ( 8'h0A ), //fmgain     ), // music
-    .gain1  ( 8'h04 ), //pcmgain    ), // percussion
-    .gain2  ( 8'h02 ), //updgain    ), // voices (fire! hang on April)
-    .gain3  ( 8'h02 ), //title_gain ), // theme song
-    .mixed  ( snd_mix    ),
+    .gain0  ( 8'h20      ), // music
+    .gain1  ( 8'h08      ), // percussion
+    .gain2  ( 8'h10      ), // voices (fire! hang on April)
+    .gain3  ( 8'h08      ), // theme song
+    .mixed  ( snd        ),
     .peak   ( peak       )
 );
 
