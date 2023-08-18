@@ -19,7 +19,7 @@ skip = { machines=[
 
 [buttons]
 names = [
-    { machine="tmnt", names="Attack,Jump" },
+    { machine="tmnt", names="Jump, Attack" },
 ]
 
 # [header]
