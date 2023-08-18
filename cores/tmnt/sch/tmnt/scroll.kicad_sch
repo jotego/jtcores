@@ -7675,7 +7675,7 @@
   (symbol (lib_id "74xx:74LS07") (at 82.55 146.05 0) (unit 4)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 972fb263-3c7a-4246-a7e2-2412018cab59)
-    (property "Reference" "U1" (at 82.55 144.78 0)
+    (property "Reference" "H13" (at 82.55 144.78 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "74LS07" (at 82.55 147.32 0)
@@ -7704,7 +7704,7 @@
     (instances
       (project "tmnt"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/f83f1ce0-d795-402e-aef8-a0e131f12b70"
-          (reference "U1") (unit 4)
+          (reference "H13") (unit 4)
         )
       )
     )

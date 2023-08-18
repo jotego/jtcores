@@ -6981,7 +6981,7 @@
         (number "70" (effects (font (size 1.27 1.27))))
       )
       (pin input inverted (at -6.35 -33.02 90) (length 5.08)
-        (name "~{RW}" (effects (font (size 1.27 1.27))))
+        (name "S~{RD}" (effects (font (size 1.27 1.27))))
         (number "71" (effects (font (size 1.27 1.27))))
       )
       (pin input inverted (at -8.89 -33.02 90) (length 5.08)
