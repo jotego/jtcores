@@ -1,0 +1,43 @@
+game:
+  - from: tmnt
+    get:
+      - jttmnt_game.v
+      - jttmnt_main.v
+      - jttmnt_sound.v
+      - jttmnt_video.v
+      - jttmnt_colmix.v
+  - from: aliens
+    get:
+      - jtaliens_scroll.v
+      - jtaliens_obj.v
+      - jt052109.v
+      - jt051962.v
+      - jt051960.v
+      # - jt051937.v
+  - from: contra
+    get:
+      - jt007232.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: cpu
+    unless: NOMAIN
+    get:
+      - jtframe_m68k.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+modules:
+  jt:
+    - name: jt51
+    - name: jt7759
+
+
