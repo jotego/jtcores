@@ -174,8 +174,12 @@ cd $JTROOT/release
 cp -r mister mra $JTBIN
 cd $JTBIN
 git add *
-git commit -m "$CORE - JTFriday "$(date --date=friday +"%Y-%m-%d")
+git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
 git tag --force $TAG
+
+# Prepare the zip files
+echo "Creating zip files"
+cpbeta.sh $CORE
 
 echo "Adding the reference to JTBIN's wiki"
 cd $JTBIN/../jtbin.wiki
@@ -183,13 +187,9 @@ git pull
 if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
     ./addcore.sh $CORE
     git commit -m "Added $CORE"
-    echo "Remember to push jtbin.wiki"
     # git push
 fi
 
-# Prepare the zip files
-echo "Creating zip files"
-cpbeta.sh $CORE
 
 # Show problems
 BETALOG=$JTROOT/log/update.log
