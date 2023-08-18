@@ -159,6 +159,8 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+always @(posedge rmrd) $display("RMRD high");
+
 always @(posedge clk) begin
     if(dip_cs) case( A[2:1] )
         ~2'd0: cab_dout <= 0;

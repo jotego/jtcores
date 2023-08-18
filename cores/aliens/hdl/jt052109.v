@@ -229,12 +229,12 @@ always @* begin
         2: vmux = vsub_b;
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
-    vflip = col_cfg[1] & vflip_en;
     vc = { scan_dout[7:0], vmux^{3{vflip}} };
     if( rmrd ) begin
         col_cfg = mmr[REG_RMRD];
         vc      = cpu_addr[12:2];
     end
+    vflip = col_cfg[1] & vflip_en; // must be after rmrd check, as it changes col_cfg
 end
 
 `ifdef SIMULATION
@@ -372,6 +372,7 @@ always @(posedge clk) begin
                 3: if( rd_hpos || rscrb_en ) hposb[8]   <= scan_dout[0];
             endcase
         end
+        if( rmrd ) lyra_addr <= { cab, cpu_addr[12:2] };
     end
 end
 

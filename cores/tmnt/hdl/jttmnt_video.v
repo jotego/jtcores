@@ -66,6 +66,7 @@ module jttmnt_video(
     output            lyrb_cs,
     output            lyro_cs,
 
+    input             lyra_ok,
     input             lyro_ok,
 
     input      [31:0] lyrf_data,
@@ -145,8 +146,7 @@ always @(posedge clk) begin
         vdtac <= pre_vdtac;
     end
     if( !objsys_cs  ) { pre_odtac, odtac } <= 1;
-    if( !tilesys_cs ) { pre_vdtac, vdtac } <= 1;
-
+    if( !tilesys_cs || (rmrd && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
 end
 
 function [31:0] sort( input [31:0] x );
@@ -220,7 +220,7 @@ endfunction
 assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
 assign ocode_eff = { opal[4], ocode };
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtaliens_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -295,7 +295,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtaliens_obj u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),

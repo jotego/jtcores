@@ -23,7 +23,6 @@ module jttmnt_sound(
     input           cen_fm2,
     input           cen_640,
     input           cen_20,
-    input   [ 1:0]  fxlevel,
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -63,13 +62,14 @@ module jttmnt_sound(
 );
 `ifndef NOSOUND
 
-reg         [ 7:0]  fmgain, updgain, title_gain;
+reg         [ 7:0]  fmgain, pcmgain, updgain, title_gain;
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs;
 wire signed [15:0]  fm_left, fm_right;
+wire signed [16:0]  fm_mono;
 wire signed [ 8:0]  upd_snd;
 wire                cpu_cen;
 reg                 mem_acc, mem_upper;
@@ -79,13 +79,22 @@ wire        [ 1:0]  ct;
 reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rstn;
 reg         [ 7:0]  upd_latch;
 wire                upd_rst, upd_bsyn;
-reg         [ 7:0]  fxgain;
 reg signed  [15:0]  title_snd; // bit 0 is always discarded
+wire signed [15:0]  snd_mix;
 
 assign upd_rst  = ~upd_rstn | rst;
 
 assign rom_addr = A[14:0];
 assign title_cs = 1;
+assign fm_mono  = fm_left+fm_right;
+
+always @(*) begin
+    case( debug_bus[5:4])
+        2: st_dout = snd[7:0];
+        3: st_dout = snd[15:8];
+        default: st_dout = snd_latch;
+    endcase
+end
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -118,7 +127,7 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         upd_rstn  <= 0;
-        upd_latch <= 8'd0;
+        upd_latch <= 0;
         upd_play  <= 1;
     end else begin
         if( upd_sres && !wr_n ) { title_rstn, upd_rstn } <= cpu_dout[2:1];
@@ -145,52 +154,45 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-reg dbg_l;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        st_dout    <= 0;
-        fmgain     <= 8'h0c;
-        fxgain     <= 8'h0c; // percussion in 1st stage theme
-        updgain    <= 8'h0c; // cowa bunga
-        title_gain <= 8'h04;
-        dbg_l      <= 0;
-    end else begin
-        dbg_l <= debug_bus[5];
-        case( debug_bus[7:6])
-            0: st_dout <= fmgain;
-            1: st_dout <= updgain;
-            2: st_dout <= fxgain;
-            3: st_dout <= title_gain;
-        endcase
-        if( dbg_l && !debug_bus[5] ) begin
-            case( debug_bus[7:6])
-                0: fmgain[4:0]     <= debug_bus[4:0];
-                1: updgain[4:0]    <= debug_bus[4:0];
-                2: fxgain[4:0]     <= debug_bus[4:0];
-                3: title_gain[4:0] <= debug_bus[4:0];
-            endcase
-        end
-    end
+// `ifdef JTFRAME_RELEASE
+initial begin
+    fmgain     = 8'h08; // music
+    pcmgain    = 8'h02; // percussion
+    updgain    = 8'h02; // voices (fire! hang on April)
+    title_gain = 8'h02; // theme song
 end
+// `else
+// always @(posedge clk, posedge rst) begin
+//     fmgain     <= 8'h01 << debug_bus[7:6];
+//     updgain    <= 8'h01 << debug_bus[5:4];
+//     pcmgain    <= 8'h01 << debug_bus[3:2];
+//     title_gain <= 8'h01 << debug_bus[1:0];
+// end
+// `endif
 
-/* verilator tracing_off */
-jtframe_mixer #(.W0(16),.W1(16),.W2(12),.W3(9)) u_mixer(
+assign snd = debug_bus[2:0] == 0 ? snd_mix :
+             debug_bus[2:0] == 1 ? fm_mono[16:1] :
+             debug_bus[2:0] == 2 ? {pcm_snd,4'd0} :
+             debug_bus[2:0] == 3 ? {upd_snd,7'd0} : title_snd;
+
+/* verilator tracing_on */
+jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
     .rst    ( rst        ),
     .clk    ( clk        ),
     .cen    ( cen_fm     ),
-    .ch0    ( fm_left    ),
-    .ch1    ( title_snd  ),
-    .ch2    ( pcm_snd    ),
-    .ch3    ( upd_snd    ),
-    .gain0  ( {3'd0,fmgain[4:0]}     ),
-    .gain1  ( {3'd0,title_gain[4:0]} ),
-    .gain2  ( {3'd0,fxgain[4:0]}     ),
-    .gain3  ( {3'd0,updgain[4:0]}    ),
-    .mixed  ( snd        ),
+    .ch0    (fm_mono[16:1]),
+    .ch1    ( pcm_snd    ),
+    .ch2    ( upd_snd    ),
+    .ch3    ( title_snd  ),
+    .gain0  ( 8'h0A ), //fmgain     ),
+    .gain1  ( 8'h02 ), //pcmgain    ),
+    .gain2  ( 8'h02 ), //updgain    ),
+    .gain3  ( 8'h02 ), //title_gain ),
+    .mixed  ( snd_mix    ),
     .peak   ( peak       )
 );
 
+/* verilator tracing_off */
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
@@ -238,9 +240,9 @@ jt51 u_jt51(
     .xleft      ( fm_left   ),
     .xright     ( fm_right  )
 );
-/* verilator tracing_on */
 
-jt007232 #(.REG12A(0),.INVA0(1)) u_pcm(
+/* verilator tracing_on */
+jt007232 u_pcm(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -250,7 +252,7 @@ jt007232 #(.REG12A(0),.INVA0(1)) u_pcm(
     .cen_e      (           ),
     .wr_n       ( wr_n      ),
     .din        ( cpu_dout  ),
-    .swap_gains ( 1'b1      ),
+    .swap_gains ( 1'b0      ),
 
     // External memory - the original chip
     // only had one bus
@@ -271,7 +273,7 @@ jt007232 #(.REG12A(0),.INVA0(1)) u_pcm(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_pcm    )
 );
-
+/* verilator tracing_off */
 jt7759 u_upd(
     .rst        ( upd_rst   ),
     .clk        ( clk       ),

@@ -141,7 +141,7 @@ endfunction
 // Tile ROM reads by the CPU
 // This will need to include a wait state
 always @(posedge clk) begin
-    case( cpu_addr )
+    case( cpu_addr^debug_bus[1:0] )
         2'd0: cpu_din <= lyra_data[ 7: 0];
         2'd1: cpu_din <= lyra_data[15: 8];
         2'd2: cpu_din <= lyra_data[23:16];

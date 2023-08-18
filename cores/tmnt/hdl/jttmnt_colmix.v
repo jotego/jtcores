@@ -65,6 +65,7 @@ wire [ 7:0] pal_dout;
 wire [ 7:0] prio_addr;
 reg         pal_half, shl;
 reg  [ 9:0] pxl;
+reg  [ 7:0] lhbl_sh;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 wire [11:0] pal_addr;
@@ -75,7 +76,7 @@ assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
 
 assign pal_addr  = { 1'b0, pxl, pal_half };
 assign ioctl_din = pal_dout;
-assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
+assign {blue,green,red} = &{lvbl,lhbl,lhbl_sh} ? bgr : 24'd0;
 
 always @* begin
     case( prio_sel )
@@ -108,6 +109,8 @@ always @(posedge clk) begin
         pxl_aux <= {1'b0,{3{pxl[4:0]}}};
 `endif
         if( pxl_cen ) begin
+            lhbl_sh <= lhbl_sh<<1;
+            lhbl_sh[0] <= lhbl;
             shl <= shad;
             bgr <= dim(pxl_aux[14:0], shl);
             pal_half <= 0;

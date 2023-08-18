@@ -38,10 +38,10 @@ assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= st_video;
-        1: debug_mux <= st_snd;
-        2: debug_mux <= { 1'b0, rmrd, prio, 4'd0 };
-        3: debug_mux <= st_main;
+        0: debug_mux <= st_main;
+        1: debug_mux <= st_video;
+        2: debug_mux <= st_snd;
+        3: debug_mux <= { 2'd0, prio, 3'd0, rmrd };
     endcase
 end
 
@@ -57,7 +57,7 @@ end
 //     end
 // end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -107,7 +107,7 @@ jttmnt_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -115,7 +115,6 @@ jttmnt_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_640    ( cen_640       ),
     .cen_20     ( cen_20        ),
-    .fxlevel    ( dip_fxlevel   ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -199,6 +198,7 @@ jttmnt_video u_video (
     .lyra_cs        ( lyra_cs       ),
     .lyrb_cs        ( lyrb_cs       ),
     .lyro_cs        ( lyro_cs       ),
+    .lyra_ok        ( lyra_ok       ),
     .lyro_ok        ( lyro_ok       ),
     // pixels
     .red            ( red           ),
