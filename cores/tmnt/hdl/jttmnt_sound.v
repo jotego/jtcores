@@ -156,8 +156,8 @@ end
 
 // `ifdef JTFRAME_RELEASE
 initial begin
-    fmgain     = 8'h08; // music
-    pcmgain    = 8'h02; // percussion
+    fmgain     = 8'h0c; // music
+    pcmgain    = 8'h04; // percussion
     updgain    = 8'h02; // voices (fire! hang on April)
     title_gain = 8'h02; // theme song
 end
