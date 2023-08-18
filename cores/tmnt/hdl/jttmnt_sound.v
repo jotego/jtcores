@@ -184,10 +184,10 @@ jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
     .ch1    ( pcm_snd    ),
     .ch2    ( upd_snd    ),
     .ch3    ( title_snd  ),
-    .gain0  ( 8'h0A ), //fmgain     ),
-    .gain1  ( 8'h02 ), //pcmgain    ),
-    .gain2  ( 8'h02 ), //updgain    ),
-    .gain3  ( 8'h02 ), //title_gain ),
+    .gain0  ( 8'h0A ), //fmgain     ), // music
+    .gain1  ( 8'h04 ), //pcmgain    ), // percussion
+    .gain2  ( 8'h02 ), //updgain    ), // voices (fire! hang on April)
+    .gain3  ( 8'h02 ), //title_gain ), // theme song
     .mixed  ( snd_mix    ),
     .peak   ( peak       )
 );

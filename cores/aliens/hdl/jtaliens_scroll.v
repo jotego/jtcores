@@ -85,6 +85,9 @@ module jtaliens_scroll(
     output     [ 7:0] st_dout
 );
 
+parameter [8:0] HB_EXTRAL=0,
+                HB_EXTRAR=0;
+
 wire [ 7:0] tilemap_dout, tilerom_dout;
 wire [ 2:0] hsub_a, hsub_b;
 wire        hflip_en;
@@ -149,7 +152,10 @@ jt052109 u_tilemap(
 );
 
 /* verilator tracing_on */
-jt051962 u_draw(
+jt051962 #(
+    .HB_EXTRAL  ( HB_EXTRAL ),
+    .HB_EXTRAR  ( HB_EXTRAR )
+) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

@@ -229,12 +229,9 @@ always @* begin
         2: vmux = vsub_b;
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
-    vc = { scan_dout[7:0], vmux^{3{vflip}} };
-    if( rmrd ) begin
-        col_cfg = mmr[REG_RMRD];
-        vc      = cpu_addr[12:2];
-    end
+    if( rmrd ) col_cfg = mmr[REG_RMRD];
     vflip = col_cfg[1] & vflip_en; // must be after rmrd check, as it changes col_cfg
+    vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end
 
 `ifdef SIMULATION

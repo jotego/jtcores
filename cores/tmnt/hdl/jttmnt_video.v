@@ -221,7 +221,17 @@ assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
 assign ocode_eff = { opal[4], ocode };
 
 /* verilator tracing_on */
-jtaliens_scroll u_scroll(
+// extra blanking added to help MiSTer output
+// on real hardware, it would've been manually
+// adjusted on the CRT.
+// This is needed to prevent sprites over the left border
+// and it also prevents a bad column of background at
+// the end of stage 2
+// It also makes the grid look squared, wihtout nothing hanging off the sides
+jtaliens_scroll #(
+    .HB_EXTRAL( 9'd8 ),
+    .HB_EXTRAR( 9'd8 )
+) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
