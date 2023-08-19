@@ -23,24 +23,40 @@ module jttmnt_sound(
     input           cen_fm2,
     input           cen_640,
     input           cen_20,
+    input   [ 2:0]  game_id,
     // communication with main CPU
+    input   [ 7:0]  main_dout,  // bus access for Punk Shot
+    output  [ 7:0]  main_din,
+    input           main_addr,
+    input           main_rnw,
+
     input           snd_irq,
-    input   [ 7:0]  snd_latch,
+    input   [ 7:0]  snd_latch,  // latch for other games
     // ROM
     output  [14:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output   [16:0] pcma_addr,
+    output   [21:0] pcma_addr,
     input    [ 7:0] pcma_dout,
     output          pcma_cs,
     input           pcma_ok,
 
-    output   [16:0] pcmb_addr,
+    output   [21:0] pcmb_addr,
     input    [ 7:0] pcmb_dout,
     output          pcmb_cs,
     input           pcmb_ok,
+
+    output   [21:0] pcmc_addr,
+    input    [ 7:0] pcmc_dout,
+    output          pcmc_cs,
+    input           pcmc_ok,
+
+    output   [21:0] pcmd_addr,
+    input    [ 7:0] pcmd_dout,
+    output          pcmd_cs,
+    input           pcmd_ok,
     // UPD ADPCM ROM
     output  [16:0]  upd_addr,
     output          upd_cs,
@@ -53,46 +69,75 @@ module jttmnt_sound(
     input           title_ok,
 
     // Sound output
-    output signed [15:0] snd,
+    output reg signed [15:0] snd_left, snd_right,
     output               sample,
-    output               peak,
+    output reg           peak,
     // Debug
     input         [ 7:0] debug_bus,
     output        [ 7:0] st_dout
 );
 `ifndef NOSOUND
 
-wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm;
+`include "game_id.inc"
+
+wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, k60_dout;
 wire        [15:0]  A;
+wire        [16:0]  k32a_addr, k32b_addr;
+wire        [21:0]  k60a_addr, k60b_addr;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
-reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs;
-wire signed [15:0]  fm_left, fm_right;
+reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs, k60_cs;
+wire signed [15:0]  fm_left, fm_right, pre_mono, pre_l, pre_r;
+wire signed [14:0]  k60_l, k60_r;
 wire signed [16:0]  fm_mono;
 wire signed [ 8:0]  upd_snd;
-wire                cpu_cen;
+wire                cpu_cen, peak_mono, peak_l, peak_r;
 reg                 mem_acc, mem_upper;
 reg         [ 3:0]  pcm_bank;
 wire signed [11:0]  pcm_snd;
 wire        [ 1:0]  ct;
 reg                 upd_rstn, upd_play, upd_sres, upd_vdin, upd_vst, title_rstn;
 reg         [ 7:0]  upd_latch;
-wire                upd_rst, upd_bsyn;
+wire                upd_bsyn;
 reg signed  [15:0]  title_snd; // bit 0 is always discarded
 wire signed [15:0]  snd_mix;
-
-assign upd_rst  = ~upd_rstn | rst;
+wire                upper4k;
+reg                 upd_rst, k7232_rst, k53260_rst, k60;
 
 assign rom_addr = A[14:0];
 assign title_cs = 1;
 assign fm_mono  = fm_left+fm_right;
 assign st_dout  = snd_latch;
+assign upper4k  = &A[15:12];
+assign pcma_addr = k60 ? k60a_addr : { 5'd0, k32a_addr };
+assign pcmb_addr = k60 ? k60b_addr : { 5'd0, k32b_addr };
+
+always @(posedge clk) begin
+    // keep unused chips in reset state
+    if( game_id==PUNKSHOT ) begin
+       k60        <= 1;
+       upd_rst    <= 1;
+       k7232_rst  <= 1;
+       k53260_rst <= rst;
+       peak       <= peak_l | peak_r;
+       snd_left   <= pre_l;
+       snd_right  <= pre_r;
+    end else begin
+       k60        <= 0;
+       upd_rst    <= ~upd_rstn | rst;
+       k7232_rst  <= rst;
+       k53260_rst <= 1;
+       peak       <= peak_mono;
+       snd_left   <= pre_mono;
+       snd_right  <= pre_mono;
+    end
+end
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
     rom_cs   = mem_acc && !A[15] && !rd_n;
     // Devices
-    mem_upper = mem_acc && A[15];
+    mem_upper= mem_acc &&  A[15];
     // the schematics show an IOCK output which
     // isn't connected on the real PCB
     ram_cs   = mem_upper && A[14:12]==0; // 8xxx
@@ -103,6 +148,22 @@ always @(*) begin
     upd_vdin = mem_upper && A[14:12]==5; // Dxxx
     upd_vst  = mem_upper && A[14:12]==6; // Exxx
     bsy_cs   = mem_upper && A[14:12]==7; // Fxxx
+    k60_cs   = 0;
+
+    if( game_id==PUNKSHOT ) begin
+        mem_upper = mem_acc &  upper4k;
+        rom_cs    = mem_acc & ~upper4k;
+        ram_cs    = mem_upper && A[11]==0;
+        fm_cs     = mem_upper && A[11:9]==4;
+        nmi_clr   = mem_upper && A[11:9]==5;
+        k60_cs    = mem_upper && A[11:9]==6; // 53260
+        dac_cs    = 0;
+        latch_cs  = 0;
+        upd_sres  = 0;
+        upd_vdin  = 0;
+        upd_vst   = 0;
+        bsy_cs    = 0;
+    end
 end
 
 always @(*) begin
@@ -110,6 +171,7 @@ always @(*) begin
         rom_cs:      cpu_din = rom_data;
         ram_cs:      cpu_din = ram_dout;
         latch_cs:    cpu_din = snd_latch;
+        k60_cs:      cpu_din = k60_dout;
         fm_cs:       cpu_din = fm_dout;
         bsy_cs:      cpu_din = { 7'h0, upd_bsyn };
         default:     cpu_din = 8'hff;
@@ -118,9 +180,10 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        upd_rstn  <= 0;
-        upd_latch <= 0;
-        upd_play  <= 1;
+        upd_rstn   <= 0;
+        upd_latch  <= 0;
+        upd_play   <= 1;
+        title_rstn <= 0;
     end else begin
         if( upd_sres && !wr_n ) { title_rstn, upd_rstn } <= cpu_dout[2:1];
         if( upd_vdin && !wr_n ) upd_latch <= cpu_dout;
@@ -159,8 +222,40 @@ jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
     .gain1  ( 8'h08      ), // percussion
     .gain2  ( 8'h10      ), // voices (fire! hang on April)
     .gain3  ( 8'h08      ), // theme song
-    .mixed  ( snd        ),
-    .peak   ( peak       )
+    .mixed  ( pre_mono   ),
+    .peak   ( peak_mono  )
+);
+
+jtframe_mixer #(.W0(16),.W1(14)) u_punkmx_l(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cen    ( cen_fm     ),
+    .ch0    ( fm_left    ),
+    .ch1    ( k60_l      ),
+    .ch2    ( 16'd0      ),
+    .ch3    ( 16'd0      ),
+    .gain0  ( 8'h10      ), // music
+    .gain1  ( 8'h10      ), // percussion
+    .gain2  ( 8'h00      ), // voices (fire! hang on April)
+    .gain3  ( 8'h00      ), // theme song
+    .mixed  ( pre_l      ),
+    .peak   ( peak_l     )
+);
+
+jtframe_mixer #(.W0(16),.W1(14)) u_punkmx_r(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cen    ( cen_fm     ),
+    .ch0    ( fm_right   ),
+    .ch1    ( k60_r      ),
+    .ch2    ( 16'd0      ),
+    .ch3    ( 16'd0      ),
+    .gain0  ( 8'h10      ), // music
+    .gain1  ( 8'h10      ), // percussion
+    .gain2  ( 8'h00      ), // voices (fire! hang on April)
+    .gain3  ( 8'h00      ), // theme song
+    .mixed  ( pre_r      ),
+    .peak   ( peak_r     )
 );
 
 /* verilator tracing_off */
@@ -213,8 +308,53 @@ jt51 u_jt51(
 );
 
 /* verilator tracing_on */
+jt053260 u_pcm(
+    .rst        ( k53260_rst),
+    .clk        ( clk       ),
+    .cen        ( cen_fm    ),
+    // Main CPU interface
+    .ma0        ( main_addr ),
+    .mrdnw      ( main_rnw  ),
+    .mcs        ( 1'b1      ),
+    .mdin       ( main_din  ),
+    .mdout      ( main_dout ),
+    // Sub CPU control
+    .addr       ( A[5:0]    ),
+    .rd_n       ( rd_n      ),
+    .wr_n       ( wr_n      ),
+    .cs         ( k60_cs    ),
+    .dout       ( k60_dout  ),
+    .din        ( cpu_dout  ),
+
+    // External memory - the original chip
+    // only had one bus
+    .roma_addr  ( pcma_addr ),
+    .roma_data  ( pcma_dout ),
+    .roma_cs    ( pcma_cs   ),
+    // .roma_ok    ( pcma_ok   ),
+
+    .romb_addr  ( pcmb_addr ),
+    .romb_data  ( pcmb_dout ),
+    .romb_cs    ( pcmb_cs   ),
+    // .romb_ok    ( pcmb_ok   ),
+
+    .romc_addr  ( pcmc_addr ),
+    .romc_data  ( pcmc_dout ),
+    .romc_cs    ( pcmc_cs   ),
+    // .romc_ok    ( pcmc_ok   ),
+
+    .romd_addr  ( pcmd_addr ),
+    .romd_data  ( pcmd_dout ),
+    .romd_cs    ( pcmd_cs   ),
+    // .romd_ok    ( pcmd_ok   ),
+    // sound output - raw
+    .snd_l      ( k60_l     ),
+    .snd_r      ( k60_r     ),
+    .sample     (           )
+);
+
 jt007232 u_pcm(
-    .rst        ( rst       ),
+    .rst        ( k7232_rst ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
     .addr       ( A[3:0]    ),
@@ -227,12 +367,12 @@ jt007232 u_pcm(
 
     // External memory - the original chip
     // only had one bus
-    .roma_addr  ( pcma_addr ),
+    .roma_addr  ( k32a_addr),
     .roma_dout  ( pcma_dout ),
     .roma_cs    ( pcma_cs   ),
     .roma_ok    ( pcma_ok   ),
 
-    .romb_addr  ( pcmb_addr ),
+    .romb_addr  ( k32b_addr ),
     .romb_dout  ( pcmb_dout ),
     .romb_cs    ( pcmb_cs   ),
     .romb_ok    ( pcmb_ok   ),

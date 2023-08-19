@@ -29,6 +29,9 @@ module jttmnt_main(
     output        [ 7:0] cpu_d8,
     output               cpu_we,
     output               pal_we,
+    // K053260 (PCM sound in Punk Shot)
+    output reg           snd_wrn,
+    input         [ 7:0] snd2main,
 
     output reg           rom_cs,
     output reg           ram_cs,
@@ -44,6 +47,8 @@ module jttmnt_main(
     input                rom_ok,
     input                vdtac,
     input                odtac,
+    input                tile_irqn,
+    input                tile_nmin,
 
     // Sound interface
     output reg    [ 7:0] snd_latch,
@@ -86,7 +91,7 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = { intn, 1'b1, intn };
+assign IPLn     = game_id==PUNKSHOT ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
@@ -100,15 +105,15 @@ assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
 
 always @* begin
-    rom_cs   = 0;  // 0'0000 ~ 5'FFFF
-    ram_cs   = 0;  // 6'0000 ~ 7'FFFF
-    pal_cs   = 0;      // 8'0000 ~ 9'FFFF
+    rom_cs   = 0;
+    ram_cs   = 0;
+    pal_cs   = 0;
     iowr_cs  = 0;
     snddt_cs = 0;
     shoot_cs = 0;
     dip_cs   = 0;
     dip3_cs  = 0;
-    syswr_cs = 0;    // C'0000 ~ C'FFFF
+    syswr_cs = 0;
     vram_cs  = 0;
     obj_cs   = 0;
     if(!ASn) begin

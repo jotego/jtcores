@@ -24,8 +24,8 @@ module jttmnt_game(
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
-wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin;
-wire [ 7:0] tilesys_dout, objsys_dout,
+wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
+wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout, pal_dout, cpu_d8,
             st_main, st_video, st_snd;
 wire [ 1:0] prio;
@@ -62,6 +62,8 @@ jttmnt_main u_main(
     .cpu_dout       ( ram_din       ),
     .odtac          ( odtac         ),
     .vdtac          ( vdtac         ),
+    .tile_irqn      ( tile_irqn     ),
+    .tile_nmin      ( tile_nmin     ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -93,6 +95,8 @@ jttmnt_main u_main(
     // To sound
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
+    .snd2main       ( snd2main      ),
+    .snd_wrn        ( snd_wrn       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
     .dipsw          ( dipsw[19:0]   ),
@@ -108,7 +112,12 @@ jttmnt_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_640    ( cen_640       ),
     .cen_20     ( cen_20        ),
+    .game_id    ( game_id       ),
     // communication with main CPU
+    .main_dout  ( cpu_d8        ),
+    .main_din   ( snd2main      ),
+    .main_addr  ( main_addr[0]  ),
+    .main_rnw   ( snd_wrn       ),
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
     // ROM
@@ -127,6 +136,16 @@ jttmnt_sound u_sound(
     .pcmb_cs    ( pcmb_cs       ),
     .pcmb_ok    ( pcmb_ok       ),
 
+    .pcmc_addr  ( pcmc_addr     ),
+    .pcmc_dout  ( pcmc_data     ),
+    .pcmc_cs    ( pcmc_cs       ),
+    .pcmc_ok    ( pcmc_ok       ),
+
+    .pcmd_addr  ( pcmd_addr     ),
+    .pcmd_dout  ( pcmd_data     ),
+    .pcmd_cs    ( pcmd_cs       ),
+    .pcmd_ok    ( pcmd_ok       ),
+
     .upd_addr   ( upd_addr      ),
     .upd_cs     ( upd_cs        ),
     .upd_data   ( upd_data      ),
@@ -137,7 +156,8 @@ jttmnt_sound u_sound(
     .title_addr ( title_addr    ),
     .title_ok   ( title_ok      ),
     // Sound output
-    .snd        ( snd           ),
+    .snd_left   ( snd_left      ),
+    .snd_right  ( snd_right     ),
     .sample     ( sample        ),
     .peak       ( game_led      ),
     // Debug
