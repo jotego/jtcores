@@ -30,10 +30,10 @@ wire [ 7:0] tilesys_dout, objsys_dout,
             st_main, st_video, st_snd;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-// reg  [ 1:0] cpu_cfg;
+reg  [ 2:0] game_id;
 
 assign debug_view = debug_mux;
-assign ram_addr   = main_addr[13:1];
+assign ram_addr   = { main_addr[17], main_addr[13:1] };
 assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
@@ -45,17 +45,10 @@ always @(posedge clk) begin
     endcase
 end
 
-// always @(posedge clk) begin
-//     if( prog_addr==0 && prog_we && header )
-//         cpu_cfg <= prog_data[2:1];
-// end
-
-// always @(*) begin
-//     post_addr = prog_addr;
-//     if( prog_ba[1] ) begin
-//         post_addr[]
-//     end
-// end
+always @(posedge clk) begin
+    if( prog_addr==0 && prog_we && header && !ioctl_ram )
+        game_id <= prog_data[2:0];
+end
 
 /* verilator tracing_off */
 jttmnt_main u_main(
@@ -63,7 +56,7 @@ jttmnt_main u_main(
     .clk            ( clk           ),
     .LVBL           ( LVBL          ),
 
-    // .cfg            ( cpu_cfg       ),
+    .game_id        ( game_id       ),
     .cpu_d8         ( cpu_d8        ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
@@ -159,7 +152,7 @@ jttmnt_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
-    // .cfg            ( cpu_cfg       ),
+    .game_id        ( game_id       ),
     .cpu_prio       ( prio          ),
 
     .lhbl           ( LHBL          ),

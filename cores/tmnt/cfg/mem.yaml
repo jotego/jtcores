@@ -23,7 +23,7 @@ sdram:
       buses:
         -
           name: ram
-          addr_width: 14
+          addr_width: 15
           data_width: 16
           offset: RAM_OFFSET
           rw: true

@@ -20,7 +20,7 @@ module jttmnt_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    // input      [ 1:0] cfg,
+    input      [ 2:0] game_id,
     input      [ 1:0] cpu_prio,
 
     // Base Video
@@ -60,6 +60,8 @@ module jttmnt_colmix(
     input      [ 7:0] debug_bus
 );
 
+`include "game_id.inc"
+
 wire [ 1:0] prio_sel;
 wire [ 7:0] pal_dout;
 wire [ 7:0] prio_addr;
@@ -78,11 +80,22 @@ assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 always @* begin
-    case( prio_sel )
-        0: pxl[7:0] = { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
-        1: pxl[7:0] = { 1'b1, lyrb_pxl[7:5], lyrb_pxl[3:0] };
-        2: pxl[7:0] = lyro_pxl[7:0];
-        3: pxl[7:0] = { 1'b0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+    case( game_id )
+        MIA:
+        case( prio_sel )
+            0: pxl[7:0] = { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
+            1: pxl[7:0] = { 1'b1, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+            2: pxl[7:0] = lyro_pxl[7:0];
+            3: pxl[7:0] = { lyrf_pxl[4], lyrf_pxl[7], 2'd0, lyrf_pxl[3:0] };
+        endcase
+        // TMNT
+        default:
+        case( prio_sel )
+            0: pxl[7:0] = { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] };
+            1: pxl[7:0] = { 1'b1, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+            2: pxl[7:0] = lyro_pxl[7:0];
+            3: pxl[7:0] = { 1'b0, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+        endcase
     endcase
     pxl[9:8] = { ~prio_sel[1], ~|{prio_sel[0], ~prio_sel[1]} };
 end

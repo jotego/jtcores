@@ -14,7 +14,6 @@ skip = { machines=[
     "ssriders",
     "thndrx2",
     "prmrsocr",
-    "mia",
 ], bootlegs=true }
 
 [buttons]
@@ -22,16 +21,16 @@ names = [
     { machine="tmnt", names="Jump, Attack" },
 ]
 
-# [header]
-# info="""
-#     bit   0 = ignored
-#                  bits 2:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross"""
-# data = [
-#     { machine="scontra",  offset=0, data="02" },
-#     { machine="thunderx", offset=0, data="04" },
-#     { machine="crimfght", offset=0, data="06" },
-#     # { machine="gbusters", offset=0, data="05" },
-# ]
+[header]
+info="""
+    byte 0: 00 = TMNT
+            01 = MIA"""
+data = [
+    { machine="mia",  offset=0, data="01" },
+    # { machine="thunderx", offset=0, data="04" },
+    # { machine="crimfght", offset=0, data="06" },
+    # { machine="gbusters", offset=0, data="05" },
+]
 
 [dipsw]
 delete = [ "Unused", "Unknown" ]

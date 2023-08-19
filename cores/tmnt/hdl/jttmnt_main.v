@@ -20,6 +20,7 @@ module jttmnt_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
+    input         [ 2:0] game_id,
 
     output        [18:1] main_addr,
     output        [ 1:0] ram_dsn,
@@ -64,6 +65,9 @@ module jttmnt_main(
     output        [ 7:0] st_dout
 );
 `ifndef NOMAIN
+
+`include "game_id.inc"
+
 wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
@@ -73,9 +77,8 @@ reg         pal_cs, snddt_cs, shoot_cs,
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 reg         intn, LVBLl;
-reg         arst;
 wire        bus_cs, bus_busy, BUSn;
-wire        io_cs, dtac_mux;
+wire        dtac_mux;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -92,12 +95,9 @@ assign cpu_d8   = ~UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & ~LDSn & ~RnW;
 
-assign st_dout  = { 7'd0, arst };
+assign st_dout  = 0;
 assign VPAn     = ~( A[23] & ~ASn );
-assign io_cs    = !ASn && A[20:16]=='ha;
 assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
-
-always @(posedge clk) arst <= A[23:1]=='h1000>>1;
 
 always @* begin
     rom_cs   = 0;  // 0'0000 ~ 5'FFFF
@@ -113,7 +113,12 @@ always @* begin
     obj_cs   = 0;
     if(!ASn) begin
         if(!A[20]) case( A[19:17] )
-            0,1,2: rom_cs = 1;  // 0'0000 ~ 5'FFFF
+            0,1: rom_cs = 1;  // 0'0000 ~ 3'FFFF
+            2: case( game_id )  // 4'0000 ~ 5'FFFF
+                TMNT: rom_cs = 1;
+                MIA:  ram_cs = ~BUSn;
+                default:;
+            endcase
             3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
             4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
             5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
@@ -143,7 +148,7 @@ always @(posedge clk) begin
                pal_cs  ? {2{pal_dout}}  :
                dip3_cs ? { 12'd0, dipsw[19:16] } :
                (shoot_cs | dip_cs) ? { 8'd0, cab_dout } :
-               { 15'hffff, arst};
+               { 16'hffff };
 end
 
 always @(posedge clk, posedge rst) begin
@@ -164,15 +169,16 @@ always @(posedge rmrd) $display("RMRD high");
 always @(posedge clk) begin
     if(dip_cs) case( A[2:1] )
         ~2'd0: cab_dout <= 0;
-        ~2'd1: cab_dout <= { start_button[3], joystick4[6:0] };
+        ~2'd1: cab_dout <= game_id == TMNT ? { start_button[3], joystick4[6:0] } : 8'hff;
         ~2'd2: cab_dout <= dipsw[15:8];
         ~2'd3: cab_dout <= dipsw[7:0];
     endcase
     else case( A[2:1] )
-        ~2'd0: cab_dout <= { start_button[2], joystick3[6:0] };
+        ~2'd0: cab_dout <= game_id == TMNT ? { start_button[2], joystick3[6:0] } : 8'hff;
         ~2'd1: cab_dout <= { start_button[1], joystick2[6:0] };
         ~2'd2: cab_dout <= { start_button[0], joystick1[6:0] };
-        ~2'd3: cab_dout <= { {4{service}}, coin_input };
+        ~2'd3: cab_dout <= game_id == TMNT ? { {4{service}}, coin_input } :
+                            { 1'b1, service, 1'b1, start_button[1:0], 1'b1, coin_input[1:0] };
     endcase
 end
 

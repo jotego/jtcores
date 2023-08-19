@@ -21,7 +21,8 @@ module jttmnt_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
-    // input      [ 1:0] cfg,
+    input      [ 2:0] game_id,
+
     input      [ 1:0] cpu_prio,
 
     // Base Video
@@ -59,7 +60,7 @@ module jttmnt_video(
     output reg [19:2] lyrf_addr,
     output reg [19:2] lyra_addr,
     output reg [19:2] lyrb_addr,
-    output     [20:2] lyro_addr,
+    output reg [20:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -89,17 +90,19 @@ module jttmnt_video(
     output reg [ 7:0] st_dout
 );
 
+`include "game_id.inc"
+
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
             lyrf_col, lyra_col, lyrb_col,
-            opal, opal_eff;
+            opal;
 wire [15:0] cpu_saddr;
-wire [11:0] lyra_pxl, lyrb_pxl;
-wire [11:0] lyro_pxl;
+wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [10:0] cpu_oaddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [13:0] ocode_eff;
+reg  [13:0] ocode_eff;
+reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ioctl_mmr;
@@ -205,20 +208,36 @@ always @* begin
     endcase
 end
 
-assign lyro_addr = { ca[18:10], oa, ca[3] };
 
 always @* begin
-    lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
-    lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
-    lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+    case(game_id)
+        MIA: begin
+        lyrf_addr = { 6'd0,                              lyrf_col[0], pre_f[10:0] };
+        lyra_addr = { 2'd0, pre_a[12:11], lyra_col[4:3], lyra_col[0], pre_a[10:0] };
+        lyrb_addr = { 2'd0, pre_b[12:11], lyrb_col[4:3], lyrb_col[0], pre_b[10:0] };
+        opal_eff  = opal;
+        ocode_eff = { 1'b0, ocode };
+        lyro_addr = { ca[18:8],  &ca[17:14] ? {ca[7:6],ca[4],ca[2],ca[1:0] } :
+                                              {ca[6],  ca[4],ca[2:0],ca[7] },ca[5],ca[3] };
+        end
+
+        default: begin // TMNT
+        lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
+        lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
+        lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+        opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
+        ocode_eff = { opal[4], ocode };
+        lyro_addr = { ca[18:10], oa, ca[3] };
+        end
+    endcase
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = { c[7:5], 5'd0 };
+    case(game_id)
+        MIA:     cgate = { c[7:4], 3'd0, c[2] };
+        default: cgate = { c[7:5], 5'd0 };
+    endcase
 endfunction
-
-assign opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
-assign ocode_eff = { opal[4], ocode };
 
 /* verilator tracing_on */
 // extra blanking added to help MiSTer output
@@ -358,7 +377,7 @@ jttmnt_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    // .cfg        ( cfg       ),
+    .game_id    ( game_id   ),
     .cpu_prio   ( cpu_prio  ),
 
     // Base Video
