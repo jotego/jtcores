@@ -120,7 +120,10 @@ always @* begin
                 default:;
             endcase
             3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
-            4: pal_cs = 1;      // 8'0000 ~ 9'FFFF
+            4: case( game_id )  // 8'0000 ~ 9'FFFF
+                PUNKSHOT: ram_cs = ~BUSn;
+                default:  pal_cs = 1;
+            endcase
             5: if(!A[16]) case( { RnW, A[4:3] } )   //  A'0000 ~ A'FFFF
                     0: iowr_cs  = 1;
                     1: snddt_cs = 1;
@@ -132,11 +135,21 @@ always @* begin
                 endcase
             6: syswr_cs = 1;    // C'0000 ~ C'FFFF
             default:;
-        endcase else case(A[18:17]) // 10'0000 ~
-            0: vram_cs = 1;
-            2: obj_cs  = 1;
-            default:;
-        endcase
+        endcase else
+            case( game_id )
+                PUNKSHOT:
+                    case(A[18:16]) // 10'0000 ~
+                        0: vram_cs = 1;
+                        1: obj_cs  = 1;
+                        default:;
+                    endcase
+                default:
+                    case(A[18:17]) // 10'0000 ~
+                        0: vram_cs = 1;
+                        2: obj_cs  = 1;
+                        default:;
+                    endcase
+            endcase
     end
 end
 

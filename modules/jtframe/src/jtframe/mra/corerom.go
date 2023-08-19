@@ -80,6 +80,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 				nodump = true
 			}
 		}
+		if len(reg_roms)==0 { continue } // empty region, may be used on a different configuration
 		// Proceed with the ROM listing
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
 			fmt.Printf(

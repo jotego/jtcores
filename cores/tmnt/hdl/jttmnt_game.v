@@ -24,7 +24,7 @@ module jttmnt_game(
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
-wire        cpu_rnw, odtac, vdtac;
+wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_d8,
             st_main, st_video, st_snd;
@@ -41,12 +41,12 @@ always @(posedge clk) begin
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= { 2'd0, prio, 3'd0, rmrd };
+        3: debug_mux <= { rmrd, 1'd0, prio, 1'd0, game_id };
     endcase
 end
 
 always @(posedge clk) begin
-    if( prog_addr==0 && prog_we && header && !ioctl_ram )
+    if( prog_addr==0 && prog_we && header )
         game_id <= prog_data[2:0];
 end
 
@@ -154,6 +154,9 @@ jttmnt_video u_video (
     .pxl2_cen       ( pxl2_cen      ),
     .game_id        ( game_id       ),
     .cpu_prio       ( prio          ),
+
+    .tile_irqn      ( tile_irqn     ),
+    .tile_nmin      ( tile_nmin     ),
 
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),

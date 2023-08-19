@@ -31,6 +31,9 @@ module jttmnt_video(
     output            hs,
     output            vs,
 
+    output            tile_irqn,
+    output            tile_nmin,
+
     // CPU interface
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
@@ -106,7 +109,7 @@ reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ioctl_mmr;
-wire        tile_irqn, obj_irqn, tile_nmin, obj_nmin, shadow, prio_we, gfx_we;
+wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
 reg         pre_odtac, pre_vdtac;
 wire        cpu_weg;
 
@@ -221,6 +224,15 @@ always @* begin
                                               {ca[6],  ca[4],ca[2:0],ca[7] },ca[5],ca[3] };
         end
 
+        PUNKSHOT: begin
+        lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
+        lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
+        lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
+        opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
+        ocode_eff = { opal[4], ocode };
+        lyro_addr = ca;
+        end
+
         default: begin // TMNT
         lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
         lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
@@ -235,7 +247,7 @@ end
 function [7:0] cgate( input [7:0] c);
     case(game_id)
         MIA:     cgate = { c[7:4], 3'd0, c[2] };
-        default: cgate = { c[7:5], 5'd0 };
+        default: cgate = { c[7:5], 5'd0 }; // TMNT, PUNKSHOT
     endcase
 endfunction
 
