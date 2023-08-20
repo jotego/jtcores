@@ -28,6 +28,7 @@ module jttmnt_colmix(
     input             lvbl,
 
     // CPU interface
+    input             pcu_cs,
     input             cpu_we,
     input      [ 7:0] cpu_dout,
     input      [12:1] cpu_addr,
@@ -56,6 +57,7 @@ module jttmnt_colmix(
     input      [11:0] ioctl_addr,
     input             ioctl_ram,
     output     [ 7:0] ioctl_din,
+    output     [ 7:0] dump_mmr,
 
     input      [ 7:0] debug_bus
 );
@@ -70,7 +72,9 @@ reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 wire [11:0] pal_addr;
-wire        shad;
+wire [10:0] k251_pxl;
+wire        shad, k251_shd;
+reg         k251_en;
 
 assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
@@ -78,6 +82,10 @@ assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
 assign pal_addr  = { 1'b0, pxl, pal_half };
 assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
+
+always @(posedge clk) begin
+    k251_en <= game_id==PUNKSHOT;
+end
 
 always @* begin
     case( game_id )
@@ -141,6 +149,38 @@ jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .wr_addr( prog_addr     ),
     .we     ( prom_we       ),
     .q      ({shad,prio_sel})
+);
+
+// used in Punk Shot
+jtcolmix_053251 u_k251(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    // CPU interface
+    .cs         ( pcu_cs    ),
+    .addr       (cpu_addr[4:1]),
+    .din        (cpu_dout[5:0]),
+    // explicit priorities
+    .sel        ( 1'b0      ),
+    .pri0       ( 6'h3f     ),
+    .pri1       ({1'b0, cpu_prio, 3'd0 }),
+    .pri2       ( 6'h3f     ),
+    // color inputs
+    .ci0        ( 9'd0      ),
+    .ci1        ( { 1'd0, lyro_pxl[7:0] } ),
+    .ci2        ( { 2'd0, lyrf_pxl[6:0] } ),
+    .ci3        ( { 1'b0, lyra_pxl[6:0] } ),
+    .ci4        ( { 1'b0, lyrb_pxl[6:0] } ),
+    // shadow
+    .shd_in     ( shadow    ),
+    .shd_out    ( k251_shd  ),
+    // dump to SD card
+    .ioctl_addr ( ioctl_ram ? ioctl_addr[3:0] : debug_bus[3:0] ),
+    .ioctl_din  ( dump_mmr  ),
+
+    .cout       ( k251_pxl  ),
+    .brit       (           ),
+    .col_n      (           )
 );
 
 // this does not follow the same arrangement of the original

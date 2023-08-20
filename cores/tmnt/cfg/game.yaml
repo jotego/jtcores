@@ -6,8 +6,10 @@ game:
       - jttmnt_sound.v
       - jttmnt_video.v
       - jttmnt_colmix.v
-  - from: simon
+  - from: simson
+    get:
       - jt053260.v
+      - jtcolmix_053251.v
   - from: aliens
     get:
       - jtaliens_scroll.v

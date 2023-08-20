@@ -43,6 +43,7 @@ module jttmnt_video(
     output     [ 7:0] objsys_dout,
     output reg        odtac,
     output reg        vdtac,
+    input             pcu_cs,
     input             pal_we,
     input             cpu_we,
     input             tilesys_cs,
@@ -108,7 +109,7 @@ reg  [13:0] ocode_eff;
 reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
-            e, q, ioctl_mmr;
+            e, q, ioctl_mmr, ormrd;
 wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
 reg         pre_odtac, pre_vdtac;
 wire        cpu_weg;
@@ -151,8 +152,8 @@ always @(posedge clk) begin
         odtac <= pre_odtac;
         vdtac <= pre_vdtac;
     end
-    if( !objsys_cs  ) { pre_odtac, odtac } <= 1;
-    if( !tilesys_cs || (rmrd && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
+    if( !objsys_cs  || (ormrd && !lyro_ok) ) { pre_odtac, odtac } <= 1;
+    if( !tilesys_cs || (rmrd  && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
 end
 
 function [31:0] sort( input [31:0] x );
@@ -368,6 +369,7 @@ jtaliens_obj u_obj(    // sprite logic
     .rom_data   ( odata     ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
+    .romrd      ( ormrd     ),
     // pixel output
     .pxl        ( { lyro_pxl[11:4], lyro_pxl[0], lyro_pxl[1], lyro_pxl[2], lyro_pxl[3] } ),
     .blank_n    (lyro_blnk_n),
@@ -401,6 +403,7 @@ jttmnt_colmix u_colmix(
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( pal_we    ),
+    .pcu_cs     ( pcu_cs    ),
 
     // PROMs
     .prog_addr  (prog_addr[7:0]),

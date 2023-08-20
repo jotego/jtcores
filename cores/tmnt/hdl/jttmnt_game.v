@@ -23,7 +23,7 @@ module jttmnt_game(
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
-wire        pal_we, cpu_we, tilesys_cs, objsys_cs;
+wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
 wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout, pal_dout, cpu_d8,
@@ -92,6 +92,7 @@ jttmnt_main u_main(
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
     .pal_we         ( pal_we        ),
+    .pcu_cs         ( pcu_cs        ),
     // To sound
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
@@ -99,6 +100,7 @@ jttmnt_main u_main(
     .snd_wrn        ( snd_wrn       ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
+    .dip_test       ( dip_test      ),
     .dipsw          ( dipsw[19:0]   ),
     // Debug
     .st_dout        ( st_main       )
@@ -116,7 +118,7 @@ jttmnt_sound u_sound(
     // communication with main CPU
     .main_dout  ( cpu_d8        ),
     .main_din   ( snd2main      ),
-    .main_addr  ( main_addr[0]  ),
+    .main_addr  ( main_addr[1]  ),
     .main_rnw   ( snd_wrn       ),
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
@@ -192,6 +194,7 @@ jttmnt_video u_video (
     .objsys_cs      ( objsys_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
     .pal_we         ( pal_we        ),
+    .pcu_cs         ( pcu_cs        ),
     .cpu_addr       (main_addr[16:1]),
     .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( cpu_d8        ),

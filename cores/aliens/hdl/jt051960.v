@@ -59,6 +59,11 @@ module jt051960(    // sprite logic
     input             hs,
     output            flip,
 
+    // ROM check
+
+    output            romrd,
+    output     [17:0] romrd_addr,
+
     // shadow
     input      [11:0] pxl,
     output            shadow,
@@ -87,7 +92,7 @@ localparam [ 2:0] REG_CFG   = 0, // interrupt control, ROM read
                   REG_ROM_H = 3,
                   REG_ROM_VH= 4;
 
-wire        lut_we, reg_we, reg_rd, vb_rd, romrd, dma_we;
+wire        lut_we, reg_we, reg_rd, vb_rd, dma_we;
 reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
@@ -98,7 +103,7 @@ reg         dma_clr, dma_done, dma_cen, inzone, hs_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
 wire [ 2:0] int_en, sha_cfg;
 reg  [ 2:0] size;
-wire [ 7:0] romrd_bank, dma_din;
+wire [ 7:0] dma_din;
 wire [ 9:0] romrd_msb, scan_addr, dma_wr_addr;
 reg  [17:0] yz_add;
 reg         vb_start_n, // low for the first six lines of VBLANK
@@ -115,8 +120,7 @@ assign cpu_din = reg_rd ? { 7'd0, ~vb_start_n }  : ram_dout;
 assign int_en  = mmr[REG_CFG][2:0];
 assign flip    = mmr[REG_CFG][3];
 assign romrd   = mmr[REG_CFG][5];
-assign { romrd_bank, romrd_msb } = // the bank part is outputted through OC pins
-    { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H], mmr[REG_ROM_L] };
+assign romrd_addr = { mmr[REG_ROM_H][1:0], mmr[REG_ROM_L],  cpu_addr[9:2] }; // 2+8+8=18
 assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | dma_ok);
 assign dma_wr_addr = dma_clr ? dma_addr : { dma_prio, dma_addr[2:0] };
@@ -288,6 +292,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
+        if( romrd ) attr <= { mmr[REG_ROM_VH], mmr[REG_ROM_H][7:2] };
     end
 end
 

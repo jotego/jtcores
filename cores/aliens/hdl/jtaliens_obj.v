@@ -26,13 +26,15 @@ module jtaliens_obj(
     input             cpu_we,
     input      [ 7:0] cpu_dout,
     input      [10:0] cpu_addr,
-    output     [ 7:0] cpu_din,
+    output reg [ 7:0] cpu_din,
 
     // ROM addressing
     output reg [18:0] rom_addr, // code_eff + 5 bits (V-HVVV)
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
+
+    output            romrd,
     // control
     input      [ 8:0] hdump,    // Not inputs in the original, but
     input      [ 8:0] vdump,    // generated internally.
@@ -69,18 +71,31 @@ module jtaliens_obj(
 
 wire [ 8:0] xpos;
 wire [ 3:0] ysub;
+wire [ 7:0] ram_dout;
 wire [ 5:0] hzoom;
 wire        dr_start, dr_busy, hflip, vflip, hz_keep;
 wire        flip;
-wire [18:0] pre_addr;
+wire [18:0] pre_addr, romrd_addr;
 
 assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
 
 // jtframe_draw outputs H[3],V[3:0]
 // swap bits 3 and 4 to comply with Konami ROM order
 always @* begin
-    rom_addr = pre_addr;
+    rom_addr      = pre_addr;
     rom_addr[4:3] = { pre_addr[3], pre_addr[4] };
+    cpu_din       = ram_dout;
+    if( romrd ) begin
+        // if the external logic changed the order of code_eff[12:0], this line should be different
+        // but code does not contain romrd_addr right now
+        rom_addr = { code_eff[13], romrd_addr };
+        case(cpu_addr[1:0])
+            0: cpu_din = rom_data[  0 +: 8];
+            1: cpu_din = rom_data[  8 +: 8];
+            2: cpu_din = rom_data[ 16 +: 8];
+            3: cpu_din = rom_data[ 24 +: 8];
+        endcase
+    end
 end
 
 jt051960 u_scan(    // sprite logic
@@ -100,7 +115,7 @@ jt051960 u_scan(    // sprite logic
     .cpu_addr   (cpu_addr[10:0]),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( cpu_we    ),
-    .cpu_din    ( cpu_din   ),
+    .cpu_din    ( ram_dout  ),
 
     // drawing interface
     .dr_start   ( dr_start  ),
@@ -122,6 +137,10 @@ jt051960 u_scan(    // sprite logic
     // Shadow
     .pxl        ( pxl       ),
     .shadow     ( shadow    ),
+
+    // ROM check
+    .romrd      ( romrd     ),
+    .romrd_addr ( romrd_addr),
 
     // Debug
     .ioctl_addr ( ioctl_addr),

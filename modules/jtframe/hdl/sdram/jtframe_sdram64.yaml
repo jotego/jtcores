@@ -20,6 +20,7 @@ jtframe:
       - jtframe_rom_4slots.v
       - jtframe_rom_5slots.v
       - jtframe_rom_6slots.v
+      - jtframe_rom_7slots.v
       - jtframe_romrq.v
       - jtframe_rom.v
       - jtframe_ram_rq.v

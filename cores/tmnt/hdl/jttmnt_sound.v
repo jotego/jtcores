@@ -85,7 +85,8 @@ wire        [15:0]  A;
 wire        [16:0]  k32a_addr, k32b_addr;
 wire        [21:0]  k60a_addr, k60b_addr;
 reg         [ 7:0]  cpu_din;
-wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n;
+wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
+                    k60a_cs, k60b_cs, k32a_cs, k32b_cs;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs, k60_cs;
 wire signed [15:0]  fm_left, fm_right, pre_mono, pre_l, pre_r;
 wire signed [14:0]  k60_l, k60_r;
@@ -102,7 +103,7 @@ wire                upd_bsyn;
 reg signed  [15:0]  title_snd; // bit 0 is always discarded
 wire signed [15:0]  snd_mix;
 wire                upper4k;
-reg                 upd_rst, k7232_rst, k53260_rst, k60;
+reg                 upd_rst, k7232_rst, k53260_rst, k60, nmi_clr;
 
 assign rom_addr = A[14:0];
 assign title_cs = 1;
@@ -111,6 +112,8 @@ assign st_dout  = snd_latch;
 assign upper4k  = &A[15:12];
 assign pcma_addr = k60 ? k60a_addr : { 5'd0, k32a_addr };
 assign pcmb_addr = k60 ? k60b_addr : { 5'd0, k32b_addr };
+assign pcma_cs   = k60 ? k60a_cs : k32a_cs;
+assign pcmb_cs   = k60 ? k60b_cs : k32b_cs;
 
 always @(posedge clk) begin
     // keep unused chips in reset state
@@ -149,6 +152,7 @@ always @(*) begin
     upd_vst  = mem_upper && A[14:12]==6; // Exxx
     bsy_cs   = mem_upper && A[14:12]==7; // Fxxx
     k60_cs   = 0;
+    nmi_clr  = 1;
 
     if( game_id==PUNKSHOT ) begin
         mem_upper = mem_acc &  upper4k;
@@ -165,6 +169,14 @@ always @(*) begin
         bsy_cs    = 0;
     end
 end
+
+jtframe_edge #(.QSET(0)) u_edge (
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( sample    ),
+    .clr    ( nmi_clr   ),
+    .q      ( nmi_n     )
+);
 
 always @(*) begin
     case(1'b1)
@@ -265,7 +277,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .cen        ( cen_fm    ),
     .cpu_cen    ( cpu_cen   ),
     .int_n      ( ~snd_irq  ),
-    .nmi_n      ( 1'b1      ),
+    .nmi_n      ( nmi_n     ),
     .busrq_n    ( 1'b1      ),
     .m1_n       ( m1_n      ),
     .mreq_n     ( mreq_n    ),
@@ -308,7 +320,7 @@ jt51 u_jt51(
 );
 
 /* verilator tracing_on */
-jt053260 u_pcm(
+jt053260 u_k53260(
     .rst        ( k53260_rst),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -328,14 +340,14 @@ jt053260 u_pcm(
 
     // External memory - the original chip
     // only had one bus
-    .roma_addr  ( pcma_addr ),
+    .roma_addr  ( k60a_addr ),
     .roma_data  ( pcma_dout ),
-    .roma_cs    ( pcma_cs   ),
+    .roma_cs    ( k60a_cs   ),
     // .roma_ok    ( pcma_ok   ),
 
-    .romb_addr  ( pcmb_addr ),
+    .romb_addr  ( k60b_addr ),
     .romb_data  ( pcmb_dout ),
-    .romb_cs    ( pcmb_cs   ),
+    .romb_cs    ( k60b_cs   ),
     // .romb_ok    ( pcmb_ok   ),
 
     .romc_addr  ( pcmc_addr ),
@@ -353,7 +365,7 @@ jt053260 u_pcm(
     .sample     (           )
 );
 
-jt007232 u_pcm(
+jt007232 u_k7232(
     .rst        ( k7232_rst ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
@@ -367,14 +379,14 @@ jt007232 u_pcm(
 
     // External memory - the original chip
     // only had one bus
-    .roma_addr  ( k32a_addr),
+    .roma_addr  ( k32a_addr ),
     .roma_dout  ( pcma_dout ),
-    .roma_cs    ( pcma_cs   ),
+    .roma_cs    ( k32a_cs   ),
     .roma_ok    ( pcma_ok   ),
 
     .romb_addr  ( k32b_addr ),
     .romb_dout  ( pcmb_dout ),
-    .romb_cs    ( pcmb_cs   ),
+    .romb_cs    ( k32b_cs   ),
     .romb_ok    ( pcmb_ok   ),
     // sound output - raw
     .snda       (           ),

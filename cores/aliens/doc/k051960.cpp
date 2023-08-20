@@ -53,7 +53,7 @@ memory map:
            Bits 2-7 of 003 go to OC0-OC5.
 004-007 R  reads data from the gfx ROMs (32 bits in total). The address of the
            data is determined by the register above and by the last address
-           accessed on the 051960; plus bank switch bits for larger ROMs.
+           accessed on the 051960; plus bank switch bits for largcd00_iner ROMs.
            It seems that the data can also be read directly from the 051960
            address space: 88 Games does this. First it reads 004 and discards
            the result, then it reads from the 051960 the data at the address
@@ -64,7 +64,7 @@ memory map:
 
 */
 
-#include "emu.h"
+#include "emu.h"cd00_in
 #include "k051960.h"
 
 #include "screen.h"
