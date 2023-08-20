@@ -26,7 +26,6 @@ module jttmnt_main(
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
     // 8-bit interface
-    output        [ 7:0] cpu_d8,
     output               cpu_we,
     output               pal_we,
     output reg           pcu_cs,
@@ -41,7 +40,7 @@ module jttmnt_main(
 
     input         [ 7:0] oram_dout,
     input         [ 7:0] vram_dout,
-    input         [ 7:0] pal_dout,
+    input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
     input                ram_ok,
@@ -97,7 +96,6 @@ assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
-assign cpu_d8   = ~UDSn ? cpu_dout[15:8] : cpu_dout[7:0];
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & ~LDSn & ~RnW;
 
@@ -180,7 +178,7 @@ always @(posedge clk) begin
                ram_cs  ? ram_dout  :
                obj_cs  ? {2{oram_dout}} :
                vram_cs ? {2{vram_dout}} :
-               pal_cs  ? {2{pal_dout}}  :
+               pal_cs  ? pal_dout       :
                snd_cs  ? {8'd0,snd2main}:
                dip3_cs ? { 12'd0, dipsw[19:16] } :
                (shoot_cs | dip_cs) ? cab_dout :
@@ -205,19 +203,19 @@ always @(posedge rmrd) $display("RMRD high");
 always @(posedge clk) begin
     cab_dout[15:8] <= 0;
     if(dip_cs) case( A[2:1] )
-        ~2'd0: cab_dout <= 0;
-        ~2'd1: cab_dout <= game_id == TMNT ? { start_button[3], joystick4[6:0] } : 8'hff;
-        ~2'd2: cab_dout <= dipsw[15:8];
-        ~2'd3: cab_dout <= dipsw[7:0];
+        ~2'd0: cab_dout[7:0] <= 0;
+        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { start_button[3], joystick4[6:0] } : 8'hff;
+        ~2'd2: cab_dout[7:0] <= dipsw[15:8];
+        ~2'd3: cab_dout[7:0] <= dipsw[7:0];
     endcase
     else case( A[2:1] )
-        ~2'd0: cab_dout <= game_id == TMNT ? { start_button[2], joystick3[6:0] } : 8'hff;
-        ~2'd1: cab_dout <= { start_button[1], joystick2[6:0] };
-        ~2'd2: cab_dout <= { start_button[0], joystick1[6:0] };
-        ~2'd3: cab_dout <= game_id == TMNT ? { {4{service}}, coin_input } :
+        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { start_button[2], joystick3[6:0] } : 8'hff;
+        ~2'd1: cab_dout[7:0] <= { start_button[1], joystick2[6:0] };
+        ~2'd2: cab_dout[7:0] <= { start_button[0], joystick1[6:0] };
+        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin_input } :
                             { 1'b1, service, 1'b1, start_button[1:0], 1'b1, coin_input[1:0] };
     endcase
-    if( punk_cab ) begin
+    if( punk_cab ) begin // 16-bit interface
         case( A[2:1] )
             0: cab_dout <= { dipsw[7:0], dipsw[15:8] };
             1: cab_dout <= { dipsw[19:16], 1'b1, dip_test, start_button[1:0], {4{service}}, coin_input };
@@ -319,8 +317,8 @@ jtframe_m68k u_cpu(
         main_addr = 0,
         ram_dsn   = 0,
         cpu_dout  = 0,
-        cpu_d8    = 0,
         cpu_we    = 0,
+        snd_wrn   = 0,
         pal_we    = 0;
 `endif
 endmodule

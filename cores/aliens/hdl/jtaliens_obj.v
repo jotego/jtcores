@@ -86,9 +86,7 @@ always @* begin
     rom_addr[4:3] = { pre_addr[3], pre_addr[4] };
     cpu_din       = ram_dout;
     if( romrd ) begin
-        // if the external logic changed the order of code_eff[12:0], this line should be different
-        // but code does not contain romrd_addr right now
-        rom_addr = { code_eff[13], romrd_addr };
+        rom_addr = romrd_addr;
         case(cpu_addr[1:0])
             0: cpu_din = rom_data[  0 +: 8];
             1: cpu_din = rom_data[  8 +: 8];

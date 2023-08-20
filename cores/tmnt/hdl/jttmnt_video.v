@@ -37,8 +37,8 @@ module jttmnt_video(
     // CPU interface
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
-    input      [ 7:0] cpu_dout,
-    output     [ 7:0] pal_dout,
+    input      [15:0] cpu_dout,
+    output     [15:0] pal_dout,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
     output reg        odtac,
@@ -100,7 +100,7 @@ wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
             lyrf_col, lyra_col, lyrb_col,
-            opal;
+            opal,     cpu_d8,   mmr_pal;
 wire [15:0] cpu_saddr;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [10:0] cpu_oaddr;
@@ -120,6 +120,7 @@ assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
 assign ioctl_mmr = ioctl_addr>='h5800;
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
+assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
 // Debug
 always @* begin
@@ -277,7 +278,7 @@ jtaliens_scroll #(
 
     // CPU interface
     .cpu_addr   ( cpu_saddr ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_dout   ( cpu_d8    ),
     .cpu_we     ( cpu_weg   ),
     .gfx_cs     ( tilesys_cs),
     .rst8       ( rst8      ),
@@ -353,7 +354,7 @@ jtaliens_obj u_obj(    // sprite logic
     // CPU interface
     .cs         ( objsys_cs ),
     .cpu_addr   ( cpu_oaddr ),
-    .cpu_dout   ( cpu_dout  ),
+    .cpu_dout   ( cpu_d8    ),
     .cpu_we     ( cpu_weg   ),
     .cpu_din    ( objsys_dout),
 
@@ -401,7 +402,9 @@ jttmnt_colmix u_colmix(
     // CPU interface
     .cpu_addr   (cpu_addr[12:1]),
     .cpu_din    ( pal_dout  ),
+    .cpu_d8     ( cpu_d8    ),
     .cpu_dout   ( cpu_dout  ),
+    .cpu_dsn    ( cpu_dsn   ),
     .cpu_we     ( pal_we    ),
     .pcu_cs     ( pcu_cs    ),
 
@@ -429,6 +432,7 @@ jttmnt_colmix u_colmix(
     .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
+    .dump_mmr   ( mmr_pal   ),
 
     .debug_bus  ( debug_bus )
 );

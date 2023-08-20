@@ -26,8 +26,9 @@ wire        snd_irq, rmrd, rst8;
 wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
 wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
-            obj_dout, pal_dout, cpu_d8,
+            obj_dout,
             st_main, st_video, st_snd;
+wire [15:0] pal_dout;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
@@ -57,7 +58,6 @@ jttmnt_main u_main(
     .LVBL           ( LVBL          ),
 
     .game_id        ( game_id       ),
-    .cpu_d8         ( cpu_d8        ),
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
     .odtac          ( odtac         ),
@@ -106,6 +106,72 @@ jttmnt_main u_main(
     .st_dout        ( st_main       )
 );
 
+/* verilator tracing_on */
+jttmnt_video u_video (
+    .rst            ( rst           ),
+    .rst8           ( rst8          ),
+    .clk            ( clk           ),
+    .pxl_cen        ( pxl_cen       ),
+    .pxl2_cen       ( pxl2_cen      ),
+    .game_id        ( game_id       ),
+    .cpu_prio       ( prio          ),
+
+    .tile_irqn      ( tile_irqn     ),
+    .tile_nmin      ( tile_nmin     ),
+
+    .lhbl           ( LHBL          ),
+    .lvbl           ( LVBL          ),
+    .hs             ( HS            ),
+    .vs             ( VS            ),
+    .flip           ( dip_flip      ),
+    // PROMs
+    .prom_we        ( prom_we       ),
+    .prog_addr      ( prog_addr[8:0]),
+    .prog_data      ( prog_data[2:0]),
+    // GFX - CPU interface
+    .cpu_we         ( cpu_we        ),
+    .objsys_cs      ( objsys_cs     ),
+    .tilesys_cs     ( tilesys_cs    ),
+    .pal_we         ( pal_we        ),
+    .pcu_cs         ( pcu_cs        ),
+    .cpu_addr       (main_addr[16:1]),
+    .cpu_dsn        ( ram_dsn       ),
+    .cpu_dout       ( ram_din       ),
+    .odtac          ( odtac         ),
+    .vdtac          ( vdtac         ),
+    .tilesys_dout   ( tilesys_dout  ),
+    .objsys_dout    ( objsys_dout   ),
+    .pal_dout       ( pal_dout      ),
+    .rmrd           ( rmrd          ),
+    // SDRAM
+    .lyra_addr      ( lyra_addr     ),
+    .lyrb_addr      ( lyrb_addr     ),
+    .lyrf_addr      ( lyrf_addr     ),
+    .lyro_addr      ( lyro_addr     ),
+    .lyra_data      ( lyra_data     ),
+    .lyrb_data      ( lyrb_data     ),
+    .lyro_data      ( lyro_data     ),
+    .lyrf_data      ( lyrf_data     ),
+    .lyrf_cs        ( lyrf_cs       ),
+    .lyra_cs        ( lyra_cs       ),
+    .lyrb_cs        ( lyrb_cs       ),
+    .lyro_cs        ( lyro_cs       ),
+    .lyra_ok        ( lyra_ok       ),
+    .lyro_ok        ( lyro_ok       ),
+    // pixels
+    .red            ( red           ),
+    .green          ( green         ),
+    .blue           ( blue          ),
+    // Debug
+    .debug_bus      ( debug_bus     ),
+    .ioctl_addr     (ioctl_addr[14:0]),
+    .ioctl_din      ( ioctl_din     ),
+    .ioctl_ram      ( ioctl_ram     ),
+    .gfx_en         ( gfx_en        ),
+    .st_dout        ( st_video      )
+);
+
+
 /* verilator tracing_off */
 jttmnt_sound u_sound(
     .rst        ( rst           ),
@@ -116,7 +182,7 @@ jttmnt_sound u_sound(
     .cen_20     ( cen_20        ),
     .game_id    ( game_id       ),
     // communication with main CPU
-    .main_dout  ( cpu_d8        ),
+    .main_dout  ( ram_din[7:0]  ),
     .main_din   ( snd2main      ),
     .main_addr  ( main_addr[1]  ),
     .main_rnw   ( snd_wrn       ),
@@ -165,71 +231,6 @@ jttmnt_sound u_sound(
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
-);
-
-/* verilator tracing_on */
-jttmnt_video u_video (
-    .rst            ( rst           ),
-    .rst8           ( rst8          ),
-    .clk            ( clk           ),
-    .pxl_cen        ( pxl_cen       ),
-    .pxl2_cen       ( pxl2_cen      ),
-    .game_id        ( game_id       ),
-    .cpu_prio       ( prio          ),
-
-    .tile_irqn      ( tile_irqn     ),
-    .tile_nmin      ( tile_nmin     ),
-
-    .lhbl           ( LHBL          ),
-    .lvbl           ( LVBL          ),
-    .hs             ( HS            ),
-    .vs             ( VS            ),
-    .flip           ( dip_flip      ),
-    // PROMs
-    .prom_we        ( prom_we       ),
-    .prog_addr      ( prog_addr[8:0]),
-    .prog_data      ( prog_data[2:0]),
-    // GFX - CPU interface
-    .cpu_we         ( cpu_we        ),
-    .objsys_cs      ( objsys_cs     ),
-    .tilesys_cs     ( tilesys_cs    ),
-    .pal_we         ( pal_we        ),
-    .pcu_cs         ( pcu_cs        ),
-    .cpu_addr       (main_addr[16:1]),
-    .cpu_dsn        ( ram_dsn       ),
-    .cpu_dout       ( cpu_d8        ),
-    .odtac          ( odtac         ),
-    .vdtac          ( vdtac         ),
-    .tilesys_dout   ( tilesys_dout  ),
-    .objsys_dout    ( objsys_dout   ),
-    .pal_dout       ( pal_dout      ),
-    .rmrd           ( rmrd          ),
-    // SDRAM
-    .lyra_addr      ( lyra_addr     ),
-    .lyrb_addr      ( lyrb_addr     ),
-    .lyrf_addr      ( lyrf_addr     ),
-    .lyro_addr      ( lyro_addr     ),
-    .lyra_data      ( lyra_data     ),
-    .lyrb_data      ( lyrb_data     ),
-    .lyro_data      ( lyro_data     ),
-    .lyrf_data      ( lyrf_data     ),
-    .lyrf_cs        ( lyrf_cs       ),
-    .lyra_cs        ( lyra_cs       ),
-    .lyrb_cs        ( lyrb_cs       ),
-    .lyro_cs        ( lyro_cs       ),
-    .lyra_ok        ( lyra_ok       ),
-    .lyro_ok        ( lyro_ok       ),
-    // pixels
-    .red            ( red           ),
-    .green          ( green         ),
-    .blue           ( blue          ),
-    // Debug
-    .debug_bus      ( debug_bus     ),
-    .ioctl_addr     (ioctl_addr[14:0]),
-    .ioctl_din      ( ioctl_din     ),
-    .ioctl_ram      ( ioctl_ram     ),
-    .gfx_en         ( gfx_en        ),
-    .st_dout        ( st_video      )
 );
 
 endmodule
