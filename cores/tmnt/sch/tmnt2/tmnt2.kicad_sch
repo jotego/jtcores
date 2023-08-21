@@ -1873,7 +1873,7 @@
           (reference "#FLG02") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG02") (unit 1)
         )
@@ -1908,7 +1908,7 @@
           (reference "#FLG03") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG03") (unit 1)
         )
@@ -1943,7 +1943,7 @@
           (reference "#PWR01") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#PWR01") (unit 1)
         )
@@ -1978,7 +1978,7 @@
           (reference "#FLG04") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG04") (unit 1)
         )
@@ -2013,7 +2013,7 @@
           (reference "#PWR02") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#PWR02") (unit 1)
         )
@@ -2101,7 +2101,7 @@
           (reference "JM1") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "JM1") (unit 1)
         )
@@ -2136,7 +2136,7 @@
           (reference "#FLG01") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "#FLG01") (unit 1)
         )
@@ -2227,7 +2227,7 @@
       (uuid 55e56a60-da96-483b-8e8d-852c964be278)
     )
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "7"))
       )
     )
@@ -2288,7 +2288,7 @@
       (uuid 4b525b33-e116-4c3c-ab7f-81d132bdbdc7)
     )
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "5"))
       )
     )
@@ -2369,7 +2369,7 @@
       (uuid bf2cfa1d-abce-4113-9f68-521054632da3)
     )
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "6"))
       )
     )
@@ -2490,7 +2490,7 @@
       (uuid 825ae027-9d93-44f3-95e3-7c24b62eabbd)
     )
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "3"))
       )
     )
@@ -2603,7 +2603,7 @@
       (uuid 098d858f-880b-45b1-85cc-43a7c95b8c08)
     )
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "2"))
       )
     )
@@ -2708,7 +2708,7 @@
       (uuid 747ffa91-6de7-40f6-8290-fd0cef2b0696)
     )
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623" (page "4"))
       )
     )

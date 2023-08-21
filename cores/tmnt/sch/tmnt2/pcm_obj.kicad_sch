@@ -3340,7 +3340,7 @@
     (pin "14" (uuid 51aa7df7-3b8d-4f44-adc9-204325cf8eea))
     (pin "7" (uuid 9a115d42-efc3-4085-8da6-fd11ba84b3e1))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/78ffae6e-b754-4ff0-aaab-f5e038ba4a01"
           (reference "F19") (unit 6)
         )
@@ -3371,7 +3371,7 @@
     )
     (pin "1" (uuid a0cb2523-f547-4195-a506-5f0a8dac9d1c))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "#PWR017") (unit 1)
         )
@@ -3397,7 +3397,7 @@
     (pin "1" (uuid e54d9472-7ea7-4a78-bbac-3e3e619aaecc))
     (pin "2" (uuid c467218a-edc1-4404-b0f2-3f0ca5ec39ba))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "R1") (unit 1)
         )
@@ -3435,7 +3435,7 @@
     (pin "14" (uuid 600c0e0d-823a-4ea8-ad21-306c3efb4aba))
     (pin "7" (uuid 498bb6d1-737c-4e09-98d3-672c7a034501))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "E18") (unit 3)
         )
@@ -3526,7 +3526,7 @@
     (pin "8" (uuid 653e2f42-6a92-45eb-b74c-a60f54aedd9c))
     (pin "9" (uuid 728bd0d5-6450-41e0-8b43-8367b00b7bd8))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "H7") (unit 1)
         )
@@ -3568,7 +3568,7 @@
     (pin "8" (uuid 6ed6ce08-f8bc-4a78-96cf-9656805d8536))
     (pin "9" (uuid 8585f52e-704e-448d-8948-0a9bd0bb22ee))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "K8") (unit 1)
         )
@@ -3609,7 +3609,7 @@
     (pin "14" (uuid ee9a161b-d7be-4179-a571-67c9095bd8d1))
     (pin "7" (uuid 50d6f546-66e2-4b2b-a1a7-6207276963fd))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "D17") (unit 2)
         )
@@ -3654,7 +3654,7 @@
     (pin "8" (uuid 6c2683d3-78cb-4776-a6da-7819a85b61ef))
     (pin "9" (uuid 0184ee1e-f60c-4032-9048-9681b942b5eb))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "J8") (unit 1)
         )
@@ -3695,7 +3695,7 @@
     (pin "14" (uuid ee9a161b-d7be-4179-a571-67c9095bd8d2))
     (pin "7" (uuid 50d6f546-66e2-4b2b-a1a7-6207276963fe))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "D17") (unit 2)
         )
@@ -3723,7 +3723,7 @@
     )
     (pin "1" (uuid 1a20d402-0ec2-4b1d-9621-e2ead211525c))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/30ddccaa-8577-4b03-b520-f990d504cdd0"
           (reference "#PWR018") (unit 1)
         )
@@ -3761,7 +3761,7 @@
     (pin "14" (uuid 600c0e0d-823a-4ea8-ad21-306c3efb4abb))
     (pin "7" (uuid 498bb6d1-737c-4e09-98d3-672c7a034502))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "E18") (unit 3)
         )
@@ -3802,7 +3802,7 @@
     (pin "14" (uuid ee9a161b-d7be-4179-a571-67c9095bd8d3))
     (pin "7" (uuid 50d6f546-66e2-4b2b-a1a7-6207276963ff))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623"
           (reference "D17") (unit 2)
         )

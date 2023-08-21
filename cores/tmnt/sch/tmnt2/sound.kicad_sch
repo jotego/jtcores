@@ -2103,6 +2103,10 @@
     (uuid 1664f0b7-10bb-4b38-9c4c-80f21da382ec)
   )
 
+  (wire (pts (xy 160.02 209.55) (xy 157.48 209.55))
+    (stroke (width 0) (type default))
+    (uuid 1767b7e6-dd2c-4d94-b772-00bfdcf3280b)
+  )
   (wire (pts (xy 242.57 81.28) (xy 252.73 81.28))
     (stroke (width 0) (type default))
     (uuid 188ce94f-add1-4f67-9d2c-057541211ccb)
@@ -2397,6 +2401,10 @@
     (stroke (width 0) (type default))
     (uuid 61001fb2-bf3c-420a-91ae-9dbe0bf74732)
   )
+  (wire (pts (xy 134.62 154.94) (xy 142.24 154.94))
+    (stroke (width 0) (type default))
+    (uuid 6204dbfb-169f-4673-8426-b7f07f65a7a1)
+  )
   (wire (pts (xy 218.44 132.08) (xy 191.77 132.08))
     (stroke (width 0) (type default))
     (uuid 62f0e00b-d8a2-413e-b2a1-05a2f18a4717)
@@ -2408,6 +2416,10 @@
   (wire (pts (xy 140.97 213.36) (xy 140.97 214.63))
     (stroke (width 0) (type default))
     (uuid 646047fe-707c-4a1e-a2e4-aa9262232583)
+  )
+  (wire (pts (xy 139.7 204.47) (xy 142.24 204.47))
+    (stroke (width 0) (type default))
+    (uuid 64ce95ee-28b1-41b4-a616-1c84bc476c26)
   )
   (wire (pts (xy 123.19 124.46) (xy 142.24 124.46))
     (stroke (width 0) (type default))
@@ -2611,6 +2623,11 @@
     (stroke (width 0) (type default))
     (uuid 98530e5b-7899-4650-a0a8-dc862082076f)
   )
+
+  (wire (pts (xy 139.7 218.44) (xy 139.7 204.47))
+    (stroke (width 0) (type default))
+    (uuid 99089a81-159c-4d2d-a6ff-87260c125937)
+  )
   (bus (pts (xy 312.42 123.19) (xy 312.42 125.73))
     (stroke (width 0) (type default))
     (uuid 9cb215e8-2c5d-46cb-98df-88a8f9e2d1ff)
@@ -2679,6 +2696,10 @@
   (wire (pts (xy 218.44 137.16) (xy 191.77 137.16))
     (stroke (width 0) (type default))
     (uuid af69102f-36f3-4c2b-9e07-a4910688cc94)
+  )
+  (wire (pts (xy 160.02 218.44) (xy 160.02 209.55))
+    (stroke (width 0) (type default))
+    (uuid af6dfcdb-89f3-4f3b-bc9f-35ec1a561442)
   )
   (wire (pts (xy 269.24 86.36) (xy 260.35 86.36))
     (stroke (width 0) (type default))
@@ -2873,7 +2894,7 @@
     (stroke (width 0) (type default))
     (uuid df0e57ea-5900-4b47-8982-f7473240a2df)
   )
-  (wire (pts (xy 157.48 209.55) (xy 167.64 209.55))
+  (wire (pts (xy 160.02 218.44) (xy 139.7 218.44))
     (stroke (width 0) (type default))
     (uuid df56e97c-53af-4e51-b5fd-bf65a4e955b8)
   )
@@ -3014,7 +3035,7 @@
     (stroke (width 0) (type default))
     (uuid f8cc92d7-8421-45fd-b623-e4b8730d4649)
   )
-  (wire (pts (xy 140.97 199.39) (xy 149.86 199.39))
+  (wire (pts (xy 139.7 199.39) (xy 149.86 199.39))
     (stroke (width 0) (type default))
     (uuid fb870b3a-6b67-40da-a7a3-eeb95711c48d)
   )
@@ -3418,7 +3439,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 4494c01b-cc7c-42a4-91fd-4b933090dfb1)
   )
-  (label "~{SCKSET}" (at 140.97 199.39 0) (fields_autoplaced)
+  (label "~{SCKSET}" (at 139.7 199.39 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 44ce56fc-ff2f-496e-b6b8-fccb5bbd35dd)
   )
@@ -3429,6 +3450,10 @@
   (label "SND_D1" (at 186.69 170.18 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 4ac48e64-4992-4f2d-960c-0d6a6faa0769)
+  )
+  (label "~{WAIT}" (at 134.62 154.94 0) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 4b2dc00b-835e-407e-be02-164a4e9b0880)
   )
   (label "SND_D0" (at 255.27 124.46 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
@@ -3674,6 +3699,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid d4364cad-7de5-497f-ab8a-8d516cf63504)
   )
+  (label "~{WAIT}" (at 167.64 204.47 180) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
+    (uuid db3a8ba3-912b-417f-9709-ffa308203660)
+  )
   (label "SND_A3" (at 270.51 128.27 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid db4878a4-fa5c-40b9-b88c-5bbb4a963b6a)
@@ -3827,7 +3856,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F5") (unit 1)
         )
@@ -3880,7 +3909,7 @@
           (reference "D10") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F3") (unit 1)
         )
@@ -3912,7 +3941,7 @@
     (pin "7" (uuid c719ad5b-b59f-451d-923a-d2457f82f89e))
     (pin "8" (uuid f5925ad1-59ef-4837-8b18-7489e421a4e1))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "RN11") (unit 1)
         )
@@ -3942,7 +3971,7 @@
           (reference "#PWR0106") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR03") (unit 1)
         )
@@ -3985,7 +4014,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F5") (unit 2)
         )
@@ -4028,7 +4057,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G14") (unit 1)
         )
@@ -4053,7 +4082,7 @@
     )
     (pin "1" (uuid 26b6828c-0fa8-4927-afeb-6d9ef43e4c49))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR015") (unit 1)
         )
@@ -4083,7 +4112,7 @@
           (reference "#PWR0107") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR010") (unit 1)
         )
@@ -4127,7 +4156,7 @@
     (pin "8" (uuid 102c1d72-6430-4391-8e94-d19d66f7548b))
     (pin "9" (uuid 890f0423-08b5-4520-b987-33cedbdf0214))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "E4") (unit 1)
         )
@@ -4196,7 +4225,7 @@
           (reference "D12") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D2") (unit 1)
         )
@@ -4239,7 +4268,7 @@
           (reference "F11") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G15") (unit 4)
         )
@@ -4264,7 +4293,7 @@
     )
     (pin "1" (uuid 445c2339-3004-4804-a158-597cd4a8b3d1))
     (instances
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR016") (unit 1)
         )
@@ -4297,7 +4326,7 @@
           (reference "D9") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D1") (unit 1)
         )
@@ -4350,7 +4379,7 @@
           (reference "D8") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D2") (unit 1)
         )
@@ -4393,7 +4422,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G14") (unit 2)
         )
@@ -4450,7 +4479,7 @@
           (reference "D14") (unit 1)
         )
       )
-      (project "tmnt"
+      (project "tmnt2"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F2") (unit 1)
         )
