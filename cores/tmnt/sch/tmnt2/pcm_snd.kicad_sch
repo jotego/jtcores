@@ -6168,11 +6168,6 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 06087d90-f551-4fb4-8662-b9e4708db1a8)
   )
-  (text "Communication between the main CPU \nand the audio CPU. "
-    (at 69.85 24.13 0)
-    (effects (font (size 2 2)) (justify left bottom))
-    (uuid 1aaa0023-a9e7-4094-8cc5-86b489d560c3)
-  )
   (text "4.23kΩ" (at 377.19 83.82 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 2e855970-db16-45af-9d23-cb38617b8d42)

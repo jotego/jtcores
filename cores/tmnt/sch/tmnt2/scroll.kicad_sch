@@ -7082,7 +7082,7 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 6e05dcd3-8c57-4144-a558-b2a0958ea86c)
   )
-  (hierarchical_label "MAIN_A[16..0]" (shape input) (at 34.29 198.12 180) (fields_autoplaced)
+  (hierarchical_label "MAIN_A[15..1]" (shape input) (at 34.29 198.12 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 8de01568-f75f-4109-a7ad-4980a12f3ccc)
   )
