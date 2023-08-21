@@ -292,7 +292,7 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end
-        if( romrd ) attr <= { mmr[REG_ROM_VH], mmr[REG_ROM_H][7:2] };
+        if( romrd ) attr <= { mmr[REG_ROM_VH][1:0], mmr[REG_ROM_H][7:2] };
     end
 end
 

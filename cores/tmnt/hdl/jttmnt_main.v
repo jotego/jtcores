@@ -27,7 +27,7 @@ module jttmnt_main(
     output        [15:0] cpu_dout,
     // 8-bit interface
     output               cpu_we,
-    output               pal_we,
+    output reg           pal_cs,
     output reg           pcu_cs,
     // K053260 (PCM sound in Punk Shot)
     output               snd_wrn,
@@ -78,7 +78,7 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         pal_cs, snddt_cs, shoot_cs, snd_cs, punk_cab,
+reg         snddt_cs, shoot_cs, snd_cs, punk_cab,
             dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
 reg  [15:0] cpu_din, cab_dout;
 reg         intn, LVBLl;
@@ -97,7 +97,6 @@ assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
-assign pal_we   = pal_cs & ~LDSn & ~RnW;
 
 assign st_dout  = 0;
 assign VPAn     = ~( A[23] & ~ASn );
@@ -303,22 +302,23 @@ jtframe_m68k u_cpu(
         sndon    <=framecnt==10;
     end
     initial begin
-        rmrd      = 0;
-        prio      = 0;
-        rom_cs    = 0;
-        ram_cs    = 0;
-        vram_cs   = 0;
+        // sndon  = 0;
         obj_cs    = 0;
+        pal_cs    = 0;
+        pcu_cs    = 0;
+        prio      = 0;
+        ram_cs    = 0;
+        rmrd      = 0;
+        rom_cs    = 0;
         snd_latch = 'h63;
-        // sndon     = 0;
+        vram_cs   = 0;
     end
     assign
-        st_dout   = 0,
-        main_addr = 0,
-        ram_dsn   = 0,
         cpu_dout  = 0,
         cpu_we    = 0,
+        main_addr = 0,
+        ram_dsn   = 0,
         snd_wrn   = 0,
-        pal_we    = 0;
+        st_dout   = 0;
 `endif
 endmodule

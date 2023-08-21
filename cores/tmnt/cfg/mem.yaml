@@ -59,7 +59,7 @@ sdram:
           offset: PCM_OFFSET
         -
           name: upd
-          addr_width: 21
+          addr_width: 17
           data_width: 8
           offset: UPD_OFFSET
         -

@@ -24,6 +24,9 @@ if [ ! -z "$SCENE" ]; then
     dd if=$AUX of=scr0.bin count=16 skip=16 2> /dev/null
     dd if=$AUX of=pal.bin count=8 skip=32   2> /dev/null
     dd if=$AUX of=obj.bin count=2 skip=40   2> /dev/null
+    drop1 -l < pal.bin > pal_hi.bin
+    drop1    < pal.bin > pal_lo.bin
+
     drop1 -l < obj.bin > obj_lo.bin
     drop1    < obj.bin > obj_hi.bin
     # MMR
@@ -32,7 +35,7 @@ if [ ! -z "$SCENE" ]; then
     dd if=$AUX of=obj_mmr.bin bs=8 count=1 skip=$((42*512/8+2)) 2> /dev/null
     dd if=$AUX of=prio.bin    bs=8 count=1 skip=$((42*512/8+3)) 2> /dev/null
 else
-    rm -f {scr?,pal,obj_??,???_mmr,prio}.bin
+    rm -f {scr?,pal,pal_??,obj,obj_??,???_mmr,prio}.bin
 fi
 
 jtsim $OTHER

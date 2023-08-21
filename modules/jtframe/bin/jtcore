@@ -533,6 +533,11 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
             echo "Warning: latch inferred"
         fi
+        # Report FPGA usage
+        if [ -e $RPTPATH/*.fit.summary ]; then
+            grep "Total logic" $RPTPATH/*.fit.summary
+            grep "Total memory" $RPTPATH/*.fit.summary
+        fi
         # Report connectivity problems
         grep \^Warning $LOG | grep \\.v | grep -v altera_pll\\.v \
         | grep -v altera_cyclonev_pll\\.v \

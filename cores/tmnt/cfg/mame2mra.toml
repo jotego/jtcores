@@ -54,7 +54,7 @@ regions = [
     { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
     { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
     { name="proms",     start="JTFRAME_PROM_START" }, # last one is the priority encoder
-    { machine="mia", name="proms",  start="JTFRAME_POM_START", sequence=[0,0] }, # repeat it so it falls in the right location
+    { machine="mia", name="proms", start="JTFRAME_PROM_START", sequence=[0,0] }, # repeat it so it falls in the right location
 ]
 
 order = [ "maincpu", "audiocpu", "k007232", "k053260", "upd", "title", "k052109", "k051960", "proms" ]

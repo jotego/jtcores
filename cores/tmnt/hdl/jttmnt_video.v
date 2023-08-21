@@ -44,7 +44,7 @@ module jttmnt_video(
     output reg        odtac,
     output reg        vdtac,
     input             pcu_cs,
-    input             pal_we,
+    input             pal_cs,
     input             cpu_we,
     input             tilesys_cs,
     input             objsys_cs,
@@ -401,11 +401,12 @@ jttmnt_colmix u_colmix(
 
     // CPU interface
     .cpu_addr   (cpu_addr[12:1]),
+    .cpu_we     ( cpu_weg   ),
     .cpu_din    ( pal_dout  ),
     .cpu_d8     ( cpu_d8    ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_dsn    ( cpu_dsn   ),
-    .cpu_we     ( pal_we    ),
+    .pal_cs     ( pal_cs    ),
     .pcu_cs     ( pcu_cs    ),
 
     // PROMs

@@ -75,7 +75,8 @@ wire [ 7:0] ram_dout;
 wire [ 5:0] hzoom;
 wire        dr_start, dr_busy, hflip, vflip, hz_keep;
 wire        flip;
-wire [18:0] pre_addr, romrd_addr;
+wire [18:0] pre_addr;
+wire [17:0] romrd_addr;
 
 assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
 
@@ -86,7 +87,7 @@ always @* begin
     rom_addr[4:3] = { pre_addr[3], pre_addr[4] };
     cpu_din       = ram_dout;
     if( romrd ) begin
-        rom_addr = romrd_addr;
+        rom_addr = { code_eff[13], romrd_addr };
         case(cpu_addr[1:0])
             0: cpu_din = rom_data[  0 +: 8];
             1: cpu_din = rom_data[  8 +: 8];

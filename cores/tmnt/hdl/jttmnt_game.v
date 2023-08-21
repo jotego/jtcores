@@ -23,7 +23,7 @@ module jttmnt_game(
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
-wire        pal_we, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
+wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
 wire        cpu_rnw, odtac, vdtac, tile_irqn, tile_nmin, snd_wrn;
 wire [ 7:0] tilesys_dout, objsys_dout, snd2main,
             obj_dout,
@@ -51,7 +51,7 @@ always @(posedge clk) begin
         game_id <= prog_data[2:0];
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -91,7 +91,7 @@ jttmnt_main u_main(
     .rmrd           ( rmrd          ),
     .obj_cs         ( objsys_cs     ),
     .vram_cs        ( tilesys_cs    ),
-    .pal_we         ( pal_we        ),
+    .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
     // To sound
     .snd_latch      ( snd_latch     ),
@@ -132,7 +132,7 @@ jttmnt_video u_video (
     .cpu_we         ( cpu_we        ),
     .objsys_cs      ( objsys_cs     ),
     .tilesys_cs     ( tilesys_cs    ),
-    .pal_we         ( pal_we        ),
+    .pal_cs         ( pal_cs        ),
     .pcu_cs         ( pcu_cs        ),
     .cpu_addr       (main_addr[16:1]),
     .cpu_dsn        ( ram_dsn       ),

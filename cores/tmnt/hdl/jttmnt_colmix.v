@@ -29,6 +29,7 @@ module jttmnt_colmix(
 
     // CPU interface
     input             pcu_cs,
+    input             pal_cs,
     input             cpu_we,
     input      [15:0] cpu_dout,
     input      [ 7:0] cpu_d8,
@@ -81,10 +82,10 @@ reg         k251_en;
 assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 // 8/16 bit interface
-assign cpu_paldo = k251_en ? cpu_dout : {2{cpu_d8}};
-assign cpu_palwe = {2{cpu_we}} & ( k251_en ? ~cpu_dsn : {2{cpu_addr[1]}} );
 assign cpu_pala  = cpu_addr[12:2];
-assign cpu_din   = k251_en ? cpu_paldi : { cpu_paldi[15:8], cpu_addr[1] ? cpu_paldi[15:8] : cpu_paldi[7:0] };
+assign cpu_palwe = {2{cpu_we&pal_cs}} & ( k251_en ? ~cpu_dsn : {cpu_addr[1], ~cpu_addr[1]} );
+assign cpu_paldi = k251_en ? cpu_dout : {2{cpu_d8}};
+assign cpu_din   = k251_en ? cpu_paldo : { cpu_paldo[15:8], cpu_addr[1] ? cpu_paldo[15:8] : cpu_paldo[7:0] };
 
 assign pal_addr  = { 1'b0, pxl };
 assign ioctl_din = ioctl_addr[0] ? pal_dout[15:8] : pal_dout[7:0];
@@ -187,27 +188,10 @@ jtcolmix_053251 u_k251(
 jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramlo(
     // Port 0: CPU
     .clk0   ( clk           ),
-    .data0  ( cpu_paldo[7:0]),
+    .data0  ( cpu_paldi[7:0]),
     .addr0  ( cpu_pala      ),
     .we0    ( cpu_palwe[0]  ),
-    .q0     ( cpu_paldi[7:0]),
-    // Port 1
-    .clk1   ( clk           ),
-    .data1  ( 8'd0          ),
-    .addr1a ( pal_addr      ),
-    .addr1b (ioctl_addr[11:1]),
-    .sel_b  ( ioctl_ram     ),
-    .we_b   ( 1'b0          ),
-    .q1     ( pal_dout[7:0] )
-);
-
-jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
-    // Port 0: CPU
-    .clk0   ( clk           ),
-    .data0  (cpu_paldo[15:8]),
-    .addr0  ( cpu_pala      ),
-    .we0    ( cpu_palwe[1]  ),
-    .q0     (cpu_paldi[15:8]),
+    .q0     ( cpu_paldo[7:0]),
     // Port 1
     .clk1   ( clk           ),
     .data1  ( 8'd0          ),
@@ -216,6 +200,23 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
     .sel_b  ( ioctl_ram     ),
     .we_b   ( 1'b0          ),
     .q1     ( pal_dout[15:8])
+);
+
+jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
+    // Port 0: CPU
+    .clk0   ( clk           ),
+    .data0  (cpu_paldi[15:8]),
+    .addr0  ( cpu_pala      ),
+    .we0    ( cpu_palwe[1]  ),
+    .q0     (cpu_paldo[15:8]),
+    // Port 1
+    .clk1   ( clk           ),
+    .data1  ( 8'd0          ),
+    .addr1a ( pal_addr      ),
+    .addr1b (ioctl_addr[11:1]),
+    .sel_b  ( ioctl_ram     ),
+    .we_b   ( 1'b0          ),
+    .q1     ( pal_dout[7:0] )
 );
 
 endmodule

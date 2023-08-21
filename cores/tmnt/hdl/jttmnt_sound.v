@@ -38,22 +38,22 @@ module jttmnt_sound(
     input   [ 7:0]  rom_data,
     input           rom_ok,
     // ADPCM ROM
-    output   [21:0] pcma_addr,
+    output   [20:0] pcma_addr,
     input    [ 7:0] pcma_dout,
     output          pcma_cs,
     input           pcma_ok,
 
-    output   [21:0] pcmb_addr,
+    output   [20:0] pcmb_addr,
     input    [ 7:0] pcmb_dout,
     output          pcmb_cs,
     input           pcmb_ok,
 
-    output   [21:0] pcmc_addr,
+    output   [20:0] pcmc_addr,
     input    [ 7:0] pcmc_dout,
     output          pcmc_cs,
     input           pcmc_ok,
 
-    output   [21:0] pcmd_addr,
+    output   [20:0] pcmd_addr,
     input    [ 7:0] pcmd_dout,
     output          pcmd_cs,
     input           pcmd_ok,
@@ -83,13 +83,13 @@ module jttmnt_sound(
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, k60_dout;
 wire        [15:0]  A;
 wire        [16:0]  k32a_addr, k32b_addr;
-wire        [21:0]  k60a_addr, k60b_addr;
+wire        [20:0]  k60a_addr, k60b_addr;
 reg         [ 7:0]  cpu_din;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
                     k60a_cs, k60b_cs, k32a_cs, k32b_cs;
 reg                 ram_cs, latch_cs, fm_cs, dac_cs, bsy_cs, k60_cs;
 wire signed [15:0]  fm_left, fm_right, pre_mono, pre_l, pre_r;
-wire signed [14:0]  k60_l, k60_r;
+wire signed [13:0]  k60_l, k60_r;
 wire signed [16:0]  fm_mono;
 wire signed [ 8:0]  upd_snd;
 wire                cpu_cen, peak_mono, peak_l, peak_r;
@@ -110,8 +110,8 @@ assign title_cs = 1;
 assign fm_mono  = fm_left+fm_right;
 assign st_dout  = snd_latch;
 assign upper4k  = &A[15:12];
-assign pcma_addr = k60 ? k60a_addr : { 5'd0, k32a_addr };
-assign pcmb_addr = k60 ? k60b_addr : { 5'd0, k32b_addr };
+assign pcma_addr = k60 ? k60a_addr : { 4'd0, k32a_addr };
+assign pcmb_addr = k60 ? k60b_addr : { 4'd0, k32b_addr };
 assign pcma_cs   = k60 ? k60a_cs : k32a_cs;
 assign pcmb_cs   = k60 ? k60b_cs : k32b_cs;
 
@@ -428,14 +428,14 @@ assign  pcmd_addr  = 0;
 assign  pcmd_cs    = 0;
 assign  rom_addr   = 0;
 assign  sample     = 0;
-assign  snd_left   = 0;
-assign  snd_right  = 0;
 assign  st_dout    = 0;
 assign  title_cs   = 0;
 assign  upd_addr   = 0;
 assign  upd_cs     = 0;
 initial peak       = 0;
 initial rom_cs     = 0;
+initial snd_left   = 0;
+initial snd_right  = 0;
 initial title_addr = 0;
 `endif
 endmodule
