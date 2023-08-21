@@ -120,7 +120,6 @@ assign cpu_din = reg_rd ? { 7'd0, ~vb_start_n }  : ram_dout;
 assign int_en  = mmr[REG_CFG][2:0];
 assign flip    = mmr[REG_CFG][3];
 assign romrd   = mmr[REG_CFG][5];
-assign romrd_addr = { mmr[REG_ROM_H][1:0], mmr[REG_ROM_L],  cpu_addr[9:2] }; // 2+8+8=18
 assign dma_din = dma_clr ? 8'd0 : dma_data;
 assign dma_we  = ~vb_start_n & (dma_clr | dma_ok);
 assign dma_wr_addr = dma_clr ? dma_addr : { dma_prio, dma_addr[2:0] };
@@ -158,6 +157,10 @@ always @* begin
         4,6:   hadd = 9'h40;
         7:     hadd = 9'h80;
     endcase
+end
+
+always @(posedge clk) begin
+    if( cs && !cpu_addr[10] ) romrd_addr <= { mmr[REG_ROM_H][1:0], mmr[REG_ROM_L],  cpu_addr[9:2] }; // 2+8+8=18
 end
 
 // DMA logic

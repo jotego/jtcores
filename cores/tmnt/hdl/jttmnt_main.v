@@ -126,9 +126,15 @@ always @* begin
                 MIA:  ram_cs = ~BUSn;
                 default:;
             endcase
-            3: ram_cs = ~BUSn;  // 6'0000 ~ 7'FFFF
+            3: case( game_id )  // 6'0000 ~ 7'FFFF
+                TMNT, MIA: ram_cs = ~BUSn;
+                default:;
+            endcase
             4: case( game_id )  // 8'0000 ~ 9'FFFF
-                PUNKSHOT: ram_cs = ~BUSn;
+                PUNKSHOT: begin
+                    ram_cs = !A[16] && ~BUSn;
+                    pal_cs =  A[16];
+                end
                 default:  pal_cs = 1;
             endcase
             5: case( game_id )
@@ -152,7 +158,10 @@ always @* begin
                         default:;
                     endcase
                 endcase
-            6: syswr_cs = 1;    // C'0000 ~ C'FFFF
+            6: case( game_id )  // C'0000 ~ C'FFFF
+                TMNT, MIA: syswr_cs = 1;
+                default:;
+            endcase
             default:;
         endcase else
             case( game_id )

@@ -86,8 +86,8 @@ assign cpu_pala  = cpu_addr[12:2];
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ( k251_en ? ~cpu_dsn : {cpu_addr[1], ~cpu_addr[1]} );
 assign cpu_paldi = k251_en ? cpu_dout : {2{cpu_d8}};
 assign cpu_din   = k251_en ? cpu_paldo : { cpu_paldo[15:8], cpu_addr[1] ? cpu_paldo[15:8] : cpu_paldo[7:0] };
+assign pal_addr  = k251_en ? k251_pxl : { 1'b0, pxl };
 
-assign pal_addr  = { 1'b0, pxl };
 assign ioctl_din = ioctl_addr[0] ? pal_dout[15:8] : pal_dout[7:0];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
@@ -163,7 +163,7 @@ jtcolmix_053251 u_k251(
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),
-    .pri1       ({1'b0, cpu_prio, 3'd0 }),
+    .pri1       ({1'b0, lyro_pxl[10:9], 3'd0 }),
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),

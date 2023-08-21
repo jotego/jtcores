@@ -153,7 +153,7 @@ always @(posedge clk) begin
         odtac <= pre_odtac;
         vdtac <= pre_vdtac;
     end
-    if( !objsys_cs  || (ormrd && !lyro_ok) ) { pre_odtac, odtac } <= 1;
+    if( !objsys_cs /* || (ormrd && !lyro_ok) */ ) { pre_odtac, odtac } <= 1;
     if( !tilesys_cs || (rmrd  && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
 end
 
