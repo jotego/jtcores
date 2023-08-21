@@ -345,7 +345,11 @@
     ],
     [
       "3646ae6b-b442-459b-90c3-3178fe7652f7",
-      "pcm"
+      "pcm_snd"
+    ],
+    [
+      "30ddccaa-8577-4b03-b520-f990d504cdd0",
+      "pcm_obj"
     ]
   ],
   "text_variables": {}
