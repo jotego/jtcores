@@ -170,8 +170,8 @@ function [31:0] sort( input [31:0] x, input sort_en );
     } : x;
 endfunction
 
-function [31:0] sorto( input [31:0] x, input sort_en );
-    sorto= sort_en ? {
+function [31:0] sorto( input [31:0] x );
+    sorto= {
         x[12], x[ 8], x[ 4], x[ 0],
         x[28], x[24], x[20], x[16],
         x[13], x[ 9], x[ 5], x[ 1],
@@ -179,12 +179,12 @@ function [31:0] sorto( input [31:0] x, input sort_en );
         x[14], x[10], x[ 6], x[ 2],
         x[30], x[26], x[22], x[18],
         x[15], x[11], x[ 7], x[ 3],
-        x[31], x[27], x[23], x[19]
-    } : x;
+        x[31], x[27], x[23], x[19] };
 endfunction
 
-wire [31:0] odata = sorto(
-    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] }, sort_en );
+wire [31:0] odata = sort_en ? sorto(
+    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } ) :
+      lyro_data;
 // wire [3:0] opxls;
 
 // jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));

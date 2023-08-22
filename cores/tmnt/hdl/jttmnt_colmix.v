@@ -81,7 +81,7 @@ reg         shl, k251_en;
 assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 // 8/16 bit interface
-assign cpu_pala  = cpu_addr[12:2];
+assign cpu_pala  = k251_en ? cpu_addr[11:1] : cpu_addr[12:2];
 assign cpu_palwe = {2{cpu_we&pal_cs}} & ( k251_en ? ~cpu_dsn : {~cpu_addr[1], cpu_addr[1]} );
 assign cpu_paldi = k251_en ? cpu_dout : {2{cpu_d8}};
 assign cpu_din   = k251_en ? cpu_paldo : { cpu_paldo[15:8], cpu_addr[1] ? cpu_paldo[7:0] : cpu_paldo[15:8] };

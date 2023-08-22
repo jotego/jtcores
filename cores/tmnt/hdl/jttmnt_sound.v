@@ -247,9 +247,9 @@ jtframe_mixer #(.W0(16),.W1(14)) u_punkmx_l(
     .ch2    ( 16'd0      ),
     .ch3    ( 16'd0      ),
     .gain0  ( 8'h10      ), // music
-    .gain1  ( 8'h10      ), // percussion
-    .gain2  ( 8'h00      ), // voices (fire! hang on April)
-    .gain3  ( 8'h00      ), // theme song
+    .gain1  ( 8'h40      ), // percussion
+    .gain2  ( 8'h00      ),
+    .gain3  ( 8'h00      ),
     .mixed  ( pre_l      ),
     .peak   ( peak_l     )
 );
@@ -263,9 +263,9 @@ jtframe_mixer #(.W0(16),.W1(14)) u_punkmx_r(
     .ch2    ( 16'd0      ),
     .ch3    ( 16'd0      ),
     .gain0  ( 8'h10      ), // music
-    .gain1  ( 8'h10      ), // percussion
-    .gain2  ( 8'h00      ), // voices (fire! hang on April)
-    .gain3  ( 8'h00      ), // theme song
+    .gain1  ( 8'h40      ), // percussion
+    .gain2  ( 8'h00      ),
+    .gain3  ( 8'h00      ),
     .mixed  ( pre_r      ),
     .peak   ( peak_r     )
 );

@@ -134,7 +134,7 @@ always @* begin
             4: case( game_id )  // 8'0000 ~ 9'FFFF
                 PUNKSHOT: begin
                     ram_cs = !A[16] && ~BUSn;
-                    pal_cs =  A[16];
+                    pal_cs =  A[16] && A[15:12]==0;
                 end
                 default:  pal_cs = 1;
             endcase
@@ -144,7 +144,7 @@ always @* begin
                         0: punk_cab  = 1; // A'000x
                         1: iowr_cs   = 1; // A'002x
                         2: snd_cs    = 1; // A'004x
-                        3: pcu_cs = 1; // A'006x
+                        3: pcu_cs    = 1; // A'006x
                         // 4: watchdog
                         default:;
                     endcase
