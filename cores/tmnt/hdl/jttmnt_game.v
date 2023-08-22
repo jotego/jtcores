@@ -39,10 +39,10 @@ assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= st_main;
+        0: debug_mux <= 0;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= { rmrd, 1'd0, prio, 1'd0, game_id };
+        3: debug_mux <= st_main;
     endcase
 end
 

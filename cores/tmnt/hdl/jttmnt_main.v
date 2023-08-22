@@ -82,7 +82,7 @@ wire [ 2:0] FC, IPLn;
 reg         snddt_cs, shoot_cs, snd_cs, punk_cab,
             dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
 reg  [15:0] cpu_din, cab_dout;
-reg         intn, LVBLl;
+reg         intn, LVBLl, div8;
 wire        bus_cs, bus_busy, BUSn;
 wire        dtac_mux;
 
@@ -99,7 +99,7 @@ assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
 
-assign st_dout  = 0;
+assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = (vram_cs | obj_cs) ? (vdtac & odtac) : DTACKn;
 assign snd_wrn  = ~(snd_cs & ~RnW);
@@ -240,7 +240,9 @@ always @(posedge clk, posedge rst) begin
         rmrd    <= 0;
         int16en <= 0;
         sndon   <= 0;
+        div8    <= 0;
     end else begin
+        div8 <= game_id != PUNKSHOT;
         if( syswr_cs ) prio <= cpu_dout[3:2];
         if( iowr_cs  ) begin
             case(game_id)
@@ -265,7 +267,7 @@ jtframe_68kdtack #(.W(6),.RECOVERY(0)) u_dtack(
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
-    .den        ( 6'd6      ),  // denominator
+    .den        ({4'b1,div8,1'd0}),  // denominator, 4 (12MHz) or 6 (8MHz)
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
