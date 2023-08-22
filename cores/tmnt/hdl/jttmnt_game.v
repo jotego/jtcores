@@ -103,7 +103,8 @@ jttmnt_main u_main(
     .dip_test       ( dip_test      ),
     .dipsw          ( dipsw[19:0]   ),
     // Debug
-    .st_dout        ( st_main       )
+    .st_dout        ( st_main       ),
+    .debug_bus      ( debug_bus     )
 );
 
 /* verilator tracing_on */

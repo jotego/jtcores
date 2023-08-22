@@ -66,6 +66,7 @@ files=[
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
 delete=[ "name"... ]
+useLocation=true # Use MAME's diplocation information for deriving the bit position of each DIP option
 # Add more options
 extra=[
 	{ machine="", setname="", name="", options="", bits="" },...

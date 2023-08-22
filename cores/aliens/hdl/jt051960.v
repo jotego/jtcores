@@ -62,7 +62,7 @@ module jt051960(    // sprite logic
     // ROM check
 
     output            romrd,
-    output     [17:0] romrd_addr,
+    output reg [17:0] romrd_addr,
 
     // shadow
     input      [11:0] pxl,

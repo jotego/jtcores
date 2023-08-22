@@ -70,23 +70,23 @@ module jttmnt_colmix(
 wire [ 1:0] prio_sel, cpu_palwe, k251_shd;
 wire [ 7:0] prio_addr;
 wire [15:0] cpu_paldo, cpu_paldi, pal_dout;
-reg         pal_half, shl;
 reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 wire [10:0] pal_addr;
 wire [10:0] k251_pxl, cpu_pala;
-wire        shad;
-reg         k251_en;
+wire        shad, pcu_we;
+reg         shl, k251_en;
 
 assign prio_addr = { cpu_prio,  lyrb_pxl[7], shadow,
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 // 8/16 bit interface
 assign cpu_pala  = cpu_addr[12:2];
-assign cpu_palwe = {2{cpu_we&pal_cs}} & ( k251_en ? ~cpu_dsn : {cpu_addr[1], ~cpu_addr[1]} );
+assign cpu_palwe = {2{cpu_we&pal_cs}} & ( k251_en ? ~cpu_dsn : {~cpu_addr[1], cpu_addr[1]} );
 assign cpu_paldi = k251_en ? cpu_dout : {2{cpu_d8}};
-assign cpu_din   = k251_en ? cpu_paldo : { cpu_paldo[15:8], cpu_addr[1] ? cpu_paldo[15:8] : cpu_paldo[7:0] };
+assign cpu_din   = k251_en ? cpu_paldo : { cpu_paldo[15:8], cpu_addr[1] ? cpu_paldo[7:0] : cpu_paldo[15:8] };
 assign pal_addr  = k251_en ? k251_pxl : { 1'b0, pxl };
+assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
 
 assign ioctl_din = ioctl_addr[0] ? pal_dout[15:8] : pal_dout[7:0];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
@@ -135,8 +135,8 @@ always @(posedge clk) begin
         shl      <= 0;
     end else begin
         if( pxl_cen ) begin
-            shl <= shad;
-            bgr <= dim(pal_dout[14:0], shl);
+            shl <= k251_en ? k251_shd[0] : shad;
+            bgr <= dim( pal_dout[14:0], shl);
         end
     end
 end
@@ -157,20 +157,20 @@ jtcolmix_053251 u_k251(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     // CPU interface
-    .cs         ( pcu_cs    ),
+    .cs         ( pcu_we    ),
     .addr       (cpu_addr[4:1]),
     .din        (cpu_dout[5:0]),
     // explicit priorities
     .sel        ( 1'b0      ),
     .pri0       ( 6'h3f     ),
-    .pri1       ({1'b0, lyro_pxl[10:9], 3'd0 }),
+    .pri1       ({1'b1, lyro_pxl[10:9], 3'd0 }),
     .pri2       ( 6'h3f     ),
     // color inputs
     .ci0        ( 9'd0      ),
     .ci1        ( { 1'd0, lyro_pxl[7:0] } ),
-    .ci2        ( { 2'd0, lyrf_pxl[6:0] } ),
-    .ci3        ( { 1'b0, lyra_pxl[6:0] } ),
-    .ci4        ( { 1'b0, lyrb_pxl[6:0] } ),
+    .ci2        ( { 2'd0, lyrf_pxl[7:5], lyrf_pxl[3:0] } ),
+    .ci4        ( { 1'b0, lyra_pxl[7:5], lyra_pxl[3:0] } ),
+    .ci3        ( { 1'b0, lyrb_pxl[7:5], lyrb_pxl[3:0] } ),
     // shadow
     .shd_in     ({1'b0,shadow}),
     .shd_out    ( k251_shd  ),
@@ -199,7 +199,7 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_lo.bin")) u_ramlo(
     .addr1b (ioctl_addr[11:1]),
     .sel_b  ( ioctl_ram     ),
     .we_b   ( 1'b0          ),
-    .q1     ( pal_dout[15:8])
+    .q1     ( pal_dout[ 7:0])
 );
 
 jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
@@ -216,7 +216,7 @@ jtframe_dual_nvram #(.AW(11),.SIMFILE("pal_hi.bin")) u_ramhi(
     .addr1b (ioctl_addr[11:1]),
     .sel_b  ( ioctl_ram     ),
     .we_b   ( 1'b0          ),
-    .q1     ( pal_dout[7:0] )
+    .q1     ( pal_dout[15:8] )
 );
 
 endmodule

@@ -111,7 +111,7 @@ wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
             e, q, ioctl_mmr, ormrd;
 wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
-reg         pre_odtac, pre_vdtac;
+reg         pre_odtac, pre_vdtac, sort_en;
 wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
@@ -157,8 +157,8 @@ always @(posedge clk) begin
     if( !tilesys_cs || (rmrd  && !lyra_ok) ) { pre_vdtac, vdtac } <= 1;
 end
 
-function [31:0] sort( input [31:0] x );
-    sort={
+function [31:0] sort( input [31:0] x, input sort_en );
+    sort= sort_en ? {
         x[31], x[27], x[23], x[19],
         x[15], x[11], x[ 7], x[ 3],
         x[30], x[26], x[22], x[18],
@@ -167,11 +167,11 @@ function [31:0] sort( input [31:0] x );
         x[13], x[ 9], x[ 5], x[ 1],
         x[28], x[24], x[20], x[16],
         x[12], x[ 8], x[ 4], x[ 0]
-    };
+    } : x;
 endfunction
 
-function [31:0] sorto( input [31:0] x );
-    sorto={
+function [31:0] sorto( input [31:0] x, input sort_en );
+    sorto= sort_en ? {
         x[12], x[ 8], x[ 4], x[ 0],
         x[28], x[24], x[20], x[16],
         x[13], x[ 9], x[ 5], x[ 1],
@@ -180,15 +180,14 @@ function [31:0] sorto( input [31:0] x );
         x[30], x[26], x[22], x[18],
         x[15], x[11], x[ 7], x[ 3],
         x[31], x[27], x[23], x[19]
-    };
+    } : x;
 endfunction
 
 wire [31:0] odata = sorto(
-    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] } );
+    { lyro_data[23:16],lyro_data[31:24], lyro_data[7:0], lyro_data[15:8] }, sort_en );
 // wire [3:0] opxls;
 
 // jtframe_sort i_jtframe_sort (.debug_bus(debug_bus), .busin(lyro_pxl[3:0]), .busout(opxls));
-
 
 // object encoding is different from what 051960 expects
 jtframe_prom #(.DW(3), .AW(8)) u_gfx (
@@ -213,6 +212,9 @@ always @* begin
     endcase
 end
 
+always @(posedge clk) begin
+    sort_en <= game_id!=PUNKSHOT;
+end
 
 always @* begin
     case(game_id)
@@ -316,9 +318,9 @@ jtaliens_scroll #(
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
 
-    .lyrf_data  ( sort(lyrf_data) ),
-    .lyra_data  ( sort(lyra_data) ),
-    .lyrb_data  ( sort(lyrb_data) ),
+    .lyrf_data  ( sort(lyrf_data, sort_en) ),
+    .lyra_data  ( sort(lyra_data, sort_en) ),
+    .lyrb_data  ( sort(lyrb_data, sort_en) ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
@@ -387,7 +389,7 @@ jtaliens_obj u_obj(    // sprite logic
     .st_dout    ( st_obj    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttmnt_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

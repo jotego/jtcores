@@ -68,7 +68,8 @@ module jttmnt_main(
     input                dip_pause,
     input                dip_test,
     input         [19:0] dipsw,
-    output        [ 7:0] st_dout
+    output        [ 7:0] st_dout,
+    input         [ 7:0] debug_bus
 );
 `ifndef NOMAIN
 
@@ -189,7 +190,7 @@ always @(posedge clk) begin
                pal_cs  ? pal_dout       :
                snd_cs  ? {8'd0,snd2main}:
                dip3_cs ? { 12'd0, dipsw[19:16] } :
-               (shoot_cs | dip_cs) ? cab_dout :
+               (shoot_cs | dip_cs | punk_cab) ? cab_dout :
                { 16'hffff };
 end
 
@@ -225,10 +226,10 @@ always @(posedge clk) begin
     endcase
     if( punk_cab ) begin // 16-bit interface
         case( A[2:1] )
-            0: cab_dout <= { dipsw[7:0], dipsw[15:8] };
-            1: cab_dout <= { dipsw[19:16], 1'b1, dip_test, start_button[1:0], {4{service}}, coin_input };
-            2: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
-            3: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
+            ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
+            ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
+            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, start_button[1:0], {4{service}}, coin_input };
+            ~2'd3: cab_dout <= dipsw[15:0];
         endcase
     end
 end

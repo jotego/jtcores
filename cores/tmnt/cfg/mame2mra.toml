@@ -34,6 +34,7 @@ data = [
 
 [dipsw]
 delete = [ "Unused", "Unknown" ]
+useLocation = true
 
 # rename = [
 #     {  name="Difficulty 1 (Game)", To="Gameplay" },
