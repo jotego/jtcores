@@ -247,7 +247,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "vendetta.kicad_pro",
+    "filename": "trigon.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -324,20 +324,8 @@
   },
   "sheets": [
     [
-      "db9c9104-7f8c-4243-9845-0cbbdefe7984",
+      "d9018861-5bfa-42f4-85d0-3a6d2b8586ee",
       ""
-    ],
-    [
-      "08d81ea2-2e00-4cd5-bb3e-d56395f4ef95",
-      "scroll"
-    ],
-    [
-      "48440fc6-0742-4342-8dde-6ab82588a7f8",
-      "objects"
-    ],
-    [
-      "1af696dd-fcd2-45e6-ab93-18b2c1f5ce76",
-      "icu"
     ]
   ],
   "text_variables": {}

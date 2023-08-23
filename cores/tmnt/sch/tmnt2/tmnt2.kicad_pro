@@ -247,7 +247,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "vendetta.kicad_pro",
+    "filename": "tmnt.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -324,20 +324,32 @@
   },
   "sheets": [
     [
-      "db9c9104-7f8c-4243-9845-0cbbdefe7984",
+      "df39d662-4aa2-4ddc-b42d-33d6757a8623",
       ""
     ],
     [
-      "08d81ea2-2e00-4cd5-bb3e-d56395f4ef95",
-      "scroll"
+      "ad1c418d-6d5d-4320-8c4a-2418e63949be",
+      "colmix"
     ],
     [
-      "48440fc6-0742-4342-8dde-6ab82588a7f8",
+      "78ffae6e-b754-4ff0-aaab-f5e038ba4a01",
       "objects"
     ],
     [
-      "1af696dd-fcd2-45e6-ab93-18b2c1f5ce76",
-      "icu"
+      "f83f1ce0-d795-402e-aef8-a0e131f12b70",
+      "scroll"
+    ],
+    [
+      "3143681d-7ec5-4f5d-8c64-72e9526821c2",
+      "sound"
+    ],
+    [
+      "3646ae6b-b442-459b-90c3-3178fe7652f7",
+      "pcm_snd"
+    ],
+    [
+      "30ddccaa-8577-4b03-b520-f990d504cdd0",
+      "pcm_obj"
     ]
   ],
   "text_variables": {}

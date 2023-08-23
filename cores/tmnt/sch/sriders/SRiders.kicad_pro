@@ -247,7 +247,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "vendetta.kicad_pro",
+    "filename": "SRiders.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -324,20 +324,8 @@
   },
   "sheets": [
     [
-      "db9c9104-7f8c-4243-9845-0cbbdefe7984",
+      "c84a1bf9-23a4-4402-8ca5-cf67d502a5e2",
       ""
-    ],
-    [
-      "08d81ea2-2e00-4cd5-bb3e-d56395f4ef95",
-      "scroll"
-    ],
-    [
-      "48440fc6-0742-4342-8dde-6ab82588a7f8",
-      "objects"
-    ],
-    [
-      "1af696dd-fcd2-45e6-ab93-18b2c1f5ce76",
-      "icu"
     ]
   ],
   "text_variables": {}
