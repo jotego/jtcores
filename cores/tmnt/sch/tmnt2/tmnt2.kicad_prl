@@ -74,18 +74,6 @@
   "project": {
     "files": [
       {
-        "name": "tmnt.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 0,
-          "maximized": true,
-          "pos_x": 2242,
-          "pos_y": 67,
-          "size_x": 974,
-          "size_y": 1024
-        }
-      },
-      {
         "name": "tmnt2.kicad_sch",
         "open": false,
         "window": {

@@ -3848,6 +3848,11 @@
     (effects (font (size 2 2)) (justify right bottom))
     (uuid 02fcad98-b40d-4e50-bba3-8979e83a63ac)
   )
+  (text "These schematics cover the missing pages in the original \nones published by the maker. Signal names existing in the\noriginal pages have been preserved. New signal names try\nto follow the maker style or are taken from similar schematics \nof the same maker."
+    (at 299.72 252.73 0)
+    (effects (font (size 2.032 2.032)) (justify left bottom))
+    (uuid 0513c954-864b-4dc8-ab16-e9e3c58696f7)
+  )
   (text "3P" (at 107.95 105.41 0)
     (effects (font (size 2 2) (thickness 0.4) bold) (justify left bottom))
     (uuid 06dd4b91-0140-49d6-b246-d1e20be3ab16)

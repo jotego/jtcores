@@ -1392,6 +1392,11 @@
     )
   )
 
+  (text "These schematics cover the missing pages in the original \nones published by the maker. Signal names existing in the\noriginal pages have been preserved. New signal names try\nto follow the maker style or are taken from similar schematics \nof the same maker."
+    (at 299.72 252.73 0)
+    (effects (font (size 2.032 2.032)) (justify left bottom))
+    (uuid 01cf0f1f-c464-4c11-a812-6bb9f57b76de)
+  )
   (text "SHEET 17" (at 360.68 139.7 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 3fc4815b-0e36-4666-b64b-46d5dcc5a193)

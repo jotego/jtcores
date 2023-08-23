@@ -1660,6 +1660,11 @@
     )
   )
 
+  (text "These schematics cover the missing pages in the original \nones published by the maker. Signal names existing in the\noriginal pages have been preserved. New signal names try\nto follow the maker style or are taken from similar schematics \nof the same maker."
+    (at 299.72 252.73 0)
+    (effects (font (size 2.032 2.032)) (justify left bottom))
+    (uuid 6e44bda4-1e86-4666-8a6c-04f2cc6dbcf0)
+  )
   (text "4P" (at 139.7 151.13 0)
     (effects (font (size 2 2) (thickness 0.4) bold) (justify left bottom))
     (uuid 88e5d566-4f8f-4924-bb6e-1b3a6242272a)

@@ -862,6 +862,12 @@
     )
   )
 
+  (text "These schematics cover the missing pages in the original \nones published by the maker. Signal names existing in the\noriginal pages have been preserved. New signal names try\nto follow the maker style or are taken from similar schematics \nof the same maker."
+    (at 299.72 252.73 0)
+    (effects (font (size 2.032 2.032)) (justify left bottom))
+    (uuid 7a44851b-d2c0-4f9e-a865-0c73d5365bb0)
+  )
+
   (label "VCC" (at 86.36 49.53 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 086645c2-f0fc-4fa3-9d3a-cac345d88ca1)
