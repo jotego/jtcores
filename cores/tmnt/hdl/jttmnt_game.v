@@ -39,7 +39,7 @@ assign ram_we     = cpu_we;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= 0;
+        0: debug_mux <= { 7'd0, dip_flip };
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
         3: debug_mux <= st_main;

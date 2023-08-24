@@ -100,7 +100,8 @@ wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr, st_obj,
             dump_scr, dump_obj, dump_pal,
             lyrf_col, lyra_col, lyrb_col,
-            opal,     cpu_d8,   mmr_pal;
+            opal,     cpu_d8,   mmr_pal,
+            scr_mmr;
 wire [15:0] cpu_saddr;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [10:0] cpu_oaddr;
@@ -109,16 +110,15 @@ reg  [13:0] ocode_eff;
 reg  [ 7:0] opal_eff;
 wire [18:0] ca;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n,
-            e, q, ioctl_mmr, ormrd;
+            e, q, ormrd;
 wire        obj_irqn, obj_nmin, shadow, prio_we, gfx_we;
-reg         pre_odtac, pre_vdtac, sort_en;
+reg         pre_odtac, pre_vdtac, sort_en, ioctl_mmr;
 wire        cpu_weg;
 
 assign cpu_saddr = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
 assign cpu_oaddr = { cpu_addr[10: 1], cpu_dsn[1] };
 assign gfx_we    = prom_we & ~prog_addr[8];
 assign prio_we   = prom_we &  prog_addr[8];
-assign ioctl_mmr = ioctl_addr>='h5800;
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 
@@ -126,6 +126,7 @@ assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 always @* begin
     st_dout = debug_bus[5] ? st_obj : st_scr;
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
+    ioctl_mmr = 0;
     if( ioctl_addr<'h4000 )
         ioctl_din = dump_scr;  // 16 kB 0000~3FFF
     else if( ioctl_addr<'h5000 )
@@ -133,10 +134,11 @@ always @* begin
     else if( ioctl_addr<'h5800 )
         ioctl_din = dump_obj;  // 1kB 5000~5800
     else if( ioctl_addr<'h5808 )
-        ioctl_din = dump_scr;  // 8 bytes, MMR 5807
-    else if (ioctl_addr<'h5810)
+        ioctl_din = scr_mmr;  // 8 bytes, MMR 5807
+    else if (ioctl_addr<'h5810) begin
+        ioctl_mmr = 1;
         ioctl_din = dump_obj;  // 7 bytes, MMR 580F
-    else
+    end else
         ioctl_din = { 6'd0, cpu_prio }; // 1 byte, 5810
 end
 
@@ -333,6 +335,7 @@ jtaliens_scroll #(
     .ioctl_addr ( ioctl_addr[14:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_scr  ),
+    .mmr_dump   ( scr_mmr   ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
