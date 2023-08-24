@@ -125,7 +125,6 @@ assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Debug
 always @* begin
     st_dout = debug_bus[5] ? st_obj : st_scr;
-    // remember to drive ioctl_ram from game module:
     // VRAM dumps - 16+4+1 = 21kB +17 bytes = 22544 bytes
     if( ioctl_addr<'h4000 )
         ioctl_din = dump_scr;  // 16 kB 0000~3FFF

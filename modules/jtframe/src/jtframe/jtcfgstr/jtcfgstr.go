@@ -165,6 +165,19 @@ func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
 		// contains spaces, as simulators will get
 		// confused
 		if strings.Index(v, " ") == -1 {
+			if k=="JTFRAME_WIDTH" || k=="JTFRAME_HEIGHT" {
+				vint, e := strconv.Atoi(v)
+				if e != nil {
+					fmt.Printf("Error in %s definition (%s) when converting to integer: ", k, v )
+					fmt.Println( e )
+					os.Exit(1)
+				}
+				if vint < 512 {
+					v = "9'd"+v
+				} else {
+					v = "10'd"+v
+				}
+			}
 			fmt.Printf(fmtstr+"\n", k, v)
 		}
 		if k == "JTFRAME_PLL" {

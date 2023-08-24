@@ -97,7 +97,7 @@ reg  [ 7:0] mmr[0:4];
 reg  [ 5:0] vzoom;
 reg  [ 9:0] dma_addr;
 reg  [ 2:0] scan_sub, hstep, hcode;
-reg  [ 8:0] ydiff, ydiff_b, y, vlatch, hadd;
+reg  [ 8:0] ydiff, ydiff_b, y, vlatch;
 reg  [ 6:0] dma_prio, scan_obj;
 reg         dma_clr, dma_done, dma_cen, inzone, hs_l, done, hdone, busy_l;
 wire [ 7:0] ram_dout, scan_dout, dma_data;
@@ -150,12 +150,6 @@ always @* begin
         1,3,5: hdone = hstep==1;
         4,6:   hdone = hstep==3;
         7:     hdone = hstep==7;
-    endcase
-    case( size )
-        0,2:   hadd = 0;
-        1,3,5: hadd = 9'h10;
-        4,6:   hadd = 9'h40;
-        7:     hadd = 9'h80;
     endcase
 end
 
