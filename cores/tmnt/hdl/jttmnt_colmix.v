@@ -88,7 +88,7 @@ assign cpu_din   = k251_en ? cpu_paldo : { cpu_paldo[15:8], cpu_addr[1] ? cpu_pa
 assign pal_addr  = k251_en ? k251_pxl : { 1'b0, pxl };
 assign pcu_we    = pcu_cs & ~cpu_dsn[0] & cpu_we;
 
-assign ioctl_din = ioctl_addr[0] ? pal_dout[15:8] : pal_dout[7:0];
+assign ioctl_din = ioctl_addr[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 always @(posedge clk) begin

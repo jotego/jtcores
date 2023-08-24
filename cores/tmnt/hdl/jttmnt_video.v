@@ -132,7 +132,7 @@ always @* begin
     else if( ioctl_addr<'h5000 )
         ioctl_din = dump_pal;  // 4kB 4000~4FFF
     else if( ioctl_addr<'h5800 )
-        ioctl_din = dump_obj;  // 1kB 5000~5800
+        ioctl_din = dump_obj;  // 2kB 5000~5800 (second half equal for 051960)
     else if( ioctl_addr<'h5808 )
         ioctl_din = scr_mmr;  // 8 bytes, MMR 5807
     else if (ioctl_addr<'h5810) begin
