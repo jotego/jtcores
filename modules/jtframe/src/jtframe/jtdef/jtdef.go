@@ -122,8 +122,8 @@ func parse_def(path string, cfg Config, macros *map[string]string) {
 func Check_macros(def map[string]string) bool {
 	// Check that MiST DIPs are defined after the
 	// last used status bit
-	dipbase, _ := strconv.Atoi(def["JTFRAME_MIST_DIPBASE"])
-	if def["JTFRAME_MIST_DIPBASE"] == "" {
+	dipbase, _ := strconv.Atoi(def["JTFRAME_DIPBASE"])
+	if def["JTFRAME_DIPBASE"] == "" {
 		dipbase = 16
 	}
 	_, autofire0  := def["JTFRAME_AUTOFIRE0"]
@@ -226,7 +226,7 @@ func Make_macros(cfg Config) (macros map[string]string) {
 		"JTFRAME_COLORW":        "4",
 		"JTFRAME_BUTTONS":       "2",
 		"JTFRAME_SIGNED_SND":    "1",
-		"JTFRAME_MIST_DIPBASE": "16",
+		"JTFRAME_DIPBASE": "16",
 		"JTFRAME_CREDITS_PAGES": "3",
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),

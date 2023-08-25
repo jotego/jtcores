@@ -178,7 +178,7 @@ type Mame2MRA struct {
 
 	Dipsw struct {
 		Delete []string
-		base   int // Define it macros.def as JTFRAME_MIST_DIPBASE
+		base   int // Define it macros.def as JTFRAME_DIPBASE
 		Bitcnt int // Total bit count (including all switches)
 		UseLocation bool // use MAME's <DIPlocation> to set the bit position
 		Defaults [] struct {
@@ -999,7 +999,7 @@ func parse_toml(args *Args) (mra_cfg Mame2MRA) {
 		fmt.Println(json_enc)
 		os.Exit(1)
 	}
-	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_MIST_DIPBASE"])
+	mra_cfg.Dipsw.base, _ = strconv.Atoi(macros["JTFRAME_DIPBASE"])
 	// Set the number of buttons to the definition in the macros.def
 	if mra_cfg.Buttons.Core == 0 {
 		mra_cfg.Buttons.Core, _ = strconv.Atoi(macros["JTFRAME_BUTTONS"])
