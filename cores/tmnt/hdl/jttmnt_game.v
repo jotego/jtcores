@@ -48,7 +48,7 @@ end
 
 always @(posedge clk) begin
     if( prog_addr==0 && prog_we && header )
-        game_id <= prog_data[2:0];
+        game_id <= { 2'b0, prog_data[0] } ; // do not let Punk Shot get through
 end
 
 /* verilator tracing_on */
