@@ -38,6 +38,7 @@ module jtframe_obj_buffer #(parameter
     BLANK       = ALPHA,
     BLANK_DLY   = 2,
     FLIP_OFFSET = 0,
+    SHADOW      = 0,  // 1 enables shadows on data MSB
     KEEP_OLD    = 0   // Do not overwrite old non-ALPHA data
                       // requires address, data and we signals to be held
                       // for at least two clock cycles
@@ -55,13 +56,16 @@ module jtframe_obj_buffer #(parameter
     output reg [DW-1:0] rd_data
 );
 
+localparam EW = SHADOW==1 ? DW-1 : DW;
+
 reg     line, last_LHBL;
 wire    new_we;
 
 reg [BLANK_DLY-1:0] dly;
 wire                delete_we = dly[0];
-wire [DW-1:0]       blank_data = BLANK[DW-1:0];
-wire [DW-1:0]       dump_data, old;
+wire [EW-1:0]       blank_data = BLANK[EW-1:0];
+wire [DW-1:0]       dump_data;
+wire [EW-1:0]       old;
 
 assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
     && (old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0] || KEEP_OLD==0);
@@ -89,11 +93,11 @@ end
 
 wire [AW-1:0] wr_af = flip ? ~wr_addr + FLIP_OFFSET[AW-1:0] : wr_addr;
 
-jtframe_dual_ram #(.AW(AW+1),.DW(DW)) u_line(
+jtframe_dual_ram #(.AW(AW+1),.DW(EW)) u_line(
     .clk0   ( clk           ),
     .clk1   ( clk           ),
     // Port 0
-    .data0  ( wr_data       ),
+    .data0  (wr_data[EW-1:0]),
     .addr0  ( {line,wr_af}  ),
     .we0    ( new_we        ),
     .q0     ( old           ),
@@ -101,7 +105,28 @@ jtframe_dual_ram #(.AW(AW+1),.DW(DW)) u_line(
     .data1  ( blank_data    ),
     .addr1  ({~line,rd_addr}),
     .we1    ( delete_we     ),
-    .q1     ( dump_data     )
+    .q1     (dump_data[EW-1:0])
 );
+
+generate
+    if( SHADOW==1 ) begin
+        wire shadow_we = we & wr_data[DW-1];
+
+        jtframe_dual_ram #(.AW(AW+1),.DW(1)) u_shadow(
+            .clk0   ( clk           ),
+            .clk1   ( clk           ),
+            // Port 0
+            .data0  ( wr_data[DW-1] ),
+            .addr0  ( {line,wr_af}  ),
+            .we0    ( shadow_we     ),
+            .q0     (               ),
+            // Port 1
+            .data1  ( 1'b0          ),
+            .addr1  ({~line,rd_addr}),
+            .we1    ( delete_we     ),
+            .q1     (dump_data[DW-1])
+        );
+    end
+endgenerate
 
 endmodule

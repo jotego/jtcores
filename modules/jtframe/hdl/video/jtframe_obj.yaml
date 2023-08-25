@@ -1,8 +1,9 @@
 jtframe:
   - from: video
     get:
-      - jtframe_objdraw.v
       - jtframe_draw.v
+      - jtframe_objdraw.v
+      - jtframe_objdraw_gate.v
   - from: ram
     get:
       - jtframe_obj_buffer.v

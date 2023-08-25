@@ -74,11 +74,14 @@ wire [ 3:0] ysub;
 wire [ 7:0] ram_dout;
 wire [ 5:0] hzoom;
 wire        dr_start, dr_busy, hflip, vflip, hz_keep;
-wire        flip;
+wire        flip, buf_sha;
 wire [18:0] pre_addr;
 wire [17:0] romrd_addr;
+wire [11:0] buf_pred, buf_din;
 
-assign blank_n = pxl[3:0]!=0 && !shadow && gfx_en[3];
+assign blank_n = pxl[3:0]!=0 && gfx_en[3];
+assign buf_din = { buf_sha, buf_pred[10:4], buf_sha ? 4'h0 : buf_pred[3:0] };
+assign shadow  = pxl[11];
 
 // jtframe_draw outputs H[3],V[3:0]
 // swap bits 3 and 4 to comply with Konami ROM order
@@ -134,8 +137,8 @@ jt051960 u_scan(    // sprite logic
     .nmi_n      ( nmi_n     ),
 
     // Shadow
-    .pxl        ( pxl       ),
-    .shadow     ( shadow    ),
+    .pxl        ( buf_pred  ),
+    .shadow     ( buf_sha   ),
 
     // ROM check
     .romrd      ( romrd     ),
@@ -150,8 +153,8 @@ jt051960 u_scan(    // sprite logic
     .st_dout    ( st_dout   )
 );
 
-jtframe_objdraw #(
-    .CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'h12)
+jtframe_objdraw_gate #(
+    .CW(14),.PW(12),.LATCH(1),.SWAPH(1),.ZW(7),.FLIP_OFFSET(9'h12),.SHADOW(1)
 ) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -177,6 +180,9 @@ jtframe_objdraw #(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),
+
+    .buf_pred   ( buf_pred  ),
+    .buf_din    ( buf_din   ),
 
     .pxl        ( pxl       )
 );
