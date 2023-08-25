@@ -42,6 +42,10 @@ part of the source file commited in git.
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
 
+Macros in macros.def are parsed for the "mister" target. This is relevant when
+for some macros like JTFRAME_IOCTL_RD, which may have different values for
+debugging in MiST without affecting the MRA generation.
+
 TOML elements (see full reference in mame2mra.go)
 
 [parse]
@@ -137,6 +141,7 @@ patches = [
 			mra.Reduce(args[0])
 		} else { // regular operation, core names are separated by commas
 			mra_args.Xml_path=os.Getenv("JTROOT")+"/rom/mame.xml"
+			mra_args.Def_cfg.Target="mister"
 			for _, each := range args {
 				mra_args.Def_cfg.Core = each
 				mra.Run(mra_args)

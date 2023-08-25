@@ -30,6 +30,7 @@ module jtframe_objdraw #( parameter
     LATCH =  0,
     FLIP_OFFSET=0,
     KEEP_OLD  = 0,
+    SHADOW    = 0,
     ALPHA       = 0
 )(
     input               rst,
@@ -62,7 +63,7 @@ module jtframe_objdraw #( parameter
 
     wire [PW-1:0] buf_d;
 
-    jtframe_objdraw_gate u_gate #(
+    jtframe_objdraw_gate #(
         .CW             ( CW            ),
         .PW             ( PW            ),
         .ZW             ( ZW            ),
@@ -75,7 +76,7 @@ module jtframe_objdraw #( parameter
         .SHADOW         ( SHADOW        ),
         .KEEP_OLD       ( KEEP_OLD      ),
         .ALPHA          ( ALPHA         )
-    )(
+    )u_gate(
         .rst            ( rst           ),
         .clk            ( clk           ),
         .pxl_cen        ( pxl_cen       ),
