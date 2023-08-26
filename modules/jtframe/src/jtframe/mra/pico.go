@@ -134,7 +134,7 @@ func dump_bin(fname string, data []byte) {
 	}
 }
 
-func picoasm(filename string, machine *MachineXML, cfg Mame2MRA, args Args) []byte {
+func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	olddir, _ := os.Getwd()
 	path := filepath.Join(os.Getenv("CORES"), args.Def_cfg.Core, "cheat")
 	// Check if the cheat folder exists
