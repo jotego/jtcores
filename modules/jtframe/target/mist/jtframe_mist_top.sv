@@ -180,8 +180,8 @@ wire [ 7:0] st_addr, st_dout;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 wire [15:0] mouse_1p, mouse_2p;
 
-`ifdef JTFRAME_MIST_DIPBASE
-localparam DIPBASE=`JTFRAME_MIST_DIPBASE;
+`ifdef JTFRAME_DIPBASE
+localparam DIPBASE=`JTFRAME_DIPBASE;
 `else
 localparam DIPBASE=16;
 `endif
