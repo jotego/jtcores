@@ -42,6 +42,10 @@ part of the source file commited in git.
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
 
+Macros in macros.def are parsed for the "mister" target. This is relevant when
+for some macros like JTFRAME_IOCTL_RD, which may have different values for
+debugging in MiST without affecting the MRA generation.
+
 TOML elements (see full reference in mame2mra.go)
 
 [parse]
@@ -66,6 +70,7 @@ files=[
 [dipsw]
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
 delete=[ "name"... ]
+useLocation=true # Use MAME's diplocation information for deriving the bit position of each DIP option
 # Add more options
 extra=[
 	{ machine="", setname="", name="", options="", bits="" },...
@@ -128,7 +133,7 @@ splits=[
 # Patch the final ROM file, the offset will be automatically adjusted
 # to add JTFRAME_HEADER
 patches = [
-	{ machine="...", setname="...", offset=0x0000, value="01 02 03..." },...
+	{ machine="...", setname="...", offset=0x0000, data="01 02 03..." },...
 ]
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -136,6 +141,7 @@ patches = [
 			mra.Reduce(args[0])
 		} else { // regular operation, core names are separated by commas
 			mra_args.Xml_path=os.Getenv("JTROOT")+"/rom/mame.xml"
+			mra_args.Def_cfg.Target="mister"
 			for _, each := range args {
 				mra_args.Def_cfg.Core = each
 				mra.Run(mra_args)

@@ -307,8 +307,8 @@ wire       enable_fm, enable_psg;
 wire       dip_pause, dip_flip, dip_test;
 wire       pxl_cen, pxl2_cen;
 
-`ifdef JTFRAME_MIST_DIPBASE
-localparam DIPBASE=`JTFRAME_MIST_DIPBASE;
+`ifdef JTFRAME_DIPBASE
+localparam DIPBASE=`JTFRAME_DIPBASE;
 `else
 localparam DIPBASE=16;
 `endif

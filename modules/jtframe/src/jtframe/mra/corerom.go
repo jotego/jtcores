@@ -81,10 +81,12 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			}
 		}
 		// Proceed with the ROM listing
+
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
-			fmt.Printf(
+			if len(reg_roms)!=0 { fmt.Printf(
 				"\tstart offset overcome by 0x%X while parsing region %s in %s\n",
 				-delta, reg, machine.Name)
+			}
 		}
 		sdram_bank_comment(p, pos, args.macros)
 		// comment with start and length of region
@@ -112,6 +114,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 		if args.Verbose {
 			fmt.Println("\tafter sorting:\n\t", reg_roms)
 		}
+		// pos_old := pos
 		if len(reg_cfg.Parts)!=0 {
 			pos += parse_parts( reg_cfg, p )
 		} else if reg_cfg.Singleton {
@@ -132,6 +135,9 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 				os.Exit(1)
 			}
 		}
+		// if pos_old == pos {
+		// 	p.RmNode( previous.node )
+		// }
 		fill_upto(&pos, start_pos+reg_cfg.Len, p)
 	}
 	previous.add_length(pos)
@@ -161,7 +167,7 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, macros map[s
 					header)).comment=true
 			}
 			// apply the patch
-			root.AddNode("patch", each.Value).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
+			root.AddNode("patch", each.Data).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
 		}
 	}
 }
@@ -507,7 +513,7 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 	start_pos := *pos
 	for _, r := range reg_roms {
 		offset := r.Offset
-		if reg_cfg.No_offset {
+		if reg_cfg.No_offset || ((offset&0xfffffff0)==0) {
 			offset = 0
 		} else {
 			if delta := fill_upto(pos, ((offset&-2)-reg_pos)+*pos, p); delta < 0 {

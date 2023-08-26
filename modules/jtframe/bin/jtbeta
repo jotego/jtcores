@@ -177,6 +177,10 @@ git add *
 git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
 git tag --force $TAG
 
+# Prepare the zip files
+echo "Creating zip files"
+cpbeta.sh $CORE
+
 echo "Adding the reference to JTBIN's wiki"
 cd $JTBIN/../jtbin.wiki
 git pull
@@ -186,9 +190,6 @@ if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
     # git push
 fi
 
-# Prepare the zip files
-echo "Creating zip files"
-cpbeta.sh $CORE
 
 # Show problems
 BETALOG=$JTROOT/log/update.log
