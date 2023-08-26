@@ -80,12 +80,13 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 				nodump = true
 			}
 		}
-		if len(reg_roms)==0 { continue } // empty region, may be used on a different configuration
 		// Proceed with the ROM listing
+
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
-			fmt.Printf(
+			if len(reg_roms)!=0 { fmt.Printf(
 				"\tstart offset overcome by 0x%X while parsing region %s in %s\n",
 				-delta, reg, machine.Name)
+			}
 		}
 		sdram_bank_comment(p, pos, args.macros)
 		// comment with start and length of region
@@ -113,6 +114,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 		if args.Verbose {
 			fmt.Println("\tafter sorting:\n\t", reg_roms)
 		}
+		// pos_old := pos
 		if len(reg_cfg.Parts)!=0 {
 			pos += parse_parts( reg_cfg, p )
 		} else if reg_cfg.Singleton {
@@ -133,6 +135,9 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 				os.Exit(1)
 			}
 		}
+		// if pos_old == pos {
+		// 	p.RmNode( previous.node )
+		// }
 		fill_upto(&pos, start_pos+reg_cfg.Len, p)
 	}
 	previous.add_length(pos)

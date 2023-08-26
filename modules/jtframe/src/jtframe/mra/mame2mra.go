@@ -941,7 +941,8 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 		if start == 0 {
 			continue
 		}
-		if int(start) == pos {
+		// add the comment only once
+		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.name })==nil {
 			root.AddNode(k).comment = true
 		}
 	}

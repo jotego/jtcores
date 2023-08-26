@@ -10,6 +10,21 @@ import(
     "strings"
 )
 
+func dip_mask( ds MachineDIP ) (int, int) {
+    bitmin := 0
+    mtest := 1
+    for (ds.Mask & mtest) == 0 {
+        mtest <<= 1
+        bitmin++
+    }
+    bitmax := bitmin
+    for (ds.Mask & mtest)!=0 {
+        mtest <<= 1
+        bitmax++
+    }
+    return bitmin, bitmax-1
+}
+
 func dip_bit0( ds MachineDIP, cfg Mame2MRA ) (int, int) {
     if cfg.Dipsw.UseLocation && len(ds.Diplocation)>0 &&
      len(ds.Diplocation[0].Name)>2 &&
@@ -91,8 +106,12 @@ diploop:
             }
         }
         bitmin, bitmax := dip_bit0( ds, cfg )
+        maskmin, maskmax := dip_mask( ds )
+        if args.Verbose {
+            fmt.Printf("\tDIP %s (%s) %d:%d - def_str = '%s'. Mask %d:%d\n", ds.Name, ds.Tag, bitmax, bitmin, def_str, maskmax, maskmin )
+        }
         if ds.Tag != last_tag {
-            if len(last_tag) > 0 {
+            if last_tag!="" {
                 // Record the default values
                 if len(def_str) > 0 {
                     def_str += ","
@@ -125,6 +144,9 @@ diploop:
             next_val++
             if each.Default == "yes" {
                 opt_dev = each.Value
+                if args.Verbose {
+                    fmt.Printf("\t\tDefault = %s. %X -> %X \n", each.Name, each.Value, opt_dev )
+                }
             }
         }
         if !ignore {
@@ -180,19 +202,26 @@ diploop:
             fmt.Printf("bitmin = %d, bitmax=%d\n", bitmin, bitmax)
             log.Fatal("Don't know how to parse DIP ", ds.Name)
         }
-        mask := 1 << (1 + Max(cfg.Dipsw.Bitcnt, bitmax) - bitmin)
-        mask = (((mask - 1) << bitmin) ^ 0xffff) & 0xffff
+        mask := 1 << (1 + Max(cfg.Dipsw.Bitcnt, maskmax) - maskmin)
+        mask = (^((mask - 1) << maskmin)) & 0xffff
         def_cur &= mask
-        opt_dev = opt_dev & (mask ^ 0xffff)
+        opt_dev = opt_dev & ^mask
         def_cur |= opt_dev
-    }
-    //base = Max(base, len(def_str)>>2)
-    // fmt.Printf("\t1. def_str=%s. base/game_bitcnt = %d/%d \n", def_str, base, game_bitcnt)
-    if base < game_bitcnt {
-        // Default values of switch parsed last
-        if len(def_str) > 0 {
-            def_str += ","
+        if args.Verbose {
+            fmt.Printf("\t\tMask %X Default %x -> def_cur=%X (base=%d)\n", mask, opt_dev, def_cur, base)
         }
+    }
+    // Default values of switch parsed last
+    if len(def_str) > 0 {
+        def_str += ","
+    }
+    cur_str := fmt.Sprintf("%02x", def_cur)
+    def_str += cur_str
+    if args.Verbose {
+        fmt.Printf("\tDefaults from MAME = %s\n", def_str )
+    }
+    base += 8
+    if base < game_bitcnt && !cfg.Dipsw.UseLocation{
         cur_str := fmt.Sprintf("%02x", def_cur)
         def_str += cur_str
         base += len(cur_str) << 2
