@@ -7,7 +7,7 @@ For I/O (SDRAM download, etc.) the following indexes are used
 | Main ROM        | 0    | 0      | 1               | rom.bin   |
 | JTFRAME options | 1    | 1      | F900'0000 write | core.mod  |
 | Cartridges      |      | 4      |                 | cart.bin  |
-| NVRAM           | 255  | 2      | N/A             | nvram.bin |
+| NVRAM           | 255  | 2      | 2               | nvram.bin |
 | Cheat ROM       | 16   | 16     | N/A             |           |
 | Beta keys       | N/A  | 17     | 17              |           |
 | DIP switches    | N/A  | 254    | N/A             |           |
