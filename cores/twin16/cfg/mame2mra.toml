@@ -1,0 +1,39 @@
+[parse]
+sourcefile=[ "twin16.cpp" ]
+parents= [
+    {name="mia",description="Missing in Action"},
+    {name="cuebrick",description="Cuebrick"}
+]
+skip = { machines=[
+    "cuebrick",
+    "mia",
+    "vulcan",
+    "devilw",
+], setnames=[
+    "hpuncher",
+] }
+
+[dipsw]
+delete = [ "Unused", "Unknown" ]
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+# or arguments passed to mame2mra
+regions = [
+    { name="maincpu", width=16, reverse=true  },
+    { name="sub", width=16, reverse=true  },
+    { name="sub", setnames=[ "fround", "froundl" ], skip = true },
+    { name="data"  },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="fixed",    start="JTFRAME_BA2_START" },
+    { name="tiles"    },
+    { name="gfxrom",   start="JTFRAME_BA3_START" },
+    { name="k007232"  },
+    { name="upd"  }
+]
+
+order = [
+    "maincpu", "sub", "data", "audiocpu",
+    "k007232", "upd",
+    "fixed", "gfxrom", "tiles"
+]
