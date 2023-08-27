@@ -35,5 +35,5 @@ regions = [
 order = [
     "maincpu", "sub", "data", "audiocpu",
     "k007232", "upd",
-    "fixed", "gfxrom", "tiles"
+    "fixed", "tiles", "gfxrom"
 ]

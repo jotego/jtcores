@@ -363,7 +363,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .addr1  ( {{$bus.Dual_port.Name}}_addr{{ addr_range $bus }}),{{ if $bus.Dual_port.Rw }}
     .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ), {{ else }}
     .we1    ( 2'd0 ),{{end}}
-    .q1     ( {{$bus.Name}}2{{$bus.Dual_port.Name}}_data )
+    .q1     ( {{if $bus.Dual_port.Dout}}{{$bus.Dual_port.Dout}}{{else}}{{$bus.Name}}2{{$bus.Dual_port.Name}}_data{{end}} )
 );{{else}}{{if $bus.ROM.Offset }}
 /* verilator tracing_on */
 

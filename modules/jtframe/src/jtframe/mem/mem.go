@@ -222,7 +222,7 @@ func get_macros( core, target string ) (map[string]string) {
 	return jtdef.Make_macros(def_cfg)
 }
 
-func check_banks( macros map[string]string, cfg MemConfig ) {
+func check_banks( macros map[string]string, cfg *MemConfig ) {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
 		log.Fatalf("jtframe mem: the number of banks must be between 1 and 4 but %d were found.", len(cfg.SDRAM.Banks))
@@ -263,17 +263,7 @@ func check_banks( macros map[string]string, cfg MemConfig ) {
 	if bad {
 		os.Exit(1)
 	}
-}
 
-func Run(args Args) {
-	var cfg MemConfig
-	if !parse_file(args.Core, "mem", &cfg, args) {
-		// the mem.yaml file does not exist, that's
-		// normally ok
-		return
-	}
-	macros := get_macros( args.Core, args.Target )
-	check_banks( macros, cfg )
 	// Check that the required files are available
 	for k, each := range cfg.SDRAM.Banks {
 		total_slots := len(each.Buses)
@@ -317,6 +307,97 @@ func Run(args Args) {
 			cfg.Unused[k] = true
 		}
 	}
+}
+
+func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
+	implicit := make( map[string]bool )
+	// get implicit names
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			if each.Addr=="" { implicit[each.Name+"_addr"]=true }
+			if each.Cs=="" { implicit[each.Name+"_cs"]=true }
+			if each.Dsn=="" { implicit[each.Name+"_dsn"]=true }
+			if each.Din=="" { implicit[each.Name+"_din"]=true }
+			implicit[each.Name+"_data"]=true
+		}
+	}
+	// Add some other ports
+	for _, each := range []string{ "LVBL", "LHBL", "HS", "VS" } {
+		implicit[each] = true
+	}
+	// fmt.Println("Implicit ports:\n",implicit)
+	// get explicit names in SDRAM/BRAM buses and added to the port list
+	all := make( map[string]Port )
+	add := func( p Port ) {
+		if p.Name[0]>='0' && p.Name[0]<='9' { return } // not a name
+		// remove the brackts
+		k := strings.Index( p.Name, "[" )
+		if k>=0 { p.Name = p.Name[0:k] }
+		if t,_:=implicit[p.Name]; t { return }
+		all[p.Name] = p
+	}
+	for _, each := range cfg.Ports {
+		all[each.Name] = each
+	}
+	for _, bank := range cfg.SDRAM.Banks {
+		for _, each := range bank.Buses {
+			if each.Cs != ""  { add( Port{ Name: each.Cs, } ) }
+			if each.Dsn != "" { add( Port{ Name: each.Dsn, MSB: 1, } ) }
+			if each.Din != "" { add( Port{ Name: each.Din, MSB: each.Data_width-1, } ) }
+		}
+	}
+	for _, each := range cfg.BRAM {
+		if each.Addr != "" {
+			add( Port{
+				Name: each.Addr,
+				MSB:  each.Data_width-1,
+				LSB:  each.Data_width>>4, // 8->0, 16->1
+			})
+		}
+		if each.Din != "" {
+			add( Port{
+				Name: each.Din,
+				MSB: each.Data_width-1,
+			})
+		}
+		if each.Dual_port.Name!="" {
+			if each.Dual_port.We != "" {
+				add( Port{
+					Name: each.Dual_port.We,
+					MSB: each.Data_width>>4, // 8->0, 16->1
+				})
+			}
+			if each.Dual_port.Dout != "" {
+				add( Port{
+					Name: each.Dual_port.Dout,
+					MSB: each.Data_width-1,
+					Input: true,
+				})
+			} else {
+				name:= each.Name+"2"+each.Dual_port.Name+"_data"
+				add( Port{
+					Name: name,
+					MSB: each.Data_width-1,
+					Input: true,
+				})
+			}
+		}
+	}
+	cfg.Ports = make( []Port,0, len(all) )
+	// fmt.Println("Final ports\n",all)
+	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
+}
+
+func Run(args Args) {
+	var cfg MemConfig
+	if !parse_file(args.Core, "mem", &cfg, args) {
+		// the mem.yaml file does not exist, that's
+		// normally ok
+		return
+	}
+	macros := get_macros( args.Core, args.Target )
+	check_banks( macros, &cfg )
+	fill_implicit_ports( macros, &cfg )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
 	// Execute the template

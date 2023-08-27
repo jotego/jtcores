@@ -54,6 +54,7 @@ type BRAMBus struct {
     Dual_port  struct {
         Name string `yaml:"name"`
         Din  string `yaml:"din"`  // optional name for din signal
+        Dout string `yaml:"dout"` // optional name for dout signal
         Rw   bool   `yaml:"rw"`
         We   string `yaml:"we"`
     } `yaml:"dual_port"`

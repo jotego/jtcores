@@ -125,7 +125,7 @@ always @(posedge clk) begin
        peak       <= peak_l | peak_r;
        snd_left   <= pre_l;
        snd_right  <= pre_r;
-    end else begin
+    end else begin  // 007232, Title, ADPCM
        k60        <= 0;
        upd_rst    <= ~upd_rstn | rst;
        k7232_rst  <= rst;

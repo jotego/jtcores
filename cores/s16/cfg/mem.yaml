@@ -26,8 +26,6 @@ clocks:
     - freq: 8000000
       outputs:
         - mcu_cen
-ports:
-  - name: gfx_cs
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs

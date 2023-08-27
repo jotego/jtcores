@@ -2262,7 +2262,6 @@
     )
   )
 
-
   (junction (at 254 248.92) (diameter 0) (color 0 0 0 0)
     (uuid 051ee826-f600-4975-9196-8547217bf88d)
   )
@@ -7314,13 +7313,13 @@
     (pin "5" (uuid 4c7e268a-6fb2-43b7-a257-9dabba0c8f45))
     (pin "7" (uuid 010c9b9a-c720-43ed-b1dc-b16d44793e01))
     (pin "9" (uuid b069e01b-7fec-4a50-a6ff-ae8f9b13f1a1))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
-    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae59b))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
+    (pin "NC" (uuid cc7c20b8-78fc-40c5-b5bf-ff5cc9dae5a1))
     (instances
       (project "fround"
         (path "/1ca8d055-0b00-47be-b97a-1f8012224013/441b7c24-6e25-49be-bc56-3adcd9e5b8e6"

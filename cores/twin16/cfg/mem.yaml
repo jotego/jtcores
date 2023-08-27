@@ -1,0 +1,93 @@
+params:
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START) >> 1"   }
+  - { name: UPD_OFFSET,   value: "(`UPD_START-`JTFRAME_BA1_START) >> 1"   }
+  - { name: RAM_OFFSET,   value: "22'h100000" }
+clocks:
+  clk48:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 640000
+      outputs:
+        - cen_640
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: ram
+          addr_width: 15
+          data_width: 16
+          offset: RAM_OFFSET
+          rw: true
+        -
+          name: main
+          addr_width: 19
+          data_width: 16
+    -
+      buses:
+        -
+          name: snd
+          addr_width: 15
+          data_width: 8
+        -
+          name: pcma
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: pcmb
+          addr_width: 21
+          data_width: 8
+          offset: PCM_OFFSET
+        -
+          name: upd
+          addr_width: 17
+          data_width: 8
+          offset: UPD_OFFSET
+    -
+      buses:
+        -
+          name: lyrf
+          addr_width: 14
+          data_width: 32
+        -
+          name: lyra
+          addr_width: 20
+          data_width: 32
+          offset: SCR_OFFSET
+        -
+          name: lyrb
+          addr_width: 20
+          data_width: 32
+          offset: SCR_OFFSET
+
+    -
+      buses:
+        -
+          name: lyro
+          addr_width: 20
+          data_width: 32
+bram:
+  # 2 + 8 + 8 + 16 = 34 kB
+  - name: fram
+    data_width: 16
+    addr_width: 11
+    sim_file: true
+    dual_port: { name: main, we: fx_we, rw: true, dout: mf_dout }
+  - name: saram
+    data_width: 16
+    addr_width: 13
+    sim_file: true
+    dual_port: { name: vram, we: va_we, rw: true, din: main_dout, dout: ma_dout }
+  - name: sbram
+    data_width: 16
+    addr_width: 13
+    sim_file: true
+    dual_port: { name: vram, we: vb_we, rw: true, din: main_dout, dout: mb_dout }
+  - name: oram
+    data_width: 16
+    addr_width: 14
+    sim_file: true
+    dual_port: { name: main, we: obj_we, rw: true, din: main_dout, dout: mo_dout }

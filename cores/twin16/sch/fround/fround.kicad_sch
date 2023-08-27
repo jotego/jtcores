@@ -1485,7 +1485,6 @@
   )
 
   (bus_alias "COLORIO" (members "PI0" "PI1" "~{COLORCS}" "~{MREAD1}" "~{IOCS}" "MR~{W}" "~{EXRES}"))
-
   (junction (at 217.17 64.77) (diameter 0) (color 0 0 0 0)
     (uuid 057fafb9-b9b6-4e9a-a5cc-fc6b6321f988)
   )

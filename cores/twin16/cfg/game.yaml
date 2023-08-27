@@ -1,22 +1,21 @@
 game:
+  - from: twin16
+    get:
+      - jttwin16_game.v
+      - jttwin16_main.v
+      - jttwin16_video.v
+      - jttwin16_fix.v
+      - jttwin16_obj.v
+      - jttwin16_scr.v
   - from: tmnt
     get:
-      - jttmnt_game.v
-      - jttmnt_main.v
       - jttmnt_sound.v
-      - jttmnt_video.v
-      - jttmnt_colmix.v
   - from: simson
     get:
       - jt053260.v
-      - jtcolmix_053251.v
   - from: aliens
     get:
-      - jtaliens_scroll.v
-      - jtaliens_obj.v
-      - jt052109.v
-      - jt051962.v
-      - jt051960.v
+      - jtaliens_colmix.v
       # - jt051937.v
   - from: flane
     get:
@@ -28,6 +27,8 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_tilemap.v
+      - jtframe_scroll.v
       - jtframe_obj.yaml
   - from: cpu
     unless: NOMAIN

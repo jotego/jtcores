@@ -3191,8 +3191,8 @@
     )
   )
 
-  (bus_alias "ULRW" (members "~{URW}" "~{LRW}"))
   (bus_alias "DMARW" (members "DMA" "~{LWR}" "~{UWR}"))
+  (bus_alias "ULRW" (members "~{URW}" "~{LRW}"))
   (junction (at 29.21 107.95) (diameter 0) (color 0 0 0 0)
     (uuid 0b6f429f-a8ef-465a-9031-1c6ac5c42178)
   )

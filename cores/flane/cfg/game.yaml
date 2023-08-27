@@ -3,6 +3,7 @@ game:
     get:
       - jtflane_game.v
       - jtflane_main.v
+      - jt007232.v
       - ../cfg/common.yaml
   - from: labrun
     get:
@@ -17,7 +18,6 @@ game:
       - jt051733.v
       - divfunc.v
       # Sound
-      - jt007232.v
 jtframe:
   - from: sound
     get:
