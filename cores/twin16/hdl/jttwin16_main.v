@@ -96,14 +96,14 @@ assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & cpu_we & ~LDSn;
-assign st_dout  = { 6'd0, prio };
+assign st_dout  = { 2'd0, crtkill, int16en, 2'd0, prio };
 assign VPAn     = ~( A[23] & ~ASn );
-assign dws      = ~({2{RnW}} & {UDSn, LDSn});
+assign dws      = ~({2{RnW}} | {UDSn, LDSn});
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
 assign fx_we    = dws & {2{fix_cs}};
@@ -131,7 +131,7 @@ always @* begin
                 4'b000?: rom_cs   = 1;
                 4'b0010: ram_cs   = !BUSn;
                 4'b0100: pal_cs   = 1;
-                4'b0101: io_cs    = 1;
+                4'b0101: io_cs    = 1;     // A'0000~
                 4'b0110: begin
                     dma_cs   = RnW;
                     syswr_cs = !RnW;
@@ -155,7 +155,7 @@ always @(posedge clk) begin
                pal_cs  ? { 8'd0, pal_dout } :
                io_cs   ? { 8'd0, cab_dout } :
                dma_cs  ? { 15'd0, dma_bsy } :
-               16'hffff;
+               16'h0;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -177,9 +177,9 @@ always @(posedge clk) begin
             0: cab_dout <= {1'b1, service, 1'b1, start_button[1:0], 1'b1, coin_input[1:0] };
             1: cab_dout <= { 1'b1, joystick1 };
             2: cab_dout <= { 1'b1, joystick2 };
-            default: cab_dout <= 0;
+            default: cab_dout <= 8'hff;
         endcase
-        2: cab_dout <= A[1] ? dipsw[15:8] : dipsw[7:0];
+        2: cab_dout <= A[1] ? dipsw[7:0] : dipsw[15:8];
         3: cab_dout <= { 4'h0, dipsw[3:0] };
     endcase
 end
@@ -205,10 +205,12 @@ always @(posedge clk, posedge rst) begin
         if( syswr_cs )
             case( A[3:1] )
                 0:  { prio, hflip, vflip } <= cpu_dout[3:0];
-                1: objx <= cpu_dout[9:0];
-                2: objy <= cpu_dout[9:0];
-                3: scra_x[2:0] <= cpu_dout[2:0];
-                5: scrb_x[2:0] <= cpu_dout[2:0];
+                1: objx   <= cpu_dout[9:0];
+                2: objy   <= cpu_dout[9:0];
+                3: scra_x <= cpu_dout[8:0];
+                4: scra_y <= cpu_dout[8:0];
+                5: scrb_x <= cpu_dout[8:0];
+                6: scrb_y <= cpu_dout[8:0];
                 default:;
             endcase
         if( io_cs && !A[16] ) begin
@@ -221,7 +223,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(7),.RECOVERY(1)) u_dtack(
+jtframe_68kdtack #(.W(5),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -231,8 +233,8 @@ jtframe_68kdtack #(.W(7),.RECOVERY(1)) u_dtack(
     .bus_legit  ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    .num        ( 6'd24     ),  // numerator
-    .den        ( 7'd125    ),  // denominator, 48*24/125 = 9216
+    .num        ( 4'd3      ),  // numerator
+    .den        ( 5'd16     ),  // denominator, => 9216
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),

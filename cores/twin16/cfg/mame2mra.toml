@@ -26,7 +26,7 @@ regions = [
     { name="data"  },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="fixed",    start="JTFRAME_BA2_START" },
-    { name="tiles"    },
+    { name="tiles",    start="SCR_START", width=32 },
     { name="gfxrom",   start="JTFRAME_BA3_START" },
     { name="k007232"  },
     { name="upd"  }
@@ -36,4 +36,9 @@ order = [
     "maincpu", "sub", "data", "audiocpu",
     "k007232", "upd",
     "fixed", "tiles", "gfxrom"
+]
+
+patches = [
+    # skip ROM check
+    { setname="fround", offset=0x1058, data="12 11" }
 ]

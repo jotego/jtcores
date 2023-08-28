@@ -159,10 +159,11 @@ jtframe_vtimer #(
 );
 
 jtframe_tilemap #(
-    .VA     (  11 ),
-    .CW     (   9 ),
-    .MAP_HW (   9 ),
-    .MAP_VW (   8 )
+    .VA          (    11 ),
+    .CW          (     9 ),
+    .MAP_HW      (     9 ),
+    .MAP_VW      (     8 ),
+    .HDUMP_OFFSET( 9'h50 )
 )u_fix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -203,7 +204,7 @@ jtframe_scroll #(
     .hdump      ( hdump     ),
     .blankn     ( gfx_en[1] ),
     .flip       ( flip      ),
-    .scrx       ( scra_x    ),
+    .scrx       ( scra_x + {debug_bus,1'b0}    ),
     .scry       ( scra_y    ),
 
     .vram_addr  ( scra_addr ),
@@ -236,7 +237,7 @@ jtframe_scroll #(
     .hdump      ( hdump     ),
     .blankn     ( gfx_en[2] ),
     .flip       ( flip      ),
-    .scrx       ( scrb_x    ),
+    .scrx       ( scrb_x + {debug_bus,1'b0}   ),
     .scry       ( scrb_y    ),
 
     .vram_addr  ( scrb_addr ),

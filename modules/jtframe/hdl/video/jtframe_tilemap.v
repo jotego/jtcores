@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 15-12-2022 */
-    
+
 
 // Generic tile map generator with no scroll
 // The ROM data must be in these format
@@ -23,18 +23,19 @@
 // pixel data is 4bpp, and arrives in four bytes. Each byte is for a plane
 
 module jtframe_tilemap #( parameter
-    SIZE =  8,    // 8x8, 16x16 or 32x32
-    VA   = 10,
-    CW   = 12,
-    PW   =  8,
-    VR   = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
-    MAP_HW = 8,    // size of the map in pixels
-    MAP_VW = 8,
-    FLIP_MSB  = 1, // set to 0 for scroll tile maps
-    FLIP_HDUMP= 1,
-    FLIP_VDUMP= 1,
-    XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
-    XOR_VFLIP = 0  // set to 1 so vflip gets ^ with flip
+    SIZE         =  8,    // 8x8, 16x16 or 32x32
+    VA           = 10,
+    CW           = 12,
+    PW           =  8,
+    VR           = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
+    MAP_HW       = 8,    // size of the map in pixels
+    MAP_VW       = 8,
+    FLIP_MSB     = 1, // set to 0 for scroll tile maps
+    FLIP_HDUMP   = 1,
+    FLIP_VDUMP   = 1,
+    XOR_HFLIP    = 0,  // set to 1 so hflip gets ^ with flip
+    XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
+    HDUMP_OFFSET = 0   // adds an offset to hdump
 )(
     input              rst,
     input              clk,
@@ -66,14 +67,15 @@ reg  [  31:0] pxl_data;
 reg  [PW-5:0] cur_pal, nx_pal;
 wire          vflip_g;
 reg           hflip_g, nx_hf;
-reg     [8:0] heff;
+reg     [8:0] heff, hoff;
 wire    [8:0] veff;
 
 // not flipping the MSB is usually needed in scroll layers
 assign veff = FLIP_VDUMP ? vdump ^ { FLIP_MSB[0]&flip, {8{flip}}} : vdump;
 
 always @* begin
-    heff = FLIP_HDUMP ? hdump ^ {9{flip}} : hdump;
+    hoff = hdump - HDUMP_OFFSET[8:0];
+    heff = FLIP_HDUMP ? hoff ^ {9{flip}} : hoff;
     if( flip ) heff = heff - 9'd7;
 end
 

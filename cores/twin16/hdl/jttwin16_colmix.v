@@ -130,6 +130,22 @@ jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .q      ({shad,prom_prio})
 );*/
 
+
+
+always @* begin
+    shad = |{ ~|prio_addr[2:0], prio_addr[4:3], prio_addr[6] & prio_addr[0],
+        &prio_addr[7:5] & prio_addr[1] };
+
+    prom_prio = {
+      prio_addr[3] | (prio_addr[2] & |{
+        ~prio_addr[1] & ~prio_addr[0],
+        ~prio_addr[5] & prio_addr[4] & ~prio_addr[0],
+        ~prio_addr[6] & prio_addr[4],
+        ~prio_addr[7] & prio_addr[4] & ~prio_addr[0]
+        }),
+      prio_addr[3] | (prio_addr[0] & |{~prio_addr[2],~prio_addr[4],prio_addr[6]}) };
+end
+/*
 always @* begin
     casez( prio_addr )
     8'h1?,8'h3?,8'h9?,8'hb?:
@@ -174,7 +190,7 @@ always @* begin
     endcase
     if( prio_addr[3] ) {shad, prom_prio} = 7;
 end
-
+*/
 
 jtframe_dual_nvram #(.AW(12),.SIMFILE("pal.bin")) u_ram(
     // Port 0: CPU
