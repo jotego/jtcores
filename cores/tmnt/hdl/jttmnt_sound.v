@@ -76,6 +76,12 @@ module jttmnt_sound(
     input         [ 7:0] debug_bus,
     output        [ 7:0] st_dout
 );
+
+parameter [7:0] MONO_FM  = 8'h20,
+                MONO_PCM = 8'h08,
+                MONO_UPD = 8'h10,
+                MONO_TTL = 8'h08;
+
 `ifndef NOSOUND
 
 `include "game_id.inc"
@@ -230,10 +236,10 @@ jtframe_mixer #(.W0(16),.W1(12),.W2(9),.W3(16)) u_mixer(
     .ch1    ( pcm_snd    ),
     .ch2    ( upd_snd    ),
     .ch3    ( title_snd  ),
-    .gain0  ( 8'h20      ), // music
-    .gain1  ( 8'h08      ), // percussion
-    .gain2  ( 8'h10      ), // voices (fire! hang on April)
-    .gain3  ( 8'h08      ), // theme song
+    .gain0  ( MONO_FM    ), // music
+    .gain1  ( MONO_PCM   ), // percussion
+    .gain2  ( MONO_UPD   ), // voices (fire! hang on April)
+    .gain3  ( MONO_TTL   ), // theme song
     .mixed  ( pre_mono   ),
     .peak   ( peak_mono  )
 );

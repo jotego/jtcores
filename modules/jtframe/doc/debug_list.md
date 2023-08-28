@@ -55,6 +55,7 @@ This text can be used in GitHub to generate a check list to use during code deve
 - [ ] No sound clipping
 - [ ] OSD sound options (FX level, FM/PSG enable)
 - [ ] Synthesis ok
+- [ ] DIP switches work
 - [ ] Playable
 **Final Verification**
 - [ ] Button names in mame2mra.toml

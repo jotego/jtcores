@@ -69,6 +69,9 @@ jttwin16_main u_main(
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
     .ram_ok         ( ram_ok        ),
+    // Video ROM check
+    .scr_data       ( lyra_data     ),
+    .scr_ok         ( lyra_ok       ),
     // cabinet I/O
     .start_button   ( start_button  ),
     .coin_input     ( coin_input    ),
@@ -147,7 +150,7 @@ jttwin16_video u_video (
     .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
-    .cpu_addr       (main_addr[16:1]),
+    .cpu_addr       (main_addr[17:1]),
     .cpu_dout       ( ram_din[7:0]  ),
     .pal_dout       ( pal_dout      ),
     // VRAM
@@ -187,7 +190,12 @@ jttwin16_video u_video (
 );
 
 /* verilator tracing_off */
-jttmnt_sound u_sound(
+jttmnt_sound #( // -1.5dB compared to MIA, same balance
+    .MONO_FM    ( 8'h18 ),
+    .MONO_PCM   ( 8'h06 ),
+    .MONO_UPD   ( 8'h0C ),
+    .MONO_TTL   ( 8'h00 )
+) u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen_fm     ( cen_fm        ),

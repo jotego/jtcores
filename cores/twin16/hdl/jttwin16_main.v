@@ -36,6 +36,10 @@ module jttwin16_main(
     output reg           dma_on,
     input                dma_bsy,
 
+    // video ROM checks
+    input         [31:0] scr_data,
+    input                scr_ok,
+
     // video RAM outputs,
     input         [15:0] ma_dout,   // scroll A
     input         [15:0] mb_dout,   // scroll B
@@ -95,8 +99,8 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs;
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok) | (crom_cs & ~scr_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -155,6 +159,7 @@ always @(posedge clk) begin
                pal_cs  ? { 8'd0, pal_dout } :
                io_cs   ? { 8'd0, cab_dout } :
                dma_cs  ? { 15'd0, dma_bsy } :
+               crom_cs ? ( A[1] ? scr_data[31:16] : scr_data[15:0] ) :
                16'h0;
 end
 
@@ -180,7 +185,7 @@ always @(posedge clk) begin
             default: cab_dout <= 8'hff;
         endcase
         2: cab_dout <= A[1] ? dipsw[7:0] : dipsw[15:8];
-        3: cab_dout <= { 4'h0, dipsw[3:0] };
+        3: cab_dout <= { 4'h0, dipsw[19:16] };
     endcase
 end
 

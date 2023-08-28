@@ -28,7 +28,7 @@ module jttwin16_video(
     output            vs,
 
     // CPU interface
-    input      [16:1] cpu_addr,
+    input      [17:1] cpu_addr,
     input      [ 7:0] cpu_dout,
     output     [ 7:0] pal_dout,
     input             pal_we,
@@ -103,6 +103,8 @@ wire [ 7:0] lyrf_pxl, lyro_pxl,
 wire [ 6:0] lyra_pxl, lyrb_pxl;
 wire [ 1:0] lyra_sel, lyrb_sel;
 wire [15:0] scra_bank, scrb_bank;
+wire [15:2] prea_addr;
+wire        prea_cs, preb_cs;
 
 function [31:0] sort( input [31:0] a );
     sort = {
@@ -129,12 +131,15 @@ assign fsorted     = sort( lyrf_data ),
        st_dout     = 0;
 assign lyro_pxl = 0, lyro_cs=0, lyro_addr=0, oram_addr=0;
 assign ioctl_din = dump_pal;
-assign scra_bank = scr_bank >> { lyra_sel, 2'd0 };
+assign scra_bank = scr_bank >> { crtkill ? cpu_addr[17:16] : lyra_sel, 2'd0 };
 assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
 assign lyra_addr[19:16] = scra_bank[3:0];
 assign lyrb_addr[19:16] = scrb_bank[3:0];
 assign vdump_scr = vdump ^ 9'h100;
 assign hdump_off = hdump - 9'h50;
+assign lyra_cs   =  crtkill | prea_cs;  // SCRA access used for ROM reading
+assign lyrb_cs   = ~crtkill & preb_cs;
+assign lyra_addr[15:2] = crtkill ? cpu_addr[15:2] : prea_addr;
 
 always @(posedge clk) flip <= hflip & vflip;
 // functionality done by 007782
@@ -224,9 +229,9 @@ jtframe_scroll #(
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
-    .rom_addr   ( { lyra_sel, lyra_addr[15:2] } ),
+    .rom_addr   ( { lyra_sel, prea_addr[15:2] } ),
     .rom_data   ( asorted   ),
-    .rom_cs     ( lyra_cs   ),
+    .rom_cs     ( prea_cs   ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyra_pxl  )
@@ -259,7 +264,7 @@ jtframe_scroll #(
 
     .rom_addr   ( { lyrb_sel, lyrb_addr[15:2] } ),
     .rom_data   ( bsorted   ),
-    .rom_cs     ( lyrb_cs   ),
+    .rom_cs     ( preb_cs   ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyrb_pxl  )
