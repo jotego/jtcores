@@ -4,6 +4,7 @@ game:
       - jttwin16_game.v
       - jttwin16_main.v
       - jttwin16_video.v
+      - jttwin16_obj.v
       - jttwin16_colmix.v
 #      - jttwin16_obj.v
   - from: tmnt

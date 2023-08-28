@@ -24,7 +24,7 @@ module jttwin16_game(
 wire [ 7:0] snd_latch;
 wire [ 9:0] objx, objy;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
-wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on,
+wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
             cpu_rnw, snd_wrn, hflip, vflip, pal_we;
 wire [ 7:0] st_main, st_video, st_snd, pal_dout;
 wire [15:0] scr_bank;
@@ -90,6 +90,7 @@ jttwin16_main u_main(
     .prio           ( prio          ),
     .crtkill        ( crtkill       ),
     .dma_on         ( dma_on        ),
+    .dma_bsy        ( dma_bsy       ),
     .pal_we         ( pal_we        ),
     .hflip          ( hflip         ),
     .vflip          ( vflip         ),
@@ -132,6 +133,8 @@ jttwin16_video u_video (
     .scrb_y         ( scrb_y        ),
     .objx           ( objx          ),
     .objy           ( objy          ),
+
+    .dma_bsy        ( dma_bsy       ),
 
     .lhbl           ( LHBL          ),
     .lvbl           ( LVBL          ),

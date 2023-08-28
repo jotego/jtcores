@@ -29,10 +29,12 @@ module jttwin16_main(
     output               cpu_we,
     output               pal_we,
 
+    // video status
     output reg           rom_cs,
     output reg           ram_cs,
     output reg           crtkill,
     output reg           dma_on,
+    input                dma_bsy,
 
     // video RAM outputs,
     input         [15:0] ma_dout,   // scroll A
@@ -80,7 +82,7 @@ wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
-            pal_cs, crom_cs, orom_cs, int16en;
+            pal_cs, dma_cs, crom_cs, orom_cs, int16en;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg         intn, LVBLl;
@@ -116,6 +118,7 @@ always @* begin
     pal_cs   = 0;
     io_cs    = 0;
     syswr_cs = 0;
+    dma_cs   = 0;
     vbank_cs = 0;
     crom_cs  = 0;
     orom_cs  = 0;
@@ -129,7 +132,10 @@ always @* begin
                 4'b0010: ram_cs   = !BUSn;
                 4'b0100: pal_cs   = 1;
                 4'b0101: io_cs    = 1;
-                4'b0110: syswr_cs = !RnW;
+                4'b0110: begin
+                    dma_cs   = RnW;
+                    syswr_cs = !RnW;
+                end
                 4'b0111: vbank_cs = 1;
                 default:;
             endcase
@@ -148,6 +154,7 @@ always @(posedge clk) begin
                fix_cs  ? mf_dout  :
                pal_cs  ? { 8'd0, pal_dout } :
                io_cs   ? { 8'd0, cab_dout } :
+               dma_cs  ? { 15'd0, dma_bsy } :
                16'hffff;
 end
 

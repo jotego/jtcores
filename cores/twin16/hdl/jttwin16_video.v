@@ -14,7 +14,7 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 27-7-2023 */
+    Date: 27-8-2023 */
 
 module jttwin16_video(
     input             rst,
@@ -40,6 +40,7 @@ module jttwin16_video(
     input      [15:0] scr_bank,
     input      [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
     input      [ 9:0] objx, objy,
+    output            dma_bsy,
 
     input             hflip,
     input             vflip,
@@ -251,6 +252,23 @@ jtframe_scroll #(
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyrb_pxl  )
+);
+
+/* verilator tracing_on */
+jttwin16_obj u_obj(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .lhbl       ( lhbl      ),
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+    .vs         ( vs        ),
+
+    .vdump      ( vdump     ),
+    .hdump      ( hdump     ),
+
+    .dma_bsy    ( dma_bsy   )
 );
 
 /* verilator tracing_on */
