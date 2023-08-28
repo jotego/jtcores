@@ -43,7 +43,6 @@ module jttwin16_colmix(
     input      [ 6:0] lyra_pxl,
     input      [ 6:0] lyrb_pxl,
     input      [ 7:0] lyro_pxl,
-    input             shadow,
     output     [ 7:0] red,
     output     [ 7:0] green,
     output     [ 7:0] blue,
@@ -57,7 +56,8 @@ module jttwin16_colmix(
     input      [ 7:0] debug_bus
 );
 
-wire [ 1:0] prio_sel, prom_prio;
+wire [ 1:0] prio_sel;
+reg  [ 1:0] prom_prio;
 wire [ 7:0] pal_dout;
 wire [ 7:0] prio_addr;
 reg         pal_half, shl;
@@ -65,7 +65,7 @@ reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 wire [11:0] pal_addr;
-wire        shad;
+reg         shad;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 
 assign      lyrf_blnk_n = gfx_en[0] & |lyrf_pxl[3:0];
@@ -79,7 +79,7 @@ assign prio_addr = { cpu_prio, lyrb_pxl[6], ~&lyro_pxl[3:0],
 assign pal_addr  = { 1'b0, pxl, pal_half };
 assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
-assign prio_sel  = prom_prio & {2{crtkill}};
+assign prio_sel  = prom_prio | {2{crtkill}};
 
 always @* begin
     case( prio_sel )
@@ -119,7 +119,7 @@ always @(posedge clk) begin
             pal_half <= ~pal_half;
     end
 end
-
+/*
 jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
@@ -128,7 +128,53 @@ jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .wr_addr( prog_addr     ),
     .we     ( prom_we       ),
     .q      ({shad,prom_prio})
-);
+);*/
+
+always @* begin
+    casez( prio_addr )
+    8'h1?,8'h3?,8'h9?,8'hb?:
+        case( prog_addr[2:0] )
+            0,2: {shad, prom_prio} = 4;
+            1,3: {shad, prom_prio} = 5;
+            default: {shad, prom_prio} = 6;
+        endcase
+    8'h0?,8'h2?,8'h8?,8'ha?:
+        case( prog_addr[2:0] )
+            0: {shad, prom_prio} = 4;
+            1,3,5,7: {shad, prom_prio} = 1;
+            2,6: {shad, prom_prio} = 0;
+            4: {shad, prom_prio} = 2;
+        endcase
+    8'h4?,8'h6?,8'hc?:
+        case( prog_addr[2:0] )
+            0: {shad, prom_prio} = 4;
+            1,3,5,7: {shad, prom_prio} = 5;
+            2,6: {shad, prom_prio} = 0;
+            4: {shad, prom_prio} = 2;
+        endcase
+    8'h5?,8'h7?,8'hd?:
+        case( prog_addr[2:0] )
+            0,2: {shad, prom_prio} = 4;
+            1,3,5,7: {shad, prom_prio} = 5;
+            4,6: {shad, prom_prio} = 6;
+        endcase
+    8'he?:
+        case( prog_addr[2:0] )
+            0,2,6: {shad, prom_prio} = 4;
+            1,3,5,7: {shad, prom_prio} = 5;
+            4: {shad, prom_prio} = 2;
+        endcase
+    8'hf?:
+        case( prog_addr[2:0] )
+            0,2,6: {shad, prom_prio} = 4;
+            1,3,5,7: {shad, prom_prio} = 5;
+            4: {shad, prom_prio} = 6;
+        endcase
+    default: {shad, prom_prio} = 7;
+    endcase
+    if( prio_addr[3] ) {shad, prom_prio} = 7;
+end
+
 
 jtframe_dual_nvram #(.AW(12),.SIMFILE("pal.bin")) u_ram(
     // Port 0: CPU

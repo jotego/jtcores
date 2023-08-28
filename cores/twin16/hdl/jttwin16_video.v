@@ -101,7 +101,6 @@ wire [ 7:0] lyrf_pxl, lyro_pxl,
             dump_pal;
 wire [ 6:0] lyra_pxl, lyrb_pxl;
 wire [ 1:0] lyra_sel, lyrb_sel;
-wire        shadow;
 wire [15:0] scra_bank, scrb_bank;
 
 function [31:0] sort( input [31:0] a );
@@ -122,7 +121,6 @@ assign fsorted     = sort( lyrf_data ),
        osorted     = sort( lyro_data ),
        st_dout     = 0;
 assign lyro_pxl = 0, lyro_cs=0, lyro_addr=0, oram_addr=0;
-assign shadow   = 0;
 assign ioctl_din = dump_pal;
 assign scra_bank = scr_bank >> { lyra_sel, 2'd0 };
 assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
@@ -132,6 +130,7 @@ assign lyrb_addr[19:16] = scrb_bank[3:0];
 always @(posedge clk) flip <= hflip & vflip;
 // functionality done by 007782
 // measured on PCB
+/* verilator tracing_off */
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
@@ -257,7 +256,7 @@ jtframe_scroll #(
     .pxl        ( lyrb_pxl  )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttwin16_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -286,7 +285,6 @@ jttwin16_colmix u_colmix(
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
     .lyro_pxl   ( lyro_pxl  ),
-    .shadow     ( shadow    ),
 
     .red        ( red       ),
     .green      ( green     ),
