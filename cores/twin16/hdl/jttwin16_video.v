@@ -96,7 +96,7 @@ module jttwin16_video(
 
 localparam [8:0] HB_OFFSET=0;
 
-wire [ 8:0] vdump, hdump, vrender, vrender1;
+wire [ 8:0] vdump, hdump, vrender, vrender1, hdump_off, vdump_scr;
 wire [31:0] fsorted, asorted, bsorted, osorted;
 wire [ 7:0] lyrf_pxl, lyro_pxl,
             dump_pal;
@@ -113,9 +113,18 @@ function [31:0] sort( input [31:0] a );
     };
 endfunction
 
+function [31:0] scr_sort( input [31:0] a );
+    scr_sort = {
+        a[15], a[11], a[ 7], a[ 3], a[31], a[27], a[23], a[19],
+        a[14], a[10], a[ 6], a[ 2], a[30], a[26], a[22], a[18],
+        a[13], a[ 9], a[ 5], a[ 1], a[29], a[25], a[21], a[17],
+        a[12], a[ 8], a[ 4], a[ 0], a[28], a[24], a[20], a[16]
+    };
+endfunction
+
 assign fsorted     = sort( lyrf_data ),
-       asorted     = sort( lyra_data ),
-       bsorted     = sort( lyrb_data ),
+       asorted     = scr_sort( lyra_data ),
+       bsorted     = scr_sort( lyrb_data ),
        osorted     = sort( lyro_data ),
        st_dout     = 0;
 assign lyro_pxl = 0, lyro_cs=0, lyro_addr=0, oram_addr=0;
@@ -124,6 +133,8 @@ assign scra_bank = scr_bank >> { lyra_sel, 2'd0 };
 assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
 assign lyra_addr[19:16] = scra_bank[3:0];
 assign lyrb_addr[19:16] = scrb_bank[3:0];
+assign vdump_scr = vdump ^ 9'h100;
+assign hdump_off = hdump - 9'h50;
 
 always @(posedge clk) flip <= hflip & vflip;
 // functionality done by 007782
@@ -162,15 +173,14 @@ jtframe_tilemap #(
     .VA          (    11 ),
     .CW          (     9 ),
     .MAP_HW      (     9 ),
-    .MAP_VW      (     8 ),
-    .HDUMP_OFFSET( 9'h50 )
+    .MAP_VW      (     8 )
 )u_fix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
     .vdump      ( vdump     ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdump_off ),
     .blankn     ( gfx_en[0] ),  // if !blankn there are no ROM requests
     .flip       ( flip      ),    // Screen flip
 
@@ -200,17 +210,17 @@ jtframe_scroll #(
 
     .hs         ( hs        ),
 
-    .vdump      ( vdump     ),
-    .hdump      ( hdump     ),
+    .vdump      ( vdump_scr ),
+    .hdump      ( hdump_off ),
     .blankn     ( gfx_en[1] ),
     .flip       ( flip      ),
-    .scrx       ( scra_x + {debug_bus,1'b0}    ),
-    .scry       ( scra_y    ),
+    .scrx       ( scra_x     ),
+    .scry       ( scra_y + {debug_bus,1'b0}   ),
 
     .vram_addr  ( scra_addr ),
 
-    .code       (lyra_data[12:0]),
-    .pal        (lyra_data[15:13]),
+    .code       (scra_data[12:0]),
+    .pal        (scra_data[15:13]),
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
@@ -233,17 +243,17 @@ jtframe_scroll #(
 
     .hs         ( hs        ),
 
-    .vdump      ( vdump     ),
-    .hdump      ( hdump     ),
+    .vdump      ( vdump_scr ),
+    .hdump      ( hdump_off ),
     .blankn     ( gfx_en[2] ),
     .flip       ( flip      ),
-    .scrx       ( scrb_x + {debug_bus,1'b0}   ),
-    .scry       ( scrb_y    ),
+    .scrx       ( scrb_x    ),
+    .scry       ( scrb_y + {debug_bus,1'b0}   ),
 
     .vram_addr  ( scrb_addr ),
 
-    .code       (lyrb_data[12:0]),
-    .pal        (lyrb_data[15:13]),
+    .code       (scrb_data[12:0]),
+    .pal        (scrb_data[15:13]),
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
