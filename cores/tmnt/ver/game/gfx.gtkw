@@ -1,0 +1,76 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Aug 16 16:05:39 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/tmnt/ver/game/test.fst"
+[dumpfile_mtime] "Wed Aug 16 07:26:00 2023"
+[dumpfile_size] 354973639
+[savefile] "/home/jtejada/jtcores/cores/tmnt/ver/game/gfx.gtkw"
+[timestart] 3380157250000
+[size] 1264 1013
+[pos] -1 -1
+*-17.709055 3380157749808 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.
+[sst_width] 219
+[signals_width] 228
+[sst_expanded] 1
+[sst_vpaned_height] 307
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.LVBL
+TOP.game_test.u_game.LHBL
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dr_start
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_clr
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_ok
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_we
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_addr[9:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_prio[6:0]
+@200
+-OBJ RAM
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.cs
+TOP.game_test.u_game.u_game.u_video.u_obj.cpu_we
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.lut_we
+@22
+TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+@23
+TOP.game_test.u_game.u_game.u_video.u_obj.cpu_addr[10:0]
+@22
+[color] 1
+TOP.game_test.u_game.u_game.u_main.cpu_dout[15:0]
+@c00024
+[color] 1
+TOP.game_test.u_game.u_game.u_main.ram_dsn[1:0]
+@28
+[color] 1
+(0)TOP.game_test.u_game.u_game.u_main.ram_dsn[1:0]
+[color] 1
+(1)TOP.game_test.u_game.u_game.u_main.ram_dsn[1:0]
+@1401200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.cpu_dout[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.cpu_cen
+TOP.game_test.u_game.u_game.u_main.cpu_cenb
+TOP.game_test.u_game.u_game.u_main.ASn
+[pattern_trace] 1
+[pattern_trace] 0
+!100000@@
+?01
+@29
+TOP.game_test.u_game.u_game.u_video.u_obj.cpu_we
+?01
+TOP.game_test.u_game.u_game.u_video.u_obj.cs
+!!
