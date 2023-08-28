@@ -1485,7 +1485,6 @@
   )
 
   (bus_alias "COLORIO" (members "PI0" "PI1" "~{COLORCS}" "~{MREAD1}" "~{IOCS}" "MR~{W}" "~{EXRES}"))
-
   (junction (at 217.17 64.77) (diameter 0) (color 0 0 0 0)
     (uuid 057fafb9-b9b6-4e9a-a5cc-fc6b6321f988)
   )
@@ -4027,10 +4026,6 @@
     (property "Sheetfile" "color_mixer.kicad_sch" (at 279.4 160.6046 0)
       (effects (font (size 1.27 1.27)) (justify left top))
     )
-    (pin "A[0..12]" input (at 279.4 114.3 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 9c052be4-e52f-428a-af8a-8a48672cafb4)
-    )
     (pin "CLK2" input (at 279.4 106.68 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid 8e3ef522-15ac-4d6d-9eb2-e4b750151470)
@@ -4094,6 +4089,10 @@
     (pin "~{COLORCS}" input (at 279.4 148.59 180)
       (effects (font (size 1.27 1.27)) (justify left))
       (uuid 1745f416-55ca-44d3-a7fb-6d0e646d638d)
+    )
+    (pin "A[1..12]" input (at 279.4 114.3 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid 9d9ebf09-8b75-4147-ad57-59d90f79cb84)
     )
     (instances
       (project "fround"

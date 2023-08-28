@@ -5628,7 +5628,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b875a614-032e-427f-bc4e-f954aa3d050e)
   )
-  (text "signaler kvar på denna sida\n\nHFLIP\nVFLIP" (at 18.415 175.26 0)
+  (text "signaler kvar på denna sida\n\nHFLIP\nVFLIP" (at 15.24 175.26 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid bad201e0-c3fe-49c6-8173-38f976725fe4)
   )

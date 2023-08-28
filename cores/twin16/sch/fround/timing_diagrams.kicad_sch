@@ -13244,7 +13244,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid dba2e49f-3761-47c1-89a6-9dbf0f2edc32)
   )
-  (text "f = CLK2 / 8 = 768kHz" (at 88.265 38.1 0)
+  (text "f = CLK2 / 8 =  768kHz" (at 88.265 38.1 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid dd329717-34e1-4531-be03-a4c539f2f541)
   )

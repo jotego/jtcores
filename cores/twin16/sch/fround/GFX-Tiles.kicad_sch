@@ -1620,40 +1620,7 @@
           (stroke (width 0) (type default))
           (fill (type background))
         )
-        (polyline
-          (pts
-            (xy -5.08 20.955)
-            (xy -2.54 20.955)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 22.225)
-            (xy 0 24.765)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 2.54 20.955)
-            (xy 5.08 20.955)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
         (text "4M-BIT(512K x 8/256K x 16)" (at -1.27 1.27 900)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "A" (at -4.445 21.59 0)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "B" (at 0.635 24.13 0)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "C" (at 4.445 21.59 0)
           (effects (font (size 0.762 0.762)))
         )
         (text "CMOS MASK ROM" (at 7.62 -20.32 900)
@@ -1661,18 +1628,6 @@
         )
         (text "Depending on ~{BYTE}" (at 1.27 0 900)
           (effects (font (size 0.762 0.762)))
-        )
-      )
-      (symbol "MX23C4100_0_1"
-        (polyline
-          (pts
-            (xy 2.54 20.955)
-            (xy -2.54 23.495)
-            (xy -2.54 18.415)
-            (xy 2.54 20.955)
-          )
-          (stroke (width 0.254) (type default))
-          (fill (type background))
         )
       )
       (symbol "MX23C4100_1_1"
@@ -13360,7 +13315,7 @@
     (property "Datasheet" "" (at 259.08 162.56 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid b6a57170-8ccc-4e69-8d1b-2e7997bda7e0))
+    (pin "1" (uuid ea69d1b3-29e8-4dcd-9cc6-4886147d2cd0))
     (instances
       (project "fround"
         (path "/1ca8d055-0b00-47be-b97a-1f8012224013/025e31b0-da01-4436-8ce4-f62e2e56c550"
@@ -13748,12 +13703,12 @@
   )
 
   (symbol (lib_id "power:VCC") (at 273.05 104.14 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 42d8ee18-fcd1-4d7a-b809-af2d9514310d)
     (property "Reference" "#PWR0188" (at 273.05 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "VCC" (at 273.05 99.06 0)
+    (property "Value" "VCC" (at 273.05 100.33 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 273.05 104.14 0)
@@ -13762,7 +13717,7 @@
     (property "Datasheet" "" (at 273.05 104.14 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 9c185eef-54e8-4030-92fb-da09e6476bd7))
+    (pin "1" (uuid 37ebb653-afa7-4602-b54f-60435273910f))
     (instances
       (project "fround"
         (path "/1ca8d055-0b00-47be-b97a-1f8012224013/025e31b0-da01-4436-8ce4-f62e2e56c550"
@@ -13773,7 +13728,7 @@
   )
 
   (symbol (lib_id "power:GND") (at 271.78 170.18 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp no)
     (uuid 47e18bdd-b3e6-47c2-a734-7aa622b26780)
     (property "Reference" "#PWR0186" (at 271.78 176.53 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -13787,7 +13742,7 @@
     (property "Datasheet" "" (at 271.78 170.18 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 548fd522-1657-4ad6-a7e1-3f8a4cc296fc))
+    (pin "1" (uuid 2f68e5f5-111d-4ba9-bd2e-cd7aec60bb23))
     (instances
       (project "fround"
         (path "/1ca8d055-0b00-47be-b97a-1f8012224013/025e31b0-da01-4436-8ce4-f62e2e56c550"

@@ -1871,40 +1871,7 @@
           (stroke (width 0) (type default))
           (fill (type background))
         )
-        (polyline
-          (pts
-            (xy -5.08 20.955)
-            (xy -2.54 20.955)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 22.225)
-            (xy 0 24.765)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 2.54 20.955)
-            (xy 5.08 20.955)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
         (text "4M-BIT(512K x 8/256K x 16)" (at -1.27 1.27 900)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "A" (at -4.445 21.59 0)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "B" (at 0.635 24.13 0)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "C" (at 4.445 21.59 0)
           (effects (font (size 0.762 0.762)))
         )
         (text "CMOS MASK ROM" (at 7.62 -20.32 900)
@@ -1912,18 +1879,6 @@
         )
         (text "Depending on ~{BYTE}" (at 1.27 0 900)
           (effects (font (size 0.762 0.762)))
-        )
-      )
-      (symbol "MX23C4100_0_1"
-        (polyline
-          (pts
-            (xy 2.54 20.955)
-            (xy -2.54 23.495)
-            (xy -2.54 18.415)
-            (xy 2.54 20.955)
-          )
-          (stroke (width 0.254) (type default))
-          (fill (type background))
         )
       )
       (symbol "MX23C4100_1_1"
@@ -9677,7 +9632,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 60e2a40c-b914-41fb-b306-f016e348fa69)
   )
-  (text "007793\n\nCLK21B = CLK21\n\n~~{LRW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n        BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (~8H & HFLIP + 8H & ~HFLIP) +\n       ~DMAINIT & ~~{LWR}\n\n~~{URW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n	   BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (8H & ~HFLIP + ~8H & HFLIP) +\n       ~~{UWR} & ~DMAINIT"
+  (text "007793\n\nCLK21B = CLK21\n\n~~{LRW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (~8H & HFLIP + 8H & ~HFLIP) +\n        ~DMAINIT & ~~{LWR}\n\n~~{URW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT"
     (at 15.24 281.94 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 947831ab-84a0-449c-940e-f807ea4d21ce)
