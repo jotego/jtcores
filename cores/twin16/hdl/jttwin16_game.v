@@ -22,10 +22,12 @@ module jttwin16_game(
 
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
-wire        snd_irq, pal_cs, cpu_we;
-wire        cpu_rnw, snd_wrn;
-wire [ 7:0] st_main, st_video, st_snd;
-wire [15:0] pal_dout;
+wire [ 9:0] objx, objy;
+wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
+wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on,
+            cpu_rnw, snd_wrn, hflip, vflip, pal_we;
+wire [ 7:0] st_main, st_video, st_snd, pal_dout;
+wire [15:0] scr_bank;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 // reg  [ 2:0] game_id;
@@ -86,7 +88,19 @@ jttwin16_main u_main(
     .pal_dout       ( pal_dout      ),
     // To video
     .prio           ( prio          ),
-    .pal_cs         ( pal_cs        ),
+    .crtkill        ( crtkill       ),
+    .dma_on         ( dma_on        ),
+    .pal_we         ( pal_we        ),
+    .hflip          ( hflip         ),
+    .vflip          ( vflip         ),
+    .scr_bank       ( scr_bank      ),
+    // scroll for each layer
+    .scra_x         ( scra_x        ),
+    .scra_y         ( scra_y        ),
+    .scrb_x         ( scrb_x        ),
+    .scrb_y         ( scrb_y        ),
+    .objx           ( objx          ),
+    .objy           ( objy          ),
     // To sound
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
@@ -105,7 +119,13 @@ jttwin16_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
 
+    .hflip          ( hflip         ),
+    .vflip          ( vflip         ),
+    .pal_we         ( pal_we        ),
+    .crtkill        ( crtkill       ),
+
     .cpu_prio       ( prio          ),
+    .scr_bank       ( scr_bank      ),
     .scra_x         ( scra_x        ),
     .scra_y         ( scra_y        ),
     .scrb_x         ( scrb_x        ),
@@ -124,19 +144,18 @@ jttwin16_video u_video (
     .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
     .cpu_we         ( cpu_we        ),
-    .pal_cs         ( pal_cs        ),
     .cpu_addr       (main_addr[16:1]),
-    .cpu_dout       ( ram_din       ),
+    .cpu_dout       ( ram_din[7:0]  ),
     .pal_dout       ( pal_dout      ),
     // VRAM
     .fram_addr      ( fram_addr     ),
-    .fram_data      ( fram_data     ),
+    .fram_data      ( fram_dout     ),
     .scra_addr      ( scra_addr     ),
-    .scra_data      ( scra_data     ),
+    .scra_data      ( scra_dout     ),
     .scrb_addr      ( scrb_addr     ),
-    .scrb_data      ( scrb_data     ),
+    .scrb_data      ( scrb_dout     ),
     .oram_addr      ( oram_addr     ),
-    .oram_data      ( oram_data     ),
+    .oram_data      ( oram_dout     ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
@@ -150,7 +169,6 @@ jttwin16_video u_video (
     .lyra_cs        ( lyra_cs       ),
     .lyrb_cs        ( lyrb_cs       ),
     .lyro_cs        ( lyro_cs       ),
-    .lyra_ok        ( lyra_ok       ),
     .lyro_ok        ( lyro_ok       ),
     // pixels
     .red            ( red           ),
@@ -176,7 +194,7 @@ jttmnt_sound u_sound(
     .game_id    ( 3'd0          ),
     // communication with main CPU
     .main_dout  ( 8'd0          ),
-    .main_din   ( 1'b0          ),
+    .main_din   (               ),
     .main_addr  ( 1'b0          ),
     .main_rnw   ( 1'b1          ),
     .snd_irq    ( snd_irq       ),
@@ -212,8 +230,8 @@ jttmnt_sound u_sound(
     .upd_data   ( upd_data      ),
     .upd_ok     ( upd_ok        ),
     // Title music
-    .title_addr ( title_addr    ),
-    .title_data ( 8'd0          ),
+    .title_addr (               ),
+    .title_data ( 16'd0         ),
     .title_cs   (               ),
     .title_ok   ( 1'b1          ),
     // Sound output

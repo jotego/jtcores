@@ -28,19 +28,22 @@ module jttwin16_video(
     output            vs,
 
     // CPU interface
-    input      [15:0] cpu_addr,
+    input      [16:1] cpu_addr,
     input      [ 7:0] cpu_dout,
     output     [ 7:0] pal_dout,
     input             pal_we,
     input             cpu_we,
 
     // control
+    input             crtkill,
     input      [ 1:0] cpu_prio,
-    input      [ 9:0] scra_x, scra_y, scrb_x, scrb_y,
+    input      [15:0] scr_bank,
+    input      [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
     input      [ 9:0] objx, objy,
 
     input             hflip,
     input             vflip,
+    output reg        flip,
 
     // PROMs
     input      [ 7:0] prog_addr,
@@ -54,14 +57,14 @@ module jttwin16_video(
     input      [15:0] scra_data,
     output     [12:1] scrb_addr,
     input      [15:0] scrb_data,
-    output     [12:1] oram_addr,
+    output     [13:1] oram_addr,
     input      [15:0] oram_data,
 
     // Tile ROMs
-    output reg [20:2] lyrf_addr,
-    output reg [20:2] lyra_addr,
-    output reg [20:2] lyrb_addr,
-    output     [20:2] lyro_addr,
+    output     [13:2] lyrf_addr,
+    output     [19:2] lyra_addr,
+    output     [19:2] lyrb_addr,
+    output     [19:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
@@ -83,7 +86,7 @@ module jttwin16_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output reg [ 7:0] ioctl_din,
+    output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -93,10 +96,13 @@ module jttwin16_video(
 localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1;
-wire        flip;
 wire [31:0] fsorted, asorted, bsorted, osorted;
-wire [ 7:0] lyrf_pxl, lyra_pxl, lyrb_pxl, lyro_pxl;
-wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
+wire [ 7:0] lyrf_pxl, lyro_pxl,
+            dump_pal;
+wire [ 6:0] lyra_pxl, lyrb_pxl;
+wire [ 1:0] lyra_sel, lyrb_sel;
+wire        shadow;
+wire [15:0] scra_bank, scrb_bank;
 
 function [31:0] sort( input [31:0] a );
     sort = {
@@ -110,30 +116,33 @@ function [31:0] sort( input [31:0] a );
         a[12], a[ 8], a[ 4], a[ 0] };
 endfunction
 
-assign flip        = hflip & vflip;
 assign fsorted     = sort( lyrf_data ),
        asorted     = sort( lyra_data ),
        bsorted     = sort( lyrb_data ),
        osorted     = sort( lyro_data ),
-       lyrf_blnk_n = lyrf[3:0]==0,
-       lyra_blnk_n = lyra[3:0]==0,
-       lyrb_blnk_n = lyrb[3:0]==0,
-       lyro_blnk_n = lyro[3:0]==0,
        st_dout     = 0;
-assign lyrf_pxl = 0;
+assign lyro_pxl = 0, lyro_cs=0, lyro_addr=0, oram_addr=0;
+assign shadow   = 0;
+assign ioctl_din = dump_pal;
+assign scra_bank = scr_bank >> { lyra_sel, 2'd0 };
+assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
+assign lyra_addr[19:16] = scra_bank[3:0];
+assign lyrb_addr[19:16] = scrb_bank[3:0];
 
+always @(posedge clk) flip <= hflip & vflip;
 // functionality done by 007782
+// measured on PCB
 jtframe_vtimer #(
     .HCNT_START ( 9'h020    ),
     .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h029+HB_OFFSET ),
-    .HB_END     ( 9'h069+HB_OFFSET ),
-    .HS_START   ( 9'h034    ),
+    .HB_START   ( 9'h029+HB_OFFSET ), // 320 visible, 384 total (64 pxl=HB)
+    .HB_END     ( 9'h069+HB_OFFSET ), // HS starts 2 pixels after HB
+    .HS_START   ( 9'h034    ), // 32 pixel wide
 
-    .V_START    ( 9'h0F8    ),
+    .V_START    ( 9'h0F8    ), // 224 visible, 40 blank, 264 total
     .VB_START   ( 9'h1EF    ),
     .VB_END     ( 9'h10F    ),
-    .VS_START   ( 9'h1FF    ),
+    .VS_START   ( 9'h1FF    ), // 8 lines wide, 16 lines after VB start
     .VS_END     ( 9'h0FF    ), // 60.6 Hz according to MAME
     .VCNT_END   ( 9'h1FF    )
 ) u_vtimer(
@@ -183,7 +192,8 @@ jtframe_tilemap #(
 
 jtframe_scroll #(
     .VA(12),
-    .CW(13)
+    .CW(13),
+    .PW( 7)
 ) u_scra (
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -205,7 +215,7 @@ jtframe_scroll #(
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
-    .rom_addr   ( lyra_addr ),
+    .rom_addr   ( { lyra_sel, lyra_addr[15:2] } ),
     .rom_data   ( asorted   ),
     .rom_cs     ( lyra_cs   ),
     .rom_ok     ( 1'b1      ),
@@ -215,7 +225,8 @@ jtframe_scroll #(
 
 jtframe_scroll #(
     .VA(12),
-    .CW(13)
+    .CW(13),
+    .PW( 7)
 ) u_scrb (
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -237,7 +248,7 @@ jtframe_scroll #(
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
-    .rom_addr   ( lyrb_addr ),
+    .rom_addr   ( { lyrb_sel, lyrb_addr[15:2] } ),
     .rom_data   ( bsorted   ),
     .rom_cs     ( lyrb_cs   ),
     .rom_ok     ( 1'b1      ),
@@ -250,7 +261,8 @@ jttwin16_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .cfg        ( cfg       ),
+
+    .crtkill    ( crtkill   ),
     .cpu_prio   ( cpu_prio  ),
 
     // Base Video
@@ -258,7 +270,7 @@ jttwin16_colmix u_colmix(
     .lvbl       ( lvbl      ),
 
     // CPU interface
-    .cpu_addr   (cpu_addr[10:0]),
+    .cpu_addr   (cpu_addr[12:1]),
     .cpu_din    ( pal_dout  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_we     ( pal_we    ),
@@ -266,13 +278,9 @@ jttwin16_colmix u_colmix(
     // PROMs
     .prog_addr  ( prog_addr ),
     .prog_data  ( prog_data ),
-    .prom_we    ( prio_we   ),
+    .prom_we    ( prom_we   ),
 
     // Final pixels
-    .lyrf_blnk_n(lyrf_blnk_n),
-    .lyra_blnk_n(lyra_blnk_n),
-    .lyrb_blnk_n(lyrb_blnk_n),
-    .lyro_blnk_n(lyro_blnk_n),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
@@ -284,10 +292,11 @@ jttwin16_colmix u_colmix(
     .blue       ( blue      ),
 
     // Debug
-    .ioctl_addr ( ioctl_addr[10:0]),
+    .ioctl_addr ( ioctl_addr[11:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
 
+    .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );
 

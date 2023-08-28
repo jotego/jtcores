@@ -40,8 +40,8 @@ module jttwin16_colmix(
 
     // Final pixels
     input      [ 7:0] lyrf_pxl,
-    input      [ 7:0] lyra_pxl,
-    input      [ 7:0] lyrb_pxl,
+    input      [ 6:0] lyra_pxl,
+    input      [ 6:0] lyrb_pxl,
     input      [ 7:0] lyro_pxl,
     input             shadow,
     output     [ 7:0] red,
@@ -73,8 +73,8 @@ assign      lyra_blnk_n = gfx_en[1] & |lyra_pxl[3:0];
 assign      lyrb_blnk_n = gfx_en[2] & |lyrb_pxl[3:0];
 assign      lyro_blnk_n = gfx_en[3] & |lyro_pxl[3:0];
 
-assign prio_addr = {
-    lyra_blnk_n, lyrb_blnk_n, lyrf_blnk_n, ~&lyro_pxl[3:0], cpu_prio };
+assign prio_addr = { cpu_prio, lyrb_pxl[6], ~&lyro_pxl[3:0],
+    lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 
 assign pal_addr  = { 1'b0, pxl, pal_half };
 assign ioctl_din = pal_dout;
@@ -83,12 +83,12 @@ assign prio_sel  = prom_prio & {2{crtkill}};
 
 always @* begin
     case( prio_sel )
-        0: pxl[7:0] = lyra_pxl;
-        1: pxl[7:0] = lyrb_pxl;
+        0: pxl[7:0] = { 1'b1, lyrb_pxl };
+        1: pxl[7:0] = { 1'b0, lyra_pxl };
         2: pxl[7:0] = lyro_pxl;
         3: pxl[7:0] = lyrf_pxl;
     endcase
-    pxl[9:8] = ~prio_sel[1], prio_sel[1]&~prio_sel[0];
+    pxl[9:8] = { ~prio_sel[1], prio_sel[1]&~prio_sel[0] };
 end
 
 function [23:0] dim( input [14:0] cin, input shade );

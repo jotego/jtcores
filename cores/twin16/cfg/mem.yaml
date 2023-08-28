@@ -1,6 +1,7 @@
 params:
   - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START) >> 1"   }
   - { name: UPD_OFFSET,   value: "(`UPD_START-`JTFRAME_BA1_START) >> 1"   }
+  - { name: SCR_OFFSET,   value: "(`SCR_START-`JTFRAME_BA2_START) >> 1"   }
   - { name: RAM_OFFSET,   value: "22'h100000" }
 clocks:
   clk48:
@@ -11,13 +12,14 @@ clocks:
     - freq: 640000
       outputs:
         - cen_640
+        - cen_320
 sdram:
   banks:
     -
       buses:
         -
           name: ram
-          addr_width: 15
+          addr_width: 14
           data_width: 16
           offset: RAM_OFFSET
           rw: true
@@ -73,21 +75,21 @@ bram:
   # 2 + 8 + 8 + 16 = 34 kB
   - name: fram
     data_width: 16
-    addr_width: 11
+    addr_width: 12
     sim_file: true
-    dual_port: { name: main, we: fx_we, rw: true, dout: mf_dout }
+    dual_port: { name: main, we: fx_we, rw: true, din: ram_din, dout: mf_dout }
   - name: scra
     data_width: 16
     addr_width: 13
     sim_file: true
-    dual_port: { name: vram, we: va_we, rw: true, din: main_dout, dout: ma_dout }
+    dual_port: { name: vram, we: va_we, rw: true, din: ram_din, dout: ma_dout }
   - name: scrb
     data_width: 16
     addr_width: 13
     sim_file: true
-    dual_port: { name: vram, we: vb_we, rw: true, din: main_dout, dout: mb_dout }
+    dual_port: { name: vram, we: vb_we, rw: true, din: ram_din, dout: mb_dout }
   - name: oram
     data_width: 16
     addr_width: 14
     sim_file: true
-    dual_port: { name: main, we: obj_we, rw: true, din: main_dout, dout: mo_dout }
+    dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }

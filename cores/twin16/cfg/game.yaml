@@ -4,19 +4,14 @@ game:
       - jttwin16_game.v
       - jttwin16_main.v
       - jttwin16_video.v
-      - jttwin16_fix.v
-      - jttwin16_obj.v
-      - jttwin16_scr.v
+      - jttwin16_colmix.v
+#      - jttwin16_obj.v
   - from: tmnt
     get:
       - jttmnt_sound.v
   - from: simson
     get:
       - jt053260.v
-  - from: aliens
-    get:
-      - jtaliens_colmix.v
-      # - jt051937.v
   - from: flane
     get:
       - jt007232.v
@@ -34,12 +29,13 @@ jtframe:
     unless: NOMAIN
     get:
       - jtframe_m68k.yaml
+      - jtframe_z80.yaml
   - from: sdram
     get:
       - jtframe_dwnld.v
-  - from: cpu
+  - from: ram
     get:
-      - jtframe_z80.yaml
+      - jtframe_dual_ram16.v
 modules:
   jt:
     - name: jt51

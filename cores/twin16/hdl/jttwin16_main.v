@@ -20,26 +20,26 @@ module jttwin16_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    input         [ 2:0] game_id,
+    // input         [ 2:0] game_id,
 
     output        [18:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
     // 8-bit interface
     output               cpu_we,
-    output reg           pal_cs,
+    output               pal_we,
 
     output reg           rom_cs,
     output reg           ram_cs,
-    output reg           vram_cs,
-    output reg           oram_cs,
+    output reg           crtkill,
+    output reg           dma_on,
 
     // video RAM outputs,
-    input         [ 7:0] ma_dout,   // scroll A
-    input         [ 7:0] mb_dout,   // scroll B
-    input         [ 7:0] mf_dout,   // fixed layer
-    input         [ 7:0] mo_dout,   // objects
-    input         [15:0] pal_dout,
+    input         [15:0] ma_dout,   // scroll A
+    input         [15:0] mb_dout,   // scroll B
+    input         [15:0] mf_dout,   // fixed layer
+    input         [15:0] mo_dout,   // objects
+    input         [ 7:0] pal_dout,
     output        [ 1:0] va_we,
     output        [ 1:0] vb_we,
     output        [ 1:0] fx_we,
@@ -55,9 +55,11 @@ module jttwin16_main(
     output reg           sndon,
 
     // video configuration
+    output reg           hflip, vflip,
     output reg    [ 1:0] prio,
-    output reg    [ 2:0] hscr1, hscr2,
-    output reg    [ 9:0] obj_offsetx, obj_offsety,
+    output reg    [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
+    output reg    [ 9:0] objx, objy,
+    output reg    [15:0] scr_bank,
 
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
@@ -72,15 +74,13 @@ module jttwin16_main(
 );
 `ifndef NOMAIN
 
-`include "game_id.inc"
-
 wire [23:1] A;
 wire [ 1:0] dws;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         snd_cs, dip_cs, syswr_cs, vbank_cs,
-            crom_cs, oram_cs, int16en;
+reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
+            pal_cs, crom_cs, orom_cs, int16en;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg         intn, LVBLl;
@@ -98,7 +98,7 @@ assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
-
+assign pal_we   = pal_cs & cpu_we & ~LDSn;
 assign st_dout  = { 6'd0, prio };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dws      = ~({2{RnW}} & {UDSn, LDSn});
@@ -146,7 +146,7 @@ always @(posedge clk) begin
                oram_cs ? mo_dout   :
                vram_cs ? (A[13] ? mb_dout : ma_dout ) :
                fix_cs  ? mf_dout  :
-               pal_cs  ? pal_dout :
+               pal_cs  ? { 8'd0, pal_dout } :
                io_cs   ? { 8'd0, cab_dout } :
                16'hffff;
 end
@@ -179,26 +179,34 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        prio        <= 0;
-        hscr1       <= 0;
-        hscr2       <= 0;
-        obj_offsetx <= 0;
-        obj_offsety <= 0;
-        int16en     <= 0;
-        sndon       <= 0;
+        prio    <= 0;
+        scra_x  <= 0;
+        scra_y  <= 0;
+        scrb_x  <= 0;
+        scrb_y  <= 0;
+        scr_bank<= 0;
+        hflip   <= 0;
+        vflip   <= 0;
+        objx    <= 0;
+        objy    <= 0;
+        int16en <= 0;
+        sndon   <= 0;
+        crtkill <= 0;
+        dma_on  <= 0;
     end else begin
+        if( vbank_cs ) scr_bank <= cpu_dout;
         if( syswr_cs )
             case( A[3:1] )
                 0:  { prio, hflip, vflip } <= cpu_dout[3:0];
-                1: obj_offsetx <= cpu_dout[9:0];
-                2: obj_offsety <= cpu_dout[9:0];
-                3: hscr1       <= cpu_dout[2:0];
-                5: hscr2       <= cpu_dout[2:0];
+                1: objx <= cpu_dout[9:0];
+                2: objy <= cpu_dout[9:0];
+                3: scra_x[2:0] <= cpu_dout[2:0];
+                5: scrb_x[2:0] <= cpu_dout[2:0];
                 default:;
             endcase
         if( io_cs && !A[16] ) begin
             case( {RnW, A[4:3]} )
-                0: { crtkill, dma_on, int16en, sndon } <= cpu_dout[7:3];
+                0: {crtkill, dma_on, int16en, sndon} <= {cpu_dout[7:5],cpu_dout[3]};
                 1: snd_latch <= cpu_dout[7:0];
                 default:;
             endcase
@@ -206,7 +214,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
+jtframe_68kdtack #(.W(7),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -216,8 +224,8 @@ jtframe_68kdtack #(.W(6),.RECOVERY(1)) u_dtack(
     .bus_legit  ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    .num        ( 5'd24     ),  // numerator
-    .den        ( 6'd125    ),  // denominator, 48*24/125 = 9216
+    .num        ( 6'd24     ),  // numerator
+    .den        ( 7'd125    ),  // denominator, 48*24/125 = 9216
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
