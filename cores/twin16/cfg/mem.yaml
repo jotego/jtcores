@@ -76,12 +76,12 @@ bram:
     addr_width: 11
     sim_file: true
     dual_port: { name: main, we: fx_we, rw: true, dout: mf_dout }
-  - name: saram
+  - name: scra
     data_width: 16
     addr_width: 13
     sim_file: true
     dual_port: { name: vram, we: va_we, rw: true, din: main_dout, dout: ma_dout }
-  - name: sbram
+  - name: scrb
     data_width: 16
     addr_width: 13
     sim_file: true

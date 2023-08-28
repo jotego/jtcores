@@ -20,7 +20,6 @@ module jttwin16_video(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             pxl2_cen,
 
     // Base Video
     output            lhbl,
@@ -32,20 +31,16 @@ module jttwin16_video(
     input      [15:0] cpu_addr,
     input      [ 7:0] cpu_dout,
     output     [ 7:0] pal_dout,
-    output     [ 7:0] vram_dout,
-    output     [ 7:0] oram_dout,
     input             pal_we,
     input             cpu_we,
-    input             vram_cs,
-    input             oram_cs,
 
     // control
     input      [ 1:0] cpu_prio,
-    input      [ 2:0] hscr1, hscr2,
-    input      [ 9:0] obj_offsetx, obj_offsety,
+    input      [ 9:0] scra_x, scra_y, scrb_x, scrb_y,
+    input      [ 9:0] objx, objy,
 
-    input              hflip,
-    input              vflip,
+    input             hflip,
+    input             vflip,
 
     // PROMs
     input      [ 7:0] prog_addr,
@@ -55,6 +50,12 @@ module jttwin16_video(
     // Video RAM
     output     [11:1] fram_addr,
     input      [15:0] fram_data,
+    output     [12:1] scra_addr,
+    input      [15:0] scra_data,
+    output     [12:1] scrb_addr,
+    input      [15:0] scrb_data,
+    output     [12:1] oram_addr,
+    input      [15:0] oram_data,
 
     // Tile ROMs
     output reg [20:2] lyrf_addr,
@@ -86,26 +87,40 @@ module jttwin16_video(
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] st_dout
+    output     [ 7:0] st_dout
 );
 
 localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1;
 wire        flip;
-wire [31:0] fsorted;
+wire [31:0] fsorted, asorted, bsorted, osorted;
+wire [ 7:0] lyrf_pxl, lyra_pxl, lyrb_pxl, lyro_pxl;
+wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 
-assign flip = hflip & vflip;
-assigned fsorted = {
-    lyrf_data[31], lyrf_data[27], lyrf_data[23], lyrf_data[19], // plane 3
-    lyrf_data[15], lyrf_data[11], lyrf_data[ 7], lyrf_data[ 3],
-    lyrf_data[30], lyrf_data[26], lyrf_data[22], lyrf_data[18], // plane 2
-    lyrf_data[14], lyrf_data[10], lyrf_data[ 6], lyrf_data[ 2],
-    lyrf_data[29], lyrf_data[25], lyrf_data[21], lyrf_data[17], // plane 1
-    lyrf_data[13], lyrf_data[ 9], lyrf_data[ 5], lyrf_data[ 1],
-    lyrf_data[28], lyrf_data[24], lyrf_data[20], lyrf_data[16], // plane 0
-    lyrf_data[12], lyrf_data[ 8], lyrf_data[ 4], lyrf_data[ 0]
-};
+function [31:0] sort( input [31:0] a );
+    sort = {
+        a[31], a[27], a[23], a[19], // plane 3
+        a[15], a[11], a[ 7], a[ 3],
+        a[30], a[26], a[22], a[18], // plane 2
+        a[14], a[10], a[ 6], a[ 2],
+        a[29], a[25], a[21], a[17], // plane 1
+        a[13], a[ 9], a[ 5], a[ 1],
+        a[28], a[24], a[20], a[16], // plane 0
+        a[12], a[ 8], a[ 4], a[ 0] };
+endfunction
+
+assign flip        = hflip & vflip;
+assign fsorted     = sort( lyrf_data ),
+       asorted     = sort( lyra_data ),
+       bsorted     = sort( lyrb_data ),
+       osorted     = sort( lyro_data ),
+       lyrf_blnk_n = lyrf[3:0]==0,
+       lyra_blnk_n = lyra[3:0]==0,
+       lyrb_blnk_n = lyrb[3:0]==0,
+       lyro_blnk_n = lyro[3:0]==0,
+       st_dout     = 0;
+assign lyrf_pxl = 0;
 
 // functionality done by 007782
 jtframe_vtimer #(
@@ -155,54 +170,79 @@ jtframe_tilemap #(
 
     .code       ( fram_data[8:0] ),
     .pal        ( fram_data[12:9]),
-    .hflip      ( 1'b0      ),
-    .vflip      ( 1'b0      ),
+    .hflip      (fram_data[13]),
+    .vflip      (fram_data[14]),
 
     .rom_addr   ( lyrf_addr ),
     .rom_data   ( fsorted   ),
     .rom_cs     ( lyrf_cs   ),
     .rom_ok     ( 1'b1      ),
 
-    .pxl        ( pxl       )
+    .pxl        ( lyrf_pxl  )
 );
 
-jtframe_scroll #( parameter
-    SIZE =  8,    // 8x8, 16x16 or 32x32
-    VA   = 10,
-    CW   = 12,
-    PW   =  8,
-    MAP_HW = 9,    // size of the map in pixels
-    MAP_VW = 9,
-    VR   = SIZE==8 ? CW+3 : SIZE==16 ? CW+5 : CW+7,
-    XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
-    XOR_VFLIP = 0  // set to 1 so vflip gets ^ with flip
-)(
-    input              rst,
-    input              clk,
-    input              pxl_cen,
+jtframe_scroll #(
+    .VA(12),
+    .CW(13)
+) u_scra (
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
 
-    input              hs,
+    .hs         ( hs        ),
 
-    input        [8:0] vdump,
-    input        [8:0] hdump,
-    input              blankn,  // if !blankn there are no ROM requests
-    input              flip,    // Screen flip
-    input      [ 8:0]  scrx,
-    input      [ 8:0]  scry,
+    .vdump      ( vdump     ),
+    .hdump      ( hdump     ),
+    .blankn     ( gfx_en[1] ),
+    .flip       ( flip      ),
+    .scrx       ( scra_x    ),
+    .scry       ( scra_y    ),
 
-    output     [VA-1:0]vram_addr,
+    .vram_addr  ( scra_addr ),
 
-    input      [CW-1:0]code,
-    input      [PW-5:0]pal,
-    input              hflip,
-    input              vflip,
+    .code       (lyra_data[12:0]),
+    .pal        (lyra_data[15:13]),
+    .hflip      ( 1'b0      ),
+    .vflip      ( 1'b0      ),
 
-    output     [VR-1:0]rom_addr,
-    input      [31:0]  rom_data,
-    output             rom_cs,
-    input              rom_ok,      // ignored. It assumes that data is always right
+    .rom_addr   ( lyra_addr ),
+    .rom_data   ( asorted   ),
+    .rom_cs     ( lyra_cs   ),
+    .rom_ok     ( 1'b1      ),
 
-    output     [PW-1:0]pxl
+    .pxl        ( lyra_pxl  )
+);
+
+jtframe_scroll #(
+    .VA(12),
+    .CW(13)
+) u_scrb (
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+
+    .hs         ( hs        ),
+
+    .vdump      ( vdump     ),
+    .hdump      ( hdump     ),
+    .blankn     ( gfx_en[2] ),
+    .flip       ( flip      ),
+    .scrx       ( scrb_x    ),
+    .scry       ( scrb_y    ),
+
+    .vram_addr  ( scrb_addr ),
+
+    .code       (lyrb_data[12:0]),
+    .pal        (lyrb_data[15:13]),
+    .hflip      ( 1'b0      ),
+    .vflip      ( 1'b0      ),
+
+    .rom_addr   ( lyrb_addr ),
+    .rom_data   ( bsorted   ),
+    .rom_cs     ( lyrb_cs   ),
+    .rom_ok     ( 1'b1      ),
+
+    .pxl        ( lyrb_pxl  )
 );
 
 /* verilator tracing_off */
