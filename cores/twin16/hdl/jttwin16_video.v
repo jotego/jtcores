@@ -21,6 +21,7 @@ module jttwin16_video(
     input             clk,
     input             pxl_cen,
 
+    output reg        tim,      // similar to tim1, tim2 in schematics. Goes low every 8 pixels
     // Base Video
     output            lhbl,
     output            lvbl,
@@ -40,6 +41,8 @@ module jttwin16_video(
     input      [15:0] scr_bank,
     input      [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
     input      [ 9:0] objx, objy,
+
+    input             dma_on,
     output            dma_bsy,
 
     input             hflip,
@@ -53,13 +56,15 @@ module jttwin16_video(
 
     // Video RAM
     output     [11:1] fram_addr,
-    input      [15:0] fram_data,
+    input      [15:0] fram_dout,
     output     [12:1] scra_addr,
-    input      [15:0] scra_data,
+    input      [15:0] scra_dout,
     output     [12:1] scrb_addr,
-    input      [15:0] scrb_data,
+    input      [15:0] scrb_dout,
     output     [13:1] oram_addr,
-    input      [15:0] oram_data,
+    input      [15:0] oram_dout,
+    output     [15:0] oram_din,
+    output            oram_we,
 
     // Tile ROMs
     output     [13:2] lyrf_addr,
@@ -129,7 +134,7 @@ assign fsorted     = sort( lyrf_data ),
        bsorted     = scr_sort( lyrb_data ),
        osorted     = sort( lyro_data ),
        st_dout     = 0;
-assign lyro_pxl = 0, lyro_cs=0, lyro_addr=0, oram_addr=0;
+
 assign ioctl_din = dump_pal;
 assign scra_bank = scr_bank >> { crtkill ? cpu_addr[17:16] : lyra_sel, 2'd0 };
 assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
@@ -141,7 +146,10 @@ assign lyra_cs   =  crtkill | prea_cs;  // SCRA access used for ROM reading
 assign lyrb_cs   = ~crtkill & preb_cs;
 assign lyra_addr[15:2] = crtkill ? cpu_addr[15:2] : prea_addr;
 
-always @(posedge clk) flip <= hflip & vflip;
+always @(posedge clk) begin
+    flip <= hflip & vflip;
+    if( pxl_cen ) tim <= hdump[2:0]!=4;
+end
 // functionality done by 007782
 // measured on PCB
 /* verilator tracing_off */
@@ -191,10 +199,10 @@ jtframe_tilemap #(
 
     .vram_addr  ( fram_addr ),
 
-    .code       ( fram_data[8:0] ),
-    .pal        ( fram_data[12:9]),
-    .hflip      (fram_data[13]),
-    .vflip      (fram_data[14]),
+    .code       ( fram_dout[8:0] ),
+    .pal        ( fram_dout[12:9]),
+    .hflip      (fram_dout[13]),
+    .vflip      (fram_dout[14]),
 
     .rom_addr   ( lyrf_addr ),
     .rom_data   ( fsorted   ),
@@ -219,13 +227,13 @@ jtframe_scroll #(
     .hdump      ( hdump_off ),
     .blankn     ( gfx_en[1] ),
     .flip       ( flip      ),
-    .scrx       ( scra_x     ),
-    .scry       ( scra_y + {debug_bus,1'b0}   ),
+    .scrx       ( scra_x    ),
+    .scry       ( scra_y    ),
 
     .vram_addr  ( scra_addr ),
 
-    .code       (scra_data[12:0]),
-    .pal        (scra_data[15:13]),
+    .code       (scra_dout[12:0]),
+    .pal        (scra_dout[15:13]),
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
@@ -253,12 +261,12 @@ jtframe_scroll #(
     .blankn     ( gfx_en[2] ),
     .flip       ( flip      ),
     .scrx       ( scrb_x    ),
-    .scry       ( scrb_y + {debug_bus,1'b0}   ),
+    .scry       ( scrb_y    ),
 
     .vram_addr  ( scrb_addr ),
 
-    .code       (scrb_data[12:0]),
-    .pal        (scrb_data[15:13]),
+    .code       (scrb_dout[12:0]),
+    .pal        (scrb_dout[15:13]),
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 
@@ -284,7 +292,20 @@ jttwin16_obj u_obj(
     .vdump      ( vdump     ),
     .hdump      ( hdump     ),
 
-    .dma_bsy    ( dma_bsy   )
+    .oram_addr  ( oram_addr ),
+    .oram_dout  ( oram_dout ),
+    .oram_din   ( oram_din  ),
+    .oram_we    ( oram_we   ),
+
+    .dma_on     ( dma_on    ),
+    .dma_bsy    ( dma_bsy   ),
+
+    .rom_addr   ( lyro_addr ),
+    .rom_data   ( lyro_data ),
+    .rom_cs     ( lyro_cs   ),
+    .rom_ok     ( lyro_ok   ),
+
+    .pxl        ( lyro_pxl  )
 );
 
 /* verilator tracing_on */

@@ -360,6 +360,15 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 				MSB: each.Data_width-1,
 			})
 		}
+		if each.Rw {
+			name := each.Name + "_we"
+			if each.We!="" { name = each.We }
+			add( Port{
+				Name: name,
+				MSB: each.Data_width>>4,
+				LSB: 0,
+			})
+		}
 		if each.Dual_port.Name!="" {
 			add( Port{
 				Name: each.Dual_port.Name+"_addr",

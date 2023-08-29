@@ -25,24 +25,30 @@ wire [ 7:0] snd_latch;
 wire [ 9:0] objx, objy;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
 wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
-            cpu_rnw, snd_wrn, hflip, vflip, pal_we;
+            cpu_rnw, snd_wrn, hflip, vflip, tim, pal_we;
 wire [ 7:0] st_main, st_video, st_snd, pal_dout;
 wire [15:0] scr_bank;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
+wire        oram_wex;
 // reg  [ 2:0] game_id;
 
 assign debug_view = debug_mux;
 assign ram_addr   = main_addr[13:1];
 assign ram_we     = cpu_we;
 assign vram_addr[12:1] = main_addr[12:1];
+assign oram_we = {2{oram_wex}};
+
+// assign oram_addr = ioctl_addr[13:1];
+// assign ioctl_din = ioctl_addr[0] ? oram_dout[15:8] : oram_dout[7:0];
+assign ioctl_din = 0;
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
-        0: debug_mux <= { 7'd0, dip_flip };
+        0: debug_mux <= st_main;
         1: debug_mux <= st_video;
         2: debug_mux <= st_snd;
-        3: debug_mux <= st_main;
+        3: debug_mux <= { 7'd0, dip_flip };
     endcase
 end
 
@@ -87,6 +93,7 @@ jttwin16_main u_main(
     .vb_we          ( vb_we         ),
     .fx_we          ( fx_we         ),
     .obj_we         ( obj_we        ),
+    .tim            ( tim           ),
 
     .pal_dout       ( pal_dout      ),
     // To video
@@ -127,6 +134,7 @@ jttwin16_video u_video (
     .vflip          ( vflip         ),
     .pal_we         ( pal_we        ),
     .crtkill        ( crtkill       ),
+    .tim            ( tim           ),
 
     .cpu_prio       ( prio          ),
     .scr_bank       ( scr_bank      ),
@@ -137,6 +145,7 @@ jttwin16_video u_video (
     .objx           ( objx          ),
     .objy           ( objy          ),
 
+    .dma_on         ( dma_on        ),
     .dma_bsy        ( dma_bsy       ),
 
     .lhbl           ( LHBL          ),
@@ -155,13 +164,15 @@ jttwin16_video u_video (
     .pal_dout       ( pal_dout      ),
     // VRAM
     .fram_addr      ( fram_addr     ),
-    .fram_data      ( fram_dout     ),
+    .fram_dout      ( fram_dout     ),
     .scra_addr      ( scra_addr     ),
-    .scra_data      ( scra_dout     ),
+    .scra_dout      ( scra_dout     ),
     .scrb_addr      ( scrb_addr     ),
-    .scrb_data      ( scrb_dout     ),
+    .scrb_dout      ( scrb_dout     ),
     .oram_addr      ( oram_addr     ),
-    .oram_data      ( oram_dout     ),
+    .oram_dout      ( oram_dout     ),
+    .oram_din       ( oram_din      ),
+    .oram_we        ( oram_wex      ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
@@ -183,7 +194,8 @@ jttwin16_video u_video (
     // Debug
     .debug_bus      ( debug_bus     ),
     .ioctl_addr     (ioctl_addr[14:0]),
-    .ioctl_din      ( ioctl_din     ),
+    // .ioctl_din      ( ioctl_din     ),
+    .ioctl_din      (               ),
     .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )

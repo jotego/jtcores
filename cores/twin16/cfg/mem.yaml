@@ -72,7 +72,7 @@ sdram:
           addr_width: 20
           data_width: 32
 bram:
-  # 2 + 8 + 8 + 16 = 34 kB
+  # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) = 34 kB
   - name: fram
     data_width: 16
     addr_width: 12
@@ -91,5 +91,6 @@ bram:
   - name: oram
     data_width: 16
     addr_width: 14
+    rw: true
     sim_file: true
     dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }

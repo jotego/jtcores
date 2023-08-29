@@ -35,6 +35,7 @@ module jttwin16_main(
     output reg           crtkill,
     output reg           dma_on,
     input                dma_bsy,
+    input                tim,
 
     // video ROM checks
     input         [31:0] scr_data,
@@ -82,7 +83,7 @@ module jttwin16_main(
 
 wire [23:1] A;
 wire [ 1:0] dws;
-wire        cpu_cen, cpu_cenb;
+wire        cpu_cen, cpu_cenb, pre_dtackn;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
@@ -105,13 +106,14 @@ assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & cpu_we & ~LDSn;
-assign st_dout  = { 2'd0, crtkill, int16en, 2'd0, prio };
+assign st_dout  = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dws      = ~({2{RnW}} | {UDSn, LDSn});
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
 assign vb_we    = dws & {2{vram_cs &  A[13]}};
 assign fx_we    = dws & {2{fix_cs}};
 assign obj_we   = dws & {2{oram_cs}};
+assign DTACKn   = (~(vram_cs | oram_cs ) | tim) & pre_dtackn;
 
 always @* begin
     fix_cs   = 0;
@@ -240,7 +242,7 @@ jtframe_68kdtack #(.W(5),.RECOVERY(1)) u_dtack(
     .DSn        ({UDSn,LDSn}),
     .num        ( 4'd3      ),  // numerator
     .den        ( 5'd16     ),  // denominator, => 9216
-    .DTACKn     ( DTACKn    ),
+    .DTACKn     ( pre_dtackn),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
     // Frequency report

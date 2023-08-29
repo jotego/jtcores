@@ -167,7 +167,7 @@ void twin16_state::video_register_w(offs_t offset, uint16_t data, uint16_t mem_m
  * -----+------------------+
  *   4  | -------xxxxxxxxx | xpos high, other bits probably no effect
  *   5  | xxxxxxxx-------- | xpos low, other bits probably no effect
- *   6  | -------xxxxxxxxx | xpos high, other bits probably no effect
+ *   6  | -------xxxxxxxxx | ypos high, other bits probably no effect
  *   7  | xxxxxxxx-------- | ypos low, other bits probably no effect
  *
  * ----------------------------------

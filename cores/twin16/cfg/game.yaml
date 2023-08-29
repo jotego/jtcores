@@ -6,6 +6,7 @@ game:
       - jttwin16_video.v
       - jttwin16_obj.v
       - jttwin16_colmix.v
+      - jt00778x.v
 #      - jttwin16_obj.v
   - from: tmnt
     get:
