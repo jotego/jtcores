@@ -68,10 +68,23 @@
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "SRiders.kicad_prl",
+    "filename": "sriders.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": []
+    "files": [
+      {
+        "name": "sriders.kicad_sch",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": true,
+          "pos_x": 2360,
+          "pos_y": 52,
+          "size_x": 978,
+          "size_y": 1052
+        }
+      }
+    ]
   }
 }
