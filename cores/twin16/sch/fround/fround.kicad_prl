@@ -77,11 +77,11 @@
         "name": "fround.kicad_sch",
         "open": false,
         "window": {
-          "display": 0,
+          "display": 1,
           "maximized": true,
-          "pos_x": 2242,
-          "pos_y": 67,
-          "size_x": 974,
+          "pos_x": 495,
+          "pos_y": 51,
+          "size_x": 976,
           "size_y": 1024
         }
       }
