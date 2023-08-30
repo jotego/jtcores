@@ -27,7 +27,7 @@ regions = [
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="fixed",    start="JTFRAME_BA2_START" },
     { name="tiles",    start="SCR_START", width=32 },
-    { name="gfxrom",   start="JTFRAME_BA3_START" },
+    { name="gfxrom",   start="JTFRAME_BA3_START", width=32 },
     { name="k007232"  },
     { name="upd"  }
 ]

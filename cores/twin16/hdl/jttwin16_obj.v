@@ -29,6 +29,7 @@ module jttwin16_obj(
 
     input      [ 8:0] vdump,
     input      [ 8:0] hdump,
+    input      [ 9:0] obj_dx, obj_dy,
 
     // Object RAM
     output     [13:1] oram_addr,
@@ -72,6 +73,8 @@ jt00778x u_scan(    // sprite logic
     // input      [ 7:0] cpu_dout,
     // input      [10:0] cpu_addr,
     // output     [ 7:0] cpu_din,
+    .obj_dx         ( obj_dx        ),
+    .obj_dy         ( obj_dy        ),
 
     // ROM addressing
     .code           ( code          ),

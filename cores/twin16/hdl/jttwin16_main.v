@@ -65,7 +65,7 @@ module jttwin16_main(
     output reg           hflip, vflip,
     output reg    [ 1:0] prio,
     output reg    [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
-    output reg    [ 9:0] objx, objy,
+    output reg    [ 9:0] obj_dx, obj_dy,
     output reg    [15:0] scr_bank,
 
     input         [ 6:0] joystick1,
@@ -76,7 +76,7 @@ module jttwin16_main(
     input                dip_pause,
     input                dip_test,
     input         [19:0] dipsw,
-    output        [ 7:0] st_dout,
+    output reg    [ 7:0] st_dout,
     input         [ 7:0] debug_bus
 );
 `ifndef NOMAIN
@@ -106,7 +106,6 @@ assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
 assign pal_we   = pal_cs & cpu_we & ~LDSn;
-assign st_dout  = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dws      = ~({2{RnW}} | {UDSn, LDSn});
 assign va_we    = dws & {2{vram_cs & ~A[13]}};
@@ -114,6 +113,15 @@ assign vb_we    = dws & {2{vram_cs &  A[13]}};
 assign fx_we    = dws & {2{fix_cs}};
 assign obj_we   = dws & {2{oram_cs}};
 assign DTACKn   = (~(vram_cs | oram_cs ) | tim) & pre_dtackn;
+
+always @* begin
+    case( debug_bus[1:0] )
+        0: st_dout = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
+        1: st_dout = obj_dx[9-:8];
+        2: st_dout = obj_dy[9-:8];
+        3: st_dout = 0;
+    endcase
+end
 
 always @* begin
     fix_cs   = 0;
@@ -193,27 +201,27 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        prio    <= 0;
-        scra_x  <= 0;
-        scra_y  <= 0;
-        scrb_x  <= 0;
-        scrb_y  <= 0;
-        scr_bank<= 0;
-        hflip   <= 0;
-        vflip   <= 0;
-        objx    <= 0;
-        objy    <= 0;
-        int16en <= 0;
-        sndon   <= 0;
-        crtkill <= 0;
-        dma_on  <= 0;
+        prio     <= 0;
+        scra_x   <= 0;
+        scra_y   <= 0;
+        scrb_x   <= 0;
+        scrb_y   <= 0;
+        scr_bank <= 0;
+        hflip    <= 0;
+        vflip    <= 0;
+        obj_dx   <= 0;
+        obj_dy   <= 0;
+        int16en  <= 0;
+        sndon    <= 0;
+        crtkill  <= 0;
+        dma_on   <= 0;
     end else begin
         if( vbank_cs ) scr_bank <= cpu_dout;
         if( syswr_cs )
             case( A[3:1] )
                 0:  { prio, hflip, vflip } <= cpu_dout[3:0];
-                1: objx   <= cpu_dout[9:0];
-                2: objy   <= cpu_dout[9:0];
+                1: obj_dx <= cpu_dout[9:0];
+                2: obj_dy <= cpu_dout[9:0];
                 3: scra_x <= cpu_dout[8:0];
                 4: scra_y <= cpu_dout[8:0];
                 5: scrb_x <= cpu_dout[8:0];

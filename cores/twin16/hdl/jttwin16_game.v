@@ -22,7 +22,7 @@ module jttwin16_game(
 
 /* verilator tracing_off */
 wire [ 7:0] snd_latch;
-wire [ 9:0] objx, objy;
+wire [ 9:0] obj_dx, obj_dy;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
 wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
             cpu_rnw, snd_wrn, hflip, vflip, tim, pal_we;
@@ -110,8 +110,8 @@ jttwin16_main u_main(
     .scra_y         ( scra_y        ),
     .scrb_x         ( scrb_x        ),
     .scrb_y         ( scrb_y        ),
-    .objx           ( objx          ),
-    .objy           ( objy          ),
+    .obj_dx         ( obj_dx        ),
+    .obj_dy         ( obj_dy        ),
     // To sound
     .snd_latch      ( snd_latch     ),
     .sndon          ( snd_irq       ),
@@ -142,8 +142,8 @@ jttwin16_video u_video (
     .scra_y         ( scra_y        ),
     .scrb_x         ( scrb_x        ),
     .scrb_y         ( scrb_y        ),
-    .objx           ( objx          ),
-    .objy           ( objy          ),
+    .obj_dx         ( obj_dx        ),
+    .obj_dy         ( obj_dy        ),
 
     .dma_on         ( dma_on        ),
     .dma_bsy        ( dma_bsy       ),

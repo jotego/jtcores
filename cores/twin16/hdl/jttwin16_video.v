@@ -40,7 +40,7 @@ module jttwin16_video(
     input      [ 1:0] cpu_prio,
     input      [15:0] scr_bank,
     input      [ 8:0] scra_x, scra_y, scrb_x, scrb_y,
-    input      [ 9:0] objx, objy,
+    input      [ 9:0] obj_dx, obj_dy,
 
     input             dma_on,
     output            dma_bsy,
@@ -132,7 +132,7 @@ endfunction
 assign fsorted     = sort( lyrf_data ),
        asorted     = scr_sort( lyra_data ),
        bsorted     = scr_sort( lyrb_data ),
-       osorted     = sort( lyro_data ),
+       osorted     = scr_sort( lyro_data ),
        st_dout     = 0;
 
 assign ioctl_din = dump_pal;
@@ -291,6 +291,8 @@ jttwin16_obj u_obj(
 
     .vdump      ( vdump     ),
     .hdump      ( hdump     ),
+    .obj_dx     ( obj_dx    ),
+    .obj_dy     ( obj_dy    ),
 
     .oram_addr  ( oram_addr ),
     .oram_dout  ( oram_dout ),
@@ -301,7 +303,7 @@ jttwin16_obj u_obj(
     .dma_bsy    ( dma_bsy   ),
 
     .rom_addr   ( lyro_addr ),
-    .rom_data   ( lyro_data ),
+    .rom_data   ( osorted   ),
     .rom_cs     ( lyro_cs   ),
     .rom_ok     ( lyro_ok   ),
 

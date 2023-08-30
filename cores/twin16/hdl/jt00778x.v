@@ -69,8 +69,9 @@ module jt00778x(    // sprite logic
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
     input             vs,
-    input             lvbl,
     input             hs,
+    input             lvbl,
+    input      [ 9:0] obj_dx, obj_dy,
     // output            flip,
 
     // draw module
@@ -220,13 +221,13 @@ always @(posedge clk, posedge rst) begin
                     code <= oram_dout[14:0];
                     hstep   <= 0;
                 end
-                2: y <= oram_dout[8:0];
-                3: hpos <= oram_dout[8:0];
-                3: begin
+                2: y <= oram_dout[8:0]-obj_dy;
+                3: hpos <= oram_dout[8:0]-obj_dx;
+                4: begin
                     skip <= ~oram_dout[15];
                     { vflip, hflip, vsize, hsize, attr } <= oram_dout[9:0];
                 end
-                4: begin
+                5: begin
                     hstep <= 0;
                     // Add the vertical offset to the code
                     case( vsize ) // could be + or |
@@ -241,8 +242,8 @@ always @(posedge clk, posedge rst) begin
                         if( &scan_obj ) done <= 1;
                     end
                 end
-                5: begin
-                    scan_sub <= 5;
+                6: begin
+                    scan_sub <= 6;
                     if( (!dr_start && !busy_g) || !inzone ) begin
                         case( hsize )
                             0: {code[4],code[2],code[0]} <= hcode;

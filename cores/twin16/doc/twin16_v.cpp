@@ -230,8 +230,8 @@ void twin16_state::spriteram_process(  )
 		{
 			uint16_t *dest = &spriteram16[0x1800|(priority&0xff)<<2];
 
-			uint32_t xpos = (0x10000*source[4])|source[5];
-			uint32_t ypos = (0x10000*source[6])|source[7];
+			uint32_t xpos = (source[4]<<8)|(source[5]>>8);
+			uint32_t ypos = (source[6]<<8)|(source[7]>>8);
 
 			/* notes on sprite attributes:
 
@@ -251,8 +251,8 @@ void twin16_state::spriteram_process(  )
 			uint16_t attributes = 0x8000 | (source[2]&0x03ff); // scale,size,color
 
 			dest[0] = source[3]; /* gfx data */
-			dest[1] = ((xpos>>8) - dx)&0xffff;
-			dest[2] = ((ypos>>8) - dy)&0xffff;
+			dest[1] = (xpos - dx)&0xffff;
+			dest[2] = (ypos - dy)&0xffff;
 			dest[3] = attributes;
 		}
 		source += 0x50/2;
