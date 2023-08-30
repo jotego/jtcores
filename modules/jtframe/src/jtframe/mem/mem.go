@@ -422,7 +422,9 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
 			cfg.BRAM[k].Addr = each.Name+"_amux"
 			dump_size += 1<<each.Addr_width
-			cfg.Ioctl.Buses[i].Blocks = 1<<(each.Addr_width-8)
+			cfg.Ioctl.Buses[i].Size = 1<<each.Addr_width
+			cfg.Ioctl.Buses[i].SizekB = cfg.Ioctl.Buses[i].Size >> 10
+			cfg.Ioctl.Buses[i].Blocks = cfg.Ioctl.Buses[i].Size >> 8
 			cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
 			total_blocks += cfg.Ioctl.Buses[i].Blocks
 		}

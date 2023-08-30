@@ -1,6 +1,7 @@
 #!/bin/bash
 
 {{ range .Ioctl.Buses }}{{ if .Name -}}
+# {{ .Name }} {{ .Size }} bytes ({{.SizekB}} kB)
 dd if=$1 of={{.Name}}.bin bs=256 count={{.Blocks}} skip={{.SkipBlocks}}
 {{ if eq .DW 16 -}}
 drop1    < {{.Name}}.bin > {{.Name}}_hi.bin

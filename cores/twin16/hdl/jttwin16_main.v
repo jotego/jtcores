@@ -115,11 +115,20 @@ assign obj_we   = dws & {2{oram_cs}};
 assign DTACKn   = (~(vram_cs | oram_cs ) | tim) & pre_dtackn;
 
 always @* begin
-    case( debug_bus[1:0] )
-        0: st_dout = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
-        1: st_dout = obj_dx[9-:8];
-        2: st_dout = obj_dy[9-:8];
-        3: st_dout = 0;
+    case( debug_bus[3:0] )
+        0: st_dout = scra_x[7:0];
+        1: st_dout = scrb_x[7:0];
+        2: st_dout = scra_y[7:0];
+        3: st_dout = scrb_y[7:0];
+        4: st_dout = { vflip, hflip, prio, scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
+        5: st_dout = scr_bank[ 7:0];
+        6: st_dout = scr_bank[15:8];
+        7: st_dout = obj_dx[ 7:0];
+        8: st_dout = { 6'd0, obj_dx[9:8] };
+        9: st_dout = obj_dy[ 7:0];
+       10: st_dout = { 6'd0, obj_dy[9:8] };
+       11: st_dout = { dma_on, 1'd0, crtkill, int16en, 2'd0, prio };
+       default: st_dout = 0;
     endcase
 end
 

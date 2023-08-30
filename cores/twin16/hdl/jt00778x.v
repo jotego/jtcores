@@ -23,8 +23,9 @@
 // but separated $50 (80 bytes) from each other
 // $3000 (3/4) of the RAM contain the data
 // the latter $1000 keeps a prioritized copy in packets of 8 bytes
-// or just $260 (608) bytes in total
-// if it was limited to 512 bytes -> 64 sprites
+// or max $200 objects (512) in total
+// but the priority seem to be encoded in one byte, so
+// max objects is $100 = 256
 
 // DMA clear phase lasts for 2 lines
 // DMA copying takes 6.41 lines after DMA clear
@@ -100,6 +101,11 @@ assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
 assign ysub      = ydiff[3:0];
 
+`ifdef SIMULATION
+wire [13:0] cpr_afull = {cpr_addr,1'b0};
+wire [13:0] cpw_afull = { 4'b1100, cpw_addr,1'b0};
+`endif
+
 // DMA logic
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -137,35 +143,40 @@ always @(posedge clk, posedge rst) begin
                         0: begin
                             cpw_addr[9:2] <= oram_dout[7:0];
                             oram_din <= 0;
-                            beflag   <= oram_dout[15] && obj_en;
+                            beflag   <= 1'b0; // oram_dout[15] && obj_en;
                         end
                         2: begin // flags
                             cpw_addr[2:1] <= 3;
                             oram_din <= { 1'b1,5'd0, oram_dout[9:0] };
                             oram_we  <= beflag;
+                            if(beflag) $display("OBJ %X, flags %X",cpw_addr[9:2], { 1'b1,5'd0, oram_dout[9:0] } );
                         end
                         3: begin // code
                             cpw_addr[2:1] <= 0;
                             oram_din <= oram_dout;
                             oram_we  <= beflag;
+                            if(beflag) $display("        code %X", oram_dout );
                         end
                         4: oram_din[15:8] <= oram_dout[7:0];
                         5: begin // x
                             cpw_addr[2:1] <= 2;
                             oram_din[7:0] <= oram_dout[15:8];
                             oram_we  <= beflag;
+                            if(beflag) $display("        x =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end
                         6: oram_din[15:8] <= oram_dout[7:0];
                         7: begin // y
                             cpw_addr[2:1] <= 1;
                             oram_din[7:0] <= oram_dout[15:8];
                             oram_we  <= beflag;
+                            if(beflag) $display("        y =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end
                     endcase
                 end else begin
                     cpr_addr[3:1] <= nx_cpra[3:1];
                     if( nx_cpra[4] ) begin
-                        { dma_bsy, cpr_addr[13:4] } <= { 1'b1, cpr_addr[13:4]}+11'h5;
+                        cpr_addr[13:4] <= cpr_addr[13:4]+10'h5;
+                        dma_bsy <= cpr_addr<763;
                     end
                     oram_we <= 0;
                 end

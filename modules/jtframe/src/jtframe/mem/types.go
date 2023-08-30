@@ -116,7 +116,8 @@ type ClockCfg struct {
 }
 
 type IoctlBus struct{
-    DW, AW, AWl, Blocks, SkipBlocks int
+    DW, AW, AWl int
+    Blocks, SkipBlocks, Size, SizekB int
     Name, Dout, Ain, Aout string
 }
 

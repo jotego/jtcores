@@ -396,6 +396,7 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 {{ end }}{{end}}
 
 {{- if .Ioctl.Dump }}
+/* verilator tracing_on */
 wire [7:0] ioctl_aux;
 {{- range $k, $v := .Ioctl.Buses }}
 {{ if $v.Aout }}wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Aout}};{{end -}}{{end}}

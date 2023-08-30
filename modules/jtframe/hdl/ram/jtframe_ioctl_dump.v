@@ -24,12 +24,12 @@ module jtframe_ioctl_dump #(parameter
     AW0=8, AW1=8, AW2=8, AW3=8, AW4=8, AW5=8,
     // offset for each section
     OS0=0,
-    OS1=OS0+(1<<AW0),
-    OS2=OS1+(1<<AW1),
-    OS3=OS2+(1<<AW2),
-    OS4=OS3+(1<<AW3),
-    OS5=OS4+(1<<AW4),
-    OS6=OS5+(1<<AW5)
+    OS1=(AW0==0 ? OS0 : OS0+(1<<AW0)),
+    OS2=(AW1==0 ? OS1 : OS1+(1<<AW1)),
+    OS3=(AW2==0 ? OS2 : OS2+(1<<AW2)),
+    OS4=(AW3==0 ? OS3 : OS3+(1<<AW3)),
+    OS5=(AW4==0 ? OS4 : OS4+(1<<AW4)),
+    OS6=(AW5==0 ? OS5 : OS5+(1<<AW5))
 )(
     input   clk,
 
@@ -71,14 +71,19 @@ initial begin // assertions
 end
 `endif
 
-reg [5:0] sel;
+reg  [ 5:0] sel;
+wire [23:0] part_addr;
+reg  [23:0] offset;
+
+assign part_addr = ioctl_addr - offset;
+
 
 assign addrout_0 = sel[0] ? ioctl_addr[(AW0!=0?AW0-1:0):(AW0!=0?DW0>>4:0)] : addrin_0;
-assign addrout_1 = sel[1] ? ioctl_addr[(AW1!=0?AW1-1:0):(AW1!=0?DW1>>4:0)] : addrin_1;
-assign addrout_2 = sel[2] ? ioctl_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : addrin_2;
-assign addrout_3 = sel[3] ? ioctl_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : addrin_3;
-assign addrout_4 = sel[4] ? ioctl_addr[(AW4!=0?AW4-1:0):(AW4!=0?DW4>>4:0)] : addrin_4;
-assign addrout_5 = sel[5] ? ioctl_addr[(AW5!=0?AW5-1:0):(AW5!=0?DW5>>4:0)] : addrin_5;
+assign addrout_1 = sel[1] ? part_addr[(AW1!=0?AW1-1:0):(AW1!=0?DW1>>4:0)] : addrin_1;
+assign addrout_2 = sel[2] ? part_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : addrin_2;
+assign addrout_3 = sel[3] ? part_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : addrin_3;
+assign addrout_4 = sel[4] ? part_addr[(AW4!=0?AW4-1:0):(AW4!=0?DW4>>4:0)] : addrin_4;
+assign addrout_5 = sel[5] ? part_addr[(AW5!=0?AW5-1:0):(AW5!=0?DW5>>4:0)] : addrin_5;
 
 assign ioctl_din =
     sel[0] ? ( (DW0==16 && ioctl_addr[0]) ? din0[DW0-1 -:8] : din0[7:0]) :
@@ -90,14 +95,15 @@ assign ioctl_din =
                ioctl_aux;
 
 always @(posedge clk) begin
-    sel <= 0;
+    sel    <= 0;
+    offset <= 0;
     if( ioctl_ram ) begin
-        if( ioctl_addr < OS1 ) sel[0] <= 1;
-        else if( ioctl_addr < OS2 ) sel[1] <= 1;
-        else if( ioctl_addr < OS3 ) sel[2] <= 1;
-        else if( ioctl_addr < OS4 ) sel[3] <= 1;
-        else if( ioctl_addr < OS5 ) sel[4] <= 1;
-        else if( ioctl_addr < OS6 ) sel[5] <= 1;
+        if( ioctl_addr < OS1 ) begin sel[0] <= 1; offset <= 0; end
+        else if( ioctl_addr < OS2 ) begin sel[1] <= 1; offset <= OS1[23:0]; end
+        else if( ioctl_addr < OS3 ) begin sel[2] <= 1; offset <= OS2[23:0]; end
+        else if( ioctl_addr < OS4 ) begin sel[3] <= 1; offset <= OS3[23:0]; end
+        else if( ioctl_addr < OS5 ) begin sel[4] <= 1; offset <= OS4[23:0]; end
+        else if( ioctl_addr < OS6 ) begin sel[5] <= 1; offset <= OS5[23:0]; end
     end
 end
 
