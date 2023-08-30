@@ -29,7 +29,7 @@ wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
 wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] scr_bank;
 wire [ 1:0] prio;
-reg  [ 7:0] debug_mux;
+reg  [ 7:0] debug_mux, ioctl_mux;
 wire        oram_wex;
 // reg  [ 2:0] game_id;
 
@@ -38,10 +38,24 @@ assign ram_addr   = main_addr[13:1];
 assign ram_we     = cpu_we;
 assign vram_addr[12:1] = main_addr[12:1];
 assign oram_we = {2{oram_wex}};
+assign ioctl_din = ioctl_mux;
 
-// assign oram_addr = ioctl_addr[13:1];
-// assign ioctl_din = ioctl_addr[0] ? oram_dout[15:8] : oram_dout[7:0];
-assign ioctl_din = 0;
+always @(posedge clk) begin
+    case( ioctl_addr[3:0] )
+         0: ioctl_mux <= scra_x[7:0];
+         1: ioctl_mux <= scrb_x[7:0];
+         2: ioctl_mux <= scra_y[7:0];
+         3: ioctl_mux <= scrb_y[7:0];
+         4: ioctl_mux <= { vflip, hflip, prio, scrb_y[8],scra_y[8], scrb_x[8], scra_x[8] };
+         5: ioctl_mux <= scr_bank[ 7:0];
+         6: ioctl_mux <= scr_bank[15:8];
+         7: ioctl_mux <= obj_dx[ 7:0];
+         8: ioctl_mux <= { 6'd0, obj_dx[9:8] };
+         9: ioctl_mux <= obj_dy[ 7:0];
+        10: ioctl_mux <= { 6'd0, obj_dy[9:8] };
+        default: ioctl_mux <= 0;
+    endcase
+end
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )

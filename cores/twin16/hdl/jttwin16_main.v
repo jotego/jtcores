@@ -290,6 +290,27 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
+    integer fin, fcnt;
+    reg [7:0] mmr[0:10];
+
+    initial begin
+        for( fcnt=0; fcnt<11; fcnt=fcnt+1 ) mmr[fcnt]=0;
+        fin=$fopen("rest.bin","rb");
+        fcnt = $fread(mmr,fin);
+        $display("Read %d bytes from rest.bin",fcnt);
+        $fclose(fin);
+
+        scra_x   = { mmr[4][0], mmr[0] };
+        scrb_x   = { mmr[4][1], mmr[1] };
+        scra_y   = { mmr[4][2], mmr[2] };
+        scrb_y   = { mmr[4][3], mmr[3] };
+        prio     = mmr[4][5:4];
+        hflip    = mmr[4][6];
+        vflip    = mmr[4][7];
+        scr_bank = {mmr[6],mmr[5]};
+        obj_dx   = {mmr[8][1:0],mmr[7]};
+        obj_dy   = {mmr[10][1:0],mmr[9]};
+    end
     // integer framecnt=0;
     // always @(posedge LVBL) begin
     //     framecnt <=framecnt+1;
@@ -304,16 +325,6 @@ jtframe_m68k u_cpu(
         snd_latch = 0;
         sndon     = 0;
 
-        hflip     = 0;
-        vflip     = 0;
-        prio      = 0;
-        scra_x    = 0;
-        scra_y    = 0;
-        scrb_x    = 0;
-        scrb_y    = 0;
-        obj_dx    = 0;
-        obj_dy    = 0;
-        scr_bank  = 0;
         st_dout   = 0;
     end
     assign

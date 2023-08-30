@@ -395,20 +395,8 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 );{{ end }}
 {{ end }}{{end}}
 
-{{ if .Clocks }}
-// Clock enable generation
-{{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
-// {{ .Comment }} Hz from {{ .ClkName }}
-jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
-    .clk    ( {{.ClkName}} ),
-    .n      ( {{.WC}}'d{{.Mul    }} ),
-    .m      ( {{.WC}}'d{{.Div    }} ),
-    .cen    ( { {{ .OutStr }} } ),
-    .cenb   (              )
-);
-{{ end }}{{ end }}{{ end }}
-
 {{- if .Ioctl.Dump }}
+wire [7:0] ioctl_aux;
 {{- range $k, $v := .Ioctl.Buses }}
 {{ if $v.Aout }}wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Aout}};{{end -}}{{end}}
 jtframe_ioctl_dump #(
@@ -426,7 +414,22 @@ jtframe_ioctl_dump #(
     {{end }}
     .ioctl_addr ( ioctl_addr[23:0] ),
     .ioctl_ram  ( ioctl_ram ),
+    .ioctl_aux  ( ioctl_aux ),
     .ioctl_din  ( ioctl_din )
 );
 {{ end }}
+
+{{ if .Clocks }}
+// Clock enable generation
+{{- range $k, $v := .Clocks }} {{- range $cnt, $val := $v}}
+// {{ .Comment }} Hz from {{ .ClkName }}
+jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
+    .clk    ( {{.ClkName}} ),
+    .n      ( {{.WC}}'d{{.Mul    }} ),
+    .m      ( {{.WC}}'d{{.Div    }} ),
+    .cen    ( { {{ .OutStr }} } ),
+    .cenb   (              )
+);
+{{ end }}{{ end }}{{ end }}
+
 endmodule

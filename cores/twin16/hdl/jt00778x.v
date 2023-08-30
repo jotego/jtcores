@@ -117,7 +117,7 @@ always @(posedge clk, posedge rst) begin
         lvbl_l <= lvbl;
         if( !lvbl && lvbl_l ) begin
             dma_bsy <= 1;
-            obj_en  <= ~dma_on; // maybe it shouldn't be inverted
+            obj_en  <= ~dma_on;
         end
         dma_cen <= ~dma_cen; // not really a cen, must be combined with pxl_cen
         if( lvbl ) begin

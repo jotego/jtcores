@@ -427,9 +427,10 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 			total_blocks += cfg.Ioctl.Buses[i].Blocks
 		}
 	}
+	cfg.Ioctl.SkipAll = total_blocks
 	if found {
 		cfg.Ioctl.Dump = true
-		cfg.Ioctl.DinName = "" // block game module output
+		cfg.Ioctl.DinName = "ioctl_aux" // block game module output
 	} else {
 		cfg.Ioctl.DinName = "ioctl_addr"	// let it come from game module
 	}
