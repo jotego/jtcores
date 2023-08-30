@@ -42,7 +42,6 @@ wire ioctl_ram = 0;
 {{end}}
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
-wire     {{ addr_range . }} {{.Name}}_addr;
 wire     {{ data_range . }} {{.Name}}_din;
 wire     {{ data_range . }} {{ data_name . }};
 {{ if .Dual_port.Name }}
@@ -204,7 +203,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `endif
 `ifdef JTFRAME_IOCTL_RD
     .ioctl_ram    ( ioctl_ram      ),
-    .ioctl_din    ( ioctl_din      ),
+    .ioctl_din    ( {{.Ioctl.DinName}}      ),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
 `endif
@@ -351,7 +350,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
-    .addr0  ( {{if $bus.Addr}}{{$bus.Addr}}{{else}}{{$bus.Name}}_addr{{end}} ),{{ if $bus.Rw }}
+    .addr0  ( {{$bus.Addr}} ),{{ if $bus.Rw }}
     .data0  ( {{$bus.Name}}_din  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
@@ -389,7 +388,7 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
 ) u_bram_{{$bus.Name}}(
     .clk    ( clk  ),{{ if eq $bus.Data_width 8 }}
     .cen    ( 1'b1 ),{{end}}
-    .addr   ( {{if $bus.Addr}}{{$bus.Addr}}{{else}}{{$bus.Name}}_addr{{end}} ),
+    .addr   ( {{$bus.Addr}} ),
     .data   ( {{if $bus.Din }}{{$bus.Din }}{{else}}{{$bus.Name}}_din {{end}} ),
     .we     ( {{if $bus.We  }}{{$bus.We  }}{{else}}{{$bus.Name}}_we  {{end}} ),
     .q      ( {{$bus.Name}}_dout )
@@ -408,4 +407,26 @@ jtframe_frac_cen #(.W({{.W}}),.WC({{.WC}})) u_cen{{$cnt}}_{{.ClkName}}(
     .cenb   (              )
 );
 {{ end }}{{ end }}{{ end }}
+
+{{- if .Ioctl.Dump }}
+{{- range $k, $v := .Ioctl.Buses }}
+{{ if $v.Aout }}wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Aout}};{{end -}}{{end}}
+jtframe_ioctl_dump #(
+    {{- $first := true}}
+    {{- range $k, $v := .Ioctl.Buses }}
+    {{- if $first}}{{$first = false}}{{else}},{{end}}
+    .DW{{$k}}( {{$v.DW}} ),
+    .AW{{$k}}( {{$v.AW}} ){{end}}
+) u_dump (
+    .clk        ( clk       ),
+    {{- range $k, $v := .Ioctl.Buses }}
+    .din{{$k}} ( {{$v.Dout}} ),
+    .addrin_{{$k}} ( {{$v.Ain}} ),
+    .addrout_{{$k}} ( {{$v.Aout}} ),
+    {{end }}
+    .ioctl_addr ( ioctl_addr[23:0] ),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_din  ( ioctl_din )
+);
+{{ end }}
 endmodule

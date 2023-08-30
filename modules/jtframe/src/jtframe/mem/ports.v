@@ -34,7 +34,7 @@
     {{if .Input}}input{{else}}output{{end}}   {{if .MSB}}[{{.MSB}}:{{.LSB}}]{{end}} {{.Name}},{{end }}
     // Buses to BRAM
 {{ range $cnt, $bus:=.BRAM -}}
-    {{if not .Addr}}output   {{ addr_range . }} {{.Name}}_addr,{{end}}{{ if .Rw }}
+    {{ if .Rw }}
     {{if not .Din}}output   {{ data_range . }} {{.Name}}_din,{{end}}{{end}}
     input    {{ data_range . }} {{ data_name . }},
     {{- if .Dual_port.Name }}

@@ -346,14 +346,16 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 			if each.Din != "" { add( Port{ Name: each.Din, MSB: each.Data_width-1, } ) }
 		}
 	}
-	for _, each := range cfg.BRAM {
-		if each.Addr != "" {
-			add( Port{
-				Name: each.Addr,
-				MSB:  each.Addr_width-1,
-				LSB:  each.Data_width>>4, // 8->0, 16->1
-			})
+	for k, each := range cfg.BRAM {
+		if each.Addr == "" {
+			cfg.BRAM[k].Addr = each.Name + "_addr"
+			each=cfg.BRAM[k]
 		}
+		add( Port{
+			Name: each.Addr,
+			MSB:  each.Addr_width-1,
+			LSB:  each.Data_width>>4, // 8->0, 16->1
+		})
 		if each.Din != "" {
 			add( Port{
 				Name: each.Din,
@@ -402,6 +404,44 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 	for _, each := range all { cfg.Ports=append(cfg.Ports,each) }
 }
 
+func make_ioctl( cfg *MemConfig, verbose bool ) {
+	found := false
+	dump_size := 0
+	for k, each := range cfg.BRAM {
+		if each.Ioctl.Save {
+			found = true
+			i := each.Ioctl.Order
+			cfg.Ioctl.Buses[i].AW = each.Addr_width
+			cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
+			cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
+			cfg.Ioctl.Buses[i].Ain  = each.Name+"_addr"
+			if each.Addr!="" { cfg.Ioctl.Buses[i].Ain = each.Addr }
+			cfg.Ioctl.Buses[i].DW = each.Data_width
+			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
+			cfg.BRAM[k].Addr = each.Name+"_amux"
+			dump_size += 1<<each.Addr_width
+		}
+	}
+	if found {
+		cfg.Ioctl.Dump = true
+		cfg.Ioctl.DinName = "" // block game module output
+	} else {
+		cfg.Ioctl.DinName = "ioctl_addr"	// let it come from game module
+	}
+	// fill in blank ones
+	for k, _ := range cfg.Ioctl.Buses {
+		each := &cfg.Ioctl.Buses[k]
+		if each.DW==0 {
+			each.DW=8
+			each.Dout = "8'd0"
+			each.Ain  = "1'd0"
+		}
+	}
+	if verbose {
+		fmt.Printf("JTFRAME_IOCTL_RD=%d\n", dump_size)
+	}
+}
+
 func Run(args Args) {
 	var cfg MemConfig
 	if !parse_file(args.Core, "mem", &cfg, args) {
@@ -412,6 +452,7 @@ func Run(args Args) {
 	macros := get_macros( args.Core, args.Target )
 	check_banks( macros, &cfg )
 	fill_implicit_ports( macros, &cfg )
+	make_ioctl( &cfg, args.Verbose )
 	// Fill the clock configuration
 	make_clocks( macros, &cfg )
 	// Execute the template

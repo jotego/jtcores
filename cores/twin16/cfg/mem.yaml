@@ -77,20 +77,24 @@ bram:
     data_width: 16
     addr_width: 12
     sim_file: true
+    ioctl: { save: true, order: 0 }
     dual_port: { name: main, we: fx_we, rw: true, din: ram_din, dout: mf_dout }
   - name: scra
     data_width: 16
     addr_width: 13
     sim_file: true
+    ioctl: { save: true, order: 1 }
     dual_port: { name: vram, we: va_we, rw: true, din: ram_din, dout: ma_dout }
   - name: scrb
     data_width: 16
     addr_width: 13
     sim_file: true
+    ioctl: { save: true, order: 2 }
     dual_port: { name: vram, we: vb_we, rw: true, din: ram_din, dout: mb_dout }
   - name: oram
     data_width: 16
     addr_width: 14
     rw: true
     sim_file: true
+    ioctl: { save: true, order: 3 }
     dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }
