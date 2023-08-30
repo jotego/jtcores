@@ -28,7 +28,8 @@ module jtframe_ioctl_dump #(parameter
     OS2=OS1+(1<<AW1),
     OS3=OS2+(1<<AW2),
     OS4=OS3+(1<<AW3),
-    OS5=OS4+(1<<AW4)
+    OS5=OS4+(1<<AW4),
+    OS6=OS5+(1<<AW5)
 )(
     input   clk,
 
@@ -89,12 +90,12 @@ assign ioctl_din =
 always @(posedge clk) begin
     sel <= 0;
     if( ioctl_ram ) begin
-        if( ioctl_addr < (24'd1<<AW0) ) sel[0] <= 1;
-        else if( ioctl_addr < (24'd1<<AW1) ) sel[1] <= 1;
-        else if( ioctl_addr < (24'd1<<AW2) ) sel[2] <= 1;
-        else if( ioctl_addr < (24'd1<<AW3) ) sel[3] <= 1;
-        else if( ioctl_addr < (24'd1<<AW4) ) sel[4] <= 1;
-        else if( ioctl_addr < (24'd1<<AW5) ) sel[5] <= 1;
+        if( ioctl_addr < OS1 ) sel[0] <= 1;
+        else if( ioctl_addr < OS2 ) sel[1] <= 1;
+        else if( ioctl_addr < OS3 ) sel[2] <= 1;
+        else if( ioctl_addr < OS4 ) sel[3] <= 1;
+        else if( ioctl_addr < OS5 ) sel[4] <= 1;
+        else if( ioctl_addr < OS6 ) sel[5] <= 1;
     end
 end
 

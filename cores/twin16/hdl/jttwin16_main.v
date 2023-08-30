@@ -46,7 +46,7 @@ module jttwin16_main(
     input         [15:0] mb_dout,   // scroll B
     input         [15:0] mf_dout,   // fixed layer
     input         [15:0] mo_dout,   // objects
-    input         [ 7:0] pal_dout,
+    input         [ 7:0] mp_dout,
     output        [ 1:0] va_we,
     output        [ 1:0] vb_we,
     output        [ 1:0] fx_we,
@@ -166,7 +166,7 @@ always @(posedge clk) begin
                oram_cs ? mo_dout   :
                vram_cs ? (A[13] ? mb_dout : ma_dout ) :
                fix_cs  ? mf_dout  :
-               pal_cs  ? { 8'd0, pal_dout } :
+               pal_cs  ? { 8'd0, mp_dout } :
                io_cs   ? { 8'd0, cab_dout } :
                dma_cs  ? { 15'd0, dma_bsy } :
                crom_cs ? ( A[1] ? scr_data[31:16] : scr_data[15:0] ) :
@@ -290,29 +290,41 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-    integer framecnt=0;
-    always @(posedge LVBL) begin
-        framecnt <=framecnt+1;
-        sndon    <=framecnt==10;
-    end
+    // integer framecnt=0;
+    // always @(posedge LVBL) begin
+    //     framecnt <=framecnt+1;
+    //     sndon    <=framecnt==10;
+    // end
     initial begin
-        // sndon  = 0;
-        oram_cs    = 0;
-        pal_cs    = 0;
-        pcu_cs    = 0;
-        prio      = 0;
-        ram_cs    = 0;
-        rmrd      = 0;
         rom_cs    = 0;
-        snd_latch = 'h63;
-        vram_cs   = 0;
+        ram_cs    = 0;
+        crtkill   = 0;
+        dma_on    = 0;
+
+        snd_latch = 0;
+        sndon     = 0;
+
+        hflip     = 0;
+        vflip     = 0;
+        prio      = 0;
+        scra_x    = 0;
+        scra_y    = 0;
+        scrb_x    = 0;
+        scrb_y    = 0;
+        obj_dx    = 0;
+        obj_dy    = 0;
+        scr_bank  = 0;
+        st_dout   = 0;
     end
     assign
-        cpu_dout  = 0,
-        cpu_we    = 0,
         main_addr = 0,
         ram_dsn   = 0,
-        snd_wrn   = 0,
-        st_dout   = 0;
+        cpu_dout  = 0,
+        cpu_we    = 0,
+        pal_we    = 0,
+        va_we     = 0,
+        vb_we     = 0,
+        fx_we     = 0,
+        obj_we    = 0;
 `endif
 endmodule

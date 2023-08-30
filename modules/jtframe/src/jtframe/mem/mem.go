@@ -407,10 +407,12 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 func make_ioctl( cfg *MemConfig, verbose bool ) {
 	found := false
 	dump_size := 0
+	total_blocks := 0
 	for k, each := range cfg.BRAM {
 		if each.Ioctl.Save {
 			found = true
 			i := each.Ioctl.Order
+			cfg.Ioctl.Buses[i].Name = each.Name
 			cfg.Ioctl.Buses[i].AW = each.Addr_width
 			cfg.Ioctl.Buses[i].AWl = each.Data_width>>4
 			cfg.Ioctl.Buses[i].Aout = each.Name+"_amux"
@@ -420,6 +422,9 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 			cfg.Ioctl.Buses[i].Dout = each.Name+"_dout"
 			cfg.BRAM[k].Addr = each.Name+"_amux"
 			dump_size += 1<<each.Addr_width
+			cfg.Ioctl.Buses[i].Blocks = 1<<(each.Addr_width-8)
+			cfg.Ioctl.Buses[i].SkipBlocks = total_blocks
+			total_blocks += cfg.Ioctl.Buses[i].Blocks
 		}
 	}
 	if found {
@@ -442,6 +447,25 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 	}
 }
 
+func make_dump2bin( args Args, cfg *MemConfig ) {
+	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
+	t := template.Must(template.New("dump2bin.sh").Funcs(funcMap).ParseFiles(tpath))
+	var buffer bytes.Buffer
+	t.Execute(&buffer, cfg)
+	// Dump the file
+	outpath := filepath.Join(os.Getenv("CORES"), args.Core, "ver","game" )
+	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
+	outpath = filepath.Join( outpath, "dump2bin.sh" )
+	e := ioutil.WriteFile(outpath, buffer.Bytes(), 0755)
+	if e!=nil {
+		fmt.Println(e)
+	} else {
+		if args.Verbose {
+			fmt.Printf("%s created\n",outpath)
+		}
+	}
+}
+
 func Run(args Args) {
 	var cfg MemConfig
 	if !parse_file(args.Core, "mem", &cfg, args) {
@@ -459,4 +483,5 @@ func Run(args Args) {
 	cfg.Core = args.Core
 	make_sdram(args, &cfg)
 	add_game_ports(args, &cfg)
+	make_dump2bin(args, &cfg )
 }

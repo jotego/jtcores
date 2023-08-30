@@ -354,12 +354,12 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .data0  ( {{$bus.Name}}_din  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
-    .we0    ( 2'd0 ),{{end}}
+    .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}
     .q0     ( {{$bus.Name}}_dout ),
     // Port 1 - {{$bus.Dual_port.Name}}
     .clk1   ( clk ),
     .data1  ( {{if $bus.Dual_port.Din}}{{$bus.Dual_port.Din}}{{else}}{{$bus.Dual_port.Name}}_dout{{end}} ),
-    .addr1  ( {{$bus.Dual_port.Name}}_addr{{ addr_range $bus }}),{{ if $bus.Dual_port.Rw }}
+    .addr1  ( {{if $bus.Dual_port.Addr}}{{$bus.Dual_port.Addr}}{{else}}{{$bus.Dual_port.Name}}_addr{{ addr_range $bus }}{{end}}),{{ if $bus.Dual_port.Rw }}
     .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ), {{ else }}
     .we1    ( 2'd0 ),{{end}}
     .q1     ( {{if $bus.Dual_port.Dout}}{{$bus.Dual_port.Dout}}{{else}}{{$bus.Name}}2{{$bus.Dual_port.Name}}_data{{end}} )

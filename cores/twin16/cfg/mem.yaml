@@ -72,7 +72,7 @@ sdram:
           addr_width: 20
           data_width: 32
 bram:
-  # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) = 34 kB
+  # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL) = 38 kB
   - name: fram
     data_width: 16
     addr_width: 12
@@ -98,3 +98,9 @@ bram:
     sim_file: true
     ioctl: { save: true, order: 3 }
     dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }
+  - name: pal
+    data_width: 8
+    addr_width: 12
+    sim_file: true
+    ioctl: { save: true, order: 4 }
+    dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "ram_din[7:0]", dout: mp_dout }

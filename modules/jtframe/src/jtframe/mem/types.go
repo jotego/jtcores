@@ -57,6 +57,7 @@ type BRAMBus struct {
     } `yaml:"ioctl"`
     Dual_port  struct {
         Name string `yaml:"name"`
+        Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
         Din  string `yaml:"din"`  // optional name for din signal
         Dout string `yaml:"dout"` // optional name for dout signal
         Rw   bool   `yaml:"rw"`
@@ -115,8 +116,8 @@ type ClockCfg struct {
 }
 
 type IoctlBus struct{
-    DW, AW, AWl int
-    Dout, Ain, Aout string
+    DW, AW, AWl, Blocks, SkipBlocks int
+    Name, Dout, Ain, Aout string
 }
 
 type Ioctl struct {

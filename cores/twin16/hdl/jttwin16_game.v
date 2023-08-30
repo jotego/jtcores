@@ -25,8 +25,8 @@ wire [ 7:0] snd_latch;
 wire [ 9:0] obj_dx, obj_dy;
 wire [ 8:0] scra_x, scra_y, scrb_x, scrb_y;
 wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
-            cpu_rnw, snd_wrn, hflip, vflip, tim, pal_we;
-wire [ 7:0] st_main, st_video, st_snd, pal_dout;
+            cpu_rnw, snd_wrn, hflip, vflip, tim;
+wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] scr_bank;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
@@ -89,13 +89,13 @@ jttwin16_main u_main(
     .mb_dout        ( mb_dout       ),
     .mf_dout        ( mf_dout       ),
     .mo_dout        ( mo_dout       ),
+    .mp_dout        ( mp_dout       ),
     .va_we          ( va_we         ),
     .vb_we          ( vb_we         ),
     .fx_we          ( fx_we         ),
     .obj_we         ( obj_we        ),
     .tim            ( tim           ),
 
-    .pal_dout       ( pal_dout      ),
     // To video
     .prio           ( prio          ),
     .crtkill        ( crtkill       ),
@@ -132,7 +132,6 @@ jttwin16_video u_video (
 
     .hflip          ( hflip         ),
     .vflip          ( vflip         ),
-    .pal_we         ( pal_we        ),
     .crtkill        ( crtkill       ),
     .tim            ( tim           ),
 
@@ -158,10 +157,8 @@ jttwin16_video u_video (
     .prog_addr      ( prog_addr[7:0]),
     .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
-    .cpu_we         ( cpu_we        ),
     .cpu_addr       (main_addr[17:1]),
     .cpu_dout       ( ram_din[7:0]  ),
-    .pal_dout       ( pal_dout      ),
     // VRAM
     .fram_addr      ( fram_addr     ),
     .fram_dout      ( fram_dout     ),
@@ -173,6 +170,8 @@ jttwin16_video u_video (
     .oram_dout      ( oram_dout     ),
     .oram_din       ( oram_din      ),
     .oram_we        ( oram_wex      ),
+    .pal_addr       ( pal_addr      ),
+    .pal_dout       ( pal_dout      ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
@@ -195,7 +194,6 @@ jttwin16_video u_video (
     .debug_bus      ( debug_bus     ),
     .ioctl_addr     (ioctl_addr[14:0]),
     // .ioctl_din      ( ioctl_din     ),
-    .ioctl_din      (               ),
     .ioctl_ram      ( ioctl_ram     ),
     .gfx_en         ( gfx_en        ),
     .st_dout        ( st_video      )

@@ -31,9 +31,6 @@ module jttwin16_video(
     // CPU interface
     input      [17:1] cpu_addr,
     input      [ 7:0] cpu_dout,
-    output     [ 7:0] pal_dout,
-    input             pal_we,
-    input             cpu_we,
 
     // control
     input             crtkill,
@@ -65,6 +62,8 @@ module jttwin16_video(
     input      [15:0] oram_dout,
     output     [15:0] oram_din,
     output            oram_we,
+    output     [11:0] pal_addr,
+    input      [ 7:0] pal_dout,
 
     // Tile ROMs
     output     [13:2] lyrf_addr,
@@ -92,7 +91,7 @@ module jttwin16_video(
     // Debug
     input      [14:0] ioctl_addr,
     input             ioctl_ram,
-    output     [ 7:0] ioctl_din,
+    // output     [ 7:0] ioctl_din,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -103,8 +102,7 @@ localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1, hdump_off, vdump_scr;
 wire [31:0] fsorted, asorted, bsorted, osorted;
-wire [ 7:0] lyrf_pxl, lyro_pxl,
-            dump_pal;
+wire [ 7:0] lyrf_pxl, lyro_pxl;
 wire [ 6:0] lyra_pxl, lyrb_pxl;
 wire [ 1:0] lyra_sel, lyrb_sel;
 wire [15:0] scra_bank, scrb_bank;
@@ -135,7 +133,6 @@ assign fsorted     = sort( lyrf_data ),
        osorted     = scr_sort( lyro_data ),
        st_dout     = 0;
 
-assign ioctl_din = dump_pal;
 assign scra_bank = scr_bank >> { crtkill ? cpu_addr[17:16] : lyra_sel, 2'd0 };
 assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
 assign lyra_addr[19:16] = scra_bank[3:0];
@@ -316,6 +313,7 @@ jttwin16_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
+    // CPU interface
     .crtkill    ( crtkill   ),
     .cpu_prio   ( cpu_prio  ),
 
@@ -323,11 +321,9 @@ jttwin16_colmix u_colmix(
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
 
-    // CPU interface
-    .cpu_addr   (cpu_addr[12:1]),
-    .cpu_din    ( pal_dout  ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_we     ( pal_we    ),
+    // BRAM
+    .pal_dout   ( pal_dout  ),
+    .pal_addr   ( pal_addr  ),
 
     // PROMs
     .prog_addr  ( prog_addr ),
@@ -343,11 +339,6 @@ jttwin16_colmix u_colmix(
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),
-
-    // Debug
-    .ioctl_addr ( ioctl_addr[11:0]),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_din  ( dump_pal  ),
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )

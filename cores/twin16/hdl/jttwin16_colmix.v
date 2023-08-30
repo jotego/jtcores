@@ -20,18 +20,18 @@ module jttwin16_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input      [ 1:0] cpu_prio,
 
     // Base Video
     input             lhbl,
     input             lvbl,
 
+    // BRAM interface
+    output     [11:0] pal_addr,
+    input      [ 7:0] pal_dout,
+
     // CPU interface
     input             crtkill,
-    input             cpu_we,
-    input      [ 7:0] cpu_dout,
-    input      [12:1] cpu_addr,
-    output     [ 7:0] cpu_din,
+    input      [ 1:0] cpu_prio,
 
     // PROMs
     input      [ 7:0] prog_addr,
@@ -47,24 +47,17 @@ module jttwin16_colmix(
     output     [ 7:0] green,
     output     [ 7:0] blue,
 
-    // Debug
-    input      [11:0] ioctl_addr,
-    input             ioctl_ram,
-    output     [ 7:0] ioctl_din,
-
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus
 );
 
 wire [ 1:0] prio_sel;
 reg  [ 1:0] prom_prio;
-wire [ 7:0] pal_dout;
 wire [ 7:0] prio_addr;
 reg         pal_half, shl;
 reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
-wire [11:0] pal_addr;
 reg         shad;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 
@@ -77,7 +70,6 @@ assign prio_addr = { cpu_prio, lyrb_pxl[6], ~&lyro_pxl[3:0],
     lyrf_blnk_n, lyro_blnk_n, lyrb_blnk_n, lyra_blnk_n };
 
 assign pal_addr  = { 1'b0, pxl, pal_half };
-assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign prio_sel  = prom_prio | {2{crtkill}};
 
@@ -191,22 +183,5 @@ always @* begin
     if( prio_addr[3] ) {shad, prom_prio} = 7;
 end
 */
-
-jtframe_dual_nvram #(.AW(12),.SIMFILE("pal.bin")) u_ram(
-    // Port 0: CPU
-    .clk0   ( clk           ),
-    .data0  ( cpu_dout      ),
-    .addr0  ( cpu_addr      ),
-    .we0    ( cpu_we        ),
-    .q0     ( cpu_din       ),
-    // Port 1
-    .clk1   ( clk           ),
-    .data1  ( 8'd0          ),
-    .addr1a ( pal_addr      ),
-    .addr1b ( ioctl_addr    ),
-    .sel_b  ( ioctl_ram     ),
-    .we_b   ( 1'b0          ),
-    .q1     ( pal_dout      )
-);
 
 endmodule
