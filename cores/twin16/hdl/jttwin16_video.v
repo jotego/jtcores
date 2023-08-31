@@ -138,7 +138,7 @@ assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
 assign lyra_addr[19:16] = scra_bank[3:0];
 assign lyrb_addr[19:16] = scrb_bank[3:0];
 assign vdump_scr = vdump ^ 9'h100;
-assign hdump_off = hdump - 9'h50;
+assign hdump_off = hflip ? 9'h1A8-hdump : hdump-9'h50;
 assign lyra_cs   =  crtkill | prea_cs;  // SCRA access used for ROM reading
 assign lyrb_cs   = ~crtkill & preb_cs;
 assign lyra_addr[15:2] = crtkill ? cpu_addr[15:2] : prea_addr;
@@ -231,7 +231,7 @@ jtframe_scroll #(
 
     .code       (scra_dout[12:0]),
     .pal        (scra_dout[15:13]),
-    .hflip      ( 1'b0      ),
+    .hflip      ( hflip     ),
     .vflip      ( 1'b0      ),
 
     .rom_addr   ( { lyra_sel, prea_addr[15:2] } ),
@@ -264,7 +264,7 @@ jtframe_scroll #(
 
     .code       (scrb_dout[12:0]),
     .pal        (scrb_dout[15:13]),
-    .hflip      ( 1'b0      ),
+    .hflip      ( hflip     ),
     .vflip      ( 1'b0      ),
 
     .rom_addr   ( { lyrb_sel, lyrb_addr[15:2] } ),
