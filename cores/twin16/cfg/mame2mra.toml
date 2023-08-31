@@ -13,6 +13,11 @@ skip = { machines=[
     "hpuncher",
 ] }
 
+[buttons]
+names=[
+    { machine="fround", names="Face Punch,Body Punch,Guard" },
+]
+
 [dipsw]
 delete = [ "Unused", "Unknown" ]
 

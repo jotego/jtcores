@@ -5,6 +5,8 @@ game:
       - jttwin16_main.v
       - jttwin16_video.v
       - jttwin16_obj.v
+      - jttwin16_objdraw.v
+      - jttwin16_draw.v
       - jttwin16_colmix.v
       - jt00778x.v
 #      - jttwin16_obj.v

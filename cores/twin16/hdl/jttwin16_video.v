@@ -304,7 +304,9 @@ jttwin16_obj u_obj(
     .rom_cs     ( lyro_cs   ),
     .rom_ok     ( lyro_ok   ),
 
-    .pxl        ( lyro_pxl  )
+    .pxl        ( lyro_pxl  ),
+
+    .debug_bus  ( debug_bus )
 );
 
 /* verilator tracing_on */

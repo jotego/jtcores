@@ -37,8 +37,10 @@
 // and it gets halted while the CPU tries to write to the memory
 // only active sprites (bit 7 of byte 0 set) are copied
 
+// sprite tiles are 16x16x4
 
-module jt00778x(    // sprite logic
+
+module jt00778x#(parameter CW=17)(    // sprite logic
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -51,11 +53,11 @@ module jt00778x(    // sprite logic
     // output     [ 7:0] cpu_din,
 
     // ROM addressing
-    output reg [14:0] code,
+    output reg [CW-1:0] code,
     output reg [ 3:0] attr,
-    output reg        hflip, vflip,
+    output reg        hflip,
     output reg [ 8:0] hpos,
-    output     [ 3:0] ysub, // pins CA4, CA2~0. pin CA3 = horizontal half
+    output reg [ 1:0] hsize,
 
     // DMA memory
     output     [13:1] oram_addr,
@@ -77,33 +79,33 @@ module jt00778x(    // sprite logic
 
     // draw module
     output reg        dr_start,
-    input             dr_busy
+    input             dr_busy,
 
-    // input      [ 7:0] debug_bus,
+    input      [ 7:0] debug_bus
     // output reg [ 7:0] st_dout
 );
 
-reg         beflag, lvbl_l, obj_en,
+reg         beflag, lvbl_l, obj_en, vflip,
             dma_clr, dma_cen;
-reg  [13:1] cpr_addr; // copy write address
-reg  [ 9:1] cpw_addr; // copy write address
+reg  [13:1] cpr_addr; // copy read  address
+reg  [10:1] cpw_addr; // copy write address
 wire [ 4:1] nx_cpra;
-reg  [ 1:0] vsize, hsize;
-reg  [ 2:0] hstep, hcode, scan_sub;
-reg         inzone, hs_l, done, hdone, busy_l, skip;
+reg  [ 1:0] vsize;
+reg  [ 2:0] scan_sub;
+reg         inzone, hs_l, done, busy_l, skip;
 reg  [ 8:0] ydiff, y, vlatch;
-reg  [ 6:0] scan_obj;
+reg  [ 7:0] scan_obj;
+reg  [ 6:0] ydf;
 wire        flip = 0, busy_g;
 
-assign oram_addr = !dma_bsy ? { 4'b1100, scan_obj, scan_sub[1:0] } :
-                    oram_we ? { 4'b1100, cpw_addr } : cpr_addr;
+assign oram_addr = !dma_bsy ? { 3'b110, scan_obj, scan_sub[1:0] } :
+                    oram_we ? { 3'b110, cpw_addr } : cpr_addr;
 assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
-assign ysub      = ydiff[3:0];
 
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
-wire [13:0] cpw_afull = { 4'b1100, cpw_addr,1'b0};
+wire [13:0] cpw_afull = { 3'b110, cpw_addr,1'b0};
 `endif
 
 // DMA logic
@@ -141,42 +143,44 @@ always @(posedge clk, posedge rst) begin
                 if( !dma_cen ) begin
                     case( cpr_addr[3:1] )
                         0: begin
-                            cpw_addr[9:2] <= oram_dout[7:0];
+                            cpw_addr[10:3] <= oram_dout[7:0];
                             oram_din <= 0;
-                            beflag   <= 1'b0; // oram_dout[15] && obj_en;
+                            beflag   <= oram_dout[15] && obj_en;
                         end
                         2: begin // flags
                             cpw_addr[2:1] <= 3;
                             oram_din <= { 1'b1,5'd0, oram_dout[9:0] };
                             oram_we  <= beflag;
-                            if(beflag) $display("OBJ %X, flags %X",cpw_addr[9:2], { 1'b1,5'd0, oram_dout[9:0] } );
+                            // if(beflag) $display("OBJ %X flags %X (hsize=%d, vsize=%d)",
+                            //     cpw_addr[10:3], { 1'b1,5'd0, oram_dout[9:0] },
+                            //     8'h10<<oram_dout[5:4], 8'h10<<oram_dout[7:6] );
                         end
                         3: begin // code
                             cpw_addr[2:1] <= 0;
                             oram_din <= oram_dout;
                             oram_we  <= beflag;
-                            if(beflag) $display("        code %X", oram_dout );
+                            // if(beflag) $display("        code %X", oram_dout );
                         end
                         4: oram_din[15:8] <= oram_dout[7:0];
                         5: begin // x
                             cpw_addr[2:1] <= 2;
                             oram_din[7:0] <= oram_dout[15:8];
                             oram_we  <= beflag;
-                            if(beflag) $display("        x =  %X", {oram_din[15:8],oram_dout[15:8]} );
+                            // if(beflag) $display("        x =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end
                         6: oram_din[15:8] <= oram_dout[7:0];
                         7: begin // y
                             cpw_addr[2:1] <= 1;
                             oram_din[7:0] <= oram_dout[15:8];
                             oram_we  <= beflag;
-                            if(beflag) $display("        y =  %X", {oram_din[15:8],oram_dout[15:8]} );
+                            // if(beflag) $display("        y =  %X", {oram_din[15:8],oram_dout[15:8]} );
                         end
                     endcase
                 end else begin
                     cpr_addr[3:1] <= nx_cpra[3:1];
                     if( nx_cpra[4] ) begin
                         cpr_addr[13:4] <= cpr_addr[13:4]+10'h5;
-                        dma_bsy <= cpr_addr<763;
+                        dma_bsy <= cpr_addr<'h17d7;
                     end
                     oram_we <= 0;
                 end
@@ -190,27 +194,29 @@ always @(negedge clk) cen2 <= ~cen2;
 
 // Table scan
 always @* begin
-    ydiff = y + vlatch;
+    ydiff = vlatch - y;
     case( vsize )
         0: inzone = ydiff[8:4]==0; //  16
         1: inzone = ydiff[8:5]==0; //  32
         2: inzone = ydiff[8:6]==0; //  64
         3: inzone = ydiff[8:7]==0; // 128
     endcase
-    case( hsize )
-        0: hdone = 1;
-        1: hdone = hstep==1;
-        2: hdone = hstep==3;
-        3: hdone = hstep==7;
-    endcase
 end
+
+// code
+// EDCBEA9876543210VVVVH   16 pixel wide
+// EDCBEA987654321VVVVHH   32 pixel wide
+// EDCBEA98765432VVVVHHH   64 pixel wide
+// EDCBEA9876543VVVVHHHH   64 pixel wide
+// EDCBEA987654321VVVVHH   32x16
+// EDCBEA98765432VVVVVHH   32x32
+// EDCBEA987654VVVVVVHHH   64x64
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         hs_l     <= 0;
         scan_obj <= 0;
         scan_sub <= 0;
-        hstep    <= 0;
         code     <= 0;
         attr     <= 0;
         vflip    <= 0;
@@ -224,29 +230,52 @@ always @(posedge clk, posedge rst) begin
             done     <= 0;
             scan_obj <= 0;
             scan_sub <= 0;
-            vlatch   <= (vdump^{1'b0,{8{flip}}});
+            vlatch   <= (vdump^{1'b1,{8{flip}}});
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                1: begin
-                    code <= oram_dout[14:0];
-                    hstep   <= 0;
-                end
-                2: y <= oram_dout[8:0]-obj_dy;
-                3: hpos <= oram_dout[8:0]-obj_dx;
-                4: begin
+                1: y <= oram_dout[8:0]-obj_dy[8:0]+9'h60;//-9'h100;
+                2: hpos <= (oram_dout[8:0]-obj_dx[8:0])+ 9'd89; //{ debug_bus, 1'b0 };
+                3: begin
                     skip <= ~oram_dout[15];
                     { vflip, hflip, vsize, hsize, attr } <= oram_dout[9:0];
+                    case( vsize )
+                        0: y <= y-9'h60;
+                        1: y <= y-9'h40;
+                        2: y <= y-9'h40;
+                        3: y <= y-9'h40;
+                    endcase
+                    if( vflip) skip<=1;
+                end
+                4: begin
+                    code[CW-1:4] <= oram_dout[0+:CW-4];
+                    code[3:0] <= 0;
+                    // case( {1'd0,hsize} + {1'd0,vsize} )
+                    //     1: code[   4] <= 0;
+                    //     2: code[ 5:4] <= 0;
+                    //     3: code[ 6:4] <= 0;
+                    //     4: code[ 7:4] <= 0;
+                    //     5: code[ 8:4] <= 0;
+                    //     6: code[ 9:4] <= 0;
+                    //     default :;
+                    // endcase
+                    ydf <= ydiff[6:0]^{7{vflip}};
                 end
                 5: begin
-                    hstep <= 0;
                     // Add the vertical offset to the code
-                    case( vsize ) // could be + or |
-                        1: {code[5],code[3],code[1]} <= { code[5], code[3], ydiff[4]^vflip   };
-                        2: {code[5],code[3],code[1]} <= { code[5], ydiff[5:4]^{2{vflip}} };
-                        3: {code[5],code[3],code[1]} <= ( ydiff[6:4]^{3{vflip}});
+                    case( vsize )
+                        0: code[ {3'd0,hsize} +: 4 ] <= ydf[3:0];
+                        1: code[ {3'd0,hsize} +: 5 ] <= ydf[4:0];
+                        2: code[ {3'd0,hsize} +: 6 ] <= ydf[5:0];
+                        3: code[ {3'd0,hsize} +: 7 ] <= ydf[6:0];
                     endcase
-                    hcode <= {code[4],code[2],code[0]};
+
+                    // case( vsize )
+                    //     0: code[9:0] <= code[9:0] | ({6'd0, ydf[3:0]}<<hsize);
+                    //     1: code[9:0] <= code[9:0] | ({5'd0, ydf[4:0]}<<hsize);
+                    //     2: code[9:0] <= code[9:0] | ({4'd0, ydf[5:0]}<<hsize);
+                    //     3: code[9:0] <= code[9:0] | ({3'd0, ydf[6:0]}<<hsize);
+                    // endcase
                     if( !inzone || skip ) begin
                         scan_sub <= 1;
                         scan_obj <= scan_obj + 1'd1;
@@ -255,21 +284,11 @@ always @(posedge clk, posedge rst) begin
                 end
                 6: begin
                     scan_sub <= 6;
-                    if( (!dr_start && !busy_g) || !inzone ) begin
-                        case( hsize )
-                            0: {code[4],code[2],code[0]} <= hcode;
-                            1: {code[4],code[2],code[0]} <= {hcode[2],hcode[1],hstep[0]^hflip};
-                            2: {code[4],code[2],code[0]} <= {hcode[2],hstep[1:0]^{2{hflip}}};
-                            3: {code[4],code[2],code[0]} <= hstep[2:0]^{3{hflip}};
-                        endcase
-                        if( hstep!=0 ) hpos <= hpos + 9'h10;
-                        hstep <= hstep + 1'd1;
+                    if( !busy_g || !inzone ) begin
                         dr_start <= inzone;
-                        if( hdone || !inzone ) begin
-                            scan_sub <= 1;
-                            scan_obj <= scan_obj + 1'd1;
-                            if( &scan_obj ) done <= 1;
-                        end
+                        scan_sub <= 1;
+                        scan_obj <= scan_obj + 1'd1;
+                        if( &scan_obj ) done <= 1;
                     end
                 end
             endcase

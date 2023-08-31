@@ -41,28 +41,25 @@ module jttwin16_obj(
     output            dma_bsy,
 
     // ROM addressing
-    output reg [17:0] rom_addr, // code + 5 bits (V-HVVV)
+    output     [17:0] rom_addr, // code + 1 bit. VH mostly embedded in core
     input      [31:0] rom_data,
     output            rom_cs,
     input             rom_ok,
 
+    input      [ 7:0] debug_bus,
     output     [ 7:0] pxl
 );
 
-wire [14:0] code;
+localparam CW=17;
+
+wire [CW-1:0] code;
 wire [ 3:0] attr;
-wire [17:0] pre_addr;
-wire        hflip, vflip;
+wire [ 1:0] hsize;
+wire        hflip;
 wire [ 8:0] hpos;
-wire [ 3:0] ysub;
 wire        dr_start, dr_busy;
 
-always @* begin
-    rom_addr      = pre_addr;
-    rom_addr[4:3] = { pre_addr[3], pre_addr[4] };
-end
-
-jt00778x u_scan(    // sprite logic
+jt00778x #(.CW(CW)) u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -80,9 +77,8 @@ jt00778x u_scan(    // sprite logic
     .code           ( code          ),
     .attr           ( attr          ),
     .hflip          ( hflip         ),
-    .vflip          ( vflip         ),
     .hpos           ( hpos          ),
-    .ysub           ( ysub          ),
+    .hsize          ( hsize         ),
 
     // DMA memory
     .oram_addr      ( oram_addr     ),
@@ -102,14 +98,14 @@ jt00778x u_scan(    // sprite logic
 
     // draw module
     .dr_start       ( dr_start      ),
-    .dr_busy        ( dr_busy       )
+    .dr_busy        ( dr_busy       ),
 
-    // input      [ 7:0] debug_bus,
+    .debug_bus      ( debug_bus     )
     // output reg [ 7:0] st_dout
 );
 
-jtframe_objdraw #(
-    .CW(13),.LATCH(1),.SWAPH(1),.FLIP_OFFSET(9'h12)
+jttwin16_objdraw #(
+    .CW(CW),.LATCH(1),.SWAPH(1),.FLIP_OFFSET(9'h12)
 ) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -121,17 +117,14 @@ jtframe_objdraw #(
 
     .draw       ( dr_start  ),
     .busy       ( dr_busy   ),
-    .code       ( code[12:0]),
+    .code       ( code      ),
     .xpos       ( hpos      ),
-    .ysub       ( ysub      ),
-    .hz_keep    ( 1'b0      ),
-    .hzoom      ( 6'd0      ),
 
     .hflip      ( ~hflip    ),
-    .vflip      ( vflip     ),
+    .hsize      ( hsize     ),
     .pal        ( attr      ),
 
-    .rom_addr   ( pre_addr  ),
+    .rom_addr   ( rom_addr  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( rom_data  ),
