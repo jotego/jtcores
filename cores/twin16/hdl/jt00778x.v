@@ -234,31 +234,24 @@ always @(posedge clk, posedge rst) begin
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                1: y <= oram_dout[8:0]-obj_dy[8:0]+9'h60;//-9'h100;
+                1: y <= oram_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;//-9'h100;
                 2: hpos <= (oram_dout[8:0]-obj_dx[8:0])+ 9'd89; //{ debug_bus, 1'b0 };
                 3: begin
                     skip <= ~oram_dout[15];
                     { vflip, hflip, vsize, hsize, attr } <= oram_dout[9:0];
-                    case( vsize )
-                        0: y <= y-9'h60;
-                        1: y <= y-9'h40;
-                        2: y <= y-9'h40;
-                        3: y <= y-9'h40;
-                    endcase
-                    if( vflip) skip<=1;
+                    // case( vsize )
+                    //     0: y <= y-9'h20;
+                    //     1: y <= y-9'h20;
+                    //     2: y <= y-9'h20;
+                    //     3: y <= y-9'h20;
+                    // endcase
+                    // case(vsize)
+                    //     0: skip <= 1;
+                    // endcase
                 end
                 4: begin
                     code[CW-1:4] <= oram_dout[0+:CW-4];
                     code[3:0] <= 0;
-                    // case( {1'd0,hsize} + {1'd0,vsize} )
-                    //     1: code[   4] <= 0;
-                    //     2: code[ 5:4] <= 0;
-                    //     3: code[ 6:4] <= 0;
-                    //     4: code[ 7:4] <= 0;
-                    //     5: code[ 8:4] <= 0;
-                    //     6: code[ 9:4] <= 0;
-                    //     default :;
-                    // endcase
                     ydf <= ydiff[6:0]^{7{vflip}};
                 end
                 5: begin
@@ -269,13 +262,6 @@ always @(posedge clk, posedge rst) begin
                         2: code[ {3'd0,hsize} +: 6 ] <= ydf[5:0];
                         3: code[ {3'd0,hsize} +: 7 ] <= ydf[6:0];
                     endcase
-
-                    // case( vsize )
-                    //     0: code[9:0] <= code[9:0] | ({6'd0, ydf[3:0]}<<hsize);
-                    //     1: code[9:0] <= code[9:0] | ({5'd0, ydf[4:0]}<<hsize);
-                    //     2: code[9:0] <= code[9:0] | ({4'd0, ydf[5:0]}<<hsize);
-                    //     3: code[9:0] <= code[9:0] | ({3'd0, ydf[6:0]}<<hsize);
-                    // endcase
                     if( !inzone || skip ) begin
                         scan_sub <= 1;
                         scan_obj <= scan_obj + 1'd1;
