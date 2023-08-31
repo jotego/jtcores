@@ -234,20 +234,11 @@ always @(posedge clk, posedge rst) begin
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                1: y <= oram_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;//-9'h100;
-                2: hpos <= (oram_dout[8:0]-obj_dx[8:0])+ 9'd89; //{ debug_bus, 1'b0 };
+                1: y <= oram_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;
+                2: hpos <= (oram_dout[8:0]-obj_dx[8:0])+ 9'h69;
                 3: begin
                     skip <= ~oram_dout[15];
                     { vflip, hflip, vsize, hsize, attr } <= oram_dout[9:0];
-                    // case( vsize )
-                    //     0: y <= y-9'h20;
-                    //     1: y <= y-9'h20;
-                    //     2: y <= y-9'h20;
-                    //     3: y <= y-9'h20;
-                    // endcase
-                    // case(vsize)
-                    //     0: skip <= 1;
-                    // endcase
                 end
                 4: begin
                     code[CW-1:4] <= oram_dout[0+:CW-4];
