@@ -29,7 +29,7 @@ module jttwin16_video(
     output            vs,
 
     // CPU interface
-    input      [17:1] cpu_addr,
+    input      [19:1] cpu_addr,
     input      [ 7:0] cpu_dout,
 
     // control
@@ -102,12 +102,13 @@ localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1, hdump_off, vdump_scr;
 wire [31:0] fsorted, asorted, bsorted, osorted;
+wire [19:2] preo_addr;
 wire [ 7:0] lyrf_pxl, lyro_pxl;
 wire [ 6:0] lyra_pxl, lyrb_pxl;
 wire [ 1:0] lyra_sel, lyrb_sel;
 wire [15:0] scra_bank, scrb_bank;
 wire [15:2] prea_addr;
-wire        prea_cs, preb_cs;
+wire        prea_cs, preb_cs, preo_cs;
 
 function [31:0] sort( input [31:0] a );
     sort = {
@@ -137,11 +138,15 @@ assign scra_bank = scr_bank >> { crtkill ? cpu_addr[17:16] : lyra_sel, 2'd0 };
 assign scrb_bank = scr_bank >> { lyrb_sel, 2'd0 };
 assign lyra_addr[19:16] = scra_bank[3:0];
 assign lyrb_addr[19:16] = scrb_bank[3:0];
-assign vdump_scr = vdump ^ 9'h100;
-assign hdump_off = hflip ? 9'h1A8-hdump : hdump-9'h50;
+assign vdump_scr = vflip ? 9'h1-vdump : vdump ^ 9'h100;
+// assign hdump_off = hflip ? 9'h1A8-hdump : hdump-9'h50;
+assign hdump_off = hflip ? 9'h198-hdump : hdump-9'h50;
+assign hscr_off  = hflip ? 9'h198-hdump : hdump-9'h50;
 assign lyra_cs   =  crtkill | prea_cs;  // SCRA access used for ROM reading
 assign lyrb_cs   = ~crtkill & preb_cs;
+assign lyro_cs   =  crtkill | preo_cs;  // SCRA access used for ROM reading
 assign lyra_addr[15:2] = crtkill ? cpu_addr[15:2] : prea_addr;
+assign lyro_addr[19:2] = crtkill ? cpu_addr[19:2] : preo_addr;
 
 always @(posedge clk) begin
     flip <= hflip & vflip;
@@ -189,16 +194,16 @@ jtframe_tilemap #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .vdump      ( vdump     ),
+    .vdump      ( vdump^{1'b0,{8{vflip}}}     ),
     .hdump      ( hdump_off ),
     .blankn     ( gfx_en[0] ),  // if !blankn there are no ROM requests
-    .flip       ( flip      ),    // Screen flip
+    .flip       ( 1'b0      ),    // Screen flip
 
     .vram_addr  ( fram_addr ),
 
     .code       ( fram_dout[8:0] ),
     .pal        ( fram_dout[12:9]),
-    .hflip      (fram_dout[13]),
+    .hflip      (fram_dout[13]^hflip),
     .vflip      (fram_dout[14]),
 
     .rom_addr   ( lyrf_addr ),
@@ -221,9 +226,9 @@ jtframe_scroll #(
     .hs         ( hs        ),
 
     .vdump      ( vdump_scr ),
-    .hdump      ( hdump_off ),
+    .hdump      ( hscr_off  ),
     .blankn     ( gfx_en[1] ),
-    .flip       ( flip      ),
+    .flip       ( 1'b0      ),
     .scrx       ( scra_x    ),
     .scry       ( scra_y    ),
 
@@ -254,9 +259,9 @@ jtframe_scroll #(
     .hs         ( hs        ),
 
     .vdump      ( vdump_scr ),
-    .hdump      ( hdump_off ),
+    .hdump      ( hscr_off  ),
     .blankn     ( gfx_en[2] ),
-    .flip       ( flip      ),
+    .flip       ( 1'b0      ),
     .scrx       ( scrb_x    ),
     .scry       ( scrb_y    ),
 
@@ -299,9 +304,9 @@ jttwin16_obj u_obj(
     .dma_on     ( dma_on    ),
     .dma_bsy    ( dma_bsy   ),
 
-    .rom_addr   ( lyro_addr ),
+    .rom_addr   ( preo_addr ),
     .rom_data   ( osorted   ),
-    .rom_cs     ( lyro_cs   ),
+    .rom_cs     ( preo_cs   ),
     .rom_ok     ( lyro_ok   ),
 
     .pxl        ( lyro_pxl  ),

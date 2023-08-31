@@ -28,11 +28,13 @@ wire        snd_irq, pal_cs, cpu_we, crtkill, dma_on, dma_bsy,
             cpu_rnw, snd_wrn, hflip, vflip, tim;
 wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] scr_bank;
+wire [19:1] cpu_addr;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux, ioctl_mux;
 wire        oram_wex;
 // reg  [ 2:0] game_id;
 
+assign main_addr  = cpu_addr[18:1];
 assign debug_view = debug_mux;
 assign ram_addr   = main_addr[13:1];
 assign ram_we     = cpu_we;
@@ -80,7 +82,7 @@ jttwin16_main u_main(
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
 
-    .main_addr      ( main_addr     ),
+    .main_addr      ( cpu_addr      ),
     .rom_data       ( main_data     ),
     .rom_cs         ( main_cs       ),
     .rom_ok         ( main_ok       ),
@@ -92,6 +94,8 @@ jttwin16_main u_main(
     // Video ROM check
     .scr_data       ( lyra_data     ),
     .scr_ok         ( lyra_ok       ),
+    .obj_data       ( lyro_data     ),
+    .obj_ok         ( lyro_ok       ),
     // cabinet I/O
     .start_button   ( start_button  ),
     .coin_input     ( coin_input    ),
@@ -171,7 +175,7 @@ jttwin16_video u_video (
     .prog_addr      ( prog_addr[7:0]),
     .prog_data      ( prog_data[2:0]),
     // GFX - CPU interface
-    .cpu_addr       (main_addr[17:1]),
+    .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( ram_din[7:0]  ),
     // VRAM
     .fram_addr      ( fram_addr     ),

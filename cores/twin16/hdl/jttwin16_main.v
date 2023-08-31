@@ -22,7 +22,7 @@ module jttwin16_main(
     input                LVBL,
     // input         [ 2:0] game_id,
 
-    output        [18:1] main_addr,
+    output        [19:1] main_addr,
     output        [ 1:0] ram_dsn,
     output        [15:0] cpu_dout,
     // 8-bit interface
@@ -40,6 +40,8 @@ module jttwin16_main(
     // video ROM checks
     input         [31:0] scr_data,
     input                scr_ok,
+    input         [31:0] obj_data,
+    input                obj_ok,
 
     // video RAM outputs,
     input         [15:0] ma_dout,   // scroll A
@@ -97,11 +99,12 @@ wire        bus_cs, bus_busy, BUSn;
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-assign main_addr= A[18:1];
+assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok) | (crom_cs & ~scr_ok);
+assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok) |
+                  (crom_cs & ~scr_ok) | (orom_cs & ~obj_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -179,6 +182,7 @@ always @(posedge clk) begin
                io_cs   ? { 8'd0, cab_dout } :
                dma_cs  ? { 15'd0, dma_bsy } :
                crom_cs ? ( A[1] ? scr_data[31:16] : scr_data[15:0] ) :
+               orom_cs ? ( A[1] ? obj_data[31:16] : obj_data[15:0] ) :
                16'h0;
 end
 
