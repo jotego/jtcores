@@ -1,0 +1,106 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Aug 31 19:39:57 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/twin16/ver/game/test.fst"
+[dumpfile_mtime] "Thu Aug 31 19:39:26 2023"
+[dumpfile_size] 961001
+[savefile] "/home/jtejada/jtcores/cores/twin16/ver/game/obj.gtkw"
+[timestart] 10172
+[size] 1263 1010
+[pos] -31 -48
+*-33.084423 21190239196 19518959252 19581563100 21249257140 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.
+[sst_width] 219
+[signals_width] 266
+[sst_expanded] 1
+[sst_vpaned_height] 424
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.lhbl
+TOP.game_test.u_game.u_game.u_video.lvbl
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dr_start
+@200
+-
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(9)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(10)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(11)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(12)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(13)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(14)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(15)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+(16)TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.code[16:0]
+@1401200
+-group_end
+@24
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hsize[1:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.vsize[1:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.hpos[8:0]
+@200
+-
+@8022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.cnt[3:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.rom_addr[19:2]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.rom_ok
+@200
+-
+@28
+[color] 1
+TOP.game_test.u_game.u_game.u_video.u_obj.dr_busy
+@c00022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+@28
+(0)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(1)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(2)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(3)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(4)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(5)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(6)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(7)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(8)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(9)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(10)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(11)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(12)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(13)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(14)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(15)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(16)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+(17)TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.rom_addr[19:2]
+@1401200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.buf_din[7:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_draw.u_draw.buf_addr[8:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.done
+@8022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.scan_obj[7:0]
+@29
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.done
+[pattern_trace] 1
+[pattern_trace] 0
