@@ -99,11 +99,13 @@ reg  [ 7:0] scan_obj, lut_obj, lut_dst;
 reg  [ 6:0] ydf;
 wire        flip = 0, busy_g;
 wire [15:0] lut_din = lut_done ? 16'd0 : oram_dout;
+wire        lut_clr_end;
 
 assign oram_addr = !dma_bsy ? { 3'b110, lut_obj, ~lut_sub[1:0] } :
                     oram_we ? { 3'b110, cpw_addr } : cpr_addr;
 assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
+assign lut_clr_end = &{lut_dst, lut_sub[1:0] };
 
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
@@ -224,9 +226,9 @@ always @(posedge clk, posedge rst) begin
                 end
             endcase
         end else if( !lut_clr ) begin
-            lut_we <= 1;
-            { lut_obj, lut_sub[1:0] } <= { lut_obj, lut_sub[1:0] } + 1'd1;
-            lut_clr <= &{lut_obj, lut_sub[1:0] };
+            lut_we <= ~lut_clr_end;
+            { lut_dst, lut_sub[1:0] } <= { lut_dst, lut_sub[1:0] } + 1'd1;
+            lut_clr <= lut_clr_end;
         end else begin
             lut_we <= 0;
         end
