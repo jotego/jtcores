@@ -101,8 +101,10 @@ wire        flip = 0, busy_g;
 wire [15:0] lut_din = lut_done ? 16'd0 : oram_dout;
 wire        lut_clr_end;
 
-assign oram_addr = !dma_bsy ? { 3'b110, lut_obj, ~lut_sub[1:0] } :
-                    oram_we ? { 3'b110, cpw_addr } : cpr_addr;
+
+assign oram_addr = !dma_bsy ? { 3'b110, `ifdef NOLUTFB
+                scan_obj, scan_sub[1:0] `else lut_obj, ~lut_sub[1:0] `endif } :
+                oram_we ? { 3'b110, cpw_addr } : cpr_addr;
 assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
 assign lut_clr_end = &{lut_dst, lut_sub[1:0] };
@@ -195,45 +197,70 @@ end
 
 reg bsy_l;
 
-// frame buffer for look-up table, plus clean up
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-    end else if(cen2) begin
-        bsy_l <= dma_bsy;
-        if( !dma_bsy && bsy_l ) begin
+`ifndef NOLUTFB
+    // frame buffer for look-up table, plus clean up
+    always @(posedge clk, posedge rst) begin
+        if( rst ) begin
             lut_done <= 0;
             lut_clr  <= 0;
             lut_obj  <= 0;
             lut_sub  <= 0;
             lut_dst  <= 0;
             lut_we   <= 0;
-        end else if( !lut_done ) begin
-            lut_sub <= lut_sub + 1'd1;
-            lut_we  <= 1;
-            case( lut_sub )
-                0: begin
-                    if( !oram_dout[15] ) begin
-                        lut_sub  <= 0;
-                        lut_obj  <= lut_obj+1'd1;
+        end else if(cen2) begin
+            bsy_l <= dma_bsy;
+            if( !dma_bsy && bsy_l ) begin
+                lut_done <= 0;
+                lut_clr  <= 0;
+                lut_obj  <= 0;
+                lut_sub  <= 0;
+                lut_dst  <= 0;
+                lut_we   <= 0;
+            end else if( !lut_done ) begin
+                lut_sub <= lut_sub + 1'd1;
+                lut_we  <= 1;
+                case( lut_sub )
+                    0: begin
+                        if( !oram_dout[15] ) begin
+                            lut_sub  <= 0;
+                            lut_obj  <= lut_obj+1'd1;
+                            lut_done <= &lut_obj;
+                        end
+                    end
+                    3: begin
+                        lut_dst <= lut_dst+1'd1;
+                        lut_sub <= 0;
+                        lut_obj <= lut_obj+1'd1;
                         lut_done <= &lut_obj;
                     end
-                end
-                3: begin
-                    lut_dst <= lut_dst+1'd1;
-                    lut_sub <= 0;
-                    lut_obj <= lut_obj+1'd1;
-                    lut_done <= &lut_obj;
-                end
-            endcase
-        end else if( !lut_clr ) begin
-            lut_we <= ~lut_clr_end;
-            { lut_dst, lut_sub[1:0] } <= { lut_dst, lut_sub[1:0] } + 1'd1;
-            lut_clr <= lut_clr_end;
-        end else begin
-            lut_we <= 0;
+                endcase
+            end else if( !lut_clr ) begin
+                lut_we <= ~lut_clr_end;
+                { lut_dst, lut_sub[1:0] } <= { lut_dst, lut_sub[1:0] } + 1'd1;
+                lut_clr <= lut_clr_end;
+            end else begin
+                lut_we <= 0;
+            end
         end
     end
-end
+
+    jtframe_dual_ram16 u_copy(
+        // Port 0: LUT writting
+        .clk0   ( clk            ),
+        .data0  ( lut_din        ),
+        .addr0  ({lut_dst,~lut_sub[1:0]}),
+        .we0    ( {2{lut_we}}    ),
+        .q0     (                ),
+        // Port 1: scan
+        .clk1   ( clk            ),
+        .data1  ( 16'd0          ),
+        .addr1  ({scan_obj,scan_sub[1:0]}),
+        .we1    ( 2'b0           ),
+        .q1     ( scan_dout      )
+    );
+`else
+    assign scan_dout = oram_dout;
+`endif
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
@@ -318,20 +345,5 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-
-jtframe_dual_ram16 u_copy(
-    // Port 0: LUT writting
-    .clk0   ( clk            ),
-    .data0  ( lut_din        ),
-    .addr0  ({lut_dst,~lut_sub[1:0]}),
-    .we0    ( {2{lut_we}}    ),
-    .q0     (                ),
-    // Port 1: scan
-    .clk1   ( clk            ),
-    .data1  ( 16'd0          ),
-    .addr1  ({scan_obj,scan_sub[1:0]}),
-    .we1    ( 2'b0           ),
-    .q1     ( scan_dout      )
-);
 
 endmodule

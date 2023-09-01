@@ -171,7 +171,7 @@ git tag --force $TAG
 git push --tags --force
 
 cd $JTROOT/release
-cp -r mister mra $JTBIN
+cp -r mister mra pocket $JTBIN
 cd $JTBIN
 git add *
 git commit -m "JTFriday "$(date --date=friday +"%Y-%m-%d")
