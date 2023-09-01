@@ -8,7 +8,7 @@ while [ $# -gt 0 ]; do
         -s|--scene)
             shift
             SCENE=$1
-            OTHER="-d NOMAIN -d NOSOUND -video 2 -w"
+            OTHER="-d NOMAIN -d NOSOUND -video 3 -w"
             if [ ! -d scenes/$1 ]; then
                 echo "Cannot open folder $SCENE"
                 exit 1

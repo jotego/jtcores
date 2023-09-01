@@ -86,19 +86,21 @@ module jt00778x#(parameter CW=17)(    // sprite logic
 );
 
 reg         beflag, lvbl_l, obj_en, vflip,
-            dma_clr, dma_cen;
+            dma_clr, dma_cen, lut_done, lut_clr, lut_we;
 reg  [13:1] cpr_addr; // copy read  address
 reg  [10:1] cpw_addr; // copy write address
 wire [ 4:1] nx_cpra;
+wire [15:0] scan_dout;
 reg  [ 1:0] vsize;
-reg  [ 2:0] scan_sub;
+reg  [ 2:0] scan_sub, lut_sub;
 reg         inzone, hs_l, done, busy_l, skip;
 reg  [ 8:0] ydiff, y, vlatch;
-reg  [ 7:0] scan_obj;
+reg  [ 7:0] scan_obj, lut_obj, lut_dst;
 reg  [ 6:0] ydf;
 wire        flip = 0, busy_g;
+wire [15:0] lut_din = lut_done ? 16'd0 : oram_dout;
 
-assign oram_addr = !dma_bsy ? { 3'b110, scan_obj, scan_sub[1:0] } :
+assign oram_addr = !dma_bsy ? { 3'b110, lut_obj, ~lut_sub[1:0] } :
                     oram_we ? { 3'b110, cpw_addr } : cpr_addr;
 assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
@@ -189,6 +191,48 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+reg bsy_l;
+
+// frame buffer for look-up table, plus clean up
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+    end else if(cen2) begin
+        bsy_l <= dma_bsy;
+        if( !dma_bsy && bsy_l ) begin
+            lut_done <= 0;
+            lut_clr  <= 0;
+            lut_obj  <= 0;
+            lut_sub  <= 0;
+            lut_dst  <= 0;
+            lut_we   <= 0;
+        end else if( !lut_done ) begin
+            lut_sub <= lut_sub + 1'd1;
+            lut_we  <= 1;
+            case( lut_sub )
+                0: begin
+                    if( !oram_dout[15] ) begin
+                        lut_sub  <= 0;
+                        lut_obj  <= lut_obj+1'd1;
+                        lut_done <= &lut_obj;
+                    end
+                end
+                3: begin
+                    lut_dst <= lut_dst+1'd1;
+                    lut_sub <= 0;
+                    lut_obj <= lut_obj+1'd1;
+                    lut_done <= &lut_obj;
+                end
+            endcase
+        end else if( !lut_clr ) begin
+            lut_we <= 1;
+            { lut_obj, lut_sub[1:0] } <= { lut_obj, lut_sub[1:0] } + 1'd1;
+            lut_clr <= &{lut_obj, lut_sub[1:0] };
+        end else begin
+            lut_we <= 0;
+        end
+    end
+end
+
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
@@ -234,14 +278,14 @@ always @(posedge clk, posedge rst) begin
         end else if( !done ) begin
             scan_sub <= scan_sub + 1'd1;
             case( scan_sub )
-                1: y <= oram_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;
-                2: hpos <= (oram_dout[8:0]-obj_dx[8:0])+ 9'h69;
+                1: y <= scan_dout[8:0]-obj_dy[8:0]+9'h1f-9'h20;
+                2: hpos <= (scan_dout[8:0]-obj_dx[8:0])+ 9'h69;
                 3: begin
-                    skip <= ~oram_dout[15];
-                    { vflip, hflip, vsize, hsize, attr } <= oram_dout[9:0];
+                    skip <= ~scan_dout[15];
+                    { vflip, hflip, vsize, hsize, attr } <= scan_dout[9:0];
                 end
                 4: begin
-                    code[CW-1:4] <= oram_dout[0+:CW-4];
+                    code[CW-1:4] <= scan_dout[0+:CW-4];
                     code[3:0] <= 0;
                     ydf <= ydiff[6:0]^{7{vflip}};
                 end
@@ -273,19 +317,19 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// jtframe_dual_ram u_copy(
-//     // Port 0: DMA
-//     .clk0   ( clk            ),
-//     .data0  ( oram_din        ),
-//     .addr0  ( dma_wr_addr    ),
-//     .we0    ( oram_we         ),
-//     .q0     (                ),
-//     // Port 1: scan
-//     .clk1   ( clk            ),
-//     .data1  ( 8'd0           ),
-//     .addr1  ( scan_addr      ),
-//     .we1    ( 1'b0           ),
-//     .q1     ( oram_dout      )
-// );
+jtframe_dual_ram16 u_copy(
+    // Port 0: LUT writting
+    .clk0   ( clk            ),
+    .data0  ( lut_din        ),
+    .addr0  ({lut_dst,~lut_sub[1:0]}),
+    .we0    ( {2{lut_we}}    ),
+    .q0     (                ),
+    // Port 1: scan
+    .clk1   ( clk            ),
+    .data1  ( 16'd0          ),
+    .addr1  ({scan_obj,scan_sub[1:0]}),
+    .we1    ( 2'b0           ),
+    .q1     ( scan_dout      )
+);
 
 endmodule
