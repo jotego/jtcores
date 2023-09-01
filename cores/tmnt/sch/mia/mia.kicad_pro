@@ -247,7 +247,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "tmnt2.kicad_pro",
+    "filename": "mia.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -324,32 +324,8 @@
   },
   "sheets": [
     [
-      "df39d662-4aa2-4ddc-b42d-33d6757a8623",
+      "1238c66e-8f06-4c8d-96f0-038f50aa7834",
       ""
-    ],
-    [
-      "ad1c418d-6d5d-4320-8c4a-2418e63949be",
-      "colmix"
-    ],
-    [
-      "78ffae6e-b754-4ff0-aaab-f5e038ba4a01",
-      "objects"
-    ],
-    [
-      "f83f1ce0-d795-402e-aef8-a0e131f12b70",
-      "scroll"
-    ],
-    [
-      "3143681d-7ec5-4f5d-8c64-72e9526821c2",
-      "sound"
-    ],
-    [
-      "3646ae6b-b442-459b-90c3-3178fe7652f7",
-      "pcm_snd"
-    ],
-    [
-      "30ddccaa-8577-4b03-b520-f990d504cdd0",
-      "main2obj"
     ]
   ],
   "text_variables": {}

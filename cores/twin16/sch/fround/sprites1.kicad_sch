@@ -1871,40 +1871,7 @@
           (stroke (width 0) (type default))
           (fill (type background))
         )
-        (polyline
-          (pts
-            (xy -5.08 20.955)
-            (xy -2.54 20.955)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 22.225)
-            (xy 0 24.765)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 2.54 20.955)
-            (xy 5.08 20.955)
-          )
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
         (text "4M-BIT(512K x 8/256K x 16)" (at -1.27 1.27 900)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "A" (at -4.445 21.59 0)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "B" (at 0.635 24.13 0)
-          (effects (font (size 0.762 0.762)))
-        )
-        (text "C" (at 4.445 21.59 0)
           (effects (font (size 0.762 0.762)))
         )
         (text "CMOS MASK ROM" (at 7.62 -20.32 900)
@@ -1912,18 +1879,6 @@
         )
         (text "Depending on ~{BYTE}" (at 1.27 0 900)
           (effects (font (size 0.762 0.762)))
-        )
-      )
-      (symbol "MX23C4100_0_1"
-        (polyline
-          (pts
-            (xy 2.54 20.955)
-            (xy -2.54 23.495)
-            (xy -2.54 18.415)
-            (xy 2.54 20.955)
-          )
-          (stroke (width 0.254) (type default))
-          (fill (type background))
         )
       )
       (symbol "MX23C4100_1_1"
@@ -3191,8 +3146,8 @@
     )
   )
 
-  (bus_alias "DMARW" (members "DMA" "~{LWR}" "~{UWR}"))
   (bus_alias "ULRW" (members "~{URW}" "~{LRW}"))
+  (bus_alias "DMARW" (members "DMA" "~{LWR}" "~{UWR}"))
   (junction (at 29.21 107.95) (diameter 0) (color 0 0 0 0)
     (uuid 0b6f429f-a8ef-465a-9031-1c6ac5c42178)
   )
@@ -9677,7 +9632,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 60e2a40c-b914-41fb-b306-f016e348fa69)
   )
-  (text "007793\n\nCLK21B = CLK21\n\n~~{LRW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n        BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (~8H & HFLIP + 8H & ~HFLIP) +\n       ~DMAINIT & ~~{LWR}\n\n~~{URW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n	   BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (8H & ~HFLIP + ~8H & HFLIP) +\n       ~~{UWR} & ~DMAINIT"
+  (text "007793\n\nCLK21B = CLK21\n\n~~{LRW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n         BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (~8H & HFLIP + 8H & ~HFLIP) +\n        ~DMAINIT & ~~{LWR}\n\n~~{URW} = ~{DMAONS} & OBJBUFINIT & CLK21B +\n	    BEFLAG & DMA & P1H & ~{DMAONS} & CLK21B & (8H & ~HFLIP + ~8H & HFLIP) +\n        ~~{UWR} & ~DMAINIT"
     (at 15.24 281.94 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 947831ab-84a0-449c-940e-f807ea4d21ce)
@@ -10940,8 +10895,8 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 9afc0834-f28a-490e-8781-532108a131ec)
   )
-  (label "OCHF" (at 195.58 177.8 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
+  (label "OCHF" (at 200.66 177.8 180) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 9b23ebdc-d04a-4282-958f-2f3bf9fce8f3)
   )
   (label "D10" (at 100.33 130.81 0) (fields_autoplaced)
@@ -11504,8 +11459,8 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid ed4ff205-83ee-4b83-a54b-fc3ef9932cb8)
   )
-  (label "BEFLAG" (at 100.33 161.29 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
+  (label "BEFLAG" (at 107.95 161.29 180) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid ee78414d-f68a-43cc-b9bb-132327fe811b)
   )
   (label "W3" (at 389.89 111.76 0) (fields_autoplaced)
@@ -12890,7 +12845,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS32") (at 102.87 184.15 0) (unit 3)
+  (symbol (lib_id "jt74:74LS32") (at 102.87 184.15 0) (unit 3) (convert 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6a679b62-ecc8-4050-9d5d-a491b22e96d5)
     (property "Reference" "U190" (at 103.3719 184.3154 0)
@@ -13529,7 +13484,7 @@
     )
   )
 
-  (symbol (lib_id "jt74:74LS32") (at 86.36 186.69 0) (unit 2)
+  (symbol (lib_id "jt74:74LS32") (at 86.36 186.69 0) (unit 2) (convert 2)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a1e4b75d-8e0e-4ff3-bc81-4118bb7743cd)
     (property "Reference" "U189" (at 86.8543 186.747 0)

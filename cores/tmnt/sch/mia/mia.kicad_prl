@@ -14,13 +14,12 @@
       "vias": 1.0,
       "zones": 0.6
     },
-    "ratsnest_display_mode": 0,
     "selection_filter": {
       "dimensions": true,
       "footprints": true,
       "graphics": true,
       "keepouts": true,
-      "lockedItems": true,
+      "lockedItems": false,
       "otherItems": true,
       "pads": true,
       "text": true,
@@ -41,7 +40,6 @@
       11,
       12,
       13,
-      14,
       15,
       16,
       17,
@@ -62,27 +60,29 @@
       33,
       34,
       35,
-      36
+      36,
+      39,
+      40
     ],
     "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "fround.kicad_prl",
+    "filename": "mia.kicad_prl",
     "version": 3
   },
   "project": {
     "files": [
       {
-        "name": "fround.kicad_sch",
+        "name": "mia.kicad_sch",
         "open": false,
         "window": {
-          "display": 1,
+          "display": 0,
           "maximized": true,
-          "pos_x": 495,
-          "pos_y": 51,
-          "size_x": 976,
-          "size_y": 1024
+          "pos_x": 2360,
+          "pos_y": 52,
+          "size_x": 978,
+          "size_y": 1052
         }
       }
     ]

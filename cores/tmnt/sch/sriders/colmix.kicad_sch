@@ -5,8 +5,8 @@
   (paper "A3")
 
   (title_block
-    (title "Teenage Mutant Ninja Turtles: Turtles in Time")
-    (date "2023-08-11")
+    (title "Sunset Riders")
+    (date "2023-08-29")
     (rev "José Tejada G.")
     (company "KONAMI PWB 352359C")
     (comment 1 "www.patreon.com/jotego")
@@ -1084,6 +1084,11 @@
     (stroke (width 0) (type default))
     (uuid 184f8452-a680-4437-a838-42229c12a2af)
   )
+  (polyline (pts (xy 152.4 101.6) (xy 160.02 101.6))
+    (stroke (width 0) (type default))
+    (uuid 18f362b8-74b0-4b13-97ec-2f511525af7a)
+  )
+
   (bus (pts (xy 191.77 210.82) (xy 229.87 210.82))
     (stroke (width 0) (type default))
     (uuid 190a667d-f043-4213-aba1-fa72f54214dc)
@@ -1727,6 +1732,11 @@
     (stroke (width 0) (type default))
     (uuid eef880e4-25d3-48c5-ac26-4e0b2abbdd86)
   )
+  (polyline (pts (xy 160.02 101.6) (xy 160.02 109.22))
+    (stroke (width 0) (type default))
+    (uuid efc94315-4ecf-4be5-876f-312c1fec5ea6)
+  )
+
   (bus (pts (xy 242.57 80.01) (xy 245.11 80.01))
     (stroke (width 0) (type default))
     (uuid f25cd91d-d338-4a02-aa12-9c11fdfa94ce)
@@ -2000,17 +2010,18 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 211847fe-baa4-441c-85cd-bca5dbcb8068)
   )
-  (text "SHEET 17" (at 132.08 83.82 0)
+  (text "SHEET 16\n" (at 132.08 83.82 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 3dc755df-011a-402f-9514-d3d6edf22a1d)
-  )
-  (text "SHEET 17" (at 91.44 99.06 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 4c050fb2-1010-4519-a5d3-0f98c2f36a11)
   )
   (text "PIN15 C18\n" (at 143.51 91.44 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 52ef69c4-428e-44da-a553-2813e7c48fc9)
+  )
+  (text "On the schematic it appears as 17F,\nbut on the PCB it is 18F."
+    (at 130.81 114.3 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 62b065a2-9da0-43d0-a0fa-3260373d8cac)
   )
   (text "PIN1 B13\n" (at 143.51 88.9 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -2401,7 +2412,7 @@
     (pin "7" (uuid 6e6b9d3a-93d1-4b38-863b-16c6852c237e))
     (pin "9" (uuid 4d412dcb-c617-468f-bdec-213393aefe0e))
     (instances
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
           (reference "G13") (unit 1)
         )
@@ -2431,7 +2442,7 @@
           (reference "#PWR?") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
           (reference "#PWR08") (unit 1)
         )
@@ -2478,8 +2489,8 @@
     (pin "25" (uuid 017430f8-c8d2-4502-aa03-930a0a72c3d7))
     (pin "27" (uuid b1eb07d8-b411-4e08-b4c4-b8410d6b74b0))
     (pin "28" (uuid f056aad0-c084-40d8-8e5a-37931ff1345c))
-    (pin "29" (uuid e75f2ffb-967e-408e-be8c-40437059cadc))
-    (pin "29" (uuid e75f2ffb-967e-408e-be8c-40437059cadc))
+    (pin "29" (uuid e75f2ffb-967e-408e-be8c-40437059cade))
+    (pin "29" (uuid e75f2ffb-967e-408e-be8c-40437059cade))
     (pin "3" (uuid bb87d422-2d14-4e0a-ab29-229328149b80))
     (pin "30" (uuid 1c94bb6a-cb29-4dd6-b2fc-7f6e5423d502))
     (pin "31" (uuid 9e85ea48-69ea-4366-ae00-8637eb239b2f))
@@ -2563,7 +2574,7 @@
           (reference "J10") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
           (reference "J4") (unit 1)
         )
@@ -2596,7 +2607,7 @@
           (reference "#PWR?") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/ad1c418d-6d5d-4320-8c4a-2418e63949be"
           (reference "#PWR09") (unit 1)
         )

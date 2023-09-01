@@ -5,8 +5,8 @@
   (paper "A3")
 
   (title_block
-    (title "Teenage Mutant Ninja Turtles: Turtles in Time")
-    (date "2023-08-11")
+    (title "Sunset Riders")
+    (date "2023-08-29")
     (rev "José Tejada G.")
     (company "KONAMI PWB 352359C")
     (comment 1 "www.patreon.com/jotego")
@@ -2056,10 +2056,6 @@
     (stroke (width 0) (type default))
     (uuid 0955f80e-e455-4377-8514-507dded4e9df)
   )
-  (wire (pts (xy 242.57 76.2) (xy 252.73 76.2))
-    (stroke (width 0) (type default))
-    (uuid 0c1b8425-78f7-4274-b417-83f7a3025035)
-  )
   (wire (pts (xy 114.3 139.7) (xy 132.08 139.7))
     (stroke (width 0) (type default))
     (uuid 0e480a0f-44cd-4298-be10-824c266945f1)
@@ -2417,6 +2413,10 @@
     (stroke (width 0) (type default))
     (uuid 63748978-1a61-4432-8244-5debdcfb70cd)
   )
+  (wire (pts (xy 242.57 78.74) (xy 252.73 78.74))
+    (stroke (width 0) (type default))
+    (uuid 63769eb7-1d76-459b-a365-00bc257a5eb1)
+  )
   (wire (pts (xy 140.97 213.36) (xy 140.97 214.63))
     (stroke (width 0) (type default))
     (uuid 646047fe-707c-4a1e-a2e4-aa9262232583)
@@ -2667,10 +2667,6 @@
     (stroke (width 0) (type default))
     (uuid a5c6698f-ecde-46a7-9a2e-7cf971d01c66)
   )
-  (wire (pts (xy 242.57 78.74) (xy 252.73 78.74))
-    (stroke (width 0) (type default))
-    (uuid a816bc81-2023-4478-8b5b-aa2d8fd36828)
-  )
   (wire (pts (xy 133.35 132.08) (xy 142.24 132.08))
     (stroke (width 0) (type default))
     (uuid a8272b25-9def-401a-9b5a-5dbc15a8de27)
@@ -2788,6 +2784,10 @@
   (wire (pts (xy 116.84 124.46) (xy 123.19 124.46))
     (stroke (width 0) (type default))
     (uuid c03b61f4-9a6c-427d-abfe-b18dc03871c1)
+  )
+  (wire (pts (xy 242.57 76.2) (xy 252.73 76.2))
+    (stroke (width 0) (type default))
+    (uuid c2a1c7c8-ac1b-450e-a10f-1fd2a17f8563)
   )
   (wire (pts (xy 242.57 66.04) (xy 269.24 66.04))
     (stroke (width 0) (type default))
@@ -3266,25 +3266,17 @@
     )
   )
 
+  (text "054253" (at 224.79 73.66 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 1230d4f6-26d9-473b-848d-303b6c1fbe20)
+  )
   (text "2.2kΩx8" (at 91.44 116.84 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 2283a985-8ff7-492e-aae1-1552373c3e31)
   )
-  (text "SHEET15 3D" (at 87.63 208.28 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 51163737-e494-4751-9977-2a20bce50467)
-  )
-  (text "SHEET17 7B\n" (at 64.77 138.43 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 64df620c-10d1-4df5-b8e6-96f6ebe098a3)
-  )
   (text "315\n88\n" (at 239.649 50.292 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 6e6f91fe-e262-4320-913d-2eba12c0c823)
-  )
-  (text "054253" (at 224.79 74.93 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 7fce5bc0-8b96-40b0-8b4e-731cf9669bd8)
   )
   (text "SR16KSL15" (at 284.48 118.11 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -3455,6 +3447,10 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 44ce56fc-ff2f-496e-b6b8-fccb5bbd35dd)
   )
+  (label "SND_A10" (at 252.73 78.74 180) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
+    (uuid 4944b139-d33a-48ce-b60e-2f3f4d5c2ff5)
+  )
   (label "SND_A3" (at 186.69 132.08 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 4a59e926-4cc7-4237-b4ed-4afaa753a7d4)
@@ -3559,6 +3555,10 @@
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 78cbbffc-1837-4059-95bc-a3649ac32c12)
   )
+  (label "SND_A9" (at 252.73 76.2 180) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
+    (uuid 7d5a7646-6d1e-440f-99c6-9195bb88102a)
+  )
   (label "SND_D7" (at 261.62 91.44 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 7e454699-c153-4dd6-9646-0bdab5217016)
@@ -3578,10 +3578,6 @@
   (label "VCC" (at 101.6 215.9 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8a3a0241-1839-4cdc-b4bb-23853af0508f)
-  )
-  (label "SND_A10" (at 252.73 78.74 180) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify right bottom))
-    (uuid 8bf500af-1ede-4a43-80cd-1982d5bacad7)
   )
   (label "~{M1}" (at 134.62 149.86 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -3714,10 +3710,6 @@
   (label "SND_D2" (at 261.62 78.74 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid d4364cad-7de5-497f-ab8a-8d516cf63504)
-  )
-  (label "SND_A9" (at 252.73 76.2 180) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify right bottom))
-    (uuid da290e08-5a8d-47d8-aae5-3c91d4a13ced)
   )
   (label "~{WAIT}" (at 167.64 204.47 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
@@ -3876,7 +3868,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F5") (unit 1)
         )
@@ -3929,7 +3921,7 @@
           (reference "D10") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F3") (unit 1)
         )
@@ -3961,7 +3953,7 @@
     (pin "7" (uuid c719ad5b-b59f-451d-923a-d2457f82f89e))
     (pin "8" (uuid f5925ad1-59ef-4837-8b18-7489e421a4e1))
     (instances
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "RN11") (unit 1)
         )
@@ -3991,7 +3983,7 @@
           (reference "#PWR0106") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR03") (unit 1)
         )
@@ -4034,7 +4026,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F5") (unit 2)
         )
@@ -4077,7 +4069,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G14") (unit 1)
         )
@@ -4102,7 +4094,7 @@
     )
     (pin "1" (uuid 26b6828c-0fa8-4927-afeb-6d9ef43e4c49))
     (instances
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR015") (unit 1)
         )
@@ -4132,7 +4124,7 @@
           (reference "#PWR0107") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR010") (unit 1)
         )
@@ -4176,7 +4168,7 @@
     (pin "8" (uuid 102c1d72-6430-4391-8e94-d19d66f7548b))
     (pin "9" (uuid 890f0423-08b5-4520-b987-33cedbdf0214))
     (instances
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "E4") (unit 1)
         )
@@ -4245,7 +4237,7 @@
           (reference "D12") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D2") (unit 1)
         )
@@ -4288,7 +4280,7 @@
           (reference "F11") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G15") (unit 4)
         )
@@ -4313,7 +4305,7 @@
     )
     (pin "1" (uuid 445c2339-3004-4804-a158-597cd4a8b3d1))
     (instances
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "#PWR016") (unit 1)
         )
@@ -4346,7 +4338,7 @@
           (reference "D9") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D1") (unit 1)
         )
@@ -4399,7 +4391,7 @@
           (reference "D8") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "D2") (unit 1)
         )
@@ -4442,7 +4434,7 @@
           (reference "C11") (unit 2)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "G14") (unit 2)
         )
@@ -4499,7 +4491,7 @@
           (reference "D14") (unit 1)
         )
       )
-      (project "tmnt2"
+      (project "sriders"
         (path "/df39d662-4aa2-4ddc-b42d-33d6757a8623/3143681d-7ec5-4f5d-8c64-72e9526821c2"
           (reference "F2") (unit 1)
         )
