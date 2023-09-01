@@ -717,6 +717,7 @@ void fround_state::fround(machine_config &config)
 	BUFFERED_SPRITERAM16(config, m_spriteram);
 
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);
+	// set_raw(u32 pixclock, u16 htotal, u16 hbend, u16 hbstart, u16 vtotal, u16 vbend, u16 vbstart)
 	m_screen->set_raw(XTAL(18'432'000)/2, 576, 0, 40*8, 264, 2*8, 30*8);
 	m_screen->set_screen_update(FUNC(twin16_state::screen_update_twin16));
 	m_screen->screen_vblank().set(FUNC(twin16_state::screen_vblank_twin16));

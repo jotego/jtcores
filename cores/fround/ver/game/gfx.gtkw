@@ -1,0 +1,49 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Aug 30 11:38:03 2023
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/twin16/ver/game/test.fst"
+[dumpfile_mtime] "Wed Aug 30 11:28:09 2023"
+[dumpfile_size] 43252467
+[savefile] "/home/jtejada/jtcores/cores/twin16/ver/game/gfx.gtkw"
+[timestart] 16663200000
+[size] 2527 1010
+[pos] -1 -1
+*-20.279799 16668011000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
+[sst_width] 219
+[signals_width] 266
+[sst_expanded] 1
+[sst_vpaned_height] 374
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.u_game.u_game.u_video.lhbl
+TOP.game_test.u_game.u_game.u_video.lvbl
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dr_start
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.beflag
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.oram_addr[13:1]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.oram_din[15:0]
+@28
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.oram_we
+@200
+-
+@29
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_bsy
+@8022
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cpr_afull[13:0]
+@22
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.cpr_afull[13:0]
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.oram_dout[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

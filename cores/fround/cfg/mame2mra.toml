@@ -8,10 +8,14 @@ skip = { machines=[
     "cuebrick",
     "mia",
     "vulcan",
-    "devilw",
 ], setnames=[
     "hpuncher",
 ] }
+
+[buttons]
+names=[
+    { machine="fround", names="Face Punch,Body Punch,Guard" },
+]
 
 [dipsw]
 delete = [ "Unused", "Unknown" ]
@@ -26,8 +30,8 @@ regions = [
     { name="data"  },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="fixed",    start="JTFRAME_BA2_START" },
-    { name="tiles"    },
-    { name="gfxrom",   start="JTFRAME_BA3_START" },
+    { name="tiles",    start="SCR_START", width=32 },
+    { name="gfxrom",   start="JTFRAME_BA3_START", width=32 },
     { name="k007232"  },
     { name="upd"  }
 ]
@@ -35,5 +39,10 @@ regions = [
 order = [
     "maincpu", "sub", "data", "audiocpu",
     "k007232", "upd",
-    "fixed", "gfxrom", "tiles"
+    "fixed", "tiles", "gfxrom"
+]
+
+patches = [
+    # skip ROM check
+    { setname="fround", offset=0x1058, data="12 11" }
 ]
