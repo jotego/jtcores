@@ -63,12 +63,6 @@ if [ ! -d "$JTUTIL" ]; then
     exit 1
 fi
 
-# Check that MiSTer is reachable
-if ! ping MiSTer.home -c 1 -W 1 > /dev/null; then
-    echo "MiSTer.home is not reachable. Fix the problem and try again"
-    exit 1
-fi
-
 MASTER=master
 CORE=$1
 CORESTAMP=$(date --date=friday +"%Y%m%d")
