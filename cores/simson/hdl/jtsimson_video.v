@@ -118,6 +118,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .pxl2_cen   ( pxl2_cen  ),
 
     // Base Video
     .lhbl       ( lhbl      ),

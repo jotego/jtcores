@@ -40,7 +40,6 @@
     {{- if .Dual_port.Name }}
     {{ if not .Dual_port.We }}output   {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}} {{.Dual_port.Name}}_we, // Dual port for {{.Dual_port.Name}}
     {{end}}{{else}}
-    {{if not $bus.ROM.Offset}}{{ if not .We }}output {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}} {{.Name}}_we,{{end}}{{end}}
     {{end}}
 {{- end}}
 {{- $first := true -}}

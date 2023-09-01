@@ -174,8 +174,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}{{end}}
     .{{ data_name . }}    ( {{ data_name . }} ),{{ if .Dual_port.Name }}
     {{ if not .Dual_port.We }}.{{.Dual_port.Name}}_we ( {{.Dual_port.Name}}_we ),  // Dual port for {{.Dual_port.Name}}{{end}}
-    {{ else }}{{ if not $bus.ROM.Offset }}{{ if not .We }}
-    .{{.Name}}_we   ( {{.Name}}_we   ), {{end}}{{end}}
+    {{ else }}{{ if not $bus.ROM.Offset }}{{end}}
     {{- end}}
 {{- end}}
     // PROM writting

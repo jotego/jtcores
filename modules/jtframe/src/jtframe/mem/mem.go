@@ -434,7 +434,7 @@ func make_ioctl( cfg *MemConfig, verbose bool ) {
 		cfg.Ioctl.Dump = true
 		cfg.Ioctl.DinName = "ioctl_aux" // block game module output
 	} else {
-		cfg.Ioctl.DinName = "ioctl_addr"	// let it come from game module
+		cfg.Ioctl.DinName = "ioctl_din"	// let it come from game module
 	}
 	// fill in blank ones
 	for k, _ := range cfg.Ioctl.Buses {
