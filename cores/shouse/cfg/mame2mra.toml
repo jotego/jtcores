@@ -1,20 +1,22 @@
 [parse]
-sourcefile=[ "twin16.cpp" ]
-parents= [
-    {name="mia",description="Missing in Action"},
-    {name="cuebrick",description="Cuebrick"}
-]
+sourcefile=[ "namcos1.cpp" ]
 skip = { machines=[
-    "cuebrick",
-    "mia",
-    "vulcan",
-], setnames=[
-    "hpuncher",
+    "shadowld",
+    "dspirit",
+    "quester",
+    "pacmania",
+    "galaga88",
+    "berabohm",
+    "mmaze",
+    "rompers",
+    "ws",
+    "boxyboy",
+    "tankfrce",
 ] }
 
 [buttons]
 names=[
-    { machine="fround", names="Face Punch,Body Punch,Guard" },
+    { machine="splatter", names="Attack,Jump" },
 ]
 
 [dipsw]
@@ -42,7 +44,7 @@ order = [
     "fixed", "tiles", "gfxrom"
 ]
 
-patches = [
-    # skip ROM check
-    { setname="fround", offset=0x1058, data="12 11" }
-]
+# patches = [
+#     # skip ROM check
+#     { setname="fround", offset=0x1058, data="12 11" }
+# ]
