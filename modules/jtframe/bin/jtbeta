@@ -187,9 +187,8 @@ git pull
 if ! grep -i "\[$CORE\]" Home.md > /dev/null; then
     ./addcore.sh $CORE
     git commit -m "Added $CORE"
-    # git push
+    git push
 fi
-
 
 # Show problems
 BETALOG=$JTROOT/log/update.log

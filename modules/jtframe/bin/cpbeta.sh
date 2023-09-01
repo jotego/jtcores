@@ -27,6 +27,7 @@ CORE=$1
 CORESTAMP=$(date --date=friday +"%Y%m%d")
 SHORTSTAMP=$(date --date=friday +"%y%m%d")
 DEST=`mktemp --directory`
+UPMR=
 
 if [ -z "$CORE" ]; then
     echo "Missing core name"
@@ -44,9 +45,12 @@ fi
 mkdir -p "$DEST"/_Arcade/cores "$DEST/mra"
 
 # MiSTer
-cp $JTROOT/release/mister/$CORE/releases/*.rbf "$DEST"/_Arcade/cores
-cp -r $JTROOT/release/mra/* "$DEST"/_Arcade
-cp -r $JTROOT/release/mra/* "$DEST"/mra
+if [ -e $JTROOT/release/mister/$CORE/releases/*.rbf ]; then
+    cp $JTROOT/release/mister/$CORE/releases/*.rbf "$DEST"/_Arcade/cores
+    cp -r $JTROOT/release/mra/* "$DEST"/_Arcade
+    cp -r $JTROOT/release/mra/* "$DEST"/mra
+    UPMR=1
+fi
 
 # MiST, SiDi
 
@@ -90,7 +94,11 @@ EOF
 function betazip {
     cat zip_comment | zip -qr --test --archive-comment -9 $*
 }
-betazip jtfriday_${SHORTSTAMP}_mister.zip _Arcade games *.md
+if [ -z "$UPMR" ]; then
+    echo "Skipping MiSTer"
+else
+    betazip jtfriday_${SHORTSTAMP}_mister.zip _Arcade games *.md
+fi
 betazip jtfriday_${SHORTSTAMP}_other.zip  mra *.md mist sidi
 betazip jtfriday_${SHORTSTAMP}_pocket.zip mra _Arcade/_alternatives *.md pocket
 

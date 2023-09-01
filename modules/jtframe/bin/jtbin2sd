@@ -106,3 +106,12 @@ wait
 if [ $CNT = 0 ]; then
     echo "Nothing done"
 fi
+
+if [[ -d /media/$USER/POCKET && -e $JTUTIL/jtbeta.zip ]]; then
+    mkdir -p /media/$USER/POCKET/Assets/jtpatreon/common
+    for i in /media/$USER/POCKET/Assets/*; do
+        if [ -d $i/common ]; then
+            unzip -q $JTUTIL/jtbeta.zip -d $i/common
+        fi
+    done
+fi
