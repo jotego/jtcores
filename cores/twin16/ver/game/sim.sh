@@ -24,7 +24,7 @@ else
     rm -f {scr*,pal,obj*}.bin
 fi
 
-jtsim $OTHER
+jtsim $OTHER -undef NOLUTFB
 
 if [[ ! -z "SCENE" && -e frames/frame_00001.jpg ]]; then
     rm -f scenes/$SCENE/frame*.jpg

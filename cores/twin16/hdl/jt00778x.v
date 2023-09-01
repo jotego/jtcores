@@ -86,7 +86,7 @@ module jt00778x#(parameter CW=17)(    // sprite logic
 );
 
 reg         beflag, lvbl_l, obj_en, vflip,
-            dma_clr, dma_cen, lut_done, lut_clr, lut_we;
+            dma_clr, dma_cen;
 reg  [13:1] cpr_addr; // copy read  address
 reg  [10:1] cpw_addr; // copy write address
 wire [ 4:1] nx_cpra;
@@ -98,8 +98,6 @@ reg  [ 8:0] ydiff, y, vlatch;
 reg  [ 7:0] scan_obj, lut_obj, lut_dst;
 reg  [ 6:0] ydf;
 wire        flip = 0, busy_g;
-wire [15:0] lut_din = lut_done ? 16'd0 : oram_dout;
-wire        lut_clr_end;
 
 
 assign oram_addr = !dma_bsy ? { 3'b110, `ifdef NOLUTFB
@@ -107,7 +105,6 @@ assign oram_addr = !dma_bsy ? { 3'b110, `ifdef NOLUTFB
                 oram_we ? { 3'b110, cpw_addr } : cpr_addr;
 assign nx_cpra   = {1'd0, cpr_addr[3:1]} + 4'd1;
 assign busy_g    = busy_l | dr_busy;
-assign lut_clr_end = &{lut_dst, lut_sub[1:0] };
 
 `ifdef SIMULATION
 wire [13:0] cpr_afull = {cpr_addr,1'b0};
@@ -199,6 +196,12 @@ reg bsy_l;
 
 `ifndef NOLUTFB
     // frame buffer for look-up table, plus clean up
+    reg lut_done, lut_clr, lut_we;
+    wire [15:0] lut_din = lut_done ? 16'd0 : oram_dout;
+    wire        lut_clr_end;
+
+    assign lut_clr_end = &{lut_dst, lut_sub[1:0] };
+
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
             lut_done <= 0;
