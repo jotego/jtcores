@@ -1656,6 +1656,9 @@
         )
       )
       (symbol "053260_1_1"
+        (text "Pulse Code Modulation" (at 0 -3.81 0)
+          (effects (font (size 0.762 0.762)))
+        )
         (pin bidirectional line (at -35.56 13.97 0) (length 5.08)
           (name "DB4" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
