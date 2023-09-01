@@ -197,7 +197,7 @@ reg bsy_l;
 `ifndef NOLUTFB
     // frame buffer for look-up table, plus clean up
     reg lut_done, lut_clr, lut_we;
-    wire [15:0] lut_din = lut_done ? 16'd0 : oram_dout;
+    wire [15:0] lut_din = lut_done ? 16'h4000 : oram_dout;
     wire        lut_clr_end;
 
     assign lut_clr_end = &{lut_dst, lut_sub[1:0] };
@@ -314,6 +314,9 @@ always @(posedge clk, posedge rst) begin
                 2: hpos <= (scan_dout[8:0]-obj_dx[8:0])+ 9'h69;
                 3: begin
                     skip <= ~scan_dout[15];
+                    if( scan_dout[14] ) begin
+                        done <= 1;
+                    end
                     { vflip, hflip, vsize, hsize, attr } <= scan_dout[9:0];
                 end
                 4: begin
