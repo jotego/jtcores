@@ -316,7 +316,6 @@ func fill_implicit_ports( macros map[string]string, cfg *MemConfig ) {
 		for _, each := range bank.Buses {
 			if each.Addr=="" { implicit[each.Name+"_addr"]=true }
 			if each.Cs=="" { implicit[each.Name+"_cs"]=true }
-			if each.Dsn=="" { implicit[each.Name+"_dsn"]=true }
 			if each.Din=="" { implicit[each.Name+"_din"]=true }
 			implicit[each.Name+"_data"]=true
 		}

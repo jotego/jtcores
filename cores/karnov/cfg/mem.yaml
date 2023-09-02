@@ -6,21 +6,11 @@ clocks:
     - freq: 8000000
       outputs:
         - cen_mcu
+        - cen_nc
     - freq: 3000000
       outputs:
         - cen_opl
         - cen_opn
-# ports:
-    # - { name: vram_we,   msb:  1 }
-    # - { name: scrram_we, msb:  1 }
-    # - { name: objram_we, msb:  1 }
-    # - { name: main_dsn,  msb:  1 }
-    # - { name: main_dout, msb: 15 }
-    # - { name: dma_addr, msb: 11, lsb: 1 }
-    # - { name: vram2main_data, msb: 15, input: true }
-    # - { name: scrram2main_data, msb: 15, input: true }
-    # - { name: objram2main_data, msb: 15, input: true }
-    # - { name: objbuf2dma_data, msb: 15, input: true }
 sdram:
   banks:
     - buses:
