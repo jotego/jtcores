@@ -269,6 +269,7 @@ always @(posedge clk, posedge rst) begin
             scan_obj <= 0;
             scan_sub <= 0;
             vlatch   <= vdump;
+            if( scan_obj!=0 ) $display("Obj scan did not finish. Last obj %X",scan_obj);
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
             case( {indr, scan_sub} )

@@ -6,4 +6,6 @@ overruns the line buffer switch, the fusuma is written on the next line and
 will not be overwritten because old sprites take priority in this game
 
 It is hard to make the logic go faster because the pixel draw process requires
-two clock cycles, precisely because of the old-sprite priority setting
+two clock cycles, precisely because of the old-sprite priority setting.
+
+There are 8us of margin in simulation since the end of
