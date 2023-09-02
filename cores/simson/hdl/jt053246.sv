@@ -116,7 +116,7 @@ reg  [ 1:0] scan_sub;
 reg  [ 8:0] vlatch, ymove;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b;
 reg  [ 7:0] scan_obj; // max 256 objects
-reg         dma_clr, dma_wait, inzone, hs_l, done, hdone, busy_l;
+reg         dma_clr, dma_wait, inzone, hs_l, done, hdone;
 wire [15:0] scan_even, scan_odd;
 reg  [15:0] dma_bufd;
 reg  [ 3:0] size;
@@ -128,7 +128,7 @@ wire        last_obj;
 reg  [18:0] yz_add;
 reg         dma_ok, vmir, hmir, sq, pre_vf, pre_hf, indr, hsl,
             vmir_eff, flicker, vs_l;
-wire        busy_g, cpu_bsy;
+wire        cpu_bsy;
 wire        ghf, gvf, dma_en;
 reg  [ 8:0] full_h, vscl, hscl, full_w;
 reg  [ 8:0] zoffset[0:255];
@@ -146,7 +146,6 @@ assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 
 assign scan_addr   = { scan_obj, scan_sub };
 assign ysub        = ydiff[3:0];
-assign busy_g      = busy_l | dr_busy;
 assign last_obj    = &scan_obj;
 
 always @(posedge clk) begin
@@ -257,12 +256,10 @@ always @(posedge clk, posedge rst) begin
         vzoom    <= 0;
         hzoom    <= 0;
         hz_keep  <= 0;
-        busy_l   <= 0;
         indr     <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         vs_l <= vs;
-        busy_l <= dr_busy;
         dr_start <= 0;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
@@ -319,7 +316,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 default: begin // in draw state
                     {indr, scan_sub} <= 5; // stay here
-                    if( (!dr_start && !busy_g) || !inzone ) begin
+                    if( (!dr_start && !dr_busy) || !inzone ) begin
                         case( size[1:0] )
                             0: {code[4],code[2],code[0]} <= hcode;
                             1: {code[4],code[2],code[0]} <= hcode + {2'd0,hstep[0]^hflip};

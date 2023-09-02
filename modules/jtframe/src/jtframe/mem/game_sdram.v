@@ -46,9 +46,6 @@ wire     {{ data_range . }} {{.Name}}_din;
 wire     {{ data_range . }} {{ data_name . }};
 {{ if .Dual_port.Name }}
 {{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
-{{end}}{{ else }}
-{{- if not $bus.ROM.Offset }}
-{{- if not .We }}wire      {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Name}}_we;{{end}}
 {{end}}{{end}}
 {{- end}}
 // SDRAM buses
